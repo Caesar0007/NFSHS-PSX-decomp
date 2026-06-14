@@ -53,9 +53,12 @@ def do_setup(module, symbol, target_o):
     work = ROOT / "permuter_work" / symbol
     work.mkdir(parents=True, exist_ok=True)
     # base.c: the recon module with relative includes made -I<recon>-resolvable
+    # absolute entry includes so the permuter's own preprocess (no -I) resolves
+    # them; nested "../.." includes then resolve from the headers' real dirs.
     src = (RECON / module).read_text()
-    src = src.replace('"../../nfs4_types.h"', '"nfs4_types.h"')
-    src = src.replace('"aiinit_externs.h"', f'"{Path(module).parent.as_posix()}/aiinit_externs.h"')
+    src = src.replace('"../../nfs4_types.h"', f'"{(RECON / "nfs4_types.h").as_posix()}"')
+    moddir = (RECON / module).parent.as_posix()
+    src = src.replace('"aiinit_externs.h"', f'"{moddir}/aiinit_externs.h"')
     (work / "base.c").write_text(src)
     (work / "target.o").write_bytes((ROOT / target_o).read_bytes())
     (work / "compile.sh").write_text(

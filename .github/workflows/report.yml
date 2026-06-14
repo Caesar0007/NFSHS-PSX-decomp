@@ -12,8 +12,10 @@ name: progress-report
 #       toolchain/psyq/CC1PSX.EXE
 #       toolchain/mips/bin/mipsel-none-elf-{cpp,as,ld,objcopy}.exe (+ DLLs)
 #       toolchain/maspsx/maspsx.py
-#   Host it (private release asset / gist / your server) and add its URL as the
-#   repo secret  TOOLCHAIN_ZIP_URL .
+#   Host it and add the download link as the repo secret  TOOLCHAIN_ZIP .
+#   A MEGA public link (mega.nz/file/...#key) is supported — CI uses megatools
+#   to download + decrypt it. (A plain direct-download URL also works if you
+#   swap the fetch step for `Invoke-WebRequest -Uri $env:URL -OutFile toolchain.zip`.)
 
 on:
   push:
@@ -31,11 +33,15 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Fetch toolchain (PsyQ cc1 + mipsel binutils + maspsx)
+      - name: Fetch toolchain (PsyQ cc1 + mipsel binutils + maspsx) from MEGA
         shell: pwsh
         run: |
-          Invoke-WebRequest -Uri "${{ secrets.TOOLCHAIN_ZIP_URL }}" -OutFile toolchain.zip
-          Expand-Archive toolchain.zip -DestinationPath ${{ github.workspace }}/tc
+          choco install megatools --no-progress -y
+          $env:Path = "$env:ChocolateyInstall\bin;" + $env:Path
+          megatools dl --no-progress "${{ secrets.TOOLCHAIN_ZIP }}"
+          $zip = Get-ChildItem -Filter *.zip | Select-Object -First 1
+          if (-not $zip) { throw "MEGA download produced no .zip" }
+          Expand-Archive $zip.FullName -DestinationPath ${{ github.workspace }}/tc -Force
 
       - name: Fetch objdiff-cli
         shell: pwsh

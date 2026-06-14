@@ -100,8 +100,9 @@ This is a per-*object* diff, so it does **not** depend on the whole-image link.
 [decomp.dev](https://decomp.dev) ingests that report via CI:
 `.github/workflows/report.yml` (windows runner, native cc1) builds it and uploads
 the artifact `nfs4-f_report`. Then add the project on decomp.dev and install its
-GitHub App. The workflow needs a one-time `TOOLCHAIN_ZIP_URL` secret (PsyQ cc1 is
-copyrighted, so it's not committed) — see the workflow header.
+GitHub App. The workflow needs a one-time `TOOLCHAIN_ZIP` secret = the toolchain
+download link (PsyQ cc1 is copyrighted, so it's not committed). A MEGA public link
+is supported (CI uses megatools to download+decrypt) — see the workflow header.
 
 ## Next steps (toward 100% match)
 

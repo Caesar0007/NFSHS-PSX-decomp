@@ -13,9 +13,9 @@ name: progress-report
 #       toolchain/mips/bin/mipsel-none-elf-{cpp,as,ld,objcopy}.exe (+ DLLs)
 #       toolchain/maspsx/maspsx.py
 #   Host it and add the download link as the repo secret  TOOLCHAIN_ZIP_URL .
-#   A MEGA public link (mega.nz/file/...#key) is supported — CI uses megatools
-#   to download + decrypt it. (A plain direct-download URL also works if you
-#   swap the fetch step for `Invoke-WebRequest -Uri $env:URL -OutFile toolchain.zip`.)
+#   A Dropbox share link works directly (the workflow forces dl=1); any other
+#   direct-download URL works too. (MEGA links need a client and are NOT
+#   supported by this fetch step.)
 
 on:
   push:
@@ -33,15 +33,16 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Fetch toolchain (PsyQ cc1 + mipsel binutils + maspsx) from MEGA
+      - name: Fetch toolchain (PsyQ cc1 + mipsel binutils + maspsx)
         shell: pwsh
         run: |
-          choco install megatools --no-progress -y
-          $env:Path = "$env:ChocolateyInstall\bin;" + $env:Path
-          megatools dl "${{ secrets.TOOLCHAIN_ZIP_URL }}"
-          $zip = Get-ChildItem -Filter *.zip | Select-Object -First 1
-          if (-not $zip) { throw "MEGA download produced no .zip" }
-          Expand-Archive $zip.FullName -DestinationPath ${{ github.workspace }}/tc -Force
+          # Direct-download link (e.g. Dropbox). Force dl=1 so Dropbox returns
+          # the file itself, not its HTML preview page. Invoke-WebRequest follows
+          # the redirect to dl.dropboxusercontent.com automatically.
+          $url = "${{ secrets.TOOLCHAIN_ZIP_URL }}" -replace 'dl=0','dl=1'
+          Invoke-WebRequest -Uri $url -OutFile toolchain.zip
+          if ((Get-Item toolchain.zip).Length -lt 1MB) { throw "download too small - not the zip (check the link / dl=1)" }
+          Expand-Archive toolchain.zip -DestinationPath ${{ github.workspace }}/tc -Force
 
       - name: Fetch objdiff-cli
         shell: pwsh

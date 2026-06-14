@@ -167,8 +167,11 @@ INCLUDE_ASM("asm/nonmatchings/main", StartArrest__14AIHigh_BTC_CopP15AIHigh_BTC_
 
 INCLUDE_ASM("asm/nonmatchings/main", FinishArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp);
 
-INCLUDE_ASM("asm/nonmatchings/main", FalseArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp);
-
+int FalseArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp(void *cop, void *perp) {
+    if (*(void **)((char *)cop + 0x58) == perp)
+        *(int *)((char *)cop + 0x60) = 2;
+    return 2;
+}
 void FreezeAndEndChase__14AIHigh_BTC_Cop(void) {
 }
 
@@ -441,8 +444,8 @@ INCLUDE_ASM("asm/nonmatchings/main", AILife_IsSliceCloseToAnyCopCar__Fi);
 
 INCLUDE_ASM("asm/nonmatchings/main", AILife_IsPositionInAnyVisibleArea__FP8coorddef);
 
-INCLUDE_ASM("asm/nonmatchings/main", AILife_Debug__FPce);
-
+void AILife_Debug__FPce(char *fmt, ...) {
+}
 INCLUDE_ASM("asm/nonmatchings/main", AIPerson_LoadGridAndSetPersonalityIndexes__Fv);
 
 INCLUDE_ASM("asm/nonmatchings/main", AIPerson_SetPersonality__FP8Car_tObji);
@@ -572,16 +575,20 @@ INCLUDE_ASM("asm/nonmatchings/main", SaveAndPurge__14AIDataRecord_t);
 
 INCLUDE_ASM("asm/nonmatchings/main", __23AIDataRecord_AccTable_tPci26AIDataRecord_WhichRecord_t);
 
-INCLUDE_ASM("asm/nonmatchings/main", Get__23AIDataRecord_AccTable_ti);
-
+int Get__23AIDataRecord_AccTable_ti(void *this, int i) {
+    short *table = *(short **)((char *)this + 0x48);
+    return table[i] << 8;
+}
 INCLUDE_ASM("asm/nonmatchings/main", Setup__23AIDataRecord_AccTable_t);
 
 INCLUDE_ASM("asm/nonmatchings/main", __23AIDataRecord_BestLine_t26AIDataRecord_WhichRecord_t);
 
 INCLUDE_ASM("asm/nonmatchings/main", __25AIDataRecord_TrackCurve_t26AIDataRecord_WhichRecord_t);
 
-INCLUDE_ASM("asm/nonmatchings/main", Get__25AIDataRecord_TrackCurve_ti);
-
+unsigned char Get__25AIDataRecord_TrackCurve_ti(void *this, int i) {
+    unsigned char *table = *(unsigned char **)((char *)this + 0x48);
+    return table[i];
+}
 INCLUDE_ASM("asm/nonmatchings/main", __30AIDataRecord_CurveSpeedTable_tPc26AIDataRecord_WhichRecord_t);
 
 INCLUDE_ASM("asm/nonmatchings/main", Get__30AIDataRecord_CurveSpeedTable_ti);
@@ -658,8 +665,9 @@ INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_CalcHumanTopSpeed__FP8Car_tObj);
 
 INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_CalcHumanCurveSpeed__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails);
-
+void AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails(void *p, void *arr) {
+    *(void **)((char *)p + 0x1C) = arr;
+}
 INCLUDE_ASM("asm/nonmatchings/main", AIScript_ClearLastReactionIndex__FP10AIScript_t);
 
 INCLUDE_ASM("asm/nonmatchings/main", AIScript_Startup__FP10AIScript_t);
@@ -704,8 +712,10 @@ INCLUDE_ASM("asm/nonmatchings/main", SetMurderMode__13AIState_Chaseii);
 
 INCLUDE_ASM("asm/nonmatchings/main", SetUp__13AIState_Chase);
 
-INCLUDE_ASM("asm/nonmatchings/main", DoSlowNitrous__13AIState_Chase);
-
+void DoSlowNitrous__13AIState_Chase(void *this) {
+    *(int *)((char *)*(void **)this + 0x73C) = 0x8000;
+    *(int *)((char *)*(void **)this + 0x740) = 0xC000;
+}
 INCLUDE_ASM("asm/nonmatchings/main", DoNitrous__13AIState_Chasei);
 
 INCLUDE_ASM("asm/nonmatchings/main", Execute__13AIState_Chase);
@@ -764,8 +774,11 @@ INCLUDE_ASM("asm/nonmatchings/main", ___14AIState_Cruise);
 
 INCLUDE_ASM("asm/nonmatchings/main", ___17AIState_GotoSlice);
 
-INCLUDE_ASM("asm/nonmatchings/main", TestForRelease__21AIState_RovingTraffic);
-
+int TestForRelease__21AIState_RovingTraffic(void *this) {
+    int f10 = *(int *)((char *)this + 0x10);
+    int fC  = *(int *)((char *)this + 0xC);
+    return !(f10 < fC);
+}
 INCLUDE_ASM("asm/nonmatchings/main", ___21AIState_RovingTraffic);
 
 void func_80072750(void) {
@@ -798,8 +811,9 @@ INCLUDE_ASM("asm/nonmatchings/main", CheckForClosestTriggerOfType__24AITrigger_T
 void DescribeTrigger__24AITrigger_TriggerManagerP9trigger_t(void) {
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", AITrigger_Compare__FPCvT0);
-
+int AITrigger_Compare__FPCvT0(const void **p1, const void **p2) {
+    return ((int *)*p1)[1] - ((int *)*p2)[1];
+}
 INCLUDE_ASM("asm/nonmatchings/main", Sort__24AITrigger_TriggerManager);
 
 INCLUDE_ASM("asm/nonmatchings/main", AITune_GetOneWay__Fv);
@@ -835,16 +849,21 @@ INCLUDE_ASM("asm/nonmatchings/main", AIWorld_SplineDistance__FP8Car_tObjT0);
 
 INCLUDE_ASM("asm/nonmatchings/main", AIWorld_SplineDistance__FP8Car_tObjiP8coorddef);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIWorld_GameOdometer__FP8Car_tObj);
-
+int AIWorld_GameOdometer__FP8Car_tObj(void *car) {
+    unsigned short v = ((unsigned short *)car)[3];
+    return (v * 3) << 17;
+}
 INCLUDE_ASM("asm/nonmatchings/main", AIWorld_IsDriveableLaneInSliceRange__Fiiii);
 
 INCLUDE_ASM("asm/nonmatchings/main", AIWorld_IsDriveableLane__Fii);
 
 INCLUDE_ASM("asm/nonmatchings/main", AIWorld_GetProfileMask__Fi);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIWorld_IsDriveableLane_UsingMask__Fii);
-
+int AIWorld_IsDriveableLane_UsingMask__Fii(int lane, int mask) {
+    char *p = (char *)(lane << 5);
+    p += (int)*(char **)0x8013C7C0;
+    return *(short *)(p + 0x16) & mask;
+}
 INCLUDE_ASM("asm/nonmatchings/main", AIWorld_CheckForBarrierBetweenLanes__Fiii);
 
 INCLUDE_ASM("asm/nonmatchings/main", AIWorld_LaneIndex__Fii);
@@ -889,8 +908,9 @@ INCLUDE_ASM("asm/nonmatchings/main", __10AnimScriptii);
 
 INCLUDE_ASM("asm/nonmatchings/main", __10AnimScriptP5Groupiii);
 
-INCLUDE_ASM("asm/nonmatchings/main", SetAnimAttrib__10AnimScripti);
-
+void SetAnimAttrib__10AnimScripti(void *this, int v) {
+    *(int *)((char *)this + 8) = v;
+}
 INCLUDE_ASM("asm/nonmatchings/main", GetAnimFrameInfo__10AnimScriptPiT1);
 
 INCLUDE_ASM("asm/nonmatchings/main", GetTimedAnimPosRot__10AnimScriptP8coorddefP10matrixtdef);
@@ -938,8 +958,9 @@ INCLUDE_ASM("asm/nonmatchings/main", AudioClc_SoundCars__Fv);
 
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_MusicLevel__Fi);
 
-INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_GetTrackRecordLapTime__Fv);
-
+int AudioCmn_GetTrackRecordLapTime__Fv(void) {
+    return *(int *)0x801132D4;
+}
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_InitThunder__Fv);
 
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_PlayThunder__Fii);
@@ -1291,12 +1312,20 @@ INCLUDE_ASM("asm/nonmatchings/main", Camera_ResetRelPos__Fi);
 
 INCLUDE_ASM("asm/nonmatchings/main", Cars_DoGravityEffectsOnAcc__FP8Car_tObji);
 
-INCLUDE_ASM("asm/nonmatchings/main", Cars_GetDashData__FP8Car_tObjPiN21);
-
+void Cars_GetDashData__FP8Car_tObjPiN21(char *car, int *speed, int *gear, int *rpm) {
+    *speed = *(int *)(car + 0x468);
+    *gear  = *(unsigned char *)(car + 0x442);
+    *rpm   = *(int *)(car + 0x420);
+}
 INCLUDE_ASM("asm/nonmatchings/main", Cars_QDUpdateVelGlue__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", Cars_InitDashData__FP8Car_tObjPiT1);
-
+void Cars_InitDashData__FP8Car_tObjPiT1(char *car, int *a, int *b) {
+    char *sec;
+    sec = *(char **)(car + 0x464);
+    *a  = *(int *)(sec + 0xF0);
+    sec = *(char **)(car + 0x464);
+    *b  = *(int *)(sec + 0xF4);
+}
 INCLUDE_ASM("asm/nonmatchings/main", Cars_SetAudioCalls__FP8Car_tObjiiiiii);
 
 INCLUDE_ASM("asm/nonmatchings/main", Cars_ResetCarCounters__Fv);
@@ -1333,8 +1362,14 @@ INCLUDE_ASM("asm/nonmatchings/main", Cars_DeInitCar__FP8Car_tObj);
 
 INCLUDE_ASM("asm/nonmatchings/main", Cars_Restart__Fv);
 
-INCLUDE_ASM("asm/nonmatchings/main", Cars_Initialize__FPci);
-
+void Cars_Initialize__FPci(char *buf, int n) {
+    int i = 0;
+    if (n <= 0) return;
+    do {
+        *buf++ = 0;
+        i++;
+    } while (i < n);
+}
 INCLUDE_ASM("asm/nonmatchings/main", Cars_StartUp__Fv);
 
 INCLUDE_ASM("asm/nonmatchings/main", Cars_CleanUp__Fv);
@@ -1698,51 +1733,49 @@ INCLUDE_ASM("asm/nonmatchings/main", GetCarBank__Q26Speech13MobileSpeakeri);
 
 INCLUDE_ASM("asm/nonmatchings/main", CarObj__Q26Speech13MobileSpeaker);
 
-INCLUDE_ASM("asm/nonmatchings/main", IsSuper__Q26Speech13MobileSpeaker);
-
+int IsSuper__Q26Speech13MobileSpeaker(void *this) {
+    unsigned int v = *(unsigned int *)((char *)*(void **)((char *)this + 0x60) + 0x260);
+    return (v >> 6) & 1;
+}
 INCLUDE_ASM("asm/nonmatchings/main", CallSign__Q26Speech15DispatchSpeaker);
 
 INCLUDE_ASM("asm/nonmatchings/main", FindClosestLocationTo__Q26Speech15DispatchSpeakeri);
 
 INCLUDE_ASM("asm/nonmatchings/main", GetCarBank__Q26Speech15DispatchSpeakeri);
 
-INCLUDE_ASM("asm/nonmatchings/main", PurgeStatusSub__Q26Speech15DispatchSpeaker);
-
+void PurgeStatusSub__Q26Speech15DispatchSpeaker(void *this) {
+    *(int *)((char *)this + 0x54) = 0;
+}
 INCLUDE_ASM("asm/nonmatchings/main", StatusSub__Q26Speech15DispatchSpeaker);
 
 INCLUDE_ASM("asm/nonmatchings/main", StatusCount__Q26Speech15DispatchSpeaker);
 
-INCLUDE_ASM("asm/nonmatchings/main", CallSign__Q26Speech7Speaker);
-
-INCLUDE_ASM("asm/nonmatchings/main", FindClosestLocationTo__Q26Speech7Speakeri);
-
-INCLUDE_ASM("asm/nonmatchings/main", GetCarBank__Q26Speech7Speakeri);
-
-INCLUDE_ASM("asm/nonmatchings/main", Perp__Q26Speech7Speaker);
-
+void *CallSign__Q26Speech7Speaker(void *this) {
+    return 0;
+}
+int FindClosestLocationTo__Q26Speech7Speakeri(void *this, int a) { return 0; }
+int GetCarBank__Q26Speech7Speakeri(void *this, int a) { return 0; }
+int Perp__Q26Speech7Speaker(void *this) { return 0; }
 void ReActivate__Q26Speech7Speaker(void) {
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", CarObj__Q26Speech7Speaker);
-
-INCLUDE_ASM("asm/nonmatchings/main", DistToPerp__Q26Speech7Speaker);
-
+void *CarObj__Q26Speech7Speaker(void *this) {
+    return 0;
+}
+int DistToPerp__Q26Speech7Speaker(void *this) {
+    return 0x03E80000;
+}
 void PurgeStatusSub__Q26Speech7Speaker(void) {
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", StatusSub__Q26Speech7Speaker);
-
-INCLUDE_ASM("asm/nonmatchings/main", StatusCount__Q26Speech7Speaker);
-
-INCLUDE_ASM("asm/nonmatchings/main", IsSuper__Q26Speech7Speaker);
-
+int StatusSub__Q26Speech7Speaker(void *this) { return 0; }
+int StatusCount__Q26Speech7Speaker(void *this) { return 0; }
+int IsSuper__Q26Speech7Speaker(void *this) { return 0; }
 void ClearPerp__Q26Speech7SpeakerP8Car_tObj(void) {
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", KnownPerp__Q26Speech7SpeakerP8Car_tObj);
-
-INCLUDE_ASM("asm/nonmatchings/main", Unit__Q26Speech7Speaker);
-
+int KnownPerp__Q26Speech7SpeakerP8Car_tObj(void *this, void *c) { return 0; }
+int Unit__Q26Speech7Speaker(void *this) { return 0; }
 void Status__Q26Speech7Speaker(void) {
 }
 
@@ -1824,8 +1857,11 @@ INCLUDE_ASM("asm/nonmatchings/main", GameSetup_StartUp__FPi);
 void GameSetup_CleanUp__Fv(void) {
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", LocateNextGroupType__15SerializedGroupi);
-
+char *LocateNextGroupType__15SerializedGroupi(char *grp, int type) {
+    char *p = grp + *(int *)(grp + 4);
+    if (*(int *)p != type) return 0;
+    return p;
+}
 INCLUDE_ASM("asm/nonmatchings/main", LocateGroupType__15SerializedGroupii);
 
 INCLUDE_ASM("asm/nonmatchings/main", LocateGroupNum__15SerializedGroupi);
@@ -2038,8 +2074,7 @@ INCLUDE_ASM("asm/nonmatchings/main", Object_GetIMassObjectDimensions__FiP8coordd
 
 INCLUDE_ASM("asm/nonmatchings/main", Object_GetIMassObjectMotion__FiP8coorddefP10matrixtdefT1);
 
-INCLUDE_ASM("asm/nonmatchings/main", Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei);
-
+int Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei(void *a, void *b, int c) { return 2; }
 INCLUDE_ASM("asm/nonmatchings/main", __15ObjectMultiAnimP8coorddefP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectP23ObjectFinishedMultiAnim);
 
 INCLUDE_ASM("asm/nonmatchings/main", Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei);
@@ -2084,8 +2119,11 @@ INCLUDE_ASM("asm/nonmatchings/main", __21tPListIteratorIndexedPsPiPc);
 
 INCLUDE_ASM("asm/nonmatchings/main", ___21tPListIteratorIndexed);
 
-INCLUDE_ASM("asm/nonmatchings/main", Value__21tPListIteratorIndexed7tPlayer);
-
+int Value__21tPListIteratorIndexed7tPlayer(char *this) {
+    unsigned char *idxp = *(unsigned char **)(this + 0xC);
+    int *array = *(int **)(this + 4);
+    return array[*idxp];
+}
 INCLUDE_ASM("asm/nonmatchings/main", TextValue__21tPListIteratorIndexed7tPlayer);
 
 INCLUDE_ASM("asm/nonmatchings/main", Increment__21tPListIteratorIndexed7tPlayer);
@@ -2096,10 +2134,8 @@ INCLUDE_ASM("asm/nonmatchings/main", __10tPMenuItemUi);
 
 INCLUDE_ASM("asm/nonmatchings/main", ___10tPMenuItem);
 
-INCLUDE_ASM("asm/nonmatchings/main", NextMenu__10tPMenuItem);
-
-INCLUDE_ASM("asm/nonmatchings/main", Debounce__10tPMenuItem);
-
+int NextMenu__10tPMenuItem(void *this) { return 0; }
+int Debounce__10tPMenuItem(void *this) { return 1; }
 void ProcessInput__10tPMenuItemR13tInputKeyTypeR13tPMenuCommand(void) {
 }
 
@@ -2127,8 +2163,7 @@ INCLUDE_ASM("asm/nonmatchings/main", __25tPMenuItemLeftRightSliderUiPic);
 
 INCLUDE_ASM("asm/nonmatchings/main", ___25tPMenuItemLeftRightSlider);
 
-INCLUDE_ASM("asm/nonmatchings/main", Debounce__25tPMenuItemLeftRightSlider);
-
+int Debounce__25tPMenuItemLeftRightSlider(void *this) { return 0; }
 INCLUDE_ASM("asm/nonmatchings/main", ProcessInput__25tPMenuItemLeftRightSliderR13tInputKeyTypeR13tPMenuCommand);
 
 INCLUDE_ASM("asm/nonmatchings/main", Draw__25tPMenuItemLeftRightSliderb);
@@ -2175,10 +2210,8 @@ INCLUDE_ASM("asm/nonmatchings/main", NumEnabledItems__6tPMenu);
 
 INCLUDE_ASM("asm/nonmatchings/main", ItemEnabledNum__6tPMenui);
 
-INCLUDE_ASM("asm/nonmatchings/main", IsNavigable__21tPMenuItemInteractive);
-
-INCLUDE_ASM("asm/nonmatchings/main", IsNavigable__28tPMenuItemNonInteractiveText);
-
+int IsNavigable__21tPMenuItemInteractive(void *this) { return 1; }
+int IsNavigable__28tPMenuItemNonInteractiveText(void *this) { return 0; }
 INCLUDE_ASM("asm/nonmatchings/main", IsEnabled__10tPMenuItem);
 
 INCLUDE_ASM("asm/nonmatchings/main", IsDisabled__10tPMenuItem);
@@ -2272,8 +2305,13 @@ INCLUDE_ASM("asm/nonmatchings/main", R3DCar_TurnHeadLightOn__FP8Car_tObji);
 
 INCLUDE_ASM("asm/nonmatchings/main", R3DCar_TurnHeadLightOff__FP8Car_tObji);
 
-INCLUDE_ASM("asm/nonmatchings/main", R3DCar_MATRIX3DT_Copy__FPiT0);
-
+void R3DCar_MATRIX3DT_Copy__FPiT0(int *src, int *dst) {
+    int i = 8;
+    do {
+        *dst++ = *src++;
+        i--;
+    } while (i != -1);
+}
 INCLUDE_ASM("asm/nonmatchings/main", R3DCar_InsertCarFacet__FP8Car_tObjP13DRender_tView);
 
 INCLUDE_ASM("asm/nonmatchings/main", R3DCar_ReadInCarTextureMenu__FP8Car_tObjPcii);
@@ -2529,8 +2567,11 @@ void Track_AnimateTrackLighting__Fv(void) {
 
 INCLUDE_ASM("asm/nonmatchings/main", KillFile_OpenRead__Fv);
 
-INCLUDE_ASM("asm/nonmatchings/main", KillFile_ReadEntry__FPciRiT2);
-
+void KillFile_ReadEntry__FPciRiT2(char *file, int i, int *hash, int *size) {
+    int *p = (int *)(file + i * 8);
+    *hash = p[1];
+    *size = p[2];
+}
 INCLUDE_ASM("asm/nonmatchings/main", Track_LoadObjectKillData__Fv);
 
 INCLUDE_ASM("asm/nonmatchings/main", Save__11SaveSurfaceP14Trk_NewSimQuad);
@@ -2568,8 +2609,13 @@ INCLUDE_ASM("asm/nonmatchings/main", Udff_Opena__FPcT0i);
 
 INCLUDE_ASM("asm/nonmatchings/main", Udff_Close__FP10Udff_tInfo);
 
-INCLUDE_ASM("asm/nonmatchings/main", Udff_GetInt__FP10Udff_tInfo);
-
+int Udff_GetInt__FP10Udff_tInfo(void *this) {
+    int **pp = (int **)((char *)this + 8);
+    int *p = *pp;
+    int v = *p;
+    *pp = p + 1;
+    return v;
+}
 INCLUDE_ASM("asm/nonmatchings/main", Udff_GetBuffer__FP10Udff_tInfoPci);
 
 INCLUDE_ASM("asm/nonmatchings/main", Audio_InitDriver__Fii);
@@ -2624,8 +2670,7 @@ INCLUDE_ASM("asm/nonmatchings/main", Device_PSXPadMulti__FUl);
 
 INCLUDE_ASM("asm/nonmatchings/main", Device_Analog__FUl);
 
-INCLUDE_ASM("asm/nonmatchings/main", Device_Null__FUl);
-
+int Device_Null__FUl(unsigned long x) { return 0; }
 INCLUDE_ASM("asm/nonmatchings/main", Draw_SetView__Fiiiiiiiii);
 
 INCLUDE_ASM("asm/nonmatchings/main", Draw_InitViews__Fv);
@@ -2677,8 +2722,9 @@ INCLUDE_ASM("asm/nonmatchings/main", Draw_DeInitRenderEngine__Fv);
 
 INCLUDE_ASM("asm/nonmatchings/main", Draw_InitLibRender__Fv);
 
-INCLUDE_ASM("asm/nonmatchings/main", ChangeTPage__FPUsi);
-
+void ChangeTPage__FPUsi(unsigned short *p, int i) {
+    *p = (*p & 0xFF9F) | (i << 5);
+}
 void DrawC_SetEnviroment__Fv(void) {
 }
 
@@ -2843,8 +2889,13 @@ INCLUDE_ASM("asm/nonmatchings/main", Flare_Tri__FPlN20i);
 
 INCLUDE_ASM("asm/nonmatchings/main", Flare_SetMatrix__FP10matrixtdef);
 
-INCLUDE_ASM("asm/nonmatchings/main", Flare_IdentMatrix__FP6MATRIX);
-
+void Flare_IdentMatrix__FP6MATRIX(int *m) {
+    m[0] = 0x1000;
+    m[1] = 0;
+    m[2] = 0x1000;
+    m[3] = 0;
+    m[4] = 0x1000;
+}
 INCLUDE_ASM("asm/nonmatchings/main", Flare_OctFlare__FPli);
 
 INCLUDE_ASM("asm/nonmatchings/main", Flare_OctFlareSpikes__FPli);
@@ -3137,8 +3188,7 @@ INCLUDE_ASM("asm/nonmatchings/main", InGame_ResetPSXController__Fii);
 
 INCLUDE_ASM("asm/nonmatchings/main", InGame_GetPSXPadValue__Fii);
 
-INCLUDE_ASM("asm/nonmatchings/main", InGame_GetDevice__Fi);
-
+int InGame_GetDevice__Fi(int x) { return x & 0xFF; }
 INCLUDE_ASM("asm/nonmatchings/main", InGame_SetRamp__Fv);
 
 INCLUDE_ASM("asm/nonmatchings/main", RPause_CopyBackToFrontBuffer__Fv);
@@ -3296,8 +3346,9 @@ INCLUDE_ASM("asm/nonmatchings/main", TrsProj_TransPtN16__FP10RelCoord16P8coordde
 
 INCLUDE_ASM("asm/nonmatchings/main", TrsProj_TransformProjectVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex);
 
-INCLUDE_ASM("asm/nonmatchings/main", Weather_GetNumParticles__Fi);
-
+int Weather_GetNumParticles__Fi(int player) {
+    return *(int *)0x80123408;
+}
 INCLUDE_ASM("asm/nonmatchings/main", Weather_SetMatrix__FP10matrixtdef);
 
 INCLUDE_ASM("asm/nonmatchings/main", Weather_SetIdentMatrix__Fv);
@@ -3404,8 +3455,18 @@ INCLUDE_ASM("asm/nonmatchings/main", FREE_findlargest);
 
 INCLUDE_ASM("asm/nonmatchings/main", FREE_add);
 
-INCLUDE_ASM("asm/nonmatchings/main", FREE_remove);
-
+void FREE_remove(int unused, char *node) {
+    char *next;
+    char *prev;
+    unsigned short flags;
+    next  = *(char **)(node + 0x14);
+    prev  = *(char **)(node + 0x10);
+    *(char **)(next + 0x10) = prev;
+    *(char **)(prev + 0x14) = next;
+    flags = *(unsigned short *)(node + 2);
+    *(unsigned short *)(node + 0) = 0;
+    *(unsigned short *)(node + 2) = flags & 0xBFFF;
+}
 INCLUDE_ASM("asm/nonmatchings/main", initmemblock);
 
 INCLUDE_ASM("asm/nonmatchings/main", MEM_infosize);
@@ -4017,8 +4078,9 @@ INCLUDE_ASM("asm/nonmatchings/main", getasyncreadstatus);
 
 INCLUDE_ASM("asm/nonmatchings/main", SetVideoMode);
 
-INCLUDE_ASM("asm/nonmatchings/main", GetVideoMode);
-
+int GetVideoMode(void) {
+    return *(int *)0x80134838;
+}
 INCLUDE_ASM("asm/nonmatchings/main", blockclear);
 
 INCLUDE_ASM("asm/nonmatchings/main", blockfill);
@@ -4105,28 +4167,55 @@ INCLUDE_ASM("asm/nonmatchings/main", getm);
 
 INCLUDE_ASM("asm/nonmatchings/main", geti);
 
-INCLUDE_ASM("asm/nonmatchings/main", putm);
-
-INCLUDE_ASM("asm/nonmatchings/main", puti);
-
+void putm(unsigned char *p, unsigned int val, int count) {
+    count--;
+    if (count < 0) return;
+    p = p + count;
+    do {
+        *p = (unsigned char)val;
+        val >>= 8;
+        count--;
+        p--;
+    } while (count >= 0);
+}
+void puti(unsigned char *p, unsigned int val, int count) {
+    count--;
+    if (count < 0) return;
+    do {
+        *p = (unsigned char)val;
+        val >>= 8;
+        count--;
+        p++;
+    } while (count >= 0);
+}
 INCLUDE_ASM("asm/nonmatchings/main", SetSemiTrans);
 
 INCLUDE_ASM("asm/nonmatchings/main", RotMatrixZ);
 
 INCLUDE_ASM("asm/nonmatchings/main", isqrt);
 
-INCLUDE_ASM("asm/nonmatchings/main", SetPolyGT4);
-
+void SetPolyGT4(unsigned char *p) {
+    p[3] = 12;
+    p[7] = 0x3C;
+}
 INCLUDE_ASM("asm/nonmatchings/main", __mulsf3);
 
-INCLUDE_ASM("asm/nonmatchings/main", SetPolyF3);
-
-INCLUDE_ASM("asm/nonmatchings/main", SetPolyF4);
-
-INCLUDE_ASM("asm/nonmatchings/main", SetPolyG4);
-
-INCLUDE_ASM("asm/nonmatchings/main", SetPolyFT4);
-
+void SetPolyF3(unsigned char *p) {
+    p[3] = 4;
+    p[7] = 0x20;
+}
+void SetPolyF4(unsigned char *p) {
+    p[3] = 5;
+    p[7] = 0x28;
+}
+void SetPolyG4(unsigned char *p) {
+    p[3] = 8;
+    p[7] = 0x38;
+}
+void SetPolyFT4(unsigned char *p) {
+    p[3] = 9;
+    p[7] = 0x2C;
+}
 INCLUDE_ASM("asm/nonmatchings/main", fixedsincos);
 
 INCLUDE_ASM("asm/nonmatchings/main", ccos);
@@ -4155,8 +4244,7 @@ INCLUDE_ASM("asm/nonmatchings/main", getfilesize);
 
 INCLUDE_ASM("asm/nonmatchings/main", stopreadfile);
 
-INCLUDE_ASM("asm/nonmatchings/main", MEM_defaultevent);
-
+int MEM_defaultevent(void *arg) { return 0; }
 INCLUDE_ASM("asm/nonmatchings/main", initmemadr);
 
 INCLUDE_ASM("asm/nonmatchings/main", inittimer);
@@ -4169,8 +4257,9 @@ INCLUDE_ASM("asm/nonmatchings/main", FlushCache);
 
 INCLUDE_ASM("asm/nonmatchings/main", shapedepth);
 
-INCLUDE_ASM("asm/nonmatchings/main", GetClut);
-
+unsigned short GetClut(int x, int y) {
+    return (y << 6) | ((x >> 4) & 0x3F);
+}
 INCLUDE_ASM("asm/nonmatchings/main", func_800F4470);
 
 INCLUDE_ASM("asm/nonmatchings/main", getcharacter);
@@ -4201,8 +4290,7 @@ INCLUDE_ASM("asm/nonmatchings/main", _comp_mant);
 
 INCLUDE_ASM("asm/nonmatchings/main", strncpy);
 
-INCLUDE_ASM("asm/nonmatchings/main", setclipwindow);
-
+int setclipwindow(void *p) { return 0; }
 INCLUDE_ASM("asm/nonmatchings/main", SetShadeTex);
 
 INCLUDE_ASM("asm/nonmatchings/main", crc16);
@@ -4219,8 +4307,11 @@ INCLUDE_ASM("asm/nonmatchings/main", __divsf3);
 
 INCLUDE_ASM("asm/nonmatchings/main", __fixdfsi);
 
-INCLUDE_ASM("asm/nonmatchings/main", checkrect);
-
+void checkrect(unsigned short *rect) {
+    if (rect[2] & 1) {
+        rect[3] |= 1;
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/main", vramimage);
 
 INCLUDE_ASM("asm/nonmatchings/main", vramfxya);
@@ -4351,8 +4442,11 @@ INCLUDE_ASM("asm/nonmatchings/main", CD_Restart);
 
 INCLUDE_ASM("asm/nonmatchings/main", CD_Open);
 
-INCLUDE_ASM("asm/nonmatchings/main", CD_Close);
-
+int CD_Close(int i) {
+    int *table = *(int **)0x80146CF8;
+    table[i - 1] = 0;
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/main", CD_Read);
 
 INCLUDE_ASM("asm/nonmatchings/main", CD_Stopread);
@@ -4512,8 +4606,9 @@ void yieldthread(void) {
 
 INCLUDE_ASM("asm/nonmatchings/main", allocmutex);
 
-INCLUDE_ASM("asm/nonmatchings/main", freemutex);
-
+void freemutex(int *p) {
+    *p = 0;
+}
 INCLUDE_ASM("asm/nonmatchings/main", make64);
 
 INCLUDE_ASM("asm/nonmatchings/main", divu64);
@@ -4610,8 +4705,12 @@ INCLUDE_ASM("asm/nonmatchings/main", iSPCH_MatchSample);
 
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_GetPhraseBank);
 
-INCLUDE_ASM("asm/nonmatchings/main", iSPCH_GetBankBits);
-
+unsigned char *iSPCH_GetBankBits(unsigned char *hdr) {
+    int stride = (hdr[2] & 0xF) + 2;
+    int count  = hdr[3];
+    hdr += 8;
+    return hdr + count * stride;
+}
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_ClearCycleBit);
 
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_CheckBankBit);
@@ -4664,8 +4763,9 @@ INCLUDE_ASM("asm/nonmatchings/main", iSNDdetunetolinear);
 
 INCLUDE_ASM("asm/nonmatchings/main", iSNDcalcpitch);
 
-INCLUDE_ASM("asm/nonmatchings/main", iSNDresetpatch);
-
+void iSNDresetpatch(void *p) {
+    *(int *)((char *)p + 0x90) = 0;
+}
 INCLUDE_ASM("asm/nonmatchings/main", iSNDresettimbre);
 
 INCLUDE_ASM("asm/nonmatchings/main", iSNDresolveheader);
@@ -4816,8 +4916,12 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80105DD8);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80105E2C);
 
-INCLUDE_ASM("asm/nonmatchings/main", _padCmdParaMode);
-
+void _padCmdParaMode(unsigned char *p, int mode) {
+    p[0x36] = 0x43;
+    *(unsigned char **)(p + 0x2C) = p + 0x24;
+    p[0x24] = (unsigned char)mode;
+    p[0x35] = 1;
+}
 INCLUDE_ASM("asm/nonmatchings/main", func_80105EAC);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80105EC0);
@@ -4884,8 +4988,12 @@ INCLUDE_ASM("asm/nonmatchings/main", EnterCriticalSection);
 
 INCLUDE_ASM("asm/nonmatchings/main", ResetEntryInt);
 
-INCLUDE_ASM("asm/nonmatchings/main", decodeansi);
-
+int decodeansi(unsigned char **pp) {
+    unsigned char *p = *pp;
+    int v = *p;
+    *pp = p + 1;
+    return v;
+}
 INCLUDE_ASM("asm/nonmatchings/main", remapshiftjiscode);
 
 INCLUDE_ASM("asm/nonmatchings/main", decodeshiftjis);
@@ -4902,8 +5010,12 @@ INCLUDE_ASM("asm/nonmatchings/main", PCinit);
 
 INCLUDE_ASM("asm/nonmatchings/main", PCcreat);
 
-INCLUDE_ASM("asm/nonmatchings/main", psxdevelopmentsystem);
-
+int psxdevelopmentsystem(void) {
+    unsigned short val = *(unsigned short *)0x86;
+    if (val == 0x375A) return 1;
+    if (val == 0x275A) return 0;
+    return -1;
+}
 INCLUDE_ASM("asm/nonmatchings/main", PClseek);
 
 INCLUDE_ASM("asm/nonmatchings/main", PCclose);
@@ -4922,8 +5034,9 @@ INCLUDE_ASM("asm/nonmatchings/main", _mainasu);
 
 INCLUDE_ASM("asm/nonmatchings/main", _add_mant_d);
 
-INCLUDE_ASM("asm/nonmatchings/main", TermPrim);
-
+void TermPrim(unsigned long *p) {
+    *p |= 0x00FFFFFFUL;
+}
 INCLUDE_ASM("asm/nonmatchings/main", AddPrim);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80107080);
@@ -5034,8 +5147,9 @@ INCLUDE_ASM("asm/nonmatchings/main", UserFuncOpen);
 
 INCLUDE_ASM("asm/nonmatchings/main", UserFuncExecute);
 
-INCLUDE_ASM("asm/nonmatchings/main", UserFuncComplete);
-
+int UserFuncComplete(void) {
+    return ((unsigned int)*(int *)0x8013C2E0) >> 31;
+}
 INCLUDE_ASM("asm/nonmatchings/main", _card_info);
 
 INCLUDE_ASM("asm/nonmatchings/main", _card_clear);
@@ -5096,8 +5210,9 @@ INCLUDE_ASM("asm/nonmatchings/main", iSNDdmqueuesplit);
 
 INCLUDE_ASM("asm/nonmatchings/main", iSNDdmcomplete);
 
-INCLUDE_ASM("asm/nonmatchings/main", iSNDabs);
-
+int iSNDabs(int x) {
+    return x < 0 ? -x : x;
+}
 INCLUDE_ASM("asm/nonmatchings/main", iSNDatodlrv);
 
 INCLUDE_ASM("asm/nonmatchings/main", iSNDatolrv);
@@ -5118,10 +5233,20 @@ INCLUDE_ASM("asm/nonmatchings/main", iSPCH_RuleSet);
 
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_GetRuleSettings);
 
-INCLUDE_ASM("asm/nonmatchings/main", iSPCH_CheckSentenceRules);
-
-INCLUDE_ASM("asm/nonmatchings/main", iSPCH_InitSample);
-
+int iSPCH_CheckSentenceRules(int a, int b, unsigned char *rules) {
+    int mask = rules[1] & ~b;
+    int diff = rules[2] ^ a;
+    return (diff & mask) == 0;
+}
+void iSPCH_InitSample(unsigned char *p) {
+    *(int *)(p + 4) = -1;
+    *(int *)(p + 0) = 0;
+    *(int *)(p + 8) = 0;
+    p[0xC] = 0xFF;
+    p[0xD] = 0xFF;
+    p[0xE] = 0xFF;
+    p[0xF] = 0xFF;
+}
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_UnPackSample);
 
 INCLUDE_ASM("asm/nonmatchings/main", iSNDplatformresolve);

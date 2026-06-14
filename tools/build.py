@@ -19,14 +19,24 @@ import subprocess
 import sys
 from pathlib import Path
 
+import os
+
 ROOT = Path(__file__).resolve().parent.parent
-MIPS = Path(r"C:/Tools/mips-ps1/mips/bin")
-CC1 = Path(r"C:/Temp/psq43/COMPILER/CC1PSX.EXE")
-CPP = MIPS / "mipsel-none-elf-cpp.exe"
-AS = MIPS / "mipsel-none-elf-as.exe"
-LD = MIPS / "mipsel-none-elf-ld.exe"
-OBJCOPY = MIPS / "mipsel-none-elf-objcopy.exe"
-MASPSX = Path(r"C:/Temp/maspsx-master/maspsx.py")
+
+
+def _env(name, default):
+    return Path(os.environ.get(name, default))
+
+
+# Tool locations — overridable via env so CI (or another machine) can point at
+# its own copies; defaults are this dev box.
+MIPS = _env("NFS4_MIPS_BIN", r"C:/Tools/mips-ps1/mips/bin")
+CC1 = _env("NFS4_CC1", r"C:/Temp/psq43/COMPILER/CC1PSX.EXE")
+CPP = _env("NFS4_CPP", MIPS / "mipsel-none-elf-cpp.exe")
+AS = _env("NFS4_AS", MIPS / "mipsel-none-elf-as.exe")
+LD = _env("NFS4_LD", MIPS / "mipsel-none-elf-ld.exe")
+OBJCOPY = _env("NFS4_OBJCOPY", MIPS / "mipsel-none-elf-objcopy.exe")
+MASPSX = _env("NFS4_MASPSX", r"C:/Temp/maspsx-master/maspsx.py")
 PY = sys.executable
 
 TARGET = ROOT / "rom" / "nfs4-f.exe"

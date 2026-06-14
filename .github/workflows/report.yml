@@ -1,0 +1,62 @@
+name: progress-report
+
+# Builds the objdiff progress report on every push and uploads it as the
+# artifact decomp.dev ingests (`<version>_report` -> `nfs4-f_report`).
+#
+# No splat / ROM / NFS4.MAP needed: asm/, src/ and configs/symbol_addrs.txt are
+# committed, so CI only diffs the committed asm (expected) vs source (base).
+#
+# ONE-TIME SETUP (you, once):
+#   The PsyQ cc1 is copyrighted, so it is not in this public repo. Build a zip
+#   of the Windows toolchain laid out as:
+#       toolchain/psyq/CC1PSX.EXE
+#       toolchain/mips/bin/mipsel-none-elf-{cpp,as,ld,objcopy}.exe (+ DLLs)
+#       toolchain/maspsx/maspsx.py
+#   Host it (private release asset / gist / your server) and add its URL as the
+#   repo secret  TOOLCHAIN_ZIP_URL .
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  report:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch toolchain (PsyQ cc1 + mipsel binutils + maspsx)
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "${{ secrets.TOOLCHAIN_ZIP_URL }}" -OutFile toolchain.zip
+          Expand-Archive toolchain.zip -DestinationPath ${{ github.workspace }}/tc
+
+      - name: Fetch objdiff-cli
+        shell: pwsh
+        run: |
+          $rel = Invoke-RestMethod https://api.github.com/repos/encounter/objdiff/releases/latest
+          $asset = $rel.assets | Where-Object { $_.name -like "objdiff-cli-windows-x86_64*.exe" } | Select-Object -First 1
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile objdiff-cli.exe
+
+      - name: Build expected (target) + base, generate report
+        shell: pwsh
+        env:
+          NFS4_CC1:      ${{ github.workspace }}/tc/toolchain/psyq/CC1PSX.EXE
+          NFS4_MIPS_BIN: ${{ github.workspace }}/tc/toolchain/mips/bin
+          NFS4_MASPSX:   ${{ github.workspace }}/tc/toolchain/maspsx/maspsx.py
+        run: |
+          python tools/build.py --out expected --no-link
+          python tools/build.py --skip-asm
+          ./objdiff-cli.exe report generate -p . -o nfs4-f_report.binpb -f proto
+
+      - name: Upload report artifact for decomp.dev
+        uses: actions/upload-artifact@v4
+        with:
+          name: nfs4-f_report
+          path: nfs4-f_report.binpb

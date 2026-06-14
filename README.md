@@ -82,6 +82,27 @@ py -3.12 tools/build.py clean
   `jlabel` is defined **global** in `macro.inc` so the cross-object `.word .L*`
   references resolve (labels are link-time → no byte change).
 
+## Progress tracking (objdiff / decomp.dev)
+
+`objdiff.json` diffs each unit's **target** (`expected/` = asm build = original
+bytes) against the **base** (`build/` = `--skip-asm`, only decompiled C). Generate
+the report locally:
+
+```sh
+py -3.12 tools/build.py --out expected --no-link   # target objects (once)
+py -3.12 tools/build.py --skip-asm                  # base objects
+C:/Temp/objdiff/objdiff-cli.exe report generate -p . -o build/report.binpb -f proto
+```
+
+Current baseline: **0.08 %** matched (74 / 2567 functions — the trivial stubs).
+This is a per-*object* diff, so it does **not** depend on the whole-image link.
+
+[decomp.dev](https://decomp.dev) ingests that report via CI:
+`.github/workflows/report.yml` (windows runner, native cc1) builds it and uploads
+the artifact `nfs4-f_report`. Then add the project on decomp.dev and install its
+GitHub App. The workflow needs a one-time `TOOLCHAIN_ZIP_URL` secret (PsyQ cc1 is
+copyrighted, so it's not committed) — see the workflow header.
+
 ## Next steps (toward 100% match)
 
 1. **Section layout** — `linkers/nfs4.ld` `ALIGN(.,16)`/`SUBALIGN(16)` pads

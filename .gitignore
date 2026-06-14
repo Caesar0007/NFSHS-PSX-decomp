@@ -1,0 +1,13 @@
+# build artifacts
+/build/
+*.o
+*.i
+*.elf
+
+# the copyrighted target binary is NOT committed — supply it yourself
+/rom/nfs4-f.exe
+
+# splat cache
+.splache
+*.pyc
+__pycache__/

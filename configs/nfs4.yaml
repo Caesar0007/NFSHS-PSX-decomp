@@ -1,0 +1,74 @@
+name: Need for Speed High Stakes (PSX) - main executable
+sha1: b48ea3452e64257b836623ce6fc1d71cd970ae41
+options:
+  base_path: ..
+  basename: nfs4
+  target_path: rom/nfs4-f.exe
+  platform: psx
+  compiler: GCC
+  # toolchain: real PsyQ 4.3 cc1 -> maspsx -> mipsel-none-elf-as (see tools/)
+  asm_path: asm
+  src_path: src
+  build_path: build
+  ld_script_path: linkers/nfs4.ld
+  # gp points at .sdata start (confirmed via singleton-scan + map)
+  gp_value: 0x8013C54C
+  global_vram_start: 0x80010000
+  global_vram_end: 0x80200000
+  use_legacy_include_asm: False
+  asm_function_macro: glabel
+  asm_jtbl_label_macro: jlabel
+  asm_data_macro: dlabel
+  generate_asm_macros_files: False   # custom include/decomp/include_asm.h
+  ld_symbol_header_path: linkers/nfs4_undefined.ld
+  symbol_addrs_path:
+    - configs/symbol_addrs.txt
+  undefined_funcs_auto_path: linkers/undefined_funcs_auto.txt
+  undefined_syms_auto_path: linkers/undefined_syms_auto.txt
+  section_order:
+    - .rodata
+    - .text
+    - .data
+    - .sdata
+    - .sbss
+    - .bss
+  # keep diffs small / readable
+  find_file_boundaries: True
+  disasm_unknown: True
+  suggestion_rodata_section_start: False
+
+segments:
+  - name: header
+    type: header
+    start: 0x0
+
+  - name: nfs4
+    type: code
+    start: 0x800
+    vram: 0x80010000
+    # .sbss(0x164) + .bss(0xAC24), from 0x8013DD7C to 0x80148B03
+    bss_size: 0xAD88
+    subsegments:
+      # 0x80010000-0x8005797B: main .rdata (vtables + const tables) AND the
+      # front overlay share this VRAM zone. Dump as rodata for v1; the front
+      # overlay gets its own config later (like SH main.yaml + bodyprog.yaml).
+      - [0x000800, rodata, rdata_80010000]
+
+      # 0x8005797C-0x8010CCD3: main .text — the bulk of the decomp work.
+      # type `c` -> emits asm/main/*.s (nonmatchings) + expects src/main.c
+      - [0x04817C, c, main]
+
+      # 0x8010CCD4-0x8013C54B: .data
+      - [0x0FD4D4, data, data_8010CCD4]
+
+      # 0x8013C54C-0x8013DD7B: .sdata
+      - [0x12CD4C, sdata, sdata_8013C54C]
+
+      # tail padding to image end (0x12E800)
+      - [0x12E57C, data, tail]
+
+      # bss (no file backing)
+      - { start: 0x12E800, type: sbss, vram: 0x8013DD7C, name: sbss }
+      - { start: 0x12E800, type: bss, vram: 0x8013DEE0, name: bss }
+
+  - [0x12E800]   # end marker

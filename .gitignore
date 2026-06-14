@@ -11,3 +11,4 @@
 .splache
 *.pyc
 __pycache__/
+/expected/

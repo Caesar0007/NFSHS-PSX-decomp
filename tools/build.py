@@ -32,6 +32,7 @@ PY = sys.executable
 TARGET = ROOT / "rom" / "nfs4-f.exe"
 LDSCRIPT = ROOT / "linkers" / "nfs4.ld"
 BUILD = ROOT / "build"
+OUT = BUILD  # object output root; overridden by --out
 
 ASPSX_VERSION = "2.77"
 G_VALUE = "4"               # original built with -G4
@@ -50,7 +51,7 @@ def run(cmd, **kw):
 def compile_c(src: Path, skip_asm: bool) -> Path:
     """cpp -> cc1 -> maspsx -> as => build/src/<rel>.c.o"""
     rel = src.relative_to(ROOT)
-    obj = BUILD / (str(rel) + ".o")
+    obj = OUT / (str(rel) + ".o")
     obj.parent.mkdir(parents=True, exist_ok=True)
     i_file = obj.with_suffix(".i")
     s_file = obj.with_suffix(".s")
@@ -83,7 +84,7 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
 def assemble_s(src: Path) -> Path:
     """GNU as on a splat-emitted data/header .s => build/<rel>.s.o"""
     rel = src.relative_to(ROOT)
-    obj = BUILD / (str(rel) + ".o")
+    obj = OUT / (str(rel) + ".o")
     obj.parent.mkdir(parents=True, exist_ok=True)
     r = run([AS, *AS_ARCH, "-G0", "-I", ROOT / "include", "-I", ROOT,
              src, "-o", obj], cwd=ROOT)
@@ -137,11 +138,18 @@ def clean():
 
 
 def main():
+    global OUT
     args = sys.argv[1:]
     if "clean" in args:
         clean(); return
     skip_asm = "--skip-asm" in args
-    BUILD.mkdir(exist_ok=True)
+    # objdiff base build can't link (all asm fns absent); also used to build
+    # the `expected/` target objects (no link needed for objdiff either).
+    no_link = "--no-link" in args or skip_asm
+    if "--out" in args:
+        OUT = ROOT / args[args.index("--out") + 1]
+    OUT.mkdir(parents=True, exist_ok=True)
+    print(f"== output -> {OUT.relative_to(ROOT)}  (skip_asm={skip_asm}) ==")
 
     print("== assembling data/header ==")
     for s in sorted((ROOT / "asm").glob("*.s")):
@@ -151,9 +159,11 @@ def main():
 
     print("== compiling C TUs ==")
     for c in sorted((ROOT / "src").rglob("*.c")):
-        print(f"  cc1 {c.relative_to(ROOT)}")
         compile_c(c, skip_asm)
 
+    if no_link:
+        print("== objects only (no link) ==")
+        return
     print("== linking ==")
     link_and_verify()
 

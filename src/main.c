@@ -115,8 +115,9 @@ void func_8005B488(void) {
 
 INCLUDE_ASM("asm/nonmatchings/main", func_8005B490);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_8005B4C4);
-
+int func_8005B4C4(void) {
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/main", func_8005B4CC);
 
 INCLUDE_ASM("asm/nonmatchings/main", CheckForCrimes__16AIHigh_BasicPerp);
@@ -236,8 +237,9 @@ void func_8005F624(void) {
 
 INCLUDE_ASM("asm/nonmatchings/main", func_8005F62C);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_8005F678);
-
+int func_8005F678(void) {
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/main", func_8005F680);
 
 INCLUDE_ASM("asm/nonmatchings/main", ReleaseCops__15AIHigh_BTC_Perp);
@@ -289,8 +291,9 @@ void func_80061370(void) {
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80061378);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_800613C4);
-
+int func_800613C4(void) {
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/main", func_800613CC);
 
 INCLUDE_ASM("asm/nonmatchings/main", CheckIfABlockadeCanBeSetup__13AIHigh_Player);
@@ -595,8 +598,9 @@ INCLUDE_ASM("asm/nonmatchings/main", Get__30AIDataRecord_CurveSpeedTable_ti);
 
 INCLUDE_ASM("asm/nonmatchings/main", Upgrade__30AIDataRecord_CurveSpeedTable_ti);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_8006D50C);
-
+int func_8006D50C(void) {
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/main", func_8006D514);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_8006D534);
@@ -623,8 +627,9 @@ INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_CalcOpponentCurveSpeed__FP8Car_tOb
 
 INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_BTCGetGlueFactor__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_GetNextAICar__FP8Car_tObj);
-
+int AISpeeds_GetNextAICar__FP8Car_tObj(void *a0) {
+    return *(int *)((char *)a0 + 0x768);
+}
 INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_GetPrevAICar__FP8Car_tObj);
 
 INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_GetCaravanFactor__FP8Car_tObj);
@@ -790,8 +795,9 @@ INCLUDE_ASM("asm/nonmatchings/main", ___12AIState_Idle);
 
 INCLUDE_ASM("asm/nonmatchings/main", ___14AIState_Normal);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80072830);
-
+int func_80072830(void) {
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/main", func_80072838);
 
 INCLUDE_ASM("asm/nonmatchings/main", Init__24AITrigger_TriggerManagerPc);
@@ -1721,18 +1727,21 @@ INCLUDE_ASM("asm/nonmatchings/main", Purge__Q26Speech13MobileSpeaker);
 
 INCLUDE_ASM("asm/nonmatchings/main", ReportBlockade__Q26Speech13MobileSpeaker);
 
-INCLUDE_ASM("asm/nonmatchings/main", Perp__Q26Speech13MobileSpeaker);
-
-INCLUDE_ASM("asm/nonmatchings/main", Unit__Q26Speech13MobileSpeaker);
-
+int Perp__Q26Speech13MobileSpeaker(void *a0) {
+    return *(int *)((char *)a0 + 0x64);
+}
+int Unit__Q26Speech13MobileSpeaker(void *a0) {
+    return *(int *)((char *)a0 + 0x5C);
+}
 INCLUDE_ASM("asm/nonmatchings/main", CallSign__Q26Speech13MobileSpeaker);
 
 INCLUDE_ASM("asm/nonmatchings/main", FindClosestLocationTo__Q26Speech13MobileSpeakeri);
 
 INCLUDE_ASM("asm/nonmatchings/main", GetCarBank__Q26Speech13MobileSpeakeri);
 
-INCLUDE_ASM("asm/nonmatchings/main", CarObj__Q26Speech13MobileSpeaker);
-
+int CarObj__Q26Speech13MobileSpeaker(void *a0) {
+    return *(int *)((char *)a0 + 0x60);
+}
 int IsSuper__Q26Speech13MobileSpeaker(void *this) {
     unsigned int v = *(unsigned int *)((char *)*(void **)((char *)this + 0x60) + 0x260);
     return (v >> 6) & 1;
@@ -1746,10 +1755,12 @@ INCLUDE_ASM("asm/nonmatchings/main", GetCarBank__Q26Speech15DispatchSpeakeri);
 void PurgeStatusSub__Q26Speech15DispatchSpeaker(void *this) {
     *(int *)((char *)this + 0x54) = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/main", StatusSub__Q26Speech15DispatchSpeaker);
-
-INCLUDE_ASM("asm/nonmatchings/main", StatusCount__Q26Speech15DispatchSpeaker);
-
+int StatusSub__Q26Speech15DispatchSpeaker(void *a0) {
+    return *(int *)((char *)a0 + 0x54);
+}
+int StatusCount__Q26Speech15DispatchSpeaker(void *a0) {
+    return *(int *)((char *)a0 + 0x50);
+}
 void *CallSign__Q26Speech7Speaker(void *this) {
     return 0;
 }
@@ -2180,8 +2191,9 @@ INCLUDE_ASM("asm/nonmatchings/main", __24tPMenuItemGoToMenuButtonUiP6tPMenuPFR13
 
 INCLUDE_ASM("asm/nonmatchings/main", ___24tPMenuItemGoToMenuButton);
 
-INCLUDE_ASM("asm/nonmatchings/main", NextMenu__24tPMenuItemGoToMenuButton);
-
+int NextMenu__24tPMenuItemGoToMenuButton(void *a0) {
+    return *(int *)((char *)a0 + 0xC);
+}
 INCLUDE_ASM("asm/nonmatchings/main", ProcessInput__24tPMenuItemGoToMenuButtonR13tInputKeyTypeR13tPMenuCommand);
 
 INCLUDE_ASM("asm/nonmatchings/main", __23tPMenuItemCommandButtonUi17tPMenuCommandType);
@@ -4024,8 +4036,9 @@ INCLUDE_ASM("asm/nonmatchings/main", settrans);
 
 INCLUDE_ASM("asm/nonmatchings/main", movfxya);
 
-INCLUDE_ASM("asm/nonmatchings/main", shapecount);
-
+int shapecount(void *a0) {
+    return *(int *)((char *)a0 + 0x8);
+}
 INCLUDE_ASM("asm/nonmatchings/main", shapepointer);
 
 INCLUDE_ASM("asm/nonmatchings/main", shapename);

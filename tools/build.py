@@ -37,7 +37,9 @@ AS = _env("NFS4_AS", MIPS / "mipsel-none-elf-as.exe")
 LD = _env("NFS4_LD", MIPS / "mipsel-none-elf-ld.exe")
 OBJCOPY = _env("NFS4_OBJCOPY", MIPS / "mipsel-none-elf-objcopy.exe")
 MASPSX = _env("NFS4_MASPSX", r"C:/Temp/maspsx-master/maspsx.py")
+CC1PL = _env("NFS4_CC1PL", r"C:/Temp/psq43/COMPILER/CC1PLPSX.EXE")
 PY = sys.executable
+RECON = ROOT / "recon"   # vendored reconstruction modules (C++), self-contained types
 
 TARGET = ROOT / "rom" / "nfs4-f.exe"
 LDSCRIPT = ROOT / "linkers" / "nfs4.ld"
@@ -88,6 +90,32 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
                        cwd=ROOT)
     if r.returncode or not obj.exists():
         sys.exit(f"[maspsx/as] {rel}\n{r.stdout}{r.stderr}")
+    return obj
+
+
+def compile_cpp(src: Path) -> Path:
+    """Vendored reconstruction C++ TU -> ELF via CC1PLPSX. No -D__GNUC__ so
+    nfs4_types.h uses its self-contained (PsyQ-free) type defs."""
+    rel = src.relative_to(ROOT)
+    obj = OUT / (str(rel) + ".o")
+    obj.parent.mkdir(parents=True, exist_ok=True)
+    i_file = obj.with_suffix(".i")
+    s_file = obj.with_suffix(".s")
+    r = run([CPP, "-nostdinc", "-undef", "-Dmips", "-D__mips__", "-D__psx__",
+             f"-I{RECON}", src, "-o", i_file])
+    if r.returncode:
+        sys.exit(f"[cpp++] {rel}\n{r.stderr}")
+    r = run([CC1PL, "-quiet", "-O2", f"-G{G_VALUE}", i_file, "-o", s_file])
+    if r.returncode:
+        sys.exit(f"[cc1pl] {rel}\n{r.stdout}{r.stderr}")
+    maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}",
+                  "--run-assembler", f"--gnu-as-path={AS}",
+                  *AS_ARCH, f"-G{G_VALUE}", "-I", RECON, "-o", obj]
+    r = subprocess.run([str(c) for c in maspsx_cmd],
+                       input=s_file.read_text(), capture_output=True, text=True,
+                       cwd=ROOT)
+    if r.returncode or not obj.exists():
+        sys.exit(f"[maspsx/as++] {rel}\n{r.stdout}{r.stderr}")
     return obj
 
 
@@ -170,6 +198,11 @@ def main():
     print("== compiling C TUs ==")
     for c in sorted((ROOT / "src").rglob("*.c")):
         compile_c(c, skip_asm)
+
+    if RECON.exists():
+        print("== compiling vendored reconstruction C++ TUs ==")
+        for cpp in sorted(RECON.rglob("*.cpp")):
+            compile_cpp(cpp)
 
     if no_link:
         print("== objects only (no link) ==")

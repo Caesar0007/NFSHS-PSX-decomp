@@ -1,16 +1,35 @@
 {
   "$schema": "https://raw.githubusercontent.com/encounter/objdiff/main/config.schema.json",
   "custom_make": "C:/Users/Vyacheslav/AppData/Local/Programs/Python/Python312/python.exe",
-  "custom_args": ["tools/build.py", "--skip-asm"],
+  "custom_args": [
+    "tools/build.py",
+    "--skip-asm"
+  ],
   "build_target": false,
   "build_base": true,
-  "watch_patterns": ["*.c", "*.h", "*.s", "*.inc"],
+  "watch_patterns": [
+    "*.c",
+    "*.cpp",
+    "*.h",
+    "*.s",
+    "*.inc"
+  ],
   "units": [
     {
       "name": "main",
       "target_path": "expected/src/main.c.o",
       "base_path": "build/src/main.c.o",
-      "metadata": { "source_path": "src/main.c" }
+      "metadata": {
+        "source_path": "src/main.c"
+      }
+    },
+    {
+      "name": "game/common/aiinit",
+      "target_path": "expected/src/aiinit.c.o",
+      "base_path": "build/recon/game/common/aiinit.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/common/aiinit.cpp"
+      }
     }
   ]
 }

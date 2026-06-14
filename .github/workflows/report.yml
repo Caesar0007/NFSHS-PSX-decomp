@@ -55,6 +55,7 @@ jobs:
         shell: pwsh
         env:
           NFS4_CC1:      ${{ github.workspace }}/tc/toolchain/psyq/CC1PSX.EXE
+          NFS4_CC1PL:    ${{ github.workspace }}/tc/toolchain/psyq/CC1PLPSX.EXE
           NFS4_MIPS_BIN: ${{ github.workspace }}/tc/toolchain/mips/bin
           NFS4_MASPSX:   ${{ github.workspace }}/tc/toolchain/maspsx/maspsx.py
         run: |

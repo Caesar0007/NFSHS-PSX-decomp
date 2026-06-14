@@ -1,0 +1,19 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", AI_TrafficCleanUp__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AI_TrafficStartUp__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AIInit_CleanUp1__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AIInit_CleanUp2__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AIInit_ClearAICar__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AIInit_DeInitAICar__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AIInit_DeInitAICar2__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AIInit_InitAICar__FP8Car_tObjP10Udff_tInfo);
+INCLUDE_ASM("asm/nonmatchings/main", AIInit_InitAICar2__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AIInit_IsNonStandardCarFile__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", AIInit_LoadConfigs__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AIInit_LoadPhysicsConfig__FP10Udff_tInfo);
+INCLUDE_ASM("asm/nonmatchings/main", AIInit_Reset1__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AIInit_Reset2__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AIInit_RestartAICar__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AIInit_StartUp1__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AIInit_StartUp2__Fv);

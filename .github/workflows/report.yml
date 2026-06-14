@@ -38,7 +38,7 @@ jobs:
         run: |
           choco install megatools --no-progress -y
           $env:Path = "$env:ChocolateyInstall\bin;" + $env:Path
-          megatools dl --no-progress "${{ secrets.TOOLCHAIN_ZIP }}"
+          megatools dl "${{ secrets.TOOLCHAIN_ZIP }}"
           $zip = Get-ChildItem -Filter *.zip | Select-Object -First 1
           if (-not $zip) { throw "MEGA download produced no .zip" }
           Expand-Archive $zip.FullName -DestinationPath ${{ github.workspace }}/tc -Force

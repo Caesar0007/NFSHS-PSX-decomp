@@ -1,4 +1,9 @@
 #include "common.h"
+/* auto_reloc externs */
+extern int D_8013C338;
+extern int D_80148448;
+extern int ticks;
+
 
 void AI_StartUp__Fv(void) {
 }
@@ -3647,8 +3652,9 @@ INCLUDE_ASM("asm/nonmatchings/main", SND3dpos);
 
 INCLUDE_ASM("asm/nonmatchings/main", SNDstopall);
 
-INCLUDE_ASM("asm/nonmatchings/main", gettick);
-
+int gettick(void) {
+    return ticks;
+}
 INCLUDE_ASM("asm/nonmatchings/main", elapsedticks);
 
 INCLUDE_ASM("asm/nonmatchings/main", resettick);
@@ -4764,8 +4770,9 @@ INCLUDE_ASM("asm/nonmatchings/main", iSPCH_ClearChosen);
 
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_SaveChosenSentence);
 
-INCLUDE_ASM("asm/nonmatchings/main", iSPCH_OneChosen);
-
+int iSPCH_OneChosen(void) {
+    return D_80148448;
+}
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_PlayChosen);
 
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_ChooseSentence);
@@ -5324,8 +5331,9 @@ INCLUDE_ASM("asm/nonmatchings/main", iSNDlibatodlrv);
 
 INCLUDE_ASM("asm/nonmatchings/main", iSNDgetdata);
 
-INCLUDE_ASM("asm/nonmatchings/main", ReadInitPadFlag);
-
+int ReadInitPadFlag(void) {
+    return D_8013C338;
+}
 INCLUDE_ASM("asm/nonmatchings/main", InitCARD2);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_8010C9FC);

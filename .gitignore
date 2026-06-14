@@ -12,3 +12,6 @@
 *.pyc
 __pycache__/
 /expected/
+/toolchain.zip
+/_tctest/
+/_ci*/

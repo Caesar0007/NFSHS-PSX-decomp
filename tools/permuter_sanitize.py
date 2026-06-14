@@ -1,0 +1,173 @@
+#!/usr/bin/env python3
+"""Turn a preprocessed cfront-C++ reconstruction TU into pycparser-parseable C.
+
+decomp-permuter parses its base.c with pycparser (a strict C99 parser) and then
+*regenerates* the whole TU from that AST before each compile. So the context has
+to be C pycparser accepts — yet still compile, via CC1PLPSX, to byte-identical
+code for the function under attack.
+
+That is possible here because EA's cfront reconstruction keeps everything that
+affects layout as explicit data members:
+  * vtables are explicit `__vtbl_ptr_type (*_vf)[N]` fields (no implicit vptr),
+  * inheritance is explicit `_base_X` members (no `: public Base`).
+So C++ member functions / ctors / dtors contribute nothing to any struct's size
+or field offsets, and dropping them is layout-neutral -> byte-identical.
+
+cfront `(...)`-only prototypes are kept verbatim — the real compile needs them
+(variadic vtable dispatch) and tools/run_permuter.py teaches pycparser to accept
+them, so no lossy rewrite is required.
+
+Transforms (all layout-neutral):
+  1. drop `extern "C" {` / matching `}` linkage wrappers (keep their contents),
+  2. strip struct-scope method/ctor/dtor declarations (data members kept),
+  3. `Class::method` scoped calls -> `Class__method` (only in sibling bodies).
+
+Usage:  python tools/permuter_sanitize.py <in_preprocessed.c> <out_clean.c>
+"""
+import re
+import sys
+
+
+def _is_method_line(l: str) -> bool:
+    """Inside a struct body: True if l is a C++ method/ctor/dtor declaration
+    (strip) rather than a data member (keep). Discriminator: look at the first
+    `(` — `(*name)` is a function-pointer DATA member; `name(` is a method."""
+    s = l.strip()
+    if not (s.endswith(";") or s.endswith("}")):
+        return False
+    i = l.find("(")
+    if i < 0:
+        return False
+    j = i + 1
+    while j < len(l) and l[j] == " ":
+        j += 1
+    if j < len(l) and l[j] == "*":
+        return False  # (*name) -> function-pointer data member
+    k = i - 1
+    while k >= 0 and l[k] == " ":
+        k -= 1
+    return k >= 0 and (l[k].isalnum() or l[k] == "_")  # name( -> method
+
+
+STRUCT_OPEN = re.compile(r"^\s*(typedef\s+)?(struct|union)\b.*\{\s*$")
+
+
+def sanitize(text: str) -> str:
+    lines = text.splitlines()
+    out = []
+    depth = 0
+    externc_depths = set()      # brace depths opened by `extern "C" {`
+    struct_depths = []          # stack of depths that are struct/union bodies
+    for l in lines:
+        s = l.strip()
+        # --- entering bodies (decide before counting this line's braces) ---
+        if 'extern "C"' in s and "{" in s:
+            externc_depths.add(depth)
+            depth += l.count("{") - l.count("}")
+            continue            # drop the `extern "C" {` line
+        opening_struct = STRUCT_OPEN.match(s)
+        # --- closing a tracked body ---
+        if s.startswith("}"):
+            close_depth = depth - 1
+            depth += l.count("{") - l.count("}")
+            if close_depth in externc_depths:
+                externc_depths.discard(close_depth)
+                continue        # drop the matching `}` of extern "C"
+            if struct_depths and struct_depths[-1] == close_depth:
+                struct_depths.pop()
+            out.append(l)
+            continue
+        # --- inside a struct: strip method/ctor/dtor declarations ---
+        if struct_depths and depth == struct_depths[-1] + 1 and _is_method_line(l):
+            depth += l.count("{") - l.count("}")
+            continue
+        if opening_struct:
+            struct_depths.append(depth)
+        depth += l.count("{") - l.count("}")
+        out.append(l)
+    return "\n".join(out).replace("::", "__")    # transform 3
+
+
+_KW = ("struct", "union", "enum", "typedef")
+
+
+def _fn_name(header: str):
+    """If `header` (text up to a top-level body `{`) is a function definition,
+    return its name, else None. Skips struct/union/enum/typedef bodies and
+    aggregate initializers (`= {`)."""
+    h = header.strip()
+    if h.split(None, 1)[:1] and h.split()[0] in _KW:
+        return None
+    rp = h.rfind(")")
+    if rp < 0 or "=" in h[rp:]:
+        return None
+    # match the '(' that opens the param list of this declarator
+    depth = 0
+    lp = -1
+    for i in range(rp, -1, -1):
+        if h[i] == ")":
+            depth += 1
+        elif h[i] == "(":
+            depth -= 1
+            if depth == 0:
+                lp = i
+                break
+    if lp <= 0:
+        return None
+    j = lp - 1
+    while j >= 0 and h[j] == " ":
+        j -= 1
+    k = j
+    while k >= 0 and (h[k].isalnum() or h[k] == "_"):
+        k -= 1
+    name = h[k + 1:j + 1]
+    return name if name and not name[0].isdigit() else None
+
+
+def reduce_to_fn(text: str, target: str) -> str:
+    """Keep every top-level declaration (types, globals, prototypes) but drop
+    all function *definitions* except `target`. Sibling bodies hold the C++
+    pycparser can't digest (`bool`, `new`, ...); removing them leaves a clean
+    single-function TU whose object also contains only the target function."""
+    lines = text.splitlines(keepends=True)
+    out = []
+    chunk = []          # lines of the current top-level logical unit
+    header = []         # text seen before this unit's first top-level body '{'
+    depth = 0
+    saw_body = False
+    for l in lines:
+        chunk.append(l)
+        for ch in l:
+            if ch == "{":
+                if depth == 0:
+                    saw_body = True
+                    header_text = "".join(header)
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+            elif depth == 0 and not saw_body:
+                header.append(ch)
+        if depth == 0 and (l.rstrip().endswith("}") or l.rstrip().endswith(";")):
+            name = _fn_name(header_text) if saw_body else None
+            if name is None or name == target:
+                out.extend(chunk)
+            chunk, header, saw_body = [], [], False
+    out.extend(chunk)   # trailing fragment, if any
+    return "".join(out)
+
+
+def main():
+    args = sys.argv[1:]
+    if len(args) == 2:
+        src = open(args[0]).read()
+        open(args[1], "w").write(sanitize(src))
+    elif len(args) == 4 and args[0] == "--fn":
+        # --fn <target_src_name> <in> <out>
+        src = sanitize(open(args[2]).read())
+        open(args[3], "w").write(reduce_to_fn(src, args[1]))
+    else:
+        sys.exit(__doc__)
+
+
+if __name__ == "__main__":
+    main()

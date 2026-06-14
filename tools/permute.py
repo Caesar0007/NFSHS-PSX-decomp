@@ -49,25 +49,59 @@ def do_compile(args):
     sys.exit(p.returncode)
 
 
-def do_setup(module, symbol, target_o):
+SYSCPP = Path(os.environ.get("NFS4_SYS_CPP", "cpp"))  # plain cpp on PATH
+
+
+def _demangle(symbol):
+    """cfront symbol -> C source name (params are encoded after `__F`)."""
+    return symbol.split("__F")[0] if "__F" in symbol else symbol
+
+
+def do_setup(module, symbol, asm_rel):
+    """Build a single-function permuter job:
+        base.c    = sanitized, pycparser-clean, ONLY the target function +
+                    its (method-stripped, layout-exact) type context;
+        target.o  = the original bytes, assembled from the one nonmatching .s;
+        settings  = func_name is the C source name (the object is whole-diffed,
+                    so the mangled symbol need not match)."""
+    import permuter_sanitize as san
+
+    src_name = _demangle(symbol)
     work = ROOT / "permuter_work" / symbol
     work.mkdir(parents=True, exist_ok=True)
-    # base.c: the recon module with relative includes made -I<recon>-resolvable
-    # absolute entry includes so the permuter's own preprocess (no -I) resolves
-    # them; nested "../.." includes then resolve from the headers' real dirs.
-    src = (RECON / module).read_text()
-    src = src.replace('"../../nfs4_types.h"', f'"{(RECON / "nfs4_types.h").as_posix()}"')
-    moddir = (RECON / module).parent.as_posix()
-    src = src.replace('"aiinit_externs.h"', f'"{moddir}/aiinit_externs.h"')
-    (work / "base.c").write_text(src)
-    (work / "target.o").write_bytes((ROOT / target_o).read_bytes())
+
+    # 1. preprocess the recon module to flat C++ (includes resolved); strip
+    #    comments + line markers the way the permuter's own cpp will.
+    mod = RECON / module
+    pp = subprocess.run(
+        [str(SYSCPP), "-P", "-nostdinc", "-DPERMUTER",
+         "-I", str(mod.parent), "-I", str(RECON), str(mod)],
+        capture_output=True, text=True)
+    if pp.returncode:
+        sys.exit(f"[setup cpp] {pp.stderr}")
+
+    # 2. sanitize C++ -> pycparser-clean C, then reduce to the one function.
+    base_c = san.reduce_to_fn(san.sanitize(pp.stdout), src_name)
+    if src_name not in base_c:
+        sys.exit(f"[setup] target function {src_name} not found after reduce")
+    (work / "base.c").write_text(base_c)
+
+    # 3. target.o = original bytes from the single nonmatching .s.
+    wrap = work / "_target.s"
+    wrap.write_text('.include "macro.inc"\n' + (ROOT / asm_rel).read_text())
+    r = subprocess.run([str(AS), "-EL", "-march=r3000", "-mtune=r3000", "-G0",
+                        "-I", str(ROOT / "include"), str(wrap),
+                        "-o", str(work / "target.o")], capture_output=True, text=True)
+    if r.returncode:
+        sys.exit(f"[setup as] {r.stderr}")
+
     (work / "compile.sh").write_text(
         "#!/bin/bash\n"
         f'"{sys.executable}" "{Path(__file__).as_posix()}" compile "$@"\n')
     (work / "settings.toml").write_text(
-        f'func_name = "{symbol}"\ncompiler_type = "gcc"\n')
-    print(f"created {work}")
-    print(f"run: python C:/Temp/decomp-permuter/permuter.py {work.as_posix()} -j")
+        f'func_name = "{src_name}"\ncompiler_type = "gcc"\n')
+    print(f"created {work}  (func_name={src_name})")
+    print(f"run: python tools/run_permuter.py {work.as_posix()} -j")
 
 
 def main():

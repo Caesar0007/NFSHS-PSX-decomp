@@ -12,7 +12,7 @@ name: progress-report
 #       toolchain/psyq/CC1PSX.EXE
 #       toolchain/mips/bin/mipsel-none-elf-{cpp,as,ld,objcopy}.exe (+ DLLs)
 #       toolchain/maspsx/maspsx.py
-#   Host it and add the download link as the repo secret  TOOLCHAIN_ZIP .
+#   Host it and add the download link as the repo secret  TOOLCHAIN_ZIP_URL .
 #   A MEGA public link (mega.nz/file/...#key) is supported — CI uses megatools
 #   to download + decrypt it. (A plain direct-download URL also works if you
 #   swap the fetch step for `Invoke-WebRequest -Uri $env:URL -OutFile toolchain.zip`.)
@@ -38,7 +38,7 @@ jobs:
         run: |
           choco install megatools --no-progress -y
           $env:Path = "$env:ChocolateyInstall\bin;" + $env:Path
-          megatools dl "${{ secrets.TOOLCHAIN_ZIP }}"
+          megatools dl "${{ secrets.TOOLCHAIN_ZIP_URL }}"
           $zip = Get-ChildItem -Filter *.zip | Select-Object -First 1
           if (-not $zip) { throw "MEGA download produced no .zip" }
           Expand-Archive $zip.FullName -DestinationPath ${{ github.workspace }}/tc -Force

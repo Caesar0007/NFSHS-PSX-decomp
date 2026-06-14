@@ -101,7 +101,12 @@ def compile_cpp(src: Path) -> Path:
     obj.parent.mkdir(parents=True, exist_ok=True)
     i_file = obj.with_suffix(".i")
     s_file = obj.with_suffix(".s")
-    r = run([CPP, "-nostdinc", "-undef", "-Dmips", "-D__mips__", "-D__psx__",
+    # Preprocess in C mode (-x c) so the cpp driver uses cc1, not cc1plus
+    # (the slim CI toolchain ships cc1 only). -D__cplusplus keeps the C++
+    # branches of nfs4_types.h (e.g. no `bool` typedef) — verified byte-identical
+    # to true cc1plus preprocessing. CC1PLPSX still compiles the result as C++.
+    r = run([CPP, "-x", "c", "-D__cplusplus=1", "-nostdinc", "-undef",
+             "-Dmips", "-D__mips__", "-D__psx__",
              f"-I{RECON}", src, "-o", i_file])
     if r.returncode:
         sys.exit(f"[cpp++] {rel}\n{r.stderr}")

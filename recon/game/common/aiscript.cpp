@@ -76,19 +76,19 @@ void AIScript_SubmitPlayerAction(AIScript_t *script,int humCarIndex,AIScript_tPl
 /* ---- AIScript_ProcessActionsAndReactions__FP10AIScript_ti  [@0x8006f7f0] ---- */
 void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
 {
-  AIScript_tReactionDetails (*scriptData) [7];
-  int go;
-  int one;
-  int seven;
-  int two;
+  register AIScript_tReactionDetails (*scriptData) [7] asm("$8");   /* t0 */
+  register int go    asm("$9");    /* t1 */
+  register int one   asm("$10");   /* t2 */
+  register int seven asm("$11");   /* t3 */
+  register int two   asm("$12");   /* t4 */
+  register int *lastReactionIndex asm("$7");  /* a3 */
+  unsigned int new_var;
   int iVar2;
   int newReaction;
-  AIScript_tReactionDetails (*new_var) [7];
   int newTime;
-  int *lastReactionIndex;
 
   scriptData = script->data;
-  if (script->actionIndex == 7) {
+  if ((newReaction = script->actionIndex) == 7) {   /* matching aid (permuter): cache actionIndex for the compares */
     go = 1;
     if (script->detectAction != 7) {
       script->actionIndex = script->detectAction;
@@ -96,28 +96,27 @@ void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
       script->detectAction = 7;
       script->reactionTicksLeft = 0;
       lastReactionIndex = script->lastReactionIndex + script->actionIndex;
-      one = 1;
+      new_var = *lastReactionIndex;   /* matching aid (permuter): cache the load early */
+      one = (script->reaction = 1);   /* matching aid (permuter): reuse the stored 1 (oracle's move t2,t1) */
       seven = 7;
       two = 2;
-      script->reaction = 1;
-      script->reactionIndex = *lastReactionIndex;
-      new_var = scriptData;
+      script->reactionIndex = new_var;
      loopTop:
       if (go != 0) {
         iVar2 = script->reactionIndex + 1;
         if ((iVar2 < 4) &&
-           ((newReaction = one << (u_char)(*new_var)[script->actionIndex].reaction[iVar2]) != two)) {
+           ((newReaction = one << (u_char)(*scriptData)[script->actionIndex].reaction[iVar2]) != two)) {
           script->reactionIndex = iVar2;
           *lastReactionIndex = *lastReactionIndex + 1;
         }
-        newReaction = one << (u_char)(*new_var)[script->actionIndex].reaction[script->reactionIndex];
+        newReaction = one << (u_char)(*scriptData)[script->actionIndex].reaction[script->reactionIndex];
         script->reaction = script->reaction | newReaction;
-        newTime = (u_char)(*new_var)[script->actionIndex].halfSeconds[script->reactionIndex];
+        newTime = (u_char)(*scriptData)[script->actionIndex].halfSeconds[script->reactionIndex];
         if (newTime != 0) {
           script->reactionTicksLeft = newTime << 4;
           go = 0;
         }
-        if (script->reaction == 1) {
+        if (script->reaction == one) {
           script->actionIndex = seven;
           script->detectAction = seven;
         }

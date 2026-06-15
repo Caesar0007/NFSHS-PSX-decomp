@@ -341,12 +341,13 @@ void AIInit_RestartAICar(Car_tObj *carObj)
   carObj->laneChangeSpeed = 0;
   carObj->timeOffRoad = 0;
   carObj->rampDesiredLatPos = 0;
-  carObj->accNitrous = 0x10000;
-  carObj->speedNitrous = 0x10000;
+  iVar1 = 0x10000;
+  carObj->accNitrous = iVar1;
+  carObj->speedNitrous = iVar1;
   (carObj->speechInfo).speechMode = 0;
   carObj->wipeOutEndTick = 0;
-  carObj->btcGlueModifier = 0x10000;
-  carObj->copAccMult = 0x10000;
+  carObj->btcGlueModifier = iVar1;
+  carObj->copAccMult = iVar1;
   carObj->copTopSpeed = 0x640000;
   carObj->donutMode = 0;
   carObj->laneIndex = 7;

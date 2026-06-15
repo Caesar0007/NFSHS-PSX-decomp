@@ -20,10 +20,20 @@
    match. (Missed twice; do not skip it again.)
 4. **BACKPORT byte-perfect findings to the run-tree** (see Backport rule below).
 
-### Backport rule (byte-perfect → run-tree)
+### Backport rule (byte-perfect → run-tree) — CODE *and* DATA
 When a function reaches **byte-perfect 100%** here, the match is *proof* of the original
 behavior — backport the proven **correctness** to the NFS4-F run-tree
 (`C:\Temp\claud\reconstructed_headers\tree`, `github.com/Caesar0007/NFSHSX.git`) and push.
+
+**Also backport the DATA-MAT.** Every global the data-mat materializes here must exist
+in the run-tree with the byte-proven **VA + type + size + bytes** (bss→zero, data→oracle
+bytes). The run-tree is a *full* reconstruction, so cross-module globals live in their
+owning module's `.cpp` (e.g. `AI_Info`→ai.cpp, `leaderBoard`→aispeeds.cpp,
+`AIPhysicConfig`→aiphysic.cpp, `triggerManagerTraffic`→aitriger.cpp) — there's no
+`func_va_data.cpp` there. So this is a **consistency check**: verify the run-tree's
+definition matches the byte-proven fact; if it's missing, wrong-typed, wrong-VA, or has
+placeholder/wrong initialized bytes, fix it and push. (2026-06-15: verified all 4 current
+entries already consistent — no-op that round.)
 - Backport **real value/logic bugs** the match exposed (e.g. Reset2 leaderBoard null→
   `Cars_gHumanRaceCarList[0]`; IsNonStandardCarFile `[48]=0`→`=src[48]`).
 - Do NOT backport **behavior-identical** differences: matching aids (`new_var` alias),

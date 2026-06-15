@@ -76,54 +76,64 @@ void AIScript_SubmitPlayerAction(AIScript_t *script,int humCarIndex,AIScript_tPl
 /* ---- AIScript_ProcessActionsAndReactions__FP10AIScript_ti  [@0x8006f7f0] ---- */
 void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
 {
+  AIScript_tReactionDetails (*scriptData) [7];
   int go;
+  int one;
+  int seven;
+  int two;
   int iVar2;
   int newReaction;
+  AIScript_tReactionDetails (*new_var) [7];
   int newTime;
   int *lastReactionIndex;
-  AIScript_tReactionDetails (*scriptData) [7];
 
   scriptData = script->data;
   if (script->actionIndex == 7) {
+    go = 1;
     if (script->detectAction != 7) {
-      go = 1;
       script->actionIndex = script->detectAction;
       script->actionHumCarIndex = script->detectHumCarIndex;
       script->detectAction = 7;
       script->reactionTicksLeft = 0;
       lastReactionIndex = script->lastReactionIndex + script->actionIndex;
+      one = 1;
+      seven = 7;
+      two = 2;
       script->reaction = 1;
       script->reactionIndex = *lastReactionIndex;
-      while (go) {
+      new_var = scriptData;
+     loopTop:
+      if (go != 0) {
         iVar2 = script->reactionIndex + 1;
         if ((iVar2 < 4) &&
-           ((newReaction = 1 << (u_char)(*scriptData)[script->actionIndex].reaction[iVar2]) != 2)) {
+           ((newReaction = one << (u_char)(*new_var)[script->actionIndex].reaction[iVar2]) != two)) {
           script->reactionIndex = iVar2;
           *lastReactionIndex = *lastReactionIndex + 1;
         }
-        newReaction = 1 << (u_char)(*scriptData)[script->actionIndex].reaction[script->reactionIndex];
+        newReaction = one << (u_char)(*new_var)[script->actionIndex].reaction[script->reactionIndex];
         script->reaction = script->reaction | newReaction;
-        newTime = (u_char)(*scriptData)[script->actionIndex].halfSeconds[script->reactionIndex];
+        newTime = (u_char)(*new_var)[script->actionIndex].halfSeconds[script->reactionIndex];
         if (newTime != 0) {
           script->reactionTicksLeft = newTime << 4;
           go = 0;
         }
         if (script->reaction == 1) {
-          script->actionIndex = 7;
-          script->detectAction = 7;
+          script->actionIndex = seven;
+          script->detectAction = seven;
         }
+        goto loopTop;
       }
     }
     if (script->actionIndex == 7) {
       return;
     }
   }
-  if (0 < script->reactionTicksLeft) {
-    script->reactionTicksLeft = script->reactionTicksLeft - elapsedTicks;
+  if (script->reactionTicksLeft <= 0) {
+    script->actionIndex = 7;
+    script->detectAction = 7;
     return;
   }
-  script->actionIndex = 7;
-  script->detectAction = 7;
+  script->reactionTicksLeft = script->reactionTicksLeft - elapsedTicks;
   return;
 }
 

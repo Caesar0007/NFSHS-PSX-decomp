@@ -301,12 +301,17 @@ void AIInit_ClearAICar(Car_tObj *carObj)
 }
 
 /* ---- AIInit_RestartAICar__FP8Car_tObj  [@0x800671ec] ---- */
+/* Body sourced from the NFS4-F reconstruction tree (game/common/aiinit.cpp).
+ * D_8011321C == GameSetup_gData.reverseTrack (GameSetup_gData+0x30) — standalone-
+ * symbol form matches the reloc. MATCHING AIDS (permuter, not original source):
+ * the `new_var = carObj` alias on one store + copTopSpeed-before-copAccMult ordering
+ * coax gcc's allocator (early 0x10000 -> v1, no anti-dep; li a1,1 stays first). */
 extern int D_8011321C;   /* standalone global @0x8011321C (== GameSetup_gData+0x30) */
 
 void AIInit_RestartAICar(Car_tObj *carObj)
 {
   int iVar1;
-  Car_tObj *new_var;
+  Car_tObj *new_var;   /* matching aid (permuter) */
 
   iVar1 = -1;
   if (D_8011321C == 0) {

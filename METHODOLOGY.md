@@ -10,6 +10,20 @@
 1. **Target = 100% byte-match only.** A function is "done" only at 100%. Don't
    stop at 99%; don't optimize the fuzzy %. Either it matches or it doesn't.
 2. **The asm oracle is `C:\Temp\symdump-disasm\disasm-v4.txt`** (~348k lines).
+
+### Provenance rule (sourcing + matching aids)
+- **Source each function BODY from the NFS4-F reconstruction tree**
+  (`C:\Temp\claud\reconstructed_headers\tree\game\common\*.cpp`) — the authoritative
+  reconstruction (correct field names, values, logic). Do NOT ship m2c raw-offset
+  output or invented bodies; m2c is for cross-check only.
+- **Matching-required adaptations are faithful** (same semantics, expressed for the
+  reloc/branch): e.g. a standalone symbol `D_xxxx` for `Struct.field` at that address,
+  or inverting an `if/else` to match branch direction.
+- **Matching AIDS (permuter tricks) are NOT faithful source — MARK THEM.** An aliasing
+  temp (`T *x = p;` used for one store), a no-op reorder, etc. produce byte-identical
+  output but aren't how EA wrote it. Acceptable (standard matching-decomp practice) but
+  must carry a `/* matching aid (permuter) */` comment so the source stays honest.
+  (Example: AIInit_RestartAICar's `new_var` alias + copTopSpeed reorder.)
    It is the authority for instructions, symbol names, data references, XRefs and
    jump tables. It resolves data symbols (e.g. `Paths_Paths`, `AIPhysicConfig`,
    shared-rodata format strings) that the per-function `.s` files leave bare.

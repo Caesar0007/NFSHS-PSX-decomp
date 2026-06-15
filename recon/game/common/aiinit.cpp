@@ -460,20 +460,27 @@ void AIInit_InitAICar(Car_tObj *carObj,Udff_tInfo *handle)
 /* ---- AIInit_DeInitAICar__FP8Car_tObj  [@0x800674e8] ---- */
 void AIInit_DeInitAICar(Car_tObj *carObj)
 {
-  __vtbl_ptr_type (*pa_Var1) [3];
+  /* Ghidra typed `_vf` as a pointer to a 1-byte-stride array, so the raw
+     `pa_Var1 + 4` / `pa_Var1[2] + 2` byte arithmetic lands the dispatch pfn at
+     +12 and the this-adjust delta at +8 (vtable entry[1]). Using the real
+     8-byte __vtbl_ptr_type stride here would scale those to +96/+64. */
+  char (*pa_Var1) [3];
   AIDataRecord_CurveSpeedTable_t *pAVar2;
   AIDataRecord_AccTable_t *pAVar3;
-  
+  char *nm;
+
   pAVar2 = carObj->curveSpeedTable;
   if (pAVar2 != (AIDataRecord_CurveSpeedTable_t *)0x0) {
-    pa_Var1 = (pAVar2->_base_AIDataRecord_t)._vf;
-    (**(int (**)(...))(pa_Var1 + 4))((pAVar2->_base_AIDataRecord_t).name_ + *(short *)(pa_Var1[2] + 2) + -8,3);
+    nm = (pAVar2->_base_AIDataRecord_t).name_;
+    pa_Var1 = (char (*)[3])(pAVar2->_base_AIDataRecord_t)._vf;
+    (**(int (**)(...))(pa_Var1 + 4))(nm + *(short *)(pa_Var1[2] + 2) + -8,3);
     carObj->curveSpeedTable = (AIDataRecord_CurveSpeedTable_t *)0x0;
   }
   pAVar3 = carObj->accelerationRecord;
   if (pAVar3 != (AIDataRecord_AccTable_t *)0x0) {
-    pa_Var1 = (pAVar3->_base_AIDataRecord_t)._vf;
-    (**(int (**)(...))(pa_Var1 + 4))((pAVar3->_base_AIDataRecord_t).name_ + *(short *)(pa_Var1[2] + 2) + -8,3);
+    nm = (pAVar3->_base_AIDataRecord_t).name_;
+    pa_Var1 = (char (*)[3])(pAVar3->_base_AIDataRecord_t)._vf;
+    (**(int (**)(...))(pa_Var1 + 4))(nm + *(short *)(pa_Var1[2] + 2) + -8,3);
     carObj->accelerationRecord = (AIDataRecord_AccTable_t *)0x0;
   }
   return;

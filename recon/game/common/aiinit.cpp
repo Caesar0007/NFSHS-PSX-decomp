@@ -49,7 +49,7 @@ void AIInit_StartUp1(void)
   piVar3 = inverseLaneWidthTable;
   do {
     piVar3 = piVar3 + 1;
-    iVar1 = fixeddiv(0x10000,iVar2 << 0xe);
+    iVar1 = rdiv(0x10000,iVar2 << 0xe);
     *piVar3 = iVar1;
     iVar2 = iVar2 + 1;
   } while (iVar2 < 0x50);
@@ -230,12 +230,11 @@ void AI_TrafficCleanUp(void)
 /* ---- AIInit_LoadConfigs__Fv  [@0x80066ff8] ---- */
 void AIInit_LoadConfigs(void)
 {
-  char pathname[100];
   Udff_tInfo *handle;
   char acStack_70 [104];
-  
+
   sprintf(acStack_70,"%strafcfg.dat");
-  handle = Udff_Opena((char *)0x0,"\x04",1);
+  handle = Udff_Opena((char *)0x0,trafcfg,1);
   AIInit_LoadPhysicsConfig(handle);
   Udff_Close(handle);
   return;

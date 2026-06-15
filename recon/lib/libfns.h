@@ -168,6 +168,7 @@ int filesize(...);   /* (char*) */
 int fixedatan(...);   /* (int y, int x) */
 int fixedcos(...);   /* (int angle) */
 int fixeddiv(...);   /* (int a, int b) */
+int rdiv(...);   /* (int a, int b) — reciprocal divide @0x800E4404 */
 int fixedmult(...);   /* (int, int) */
 int fixedsin(...);   /* (int angle) */
 void fixedsincos(...);   /* (int a, int *s, int *c) */

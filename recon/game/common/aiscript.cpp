@@ -75,11 +75,6 @@ void AIScript_SubmitPlayerAction(AIScript_t *script,int humCarIndex,AIScript_tPl
 /* ---- AIScript_ProcessActionsAndReactions__FP10AIScript_ti  [@0x8006f7f0] ---- */
 void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
 {
-  AIScript_tReactionDetails*scriptData[7];
-  int go;
-  int*lastReactionIndex;
-  AIScript_tAIReaction newReaction;
-  int newTime;
   bool bVar1;
   int iVar2;
   u_int uVar3;

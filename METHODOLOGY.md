@@ -113,29 +113,44 @@ Use **Python 3.12** for splat/objdiff tooling. objdiff-cli is a Windows exe — 
 
 ## Status (update this when it moves)
 
-- **aiinit unit: 13/17 functions @100%; overall decomp.dev climbing.**
-- Matched: AI_TrafficCleanUp, AIInit_CleanUp1, AIInit_CleanUp2, AIInit_DeInitAICar,
-  AIInit_DeInitAICar2, AIInit_InitAICar2, AIInit_LoadConfigs,
+- **aiinit unit: 15/17 functions @100% (88.2%); overall decomp.dev 0.561%** (past
+  the 0.5% public-listing threshold).
+- Matched (15): AI_TrafficCleanUp, AIInit_CleanUp1, AIInit_CleanUp2,
+  AIInit_DeInitAICar, AIInit_DeInitAICar2, AIInit_InitAICar2, AIInit_LoadConfigs,
   AIInit_LoadPhysicsConfig, AIInit_Reset1, AIInit_StartUp1, AI_TrafficStartUp,
-  AIInit_IsNonStandardCarFile, **AIInit_ClearAICar** (struct-assignment #5).
-- Near (committed partial), all gcc-codegen-bound:
-  - **InitAICar 98.95%** — gcc IV strength-reduction; blocked from permuter by C++ `new`.
+  AIInit_IsNonStandardCarFile, AIInit_ClearAICar, **AIInit_Reset2**, **AIInit_StartUp2**.
+- Remaining (2), both the hard gcc-codegen class:
+  - **InitAICar 98.95%** — gcc IV-ANCHOR selection. Got it down to ONLY the anchor
+    (registers/delta/structure all matchable): an explicit walking pointer anchors at
+    carObj (correct s0) but gcc re-anchors the giv to +1460 (the common invTopSpeeds
+    store); array-indexing anchors at 0 (correct) but swaps the loop regs (base=s1).
+    Neither idiom yields both → reverted to the higher-% baseline. Blocked from the
+    permuter by C++ `new`.
   - **RestartAICar 93.78%** — register coloring: original packs `iVar1` then the
-    `0x10000` fixed-point const into the same `v1` (live-range reuse), const `1` in `a1`.
-  - **Reset2 89.92%** — loop regs now CORRECT (pointer-init-first + inner-scope
-    counter) and leaderBoard now reads `Cars_gHumanRaceCarList`/`Cars_gAIRaceCarList`
-    (was zeros). Residual: leaderBoard 3-temp coloring (a1/a0/v1 vs a0/v1/a1) +
-    `blez` delay-slot `move`. Fuzzy % dipped vs the old (wrong) version — the
-    matcher penalizes correct-but-unaligned instructions; ignore the dip.
-  - **StartUp2 84.15%** — first loop regs now correct; loop-2 keeps a top-test vs
-    do-while rotation + counter/pointer/value coloring (s2/s1/s0).
-- **Key lever learned (loops):** the loop counter↔pointer register assignment is
-  driven by **init order** — initialize the *pointer* before the counter inside the
-  guarded block to get counter=s0/pointer=s1. Inner-scope `int carLoop;` matches the
-  oracle's named-local. But this only fixes the loop body; the surrounding block's
-  coloring (leaderBoard, delay-slot) is decided by gcc's *global* allocator and does
-  not yield to source shape or the permuter (Reset2 permuter plateaus at score 320).
-- **The remaining tail is the hard class:** gcc register-allocation / IV-selection /
-  loop-rotation. Each needs a per-function deterministic insight; the permuter only
-  narrows them. **Low-% functions are usually STRUCTURAL (fully fixable) — prefer
-  them** (ClearAICar went 58→100 via one struct-assignment fix).
+    `0x10000` fixed-point const into the same `v1` (live-range reuse), const `1` in
+    `a1`. Permuter improves 660→170 but never reaches 0 (regalloc, not scheduling).
+
+### ⭐ THE big lever this round — array-indexing for loops (cracked Reset2 + StartUp2)
+A loop that array-indexes a global table is NOT the same to gcc as one that walks an
+explicit pointer:
+```c
+for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++)
+    AIScript_Startup(&Cars_gList[carLoop]->script);   // gcc strength-reduces the address
+```
+- gcc creates its OWN pointer induction variable (→ gets the higher s-register, e.g. s1)
+  and keeps the int counter as a biv (→ s0), and schedules `carLoop=0` into the guard's
+  `blez` delay slot. An explicit `ppCVar = Cars_gList; *ppCVar++` pointer-walk is
+  allocated by use-order and matches neither the registers nor the delay-slot fill.
+- This fixed BOTH loops in Reset2 and StartUp2 in one shot (registers, loop-2 top-test
+  rotation, delay slot) — after a separate fix: declaring the touched globals as
+  **arrays** and indexing `[0]` (technique #3) to get the original's separate-base-reg
+  loads/coloring (this also cracked Reset2's leaderBoard temp coloring).
+- **Caveat (InitAICar):** when the loop body also needs the *base* in a low register
+  (s0) AND a 0-anchor, array-indexing vs explicit-pointer pull in opposite directions
+  and you can be stuck — that's the gcc IV-anchor wall.
+
+- **Other key lever (loops):** if you DO keep an explicit counter+pointer, init the
+  *pointer* before the counter to get counter=s0/pointer=s1; inner-scope `int carLoop;`
+  matches the oracle's named-local. But array-indexing is usually the cleaner win.
+- **Low-% functions are usually STRUCTURAL (fully fixable) — prefer them** (ClearAICar
+  58→100 via one struct-assignment #5; the array-index insight is the loop analog).

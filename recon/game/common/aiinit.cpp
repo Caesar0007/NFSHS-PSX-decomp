@@ -391,25 +391,20 @@ void AIInit_InitAICar(Car_tObj *carObj,Udff_tInfo *handle)
   iVar1 = Udff_GetInt(handle);
   carObj->redLine = iVar1;
   Udff_GetBuffer(handle,(char *)carObj->topSpeeds,0x1c);
-  iVar1 = 0;
-  iVar6 = -4;
-  pCVar5 = carObj;
-  do {
-    if (iVar1 == 0) {
+  for (gearLoop = 0, iVar6 = -4; gearLoop < 7; gearLoop = gearLoop + 1) {
+    if (gearLoop == 0) {
       iVar2 = rdiv(0x10000,carObj->topSpeeds[0]);
       carObj->invTopSpeeds[0] = iVar2;
     }
-    else if (pCVar5->topSpeeds[0] == 0) {
-      pCVar5->invTopSpeeds[0] = 0;
+    else if (carObj->topSpeeds[gearLoop] == 0) {
+      carObj->invTopSpeeds[gearLoop] = 0;
     }
     else {
-      iVar2 = rdiv(0x10000,pCVar5->topSpeeds[0] - *(int *)((int)carObj->topSpeeds + iVar6));
-      pCVar5->invTopSpeeds[0] = iVar2;
+      iVar2 = rdiv(0x10000,carObj->topSpeeds[gearLoop] - ((Car_tObj *)((int)carObj + iVar6))->topSpeeds[0]);
+      carObj->invTopSpeeds[gearLoop] = iVar2;
     }
     iVar6 = iVar6 + 4;
-    iVar1 = iVar1 + 1;
-    pCVar5 = (Car_tObj *)&(pCVar5->N).oldSlice;
-  } while (iVar1 < 7);
+  }
   Udff_GetBuffer(handle,(char *)carObj->accTable,0xe0);
   iVar1 = Udff_GetInt(handle);
   carObj->aiShiftDuration = iVar1;

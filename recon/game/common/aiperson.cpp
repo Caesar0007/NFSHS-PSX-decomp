@@ -196,6 +196,9 @@ void AIPerson_LoadGlue(Udff_tInfo *handle)
   int b;
   int *piVar2;
   int iVar3;
+  register int cmp asm("$2");   /* v0 (matching aid #13): hold the compare consts in a caller-saved
+                                 * reg so the fixedmult call forces in-loop re-materialization
+                                 * (gcc otherwise GCSE+hoists 0x10000/0xffff into s2/s3). */
 
   Udff_GetInt(handle);
   Udff_GetBuffer(handle,(char *)AIPerson_glueTable,0x54);
@@ -207,11 +210,13 @@ void AIPerson_LoadGlue(Udff_tInfo *handle)
     piVar2 = AIPerson_glueTable;
     do {
       iVar1 = *piVar2;
-      if (0x10000 < iVar1) {
+      cmp = 0x10000;
+      if (cmp < iVar1) {
         b = 0x12666;
         goto LAB_8006905c;
       }
-      if (0xffff < iVar1) goto LAB_skip;
+      cmp = 0xffff;
+      if (cmp < iVar1) goto LAB_skip;
       b = 0xd999;
 LAB_8006905c:
       iVar1 = fixedmult(iVar1,b);

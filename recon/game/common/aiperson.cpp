@@ -149,30 +149,41 @@ void AIPerson_LoadPersonalityData(Udff_tInfo *handle)
 /* ---- AIPerson_LoadScriptData__FP10Udff_tInfo  [@0x80068ea4] ---- */
 void AIPerson_LoadScriptData(Udff_tInfo *handle)
 {
-  int perLoop;
-  int actionLoop;
-  int reactionLoop;
+  register int perLoop   asm("$23");  /* s7 (matching aids #13, target reg map from m2c --reg-vars) */
+  int actionLoop;                     /* s2 (natural) */
+  int reactionLoop;                   /* s1 (natural) */
+  register int byteOffset asm("$21"); /* s5 */
+  register int actionMul  asm("$20"); /* s4 */
+  register int byteOff2   asm("$19"); /* s3 */
+  int scriptBase;
+  char *addr;
   int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
 
   Udff_GetInt(handle);
-  iVar5 = 0;
-  for (iVar6 = 0; iVar4 = 0, iVar6 < 9; iVar6 = iVar6 + 1) {
-    for (; iVar2 = 0, iVar4 < 7; iVar4 = iVar4 + 1) {
+  perLoop = 0;
+  scriptBase = (int)AIPerson_ScriptData;
+  byteOffset = 0;
+ loop_1:
+  actionLoop = 0;
+  if (perLoop < 9) {
+   loop_2:
+    reactionLoop = 0;
+    if (actionLoop < 7) {
+      actionMul = actionLoop * 8;
+      byteOff2 = byteOffset;
       do {
         iVar1 = Udff_GetInt(handle);
-        ((AIScript_tReactionDetails *)AIPerson_ScriptData)[iVar4].reaction[iVar5 + iVar2] = (char)iVar1;
-        iVar1 = Udff_GetInt(handle);
-        iVar3 = iVar2 + 1;
-        ((AIScript_tReactionDetails *)AIPerson_ScriptData)[iVar4].halfSeconds[iVar5 + iVar2] = (char)iVar1;
-        iVar2 = iVar3;
-      } while (iVar3 < 4);
+        addr = (char *)(reactionLoop + actionMul + byteOff2 + scriptBase);
+        addr[0] = (char)iVar1;
+        addr[4] = (char)Udff_GetInt(handle);
+        reactionLoop = reactionLoop + 1;
+      } while (reactionLoop < 4);
+      actionLoop = actionLoop + 1;
+      goto loop_2;
     }
-    iVar5 = iVar5 + 0x38;
+    byteOffset = byteOffset + 0x38;
+    perLoop = perLoop + 1;
+    goto loop_1;
   }
   return;
 }

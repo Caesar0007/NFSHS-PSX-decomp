@@ -306,6 +306,7 @@ extern int D_8011321C;   /* standalone global @0x8011321C (== GameSetup_gData+0x
 void AIInit_RestartAICar(Car_tObj *carObj)
 {
   int iVar1;
+  Car_tObj *new_var;
 
   iVar1 = -1;
   if (D_8011321C == 0) {
@@ -323,10 +324,11 @@ void AIInit_RestartAICar(Car_tObj *carObj)
   carObj->driveDirection = 1;
   carObj->driveDirectionTimer = 0;
   carObj->driveDirectionReverseTime = 0;
+  new_var = carObj;
   carObj->barrierThinkHarder = 0;
   carObj->desiredLatPos = 0;
   carObj->desiredSpeed = 0;
-  carObj->originalDesiredSpeed = 0;
+  new_var->originalDesiredSpeed = 0;
   carObj->currentSpeed = 0;
   carObj->speed = 0;
   carObj->laneSlack = 0;
@@ -341,14 +343,13 @@ void AIInit_RestartAICar(Car_tObj *carObj)
   carObj->laneChangeSpeed = 0;
   carObj->timeOffRoad = 0;
   carObj->rampDesiredLatPos = 0;
-  iVar1 = 0x10000;
-  carObj->accNitrous = iVar1;
-  carObj->speedNitrous = iVar1;
+  carObj->accNitrous = 0x10000;
+  carObj->speedNitrous = 0x10000;
   (carObj->speechInfo).speechMode = 0;
   carObj->wipeOutEndTick = 0;
-  carObj->btcGlueModifier = iVar1;
-  carObj->copAccMult = iVar1;
+  carObj->btcGlueModifier = 0x10000;
   carObj->copTopSpeed = 0x640000;
+  carObj->copAccMult = 0x10000;
   carObj->donutMode = 0;
   carObj->laneIndex = 7;
   carObj->AIFishtailEndTick = 0;

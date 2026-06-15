@@ -185,7 +185,10 @@ Use **Python 3.12** for splat/objdiff tooling. objdiff-cli is a Windows exe — 
 
 ## Status (update this when it moves)
 
-- **aiinit unit: 17/17 functions @100% — UNIT COMPLETE; overall decomp.dev 0.664%.**
+- **UNITS (2026-06-15): aiinit 17/17 ✅ · aitune 7/7 ✅ · aiscript 6/8 · overall 0.743%.**
+  aiscript holdouts (gcc regalloc): ProcessActions 71% (script a0-vs-a2 cascade,
+  permuter plateaus ~1415), GetReactionTicksLeft 90% (v0-coalescing, permuter zero-progress).
+- **aiinit unit: 17/17 functions @100% — UNIT COMPLETE.**
 - **AIInit_RestartAICar — DONE (100%)** via the permuter (see "permuter win" below).
 - Prior remaining-1 notes (kept for the technique record):
   - **RestartAICar 97.30%** — register coalescing CRACKED (was 94.32%); lone residual

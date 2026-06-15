@@ -75,7 +75,7 @@ void AIScript_SubmitPlayerAction(AIScript_t *script,int humCarIndex,AIScript_tPl
 /* ---- AIScript_ProcessActionsAndReactions__FP10AIScript_ti  [@0x8006f7f0] ---- */
 void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
 {
-  bool bVar1;
+  int bVar1;
   int iVar2;
   u_int uVar3;
   int *piVar4;
@@ -83,7 +83,7 @@ void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
   
   paAVar5 = script->data;
   if (script->actionIndex == 7) {
-    bVar1 = true;
+    bVar1 = 1;
     if (script->detectAction != 7) {
       script->actionIndex = script->detectAction;
       script->detectAction = 7;
@@ -106,7 +106,7 @@ void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
         uVar3 = (u_int)(u_char)(*paAVar5)[script->actionIndex].halfSeconds[script->reactionIndex];
         if (uVar3 != 0) {
           script->reactionTicksLeft = uVar3 << 4;
-          bVar1 = false;
+          bVar1 = 0;
         }
         if (script->reaction == 1) {
           script->actionIndex = 7;

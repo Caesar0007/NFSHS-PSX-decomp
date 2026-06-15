@@ -131,6 +131,9 @@ These are ordered roughly easiest→hardest. Most near-misses are one of these.
 | 9 | gcc strength-reduced a loop pointer to a `base+const` induction variable (orig keeps `base` + large offsets; recon walks `base+const`) | hardest class — gcc IV selection. No reliable source lever found yet; permuter often can't reach it either. |
 | 10 | a `<< (x & 0x1f)` produces an `andi` absent from the oracle | drop the mask — MIPS `sllv`/`srlv` truncate the shift count in hardware (SHIFT_COUNT_TRUNCATED), so the original never masked it. The `& 0x1f` is a reconstruction artifact. |
 | 11 | function ends `tmp=0; if(cond) tmp=X; return tmp;` but the temp detours through a non-`v0` reg (`addu a1,zero,zero` + final `addu v0,a1,zero`) | rewrite as **early-return**: `if(cond) return X; return 0;`. Removing the named temp deletes its register web so each branch's value coalesces straight into `$v0`. (Cracked GetReactionTicksLeft.) |
+| 12 | original reuses ONE register holding a constant for multiple uses (e.g. `bne v0, t2` where `t2`=the shift base `1`), recon materializes a **fresh** copy (`addiu v0,1; bne ...`) | reuse the existing named const var in the compare: `if (x == one)` instead of `== 1`. **CAVEAT: only works in a loop-WEIGHTED form** (`while`/`for`/`do`); in a goto/wrapper loop it overshoots (the var grabs a lower reg). Cracked the ProcessActions register transposition. |
+| 13 | a value sits in the wrong t-register and every source reorder just moves the problem (tightly-coupled allocation) | **`register T x asm("$N")` pinning** — psyq gcc 2.8 HONORS GNU local-register-asm ($8=t0…$15=t7, $4-7=a0-3, $2-3=v0-1). Forces the exact reg. CAVEAT: a function-scope pinned var is live the whole function and can nudge an unrelated setup temp out of its reg — pin all the conflicting values or none. |
+| — | **the hard class — loop register-weighting vs loop-inversion** (ProcessActions): the original is a top-tested natural loop gcc did NOT invert. gcc applies loop-depth register weighting (needed so the right values win t0/t1/t2) ONLY to loops with loop-NOTES = `while`/`for`/`do`; but those same loops gcc inverts to bottom-test do-while. Goto / `if(c){...goto top}` wrapper forms keep the top-test but emit no loop-notes → no weighting. No source form gives both; permuter plateaus. Use **m2c `--reg-vars`** to read the exact target reg map; trace the oracle's constant-materialization ORDER (early vs late decides which value gets the lower reg). |
 
 ### Notes that bite
 - **Statement order ≠ instruction order**, but it nudges the scheduler. Moving an
@@ -187,11 +190,20 @@ Use **Python 3.12** for splat/objdiff tooling. objdiff-cli is a Windows exe — 
 
 ## Status (update this when it moves)
 
-- **UNITS (2026-06-15): aiinit 17/17 ✅ · aitune 7/7 ✅ · aiscript 7/8 · overall ~0.745%.**
-  GetReactionTicksLeft cracked (90→100) via the early-return form (technique #11).
-  aiscript holdout: ProcessActions 73.57% (was 71.34 — dropped spurious `&0x1f` masks,
-  technique #10); residual = loop-rotation + script a0-vs-a2 base-reg cascade; permuter
-  re-launched from the improved 73.57% base.
+- **UNITS (2026-06-15): aiinit 17/17 ✅ · aitune 7/7 ✅ · aiscript 7/8 (+1 near-match) · overall ~0.75%.**
+  GetReactionTicksLeft cracked (90→100) via early-return (technique #11). ProcessActions
+  **96.17% (committed `0f8426c`), STRUCTURE byte-perfect**; lone residual = the loop
+  register-weighting↔inversion hard class (see catalog bottom). Registers fully crackable
+  via `==one` (tech #12) in the while form but it inverts; permuter plateaus ~235.
+
+### Tooling (2026-06-15 review)
+- **m2c**: use the UPDATED repo (`C:\Temp\m2c-updated`, current) not the old snapshot. Killer flag
+  `--reg-vars a0,a1,...,t0,...` prints the decompile with vars NAMED BY TARGET REGISTER —
+  reads the exact allocation map for any function. Also `--visualize`/`--gotos-only`.
+  Invoke: `python m2c.py --target mipsel-gcc-c --reg-vars <regs> <the.s>`.
+- **spimdisasm** (Decompollaborate): MIPS disasm w/ PSX R3000+GTE + **SN64/PSYQ workarounds**
+  (EA's exact toolchain) + data/rodata/bss split. For vendoring NEW modules' data. (splat already uses it.)
+- **asm-differ**: marginal — objdiff already covers our diffing (JSON → scripted side-by-side).
 - **aiinit unit: 17/17 functions @100% — UNIT COMPLETE.**
 - **AIInit_RestartAICar — DONE (100%)** via the permuter (see "permuter win" below).
 - Prior remaining-1 notes (kept for the technique record):

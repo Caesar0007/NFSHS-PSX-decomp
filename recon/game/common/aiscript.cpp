@@ -97,13 +97,13 @@ void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
       while (bVar1) {
         iVar2 = script->reactionIndex + 1;
         if ((iVar2 < 4) &&
-           (1 << ((u_char)(*paAVar5)[script->actionIndex].reaction[iVar2] & 0x1f) != 2)) {
+           (1 << (u_char)(*paAVar5)[script->actionIndex].reaction[iVar2] != 2)) {
           script->reactionIndex = iVar2;
           *piVar4 = *piVar4 + 1;
         }
         script->reaction =
              script->reaction |
-             1 << ((u_char)(*paAVar5)[script->actionIndex].reaction[script->reactionIndex] & 0x1f);
+             1 << (u_char)(*paAVar5)[script->actionIndex].reaction[script->reactionIndex];
         uVar3 = (u_int)(u_char)(*paAVar5)[script->actionIndex].halfSeconds[script->reactionIndex];
         if (uVar3 != 0) {
           script->reactionTicksLeft = uVar3 << 4;

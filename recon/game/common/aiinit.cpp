@@ -44,13 +44,13 @@ void AIInit_StartUp1(void)
   int *piVar3;
   
   AI_TrafficStartUp();
-  iVar2 = 1;
   inverseLaneWidthTable[0] = 0;
-  piVar3 = inverseLaneWidthTable;
+  iVar2 = 1;
+  piVar3 = inverseLaneWidthTable + 1;
   do {
-    piVar3 = piVar3 + 1;
     iVar1 = rdiv(0x10000,iVar2 << 0xe);
     *piVar3 = iVar1;
+    piVar3 = piVar3 + 1;
     iVar2 = iVar2 + 1;
   } while (iVar2 < 0x50);
   AITune_StartUp1();
@@ -412,14 +412,14 @@ void AIInit_InitAICar(Car_tObj *carObj,Udff_tInfo *handle)
   pCVar5 = carObj;
   do {
     if (iVar1 == 0) {
-      iVar2 = fixeddiv(0x10000,carObj->topSpeeds[0]);
+      iVar2 = rdiv(0x10000,carObj->topSpeeds[0]);
       carObj->invTopSpeeds[0] = iVar2;
     }
     else if (pCVar5->topSpeeds[0] == 0) {
       pCVar5->invTopSpeeds[0] = 0;
     }
     else {
-      iVar2 = fixeddiv(0x10000,pCVar5->topSpeeds[0] - *(int *)((int)carObj->topSpeeds + iVar6));
+      iVar2 = rdiv(0x10000,pCVar5->topSpeeds[0] - *(int *)((int)carObj->topSpeeds + iVar6));
       pCVar5->invTopSpeeds[0] = iVar2;
     }
     iVar6 = iVar6 + 4;

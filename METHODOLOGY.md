@@ -143,16 +143,25 @@ Use **Python 3.12** for splat/objdiff tooling. objdiff-cli is a Windows exe — 
   **AIInit_StartUp2**, **AIInit_ClearAICar**, **AIInit_InitAICar** (all cracked via
   the levers below).
 - Remaining (1):
-  - **RestartAICar 94.32%** — found+fixed a real VALUE BUG first: `damageMult`
-    (+1912) is `0x10000` (default 1.0), not `iVar1`; the wrong value also extended
-    iVar1's live range and blocked the coalescing. Lone residual now = gcc
-    constant rematerialization/coalescing: the early-cluster `0x10000` (4 stores)
-    wants `v1` (coalesced with the just-dead iVar1) but gcc schedules its `lui`
-    before the direction stores (long critical path → feeds all uses) and puts it in
-    `v0`. The original splits it into two materializations (v1 early / v0 late)
-    because it doesn't keep the value live across the intervening carFlags branches.
-    NOT source-steerable (fresh var, reuse, literal all give v0-early); permuter
-    plateaus and flips registers rather than just scheduling. The deepest class.
+  - **RestartAICar 97.30%** — register coalescing CRACKED (was 94.32%); lone residual
+    is a single gcc scheduler tie-break. Two fixes got here:
+    1. **VALUE BUG**: `damageMult`(+1912) is `0x10000` (default 1.0), not `iVar1`.
+    2. **Coalescing idiom**: the early-cluster `0x10000` must coalesce into `v1`
+       (reusing the dead iVar1). The winning idiom is **reuse `iVar1` for the EARLY
+       cluster ONLY** (`iVar1 = 0x10000;` then use iVar1 for the 4 early fields),
+       keeping the late fields (gripFactor/damageMult) as **literal** `0x10000` so
+       they re-materialize separately into `v0`. Reusing iVar1 for ALL fields makes
+       its range too long → `a1`; a fresh var gets CSE'd into one `v0`. Early-only
+       reuse = the sweet spot (matches the original's live-range split exactly).
+    - Lone residual: `li a1,1` (const 1, shared by driveDirection + forceNoSimOptz)
+      is scheduled AFTER the direction stores; the original emits it BEFORE. Verified
+      irreducible: not flag-controllable (-mcpu/-fpeephole/-g1/-mgpOPT no-ops), not
+      source-reorderable (moving driveDirection moves its `sw` too → store-order
+      break), permuter stuck at base score 5300+ iters, and both scheduler passes are
+      required (toggling either regresses the 16). Likely a cc1plus minor-version
+      artifact (EA/SH-class builds may use gcc 2.8.1; ours is 2.8.0; aiinit needs
+      cc1plus so 2.8.1-C can't be swapped in). Functionally 100%, byte-identical bar
+      one instruction's position.
 
 ### ⭐ Levers that cracked the loop/IV functions this round
 - **InitAICar (IV-anchor) — array-index the per-iteration accesses, separate-offset

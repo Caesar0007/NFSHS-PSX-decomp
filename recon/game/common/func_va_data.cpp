@@ -20,3 +20,11 @@ AIPhysic_Config_t AIPhysicConfig;
 /* @0x8013C5EC  4 bytes  bss(zero) — heap handle, new'd in AI_TrafficStartUp and
  * freed/cleared by AI_TrafficCleanUp (100%). */
 AITrigger_TriggerManager *triggerManagerTraffic;
+
+/* @0x8010CCF0  72 bytes  bss(zero) — AI lane/blocking runtime state; cleared by
+ * AIInit_Reset2 (100%), read across the AI module. */
+AI_tInfo AI_Info;
+
+/* @0x8010DDA4  16 bytes  bss(zero) — race leaderboard; initialized by AIInit_Reset2
+ * (100%) to the lead human/AI racers, maintained by the AISpeeds module. */
+AISpeeds_tLeaderBoard leaderBoard;

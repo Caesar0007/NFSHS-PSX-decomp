@@ -192,23 +192,25 @@ void AIInit_CleanUp2(void)
 }
 
 /* ---- AI_TrafficStartUp__Fv  [@0x80066f0c] ---- */
+extern char  D_8005521C[];   /* "%sTr%02d.trf" format @0x8005521C */
+extern char *D_801164B0[];   /* path-table @0x801164B0 (Paths_Paths+0x48) */
+
 void AI_TrafficStartUp(void)
 {
   char filename[100];
   char *rawTriggers;
-  char acStack_70 [104];
-  
+
   if (GameSetup_gData.trafficDensity != 0) {
     triggerManagerTraffic = __builtin_new(0x34c);
-    sprintf(acStack_70,"%sTr%02d.trf");
-    AITraffic_rawTriggers = (u_char *)loadfileadrz(acStack_70,(void *)0x0)
-    ;
-    rawTriggers = AITraffic_rawTriggers;
-    if (AITraffic_rawTriggers == (char *)0x0) {
-      rawTriggers = (char *)0x0;
+    sprintf(filename,D_8005521C,D_801164B0[0],GameSetup_gData.track);
+    rawTriggers = (char *)loadfileadrz(filename,(void *)0x0);
+    AITraffic_rawTriggers = (u_char *)rawTriggers;
+    if (rawTriggers != (char *)0x0) {
+      triggerManagerTraffic->Init(rawTriggers);
     }
-    triggerManagerTraffic->Init(rawTriggers)
-    ;
+    else {
+      triggerManagerTraffic->Init((char *)0x0);
+    }
   }
   return;
 }

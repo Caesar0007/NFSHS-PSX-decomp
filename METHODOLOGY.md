@@ -113,15 +113,29 @@ Use **Python 3.12** for splat/objdiff tooling. objdiff-cli is a Windows exe — 
 
 ## Status (update this when it moves)
 
-- **aiinit unit: 50.00% — 12/17 functions @100%; overall decomp.dev 0.48%.**
+- **aiinit unit: 13/17 functions @100%; overall decomp.dev climbing.**
 - Matched: AI_TrafficCleanUp, AIInit_CleanUp1, AIInit_CleanUp2, AIInit_DeInitAICar,
   AIInit_DeInitAICar2, AIInit_InitAICar2, AIInit_LoadConfigs,
   AIInit_LoadPhysicsConfig, AIInit_Reset1, AIInit_StartUp1, AI_TrafficStartUp,
-  AIInit_IsNonStandardCarFile.
-- Near (committed partial): **InitAICar 98.95%** (gcc IV strength-reduction;
-  blocked from permuter by C++ `new`), RestartAICar 93.8% (0x10000 const v0/v1),
-  StartUp2 86% (live-range-split reg swap), Reset2 ~75% (loop reg-swap +
-  leaderBoard must init from `Cars_gHumanRaceCarList[0]`/`Cars_gAIRaceCarList[0]`,
-  not zeros), ClearAICar 58%.
-- **The remaining tail is the hard class:** gcc register-allocation / IV-selection.
-  Each needs a per-function deterministic insight; the permuter only narrows them.
+  AIInit_IsNonStandardCarFile, **AIInit_ClearAICar** (struct-assignment #5).
+- Near (committed partial), all gcc-codegen-bound:
+  - **InitAICar 98.95%** — gcc IV strength-reduction; blocked from permuter by C++ `new`.
+  - **RestartAICar 93.78%** — register coloring: original packs `iVar1` then the
+    `0x10000` fixed-point const into the same `v1` (live-range reuse), const `1` in `a1`.
+  - **Reset2 89.92%** — loop regs now CORRECT (pointer-init-first + inner-scope
+    counter) and leaderBoard now reads `Cars_gHumanRaceCarList`/`Cars_gAIRaceCarList`
+    (was zeros). Residual: leaderBoard 3-temp coloring (a1/a0/v1 vs a0/v1/a1) +
+    `blez` delay-slot `move`. Fuzzy % dipped vs the old (wrong) version — the
+    matcher penalizes correct-but-unaligned instructions; ignore the dip.
+  - **StartUp2 84.15%** — first loop regs now correct; loop-2 keeps a top-test vs
+    do-while rotation + counter/pointer/value coloring (s2/s1/s0).
+- **Key lever learned (loops):** the loop counter↔pointer register assignment is
+  driven by **init order** — initialize the *pointer* before the counter inside the
+  guarded block to get counter=s0/pointer=s1. Inner-scope `int carLoop;` matches the
+  oracle's named-local. But this only fixes the loop body; the surrounding block's
+  coloring (leaderBoard, delay-slot) is decided by gcc's *global* allocator and does
+  not yield to source shape or the permuter (Reset2 permuter plateaus at score 320).
+- **The remaining tail is the hard class:** gcc register-allocation / IV-selection /
+  loop-rotation. Each needs a per-function deterministic insight; the permuter only
+  narrows them. **Low-% functions are usually STRUCTURAL (fully fixable) — prefer
+  them** (ClearAICar went 58→100 via one struct-assignment fix).

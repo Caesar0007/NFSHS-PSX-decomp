@@ -64,39 +64,22 @@ void AIInit_StartUp2(void)
 {
   {
     int carLoop;
-    Car_tObj **ppCVar4;
-    Car_tObj *pCVar2;
     AISpeeds_StartUp();
     AIInit_LoadConfigs();
-    if (0 < Cars_gNumCars) {
-      ppCVar4 = Cars_gList;
-      carLoop = 0;
-      do {
-        pCVar2 = *ppCVar4;
-        ppCVar4 = ppCVar4 + 1;
-        AIScript_Startup(&pCVar2->script);
-        carLoop = carLoop + 1;
-      } while (carLoop < Cars_gNumCars);
+    for (carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
+      AIScript_Startup(&Cars_gList[carLoop]->script);
     }
   }
   {
     int carLoop;
-    Car_tObj **ppCVar4;
     AIPerson_Startup();
-    carLoop = 0;
     AIDataRecord_t::StartUp2();
     AIPhysic_StartUp();
     AITune_StartUp2();
-    ppCVar4 = Cars_gList;
-    {
-      Car_tObj *carObj;
-      while (carLoop < Cars_gNumCars) {
-        carLoop = carLoop + 1;
-        carObj = *ppCVar4;
-        ppCVar4 = ppCVar4 + 1;
-        AIPhysic_InitCar(carObj);
-        AIInit_InitAICar2(carObj);
-      }
+    for (carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
+      Car_tObj *carObj = Cars_gList[carLoop];
+      AIPhysic_InitCar(carObj);
+      AIInit_InitAICar2(carObj);
     }
   }
   return;

@@ -11,6 +11,18 @@
    stop at 99%; don't optimize the fuzzy %. Either it matches or it doesn't.
 2. **The asm oracle is `C:\Temp\symdump-disasm\disasm-v4.txt`** (~348k lines).
 
+### Backport rule (byte-perfect → run-tree)
+When a function reaches **byte-perfect 100%** here, the match is *proof* of the original
+behavior — backport the proven **correctness** to the NFS4-F run-tree
+(`C:\Temp\claud\reconstructed_headers\tree`, `github.com/Caesar0007/NFSHSX.git`) and push.
+- Backport **real value/logic bugs** the match exposed (e.g. Reset2 leaderBoard null→
+  `Cars_gHumanRaceCarList[0]`; IsNonStandardCarFile `[48]=0`→`=src[48]`).
+- Do NOT backport **behavior-identical** differences: matching aids (`new_var` alias),
+  symbol-form swaps (`D_xxxx` vs `Struct.field`), `fixeddiv`/`rdiv` (alias in the tree),
+  array-index vs pointer-walk, struct-assignment. Keep the tree's clean conventions.
+- Always re-compile the touched TU under ccpsx 4.3 before pushing
+  (`SN_PATH=PSYQ_PATH=C:/Temp/psq43/PSSN ccpsx -O2 -G4 -I C:/Temp/psq43/PSX43/psx/include -c`).
+
 ### Provenance rule (sourcing + matching aids)
 - **Source each function BODY from the NFS4-F reconstruction tree**
   (`C:\Temp\claud\reconstructed_headers\tree\game\common\*.cpp`) — the authoritative

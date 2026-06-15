@@ -62,35 +62,42 @@ void AIInit_StartUp1(void)
 /* ---- AIInit_StartUp2__Fv  [@0x80066c24] ---- */
 void AIInit_StartUp2(void)
 {
-  Car_tObj*carObj;
-  Car_tObj *pCVar2;
-  int iVar3;
-  Car_tObj **ppCVar4;
-
-  AISpeeds_StartUp();
-  iVar3 = 0;
-  AIInit_LoadConfigs();
-  if (0 < Cars_gNumCars) {
-    ppCVar4 = Cars_gList;
-    do {
-      carObj = *ppCVar4;
-      ppCVar4 = ppCVar4 + 1;
-      AIScript_Startup(&carObj->script);
-      iVar3 = iVar3 + 1;
-    } while (iVar3 < Cars_gNumCars);
+  {
+    int carLoop;
+    Car_tObj **ppCVar4;
+    Car_tObj *pCVar2;
+    AISpeeds_StartUp();
+    AIInit_LoadConfigs();
+    if (0 < Cars_gNumCars) {
+      ppCVar4 = Cars_gList;
+      carLoop = 0;
+      do {
+        pCVar2 = *ppCVar4;
+        ppCVar4 = ppCVar4 + 1;
+        AIScript_Startup(&pCVar2->script);
+        carLoop = carLoop + 1;
+      } while (carLoop < Cars_gNumCars);
+    }
   }
-  iVar3 = 0;
-  AIPerson_Startup();
-  AIDataRecord_t::StartUp2();
-  AIPhysic_StartUp();
-  AITune_StartUp2();
-  ppCVar4 = Cars_gList;
-  while (iVar3 < Cars_gNumCars) {
-    iVar3 = iVar3 + 1;
-    pCVar2 = *ppCVar4;
-    ppCVar4 = ppCVar4 + 1;
-    AIPhysic_InitCar(pCVar2);
-    AIInit_InitAICar2(pCVar2);
+  {
+    int carLoop;
+    Car_tObj **ppCVar4;
+    AIPerson_Startup();
+    carLoop = 0;
+    AIDataRecord_t::StartUp2();
+    AIPhysic_StartUp();
+    AITune_StartUp2();
+    ppCVar4 = Cars_gList;
+    {
+      Car_tObj *carObj;
+      while (carLoop < Cars_gNumCars) {
+        carLoop = carLoop + 1;
+        carObj = *ppCVar4;
+        ppCVar4 = ppCVar4 + 1;
+        AIPhysic_InitCar(carObj);
+        AIInit_InitAICar2(carObj);
+      }
+    }
   }
   return;
 }
@@ -105,31 +112,29 @@ void AIInit_Reset1(void)
 /* ---- AIInit_Reset2__Fv  [@0x80066d08] ---- */
 void AIInit_Reset2(void)
 {
-  int carLoop;
-  Car_tObj *pCVar1;
-  int iVar2;
-  Car_tObj **ppCVar3;
-  
   if (GameSetup_gData.raceType != 3) {
     AIInit_useSpreadForce = 1;
   }
   else {
     AIInit_useSpreadForce = 0;
   }
-  iVar2 = 0;
   if (0 < Cars_gNumCars) {
+    int carLoop;
+    Car_tObj **ppCVar3;
+    Car_tObj *pCVar1;
     ppCVar3 = Cars_gList;
+    carLoop = 0;
     do {
       pCVar1 = *ppCVar3;
       ppCVar3 = ppCVar3 + 1;
       AIScript_Startup(&pCVar1->script);
-      iVar2 = iVar2 + 1;
-    } while (iVar2 < Cars_gNumCars);
+      carLoop = carLoop + 1;
+    } while (carLoop < Cars_gNumCars);
   }
-  leaderBoard.leadHumanRacer = (Car_tObj *)0x0;
-  leaderBoard.leadRacer = (Car_tObj *)0x0;
-  leaderBoard.lastAIRacer = (Car_tObj *)0x0;
-  leaderBoard.leadAIRacer = (Car_tObj *)0x0;
+  leaderBoard.leadHumanRacer = Cars_gHumanRaceCarList;
+  leaderBoard.leadRacer = Cars_gHumanRaceCarList;
+  leaderBoard.lastAIRacer = Cars_gAIRaceCarList;
+  leaderBoard.leadAIRacer = Cars_gAIRaceCarList;
   AIPhysic_Reset();
   AI_Info.blockingCars[2] = (Car_tObj *)0x0;
   AI_Info.blockingCars[1] = (Car_tObj *)0x0;

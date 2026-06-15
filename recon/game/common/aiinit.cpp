@@ -118,23 +118,16 @@ void AIInit_Reset2(void)
   else {
     AIInit_useSpreadForce = 0;
   }
-  if (0 < Cars_gNumCars) {
+  {
     int carLoop;
-    Car_tObj **ppCVar3;
-    Car_tObj *pCVar1;
-    ppCVar3 = Cars_gList;
-    carLoop = 0;
-    do {
-      pCVar1 = *ppCVar3;
-      ppCVar3 = ppCVar3 + 1;
-      AIScript_Startup(&pCVar1->script);
-      carLoop = carLoop + 1;
-    } while (carLoop < Cars_gNumCars);
+    for (carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
+      AIScript_Startup(&Cars_gList[carLoop]->script);
+    }
   }
-  leaderBoard.leadHumanRacer = Cars_gHumanRaceCarList;
-  leaderBoard.leadRacer = Cars_gHumanRaceCarList;
-  leaderBoard.lastAIRacer = Cars_gAIRaceCarList;
-  leaderBoard.leadAIRacer = Cars_gAIRaceCarList;
+  leaderBoard.leadHumanRacer = Cars_gHumanRaceCarList[0];
+  leaderBoard.leadRacer = Cars_gHumanRaceCarList[0];
+  leaderBoard.lastAIRacer = Cars_gAIRaceCarList[0];
+  leaderBoard.leadAIRacer = Cars_gAIRaceCarList[0];
   AIPhysic_Reset();
   AI_Info.blockingCars[2] = (Car_tObj *)0x0;
   AI_Info.blockingCars[1] = (Car_tObj *)0x0;

@@ -30,6 +30,14 @@
       "metadata": {
         "source_path": "recon/game/common/aiinit.cpp"
       }
+    },
+    {
+      "name": "game/common/aitune",
+      "target_path": "expected/src/aitune.c.o",
+      "base_path": "build/recon/game/common/aitune.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/common/aitune.cpp"
+      }
     }
   ]
 }

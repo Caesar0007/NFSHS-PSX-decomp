@@ -75,9 +75,9 @@ void AIInit_StartUp2(void)
   if (0 < Cars_gNumCars) {
     ppCVar4 = Cars_gList;
     do {
-      pCVar2 = *ppCVar4;
+      carObj = *ppCVar4;
       ppCVar4 = ppCVar4 + 1;
-      AIScript_Startup(&pCVar2->script);
+      AIScript_Startup(&carObj->script);
       iVar3 = iVar3 + 1;
     } while (iVar3 < Cars_gNumCars);
   }
@@ -87,7 +87,8 @@ void AIInit_StartUp2(void)
   AIPhysic_StartUp();
   AITune_StartUp2();
   ppCVar4 = Cars_gList;
-  while (bVar1 = iVar3 < Cars_gNumCars, iVar3 = iVar3 + 1, bVar1) {
+  while (iVar3 < Cars_gNumCars) {
+    iVar3 = iVar3 + 1;
     pCVar2 = *ppCVar4;
     ppCVar4 = ppCVar4 + 1;
     AIPhysic_InitCar(pCVar2);

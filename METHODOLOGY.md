@@ -171,9 +171,20 @@ Use **Python 3.12** for splat/objdiff tooling. objdiff-cli is a Windows exe — 
       order), permuter (5300+ iters stuck), scheduler-pass toggles (both required).
       Functionally 100%, byte-identical bar one instruction's position.
     - **Compiler-bank note:** SN PsyQ cc1/cc1plus by version live at
-      `C:/Temp/psq43` (2.8.0), `C:/Temp/psq44` (2.8.1), `C:/Temp/psq45`; the
-      decompals old-gcc 2.8.1 (Linux) is at
+      `C:/Temp/psq43` (2.8.0 — **EA's confirmed compiler**), `C:/Temp/psq44` (2.8.1),
+      `C:/Temp/psq45`; the decompals old-gcc 2.8.1 (Linux) is at
       `C:/Temp/silent-hill-decomp/tools/gcc-2.8.1-psx` (needs WSL distro to run).
+    - **ASPSX also ruled out:** ran the REAL `C:/Temp/psq43/PSSN/ASPSX.EXE` (v2.77)
+      on cc1's raw `.s` — it emits the identical `li $5,1`-after-lui order (extracted
+      the merge-block byte offsets from the SN `.obj` since DUMPOBJ is 16-bit DOS).
+      maspsx is byte-faithful to ASPSX here. C-vs-C++ (cc1 vs cc1plus): identical too.
+    - **Full register picture (traced from oracle):** original = early-cluster
+      `0x10000` in **v1**, late-cluster (gripFactor/damageMult) in **v0** — TWO
+      separate materializations; the early pseudo is coalesced into the dead iVar1's
+      v1 with NO anti-dep. My literal CSEs both clusters into one v0 pseudo; my reuse
+      puts the early in v1 but via iVar1's pseudo (→ the anti-dep). The original needs
+      a *separate* early pseudo that the allocator colors v1 (not the preferred v0) —
+      a graph-coloring outcome not expressible from C source. THE irreducible case.
 
 ### ⭐ Levers that cracked the loop/IV functions this round
 - **InitAICar (IV-anchor) — array-index the per-iteration accesses, separate-offset

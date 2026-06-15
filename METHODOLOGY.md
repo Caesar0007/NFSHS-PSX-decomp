@@ -138,11 +138,9 @@ Use **Python 3.12** for splat/objdiff tooling. objdiff-cli is a Windows exe — 
 
 ## Status (update this when it moves)
 
-- **aiinit unit: 16/17 functions @100% (94.1%); overall decomp.dev 0.624%.**
-- Matched (16): everything except RestartAICar — incl. **AIInit_Reset2**,
-  **AIInit_StartUp2**, **AIInit_ClearAICar**, **AIInit_InitAICar** (all cracked via
-  the levers below).
-- Remaining (1):
+- **aiinit unit: 17/17 functions @100% — UNIT COMPLETE; overall decomp.dev 0.664%.**
+- **AIInit_RestartAICar — DONE (100%)** via the permuter (see "permuter win" below).
+- Prior remaining-1 notes (kept for the technique record):
   - **RestartAICar 97.30%** — register coalescing CRACKED (was 94.32%); lone residual
     is a single gcc scheduler tie-break. Two fixes got here:
     1. **VALUE BUG**: `damageMult`(+1912) is `0x10000` (default 1.0), not `iVar1`.
@@ -185,6 +183,22 @@ Use **Python 3.12** for splat/objdiff tooling. objdiff-cli is a Windows exe — 
       puts the early in v1 but via iVar1's pseudo (→ the anti-dep). The original needs
       a *separate* early pseudo that the allocator colors v1 (not the preferred v0) —
       a graph-coloring outcome not expressible from C source. THE irreducible case.
+
+### ⭐⭐ The permuter win (RestartAICar — the "irreducible" case, cracked)
+After exhaustively proving the residual wasn't toolchain (psq43 cc1plus 2.8.0 +
+ASPSX 2.77 = EA's exact tools), the **permuter cracked it in 15 iterations** — but
+ONLY when seeded from the RIGHT base. Lesson: **seed the permuter from the base whose
+residual is SMALLEST/closest, not the one that's "more correct."**
+- The iVar1-reuse base (0x10000→v1 but li-a1,1 reordered by the anti-dep) plateaus at
+  score 60 forever — the permuter can't undo the anti-dep.
+- The **literal-0x10000 base** (li a1,1 already first; only 0x10000 in v0) → permuter
+  found score 0 almost instantly. Winning mutation: introduce `T *new_var = carObj;`
+  and route ONE store through it (`new_var->originalDesiredSpeed = 0;`) + reorder
+  copTopSpeed before copAccMult. The alias pointer shifts gcc's aliasing/allocation so
+  the early 0x10000 colors into v1 (no anti-dep) AND li a1,1 stays first — a structure
+  hand-written source can't reach. **TECHNIQUE: when stuck on a regalloc/coloring
+  residual, try the permuter from MULTIPLE seed bases; an aliasing temp (`T* x=p;` used
+  for one field) is a coloring lever the catalog didn't have.**
 
 ### ⭐ Levers that cracked the loop/IV functions this round
 - **InitAICar (IV-anchor) — array-index the per-iteration accesses, separate-offset

@@ -154,14 +154,26 @@ Use **Python 3.12** for splat/objdiff tooling. objdiff-cli is a Windows exe — 
        its range too long → `a1`; a fresh var gets CSE'd into one `v0`. Early-only
        reuse = the sweet spot (matches the original's live-range split exactly).
     - Lone residual: `li a1,1` (const 1, shared by driveDirection + forceNoSimOptz)
-      is scheduled AFTER the direction stores; the original emits it BEFORE. Verified
-      irreducible: not flag-controllable (-mcpu/-fpeephole/-g1/-mgpOPT no-ops), not
-      source-reorderable (moving driveDirection moves its `sw` too → store-order
-      break), permuter stuck at base score 5300+ iters, and both scheduler passes are
-      required (toggling either regresses the 16). Likely a cc1plus minor-version
-      artifact (EA/SH-class builds may use gcc 2.8.1; ours is 2.8.0; aiinit needs
-      cc1plus so 2.8.1-C can't be swapped in). Functionally 100%, byte-identical bar
-      one instruction's position.
+      is scheduled AFTER the direction stores; the original emits it BEFORE.
+      **Mechanism (fully traced):** the iVar1-reuse creates a WAR anti-dependence
+      (the `lui` reuses iVar1's pseudo → the direction stores feed lui → feed the
+      0x10000 cluster), giving the direction stores a long critical path and higher
+      scheduler priority than the const-1, so `li a1,1` sinks. The literal-0x10000
+      version had `a1=1` placed CORRECTLY (separate pseudo → no anti-dep) but 0x10000
+      in v0. **Catch-22:** reuse → 0x10000 in v1 ✓ but a1=1 reordered; separate pseudo
+      → a1=1 ✓ but 0x10000 in v0. The original has BOTH (a separate-pseudo-coalesced-
+      to-v1 with no anti-dep) — needs a coalescing affinity I haven't expressed in C.
+    - **NOT a compiler-version issue (definitively):** psq43=gcc 2.8.0, psq44=gcc
+      2.8.1, psq45 — ALL SN PsyQ builds produce the identical a1=1-after-lui output
+      for this source (tested on the same preprocessed .i). EA used SN PsyQ, so the
+      version is excluded; the difference is a subtle source structure. Also ruled
+      out: flags (-mcpu/-fpeephole/-g1/-mgpOPT no-ops), source reorder (breaks store
+      order), permuter (5300+ iters stuck), scheduler-pass toggles (both required).
+      Functionally 100%, byte-identical bar one instruction's position.
+    - **Compiler-bank note:** SN PsyQ cc1/cc1plus by version live at
+      `C:/Temp/psq43` (2.8.0), `C:/Temp/psq44` (2.8.1), `C:/Temp/psq45`; the
+      decompals old-gcc 2.8.1 (Linux) is at
+      `C:/Temp/silent-hill-decomp/tools/gcc-2.8.1-psx` (needs WSL distro to run).
 
 ### ⭐ Levers that cracked the loop/IV functions this round
 - **InitAICar (IV-anchor) — array-index the per-iteration accesses, separate-offset

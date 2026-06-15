@@ -62,13 +62,11 @@ void AIInit_StartUp1(void)
 /* ---- AIInit_StartUp2__Fv  [@0x80066c24] ---- */
 void AIInit_StartUp2(void)
 {
-  int carLoop;
   Car_tObj*carObj;
-  bool bVar1;
   Car_tObj *pCVar2;
   int iVar3;
   Car_tObj **ppCVar4;
-  
+
   AISpeeds_StartUp();
   iVar3 = 0;
   AIInit_LoadConfigs();

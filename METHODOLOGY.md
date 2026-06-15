@@ -133,7 +133,42 @@ These are ordered roughly easiest→hardest. Most near-misses are one of these.
 | 11 | function ends `tmp=0; if(cond) tmp=X; return tmp;` but the temp detours through a non-`v0` reg (`addu a1,zero,zero` + final `addu v0,a1,zero`) | rewrite as **early-return**: `if(cond) return X; return 0;`. Removing the named temp deletes its register web so each branch's value coalesces straight into `$v0`. (Cracked GetReactionTicksLeft.) |
 | 12 | original reuses ONE register holding a constant for multiple uses (e.g. `bne v0, t2` where `t2`=the shift base `1`), recon materializes a **fresh** copy (`addiu v0,1; bne ...`) | reuse the existing named const var in the compare: `if (x == one)` instead of `== 1`. **CAVEAT: only works in a loop-WEIGHTED form** (`while`/`for`/`do`); in a goto/wrapper loop it overshoots (the var grabs a lower reg). Cracked the ProcessActions register transposition. |
 | 13 | a value sits in the wrong t-register and every source reorder just moves the problem (tightly-coupled allocation) | **`register T x asm("$N")` pinning** — psyq gcc 2.8 HONORS GNU local-register-asm ($8=t0…$15=t7, $4-7=a0-3, $2-3=v0-1). Forces the exact reg. CAVEAT: a function-scope pinned var is live the whole function and can nudge an unrelated setup temp out of its reg — pin all the conflicting values or none. |
-| — | **the hard class — loop register-weighting vs loop-inversion** (ProcessActions): the original is a top-tested natural loop gcc did NOT invert. gcc applies loop-depth register weighting (needed so the right values win t0/t1/t2) ONLY to loops with loop-NOTES = `while`/`for`/`do`; but those same loops gcc inverts to bottom-test do-while. Goto / `if(c){...goto top}` wrapper forms keep the top-test but emit no loop-notes → no weighting. No source form gives both; permuter plateaus. Use **m2c `--reg-vars`** to read the exact target reg map; trace the oracle's constant-materialization ORDER (early vs late decides which value gets the lower reg). |
+| — | **the hard class — top-test loop coloring vs unconditional do-while rotation** (ProcessActions). See the dedicated section below — this row's old framing ("weighting vs inversion") was REFINED on 2026-06-16: the real axis is structure-source vs register-coloring, and gcc's rotation is *unconditional*, not provability-gated. |
+
+### The ProcessActions hard class — exhaustive findings (2026-06-16)
+The lone residual on `AIScript_ProcessActionsAndReactions` (committed 96.17%, structure
+byte-perfect). Two source shapes, each perfect on one axis and wrong on the other:
+- **Structured loop** (`while(go)` / `for` / `do`) → **registers PERFECT** (scriptData=t0,
+  one=t2, seven=t3, two=t4, lastReactionIndex=a3, the `==one` reuse all correct). Diff is
+  **15 lines, ALL structural**: gcc emits a **bottom-test do-while**, the oracle is **top-test**.
+- **Goto-wrapper** (`loopTop: if(go){ … goto loopTop; }`) → **structure PERFECT** (top-test,
+  back-edges to the test — byte-identical control flow). Diff is the **register transposition**:
+  scriptData↔lastReactionIndex ($8↔$7) and one↔seven ($10↔$11).
+
+**Corrected mechanism (this was mis-framed as "weighting vs inversion"):**
+1. **gcc 2.8 rotates `while`/`for`/`do` to do-while UNCONDITIONALLY**, not based on provability.
+   *Diagnostic that proves it:* set `go = elapsedTicks` (a param gcc can't prove nonzero) — gcc
+   still emits a do-while, just with an added entry **guard** (`beq $a1,$0,exit`) before it.
+   Provability only decides whether that guard is kept (`go` unprovable) or elided (`go=1` → form1's
+   unguarded do-while). gcc **never** re-tests the condition at the top of each iteration for a
+   structured loop.
+2. Therefore the oracle's genuine **top-test** (exit AND both back-edges target the test label)
+   can only come from a **goto-wrapper** source — which gcc leaves un-rotated.
+3. So the residual is **register COLORING on the goto-wrapper**, not loop-depth weighting. The
+   wrapper's t-regs come from gcc's use-order/priority allocation, and it transposes the two pairs.
+
+**Levers tried 2026-06-16 — ALL failed to give both axes:**
+- do-while + top `break`, `while(1){if(!go)break}`, `for(;;){if(!go)break}` → all rotate identically (15-line structural diff).
+- `continue` (trailing → dead-code-eliminated; tail-restructured `if(reaction!=one) continue;` → still rotates). gcc 2.8 `continue` does NOT inhibit the rotation.
+- **register-asm pinning (#13)**: pinning the loop t-regs (even via a loop-only `new_var` alias to confine liveness) **ripples through and displaces setup temps** — actionIndex moves a2→v1, the lastReactionIndex-pin forces a3-as-scratch (`sllv a3,a3,t4`). The displaced setup temps aren't named C vars, so "pin all conflicting values" (the #13 escape) is unreachable. 2-pin, 3-pin, 6-pin all net worse (32–61 lines).
+- `==one` in the wrapper (tech #12): **overshoots** — the 4th ref makes `one` grab go's reg, cascading every assignment (81 lines). #12 only works in the loop-weighted structured form (which rotates).
+- statement reorder to the oracle's exact materialization order (`one=go` move, `seven` late, `reaction=go` reuse): worse (74 lines) — order isn't the lever in the un-weighted wrapper.
+- **permuter, both seeds**: form1 (structural residual) base 690 → stuck ~545 over 3500+ iters (can't mutate around a rotation). Wrapper (coloring residual) base 345 → best 315 over ~1100 iters (nibbled, didn't crack). The wrapper IS the right seed (lower base) but the transposition needs a coloring affinity no mutation reached.
+
+**Status: PARKED at 96.17% (structure byte-perfect).** Likely needs the exact original goto/loop
+source idiom (unknown) or a lucky long permuter run. Do NOT backport to the run-tree (not byte-perfect).
+When revisiting: start from the **wrapper** seed, and hunt a coloring lever for the $8↔$7 / $10↔$11 swap
+specifically (an aliasing temp that shifts one pair without cascading, à la the RestartAICar win).
 
 ### Notes that bite
 - **Statement order ≠ instruction order**, but it nudges the scheduler. Moving an
@@ -190,11 +225,15 @@ Use **Python 3.12** for splat/objdiff tooling. objdiff-cli is a Windows exe — 
 
 ## Status (update this when it moves)
 
-- **UNITS (2026-06-15): aiinit 17/17 ✅ · aitune 7/7 ✅ · aiscript 7/8 (+1 near-match) · overall ~0.75%.**
+- **UNITS (2026-06-16): aiinit 17/17 ✅ · aitune 7/7 ✅ · aiscript 7/8 (+1 near-match) · overall ~0.75%.**
   GetReactionTicksLeft cracked (90→100) via early-return (technique #11). ProcessActions
-  **96.17% (committed `0f8426c`), STRUCTURE byte-perfect**; lone residual = the loop
-  register-weighting↔inversion hard class (see catalog bottom). Registers fully crackable
-  via `==one` (tech #12) in the while form but it inverts; permuter plateaus ~235.
+  **96.17% (committed `0f8426c`), STRUCTURE byte-perfect**; lone residual = the top-test-coloring↔
+  do-while-rotation hard class. **2026-06-16: exhaustively re-attacked and PARKED** — proved gcc's
+  rotation is unconditional (not provability-gated), reframed the residual as goto-wrapper register
+  *coloring* (not weighting), and ruled out do-while/break/continue/pins/`==one`/reorder + permuter on
+  both seeds (best 315 vs base 345). Full writeup: "The ProcessActions hard class" section above.
+- **NEXT: vendor aiperson (8 fns) / aidatarecord (24 fns)** with m2c-updated `--reg-vars` from the
+  outset and spimdisasm for the data-mat tables. aiperson `.s` already split (asm/nonmatchings/main/AIPerson_*).
 
 ### Tooling (2026-06-15 review)
 - **m2c**: use the UPDATED repo (`C:\Temp\m2c-updated`, current) not the old snapshot. Killer flag

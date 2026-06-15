@@ -23,6 +23,15 @@ extern void        Udff_GetBuffer(Udff_tInfo *handle, char *mem, int size);
 
 extern void AIScript_Assign(AIScript_t *aiscriptt, AIScript_tReactionDetails (*arg2)[7]);
 
+/* shared rodata (tech #4): path table + sprintf format strings */
+extern char *Paths_Paths[];  /* @0x80116468; [2] = path prefix at +8 */
+extern char *D_80116470[];   /* @0x80116470 (Paths_Paths+8); [0] = same path prefix */
+extern char  D_80055354[];   /* "%sprsonal.bin" */
+extern char  D_80055364[];   /* "%sscripts.bin" */
+extern char  D_80055374[];   /* "%sbtcglue.bin" */
+extern char  D_80055384[];   /* "%shhglue.bin"  */
+extern char  D_80055394[];   /* "%sglue.bin"    */
+
 /* ---- aiperson.obj-owned globals (defined in func_va_data.cpp at data-mat time) ---- */
 extern int          AIPerson_blockMaxDistance[4];        /* @0x8010d5cc */
 extern int          AIPerson_blockMinDistance[4];        /* @0x8010d5dc */

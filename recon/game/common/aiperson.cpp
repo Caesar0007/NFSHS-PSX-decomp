@@ -221,26 +221,26 @@ void AIPerson_Startup(void)
   char acStack_80 [112];
 
   AIPerson_LoadGridAndSetPersonalityIndexes();
-  sprintf(acStack_80,"%sprsonal.bin");
+  sprintf(acStack_80,D_80055354,Paths_Paths[2]);
   pUVar1 = Udff_Opena(acStack_80,(char *)0x0,1);
   AIPerson_LoadPersonalityData(pUVar1);
   Udff_Close(pUVar1);
-  sprintf(acStack_80,"%sscripts.bin");
+  sprintf(acStack_80,D_80055364,Paths_Paths[2]);
   pUVar1 = Udff_Opena(acStack_80,(char *)0x0,1);
   AIPerson_LoadScriptData(pUVar1);
   Udff_Close(pUVar1);
   if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
      ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
       ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
-    fmt = "%sbtcglue.bin";
+    fmt = D_80055374;
   }
   else if (((u_int)GameSetup_gData.raceType < 2) && (Cars_gNumAIRaceCars == 1)) {
-    fmt = "%shhglue.bin";
+    fmt = D_80055384;
   }
   else {
-    fmt = "%sglue.bin";
+    fmt = D_80055394;
   }
-  sprintf(acStack_80,fmt);
+  sprintf(acStack_80,fmt,D_80116470[0]);
   pUVar1 = Udff_Opena(acStack_80,(char *)0x0,1);
   AIPerson_LoadGlue(pUVar1);
   Udff_Close(pUVar1);

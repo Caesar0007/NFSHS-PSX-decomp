@@ -26,14 +26,15 @@ void AIScript_Assign(AIScript_t *aiscriptt,AIScript_tReactionDetails (*arg2) [7]
 /* ---- AIScript_ClearLastReactionIndex__FP10AIScript_t  [@0x8006f700] ---- */
 void AIScript_ClearLastReactionIndex(AIScript_t *script)
 {
-  int initLoop;
   int iVar1;
   AIScript_tAIReaction *pAVar2;
-  
+  int neg1;
+
+  neg1 = -1;
   iVar1 = 6;
   pAVar2 = (AIScript_tAIReaction *)&script->reactionTicksLeft;
   do {
-    pAVar2[8] = -1;
+    pAVar2[8] = neg1;
     iVar1 = iVar1 + -1;
     pAVar2 = pAVar2 + -1;
   } while (-1 < iVar1);

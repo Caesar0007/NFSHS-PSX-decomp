@@ -225,7 +225,8 @@ Use **Python 3.12** for splat/objdiff tooling. objdiff-cli is a Windows exe — 
 
 ## Status (update this when it moves)
 
-- **UNITS (2026-06-16): aiinit 17/17 ✅ · aitune 7/7 ✅ · aiscript 7/8 (+1 near-match) · overall ~0.75%.**
+- **UNITS (2026-06-16): aiinit 17/17 ✅ · aitune 7/7 ✅ · aiperson 8/8 ✅ · aiscript 7/8 (ProcessActions OPEN near-match).**
+  aiperson COMPLETE — both "hard class" holdouts cracked via m2c `--reg-vars` (see ⭐ section above).
   GetReactionTicksLeft cracked (90→100) via early-return (technique #11). ProcessActions
   **96.17% (committed `0f8426c`), STRUCTURE byte-perfect**; lone residual = the top-test-coloring↔
   do-while-rotation hard class. **2026-06-16: exhaustively re-attacked and PARKED** — proved gcc's
@@ -234,6 +235,30 @@ Use **Python 3.12** for splat/objdiff tooling. objdiff-cli is a Windows exe — 
   both seeds (best 315 vs base 345). Full writeup: "The ProcessActions hard class" section above.
 - **NEXT: vendor aiperson (8 fns) / aidatarecord (24 fns)** with m2c-updated `--reg-vars` from the
   outset and spimdisasm for the data-mat tables. aiperson `.s` already split (asm/nonmatchings/main/AIPerson_*).
+
+### ⭐ m2c `--reg-vars` CRACKED the "hard classes" (2026-06-16, aiperson unit COMPLETE 8/8)
+The aiperson unit's two hardest residuals — both previously-named "no reliable lever"
+classes — fell to **m2c-updated `--reg-vars` + register-asm pinning to the map it reveals**:
+- **LoadScriptData (IV strength-reduction class, 69→100):** m2c showed the target is
+  **goto-based top-tested nested loops** (for/while rotate) with the address **recomputed
+  fresh each iteration as integer adds** (`s0 = reactionLoop + actionLoop*8 + byteOffset +
+  (int)ScriptData`), NOT a strength-reduced pointer walk. The recipe: (1) write the loops
+  as `goto` (top-test, no rotation); (2) **hoist the base** into a var set before the loop
+  (m2c's `var_fp`); (3) hold the base as **`int`** so the final add is `addu s0,s0,base`
+  (a `char*` base canonicalizes to `addu s0,base,s0` — wrong operand order); (4) **pin the
+  loop vars to m2c's exact registers** (`register int x asm("$N")`); (5) the last-statement
+  trick (`counter++` after the stores) for the final scheduling slot.
+- **LoadGlue (LICM/GCSE hoist class, 88→100):** m2c showed the compare constants live in
+  **caller-saved v0** (re-materialized each iter), but gcc GCSE+hoisted mine into s2/s3 (it
+  CSEs the `lui 0x1` shared between the `0x10000` compare and the `0x12666` b-value). Fix:
+  **pin a `cmp` var to `$2` (v0)** and reuse it for the compares — the in-loop call clobbers
+  v0, so gcc *cannot* keep the constant hoisted, forcing the per-iteration re-materialization.
+  **General lever: to defeat an unwanted LICM hoist of a constant, pin it to a caller-saved
+  register that an in-loop call clobbers.**
+- **Workflow that works:** `python C:/Temp/m2c-updated/m2c.py --target mipsel-gcc-c
+  --reg-vars 'a0,...,t0,...,s0,...,s8,v0,v1' <the.s>` → read the `var_sN`/`var_v0` names = the
+  exact target register for each value → write the C in that shape → pin the few that gcc
+  still mis-colors. This beat the permuter on both (permuter plateaued on each).
 
 ### Tooling (2026-06-15 review)
 - **m2c**: use the UPDATED repo (`C:\Temp\m2c-updated`, current) not the old snapshot. Killer flag

@@ -5,7 +5,7 @@
 #include "../../nfs4_types.h"
 #include "aiinit_externs.h"
 
-static const int kAIInitNonStandardTable[50] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+extern int D_8005523C[];   /* nonstandard-car table @0x8005523C (shared rodata) */
 
 
 /* ---- aiinit.obj-owned globals (.bss zero) ---- */
@@ -514,41 +514,14 @@ void AIInit_DeInitAICar2(Car_tObj *carObj)
 }
 
 /* ---- AIInit_IsNonStandardCarFile__Fi  [@0x800675d8] ---- */
+struct AIInit_nsList_t { int e[50]; };
+
 int AIInit_IsNonStandardCarFile(int index)
 {
-  u_int *puVar1;
-  int *piVar2;
-  int carType;
-  u_int *puVar3;
   int iVar4;
-  u_int *puVar5;
-  u_int uVar6;
-  u_int uVar7;
-  u_int uVar8;
-  AIPhysic_ModelConfig_t *model;
-  int gearLoop;
-  int loop;
-  int accelerationScale;
   int nonStandardList [50];
-  
-  puVar1 = (u_int *)kAIInitNonStandardTable;
-  piVar2 = nonStandardList;
-  do {
-    puVar5 = piVar2;
-    puVar3 = puVar1;
-    uVar6 = puVar3[1];
-    uVar7 = puVar3[2];
-    uVar8 = puVar3[3];
-    *puVar5 = *puVar3;
-    puVar5[1] = uVar6;
-    puVar5[2] = uVar7;
-    puVar5[3] = uVar8;
-    puVar1 = puVar3 + 4;
-    piVar2 = puVar5 + 4;
-  } while (puVar3 + 4 != (u_int *)(u_int *)(kAIInitNonStandardTable + 48));
-  uVar6 = puVar3[5];
-  puVar5[4] = 0;
-  puVar5[5] = uVar6;
+
+  *(struct AIInit_nsList_t *)nonStandardList = *(struct AIInit_nsList_t *)D_8005523C;
   if (index < 0x32) {
     iVar4 = nonStandardList[index];
   }

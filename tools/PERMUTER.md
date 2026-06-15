@@ -27,7 +27,7 @@ python tools/permute.py setup game/common/aiinit.cpp \
     asm/nonmatchings/main/AIInit_DeInitAICar__FP8Car_tObj.s
 
 # 2. grind (use -j N for N parallel workers; -J is permuter@home, not local cores; lower score = closer, 0 = byte-perfect)
-python tools/run_permuter.py permuter_work/AIInit_DeInitAICar__FP8Car_tObj -j
+python tools/run_permuter.py permuter_work/AIInit_DeInitAICar__FP8Car_tObj -j 8
 ```
 
 When it prints `found a match!` (score 0), copy the winning function body from the

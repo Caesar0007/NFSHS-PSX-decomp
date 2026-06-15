@@ -113,22 +113,33 @@ Use **Python 3.12** for splat/objdiff tooling. objdiff-cli is a Windows exe — 
 
 ## Status (update this when it moves)
 
-- **aiinit unit: 15/17 functions @100% (88.2%); overall decomp.dev 0.561%** (past
-  the 0.5% public-listing threshold).
-- Matched (15): AI_TrafficCleanUp, AIInit_CleanUp1, AIInit_CleanUp2,
-  AIInit_DeInitAICar, AIInit_DeInitAICar2, AIInit_InitAICar2, AIInit_LoadConfigs,
-  AIInit_LoadPhysicsConfig, AIInit_Reset1, AIInit_StartUp1, AI_TrafficStartUp,
-  AIInit_IsNonStandardCarFile, AIInit_ClearAICar, **AIInit_Reset2**, **AIInit_StartUp2**.
-- Remaining (2), both the hard gcc-codegen class:
-  - **InitAICar 98.95%** — gcc IV-ANCHOR selection. Got it down to ONLY the anchor
-    (registers/delta/structure all matchable): an explicit walking pointer anchors at
-    carObj (correct s0) but gcc re-anchors the giv to +1460 (the common invTopSpeeds
-    store); array-indexing anchors at 0 (correct) but swaps the loop regs (base=s1).
-    Neither idiom yields both → reverted to the higher-% baseline. Blocked from the
-    permuter by C++ `new`.
-  - **RestartAICar 93.78%** — register coloring: original packs `iVar1` then the
-    `0x10000` fixed-point const into the same `v1` (live-range reuse), const `1` in
-    `a1`. Permuter improves 660→170 but never reaches 0 (regalloc, not scheduling).
+- **aiinit unit: 16/17 functions @100% (94.1%); overall decomp.dev 0.624%.**
+- Matched (16): everything except RestartAICar — incl. **AIInit_Reset2**,
+  **AIInit_StartUp2**, **AIInit_ClearAICar**, **AIInit_InitAICar** (all cracked via
+  the levers below).
+- Remaining (1):
+  - **RestartAICar 94.32%** — found+fixed a real VALUE BUG first: `damageMult`
+    (+1912) is `0x10000` (default 1.0), not `iVar1`; the wrong value also extended
+    iVar1's live range and blocked the coalescing. Lone residual now = gcc
+    constant rematerialization/coalescing: the early-cluster `0x10000` (4 stores)
+    wants `v1` (coalesced with the just-dead iVar1) but gcc schedules its `lui`
+    before the direction stores (long critical path → feeds all uses) and puts it in
+    `v0`. The original splits it into two materializations (v1 early / v0 late)
+    because it doesn't keep the value live across the intervening carFlags branches.
+    NOT source-steerable (fresh var, reuse, literal all give v0-early); permuter
+    plateaus and flips registers rather than just scheduling. The deepest class.
+
+### ⭐ Levers that cracked the loop/IV functions this round
+- **InitAICar (IV-anchor) — array-index the per-iteration accesses, separate-offset
+  the delta.** `carObj->topSpeeds[i]` / `invTopSpeeds[i]` lets gcc factor `carObj+4i`
+  into one giv anchored at 0 (accessed +1432/+1460). Compute the `i-1` delta via a
+  SEPARATE byte-offset var (`carObj+iVar6`, not `[i-1]`) so the counter stays low-use
+  and lands in s1 (base giv s0). Last nit: emit `gearLoop=0` before `iVar6=-4` by
+  putting both in the for-init: `for (gearLoop=0, iVar6=-4; ...)`.
+- **VALUE BUGS hide as "register coloring."** A field assigned the wrong source
+  value (`damageMult=iVar1` vs `0x10000`) shows up in objdiff as a reg mismatch AND
+  silently extends a variable's live range, corrupting downstream allocation. When a
+  store's source register is "wrong," check the VALUE against the oracle first.
 
 ### ⭐ THE big lever this round — array-indexing for loops (cracked Reset2 + StartUp2)
 A loop that array-indexes a global table is NOT the same to gcc as one that walks an

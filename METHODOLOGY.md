@@ -15,6 +15,31 @@
    shared-rodata format strings) that the per-function `.s` files leave bare.
    When in doubt about what a function *does*, read it here.
 
+## Reference project: silent-hill-decomp (same toolchain — techniques transfer)
+
+[Vatuu/silent-hill-decomp](https://github.com/Vatuu/silent-hill-decomp) is the
+canonical PSX matching decomp and uses a **near-identical toolchain** to ours, which
+validates this playbook:
+- Compiler **GCC 2.8.1** (we use 2.8.0) `cc1`, assembler **ASPSX 2.77** via **maspsx**
+  + GNU `as` — same as ours.
+- Their full cc1 invocation (for reference; we verified the extra flags are **no-ops**
+  for our objects — PsyQ cc1 already defaults to them, so our `-O2 -G4` matches):
+  `-O2 -G8 -mips1 -mcpu=3000 -funsigned-char -fpeephole -ffunction-cse
+  -fpcc-struct-return -fcommon -msoft-float -mgas -fgnu-linker -quiet`. Keep
+  `-msoft-float`/`-funsigned-char` in mind if a future module does floats or signed-char
+  comparisons.
+- They lean **heavily on decomp-permuter** (we have it working — `tools/PERMUTER.md`).
+  Useful randomization passes their config enables and that we should exploit:
+  `perm_temp_for_expr`, `perm_reorder_stmts`, `perm_refer_to_var`,
+  `perm_duplicate_assignment`, `perm_chain_assignment`, `perm_split_assignment`,
+  `perm_commutative`. These are the "register/scheduling nudge" passes.
+- Their flow is **decomp.me + m2c context** (`tools/m2ctx.py`) then permuter; func
+  quality via `func_rater.py`. Our equivalent: objdiff per-function diff + the oracle.
+
+**Takeaway:** when stuck on a residual that's pure register-allocation/coalescing
+(not structure), it IS the compiler — match a known idiom or grind the permuter; don't
+invent non-original source. SH confirms there's no magic flag; it's source shape + permuter.
+
 ## Per-function workflow
 
 1. **Pick a target** — a function below 100% in the objdiff report (see *Build &

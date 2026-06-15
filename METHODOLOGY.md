@@ -5,11 +5,20 @@
 > function to a byte-perfect (100%) match. Then check `Status` below for where
 > we are and what's next.
 
-## The two hard rules
+## The hard rules
 
 1. **Target = 100% byte-match only.** A function is "done" only at 100%. Don't
    stop at 99%; don't optimize the fuzzy %. Either it matches or it doesn't.
 2. **The asm oracle is `C:\Temp\symdump-disasm\disasm-v4.txt`** (~348k lines).
+3. **DATA-MAT IS MANDATORY — a function is NOT done until its data is materialized.**
+   The moment a function hits 100%, materialize every absolute-VA global it
+   defines/writes (and isn't already defined in the project) as real bytes — owned
+   module globals in the module's `.cpp`, cross-module globals it writes in
+   `recon/game/common/func_va_data.cpp` (bss→zero-init by type/size; data→oracle
+   bytes). Read-only refs to other modules' data stay `extern`. This is additive
+   (objdiff % unchanged) but it is NOT optional — do it in the same commit/turn as the
+   match. (Missed twice; do not skip it again.)
+4. **BACKPORT byte-perfect findings to the run-tree** (see Backport rule below).
 
 ### Backport rule (byte-perfect → run-tree)
 When a function reaches **byte-perfect 100%** here, the match is *proof* of the original
@@ -88,7 +97,9 @@ invent non-original source. SH confirms there's no magic flag; it's source shape
 4. **Rebuild & re-diff** until the function diffs to **zero** real lines, then
    confirm `100.00%` in the report.
 5. **Commit** that one function. Message: what the residual was + the fix.
-6. **Data-mat pass** (see below) if the now-100% function owns absolute-VA data.
+6. **Data-mat pass — MANDATORY (hard rule #3), every 100% function, same turn.**
+   Materialize the absolute-VA globals it defines/writes (real bytes) — see below.
+   The function is not "done" until this is committed.
 
 Always work against `build/.../*.cpp.o` rebuilt with `tools/build.py --skip-asm`
 and `expected/src/*.c.o` (the asm target). Regenerate the report after each fix.

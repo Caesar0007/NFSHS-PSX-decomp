@@ -228,12 +228,15 @@ void AI_TrafficCleanUp(void)
 }
 
 /* ---- AIInit_LoadConfigs__Fv  [@0x80066ff8] ---- */
+extern char  D_8005522C[];   /* sprintf format string @0x8005522C (shared rodata) */
+extern char *D_80116470[];   /* path-table @0x80116470 (Paths_Paths+8) */
+
 void AIInit_LoadConfigs(void)
 {
+  char pathname[100];
   Udff_tInfo *handle;
-  char acStack_70 [104];
 
-  sprintf(acStack_70,"%strafcfg.dat");
+  sprintf(pathname,D_8005522C,D_80116470[0]);
   handle = Udff_Opena((char *)0x0,trafcfg,1);
   AIInit_LoadPhysicsConfig(handle);
   Udff_Close(handle);

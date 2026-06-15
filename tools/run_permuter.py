@@ -39,6 +39,12 @@ def shim_compile_sh():
 
 def main():
     shim_compile_sh()
+    # Inherited by spawned -J workers (Windows spawn copies the environment);
+    # the patched src/compiler.py routes compile.sh through this driver so
+    # parallel jobs work too.
+    import json
+    os.environ["NFS4_COMPILE_DRIVER"] = json.dumps(
+        [sys.executable, PERMUTE_PY, "compile"])
     sys.path.insert(0, PERMUTER_DIR)
     sys.argv = [os.path.join(PERMUTER_DIR, "permuter.py")] + sys.argv[1:]
     from src.main import main as permuter_main

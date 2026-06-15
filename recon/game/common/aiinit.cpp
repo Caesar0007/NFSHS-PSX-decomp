@@ -110,7 +110,12 @@ void AIInit_Reset2(void)
   int iVar2;
   Car_tObj **ppCVar3;
   
-  AIInit_useSpreadForce = (int)(GameSetup_gData.raceType != 3);
+  if (GameSetup_gData.raceType != 3) {
+    AIInit_useSpreadForce = 1;
+  }
+  else {
+    AIInit_useSpreadForce = 0;
+  }
   iVar2 = 0;
   if (0 < Cars_gNumCars) {
     ppCVar3 = Cars_gList;

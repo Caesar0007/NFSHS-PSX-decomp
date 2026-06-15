@@ -319,12 +319,14 @@ void AIInit_ClearAICar(Car_tObj *carObj)
 }
 
 /* ---- AIInit_RestartAICar__FP8Car_tObj  [@0x800671ec] ---- */
+extern int D_8011321C;   /* standalone global @0x8011321C (== GameSetup_gData+0x30) */
+
 void AIInit_RestartAICar(Car_tObj *carObj)
 {
   int iVar1;
-  
+
   iVar1 = -1;
-  if (GameSetup_gData.reverseTrack == 0) {
+  if (D_8011321C == 0) {
     iVar1 = 1;
   }
   carObj->direction = iVar1;
@@ -368,11 +370,11 @@ void AIInit_RestartAICar(Car_tObj *carObj)
   carObj->laneIndex = 7;
   carObj->AIFishtailEndTick = 0;
   carObj->lookAheadSlice = 0;
-  if ((carObj->carFlags & 2U) == 0) {
-    carObj->forceNoSimOptz = 1;
+  if ((carObj->carFlags & 2U) != 0) {
+    carObj->forceNoSimOptz = 0;
   }
   else {
-    carObj->forceNoSimOptz = 0;
+    carObj->forceNoSimOptz = 1;
   }
   carObj->wipeOutStartTick = 0;
   if ((carObj->carFlags & 10U) == 2) {
@@ -384,7 +386,7 @@ void AIInit_RestartAICar(Car_tObj *carObj)
   carObj->caravanFollowBehindDistanceMeters = 0;
   carObj->AISlot = 0;
   carObj->gripFactor = 0x10000;
-  carObj->damageMult = 0x10000;
+  carObj->damageMult = iVar1;
   carObj->extraWallCollisionAllowance = 0;
   return;
 }

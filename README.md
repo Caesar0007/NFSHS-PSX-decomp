@@ -5,23 +5,29 @@ A byte-matching decompilation of the PSX build of *Need for Speed: High Stakes*
 mould: splat-split asm, `INCLUDE_ASM`-based mixed translation units, and objdiff
 per-function matching against the original binary.
 
-> **Goal**: recompile to a byte-identical `nfs4-f.exe`. This is the *matching*
-> track — distinct from the sibling "compile + link + run" reconstruction
+> **Goal**: recompile each function to a byte-identical object (per-function
+> 100% matching, objdiff/decomp.dev). This is the *matching* track — distinct
+> from the sibling "compile + link + run" reconstruction
 > (`reconstructed_headers/tree`).
+
+## 👉 Read [METHODOLOGY.md](METHODOLOGY.md) FIRST
+
+[**METHODOLOGY.md**](METHODOLOGY.md) is the matching playbook — the two hard
+rules (100%-only; the `disasm-v4.txt` oracle), the per-function workflow, the
+technique catalog (symptom → fix), permuter usage, the data-mat pass, and the
+live status. **If you're an agent resuming after `/compact`, open it before
+touching anything.**
 
 ## Status
 
-The full pipeline is wired and proven end-to-end:
+The full pipeline is wired and proven end-to-end (splat → real PsyQ `cc1` 2.8.0
+→ maspsx/aspsx 2.77 → GNU `as` → ELF → objdiff), CI-green on a Windows runner,
+and live on [decomp.dev](https://decomp.dev/Caesar0007/NFSHS-PSX-decomp).
 
-| Stage | Status |
-|-------|--------|
-| splat split of `nfs4-f.exe` | ✅ 2573 function `.s` + data sections, `src/main.c` |
-| asm → ELF round-trip fidelity | ✅ byte-exact on all non-relocated words; `.rodata` reassembles **96.49%** |
-| C compile via real PsyQ `cc1` (gcc 2.8.0) → maspsx (aspsx 2.77) → GNU `as` | ✅ |
-| link (`ld`) → flat `nfs4.exe` | ✅ builds a full 1.24 MB image |
-| whole-image byte match | 🚧 ~43% (see *Next steps*) |
-
-The disassembly is faithful; remaining mismatch is **section layout**, not bad asm.
+**Per-function matching is the active work.** First module under attack is
+`game/common/aiinit` (objdiff unit): **12/17 functions byte-perfect (50%)**;
+overall **0.48%**. See [METHODOLOGY.md](METHODOLOGY.md) for the live table and
+the remaining (gcc register-allocation–bound) near-misses.
 
 ## Toolchain
 
@@ -94,8 +100,9 @@ py -3.12 tools/build.py --skip-asm                  # base objects
 C:/Temp/objdiff/objdiff-cli.exe report generate -p . -o build/report.binpb -f proto
 ```
 
-Current baseline: **0.08 %** matched (74 / 2567 functions — the trivial stubs).
 This is a per-*object* diff, so it does **not** depend on the whole-image link.
+Current overall: **~0.48 %** and climbing as functions are matched one at a time
+(see [METHODOLOGY.md](METHODOLOGY.md) for the per-function workflow and status).
 
 [decomp.dev](https://decomp.dev) ingests that report via CI:
 `.github/workflows/report.yml` (windows runner, native cc1) builds it and uploads
@@ -106,15 +113,12 @@ link works directly (the workflow forces `dl=1`) — see the workflow header.
 
 ## Next steps (toward 100% match)
 
-1. **Section layout** — `linkers/nfs4.ld` `ALIGN(.,16)`/`SUBALIGN(16)` pads
-   `.text` past its true 4-aligned start `0x8005797C`, cascading mismatches.
-   Pin sections to exact VAs (no over-alignment). This is the dominant gap.
-2. **rodata/front-overlay zone** — `0x80010000–0x80054547` is shared by main
-   `.rodata` and the `front` overlay; split a second config (`front.yaml`)
-   like SH's `bodyprog.yaml`.
-3. **objdiff** — `objdiff.json` is stubbed; build an `expected/` set (pure-asm
-   objects) once layout matches, then decompile functions in `src/main.c`
-   one at a time, diffing against expected.
-4. Migrate functions out of the monolithic `src/main.c` into per-source-file
-   TUs (use the SLD source-file map from the sibling reconstruction project).
-```
+The active strategy is **per-function matching, one function at a time**, against
+the objdiff `expected/` (asm) target — see [METHODOLOGY.md](METHODOLOGY.md) for
+the workflow, technique catalog, and live status. In short:
+
+1. Finish the `aiinit` unit (5 near-misses left, all gcc register-allocation /
+   induction-variable bound — the hard tail).
+2. Vendor the next reconstruction module as a new objdiff unit and repeat.
+3. Whole-image link/layout is a separate, later concern; matching is per-object
+   and does not depend on it.

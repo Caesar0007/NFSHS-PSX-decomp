@@ -144,11 +144,8 @@ int AIScript_DoReAction(AIScript_t *script,AIScript_tAIReaction testReaction)
 /* ---- AIScript_GetReactionTicksLeft__FP10AIScript_t  [@0x8006f988] ---- */
 int AIScript_GetReactionTicksLeft(AIScript_t *script)
 {
-  int iVar1;
-
-  iVar1 = 0;
   if (script->actionIndex != 7) {
-    iVar1 = script->reactionTicksLeft;
+    return script->reactionTicksLeft;
   }
-  return iVar1;
+  return 0;
 }

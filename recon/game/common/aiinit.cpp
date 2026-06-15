@@ -307,14 +307,9 @@ void AIInit_LoadPhysicsConfig(Udff_tInfo *handle)
 void AIInit_ClearAICar(Car_tObj *carObj)
 {
   coorddef zero;
-  int local_18;
-  int local_14;
-  int local_10;
-  
-  memset((u_char *)&local_18,'\0',0xc);
-  (carObj->N).angularVel.x = local_18;
-  (carObj->N).angularVel.y = local_14;
-  (carObj->N).angularVel.z = local_10;
+
+  memset((u_char *)&zero,'\0',0xc);
+  (carObj->N).angularVel = zero;
   (carObj->N).flightTime = 0;
   carObj->frontSkid = 0;
   carObj->rearSkid = 0;

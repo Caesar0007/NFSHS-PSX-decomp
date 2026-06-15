@@ -46,6 +46,14 @@
       "metadata": {
         "source_path": "recon/game/common/aiscript.cpp"
       }
+    },
+    {
+      "name": "game/common/aiperson",
+      "target_path": "expected/src/aiperson.c.o",
+      "base_path": "build/recon/game/common/aiperson.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/common/aiperson.cpp"
+      }
     }
   ]
 }

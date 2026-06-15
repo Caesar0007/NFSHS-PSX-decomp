@@ -11,7 +11,7 @@ extern AIPhysic_Config_t AIPhysicConfig;
 extern AISpeeds_tLeaderBoard leaderBoard;
 extern AITrigger_TriggerManager *triggerManagerTraffic;
 extern AI_tInfo AI_Info;
-extern Car_tObj **Cars_gList;
+extern Car_tObj *Cars_gList[];
 extern GameSetup_tData   GameSetup_gData;
 extern Udff_tInfo * Udff_Opena(char *name,char *mem,int abortFlag);
 extern accelscale_t AITune_accelerationScale[];

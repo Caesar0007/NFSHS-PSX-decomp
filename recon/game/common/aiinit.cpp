@@ -176,16 +176,16 @@ void AIInit_CleanUp2(void)
       AIPhysic_DeInitCar(carObj);
     } while (iVar2 < Cars_gNumCars);
   }
-  iVar2 = 0;
+  carLoop = 0;
   AITune_CleanUp2();
   AIPhysic_CleanUp();
   AIDataRecord_t::CleanUp2();
   AIPerson_Cleanup();
   if (0 < Cars_gNumCars) {
     do {
-      iVar2 = iVar2 + 1;
+      carLoop = carLoop + 1;
       AIScript_Cleanup();
-    } while (iVar2 < Cars_gNumCars);
+    } while (carLoop < Cars_gNumCars);
   }
   AISpeeds_CleanUp();
   return;

@@ -38,6 +38,14 @@
       "metadata": {
         "source_path": "recon/game/common/aitune.cpp"
       }
+    },
+    {
+      "name": "game/common/aiscript",
+      "target_path": "expected/src/aiscript.c.o",
+      "base_path": "build/recon/game/common/aiscript.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/common/aiscript.cpp"
+      }
     }
   ]
 }

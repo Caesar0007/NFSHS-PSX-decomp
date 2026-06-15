@@ -76,38 +76,37 @@ void AIScript_SubmitPlayerAction(AIScript_t *script,int humCarIndex,AIScript_tPl
 /* ---- AIScript_ProcessActionsAndReactions__FP10AIScript_ti  [@0x8006f7f0] ---- */
 void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
 {
-  int bVar1;
+  int go;
   int iVar2;
-  u_int uVar3;
-  int *piVar4;
-  AIScript_tReactionDetails (*paAVar5) [7];
-  
-  paAVar5 = script->data;
+  int newReaction;
+  int newTime;
+  int *lastReactionIndex;
+  AIScript_tReactionDetails (*scriptData) [7];
+
+  scriptData = script->data;
   if (script->actionIndex == 7) {
-    bVar1 = 1;
     if (script->detectAction != 7) {
+      go = 1;
       script->actionIndex = script->detectAction;
+      script->actionHumCarIndex = script->detectHumCarIndex;
       script->detectAction = 7;
       script->reactionTicksLeft = 0;
-      piVar4 = script->lastReactionIndex + script->actionIndex;
-      script->actionHumCarIndex = script->detectHumCarIndex;
-      iVar2 = *piVar4;
+      lastReactionIndex = script->lastReactionIndex + script->actionIndex;
       script->reaction = 1;
-      script->reactionIndex = iVar2;
-      while (bVar1) {
+      script->reactionIndex = *lastReactionIndex;
+      while (go) {
         iVar2 = script->reactionIndex + 1;
         if ((iVar2 < 4) &&
-           (1 << (u_char)(*paAVar5)[script->actionIndex].reaction[iVar2] != 2)) {
+           ((newReaction = 1 << (u_char)(*scriptData)[script->actionIndex].reaction[iVar2]) != 2)) {
           script->reactionIndex = iVar2;
-          *piVar4 = *piVar4 + 1;
+          *lastReactionIndex = *lastReactionIndex + 1;
         }
-        script->reaction =
-             script->reaction |
-             1 << (u_char)(*paAVar5)[script->actionIndex].reaction[script->reactionIndex];
-        uVar3 = (u_int)(u_char)(*paAVar5)[script->actionIndex].halfSeconds[script->reactionIndex];
-        if (uVar3 != 0) {
-          script->reactionTicksLeft = uVar3 << 4;
-          bVar1 = 0;
+        newReaction = 1 << (u_char)(*scriptData)[script->actionIndex].reaction[script->reactionIndex];
+        script->reaction = script->reaction | newReaction;
+        newTime = (u_char)(*scriptData)[script->actionIndex].halfSeconds[script->reactionIndex];
+        if (newTime != 0) {
+          script->reactionTicksLeft = newTime << 4;
+          go = 0;
         }
         if (script->reaction == 1) {
           script->actionIndex = 7;

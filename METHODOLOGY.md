@@ -129,6 +129,8 @@ These are ordered roughly easiest→hardest. Most near-misses are one of these.
 | 7 | two calls collapsed into one with a conditional arg | write it as the explicit branch: `if (c) f(x); else f(y);` — gcc cross-jumps the two calls into one. (Ghidra's `if(x==0)x=0;` no-op gets folded away and loses the branch.) |
 | 8 | commutative op operands swapped (`addu v0,a,b` vs `b,a`); a constant in the "wrong" callee-saved reg; loop counter/pointer in a shifted/swapped s-register | **regalloc/scheduling** — reorder source statements, give a loop its own counter variable, or materialize a value into a temp at a different point. Fiddly; try the permuter. |
 | 9 | gcc strength-reduced a loop pointer to a `base+const` induction variable (orig keeps `base` + large offsets; recon walks `base+const`) | hardest class — gcc IV selection. No reliable source lever found yet; permuter often can't reach it either. |
+| 10 | a `<< (x & 0x1f)` produces an `andi` absent from the oracle | drop the mask — MIPS `sllv`/`srlv` truncate the shift count in hardware (SHIFT_COUNT_TRUNCATED), so the original never masked it. The `& 0x1f` is a reconstruction artifact. |
+| 11 | function ends `tmp=0; if(cond) tmp=X; return tmp;` but the temp detours through a non-`v0` reg (`addu a1,zero,zero` + final `addu v0,a1,zero`) | rewrite as **early-return**: `if(cond) return X; return 0;`. Removing the named temp deletes its register web so each branch's value coalesces straight into `$v0`. (Cracked GetReactionTicksLeft.) |
 
 ### Notes that bite
 - **Statement order ≠ instruction order**, but it nudges the scheduler. Moving an
@@ -185,9 +187,11 @@ Use **Python 3.12** for splat/objdiff tooling. objdiff-cli is a Windows exe — 
 
 ## Status (update this when it moves)
 
-- **UNITS (2026-06-15): aiinit 17/17 ✅ · aitune 7/7 ✅ · aiscript 6/8 · overall 0.743%.**
-  aiscript holdouts (gcc regalloc): ProcessActions 71% (script a0-vs-a2 cascade,
-  permuter plateaus ~1415), GetReactionTicksLeft 90% (v0-coalescing, permuter zero-progress).
+- **UNITS (2026-06-15): aiinit 17/17 ✅ · aitune 7/7 ✅ · aiscript 7/8 · overall ~0.745%.**
+  GetReactionTicksLeft cracked (90→100) via the early-return form (technique #11).
+  aiscript holdout: ProcessActions 73.57% (was 71.34 — dropped spurious `&0x1f` masks,
+  technique #10); residual = loop-rotation + script a0-vs-a2 base-reg cascade; permuter
+  re-launched from the improved 73.57% base.
 - **aiinit unit: 17/17 functions @100% — UNIT COMPLETE.**
 - **AIInit_RestartAICar — DONE (100%)** via the permuter (see "permuter win" below).
 - Prior remaining-1 notes (kept for the technique record):

@@ -368,7 +368,7 @@ void AIInit_RestartAICar(Car_tObj *carObj)
   carObj->caravanFollowBehindDistanceMeters = 0;
   carObj->AISlot = 0;
   carObj->gripFactor = 0x10000;
-  carObj->damageMult = iVar1;
+  carObj->damageMult = 0x10000;
   carObj->extraWallCollisionAllowance = 0;
   return;
 }

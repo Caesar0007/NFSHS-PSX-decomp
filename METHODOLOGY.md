@@ -209,6 +209,14 @@ python tools/run_permuter.py permuter_work/<MANGLED_SYM> -j 8 --stop-on-zero
   table reads through `p2[i]` instead of `(*scriptData)[i]`. Dereferencing a
   pointer-to-array once into a fresh local frees the allocator to color an
   unrelated offset temp into the oracle's register. Worth trying by hand too.
+- 🔑 **`register…asm("$N")` PINS ARE A CRUTCH — strip them, then RE-PERMUTE.** Once
+  a *structural* mutation lands the match (the `*ptr` hoist above), the hardware-
+  register pins are usually redundant. Delete them all (→ plain locals) and run the
+  permuter again from that pin-stripped base: with the structural fix already in
+  place its base score is tiny (40 here vs 220 for the pinned-removal base), so it
+  recovers a clean, portable, pin-free 100% in seconds. ProcessActions' final form
+  has ZERO asm — just the `*ptr` hoist + a `do{…}while(0)` block-scope nudge on one
+  store + oracle-order statement tricks. **Prefer pin-free; pins are a last resort.**
 
 ## Data materialization pass
 

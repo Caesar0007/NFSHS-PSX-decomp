@@ -314,17 +314,24 @@ int AIDataRecord_CurveSpeedTable_t::Get(int curve)
 /* ---- Upgrade__30AIDataRecord_CurveSpeedTable_ti ---- */
 void AIDataRecord_CurveSpeedTable_t::Upgrade(int handlingUpgrade)
 {
-  int curveLoop;
+  register int round asm("$18");   /* s2: hoist 0xffff across the loop */
+  char *pcVar1;
   int iVar1;
   int curve;
 
-  for (curve = 0; curve < (this->_base_AIDataRecord_t).numElements_; curve = curve + 1) {
+  curve = 0;
+  round = 0xffff;
+ loopTop:
+  if (curve < (this->_base_AIDataRecord_t).numElements_) {
     iVar1 = this->Get(curve);
     iVar1 = fixedmult(iVar1,handlingUpgrade);
+    pcVar1 = (this->_base_AIDataRecord_t).dataBuffer_ + curve;
     if (iVar1 < 0) {
-      iVar1 = iVar1 + 0xffff;
+      iVar1 = iVar1 + round;
     }
-    (this->_base_AIDataRecord_t).dataBuffer_[curve] = (char)((u_int)iVar1 >> 0x10);
+    *pcVar1 = (char)(iVar1 >> 0x10);
+    curve = curve + 1;
+    goto loopTop;
   }
   return;
 }

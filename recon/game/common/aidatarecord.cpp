@@ -46,11 +46,12 @@ int AIDataRecord_t::AddRecordToCollection()
   ppAVar1 = recordCollection;
   do {
     iVar2 = iVar2 + 1;
-    if (*ppAVar1 == (AIDataRecord_t *)0x0) {
-      *ppAVar1 = this;
-      return 1;
+    if (*ppAVar1 != (AIDataRecord_t *)0x0) {
+      ppAVar1 = ppAVar1 + 1;
+      continue;
     }
-    ppAVar1 = ppAVar1 + 1;
+    *ppAVar1 = this;
+    return 1;
   } while (iVar2 < 0x18);
   return 0;
 }
@@ -66,11 +67,12 @@ int AIDataRecord_t::RemoveRecordFromCollection()
   ppAVar1 = recordCollection;
   do {
     iVar2 = iVar2 + 1;
-    if (*ppAVar1 == this) {
-      *ppAVar1 = (AIDataRecord_t *)0x0;
-      return 1;
+    if (*ppAVar1 != this) {
+      ppAVar1 = ppAVar1 + 1;
+      continue;
     }
-    ppAVar1 = ppAVar1 + 1;
+    *ppAVar1 = (AIDataRecord_t *)0x0;
+    return 1;
   } while (iVar2 < 0x18);
   return 0;
 }

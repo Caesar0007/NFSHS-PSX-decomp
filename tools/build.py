@@ -116,8 +116,12 @@ def compile_cpp(src: Path) -> Path:
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}",
                   "--run-assembler", f"--gnu-as-path={AS}",
                   *AS_ARCH, f"-G{G_VALUE}", "-I", RECON, "-o", obj]
+    # cfront dtor mangling: our CC1PL emits `_._<class>` (NO_DOLLAR_IN_LABEL -> '.'),
+    # but EA's toolchain used the '.'->'_' convention (NO_DOT_IN_LABEL) => `___<class>`.
+    # `_._` only ever appears as the dtor prefix, so this rename is surgical.
+    s_text = s_file.read_text().replace("_._", "___")
     r = subprocess.run([str(c) for c in maspsx_cmd],
-                       input=s_file.read_text(), capture_output=True, text=True,
+                       input=s_text, capture_output=True, text=True,
                        cwd=ROOT)
     if r.returncode or not obj.exists():
         sys.exit(f"[maspsx/as++] {rel}\n{r.stdout}{r.stderr}")

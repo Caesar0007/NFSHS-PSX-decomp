@@ -215,10 +215,14 @@ void AIDataRecord_AccTable_t::Setup()
   int speed;
 
   this->_base_AIDataRecord_t.Setup();
-  for (speed = 0; speed < 0x70; speed = speed + 1) {
+  speed = 0;
+ loopTop:
+  if (speed < 0x70) {
     iVar1 = this->Get(speed);
     iVar1 = fixedmult(iVar1,this->scale_);
-    *(short *)((this->_base_AIDataRecord_t).dataBuffer_ + speed * 2) = (short)((u_int)iVar1 >> 8);
+    *(short *)((this->_base_AIDataRecord_t).dataBuffer_ + speed * 2) = (short)(iVar1 >> 8);
+    speed = speed + 1;
+    goto loopTop;
   }
   return;
 }

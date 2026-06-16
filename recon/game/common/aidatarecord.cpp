@@ -124,14 +124,12 @@ void AIDataRecord_t::CleanUp1(void)
 
   if (AIDataRecord_BestLine != (AIDataRecord_BestLine_t *)0x0) {
     pa_Var1 = (AIDataRecord_BestLine->_base_AIDataRecord_t)._vf;
-    (**(int (**)(...))(pa_Var1 + 4))
-              ((AIDataRecord_BestLine->_base_AIDataRecord_t).name_ + *(short *)(pa_Var1[2] + 2) + -8,3);
+    (*(*pa_Var1)[1].pfn)((char *)&AIDataRecord_BestLine->_base_AIDataRecord_t + (*pa_Var1)[1].delta,3);
     AIDataRecord_BestLine = (AIDataRecord_BestLine_t *)0x0;
   }
   if (AIDataRecord_TrackCurve != (AIDataRecord_TrackCurve_t *)0x0) {
     pa_Var1 = (AIDataRecord_TrackCurve->_base_AIDataRecord_t)._vf;
-    (**(int (**)(...))(pa_Var1 + 4))
-              ((AIDataRecord_TrackCurve->_base_AIDataRecord_t).name_ + *(short *)(pa_Var1[2] + 2) + -8,3);
+    (*(*pa_Var1)[1].pfn)((char *)&AIDataRecord_TrackCurve->_base_AIDataRecord_t + (*pa_Var1)[1].delta,3);
     AIDataRecord_TrackCurve = (AIDataRecord_TrackCurve_t *)0x0;
   }
   return;

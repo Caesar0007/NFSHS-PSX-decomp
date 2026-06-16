@@ -83,7 +83,7 @@ void AIDataRecord_t::StartUp1(void)
   int iVar2;
 
   iVar2 = 0x17;
-  ppAVar1 = recordCollection + 0x17;
+  ppAVar1 = recordCollection + iVar2;
   AIDataRecord_WhichRecord = 0;
   AIDataRecord_RecordMethod = 0;
   do {
@@ -196,7 +196,8 @@ AIDataRecord_AccTable_t::AIDataRecord_AccTable_t(char *preBuffer,int scale,
   (this->_base_AIDataRecord_t).numElements_ = 0x70;
   (this->_base_AIDataRecord_t).bSize_ = 0xe0;
   this->scale_ = scale;
-  sprintf((this->_base_AIDataRecord_t).name_,"%s%s.acc");
+  sprintf((this->_base_AIDataRecord_t).name_,"%s%s.acc",D_8011647C,
+          (char *)Cars_gHumanRaceCarList[0] + 0x240);
   return;
 }
 

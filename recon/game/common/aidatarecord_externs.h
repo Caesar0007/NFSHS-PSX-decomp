@@ -12,7 +12,13 @@ extern __vtbl_ptr_type AIDataRecord_t_vtable[], AIDataRecord_AccTable_t_vtable[]
 extern int gNumSlices;
 
 /* path-prefix globals (Paths table @0x80116468) + car list, for the ctor sprintf()s */
-extern char     *D_8011647C;   /* @0x8011647C path prefix (= D_80116470[3]) */
+extern char     *D_8011647C;   /* @0x8011647C path prefix (AccTable, CurveSpeed .csp) */
+extern char     *D_80116478;   /* @0x80116478 path prefix (CurveSpeed .qcs) */
+extern char     *D_80116490;   /* @0x80116490 path prefix (TrackCurve .qcr) */
+extern char     *D_80116494;   /* @0x80116494 path prefix (TrackCurve .crv) */
+extern char     *D_80116498;   /* @0x80116498 path prefix (BestLine .qbe) */
+extern char     *D_8011649C;   /* @0x8011649C path prefix (BestLine .bes) */
+extern int       D_80113228;   /* @0x80113228 track number (sprintf %02d) */
 extern Car_tObj *Cars_gHumanRaceCarList[9];   /* cars.obj; [0]+0x240 = car name */
 
 #endif /* _GAME_COMMON_AIDATARECORD_EXTERNS_H_ */

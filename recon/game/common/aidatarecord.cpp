@@ -241,6 +241,7 @@ AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whic
 {
   int iVar1;
   char *fmt;
+  char *path;
 
   iVar1 = gNumSlices;
   (this->_base_AIDataRecord_t)._vf = (__vtbl_ptr_type (*) [3])AIDataRecord_BestLine_t_vtable;
@@ -248,11 +249,13 @@ AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whic
   (this->_base_AIDataRecord_t).bSize_ = iVar1;
   if ((this->_base_AIDataRecord_t).recordMethod_ == 0) {
     fmt = "%sTr%02d.qbe";
+    path = D_80116498;
   }
   else {
     fmt = "%sTr%02d.bes";
+    path = D_8011649C;
   }
-  sprintf((this->_base_AIDataRecord_t).name_,fmt);
+  sprintf((this->_base_AIDataRecord_t).name_,fmt,path,D_80113228);
   return;
 }
 
@@ -262,6 +265,7 @@ AIDataRecord_TrackCurve_t::AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t 
 {
   int iVar1;
   char *fmt;
+  char *path;
 
   iVar1 = gNumSlices;
   (this->_base_AIDataRecord_t)._vf = (__vtbl_ptr_type (*) [3])AIDataRecord_TrackCurve_t_vtable;
@@ -269,11 +273,13 @@ AIDataRecord_TrackCurve_t::AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t 
   (this->_base_AIDataRecord_t).bSize_ = iVar1 + 1;
   if ((this->_base_AIDataRecord_t).recordMethod_ == 0) {
     fmt = "%sTr%02d.qcr";
+    path = D_80116490;
   }
   else {
     fmt = "%sTr%02d.crv";
+    path = D_80116494;
   }
-  sprintf((this->_base_AIDataRecord_t).name_,fmt);
+  sprintf((this->_base_AIDataRecord_t).name_,fmt,path,D_80113228);
   return;
 }
 
@@ -289,17 +295,20 @@ AIDataRecord_CurveSpeedTable_t::AIDataRecord_CurveSpeedTable_t(char *carName,
   : _base_AIDataRecord_t(whichIsThis,(char *)0x0)
 {
   char *fmt;
+  char *path;
 
   (this->_base_AIDataRecord_t)._vf = (__vtbl_ptr_type (*) [3])AIDataRecord_CurveSpeedTable_t_vtable;
   (this->_base_AIDataRecord_t).numElements_ = 0x100;
   (this->_base_AIDataRecord_t).bSize_ = 0x100;
   if ((this->_base_AIDataRecord_t).recordMethod_ == 0) {
     fmt = "%s%s.qcs";
+    path = D_80116478;
   }
   else {
     fmt = "%s%s.csp";
+    path = D_8011647C;
   }
-  sprintf((this->_base_AIDataRecord_t).name_,fmt);
+  sprintf((this->_base_AIDataRecord_t).name_,fmt,path,carName);
   return;
 }
 

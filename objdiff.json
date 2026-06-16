@@ -54,6 +54,14 @@
       "metadata": {
         "source_path": "recon/game/common/aiperson.cpp"
       }
+    },
+    {
+      "name": "game/common/aidatarecord",
+      "target_path": "expected/src/aidatarecord.c.o",
+      "base_path": "build/recon/game/common/aidatarecord.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/common/aidatarecord.cpp"
+      }
     }
   ]
 }

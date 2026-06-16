@@ -190,12 +190,25 @@ python tools/patch_permuter.py    # once: teaches it cfront (...) + enables -j N
 python tools/permute.py setup <module.cpp> <MANGLED_SYM> <nonmatching.s>
 python tools/run_permuter.py permuter_work/<MANGLED_SYM> -j 8 --stop-on-zero
 ```
-- **It IS good at** pure instruction reordering / scheduling.
-- **It CANNOT** flip within-statement register-allocation choices (which reg holds
-  a reused constant, base-reg for a load). Those need a deterministic source-shape
-  fix from the catalog. If it plateaus at a small non-zero score, stop and think.
+- **It IS good at** pure instruction reordering / scheduling — AND, given enough
+  iterations, some within-statement regalloc residuals too (it found a valid
+  source mutation that flipped a v1-vs-a3 coloring; see below).
+- **CANNOT** reliably flip within-statement register-allocation choices in a
+  hand-written source-shape (which reg holds a reused constant, base-reg for a
+  load). Those usually need a deterministic source-shape fix from the catalog.
 - `-j N` = N local workers (fast); `-J` = permuter@home (distributed, NOT local).
 - It can't run on functions containing C++ `new`.
+- 🔑 **SEED FROM THE SIMPLER BASE, NOT THE HIGHEST-% ONE.** A higher-objdiff-%
+  *pinned* local minimum can be a strictly WORSE permuter basin than a lower-%
+  *unpinned* form. ProcessActions: the 99.67% form (heavy `register…asm()` pins)
+  plateaued; deleting the last pin dropped objdiff to 99.2% **but** the permuter
+  reached score 0 (perfect) from that 99.2% base in ~1656 iters. Pins constrain
+  the search — strip the speculative ones before a permuter run.
+- 🔑 **WINNING MUTATION CLASS — hoist `*ptr` into its own pseudo.** The permuter
+  cracked the v1/a3 residual by adding `T *p2 = *scriptData;` and routing the
+  table reads through `p2[i]` instead of `(*scriptData)[i]`. Dereferencing a
+  pointer-to-array once into a fresh local frees the allocator to color an
+  unrelated offset temp into the oracle's register. Worth trying by hand too.
 
 ## Data materialization pass
 
@@ -225,7 +238,7 @@ Use **Python 3.12** for splat/objdiff tooling. objdiff-cli is a Windows exe — 
 
 ## Status (update this when it moves)
 
-- **UNITS (2026-06-16): aiinit 17/17 ✅ · aitune 7/7 ✅ · aiperson 8/8 ✅ · aiscript 7/8 (ProcessActions OPEN near-match).**
+- **UNITS (2026-06-16): aiinit 17/17 ✅ · aitune 7/7 ✅ · aiperson 8/8 ✅ · aiscript 8/8 ✅ (ProcessActions SEALED 100% @1d71c4c).**
   aiperson COMPLETE — both "hard class" holdouts cracked via m2c `--reg-vars` (see ⭐ section above).
   GetReactionTicksLeft cracked (90→100) via early-return (technique #11). ProcessActions
   **96.17% (committed `0f8426c`), STRUCTURE byte-perfect**; lone residual = the top-test-coloring↔

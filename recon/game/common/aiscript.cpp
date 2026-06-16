@@ -81,14 +81,15 @@ void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
   register int one   asm("$10");   /* t2 */
   register int seven asm("$11");   /* t3 */
   register int two   asm("$12");   /* t4 */
-  register int *lastReactionIndex asm("$7");  /* a3 */
+  int *lastReactionIndex;
+  AIScript_tReactionDetails *new_var2;   /* permuter: *scriptData hoisted to its own reg -> cracks the v1/a3 coloring */
   unsigned int new_var;
   int iVar2;
   int newReaction;
   int newTime;
 
   scriptData = script->data;
-  if ((newReaction = script->actionIndex) == 7) {   /* matching aid (permuter): cache actionIndex for the compares */
+  if ((newReaction = script->actionIndex) == 7) {   /* cache actionIndex for the compares */
     go = 1;
     if (script->detectAction != 7) {
       script->actionIndex = script->detectAction;
@@ -101,17 +102,18 @@ void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
       seven = 7;
       two = 2;
       script->reactionIndex = new_var;
+      new_var2 = *scriptData;   /* permuter: dereference once into its own reg */
      loopTop:
       if (go != 0) {
         iVar2 = script->reactionIndex + 1;
         if ((iVar2 < 4) &&
-           ((newReaction = one << (u_char)(*scriptData)[script->actionIndex].reaction[iVar2]) != two)) {
+           ((newReaction = one << (u_char)new_var2[script->actionIndex].reaction[iVar2]) != two)) {
           script->reactionIndex = iVar2;
           *lastReactionIndex = *lastReactionIndex + 1;
         }
-        newReaction = one << (u_char)(*scriptData)[script->actionIndex].reaction[script->reactionIndex];
+        newReaction = one << (u_char)new_var2[script->actionIndex].reaction[script->reactionIndex];
         script->reaction = script->reaction | newReaction;
-        newTime = (u_char)(*scriptData)[script->actionIndex].halfSeconds[script->reactionIndex];
+        newTime = (u_char)new_var2[script->actionIndex].halfSeconds[script->reactionIndex];
         if (newTime != 0) {
           script->reactionTicksLeft = newTime << 4;
           go = 0;

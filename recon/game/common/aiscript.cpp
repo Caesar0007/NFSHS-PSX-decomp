@@ -76,13 +76,13 @@ void AIScript_SubmitPlayerAction(AIScript_t *script,int humCarIndex,AIScript_tPl
 /* ---- AIScript_ProcessActionsAndReactions__FP10AIScript_ti  [@0x8006f7f0] ---- */
 void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
 {
-  register AIScript_tReactionDetails (*scriptData) [7] asm("$8");   /* t0 */
-  register int go    asm("$9");    /* t1 */
-  register int one   asm("$10");   /* t2 */
-  register int seven asm("$11");   /* t3 */
-  register int two   asm("$12");   /* t4 */
+  AIScript_tReactionDetails (*scriptData) [7];
+  int go;
+  int one;
+  int seven;
+  int two;
   int *lastReactionIndex;
-  AIScript_tReactionDetails *new_var2;   /* permuter: *scriptData hoisted to its own reg -> cracks the v1/a3 coloring */
+  AIScript_tReactionDetails *new_var2;   /* *scriptData hoisted once -> lets gcc color the table base + offset like the oracle */
   unsigned int new_var;
   int iVar2;
   int newReaction;
@@ -97,19 +97,19 @@ void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
       script->detectAction = 7;
       script->reactionTicksLeft = 0;
       lastReactionIndex = script->lastReactionIndex + script->actionIndex;
-      new_var = *lastReactionIndex;   /* matching aid (permuter): cache the load early */
-      one = (script->reaction = 1);   /* matching aid (permuter): reuse the stored 1 (oracle's move t2,t1) */
+      new_var = *lastReactionIndex;   /* load cached early (oracle order) */
+      one = (script->reaction = 1);   /* reuse the stored 1 (oracle's move t2,t1) */
       seven = 7;
       two = 2;
       script->reactionIndex = new_var;
-      new_var2 = *scriptData;   /* permuter: dereference once into its own reg */
+      new_var2 = *scriptData;   /* dereference once */
      loopTop:
       if (go != 0) {
         iVar2 = script->reactionIndex + 1;
         if ((iVar2 < 4) &&
            ((newReaction = one << (u_char)new_var2[script->actionIndex].reaction[iVar2]) != two)) {
           script->reactionIndex = iVar2;
-          *lastReactionIndex = *lastReactionIndex + 1;
+          do { *lastReactionIndex = *lastReactionIndex + 1; } while (0);  /* block scope nudges gcc's store scheduling to match */
         }
         newReaction = one << (u_char)new_var2[script->actionIndex].reaction[script->reactionIndex];
         script->reaction = script->reaction | newReaction;

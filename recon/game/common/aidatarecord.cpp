@@ -109,7 +109,7 @@ void AIDataRecord_t::StartUp2(void)
   do {
     pAVar1 = *ppAVar2;
     if (pAVar1 != (AIDataRecord_t *)0x0) {
-      (**(int (**)(...))(pAVar1->_vf[6] + 2))(pAVar1->name_ + *(short *)(pAVar1->_vf[5] + 1) + -8);
+      (*(*pAVar1->_vf)[2].pfn)((char *)pAVar1 + (*pAVar1->_vf)[2].delta);
     }
     iVar3 = iVar3 + 1;
     ppAVar2 = ppAVar2 + 1;

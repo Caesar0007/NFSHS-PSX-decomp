@@ -25,6 +25,15 @@ When a function reaches **byte-perfect 100%** here, the match is *proof* of the 
 behavior — backport the proven **correctness** to the NFS4-F run-tree
 (`C:\Temp\claud\reconstructed_headers\tree`, `github.com/Caesar0007/NFSHSX.git`) and push.
 
+🔴 **USER RULE (2026-06-16): BACKPORT THE WHOLE VERIFIED BODY, not just exposed bugs.**
+"Code must match with the source tree. We achieved 100% match — that must be backported."
+A byte-verified 100% body is the proven source of truth; the run-tree's independent
+reconstruction is UNVERIFIED. Replace it with the matched body **even when the run-tree's
+version is behaviorally equivalent**. The matching crutches that ride along (the `*ptr`
+hoist, `do{…}while(0)`, helper temps; NOT `register…asm()` pins — strip those) are benign
+in the run-tree and don't change its behavior. Goal = both trees carry the same proven
+logic. Do this in the SAME pass as the seal (ccpsx RC=0 + g++ -m32 clean, then push).
+
 **Also backport the DATA-MAT.** Every global the data-mat materializes here must exist
 in the run-tree with the byte-proven **VA + type + size + bytes** (bss→zero, data→oracle
 bytes). The run-tree is a *full* reconstruction, so cross-module globals live in their
@@ -34,11 +43,13 @@ owning module's `.cpp` (e.g. `AI_Info`→ai.cpp, `leaderBoard`→aispeeds.cpp,
 definition matches the byte-proven fact; if it's missing, wrong-typed, wrong-VA, or has
 placeholder/wrong initialized bytes, fix it and push. (2026-06-15: verified all 4 current
 entries already consistent — no-op that round.)
-- Backport **real value/logic bugs** the match exposed (e.g. Reset2 leaderBoard null→
+- Backport the **whole verified body** (per the user rule above) — and especially any
+  **real value/logic bugs** the match exposed (e.g. Reset2 leaderBoard null→
   `Cars_gHumanRaceCarList[0]`; IsNonStandardCarFile `[48]=0`→`=src[48]`).
-- Do NOT backport **behavior-identical** differences: matching aids (`new_var` alias),
-  symbol-form swaps (`D_xxxx` vs `Struct.field`), `fixeddiv`/`rdiv` (alias in the tree),
-  array-index vs pointer-walk, struct-assignment. Keep the tree's clean conventions.
+- The ONE thing to strip on the way in: `register…asm("$N")` hardware-register pins
+  (clean-decomp anti-pattern; the run-tree must stay portable). Everything else in the
+  verified body — helper temps, `*ptr` hoist, `do{…}while(0)`, statement order — rides
+  along benign. (Earlier guidance "do not backport behavior-identical diffs" is SUPERSEDED.)
 - Always re-compile the touched TU under ccpsx 4.3 before pushing
   (`SN_PATH=PSYQ_PATH=C:/Temp/psq43/PSSN ccpsx -O2 -G4 -I C:/Temp/psq43/PSX43/psx/include -c`).
 

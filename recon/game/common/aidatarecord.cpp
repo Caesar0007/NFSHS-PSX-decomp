@@ -198,7 +198,7 @@ AIDataRecord_AccTable_t::AIDataRecord_AccTable_t(char *preBuffer,int scale,
   (this->_base_AIDataRecord_t).numElements_ = 0x70;
   (this->_base_AIDataRecord_t).bSize_ = 0xe0;
   this->scale_ = scale;
-  sprintf((this->_base_AIDataRecord_t).name_,"%s%s.acc",D_8011647C,
+  sprintf((this->_base_AIDataRecord_t).name_,D_800553B8,D_8011647C,
           (char *)Cars_gHumanRaceCarList[0] + 0x240);
   return;
 }
@@ -242,22 +242,17 @@ AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whic
   : _base_AIDataRecord_t(whichIsThis,(char *)0x0)
 {
   int iVar1;
-  char *fmt;
-  char *path;
 
   iVar1 = gNumSlices;
   (this->_base_AIDataRecord_t)._vf = (__vtbl_ptr_type (*) [3])AIDataRecord_BestLine_t_vtable;
   (this->_base_AIDataRecord_t).numElements_ = iVar1;
   (this->_base_AIDataRecord_t).bSize_ = iVar1;
   if ((this->_base_AIDataRecord_t).recordMethod_ == 0) {
-    fmt = "%sTr%02d.qbe";
-    path = D_80116498;
+    sprintf((this->_base_AIDataRecord_t).name_,D_800553C4,D_80116498,D_80113228);
   }
   else {
-    fmt = "%sTr%02d.bes";
-    path = D_8011649C;
+    sprintf((this->_base_AIDataRecord_t).name_,D_800553D4,D_8011649C,D_80113228);
   }
-  sprintf((this->_base_AIDataRecord_t).name_,fmt,path,D_80113228);
   return;
 }
 
@@ -266,22 +261,17 @@ AIDataRecord_TrackCurve_t::AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t 
   : _base_AIDataRecord_t(whichIsThis,(char *)0x0)
 {
   int iVar1;
-  char *fmt;
-  char *path;
 
   iVar1 = gNumSlices;
   (this->_base_AIDataRecord_t)._vf = (__vtbl_ptr_type (*) [3])AIDataRecord_TrackCurve_t_vtable;
   (this->_base_AIDataRecord_t).numElements_ = iVar1;
   (this->_base_AIDataRecord_t).bSize_ = iVar1 + 1;
   if ((this->_base_AIDataRecord_t).recordMethod_ == 0) {
-    fmt = "%sTr%02d.qcr";
-    path = D_80116490;
+    sprintf((this->_base_AIDataRecord_t).name_,D_800553E4,D_80116490,D_80113228);
   }
   else {
-    fmt = "%sTr%02d.crv";
-    path = D_80116494;
+    sprintf((this->_base_AIDataRecord_t).name_,D_800553F4,D_80116494,D_80113228);
   }
-  sprintf((this->_base_AIDataRecord_t).name_,fmt,path,D_80113228);
   return;
 }
 
@@ -296,21 +286,15 @@ AIDataRecord_CurveSpeedTable_t::AIDataRecord_CurveSpeedTable_t(char *carName,
           AIDataRecord_WhichRecord_t whichIsThis)
   : _base_AIDataRecord_t(whichIsThis,(char *)0x0)
 {
-  char *fmt;
-  char *path;
-
   (this->_base_AIDataRecord_t)._vf = (__vtbl_ptr_type (*) [3])AIDataRecord_CurveSpeedTable_t_vtable;
   (this->_base_AIDataRecord_t).numElements_ = 0x100;
   (this->_base_AIDataRecord_t).bSize_ = 0x100;
   if ((this->_base_AIDataRecord_t).recordMethod_ == 0) {
-    fmt = "%s%s.qcs";
-    path = D_80116478;
+    sprintf((this->_base_AIDataRecord_t).name_,D_80055404,D_80116478,carName);
   }
   else {
-    fmt = "%s%s.csp";
-    path = D_8011647C;
+    sprintf((this->_base_AIDataRecord_t).name_,D_80055410,D_8011647C,carName);
   }
-  sprintf((this->_base_AIDataRecord_t).name_,fmt,path,carName);
   return;
 }
 

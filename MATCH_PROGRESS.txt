@@ -55,11 +55,11 @@ VA             %match  unit                     function
 0x8006D1F4    100.00%  main                     Get__23AIDataRecord_AccTable_ti
 0x8006D1F4    100.00%  game/common/aidatarecord Get__23AIDataRecord_AccTable_ti
 0x8006D20C    100.00%  game/common/aidatarecord Setup__23AIDataRecord_AccTable_t
-0x8006D278     80.54%  game/common/aidatarecord __23AIDataRecord_BestLine_t26AIDataRecord_WhichRecord_t
-0x8006D30C     81.18%  game/common/aidatarecord __25AIDataRecord_TrackCurve_t26AIDataRecord_WhichRecord_t
+0x8006D278     88.11%  game/common/aidatarecord __23AIDataRecord_BestLine_t26AIDataRecord_WhichRecord_t
+0x8006D30C     88.42%  game/common/aidatarecord __25AIDataRecord_TrackCurve_t26AIDataRecord_WhichRecord_t
 0x8006D3A4    100.00%  main                     Get__25AIDataRecord_TrackCurve_ti
 0x8006D3A4    100.00%  game/common/aidatarecord Get__25AIDataRecord_TrackCurve_ti
-0x8006D3BC     90.42%  game/common/aidatarecord __30AIDataRecord_CurveSpeedTable_tPc26AIDataRecord_WhichRecord_t
+0x8006D3BC     99.44%  game/common/aidatarecord __30AIDataRecord_CurveSpeedTable_tPc26AIDataRecord_WhichRecord_t
 0x8006D44C    100.00%  game/common/aidatarecord Get__30AIDataRecord_CurveSpeedTable_ti
 0x8006D480    100.00%  game/common/aidatarecord Upgrade__30AIDataRecord_CurveSpeedTable_ti
 0x8006E258    100.00%  main                     AISpeeds_GetNextAICar__FP8Car_tObj

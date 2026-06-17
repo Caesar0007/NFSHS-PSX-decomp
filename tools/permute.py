@@ -75,6 +75,48 @@ def _demangle(symbol):
     return f"{cls}__{method}" if method else f"{cls}__{cls}"
 
 
+def _lower_method(text, fnname):
+    """Lower a kept C++ method `Ret Class__method(params){...this...}` to plain C
+    `Ret Class__method(Class *thiz, params){...thiz...}` so pycparser + CC1PLPSX
+    accept it. objdiff is whole-object/positional + reloc-name-lenient, so the
+    renamed self-param and the `Class__m(thiz,...)` call names are harmless.
+    Only fires when the body uses `this` (free functions pass through)."""
+    import re
+    cls = fnname.rsplit("__", 1)[0]
+    m = re.search(r"\b" + re.escape(fnname) + r"\s*\(", text)
+    if not m:
+        return text
+
+    def _match(s, i, op, cl):                  # index of `cl` closing the `op` at i
+        d = 0
+        while i < len(s):
+            if s[i] == op: d += 1
+            elif s[i] == cl:
+                d -= 1
+                if d == 0: return i
+            i += 1
+        return -1
+
+    popen = m.end() - 1
+    pclose = _match(text, popen, "(", ")")
+    b = text.find("{", pclose)
+    bend = _match(text, b, "{", "}")
+    if pclose < 0 or b < 0 or bend < 0:
+        return text
+    body = text[b:bend + 1]
+    if not re.search(r"\bthis\b", body):
+        return text                            # free function — leave alone
+
+    params = text[popen + 1:pclose].strip()
+    newparams = cls + " *thiz" + ("" if not params else ", " + params)
+    called = set(re.findall(r"this\s*->\s*(\w+)\s*\(", body))
+    body = re.sub(r"this\s*->\s*(\w+)\s*\(\s*\)", cls + r"__\1(thiz)", body)
+    body = re.sub(r"this\s*->\s*(\w+)\s*\(", cls + r"__\1(thiz, ", body)
+    body = re.sub(r"\bthis\b", "thiz", body)
+    protos = "".join("extern int %s__%s(...);\n" % (cls, n) for n in sorted(called))
+    return protos + text[:popen + 1] + newparams + text[pclose:b] + body + text[bend + 1:]
+
+
 def do_setup(module, symbol, asm_rel):
     """Build a single-function permuter job:
         base.c    = sanitized, pycparser-clean, ONLY the target function +
@@ -102,6 +144,7 @@ def do_setup(module, symbol, asm_rel):
     base_c = san.reduce_to_fn(san.sanitize(pp.stdout), src_name)
     if src_name not in base_c:
         sys.exit(f"[setup] target function {src_name} not found after reduce")
+    base_c = _lower_method(base_c, src_name)   # C++ method -> plain-C (explicit thiz)
     (work / "base.c").write_text(base_c)
 
     # 3. target.o = original bytes from the single nonmatching .s.

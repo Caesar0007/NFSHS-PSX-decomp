@@ -53,8 +53,26 @@ SYSCPP = Path(os.environ.get("NFS4_SYS_CPP", "cpp"))  # plain cpp on PATH
 
 
 def _demangle(symbol):
-    """cfront symbol -> C source name (params are encoded after `__F`)."""
-    return symbol.split("__F")[0] if "__F" in symbol else symbol
+    """cfront symbol -> the bare name `_fn_name()` extracts from the source header.
+
+      free fn      name__F<params>          -> name
+      method       name__<len><Class><...>  -> name        (src: Class::name(...))
+      ctor         __<len><Class><...>       -> Class       (src: Class::Class(...))
+      dtor         ___<len><Class>           -> Class       (src: Class::~Class())
+    For ctor/dtor the source declarator's last identifier is the class name
+    (`Class` for the ctor, `Class` after the `~` for the dtor), so returning the
+    class name lets reduce_to_fn match either."""
+    import re
+    if "__F" in symbol:
+        return symbol.split("__F")[0]                       # free function
+    m = re.match(r"^(.*?)__(_?)(\d+)(.*)$", symbol)
+    if not m:
+        return symbol
+    method, _dtor, length, rest = m.group(1), m.group(2), int(m.group(3)), m.group(4)
+    cls = rest[:length]
+    # sanitize() rewrites `::`->`__`, so the source declarator _fn_name() sees is
+    # `Class__method` / `Class__Class` (ctor). Return that post-sanitize name.
+    return f"{cls}__{method}" if method else f"{cls}__{cls}"
 
 
 def do_setup(module, symbol, asm_rel):

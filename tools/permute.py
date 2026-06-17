@@ -109,12 +109,31 @@ def _lower_method(text, fnname):
 
     params = text[popen + 1:pclose].strip()
     newparams = cls + " *thiz" + ("" if not params else ", " + params)
+
+    # ctor: a `: _base_X(baseargs)` initializer list between ) and { — lower it to
+    # an explicit base-ctor call at the top of the body, and give the (return-
+    # type-less) ctor a `void` return type.
+    init_m = re.search(r":\s*(_base_\w+)\s*\(", text[pclose + 1:b])
+    initstmt, ret, base_proto = "", "", ""
+    if init_m:
+        base_member = init_m.group(1)                  # _base_AIDataRecord_t
+        base_cls = base_member[len("_base_"):]         # AIDataRecord_t
+        ap = pclose + 1 + init_m.end() - 1             # '(' of the init list
+        baseargs = text[ap + 1:_match(text, ap, "(", ")")].strip()
+        initstmt = "  %s__%s(&thiz->%s%s);\n" % (
+            base_cls, base_cls, base_member, (", " + baseargs if baseargs else ""))
+        ret, base_proto = "void ", "extern int %s__%s(...);\n" % (base_cls, base_cls)
+
     called = set(re.findall(r"this\s*->\s*(\w+)\s*\(", body))
     body = re.sub(r"this\s*->\s*(\w+)\s*\(\s*\)", cls + r"__\1(thiz)", body)
     body = re.sub(r"this\s*->\s*(\w+)\s*\(", cls + r"__\1(thiz, ", body)
     body = re.sub(r"\bthis\b", "thiz", body)
-    protos = "".join("extern int %s__%s(...);\n" % (cls, n) for n in sorted(called))
-    return protos + text[:popen + 1] + newparams + text[pclose:b] + body + text[bend + 1:]
+    if initstmt:
+        body = "{\n" + initstmt + body[1:]
+    protos = base_proto + "".join(
+        "extern int %s__%s(...);\n" % (cls, n) for n in sorted(called))
+    header = ret + fnname + "(" + newparams + ")"
+    return protos + text[:m.start()] + header + " " + body + text[bend + 1:]
 
 
 def do_setup(module, symbol, asm_rel):

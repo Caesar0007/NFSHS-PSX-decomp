@@ -98,21 +98,11 @@ def _fn_name(header: str):
     h = header.strip()
     if h.split(None, 1)[:1] and h.split()[0] in _KW:
         return None
-    rp = h.rfind(")")
-    if rp < 0 or "=" in h[rp:]:
-        return None
-    # match the '(' that opens the param list of this declarator
-    depth = 0
-    lp = -1
-    for i in range(rp, -1, -1):
-        if h[i] == ")":
-            depth += 1
-        elif h[i] == "(":
-            depth -= 1
-            if depth == 0:
-                lp = i
-                break
-    if lp <= 0:
+    # the FIRST top-level '(' opens the param list — using the last ')' breaks on
+    # ctors whose header carries an initializer list `Class(params) : base(args)`
+    # (the last ')' is the init list's, yielding the base-member name).
+    lp = h.find("(")
+    if lp <= 0 or "=" in h[:lp]:
         return None
     j = lp - 1
     while j >= 0 and h[j] == " ":

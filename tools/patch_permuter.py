@@ -22,6 +22,8 @@ from pathlib import Path
 PERMUTER = Path(os.environ.get("DECOMP_PERMUTER", r"C:/Temp/decomp-permuter"))
 GRAMMAR = PERMUTER / "perm_pycparser" / "c_parser.py"
 COMPILER = PERMUTER / "src" / "compiler.py"
+OBJDUMP = PERMUTER / "src" / "objdump.py"
+SCORER = PERMUTER / "src" / "scorer.py"
 
 # Make `-j N` (parallel local workers) work on Windows: spawned workers re-import
 # compiler.py but don't inherit the parent's compile.sh shim, so route compile.sh
@@ -106,6 +108,37 @@ def main():
     else:
         print("WARN: could not patch compiler.py (changed upstream?) — "
               "-j parallel may not work, but -j1 still does")
+
+    # objdump.py: reloc-name-leniency (match objdiff). Ignore the symbol NAME a
+    # reloc points to (keep reloc kind + addend), so cosmetic name diffs — C++
+    # method-lowering renames, cfront-vs-externC mangling, vtable D_ vs _vt_ —
+    # don't count. Without this the score diverges from objdiff on near-matches.
+    OBJ_ANCHOR = ('    if "R_MIPS_JALR" in reloc_row or "R_MIPS_NONE" in reloc_row:\n'
+                  "        return repl\n")
+    otext = OBJDUMP.read_text()
+    if 'repl = "R"' in otext:
+        print("objdump.py already reloc-name-lenient")
+    elif OBJ_ANCHOR in otext:
+        OBJDUMP.write_text(otext.replace(
+            OBJ_ANCHOR,
+            OBJ_ANCHOR + '    repl = "R"  # NFS4: reloc-name-lenient (match objdiff)\n',
+            1))
+        print("patched objdump.py: reloc-name-leniency")
+    else:
+        print("WARN: could not patch objdump.py (changed upstream?)")
+
+    # scorer.py: rebalance insert/delete 100->15 (~3:1 vs regalloc=5) so the
+    # score tracks objdiff's even per-instruction model. At 100 the permuter
+    # prefers objdiff-WORSE regalloc-heavy candidates.
+    stext = SCORER.read_text()
+    if "PENALTY_INSERTION = 15" in stext:
+        print("scorer.py already rebalanced")
+    elif "PENALTY_INSERTION = 100" in stext:
+        SCORER.write_text(stext.replace("PENALTY_INSERTION = 100", "PENALTY_INSERTION = 15")
+                               .replace("PENALTY_DELETION = 100", "PENALTY_DELETION = 15"))
+        print("patched scorer.py: insert/delete 100->15 (objdiff-correlated)")
+    else:
+        print("WARN: could not patch scorer.py (changed upstream?)")
 
 
 if __name__ == "__main__":

@@ -95,15 +95,13 @@ void AIPerson_LoadPersonalityData(Udff_tInfo *handle)
   int iVar11;
   int iVar12;
   int iVar13;
-  int new_var;
-  AIPerson_t *pAVar14;
   Udff_GetInt(handle);
-  pAVar14 = AIPerson_PersonalityData;
+
   local_40 = 0;
- loopTop:
-  if (local_40 < 9)
-  {
-   do {
+  while (1) {
+    if (local_40 >= 9) {
+      break;
+    }
     iVar1 = Udff_GetInt(handle);
     iVar2 = Udff_GetInt(handle);
     iVar3 = Udff_GetInt(handle);
@@ -118,32 +116,28 @@ void AIPerson_LoadPersonalityData(Udff_tInfo *handle)
     iVar11 = Udff_GetInt(handle);
     iVar12 = Udff_GetInt(handle);
     iVar13 = Udff_GetInt(handle);
-    pAVar14->blockMaxDistance = AIPerson_blockMaxDistance[iVar1];
-    pAVar14->blockMinDistance = AIPerson_blockMinDistance[iVar2];
-    pAVar14->oncomingLookAhead = AIPerson_oncomingLookAhead[iVar3];
-    pAVar14->laneSwerve[0] = AIPerson_laneSwerve[iVar4][0];
-    pAVar14->laneSwerve[1] = AIPerson_laneSwerve[iVar4][1];
-    pAVar14->laneSwerve[2] = AIPerson_laneSwerve[iVar4][2];
-    pAVar14->laneSwerve[3] = AIPerson_laneSwerve[iVar4][3];
-    pAVar14->swerveChangeProb = AIPerson_swerveChangeProb[iVar4];
-    pAVar14->brakeMultiplier = AIPerson_brakeMultiplier[iVar5];
-    pAVar14->attackActivationHits = AIPerson_attackActivationHits[iVar6];
-    pAVar14->attackTime = AIPerson_attackTimes[iVar6];
-    pAVar14->fishtailAngle = AIPerson_fishtailAngles[iVar7];
-    pAVar14->minimumBetweenWipeoutTicks = AIPerson_minimumWipeOutTicks[iVar8 + GameSetup_gData.Weather];
-    pAVar14->randomBetweenWipeoutTicks = AIPerson_randomWipeOutTicks[iVar8 + GameSetup_gData.Weather];
-    pAVar14->gripLossProbPerSecond = AIPerson_gripLossProbPerSecond[iVar9];
-    pAVar14->gripLossMinFactor = AIPerson_gripLossMinFactor[iVar9];
-    pAVar14->gripLossRecoveryPerTick = AIPerson_gripLossRecoveryPerTick[iVar9];
-    pAVar14->bestLineAbility = AIPerson_bestLineAbilities[iVar10];
-    pAVar14->rearBumpProbMask = AIPerson_rearEndProbMask[iVar11];
-    new_var = AIPerson_smackProbMask[iVar12];
-    local_40 = local_40 + 1;
-    pAVar14->copCollisionFirmness = iVar13;
-    pAVar14->smackProbMask = new_var;
-   } while (0);
-    pAVar14 = pAVar14 + 1;
-    goto loopTop;
+    AIPerson_PersonalityData[local_40].blockMaxDistance = AIPerson_blockMaxDistance[iVar1];
+    AIPerson_PersonalityData[local_40].blockMinDistance = AIPerson_blockMinDistance[iVar2];
+    AIPerson_PersonalityData[local_40].oncomingLookAhead = AIPerson_oncomingLookAhead[iVar3];
+    AIPerson_PersonalityData[local_40].laneSwerve[0] = AIPerson_laneSwerve[iVar4][0];
+    AIPerson_PersonalityData[local_40].laneSwerve[1] = AIPerson_laneSwerve[iVar4][1];
+    AIPerson_PersonalityData[local_40].laneSwerve[2] = AIPerson_laneSwerve[iVar4][2];
+    AIPerson_PersonalityData[local_40].laneSwerve[3] = AIPerson_laneSwerve[iVar4][3];
+    AIPerson_PersonalityData[local_40].swerveChangeProb = AIPerson_swerveChangeProb[iVar4];
+    AIPerson_PersonalityData[local_40].brakeMultiplier = AIPerson_brakeMultiplier[iVar5];
+    AIPerson_PersonalityData[local_40].attackActivationHits = AIPerson_attackActivationHits[iVar6];
+    AIPerson_PersonalityData[local_40].attackTime = AIPerson_attackTimes[iVar6];
+    AIPerson_PersonalityData[local_40].fishtailAngle = AIPerson_fishtailAngles[iVar7];
+    AIPerson_PersonalityData[local_40].minimumBetweenWipeoutTicks = AIPerson_minimumWipeOutTicks[iVar8 + GameSetup_gData.Weather];
+    AIPerson_PersonalityData[local_40].randomBetweenWipeoutTicks = AIPerson_randomWipeOutTicks[iVar8 + GameSetup_gData.Weather];
+    AIPerson_PersonalityData[local_40].gripLossProbPerSecond = AIPerson_gripLossProbPerSecond[iVar9];
+    AIPerson_PersonalityData[local_40].gripLossMinFactor = AIPerson_gripLossMinFactor[iVar9];
+    AIPerson_PersonalityData[local_40].gripLossRecoveryPerTick = AIPerson_gripLossRecoveryPerTick[iVar9];
+    AIPerson_PersonalityData[local_40].bestLineAbility = AIPerson_bestLineAbilities[iVar10];
+    AIPerson_PersonalityData[local_40].rearBumpProbMask = AIPerson_rearEndProbMask[iVar11];
+    AIPerson_PersonalityData[local_40].smackProbMask = AIPerson_smackProbMask[iVar12];
+    AIPerson_PersonalityData[local_40].copCollisionFirmness = iVar13;
+    local_40++;
   }
   return;
 }

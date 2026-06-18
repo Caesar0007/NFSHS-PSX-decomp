@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 218 functions, 212 at 100% (97.2%)
+TOTAL: 218 functions, 213 at 100% (97.7%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ VA             %match  unit                     function
 0x800689E8    100.00%  game/common/aiperson     AIPerson_LoadGridAndSetPersonalityIndexes__Fv
 0x80068A34    100.00%  game/common/aiperson     AIPerson_SetPersonality__FP8Car_tObji
 0x80068AFC    100.00%  game/common/aiperson     AIPerson_SetPersonalityPointers__Fv
-0x80068B60     96.32%  game/common/aiperson     AIPerson_LoadPersonalityData__FP10Udff_tInfo
+0x80068B60    100.00%  game/common/aiperson     AIPerson_LoadPersonalityData__FP10Udff_tInfo
 0x80068EA4    100.00%  game/common/aiperson     AIPerson_LoadScriptData__FP10Udff_tInfo
 0x80068F80    100.00%  game/common/aiperson     AIPerson_LoadGlue__FP10Udff_tInfo
 0x8006908C    100.00%  game/common/aiperson     AIPerson_Startup__Fv

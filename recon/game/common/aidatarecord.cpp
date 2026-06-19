@@ -198,7 +198,7 @@ AIDataRecord_AccTable_t::AIDataRecord_AccTable_t(char *preBuffer,int scale,
   (this->_base_AIDataRecord_t).numElements_ = 0x70;
   (this->_base_AIDataRecord_t).bSize_ = 0xe0;
   this->scale_ = scale;
-  sprintf((this->_base_AIDataRecord_t).name_,D_800553B8,D_8011647C,
+  sprintf((this->_base_AIDataRecord_t).name_,D_800553B8,D_8011647C[0],
           (char *)Cars_gHumanRaceCarList[0] + 0x240);
   return;
 }
@@ -248,10 +248,10 @@ AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whic
   (this->_base_AIDataRecord_t).numElements_ = iVar1;
   (this->_base_AIDataRecord_t).bSize_ = iVar1;
   if ((this->_base_AIDataRecord_t).recordMethod_ == 0) {
-    sprintf((this->_base_AIDataRecord_t).name_,D_800553C4,D_80116498,D_80113228);
+    sprintf((this->_base_AIDataRecord_t).name_,D_800553C4,D_80116498[0],D_80113228[0]);
   }
   else {
-    sprintf((this->_base_AIDataRecord_t).name_,D_800553D4,D_8011649C,D_80113228);
+    sprintf((this->_base_AIDataRecord_t).name_,D_800553D4,D_8011649C[0],D_80113228[0]);
   }
   return;
 }
@@ -267,10 +267,10 @@ AIDataRecord_TrackCurve_t::AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t 
   (this->_base_AIDataRecord_t).numElements_ = iVar1;
   (this->_base_AIDataRecord_t).bSize_ = iVar1 + 1;
   if ((this->_base_AIDataRecord_t).recordMethod_ == 0) {
-    sprintf((this->_base_AIDataRecord_t).name_,D_800553E4,D_80116490,D_80113228);
+    sprintf((this->_base_AIDataRecord_t).name_,D_800553E4,D_80116490[0],D_80113228[0]);
   }
   else {
-    sprintf((this->_base_AIDataRecord_t).name_,D_800553F4,D_80116494,D_80113228);
+    sprintf((this->_base_AIDataRecord_t).name_,D_800553F4,D_80116494[0],D_80113228[0]);
   }
   return;
 }
@@ -290,10 +290,10 @@ AIDataRecord_CurveSpeedTable_t::AIDataRecord_CurveSpeedTable_t(char *carName,
   (this->_base_AIDataRecord_t).numElements_ = 0x100;
   (this->_base_AIDataRecord_t).bSize_ = 0x100;
   if ((this->_base_AIDataRecord_t).recordMethod_ == 0) {
-    sprintf((this->_base_AIDataRecord_t).name_,D_80055404,D_80116478,carName);
+    sprintf((this->_base_AIDataRecord_t).name_,D_80055404,D_80116478[0],carName);
   }
   else {
-    sprintf((this->_base_AIDataRecord_t).name_,D_80055410,D_8011647C,carName);
+    sprintf((this->_base_AIDataRecord_t).name_,D_80055410,D_8011647C[0],carName);
   }
   return;
 }

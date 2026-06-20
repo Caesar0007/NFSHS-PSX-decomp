@@ -178,3 +178,43 @@ int AIPhysic_ModifyAccelerationAccordingToScript(Car_tObj *car, int accel)
     }
     return result;
 }
+
+/* ---- AIPhysics_UseCoolPhysics__FP8Car_tObj  (note the 'AIPhysicS' prefix) ----
+ * Shared-tail structure: every condition branches TO a return block (ret1 = fall-through
+ * default, laid out before ret0). The `goto`-to-shared-tail form reproduces gcc's exact
+ * block order + branch polarity (the `||` form lays return 0 first → wrong order). */
+int AIPhysics_UseCoolPhysics(Car_tObj *car)
+{
+    int flags = *(int *)((char *)car + 0x260);
+    unsigned char b;
+    if (flags & 0x800) goto ret1;
+    b = *(unsigned char *)((char *)car + 0x90);
+    if (b == 0) goto ret1;
+    if (!(flags & 0x20)) goto ret0;
+    if (b >= 2) goto ret0;
+ret1:
+    return 1;
+ret0:
+    return 0;
+}
+
+/* ---- AIPhysic_CheckForBadPosition__FP8Car_tObj  (two OR-flags → reset on bad) ---- */
+void AIPhysic_CheckForBadPosition(Car_tObj *car)
+{
+    int bad1 = 0;
+    int bad2 = 0;
+    Trk_NewSlice *slice;
+    int pos;
+    if (0x730000 < *(int *)((char *)car + 0xB4) ||
+        0x730000 < *(int *)((char *)car + 0xAC) ||
+        (0x730000 < *(int *)((char *)car + 0xC0) &&
+         *(unsigned char *)((char *)car + 0x90) == 0))
+        bad1 = 1;
+    slice = (Trk_NewSlice *)((*(short *)((char *)car + 8) << 5) + (int)BWorldSm_slices);
+    pos = *(int *)((char *)car + 0x574);
+    if (pos < (int)0xFFDD0000 - (*(short *)((char *)slice + 0x18) << 8) ||
+        (*(short *)((char *)slice + 0x1A) << 8) + 0x230000 < pos)
+        bad2 = 1;
+    if (bad1 || bad2)
+        Cars_ResetCollidedCars(car, 1, 0);
+}

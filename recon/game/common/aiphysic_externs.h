@@ -13,6 +13,7 @@ int  AIPhysic_CheckIfOutOfControl(Car_tObj *car);
 void AIPhysic_OutOfControlPhysics(Car_tObj *car);
 void AIPhysic_InControlPhysics(Car_tObj *car);
 void AIPhysic_FinishUp(Car_tObj *car);
+void Cars_ResetCollidedCars(Car_tObj *car, int a, int b);
 extern GameSetup_tData GameSetup_gData;
 extern Trk_NewSlice *BWorldSm_slices;
 extern int AIPhysic_elapsedTime;

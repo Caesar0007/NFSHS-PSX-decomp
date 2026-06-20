@@ -90,6 +90,28 @@ void AIPhysic_ProcessBarrierCollision(Car_tObj *car)
     AIPhysic_ChangeDirection(car, 0x60);
 }
 
+/* ---- AIPhysic_CoolPhysics__FP8Car_tObj  (per-frame physics sequencer) ---- */
+void AIPhysic_CoolPhysics(Car_tObj *car)
+{
+    *(int *)((char *)car + 0x570) |= 0x10;
+    AIPhysic_HandleDirection(car);
+    if (*(int *)((char *)car + 0x554) * *(int *)((char *)car + 0x564) < 0) {
+        if (*(int *)((char *)car + 0x6F0) != -1) {
+            *(int *)((char *)car + 0x718) = 0;
+        }
+    }
+    if (AIPhysic_HitWallCheck(car)) {
+        AIPhysic_ChangeDirection(car, 0x40);
+    }
+    AIPhysic_Preperation(car);
+    if (AIPhysic_CheckIfOutOfControl(car)) {
+        AIPhysic_OutOfControlPhysics(car);
+    } else {
+        AIPhysic_InControlPhysics(car);
+    }
+    AIPhysic_FinishUp(car);
+}
+
 /* ---- AIPhysic_HandleSignalling__FP8Car_tObj  (turn-signal flags in halfwords 0x8B8/0x8BA) ---- */
 void AIPhysic_HandleSignalling(Car_tObj *car)
 {

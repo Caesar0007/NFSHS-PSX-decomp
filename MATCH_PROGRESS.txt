@@ -48,7 +48,7 @@ VA             %match  unit                     function
 0x8006D014    100.00%  game/common/aidatarecord CleanUp1__14AIDataRecord_t
 0x8006D084    100.00%  main                     CleanUp2__14AIDataRecord_t
 0x8006D084    100.00%  game/common/aidatarecord CleanUp2__14AIDataRecord_t
-0x8006D08C     97.00%  game/common/aidatarecord Setup__14AIDataRecord_t
+0x8006D08C     100.00%  game/common/aidatarecord Setup__14AIDataRecord_t
 0x8006D0DC    100.00%  game/common/aidatarecord Load__14AIDataRecord_t
 0x8006D120    100.00%  game/common/aidatarecord SaveAndPurge__14AIDataRecord_t
 0x8006D170     100.00%  game/common/aidatarecord __23AIDataRecord_AccTable_tPci26AIDataRecord_WhichRecord_t

@@ -150,14 +150,15 @@ void AIDataRecord_t::Setup()
   int iVar2;
 
   pcVar1 = this->preAllocatedBuffer_;
-  if (pcVar1 == (char *)0x0) {
-    iVar2 = this->Load();
-    if (iVar2 != 0) {
-      return;
-    }
-    pcVar1 = reservememadr(this->name_,this->bSize_,0);
+  if (pcVar1 != (char *)0x0) {
+    this->dataBuffer_ = pcVar1;
+    return;
   }
-  this->dataBuffer_ = pcVar1;
+  iVar2 = this->Load();
+  if (iVar2 != 0) {
+    return;
+  }
+  this->dataBuffer_ = reservememadr(this->name_,this->bSize_,0);
   return;
 }
 

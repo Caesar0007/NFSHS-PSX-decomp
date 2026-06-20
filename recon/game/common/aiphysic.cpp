@@ -380,3 +380,30 @@ void AIPhysic_HandleWipeoutTimer(Car_tObj *car)
     *(int *)((char *)car + 0x744) =
         limit + *(int *)(info + 0x30) + (int)(((r >> 8) & 0xFFFF) & *(int *)(info + 0x34));
 }
+
+/* ---- AIPhysic_ChangeDirection__FP8Car_tObji  (leaf; flip the 0x6F0 dir flag +1/-1 under window) ----
+ * [NEAR-MISS, structure CORRECT (branch count matches 9=9)]: pure regalloc cascade — oracle
+ * keeps car in $a3 (so $a0-$a2 are free for the two simGlobal[1]-0x6F4 / 0x6EC/2 blocks),
+ * gcc here uses $a2 and the whole reg file shifts. Same class as SimplePhysics_LatVel. */
+void AIPhysic_ChangeDirection(Car_tObj *car, int dir)
+{
+    int newDir = 1;
+    if (*(int *)((char *)car + 0x6F0) == -1) {
+        if (*(int *)((char *)car + 0x6EC) / 2 < simGlobal[1] - *(int *)((char *)car + 0x6F4))
+            goto action;
+    }
+    if (*(int *)((char *)car + 0x6F0) != 1)
+        return;
+    if (!(*(int *)((char *)car + 0x6EC) / 2 < simGlobal[1] - *(int *)((char *)car + 0x6F4)))
+        return;
+    {
+        int v = *(int *)((char *)car + 0x564);
+        if ((v < 0 ? -v : v) > 0x13FFFF)
+            return;
+    }
+    newDir = -1;
+action:
+    *(int *)((char *)car + 0x6F0) = newDir;
+    *(int *)((char *)car + 0x6EC) = dir;
+    *(int *)((char *)car + 0x6F4) = simGlobal[1];
+}

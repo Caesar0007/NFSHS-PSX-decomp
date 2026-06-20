@@ -325,3 +325,37 @@ int AIPhysic_CalculateRoadPosition(coorddef *pos, int sliceIdx)
            (nrm.y / 256) * (delta.y / 256) +
            (nrm.z / 256) * (delta.z / 256);
 }
+
+/* ---- AIPhysic_SimplePhysics_LatVel__FP8Car_tObj  (3-axis fixedmult or clamp to ±abs(latVel)) ----
+ * [NEAR-MISS ~19/73 diffs, structure correct]: the fixedmult setup matches via the STRUCT-COPY
+ * lever (`vals = *(coorddef*)&car->0x144` → load-3/store-3 block, like CalculateRoadPosition).
+ * Residual = a regalloc cascade: the oracle keeps x568 in a caller-saved $v1 (clobbered by the
+ * x718-x574 subu → reloads x568), gcc here keeps it in $a0 (unclobbered, no reload, 1 insn
+ * short) and the whole reg file shifts. A pure allocator tie-break — permuter plateaus at 80
+ * (no clean 0), not pin-able (rule) → decomp.me. */
+void AIPhysic_SimplePhysics_LatVel(Car_tObj *car)
+{
+    int s0 = 0;
+    if (0x30000 < *(int *)((char *)car + 0x568))
+        s0 = *(int *)((char *)car + 0x718) - *(int *)((char *)car + 0x574);
+    if (0x190000 < *(int *)((char *)car + 0x568)) {
+        coorddef vals;
+        vals = *(coorddef *)((char *)car + 0x144);
+        vals.x = fixedmult(s0, vals.x);
+        vals.y = fixedmult(s0, vals.y);
+        vals.z = fixedmult(s0, vals.z);
+        *(int *)((char *)car + 0xA0) += vals.x;
+        *(int *)((char *)car + 0xA4) += vals.y;
+        *(int *)((char *)car + 0x594) = 0;
+        *(int *)((char *)car + 0xA8) += vals.z;
+    } else {
+        int v = *(int *)((char *)car + 0x564);
+        int absV = v < 0 ? -v : v;
+        int negAbs = -absV;
+        *(int *)((char *)car + 0x594) = s0;
+        if (s0 < negAbs)
+            *(int *)((char *)car + 0x594) = negAbs;
+        else if (absV < s0)
+            *(int *)((char *)car + 0x594) = absV;
+    }
+}

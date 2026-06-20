@@ -6,6 +6,11 @@
 #include "../../nfs4_types.h"
 #include "aiphysic_externs.h"
 
+/* Owner-module tentative definition: AIPhysic_elapsedTime ($8013c59c) lives in this TU's
+ * small-common (.comm,4) so -G4 addresses it gp-relative (`lw $v1,N($gp)`), matching the
+ * oracle (HitWallCheck etc.). As a bare `extern` it degraded to absolute lui/lw (+1 insn). */
+int AIPhysic_elapsedTime;
+
 
 /* ---- AIPhysic_StartUp__Fv / Reset / CleanUp (empty stubs) ---- */
 void AIPhysic_StartUp(void) { return; }
@@ -116,30 +121,34 @@ void AIPhysic_ProcessBarrierCollision(Car_tObj *car)
     AIPhysic_ChangeDirection(car, 0x60);
 }
 
-/* ---- AIPhysic_HitWallCheck__FP8Car_tObj  [NEAR-MISS 21/44: onRoad/laneCount reg coloring] ----
+/* ---- AIPhysic_HitWallCheck__FP8Car_tObj  [NEAR-MISS 18/44: onRoad/laneCount reg coloring ONLY] --
  * SYM (nfs4-f-v3.txt): ONE named local `onRoad` class REG $6 (=$a2) INT; field at slice+0x1D =
- * `laneCount` (UCHAR, NOT a bitfield). slice-addr via commutative-addu lever (idx<<5)+(int)base.
- * RESIDUAL ROOT CAUSE (from SLD+oracle): the oracle puts `li v0,-1` in the `beqz onRoad` DELAY SLOT,
- * sharing that -1 with the `car->0x6F0 == -1` check at .L54 (reorg fill-from-target). That REQUIRES
- * v0 free at the branch → forces onRoad OUT of v0 into $a2 (and laneCount to $a3). It's a CIRCULAR
- * coupling: onRoad-in-$v0 blocks the -1 share; the -1 share needs $v0 free. gcc here picks the other
- * local optimum (onRoad→$v0, laneCount→$a2, -1 materialized separately). NOT a compiler-version diff
- * — SAME coloring on cc1plus/2.7.2 (in-tree) AND on Mc-muffin's CANONICAL C++ scratch YsDj7
- * (gcc2.8.1-psx, `-O2 -G4 -xc++ -fno-rtti -fno-exceptions -g3 -Wa,--aspsx-version=2.76`), which
- * reaches 99.20% (score 35) yet is STUCK on the EXACT same laneCount→$a3/onRoad→$a2 vs $a2/$v0
- * coloring. So an expert + the correct toolchain hit the same wall → genuine reorg/coloring
- * coin-flip, not source/version/flags-reachable; forcing $a2 = pin (§3.13, forbidden). Tried:
- * named/anon laneCount, decl order, limit-inline, if/else vs ternary, early-init, nested-!onRoad.
- * SYM+ORACLE confirms structure/types/logic correct — only the coloring differs. */
+ * `laneCount` (UCHAR). Array-index slice access per Mc-muffin (drops pointer math). xori tail.
+ * ── gp-rel BREAKTHROUGH (2026-06-21): the +1 extra insn (was 21 diffs / ours 45 vs oracle 44)
+ *    was NOT coloring — it was `AIPhysic_elapsedTime` addressed absolute (lui/lw, 2 insns) where the
+ *    oracle uses gp-relative `lw $v1,0($gp)` (1 insn). Root: as a bare `extern int` it degraded to
+ *    absolute; the original is a TENTATIVE DEFINITION in this TU (`int AIPhysic_elapsedTime;` above)
+ *    → small-common (.comm,4) → -G4 makes it gp-addressable. SOURCE-ONLY fix (no build flag); Mc-
+ *    muffin's YsDj7 carries the same `int AIPhysic_elapsedTime;`. Now ours 44 == oracle 44, count
+ *    EXACT, diffs 21→18. Our xori tail also beats YsDj7: his `< 55706` compiles to li;slt (no xori),
+ *    so his score-35 = coloring + tail; ours = coloring ONLY (18).
+ * ── RESIDUAL: the oracle puts `li v0,-1` in the `beqz onRoad` delay slot, shared with the
+ *    `driveDirection == -1` check at .L54. Both ours and oracle perform this delay-slot -1 share
+ *    (not the discriminator). The sole diff is the coloring: laneCount→$a2 / onRoad→$v0 (ours) vs
+ *    laneCount→$a3 / onRoad→$a2 (oracle). Two equivalent local optima; gcc's local-alloc picks ours.
+ *    Confirmed coin-flip: SAME coloring on cc1plus/2.7.2 (in-tree) AND on Mc-muffin's canonical
+ *    gcc2.8.1-psx scratch YsDj7. Forcing $a2 = a register pin (§3.13, forbidden). Tried: named/anon
+ *    laneCount, lc-local, decl order, limit-inline, array-index (Mc-muffin form), if/else vs ternary,
+ *    early-init, nested-!onRoad. SYM+ORACLE confirm structure/types/logic correct — coloring only. */
 int AIPhysic_HitWallCheck(Car_tObj *car)
 {
-    Trk_NewSlice *slice = (Trk_NewSlice *)((*(short *)((char *)car + 8) << 5) + (int)BWorldSm_slices);
+    short idx = *(short *)((char *)car + 8);
     int limit = car->laneIndex;
     int onRoad;
-    if (limit < 7 - (int)(slice->laneCount >> 4))
+    if (limit < 7 - (BWorldSm_slices[idx].laneCount >> 4))
         onRoad = 0;
     else
-        onRoad = (int)(slice->laneCount & 0xF) + 6 >= limit;
+        onRoad = (int)(BWorldSm_slices[idx].laneCount & 0xF) + 6 >= limit;
     if (onRoad) return 0;
     if (car->driveDirection == -1) {
         car->timeOffRoad += AIPhysic_elapsedTime;

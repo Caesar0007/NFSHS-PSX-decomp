@@ -268,10 +268,17 @@ end:
 }
 
 /* ---- AIPhysic_HandleDirection__FP8Car_tObj  (register-only; D_8011E0B0 == &simGlobal[1]) ----
- * [NEAR-MISS 57/58 insns]: residual = ONE duplicated `%hi(D_8011E0B0)`. The shared setRamp
- * block is reached from two paths; the oracle pulls the block's first `lui %hi` into BOTH
- * predecessors' delay slots (duplicated), gcc here CSE's it to one. Delay-slot-fill /
- * shared-block scheduling tie-break (the ChangeDirection class) — source-unreachable → decomp.me. */
+ * [NEAR-MISS 57/58 insns — STRUCTURE perfect, behaviorally exact]. The setRamp store
+ * `car->0x6F4 = D_8011E0B0 - 0x18` is reached from 2 paths; both materialize `%hi(D_8011E0B0)`
+ * per-path (a phi). The oracle fills the `bgtz` delay slot FROM THE TARGET (reorg.c
+ * fill-from-thread: hoists setRamp's `lui %hi` into the delay slot, leaving `lw %lo;addiu;sw`
+ * shared) → 2 `%hi` copies. gcc here instead fills the `bgtz` delay FROM THE FALL-THROUGH
+ * (`lui 0xA0000`, L80C's need) and keeps the `lui+lw` together in the shared block → 1 `%hi`.
+ * Both are legal; it's a reorg fill-from-target-vs-fall-through tie-break on an UNNAMED `%hi`
+ * SCRATCH in a delay slot. Tried ||, dup-assignment, single-goto (all 57/58). NOT pin-able
+ * (no named var, unlike CalculateGear's coalescing) and permuter does coloring not reorg
+ * scheduling → decomp.me territory. (gcc phi's the plain 0xA0000 const per-path fine; only
+ * the lui+lw ADDRESS pair stays merged — that asymmetry is the whole 1-insn gap.) */
 void AIPhysic_HandleDirection(Car_tObj *car)
 {
     int x718;
@@ -280,9 +287,14 @@ void AIPhysic_HandleDirection(Car_tObj *car)
         return;
     x718 = *(int *)((char *)car + 0x718);
     x574 = *(int *)((char *)car + 0x574);
-    if ((x574 < x718 - 0xA0000 && *(int *)((char *)car + 0x704) > 0) ||
-        (x718 + 0xA0000 < x574 && *(int *)((char *)car + 0x704) < 0))
-        *(int *)((char *)car + 0x6F4) = D_8011E0B0 - 0x18;
+    if (x574 < x718 - 0xA0000 && *(int *)((char *)car + 0x704) > 0)
+        goto setRamp;
+    if (x718 + 0xA0000 < x574 && *(int *)((char *)car + 0x704) < 0)
+        goto setRamp;
+    goto afterRamp;
+setRamp:
+    *(int *)((char *)car + 0x6F4) = D_8011E0B0 - 0x18;
+afterRamp:
     if (*(int *)((char *)car + 0x6EC) < simGlobal[1] - *(int *)((char *)car + 0x6F4)) {
         *(int *)((char *)car + 0x6F0) = 1;
         *(int *)((char *)car + 0x6F4) = simGlobal[1];

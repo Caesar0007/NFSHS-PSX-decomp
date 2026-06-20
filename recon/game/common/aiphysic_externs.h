@@ -18,7 +18,7 @@ extern GameSetup_tData GameSetup_gData;
 extern Trk_NewSlice *BWorldSm_slices;
 extern int AIPhysic_elapsedTime;
 extern int simGlobal[];        /* @0x8011E0AC */
-extern int D_8011E0B0;         /* @0x8011E0B0 == &simGlobal[1]; oracle addresses it directly in HandleDirection */
+extern int D_8011E0B0[];       /* @0x8011E0B0 == &simGlobal[1]; UNSIZED array → separate-temp HI-scratch load (§3.12#5). oracle addresses it as the D_8011E0B0 symbol directly */
 extern int fastRandom;         /* @0x8013D0FC */
 extern int randtemp;           /* @0x8013D100 */
 extern int randSeed;           /* @0x8013D104 */

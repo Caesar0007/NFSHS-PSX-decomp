@@ -78,3 +78,24 @@ int AIPhysic_CalcDeceleration(Car_tObj *car)
     }
     return v1;
 }
+
+/* ---- AIPhysic_ProcessBarrierCollision__FP8Car_tObj  [NEAR-MISS: v0/v1 + constant-hoist tie-break] ---- */
+void AIPhysic_ProcessBarrierCollision(Car_tObj *car)
+{
+    int v;
+    if (*(int *)((char *)car + 0x260) & 4) return;
+    v = *(int *)((char *)car + 0x564);
+    if (v < 0) v = -v;
+    if (0x9FFFF < v) return;
+    AIPhysic_ChangeDirection(car, 0x60);
+}
+
+/* ---- AIPhysic_ModifyAccelerationAccordingToScript__FP8Car_tObji ---- */
+int AIPhysic_ModifyAccelerationAccordingToScript(Car_tObj *car, int accel)
+{
+    int result = accel;
+    if (AIScript_DoReAction(&car->script, (AIScript_tAIReaction)4) != -1) {
+        result = ((accel / 256) * 3) << 7;
+    }
+    return result;
+}

@@ -90,6 +90,25 @@ void AIPhysic_ProcessBarrierCollision(Car_tObj *car)
     AIPhysic_ChangeDirection(car, 0x60);
 }
 
+/* ---- AIPhysic_HandleSignalling__FP8Car_tObj  (turn-signal flags in halfwords 0x8B8/0x8BA) ---- */
+void AIPhysic_HandleSignalling(Car_tObj *car)
+{
+    int pos, target;
+    if (!(*(int *)((char *)car + 0x260) & 0x10)) return;
+    pos    = *(int *)((char *)car + 0x558);
+    target = *(int *)((char *)car + 0x574);
+    if (pos < target - 0x40000) {
+        *(short *)((char *)car + 0x8B8) = (short)(*(unsigned short *)((char *)car + 0x8B8) | 0x80);
+        *(short *)((char *)car + 0x8BA) = 0;
+    } else if (target + 0x40000 < pos) {
+        *(short *)((char *)car + 0x8BA) = (short)(*(unsigned short *)((char *)car + 0x8BA) | 0x80);
+        *(short *)((char *)car + 0x8B8) = 0;
+    } else {
+        *(short *)((char *)car + 0x8B8) = 0;
+        *(short *)((char *)car + 0x8BA) = 0;
+    }
+}
+
 /* ---- AIPhysic_ModifyAccelerationAccordingToScript__FP8Car_tObji ---- */
 int AIPhysic_ModifyAccelerationAccordingToScript(Car_tObj *car, int accel)
 {

@@ -359,3 +359,24 @@ void AIPhysic_SimplePhysics_LatVel(Car_tObj *car)
             *(int *)((char *)car + 0x594) = absV;
     }
 }
+
+/* ---- AIPhysic_HandleWipeoutTimer__FP8Car_tObj  (leaf; inline mult PRNG advances 0x744 timer) ----
+ * [NEAR-MISS ~28/37 diffs, structure correct]: work-pointer regalloc cascade (oracle keeps car
+ * in $a3 so the PRNG can use $a0-$a2; gcc here uses $a1). Permuter plateaus at 150, not pin-able. */
+void AIPhysic_HandleWipeoutTimer(Car_tObj *car)
+{
+    int limit;
+    unsigned int r;
+    char *info;
+    if ((*(int *)((char *)car + 0x260) & 8) == 0)
+        return;
+    limit = D_8011E0B0;
+    if (!(*(int *)((char *)car + 0x744) < limit))
+        return;
+    r = (unsigned int)(fastRandom * randSeed);
+    info = *(char **)((char *)car + 0x4F0);
+    randtemp = r;
+    fastRandom = r & 0xFFFF;
+    *(int *)((char *)car + 0x744) =
+        limit + *(int *)(info + 0x30) + (int)(((r >> 8) & 0xFFFF) & *(int *)(info + 0x34));
+}

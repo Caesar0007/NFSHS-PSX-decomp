@@ -436,92 +436,48 @@ INCLUDE_ASM("asm/nonmatchings/main", AIPerson_Startup__Fv);
 void AIPerson_Cleanup__Fv(void) {
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_StopCar__FP8Car_tObjii);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_RevEngine__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_HandleShifting__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_CalculateGear__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_GearInvSpeedRange__FP8Car_tObj6Gear_t);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_GearTopSpeed__FP8Car_tObj6Gear_t);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_GearBottomSpeed__FP8Car_tObj6Gear_t);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_CalcAcceleration__FP8Car_tObji);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_ModifyAccelerationAccordingToScript__FP8Car_tObji);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_CalcDeceleration__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_CheckDesiredDirection__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_HandleSignalling__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_HandleWipeoutTimer__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_Main__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_CheckForBadPosition__FP8Car_tObj);
 
 INCLUDE_ASM("asm/nonmatchings/main", AIPhysics_UseCoolPhysics__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_SimplePhysics__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_SimplePhysics_LongVel__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_SimplePhysics_LatVel__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_CoolPhysics__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_HandleDirection__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_Preperation__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_CalculateRoadPosition__FP8coorddefi);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_GetDesiredVector__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_TargetedGetDesiredVector__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_CheckIfOutOfControl__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_OutOfControlPhysics__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_GetRearEndDamageFactor__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_InControlPhysics__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_FinishUp__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_CalculateRampedDesiredLatPos__FP8Car_tObj9eRampType);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_HitWallCheck__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_ProcessBarrierCollision__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_ProcessCollision__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_ChangeDirection__FP8Car_tObji);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_CheckForGripReduction__FP8Car_tObj);
 
-void AIPhysic_StartUp__Fv(void) {
-}
 
-void AIPhysic_CleanUp__Fv(void) {
-}
 
-void AIPhysic_Reset__Fv(void) {
-}
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_ResetCar__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_InitCar__FP8Car_tObj);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_DeInitCar__FP8Car_tObj);
 
 INCLUDE_ASM("asm/nonmatchings/main", __14AIDataRecord_t26AIDataRecord_WhichRecord_tPc);
 

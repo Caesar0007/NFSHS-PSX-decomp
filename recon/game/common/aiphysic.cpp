@@ -15,8 +15,8 @@ void AIPhysic_CleanUp(void) { return; }
 /* ---- AIPhysic_ResetCar__FP8Car_tObj ---- */
 void AIPhysic_ResetCar(Car_tObj *car)
 {
-    *(int *)((char *)car + 0x278) = 0;
-    *(int *)((char *)car + 0x274) = 0;
+    car->pullOver = 0;
+    car->blowout = 0;
 }
 
 /* ---- AIPhysic_GearTopSpeed__FP8Car_tObj6Gear_t  (clamp via tail-recursion -> gcc `j self`) ---- */
@@ -43,16 +43,16 @@ int AIPhysic_GearInvSpeedRange(Car_tObj *car, Gear_t gear)
 /* ---- AIPhysic_TargetedGetDesiredVector__FP8Car_tObj  (desiredVector = targetPos - position) ---- */
 void AIPhysic_TargetedGetDesiredVector(Car_tObj *car)
 {
-    car->desiredVector.x = car->targetPos.x - *(int *)((char *)car + 0xA0);
-    car->desiredVector.y = car->targetPos.y - *(int *)((char *)car + 0xA4);
-    car->desiredVector.z = car->targetPos.z - *(int *)((char *)car + 0xA8);
+    car->desiredVector.x = car->targetPos.x - car->N.position.x;
+    car->desiredVector.y = car->targetPos.y - car->N.position.y;
+    car->desiredVector.z = car->targetPos.z - car->N.position.z;
     car->rampDesiredLatPos = car->targetLatPos;
 }
 
 /* ---- AIPhysic_DeInitCar__FP8Car_tObj ---- */
 void AIPhysic_DeInitCar(Car_tObj *car)
 {
-    if (*(int *)((char *)car + 0x260) & 2) {
+    if (car->carFlags & 2) {
         if (car->brakeInfo != (AIPhysic_BrakeInfo *)0) {
             delete car->brakeInfo;
             car->brakeInfo = (AIPhysic_BrakeInfo *)0;
@@ -97,8 +97,8 @@ int AIPhysic_GetRearEndDamageFactor(Car_tObj *car)
 int AIPhysic_CalcDeceleration(Car_tObj *car)
 {
     int v1 = *(int *)((char *)car->brakeInfo + 0x80);
-    if (0x10000 < *(int *)((char *)car + 0x730)) {
-        v1 = (v1 / 256) * (*(int *)((char *)car + 0x730) / 256);
+    if (0x10000 < car->aiGlue) {
+        v1 = (v1 / 256) * (car->aiGlue / 256);
     }
     return v1;
 }
@@ -109,8 +109,8 @@ int AIPhysic_CalcDeceleration(Car_tObj *car)
 void AIPhysic_ProcessBarrierCollision(Car_tObj *car)
 {
     int v;
-    if (*(int *)((char *)car + 0x260) & 4) return;
-    v = *(int *)((char *)car + 0x564);
+    if (car->carFlags & 4) return;
+    v = car->currentSpeed;
     v = __builtin_abs(v);
     if (0x9FFFF < v) return;
     AIPhysic_ChangeDirection(car, 0x60);
@@ -132,20 +132,20 @@ void AIPhysic_ProcessBarrierCollision(Car_tObj *car)
 int AIPhysic_HitWallCheck(Car_tObj *car)
 {
     Trk_NewSlice *slice = (Trk_NewSlice *)((*(short *)((char *)car + 8) << 5) + (int)BWorldSm_slices);
-    int limit = *(int *)((char *)car + 0x6C4);
+    int limit = car->laneIndex;
     int onRoad;
-    if (limit < 7 - (int)(*(unsigned char *)((char *)slice + 0x1D) >> 4))
+    if (limit < 7 - (int)(slice->laneCount >> 4))
         onRoad = 0;
     else
-        onRoad = (int)(*(unsigned char *)((char *)slice + 0x1D) & 0xF) + 6 >= limit;
+        onRoad = (int)(slice->laneCount & 0xF) + 6 >= limit;
     if (onRoad) return 0;
-    if (*(int *)((char *)car + 0x6F0) == -1) {
-        *(int *)((char *)car + 0x724) += AIPhysic_elapsedTime;
+    if (car->driveDirection == -1) {
+        car->timeOffRoad += AIPhysic_elapsedTime;
     } else {
-        *(int *)((char *)car + 0x724) = 0;
+        car->timeOffRoad = 0;
     }
-    if (*(int *)((char *)car + 0x724) < 9) {
-        return !(0xD999 < *(int *)((char *)car + 0x154));
+    if (car->timeOffRoad < 9) {
+        return !(0xD999 < car->N.roadMatrix.m[4]);
     }
     return 1;
 }
@@ -153,11 +153,11 @@ int AIPhysic_HitWallCheck(Car_tObj *car)
 /* ---- AIPhysic_CoolPhysics__FP8Car_tObj  (per-frame physics sequencer) ---- */
 void AIPhysic_CoolPhysics(Car_tObj *car)
 {
-    *(int *)((char *)car + 0x570) |= 0x10;
+    car->AIFlags |= 0x10;
     AIPhysic_HandleDirection(car);
-    if (*(int *)((char *)car + 0x554) * *(int *)((char *)car + 0x564) < 0) {
-        if (*(int *)((char *)car + 0x6F0) != -1) {
-            *(int *)((char *)car + 0x718) = 0;
+    if (car->direction * car->currentSpeed < 0) {
+        if (car->driveDirection != -1) {
+            car->rampDesiredLatPos = 0;
         }
     }
     if (AIPhysic_HitWallCheck(car)) {
@@ -176,12 +176,12 @@ void AIPhysic_CoolPhysics(Car_tObj *car)
 void AIPhysic_ProcessCollision(Car_tObj *car)
 {
     int v;
-    if (0xD999 < *(int *)((char *)car + 0x190)) {
-        if (*(int *)((char *)car + 0x194) != 0) {
-            v = *(int *)((char *)car + 0x564);
+    if (0xD999 < car->N.collision.impulse) {
+        if (car->N.collision.otherObj != 0) {
+            v = car->currentSpeed;
             v = __builtin_abs(v);
             if (!(0x9FFFF < v)) {
-                AIPhysic_ChangeDirection(car, (*(int *)((char *)car + 0x260) & 0x10) ? 0xA0 : 0x60);
+                AIPhysic_ChangeDirection(car, (car->carFlags & 0x10) ? 0xA0 : 0x60);
             }
         }
     }
@@ -191,18 +191,18 @@ void AIPhysic_ProcessCollision(Car_tObj *car)
 void AIPhysic_HandleSignalling(Car_tObj *car)
 {
     int pos, target;
-    if (!(*(int *)((char *)car + 0x260) & 0x10)) return;
-    pos    = *(int *)((char *)car + 0x558);
-    target = *(int *)((char *)car + 0x574);
+    if (!(car->carFlags & 0x10)) return;
+    pos    = car->desiredLatPos;
+    target = car->roadPosition;
     if (pos < target - 0x40000) {
-        *(short *)((char *)car + 0x8B8) = (short)(*(unsigned short *)((char *)car + 0x8B8) | 0x80);
-        *(short *)((char *)car + 0x8BA) = 0;
+        car->render.signalLight[0] = (short)(*(unsigned short *)&car->render.signalLight[0] | 0x80);
+        car->render.signalLight[1] = 0;
     } else if (target + 0x40000 < pos) {
-        *(short *)((char *)car + 0x8BA) = (short)(*(unsigned short *)((char *)car + 0x8BA) | 0x80);
-        *(short *)((char *)car + 0x8B8) = 0;
+        car->render.signalLight[1] = (short)(*(unsigned short *)&car->render.signalLight[1] | 0x80);
+        car->render.signalLight[0] = 0;
     } else {
-        *(short *)((char *)car + 0x8B8) = 0;
-        *(short *)((char *)car + 0x8BA) = 0;
+        car->render.signalLight[0] = 0;
+        car->render.signalLight[1] = 0;
     }
 }
 
@@ -222,10 +222,10 @@ int AIPhysic_ModifyAccelerationAccordingToScript(Car_tObj *car, int accel)
  * block order + branch polarity (the `||` form lays return 0 first → wrong order). */
 int AIPhysics_UseCoolPhysics(Car_tObj *car)
 {
-    int flags = *(int *)((char *)car + 0x260);
+    int flags = car->carFlags;
     unsigned char b;
     if (flags & 0x800) goto ret1;
-    b = *(unsigned char *)((char *)car + 0x90);
+    b = car->N.simOptz;
     if (b == 0) goto ret1;
     if (!(flags & 0x20)) goto ret0;
     if (b >= 2) goto ret0;
@@ -242,13 +242,13 @@ void AIPhysic_CheckForBadPosition(Car_tObj *car)
     int bad2 = 0;
     Trk_NewSlice *slice;
     int pos;
-    if (0x730000 < *(int *)((char *)car + 0xB4) ||
-        0x730000 < *(int *)((char *)car + 0xAC) ||
-        (0x730000 < *(int *)((char *)car + 0xC0) &&
-         *(unsigned char *)((char *)car + 0x90) == 0))
+    if (0x730000 < car->N.linearVel.z ||
+        0x730000 < car->N.linearVel.x ||
+        (0x730000 < car->N.speedXZ &&
+         car->N.simOptz == 0))
         bad1 = 1;
     slice = (Trk_NewSlice *)((*(short *)((char *)car + 8) << 5) + (int)BWorldSm_slices);
-    pos = *(int *)((char *)car + 0x574);
+    pos = car->roadPosition;
     if (pos < (int)0xFFDD0000 - (*(short *)((char *)slice + 0x18) << 8) ||
         (*(short *)((char *)slice + 0x1A) << 8) + 0x230000 < pos)
         bad2 = 1;
@@ -272,15 +272,15 @@ void AIPhysic_CheckForBadPosition(Car_tObj *car)
  * SimplePhysics_LatVel clamp-abs residual → __builtin_abs candidate there too.) */
 int AIPhysic_CalculateGear(Car_tObj *car)
 {
-    int speed = *(int *)((char *)car + 0x564);
+    int speed = car->currentSpeed;
     int absSpeed = __builtin_abs(speed);
-    int gear = *(unsigned char *)((char *)car + 0x442);
+    int gear = car->control.gear;
     int tooLow;
     if (absSpeed <= 0x1FFFF) {
         gear = 1;
         goto end;
     }
-    if (*(int *)((char *)car + 0x6F0) == -1) {
+    if (car->driveDirection == -1) {
         gear = 0;
         goto end;
     }
@@ -295,10 +295,10 @@ int AIPhysic_CalculateGear(Car_tObj *car)
             speed = AIPhysic_GearTopSpeed(car, (Gear_t)(gear + 1));
             if (speed == 0)
                 return gear;
-            *(int *)((char *)car + 0x580) = *(int *)((char *)car + 0x57C);
+            car->aiShiftTimer = car->aiShiftDuration;
             gear = gear + 1;
         } else {
-            *(int *)((char *)car + 0x580) = *(int *)((char *)car + 0x57C);
+            car->aiShiftTimer = car->aiShiftDuration;
             gear = gear - 1;
         }
     }
@@ -316,27 +316,27 @@ void AIPhysic_HandleDirection(Car_tObj *car)
 {
     int x718;
     int x574;
-    if (*(int *)((char *)car + 0x6F0) != -1)
+    if (car->driveDirection != -1)
         return;
-    x718 = *(int *)((char *)car + 0x718);
-    x574 = *(int *)((char *)car + 0x574);
-    if (x574 < x718 - 0xA0000 && *(int *)((char *)car + 0x704) > 0)
+    x718 = car->rampDesiredLatPos;
+    x574 = car->roadPosition;
+    if (x574 < x718 - 0xA0000 && car->lateralVelocity > 0)
         goto setRamp;
-    if (x718 + 0xA0000 < x574 && *(int *)((char *)car + 0x704) < 0)
+    if (x718 + 0xA0000 < x574 && car->lateralVelocity < 0)
         goto setRamp;
     goto afterRamp;
 setRamp:
-    *(int *)((char *)car + 0x6F4) = D_8011E0B0[0] - 0x18;
+    car->driveDirectionTimer = D_8011E0B0[0] - 0x18;
 afterRamp:
-    if (*(int *)((char *)car + 0x6EC) < simGlobal[1] - *(int *)((char *)car + 0x6F4)) {
-        *(int *)((char *)car + 0x6F0) = 1;
-        *(int *)((char *)car + 0x6F4) = simGlobal[1];
+    if (car->driveDirectionReverseTime < simGlobal[1] - car->driveDirectionTimer) {
+        car->driveDirection = 1;
+        car->driveDirectionTimer = simGlobal[1];
     }
-    if (0x140000 < *(int *)((char *)car + 0x55C))
-        *(int *)((char *)car + 0x55C) = 0x140000;
-    if (0x140000 < -*(int *)((char *)car + 0x55C))
-        *(int *)((char *)car + 0x55C) = (int)0xFFEC0000;
-    *(int *)((char *)car + 0x718) = 0;
+    if (0x140000 < car->desiredSpeed)
+        car->desiredSpeed = 0x140000;
+    if (0x140000 < -car->desiredSpeed)
+        car->desiredSpeed = (int)0xFFEC0000;
+    car->rampDesiredLatPos = 0;
 }
 
 /* ---- AIPhysic_CalculateRoadPosition__FP8coorddefi  (leaf: dot(pos-sliceCenter, sliceRight)/256^2) ---- */
@@ -368,28 +368,28 @@ int AIPhysic_CalculateRoadPosition(coorddef *pos, int sliceIdx)
 void AIPhysic_SimplePhysics_LatVel(Car_tObj *car)
 {
     int s0;
-    if (0x30000 < *(int *)((char *)car + 0x568))
-        s0 = *(int *)((char *)car + 0x718) - *(int *)((char *)car + 0x574);
+    if (0x30000 < car->speed)
+        s0 = car->rampDesiredLatPos - car->roadPosition;
     else
         s0 = 0;
-    if (0x190000 < *(int *)((char *)car + 0x568)) {
+    if (0x190000 < car->speed) {
         coorddef vals;
-        vals = *(coorddef *)((char *)car + 0x144);
+        vals = *(coorddef *)&car->N.roadMatrix;
         vals.x = fixedmult(s0, vals.x);
         vals.y = fixedmult(s0, vals.y);
         vals.z = fixedmult(s0, vals.z);
-        *(int *)((char *)car + 0xA0) += vals.x;
-        *(int *)((char *)car + 0xA4) += vals.y;
-        *(int *)((char *)car + 0xA8) += vals.z;
-        *(int *)((char *)car + 0x594) = 0;
+        car->N.position.x += vals.x;
+        car->N.position.y += vals.y;
+        car->N.position.z += vals.z;
+        car->laneChangeSpeed = 0;
     } else {
-        int v = *(int *)((char *)car + 0x564);
+        int v = car->currentSpeed;
         int absV = __builtin_abs(v);
-        *(int *)((char *)car + 0x594) = s0;
+        car->laneChangeSpeed = s0;
         if (s0 < -absV)
-            *(int *)((char *)car + 0x594) = -absV;
+            car->laneChangeSpeed = -absV;
         else if (absV < s0)
-            *(int *)((char *)car + 0x594) = absV;
+            car->laneChangeSpeed = absV;
     }
 }
 
@@ -407,17 +407,17 @@ void AIPhysic_HandleWipeoutTimer(Car_tObj *car)
     int limit, base;
     unsigned int r;
     char *info;
-    if ((*(int *)((char *)car + 0x260) & 8) == 0)
+    if ((car->carFlags & 8) == 0)
         return;
     limit = D_8011E0B0[0];
-    if (!(*(int *)((char *)car + 0x744) < limit))
+    if (!(car->wipeOutStartTick < limit))
         return;
     r = (unsigned int)(fastRandom * randSeed);
-    info = *(char **)((char *)car + 0x4F0);
+    info = (char *)car->personality;
     base = limit + *(int *)(info + 0x30);
     randtemp = r;
     fastRandom = r & 0xFFFF;
-    *(int *)((char *)car + 0x744) =
+    car->wipeOutStartTick =
         base + (int)((unsigned int)(unsigned short)(r >> 8) & (unsigned int)*(int *)(info + 0x34));
 }
 
@@ -435,29 +435,29 @@ void AIPhysic_ChangeDirection(Car_tObj *car, int dir)
 {
     int newDir;
     int *sg;
-    if (*(int *)((char *)car + 0x6F0) == -1) {
+    if (car->driveDirection == -1) {
         sg = simGlobal;
-        if (sg[1] - *(int *)((char *)car + 0x6F4) > *(int *)((char *)car + 0x6EC) / 2) {
+        if (sg[1] - car->driveDirectionTimer > car->driveDirectionReverseTime / 2) {
             newDir = 1;
             goto action;
         }
     }
-    if (*(int *)((char *)car + 0x6F0) != 1)
+    if (car->driveDirection != 1)
         return;
     sg = simGlobal;
-    if (!(sg[1] - *(int *)((char *)car + 0x6F4) > *(int *)((char *)car + 0x6EC) / 2))
+    if (!(sg[1] - car->driveDirectionTimer > car->driveDirectionReverseTime / 2))
         return;
     {
-        int v = *(int *)((char *)car + 0x564);
+        int v = car->currentSpeed;
         if (__builtin_abs(v) > 0x13FFFF)
             return;
     }
     newDir = -1;
 action:
-    *(int *)((char *)car + 0x6F0) = newDir;
+    car->driveDirection = newDir;
     {
         int rampPos = sg[1];
-        *(int *)((char *)car + 0x6EC) = dir;
-        *(int *)((char *)car + 0x6F4) = rampPos;
+        car->driveDirectionReverseTime = dir;
+        car->driveDirectionTimer = rampPos;
     }
 }

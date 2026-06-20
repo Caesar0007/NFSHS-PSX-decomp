@@ -218,3 +218,37 @@ void AIPhysic_CheckForBadPosition(Car_tObj *car)
     if (bad1 || bad2)
         Cars_ResetCollidedCars(car, 1, 0);
 }
+
+/* ---- AIPhysic_CalculateGear__FP8Car_tObj  (gear search loop) ----
+ * [NEAR-MISS ~65/65 insns, structure correct]: residual = constant-hoist scheduler
+ * tie-break — oracle materializes 0x1FFFF BEFORE the reg-saves + keeps the raw 0x564
+ * value in a caller-saved temp (v1) copied to s4 for abs; gcc here loads direct to s4
+ * + materializes 0x1FFFF late. Source-unreachable coloring/sched → decomp.me batch. */
+int AIPhysic_CalculateGear(Car_tObj *car)
+{
+    int v1 = *(int *)((char *)car + 0x564);
+    int absV = v1 < 0 ? -v1 : v1;
+    int gear = *(unsigned char *)((char *)car + 0x442);
+    int tooLow;
+    if (!(0x1FFFF < absV))
+        return 1;
+    if (*(int *)((char *)car + 0x6F0) == -1)
+        return 0;
+    for (;;) {
+        int found = 0;
+        tooLow = AIPhysic_GearTopSpeed(car, (Gear_t)gear) < absV;
+        if (tooLow || absV < AIPhysic_GearBottomSpeed(car, (Gear_t)gear))
+            found = 1;
+        if (!found)
+            return gear;
+        if (tooLow) {
+            if (AIPhysic_GearTopSpeed(car, (Gear_t)(gear + 1)) == 0)
+                return gear;
+            *(int *)((char *)car + 0x580) = *(int *)((char *)car + 0x57C);
+            gear = gear + 1;
+        } else {
+            *(int *)((char *)car + 0x580) = *(int *)((char *)car + 0x57C);
+            gear = gear - 1;
+        }
+    }
+}

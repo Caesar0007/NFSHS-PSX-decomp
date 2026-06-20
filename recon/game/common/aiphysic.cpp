@@ -135,6 +135,21 @@ void AIPhysic_CoolPhysics(Car_tObj *car)
     AIPhysic_FinishUp(car);
 }
 
+/* ---- AIPhysic_ProcessCollision__FP8Car_tObj  [NEAR-MISS: abs+0x9FFFF constant-hoist tie-break, as ProcessBarrier] ---- */
+void AIPhysic_ProcessCollision(Car_tObj *car)
+{
+    int v;
+    if (0xD999 < *(int *)((char *)car + 0x190)) {
+        if (*(int *)((char *)car + 0x194) != 0) {
+            v = *(int *)((char *)car + 0x564);
+            if (v < 0) v = -v;
+            if (!(0x9FFFF < v)) {
+                AIPhysic_ChangeDirection(car, (*(int *)((char *)car + 0x260) & 0x10) ? 0xA0 : 0x60);
+            }
+        }
+    }
+}
+
 /* ---- AIPhysic_HandleSignalling__FP8Car_tObj  (turn-signal flags in halfwords 0x8B8/0x8BA) ---- */
 void AIPhysic_HandleSignalling(Car_tObj *car)
 {

@@ -30,7 +30,9 @@ def norm_ins(t):
     t = re.sub(r'%lo\([^)]*\)', '0', t)            # %lo(SYM) -> 0
     t = re.sub(r'%gp_rel\([^)]*\)', '0', t)        # %gp_rel(SYM) -> 0
     t = re.sub(r'^move (\w+),(\w+)$', r'addu \1,\2,zero', t)   # objdump move idiom -> addu
-    t = re.sub(r'^li (\w+),(\-?\w+)$', r'addiu \1,zero,\2', t) # objdump li idiom -> addiu
+    # normalize load-immediate idioms BOTH ways -> `li reg,N` (objdump shows `li`;
+    # oracle .s shows addiu/ori reg,zero,N depending on the value's sign-range)
+    t = re.sub(r'^(?:addiu|ori) (\w+),zero,(\-?\d+)$', r'li \1,\2', t)
     # branch/jump target masking (handles objdump `38 <f+20>`, oracle `.Lxxx`, `funcname`)
     m = re.match(r'(beq|bne)\s+(\w+,\w+),', t)
     if m: return f"{m.group(1)} {m.group(2)},T"

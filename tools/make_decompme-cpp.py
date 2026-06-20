@@ -7,9 +7,11 @@ C++-capable compiler — NOT C-with-pointer-math. Per Mc-muffin (Ethanol @ Disco
 github.com/Mc-muffin), the canonical NFS4 recipe is:
 
     compiler  gcc2.8.1-psx
-    flags     -O2 -G4 -xc++ -fno-rtti
+    flags     -O2 -G4 -xc++ -fno-rtti -fno-exceptions -g3 -Wa,--aspsx-version=2.76
 
-(proven 100% on NFS4 `AIDataRecord_CurveSpeedTable_t` ctor, scratch AhA20.)
+(proven on NFS4 `AIDataRecord_CurveSpeedTable_t` ctor scratch AhA20 = 100%, and
+HitWallCheck scratch YsDj7 = 99.2%. The `-Wa,--aspsx-version=2.76` pins the real
+PsyQ assembler version — Mc-muffin's canonical flag set.)
 
     py -3.12 tools/make_decompme-cpp.py <MANGLED_FUNC> \
         --obj expected/src/<module>.c.o \
@@ -40,8 +42,10 @@ COMPILER / FLAGS
 ==============================================================================
 * compiler = gcc2.8.1-psx  (a GCC-psx variant routes C++ to cc1plus; the `psyq*`
   presets are cc1/C-ONLY and will parse-error on `extern "C"`/class types).
-* flags = `-O2 -G4 -xc++ -fno-rtti`. The **`-xc++`** is mandatory (forces C++).
-  ⚠️ `gcc2.7.2-psx`+`-xc++` errors `invalid #-line` ("line numbers" issue) — use
+* flags = `-O2 -G4 -xc++ -fno-rtti -fno-exceptions -g3 -Wa,--aspsx-version=2.76`.
+  **`-xc++`** mandatory (forces C++); **`-Wa,--aspsx-version=2.76`** pins the PsyQ
+  assembler (scheduling/delay-slots); `-fno-exceptions -g3` round it out.
+  ⚠️ `gcc2.7.2-psx`+`-xc++` errors `invalid #-line` ("line numbers") — use
   gcc2.8.1-psx (= Silent Hill toolchain). NO `-Xm` (ccpsx driver flag, invalid).
 
 ==============================================================================
@@ -83,7 +87,7 @@ def main():
     ap.add_argument("--src", required=True, help="C++ source file (normal fn name; real classes)")
     ap.add_argument("--ctx", help="context C++ file (classes/typedefs + extern callees)")
     ap.add_argument("--name", help="display name (default: func)")
-    ap.add_argument("--flags", default="-O2 -G4 -xc++ -fno-rtti", help="cc1plus flags (keep -xc++!)")
+    ap.add_argument("--flags", default="-O2 -G4 -xc++ -fno-rtti -fno-exceptions -g3 -Wa,--aspsx-version=2.76", help="cc1plus flags (keep -xc++!)")
     ap.add_argument("--compiler", default="gcc2.8.1-psx")
     ap.add_argument("--platform", default="ps1")
     a = ap.parse_args()

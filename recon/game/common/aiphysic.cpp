@@ -124,11 +124,13 @@ void AIPhysic_ProcessBarrierCollision(Car_tObj *car)
  * v0 free at the branch → forces onRoad OUT of v0 into $a2 (and laneCount to $a3). It's a CIRCULAR
  * coupling: onRoad-in-$v0 blocks the -1 share; the -1 share needs $v0 free. gcc here picks the other
  * local optimum (onRoad→$v0, laneCount→$a2, -1 materialized separately). NOT a compiler-version diff
- * — SAME coloring on BOTH cc1plus/2.7.2 (in-tree) AND gcc2.8.1-psx C++ (scratch pwneU, 625). Tried:
- * named/anon laneCount, decl order, limit-inline, if/else vs ternary, early-init, nested-!onRoad
- * (19 diffs but flips branch polarity). The original broke the cycle via a source form not yet
- * found (the reorg delay-slot -1 hoist). Genuine reorg/coloring residual; forcing $a2 = pin (§3.13,
- * forbidden). SYM+ORACLE confirms structure/types/logic correct — only the coloring differs. */
+ * — SAME coloring on cc1plus/2.7.2 (in-tree) AND on Mc-muffin's CANONICAL C++ scratch YsDj7
+ * (gcc2.8.1-psx, `-O2 -G4 -xc++ -fno-rtti -fno-exceptions -g3 -Wa,--aspsx-version=2.76`), which
+ * reaches 99.20% (score 35) yet is STUCK on the EXACT same laneCount→$a3/onRoad→$a2 vs $a2/$v0
+ * coloring. So an expert + the correct toolchain hit the same wall → genuine reorg/coloring
+ * coin-flip, not source/version/flags-reachable; forcing $a2 = pin (§3.13, forbidden). Tried:
+ * named/anon laneCount, decl order, limit-inline, if/else vs ternary, early-init, nested-!onRoad.
+ * SYM+ORACLE confirms structure/types/logic correct — only the coloring differs. */
 int AIPhysic_HitWallCheck(Car_tObj *car)
 {
     Trk_NewSlice *slice = (Trk_NewSlice *)((*(short *)((char *)car + 8) << 5) + (int)BWorldSm_slices);

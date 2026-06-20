@@ -219,25 +219,22 @@ void AIPhysic_CheckForBadPosition(Car_tObj *car)
         Cars_ResetCollidedCars(car, 1, 0);
 }
 
-/* ---- AIPhysic_CalculateGear__FP8Car_tObj  (gear search loop) — 100% MATCH ----
- * STRUCTURE (all source-reachable, the hard part): (1) flat early-exit-via-`goto end`
+/* ---- AIPhysic_CalculateGear__FP8Car_tObj  (gear search loop) — NEAR-MISS 64/65, PIN-FREE ----
+ * STRUCTURE fully cracked source-reachably (12->1 diff): (1) flat early-exit-via-`goto end`
  * for the return-1/return-0 cases — both set `gear` then jump over the loop to a shared
  * `return gear` (oracle's L614/L618 split: early returns funnel `s1`->`v0`, loop returns
  * go direct); (2) abs as copy-then-conditional-negate `absV=raw; if(raw<0) absV=-absV;`;
- * (3) `limit` hoisted as an early named local. RESIDUAL coalescing tie-break: the oracle
- * keeps `raw` (0x564) in a caller-saved temp (v1) copied to s4, freeing the bgez delay
- * slot for the copy (which in turn keeps lui+ori paired early); gcc otherwise loads raw
- * direct into s4 (1-insn shorter). Forced here with a single `raw asm("$3")` pin.
- * 🔴 PIN = coalescing CRUTCH at 100%. PERMUTER TRIED (pin-removed 64/65 base, 240s + a
- * 330s re-seed from its best): improved base score 85 -> 5 but ONLY via obscure
- * variable-reuse (`raw=0x580` in the loop + `new_var=1`), NEVER a clean score-0, and
- * those reuse hacks are worse than the explicit pin. CONCLUSION: no clean source/permuter
- * form exists — the abs-coalescing is a genuine allocator coin-flip; the explicit pin is
- * the cleanest honest 100%. (manual tries `-absV`/`-raw`/re-read all coalesce too.) */
+ * (3) `limit` hoisted as an early named local. SOLE RESIDUAL (1 insn): an allocator
+ * COALESCING coin-flip — the oracle keeps `raw` (0x564) in a caller-saved temp (v1) copied
+ * to s4, gcc here loads raw direct into s4 (raw dies as absV is born → gcc legally collapses
+ * the copy). NO clean source form (`-absV`/`-raw`/re-read all coalesce) and the permuter
+ * only beats it via variable-reuse hacks (score 5, never 0). 🔴 RULE: register-asm
+ * arg/value pins are NOT ALLOWED — so this stays an honest pin-free near-miss, not a pinned
+ * 100%. The 1-insn gap is a pure gcc allocator tie-break → decomp.me if ever pursued. */
 int AIPhysic_CalculateGear(Car_tObj *car)
 {
     int limit = 0x1FFFF;
-    register int raw asm("$3") = *(int *)((char *)car + 0x564);
+    int raw = *(int *)((char *)car + 0x564);
     int absV = raw;
     int gear = *(unsigned char *)((char *)car + 0x442);
     int tooLow;

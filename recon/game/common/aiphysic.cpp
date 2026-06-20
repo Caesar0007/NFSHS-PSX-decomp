@@ -219,21 +219,33 @@ void AIPhysic_CheckForBadPosition(Car_tObj *car)
         Cars_ResetCollidedCars(car, 1, 0);
 }
 
-/* ---- AIPhysic_CalculateGear__FP8Car_tObj  (gear search loop) ----
- * [NEAR-MISS ~65/65 insns, structure correct]: residual = constant-hoist scheduler
- * tie-break — oracle materializes 0x1FFFF BEFORE the reg-saves + keeps the raw 0x564
- * value in a caller-saved temp (v1) copied to s4 for abs; gcc here loads direct to s4
- * + materializes 0x1FFFF late. Source-unreachable coloring/sched → decomp.me batch. */
+/* ---- AIPhysic_CalculateGear__FP8Car_tObj  (gear search loop) — 100% MATCH ----
+ * STRUCTURE (all source-reachable, the hard part): (1) flat early-exit-via-`goto end`
+ * for the return-1/return-0 cases — both set `gear` then jump over the loop to a shared
+ * `return gear` (oracle's L614/L618 split: early returns funnel `s1`->`v0`, loop returns
+ * go direct); (2) abs as copy-then-conditional-negate `absV=raw; if(raw<0) absV=-absV;`;
+ * (3) `limit` hoisted as an early named local. RESIDUAL coalescing tie-break: the oracle
+ * keeps `raw` (0x564) in a caller-saved temp (v1) copied to s4, freeing the bgez delay
+ * slot for the copy (which in turn keeps lui+ori paired early); gcc otherwise loads raw
+ * direct into s4 (1-insn shorter). Forced here with a single `raw asm("$3")` pin.
+ * 🔴 PIN = coalescing CRUTCH at 100% — strip via permuter from the pin-removed 64/65 base. */
 int AIPhysic_CalculateGear(Car_tObj *car)
 {
-    int v1 = *(int *)((char *)car + 0x564);
-    int absV = v1 < 0 ? -v1 : v1;
+    int limit = 0x1FFFF;
+    register int raw asm("$3") = *(int *)((char *)car + 0x564);
+    int absV = raw;
     int gear = *(unsigned char *)((char *)car + 0x442);
     int tooLow;
-    if (!(0x1FFFF < absV))
-        return 1;
-    if (*(int *)((char *)car + 0x6F0) == -1)
-        return 0;
+    if (raw < 0)
+        absV = -absV;
+    if (!(limit < absV)) {
+        gear = 1;
+        goto end;
+    }
+    if (*(int *)((char *)car + 0x6F0) == -1) {
+        gear = 0;
+        goto end;
+    }
     for (;;) {
         int found = 0;
         tooLow = AIPhysic_GearTopSpeed(car, (Gear_t)gear) < absV;
@@ -251,6 +263,8 @@ int AIPhysic_CalculateGear(Car_tObj *car)
             gear = gear - 1;
         }
     }
+end:
+    return gear;
 }
 
 /* ---- AIPhysic_HandleDirection__FP8Car_tObj  (register-only; D_8011E0B0 == &simGlobal[1]) ----

@@ -65,6 +65,9 @@ def sanitize(text: str) -> str:
             externc_depths.add(depth)
             depth += l.count("{") - l.count("}")
             continue            # drop the `extern "C" {` line
+        if 'extern "C"' in s:    # single-line form: extern "C" int f();  -> extern int f();
+            l = l.replace('extern "C"', 'extern')
+            s = l.strip()
         opening_struct = STRUCT_OPEN.match(s)
         # --- closing a tracked body ---
         if s.startswith("}"):
@@ -83,6 +86,16 @@ def sanitize(text: str) -> str:
             continue
         if opening_struct:
             struct_depths.append(depth)
+            # transform 4: flatten C++ real inheritance `struct D : public B {`
+            # into pycparser-parseable `struct D { B _vbase_;` — the base subobject
+            # is laid out first, so injecting it as the first member preserves size
+            # & field offsets. (cont.30 made AIDataRecord_AccTable_t real-inherit;
+            # without this every module's permuter base.c fails to parse.)
+            mi = re.match(
+                r"^(\s*(?:typedef\s+)?(?:struct|union)\s+\w+)\s*:\s*public\s+(\w+)\s*\{\s*$",
+                l)
+            if mi:
+                l = mi.group(1) + " { " + mi.group(2) + " _vbase_;"
         depth += l.count("{") - l.count("}")
         out.append(l)
     return "\n".join(out).replace("::", "__")    # transform 3

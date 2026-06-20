@@ -24,6 +24,8 @@ def norm_ins(t):
     t = t.replace('$', '')                                    # drop $ on regs (oracle has them, objdump doesn't)
     t = re.sub(r',\s+', ',', t)                               # normalize space after commas
     t = re.sub(r'0x([0-9a-fA-F]+)', lambda m: str(int(m.group(1),16)), t)  # hex->dec (case-insens)
+    t = re.sub(r'\((\d+) ?>> ?(\d+)\)', lambda m: str(int(m.group(1))>>int(m.group(2))), t)  # eval (N>>M)
+    t = re.sub(r'\((\d+) ?& ?(\d+)\)', lambda m: str(int(m.group(1))&int(m.group(2))), t)     # eval (N&M)
     t = re.sub(r'^move (\w+),(\w+)$', r'addu \1,\2,zero', t)   # objdump move idiom -> addu
     t = re.sub(r'^li (\w+),(\-?\w+)$', r'addiu \1,zero,\2', t) # objdump li idiom -> addiu
     # branch/jump target masking (handles objdump `38 <f+20>`, oracle `.Lxxx`, `funcname`)

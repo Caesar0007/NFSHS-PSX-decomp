@@ -228,7 +228,12 @@ void AIPhysic_CheckForBadPosition(Car_tObj *car)
  * keeps `raw` (0x564) in a caller-saved temp (v1) copied to s4, freeing the bgez delay
  * slot for the copy (which in turn keeps lui+ori paired early); gcc otherwise loads raw
  * direct into s4 (1-insn shorter). Forced here with a single `raw asm("$3")` pin.
- * 🔴 PIN = coalescing CRUTCH at 100% — strip via permuter from the pin-removed 64/65 base. */
+ * 🔴 PIN = coalescing CRUTCH at 100%. PERMUTER TRIED (pin-removed 64/65 base, 240s + a
+ * 330s re-seed from its best): improved base score 85 -> 5 but ONLY via obscure
+ * variable-reuse (`raw=0x580` in the loop + `new_var=1`), NEVER a clean score-0, and
+ * those reuse hacks are worse than the explicit pin. CONCLUSION: no clean source/permuter
+ * form exists — the abs-coalescing is a genuine allocator coin-flip; the explicit pin is
+ * the cleanest honest 100%. (manual tries `-absV`/`-raw`/re-read all coalesce too.) */
 int AIPhysic_CalculateGear(Car_tObj *car)
 {
     int limit = 0x1FFFF;

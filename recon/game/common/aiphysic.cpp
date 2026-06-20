@@ -327,17 +327,21 @@ int AIPhysic_CalculateRoadPosition(coorddef *pos, int sliceIdx)
 }
 
 /* ---- AIPhysic_SimplePhysics_LatVel__FP8Car_tObj  (3-axis fixedmult or clamp to ±abs(latVel)) ----
- * [NEAR-MISS ~19/73 diffs, structure correct]: the fixedmult setup matches via the STRUCT-COPY
- * lever (`vals = *(coorddef*)&car->0x144` → load-3/store-3 block, like CalculateRoadPosition).
- * Residual = a regalloc cascade: the oracle keeps x568 in a caller-saved $v1 (clobbered by the
- * x718-x574 subu → reloads x568), gcc here keeps it in $a0 (unclobbered, no reload, 1 insn
- * short) and the whole reg file shifts. A pure allocator tie-break — permuter plateaus at 80
- * (no clean 0), not pin-able (rule) → decomp.me. */
+ * [NEAR-MISS ~10/73 diffs, structure correct]. Two STRUCTURAL levers cracked the cascade
+ * (19→10): (1) STRUCT-COPY for the fixedmult setup (`vals = *(coorddef*)&car->0x144`); (2) 🔑
+ * **EXPLICIT `else s0 = 0;`** (not `int s0=0;` up top) — putting the 0 as the else value lands
+ * it in the beqz DELAY SLOT, which ALSO fixed x568's allocation: it now naturally goes to $v1 +
+ * reloads (the speed live-range splits) instead of being held in $a0. So the "x568 cascade" was
+ * DOWNSTREAM of the s0-init placement, not an independent wall. Remaining ~10 = the clamp ABS
+ * coalescing (CalculateGear class: latVel coalesces with absV instead of copy-then-negate v0→v1)
+ * + the `0x594=0` store scheduling. → permuter / decomp.me. */
 void AIPhysic_SimplePhysics_LatVel(Car_tObj *car)
 {
-    int s0 = 0;
+    int s0;
     if (0x30000 < *(int *)((char *)car + 0x568))
         s0 = *(int *)((char *)car + 0x718) - *(int *)((char *)car + 0x574);
+    else
+        s0 = 0;
     if (0x190000 < *(int *)((char *)car + 0x568)) {
         coorddef vals;
         vals = *(coorddef *)((char *)car + 0x144);
@@ -350,8 +354,11 @@ void AIPhysic_SimplePhysics_LatVel(Car_tObj *car)
         *(int *)((char *)car + 0xA8) += vals.z;
     } else {
         int v = *(int *)((char *)car + 0x564);
-        int absV = v < 0 ? -v : v;
-        int negAbs = -absV;
+        int absV = v;
+        int negAbs;
+        if (v < 0)
+            absV = -absV;
+        negAbs = -absV;
         *(int *)((char *)car + 0x594) = s0;
         if (s0 < negAbs)
             *(int *)((char *)car + 0x594) = negAbs;

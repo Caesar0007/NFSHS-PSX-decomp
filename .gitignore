@@ -18,3 +18,7 @@ __pycache__/
 recon/_aiinit_syms.txt
 /permuter_work/
 _backup_permuter/
+
+# decomp.me auto-claim (secret session cookie + token log) — never commit
+tools/.decompme_cookie
+build/decompme_claims.jsonl

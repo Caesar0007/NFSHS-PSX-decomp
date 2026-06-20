@@ -56,13 +56,65 @@ CAVEATS (same as the C tool)
   PATCH/compile are 403. To verify the diff or change flags, open the URL in a
   browser (or PATCH from a logged-in browser session). Re-POST to change anything.
 * POST returns 201 {slug, claim_token}.
+
+==============================================================================
+AUTO-CLAIM (set scratch owner = your account, so they aren't anonymous)
+==============================================================================
+* Every claim_token is ALWAYS appended to build/decompme_claims.jsonl (gitignored)
+  so it can never be lost again (the token is one-shot POST output).
+* The script AUTO-CLAIMS the new scratch to your account IF a session cookie is
+  available — set env DECOMPME_COOKIE or write the gitignored file
+  tools/.decompme_cookie with the raw Cookie header copied from the browser while
+  logged in as your git user, e.g.:  sessionid=xxxxx; csrftoken=yyyyy
+  Then each scratch is owned by you the moment it's created.
+* No cookie -> it prints the token + a reminder; claim later from the logged-in
+  browser (POST /api/scratch/<slug>/claim {token}) or after setting the cookie,
+  using the tokens saved in build/decompme_claims.jsonl.
 """
-import argparse, json, subprocess, sys, urllib.request, urllib.error
+import argparse, json, os, subprocess, sys, time, urllib.request, urllib.error
+from http.cookiejar import CookieJar
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 API = "https://decomp.me/api/scratch"
 UA = "Mozilla/5.0 (Windows NT 10.0)"
+CLAIMS_LOG = ROOT / "build" / "decompme_claims.jsonl"
+# Auto-claim needs YOUR logged-in decomp.me cookie (the headless script can't auth via the
+# browser). Provide it via env DECOMPME_COOKIE or the gitignored file tools/.decompme_cookie,
+# as the raw Cookie header, e.g.  sessionid=xxxxx; csrftoken=yyyyy
+# (copy from the browser devtools while logged in as your git user). Never commit this file.
+COOKIE_FILE = ROOT / "tools" / ".decompme_cookie"
+
+
+def load_cookie():
+    c = os.environ.get("DECOMPME_COOKIE", "").strip()
+    if not c and COOKIE_FILE.exists():
+        c = COOKIE_FILE.read_text().strip()
+    return c or None
+
+
+def claim(slug, token, cookie):
+    """Claim an anonymous scratch to the cookie's logged-in user. Returns owner or None."""
+    csrf = ""
+    for part in cookie.split(";"):
+        part = part.strip()
+        if part.startswith("csrftoken="):
+            csrf = part.split("=", 1)[1]
+    req = urllib.request.Request(
+        f"{API}/{slug}/claim", data=json.dumps({"token": token}).encode(),
+        headers={"Content-Type": "application/json", "User-Agent": UA,
+                 "Cookie": cookie, "X-CSRFToken": csrf, "Referer": f"https://decomp.me/scratch/{slug}"})
+    try:
+        urllib.request.urlopen(req, timeout=40)
+    except urllib.error.HTTPError as e:
+        return f"FAILED HTTP {e.code} ({e.read().decode()[:120]})"
+    # confirm
+    try:
+        g = urllib.request.Request(f"{API}/{slug}", headers={"User-Agent": UA, "Cookie": cookie})
+        j = json.loads(urllib.request.urlopen(g, timeout=40).read().decode())
+        return (j.get("owner") or {}).get("username") or "(claimed)"
+    except Exception:
+        return "(claimed, owner unverified)"
 
 
 def gen_target(func, obj, dis):
@@ -120,11 +172,27 @@ def main():
     except urllib.error.HTTPError as e:
         sys.exit(f"POST failed HTTP {e.code}:\n{e.read().decode()[:400]}")
     slug = j.get("slug")
+    token = j.get("claim_token")
     print(f"created  ({r.status})  compiler={a.compiler!r} flags={j.get('compiler_flags')!r}")
     print(f"URL:   https://decomp.me/scratch/{slug}")
-    print(f"CLAIM: {j.get('claim_token')}")
-    print("NOTE: open the URL in a browser to verify the diff (GET/compile are "
-          "Cloudflare-blocked headlessly). Re-run to change anything.")
+    print(f"CLAIM: {token}")
+
+    # ALWAYS persist the claim token so it can never be lost (the token is one-shot output).
+    CLAIMS_LOG.parent.mkdir(parents=True, exist_ok=True)
+    with open(CLAIMS_LOG, "a") as fh:
+        fh.write(json.dumps({"slug": slug, "token": token, "func": a.func, "epoch": int(time.time())}) + "\n")
+    print(f"saved token -> {CLAIMS_LOG}")
+
+    # AUTO-CLAIM to your account if a session cookie is available.
+    cookie = load_cookie()
+    if cookie:
+        owner = claim(slug, token, cookie)
+        print(f"auto-claim: owner = {owner}")
+    else:
+        print("auto-claim SKIPPED: no DECOMPME_COOKIE env / tools/.decompme_cookie file. "
+              "Set it (raw Cookie header: 'sessionid=...; csrftoken=...') to auto-claim, OR claim "
+              "from the logged-in browser: POST /api/scratch/<slug>/claim {token}. "
+              "(All tokens are in build/decompme_claims.jsonl for later claiming.)")
 
 
 if __name__ == "__main__":

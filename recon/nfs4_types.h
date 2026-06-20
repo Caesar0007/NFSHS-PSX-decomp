@@ -1814,8 +1814,7 @@ struct AIDataRecord_t {   /* 88 bytes */
     int SaveAndPurge();
 };
 
-struct AIDataRecord_AccTable_t {   /* 92 bytes */
-    AIDataRecord_t     _base_AIDataRecord_t;   /* +0x0 */
+struct AIDataRecord_AccTable_t : public AIDataRecord_t {   /* 92 bytes */
     int                scale_;   /* +0x58 */
     AIDataRecord_AccTable_t() {}
     AIDataRecord_AccTable_t(char *name, int n, AIDataRecord_WhichRecord_t which);

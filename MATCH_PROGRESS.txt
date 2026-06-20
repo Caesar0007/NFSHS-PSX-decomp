@@ -62,6 +62,7 @@ VA             %match  unit                     function
 0x8006D3BC    100.00%  game/common/aidatarecord __30AIDataRecord_CurveSpeedTable_tPc26AIDataRecord_WhichRecord_t
 0x8006D44C    100.00%  game/common/aidatarecord Get__30AIDataRecord_CurveSpeedTable_ti
 0x8006D480    100.00%  game/common/aidatarecord Upgrade__30AIDataRecord_CurveSpeedTable_ti
+0x8006D594    100.00%  game/common/aidatarecord ___23AIDataRecord_AccTable_t
 0x8006E258    100.00%  main                     AISpeeds_GetNextAICar__FP8Car_tObj
 0x8006F6F8    100.00%  main                     AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails
 0x8006F6F8    100.00%  game/common/aiscript     AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails

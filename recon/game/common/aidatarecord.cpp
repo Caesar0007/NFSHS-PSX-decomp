@@ -193,13 +193,13 @@ int AIDataRecord_t::SaveAndPurge()
 /* ---- __23AIDataRecord_AccTable_tPci26AIDataRecord_WhichRecord_t  AccTable::ctor ---- */
 AIDataRecord_AccTable_t::AIDataRecord_AccTable_t(char *preBuffer,int scale,
           AIDataRecord_WhichRecord_t whichIsThis)
-  : _base_AIDataRecord_t(whichIsThis,preBuffer)
+  : AIDataRecord_t(whichIsThis,preBuffer)
 {
-  (this->_base_AIDataRecord_t)._vf = (__vtbl_ptr_type (*) [3])AIDataRecord_AccTable_t_vtable;
-  (this->_base_AIDataRecord_t).numElements_ = 0x70;
-  (this->_base_AIDataRecord_t).bSize_ = 0xe0;
+  this->_vf = (__vtbl_ptr_type (*) [3])AIDataRecord_AccTable_t_vtable;
+  this->numElements_ = 0x70;
+  this->bSize_ = 0xe0;
   this->scale_ = scale;
-  sprintf((this->_base_AIDataRecord_t).name_,D_800553B8,D_8011647C[0],
+  sprintf(this->name_,D_800553B8,D_8011647C[0],
           (char *)Cars_gHumanRaceCarList[0] + 0x240);
   return;
 }
@@ -207,7 +207,7 @@ AIDataRecord_AccTable_t::AIDataRecord_AccTable_t(char *preBuffer,int scale,
 /* ---- Get__23AIDataRecord_AccTable_ti ---- */
 int AIDataRecord_AccTable_t::Get(int speed)
 {
-  return (int)*(short *)((this->_base_AIDataRecord_t).dataBuffer_ + speed * 2) << 8;
+  return (int)*(short *)(this->dataBuffer_ + speed * 2) << 8;
 }
 
 /* ---- Setup__23AIDataRecord_AccTable_t ---- */
@@ -217,13 +217,13 @@ void AIDataRecord_AccTable_t::Setup()
   int iVar1;
   int speed;
 
-  this->_base_AIDataRecord_t.Setup();
+  this->AIDataRecord_t::Setup();
   speed = 0;
  loopTop:
   if (speed < 0x70) {
     iVar1 = this->Get(speed);
     iVar1 = fixedmult(iVar1,this->scale_);
-    *(short *)((this->_base_AIDataRecord_t).dataBuffer_ + speed * 2) = (short)(iVar1 >> 8);
+    *(short *)(this->dataBuffer_ + speed * 2) = (short)(iVar1 >> 8);
     speed = speed + 1;
     goto loopTop;
   }

@@ -7,7 +7,7 @@
 
 
 /* ---- intra-TU forward declarations ---- */
-void AIPerson_LoadGridAndSetPersonalityIndexes(void);
+int AIPerson_LoadGridAndSetPersonalityIndexes(void);
 void AIPerson_SetPersonality(Car_tObj *carObj,int personalityIndex);
 void AIPerson_SetPersonalityPointers(void);
 void AIPerson_LoadPersonalityData(Udff_tInfo *handle);
@@ -17,21 +17,28 @@ void AIPerson_Startup(void);
 void AIPerson_Cleanup(void);
 
 
-/* ---- AIPerson_LoadGridAndSetPersonalityIndexes__Fv  [@0x800689e8] ---- */
-void AIPerson_LoadGridAndSetPersonalityIndexes(void)
+/* ---- AIPerson_LoadGridAndSetPersonalityIndexes__Fv  [@0x800689e8] — PIN-FREE 100% ----
+ * 🔑 §3.2 VOID-RETURN-BUG: the oracle was compiled NON-void — gcc reserving $v0 for the
+ * return value is what puts the counter in $a0 and the counter-init in the blez delay slot
+ * (the `void` form is exactly 1 insn off; the counter-`asm("$4")` pin was forcing this by
+ * hand). Declaring the true `int` return type is the clean fix (a type correction, NOT a
+ * pin); the returned $v0 is incidental (the loop-exit slt) and unused by callers. The
+ * permuter independently confirmed it (6 score-0 candidates, all non-void return types).
+ * counter assigned LAST (after the pointers) for the $a0 allocation. */
+int AIPerson_LoadGridAndSetPersonalityIndexes(void)
 {
   int personality;
   int iVar2;
-  register int iVar3 asm("$4");   /* a0 (matching aid #13): counter, also fills the blez delay slot */
+  int iVar3;
   Car_tObj *carObj;
   Car_tObj **ppCVar4;
   GameSetup_tData *pGVar5;
 
   iVar2 = Cars_gNumCars;
   if (0 < Cars_gNumCars) {
-    iVar3 = 0;
     pGVar5 = &GameSetup_gData;
     ppCVar4 = Cars_gList;
+    iVar3 = 0;
     do {
       personality = pGVar5->carInfo->Personality;
       pGVar5 = (GameSetup_tData *)((pGVar5->controllerData).shockImpact + 1);
@@ -41,7 +48,8 @@ void AIPerson_LoadGridAndSetPersonalityIndexes(void)
       iVar3 = iVar3 + 1;
     } while (iVar3 < iVar2);
   }
-  return;
+  return;   /* §3.2: non-void type recovered, but $v0 is the incidental loop-slt — NO explicit
+             * return value (a `return <expr>;` adds an instr); callers ignore it. */
 }
 
 /* ---- AIPerson_SetPersonality__FP8Car_tObji  [@0x80068a34] ---- */

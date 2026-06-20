@@ -314,7 +314,7 @@ int AIDataRecord_CurveSpeedTable_t::Get(int curve)
 /* ---- Upgrade__30AIDataRecord_CurveSpeedTable_ti ---- */
 void AIDataRecord_CurveSpeedTable_t::Upgrade(int handlingUpgrade)
 {
-  register int round asm("$18");   /* s2: hoist 0xffff across the loop */
+  int round;   /* 0xffff hoisted across the loop (pin-free per the no-asm-pin rule) */
   char *pcVar1;
   int iVar1;
   int curve;

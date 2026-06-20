@@ -14,5 +14,7 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *car);
 void AIPhysic_InControlPhysics(Car_tObj *car);
 void AIPhysic_FinishUp(Car_tObj *car);
 extern GameSetup_tData GameSetup_gData;
+extern Trk_NewSlice *BWorldSm_slices;
+extern int AIPhysic_elapsedTime;
 
 #endif

@@ -90,6 +90,29 @@ void AIPhysic_ProcessBarrierCollision(Car_tObj *car)
     AIPhysic_ChangeDirection(car, 0x60);
 }
 
+/* ---- AIPhysic_HitWallCheck__FP8Car_tObj  [NEAR-MISS: v0/v1+a2/a3 regalloc tie-break] ---- */
+int AIPhysic_HitWallCheck(Car_tObj *car)
+{
+    Trk_NewSlice *slice = BWorldSm_slices + *(short *)((char *)car + 8);
+    unsigned int b = *(unsigned char *)((char *)slice + 0x1D);
+    int a2;
+    if (*(int *)((char *)car + 0x6C4) < 7 - (int)(b >> 4)) {
+        a2 = 0;
+    } else {
+        a2 = (int)(b & 0xF) + 6 >= *(int *)((char *)car + 0x6C4);
+    }
+    if (a2) return 0;
+    if (*(int *)((char *)car + 0x6F0) == -1) {
+        *(int *)((char *)car + 0x724) += AIPhysic_elapsedTime;
+    } else {
+        *(int *)((char *)car + 0x724) = 0;
+    }
+    if (*(int *)((char *)car + 0x724) < 9) {
+        return !(0xD999 < *(int *)((char *)car + 0x154));
+    }
+    return 1;
+}
+
 /* ---- AIPhysic_CoolPhysics__FP8Car_tObj  (per-frame physics sequencer) ---- */
 void AIPhysic_CoolPhysics(Car_tObj *car)
 {

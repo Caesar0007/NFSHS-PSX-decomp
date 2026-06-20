@@ -17,5 +17,7 @@ void Cars_ResetCollidedCars(Car_tObj *car, int a, int b);
 extern GameSetup_tData GameSetup_gData;
 extern Trk_NewSlice *BWorldSm_slices;
 extern int AIPhysic_elapsedTime;
+extern int simGlobal[];        /* @0x8011E0AC */
+extern int D_8011E0B0;         /* @0x8011E0B0 == &simGlobal[1]; oracle addresses it directly in HandleDirection */
 
 #endif

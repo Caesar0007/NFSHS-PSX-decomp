@@ -252,3 +252,48 @@ int AIPhysic_CalculateGear(Car_tObj *car)
         }
     }
 }
+
+/* ---- AIPhysic_HandleDirection__FP8Car_tObj  (register-only; D_8011E0B0 == &simGlobal[1]) ----
+ * [NEAR-MISS 57/58 insns]: residual = ONE duplicated `%hi(D_8011E0B0)`. The shared setRamp
+ * block is reached from two paths; the oracle pulls the block's first `lui %hi` into BOTH
+ * predecessors' delay slots (duplicated), gcc here CSE's it to one. Delay-slot-fill /
+ * shared-block scheduling tie-break (the ChangeDirection class) — source-unreachable → decomp.me. */
+void AIPhysic_HandleDirection(Car_tObj *car)
+{
+    int x718;
+    int x574;
+    if (*(int *)((char *)car + 0x6F0) != -1)
+        return;
+    x718 = *(int *)((char *)car + 0x718);
+    x574 = *(int *)((char *)car + 0x574);
+    if ((x574 < x718 - 0xA0000 && *(int *)((char *)car + 0x704) > 0) ||
+        (x718 + 0xA0000 < x574 && *(int *)((char *)car + 0x704) < 0))
+        *(int *)((char *)car + 0x6F4) = D_8011E0B0 - 0x18;
+    if (*(int *)((char *)car + 0x6EC) < simGlobal[1] - *(int *)((char *)car + 0x6F4)) {
+        *(int *)((char *)car + 0x6F0) = 1;
+        *(int *)((char *)car + 0x6F4) = simGlobal[1];
+    }
+    if (0x140000 < *(int *)((char *)car + 0x55C))
+        *(int *)((char *)car + 0x55C) = 0x140000;
+    if (0x140000 < -*(int *)((char *)car + 0x55C))
+        *(int *)((char *)car + 0x55C) = (int)0xFFEC0000;
+    *(int *)((char *)car + 0x718) = 0;
+}
+
+/* ---- AIPhysic_CalculateRoadPosition__FP8coorddefi  (leaf: dot(pos-sliceCenter, sliceRight)/256^2) ---- */
+int AIPhysic_CalculateRoadPosition(coorddef *pos, int sliceIdx)
+{
+    coorddef org;
+    coorddef delta;
+    coorddef nrm;
+    org = *(coorddef *)BWorldSm_slices[sliceIdx].center;
+    delta.x = pos->x - org.x;
+    delta.y = pos->y - org.y;
+    delta.z = pos->z - org.z;
+    nrm.x = (signed char)BWorldSm_slices[sliceIdx].right[0] << 9;
+    nrm.y = (signed char)BWorldSm_slices[sliceIdx].right[1] << 9;
+    nrm.z = (signed char)BWorldSm_slices[sliceIdx].right[2] << 9;
+    return (nrm.x / 256) * (delta.x / 256) +
+           (nrm.y / 256) * (delta.y / 256) +
+           (nrm.z / 256) * (delta.z / 256);
+}

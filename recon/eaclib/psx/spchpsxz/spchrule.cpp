@@ -155,6 +155,7 @@ extern "C" void iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
 /* iSPCH_CheckSentenceRules @0x8010B58C : 1 if (rule[+2] ^ testVal) masked by rule[+1] and ~clearMask is 0. */
 extern "C" unsigned int iSPCH_CheckSentenceRules(int testVal, int clearMask, int rulePtr)
 {
-    return (unsigned int)((((unsigned int)*(unsigned char *)(rulePtr + 2) ^ (unsigned int)testVal) &
-                           (unsigned int)*(unsigned char *)(rulePtr + 1) & ~clearMask) == 0);
+    unsigned int active = (unsigned int)*(unsigned char *)(rulePtr + 1) & ~(unsigned int)clearMask;
+    unsigned int delta  = (unsigned int)*(unsigned char *)(rulePtr + 2) ^ (unsigned int)testVal;
+    return (unsigned int)((delta & active) == 0);
 }

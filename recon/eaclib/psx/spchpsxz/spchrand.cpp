@@ -20,7 +20,7 @@ extern "C" unsigned int DAT_80123600;   /* @0x80123600 word3 */
 extern "C" unsigned int DAT_80123604;   /* @0x80123604 word4 */
 extern "C" unsigned int DAT_80123608;   /* @0x80123608 word5 */
 
-extern "C" int  gEventDats;             /* @0x80148048 : int[4] bound event-data pointers (shared w/ spchevnt) */
+extern "C" int  gEventDats[];           /* @0x80148048 : int[4] bound event-data pointers (shared w/ spchevnt) */
 extern "C" void trap(unsigned int code);
 
 extern "C" int   iSPCH_EACrandom(void);                 /* @0x800EB9C4 */
@@ -84,17 +84,20 @@ extern "C" int iSPCH_BindData(unsigned short *dat)
 {
     int *p;
     int  i;
+    int  result = 0;
     if (0x11d < *dat) {
         i = 0;
-        p = &gEventDats;
+        p = gEventDats;
         do {
             i++;
             if (*p == 0) {
                 *p = (int)dat;
-                return 1;
+                result = 1;
+                goto done;
             }
             p++;
         } while (i < 4);
     }
-    return 0;
+done:
+    return result;
 }

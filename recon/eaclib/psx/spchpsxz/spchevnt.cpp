@@ -20,13 +20,17 @@ extern "C" int            gLastTick;      /* last insert tick */
 extern "C" unsigned short gLastSubTick;   /* sub-tick counter for same-tick inserts */
 extern "C" int            gPreLoadTicks;  /* speech pre-load tick offset */
 extern "C" int            gFilterSetting; /* active filter mode (1 = length/priority filter on) */
-extern "C" int            gEventDats;     /* @0x80148048 : int[4] bound event-data blobs (spchrand-owned) */
+extern "C" int            gEventDats[];   /* @0x80148048 : int[4] bound event-data blobs (spchrand-owned) */
 
 extern "C" int  gettick(void);                                  /* eaclib timer.obj */
 extern "C" int  iSPCH_Rand(int n);                              /* spchrand */
 extern "C" int  iSPCH_OneChosen(void);                          /* spchpick */
 extern "C" void iSPCH_PlayChosen(void);                         /* spchpick */
-extern "C" void iSPCH_ChooseSentence(unsigned int *eventArgs);  /* spchpick */
+extern "C" int  iSPCH_ChooseSentence(unsigned int *eventArgs);  /* spchpick (returns chosen-count) */
+
+/* gReparm @0x801370A0 : optional "re-parameterize" hook -- if set, retried per index until a sentence
+ *   is chosen or the hook returns <=0.  Signature from SPCH_ChooseSpeech's jalr call site. */
+extern "C" int (*gReparm)(int index, unsigned int *eventArgs);
 
 /* ---- per-TU static copies of shared helpers (canon in spchdata.obj) ---- */
 static int VoxEvent_GetFilterLengthFlag(int e)   /* @0x800E6E88 */
@@ -51,7 +55,7 @@ extern "C" int  iSPCH_ChooseEvent(void);                                 /* @0x8
 extern "C" void SPCH_ClearEventQueue(void);                              /* @0x800E74E0 */
 extern "C" int  iSPCH_ClearOldEvents(int winnerSlot);                    /* @0x800E7528 */
 extern "C" void SPCH_PlaySpeech(void);                                   /* @0x800E7644 */
-extern "C" void SPCH_ChooseSpeech(void);                                 /* @0x800E7684 */
+extern "C" int  SPCH_ChooseSpeech(void);                                 /* @0x800E7684 */
 
 #define SLOT(i)  ((unsigned char *)&gVoxEvents + (i) * 0x3c)
 
@@ -81,7 +85,7 @@ extern "C" int iSPCH_SearchEventDat(int dat, unsigned int eventID)
 extern "C" int iSPCH_FindEvent(unsigned int eventID)
 {
     int  i = 0;
-    int *p = &gEventDats;
+    int *p = gEventDats;
     int  result;
     while (*p == 0 || (result = iSPCH_SearchEventDat(*p, eventID), result == 0)) {
         i = i + 1;
@@ -95,25 +99,23 @@ extern "C" int iSPCH_FindEvent(unsigned int eventID)
 /* iSPCH_InitEventDat @0x800E6FBC : clear the 4 bound event-data blob pointers. */
 extern "C" void iSPCH_InitEventDat(void)
 {
-    int *p = &gEventDats + 3;
-    int  i = 3;
+    int i = 3;
     do {
-        *p = 0;
+        gEventDats[i] = 0;
         i = i - 1;
-        p = p - 1;
     } while (-1 < i);
 }
 
 /* GetFilterLength @0x800E6FE4 : the filter-length config word from the first bound blob (+4). */
 extern "C" int GetFilterLength(void)
 {
-    return *(int *)(gEventDats + 4);
+    return *(int *)(gEventDats[0] + 4);
 }
 
 /* GetFilterPriority @0x800E6FFC : the filter-priority config word from the first bound blob (+8). */
 extern "C" int GetFilterPriority(void)
 {
-    return *(int *)(gEventDats + 8);
+    return *(int *)(gEventDats[0] + 8);
 }
 
 /* iSPCH_InitEventQueue @0x800E7014 : zero all 16 queue slots (header + 12 eventArgs each) and the ticks. */
@@ -287,7 +289,7 @@ extern "C" void SPCH_ClearEventQueue(void)
     int            i = 0;
     unsigned char *slot = (unsigned char *)&gVoxEvents;
     do {
-        if (*(short *)(slot + 8) != 0) {
+        if (*(unsigned short *)(slot + 8) != 0) {
             *(short *)(slot + 8) = 0;
             gVoxEvents = gVoxEvents - 1;
         }
@@ -327,26 +329,43 @@ extern "C" int iSPCH_ClearOldEvents(int winnerSlot)
 /* SPCH_PlaySpeech @0x800E7644 : if nothing chosen, choose; then play the chosen speech. */
 extern "C" void SPCH_PlaySpeech(void)
 {
-    int chosen = iSPCH_OneChosen();
-    if (chosen == 0) {
-        SPCH_ChooseSpeech();
-        chosen = iSPCH_OneChosen();
+    if (iSPCH_OneChosen() != 0) {
+        iSPCH_PlayChosen();
+        return;
     }
-    if (chosen != 0)
+    if (SPCH_ChooseSpeech() != 0)
         iSPCH_PlayChosen();
 }
 
 /* SPCH_ChooseSpeech @0x800E7684 : pick the winning event, clear the events it supersedes, and hand its
- *   eventArgs to the sentence picker. */
-extern "C" void SPCH_ChooseSpeech(void)
+ *   eventArgs to the sentence picker.  If no sentence is chosen and a gReparm hook is installed, retry
+ *   per index until one is chosen or the hook gives up.  Returns the chosen-sentence count. */
+extern "C" int SPCH_ChooseSpeech(void)
 {
+    int result = 0;
     if (gVoxEvents != 0) {
         int winner = iSPCH_ChooseEvent();
         if (-1 < winner) {
+            unsigned int *eventArgs = (unsigned int *)(SLOT(winner) + 0x14);
             iSPCH_ClearOldEvents(winner);
-            iSPCH_ChooseSentence((unsigned int *)(SLOT(winner) + 0x14));
+            result = iSPCH_ChooseSentence(eventArgs);
+            if (result == 0 && gReparm != 0) {
+                int i  = 0;
+                int rc;
+                do {
+                    rc = gReparm(i, eventArgs);
+                    if (-1 < rc)
+                        result = iSPCH_ChooseSentence(eventArgs);
+                    if (result != 0)
+                        break;
+                    i = i + 1;
+                } while (0 < rc);
+            }
+            if (result < 0)
+                result = 0;
             gVoxEvents = gVoxEvents - 1;
             *(short *)(SLOT(winner) + 8) = 0;
         }
     }
+    return result;
 }

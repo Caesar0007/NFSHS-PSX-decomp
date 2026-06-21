@@ -13,7 +13,7 @@
  *   ChooseSentence's dropped-arg calls recovered from disasm; SetPreLoadTicks' `this` is the tick value.
  */
 
-extern "C" short          ispch_gChoice;       /* short[6]/phrase choice records */
+extern "C" short          ispch_gChoice[];     /* short[6]/phrase choice records */
 extern "C" unsigned char  ispch_gPickSamples;  /* chosen sample-index pool */
 extern "C" int            gSentenceChoice;     /* @0x8014843C saved chosen sentence ptr */
 extern "C" int            DAT_80148440;        /* saved per-sentence ptr (this_00) */
@@ -79,7 +79,7 @@ extern "C" void iSPCH_PlayChosen(void);                                /* @0x801
 extern "C" int  iSPCH_ChooseSentence(unsigned int *eventArgs);         /* @0x80101754 */
 extern "C" void SPCH_SetPreLoadTicks(int ticks);                       /* @0x801018F4 */
 
-#define CHOICE(n)  (&ispch_gChoice + (n) * 6)
+#define CHOICE(n)  (ispch_gChoice + (n) * 6)
 #define PICK(i)    ((&ispch_gPickSamples)[i])
 
 /* iSPCH_MatchSample @0x8010077C : does the unpacked `sample` match the bank's cycle bits + phraseTemplate? */
@@ -187,7 +187,7 @@ extern "C" unsigned int iSPCH_CheckBankBit(int bank, int cycle)
 extern "C" unsigned int iSPCH_CheckTemplateSample(int choice, int bank, int base)
 {
     unsigned int result = 0;
-    if ((int)*(short *)(choice + 2) < (int)(unsigned int)*(unsigned short *)(bank + 6))
+    if ((int)(unsigned int)*(unsigned short *)(bank + 6) > (int)*(short *)(choice + 2))
         result = iSPCH_CheckBankBit(bank, base + (int)(unsigned int)*(unsigned char *)(bank + 3) *
                                                    (int)*(short *)(choice + 2));
     return result;
@@ -272,7 +272,7 @@ extern "C" int iSPCH_SentenceLength(int sentence)
     int n = VoxSentence_GetNumPhrases(sentence);
     int i = 0;
     if (0 < n) {
-        short *choice = &ispch_gChoice;
+        short *choice = ispch_gChoice;
         do {
             total = total + iSPCH_SampleLength(choice);
             i = i + 1;
@@ -371,7 +371,7 @@ extern "C" int iSPCH_SentenceGetChoices(int sentence, int paramTable, unsigned i
             result = 0;
         } else {
             int    table = 0;
-            short *outChoice = &ispch_gChoice;
+            short *outChoice = ispch_gChoice;
             result = 1;
             if (0 < n) {
                 do {
@@ -405,7 +405,7 @@ extern "C" void iSPCH_RandomizeSentencePicks(int sentence)
     int n = VoxSentence_GetNumPhrases(sentence);
     int i = 0;
     if (0 < n) {
-        short *choice = &ispch_gChoice;
+        short *choice = ispch_gChoice;
         do {
             int   k = 0;
             short base = choice[3];
@@ -434,7 +434,7 @@ extern "C" void iSPCH_IterateChoice(int sentence)
     int n = VoxSentence_GetNumPhrases(sentence) - 1;
     int done = 0;
     int limit = (int)(short)(&DAT_801484ea)[n * 6] + (int)(short)(&DAT_801484e8)[n * 6];
-    short *choice = &ispch_gChoice + n * 6;
+    short *choice = ispch_gChoice + n * 6;
     do {
         short cur = choice[4];
         choice[4] = cur + 1;
@@ -459,7 +459,7 @@ extern "C" int iSPCH_ChooseShortSentence(int sentence)
     int n = VoxSentence_GetNumPhrases(sentence);
     int i = 0;
     if (0 < n) {
-        short *choice = &ispch_gChoice;
+        short *choice = ispch_gChoice;
         do {
             i = i + 1;
             choice[4] = choice[3];
@@ -489,8 +489,8 @@ extern "C" int iSPCH_SentenceMakeChoice(int sentence, int mode)
     } else {
         int n = VoxSentence_GetNumPhrases(sentence);
         int i = 0;
-        if (0 < n) {
-            short *choice = &ispch_gChoice;
+        if (ok < n) {
+            short *choice = ispch_gChoice;
             ok = 1;
             do {
                 int r = iSPCH_Rand((int)choice[2]);
@@ -511,7 +511,7 @@ extern "C" void iSPCH_ConstantRuleSet(short *sentence, int rule, int val)
         int n = VoxSentence_GetNumPhrases(rule);
         int table = 0;
         if (0 < n) {
-            short *choice = &ispch_gChoice;
+            short *choice = ispch_gChoice;
             do {
                 int ruleEntry = iSPCH_GetOffset8(rule, rule + 4, table);
                 int j = 0;
@@ -544,7 +544,7 @@ extern "C" int iSPCH_MakeSampleRequests(int sentence, int paramTable)
     int n = VoxSentence_GetNumPhrases(sentence);
     int i = 0;
     if (0 < n) {
-        short *choice = &ispch_gChoice;
+        short *choice = ispch_gChoice;
         do {
             int           bank = *(int *)(*choice * 4 + gVoxBanks);
             unsigned char idx  = PICK(choice[4]);

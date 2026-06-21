@@ -11,7 +11,7 @@
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
 extern "C" { int gRepeatCount; }
 
-extern "C" int gMemAlloc;          /* user alloc callback (fn ptr stored as int) */
+extern "C" int gMemAlloc[];        /* user alloc callback (fn ptr stored as int) */
 extern "C" int gMemFree;           /* user free callback  */
 extern "C" int gSPCH_Initialized;  /* 0x1789a34 when initialised */
 extern "C" int gSampleRequest;     /* sample-request callback */
@@ -32,7 +32,7 @@ extern "C" int *iSPCH_EACseedrandom(unsigned int seed);        /* spchrand */
 extern "C" void iSPCH_ClearChosen(void);                       /* spchpick */
 extern "C" int  SPCH_SetPreLoadTicks(int ticks);              /* spchpick */
 
-extern "C" void iSPCH_MemAlloc(void);                                       /* @0x800EB5A4 */
+extern "C" int  iSPCH_MemAlloc(void);                                       /* @0x800EB5A4 */
 extern "C" void iSPCH_MemFree(void);                                        /* @0x800EB5D4 */
 extern "C" void SPCH_Deinit(void);                                          /* @0x800EB600 */
 extern "C" void iSPCH_InitInGame(void);                                     /* @0x800EB654 */
@@ -40,11 +40,14 @@ extern "C" int  SPCH_GetSampleDataRate(int numSamples, int rate, int channels); 
 extern "C" int  SPCH_InitBankMem(int memAllocFn, int memFreeFn, int numBanks);  /* @0x800EB6F0 */
 extern "C" int  SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate); /* @0x800EB748 */
 
-/* iSPCH_MemAlloc @0x800EB5A4 : invoke the user's allocation callback (which fills gVoxBanks). */
-extern "C" void iSPCH_MemAlloc(void)
+/* iSPCH_MemAlloc @0x800EB5A4 : invoke the user's allocation callback (which fills gVoxBanks); returns
+ *   the callback's result, or 0 if no callback is registered. */
+extern "C" int iSPCH_MemAlloc(void)
 {
-    if (gMemAlloc != 0)
-        ((void (*)(void))gMemAlloc)();
+    int result = 0;
+    if (gMemAlloc[0] != 0)
+        result = ((int (*)(void))gMemAlloc[0])();
+    return result;
 }
 
 /* iSPCH_MemFree @0x800EB5D4 : invoke the user's free callback. */
@@ -67,7 +70,9 @@ extern "C" void SPCH_Deinit(void)
     }
 }
 
-/* iSPCH_InitInGame @0x800EB654 : reset the in-game speech state. */
+/* iSPCH_InitInGame @0x800EB654 : reset the in-game speech state.  (Residual = the original shared the
+ *   %hi base for gVoxInGame + the adjacent gRepeatCount@+4 and put the 2nd store in the jr delay slot;
+ *   maspsx always emits a nop after jr, so the delay-slot store can't be reproduced -- jr-slot floor.) */
 extern "C" void iSPCH_InitInGame(void)
 {
     gVoxInGame   = -1;
@@ -95,7 +100,7 @@ extern "C" int SPCH_InitBankMem(int memAllocFn, int memFreeFn, int numBanks)
 {
     int result = 0;
     if (gSPCH_Initialized == 0x1789a34 && memAllocFn != 0 && memFreeFn != 0) {
-        gMemAlloc = memAllocFn;
+        gMemAlloc[0] = memAllocFn;
         gMemFree  = memFreeFn;
         result    = iSPCH_BankMemAlloc((unsigned int)numBanks);
     }
@@ -106,7 +111,7 @@ extern "C" int SPCH_InitBankMem(int memAllocFn, int memFreeFn, int numBanks)
  *   pick/event/bank state, and mark it live.  Returns 1. */
 extern "C" int SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate)
 {
-    gMemAlloc         = 0;
+    gMemAlloc[0]      = 0;
     gMemFree          = 0;
     gSentenceRuleTest = 0;
     gSentenceRuleSet  = 0;

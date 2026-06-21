@@ -137,18 +137,24 @@ void AIPhysic_ProcessBarrierCollision(Car_tObj *car)
  *    (not the discriminator). The sole diff is the coloring: laneCount→$a2 / onRoad→$v0 (ours) vs
  *    laneCount→$a3 / onRoad→$a2 (oracle). Two equivalent local optima; gcc's local-alloc picks ours.
  *    Confirmed coin-flip: SAME coloring on cc1plus/2.7.2 (in-tree) AND on Mc-muffin's canonical
- *    gcc2.8.1-psx scratch YsDj7. Forcing $a2 = a register pin (§3.13, forbidden). Tried: named/anon
- *    laneCount, lc-local, decl order, limit-inline, array-index (Mc-muffin form), if/else vs ternary,
- *    early-init, nested-!onRoad. SYM+ORACLE confirm structure/types/logic correct — coloring only. */
+ *    gcc2.8.1-psx scratch YsDj7. ✅ VISUALLY CONFIRMED via YsDj7 objdiff (2026-06-21): his gcc2.8.1
+ *    `Current` shows `lbu a2,0x1d(v0)` / `xori v0,v0,1` / `beqz v0` at 0x18/0x40/0x44 — the IDENTICAL
+ *    laneCount→$a2 / onRoad→$v0 coloring as ours; his score-35 (99.20%) residual == our 18 diffs, and
+ *    his tail + gp-rel are matched (so the coloring is the WHOLE residual on BOTH compilers). Two gcc
+ *    versions + an expert all pick onRoad→$v0 → genuine wall, NOT 2.7.2-vs-2.8.1 reachable. Forcing
+ *    $a2 = a register pin (§3.13, forbidden). Tried: named/anon laneCount, lc-local, decl order,
+ *    limit-inline, array-index (Mc-muffin form, all-inline only-onRoad-local = SYM-faithful, this is
+ *    it), if/else vs ternary, early-init, nested-!onRoad. SYM+ORACLE confirm structure/types/logic
+ *    correct — coloring ONLY. (Do NOT swap to his `<55706` tail: folds to xori on 2.8.1 but on our
+ *    2.7.2 it's `li;slt` — my scratch bnq1Q proved that regresses 99.20%→91.93% on 2.8.1; tail form
+ *    is compiler-specific, our xori tail is correct for cc1plus 2.7.2.) */
 int AIPhysic_HitWallCheck(Car_tObj *car)
 {
-    short idx = *(short *)((char *)car + 8);
-    int limit = car->laneIndex;
     int onRoad;
-    if (limit < 7 - (BWorldSm_slices[idx].laneCount >> 4))
+    if (car->laneIndex < 7 - (BWorldSm_slices[*(short *)((char *)car + 8)].laneCount >> 4))
         onRoad = 0;
     else
-        onRoad = (int)(BWorldSm_slices[idx].laneCount & 0xF) + 6 >= limit;
+        onRoad = (int)(BWorldSm_slices[*(short *)((char *)car + 8)].laneCount & 0xF) + 6 >= car->laneIndex;
     if (onRoad) return 0;
     if (car->driveDirection == -1) {
         car->timeOffRoad += AIPhysic_elapsedTime;

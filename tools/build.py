@@ -81,7 +81,7 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
         sys.exit(f"[cc1] {rel}\n{r.stdout}{r.stderr}")
 
     # maspsx reads cc1 .s on stdin; remaining args pass through to GNU as.
-    maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}",
+    maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
                   "--run-assembler", f"--gnu-as-path={AS}",
                   *AS_ARCH, f"-G{G_VALUE}", "-I", ROOT / "include",
                   "-I", ROOT, "-o", obj]
@@ -113,7 +113,7 @@ def compile_cpp(src: Path) -> Path:
     r = run([CC1PL, "-quiet", "-O2", f"-G{G_VALUE}", i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[cc1pl] {rel}\n{r.stdout}{r.stderr}")
-    maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}",
+    maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
                   "--run-assembler", f"--gnu-as-path={AS}",
                   *AS_ARCH, f"-G{G_VALUE}", "-I", RECON, "-o", obj]
     # cfront dtor mangling: our CC1PL emits `_._<class>` (NO_DOLLAR_IN_LABEL -> '.'),

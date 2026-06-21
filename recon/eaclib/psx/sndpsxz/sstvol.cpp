@@ -7,7 +7,7 @@ extern "C" int SNDSTRM_vol(int tag, int vol);     /* @0x800EA0D8 */
 extern "C" int SNDSTRM_vol(int tag, int vol)
 {
     int sp;
-    if ((char)sndgs[0xf] == 0) return -10;
+    if ((signed char)sndgs[0xf] == 0) return -10;
     sp = iSNDstreamgetstreamptr(tag);
     if (sp == 0) return -8;
     *(char *)(sp + 0x54) = (char)vol;

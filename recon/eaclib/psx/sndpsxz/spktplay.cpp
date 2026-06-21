@@ -18,7 +18,7 @@
  */
 
 extern "C" int  sndpps;                  /* @0x80148574 -- player array (one slot; access (&sndpps)[i]) */
-extern "C" int  sndgs[];                  /* (char)sndgs[0xf]=init, sndgs[0x25]=channel pool base */
+extern "C" int  sndgs[];                  /* (signed char)sndgs[0xf]=init, sndgs[0x25]=channel pool base */
 extern "C" int  iSNDplatformrate;         /* @0x80147840 -- platform sample rate (pitch calc) */
 
 /* ---- backends ---- */
@@ -78,7 +78,7 @@ extern "C" int SNDPKTPLAY_overhead(int n)
 extern "C" int SNDPKTPLAY_create(int mem, int memsize, int relcb, int notifycb)
 {
     int slot, off, ppp;
-    if ((char)sndgs[0xf] == 0)
+    if ((signed char)sndgs[0xf] == 0)
         return -10;
     slot = 0;
     if ((&sndpps)[0] != 0)                       /* no free slot */
@@ -106,7 +106,7 @@ extern "C" int SNDPKTPLAY_create(int mem, int memsize, int relcb, int notifycb)
 extern "C" int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
 {
     int ppp, note, allocOut, ch, s3len, t4, v1, dur, r;
-    if ((char)sndgs[0xf] == 0)
+    if ((signed char)sndgs[0xf] == 0)
         return -10;
     ppp = (&sndpps)[p];
     iSNDenteraudio();
@@ -188,7 +188,7 @@ extern "C" int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
 extern "C" int SNDPKTPLAY_submit(int p, int frame)
 {
     int ppp, slot, idx, seq, i;
-    if ((char)sndgs[0xf] == 0)
+    if ((signed char)sndgs[0xf] == 0)
         return -10;
     ppp = (&sndpps)[p];
     iSNDenteraudio();
@@ -224,7 +224,7 @@ extern "C" int SNDPKTPLAY_submit(int p, int frame)
 /* SNDPKTPLAY_submitspace @0x80102E70 : free frame slots in the ring. */
 extern "C" int SNDPKTPLAY_submitspace(int p)
 {
-    if ((char)sndgs[0xf] != 0)
+    if ((signed char)sndgs[0xf] != 0)
         return ((int)MH((&sndpps)[p], 8) - (int)MH((&sndpps)[p], 0xe)) - 1;
     return -10;
 }
@@ -240,7 +240,7 @@ extern "C" int SNDPKTPLAY_unsafeframesoutstanding(int p)
 extern "C" int SNDPKTPLAY_framesoutstanding(int p)
 {
     int r;
-    if ((char)sndgs[0xf] == 0)
+    if ((signed char)sndgs[0xf] == 0)
         return -10;
     iSNDenteraudio();
     r = SNDPKTPLAY_unsafeframesoutstanding(p);
@@ -256,7 +256,7 @@ extern "C" int SNDPKTPLAY_purge(int p, int lo, int hi)
     short total;
     int   rd, wr, rdoff, i;
 
-    if ((char)sndgs[0xf] == 0)
+    if ((signed char)sndgs[0xf] == 0)
         return -10;
     ppp = (&sndpps)[p];
     iSNDenteraudio();
@@ -305,7 +305,7 @@ extern "C" int SNDPKTPLAY_purge(int p, int lo, int hi)
 extern "C" int SNDPKTPLAY_stop(int p)
 {
     int ppp;
-    if ((char)sndgs[0xf] == 0)
+    if ((signed char)sndgs[0xf] == 0)
         return -10;
     ppp = (&sndpps)[p];
     iSNDenteraudio();
@@ -322,7 +322,7 @@ extern "C" int SNDPKTPLAY_stop(int p)
 /* SNDPKTPLAY_destroy @0x801031F4 : release the player slot. */
 extern "C" int SNDPKTPLAY_destroy(int p)
 {
-    if ((char)sndgs[0xf] == 0)
+    if ((signed char)sndgs[0xf] == 0)
         return -10;
     iSNDplatformpacketplaydestroy(p);
     (&sndpps)[p] = 0;

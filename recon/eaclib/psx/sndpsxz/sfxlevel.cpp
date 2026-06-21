@@ -36,7 +36,7 @@ extern "C" int SNDfxlevel(int tag, int bus, int level)
 {
     int chanIdx;
     int cur[2];
-    if ((char)sndgs[0xf] == 0)
+    if ((signed char)sndgs[0xf] == 0)
         return -10;
     iSNDenteraudio();
     chanIdx = iSNDgetchan((unsigned int)tag);

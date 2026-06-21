@@ -13,7 +13,7 @@ extern "C" int SNDSTRM_setgreedystate(int tag, int s);      /* @0x800E9D8C */
 extern "C" int SNDSTRM_setgreedystate(int tag, int s)
 {
     int p;
-    if ((char)sndgs[0xf] == '\0')
+    if ((signed char)sndgs[0xf] == '\0')
         return -10;
     p = iSNDstreamgetstreamptr(tag);
     if (p == 0)

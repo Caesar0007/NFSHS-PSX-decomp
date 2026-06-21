@@ -61,7 +61,7 @@ extern "C" int  memcmp(const void *a, const void *b, int n);
 extern "C" void *memcpy(void *d, const void *s, int n);
 
 /* ---- internal forward decls (mutually recursive) ---- */
-extern "C" void iSNDstreamdestroyall(void);                       /* @0x800E8C14 */
+extern "C" int  iSNDstreamdestroyall(void);                       /* @0x800E8C14 */
 extern "C" int  iSNDstreamgetstreamptr(int idx);                  /* @0x800E8C48 */
 extern "C" int  iSNDstreamremoverequest(unsigned int reqid);      /* @0x800E8C64 */
 extern "C" void iSNDstreamreleasecallback(int sample);            /* @0x800E8D90 */
@@ -85,13 +85,14 @@ extern "C" int  iSNDstreamnumcreated(void);                       /* @0x800E96F8
 /* ====================================================================================== */
 
 /* iSNDstreamdestroyall @0x800E8C14 : destroy every stream (addexit/shutdown hook). */
-extern "C" void iSNDstreamdestroyall(void)
+extern "C" int iSNDstreamdestroyall(void)
 {
     int s = 0;
     do {
         SNDSTRM_destroy(s);
         s = s + 1;
     } while (s < 1);
+    return 0;
 }
 
 /* iSNDstreamgetstreamptr @0x800E8C48 : map a stream index to its object (only index 0 exists). */
@@ -99,7 +100,8 @@ extern "C" int iSNDstreamgetstreamptr(int idx)
 {
     if (idx == 0)
         return sndss;
-    return 0;
+    return 0;       /* near-miss floor: oracle keeps 2 un-merged `jr ra` tails (lui in branch
+                     * delay slot); our gcc -O2 cross-jump-merges them into one. Scheduling-only. */
 }
 
 /* iSNDstreamremoverequest @0x800E8C64 : drop the request whose id == `reqid` from a stream's packet
@@ -144,6 +146,8 @@ extern "C" void iSNDstreamreleasecallback(int sample)
     int slot  = *(unsigned char *)chunk;
     int S     = (&sndss)[slot];
     STREAM_release(MI(S, 4), chunk);
+    /* near-miss floor (1 insn): oracle hoists `lui %hi(sndss)` into the `lw a1` load-delay
+     * slot; our gcc -O2 leaves a nop there + emits the lui after the lbu. Scheduling-only. */
 }
 
 /* iSNDstreamnotifycallback @0x800E8DD4 : SNDPKTPLAY play-progress hook.  `bytes` were just played on

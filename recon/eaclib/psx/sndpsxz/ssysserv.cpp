@@ -14,10 +14,11 @@ extern "C" void   SNDSYS_service(void);              /* @0x80104878 */
 
 #define NCLIENT (((char *)sndgs)[0x41])   /* sndgs[0x10]._1_1_ : service-client count */
 
-/* iSNDserveraddclient @0x8010479C : append callback `cb` to the service-client list; returns sndgs. */
+/* iSNDserveraddclient @0x8010479C : append callback `cb` to the service-client list; returns sndgs.
+ *   The count is read SIGNED (lb) for the array index but UNSIGNED (lbu) for the increment-store. */
 extern "C" short *iSNDserveraddclient(int cb)
 {
-    sndgs[(int)NCLIENT + 0x19] = cb;
+    sndgs[(int)(signed char)NCLIENT + 0x19] = cb;
     NCLIENT = NCLIENT + 1;
     return (short *)sndgs;
 }

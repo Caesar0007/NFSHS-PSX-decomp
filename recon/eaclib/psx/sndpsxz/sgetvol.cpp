@@ -10,7 +10,7 @@ extern "C" int SNDgetvol(unsigned int tag);       /* @0x80102810 */
 extern "C" int SNDgetvol(unsigned int tag)
 {
     int ch;
-    if ((char)sndgs[0xf] == 0)
+    if ((signed char)sndgs[0xf] == 0)
         return -10;
     iSNDenteraudio();
     ch = iSNDgetchan(tag);

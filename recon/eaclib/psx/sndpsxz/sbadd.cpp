@@ -19,7 +19,7 @@ extern "C" int SNDbankadd(int *bank_out, int bankData)
 {
     int  slot;
     int *e;
-    if ((char)sndgs[0xf] == 0)
+    if ((signed char)sndgs[0xf] == 0)
         return -10;
     slot = iSNDbankalloc();
     *bank_out = slot;

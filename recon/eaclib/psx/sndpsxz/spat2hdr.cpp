@@ -6,12 +6,12 @@
  */
 extern "C" int  iSNDgettag(int *cursor, int *id, int *val, int *ptr);   /* sgettag */
 
-extern "C" void SNDattributessetdef(int *attr);                         /* @0x801035B0 */
+extern "C" int  SNDattributessetdef(int *attr);                         /* @0x801035B0 */
 extern "C" void iSNDpatchtohdr(short *sampleData, int *hdr, int *attr, int *extraOut); /* @0x801035E4 */
 
 /* SNDattributessetdef @0x801035B0 : reset a 0xc-byte attribute block to defaults (level -1, pan 0x40,
  *   sustain 0x7f). */
-extern "C" void SNDattributessetdef(int *attr)
+extern "C" int SNDattributessetdef(int *attr)
 {
     *attr = -1;
     *((unsigned char *)attr + 7)  = 0x7f;
@@ -21,6 +21,7 @@ extern "C" void SNDattributessetdef(int *attr)
     *((unsigned char *)attr + 9)  = 0;
     *((unsigned char *)attr + 10) = 0;
     *((unsigned char *)attr + 0xb) = 0;
+    return 0;
 }
 
 /* iSNDpatchtohdr @0x801035E4 : build the SPU playback header (`hdr`, magic 0x5622) + attribute block (`attr`)

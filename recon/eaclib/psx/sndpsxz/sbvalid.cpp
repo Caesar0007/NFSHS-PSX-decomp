@@ -14,12 +14,12 @@ extern "C" int iSNDvalidbank(int bank_id);   /* @0x800FE6BC */
 extern "C" int iSNDvalidbank(int bank_id)
 {
     int *bank;
-    int r;
     if (bank_id < 0 || (int)(unsigned int)(unsigned short)sndgs[3] <= bank_id)
         return -8;
     bank = (int *)(bank_id * 0xc + sndgs[0x26]);
-    r = -8;
-    if (bank[0] != 0 && (r = -0x12, (char)bank[2] == 0))
-        return 0;
-    return r;
+    if (bank[0] == 0)
+        return -8;
+    if ((signed char)bank[2] != 0)
+        return -0x12;
+    return 0;
 }

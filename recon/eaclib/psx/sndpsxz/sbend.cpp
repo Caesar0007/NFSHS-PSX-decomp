@@ -41,7 +41,7 @@ extern "C" int iSNDunsafebend(unsigned int tag, unsigned int chan)
 extern "C" int SNDpitchbend(unsigned int tag, int bend)
 {
     int r;
-    if ((char)sndgs[0xf] == 0)
+    if ((signed char)sndgs[0xf] == 0)
         return -10;
     iSNDenteraudio();
     r = iSNDunsafebend(tag, (unsigned int)bend);

@@ -20,7 +20,7 @@ extern "C" void iSNDserverremoveclient(void *cb);                           /* s
 extern "C" void *memset(void *d, int c, int n);
 
 extern "C" int sndss;                       /* @0x8013EA80 */
-extern "C" int sndgs[];                      /* (char)sndgs[0xf] = init flag, sndgs[0x22] = destroyall hook */
+extern "C" int sndgs[];                      /* (signed char)sndgs[0xf] = init flag, sndgs[0x22] = destroyall hook */
 
 #define MI(p,o) (*(int*)((p)+(o)))
 #define MB(p,o) (*(unsigned char*)((p)+(o)))
@@ -39,7 +39,7 @@ extern "C" int SNDSTRM_create(int *priority, int numReq, int pktArg, int objbuf,
 extern "C" int SNDSTRM_destroy(int s)
 {
     int S;
-    if ((char)sndgs[0xf] == 0)
+    if ((signed char)sndgs[0xf] == 0)
         return -10;
     S = iSNDstreamgetstreamptr(s);
     if (S == 0)
@@ -68,7 +68,7 @@ extern "C" int SNDSTRM_queuefile(unsigned int s, int name, char *filename, int o
 extern "C" void SNDSTRM_purge(int s)
 {
     int S;
-    if ((char)sndgs[0xf] != 0 && (S = iSNDstreamgetstreamptr(s)) != 0) {
+    if ((signed char)sndgs[0xf] != 0 && (S = iSNDstreamgetstreamptr(s)) != 0) {
         if (-1 < MI(S, 8))                              /* a play handle is active */
             SNDPKTPLAY_stop(MI(S, 0xc));
         MI(S, 8) = -1;

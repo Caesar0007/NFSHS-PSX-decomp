@@ -12,16 +12,23 @@ extern "C" void iSNDplatformfree(void *p);                 /* sdata    */
 
 extern "C" int  iSNDremovepatches(int bank, int count);    /* @0x800E65F8 */
 extern "C" void SNDbankremove(int bankId);                 /* @0x800E6674 */
-extern "C" void cSNDbankremove(int bankId);                /* @0x800E6694 */
+extern "C" void cSNDbankremove(int bankId, int recurse);   /* @0x800E6694 ; a1 always 0 at every call */
 
 /* iSNDremovepatches @0x800E65F8 : release each of a bank's `count` resolved patches (de-dup via a local
  *   scratch table seeded to -1). */
 extern "C" int iSNDremovepatches(int bank, int count)
 {
     int scratch[512];
+    int *p;
     int i;
-    for (i = 0; i < 512; i += 2)         /* seed the {id} slots to -1 */
-        scratch[i] = -1;
+    int neg1 = -1;
+    i = 0xFF;
+    p = &scratch[510];
+    do {                                 /* seed the {id} slots to -1, back to front */
+        *p = neg1;
+        i--;
+        p -= 2;
+    } while (i >= 0);
     for (i = 0; i < count; i++)
         iSNDbankremovepat(bank, i, scratch);
     return 0;
@@ -29,14 +36,15 @@ extern "C" int iSNDremovepatches(int bank, int count)
 
 /* cSNDbankremove @0x800E6694 : unload bank `bankId` (or all banks when bankId == -1) -- stop its playing
  *   voices, free its patches/SPU data, and clear its bank-table entry. */
-extern "C" void cSNDbankremove(int bankId)
+extern "C" void cSNDbankremove(int bankId, int recurse)
 {
+    (void)recurse;
     if ((char)sndgs[0xf] == 0)
         return;
     if (bankId == -1) {                  /* unload every bank */
         int b;
         for (b = 0; b < (int)(unsigned)(unsigned short)sndgs[3]; b++)
-            cSNDbankremove(b);
+            cSNDbankremove(b, 0);
         return;
     }
     if (iSNDvalidbank(bankId) == 0) {
@@ -66,5 +74,5 @@ extern "C" void cSNDbankremove(int bankId)
 /* SNDbankremove @0x800E6674 : the exit-time hook (sndgs[0x1f]); unloads bank `bankId`. */
 extern "C" void SNDbankremove(int bankId)
 {
-    cSNDbankremove(bankId);
+    cSNDbankremove(bankId, 0);
 }

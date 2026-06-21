@@ -19,7 +19,7 @@ extern "C" int SNDtimeremaining(unsigned int tag)
     unsigned int best;
     int          chan;
     int          voice[2];
-    if ((char)sndgs[0xf] == '\0')
+    if ((signed char)sndgs[0xf] == '\0')
         return -10;
     iSNDenteraudio();
     chan = iSNDgetchan(tag);

@@ -16,7 +16,7 @@ extern "C" void iSNDinit(void);                /* slib    */
 extern "C" void iSNDrestore(void);             /* slib    */
 extern "C" void iSNDmeminit(int membase, int memsize);   /* smemman */
 extern "C" int  iSNDmalloc(unsigned int size);           /* smemman */
-extern "C" void iSNDmemrestore(void);                    /* smemman */
+extern "C" int  iSNDmemrestore(void);                    /* smemman */
 extern "C" void iSND100hzserver(void);         /* sserver */
 extern "C" void SNDI_mutexalloc(void);         /* sdfx    */
 extern "C" void SNDI_mutexfree(void);          /* sdfx    */
@@ -26,7 +26,7 @@ extern "C" void *memset(void *dst, int c, int n);        /* C43 (BIOS thunk) */
 extern "C" void SNDSYS_getopts(int *opts);     /* @0x800F1D58 */
 extern "C" int  SNDSYS_setopts(int opts);      /* @0x800F1E14 */
 extern "C" void SNDSYS_init(int membase, int memsize);   /* @0x800F1F10 */
-extern "C" void SNDSYS_restore(void);          /* @0x800F204C */
+extern "C" int  SNDSYS_restore(void);          /* @0x800F204C */
 
 /* SNDSYS_getopts @0x800F1D58 : copy the live option block sndgs[0..0xe] into the caller's struct (lazily
  *   publishing the platform output caps first, defaulting the reverb-channel count to 0x10). */
@@ -61,7 +61,7 @@ extern "C" void SNDSYS_init(int membase, int memsize)
 {
     unsigned int nchan;
     int          rv;
-    if ((char)sndgs[0xf] == 0) {
+    if ((signed char)sndgs[0xf] == 0) {
         iSNDmeminit(membase, memsize);
         nchan = (unsigned int)((unsigned char *)sndgs)[0x11];     /* sndgs[4]._1_1_ */
         if (nchan == 0) {                                          /* no caps yet -> defaults */
@@ -90,19 +90,20 @@ extern "C" void SNDSYS_init(int membase, int memsize)
 
 /* SNDSYS_restore @0x800F204C : shut the sound system down -- fire the registered teardown hooks, stop all
  *   voices, restore the SPU, free the mutex + memory.  No-op if not up. */
-extern "C" void SNDSYS_restore(void)
+extern "C" int SNDSYS_restore(void)
 {
-    if ((char)sndgs[0xf] != 0) {
-        if (sndgs[0x23] != 0) (*(void (*)(void))sndgs[0x23])();
-        if (sndgs[0x24] != 0) (*(void (*)(void))sndgs[0x24])();
-        if (sndgs[0x21] != 0) (*(void (*)(void))sndgs[0x21])();
-        if (sndgs[0x22] != 0) (*(void (*)(void))sndgs[0x22])();
-        if (sndgs[0x20] != 0) (*(void (*)(void))sndgs[0x20])();
-        SNDstopall();
-        if (sndgs[0x1f] != 0) (*(void (*)(unsigned int))sndgs[0x1f])(0xffffffff);
-        iSNDrestore();
-        ((char *)sndgs)[0x3c] = 0;                                 /* audio down */
-        SNDI_mutexfree();
-        iSNDmemrestore();
-    }
+    if ((signed char)sndgs[0xf] == 0)                             /* audio not up */
+        return -10;
+    if (sndgs[0x23] != 0) (*(void (*)(void))sndgs[0x23])();
+    if (sndgs[0x24] != 0) (*(void (*)(void))sndgs[0x24])();
+    if (sndgs[0x21] != 0) (*(void (*)(void))sndgs[0x21])();
+    if (sndgs[0x22] != 0) (*(void (*)(void))sndgs[0x22])();
+    if (sndgs[0x20] != 0) (*(void (*)(void))sndgs[0x20])();
+    SNDstopall();
+    if (sndgs[0x1f] != 0) (*(void (*)(unsigned int))sndgs[0x1f])(0xffffffff);
+    iSNDrestore();
+    ((char *)sndgs)[0x3c] = 0;                                     /* audio down */
+    SNDI_mutexfree();
+    return iSNDmemrestore();   /* $v0 holds iSNDmemrestore's return on this path (incidental);
+                                * the -10 sentinel lives only in the not-up beqz delay slot */
 }

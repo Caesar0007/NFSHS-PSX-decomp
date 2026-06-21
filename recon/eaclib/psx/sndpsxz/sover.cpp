@@ -17,10 +17,11 @@ extern "C" unsigned int SNDover(unsigned int tag);    /* @0x800E7B14 */
 extern "C" unsigned int SNDover(unsigned int tag)
 {
     unsigned int r;
-    if ((char)sndgs[0xf] == 0)
-        return 0xfffffff6;                            /* -10 : audio not initialised */
-    iSNDenteraudio();
-    r = (unsigned int)iSNDgetchan(tag) >> 0x1f;       /* 1 == finished, 0 == still playing */
-    iSNDleaveaudio();
-    return r;
+    if ((signed char)sndgs[0xf] != 0) {
+        iSNDenteraudio();
+        r = (unsigned int)iSNDgetchan(tag) >> 0x1f;   /* 1 == finished, 0 == still playing */
+        iSNDleaveaudio();
+        return r;
+    }
+    return 0xfffffff6;                                /* -10 : audio not initialised */
 }

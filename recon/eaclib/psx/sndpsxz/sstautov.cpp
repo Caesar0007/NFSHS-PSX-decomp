@@ -13,7 +13,7 @@ extern "C" int SNDSTRM_autovol(int tag, int steps, int vol);   /* @0x800E9DE8 */
 extern "C" int SNDSTRM_autovol(int tag, int steps, int vol)
 {
     int s;
-    if ((char)sndgs[0xf] == '\0')
+    if ((signed char)sndgs[0xf] == '\0')
         return -10;
     s = iSNDstreamgetstreamptr(tag);
     if (s == 0)

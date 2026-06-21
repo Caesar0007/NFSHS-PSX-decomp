@@ -99,7 +99,7 @@ extern "C" int iSNDplatformfxinit(int reserved, int mode)
 {
     (void)reserved;
     DAT_8014791c = mode;
-    if ((char)sndgs[0xf] != 0)
+    if ((signed char)sndgs[0xf] != 0)
         iSNDpsxfxinit(mode);
     return 0;
 }

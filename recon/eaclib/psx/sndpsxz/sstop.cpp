@@ -15,7 +15,7 @@ extern "C" void iSNDstop(unsigned int voice);         /* sdriver  */
 extern "C" int SNDstop(unsigned int tag)
 {
     int chan;
-    if ((char)sndgs[0xf] == 0)
+    if ((signed char)sndgs[0xf] == 0)
         return -10;
     iSNDenteraudio();
     chan = iSNDgetchan(tag);

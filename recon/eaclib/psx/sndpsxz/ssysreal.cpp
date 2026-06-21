@@ -7,13 +7,14 @@ extern "C" void SNDSYS_service(void);                               /* ssysserv 
 extern "C" void addsystemtask(void *fn, void *a, void *b);          /* eacpsxz systask.obj */
 extern "C" int  DAT_80134a6c;   /* @0x80134A6C : "real-time task installed" flag */
 
-extern "C" void iSNDsystemtaskreal(void);   /* @0x800F2130 */
+extern "C" int  iSNDsystemtaskreal(void);   /* @0x800F2130 */
 extern "C" void SNDSYS_vectortoreal(void);  /* @0x800F2150 */
 
 /* iSNDsystemtaskreal @0x800F2130 : the per-frame system-task entry -- run the sound service. */
-extern "C" void iSNDsystemtaskreal(void)
+extern "C" int iSNDsystemtaskreal(void)
 {
     SNDSYS_service();
+    return 0;
 }
 
 /* SNDSYS_vectortoreal @0x800F2150 : install iSNDsystemtaskreal as a real-time system task (once). */

@@ -174,10 +174,11 @@ extern "C" void iSNDleaveaudio(void)
     }
 }
 
-/* iSNDserveradd100hzclient @0x800EA5F0 : register a 100 Hz tick callback `cb`; returns sndgs. */
+/* iSNDserveradd100hzclient @0x800EA5F0 : register a 100 Hz tick callback `cb`; returns sndgs.
+ *   Count read SIGNED (lb) for the index, UNSIGNED (lbu) for the increment-store. */
 extern "C" short *iSNDserveradd100hzclient(int cb)
 {
-    sndgs[(int)GB(0x40) + 0x13] = cb;
+    sndgs[(int)(signed char)GB(0x40) + 0x13] = cb;
     GB(0x40) = GB(0x40) + 1;
     return (short *)sndgs;
 }

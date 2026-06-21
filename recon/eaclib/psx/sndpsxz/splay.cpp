@@ -11,23 +11,25 @@ extern "C" int sndgs[];
 extern "C" int iSNDvalidbank(int bankid);                /* sbvalid */
 extern "C" int iSNDplaytaggedpatch(int patch, int info); /* stagpat */
 
-extern "C" int  cSNDplay(int *info);            /* @0x800E7A68 */
-extern "C" void SNDplay(int *info);             /* @0x800E7A30 */
+extern "C" int  cSNDplay(int *info, int recurse);   /* @0x800E7A68 ; a1 always 0 at every call */
+extern "C" int  SNDplay(int *info);             /* @0x800E7A30 */
 
-/* SNDplay @0x800E7A30 : play `info` if the audio system is up. */
-extern "C" void SNDplay(int *info)
+/* SNDplay @0x800E7A30 : play `info` if the audio system is up; -10 if down. */
+extern "C" int SNDplay(int *info)
 {
-    if ((char)sndgs[0xf] != 0)
-        cSNDplay(info);
+    if ((signed char)sndgs[0xf] == 0)
+        return -10;
+    return cSNDplay(info, 0);
 }
 
 /* cSNDplay @0x800E7A68 : resolve the play-info's (bank, patch) to a tagged patch and play it. */
-extern "C" int cSNDplay(int *info)
+extern "C" int cSNDplay(int *info, int recurse)
 {
     int patch, bank, pp;
-    if (-1 < iSNDvalidbank((int)(char)info[1])) {
+    (void)recurse;
+    if (-1 < iSNDvalidbank((int)(signed char)info[1])) {
         patch = info[0];
-        bank = *(int *)((char)info[1] * 0xc + sndgs[0x26]);
+        bank = *(int *)((signed char)info[1] * 0xc + sndgs[0x26]);
         if (patch < 0)
             return -8;
         if (patch < (int)(unsigned)*(unsigned short *)(bank + 6)) {

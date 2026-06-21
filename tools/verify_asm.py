@@ -56,6 +56,8 @@ def ours(fn):
 
 def oracle(fn):
     p = ROOT / 'asm' / 'nonmatchings' / 'main' / (fn + '.s')
+    if not p.exists():
+        p = ROOT / 'asm' / 'nonmatchings' / 'front' / (fn + '.s')   # front overlay segment
     if not p.exists(): return None
     out=[]
     for ln in p.read_text().splitlines():

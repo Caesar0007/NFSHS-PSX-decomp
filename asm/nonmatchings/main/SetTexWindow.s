@@ -10,7 +10,7 @@ glabel SetTexWindow
     /* DEAE8 800EE2E8 02000224 */  addiu      $v0, $zero, 0x2
     /* DEAEC 800EE2EC 2120A000 */  addu       $a0, $a1, $zero
     /* DEAF0 800EE2F0 1400BFAF */  sw         $ra, 0x14($sp)
-    /* DEAF4 800EE2F4 79BA030C */  jal        func_800EE9E4
+    /* DEAF4 800EE2F4 79BA030C */  jal        _get_tw
     /* DEAF8 800EE2F8 030002A2 */   sb        $v0, 0x3($s0)
     /* DEAFC 800EE2FC 040002AE */  sw         $v0, 0x4($s0)
     /* DEB00 800EE300 080000AE */  sw         $zero, 0x8($s0)

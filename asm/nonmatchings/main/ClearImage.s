@@ -16,7 +16,7 @@ glabel ClearImage
     /* DE224 800EDA24 2188C000 */  addu       $s1, $a2, $zero
     /* DE228 800EDA28 1000B0AF */  sw         $s0, 0x10($sp)
     /* DE22C 800EDA2C 2000BFAF */  sw         $ra, 0x20($sp)
-    /* DE230 800EDA30 39B6030C */  jal        func_800ED8E4
+    /* DE230 800EDA30 39B6030C */  jal        _image
     /* DE234 800EDA34 2180E000 */   addu      $s0, $a3, $zero
     /* DE238 800EDA38 21286002 */  addu       $a1, $s3, $zero
     /* DE23C 800EDA3C FF001032 */  andi       $s0, $s0, 0xFF

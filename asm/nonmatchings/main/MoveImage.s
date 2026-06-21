@@ -14,7 +14,7 @@ glabel MoveImage
     /* DE36C 800EDB6C 0580043C */  lui        $a0, %hi(D_80056E1C)
     /* DE370 800EDB70 1C6E8424 */  addiu      $a0, $a0, %lo(D_80056E1C)
     /* DE374 800EDB74 1C00BFAF */  sw         $ra, 0x1C($sp)
-    /* DE378 800EDB78 39B6030C */  jal        func_800ED8E4
+    /* DE378 800EDB78 39B6030C */  jal        _image
     /* DE37C 800EDB7C 21280002 */   addu      $a1, $s0, $zero
     /* DE380 800EDB80 04000286 */  lh         $v0, 0x4($s0)
     /* DE384 800EDB84 00000000 */  nop

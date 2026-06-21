@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800EF308, 0x30
+nonmatching _get_gpuinfo, 0x30
 
-glabel func_800EF308
+glabel _get_gpuinfo
     /* DFB08 800EF308 0010023C */  lui        $v0, (0x10000000 >> 16)
     /* DFB0C 800EF30C 1280033C */  lui        $v1, %hi(D_801237A4)
     /* DFB10 800EF310 A437638C */  lw         $v1, %lo(D_801237A4)($v1)
@@ -16,4 +16,4 @@ glabel func_800EF308
     /* DFB2C 800EF32C FFFF6334 */  ori        $v1, $v1, (0xFFFFFF & 0xFFFF)
     /* DFB30 800EF330 0800E003 */  jr         $ra
     /* DFB34 800EF334 24104300 */   and       $v0, $v0, $v1
-endlabel func_800EF308
+endlabel _get_gpuinfo

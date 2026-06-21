@@ -1,21 +1,21 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800EF9BC, 0x13C
+nonmatching _sync, 0x13C
 
-glabel func_800EF9BC
+glabel _sync
     /* E01BC 800EF9BC E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* E01C0 800EF9C0 1400BFAF */  sw         $ra, 0x14($sp)
     /* E01C4 800EF9C4 2A008014 */  bnez       $a0, .L800EFA70
     /* E01C8 800EF9C8 1000B0AF */   sw        $s0, 0x10($sp)
-    /* E01CC 800EF9CC BEBE030C */  jal        func_800EFAF8
+    /* E01CC 800EF9CC BEBE030C */  jal        _gpu_arm_timeout
     /* E01D0 800EF9D0 00000000 */   nop
     /* E01D4 800EF9D4 7DBE0308 */  j          .L800EF9F4
     /* E01D8 800EF9D8 00000000 */   nop
   .L800EF9DC:
-    /* E01DC 800EF9DC 83BD030C */  jal        func_800EF60C
+    /* E01DC 800EF9DC 83BD030C */  jal        _gpu_que_drain
     /* E01E0 800EF9E0 00000000 */   nop
-    /* E01E4 800EF9E4 CBBE030C */  jal        func_800EFB2C
+    /* E01E4 800EF9E4 CBBE030C */  jal        _gpu_check_timeout
     /* E01E8 800EF9E8 00000000 */   nop
     /* E01EC 800EF9EC 3E004014 */  bnez       $v0, .L800EFAE8
     /* E01F0 800EF9F0 FFFF0224 */   addiu     $v0, $zero, -0x1
@@ -30,7 +30,7 @@ glabel func_800EF9BC
     /* E0210 800EFA10 77BE0308 */  j          .L800EF9DC
     /* E0214 800EFA14 00000000 */   nop
   .L800EFA18:
-    /* E0218 800EFA18 CBBE030C */  jal        func_800EFB2C
+    /* E0218 800EFA18 CBBE030C */  jal        _gpu_check_timeout
     /* E021C 800EFA1C 00000000 */   nop
     /* E0220 800EFA20 31004014 */  bnez       $v0, .L800EFAE8
     /* E0224 800EFA24 FFFF0224 */   addiu     $v0, $zero, -0x1
@@ -63,7 +63,7 @@ glabel func_800EF9BC
     /* E0288 800EFA88 3F005030 */  andi       $s0, $v0, 0x3F
     /* E028C 800EFA8C 03000012 */  beqz       $s0, .L800EFA9C
     /* E0290 800EFA90 00000000 */   nop
-    /* E0294 800EFA94 83BD030C */  jal        func_800EF60C
+    /* E0294 800EFA94 83BD030C */  jal        _gpu_que_drain
     /* E0298 800EFA98 00000000 */   nop
   .L800EFA9C:
     /* E029C 800EFA9C 1280023C */  lui        $v0, %hi(D_801237B0)
@@ -91,4 +91,4 @@ glabel func_800EF9BC
     /* E02EC 800EFAEC 1000B08F */  lw         $s0, 0x10($sp)
     /* E02F0 800EFAF0 0800E003 */  jr         $ra
     /* E02F4 800EFAF4 1800BD27 */   addiu     $sp, $sp, 0x18
-endlabel func_800EF9BC
+endlabel _sync

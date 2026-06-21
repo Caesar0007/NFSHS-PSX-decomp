@@ -33,7 +33,7 @@ glabel DrawOTag2
     /* E0574 800EFD74 68BF0308 */  j          .L800EFDA0
     /* E0578 800EFD78 0001033C */   lui       $v1, (0x1000000 >> 16)
   .L800EFD7C:
-    /* E057C 800EFD7C CBBE030C */  jal        func_800EFB2C
+    /* E057C 800EFD7C CBBE030C */  jal        _gpu_check_timeout
     /* E0580 800EFD80 00000000 */   nop
     /* E0584 800EFD84 1D004014 */  bnez       $v0, .L800EFDFC
     /* E0588 800EFD88 FFFF0224 */   addiu     $v0, $zero, -0x1
@@ -54,8 +54,8 @@ glabel DrawOTag2
     /* E05C0 800EFDC0 24104300 */  and        $v0, $v0, $v1
     /* E05C4 800EFDC4 EDFF4010 */  beqz       $v0, .L800EFD7C
     /* E05C8 800EFDC8 00000000 */   nop
-    /* E05CC 800EFDCC 0F80053C */  lui        $a1, %hi(func_800EFE0C)
-    /* E05D0 800EFDD0 0CFEA524 */  addiu      $a1, $a1, %lo(func_800EFE0C)
+    /* E05CC 800EFDCC 0F80053C */  lui        $a1, %hi(_install_drain_cb)
+    /* E05D0 800EFDD0 0CFEA524 */  addiu      $a1, $a1, %lo(_install_drain_cb)
     /* E05D4 800EFDD4 2BCA030C */  jal        DMACallback
     /* E05D8 800EFDD8 02000424 */   addiu     $a0, $zero, 0x2
     /* E05DC 800EFDDC 1280023C */  lui        $v0, %hi(D_80123694)

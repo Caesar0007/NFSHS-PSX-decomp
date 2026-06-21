@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800EEB5C, 0x230
+nonmatching _BlitClear, 0x230
 
-glabel func_800EEB5C
+glabel _BlitClear
     /* DF35C 800EEB5C E0FFBD27 */  addiu      $sp, $sp, -0x20
     /* DF360 800EEB60 21408000 */  addu       $t0, $a0, $zero
     /* DF364 800EEB64 1C00BFAF */  sw         $ra, 0x1C($sp)
@@ -97,16 +97,16 @@ glabel func_800EEB5C
     /* DF4B0 800EECB0 0400028D */  lw         $v0, 0x4($t0)
     /* DF4B4 800EECB4 03000424 */  addiu      $a0, $zero, 0x3
     /* DF4B8 800EECB8 000007AE */  sw         $a3, 0x0($s0)
-    /* DF4BC 800EECBC C2BC030C */  jal        func_800EF308
+    /* DF4BC 800EECBC C2BC030C */  jal        _get_gpuinfo
     /* DF4C0 800EECC0 2000A2AC */   sw        $v0, 0x20($a1)
     /* DF4C4 800EECC4 04000424 */  addiu      $a0, $zero, 0x4
     /* DF4C8 800EECC8 25105100 */  or         $v0, $v0, $s1
-    /* DF4CC 800EECCC C2BC030C */  jal        func_800EF308
+    /* DF4CC 800EECCC C2BC030C */  jal        _get_gpuinfo
     /* DF4D0 800EECD0 040002AE */   sw        $v0, 0x4($s0)
     /* DF4D4 800EECD4 05000424 */  addiu      $a0, $zero, 0x5
     /* DF4D8 800EECD8 00E4033C */  lui        $v1, (0xE4000000 >> 16)
     /* DF4DC 800EECDC 25104300 */  or         $v0, $v0, $v1
-    /* DF4E0 800EECE0 C2BC030C */  jal        func_800EF308
+    /* DF4E0 800EECE0 C2BC030C */  jal        _get_gpuinfo
     /* DF4E4 800EECE4 080002AE */   sw        $v0, 0x8($s0)
     /* DF4E8 800EECE8 25105200 */  or         $v0, $v0, $s2
     /* DF4EC 800EECEC 59BB0308 */  j          .L800EED64
@@ -142,7 +142,7 @@ glabel func_800EEB5C
     /* DF560 800EED60 1400C2AC */  sw         $v0, 0x14($a2)
   .L800EED64:
     /* DF564 800EED64 1480043C */  lui        $a0, %hi(D_8013EAB0)
-    /* DF568 800EED68 B0BC030C */  jal        func_800EF2C0
+    /* DF568 800EED68 B0BC030C */  jal        _gpu_dma_chain
     /* DF56C 800EED6C B0EA8424 */   addiu     $a0, $a0, %lo(D_8013EAB0)
     /* DF570 800EED70 21100000 */  addu       $v0, $zero, $zero
     /* DF574 800EED74 1C00BF8F */  lw         $ra, 0x1C($sp)
@@ -151,4 +151,4 @@ glabel func_800EEB5C
     /* DF580 800EED80 1000B08F */  lw         $s0, 0x10($sp)
     /* DF584 800EED84 0800E003 */  jr         $ra
     /* DF588 800EED88 2000BD27 */   addiu     $sp, $sp, 0x20
-endlabel func_800EEB5C
+endlabel _BlitClear

@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800EFE34, 0x24
+nonmatching _memset, 0x24
 
-glabel func_800EFE34
+glabel _memset
     /* E0634 800EFE34 0600C010 */  beqz       $a2, .L800EFE50
     /* E0638 800EFE38 FFFFC224 */   addiu     $v0, $a2, -0x1
     /* E063C 800EFE3C FFFF0324 */  addiu      $v1, $zero, -0x1
@@ -15,6 +15,6 @@ glabel func_800EFE34
   .L800EFE50:
     /* E0650 800EFE50 0800E003 */  jr         $ra
     /* E0654 800EFE54 00000000 */   nop
-endlabel func_800EFE34
+endlabel _memset
     /* E0658 800EFE58 00000000 */  nop
     /* E065C 800EFE5C 00000000 */  nop

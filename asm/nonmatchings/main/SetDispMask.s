@@ -26,7 +26,7 @@ glabel SetDispMask
     /* DE02C 800ED82C 04000016 */  bnez       $s0, .L800ED840
     /* DE030 800ED830 6A002426 */   addiu     $a0, $s1, 0x6A
     /* DE034 800ED834 FFFF0524 */  addiu      $a1, $zero, -0x1
-    /* DE038 800ED838 8DBF030C */  jal        func_800EFE34
+    /* DE038 800ED838 8DBF030C */  jal        _memset
     /* DE03C 800ED83C 14000624 */   addiu     $a2, $zero, 0x14
   .L800ED840:
     /* DE040 800ED840 0003043C */  lui        $a0, (0x3000001 >> 16)

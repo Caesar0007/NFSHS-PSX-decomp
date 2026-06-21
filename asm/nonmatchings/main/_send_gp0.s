@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800EF280, 0x40
+nonmatching _send_gp0, 0x40
 
-glabel func_800EF280
+glabel _send_gp0
     /* DFA80 800EF280 FFFFA624 */  addiu      $a2, $a1, -0x1
     /* DFA84 800EF284 1280033C */  lui        $v1, %hi(D_801237A4)
     /* DFA88 800EF288 A437638C */  lw         $v1, %lo(D_801237A4)($v1)
@@ -22,4 +22,4 @@ glabel func_800EF280
   .L800EF2B8:
     /* DFAB8 800EF2B8 0800E003 */  jr         $ra
     /* DFABC 800EF2BC 21100000 */   addu      $v0, $zero, $zero
-endlabel func_800EF280
+endlabel _send_gp0

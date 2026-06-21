@@ -39,26 +39,26 @@ static u_char _gp1_shadow[256];      /* @0x8013EAF8 : last value written per GP1
 /* ============================ SUB-GROUP 1 ============================ */
 
 /* @0x800EEA64 : read the GPU status register (GPUSTAT, shares GP1 address). */
-int _get_status(void)
+extern "C" int _get_status(void)
 {
     return (int)*GPU_GP1;
 }
 
 /* @0x800EF248 : write one GP1 (control) command and shadow its low byte by command number. */
-void _send_gp1(u_long cmd)
+extern "C" void _send_gp1(u_long cmd)
 {
     *GPU_GP1 = cmd;
     _gp1_shadow[cmd >> 24] = (u_char)cmd;
 }
 
 /* @0x800EF26C : read back the shadowed low byte for GP1 command number `idx`. */
-int _get_gp1(int idx)
+extern "C" int _get_gp1(int idx)
 {
     return _gp1_shadow[idx];
 }
 
 /* @0x800EF280 : push n words straight to GP0 with DMA disabled (CPU->GP0 transfer). */
-int _send_gp0(u_long *p, int n)
+extern "C" int _send_gp0(u_long *p, int n)
 {
     *GPU_GP1 = 0x04000000;                  /* DMA direction = off */
     if (n != 0) {
@@ -68,7 +68,7 @@ int _send_gp0(u_long *p, int n)
 }
 
 /* @0x800EF2C0 : kick off a GPU ordering-table (linked-list) DMA on channel 2. */
-void _gpu_dma_chain(u_long *ot)
+extern "C" void _gpu_dma_chain(u_long *ot)
 {
     *GPU_GP1 = 0x04000002;                   /* DMA direction = 2 (linked list) */
     *D2_MADR = (u_long)ot;
@@ -77,14 +77,14 @@ void _gpu_dma_chain(u_long *ot)
 }
 
 /* @0x800EF308 : issue a GP1 0x10 "get GPU info" query and return the 24-bit GPUREAD reply. */
-int _get_gpuinfo(u_long cmd)
+extern "C" int _get_gpuinfo(u_long cmd)
 {
     *GPU_GP1 = cmd | 0x10000000;
     return (int)(*GPU_GP0 & 0x00ffffffu);
 }
 
 /* @0x800EFE34 : obj-local byte fill (libgpu's private memset). */
-void _memset(char *p, int c, int n)
+extern "C" void _memset(char *p, int c, int n)
 {
     if (n != 0) {
         int i = n - 1;
@@ -93,13 +93,13 @@ void _memset(char *p, int c, int n)
 }
 
 /* @0x800EE9C8 : build a GP0 0xE5 "drawing offset" command word. */
-u_long _set_draw_offset(int x, int y)
+extern "C" u_long _set_draw_offset(int x, int y)
 {
     return 0xe5000000u | ((u_long)(x & 0x7ff)) | ((u_long)(y & 0x7ff) << 11);
 }
 
 /* @0x800EE878 : build a GP0 0xE1 "draw mode" command word (dfe=draw-to-display, dtd=dither). */
-u_long _set_draw_mode(int dfe, int dtd, int tpage)
+extern "C" u_long _set_draw_mode(int dfe, int dtd, int tpage)
 {
     u_long hi = dtd ? 0xe1000200u : 0xe1000000u;
     u_long lo = (u_long)(tpage & 0x9ff);
@@ -141,10 +141,10 @@ static u_char _gpu_active __attribute__((section(".bss")));   /* @0x8012369D : d
 static int    _gpu_busy   __attribute__((section(".bss")));   /* @0x801236A4 */
 static QueFunc _gpu_idle_cb __attribute__((section(".bss"))); /* @0x801236A8 : "queue drained" callback */
 
-static void _gpu_que_drain(void);    /* @0x800EF60C (fwd) */
+extern "C" void _gpu_que_drain(void);    /* @0x800EF60C (fwd) */
 
 /* @0x800EFAF8 : arm the GPU watchdog against the current VSync hsync count. */
-static void _gpu_arm_timeout(void)
+extern "C" void _gpu_arm_timeout(void)
 {
     _gpu_timeout_target = VSync(-1) + 0xF0;
     _gpu_timeout_count = 0;
@@ -152,7 +152,7 @@ static void _gpu_arm_timeout(void)
 
 /* @0x800EFB2C : poll the watchdog.  Returns 0 while still waiting; on timeout it prints the
  *   GPU state, force-resets the queue + GPU, and returns -1. */
-static int _gpu_check_timeout(void)
+extern "C" int _gpu_check_timeout(void)
 {
     int now = VSync(-1);
     if (!(_gpu_timeout_target < now)) {
@@ -177,7 +177,7 @@ static int _gpu_check_timeout(void)
 /* @0x800EF60C : dequeue-and-dispatch.  Called inline after a push and from the channel-2
  *   DMA-complete interrupt.  Runs queued requests until the queue empties or a request
  *   kicks off a DMA (CHCR busy), then fires the idle callback if the queue is fully drained. */
-static void _gpu_que_drain(void)
+extern "C" void _gpu_que_drain(void)
 {
     if ((*D2_CHCR & 0x01000000) != 0)
         return;                                  /* a DMA is still running */
@@ -212,7 +212,7 @@ static void _gpu_que_drain(void)
 /* @0x800EF35C : enqueue a GPU request func(arg,extra).  If the GPU is idle the request is
  *   run inline; otherwise it is queued (optionally snapshotting n bytes of args into the
  *   slot).  Spins on the watchdog while the ring is full.  Returns the resulting depth. */
-static int _gpu_que_push(QueFunc func, u_long *arg, int n, int extra)
+extern "C" int _gpu_que_push(QueFunc func, u_long *arg, int n, int extra)
 {
     _gpu_arm_timeout();
     while (((_qin + 1) & 0x3f) == _qout) {       /* ring full */
@@ -256,19 +256,19 @@ static int _gpu_que_push(QueFunc func, u_long *arg, int n, int extra)
 }
 
 /* @0x800EF338 : convenience wrapper -- push with no inline-arg copy (n = 0). */
-static int _que_ref(QueFunc func, u_long *arg, int extra)
+extern "C" int _que_ref(QueFunc func, u_long *arg, int extra)
 {
     return _gpu_que_push(func, arg, 0, extra);
 }
 
 /* @0x800EFE0C : attach _gpu_que_drain as the channel-2 (GPU) DMA-complete callback. */
-static void _install_drain_cb(void)
+extern "C" void _install_drain_cb(void)
 {
     DMACallback(2, (int)_gpu_que_drain);
 }
 
 /* @0x800EEA7C : clear an ordering table in reverse via the OTC DMA (channel 6), with watchdog. */
-static void _clearOTagR_dma(u_long *ot, int n)
+extern "C" void _clearOTagR_dma(u_long *ot, int n)
 {
     *DMA_DPCR |= 0x08000000;                      /* enable DMA channel 6 (OTC) */
     *D6_CHCR = 0;
@@ -295,7 +295,7 @@ static short _screenW __attribute__((section(".bss")));   /* @0x801236A0 (GEnv; 
 static short _screenH __attribute__((section(".bss")));   /* @0x801236A2 (GEnv; absolute, not gp-rel) */
 
 /* @0x800EE898 : GP0 0xE3 drawing-area top-left, x/y clamped to the screen. */
-static u_long _set_clip_tl(int x, int y)
+extern "C" u_long _set_clip_tl(int x, int y)
 {
     int sx = (short)x, cx;
     if (sx < 0)                  cx = 0;
@@ -309,7 +309,7 @@ static u_long _set_clip_tl(int x, int y)
 }
 
 /* @0x800EE930 : GP0 0xE4 drawing-area bottom-right, x/y clamped to the screen. */
-static u_long _set_clip_br(int x, int y)
+extern "C" u_long _set_clip_br(int x, int y)
 {
     int sx = (short)x, cx;
     if (sx < 0)                  cx = 0;
@@ -324,7 +324,7 @@ static u_long _set_clip_br(int x, int y)
 
 /* @0x800EE9E4 : GP0 0xE2 texture window from a RECT (mask x/y at +0/+2, window w/h at +4/+6),
  *   or 0 when tw is null. */
-static u_long _get_tw(void *tw)
+extern "C" u_long _get_tw(void *tw)
 {
     if (tw == 0)
         return 0;
@@ -339,7 +339,7 @@ static u_long _get_tw(void *tw)
 }
 
 /* @0x800EE608 : populate the DR_ENV primitive `d` from the DRAWENV `e`. */
-static void _set_drawenv(void *dr_env, void *env)
+extern "C" void _set_drawenv(void *dr_env, void *env)
 {
     int    *d  = (int *)dr_env;
     char   *db = (char *)dr_env;
@@ -404,7 +404,7 @@ static void _set_drawenv(void *dr_env, void *env)
 static u_long _blit_buf[18];   /* @0x8013EAB0 : scratch OT for _BlitClear */
 
 /* @0x800EEB5C : ClearImage backend -- fill rect with `color`. */
-static void _BlitClear(void *rect, int color)
+extern "C" void _BlitClear(void *rect, int color)
 {
     short   *rs = (short *)rect;
     u_short *ru = (u_short *)rect;
@@ -450,7 +450,7 @@ static void _BlitClear(void *rect, int color)
 }
 
 /* @0x800EED8C : LoadImage backend -- transfer `data` words into the VRAM rect. */
-static int _dws(void *rect, u_long *data)
+extern "C" int _dws(void *rect, u_long *data)
 {
     short   *rs = (short *)rect;
     u_short *ru = (u_short *)rect;
@@ -490,7 +490,7 @@ static int _dws(void *rect, u_long *data)
 }
 
 /* @0x800EEFC8 : StoreImage backend -- read the VRAM rect back into `data` words. */
-static int _drs(void *rect, u_long *data)
+extern "C" int _drs(void *rect, u_long *data)
 {
     short   *rs = (short *)rect;
     u_short *ru = (u_short *)rect;
@@ -633,8 +633,8 @@ static u_long _move_prim[5] = {      /* @0x80123734 : MoveImage's VRAM->VRAM cop
     0x80000000u                      /* GP0 0x80 move-image command */
 };
 
-static int _reset(int mode);                     /* @0x800EF86C (fwd; defined in SG4b-ii) */
-static int _sync(int mode);                      /* @0x800EF9BC (fwd; defined below) */
+extern "C" int _reset(int mode);                     /* @0x800EF86C (fwd; defined in SG4b-ii) */
+extern "C" int _sync(int mode);                      /* @0x800EF9BC (fwd; defined below) */
 
 struct GpuTbl {                                  /* @0x80123654 */
     const char *id;                              /* +0  */
@@ -668,7 +668,7 @@ static const GpuTbl _gpu_tbl = {                 /* the live driver table */
 static const GpuTbl *GEnv_drv __attribute__((section(".data"))) = &_gpu_tbl;   /* @0x80123694 -> @0x80123654 */
 
 /* @0x800ED8E4 : debug-only RECT validator/printer (inert when GPU debug level is 0). */
-static void _image(const char *label, void *rect)
+extern "C" void _image(const char *label, void *rect)
 {
     short *r = (short *)rect;
     const char *fmt;
@@ -691,7 +691,7 @@ static void _image(const char *label, void *rect)
 
 /* @0x800EF9BC : DrawSync backend.  mode==0 blocks until the queue and GPU are idle (or the
  *   watchdog fires, -1).  mode!=0 polls and returns the current queue depth. */
-static int _sync(int mode)
+extern "C" int _sync(int mode)
 {
     if (mode != 0) {
         int depth = (_qin - _qout) & 0x3f;
@@ -717,7 +717,7 @@ static int _sync(int mode)
 }
 
 /* @0x800EFC70 : reconfigure the GPU display registers for the current video mode. */
-static int _gpu_init_videomode(int mode)
+extern "C" int _gpu_init_videomode(int mode)
 {
     *GPU_GP1 = 0x10000007;
     if ((*GPU_GP0 & 0x00ffffff) != 2) {          /* old GPU */
@@ -839,7 +839,7 @@ static u_long _otc_link;                       /* @0x8012375C : OT terminator li
 static const u_long _otc_term = 0x04ffffffu;   /* @0x80123748 : list terminator word */
 
 /* @0x800EF86C : reset the GPU command queue and (optionally) the GPU itself. */
-static int _reset(int mode)
+extern "C" int _reset(int mode)
 {
     int ret;
     _q_reset_mask = SetIntrMask(0);

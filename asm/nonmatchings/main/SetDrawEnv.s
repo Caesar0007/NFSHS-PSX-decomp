@@ -12,7 +12,7 @@ glabel SetDrawEnv
     /* DEC24 800EE424 2000BFAF */  sw         $ra, 0x20($sp)
     /* DEC28 800EE428 00000486 */  lh         $a0, 0x0($s0)
     /* DEC2C 800EE42C 02000586 */  lh         $a1, 0x2($s0)
-    /* DEC30 800EE430 26BA030C */  jal        func_800EE898
+    /* DEC30 800EE430 26BA030C */  jal        _set_clip_tl
     /* DEC34 800EE434 00000000 */   nop
     /* DEC38 800EE438 040022AE */  sw         $v0, 0x4($s1)
     /* DEC3C 800EE43C 04000496 */  lhu        $a0, 0x4($s0)
@@ -26,21 +26,21 @@ glabel SetDrawEnv
     /* DEC5C 800EE45C 2128A200 */  addu       $a1, $a1, $v0
     /* DEC60 800EE460 FFFFA524 */  addiu      $a1, $a1, -0x1
     /* DEC64 800EE464 002C0500 */  sll        $a1, $a1, 16
-    /* DEC68 800EE468 4CBA030C */  jal        func_800EE930
+    /* DEC68 800EE468 4CBA030C */  jal        _set_clip_br
     /* DEC6C 800EE46C 032C0500 */   sra       $a1, $a1, 16
     /* DEC70 800EE470 080022AE */  sw         $v0, 0x8($s1)
     /* DEC74 800EE474 08000486 */  lh         $a0, 0x8($s0)
     /* DEC78 800EE478 0A000586 */  lh         $a1, 0xA($s0)
-    /* DEC7C 800EE47C 72BA030C */  jal        func_800EE9C8
+    /* DEC7C 800EE47C 72BA030C */  jal        _set_draw_offset
     /* DEC80 800EE480 00000000 */   nop
     /* DEC84 800EE484 0C0022AE */  sw         $v0, 0xC($s1)
     /* DEC88 800EE488 17000492 */  lbu        $a0, 0x17($s0)
     /* DEC8C 800EE48C 16000592 */  lbu        $a1, 0x16($s0)
     /* DEC90 800EE490 14000696 */  lhu        $a2, 0x14($s0)
-    /* DEC94 800EE494 1EBA030C */  jal        func_800EE878
+    /* DEC94 800EE494 1EBA030C */  jal        _set_draw_mode
     /* DEC98 800EE498 00000000 */   nop
     /* DEC9C 800EE49C 0C000426 */  addiu      $a0, $s0, 0xC
-    /* DECA0 800EE4A0 79BA030C */  jal        func_800EE9E4
+    /* DECA0 800EE4A0 79BA030C */  jal        _get_tw
     /* DECA4 800EE4A4 100022AE */   sw        $v0, 0x10($s1)
     /* DECA8 800EE4A8 140022AE */  sw         $v0, 0x14($s1)
     /* DECAC 800EE4AC 00E6023C */  lui        $v0, (0xE6000000 >> 16)

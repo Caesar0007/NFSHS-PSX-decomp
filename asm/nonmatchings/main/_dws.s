@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800EED8C, 0x23C
+nonmatching _dws, 0x23C
 
-glabel func_800EED8C
+glabel _dws
     /* DF58C 800EED8C D0FFBD27 */  addiu      $sp, $sp, -0x30
     /* DF590 800EED90 1400B1AF */  sw         $s1, 0x14($sp)
     /* DF594 800EED94 21888000 */  addu       $s1, $a0, $zero
@@ -13,7 +13,7 @@ glabel func_800EED8C
     /* DF5A4 800EEDA4 2400B5AF */  sw         $s5, 0x24($sp)
     /* DF5A8 800EEDA8 2000B4AF */  sw         $s4, 0x20($sp)
     /* DF5AC 800EEDAC 1C00B3AF */  sw         $s3, 0x1C($sp)
-    /* DF5B0 800EEDB0 BEBE030C */  jal        func_800EFAF8
+    /* DF5B0 800EEDB0 BEBE030C */  jal        _gpu_arm_timeout
     /* DF5B4 800EEDB4 1000B0AF */   sw        $s0, 0x10($sp)
     /* DF5B8 800EEDB8 04002586 */  lh         $a1, 0x4($s1)
     /* DF5BC 800EEDBC 04002396 */  lhu        $v1, 0x4($s1)
@@ -78,7 +78,7 @@ glabel func_800EED8C
     /* DF690 800EEE90 00A0043C */   lui       $a0, (0xA0000000 >> 16)
     /* DF694 800EEE94 0004133C */  lui        $s3, (0x4000000 >> 16)
   .L800EEE98:
-    /* DF698 800EEE98 CBBE030C */  jal        func_800EFB2C
+    /* DF698 800EEE98 CBBE030C */  jal        _gpu_check_timeout
     /* DF69C 800EEE9C 00000000 */   nop
     /* DF6A0 800EEEA0 40004014 */  bnez       $v0, .L800EEFA4
     /* DF6A4 800EEEA4 FFFF0224 */   addiu     $v0, $zero, -0x1
@@ -160,4 +160,4 @@ glabel func_800EED8C
     /* DF7BC 800EEFBC 1000B08F */  lw         $s0, 0x10($sp)
     /* DF7C0 800EEFC0 0800E003 */  jr         $ra
     /* DF7C4 800EEFC4 3000BD27 */   addiu     $sp, $sp, 0x30
-endlabel func_800EED8C
+endlabel _dws

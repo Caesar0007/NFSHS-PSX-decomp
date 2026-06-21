@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800EFC70, 0xA0
+nonmatching _gpu_init_videomode, 0xA0
 
-glabel func_800EFC70
+glabel _gpu_init_videomode
     /* E0470 800EFC70 0010033C */  lui        $v1, (0x10000007 >> 16)
     /* E0474 800EFC74 1280023C */  lui        $v0, %hi(D_801237A4)
     /* E0478 800EFC78 A437428C */  lw         $v0, %lo(D_801237A4)($v0)
@@ -47,4 +47,4 @@ glabel func_800EFC70
   .L800EFD08:
     /* E0508 800EFD08 0800E003 */  jr         $ra
     /* E050C 800EFD0C 00000000 */   nop
-endlabel func_800EFC70
+endlabel _gpu_init_videomode

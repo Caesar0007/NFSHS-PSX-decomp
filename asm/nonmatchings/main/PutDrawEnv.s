@@ -26,7 +26,7 @@ glabel PutDrawEnv
   .L800EDD70:
     /* DE570 800EDD70 1C003026 */  addiu      $s0, $s1, 0x1C
     /* DE574 800EDD74 21200002 */  addu       $a0, $s0, $zero
-    /* DE578 800EDD78 82B9030C */  jal        func_800EE608
+    /* DE578 800EDD78 82B9030C */  jal        _set_drawenv
     /* DE57C 800EDD7C 21282002 */   addu      $a1, $s1, $zero
     /* DE580 800EDD80 FF00043C */  lui        $a0, (0xFFFFFF >> 16)
     /* DE584 800EDD84 FFFF8434 */  ori        $a0, $a0, (0xFFFFFF & 0xFFFF)

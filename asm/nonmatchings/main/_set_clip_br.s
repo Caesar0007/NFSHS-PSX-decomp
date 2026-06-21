@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800EE930, 0x98
+nonmatching _set_clip_br, 0x98
 
-glabel func_800EE930
+glabel _set_clip_br
     /* DF130 800EE930 00140400 */  sll        $v0, $a0, 16
     /* DF134 800EE934 03340200 */  sra        $a2, $v0, 16
     /* DF138 800EE938 0B00C004 */  bltz       $a2, .L800EE968
@@ -46,4 +46,4 @@ glabel func_800EE930
     /* DF1BC 800EE9BC 25104400 */  or         $v0, $v0, $a0
     /* DF1C0 800EE9C0 0800E003 */  jr         $ra
     /* DF1C4 800EE9C4 25106200 */   or        $v0, $v1, $v0
-endlabel func_800EE930
+endlabel _set_clip_br

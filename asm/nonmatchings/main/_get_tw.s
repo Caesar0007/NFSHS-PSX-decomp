@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800EE9E4, 0x80
+nonmatching _get_tw, 0x80
 
-glabel func_800EE9E4
+glabel _get_tw
     /* DF1E4 800EE9E4 03008014 */  bnez       $a0, .L800EE9F4
     /* DF1E8 800EE9E8 F0FFBD27 */   addiu     $sp, $sp, -0x10
     /* DF1EC 800EE9EC 97BA0308 */  j          .L800EEA5C
@@ -38,4 +38,4 @@ glabel func_800EE9E4
   .L800EEA5C:
     /* DF25C 800EEA5C 0800E003 */  jr         $ra
     /* DF260 800EEA60 1000BD27 */   addiu     $sp, $sp, 0x10
-endlabel func_800EE9E4
+endlabel _get_tw

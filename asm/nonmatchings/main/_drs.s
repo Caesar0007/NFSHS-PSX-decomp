@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800EEFC8, 0x280
+nonmatching _drs, 0x280
 
-glabel func_800EEFC8
+glabel _drs
     /* DF7C8 800EEFC8 D8FFBD27 */  addiu      $sp, $sp, -0x28
     /* DF7CC 800EEFCC 1400B1AF */  sw         $s1, 0x14($sp)
     /* DF7D0 800EEFD0 21888000 */  addu       $s1, $a0, $zero
@@ -12,7 +12,7 @@ glabel func_800EEFC8
     /* DF7DC 800EEFDC 2400BFAF */  sw         $ra, 0x24($sp)
     /* DF7E0 800EEFE0 2000B4AF */  sw         $s4, 0x20($sp)
     /* DF7E4 800EEFE4 1C00B3AF */  sw         $s3, 0x1C($sp)
-    /* DF7E8 800EEFE8 BEBE030C */  jal        func_800EFAF8
+    /* DF7E8 800EEFE8 BEBE030C */  jal        _gpu_arm_timeout
     /* DF7EC 800EEFEC 1000B0AF */   sw        $s0, 0x10($sp)
     /* DF7F0 800EEFF0 04002586 */  lh         $a1, 0x4($s1)
     /* DF7F4 800EEFF4 04002396 */  lhu        $v1, 0x4($s1)
@@ -76,7 +76,7 @@ glabel func_800EEFC8
     /* DF8C4 800EF0C4 00000000 */   nop
     /* DF8C8 800EF0C8 0004133C */  lui        $s3, (0x4000000 >> 16)
   .L800EF0CC:
-    /* DF8CC 800EF0CC CBBE030C */  jal        func_800EFB2C
+    /* DF8CC 800EF0CC CBBE030C */  jal        _gpu_check_timeout
     /* DF8D0 800EF0D0 00000000 */   nop
     /* DF8D4 800EF0D4 54004014 */  bnez       $v0, .L800EF228
     /* DF8D8 800EF0D8 FFFF0224 */   addiu     $v0, $zero, -0x1
@@ -121,7 +121,7 @@ glabel func_800EEFC8
     /* DF970 800EF170 00000000 */   nop
     /* DF974 800EF174 0008113C */  lui        $s1, (0x8000000 >> 16)
   .L800EF178:
-    /* DF978 800EF178 CBBE030C */  jal        func_800EFB2C
+    /* DF978 800EF178 CBBE030C */  jal        _gpu_check_timeout
     /* DF97C 800EF17C 00000000 */   nop
     /* DF980 800EF180 29004014 */  bnez       $v0, .L800EF228
     /* DF984 800EF184 FFFF0224 */   addiu     $v0, $zero, -0x1
@@ -178,4 +178,4 @@ glabel func_800EEFC8
     /* DFA3C 800EF23C 1000B08F */  lw         $s0, 0x10($sp)
     /* DFA40 800EF240 0800E003 */  jr         $ra
     /* DFA44 800EF244 2800BD27 */   addiu     $sp, $sp, 0x28
-endlabel func_800EEFC8
+endlabel _drs

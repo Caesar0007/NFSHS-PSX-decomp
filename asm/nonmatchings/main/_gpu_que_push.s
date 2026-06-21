@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800EF35C, 0x2B0
+nonmatching _gpu_que_push, 0x2B0
 
-glabel func_800EF35C
+glabel _gpu_que_push
     /* DFB5C 800EF35C D8FFBD27 */  addiu      $sp, $sp, -0x28
     /* DFB60 800EF360 1C00B3AF */  sw         $s3, 0x1C($sp)
     /* DFB64 800EF364 21988000 */  addu       $s3, $a0, $zero
@@ -13,16 +13,16 @@ glabel func_800EF35C
     /* DFB74 800EF374 2188C000 */  addu       $s1, $a2, $zero
     /* DFB78 800EF378 1800B2AF */  sw         $s2, 0x18($sp)
     /* DFB7C 800EF37C 2000BFAF */  sw         $ra, 0x20($sp)
-    /* DFB80 800EF380 BEBE030C */  jal        func_800EFAF8
+    /* DFB80 800EF380 BEBE030C */  jal        _gpu_arm_timeout
     /* DFB84 800EF384 2190E000 */   addu      $s2, $a3, $zero
     /* DFB88 800EF388 EABC0308 */  j          .L800EF3A8
     /* DFB8C 800EF38C 00000000 */   nop
   .L800EF390:
-    /* DFB90 800EF390 CBBE030C */  jal        func_800EFB2C
+    /* DFB90 800EF390 CBBE030C */  jal        _gpu_check_timeout
     /* DFB94 800EF394 00000000 */   nop
     /* DFB98 800EF398 95004014 */  bnez       $v0, .L800EF5F0
     /* DFB9C 800EF39C FFFF0224 */   addiu     $v0, $zero, -0x1
-    /* DFBA0 800EF3A0 83BD030C */  jal        func_800EF60C
+    /* DFBA0 800EF3A0 83BD030C */  jal        _gpu_que_drain
     /* DFBA4 800EF3A4 00000000 */   nop
   .L800EF3A8:
     /* DFBA8 800EF3A8 1280023C */  lui        $v0, %hi(_qin)
@@ -82,8 +82,8 @@ glabel func_800EF35C
     /* DFC78 800EF478 7CBD0308 */  j          .L800EF5F0
     /* DFC7C 800EF47C 21100000 */   addu      $v0, $zero, $zero
   .L800EF480:
-    /* DFC80 800EF480 0F80053C */  lui        $a1, %hi(func_800EF60C)
-    /* DFC84 800EF484 0CF6A524 */  addiu      $a1, $a1, %lo(func_800EF60C)
+    /* DFC80 800EF480 0F80053C */  lui        $a1, %hi(_gpu_que_drain)
+    /* DFC84 800EF484 0CF6A524 */  addiu      $a1, $a1, %lo(_gpu_que_drain)
     /* DFC88 800EF488 2BCA030C */  jal        DMACallback
     /* DFC8C 800EF48C 02000424 */   addiu     $a0, $zero, 0x2
     /* DFC90 800EF490 2A002012 */  beqz       $s1, .L800EF53C
@@ -170,7 +170,7 @@ glabel func_800EF35C
     /* DFDC0 800EF5C0 1280013C */  lui        $at, %hi(_qin)
     /* DFDC4 800EF5C4 54CA030C */  jal        SetIntrMask
     /* DFDC8 800EF5C8 C43722AC */   sw        $v0, %lo(_qin)($at)
-    /* DFDCC 800EF5CC 83BD030C */  jal        func_800EF60C
+    /* DFDCC 800EF5CC 83BD030C */  jal        _gpu_que_drain
     /* DFDD0 800EF5D0 00000000 */   nop
     /* DFDD4 800EF5D4 1280023C */  lui        $v0, %hi(_qin)
     /* DFDD8 800EF5D8 C437428C */  lw         $v0, %lo(_qin)($v0)
@@ -187,4 +187,4 @@ glabel func_800EF35C
     /* DFE00 800EF600 1000B08F */  lw         $s0, 0x10($sp)
     /* DFE04 800EF604 0800E003 */  jr         $ra
     /* DFE08 800EF608 2800BD27 */   addiu     $sp, $sp, 0x28
-endlabel func_800EF35C
+endlabel _gpu_que_push

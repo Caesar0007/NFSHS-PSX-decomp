@@ -14,10 +14,10 @@ glabel SetDrawMode
     /* DEBD8 800EE3D8 3000B18F */  lw         $s1, 0x30($sp)
     /* DEBDC 800EE3DC FFFFE630 */  andi       $a2, $a3, 0xFFFF
     /* DEBE0 800EE3E0 1800BFAF */  sw         $ra, 0x18($sp)
-    /* DEBE4 800EE3E4 1EBA030C */  jal        func_800EE878
+    /* DEBE4 800EE3E4 1EBA030C */  jal        _set_draw_mode
     /* DEBE8 800EE3E8 030002A2 */   sb        $v0, 0x3($s0)
     /* DEBEC 800EE3EC 040002AE */  sw         $v0, 0x4($s0)
-    /* DEBF0 800EE3F0 79BA030C */  jal        func_800EE9E4
+    /* DEBF0 800EE3F0 79BA030C */  jal        _get_tw
     /* DEBF4 800EE3F4 21202002 */   addu      $a0, $s1, $zero
     /* DEBF8 800EE3F8 080002AE */  sw         $v0, 0x8($s0)
     /* DEBFC 800EE3FC 1800BF8F */  lw         $ra, 0x18($sp)

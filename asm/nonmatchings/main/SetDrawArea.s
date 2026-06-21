@@ -14,7 +14,7 @@ glabel SetDrawArea
     /* DEB30 800EE330 030022A2 */  sb         $v0, 0x3($s1)
     /* DEB34 800EE334 00000486 */  lh         $a0, 0x0($s0)
     /* DEB38 800EE338 02000586 */  lh         $a1, 0x2($s0)
-    /* DEB3C 800EE33C 26BA030C */  jal        func_800EE898
+    /* DEB3C 800EE33C 26BA030C */  jal        _set_clip_tl
     /* DEB40 800EE340 00000000 */   nop
     /* DEB44 800EE344 040022AE */  sw         $v0, 0x4($s1)
     /* DEB48 800EE348 00000496 */  lhu        $a0, 0x0($s0)
@@ -28,7 +28,7 @@ glabel SetDrawArea
     /* DEB68 800EE368 2128A200 */  addu       $a1, $a1, $v0
     /* DEB6C 800EE36C FFFFA524 */  addiu      $a1, $a1, -0x1
     /* DEB70 800EE370 002C0500 */  sll        $a1, $a1, 16
-    /* DEB74 800EE374 4CBA030C */  jal        func_800EE930
+    /* DEB74 800EE374 4CBA030C */  jal        _set_clip_br
     /* DEB78 800EE378 032C0500 */   sra       $a1, $a1, 16
     /* DEB7C 800EE37C 080022AE */  sw         $v0, 0x8($s1)
     /* DEB80 800EE380 1800BF8F */  lw         $ra, 0x18($sp)

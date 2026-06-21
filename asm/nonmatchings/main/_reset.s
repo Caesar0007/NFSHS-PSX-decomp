@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800EF86C, 0x150
+nonmatching _reset, 0x150
 
-glabel func_800EF86C
+glabel _reset
     /* E006C 800EF86C E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* E0070 800EF870 1000B0AF */  sw         $s0, 0x10($sp)
     /* E0074 800EF874 21808000 */  addu       $s0, $a0, $zero
@@ -49,12 +49,12 @@ glabel func_800EF86C
     /* E010C 800EF90C 1280023C */  lui        $v0, %hi(D_801237A4)
     /* E0110 800EF910 A437428C */  lw         $v0, %lo(D_801237A4)($v0)
     /* E0114 800EF914 00010624 */  addiu      $a2, $zero, 0x100
-    /* E0118 800EF918 8DBF030C */  jal        func_800EFE34
+    /* E0118 800EF918 8DBF030C */  jal        _memset
     /* E011C 800EF91C 000040AC */   sw        $zero, 0x0($v0)
     /* E0120 800EF920 1480043C */  lui        $a0, %hi(_que)
     /* E0124 800EF924 00EC8424 */  addiu      $a0, $a0, %lo(_que)
     /* E0128 800EF928 21280000 */  addu       $a1, $zero, $zero
-    /* E012C 800EF92C 8DBF030C */  jal        func_800EFE34
+    /* E012C 800EF92C 8DBF030C */  jal        _memset
     /* E0130 800EF930 00180624 */   addiu     $a2, $zero, 0x1800
     /* E0134 800EF934 62BE0308 */  j          .L800EF988
     /* E0138 800EF938 00000000 */   nop
@@ -86,11 +86,11 @@ glabel func_800EF86C
     /* E0198 800EF998 07000232 */  andi       $v0, $s0, 0x7
     /* E019C 800EF99C 03004014 */  bnez       $v0, .L800EF9AC
     /* E01A0 800EF9A0 21100000 */   addu      $v0, $zero, $zero
-    /* E01A4 800EF9A4 1CBF030C */  jal        func_800EFC70
+    /* E01A4 800EF9A4 1CBF030C */  jal        _gpu_init_videomode
     /* E01A8 800EF9A8 21200002 */   addu      $a0, $s0, $zero
   .L800EF9AC:
     /* E01AC 800EF9AC 1400BF8F */  lw         $ra, 0x14($sp)
     /* E01B0 800EF9B0 1000B08F */  lw         $s0, 0x10($sp)
     /* E01B4 800EF9B4 0800E003 */  jr         $ra
     /* E01B8 800EF9B8 1800BD27 */   addiu     $sp, $sp, 0x18
-endlabel func_800EF86C
+endlabel _reset

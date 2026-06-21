@@ -12,7 +12,7 @@ glabel LoadImage
     /* DE2A4 800EDAA4 0580043C */  lui        $a0, %hi(D_80056E04)
     /* DE2A8 800EDAA8 046E8424 */  addiu      $a0, $a0, %lo(D_80056E04)
     /* DE2AC 800EDAAC 1800BFAF */  sw         $ra, 0x18($sp)
-    /* DE2B0 800EDAB0 39B6030C */  jal        func_800ED8E4
+    /* DE2B0 800EDAB0 39B6030C */  jal        _image
     /* DE2B4 800EDAB4 21280002 */   addu      $a1, $s0, $zero
     /* DE2B8 800EDAB8 21280002 */  addu       $a1, $s0, $zero
     /* DE2BC 800EDABC 1280023C */  lui        $v0, %hi(D_80123694)

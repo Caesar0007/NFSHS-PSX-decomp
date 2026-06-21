@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800EFAF8, 0x34
+nonmatching _gpu_arm_timeout, 0x34
 
-glabel func_800EFAF8
+glabel _gpu_arm_timeout
     /* E02F8 800EFAF8 E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* E02FC 800EFAFC 1000BFAF */  sw         $ra, 0x10($sp)
     /* E0300 800EFB00 C7C8030C */  jal        VSync
@@ -17,4 +17,4 @@ glabel func_800EFAF8
     /* E0320 800EFB20 1800BD27 */  addiu      $sp, $sp, 0x18
     /* E0324 800EFB24 0800E003 */  jr         $ra
     /* E0328 800EFB28 00000000 */   nop
-endlabel func_800EFAF8
+endlabel _gpu_arm_timeout

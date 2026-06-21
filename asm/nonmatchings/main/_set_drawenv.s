@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800EE608, 0x270
+nonmatching _set_drawenv, 0x270
 
-glabel func_800EE608
+glabel _set_drawenv
     /* DEE08 800EE608 D8FFBD27 */  addiu      $sp, $sp, -0x28
     /* DEE0C 800EE60C 1800B0AF */  sw         $s0, 0x18($sp)
     /* DEE10 800EE610 2180A000 */  addu       $s0, $a1, $zero
@@ -12,7 +12,7 @@ glabel func_800EE608
     /* DEE1C 800EE61C 2000BFAF */  sw         $ra, 0x20($sp)
     /* DEE20 800EE620 00000486 */  lh         $a0, 0x0($s0)
     /* DEE24 800EE624 02000586 */  lh         $a1, 0x2($s0)
-    /* DEE28 800EE628 26BA030C */  jal        func_800EE898
+    /* DEE28 800EE628 26BA030C */  jal        _set_clip_tl
     /* DEE2C 800EE62C 00000000 */   nop
     /* DEE30 800EE630 040022AE */  sw         $v0, 0x4($s1)
     /* DEE34 800EE634 04000496 */  lhu        $a0, 0x4($s0)
@@ -26,21 +26,21 @@ glabel func_800EE608
     /* DEE54 800EE654 2128A200 */  addu       $a1, $a1, $v0
     /* DEE58 800EE658 FFFFA524 */  addiu      $a1, $a1, -0x1
     /* DEE5C 800EE65C 002C0500 */  sll        $a1, $a1, 16
-    /* DEE60 800EE660 4CBA030C */  jal        func_800EE930
+    /* DEE60 800EE660 4CBA030C */  jal        _set_clip_br
     /* DEE64 800EE664 032C0500 */   sra       $a1, $a1, 16
     /* DEE68 800EE668 080022AE */  sw         $v0, 0x8($s1)
     /* DEE6C 800EE66C 08000486 */  lh         $a0, 0x8($s0)
     /* DEE70 800EE670 0A000586 */  lh         $a1, 0xA($s0)
-    /* DEE74 800EE674 72BA030C */  jal        func_800EE9C8
+    /* DEE74 800EE674 72BA030C */  jal        _set_draw_offset
     /* DEE78 800EE678 00000000 */   nop
     /* DEE7C 800EE67C 0C0022AE */  sw         $v0, 0xC($s1)
     /* DEE80 800EE680 17000492 */  lbu        $a0, 0x17($s0)
     /* DEE84 800EE684 16000592 */  lbu        $a1, 0x16($s0)
     /* DEE88 800EE688 14000696 */  lhu        $a2, 0x14($s0)
-    /* DEE8C 800EE68C 1EBA030C */  jal        func_800EE878
+    /* DEE8C 800EE68C 1EBA030C */  jal        _set_draw_mode
     /* DEE90 800EE690 00000000 */   nop
     /* DEE94 800EE694 0C000426 */  addiu      $a0, $s0, 0xC
-    /* DEE98 800EE698 79BA030C */  jal        func_800EE9E4
+    /* DEE98 800EE698 79BA030C */  jal        _get_tw
     /* DEE9C 800EE69C 100022AE */   sw        $v0, 0x10($s1)
     /* DEEA0 800EE6A0 140022AE */  sw         $v0, 0x14($s1)
     /* DEEA4 800EE6A4 00E6023C */  lui        $v0, (0xE6000000 >> 16)
@@ -166,4 +166,4 @@ glabel func_800EE608
     /* DF06C 800EE86C 1800B08F */  lw         $s0, 0x18($sp)
     /* DF070 800EE870 0800E003 */  jr         $ra
     /* DF074 800EE874 2800BD27 */   addiu     $sp, $sp, 0x28
-endlabel func_800EE608
+endlabel _set_drawenv

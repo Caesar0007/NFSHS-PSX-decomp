@@ -12,7 +12,7 @@ glabel StoreImage
     /* DE304 800EDB04 0580043C */  lui        $a0, %hi(D_80056E10)
     /* DE308 800EDB08 106E8424 */  addiu      $a0, $a0, %lo(D_80056E10)
     /* DE30C 800EDB0C 1800BFAF */  sw         $ra, 0x18($sp)
-    /* DE310 800EDB10 39B6030C */  jal        func_800ED8E4
+    /* DE310 800EDB10 39B6030C */  jal        _image
     /* DE314 800EDB14 21280002 */   addu      $a1, $s0, $zero
     /* DE318 800EDB18 21280002 */  addu       $a1, $s0, $zero
     /* DE31C 800EDB1C 1280023C */  lui        $v0, %hi(D_80123694)

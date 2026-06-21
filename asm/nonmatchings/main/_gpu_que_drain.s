@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800EF60C, 0x260
+nonmatching _gpu_que_drain, 0x260
 
-glabel func_800EF60C
+glabel _gpu_que_drain
     /* DFE0C 800EF60C 1280023C */  lui        $v0, %hi(D_801237B0)
     /* DFE10 800EF610 B037428C */  lw         $v0, %lo(D_801237B0)($v0)
     /* DFE14 800EF614 E0FFBD27 */  addiu      $sp, $sp, -0x20
@@ -163,4 +163,4 @@ glabel func_800EF60C
     /* E0060 800EF860 1000B08F */  lw         $s0, 0x10($sp)
     /* E0064 800EF864 0800E003 */  jr         $ra
     /* E0068 800EF868 2000BD27 */   addiu     $sp, $sp, 0x20
-endlabel func_800EF60C
+endlabel _gpu_que_drain

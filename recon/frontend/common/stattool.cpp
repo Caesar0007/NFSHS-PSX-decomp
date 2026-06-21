@@ -157,22 +157,21 @@ uname_setAccentUpper:
 void Stattool_SamNelsonsUpperLowerStringConverterForRecords(char *string)
 
 {
-  char *c;
   char previousLetter;
   char cur_ch;
-  
+
   s_lower(string);
   previousLetter = *string;
   UserNameUpperCaseOneLetter(string);
-  c = string + 1;
-  cur_ch = *c;
+  string = string + 1;
+  cur_ch = *string;
   while (cur_ch != '\0') {
     if (previousLetter == ' ') {
-      UserNameUpperCaseOneLetter(c);
+      UserNameUpperCaseOneLetter(string);
     }
-    previousLetter = *c;
-    c = c + 1;
-    cur_ch = *c;
+    previousLetter = *string;
+    string = string + 1;
+    cur_ch = *string;
   }
   return;
 }
@@ -210,8 +209,8 @@ void Stattool_GetAllDefaultRecords(tRecordBuffer *TrackRecords,bool cheatones)
   base = 0;
   do {
     n = 0;
-    idx = base;
     do {
+      idx = base + n;
       dest = TrackRecords + idx;
       src = Records + idx;
       strcpy(dest->sName,src->sName);
@@ -220,7 +219,6 @@ void Stattool_GetAllDefaultRecords(tRecordBuffer *TrackRecords,bool cheatones)
       dest->nTime = src->nTime;
       n = n + 1;
       dest->nBestLap = src->nBestLap;
-      idx = base + n;
     } while (n < 0x11);
     i = i + 1;
     base = base + 0x11;
@@ -308,7 +306,7 @@ char * Stattool_GetAINameFromPersonality(tPersonalities personality)
 {
   char (*namePtr) [8];
   
-  if (personality < (kPersonalityTraffic|kPersonalityCop3)) {
+  if ((unsigned int)personality < (kPersonalityTraffic|kPersonalityCop3)) {
     namePtr = GameSetup_gPersonalityNames + personality;
   }
   else {

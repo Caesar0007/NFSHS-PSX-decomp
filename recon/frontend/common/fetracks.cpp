@@ -69,7 +69,7 @@ void tTrackManager::GetTrack(short trackNumber,tTrackInformation &trackInfo)
 {
   
   blockmove(this->fTracks + trackNumber,&trackInfo,0x30);
-  trackInfo.fAvailable = (uchar)this->fAvailableTracks[trackInfo.fTrackID];
+  trackInfo.fAvailable = (uchar)this->fAvailableTracks[(signed char)trackInfo.fTrackID];
   return;
 }
 
@@ -144,8 +144,7 @@ void tTrackManager::SetTrackAvailable(short track,bool avail)
 
 {
   
-  *(u_int *)((int)this->fAvailableTracks + ((int)((u_int)(u_short)track << 0x10) >> 0xe)) =
-       avail;
+  this->fAvailableTracks[track] = avail;
   return;
 }
 
@@ -232,9 +231,9 @@ short tListIteratorTrack::TextValue(tPlayer atIndex)
 
 {
   tTrackInformation *trackInfo;
-  
+
   trackInfo = (tTrackInformation *)(this->_base_tListIteratorIndexed).fIndex;
-  return this->fTrackManager->fTracks
+  return (signed char)this->fTrackManager->fTracks
          [(u_char)(this->_base_tListIteratorIndexed)._base_tListIterator.fValue[(u_char)trackInfo->fTrackID]].
          fTrackID + 0xd5;
 }
@@ -249,7 +248,7 @@ void tListIteratorTrack::Increment(tPlayer atIndex)
   void *pvVar1;
   char *pcVar2;
   u_char *pbVar3;
-  
+
   do {
     pcVar2 = (this->_base_tListIteratorIndexed)._base_tListIterator.fValue +
              (u_char)*(this->_base_tListIteratorIndexed).fIndex;

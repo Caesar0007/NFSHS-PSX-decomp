@@ -13,8 +13,7 @@
 tScreenTournSelect::tScreenTournSelect()
 
 {
-  
-  tScreen_ctor(&this->_base_tScreen);
+
   (this->_base_tScreen)._vf = (__vtbl_ptr_type (*)[10])tScreenTournSelect_vtable;
   return;
 }

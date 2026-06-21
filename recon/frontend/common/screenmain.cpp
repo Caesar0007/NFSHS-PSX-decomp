@@ -810,7 +810,7 @@ void tScreenMain::Cleanup()
   purgememadr((void *)this->hVideo);
   do {
     FreeShapes(&this->_base_tScreen,
-                        (tShapeInformation *)((this->_base_tScreen).fPermShapes.fFilename + off + -0x14));
+                        (tShapeInformation *)((char *)this + off));
     i_2 = i_2 + 1;
     off = off + 0x28;
   } while (i_2 < 2);

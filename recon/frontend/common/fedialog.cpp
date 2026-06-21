@@ -782,7 +782,7 @@ tDialogYesNo::tDialogYesNo()
   (this->_base_tDialogInteractive)._base_tDialogMessageString._base_tDialogBase.specificPlayer = -1;
   *(void **)&((this->_base_tDialogInteractive)._base_tDialogMessageString._base_tDialogBase._base_tScreen._vf) = (void *)tDialogMessageString_vtable;
   (this->_base_tDialogInteractive)._base_tDialogMessageString._base_tDialogBase.fFadeText = 0x80;
-  *(void **)&((this->_base_tDialogInteractive)._base_tDialogMessageString._base_tDialogBase._base_tScreen._vf) = (void *)tDialogYesNo_vtable;
+  *(void **)&((this->_base_tDialogInteractive)._base_tDialogMessageString._base_tDialogBase._base_tScreen._vf) = (void *)tDialogInteractive_vtable;
   (this->_base_tDialogInteractive)._base_tDialogMessageString._base_tDialogBase.currentlyOn = 0;
   (this->_base_tDialogInteractive)._base_tDialogMessageString._base_tDialogBase.reservedheight = 0;
   (this->_base_tDialogInteractive)._base_tDialogMessageString._base_tDialogBase.MaxH = 0;

@@ -9,8 +9,7 @@
 tScreenTrophyRoom::tScreenTrophyRoom()
 
 {
-  
-  tScreen_ctor(&this->_base_tScreen);
+
   (this->_base_tScreen)._vf = (__vtbl_ptr_type (*)[10])tScreenTrophyRoom_vtable;
   this->fPreviousTrophy = '\0';
   this->fRealCurrentTourn[0] = 0;
@@ -127,11 +126,11 @@ void tScreenTrophyRoom::PreLoad()
   ::PreLoad(&this->_base_tScreen);
   (this->fTrophyShapes).fShapes = (tTexture_ShapeInfo *)0x0;
   InitializeShapes(&this->_base_tScreen,&this->fTrophyShapes,8);
-  if (frontEnd.tier == '\0') {
-    name = "zCase";
+  if (frontEnd.tier != '\0') {
+    name = "zCase2";
   }
   else {
-    name = "zCase2";
+    name = "zCase";
   }
   AsyncLoadShapeFile(&this->_base_tScreen,name,&this->fTrophyShapes);
   return;

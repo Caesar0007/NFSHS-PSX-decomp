@@ -169,7 +169,7 @@ void tScreenTrackSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
   *permFileName = "ztrack";
   sprintf(gSwapFileName,"%s",trackInfo.fShapeName);
   *swapFileName = gSwapFileName;
-  this->fPreviousTrack = (short)trackInfo.fTrackID;
+  this->fPreviousTrack = (short)(signed char)trackInfo.fTrackID;
   return;
 }
 
@@ -238,11 +238,11 @@ void tScreenTrackSelect::SetBrightness(short bright)
 
 {
   int iVar1;
-  
-  iVar1 = ticks;
+
   if (bright != this->fDestBrightness) {
     this->fDestBrightness = bright;
     this->fStartBrightness = this->fBrightness;
+    iVar1 = ticks;
     this->fStartTicks = iVar1;
   }
   return;
@@ -292,10 +292,10 @@ void tScreenTrackSelect::UpdateVideoWall(tTrackInformation &trackInfo)
 
 {
   
-  if ((int)trackInfo.fTrackID != (int)this->fPreviousTrack) {
+  if ((int)(signed char)trackInfo.fTrackID != (int)this->fPreviousTrack) {
     AsyncLoadSwapShapeFile(&this->_base_tScreen,trackInfo.fShapeName);
     this->fTVsInitialized = 0;
-    this->fPreviousTrack = (short)trackInfo.fTrackID;
+    this->fPreviousTrack = (short)(signed char)trackInfo.fTrackID;
     TurnOff(&this->fVideoWall);
     this->SetBrightness(0);
     this->fTicksSet = 0;

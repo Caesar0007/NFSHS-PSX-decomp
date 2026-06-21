@@ -44,8 +44,11 @@ extern "C" {
 CdlFILE   _cd_dir[64];          /* @0x8014487C */
 CdPathEnt _cd_pathtbl[128];     /* @0x80144E7C */
 char      _cd_secbuf[0x800];    /* @0x8014647C */
-int       _cd_search_nopen = 0; /* @0x80136C6C : CD_nopen the path table was built for */
-int       _cd_cached_dir   = 0; /* @0x80136C68 : index of the directory currently in _cd_dir */
+/* _cd_search_nopen / _cd_cached_dir live in regular .bss (absolute addressing in the oracle,
+ * NOT %gp_rel under -G4) -- declared extern so cc1plus emits `lui/%hi` not a gp-relative load.
+ * Their definitions are part of the linked image's .bss (see asm/data D_80136C6C / D_80136C68). */
+extern int _cd_search_nopen;    /* @0x80136C6C : CD_nopen the path table was built for */
+extern int _cd_cached_dir;      /* @0x80136C68 : index of the directory currently in _cd_dir */
 }
 
 /* little-endian unaligned 32-bit load (matches the lwl/lwr pairs in the binary). */
@@ -179,7 +182,8 @@ static int CD_cachefile(int dir)
 extern "C" CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
 {
     char  comp[36];
-    int   dir, level, i;
+    int   dir, level;
+    int   i;
     char *s;
     char *q;
 
@@ -188,30 +192,32 @@ extern "C" CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
             return 0;
         _cd_search_nopen = CD_nopen;
     }
-    if (*name != '\\')                                      /* paths must be absolute */
+    if (*name != '\\')                                     /* paths must be absolute */
         return 0;
 
     comp[0] = 0;
-    dir   = 1;                                              /* root */
-    level = 0;
+    dir = 1;                                                /* root */
     s = name;
     /* split on '\\'; descend through each directory component, leaving the filename in `comp`.
      * (the binary threads the parent dir id through $a0 across _cd_find_path calls.) */
-    while (level < 8) {
+    for (level = 0; level < 8; level++) {
         q = comp;
-        while (*s && *s != '\\')
+        while (*s != '\\') {
+            if (*s == 0)
+                goto out;                                   /* reached the filename */
             *q++ = *s++;
-        *q = 0;
-        if (*s == 0)                                        /* reached the filename */
-            break;
+        }
+        if (*s == 0)
+            goto out;
         s++;                                                /* skip the separator */
+        *q = 0;
         dir = _cd_find_path(dir, comp);
         if (dir == -1) {                                    /* directory not found */
             comp[0] = 0;
             break;
         }
-        level++;
     }
+out:
 
     if (level >= 8) {
         if (CD_debug > 0) printf("%s: path level (%d) error\n", name, level);
@@ -222,6 +228,7 @@ extern "C" CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
         return 0;
     }
 
+    *q = 0;                                                 /* terminate the filename component */
     if (CD_cachefile(dir) != 0) {                           /* (else-branch is dead: returns +/-1) */
         if (CD_debug >= 2) printf("CdSearchFile: searching %s...\n", comp);
         for (i = 0; i < 64 && _cd_dir[i].name[0] != 0; i++) {

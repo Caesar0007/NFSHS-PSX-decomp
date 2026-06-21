@@ -101,18 +101,22 @@ extern "C" void init_ring_status(int base, unsigned count)
         *(int *)(StRingAddr + ((i + base) << 5)) = 0;   /* oracle adds i+base (addu v0,a2,a0) */
 }
 
+/* a 2-byte-aligned 4-byte payload: forces gcc to emit unaligned word ops (lwl/lwr, swl/swr)
+ * for the sub-header copy, matching the oracle (the original copied a CdlLOC struct field
+ * out of a u_short*-typed ring slot). */
+struct _ds_loc { short lo, hi; };
+
 /* @0x80108798 (C_004) : a sector finished decoding -- mark its slot ready and notify StFunc1. */
 extern "C" int data_ready_callback(void)
 {
     u_short *slot = (u_short *)(StRingAddr + (StRingIdx2 << 5));
 
     slot[0]  = 2;                               /* status = decoded/ready */
-    _ds_word0 = *(int *)((char *)slot + 28);   /* stash sub-header */
-    _ds_word1 = *(int *)((char *)slot + 8);
-    if (StFunc1 != 0) {
-        StRingIdx2 = StRingIdx1;
+    *(struct _ds_loc *)&_ds_word0 = *(struct _ds_loc *)(slot + 14);  /* unaligned sub-header copy (slot+0x1C) */
+    _ds_word1 = *(int *)(slot + 4);             /* aligned (slot+8) */
+    StRingIdx2 = StRingIdx1;                     /* oracle: unconditional (beqz delay slot) */
+    if (StFunc1 != 0)
         ((void (*)())StFunc1)();
-    }
     StFinalSector = 0;
     return 0;
 }

@@ -231,11 +231,10 @@ extern "C" int CdRead(int sectors, u_long *buf, int mode)
     }
 
     g->w0c = mode;
-    {
-        int sel = g->w0c & 0x30;
-        if (sel == 0)         g->w10 = 0x200;       /* 2048 bytes */
-        else if (sel == 0x20) g->w10 = 0x249;       /* 2340 bytes (full raw) */
-        else                  g->w10 = 0x246;       /* 2328 bytes */
+    switch (g->w0c & 0x30) {
+    case 0:    g->w10 = 0x200; break;               /* 2048 bytes */
+    case 0x20: g->w10 = 0x249; break;               /* 2340 bytes (full raw) */
+    default:   g->w10 = 0x246; break;               /* 2328 bytes */
     }
     g->w0c |= 0x20;
     g->w04 = (u_char *)buf;
@@ -257,14 +256,15 @@ extern "C" int CdReadSync(int mode, u_char *result)
 
     for (;;) {
         s0 = -1;
-        if (VSync(-1) <= _cdr.w1c + 0x4B0) {        /* within the overall watchdog window */
-            if (_cdr.w14 < 0 || VSync(-1) > _cdr.w18 + 0x3C) {
-                _read_issue(1);                     /* stalled -> re-issue */
-                s0 = _cdr.w00;
-            } else {
-                s0 = _cdr.w14;                      /* still progressing */
-            }
+        if (VSync(-1) > _cdr.w1c + 0x4B0)           /* overall watchdog tripped -> leave s0 = -1 */
+            goto check;
+        if (_cdr.w14 < 0 || VSync(-1) > _cdr.w18 + 0x3C) {
+            _read_issue(1);                         /* stalled -> re-issue */
+            s0 = _cdr.w00;
+        } else {
+            s0 = _cdr.w14;                          /* still progressing */
         }
+    check:
 
         if (mode != 0) break;
         if (_cdr.w24 != 0 && s0 == 0) continue;     /* still draining */

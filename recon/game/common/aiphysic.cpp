@@ -147,7 +147,14 @@ void AIPhysic_ProcessBarrierCollision(Car_tObj *car)
  *    it), if/else vs ternary, early-init, nested-!onRoad. SYM+ORACLE confirm structure/types/logic
  *    correct — coloring ONLY. (Do NOT swap to his `<55706` tail: folds to xori on 2.8.1 but on our
  *    2.7.2 it's `li;slt` — my scratch bnq1Q proved that regresses 99.20%→91.93% on 2.8.1; tail form
- *    is compiler-specific, our xori tail is correct for cc1plus 2.7.2.) */
+ *    is compiler-specific, our xori tail is correct for cc1plus 2.7.2.)
+ * ── PERMUTER (decomp-permuter, -j8, 2026-06-21): base score 155 (== our 18 diffs). Its ONLY
+ *    sub-155 (145) was the SEMANTICS-BREAKING deletion of `if(timeOffRoad<9)` (drops the oracle's
+ *    `slti;beqz` guard → wrong behavior, `return 1` dead). Verified that edit leaves the head
+ *    coloring UNCHANGED (`lbu a2`/`xori v0` still) — it only games objdiff's fuzzy alignment by
+ *    deleting 7 real instructions (ours 44→37). So the permuter finds NO valid improvement and zero
+ *    coloring insight; the coin-flip is confirmed permuter-proof too (matches §3.13 rule: a permuter
+ *    that only "wins" via invalid/hack edits = a true allocator tie-break → leave it pin-free). */
 int AIPhysic_HitWallCheck(Car_tObj *car)
 {
     int onRoad;

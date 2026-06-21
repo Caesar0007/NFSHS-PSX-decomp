@@ -12,8 +12,8 @@ glabel loadfileadr
     /* D5FFC 800E57FC 1800A5AF */  sw         $a1, 0x18($sp)
     /* D6000 800E5800 45D8030C */  jal        setclipwindow
     /* D6004 800E5804 1C00A2AF */   sw        $v0, 0x1C($sp)
-    /* D6008 800E5808 0E80043C */  lui        $a0, %hi(func_800E56B0)
-    /* D600C 800E580C B0568424 */  addiu      $a0, $a0, %lo(func_800E56B0)
+    /* D6008 800E5808 0E80043C */  lui        $a0, %hi(loadfileadratomic)
+    /* D600C 800E580C B0568424 */  addiu      $a0, $a0, %lo(loadfileadratomic)
     /* D6010 800E5810 21284000 */  addu       $a1, $v0, $zero
     /* D6014 800E5814 64000624 */  addiu      $a2, $zero, 0x64
     /* D6018 800E5818 D0B2030C */  jal        FILE_atomic

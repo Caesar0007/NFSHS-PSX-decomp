@@ -14,12 +14,12 @@ glabel asyncloadfilecallback
     /* E1ACC 800F12CC 1480043C */  lui        $a0, %hi(D_8013DEA0)
     /* E1AD0 800F12D0 A0DE8424 */  addiu      $a0, $a0, %lo(D_8013DEA0)
     /* E1AD4 800F12D4 2000BFAF */  sw         $ra, 0x20($sp)
-    /* E1AD8 800F12D8 DDC2030C */  jal        func_800F0B74
+    /* E1AD8 800F12D8 DDC2030C */  jal        queuefetch
     /* E1ADC 800F12DC 1000B0AF */   sw        $s0, 0x10($sp)
     /* E1AE0 800F12E0 21804000 */  addu       $s0, $v0, $zero
     /* E1AE4 800F12E4 19000012 */  beqz       $s0, .L800F134C
     /* E1AE8 800F12E8 21100000 */   addu      $v0, $zero, $zero
-    /* E1AEC 800F12EC F0C2030C */  jal        func_800F0BC0
+    /* E1AEC 800F12EC F0C2030C */  jal        newrequestid
     /* E1AF0 800F12F0 21200002 */   addu      $a0, $s0, $zero
     /* E1AF4 800F12F4 21202002 */  addu       $a0, $s1, $zero
     /* E1AF8 800F12F8 01000524 */  addiu      $a1, $zero, 0x1
@@ -36,9 +36,9 @@ glabel asyncloadfilecallback
     /* E1B24 800F1324 08004010 */  beqz       $v0, .L800F1348
     /* E1B28 800F1328 180002AE */   sw        $v0, 0x18($s0)
     /* E1B2C 800F132C 21204000 */  addu       $a0, $v0, $zero
-    /* E1B30 800F1330 0F80053C */  lui        $a1, %hi(func_800F0F18)
+    /* E1B30 800F1330 0F80053C */  lui        $a1, %hi(loadfileopencallback)
     /* E1B34 800F1334 93AF030C */  jal        FILE_callbackop
-    /* E1B38 800F1338 180FA524 */   addiu     $a1, $a1, %lo(func_800F0F18)
+    /* E1B38 800F1338 180FA524 */   addiu     $a1, $a1, %lo(loadfileopencallback)
     /* E1B3C 800F133C 0000028E */  lw         $v0, 0x0($s0)
     /* E1B40 800F1340 D3C40308 */  j          .L800F134C
     /* E1B44 800F1344 00000000 */   nop

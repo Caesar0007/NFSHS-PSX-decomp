@@ -15,7 +15,7 @@ glabel wildcard
     /* D91DC 800E89DC 2400BFAF */  sw         $ra, 0x24($sp)
     /* D91E0 800E89E0 2000B4AF */  sw         $s4, 0x20($sp)
     /* D91E4 800E89E4 1C00B3AF */  sw         $s3, 0x1C($sp)
-    /* D91E8 800E89E8 50A2030C */  jal        func_800E8940
+    /* D91E8 800E89E8 50A2030C */  jal        strrstr
     /* D91EC 800E89EC 1000B0AF */   sw        $s0, 0x10($sp)
     /* D91F0 800E89F0 21984000 */  addu       $s3, $v0, $zero
     /* D91F4 800E89F4 47006012 */  beqz       $s3, .L800E8B14

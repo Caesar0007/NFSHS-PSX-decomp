@@ -8,3 +8,6 @@ INCLUDE_ASM("asm/nonmatchings/main", _padSioRW);
 INCLUDE_ASM("asm/nonmatchings/main", _padSioRW2);
 INCLUDE_ASM("asm/nonmatchings/main", _padClrIntSio0);
 INCLUDE_ASM("asm/nonmatchings/main", _padWaitRXready);
+INCLUDE_ASM("asm/nonmatchings/main", _padVbCallback1);
+INCLUDE_ASM("asm/nonmatchings/main", _padVbCallback0);
+INCLUDE_ASM("asm/nonmatchings/main", _padSioMain);

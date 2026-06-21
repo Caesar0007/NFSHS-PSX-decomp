@@ -58,7 +58,7 @@ static int rd32le(const u_char *p)
 }
 
 /* @0x800F9984 : read `nsec` sectors starting at LBA `lba` into `buf`; returns 1 on success. */
-static int cd_read(int nsec, int lba, void *buf)
+extern "C" int cd_read(int nsec, int lba, void *buf)
 {
     CdlLOC loc;
     CdIntToPos(lba, &loc);
@@ -68,13 +68,13 @@ static int cd_read(int nsec, int lba, void *buf)
 }
 
 /* @0x800F9360 : directory-name compare (ISO names are exact, so this is effectively ==). */
-static int _cd_cmp_name(char *a, char *b)
+extern "C" int _cd_cmp_name(char *a, char *b)
 {
     return strncmp(a, b, 0xC) < 1;
 }
 
 /* @0x800F9644 : find the path-table entry for child (parent, name); returns its 1-based id or -1. */
-static int _cd_find_path(int parent, char *name)
+extern "C" int _cd_find_path(int parent, char *name)
 {
     int k = 0;
     do {
@@ -88,7 +88,7 @@ static int _cd_find_path(int parent, char *name)
 }
 
 /* @0x800F9380 : mount new media -- read the PVD, verify it, read & cache the whole path table. */
-static int CD_newmedia(void)
+extern "C" int CD_newmedia(void)
 {
     u_char *rec;
     int     pt_lba, idx;
@@ -133,7 +133,7 @@ static int CD_newmedia(void)
 }
 
 /* @0x800F96E8 : read directory `dir` (1-based path-table id) and cache its file records. */
-static int CD_cachefile(int dir)
+extern "C" int CD_cachefile(int dir)
 {
     u_char *rec;
     int     i;

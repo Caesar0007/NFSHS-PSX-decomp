@@ -125,7 +125,7 @@ glabel unrefpack
     /* E5C80 800F5480 2130C200 */  addu       $a2, $a2, $v0
     /* E5C84 800F5484 0500C624 */  addiu      $a2, $a2, 0x5
   .L800F5488:
-    /* E5C88 800F5488 95D4030C */  jal        func_800F5254
+    /* E5C88 800F5488 95D4030C */  jal        refcpy
     /* E5C8C 800F548C 00000000 */   nop
     /* E5C90 800F5490 D0D40308 */  j          .L800F5340
     /* E5C94 800F5494 21984000 */   addu      $s3, $v0, $zero
@@ -138,7 +138,7 @@ glabel unrefpack
     /* E5CAC 800F54AC 80800200 */  sll        $s0, $v0, 2
     /* E5CB0 800F54B0 21206002 */  addu       $a0, $s3, $zero
     /* E5CB4 800F54B4 21284002 */  addu       $a1, $s2, $zero
-    /* E5CB8 800F54B8 70D4030C */  jal        func_800F51C0
+    /* E5CB8 800F54B8 70D4030C */  jal        memcpyl
     /* E5CBC 800F54BC 21300002 */   addu      $a2, $s0, $zero
     /* E5CC0 800F54C0 21987002 */  addu       $s3, $s3, $s0
     /* E5CC4 800F54C4 D0D40308 */  j          .L800F5340

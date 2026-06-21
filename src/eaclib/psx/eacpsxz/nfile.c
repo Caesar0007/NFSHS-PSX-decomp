@@ -21,3 +21,8 @@ INCLUDE_ASM("asm/nonmatchings/main", iFILE_addbigreadcallback);
 INCLUDE_ASM("asm/nonmatchings/main", iFILE_addbigopencallback);
 INCLUDE_ASM("asm/nonmatchings/main", FILE_addbig);
 INCLUDE_ASM("asm/nonmatchings/main", FILE_delbig);
+INCLUDE_ASM("asm/nonmatchings/main", freeop);
+INCLUDE_ASM("asm/nonmatchings/main", freehandle);
+INCLUDE_ASM("asm/nonmatchings/main", reservehandle);
+INCLUDE_ASM("asm/nonmatchings/main", reserveop);
+INCLUDE_ASM("asm/nonmatchings/main", iFILE_ExecCommand);

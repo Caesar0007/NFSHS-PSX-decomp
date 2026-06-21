@@ -9,7 +9,7 @@ glabel iFILE_delbigclosecallback
     /* DD188 800EC988 1400BFAF */  sw         $ra, 0x14($sp)
     /* DD18C 800EC98C ACB0030C */  jal        FILE_completeop
     /* DD190 800EC990 2180C000 */   addu      $s0, $a2, $zero
-    /* DD194 800EC994 E6B2030C */  jal        func_800ECB98
+    /* DD194 800EC994 E6B2030C */  jal        iFILE_ExecCommand
     /* DD198 800EC998 21200002 */   addu      $a0, $s0, $zero
     /* DD19C 800EC99C 1400BF8F */  lw         $ra, 0x14($sp)
     /* DD1A0 800EC9A0 1000B08F */  lw         $s0, 0x10($sp)

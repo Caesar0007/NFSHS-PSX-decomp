@@ -18,7 +18,7 @@ glabel FILE_atomic
     /* DD36C 800ECB6C 080004AE */   sw        $a0, 0x8($s0)
     /* DD370 800ECB70 21200000 */  addu       $a0, $zero, $zero
     /* DD374 800ECB74 080011AE */  sw         $s1, 0x8($s0)
-    /* DD378 800ECB78 E6B2030C */  jal        func_800ECB98
+    /* DD378 800ECB78 E6B2030C */  jal        iFILE_ExecCommand
     /* DD37C 800ECB7C 21804000 */   addu      $s0, $v0, $zero
     /* DD380 800ECB80 21100002 */  addu       $v0, $s0, $zero
     /* DD384 800ECB84 1800BF8F */  lw         $ra, 0x18($sp)

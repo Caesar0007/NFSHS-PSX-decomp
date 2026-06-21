@@ -49,7 +49,7 @@ glabel FILE_completeop
   jlabel .L800EC34C
     /* DCB4C 800EC34C 1C00B08C */  lw         $s0, 0x1C($a1)
   .L800EC350:
-    /* DCB50 800EC350 7EB4030C */  jal        func_800ED1F8
+    /* DCB50 800EC350 7EB4030C */  jal        freeop
     /* DCB54 800EC354 2120A000 */   addu      $a0, $a1, $zero
     /* DCB58 800EC358 21100002 */  addu       $v0, $s0, $zero
     /* DCB5C 800EC35C 2400BF8F */  lw         $ra, 0x24($sp)

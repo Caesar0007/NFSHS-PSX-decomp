@@ -15,7 +15,7 @@ glabel STREAM_setfilter
     /* ED874 800FD074 1C00B1AF */  sw         $s1, 0x1C($sp)
     /* ED878 800FD078 4000B18F */  lw         $s1, 0x40($sp)
     /* ED87C 800FD07C 2800BFAF */  sw         $ra, 0x28($sp)
-    /* ED880 800FD080 BEF0030C */  jal        func_800FC2F8
+    /* ED880 800FD080 BEF0030C */  jal        validatehandle
     /* ED884 800FD084 1400A627 */   addiu     $a2, $sp, 0x14
     /* ED888 800FD088 27004014 */  bnez       $v0, .L800FD128
     /* ED88C 800FD08C 00000000 */   nop

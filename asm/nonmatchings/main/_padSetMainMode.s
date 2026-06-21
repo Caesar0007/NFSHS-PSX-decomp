@@ -23,11 +23,11 @@ glabel _padSetMainMode
     /* F6580 80105D80 E4000492 */  lbu        $a0, 0xE4($s0)
     /* F6584 80105D84 01000324 */  addiu      $v1, $zero, 0x1
     /* F6588 80105D88 460003A2 */  sb         $v1, 0x46($s0)
-    /* F658C 80105D8C 1080033C */  lui        $v1, %hi(func_80105DD8)
-    /* F6590 80105D90 D85D6324 */  addiu      $v1, $v1, %lo(func_80105DD8)
+    /* F658C 80105D8C 1080033C */  lui        $v1, %hi(_padSetMainMode_snd)
+    /* F6590 80105D90 D85D6324 */  addiu      $v1, $v1, %lo(_padSetMainMode_snd)
     /* F6594 80105D94 140003AE */  sw         $v1, 0x14($s0)
-    /* F6598 80105D98 1080033C */  lui        $v1, %hi(func_80105E2C)
-    /* F659C 80105D9C 2C5E6324 */  addiu      $v1, $v1, %lo(func_80105E2C)
+    /* F6598 80105D98 1080033C */  lui        $v1, %hi(_padSetMainMode_rcv)
+    /* F659C 80105D9C 2C5E6324 */  addiu      $v1, $v1, %lo(_padSetMainMode_rcv)
     /* F65A0 80105DA0 180003AE */  sw         $v1, 0x18($s0)
     /* F65A4 80105DA4 FF006332 */  andi       $v1, $s3, 0xFF
     /* F65A8 80105DA8 510011A2 */  sb         $s1, 0x51($s0)

@@ -149,7 +149,7 @@ glabel StCdInterrupt
     /* E8890 800F8090 1480043C */  lui        $a0, %hi(D_80144864)
     /* E8894 800F8094 6448848C */  lw         $a0, %lo(D_80144864)($a0)
     /* E8898 800F8098 C02A0500 */  sll        $a1, $a1, 11
-    /* E889C 800F809C E5E1030C */  jal        func_800F8794
+    /* E889C 800F809C E5E1030C */  jal        _st_copy_words
     /* E88A0 800F80A0 21284500 */   addu      $a1, $v0, $a1
     /* E88A4 800F80A4 34E00308 */  j          .L800F80D0
     /* E88A8 800F80A8 00000000 */   nop
@@ -161,7 +161,7 @@ glabel StCdInterrupt
     /* E88BC 800F80BC 08000724 */  addiu      $a3, $zero, 0x8
     /* E88C0 800F80C0 1000A8AF */  sw         $t0, 0x10($sp)
     /* E88C4 800F80C4 1400A0AF */  sw         $zero, 0x14($sp)
-    /* E88C8 800F80C8 F0E1030C */  jal        func_800F87C0
+    /* E88C8 800F80C8 F0E1030C */  jal        _st_dma
     /* E88CC 800F80CC 1800A0AF */   sw        $zero, 0x18($sp)
   .L800F80D0:
     /* E88D0 800F80D0 1380043C */  lui        $a0, %hi(D_80136AC8)
@@ -537,7 +537,7 @@ glabel StCdInterrupt
     /* E8E38 800F8638 A86C848C */  lw         $a0, %lo(StRingBase)($a0)
     /* E8E3C 800F863C C02A0500 */  sll        $a1, $a1, 11
     /* E8E40 800F8640 21284500 */  addu       $a1, $v0, $a1
-    /* E8E44 800F8644 E5E1030C */  jal        func_800F8794
+    /* E8E44 800F8644 E5E1030C */  jal        _st_copy_words
     /* E8E48 800F8648 2000A524 */   addiu     $a1, $a1, 0x20
     /* E8E4C 800F864C 1480023C */  lui        $v0, %hi(StEmu_Idx)
     /* E8E50 800F8650 9C6C428C */  lw         $v0, %lo(StEmu_Idx)($v0)
@@ -554,7 +554,7 @@ glabel StCdInterrupt
     /* E8E78 800F8678 F8010724 */  addiu      $a3, $zero, 0x1F8
     /* E8E7C 800F867C 1000A8AF */  sw         $t0, 0x10($sp)
     /* E8E80 800F8680 1400A3AF */  sw         $v1, 0x14($sp)
-    /* E8E84 800F8684 F0E1030C */  jal        func_800F87C0
+    /* E8E84 800F8684 F0E1030C */  jal        _st_dma
     /* E8E88 800F8688 1800A0AF */   sw        $zero, 0x18($sp)
   .L800F868C:
     /* E8E8C 800F868C 1480023C */  lui        $v0, %hi(StCHANNEL)
@@ -579,7 +579,7 @@ glabel StCdInterrupt
     /* E8ED4 800F86D4 A86C848C */  lw         $a0, %lo(StRingBase)($a0)
     /* E8ED8 800F86D8 C02A0500 */  sll        $a1, $a1, 11
     /* E8EDC 800F86DC 21284500 */  addu       $a1, $v0, $a1
-    /* E8EE0 800F86E0 E5E1030C */  jal        func_800F8794
+    /* E8EE0 800F86E0 E5E1030C */  jal        _st_copy_words
     /* E8EE4 800F86E4 2000A524 */   addiu     $a1, $a1, 0x20
     /* E8EE8 800F86E8 1480023C */  lui        $v0, %hi(StEmu_Idx)
     /* E8EEC 800F86EC 9C6C428C */  lw         $v0, %lo(StEmu_Idx)($v0)
@@ -596,7 +596,7 @@ glabel StCdInterrupt
     /* E8F14 800F8714 F8010724 */  addiu      $a3, $zero, 0x1F8
     /* E8F18 800F8718 1000A8AF */  sw         $t0, 0x10($sp)
     /* E8F1C 800F871C 1400A0AF */  sw         $zero, 0x14($sp)
-    /* E8F20 800F8720 F0E1030C */  jal        func_800F87C0
+    /* E8F20 800F8720 F0E1030C */  jal        _st_dma
     /* E8F24 800F8724 1800A0AF */   sw        $zero, 0x18($sp)
   .L800F8728:
     /* E8F28 800F8728 1380033C */  lui        $v1, %hi(D_80136AAC)

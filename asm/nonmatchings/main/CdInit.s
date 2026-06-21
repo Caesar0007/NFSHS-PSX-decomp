@@ -9,21 +9,21 @@ glabel CdInit
     /* F9894 80109094 04001024 */  addiu      $s0, $zero, 0x4
     /* F9898 80109098 1400BFAF */  sw         $ra, 0x14($sp)
   .L8010909C:
-    /* F989C 8010909C 4724040C */  jal        func_8010911C
+    /* F989C 8010909C 4724040C */  jal        _cd_event_init
     /* F98A0 801090A0 00000000 */   nop
     /* F98A4 801090A4 01000324 */  addiu      $v1, $zero, 0x1
     /* F98A8 801090A8 10004314 */  bne        $v0, $v1, .L801090EC
     /* F98AC 801090AC 01000224 */   addiu     $v0, $zero, 0x1
-    /* F98B0 801090B0 1180033C */  lui        $v1, %hi(func_80109158)
-    /* F98B4 801090B4 58916324 */  addiu      $v1, $v1, %lo(func_80109158)
+    /* F98B0 801090B0 1180033C */  lui        $v1, %hi(_cd_event_sync)
+    /* F98B4 801090B4 58916324 */  addiu      $v1, $v1, %lo(_cd_event_sync)
     /* F98B8 801090B8 1480013C */  lui        $at, %hi(CD_cbsync)
     /* F98BC 801090BC 48BF23AC */  sw         $v1, %lo(CD_cbsync)($at)
-    /* F98C0 801090C0 1180033C */  lui        $v1, %hi(func_80109180)
-    /* F98C4 801090C4 80916324 */  addiu      $v1, $v1, %lo(func_80109180)
+    /* F98C0 801090C0 1180033C */  lui        $v1, %hi(_cd_event_ready)
+    /* F98C4 801090C4 80916324 */  addiu      $v1, $v1, %lo(_cd_event_ready)
     /* F98C8 801090C8 1480013C */  lui        $at, %hi(CD_cbready)
     /* F98CC 801090CC 4CBF23AC */  sw         $v1, %lo(CD_cbready)($at)
-    /* F98D0 801090D0 1180033C */  lui        $v1, %hi(func_801091A8)
-    /* F98D4 801090D4 A8916324 */  addiu      $v1, $v1, %lo(func_801091A8)
+    /* F98D0 801090D0 1180033C */  lui        $v1, %hi(_cd_event_read)
+    /* F98D4 801090D4 A8916324 */  addiu      $v1, $v1, %lo(_cd_event_read)
     /* F98D8 801090D8 1480013C */  lui        $at, %hi(CD_cbread)
     /* F98DC 801090DC D0C223AC */  sw         $v1, %lo(CD_cbread)($at)
     /* F98E0 801090E0 1480013C */  lui        $at, %hi(CD_read_dma_mode)

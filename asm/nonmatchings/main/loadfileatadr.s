@@ -12,8 +12,8 @@ glabel loadfileatadr
     /* D6104 800E5904 1400A5AF */  sw         $a1, 0x14($sp)
     /* D6108 800E5908 45D8030C */  jal        setclipwindow
     /* D610C 800E590C 1C00A2AF */   sw        $v0, 0x1C($sp)
-    /* D6110 800E5910 0E80043C */  lui        $a0, %hi(func_800E5830)
-    /* D6114 800E5914 30588424 */  addiu      $a0, $a0, %lo(func_800E5830)
+    /* D6110 800E5910 0E80043C */  lui        $a0, %hi(loadfileatadratomic)
+    /* D6114 800E5914 30588424 */  addiu      $a0, $a0, %lo(loadfileatadratomic)
     /* D6118 800E5918 21284000 */  addu       $a1, $v0, $zero
     /* D611C 800E591C 64000624 */  addiu      $a2, $zero, 0x64
     /* D6120 800E5920 D0B2030C */  jal        FILE_atomic

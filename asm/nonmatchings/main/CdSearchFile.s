@@ -20,7 +20,7 @@ glabel CdSearchFile
     /* E98BC 800F90BC 3400B1AF */  sw         $s1, 0x34($sp)
     /* E98C0 800F90C0 09006210 */  beq        $v1, $v0, .L800F90E8
     /* E98C4 800F90C4 3000B0AF */   sw        $s0, 0x30($sp)
-    /* E98C8 800F90C8 E0E4030C */  jal        func_800F9380
+    /* E98C8 800F90C8 E0E4030C */  jal        CD_newmedia
     /* E98CC 800F90CC 00000000 */   nop
     /* E98D0 800F90D0 99004010 */  beqz       $v0, .L800F9338
     /* E98D4 800F90D4 21100000 */   addu      $v0, $zero, $zero
@@ -67,7 +67,7 @@ glabel CdSearchFile
     /* E9960 800F9160 0800422A */   slti      $v0, $s2, 0x8
     /* E9964 800F9164 01001026 */  addiu      $s0, $s0, 0x1
     /* E9968 800F9168 000020A2 */  sb         $zero, 0x0($s1)
-    /* E996C 800F916C 91E5030C */  jal        func_800F9644
+    /* E996C 800F916C 91E5030C */  jal        _cd_find_path
     /* E9970 800F9170 1000A527 */   addiu     $a1, $sp, 0x10
     /* E9974 800F9174 21204000 */  addu       $a0, $v0, $zero
     /* E9978 800F9178 E1FF9410 */  beq        $a0, $s4, .L800F9100
@@ -106,7 +106,7 @@ glabel CdSearchFile
     /* E99F0 800F91F0 CBE40308 */  j          .L800F932C
     /* E99F4 800F91F4 9C718424 */   addiu     $a0, $a0, %lo(D_8005719C)
   .L800F91F8:
-    /* E99F8 800F91F8 BAE5030C */  jal        func_800F96E8
+    /* E99F8 800F91F8 BAE5030C */  jal        CD_cachefile
     /* E99FC 800F91FC 000020A2 */   sb        $zero, 0x0($s1)
     /* E9A00 800F9200 0B004014 */  bnez       $v0, .L800F9230
     /* E9A04 800F9204 00000000 */   nop
@@ -145,7 +145,7 @@ glabel CdSearchFile
     /* E9A7C 800F927C 00000000 */  nop
     /* E9A80 800F9280 23004010 */  beqz       $v0, .L800F9310
     /* E9A84 800F9284 21206002 */   addu      $a0, $s3, $zero
-    /* E9A88 800F9288 D8E4030C */  jal        func_800F9360
+    /* E9A88 800F9288 D8E4030C */  jal        _cd_cmp_name
     /* E9A8C 800F928C 1000A527 */   addiu     $a1, $sp, 0x10
     /* E9A90 800F9290 19004010 */  beqz       $v0, .L800F92F8
     /* E9A94 800F9294 00000000 */   nop

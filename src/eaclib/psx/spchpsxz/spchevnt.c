@@ -13,3 +13,4 @@ INCLUDE_ASM("asm/nonmatchings/main", SPCH_ClearEventQueue);
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_ClearOldEvents);
 INCLUDE_ASM("asm/nonmatchings/main", SPCH_PlaySpeech);
 INCLUDE_ASM("asm/nonmatchings/main", SPCH_ChooseSpeech);
+INCLUDE_ASM("asm/nonmatchings/main", VoxEvent_GetKeepTillExpiresFlag);

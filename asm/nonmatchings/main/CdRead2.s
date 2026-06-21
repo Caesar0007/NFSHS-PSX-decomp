@@ -28,9 +28,9 @@ glabel CdRead2
     /* E9794 800F8F94 1180043C */  lui        $a0, %hi(data_ready_callback)
     /* E9798 800F8F98 2CDF030C */  jal        CdDataCallback
     /* E979C 800F8F9C 98878424 */   addiu     $a0, $a0, %lo(data_ready_callback)
-    /* E97A0 800F8FA0 1080043C */  lui        $a0, %hi(func_800F8FCC)
+    /* E97A0 800F8FA0 1080043C */  lui        $a0, %hi(_cdread2_ready)
     /* E97A4 800F8FA4 28DE030C */  jal        CdReadyCallback
-    /* E97A8 800F8FA8 CC8F8424 */   addiu     $a0, $a0, %lo(func_800F8FCC)
+    /* E97A8 800F8FA8 CC8F8424 */   addiu     $a0, $a0, %lo(_cdread2_ready)
   .L800F8FAC:
     /* E97AC 800F8FAC 1B000424 */  addiu      $a0, $zero, 0x1B
     /* E97B0 800F8FB0 21280000 */  addu       $a1, $zero, $zero

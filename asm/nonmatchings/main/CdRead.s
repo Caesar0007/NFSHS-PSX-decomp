@@ -105,7 +105,7 @@ glabel CdRead
     /* F9744 80108F44 C9DE030C */  jal        CdControlB
     /* F9748 80108F48 21300000 */   addu      $a2, $zero, $zero
   .L80108F4C:
-    /* F974C 80108F4C FD22040C */  jal        func_80108BF4
+    /* F974C 80108F4C FD22040C */  jal        _read_issue
     /* F9750 80108F50 21200000 */   addu      $a0, $zero, $zero
     /* F9754 80108F54 2A100200 */  slt        $v0, $zero, $v0
     /* F9758 80108F58 2400BF8F */  lw         $ra, 0x24($sp)

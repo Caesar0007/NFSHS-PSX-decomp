@@ -28,8 +28,8 @@ glabel CD_init_80108140
     /* F8994 80108194 1480013C */  lui        $at, %hi(CD_status)
     /* F8998 80108198 13CA030C */  jal        ResetCallback
     /* F899C 8010819C 54BF20AC */   sw        $zero, %lo(CD_status)($at)
-    /* F89A0 801081A0 1180053C */  lui        $a1, %hi(func_80108680)
-    /* F89A4 801081A4 8086A524 */  addiu      $a1, $a1, %lo(func_80108680)
+    /* F89A0 801081A0 1180053C */  lui        $a1, %hi(_cd_intr_dispatch)
+    /* F89A4 801081A4 8086A524 */  addiu      $a1, $a1, %lo(_cd_intr_dispatch)
     /* F89A8 801081A8 1FCA030C */  jal        InterruptCallback
     /* F89AC 801081AC 02000424 */   addiu     $a0, $zero, 0x2
     /* F89B0 801081B0 1480033C */  lui        $v1, %hi(D_8013C20C)

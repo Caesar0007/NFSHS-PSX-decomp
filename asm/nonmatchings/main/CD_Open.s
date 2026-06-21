@@ -40,8 +40,8 @@ glabel CD_Open
     /* EADD0 800FA5D0 FAFF4014 */  bnez       $v0, .L800FA5BC
     /* EADD4 800FA5D4 01005226 */   addiu     $s2, $s2, 0x1
     /* EADD8 800FA5D8 1800A427 */  addiu      $a0, $sp, 0x18
-    /* EADDC 800FA5DC 1080023C */  lui        $v0, %hi(func_800FA344)
-    /* EADE0 800FA5E0 44A34224 */  addiu      $v0, $v0, %lo(func_800FA344)
+    /* EADDC 800FA5DC 1080023C */  lui        $v0, %hi(dircompare)
+    /* EADE0 800FA5E0 44A34224 */  addiu      $v0, $v0, %lo(dircompare)
     /* EADE4 800FA5E4 1480103C */  lui        $s0, %hi(Cdinfo)
     /* EADE8 800FA5E8 C46C1026 */  addiu      $s0, $s0, %lo(Cdinfo)
     /* EADEC 800FA5EC 1000A2AF */  sw         $v0, 0x10($sp)

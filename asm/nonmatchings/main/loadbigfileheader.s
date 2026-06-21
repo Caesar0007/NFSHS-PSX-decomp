@@ -12,8 +12,8 @@ glabel loadbigfileheader
     /* D6290 800E5A90 1800A5AF */  sw         $a1, 0x18($sp)
     /* D6294 800E5A94 45D8030C */  jal        setclipwindow
     /* D6298 800E5A98 1C00A2AF */   sw        $v0, 0x1C($sp)
-    /* D629C 800E5A9C 0E80043C */  lui        $a0, %hi(func_800E5938)
-    /* D62A0 800E5AA0 38598424 */  addiu      $a0, $a0, %lo(func_800E5938)
+    /* D629C 800E5A9C 0E80043C */  lui        $a0, %hi(loadbigfileheaderatomic)
+    /* D62A0 800E5AA0 38598424 */  addiu      $a0, $a0, %lo(loadbigfileheaderatomic)
     /* D62A4 800E5AA4 21284000 */  addu       $a1, $v0, $zero
     /* D62A8 800E5AA8 64000624 */  addiu      $a2, $zero, 0x64
     /* D62AC 800E5AAC D0B2030C */  jal        FILE_atomic

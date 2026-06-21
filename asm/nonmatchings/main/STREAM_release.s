@@ -10,7 +10,7 @@ glabel STREAM_release
     /* EE2D8 800FDAD8 2180A000 */  addu       $s0, $a1, $zero
     /* EE2DC 800FDADC 1000A527 */  addiu      $a1, $sp, 0x10
     /* EE2E0 800FDAE0 1C00BFAF */  sw         $ra, 0x1C($sp)
-    /* EE2E4 800FDAE4 BEF0030C */  jal        func_800FC2F8
+    /* EE2E4 800FDAE4 BEF0030C */  jal        validatehandle
     /* EE2E8 800FDAE8 1400A627 */   addiu     $a2, $sp, 0x14
     /* EE2EC 800FDAEC 33004014 */  bnez       $v0, .L800FDBBC
     /* EE2F0 800FDAF0 00000000 */   nop
@@ -32,7 +32,7 @@ glabel STREAM_release
     /* EE330 800FDB30 22004310 */  beq        $v0, $v1, .L800FDBBC
     /* EE334 800FDB34 00000000 */   nop
     /* EE338 800FDB38 0400058E */  lw         $a1, 0x4($s0)
-    /* EE33C 800FDB3C DDF0030C */  jal        func_800FC374
+    /* EE33C 800FDB3C DDF0030C */  jal        decbufferusage
     /* EE340 800FDB40 000003AE */   sw        $v1, 0x0($s0)
     /* EE344 800FDB44 00600540 */  mfc0       $a1, $12 /* handwritten instruction */
     /* EE348 800FDB48 00000000 */  nop
@@ -65,7 +65,7 @@ glabel STREAM_release
   .L800FDBB0:
     /* EE3B0 800FDBB0 2C00858C */  lw         $a1, 0x2C($a0)
   .L800FDBB4:
-    /* EE3B4 800FDBB4 D1F2030C */  jal        func_800FCB44
+    /* EE3B4 800FDBB4 D1F2030C */  jal        restartstream
     /* EE3B8 800FDBB8 00000000 */   nop
   .L800FDBBC:
     /* EE3BC 800FDBBC 1C00BF8F */  lw         $ra, 0x1C($sp)

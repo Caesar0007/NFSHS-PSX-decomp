@@ -3438,6 +3438,22 @@
       "metadata": {
         "source_path": "recon/game/psx/unpack.cpp"
       }
+    },
+    {
+      "name": "eaclib/psx/spchpsxz/spchdata",
+      "target_path": "expected/src/eaclib/psx/spchpsxz/spchdata.c.o",
+      "base_path": "build/recon/eaclib/psx/spchpsxz/spchdata.cpp.o",
+      "metadata": {
+        "source_path": "recon/eaclib/psx/spchpsxz/spchdata.cpp"
+      }
+    },
+    {
+      "name": "syslib/psx/libpad/MCXMAIN",
+      "target_path": "expected/src/syslib/psx/libpad/MCXMAIN.c.o",
+      "base_path": "build/recon/syslib/psx/libpad/MCXMAIN.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libpad/MCXMAIN.cpp"
+      }
     }
   ]
 }

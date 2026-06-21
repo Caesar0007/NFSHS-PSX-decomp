@@ -12,7 +12,7 @@ glabel FILE_close
     /* DCC40 800EC440 1400B1AF */  sw         $s1, 0x14($sp)
     /* DCC44 800EC444 2188C000 */  addu       $s1, $a2, $zero
     /* DCC48 800EC448 2000BFAF */  sw         $ra, 0x20($sp)
-    /* DCC4C 800EC44C 37B4030C */  jal        func_800ED0DC
+    /* DCC4C 800EC44C 37B4030C */  jal        reserveop
     /* DCC50 800EC450 1800B2AF */   sw        $s2, 0x18($sp)
     /* DCC54 800EC454 0FFF043C */  lui        $a0, (0xFF0FFFFF >> 16)
     /* DCC58 800EC458 1480033C */  lui        $v1, %hi(D_8013EAAC)
@@ -45,7 +45,7 @@ glabel FILE_close
     /* DCCBC 800EC4BC F4FFA014 */  bnez       $a1, .L800EC490
     /* DCCC0 800EC4C0 00000000 */   nop
   .L800EC4C4:
-    /* DCCC4 800EC4C4 E6B2030C */  jal        func_800ECB98
+    /* DCCC4 800EC4C4 E6B2030C */  jal        iFILE_ExecCommand
     /* DCCC8 800EC4C8 21204002 */   addu      $a0, $s2, $zero
     /* DCCCC 800EC4CC 0000428E */  lw         $v0, 0x0($s2)
     /* DCCD0 800EC4D0 2000BF8F */  lw         $ra, 0x20($sp)

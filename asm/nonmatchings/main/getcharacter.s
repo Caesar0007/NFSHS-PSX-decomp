@@ -27,7 +27,7 @@ glabel getcharacter
     /* E4D60 800F4560 21202002 */   addu      $a0, $s1, $zero
     /* E4D64 800F4564 21284002 */  addu       $a1, $s2, $zero
     /* E4D68 800F4568 7400668E */  lw         $a2, 0x74($s3)
-    /* E4D6C 800F456C 1CD1030C */  jal        func_800F4470
+    /* E4D6C 800F456C 1CD1030C */  jal        textbsearch
     /* E4D70 800F4570 0B000724 */   addiu     $a3, $zero, 0xB
     /* E4D74 800F4574 60D10308 */  j          .L800F4580
     /* E4D78 800F4578 00000000 */   nop

@@ -59,7 +59,7 @@ extern "C" int  printf(const char *, ...);                  /* libc C63 @0x80102
 
 /* @0x800F8794 : copy `num` 32-bit words src -> dst.  (4th arg present in the original signature
  *   but unused -- callers pass a trailing 0 / 1; reproduced so the call-site stack layout matches.) */
-static void _st_copy_words(int *dst, int *src, unsigned num, int arg3)
+extern "C" void _st_copy_words(int *dst, int *src, unsigned num, int arg3)
 {
     unsigned i;
     (void)arg3;
@@ -70,7 +70,7 @@ static void _st_copy_words(int *dst, int *src, unsigned num, int arg3)
 /* @0x800F87C0 : program DMA channel `ch` (madr, blocks x blocksize, chcr); waits for the channel
  *   idle first and gates the kick on CDREG0 bit 0x40.  `enable_irq` toggles the channel DICR bit.
  *   (7th arg present in the original signature but unused; reproduced for the call-site layout.) */
-static void _st_dma(int ch, int madr, int blocks, int blocksize, int chcr, int enable_irq, int arg6)
+extern "C" void _st_dma(int ch, int madr, int blocks, int blocksize, int chcr, int enable_irq, int arg6)
 {
     volatile int *chcr_reg = (volatile int *)(0x1F801088 + ch * 0x10);
     volatile int *base     = (volatile int *)(0x1F801080 + ch * 0x10);

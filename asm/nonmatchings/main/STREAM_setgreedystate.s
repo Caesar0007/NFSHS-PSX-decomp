@@ -9,7 +9,7 @@ glabel STREAM_setgreedystate
     /* EDABC 800FD2BC 2180A000 */  addu       $s0, $a1, $zero
     /* EDAC0 800FD2C0 1000A527 */  addiu      $a1, $sp, 0x10
     /* EDAC4 800FD2C4 1C00BFAF */  sw         $ra, 0x1C($sp)
-    /* EDAC8 800FD2C8 BEF0030C */  jal        func_800FC2F8
+    /* EDAC8 800FD2C8 BEF0030C */  jal        validatehandle
     /* EDACC 800FD2CC 1400A627 */   addiu     $a2, $sp, 0x14
     /* EDAD0 800FD2D0 0C004014 */  bnez       $v0, .L800FD304
     /* EDAD4 800FD2D4 00000000 */   nop

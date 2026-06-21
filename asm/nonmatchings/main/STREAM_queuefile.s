@@ -15,12 +15,12 @@ glabel STREAM_queuefile
     /* EDB30 800FD330 1000A527 */  addiu      $a1, $sp, 0x10
     /* EDB34 800FD334 1400A627 */  addiu      $a2, $sp, 0x14
     /* EDB38 800FD338 2800BFAF */  sw         $ra, 0x28($sp)
-    /* EDB3C 800FD33C BEF0030C */  jal        func_800FC2F8
+    /* EDB3C 800FD33C BEF0030C */  jal        validatehandle
     /* EDB40 800FD340 1800B0AF */   sw        $s0, 0x18($sp)
     /* EDB44 800FD344 31004014 */  bnez       $v0, .L800FD40C
     /* EDB48 800FD348 21100000 */   addu      $v0, $zero, $zero
     /* EDB4C 800FD34C 1000A48F */  lw         $a0, 0x10($sp)
-    /* EDB50 800FD350 00F1030C */  jal        func_800FC400
+    /* EDB50 800FD350 00F1030C */  jal        getfreerequest
     /* EDB54 800FD354 00000000 */   nop
     /* EDB58 800FD358 21804000 */  addu       $s0, $v0, $zero
     /* EDB5C 800FD35C 03000016 */  bnez       $s0, .L800FD36C
@@ -35,7 +35,7 @@ glabel STREAM_queuefile
     /* EDB7C 800FD37C 1000A48F */  lw         $a0, 0x10($sp)
     /* EDB80 800FD380 21280002 */  addu       $a1, $s0, $zero
     /* EDB84 800FD384 580012AE */  sw         $s2, 0x58($s0)
-    /* EDB88 800FD388 1EF1030C */  jal        func_800FC478
+    /* EDB88 800FD388 1EF1030C */  jal        queuerequest
     /* EDB8C 800FD38C 5C0013AE */   sw        $s3, 0x5C($s0)
     /* EDB90 800FD390 00600540 */  mfc0       $a1, $12 /* handwritten instruction */
     /* EDB94 800FD394 00000000 */  nop
@@ -68,7 +68,7 @@ glabel STREAM_queuefile
   .L800FD3FC:
     /* EDBFC 800FD3FC 2C00858C */  lw         $a1, 0x2C($a0)
   .L800FD400:
-    /* EDC00 800FD400 6DF2030C */  jal        func_800FC9B4
+    /* EDC00 800FD400 6DF2030C */  jal        startnextrequest
     /* EDC04 800FD404 00000000 */   nop
   .L800FD408:
     /* EDC08 800FD408 0000028E */  lw         $v0, 0x0($s0)

@@ -21,7 +21,7 @@ glabel iSPCH_GetRuleSettings
     /* FBC04 8010B404 5800A6AF */  sw         $a2, 0x58($sp)
     /* FBC08 8010B408 07008780 */  lb         $a3, 0x7($a0)
     /* FBC0C 8010B40C 21A8C002 */  addu       $s5, $s6, $zero
-    /* FBC10 8010B410 502C040C */  jal        func_8010B140
+    /* FBC10 8010B410 502C040C */  jal        iSPCH_GetRuleDataAddr
     /* FBC14 8010B414 2400A7AF */   sw        $a3, 0x24($sp)
     /* FBC18 8010B418 5400A78F */  lw         $a3, 0x54($sp)
     /* FBC1C 8010B41C 01001424 */  addiu      $s4, $zero, 0x1

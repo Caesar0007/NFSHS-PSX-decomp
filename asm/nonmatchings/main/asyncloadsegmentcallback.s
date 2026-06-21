@@ -16,12 +16,12 @@ glabel asyncloadsegmentcallback
     /* E1CE0 800F14E0 1480043C */  lui        $a0, %hi(D_8013DEA0)
     /* E1CE4 800F14E4 A0DE8424 */  addiu      $a0, $a0, %lo(D_8013DEA0)
     /* E1CE8 800F14E8 2C00BFAF */  sw         $ra, 0x2C($sp)
-    /* E1CEC 800F14EC DDC2030C */  jal        func_800F0B74
+    /* E1CEC 800F14EC DDC2030C */  jal        queuefetch
     /* E1CF0 800F14F0 1800B0AF */   sw        $s0, 0x18($sp)
     /* E1CF4 800F14F4 21804000 */  addu       $s0, $v0, $zero
     /* E1CF8 800F14F8 25000012 */  beqz       $s0, .L800F1590
     /* E1CFC 800F14FC 21100000 */   addu      $v0, $zero, $zero
-    /* E1D00 800F1500 F0C2030C */  jal        func_800F0BC0
+    /* E1D00 800F1500 F0C2030C */  jal        newrequestid
     /* E1D04 800F1504 21200002 */   addu      $a0, $s0, $zero
     /* E1D08 800F1508 6419848F */  lw         $a0, %gp_rel(D_8013DEB0)($gp)
     /* E1D0C 800F150C 080000AE */  sw         $zero, 0x8($s0)
@@ -32,7 +32,7 @@ glabel asyncloadsegmentcallback
     /* E1D20 800F1520 240011AE */  sw         $s1, 0x24($s0)
     /* E1D24 800F1524 05008014 */  bnez       $a0, .L800F153C
     /* E1D28 800F1528 280014AE */   sw        $s4, 0x28($s0)
-    /* E1D2C 800F152C 3AC3030C */  jal        func_800F0CE8
+    /* E1D2C 800F152C 3AC3030C */  jal        finishrequest
     /* E1D30 800F1530 21200002 */   addu      $a0, $s0, $zero
     /* E1D34 800F1534 63C50308 */  j          .L800F158C
     /* E1D38 800F1538 00000000 */   nop
@@ -56,9 +56,9 @@ glabel asyncloadsegmentcallback
     /* E1D78 800F1578 21100000 */   addu      $v0, $zero, $zero
   .L800F157C:
     /* E1D7C 800F157C 21204000 */  addu       $a0, $v0, $zero
-    /* E1D80 800F1580 0F80053C */  lui        $a1, %hi(func_800F1024)
+    /* E1D80 800F1580 0F80053C */  lui        $a1, %hi(loadsegreadcallback)
     /* E1D84 800F1584 93AF030C */  jal        FILE_callbackop
-    /* E1D88 800F1588 2410A524 */   addiu     $a1, $a1, %lo(func_800F1024)
+    /* E1D88 800F1588 2410A524 */   addiu     $a1, $a1, %lo(loadsegreadcallback)
   .L800F158C:
     /* E1D8C 800F158C 0000028E */  lw         $v0, 0x0($s0)
   .L800F1590:

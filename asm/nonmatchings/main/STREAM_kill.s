@@ -9,7 +9,7 @@ glabel STREAM_kill
     /* EE010 800FD810 21808000 */  addu       $s0, $a0, $zero
     /* EE014 800FD814 1000A527 */  addiu      $a1, $sp, 0x10
     /* EE018 800FD818 1C00BFAF */  sw         $ra, 0x1C($sp)
-    /* EE01C 800FD81C BEF0030C */  jal        func_800FC2F8
+    /* EE01C 800FD81C BEF0030C */  jal        validatehandle
     /* EE020 800FD820 1400A627 */   addiu     $a2, $sp, 0x14
     /* EE024 800FD824 5D004014 */  bnez       $v0, .L800FD99C
     /* EE028 800FD828 00000000 */   nop
@@ -40,7 +40,7 @@ glabel STREAM_kill
     /* EE084 800FD884 00000000 */   nop
   .L800FD888:
     /* EE088 800FD888 4C00858C */  lw         $a1, 0x4C($a0)
-    /* EE08C 800FD88C 52F1030C */  jal        func_800FC548
+    /* EE08C 800FD88C 52F1030C */  jal        freerequest
     /* EE090 800FD890 00000000 */   nop
   .L800FD894:
     /* EE094 800FD894 1000A48F */  lw         $a0, 0x10($sp)
@@ -75,7 +75,7 @@ glabel STREAM_kill
     /* EE100 800FD900 1000A48F */  lw         $a0, 0x10($sp)
     /* EE104 800FD904 00000000 */  nop
     /* EE108 800FD908 3C00858C */  lw         $a1, 0x3C($a0)
-    /* EE10C 800FD90C DDF0030C */  jal        func_800FC374
+    /* EE10C 800FD90C DDF0030C */  jal        decbufferusage
     /* EE110 800FD910 00000000 */   nop
     /* EE114 800FD914 1000A48F */  lw         $a0, 0x10($sp)
     /* EE118 800FD918 00000000 */  nop

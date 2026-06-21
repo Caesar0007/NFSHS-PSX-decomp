@@ -56,3 +56,4 @@ INCLUDE_ASM("asm/nonmatchings/front", GetShapeInfo__25tScreenPinkSlipsCarSelectR
 INCLUDE_ASM("asm/nonmatchings/front", ___25tScreenPinkSlipsCarSelect);
 INCLUDE_ASM("asm/nonmatchings/front", ___25tScreenCarSelectTwoPlayer);
 INCLUDE_ASM("asm/nonmatchings/front", ___20tScreenCarSelectDuel);
+INCLUDE_ASM("asm/nonmatchings/front", TransformVector);

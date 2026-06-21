@@ -9,7 +9,7 @@ glabel STREAM_destroy
     /* ED94C 800FD14C 21808000 */  addu       $s0, $a0, $zero
     /* ED950 800FD150 1000A527 */  addiu      $a1, $sp, 0x10
     /* ED954 800FD154 1C00BFAF */  sw         $ra, 0x1C($sp)
-    /* ED958 800FD158 BEF0030C */  jal        func_800FC2F8
+    /* ED958 800FD158 BEF0030C */  jal        validatehandle
     /* ED95C 800FD15C 1400A627 */   addiu     $a2, $sp, 0x14
     /* ED960 800FD160 21004014 */  bnez       $v0, .L800FD1E8
     /* ED964 800FD164 00000000 */   nop

@@ -32,12 +32,12 @@ glabel _padLoadActInfo
     /* F6060 80105860 490003A2 */  sb         $v1, 0x49($s0)
     /* F6064 80105864 01000324 */  addiu      $v1, $zero, 0x1
     /* F6068 80105868 460003A2 */  sb         $v1, 0x46($s0)
-    /* F606C 8010586C 1080033C */  lui        $v1, %hi(func_801058D8)
-    /* F6070 80105870 D8586324 */  addiu      $v1, $v1, %lo(func_801058D8)
+    /* F606C 8010586C 1080033C */  lui        $v1, %hi(_padLoadActInfo_snd)
+    /* F6070 80105870 D8586324 */  addiu      $v1, $v1, %lo(_padLoadActInfo_snd)
     /* F6074 80105874 140003AE */  sw         $v1, 0x14($s0)
     /* F6078 80105878 E3000392 */  lbu        $v1, 0xE3($s0)
-    /* F607C 8010587C 1080043C */  lui        $a0, %hi(func_80105980)
-    /* F6080 80105880 80598424 */  addiu      $a0, $a0, %lo(func_80105980)
+    /* F607C 8010587C 1080043C */  lui        $a0, %hi(_padLoadActInfo_rcv)
+    /* F6080 80105880 80598424 */  addiu      $a0, $a0, %lo(_padLoadActInfo_rcv)
     /* F6084 80105884 180004AE */  sw         $a0, 0x18($s0)
     /* F6088 80105888 E9000492 */  lbu        $a0, 0xE9($s0)
     /* F608C 8010588C 80280500 */  sll        $a1, $a1, 2

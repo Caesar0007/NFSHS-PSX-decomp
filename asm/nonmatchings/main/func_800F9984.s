@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800F9984, 0x68
+nonmatching cd_read, 0x68
 
-glabel func_800F9984
+glabel cd_read
     /* EA184 800F9984 D8FFBD27 */  addiu      $sp, $sp, -0x28
     /* EA188 800F9988 1C00B1AF */  sw         $s1, 0x1C($sp)
     /* EA18C 800F998C 21888000 */  addu       $s1, $a0, $zero
@@ -30,7 +30,7 @@ glabel func_800F9984
     /* EA1E0 800F99E0 1800B08F */  lw         $s0, 0x18($sp)
     /* EA1E4 800F99E4 0800E003 */  jr         $ra
     /* EA1E8 800F99E8 2800BD27 */   addiu     $sp, $sp, 0x28
-endlabel func_800F9984
+endlabel cd_read
     /* EA1EC 800F99EC 00000000 */  nop
     /* EA1F0 800F99F0 00000000 */  nop
     /* EA1F4 800F99F4 00000000 */  nop

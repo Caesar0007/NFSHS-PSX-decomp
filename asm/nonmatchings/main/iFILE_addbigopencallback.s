@@ -29,7 +29,7 @@ glabel iFILE_addbigopencallback
     /* DCFF8 800EC7F8 04000224 */  addiu      $v0, $zero, 0x4
     /* DCFFC 800EC7FC 0C0062AC */  sw         $v0, 0xC($v1)
     /* DD000 800EC800 0800248E */  lw         $a0, 0x8($s1)
-    /* DD004 800EC804 E6B2030C */  jal        func_800ECB98
+    /* DD004 800EC804 E6B2030C */  jal        iFILE_ExecCommand
     /* DD008 800EC808 00000000 */   nop
     /* DD00C 800EC80C 0FB20308 */  j          .L800EC83C
     /* DD010 800EC810 00000000 */   nop

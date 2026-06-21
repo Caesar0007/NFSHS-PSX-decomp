@@ -52,8 +52,8 @@ glabel initasync
     /* E1A60 800F1260 F8FF4014 */  bnez       $v0, .L800F1244
     /* E1A64 800F1264 2C006324 */   addiu     $v1, $v1, 0x2C
   .L800F1268:
-    /* E1A68 800F1268 0F80043C */  lui        $a0, %hi(func_800F1120)
-    /* E1A6C 800F126C 20118424 */  addiu      $a0, $a0, %lo(func_800F1120)
+    /* E1A68 800F1268 0F80043C */  lui        $a0, %hi(asyncsystemtask)
+    /* E1A6C 800F126C 20118424 */  addiu      $a0, $a0, %lo(asyncsystemtask)
     /* E1A70 800F1270 01000524 */  addiu      $a1, $zero, 0x1
     /* E1A74 800F1274 2130A000 */  addu       $a2, $a1, $zero
     /* E1A78 800F1278 0410B100 */  sllv       $v0, $s1, $a1

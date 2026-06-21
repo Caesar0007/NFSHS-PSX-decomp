@@ -76,7 +76,7 @@ glabel iFILE_addbigreadcallback
     /* DCF6C 800EC76C 0C0002AE */  sw         $v0, 0xC($s0)
     /* DCF70 800EC770 240070AE */  sw         $s0, 0x24($s3)
     /* DCF74 800EC774 0800048E */  lw         $a0, 0x8($s0)
-    /* DCF78 800EC778 E6B2030C */  jal        func_800ECB98
+    /* DCF78 800EC778 E6B2030C */  jal        iFILE_ExecCommand
     /* DCF7C 800EC77C 00000000 */   nop
   .L800EC780:
     /* DCF80 800EC780 3400BF8F */  lw         $ra, 0x34($sp)

@@ -8,7 +8,7 @@
 /* ---- (static)::TransformVector  [SCREENCARSELECT.CPP:51-59] ---- */
 /* File-static 4x4 fixed-point matrix * 4-vector (ScreenCarSelect.obj 1st fn @0x8003a8f0). Mangled R =
    refs (= ptr at ABI; call sites pass &T/&gCatmullRom/&Result) -> ptr form. SYM REG I=$s3, J=$s0. */
-static void TransformVector(int (*vect)[4],int (*transform)[4][4],int (*result)[4])
+extern "C" void TransformVector(int (*vect)[4],int (*transform)[4][4],int (*result)[4])
 
 {
   int *piVar3;

@@ -36,7 +36,7 @@ glabel getasyncreadstatus
     /* E1F48 800F1748 0000A290 */  lbu        $v0, 0x0($a1)
     /* E1F4C 800F174C 1480043C */  lui        $a0, %hi(D_8013DEA0)
     /* E1F50 800F1750 A0DE8424 */  addiu      $a0, $a0, %lo(D_8013DEA0)
-    /* E1F54 800F1754 C7C2030C */  jal        func_800F0B1C
+    /* E1F54 800F1754 C7C2030C */  jal        queueadd
     /* E1F58 800F1758 0000A2AC */   sw        $v0, 0x0($a1)
     /* E1F5C 800F175C 21100002 */  addu       $v0, $s0, $zero
   .L800F1760:

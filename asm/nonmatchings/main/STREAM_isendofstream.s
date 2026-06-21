@@ -7,7 +7,7 @@ glabel STREAM_isendofstream
     /* EE43C 800FDC3C E0FFBD27 */  addiu      $sp, $sp, -0x20
     /* EE440 800FDC40 1800BFAF */  sw         $ra, 0x18($sp)
     /* EE444 800FDC44 1000A527 */  addiu      $a1, $sp, 0x10
-    /* EE448 800FDC48 BEF0030C */  jal        func_800FC2F8
+    /* EE448 800FDC48 BEF0030C */  jal        validatehandle
     /* EE44C 800FDC4C 1400A627 */   addiu     $a2, $sp, 0x14
     /* EE450 800FDC50 0D004014 */  bnez       $v0, .L800FDC88
     /* EE454 800FDC54 21100000 */   addu      $v0, $zero, $zero

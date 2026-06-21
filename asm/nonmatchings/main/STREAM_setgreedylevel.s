@@ -11,7 +11,7 @@ glabel STREAM_setgreedylevel
     /* EDA58 800FD258 2180A000 */  addu       $s0, $a1, $zero
     /* EDA5C 800FD25C 1000A527 */  addiu      $a1, $sp, 0x10
     /* EDA60 800FD260 2000BFAF */  sw         $ra, 0x20($sp)
-    /* EDA64 800FD264 BEF0030C */  jal        func_800FC2F8
+    /* EDA64 800FD264 BEF0030C */  jal        validatehandle
     /* EDA68 800FD268 1400A627 */   addiu     $a2, $sp, 0x14
     /* EDA6C 800FD26C 0C004014 */  bnez       $v0, .L800FD2A0
     /* EDA70 800FD270 00000000 */   nop

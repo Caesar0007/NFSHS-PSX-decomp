@@ -10,7 +10,7 @@ glabel FILE_readsync
     /* DB12C 800EA92C ECC44224 */  addiu      $v0, $v0, %lo(FILE_read)
     /* DB130 800EA930 1800BFAF */  sw         $ra, 0x18($sp)
     /* DB134 800EA934 1400A2AF */  sw         $v0, 0x14($sp)
-    /* DB138 800EA938 FAA9030C */  jal        func_800EA7E8
+    /* DB138 800EA938 FAA9030C */  jal        syncblockio
     /* DB13C 800EA93C 1000A3AF */   sw        $v1, 0x10($sp)
     /* DB140 800EA940 1800BF8F */  lw         $ra, 0x18($sp)
     /* DB144 800EA944 00000000 */  nop

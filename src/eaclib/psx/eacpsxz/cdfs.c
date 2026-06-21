@@ -9,3 +9,7 @@ INCLUDE_ASM("asm/nonmatchings/main", loaddirinfo);
 INCLUDE_ASM("asm/nonmatchings/main", CD_Restore);
 INCLUDE_ASM("asm/nonmatchings/main", CD_Init);
 INCLUDE_ASM("asm/nonmatchings/main", CD_Restart);
+INCLUDE_ASM("asm/nonmatchings/main", dircompare);
+INCLUDE_ASM("asm/nonmatchings/main", CD_timerfunc);
+INCLUDE_ASM("asm/nonmatchings/main", CD_systaskfunc);
+INCLUDE_ASM("asm/nonmatchings/main", CdReadyHandler);

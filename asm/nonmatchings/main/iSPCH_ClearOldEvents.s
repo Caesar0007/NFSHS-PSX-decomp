@@ -45,7 +45,7 @@ glabel iSPCH_ClearOldEvents
     /* D7DBC 800E75BC 00000000 */   nop
   .L800E75C0:
     /* D7DC0 800E75C0 1000048E */  lw         $a0, 0x10($s0)
-    /* D7DC4 800E75C4 A59B030C */  jal        func_800E6E94
+    /* D7DC4 800E75C4 A59B030C */  jal        VoxEvent_GetKeepTillExpiresFlag
     /* D7DC8 800E75C8 00000000 */   nop
     /* D7DCC 800E75CC FF004230 */  andi       $v0, $v0, 0xFF
     /* D7DD0 800E75D0 0E004014 */  bnez       $v0, .L800E760C

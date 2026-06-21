@@ -79,8 +79,8 @@ static int       _padFramesSinceStart;  /* @0x8014858C : VSync frames since star
 static int       _padFramesSinceStop;   /* @0x80148590 : VSync frames since stop  (clamped 150) */
 
 /* prototypes for the handler/verifier installed into the IRP */
-static void _padVbCallback0(void);
-static int  _padVbCallback1(void);
+extern "C" void _padVbCallback0(void);
+extern "C" int  _padVbCallback1(void);
 
 /* @0x80104A1C : _padSetVsyncParam -- point the IRP at our handler/verifier. */
 extern "C" void _padSetVsyncParam(void)
@@ -92,7 +92,7 @@ extern "C" void _padSetVsyncParam(void)
 }
 
 /* @0x80104A48 : _padVbCallback1 -- IRP verifier: only accept the VSync (bit 0) interrupt. */
-static int _padVbCallback1(void)
+extern "C" int _padVbCallback1(void)
 {
     if ((I_MASK & 1) != 0 && (I_STAT & 1) != 0) {
         if (_padFuncIntGun != 0)
@@ -104,7 +104,7 @@ static int _padVbCallback1(void)
 
 /* @0x80104AB0 : _padVbCallback0 -- IRP handler: once armed, pump the SIO engine across the
  *   active channel range every VSync frame. */
-static void _padVbCallback0(void)
+extern "C" void _padVbCallback0(void)
 {
     if (_padChanStart != 0) {
         _padVbExec = 1;

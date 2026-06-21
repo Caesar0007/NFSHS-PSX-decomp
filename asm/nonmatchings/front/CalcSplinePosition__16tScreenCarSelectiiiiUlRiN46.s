@@ -81,13 +81,13 @@ glabel CalcSplinePosition__16tScreenCarSelectiiiiUlRiN46
     /* 2C144 8003B944 181F5724 */  addiu      $s7, $v0, %lo(D_80051F18)
     /* 2C148 8003B948 2128E002 */  addu       $a1, $s7, $zero
     /* 2C14C 8003B94C 6000B027 */  addiu      $s0, $sp, 0x60
-    /* 2C150 8003B950 3CEA000C */  jal        func_8003A8F0
+    /* 2C150 8003B950 3CEA000C */  jal        TransformVector
     /* 2C154 8003B954 21300002 */   addu      $a2, $s0, $zero
     /* 2C158 8003B958 21200002 */  addu       $a0, $s0, $zero
     /* 2C15C 8003B95C 2000B427 */  addiu      $s4, $sp, 0x20
     /* 2C160 8003B960 21288002 */  addu       $a1, $s4, $zero
     /* 2C164 8003B964 7000B227 */  addiu      $s2, $sp, 0x70
-    /* 2C168 8003B968 3CEA000C */  jal        func_8003A8F0
+    /* 2C168 8003B968 3CEA000C */  jal        TransformVector
     /* 2C16C 8003B96C 21304002 */   addu      $a2, $s2, $zero
     /* 2C170 8003B970 7000A28F */  lw         $v0, 0x70($sp)
     /* 2C174 8003B974 C000A38F */  lw         $v1, 0xC0($sp)
@@ -157,11 +157,11 @@ glabel CalcSplinePosition__16tScreenCarSelectiiiiUlRiN46
     /* 2C26C 8003BA6C 0C00C38C */  lw         $v1, 0xC($a2)
     /* 2C270 8003BA70 21300002 */  addu       $a2, $s0, $zero
     /* 2C274 8003BA74 21104300 */  addu       $v0, $v0, $v1
-    /* 2C278 8003BA78 3CEA000C */  jal        func_8003A8F0
+    /* 2C278 8003BA78 3CEA000C */  jal        TransformVector
     /* 2C27C 8003BA7C 5000A2AF */   sw        $v0, 0x50($sp)
     /* 2C280 8003BA80 21200002 */  addu       $a0, $s0, $zero
     /* 2C284 8003BA84 21288002 */  addu       $a1, $s4, $zero
-    /* 2C288 8003BA88 3CEA000C */  jal        func_8003A8F0
+    /* 2C288 8003BA88 3CEA000C */  jal        TransformVector
     /* 2C28C 8003BA8C 21304002 */   addu      $a2, $s2, $zero
     /* 2C290 8003BA90 7000A28F */  lw         $v0, 0x70($sp)
     /* 2C294 8003BA94 00000000 */  nop

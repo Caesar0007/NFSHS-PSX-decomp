@@ -75,8 +75,8 @@ glabel CD_Read
     /* EAF6C 800FA76C C46C5126 */   addiu     $s1, $s2, %lo(Cdinfo)
     /* EAF70 800FA770 FF07C624 */  addiu      $a2, $a2, 0x7FF
   .L800FA774:
-    /* EAF74 800FA774 1080023C */  lui        $v0, %hi(func_800F9C44)
-    /* EAF78 800FA778 449C5424 */  addiu      $s4, $v0, %lo(func_800F9C44)
+    /* EAF74 800FA774 1080023C */  lui        $v0, %hi(CD_timerfunc)
+    /* EAF78 800FA778 449C5424 */  addiu      $s4, $v0, %lo(CD_timerfunc)
     /* EAF7C 800FA77C 21208002 */  addu       $a0, $s4, $zero
     /* EAF80 800FA780 0C00638C */  lw         $v1, 0xC($v1)
     /* EAF84 800FA784 C3120600 */  sra        $v0, $a2, 11

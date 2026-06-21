@@ -18,11 +18,11 @@ glabel _padSetActAlign
     /* F6420 80105C20 01000224 */  addiu      $v0, $zero, 0x1
     /* F6424 80105C24 01000324 */  addiu      $v1, $zero, 0x1
     /* F6428 80105C28 460003A2 */  sb         $v1, 0x46($s0)
-    /* F642C 80105C2C 1080033C */  lui        $v1, %hi(func_80105C5C)
-    /* F6430 80105C30 5C5C6324 */  addiu      $v1, $v1, %lo(func_80105C5C)
+    /* F642C 80105C2C 1080033C */  lui        $v1, %hi(_padSetActAlign_snd)
+    /* F6430 80105C30 5C5C6324 */  addiu      $v1, $v1, %lo(_padSetActAlign_snd)
     /* F6434 80105C34 140003AE */  sw         $v1, 0x14($s0)
-    /* F6438 80105C38 1080033C */  lui        $v1, %hi(func_80105C78)
-    /* F643C 80105C3C 785C6324 */  addiu      $v1, $v1, %lo(func_80105C78)
+    /* F6438 80105C38 1080033C */  lui        $v1, %hi(_padSetActAlign_rcv)
+    /* F643C 80105C3C 785C6324 */  addiu      $v1, $v1, %lo(_padSetActAlign_rcv)
     /* F6440 80105C40 200011AE */  sw         $s1, 0x20($s0)
     /* F6444 80105C44 180003AE */  sw         $v1, 0x18($s0)
   .L80105C48:

@@ -17,7 +17,7 @@ glabel FILE_addbig
     /* DD080 800EC880 1000B0AF */  sw         $s0, 0x10($sp)
     /* DD084 800EC884 2180E000 */  addu       $s0, $a3, $zero
     /* DD088 800EC888 2800BFAF */  sw         $ra, 0x28($sp)
-    /* DD08C 800EC88C 37B4030C */  jal        func_800ED0DC
+    /* DD08C 800EC88C 37B4030C */  jal        reserveop
     /* DD090 800EC890 1800B2AF */   sw        $s2, 0x18($sp)
     /* DD094 800EC894 0FFF053C */  lui        $a1, (0xFF0FFFFF >> 16)
     /* DD098 800EC898 FFFFA534 */  ori        $a1, $a1, (0xFF0FFFFF & 0xFFFF)
@@ -41,7 +41,7 @@ glabel FILE_addbig
     /* DD0DC 800EC8DC 06004014 */  bnez       $v0, .L800EC8F8
     /* DD0E0 800EC8E0 21204002 */   addu      $a0, $s2, $zero
     /* DD0E4 800EC8E4 0400228E */  lw         $v0, 0x4($s1)
-    /* DD0E8 800EC8E8 E6B2030C */  jal        func_800ECB98
+    /* DD0E8 800EC8E8 E6B2030C */  jal        iFILE_ExecCommand
     /* DD0EC 800EC8EC 240042AE */   sw        $v0, 0x24($s2)
     /* DD0F0 800EC8F0 57B20308 */  j          .L800EC95C
     /* DD0F4 800EC8F4 21104002 */   addu      $v0, $s2, $zero

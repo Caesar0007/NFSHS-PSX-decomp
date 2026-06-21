@@ -26,7 +26,7 @@ glabel cancelasyncload
     /* E1E1C 800F161C 00000000 */  nop
     /* E1E20 800F1620 03004014 */  bnez       $v0, .L800F1630
     /* E1E24 800F1624 00000000 */   nop
-    /* E1E28 800F1628 14C3030C */  jal        func_800F0C50
+    /* E1E28 800F1628 14C3030C */  jal        cancelrequest
     /* E1E2C 800F162C 21200002 */   addu      $a0, $s0, $zero
   .L800F1630:
     /* E1E30 800F1630 1400BF8F */  lw         $ra, 0x14($sp)

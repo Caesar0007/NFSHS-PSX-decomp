@@ -7,7 +7,7 @@ glabel STREAM_buffersize
     /* EE498 800FDC98 E0FFBD27 */  addiu      $sp, $sp, -0x20
     /* EE49C 800FDC9C 1800BFAF */  sw         $ra, 0x18($sp)
     /* EE4A0 800FDCA0 1000A527 */  addiu      $a1, $sp, 0x10
-    /* EE4A4 800FDCA4 BEF0030C */  jal        func_800FC2F8
+    /* EE4A4 800FDCA4 BEF0030C */  jal        validatehandle
     /* EE4A8 800FDCA8 1400A627 */   addiu     $a2, $sp, 0x14
     /* EE4AC 800FDCAC 07004014 */  bnez       $v0, .L800FDCCC
     /* EE4B0 800FDCB0 00000000 */   nop

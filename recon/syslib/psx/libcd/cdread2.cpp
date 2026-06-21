@@ -19,7 +19,7 @@ extern "C" int  data_ready_callback(void);  /* @0x80108798 (C_004) */
 extern "C" int  StMode;                     /* @0x801489CC : streaming RGB24/mode flag */
 
 /* @0x800F8FCC : ready callback for a streaming read -- pump the stream interrupt handler. */
-static int _cdread2_ready(int /*intr*/, int /*result*/)
+extern "C" int _cdread2_ready(int /*intr*/, int /*result*/)
 {
     StCdInterrupt();
     return 0;

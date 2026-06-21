@@ -40,7 +40,7 @@ glabel iSPCH_MatchSample
     /* F0FF8 801007F8 04908300 */  sllv       $s2, $v1, $a0
     /* F0FFC 801007FC 2120A002 */  addu       $a0, $s5, $zero
     /* F1000 80100800 21282002 */  addu       $a1, $s1, $zero
-    /* F1004 80100804 C401040C */  jal        func_80100710
+    /* F1004 80100804 C401040C */  jal        iSPCH_GetMatchValue
     /* F1008 80100808 0F005030 */   andi      $s0, $v0, 0xF
     /* F100C 8010080C 24104202 */  and        $v0, $s2, $v0
     /* F1010 80100810 0A004010 */  beqz       $v0, .L8010083C

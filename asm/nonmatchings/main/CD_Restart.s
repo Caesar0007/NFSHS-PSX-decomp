@@ -28,7 +28,7 @@ glabel CD_Restart
     /* EACF8 800FA4F8 13DE030C */  jal        CdSync
     /* EACFC 800FA4FC 21288000 */   addu      $a1, $a0, $zero
     /* EAD00 800FA500 02002016 */  bnez       $s1, .L800FA50C
-    /* EAD04 800FA504 1080043C */   lui       $a0, %hi(func_800F9CA4)
+    /* EAD04 800FA504 1080043C */   lui       $a0, %hi(CdReadyHandler)
     /* EAD08 800FA508 10001124 */  addiu      $s1, $zero, 0x10
   .L800FA50C:
     /* EAD0C 800FA50C 1480103C */  lui        $s0, %hi(Cdinfo)
@@ -36,7 +36,7 @@ glabel CD_Restart
     /* EAD14 800FA514 140011AE */  sw         $s1, 0x14($s0)
     /* EAD18 800FA518 0C0011AE */  sw         $s1, 0xC($s0)
     /* EAD1C 800FA51C 28DE030C */  jal        CdReadyCallback
-    /* EAD20 800FA520 A49C8424 */   addiu     $a0, $a0, %lo(func_800F9CA4)
+    /* EAD20 800FA520 A49C8424 */   addiu     $a0, $a0, %lo(CdReadyHandler)
     /* EAD24 800FA524 1400048E */  lw         $a0, 0x14($s0)
     /* EAD28 800FA528 3DDF030C */  jal        CdIntToPos
     /* EAD2C 800FA52C 1000A527 */   addiu     $a1, $sp, 0x10

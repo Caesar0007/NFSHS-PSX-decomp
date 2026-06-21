@@ -11,7 +11,7 @@ glabel STREAM_setpriority
     /* EDA08 800FD208 2188C000 */  addu       $s1, $a2, $zero
     /* EDA0C 800FD20C 1000A527 */  addiu      $a1, $sp, 0x10
     /* EDA10 800FD210 2000BFAF */  sw         $ra, 0x20($sp)
-    /* EDA14 800FD214 BEF0030C */  jal        func_800FC2F8
+    /* EDA14 800FD214 BEF0030C */  jal        validatehandle
     /* EDA18 800FD218 1400A627 */   addiu     $a2, $sp, 0x14
     /* EDA1C 800FD21C 05004014 */  bnez       $v0, .L800FD234
     /* EDA20 800FD220 00000000 */   nop

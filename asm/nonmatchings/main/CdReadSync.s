@@ -38,7 +38,7 @@ glabel CdReadSync
     /* F97F0 80108FF0 06006010 */  beqz       $v1, .L8010900C
     /* F97F4 80108FF4 00000000 */   nop
   .L80108FF8:
-    /* F97F8 80108FF8 FD22040C */  jal        func_80108BF4
+    /* F97F8 80108FF8 FD22040C */  jal        _read_issue
     /* F97FC 80108FFC 01000424 */   addiu     $a0, $zero, 0x1
     /* F9800 80109000 E4FF308E */  lw         $s0, -0x1C($s1)
     /* F9804 80109004 04240408 */  j          .L80109010

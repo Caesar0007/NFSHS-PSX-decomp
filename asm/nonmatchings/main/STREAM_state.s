@@ -7,7 +7,7 @@ glabel STREAM_state
     /* EE404 800FDC04 E0FFBD27 */  addiu      $sp, $sp, -0x20
     /* EE408 800FDC08 1800BFAF */  sw         $ra, 0x18($sp)
     /* EE40C 800FDC0C 1000A527 */  addiu      $a1, $sp, 0x10
-    /* EE410 800FDC10 BEF0030C */  jal        func_800FC2F8
+    /* EE410 800FDC10 BEF0030C */  jal        validatehandle
     /* EE414 800FDC14 1400A627 */   addiu     $a2, $sp, 0x14
     /* EE418 800FDC18 04004014 */  bnez       $v0, .L800FDC2C
     /* EE41C 800FDC1C 21100000 */   addu      $v0, $zero, $zero

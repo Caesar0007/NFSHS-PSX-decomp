@@ -18,7 +18,7 @@ glabel STREAM_cancelrequest
     /* EDD7C 800FD57C 2800B4AF */  sw         $s4, 0x28($sp)
     /* EDD80 800FD580 2400B3AF */  sw         $s3, 0x24($sp)
     /* EDD84 800FD584 2000B2AF */  sw         $s2, 0x20($sp)
-    /* EDD88 800FD588 BEF0030C */  jal        func_800FC2F8
+    /* EDD88 800FD588 BEF0030C */  jal        validatehandle
     /* EDD8C 800FD58C 1C00B1AF */   sw        $s1, 0x1C($sp)
     /* EDD90 800FD590 91004014 */  bnez       $v0, .L800FD7D8
     /* EDD94 800FD594 00000000 */   nop
@@ -43,7 +43,7 @@ glabel STREAM_cancelrequest
     /* EDDE0 800FD5E0 06004614 */  bne        $v0, $a2, .L800FD5FC
     /* EDDE4 800FD5E4 00000000 */   nop
     /* EDDE8 800FD5E8 1000A48F */  lw         $a0, 0x10($sp)
-    /* EDDEC 800FD5EC 52F1030C */  jal        func_800FC548
+    /* EDDEC 800FD5EC 52F1030C */  jal        freerequest
     /* EDDF0 800FD5F0 00000000 */   nop
   .L800FD5F4:
     /* EDDF4 800FD5F4 93F50308 */  j          .L800FD64C
@@ -93,7 +93,7 @@ glabel STREAM_cancelrequest
     /* EDE8C 800FD68C 1400A3AF */   sw        $v1, 0x14($sp)
     /* EDE90 800FD690 2120E002 */  addu       $a0, $s7, $zero
     /* EDE94 800FD694 0C00668C */  lw         $a2, 0xC($v1)
-    /* EDE98 800FD698 CDF0030C */  jal        func_800FC334
+    /* EDE98 800FD698 CDF0030C */  jal        inbetween
     /* EDE9C 800FD69C 21288002 */   addu      $a1, $s4, $zero
     /* EDEA0 800FD6A0 30004010 */  beqz       $v0, .L800FD764
     /* EDEA4 800FD6A4 21808002 */   addu      $s0, $s4, $zero
@@ -136,7 +136,7 @@ glabel STREAM_cancelrequest
     /* EDF30 800FD730 080043AC */  sw         $v1, 0x8($v0)
     /* EDF34 800FD734 00609240 */  mtc0       $s2, $12 /* handwritten instruction */
     /* EDF38 800FD738 1000A48F */  lw         $a0, 0x10($sp)
-    /* EDF3C 800FD73C DDF0030C */  jal        func_800FC374
+    /* EDF3C 800FD73C DDF0030C */  jal        decbufferusage
     /* EDF40 800FD740 21282002 */   addu      $a1, $s1, $zero
     /* EDF44 800FD744 FEFF0224 */  addiu      $v0, $zero, -0x2
     /* EDF48 800FD748 000002AE */  sw         $v0, 0x0($s0)
@@ -169,7 +169,7 @@ glabel STREAM_cancelrequest
     /* EDFA4 800FD7A4 21208002 */   addu      $a0, $s4, $zero
     /* EDFA8 800FD7A8 0C00668C */  lw         $a2, 0xC($v1)
   .L800FD7AC:
-    /* EDFAC 800FD7AC CDF0030C */  jal        func_800FC334
+    /* EDFAC 800FD7AC CDF0030C */  jal        inbetween
     /* EDFB0 800FD7B0 2128C002 */   addu      $a1, $s6, $zero
     /* EDFB4 800FD7B4 F0FF4014 */  bnez       $v0, .L800FD778
     /* EDFB8 800FD7B8 00000000 */   nop

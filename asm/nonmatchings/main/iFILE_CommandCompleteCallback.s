@@ -45,7 +45,7 @@ glabel iFILE_CommandCompleteCallback
     /* DD8B0 800ED0B0 00000000 */  nop
     /* DD8B4 800ED0B4 03004014 */  bnez       $v0, .L800ED0C4
     /* DD8B8 800ED0B8 00000000 */   nop
-    /* DD8BC 800ED0BC E6B2030C */  jal        func_800ECB98
+    /* DD8BC 800ED0BC E6B2030C */  jal        iFILE_ExecCommand
     /* DD8C0 800ED0C0 21200000 */   addu      $a0, $zero, $zero
   .L800ED0C4:
     /* DD8C4 800ED0C4 1400BF8F */  lw         $ra, 0x14($sp)

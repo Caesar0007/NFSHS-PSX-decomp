@@ -73,8 +73,8 @@ glabel firstfile
     /* FA6AC 80109EAC A4270408 */  j          .L80109E90
     /* FA6B0 80109EB0 01000324 */   addiu     $v1, $zero, 0x1
   .L80109EB4:
-    /* FA6B4 80109EB4 1180023C */  lui        $v0, %hi(func_80109F5C)
-    /* FA6B8 80109EB8 5C9F4224 */  addiu      $v0, $v0, %lo(func_80109F5C)
+    /* FA6B4 80109EB4 1180023C */  lui        $v0, %hi(_first_patch)
+    /* FA6B8 80109EB8 5C9F4224 */  addiu      $v0, $v0, %lo(_first_patch)
     /* FA6BC 80109EBC CD270408 */  j          .L80109F34
     /* FA6C0 80109EC0 340002AE */   sw        $v0, 0x34($s0)
   .L80109EC4:

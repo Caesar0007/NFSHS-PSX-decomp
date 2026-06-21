@@ -14,7 +14,7 @@ glabel FILE_open
     /* DCB88 800EC388 1000B0AF */  sw         $s0, 0x10($sp)
     /* DCB8C 800EC38C 2180E000 */  addu       $s0, $a3, $zero
     /* DCB90 800EC390 2400BFAF */  sw         $ra, 0x24($sp)
-    /* DCB94 800EC394 37B4030C */  jal        func_800ED0DC
+    /* DCB94 800EC394 37B4030C */  jal        reserveop
     /* DCB98 800EC398 1C00B3AF */   sw        $s3, 0x1C($sp)
     /* DCB9C 800EC39C 0FFF043C */  lui        $a0, (0xFF0FFFFF >> 16)
     /* DCBA0 800EC3A0 21984000 */  addu       $s3, $v0, $zero
@@ -26,7 +26,7 @@ glabel FILE_open
     /* DCBB8 800EC3B8 100072AE */  sw         $s2, 0x10($s3)
     /* DCBBC 800EC3BC 24186400 */  and        $v1, $v1, $a0
     /* DCBC0 800EC3C0 25186200 */  or         $v1, $v1, $v0
-    /* DCBC4 800EC3C4 90B4030C */  jal        func_800ED240
+    /* DCBC4 800EC3C4 90B4030C */  jal        reservehandle
     /* DCBC8 800EC3C8 000063AE */   sw        $v1, 0x0($s3)
     /* DCBCC 800EC3CC 05004014 */  bnez       $v0, .L800EC3E4
     /* DCBD0 800EC3D0 240062AE */   sw        $v0, 0x24($s3)
@@ -42,7 +42,7 @@ glabel FILE_open
     /* DCBF4 800EC3F4 40000624 */  addiu      $a2, $zero, 0x40
     /* DCBF8 800EC3F8 41D8030C */  jal        strncpy
     /* DCBFC 800EC3FC 0C008424 */   addiu     $a0, $a0, 0xC
-    /* DCC00 800EC400 E6B2030C */  jal        func_800ECB98
+    /* DCC00 800EC400 E6B2030C */  jal        iFILE_ExecCommand
     /* DCC04 800EC404 21206002 */   addu      $a0, $s3, $zero
     /* DCC08 800EC408 0000628E */  lw         $v0, 0x0($s3)
     /* DCC0C 800EC40C 2400BF8F */  lw         $ra, 0x24($sp)

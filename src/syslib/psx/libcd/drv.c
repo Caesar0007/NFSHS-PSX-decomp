@@ -10,3 +10,4 @@ INCLUDE_ASM("asm/nonmatchings/main", CD_datasync);
 INCLUDE_ASM("asm/nonmatchings/main", CD_getsector);
 INCLUDE_ASM("asm/nonmatchings/main", CD_getsector2);
 INCLUDE_ASM("asm/nonmatchings/main", CD_set_test_parmnum);
+INCLUDE_ASM("asm/nonmatchings/main", _cd_intr_dispatch);

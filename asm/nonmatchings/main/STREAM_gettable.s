@@ -7,7 +7,7 @@ glabel STREAM_gettable
     /* EE3CC 800FDBCC E0FFBD27 */  addiu      $sp, $sp, -0x20
     /* EE3D0 800FDBD0 1800BFAF */  sw         $ra, 0x18($sp)
     /* EE3D4 800FDBD4 1000A527 */  addiu      $a1, $sp, 0x10
-    /* EE3D8 800FDBD8 BEF0030C */  jal        func_800FC2F8
+    /* EE3D8 800FDBD8 BEF0030C */  jal        validatehandle
     /* EE3DC 800FDBDC 1400A627 */   addiu     $a2, $sp, 0x14
     /* EE3E0 800FDBE0 04004014 */  bnez       $v0, .L800FDBF4
     /* EE3E4 800FDBE4 21100000 */   addu      $v0, $zero, $zero

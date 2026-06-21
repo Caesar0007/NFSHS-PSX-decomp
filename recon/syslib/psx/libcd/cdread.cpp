@@ -70,20 +70,20 @@ extern "C" int CD_cbread;        /* @0x8013C2D0 : user CdReadCallback */
 extern "C" int CD_read_dma_mode; /* @0x8013C2D4 : bit0 = copy sectors via DMA */
 
 /* forward decls (callbacks reference each other and _read_issue) */
-static void _read_sync(void);
-static void _read_int(int intr, int code);
-static void _read_data_int(void);
-static int  _read_issue(int retry);
+extern "C" void _read_sync(void);
+extern "C" void _read_int(int intr, int code);
+extern "C" void _read_data_int(void);
+extern "C" int  _read_issue(int retry);
 
 /* @0x8010887C : sync-complete handler -- restore the saved sync cb and clear the busy flag. */
-static void _read_sync(void)
+extern "C" void _read_sync(void)
 {
     CdSyncCallback(_cdr.w28);    /* restore saved sync callback */
     _cdr.w24 = 0;                /* reading = 0 */
 }
 
 /* @0x801088B0 : ready interrupt -- one DataReady per sector. */
-static void _read_int(int intr, int code)
+extern "C" void _read_int(int intr, int code)
 {
     volatile CdrEnv *g = &_cdr;
 
@@ -142,7 +142,7 @@ static void _read_int(int intr, int code)
 }
 
 /* @0x80108B24 : DMA-data complete -- advance the ring and finish if this was the last sector. */
-static void _read_data_int(void)
+extern "C" void _read_data_int(void)
 {
     volatile CdrEnv *g = &_cdr;
 
@@ -164,7 +164,7 @@ static void _read_data_int(void)
 }
 
 /* @0x80108BF4 : (re)issue the read.  retry!=0 re-seeks to CdLastPos and re-sends mode. */
-static int _read_issue(int retry)
+extern "C" int _read_issue(int retry)
 {
     volatile CdrEnv *g = &_cdr;
 

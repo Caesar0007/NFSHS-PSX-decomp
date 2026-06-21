@@ -17,7 +17,7 @@ glabel FILE_delbig
     /* DD1D4 800EC9D4 1800B2AF */  sw         $s2, 0x18($sp)
     /* DD1D8 800EC9D8 1400B1AF */  sw         $s1, 0x14($sp)
     /* DD1DC 800EC9DC 2400718E */  lw         $s1, 0x24($s3)
-    /* DD1E0 800EC9E0 37B4030C */  jal        func_800ED0DC
+    /* DD1E0 800EC9E0 37B4030C */  jal        reserveop
     /* DD1E4 800EC9E4 2180C000 */   addu      $s0, $a2, $zero
     /* DD1E8 800EC9E8 0FFF043C */  lui        $a0, (0xFF0FFFFF >> 16)
     /* DD1EC 800EC9EC 21904000 */  addu       $s2, $v0, $zero

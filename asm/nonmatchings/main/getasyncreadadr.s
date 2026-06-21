@@ -36,7 +36,7 @@ glabel getasyncreadadr
     /* E1EB0 800F16B0 0000A290 */  lbu        $v0, 0x0($a1)
     /* E1EB4 800F16B4 1480043C */  lui        $a0, %hi(D_8013DEA0)
     /* E1EB8 800F16B8 A0DE8424 */  addiu      $a0, $a0, %lo(D_8013DEA0)
-    /* E1EBC 800F16BC C7C2030C */  jal        func_800F0B1C
+    /* E1EBC 800F16BC C7C2030C */  jal        queueadd
     /* E1EC0 800F16C0 0000A2AC */   sw        $v0, 0x0($a1)
     /* E1EC4 800F16C4 21100002 */  addu       $v0, $s0, $zero
   .L800F16C8:

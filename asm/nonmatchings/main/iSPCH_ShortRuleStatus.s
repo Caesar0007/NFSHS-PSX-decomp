@@ -9,7 +9,7 @@ glabel iSPCH_ShortRuleStatus
     /* F172C 80100F2C 2188A000 */  addu       $s1, $a1, $zero
     /* F1730 80100F30 1000B0AF */  sw         $s0, 0x10($sp)
     /* F1734 80100F34 1800BFAF */  sw         $ra, 0x18($sp)
-    /* F1738 80100F38 C901040C */  jal        func_80100724
+    /* F1738 80100F38 C901040C */  jal        VoxSentence_GetShortRule
     /* F173C 80100F3C 21800000 */   addu      $s0, $zero, $zero
     /* F1740 80100F40 21184000 */  addu       $v1, $v0, $zero
     /* F1744 80100F44 01000224 */  addiu      $v0, $zero, 0x1

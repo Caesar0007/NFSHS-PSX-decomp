@@ -7,3 +7,6 @@ INCLUDE_ASM("asm/nonmatchings/main", loadfileadr);
 INCLUDE_ASM("asm/nonmatchings/main", loadfileatadrz);
 INCLUDE_ASM("asm/nonmatchings/main", loadfileatadr);
 INCLUDE_ASM("asm/nonmatchings/main", loadbigfileheader);
+INCLUDE_ASM("asm/nonmatchings/main", loadfileadratomic);
+INCLUDE_ASM("asm/nonmatchings/main", loadfileatadratomic);
+INCLUDE_ASM("asm/nonmatchings/main", loadbigfileheaderatomic);

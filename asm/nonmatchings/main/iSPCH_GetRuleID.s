@@ -9,7 +9,7 @@ glabel iSPCH_GetRuleID
     /* FBA28 8010B228 2188A000 */  addu       $s1, $a1, $zero
     /* FBA2C 8010B22C 2000B0AF */  sw         $s0, 0x20($sp)
     /* FBA30 8010B230 2800BFAF */  sw         $ra, 0x28($sp)
-    /* FBA34 8010B234 502C040C */  jal        func_8010B140
+    /* FBA34 8010B234 502C040C */  jal        iSPCH_GetRuleDataAddr
     /* FBA38 8010B238 FFFF1024 */   addiu     $s0, $zero, -0x1
     /* FBA3C 8010B23C 21204000 */  addu       $a0, $v0, $zero
     /* FBA40 8010B240 0800222E */  sltiu      $v0, $s1, 0x8

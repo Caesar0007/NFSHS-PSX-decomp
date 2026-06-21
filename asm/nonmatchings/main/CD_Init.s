@@ -52,11 +52,11 @@ glabel CD_Init
     /* EAC48 800FA448 6AE8030C */  jal        loaddirinfo
     /* EAC4C 800FA44C C22A0500 */   srl       $a1, $a1, 11
     /* EAC50 800FA450 14000624 */  addiu      $a2, $zero, 0x14
-    /* EAC54 800FA454 1080073C */  lui        $a3, %hi(func_800FA344)
+    /* EAC54 800FA454 1080073C */  lui        $a3, %hi(dircompare)
     /* EAC58 800FA458 3800048E */  lw         $a0, 0x38($s0)
     /* EAC5C 800FA45C 0800058E */  lw         $a1, 0x8($s0)
     /* EAC60 800FA460 6397030C */  jal        qsort
-    /* EAC64 800FA464 44A3E724 */   addiu     $a3, $a3, %lo(func_800FA344)
+    /* EAC64 800FA464 44A3E724 */   addiu     $a3, $a3, %lo(dircompare)
     /* EAC68 800FA468 1080043C */  lui        $a0, %hi(CD_Restore)
     /* EAC6C 800FA46C 64A38424 */  addiu      $a0, $a0, %lo(CD_Restore)
     /* EAC70 800FA470 3EC7030C */  jal        addexit

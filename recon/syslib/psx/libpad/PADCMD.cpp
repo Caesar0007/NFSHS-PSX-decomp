@@ -33,12 +33,12 @@ extern "C" int _padCmdGetDescR1(unsigned char *info, int idx);
 extern "C" int _padCmd4B(unsigned char *info);
 extern "C" int _padGetActSize(unsigned char *info);
 extern "C" int _padLoadActInfo(unsigned char *info, unsigned char *buf);
-static void _padLoadActInfo_snd(unsigned char *info);
-static void _padLoadActInfo_rcv(unsigned char *info);
-static void _padSetActAlign_snd(unsigned char *info);
-static void _padSetActAlign_rcv(unsigned char *info);
-static void _padSetMainMode_snd(unsigned char *info);
-static void _padSetMainMode_rcv(unsigned char *info);
+extern "C" void _padLoadActInfo_snd(unsigned char *info);
+extern "C" void _padLoadActInfo_rcv(unsigned char *info);
+extern "C" void _padSetActAlign_snd(unsigned char *info);
+extern "C" void _padSetActAlign_rcv(unsigned char *info);
+extern "C" void _padSetMainMode_snd(unsigned char *info);
+extern "C" void _padSetMainMode_rcv(unsigned char *info);
 
 /* =====================  command-byte builders (one DualShock opcode each)  ===================== */
 
@@ -202,7 +202,7 @@ extern "C" int _padLoadActInfo(unsigned char *info, unsigned char *buf)
 }
 
 /* @0x801058D8 : _padLoadActInfo_snd -- emit the right descriptor request for the current sub-phase. */
-static void _padLoadActInfo_snd(unsigned char *info)
+extern "C" void _padLoadActInfo_snd(unsigned char *info)
 {
     int st = info[0x46];
     if (st == 3) {
@@ -219,7 +219,7 @@ static void _padLoadActInfo_snd(unsigned char *info)
 }
 
 /* @0x80105980 : _padLoadActInfo_rcv -- parse a descriptor response into the mode/act tables. */
-static void _padLoadActInfo_rcv(unsigned char *info)
+extern "C" void _padLoadActInfo_rcv(unsigned char *info)
 {
     unsigned char *rx = *(unsigned char **)(info + 0x3c);
     int st = info[0x46];
@@ -304,7 +304,7 @@ extern "C" int _padSetActAlign(unsigned char *info, int data)
 }
 
 /* @0x80105C5C : _padSetActAlign_snd -- emit the 0x4D align packet. */
-static void _padSetActAlign_snd(unsigned char *info)
+extern "C" void _padSetActAlign_snd(unsigned char *info)
 {
     info[0x36] = 0x4d;
     info[0x35] = 6;
@@ -312,7 +312,7 @@ static void _padSetActAlign_snd(unsigned char *info)
 }
 
 /* @0x80105C78 : _padSetActAlign_rcv -- resolve each mode's actuator map from the alignment request. */
-static void _padSetActAlign_rcv(unsigned char *info)
+extern "C" void _padSetActAlign_rcv(unsigned char *info)
 {
     unsigned mode = 0;
     if (info[0xe9] != 0) {
@@ -371,7 +371,7 @@ extern "C" int _padSetMainMode(unsigned char *info, int offs, int lock)
 }
 
 /* @0x80105DD8 : _padSetMainMode_snd. */
-static void _padSetMainMode_snd(unsigned char *info)
+extern "C" void _padSetMainMode_snd(unsigned char *info)
 {
     if (info[0x46] == 2) {
         info[0x36] = 0x44;
@@ -385,7 +385,7 @@ static void _padSetMainMode_snd(unsigned char *info)
 }
 
 /* @0x80105E2C : _padSetMainMode_rcv. */
-static void _padSetMainMode_rcv(unsigned char *info)
+extern "C" void _padSetMainMode_rcv(unsigned char *info)
 {
     if (info[0x53] == 0)
         _padFuncClrInfo(info);

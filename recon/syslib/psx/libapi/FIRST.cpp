@@ -45,7 +45,7 @@ static FirstFn _first_save;          /* @0x80148A7C : saved original device hand
 static char    _first_devname[16];   /* @0x80148A84 : device prefix extracted from `name` */
 
 /* @0x80109F5C : _first_patch -- restore the device's real handler, then forward the call. */
-static int _first_patch(int *state, int arg, int arg2)
+extern "C" int _first_patch(int *state, int arg, int arg2)
 {
     DCB *e, *end;
 

@@ -135,9 +135,11 @@ static int    _drain_saved_mask;     /* @0x801237D0 : imask saved across the dra
 static int    _q_reset_mask;         /* @0x801237D4 : imask saved across timeout/reset */
 static int    _gpu_timeout_target;   /* @0x801237D8 : VSync deadline */
 static int    _gpu_timeout_count;    /* @0x801237DC : spin counter */
-static u_char _gpu_active;           /* @0x8012369D : driver running (set by ResetGraph) */
-static int    _gpu_busy;             /* @0x801236A4 */
-static QueFunc _gpu_idle_cb;         /* @0x801236A8 : "queue drained" callback */
+/* GEnv block small statics -> .bss (absolute), not .sdata/.sbss gp-rel.  See the GEnv_drv/_gpu_debug
+ * note below (§3.12 absolute lever); the original addresses every GEnv field absolute. */
+static u_char _gpu_active __attribute__((section(".bss")));   /* @0x8012369D : driver running (set by ResetGraph) */
+static int    _gpu_busy   __attribute__((section(".bss")));   /* @0x801236A4 */
+static QueFunc _gpu_idle_cb __attribute__((section(".bss"))); /* @0x801236A8 : "queue drained" callback */
 
 static void _gpu_que_drain(void);    /* @0x800EF60C (fwd) */
 
@@ -289,8 +291,8 @@ static void _clearOTagR_dma(u_long *ot, int n)
  *   a background-clear fill (GP0 0x02 fast fill for 64-aligned rects, GP0 0x60 mono-rect with
  *   offset-relative coordinates otherwise).  Screen size lives in _screenW/_screenH. */
 
-static short _screenW;   /* @0x801236A0 */
-static short _screenH;   /* @0x801236A2 */
+static short _screenW __attribute__((section(".bss")));   /* @0x801236A0 (GEnv; absolute, not gp-rel) */
+static short _screenH __attribute__((section(".bss")));   /* @0x801236A2 (GEnv; absolute, not gp-rel) */
 
 /* @0x800EE898 : GP0 0xE3 drawing-area top-left, x/y clamped to the screen. */
 static u_long _set_clip_tl(int x, int y)
@@ -617,9 +619,14 @@ extern "C" void SetDrawEnv(void *dr_env, void *env)
 
 /* GPU_printf @0x80123698 : libgpu debug-print hook fn-ptr; null unless SetGraphDebug installs it.
  *   Defined here (SYS.obj owns it); all libgpu trace sites call through it. */
-extern "C" int (*GPU_printf)(const char *fmt, ...) = 0;
+/* GEnv block (0x80123694..) lives in REGULAR .data/.bss in the original -- the oracle addresses every
+ * field ABSOLUTE (`lui %hi;lw/lbu %lo`).  Small (<=4B) statics would default into .sdata/.sbss under
+ * -G4 here -> single gp-relative loads, a systematic +1-insn divergence.  Pin each into .data (init)
+ * or .bss (zero) so it materializes absolute, matching the oracle (§3.12 absolute lever; gp-rel
+ * CAVEAT: a small global can be regular .data/.bss, not .sdata/.sbss). */
+extern "C" int (*GPU_printf)(const char *fmt, ...) __attribute__((section(".bss"))) = 0;
 
-static u_char _gpu_debug;           /* @0x8012369E : GPU debug level (0=off; GEnv+2) */
+static u_char _gpu_debug __attribute__((section(".bss")));  /* @0x8012369E : GPU debug level (0=off; GEnv+2) */
 static char  _genv_dispenv[0x14];   /* @0x80123708 : last-set DISPENV cache (GEnv+0x6C) */
 static u_long _move_prim[5] = {      /* @0x80123734 : MoveImage's VRAM->VRAM copy primitive */
     0x04ffffffu,                     /* tag: 4 words, terminates */
@@ -653,7 +660,12 @@ static const GpuTbl _gpu_tbl = {                 /* the live driver table */
     _gpu_dma_chain, (QueFunc)_drs, (QueFunc)_dws, _gpu_que_drain, _get_gp1, _clearOTagR_dma,
     _get_gpuinfo, _reset, _get_status, _sync
 };
-static const GpuTbl *GEnv_drv = &_gpu_tbl;        /* @0x80123694 -> @0x80123654 */
+/* GEnv_drv lives in REGULAR .data in the original (oracle addresses it ABSOLUTE: `lui %hi;lw %lo`),
+ * but a 4-byte initialized pointer would default into .sdata under -G4 here -> a single gp-relative
+ * load (`lw v0,N(gp)`), a +1-insn divergence (LoadImage/StoreImage 1 from PASS).  Force it back into
+ * .data with an explicit section so it is addressed absolute, matching the oracle (§3.12 absolute
+ * lever; the gp-rel CAVEAT -- a small global can be regular .data, not .sdata). */
+static const GpuTbl *GEnv_drv __attribute__((section(".data"))) = &_gpu_tbl;   /* @0x80123694 -> @0x80123654 */
 
 /* @0x800ED8E4 : debug-only RECT validator/printer (inert when GPU debug level is 0). */
 static void _image(const char *label, void *rect)

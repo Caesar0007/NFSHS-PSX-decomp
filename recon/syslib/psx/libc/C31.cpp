@@ -1,10 +1,7 @@
-/* syslib/psx/libc/C31.cpp -- RECONSTRUCTED. obj C31.obj ; libc.lib. strrchr @0x80103590 (BIOS A0:0x1C).
- * BIOS trampoline; real-algorithm reconstruction (returns ptr to last `c`, or 0). */
-extern "C" char *strrchr(const char *s, int c)   /* @0x80103590 */
-{
-    const char *last = (const char *)0;
-    for (;; s++) {
-        if (*s == (char)c) last = s;
-        if (*s == 0) return (char *)last;
-    }
-}
+/* syslib/psx/libc/C31.cpp -- RECONSTRUCTED from nfs4-f.exe (disasm-v3).
+ *   obj C31.obj ; libc.lib.  strrchr @0x80103590 -- 3-insn BIOS trampoline (addiu $t2,$zero,0xA0; jr $t2;
+ *   addiu $t1,$zero,0x1F) to PSX BIOS A0:0x1F.  Real code is the console BIOS -> RULE 7 BIOS thunk.
+ */
+#include "../../../lib/bios_thunk.h"
+
+BIOS_THUNK(strrchr, 0xA0, 0x1F);   /* @0x80103590  BIOS A0:0x1F */

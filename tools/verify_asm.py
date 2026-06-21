@@ -24,6 +24,14 @@ def norm_ins(t):
     t = t.replace('$', '')                                    # drop $ on regs (oracle has them, objdump doesn't)
     t = re.sub(r',\s+', ',', t)                               # normalize space after commas
     t = re.sub(r'0x([0-9a-fA-F]+)', lambda m: str(int(m.group(1),16)), t)  # hex->dec (case-insens)
+    # `break` code/param: objdump omits code 0 (prints bare `break`) while the oracle .s prints
+    # `break 0`; and `break 0, N` vs `break N`. Canonicalize: strip ALL operands that are 0,
+    # keeping only nonzero ones (the real BIOS/SN call id). So `break`==`break 0`==`break 0,0`,
+    # and `break 0,259`==`break 259` (byte-identical; same artifact as the move/li normalizers).
+    m = re.match(r'^break\b(.*)$', t)
+    if m:
+        ops = [o for o in re.split(r'[ ,]+', m.group(1).strip()) if o and o != '0']
+        t = 'break' + ((' ' + ','.join(ops)) if ops else '')
     t = re.sub(r'\((\d+) ?>> ?(\d+)\)', lambda m: str(int(m.group(1))>>int(m.group(2))), t)  # eval (N>>M)
     t = re.sub(r'\((\d+) ?& ?(\d+)\)', lambda m: str(int(m.group(1))&int(m.group(2))), t)     # eval (N&M)
     t = re.sub(r'%hi\([^)]*\)', '0', t)            # %hi(SYM) -> 0 (objdump shows lui r,0)

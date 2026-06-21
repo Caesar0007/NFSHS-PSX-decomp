@@ -1,24 +1,14 @@
 /* syslib/psx/libgte/REG03.cpp -- RECONSTRUCTED from nfs4-f.exe (disasm-v3).
  *   obj libgte.lib(REG03.OBJ): GTE (COP2) depth-cueing coefficient setters.  Each loads one
- *   value into a GTE control register via ctc2.  Faithful = the cop2 instruction on MIPS, a
- *   no-op stub on the host (the GTE is PSX-only hardware). */
+ *   value into a GTE control register via ctc2.  The oracle marks both as ".set noreorder /
+ *   Handwritten function / handwritten instruction": the argument is moved straight from $a0
+ *   into the control register with NO sign/zero extension and NO C prologue/epilogue, so the
+ *   faithful form is the literal handwritten sequence (ctc2 $a0,$N; jr $ra; nop) -- emitted via
+ *   the GTE_CTC_THUNK file-scope-__asm__ macro.  Host gets a portable no-op stub. */
+#include "../../../lib/gte_thunk.h"
 
 /* @0x80106674 : DQA = GTE control register 27 (depth-cue scale). */
-extern "C" void SetDQA(short dqa)
-{
-#if defined(__mips__)
-    __asm__ volatile("ctc2 %0,$27" : : "r"((int)dqa));
-#else
-    (void)dqa;
-#endif
-}
+GTE_CTC_THUNK(SetDQA, 27, short);
 
 /* @0x80106680 : DQB = GTE control register 28 (depth-cue offset). */
-extern "C" void SetDQB(long dqb)
-{
-#if defined(__mips__)
-    __asm__ volatile("ctc2 %0,$28" : : "r"((int)dqb));
-#else
-    (void)dqb;
-#endif
-}
+GTE_CTC_THUNK(SetDQB, 28, long);

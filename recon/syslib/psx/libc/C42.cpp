@@ -1,14 +1,7 @@
-/* syslib/psx/libc/C42.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.
- *   Source obj : nfs4\syslib\psx\C42.obj ; archive libc.lib (PsyQ BIOS-stub).
- *   1 fn @0x800EAAC4: memcpy.  BIOS trampoline (li $t2,0xA0; jr $t2; li $t1,0x2A) to PSX BIOS A0:0x2A;
- *   the real code is NOT in NFS4.EXE -> real-algorithm implementation per the reconstruction rule.
- *   (PSX BIOS memcpy copies forward, n bytes, returns dst.)
+/* syslib/psx/libc/C42.cpp -- RECONSTRUCTED from nfs4-f.exe (disasm-v3).
+ *   obj C42.obj ; libc.lib.  memcpy @0x800EAAC4 -- 3-insn BIOS trampoline (addiu $t2,$zero,0xA0; jr $t2;
+ *   addiu $t1,$zero,0x2A) to PSX BIOS A0:0x2A.  Real code is the console BIOS -> RULE 7 BIOS thunk.
  */
-extern "C" void *memcpy(void *dst, const void *src, int n)   /* @0x800EAAC4  (BIOS A0:0x2A) */
-{
-    char *d = (char *)dst;
-    const char *s = (const char *)src;
-    while (n-- > 0)
-        *d++ = *s++;
-    return dst;
-}
+#include "../../../lib/bios_thunk.h"
+
+BIOS_THUNK(memcpy, 0xA0, 0x2A);   /* @0x800EAAC4  BIOS A0:0x2A */

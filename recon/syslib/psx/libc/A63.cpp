@@ -1,10 +1,8 @@
 /* syslib/psx/libc/A63.cpp -- RECONSTRUCTED from nfs4-f.exe (disasm-v3).
- *   obj A63.obj ; libc.lib.  puts @0x800E80CC -- BIOS trampoline (B0:0x3F -> std_out_puts).  Faithful
- *   MIPS-target asm; x86 fallback is a stub (real impl is the PSX BIOS TTY).
+ *   obj A63.obj ; libc.lib.  puts @0x800E80CC -- BIOS trampoline (B0:0x3F -> std_out_puts).  In the EXE
+ *   this is a 3-insn tail-call (addiu $t2,$zero,0xB0; jr $t2; addiu $t1,$zero,0x3F) to the PSX BIOS, so
+ *   per RULE 7 it stays a BIOS thunk (the real code is the console BIOS TTY).
  */
-#if defined(__mips__)
-extern "C" __attribute__((naked)) void puts(const char *s)
-{ __asm__ __volatile__(".set noreorder\n\t li $10,0xB0\n\t jr $10\n\t li $9,0x3F\n\t .set reorder"); }
-#else
-extern "C" void puts(const char *s) { (void)s; }
-#endif
+#include "../../../lib/bios_thunk.h"
+
+BIOS_THUNK(puts, 0xB0, 0x3F);   /* @0x800E80CC */

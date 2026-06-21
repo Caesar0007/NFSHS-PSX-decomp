@@ -8,6 +8,15 @@
  *     0x20='h'(short) 0x40='l'(long) 0x80='L'.  sign char = local_40 byte1.  width/prec = local_3c/38.
  *   Numbers built backward into a scratch buffer, padded to width, emitted via memmove.
  *   Conversions: c d i o p u x X s n ; length-mods h l L.  Variadic frame (local_30/local_res8) == va_list.
+ *
+ *   VERIFY: behaviorally faithful but a large NEAR-MISS WALL (~436/558 insns; the recon is ~120 insns
+ *   short of the oracle).  This is the biggest libc fn (a 558-insn printf-family parser).  A byte-match
+ *   needs a dedicated focused pass: NFS4 uses a packed FLAGS-BYTE (local_40: 1='-' 2='+' 4='#' 8='0'
+ *   0x10=prec 0x20='h' 0x40='l' 0x80='L'), which THIS code already models (so SOTN's bitfield-struct
+ *   form, sotn-psxsdk/src/main/psxsdk/libc/sprintf.c, is the WRONG shape here -- kept only as a structural
+ *   cross-reference for the conversion/width/precision logic).  The gap is in the exact conversion-loop
+ *   shapes + width/precision padding + register allocation across 558 insns -- deferred as a wall, the
+ *   current TU is the clearest faithful behavioral form.
  */
 #include <stdarg.h>
 #include <stddef.h>   /* NULL */

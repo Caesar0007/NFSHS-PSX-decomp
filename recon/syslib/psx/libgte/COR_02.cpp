@@ -1,6 +1,8 @@
-/* syslib/psx/libgte/COR_02.cpp -- RECONSTRUCTED from nfs4-f.exe (Ghidra).
- *   obj libgte.lib(COR_02.OBJ): ccos -- full-circle cosine.  Folds the angle (cosine is even)
- *   into one quadrant, calls csincos, and applies the quadrant sign. */
+/* syslib/psx/libgte/COR_02.cpp -- RECONSTRUCTED from nfs4-f.exe (Ghidra + disasm-v3).
+ *   obj libgte.lib(COR_02.OBJ): ccos -- full-circle cosine.  Cosine is even, so the angle is
+ *   made non-negative, reduced modulo one revolution (0x1000) with a *signed* `%` (the oracle's
+ *   sra/sll/subu round-to-zero sequence -- NOT an andi mask, since gcc cannot prove the negated
+ *   value is non-negative), then folded into the first quadrant and sign-corrected. */
 
 extern "C" int csincos(int angle, int *psin, int *pcos);   /* COR_01 */
 
@@ -8,12 +10,11 @@ extern "C" int csincos(int angle, int *psin, int *pcos);   /* COR_01 */
 extern "C" int ccos(int a)
 {
     int s, c;
-    unsigned arg;
     if (a < 0) a = -a;
-    arg = (unsigned)a & 0xfff;                       /* a mod 0x1000 */
-    if (arg < 0x400)               { csincos((int)arg, &s, &c);          return c;  }
-    if (arg - 0x400 < 0x400)       { csincos((int)(0x7ff - arg), &s, &c); return -c; }
-    if (arg - 0x800 < 0x400)       { csincos((int)(arg - 0x800), &s, &c); return -c; }
-    if (arg - 0xc00 < 0x400)       { csincos((int)(0xfff - arg), &s, &c); return c;  }
-    return 0;
+    a = a % 0x1000;
+    if ((unsigned)a < 0x400)             { csincos(a, &s, &c);          return c;  }
+    if ((unsigned)(a - 0x400) < 0x400)   { csincos(0x7ff - a, &s, &c);  return -c; }
+    if ((unsigned)(a - 0x800) < 0x400)   { csincos(a - 0x800, &s, &c);  return -c; }
+    if ((unsigned)(a - 0xc00) < 0x400)   { csincos(0xfff - a, &s, &c);  return c;  }
+    return c;
 }

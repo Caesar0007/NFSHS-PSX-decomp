@@ -295,16 +295,16 @@ short tTournamentManager::IsTournamentFinished()
 {
   tTournamentDefinition *def;
   tTourneyInfo *currentTourney;
-  int currentTrack;
 
   def = this->fDefinition;
   currentTourney = def->fTournaments + (def->fTiers[this->fTier].fTournOffset + this->fTournament);
-  currentTrack = this->fCurrentTrack;
-  if ((currentTrack < (int)currentTourney->fNumTracks) &&
-     ((currentTourney->fKnockout == '\0') || (currentTrack <= (int)this->fCompetitors[0].fPoints))) {
-    return 0;
-  }
+  if (this->fCurrentTrack >= (int)currentTourney->fNumTracks) goto ret1;
+  if (currentTourney->fKnockout == '\0') goto ret0;
+  if (this->fCurrentTrack <= (int)this->fCompetitors[0].fPoints) goto ret0;
+ret1:
   return 1;
+ret0:
+  return 0;
 }
 
 /* ---- (free)::free  [FETOURN.CPP:349-365] ---- */
@@ -1063,11 +1063,10 @@ void * tTournamentManager::ValidCar(tCarInfo *carInfo)
 
 /* ---- tListIteratorTournament::ctor  [FETOURN.CPP:1109-1111] ---- */
 tListIteratorTournament::tListIteratorTournament(char *valPtr,tTournamentManager *tournManager)
-
+  : _base_tListIterator((short *)0x0, valPtr)
 {
 
-  tListIterator_ctor(&this->_base_tListIterator,(short *)0x0,valPtr);
-  (this->_base_tListIterator)._vf = (__vtbl_ptr_type (*)[6])tListIteratorTournament_vtable;
+  *(void **)&((this->_base_tListIterator)._vf) = (void *)tListIteratorTournament_vtable;
   this->fTournamentManager = tournManager;
   return;
 }
@@ -1103,7 +1102,7 @@ int tListIteratorTournament::TextValue(tPlayer player_id)
 {
   short tournIndex;
   tTournamentDefinition *ptVar1;
-  
+
   ptVar1 = this->fTournamentManager->fDefinition;
   return (signed char)ptVar1->fTournaments
          [(uint)(byte)*(this->_base_tListIterator).fValue +

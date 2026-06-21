@@ -3398,6 +3398,46 @@
       "metadata": {
         "source_path": "recon/eaclib/psx/pad.cpp"
       }
+    },
+    {
+      "name": "frontend/psx/memcard",
+      "target_path": "expected/src/frontend/psx/memcard.c.o",
+      "base_path": "build/recon/frontend/psx/memcard.cpp.o",
+      "metadata": {
+        "source_path": "recon/frontend/psx/memcard.cpp"
+      }
+    },
+    {
+      "name": "game/common/spchevnt",
+      "target_path": "expected/src/game/common/spchevnt.c.o",
+      "base_path": "build/recon/game/common/spchevnt.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/common/spchevnt.cpp"
+      }
+    },
+    {
+      "name": "game/psx/textpix",
+      "target_path": "expected/src/game/psx/textpix.c.o",
+      "base_path": "build/recon/game/psx/textpix.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/psx/textpix.cpp"
+      }
+    },
+    {
+      "name": "game/psx/textpsx",
+      "target_path": "expected/src/game/psx/textpsx.c.o",
+      "base_path": "build/recon/game/psx/textpsx.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/psx/textpsx.cpp"
+      }
+    },
+    {
+      "name": "game/psx/unpack",
+      "target_path": "expected/src/game/psx/unpack.c.o",
+      "base_path": "build/recon/game/psx/unpack.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/psx/unpack.cpp"
+      }
     }
   ]
 }

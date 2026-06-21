@@ -1,0 +1,19 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/front", MCRD_init);
+INCLUDE_ASM("asm/nonmatchings/front", iMCRD_InitCard);
+INCLUDE_ASM("asm/nonmatchings/front", MCRD_restore);
+INCLUDE_ASM("asm/nonmatchings/front", MCRD_getopts);
+INCLUDE_ASM("asm/nonmatchings/front", MCRD_setopts);
+INCLUDE_ASM("asm/nonmatchings/front", MCRD_loadfile);
+INCLUDE_ASM("asm/nonmatchings/front", iMCRD_DoFileLoad);
+INCLUDE_ASM("asm/nonmatchings/front", MCRD_savefile);
+INCLUDE_ASM("asm/nonmatchings/front", iMCRD_DoFileWrite);
+INCLUDE_ASM("asm/nonmatchings/front", iMCRD_DoFileDelete);
+INCLUDE_ASM("asm/nonmatchings/front", MCRD_handlecardevents);
+INCLUDE_ASM("asm/nonmatchings/front", MCRD_fileexists);
+INCLUDE_ASM("asm/nonmatchings/front", garyMemCardGrabBlocks);
+INCLUDE_ASM("asm/nonmatchings/front", iMCRD_LoadCard);
+INCLUDE_ASM("asm/nonmatchings/front", iMCRD_FormatCard);
+INCLUDE_ASM("asm/nonmatchings/front", iMCRD_HandleError);
+INCLUDE_ASM("asm/nonmatchings/front", iMCRD_DefaultCBProc1);

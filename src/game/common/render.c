@@ -1,0 +1,24 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", Render_CreatePlayerViews__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Render_CreatePauseMenuViews__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Render_CreateViews__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Render_StartRenderingWorldView__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", Render_StopRenderingWorldView__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", Render_RenderWorld__FP13DRender_tView);
+INCLUDE_ASM("asm/nonmatchings/main", Render_RenderPlayerView__Fii);
+INCLUDE_ASM("asm/nonmatchings/main", Render_StartFrameRender__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Render_StopFrameRender__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Render_InitPauseMenu__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Render_RenderPauseMenuView__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Render_KillPauseMenu__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Render_Render__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", FlareThing__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Render_InitTrackRender__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Render_RestartTrackRender__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Render_InitTrackRenderPostSim__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Render_KillTrackRender__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Render_InitLibRender__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", StampImage__Fii);
+INCLUDE_ASM("asm/nonmatchings/main", Render_InitBlurMode__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Render_InsertDepthOfField__Fv);

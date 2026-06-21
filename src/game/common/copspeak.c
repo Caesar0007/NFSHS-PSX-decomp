@@ -1,0 +1,26 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_RadioStaticInit__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_RadioStaticActive__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_RadioStaticSquelch__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_InitRequest__FP17CopSpeak_tRequest);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_SilenceCop__FP8Car_tObji);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_ReadyNextRequest__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_Cancel__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_Stop__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_CleanUp__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_InitVars__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_DirectRequest__FillP8Car_tObjPc);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_GenericBankRequest__FiP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_StartUp__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_GetEnginePatch__Fii);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_Play__FP17CopSpeak_tRequesti);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_Skip__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_Request__FP17CopSpeak_tRequest);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_LoadNextRequest__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_PlayNextRequest__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_Flush__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_Server__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_SfxQueued__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_ShowQueue__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_Debug__Fv);

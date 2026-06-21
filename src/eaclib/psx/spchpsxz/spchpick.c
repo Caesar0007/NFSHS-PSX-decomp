@@ -1,0 +1,27 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_MatchSample);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_GetPhraseBank);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_ClearCycleBit);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_CheckBankBit);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_CheckTemplateSample);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_SampleExists);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_ChooseSamples);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_SampleLength);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_ConvertTime);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_SentenceLength);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_OrderSentences);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_RepeatEvent);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_ShortRuleStatus);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_SentenceGetChoices);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_RandomizeSentencePicks);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_IterateChoice);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_ChooseShortSentence);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_SentenceMakeChoice);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_ConstantRuleSet);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_MakeSampleRequests);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_ClearChosen);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_SaveChosenSentence);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_PlayChosen);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_ChooseSentence);
+INCLUDE_ASM("asm/nonmatchings/main", SPCH_SetPreLoadTicks);

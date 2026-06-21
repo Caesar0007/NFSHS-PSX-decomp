@@ -1,0 +1,25 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_RefreshStatus__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_Threshold__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_Buffered__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_GetCurrentSong__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_SwitchSong__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_Fail__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_QueueRequestedSong__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_SetEntry__FP19AudioMus_tSongEntry);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_SetCurrentSongInfo__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_Server__Fii);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_GetSongList__FPci);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_InitGlobals__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_InitDriverGlobals__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_DriverStartUp__Fii);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_SysStartUp__FiiPc);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_DriverCleanUp__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_SysCleanUp__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_StopSong__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_BuildPlayList__FiPi);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_BuildPattern__FPc);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_PlaySong__FPc);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_Volume__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", AudioMus_AutoVolume__Fii);

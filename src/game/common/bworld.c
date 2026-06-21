@@ -1,0 +1,22 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", xzsquaredist32__FP8coorddefT0);
+INCLUDE_ASM("asm/nonmatchings/main", UpdateContext__FP13DRender_tViewi);
+INCLUDE_ASM("asm/nonmatchings/main", BWorld_BuildGlareEffects__FP13DRender_tViewP11Draw_DCacheP5Group);
+INCLUDE_ASM("asm/nonmatchings/main", BWorld_InitSpikeBelt__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", BWorld_SetSpikeBelt__Fiii);
+INCLUDE_ASM("asm/nonmatchings/main", BWorld_GetSpikeBelt__FPiN20);
+INCLUDE_ASM("asm/nonmatchings/main", SetupBuildMatrices__FP13DRender_tViewP11Draw_DCache);
+INCLUDE_ASM("asm/nonmatchings/main", BWorld_CheckChunkVisible__FP12BWorldSm_PosT0);
+INCLUDE_ASM("asm/nonmatchings/main", GetRezIndex__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", SetupChunkBuildList__FP13DRender_tView);
+INCLUDE_ASM("asm/nonmatchings/main", BWorld_IsSliceInBuildList__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", BWorld_OnyxBuildFacets__FP13DRender_tView);
+INCLUDE_ASM("asm/nonmatchings/main", BWAllocMem__Fl);
+INCLUDE_ASM("asm/nonmatchings/main", BWorld_InitContexts__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", BWorld_DeInitContexts__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", SetContext__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", BWorld_OpenContext__Fii);
+INCLUDE_ASM("asm/nonmatchings/main", BWorld_Restart__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", BWorld_Init__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", BWorld_DeInit__Fv);

@@ -1,0 +1,19 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_SetHorn__FP8Car_tObji);
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_HonkHorn__FP8Car_tObjiii);
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_InitSource__FP16AudioClc_tSourceP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_StartUp__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_CalcDopplerShiftRatio__FP8coorddefT0);
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_CalcDistance__FP17DRender_tCalcViewP8coorddef);
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_CalcAzimuth__FP17DRender_tCalcViewP8coorddef);
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_CalcCarDirection__FP17DRender_tCalcViewP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_CalcTrackAzimuth__FP17DRender_tCalcViewP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_SoundOpponentHorn__Fiiii);
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_SilenceOpponentHorn__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_SoundCloseCar__Fii);
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_SoundPlayersCar__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_ResetClosest__FiP8Car_tObji);
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_GetClosestCars__Fiii);
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_SoundSpeech__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_SoundCars__Fv);

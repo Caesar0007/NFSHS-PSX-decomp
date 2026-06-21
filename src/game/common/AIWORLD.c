@@ -1,0 +1,22 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_ZSplineDistance__FP8Car_tObjT0);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_ZSplineDistance__FP8coorddefT0P10matrixtdef);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_ApxSplineDistance__FP8Car_tObjT0);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_ApxSplineDistance__FP8Car_tObji);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_ApxSplineDistance__FiP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_ApxSplineDistance__Fii);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_SplineDistance__FP8Car_tObjT0);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_SplineDistance__FP8Car_tObjiP8coorddef);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_IsDriveableLaneInSliceRange__Fiiii);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_IsDriveableLane__Fii);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_GetProfileMask__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_CheckForBarrierBetweenLanes__Fiii);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_LaneIndex__Fii);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_CalculateLaneInfo__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_CalculateDeltaRoadYaw__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_CalcRoadBend__FP8Car_tObji);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_CalcFutureLateralVel__FP8Car_tObji);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_CalcSpeed__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_CalcLateralVelocity__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_FindBarrierLessLaneAndPosition__FP8Car_tObjPiT1);

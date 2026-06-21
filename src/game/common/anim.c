@@ -1,0 +1,19 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", Anim_Restart__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Anim_InitSystem__FPc);
+INCLUDE_ASM("asm/nonmatchings/main", Anim_DeInitSystem__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Anim_Handle__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", Anim_FreeHandle__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", Anim_GetAnim__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", Anim_GetLastRotPos__FP15Trk_AnimateInstP8coorddefP10matrixtdef);
+INCLUDE_ASM("asm/nonmatchings/main", Anim_GetLastAnimPosRot__FiiP8coorddefP10matrixtdef);
+INCLUDE_ASM("asm/nonmatchings/main", Anim_GetRotPos__FP15Trk_AnimateInstiiP8coorddefP10matrixtdef);
+INCLUDE_ASM("asm/nonmatchings/main", Anim_GetPos__FP15Trk_AnimateInstiiP8coorddefPiT4);
+INCLUDE_ASM("asm/nonmatchings/main", __10AnimScripti);
+INCLUDE_ASM("asm/nonmatchings/main", __10AnimScriptii);
+INCLUDE_ASM("asm/nonmatchings/main", __10AnimScriptP5Groupiii);
+INCLUDE_ASM("asm/nonmatchings/main", GetAnimFrameInfo__10AnimScriptPiT1);
+INCLUDE_ASM("asm/nonmatchings/main", GetTimedAnimPosRot__10AnimScriptP8coorddefP10matrixtdef);
+INCLUDE_ASM("asm/nonmatchings/main", GetTimedAnimPosRot__10AnimScriptiP8coorddefP10matrixtdef);
+INCLUDE_ASM("asm/nonmatchings/main", GetStatus__10AnimScript);

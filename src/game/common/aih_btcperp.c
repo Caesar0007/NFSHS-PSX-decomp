@@ -1,0 +1,23 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", ReleaseCops__15AIHigh_BTC_Perp);
+INCLUDE_ASM("asm/nonmatchings/main", HandleCops__15AIHigh_BTC_Perp);
+INCLUDE_ASM("asm/nonmatchings/main", IsFalseArrest__15AIHigh_BTC_Perp);
+INCLUDE_ASM("asm/nonmatchings/main", CheckForControlsPressed__15AIHigh_BTC_Perp);
+INCLUDE_ASM("asm/nonmatchings/main", HandlePullOver__15AIHigh_BTC_Perp);
+INCLUDE_ASM("asm/nonmatchings/main", NotifyCopsOfArrest__15AIHigh_BTC_Perp);
+INCLUDE_ASM("asm/nonmatchings/main", NotifyCopsOfArrestComplete__15AIHigh_BTC_Perp);
+INCLUDE_ASM("asm/nonmatchings/main", NotifyCopsOfFalseArrest__15AIHigh_BTC_Perp);
+INCLUDE_ASM("asm/nonmatchings/main", NotifyHumanCopsOfArrestHud__15AIHigh_BTC_Perp);
+INCLUDE_ASM("asm/nonmatchings/main", ClearForNewStage__15AIHigh_BTC_PerpP19AIHigh_BTC_HumanCop);
+INCLUDE_ASM("asm/nonmatchings/main", CheckForActivation__15AIHigh_BTC_Perp);
+INCLUDE_ASM("asm/nonmatchings/main", NewStage__20AIHigh_BTC_HumanPerpP19AIHigh_BTC_HumanCop);
+INCLUDE_ASM("asm/nonmatchings/main", HighExecute__20AIHigh_BTC_HumanPerp);
+INCLUDE_ASM("asm/nonmatchings/main", __17AIHigh_BTC_AIPerpP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", ___17AIHigh_BTC_AIPerp);
+INCLUDE_ASM("asm/nonmatchings/main", AvoidCops__17AIHigh_BTC_AIPerp);
+INCLUDE_ASM("asm/nonmatchings/main", CalculateTimeTillContact__17AIHigh_BTC_AIPerp);
+INCLUDE_ASM("asm/nonmatchings/main", FindClosestCop__17AIHigh_BTC_AIPerp);
+INCLUDE_ASM("asm/nonmatchings/main", HighExecute__17AIHigh_BTC_AIPerp);
+INCLUDE_ASM("asm/nonmatchings/main", NewStage__17AIHigh_BTC_AIPerpP19AIHigh_BTC_HumanCop);
+INCLUDE_ASM("asm/nonmatchings/main", ___20AIHigh_BTC_HumanPerp);

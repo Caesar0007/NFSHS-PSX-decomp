@@ -1,0 +1,21 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", Night_FindClosestColor__FG7CVECTORPi);
+INCLUDE_ASM("asm/nonmatchings/main", Night_CreateNightTableElement__FiliPUc);
+INCLUDE_ASM("asm/nonmatchings/main", Night_CreateNightTable__FiliPA256_A16_Uc);
+INCLUDE_ASM("asm/nonmatchings/main", Night_GenerateNextLightningEvent__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Night_PauseLightningEffect__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", Night_DoLightningEffect__FP13DRender_tView);
+INCLUDE_ASM("asm/nonmatchings/main", Night_SetCopColor__FP18GameSetup_tCarData);
+INCLUDE_ASM("asm/nonmatchings/main", Night_InitPlayerHeadLightColor__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", Night_SetPlayerHeadLightColor__Fiii);
+INCLUDE_ASM("asm/nonmatchings/main", Night_InitCopLightColors__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Night_SetCopLightColors__Fii);
+INCLUDE_ASM("asm/nonmatchings/main", Night_InitWeatherTables__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Night_SetWeatherColors__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", Night_GenerateAllLightTables__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Night_InitNightDriving__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Night_KillNightDriving__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Night_RestartNightDriving__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Night_SetEnviroment__FP13DRender_tView);
+INCLUDE_ASM("asm/nonmatchings/main", Night_AdditiveNightCalc__FP6VECTORP7CVECTOR);

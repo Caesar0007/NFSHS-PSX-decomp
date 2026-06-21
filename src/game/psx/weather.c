@@ -1,0 +1,26 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", Weather_SetMatrix__FP10matrixtdef);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_SetIdentMatrix__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_InitSnow__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_InitRain__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_InitSplats__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_GetNewState__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_ChangeDensityState__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_ChangeIntensityState__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_ChangeDensityBasedOnTime__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_ChangeIntensityBasedOnTime__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_InitStateControls__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_Restart__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_Init__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_DeInit__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_TransformVertex__FP10matrixtdefiP7SVECTOR);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_CheckAndResetParticles__FP7SVECTOR);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_QuickReOrthogonalize__FP10matrixtdefT0);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_CreateSnow__FP7SVECTOR);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_CreateRain__FP7SVECTORP7DVECTORPc);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_CreateSplat__FP18Weather_tSplatInfo);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_DoSplats__FiP18Weather_tSplatInfo);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_DoWeather__FP13DRender_tView);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_BuildWeather__FP13DRender_tView);

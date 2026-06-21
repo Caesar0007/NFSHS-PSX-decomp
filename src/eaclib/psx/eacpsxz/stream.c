@@ -1,0 +1,20 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", STREAM_overhead);
+INCLUDE_ASM("asm/nonmatchings/main", STREAM_create);
+INCLUDE_ASM("asm/nonmatchings/main", STREAM_setfilter);
+INCLUDE_ASM("asm/nonmatchings/main", STREAM_destroy);
+INCLUDE_ASM("asm/nonmatchings/main", STREAM_setpriority);
+INCLUDE_ASM("asm/nonmatchings/main", STREAM_setgreedylevel);
+INCLUDE_ASM("asm/nonmatchings/main", STREAM_setgreedystate);
+INCLUDE_ASM("asm/nonmatchings/main", STREAM_queuefile);
+INCLUDE_ASM("asm/nonmatchings/main", STREAM_queuemem);
+INCLUDE_ASM("asm/nonmatchings/main", STREAM_cancelrequest);
+INCLUDE_ASM("asm/nonmatchings/main", STREAM_kill);
+INCLUDE_ASM("asm/nonmatchings/main", STREAM_get);
+INCLUDE_ASM("asm/nonmatchings/main", STREAM_release);
+INCLUDE_ASM("asm/nonmatchings/main", STREAM_gettable);
+INCLUDE_ASM("asm/nonmatchings/main", STREAM_state);
+INCLUDE_ASM("asm/nonmatchings/main", STREAM_isendofstream);
+INCLUDE_ASM("asm/nonmatchings/main", STREAM_buffersize);
+INCLUDE_ASM("asm/nonmatchings/main", STREAM_bufferusage);

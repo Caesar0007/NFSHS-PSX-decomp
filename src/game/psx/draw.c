@@ -1,0 +1,26 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", Draw_SetView__Fiiiiiiiii);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_InitViews__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_InitViewOT__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_InitViewOTInGame__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_DeInitViews__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_DeInitViewsInGame__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_GetDRAWENV__Fii);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_SetViewMemBudget__Fii);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_SetViewColor__Fiiii);
+INCLUDE_ASM("asm/nonmatchings/main", AllocatePrimitivesBuffer__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", ClearPrimitivesBuffer__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", ClearPlatformPrimitivesBuffer__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_StartRenderingView__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_StopRenderingView__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_CheckFirstFrameRender__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_StartFrameRender__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_SetDrawSyncCallback__FPFv_v);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_StopFrameRender__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_DrawDirectScreen__FP8shapetblii);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_DirectSetEnvironment__Fiiiiiiiiii);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_SetEnvironment__Fiiiiiiii);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_InitRenderEngine__Fiiiiii);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_DeInitRenderEngine__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_InitLibRender__Fv);

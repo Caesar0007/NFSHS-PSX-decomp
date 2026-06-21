@@ -1,0 +1,23 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", FILE_overhead);
+INCLUDE_ASM("asm/nonmatchings/main", FILE_opstatus);
+INCLUDE_ASM("asm/nonmatchings/main", FILE_operror);
+INCLUDE_ASM("asm/nonmatchings/main", FILE_init);
+INCLUDE_ASM("asm/nonmatchings/main", FILE_completeop);
+INCLUDE_ASM("asm/nonmatchings/main", FILE_callbackop);
+INCLUDE_ASM("asm/nonmatchings/main", FILE_open);
+INCLUDE_ASM("asm/nonmatchings/main", FILE_close);
+INCLUDE_ASM("asm/nonmatchings/main", FILE_read);
+INCLUDE_ASM("asm/nonmatchings/main", FILE_size);
+INCLUDE_ASM("asm/nonmatchings/main", FILE_waitop);
+INCLUDE_ASM("asm/nonmatchings/main", FILE_atomic);
+INCLUDE_ASM("asm/nonmatchings/main", FILE_priorityop);
+INCLUDE_ASM("asm/nonmatchings/main", FILE_initwithmem);
+INCLUDE_ASM("asm/nonmatchings/main", FILE_cancelop);
+INCLUDE_ASM("asm/nonmatchings/main", iFILE_delbigclosecallback);
+INCLUDE_ASM("asm/nonmatchings/main", iFILE_CommandCompleteCallback);
+INCLUDE_ASM("asm/nonmatchings/main", iFILE_addbigreadcallback);
+INCLUDE_ASM("asm/nonmatchings/main", iFILE_addbigopencallback);
+INCLUDE_ASM("asm/nonmatchings/main", FILE_addbig);
+INCLUDE_ASM("asm/nonmatchings/main", FILE_delbig);

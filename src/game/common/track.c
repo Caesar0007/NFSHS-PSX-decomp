@@ -1,0 +1,25 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", Track_SetTrackNumber__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", Track_MakeTrackPathName__FPc);
+INCLUDE_ASM("asm/nonmatchings/main", Track_MakeTrackDataPathName__FPc);
+INCLUDE_ASM("asm/nonmatchings/main", AllocArtResource__FP18Track_tArtresourcei);
+INCLUDE_ASM("asm/nonmatchings/main", InitArtResources__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", DeInitArtResources__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii);
+INCLUDE_ASM("asm/nonmatchings/main", LoadShapesAndMakePmx_EnvMap__FPcP12Draw_tPixMapii);
+INCLUDE_ASM("asm/nonmatchings/main", TexturesLoadInitial__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Track_AnimateTextures__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Track_GetProperMultiPalShapeIndex__Fii);
+INCLUDE_ASM("asm/nonmatchings/main", Track_ProcessFlipAndUVFlags__FiP12Draw_tPixMapT1);
+INCLUDE_ASM("asm/nonmatchings/main", Track_AssociateSingleMaterial__FP12Trk_MaterialP15Track_tMaterialP18Track_tArtresource);
+INCLUDE_ASM("asm/nonmatchings/main", Track_LinkMaterials__FP15SerializedGroupiP15Track_tMaterial);
+INCLUDE_ASM("asm/nonmatchings/main", ReduceObjectPrecision__FP5GroupT0i);
+INCLUDE_ASM("asm/nonmatchings/main", InvalidatePersistentCollideBoomObjects__FP5GroupT0);
+INCLUDE_ASM("asm/nonmatchings/main", CalcObjectBoundingSphere__FP5GroupT0);
+INCLUDE_ASM("asm/nonmatchings/main", CalcObjDefPtrs__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Track_InitPersistentData__FP15SerializedGroup);
+INCLUDE_ASM("asm/nonmatchings/main", Track_Init__FPc);
+INCLUDE_ASM("asm/nonmatchings/main", Track_DeInit__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", KillFile_OpenRead__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Track_LoadObjectKillData__Fv);

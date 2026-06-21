@@ -1,0 +1,20 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", Newton_AddDamageZone__FP13BO_tNewtonObjiii);
+INCLUDE_ASM("asm/nonmatchings/main", Newton_FindClosestQuad__FP13BO_tNewtonObj);
+INCLUDE_ASM("asm/nonmatchings/main", Newton_CalculateSliceYaw__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", Newton_UpdateRoadGeometry__FP13BO_tNewtonObj);
+INCLUDE_ASM("asm/nonmatchings/main", Newton_FindGroundElevationGeneral__FP8coorddefN20);
+INCLUDE_ASM("asm/nonmatchings/main", Newton_FindGroundElevationRough__FP8coorddefN20);
+INCLUDE_ASM("asm/nonmatchings/main", Newton_FindGroundElevationAndNormal__FP13BO_tNewtonObjP8coorddef);
+INCLUDE_ASM("asm/nonmatchings/main", Newton_LimitCarsToDrivableDist__FP13BO_tNewtonObj);
+INCLUDE_ASM("asm/nonmatchings/main", Newton_CalcPerpenHeightOfLowestPointFromGround__FP13BO_tNewtonObjP8coorddefT1);
+INCLUDE_ASM("asm/nonmatchings/main", Newton_CalcPerpenHeightOfCenterPointFromGround__FP13BO_tNewtonObjP8coorddefT1);
+INCLUDE_ASM("asm/nonmatchings/main", Newton_CalcDistToClosestPlayerCar__FP13BO_tNewtonObj);
+INCLUDE_ASM("asm/nonmatchings/main", Newton_UpdateRoadInfo__FP13BO_tNewtonObj);
+INCLUDE_ASM("asm/nonmatchings/main", Newton_CopyRoadMatrixToOrientMat__FP13BO_tNewtonObji);
+INCLUDE_ASM("asm/nonmatchings/main", Newton_CopyRoadMatrixToShadowMat__FP13BO_tNewtonObji);
+INCLUDE_ASM("asm/nonmatchings/main", Newton_SetInitialSlicePositionOrientationEtc__FP13BO_tNewtonObjiP8coorddefi);
+INCLUDE_ASM("asm/nonmatchings/main", Newton_TestForUndrivableSurfaces__FP13BO_tNewtonObj);
+INCLUDE_ASM("asm/nonmatchings/main", Newton_CalculateRoadPositionFromSliceAndPosition__FiP8coorddefP10matrixtdef);
+INCLUDE_ASM("asm/nonmatchings/main", Newton_CalculateRoadPosition__FP13BO_tNewtonObj);

@@ -1,0 +1,27 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/front", Front_ConstructAll__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", Front_DeleteAll__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", Front_ResetSettingsForCar__Fii);
+INCLUDE_ASM("asm/nonmatchings/front", Front_ResetSettingsMenu__Fi);
+INCLUDE_ASM("asm/nonmatchings/front", Front_ResetPSXController__Fii);
+INCLUDE_ASM("asm/nonmatchings/front", Front_ResetPSXAnalogs__Fi);
+INCLUDE_ASM("asm/nonmatchings/front", GetPSXPadValue__Fii);
+INCLUDE_ASM("asm/nonmatchings/front", SetPads__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", InitFrontEndStructure__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", LoadConfig__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", Front_InitialMemCardCheck__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", Front_SecondaryMemCardCheck__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", Front_InitGraphics__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", Front_InitGraphicsAndDisplayLoading__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", Front_Menu__F21tFront_ProcessingType);
+INCLUDE_ASM("asm/nonmatchings/front", Front_GetLapsForType__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", Front_EnableLocalSpeech__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", Front_BuildStream__FPi);
+INCLUDE_ASM("asm/nonmatchings/front", Front_GetInGameVars__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", SetLicensePlate__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", SetPlayList__Fi);
+INCLUDE_ASM("asm/nonmatchings/front", Front_GetTrackRaced__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", PlayerNameExist__Fi);
+INCLUDE_ASM("asm/nonmatchings/front", PlayerName__Fi);
+INCLUDE_ASM("asm/nonmatchings/front", PlayerNameMixedCase__Fi);

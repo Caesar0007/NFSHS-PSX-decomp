@@ -1,0 +1,23 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii);
+INCLUDE_ASM("asm/nonmatchings/main", Sky_InitStars__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Sky_KillStars__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Hrz_InitSkyColor__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Hrz_InitSky__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Hrz_Init2DRing__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Hrz_GetHorizonPixMap__FP12Draw_tPixMap);
+INCLUDE_ASM("asm/nonmatchings/main", Hrz_InitHorizon__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Hrz_KillHorizon__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Hrz_CalculateLightning__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Hrz_TextureQuad__FP7DVECTORccP11Draw_DCache);
+INCLUDE_ASM("asm/nonmatchings/main", Hrz_SetLightingPosInSky__FP13DRender_tView);
+INCLUDE_ASM("asm/nonmatchings/main", Hrz_BuildForkLightning__FP11Draw_DCache);
+INCLUDE_ASM("asm/nonmatchings/main", Hrz_LightningFlicker__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", HrzSetPsxMatrix__FP10matrixtdef);
+INCLUDE_ASM("asm/nonmatchings/main", HrzSetPsxTranslation__FP8coorddef);
+INCLUDE_ASM("asm/nonmatchings/main", Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR);
+INCLUDE_ASM("asm/nonmatchings/main", Hrz_SetDitheringPrim__Fii);
+INCLUDE_ASM("asm/nonmatchings/main", Hrz_BuildSky__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Sky_RenderStars__FP13Draw_SkyCachei);
+INCLUDE_ASM("asm/nonmatchings/main", Hrz_BuildHorizon__FP13DRender_tView);

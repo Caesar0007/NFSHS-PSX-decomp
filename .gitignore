@@ -22,3 +22,6 @@ _backup_permuter/
 # decomp.me auto-claim (secret session cookie + token log) — never commit
 tools/.decompme_cookie
 build/decompme_claims.jsonl
+
+# objdiff report artifact (CI uploads it; not committed)
+/nfs4-f_report.binpb

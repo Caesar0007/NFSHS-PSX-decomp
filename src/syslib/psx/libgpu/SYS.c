@@ -1,0 +1,19 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", SetTexWindow);
+INCLUDE_ASM("asm/nonmatchings/main", SetDrawArea);
+INCLUDE_ASM("asm/nonmatchings/main", SetDrawStp);
+INCLUDE_ASM("asm/nonmatchings/main", SetDrawMode);
+INCLUDE_ASM("asm/nonmatchings/main", SetDrawEnv);
+INCLUDE_ASM("asm/nonmatchings/main", SetDispMask);
+INCLUDE_ASM("asm/nonmatchings/main", DrawSync);
+INCLUDE_ASM("asm/nonmatchings/main", ClearImage);
+INCLUDE_ASM("asm/nonmatchings/main", LoadImage);
+INCLUDE_ASM("asm/nonmatchings/main", StoreImage);
+INCLUDE_ASM("asm/nonmatchings/main", MoveImage);
+INCLUDE_ASM("asm/nonmatchings/main", DrawOTag);
+INCLUDE_ASM("asm/nonmatchings/main", DrawOTag2);
+INCLUDE_ASM("asm/nonmatchings/main", ResetGraph);
+INCLUDE_ASM("asm/nonmatchings/main", ClearOTagR);
+INCLUDE_ASM("asm/nonmatchings/main", PutDrawEnv);
+INCLUDE_ASM("asm/nonmatchings/main", PutDispEnv);

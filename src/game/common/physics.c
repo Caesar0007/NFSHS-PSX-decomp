@@ -1,0 +1,23 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", Physics_InitCarSpecs__FP8Car_tObjP10Udff_tInfo);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_CalculateDerivedCarSpecs__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_AttenuateVelocity__FP8Car_tObjiP10matrixtdef);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_SetCurrentWallType__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_GetTorque__FP8Car_tObji);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_CorrectPostCollisionYaw__FP8Car_tObjiG8coorddef);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_DoBarrierCheck__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_AutoShift__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_RampCarControlValues__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_FixEngineRpm__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_ResetCar__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_StopCar__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_TestForBarrierCollision__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_CalculateRoadGripModifiers__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_CalculateCarAcceleration__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_CalcWheelLockAcc__FP8Car_tObjP23Physics_tWheelAccStruct);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_CalcTractionCircleAcc__FP8Car_tObjP23Physics_tWheelAccStruct);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_CalculateRSControlDesiredPosition__FP8Car_tObjii);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_Real__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_SimCar__FP8Car_tObj);

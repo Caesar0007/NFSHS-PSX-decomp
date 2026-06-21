@@ -1,0 +1,25 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", Texture_InitPaletteSharing__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_DeInitPaletteSharing__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_ResetPaletteSharing__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_CheckForSharedPalette__FiPcP12Draw_tPixMapi);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_AddSharedPalette__FPcP12Draw_tPixMapi);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_InitClut__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_GetClutId__FiPiT1);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_MenuReleaseClutId__Fs);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_ColorCarPalette__FPcT0i);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_CopyPalette__FPciii);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_ProcessPaletteCopy__FP15Texture_pal8bitii);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_LoadImage__FP4RECTPUl);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_Vramf__FP8shapetbliiii);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_Vramcf__FP8shapetbliiii);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_GetTranslucencyMode__FP8shapetbl);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_CloneUVPmx__FP12Draw_tPixMapiT0);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_InitTrackTexture__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_InitMenuClut__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_InitMenuTexture__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_CleanupMenuTexture__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_LoadMenuTexture__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_KillMenuTexture__Fv);

@@ -1,0 +1,26 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/front", DisplayLoadingText__7tScreen);
+INCLUDE_ASM("asm/nonmatchings/front", GoNonInterlaced__7tScreen);
+INCLUDE_ASM("asm/nonmatchings/front", DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi);
+INCLUDE_ASM("asm/nonmatchings/front", AsyncLoadPermanentShapeFile__7tScreenPc);
+INCLUDE_ASM("asm/nonmatchings/front", AsyncLoadSwapShapeFile__7tScreenPc);
+INCLUDE_ASM("asm/nonmatchings/front", IsShapeFileLoaded__7tScreenR17tShapeInformation);
+INCLUDE_ASM("asm/nonmatchings/front", UploadPermanentShapes__7tScreeni);
+INCLUDE_ASM("asm/nonmatchings/front", UploadSwapShapes__7tScreeni);
+INCLUDE_ASM("asm/nonmatchings/front", GetShapeInfo__7tScreenRsT1PPcT3);
+INCLUDE_ASM("asm/nonmatchings/front", __7tScreen);
+INCLUDE_ASM("asm/nonmatchings/front", ___7tScreen);
+INCLUDE_ASM("asm/nonmatchings/front", Initialize__7tScreen);
+INCLUDE_ASM("asm/nonmatchings/front", Cleanup__7tScreen);
+INCLUDE_ASM("asm/nonmatchings/front", Draw__7tScreenb);
+INCLUDE_ASM("asm/nonmatchings/front", AsyncLoadShapeFile__7tScreenPcR17tShapeInformation);
+INCLUDE_ASM("asm/nonmatchings/front", CancelAsyncLoad__7tScreenR17tShapeInformation);
+INCLUDE_ASM("asm/nonmatchings/front", InitializeShapes__7tScreenR17tShapeInformationUi);
+INCLUDE_ASM("asm/nonmatchings/front", FreeShapes__7tScreenR17tShapeInformation);
+INCLUDE_ASM("asm/nonmatchings/front", UploadShapes__7tScreenR17tShapeInformationssss);
+INCLUDE_ASM("asm/nonmatchings/front", PreLoad__7tScreen);
+INCLUDE_ASM("asm/nonmatchings/front", TransitionOff__7tScreen22tScreen_TransitionTypeP5tMenu);
+INCLUDE_ASM("asm/nonmatchings/front", TransitionOn__7tScreen22tScreen_TransitionTypeP5tMenu);
+INCLUDE_ASM("asm/nonmatchings/front", UpdateTransition__7tScreen);
+INCLUDE_ASM("asm/nonmatchings/front", TransitionIsFinished__7tScreen);

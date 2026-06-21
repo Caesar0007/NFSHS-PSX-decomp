@@ -1,0 +1,21 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", CdStatus);
+INCLUDE_ASM("asm/nonmatchings/main", CdMode);
+INCLUDE_ASM("asm/nonmatchings/main", CdLastPos);
+INCLUDE_ASM("asm/nonmatchings/main", CdReset);
+INCLUDE_ASM("asm/nonmatchings/main", CdFlush);
+INCLUDE_ASM("asm/nonmatchings/main", CdSetDebug);
+INCLUDE_ASM("asm/nonmatchings/main", CdSync);
+INCLUDE_ASM("asm/nonmatchings/main", CdReady);
+INCLUDE_ASM("asm/nonmatchings/main", CdSyncCallback);
+INCLUDE_ASM("asm/nonmatchings/main", CdReadyCallback);
+INCLUDE_ASM("asm/nonmatchings/main", CdControl);
+INCLUDE_ASM("asm/nonmatchings/main", CdControlF);
+INCLUDE_ASM("asm/nonmatchings/main", CdControlB);
+INCLUDE_ASM("asm/nonmatchings/main", CdGetSector);
+INCLUDE_ASM("asm/nonmatchings/main", CdGetSector2);
+INCLUDE_ASM("asm/nonmatchings/main", CdDataCallback);
+INCLUDE_ASM("asm/nonmatchings/main", CdDataSync);
+INCLUDE_ASM("asm/nonmatchings/main", CdIntToPos);
+INCLUDE_ASM("asm/nonmatchings/main", CdPosToInt);

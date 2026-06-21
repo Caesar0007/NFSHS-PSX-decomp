@@ -1,0 +1,21 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", AILife_EvaluateLife__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_RCSetSpeeds__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_RCPickSliceAndDirection__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_RCPickDesiredLatPosition__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_PlaceCarAtLocation__FP8Car_tObjiiiii);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_SetInitialSlicePositionOrientationEtc__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_PlaceCarAtLocation__FP8Car_tObji);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_ReencarnateTraffic__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_ReencarnateTrafficByPosition__FP8Car_tObjiiP8coorddefP10matrixtdef);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_ReencarnateCopBySlice__FP8Car_tObjiiii);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_ReencarnateCopByPosition__FP8Car_tObjiiP8coorddefP10matrixtdef);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_ReencarnateCopByLatPosAndRotation__FP8Car_tObjiiii);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_IsCoordInThisLiveArea__FP8coorddefP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_IsTrafficCarInAnyLiveArea__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_IsCoordInThisVisibleArea__FP8coorddefP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_IsCarInAnyVisibleArea__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_IsSliceInAnyVisibleArea__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_IsSliceCloseToAnyCopCar__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_IsPositionInAnyVisibleArea__FP8coorddef);

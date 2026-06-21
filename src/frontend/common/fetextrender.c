@@ -1,0 +1,19 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/front", FETextRender_SetFont__Fi);
+INCLUDE_ASM("asm/nonmatchings/front", FETextRender_FullTextRGB__FPcssics);
+INCLUDE_ASM("asm/nonmatchings/front", FETextRender_FullText__FPcss13tMenuTextType14tMenuTextStates);
+INCLUDE_ASM("asm/nonmatchings/front", FETextRender_FullTextFade__FiPcss13tMenuTextType14tMenuTextStates);
+INCLUDE_ASM("asm/nonmatchings/front", FETextRender_MenuTextPositioned__Fsss14tMenuTextState13tMenuTextType);
+INCLUDE_ASM("asm/nonmatchings/front", FETextRender_MenuTextFade__Fis14tMenuTextState13tMenuTextType);
+INCLUDE_ASM("asm/nonmatchings/front", FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType);
+INCLUDE_ASM("asm/nonmatchings/front", FETextRender_MenuTextPositionedJustifyFade__Fissss14tMenuTextState13tMenuTextType);
+INCLUDE_ASM("asm/nonmatchings/front", FETextRender_WordWrapTextRGBJustify__FPcR4RECTiiib);
+INCLUDE_ASM("asm/nonmatchings/front", FETextRender_WordWrapTextRGB__FPcR4RECTi);
+INCLUDE_ASM("asm/nonmatchings/front", FETextRender_WordWrapTextFade__FiPcR4RECT14tMenuTextState13tMenuTextType);
+INCLUDE_ASM("asm/nonmatchings/front", FETextRender_WordWrapText__FPcR4RECT14tMenuTextState13tMenuTextType);
+INCLUDE_ASM("asm/nonmatchings/front", FETextRender_WordWrapFade__FisR4RECT14tMenuTextState13tMenuTextType);
+INCLUDE_ASM("asm/nonmatchings/front", FETextRender_WordWrap__FsR4RECT14tMenuTextState13tMenuTextType);
+INCLUDE_ASM("asm/nonmatchings/front", FETextRender_WordWrapHeight__FsPc);
+INCLUDE_ASM("asm/nonmatchings/front", FETextRender_Title__Fs);
+INCLUDE_ASM("asm/nonmatchings/front", FETextRender_SetABR__Fib);

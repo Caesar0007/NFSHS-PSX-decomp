@@ -1,0 +1,20 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_ReadLightingData__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_ReadeMapData__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_BuildRenderingData__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_KillRenderingData__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_NightHeadlight__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_MenuColorData__FiP8Car_tObji);
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache);
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_PrimStop__FP8Car_tObjP13Draw_CarCache);
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache);
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache);
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache);
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache);
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache);
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_ShadowPrim__FP12Draw_tVertexP13Draw_CarCache);
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_DivideShadowPrim__FP7COORD16N30PUsN34P12Draw_tPixMapP13Draw_CarCache);
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_ShadowPrimClip__FP12Draw_tVertexP13Draw_CarCache);
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_SpotPrims__FP10matrixtdefP8coorddefP13Draw_CarCache);
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache);

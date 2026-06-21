@@ -1,0 +1,22 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/front", Quick_DD__Fiii);
+INCLUDE_ASM("asm/nonmatchings/front", PSXFront_AllocateDrawMemory__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", PSXFront_FreeDrawMemory__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", InitializeSpinningCars__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", CleanupSpinningCars__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", CleanupSpinningCarsMenu__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", DoTitleScreen__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", DoLanguageScreen__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", PSXExitFrontend__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", PSX_AllocShapes__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", Init_RenderingEnvironment__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", Init_PSX_FrontEnd__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", DrawShapeExtended__FiiiiiiP18tDrawShapeExtended);
+INCLUDE_ASM("asm/nonmatchings/front", ScaleShapeExtended__FiiiiiiP18tDrawShapeExtended);
+INCLUDE_ASM("asm/nonmatchings/front", LoadAllHelpShapes__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", PSXDrawSquare__Fiiiii);
+INCLUDE_ASM("asm/nonmatchings/front", PSXDrawGouraudSquare__Fiiiiiiii);
+INCLUDE_ASM("asm/nonmatchings/front", PSXDrawTransGouraudSquare__Fiiiiiiiii);
+INCLUDE_ASM("asm/nonmatchings/front", PSXDrawTransSquare__Fiiiiis);
+INCLUDE_ASM("asm/nonmatchings/front", FontUpsideDownBlit__FiiPviiP12charactertbli);

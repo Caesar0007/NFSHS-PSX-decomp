@@ -1,0 +1,7 @@
+#ifndef _DECOMP_CSTDIO_
+#define _DECOMP_CSTDIO_
+extern "C" {
+int printf(const char *, ...);
+int sprintf(char *, const char *, ...);
+}
+#endif

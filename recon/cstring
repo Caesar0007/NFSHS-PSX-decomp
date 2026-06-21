@@ -1,0 +1,12 @@
+#ifndef _DECOMP_CSTRING_
+#define _DECOMP_CSTRING_
+extern "C" {
+void *memcpy(void *, const void *, unsigned int);
+void *memset(void *, int, unsigned int);
+void *memmove(void *, const void *, unsigned int);
+unsigned int strlen(const char *);
+char *strcpy(char *, const char *);
+char *strcat(char *, const char *);
+int strcmp(const char *, const char *);
+}
+#endif

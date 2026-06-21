@@ -59,7 +59,7 @@ void MoveAngleWind(Souffle_tISouffle *is)
 
 {
   int iVar1;
-  
+
   iVar1 = is->aspeed;
   is->angle = is->angle + iVar1;
   if (iVar1 < -8) {
@@ -415,19 +415,6 @@ void Souffle_RestartTrackSouffle(void)
 void Souffle_KillTrackSouffle(void)
 
 {
-  int dist;
-  int dz;
-  int speed;
-  int wave;
-  int dx;
-  int i;
-  int maxc;
-  int inserti;
-  coorddef w;
-  coorddef motion;
-  coorddef extramotion;
-  coorddef vempty;
-  
   if (gISouffle != (Souffle_tISouffle *)0x0) {
     purgememadr(gISouffle);
   }

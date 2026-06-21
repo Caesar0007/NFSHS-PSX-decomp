@@ -91,7 +91,7 @@ void AIState_Base::StateExecute()
 
      ((pCVar1->N).deadTimer == 0)) {
 
-    AIScript_ProcessActionsAndReactions(&pCVar1->script,0);
+    AIScript_ProcessActionsAndReactions(&pCVar1->script,AI_elapsedTime);
 
   }
 
@@ -116,7 +116,7 @@ AIState_Base::AIState_Base(Car_tObj *carObj)
 
 {
 
-  this->_vf = (__vtbl_ptr_type (*) [4])((char *)AIState_Base_vtable + 8);
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
   this->carObj_ = carObj;
 
@@ -2489,9 +2489,9 @@ AIState_RovingTraffic::AIState_RovingTraffic(Car_tObj *carObj,trigger_t *trigger
 
   pCVar2 = (this->_base_AIState_Base).carObj_;
 
-  this->path_ = *(trigger_pathPosition_t **)(trigger + 0x3c);
+  this->path_ = *(trigger_pathPosition_t **)((char *)trigger + 0x3c);
 
-  iVar1 = *(int *)(trigger + 0x38);
+  iVar1 = *(int *)((char *)trigger + 0x38);
 
   this->pathIndex_ = 0;
 

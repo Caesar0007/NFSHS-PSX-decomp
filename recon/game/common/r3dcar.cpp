@@ -1174,7 +1174,7 @@ void R3DCar_TurnHeadLightOn(Car_tObj *carObj,int tail)
 
 {
   u_short uVar1;
-  
+
   (carObj->render).headLight = (carObj->render).headLight | 0x11;
   if (tail != 0) {
     (carObj->render).brakeLight = (carObj->render).brakeLight | 2;
@@ -1182,8 +1182,8 @@ void R3DCar_TurnHeadLightOn(Car_tObj *carObj,int tail)
   uVar1 = (carObj->render).headLight;
   if ((uVar1 & 8) == 0) {
     (carObj->render).headLight = uVar1 | 2;
-    uVar1 = (carObj->render).headLight;
   }
+  uVar1 = (carObj->render).headLight;
   if ((uVar1 & 0x80) == 0) {
     (carObj->render).headLight = uVar1 | 0x20;
   }
@@ -2852,8 +2852,8 @@ void R3DCar_Showroom(DRender_tView *Vi)
   
   m = &(Vi->cview).mrotationInv;
   t = &(Vi->cview).translationInv;
-  DrawC_ShowroomPrims(m,t,(Draw_CarCache *)&Render_gPalettePtr);
-  DrawC_SpotPrims(m,t,(Draw_CarCache *)&Render_gPalettePtr);
+  DrawC_ShowroomPrims(m,t,(Draw_CarCache *)0x1f800000);
+  DrawC_SpotPrims(m,t,(Draw_CarCache *)0x1f800000);
   return;
 }
 

@@ -30,19 +30,18 @@ int AICop_NoCopsInArea(int slice,int sliceDistance);
 /* ---- AICop_StartUp__Fv  [@0x800669ac] ---- */
 void AICop_StartUp(void)
 {
-  char filename[100];
-  char *rawTriggers;
   char acStack_70 [104];
-  
+
   if (GameSetup_gData.cops != 0) {
     triggerManagerCops = (AITrigger_TriggerManager *)operator new(0x34c);
     sprintf(acStack_70,"%sTr%02d.cop",Paths_Paths[22],GameSetup_gData.track);
     AICop_rawTriggers = (u_char *)loadfileadrz(acStack_70,(void *)0x0);
-    rawTriggers = AICop_rawTriggers;
-    if (AICop_rawTriggers == (char *)0x0) {
-      rawTriggers = (char *)0x0;
+    if (AICop_rawTriggers != (u_char *)0x0) {
+      triggerManagerCops->Init((char *)AICop_rawTriggers);
     }
-    triggerManagerCops->Init(rawTriggers);
+    else {
+      triggerManagerCops->Init((char *)0x0);
+    }
   }
   AICop_spikeBelt.active_ = 0;
   AICop_numArrestedHumans = 0;
@@ -84,8 +83,7 @@ int AICop_NoCopsInArea(int slice,int sliceDistance)
   Car_tObj **ppCVar2;
   int copLoop;
   int iVar3;
-  char filename [100];
-  
+
   iVar3 = 0;
   ppCVar2 = Cars_gCopCarList;
   do {

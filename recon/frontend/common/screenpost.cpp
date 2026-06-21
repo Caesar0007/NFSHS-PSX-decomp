@@ -41,10 +41,9 @@ void DrawMoney(int x,int y,int numplaces,long number,int colfore,int colback)
 
 /* ---- tScreenTournamentStandings::ctor  [SCREENPOST.CPP:80-81] ---- */
 tScreenTournamentStandings::tScreenTournamentStandings()
-
+  /* base subobject _base_tScreen is constructed implicitly by g++ -> jal __7tScreen */
 {
-  
-  tScreen_ctor(&this->_base_tScreen);
+
   (this->_base_tScreen)._vf = (__vtbl_ptr_type (*)[10])tScreenTournamentStandings_vtable;
   this->fDrawMoney = 0;
   return;
@@ -152,7 +151,7 @@ int tScreenTournamentStandings::ProcessInput(tPlayer keyval,tInputKeyType &key_i
 
 {
   int iVar1;
-  
+
   iVar1 = 2;
   if ((key_input == kInput_KeyType_Cross) && (iVar1 = 1, this->fCountedDown == 0)) {
     key_input = kInput_KeyType_AlreadyProcessed;

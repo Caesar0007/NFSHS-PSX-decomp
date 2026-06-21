@@ -12,7 +12,7 @@
 #include "memcard_externs.h"
 
 /* forward decls for the file-local statics (called before their definitions) */
-static void  iMCRD_timersub(void);
+void  iMCRD_timersub(void);
 static short ascii2sjis(u_char ascii_code);
 static u_char sjis2ascii(short sjis_code);
 
@@ -36,9 +36,9 @@ void MCRD_init(int fMultitap)
   gMemCardInfo.ConfirmOverwriteProc = (void *)iMCRD_DefaultCBProc1;
   gMemCardInfo.ConfirmFormatProc = (void *)iMCRD_DefaultCBProc1;
   gMemCardInfo.task = NONE;
+  gMemCardInfo.fMultitap = fMultitap;
   gMemCardInfo.SavingDataProc = (void *)asyncidle;
   gMemCardInfo.LoadingDataProc = (void *)asyncidle;
-  gMemCardInfo.fMultitap = fMultitap;
   MemCardInit(1);
   card = 1;
   do {
@@ -93,8 +93,8 @@ void MCRD_restore(void)
 /* ---- MCRD_getopts  (memcard.c:215, code lines 215-223) ---- */
 void MCRD_getopts(MCRDOPTS_def *pOPT)
 {
-  pOPT->productCode = (char *)0x0;
   pOPT->productLocation = gMemCardInfo.productLocation;
+  pOPT->productCode = (char *)0x0;
   pOPT->ConfirmFormatProc = gMemCardInfo.ConfirmFormatProc;
   pOPT->ConfirmOverwriteProc = gMemCardInfo.ConfirmOverwriteProc;
   pOPT->LoadingDataProc = gMemCardInfo.LoadingDataProc;
@@ -435,17 +435,15 @@ int iMCRD_DoFileDelete(int card)
   ret_state = 0x11;
   del_res = MemCardDeleteFile
                       (gMemCardInfo.channel,gMemCardInfo.fileinfo.name);
-  if (del_res == 0) {
+  switch (del_res) {
+  case 0:
     gMemCardInfo.task = LOAD_CARD;
-  }
-  else {
-    ret_state = 0x11;
-    if (del_res == 5) {
-      pcard = MCRD_getcard(card);
-      ret_state = 0x12;
-      pcard->lasterror = 0x13;
-      gMemCardInfo.bReady = 1;
-    }
+    break;
+  case 5:
+    pcard = MCRD_getcard(card);
+    ret_state = 0x12;
+    pcard->lasterror = 0x13;
+    gMemCardInfo.bReady = 1;
   }
   return ret_state;
 }
@@ -611,7 +609,7 @@ int MCRD_fileexists(int card,char *name)
 /* lines 1378-1535: (static data / macros / comments - no emitted code) */
 
 /* ---- iMCRD_timersub  (memcard.c:1536, code lines 1536-1541) [static] ---- */
-static void iMCRD_timersub(void)
+void iMCRD_timersub(void)
 
 {
   fMemCardInfo_def *pInfo;
@@ -635,6 +633,7 @@ int garyMemCardGrabBlocks(int card,int filenum)
 {
   CARDINFO_def *pCI;
   int i;
+  int size;
   DIRENTRY *pDir;
   DIRENTRY *dir;
   
@@ -648,11 +647,11 @@ int garyMemCardGrabBlocks(int card,int filenum)
       dir = dir + 1;
     } while (i < filenum);
   }
-  i = dir->size;
-  if (i < 0) {
-    i = i + 0x1fff;
+  size = dir->size;
+  if (size < 0) {
+    size = size + 0x1fff;
   }
-  return i >> 0xd;
+  return size >> 0xd;
 }
 
 /* lines 1562-1565: (static data / macros / comments - no emitted code) */
@@ -675,8 +674,10 @@ int iMCRD_LoadCard(int card)
   pcard = MCRD_getcard(card);
   dir = pcard->dir;
   i_or_size = iMCRD_InitCard(card);
-  ret_state = 0xb;
-  if (i_or_size == 0) {
+  if (i_or_size != 0) {
+    ret_state = 0xb;
+  }
+  else {
     opResult = MemCardGetDirentry
                          (gMemCardInfo.channel,"*",dir,&pcard->numfiles,0,0xf);
     ret_state = iMCRD_HandleError(1,opResult,card);

@@ -484,12 +484,8 @@ void AIWorld_CalcSpeed(Car_tObj *carObj)
   
   iVar2 = (carObj->N).linearVel.x;
   iVar1 = (carObj->N).linearVel.z;
-  if (iVar2 < 0) {
-    iVar2 = -iVar2;
-  }
-  if (iVar1 < 0) {
-    iVar1 = -iVar1;
-  }
+  iVar2 = __builtin_abs(iVar2);
+  iVar1 = __builtin_abs(iVar1);
   if (iVar1 < iVar2) {
     carObj->speed = iVar2 + (iVar1 >> 2);
     return;

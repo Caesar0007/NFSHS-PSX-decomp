@@ -148,7 +148,7 @@ void AI_GenericEndCycle(Car_tObj *carObj)
 void AI_TargetLane(Car_tObj *carObj,int lane)
 {
   if (carObj->laneIndex < lane) {
-    CarLogic_gObs[2][0] = CarLogic_gObs[2][0] + 0x50000;
+    CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + 0x50000;
     return;
   }
   if (lane < carObj->laneIndex) {
@@ -166,8 +166,8 @@ void AI_ClearLaneMerits(void)
   iVar1 = 0;
   do {
     iVar1 = iVar1 + 1;
-    CarLogic_gObs[2][0] = 0;
-    CarLogic_gObs[1][0] = 0;
+    CarLogic_gObs[0][2] = 0;
+    CarLogic_gObs[0][1] = 0;
     CarLogic_gObs[0][0] = 0;
   } while (iVar1 < 1);
   return;
@@ -1018,11 +1018,12 @@ void AI_CalcBestLineMerits(Car_tObj *carObj)
   char*buffer;
   int latPos;
   int iVar1;
-  
+
+  slice = carObj->lookAheadSlice;
   if ((carObj->carFlags & 8U) != 0) {
-    iVar1 = fixedmult(*(int *)(carObj->personality + 0x44),
-                       (int)(AIDataRecord_BestLine->_base_AIDataRecord_t).dataBuffer_
-                            [carObj->lookAheadSlice] << 0xe);
+    iVar1 = fixedmult(*(int *)((char *)carObj->personality + 0x44),
+                       (int)(signed char)(AIDataRecord_BestLine->_base_AIDataRecord_t).dataBuffer_
+                            [slice] << 0xe);
     carObj->preferredLateralPosition = iVar1;
     carObj->preferredLateralPositionPower = 0x50000;
     carObj->preferredLateralPosition = iVar1 - carObj->laneSlack * carObj->direction;
@@ -1272,8 +1273,8 @@ void AI_CheckForCarsOnSide(Car_tObj *carObj)
 void AI_ProcessObservationsAndChooseLane(Car_tObj *carObj)
 {
   AI_Info.laneWeights[0] = CarLogic_gObs[0][0];
-  AI_Info.laneWeights[1] = CarLogic_gObs[1][0];
-  AI_Info.laneWeights[2] = CarLogic_gObs[2][0];
+  AI_Info.laneWeights[1] = CarLogic_gObs[0][1];
+  AI_Info.laneWeights[2] = CarLogic_gObs[0][2];
   AI_ChooseBestLane(carObj);
   return;
 }
@@ -1616,6 +1617,8 @@ int AI_IsMellowZone(Car_tObj *carObj,int delay)
 /* ---- AI_KeepCarsInLane__FP8Car_tObj  [@0x8005a714] ---- */
 void AI_KeepCarsInLane(Car_tObj *carObj)
 {
+  int local[4];
+  (void)local;
   return;
 }
 

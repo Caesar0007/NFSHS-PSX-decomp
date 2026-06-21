@@ -355,7 +355,7 @@ void LoadOverlay(void)
   
   LoadFrontendOverlay();
   sprintf(fname,"%sDCT.BIN",Paths_Paths[0x20]);
-  handle = asyncloadfileat(fname,CF_DVLC);
+  handle = asyncloadfileat(fname,(int)&CF_DVLC);
   while (iVar1 = getasyncreadstatus(handle), iVar1 == 0) {
     systemtask(0);
   }

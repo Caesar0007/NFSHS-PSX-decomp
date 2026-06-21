@@ -1516,7 +1516,7 @@ void Newton_UpdateRoadInfo(BO_tNewtonObj *n)
   if (n->active != '\0') {
     Newton_CalcDistToClosestPlayerCar(n);
     Newton_FindClosestQuad(n);
-    if ((n->simRoadInfo).quadChanged != '\0') {
+    if (*(signed char *)&(n->simRoadInfo).quadChanged != '\0') {
       Newton_UpdateRoadGeometry(n);
     }
     if (n->simOptz == '\0') {

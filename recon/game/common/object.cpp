@@ -382,10 +382,10 @@ void Object_KillStatus(void)
 ObjectAnim * Object_GetAnim(Trk_SimObject *simObj)
 
 {
-  if (simObj != (Trk_SimObject *)0x0) {
-    return gSimObjAnims[simObj->serialNum];
+  if (simObj == (Trk_SimObject *)0x0) {
+    return (ObjectAnim *)0x0;
   }
-  return (ObjectAnim *)0x0;
+  return gSimObjAnims[simObj->serialNum];
 }
 
 
@@ -806,6 +806,7 @@ void GetObjMaxDimensions(Trk_ObjectDef **pObjDefs,Trk_SimpleInst *objInstance,co
 {
   Trk_ObjectDef *objDef;
   int vertCount;
+  int lastVert;
   CCOORD16 *pts;
   CCOORD16 minDim;
   CCOORD16 maxDim;
@@ -813,9 +814,10 @@ void GetObjMaxDimensions(Trk_ObjectDef **pObjDefs,Trk_SimpleInst *objInstance,co
   objDef = pObjDefs[objInstance->pad];
   memset(&minDim,0,8);
   memset(&maxDim,0,8);
+  lastVert = -1;
   vertCount = (int)objDef->vertexCount;
   pts = (CCOORD16 *)(objDef + 1);
-  while (vertCount = vertCount + -1, vertCount != -1) {
+  while (vertCount = vertCount + -1, vertCount != lastVert) {
     if (maxDim.x < pts->x) {
       maxDim.x = pts->x;
     }
@@ -917,14 +919,7 @@ int Object_GetNumIMassObjects(void)
 void Object_GetIMassObjectDimensions(int objIndex,coorddef *dimensions)
 
 {
-  int iVar1;
-  int iVar2;
-  
-  iVar1 = Object_IMassObjInst[objIndex].dimension.y;
-  iVar2 = Object_IMassObjInst[objIndex].dimension.z;
-  dimensions->x = Object_IMassObjInst[objIndex].dimension.x;
-  dimensions->y = iVar1;
-  dimensions->z = iVar2;
+  *dimensions = Object_IMassObjInst[objIndex].dimension;
   return;
 }
 

@@ -63,28 +63,32 @@ void TextSys_LoadWords(int language)
 char * TextSys_Word(int wordnum)
 
 {
-  return wordFile + *(int *)(wordFile + wordnum * 0xc + 8);
+  int off = wordnum * 0xc;
+  return wordFile + *(int *)(wordFile + off + 8);
 }
 
 /* ---- TextSys_WordFlags__Fi  [TEXTSYS.CPP:120-126] SLD-VERIFIED ---- */
 int TextSys_WordFlags(int wordnum)
 
 {
-  return (u_int)(u_char)wordFile[wordnum * 0xc + 3];
+  int off = wordnum * 0xc;
+  return (u_int)*(u_char *)(wordFile + off + 3);
 }
 
 /* ---- TextSys_WordX__Fi  [TEXTSYS.CPP:132-141] SLD-VERIFIED ---- */
 int TextSys_WordX(int wordnum)
 
 {
-  return (int)*(short *)(wordFile + wordnum * 0xc + 4);
+  int off = wordnum * 0xc;
+  return (int)*(short *)(wordFile + off + 4);
 }
 
 /* ---- TextSys_WordY__Fi  [TEXTSYS.CPP:147-156] SLD-VERIFIED ---- */
 int TextSys_WordY(int wordnum)
 
 {
-  return (int)*(short *)(wordFile + wordnum * 0xc + 6);
+  int off = wordnum * 0xc;
+  return (int)*(short *)(wordFile + off + 6);
 }
 
 /* ---- TextSys_UnloadWords__Fv  [TEXTSYS.CPP:162-165] SLD-VERIFIED ---- */

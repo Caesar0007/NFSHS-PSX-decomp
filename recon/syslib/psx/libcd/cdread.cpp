@@ -42,7 +42,7 @@ struct CdrEnv {
     int      w34;   /* +0x34 : last interrupt code passed to the user CdReadCallback */
 };
 
-extern "C" { CdrEnv _cdr; }   /* @0x8013C290 -- zero-initialised .bss */
+extern "C" { volatile CdrEnv _cdr; }   /* @0x8013C290 -- zero-initialised .bss */
 
 /* ---- libetc / libc ---------------------------------------------------------------------------- */
 extern "C" int  VSync(int mode);                 /* @0x800F231C */
@@ -85,7 +85,7 @@ static void _read_sync(void)
 /* @0x801088B0 : ready interrupt -- one DataReady per sector. */
 static void _read_int(int intr, int code)
 {
-    CdrEnv *g = &_cdr;
+    volatile CdrEnv *g = &_cdr;
 
     g->w34 = code;                                  /* remember intr arg for the user cb */
 
@@ -144,7 +144,7 @@ static void _read_int(int intr, int code)
 /* @0x80108B24 : DMA-data complete -- advance the ring and finish if this was the last sector. */
 static void _read_data_int(void)
 {
-    CdrEnv *g = &_cdr;
+    volatile CdrEnv *g = &_cdr;
 
     g->w08 += g->w10 * 4;       /* cursor += sector bytes */
     g->w14--;                   /* one fewer remaining    */
@@ -166,7 +166,7 @@ static void _read_data_int(void)
 /* @0x80108BF4 : (re)issue the read.  retry!=0 re-seeks to CdLastPos and re-sends mode. */
 static int _read_issue(int retry)
 {
-    CdrEnv *g = &_cdr;
+    volatile CdrEnv *g = &_cdr;
 
     CdSyncCallback(0);
     CdReadyCallback(0);
@@ -217,7 +217,7 @@ error:
 /* @0x80108DDC : CdRead -- start an asynchronous N-sector read into `buf`. Returns >0 on success. */
 extern "C" int CdRead(int sectors, u_long *buf, int mode)
 {
-    CdrEnv *g = &_cdr;
+    volatile CdrEnv *g = &_cdr;
 
     if (g->w24 != 0) {                              /* a previous read is still active */
         int t0 = VSync(-1);

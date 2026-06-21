@@ -99,8 +99,9 @@ static void _st_dma(int ch, int madr, int blocks, int blocksize, int chcr, int e
 /* @0x800F7E78 : the CD-streaming sector interrupt handler. */
 extern "C" void StCdInterrupt(void)
 {
-    volatile short hdr[4];   /* sub-header scratch (sp+0x28..); also stages result[0..1] at [1]/[2] */
-    u_char result[8];        /* CdReady result buffer (sp+0x30)                                     */
+    volatile short hdr[4];   /* status/sub-header scratch (sp+0x20); stages result[0..1] at [1]/[2] */
+    int     loc[2];          /* CdlLOC sub-header staging (sp+0x28) -> copied into the ring slot     */
+    u_char  result[8];       /* CdReady result buffer (sp+0x30)                                      */
     u_char *p;
     int     t0;
     unsigned i;
@@ -142,8 +143,8 @@ extern "C" void StCdInterrupt(void)
     *_cdrom_delay = 0x20943;
     *_com_delay   = 0x1323;
     if (StMode == 0) {
-        p = (u_char *)&hdr[4];
-        do { *p++ = *_cd_reg2; } while (p < (u_char *)&hdr[6]);
+        p = (u_char *)&loc[0];                      /* &hdr[4] == loc -> 4 raw sub-header bytes */
+        do { *p++ = *_cd_reg2; } while (p < (u_char *)&loc[0] + 4);
         for (i = 0; i < 8; i++) (void)*_cd_reg2;    /* drain */
     }
 
@@ -156,7 +157,7 @@ extern "C" void StCdInterrupt(void)
     }
     while (*_d3_chcr & 0x1000000)
         ;
-    *(int *)((char *)_st_slot + 0x1C) = *(int *)&hdr[4];   /* stash the sub-header in the slot (unaligned) */
+    *(int *)((char *)_st_slot + 0x1C) = loc[0];     /* stash the sub-header word into the slot */
     *_cdrom_delay = 0x20843;
     *_com_delay   = 0x1325;
 

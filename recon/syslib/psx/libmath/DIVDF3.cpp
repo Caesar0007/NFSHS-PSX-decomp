@@ -11,19 +11,16 @@ extern "C" int          *_add_mant_d(int *out, unsigned int a2, int a3, unsigned
 extern "C" int          *_mainasu(int *out, int a2, int a3);
 extern "C" int           _err_math(int errnum, int code);
 
-/* _comp_mant @0x800F60B4 : compare 64-bit mantissas [a2:a1] vs [a4:a3] -> 1 / -1 / 0. */
+/* _comp_mant @0x800F60B4 : compare 64-bit mantissas [a2:a1] vs [a4:a3] -> 1 / -1 / 0.
+ * Direct-return cascade (lever 3.12#8): each return materializes $v0 in the branch
+ * delay slot; staging through a `result` temp would pin $t0+move instead. */
 extern "C" int _comp_mant(unsigned int a1, unsigned int a2, unsigned int a3, unsigned int a4)
 {
     if (a4 < a2) return 1;
-    int result = -1;
-    if (a2 >= a4) {
-        result = 1;
-        if (a3 >= a1) {
-            result = -1;
-            if (a1 >= a3) return 0;
-        }
-    }
-    return result;
+    if (a2 < a4) return -1;
+    if (a3 < a1) return 1;
+    if (a1 < a3) return -1;
+    return 0;
 }
 
 extern "C" double __divdf3(int a1, int a2, int a3, int a4)   /* @0x800F5DD4 */

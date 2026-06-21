@@ -43,7 +43,7 @@ extern "C" void FILE_closesync(int handle, int prio);                     /* syn
 extern "C" int  allocmutex(void);                 /* callback.obj @0x800FE424 */
 extern "C" void freemutex(int mutex);
 extern "C" int  iscurrentthread(int t);           /* threads.obj */
-extern "C" void yieldthread(void);
+extern "C" void yieldthread(int t);   /* @0x800FE41C: nullsub; arg 0 passed in $a0 (delay slot), ignored */
 extern "C" void systemtask(int x);                /* systask.obj */
 extern "C" int  strcmp (const char *a, const char *b);          /* syslib C23 */
 extern "C" char*strcpy (char *d, const char *s);                /* syslib C25 */
@@ -522,6 +522,11 @@ have_room:
 /* STREAM_overhead @0x800FCDE0 : bytes of bookkeeping a stream of this shape needs (excluding the ring). */
 extern "C" int STREAM_overhead(int numReq, int numFilters, int numConsumers)
 {
+    /* FLOOR (documented): the only residual is a $v0-vs-$v1 register-coloring tie-break on the
+     * `+0xAC` constant fold (oracle folds it into the filter term in $v1; gcc-2.8.0 folds it into
+     * the running total in $v0).  Tried temp-var, nested/right-assoc, and operand-swap reassociations
+     * (all regressed or unchanged) -- gcc reassociates commutative int-add freely, so the grouping is
+     * not source-controllable here.  Pre-flagged as a likely v0-vs-v1 constant-fold floor. */
     return numReq * 100 + (numFilters * 0xc + 0xac) + numConsumers * 0x10;
 }
 
@@ -662,7 +667,7 @@ extern "C" void STREAM_destroy(int s)
     while (MI(out[0], 0x28) == 1) {               /* wait until not actively reading */
         if (iscurrentthread(0) != 0)
             systemtask(0);
-        yieldthread();
+        yieldthread(0);
     }
     freemutex(MI(out[0], 4));
     MI(out[0], 0) = 0;                            /* invalidate magic */

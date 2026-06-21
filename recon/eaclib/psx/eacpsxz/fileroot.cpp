@@ -84,8 +84,10 @@ static inline void FROOT_leaveCS(void) {}
 #endif
 
 /* initfileio @0x800F3A34 : advertise the CD (unless disabled), and -- if the PC dev link is present --
- *   bring up PC host I/O, register the deferred-read system task, and select the PC filesystem. */
-extern "C" int initfileio(void)
+ *   bring up PC host I/O, register the deferred-read system task, and select the PC filesystem;
+ *   otherwise (no dev link) fall back to the CD filesystem.
+ *   VOID return: the oracle never sets $v0 at the epilogue (matches eaclib.h `void`). */
+extern "C" void initfileio(void)
 {
     if (disablecd == 0)
         availablefilesystems |= 1;                  /* CD present */
@@ -95,9 +97,8 @@ extern "C" int initfileio(void)
         currentfilesystem    = 2;
         availablefilesystems |= 2;
     } else {
-        currentfilesystem = 0;                      /* no dev link (asm: = psxdevelopmentsystem() == 0) */
+        currentfilesystem = 1;                      /* no dev link -> CD filesystem (asm: $v0=1 in beqz slot) */
     }
-    return 0;
 }
 
 /* setdirectory @0x800F3ACC : select the current filesystem from a "drive:" prefix and, for the PC host,
@@ -108,7 +109,7 @@ extern "C" void setdirectory(char *dir)
     int prefixlen = 0;
     if (strncmp(dir, fsprefix1, 6) == 0) {              /* CD prefix */
         if ((availablefilesystems & 3) == 2) return;    /* only the PC host is available */
-        if (strlen(dir) >= 7) return;                   /* must be just the prefix */
+        if ((unsigned)strlen(dir) >= 7) return;         /* must be just the prefix (asm: sltiu, unsigned) */
         prefixlen = 6;
         currentfilesystem = 1;
     } else if (strncmp(dir, fsprefix2, 4) == 0) {       /* PC-host prefix */
@@ -253,7 +254,7 @@ extern "C" int writefile(int handle, int buf, int offset, int len)
         int n;
         PClseek(dev, offset, 0);
         n = PCwrite(dev, buf, len);
-        iFILE_CommandCompleteCallback(((n ^ len) < 1) ? 1 : 0);
+        iFILE_CommandCompleteCallback(((unsigned)(n ^ len) < 1) ? 1 : 0);   /* asm: sltiu (unsigned) */
     }
     return 0;
 }
@@ -270,8 +271,10 @@ extern "C" int getfilesize(int handle)
 }
 
 /* stopreadfile @0x800F4100 : abort an in-flight read.  CD: CD_Stopread; PC host: drop the queued command
- *   (if it is this handle's) and complete it.  Called by FILE_cancelop. */
-extern "C" int stopreadfile(int handle)
+ *   (if it is this handle's) and complete it.  Called by FILE_cancelop.
+ *   VOID return: the oracle never sets $v0 at the epilogue (bare nop) -> the fn returns nothing
+ *   (matches the nfile.cpp forward decl + eaclib.h, both `void`). */
+extern "C" void stopreadfile(int handle)
 {
     int fs  = handle >> 0x18;
     int dev = handle & 0xFFFFFF;
@@ -283,5 +286,4 @@ extern "C" int stopreadfile(int handle)
             iFILE_CommandCompleteCallback(1);
         }
     }
-    return 0;
 }

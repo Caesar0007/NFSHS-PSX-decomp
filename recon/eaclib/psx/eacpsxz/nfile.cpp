@@ -133,10 +133,12 @@ extern "C" int   FILE_initwithmem(int handlecount, int memsize, int opcount, voi
 extern "C" int FILE_init(int handlecount, int memsize, int opcount)
 {
     void *buf;
-    if (gFileMgr.opcount != 0)              /* gFileDevice != 0 -> already initialised */
-        return 0;
-    buf = reservememadr("File Sys", FILE_overhead(handlecount, memsize, opcount), 0);
-    return FILE_initwithmem(handlecount, memsize, opcount, buf);
+    /* asm: beqz opcount -> body (the == 0 guard); the already-init return-0 is the FALL-THROUGH */
+    if (gFileMgr.opcount == 0) {            /* gFileDevice == 0 -> not yet initialised */
+        buf = reservememadr("File Sys", FILE_overhead(handlecount, memsize, opcount), 0);
+        return FILE_initwithmem(handlecount, memsize, opcount, buf);
+    }
+    return 0;
 }
 
 /* FILE_completeop @0x800EC2B0 : harvest a finished op's result (by op type), then free the op slot.
@@ -177,7 +179,7 @@ extern "C" void FILE_callbackop(unsigned int id, void (*callback)(int status, in
 /* ---- the user-facing file ops ---- */
 extern "C" int    strlen(const char *s);                       /* libc C27 */
 extern "C" char  *strncpy(char *d, const char *s, int n);      /* libc */
-extern "C" void   iFILE_perror(void);                          /* @0x800ED0D4 (below) */
+extern "C" void   iFILE_perror(FileOp *op);                    /* @0x800ED0D4 (below); op passed in $a0 (delay slot), ignored */
 extern "C" int    iFILE_ExecCommand(void *cmd);                /* @0x800ECB98 (below, todo) */
 extern "C" int    systemtask(int);                             /* @0x800E6C04 vsync/idle pump */
 
@@ -197,11 +199,11 @@ extern "C" unsigned int FILE_open(char *name, unsigned int a1, unsigned int a2, 
     OPP(op, 0x24) = handle;                               /* store the handle (asm: always, delay slot) */
     if (handle == 0) {                                    /* no free handle */
         OPI(op, 0x0C) = 2;                                /* error code 2 */
-        iFILE_perror();
+        iFILE_perror(op);
     }
     (void)strlen(name);                                   /* (asm calls strlen; result unused) */
-    handle = OPP(op, 0x24);
-    strncpy((char *)handle + 0x0C, name, 0x40);           /* name lives at handle+0xC (0x40 bytes) */
+    /* reload handle straight into the strncpy dest arg ($a0) so gcc adds +0xC in-place (no $v0 temp) */
+    strncpy((char *)OPP(op, 0x24) + 0x0C, name, 0x40);    /* name lives at handle+0xC (0x40 bytes) */
     iFILE_ExecCommand(op);                                /* dispatch the open op */
     return op->id;
 }
@@ -218,7 +220,7 @@ extern "C" unsigned int FILE_close(void *handle, unsigned int a1, unsigned int a
     while (node) {                                        /* device still open with this handle? */
         if (OPP(node, 0x04) == handle) {
             OPI(op, 0x0C) = 3;                            /* error 3: can't close a live device */
-            iFILE_perror();
+            iFILE_perror(op);
             break;
         }
         node = (char *)OPP(node, 0x0C);                   /* next device */
@@ -237,7 +239,7 @@ extern "C" unsigned int FILE_read(void *handle, unsigned int offset, unsigned in
     OPI(op, 0x10) = (int)a5;                              /* asm: delay slot -> set unconditionally */
     if (handle == 0) {
         OPI(op, 0x0C) = 6;                                /* error 6 */
-        iFILE_perror();
+        iFILE_perror(op);
     }
     OPP(op, 0x24) = handle;
     {
@@ -264,7 +266,7 @@ extern "C" unsigned int FILE_size(void *handle, unsigned int a1, unsigned int a2
     op->id = (op->id & 0xFF0FFFFFu) | 0x600000u;          /* type 6 = size */
     if (handle == 0) {
         OPI(op, 0x0C) = 6;                                /* error 6 */
-        iFILE_perror();
+        iFILE_perror(op);
     }
     OPP(op, 0x24) = handle;
     iFILE_ExecCommand(op);
@@ -274,9 +276,11 @@ extern "C" unsigned int FILE_size(void *handle, unsigned int a1, unsigned int a2
 #undef OPI
 #undef OPP
 
-/* iFILE_perror @0x800ED0D4 : debug error reporter, compiled out in the release build (a nullsub). */
-extern "C" void iFILE_perror(void)
+/* iFILE_perror @0x800ED0D4 : debug error reporter, compiled out in the release build (a nullsub).
+ *   Takes the failing op in $a0 (callers rematerialize it into the jal delay slot); ignored here. */
+extern "C" void iFILE_perror(FileOp *op)
 {
+    (void)op;
 }
 
 /* FILE_waitop @0x800EC1BC : block until the op named by `id` completes; return its status.
@@ -309,8 +313,9 @@ extern "C" int FILE_atomic(int (*fn)(int, int), int unused, int a3, int a4)
     int saved = gFileMgr.idmask;     /* mgr+0x08 */
     int result;
     (void)unused;
+    gFileMgr.idmask = a3;            /* asm: sw $a0,8(s0) in the jalr delay slot ($a0==a3, fn's 1st arg) */
     result = fn(a3, a4);
-    gFileMgr.idmask = saved;         /* restore (the asm's intermediate +0x08 write is overwritten) */
+    gFileMgr.idmask = saved;         /* restore */
     iFILE_ExecCommand((void *)0);
     return result;
 }
@@ -573,11 +578,11 @@ extern "C" unsigned int FILE_addbig(char *name, unsigned int a1, unsigned int da
     }
 
     node    = (int *)reservememadr(name, 0x10, (int)a1);          /* 0x10-byte device node */
-    databuf = reservememadr((char *)"bigfile header", 0x800, 0x10);/* first header block buffer */
-    node[2] = (int)(size_t)op;                     /* node->cmdop = op */
+    node[2] = (int)(size_t)op;                     /* node->cmdop = op (asm: databuf-alloc delay slot) */
+    databuf = reservememadr((char *)"bigfile header", 0x800, 0x10);/* first header block buffer (stays in $v0) */
+    node[0] = (int)(size_t)databuf;                /* node->databuf -- store sinks into FILE_open's delay slot */
     {
         unsigned int oid = FILE_open(name, 1, datatype, (unsigned int)(size_t)node);
-        node[0] = (int)(size_t)databuf;            /* node->databuf (asm: FILE_open delay slot) */
         FILE_callbackop(oid, (void (*)(int, int))iFILE_addbigopencallback);
     }
     return op->id;                                 /* asm: v0 = *op = op->id */

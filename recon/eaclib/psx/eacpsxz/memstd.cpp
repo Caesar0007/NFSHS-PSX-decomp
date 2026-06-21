@@ -314,10 +314,12 @@ extern "C" int getblocksize(void *p)   /* @0x800E52D4 */
  * ===================================================================== */
 extern "C" char *getblockname(void *p)   /* @0x800E52E0 */
 {
-    MemBlock *hdr = (MemBlock *)((char *)p - 0x10);
-    if (hdr->flags & 0x100)               /* named */
-        return (char *)p + hdr->size + MEM_infosize(hdr->flags & 0xF);
-    return 0;
+    MemBlock *hdr   = (MemBlock *)((char *)p - 0x10);
+    int       flags = hdr->flags;         /* single lhu into $a0 (reused as the MEM_infosize arg) */
+    char     *result = 0;                 /* asm: $v1=0 in the beqz delay slot; result built in $v1 */
+    if (flags & 0x100)                    /* named */
+        result = (char *)p + hdr->size + MEM_infosize(flags);  /* asm: full flags halfword, no &0xF */
+    return result;
 }
 
 /* ===================================================================== *
@@ -401,8 +403,9 @@ extern "C" int purgememadr(void *p)   /* @0x800E5540 */
     if (p != 0) {
         MemBlock *blk  = (MemBlock *)((char *)p - 0x10);     /* s0 */
         MemBlock *next = blk->physnext;                      /* s1 */
+        /* read flags off the still-live incoming p (asm: lhu $v1,-0xE($a0)) -> root on p, not blk */
+        MemClass *cls  = gMemClassTable[((unsigned short *)p)[-7] & 0xF]; /* s3; p-0xE == &blk->flags */
         MemBlock *prev = blk->physprev;                      /* s2 */
-        MemClass *cls  = gMemClassTable[blk->flags & 0xF];   /* s3 */
 
         if (prev->flags & 0x4000) {                          /* prev is free -> merge down */
             FREE_remove(cls, prev);

@@ -11,7 +11,10 @@ name: progress-report
 #   of the Windows toolchain laid out as:
 #       toolchain/psyq/CC1PSX.EXE
 #       toolchain/mips/bin/mipsel-none-elf-{cpp,as,ld,objcopy}.exe (+ DLLs)
-#       toolchain/maspsx/maspsx.py
+#       toolchain/maspsx/maspsx.py   <- apply tools/maspsx-lid-reg.patch first
+#                                       (completes the li.d $N register LUT; without
+#                                        it game/psx/fe3dmenu.cpp fails: "Unknown
+#                                        mapping for $16")
 #   Host it and add the download link as the repo secret  TOOLCHAIN_ZIP_URL .
 #   A Dropbox share link works directly (the workflow forces dl=1); any other
 #   direct-download URL works too. (MEGA links need a client and are NOT

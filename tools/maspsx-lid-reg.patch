@@ -1,0 +1,55 @@
+# maspsx fix: complete the li.d register-pair LUT (Unknown mapping for $16)
+#
+# WHY: maspsx's get_next_register() expands `li.d $N,<double>` (load a 64-bit
+# soft-float constant into the GP pair $N/$N+1) using a HAND-ENUMERATED LUT that
+# only listed $2/$4/$6/$8/$10/$18 numerically.  cc1plus emits NUMERIC even
+# registers, so a frontend TU that loads a double constant into $s0 produces
+#   li.d  $16,6.5536e4        # = 65536.0
+# and maspsx aborts with "Unknown mapping for $16".  Hit by
+# game/psx/fe3dmenu.cpp::Draw_MenuRenderingView (the lone module that failed to
+# assemble in the whole-project import).  $12/$14 would fail identically.
+#
+# FIX: keep the LUT for named/$f regs, but fall back to MIPS-correct numeric
+# arithmetic ($N -> $N+1) for any plain `$<digits>` register the LUT omits.
+#
+# APPLY (before zipping the CI toolchain): edit maspsx/__init__.py,
+# function get_next_register(), replace the tail
+#
+#     next_reg = lut.get(reg)
+#     assert next_reg is not None, f"Unknown mapping for {reg}"
+#     return next_reg
+#
+# with:
+#
+#     next_reg = lut.get(reg)
+#     if next_reg is not None:
+#         return next_reg
+#     # Generic fallback for numeric registers ($N): a 64-bit double occupies the
+#     # pair ($N, $N+1), so the high word always lands in $N+1. The named-register
+#     # and $f cases are handled by the LUT above; this covers even GP regs the LUT
+#     # never enumerated (e.g. $12/$14/$16 -> cc1 emits these as `li.d $16,...`).
+#     m = re.fullmatch(r"\$(\d+)", reg)
+#     if m is not None:
+#         return f"${int(m.group(1)) + 1}"
+#     raise AssertionError(f"Unknown mapping for {reg}")
+#
+# (`import re` is already present at the top of maspsx/__init__.py.)
+#
+# Verified: li.d $16,6.5536e4  ->  li $16,0x0 ; lui $17,0x40F0   (IEEE-754
+# 65536.0 = 0x40F0000000000000; low word in $16, high word in $17).
+--- a/maspsx/__init__.py
++++ b/maspsx/__init__.py
+@@ get_next_register
+     next_reg = lut.get(reg)
+-    assert next_reg is not None, f"Unknown mapping for {reg}"
+-    return next_reg
++    if next_reg is not None:
++        return next_reg
++    # Generic fallback for numeric registers ($N): a 64-bit double occupies the
++    # pair ($N, $N+1), so the high word always lands in $N+1. The named-register
++    # and $f cases are handled by the LUT above; this covers even GP regs the LUT
++    # never enumerated (e.g. $12/$14/$16 -> cc1 emits these as `li.d $16,...`).
++    m = re.fullmatch(r"\$(\d+)", reg)
++    if m is not None:
++        return f"${int(m.group(1)) + 1}"
++    raise AssertionError(f"Unknown mapping for {reg}")

@@ -91,7 +91,7 @@ int FILE_opstatus(...);   /* (int oph) */
 int FILE_read(...);   /* (int arg0) */
 int FILE_readsync(...);   /* (int h, void *dst, int n) */
 void PAD_restore(...);
-u_int PAD_state(...);   /* (int port) */
+u_short PAD_state(int);   /* SYM: USHORT PAD_state(int padID) — was a bogus u_int(...) import decl */
 void PAD_update(...);
 int SND3dpos(...);   /* (u_int tag, u_int x, int y) */
 int SNDSTRM_autovol(...);   /* (int handle, int ticks, int flag) */

@@ -2128,15 +2128,10 @@ INCLUDE_ASM("asm/nonmatchings/main", stup1);
 
 INCLUDE_ASM("asm/nonmatchings/main", stup0);
 
-INCLUDE_ASM("asm/nonmatchings/main", padinit);
 
-INCLUDE_ASM("asm/nonmatchings/main", PAD_restore);
-
-INCLUDE_ASM("asm/nonmatchings/main", PAD_state);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800E41FC);
 
-INCLUDE_ASM("asm/nonmatchings/main", PAD_update);
 
 
 

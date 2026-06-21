@@ -3390,6 +3390,14 @@
       "metadata": {
         "source_path": "recon/syslib/psx/libsn/WRITE.cpp"
       }
+    },
+    {
+      "name": "eaclib/psx/pad",
+      "target_path": "expected/src/eaclib/psx/pad.c.o",
+      "base_path": "build/recon/eaclib/psx/pad.cpp.o",
+      "metadata": {
+        "source_path": "recon/eaclib/psx/pad.cpp"
+      }
     }
   ]
 }

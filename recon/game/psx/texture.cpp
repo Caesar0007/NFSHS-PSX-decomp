@@ -773,16 +773,6 @@ void Texture_KillTrackTexture(void)
 void Texture_KillMenuTexture(void)
 
 {
-  u_short abr;
-  int u;
-  int v;
-  int *checkdata;
-  int *indata;
-  short *dest;
-  int height;
-  char *shpfile;
-  char name [255];
-  
   purgememadr(gFreePal4);
   purgememadr(gFreePal8);
   return;

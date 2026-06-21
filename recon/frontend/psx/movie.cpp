@@ -12,7 +12,11 @@ static short   PPWTop, PPWBottom, gMode;            /* 0x80052cfc/cfe/d00 */
 static int     gIsRGB24;                            /* 0x80052d04 */
 static short   gMovieHeight, gMovieWidth;           /* 0x80052d08/d0a */
 static u_long  gMovieFrame, gEndFrame;              /* 0x80052d0c/d10 */
-static int     bMovieLoaded, bStopMovie, bRewindMovie, isFirstSlice; /* 0x80052d14..d20 */
+static int     movieFlags__[4]; /* 0x80052d14..d20 - aggregate forces .bss (absolute), not .sbss */
+#define bMovieLoaded movieFlags__[0]
+#define bStopMovie   movieFlags__[1]
+#define bRewindMovie movieFlags__[2]
+#define isFirstSlice movieFlags__[3]
 static DECENV  dec;                                 /* 0x80052d28 */
 static u_long *vlcbuf0, *vlcbuf1;                   /* 0x80052d58/d5c */
 static u_short *imgbuf;                             /* 0x80052d60 */
@@ -33,7 +37,7 @@ void Movie_Init(char movie)
   gEndFrame = 0;
   bMovieLoaded = 0;
   settrans(0);
-  download = 0;
+  download[0] = 0;
   vlcbuf0 = (u_long *)reservememadr("vlcbuf0",0x28000,0x10);
   vlcbuf1 = (u_long *)reservememadr("vlcbuf1",0x28000,0x10);
   if ((int)PPWBottom == 0) {
@@ -123,7 +127,7 @@ void Movie_Load(char movie)
   bMovieLoaded = 0;
   bRewindMovie = 0;
   bStopMovie = 0;
-  download = 0;
+  download[0] = 0;
   isFirstSlice = 1;
   ResetCallback();
   sprintf(gFEFileName,"\\MOVIES\\%s;1",movienames[(byte)movie]);
@@ -207,7 +211,7 @@ int Movie_NextFrame(void)
 void Movie_DownloadFrame(void)
 
 {
-  download = 1;
+  download[0] = 1;
   return;
 }
 
@@ -277,7 +281,7 @@ int Movie_Play(char movie)
       FntFlush(-1);
     }
     Movie_DownloadFrame();
-    download = 1;
+    download[0] = 1;
     PAD_update();
     pad_p1 = PAD_state(0);
     pad_p2 = PAD_state(4);
@@ -379,7 +383,7 @@ void strCallback(void)
     StCdInterrupt();
     StCdIntrFlag = 0;
   }
-  if (download != 0) {
+  if (download[0] != 0) {
     LoadImage(&dec.slice,(u_long *)dec.imgbuf);
   }
   if (isFirstSlice != 0) {

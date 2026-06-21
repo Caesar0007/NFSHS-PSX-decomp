@@ -47,7 +47,7 @@ void trap(int code);
 
 /* --- external game globals (Ghidra-typed) --- */
 extern u_char CF_DVLC[49096];
-extern int ComingIntoTheFrontEndTheVeryFirstTime;
+extern int ComingIntoTheFrontEndTheVeryFirstTime[]; /* unsized array: base-reg materialization (not $at macro store) */
 extern int DrawC_gMenuColor[2];
 extern int DrawC_gMenuLights;
 extern int DrawC_gMenuLightsDirection;

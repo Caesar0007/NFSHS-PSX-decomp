@@ -1039,26 +1039,8 @@ void Weather_DoWeather(DRender_tView *Vi)
 void Weather_BuildWeather(DRender_tView *Vi)
 
 {
-  u_int l3;
   void *pvVar1;
-  int splatTick;
-  u_int l2;
-  int size;
-  int nx;
-  short vx;
-  short vy;
-  DRender_tView *Vi_reg;
-  int ySize;
-  DVECTOR *wprevpt;
-  matrixtdef matdiff;
-  matrixtdef orthoMat;
-  SVECTOR velocity_vector_change;
-  SVECTOR total_vector_change;
-  SVECTOR temp_vector;
-  VECTOR result;
-  SVECTOR Weather_gTransformedRandomVelocityVectors [12];
-  SVECTOR gv [4];
-  
+
   if ((GameSetup_gData.Weather != 0) &&
      (pvVar1 = BWorldSm_TunnelFlagSm
                          (&Camera_gInfo[Vi->player].slicePos), pvVar1 == (void *)0x0)) {

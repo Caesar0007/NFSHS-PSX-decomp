@@ -8,7 +8,8 @@
 /* ---- PSXFront.obj STAT (file-local) globals ---- */
 static char     *STR_FRMT;                          /* 0x80052a54 */
 static u_short   ofs[2];                            /* 0x80052a5c */
-static char      rendering3DEnvironmentInitialized; /* 0x80052a60 */
+static char      rendering3DEnvInit__[8];           /* 0x80052a60 (sized>G4 -> .bss/absolute, not .sbss/gp-rel) */
+#define rendering3DEnvironmentInitialized rendering3DEnvInit__[0]
 
 /* lines 1-96: file header, #includes, static data, macros (no symbols emitted) */
 
@@ -218,11 +219,11 @@ void PSXExitFrontend(void)
   CleanupSpinningCars();
   deltimer(PAD_update);
   Audio_DeInitDriver();
-  if (gHelpShapes != (tTexture_ShapeInfo *)0x0) {
-    purgememadr(gHelpShapes);
-    gHelpShapes = (tTexture_ShapeInfo *)0x0;
+  if (gHelpShapes[0] != (tTexture_ShapeInfo *)0x0) {
+    purgememadr(gHelpShapes[0]);
+    gHelpShapes[0] = (tTexture_ShapeInfo *)0x0;
   }
-  ComingIntoTheFrontEndTheVeryFirstTime = 0;
+  ComingIntoTheFrontEndTheVeryFirstTime[0] = 0;
   return;
 }
 
@@ -232,8 +233,8 @@ void PSXExitFrontend(void)
 void PSX_AllocShapes(void)
 
 {
-  gHelpShapes = (tTexture_ShapeInfo *)reservememadr("gHelpShapes",0x760,0);
-  blockclear(gHelpShapes,0x760);
+  gHelpShapes[0] = (tTexture_ShapeInfo *)reservememadr("gHelpShapes",0x760,0);
+  blockclear(gHelpShapes[0],0x760);
   return;
 }
 
@@ -276,7 +277,7 @@ void Init_PSX_FrontEnd(void)
   Texture_InitMenuClut();
   screenwidth = 0x200;
   screenbpp = 0x10;
-  if (ComingIntoTheFrontEndTheVeryFirstTime == 0) {
+  if (ComingIntoTheFrontEndTheVeryFirstTime[0] == 0) {
     Init_RenderingEnvironment();
     TextSys_LoadWords((uint)(byte)frontEnd.language);
   }
@@ -613,7 +614,7 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
    * before the call, feeding garbage flags/x/y. Use the real params (M15). */
   shapeTbl = gCurrentShapes;
   if ((flags & 8) != 0) {
-    shapeTbl = gHelpShapes;
+    shapeTbl = gHelpShapes[0];
   }
   if ((flags & 0x200) != 0) {
     shapeTbl = extra->custom_shapes;
@@ -779,7 +780,7 @@ void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSh
    * AdjustShapeDrawing, not the never-assigned Ghidra locals flagsv/xv/yv (M15). */
   shapeTbl = gCurrentShapes;
   if ((flags & 8) != 0) {
-    shapeTbl = gHelpShapes;
+    shapeTbl = gHelpShapes[0];
   }
   if ((flags & 0x200) != 0) {
     shapeTbl = extra->custom_shapes;
@@ -818,7 +819,7 @@ void LoadAllHelpShapes(void)
   if (f != (char *)0x0) {
     do {
       i = index + 1;
-      FETexture_LoadPmx(f,index,gHelpShapes + index);
+      FETexture_LoadPmx(f,index,gHelpShapes[0] + index);
       index = i;
     } while (i < 0x3b);
     purgememadr(f);

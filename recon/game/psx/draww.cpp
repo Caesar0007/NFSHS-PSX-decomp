@@ -3424,26 +3424,6 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
 void DepthCue_Init(void)
 
 {
-  int dist;
-  int i;
-  int slice;
-  int maxTick;
-  int z2;
-  int znear;
-  int objectOffset;
-  int save_pre_otz;
-  int objectIndex;
-  int totalCount;
-  matrixtdef matrix;
-  coorddef cp;
-  coorddef pt2;
-  int dvxy1;
-  int groupNumElements;
-  int offset;
-  int doFrustumClip;
-  short *visList;
-  int chunkCount;
-  
   SetFogNear(TrackSpec_gSpec.depthcuespec.distance << 6,0xa0);
   SetFarColor((u_int)TrackSpec_gSpec.depthcuespec.color.r,(u_int)TrackSpec_gSpec.depthcuespec.color.g,
              (u_int)TrackSpec_gSpec.depthcuespec.color.b);

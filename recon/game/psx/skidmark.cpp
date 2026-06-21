@@ -56,14 +56,14 @@ void CalcOneSegment(Skidmark_Segment *r1,coorddef *cp,coorddef *pt1,coorddef *pt
   int pzp;
 
   angle = intatan(pt2->x - pt1->x,pt2->z - pt1->z);
-  pxp = fixedmult(tireWidth,-fastintcos(angle));
-  pzp = fixedmult(tireWidth,fastintsin(angle));
-  r1->svx[0].vx = (short)((pt2->x + (pxp >> 1)) - cp->x >> 6);
+  pxp = fixedmult(tireWidth,-fastintcos(angle)) >> 1;
+  pzp = fixedmult(tireWidth,fastintsin(angle)) >> 1;
+  r1->svx[0].vx = (short)((pt2->x + pxp) - cp->x >> 6);
   r1->svx[0].vy = (short)(pt2->y - cp->y >> 6);
-  r1->svx[0].vz = (short)((pt2->z + (pzp >> 1)) - cp->z >> 6);
-  r1->svx[1].vx = (short)((pt2->x - (pxp >> 1)) - cp->x >> 6);
+  r1->svx[0].vz = (short)((pt2->z + pzp) - cp->z >> 6);
+  r1->svx[1].vx = (short)((pt2->x - pxp) - cp->x >> 6);
   r1->svx[1].vy = (short)(pt2->y - cp->y >> 6);
-  r1->svx[1].vz = (short)((pt2->z - (pzp >> 1)) - cp->z >> 6);
+  r1->svx[1].vz = (short)((pt2->z - pzp) - cp->z >> 6);
   return;
 }
 

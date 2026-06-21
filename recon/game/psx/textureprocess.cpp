@@ -506,19 +506,6 @@ CVColor_emitFinal:
 void CV_InitColorVertices(void)
 
 {
-  int diffslice;
-  int numslices;
-  int diffdistance;
-  int final_dist;
-  int nextslice;
-  int i;
-  int g;
-  u_short color;
-  int contrasttemp;
-  int j;
-  char *sourcedata;
-  short newdata [256];
-  
   CV_ColorTracks(GameSetup_gData.track & 0xf,GameSetup_gData.Weather,GameSetup_gData.Time);
   return;
 }

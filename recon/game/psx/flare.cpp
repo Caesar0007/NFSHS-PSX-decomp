@@ -108,14 +108,11 @@ void Flare_SetMatrix(matrixtdef *m)
 void Flare_IdentMatrix(MATRIX *mtx)
 
 {
-  *(short *)((int)(mtx->m + 0) + 0) = 0x1000;
-  *(short *)((int)(mtx->m + 0) + 2) = 0;
-  *(u_int *)(mtx->m[0] + 2) = 0;
-  *(short *)((int)(mtx->m + 1) + 2) = 0x1000;
-  *(short *)((int)(mtx->m + 1) + 4) = 0;
-  *(short *)((int)(mtx->m + 2) + 0) = 0;
-  *(short *)((int)(mtx->m + 2) + 2) = 0;
-  *(u_int *)(mtx->m[2] + 2) = 0x1000;
+  *(int *)((char *)mtx + 0) = 0x1000;
+  *(int *)((char *)mtx + 4) = 0;
+  *(int *)((char *)mtx + 8) = 0x1000;
+  *(int *)((char *)mtx + 0xc) = 0;
+  *(int *)((char *)mtx + 0x10) = 0x1000;
   return;
 }
 
@@ -1562,14 +1559,14 @@ void Flare_SingleColorOct(DVECTOR *xy,CVECTOR *color,int width,int height,int ot
     if (iVar1 < 0) {
       iVar1 = iVar1 + 0xff;
     }
-    pDVar3->vx = xy->vx + (short)((u_int)iVar1 >> 8);
+    pDVar3->vx = xy->vx + (short)(iVar1 >> 8);
     iVar1 = height * pSVar2->vy;
     if (iVar1 < 0) {
       iVar1 = iVar1 + 0xff;
     }
     pSVar2 = pSVar2 + 1;
     iVar4 = iVar4 + 1;
-    pDVar3->vy = xy->vy + (short)((u_int)iVar1 >> 8);
+    pDVar3->vy = xy->vy + (short)(iVar1 >> 8);
     pDVar3 = pDVar3 + 1;
   } while (iVar4 < 8);
   Flare_Quad((long *)pt,color,otz);

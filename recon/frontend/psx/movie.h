@@ -33,6 +33,6 @@ extern short    moviewidth[5]; /* 0x80052a18 */
 extern short    user_exit;     /* 0x80052a2c */
 extern char     skip_all;      /* 0x80052a2e */
 extern char     gPlayerNum;    /* 0x80052a2f */
-extern short    download;      /* 0x80052a30 */
+extern short    download[];    /* 0x80052a30 (unsized array: force base-reg materialization, not $at macro) */
 
 #endif

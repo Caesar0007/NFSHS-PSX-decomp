@@ -10,7 +10,7 @@ extern tfrontEnd    frontEnd;
 extern char        *Paths_Paths[];
 extern tTournamentManager tournamentManager;
 extern tCarManager  carManager;
-extern Car_tStats  *Cars_gNewCarStatsList;
+extern Car_tStats  Cars_gNewCarStatsList[];
 extern tTrackManager trackManager;
 extern int          _i;            /* Ghidra phantom local */
 extern int          gFEData_8001165c;       /* trophy-letter pack (unresolved data global) */

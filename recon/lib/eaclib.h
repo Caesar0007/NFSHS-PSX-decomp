@@ -203,7 +203,7 @@ void CD_Stopread();   /* cdfs */
 void CD_Getinfo(int arg0);   /* cdfs */
 void cluttype(int arg0);   /* cluttype */
 void shapetype(int arg0);   /* shptype */
-void validatehandle(void * arg0);   /* stream */
+int validatehandle(int handle, int *outObj, int *outHandle);   /* stream @0x800FC2F8; oracle: 3 args (handle, &obj, &handle) -> int (was a bogus 1-arg void import decl) */
 void inbetween(void * arg0);   /* stream */
 void decbufferusage(void * arg0);   /* stream */
 void getfreerequest(void * arg0);   /* stream */

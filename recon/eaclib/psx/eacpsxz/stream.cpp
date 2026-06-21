@@ -37,7 +37,7 @@ extern "C" unsigned int FILE_read (void *handle, unsigned int offset, unsigned i
 extern "C" int  FILE_completeop(unsigned int id);
 extern "C" void FILE_callbackop(unsigned int id, void (*cb)(int, int));   /*@0x800EBE4C*/
 extern "C" void FILE_priorityop(unsigned int id, int prio);               /*@0x800EBECC*/
-extern "C" void FILE_closesync(void);                                     /* syncfile.obj */
+extern "C" void FILE_closesync(int handle, int prio);                     /* syncfile.obj (asm: a0=handle, a1=0x64) */
 
 /* ---- other eaclib helpers ---- */
 extern "C" int  allocmutex(void);                 /* callback.obj @0x800FE424 */
@@ -70,7 +70,7 @@ static inline void STREAM_leaveCS(void) {}
 #define MU(p,o) (*(unsigned int*)((p)+(o)))
 
 /* ---- internal forward decls (mutually recursive) ---- */
-extern "C" int  validatehandle(int handle, int *out);                          /* @0x800FC2F8 */
+extern "C" int  validatehandle(int handle, int *outObj, int *outHandle);       /* @0x800FC2F8 */
 extern "C" unsigned int inbetween(unsigned int a, unsigned int b, unsigned int c); /* @0x800FC334 */
 extern "C" int  decbufferusage(int s, int amount);                             /* @0x800FC374 */
 extern "C" int *getfreerequest(int s);                                         /* @0x800FC400 */
@@ -96,15 +96,15 @@ extern "C" int  STREAM_cancelrequest(int s, int req);                          /
 /* validatehandle @0x800FC2F8 : check a STREAM/consumer handle.  `handle[0]` points to the stream
  *   object; if that begins with 'STRM' it is valid.  Returns 0 and writes out[0]=streamobj, out[1]=handle
  *   (the asm stores to *a1 and *a2, with a2 == a1+4); returns 1 otherwise. */
-extern "C" int validatehandle(int handle, int *out)
+extern "C" int validatehandle(int handle, int *outObj, int *outHandle)
 {
     int sobj;
     if (handle == 0)
         return 1;
     sobj = *(int *)handle;
     if (*(int *)sobj == STRM_MAGIC) {
-        out[1] = handle;            /* asm: *a2 = a0 (the handle)                 */
-        out[0] = sobj;              /* asm: *a1 = a3 (the stream object), delay slot */
+        *outHandle = handle;        /* asm: *a2 = a0 (the handle)                 */
+        *outObj = sobj;             /* asm: *a1 = a3 (the stream object), delay slot */
         return 0;
     }
     return 1;
@@ -625,20 +625,26 @@ extern "C" int STREAM_create(int numReq, int numFilters, int numConsumers, int o
 extern "C" void STREAM_setfilter(int consumer, int filterIdx, unsigned int mask, unsigned int match, int value)
 {
     int out[2];
-    if (validatehandle(consumer, out) != 0)
+    int nf, obj;
+    if (validatehandle(consumer, &out[0], &out[1]) != 0)
         return;
-    if (filterIdx <= 0 || filterIdx > MI(out[0], 0x14))
+    if (filterIdx <= 0)
         return;
-    if (filterIdx == MI(out[0], 0x14) && !(mask == 0 && match == 0))
+    nf = MI(out[0], 0x14);
+    if (filterIdx > nf)
+        return;
+    if (filterIdx == nf && (mask | match) != 0)
         return;                                  /* last slot must be catch-all */
     if (!(value > 0 || value == -1 || value == -2))
         return;
-    if (value > MI(out[0], 0x1c))
+    obj = out[0];
+    if (value > MI(obj, 0x1c))
         return;
-    if (MI(out[0], 0x28) != 0)                    /* must be idle */
+    if (MI(obj, 0x28) != 0)                       /* must be idle */
         return;
     {
-        int *f = (int *)(MI(out[0], 0x10) + filterIdx * 0xc - 0xc);
+        int fo = filterIdx * 0xc - 0xc;
+        int *f = (int *)(MI(obj, 0x10) + fo);
         f[0] = (int)mask;
         f[1] = (int)match;
         f[2] = value;
@@ -650,7 +656,7 @@ extern "C" void STREAM_setfilter(int consumer, int filterIdx, unsigned int mask,
 extern "C" void STREAM_destroy(int s)
 {
     int out[2];
-    if (validatehandle(s, out) != 0)
+    if (validatehandle(s, &out[0], &out[1]) != 0)
         return;
     STREAM_kill(s);
     while (MI(out[0], 0x28) == 1) {               /* wait until not actively reading */
@@ -658,19 +664,21 @@ extern "C" void STREAM_destroy(int s)
             systemtask(0);
         yieldthread();
     }
-    MI(out[0], 0) = 0;                            /* invalidate magic */
     freemutex(MI(out[0], 4));
-    FILE_closesync();
+    MI(out[0], 0) = 0;                            /* invalidate magic */
+    FILE_closesync(MI(out[0], 0x9c), 100);
 }
 
 /* STREAM_setpriority @0x800FD1F8 : set the stream's two priority words (+0x2C, +0x30). */
 extern "C" void STREAM_setpriority(int s, int prioA, int prioB)
 {
     int out[2];
-    if (validatehandle(s, out) != 0)
+    int obj;
+    if (validatehandle(s, &out[0], &out[1]) != 0)
         return;
-    MI(out[0], 0x2c) = prioA;
-    MI(out[0], 0x30) = prioB;
+    obj = out[0];
+    MI(obj, 0x2c) = prioA;
+    MI(obj, 0x30) = prioB;
 }
 
 /* STREAM_setgreedylevel @0x800FD248 : set the greedy fill threshold (+0x34); if the buffer-usage-vs-level
@@ -678,13 +686,14 @@ extern "C" void STREAM_setpriority(int s, int prioA, int prioB)
 extern "C" void STREAM_setgreedylevel(int s, int lvl)
 {
     int out[2];
-    int oldlvl, state;
-    if (validatehandle(s, out) != 0)
+    int obj, oldlvl, usage, state;
+    if (validatehandle(s, &out[0], &out[1]) != 0)
         return;
-    oldlvl = MI(out[0], 0x34);
-    state  = (MI(out[0], 0x3c) < lvl);
-    MI(out[0], 0x34) = lvl;
-    if ((MI(out[0], 0x3c) < oldlvl) != state)
+    obj = out[0];
+    oldlvl = MI(obj, 0x34);
+    usage  = MI(obj, 0x3c);
+    MI(obj, 0x34) = lvl;
+    if ((usage < oldlvl) != (state = (usage < lvl)))
         STREAM_setgreedystate(s, state);
 }
 
@@ -693,11 +702,13 @@ extern "C" void STREAM_setgreedylevel(int s, int lvl)
 extern "C" void STREAM_setgreedystate(int s, int state)
 {
     int out[2];
-    if (validatehandle(s, out) != 0)
+    int obj;
+    if (validatehandle(s, &out[0], &out[1]) != 0)
         return;
-    MI(out[0], 0x38) = state;
-    if (state != 0 && MI(out[0], 0x28) == 1)
-        FILE_priorityop(MI(out[0], 0xa4), MI(out[0], 0x30));
+    obj = out[0];
+    MI(obj, 0x38) = state;
+    if (state != 0 && MI(obj, 0x28) == 1)
+        FILE_priorityop(MI(obj, 0xa4), MI(obj, 0x30));
 }
 
 /* STREAM_queuefile @0x800FD314 : queue a read of `len` bytes at `off` from file `name`.  Allocates a
@@ -707,7 +718,7 @@ extern "C" unsigned int STREAM_queuefile(int s, char *name, int off, int len)
     int out[2];
     int *req;
     unsigned int id = 0;
-    if (validatehandle(s, out) != 0)
+    if (validatehandle(s, &out[0], &out[1]) != 0)
         return 0;
     req = getfreerequest(out[0]);
     if (req == 0)
@@ -738,7 +749,7 @@ extern "C" unsigned int STREAM_queuemem(int s, int blocklist, void *ptr, int len
 {
     int out[2];
     int *req;
-    if (validatehandle(s, out) != 0)
+    if (validatehandle(s, &out[0], &out[1]) != 0)
         return 0;
     req = getfreerequest(out[0]);
     if (req == 0)
@@ -783,7 +794,7 @@ extern "C" int STREAM_cancelrequest(int s, int reqid)
     int req;
     int *s4, *s6, *s7;
 
-    if (validatehandle(s, out) != 0)
+    if (validatehandle(s, &out[0], &out[1]) != 0)
         return 1;
     s = out[0];                                   /* stream object */
 
@@ -870,7 +881,7 @@ extern "C" void STREAM_kill(int s)
 {
     int out[2];
     int *q;
-    if (validatehandle(s, out) != 0)
+    if (validatehandle(s, &out[0], &out[1]) != 0)
         return;
     s = out[0];
     q = *(int **)(s + 0x54);                       /* tail */
@@ -923,7 +934,7 @@ extern "C" int STREAM_get(int consumer, void *buf, int len)
     int *p;
     (void)buf; (void)len;
 
-    if (validatehandle(consumer, out) != 0)
+    if (validatehandle(consumer, &out[0], &out[1]) != 0)
         return 0;
     cons = out[1];                                  /* the consumer handle */
     if (MI(cons, 8) == 0)                           /* no data available */
@@ -958,7 +969,7 @@ extern "C" int STREAM_get(int consumer, void *buf, int len)
 extern "C" void STREAM_release(int s, int chunk)
 {
     int out[2];
-    if (validatehandle(s, out) != 0)
+    if (validatehandle(s, &out[0], &out[1]) != 0)
         return;
     if ((unsigned int)chunk < MU(out[0], 0x20))     /* below bufBase */
         return;
@@ -985,7 +996,7 @@ extern "C" void STREAM_release(int s, int chunk)
 extern "C" int STREAM_gettable(int s)
 {
     int out[2];
-    if (validatehandle(s, out) != 0)
+    if (validatehandle(s, &out[0], &out[1]) != 0)
         return 0;
     return MI(out[1], 8);
 }
@@ -994,7 +1005,7 @@ extern "C" int STREAM_gettable(int s)
 extern "C" int STREAM_state(int s)
 {
     int out[2];
-    if (validatehandle(s, out) != 0)
+    if (validatehandle(s, &out[0], &out[1]) != 0)
         return 0;
     return MI(out[0], 0x28);
 }
@@ -1003,18 +1014,20 @@ extern "C" int STREAM_state(int s)
 extern "C" int STREAM_isendofstream(int s)
 {
     int out[2];
-    if (validatehandle(s, out) != 0)
+    int ret;
+    if (validatehandle(s, &out[0], &out[1]) != 0)
         return 0;
-    if (MI(out[0], 0x28) != 0)
-        return 0;
-    return (MI(out[1], 8) == 0);
+    ret = 0;
+    if (MI(out[0], 0x28) == 0)
+        ret = (MI(out[1], 8) == 0);
+    return ret;
 }
 
 /* STREAM_buffersize @0x800FDC98 : the ring buffer size (bufEnd - bufBase). */
 extern "C" int STREAM_buffersize(int s)
 {
     int out[2];
-    if (validatehandle(s, out) != 0)
+    if (validatehandle(s, &out[0], &out[1]) != 0)
         return 0;
     return MI(out[0], 0x24) - MI(out[0], 0x20);
 }
@@ -1023,7 +1036,7 @@ extern "C" int STREAM_buffersize(int s)
 extern "C" int STREAM_bufferusage(int s)
 {
     int out[2];
-    if (validatehandle(s, out) != 0)
+    if (validatehandle(s, &out[0], &out[1]) != 0)
         return 0;
     return MI(out[0], 0x3c);
 }

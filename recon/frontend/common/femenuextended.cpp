@@ -571,14 +571,16 @@ void tMenuItemOptionsLeftRightChoice::Draw(int x,int y,bool selected)
 void tMenuItemOptionsTwoItemChoice::TransitionOn()
 
 {
-  char cVar1;
+  u_int cVar1;
+  u_int bVar;
   tListIterator *ptVar2;
   __vtbl_ptr_type (*pa_Var3) [6];
-  
+
   ptVar2 = (this->_base_tMenuItemLeftRightChoice).fData;
   pa_Var3 = ptVar2->_vf;
-  cVar1 = (*(*pa_Var3)[2].pfn)((char *)ptVar2 + (int)(*pa_Var3)[2].delta,0xffffffff);
-  this->fOnOffFade = (u_short)(cVar1 != '\0') << 7;
+  cVar1 = (u_char)(*(*pa_Var3)[2].pfn)((char *)ptVar2 + (int)(*pa_Var3)[2].delta,0xffffffff);
+  bVar = (u_int)(0 < cVar1);
+  this->fOnOffFade = bVar << 7;
   return;
 }
 
@@ -699,21 +701,21 @@ void tMenuNFS4::Initialize()
   u_int *puVar3;
   
   this->_base_tMenu.Initialize();
-  item = (this->_base_tMenu).fCurrentItem;
+  this->fLastItem = (char)(this->_base_tMenu).fCurrentItem;
   ptVar2 = (this->_base_tMenu).fItemList[0];
   this->fInItemTransition = 0;
   this->fInMenuTransition = 0;
   this->fNumItems = '\0';
-  this->fLastItem = (char)item;
-  while (ptVar2 != (tMenuItem *)0x0) {
-    bVar1 = this->fNumItems + 1;
-    this->fNumItems = bVar1;
-    ptVar2 = (this->_base_tMenu).fItemList[bVar1];
+  if (ptVar2 != (tMenuItem *)0x0) {
+    do {
+      bVar1 = this->fNumItems + 1;
+      this->fNumItems = bVar1;
+    } while ((this->_base_tMenu).fItemList[bVar1] != (tMenuItem *)0x0);
   }
   item = 0;
   if (((this->_base_tMenu).fFlags & 0x200) != 0) {
     while( true ) {
-      puVar3 = *(u_int **)((int)(this->_base_tMenu).fItemList + ((item << 0x10) >> 0xe));
+      puVar3 = (u_int *)(this->_base_tMenu).fItemList[item];
       item = item + 1;
       if (puVar3 == (u_int *)0x0) break;
       *puVar3 = *puVar3 | 0x200;
@@ -743,16 +745,16 @@ void tMenuNFS4::TransitionOff()
   tMenuItem *ptVar1;
   int iVar2;
   int iVar3;
-  int i;
-  
+  short i;
+
   i = 0;
   ptVar1 = (this->_base_tMenu).fItemList[0];
   while (ptVar1 != (tMenuItem *)0x0) {
-    iVar3 = *(int *)((int)(this->_base_tMenu).fItemList + ((i << 0x10) >> 0xe));
+    iVar3 = (int)(this->_base_tMenu).fItemList[i];
     iVar2 = *(int *)(iVar3 + 0x18);
     (**(int (**)(...))(iVar2 + 0x3c))(iVar3 + *(short *)(iVar2 + 0x38));
     i = i + 1;
-    ptVar1 = *(tMenuItem **)((int)(this->_base_tMenu).fItemList + (i * 0x10000 >> 0xe));
+    ptVar1 = (this->_base_tMenu).fItemList[i];
   }
   return;
 }
@@ -767,16 +769,16 @@ void tMenuNFS4::TransitionOn()
   tMenuItem *ptVar1;
   int iVar2;
   int iVar3;
-  int i;
-  
+  short i;
+
   i = 0;
   ptVar1 = (this->_base_tMenu).fItemList[0];
   while (ptVar1 != (tMenuItem *)0x0) {
-    iVar3 = *(int *)((int)(this->_base_tMenu).fItemList + ((i << 0x10) >> 0xe));
+    iVar3 = (int)(this->_base_tMenu).fItemList[i];
     iVar2 = *(int *)(iVar3 + 0x18);
     (**(int (**)(...))(iVar2 + 0x44))(iVar3 + *(short *)(iVar2 + 0x40));
     i = i + 1;
-    ptVar1 = *(tMenuItem **)((int)(this->_base_tMenu).fItemList + (i * 0x10000 >> 0xe));
+    ptVar1 = (this->_base_tMenu).fItemList[i];
   }
   return;
 }
@@ -793,18 +795,18 @@ void * tMenuNFS4::TransitionIsFinished()
   u_int uVar3;
   int iVar4;
   void *result;
-  int i;
-  
+  short i;
+
   result = (void *)0x1;
   i = 0;
   ptVar1 = (this->_base_tMenu).fItemList[0];
   while (ptVar1 != (tMenuItem *)0x0) {
-    iVar4 = *(int *)((int)(this->_base_tMenu).fItemList + ((i << 0x10) >> 0xe));
+    iVar4 = (int)(this->_base_tMenu).fItemList[i];
     iVar2 = *(int *)(iVar4 + 0x18);
     uVar3 = (**(int (**)(...))(iVar2 + 0x4c))(iVar4 + *(short *)(iVar2 + 0x48));
     result = (void *)(u_int)(((u_int)result & uVar3) != 0);
     i = i + 1;
-    ptVar1 = *(tMenuItem **)((int)(this->_base_tMenu).fItemList + (i * 0x10000 >> 0xe));
+    ptVar1 = (this->_base_tMenu).fItemList[i];
   }
   return result;
 }
@@ -819,7 +821,7 @@ void tMenuNFS4::UpdateTransition()
   tMenuItem *ptVar1;
   __vtbl_ptr_type (*pa_Var2) [11];
   int i;
-  
+
   i = 0;
   ptVar1 = (this->_base_tMenu).fItemList[0];
   while (ptVar1 != (tMenuItem *)0x0) {
@@ -829,7 +831,7 @@ void tMenuNFS4::UpdateTransition()
               ((char *)ptVar1 + (int)(*pa_Var2)[10].delta,
                (int)(short)i == (this->_base_tMenu).fCurrentItem);
     i = i + 1;
-    ptVar1 = *(tMenuItem **)((int)(this->_base_tMenu).fItemList + (i * 0x10000 >> 0xe));
+    ptVar1 = (this->_base_tMenu).fItemList[(short)i];
   }
   return;
 }
@@ -993,7 +995,7 @@ void tMenuNFS4Bottom::Draw()
               ((char *)ptVar1 + (int)(*pa_Var2)[5].delta,0,0,
                (int)(short)i == (this->_base_tMenuNFS4)._base_tMenu.fCurrentItem);
     i = i + 1;
-    ptVar1 = *(tMenuItem **)((int)(this->_base_tMenuNFS4)._base_tMenu.fItemList + (i * 0x10000 >> 0xe));
+    ptVar1 = (this->_base_tMenuNFS4)._base_tMenu.fItemList[(short)i];
   }
   return;
 }
@@ -1035,9 +1037,9 @@ void tMenuBlank::Draw()
   
   if ((this->_base_tMenuNFS4).fInMenuTransition != 0) {
     pa_Var1 = (this->_base_tMenuNFS4)._base_tMenu._vf;
-    (*(*pa_Var1)[7].pfn)((int)(this->_base_tMenuNFS4)._base_tMenu.fItemList + (*pa_Var1)[7].delta + -0x10);
+    (*(*pa_Var1)[7].pfn)((int)this + (*pa_Var1)[7].delta);
     (this->_base_tMenuNFS4).fTransitionVal =
-         (this->_base_tMenuNFS4).fTransitionVal + (short)(this->_base_tMenuNFS4).fTransitionDirection;
+         (this->_base_tMenuNFS4).fTransitionVal + (short)*(signed char *)&(this->_base_tMenuNFS4).fTransitionDirection;
   }
   return;
 }
@@ -1099,7 +1101,7 @@ void tMenuBlank::TransitionOff()
 void tMenuBlank::TransitionOn()
 
 {
-  (this->_base_tMenuNFS4).fTransitionDirection = -8;
+  *(signed char *)&(this->_base_tMenuNFS4).fTransitionDirection = -8;
   (this->_base_tMenuNFS4).fInMenuTransition = 1;
   (this->_base_tMenuNFS4).fTransitionVal = 0;
   return;
@@ -1114,14 +1116,14 @@ void * tMenuBlank::TransitionIsFinished()
 {
   u_int uVar1;
   
-  if ((this->_base_tMenuNFS4).fTransitionDirection < '\x01') {
-    uVar1 = (this->_base_tMenuNFS4).fTransitionVal < -0x6f ^ 1;
-  }
-  else {
+  if (0 < *(signed char *)&(this->_base_tMenuNFS4).fTransitionDirection) {
     uVar1 = (u_int)(int)(this->_base_tMenuNFS4).fTransitionVal >> 0x1f;
   }
+  else {
+    uVar1 = (this->_base_tMenuNFS4).fTransitionVal < -0x6f ^ 1;
+  }
   (this->_base_tMenuNFS4).fInMenuTransition = uVar1;
-  return (void *)((this->_base_tMenuNFS4).fInMenuTransition ^ 1);
+  return (void *)(*(volatile BOOL *)&(this->_base_tMenuNFS4).fInMenuTransition ^ 1);
 }
 
 
@@ -1249,7 +1251,7 @@ void tMenuOptions::TransitionOff()
 {
   int iVar1;
   
-  (this->_base_tMenuNFS4).fTransitionDirection = -1;
+  *(signed char *)&(this->_base_tMenuNFS4).fTransitionDirection = -1;
   iVar1 = ticks;
   (this->_base_tMenuNFS4).fInMenuTransition = 1;
   this->fMenuEnterTicks = iVar1;
@@ -1358,19 +1360,6 @@ tMenuItemOptionsLeftRightChoice::~tMenuItemOptionsLeftRightChoice()
 void tMenuItemGoToMenuNFS4Button::Draw(bool selected)
 
 {
-  u_int deltaTicks;
-  short numItems;
-  int itemY;
-  int ypos;
-  int textpix;
-  int h;
-  int w;
-  RECT temp;
-  tDrawShapeExtended drawFlags;
-  RECT rect;
-  int ColTextOn;
-  int ColTextOff;
-  
   return;
 }
 

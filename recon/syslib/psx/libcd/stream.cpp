@@ -16,28 +16,35 @@
 typedef unsigned long u_long;
 
 /* ---- streaming subsystem shared state (.bss; @VA breadcrumbs) --------------------------------- */
+/* These globals live in regular .bss in the original and are reached ABSOLUTELY (lui %hi; lw %lo)
+ * by every St* function -- NONE is gp-relative in the oracle (their .bss addresses @0x80146Cxx /
+ * 0x801489CC are far outside the -G4 small-data window around _gp=0x8013C54C).  Defining them as a
+ * plain `int X = 0;` would place them in .sdata/.sbss -> gp-relative, which mismatches the ROM.  The
+ * `section(".bss")` attribute keeps the (single, TU-owned) definition but pins it to regular .bss so
+ * the addressing matches.  (cf. methodology 3.12 #6 caveat: gate gp-rel on %gp_rel in the oracle.) */
+#define ST_BSS __attribute__((section(".bss")))
 extern "C" {
-int   StFunc1          = 0;   /* @0x80144874 : per-sector "VLC ready" callback   */
-int   StFunc2          = 0;   /* @0x80144878 : per-frame "frame ready" callback  */
-int   StMode           = 0;   /* @0x801489CC : RGB24/mono streaming flag         */
-int   StEmu_Addr       = 0;   /* @0x80146C7C : emulated-stream source (0 = CD)   */
-int   StCdIntrFlag     = 0;   /* @0x80146C80 */
-int   CChannel         = 0;   /* @0x80146C84 : current channel                   */
-int   StCHANNEL        = 0;   /* @0x80146C88 : selected channel                  */
-int   Stframe_no       = 0;   /* @0x80146C8C : current frame number              */
-int   StRgb24          = 0;   /* @0x80146C90 : RGB24 mode                        */
-int   StEndFrame       = 0;   /* @0x80146C94 : last frame to play (0 = endless)  */
-int   StSTART_FLAG     = 0;   /* @0x80146C98 : start-frame gating enabled        */
-int   StEmu_Idx        = 0;   /* @0x80146C9C : emulated-stream sector index      */
-short Stsector_offset  = 0;   /* @0x80146CA0 : sector offset within frame        */
-int   StFinalSector    = 0;   /* @0x80146CA4 : final-sector reached flag         */
-int   StRingBase       = 0;   /* @0x80146CA8 */
-int   StRingAddr       = 0;   /* @0x80146CAC : ring buffer base address          */
-int   StRingIdx1       = 0;   /* @0x80146CB0 : write (CD fill) index             */
-int   StRingIdx2       = 0;   /* @0x80146CB4 : decode index                      */
-int   StRingIdx3       = 0;   /* @0x80146CB8 : read (StGetNext) index            */
-int   StRingSize       = 0;   /* @0x80146CBC : ring slot count                   */
-int   StStartFrame     = 0;   /* @0x80146CC0 : first frame to play               */
+int   StFunc1          ST_BSS;   /* @0x80144874 : per-sector "VLC ready" callback   */
+int   StFunc2          ST_BSS;   /* @0x80144878 : per-frame "frame ready" callback  */
+int   StMode           ST_BSS;   /* @0x801489CC : RGB24/mono streaming flag         */
+int   StEmu_Addr       ST_BSS;   /* @0x80146C7C : emulated-stream source (0 = CD)   */
+int   StCdIntrFlag     ST_BSS;   /* @0x80146C80 */
+int   CChannel         ST_BSS;   /* @0x80146C84 : current channel                   */
+int   StCHANNEL        ST_BSS;   /* @0x80146C88 : selected channel                  */
+int   Stframe_no       ST_BSS;   /* @0x80146C8C : current frame number              */
+int   StRgb24          ST_BSS;   /* @0x80146C90 : RGB24 mode                        */
+int   StEndFrame       ST_BSS;   /* @0x80146C94 : last frame to play (0 = endless)  */
+int   StSTART_FLAG     ST_BSS;   /* @0x80146C98 : start-frame gating enabled        */
+int   StEmu_Idx        ST_BSS;   /* @0x80146C9C : emulated-stream sector index      */
+short Stsector_offset  ST_BSS;   /* @0x80146CA0 : sector offset within frame        */
+int   StFinalSector    ST_BSS;   /* @0x80146CA4 : final-sector reached flag         */
+int   StRingBase       ST_BSS;   /* @0x80146CA8 */
+int   StRingAddr       ST_BSS;   /* @0x80146CAC : ring buffer base address          */
+int   StRingIdx1       ST_BSS;   /* @0x80146CB0 : write (CD fill) index             */
+int   StRingIdx2       ST_BSS;   /* @0x80146CB4 : decode index                      */
+int   StRingIdx3       ST_BSS;   /* @0x80146CB8 : read (StGetNext) index            */
+int   StRingSize       ST_BSS;   /* @0x80146CBC : ring slot count                   */
+int   StStartFrame     ST_BSS;   /* @0x80146CC0 : first frame to play               */
 /* (Cdinfo @0x80146CC4 is the CDfs control struct -- owned by cdfs.cpp, not the streaming state.) */
 }
 

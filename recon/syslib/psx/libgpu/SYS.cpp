@@ -732,6 +732,8 @@ extern "C" void SetDispMask(int mask)
 /* @0x800ED87C : DrawSync */
 extern "C" int DrawSync(int mode)
 {
+    if (_gpu_debug >= 2)
+        GPU_printf("DrawSync(%d)...\n", mode);       /* @0x80056DB4 */
     return GEnv_drv->sync(mode);
 }
 

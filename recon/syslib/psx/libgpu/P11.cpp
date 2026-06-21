@@ -3,6 +3,9 @@
  *   bit (0x01) in a primitive's code byte at offset 7. */
 extern "C" void SetShadeTex(void *p, int tge)   /* @0x800F611C */
 {
-    if (tge) ((char *)p)[7] |= 0x01;
-    else     ((char *)p)[7] &= (char)0xfe;
+    unsigned char *b = (unsigned char *)p;
+    unsigned char v;
+    if (tge) v = (unsigned char)(b[7] | 0x01);
+    else     v = (unsigned char)(b[7] & 0xfe);
+    b[7] = v;
 }

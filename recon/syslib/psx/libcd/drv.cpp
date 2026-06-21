@@ -70,7 +70,7 @@ static unsigned char  _cd_done_buf[8];   /* @0x801489AC : acknowledge result */
 static unsigned char  _cd_sync_res;      /* @0x8013C224 : sync interrupt code (2 = complete, 5 = error) */
 static unsigned char  _cd_ready_res;     /* @0x8013C225 : ready interrupt code */
 static unsigned char  _cd_done_res;      /* @0x8013C226 : acknowledge interrupt code */
-static int            _cd_test_parmnum;  /* @0x8013C1F0 : CD_set_test_parmnum value */
+/* (the test-parmnum hook patches _cd_param_count[25] @0x8013C1F0 directly -- see CD_set_test_parmnum) */
 
 /* per-command attribute tables (data-mat: bytes live in the EXE) */
 extern const int _cd_param_count[];      /* @0x8013C18C : #parameter bytes per command */
@@ -466,5 +466,7 @@ extern "C" int CD_getsector2(void *madr, int size)
     return 0;
 }
 
-/* @0x80108674 : CD_set_test_parmnum */
-extern "C" void CD_set_test_parmnum(int n) { _cd_test_parmnum = n; }
+/* @0x80108674 : CD_set_test_parmnum -- patch the param-count of command 0x19 (test).
+ * D_8013C1F0 = &_cd_param_count[25] (0x8013C18C + 25*4); a big-array element -> absolute
+ * addressing (SOTN bios.c: D_80032CE8[25] = parmNum). */
+extern "C" void CD_set_test_parmnum(int n) { ((int *)_cd_param_count)[25] = n; }

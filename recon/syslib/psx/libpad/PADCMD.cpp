@@ -130,9 +130,12 @@ extern "C" int _padSendAtLoadInfo(unsigned char *info)
 /* @0x801057CC : _padGetActSize -- size of the actuator-info block being assembled. */
 extern "C" int _padGetActSize(unsigned char *info)
 {
-    return ((info[0xe3] + 1) >> 1) * 4
-         + (((unsigned)info[0xe9] * 5 + 3) & 0xffc) + 4
-         + *(int *)(info + 0xec);
+    int nmode = info[0xe3];
+    int nact  = info[0xe9];
+    int accum = *(int *)(info + 0xec);
+    int a = ((nmode + 1) >> 1) << 2;
+    int b = ((nact * 5 + 3) & 0xffc) + 4;
+    return a + b + accum;
 }
 
 /* @0x80105680 : _padRecvAtLoadInfo -- consume one response of the load-info handshake. */

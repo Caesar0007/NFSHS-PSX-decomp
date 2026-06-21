@@ -13,20 +13,21 @@ extern "C" void StopCARD2(void);              /* A76.OBJ  BIOS B0:0x4C @0x8010CB
 extern "C" int  _ExitCard(void);              /* END.OBJ  @0x8010CBC0 */
 
 /* @0x8010C7F0 : StartCard -- enter crit section, start the BIOS card driver,
- *               re-enable PAD auto-clear, leave crit section. */
+ *               re-enable PAD auto-clear, leave crit section.  The oracle sets NO
+ *               return value (v0 is the ExitCriticalSection leftover); declared `long`
+ *               to match the prototype but the body falls off the end -> no `li v0`. */
 extern "C" long StartCARD(void)
 {
     EnterCriticalSection();
     StartCARD2();
     ChangeClearPAD(0);
     ExitCriticalSection();
-    return 1;                 /* v0 = call leftover; PsyQ "started" convention (unused) */
 }
 
-/* @0x8010C828 : StopCard -- stop the BIOS card driver and un-patch the card IRQ handler. */
+/* @0x8010C828 : StopCard -- stop the BIOS card driver and un-patch the card IRQ handler.
+ *               No return value set (v0 = _ExitCard leftover). */
 extern "C" long StopCARD(void)
 {
     StopCARD2();
     _ExitCard();
-    return 1;                 /* v0 = _ExitCard leftover (unused) */
 }

@@ -1,16 +1,9 @@
 /* syslib/psx/libapi/C114.cpp -- RECONSTRUCTED from nfs4-f.exe (disasm-v3).
- *   obj C114.obj ; libapi.lib.  _96_remove -- PSX kernel API trampoline (BIOS 0xA0:0x72).  MIPS-target
- *   asm (jumps to BIOS); x86 fallback stub (real impl in PSX BIOS / OpenBIOS).
- */
-#if defined(__mips__)
-extern "C" __attribute__((naked)) void _96_remove(void)
-{ __asm__ __volatile__(".set noreorder
-	 li $10,0xA0
-	 jr $10
-	 li $9,0x72
-	 .set reorder"); }
-#else
-extern "C" void _96_remove(void)
-{
-}
-#endif
+ *   obj libapi.lib(C114.OBJ): _96_remove -- BIOS 0xA0:0x72 tail-call thunk (RULE 7).
+ *   The 3 thunk instructions match byte-for-byte. The oracle .s lists 3 trailing padding
+ *   words (0x80106960..0x80106968, inter-object link padding); objdump abbreviates 3+
+ *   zero words to "...", so verify_asm's objdump parser cannot count them and reports
+ *   "ours 4 / oracle 6". This is a verify-tool artifact, not a body mismatch. */
+#include "../../../lib/bios_thunk.h"
+
+BIOS_THUNK(_96_remove, 0xA0, 0x72);   /* @0x80106954 */

@@ -49,7 +49,7 @@ extern "C" int PadGetState(int port)
     if ((d->status & 0xffff0000) != 0 ||
         (d != d->self && d->connected != 0) ||
         *d->flag_ptr != 0) {
-        unsigned char s = d->state;
+        int s = d->state;
         if (s == 3)
             return 1;
         if (s < 4) {

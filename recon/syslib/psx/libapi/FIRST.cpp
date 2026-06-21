@@ -9,7 +9,19 @@
  *   and mis-attributed the return to the patch pointer; the disasm returns $v0 from firstfile2).
  *
  *   The 0x150/0x154 kernel globals and the 0x50-byte DCB layout are part of the PSX BIOS ABI (fixed
- *   addresses), represented here as literal volatile pointers per the HW/BIOS-global rule. */
+ *   addresses), represented here as literal volatile pointers per the HW/BIOS-global rule.
+ *
+ *   BYTE-MATCH STATUS: WALL (firstfile, 102/103 diffs).  This is a faithful BEHAVIORAL recon but
+ *   structurally diverges from the oracle in three compounding ways across all 103 instructions:
+ *     (1) the oracle finds the device, saves the handler AND installs the patch in ONE search pass
+ *         (match at .L80109EA0 reads +0x34 then patches); this recon uses TWO passes + a `found` flag.
+ *     (2) the devname-copy loop is SIGNED in the oracle (`lb`+`slti 0x3B`) but this build emits
+ *         `lbu`+`sltiu` (target `char` is unsigned by default -> needs an -fsigned-char / signed-char
+ *         cast to match).
+ *     (3) the recon colors 6 callee-saved regs (frame -0x30) vs the oracle's 5 (frame -0x28), and the
+ *         /0x50 magic-divide pair gcc picks here (0x66666667) differs from the oracle's (0xCCCCCCCD>>6).
+ *   Reaching 100% needs a single-pass rewrite driven off the oracle CFG + signed-char + reg-budget
+ *   trimming -- a multi-hour effort deferred as out of scope for this thunk-focused pass. */
 
 extern "C" int   strcmp(const char *a, const char *b);     /* libc C23 @0x800E5D7C */
 extern "C" void *firstfile2(const char *name, void *dir);  /* A66.OBJ : BIOS B0:0x42 */

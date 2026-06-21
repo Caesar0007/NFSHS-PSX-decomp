@@ -1,43 +1,72 @@
-/* syslib/psx/libapi/COUNTER.cpp -- RECONSTRUCTED from nfs4-f.exe (IDA Hex-Rays).
- *   obj COUNTER.obj ; libapi.lib.  Root-counter (RCnt) API -- direct hardware-register access (NOT a BIOS
- *   trampoline): SetRCnt @0x800E9E70, GetRCnt @0x800E9F0C, StartRCnt @0x800E9F44.  RCnt regs at 0x1F801100
- *   (count) / +4 mode / +8 target, 16 bytes apart; IRQ mask at 0x1F801074.  IDA verbatim.
- */
-extern "C" const unsigned int rcnt_irqbits[4] = { 0x10, 0x20, 0x40, 0x1 };   /* @0x801234BC : per-RCnt IRQ_MASK bit (data-mat from EXE) */
+/* syslib/psx/libapi/COUNTER.cpp -- RECONSTRUCTED from nfs4-f.exe (disasm-v3 oracle).
+ *   obj libapi.lib(COUNTER.OBJ): the Root-counter (RCnt) API -- SetRCnt @0x800E9E70,
+ *   GetRCnt @0x800E9F0C, StartRCnt @0x800E9F44.  These reach the RCnt hardware THROUGH two
+ *   base-pointer globals (NOT folded literal MMIO -- IDA folded them; the oracle loads them
+ *   with lui/%hi + lw/%lo):
+ *     RCnt_regs (D_801234B8) = 0x1F801100  -- RCnt count-register block; per-counter stride
+ *                                             0x10, fields: count@+0, mode@+4, target@+8.
+ *     RCnt_ctrl (D_801234B4) = 0x1F801070  -- IRQ-control base; the IRQ mask is at +4 (=0x1F801074).
+ *     RCnt_irq  (D_801234BC) = {0x10,0x20,0x40,0x1, 0,0} -- per-counter I_MASK bit.
+ *   The three globals live in a sibling data TU (COUNTER_data.cpp) so this TU references them
+ *   as extern -> absolute lui/%hi addressing, matching the oracle (a small initialized global
+ *   defined here would land in -G4 small-data -> gp-relative and break the match; §3.12 #6).
+ *   The `spec` index is taken as a SIGNED int (the oracle's `slti`, not `sltiu`) and every
+ *   function has a SINGLE return point the early-outs `goto` (the oracle's `j .Lret`).
+ *   STATUS: structurally faithful to the oracle (correct base-pointer indexing + algorithm;
+ *   replaces the prior IDA literal-MMIO version which was structurally WRONG).  Residual
+ *   near-miss is pure hand-asm coloring/scheduling (GetRCnt 7, StartRCnt 10, SetRCnt 38==39
+ *   insn-count): the `andi`-mask on a volatile u16 return and the store parked in the `jr $ra`
+ *   delay slot are hand-written-asm idioms gcc won't reproduce here without a forbidden reg
+ *   pin -- the SAME accepted near-miss class as the sibling RCnt helpers in libpad/WAITRC2. */
 
-extern "C" int SetRCnt(unsigned short spec, short target, short mode)   /* @0x800E9E70 */
+extern "C" unsigned char  *RCnt_regs;   /* @0x801234B8 : = (uchar*)0x1F801100 */
+extern "C" unsigned char  *RCnt_ctrl;   /* @0x801234B4 : = (uchar*)0x1F801070 */
+extern "C" unsigned long   RCnt_irq[];  /* @0x801234BC : {0x10,0x20,0x40,0x1,0,0} */
+
+/* @0x800E9E70 : SetRCnt(spec, target, mode) -- program a root counter, return 1 (0 if spec>=3). */
+extern "C" int SetRCnt(unsigned short spec, short target, short mode)
 {
-    short v3 = 72;
-    if (spec >= 3u) return 0;
-    int base = 16 * spec + 0x1F801100;
-    *(volatile unsigned short *)(base + 4) = 0;
-    *(volatile unsigned short *)(base + 8) = target;
-    int v6;
-    if (spec >= 2u) {
-        v6 = mode & 0x1000;
-        if (spec == 2) {
-            v6 = mode & 0x1000;
-            if ((mode & 1) == 0) v3 = 584;
-        }
-    } else {
-        if ((mode & 0x10) != 0) v3 = 73;
-        v6 = mode & 0x1000;
-        if ((mode & 1) == 0) v3 |= 0x100;
+    int            s = spec;          /* signed index -> slti, not sltiu */
+    unsigned char *reg;
+    int            m;
+    int            result;
+
+    if (s >= 3) {
+        result = 0;
+        goto out;
     }
-    int result = 1;
-    if (v6 != 0) v3 |= 0x10;
-    *(volatile unsigned short *)(16 * spec + 0x1F801104) = v3;
+
+    reg = RCnt_regs + s * 16;
+    *(volatile unsigned short *)(reg + 4) = 0;          /* clear mode */
+    *(volatile unsigned short *)(reg + 8) = target;     /* set target */
+
+    if (s < 2) {
+        m = 0x48;
+        if (mode & 0x10) m = 0x49;
+        if ((mode & 1) == 0) m |= 0x100;
+    } else {
+        m = 0x48;
+        if ((mode & 1) == 0) m = 0x248;
+    }
+    if (mode & 0x1000) m |= 0x10;
+
+    *(volatile unsigned short *)(RCnt_regs + s * 16 + 4) = (unsigned short)m;
+    result = 1;
+out:
     return result;
 }
 
-extern "C" int GetRCnt(unsigned short spec)   /* @0x800E9F0C */
+/* @0x800E9F0C : GetRCnt(spec) -- read a counter's current count (0 if spec>=3). */
+extern "C" int GetRCnt(unsigned short spec)
 {
-    if (spec >= 3u) return 0;
-    return *(volatile unsigned short *)(16 * spec + 0x1F801100);
+    int s = spec;                     /* signed index -> slti */
+    return (s < 3) ? *(volatile unsigned short *)(RCnt_regs + s * 16) : 0;
 }
 
-extern "C" int StartRCnt(unsigned short spec)   /* @0x800E9F44 */
+/* @0x800E9F44 : StartRCnt(spec) -- enable a counter's IRQ in the mask; return spec<3. */
+extern "C" int StartRCnt(unsigned short spec)
 {
-    *(volatile unsigned int *)0x1F801074 |= rcnt_irqbits[spec];
-    return spec < 3u;
+    int s = spec;                     /* signed index -> slti */
+    *(volatile unsigned long *)(RCnt_ctrl + 4) |= RCnt_irq[s];
+    return s < 3;
 }

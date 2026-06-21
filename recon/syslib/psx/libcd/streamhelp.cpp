@@ -31,34 +31,39 @@ extern "C" void ExitCriticalSection(void);  /* BIOS @0x8010696C */
 extern "C" int  DS_active;                  /* @0x8013BF68 : libds stream active */
 
 /* ---- libds / C_004 globals (anonymous in the original) ---------------------------------------- */
+/* Regular .bss, reached absolutely in the oracle (their 0x801489Dx addresses are far outside the
+ * -G4 small-data window) -- pin to .bss so they are not placed in .sdata/.sbss (= gp-relative). */
+#define ST_BSS __attribute__((section(".bss")))
 extern "C" {
-int _ds_word0   = 0;   /* @0x801489D0 : last sector sub-header (slot+28) */
-int _ds_word1   = 0;   /* @0x801489D4 : last sector word (slot+8)        */
-int _ds_ready_cb = 0;  /* @0x801489E4 : DsReadyCallback slot             */
+int _ds_word0   ST_BSS;   /* @0x801489D0 : last sector sub-header (slot+28) */
+int _ds_word1   ST_BSS;   /* @0x801489D4 : last sector word (slot+8)        */
+int _ds_ready_cb ST_BSS;  /* @0x801489E4 : DsReadyCallback slot             */
 }
 
-/* cached CD register pointers used only by StUnSetRing (.data @0x80136C48) */
-static volatile u_char *_un_cd_idx  = (volatile u_char *)0x1F801800;  /* @0x80136C48 CDREG0 */
-static volatile u_char *_un_cd_reg3 = (volatile u_char *)0x1F801803;  /* @0x80136C54 CDREG3 */
+/* cached CD register pointers used only by StUnSetRing.  In the original these live in regular
+ * .data @0x80136C48/0x80136C54 and are reached ABSOLUTELY (lui %hi; lw %lo) -- a plain initialised
+ * `static` pointer is only 4 bytes so -G4 would place it in .sdata -> gp-relative (mismatch).
+ * Pin to .data to keep the absolute addressing. */
+static volatile u_char *_un_cd_idx  __attribute__((section(".data"))) = (volatile u_char *)0x1F801800;  /* @0x80136C48 CDREG0 */
+static volatile u_char *_un_cd_reg3 __attribute__((section(".data"))) = (volatile u_char *)0x1F801803;  /* @0x80136C54 CDREG3 */
 
 extern "C" int  data_ready_callback(void);
 extern "C" int  DsReadyCallback(int func);
 extern "C" int  DsDataCallback(int func);
 
-/* @0x800F9A28 (C_009) : if the next frame is decoded, return its data + header; else return 2. */
+/* @0x800F9A28 (C_009) : if the next frame is decoded, return its data + header; else return 1. */
 extern "C" u_long StGetNext(u_long **addr, u_long **header)
 {
     u_short *slot = (u_short *)(StRingAddr + (StRingIdx3 << 5));
 
-    if (slot[0] == 1) {                         /* wrap marker */
-        if (StEndFrame == 0) {                  /* endless: rewind to slot 0 */
-            StRingIdx3 = 0;
-            slot[0]    = 0;
-        }
+    if (slot[0] == 1) {                         /* wrap marker: rewind to slot 0 */
+        StRingIdx3 = 0;                          /* oracle: unconditional (beqz delay slot) */
+        if (StEndFrame != 0)                     /* bounded stream: also clear the marker */
+            slot[0] = 0;
         slot = (u_short *)(StRingAddr + (StRingIdx3 << 5));
     }
-    if (slot[0] != 2)                           /* not decoded yet */
-        return 2;
+    if (slot[0] != 2)                           /* not decoded yet (oracle returns 1 here) */
+        return 1;
 
     slot[0] = 4;                                /* claim it */
     *addr   = (u_long *)(StRingAddr + (StRingSize << 5) + ((StRingIdx3 * 0x3F) << 5));
@@ -90,7 +95,7 @@ extern "C" int init_ring_status(int base, unsigned count)
 {
     unsigned i;
     for (i = 0; i < count; i++)
-        *(int *)(StRingAddr + ((base + i) << 5)) = 0;
+        *(int *)(StRingAddr + ((i + base) << 5)) = 0;   /* oracle adds i+base (addu v0,a2,a0) */
     return 0;
 }
 

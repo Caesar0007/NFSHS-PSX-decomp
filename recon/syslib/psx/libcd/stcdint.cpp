@@ -30,9 +30,12 @@ static volatile int    *_d1_chcr     = (volatile int   *)0x1F801098;  /* @0x8013
 static volatile int    *_d3_chcr     = (volatile int   *)0x1F8010B8;  /* @0x80136AC8 CD CHCR      */
 
 /* ---- C_011-owned globals ---------------------------------------------------------------------- */
+/* Regular .bss / .data, reached absolutely in the oracle -- pin to .bss so they stay out of
+ * .sdata/.sbss (which would make them gp-relative and mismatch the ROM). */
+#define ST_BSS __attribute__((section(".bss")))
 extern "C" {
-int _st_slot    = 0;   /* @0x80144864 : cached current ring slot (StRingAddr + StRingIdx1*0x20) */
-int debug_cause = 0;   /* @0x80136AE0 : last interrupt stage/abort code (debug) */
+int _st_slot    ST_BSS;   /* @0x80144864 : cached current ring slot (StRingAddr + StRingIdx1*0x20) */
+int debug_cause ST_BSS;   /* @0x80136AE0 : last interrupt stage/abort code (debug) */
 }
 
 /* ---- streaming state (stream.cpp) ------------------------------------------------------------- */

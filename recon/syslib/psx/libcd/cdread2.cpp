@@ -32,10 +32,11 @@ extern "C" int CdRead2(long mode)
     CdControl(0xE, &modeb, 0);                  /* CdlSetmode */
 
     if (mode & 0x100) {                          /* streaming read */
-        /* NOTE: both branches store StMode = 0 in the binary; the mode&0x20 branch additionally
-         *       computes a dead v0=1.  Reproduced as-is. */
+        /* StMode = 0 for size-1 (CdlModeSize1, 0x20) sectors, 1 otherwise -- selects the
+         * data_ready_callback's per-sector RGB24/mono word stride.  (Oracle stores v0=1 in
+         * the else branch; matches SOTN libcd cdread2.c D_8003C768 = 0/1.) */
         if (mode & 0x20) StMode = 0;
-        else             StMode = 0;
+        else             StMode = 1;
         CdDataCallback((int)data_ready_callback);
         CdReadyCallback((int)_cdread2_ready);
     }

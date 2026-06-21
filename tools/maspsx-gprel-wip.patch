@@ -1,0 +1,62 @@
+# maspsx WIP: gp-rel addressing for externally-defined small-data globals
+# STATUS: BUILT + VALIDATED, but DISABLED in build.py (net +7 across 4 dirs, but
+#         regresses ~9 game/common fns — gp-rel-WITH-OFFSET gate interaction, not
+#         yet root-caused). configs/gp_rel_symbols.txt is the whitelist (502 syms,
+#         extracted from the ROM's own %gp_rel relocations). To finish: make the
+#         whitelist affect ONLY the no-offset gp-rel gate, NOT the sym+offset gate
+#         (line ~921 vs ~944), then re-measure game/common for 0 regression and
+#         re-enable the `--gp-symbols` arg in tools/build.py.
+#
+# THE PROBLEM: cc1 emits `.extern SYM,4` + a symbolic `lw $r,SYM` for an
+# externally-defined small global. maspsx drops .extern from its small-data tables
+# (preprocess_lines), so the gp-rel gate never fires and the load expands to
+# absolute `lui $r,%hi(SYM); lw $r,%lo(SYM)($r)` — a +1-instruction gap vs the
+# oracle's single `lw $r,%gp_rel(SYM)($gp)`. A pure size heuristic is WRONG (some
+# small externs are genuinely absolute); the fix keys off the exact gp-rel symbol
+# set the target binary uses.
+#
+# ---- maspsx/__init__.py : MaspsxProcessor.__init__ signature + body ----
+# add param `gp_symbols=None` after `use_comm_for_lcomm=False,` and in the body:
+#     self.gp_symbols = set(gp_symbols) if gp_symbols else set()
+#
+# ---- maspsx/__init__.py : preprocess_lines, the `.extern` branch ----
+# replace:
+#     if line.startswith(".extern"):
+#         in_sdata = False
+#         continue
+# with:
+#     if line.startswith(".extern"):
+#         in_sdata = False
+#         m = re.match(r"\.extern\s+(\S+?)\s*,\s*(\d+)", line)
+#         if m and m.group(1) in self.gp_symbols:
+#             self.sbss_entries.setdefault(m.group(1), int(m.group(2)))
+#         continue
+#   # ^ TODO(refine): adding to sbss_entries hits BOTH the no-offset gate (~L921)
+#   #   and the sym+offset gate (~L944) — the latter is the suspected source of the
+#   #   game/common regression. Use a dedicated `self.gp_symbols` check in the
+#   #   no-offset gate only.
+#
+# ---- maspsx.py : driver ----
+# add arg:   parser.add_argument("--gp-symbols", type=str, default=None)
+# before the MaspsxProcessor(...) call:
+#     gp_symbols = set()
+#     if args.gp_symbols:
+#         with open(args.gp_symbols, "r", encoding="utf-8") as f:
+#             gp_symbols = {ln.strip() for ln in f if ln.strip() and not ln.startswith("#")}
+# and pass `gp_symbols=gp_symbols,` into MaspsxProcessor(...).
+#
+# ---- tools/build.py ----
+# GP_SYMBOLS = ROOT / "configs" / "gp_rel_symbols.txt"  (already added)
+# uncomment in BOTH maspsx_cmd blocks:
+#     *(["--gp-symbols", GP_SYMBOLS] if GP_SYMBOLS.exists() else []),
+#
+# VALIDATION (same source, identical bulkverify command):
+#   dir                 baseline   blanket(size)   whitelist(precise)
+#   game/common            318          306             309   (-9, regression)
+#   frontend/common        221          217             221   (0)
+#   game/psx                63           76              77   (+14, clean win)
+#   eaclib/eacpsxz          47           45              49   (+2)
+#   ------------------------------------------------------------------
+#   net                              -5 (worse)       +7 (but -9 game/common)
+# The precise whitelist already flips e.g. TextSys_LoadWordsGeneric + UnloadWords
+# to PASS and closes the +1 insn gap on TextSys_Word/WordX/WordY/WordFlags.

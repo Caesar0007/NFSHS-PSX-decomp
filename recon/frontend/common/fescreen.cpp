@@ -7,8 +7,9 @@
  */
 #include "fescreen.h"
 
-/* ---- FEScreen.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; SYM-typed) ---- */
-tTexture_ShapeInfo *gCurrentShapes;   /* @0x800517cc  (bss(zero)) */
+/* ---- FEScreen.obj globals -- gCurrentShapes is DEFINED in front_data.data.s (.data @0x800517cc,
+ *      absolute-addressed by the oracle, NOT small-data/gp-rel); declared extern via the header so
+ *      this TU emits the oracle's absolute lui/%lo store, not a -G4 small-common gp-rel store. ---- */
 
 
 /* ---- tScreen::DisplayLoadingText  [FESCREEN.CPP:36-67] SLD-VERIFIED ---- */
@@ -130,15 +131,15 @@ void tScreen::AsyncLoadSwapShapeFile(char *fileName)
 {
   char *name;
   char buffer [32];
-  
-  if (fileName == 0) {
-    name = (char *)0x0;
-  }
-  else {
+
+  if (fileName != 0) {
     sprintf(buffer,"z%s",fileName);
     name = buffer;
+    this->AsyncLoadShapeFile(name,this->fSwapShapes);
   }
-  this->AsyncLoadShapeFile(name,this->fSwapShapes);
+  else {
+    this->AsyncLoadShapeFile((char *)0x0,this->fSwapShapes);
+  }
   return;
 }
 
@@ -338,16 +339,16 @@ void tScreen::Cleanup()
 void tScreen::Draw(bool drawBackground)
 
 {
-  short delta;
+  int delta;
   int (*pfn)(...);
-  
-  if (drawBackground == 0) {
-    delta = (*this->_vf)[3].delta;
-    pfn = (*this->_vf)[3].pfn;
-  }
-  else {
+
+  if (drawBackground != 0) {
     delta = (*this->_vf)[2].delta;
     pfn = (*this->_vf)[2].pfn;
+  }
+  else {
+    delta = (*this->_vf)[3].delta;
+    pfn = (*this->_vf)[3].pfn;
   }
   (*pfn)((char *)this + delta);
   return;
@@ -380,12 +381,12 @@ void tScreen::AsyncLoadShapeFile(char *name,tShapeInformation &data)
     sprintf(buffer,"%s%s.psh",Paths_Paths[0x20],name);
     if (data.fLoadCancelled == 0) {
       data.fLoadCancelled = 0;
-      if (data.fDestFile == (char *)0x0) {
-        uVar1 = asyncloadfile(buffer,(void *)0x10);
+      if (data.fDestFile != (char *)0x0) {
+        uVar1 = asyncloadfileat(buffer,data.fDestFile);
         data.async_handle = uVar1;
       }
       else {
-        uVar1 = asyncloadfileat(buffer,data.fDestFile);
+        uVar1 = asyncloadfile(buffer,(void *)0x10);
         data.async_handle = uVar1;
       }
     }
@@ -402,17 +403,15 @@ void tScreen::CancelAsyncLoad(tShapeInformation &data)
 {
   int iVar1;
   char *pcVar2;
-  tShapeInformation *buf;
-  
+
   if (data.async_handle != 0) {
-    buf = &data;
     iVar1 = getasyncreadstatus(data.async_handle);
     if (iVar1 == 0) {
       data.fLoadCancelled = 1;
     }
     else {
       if (data.fDestFile == (char *)0x0) {
-        pcVar2 = getasyncreadadr(data.async_handle,buf);
+        pcVar2 = getasyncreadadr(data.async_handle);
         data.fFile = pcVar2;
       }
       if (data.fFile != (char *)0x0) {
@@ -631,7 +630,7 @@ void tScreen::UpdateTransition()
   short sVar1;
   int iVar2;
   int iVar3;
-  
+
   iVar2 = this->fInternalScreenFadeVal + 0xc;
   if (this->fTransitionOff == 0) {
     iVar2 = this->fInternalScreenFadeVal + -0xc;
@@ -641,7 +640,7 @@ void tScreen::UpdateTransition()
   if (iVar2 < -0x32) {
     iVar3 = -0x32;
   }
-  if (0x96 < iVar2) {
+  if (0x96 < iVar3) {
     iVar3 = 0x96;
   }
   this->fInternalScreenFadeVal = iVar3;

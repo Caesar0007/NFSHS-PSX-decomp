@@ -274,9 +274,9 @@ void AIHigh_BTC_Cop::StartArrest(AIHigh_BTC_Perp *arrestMe)
 
       pSVar1 = (Speaker *)Speech_Mobile(carObj);
 
-      (**(int (**)(...))(pSVar1->_vf[2] + 0xe))
+      (**(int (**)(...))((int)*pSVar1->_vf + 0x4c))
 
-                ((int)&(pSVar1->fPosition).flags + (int)*(short *)(pSVar1->_vf[2] + 10),1);
+                ((int)&(pSVar1->fPosition).flags + (int)*(short *)((int)*pSVar1->_vf + 0x48),1);
 
     }
 
@@ -311,9 +311,9 @@ void AIHigh_BTC_Cop::FinishArrest(AIHigh_BTC_Perp *arrestMe)
 
     this->freezeMode_ = 4;
 
-    (**(int (**)(...))(pa_Var1[9] + 1))
+    (**(int (**)(...))((int)*pa_Var1 + 0x1c))
 
-              ((int)&(this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_ + (int)*(short *)pa_Var1[8]);
+              ((int)&(this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_ + (int)*(short *)((int)*pa_Var1 + 0x18));
 
     this->HudOff();
 
@@ -1448,15 +1448,15 @@ int AIHigh_BTC_HumanCop::CheckForWingmanRequest()
 
 {
 
-  if (this->wingmanStatus_ == 1) {
+  if (this->wingmanStatus_ != 1) {
 
-    this->wingmanStatus_ = 4;
-
-    return 1;
+    return 0;
 
   }
 
-  return 0;
+  this->wingmanStatus_ = 4;
+
+  return 1;
 
 }
 
@@ -1477,7 +1477,7 @@ int AIHigh_BTC_HumanCop::CheckForBlockaderRequest(int *spikeBeltRequest)
 
   *spikeBeltRequest = 0;
 
-  if (this->wingmanStatus_ - 2 < 2) {
+  if ((u_int)(this->wingmanStatus_ - 2) < 2) {
 
     if (this->wingmanStatus_ == 3) {
 
@@ -1670,13 +1670,15 @@ void AIHigh_BTC_HumanCop::SetDesiredSpeed()
 
     iVar1 = AISpeeds_CalcHumanTopSpeed(carObj);
 
+    carObj = (this->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop._base_AIHigh_Base.carObj_;
+
     if (this->requestedDesiredSpeed_ < iVar1) {
 
       iVar1 = this->requestedDesiredSpeed_;
 
     }
 
-    ((this->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop._base_AIHigh_Base.carObj_)->desiredSpeed = iVar1;
+    carObj->desiredSpeed = iVar1;
 
   }
 
@@ -1824,7 +1826,7 @@ void AIHigh_BTC_HumanCop::HudOn(AIHigh_BTC_Perp *arrestMe,int gameOver,
 
   if ((arrestingCop->carFlags & 2U) != 0) {
 
-    arrestingCop = (Car_tObj *)0x0;
+    arrestingCop = Cars_gHumanRaceCarList[0];
 
   }
 
@@ -2636,21 +2638,21 @@ int AIHigh_BTC_Wingman::UpdateFreezeModeAndPullOverMode()
 
   
 
-  if ((this->_base_AIHigh_BTC_Cop).freezeMode_ != 3) {
+  if ((this->_base_AIHigh_BTC_Cop).freezeMode_ == 3) {
 
-    ((this->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop._base_AIHigh_Base.carObj_)->pullOver = 0;
+    ((this->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop._base_AIHigh_Base.carObj_)->pullOver = 1;
 
-    _Var1 = (this->_base_AIHigh_BTC_Cop).freezeMode_;
-
-    (this->_base_AIHigh_BTC_Cop).freezeMode_ = 0;
-
-    return (u_int)(_Var1 == 4);
+    return 0;
 
   }
 
-  ((this->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop._base_AIHigh_Base.carObj_)->pullOver = 1;
+  ((this->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop._base_AIHigh_Base.carObj_)->pullOver = 0;
 
-  return 0;
+  _Var1 = (this->_base_AIHigh_BTC_Cop).freezeMode_;
+
+  (this->_base_AIHigh_BTC_Cop).freezeMode_ = 0;
+
+  return (u_int)(_Var1 == 4);
 
 }
 

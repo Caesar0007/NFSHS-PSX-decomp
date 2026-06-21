@@ -18,6 +18,7 @@ extern AIHigh_CopGameType_t AIHigh_CopGameType;   /* @0x8013c55c */
 extern AITune_BTC_t AITune_BTC[];
 extern Car_tObj           *Cars_gTrafficCarList[];
 extern Car_tObj      *Cars_gRaceCarList[];      /* 0x8010fa00 */
+extern Car_tObj      *Cars_gHumanRaceCarList[9];   /* cars.obj */
 extern Car_tObj * AILife_IsCarInAnyVisibleArea(Car_tObj *carObj);
 extern Car_tObj **Cars_gList;
 extern GameSetup_tData   GameSetup_gData;

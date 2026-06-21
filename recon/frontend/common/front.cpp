@@ -637,7 +637,7 @@ void Front_InitGraphics(void)
   int iVar1;
   char buffer [40];
   
-  initlinkmode(0,1);
+  initlinkmode(0,1,1);
   sprintf(buffer,"%szzFE.viv",Paths_Paths[0x23]);
   iVar1 = FILE_addbigsync(buffer,(void *)0x0,100,&gFEBigHandle);
   if (iVar1 == 0) {
@@ -2038,13 +2038,14 @@ void * Front_EnableLocalSpeech(void)
   void *ret;
   tTrackInformation trackInfo;
   
+  int lang;
+
   ret = (void *)0x0;
   if (frontEnd.raceType == '\x01') {
     GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
                &trackInfo);
-    ret = (void *)0x0;
-    if ((trackInfo.fLanguage != frontEnd.language) &&
-       (((byte)trackInfo.fLanguage < 3 || (ret = (void *)0x0, trackInfo.fLanguage == '\x06')))) {
+    lang = (byte)trackInfo.fLanguage;
+    if ((lang != (byte)frontEnd.language) && (0 <= lang) && (lang < 3 || lang == 6)) {
       ret = (void *)0x1;
     }
   }
@@ -2709,7 +2710,7 @@ short Front_GetTrackRaced(void)
   else {
     GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
                &trackInfo);
-    sVar1 = (short)trackInfo.fTrackID;
+    sVar1 = (short)(signed char)trackInfo.fTrackID;
   }
   return sVar1;
 }
@@ -2735,7 +2736,7 @@ void * PlayerNameExist(int player)
 {
   uint uVar1;
   
-  uVar1 = strlen(frontEnd.playerNameList[player * 4]);
+  uVar1 = strlen(frontEnd.playerNameList[player]);
   return (void *)(uint)(uVar1 != 0);
 }
 
@@ -2770,20 +2771,18 @@ char * PlayerName(int player)
   char (*s)[8];
   int wordnum;
   
-  s = frontEnd.allUpperCasedPlayerNameList + player * 4;
-  sprintf(*s,frontEnd.playerNameList[player * 4]);
+  s = frontEnd.allUpperCasedPlayerNameList + player;
+  sprintf(*s,frontEnd.playerNameList[player]);
   name_len = strlen(*s);
-  if (name_len == 0) {
-    wordnum = 0x4e;
-    if (frontEnd.gameMode == '\x01') {
-      wordnum = player + 0x50;
-    }
-    s = (char (*) [8])TextSys_Word(wordnum);
-  }
-  else {
+  if (name_len != 0) {
     StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters(*s);
+    return *s;
   }
-  return *s;
+  wordnum = 0x4e;
+  if (frontEnd.gameMode == '\x01') {
+    wordnum = player + 0x50;
+  }
+  return (char *)TextSys_Word(wordnum);
 }
 
 
@@ -2814,16 +2813,16 @@ char * PlayerNameMixedCase(int player)
   char (*s)[8];
   int wordnum;
   
-  s = frontEnd.playerNameList + player * 4;
+  s = frontEnd.playerNameList + player;
   name_len = strlen(*s);
-  if (name_len == 0) {
-    wordnum = 0x4e;
-    if (frontEnd.gameMode == '\x01') {
-      wordnum = player + 0x50;
-    }
-    s = (char (*) [8])TextSys_Word(wordnum);
+  if (name_len != 0) {
+    return *s;
   }
-  return *s;
+  wordnum = 0x4e;
+  if (frontEnd.gameMode == '\x01') {
+    wordnum = player + 0x50;
+  }
+  return (char *)TextSys_Word(wordnum);
 }
 
 

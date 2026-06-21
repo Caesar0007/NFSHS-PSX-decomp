@@ -147,14 +147,16 @@ int tPListIterator::Decrement(tPlayer arg1)
 {
   short sVar1;
   int *piVar2;
+  int *pWork;
   
   piVar2 = this->fValue;
+  pWork = piVar2;
   if (*piVar2 == 0) {
     sVar1 = this->fSelectionList[1];
     while (0 < sVar1) {
-      *piVar2 = *piVar2 + 1;
-      piVar2 = this->fValue;
-      sVar1 = this->fSelectionList[*piVar2 + 1];
+      *pWork = *pWork + 1;
+      pWork = this->fValue;
+      sVar1 = this->fSelectionList[*pWork + 1];
     }
   }
   else {
@@ -384,7 +386,7 @@ tPMenuItemInteractive::~tPMenuItemInteractive()
 void tPMenuItemInteractive::Draw(bool selected)
 
 {
-  PauseMenu_MenuText((short)(this->_base_tPMenuItem).fTextDescription,selected,(u_char)(this->_base_tPMenuItem).fFlags & 1
+  PauseMenu_MenuText((short)(this->_base_tPMenuItem).fTextDescription,selected,(this->_base_tPMenuItem).fFlags & 1
             );
   return;
 }
@@ -796,7 +798,7 @@ void tPMenuItemGoToMenuButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand 
       command.nextMenu = ptVar3;
     }
     if (this->fOnButtonPress != (u_char **)0x0) {
-      (*(int (*)(...))this->fOnButtonPress)(command);
+      (*(void (*)(tPMenuCommand&))this->fOnButtonPress)(command);
     }
     keyval = kInput_KeyType_AlreadyProcessed;
   }
@@ -854,19 +856,20 @@ void tPMenu::tPMenuConstructor(tPMenuItem *firstItem,void *ap)
   tPMenuItem *p;
   int iVar2;
   int iVar3;
-  
+
+  ap = (void *)((int)ap + 4);
   this->fItemList[0] = firstItem;
   this->fNumItems = 0;
-  p = *(tPMenuItem **)ap;
+  p = ((tPMenuItem **)ap)[-1];
   this->fItemList[1] = p;
   if (p != (tPMenuItem *)0x0) {
     iVar3 = 4;
     do {
-      ap = (void *)((int)ap + 4);
-      this->fNumItems = this->fNumItems + 1;
-      iVar2 = *(int *)ap;
-      *(int *)((int)this->fItemList + iVar3 + 4) = iVar2;
       iVar3 = iVar3 + 4;
+      this->fNumItems = this->fNumItems + 1;
+      ap = (void *)((int)ap + 4);
+      iVar2 = ((int *)ap)[-1];
+      *(int *)((int)this + iVar3 + 8) = iVar2;
     } while (iVar2 != 0);
   }
   return;
@@ -1137,10 +1140,13 @@ int tPMenu::ItemEnabledNum(int num)
   int ret;
 
   ret = num;
-  for (i = 0; i < num; i = i + 1) {
+  i = 0;
+  while (1) {
+    if (i >= num) break;
     if ((this->fItemList[i]->fFlags & 1) != 0) {
       ret = ret + -1;
     }
+    i = i + 1;
   }
   return ret;
 }

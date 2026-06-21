@@ -144,7 +144,7 @@ int AudioCmn_MusicLevel(int level)
 /* ---- AudioCmn_GetTrackRecordLapTime__Fv  [@0x80076480] ---- */
 int AudioCmn_GetTrackRecordLapTime(void)
 {
-  return GameSetup_gData.userSetting.bestlap;
+  return GameSetup_gData.userSetting.bestlap;   /* 2-diff near-miss: oracle fuses the +offset into %lo (maspsx splits it) — a toolchain reloc difference, not a source fix */
 }
 
 /* ---- AudioCmn_InitThunder__Fv  [@0x80076490] ---- */
@@ -160,9 +160,9 @@ void AudioCmn_InitThunder(void)
 void AudioCmn_PlayThunder(int intensity,int azimuth)
 {
   if (AudioCmn_ThunderAmp < intensity) {
-    AudioCmn_ThunderDel = 0x87 - intensity;
     AudioCmn_ThunderAmp = intensity;
     AudioCmn_ThunderAzi = azimuth;
+    AudioCmn_ThunderDel = 0x87 - intensity;
   }
   return;
 }
@@ -738,15 +738,16 @@ void AudioCmn_InitChannelArray(void)
   int i;
   Channels_t *pCVar1;
   int iVar2;
-  
+  int neg1;
+
   iVar2 = 0;
+  neg1 = -1;
   pCVar1 = gaChannel;
   do {
-    pCVar1->Partial = -1;
-    pCVar1->SFXnum = -1;
-    iVar2 = iVar2 + 1;
+    pCVar1->Partial = neg1;
+    pCVar1->SFXnum = neg1;
     pCVar1 = pCVar1 + 1;
-  } while (iVar2 < 0x47);
+  } while (++iVar2 < 0x47);
   AudioCmn_gCursorSndHandle = -1;
   return;
 }
@@ -1010,14 +1011,16 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
 void freeVoiceChannel(int sndPlayer)
 {
   void *pThis;
-  
-  if (sndPlayer != -1) {
-    pThis = gaChannel[sndPlayer].Partial;
-    if (pThis != (void *)0xffffffff) {   /* @0x80078108: Partial == -1 sentinel (disasm-v3) */
-      SNDautovol(pThis,5,-1);
-      gaChannel[sndPlayer].Partial = -1;
-      gaChannel[sndPlayer].SFXnum = -1;
-      NumSFXOn = NumSFXOn + -1;
+
+  if (AudioCmn_kAudioOn != 0) {
+    if (sndPlayer != -1) {
+      pThis = gaChannel[sndPlayer].Partial;
+      if (pThis != (void *)0xffffffff) {   /* @0x80078108: Partial == -1 sentinel (disasm-v3) */
+        SNDautovol(pThis,5,-1);
+        gaChannel[sndPlayer].Partial = -1;
+        gaChannel[sndPlayer].SFXnum = -1;
+        NumSFXOn = NumSFXOn + -1;
+      }
     }
   }
   return;
@@ -1634,20 +1637,22 @@ void AudioCmn_TrafficSkidSFX(int sndPlayer,s_type surface1,s_type surface2,int f
 {
   int iAmpIn;
   int iVar1;
-  
-  if (Distsq < 0x1324) {
-    iVar1 = ((0x1324 - Distsq) * 0x7f) / 0x1324;
-  }
-  else {
-    iVar1 = 0;
-  }
-  if ((iVar1 == 0) && (sndPlayer != -1)) {
-    if (gaChannel[sndPlayer].Partial != -1) {
-      freeVoiceChannel(sndPlayer);
+
+  if (AudioCmn_kAudioOn != 0) {
+    if (Distsq < 0x1324) {
+      iVar1 = ((0x1324 - Distsq) * 0x7f) / 0x1324;
     }
-  }
-  else {
-    AudioCmn_SFX(sndPlayer,surface1,surface2,force,Distsq,azimuth);
+    else {
+      iVar1 = 0;
+    }
+    if ((iVar1 == 0) && (sndPlayer != -1)) {
+      if (gaChannel[sndPlayer].Partial != -1) {
+        freeVoiceChannel(sndPlayer);
+      }
+    }
+    else {
+      AudioCmn_SFX(sndPlayer,surface1,surface2,force,Distsq,azimuth);
+    }
   }
   return;
 }
@@ -1661,27 +1666,29 @@ void AudioCmn_PlayerHornOn(int carIndex,int Distsq,int iFreqIn,int azimuth,int d
   int sndPlayer;
   int iSFXnum;
   int iAmpIn;
-  
-  if (Distsq < 0x1324) {
-    iAmpIn = ((0x1324 - Distsq) * 0x7f) / 0x1324;
-  }
-  else {
-    iAmpIn = 0;
-  }
-  iSFXnum = 3;
-  if (GameSetup_gData.commMode == 1) {
-    iSFXnum = 10;
-    sndPlayer = 0x2a;
-    if (carIndex == 0) {
+
+  if (AudioCmn_kAudioOn != 0) {
+    if (Distsq < 0x1324) {
+      iAmpIn = ((0x1324 - Distsq) * 0x7f) / 0x1324;
+    }
+    else {
+      iAmpIn = 0;
+    }
+    iSFXnum = 3;
+    if (GameSetup_gData.commMode == 1) {
+      iSFXnum = 10;
+      sndPlayer = 0x2a;
+      if (carIndex == 0) {
+        sndPlayer = 0x29;
+      }
+    }
+    else {
       sndPlayer = 0x29;
     }
-  }
-  else {
-    sndPlayer = 0x29;
-  }
-  if ((gaChannel[sndPlayer].Partial == 0xffffffff) ||
-     (uVar1 = SNDover(gaChannel[sndPlayer].Partial), uVar1 == 0)) {
-    AudioCmn_PlaySFX(sndPlayer,iSFXnum,iFreqIn,doppler,iAmpIn,azimuth);
+    if ((gaChannel[sndPlayer].Partial == 0xffffffff) ||
+       (uVar1 = SNDover(gaChannel[sndPlayer].Partial), uVar1 == 0)) {
+      AudioCmn_PlaySFX(sndPlayer,iSFXnum,iFreqIn,doppler,iAmpIn,azimuth);
+    }
   }
   return;
 }

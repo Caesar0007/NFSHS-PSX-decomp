@@ -161,9 +161,15 @@ void * tMenuItemGoToMenuButtonFade::TransitionIsFinished()
 
 {
   this->fInTransition = 0;
-  if (((this->fFadeDir < 0) && (0 < this->fFadeVal)) ||
-     ((0 < this->fFadeDir && (this->fFadeVal < 0x80)))) {
-    this->fInTransition = 1;
+  if (this->fFadeDir < 0) {
+    if (0 < this->fFadeVal) {
+      this->fInTransition = 1;
+    }
+  }
+  if (0 < this->fFadeDir) {
+    if (this->fFadeVal < 0x80) {
+      this->fInTransition = 1;
+    }
   }
   return (void *)(this->fInTransition ^ 1);
 }
@@ -328,11 +334,10 @@ long tOptionsMenu::DebounceKeys()
   tMenuItem *ptVar2;
   
   ptVar2 = (this->_base_tMenu).fItemList[(this->_base_tMenu).fCurrentItem];
-  lVar1 = 0;
-  if ((ptVar2 != (tMenuItem *)0x0) && (lVar1 = 0, (ptVar2->fFlags & 1) != 1)) {
-    lVar1 = (*(*ptVar2->_vf)[2].pfn)((char *)ptVar2 + (int)(*ptVar2->_vf)[2].delta);
+  if ((ptVar2 != (tMenuItem *)0x0) && (((ptVar2->fFlags & 1) ^ 1) != 0)) {
+    return (*(*ptVar2->_vf)[2].pfn)((int)ptVar2 + (int)(*ptVar2->_vf)[2].delta);
   }
-  return lVar1;
+  return 0;
 }
 
 
@@ -859,7 +864,7 @@ long tMenuItemSlidingMenu::DebounceKeys()
   uVar1 = 0x600;
   if (ptVar3 != (tInsideBoxMenu *)0x0) {
     pa_Var2 = (ptVar3->_base_tMenu)._vf;
-    uVar1 = (*(*pa_Var2)[4].pfn)((int)(ptVar3->_base_tMenu).fItemList + (*pa_Var2)[4].delta + -0x10);
+    uVar1 = (*(*pa_Var2)[4].pfn)((int)ptVar3 + (*pa_Var2)[4].delta);
     uVar1 = uVar1 | 0x600;
   }
   return uVar1;
@@ -875,7 +880,7 @@ void tMenuItemSlidingMenu::Draw(bool selected)
   __vtbl_ptr_type (*pa_Var1) [11];
   
   pa_Var1 = (this->_base_tMenuItem)._vf;
-  (*(*pa_Var1)[5].pfn)((int)&(this->_base_tMenuItem).fFlags + (int)(*pa_Var1)[5].delta,0,0);
+  (*(*pa_Var1)[5].pfn)((int)&(this->_base_tMenuItem).fFlags + (int)(*pa_Var1)[5].delta,0,0,selected);
   return;
 }
 
@@ -1138,7 +1143,7 @@ void tMenuItemSlidingMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval
   if ((this->fOpenHeight == this->fHeight) &&
      (ptVar2 = this->currMenu, ptVar2 != (tInsideBoxMenu *)0x0)) {
     pa_Var1 = (ptVar2->_base_tMenu)._vf;
-    (*(*pa_Var1)[3].pfn)((int)(ptVar2->_base_tMenu).fItemList + (*pa_Var1)[3].delta + -0x10);
+    (*(*pa_Var1)[3].pfn)((int)ptVar2 + (*pa_Var1)[3].delta);
   }
   if (keyval == kInput_KeyType_Down) {
     keyval = kInput_KeyType_AlreadyProcessed;
@@ -1225,7 +1230,7 @@ void tMenuItemSlidingActivated::TransitionOn()
 
 {
   short sVar1;
-  
+
   sVar1 = (this->_base_tMenuItemSlidingMenu).fHeight;
   (this->_base_tMenuItemSlidingMenu).fFadeDir = -0x1e;
   (this->_base_tMenuItemSlidingMenu).fInTransition = 1;
@@ -1428,7 +1433,7 @@ void tMenuItemOnOffLeftRightChoice::TransitionOn()
   char cVar1;
   tListIterator *ptVar2;
   __vtbl_ptr_type (*pa_Var3) [6];
-  
+
   ptVar2 = (this->_base_tMenuItemLeftRightFade)._base_tMenuItemLeftRightChoice.fData;
   pa_Var3 = ptVar2->_vf;
   cVar1 = (*(*pa_Var3)[2].pfn)((char *)ptVar2 + (int)(*pa_Var3)[2].delta,0xffffffff);
@@ -2793,9 +2798,15 @@ void * tUserNameMenuItem::TransitionIsFinished()
 
 {
   this->fInTransition = 0;
-  if (((this->fFadeDir < 0) && (0 < this->fFadeVal)) ||
-     ((0 < this->fFadeDir && ((this->fFadeVal < 0x80 || ((*(u_short*)((char*)&ginfo + 16)) != 0)))))) {
-    this->fInTransition = 1;
+  if (this->fFadeDir < 0) {
+    if (0 < this->fFadeVal) {
+      this->fInTransition = 1;
+    }
+  }
+  if (0 < this->fFadeDir) {
+    if (this->fFadeVal < 0x80 || (*(u_short*)&ginfo[16]) != 0) {
+      this->fInTransition = 1;
+    }
   }
   return (void *)(this->fInTransition ^ 1);
 }
@@ -2819,7 +2830,7 @@ void tUserNameMenuItem::UpdateTransition(bool selected)
   }
   pa_Var1 = (this->_base_tMenuItem)._vf;
   this->fFadeVal = (short)iVar2;
-  (*(*pa_Var1)[9].pfn)((int)(this->fRowList + -4) + 2 + (int)(*pa_Var1)[9].delta);
+  (*(*pa_Var1)[9].pfn)((int)this + (int)(*pa_Var1)[9].delta);
   this->_base_tMenuItem.UpdateTransition(selected);
   return;
 }

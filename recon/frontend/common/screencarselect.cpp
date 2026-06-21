@@ -174,7 +174,7 @@ void tScreenCarSelect::Cleanup()
   CleanupSpinningCarsMenu();
   this->_base_tScreen.Cleanup();
   vtbl = (this->_base_tScreen)._vf;
-  (*vtbl[1][5].pfn)((this->_base_tScreen).fPermShapes.fFilename + vtbl[1][5].delta + -0x14);
+  (*vtbl[1][5].pfn)((this->_base_tScreen).fPermShapes.fFilename + -0x14 + vtbl[1][5].delta);
   return;
 }
 
@@ -549,12 +549,12 @@ void tScreenCarSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
   *permFileName = "zcars";
   vtbl = (this->_base_tScreen)._vf;
   valid = (*vtbl[1][3].pfn)
-                    ((this->_base_tScreen).fPermShapes.fFilename + vtbl[1][3].delta + -0x14,&carInfo);
+                    ((this->_base_tScreen).fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
   if (valid != 1) {
     GetStockCar(&carManager, 0,&carInfo);
   }
   this->fPreviousCar = (ushort)carInfo.fCarIndex;
-  this->fPreviousCarID = (short)carInfo.fCarID;
+  this->fPreviousCarID = (short)(signed char)carInfo.fCarID;
   this->fPreviousCountry = (ushort)carInfo.fCountry;
   sprintf(gSwapFileName[0],"%s",carInfo.fShapeName);
   *swapFileName = gSwapFileName[0];
@@ -567,16 +567,16 @@ void tScreenCarSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
 void tScreenCarSelect::UpdateVideoWall(tCarInfo &carInfo)
 
 {
-  byte bVar1;
-  
+  u_int bVar1;
+
   if ((((ushort)carInfo.fCarIndex != this->fPreviousCar) ||
-      ((int)carInfo.fCarID != (int)this->fPreviousCarID)) ||
+      ((int)(signed char)carInfo.fCarID != (int)this->fPreviousCarID)) ||
      ((carInfo.fCarClass == '\a' && (this->fPreviousCountry != (ushort)carInfo.fCountry)))) {
-    if (-1 < carInfo.fCarID) {
+    if (-1 < (signed char)carInfo.fCarID) {
       AsyncLoadSwapShapeFile(&this->_base_tScreen,carInfo.fShapeName);
     }
     this->fPreviousCar = (ushort)carInfo.fCarIndex;
-    this->fPreviousCarID = (short)carInfo.fCarID;
+    this->fPreviousCarID = (short)(signed char)carInfo.fCarID;
     bVar1 = carInfo.fCountry;
     this->fTVsInitialized = 0;
     this->fPreviousCountry = (ushort)bVar1;
@@ -674,7 +674,7 @@ void tScreenCarSelect::Initialize()
   this->fCameraRotation = 0;
   this->fInShowroom = 0;
   valid = (*vtbl[1][3].pfn)
-                    ((this->_base_tScreen).fPermShapes.fFilename + vtbl[1][3].delta + -0x14,&carInfo);
+                    ((this->_base_tScreen).fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
   if (valid == 0) {
     this->fPreviousCar = -1;
     this->fPreviousCountry = -1;
@@ -797,7 +797,7 @@ void tScreenCarSelect::DrawVideoWall(short y)
   
   vtbl = (this->_base_tScreen)._vf;
   valid = (*vtbl[1][3].pfn)
-                    ((this->_base_tScreen).fPermShapes.fFilename + vtbl[1][3].delta + -0x14,&carInfo);
+                    ((this->_base_tScreen).fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
   DrawBackgroundImage(&this->_base_tScreen,0,0x1c,(this->_base_tScreen).fPermShapes.fShapes,0x96);
   this->DrawOverlay(this->fCurrentOverlays[0]);
   if ((((this->_base_tScreen).fSwapShapes.fFlags & 1) != 0) && (this->fTVsInitialized == 0)) {
@@ -883,7 +883,7 @@ void tScreenCarSelect::GetCar(tCarInfo &carInfo)
 void tScreenCarSelect::SetBrightness(short bright,short i)
 
 {
-  *(short *)((int)this->fDestBrightness + ((int)((uint)(ushort)i << 0x10) >> 0xf)) = bright;
+  this->fDestBrightness[i] = bright;
   return;
 }
 
@@ -936,10 +936,10 @@ void tScreenCarSelect::DrawBackground()
   int valid;
   short bright;
   tCarInfo carInfo;
-  
+
   vtbl = (this->_base_tScreen)._vf;
   valid = (*vtbl[1][3].pfn)
-                    ((this->_base_tScreen).fPermShapes.fFilename + vtbl[1][3].delta + -0x14,&carInfo);
+                    ((this->_base_tScreen).fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
   if (valid != 0) {
     IsShapeFileLoaded(&this->_base_tScreen,&(this->_base_tScreen).fSwapShapes);
     bVar1 = false;
@@ -962,7 +962,7 @@ void tScreenCarSelect::DrawBackground()
   }
   if ((this->_base_tScreen).fScreenFadeVal < 0x80) {
     vtbl = (this->_base_tScreen)._vf;
-    (*vtbl[1][0].pfn)((this->_base_tScreen).fPermShapes.fFilename + vtbl[1][0].delta + -0x14,0);
+    (*vtbl[1][0].pfn)((this->_base_tScreen).fPermShapes.fFilename + -0x14 + vtbl[1][0].delta,0);
   }
   return;
 }
@@ -1050,7 +1050,7 @@ void tScreenCarSelect::DrawForeground()
   currentItem = FEApp->fCurrentMenu[0]->fCurrentItem;
   item = FEApp->fCurrentMenu[0]->fItemList[currentItem];
   iVar5 = (*vtbl[1][3].pfn)
-                    ((this->_base_tScreen).fPermShapes.fFilename + vtbl[1][3].delta + -0x14,&carInfo);
+                    ((this->_base_tScreen).fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
   mdefs = menuDefs;
   bShowStats = false;
   (menuDefs->itemOpponentUpgrades)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags =
@@ -1295,7 +1295,7 @@ void tScreenCarSelectDuel::PreLoad()
   (this->fOpponentShapes).fDestFile = str;
   use_default = (**(code **)((int)vtbl + 0x6c))
                           ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename +
-                           *(short *)((int)vtbl + 0x68) + -0x14,&carInfo);
+                           -0x14 + *(short *)((int)vtbl + 0x68),&carInfo);
   if (use_default != 1) {
     GetStockCar(&carManager, 0,&carInfo);
   }
@@ -1436,16 +1436,15 @@ void tScreenCarSelectDuel::DrawOpponentVideoWall(short y)
 
 {
   short i;
-  int i_2;
   tVideoWall *vw_opp;
   tVideoWall *this_00;
-  
-  i_2 = 0;
+
+  i = 0;
   do {
-    DrawShapeExtended(i_2,0,0,-(int)y,
+    DrawShapeExtended(i,0,0,-(int)y,
                (int)(this->_base_tScreenCarSelect)._base_tScreen.fScreenFadeVal,0,(tDrawShapeExtended *)0x0);
-    i_2 = i_2 + 1;
-  } while (i_2 * 0x10000 >> 0x10 < 0xc);
+    i = i + 1;
+  } while (i < 0xc);
   if ((0 < (this->_base_tScreenCarSelect)._base_tScreen.fScreenFadeVal) &&
      ((this->_base_tScreenCarSelect)._base_tScreen.fTransitionOff != 0)) {
     TurnOffInstant((this->_base_tScreenCarSelect).fVideoWall + 1);
@@ -1501,17 +1500,17 @@ void tScreenCarSelectDuel::GetShapeInfo(short &numPermShapes,short &numSwapShape
 void tScreenCarSelectDuel::UpdateVideoWall(tCarInfo &carInfo)
 
 {
-  byte bVar1;
-  
+  u_int bVar1;
+
   if ((((ushort)carInfo.fCarIndex != (this->_base_tScreenCarSelect).fPreviousCar) ||
-      ((int)carInfo.fCarID != (int)(this->_base_tScreenCarSelect).fPreviousCarID)) ||
+      ((int)(signed char)carInfo.fCarID != (int)(this->_base_tScreenCarSelect).fPreviousCarID)) ||
      ((carInfo.fCarClass == '\a' &&
       ((this->_base_tScreenCarSelect).fPreviousCountry != (ushort)carInfo.fCountry)))) {
-    if (-1 < carInfo.fCarID) {
-      AsyncLoadSwapShapeFile((tScreen *)this,carInfo.fShapeName);
+    if (-1 < (signed char)carInfo.fCarID) {
+      AsyncLoadSwapShapeFile((tScreen *)this,carInfo.fSmallName);
     }
     (this->_base_tScreenCarSelect).fPreviousCar = (ushort)carInfo.fCarIndex;
-    (this->_base_tScreenCarSelect).fPreviousCarID = (short)carInfo.fCarID;
+    (this->_base_tScreenCarSelect).fPreviousCarID = (short)(signed char)carInfo.fCarID;
     bVar1 = carInfo.fCountry;
     (this->_base_tScreenCarSelect).fTVsInitialized = 0;
     (this->_base_tScreenCarSelect).fPreviousCountry = (ushort)bVar1;
@@ -1873,9 +1872,9 @@ void tScreenCarSelectTwoPlayer::GetShapeInfo(short &numPermShapes,short &numSwap
   
   numPermShapes = 0x34;
   numSwapShapes = 5;
-  *(u_short *)((int)this + 0x11e) = 0xffff;
-  *(u_short *)((int)this + 0x120) = 0xffff;
-  *(u_short *)((int)this + 0x122) = 0xffff;
+  *(short *)((int)this + 0x11e) = -1;
+  *(short *)((int)this + 0x120) = -1;
+  *(short *)((int)this + 0x122) = -1;
   GetStockCar(&carManager, 0,&carInfo);
   *permFileName = "zcarsb";
   sprintf(gSwapFileName[0],"%s",carInfo.fSmallName);
@@ -1889,17 +1888,17 @@ void tScreenCarSelectTwoPlayer::GetShapeInfo(short &numPermShapes,short &numSwap
 void tScreenCarSelectTwoPlayer::UpdateVideoWall(tCarInfo &carInfo)
 
 {
-  byte bVar1;
-  
+  u_int bVar1;
+
   if ((((ushort)carInfo.fCarIndex != (this->_base_tScreenCarSelect).fPreviousCar) ||
-      ((int)carInfo.fCarID != (int)(this->_base_tScreenCarSelect).fPreviousCarID)) ||
+      ((int)(signed char)carInfo.fCarID != (int)(this->_base_tScreenCarSelect).fPreviousCarID)) ||
      ((carInfo.fCarClass == '\a' &&
       ((this->_base_tScreenCarSelect).fPreviousCountry != (ushort)carInfo.fCountry)))) {
-    if (-1 < carInfo.fCarID) {
-      AsyncLoadSwapShapeFile((tScreen *)this,carInfo.fShapeName);
+    if (-1 < (signed char)carInfo.fCarID) {
+      AsyncLoadSwapShapeFile((tScreen *)this,carInfo.fSmallName);
     }
     (this->_base_tScreenCarSelect).fPreviousCar = (ushort)carInfo.fCarIndex;
-    (this->_base_tScreenCarSelect).fPreviousCarID = (short)carInfo.fCarID;
+    (this->_base_tScreenCarSelect).fPreviousCarID = (short)(signed char)carInfo.fCarID;
     bVar1 = carInfo.fCountry;
     (this->_base_tScreenCarSelect).fTVsInitialized = 0;
     (this->_base_tScreenCarSelect).fPreviousCountry = (ushort)bVar1;
@@ -2593,9 +2592,9 @@ void tScreenPinkSlipsCarSelect::GetShapeInfo(short &numPermShapes,short &numSwap
   
   numPermShapes = 0x34;
   numSwapShapes = 5;
-  *(u_short *)((int)this + 0x11e) = 0xffff;
-  *(u_short *)((int)this + 0x120) = 0xffff;
-  *(u_short *)((int)this + 0x122) = 0xffff;
+  *(short *)((int)this + 0x11e) = -1;
+  *(short *)((int)this + 0x120) = -1;
+  *(short *)((int)this + 0x122) = -1;
   GetStockCar(&carManager, 0,&carInfo);
   *permFileName = "zcarsb";
   sprintf(gSwapFileName[0],"%s",carInfo.fSmallName);

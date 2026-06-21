@@ -238,7 +238,7 @@ LAB_80057cc0:
         iVar1 = iVar1 + 0x1f;
       }
       if ((iVar1 >> 5 & 1U) == 0) {
-        CarLogic_gObs[2][0] = CarLogic_gObs[2][0] + 0x1e0000;
+        CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + 0x1e0000;
       }
       else {
         CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + 0x1e0000;
@@ -398,12 +398,12 @@ void AI_OpponentBlockPlayer(Car_tObj *carObj,Car_tObj *otherCarObj)
       if (otherCarObj->laneIndex != carObj->laneIndex) {
         iVar3 = -0x40000;
 LAB_800582b0:
-        CarLogic_gObs[2][0] = CarLogic_gObs[2][0] + iVar3;
+        CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + iVar3;
         return;
       }
       iVar3 = -0x40000;
 LAB_8005829c:
-      CarLogic_gObs[1][0] = CarLogic_gObs[1][0] + iVar3;
+      CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + iVar3;
       return;
     }
     iVar3 = -0x40000;
@@ -484,11 +484,11 @@ void AI_CheckForBarriers(Car_tObj *carObj)
   }
   iVar5 = AIWorld_IsDriveableLane_UsingMask(slice,mask_00);
   if (iVar5 == 0) {
-    CarLogic_gObs[1][0] = CarLogic_gObs[1][0] + -0xa0000;
+    CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + -0xa0000;
   }
   iVar5 = AIWorld_IsDriveableLane_UsingMask(slice,mask_01);
   if (iVar5 == 0) {
-    CarLogic_gObs[2][0] = CarLogic_gObs[2][0] + -0xa0000;
+    CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0xa0000;
   }
   if ((sVar1 != *(short *)(iVar10 * 0x20 + BWorldSm_slices + 0x16)) ||
      (sVar1 != *(short *)(iVar9 * 0x20 + BWorldSm_slices + 0x16))) {
@@ -525,13 +525,13 @@ void AI_CheckForBarriers(Car_tObj *carObj)
          (iVar6 = AIWorld_IsDriveableLane_UsingMask(iVar9,mask_00),
          iVar6 == 0)) {
         bVar3 = false;
-        CarLogic_gObs[1][0] = CarLogic_gObs[1][0] + -0x280000;
+        CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + -0x280000;
       }
       if ((bVar4) &&
          (iVar9 = AIWorld_IsDriveableLane_UsingMask(iVar9,mask_01),
          iVar9 == 0)) {
         bVar4 = false;
-        CarLogic_gObs[2][0] = CarLogic_gObs[2][0] + -0x280000;
+        CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0x280000;
       }
     }
   }
@@ -557,15 +557,15 @@ void AI_SetupOncomingLaneDemerits(Car_tObj *carObj)
           CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + iVar1;
         }
         if (carObj->laneIndex < 7) {
-          CarLogic_gObs[1][0] = CarLogic_gObs[1][0] + iVar1;
+          CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + iVar1;
         }
       }
       else {
         if (6 < carObj->laneIndex) {
-          CarLogic_gObs[1][0] = CarLogic_gObs[1][0] + iVar1;
+          CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + iVar1;
         }
         if (6 < carObj->laneIndex + 1) {
-          CarLogic_gObs[2][0] = CarLogic_gObs[2][0] + iVar1;
+          CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + iVar1;
         }
       }
     }
@@ -617,7 +617,7 @@ LAB_800588a4:
       (bVar1 = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + BWorldSm_slices + 0x1d),
       (int)(7 - (u_int)(bVar1 >> 4)) <= iVar3)) && (iVar3 <= (int)((bVar1 & 0xf) + 6))) {
     if (iVar3 < 7) {
-      CarLogic_gObs[2][0] = CarLogic_gObs[2][0] + 0x280000;
+      CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + 0x280000;
     }
     else {
       CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + 0x280000;
@@ -660,17 +660,17 @@ void AI_HandleShouldersAndOffRoad(Car_tObj *carObj)
   iVar3 = carObj->laneIndex + 1;
   bVar1 = *(u_char *)(iVar5 * 0x20 + BWorldSm_slices + 0x1d);
   if ((iVar3 == 6 - (u_int)(bVar1 >> 4)) || (iVar3 == (bVar1 & 0xf) + 7)) {
-    CarLogic_gObs[2][0] = CarLogic_gObs[2][0] + iVar4;
+    CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + iVar4;
     iVar3 = (carObj->N).simRoadInfo.slice * 0x20 + BWorldSm_slices;
     if ((int)(*(short *)(iVar3 + 0x1a) * 0x100 -
              (u_int)*(u_char *)(iVar3 + 0x1f) * 0x8000 * (*(u_char *)(iVar3 + 0x1d) & 0xf)) <
         (carObj->N).dimension.x) {
-      CarLogic_gObs[2][0] = CarLogic_gObs[2][0] + -0x640000;
+      CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0x640000;
     }
   }
   bVar1 = *(u_char *)(iVar5 * 0x20 + BWorldSm_slices + 0x1d);
   if ((carObj->laneIndex == 6 - (u_int)(bVar1 >> 4)) || (carObj->laneIndex == (bVar1 & 0xf) + 7)) {
-    CarLogic_gObs[1][0] = CarLogic_gObs[1][0] + iVar4;
+    CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + iVar4;
     bVar2 = carObj->laneIndex < 7;
     if (((bVar2) &&
         (iVar4 = (carObj->N).simRoadInfo.slice * 0x20 + BWorldSm_slices,
@@ -682,7 +682,7 @@ void AI_HandleShouldersAndOffRoad(Car_tObj *carObj)
         (int)(*(short *)(iVar4 + 0x1a) * 0x100 -
              (u_int)*(u_char *)(iVar4 + 0x1f) * 0x8000 * (*(u_char *)(iVar4 + 0x1d) & 0xf)) <
         (carObj->N).dimension.x)))) {
-      CarLogic_gObs[1][0] = CarLogic_gObs[1][0] + -0x640000;
+      CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + -0x640000;
     }
   }
   bVar1 = *(u_char *)(iVar5 * 0x20 + BWorldSm_slices + 0x1d);
@@ -693,12 +693,12 @@ void AI_HandleShouldersAndOffRoad(Car_tObj *carObj)
   bVar1 = *(u_char *)(iVar5 * 0x20 + BWorldSm_slices + 0x1d);
   if ((carObj->laneIndex < (int)(6 - (u_int)(bVar1 >> 4))) ||
      ((int)((bVar1 & 0xf) + 7) < carObj->laneIndex)) {
-    CarLogic_gObs[1][0] = CarLogic_gObs[1][0] + -0x3e80000;
+    CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + -0x3e80000;
   }
   bVar1 = *(u_char *)(iVar5 * 0x20 + BWorldSm_slices + 0x1d);
   iVar4 = carObj->laneIndex + 1;
   if ((iVar4 < (int)(6 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 7) < iVar4)) {
-    CarLogic_gObs[2][0] = CarLogic_gObs[2][0] + -0x3e80000;
+    CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0x3e80000;
   }
   return;
 }
@@ -863,10 +863,10 @@ void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj)
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + -0xe0000;
   }
   if ((AI_Info.blockingCars[1] != (Car_tObj *)0x0) && (AI_Info.blockingCarsDist[1] < 0x1e0000)) {
-    CarLogic_gObs[1][0] = CarLogic_gObs[1][0] + -0xe0000;
+    CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + -0xe0000;
   }
   if ((AI_Info.blockingCars[2] != (Car_tObj *)0x0) && (AI_Info.blockingCarsDist[2] < 0x1e0000)) {
-    CarLogic_gObs[2][0] = CarLogic_gObs[2][0] + -0xe0000;
+    CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0xe0000;
   }
   if (carObj->direction == 1) {
     paiVar3 = CarLogic_gObs;
@@ -1004,8 +1004,8 @@ void AI_CheckForClearLanes(Car_tObj *carObj)
       iVar1 = iVar1 + 1;
     } while (iVar6 != 3);
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + local_38;
-    CarLogic_gObs[1][0] = CarLogic_gObs[1][0] + local_34;
-    CarLogic_gObs[2][0] = CarLogic_gObs[2][0] + local_30;
+    CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + local_34;
+    CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + local_30;
   }
   return;
 }
@@ -1196,8 +1196,8 @@ void AI_SubmitObstacle(Car_tObj *carObj,int importance,int leftLatPosition,int r
       }
     }
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + local_28;
-    CarLogic_gObs[1][0] = CarLogic_gObs[1][0] + local_24;
-    CarLogic_gObs[2][0] = CarLogic_gObs[2][0] + local_20;
+    CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + local_24;
+    CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + local_20;
   }
   return;
 }
@@ -1258,7 +1258,7 @@ void AI_CheckForCarsOnSide(Car_tObj *carObj)
             CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + -0x60000;
           }
           else if (carObj_00->laneIndex == carObj->laneIndex + 1) {
-            CarLogic_gObs[2][0] = CarLogic_gObs[2][0] + -0x60000;
+            CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0x60000;
           }
         }
       }
@@ -1653,13 +1653,13 @@ void AI_PushFinishedCarsToSide(Car_tObj *carObj)
       iVar2 = carObj->laneIndex;
       bVar1 = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + BWorldSm_slices + 0x1d);
       if ((iVar2 == 6 - (u_int)(bVar1 >> 4)) || (iVar2 == (bVar1 & 0xf) + 7)) {
-        CarLogic_gObs[1][0] = CarLogic_gObs[1][0] + 0x960000;
+        CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + 0x960000;
       }
       else if (iVar2 < 7) {
         CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + 0x960000;
       }
       else {
-        CarLogic_gObs[2][0] = CarLogic_gObs[2][0] + 0x960000;
+        CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + 0x960000;
       }
     }
   }

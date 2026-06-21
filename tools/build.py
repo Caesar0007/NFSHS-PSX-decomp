@@ -43,10 +43,6 @@ RECON = ROOT / "recon"   # vendored reconstruction modules (C++), self-contained
 
 TARGET = ROOT / "rom" / "nfs4-f.exe"
 LDSCRIPT = ROOT / "linkers" / "nfs4.ld"
-# Whitelist of symbols the target addresses gp-relative (extracted from the ROM's
-# own %gp_rel relocations). Passed to maspsx so externally-defined small-data
-# globals get gp-rel addressing instead of absolute lui/lw (matching the oracle).
-GP_SYMBOLS = ROOT / "configs" / "gp_rel_symbols.txt"
 BUILD = ROOT / "build"
 OUT = BUILD  # object output root; overridden by --out
 
@@ -87,11 +83,6 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
     # maspsx reads cc1 .s on stdin; remaining args pass through to GNU as.
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}",
                   "--run-assembler", f"--gnu-as-path={AS}",
-                  # NOTE: gp-rel-extern whitelist (GP_SYMBOLS) is BUILT but DISABLED —
-                  # the precise whitelist is net-positive (+14 game/psx) but still
-                  # regresses ~9 game/common fns (gp-rel-with-offset gate interaction,
-                  # not yet root-caused). Re-enable once that's isolated:
-                  # *(["--gp-symbols", GP_SYMBOLS] if GP_SYMBOLS.exists() else []),
                   *AS_ARCH, f"-G{G_VALUE}", "-I", ROOT / "include",
                   "-I", ROOT, "-o", obj]
     r = subprocess.run([str(c) for c in maspsx_cmd],
@@ -124,11 +115,6 @@ def compile_cpp(src: Path) -> Path:
         sys.exit(f"[cc1pl] {rel}\n{r.stdout}{r.stderr}")
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}",
                   "--run-assembler", f"--gnu-as-path={AS}",
-                  # NOTE: gp-rel-extern whitelist (GP_SYMBOLS) is BUILT but DISABLED —
-                  # the precise whitelist is net-positive (+14 game/psx) but still
-                  # regresses ~9 game/common fns (gp-rel-with-offset gate interaction,
-                  # not yet root-caused). Re-enable once that's isolated:
-                  # *(["--gp-symbols", GP_SYMBOLS] if GP_SYMBOLS.exists() else []),
                   *AS_ARCH, f"-G{G_VALUE}", "-I", RECON, "-o", obj]
     # cfront dtor mangling: our CC1PL emits `_._<class>` (NO_DOLLAR_IN_LABEL -> '.'),
     # but EA's toolchain used the '.'->'_' convention (NO_DOT_IN_LABEL) => `___<class>`.

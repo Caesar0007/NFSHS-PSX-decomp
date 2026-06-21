@@ -5,6 +5,25 @@
 #include "../../nfs4_types.h"
 #include "weather_externs.h"
 
+/* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
+ * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
+ * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
+CWeatherSpec *Weather_gTrackSpec;
+DVECTOR *Weather_gPrevPos;
+SVECTOR *Weather_gPos;
+Weather_tSplatInfo *Weather_gSplatInfo;
+char *Weather_gWasDrawn;
+int Weather_gDensityChangeFactor;
+int Weather_gDensityGoalState;
+int Weather_gDensityTimerGoal;
+int Weather_gIntensityChangeFactor;
+int Weather_gIntensityGoalState;
+int Weather_gIntensityTimerGoal;
+int Weather_gSnowTrack;
+int Weather_gTrackIntensityLimit;
+int Weather_gType;
+int gCurrentNumSplats;
+
 /* DoWeather function-local statics (SYM STAT class; persist across frames) */
 static int prevCameraMode[2];
 static int prevLookBehind[2];

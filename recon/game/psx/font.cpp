@@ -7,6 +7,17 @@
 #include "../../nfs4_types.h"
 #include "font_externs.h"
 
+/* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
+ * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
+ * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
+int font_clutx;
+int font_cluty;
+u_char gFontSpaceWidth;
+u_long font_abr;
+u_long font_tint;
+u_short font_currentTPage;
+u_short gFontClut;
+
 /* gCurrentBlitter @0x8013ddec : font.obj-owned glyph-blit fn-ptr (STAT PTR FCN VOID).  BSS;
  *   Font_SetBlitter assigns it, Font_ReSetBlitter resets it to Font_Blit, Font_TextXY calls it. */
 fn_void *gCurrentBlitter;

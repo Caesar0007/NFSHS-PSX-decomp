@@ -5,6 +5,11 @@
 #include "../../nfs4_types.h"
 #include "textsys_externs.h"
 
+/* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
+ * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
+ * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
+char *wordFile;
+
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void TextSys_LoadWordsGeneric(int language,char *path);
 void TextSys_LoadInGame(int language);

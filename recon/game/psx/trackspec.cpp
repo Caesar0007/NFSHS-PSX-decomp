@@ -6,6 +6,13 @@
 #include "../../nfs4_types.h"
 #include "trackspec_externs.h"
 
+/* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
+ * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
+ * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
+int TrackSpec_gCurrentSpec;
+int TrackSpec_gMaxSpec;
+int TrackSpec_gPrevSpec;
+
 
 /* ---- TrackSpec_SetDefault__FP10CTrackSpec  [TRACKSPEC.CPP:44-113] SLD-VERIFIED ---- */
 void TrackSpec_SetDefault(CTrackSpec *spec)

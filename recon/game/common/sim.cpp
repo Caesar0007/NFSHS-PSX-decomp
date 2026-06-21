@@ -5,6 +5,14 @@
 #include "../../nfs4_types.h"
 #include "sim_externs.h"
 
+/* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
+ * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
+ * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
+int InBetween;
+int quitType;
+int skipRender;
+int unPauseDelay;
+
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Sim_StartUp(void);
 void Sim_Restart(void);

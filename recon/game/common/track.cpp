@@ -5,6 +5,27 @@
 #include "../../nfs4_types.h"
 #include "track_externs.h"
 
+/* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
+ * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
+ * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
+Chunk *Track_chunkList;
+Group *gObjDefOffsetsGroup;
+Group *gPersistMidgroundObjInst;
+Group *gPersistObjDef;
+Group *gPersistObjDefBoundingSpheres;
+Group *gPersistObjInst;
+SaveSurface *Track_gSaveSurface;
+SimpleMem *Track_mem;
+TrackHeader *Track_header;
+Track_tMaterial *Track_materials;
+Track_tMaterialController *Track_gMatController;
+Trk_ObjectDef **Track_gObjDefs;
+int *Track_gInViewCount;
+int Chunk_numLight;
+int Track_gControllerCount;
+int gtrackNumber;
+short **Track_gInViewList;
+
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
 Track_MipMap *gTempMipMapInfo; Track_MultiPalette *gTempMultiPalInfo;
 

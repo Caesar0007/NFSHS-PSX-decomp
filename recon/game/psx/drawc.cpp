@@ -6,6 +6,17 @@
 #include "../../nfs4_types.h"
 #include "drawc_externs.h"
 
+/* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
+ * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
+ * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
+DrawC_tEnvMap *DrawC_gEnvMap;
+DrawC_tEnvMap *DrawC_gShadow;
+int DrawC_gEnvMapMax;
+int DrawC_gMenuLightsDirection;
+int DrawC_gShadowMax;
+int DrawC_gWetRoad;
+short DrawC_gReflectOffset;
+
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void ChangeTPage(u_short *tpage,int nabr);
 void DrawC_SetEnviroment(void);

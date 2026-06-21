@@ -6,6 +6,15 @@
 #include "../../nfs4_types.h"
 #include "platform_externs.h"
 
+/* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
+ * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
+ * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
+int gCurrentMemory;
+int gHighMemory;
+int gLowMemory;
+int gSysStartUp;
+u_int gTotalMemory;
+
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
 char gDctBuffer[64]; char *gDctXtraMem; char gEAMemPoolBase[64]; char gPlatformInitMem[64];  /* FIXME sizes approx */
 

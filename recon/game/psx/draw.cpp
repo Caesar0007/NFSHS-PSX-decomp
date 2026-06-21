@@ -6,6 +6,18 @@
 #include "../../nfs4_types.h"
 #include "draw_externs.h"
 
+/* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
+ * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
+ * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
+int Draw_gDoVSync;
+int Draw_gMaxPrim;
+int Draw_gMidGroundOtz;
+int Draw_gNumView;
+int Draw_gViewOtSize;
+int gFlip;
+int gLoop;
+int gTotalMem;
+
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 int Draw_SetView(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int otsize);
 void Draw_InitViews(void);

@@ -6,6 +6,12 @@
 #include "../../nfs4_types.h"
 #include "loading_externs.h"
 
+/* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
+ * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
+ * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
+char *smallShapeFile;
+int totalAvailMem;
+
 
 /* ---- Loading_DrawLoadingScreen__Fv  [LOADING.CPP:15-51] SLD-VERIFIED ---- */
 void Loading_DrawLoadingScreen(void)

@@ -5,6 +5,15 @@
 #include "../../nfs4_types.h"
 #include "replay_externs.h"
 
+/* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
+ * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
+ * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
+int Replay_ReplayGetPtr;
+int Replay_ReplayMode;
+int Replay_ReplayStorePtr;
+int Replay_Size;
+int numValidCams;
+
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 char * Replay_Compress(char *uncompressed_data);
 char * Replay_Decompress(char *compressed_data);

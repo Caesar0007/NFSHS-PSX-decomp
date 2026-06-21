@@ -95,7 +95,7 @@ u_int PAD_state(...);   /* (int port) */
 void PAD_update(...);
 int SND3dpos(...);   /* (u_int tag, u_int x, int y) */
 int SNDSTRM_autovol(...);   /* (int handle, int ticks, int flag) */
-void SNDSTRM_create(...);   /* (void * arg0) */
+int SNDSTRM_create(...);   /* (int *priority,int numReq,int pktArg,int objbuf,int memsize) -> stream handle; def in eaclib sndpsxz/spvoices.cpp */
 int SNDSTRM_destroy(...);   /* (int handle) */
 int SNDSTRM_getvol(...);   /* (int handle) */
 int SNDSTRM_overhead(...);   /* (int a, int b) */

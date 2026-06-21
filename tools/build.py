@@ -204,14 +204,39 @@ def main():
     for s in sorted((ROOT / "asm" / "data").glob("*.s")):
         assemble_s(s)
 
+    # Tolerant build: a WIP decomp has hundreds of in-progress TUs; a single
+    # compile/maspsx failure must NOT abort the whole objdiff/progress report.
+    # Collect failures and keep going (verify_asm calls compile_cpp directly, so
+    # its strict single-TU behaviour is unaffected). Set NFS4_STRICT=1 to abort.
+    strict = os.environ.get("NFS4_STRICT") == "1"
+    failures = []
+
+    def _try(fn, src):
+        try:
+            fn(src)
+        except SystemExit as e:
+            if strict:
+                raise
+            msg = (str(e).strip().splitlines() or ["build error"])[-1][:120]
+            failures.append((src.relative_to(ROOT), msg))
+        except Exception as e:  # maspsx/as exceptions etc.
+            if strict:
+                raise
+            failures.append((src.relative_to(ROOT), f"{type(e).__name__}: {str(e)[:100]}"))
+
     print("== compiling C TUs ==")
     for c in sorted((ROOT / "src").rglob("*.c")):
-        compile_c(c, skip_asm)
+        _try(lambda s: compile_c(s, skip_asm), c)
 
     if RECON.exists():
         print("== compiling vendored reconstruction C++ TUs ==")
         for cpp in sorted(RECON.rglob("*.cpp")):
-            compile_cpp(cpp)
+            _try(compile_cpp, cpp)
+
+    if failures:
+        print(f"== {len(failures)} TU(s) FAILED to build (skipped; report covers the rest) ==")
+        for rel, why in failures:
+            print(f"   SKIP {rel}: {why}")
 
     if no_link:
         print("== objects only (no link) ==")

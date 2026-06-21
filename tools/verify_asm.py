@@ -89,7 +89,7 @@ def oracle(fn):
         s = ln.strip()
         if s.startswith('endlabel'):
             break                                              # fn ends here; trailing align-nops/data are NOT the fn
-        if not s or s.startswith(('.','glabel','nonmatching','dlabel')) or s.startswith('.L') or s.endswith(':'):
+        if not s or s.startswith(('.','glabel','nonmatching','dlabel','jlabel')) or s.startswith('.L') or s.endswith(':'):
             continue
         out.append(norm_ins(s))
     return out

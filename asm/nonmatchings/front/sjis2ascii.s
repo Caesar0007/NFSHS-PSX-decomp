@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_80050810, 0xB0
+nonmatching sjis2ascii, 0xB0
 
-glabel func_80050810
+glabel sjis2ascii
     /* 41010 80050810 21280000 */  addu       $a1, $zero, $zero
     /* 41014 80050814 00140400 */  sll        $v0, $a0, 16
     /* 41018 80050818 031E0200 */  sra        $v1, $v0, 24
@@ -53,4 +53,4 @@ glabel func_80050810
   .L800508B8:
     /* 410B8 800508B8 0800E003 */  jr         $ra
     /* 410BC 800508BC 21100000 */   addu      $v0, $zero, $zero
-endlabel func_80050810
+endlabel sjis2ascii

@@ -930,6 +930,7 @@ iMCRD_LoadCard = 0x80050344; // type:func
 iMCRD_FormatCard = 0x80050440; // type:func
 iMCRD_HandleError = 0x800504CC; // type:func
 iMCRD_DefaultCBProc1 = 0x800506E8; // type:func
+sjis2ascii = 0x80050810; // type:func
 initmdec = 0x800508C0; // type:func
 restoremdec = 0x80050A54; // type:func
 mdecreset__Fv = 0x80050AA8; // type:func

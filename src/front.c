@@ -1069,7 +1069,7 @@ INCLUDE_ASM("asm/nonmatchings/front", func_8005028C);
 
 INCLUDE_ASM("asm/nonmatchings/front", func_800506F0);
 
-INCLUDE_ASM("asm/nonmatchings/front", func_80050810);
+/* func_80050810 (sjis2ascii) relocated to src/frontend/psx/memcard.c */
 
 
 

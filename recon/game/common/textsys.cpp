@@ -86,8 +86,6 @@ int TextSys_WordY(int wordnum)
 void TextSys_UnloadWords(void)
 
 {
-  char fullpath [80];
-  
   if (wordFile != (char *)0x0) {
     purgememadr(wordFile);
   }

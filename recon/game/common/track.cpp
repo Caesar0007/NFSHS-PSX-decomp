@@ -1014,11 +1014,13 @@ void InvalidatePersistentCollideBoomObjects(Group *instGroup,Group *defGroup)
   if ((instGroup != (Group *)0x0) && (defGroup != (Group *)0x0)) {
     iVar2 = instGroup->m_num_elements;
     pGVar1 = instGroup + 1;
-    while (iVar2 = iVar2 + -1, iVar2 != -1) {
+    iVar2 = iVar2 + -1;
+    while (iVar2 != -1) {
       if (Track_gObjDefs[*(short *)((int)&pGVar1[1].m_num_elements + 2)]->id != -1) {
         *(u_char *)((int)&pGVar1->m_num_elements + 2) = 0;
       }
       pGVar1 = (Group *)((int)&pGVar1->m_num_elements + (int)(short)pGVar1->m_num_elements);
+      iVar2 = iVar2 + -1;
     }
   }
   return;

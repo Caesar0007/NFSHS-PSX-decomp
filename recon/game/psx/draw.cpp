@@ -162,7 +162,7 @@ void Draw_DeInitViewsInGame(void)
 DRAWENV * Draw_GetDRAWENV(int viewid,int page)
 
 {
-  return (DRAWENV *)(viewid * 200 + -0x7fee13a4 + page * 0x5c);
+  return &Draw_gView[viewid].drawenv[page];
 }
 
 /* ---- Draw_SetViewMemBudget__Fii  [DRAW.CPP:197-198] SLD-VERIFIED ---- */
@@ -178,16 +178,17 @@ void Draw_SetViewColor(int viewid,int r,int g,int b)
 
 {
   Draw_tView *view;
-  
-  if (Draw_gView[viewid].drawenv[0].isbg != '\0') {
-    Draw_gView[viewid].drawenv[0].r0 = (u_char)r;
-    Draw_gView[viewid].drawenv[0].g0 = (u_char)g;
-    Draw_gView[viewid].drawenv[0].b0 = (u_char)b;
+
+  view = &Draw_gView[viewid];
+  if (view->drawenv[0].isbg != '\0') {
+    view->drawenv[0].r0 = (u_char)r;
+    view->drawenv[0].g0 = (u_char)g;
+    view->drawenv[0].b0 = (u_char)b;
   }
-  if (Draw_gView[viewid].drawenv[1].isbg != '\0') {
-    Draw_gView[viewid].drawenv[1].r0 = (u_char)r;
-    Draw_gView[viewid].drawenv[1].g0 = (u_char)g;
-    Draw_gView[viewid].drawenv[1].b0 = (u_char)b;
+  if (view->drawenv[1].isbg != '\0') {
+    view->drawenv[1].r0 = (u_char)r;
+    view->drawenv[1].g0 = (u_char)g;
+    view->drawenv[1].b0 = (u_char)b;
   }
   return;
 }
@@ -495,10 +496,6 @@ void Draw_DeInitRenderEngine(void)
 void Draw_InitLibRender(void)
 
 {
-  int i;
-  DRAWENV *e00;
-  DRAWENV e;
-  
   gLoop = 1;
   InitGeom();
   return;

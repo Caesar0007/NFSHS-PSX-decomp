@@ -424,12 +424,12 @@ void tScreenCongrats::Initialize()
 void tScreenCongrats::ProcessInput(tPlayer p,tInputKeyType &keyval,tMenuCommand &c)
 
 {
-  char ginfo[24];   /* decompiler gap: input-info buffer, no SYM local */
+  extern SPEECHINFO ginfo;   /* global @0x800514e8 (feaudio.cpp); oracle reads ginfo+0x10 as lhu */
   bool bConsumeKey;
-  
+
   if (keyval != kInput_KeyType_Circle) {
     bConsumeKey = false;
-    if ((*(short *)(ginfo + 0x16) != 0) || (ticks - this->starttick < 0x96)) {
+    if ((*(u_short *)((char *)&ginfo + 0x10) != 0) || (ticks - this->starttick < 0x96)) {
       bConsumeKey = true;
     }
     if (bConsumeKey) {
@@ -532,11 +532,11 @@ void tScreenPinkSlipCongrats::Initialize()
 
 {
   this->fWinner = -1;
-  if ((byte)frontEnd.pinkSlipsWins[0] < (byte)(((byte)frontEnd.pinkSlipsNumTracks >> 1) + 1)) {
-    this->fWinner = 1;
+  if ((int)(((byte)frontEnd.pinkSlipsNumTracks >> 1) + 1) <= (int)(byte)frontEnd.pinkSlipsWins[0]) {
+    this->fWinner = 0;
   }
   else {
-    this->fWinner = 0;
+    this->fWinner = 1;
   }
   this->_base_tScreenCongrats.Initialize();
   return;

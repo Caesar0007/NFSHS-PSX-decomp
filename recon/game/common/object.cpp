@@ -339,15 +339,12 @@ void Object_GetPointsCollisionData(Object_tSimObjList *objList,int objIndex,int 
 void Object_InitStatus(void)
 
 {
-  ObjectAnim **ppOVar1;
   int i;
-  
+
   i = 0x1c1;
-  ppOVar1 = gSimObjAnims + 0x1c1;
   do {
-    *ppOVar1 = (ObjectAnim *)0x0;
+    gSimObjAnims[i] = (ObjectAnim *)0x0;
     i = i + -1;
-    ppOVar1 = ppOVar1 + -1;
   } while (-1 < i);
   return;
 }

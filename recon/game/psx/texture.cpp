@@ -702,15 +702,12 @@ void Texture_InitMenuClut(void)
 void Texture_InitMenuTexture(void)
 
 {
-  Draw_tPixMap **ppDVar1;
   int i;
-  
+
   i = 7;
-  ppDVar1 = gMenuPixmap + 7;
   do {
-    *ppDVar1 = (Draw_tPixMap *)0x0;
+    gMenuPixmap[i] = (Draw_tPixMap *)0x0;
     i = i + -1;
-    ppDVar1 = ppDVar1 + -1;
   } while (-1 < i);
   return;
 }

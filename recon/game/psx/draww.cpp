@@ -1641,15 +1641,12 @@ gte_SetTransMatrix(mat);
 void DrawW_ResetAnimationTimer(void)
 
 {
-  int *piVar1;
   int i;
-  
+
   i = 0xb;
-  piVar1 = animation_timer + 0xb;
   do {
-    *piVar1 = 0;
+    animation_timer[i] = 0;
     i = i + -1;
-    piVar1 = piVar1 + -1;
   } while (-1 < i);
   return;
 }

@@ -526,9 +526,9 @@ LAB_80086a94:
 /* ---- Cars_SetCarUpForHiRezSim__FP8Car_tObj  [@0x80086ac4] ---- */
 void Cars_SetCarUpForHiRezSim(Car_tObj *carObj)
 {
-  u_char bVar1;
+  u_int bVar1;
   Trk_NewSimQuad *pTVar2;
-  
+
   bVar1 = (carObj->N).simOptz;
   (carObj->collision).smoking = 0;
   if (bVar1 < 2) {

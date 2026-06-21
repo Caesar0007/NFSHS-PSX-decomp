@@ -121,57 +121,40 @@ void AIPhysic_ProcessBarrierCollision(Car_tObj *car)
     AIPhysic_ChangeDirection(car, 0x60);
 }
 
-/* ---- AIPhysic_HitWallCheck__FP8Car_tObj  [NEAR-MISS 18/44: onRoad/laneCount reg coloring ONLY] --
- * SYM (nfs4-f-v3.txt): ONE named local `onRoad` class REG $6 (=$a2) INT; field at slice+0x1D =
- * `laneCount` (UCHAR). Array-index slice access per Mc-muffin (drops pointer math). xori tail.
- * ── gp-rel BREAKTHROUGH (2026-06-21): the +1 extra insn (was 21 diffs / ours 45 vs oracle 44)
- *    was NOT coloring — it was `AIPhysic_elapsedTime` addressed absolute (lui/lw, 2 insns) where the
- *    oracle uses gp-relative `lw $v1,0($gp)` (1 insn). Root: as a bare `extern int` it degraded to
- *    absolute; the original is a TENTATIVE DEFINITION in this TU (`int AIPhysic_elapsedTime;` above)
- *    → small-common (.comm,4) → -G4 makes it gp-addressable. SOURCE-ONLY fix (no build flag); Mc-
- *    muffin's YsDj7 carries the same `int AIPhysic_elapsedTime;`. Now ours 44 == oracle 44, count
- *    EXACT, diffs 21→18. Our xori tail also beats YsDj7: his `< 55706` compiles to li;slt (no xori),
- *    so his score-35 = coloring + tail; ours = coloring ONLY (18).
- * ── RESIDUAL: the oracle puts `li v0,-1` in the `beqz onRoad` delay slot, shared with the
- *    `driveDirection == -1` check at .L54. Both ours and oracle perform this delay-slot -1 share
- *    (not the discriminator). The sole diff is the coloring: laneCount→$a2 / onRoad→$v0 (ours) vs
- *    laneCount→$a3 / onRoad→$a2 (oracle). Two equivalent local optima; gcc's local-alloc picks ours.
- *    Confirmed coin-flip: SAME coloring on cc1plus/2.7.2 (in-tree) AND on Mc-muffin's canonical
- *    gcc2.8.1-psx scratch YsDj7. ✅ VISUALLY CONFIRMED via YsDj7 objdiff (2026-06-21): his gcc2.8.1
- *    `Current` shows `lbu a2,0x1d(v0)` / `xori v0,v0,1` / `beqz v0` at 0x18/0x40/0x44 — the IDENTICAL
- *    laneCount→$a2 / onRoad→$v0 coloring as ours; his score-35 (99.20%) residual == our 18 diffs, and
- *    his tail + gp-rel are matched (so the coloring is the WHOLE residual on BOTH compilers). Two gcc
- *    versions + an expert all pick onRoad→$v0 → genuine wall, NOT 2.7.2-vs-2.8.1 reachable. Forcing
- *    $a2 = a register pin (§3.13, forbidden). Tried: named/anon laneCount, lc-local, decl order,
- *    limit-inline, array-index (Mc-muffin form, all-inline only-onRoad-local = SYM-faithful, this is
- *    it), if/else vs ternary, early-init, nested-!onRoad. SYM+ORACLE confirm structure/types/logic
- *    correct — coloring ONLY. (Do NOT swap to his `<55706` tail: folds to xori on 2.8.1 but on our
- *    2.7.2 it's `li;slt` — my scratch bnq1Q proved that regresses 99.20%→91.93% on 2.8.1; tail form
- *    is compiler-specific, our xori tail is correct for cc1plus 2.7.2.)
- * ── PERMUTER (decomp-permuter, -j8, 2026-06-21): base score 155 (== our 18 diffs). Its ONLY
- *    sub-155 (145) was the SEMANTICS-BREAKING deletion of `if(timeOffRoad<9)` (drops the oracle's
- *    `slti;beqz` guard → wrong behavior, `return 1` dead). Verified that edit leaves the head
- *    coloring UNCHANGED (`lbu a2`/`xori v0` still) — it only games objdiff's fuzzy alignment by
- *    deleting 7 real instructions (ours 44→37). So the permuter finds NO valid improvement and zero
- *    coloring insight; the coin-flip is confirmed permuter-proof too (matches §3.13 rule: a permuter
- *    that only "wins" via invalid/hack edits = a true allocator tie-break → leave it pin-free). */
+/* ---- AIPhysic_HitWallCheck__FP8Car_tObj  [MATCHED 100% (44/44), pin-free] ----
+ * 🏆 The "confirmed cross-compiler coloring wall" was WRONG — it WAS source-reachable. The 18-diff
+ * near-miss (onRoad→$v0/laneCount→$a2 vs oracle $a2/$a3) survived 8 structural levers, BOTH compiler
+ * versions (cc1plus 2.7.2 + gcc2.8.1, Mc-muffin's YsDj7 99.20%), AND the permuter — yet TWO source
+ * rewrites collapsed it to 0 (user-driven, 2026-06-21):
+ * 1. **`&&` SINGLE-EXPRESSION** for onRoad (NOT if/else, NOT ternary): the range check
+ *    `if(limit<lo) onRoad=0; else onRoad=(hi>=limit)` is identically `onRoad = (limit>=lo) && (hi>=limit)`.
+ *    Writing it as the `&&` flips the WHOLE coloring to the oracle's — onRoad→$a2, laneCount→$a3.
+ *    (if/else and ternary both gave $v0/$a2 = the 18-diff wall; only the `&&` short-circuit form makes
+ *    gcc-2.x allocate the funnel the oracle's way. 18→6.)
+ * 2. **INVERTED TAIL early-out**: `if(timeOffRoad>=9) return 1; return !(0xD999<m[4]);` — NOT
+ *    `if(<9) return !(...); return 1;`. Makes `return 1` the branch-target early-out and the m[4]
+ *    check the fall-through, matching the oracle's `beqz v0,.La8` polarity. 6→0.
+ * Plus the gp-rel fix from earlier this session: `int AIPhysic_elapsedTime;` tentative def (§3.12 #6)
+ * → `lw $v1,N($gp)` not absolute lui/lw. All three together = byte-perfect.
+ * 🔑 META: a residual that beats structural levers + 2 compilers + an expert + the permuter is STILL
+ * not proven unmatchable — re-express the LOGIC (a 2-branch select IS a `&&`/`||`; an if-body can be
+ * the fall-through OR the branch-target). The permuter can't discover `&&`↔if/else or branch-polarity
+ * reshapes; only re-deriving the boolean structure does. (Cf. GetRearEnd: same lesson via array+=.) */
 int AIPhysic_HitWallCheck(Car_tObj *car)
 {
     int onRoad;
-    if (car->laneIndex < 7 - (BWorldSm_slices[*(short *)((char *)car + 8)].laneCount >> 4))
-        onRoad = 0;
-    else
-        onRoad = (int)(BWorldSm_slices[*(short *)((char *)car + 8)].laneCount & 0xF) + 6 >= car->laneIndex;
+    onRoad = (car->laneIndex >= 7 - (BWorldSm_slices[*(short *)((char *)car + 8)].laneCount >> 4)) &&
+             ((int)(BWorldSm_slices[*(short *)((char *)car + 8)].laneCount & 0xF) + 6 >= car->laneIndex);
     if (onRoad) return 0;
     if (car->driveDirection == -1) {
         car->timeOffRoad += AIPhysic_elapsedTime;
     } else {
         car->timeOffRoad = 0;
     }
-    if (car->timeOffRoad < 9) {
-        return !(0xD999 < car->N.roadMatrix.m[4]);
+    if (car->timeOffRoad >= 9) {
+        return 1;
     }
-    return 1;
+    return !(0xD999 < car->N.roadMatrix.m[4]);
 }
 
 /* ---- AIPhysic_CoolPhysics__FP8Car_tObj  (per-frame physics sequencer) ---- */

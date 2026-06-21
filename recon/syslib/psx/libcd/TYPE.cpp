@@ -56,12 +56,12 @@ extern "C" int CdDiskReady(int mode)
 }
 
 /* @0x800E8584 : classify the disc.  Returns 16 (error), 2 (ISO9660 data), 1 (other/no
- *               magic / command error) or the audio bit (result[0] & 2). */
+ *               magic / command error) or the audio bit ((result[0] & 2) != 0). */
 extern "C" int CdGetDiskType(void)
 {
-    unsigned char result[8];
-    unsigned char locp[8];
-    unsigned char sector[2048];
+    unsigned char locp[8];                          /* sp+0x10  */
+    unsigned char sector[2048];                     /* sp+0x18  */
+    unsigned char result[8];                        /* sp+0x818 */
     int rdy, i;
 
     CdControl(1, 0, result);                        /* CdlNop -> status */
@@ -70,7 +70,6 @@ extern "C" int CdGetDiskType(void)
     CdIntToPos(16, locp);                           /* position of sector 16 (ISO PVD) */
     CdControl(27, locp, 0);                          /* CdlReadS from locp */
 
-    rdy = 0;
     for (i = 0; i < 10; i++) {
         rdy = CdReady(0, result);
         if (rdy == 1) break;
@@ -89,5 +88,5 @@ extern "C" int CdGetDiskType(void)
         printf("Command Error: ");
         return 1;
     }
-    return (result[0] & 2);
+    return (result[0] & 2) != 0;
 }

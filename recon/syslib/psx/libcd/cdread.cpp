@@ -222,7 +222,7 @@ extern "C" int CdRead(int sectors, u_long *buf, int mode)
     if (g->w24 != 0) {                              /* a previous read is still active */
         int t0 = VSync(-1);
         while (g->w24 != 0) {
-            if (!(VSync(-1) - t0 < 0x79)) {        /* waited >= 121 frames -> force-finish */
+            if (!((unsigned)(VSync(-1) - t0) < 0x79)) {   /* waited >= 121 frames -> force-finish */
                 CdSyncCallback(g->w28);
                 g->w24 = 0;
                 break;
@@ -253,31 +253,28 @@ extern "C" int CdRead(int sectors, u_long *buf, int mode)
 /* @0x80108F78 : CdReadSync -- poll (mode!=0) or block (mode==0) until the read completes. */
 extern "C" int CdReadSync(int mode, u_char *result)
 {
-    CdrEnv *g = &_cdr;
     int s0;
 
     for (;;) {
-        if (g->w1c + 0x4B0 < VSync(-1)) {           /* overall watchdog tripped */
-            s0 = -1;
-            if (g->w14 >= 0 && !(g->w18 + 0x3C < VSync(-1))) {
-                s0 = g->w14;                        /* still progressing */
-            } else {
+        s0 = -1;
+        if (VSync(-1) <= _cdr.w1c + 0x4B0) {        /* within the overall watchdog window */
+            if (_cdr.w14 < 0 || VSync(-1) > _cdr.w18 + 0x3C) {
                 _read_issue(1);                     /* stalled -> re-issue */
-                s0 = g->w00;
+                s0 = _cdr.w00;
+            } else {
+                s0 = _cdr.w14;                      /* still progressing */
             }
-        } else {
-            s0 = g->w14;
         }
 
         if (mode != 0) break;
-        if (g->w24 != 0 && s0 == 0) continue;       /* still draining */
+        if (_cdr.w24 != 0 && s0 == 0) continue;     /* still draining */
         if (s0 > 0) continue;                       /* sectors left */
         break;
     }
 
     {
         int r = CdReady(1, result);
-        if (g->w24 == 0) return r;
+        if (_cdr.w24 == 0) return r;
         if (s0 != 0) return s0;
         return 1;
     }

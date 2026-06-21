@@ -47,21 +47,15 @@ extern "C" void *CdLastPos(void) { return &CD_pos; }
 /* @0x800F77AC : CdReset -- bring the CD subsystem up (mode 0 = drive, 1 = +volume, 2 = intr only). */
 extern "C" int CdReset(int mode)
 {
-    int r;
     if (mode == 2) {
         CD_initintr();
         return 1;
     }
-    r = 0;
-    if (CD_init() == 0) {
-        r = 1;
-        if (mode == 1) {
-            r = 0;
-            if (CD_initvol() == 0)
-                r = 1;
-        }
-    }
-    return r;
+    if (CD_init())
+        return 0;
+    if (mode == 1 && CD_initvol())
+        return 0;
+    return 1;
 }
 
 /* @0x800F7818 : CdFlush */
@@ -97,72 +91,45 @@ extern "C" int CdReadyCallback(int func)
     return prev;
 }
 
-/* @0x800F78B4 : CdControl -- issue a command (with result), retrying up to 4 times. */
-extern "C" int CdControl(unsigned char com, unsigned char *param, unsigned char *result)
+/* inlined into CdControl/CdControlF/CdControlB: issue `com` (optionally a setloc sub-command first),
+ * retrying up to 4 times; returns 0 on success, -1 on exhaustion. */
+static inline int cd_cw(unsigned char com, unsigned char *param, unsigned char *result, int arg3)
 {
-    int save = CD_cbsync;
-    int retry = 3;
-    for (;;) {
+    int old = CD_cbsync;
+    int count = 4;
+
+    while (count--) {
         CD_cbsync = 0;
         if (com != 1 && (CD_status & 0x10))
             CD_cw(1, 0, 0, 0);
-        if ((param == 0 || _cd_param_count[com] == 0 || CD_cw(2, param, result, 0) == 0)
-            && (CD_cbsync = save, CD_cw(com, param, result, 0) == 0))
-            break;
-        retry--;
-        if (retry == -1) {
-            CD_cbsync = save;
-            return 0;
+        if (param == 0 || _cd_param_count[com] == 0 || !CD_cw(2, param, result, 0)) {
+            CD_cbsync = old;
+            if (!CD_cw(com, param, result, arg3))
+                return 0;
         }
     }
-    return 1;
+    CD_cbsync = old;
+    return -1;
+}
+
+/* @0x800F78B4 : CdControl -- issue a command (with result), retrying up to 4 times. */
+extern "C" int CdControl(unsigned char com, unsigned char *param, unsigned char *result)
+{
+    return cd_cw(com, param, result, 0) == 0;
 }
 
 /* @0x800F79F0 : CdControlF -- fire-and-forget command (no result, fast). */
 extern "C" int CdControlF(unsigned char com, unsigned char *param)
 {
-    int save = CD_cbsync;
-    int retry = 3;
-    for (;;) {
-        CD_cbsync = 0;
-        if (com != 1 && (CD_status & 0x10))
-            CD_cw(1, 0, 0, 0);
-        if ((param == 0 || _cd_param_count[com] == 0 || CD_cw(2, param, 0, 0) == 0)
-            && (CD_cbsync = save, CD_cw(com, param, 0, 1) == 0))
-            break;
-        retry--;
-        if (retry == -1) {
-            CD_cbsync = save;
-            return 0;
-        }
-    }
-    return 1;
+    return cd_cw(com, param, 0, 1) == 0;
 }
 
 /* @0x800F7B24 : CdControlB -- blocking command: issue then CD_sync(0) to completion. */
 extern "C" int CdControlB(unsigned char com, unsigned char *param, unsigned char *result)
 {
-    int save = CD_cbsync;
-    int retry = 3;
-    int done;
-    do {
-        CD_cbsync = 0;
-        if (com != 1 && (CD_status & 0x10))
-            CD_cw(1, 0, 0, 0);
-        if (param == 0 || _cd_param_count[com] == 0 || CD_cw(2, param, result, 0) == 0) {
-            CD_cbsync = save;
-            done = 0;
-            if (CD_cw(com, param, result, 0) == 0)
-                break;
-        }
-        retry--;
-        done = -1;
-        CD_cbsync = save;
-    } while (retry != -1);
-
-    if (done == 0)
-        return CD_sync(0, result) == 2;
-    return 0;
+    if (cd_cw(com, param, result, 0))
+        return 0;
+    return CD_sync(0, result) == 2;
 }
 
 /* @0x800F7C70 : CdGetSector -- copy `size` words of the last-read sector to `madr` (1 = ok). */
@@ -179,23 +146,26 @@ extern "C" int CdDataCallback(int func) { return DMACallback(3, func); }
 extern "C" int CdDataSync(int mode) { return CD_datasync(mode); }
 
 /* @0x800F7CF4 : CdIntToPos -- sector number -> BCD minute:second:frame location. */
-extern "C" void *CdIntToPos(int i, void *pv)
+#define ENCODE_BCD(n) (((n) / 10 << 4) + (n) % 10)
+extern "C" void *CdIntToPos(int i, CdlLOC *p)
 {
-    unsigned char *p = (unsigned char *)pv;
-    int t = (i + 0x96) / 0x4b;
-    int frame  = (i + 0x96) % 0x4b;
-    int minute = t / 0x3c;
-    int second = t % 0x3c;
-    p[2] = (unsigned char)(frame  + (frame  / 10) * 6);
-    p[1] = (unsigned char)(second + (second / 10) * 6);
-    p[0] = (unsigned char)(minute + (minute / 10) * 6);
-    return pv;
+    int t;
+    i += 150;
+    t = i / 75;
+    p->sector = (unsigned char)ENCODE_BCD(i % 75);
+    p->second = (unsigned char)ENCODE_BCD(t % 60);
+    p->minute = (unsigned char)ENCODE_BCD(t / 60);
+    return p;
 }
 
 /* @0x800F7DF8 : CdPosToInt -- BCD location -> sector number. */
+#define DECODE_BCD(x) (((x) >> 4) * 10 + ((x) & 0xF))
 extern "C" int CdPosToInt(CdlLOC *p)
 {
-    return (((p->minute >> 4) * 10 + (p->minute & 0xf)) * 0x3c
-            + (p->second >> 4) * 10 + (p->second & 0xf)) * 0x4b
-            + (p->sector >> 4) * 10 + (p->sector & 0xf) - 0x96;
+    unsigned char sector = p->sector;
+    unsigned char second = p->second;
+    unsigned char minute = p->minute;
+
+    return (DECODE_BCD(minute) * 60 + DECODE_BCD(second)) * 75
+           + DECODE_BCD(sector) - 150;
 }

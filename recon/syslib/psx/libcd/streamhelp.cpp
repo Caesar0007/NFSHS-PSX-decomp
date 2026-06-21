@@ -90,13 +90,15 @@ extern "C" u_long StFreeRing(u_long *base)
     return 0;
 }
 
-/* @0x80108758 (C_008) : zero the status word of `count` slots from `base`. */
-extern "C" int init_ring_status(int base, unsigned count)
+/* @0x80108758 (C_008) : zero the status word of `count` slots from `base`.
+ * Oracle ends `jr ra; nop` with NO $v0 set -> the original returns void (the loop's
+ * last $v0 scratch is left dead). A `return 0` would emit `addu v0,zero,zero` in the
+ * delay slot (1 extra diff). Declared void here; the callers discard the result. */
+extern "C" void init_ring_status(int base, unsigned count)
 {
     unsigned i;
     for (i = 0; i < count; i++)
         *(int *)(StRingAddr + ((i + base) << 5)) = 0;   /* oracle adds i+base (addu v0,a2,a0) */
-    return 0;
 }
 
 /* @0x80108798 (C_004) : a sector finished decoding -- mark its slot ready and notify StFunc1. */

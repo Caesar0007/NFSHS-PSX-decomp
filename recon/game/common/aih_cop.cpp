@@ -1,0 +1,2127 @@
+/* game/common/aih_cop.cpp -- RECONSTRUCTED (AI state-machine hierarchy; C++ TU)
+ *   52 fns across 11 classes (AIState_Base + Normal/NonActive/Idle/Chase/Offroad/Purgatory/
+ *   RovingTraffic/Donuts/GotoSlice/Cruise) + 3 free AIState_StartUp/Restart/CleanUp.
+ *   Composition-modeled inheritance (_base_ members); manual _vf vtable dispatch (8-byte
+ *   __vtbl_ptr_type entries); deleting dtors. Each ctor/dtor installs AIState_<C>_vtable.
+ *   Faithful C++ (option A). NOT original source; SYM-faithful, recompilable. vs disasm-v2.
+ */
+#include "../../lib/nfs4_new.h"
+#include "../../nfs4_types.h"
+#include "aih_cop_externs.h"
+
+extern int AI_elapsedTime;   /* H22: ai.cpp @0x8013C554 (not in this TU's externs) */
+
+/* ---- aistate.obj-owned globals (.bss zero) ---- */
+int          *AIHigh_Cop_HighExecute_jt[11];   /* @0x8005516c */
+tCopMurderThresholds AIHigh_Cop_AggressionData[3] = { {10, 655360, 851968, 512, 512}, {8, 917504, 983040, 768, 512}, {4, 1179648, 1179648, 1152, 1024} };   /* @0x8010cea4 */
+int          AICop_skillDelay[3] = { 3276, 6553, 65536 };   /* @0x8010cee0 */
+coorddef     AIH_Cop_chasePositions[3][6] = { { {0, 0, 524288}, {-393216, 0, 524288}, {393216, 0, 0}, {0, 0, -655360}, {0, 0, -655360}, {0, 0, -655360} }, { {0, 0, 327680}, {-262144, 0, 327680}, {262144, 0, 327680}, {0, 0, -327680}, {0, 0, -327680}, {0, 0, -327680} }, { {0, 0, 327680}, {-262144, 0, 327680}, {262144, 0, 327680}, {0, 0, -327680}, {0, 0, -327680}, {0, 0, -327680} } };   /* @0x8010ceec */
+int          NitroDistanceMeters[2][2] = { 3932160, 1638400, 3932160, 1638400 };   /* @0x8010cfc4 */
+
+
+/* ---- __10AIHigh_CopP8Car_tObji  AIHigh_Cop::ctor  [AIH_COP.CPP:95-105] SLD-VERIFIED ---- */
+AIHigh_Cop::AIHigh_Cop(Car_tObj *carObj,int copIndex)
+
+
+
+{
+
+  (new(&this->_base_AIHigh_BasicCop) AIHigh_BasicCop(carObj,copIndex));
+
+  (this->_base_AIHigh_BasicCop)._base_AIHigh_Base._vf = (__vtbl_ptr_type (*) [3])AIHigh_Cop_vtable;
+
+  this->perpTarget_ = (AIHigh_Player *)0x0;
+
+  this->chaseIndex_ = 0;
+
+  this->requestSpikeBeltAtSlice_ = -1;
+
+  this->forcePurgatory_ = 0;
+
+  this->aggressionLevel_ = 0;
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- SetTuningLevers__10AIHigh_Cop  AIHigh_Cop::SetTuningLevers  [AIH_COP.CPP:110-123] SLD-VERIFIED ---- */
+
+void AIHigh_Cop::SetTuningLevers()
+
+
+
+{
+  int carTypeIndex;
+
+  Car_tObj *pCVar1;
+
+  int iVar2;
+
+  
+
+  pCVar1 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_;
+
+  iVar2 = pCVar1->carInfo->carType;
+
+  if ((this->_base_AIHigh_BasicCop).type_ == 1) {
+
+    iVar2 = iVar2 + -0x16;
+
+    pCVar1->copTopSpeed = copTuningInfo[iVar2].superCopTopSpeedCap;
+
+    ((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_)->copAccMult =
+
+         copTuningInfo[iVar2].superCopAccMultiplier;
+
+    return;
+
+  }
+
+  iVar2 = iVar2 + -0x16;
+
+  pCVar1->copTopSpeed = copTuningInfo[iVar2].regularCopTopSpeedCap;
+
+  ((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_)->copAccMult =
+
+       copTuningInfo[iVar2].regularCopAccMultiplier;
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- HighExecute__10AIHigh_Cop  AIHigh_Cop::HighExecute  [AIH_COP.CPP:147-816] SLD-VERIFIED ---- */
+
+void AIHigh_Cop::HighExecute()
+
+
+
+{
+  trigger_t *pNewTrigger;
+  AIState_Base*newState;
+  int forceForwardTrigger;
+  union newTrigger;
+  int distanceMeters;
+  int oldSlice;
+  int direction;
+  coorddef pos;
+  coorddef newPos;
+  AIState_Chase*chaseState;
+  int endSlice;
+  int slowDownEndTime;
+  int minTimeInZone;
+  int minLatMetersDistance;
+  int minLongMetersDistance;
+  coorddef zero;
+  int rbDistanceMeters;
+  int rbAbsDistanceMeters;
+  int release;
+  int size;
+  int left;
+  int right;
+  int slice;
+  int rightLatPos;
+  int timeNow;
+  int timeToRB;
+  int hLoop;
+  Car_tObj*thisPlayerObj;
+  AIHigh_Player*thisPlayer;
+  AIState_GotoSlice*gotoState;
+
+  bool bVar1;
+
+  coorddef *pcVar2;
+
+  trigger_t *ptVar3;
+
+  trigger_t *ptVar4;
+
+  trigger_t *ptVar5;
+
+  u_int uVar6;
+
+  AIState_Offroad *pAVar7;
+
+  Speaker *pSVar8;
+
+  int iVar9;
+
+  u_long uVar10;
+
+  AIState_Purgatory *pAVar11;
+
+  int iVar12;
+
+  AIState_Normal *pAVar13;
+
+  AIState_Base *pAVar14;
+
+  stateType_t sVar15;
+
+  coorddef *pcVar16;
+
+  int *piVar17;
+
+  blockadeMode_t bVar18;
+
+  AIHigh_tDriveAwayMode AVar19;
+
+  int iVar20;
+
+  Car_tObj *pCVar21;
+
+  AIState_Base *pAVar22;
+
+  AIHigh_Player *pAVar23;
+
+  Car_tObj **ppCVar24;
+
+  AIState_GotoSlice *pAVar25;
+
+  AIState_Chase *pAVar26;
+
+  coorddef local_60;
+
+  u_char local_54 [8];
+
+  int local_4c;
+
+  matrixtdef mStack_48;
+
+  int local_24;
+
+  int local_20;
+
+  int local_1c;
+
+  
+
+  ((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_)->unlap = 0;
+
+  ((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_)->lap = 0;
+
+  this->_base_AIHigh_BasicCop.CheckSpikeBelt();
+
+  this->CheckForWipeOut();
+
+  this->SetTuningLevers();
+
+  switch((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.stateType_) {
+
+  case 0:
+
+    this->AssignToPlayer((AIHigh_Player *)0x0);
+
+    pCVar21 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_;
+
+    pCVar21->AIFlags = pCVar21->AIFlags & 0xfffffffd;
+
+    if ((((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_)->carFlags & 0x400U) == 0) {
+
+      pAVar11 = operator new(8);
+
+      pAVar14 = (AIState_Base *) (new(pAVar11) AIState_Purgatory((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_));
+
+      pAVar22 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+      if (pAVar22 != (AIState_Base *)0x0) {
+
+        (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+
+      }
+
+      sVar15 = 1;
+
+    }
+
+    else {
+
+      pAVar14 = operator new(0x10);
+
+      (new(pAVar14) AIState_Base((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_));
+
+      pAVar14->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
+
+      pAVar14[1]._vf = (__vtbl_ptr_type (*) [4])0x1;
+
+      pAVar22 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+      if (pAVar22 != (AIState_Base *)0x0) {
+
+        (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+
+      }
+
+      sVar15 = 3;
+
+    }
+
+    (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_ = pAVar14;
+
+    (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.stateType_ = sVar15;
+
+    return;
+
+  case 1:
+
+    pCVar21 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_;
+
+    pCVar21->AIFlags = pCVar21->AIFlags & 0xfffffffd;
+
+    bVar18 = (this->_base_AIHigh_BasicCop).blockade_.mode;
+
+    this->requestSpikeBeltAtSlice_ = -1;
+
+    (this->_base_AIHigh_BasicCop).driveAway_ = 0;
+
+    if (bVar18 == 4) {
+
+      (this->_base_AIHigh_BasicCop).blockade_.mode = 0;
+
+    }
+
+    bVar18 = (this->_base_AIHigh_BasicCop).blockade_.mode;
+
+    if (bVar18 == 2) {
+
+      this->AssignToPlayer((this->_base_AIHigh_BasicCop).blockade_.target);
+
+      pAVar14 = operator new(0x10);
+
+      (new(pAVar14) AIState_Base((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_));
+
+      pAVar14->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
+
+      pAVar14[1]._vf = (__vtbl_ptr_type (*) [4])0x1;
+
+      pAVar22 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+      if (pAVar22 != (AIState_Base *)0x0) {
+
+        (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+
+      }
+
+      iVar12 = (this->_base_AIHigh_BasicCop).blockade_.rotation;
+
+      (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_ = pAVar14;
+
+      (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.stateType_ = 3;
+
+      AILife_ReencarnateCopByLatPosAndRotation((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_,(this->_base_AIHigh_BasicCop).blockade_.slice
+
+                 ,(this->_base_AIHigh_BasicCop).blockade_.direction,
+
+                 (this->_base_AIHigh_BasicCop).blockade_.latPos,iVar12);
+
+      this->requestSpikeBeltAtSlice_ = (this->_base_AIHigh_BasicCop).blockade_.requestSpikeBeltAtSlice;
+
+    }
+
+    else if (((((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_)->AIFlags & 8U) != 0) && (bVar18 != 1))
+
+    {
+
+      ptVar3 = this->CheckForNewTriggers();
+
+      bVar1 = false;
+
+      if (ptVar3 != (trigger_t *)0x0) {
+
+        ptVar5 = ptVar3;
+
+        pcVar2 = &local_60;
+
+        do {
+
+          pcVar16 = pcVar2;
+
+          ptVar4 = ptVar5;
+
+          iVar12 = *(int *)(ptVar4 + 4);
+
+          iVar9 = *(int *)(ptVar4 + 8);
+
+          iVar20 = *(int *)(ptVar4 + 0xc);
+
+          pcVar16->x = *(int *)ptVar4;
+
+          pcVar16->y = iVar12;
+
+          pcVar16->z = iVar9;
+
+          pcVar16[1].x = iVar20;
+
+          ptVar5 = ptVar4 + 0x10;
+
+          pcVar2 = (coorddef *)&pcVar16[1].y;
+
+        } while (ptVar5 != ptVar3 + 0x40);
+
+        iVar12 = *(int *)(ptVar4 + 0x14);
+
+        pcVar16[1].y = *(int *)ptVar5;
+
+        pcVar16[1].z = iVar12;
+
+        if (Cars_gNumHumanRaceCars == 2) {
+
+          iVar12 = AIWorld_ApxSplineDistance((Car_tObj *)0x0,(Car_tObj *)0x0);
+
+          if (iVar12 < 0) {
+
+            iVar12 = -iVar12;
+
+          }
+
+          if (iVar12 < 0x12c0000) {
+
+            bVar1 = true;
+
+          }
+
+        }
+
+        if (bVar1) {
+
+          local_60.x = 1;
+
+          (*(int *)((u_char *)&(local_54) + 4)) = 1;
+
+          local_60.z = 1;
+
+          (*(int *)&(local_54)) = 1;
+
+        }
+
+        triggerManagerCops->DescribeTrigger((trigger_t *)&local_60);
+
+        if (local_60.x == 1) {
+
+          randtemp = fastRandom * randSeed;
+
+          fastRandom = randtemp & 0xffff;
+
+          iVar12 = -1;
+
+          if (GameSetup_gData.reverseTrack == 0) {
+
+            iVar12 = 1;
+
+          }
+
+          if ((*(int *)((u_char *)&(local_54) + 4)) == 0) {
+
+            this->AssignToPlayer((AIHigh_Player *)0x0);
+
+            pAVar14 = operator new(0x10);
+
+            (new(pAVar14) AIState_Base((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_));
+
+            pAVar14->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
+
+            pAVar14[1]._vf = (__vtbl_ptr_type (*) [4])0x1;
+
+            pAVar22 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+            if (pAVar22 != (AIState_Base *)0x0) {
+
+              (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+
+            }
+
+            sVar15 = 3;
+
+          }
+
+          else {
+
+            this->AssignToPlayer((AIHigh_Player *)0x0);
+
+            pAVar13 = operator new(8);
+
+            pAVar14 = &(new(pAVar13) AIState_Normal((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_))->_base_AIState_Base
+
+            ;
+
+            pAVar22 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+            if (pAVar22 != (AIState_Base *)0x0) {
+
+              (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+
+            }
+
+            sVar15 = 2;
+
+          }
+
+          (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_ = pAVar14;
+
+          (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.stateType_ = sVar15;
+
+          AILife_ReencarnateCopBySlice((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_,local_60.y,iVar12,iVar12,
+
+                     (*(int *)((u_char *)&(local_54) + 4)));
+
+        }
+
+        else if (((1 < local_60.x) && (local_60.x != 2)) && (local_60.x == 3)) {
+
+          uVar6 = ~local_60.z;
+
+          if (GameSetup_gData.reverseTrack == 0) {
+
+            uVar6 = local_60.z ^ 1;
+
+          }
+
+          if ((uVar6 == 0) || (local_60.z == 0)) {
+
+            this->AssignToPlayer((AIHigh_Player *)0x0);
+
+            pAVar7 = operator new(0x68);
+
+            pAVar7 = (new(pAVar7) AIState_Offroad((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_,local_60.y,
+
+                                (coorddef *)local_54,&mStack_48,local_24,local_20,local_1c));
+
+            pAVar14 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+            if (pAVar14 != (AIState_Base *)0x0) {
+
+              (*(int (*)(...))pAVar14->_vf[5])((int)&pAVar14->carObj_ + (int)*(short *)pAVar14->_vf[4],3);
+
+            }
+
+            (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_ = &pAVar7->_base_AIState_Base;
+
+            (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.stateType_ = 5;
+
+            AILife_ReencarnateCopByPosition((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_,local_60.y,1,(coorddef *)local_54
+
+                       ,&mStack_48);
+
+          }
+
+        }
+
+      }
+
+    }
+
+    goto switchD_80063d30_caseD_6;
+
+  case 2:
+
+    this->requestSpikeBeltAtSlice_ = -1;
+
+    bVar18 = (this->_base_AIHigh_BasicCop).blockade_.mode;
+
+    if (bVar18 != 1) {
+
+      if (bVar18 != 4) {
+
+        pCVar21 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_;
+
+        pCVar21->AIFlags = pCVar21->AIFlags & 0xfffffffd;
+
+      }
+
+      bVar18 = (this->_base_AIHigh_BasicCop).blockade_.mode;
+
+      if (((bVar18 != 1) && (bVar18 != 4)) &&
+
+         (iVar12 = this->CheckForNewTarget(), iVar12 != 0)) {
+
+        this->GetCheckChasePosition(&local_60);
+
+        pAVar26 = operator new(0x94);
+
+        pAVar26 = (new(pAVar26) AIState_Chase((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_,
+
+                             (this->perpTarget_->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_,&local_60,
+
+                             AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks,
+
+                             NitroDistanceMeters[(this->_base_AIHigh_BasicCop).type_][0],
+
+                             NitroDistanceMeters[(this->_base_AIHigh_BasicCop).type_][1],
+
+                             this->aggressionLevel_,AICop_skillDelay[GameSetup_gData.skill]));
+
+        pAVar14 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+        if (pAVar14 != (AIState_Base *)0x0) {
+
+          (*(int (*)(...))pAVar14->_vf[5])((int)&pAVar14->carObj_ + (int)*(short *)pAVar14->_vf[4],3);
+
+        }
+
+        pCVar21 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_;
+
+        (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_ = &pAVar26->_base_AIState_Base;
+
+        (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.stateType_ = 4;
+
+        pSVar8 = (Speaker *)Speech_Mobile(pCVar21);
+
+        (**(int (**)(...))(pSVar8->_vf[1] + 0x15))
+
+                  ((int)&(pSVar8->fPosition).flags + (int)*(short *)(pSVar8->_vf[1] + 0x11),
+
+                   (this->perpTarget_->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_);
+
+      }
+
+    }
+
+    if ((this->forcePurgatory_ == 0) &&
+
+       (iVar12 = AILife_EvaluateLife((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_), iVar12 == 0))
+
+    goto switchD_80063d30_caseD_6;
+
+    pCVar21 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_;
+
+    this->forcePurgatory_ = 0;
+
+    pSVar8 = (Speaker *)Speech_Mobile(pCVar21);
+
+    (**(int (**)(...))(pSVar8->_vf[4] + 8))
+
+              ((int)&(pSVar8->fPosition).flags + (int)*(short *)(pSVar8->_vf[4] + 4));
+
+    this->AssignToPlayer((AIHigh_Player *)0x0);
+
+    pAVar11 = operator new(8);
+
+    pAVar14 = (AIState_Base *) (new(pAVar11) AIState_Purgatory((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_));
+
+    pAVar22 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+    if (pAVar22 != (AIState_Base *)0x0) {
+
+      (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+
+    }
+
+    sVar15 = 1;
+
+    break;
+
+  case 3:
+
+    bVar18 = (this->_base_AIHigh_BasicCop).blockade_.mode;
+
+    if ((bVar18 == 1) || (bVar18 == 4)) {
+
+      iVar12 = 1;
+
+      if (GameSetup_gData.reverseTrack == 0) {
+
+        iVar12 = -1;
+
+      }
+
+      ((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_)->desiredDirection = iVar12;
+
+      ((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_)->driveDirection = 1;
+
+      this->AssignToPlayer((AIHigh_Player *)0x0);
+
+      pAVar13 = operator new(8);
+
+      pAVar14 = &(new(pAVar13) AIState_Normal((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_))->_base_AIState_Base;
+
+      pAVar22 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+      if (pAVar22 != (AIState_Base *)0x0) {
+
+        (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+
+      }
+
+      (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_ = pAVar14;
+
+      (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.stateType_ = 2;
+
+    }
+
+    if (this->forcePurgatory_ == 0) {
+
+      if ((this->_base_AIHigh_BasicCop).driveAway_ == 0) {
+
+        if ((this->_base_AIHigh_BasicCop).blockade_.mode != 2) {
+
+          pCVar21 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_;
+
+          pCVar21->AIFlags = pCVar21->AIFlags & 0xfffffffd;
+
+          iVar12 = this->CheckForNewTarget();
+
+          if (((iVar12 != 0) && (bVar18 = (this->_base_AIHigh_BasicCop).blockade_.mode, bVar18 != 1)) &&
+
+             (bVar18 != 4)) {
+
+            this->GetCheckChasePosition(&local_60);
+
+            pAVar26 = operator new(0x94);
+
+            pAVar26 = (new(pAVar26) AIState_Chase((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_,
+
+                                 (this->perpTarget_->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_,&local_60
+
+                                 ,AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks,
+
+                                 NitroDistanceMeters[(this->_base_AIHigh_BasicCop).type_][0],
+
+                                 NitroDistanceMeters[(this->_base_AIHigh_BasicCop).type_][1],
+
+                                 this->aggressionLevel_,AICop_skillDelay[GameSetup_gData.skill]));
+
+            pAVar14 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+            if (pAVar14 != (AIState_Base *)0x0) {
+
+              (*(int (*)(...))pAVar14->_vf[5])((int)&pAVar14->carObj_ + (int)*(short *)pAVar14->_vf[4],3);
+
+            }
+
+            pCVar21 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_;
+
+            (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_ = &pAVar26->_base_AIState_Base;
+
+            (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.stateType_ = 4;
+
+            pSVar8 = (Speaker *)Speech_Mobile(pCVar21);
+
+            (**(int (**)(...))(pSVar8->_vf[1] + 0x15))
+
+                      ((int)&(pSVar8->fPosition).flags + (int)*(short *)(pSVar8->_vf[1] + 0x11),
+
+                       (this->perpTarget_->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_);
+
+            goto switchD_80063d30_caseD_6;
+
+          }
+
+          iVar12 = AILife_EvaluateLife((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_);
+
+          if (iVar12 == 0) goto switchD_80063d30_caseD_6;
+
+          this->AssignToPlayer((AIHigh_Player *)0x0);
+
+          pAVar11 = operator new(8);
+
+          pAVar14 = (AIState_Base *) (new(pAVar11) AIState_Purgatory((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_));
+
+          pAVar22 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+          if (pAVar22 != (AIState_Base *)0x0) {
+
+            (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+
+          }
+
+          sVar15 = 1;
+
+          break;
+
+        }
+
+        pCVar21 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_;
+
+        pCVar21->AIFlags = pCVar21->AIFlags | 2;
+
+        iVar12 = this->requestSpikeBeltAtSlice_;
+
+        bVar1 = false;
+
+        if ((iVar12 != -1) && (AICop_spikeBelt.active_ == 0)) {
+
+          if (GameSetup_gData.skill == 0) {
+
+            iVar12 = 0xb333;
+
+          }
+
+          else {
+
+            iVar12 = 0xe666;
+
+            if (GameSetup_gData.skill == 1) {
+
+              iVar12 = 0xcccc;
+
+            }
+
+          }
+
+          iVar9 = this->requestSpikeBeltAtSlice_ * 0x20 + BWorldSm_slices;
+
+          iVar9 = fixedmult((u_int)*(u_char *)(iVar9 + 0x1e) * 0x8000 *
+
+                             (u_int)(*(u_char *)(iVar9 + 0x1d) >> 4),iVar12);
+
+          iVar20 = this->requestSpikeBeltAtSlice_ * 0x20 + BWorldSm_slices;
+
+          AICop_spikeBelt.rightLatPos_ =
+
+               fixedmult((u_int)*(u_char *)(iVar20 + 0x1f) * 0x8000 * (*(u_char *)(iVar20 + 0x1d) & 0xf)
+
+                          ,iVar12);
+
+          AICop_spikeBelt.leftLatPos_ = -iVar9;
+
+          AICop_spikeBelt.slice_ = this->requestSpikeBeltAtSlice_;
+
+          AICop_spikeBelt.active_ = 1;
+
+          AICop_spikeBelt.freshenTime_ = simGlobal.gameTicks;
+
+          BWorld_SetSpikeBelt(this->requestSpikeBeltAtSlice_,AICop_spikeBelt.leftLatPos_,
+
+                     iVar9 + AICop_spikeBelt.rightLatPos_);
+
+          iVar12 = this->requestSpikeBeltAtSlice_;
+
+        }
+
+        AICop_gRoadBlockState = 1;
+
+        if ((iVar12 != -1) && (AICop_spikeBelt.slice_ == iVar12)) {
+
+          AICop_spikeBelt.freshenTime_ = simGlobal.gameTicks;
+
+        }
+
+        if ((this->_base_AIHigh_BasicCop).blockade_.flags != 0) {
+
+          if (stackSpeedUpEnbabledFlag == 0) {
+
+            this->_base_AIHigh_BasicCop.SetupBlockadeElements(&(this->_base_AIHigh_BasicCop).blockade_);
+
+          }
+
+          else {
+
+            gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
+            stackSpeedUpEnbabledFlag = 0;
+
+            this->_base_AIHigh_BasicCop.SetupBlockadeElements(&(this->_base_AIHigh_BasicCop).blockade_);
+
+            gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
+            stackSpeedUpEnbabledFlag = 1;
+
+          }
+
+        }
+
+        pAVar23 = this->perpTarget_;
+
+        iVar12 = ((pAVar23->perpChaseInfo_).chaseLevel_)->engagementLapFraction *
+
+                 AITune_gRoughLapTime;
+
+        if (iVar12 < 0) {
+
+          iVar12 = iVar12 + 0xffff;
+
+        }
+
+        iVar9 = (iVar12 >> 0x10) << 5;
+
+        iVar20 = 0x10000 / iVar9;
+
+        if (iVar9 == 0) {
+
+          trap(0x1c00);
+
+        }
+
+        (pAVar23->perpChaseInfo_).engagementTime_ = (iVar12 >> 0x10) << 0x15;
+
+        (pAVar23->perpChaseInfo_).engagementPercentIncreasePerTick_ = iVar20;
+
+        if (GameSetup_gData.numLaps == 2) {
+
+          iVar12 = 0x13333;
+
+LAB_80064d28:
+
+          iVar12 = fixedmult(iVar20,iVar12);
+
+          (pAVar23->perpChaseInfo_).engagementPercentIncreasePerTick_ = iVar12;
+
+        }
+
+        else {
+
+          iVar12 = 0xa8f5;
+
+          if (GameSetup_gData.numLaps == 4) goto LAB_80064d28;
+
+        }
+
+        this->GetCheckChasePosition(&local_60);
+
+        iVar9 = AIWorld_ApxSplineDistance((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_,
+
+                           (this->perpTarget_->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_);
+
+        iVar12 = iVar9;
+
+        if (iVar9 < 0) {
+
+          iVar12 = -iVar9;
+
+        }
+
+        if (iVar12 < 0x320000) {
+
+LAB_80064df8:
+
+          bVar1 = true;
+
+        }
+
+        else if (iVar12 < 0x12c0000) {
+
+          iVar12 = ((this->perpTarget_->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->currentSpeed;
+
+          if (iVar12 < 1) {
+
+            iVar12 = -iVar12;
+
+          }
+
+          if (((0x471c7 < iVar12) &&
+
+              (iVar12 = fixeddiv(iVar9,((this->perpTarget_->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)
+
+                                         ->currentSpeed), 0 < iVar12)) &&
+
+             (iVar12 < (this->_base_AIHigh_BasicCop).blockade_.releaseTime)) goto LAB_80064df8;
+
+        }
+
+        if (!bVar1) {
+
+          iVar12 = AIWorld_ApxSplineDistance((this->perpTarget_->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_,
+
+                              (this->_base_AIHigh_BasicCop).blockade_.slice);
+
+          if (iVar12 < 0) {
+
+            iVar12 = iVar12 + 0xffff;
+
+          }
+
+          if ((this->_base_AIHigh_BasicCop).blockade_.initialPlayerDistanceMetersInt * (iVar12 >> 0x10) <
+
+              1) goto switchD_80063d30_caseD_6;
+
+        }
+
+        this->requestSpikeBeltAtSlice_ = -1;
+
+        if ((this->_base_AIHigh_BasicCop).blockade_.chaseLevel ==
+
+            (this->perpTarget_->perpChaseInfo_).chaseLevelIndex_) {
+
+          (this->perpTarget_->perpChaseInfo_).engagementTime_ = 0;
+
+        }
+
+        (this->_base_AIHigh_BasicCop).blockade_.mode = 0;
+
+        pAVar26 = operator new(0x94);
+
+        pAVar26 = (new(pAVar26) AIState_Chase((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_,
+
+                             (this->perpTarget_->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_,&local_60,
+
+                             AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks,
+
+                             NitroDistanceMeters[(this->_base_AIHigh_BasicCop).type_][0],
+
+                             NitroDistanceMeters[(this->_base_AIHigh_BasicCop).type_][1],
+
+                             this->aggressionLevel_,AICop_skillDelay[GameSetup_gData.skill]));
+
+        pAVar14 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+        if (pAVar14 != (AIState_Base *)0x0) {
+
+          (*(int (*)(...))pAVar14->_vf[5])((int)&pAVar14->carObj_ + (int)*(short *)pAVar14->_vf[4],3);
+
+        }
+
+        iVar12 = (this->_base_AIHigh_BasicCop).blockade_.reverse;
+
+        (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_ = &pAVar26->_base_AIState_Base;
+
+        (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.stateType_ = 4;
+
+        if (iVar12 != 0) {
+
+          AIPhysic_ChangeDirection((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_,0x40);
+
+        }
+
+        goto switchD_80063d30_caseD_6;
+
+      }
+
+LAB_80064a0c:
+
+      iVar12 = 1;
+
+      if (GameSetup_gData.reverseTrack == 0) {
+
+        iVar12 = -1;
+
+      }
+
+      ((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_)->desiredDirection = iVar12;
+
+      ((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_)->driveDirection = 1;
+
+      this->AssignToPlayer((AIHigh_Player *)0x0);
+
+      pAVar13 = operator new(8);
+
+      pAVar14 = &(new(pAVar13) AIState_Normal((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_))->_base_AIState_Base;
+
+      pAVar22 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+      if (pAVar22 != (AIState_Base *)0x0) {
+
+        (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+
+      }
+
+      AVar19 = (this->_base_AIHigh_BasicCop).driveAway_;
+
+      (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_ = pAVar14;
+
+      (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.stateType_ = 2;
+
+      if (AVar19 == 1) {
+
+        Cars_ResetCollidedCars((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_,1,1);
+
+      }
+
+      (this->_base_AIHigh_BasicCop).driveAway_ = 0;
+
+      goto switchD_80063d30_caseD_6;
+
+    }
+
+    pCVar21 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_;
+
+    this->forcePurgatory_ = 0;
+
+    pSVar8 = (Speaker *)Speech_Mobile(pCVar21);
+
+    (**(int (**)(...))(pSVar8->_vf[4] + 8))
+
+              ((int)&(pSVar8->fPosition).flags + (int)*(short *)(pSVar8->_vf[4] + 4));
+
+    this->AssignToPlayer((AIHigh_Player *)0x0);
+
+    pAVar11 = operator new(8);
+
+    pAVar14 = (AIState_Base *) (new(pAVar11) AIState_Purgatory((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_));
+
+    pAVar22 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+    if (pAVar22 != (AIState_Base *)0x0) {
+
+      (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+
+    }
+
+    sVar15 = 1;
+
+    break;
+
+  case 4:
+
+    pCVar21 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_;
+
+    pAVar26 = (AIState_Chase *)(this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+    pCVar21->AIFlags = pCVar21->AIFlags | 2;
+
+    if (0xa0 < pAVar26->barrierTicks32_) {
+
+      iVar12 = (pAVar26)->FindBarrierEndSlice();
+
+      pAVar25 = operator new(0x10);
+
+      pAVar25 = (new(pAVar25) AIState_GotoSlice((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_,iVar12,0));
+
+      pAVar14 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+      if (pAVar14 != (AIState_Base *)0x0) {
+
+        (*(int (*)(...))pAVar14->_vf[5])((int)&pAVar14->carObj_ + (int)*(short *)pAVar14->_vf[4],3);
+
+      }
+
+      pCVar21 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_;
+
+      (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_ = (AIState_Base *)pAVar25;
+
+      (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.stateType_ = 9;
+
+      pSVar8 = (Speaker *)Speech_Mobile(pCVar21);
+
+      (**(int (**)(...))(pSVar8->_vf[1] + 0x1d))
+
+                ((int)&(pSVar8->fPosition).flags + (int)*(short *)(pSVar8->_vf[1] + 0x19));
+
+    }
+
+    piVar17 = ((this->perpTarget_->perpChaseInfo_).chaseLevel_)->copChasers +
+
+              (this->_base_AIHigh_BasicCop).type_;
+
+    if ((*piVar17 == 0) && (piVar17[3] == 0)) {
+
+      pAVar26->nitrousTicks_ = 0;
+
+    }
+
+    this->requestSpikeBeltAtSlice_ = -1;
+
+    bVar1 = false;
+
+    if (pAVar26->slowDownEndTime_ <= simGlobal.gameTicks) {
+
+      iVar12 = this->CheckForNeedyPlayers();
+
+      bVar1 = iVar12 != -1;
+
+    }
+
+    if (bVar1) {
+
+      pAVar26->slowDownEndTime_ = simGlobal.gameTicks + 0x3c0;
+
+    }
+
+    this->_base_AIHigh_BasicCop.HandleBlockadeSpeech();
+
+    bVar1 = false;
+
+    iVar12 = this->GetCheckChasePosition(&local_60);
+
+    if (iVar12 != 0) {
+
+      bVar1 = pAVar26->murderMode_ == 0;
+
+    }
+
+    if (bVar1) {
+
+      (pAVar26)->SetTarget((this->perpTarget_->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_,&local_60);
+
+    }
+
+    iVar12 = this->aggressionLevel_;
+
+    bVar1 = false;
+
+    if (AIHigh_Cop_AggressionData[iVar12].ticksInChaseRegionForMurder < pAVar26->inTargetRegion_) {
+
+      iVar9 = pAVar26->latMetersBetween_;
+
+      if (iVar9 < 0) {
+
+        iVar9 = -iVar9;
+
+      }
+
+      if (iVar9 < AIHigh_Cop_AggressionData[iVar12].minLatMetersDistanceForMurder) {
+
+        iVar9 = pAVar26->longMetersBetween_;
+
+        if (iVar9 < 0) {
+
+          iVar9 = -iVar9;
+
+        }
+
+        bVar1 = iVar9 < AIHigh_Cop_AggressionData[iVar12].minLongMetersDistanceForMurder;
+
+      }
+
+    }
+
+    if (bVar1) {
+
+      (pAVar26)->SetMurderMode(1,AIHigh_Cop_AggressionData[this->aggressionLevel_].murderTicks);
+
+    }
+
+    bVar1 = false;
+
+    iVar12 = (&this->_base_AIHigh_BasicCop)->ShouldIPerformCutOffBlock(0x4000,
+
+                        (this->perpTarget_->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_);
+
+    if (iVar12 != 0) {
+
+      bVar1 = pAVar26->murderMode_ == 0;
+
+    }
+
+    if (bVar1) {
+
+      memset((u_char *)(local_54 + 4),'\0',0xc);
+
+      (pAVar26)->SetTarget((this->perpTarget_->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_,
+
+                 (coorddef *)(local_54 + 4));
+
+      (pAVar26)->SetMurderMode(1,0x20);
+
+    }
+
+    iVar12 = this->CheckForNewTarget();
+
+    if (iVar12 != 0) {
+
+      this->GetCheckChasePosition((coorddef *)(local_54 + 4));
+
+      (pAVar26)->SetTarget((this->perpTarget_->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_,
+
+                 (coorddef *)(local_54 + 4));
+
+    }
+
+    bVar18 = (this->_base_AIHigh_BasicCop).blockade_.mode;
+
+    if (bVar18 == 1) {
+
+LAB_80064750:
+
+      iVar12 = 1;
+
+      if (GameSetup_gData.reverseTrack == 0) {
+
+        iVar12 = -1;
+
+      }
+
+      ((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_)->desiredDirection = iVar12;
+
+      ((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_)->driveDirection = 1;
+
+LAB_80064778:
+
+      this->AssignToPlayer((AIHigh_Player *)0x0);
+
+      pAVar13 = operator new(8);
+
+      pAVar14 = &(new(pAVar13) AIState_Normal((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_))->_base_AIState_Base;
+
+      pAVar22 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+      if (pAVar22 != (AIState_Base *)0x0) {
+
+        (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+
+      }
+
+      (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_ = pAVar14;
+
+      (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.stateType_ = 2;
+
+    }
+
+    else if (((bVar18 == 4) || (this->perpTarget_ == (AIHigh_Player *)0x0)) ||
+
+            (1 < (((this->perpTarget_->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->stats).finishType)) {
+
+      if ((bVar18 == 1) || (bVar18 == 4)) goto LAB_80064750;
+
+      goto LAB_80064778;
+
+    }
+
+    if ((this->forcePurgatory_ == 0) &&
+
+       (iVar12 = AILife_EvaluateLife((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_), iVar12 == 0)) {
+
+      if ((this->_base_AIHigh_BasicCop).driveAway_ == 0) goto switchD_80063d30_caseD_6;
+
+      goto LAB_80064a0c;
+
+    }
+
+    iVar12 = AILife_EvaluateLife((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_);
+
+    if ((iVar12 != 0) && ((this->_base_AIHigh_BasicCop).driveAway_ == 0)) {
+
+      pSVar8 = (Speaker *)Speech_Mobile((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_);
+
+      (**(int (**)(...))(pSVar8->_vf[1] + 0x1d))
+
+                ((int)&(pSVar8->fPosition).flags + (int)*(short *)(pSVar8->_vf[1] + 0x19));
+
+    }
+
+    pSVar8 = (Speaker *)Speech_Mobile((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_);
+
+    (**(int (**)(...))(pSVar8->_vf[4] + 8))
+
+              ((int)&(pSVar8->fPosition).flags + (int)*(short *)(pSVar8->_vf[4] + 4));
+
+    this->forcePurgatory_ = 0;
+
+    this->AssignToPlayer((AIHigh_Player *)0x0);
+
+    pAVar11 = operator new(8);
+
+    pAVar14 = (AIState_Base *) (new(pAVar11) AIState_Purgatory((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_));
+
+    pAVar22 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+    if (pAVar22 != (AIState_Base *)0x0) {
+
+      (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+
+    }
+
+    sVar15 = 1;
+
+    break;
+
+  case 5:
+
+    pCVar21 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_;
+
+    if ((pCVar21->N).simOptz == '\0') {
+
+      pCVar21->extraWallCollisionAllowance = 0;
+
+    }
+
+    else {
+
+      pCVar21->extraWallCollisionAllowance = 0x18000;
+
+    }
+
+    this->requestSpikeBeltAtSlice_ = -1;
+
+    ppCVar24 = Cars_gRaceCarList;
+
+    for (iVar12 = 0; iVar12 < Cars_gNumRaceCars; iVar12 = iVar12 + 1) {
+
+      if (highLevelAIObjs[(*ppCVar24)->carIndex][5].carObj_ != (Car_tObj *)0x0) {
+
+        ((AIState_Offroad *)(this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_)->UnleashIfInRange(*ppCVar24);
+
+      }
+
+      ppCVar24 = ppCVar24 + 1;
+
+    }
+
+    pCVar21 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_;
+
+    iVar12 = (pCVar21->N).simRoadInfo.slice * 0x20 + BWorldSm_slices;
+
+    if (((int)-((u_int)*(u_char *)(iVar12 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar12 + 0x1d) >> 4)) <=
+
+         pCVar21->roadPosition) &&
+
+       (pCVar21->roadPosition <=
+
+        (int)((u_int)*(u_char *)(iVar12 + 0x1f) * 0x8000 * (*(u_char *)(iVar12 + 0x1d) & 0xf)))) {
+
+      pCVar21->extraWallCollisionAllowance = 0;
+
+      this->AssignToPlayer((AIHigh_Player *)0x0);
+
+      pAVar13 = operator new(8);
+
+      pAVar14 = &(new(pAVar13) AIState_Normal((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_))->_base_AIState_Base;
+
+      pAVar22 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+      if (pAVar22 != (AIState_Base *)0x0) {
+
+        (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+
+      }
+
+      (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_ = pAVar14;
+
+      (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.stateType_ = 2;
+
+    }
+
+    if ((this->forcePurgatory_ == 0) &&
+
+       (iVar12 = AILife_EvaluateLife((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_), iVar12 == 0))
+
+    goto switchD_80063d30_caseD_6;
+
+    ((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_)->extraWallCollisionAllowance = 0;
+
+    this->forcePurgatory_ = 0;
+
+    this->AssignToPlayer((AIHigh_Player *)0x0);
+
+    pAVar11 = operator new(8);
+
+    pAVar14 = (AIState_Base *) (new(pAVar11) AIState_Purgatory((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_));
+
+    pAVar22 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+    if (pAVar22 != (AIState_Base *)0x0) {
+
+      (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+
+    }
+
+    sVar15 = 1;
+
+    break;
+
+  default:
+
+    goto switchD_80063d30_caseD_6;
+
+  case 9:
+
+    pAVar25 = (AIState_GotoSlice *)(this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+    this->AssignToPlayer((AIHigh_Player *)0x0);
+
+    iVar12 = (pAVar25)->InTargetSliceRange(0xa0000);
+
+    if (iVar12 == 0) goto switchD_80063d30_caseD_6;
+
+    pAVar13 = operator new(8);
+
+    pAVar14 = &(new(pAVar13) AIState_Normal((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_))->_base_AIState_Base;
+
+    pAVar22 = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_;
+
+    if (pAVar22 != (AIState_Base *)0x0) {
+
+      (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+
+    }
+
+    sVar15 = 2;
+
+  }
+
+  (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_ = pAVar14;
+
+  (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.stateType_ = sVar15;
+
+switchD_80063d30_caseD_6:
+
+  ((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.state_)->StateExecute()
+
+  ;
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- CheckForNeedyPlayers__10AIHigh_Cop  AIHigh_Cop::CheckForNeedyPlayers  [AIH_COP.CPP:819-835] SLD-VERIFIED ---- */
+
+int AIHigh_Cop::CheckForNeedyPlayers()
+
+
+
+{
+  int needy;
+  int hLoop;
+  Car_tObj*thisPlayerObj;
+  AIHigh_Player*thisPlayer;
+
+  int iVar1;
+
+  int iVar2;
+
+  Car_tObj **ppCVar3;
+
+  int iVar4;
+
+  int iVar5;
+
+  
+
+  iVar5 = -1;
+
+  ppCVar3 = Cars_gHumanRaceCarList;
+
+  for (iVar4 = 0; iVar4 < Cars_gNumHumanRaceCars; iVar4 = iVar4 + 1) {
+
+    iVar2 = (*ppCVar3)->carIndex;
+
+    if (800 < (int)highLevelAIObjs[iVar2][7].state_) {
+
+      iVar1 = (*ppCVar3)->currentSpeed;
+
+      if (iVar1 < 0) {
+
+        iVar1 = -iVar1;
+
+      }
+
+      if (0x140000 < iVar1) {
+
+        iVar5 = iVar2;
+
+      }
+
+    }
+
+    ppCVar3 = ppCVar3 + 1;
+
+  }
+
+  return iVar5;
+
+}
+
+
+
+
+
+
+
+
+/* ---- CheckForWipeOut__10AIHigh_Cop  AIHigh_Cop::CheckForWipeOut  [AIH_COP.CPP:845-885] SLD-VERIFIED ---- */
+
+void AIHigh_Cop::CheckForWipeOut()
+
+
+
+{
+  int perTickProb;
+  int randVal;
+  int thisTargetLevel;
+  int hLoop;
+  Car_tObj*thisPlayerObj;
+  AIHigh_Player*thisPlayer;
+
+  bool bVar1;
+
+  int iVar2;
+
+  AIHigh_Player *pAVar3;
+
+  
+
+  if ((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.stateType_ != 4) {
+
+    return;
+
+  }
+
+  pAVar3 = this->perpTarget_;
+
+  bVar1 = false;
+
+  if (((pAVar3 != (AIHigh_Player *)0x0) &&
+
+      ((((pAVar3->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->carFlags & 8U) != 0)) &&
+
+     (((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_)->wipeOutEndTick <= simGlobal.gameTicks)) {
+
+    iVar2 = (pAVar3->perpChaseInfo_).engagementTime_;
+
+    if (iVar2 < 0) {
+
+      iVar2 = iVar2 + 0xffff;
+
+    }
+
+    if (iVar2 >> 0x10 < 2) goto LAB_800654b8;
+
+  }
+
+  bVar1 = true;
+
+LAB_800654b8:
+
+  iVar2 = 0;
+
+  if (!bVar1) {
+    int       randVal, thisTargetLevel, perTickProb;
+    Car_tObj *copCar = (this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_;
+
+    /* H22: reconstructed pre-loop RNG/threshold + per-human-race-car wipe-out roll
+       (oracle 0x800654C0-0x8006559C; recon had an EMPTY loop -> cop never scheduled a wipe-out). */
+    thisTargetLevel = *(int *)((char *)*(int **)((char *)this + 88) + 148);  /* $t0 = *(148 + *(88+this)) 0x800654F4/65514 */
+    randtemp   = fastRandom * randSeed;                                      /* 0x800654E0 / 65528 */
+    fastRandom = randtemp & 0xffff;                                          /* 0x8006552C-34 */
+    randVal    = (int)((randtemp >> 8) & 0xffff);                            /* $a0 = (randtemp>>8)&0xffff 0x8006551C-20 */
+    perTickProb = AI_elapsedTime * 89;                                       /* $t1+$a2 = ae*88 + ae 0x80065500-510 / 65574 */
+
+    for (iVar2 = 0; iVar2 < Cars_gNumHumanRaceCars; iVar2 = iVar2 + 1) {     /* 0x80065538 */
+      Car_tObj    *carObj_h = Cars_gHumanRaceCarList[iVar2];                 /* *(int*)$a1 0x80065544 */
+      AIHigh_Base *aiObj    = highLevelAIObjs[*(int *)((char *)carObj_h + 596)]; /* highLevelAIObjs[carIndex] 0x8006554C-5C */
+      if (thisTargetLevel < *(int *)((char *)aiObj + 148) &&                 /* state, 0x80065564-6C */
+          randVal < perTickProb) {                                          /* 0x80065574-7C */
+        copCar->wipeOutEndTick = simGlobal.gameTicks + 0x280;               /* 0x80065584-90 */
+      }
+    }
+  }
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- CheckForNewTarget__10AIHigh_Cop  AIHigh_Cop::CheckForNewTarget  [AIH_COP.CPP:891-968] SLD-VERIFIED ---- */
+
+int AIHigh_Cop::CheckForNewTarget()
+
+
+
+{
+  AIHigh_Player*newTarget;
+  int newTargetDistance;
+  int playerLoop;
+  AIHigh_Player*old;
+  int thisCarIndex;
+  AIHigh_Player*thisPlayer;
+  int needs;
+  int got;
+  copType type;
+  int copToTargetDistanceMeters;
+
+  bool bVar1;
+
+  int iVar2;
+
+  blockadeMode_t bVar3;
+
+  int iVar4;
+
+  AIHigh_Player *pAVar5;
+
+  Car_tObj **ppCVar6;
+
+  int iVar7;
+
+  AIHigh_Player *target;
+
+  int iVar8;
+
+  AIHigh_Player *pAVar9;
+
+  
+
+  target = (AIHigh_Player *)0x0;
+
+  iVar8 = 0x27100000;
+
+  bVar3 = (this->_base_AIHigh_BasicCop).blockade_.mode;
+
+  pAVar9 = this->perpTarget_;
+
+  bVar1 = false;
+
+  if (((bVar3 == 1) || (bVar3 == 4)) || (bVar3 == 2)) {
+
+    bVar1 = true;
+
+  }
+
+  if (bVar1) {
+
+    return 0;
+
+  }
+
+  ppCVar6 = Cars_gRaceCarList;
+
+  for (iVar7 = 0; iVar7 < Cars_gNumRaceCars; iVar7 = iVar7 + 1) {
+
+    pAVar5 = (AIHigh_Player *)highLevelAIObjs[(*ppCVar6)->carIndex];
+
+    iVar4 = 0;
+
+    if ((pAVar5->_base_AIHigh_BasicPerp).basicPerpInfo_.crime_ != 0) {
+
+      iVar4 = ((pAVar5->perpChaseInfo_).chaseLevel_)->copChasers[(this->_base_AIHigh_BasicCop).type_];
+
+    }
+
+    iVar2 = (pAVar5->_base_AIHigh_BasicPerp).basicPerpInfo_.copsAssigned_[(this->_base_AIHigh_BasicCop).type_];
+
+    if ((this->perpTarget_ != (AIHigh_Player *)0x0) && (this->perpTarget_ == pAVar5)) {
+
+      iVar2 = iVar2 + -1;
+
+    }
+
+    if (iVar2 < iVar4) {
+
+      iVar4 = AIWorld_ApxSplineDistance((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_,
+
+                         (pAVar5->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_);
+
+      if (iVar4 < 0) {
+
+        iVar4 = -iVar4;
+
+      }
+
+      if (iVar4 < iVar8) {
+
+        target = pAVar5;
+
+        iVar8 = iVar4;
+
+      }
+
+    }
+
+    ppCVar6 = ppCVar6 + 1;
+
+  }
+
+  iVar7 = 0;
+
+  if (target == (AIHigh_Player *)0x0) {
+
+    ppCVar6 = Cars_gRaceCarList;
+
+    for (; iVar7 < Cars_gNumRaceCars; iVar7 = iVar7 + 1) {
+
+      pAVar5 = (AIHigh_Player *)highLevelAIObjs[(*ppCVar6)->carIndex];
+
+      iVar4 = AIWorld_ApxSplineDistance((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_,
+
+                         (pAVar5->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_);
+
+      if (iVar4 < 0) {
+
+        iVar4 = -iVar4;
+
+      }
+
+      if ((iVar4 < iVar8) && ((pAVar5->_base_AIHigh_BasicPerp).basicPerpInfo_.crime_ != 0)) {
+
+        target = pAVar5;
+
+        iVar8 = iVar4;
+
+      }
+
+      ppCVar6 = ppCVar6 + 1;
+
+    }
+
+    if (target == (AIHigh_Player *)0x0) goto LAB_800657c0;
+
+  }
+
+  if (target != pAVar9) {
+
+    this->AssignToPlayer(target);
+
+    this->aggressionLevel_ =
+
+         ((target->perpChaseInfo_).chaseLevel_)->copAggression[(this->_base_AIHigh_BasicCop).type_];
+
+    return 1;
+
+  }
+
+LAB_800657c0:
+
+  if ((pAVar9 != (AIHigh_Player *)0x0) && (target == (AIHigh_Player *)0x0)) {
+
+    this->AssignToPlayer((AIHigh_Player *)0x0);
+
+  }
+
+  return 0;
+
+}
+
+
+
+
+
+
+
+
+/* ---- AssignToPlayer__10AIHigh_CopP13AIHigh_Player  AIHigh_Cop::AssignToPlayer  [AIH_COP.CPP:975-989] SLD-VERIFIED ---- */
+
+void AIHigh_Cop::AssignToPlayer(AIHigh_Player *target)
+
+
+
+{
+
+  if (this->perpTarget_ != (AIHigh_Player *)0x0) {
+
+    (&this->perpTarget_->_base_AIHigh_BasicPerp)->RemoveChaser((this->_base_AIHigh_BasicCop).copIndex_,
+
+               ((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_)->carIndex,(copType)(this->_base_AIHigh_BasicCop).type_
+
+              );
+
+  }
+
+  if ((target == (AIHigh_Player *)0x0) && ((this->_base_AIHigh_BasicCop).blockade_.mode != 1)) {
+
+    (this->_base_AIHigh_BasicCop).blockade_.mode = 0;
+
+  }
+
+  this->perpTarget_ = target;
+
+  if (target != (AIHigh_Player *)0x0) {
+
+    (&target->_base_AIHigh_BasicPerp)->AddChaser((this->_base_AIHigh_BasicCop).copIndex_,
+
+               ((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_)->carIndex,(copType)(this->_base_AIHigh_BasicCop).type_
+
+              );
+
+  }
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- GetCheckChasePosition__10AIHigh_CopP8coorddef  AIHigh_Cop::GetCheckChasePosition  [AIH_COP.CPP:995-1014] SLD-VERIFIED ---- */
+
+int AIHigh_Cop::GetCheckChasePosition(coorddef *pos)
+
+
+
+{
+  int newPosition;
+  int changed;
+
+  bool bVar1;
+
+  int iVar2;
+
+  int iVar3;
+
+  int iVar4;
+
+  int iVar5;
+
+  
+
+  iVar2 = (&this->perpTarget_->_base_AIHigh_BasicPerp)->CheckChaserPosition((this->_base_AIHigh_BasicCop).copIndex_,
+
+                     ((this->_base_AIHigh_BasicCop)._base_AIHigh_Base.carObj_)->carIndex);
+
+  bVar1 = iVar2 != this->chaseIndex_;
+
+  if (bVar1) {
+
+    this->chaseIndex_ = iVar2;
+
+  }
+
+  iVar2 = this->chaseIndex_;
+
+  iVar3 = this->aggressionLevel_;
+
+  iVar4 = AIH_Cop_chasePositions[iVar3][iVar2].y;   /* H23: per-aggression stride is 72B = one [6] row; the `*2` (->144B) read OOB for aggression 2 (oracle 0x800658F0 a1*72) */
+
+  iVar5 = AIH_Cop_chasePositions[iVar3][iVar2].z;
+
+  pos->x = AIH_Cop_chasePositions[iVar3][iVar2].x;
+
+  pos->y = iVar4;
+
+  pos->z = iVar5;
+
+  return (u_int)bVar1;
+
+}
+
+
+
+
+
+
+
+
+/* ---- CheckForNewTriggers__10AIHigh_Cop  AIHigh_Cop::CheckForNewTriggers  [AIH_COP.CPP:1021-1166] SLD-VERIFIED ---- */
+
+trigger_t * AIHigh_Cop::CheckForNewTriggers()
+
+
+
+{
+  int sortedLoop;
+  Car_tObj*testCar;
+  int dir;
+  AIHigh_Player*thisPlayer;
+  int needs;
+  int got;
+  copLevel_t*pLevel;
+  int thisSlice;
+  int startSlice;
+  int endSlice;
+  int fRandomChance;
+  copType type;
+  int newSlice;
+  int temp;
+  int sliceLoop;
+  int triggerHere;
+  int iRandomChance;
+  int randomValue;
+  int unused;
+
+  copType cVar1;
+
+  int iVar2;
+
+  int trigger;
+
+  Car_tObj *pCVar3;
+
+  trigger_t *ptVar4;
+
+  u_int uVar5;
+
+  int iVar6;
+
+  int iVar7;
+
+  int iVar8;
+
+  AIHigh_Base *pAVar9;
+
+  int iVar10;
+
+  Car_tObj *pCVar11;
+
+  int iVar12;
+
+  int iStack_30;
+
+  int local_2c;
+
+  
+
+  iVar12 = Cars_gNumCars;
+
+  if (0x5bf < simGlobal.gameTicks) {
+
+    while (iVar12 = iVar12 + -1, -1 < iVar12) {
+
+      pCVar11 = Cars_gTotalSortedList[iVar12];
+
+      if ((pCVar11->carFlags & 1U) != 0) {
+
+        pAVar9 = highLevelAIObjs[pCVar11->carIndex];
+
+        cVar1 = (this->_base_AIHigh_BasicCop).type_;
+
+        iVar10 = pAVar9[5].schedulingOff_;
+
+        iVar6 = cVar1 * 4;
+
+        local_2c = (&pAVar9[4].lastTrafficTriggerCheckSlice_)[cVar1];
+
+        if (pAVar9[5].carObj_ == (Car_tObj *)0x0) {
+
+          iVar10 = iVar10 << 1;
+
+          if (0 < *(int *)(pAVar9[6].schedulingOff_ + iVar6)) {
+
+            iVar2 = AICop_NoCopsInArea((int)(pAVar9->carObj_->N).simRoadInfo.slice,0x1f40000);
+
+            iVar6 = 1;
+
+            if (iVar2 != 0) goto LAB_80065a54;
+
+          }
+
+          iVar6 = 0;
+
+        }
+
+        else {
+
+          iVar6 = *(int *)(pAVar9[6].schedulingOff_ + iVar6);
+
+        }
+
+LAB_80065a54:
+
+        if (GameSetup_gData.skill == 2) {
+
+          iVar10 = 0x10000;
+
+        }
+
+        if ((0x1bf < (int)(simGlobal.gameTicks - pAVar9[4].stateType_)) && (local_2c < iVar6)) {
+
+          iVar6 = -1;
+
+          if (-1 < pCVar11->currentSpeed) {
+
+            iVar6 = 1;
+
+          }
+
+          iVar6 = iVar6 * 0x1f;
+
+          if (iVar6 < 0) {
+
+            iVar6 = (pCVar11->N).simRoadInfo.slice + iVar6;
+
+            if (iVar6 < 0) {
+
+              iVar6 = iVar6 + gNumSlices;
+
+            }
+
+          }
+
+          else {
+
+            iVar6 = (pCVar11->N).simRoadInfo.slice + iVar6;
+
+            if (gNumSlices <= iVar6) {
+
+              iVar6 = iVar6 - gNumSlices;
+
+            }
+
+          }
+
+          iVar7 = pAVar9[5].lastTrafficTriggerCheckSlice_;
+
+          pAVar9[5].lastTrafficTriggerCheckSlice_ = iVar6;
+
+          iVar2 = iVar6;
+
+          if (iVar7 < iVar6) {
+
+            iVar2 = iVar7;
+
+            iVar7 = iVar6;
+
+          }
+
+          iVar6 = iVar7 - iVar2;
+
+          while ((iVar2 < iVar7 && (iVar6 < 6))) {
+
+            trigger = triggerManagerCops->CheckForTriggerAtSlice(pCVar11->carIndex, iVar2);
+
+            iVar8 = iVar10 * 100;
+
+            if (trigger == -1) {
+
+LAB_80065c28:
+
+              iVar2 = iVar2 + 1;
+
+            }
+
+            else {
+
+              if (iVar8 < 0) {
+
+                iVar8 = iVar8 + 0xffff;
+
+              }
+
+              randtemp = fastRandom * randSeed;
+
+              fastRandom = randtemp & 0xffff;
+
+              uVar5 = randtemp >> 8;
+
+              pCVar3 = AILife_IsSliceInAnyVisibleArea(iVar2);
+
+              if (pCVar3 != (Car_tObj *)0x0) goto LAB_80065c28;
+
+              if ((local_2c != 0) ||
+
+                 (iVar2 = iVar2 + 1, (int)((uVar5 & 0xffff) * 0x19 >> 0xe) < iVar8 >> 0x10)) {
+
+                ptVar4 = triggerManagerCops->GetTrigger(trigger, &iStack_30);
+
+                return ptVar4;
+
+              }
+
+            }
+
+          }
+
+        }
+
+      }
+
+    }
+
+  }
+
+  return (trigger_t *)0x0;
+
+}
+
+
+
+
+
+
+
+/* end of aih_cop.cpp */

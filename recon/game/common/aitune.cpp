@@ -4,9 +4,7 @@
  *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
  */
 #include "../../nfs4_types.h"
-#include "aitune_externs.h"
-
-extern int D_80113228[];   /* GameSetup_gData.track standalone @0x80113228 (+0x3C); array form -> separate base reg */
+#include "AITUNE_externs.h"
 
 
 /* ---- AITUNE.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
@@ -35,28 +33,28 @@ void AITune_CleanUp2(void);
 /* ---- AITune_GetOneWay__Fv  [@0x80072e68] ---- */
 int AITune_GetOneWay(void)
 {
-  if (D_80113228[0] < 0xc) {
-    return AITune_trackInfo[D_80113228[0]].oneWay;
+  if (0xb < GameSetup_gData.track) {
+    return (u_int)(*(u_char *)((int)BWorldSm_slices + 0x3d) >> 4 == 0);   /* byte-match backport: +61 bytes, not +0x3d*sizeof(Trk_NewSlice=32) */
   }
-  return (u_int)(*(u_char *)((int)BWorldSm_slices + 0x3d) >> 4 == 0);
+  return AITune_trackInfo[GameSetup_gData.track].oneWay;
 }
 
 /* ---- AITune_GetDriveSide__Fv  [@0x80072ec0] ---- */
 int AITune_GetDriveSide(void)
 {
-  if (D_80113228[0] < 0xc) {
-    return AITune_trackInfo[D_80113228[0]].driveSide;
+  if (0xb < GameSetup_gData.track) {
+    return 1;
   }
-  return 1;
+  return AITune_trackInfo[GameSetup_gData.track].driveSide;
 }
 
 /* ---- AITune_GetRoughLapTimes__Fv  [@0x80072f00] ---- */
 int AITune_GetRoughLapTimes(void)
 {
-  if (D_80113228[0] < 0xc) {
-    return AITune_trackInfo[D_80113228[0]].roughLapTimeSeconds;
+  if (0xb < GameSetup_gData.track) {
+    return 0xbe;
   }
-  return 0xbe;
+  return AITune_trackInfo[GameSetup_gData.track].roughLapTimeSeconds;
 }
 
 /* ---- AITune_StartUp1__Fv  [@0x80072f40] ---- */

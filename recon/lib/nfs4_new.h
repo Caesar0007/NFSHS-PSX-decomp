@@ -12,7 +12,12 @@
 #ifndef _NFS4_NEW_H_
 #define _NFS4_NEW_H_
 
-#if defined(__GNUC__) && __GNUC__ < 3
+#if defined(__psx__)
+/* decomp matching build (compile_cpp): -nostdinc, no <new>, and size_t is not yet
+   in scope (this header is included before nfs4_types.h). On R3000 size_t == unsigned
+   int; placement-new is inlined to `return p` so this signature never reaches codegen. */
+inline void *operator new(unsigned int, void *p) { return p; }
+#elif defined(__GNUC__) && __GNUC__ < 3
 #  include <sys/types.h>                       /* size_t */
 inline void *operator new(size_t, void *p) { return p; }
 #else

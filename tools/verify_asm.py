@@ -43,15 +43,31 @@ def norm_ins(t):
     return t
 
 def ours(fn):
-    out=[]; inb=False
+    # Collect the function's raw objdump lines (instructions + the reloc lines that
+    # objdump -r interleaves AFTER each relocated instruction).
+    lines=[]; inb=False
     for ln in dis.splitlines():
         m=re.match(r'^[0-9a-f]{8} <(.+)>:',ln)
         if m:
             if inb: break
             inb=(m.group(1)==fn); continue
-        if inb:
-            mm=re.match(r'^\s*[0-9a-f]+:\t[0-9a-f]+\s*\t(.*)',ln)
-            if mm: out.append(norm_ins(mm.group(1)))
+        if inb: lines.append(ln)
+    out=[]
+    for i,ln in enumerate(lines):
+        mm=re.match(r'^\s*[0-9a-f]+:\t[0-9a-f]+\s*\t(.*)',ln)
+        if not mm: continue
+        insn=mm.group(1)
+        # A R_MIPS_LO16 reloc on this instruction means the displacement/immediate is
+        # a relocation ADDEND (our object is UNLINKED). The oracle is LINKED + re-split
+        # by splat, which folds that addend into a per-address symbol -> `%lo(SYM)` which
+        # we already normalize to 0. So zero OUR addend too: `simGlobal+4` reloc (objdump
+        # `lw r,4(b)`) is byte-identical after link to the oracle's `lw r,%lo(D_…+4)(b)`.
+        # (Symmetric with the existing reloc-name leniency; HI16 already shows 0 in objdump.)
+        nxt = lines[i+1] if i+1 < len(lines) else ''
+        if 'R_MIPS_LO16' in nxt:
+            insn = re.sub(r',\s*-?(?:0x)?[0-9a-fA-F]+\(', ',0(', insn)   # lw rD,N(base) -> 0(base)
+            insn = re.sub(r',\s*-?(?:0x)?[0-9a-fA-F]+$', ',0', insn)     # addiu/ori rD,rS,N -> ,0
+        out.append(norm_ins(insn))
     return out
 
 def oracle(fn):

@@ -41,6 +41,11 @@ for m in sorted(ROOT.glob('recon/**/*.cpp')):
         if cur:
             ii=re.match(r'^\s*[0-9a-f]+:\t[0-9a-f]+\s*\t(.*)',ln)
             if ii: bodies[cur].append(norm(ii.group(1)))
+            elif 'R_MIPS_LO16' in ln and bodies[cur]:
+                # LO16-reloc addend = unlinked offset; oracle folds it into a per-address
+                # symbol (%lo->0). Zero ours -> byte-identical after link (fusion artifact).
+                l=re.sub(r',-?\d+\(', ',0(', bodies[cur][-1])
+                bodies[cur][-1]=re.sub(r',-?\d+$', ',0', l)
     rel=m.relative_to(ROOT).as_posix()
     for fn,ins in bodies.items():
         if fn not in omap: continue

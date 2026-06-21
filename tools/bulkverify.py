@@ -46,6 +46,12 @@ for m in mods:
         if cur:
             ii=re.match(r'^\s*[0-9a-f]+:\t[0-9a-f]+\s*\t(.*)',ln)
             if ii: bodies[cur].append(norm(ii.group(1)))
+            elif 'R_MIPS_LO16' in ln and bodies[cur]:
+                # LO16-reloc addend on the prev insn = unlinked offset; oracle folds it
+                # into a per-address symbol (%lo->0). Zero ours to match (byte-identical
+                # after link). Symmetric with the existing reloc-name leniency.
+                l=re.sub(r',-?\d+\(', ',0(', bodies[cur][-1])
+                bodies[cur][-1]=re.sub(r',-?\d+$', ',0', l)
     for fn,ins in bodies.items():
         if fn not in oracles: continue
         tot_fn+=1

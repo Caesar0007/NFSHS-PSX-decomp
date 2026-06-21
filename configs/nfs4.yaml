@@ -49,10 +49,22 @@ segments:
     # .sbss(0x164) + .bss(0xAC24), from 0x8013DD7C to 0x80148B03
     bss_size: 0xAD88
     subsegments:
-      # 0x80010000-0x8005797B: main .rdata (vtables + const tables) AND the
-      # front overlay share this VRAM zone. Dump as rodata for v1; the front
-      # overlay gets its own config later (like SH main.yaml + bodyprog.yaml).
+      # 0x80010000-0x800128F0: front overlay .rdata (vtables + const tables)
       - [0x000800, rodata, rdata_80010000]
+
+      # 0x800128F0-0x80051260: FRONT OVERLAY .text — integrated in nfs4-f.exe
+      # (user rule 2026-06-21). type `c` -> emits asm/nonmatchings/front/*.s;
+      # symbol_addrs already names the 520 front fns.
+      - [0x0030F0, c, front]
+
+      # 0x80051260-0x80052B38: front overlay .data
+      - [0x041A60, data, front_data]
+
+      # 0x80052B38-0x80054548: front overlay .bss zone (zero, file-backed)
+      - [0x043338, data, front_bss]
+
+      # 0x80054548-0x8005797C: zero-pad gap + ADDRESS.ASM .rdata blob
+      - [0x044D48, rodata, rdata_80054548]
 
       # 0x8005797C-0x8010CCD3: main .text — the bulk of the decomp work.
       # type `c` -> emits asm/main/*.s (nonmatchings) + expects src/main.c

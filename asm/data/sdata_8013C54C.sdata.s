@@ -411,7 +411,10 @@ enddlabel gMasterSFXLevel
 nonmatching gMasterEngineLevel
 
 dlabel gMasterEngineLevel
-    /* 12CE58 8013C658 7F000000 */ .word 0x0000007F
+    /* 12CE58 8013C658 */ .byte 0x7F
+    /* 12CE59 8013C659 */ .byte 0x00
+    /* 12CE5A 8013C65A */ .byte 0x00
+    /* 12CE5B 8013C65B */ .byte 0x00
 enddlabel gMasterEngineLevel
 
 nonmatching gMasterFENarrationLevel
@@ -1001,7 +1004,8 @@ enddlabel Cars_gNumCars
 nonmatching Cars_gNumRaceCars
 
 dlabel Cars_gNumRaceCars
-    /* 12CFF8 8013C7F8 00000000 */ .word 0x00000000
+    /* 12CFF8 8013C7F8 */ .short 0x0000
+    /* 12CFFA 8013C7FA */ .short 0x0000
 enddlabel Cars_gNumRaceCars
 
 nonmatching Cars_gNumAICars

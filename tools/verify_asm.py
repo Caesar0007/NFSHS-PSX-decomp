@@ -79,7 +79,9 @@ def oracle(fn):
     for ln in p.read_text().splitlines():
         ln = re.sub(r'/\*.*?\*/', '', ln)                     # strip /* addr hex */ comments
         s = ln.strip()
-        if not s or s.startswith(('.','glabel','nonmatching','endlabel','dlabel')) or s.startswith('.L') or s.endswith(':'):
+        if s.startswith('endlabel'):
+            break                                              # fn ends here; trailing align-nops/data are NOT the fn
+        if not s or s.startswith(('.','glabel','nonmatching','dlabel')) or s.startswith('.L') or s.endswith(':'):
             continue
         out.append(norm_ins(s))
     return out

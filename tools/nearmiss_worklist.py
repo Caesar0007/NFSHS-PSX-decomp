@@ -25,7 +25,8 @@ def oracle_ins(p):
     out=[]
     for ln in p.read_text().splitlines():
         ln=re.sub(r'/\*.*?\*/','',ln);s=ln.strip()
-        if not s or s.startswith(('.','glabel','nonmatching','endlabel','dlabel')) or s.startswith('.L') or s.endswith(':'):continue
+        if s.startswith('endlabel'): break
+        if not s or s.startswith(('.','glabel','nonmatching','dlabel')) or s.startswith('.L') or s.endswith(':'):continue
         out.append(norm(s))
     return out
 rows=[]

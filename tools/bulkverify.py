@@ -28,7 +28,8 @@ def oracle_ins(fn):
     p=(ASMDIR/(fn+'.s')) if (ASMDIR/(fn+'.s')).exists() else (ROOT/'asm'/'nonmatchings'/'front'/(fn+'.s'));out=[]
     for ln in p.read_text().splitlines():
         ln=re.sub(r'/\*.*?\*/','',ln);s=ln.strip()
-        if not s or s.startswith(('.','glabel','nonmatching','endlabel','dlabel')) or s.startswith('.L') or s.endswith(':'):continue
+        if s.startswith('endlabel'): break
+        if not s or s.startswith(('.','glabel','nonmatching','dlabel')) or s.startswith('.L') or s.endswith(':'):continue
         out.append(norm(s))
     return out
 mods=sorted((ROOT/sys.argv[1] if len(sys.argv)>1 else ROOT/'recon'/'game'/'common').glob('*.cpp'))

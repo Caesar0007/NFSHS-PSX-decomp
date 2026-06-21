@@ -63,13 +63,15 @@ void AudioTrk_StartUp(void)
   int i;
   AudioTrk_tAmbientChannel *pAVar1;
   int iVar2;
-  
+  int neg1;
+
   if (AudioTrk_g == (AudioTrk_tGlobals *)0x0) {
     AudioTrk_g = reservememadr("trck globals",0x100,0);
+    neg1 = -1;
     iVar2 = 0xf;
     pAVar1 = AudioTrk_g->chan + 0xf;
     do {
-      pAVar1->handle = -1;
+      pAVar1->handle = neg1;
       iVar2 = iVar2 + -1;
       pAVar1 = pAVar1 + -1;
     } while (-1 < iVar2);

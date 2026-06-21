@@ -1677,8 +1677,10 @@ void AudioCmn_PlayerHornOn(int carIndex,int Distsq,int iFreqIn,int azimuth,int d
     iSFXnum = 3;
     if (GameSetup_gData.commMode == 1) {
       iSFXnum = 10;
-      sndPlayer = 0x2a;
-      if (carIndex == 0) {
+      if (carIndex != 0) {
+        sndPlayer = 0x2a;
+      }
+      else {
         sndPlayer = 0x29;
       }
     }

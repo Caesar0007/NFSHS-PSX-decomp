@@ -1086,6 +1086,7 @@ void AudioCmn_UpdateThunder(void);
 void AudioClc_SoundCars(void)
 {
   int i, patch;
+  GameSetup_tData *gs;
 
   AudioClc_SoundSpeech();
   AudioCmn_UpdateThunder();
@@ -1095,12 +1096,14 @@ void AudioClc_SoundCars(void)
        (Cars_gNumHumanRaceCars == 2 && (Cars_gHumanRaceCarList[1]->carFlags & 0x200))) &&
       HudBustedOverlay != 0) {
     if (0 < GameSetup_gData.numPerps) {
-      for (i = 0; i < GameSetup_gData.numPerps; i++) {
+      i = 0;
+      do {
         patch = CopSpeak_GetEnginePatch(GameSetup_gData.perpInfo[i].CarType, 0);
         AudioCmn_GetAsyncSfx(1, patch, (void *)0);
         patch = CopSpeak_GetEnginePatch(GameSetup_gData.perpInfo[i].CarType, 1);
         AudioCmn_GetAsyncSfx(1, patch, (void *)0);
-      }
+        i++;
+      } while (i < GameSetup_gData.numPerps);
     }
   }
 

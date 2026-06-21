@@ -85,7 +85,7 @@ int tListIterator::Decrement(tPlayer arg1)
 {
   int iVar1;
   u_char *pbVar2;
-  
+
   pbVar2 = (u_char *)this->fValue;
   if (*pbVar2 == 0) {
     iVar1 = (int)this->fSelectionList[(u_char)*pbVar2 + 1];
@@ -188,7 +188,7 @@ int tListIteratorIndexed::Decrement(tPlayer arg1)
   int iVar2;
   char *pcVar3;
   u_char *pbVar4;
-  
+
   pbVar4 = (u_char *)this->fIndex;
   pcVar3 = (this->_base_tListIterator).fValue;
   uVar1 = (u_int)(u_char)pcVar3[*pbVar4];
@@ -395,16 +395,16 @@ void tListIteratorMultiPlayer::Decrement(tPlayer atIndex)
   }
   pcVar3 = (this->_base_tListIterator).fValue;
   cVar1 = pcVar3[atIndex];
-  if (cVar1 != '\0') {
-    pcVar3[atIndex] = cVar1 + -1;
+  if (cVar1 == '\0') {
+    sVar2 = (this->_base_tListIterator).fSelectionList[(u_char)pcVar3[atIndex] + 1];
+    while (0 < sVar2) {
+      pcVar3[atIndex] = pcVar3[atIndex] + '\x01';
+      pcVar3 = (this->_base_tListIterator).fValue;
+      sVar2 = (this->_base_tListIterator).fSelectionList[(u_char)pcVar3[atIndex] + 1];
+    }
     return;
   }
-  sVar2 = (this->_base_tListIterator).fSelectionList[1];
-  while (0 < sVar2) {
-    pcVar3[atIndex] = pcVar3[atIndex] + '\x01';
-    pcVar3 = (this->_base_tListIterator).fValue;
-    sVar2 = (this->_base_tListIterator).fSelectionList[(u_char)pcVar3[atIndex] + 1];
-  }
+  pcVar3[atIndex] = cVar1 - 1;
   return;
 }
 
@@ -463,7 +463,7 @@ int tListIteratorRange::Increment(tPlayer arg1)
   int iVar1;
   u_int uVar2;
   u_char *pbVar3;
-  
+
   pbVar3 = (u_char *)(this->_base_tListIterator).fValue;
   uVar2 = (u_char)(this->_base_tListIterator).fMaxValue;
   if ((u_int)*pbVar3 < uVar2) {
@@ -484,7 +484,7 @@ int tListIteratorRange::Decrement(tPlayer arg1)
   int iVar1;
   u_int uVar2;
   u_char *pbVar3;
-  
+
   pbVar3 = (u_char *)(this->_base_tListIterator).fValue;
   uVar2 = (u_char)(this->_base_tListIterator).fMinValue;
   if (uVar2 < (u_int)*pbVar3) {
@@ -538,7 +538,7 @@ int tListIteratorRangeIndexed::Increment(tPlayer arg1)
   int iVar1;
   u_int uVar2;
   u_char *pbVar3;
-  
+
   pbVar3 = (u_char *)((this->_base_tListIteratorRange)._base_tListIterator.fValue + (u_char)*this->fIndex);
   uVar2 = (u_int)*pbVar3;
   if (uVar2 < (u_char)(this->_base_tListIteratorRange)._base_tListIterator.fMaxValue) {
@@ -559,7 +559,7 @@ int tListIteratorRangeIndexed::Decrement(tPlayer arg1)
   int iVar1;
   u_int uVar2;
   u_char *pbVar3;
-  
+
   pbVar3 = (u_char *)((this->_base_tListIteratorRange)._base_tListIterator.fValue + (u_char)*this->fIndex);
   uVar2 = (u_int)*pbVar3;
   if ((u_char)(this->_base_tListIteratorRange)._base_tListIterator.fMinValue < uVar2) {
@@ -1401,20 +1401,19 @@ void tMenu::Draw()
   tMenuItem *ptVar1;
   __vtbl_ptr_type (*pa_Var2) [11];
   short item;
-  int iVar3;
-  
+
   if (-1 < this->fTitle) {
     FETextRender_Title(this->fTitle);
   }
-  iVar3 = 0;
+  item = 0;
   ptVar1 = this->fItemList[0];
   while (ptVar1 != (tMenuItem *)0x0) {
-    pa_Var2 = this->fItemList[(short)iVar3]->_vf;
+    pa_Var2 = this->fItemList[item]->_vf;
     (*(*pa_Var2)[4].pfn)
-              ((char *)this->fItemList[(short)iVar3] + (int)(*pa_Var2)[4].delta,
-               (int)(short)iVar3 == this->fCurrentItem);
-    iVar3 = iVar3 + 1;
-    ptVar1 = this->fItemList[(short)iVar3];
+              ((char *)this->fItemList[item] + (int)(*pa_Var2)[4].delta,
+               (int)item == this->fCurrentItem);
+    item = item + 1;
+    ptVar1 = this->fItemList[item];
   }
   return;
 }

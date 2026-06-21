@@ -5258,7 +5258,7 @@ struct tScreenCarSelect {   /* 928 bytes */
     void Initialize();
     int ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* returns menu-cmd value */
     void DrawVideoWall(short s);
-    void GetCar(tCarInfo &car);
+    int GetCar(tCarInfo &car);
     void SetBrightness(short a, short b);
     void UpdateBrightness(short s);
     void DrawBackground();
@@ -5293,7 +5293,7 @@ struct tScreenCarSelectTwoPlayer {   /* 1080 bytes */
     tDialogBackUpOnly  CarDialog;   /* +0x3A0 */
     /* --- reconstructed member fns (TwoPlayer) --- */
     ~tScreenCarSelectTwoPlayer();
-    void GetCar(tCarInfo &car);
+    int GetCar(tCarInfo &car);
     void DrawVideoWall(short s);
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
     void UpdateVideoWall(tCarInfo &car);
@@ -5315,7 +5315,7 @@ struct tScreenPinkSlipsCarSelect {   /* 1100 bytes */
     BOOL               fCardFailed, fExitingScreen;   /* +0x444 */
     /* --- reconstructed member fns (PinkSlips) --- */
     ~tScreenPinkSlipsCarSelect();
-    void GetCar(tCarInfo &car);
+    int GetCar(tCarInfo &car);
     void DrawBackground();
     void DoMemCardStuff();
     void DrawForeground();
@@ -5476,7 +5476,7 @@ struct tScreenCongrats {   /* 388 bytes */
     /* reconstructed member fns (non-virtual decls; ABI-neutral) */
     void Cleanup();
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
-    void GetCar(tCarInfo &car);
+    int GetCar(tCarInfo &car);
     void DrawBackground();
     void DrawForeground();
     void CalculatePrizes();
@@ -5490,7 +5490,7 @@ struct tScreenTournamentTrophy {   /* 392 bytes */
     short              fShapeCount;   /* +0x184 */
     char               fDoUpdate;   /* +0x186 */
     void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);
-    void GetCar(tCarInfo &car);
+    int GetCar(tCarInfo &car);
     void DrawCongratsMessage();
     void CalculatePrizes();
     ~tScreenTournamentTrophy();
@@ -5500,7 +5500,7 @@ struct tScreenPinkSlipCongrats {   /* 392 bytes */
     tScreenCongrats    _base_tScreenCongrats;   /* +0x0 */
     short              fWinner;   /* +0x184 */
     void DrawCongratsMessage();
-    void GetCar(tCarInfo &car);
+    int GetCar(tCarInfo &car);
     void CalculatePrizes();
     void Initialize();
     void Cleanup();
@@ -5509,7 +5509,7 @@ struct tScreenPinkSlipCongrats {   /* 392 bytes */
 
 struct tScreenBeTheCopCongrats {   /* 388 bytes */
     tScreenCongrats    _base_tScreenCongrats;   /* +0x0 */
-    void GetCar(tCarInfo &car);
+    int GetCar(tCarInfo &car);
     void CalculatePrizes();
     void DrawCongratsMessage();
     ~tScreenBeTheCopCongrats();
@@ -5517,7 +5517,7 @@ struct tScreenBeTheCopCongrats {   /* 388 bytes */
 
 struct tScreenTournamentCongrats {   /* 388 bytes */
     tScreenCongrats    _base_tScreenCongrats;   /* +0x0 */
-    void GetCar(tCarInfo &car);
+    int GetCar(tCarInfo &car);
     void CalculatePrizes();
     void DrawCongratsMessage();
     ~tScreenTournamentCongrats();

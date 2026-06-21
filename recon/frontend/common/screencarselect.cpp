@@ -819,7 +819,7 @@ void tScreenCarSelect::DrawVideoWall(short y)
 
 
 /* ---- tScreenCarSelect::GetCar  [SCREENCARSELECT.CPP:887-938] ---- */
-void tScreenCarSelect::GetCar(tCarInfo &carInfo)
+int tScreenCarSelect::GetCar(tCarInfo &carInfo)
 
 {
   uchar uVar1;
@@ -838,7 +838,7 @@ void tScreenCarSelect::GetCar(tCarInfo &carInfo)
   default:
     uVar3 = GetNumOwnedCars(&carManager, 0);
     if (((int)((uint)uVar3 << 0x10) < 1) && (frontEnd.raceType != '\x01')) {
-      return;
+      return 1;
     }
     if (((frontEnd.raceType == '\x02') && (this->fState != 3)) &&
        (uVar3 = GetNumTourneyCars(&carManager, 0), (int)((uint)uVar3 << 0x10) < 1)) {
@@ -1774,7 +1774,7 @@ void tScreenCarSelectDuel::DrawForeground()
 
 
 /* ---- tScreenCarSelectTwoPlayer::GetCar  [SCREENCARSELECT.CPP:1640-1664] ---- */
-void tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
+int tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
 
 {
   byte bVar1;
@@ -1797,7 +1797,7 @@ void tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
     }
     uVar2 = GetNumOwnedCars(&carManager, (short)uVar4);
     if ((int)((uint)uVar2 << 0x10) < 1) {
-      return;
+      return 1;
     }
     GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[player],carInfo,(short)uVar4);
     bVar1 = carInfo.fColor;
@@ -2245,7 +2245,7 @@ void tScreenCarSelectTwoPlayer::Cleanup()
 
 
 /* ---- tScreenPinkSlipsCarSelect::GetCar  [SCREENCARSELECT.CPP:1935-1945] ---- */
-void tScreenPinkSlipsCarSelect::GetCar(tCarInfo &carInfo)
+int tScreenPinkSlipsCarSelect::GetCar(tCarInfo &carInfo)
 
 {
   void *pv;
@@ -2262,7 +2262,7 @@ void tScreenPinkSlipsCarSelect::GetCar(tCarInfo &carInfo)
   else {
     pv = (void *)0x0;
   }
-  return;
+  return 1;
 }
 
 

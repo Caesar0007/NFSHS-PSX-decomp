@@ -307,18 +307,17 @@ int Newton_CalculateSliceYaw(int slice)
 {
   int z2;
   int x2;
-  int iVar1;
+  int nextSlice;
   int x1;
   int z1;
   int s;
-  
-  iVar1 = slice + 1;
-  if (gNumSlices <= iVar1) {
-    iVar1 = slice - (gNumSlices + -1);
+
+  nextSlice = slice + 1;
+  if (gNumSlices <= nextSlice) {
+    nextSlice = slice - (gNumSlices + -1);
   }
-  iVar1 = intatan(BWorldSm_slices[iVar1].center[0] - BWorldSm_slices[slice].center[0],
-                     BWorldSm_slices[iVar1].center[2] - BWorldSm_slices[slice].center[2]);
-  return iVar1;
+  return intatan(BWorldSm_slices[nextSlice].center[0] - BWorldSm_slices[slice].center[0],
+                     BWorldSm_slices[nextSlice].center[2] - BWorldSm_slices[slice].center[2]);
 }
 
 /* ---- Newton_UpdateRoadGeometry__FP13BO_tNewtonObj  [NEWTON.CPP:248-354] SLD-VERIFIED ---- */
@@ -1853,19 +1852,20 @@ extern "C" void Newton_QDUpdateVel__FP13BO_tNewtonObj(int newtonObj)
   int iVar3;
   
   if (*(char *)(newtonObj + 0x91) != '\0') {
-    if ((GameSetup_gData.sgge & 4U) == 0) {
+    if ((GameSetup_gData.sgge & 4U) != 0) {
+      t1 = *(int *)(newtonObj + 0xac) >> 6;
+      t2 = *(int *)(newtonObj + 0xb0) >> 6;
+      t3 = *(int *)(newtonObj + 0xb4) >> 6;
+      iVar1 = fixedmult(t1,0xcccc);
+      iVar2 = fixedmult(t3,0xcccc);
+      *(int *)(newtonObj + 0xa0) = *(int *)(newtonObj + 0xa0) + iVar1;
+      *(int *)(newtonObj + 0xa4) = *(int *)(newtonObj + 0xa4) + t2;
+      *(int *)(newtonObj + 0xa8) = *(int *)(newtonObj + 0xa8) + iVar2;
+    }
+    else {
       *(int *)(newtonObj + 0xa0) = *(int *)(newtonObj + 0xa0) + (*(int *)(newtonObj + 0xac) >> 6);
       *(int *)(newtonObj + 0xa4) = *(int *)(newtonObj + 0xa4) + (*(int *)(newtonObj + 0xb0) >> 6);
       *(int *)(newtonObj + 0xa8) = *(int *)(newtonObj + 0xa8) + (*(int *)(newtonObj + 0xb4) >> 6);
-    }
-    else {
-      iVar3 = *(int *)(newtonObj + 0xb0);
-      iVar2 = *(int *)(newtonObj + 0xb4);
-      iVar1 = fixedmult(*(int *)(newtonObj + 0xac) >> 6,0xcccc);
-      iVar2 = fixedmult(iVar2 >> 6,0xcccc);
-      *(int *)(newtonObj + 0xa0) = *(int *)(newtonObj + 0xa0) + iVar1;
-      *(int *)(newtonObj + 0xa8) = *(int *)(newtonObj + 0xa8) + iVar2;
-      *(int *)(newtonObj + 0xa4) = *(int *)(newtonObj + 0xa4) + (iVar3 >> 6);
     }
   }
   return;
@@ -1961,39 +1961,35 @@ extern "C" bool Newton_OptzRotxform__FP10matrixtdefiiiPiiT4(int *m,int ax,int ay
 extern "C" void Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj(int newtonObj)
 
 {
-  matrixtdef m;
-  int reOrthoNeeded;
-  coorddef angularVel;
   char cVar1;
   int iVar2;
+  int iVar3;
   matrixtdef *m1;
   matrixtdef mStack_50;
-  int iStack_28;
-  int iStack_24;
-  int iStack_20;
+  coorddef angularVel;
   int aiStack_18 [2];
-  
+
   if (*(char *)(newtonObj + 0x91) != '\0') {
-    iStack_28 = *(int *)(newtonObj + 0x114);
-    if (iStack_28 < 0) {
-      iStack_28 = iStack_28 + 0x3f;
+    iVar3 = *(int *)(newtonObj + 0x114);
+    if (iVar3 < 0) {
+      iVar3 = iVar3 + 0x3f;
     }
-    iStack_28 = iStack_28 >> 6;
-    iStack_24 = *(int *)(newtonObj + 0x118);
-    if (iStack_24 < 0) {
-      iStack_24 = iStack_24 + 0x3f;
+    angularVel.x = iVar3 >> 6;
+    iVar3 = *(int *)(newtonObj + 0x118);
+    if (iVar3 < 0) {
+      iVar3 = iVar3 + 0x3f;
     }
-    iStack_24 = iStack_24 >> 6;
-    iStack_20 = *(int *)(newtonObj + 0x11c);
-    if (iStack_20 < 0) {
-      iStack_20 = iStack_20 + 0x3f;
+    angularVel.y = iVar3 >> 6;
+    iVar3 = *(int *)(newtonObj + 0x11c);
+    if (iVar3 < 0) {
+      iVar3 = iVar3 + 0x3f;
     }
-    iStack_20 = iStack_20 >> 6;
-    iVar2 = Newton_OptzRotxform__FP10matrixtdefiiiPiiT4((int *)&mStack_50,iStack_28,iStack_24,iStack_20,aiStack_18,0x1000,newtonObj + 0x98);
+    angularVel.z = iVar3 >> 6;
+    iVar2 = Newton_OptzRotxform__FP10matrixtdefiiiPiiT4((int *)&mStack_50,angularVel.x,angularVel.y,angularVel.z,aiStack_18,0x1000,newtonObj + 0x98);
     m1 = (matrixtdef *)(newtonObj + 0xf0);
     if (iVar2 != 0) {
       Math_fasttransmult(m1,&mStack_50,m1);
-      cVar1 = *(char *)(newtonObj + 0x92) + -1;
+      cVar1 = *(char *)(newtonObj + 0x92) - 1;
       *(char *)(newtonObj + 0x92) = cVar1;
       if ((cVar1 == '\0') || (aiStack_18[0] != 0)) {
         reorthogonalize(m1);
@@ -2009,43 +2005,40 @@ extern "C" void Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj(int newtonObj)
 extern "C" void Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj(int newtonObj)
 
 {
-  matrixtdef m;
-  int reOrthoNeeded;
+  matrixtdef mStack_50;
   coorddef angularVel;
+  int aiStack_18 [2];
   char cVar1;
   int iVar2;
+  int iVar3;
   matrixtdef *m1;
-  matrixtdef mStack_50;
-  int iStack_28;
-  int iStack_24;
-  int iStack_20;
-  int aiStack_18 [2];
-  
+
   if ((*(char *)(newtonObj + 0x91) != '\0') && (*(char *)(newtonObj + 0x90) == '\0')) {
-    iStack_28 = *(int *)(newtonObj + 0x114);
-    if (iStack_28 < 0) {
-      iStack_28 = iStack_28 + 0xf;
+    iVar3 = *(int *)(newtonObj + 0x114);
+    if (iVar3 < 0) {
+      iVar3 = iVar3 + 0xf;
     }
-    iStack_28 = iStack_28 >> 4;
-    iStack_24 = *(int *)(newtonObj + 0x118);
-    if (iStack_24 < 0) {
-      iStack_24 = iStack_24 + 0xf;
+    angularVel.x = iVar3 >> 4;
+    iVar3 = *(int *)(newtonObj + 0x118);
+    if (iVar3 < 0) {
+      iVar3 = iVar3 + 0xf;
     }
-    iStack_24 = iStack_24 >> 4;
-    iStack_20 = *(int *)(newtonObj + 0x11c);
-    if (iStack_20 < 0) {
-      iStack_20 = iStack_20 + 0xf;
+    angularVel.y = iVar3 >> 4;
+    iVar3 = *(int *)(newtonObj + 0x11c);
+    if (iVar3 < 0) {
+      iVar3 = iVar3 + 0xf;
     }
-    iStack_20 = iStack_20 >> 4;
-    iVar2 = Newton_OptzRotxform__FP10matrixtdefiiiPiiT4((int *)&mStack_50,iStack_28,iStack_24,iStack_20,aiStack_18,0x2000,newtonObj + 0x98);
+    angularVel.z = iVar3 >> 4;
+    iVar2 = Newton_OptzRotxform__FP10matrixtdefiiiPiiT4((int *)&mStack_50,angularVel.x,angularVel.y,angularVel.z,aiStack_18,0x2000,newtonObj + 0x98);
     m1 = (matrixtdef *)(newtonObj + 0xf0);
-    if ((iVar2 != 0) &&
-       ((Math_fasttransmult(m1,&mStack_50,m1), aiStack_18[0] != 0 ||
-        (cVar1 = *(char *)(newtonObj + 0x92) + -1, *(char *)(newtonObj + 0x92) = cVar1, cVar1 == '\0')))
-       ) {
-      reorthogonalize(m1);
-      *(u_char *)(newtonObj + 0x92) = 0x40;
-      *(u_int *)(newtonObj + 0x98) = 0;
+    if (iVar2 != 0) {
+      Math_fasttransmult(m1,&mStack_50,m1);
+      if ((aiStack_18[0] != 0) ||
+         (cVar1 = *(char *)(newtonObj + 0x92) - 1, *(char *)(newtonObj + 0x92) = cVar1, cVar1 == '\0')) {
+        reorthogonalize(m1);
+        *(u_char *)(newtonObj + 0x92) = 0x40;
+        *(u_int *)(newtonObj + 0x98) = 0;
+      }
     }
   }
   return;
@@ -2279,7 +2272,7 @@ extern "C" void Newton_CheckForSpikeBelts__FP13BO_tNewtonObj(int newtonObj)
   int rightLatPos;
   int latPos;
   int iVar1;
-  
+
   if (AICop_spikeBelt.active_ != 0) {
     if ((((AICop_spikeBelt.active_ != 0) && (*(short *)(newtonObj + 8) == AICop_spikeBelt.slice_)) &&
         ((*(u_int *)(newtonObj + 0x260) & 0x230) == 0)) &&
@@ -2428,10 +2421,12 @@ Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(int newtonObj,int test
   int height;
   u_int uVar1;
   
+  int *quad;
+
   uVar1 = 0;
   if (((*(u_char **)(testSimRoadInfo + 0x78) != (u_char *)0x0) && ((**(u_char **)(testSimRoadInfo + 0x78) & 0xf) == 0)) ||
-     (newtonObj = newtonObj + wheel * 0x30,
-     0x20000 < *(int *)(newtonObj + 0x2a4) - *(int *)(newtonObj + 0x290))) {
+     (quad = (int *)(newtonObj + wheel * 0x30),
+      0x20000 < quad[0xa9] - quad[0xa4])) {
     uVar1 = 1;
   }
   return uVar1;

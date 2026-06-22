@@ -334,34 +334,6 @@ INCLUDE_ASM("asm/nonmatchings/main", __14tPauseMenuDefs);
 
 INCLUDE_ASM("asm/nonmatchings/main", ___14tPauseMenuDefs);
 
-INCLUDE_ASM("asm/nonmatchings/main", Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coorddef);
-
-INCLUDE_ASM("asm/nonmatchings/main", Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii);
-
-INCLUDE_ASM("asm/nonmatchings/main", Newton_QDUpdateVel__FP13BO_tNewtonObj);
-
-INCLUDE_ASM("asm/nonmatchings/main", Newton_OptzRotxform__FP10matrixtdefiiiPiiT4);
-
-INCLUDE_ASM("asm/nonmatchings/main", Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj);
-
-INCLUDE_ASM("asm/nonmatchings/main", Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj);
-
-INCLUDE_ASM("asm/nonmatchings/main", Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi);
-
-INCLUDE_ASM("asm/nonmatchings/main", Newton_CalcRealShadowCoordinates__FP8Car_tObji);
-
-INCLUDE_ASM("asm/nonmatchings/main", Newton_CheckForSpikeBelts__FP13BO_tNewtonObj);
-
-INCLUDE_ASM("asm/nonmatchings/main", Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef);
-
-INCLUDE_ASM("asm/nonmatchings/main", Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos);
-
-INCLUDE_ASM("asm/nonmatchings/main", Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi);
-
-INCLUDE_ASM("asm/nonmatchings/main", Newton_LimitAngularVelocity__FP13BO_tNewtonObj);
-
-INCLUDE_ASM("asm/nonmatchings/main", Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj);
-
 INCLUDE_ASM("asm/nonmatchings/main", func_800A3F08);
 
 int Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei(void *a, void *b, int c) { return 2; }

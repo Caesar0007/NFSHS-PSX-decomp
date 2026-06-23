@@ -825,3 +825,10 @@ AIHigh_BasicPerp::AIHigh_BasicPerp(Car_tObj *carObj)
 
 
 /* end of aih_basicperp.cpp */
+
+/* cont.35 B3b: base-forward dtor re-attributed from main.c (§3.23 simple variant);
+   oracle = jal ___11AIHigh_Base; extern-C free fn exports the exact symbol. */
+extern "C" {
+void ___11AIHigh_Base(void *);
+void ___16AIHigh_BasicPerp(void *thisp) { ___11AIHigh_Base(thisp); }
+}

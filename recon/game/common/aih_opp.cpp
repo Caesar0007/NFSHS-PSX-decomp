@@ -585,3 +585,10 @@ int AIHigh_Opponent::DoProvokedAttack()
 
 
 /* end of aih_opp.cpp */
+
+/* cont.35 B3b: base-forward dtor re-attributed from main.c (§3.23 simple variant);
+   oracle = jal ___11AIHigh_Base; extern-C free fn exports the exact symbol. */
+extern "C" {
+void ___11AIHigh_Base(void *);
+void ___15AIHigh_Opponent(void *thisp) { ___11AIHigh_Base(thisp); }
+}

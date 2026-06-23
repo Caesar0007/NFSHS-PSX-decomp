@@ -2125,3 +2125,10 @@ LAB_80065c28:
 
 
 /* end of aih_cop.cpp */
+
+/* cont.35 B3b: base-forward dtor re-attributed from main.c (§3.23 simple variant);
+   oracle = jal ___11AIHigh_Base; extern-C free fn exports the exact symbol. */
+extern "C" {
+void ___11AIHigh_Base(void *);
+void ___10AIHigh_Cop(void *thisp) { ___11AIHigh_Base(thisp); }
+}

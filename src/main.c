@@ -23,8 +23,6 @@ int func_8005B4C4(void) {
 }
 INCLUDE_ASM("asm/nonmatchings/main", func_8005B4CC);
 
-INCLUDE_ASM("asm/nonmatchings/main", ___16AIHigh_BasicPerp);
-
 INCLUDE_ASM("asm/nonmatchings/main", func_8005C414);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_8005C468);
@@ -57,19 +55,11 @@ INCLUDE_ASM("asm/nonmatchings/main", func_800613CC);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80063248);
 
-INCLUDE_ASM("asm/nonmatchings/main", ___15AIHigh_Opponent);
-
-INCLUDE_ASM("asm/nonmatchings/main", ___10AIHigh_Cop);
-
-INCLUDE_ASM("asm/nonmatchings/main", ___14AIHigh_Traffic);
-
 void AILife_Debug__FPce(char *fmt, ...) {
 }
 INCLUDE_ASM("asm/nonmatchings/main", AIPerson_LoadGridAndSetPersonalityIndexes__Fv);
 
 INCLUDE_ASM("asm/nonmatchings/main", __14AIDataRecord_t26AIDataRecord_WhichRecord_tPc);
-
-INCLUDE_ASM("asm/nonmatchings/main", ___14AIDataRecord_t);
 
 int func_8006D50C(void) {
     return 0;
@@ -81,8 +71,6 @@ INCLUDE_ASM("asm/nonmatchings/main", func_8006D534);
 INCLUDE_ASM("asm/nonmatchings/main", func_8006D554);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_8006D574);
-
-INCLUDE_ASM("asm/nonmatchings/main", ___23AIDataRecord_AccTable_t);
 
 void AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails(void *p, void *arr) {
     *(void **)((char *)p + 0x1C) = arr;

@@ -903,3 +903,10 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 
 
 /* end of aistate.cpp */
+
+/* cont.35 B3b: base-forward dtor re-attributed from main.c (§3.23 simple variant);
+   oracle = jal ___11AIHigh_Base; extern-C free fn exports the exact symbol. */
+extern "C" {
+void ___11AIHigh_Base(void *);
+void ___14AIHigh_Traffic(void *thisp) { ___11AIHigh_Base(thisp); }
+}

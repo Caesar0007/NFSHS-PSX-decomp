@@ -25,14 +25,14 @@ int          gCarActivation[6][5] = { 25, 25, 25, 25, 25, 24, 24, 24, 24, 24, 26
 tGlobalMenuDefs *menuDefs;   /* @0x80051a58  (bss(zero)) */
 
 
-/* ---- MenuExtended_SetOnePlayer  [FEMENUDEFS.CPP:145-153] ---- */
+/* ---- MenuExtended_SetOnePlayer__FR12tMenuCommand  [FEMENUDEFS.CPP:145-153] ---- */
 
-/* Decoded Phase 83: MenuExtended_SetOnePlayer(tMenuCommand&) - set numPlayers=1 (76 B)
+/* Decoded Phase 83: MenuExtended_SetOnePlayer__FR12tMenuCommand(tMenuCommand&) - set numPlayers=1 (76 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_SetOnePlayer(tMenuCommand *command)
+extern "C" void MenuExtended_SetOnePlayer__FR12tMenuCommand(tMenuCommand *command)
 
 {
   if (FEApp->fInputPlayer == '\x01') {
@@ -47,15 +47,15 @@ void MenuExtended_SetOnePlayer(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_SetTwoPlayer  [FEMENUDEFS.CPP:158-167] ---- */
+/* ---- MenuExtended_SetTwoPlayer__FR12tMenuCommand  [FEMENUDEFS.CPP:158-167] ---- */
 
-/* Decoded Phase 83: MenuExtended_SetTwoPlayer(tMenuCommand&) - set numPlayers=2 (split-screen) (80
+/* Decoded Phase 83: MenuExtended_SetTwoPlayer__FR12tMenuCommand(tMenuCommand&) - set numPlayers=2 (split-screen) (80
    B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_SetTwoPlayer(tMenuCommand *command)
+extern "C" void MenuExtended_SetTwoPlayer__FR12tMenuCommand(tMenuCommand *command)
 
 {
   if (gPadinfo.buf[4].nopad == '\0') {
@@ -71,9 +71,9 @@ void MenuExtended_SetTwoPlayer(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_SetTestDrive  [FEMENUDEFS.CPP:172-176] ---- */
+/* ---- MenuExtended_SetTestDrive__FR12tMenuCommand  [FEMENUDEFS.CPP:172-176] ---- */
 
-/* Decoded Phase 83: MenuExtended_SetTestDrive(tMenuCommand&) - set mode=TestDrive (free-roam, no
+/* Decoded Phase 83: MenuExtended_SetTestDrive__FR12tMenuCommand(tMenuCommand&) - set mode=TestDrive (free-roam, no
    race) (28 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
@@ -82,11 +82,11 @@ void MenuExtended_SetTwoPlayer(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetTestDrive(int
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetTestDrive__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetTestDrive(tMenuCommand *command)
+extern "C" void MenuExtended_SetTestDrive__FR12tMenuCommand(tMenuCommand *command)
 
 {
   frontEnd.carListType = '\0';
@@ -98,9 +98,9 @@ void MenuExtended_SetTestDrive(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_SetSingleRace  [FEMENUDEFS.CPP:180-184] ---- */
+/* ---- MenuExtended_SetSingleRace__FR12tMenuCommand  [FEMENUDEFS.CPP:180-184] ---- */
 
-/* Decoded Phase 83: MenuExtended_SetSingleRace(tMenuCommand&) - set raceType=SingleRace (64 B)
+/* Decoded Phase 83: MenuExtended_SetSingleRace__FR12tMenuCommand(tMenuCommand&) - set raceType=SingleRace (64 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text
@@ -108,11 +108,11 @@ void MenuExtended_SetTestDrive(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetSingleRace(int
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetSingleRace__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetSingleRace(tMenuCommand *command)
+extern "C" void MenuExtended_SetSingleRace__FR12tMenuCommand(tMenuCommand *command)
 
 {
   frontEnd.carListType = '\x01';
@@ -124,9 +124,9 @@ void MenuExtended_SetSingleRace(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_SetTournament  [FEMENUDEFS.CPP:195-200] ---- */
+/* ---- MenuExtended_SetTournament__FR12tMenuCommand  [FEMENUDEFS.CPP:195-200] ---- */
 
-/* Decoded Phase 83: MenuExtended_SetTournament(tMenuCommand&) - set raceType=Tournament (72 B)
+/* Decoded Phase 83: MenuExtended_SetTournament__FR12tMenuCommand(tMenuCommand&) - set raceType=Tournament (72 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text
@@ -134,11 +134,11 @@ void MenuExtended_SetSingleRace(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetTournament(int
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetTournament__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetTournament(tMenuCommand *command)
+extern "C" void MenuExtended_SetTournament__FR12tMenuCommand(tMenuCommand *command)
 
 {
   frontEnd.carListType = '\x01';
@@ -151,9 +151,9 @@ void MenuExtended_SetTournament(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_SetSpecialEvent  [FEMENUDEFS.CPP:204-209] ---- */
+/* ---- MenuExtended_SetSpecialEvent__FR12tMenuCommand  [FEMENUDEFS.CPP:204-209] ---- */
 
-/* Decoded Phase 83: MenuExtended_SetSpecialEvent(tMenuCommand&) - set raceType=SpecialEvent (72 B)
+/* Decoded Phase 83: MenuExtended_SetSpecialEvent__FR12tMenuCommand(tMenuCommand&) - set raceType=SpecialEvent (72 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text
@@ -161,11 +161,11 @@ void MenuExtended_SetTournament(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetSpecialEvent(int
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetSpecialEvent__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetSpecialEvent(tMenuCommand *command)
+extern "C" void MenuExtended_SetSpecialEvent__FR12tMenuCommand(tMenuCommand *command)
 
 {
   frontEnd.carListType = '\x01';
@@ -178,9 +178,9 @@ void MenuExtended_SetSpecialEvent(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_SetSoloRace  [FEMENUDEFS.CPP:213-217] ---- */
+/* ---- MenuExtended_SetSoloRace__FR12tMenuCommand  [FEMENUDEFS.CPP:213-217] ---- */
 
-/* Decoded Phase 83: MenuExtended_SetSoloRace(tMenuCommand&) - set raceType=Solo (no opponents) (32
+/* Decoded Phase 83: MenuExtended_SetSoloRace__FR12tMenuCommand(tMenuCommand&) - set raceType=Solo (no opponents) (32
    B)
    
    [ghidra-meta] section: front.text
@@ -188,11 +188,11 @@ void MenuExtended_SetSpecialEvent(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name + (body or
    100%-caller-consensus) agree. Generic param names; types int/void* default - refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetSoloRace(int
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetSoloRace__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetSoloRace(tMenuCommand *command)
+extern "C" void MenuExtended_SetSoloRace__FR12tMenuCommand(tMenuCommand *command)
 
 {
   frontEnd.pinkSlipsTrackIndex = '\0';
@@ -204,14 +204,14 @@ void MenuExtended_SetSoloRace(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_GoToTwoPlayerSingleRace  [FEMENUDEFS.CPP:221-245] ---- */
+/* ---- MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand  [FEMENUDEFS.CPP:221-245] ---- */
 
-/* Decoded Phase 83: MenuExtended_GoToTwoPlayerSingleRace(tMenuCommand&) - enter 2P single-race flow(276 B)
+/* Decoded Phase 83: MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand(tMenuCommand&) - enter 2P single-race flow(276 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_GoToTwoPlayerSingleRace(tMenuCommand *command)
+extern "C" void MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tGlobalMenuDefs *ptVar1;
@@ -243,7 +243,7 @@ void MenuExtended_GoToTwoPlayerSingleRace(tMenuCommand *command)
     }
   }
   else {
-    MenuExtended_SetSoloRace(command);
+    MenuExtended_SetSoloRace__FR12tMenuCommand(command);
     ptVar1 = menuDefs;
     command->type = kMenu_Command_GoToMenu;
     command->nextMenu = (tMenu *)&(ptVar1->menuSingleTrackSelect)._base_tMenu;
@@ -254,9 +254,9 @@ void MenuExtended_GoToTwoPlayerSingleRace(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_SetDuelRace  [FEMENUDEFS.CPP:247-251] ---- */
+/* ---- MenuExtended_SetDuelRace__FR12tMenuCommand  [FEMENUDEFS.CPP:247-251] ---- */
 
-/* Decoded Phase 83: MenuExtended_SetDuelRace(tMenuCommand&) - set raceType=Duel (1v1) (64 B)
+/* Decoded Phase 83: MenuExtended_SetDuelRace__FR12tMenuCommand(tMenuCommand&) - set raceType=Duel (1v1) (64 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text
@@ -264,11 +264,11 @@ void MenuExtended_GoToTwoPlayerSingleRace(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetDuelRace(int
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetDuelRace__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetDuelRace(tMenuCommand *command)
+extern "C" void MenuExtended_SetDuelRace__FR12tMenuCommand(tMenuCommand *command)
 
 {
   frontEnd.pinkSlipsTrackIndex = '\0';
@@ -280,9 +280,9 @@ void MenuExtended_SetDuelRace(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_SetFullGrid  [FEMENUDEFS.CPP:255-259] ---- */
+/* ---- MenuExtended_SetFullGrid__FR12tMenuCommand  [FEMENUDEFS.CPP:255-259] ---- */
 
-/* Decoded Phase 83: MenuExtended_SetFullGrid(tMenuCommand&) - set grid size to maximum opponents(64 B)
+/* Decoded Phase 83: MenuExtended_SetFullGrid__FR12tMenuCommand(tMenuCommand&) - set grid size to maximum opponents(64 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text
@@ -290,11 +290,11 @@ void MenuExtended_SetDuelRace(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetFullGrid(int
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetFullGrid__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetFullGrid(tMenuCommand *command)
+extern "C" void MenuExtended_SetFullGrid__FR12tMenuCommand(tMenuCommand *command)
 
 {
   frontEnd.pinkSlipsTrackIndex = '\0';
@@ -349,14 +349,14 @@ int AskTheUserToSaveTheGame(void)
 
 
 
-/* ---- MenuExtended_TransitionFromPostGameToMainMenu  [FEMENUDEFS.CPP:295-297] ---- */
+/* ---- MenuExtended_TransitionFromPostGameToMainMenu__FR12tMenuCommand  [FEMENUDEFS.CPP:295-297] ---- */
 
-/* Decoded Phase 83: MenuExtended_TransitionFromPostGameToMainMenu(tMenuCommand&) - return to main
+/* Decoded Phase 83: MenuExtended_TransitionFromPostGameToMainMenu__FR12tMenuCommand(tMenuCommand&) - return to main
    menu without saving (28 B)
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_TransitionFromPostGameToMainMenu(tMenuCommand *command)
+extern "C" void MenuExtended_TransitionFromPostGameToMainMenu__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tGlobalMenuDefs *ptVar1;
@@ -369,15 +369,15 @@ void MenuExtended_TransitionFromPostGameToMainMenu(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame  [FEMENUDEFS.CPP:301-308] ---- */
+/* ---- MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame__FR12tMenuCommand  [FEMENUDEFS.CPP:301-308] ---- */
 
-/* Decoded Phase 83: MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame(tMenuCommand&) -
+/* Decoded Phase 83: MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame__FR12tMenuCommand(tMenuCommand&) -
    auto-save then return to main menu (76 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame(tMenuCommand *command)
+extern "C" void MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tGlobalMenuDefs *ptVar1;
@@ -386,7 +386,7 @@ void MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame(tMenuCommand *comm
   iVar2 = AskTheUserToSaveTheGame();
   ptVar1 = menuDefs;
   if (iVar2 == 0) {
-    MenuExtended_TransitionFromPostGameToMainMenu(command);
+    MenuExtended_TransitionFromPostGameToMainMenu__FR12tMenuCommand(command);
   }
   else {
     command->type = kMenu_Command_GoToMenuOneWay;
@@ -397,15 +397,15 @@ void MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame(tMenuCommand *comm
 
 
 
-/* ---- MenuExtended_GoToCarSelect  [FEMENUDEFS.CPP:313-420] ---- */
+/* ---- MenuExtended_GoToCarSelect__FR12tMenuCommand  [FEMENUDEFS.CPP:313-420] ---- */
 
-/* Decoded Phase 83: MenuExtended_GoToCarSelect(tMenuCommand&) - transition to car-select screen;
+/* Decoded Phase 83: MenuExtended_GoToCarSelect__FR12tMenuCommand(tMenuCommand&) - transition to car-select screen;
    sets up garage car list (916 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_GoToCarSelect(tMenuCommand *command)
+extern "C" void MenuExtended_GoToCarSelect__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tFEApplication *ptVar1;
@@ -703,15 +703,15 @@ void * PinkSlipsPreSave(void)
 
 
 
-/* ---- MenuExtended_GoToBestOfOne  [FEMENUDEFS.CPP:508-519] ---- */
+/* ---- MenuExtended_GoToBestOfOne__FR12tMenuCommand  [FEMENUDEFS.CPP:508-519] ---- */
 
-/* Decoded Phase 83: MenuExtended_GoToBestOfOne(tMenuCommand&) - set tournament length to best-of-1
+/* Decoded Phase 83: MenuExtended_GoToBestOfOne__FR12tMenuCommand(tMenuCommand&) - set tournament length to best-of-1
    (92 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_GoToBestOfOne(tMenuCommand *command)
+extern "C" void MenuExtended_GoToBestOfOne__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tGlobalMenuDefs *ptVar1;
@@ -733,15 +733,15 @@ void MenuExtended_GoToBestOfOne(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_GoToBestOfThree  [FEMENUDEFS.CPP:523-533] ---- */
+/* ---- MenuExtended_GoToBestOfThree__FR12tMenuCommand  [FEMENUDEFS.CPP:523-533] ---- */
 
-/* Decoded Phase 83: MenuExtended_GoToBestOfThree(tMenuCommand&) - set tournament length to
+/* Decoded Phase 83: MenuExtended_GoToBestOfThree__FR12tMenuCommand(tMenuCommand&) - set tournament length to
    best-of-3 (92 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_GoToBestOfThree(tMenuCommand *command)
+extern "C" void MenuExtended_GoToBestOfThree__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tGlobalMenuDefs *ptVar1;
@@ -763,15 +763,15 @@ void MenuExtended_GoToBestOfThree(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_GoToBestOfFive  [FEMENUDEFS.CPP:537-547] ---- */
+/* ---- MenuExtended_GoToBestOfFive__FR12tMenuCommand  [FEMENUDEFS.CPP:537-547] ---- */
 
-/* Decoded Phase 83: MenuExtended_GoToBestOfFive(tMenuCommand&) - set tournament length to best-of-5
+/* Decoded Phase 83: MenuExtended_GoToBestOfFive__FR12tMenuCommand(tMenuCommand&) - set tournament length to best-of-5
    (92 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_GoToBestOfFive(tMenuCommand *command)
+extern "C" void MenuExtended_GoToBestOfFive__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tGlobalMenuDefs *ptVar1;
@@ -793,14 +793,14 @@ void MenuExtended_GoToBestOfFive(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_GoToRace  [FEMENUDEFS.CPP:551-607] ---- */
+/* ---- MenuExtended_GoToRace__FR12tMenuCommand  [FEMENUDEFS.CPP:551-607] ---- */
 
-/* Decoded Phase 83: MenuExtended_GoToRace(tMenuCommand&) - commit settings and transition into race(calls Front_BuildStream) (348 B)
+/* Decoded Phase 83: MenuExtended_GoToRace__FR12tMenuCommand(tMenuCommand&) - commit settings and transition into race(calls Front_BuildStream) (348 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_GoToRace(tMenuCommand *command)
+extern "C" void MenuExtended_GoToRace__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tFEApplication *ptVar1;
@@ -845,15 +845,15 @@ void MenuExtended_GoToRace(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_GoTo2PlayerRace  [FEMENUDEFS.CPP:610-655] ---- */
+/* ---- MenuExtended_GoTo2PlayerRace__FR12tMenuCommand  [FEMENUDEFS.CPP:610-655] ---- */
 
-/* Decoded Phase 83: MenuExtended_GoTo2PlayerRace(tMenuCommand&) - enter 2-player split-screen race
+/* Decoded Phase 83: MenuExtended_GoTo2PlayerRace__FR12tMenuCommand(tMenuCommand&) - enter 2-player split-screen race
    setup flow (332 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_GoTo2PlayerRace(tMenuCommand *command)
+extern "C" void MenuExtended_GoTo2PlayerRace__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tFEApplication *ptVar1;
@@ -897,15 +897,15 @@ void MenuExtended_GoTo2PlayerRace(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_GoToTournTrackInfo  [FEMENUDEFS.CPP:658-693] ---- */
+/* ---- MenuExtended_GoToTournTrackInfo__FR12tMenuCommand  [FEMENUDEFS.CPP:658-693] ---- */
 
-/* Decoded Phase 83: MenuExtended_GoToTournTrackInfo(tMenuCommand&) - transition to tournament-round
+/* Decoded Phase 83: MenuExtended_GoToTournTrackInfo__FR12tMenuCommand(tMenuCommand&) - transition to tournament-round
    track info screen (360 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_GoToTournTrackInfo(tMenuCommand *command)
+extern "C" void MenuExtended_GoToTournTrackInfo__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tFEApplication *ptVar1;
@@ -959,15 +959,15 @@ void MenuExtended_GoToTournTrackInfo(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_GoToSpecialEventTrackInfo  [FEMENUDEFS.CPP:696-731] ---- */
+/* ---- MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand  [FEMENUDEFS.CPP:696-731] ---- */
 
-/* Decoded Phase 83: MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand&) - transition to
+/* Decoded Phase 83: MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCommand&) - transition to
    special-event track info screen (364 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand *command)
+extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tFEApplication *ptVar1;
@@ -1021,15 +1021,15 @@ void MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_EnterUserName  [FEMENUDEFS.CPP:734-739] ---- */
+/* ---- MenuExtended_EnterUserName__FR12tMenuCommand  [FEMENUDEFS.CPP:734-739] ---- */
 
-/* Decoded Phase 83: MenuExtended_EnterUserName(tMenuCommand&) - prompt user-name entry (initial
+/* Decoded Phase 83: MenuExtended_EnterUserName__FR12tMenuCommand(tMenuCommand&) - prompt user-name entry (initial
    profile setup) (100 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_EnterUserName(tMenuCommand *command)
+extern "C" void MenuExtended_EnterUserName__FR12tMenuCommand(tMenuCommand *command)
 
 {
   byte bVar1;
@@ -1057,15 +1057,15 @@ void MenuExtended_EnterUserName(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_GoToShowroom  [FEMENUDEFS.CPP:750-753] ---- */
+/* ---- MenuExtended_GoToShowroom__FR12tMenuCommand  [FEMENUDEFS.CPP:750-753] ---- */
 
-/* Decoded Phase 83: MenuExtended_GoToShowroom(tMenuCommand&) - transition to player's garage 3D
+/* Decoded Phase 83: MenuExtended_GoToShowroom__FR12tMenuCommand(tMenuCommand&) - transition to player's garage 3D
    showroom view (64 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_GoToShowroom(tMenuCommand *command)
+extern "C" void MenuExtended_GoToShowroom__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tGlobalMenuDefs *ptVar1;
@@ -1079,15 +1079,15 @@ void MenuExtended_GoToShowroom(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_GoToDealerShowroom  [FEMENUDEFS.CPP:757-760] ---- */
+/* ---- MenuExtended_GoToDealerShowroom__FR12tMenuCommand  [FEMENUDEFS.CPP:757-760] ---- */
 
-/* Decoded Phase 83: MenuExtended_GoToDealerShowroom(tMenuCommand&) - transition to dealer 3D
+/* Decoded Phase 83: MenuExtended_GoToDealerShowroom__FR12tMenuCommand(tMenuCommand&) - transition to dealer 3D
    showroom view (64 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_GoToDealerShowroom(tMenuCommand *command)
+extern "C" void MenuExtended_GoToDealerShowroom__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tGlobalMenuDefs *ptVar1;
@@ -1101,9 +1101,9 @@ void MenuExtended_GoToDealerShowroom(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_SetHPSoloRace  [FEMENUDEFS.CPP:764-768] ---- */
+/* ---- MenuExtended_SetHPSoloRace__FR12tMenuCommand  [FEMENUDEFS.CPP:764-768] ---- */
 
-/* Decoded Phase 83: MenuExtended_SetHPSoloRace(tMenuCommand&) - set raceType=HotPursuit Solo (44 B)
+/* Decoded Phase 83: MenuExtended_SetHPSoloRace__FR12tMenuCommand(tMenuCommand&) - set raceType=HotPursuit Solo (44 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text
@@ -1111,11 +1111,11 @@ void MenuExtended_GoToDealerShowroom(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetHPSoloRace(int
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetHPSoloRace__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetHPSoloRace(tMenuCommand *command)
+extern "C" void MenuExtended_SetHPSoloRace__FR12tMenuCommand(tMenuCommand *command)
 
 {
   frontEnd.pinkSlipsTrackIndex = '\0';
@@ -1127,9 +1127,9 @@ void MenuExtended_SetHPSoloRace(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_SetHPDuelRace  [FEMENUDEFS.CPP:772-776] ---- */
+/* ---- MenuExtended_SetHPDuelRace__FR12tMenuCommand  [FEMENUDEFS.CPP:772-776] ---- */
 
-/* Decoded Phase 83: MenuExtended_SetHPDuelRace(tMenuCommand&) - set raceType=HotPursuit Duel (44 B)
+/* Decoded Phase 83: MenuExtended_SetHPDuelRace__FR12tMenuCommand(tMenuCommand&) - set raceType=HotPursuit Duel (44 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text
@@ -1137,11 +1137,11 @@ void MenuExtended_SetHPSoloRace(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetHPDuelRace(int
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetHPDuelRace__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetHPDuelRace(tMenuCommand *command)
+extern "C" void MenuExtended_SetHPDuelRace__FR12tMenuCommand(tMenuCommand *command)
 
 {
   frontEnd.pinkSlipsTrackIndex = '\0';
@@ -1153,9 +1153,9 @@ void MenuExtended_SetHPDuelRace(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_SetHotPursuit  [FEMENUDEFS.CPP:780-788] ---- */
+/* ---- MenuExtended_SetHotPursuit__FR12tMenuCommand  [FEMENUDEFS.CPP:780-788] ---- */
 
-/* Decoded Phase 83: MenuExtended_SetHotPursuit(tMenuCommand&) - set raceType=HotPursuit (cops vs
+/* Decoded Phase 83: MenuExtended_SetHotPursuit__FR12tMenuCommand(tMenuCommand&) - set raceType=HotPursuit (cops vs
    perps mode) (80 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
@@ -1164,11 +1164,11 @@ void MenuExtended_SetHPDuelRace(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetHotPursuit(int
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetHotPursuit__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetHotPursuit(tMenuCommand *command)
+extern "C" void MenuExtended_SetHotPursuit__FR12tMenuCommand(tMenuCommand *command)
 
 {
   frontEnd.carListType = '\0';
@@ -1186,9 +1186,9 @@ void MenuExtended_SetHotPursuit(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_SellCar  [FEMENUDEFS.CPP:792-814] ---- */
+/* ---- MenuExtended_SellCar__FR12tMenuCommand  [FEMENUDEFS.CPP:792-814] ---- */
 
-/* Decoded Phase 83: MenuExtended_SellCar(tMenuCommand&) - sell currently-selected garage car for
+/* Decoded Phase 83: MenuExtended_SellCar__FR12tMenuCommand(tMenuCommand&) - sell currently-selected garage car for
    cash credit (344 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
@@ -1197,10 +1197,10 @@ void MenuExtended_SetHotPursuit(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SellCar(int arg0)'.Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling pattern.
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SellCar__FR12tMenuCommand(int arg0)'.Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling pattern.
     */
 
-void MenuExtended_SellCar(tMenuCommand *command)
+extern "C" void MenuExtended_SellCar__FR12tMenuCommand(tMenuCommand *command)
 
 {
   bool bVar1;
@@ -1252,9 +1252,9 @@ void MenuExtended_SellCar(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_BuyCar  [FEMENUDEFS.CPP:819-849] ---- */
+/* ---- MenuExtended_BuyCar__FR12tMenuCommand  [FEMENUDEFS.CPP:819-849] ---- */
 
-/* Decoded Phase 83: MenuExtended_BuyCar(tMenuCommand&) - purchase highlighted dealer car; debits
+/* Decoded Phase 83: MenuExtended_BuyCar__FR12tMenuCommand(tMenuCommand&) - purchase highlighted dealer car; debits
    cash, adds to garage (340 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
@@ -1263,10 +1263,10 @@ void MenuExtended_SellCar(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_BuyCar(int arg0)'.Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling pattern.
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_BuyCar__FR12tMenuCommand(int arg0)'.Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling pattern.
     */
 
-void MenuExtended_BuyCar(tMenuCommand *command)
+extern "C" void MenuExtended_BuyCar__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tFEApplication *ptVar1;
@@ -1375,9 +1375,9 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
 
 
 
-/* ---- MenuExtended_PurchaseUpgrade1  [FEMENUDEFS.CPP:883-884] ---- */
+/* ---- MenuExtended_PurchaseUpgrade1__FR12tMenuCommand  [FEMENUDEFS.CPP:883-884] ---- */
 
-/* Decoded Phase 83: MenuExtended_PurchaseUpgrade1(tMenuCommand&) - tail-call wrapper for tier-1
+/* Decoded Phase 83: MenuExtended_PurchaseUpgrade1__FR12tMenuCommand(tMenuCommand&) - tail-call wrapper for tier-1
    upgrade purchase (32 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
@@ -1386,11 +1386,11 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_PurchaseUpgrade1(int
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_PurchaseUpgrade1__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_PurchaseUpgrade1(tMenuCommand *command)
+extern "C" void MenuExtended_PurchaseUpgrade1__FR12tMenuCommand(tMenuCommand *command)
 
 {
   MenuExtended_PurchaseUpgrade(1);
@@ -1399,9 +1399,9 @@ void MenuExtended_PurchaseUpgrade1(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_PurchaseUpgrade2  [FEMENUDEFS.CPP:888-889] ---- */
+/* ---- MenuExtended_PurchaseUpgrade2__FR12tMenuCommand  [FEMENUDEFS.CPP:888-889] ---- */
 
-/* Decoded Phase 83: MenuExtended_PurchaseUpgrade2(tMenuCommand&) - tail-call wrapper for tier-2
+/* Decoded Phase 83: MenuExtended_PurchaseUpgrade2__FR12tMenuCommand(tMenuCommand&) - tail-call wrapper for tier-2
    upgrade purchase (32 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
@@ -1410,11 +1410,11 @@ void MenuExtended_PurchaseUpgrade1(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_PurchaseUpgrade2(int
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_PurchaseUpgrade2__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_PurchaseUpgrade2(tMenuCommand *command)
+extern "C" void MenuExtended_PurchaseUpgrade2__FR12tMenuCommand(tMenuCommand *command)
 
 {
   MenuExtended_PurchaseUpgrade(2);
@@ -1423,9 +1423,9 @@ void MenuExtended_PurchaseUpgrade2(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_PurchaseUpgrade3  [FEMENUDEFS.CPP:893-894] ---- */
+/* ---- MenuExtended_PurchaseUpgrade3__FR12tMenuCommand  [FEMENUDEFS.CPP:893-894] ---- */
 
-/* Decoded Phase 83: MenuExtended_PurchaseUpgrade3(tMenuCommand&) - tail-call wrapper for tier-3
+/* Decoded Phase 83: MenuExtended_PurchaseUpgrade3__FR12tMenuCommand(tMenuCommand&) - tail-call wrapper for tier-3
    upgrade purchase (32 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
@@ -1434,11 +1434,11 @@ void MenuExtended_PurchaseUpgrade2(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_PurchaseUpgrade3(int
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_PurchaseUpgrade3__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_PurchaseUpgrade3(tMenuCommand *command)
+extern "C" void MenuExtended_PurchaseUpgrade3__FR12tMenuCommand(tMenuCommand *command)
 
 {
   MenuExtended_PurchaseUpgrade(0);
@@ -1447,9 +1447,9 @@ void MenuExtended_PurchaseUpgrade3(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_SaveGame  [FEMENUDEFS.CPP:898-901] ---- */
+/* ---- MenuExtended_SaveGame__FR12tMenuCommand  [FEMENUDEFS.CPP:898-901] ---- */
 
-/* Decoded Phase 83: MenuExtended_SaveGame(tMenuCommand&) - save game state to memcard (80 B)
+/* Decoded Phase 83: MenuExtended_SaveGame__FR12tMenuCommand(tMenuCommand&) - save game state to memcard (80 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text
@@ -1457,10 +1457,10 @@ void MenuExtended_PurchaseUpgrade3(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SaveGame(int arg0)'.Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling pattern.
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SaveGame__FR12tMenuCommand(int arg0)'.Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling pattern.
     */
 
-void MenuExtended_SaveGame(tMenuCommand *command)
+extern "C" void MenuExtended_SaveGame__FR12tMenuCommand(tMenuCommand *command)
 
 {
   if ((CURRENTLYUSINGMEMCARD == 0) &&
@@ -1507,9 +1507,9 @@ void GenericMenuLoadGame(int player)
 
 
 
-/* ---- MenuExtended_LoadGame  [FEMENUDEFS.CPP:945-957] ---- */
+/* ---- MenuExtended_LoadGame__FR12tMenuCommand  [FEMENUDEFS.CPP:945-957] ---- */
 
-/* Decoded Phase 83: MenuExtended_LoadGame(tMenuCommand&) - load save from memcard via Front_*;
+/* Decoded Phase 83: MenuExtended_LoadGame__FR12tMenuCommand(tMenuCommand&) - load save from memcard via Front_*;
    populate game state (152 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
@@ -1518,10 +1518,10 @@ void GenericMenuLoadGame(int player)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_LoadGame(int arg0)'.Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling pattern.
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_LoadGame__FR12tMenuCommand(int arg0)'.Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling pattern.
     */
 
-void MenuExtended_LoadGame(tMenuCommand *command)
+extern "C" void MenuExtended_LoadGame__FR12tMenuCommand(tMenuCommand *command)
 
 {
   short sVar1;
@@ -1546,15 +1546,15 @@ void MenuExtended_LoadGame(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_TierFinished  [FEMENUDEFS.CPP:960-976] ---- */
+/* ---- MenuExtended_TierFinished__FR12tMenuCommand  [FEMENUDEFS.CPP:960-976] ---- */
 
-/* Decoded Phase 83: MenuExtended_TierFinished(tMenuCommand&) - tournament tier complete; advance to
+/* Decoded Phase 83: MenuExtended_TierFinished__FR12tMenuCommand(tMenuCommand&) - tournament tier complete; advance to
    next tier (128 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_TierFinished(tMenuCommand *command)
+extern "C" void MenuExtended_TierFinished__FR12tMenuCommand(tMenuCommand *command)
 
 {
   int iVar1;
@@ -1623,13 +1623,13 @@ void * MenuExtended_DidUserWinBeTheCop(void)
 
 
 
-/* ---- MenuExtended_PostGameMenu  [FEMENUDEFS.CPP:1040-1082] ---- */
+/* ---- MenuExtended_PostGameMenu__FR12tMenuCommand  [FEMENUDEFS.CPP:1040-1082] ---- */
 
-/* Decoded Phase 83: MenuExtended_PostGameMenu(tMenuCommand&) - show post-game menu(continue/save/restart/quit) (256 B)
+/* Decoded Phase 83: MenuExtended_PostGameMenu__FR12tMenuCommand(tMenuCommand&) - show post-game menu(continue/save/restart/quit) (256 B)
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_PostGameMenu(tMenuCommand *command)
+extern "C" void MenuExtended_PostGameMenu__FR12tMenuCommand(tMenuCommand *command)
 
 {
   short sVar1;
@@ -1672,15 +1672,15 @@ MXPostGameMenu_setNextMenu:
 
 
 
-/* ---- MenuExtended_FinishedPlayer1GetName  [FEMENUDEFS.CPP:1090-1120] ---- */
+/* ---- MenuExtended_FinishedPlayer1GetName__FR12tMenuCommand  [FEMENUDEFS.CPP:1090-1120] ---- */
 
-/* Decoded Phase 83: MenuExtended_FinishedPlayer1GetName(tMenuCommand&) - after race, prompt P1 for
+/* Decoded Phase 83: MenuExtended_FinishedPlayer1GetName__FR12tMenuCommand(tMenuCommand&) - after race, prompt P1 for
    name entry (high score etc) (272 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_FinishedPlayer1GetName(tMenuCommand *command)
+extern "C" void MenuExtended_FinishedPlayer1GetName__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tFEApplication *ptVar1;
@@ -1722,15 +1722,15 @@ void MenuExtended_FinishedPlayer1GetName(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_FinishedPlayer2GetName  [FEMENUDEFS.CPP:1125-1142] ---- */
+/* ---- MenuExtended_FinishedPlayer2GetName__FR12tMenuCommand  [FEMENUDEFS.CPP:1125-1142] ---- */
 
-/* Decoded Phase 83: MenuExtended_FinishedPlayer2GetName(tMenuCommand&) - after race, prompt P2 for
+/* Decoded Phase 83: MenuExtended_FinishedPlayer2GetName__FR12tMenuCommand(tMenuCommand&) - after race, prompt P2 for
    name entry (160 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_FinishedPlayer2GetName(tMenuCommand *command)
+extern "C" void MenuExtended_FinishedPlayer2GetName__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tGlobalMenuDefs *ptVar1;
@@ -1755,9 +1755,9 @@ void MenuExtended_FinishedPlayer2GetName(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_SetPinkSlips  [FEMENUDEFS.CPP:1146-1159] ---- */
+/* ---- MenuExtended_SetPinkSlips__FR12tMenuCommand  [FEMENUDEFS.CPP:1146-1159] ---- */
 
-/* Decoded Phase 83: MenuExtended_SetPinkSlips(tMenuCommand&) - set raceType=PinkSlips and prepare
+/* Decoded Phase 83: MenuExtended_SetPinkSlips__FR12tMenuCommand(tMenuCommand&) - set raceType=PinkSlips and prepare
    car-select (192 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
@@ -1766,11 +1766,11 @@ void MenuExtended_FinishedPlayer2GetName(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name + (body or
    100%-caller-consensus) agree. Generic param names; types int/void* default - refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetPinkSlips(int
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetPinkSlips__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetPinkSlips(tMenuCommand *command)
+extern "C" void MenuExtended_SetPinkSlips__FR12tMenuCommand(tMenuCommand *command)
 
 {
   int iVar1;
@@ -1800,15 +1800,15 @@ void MenuExtended_SetPinkSlips(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_AwardPinkSlipsCar  [FEMENUDEFS.CPP:1163-1218] ---- */
+/* ---- MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand  [FEMENUDEFS.CPP:1163-1218] ---- */
 
-/* Decoded Phase 83: MenuExtended_AwardPinkSlipsCar(tMenuCommand&) - award winner the loser's car
+/* Decoded Phase 83: MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand(tMenuCommand&) - award winner the loser's car
    after pinkslips race (552 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_AwardPinkSlipsCar(tMenuCommand *command)
+extern "C" void MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand(tMenuCommand *command)
 
 {
   short playerNum;
@@ -1873,14 +1873,14 @@ void MenuExtended_AwardPinkSlipsCar(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_GoToGarage  [FEMENUDEFS.CPP:1222-1231] ---- */
+/* ---- MenuExtended_GoToGarage__FR12tMenuCommand  [FEMENUDEFS.CPP:1222-1231] ---- */
 
-/* Decoded Phase 83: MenuExtended_GoToGarage(tMenuCommand&) - transition to garage screen (168 B)
+/* Decoded Phase 83: MenuExtended_GoToGarage__FR12tMenuCommand(tMenuCommand&) - transition to garage screen (168 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_GoToGarage(tMenuCommand *command)
+extern "C" void MenuExtended_GoToGarage__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tMenu *ptVar1;
@@ -1906,9 +1906,9 @@ void MenuExtended_GoToGarage(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_GoToTournTrophyRoom  [FEMENUDEFS.CPP:1235-1236] ---- */
+/* ---- MenuExtended_GoToTournTrophyRoom__FR12tMenuCommand  [FEMENUDEFS.CPP:1235-1236] ---- */
 
-/* Decoded Phase 83: MenuExtended_GoToTournTrophyRoom(tMenuCommand&) - transition to tournament
+/* Decoded Phase 83: MenuExtended_GoToTournTrophyRoom__FR12tMenuCommand(tMenuCommand&) - transition to tournament
    trophy room (12 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
@@ -1918,10 +1918,10 @@ void MenuExtended_GoToGarage(tMenuCommand *command)
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
    [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int
-   MenuExtended_GoToTournTrophyRoom(int arg0)'. Fixed via m2c body (arg0 = struct
+   MenuExtended_GoToTournTrophyRoom__FR12tMenuCommand(int arg0)'. Fixed via m2c body (arg0 = struct
    deref) + PCSX runtime (a0 = consistent ptr) + sibling pattern. */
 
-void MenuExtended_GoToTournTrophyRoom(tMenuCommand *command)
+extern "C" void MenuExtended_GoToTournTrophyRoom__FR12tMenuCommand(tMenuCommand *command)
 
 {
   frontEnd.tier = '\0';
@@ -1930,9 +1930,9 @@ void MenuExtended_GoToTournTrophyRoom(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_GoToSETrophyRoom  [FEMENUDEFS.CPP:1240-1241] ---- */
+/* ---- MenuExtended_GoToSETrophyRoom__FR12tMenuCommand  [FEMENUDEFS.CPP:1240-1241] ---- */
 
-/* Decoded Phase 83: MenuExtended_GoToSETrophyRoom(tMenuCommand&) - transition to special-event
+/* Decoded Phase 83: MenuExtended_GoToSETrophyRoom__FR12tMenuCommand(tMenuCommand&) - transition to special-event
    trophy room (16 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
@@ -1941,11 +1941,11 @@ void MenuExtended_GoToTournTrophyRoom(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_GoToSETrophyRoom(int
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_GoToSETrophyRoom__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_GoToSETrophyRoom(tMenuCommand *command)
+extern "C" void MenuExtended_GoToSETrophyRoom__FR12tMenuCommand(tMenuCommand *command)
 
 {
   frontEnd.tier = '\x01';
@@ -1954,9 +1954,9 @@ void MenuExtended_GoToSETrophyRoom(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_SetBeginner  [FEMENUDEFS.CPP:1245-1246] ---- */
+/* ---- MenuExtended_SetBeginner__FR12tMenuCommand  [FEMENUDEFS.CPP:1245-1246] ---- */
 
-/* Decoded Phase 83: MenuExtended_SetBeginner(tMenuCommand&) - set difficulty=Beginner (12 B)
+/* Decoded Phase 83: MenuExtended_SetBeginner__FR12tMenuCommand(tMenuCommand&) - set difficulty=Beginner (12 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text
@@ -1964,11 +1964,11 @@ void MenuExtended_GoToSETrophyRoom(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetBeginner(int
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetBeginner__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetBeginner(tMenuCommand *command)
+extern "C" void MenuExtended_SetBeginner__FR12tMenuCommand(tMenuCommand *command)
 
 {
   frontEnd.skillLevel = '\0';
@@ -1977,9 +1977,9 @@ void MenuExtended_SetBeginner(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_SetIntermediate  [FEMENUDEFS.CPP:1250-1251] ---- */
+/* ---- MenuExtended_SetIntermediate__FR12tMenuCommand  [FEMENUDEFS.CPP:1250-1251] ---- */
 
-/* Decoded Phase 83: MenuExtended_SetIntermediate(tMenuCommand&) - set difficulty=Intermediate (16
+/* Decoded Phase 83: MenuExtended_SetIntermediate__FR12tMenuCommand(tMenuCommand&) - set difficulty=Intermediate (16
    B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
@@ -1988,11 +1988,11 @@ void MenuExtended_SetBeginner(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetIntermediate(int
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetIntermediate__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetIntermediate(tMenuCommand *command)
+extern "C" void MenuExtended_SetIntermediate__FR12tMenuCommand(tMenuCommand *command)
 
 {
   frontEnd.skillLevel = '\x01';
@@ -2001,9 +2001,9 @@ void MenuExtended_SetIntermediate(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_SetExpert  [FEMENUDEFS.CPP:1255-1256] ---- */
+/* ---- MenuExtended_SetExpert__FR12tMenuCommand  [FEMENUDEFS.CPP:1255-1256] ---- */
 
-/* Decoded Phase 83: MenuExtended_SetExpert(tMenuCommand&) - set difficulty=Expert (16 B)
+/* Decoded Phase 83: MenuExtended_SetExpert__FR12tMenuCommand(tMenuCommand&) - set difficulty=Expert (16 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text
@@ -2011,11 +2011,11 @@ void MenuExtended_SetIntermediate(tMenuCommand *command)
    [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetExpert(int
+   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetExpert__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetExpert(tMenuCommand *command)
+extern "C" void MenuExtended_SetExpert__FR12tMenuCommand(tMenuCommand *command)
 
 {
   frontEnd.skillLevel = '\x02';
@@ -2024,15 +2024,15 @@ void MenuExtended_SetExpert(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_ExitTourney  [FEMENUDEFS.CPP:1260-1271] ---- */
+/* ---- MenuExtended_ExitTourney__FR12tMenuCommand  [FEMENUDEFS.CPP:1260-1271] ---- */
 
-/* Decoded Phase 83: MenuExtended_ExitTourney(tMenuCommand&) - abandon current tournament, return to
+/* Decoded Phase 83: MenuExtended_ExitTourney__FR12tMenuCommand(tMenuCommand&) - abandon current tournament, return to
    main menu (144 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_ExitTourney(tMenuCommand *command)
+extern "C" void MenuExtended_ExitTourney__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tGlobalMenuDefs *ptVar1;
@@ -2061,15 +2061,15 @@ void MenuExtended_ExitTourney(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_ExitPinkSlipsEarly  [FEMENUDEFS.CPP:1274-1300] ---- */
+/* ---- MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand  [FEMENUDEFS.CPP:1274-1300] ---- */
 
-/* Decoded Phase 83: MenuExtended_ExitPinkSlipsEarly(tMenuCommand&) - allow user to back out of
+/* Decoded Phase 83: MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand(tMenuCommand&) - allow user to back out of
    pinkslips before commit (304 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_ExitPinkSlipsEarly(tMenuCommand *command)
+extern "C" void MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand(tMenuCommand *command)
 
 {
   bool bVar1;
@@ -2118,15 +2118,15 @@ void MenuExtended_ExitPinkSlipsEarly(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_PinkSlipsContinue  [FEMENUDEFS.CPP:1304-1315] ---- */
+/* ---- MenuExtended_PinkSlipsContinue__FR12tMenuCommand  [FEMENUDEFS.CPP:1304-1315] ---- */
 
-/* Decoded Phase 83: MenuExtended_PinkSlipsContinue(tMenuCommand&) - after pinkslips win, continue
+/* Decoded Phase 83: MenuExtended_PinkSlipsContinue__FR12tMenuCommand(tMenuCommand&) - after pinkslips win, continue
    to next race (108 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_PinkSlipsContinue(tMenuCommand *command)
+extern "C" void MenuExtended_PinkSlipsContinue__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tGlobalMenuDefs *ptVar1;
@@ -2193,10 +2193,10 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMemoryCardMenuItem *this_19;
   
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemMainOnePlayerRace,0x5b,&(this->menuOnePlayer)._base_tMenu,
-             MenuExtended_SetOnePlayer,0x1e,10
+             MenuExtended_SetOnePlayer__FR12tMenuCommand,0x1e,10
             );
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemMainTwoPlayerRace,0x5c,&(this->menuTwoPlayer)._base_tMenu,
-             MenuExtended_SetTwoPlayer,0x28,10
+             MenuExtended_SetTwoPlayer__FR12tMenuCommand,0x28,10
             );
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemMainTrophyRoom,0x5e,&(this->menuTrophyRoomSelect)._base_tMenu,(void *)0x0,0x32,
              10);
@@ -2205,10 +2205,10 @@ tGlobalMenuDefs::tGlobalMenuDefs()
              0xb4,(tMenuItem *)this,&this->itemMainTwoPlayerRace,&this->itemMainOptions,
              &this->itemMainTrophyRoom,0);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemTournTrophyRoom,99,(tMenu *)&this->menuTrophyRoom,
-             MenuExtended_GoToTournTrophyRoom,
+             MenuExtended_GoToTournTrophyRoom__FR12tMenuCommand,
              0x32,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemSETrophyRoom,0x69,(tMenu *)&this->menuTrophyRoom,
-             MenuExtended_GoToSETrophyRoom,
+             MenuExtended_GoToSETrophyRoom__FR12tMenuCommand,
              0x32,10);
   tMenuNFS4_ctor(&this->menuTrophyRoomSelect,0x1014,&screenMain->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,0x5f,(tMenuItem *)&this->itemTournTrophyRoom,&this->itemSETrophyRoom,0);
@@ -2216,104 +2216,104 @@ tGlobalMenuDefs::tGlobalMenuDefs()
              (void *)0x0,-1);
   ptVar9 = &this->menuSingleTrackSelect;
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemSkillBeginner,0xa1,&ptVar9->_base_tMenu,
-             MenuExtended_SetBeginner,0x8c,10)
+             MenuExtended_SetBeginner__FR12tMenuCommand,0x8c,10)
   ;
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemSkillIntermediate,0xa2,&ptVar9->_base_tMenu,
-             MenuExtended_SetIntermediate,0x96
+             MenuExtended_SetIntermediate__FR12tMenuCommand,0x96
              ,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemSkillExpert,0xa3,&ptVar9->_base_tMenu,
-             MenuExtended_SetExpert,0xa0,10);
+             MenuExtended_SetExpert__FR12tMenuCommand,0xa0,10);
   this_16 = &this->menuSkillLevel;
   tMenuNFS4_ctor(this_16,0x1004,&screenMain->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,(void *)0x0,0xb7,
              (tMenuItem *)&this->itemSkillBeginner,&this->itemSkillIntermediate,
              &this->itemSkillExpert,0);
   this_00 = &this->menuTestDriveTrackSelect;
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemOnePlayerTestDrive,0x60,&this_00->_base_tMenu,
-             MenuExtended_SetTestDrive,0xf0,10
+             MenuExtended_SetTestDrive__FR12tMenuCommand,0xf0,10
             );
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemOnePlayerSingleRace,0x72,&(this->menuSingleRace)._base_tMenu,
-             MenuExtended_SetSingleRace,0x46,
+             MenuExtended_SetSingleRace__FR12tMenuCommand,0x46,
              10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemOnePlayerPursuit,0x71,&(this->menuHotPursuit)._base_tMenu,
-             MenuExtended_SetHotPursuit,0x50,
+             MenuExtended_SetHotPursuit__FR12tMenuCommand,0x50,
              10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemOnePlayerTournament,99,&(this->menuTournament)._base_tMenu,
-             MenuExtended_SetTournament,0x5a,
+             MenuExtended_SetTournament__FR12tMenuCommand,0x5a,
              10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemOnePlayerSpecialEvents,0x69,&(this->menuSpecialEvent)._base_tMenu,
-             MenuExtended_SetSpecialEvent,100,
+             MenuExtended_SetSpecialEvent__FR12tMenuCommand,100,
              10);
   tMenuNFS4_ctor(&this->menuOnePlayer,0x1004,&screenMain->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,0xb5,(tMenuItem *)&this->itemOnePlayerTestDrive,
              &this->itemOnePlayerSingleRace,&this->itemOnePlayerPursuit,
              &this->itemOnePlayerTournament,&this->itemOnePlayerSpecialEvents,0);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemSingleRaceSolo,0x6c,&ptVar9->_base_tMenu,
-             MenuExtended_SetSoloRace,0x6e,10)
+             MenuExtended_SetSoloRace__FR12tMenuCommand,0x6e,10)
   ;
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemSingleRaceDuel,0x6d,&this_16->_base_tMenu,
-             MenuExtended_SetDuelRace,0x78,10)
+             MenuExtended_SetDuelRace__FR12tMenuCommand,0x78,10)
   ;
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemSingleRaceFullGrid,0x6f,&this_16->_base_tMenu,
-             MenuExtended_SetFullGrid,0x82,10)
+             MenuExtended_SetFullGrid__FR12tMenuCommand,0x82,10)
   ;
   tMenuNFS4_ctor(&this->menuSingleRace,0x1004,&screenMain->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,0xb6,(tMenuItem *)&this->itemSingleRaceSolo,&this->itemSingleRaceDuel,
              &this->itemSingleRaceFullGrid,0);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemHotPursuitSolo,0x6c,&this_16->_base_tMenu,
-             MenuExtended_SetHPSoloRace,0x6e,
+             MenuExtended_SetHPSoloRace__FR12tMenuCommand,0x6e,
              10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemHotPursuitDuel,0x6d,&this_16->_base_tMenu,
-             MenuExtended_SetHPDuelRace,0x78,
+             MenuExtended_SetHPDuelRace__FR12tMenuCommand,0x78,
              10);
   pcVar4 = (char *)tMenuNFS4_ctor(&this->menuHotPursuit,0x1004,&screenMain->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,
                       (void *)0x0,0xb6,(tMenuItem *)&this->itemHotPursuitSolo,
                       &this->itemHotPursuitDuel,0);
   tListIteratorTournament_ctor(&this->iteratorTournament,pcVar4,&tournamentManager);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemTournamentContinue,0x5a,(tMenu *)0x0,
-             MenuExtended_GoToTournTrackInfo,
+             MenuExtended_GoToTournTrackInfo__FR12tMenuCommand,
              0x22,10);
   tMenuItemNFS4LeftRightChoice_ctor(&this->itemTournamentSelect,0x94,&(this->iteratorTournament)._base_tListIterator,0x2c,10);
   pcVar4 = (char *)tMenuNFS4_ctor(&this->menuTournament,0x1000,&screenTournSelect->_base_tScreen,(tMenu *)0x0,
                       (tMenu *)0x0,
-                      MenuExtended_GoToTournTrackInfo,0x65,
+                      MenuExtended_GoToTournTrackInfo__FR12tMenuCommand,0x65,
                       (tMenuItem *)&this->itemTournamentContinue,&this->itemTournamentSelect,0);
   tListIteratorTournament_ctor(&this->iteratorSpecialEvent,pcVar4,&tournamentManager);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemSpecialEventContinue,0x5a,(tMenu *)0x0,
-             MenuExtended_GoToSpecialEventTrackInfo,0x22,10);
+             MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand,0x22,10);
   tMenuItemNFS4LeftRightChoice_ctor(&this->itemSpecialEventSelect,0x69,&(this->iteratorSpecialEvent)._base_tListIterator,0x36,10)
   ;
   tMenuNFS4_ctor(&this->menuSpecialEvent,0x1000,&screenTournSelect->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,
-             MenuExtended_GoToSpecialEventTrackInfo,100,
+             MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand,100,
              (tMenuItem *)&this->itemSpecialEventContinue,&this->itemSpecialEventSelect,0);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemTwoPlayerTestDrive,0x60,&this_00->_base_tMenu,
-             MenuExtended_SetTestDrive,0xf0,10
+             MenuExtended_SetTestDrive__FR12tMenuCommand,0xf0,10
             );
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemTwoPlayerDuel,0x72,(tMenu *)0x0,
-             MenuExtended_GoToTwoPlayerSingleRace,0x46,10);
+             MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand,0x46,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemTwoPlayerHotPursuit,0x71,&this_16->_base_tMenu,
-             MenuExtended_SetHotPursuit,0x50,
+             MenuExtended_SetHotPursuit__FR12tMenuCommand,0x50,
              10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemTwoPlayerPinkSlips,0x6a,&(this->menuPinkSlipSelect)._base_tMenu,
-             MenuExtended_SetPinkSlips,0xaa,10
+             MenuExtended_SetPinkSlips__FR12tMenuCommand,0xaa,10
             );
   tMenuNFS4_ctor(&this->menuTwoPlayer,0x1004,&screenMain->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,0xb5,(tMenuItem *)&this->itemTwoPlayerTestDrive,&this->itemTwoPlayerDuel
              ,&this->itemTwoPlayerHotPursuit,&this->itemTwoPlayerPinkSlips,0);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemBestOfOne,0xc0,&ptVar9->_base_tMenu,
-             MenuExtended_GoToBestOfOne,0xaa,
+             MenuExtended_GoToBestOfOne__FR12tMenuCommand,0xaa,
              10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemBestOfThree,0xc1,&(this->menuPinkSlipsBestOfThree)._base_tMenu,
-             MenuExtended_GoToBestOfThree,0xaa
+             MenuExtended_GoToBestOfThree__FR12tMenuCommand,0xaa
              ,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemBestOfFive,0xc2,&(this->menuPinkSlipsBestOfFive)._base_tMenu,
-             MenuExtended_GoToBestOfFive,0xaa,
+             MenuExtended_GoToBestOfFive__FR12tMenuCommand,0xaa,
              10);
   tMenuNFS4_ctor(&this->menuPinkSlipSelect,0x1000,&screenMain->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,0xb6,(tMenuItem *)&this->itemBestOfOne,&this->itemBestOfThree,
              &this->itemBestOfFive,0);
   ptVar14 = &this->itemPinkSlipsContinue;
   tMenuItemGoToMenuNFS4Button_ctor(ptVar14,0x5a,(tMenu *)0x0,
-             MenuExtended_GoToCarSelect,0x24,
+             MenuExtended_GoToCarSelect__FR12tMenuCommand,0x24,
              10);
   ptVar11 = &this->itemTrack1;
   this_12 = &this->iteratorTrack;
@@ -2327,26 +2327,26 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   ptVar12 = &this->menuTrackOptions;
   tMenuNFS4_ctor(&this->menuPinkSlipsBestOfThree,0x1400,&screenPinkSlips->_base_tScreen,(tMenu *)0x0,
              (tMenu *)ptVar12,
-             MenuExtended_GoToCarSelect,0xbe,
+             MenuExtended_GoToCarSelect__FR12tMenuCommand,0xbe,
              (tMenuItem *)ptVar14,ptVar11,ptVar10,ptVar13,0);
   pcVar4 = (char *)tMenuNFS4_ctor(&this->menuPinkSlipsBestOfFive,0x1400,&screenPinkSlips->_base_tScreen,(tMenu *)0x0,
                       (tMenu *)ptVar12,
-                      MenuExtended_GoToCarSelect,0xbf,(tMenuItem *)ptVar14,ptVar11
+                      MenuExtended_GoToCarSelect__FR12tMenuCommand,0xbf,(tMenuItem *)ptVar14,ptVar11
                       ,ptVar10,ptVar13,&this->itemTrack4,&this->itemTrack5,0);
   tListIteratorTrack_ctor(this_12,pcVar4,in_v1,&trackManager);
   ptVar15 = &this->itemTrackContinue;
   tMenuItemGoToMenuNFS4Button_ctor(ptVar15,0x5a,(tMenu *)0x0,
-             MenuExtended_GoToCarSelect,0x1c,
+             MenuExtended_GoToCarSelect__FR12tMenuCommand,0x1c,
              10);
   ptVar10 = &this->itemTrack;
   tMenuItemNFS4LeftRightChoice_ctor(ptVar10,0x93,(tListIterator *)this_12,0x26,10);
   ptVar14 = &this->itemTrackRecords;
   tMenuItemGoToMenuNFS4Button_ctor(ptVar14,0xd4,&(this->menuTrackRecords)._base_tMenu,(void *)0x0,0x3a,10);
   tMenuNFS4_ctor(ptVar9,0x1600,&screenTrackSelect->_base_tScreen,(tMenu *)0x0,(tMenu *)ptVar12,
-             MenuExtended_GoToCarSelect,200,
+             MenuExtended_GoToCarSelect__FR12tMenuCommand,200,
              (tMenuItem *)ptVar15,ptVar10,ptVar14,0);
   tMenuNFS4_ctor(this_00,0x1600,&screenTrackSelect->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,
-             MenuExtended_GoToCarSelect,200,
+             MenuExtended_GoToCarSelect__FR12tMenuCommand,200,
              (tMenuItem *)ptVar15,ptVar10,ptVar14,0);
   tListIteratorIndexed_ctor(&this->iteratorLaps,SelectListNormal,frontEnd.lapind,&frontEnd.pinkSlipsTrackIndex);
   tListIteratorIndexed_ctor(&this->iteratorTrackDirection,SelectListTrackDirection,frontEnd.trackdirection,
@@ -2393,7 +2393,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tOptionsMenu_ctor(&this->menuTrackRecords,0x1000,&ptVar2->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,0xd4,1,10,(tMenuItem *)0x0);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemTrackInfoContinue,0x5a,(tMenu *)0x0,
-             MenuExtended_GoToGarage,0x21,10);
+             MenuExtended_GoToGarage__FR12tMenuCommand,0x21,10);
   tMenuNFS4_ctor(&this->menuTrackInfo,0x1004,&screenTrackInfo->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,0xf9,(tMenuItem *)&this->itemTrackInfoContinue,0);
   this_01 = &this->iteratorCar1;
@@ -2402,18 +2402,18 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tListIteratorCarColor_ctor(this_09,(char *)ptVar6,&FEApp->fPlayer,frontEnd.playerCar,0x30,&carManager);
   ptVar14 = &this->itemCarSelectRace;
   tMenuItemGoToMenuNFS4Button_ctor(ptVar14,0xbd,(tMenu *)0x0,
-             MenuExtended_GoToRace,0x80,10);
+             MenuExtended_GoToRace__FR12tMenuCommand,0x80,10);
   ptVar10 = &this->itemCar;
   tMenuItemNFS4LeftRightChoice_ctor(ptVar10,0x92,&this_01->_base_tListIterator,0x1c,10);
   ptVar11 = &this->itemColor;
   tMenuItemNFS4LeftRightChoice_ctor(ptVar11,0x120,&this_09->_base_tListIterator,0x26,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemShowcase,0x112,(tMenu *)0x0,
-             MenuExtended_GoToShowroom,0x30,10
+             MenuExtended_GoToShowroom__FR12tMenuCommand,0x30,10
             );
   ptVar12 = &this->menuCarOptions;
   tMenuNFS4_ctor(&this->menuSingleCarSelect,0x1a00,&screenCarSelect->_base_tScreen,(tMenu *)0x0,
              (tMenu *)ptVar12,
-             MenuExtended_GoToRace,0xba,
+             MenuExtended_GoToRace__FR12tMenuCommand,0xba,
              (tMenuItem *)ptVar14,ptVar10,ptVar11,&this->itemShowcase,0);
   ptVar6 = &this->iteratorGarageCar;
   tListIteratorCar_ctor(ptVar6,frontEnd.garageCar,&carManager);
@@ -2425,15 +2425,15 @@ tGlobalMenuDefs::tGlobalMenuDefs()
              MenuExtended_GoToUpgrades,0x44,10
             );
   tMenuNFS4_ctor(&this->menuCarGarage,0x1a00,&screenCarSelect->_base_tScreen,(tMenu *)0x0,(tMenu *)ptVar12,
-             MenuExtended_GoToRace,0x8f,
+             MenuExtended_GoToRace__FR12tMenuCommand,0x8f,
              (tMenuItem *)ptVar14,this_17,&this->itemCarDealer,ptVar15,0);
   tMenuNFS4_ctor(&this->menuPostCarGarage,0x1a00,&screenCarSelect->_base_tScreen,(tMenu *)0x0,(tMenu *)ptVar12
-             ,MenuExtended_GoToRace,0x8f,
+             ,MenuExtended_GoToRace__FR12tMenuCommand,0x8f,
              (tMenuItem *)ptVar14,ptVar15,0);
   tListIteratorCar_ctor(&this->iteratorOpponentCar,&frontEnd.oppCar,&carManager);
   ptVar14 = &this->itemDuelRace;
   tMenuItemGoToMenuNFS4Button_ctor(ptVar14,0xbd,(tMenu *)0x0,
-             MenuExtended_GoToRace,0x2a,10);
+             MenuExtended_GoToRace__FR12tMenuCommand,0x2a,10);
   tMenuItemNFS4LeftRightChoice_ctor(&this->itemCar2,0x92,&this_01->_base_tListIterator,0xc,10);
   tMenuItemNFS4LeftRightChoice_ctor(&this->itemColor2,0x120,&this_09->_base_tListIterator,0x16,10);
   ptVar9 = &this->menuCarDealer;
@@ -2443,68 +2443,68 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuItemNFS4LeftRightChoice_ctor(ptVar13,0xbc,&(this->iteratorOpponentCar)._base_tListIterator,0x20,10);
   tMenuNFS4_ctor(&this->menuDuelCarSelect,0x1800,(tScreen *)screenCarSelectDuel,(tMenu *)0x0,
              (tMenu *)ptVar12,
-             MenuExtended_GoToRace,0xba,
+             MenuExtended_GoToRace__FR12tMenuCommand,0xba,
              (tMenuItem *)ptVar14,this_17,&this->itemGoToDuelBuyCar,ptVar13,0);
   tMenuNFS4_ctor(&this->menuHPDuelCarSelect,0x1800,(tScreen *)screenCarSelectDuel,(tMenu *)0x0,
              (tMenu *)ptVar12,
-             MenuExtended_GoToRace,0xba,
+             MenuExtended_GoToRace__FR12tMenuCommand,0xba,
              (tMenuItem *)ptVar14,ptVar10,ptVar11,ptVar13,0);
   ptVar14 = &this->itemPlayerOneRace;
   tMenuItemGoToMenuNFS4Button_ctor(ptVar14,0xbd,(tMenu *)0x0,
-             MenuExtended_GoTo2PlayerRace,0x2a
+             MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0x2a
              ,10);
   tMenuItemNFS4LeftRightChoice_ctor(&this->itemCarP1,0x92,&this_01->_base_tListIterator,0xc,10);
   tMenuItemNFS4LeftRightChoice_ctor(&this->itemColorP1,0x120,&this_09->_base_tListIterator,0x16,10);
   this_10 = &this->menuCarOptionsPlayerOne;
   tMenuNFS4TwoPlayer_ctor(&this->menuPlayerOneCarSelect,0x1008,(tScreen *)screenCarSelectTwoPlayer,(tMenu *)0x0,
              (tMenu *)this_10,
-             MenuExtended_GoTo2PlayerRace,0xba
+             MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0xba
              ,(tMenuItem *)ptVar14,&this->itemCarP1,&this->itemColorP1,0);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemPlayerTwoRace,0xbd,(tMenu *)0x0,
-             MenuExtended_GoTo2PlayerRace,0x2a
+             MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0x2a
              ,10);
   tMenuItemNFS4LeftRightChoice_ctor(&this->itemCarP2,0x92,&this_01->_base_tListIterator,0xc,10);
   tMenuItemNFS4LeftRightChoice_ctor(&this->itemColorP2,0x120,&this_09->_base_tListIterator,0x16,10);
   this_02 = &this->menuCarOptionsPlayerTwo;
   tMenuNFS4TwoPlayer_ctor(&this->menuPlayerTwoCarSelect,0x1008,(tScreen *)screenCarSelectPlayerTwo,(tMenu *)0x0,
              (tMenu *)this_02,
-             MenuExtended_GoTo2PlayerRace,0xba
+             MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0xba
              ,(tMenuItem *)&this->itemPlayerTwoRace,&this->itemCarP2,&this->itemColorP2,0);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemPlayerOneGarageRace,0xbd,(tMenu *)0x0,
-             MenuExtended_GoTo2PlayerRace,0x2a
+             MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0x2a
              ,10);
   tMenuItemNFS4LeftRightChoice_ctor(&this->itemGarageCarP1,0x92,&ptVar6->_base_tListIterator,0xc,10);
   tMenuNFS4TwoPlayer_ctor(&this->menuPlayerOneGarage,0x1008,(tScreen *)screenCarSelectTwoPlayer,(tMenu *)0x0,
              (tMenu *)this_10,
-             MenuExtended_GoTo2PlayerRace,0xba
+             MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0xba
              ,(tMenuItem *)ptVar14,&this->itemGarageCarP1,0);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemPlayerTwoGarageRace,0xbd,(tMenu *)0x0,
-             MenuExtended_GoTo2PlayerRace,0x2a
+             MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0x2a
              ,10);
   tMenuItemNFS4LeftRightChoice_ctor(&this->itemGarageCarP2,0x92,&ptVar6->_base_tListIterator,0xc,10);
   tMenuNFS4TwoPlayer_ctor(&this->menuPlayerTwoGarage,0x1008,(tScreen *)screenCarSelectPlayerTwo,(tMenu *)0x0,
              (tMenu *)this_02,
-             MenuExtended_GoTo2PlayerRace,0xba
+             MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0xba
              ,(tMenuItem *)&this->itemPlayerTwoGarageRace,&this->itemGarageCarP2,0);
   ptVar6 = &this->iteratorPinkSlipsCar;
   tListIteratorCar_ctor(ptVar6,frontEnd.pinkSlipsCar,&carManager);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemPlayerOnePinkSlipRace,0xbd,(tMenu *)0x0,
-             MenuExtended_GoTo2PlayerRace,0x2a
+             MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0x2a
              ,10);
   tMenuItemNFS4LeftRightChoice_ctor(&this->itemPinkSlipCarP1,0x92,&ptVar6->_base_tListIterator,0xc,10);
   tMenuNFS4TwoPlayer_ctor(&this->menuPlayerOnePinkSlipCarSelect,0x1008,
              (tScreen *)screenPinkSlipsCarSelectTwoPlayer,(tMenu *)0x0,
              (tMenu *)&this->menuPinkSlipCarOptionsPlayerOne,
-             MenuExtended_GoTo2PlayerRace,0xba
+             MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0xba
              ,(tMenuItem *)&this->itemPlayerOnePinkSlipRace,&this->itemPinkSlipCarP1,0);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemPlayerTwoPinkSlipRace,0xbd,(tMenu *)0x0,
-             MenuExtended_GoTo2PlayerRace,0x2a
+             MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0x2a
              ,10);
   tMenuItemNFS4LeftRightChoice_ctor(&this->itemPinkSlipCarP2,0x92,&ptVar6->_base_tListIterator,0xc,10);
   tMenuNFS4TwoPlayer_ctor(&this->menuPlayerTwoPinkSlipCarSelect,0x1008,
              (tScreen *)screenPinkSlipsCarSelectPlayerTwo,(tMenu *)0x0,
              (tMenu *)&this->menuPinkSlipCarOptionsPlayerTwo,
-             MenuExtended_GoTo2PlayerRace,0xba
+             MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0xba
              ,(tMenuItem *)&this->itemPlayerTwoPinkSlipRace,&this->itemPinkSlipCarP2,0);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemGoToBuyCar,0x78,&ptVar9->_base_tMenu,
              MenuExtended_GoToDealer,0x58,10);
@@ -2518,9 +2518,9 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuItemNFS4LeftRightChoice_ctor(&this->itemDealerCar,0x92,&(this->iteratorDealerCar)._base_tListIterator,0x1c,10);
   tMenuItemNFS4LeftRightChoice_ctor(&this->itemDealerColor,0x120,&(this->iteratorDealerColor)._base_tListIterator,0x26,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemBuyCar,0x75,(tMenu *)0x0,
-             MenuExtended_BuyCar,0x58,10);
+             MenuExtended_BuyCar__FR12tMenuCommand,0x58,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemDealerShowroom,0x112,(tMenu *)0x0,
-             MenuExtended_GoToDealerShowroom,
+             MenuExtended_GoToDealerShowroom__FR12tMenuCommand,
              0x30,10);
   tMenuNFS4_ctor(ptVar9,0x2240,&screenCarSelect->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,(void *)0x0,0x90,
              (tMenuItem *)&this->itemDealerCar,&this->itemDealerColor,&this->itemBuyCar,
@@ -2528,17 +2528,17 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tListIteratorCar_ctor(&this->iteratorSellerCar,&frontEnd.sellerCar,&carManager);
   tMenuItemNFS4LeftRightChoice_ctor(&this->itemSellerCar,0x92,&(this->iteratorSellerCar)._base_tListIterator,0x1c,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemSellCar,0x77,(tMenu *)0x0,
-             MenuExtended_SellCar,0x4e,10);
+             MenuExtended_SellCar__FR12tMenuCommand,0x4e,10);
   tMenuNFS4_ctor(&this->menuCarSeller,0x2200,&screenCarSelect->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,0x90,(tMenuItem *)&this->itemSellerCar,&this->itemSellCar,0);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemPurchaseUpgrade1,0x96,(tMenu *)0x0,
-             MenuExtended_PurchaseUpgrade1,
+             MenuExtended_PurchaseUpgrade1__FR12tMenuCommand,
              0x62,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemPurchaseUpgrade2,0x97,(tMenu *)0x0,
-             MenuExtended_PurchaseUpgrade2,
+             MenuExtended_PurchaseUpgrade2__FR12tMenuCommand,
              0x6c,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemPurchaseUpgrade3,0x98,(tMenu *)0x0,
-             MenuExtended_PurchaseUpgrade3,
+             MenuExtended_PurchaseUpgrade3__FR12tMenuCommand,
              0x76,10);
   tMenuNFS4_ctor(&this->menuCarUpgrades,0x2200,&screenCarSelect->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,0x91,(tMenuItem *)&this->itemPurchaseUpgrade1,
@@ -2590,7 +2590,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
              200,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemOptionsMemoryCard,0x1c9,&(this->menuMemory)._base_tMenu,(void *)0x0,0xd2,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemOptionsUsername,0x1ca,(tMenu *)0x0,
-             MenuExtended_EnterUserName,0xdc,
+             MenuExtended_EnterUserName__FR12tMenuCommand,0xdc,
              10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemOptionsCredits,0x1cc,(tMenu *)&this->menuCredits,(void *)0x0,0xe6,10);
   tMenuNFS4_ctor(&this->menuOptions,0x1014,&screenMain->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,(void *)0x0
@@ -2724,10 +2724,10 @@ tGlobalMenuDefs::tGlobalMenuDefs()
             );
   this_19 = &this->itemSaveGame;
   tMenuItemGoToMenuButton_ctor((tMenuItemGoToMenuButton *)this_19,0x286,(tMenu *)0x0,
-             MenuExtended_SaveGame);
+             MenuExtended_SaveGame__FR12tMenuCommand);
   *(void **)&((this->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMemoryCardMenuItem_vtable;
   tMenuItemGoToMenuButton_ctor((tMenuItemGoToMenuButton *)&this->itemLoadGame,0x287,(tMenu *)0x0,
-             MenuExtended_LoadGame);
+             MenuExtended_LoadGame__FR12tMenuCommand);
   ptVar3 = screenMemcard;
   *(void **)&((this->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMemoryCardMenuItem_vtable;
   tOptionsMenu_ctor(&this->menuMemory,0x1020,&ptVar3->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,(void *)0x0,-1,
@@ -2746,10 +2746,10 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuNFS4Bottom_ctor(&this->menuTrophyRoom,0x4010,&screenHandler->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,-1,(tMenuItem *)&this->itemChangeTrophy,0);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemPinkSlipStandingsForward,0x5a,(tMenu *)0x0,
-             MenuExtended_PinkSlipsContinue,0,
+             MenuExtended_PinkSlipsContinue__FR12tMenuCommand,0,
              10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemPinkSlipStandingsExit,0x9c,(tMenu *)0x0,
-             MenuExtended_ExitPinkSlipsEarly,0
+             MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand,0
              ,10);
   tMenuNFS4_ctor(&this->menuPinkSlipStandings,0x1004,(tScreen *)screenPinkSlipStandings,(tMenu *)0x0,
              (tMenu *)0x0,(void *)0x0,0x2f4,(tMenuItem *)&this->itemPinkSlipStandingsForward,
@@ -2757,7 +2757,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemTournStandingsForward,0x5a,&(this->menuTrackInfo)._base_tMenu,(void *)0x0,0,10)
   ;
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemTournStandingsExit,0x9b,(tMenu *)0x0,
-             MenuExtended_ExitTourney,0,10);
+             MenuExtended_ExitTourney__FR12tMenuCommand,0,10);
   tMenuNFS4_ctor(&this->menuTournamentStandings,0x1004,(tScreen *)screenTournamentStandings3item,
              (tMenu *)0x0,(tMenu *)0x0,(void *)0x0,0x2f4,
              (tMenuItem *)&this->itemTournStandingsForward,&this->itemTournStandingsExit,0);
@@ -2767,17 +2767,17 @@ tGlobalMenuDefs::tGlobalMenuDefs()
              (tMenu *)0x0,(void *)0x0,0x2f4,(tMenuItem *)&this->itemTournamentFinishedHome,0);
   tMenuBlank_ctor(&this->menuTournamentTrophy,0x8000,(tScreen *)screenTournamentTrophy,(tMenu *)0x0,
              (tMenu *)0x0,
-             MenuExtended_TierFinished,-1);
+             MenuExtended_TierFinished__FR12tMenuCommand,-1);
   tOptionsMenu_ctor(&this->menuPostGamePlayer1Name,0x1040,&screenUserName->_base_tScreen,(tMenu *)0x0,
              (tMenu *)0x0,
-             MenuExtended_FinishedPlayer1GetName,-1,0x20,10,
+             MenuExtended_FinishedPlayer1GetName__FR12tMenuCommand,-1,0x20,10,
              &(this->menuItemUserName1)._base_tMenuItem,0);
   tOptionsMenu_ctor(&this->menuPostGamePlayer2Name,0x1080,&screenUserName->_base_tScreen,(tMenu *)0x0,
              (tMenu *)0x0,
-             MenuExtended_FinishedPlayer2GetName,-1,0x20,10,
+             MenuExtended_FinishedPlayer2GetName__FR12tMenuCommand,-1,0x20,10,
              &(this->menuItemUserName2)._base_tMenuItem,0);
   tMenuItemGoToMenuNFS4Button_ctor(&(this->itemPostGameTrackRecordsContinue)._base_tMenuItemGoToMenuNFS4Button,0x5a,(tMenu *)0x0
-             ,MenuExtended_PostGameMenu,-1,-1)
+             ,MenuExtended_PostGameMenu__FR12tMenuCommand,-1,-1)
   ;
   ptVar2 = screenTrackRecords;
   *(void **)&((this->itemPostGameTrackRecordsContinue)._base_tMenuItemGoToMenuNFS4Button._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)&tBlankMenuItemGoToMenuNFS4Button_vtable;
@@ -2785,18 +2785,18 @@ tGlobalMenuDefs::tGlobalMenuDefs()
              (void *)0x0,0xd4,1,10,(tMenuItem *)&this->itemPostGameTrackRecordsContinue,0);
   tMenuBlank_ctor(&this->menuPinkSlipCongrats,0x8000,(tScreen *)screenPinkSlipCongrats,(tMenu *)0x0,
              (tMenu *)0x0,
-             MenuExtended_AwardPinkSlipsCar,-1
+             MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand,-1
             );
   tMenuBlank_ctor(&this->menuBeTheCopCongrats,0x8000,(tScreen *)screenBeTheCopCongrats,(tMenu *)0x0,
              (tMenu *)0x0,
-             MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame,-1);
+             MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame__FR12tMenuCommand,-1);
   tMenuBlank_ctor(&this->menuTierCompleteCongrats,0x8000,(tScreen *)screenTournamentCongrats,(tMenu *)0x0
              ,(tMenu *)0x0,
-             MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame,-1);
+             MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame__FR12tMenuCommand,-1);
   tMenuBlank_ctor(&this->menuCredits,0x1010,&screenMain->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,(void *)0x0
              ,-1);
   tMenuItemGoToMenuButton_ctor((tMenuItemGoToMenuButton *)&this->itemMemContinue,0x28a,(tMenu *)0x0,
-             MenuExtended_TransitionFromPostGameToMainMenu);
+             MenuExtended_TransitionFromPostGameToMainMenu__FR12tMenuCommand);
   ptVar3 = screenMemcard;
   *(void **)&((this->itemMemContinue)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMemoryCardMenuItem_vtable;
   tOptionsMenu_ctor(&this->menuPostGameSave,0x1040,&ptVar3->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,

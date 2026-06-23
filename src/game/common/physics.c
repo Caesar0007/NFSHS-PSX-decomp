@@ -21,3 +21,4 @@ INCLUDE_ASM("asm/nonmatchings/main", Physics_CalculateTireForces__FP8Car_tObjP23
 INCLUDE_ASM("asm/nonmatchings/main", Physics_CalculateRSControlDesiredPosition__FP8Car_tObjii);
 INCLUDE_ASM("asm/nonmatchings/main", Physics_Real__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", Physics_SimCar__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", Physics_CheckGamedata__Fv);

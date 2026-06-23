@@ -26,3 +26,4 @@ INCLUDE_ASM("asm/nonmatchings/main", Flare_InitLensFlare__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Flare_LensFlare__FP7DVECTORP15Draw_FlareCache);
 INCLUDE_ASM("asm/nonmatchings/main", Flare_Sun__FP7SVECTORP15Draw_FlareCache);
 INCLUDE_ASM("asm/nonmatchings/main", Flare_Moon__FP7SVECTORP15Draw_FlareCache);
+INCLUDE_ASM("asm/nonmatchings/main", Flare_IdentMatrix__FP6MATRIX);

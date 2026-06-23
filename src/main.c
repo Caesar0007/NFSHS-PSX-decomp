@@ -229,17 +229,6 @@ void AITune_CleanUp1__Fv(void) {
 void AITune_CleanUp2__Fv(void) {
 }
 
-int AIWorld_GameOdometer__FP8Car_tObj(void *car) {
-    unsigned short v = ((unsigned short *)car)[3];
-    return (v * 3) << 17;
-}
-
-int AIWorld_IsDriveableLane_UsingMask__Fii(int lane, int mask) {
-    char *p = (char *)(lane << 5);
-    p += (int)*(char **)0x8013C7C0;
-    return *(short *)(p + 0x16) & mask;
-}
-
 void SetAnimAttrib__10AnimScripti(void *this, int v) {
     *(int *)((char *)this + 8) = v;
 }
@@ -252,15 +241,6 @@ int AudioCmn_GetTrackRecordLapTime__Fv(void) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_GetAsyncSfx__Fiib);
-
-void AudioEng_Resume__Fv(void) {
-}
-
-void BWorld_StartLoop__Fv(void) {
-}
-
-void BWorldSm_DeInit__Fv(void) {
-}
 
 void Cars_GetDashData__FP8Car_tObjPiN21(char *car, int *speed, int *gear, int *rpm) {
     *speed = *(int *)(car + 0x468);
@@ -355,43 +335,6 @@ INCLUDE_ASM("asm/nonmatchings/main", ___23ObjectFinishedMultiAnim);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800A6DE0);
 
-int Value__21tPListIteratorIndexed7tPlayer(char *this) {
-    unsigned char *idxp = *(unsigned char **)(this + 0xC);
-    int *array = *(int **)(this + 4);
-    return array[*idxp];
-}
-
-int NextMenu__10tPMenuItem(void *this) { return 0; }
-int Debounce__10tPMenuItem(void *this) { return 1; }
-void ProcessInput__10tPMenuItemR13tInputKeyTypeR13tPMenuCommand(void) {
-}
-
-int Debounce__25tPMenuItemLeftRightSlider(void *this) { return 0; }
-
-int NextMenu__24tPMenuItemGoToMenuButton(void *a0) {
-    return *(int *)((char *)a0 + 0xC);
-}
-
-int IsNavigable__21tPMenuItemInteractive(void *this) { return 1; }
-int IsNavigable__28tPMenuItemNonInteractiveText(void *this) { return 0; }
-
-void Physics_CheckGamedata__Fv(void) {
-}
-
-void R3DCar_MATRIX3DT_Copy__FPiT0(int *src, int *dst) {
-    int i = 8;
-    do {
-        *dst++ = *src++;
-        i--;
-    } while (i != -1);
-}
-
-void Render_RenderDebugView__Fv(void) {
-}
-
-void Replay_LoadReplay__Fv(void) {
-}
-
 INCLUDE_ASM("asm/nonmatchings/main", func_800B6B9C);
 
 INCLUDE_ASM("asm/nonmatchings/main", Alloc__9SimpleMemii);
@@ -421,46 +364,14 @@ INCLUDE_ASM("asm/nonmatchings/main", ___11SaveSurface);
 
 INCLUDE_ASM("asm/nonmatchings/main", RestoreAll__11SaveSurface);
 
-void TrgSfx_KillTrgSfx__Fv(void) {
-}
-
-int Udff_GetInt__FP10Udff_tInfo(void *this) {
-    int **pp = (int **)((char *)this + 8);
-    int *p = *pp;
-    int v = *p;
-    *pp = p + 1;
-    return v;
-}
-
-int Device_Null__FUl(unsigned long x) { return 0; }
-
 void Draw_RestartRenderEngine__Fv(void) {
 }
 
 void ChangeTPage__FPUsi(unsigned short *p, int i) {
     *p = (*p & 0xFF9F) | (i << 5);
 }
-void DrawC_SetEnviroment__Fv(void) {
-}
-
-void Force_UnPause__Fv(void) {
-}
-
-void Force_HitSign__FP8Car_tObj(void) {
-}
-
-void Force_HitWall__Fi(void) {
-}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800CB6A0);
-
-void Flare_IdentMatrix__FP6MATRIX(int *m) {
-    m[0] = 0x1000;
-    m[1] = 0;
-    m[2] = 0x1000;
-    m[3] = 0;
-    m[4] = 0x1000;
-}
 
 INCLUDE_ASM("asm/nonmatchings/main", Hrz_LightningAddFork__FScScSc);
 
@@ -472,14 +383,6 @@ INCLUDE_ASM("asm/nonmatchings/main", Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc);
 INCLUDE_ASM("asm/nonmatchings/main", func_800D2A44);
 
 INCLUDE_ASM("asm/nonmatchings/main", Hud_BTCStats__Fsb);
-
-void Platform_DebuggerPollHost__Fv(void) {
-}
-
-int InGame_GetDevice__Fi(int x) { return x & 0xFF; }
-
-void Texture_KillTrackTexture__Fv(void) {
-}
 
 int Weather_GetNumParticles__Fi(int player) {
     return *(int *)0x80123408;
@@ -527,10 +430,6 @@ int gettick(void) {
 }
 
 void func_800ED0D4(void) {
-}
-
-int shapecount(void *a0) {
-    return *(int *)((char *)a0 + 0x8);
 }
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800F0BF4);
@@ -896,4 +795,3 @@ int ReadInitPadFlag(void) {
 INCLUDE_ASM("asm/nonmatchings/main", func_8010C9FC);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_8010CA40);
-

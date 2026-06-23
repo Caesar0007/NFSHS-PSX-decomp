@@ -10,3 +10,4 @@ INCLUDE_ASM("asm/nonmatchings/main", TrgSfx_CrashCar__FP8coorddef);
 INCLUDE_ASM("asm/nonmatchings/main", TrgSfx_AddSkidmark__FiiP8coorddefiiP8Car_tObji);
 INCLUDE_ASM("asm/nonmatchings/main", TrgSfx_InitTrgSfx__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", TrgSfx_RestartTrgSfx__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", TrgSfx_KillTrgSfx__Fv);

@@ -20,3 +20,5 @@ INCLUDE_ASM("asm/nonmatchings/main", AIWorld_CalcFutureLateralVel__FP8Car_tObji)
 INCLUDE_ASM("asm/nonmatchings/main", AIWorld_CalcSpeed__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AIWorld_CalcLateralVelocity__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AIWorld_FindBarrierLessLaneAndPosition__FP8Car_tObjPiT1);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_GameOdometer__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AIWorld_IsDriveableLane_UsingMask__Fii);

@@ -26,3 +26,4 @@ INCLUDE_ASM("asm/nonmatchings/main", R3DCar_InsertCarFacetMenuII__FP8Car_tObji);
 INCLUDE_ASM("asm/nonmatchings/main", R3DCar_Showroom__FP13DRender_tView);
 INCLUDE_ASM("asm/nonmatchings/main", R3DCar_InsertCarFacetZ__FP8Car_tObjP13DRender_tView);
 INCLUDE_ASM("asm/nonmatchings/main", R3DCar_InsertAllListFacet__FP13DRender_tView);
+INCLUDE_ASM("asm/nonmatchings/main", R3DCar_MATRIX3DT_Copy__FPiT0);

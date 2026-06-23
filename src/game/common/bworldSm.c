@@ -27,3 +27,4 @@ INCLUDE_ASM("asm/nonmatchings/main", Check_Rot__FP12BWorldSm_Pos);
 INCLUDE_ASM("asm/nonmatchings/main", BWorldSm_UNormal__FP12BWorldSm_Pos);
 INCLUDE_ASM("asm/nonmatchings/main", BWorldSm_UForward__FP12BWorldSm_Pos);
 INCLUDE_ASM("asm/nonmatchings/main", BWorldSm_FindClosestTriangleRez__FP8coorddefP12BWorldSm_Posi);
+INCLUDE_ASM("asm/nonmatchings/main", BWorldSm_DeInit__Fv);

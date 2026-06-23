@@ -15,3 +15,4 @@ INCLUDE_ASM("asm/nonmatchings/main", Replay_GetInterfaceKey__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Replay_LoadCameraFile__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Replay_ReplayChooseCamera__Fii);
 INCLUDE_ASM("asm/nonmatchings/main", Replay_ReplayFindClosestCamera__Fii);
+INCLUDE_ASM("asm/nonmatchings/main", Replay_LoadReplay__Fv);

@@ -20,3 +20,4 @@ INCLUDE_ASM("asm/nonmatchings/main", BWorld_OpenContext__Fii);
 INCLUDE_ASM("asm/nonmatchings/main", BWorld_Restart__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", BWorld_Init__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", BWorld_DeInit__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", BWorld_StartLoop__Fv);

@@ -22,3 +22,4 @@ INCLUDE_ASM("asm/nonmatchings/main", Render_InitLibRender__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", StampImage__Fii);
 INCLUDE_ASM("asm/nonmatchings/main", Render_InitBlurMode__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Render_InsertDepthOfField__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Render_RenderDebugView__Fv);

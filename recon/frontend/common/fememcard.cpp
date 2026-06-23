@@ -962,3 +962,8 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
 
 
 /* end of fememcard.cpp */
+
+extern "C" {
+void ___23tMenuItemGoToMenuButton(void *);
+void ___19tMemoryCardMenuItem(void *thisp) { ___23tMenuItemGoToMenuButton(thisp); }
+}

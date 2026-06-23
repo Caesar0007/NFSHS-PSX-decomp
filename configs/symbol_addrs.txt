@@ -4655,3 +4655,9 @@ ScaleGouraudShape__FP18tTexture_ShapeInfoiiiiiPii = 0x8004E77C; // type:func
 ScaleFlatShape__FP18tTexture_ShapeInfoiiiiiPii = 0x8004EA38; // type:func
 iMCRD_timersub = 0x8005028C; // type:func
 ascii2sjis = 0x800506F0; // type:func
+
+___31tDialogMessageStringWithTimeout = 0x80015760; // type:func
+___18tDialogInteractive = 0x80019F24; // type:func
+___11tAllScreens = 0x8002BF0C; // type:func
+___32tBlankMenuItemGoToMenuNFS4Button = 0x800321D8; // type:func
+___33tBlankMenuItemNFS4LeftRightChoice = 0x80032208; // type:func

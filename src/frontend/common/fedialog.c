@@ -30,3 +30,5 @@ INCLUDE_ASM("asm/nonmatchings/front", ___17tDialogBackUpOnly);
 INCLUDE_ASM("asm/nonmatchings/front", ___20tDialogMessageString);
 INCLUDE_ASM("asm/nonmatchings/front", ___11tDialogHelp);
 INCLUDE_ASM("asm/nonmatchings/front", ___11tDialogBase);
+INCLUDE_ASM("asm/nonmatchings/front", ___31tDialogMessageStringWithTimeout);
+INCLUDE_ASM("asm/nonmatchings/front", ___18tDialogInteractive);

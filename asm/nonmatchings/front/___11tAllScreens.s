@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_8002BF0C, 0x1D0
+nonmatching ___11tAllScreens, 0x1D0
 
-glabel func_8002BF0C
+glabel ___11tAllScreens
     /* 1C70C 8002BF0C E0FFBD27 */  addiu      $sp, $sp, -0x20
     /* 1C710 8002BF10 1800B2AF */  sw         $s2, 0x18($sp)
     /* 1C714 8002BF14 21908000 */  addu       $s2, $a0, $zero
@@ -121,5 +121,5 @@ glabel func_8002BF0C
     /* 1C8D0 8002C0D0 1000B08F */  lw         $s0, 0x10($sp)
     /* 1C8D4 8002C0D4 0800E003 */  jr         $ra
     /* 1C8D8 8002C0D8 2000BD27 */   addiu     $sp, $sp, 0x20
-endlabel func_8002BF0C
+endlabel ___11tAllScreens
     /* 1C8DC 8002C0DC 00000000 */  nop

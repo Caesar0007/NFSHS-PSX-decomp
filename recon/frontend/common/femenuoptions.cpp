@@ -2952,3 +2952,43 @@ void tInsideBoxControllerLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInput
 
 /* owning-TU def (extern-declared, never defined; link-harness) */
 short _UNK_80010a02, _UNK_80010a06, _UNK_80010a0a;
+
+extern "C" {
+void ___25tInsideBoxLeftRightSlider(void *);
+void ___35tInsideBoxControllerLeftRightSlider(void *thisp) { ___25tInsideBoxLeftRightSlider(thisp); }
+}
+
+extern "C" {
+void ___23tMenuItemGoToMenuButton(void *);
+void ___27tMenuItemGoToMenuButtonFade(void *thisp) { ___23tMenuItemGoToMenuButton(thisp); }
+}
+
+extern "C" {
+void ___9tMenuItem(void *);
+void ___17tUserNameMenuItem(void *thisp) { ___9tMenuItem(thisp); }
+}
+
+extern "C" {
+void ___24tMenuItemLeftRightChoice(void *);
+void ___34tMenuItemControllerLeftRightChoice(void *thisp) { ___24tMenuItemLeftRightChoice(thisp); }
+}
+
+extern "C" {
+void ___24tMenuItemLeftRightChoice(void *);
+void ___29tMenuItemOnOffLeftRightChoice(void *thisp) { ___24tMenuItemLeftRightChoice(thisp); }
+}
+
+extern "C" {
+void ___24tMenuItemLeftRightChoice(void *);
+void ___31tMenuItemDisplayLeftRightChoice(void *thisp) { ___24tMenuItemLeftRightChoice(thisp); }
+}
+
+extern "C" {
+void ___20tMenuItemSlidingMenu(void *);
+void ___25tMenuItemSlidingActivated(void *thisp) { ___20tMenuItemSlidingMenu(thisp); }
+}
+
+extern "C" {
+void ___24tMenuItemLeftRightChoice(void *);
+void ___22tMenuItemLeftRightFade(void *thisp) { ___24tMenuItemLeftRightChoice(thisp); }
+}

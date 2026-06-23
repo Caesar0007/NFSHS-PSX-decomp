@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_80015760, 0x20
+nonmatching ___31tDialogMessageStringWithTimeout, 0x20
 
-glabel func_80015760
+glabel ___31tDialogMessageStringWithTimeout
     /* 5F60 80015760 E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* 5F64 80015764 1000BFAF */  sw         $ra, 0x10($sp)
     /* 5F68 80015768 1E98000C */  jal        ___7tScreen
@@ -12,4 +12,4 @@ glabel func_80015760
     /* 5F74 80015774 00000000 */  nop
     /* 5F78 80015778 0800E003 */  jr         $ra
     /* 5F7C 8001577C 1800BD27 */   addiu     $sp, $sp, 0x18
-endlabel func_80015760
+endlabel ___31tDialogMessageStringWithTimeout

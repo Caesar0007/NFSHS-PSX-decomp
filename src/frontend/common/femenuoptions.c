@@ -83,3 +83,11 @@ INCLUDE_ASM("asm/nonmatchings/front", TransitionIsFinished__17tUserNameMenuItem)
 INCLUDE_ASM("asm/nonmatchings/front", UpdateTransition__17tUserNameMenuItemb);
 INCLUDE_ASM("asm/nonmatchings/front", Draw__19tMemoryCardMenuItemb);
 INCLUDE_ASM("asm/nonmatchings/front", ProcessInput__35tInsideBoxControllerLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand);
+INCLUDE_ASM("asm/nonmatchings/front", ___35tInsideBoxControllerLeftRightSlider);
+INCLUDE_ASM("asm/nonmatchings/front", ___27tMenuItemGoToMenuButtonFade);
+INCLUDE_ASM("asm/nonmatchings/front", ___17tUserNameMenuItem);
+INCLUDE_ASM("asm/nonmatchings/front", ___34tMenuItemControllerLeftRightChoice);
+INCLUDE_ASM("asm/nonmatchings/front", ___29tMenuItemOnOffLeftRightChoice);
+INCLUDE_ASM("asm/nonmatchings/front", ___31tMenuItemDisplayLeftRightChoice);
+INCLUDE_ASM("asm/nonmatchings/front", ___25tMenuItemSlidingActivated);
+INCLUDE_ASM("asm/nonmatchings/front", ___22tMenuItemLeftRightFade);

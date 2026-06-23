@@ -42,3 +42,4 @@ INCLUDE_ASM("asm/nonmatchings/front", Front_AppendPerpData__FPiR9tFEStream);
 INCLUDE_ASM("asm/nonmatchings/front", Front_AppendTrafficData__FPiR9tFEStream);
 INCLUDE_ASM("asm/nonmatchings/front", Front_AppendTrackData__FPiR9tFEStream);
 INCLUDE_ASM("asm/nonmatchings/front", __11tAllScreens);
+INCLUDE_ASM("asm/nonmatchings/front", ___11tAllScreens);

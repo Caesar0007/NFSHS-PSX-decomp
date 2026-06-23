@@ -1059,3 +1059,13 @@ tDialogBase::~tDialogBase()
 
 
 /* end of fedialog.cpp */
+
+extern "C" {
+void ___7tScreen(void *);
+void ___31tDialogMessageStringWithTimeout(void *thisp) { ___7tScreen(thisp); }
+}
+
+extern "C" {
+void ___7tScreen(void *);
+void ___18tDialogInteractive(void *thisp) { ___7tScreen(thisp); }
+}

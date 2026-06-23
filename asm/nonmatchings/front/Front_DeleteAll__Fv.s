@@ -9,7 +9,7 @@ glabel Front_DeleteAll__Fv
     /* 177F0 80026FF0 E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* 177F4 80026FF4 03008010 */  beqz       $a0, .L80027004
     /* 177F8 80026FF8 1000BFAF */   sw        $ra, 0x10($sp)
-    /* 177FC 80026FFC C3AF000C */  jal        func_8002BF0C
+    /* 177FC 80026FFC C3AF000C */  jal        ___11tAllScreens
     /* 17800 80027000 03000524 */   addiu     $a1, $zero, 0x3
   .L80027004:
     /* 17804 80027004 0580023C */  lui        $v0, %hi(FEApp)

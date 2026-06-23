@@ -121,7 +121,7 @@ dlabel D_80010098
     /* 8B0 800100B0 00000000 */ .word 0x00000000
     /* 8B4 800100B4 E0680280 */ .word DrawForeground__7tScreen
     /* 8B8 800100B8 00000000 */ .word 0x00000000
-    /* 8BC 800100BC 60570180 */ .word func_80015760
+    /* 8BC 800100BC 60570180 */ .word ___31tDialogMessageStringWithTimeout
     /* 8C0 800100C0 00000000 */ .word 0x00000000
     /* 8C4 800100C4 80670280 */ .word PreLoad__7tScreen
     /* 8C8 800100C8 00000000 */ .word 0x00000000
@@ -450,7 +450,7 @@ dlabel D_800103D0
     /* BE8 800103E8 00000000 */ .word 0x00000000
     /* BEC 800103EC E0680280 */ .word DrawForeground__7tScreen
     /* BF0 800103F0 00000000 */ .word 0x00000000
-    /* BF4 800103F4 249F0180 */ .word func_80019F24
+    /* BF4 800103F4 249F0180 */ .word ___18tDialogInteractive
     /* BF8 800103F8 00000000 */ .word 0x00000000
     /* BFC 800103FC 80670280 */ .word PreLoad__7tScreen
     /* C00 80010400 00000000 */ .word 0x00000000
@@ -1939,7 +1939,7 @@ dlabel D_800114D8
     /* 1CD8 800114D8 00000000 */ .word 0x00000000
     /* 1CDC 800114DC 00000000 */ .word 0x00000000
     /* 1CE0 800114E0 00000000 */ .word 0x00000000
-    /* 1CE4 800114E4 D8210380 */ .word func_800321D8
+    /* 1CE4 800114E4 D8210380 */ .word ___32tBlankMenuItemGoToMenuNFS4Button
     /* 1CE8 800114E8 00000000 */ .word 0x00000000
     /* 1CEC 800114EC 98470280 */ .word DebounceKeys__9tMenuItem
     /* 1CF0 800114F0 00000000 */ .word 0x00000000
@@ -1966,7 +1966,7 @@ dlabel D_80011530
     /* 1D30 80011530 00000000 */ .word 0x00000000
     /* 1D34 80011534 00000000 */ .word 0x00000000
     /* 1D38 80011538 00000000 */ .word 0x00000000
-    /* 1D3C 8001153C 08220380 */ .word func_80032208
+    /* 1D3C 8001153C 08220380 */ .word ___33tBlankMenuItemNFS4LeftRightChoice
     /* 1D40 80011540 00000000 */ .word 0x00000000
     /* 1D44 80011544 98470280 */ .word DebounceKeys__9tMenuItem
     /* 1D48 80011548 00000000 */ .word 0x00000000

@@ -61,3 +61,5 @@ INCLUDE_ASM("asm/nonmatchings/front", MenuExtended_GoToUpgrades__FR12tMenuComman
 INCLUDE_ASM("asm/nonmatchings/front", MenuExtended_DidUserWinBeTheCop__Fv);
 INCLUDE_ASM("asm/nonmatchings/front", TransitionIsFinished__32tBlankMenuItemGoToMenuNFS4Button);
 INCLUDE_ASM("asm/nonmatchings/front", TransitionIsFinished__33tBlankMenuItemNFS4LeftRightChoice);
+INCLUDE_ASM("asm/nonmatchings/front", ___32tBlankMenuItemGoToMenuNFS4Button);
+INCLUDE_ASM("asm/nonmatchings/front", ___33tBlankMenuItemNFS4LeftRightChoice);

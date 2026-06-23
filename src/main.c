@@ -189,8 +189,6 @@ void DoSlowNitrous__13AIState_Chase(void *this) {
     *(int *)((char *)*(void **)this + 0x740) = 0xC000;
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car_tObjRi);
-
 int TestForRelease__21AIState_RovingTraffic(void *this) {
     int f10 = *(int *)((char *)this + 0x10);
     int fC  = *(int *)((char *)this + 0xC);

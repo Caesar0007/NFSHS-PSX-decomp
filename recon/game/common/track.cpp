@@ -74,7 +74,7 @@ void Track_Init(char *tempName);
 void Track_DeInit(void);
 void Track_AnimateTrackLighting(void);
 char * KillFile_OpenRead(void);
-void KillFile_ReadEntry(char *filePtr,int entryInd,int *chunkInd,int *objectInd);
+void KillFile_ReadEntry(char *filePtr,int entryInd,int &chunkInd,int &objectInd);
 void Track_LoadObjectKillData(void);
 void Save(SaveSurface *pThis,Trk_NewSimQuad *simQuad);
 void RestoreAll(SaveSurface *pThis);
@@ -1560,11 +1560,11 @@ char * KillFile_OpenRead(void)
 }
 
 /* ---- KillFile_ReadEntry__FPciRiT2  [TRACK.CPP:1732-1736] SLD-VERIFIED ---- */
-void KillFile_ReadEntry(char *filePtr,int entryInd,int *chunkInd,int *objectInd)
+void KillFile_ReadEntry(char *filePtr,int entryInd,int &chunkInd,int &objectInd)
 
 {
-  *chunkInd = *(int *)(filePtr + entryInd * 8 + 4);
-  *objectInd = *(int *)(filePtr + entryInd * 8 + 8);
+  chunkInd = *(int *)(filePtr + entryInd * 8 + 4);
+  objectInd = *(int *)(filePtr + entryInd * 8 + 8);
   return;
 }
 
@@ -1598,7 +1598,7 @@ void Track_LoadObjectKillData(void)
   entryInd = 0;
   if (filePtr_00 != (int *)0x0) {
     for (; entryInd < *filePtr_00; entryInd = entryInd + 1) {
-      KillFile_ReadEntry((char *)filePtr_00,entryInd,&chunkInd,&objInd);
+      KillFile_ReadEntry((char *)filePtr_00,entryInd,chunkInd,objInd);
       pGVar3 = Track_chunkList[chunkInd].objInstanceBuf;
       if ((pGVar3 != (Group *)0x0) && (pGVar4 = pGVar3 + 1, objInd < pGVar3->m_num_elements)) {
         iVar2 = 0;

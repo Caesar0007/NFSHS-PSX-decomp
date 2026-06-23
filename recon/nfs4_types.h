@@ -2531,7 +2531,7 @@ struct AIState_RovingTraffic {   /* 24 bytes */
     AIState_RovingTraffic() {}
     AIState_RovingTraffic(Car_tObj *carObj, trigger_t *trig);
     ~AIState_RovingTraffic();
-    void CheckIfCarIsNearbyAndStop(Car_tObj *carObj, int *status);
+    void CheckIfCarIsNearbyAndStop(Car_tObj *carObj, int &status);
     void Execute();
     int TestForRelease();
 };

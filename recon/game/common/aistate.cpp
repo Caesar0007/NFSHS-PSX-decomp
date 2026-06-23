@@ -2514,11 +2514,12 @@ AIState_RovingTraffic::AIState_RovingTraffic(Car_tObj *carObj,trigger_t *trigger
 
 /* ---- CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car_tObjRi  AIState_RovingTraffic::CheckIfCarIsNearbyAndStop  [AISTATE.CPP:1130-1169] SLD-VERIFIED ---- */
 
-void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int *status)
+void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int &status_r)
 
 
 
 {
+  int *status = &status_r;   /* R-ref param; alias keeps the pointer-form body codegen-identical */
   int distance;
   coorddef posDiff;
 
@@ -2786,7 +2787,7 @@ void AIState_RovingTraffic::Execute()
 
     iVar8 = iVar8 + 1;
 
-    this->CheckIfCarIsNearbyAndStop(pCVar4,local_20);
+    this->CheckIfCarIsNearbyAndStop(pCVar4,*local_20);
 
   }
 
@@ -2806,7 +2807,7 @@ void AIState_RovingTraffic::Execute()
 
       iVar8 = iVar8 + -1;
 
-      this->CheckIfCarIsNearbyAndStop(pCVar4,local_20);
+      this->CheckIfCarIsNearbyAndStop(pCVar4,*local_20);
 
     }
 

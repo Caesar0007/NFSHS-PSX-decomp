@@ -23,3 +23,4 @@ INCLUDE_ASM("asm/nonmatchings/main", Track_Init__FPc);
 INCLUDE_ASM("asm/nonmatchings/main", Track_DeInit__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", KillFile_OpenRead__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Track_LoadObjectKillData__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", KillFile_ReadEntry__FPciRiT2);

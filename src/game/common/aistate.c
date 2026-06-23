@@ -44,3 +44,4 @@ INCLUDE_ASM("asm/nonmatchings/main", ___17AIState_GotoSlice);
 INCLUDE_ASM("asm/nonmatchings/main", ___21AIState_RovingTraffic);
 INCLUDE_ASM("asm/nonmatchings/main", ___12AIState_Idle);
 INCLUDE_ASM("asm/nonmatchings/main", ___14AIState_Normal);
+INCLUDE_ASM("asm/nonmatchings/main", CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car_tObjRi);

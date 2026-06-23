@@ -17,3 +17,4 @@ INCLUDE_ASM("asm/nonmatchings/main", GetAnimFrameInfo__10AnimScriptPiT1);
 INCLUDE_ASM("asm/nonmatchings/main", GetTimedAnimPosRot__10AnimScriptP8coorddefP10matrixtdef);
 INCLUDE_ASM("asm/nonmatchings/main", GetTimedAnimPosRot__10AnimScriptiP8coorddefP10matrixtdef);
 INCLUDE_ASM("asm/nonmatchings/main", GetStatus__10AnimScript);
+INCLUDE_ASM("asm/nonmatchings/main", SetAnimAttrib__10AnimScripti);

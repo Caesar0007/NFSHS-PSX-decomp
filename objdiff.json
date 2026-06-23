@@ -16,78 +16,6 @@
   ],
   "units": [
     {
-      "name": "frontend/common/mcrd",
-      "target_path": "expected/src/frontend/common/mcrd.c.o",
-      "base_path": "build/recon/frontend/common/mcrd.cpp.o",
-      "metadata": {
-        "source_path": "recon/frontend/common/mcrd.cpp"
-      }
-    },
-    {
-      "name": "main",
-      "target_path": "expected/src/main.c.o",
-      "base_path": "build/src/main.c.o",
-      "metadata": {
-        "source_path": "src/main.c"
-      }
-    },
-    {
-      "name": "front",
-      "target_path": "expected/src/front.c.o",
-      "base_path": "build/src/front.c.o",
-      "metadata": {
-        "source_path": "src/front.c"
-      }
-    },
-    {
-      "name": "game/common/aiinit",
-      "target_path": "expected/src/aiinit.c.o",
-      "base_path": "build/recon/game/common/aiinit.cpp.o",
-      "metadata": {
-        "source_path": "recon/game/common/aiinit.cpp"
-      }
-    },
-    {
-      "name": "game/common/aitune",
-      "target_path": "expected/src/aitune.c.o",
-      "base_path": "build/recon/game/common/aitune.cpp.o",
-      "metadata": {
-        "source_path": "recon/game/common/aitune.cpp"
-      }
-    },
-    {
-      "name": "game/common/aiscript",
-      "target_path": "expected/src/aiscript.c.o",
-      "base_path": "build/recon/game/common/aiscript.cpp.o",
-      "metadata": {
-        "source_path": "recon/game/common/aiscript.cpp"
-      }
-    },
-    {
-      "name": "game/common/aiperson",
-      "target_path": "expected/src/aiperson.c.o",
-      "base_path": "build/recon/game/common/aiperson.cpp.o",
-      "metadata": {
-        "source_path": "recon/game/common/aiperson.cpp"
-      }
-    },
-    {
-      "name": "game/common/aidatarecord",
-      "target_path": "expected/src/aidatarecord.c.o",
-      "base_path": "build/recon/game/common/aidatarecord.cpp.o",
-      "metadata": {
-        "source_path": "recon/game/common/aidatarecord.cpp"
-      }
-    },
-    {
-      "name": "game/common/aiphysic",
-      "target_path": "expected/src/aiphysic.c.o",
-      "base_path": "build/recon/game/common/aiphysic.cpp.o",
-      "metadata": {
-        "source_path": "recon/game/common/aiphysic.cpp"
-      }
-    },
-    {
       "name": "eaclib/psx/eacpsxz/addtimer",
       "target_path": "expected/src/eaclib/psx/eacpsxz/addtimer.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/addtimer.cpp.o",
@@ -573,6 +501,14 @@
       "base_path": "build/recon/eaclib/psx/eacpsxz/xform.cpp.o",
       "metadata": {
         "source_path": "recon/eaclib/psx/eacpsxz/xform.cpp"
+      }
+    },
+    {
+      "name": "eaclib/psx/pad",
+      "target_path": "expected/src/eaclib/psx/pad.c.o",
+      "base_path": "build/recon/eaclib/psx/pad.cpp.o",
+      "metadata": {
+        "source_path": "recon/eaclib/psx/pad.cpp"
       }
     },
     {
@@ -1168,6 +1104,14 @@
       }
     },
     {
+      "name": "eaclib/psx/spchpsxz/spchdata",
+      "target_path": "expected/src/eaclib/psx/spchpsxz/spchdata.c.o",
+      "base_path": "build/recon/eaclib/psx/spchpsxz/spchdata.cpp.o",
+      "metadata": {
+        "source_path": "recon/eaclib/psx/spchpsxz/spchdata.cpp"
+      }
+    },
+    {
       "name": "eaclib/psx/spchpsxz/spchevnt",
       "target_path": "expected/src/eaclib/psx/spchpsxz/spchevnt.c.o",
       "base_path": "build/recon/eaclib/psx/spchpsxz/spchevnt.cpp.o",
@@ -1221,6 +1165,14 @@
       "base_path": "build/recon/eaclib/psx/spchpsxz/spchsamp.cpp.o",
       "metadata": {
         "source_path": "recon/eaclib/psx/spchpsxz/spchsamp.cpp"
+      }
+    },
+    {
+      "name": "front",
+      "target_path": "expected/src/front.c.o",
+      "base_path": "build/src/front.c.o",
+      "metadata": {
+        "source_path": "src/front.c"
       }
     },
     {
@@ -1408,6 +1360,14 @@
       }
     },
     {
+      "name": "frontend/common/mcrd",
+      "target_path": "expected/src/frontend/common/mcrd.c.o",
+      "base_path": "build/recon/frontend/common/mcrd.cpp.o",
+      "metadata": {
+        "source_path": "recon/frontend/common/mcrd.cpp"
+      }
+    },
+    {
       "name": "frontend/common/screenaudio",
       "target_path": "expected/src/frontend/common/screenaudio.c.o",
       "base_path": "build/recon/frontend/common/screenaudio.cpp.o",
@@ -1576,6 +1536,14 @@
       }
     },
     {
+      "name": "frontend/psx/memcard",
+      "target_path": "expected/src/frontend/psx/memcard.c.o",
+      "base_path": "build/recon/frontend/psx/memcard.cpp.o",
+      "metadata": {
+        "source_path": "recon/frontend/psx/memcard.cpp"
+      }
+    },
+    {
       "name": "frontend/psx/mmeffect",
       "target_path": "expected/src/frontend/psx/mmeffect.c.o",
       "base_path": "build/recon/frontend/psx/mmeffect.cpp.o",
@@ -1629,6 +1597,14 @@
       "base_path": "build/recon/game/common/aicop.cpp.o",
       "metadata": {
         "source_path": "recon/game/common/aicop.cpp"
+      }
+    },
+    {
+      "name": "game/common/aidatarecord",
+      "target_path": "expected/src/aidatarecord.c.o",
+      "base_path": "build/recon/game/common/aidatarecord.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/common/aidatarecord.cpp"
       }
     },
     {
@@ -1720,11 +1696,43 @@
       }
     },
     {
+      "name": "game/common/aiinit",
+      "target_path": "expected/src/aiinit.c.o",
+      "base_path": "build/recon/game/common/aiinit.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/common/aiinit.cpp"
+      }
+    },
+    {
       "name": "game/common/ailife",
       "target_path": "expected/src/game/common/ailife.c.o",
       "base_path": "build/recon/game/common/ailife.cpp.o",
       "metadata": {
         "source_path": "recon/game/common/ailife.cpp"
+      }
+    },
+    {
+      "name": "game/common/aiperson",
+      "target_path": "expected/src/aiperson.c.o",
+      "base_path": "build/recon/game/common/aiperson.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/common/aiperson.cpp"
+      }
+    },
+    {
+      "name": "game/common/aiphysic",
+      "target_path": "expected/src/aiphysic.c.o",
+      "base_path": "build/recon/game/common/aiphysic.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/common/aiphysic.cpp"
+      }
+    },
+    {
+      "name": "game/common/aiscript",
+      "target_path": "expected/src/aiscript.c.o",
+      "base_path": "build/recon/game/common/aiscript.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/common/aiscript.cpp"
       }
     },
     {
@@ -1749,6 +1757,14 @@
       "base_path": "build/recon/game/common/aitriger.cpp.o",
       "metadata": {
         "source_path": "recon/game/common/aitriger.cpp"
+      }
+    },
+    {
+      "name": "game/common/aitune",
+      "target_path": "expected/src/aitune.c.o",
+      "base_path": "build/recon/game/common/aitune.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/common/aitune.cpp"
       }
     },
     {
@@ -1837,6 +1853,14 @@
       "base_path": "build/recon/game/common/cars.cpp.o",
       "metadata": {
         "source_path": "recon/game/common/cars.cpp"
+      }
+    },
+    {
+      "name": "game/common/chunk",
+      "target_path": "expected/src/game/common/chunk.c.o",
+      "base_path": "build/recon/game/common/chunk.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/common/chunk.cpp"
       }
     },
     {
@@ -2080,6 +2104,14 @@
       }
     },
     {
+      "name": "game/common/spchevnt",
+      "target_path": "expected/src/game/common/spchevnt.c.o",
+      "base_path": "build/recon/game/common/spchevnt.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/common/spchevnt.cpp"
+      }
+    },
+    {
       "name": "game/common/speech",
       "target_path": "expected/src/game/common/speech.c.o",
       "base_path": "build/recon/game/common/speech.cpp.o",
@@ -2288,6 +2320,22 @@
       }
     },
     {
+      "name": "game/psx/textpix",
+      "target_path": "expected/src/game/psx/textpix.c.o",
+      "base_path": "build/recon/game/psx/textpix.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/psx/textpix.cpp"
+      }
+    },
+    {
+      "name": "game/psx/textpsx",
+      "target_path": "expected/src/game/psx/textpsx.c.o",
+      "base_path": "build/recon/game/psx/textpsx.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/psx/textpsx.cpp"
+      }
+    },
+    {
       "name": "game/psx/texture",
       "target_path": "expected/src/game/psx/texture.c.o",
       "base_path": "build/recon/game/psx/texture.cpp.o",
@@ -2320,11 +2368,27 @@
       }
     },
     {
+      "name": "game/psx/unpack",
+      "target_path": "expected/src/game/psx/unpack.c.o",
+      "base_path": "build/recon/game/psx/unpack.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/psx/unpack.cpp"
+      }
+    },
+    {
       "name": "game/psx/weather",
       "target_path": "expected/src/game/psx/weather.c.o",
       "base_path": "build/recon/game/psx/weather.cpp.o",
       "metadata": {
         "source_path": "recon/game/psx/weather.cpp"
+      }
+    },
+    {
+      "name": "main",
+      "target_path": "expected/src/main.c.o",
+      "base_path": "build/src/main.c.o",
+      "metadata": {
+        "source_path": "src/main.c"
       }
     },
     {
@@ -3272,6 +3336,14 @@
       }
     },
     {
+      "name": "syslib/psx/libpad/MCXMAIN",
+      "target_path": "expected/src/syslib/psx/libpad/MCXMAIN.c.o",
+      "base_path": "build/recon/syslib/psx/libpad/MCXMAIN.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libpad/MCXMAIN.cpp"
+      }
+    },
+    {
       "name": "syslib/psx/libpad/PADCMD",
       "target_path": "expected/src/syslib/psx/libpad/PADCMD.c.o",
       "base_path": "build/recon/syslib/psx/libpad/PADCMD.cpp.o",
@@ -3397,70 +3469,6 @@
       "base_path": "build/recon/syslib/psx/libsn/WRITE.cpp.o",
       "metadata": {
         "source_path": "recon/syslib/psx/libsn/WRITE.cpp"
-      }
-    },
-    {
-      "name": "eaclib/psx/pad",
-      "target_path": "expected/src/eaclib/psx/pad.c.o",
-      "base_path": "build/recon/eaclib/psx/pad.cpp.o",
-      "metadata": {
-        "source_path": "recon/eaclib/psx/pad.cpp"
-      }
-    },
-    {
-      "name": "frontend/psx/memcard",
-      "target_path": "expected/src/frontend/psx/memcard.c.o",
-      "base_path": "build/recon/frontend/psx/memcard.cpp.o",
-      "metadata": {
-        "source_path": "recon/frontend/psx/memcard.cpp"
-      }
-    },
-    {
-      "name": "game/common/spchevnt",
-      "target_path": "expected/src/game/common/spchevnt.c.o",
-      "base_path": "build/recon/game/common/spchevnt.cpp.o",
-      "metadata": {
-        "source_path": "recon/game/common/spchevnt.cpp"
-      }
-    },
-    {
-      "name": "game/psx/textpix",
-      "target_path": "expected/src/game/psx/textpix.c.o",
-      "base_path": "build/recon/game/psx/textpix.cpp.o",
-      "metadata": {
-        "source_path": "recon/game/psx/textpix.cpp"
-      }
-    },
-    {
-      "name": "game/psx/textpsx",
-      "target_path": "expected/src/game/psx/textpsx.c.o",
-      "base_path": "build/recon/game/psx/textpsx.cpp.o",
-      "metadata": {
-        "source_path": "recon/game/psx/textpsx.cpp"
-      }
-    },
-    {
-      "name": "game/psx/unpack",
-      "target_path": "expected/src/game/psx/unpack.c.o",
-      "base_path": "build/recon/game/psx/unpack.cpp.o",
-      "metadata": {
-        "source_path": "recon/game/psx/unpack.cpp"
-      }
-    },
-    {
-      "name": "eaclib/psx/spchpsxz/spchdata",
-      "target_path": "expected/src/eaclib/psx/spchpsxz/spchdata.c.o",
-      "base_path": "build/recon/eaclib/psx/spchpsxz/spchdata.cpp.o",
-      "metadata": {
-        "source_path": "recon/eaclib/psx/spchpsxz/spchdata.cpp"
-      }
-    },
-    {
-      "name": "syslib/psx/libpad/MCXMAIN",
-      "target_path": "expected/src/syslib/psx/libpad/MCXMAIN.c.o",
-      "base_path": "build/recon/syslib/psx/libpad/MCXMAIN.cpp.o",
-      "metadata": {
-        "source_path": "recon/syslib/psx/libpad/MCXMAIN.cpp"
       }
     }
   ]

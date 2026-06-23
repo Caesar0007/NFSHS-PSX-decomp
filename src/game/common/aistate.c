@@ -45,3 +45,6 @@ INCLUDE_ASM("asm/nonmatchings/main", ___21AIState_RovingTraffic);
 INCLUDE_ASM("asm/nonmatchings/main", ___12AIState_Idle);
 INCLUDE_ASM("asm/nonmatchings/main", ___14AIState_Normal);
 INCLUDE_ASM("asm/nonmatchings/main", CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car_tObjRi);
+INCLUDE_ASM("asm/nonmatchings/main", AIState_CleanUp__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", DoSlowNitrous__13AIState_Chase);
+INCLUDE_ASM("asm/nonmatchings/main", TestForRelease__21AIState_RovingTraffic);

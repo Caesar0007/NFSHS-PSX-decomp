@@ -36,3 +36,6 @@ INCLUDE_ASM("asm/nonmatchings/main", AI_KeepCarsInLane__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AI_PushFinishedCarsToSide__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AI_MaybeChangeLaneSlack__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AI_ChooseNewLaneSlack__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AI_StartUp__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AI_CleanUp__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AI_Main_OverallSetup__Fv);

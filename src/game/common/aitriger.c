@@ -8,3 +8,4 @@ INCLUDE_ASM("asm/nonmatchings/main", CheckForTriggerAtSlice__24AITrigger_Trigger
 INCLUDE_ASM("asm/nonmatchings/main", GetTrigger__24AITrigger_TriggerManageriPi);
 INCLUDE_ASM("asm/nonmatchings/main", CheckForClosestTriggerOfType__24AITrigger_TriggerManageri11triggerTypei);
 INCLUDE_ASM("asm/nonmatchings/main", Sort__24AITrigger_TriggerManager);
+INCLUDE_ASM("asm/nonmatchings/main", DescribeTrigger__24AITrigger_TriggerManagerP9trigger_t);

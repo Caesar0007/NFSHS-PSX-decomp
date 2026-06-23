@@ -30,3 +30,6 @@ INCLUDE_ASM("asm/nonmatchings/main", Cars_Randomize__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Cars_CheckForAccidentScenes__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Cars_SortCars__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Cars_ManageBureaucracy__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Cars_GetDashData__FP8Car_tObjPiN21);
+INCLUDE_ASM("asm/nonmatchings/main", Cars_InitDashData__FP8Car_tObjPiT1);
+INCLUDE_ASM("asm/nonmatchings/main", Cars_Initialize__FPci);

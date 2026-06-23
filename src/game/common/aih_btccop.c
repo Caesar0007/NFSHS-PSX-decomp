@@ -34,3 +34,5 @@ INCLUDE_ASM("asm/nonmatchings/main", SetupBlockader__18AIHigh_BTC_WingmanP19AIHi
 INCLUDE_ASM("asm/nonmatchings/main", ___18AIHigh_BTC_Wingman);
 INCLUDE_ASM("asm/nonmatchings/main", ___19AIHigh_BTC_HumanCop);
 INCLUDE_ASM("asm/nonmatchings/main", ___14AIHigh_BTC_Cop);
+INCLUDE_ASM("asm/nonmatchings/main", FalseArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp);
+INCLUDE_ASM("asm/nonmatchings/main", FreezeAndEndChase__14AIHigh_BTC_Cop);

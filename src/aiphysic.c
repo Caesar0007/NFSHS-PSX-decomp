@@ -41,3 +41,4 @@ INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_SimplePhysics__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_StartUp__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_StopCar__FP8Car_tObjii);
 INCLUDE_ASM("asm/nonmatchings/main", AIPhysic_TargetedGetDesiredVector__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AIPhysics_UseCoolPhysics__FP8Car_tObj);

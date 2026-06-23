@@ -28,3 +28,4 @@ INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_GetUpgradeHandlingMult__Fi);
 INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_GetUpgradeTopSpeedMult__Fi);
 INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_CalcHumanCurveSpeed__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_CalcHumanTopSpeed__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_GetNextAICar__FP8Car_tObj);

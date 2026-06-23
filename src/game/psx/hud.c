@@ -59,3 +59,4 @@ INCLUDE_ASM("asm/nonmatchings/main", Hud_BTC_QuitOut__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Hud_BTC_BonusTime__Fl);
 INCLUDE_ASM("asm/nonmatchings/main", Hud_Perp_OverlayOn__Fii);
 INCLUDE_ASM("asm/nonmatchings/main", Hud_Perp_OverlayOff__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", Hud_DebugCrap__Fv);

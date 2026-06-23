@@ -4,15 +4,6 @@ extern int D_8013C338;
 extern int D_80148448;
 extern int ticks;
 
-void AI_StartUp__Fv(void) {
-}
-
-void AI_CleanUp__Fv(void) {
-}
-
-void AI_Main_OverallSetup__Fv(void) {
-}
-
 INCLUDE_ASM("asm/nonmatchings/main", func_8005972C);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_8005B438);
@@ -41,14 +32,6 @@ INCLUDE_ASM("asm/nonmatchings/main", func_8005C468);
 INCLUDE_ASM("asm/nonmatchings/main", func_8005C5E4);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_8005CB4C);
-
-int FalseArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp(void *cop, void *perp) {
-    if (*(void **)((char *)cop + 0x58) == perp)
-        *(int *)((char *)cop + 0x60) = 2;
-    return 2;
-}
-void FreezeAndEndChase__14AIHigh_BTC_Cop(void) {
-}
 
 void func_8005F624(void) {
 }
@@ -84,52 +67,9 @@ void AILife_Debug__FPce(char *fmt, ...) {
 }
 INCLUDE_ASM("asm/nonmatchings/main", AIPerson_LoadGridAndSetPersonalityIndexes__Fv);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPhysics_UseCoolPhysics__FP8Car_tObj);
-
 INCLUDE_ASM("asm/nonmatchings/main", __14AIDataRecord_t26AIDataRecord_WhichRecord_tPc);
 
 INCLUDE_ASM("asm/nonmatchings/main", ___14AIDataRecord_t);
-
-INCLUDE_ASM("asm/nonmatchings/main", AddRecordToCollection__14AIDataRecord_t);
-
-INCLUDE_ASM("asm/nonmatchings/main", RemoveRecordFromCollection__14AIDataRecord_t);
-
-INCLUDE_ASM("asm/nonmatchings/main", StartUp1__14AIDataRecord_t);
-
-INCLUDE_ASM("asm/nonmatchings/main", StartUp2__14AIDataRecord_t);
-
-INCLUDE_ASM("asm/nonmatchings/main", CleanUp1__14AIDataRecord_t);
-
-void CleanUp2__14AIDataRecord_t(void) {
-}
-
-INCLUDE_ASM("asm/nonmatchings/main", Setup__14AIDataRecord_t);
-
-INCLUDE_ASM("asm/nonmatchings/main", Load__14AIDataRecord_t);
-
-INCLUDE_ASM("asm/nonmatchings/main", SaveAndPurge__14AIDataRecord_t);
-
-INCLUDE_ASM("asm/nonmatchings/main", __23AIDataRecord_AccTable_tPci26AIDataRecord_WhichRecord_t);
-
-int Get__23AIDataRecord_AccTable_ti(void *this, int i) {
-    short *table = *(short **)((char *)this + 0x48);
-    return table[i] << 8;
-}
-INCLUDE_ASM("asm/nonmatchings/main", Setup__23AIDataRecord_AccTable_t);
-
-INCLUDE_ASM("asm/nonmatchings/main", __23AIDataRecord_BestLine_t26AIDataRecord_WhichRecord_t);
-
-INCLUDE_ASM("asm/nonmatchings/main", __25AIDataRecord_TrackCurve_t26AIDataRecord_WhichRecord_t);
-
-unsigned char Get__25AIDataRecord_TrackCurve_ti(void *this, int i) {
-    unsigned char *table = *(unsigned char **)((char *)this + 0x48);
-    return table[i];
-}
-INCLUDE_ASM("asm/nonmatchings/main", __30AIDataRecord_CurveSpeedTable_tPc26AIDataRecord_WhichRecord_t);
-
-INCLUDE_ASM("asm/nonmatchings/main", Get__30AIDataRecord_CurveSpeedTable_ti);
-
-INCLUDE_ASM("asm/nonmatchings/main", Upgrade__30AIDataRecord_CurveSpeedTable_ti);
 
 int func_8006D50C(void) {
     return 0;
@@ -144,26 +84,8 @@ INCLUDE_ASM("asm/nonmatchings/main", func_8006D574);
 
 INCLUDE_ASM("asm/nonmatchings/main", ___23AIDataRecord_AccTable_t);
 
-int AISpeeds_GetNextAICar__FP8Car_tObj(void *a0) {
-    return *(int *)((char *)a0 + 0x768);
-}
-
 void AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails(void *p, void *arr) {
     *(void **)((char *)p + 0x1C) = arr;
-}
-
-void AIState_CleanUp__Fv(void) {
-}
-
-void DoSlowNitrous__13AIState_Chase(void *this) {
-    *(int *)((char *)*(void **)this + 0x73C) = 0x8000;
-    *(int *)((char *)*(void **)this + 0x740) = 0xC000;
-}
-
-int TestForRelease__21AIState_RovingTraffic(void *this) {
-    int f10 = *(int *)((char *)this + 0x10);
-    int fC  = *(int *)((char *)this + 0xC);
-    return !(f10 < fC);
 }
 
 void func_80072750(void) {
@@ -176,61 +98,18 @@ int func_80072830(void) {
 }
 INCLUDE_ASM("asm/nonmatchings/main", func_80072838);
 
-void DescribeTrigger__24AITrigger_TriggerManagerP9trigger_t(void) {
-}
-
 int AITrigger_Compare__FPCvT0(const void **p1, const void **p2) {
     return ((int *)*p1)[1] - ((int *)*p2)[1];
 }
 
 INCLUDE_ASM("asm/nonmatchings/main", AITune_GetOneWay__Fv);
 
-void SetAnimAttrib__10AnimScripti(void *this, int v) {
-    *(int *)((char *)this + 8) = v;
-}
-
 void AudioClc_SndError__Fi(void) {
-}
-
-int AudioCmn_GetTrackRecordLapTime__Fv(void) {
-    return *(int *)0x801132D4;
 }
 
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_GetAsyncSfx__Fiib);
 
-void Cars_GetDashData__FP8Car_tObjPiN21(char *car, int *speed, int *gear, int *rpm) {
-    *speed = *(int *)(car + 0x468);
-    *gear  = *(unsigned char *)(car + 0x442);
-    *rpm   = *(int *)(car + 0x420);
-}
-
-void Cars_InitDashData__FP8Car_tObjPiT1(char *car, int *a, int *b) {
-    char *sec;
-    sec = *(char **)(car + 0x464);
-    *a  = *(int *)(sec + 0xF0);
-    sec = *(char **)(car + 0x464);
-    *b  = *(int *)(sec + 0xF4);
-}
-
-void Cars_Initialize__FPci(char *buf, int n) {
-    int i = 0;
-    if (n <= 0) return;
-    do {
-        *buf++ = 0;
-        i++;
-    } while (i < n);
-}
-
 INCLUDE_ASM("asm/nonmatchings/main", InstanceGroup__5ChunkP15SerializedGroupP9SimpleMem);
-
-void Chunk_UpdateSys__FP13DRender_tView(void) {
-}
-
-void Chunk_Init__Fv(void) {
-}
-
-void Chunk_DeInit__Fv(void) {
-}
 
 void Control_AI__FP8Car_tObj(void) {
 }
@@ -244,9 +123,6 @@ INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_Free__FP17CopSpeak_tRequest);
 INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_BankVolume__FP17CopSpeak_tRequest);
 
 void FastRandom_CleanUp__Fv(void) {
-}
-
-void GameSetup_CleanUp__Fv(void) {
 }
 
 char *LocateNextGroupType__15SerializedGroupi(char *grp, int type) {
@@ -303,15 +179,6 @@ INCLUDE_ASM("asm/nonmatchings/main", func_800B75CC);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800B75F8);
 
-void Track_AnimateTrackLighting__Fv(void) {
-}
-
-void KillFile_ReadEntry__FPciRiT2(char *file, int i, int *hash, int *size) {
-    int *p = (int *)(file + i * 8);
-    *hash = p[1];
-    *size = p[2];
-}
-
 INCLUDE_ASM("asm/nonmatchings/main", Save__11SaveSurfaceP14Trk_NewSimQuad);
 
 INCLUDE_ASM("asm/nonmatchings/main", __11SaveSurfacei);
@@ -320,9 +187,6 @@ INCLUDE_ASM("asm/nonmatchings/main", ___11SaveSurface);
 
 INCLUDE_ASM("asm/nonmatchings/main", RestoreAll__11SaveSurface);
 
-void Draw_RestartRenderEngine__Fv(void) {
-}
-
 void ChangeTPage__FPUsi(unsigned short *p, int i) {
     *p = (*p & 0xFF9F) | (i << 5);
 }
@@ -330,9 +194,6 @@ void ChangeTPage__FPUsi(unsigned short *p, int i) {
 INCLUDE_ASM("asm/nonmatchings/main", func_800CB6A0);
 
 INCLUDE_ASM("asm/nonmatchings/main", Hrz_LightningAddFork__FScScSc);
-
-void Hud_DebugCrap__Fv(void) {
-}
 
 INCLUDE_ASM("asm/nonmatchings/main", Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc);
 

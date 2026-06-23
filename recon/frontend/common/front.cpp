@@ -108,10 +108,10 @@ void Front_DeleteAll(void)
 void Front_ResetSettingsForCar(int player,int car)
 
 {
-  frontEnd.settingsActive[player] = frontEnd.settingsActive[player] & ~(ushort)(1 << (car & 0x1fU));
-  frontEnd.carDownforce[player * 0x18][car] = '2';
-  frontEnd.suspension[player * 0x18][car] = '2';
-  frontEnd.engineTuning[player * 0x18][car] = '\x03';
+  frontEnd.settingsActive[player] = frontEnd.settingsActive[player] & ~(ushort)(1 << car);
+  frontEnd.carDownforce[player][car] = '2';
+  frontEnd.suspension[player][car] = '2';
+  frontEnd.engineTuning[player][car] = '\x03';
   return;
 }
 
@@ -569,7 +569,7 @@ void Front_InitialMemCardCheck(void)
   MEMCARDFRONTENDISINITTED = 0;
   gPSXMemCardFull = 0;
   memCardReadOK = 0;
-  Stattool_GetAllDefaultRecords(Stats_gTrackRecords,false);
+  Stattool_GetAllDefaultRecords((tRecordBuffer *)&Stats_gTrackRecords,false);
   InitFrontEndStructure();
   frontEnd.language = '\0';
   return;
@@ -636,7 +636,7 @@ void Front_InitGraphics(void)
 {
   int iVar1;
   char buffer [40];
-  
+
   initlinkmode(0,1,1);
   sprintf(buffer,"%szzFE.viv",Paths_Paths[0x23]);
   iVar1 = FILE_addbigsync(buffer,(void *)0x0,100,&gFEBigHandle);
@@ -2612,26 +2612,20 @@ void SetLicensePlate(void)
 
 {
   char *fmt;
-  char (*s)[8];
-  int p;
-  int player;
+  char *s;
   short i;
-  int p_next;
-  
-  p_next = 0;
-  p = 0;
+
+  i = 0;
   do {
-    player = p >> 0x10;
-    fmt = PlayerName(player);
-    s = frontEnd.licensePlate + player * 4;
-    sprintf(*s,fmt);
-    StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters(*s);
-    s_lower(*s);
-    CarIO_CleanUpLicense(player);
-    CarIO_CreateLicense(*s,0,player);
-    p_next = p_next + 1;
-    p = p_next * 0x10000;
-  } while (p_next * 0x10000 >> 0x10 < 2);
+    fmt = PlayerName(i);
+    s = frontEnd.licensePlate[i];
+    sprintf(s,fmt);
+    StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters(s);
+    s_lower(s);
+    CarIO_CleanUpLicense(i);
+    CarIO_CreateLicense(s,0,i);
+    i = i + 1;
+  } while (i < 2);
   return;
 }
 
@@ -2665,19 +2659,17 @@ void SetPlayList(int ivealreadygotone)
   addr = AudioMus_GetSongList("game*",0);
   if (ivealreadygotone == 0) {
     iVar2 = 0x27;
-    iVar1 = -0x7feeb964;
     do {
-      *(u_int *)(iVar1 + 0x39c) = 0;
+      frontEnd.FEPlayList[iVar2] = 0;
       iVar2 = iVar2 + -1;
-      iVar1 = iVar1 + -4;
     } while (-1 < iVar2);
-    iVar1 = 0;
     pAVar3 = addr;
+    iVar1 = 0;
     if (0 < addr->numsongs) {
       do {
         frontEnd.FEPlayList[pAVar3[4].currentsong] = 1;
-        iVar1 = iVar1 + 1;
         pAVar3 = pAVar3 + 8;
+        iVar1 = iVar1 + 1;
       } while (iVar1 < addr->numsongs);
     }
   }

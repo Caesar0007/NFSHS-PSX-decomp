@@ -321,23 +321,27 @@ void MenuExtended_SetFullGrid(tMenuCommand *command)
 int AskTheUserToSaveTheGame(void)
 
 {
-  short user_choice;
-  void *is_cheater;
+  int is_cheater;
   int answer;
   tDialogMessageString *dlgThis;
   tDialogYesNo YesNoDialog;
-  
-  is_cheater = FECheat_IsTheUserACryBabyCheater();
+
+  /* NEAR-MISS 25 diffs (was 29): xori;beqz cheater idiom now matches (via `(x^1)` test); call
+     sequence/args/frame/1-saved-reg all match. Residual = answer-default-0 colored to s0 (ours)
+     vs v0-in-beqz-delay-slot (oracle); this cascades to sp-relative vs s0-relative field stores
+     because the oracle frees s0 to hold the dialog `this`. gcc-2.7.2 keeps the 0 default in a
+     callee-saved reg across the body (can't prove it dead post-Run); not source-reachable without
+     a pin (forbidden) -- early-return / goto-tail both SPLIT the shared epilogue (=> 39 diffs). */
+  is_cheater = (int)FECheat_IsTheUserACryBabyCheater();
   answer = 0;
-  if (is_cheater != (void *)0x1) {
+  if ((is_cheater ^ 1) != 0) {
     tDialogYesNo_ctor(&YesNoDialog);
     YesNoDialog._base_tDialogInteractive._base_tDialogMessageString.string =
          TextSys_Word(0x331);
     YesNoDialog.yesnowords[0] = 0x321;
     YesNoDialog.yesnowords[1] = 0x322;
     YesNoDialog._base_tDialogInteractive._base_tDialogMessageString._base_tDialogBase.fDefault = 0;
-    user_choice = Run(&YesNoDialog._base_tDialogInteractive);
-    answer = (int)user_choice;
+    answer = (short)Run(&YesNoDialog._base_tDialogInteractive);
     tScreen_dtor((tScreen *)&YesNoDialog,2);
   }
   return answer;
@@ -608,24 +612,30 @@ void * GenericMenuSaveGame(int showdialog)
 
 {
   bool successful;
-  tFEApplication *ptVar2;
-  tFEApplication *ptVar3;
   char *pcVar4;
   void *pvVar5;
   tScreenMemcard *dlgThis;
   byte uninitafter;
-  
-  ptVar2 = FEApp;
+
+  tFEApplication *app;
+
+  /* NEAR-MISS 58 diffs (was 69): literal FEApp de-ref (dropped the value-cache) + `^1` fFullyOpen
+     loop idiom brought insn count to 69 vs oracle 71 and the call/branch structure into line.
+     Residual wall = gcc-2.7.2 does NOT CSE %hi(FEApp) into a callee-saved reg the way the oracle
+     does (oracle holds %hi(FEApp) in s1 across all 5 FEApp loads + frees s0 to be reused as
+     &FEApp->NoInput and s2 for `successful`); our build self-temps `lui a0;lw a0` per access -> 2
+     saved regs not 3, frame-offset shift, successful in s1 not s2. Same %hi reload tie-break as
+     GenericMenuLoadGame (3.15) -- not source-reachable. The `app` cache reuses one saved reg in
+     the Display block (58 vs the pure-literal 59). */
   screenMemcard->message = 0x27e;
-  Redraw(ptVar2);
-  ptVar2 = FEApp;
+  Redraw(FEApp);
   successful = false;
   if ((MEMCARD_INITIALIZED == 0) || (showdialog != 0)) {
+    app = FEApp;
     pcVar4 = TextSys_Word(0x282);
-    ptVar3 = FEApp;
-    (ptVar2->NoInputMemCardDialog)._base_tDialogMessageString.string = pcVar4;
-    Display((tDialogBase *)&ptVar3->NoInputMemCardDialog);
-    while ((FEApp->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
+    (app->NoInputMemCardDialog)._base_tDialogMessageString.string = pcVar4;
+    Display((tDialogBase *)&app->NoInputMemCardDialog);
+    while (((FEApp->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen ^ 1) != 0) {
       Redraw(FEApp);
     }
     Redraw(FEApp);
@@ -655,19 +665,22 @@ void * PinkSlipsPreSave(void)
 
 {
   short sVar1;
-  void *pvVar2;
-  int answer;
+  int is_cheater;
+  void *ret;
   tDialogYesNoTri *dlgThis;
-  byte ret;
-  void *pvVar3;
   tDialogYesNoTri YesNoDialog;
-  
-  pvVar2 = FECheat_IsTheUserACryBabyCheater();
-  pvVar3 = (void *)0x1;
-  if (pvVar2 == (void *)0x1) {
-    pvVar3 = (void *)0x1;
-  }
-  else {
+
+  /* NEAR-MISS 33 diffs (unchanged from baseline; cleaned locals). The return-funnel (ret=1
+     default in s1, reused as the ==1 compare literal AND the save-result holder) and the
+     == -1 / == 1 / dtor branch structure all match the oracle. Residual = gcc-2.7.2 HOISTS the
+     dialog `this` address (s0=&YesNoDialog) and the ret default ABOVE the FECheat call, whereas
+     the oracle computes them after the cheater branch (s0 set in the body). Pure pre-branch
+     scheduling; not source-reachable (the ctor-arg address is a constant sp+off gcc lifts;
+     forbidden to pin). `^1` cheater idiom made it WORSE here (34: gcc reused s1 for `xor v0,v0,s1`
+     vs oracle's `xori v0,v0,1`), so the plain `!= 1` int test is kept. */
+  is_cheater = (int)FECheat_IsTheUserACryBabyCheater();
+  ret = (void *)0x1;
+  if (is_cheater != 1) {
     tDialogYesNo_ctor(&YesNoDialog._base_tDialogYesNo);
     *(void **)&(YesNoDialog._base_tDialogYesNo._base_tDialogInteractive._base_tDialogMessageString._base_tDialogBase._base_tScreen._vf) = (void *)tDialogYesNoTri_vtable;
     YesNoDialog._base_tDialogYesNo._base_tDialogInteractive._base_tDialogMessageString.string =
@@ -677,7 +690,7 @@ void * PinkSlipsPreSave(void)
     YesNoDialog._base_tDialogYesNo._base_tDialogInteractive._base_tDialogMessageString._base_tDialogBase.fDefault = 0;
     sVar1 = Run(&YesNoDialog._base_tDialogYesNo._base_tDialogInteractive);
     if (sVar1 == 1) {
-      pvVar3 = GenericMenuSaveGame(1);
+      ret = GenericMenuSaveGame(1);
     }
     else if (sVar1 == -1) {
       tScreen_dtor((tScreen *)&YesNoDialog._base_tDialogYesNo,2);
@@ -685,7 +698,7 @@ void * PinkSlipsPreSave(void)
     }
     tScreen_dtor((tScreen *)&YesNoDialog,2);
   }
-  return pvVar3;
+  return ret;
 }
 
 
@@ -1323,15 +1336,23 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
   tCarInfo carInfo;
   tDialogYesNo popUp;
   
+  /* NEAR-MISS 73 diffs (was 94): dropped the eager `ptVar1 = FEApp` cache -> FEApp now loaded
+     lazily only in the not-enough-money branch (matches oracle's `lw s0,%lo(FEApp)(v0)` there),
+     freeing one saved reg. RESIDUAL = gcc-2.7.2 SPECULATIVELY HOISTS the `tDialogYesNo_ctor(&popUp)`
+     call to the top of the function (above GetGarageCar + the ownership/affordability tests),
+     pinning the dialog `this` (sp+0xE0) into s0 for the whole body. That forces the param into s3
+     (oracle keeps the param in s0 and only repurposes s0->dialog-this inside the can-afford branch)
+     and costs a 6th saved reg (s5) + a bigger frame. The hoist is a gcc code-motion choice not
+     reachable from C statement order (the ctor is already nested in the inner else). Forbidden to
+     pin. Param->s0 vs s3 cascades through the sllv/and/slt register coloring = the bulk of the 73. */
   uVar5 = 1 << (upgradeNumber & 0x1fU);
   GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],&carInfo,0);
-  ptVar1 = FEApp;
   if ((carInfo.fUpgrades & uVar5) == 0) {
     if (tournamentManager.fMoney < carInfo.fPrices[upgradeNumber + 1]) {
-      dlgThis = &FEApp->messagePopup;
+      ptVar1 = FEApp;
       pcVar4 = TextSys_Word(0xa8);
       (ptVar1->messagePopup).string = pcVar4;
-      Display(&dlgThis->_base_tDialogBase);
+      Display(&(ptVar1->messagePopup)._base_tDialogBase);
     }
     else {
       tDialogYesNo_ctor(&popUp);
@@ -1461,18 +1482,24 @@ void MenuExtended_SaveGame(tMenuCommand *command)
 void GenericMenuLoadGame(int player)
 
 {
-  tFEApplication *this_00;
-  tScreenMemcard *dlgThis;
-  tDialogNoInputMessage *this_01;
-  
-  this_00 = FEApp;
+  tFEApplication *app;
+  tScreenMemcard *mc;
+
+  /* NEAR-MISS 21 diffs (was 36): structure now matches the oracle exactly -- 32B frame,
+     player->s2, s0/s1 hold FEApp/screenMemcard across the calls. Residual = gcc-2.7.2 reload
+     tie-break: oracle holds %hi(FEApp)/%hi(screenMemcard) in s0/s1 and reloads the VALUE into a
+     scratch reg each access; our build coalesces the VALUE into s0/s1. Caching the value (this
+     form) vs not caching (literal derefs -> 36 diffs, wrong 1-saved-reg structure) are the only
+     two source-expressible options; the address-hi-CSE-with-value-reload form is not
+     source-reachable (methodology 3.15 reload tie-break). */
   if (CURRENTLYUSINGMEMCARD == 0) {
-    screenMemcard->message = 0x27d;
-    Redraw(this_00);
+    app = FEApp;
+    mc = screenMemcard;
+    mc->message = 0x27d;
+    Redraw(app);
     LoadGame((short)player,false,1);
-    this_01 = &FEApp->NoInputMemCardDialog;
-    screenMemcard->message = -1;
-    Hide((tDialogBase *)this_01);
+    mc->message = -1;
+    Hide((tDialogBase *)&app->NoInputMemCardDialog);
   }
   Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
   return;

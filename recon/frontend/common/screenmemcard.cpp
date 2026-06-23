@@ -9,7 +9,8 @@ int EXTRAYATTOP, GRIDMEMCARDGOURAUDBIT_X, GRIDMEMCARDGOURAUDBIT_Y;
 int GRIDMEMCARD_WIDTH, GRIDMEMCARD_HEIGHT, MEMCARDICONOFFX, MEMCARDICONOFFY;
 int kMemCardMessageX, kMemCardMessageY, kMemCardMessage1X, kMemCardMessage1Y;
 int kMemCardMessageH, kMemCardMessageH1;
-char (*fMemIcon)[15][3][192];   /* global memcard-icon data-table ptr (set in Initialize; bss) */
+/* fMemIcon: strong DATA symbol @0x80052938 (front_data.data.s) -> absolute addressing.
+   Declared extern (NOT a TU-owned tentative def, which would be small-common -> gp-rel). */
 
 /* ---- tScreenMemcard::GetShapeInfo  (screenmemcard.cpp:65) ---- */
 void tScreenMemcard::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char **permFileName,
@@ -126,7 +127,7 @@ void tScreenMemcard::LoadIcon(int filenum)
       cardInfo = this->pCI;
       this->fMemFile[filenum].title = (char *)((int)this->fMemTitle + filenum * 0x20);
       this->fMemFile[filenum].name = (char *)(cardInfo->dir + filenum);
-      iconShape = (shapetbl *)(*fMemIcon + filenum);
+      iconShape = (shapetbl *)(*fMemIcon[0] + filenum);
       this->fMemFile[filenum].icon[0] = iconShape;
       this->fMemFile[filenum].icon[1] = (shapetbl *)&*(int *)((char *)&iconShape[9] + 0xc);
       this->fMemFile[filenum].icon[2] = (shapetbl *)&iconShape[0x13].width;
@@ -183,7 +184,7 @@ void tScreenMemcard::LoadIcon(int filenum)
             byteOff = 0;
             idx = fileOff8 + filenum;
             do {
-              shape_data = (*fMemIcon)[0][0] + byteOff + idx * 0x40;
+              shape_data = (*fMemIcon[0])[0][0] + byteOff + idx * 0x40;
               if ((*shape_data & 0xf7U) == 0x40) {
                 vramfxya(shape_data,x_scale,(short)filenum * 0x11,(short)clutx,cluty);
               }
@@ -532,28 +533,28 @@ void tScreenMemcard::SetEnablings()
   }
   if (!DontChangeEnablings) {
     if (this->theNFS4icon == -1) {
-      (menuDefs->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-           (menuDefs->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
+      (menuDefs[0]->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
+           (menuDefs[0]->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
     }
     else {
-      (menuDefs->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-           (menuDefs->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0xfffffffe;
+      (menuDefs[0]->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
+           (menuDefs[0]->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0xfffffffe;
     }
     i = this->pCI->status;
     if ((((i == 0) || (i == -2)) || ((i == -3 && (this->theNFS4icon != -1)))) &&
        (this->player == 0)) {
-      (menuDefs->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-           (menuDefs->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0xfffffffe;
+      (menuDefs[0]->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
+           (menuDefs[0]->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0xfffffffe;
     }
     else {
-      (menuDefs->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-           (menuDefs->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
+      (menuDefs[0]->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
+           (menuDefs[0]->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
     }
   }
   cheater = FECheat_IsTheUserACryBabyCheater();
   if (cheater != (void *)0x0) {
-    (menuDefs->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-         (menuDefs->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
+    (menuDefs[0]->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
+         (menuDefs[0]->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
   }
   return;
 }
@@ -755,6 +756,7 @@ void tScreenMemcard::DrawForeground()
 tScreenMemcard::tScreenMemcard()
 
 {
+  (this->_base_tScreen)._vf = (__vtbl_ptr_type (*)[10])tScreenMemcard_vtable;
   this->message = -1;
   this->card = 1;
   return;
@@ -764,21 +766,18 @@ tScreenMemcard::tScreenMemcard()
 void tScreenMemcard::ReleaseIcons()
 
 {
-  tScreenMemcard *icon_walk;
   int i;
-  
+
   i = 0;
-  icon_walk = this;
   do {
     this->goticon[i] = '\0';
     this->numicon[i] = '\0';
     this->numblock[i] = '\0';
-    if (icon_walk->fMemIconClutId[0] != 0) {
-      Texture_MenuReleaseClutId(icon_walk->fMemIconClutId[0]);
-      icon_walk->fMemIconClutId[0] = 0;
+    if (this->fMemIconClutId[i] != 0) {
+      Texture_MenuReleaseClutId(this->fMemIconClutId[i]);
+      this->fMemIconClutId[i] = 0;
     }
     i = i + 1;
-    icon_walk = (tScreenMemcard *)((int)&(icon_walk->_base_tScreen).fPermShapes.fShapes + 2);
   } while (i < 0xf);
   return;
 }
@@ -814,7 +813,7 @@ void tScreenMemcard::Initialize()
   kMemCardMessage1X = 0x150;
   this->fScreenFadeReadyTick = 0;
   kMemCardMessageY = 0xc6;
-  fMemIcon = (char (*)[15][3][192])reservememadr("records",0x21c0,0);
+  fMemIcon[0] = (char (*)[15][3][192])reservememadr("records",0x21c0,0);
   feApp = FEApp;
   this->checkingstart = 0;
   this->memcardanimframe = 0;
@@ -823,14 +822,14 @@ void tScreenMemcard::Initialize()
   msgId = 0x287;
   this->player = (ushort)inputPlayer;
   this->card = (uint)inputPlayer * 4 + 1;
-  menus = menuDefs;
+  menus = menuDefs[0];
   if (this->player != 0) {
     msgId = 0x289;
   }
   i = 0;
-  saveFlags = (menuDefs->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags;
-  loadFlags = (menuDefs->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags;
-  (menuDefs->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fTextDescription = msgId;
+  saveFlags = (menuDefs[0]->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags;
+  loadFlags = (menuDefs[0]->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags;
+  (menuDefs[0]->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fTextDescription = msgId;
   (menus->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags = saveFlags | 1;
   (menus->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags = loadFlags | 1;
   walk = this;
@@ -858,22 +857,27 @@ void tScreenMemcard::Cleanup()
 {
   tGlobalMenuDefs *menus;
   char (*iconTable) [15] [3] [192];
-  uint loadFlags;
-  
+
   this->ReleaseIcons();
   DeInit_Memcard();
-  iconTable = fMemIcon;
-  menus = menuDefs;
-  loadFlags = (menuDefs->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags;
-  (menuDefs->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-       (menuDefs->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0xfffffffe;
-  (menus->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags = loadFlags & 0xfffffffe;
+  iconTable = fMemIcon[0];
+  menus = menuDefs[0];
+  (menus->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
+       (menus->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0xfffffffe;
+  (menus->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
+       (menus->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0xfffffffe;
   purgememadr(iconTable);
   this->_base_tScreen.Cleanup();
   return;
 }
 
 /* ---- tScreenMemcard::~tScreenMemcard  (screenmemcard.cpp:99) ---- */
+/* WALL (methodology 3.23): oracle = simple base-forward (8 insns: jal ~tScreen; ret).
+   Composition modeling (tScreen _base_tScreen member w/ a dtor) forces gcc's DELETING
+   variant (__in_chrg arg + andi&1 + __builtin_delete), 18 insns. The fix is real
+   non-polymorphic inheritance (struct tScreenMemcard : public tScreen), a SHARED-HEADER
+   change in nfs4_types.h (forbidden here; would also rebuild every tScreenMemcard
+   accessor per gotcha #0). Left as a documented near-miss. */
 tScreenMemcard::~tScreenMemcard()
 
 {

@@ -3738,10 +3738,10 @@ void Hud_RenderPauseBox(int x, int y, int w, int h)
   CORNERWIDTH  = HudPmx_gShapes[0x11].width;
   CORNERHEIGHT = HudPmx_gShapes[0x11].height;
   /* 4 textured rounded corners */
-  Hud_FBuildFT4(&HudPmx_gShapes[0x1f], x - 2,                 y + 0xa,                0);
-  Hud_FBuildFT4(&HudPmx_gShapes[0x20], (x + w) - CORNERWIDTH, y + 0xa,                0);
-  Hud_FBuildFT4(&HudPmx_gShapes[0x21], x - 2,                 (y + h) - CORNERHEIGHT, 0);
-  Hud_FBuildFT4(&HudPmx_gShapes[0x22], (x + w) - CORNERWIDTH, (y + h) - CORNERHEIGHT, 0);
+  Hud_FBuildFT4(&HudPmx_gShapes[0xe],  x - 2,                 y + 0xa,                0);
+  Hud_FBuildFT4(&HudPmx_gShapes[0xf],  (x + w) - CORNERWIDTH, y + 0xa,                0);
+  Hud_FBuildFT4(&HudPmx_gShapes[0x10], x - 2,                 (y + h) - CORNERHEIGHT, 0);
+  Hud_FBuildFT4(&HudPmx_gShapes[0x11], (x + w) - CORNERWIDTH, (y + h) - CORNERHEIGHT, 0);
   /* bottom highlight bar, frame, title strip, dark-red body fill */
   Hud_FBuildF4(0, x, (y + h) - 2, w, 2, 0, '\0', '\0');
   Hud_BlackThinBox(x, y, w, h);
@@ -3885,7 +3885,7 @@ void Hud_PositionMap(void)
   gMapScaleY = (int)(fMapScaleY[track] * 65536.0f);
   gMapOffX = fMapOffX[track];
   if (GameSetup_gData.mirrorTrack != 0) {
-    gMapOffX = fMapOffX[track] - 2;
+    gMapOffX = gMapOffX - 2;
   }
   gMapOffY   = fMapOffY[track];
   gMapRotate = fMapRotate[track];
@@ -4037,8 +4037,8 @@ void Hud_BTC_BonusTime(long extratime)
 void Hud_Perp_OverlayOn(int player,int level)
 
 {
-  PerpOverlayOn[player] = 1;
-  PerpOverlayMessage[player] = level;
+  *(int *)((player << 2) + (int)PerpOverlayOn) = 1;
+  *(int *)((player << 2) + (int)PerpOverlayMessage) = level;
   return;
 }
 
@@ -4068,8 +4068,8 @@ void Hud_Perp_OverlayOff(int player)
   int u;
   int v;
   int yo;
-  
-  PerpOverlayOn[player] = 0;
+
+  *(int *)((player << 2) + (int)PerpOverlayOn) = 0;
   return;
 }
 

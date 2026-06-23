@@ -9,7 +9,7 @@ typedef long long longlong; typedef unsigned long long ulonglong;
 extern tfrontEnd   frontEnd;
 extern int  ticks;
 extern int  CURRENTLYUSINGMEMCARD;
-extern char (*fMemIcon)[15][3][192];   /* global icon data table: 15 icons x 3 frames x 192B */
+extern char (*fMemIcon[])[15][3][192];   /* unsized-array shape -> absolute + separate-temp arg-load (3.12#5) */
 extern u_char *Render_gPacketPtr;      /* PSX scratchpad 0x1F800004: GPU packet build ptr */
 extern u_char *Render_gPalettePtr;     /* PSX scratchpad 0x1F800000: palette ptr */
 int CalcFadeVal(int col1, int col2, int amount);
@@ -24,7 +24,8 @@ extern int kMemCardMessageH, kMemCardMessageH1;
 extern int  kRGBVals[28];
 extern char textDefinitions[14][6];
 extern tFEApplication *FEApp;
-extern tGlobalMenuDefs *menuDefs;
+extern tGlobalMenuDefs *menuDefs[];   /* unsized-array shape -> separate-temp arg-load (3.12#5) */
+extern __vtbl_ptr_type tScreenMemcard_vtable[];   /* @0x80012228 manual vtable */
 
 /* called game/FE/MCRD/PsyQ functions (Ghidra-dumped signatures) */
 void trap(int code);

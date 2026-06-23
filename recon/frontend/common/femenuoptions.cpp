@@ -6,7 +6,9 @@
 #include "femenuoptions.h"
 
 /* EXT/STAT data owned by FeMenuOptions.obj (byte-exact from retail binary) */
-int PulsateYellow = 0;        /* @0x800515ac */
+/* Force .data (absolute addressing, NOT gp-rel/.sdata): the oracle reaches these via
+ * lui %hi/%lo — no %gp_rel(PulsateYellow) exists anywhere in asm/nonmatchings (cf. §3.12#6). */
+int PulsateYellow __attribute__((section(".data"))) = 0;        /* @0x800515ac */
 int fHelpText = 0;            /* @0x800515b0 */
 static int flareextra = 0;     /* file-static */
 
@@ -303,7 +305,7 @@ tOptionsMenu::tOptionsMenu(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
   : _base_tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
   
-  *(void **)&((this->_base_tMenu)._vf) = (void *)tOptionsMenu_vtable;
+  this->_base_tMenu._vf = (__vtbl_ptr_type (*)[11])tOptionsMenu_vtable;
   this->_base_tMenu.tMenuConstructor(firstItem,(&firstItem + 1));
   this->fScreenFade = 0;
   this->fPrevItem = 0;
@@ -603,7 +605,7 @@ tInsideBoxMenu::tInsideBoxMenu(u_int flags,tScreen *screenHandler,tMenu *nextMen
   : _base_tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
   
-  *(void **)&((this->_base_tMenu)._vf) = (void *)tInsideBoxMenu_vtable;
+  this->_base_tMenu._vf = (__vtbl_ptr_type (*)[11])tInsideBoxMenu_vtable;
   this->_base_tMenu.tMenuConstructor(firstItem,(&firstItem + 1));
   this->fPrevItem = 0;
   this->fMoving = 0;
@@ -1237,8 +1239,8 @@ void tMenuItemSlidingActivated::TransitionOn()
   this->fActive = 0;
   (this->_base_tMenuItemSlidingMenu).fTransitioningOut = 0;
   (this->_base_tMenuItemSlidingMenu).fFadeVal = 0x80;
-  (this->_base_tMenuItemSlidingMenu).fSlideOffset = sVar1 + (sVar1 >> 1);
   (this->_base_tMenuItemSlidingMenu).fOpenHeight = sVar1;
+  (this->_base_tMenuItemSlidingMenu).fSlideOffset = sVar1 + (sVar1 >> 1);
   return;
 }
 
@@ -1430,14 +1432,16 @@ int tMenuItemDisplayLeftRightChoice::Draw(int offx,int offy,bool selected)
 void tMenuItemOnOffLeftRightChoice::TransitionOn()
 
 {
-  char cVar1;
+  u_int cVar1;
+  u_int bSet;
   tListIterator *ptVar2;
   __vtbl_ptr_type (*pa_Var3) [6];
 
   ptVar2 = (this->_base_tMenuItemLeftRightFade)._base_tMenuItemLeftRightChoice.fData;
   pa_Var3 = ptVar2->_vf;
-  cVar1 = (*(*pa_Var3)[2].pfn)((char *)ptVar2 + (int)(*pa_Var3)[2].delta,0xffffffff);
-  this->fOnFade = (u_short)(cVar1 != '\0') << 7;
+  cVar1 = (*(u_char (*)(char *, int))(*pa_Var3)[2].pfn)((char *)ptVar2 + (int)(*pa_Var3)[2].delta,0xffffffff);
+  bSet = (0 < cVar1);
+  this->fOnFade = (u_short)(bSet << 7);
   this->_base_tMenuItemLeftRightFade.TransitionOn();
   return;
 }
@@ -2561,41 +2565,41 @@ int SpecialCharacter(char current)
 
 {
   int ret;
-  
+
   ret = 0;
-  switch(current) {
-  case -0x1f:
-    ret = 0x56;
-    break;
-  case -0x1c:
+  switch((u_char)current) {
+  case 0xe4:
     ret = 0x51;
     break;
-  case -0x1b:
-    ret = 0x5b;
-    break;
-  case -0x18:
-    ret = 0x55;
-    break;
-  case -0x17:
-    ret = 0x54;
-    break;
-  case -0x13:
-    ret = 0x57;
-    break;
-  case -0xf:
-    ret = 0x5a;
-    break;
-  case -0xd:
-    ret = 0x58;
-    break;
-  case -10:
+  case 0xf6:
     ret = 0x52;
     break;
-  case -6:
+  case 0xfc:
+    ret = 0x53;
+    break;
+  case 0xe9:
+    ret = 0x54;
+    break;
+  case 0xe8:
+    ret = 0x55;
+    break;
+  case 0xe1:
+    ret = 0x56;
+    break;
+  case 0xed:
+    ret = 0x57;
+    break;
+  case 0xf3:
+    ret = 0x58;
+    break;
+  case 0xfa:
     ret = 0x59;
     break;
-  case -4:
-    ret = 0x53;
+  case 0xf1:
+    ret = 0x5a;
+    break;
+  case 0xe5:
+    ret = 0x5b;
   }
   return ret;
 }

@@ -84,21 +84,6 @@ void AILife_Debug__FPce(char *fmt, ...) {
 }
 INCLUDE_ASM("asm/nonmatchings/main", AIPerson_LoadGridAndSetPersonalityIndexes__Fv);
 
-INCLUDE_ASM("asm/nonmatchings/main", AIPerson_SetPersonality__FP8Car_tObji);
-
-INCLUDE_ASM("asm/nonmatchings/main", AIPerson_SetPersonalityPointers__Fv);
-
-INCLUDE_ASM("asm/nonmatchings/main", AIPerson_LoadPersonalityData__FP10Udff_tInfo);
-
-INCLUDE_ASM("asm/nonmatchings/main", AIPerson_LoadScriptData__FP10Udff_tInfo);
-
-INCLUDE_ASM("asm/nonmatchings/main", AIPerson_LoadGlue__FP10Udff_tInfo);
-
-INCLUDE_ASM("asm/nonmatchings/main", AIPerson_Startup__Fv);
-
-void AIPerson_Cleanup__Fv(void) {
-}
-
 INCLUDE_ASM("asm/nonmatchings/main", AIPhysics_UseCoolPhysics__FP8Car_tObj);
 
 INCLUDE_ASM("asm/nonmatchings/main", __14AIDataRecord_t26AIDataRecord_WhichRecord_tPc);
@@ -166,20 +151,6 @@ int AISpeeds_GetNextAICar__FP8Car_tObj(void *a0) {
 void AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails(void *p, void *arr) {
     *(void **)((char *)p + 0x1C) = arr;
 }
-INCLUDE_ASM("asm/nonmatchings/main", AIScript_ClearLastReactionIndex__FP10AIScript_t);
-
-INCLUDE_ASM("asm/nonmatchings/main", AIScript_Startup__FP10AIScript_t);
-
-void AIScript_Cleanup__Fv(void) {
-}
-
-INCLUDE_ASM("asm/nonmatchings/main", AIScript_SubmitPlayerAction__FP10AIScript_ti20AIScript_tPlayActioni);
-
-INCLUDE_ASM("asm/nonmatchings/main", AIScript_ProcessActionsAndReactions__FP10AIScript_ti);
-
-INCLUDE_ASM("asm/nonmatchings/main", AIScript_DoReAction__FP10AIScript_t20AIScript_tAIReaction);
-
-INCLUDE_ASM("asm/nonmatchings/main", AIScript_GetReactionTicksLeft__FP10AIScript_t);
 
 void AIState_CleanUp__Fv(void) {
 }
@@ -213,21 +184,6 @@ int AITrigger_Compare__FPCvT0(const void **p1, const void **p2) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/main", AITune_GetOneWay__Fv);
-
-INCLUDE_ASM("asm/nonmatchings/main", AITune_GetDriveSide__Fv);
-
-INCLUDE_ASM("asm/nonmatchings/main", AITune_GetRoughLapTimes__Fv);
-
-INCLUDE_ASM("asm/nonmatchings/main", AITune_StartUp1__Fv);
-
-void AITune_StartUp2__Fv(void) {
-}
-
-void AITune_CleanUp1__Fv(void) {
-}
-
-void AITune_CleanUp2__Fv(void) {
-}
 
 void SetAnimAttrib__10AnimScripti(void *this, int v) {
     *(int *)((char *)this + 8) = v;

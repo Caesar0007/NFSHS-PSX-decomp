@@ -28,3 +28,4 @@ INCLUDE_ASM("asm/nonmatchings/front", TextValue__23tListIteratorTournament7tPlay
 INCLUDE_ASM("asm/nonmatchings/front", Increment__23tListIteratorTournament7tPlayer);
 INCLUDE_ASM("asm/nonmatchings/front", Decrement__23tListIteratorTournament7tPlayer);
 INCLUDE_ASM("asm/nonmatchings/front", ValidTournament__23tListIteratorTournamentc);
+INCLUDE_ASM("asm/nonmatchings/front", tournPointsCompare__FPcT0);

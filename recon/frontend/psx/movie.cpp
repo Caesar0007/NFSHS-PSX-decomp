@@ -152,7 +152,7 @@ void Movie_Load(char movie)
     loc.sector = file.pos.sector;
     loc.second = file.pos.second;
     strSetDefDecEnv(&dec);
-    strInit(&loc,0xfffffff,strCallback,(fn_void *)0x0);
+    strInit__FP6CdlLOCiPFe_vT2(&loc,0xfffffff,strCallback,(fn_void *)0x0);
     strNextVlc(&dec);
     bMovieLoaded = 1;
   }
@@ -349,8 +349,8 @@ void strSetDefDecEnv(DECENV *dec)
 
 /* lines 429-432: (static data / macros / comments - no emitted code) */
 
-/* ---- strInit  (movie.cpp:433, code lines 433-445) ---- */
-void strInit(CdlLOC *loc,int frame_size,fn_void *callback,fn_void *endcallback)
+/* ---- strInit__FP6CdlLOCiPFe_vT2  (movie.cpp:433, code lines 433-445) ---- */
+extern "C" void strInit__FP6CdlLOCiPFe_vT2(CdlLOC *loc,int frame_size,fn_void *callback,fn_void *endcallback)
 
 {
   

@@ -7,7 +7,7 @@ glabel FECheat_ActivateBonus__F10tCheatCode
     /* 13DD8 800235D8 E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* 13DDC 800235DC 1000B0AF */  sw         $s0, 0x10($sp)
     /* 13DE0 800235E0 1400BFAF */  sw         $ra, 0x14($sp)
-    /* 13DE4 800235E4 908C000C */  jal        func_80023240
+    /* 13DE4 800235E4 908C000C */  jal        FECheat_HandleActivation__F10tCheatCode
     /* 13DE8 800235E8 21808000 */   addu      $s0, $a0, $zero
     /* 13DEC 800235EC 1480043C */  lui        $a0, %hi(gFEBonus)
     /* 13DF0 800235F0 01000224 */  addiu      $v0, $zero, 0x1

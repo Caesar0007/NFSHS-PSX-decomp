@@ -10,7 +10,7 @@
 
 extern fMemCardInfo_def gMemCardInfo;   /* @0x80052D68 (link_defs.cpp owns the BSS) */
 
-CARDINFO_def *MCRD_getcard(int card)
+extern "C" CARDINFO_def *MCRD_getcard(int card)
 {
     int idx = card - 1;
     gMemCardInfo.channel = ((idx & 4) << 2) | (idx & 3);

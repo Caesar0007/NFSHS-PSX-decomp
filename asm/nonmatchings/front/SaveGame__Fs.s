@@ -177,7 +177,7 @@ glabel SaveGame__Fs
     /* 25418 80034C18 1000A427 */  addiu      $a0, $sp, 0x10
     /* 2541C 80034C1C 7016A2AF */  sw         $v0, 0x1670($sp)
     /* 25420 80034C20 7416A0AF */  sw         $zero, 0x1674($sp)
-    /* 25424 80034C24 A8D0000C */  jal        func_800342A0
+    /* 25424 80034C24 A8D0000C */  jal        ChecksumData__FP12tMemCardData
     /* 25428 80034C28 7816A0AF */   sw        $zero, 0x1678($sp)
     /* 2542C 80034C2C 0580023C */  lui        $v0, %hi(gMemCardInfo)
     /* 25430 80034C30 682D5E24 */  addiu      $fp, $v0, %lo(gMemCardInfo)

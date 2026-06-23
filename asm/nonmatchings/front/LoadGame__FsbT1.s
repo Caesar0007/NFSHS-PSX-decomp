@@ -167,7 +167,7 @@ glabel LoadGame__FsbT1
     /* 2586C 8003506C 03D40008 */  j          .L8003500C
     /* 25870 80035070 00000000 */   nop
   jlabel .L80035074
-    /* 25874 80035074 C6D0000C */  jal        func_80034318
+    /* 25874 80035074 C6D0000C */  jal        VerifySuccessfulRead__FP12tMemCardData
     /* 25878 80035078 1000A427 */   addiu     $a0, $sp, 0x10
     /* 2587C 8003507C 3D004010 */  beqz       $v0, .L80035174
     /* 25880 80035080 00000000 */   nop

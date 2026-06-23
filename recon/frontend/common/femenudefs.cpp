@@ -529,14 +529,14 @@ MX_GoToCar_oppFilterSetup:
 
 
 
-/* ---- MenuExtended_GoToDealer  [FEMENUDEFS.CPP:423-428] ---- */
+/* ---- MenuExtended_GoToDealer__FR12tMenuCommand  [FEMENUDEFS.CPP:423-428] ---- */
 
-/* Decoded Phase 83: MenuExtended_GoToDealer(tMenuCommand&) - transition to buy-car dealer screen(104 B)
+/* Decoded Phase 83: MenuExtended_GoToDealer__FR12tMenuCommand(tMenuCommand&) - transition to buy-car dealer screen(104 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_GoToDealer(tMenuCommand *command)
+extern "C" void MenuExtended_GoToDealer__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tGlobalMenuDefs *ptVar1;
@@ -554,14 +554,14 @@ void MenuExtended_GoToDealer(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_GoToSeller  [FEMENUDEFS.CPP:432-437] ---- */
+/* ---- MenuExtended_GoToSeller__FR12tMenuCommand  [FEMENUDEFS.CPP:432-437] ---- */
 
-/* Decoded Phase 83: MenuExtended_GoToSeller(tMenuCommand&) - transition to sell-car screen (104 B)
+/* Decoded Phase 83: MenuExtended_GoToSeller__FR12tMenuCommand(tMenuCommand&) - transition to sell-car screen (104 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_GoToSeller(tMenuCommand *command)
+extern "C" void MenuExtended_GoToSeller__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tGlobalMenuDefs *ptVar1;
@@ -579,15 +579,15 @@ void MenuExtended_GoToSeller(tMenuCommand *command)
 
 
 
-/* ---- MenuExtended_GoToUpgrades  [FEMENUDEFS.CPP:441-444] ---- */
+/* ---- MenuExtended_GoToUpgrades__FR12tMenuCommand  [FEMENUDEFS.CPP:441-444] ---- */
 
-/* Decoded Phase 83: MenuExtended_GoToUpgrades(tMenuCommand&) - transition to upgrades-purchase
+/* Decoded Phase 83: MenuExtended_GoToUpgrades__FR12tMenuCommand(tMenuCommand&) - transition to upgrades-purchase
    screen (64 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_GoToUpgrades(tMenuCommand *command)
+extern "C" void MenuExtended_GoToUpgrades__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tGlobalMenuDefs *ptVar1;
@@ -2422,7 +2422,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemCarDealer,0x74,&(this->menuGoToCarDealer)._base_tMenu,(void *)0x0,0x3a,10);
   ptVar15 = &this->itemUpgradeCar;
   tMenuItemGoToMenuNFS4Button_ctor(ptVar15,0x91,(tMenu *)0x0,
-             MenuExtended_GoToUpgrades,0x44,10
+             MenuExtended_GoToUpgrades__FR12tMenuCommand,0x44,10
             );
   tMenuNFS4_ctor(&this->menuCarGarage,0x1a00,&screenCarSelect->_base_tScreen,(tMenu *)0x0,(tMenu *)ptVar12,
              MenuExtended_GoToRace__FR12tMenuCommand,0x8f,
@@ -2438,7 +2438,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuItemNFS4LeftRightChoice_ctor(&this->itemColor2,0x120,&this_09->_base_tListIterator,0x16,10);
   ptVar9 = &this->menuCarDealer;
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemGoToDuelBuyCar,0x78,&ptVar9->_base_tMenu,
-             MenuExtended_GoToDealer,-1,10);
+             MenuExtended_GoToDealer__FR12tMenuCommand,-1,10);
   ptVar13 = &this->itemOpponentCar;
   tMenuItemNFS4LeftRightChoice_ctor(ptVar13,0xbc,&(this->iteratorOpponentCar)._base_tListIterator,0x20,10);
   tMenuNFS4_ctor(&this->menuDuelCarSelect,0x1800,(tScreen *)screenCarSelectDuel,(tMenu *)0x0,
@@ -2507,9 +2507,9 @@ tGlobalMenuDefs::tGlobalMenuDefs()
              MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0xba
              ,(tMenuItem *)&this->itemPlayerTwoPinkSlipRace,&this->itemPinkSlipCarP2,0);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemGoToBuyCar,0x78,&ptVar9->_base_tMenu,
-             MenuExtended_GoToDealer,0x58,10);
+             MenuExtended_GoToDealer__FR12tMenuCommand,0x58,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemGoToSellCar,0x79,&(this->menuCarSeller)._base_tMenu,
-             MenuExtended_GoToSeller,0x4e,10);
+             MenuExtended_GoToSeller__FR12tMenuCommand,0x4e,10);
   tMenuNFS4_ctor(&this->menuGoToCarDealer,0x1200,&screenCarSelect->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,0x90,(tMenuItem *)&this->itemGoToBuyCar,&this->itemGoToSellCar,0);
   ptVar6 = tListIteratorCar_ctor(&this->iteratorDealerCar,&frontEnd.dealerCar,&carManager);

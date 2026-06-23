@@ -8,7 +8,7 @@ glabel Front_ConstructAll__Fv
     /* 1765C 80026E5C 1000BFAF */  sw         $ra, 0x10($sp)
     /* 17660 80026E60 578F020C */  jal        __builtin_new
     /* 17664 80026E64 D83B0424 */   addiu     $a0, $zero, 0x3BD8
-    /* 17668 80026E68 BDAE000C */  jal        func_8002BAF4
+    /* 17668 80026E68 BDAE000C */  jal        __11tAllScreens
     /* 1766C 80026E6C 21204000 */   addu      $a0, $v0, $zero
     /* 17670 80026E70 80030424 */  addiu      $a0, $zero, 0x380
     /* 17674 80026E74 0580033C */  lui        $v1, %hi(gAllScreens)

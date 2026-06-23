@@ -93,16 +93,16 @@ glabel Movie_Load__Fc
     /* 3D2D4 8004CAD4 1100A293 */  lbu        $v0, 0x11($sp)
     /* 3D2D8 8004CAD8 F82C1026 */  addiu      $s0, $s0, %lo(D_80052CF8)
     /* 3D2DC 8004CADC 020003A2 */  sb         $v1, 0x2($s0)
-    /* 3D2E0 8004CAE0 C533010C */  jal        func_8004CF14
+    /* 3D2E0 8004CAE0 C533010C */  jal        strSetDefDecEnv__FP6DECENV
     /* 3D2E4 8004CAE4 010002A2 */   sb        $v0, 0x1($s0)
     /* 3D2E8 8004CAE8 21200002 */  addu       $a0, $s0, $zero
     /* 3D2EC 8004CAEC FF0F053C */  lui        $a1, (0xFFFFFFF >> 16)
     /* 3D2F0 8004CAF0 FFFFA534 */  ori        $a1, $a1, (0xFFFFFFF & 0xFFFF)
-    /* 3D2F4 8004CAF4 0580063C */  lui        $a2, %hi(func_8004D038)
-    /* 3D2F8 8004CAF8 38D0C624 */  addiu      $a2, $a2, %lo(func_8004D038)
-    /* 3D2FC 8004CAFC E833010C */  jal        func_8004CFA0
+    /* 3D2F4 8004CAF4 0580063C */  lui        $a2, %hi(strCallback__Fv)
+    /* 3D2F8 8004CAF8 38D0C624 */  addiu      $a2, $a2, %lo(strCallback__Fv)
+    /* 3D2FC 8004CAFC E833010C */  jal        strInit__FP6CdlLOCiPFe_vT2
     /* 3D300 8004CB00 21380000 */   addu      $a3, $zero, $zero
-    /* 3D304 8004CB04 CD34010C */  jal        func_8004D334
+    /* 3D304 8004CB04 CD34010C */  jal        strNextVlc__FP6DECENV
     /* 3D308 8004CB08 21202002 */   addu      $a0, $s1, $zero
     /* 3D30C 8004CB0C 0580033C */  lui        $v1, %hi(D_80052D14)
     /* 3D310 8004CB10 01000224 */  addiu      $v0, $zero, 0x1

@@ -18,3 +18,5 @@ INCLUDE_ASM("asm/nonmatchings/front", iMCRD_FormatCard);
 INCLUDE_ASM("asm/nonmatchings/front", iMCRD_HandleError);
 INCLUDE_ASM("asm/nonmatchings/front", iMCRD_DefaultCBProc1);
 INCLUDE_ASM("asm/nonmatchings/front", sjis2ascii);
+INCLUDE_ASM("asm/nonmatchings/front", iMCRD_timersub);
+INCLUDE_ASM("asm/nonmatchings/front", ascii2sjis);

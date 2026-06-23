@@ -55,3 +55,9 @@ INCLUDE_ASM("asm/nonmatchings/front", MenuExtended_ExitPinkSlipsEarly__FR12tMenu
 INCLUDE_ASM("asm/nonmatchings/front", MenuExtended_PinkSlipsContinue__FR12tMenuCommand);
 INCLUDE_ASM("asm/nonmatchings/front", __15tGlobalMenuDefs);
 INCLUDE_ASM("asm/nonmatchings/front", ___15tGlobalMenuDefs);
+INCLUDE_ASM("asm/nonmatchings/front", MenuExtended_GoToDealer__FR12tMenuCommand);
+INCLUDE_ASM("asm/nonmatchings/front", MenuExtended_GoToSeller__FR12tMenuCommand);
+INCLUDE_ASM("asm/nonmatchings/front", MenuExtended_GoToUpgrades__FR12tMenuCommand);
+INCLUDE_ASM("asm/nonmatchings/front", MenuExtended_DidUserWinBeTheCop__Fv);
+INCLUDE_ASM("asm/nonmatchings/front", TransitionIsFinished__32tBlankMenuItemGoToMenuNFS4Button);
+INCLUDE_ASM("asm/nonmatchings/front", TransitionIsFinished__33tBlankMenuItemNFS4LeftRightChoice);

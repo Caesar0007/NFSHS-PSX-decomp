@@ -57,3 +57,4 @@ INCLUDE_ASM("asm/nonmatchings/front", ___25tScreenPinkSlipsCarSelect);
 INCLUDE_ASM("asm/nonmatchings/front", ___25tScreenCarSelectTwoPlayer);
 INCLUDE_ASM("asm/nonmatchings/front", ___20tScreenCarSelectDuel);
 INCLUDE_ASM("asm/nonmatchings/front", TransformVector);
+INCLUDE_ASM("asm/nonmatchings/front", DrawCar__FR8tCarInfossffcbUl7tPlayer);

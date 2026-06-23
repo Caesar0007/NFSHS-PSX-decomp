@@ -17,7 +17,7 @@ glabel Draw__15tMenuNFS4Bottom
     /* C000 8001B800 0B000224 */  addiu      $v0, $zero, 0xB
     /* C004 8001B804 2000BFAF */  sw         $ra, 0x20($sp)
     /* C008 8001B808 1800B0AF */  sw         $s0, 0x18($sp)
-    /* C00C 8001B80C FA67000C */  jal        func_80019FE8
+    /* C00C 8001B80C FA67000C */  jal        MenuNFS4_SetHelpPos__FR4RECT
     /* C010 8001B810 1600A2A7 */   sh        $v0, 0x16($sp)
     /* C014 8001B814 1000228E */  lw         $v0, 0x10($s1)
     /* C018 8001B818 00000000 */  nop

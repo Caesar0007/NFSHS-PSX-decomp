@@ -14,3 +14,4 @@ INCLUDE_ASM("asm/nonmatchings/front", RunDemoVideo__14tFEApplication);
 INCLUDE_ASM("asm/nonmatchings/front", MainLoop__14tFEApplicationP5tMenu);
 INCLUDE_ASM("asm/nonmatchings/front", RunPostGame__14tFEApplication);
 INCLUDE_ASM("asm/nonmatchings/front", RunFrontEnd__14tFEApplication);
+INCLUDE_ASM("asm/nonmatchings/front", FreeHelpShapeCluts__Fv);

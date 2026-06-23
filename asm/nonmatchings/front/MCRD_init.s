@@ -35,9 +35,9 @@ glabel MCRD_init
     /* 3FC4C 8004F44C 01001026 */  addiu      $s0, $s0, 0x1
     /* 3FC50 8004F450 0900022A */  slti       $v0, $s0, 0x9
     /* 3FC54 8004F454 F9FF4014 */  bnez       $v0, .L8004F43C
-    /* 3FC58 8004F458 0580043C */   lui       $a0, %hi(func_8005028C)
+    /* 3FC58 8004F458 0580043C */   lui       $a0, %hi(iMCRD_timersub)
     /* 3FC5C 8004F45C FAAB030C */  jal        addtimer
-    /* 3FC60 8004F460 8C028424 */   addiu     $a0, $a0, %lo(func_8005028C)
+    /* 3FC60 8004F460 8C028424 */   addiu     $a0, $a0, %lo(iMCRD_timersub)
     /* 3FC64 8004F464 BEEA030C */  jal        MemCardStart
     /* 3FC68 8004F468 00000000 */   nop
     /* 3FC6C 8004F46C 1800BF8F */  lw         $ra, 0x18($sp)

@@ -1,5 +1,5 @@
 /* frontend/common/screencarselect.cpp -- RECONSTRUCTED (car-select screens; C++ TU)
- *   4 classes (tScreenCarSelect + Duel/TwoPlayer/PinkSlips derived) + free DrawCar; 58 fns.
+ *   4 classes (tScreenCarSelect + Duel/TwoPlayer/PinkSlips derived) + free DrawCar__FR8tCarInfossffcbUl7tPlayer; 58 fns.
  *   Bodies from Ghidra; namespaces stripped, phantom stack-args resolved vs disasm.
  */
 #include "screencarselect.h"
@@ -27,15 +27,15 @@ extern "C" void TransformVector(int (*vect)[4],int (*transform)[4][4],int (*resu
   return;
 }
 
-/* ---- (free)::DrawCar  [SCREENCARSELECT.CPP:180-212] ---- */
+/* ---- (free)::DrawCar__FR8tCarInfossffcbUl7tPlayer  [SCREENCARSELECT.CPP:180-212] ---- */
 
-/* Decoded Phase 84: DrawCar(tCarInfo&, short, short, float, float, char, bool, u_long, tPlayer) -
+/* Decoded Phase 84: DrawCar__FR8tCarInfossffcbUl7tPlayer(tCarInfo&, short, short, float, float, char, bool, u_long, tPlayer) -
    render car in 3D (428 B, 7 callers - hot). When tcarinfo->fCarID >= 0: applies fColor /
    carType=fSimNumber / Country=fCountry to (*ppCVar3)->carInfo. Used in showroom + dealer screens.
    
    [ghidra-meta] section: front.text */
 
-void DrawCar(tCarInfo *carInfo,short x,short y,float camerax,float cameray,char brightness,
+extern "C" void DrawCar__FR8tCarInfossffcbUl7tPlayer(tCarInfo *carInfo,short x,short y,float camerax,float cameray,char brightness,
                bool reflection,u_long rotate,tPlayer player)
 
 {
@@ -1242,7 +1242,7 @@ DrawFG_overlayFetch:
         __floatsisf(cameraY);
         cameray = camerax;
         __floatsisf(cameraZ);
-        DrawCar(carObj,(short)screenX,(short)screenY,camerax,cameray,(char)this->fBrightness[0],
+        DrawCar__FR8tCarInfossffcbUl7tPlayer(carObj,(short)screenX,(short)screenY,camerax,cameray,(char)this->fBrightness[0],
                    true,camRot,kPlayerOne);
         if ((((iVar5 != 0) &&
              (iVar5 = gettick(), 0x280 < iVar5 - this->fSpeechTicks)) &&
@@ -1255,7 +1255,7 @@ DrawFG_overlayFetch:
       else {
         showRoomFlag = 0;
         this->fCameraRotation = this->fCameraRotation + 3;
-        DrawCar(carObj,0x13a,0x54,4.0,-7.5,(char)this->fBrightness[0],true,this->fCameraRotation
+        DrawCar__FR8tCarInfossffcbUl7tPlayer(carObj,0x13a,0x54,4.0,-7.5,(char)this->fBrightness[0],true,this->fCameraRotation
                    ,kPlayerOne);
       }
       if (((gCarObj[0]->async_handle == 0) && (this->fBrightness[0] == this->fDestBrightness[0])) &&
@@ -1616,7 +1616,7 @@ void tScreenCarSelectDuel::DrawBackground()
   }
   this->_base_tScreenCarSelect.UpdateBrightness(1);
   showRoomFlag = 0;
-  DrawCar(stockCarInfo,0x116,0xb8,1.7,-9.9,(char)(this->_base_tScreenCarSelect).fBrightness[1],false,
+  DrawCar__FR8tCarInfossffcbUl7tPlayer(stockCarInfo,0x116,0xb8,1.7,-9.9,(char)(this->_base_tScreenCarSelect).fBrightness[1],false,
              (this->_base_tScreenCarSelect).fCameraRotation,kPlayerTwo);
   if (((gCarObj[1]->async_handle == 0) &&
       (sVar2 = (this->_base_tScreenCarSelect).fBrightness[1],
@@ -1672,7 +1672,7 @@ void tScreenCarSelectDuel::DrawBackground()
   }
   this->_base_tScreenCarSelect.UpdateBrightness(0);
   showRoomFlag = 0;
-  DrawCar(carInfo_00,0x116,0x4f,1.7,-9.9,(char)(this->_base_tScreenCarSelect).fBrightness[0],false,
+  DrawCar__FR8tCarInfossffcbUl7tPlayer(carInfo_00,0x116,0x4f,1.7,-9.9,(char)(this->_base_tScreenCarSelect).fBrightness[0],false,
              (this->_base_tScreenCarSelect).fCameraRotation,kPlayerOne);
   if ((((gCarObj[0]->async_handle == 0) &&
        (sVar2 = (this->_base_tScreenCarSelect).fBrightness[0],
@@ -1979,7 +1979,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
               ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename + vtbl[1][2].delta + -0x14,
                &carInfo);
     showRoomFlag = 0;
-    DrawCar(carInfoPtr,0x116,0x4f,1.7,-9.9,(char)(this->_base_tScreenCarSelect).fBrightness[0],false,
+    DrawCar__FR8tCarInfossffcbUl7tPlayer(carInfoPtr,0x116,0x4f,1.7,-9.9,(char)(this->_base_tScreenCarSelect).fBrightness[0],false,
                (this->_base_tScreenCarSelect).fCameraRotation,(tPlayer)(byte)FEApp->fPlayer);
     vtbl = (this->_base_tScreenCarSelect)._base_tScreen._vf;
     (*vtbl[1][6].pfn)
@@ -2015,7 +2015,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
     }
     this->_base_tScreenCarSelect.UpdateBrightness(0);
     showRoomFlag = 0;
-    DrawCar(carInfoPtr,0x116,ts10,1.7,-9.9,(char)(this->_base_tScreenCarSelect).fBrightness[0],false,
+    DrawCar__FR8tCarInfossffcbUl7tPlayer(carInfoPtr,0x116,ts10,1.7,-9.9,(char)(this->_base_tScreenCarSelect).fBrightness[0],false,
                (this->_base_tScreenCarSelect).fCameraRotation,(tPlayer)(byte)FEApp->fPlayer);
   }
   IsShapeFileLoaded((tScreen *)this,&(this->_base_tScreenCarSelect)._base_tScreen.fSwapShapes);

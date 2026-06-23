@@ -59,7 +59,7 @@ glabel MenuExtended_PostGameMenu__FR12tMenuCommand
     /* 1E3C0 8002DBC0 FCB60008 */  j          .L8002DBF0
     /* 1E3C4 8002DBC4 5C344224 */   addiu     $v0, $v0, 0x345C
   .L8002DBC8:
-    /* 1E3C8 8002DBC8 7AB6000C */  jal        func_8002D9E8
+    /* 1E3C8 8002DBC8 7AB6000C */  jal        MenuExtended_DidUserWinBeTheCop__Fv
     /* 1E3CC 8002DBCC 00000000 */   nop
     /* 1E3D0 8002DBD0 04004010 */  beqz       $v0, .L8002DBE4
     /* 1E3D4 8002DBD4 0580023C */   lui       $v0, %hi(menuDefs)

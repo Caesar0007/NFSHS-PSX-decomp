@@ -20,3 +20,8 @@ INCLUDE_ASM("asm/nonmatchings/front", PSXDrawGouraudSquare__Fiiiiiiii);
 INCLUDE_ASM("asm/nonmatchings/front", PSXDrawTransGouraudSquare__Fiiiiiiiii);
 INCLUDE_ASM("asm/nonmatchings/front", PSXDrawTransSquare__Fiiiiis);
 INCLUDE_ASM("asm/nonmatchings/front", FontUpsideDownBlit__FiiPviiP12charactertbli);
+INCLUDE_ASM("asm/nonmatchings/front", AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended);
+INCLUDE_ASM("asm/nonmatchings/front", DrawGouraudShape__FP18tTexture_ShapeInfoiiiPii);
+INCLUDE_ASM("asm/nonmatchings/front", DrawFlatShape__FP18tTexture_ShapeInfoiiiPii);
+INCLUDE_ASM("asm/nonmatchings/front", ScaleGouraudShape__FP18tTexture_ShapeInfoiiiiiPii);
+INCLUDE_ASM("asm/nonmatchings/front", ScaleFlatShape__FP18tTexture_ShapeInfoiiiiiPii);

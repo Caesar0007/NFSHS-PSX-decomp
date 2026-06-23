@@ -71,11 +71,11 @@ glabel Movie_NextFrame__Fv
     /* 3D41C 8004CC1C 12300000 */  mflo       $a2
     /* 3D420 8004CC20 9EE2030C */  jal        DecDCTout
     /* 3D424 8004CC24 43280600 */   sra       $a1, $a2, 1
-    /* 3D428 8004CC28 CD34010C */  jal        func_8004D334
+    /* 3D428 8004CC28 CD34010C */  jal        strNextVlc__FP6DECENV
     /* 3D42C 8004CC2C 21200002 */   addu      $a0, $s0, $zero
     /* 3D430 8004CC30 07004004 */  bltz       $v0, .L8004CC50
     /* 3D434 8004CC34 21200002 */   addu      $a0, $s0, $zero
-    /* 3D438 8004CC38 7735010C */  jal        func_8004D5DC
+    /* 3D438 8004CC38 7735010C */  jal        strSync__FP6DECENVi
     /* 3D43C 8004CC3C 21280000 */   addu      $a1, $zero, $zero
     /* 3D440 8004CC40 C7C8030C */  jal        VSync
     /* 3D444 8004CC44 21200000 */   addu      $a0, $zero, $zero

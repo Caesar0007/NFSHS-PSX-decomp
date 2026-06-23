@@ -101,7 +101,7 @@ glabel MCRD_savefile
     /* 403AC 8004FBAC 00000000 */  nop
     /* 403B0 8004FBB0 21105000 */  addu       $v0, $v0, $s0
     /* 403B4 8004FBB4 00004490 */  lbu        $a0, 0x0($v0)
-    /* 403B8 8004FBB8 BC41010C */  jal        func_800506F0
+    /* 403B8 8004FBB8 BC41010C */  jal        ascii2sjis
     /* 403BC 8004FBBC 00000000 */   nop
     /* 403C0 8004FBC0 300022A6 */  sh         $v0, 0x30($s1)
     /* 403C4 8004FBC4 FFFF4230 */  andi       $v0, $v0, 0xFFFF

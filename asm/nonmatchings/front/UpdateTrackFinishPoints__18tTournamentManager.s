@@ -129,11 +129,11 @@ glabel UpdateTrackFinishPoints__18tTournamentManager
     /* 237EC 80032FEC FFFF4224 */   addiu     $v0, $v0, -0x1
     /* 237F0 80032FF0 37020426 */  addiu      $a0, $s0, 0x237
     /* 237F4 80032FF4 002C0800 */  sll        $a1, $t0, 16
-    /* 237F8 80032FF8 0380073C */  lui        $a3, %hi(func_80032A50)
+    /* 237F8 80032FF8 0380073C */  lui        $a3, %hi(tournPointsCompare__FPcT0)
     /* 237FC 80032FFC 032C0500 */  sra        $a1, $a1, 16
     /* 23800 80033000 01000624 */  addiu      $a2, $zero, 0x1
     /* 23804 80033004 6397030C */  jal        qsort
-    /* 23808 80033008 502AE724 */   addiu     $a3, $a3, %lo(func_80032A50)
+    /* 23808 80033008 502AE724 */   addiu     $a3, $a3, %lo(tournPointsCompare__FPcT0)
     /* 2380C 8003300C 21200000 */  addu       $a0, $zero, $zero
     /* 23810 80033010 21100402 */  addu       $v0, $s0, $a0
   .L80033014:

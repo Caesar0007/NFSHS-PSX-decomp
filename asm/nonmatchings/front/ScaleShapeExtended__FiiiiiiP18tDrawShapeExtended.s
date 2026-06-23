@@ -51,7 +51,7 @@ glabel ScaleShapeExtended__FiiiiiiP18tDrawShapeExtended
     /* 3F32C 8004EB2C 2000B127 */  addiu      $s1, $sp, 0x20
     /* 3F330 8004EB30 1000A2AF */  sw         $v0, 0x10($sp)
     /* 3F334 8004EB34 1400B1AF */  sw         $s1, 0x14($sp)
-    /* 3F338 8004EB38 CE37010C */  jal        func_8004DF38
+    /* 3F338 8004EB38 CE37010C */  jal        AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended
     /* 3F33C 8004EB3C 1800AAAF */   sw        $t2, 0x18($sp)
     /* 3F340 8004EB40 4C00A58F */  lw         $a1, 0x4C($sp)
     /* 3F344 8004EB44 00000000 */  nop
@@ -63,7 +63,7 @@ glabel ScaleShapeExtended__FiiiiiiP18tDrawShapeExtended
     /* 3F35C 8004EB5C 1000B2AF */  sw         $s2, 0x10($sp)
     /* 3F360 8004EB60 1400B3AF */  sw         $s3, 0x14($sp)
     /* 3F364 8004EB64 1800B1AF */  sw         $s1, 0x18($sp)
-    /* 3F368 8004EB68 DF39010C */  jal        func_8004E77C
+    /* 3F368 8004EB68 DF39010C */  jal        ScaleGouraudShape__FP18tTexture_ShapeInfoiiiiiPii
     /* 3F36C 8004EB6C 1C00B4AF */   sw        $s4, 0x1C($sp)
     /* 3F370 8004EB70 E53A0108 */  j          .L8004EB94
     /* 3F374 8004EB74 00000000 */   nop
@@ -73,7 +73,7 @@ glabel ScaleShapeExtended__FiiiiiiP18tDrawShapeExtended
     /* 3F380 8004EB80 1000B2AF */  sw         $s2, 0x10($sp)
     /* 3F384 8004EB84 1400B3AF */  sw         $s3, 0x14($sp)
     /* 3F388 8004EB88 1800B1AF */  sw         $s1, 0x18($sp)
-    /* 3F38C 8004EB8C 8E3A010C */  jal        func_8004EA38
+    /* 3F38C 8004EB8C 8E3A010C */  jal        ScaleFlatShape__FP18tTexture_ShapeInfoiiiiiPii
     /* 3F390 8004EB90 1C00B4AF */   sw        $s4, 0x1C($sp)
   .L8004EB94:
     /* 3F394 8004EB94 4400BF8F */  lw         $ra, 0x44($sp)

@@ -97,7 +97,7 @@ glabel SavePinkSlipsCars__Fss
     /* 25D48 80035548 3AD50008 */  j          .L800354E8
     /* 25D4C 8003554C 00000000 */   nop
   jlabel .L80035550
-    /* 25D50 80035550 C6D0000C */  jal        func_80034318
+    /* 25D50 80035550 C6D0000C */  jal        VerifySuccessfulRead__FP12tMemCardData
     /* 25D54 80035554 1000A427 */   addiu     $a0, $sp, 0x10
     /* 25D58 80035558 57004010 */  beqz       $v0, .L800356B8
     /* 25D5C 8003555C 80101400 */   sll       $v0, $s4, 2
@@ -138,7 +138,7 @@ glabel SavePinkSlipsCars__Fss
     /* 25DDC 800355DC 1000A427 */  addiu      $a0, $sp, 0x10
     /* 25DE0 800355E0 1816A2AF */  sw         $v0, 0x1618($sp)
     /* 25DE4 800355E4 1C16A0AF */  sw         $zero, 0x161C($sp)
-    /* 25DE8 800355E8 A8D0000C */  jal        func_800342A0
+    /* 25DE8 800355E8 A8D0000C */  jal        ChecksumData__FP12tMemCardData
     /* 25DEC 800355EC 2016A0AF */   sw        $zero, 0x1620($sp)
     /* 25DF0 800355F0 0180023C */  lui        $v0, %hi(jtbl_80011800)
     /* 25DF4 800355F4 00185624 */  addiu      $s6, $v0, %lo(jtbl_80011800)

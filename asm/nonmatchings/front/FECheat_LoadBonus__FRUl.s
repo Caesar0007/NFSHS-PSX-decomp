@@ -23,7 +23,7 @@ glabel FECheat_LoadBonus__FRUl
     /* 13F94 80023794 24104300 */  and        $v0, $v0, $v1
     /* 13F98 80023798 03004010 */  beqz       $v0, .L800237A8
     /* 13F9C 8002379C 00000000 */   nop
-    /* 13FA0 800237A0 908C000C */  jal        func_80023240
+    /* 13FA0 800237A0 908C000C */  jal        FECheat_HandleActivation__F10tCheatCode
     /* 13FA4 800237A4 21200002 */   addu      $a0, $s0, $zero
   .L800237A8:
     /* 13FA8 800237A8 01001026 */  addiu      $s0, $s0, 0x1

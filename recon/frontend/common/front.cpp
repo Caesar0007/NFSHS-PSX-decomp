@@ -744,9 +744,9 @@ FrontMenu_runFrontEndCleanup:
 
 
 
-/* ---- OutputDisplaySettings  [FRONT.CPP:1171-1204] ---- */
+/* ---- OutputDisplaySettings__FPiiiR17tTrackInformation  [FRONT.CPP:1171-1204] ---- */
 
-/* int * OutputDisplaySettings(int * d, int c, int player,
+/* int * OutputDisplaySettings__FPiiiR17tTrackInformation(int * d, int c, int player,
    tTrackInformation * trackInfo)
    
    Game-side C helper (uncategorized) (game-c-other).Phase F apply (2026-05-07): documentation-coverage closure for game-side undocumented fns.Provenance:
@@ -754,11 +754,11 @@ FrontMenu_runFrontEndCleanup:
      Direct callers: 1
      SLD source: nfs4/FRONTEND/COMMON/FRONT.CPP:1171
      SYM data: 4 regparms / 0 args / 0 autos
-     Sample callers: Front_AppendPlayerCarData
+     Sample callers: Front_AppendPlayerCarData__FPiR9tFEStream
    
    Toolchain: PsyQ SDK 4.3 (May 1998), GCC 2.7.2, ASPSX 2.77, PSYLINK 2.73.Build date: 1999-02-22.See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
-int * OutputDisplaySettings(int *d,int c,int player,tTrackInformation *trackInfo)
+extern "C" int * OutputDisplaySettings__FPiiiR17tTrackInformation(int *d,int c,int player,tTrackInformation *trackInfo)
 
 {
   byte bVar1;
@@ -849,13 +849,13 @@ int Front_GetLapsForType(void)
 
 
 
-/* ---- Front_InitStream  [FRONT.CPP:1231-1235] ---- */
+/* ---- Front_InitStream__FR9tFEStream  [FRONT.CPP:1231-1235] ---- */
 
-/* Decoded Phase 83: Front_InitStream(tFEStream&) - clear tFEStream to safe initial state (48 B).Called first in BuildStream pipeline.
+/* Decoded Phase 83: Front_InitStream__FR9tFEStream(tFEStream&) - clear tFEStream to safe initial state (48 B).Called first in BuildStream pipeline.
    
    [ghidra-meta] section: front.text */
 
-void Front_InitStream(tFEStream *streamData)
+extern "C" void Front_InitStream__FR9tFEStream(tFEStream *streamData)
 
 {
   streamData->totalCars = 0;
@@ -867,15 +867,15 @@ void Front_InitStream(tFEStream *streamData)
 
 
 
-/* ---- Front_InitPlayerCars  [FRONT.CPP:1241-1324] ---- */
+/* ---- Front_InitPlayerCars__FR9tFEStream  [FRONT.CPP:1241-1324] ---- */
 
-/* Decoded Phase 83: Front_InitPlayerCars(tFEStream&) - populate playerCars[] from garage state (964
+/* Decoded Phase 83: Front_InitPlayerCars__FR9tFEStream(tFEStream&) - populate playerCars[] from garage state (964
    B). raceType==2 (tournament): garageCar[0] from save. raceType!=6: standard car select. Reads
    carColors[i*0x18][carID] to pick skin from selection menu state.
    
    [ghidra-meta] section: front.text */
 
-void Front_InitPlayerCars(tFEStream *streamData)
+extern "C" void Front_InitPlayerCars__FR9tFEStream(tFEStream *streamData)
 
 {
   uchar uVar1;
@@ -954,13 +954,13 @@ FrontInitPlayers_playerLoop:
 
 
 
-/* ---- Front_InitTourneyTraffic  [FRONT.CPP:1329-1358] ---- */
+/* ---- Front_InitTourneyTraffic__FR9tFEStream  [FRONT.CPP:1329-1358] ---- */
 
-/* Decoded Phase 83: Front_InitTourneyTraffic(tFEStream&) - tournament-mode traffic init (372 B).Different traffic profile per tournament tier.
+/* Decoded Phase 83: Front_InitTourneyTraffic__FR9tFEStream(tFEStream&) - tournament-mode traffic init (372 B).Different traffic profile per tournament tier.
    
    [ghidra-meta] section: front.text */
 
-void Front_InitTourneyTraffic(tFEStream *streamData)
+extern "C" void Front_InitTourneyTraffic__FR9tFEStream(tFEStream *streamData)
 
 {
   byte bVar1;
@@ -1004,9 +1004,9 @@ void Front_InitTourneyTraffic(tFEStream *streamData)
 
 
 
-/* ---- Front_InitOpponentCars  [FRONT.CPP:1366-1529] ---- */
+/* ---- Front_InitOpponentCars__FR9tFEStream  [FRONT.CPP:1366-1529] ---- */
 
-/* Decoded Phase 83: Front_InitOpponentCars(tFEStream&) - allocate AI opponent cars (1428 B). For
+/* Decoded Phase 83: Front_InitOpponentCars__FR9tFEStream(tFEStream&) - allocate AI opponent cars (1428 B). For
    tournament (raceType==2) AND special (oppNumber==2): full 5-opponent grid. Otherwise 0..N from
    frontEnd.opponents[] picks. Sets numOpponents=0 first, then conditionally adds based on raceType
    + grid size. Each opp gets carID + skin color from grid CSV.
@@ -1018,7 +1018,7 @@ void Front_InitTourneyTraffic(tFEStream *streamData)
    preserves type info; these are minor secondary-effect register temps that did not warrant
    individual semantic naming. */
 
-void Front_InitOpponentCars(tFEStream *streamData)
+extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
 
 {
   byte bVar1;
@@ -1173,14 +1173,14 @@ void Front_InitOpponentCars(tFEStream *streamData)
 
 
 
-/* ---- Front_InitMissions  [FRONT.CPP:1536-1579] ---- */
+/* ---- Front_InitMissions__FR9tFEStream  [FRONT.CPP:1536-1579] ---- */
 
-/* Decoded Phase 83: Front_InitMissions(tFEStream&) - tournament mission setup (304 B). Reads
+/* Decoded Phase 83: Front_InitMissions__FR9tFEStream(tFEStream&) - tournament mission setup (304 B). Reads
    tMissionManager state to populate per-tier objectives.
    
    [ghidra-meta] section: front.text */
 
-void Front_InitMissions(tFEStream *streamData)
+extern "C" void Front_InitMissions__FR9tFEStream(tFEStream *streamData)
 
 {
   char cVar1;
@@ -1228,15 +1228,15 @@ void Front_InitMissions(tFEStream *streamData)
 
 
 
-/* ---- Front_InitCopCars  [FRONT.CPP:1606-1696] ---- */
+/* ---- Front_InitCopCars__FR9tFEStream  [FRONT.CPP:1606-1696] ---- */
 
-/* Decoded Phase 83: Front_InitCopCars(tFEStream&) - populate cop cars (960 B). Picks cop count +
+/* Decoded Phase 83: Front_InitCopCars__FR9tFEStream(tFEStream&) - populate cop cars (960 B). Picks cop count +
    types based on raceType + selected difficulty. Reserves AI slots for cops separate from
    opponents.
    
    [ghidra-meta] section: front.text */
 
-void Front_InitCopCars(tFEStream *streamData)
+extern "C" void Front_InitCopCars__FR9tFEStream(tFEStream *streamData)
 
 {
   ushort uVar1;
@@ -1350,13 +1350,13 @@ void Front_InitCopCars(tFEStream *streamData)
 
 
 
-/* ---- Front_InitPerps  [FRONT.CPP:1702-1747] ---- */
+/* ---- Front_InitPerps__FR9tFEStream  [FRONT.CPP:1702-1747] ---- */
 
-/* Decoded Phase 83: Front_InitPerps(tFEStream&) - allocate Behind-The-Cop perp slots (456 B).
+/* Decoded Phase 83: Front_InitPerps__FR9tFEStream(tFEStream&) - allocate Behind-The-Cop perp slots (456 B).
    
    [ghidra-meta] section: front.text */
 
-void Front_InitPerps(tFEStream *streamData)
+extern "C" void Front_InitPerps__FR9tFEStream(tFEStream *streamData)
 
 {
   byte bVar1;
@@ -1409,14 +1409,14 @@ void Front_InitPerps(tFEStream *streamData)
 
 
 
-/* ---- Front_InitTrack  [FRONT.CPP:1754-1801] ---- */
+/* ---- Front_InitTrack__FR9tFEStream  [FRONT.CPP:1754-1801] ---- */
 
-/* Decoded Phase 83: Front_InitTrack(tFEStream&) - serialize selected track data (452 B). trackId +
+/* Decoded Phase 83: Front_InitTrack__FR9tFEStream(tFEStream&) - serialize selected track data (452 B). trackId +
    numLaps + Weather + timeOfDay + reverse.
    
    [ghidra-meta] section: front.text */
 
-void Front_InitTrack(tFEStream *streamData)
+extern "C" void Front_InitTrack__FR9tFEStream(tFEStream *streamData)
 
 {
   tTrackInformation *src;
@@ -1467,14 +1467,14 @@ void Front_InitTrack(tFEStream *streamData)
 
 
 
-/* ---- Front_InitTraffic  [FRONT.CPP:1809-1879] ---- */
+/* ---- Front_InitTraffic__FR9tFEStream  [FRONT.CPP:1809-1879] ---- */
 
-/* Decoded Phase 83: Front_InitTraffic(tFEStream&) - allocate traffic-car slots (568 B). Count from
+/* Decoded Phase 83: Front_InitTraffic__FR9tFEStream(tFEStream&) - allocate traffic-car slots (568 B). Count from
    track BWorld + Weather (rain reduces traffic).
    
    [ghidra-meta] section: front.text */
 
-void Front_InitTraffic(tFEStream *streamData)
+extern "C" void Front_InitTraffic__FR9tFEStream(tFEStream *streamData)
 
 {
   bool bVar1;
@@ -1546,15 +1546,15 @@ void Front_InitTraffic(tFEStream *streamData)
 
 
 
-/* ---- Front_AppendPlayerCarData  [FRONT.CPP:1889-1963] ---- */
+/* ---- Front_AppendPlayerCarData__FPiR9tFEStream  [FRONT.CPP:1889-1963] ---- */
 
-/* Decoded Phase 83: Front_AppendPlayerCarData(int* outStream, tFEStream&) - serialize player car
+/* Decoded Phase 83: Front_AppendPlayerCarData__FPiR9tFEStream(int* outStream, tFEStream&) - serialize player car
    data into stream (1252 B). Writes per-player: currentCar, position, fSimNumber, color (from
    carManager). Also handles 2-player split-screen with two adjacent records.
    
    [ghidra-meta] section: front.text */
 
-int * Front_AppendPlayerCarData(int *stream,tFEStream *streamData)
+extern "C" int * Front_AppendPlayerCarData__FPiR9tFEStream(int *stream,tFEStream *streamData)
 
 {
   int iVar1;
@@ -1659,7 +1659,7 @@ int * Front_AppendPlayerCarData(int *stream,tFEStream *streamData)
       stream[0x39] = 0x109;
       stream[0x3a] = (int)streamData->currentCar;
       stream[0x3b] = (uint)(byte)frontEnd.rampBrake[iVar1];
-      stream = OutputDisplaySettings(stream + 0x3c,(int)streamData->currentCar,iVar1,&streamData->trackInfo);
+      stream = OutputDisplaySettings__FPiiiR17tTrackInformation(stream + 0x3c,(int)streamData->currentCar,iVar1,&streamData->trackInfo);
       iVar4 = iVar4 + 1;
       streamData->currentCar = streamData->currentCar + 1;
     } while (iVar4 * 0x10000 >> 0x10 < (int)streamData->numPlayers);
@@ -1675,14 +1675,14 @@ int * Front_AppendPlayerCarData(int *stream,tFEStream *streamData)
 
 
 
-/* ---- Front_AppendOpponentData  [FRONT.CPP:1968-1998] ---- */
+/* ---- Front_AppendOpponentData__FPiR9tFEStream  [FRONT.CPP:1968-1998] ---- */
 
-/* Decoded Phase 83: Front_AppendOpponentData(int*, tFEStream&) - serialize opponent cars into
+/* Decoded Phase 83: Front_AppendOpponentData__FPiR9tFEStream(int*, tFEStream&) - serialize opponent cars into
    stream (820 B). Each opponent: carID + personality + skill + color + grid position.
    
    [ghidra-meta] section: front.text */
 
-int * Front_AppendOpponentData(int *stream,tFEStream *streamData)
+extern "C" int * Front_AppendOpponentData__FPiR9tFEStream(int *stream,tFEStream *streamData)
 
 {
   byte bVar1;
@@ -1759,14 +1759,14 @@ int * Front_AppendOpponentData(int *stream,tFEStream *streamData)
 
 
 
-/* ---- Front_AppendCopData  [FRONT.CPP:2003-2035] ---- */
+/* ---- Front_AppendCopData__FPiR9tFEStream  [FRONT.CPP:2003-2035] ---- */
 
-/* Decoded Phase 83: Front_AppendCopData(int*, tFEStream&) - serialize cop data (596 B). Per-cop:
+/* Decoded Phase 83: Front_AppendCopData__FPiR9tFEStream(int*, tFEStream&) - serialize cop data (596 B). Per-cop:
    carID + chase-strategy + initial slice.
    
    [ghidra-meta] section: front.text */
 
-int * Front_AppendCopData(int *stream,tFEStream *streamData)
+extern "C" int * Front_AppendCopData__FPiR9tFEStream(int *stream,tFEStream *streamData)
 
 {
   tCarInfo *ptVar1;
@@ -1828,14 +1828,14 @@ int * Front_AppendCopData(int *stream,tFEStream *streamData)
 
 
 
-/* ---- Front_AppendPerpData  [FRONT.CPP:2040-2076] ---- */
+/* ---- Front_AppendPerpData__FPiR9tFEStream  [FRONT.CPP:2040-2076] ---- */
 
-/* Decoded Phase 83: Front_AppendPerpData(int*, tFEStream&) - serialize perp (Behind-The-Cop chase
+/* Decoded Phase 83: Front_AppendPerpData__FPiR9tFEStream(int*, tFEStream&) - serialize perp (Behind-The-Cop chase
    target) data (664 B). Writes per-perp carID + escape route + initial speed.
    
    [ghidra-meta] section: front.text */
 
-int * Front_AppendPerpData(int *stream,tFEStream *streamData)
+extern "C" int * Front_AppendPerpData__FPiR9tFEStream(int *stream,tFEStream *streamData)
 
 {
   tCarInfo *ptVar1;
@@ -1907,13 +1907,13 @@ int * Front_AppendPerpData(int *stream,tFEStream *streamData)
 
 
 
-/* ---- Front_AppendTrafficData  [FRONT.CPP:2081-2109] ---- */
+/* ---- Front_AppendTrafficData__FPiR9tFEStream  [FRONT.CPP:2081-2109] ---- */
 
-/* Decoded Phase 83: Front_AppendTrafficData(int*, tFEStream&) - serialize traffic cars (592 B).Type + density + spawn-rate from track tuning.
+/* Decoded Phase 83: Front_AppendTrafficData__FPiR9tFEStream(int*, tFEStream&) - serialize traffic cars (592 B).Type + density + spawn-rate from track tuning.
    
    [ghidra-meta] section: front.text */
 
-int * Front_AppendTrafficData(int *stream,tFEStream *streamData)
+extern "C" int * Front_AppendTrafficData__FPiR9tFEStream(int *stream,tFEStream *streamData)
 
 {
   tCarInfo *ptVar1;
@@ -1974,13 +1974,13 @@ int * Front_AppendTrafficData(int *stream,tFEStream *streamData)
 
 
 
-/* ---- Front_AppendTrackData  [FRONT.CPP:2114-2146] ---- */
+/* ---- Front_AppendTrackData__FPiR9tFEStream  [FRONT.CPP:2114-2146] ---- */
 
-/* Decoded Phase 83: Front_AppendTrackData(int*, tFEStream&) - serialize track data (320 B).
+/* Decoded Phase 83: Front_AppendTrackData__FPiR9tFEStream(int*, tFEStream&) - serialize track data (320 B).
    
    [ghidra-meta] section: front.text */
 
-int * Front_AppendTrackData(int *stream,tFEStream *streamData)
+extern "C" int * Front_AppendTrackData__FPiR9tFEStream(int *stream,tFEStream *streamData)
 
 {
   int valtopass;
@@ -2058,7 +2058,7 @@ void * Front_EnableLocalSpeech(void)
 
 /* Decoded Phase 83: Front_BuildStream(int* outStream) - build complete tFEStream race-setup blob(4000 B - biggest Front fn). Composes player cars + opponent cars + cops + traffic + perps +
    missions + track data + tourney traffic into a single contiguous int-stream buffer that gets
-   passed to GameSetup at race transition. Calls Front_InitStream + all Init*+Append* sub-builders
+   passed to GameSetup at race transition. Calls Front_InitStream__FR9tFEStream + all Init*+Append* sub-builders
    in order. Drives entire game-->race handoff.
    
    [ghidra-meta] section: front.text */
@@ -2084,15 +2084,15 @@ int * Front_BuildStream(int *stream)
   int config;
   tFEStream streamData;
   
-  Front_InitStream(&streamData);
-  Front_InitPlayerCars(&streamData);
-  Front_InitTrack(&streamData);
-  Front_InitTourneyTraffic(&streamData);
-  Front_InitOpponentCars(&streamData);
-  Front_InitMissions(&streamData);
-  Front_InitCopCars(&streamData);
-  Front_InitPerps(&streamData);
-  Front_InitTraffic(&streamData);
+  Front_InitStream__FR9tFEStream(&streamData);
+  Front_InitPlayerCars__FR9tFEStream(&streamData);
+  Front_InitTrack__FR9tFEStream(&streamData);
+  Front_InitTourneyTraffic__FR9tFEStream(&streamData);
+  Front_InitOpponentCars__FR9tFEStream(&streamData);
+  Front_InitMissions__FR9tFEStream(&streamData);
+  Front_InitCopCars__FR9tFEStream(&streamData);
+  Front_InitPerps__FR9tFEStream(&streamData);
+  Front_InitTraffic__FR9tFEStream(&streamData);
   frontEnd.randomSeed = (short)ticks;
   seedrandom((int)frontEnd.randomSeed);
   iVar3 = 7;
@@ -2207,7 +2207,7 @@ int * Front_BuildStream(int *stream)
   stream[0x47] = 0;
   stream[0x48] = 0xf;
   stream[0x49] = (uint)(byte)frontEnd.catchup;
-  piVar2 = Front_AppendTrackData(stream + 0x4a,&streamData);
+  piVar2 = Front_AppendTrackData__FPiR9tFEStream(stream + 0x4a,&streamData);
   *piVar2 = 0x13;
   piVar2[1] = (uint)(byte)frontEnd.song;
   piVar2[2] = 0x2a;
@@ -2302,11 +2302,11 @@ int * Front_BuildStream(int *stream)
     }
     piVar2[9] = iVar3;
   }
-  piVar2 = Front_AppendPlayerCarData(piVar2,&streamData);
-  piVar2 = Front_AppendOpponentData(piVar2,&streamData);
-  piVar2 = Front_AppendPerpData(piVar2,&streamData);
-  piVar2 = Front_AppendCopData(piVar2,&streamData);
-  piVar2 = Front_AppendTrafficData(piVar2,&streamData);
+  piVar2 = Front_AppendPlayerCarData__FPiR9tFEStream(piVar2,&streamData);
+  piVar2 = Front_AppendOpponentData__FPiR9tFEStream(piVar2,&streamData);
+  piVar2 = Front_AppendPerpData__FPiR9tFEStream(piVar2,&streamData);
+  piVar2 = Front_AppendCopData__FPiR9tFEStream(piVar2,&streamData);
+  piVar2 = Front_AppendTrafficData__FPiR9tFEStream(piVar2,&streamData);
   *piVar2 = 0x1c;
   piVar2[1] = (int)streamData.numPlayers + (int)streamData.numOpponents + (int)streamData.numCops +
               (int)streamData.numSuperCops + (int)streamData.numPerpObjects +

@@ -12,8 +12,8 @@
 #include "memcard_externs.h"
 
 /* forward decls for the file-local statics (called before their definitions) */
-void  iMCRD_timersub(void);
-static short ascii2sjis(u_char ascii_code);
+extern "C" void  iMCRD_timersub(void);
+extern "C" short ascii2sjis(u_char ascii_code);
 extern "C" u_char sjis2ascii(short sjis_code);   /* @0x80050810 (memcard.c); extern "C" so the symbol is `sjis2ascii` not the C++-mangled local (pairs with the front oracle) */
 
 /* file-local SJIS<->ASCII lookup tables (SYM class STAT; table *values* live in .data,
@@ -609,7 +609,7 @@ int MCRD_fileexists(int card,char *name)
 /* lines 1378-1535: (static data / macros / comments - no emitted code) */
 
 /* ---- iMCRD_timersub  (memcard.c:1536, code lines 1536-1541) [static] ---- */
-void iMCRD_timersub(void)
+extern "C" void iMCRD_timersub(void)
 
 {
   fMemCardInfo_def *pInfo;
@@ -847,7 +847,7 @@ int iMCRD_DefaultCBProc1(void)
 /* lines 1900-2062: (static data / macros / comments - no emitted code) */
 
 /* ---- ascii2sjis  (memcard.c:2063, code lines 2063-2096) [static] ---- */
-static short ascii2sjis(u_char ascii_code)
+extern "C" short ascii2sjis(u_char ascii_code)
 
 {
   ushort sjis_code;

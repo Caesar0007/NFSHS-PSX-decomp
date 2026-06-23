@@ -1955,7 +1955,7 @@ dlabel D_800114D8
     /* 1D18 80011518 00000000 */ .word 0x00000000
     /* 1D1C 8001151C B8A70180 */ .word TransitionOn__27tMenuItemGoToMenuNFS4Button
     /* 1D20 80011520 00000000 */ .word 0x00000000
-    /* 1D24 80011524 C0210380 */ .word func_800321C0
+    /* 1D24 80011524 C0210380 */ .word TransitionIsFinished__32tBlankMenuItemGoToMenuNFS4Button
     /* 1D28 80011528 00000000 */ .word 0x00000000
     /* 1D2C 8001152C E0A70180 */ .word UpdateTransition__27tMenuItemGoToMenuNFS4Buttonb
 enddlabel D_800114D8
@@ -1982,7 +1982,7 @@ dlabel D_80011530
     /* 1D70 80011570 00000000 */ .word 0x00000000
     /* 1D74 80011574 5CAB0180 */ .word TransitionOn__28tMenuItemNFS4LeftRightChoice
     /* 1D78 80011578 00000000 */ .word 0x00000000
-    /* 1D7C 8001157C F8210380 */ .word func_800321F8
+    /* 1D7C 8001157C F8210380 */ .word TransitionIsFinished__33tBlankMenuItemNFS4LeftRightChoice
     /* 1D80 80011580 00000000 */ .word 0x00000000
     /* 1D84 80011584 84AB0180 */ .word UpdateTransition__28tMenuItemNFS4LeftRightChoiceb
     /* 1D88 80011588 53696D70 */ .word 0x706D6953

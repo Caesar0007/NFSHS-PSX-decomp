@@ -59,7 +59,7 @@ glabel FECheat_ActivateCheat__FPc
     /* 13ED4 800236D4 80801000 */  sll        $s0, $s0, 2
     /* 13ED8 800236D8 21800202 */  addu       $s0, $s0, $v0
     /* 13EDC 800236DC 0800048E */  lw         $a0, 0x8($s0)
-    /* 13EE0 800236E0 908C000C */  jal        func_80023240
+    /* 13EE0 800236E0 908C000C */  jal        FECheat_HandleActivation__F10tCheatCode
     /* 13EE4 800236E4 01001124 */   addiu     $s1, $zero, 0x1
     /* 13EE8 800236E8 1480043C */  lui        $a0, %hi(gFECheats)
     /* 13EEC 800236EC 0800028E */  lw         $v0, 0x8($s0)

@@ -85,7 +85,7 @@ glabel RunDemoVideo__14tFEApplication
     /* 493C 8001413C 00000000 */   nop
     /* 4940 80014140 249B000C */  jal        FeTools_deinit__Fv
     /* 4944 80014144 00000000 */   nop
-    /* 4948 80014148 E64F000C */  jal        func_80013F98
+    /* 4948 80014148 E64F000C */  jal        FreeHelpShapeCluts__Fv
     /* 494C 8001414C 00000000 */   nop
     /* 4950 80014150 A194030C */  jal        largestunused
     /* 4954 80014154 00000000 */   nop

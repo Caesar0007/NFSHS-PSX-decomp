@@ -16,6 +16,14 @@
   ],
   "units": [
     {
+      "name": "frontend/common/mcrd",
+      "target_path": "expected/src/frontend/common/mcrd.c.o",
+      "base_path": "build/recon/frontend/common/mcrd.cpp.o",
+      "metadata": {
+        "source_path": "recon/frontend/common/mcrd.cpp"
+      }
+    },
+    {
       "name": "main",
       "target_path": "expected/src/main.c.o",
       "base_path": "build/src/main.c.o",

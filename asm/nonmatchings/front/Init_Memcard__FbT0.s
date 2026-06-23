@@ -55,31 +55,31 @@ glabel Init_Memcard__FbT0
     /* 24F5C 8003475C 2000A2A7 */  sh         $v0, 0x20($sp)
     /* 24F60 80034760 60000224 */  addiu      $v0, $zero, 0x60
     /* 24F64 80034764 2200A2A7 */  sh         $v0, 0x22($sp)
-    /* 24F68 80034768 0380023C */  lui        $v0, %hi(func_80034620)
-    /* 24F6C 8003476C 20464224 */  addiu      $v0, $v0, %lo(func_80034620)
+    /* 24F68 80034768 0380023C */  lui        $v0, %hi(FormatConfirm__Fv)
+    /* 24F6C 8003476C 20464224 */  addiu      $v0, $v0, %lo(FormatConfirm__Fv)
     /* 24F70 80034770 1000A0AF */  sw         $zero, 0x10($sp)
     /* 24F74 80034774 1800A0AF */  sw         $zero, 0x18($sp)
     /* 24F78 80034778 04000012 */  beqz       $s0, .L8003478C
     /* 24F7C 8003477C 2400A2AF */   sw        $v0, 0x24($sp)
-    /* 24F80 80034780 0380023C */  lui        $v0, %hi(func_80034618)
+    /* 24F80 80034780 0380023C */  lui        $v0, %hi(OverwriteAlwaysYes__Fv)
     /* 24F84 80034784 E5D10008 */  j          .L80034794
-    /* 24F88 80034788 18464224 */   addiu     $v0, $v0, %lo(func_80034618)
+    /* 24F88 80034788 18464224 */   addiu     $v0, $v0, %lo(OverwriteAlwaysYes__Fv)
   .L8003478C:
-    /* 24F8C 8003478C 0380023C */  lui        $v0, %hi(func_800345EC)
-    /* 24F90 80034790 EC454224 */  addiu      $v0, $v0, %lo(func_800345EC)
+    /* 24F8C 8003478C 0380023C */  lui        $v0, %hi(OverwriteConfirm__Fv)
+    /* 24F90 80034790 EC454224 */  addiu      $v0, $v0, %lo(OverwriteConfirm__Fv)
   .L80034794:
     /* 24F94 80034794 04002012 */  beqz       $s1, .L800347A8
     /* 24F98 80034798 2800A2AF */   sw        $v0, 0x28($sp)
-    /* 24F9C 8003479C 0380023C */  lui        $v0, %hi(func_80034654)
+    /* 24F9C 8003479C 0380023C */  lui        $v0, %hi(LoadingRedrawProc__Fv)
     /* 24FA0 800347A0 ECD10008 */  j          .L800347B0
-    /* 24FA4 800347A4 54464224 */   addiu     $v0, $v0, %lo(func_80034654)
+    /* 24FA4 800347A4 54464224 */   addiu     $v0, $v0, %lo(LoadingRedrawProc__Fv)
   .L800347A8:
     /* 24FA8 800347A8 0380023C */  lui        $v0, %hi(func_8003464C)
     /* 24FAC 800347AC 4C464224 */  addiu      $v0, $v0, %lo(func_8003464C)
   .L800347B0:
     /* 24FB0 800347B0 2C00A2AF */  sw         $v0, 0x2C($sp)
-    /* 24FB4 800347B4 0380023C */  lui        $v0, %hi(func_8003467C)
-    /* 24FB8 800347B8 7C464224 */  addiu      $v0, $v0, %lo(func_8003467C)
+    /* 24FB4 800347B4 0380023C */  lui        $v0, %hi(SavingProc__Fv)
+    /* 24FB8 800347B8 7C464224 */  addiu      $v0, $v0, %lo(SavingProc__Fv)
     /* 24FBC 800347BC 3000A2AF */  sw         $v0, 0x30($sp)
     /* 24FC0 800347C0 653D010C */  jal        MCRD_setopts
     /* 24FC4 800347C4 1000A427 */   addiu     $a0, $sp, 0x10

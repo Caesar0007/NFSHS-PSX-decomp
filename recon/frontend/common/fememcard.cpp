@@ -289,9 +289,9 @@ void DeInit_Memcard(void)
   return;
 }
 
-/* ---- Init_MemcardFile  [FEMEMCARD.CPP:357-381] ---- */
+/* ---- Init_MemcardFile__FR12MCRDFILE_defsb  [FEMEMCARD.CPP:357-381] ---- */
 
-void Init_MemcardFile(MCRDFILE_def *memCardFile,short cardnum,bool notitle)
+extern "C" void Init_MemcardFile__FR12MCRDFILE_defsb(MCRDFILE_def *memCardFile,short cardnum,bool notitle)
 
 {
   void *pvVar1;
@@ -402,7 +402,7 @@ void * SaveGame(short player)
   nomessage = 0;
   MakeWayForMemoryCard();
   iVar7 = iVar7 * 0x10000;
-  Init_MemcardFile(&memCardFile,(short)((uint)iVar7 >> 0x10),false);
+  Init_MemcardFile__FR12MCRDFILE_defsb(&memCardFile,(short)((uint)iVar7 >> 0x10),false);
   memCardFile.pData = (u_char *)&memCardData;
   while (iVar3 = MCRD_handlecardevents(iVar7 >> 0x10), iVar3 == 0x15) {
     VSync(0);
@@ -479,9 +479,9 @@ void * SaveGame(short player)
 
 
 
-/* ---- LoadGame  [FEMEMCARD.CPP:591-812] ---- */
+/* ---- LoadGame__FsbT1  [FEMEMCARD.CPP:591-812] ---- */
 
-short LoadGame(short player,bool PinkSlips,byte WithDialogs)
+extern "C" short LoadGame__FsbT1(short player,bool PinkSlips,byte WithDialogs)
 
 {
   bool bVar1;
@@ -563,7 +563,7 @@ LoadGame_memcardInit:
   iVar11 = iVar11 + 1;
   MakeWayForMemoryCard();
   card = (int)(short)cardnum;
-  Init_MemcardFile(&memCardFile,cardnum,true);
+  Init_MemcardFile__FR12MCRDFILE_defsb(&memCardFile,cardnum,true);
   while( true ) {
     iVar4 = MCRD_handlecardevents(card);
     if (iVar4 != 0x15) break;
@@ -733,7 +733,7 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
   nomessage = 0;
   sprintf(shapeFileName,"%szMem.psh",Paths_Paths[0x20]);
   addr = (void *)loadshapeadr(shapeFileName,(void *)0x0);
-  Init_MemcardFile(&memCardFile,(short)((uint)iVar4 >> 0x10),true);
+  Init_MemcardFile__FR12MCRDFILE_defsb(&memCardFile,(short)((uint)iVar4 >> 0x10),true);
   while (iVar5 = MCRD_handlecardevents(iVar4 >> 0x10), iVar5 == 0x15) {
     VSync(0);
   }

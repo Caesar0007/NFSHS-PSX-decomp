@@ -305,8 +305,8 @@ void Init_PSX_FrontEnd(void)
 
 /* lines 784-838: (static data / macros / comments - no emitted code) */
 
-/* ---- AdjustShapeDrawing  (psxfront.cpp:839, code lines 839-922) ---- */
-void AdjustShapeDrawing(tTexture_ShapeInfo *tShp,int *x,int *y,int *flags,int bright,int *color,
+/* ---- AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended  (psxfront.cpp:839, code lines 839-922) ---- */
+extern "C" void AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tTexture_ShapeInfo *tShp,int *x,int *y,int *flags,int bright,int *color,
                tDrawShapeExtended *extra)
 
 {
@@ -609,7 +609,7 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
   tTexture_ShapeInfo *tShp;
   int color [4];
 
-  /* @0x8004E678: the incoming flags/x/y params are forwarded to AdjustShapeDrawing (via &flags/&x/&y)
+  /* @0x8004E678: the incoming flags/x/y params are forwarded to AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended (via &flags/&x/&y)
    * and the draw calls. The recon overwrote them with never-assigned Ghidra locals flagsv/xv/yv right
    * before the call, feeding garbage flags/x/y. Use the real params (M15). */
   shapeTbl = gCurrentShapes;
@@ -625,7 +625,7 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
    * Ghidra local `shp` for shapeTbl+(int)shp -> use tShp. (The shp/index uninit was a side-finding NOT
    * in the audit's M16, confirmed vs oracle: $s0=tShp=shapeTbl+index, passed to all 3 calls.) */
   tShp = shapeTbl + index;
-  AdjustShapeDrawing(tShp,&x,&y,&flags,(0x80 - fade) * 0x10000 >> 0x10,color,extra);
+  AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tShp,&x,&y,&flags,(0x80 - fade) * 0x10000 >> 0x10,color,extra);
   if ((flags & 0xc0U) == 0) {
     DrawFlatShape(tShp,flags,x,y,color,abr);
   }
@@ -777,7 +777,7 @@ void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSh
   int color [4];
 
   /* ScaleShapeExtended: same uninit-local-shadow pattern -- forward the real flags/x/y params to
-   * AdjustShapeDrawing, not the never-assigned Ghidra locals flagsv/xv/yv (M15). */
+   * AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended, not the never-assigned Ghidra locals flagsv/xv/yv (M15). */
   shapeTbl = gCurrentShapes;
   if ((flags & 8) != 0) {
     shapeTbl = gHelpShapes[0];
@@ -786,12 +786,12 @@ void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSh
     shapeTbl = extra->custom_shapes;
   }
   /* @0x8004EAE4-E8 / EB14 / EB50: tShp = shapeTbl + index (index*0x20) is passed as $a0 to
-   * AdjustShapeDrawing and both Scale draw calls. The recon used (tTexture_ShapeInfo*)(0x80-fade) as the
-   * AdjustShapeDrawing shape arg (the bright value mis-decoded into the pointer slot) and an
+   * AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended and both Scale draw calls. The recon used (tTexture_ShapeInfo*)(0x80-fade) as the
+   * AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended shape arg (the bright value mis-decoded into the pointer slot) and an
    * uninitialized `shp` for shapeTbl+shp in both Scale calls -- all should be tShp (the same uninit
    * shape-pointer class fixed in DrawShapeExtended/M16; this is the ScaleShapeExtended sibling). */
   tShp = shapeTbl + index;
-  AdjustShapeDrawing(tShp,&x,&y,&flags,(0x80 - fade) * 0x10000 >> 0x10,color,extra);
+  AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tShp,&x,&y,&flags,(0x80 - fade) * 0x10000 >> 0x10,color,extra);
   if ((flags & 0xc0U) == 0) {
     ScaleFlatShape(tShp,flags,x,y,0x20000,0x10000,color,abr);
   }

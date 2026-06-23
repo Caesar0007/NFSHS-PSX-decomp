@@ -985,7 +985,7 @@ void tMenuNFS4Bottom::Draw()
   r.y = 0xc6;
   r.w = 0x72;
   r.h = 0xb;
-  MenuNFS4_SetHelpPos(&r);
+  MenuNFS4_SetHelpPos__FR4RECT(&r);
   i = 0;
   ptVar1 = (this->_base_tMenuNFS4)._base_tMenu.fItemList[0];
   while (ptVar1 != (tMenuItem *)0x0) {
@@ -1365,7 +1365,7 @@ void tMenuItemGoToMenuNFS4Button::Draw(bool selected)
 
 /* ---- MenuNFS4_SetHelpPos__FR4RECT  [@0x800?] ---- RECONSTRUCTED 2026-06-12 (Ghidra @NFS4.EXE.c:5887).
  *  Skipped from the FEMenuExtended pass; trivial RECT copy into gHelpPos (defined above @0x80052b58). */
-void MenuNFS4_SetHelpPos(RECT *r)
+extern "C" void MenuNFS4_SetHelpPos__FR4RECT(RECT *r)
 {
   gHelpPos.x = r->x;
   gHelpPos.y = r->y;

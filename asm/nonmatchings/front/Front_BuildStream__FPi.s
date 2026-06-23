@@ -12,23 +12,23 @@ glabel Front_BuildStream__FPi
     /* 1AF4C 8002A74C 0803B4AF */  sw         $s4, 0x308($sp)
     /* 1AF50 8002A750 0003B2AF */  sw         $s2, 0x300($sp)
     /* 1AF54 8002A754 FC02B1AF */  sw         $s1, 0x2FC($sp)
-    /* 1AF58 8002A758 1AA0000C */  jal        func_80028068
+    /* 1AF58 8002A758 1AA0000C */  jal        Front_InitStream__FR9tFEStream
     /* 1AF5C 8002A75C F802B0AF */   sw        $s0, 0x2F8($sp)
-    /* 1AF60 8002A760 26A0000C */  jal        func_80028098
+    /* 1AF60 8002A760 26A0000C */  jal        Front_InitPlayerCars__FR9tFEStream
     /* 1AF64 8002A764 1000A427 */   addiu     $a0, $sp, 0x10
-    /* 1AF68 8002A768 87A4000C */  jal        func_8002921C
+    /* 1AF68 8002A768 87A4000C */  jal        Front_InitTrack__FR9tFEStream
     /* 1AF6C 8002A76C 1000A427 */   addiu     $a0, $sp, 0x10
-    /* 1AF70 8002A770 17A1000C */  jal        func_8002845C
+    /* 1AF70 8002A770 17A1000C */  jal        Front_InitTourneyTraffic__FR9tFEStream
     /* 1AF74 8002A774 1000A427 */   addiu     $a0, $sp, 0x10
-    /* 1AF78 8002A778 74A1000C */  jal        func_800285D0
+    /* 1AF78 8002A778 74A1000C */  jal        Front_InitOpponentCars__FR9tFEStream
     /* 1AF7C 8002A77C 1000A427 */   addiu     $a0, $sp, 0x10
-    /* 1AF80 8002A780 D9A2000C */  jal        func_80028B64
+    /* 1AF80 8002A780 D9A2000C */  jal        Front_InitMissions__FR9tFEStream
     /* 1AF84 8002A784 1000A427 */   addiu     $a0, $sp, 0x10
-    /* 1AF88 8002A788 25A3000C */  jal        func_80028C94
+    /* 1AF88 8002A788 25A3000C */  jal        Front_InitCopCars__FR9tFEStream
     /* 1AF8C 8002A78C 1000A427 */   addiu     $a0, $sp, 0x10
-    /* 1AF90 8002A790 15A4000C */  jal        func_80029054
+    /* 1AF90 8002A790 15A4000C */  jal        Front_InitPerps__FR9tFEStream
     /* 1AF94 8002A794 1000A427 */   addiu     $a0, $sp, 0x10
-    /* 1AF98 8002A798 F8A4000C */  jal        func_800293E0
+    /* 1AF98 8002A798 F8A4000C */  jal        Front_InitTraffic__FR9tFEStream
     /* 1AF9C 8002A79C 1000A427 */   addiu     $a0, $sp, 0x10
     /* 1AFA0 8002A7A0 1480023C */  lui        $v0, %hi(ticks)
     /* 1AFA4 8002A7A4 ACDC438C */  lw         $v1, %lo(ticks)($v0)
@@ -232,7 +232,7 @@ glabel Front_BuildStream__FPi
     /* 1B2B0 8002AAB0 04001026 */  addiu      $s0, $s0, 0x4
     /* 1B2B4 8002AAB4 07002292 */  lbu        $v0, 0x7($s1)
     /* 1B2B8 8002AAB8 04000426 */  addiu      $a0, $s0, 0x4
-    /* 1B2BC 8002AABC 5BA9000C */  jal        func_8002A56C
+    /* 1B2BC 8002AABC 5BA9000C */  jal        Front_AppendTrackData__FPiR9tFEStream
     /* 1B2C0 8002AAC0 000002AE */   sw        $v0, 0x0($s0)
     /* 1B2C4 8002AAC4 21804000 */  addu       $s0, $v0, $zero
     /* 1B2C8 8002AAC8 13000224 */  addiu      $v0, $zero, 0x13
@@ -456,19 +456,19 @@ glabel Front_BuildStream__FPi
     /* 1B5F4 8002ADF4 000083AC */  sw         $v1, 0x0($a0)
   .L8002ADF8:
     /* 1B5F8 8002ADF8 21200002 */  addu       $a0, $s0, $zero
-    /* 1B5FC 8002ADFC 86A5000C */  jal        func_80029618
+    /* 1B5FC 8002ADFC 86A5000C */  jal        Front_AppendPlayerCarData__FPiR9tFEStream
     /* 1B600 8002AE00 1000A527 */   addiu     $a1, $sp, 0x10
     /* 1B604 8002AE04 21204000 */  addu       $a0, $v0, $zero
-    /* 1B608 8002AE08 BFA6000C */  jal        func_80029AFC
+    /* 1B608 8002AE08 BFA6000C */  jal        Front_AppendOpponentData__FPiR9tFEStream
     /* 1B60C 8002AE0C 1000A527 */   addiu     $a1, $sp, 0x10
     /* 1B610 8002AE10 21204000 */  addu       $a0, $v0, $zero
-    /* 1B614 8002AE14 21A8000C */  jal        func_8002A084
+    /* 1B614 8002AE14 21A8000C */  jal        Front_AppendPerpData__FPiR9tFEStream
     /* 1B618 8002AE18 1000A527 */   addiu     $a1, $sp, 0x10
     /* 1B61C 8002AE1C 21204000 */  addu       $a0, $v0, $zero
-    /* 1B620 8002AE20 8CA7000C */  jal        func_80029E30
+    /* 1B620 8002AE20 8CA7000C */  jal        Front_AppendCopData__FPiR9tFEStream
     /* 1B624 8002AE24 1000A527 */   addiu     $a1, $sp, 0x10
     /* 1B628 8002AE28 21204000 */  addu       $a0, $v0, $zero
-    /* 1B62C 8002AE2C C7A8000C */  jal        func_8002A31C
+    /* 1B62C 8002AE2C C7A8000C */  jal        Front_AppendTrafficData__FPiR9tFEStream
     /* 1B630 8002AE30 1000A527 */   addiu     $a1, $sp, 0x10
     /* 1B634 8002AE34 21804000 */  addu       $s0, $v0, $zero
     /* 1B638 8002AE38 1C000224 */  addiu      $v0, $zero, 0x1C

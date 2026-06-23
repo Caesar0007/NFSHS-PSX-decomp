@@ -180,9 +180,10 @@ short * tTournamentManager::GetTrackList(short tier,short tournament)
 
 /* ---- tTournamentManager::GetTrackToRace  [FETOURN.CPP:243-249] ---- */
 
-void tTournamentManager::GetTrackToRace(tTrackInfo *track)
+void tTournamentManager::GetTrackToRace(tTrackInfo &track_r)
 
 {
+  tTrackInfo *track = &track_r;   /* R-ref param; alias keeps the pointer-form body codegen-identical */
   tTournamentDefinition *ptVar1;
   
   ptVar1 = this->fDefinition;
@@ -390,9 +391,10 @@ void tTournamentManager::UpdateTrackFinishMoney()
 
 /* ---- tTournamentManager::CalcTrackFinishDamageBill  [FETOURN.CPP:422-470] ---- */
 
-void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long *bill,long *bonus)
+void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill_r,long &bonus_r)
 
 {
+  long *bill = &bill_r; long *bonus = &bonus_r;   /* R-ref params; alias keeps body codegen-identical */
   int i;
   uint uVar1;
   int iVar2;
@@ -672,8 +674,9 @@ short tTournamentManager::GetLastTrackRaced()
 
 
 /* ---- tTournamentManager::SaveTournament  [FETOURN.CPP:744-762] ---- */
-void tTournamentManager::SaveTournament(tSaveTournament *save)
+void tTournamentManager::SaveTournament(tSaveTournament &save_r)
 {
+  tSaveTournament *save = &save_r;   /* R-ref param; alias keeps body codegen-identical */
   short i;
 
   save->fSaveMoney = this->fMoney;
@@ -686,8 +689,9 @@ void tTournamentManager::SaveTournament(tSaveTournament *save)
 }
 
 /* ---- tTournamentManager::LoadTournament  [FETOURN.CPP:773-791] ---- */
-void tTournamentManager::LoadTournament(tSaveTournament *load)
+void tTournamentManager::LoadTournament(tSaveTournament &load_r)
 {
+  tSaveTournament *load = &load_r;   /* R-ref param; alias keeps body codegen-identical */
   short i;
 
   this->fMoney = load->fSaveMoney;
@@ -832,9 +836,10 @@ long tTournamentManager::GetTournamentFinishPrize(short position)
 
 /* ---- tTournamentManager::GetAwardInformation  [FETOURN.CPP:913-914] ---- */
 
-void tTournamentManager::GetAwardInformation(tAwardInformation *info)
+void tTournamentManager::GetAwardInformation(tAwardInformation &info_r)
 
 {
+  tAwardInformation *info = &info_r;   /* R-ref param; alias keeps body codegen-identical */
   int *src_walk;
   long tourn_money;
   uint flags_pack;
@@ -875,7 +880,7 @@ void tTournamentManager::UpdateAwardInformation()
   long bill;
   long bonus;
   
-  this->CalcTrackFinishDamageBill(true,&bill,&bonus);
+  this->CalcTrackFinishDamageBill(true,bill,bonus);   /* now takes long& */
   iVar2 = this->fMoney - bill;
   this->fMoney = iVar2;
   iVar4 = (this->fAwards).fMoney;
@@ -1002,9 +1007,10 @@ void tTournamentManager::GetTrophyName(tTourneyInfo *tourn,tTrophySize size,char
 
 /* ---- tTournamentManager::ValidCar  [FETOURN.CPP:1063-1102] ---- */
 
-void * tTournamentManager::ValidCar(tCarInfo *carInfo)
+void * tTournamentManager::ValidCar(tCarInfo &carInfo_r)
 
 {
+  tCarInfo *carInfo = &carInfo_r;   /* R-ref param; alias keeps body codegen-identical */
   uchar uVar1;
   byte bVar2;
   void *pvVar3;

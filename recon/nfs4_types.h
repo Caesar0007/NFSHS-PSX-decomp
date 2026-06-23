@@ -3621,28 +3621,28 @@ struct tTournamentManager {   /* 644 bytes */
     void   ReleaseDescription();
     void   UpdateTrackList(short tier, short tournament);
     short *GetTrackList(short tier, short tournament);
-    void   GetTrackToRace(tTrackInfo *);
+    void   GetTrackToRace(tTrackInfo &);
     void   StartNewTournament(unsigned char, unsigned char);
     short  IsTournamentFinished();
     void   UpdateTournFinishMoney();
     void   UpdateTrackFinishMoney();
-    void   CalcTrackFinishDamageBill(bool, long *, long *);
+    void   CalcTrackFinishDamageBill(bool, long &, long &);
     void   UpdateTrackFinishPoints();
     short  AdvanceToNextTrack();
     short  GetLastTrackRaced();
-    void   SaveTournament(tSaveTournament *);
-    void   LoadTournament(tSaveTournament *);
+    void   SaveTournament(tSaveTournament &);
+    void   LoadTournament(tSaveTournament &);
     short  GetNumCompetitors();
     void   UpdateCarLineup();
     long   GetTrackFinishPrize(short);
     long   GetTournamentFinishPrize(short);
-    void   GetAwardInformation(tAwardInformation *);
+    void   GetAwardInformation(tAwardInformation &);
     void   UpdateAwardInformation();
     short  TournPointTotal(short *);
     short  PlayerRanking(short);
     void   CalcTierFinishPrize();
     void   GetTrophyName(tTourneyInfo *, tTrophySize, char *, int);
-    void  *ValidCar(tCarInfo *);
+    void  *ValidCar(tCarInfo &);
 };
 
 struct tMissionTierInfo {   /* 4 bytes */

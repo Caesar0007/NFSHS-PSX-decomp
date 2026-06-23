@@ -29,3 +29,9 @@ INCLUDE_ASM("asm/nonmatchings/front", Increment__23tListIteratorTournament7tPlay
 INCLUDE_ASM("asm/nonmatchings/front", Decrement__23tListIteratorTournament7tPlayer);
 INCLUDE_ASM("asm/nonmatchings/front", ValidTournament__23tListIteratorTournamentc);
 INCLUDE_ASM("asm/nonmatchings/front", tournPointsCompare__FPcT0);
+INCLUDE_ASM("asm/nonmatchings/front", GetTrackToRace__18tTournamentManagerR10tTrackInfo);
+INCLUDE_ASM("asm/nonmatchings/front", CalcTrackFinishDamageBill__18tTournamentManagerbRlT2);
+INCLUDE_ASM("asm/nonmatchings/front", SaveTournament__18tTournamentManagerR15tSaveTournament);
+INCLUDE_ASM("asm/nonmatchings/front", LoadTournament__18tTournamentManagerR15tSaveTournament);
+INCLUDE_ASM("asm/nonmatchings/front", GetAwardInformation__18tTournamentManagerR17tAwardInformation);
+INCLUDE_ASM("asm/nonmatchings/front", ValidCar__18tTournamentManagerR8tCarInfo);

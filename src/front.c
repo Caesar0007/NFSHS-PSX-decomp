@@ -73,18 +73,6 @@ void func_80032200(void) {
 
 INCLUDE_ASM("asm/nonmatchings/front", func_80032208);
 
-INCLUDE_ASM("asm/nonmatchings/front", GetTrackToRace__18tTournamentManagerR10tTrackInfo);
-
-INCLUDE_ASM("asm/nonmatchings/front", CalcTrackFinishDamageBill__18tTournamentManagerbRlT2);
-
-INCLUDE_ASM("asm/nonmatchings/front", SaveTournament__18tTournamentManagerR15tSaveTournament);
-
-INCLUDE_ASM("asm/nonmatchings/front", LoadTournament__18tTournamentManagerR15tSaveTournament);
-
-INCLUDE_ASM("asm/nonmatchings/front", GetAwardInformation__18tTournamentManagerR17tAwardInformation);
-
-INCLUDE_ASM("asm/nonmatchings/front", ValidCar__18tTournamentManagerR8tCarInfo);
-
 void func_8003464C(void) {
 }
 

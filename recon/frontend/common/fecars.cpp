@@ -801,7 +801,7 @@ short tCarManager::GetNumTourneyCars(short playerNum)
       carInfo.fUpgrades = (&this->fCarGarage[0][0].fUpgrades)[iVar4];
       ptVar2 = this->GetCarFromID((short)cVar1);
       carInfo.fCarClass = ptVar2->fCarClass;
-      pvVar3 = tournamentManager.ValidCar(&carInfo);
+      pvVar3 = tournamentManager.ValidCar(carInfo);   /* ValidCar now takes tCarInfo& */
       if (pvVar3 != (void *)0x0) {
         result = result + 1;
       }
@@ -1401,7 +1401,7 @@ ValidCar_filter10Path:
   }
   ptVar5 = this->fCarManager->fCars + (u_char)carNumber;
 ValidCar_tournValidate:
-  result = tournamentManager.ValidCar(ptVar5);
+  result = tournamentManager.ValidCar(*ptVar5);   /* ValidCar now takes tCarInfo& */
   return result;
 }
 

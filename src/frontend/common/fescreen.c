@@ -24,3 +24,6 @@ INCLUDE_ASM("asm/nonmatchings/front", TransitionOff__7tScreen22tScreen_Transitio
 INCLUDE_ASM("asm/nonmatchings/front", TransitionOn__7tScreen22tScreen_TransitionTypeP5tMenu);
 INCLUDE_ASM("asm/nonmatchings/front", UpdateTransition__7tScreen);
 INCLUDE_ASM("asm/nonmatchings/front", TransitionIsFinished__7tScreen);
+INCLUDE_ASM("asm/nonmatchings/front", ProcessInput__7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand);
+INCLUDE_ASM("asm/nonmatchings/front", DrawForeground__7tScreen);
+INCLUDE_ASM("asm/nonmatchings/front", DrawBackground__7tScreen);

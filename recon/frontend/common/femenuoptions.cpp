@@ -2992,3 +2992,9 @@ extern "C" {
 void ___24tMenuItemLeftRightChoice(void *);
 void ___22tMenuItemLeftRightFade(void *thisp) { ___24tMenuItemLeftRightChoice(thisp); }
 }
+
+/* cont.34: tMenuItemGoToMenuNFS4Button::Draw(bool) nullsub re-attributed from front.c.
+   The class declares Draw(bool) (nfs4_types.h) so the REAL method def mangles to the
+   exact oracle symbol Draw__27tMenuItemGoToMenuNFS4Buttonb (0x8001BF40 = jr ra;nop).
+   (extern-C free-fn form would clash with the member's mangled symbol.) */
+void tMenuItemGoToMenuNFS4Button::Draw(bool /*selected*/) {}  /* @0x8001BF40 */

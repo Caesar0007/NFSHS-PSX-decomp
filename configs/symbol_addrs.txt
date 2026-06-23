@@ -4661,3 +4661,7 @@ ___18tDialogInteractive = 0x80019F24; // type:func
 ___11tAllScreens = 0x8002BF0C; // type:func
 ___32tBlankMenuItemGoToMenuNFS4Button = 0x800321D8; // type:func
 ___33tBlankMenuItemNFS4LeftRightChoice = 0x80032208; // type:func
+Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib = 0x800321C8; // type:func
+Draw__32tBlankMenuItemGoToMenuNFS4Buttonb = 0x800321D0; // type:func
+Draw__33tBlankMenuItemNFS4LeftRightChoiceiib = 0x80032200; // type:func
+LoadingProc__Fv = 0x8003464C; // type:func

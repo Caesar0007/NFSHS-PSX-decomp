@@ -54,3 +54,5 @@ INCLUDE_ASM("asm/nonmatchings/front", IsSubMenu__12tMenuOptions);
 INCLUDE_ASM("asm/nonmatchings/front", ___29tMenuItemOptionsTwoItemChoice);
 INCLUDE_ASM("asm/nonmatchings/front", ___31tMenuItemOptionsLeftRightChoice);
 INCLUDE_ASM("asm/nonmatchings/front", MenuNFS4_SetHelpPos__FR4RECT);
+INCLUDE_ASM("asm/nonmatchings/front", Initialize__10tMenuBlank);
+INCLUDE_ASM("asm/nonmatchings/front", UpdateTransition__10tMenuBlank);

@@ -18,3 +18,4 @@ INCLUDE_ASM("asm/nonmatchings/front", SavingProc__Fv);
 INCLUDE_ASM("asm/nonmatchings/front", Init_MemcardFile__FR12MCRDFILE_defsb);
 INCLUDE_ASM("asm/nonmatchings/front", LoadGame__FsbT1);
 INCLUDE_ASM("asm/nonmatchings/front", ___19tMemoryCardMenuItem);
+INCLUDE_ASM("asm/nonmatchings/front", LoadingProc__Fv);

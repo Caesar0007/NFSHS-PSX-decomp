@@ -74,8 +74,8 @@ glabel Init_Memcard__FbT0
     /* 24FA0 800347A0 ECD10008 */  j          .L800347B0
     /* 24FA4 800347A4 54464224 */   addiu     $v0, $v0, %lo(LoadingRedrawProc__Fv)
   .L800347A8:
-    /* 24FA8 800347A8 0380023C */  lui        $v0, %hi(func_8003464C)
-    /* 24FAC 800347AC 4C464224 */  addiu      $v0, $v0, %lo(func_8003464C)
+    /* 24FA8 800347A8 0380023C */  lui        $v0, %hi(LoadingProc__Fv)
+    /* 24FAC 800347AC 4C464224 */  addiu      $v0, $v0, %lo(LoadingProc__Fv)
   .L800347B0:
     /* 24FB0 800347B0 2C00A2AF */  sw         $v0, 0x2C($sp)
     /* 24FB4 800347B4 0380023C */  lui        $v0, %hi(SavingProc__Fv)

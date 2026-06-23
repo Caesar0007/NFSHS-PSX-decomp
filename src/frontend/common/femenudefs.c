@@ -63,3 +63,6 @@ INCLUDE_ASM("asm/nonmatchings/front", TransitionIsFinished__32tBlankMenuItemGoTo
 INCLUDE_ASM("asm/nonmatchings/front", TransitionIsFinished__33tBlankMenuItemNFS4LeftRightChoice);
 INCLUDE_ASM("asm/nonmatchings/front", ___32tBlankMenuItemGoToMenuNFS4Button);
 INCLUDE_ASM("asm/nonmatchings/front", ___33tBlankMenuItemNFS4LeftRightChoice);
+INCLUDE_ASM("asm/nonmatchings/front", Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib);
+INCLUDE_ASM("asm/nonmatchings/front", Draw__32tBlankMenuItemGoToMenuNFS4Buttonb);
+INCLUDE_ASM("asm/nonmatchings/front", Draw__33tBlankMenuItemNFS4LeftRightChoiceiib);

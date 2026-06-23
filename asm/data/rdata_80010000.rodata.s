@@ -1945,9 +1945,9 @@ dlabel D_800114D8
     /* 1CF0 800114F0 00000000 */ .word 0x00000000
     /* 1CF4 800114F4 A4530280 */ .word ProcessInput__23tMenuItemGoToMenuButton7tPlayerR13tInputKeyTypeR12tMenuCommand
     /* 1CF8 800114F8 00000000 */ .word 0x00000000
-    /* 1CFC 800114FC D0210380 */ .word func_800321D0
+    /* 1CFC 800114FC D0210380 */ .word Draw__32tBlankMenuItemGoToMenuNFS4Buttonb
     /* 1D00 80011500 00000000 */ .word 0x00000000
-    /* 1D04 80011504 C8210380 */ .word func_800321C8
+    /* 1D04 80011504 C8210380 */ .word Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib
     /* 1D08 80011508 00000000 */ .word 0x00000000
     /* 1D0C 8001150C 64480280 */ .word Draw__9tMenuItemiiib
     /* 1D10 80011510 00000000 */ .word 0x00000000
@@ -1974,7 +1974,7 @@ dlabel D_80011530
     /* 1D50 80011550 00000000 */ .word 0x00000000
     /* 1D54 80011554 2C4A0280 */ .word Draw__24tMenuItemLeftRightChoiceb
     /* 1D58 80011558 00000000 */ .word 0x00000000
-    /* 1D5C 8001155C 00220380 */ .word func_80032200
+    /* 1D5C 8001155C 00220380 */ .word Draw__33tBlankMenuItemNFS4LeftRightChoiceiib
     /* 1D60 80011560 00000000 */ .word 0x00000000
     /* 1D64 80011564 64480280 */ .word Draw__9tMenuItemiiib
     /* 1D68 80011568 00000000 */ .word 0x00000000

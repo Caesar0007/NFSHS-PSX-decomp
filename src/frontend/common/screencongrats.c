@@ -27,3 +27,4 @@ INCLUDE_ASM("asm/nonmatchings/front", GetCar__25tScreenTournamentCongratsR8tCarI
 INCLUDE_ASM("asm/nonmatchings/front", CalculatePrizes__25tScreenTournamentCongrats);
 INCLUDE_ASM("asm/nonmatchings/front", DrawCongratsMessage__25tScreenTournamentCongrats);
 INCLUDE_ASM("asm/nonmatchings/front", ___25tScreenTournamentCongrats);
+INCLUDE_ASM("asm/nonmatchings/front", DrawForeground__15tScreenCongrats);

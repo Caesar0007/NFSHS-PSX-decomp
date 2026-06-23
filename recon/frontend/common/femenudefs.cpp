@@ -3150,3 +3150,15 @@ tBlankMenuItemNFS4LeftRightChoice::~tBlankMenuItemNFS4LeftRightChoice()
 
 
 /* end of femenudefs.cpp */
+
+/* cont.34: tBlankMenuItem::Draw nullsubs re-attributed from front.c.
+   The recon class methods above (Draw(int,int,char)/Draw(int), ~line 3100) carry the
+   WRONG SYM arg-type (char/int vs the SYM's bool) so they mangle to ...iic/...i, NOT the
+   oracle's ...iib/...b — leaving the bare oracle names free. The extern-C free-fn form
+   exports those exact oracle symbols; oracle = jr ra;nop. (A fully clean fix = correct
+   the class decls to bool in nfs4_types.h, a shared-header change — deferred.) */
+extern "C" {
+void Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib(void) {}  /* @0x800321C8 */
+void Draw__32tBlankMenuItemGoToMenuNFS4Buttonb(void) {}  /* @0x800321D0 */
+void Draw__33tBlankMenuItemNFS4LeftRightChoiceiib(void) {}  /* @0x80032200 */
+}

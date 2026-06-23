@@ -91,3 +91,4 @@ INCLUDE_ASM("asm/nonmatchings/front", ___29tMenuItemOnOffLeftRightChoice);
 INCLUDE_ASM("asm/nonmatchings/front", ___31tMenuItemDisplayLeftRightChoice);
 INCLUDE_ASM("asm/nonmatchings/front", ___25tMenuItemSlidingActivated);
 INCLUDE_ASM("asm/nonmatchings/front", ___22tMenuItemLeftRightFade);
+INCLUDE_ASM("asm/nonmatchings/front", Draw__27tMenuItemGoToMenuNFS4Buttonb);

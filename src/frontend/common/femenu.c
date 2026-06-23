@@ -68,3 +68,8 @@ INCLUDE_ASM("asm/nonmatchings/front", UpdateTransition__5tMenu);
 INCLUDE_ASM("asm/nonmatchings/front", TransitionIsFinished__5tMenu);
 INCLUDE_ASM("asm/nonmatchings/front", IsSubMenu__5tMenu);
 INCLUDE_ASM("asm/nonmatchings/front", DebounceKeys__5tMenu);
+INCLUDE_ASM("asm/nonmatchings/front", ProcessInput__9tMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand);
+INCLUDE_ASM("asm/nonmatchings/front", TransitionOff__5tMenu);
+INCLUDE_ASM("asm/nonmatchings/front", TransitionOn__5tMenu);
+INCLUDE_ASM("asm/nonmatchings/front", TransitionOn__9tMenuItem);
+INCLUDE_ASM("asm/nonmatchings/front", TransitionOff__9tMenuItem);

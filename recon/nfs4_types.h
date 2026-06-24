@@ -3146,6 +3146,15 @@ struct SimpleMem {   /* 12 bytes */
 
 struct SerializedGroup {   /* 16 bytes */
     int                m_type, m_length, dummy, m_num_elements;   /* +0x0 */
+    /* container methods (non-virtual -> no layout change; defs in group.cpp).
+       Oracle symbols are method-form `Name__15SerializedGroup...`, so these MUST
+       be real members, not flattened free-fns. */
+    SerializedGroup *LocateNextGroupType(int type);
+    SerializedGroup *LocateGroupType(int type, int index);
+    SerializedGroup *LocateGroupNum(int index);
+    void            *LocateCreateGroupType(int type, SimpleMem *mem, int index);
+    Group           *CreateLiteGroup(SerializedGroup *source, SimpleMem *mem);
+    Group           *CreateLiteGroupDataSize(SerializedGroup *source, SimpleMem *mem, int dataSize);
 };
 
 struct Trk_SimpleInst {   /* 20 bytes */

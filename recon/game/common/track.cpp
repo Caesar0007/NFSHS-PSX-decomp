@@ -1198,13 +1198,13 @@ void Track_InitPersistentData(SerializedGroup *perGroup)
   tp4 = tp3;
   if (0 < perGroup->m_num_elements) {
     do {
-      pSVar1 = LocateGroupNum(perGroup,iVar2);
+      pSVar1 = (perGroup)->LocateGroupNum(iVar2);
       *(SerializedGroup **)tp4 = pSVar1;
       iVar2 = iVar2 + 1;
       tp4 = (void *)((int)tp4 + 4);
     } while (iVar2 < perGroup->m_num_elements);
   }
-  LocateGroupType(perGroup,8,0);
+  (perGroup)->LocateGroupType(8,0);
   iVar3 = perGroup->m_num_elements;
   iVar2 = 0;
   do {
@@ -1221,23 +1221,23 @@ void Track_InitPersistentData(SerializedGroup *perGroup)
       break;
     case 7:
       gPersistObjInst =
-           CreateLiteGroup(*(SerializedGroup **)tp3,*(SerializedGroup **)tp3,Track_mem);
+           (*(SerializedGroup **)tp3)->CreateLiteGroup(*(SerializedGroup **)tp3,Track_mem);
       break;
     case 8:
       gPersistObjDef =
-           CreateLiteGroup(*(SerializedGroup **)tp3,*(SerializedGroup **)tp3,Track_mem);
+           (*(SerializedGroup **)tp3)->CreateLiteGroup(*(SerializedGroup **)tp3,Track_mem);
       break;
     case 0xf:
-      simGroup = CreateLiteGroup(*(SerializedGroup **)tp3,*(SerializedGroup **)tp3,Track_mem);
+      simGroup = (*(SerializedGroup **)tp3)->CreateLiteGroup(*(SerializedGroup **)tp3,Track_mem);
       BWorldSm_Init(simGroup);
       break;
     case 0x24:
       gPersistMidgroundObjInst =
-           CreateLiteGroup(*(SerializedGroup **)tp3,*(SerializedGroup **)tp3,Track_mem);
+           (*(SerializedGroup **)tp3)->CreateLiteGroup(*(SerializedGroup **)tp3,Track_mem);
       break;
     case 0x26:
       gObjDefOffsetsGroup =
-           CreateLiteGroup(*(SerializedGroup **)tp3,*(SerializedGroup **)tp3,Track_mem);
+           (*(SerializedGroup **)tp3)->CreateLiteGroup(*(SerializedGroup **)tp3,Track_mem);
     default: break;
     }
     tp3 = (void *)((int)tp3 + 4);
@@ -1349,11 +1349,11 @@ void Track_Init(char *tempName)
   Track_mem = this_00;
   scratchAlloc = (int)FeignAlloc(this_00,loadResult);
   rootSerGroup = loadfileatadr(trackName,(void *)(scratchAlloc + 0x9080));
-  groupBase = (int)LocateCreateGroupType((SerializedGroup *)rootSerGroup,0x1f,Track_mem,0);
+  groupBase = (int)((SerializedGroup *)rootSerGroup)->LocateCreateGroupType(0x1f,Track_mem,0);
   Track_header = (TrackHeader *)(groupBase + 4);
-  subGroup = (int)LocateCreateGroupType((SerializedGroup *)rootSerGroup,0x20,Track_mem,0);
+  subGroup = (int)((SerializedGroup *)rootSerGroup)->LocateCreateGroupType(0x20,Track_mem,0);
   Chunk_chunkCenters = (coorddef *)(subGroup + 4);
-  geomSubGrp = (int)LocateGroupType((SerializedGroup *)rootSerGroup,0x23,0);
+  geomSubGrp = (int)((SerializedGroup *)rootSerGroup)->LocateGroupType(0x23,0);
   tp7 = (void *)(geomSubGrp + 0x10);
   pCVar5 = Chunk_lightTable;
   if ((((u_int)tp7 | (u_int)Chunk_lightTable) & 3) == 0) {
@@ -1437,7 +1437,7 @@ void Track_Init(char *tempName)
       pCVar5 = pCVar5 + 4;
     } while (tp7 != (CVECTOR *)(geomSubGrp + 0x410));
   }
-  instSubGrp = (int)LocateGroupType((SerializedGroup *)rootSerGroup,0x23,0);
+  instSubGrp = (int)((SerializedGroup *)rootSerGroup)->LocateGroupType(0x23,0);
   matOffset = 0;
   chunkIdx = 0;
   Chunk_numLight = *(int *)(instSubGrp + 4) - 0x10U >> 2;
@@ -1445,16 +1445,16 @@ void Track_Init(char *tempName)
   Track_gInViewCount = Alloc(Track_mem,Track_header->chunkCount,0);
   Track_chunkList = Alloc(Track_mem,Track_header->chunkCount * 0x70,0);
   Chunk_Init();
-  perGroup = (int)LocateGroupType((SerializedGroup *)rootSerGroup,0x21,0);
-  pSVar4 = LocateGroupType((SerializedGroup *)rootSerGroup,0x1d,0);
+  perGroup = (int)((SerializedGroup *)rootSerGroup)->LocateGroupType(0x21,0);
+  pSVar4 = ((SerializedGroup *)rootSerGroup)->LocateGroupType(0x1d,0);
   for (groupOffset = 0; groupOffset < Track_header->chunkCount; groupOffset = groupOffset + 1) {
     tR7 = (int)Track_chunkList->boundPts;
     matInfo_p = 0;
     if (groupOffset < Track_header->chunkCount + -1) {
-      matInfo_p = (int)LocateNextGroupType(pSVar4,0x1d);
+      matInfo_p = (int)(pSVar4)->LocateNextGroupType(0x1d);
     }
     InstanceGroup((Chunk *)(tR7 + chunkIdx),pSVar4,Track_mem);
-    pSVar4 = LocateGroupType(pSVar4,4,0);
+    pSVar4 = (pSVar4)->LocateGroupType(4,0);
     tT33 = Track_header;
     iVar44_field = pSVar4->m_num_elements;
     pSVar4 = pSVar4 + 1;

@@ -35,13 +35,12 @@ extern void BWorldSm_DeInit(void);
 extern void BWorldSm_Init(Group *);
 extern void Chunk_DeInit(void);
 extern void Chunk_Init(void);
-extern Group *CreateLiteGroup(SerializedGroup *, SerializedGroup *, SimpleMem *);
 extern void *FeignAlloc(void *, int);
 extern void Hrz_GetHorizonPixMap(Draw_tPixMap *);
 extern void InstanceGroup(Chunk *, SerializedGroup *, SimpleMem *);
-extern SerializedGroup *LocateGroupNum(SerializedGroup *, int);
-extern SerializedGroup *LocateGroupType(SerializedGroup *, int, int);
 extern int Math_DistXZ(coorddef *, coorddef *);
+/* SerializedGroup container ops (CreateLiteGroup/LocateGroupNum/LocateGroupType/
+   LocateCreateGroupType/LocateNextGroupType) are MEMBER fns -> see struct SerializedGroup. */
 
 
 /* ---- Ghidra C++/alloca idioms + typedef aliases ---- */
@@ -70,7 +69,5 @@ extern int   wordFile_psh_snow;        /* (int)cast usage -- refine */
 extern SaveSurface *SaveSurface_ct(SaveSurface *, int);
 extern "C" void  ___11SaveSurface(SaveSurface *, int);
 extern void *Alloc(SimpleMem *, int, int);
-extern void *LocateCreateGroupType(SerializedGroup *, int, SimpleMem *, int);
-extern void *LocateNextGroupType(SerializedGroup *, int);
 extern void  ResizeToFit(SimpleMem *);
 #endif

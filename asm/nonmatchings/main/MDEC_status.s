@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800F8E44, 0x7C
+nonmatching MDEC_status, 0x7C
 
-glabel func_800F8E44
+glabel MDEC_status
     /* E9644 800F8E44 E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* E9648 800F8E48 21288000 */  addu       $a1, $a0, $zero
     /* E964C 800F8E4C 0580043C */  lui        $a0, %hi(D_8005716C)
@@ -35,6 +35,6 @@ glabel func_800F8E44
     /* E96B4 800F8EB4 1800BD27 */  addiu      $sp, $sp, 0x18
     /* E96B8 800F8EB8 0800E003 */  jr         $ra
     /* E96BC 800F8EBC 00000000 */   nop
-endlabel func_800F8E44
+endlabel MDEC_status
     /* E96C0 800F8EC0 00000000 */  nop
     /* E96C4 800F8EC4 00000000 */  nop

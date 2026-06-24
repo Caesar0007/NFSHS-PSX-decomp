@@ -53,7 +53,7 @@ glabel VSync
     /* E2BC4 800F23C4 21280000 */   addu      $a1, $zero, $zero
     /* E2BC8 800F23C8 FFFF8524 */  addiu      $a1, $a0, -0x1
   .L800F23CC:
-    /* E2BCC 800F23CC 25C9030C */  jal        func_800F2494
+    /* E2BCC 800F23CC 25C9030C */  jal        _VSync_wait
     /* E2BD0 800F23D0 21204000 */   addu      $a0, $v0, $zero
     /* E2BD4 800F23D4 1380023C */  lui        $v0, %hi(D_80134A88)
     /* E2BD8 800F23D8 884A428C */  lw         $v0, %lo(D_80134A88)($v0)
@@ -62,7 +62,7 @@ glabel VSync
     /* E2BE4 800F23E4 1380043C */  lui        $a0, %hi(Vcount)
     /* E2BE8 800F23E8 107D848C */  lw         $a0, %lo(Vcount)($a0)
     /* E2BEC 800F23EC 01000524 */  addiu      $a1, $zero, 0x1
-    /* E2BF0 800F23F0 25C9030C */  jal        func_800F2494
+    /* E2BF0 800F23F0 25C9030C */  jal        _VSync_wait
     /* E2BF4 800F23F4 01008424 */   addiu     $a0, $a0, 0x1
     /* E2BF8 800F23F8 4000023C */  lui        $v0, (0x400000 >> 16)
     /* E2BFC 800F23FC 24100202 */  and        $v0, $s0, $v0

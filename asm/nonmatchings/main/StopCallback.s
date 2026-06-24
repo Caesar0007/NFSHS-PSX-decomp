@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800F2D58, 0xA0
+nonmatching StopCallback, 0xA0
 
-glabel func_800F2D58
+glabel StopCallback
     /* E3558 800F2D58 E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* E355C 800F2D5C 1000B0AF */  sw         $s0, 0x10($sp)
     /* E3560 800F2D60 1380103C */  lui        $s0, %hi(D_80134AF8)
@@ -45,4 +45,4 @@ glabel func_800F2D58
     /* E35EC 800F2DEC 1000B08F */  lw         $s0, 0x10($sp)
     /* E35F0 800F2DF0 0800E003 */  jr         $ra
     /* E35F4 800F2DF4 1800BD27 */   addiu     $sp, $sp, 0x18
-endlabel func_800F2D58
+endlabel StopCallback

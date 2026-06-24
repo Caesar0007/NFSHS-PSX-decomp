@@ -12,7 +12,7 @@ glabel DecDCTReset
     /* E91DC 800F89DC 13CA030C */  jal        ResetCallback
     /* E91E0 800F89E0 00000000 */   nop
   .L800F89E4:
-    /* E91E4 800F89E4 BEE2030C */  jal        func_800F8AF8
+    /* E91E4 800F89E4 BEE2030C */  jal        MDEC_rest
     /* E91E8 800F89E8 21200002 */   addu      $a0, $s0, $zero
     /* E91EC 800F89EC 1400BF8F */  lw         $ra, 0x14($sp)
     /* E91F0 800F89F0 1000B08F */  lw         $s0, 0x10($sp)

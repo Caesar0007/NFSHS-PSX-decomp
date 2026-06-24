@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_8010658C, 0x6C
+nonmatching startIntrVSync_helper_1, 0x6C
 
-glabel func_8010658C
+glabel startIntrVSync_helper_1
     /* F6D8C 8010658C 1380023C */  lui        $v0, %hi(Vcount)
     /* F6D90 80106590 107D428C */  lw         $v0, %lo(Vcount)($v0)
     /* F6D94 80106594 E0FFBD27 */  addiu      $sp, $sp, -0x20
@@ -33,4 +33,4 @@ glabel func_8010658C
     /* F6DEC 801065EC 1000B08F */  lw         $s0, 0x10($sp)
     /* F6DF0 801065F0 0800E003 */  jr         $ra
     /* F6DF4 801065F4 2000BD27 */   addiu     $sp, $sp, 0x20
-endlabel func_8010658C
+endlabel startIntrVSync_helper_1

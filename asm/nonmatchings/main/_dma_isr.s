@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_801066F8, 0x180
+nonmatching _dma_isr, 0x180
 
-glabel func_801066F8
+glabel _dma_isr
     /* F6EF8 801066F8 1480023C */  lui        $v0, %hi(D_8013BD20)
     /* F6EFC 801066FC 20BD428C */  lw         $v0, %lo(D_8013BD20)($v0)
     /* F6F00 80106700 D0FFBD27 */  addiu      $sp, $sp, -0x30
@@ -108,4 +108,4 @@ glabel func_801066F8
     /* F706C 8010686C 1000B08F */  lw         $s0, 0x10($sp)
     /* F7070 80106870 0800E003 */  jr         $ra
     /* F7074 80106874 3000BD27 */   addiu     $sp, $sp, 0x30
-endlabel func_801066F8
+endlabel _dma_isr

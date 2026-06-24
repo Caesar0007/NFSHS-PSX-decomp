@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_80106924, 0x24
+nonmatching _bzero_w, 0x24
 
-glabel func_80106924
+glabel _bzero_w
     /* F7124 80106924 0600A010 */  beqz       $a1, .L80106940
     /* F7128 80106928 FFFFA224 */   addiu     $v0, $a1, -0x1
     /* F712C 8010692C FFFF0324 */  addiu      $v1, $zero, -0x1
@@ -15,5 +15,5 @@ glabel func_80106924
   .L80106940:
     /* F7140 80106940 0800E003 */  jr         $ra
     /* F7144 80106944 00000000 */   nop
-endlabel func_80106924
+endlabel _bzero_w
     /* F7148 80106948 00000000 */  nop

@@ -33,7 +33,7 @@ glabel DecDCTin
   .L800F8A58:
     /* E9258 800F8A58 000082AC */  sw         $v0, 0x0($a0)
     /* E925C 800F8A5C 00008594 */  lhu        $a1, 0x0($a0)
-    /* E9260 800F8A60 FAE2030C */  jal        func_800F8BE8
+    /* E9260 800F8A60 FAE2030C */  jal        _MDEC_in_dma
     /* E9264 800F8A64 00000000 */   nop
     /* E9268 800F8A68 1000BF8F */  lw         $ra, 0x10($sp)
     /* E926C 800F8A6C 1800BD27 */  addiu      $sp, $sp, 0x18

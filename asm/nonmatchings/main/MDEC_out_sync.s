@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800F8D98, 0x94
+nonmatching MDEC_out_sync, 0x94
 
-glabel func_800F8D98
+glabel MDEC_out_sync
     /* E9598 800F8D98 E0FFBD27 */  addiu      $sp, $sp, -0x20
     /* E959C 800F8D9C 1380033C */  lui        $v1, %hi(D_80136C1C)
     /* E95A0 800F8DA0 1C6C638C */  lw         $v1, %lo(D_80136C1C)($v1)
@@ -26,7 +26,7 @@ glabel func_800F8D98
     /* E95E0 800F8DE0 06004414 */  bne        $v0, $a0, .L800F8DFC
     /* E95E4 800F8DE4 00000000 */   nop
     /* E95E8 800F8DE8 0580043C */  lui        $a0, %hi(D_8005715C)
-    /* E95EC 800F8DEC 91E3030C */  jal        func_800F8E44
+    /* E95EC 800F8DEC 91E3030C */  jal        MDEC_status
     /* E95F0 800F8DF0 5C718424 */   addiu     $a0, $a0, %lo(D_8005715C)
     /* E95F4 800F8DF4 87E30308 */  j          .L800F8E1C
     /* E95F8 800F8DF8 FFFF0224 */   addiu     $v0, $zero, -0x1
@@ -44,4 +44,4 @@ glabel func_800F8D98
     /* E9620 800F8E20 2000BD27 */  addiu      $sp, $sp, 0x20
     /* E9624 800F8E24 0800E003 */  jr         $ra
     /* E9628 800F8E28 00000000 */   nop
-endlabel func_800F8D98
+endlabel MDEC_out_sync

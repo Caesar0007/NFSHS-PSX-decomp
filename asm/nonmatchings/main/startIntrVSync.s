@@ -14,14 +14,14 @@ glabel startIntrVSync
     /* F6D50 80106550 000062AC */  sw         $v0, 0x0($v1)
     /* F6D54 80106554 1380013C */  lui        $at, %hi(Vcount)
     /* F6D58 80106558 107D20AC */  sw         $zero, %lo(Vcount)($at)
-    /* F6D5C 8010655C 8919040C */  jal        func_80106624
+    /* F6D5C 8010655C 8919040C */  jal        startIntrVSync_helper_3
     /* F6D60 80106560 08000524 */   addiu     $a1, $zero, 0x8
-    /* F6D64 80106564 1080053C */  lui        $a1, %hi(func_8010658C)
-    /* F6D68 80106568 8C65A524 */  addiu      $a1, $a1, %lo(func_8010658C)
+    /* F6D64 80106564 1080053C */  lui        $a1, %hi(startIntrVSync_helper_1)
+    /* F6D68 80106568 8C65A524 */  addiu      $a1, $a1, %lo(startIntrVSync_helper_1)
     /* F6D6C 8010656C 1FCA030C */  jal        InterruptCallback
     /* F6D70 80106570 21200000 */   addu      $a0, $zero, $zero
-    /* F6D74 80106574 1080023C */  lui        $v0, %hi(func_801065F8)
-    /* F6D78 80106578 F8654224 */  addiu      $v0, $v0, %lo(func_801065F8)
+    /* F6D74 80106574 1080023C */  lui        $v0, %hi(startIntrVSync_helper_2)
+    /* F6D78 80106578 F8654224 */  addiu      $v0, $v0, %lo(startIntrVSync_helper_2)
     /* F6D7C 8010657C 1000BF8F */  lw         $ra, 0x10($sp)
     /* F6D80 80106580 1800BD27 */  addiu      $sp, $sp, 0x18
     /* F6D84 80106584 0800E003 */  jr         $ra

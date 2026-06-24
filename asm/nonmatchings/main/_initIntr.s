@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800F2968, 0xD8
+nonmatching _initIntr, 0xD8
 
-glabel func_800F2968
+glabel _initIntr
     /* E3168 800F2968 E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* E316C 800F296C 1000B0AF */  sw         $s0, 0x10($sp)
     /* E3170 800F2970 1380103C */  lui        $s0, %hi(D_80134AF8)
@@ -26,13 +26,13 @@ glabel func_800F2968
     /* E31B4 800F29B4 8C5B428C */  lw         $v0, %lo(D_80135B8C)($v0)
     /* E31B8 800F29B8 21200002 */  addu       $a0, $s0, $zero
     /* E31BC 800F29BC 000045AC */  sw         $a1, 0x0($v0)
-    /* E31C0 800F29C0 9CCB030C */  jal        func_800F2E70
+    /* E31C0 800F29C0 9CCB030C */  jal        _bzero_w
     /* E31C4 800F29C4 1A040524 */   addiu     $a1, $zero, 0x41A
     /* E31C8 800F29C8 A319040C */  jal        setjmp
     /* E31CC 800F29CC 38000426 */   addiu     $a0, $s0, 0x38
     /* E31D0 800F29D0 03004010 */  beqz       $v0, .L800F29E0
     /* E31D4 800F29D4 00000000 */   nop
-    /* E31D8 800F29D8 90CA030C */  jal        func_800F2A40
+    /* E31D8 800F29D8 90CA030C */  jal        _intrhand
     /* E31DC 800F29DC 00000000 */   nop
   .L800F29E0:
     /* E31E0 800F29E0 1380103C */  lui        $s0, %hi(D_80134B34)
@@ -60,4 +60,4 @@ glabel func_800F2968
     /* E3234 800F2A34 1000B08F */  lw         $s0, 0x10($sp)
     /* E3238 800F2A38 0800E003 */  jr         $ra
     /* E323C 800F2A3C 1800BD27 */   addiu     $sp, $sp, 0x18
-endlabel func_800F2968
+endlabel _initIntr

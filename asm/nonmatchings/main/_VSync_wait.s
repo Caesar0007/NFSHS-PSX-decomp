@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800F2494, 0x98
+nonmatching _VSync_wait, 0x98
 
-glabel func_800F2494
+glabel _VSync_wait
     /* E2C94 800F2494 E0FFBD27 */  addiu      $sp, $sp, -0x20
     /* E2C98 800F2498 C02B0500 */  sll        $a1, $a1, 15
     /* E2C9C 800F249C 1000A5AF */  sw         $a1, 0x10($sp)
@@ -45,4 +45,4 @@ glabel func_800F2494
     /* E2D20 800F2520 2000BD27 */  addiu      $sp, $sp, 0x20
     /* E2D24 800F2524 0800E003 */  jr         $ra
     /* E2D28 800F2528 00000000 */   nop
-endlabel func_800F2494
+endlabel _VSync_wait

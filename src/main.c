@@ -199,12 +199,6 @@ void fortext4(void) {
 void __main(void) {
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", __SN_ENTRY_POINT);
-
-INCLUDE_ASM("asm/nonmatchings/main", stup1);
-
-INCLUDE_ASM("asm/nonmatchings/main", stup0);
-
 INCLUDE_ASM("asm/nonmatchings/main", func_800E41FC);
 
 INCLUDE_ASM("asm/nonmatchings/main", rdiv);
@@ -239,12 +233,6 @@ void func_800ED0D4(void) {
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800F0BF4);
 
-INCLUDE_ASM("asm/nonmatchings/main", SetVideoMode);
-
-int GetVideoMode(void) {
-    return *(int *)0x80134838;
-}
-
 INCLUDE_ASM("asm/nonmatchings/main", intcos);
 
 INCLUDE_ASM("asm/nonmatchings/main", intsin);
@@ -252,36 +240,6 @@ INCLUDE_ASM("asm/nonmatchings/main", intsin);
 INCLUDE_ASM("asm/nonmatchings/main", func_800F1B3C);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800F219C);
-
-INCLUDE_ASM("asm/nonmatchings/main", VSync);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800F2494);
-
-INCLUDE_ASM("asm/nonmatchings/main", ResetCallback);
-
-INCLUDE_ASM("asm/nonmatchings/main", InterruptCallback);
-
-INCLUDE_ASM("asm/nonmatchings/main", DMACallback);
-
-INCLUDE_ASM("asm/nonmatchings/main", VSyncCallback);
-
-INCLUDE_ASM("asm/nonmatchings/main", VSyncCallbacks);
-
-INCLUDE_ASM("asm/nonmatchings/main", CheckCallback);
-
-INCLUDE_ASM("asm/nonmatchings/main", SetIntrMask);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800F2968);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800F2A40);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800F2C10);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800F2D58);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800F2DF8);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800F2E70);
 
 void putm(unsigned char *p, unsigned int val, int count) {
     count--;
@@ -340,34 +298,6 @@ void checkrect(unsigned short *rect) {
         rect[3] |= 1;
     }
 }
-
-INCLUDE_ASM("asm/nonmatchings/main", DecDCTvlcSize);
-
-INCLUDE_ASM("asm/nonmatchings/main", DecDCTvlc);
-
-INCLUDE_ASM("asm/nonmatchings/main", DecDCTReset);
-
-INCLUDE_ASM("asm/nonmatchings/main", DecDCTin);
-
-INCLUDE_ASM("asm/nonmatchings/main", DecDCTout);
-
-INCLUDE_ASM("asm/nonmatchings/main", DecDCTinSync);
-
-INCLUDE_ASM("asm/nonmatchings/main", DecDCToutCallback);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800F8AF8);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800F8BE8);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800F8C78);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800F8D04);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800F8D98);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800F8E2C);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800F8E44);
 
 int CD_Close(int i) {
     int *table = *(int **)0x80146CF8;
@@ -428,22 +358,6 @@ void _padCmdParaMode(unsigned char *p, int mode) {
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80106500);
 
-INCLUDE_ASM("asm/nonmatchings/main", startIntrVSync);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_8010658C);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_801065F8);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_80106624);
-
-INCLUDE_ASM("asm/nonmatchings/main", startIntrDMA);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_801066F8);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_80106878);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_80106924);
-
 INCLUDE_ASM("asm/nonmatchings/main", func_8010694C);
 
 int decodeansi(unsigned char **pp) {
@@ -463,10 +377,6 @@ int psxdevelopmentsystem(void) {
 void TermPrim(unsigned long *p) {
     *p |= 0x00FFFFFFUL;
 }
-
-INCLUDE_ASM("asm/nonmatchings/main", DsReadyCallback);
-
-INCLUDE_ASM("asm/nonmatchings/main", DsDataCallback);
 
 int iSNDabs(int x) {
     return x < 0 ? -x : x;

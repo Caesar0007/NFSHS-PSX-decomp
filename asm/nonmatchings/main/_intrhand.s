@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800F2A40, 0x1D0
+nonmatching _intrhand, 0x1D0
 
-glabel func_800F2A40
+glabel _intrhand
     /* E3240 800F2A40 D8FFBD27 */  addiu      $sp, $sp, -0x28
     /* E3244 800F2A44 1400B1AF */  sw         $s1, 0x14($sp)
     /* E3248 800F2A48 1380113C */  lui        $s1, %hi(D_80134AF8)
@@ -128,4 +128,4 @@ glabel func_800F2A40
     /* E3404 800F2C04 1000B08F */  lw         $s0, 0x10($sp)
     /* E3408 800F2C08 0800E003 */  jr         $ra
     /* E340C 800F2C0C 2800BD27 */   addiu     $sp, $sp, 0x28
-endlabel func_800F2A40
+endlabel _intrhand

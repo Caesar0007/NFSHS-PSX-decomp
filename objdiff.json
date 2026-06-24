@@ -2392,6 +2392,14 @@
       }
     },
     {
+      "name": "syslib/psx/2mbyte/2mbyte",
+      "target_path": "expected/src/syslib/psx/2mbyte/2mbyte.c.o",
+      "base_path": "build/recon/syslib/psx/2mbyte/2mbyte.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/2mbyte/2mbyte.cpp"
+      }
+    },
+    {
       "name": "syslib/psx/libapi/A07",
       "target_path": "expected/src/syslib/psx/libapi/A07.c.o",
       "base_path": "build/recon/syslib/psx/libapi/A07.cpp.o",
@@ -3032,6 +3040,54 @@
       }
     },
     {
+      "name": "syslib/psx/libds/DSCB",
+      "target_path": "expected/src/syslib/psx/libds/DSCB.c.o",
+      "base_path": "build/recon/syslib/psx/libds/DSCB.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libds/DSCB.cpp"
+      }
+    },
+    {
+      "name": "syslib/psx/libetc/INTR",
+      "target_path": "expected/src/syslib/psx/libetc/INTR.c.o",
+      "base_path": "build/recon/syslib/psx/libetc/INTR.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libetc/INTR.cpp"
+      }
+    },
+    {
+      "name": "syslib/psx/libetc/INTR_DMA",
+      "target_path": "expected/src/syslib/psx/libetc/INTR_DMA.c.o",
+      "base_path": "build/recon/syslib/psx/libetc/INTR_DMA.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libetc/INTR_DMA.cpp"
+      }
+    },
+    {
+      "name": "syslib/psx/libetc/INTR_VB",
+      "target_path": "expected/src/syslib/psx/libetc/INTR_VB.c.o",
+      "base_path": "build/recon/syslib/psx/libetc/INTR_VB.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libetc/INTR_VB.cpp"
+      }
+    },
+    {
+      "name": "syslib/psx/libetc/VMODE",
+      "target_path": "expected/src/syslib/psx/libetc/VMODE.c.o",
+      "base_path": "build/recon/syslib/psx/libetc/VMODE.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libetc/VMODE.cpp"
+      }
+    },
+    {
+      "name": "syslib/psx/libetc/VSYNC",
+      "target_path": "expected/src/syslib/psx/libetc/VSYNC.c.o",
+      "base_path": "build/recon/syslib/psx/libetc/VSYNC.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libetc/VSYNC.cpp"
+      }
+    },
+    {
       "name": "syslib/psx/libgpu/EXT",
       "target_path": "expected/src/syslib/psx/libgpu/EXT.c.o",
       "base_path": "build/recon/syslib/psx/libgpu/EXT.cpp.o",
@@ -3413,6 +3469,22 @@
       "base_path": "build/recon/syslib/psx/libpad/WAITRC2.cpp.o",
       "metadata": {
         "source_path": "recon/syslib/psx/libpad/WAITRC2.cpp"
+      }
+    },
+    {
+      "name": "syslib/psx/libpress/LIBPRESS",
+      "target_path": "expected/src/syslib/psx/libpress/LIBPRESS.c.o",
+      "base_path": "build/recon/syslib/psx/libpress/LIBPRESS.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libpress/LIBPRESS.cpp"
+      }
+    },
+    {
+      "name": "syslib/psx/libpress/VLC",
+      "target_path": "expected/src/syslib/psx/libpress/VLC.c.o",
+      "base_path": "build/recon/syslib/psx/libpress/VLC.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libpress/VLC.cpp"
       }
     },
     {

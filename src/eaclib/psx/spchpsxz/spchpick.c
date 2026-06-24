@@ -25,3 +25,5 @@ INCLUDE_ASM("asm/nonmatchings/main", iSPCH_SaveChosenSentence);
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_PlayChosen);
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_ChooseSentence);
 INCLUDE_ASM("asm/nonmatchings/main", SPCH_SetPreLoadTicks);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_GetBankBits);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_OneChosen);

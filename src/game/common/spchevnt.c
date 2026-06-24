@@ -53,3 +53,5 @@ INCLUDE_ASM("asm/nonmatchings/main", SPCHNFS_W_D_SPBLT_PLC);
 INCLUDE_ASM("asm/nonmatchings/main", SPCHNFS_C_D_PERP_CRASH_ROLL);
 INCLUDE_ASM("asm/nonmatchings/main", SPCHNFS_D_A_CONFIRM);
 INCLUDE_ASM("asm/nonmatchings/main", SPCHNFS_C_D_ENDGAME);
+INCLUDE_ASM("asm/nonmatchings/main", VoxEvent_GetFilterLengthFlag);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_GetOffset16);

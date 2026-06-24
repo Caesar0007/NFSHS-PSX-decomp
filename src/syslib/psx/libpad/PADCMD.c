@@ -18,3 +18,4 @@ INCLUDE_ASM("asm/nonmatchings/main", _padSetActAlign_snd);
 INCLUDE_ASM("asm/nonmatchings/main", _padSetActAlign_rcv);
 INCLUDE_ASM("asm/nonmatchings/main", _padSetMainMode_snd);
 INCLUDE_ASM("asm/nonmatchings/main", _padSetMainMode_rcv);
+INCLUDE_ASM("asm/nonmatchings/main", _padCmdParaMode);

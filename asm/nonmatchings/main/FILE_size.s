@@ -27,7 +27,7 @@ glabel FILE_size
     /* DCE20 800EC620 000043AE */   sw        $v1, 0x0($s2)
     /* DCE24 800EC624 06000224 */  addiu      $v0, $zero, 0x6
     /* DCE28 800EC628 0C0042AE */  sw         $v0, 0xC($s2)
-    /* DCE2C 800EC62C 35B4030C */  jal        func_800ED0D4
+    /* DCE2C 800EC62C 35B4030C */  jal        iFILE_perror
     /* DCE30 800EC630 21204002 */   addu      $a0, $s2, $zero
   .L800EC634:
     /* DCE34 800EC634 21204002 */  addu       $a0, $s2, $zero

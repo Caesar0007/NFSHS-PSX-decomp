@@ -48,7 +48,7 @@ glabel iSPCH_ChooseEvent
     /* D7B9C 800E739C 01000224 */  addiu      $v0, $zero, 0x1
     /* D7BA0 800E73A0 0D006214 */  bne        $v1, $v0, .L800E73D8
     /* D7BA4 800E73A4 00000000 */   nop
-    /* D7BA8 800E73A8 A29B030C */  jal        func_800E6E88
+    /* D7BA8 800E73A8 A29B030C */  jal        VoxEvent_GetFilterLengthFlag
     /* D7BAC 800E73AC 21202002 */   addu      $a0, $s1, $zero
     /* D7BB0 800E73B0 FF004230 */  andi       $v0, $v0, 0xFF
     /* D7BB4 800E73B4 08004010 */  beqz       $v0, .L800E73D8

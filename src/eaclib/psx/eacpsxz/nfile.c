@@ -26,3 +26,4 @@ INCLUDE_ASM("asm/nonmatchings/main", freehandle);
 INCLUDE_ASM("asm/nonmatchings/main", reservehandle);
 INCLUDE_ASM("asm/nonmatchings/main", reserveop);
 INCLUDE_ASM("asm/nonmatchings/main", iFILE_ExecCommand);
+INCLUDE_ASM("asm/nonmatchings/main", iFILE_perror);

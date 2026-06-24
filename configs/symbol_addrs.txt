@@ -4696,3 +4696,14 @@ startIntrVSync_helper_3 = 0x80106624; // type:func
 _dma_isr = 0x801066F8; // type:func
 _bzero_w = 0x80106924; // type:func
 _VSync_wait = 0x800F2494; // type:func
+
+PAD_convert = 0x800E41FC; // type:func
+_swap = 0x800E5EDC; // type:func
+VoxEvent_GetFilterLengthFlag = 0x800E6E88; // type:func
+iSPCH_GetOffset16 = 0x800E6EA8; // type:func
+iFILE_perror = 0x800ED0D4; // type:func
+locaterequest = 0x800F0BF4; // type:func
+_vec_norm_kernel = 0x800F1B3C; // type:func
+VoxSentence_GetNumPhrases = 0x80100730; // type:func
+iSPCH_GetOffset8 = 0x80100748; // type:func
+_patch_gte_handler_1 = 0x80106500; // type:func

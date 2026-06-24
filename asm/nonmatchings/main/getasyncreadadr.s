@@ -6,7 +6,7 @@ nonmatching getasyncreadadr, 0x98
 glabel getasyncreadadr
     /* E1E40 800F1640 E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* E1E44 800F1644 1400BFAF */  sw         $ra, 0x14($sp)
-    /* E1E48 800F1648 FDC2030C */  jal        func_800F0BF4
+    /* E1E48 800F1648 FDC2030C */  jal        locaterequest
     /* E1E4C 800F164C 1000B0AF */   sw        $s0, 0x10($sp)
     /* E1E50 800F1650 21284000 */  addu       $a1, $v0, $zero
     /* E1E54 800F1654 1C00A010 */  beqz       $a1, .L800F16C8

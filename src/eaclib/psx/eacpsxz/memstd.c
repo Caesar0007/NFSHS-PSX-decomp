@@ -12,3 +12,4 @@ INCLUDE_ASM("asm/nonmatchings/main", getblocksize);
 INCLUDE_ASM("asm/nonmatchings/main", getblockname);
 INCLUDE_ASM("asm/nonmatchings/main", reservememadr);
 INCLUDE_ASM("asm/nonmatchings/main", purgememadr);
+INCLUDE_ASM("asm/nonmatchings/main", FREE_remove);

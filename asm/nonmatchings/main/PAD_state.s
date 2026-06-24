@@ -15,7 +15,7 @@ glabel PAD_state
     /* D49CC 800E41CC 06004010 */  beqz       $v0, .L800E41E8
     /* D49D0 800E41D0 C0100400 */   sll       $v0, $a0, 3
     /* D49D4 800E41D4 04006424 */  addiu      $a0, $v1, 0x4
-    /* D49D8 800E41D8 7F90030C */  jal        func_800E41FC
+    /* D49D8 800E41D8 7F90030C */  jal        PAD_convert
     /* D49DC 800E41DC 21204400 */   addu      $a0, $v0, $a0
     /* D49E0 800E41E0 7B900308 */  j          .L800E41EC
     /* D49E4 800E41E4 FFFF4230 */   andi      $v0, $v0, 0xFFFF

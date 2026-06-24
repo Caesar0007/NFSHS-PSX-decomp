@@ -19,7 +19,7 @@ glabel iSPCH_SentenceGetChoices
     /* F17BC 80100FBC 21980000 */  addu       $s3, $zero, $zero
     /* F17C0 80100FC0 3000BFAF */  sw         $ra, 0x30($sp)
     /* F17C4 80100FC4 2800B6AF */  sw         $s6, 0x28($sp)
-    /* F17C8 80100FC8 CC01040C */  jal        func_80100730
+    /* F17C8 80100FC8 CC01040C */  jal        VoxSentence_GetNumPhrases
     /* F17CC 80100FCC 1800B2AF */   sw        $s2, 0x18($sp)
     /* F17D0 80100FD0 21B04000 */  addu       $s6, $v0, $zero
     /* F17D4 80100FD4 0D00C22A */  slti       $v0, $s6, 0xD
@@ -47,7 +47,7 @@ glabel iSPCH_SentenceGetChoices
     /* F1820 80101020 060013A6 */  sh         $s3, 0x6($s0)
     /* F1824 80101024 2120A002 */  addu       $a0, $s5, $zero
     /* F1828 80101028 0400A526 */  addiu      $a1, $s5, 0x4
-    /* F182C 8010102C D201040C */  jal        func_80100748
+    /* F182C 8010102C D201040C */  jal        iSPCH_GetOffset8
     /* F1830 80101030 21304002 */   addu      $a2, $s2, $zero
     /* F1834 80101034 21884000 */  addu       $s1, $v0, $zero
     /* F1838 80101038 21202002 */  addu       $a0, $s1, $zero

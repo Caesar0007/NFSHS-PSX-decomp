@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800E5EDC, 0x3C
+nonmatching _swap, 0x3C
 
-glabel func_800E5EDC
+glabel _swap
     /* D66DC 800E5EDC 21408000 */  addu       $t0, $a0, $zero
     /* D66E0 800E5EE0 2148A000 */  addu       $t1, $a1, $zero
     /* D66E4 800E5EE4 0A00C010 */  beqz       $a2, .L800E5F10
@@ -21,5 +21,5 @@ glabel func_800E5EDC
   .L800E5F10:
     /* D6710 800E5F10 0800E003 */  jr         $ra
     /* D6714 800E5F14 00000000 */   nop
-endlabel func_800E5EDC
+endlabel _swap
     /* D6718 800E5F18 00000000 */  nop

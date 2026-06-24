@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800F0BF4, 0x5C
+nonmatching locaterequest, 0x5C
 
-glabel func_800F0BF4
+glabel locaterequest
     /* E13F4 800F0BF4 00018228 */  slti       $v0, $a0, 0x100
     /* E13F8 800F0BF8 06004014 */  bnez       $v0, .L800F0C14
     /* E13FC 800F0BFC FF008330 */   andi      $v1, $a0, 0xFF
@@ -30,4 +30,4 @@ glabel func_800F0BF4
   .L800F0C48:
     /* E1448 800F0C48 0800E003 */  jr         $ra
     /* E144C 800F0C4C 00000000 */   nop
-endlabel func_800F0BF4
+endlabel locaterequest

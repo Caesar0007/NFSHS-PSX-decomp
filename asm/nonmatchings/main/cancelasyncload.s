@@ -6,7 +6,7 @@ nonmatching cancelasyncload, 0x70
 glabel cancelasyncload
     /* E1DD0 800F15D0 E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* E1DD4 800F15D4 1400BFAF */  sw         $ra, 0x14($sp)
-    /* E1DD8 800F15D8 FDC2030C */  jal        func_800F0BF4
+    /* E1DD8 800F15D8 FDC2030C */  jal        locaterequest
     /* E1DDC 800F15DC 1000B0AF */   sw        $s0, 0x10($sp)
     /* E1DE0 800F15E0 21804000 */  addu       $s0, $v0, $zero
     /* E1DE4 800F15E4 12000012 */  beqz       $s0, .L800F1630

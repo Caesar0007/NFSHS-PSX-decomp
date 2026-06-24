@@ -10,7 +10,7 @@ glabel iSPCH_SentenceLength
     /* F152C 80100D2C 2000BFAF */  sw         $ra, 0x20($sp)
     /* F1530 80100D30 1C00B3AF */  sw         $s3, 0x1C($sp)
     /* F1534 80100D34 1400B1AF */  sw         $s1, 0x14($sp)
-    /* F1538 80100D38 CC01040C */  jal        func_80100730
+    /* F1538 80100D38 CC01040C */  jal        VoxSentence_GetNumPhrases
     /* F153C 80100D3C 1000B0AF */   sw        $s0, 0x10($sp)
     /* F1540 80100D40 21984000 */  addu       $s3, $v0, $zero
     /* F1544 80100D44 0A00601A */  blez       $s3, .L80100D70

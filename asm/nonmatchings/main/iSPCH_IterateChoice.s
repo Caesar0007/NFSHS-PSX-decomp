@@ -7,7 +7,7 @@ glabel iSPCH_IterateChoice
     /* F19AC 801011AC E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* F19B0 801011B0 1000B0AF */  sw         $s0, 0x10($sp)
     /* F19B4 801011B4 1400BFAF */  sw         $ra, 0x14($sp)
-    /* F19B8 801011B8 CC01040C */  jal        func_80100730
+    /* F19B8 801011B8 CC01040C */  jal        VoxSentence_GetNumPhrases
     /* F19BC 801011BC 21800000 */   addu      $s0, $zero, $zero
     /* F19C0 801011C0 FFFF4524 */  addiu      $a1, $v0, -0x1
     /* F19C4 801011C4 1580023C */  lui        $v0, %hi(ispch_gChoice)

@@ -16,7 +16,7 @@ glabel iSPCH_MakeSampleRequests
     /* F1D2C 8010152C 2C00B3AF */  sw         $s3, 0x2C($sp)
     /* F1D30 80101530 2800B2AF */  sw         $s2, 0x28($sp)
     /* F1D34 80101534 2400B1AF */  sw         $s1, 0x24($sp)
-    /* F1D38 80101538 CC01040C */  jal        func_80100730
+    /* F1D38 80101538 CC01040C */  jal        VoxSentence_GetNumPhrases
     /* F1D3C 8010153C 2000B0AF */   sw        $s0, 0x20($sp)
     /* F1D40 80101540 21A84000 */  addu       $s5, $v0, $zero
     /* F1D44 80101544 3400A01A */  blez       $s5, .L80101618

@@ -32,7 +32,7 @@ glabel FILE_open
     /* DCBD0 800EC3D0 240062AE */   sw        $v0, 0x24($s3)
     /* DCBD4 800EC3D4 02000224 */  addiu      $v0, $zero, 0x2
     /* DCBD8 800EC3D8 0C0062AE */  sw         $v0, 0xC($s3)
-    /* DCBDC 800EC3DC 35B4030C */  jal        func_800ED0D4
+    /* DCBDC 800EC3DC 35B4030C */  jal        iFILE_perror
     /* DCBE0 800EC3E0 21206002 */   addu      $a0, $s3, $zero
   .L800EC3E4:
     /* DCBE4 800EC3E4 DDA7030C */  jal        strlen

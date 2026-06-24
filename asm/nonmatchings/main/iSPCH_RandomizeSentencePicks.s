@@ -13,7 +13,7 @@ glabel iSPCH_RandomizeSentencePicks
     /* F18E4 801010E4 1C00B3AF */  sw         $s3, 0x1C($sp)
     /* F18E8 801010E8 1800B2AF */  sw         $s2, 0x18($sp)
     /* F18EC 801010EC 1400B1AF */  sw         $s1, 0x14($sp)
-    /* F18F0 801010F0 CC01040C */  jal        func_80100730
+    /* F18F0 801010F0 CC01040C */  jal        VoxSentence_GetNumPhrases
     /* F18F4 801010F4 1000B0AF */   sw        $s0, 0x10($sp)
     /* F18F8 801010F8 21B04000 */  addu       $s6, $v0, $zero
     /* F18FC 801010FC 2000C01A */  blez       $s6, .L80101180

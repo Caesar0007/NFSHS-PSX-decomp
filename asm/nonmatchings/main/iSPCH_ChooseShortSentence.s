@@ -10,7 +10,7 @@ glabel iSPCH_ChooseShortSentence
     /* F1A68 80101268 1000B0AF */  sw         $s0, 0x10($sp)
     /* F1A6C 8010126C 21800000 */  addu       $s0, $zero, $zero
     /* F1A70 80101270 1C00BFAF */  sw         $ra, 0x1C($sp)
-    /* F1A74 80101274 CC01040C */  jal        func_80100730
+    /* F1A74 80101274 CC01040C */  jal        VoxSentence_GetNumPhrases
     /* F1A78 80101278 1400B1AF */   sw        $s1, 0x14($sp)
     /* F1A7C 8010127C 21200002 */  addu       $a0, $s0, $zero
     /* F1A80 80101280 21284000 */  addu       $a1, $v0, $zero

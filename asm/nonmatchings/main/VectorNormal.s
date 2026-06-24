@@ -8,7 +8,7 @@ glabel VectorNormal
     /* E22E0 800F1AE0 0400898C */  lw         $t1, 0x4($a0)
     /* E22E4 800F1AE4 08008A8C */  lw         $t2, 0x8($a0)
     /* E22E8 800F1AE8 2138E003 */  addu       $a3, $ra, $zero
-    /* E22EC 800F1AEC CFC6030C */  jal        func_800F1B3C
+    /* E22EC 800F1AEC CFC6030C */  jal        _vec_norm_kernel
     /* E22F0 800F1AF0 00000000 */   nop
     /* E22F4 800F1AF4 0000A8AC */  sw         $t0, 0x0($a1)
     /* E22F8 800F1AF8 0400A9AC */  sw         $t1, 0x4($a1)

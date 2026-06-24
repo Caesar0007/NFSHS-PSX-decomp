@@ -96,6 +96,14 @@
       }
     },
     {
+      "name": "eaclib/psx/eacpsxz/devsys",
+      "target_path": "expected/src/eaclib/psx/eacpsxz/devsys.c.o",
+      "base_path": "build/recon/eaclib/psx/eacpsxz/devsys.cpp.o",
+      "metadata": {
+        "source_path": "recon/eaclib/psx/eacpsxz/devsys.cpp"
+      }
+    },
+    {
       "name": "eaclib/psx/eacpsxz/exit",
       "target_path": "expected/src/eaclib/psx/eacpsxz/exit.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/exit.cpp.o",
@@ -125,6 +133,14 @@
       "base_path": "build/recon/eaclib/psx/eacpsxz/fixdatan.cpp.o",
       "metadata": {
         "source_path": "recon/eaclib/psx/eacpsxz/fixdatan.cpp"
+      }
+    },
+    {
+      "name": "eaclib/psx/eacpsxz/fixddiv",
+      "target_path": "expected/src/eaclib/psx/eacpsxz/fixddiv.c.o",
+      "base_path": "build/recon/eaclib/psx/eacpsxz/fixddiv.cpp.o",
+      "metadata": {
+        "source_path": "recon/eaclib/psx/eacpsxz/fixddiv.cpp"
       }
     },
     {
@@ -256,6 +272,14 @@
       }
     },
     {
+      "name": "eaclib/psx/eacpsxz/meminit",
+      "target_path": "expected/src/eaclib/psx/eacpsxz/meminit.c.o",
+      "base_path": "build/recon/eaclib/psx/eacpsxz/meminit.cpp.o",
+      "metadata": {
+        "source_path": "recon/eaclib/psx/eacpsxz/meminit.cpp"
+      }
+    },
+    {
       "name": "eaclib/psx/eacpsxz/memstd",
       "target_path": "expected/src/eaclib/psx/eacpsxz/memstd.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/memstd.cpp.o",
@@ -301,6 +325,14 @@
       "base_path": "build/recon/eaclib/psx/eacpsxz/nsync.cpp.o",
       "metadata": {
         "source_path": "recon/eaclib/psx/eacpsxz/nsync.cpp"
+      }
+    },
+    {
+      "name": "eaclib/psx/eacpsxz/nullfunc",
+      "target_path": "expected/src/eaclib/psx/eacpsxz/nullfunc.c.o",
+      "base_path": "build/recon/eaclib/psx/eacpsxz/nullfunc.cpp.o",
+      "metadata": {
+        "source_path": "recon/eaclib/psx/eacpsxz/nullfunc.cpp"
       }
     },
     {
@@ -376,6 +408,14 @@
       }
     },
     {
+      "name": "eaclib/psx/eacpsxz/sinfunc",
+      "target_path": "expected/src/eaclib/psx/eacpsxz/sinfunc.c.o",
+      "base_path": "build/recon/eaclib/psx/eacpsxz/sinfunc.cpp.o",
+      "metadata": {
+        "source_path": "recon/eaclib/psx/eacpsxz/sinfunc.cpp"
+      }
+    },
+    {
       "name": "eaclib/psx/eacpsxz/stream",
       "target_path": "expected/src/eaclib/psx/eacpsxz/stream.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/stream.cpp.o",
@@ -405,6 +445,22 @@
       "base_path": "build/recon/eaclib/psx/eacpsxz/systask.cpp.o",
       "metadata": {
         "source_path": "recon/eaclib/psx/eacpsxz/systask.cpp"
+      }
+    },
+    {
+      "name": "eaclib/psx/eacpsxz/textcode",
+      "target_path": "expected/src/eaclib/psx/eacpsxz/textcode.c.o",
+      "base_path": "build/recon/eaclib/psx/eacpsxz/textcode.cpp.o",
+      "metadata": {
+        "source_path": "recon/eaclib/psx/eacpsxz/textcode.cpp"
+      }
+    },
+    {
+      "name": "eaclib/psx/eacpsxz/textcrnt",
+      "target_path": "expected/src/eaclib/psx/eacpsxz/textcrnt.c.o",
+      "base_path": "build/recon/eaclib/psx/eacpsxz/textcrnt.cpp.o",
+      "metadata": {
+        "source_path": "recon/eaclib/psx/eacpsxz/textcrnt.cpp"
       }
     },
     {
@@ -3112,11 +3168,27 @@
       }
     },
     {
+      "name": "syslib/psx/libgpu/P01",
+      "target_path": "expected/src/syslib/psx/libgpu/P01.c.o",
+      "base_path": "build/recon/syslib/psx/libgpu/P01.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libgpu/P01.cpp"
+      }
+    },
+    {
       "name": "syslib/psx/libgpu/P06",
       "target_path": "expected/src/syslib/psx/libgpu/P06.c.o",
       "base_path": "build/recon/syslib/psx/libgpu/P06.cpp.o",
       "metadata": {
         "source_path": "recon/syslib/psx/libgpu/P06.cpp"
+      }
+    },
+    {
+      "name": "syslib/psx/libgpu/P09",
+      "target_path": "expected/src/syslib/psx/libgpu/P09.c.o",
+      "base_path": "build/recon/syslib/psx/libgpu/P09.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libgpu/P09.cpp"
       }
     },
     {
@@ -3133,6 +3205,46 @@
       "base_path": "build/recon/syslib/psx/libgpu/P11.cpp.o",
       "metadata": {
         "source_path": "recon/syslib/psx/libgpu/P11.cpp"
+      }
+    },
+    {
+      "name": "syslib/psx/libgpu/P12",
+      "target_path": "expected/src/syslib/psx/libgpu/P12.c.o",
+      "base_path": "build/recon/syslib/psx/libgpu/P12.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libgpu/P12.cpp"
+      }
+    },
+    {
+      "name": "syslib/psx/libgpu/P16",
+      "target_path": "expected/src/syslib/psx/libgpu/P16.c.o",
+      "base_path": "build/recon/syslib/psx/libgpu/P16.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libgpu/P16.cpp"
+      }
+    },
+    {
+      "name": "syslib/psx/libgpu/P17",
+      "target_path": "expected/src/syslib/psx/libgpu/P17.c.o",
+      "base_path": "build/recon/syslib/psx/libgpu/P17.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libgpu/P17.cpp"
+      }
+    },
+    {
+      "name": "syslib/psx/libgpu/P18",
+      "target_path": "expected/src/syslib/psx/libgpu/P18.c.o",
+      "base_path": "build/recon/syslib/psx/libgpu/P18.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libgpu/P18.cpp"
+      }
+    },
+    {
+      "name": "syslib/psx/libgpu/P19",
+      "target_path": "expected/src/syslib/psx/libgpu/P19.c.o",
+      "base_path": "build/recon/syslib/psx/libgpu/P19.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libgpu/P19.cpp"
       }
     },
     {
@@ -3421,6 +3533,14 @@
       "base_path": "build/recon/syslib/psx/libpad/MCXMAIN.cpp.o",
       "metadata": {
         "source_path": "recon/syslib/psx/libpad/MCXMAIN.cpp"
+      }
+    },
+    {
+      "name": "syslib/psx/libpad/PAD",
+      "target_path": "expected/src/syslib/psx/libpad/PAD.c.o",
+      "base_path": "build/recon/syslib/psx/libpad/PAD.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libpad/PAD.cpp"
       }
     },
     {

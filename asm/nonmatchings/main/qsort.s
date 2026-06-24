@@ -30,7 +30,7 @@ glabel qsort
     /* D65E8 800E5DE8 31004018 */  blez       $v0, .L800E5EB0
     /* D65EC 800E5DEC 21208002 */   addu      $a0, $s4, $zero
     /* D65F0 800E5DF0 21284002 */  addu       $a1, $s2, $zero
-    /* D65F4 800E5DF4 B797030C */  jal        func_800E5EDC
+    /* D65F4 800E5DF4 B797030C */  jal        _swap
     /* D65F8 800E5DF8 21306002 */   addu      $a2, $s3, $zero
     /* D65FC 800E5DFC AC970308 */  j          .L800E5EB0
     /* D6600 800E5E00 00000000 */   nop
@@ -41,7 +41,7 @@ glabel qsort
     /* D6610 800E5E10 21888002 */  addu       $s1, $s4, $zero
     /* D6614 800E5E14 01001024 */  addiu      $s0, $zero, 0x1
     /* D6618 800E5E18 12180000 */  mflo       $v1
-    /* D661C 800E5E1C B797030C */  jal        func_800E5EDC
+    /* D661C 800E5E1C B797030C */  jal        _swap
     /* D6620 800E5E20 21288302 */   addu      $a1, $s4, $v1
     /* D6624 800E5E24 2B101502 */  sltu       $v0, $s0, $s5
     /* D6628 800E5E28 11004010 */  beqz       $v0, .L800E5E70
@@ -57,7 +57,7 @@ glabel qsort
     /* D664C 800E5E4C 0100D626 */   addiu     $s6, $s6, 0x1
     /* D6650 800E5E50 21204002 */  addu       $a0, $s2, $zero
     /* D6654 800E5E54 21282002 */  addu       $a1, $s1, $zero
-    /* D6658 800E5E58 B797030C */  jal        func_800E5EDC
+    /* D6658 800E5E58 B797030C */  jal        _swap
     /* D665C 800E5E5C 21306002 */   addu      $a2, $s3, $zero
   .L800E5E60:
     /* D6660 800E5E60 01001026 */  addiu      $s0, $s0, 0x1
@@ -68,7 +68,7 @@ glabel qsort
     /* D6670 800E5E70 04003412 */  beq        $s1, $s4, .L800E5E84
     /* D6674 800E5E74 21208002 */   addu      $a0, $s4, $zero
     /* D6678 800E5E78 21282002 */  addu       $a1, $s1, $zero
-    /* D667C 800E5E7C B797030C */  jal        func_800E5EDC
+    /* D667C 800E5E7C B797030C */  jal        _swap
     /* D6680 800E5E80 21306002 */   addu      $a2, $s3, $zero
   .L800E5E84:
     /* D6684 800E5E84 21208002 */  addu       $a0, $s4, $zero

@@ -7,3 +7,4 @@ INCLUDE_ASM("asm/nonmatchings/main", iSNDresolvetaggedpatch);
 INCLUDE_ASM("asm/nonmatchings/main", iSNDremovetaggedpatch);
 INCLUDE_ASM("asm/nonmatchings/main", iSNDplaytaggedtimbre);
 INCLUDE_ASM("asm/nonmatchings/main", iSNDplaytaggedpatch);
+INCLUDE_ASM("asm/nonmatchings/main", iSNDresetpatch);

@@ -33,7 +33,7 @@ glabel FILE_read
     /* DCD54 800EC554 100051AE */   sw        $s1, 0x10($s2)
     /* DCD58 800EC558 06000224 */  addiu      $v0, $zero, 0x6
     /* DCD5C 800EC55C 0C0042AE */  sw         $v0, 0xC($s2)
-    /* DCD60 800EC560 35B4030C */  jal        func_800ED0D4
+    /* DCD60 800EC560 35B4030C */  jal        iFILE_perror
     /* DCD64 800EC564 21204002 */   addu      $a0, $s2, $zero
   .L800EC568:
     /* DCD68 800EC568 240054AE */  sw         $s4, 0x24($s2)

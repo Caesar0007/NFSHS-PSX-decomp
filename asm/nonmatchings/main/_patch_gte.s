@@ -16,8 +16,8 @@ glabel _patch_gte
     /* F6C78 80106478 00000000 */  nop
     /* F6C7C 8010647C 28004224 */  addiu      $v0, $v0, 0x28
     /* F6C80 80106480 21784000 */  addu       $t7, $v0, $zero
-    /* F6C84 80106484 10800A3C */  lui        $t2, %hi(func_80106500)
-    /* F6C88 80106488 00654A25 */  addiu      $t2, $t2, %lo(func_80106500)
+    /* F6C84 80106484 10800A3C */  lui        $t2, %hi(_patch_gte_handler_1)
+    /* F6C88 80106488 00654A25 */  addiu      $t2, $t2, %lo(_patch_gte_handler_1)
     /* F6C8C 8010648C 1080093C */  lui        $t1, %hi(D_80106518)
     /* F6C90 80106490 18652925 */  addiu      $t1, $t1, %lo(D_80106518)
   .L80106494:

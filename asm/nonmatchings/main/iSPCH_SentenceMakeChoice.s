@@ -21,7 +21,7 @@ glabel iSPCH_SentenceMakeChoice
     /* F1B48 80101348 E7040408 */  j          .L8010139C
     /* F1B4C 8010134C 21984000 */   addu      $s3, $v0, $zero
   .L80101350:
-    /* F1B50 80101350 CC01040C */  jal        func_80100730
+    /* F1B50 80101350 CC01040C */  jal        VoxSentence_GetNumPhrases
     /* F1B54 80101354 21200002 */   addu      $a0, $s0, $zero
     /* F1B58 80101358 21904000 */  addu       $s2, $v0, $zero
     /* F1B5C 8010135C 2A107202 */  slt        $v0, $s3, $s2

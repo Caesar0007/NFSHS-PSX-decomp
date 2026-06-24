@@ -35,7 +35,7 @@ glabel FILE_close
     /* DCC98 800EC498 06005314 */  bne        $v0, $s3, .L800EC4B4
     /* DCC9C 800EC49C 00000000 */   nop
     /* DCCA0 800EC4A0 0C0043AE */  sw         $v1, 0xC($s2)
-    /* DCCA4 800EC4A4 35B4030C */  jal        func_800ED0D4
+    /* DCCA4 800EC4A4 35B4030C */  jal        iFILE_perror
     /* DCCA8 800EC4A8 21204002 */   addu      $a0, $s2, $zero
     /* DCCAC 800EC4AC 31B10308 */  j          .L800EC4C4
     /* DCCB0 800EC4B0 00000000 */   nop

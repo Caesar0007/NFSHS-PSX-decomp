@@ -22,3 +22,4 @@ INCLUDE_ASM("asm/nonmatchings/main", loadfilesizecallback);
 INCLUDE_ASM("asm/nonmatchings/main", loadfileopencallback);
 INCLUDE_ASM("asm/nonmatchings/main", loadsegreadcallback);
 INCLUDE_ASM("asm/nonmatchings/main", asyncsystemtask);
+INCLUDE_ASM("asm/nonmatchings/main", locaterequest);

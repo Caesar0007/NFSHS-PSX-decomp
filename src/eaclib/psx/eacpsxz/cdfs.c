@@ -13,3 +13,4 @@ INCLUDE_ASM("asm/nonmatchings/main", dircompare);
 INCLUDE_ASM("asm/nonmatchings/main", CD_timerfunc);
 INCLUDE_ASM("asm/nonmatchings/main", CD_systaskfunc);
 INCLUDE_ASM("asm/nonmatchings/main", CdReadyHandler);
+INCLUDE_ASM("asm/nonmatchings/main", CD_Close);

@@ -6,7 +6,7 @@ nonmatching getasyncreadstatus, 0x98
 glabel getasyncreadstatus
     /* E1ED8 800F16D8 E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* E1EDC 800F16DC 1400BFAF */  sw         $ra, 0x14($sp)
-    /* E1EE0 800F16E0 FDC2030C */  jal        func_800F0BF4
+    /* E1EE0 800F16E0 FDC2030C */  jal        locaterequest
     /* E1EE4 800F16E4 1000B0AF */   sw        $s0, 0x10($sp)
     /* E1EE8 800F16E8 21284000 */  addu       $a1, $v0, $zero
     /* E1EEC 800F16EC 1C00A010 */  beqz       $a1, .L800F1760

@@ -19,7 +19,7 @@ glabel iSPCH_SearchEventDat
     /* D76F4 800E6EF4 21204002 */  addu       $a0, $s2, $zero
   .L800E6EF8:
     /* D76F8 800E6EF8 0C004526 */  addiu      $a1, $s2, 0xC
-    /* D76FC 800E6EFC AA9B030C */  jal        func_800E6EA8
+    /* D76FC 800E6EFC AA9B030C */  jal        iSPCH_GetOffset16
     /* D7700 800E6F00 21300002 */   addu      $a2, $s0, $zero
     /* D7704 800E6F04 21184000 */  addu       $v1, $v0, $zero
     /* D7708 800E6F08 00006294 */  lhu        $v0, 0x0($v1)

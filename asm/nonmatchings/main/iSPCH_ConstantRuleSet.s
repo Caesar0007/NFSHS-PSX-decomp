@@ -20,7 +20,7 @@ glabel iSPCH_ConstantRuleSet
     /* F1BF0 801013F0 2400B1AF */  sw         $s1, 0x24($sp)
     /* F1BF4 801013F4 38004010 */  beqz       $v0, .L801014D8
     /* F1BF8 801013F8 2000B0AF */   sw        $s0, 0x20($sp)
-    /* F1BFC 801013FC CC01040C */  jal        func_80100730
+    /* F1BFC 801013FC CC01040C */  jal        VoxSentence_GetNumPhrases
     /* F1C00 80101400 2120E002 */   addu      $a0, $s7, $zero
     /* F1C04 80101404 21A84000 */  addu       $s5, $v0, $zero
     /* F1C08 80101408 3300A01A */  blez       $s5, .L801014D8
@@ -32,7 +32,7 @@ glabel iSPCH_ConstantRuleSet
   .L80101420:
     /* F1C20 80101420 2120E002 */  addu       $a0, $s7, $zero
     /* F1C24 80101424 0400E526 */  addiu      $a1, $s7, 0x4
-    /* F1C28 80101428 D201040C */  jal        func_80100748
+    /* F1C28 80101428 D201040C */  jal        iSPCH_GetOffset8
     /* F1C2C 8010142C 21306002 */   addu      $a2, $s3, $zero
     /* F1C30 80101430 21A04000 */  addu       $s4, $v0, $zero
     /* F1C34 80101434 21880000 */  addu       $s1, $zero, $zero

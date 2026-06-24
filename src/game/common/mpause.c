@@ -9,3 +9,4 @@ INCLUDE_ASM("asm/nonmatchings/main", MPause_StartPauseMenu__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", MPause_EndPauseMenu__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", MPause_KillMPause__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", __14tPauseMenuDefs);
+INCLUDE_ASM("asm/nonmatchings/main", ___14tPauseMenuDefs);

@@ -49,10 +49,10 @@ int ObjectMultiAnim_Draw(ObjectMultiAnim *pThis,DRender_tView *Vi,Draw_DCache *s
 int ObjectFinishedSignAnim_Draw(ObjectFinishedSignAnim *pThis,DRender_tView *Vi,Draw_DCache *sd,int offset);
 ObjectSignAnim * ObjectSignAnim_ct(ObjectSignAnim *pThis,coorddef *impactVel,int impactAngle,AnimDef *def, Trk_CollideBoomInst *objCollideInstance,Trk_ObjectDef *objDef,Trk_SimObject *simObj, coorddef *roadNormal,ObjectFinishedSignAnim *finishedAnim);
 int ObjectSignAnim_Draw(ObjectSignAnim *pThis,DRender_tView *Vi,Draw_DCache *sd,int offset);
-void ObjectSignAnim_dt(ObjectSignAnim *pThis,int __in_chrg);
-void ObjectFinishedSignAnim_dt(ObjectFinishedSignAnim *pThis,int __in_chrg);
-void ObjectMultiAnim_dt(ObjectMultiAnim *pThis,int __in_chrg);
-void ObjectFinishedMultiAnim_dt(ObjectFinishedMultiAnim *pThis,int __in_chrg);
+extern "C" void ___14ObjectSignAnim(ObjectSignAnim *pThis,int __in_chrg);
+extern "C" void ___22ObjectFinishedSignAnim(ObjectFinishedSignAnim *pThis,int __in_chrg);
+extern "C" void ___15ObjectMultiAnim(ObjectMultiAnim *pThis,int __in_chrg);
+extern "C" void ___23ObjectFinishedMultiAnim(ObjectFinishedMultiAnim *pThis,int __in_chrg);
 
 
 /* ---- CalcObjYawAngle  [OBJECT.CPP:69-74] SLD-VERIFIED ---- */
@@ -1274,9 +1274,9 @@ int ObjectSignAnim_Draw(ObjectSignAnim *pThis,DRender_tView *Vi,Draw_DCache *sd,
   return ret;
 }
 
-/* ---- ObjectSignAnim_dt  [OBJECT.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- ___14ObjectSignAnim  [OBJECT.CPP:?] SLD-FLAG:NO_SLD ---- */
 
-void ObjectSignAnim_dt(ObjectSignAnim *pThis,int __in_chrg)
+extern "C" void ___14ObjectSignAnim(ObjectSignAnim *pThis,int __in_chrg)
 
 {
   __vtbl_ptr_type (*pa_Var1) [3];
@@ -1305,9 +1305,9 @@ void ObjectSignAnim_dt(ObjectSignAnim *pThis,int __in_chrg)
 
 
 
-/* ---- ObjectFinishedSignAnim_dt  [OBJECT.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- ___22ObjectFinishedSignAnim  [OBJECT.CPP:?] SLD-FLAG:NO_SLD ---- */
 
-void ObjectFinishedSignAnim_dt(ObjectFinishedSignAnim *pThis,int __in_chrg)
+extern "C" void ___22ObjectFinishedSignAnim(ObjectFinishedSignAnim *pThis,int __in_chrg)
 
 {
   (pThis->_base_ObjectAnim)._vf = (__vtbl_ptr_type (*) [3])ObjectAnim_vtable;
@@ -1319,7 +1319,7 @@ void ObjectFinishedSignAnim_dt(ObjectFinishedSignAnim *pThis,int __in_chrg)
 
 
 
-/* ---- ObjectMultiAnim_dt  [OBJECT.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- ___15ObjectMultiAnim  [OBJECT.CPP:?] SLD-FLAG:NO_SLD ---- */
 
 /* ---- ObjectAnim_dt  @0x800a6de0  base deleting-dtor (vtable-only ref; not separately
  * reconstructed -- surfaced by #75 bare-VA pass). nfs4-f.exe: if(__in_chrg&1){ _vf=vtable; delete } */
@@ -1331,7 +1331,7 @@ void ObjectAnim_dt(ObjectAnim *pThis,int __in_chrg)
   }
 }
 
-void ObjectMultiAnim_dt(ObjectMultiAnim *pThis,int __in_chrg)
+extern "C" void ___15ObjectMultiAnim(ObjectMultiAnim *pThis,int __in_chrg)
 
 {
   __vtbl_ptr_type (*pa_Var1) [3];
@@ -1360,9 +1360,9 @@ void ObjectMultiAnim_dt(ObjectMultiAnim *pThis,int __in_chrg)
 
 
 
-/* ---- ObjectFinishedMultiAnim_dt  [OBJECT.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- ___23ObjectFinishedMultiAnim  [OBJECT.CPP:?] SLD-FLAG:NO_SLD ---- */
 
-void ObjectFinishedMultiAnim_dt(ObjectFinishedMultiAnim *pThis,int __in_chrg)
+extern "C" void ___23ObjectFinishedMultiAnim(ObjectFinishedMultiAnim *pThis,int __in_chrg)
 
 {
   (pThis->_base_ObjectAnim)._vf = (__vtbl_ptr_type (*) [3])ObjectAnim_vtable;

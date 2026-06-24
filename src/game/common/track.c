@@ -28,3 +28,4 @@ INCLUDE_ASM("asm/nonmatchings/main", Track_AnimateTrackLighting__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Save__11SaveSurfaceP14Trk_NewSimQuad);
 INCLUDE_ASM("asm/nonmatchings/main", __11SaveSurfacei);
 INCLUDE_ASM("asm/nonmatchings/main", RestoreAll__11SaveSurface);
+INCLUDE_ASM("asm/nonmatchings/main", ___11SaveSurface);

@@ -74,7 +74,7 @@ int tPauseMenuDefs_ct(int param_1)
 }
 
 /* ---- ~tPauseMenuDefs  [MPAUSE.CPP:268-268] SLD-VERIFIED ---- */
-void tPauseMenuDefs_dt(tPMenuItemNonInteractiveText *param_1,u_int __in_chrg)
+extern "C" void ___14tPauseMenuDefs(tPMenuItemNonInteractiveText *param_1,u_int __in_chrg)
 
 {
   tPMenu_dt((tPMenu *)&param_1[0x40]._base_tPMenuItem.fTextDescription,2);
@@ -504,7 +504,7 @@ void MPause_KillMPause(void)
 {
   DrawSync(0);
   if (((int)gPauseMenuDefs) != 0) {
-    tPauseMenuDefs_dt(((int)gPauseMenuDefs),3);
+    ___14tPauseMenuDefs(((int)gPauseMenuDefs),3);
   }
   TextSys_UnloadWords();
   return;

@@ -38,9 +38,9 @@ int Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei(ObjectSignAnim *self, 
 
 /* ---- header-defined (inline / class) functions ---- */
 void ___10ObjectAnim(ObjectAnim *self, int __in_chrg);   /* :53 */
-void ___23ObjectFinishedMultiAnim(ObjectFinishedMultiAnim *self, int __in_chrg);   /* :61 */
-void ___15ObjectMultiAnim(ObjectMultiAnim *self, int __in_chrg);   /* :84 */
-void ___22ObjectFinishedSignAnim(ObjectFinishedSignAnim *self, int __in_chrg);   /* :101 */
-void ___14ObjectSignAnim(ObjectSignAnim *self, int __in_chrg);   /* :124 */
+extern "C" void ___23ObjectFinishedMultiAnim(ObjectFinishedMultiAnim *self, int __in_chrg);   /* :61 */
+extern "C" void ___15ObjectMultiAnim(ObjectMultiAnim *self, int __in_chrg);   /* :84 */
+extern "C" void ___22ObjectFinishedSignAnim(ObjectFinishedSignAnim *self, int __in_chrg);   /* :101 */
+extern "C" void ___14ObjectSignAnim(ObjectSignAnim *self, int __in_chrg);   /* :124 */
 
 #endif /* _GAME_COMMON_OBJECT_H_ */

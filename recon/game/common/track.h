@@ -30,7 +30,7 @@ void KillFile_ReadEntry__FPciRiT2(char *filePtr, int entryInd, int *chunkInd, in
 void Track_LoadObjectKillData__Fv(void);   /* :1742 */
 void Save__11SaveSurfaceP14Trk_NewSimQuad(SaveSurface *self, Trk_NewSimQuad *simQuad);   /* :1831 */
 void * __11SaveSurfacei(SaveSurface *self, int numEntries);   /* :1855 */
-void ___11SaveSurface(SaveSurface *self, int __in_chrg);   /* :1864 */
+extern "C" void ___11SaveSurface(SaveSurface *self, int __in_chrg);   /* :1864 */
 void RestoreAll__11SaveSurface(SaveSurface *self);   /* :1871 */
 
 #endif /* _GAME_COMMON_TRACK_H_ */

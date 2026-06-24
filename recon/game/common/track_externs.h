@@ -68,7 +68,7 @@ extern int   gtrackNumber;
 extern int   wordFile_psh_snow;        /* (int)cast usage -- refine */
 
 extern SaveSurface *SaveSurface_ct(SaveSurface *, int);
-extern void  SaveSurface_dt(SaveSurface *, int);
+extern "C" void  ___11SaveSurface(SaveSurface *, int);
 extern void *Alloc(SimpleMem *, int, int);
 extern void *LocateCreateGroupType(SerializedGroup *, int, SimpleMem *, int);
 extern void *LocateNextGroupType(SerializedGroup *, int);

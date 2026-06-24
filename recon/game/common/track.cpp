@@ -1517,7 +1517,7 @@ void Track_DeInit(void)
     __builtin_delete(deleteMe);
   }
   if (Track_gSaveSurface != (SaveSurface *)0x0) {
-    SaveSurface_dt(Track_gSaveSurface,3);
+    ___11SaveSurface(Track_gSaveSurface,3);
     Track_gSaveSurface = (SaveSurface *)0x0;
   }
   if (gInitialArt.shapeFile != (char *)0x0) {
@@ -1695,7 +1695,7 @@ SaveSurface * SaveSurface_ct(SaveSurface *pThis,int numEntries)
    Build date: 1999-02-22.
    See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
-void SaveSurface_dt(SaveSurface *pThis,int __in_chrg)
+extern "C" void ___11SaveSurface(SaveSurface *pThis,int __in_chrg)
 
 {
   

@@ -18,7 +18,7 @@ glabel _cd_intr_dispatch
     /* F8EAC 801086AC FFFF3326 */  addiu      $s3, $s1, -0x1
     /* F8EB0 801086B0 03005230 */  andi       $s2, $v0, 0x3
   .L801086B4:
-    /* F8EB4 801086B4 201C040C */  jal        func_80107080
+    /* F8EB4 801086B4 201C040C */  jal        CD_get_intr
     /* F8EB8 801086B8 00000000 */   nop
     /* F8EBC 801086BC 21804000 */  addu       $s0, $v0, $zero
     /* F8EC0 801086C0 1A000012 */  beqz       $s0, .L8010872C

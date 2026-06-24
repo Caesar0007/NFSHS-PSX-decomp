@@ -19,7 +19,7 @@ glabel MemCardFormat
     /* EC80C 800FC00C 25186200 */  or         $v1, $v1, $v0
     /* EC810 800FC010 1000A527 */  addiu      $a1, $sp, 0x10
     /* EC814 800FC014 1480013C */  lui        $at, %hi(D_80147514)
-    /* EC818 800FC018 7DF0030C */  jal        func_800FC1F4
+    /* EC818 800FC018 7DF0030C */  jal        MemCardMakeDevname
     /* EC81C 800FC01C 147523AC */   sw        $v1, %lo(D_80147514)($at)
     /* EC820 800FC020 3426040C */  jal        _clr_card_event
     /* EC824 800FC024 00000000 */   nop
@@ -27,7 +27,7 @@ glabel MemCardFormat
     /* EC82C 800FC02C 1000A427 */   addiu     $a0, $sp, 0x10
     /* EC830 800FC030 AC26040C */  jal        _get_card_event_x
     /* EC834 800FC034 00000000 */   nop
-    /* EC838 800FC038 47F0030C */  jal        func_800FC11C
+    /* EC838 800FC038 47F0030C */  jal        MemCardEventToRslt
     /* EC83C 800FC03C 21204000 */   addu      $a0, $v0, $zero
     /* EC840 800FC040 16F00308 */  j          .L800FC058
     /* EC844 800FC044 00000000 */   nop

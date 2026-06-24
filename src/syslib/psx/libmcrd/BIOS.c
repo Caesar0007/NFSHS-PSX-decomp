@@ -1,0 +1,21 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/main", CD_get_intr);
+INCLUDE_ASM("asm/nonmatchings/main", CD_init);
+INCLUDE_ASM("asm/nonmatchings/main", funcEvSpIOE);
+INCLUDE_ASM("asm/nonmatchings/main", funcEvSpError);
+INCLUDE_ASM("asm/nonmatchings/main", funcEvSpTimeout);
+INCLUDE_ASM("asm/nonmatchings/main", funcEvSpNewcard);
+INCLUDE_ASM("asm/nonmatchings/main", funcEvSpIOEx);
+INCLUDE_ASM("asm/nonmatchings/main", funcEvSpErrorx);
+INCLUDE_ASM("asm/nonmatchings/main", funcEvSpTimeoutx);
+INCLUDE_ASM("asm/nonmatchings/main", funcEvSpNewcardx);
+INCLUDE_ASM("asm/nonmatchings/main", _card_open);
+INCLUDE_ASM("asm/nonmatchings/main", _card_start);
+INCLUDE_ASM("asm/nonmatchings/main", _card_close);
+INCLUDE_ASM("asm/nonmatchings/main", _card_stop);
+INCLUDE_ASM("asm/nonmatchings/main", _clr_card_event);
+INCLUDE_ASM("asm/nonmatchings/main", _get_card_event);
+INCLUDE_ASM("asm/nonmatchings/main", _get_card_event_x);
+INCLUDE_ASM("asm/nonmatchings/main", _chk_card_event);
+INCLUDE_ASM("asm/nonmatchings/main", _chk_card_event_x);

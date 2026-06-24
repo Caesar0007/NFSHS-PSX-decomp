@@ -27,7 +27,7 @@ glabel MemCardCreateFile
     /* EC468 800FBC68 FFFF0224 */   addiu     $v0, $zero, -0x1
   .L800FBC6C:
     /* EC46C 800FBC6C 21206002 */  addu       $a0, $s3, $zero
-    /* EC470 800FBC70 7DF0030C */  jal        func_800FC1F4
+    /* EC470 800FBC70 7DF0030C */  jal        MemCardMakeDevname
     /* EC474 800FBC74 1000A527 */   addiu     $a1, $sp, 0x10
     /* EC478 800FBC78 1000A427 */  addiu      $a0, $sp, 0x10
     /* EC47C 800FBC7C 3A9E030C */  jal        strcat
@@ -74,8 +74,8 @@ glabel MemCardCreateFile
     /* EC510 800FBD10 4EEF0308 */  j          .L800FBD38
     /* EC514 800FBD14 00000000 */   nop
   .L800FBD18:
-    /* EC518 800FBD18 1080043C */  lui        $a0, %hi(func_800FAE2C)
-    /* EC51C 800FBD1C 2CAE8424 */  addiu      $a0, $a0, %lo(func_800FAE2C)
+    /* EC518 800FBD18 1080043C */  lui        $a0, %hi(MemCardCmd_cb)
+    /* EC51C 800FBD1C 2CAE8424 */  addiu      $a0, $a0, %lo(MemCardCmd_cb)
     /* EC520 800FBD20 000012AE */  sw         $s2, 0x0($s0)
     /* EC524 800FBD24 040000AE */  sw         $zero, 0x4($s0)
     /* EC528 800FBD28 080000AE */  sw         $zero, 0x8($s0)

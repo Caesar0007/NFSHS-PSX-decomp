@@ -99,7 +99,7 @@ glabel CD_ready
     /* F81BC 801079BC 00000000 */  nop
     /* F81C0 801079C0 03005130 */  andi       $s1, $v0, 0x3
   .L801079C4:
-    /* F81C4 801079C4 201C040C */  jal        func_80107080
+    /* F81C4 801079C4 201C040C */  jal        CD_get_intr
     /* F81C8 801079C8 00000000 */   nop
     /* F81CC 801079CC 21804000 */  addu       $s0, $v0, $zero
     /* F81D0 801079D0 1A000012 */  beqz       $s0, .L80107A3C

@@ -16,8 +16,8 @@ glabel MemCardStart
     /* EB31C 800FAB1C 080040AC */  sw         $zero, 0x8($v0)
     /* EB320 800FAB20 8825040C */  jal        _card_start
     /* EB324 800FAB24 100043AC */   sw        $v1, 0x10($v0)
-    /* EB328 800FAB28 1080053C */  lui        $a1, %hi(func_800FC170)
-    /* EB32C 800FAB2C 70C1A524 */  addiu      $a1, $a1, %lo(func_800FC170)
+    /* EB328 800FAB28 1080053C */  lui        $a1, %hi(MemCardStart_cb)
+    /* EB32C 800FAB2C 70C1A524 */  addiu      $a1, $a1, %lo(MemCardStart_cb)
     /* EB330 800FAB30 44CA030C */  jal        VSyncCallbacks
     /* EB334 800FAB34 07000424 */   addiu     $a0, $zero, 0x7
     /* EB338 800FAB38 1000BF8F */  lw         $ra, 0x10($sp)

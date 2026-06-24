@@ -3336,6 +3336,30 @@
       }
     },
     {
+      "name": "syslib/psx/libmcrd/BIOS",
+      "target_path": "expected/src/syslib/psx/libmcrd/BIOS.c.o",
+      "base_path": "build/recon/syslib/psx/libmcrd/BIOS.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libmcrd/BIOS.cpp"
+      }
+    },
+    {
+      "name": "syslib/psx/libmcrd/LIBMCRD",
+      "target_path": "expected/src/syslib/psx/libmcrd/LIBMCRD.c.o",
+      "base_path": "build/recon/syslib/psx/libmcrd/LIBMCRD.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libmcrd/LIBMCRD.cpp"
+      }
+    },
+    {
+      "name": "syslib/psx/libmcrd/USERFUNC",
+      "target_path": "expected/src/syslib/psx/libmcrd/USERFUNC.c.o",
+      "base_path": "build/recon/syslib/psx/libmcrd/USERFUNC.cpp.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libmcrd/USERFUNC.cpp"
+      }
+    },
+    {
       "name": "syslib/psx/libpad/MCXMAIN",
       "target_path": "expected/src/syslib/psx/libpad/MCXMAIN.c.o",
       "base_path": "build/recon/syslib/psx/libpad/MCXMAIN.cpp.o",

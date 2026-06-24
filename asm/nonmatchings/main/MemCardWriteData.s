@@ -33,8 +33,8 @@ glabel MemCardWriteData
   .L800FB2B4:
     /* EBAB4 800FB2B4 0C004014 */  bnez       $v0, .L800FB2E8
     /* EBAB8 800FB2B8 06000224 */   addiu     $v0, $zero, 0x6
-    /* EBABC 800FB2BC 1080043C */  lui        $a0, %hi(func_800FB30C)
-    /* EBAC0 800FB2C0 0CB38424 */  addiu      $a0, $a0, %lo(func_800FB30C)
+    /* EBABC 800FB2BC 1080043C */  lui        $a0, %hi(MemCardWriteData_cb)
+    /* EBAC0 800FB2C0 0CB38424 */  addiu      $a0, $a0, %lo(MemCardWriteData_cb)
     /* EBAC4 800FB2C4 F0FFE2AC */  sw         $v0, -0x10($a3)
     /* EBAC8 800FB2C8 040060AC */  sw         $zero, 0x4($v1)
     /* EBACC 800FB2CC 080060AC */  sw         $zero, 0x8($v1)

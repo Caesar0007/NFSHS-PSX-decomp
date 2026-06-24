@@ -12,8 +12,8 @@ glabel MemCardExist
     /* EB39C 800FAB9C 00000000 */  nop
     /* EB3A0 800FABA0 0B00401C */  bgtz       $v0, .L800FABD0
     /* EB3A4 800FABA4 21288000 */   addu      $a1, $a0, $zero
-    /* EB3A8 800FABA8 1080043C */  lui        $a0, %hi(func_800FABF0)
-    /* EB3AC 800FABAC F0AB8424 */  addiu      $a0, $a0, %lo(func_800FABF0)
+    /* EB3A8 800FABA8 1080043C */  lui        $a0, %hi(MemCardExist_cb)
+    /* EB3AC 800FABAC F0AB8424 */  addiu      $a0, $a0, %lo(MemCardExist_cb)
     /* EB3B0 800FABB0 01000224 */  addiu      $v0, $zero, 0x1
     /* EB3B4 800FABB4 000062AC */  sw         $v0, 0x0($v1)
     /* EB3B8 800FABB8 040060AC */  sw         $zero, 0x4($v1)

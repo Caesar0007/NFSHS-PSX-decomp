@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800FC1F4, 0x5C
+nonmatching MemCardMakeDevname, 0x5C
 
-glabel func_800FC1F4
+glabel MemCardMakeDevname
     /* EC9F4 800FC1F4 21308000 */  addu       $a2, $a0, $zero
     /* EC9F8 800FC1F8 2138A000 */  addu       $a3, $a1, $zero
     /* EC9FC 800FC1FC 0580053C */  lui        $a1, %hi(D_800574E0)
@@ -28,4 +28,4 @@ glabel func_800FC1F4
     /* ECA44 800FC244 0200E3A0 */  sb         $v1, 0x2($a3)
     /* ECA48 800FC248 0800E003 */  jr         $ra
     /* ECA4C 800FC24C 0300E2A0 */   sb        $v0, 0x3($a3)
-endlabel func_800FC1F4
+endlabel MemCardMakeDevname

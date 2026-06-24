@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800FB30C, 0x13C
+nonmatching MemCardWriteData_cb, 0x13C
 
-glabel func_800FB30C
+glabel MemCardWriteData_cb
     /* EBB0C 800FB30C E0FFBD27 */  addiu      $sp, $sp, -0x20
     /* EBB10 800FB310 1400B1AF */  sw         $s1, 0x14($sp)
     /* EBB14 800FB314 21888000 */  addu       $s1, $a0, $zero
@@ -53,7 +53,7 @@ glabel func_800FB30C
   .L800FB3B8:
     /* EBBB8 800FB3B8 21200000 */  addu       $a0, $zero, $zero
   .L800FB3BC:
-    /* EBBBC 800FB3BC 47F0030C */  jal        func_800FC11C
+    /* EBBBC 800FB3BC 47F0030C */  jal        MemCardEventToRslt
     /* EBBC0 800FB3C0 00000000 */   nop
     /* EBBC4 800FB3C4 1480033C */  lui        $v1, %hi(D_80147518)
     /* EBBC8 800FB3C8 18756324 */  addiu      $v1, $v1, %lo(D_80147518)
@@ -93,4 +93,4 @@ glabel func_800FB30C
     /* EBC3C 800FB43C 1000B08F */  lw         $s0, 0x10($sp)
     /* EBC40 800FB440 0800E003 */  jr         $ra
     /* EBC44 800FB444 2000BD27 */   addiu     $sp, $sp, 0x20
-endlabel func_800FB30C
+endlabel MemCardWriteData_cb

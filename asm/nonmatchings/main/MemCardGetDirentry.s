@@ -31,7 +31,7 @@ glabel MemCardGetDirentry
     /* EC0E8 800FB8E8 AEEE0308 */  j          .L800FBAB8
     /* EC0EC 800FB8EC FFFF0224 */   addiu     $v0, $zero, -0x1
   .L800FB8F0:
-    /* EC0F0 800FB8F0 7DF0030C */  jal        func_800FC1F4
+    /* EC0F0 800FB8F0 7DF0030C */  jal        MemCardMakeDevname
     /* EC0F4 800FB8F4 1000A527 */   addiu     $a1, $sp, 0x10
     /* EC0F8 800FB8F8 1000A427 */  addiu      $a0, $sp, 0x10
     /* EC0FC 800FB8FC 3A9E030C */  jal        strcat
@@ -68,7 +68,7 @@ glabel MemCardGetDirentry
     /* EC170 800FB970 2A103E02 */   slt       $v0, $s1, $fp
     /* EC174 800FB974 AC26040C */  jal        _get_card_event_x
     /* EC178 800FB978 00000000 */   nop
-    /* EC17C 800FB97C 47F0030C */  jal        func_800FC11C
+    /* EC17C 800FB97C 47F0030C */  jal        MemCardEventToRslt
     /* EC180 800FB980 21204000 */   addu      $a0, $v0, $zero
     /* EC184 800FB984 27004010 */  beqz       $v0, .L800FBA24
     /* EC188 800FB988 5800A2AF */   sw        $v0, 0x58($sp)
@@ -89,8 +89,8 @@ glabel MemCardGetDirentry
     /* EC1C4 800FB9C4 7CEE0308 */  j          .L800FB9F0
     /* EC1C8 800FB9C8 21200000 */   addu      $a0, $zero, $zero
   .L800FB9CC:
-    /* EC1CC 800FB9CC 1080043C */  lui        $a0, %hi(func_800FAE2C)
-    /* EC1D0 800FB9D0 2CAE8424 */  addiu      $a0, $a0, %lo(func_800FAE2C)
+    /* EC1CC 800FB9CC 1080043C */  lui        $a0, %hi(MemCardCmd_cb)
+    /* EC1D0 800FB9D0 2CAE8424 */  addiu      $a0, $a0, %lo(MemCardCmd_cb)
     /* EC1D4 800FB9D4 000068AE */  sw         $t0, 0x0($s3)
     /* EC1D8 800FB9D8 040060AE */  sw         $zero, 0x4($s3)
     /* EC1DC 800FB9DC 080060AE */  sw         $zero, 0x8($s3)

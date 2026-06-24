@@ -375,58 +375,6 @@ int CD_Close(int i) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", MemCardInit);
-
-INCLUDE_ASM("asm/nonmatchings/main", MemCardEnd);
-
-INCLUDE_ASM("asm/nonmatchings/main", MemCardStart);
-
-INCLUDE_ASM("asm/nonmatchings/main", MemCardStop);
-
-INCLUDE_ASM("asm/nonmatchings/main", MemCardExist);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800FABF0);
-
-INCLUDE_ASM("asm/nonmatchings/main", MemCardAccept);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800FAE2C);
-
-INCLUDE_ASM("asm/nonmatchings/main", MemCardReadData);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800FB118);
-
-INCLUDE_ASM("asm/nonmatchings/main", MemCardWriteData);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800FB30C);
-
-INCLUDE_ASM("asm/nonmatchings/main", MemCardReadFile);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800FB560);
-
-INCLUDE_ASM("asm/nonmatchings/main", MemCardWriteFile);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800FB780);
-
-INCLUDE_ASM("asm/nonmatchings/main", MemCardGetDirentry);
-
-INCLUDE_ASM("asm/nonmatchings/main", MemCardCallback);
-
-INCLUDE_ASM("asm/nonmatchings/main", MemCardSync);
-
-INCLUDE_ASM("asm/nonmatchings/main", MemCardCreateFile);
-
-INCLUDE_ASM("asm/nonmatchings/main", MemCardDeleteFile);
-
-INCLUDE_ASM("asm/nonmatchings/main", MemCardFormat);
-
-INCLUDE_ASM("asm/nonmatchings/main", MemCardUnformat);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800FC11C);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800FC170);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800FC1F4);
-
 INCLUDE_ASM("asm/nonmatchings/main", func_800FC4E4);
 
 void yieldthread(void) {
@@ -516,57 +464,9 @@ void TermPrim(unsigned long *p) {
     *p |= 0x00FFFFFFUL;
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80107080);
-
-INCLUDE_ASM("asm/nonmatchings/main", CD_init_80108140);
-
 INCLUDE_ASM("asm/nonmatchings/main", DsReadyCallback);
 
 INCLUDE_ASM("asm/nonmatchings/main", DsDataCallback);
-
-INCLUDE_ASM("asm/nonmatchings/main", funcEvSpIOE);
-
-INCLUDE_ASM("asm/nonmatchings/main", funcEvSpError);
-
-INCLUDE_ASM("asm/nonmatchings/main", funcEvSpTimeout);
-
-INCLUDE_ASM("asm/nonmatchings/main", funcEvSpNewcard);
-
-INCLUDE_ASM("asm/nonmatchings/main", funcEvSpIOEx);
-
-INCLUDE_ASM("asm/nonmatchings/main", funcEvSpErrorx);
-
-INCLUDE_ASM("asm/nonmatchings/main", funcEvSpTimeoutx);
-
-INCLUDE_ASM("asm/nonmatchings/main", funcEvSpNewcardx);
-
-INCLUDE_ASM("asm/nonmatchings/main", _card_open);
-
-INCLUDE_ASM("asm/nonmatchings/main", _card_start);
-
-INCLUDE_ASM("asm/nonmatchings/main", _card_close);
-
-INCLUDE_ASM("asm/nonmatchings/main", _card_stop);
-
-INCLUDE_ASM("asm/nonmatchings/main", _clr_card_event);
-
-INCLUDE_ASM("asm/nonmatchings/main", _get_card_event);
-
-INCLUDE_ASM("asm/nonmatchings/main", _get_card_event_x);
-
-INCLUDE_ASM("asm/nonmatchings/main", _chk_card_event);
-
-INCLUDE_ASM("asm/nonmatchings/main", _chk_card_event_x);
-
-INCLUDE_ASM("asm/nonmatchings/main", UserFuncInit);
-
-INCLUDE_ASM("asm/nonmatchings/main", UserFuncOpen);
-
-INCLUDE_ASM("asm/nonmatchings/main", UserFuncExecute);
-
-int UserFuncComplete(void) {
-    return ((unsigned int)*(int *)0x8013C2E0) >> 31;
-}
 
 int iSNDabs(int x) {
     return x < 0 ? -x : x;

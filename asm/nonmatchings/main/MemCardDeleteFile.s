@@ -25,7 +25,7 @@ glabel MemCardDeleteFile
     /* EC668 800FBE68 FFFF0224 */   addiu     $v0, $zero, -0x1
   .L800FBE6C:
     /* EC66C 800FBE6C 21204002 */  addu       $a0, $s2, $zero
-    /* EC670 800FBE70 7DF0030C */  jal        func_800FC1F4
+    /* EC670 800FBE70 7DF0030C */  jal        MemCardMakeDevname
     /* EC674 800FBE74 1000A527 */   addiu     $a1, $sp, 0x10
     /* EC678 800FBE78 1000A427 */  addiu      $a0, $sp, 0x10
     /* EC67C 800FBE7C 3A9E030C */  jal        strcat
@@ -57,8 +57,8 @@ glabel MemCardDeleteFile
     /* EC6E0 800FBEE0 C2EF0308 */  j          .L800FBF08
     /* EC6E4 800FBEE4 00000000 */   nop
   .L800FBEE8:
-    /* EC6E8 800FBEE8 1080043C */  lui        $a0, %hi(func_800FAE2C)
-    /* EC6EC 800FBEEC 2CAE8424 */  addiu      $a0, $a0, %lo(func_800FAE2C)
+    /* EC6E8 800FBEE8 1080043C */  lui        $a0, %hi(MemCardCmd_cb)
+    /* EC6EC 800FBEEC 2CAE8424 */  addiu      $a0, $a0, %lo(MemCardCmd_cb)
     /* EC6F0 800FBEF0 000013AE */  sw         $s3, 0x0($s0)
     /* EC6F4 800FBEF4 040000AE */  sw         $zero, 0x4($s0)
     /* EC6F8 800FBEF8 080000AE */  sw         $zero, 0x8($s0)

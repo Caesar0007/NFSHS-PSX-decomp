@@ -12,8 +12,8 @@ glabel MemCardAccept
     /* EB5D8 800FADD8 00000000 */  nop
     /* EB5DC 800FADDC 0B00401C */  bgtz       $v0, .L800FAE0C
     /* EB5E0 800FADE0 21288000 */   addu      $a1, $a0, $zero
-    /* EB5E4 800FADE4 1080043C */  lui        $a0, %hi(func_800FAE2C)
-    /* EB5E8 800FADE8 2CAE8424 */  addiu      $a0, $a0, %lo(func_800FAE2C)
+    /* EB5E4 800FADE4 1080043C */  lui        $a0, %hi(MemCardCmd_cb)
+    /* EB5E8 800FADE8 2CAE8424 */  addiu      $a0, $a0, %lo(MemCardCmd_cb)
     /* EB5EC 800FADEC 02000224 */  addiu      $v0, $zero, 0x2
     /* EB5F0 800FADF0 000062AC */  sw         $v0, 0x0($v1)
     /* EB5F4 800FADF4 040060AC */  sw         $zero, 0x4($v1)

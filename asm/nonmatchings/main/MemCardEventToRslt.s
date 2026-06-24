@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800FC11C, 0x54
+nonmatching MemCardEventToRslt, 0x54
 
-glabel func_800FC11C
+glabel MemCardEventToRslt
     /* EC91C 800FC11C 01000224 */  addiu      $v0, $zero, 0x1
     /* EC920 800FC120 10008210 */  beq        $a0, $v0, .L800FC164
     /* EC924 800FC124 21180000 */   addu      $v1, $zero, $zero
@@ -28,4 +28,4 @@ glabel func_800FC11C
   .L800FC168:
     /* EC968 800FC168 0800E003 */  jr         $ra
     /* EC96C 800FC16C 21106000 */   addu      $v0, $v1, $zero
-endlabel func_800FC11C
+endlabel MemCardEventToRslt

@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800FB560, 0x108
+nonmatching MemCardReadFile_cb, 0x108
 
-glabel func_800FB560
+glabel MemCardReadFile_cb
     /* EBD60 800FB560 E0FFBD27 */  addiu      $sp, $sp, -0x20
     /* EBD64 800FB564 1400B1AF */  sw         $s1, 0x14($sp)
     /* EBD68 800FB568 21888000 */  addu       $s1, $a0, $zero
@@ -27,8 +27,8 @@ glabel func_800FB560
     /* EBDAC 800FB5AC 95ED0308 */  j          .L800FB654
     /* EBDB0 800FB5B0 00000000 */   nop
   .L800FB5B4:
-    /* EBDB4 800FB5B4 1080043C */  lui        $a0, %hi(func_800FABF0)
-    /* EBDB8 800FB5B8 F0AB8424 */  addiu      $a0, $a0, %lo(func_800FABF0)
+    /* EBDB4 800FB5B4 1080043C */  lui        $a0, %hi(MemCardExist_cb)
+    /* EBDB8 800FB5B8 F0AB8424 */  addiu      $a0, $a0, %lo(MemCardExist_cb)
     /* EBDBC 800FB5BC 1380013C */  lui        $at, %hi(D_80136CC0)
     /* EBDC0 800FB5C0 0427040C */  jal        UserFuncOpen
     /* EBDC4 800FB5C4 C06C20AC */   sw        $zero, %lo(D_80136CC0)($at)
@@ -53,8 +53,8 @@ glabel func_800FB560
     /* EBE0C 800FB60C 01000224 */   addiu     $v0, $zero, 0x1
   .L800FB610:
     /* EBE10 800FB610 14000224 */  addiu      $v0, $zero, 0x14
-    /* EBE14 800FB614 1080043C */  lui        $a0, %hi(func_800FB118)
-    /* EBE18 800FB618 18B18424 */  addiu      $a0, $a0, %lo(func_800FB118)
+    /* EBE14 800FB614 1080043C */  lui        $a0, %hi(MemCardReadData_cb)
+    /* EBE18 800FB618 18B18424 */  addiu      $a0, $a0, %lo(MemCardReadData_cb)
     /* EBE1C 800FB61C 0427040C */  jal        UserFuncOpen
     /* EBE20 800FB620 000022AE */   sw        $v0, 0x0($s1)
     /* EBE24 800FB624 95ED0308 */  j          .L800FB654
@@ -77,4 +77,4 @@ glabel func_800FB560
     /* EBE5C 800FB65C 1000B08F */  lw         $s0, 0x10($sp)
     /* EBE60 800FB660 0800E003 */  jr         $ra
     /* EBE64 800FB664 2000BD27 */   addiu     $sp, $sp, 0x20
-endlabel func_800FB560
+endlabel MemCardReadFile_cb

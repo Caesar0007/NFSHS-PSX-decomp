@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800FABF0, 0x1D4
+nonmatching MemCardExist_cb, 0x1D4
 
-glabel func_800FABF0
+glabel MemCardExist_cb
     /* EB3F0 800FABF0 E0FFBD27 */  addiu      $sp, $sp, -0x20
     /* EB3F4 800FABF4 1000B0AF */  sw         $s0, 0x10($sp)
     /* EB3F8 800FABF8 21808000 */  addu       $s0, $a0, $zero
@@ -62,7 +62,7 @@ glabel func_800FABF0
     /* EB4BC 800FACBC 04000224 */  addiu      $v0, $zero, 0x4
     /* EB4C0 800FACC0 27006214 */  bne        $v1, $v0, .L800FAD60
     /* EB4C4 800FACC4 00000000 */   nop
-    /* EB4C8 800FACC8 47F0030C */  jal        func_800FC11C
+    /* EB4C8 800FACC8 47F0030C */  jal        MemCardEventToRslt
     /* EB4CC 800FACCC 04000424 */   addiu     $a0, $zero, 0x4
     /* EB4D0 800FACD0 1480033C */  lui        $v1, %hi(D_80147518)
     /* EB4D4 800FACD4 18756324 */  addiu      $v1, $v1, %lo(D_80147518)
@@ -84,7 +84,7 @@ glabel func_800FABF0
   .L800FAD10:
     /* EB510 800FAD10 1480043C */  lui        $a0, %hi(D_80147504)
     /* EB514 800FAD14 0475848C */  lw         $a0, %lo(D_80147504)($a0)
-    /* EB518 800FAD18 47F0030C */  jal        func_800FC11C
+    /* EB518 800FAD18 47F0030C */  jal        MemCardEventToRslt
     /* EB51C 800FAD1C 00000000 */   nop
     /* EB520 800FAD20 21204000 */  addu       $a0, $v0, $zero
     /* EB524 800FAD24 01000224 */  addiu      $v0, $zero, 0x1
@@ -117,7 +117,7 @@ glabel func_800FABF0
     /* EB588 800FAD88 24186200 */  and        $v1, $v1, $v0
     /* EB58C 800FAD8C 1480013C */  lui        $at, %hi(D_80147514)
     /* EB590 800FAD90 147523AC */  sw         $v1, %lo(D_80147514)($at)
-    /* EB594 800FAD94 47F0030C */  jal        func_800FC11C
+    /* EB594 800FAD94 47F0030C */  jal        MemCardEventToRslt
     /* EB598 800FAD98 F4FF1026 */   addiu     $s0, $s0, -0xC
     /* EB59C 800FAD9C 21184000 */  addu       $v1, $v0, $zero
     /* EB5A0 800FADA0 01000224 */  addiu      $v0, $zero, 0x1
@@ -131,4 +131,4 @@ glabel func_800FABF0
     /* EB5B8 800FADB8 1000B08F */  lw         $s0, 0x10($sp)
     /* EB5BC 800FADBC 0800E003 */  jr         $ra
     /* EB5C0 800FADC0 2000BD27 */   addiu     $sp, $sp, 0x20
-endlabel func_800FABF0
+endlabel MemCardExist_cb

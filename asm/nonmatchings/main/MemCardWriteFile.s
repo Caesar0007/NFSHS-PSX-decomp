@@ -44,13 +44,13 @@ glabel MemCardWriteFile
     /* EBEF0 800FB6F0 14004014 */  bnez       $v0, .L800FB744
     /* EBEF4 800FB6F4 21208002 */   addu      $a0, $s4, $zero
     /* EBEF8 800FB6F8 20003026 */  addiu      $s0, $s1, 0x20
-    /* EBEFC 800FB6FC 7DF0030C */  jal        func_800FC1F4
+    /* EBEFC 800FB6FC 7DF0030C */  jal        MemCardMakeDevname
     /* EBF00 800FB700 21280002 */   addu      $a1, $s0, $zero
     /* EBF04 800FB704 21200002 */  addu       $a0, $s0, $zero
     /* EBF08 800FB708 3A9E030C */  jal        strcat
     /* EBF0C 800FB70C 21286002 */   addu      $a1, $s3, $zero
-    /* EBF10 800FB710 1080043C */  lui        $a0, %hi(func_800FB780)
-    /* EBF14 800FB714 80B78424 */  addiu      $a0, $a0, %lo(func_800FB780)
+    /* EBF10 800FB710 1080043C */  lui        $a0, %hi(MemCardWriteFile_cb)
+    /* EBF14 800FB714 80B78424 */  addiu      $a0, $a0, %lo(MemCardWriteFile_cb)
     /* EBF18 800FB718 04000224 */  addiu      $v0, $zero, 0x4
     /* EBF1C 800FB71C 000022AE */  sw         $v0, 0x0($s1)
     /* EBF20 800FB720 040020AE */  sw         $zero, 0x4($s1)

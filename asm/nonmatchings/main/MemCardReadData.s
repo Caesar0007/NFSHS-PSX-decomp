@@ -33,8 +33,8 @@ glabel MemCardReadData
   .L800FB0C0:
     /* EB8C0 800FB0C0 0C004014 */  bnez       $v0, .L800FB0F4
     /* EB8C4 800FB0C4 05000224 */   addiu     $v0, $zero, 0x5
-    /* EB8C8 800FB0C8 1080043C */  lui        $a0, %hi(func_800FB118)
-    /* EB8CC 800FB0CC 18B18424 */  addiu      $a0, $a0, %lo(func_800FB118)
+    /* EB8C8 800FB0C8 1080043C */  lui        $a0, %hi(MemCardReadData_cb)
+    /* EB8CC 800FB0CC 18B18424 */  addiu      $a0, $a0, %lo(MemCardReadData_cb)
     /* EB8D0 800FB0D0 F0FFE2AC */  sw         $v0, -0x10($a3)
     /* EB8D4 800FB0D4 040060AC */  sw         $zero, 0x4($v1)
     /* EB8D8 800FB0D8 080060AC */  sw         $zero, 0x8($v1)

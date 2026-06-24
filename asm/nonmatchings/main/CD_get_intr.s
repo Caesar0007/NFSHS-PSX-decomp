@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_80107080, 0x55C
+nonmatching CD_get_intr, 0x55C
 
-glabel func_80107080
+glabel CD_get_intr
     /* F7880 80107080 D0FFBD27 */  addiu      $sp, $sp, -0x30
     /* F7884 80107084 1480033C */  lui        $v1, %hi(D_8013C20C)
     /* F7888 80107088 0CC2638C */  lw         $v1, %lo(D_8013C20C)($v1)
@@ -386,4 +386,4 @@ glabel func_80107080
     /* F7DD0 801075D0 2000B08F */  lw         $s0, 0x20($sp)
     /* F7DD4 801075D4 0800E003 */  jr         $ra
     /* F7DD8 801075D8 3000BD27 */   addiu     $sp, $sp, 0x30
-endlabel func_80107080
+endlabel CD_get_intr

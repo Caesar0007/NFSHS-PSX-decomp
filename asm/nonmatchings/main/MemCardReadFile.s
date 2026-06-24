@@ -44,13 +44,13 @@ glabel MemCardReadFile
     /* EBCD0 800FB4D0 14004014 */  bnez       $v0, .L800FB524
     /* EBCD4 800FB4D4 21208002 */   addu      $a0, $s4, $zero
     /* EBCD8 800FB4D8 20003026 */  addiu      $s0, $s1, 0x20
-    /* EBCDC 800FB4DC 7DF0030C */  jal        func_800FC1F4
+    /* EBCDC 800FB4DC 7DF0030C */  jal        MemCardMakeDevname
     /* EBCE0 800FB4E0 21280002 */   addu      $a1, $s0, $zero
     /* EBCE4 800FB4E4 21200002 */  addu       $a0, $s0, $zero
     /* EBCE8 800FB4E8 3A9E030C */  jal        strcat
     /* EBCEC 800FB4EC 21286002 */   addu      $a1, $s3, $zero
-    /* EBCF0 800FB4F0 1080043C */  lui        $a0, %hi(func_800FB560)
-    /* EBCF4 800FB4F4 60B58424 */  addiu      $a0, $a0, %lo(func_800FB560)
+    /* EBCF0 800FB4F0 1080043C */  lui        $a0, %hi(MemCardReadFile_cb)
+    /* EBCF4 800FB4F4 60B58424 */  addiu      $a0, $a0, %lo(MemCardReadFile_cb)
     /* EBCF8 800FB4F8 03000224 */  addiu      $v0, $zero, 0x3
     /* EBCFC 800FB4FC 000022AE */  sw         $v0, 0x0($s1)
     /* EBD00 800FB500 040020AE */  sw         $zero, 0x4($s1)

@@ -4665,3 +4665,14 @@ Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib = 0x800321C8; // type:func
 Draw__32tBlankMenuItemGoToMenuNFS4Buttonb = 0x800321D0; // type:func
 Draw__33tBlankMenuItemNFS4LeftRightChoiceiib = 0x80032200; // type:func
 LoadingProc__Fv = 0x8003464C; // type:func
+
+MemCardExist_cb = 0x800FABF0; // type:func
+MemCardCmd_cb = 0x800FAE2C; // type:func
+MemCardReadData_cb = 0x800FB118; // type:func
+MemCardWriteData_cb = 0x800FB30C; // type:func
+MemCardReadFile_cb = 0x800FB560; // type:func
+MemCardWriteFile_cb = 0x800FB780; // type:func
+MemCardEventToRslt = 0x800FC11C; // type:func
+MemCardStart_cb = 0x800FC170; // type:func
+MemCardMakeDevname = 0x800FC1F4; // type:func
+CD_get_intr = 0x80107080; // type:func

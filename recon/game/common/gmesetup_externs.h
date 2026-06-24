@@ -14,6 +14,7 @@ extern void Input_StartUp(void);                 /* input.obj */
 
 /* ---- cross-TU globals ---- */
 extern FEI_tList FEI_gList[];                     /* FEI.obj [114] */
+extern int  Input_gHandler[];                     /* input.obj @0x80113C14 [184] — device-cmd handler table */
 extern int  gMasterMusicLevel, gMasterSFXLevel, gMasterEngineLevel,
             gMasterAmbientLevel, gMasterFENarrationLevel;   /* audiocmn.obj */
 

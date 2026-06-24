@@ -9,3 +9,4 @@ INCLUDE_ASM("asm/nonmatchings/main", __13AIHigh_PlayerP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", HandleCops__13AIHigh_Player);
 INCLUDE_ASM("asm/nonmatchings/main", CleanupBlockaders__13AIHigh_Playeri);
 INCLUDE_ASM("asm/nonmatchings/main", HandlePullOver__13AIHigh_Player);
+INCLUDE_ASM("asm/nonmatchings/main", ___13AIHigh_Player);

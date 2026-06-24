@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800A6DE0, 0x34
+nonmatching ___10ObjectAnim, 0x34
 
-glabel func_800A6DE0
+glabel ___10ObjectAnim
     /* 975E0 800A6DE0 E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* 975E4 800A6DE4 0580023C */  lui        $v0, %hi(D_800560E8)
     /* 975E8 800A6DE8 E8604224 */  addiu      $v0, $v0, %lo(D_800560E8)
@@ -18,4 +18,4 @@ glabel func_800A6DE0
     /* 97608 800A6E08 00000000 */  nop
     /* 9760C 800A6E0C 0800E003 */  jr         $ra
     /* 97610 800A6E10 1800BD27 */   addiu     $sp, $sp, 0x18
-endlabel func_800A6DE0
+endlabel ___10ObjectAnim

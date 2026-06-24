@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_8005972C, 0x1FC
+nonmatching AI_AddCollidableObjects__FP8Car_tObjP5Group, 0x1FC
 
-glabel func_8005972C
+glabel AI_AddCollidableObjects__FP8Car_tObjP5Group
     /* 49F2C 8005972C 00008293 */  lbu        $v0, %gp_rel(__sdata_org)($gp)
     /* 49F30 80059730 A0FFBD27 */  addiu      $sp, $sp, -0x60
     /* 49F34 80059734 4C00B1AF */  sw         $s1, 0x4C($sp)
@@ -142,4 +142,4 @@ glabel func_8005972C
     /* 4A11C 8005991C 4800B08F */  lw         $s0, 0x48($sp)
     /* 4A120 80059920 0800E003 */  jr         $ra
     /* 4A124 80059924 6000BD27 */   addiu     $sp, $sp, 0x60
-endlabel func_8005972C
+endlabel AI_AddCollidableObjects__FP8Car_tObjP5Group

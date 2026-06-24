@@ -376,7 +376,7 @@ glabel Hud_RenderHudView__Fv
     /* C9060 800D8860 21304000 */   addu      $a2, $v0, $zero
     /* C9064 800D8864 5B47030C */  jal        Hud_GoTpage__Fi
     /* C9068 800D8868 01000424 */   addiu     $a0, $zero, 0x1
-    /* C906C 800D886C 914A030C */  jal        func_800D2A44
+    /* C906C 800D886C 914A030C */  jal        uppercase__FPc
     /* C9070 800D8870 2000A427 */   addiu     $a0, $sp, 0x20
     /* C9074 800D8874 2000A427 */  addiu      $a0, $sp, 0x20
     /* C9078 800D8878 21280000 */  addu       $a1, $zero, $zero

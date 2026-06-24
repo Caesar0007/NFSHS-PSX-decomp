@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800B6B9C, 0x104
+nonmatching Sim_ProcessPause__Fv, 0x104
 
-glabel func_800B6B9C
+glabel Sim_ProcessPause__Fv
     /* A739C 800B6B9C 1180023C */  lui        $v0, %hi(D_80110C2C)
     /* A73A0 800B6BA0 DC0E838F */  lw         $v1, %gp_rel(unPauseDelay)($gp)
     /* A73A4 800B6BA4 2C0C428C */  lw         $v0, %lo(D_80110C2C)($v0)
@@ -75,4 +75,4 @@ glabel func_800B6B9C
     /* A7494 800B6C94 1000B08F */  lw         $s0, 0x10($sp)
     /* A7498 800B6C98 0800E003 */  jr         $ra
     /* A749C 800B6C9C 1800BD27 */   addiu     $sp, $sp, 0x18
-endlabel func_800B6B9C
+endlabel Sim_ProcessPause__Fv

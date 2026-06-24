@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800A3F08, 0x2A0
+nonmatching NFS4_LoadPerps__Fv, 0x2A0
 
-glabel func_800A3F08
+glabel NFS4_LoadPerps__Fv
     /* 94708 800A3F08 A0FFBD27 */  addiu      $sp, $sp, -0x60
     /* 9470C 800A3F0C 1180023C */  lui        $v0, %hi(GameSetup_gData)
     /* 94710 800A3F10 EC314324 */  addiu      $v1, $v0, %lo(GameSetup_gData)
@@ -183,4 +183,4 @@ glabel func_800A3F08
     /* 9499C 800A419C 5000B08F */  lw         $s0, 0x50($sp)
     /* 949A0 800A41A0 0800E003 */  jr         $ra
     /* 949A4 800A41A4 6000BD27 */   addiu     $sp, $sp, 0x60
-endlabel func_800A3F08
+endlabel NFS4_LoadPerps__Fv

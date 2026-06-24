@@ -18,7 +18,7 @@ glabel SimQueue_Put__FiP14Input_tResults
     /* A7BF8 800B73F8 2400BFAF */  sw         $ra, 0x24($sp)
     /* A7BFC 800B73FC 1400B1AF */  sw         $s1, 0x14($sp)
     /* A7C00 800B7400 0402028E */  lw         $v0, 0x204($s0)
-    /* A7C04 800B7404 7EDD020C */  jal        func_800B75F8
+    /* A7C04 800B7404 7EDD020C */  jal        SimQueue_IsBlocking__Fi
     /* A7C08 800B7408 1F005130 */   andi      $s1, $v0, 0x1F
     /* A7C0C 800B740C 2D004014 */  bnez       $v0, .L800B74C4
     /* A7C10 800B7410 21100000 */   addu      $v0, $zero, $zero

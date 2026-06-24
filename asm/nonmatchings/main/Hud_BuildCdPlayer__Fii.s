@@ -177,13 +177,13 @@ glabel Hud_BuildCdPlayer__Fii
   .L800D6648:
     /* C6E48 800D6648 21800000 */  addu       $s0, $zero, $zero
   .L800D664C:
-    /* C6E4C 800D664C 914A030C */  jal        func_800D2A44
+    /* C6E4C 800D664C 914A030C */  jal        uppercase__FPc
     /* C6E50 800D6650 21202002 */   addu      $a0, $s1, $zero
     /* C6E54 800D6654 0500C016 */  bnez       $s6, .L800D666C
     /* C6E58 800D6658 00000000 */   nop
     /* C6E5C 800D665C 03000012 */  beqz       $s0, .L800D666C
     /* C6E60 800D6660 00000000 */   nop
-    /* C6E64 800D6664 914A030C */  jal        func_800D2A44
+    /* C6E64 800D6664 914A030C */  jal        uppercase__FPc
     /* C6E68 800D6668 21200002 */   addu      $a0, $s0, $zero
   .L800D666C:
     /* C6E6C 800D666C E013828F */  lw         $v0, %gp_rel(Hud_gCdActive)($gp)

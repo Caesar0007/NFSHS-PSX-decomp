@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_80092464, 0x78
+nonmatching HudPmx_LoadShape__FPcP13HudPmx_tShape, 0x78
 
-glabel func_80092464
+glabel HudPmx_LoadShape__FPcP13HudPmx_tShape
     /* 82C64 80092464 D0FFBD27 */  addiu      $sp, $sp, -0x30
     /* 82C68 80092468 2400B1AF */  sw         $s1, 0x24($sp)
     /* 82C6C 8009246C 21888000 */  addu       $s1, $a0, $zero
@@ -34,4 +34,4 @@ glabel func_80092464
     /* 82CD0 800924D0 2000B08F */  lw         $s0, 0x20($sp)
     /* 82CD4 800924D4 0800E003 */  jr         $ra
     /* 82CD8 800924D8 3000BD27 */   addiu     $sp, $sp, 0x30
-endlabel func_80092464
+endlabel HudPmx_LoadShape__FPcP13HudPmx_tShape

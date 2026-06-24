@@ -23,3 +23,8 @@ INCLUDE_ASM("asm/nonmatchings/main", Get__25AIDataRecord_TrackCurve_ti);
 INCLUDE_ASM("asm/nonmatchings/main", __30AIDataRecord_CurveSpeedTable_tPc26AIDataRecord_WhichRecord_t);
 INCLUDE_ASM("asm/nonmatchings/main", Get__30AIDataRecord_CurveSpeedTable_ti);
 INCLUDE_ASM("asm/nonmatchings/main", Upgrade__30AIDataRecord_CurveSpeedTable_ti);
+INCLUDE_ASM("asm/nonmatchings/main", Get__26AIDataRecord_CarTracking_ti);
+INCLUDE_ASM("asm/nonmatchings/main", ___26AIDataRecord_CarTracking_t);
+INCLUDE_ASM("asm/nonmatchings/main", ___30AIDataRecord_CurveSpeedTable_t);
+INCLUDE_ASM("asm/nonmatchings/main", ___25AIDataRecord_TrackCurve_t);
+INCLUDE_ASM("asm/nonmatchings/main", ___23AIDataRecord_BestLine_t);

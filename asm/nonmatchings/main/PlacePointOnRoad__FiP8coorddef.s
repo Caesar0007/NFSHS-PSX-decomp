@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_8005C5E4, 0x1AC
+nonmatching PlacePointOnRoad__FiP8coorddef, 0x1AC
 
-glabel func_8005C5E4
+glabel PlacePointOnRoad__FiP8coorddef
     /* 4CDE4 8005C5E4 30FFBD27 */  addiu      $sp, $sp, -0xD0
     /* 4CDE8 8005C5E8 C400B3AF */  sw         $s3, 0xC4($sp)
     /* 4CDEC 8005C5EC 2198A000 */  addu       $s3, $a1, $zero
@@ -114,4 +114,4 @@ glabel func_8005C5E4
     /* 4CF84 8005C784 B800B08F */  lw         $s0, 0xB8($sp)
     /* 4CF88 8005C788 0800E003 */  jr         $ra
     /* 4CF8C 8005C78C D000BD27 */   addiu     $sp, $sp, 0xD0
-endlabel func_8005C5E4
+endlabel PlacePointOnRoad__FiP8coorddef

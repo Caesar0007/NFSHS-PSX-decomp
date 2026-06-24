@@ -1992,6 +1992,14 @@
       }
     },
     {
+      "name": "game/common/group",
+      "target_path": "expected/src/game/common/group.c.o",
+      "base_path": "build/recon/game/common/group.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/common/group.cpp"
+      }
+    },
+    {
       "name": "game/common/hudpmx",
       "target_path": "expected/src/game/common/hudpmx.c.o",
       "base_path": "build/recon/game/common/hudpmx.cpp.o",
@@ -2141,6 +2149,14 @@
       "base_path": "build/recon/game/common/sim.cpp.o",
       "metadata": {
         "source_path": "recon/game/common/sim.cpp"
+      }
+    },
+    {
+      "name": "game/common/simplemem",
+      "target_path": "expected/src/game/common/simplemem.c.o",
+      "base_path": "build/recon/game/common/simplemem.cpp.o",
+      "metadata": {
+        "source_path": "recon/game/common/simplemem.cpp"
       }
     },
     {

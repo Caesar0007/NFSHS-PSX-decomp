@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800B75CC, 0x2C
+nonmatching SimQueue_SetLag__Fv, 0x2C
 
-glabel func_800B75CC
+glabel SimQueue_SetLag__Fv
     /* A7DCC 800B75CC 1180023C */  lui        $v0, %hi(D_801131F8)
     /* A7DD0 800B75D0 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
     /* A7DD4 800B75D4 00000000 */  nop
@@ -17,4 +17,4 @@ glabel func_800B75CC
   .L800B75F0:
     /* A7DF0 800B75F0 0800E003 */  jr         $ra
     /* A7DF4 800B75F4 00000000 */   nop
-endlabel func_800B75CC
+endlabel SimQueue_SetLag__Fv

@@ -21,3 +21,4 @@ INCLUDE_ASM("asm/nonmatchings/main", Hrz_SetDitheringPrim__Fii);
 INCLUDE_ASM("asm/nonmatchings/main", Hrz_BuildSky__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Sky_RenderStars__FP13Draw_SkyCachei);
 INCLUDE_ASM("asm/nonmatchings/main", Hrz_BuildHorizon__FP13DRender_tView);
+INCLUDE_ASM("asm/nonmatchings/main", Hrz_LightningAddFork__FScScSc);

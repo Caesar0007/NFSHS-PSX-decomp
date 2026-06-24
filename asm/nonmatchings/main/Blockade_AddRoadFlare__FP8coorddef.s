@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_8005C414, 0x54
+nonmatching Blockade_AddRoadFlare__FP8coorddef, 0x54
 
-glabel func_8005C414
+glabel Blockade_AddRoadFlare__FP8coorddef
     /* 4CC14 8005C414 1480063C */  lui        $a2, %hi(Object_customSFXInst)
     /* 4CC18 8005C418 D0D2C68C */  lw         $a2, %lo(Object_customSFXInst)($a2)
     /* 4CC1C 8005C41C 0000858C */  lw         $a1, 0x0($a0)
@@ -25,4 +25,4 @@ glabel func_8005C414
     /* 4CC5C 8005C45C 01004224 */  addiu      $v0, $v0, 0x1
     /* 4CC60 8005C460 0800E003 */  jr         $ra
     /* 4CC64 8005C464 0000C2AC */   sw        $v0, 0x0($a2)
-endlabel func_8005C414
+endlabel Blockade_AddRoadFlare__FP8coorddef

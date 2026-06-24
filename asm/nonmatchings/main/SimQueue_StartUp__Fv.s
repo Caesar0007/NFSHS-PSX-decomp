@@ -9,7 +9,7 @@ glabel SimQueue_StartUp__Fv
     /* A7AF4 800B72F4 1000BFAF */  sw         $ra, 0x10($sp)
     /* A7AF8 800B72F8 EC0E82AF */  sw         $v0, %gp_rel(gSimQueue_BlockSelf)($gp)
     /* A7AFC 800B72FC F00E82AF */  sw         $v0, %gp_rel(gSimQueue_BlockOther)($gp)
-    /* A7B00 800B7300 73DD020C */  jal        func_800B75CC
+    /* A7B00 800B7300 73DD020C */  jal        SimQueue_SetLag__Fv
     /* A7B04 800B7304 00000000 */   nop
     /* A7B08 800B7308 1000BF8F */  lw         $ra, 0x10($sp)
     /* A7B0C 800B730C 00000000 */  nop

@@ -48,3 +48,7 @@ INCLUDE_ASM("asm/nonmatchings/main", CheckIfCarIsNearbyAndStop__21AIState_Roving
 INCLUDE_ASM("asm/nonmatchings/main", AIState_CleanUp__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", DoSlowNitrous__13AIState_Chase);
 INCLUDE_ASM("asm/nonmatchings/main", TestForRelease__21AIState_RovingTraffic);
+INCLUDE_ASM("asm/nonmatchings/main", func_80072750);
+INCLUDE_ASM("asm/nonmatchings/main", func_80072758);
+INCLUDE_ASM("asm/nonmatchings/main", func_80072830);
+INCLUDE_ASM("asm/nonmatchings/main", func_80072838);

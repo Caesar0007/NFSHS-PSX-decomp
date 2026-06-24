@@ -24,3 +24,6 @@ INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_Server__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_SfxQueued__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_ShowQueue__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_Debug__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_Alloc__FP17CopSpeak_tRequest);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_Free__FP17CopSpeak_tRequest);
+INCLUDE_ASM("asm/nonmatchings/main", CopSpeak_BankVolume__FP17CopSpeak_tRequest);

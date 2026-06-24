@@ -17,3 +17,4 @@ INCLUDE_ASM("asm/nonmatchings/main", AudioClc_ResetClosest__FiP8Car_tObji);
 INCLUDE_ASM("asm/nonmatchings/main", AudioClc_GetClosestCars__Fiii);
 INCLUDE_ASM("asm/nonmatchings/main", AudioClc_SoundSpeech__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AudioClc_SoundCars__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_SndError__Fi);

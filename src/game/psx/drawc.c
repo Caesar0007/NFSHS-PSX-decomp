@@ -19,3 +19,4 @@ INCLUDE_ASM("asm/nonmatchings/main", DrawC_ShadowPrimClip__FP12Draw_tVertexP13Dr
 INCLUDE_ASM("asm/nonmatchings/main", DrawC_SpotPrims__FP10matrixtdefP8coorddefP13Draw_CarCache);
 INCLUDE_ASM("asm/nonmatchings/main", DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache);
 INCLUDE_ASM("asm/nonmatchings/main", DrawC_SetEnviroment__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", ChangeTPage__FPUsi);

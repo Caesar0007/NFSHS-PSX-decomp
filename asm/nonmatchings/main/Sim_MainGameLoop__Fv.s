@@ -137,7 +137,7 @@ glabel Sim_MainGameLoop__Fv
     /* A7730 800B6F30 00000000 */  nop
     /* A7734 800B6F34 06004010 */  beqz       $v0, .L800B6F50
     /* A7738 800B6F38 15000424 */   addiu     $a0, $zero, 0x15
-    /* A773C 800B6F3C E7DA020C */  jal        func_800B6B9C
+    /* A773C 800B6F3C E7DA020C */  jal        Sim_ProcessPause__Fv
     /* A7740 800B6F40 00000000 */   nop
     /* A7744 800B6F44 18000224 */  addiu      $v0, $zero, 0x18
     /* A7748 800B6F48 14DC0208 */  j          .L800B7050

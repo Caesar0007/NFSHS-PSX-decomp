@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800D2A44, 0x60
+nonmatching uppercase__FPc, 0x60
 
-glabel func_800D2A44
+glabel uppercase__FPc
     /* C3244 800D2A44 E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* C3248 800D2A48 1000B0AF */  sw         $s0, 0x10($sp)
     /* C324C 800D2A4C 1400BFAF */  sw         $ra, 0x14($sp)
@@ -31,4 +31,4 @@ glabel func_800D2A44
     /* C3298 800D2A98 1000B08F */  lw         $s0, 0x10($sp)
     /* C329C 800D2A9C 0800E003 */  jr         $ra
     /* C32A0 800D2AA0 1800BD27 */   addiu     $sp, $sp, 0x18
-endlabel func_800D2A44
+endlabel uppercase__FPc

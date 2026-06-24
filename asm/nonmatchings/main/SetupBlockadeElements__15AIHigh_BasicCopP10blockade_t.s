@@ -38,9 +38,9 @@ glabel SetupBlockadeElements__15AIHigh_BasicCopP10blockade_t
     /* 4D008 8005C808 1000A527 */  addiu      $a1, $sp, 0x10
     /* 4D00C 8005C80C 01001026 */  addiu      $s0, $s0, 0x1
     /* 4D010 8005C810 12380000 */  mflo       $a3
-    /* 4D014 8005C814 7971010C */  jal        func_8005C5E4
+    /* 4D014 8005C814 7971010C */  jal        PlacePointOnRoad__FiP8coorddef
     /* 4D018 8005C818 1800A7AF */   sw        $a3, 0x18($sp)
-    /* 4D01C 8005C81C 0571010C */  jal        func_8005C414
+    /* 4D01C 8005C81C 0571010C */  jal        Blockade_AddRoadFlare__FP8coorddef
     /* 4D020 8005C820 1000A427 */   addiu     $a0, $sp, 0x10
     /* 4D024 8005C824 0400023C */  lui        $v0, (0x40000 >> 16)
     /* 4D028 8005C828 21882202 */  addu       $s1, $s1, $v0
@@ -60,9 +60,9 @@ glabel SetupBlockadeElements__15AIHigh_BasicCopP10blockade_t
     /* 4D05C 8005C85C 1000A527 */  addiu      $a1, $sp, 0x10
     /* 4D060 8005C860 01005226 */  addiu      $s2, $s2, 0x1
     /* 4D064 8005C864 12380000 */  mflo       $a3
-    /* 4D068 8005C868 7971010C */  jal        func_8005C5E4
+    /* 4D068 8005C868 7971010C */  jal        PlacePointOnRoad__FiP8coorddef
     /* 4D06C 8005C86C 1800A7AF */   sw        $a3, 0x18($sp)
-    /* 4D070 8005C870 0571010C */  jal        func_8005C414
+    /* 4D070 8005C870 0571010C */  jal        Blockade_AddRoadFlare__FP8coorddef
     /* 4D074 8005C874 1000A427 */   addiu     $a0, $sp, 0x10
     /* 4D078 8005C878 0400023C */  lui        $v0, (0x40000 >> 16)
     /* 4D07C 8005C87C 21882202 */  addu       $s1, $s1, $v0
@@ -89,9 +89,9 @@ glabel SetupBlockadeElements__15AIHigh_BasicCopP10blockade_t
     /* 4D0C8 8005C8C8 1000A527 */  addiu      $a1, $sp, 0x10
     /* 4D0CC 8005C8CC 01005226 */  addiu      $s2, $s2, 0x1
     /* 4D0D0 8005C8D0 12380000 */  mflo       $a3
-    /* 4D0D4 8005C8D4 7971010C */  jal        func_8005C5E4
+    /* 4D0D4 8005C8D4 7971010C */  jal        PlacePointOnRoad__FiP8coorddef
     /* 4D0D8 8005C8D8 1800A7AF */   sw        $a3, 0x18($sp)
-    /* 4D0DC 8005C8DC 0571010C */  jal        func_8005C414
+    /* 4D0DC 8005C8DC 0571010C */  jal        Blockade_AddRoadFlare__FP8coorddef
     /* 4D0E0 8005C8E0 1000A427 */   addiu     $a0, $sp, 0x10
     /* 4D0E4 8005C8E4 0400023C */  lui        $v0, (0x40000 >> 16)
     /* 4D0E8 8005C8E8 21882202 */  addu       $s1, $s1, $v0
@@ -113,9 +113,9 @@ glabel SetupBlockadeElements__15AIHigh_BasicCopP10blockade_t
     /* 4D124 8005C924 18005200 */  mult       $v0, $s2
     /* 4D128 8005C928 21206002 */  addu       $a0, $s3, $zero
     /* 4D12C 8005C92C 12380000 */  mflo       $a3
-    /* 4D130 8005C930 7971010C */  jal        func_8005C5E4
+    /* 4D130 8005C930 7971010C */  jal        PlacePointOnRoad__FiP8coorddef
     /* 4D134 8005C934 1800A7AF */   sw        $a3, 0x18($sp)
-    /* 4D138 8005C938 0571010C */  jal        func_8005C414
+    /* 4D138 8005C938 0571010C */  jal        Blockade_AddRoadFlare__FP8coorddef
     /* 4D13C 8005C93C 1000A427 */   addiu     $a0, $sp, 0x10
   .L8005C940:
     /* 4D140 8005C940 0400023C */  lui        $v0, (0x40000 >> 16)
@@ -146,11 +146,11 @@ glabel SetupBlockadeElements__15AIHigh_BasicCopP10blockade_t
     /* 4D1A0 8005C9A0 1000A527 */  addiu      $a1, $sp, 0x10
     /* 4D1A4 8005C9A4 80140200 */  sll        $v0, $v0, 18
     /* 4D1A8 8005C9A8 23100200 */  negu       $v0, $v0
-    /* 4D1AC 8005C9AC 7971010C */  jal        func_8005C5E4
+    /* 4D1AC 8005C9AC 7971010C */  jal        PlacePointOnRoad__FiP8coorddef
     /* 4D1B0 8005C9B0 1800A2AF */   sw        $v0, 0x18($sp)
     /* 4D1B4 8005C9B4 21206002 */  addu       $a0, $s3, $zero
     /* 4D1B8 8005C9B8 1000A527 */  addiu      $a1, $sp, 0x10
-    /* 4D1BC 8005C9BC 1A71010C */  jal        func_8005C468
+    /* 4D1BC 8005C9BC 1A71010C */  jal        Blockade_AddObject__FiP8coorddefi
     /* 4D1C0 8005C9C0 21300002 */   addu      $a2, $s0, $zero
     /* 4D1C4 8005C9C4 0200023C */  lui        $v0, (0x28000 >> 16)
     /* 4D1C8 8005C9C8 00804234 */  ori        $v0, $v0, (0x28000 & 0xFFFF)
@@ -161,11 +161,11 @@ glabel SetupBlockadeElements__15AIHigh_BasicCopP10blockade_t
     /* 4D1DC 8005C9DC 1000A527 */  addiu      $a1, $sp, 0x10
     /* 4D1E0 8005C9E0 80140200 */  sll        $v0, $v0, 18
     /* 4D1E4 8005C9E4 23100200 */  negu       $v0, $v0
-    /* 4D1E8 8005C9E8 7971010C */  jal        func_8005C5E4
+    /* 4D1E8 8005C9E8 7971010C */  jal        PlacePointOnRoad__FiP8coorddef
     /* 4D1EC 8005C9EC 1800A2AF */   sw        $v0, 0x18($sp)
     /* 4D1F0 8005C9F0 21206002 */  addu       $a0, $s3, $zero
     /* 4D1F4 8005C9F4 1000A527 */  addiu      $a1, $sp, 0x10
-    /* 4D1F8 8005C9F8 1A71010C */  jal        func_8005C468
+    /* 4D1F8 8005C9F8 1A71010C */  jal        Blockade_AddObject__FiP8coorddefi
     /* 4D1FC 8005C9FC 21300002 */   addu      $a2, $s0, $zero
   .L8005CA00:
     /* 4D200 8005CA00 080080AE */  sw         $zero, 0x8($s4)

@@ -39,3 +39,4 @@ INCLUDE_ASM("asm/nonmatchings/main", AI_ChooseNewLaneSlack__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AI_StartUp__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AI_CleanUp__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AI_Main_OverallSetup__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AI_AddCollidableObjects__FP8Car_tObjP5Group);

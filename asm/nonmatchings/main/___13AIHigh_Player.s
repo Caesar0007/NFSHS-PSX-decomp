@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_80063248, 0x28
+nonmatching ___13AIHigh_Player, 0x28
 
-glabel func_80063248
+glabel ___13AIHigh_Player
     /* 53A48 80063248 E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* 53A4C 8006324C 0580023C */  lui        $v0, %hi(_vt_16AIHigh_BasicPerp)
     /* 53A50 80063250 6C4E4224 */  addiu      $v0, $v0, %lo(_vt_16AIHigh_BasicPerp)
@@ -14,4 +14,4 @@ glabel func_80063248
     /* 53A64 80063264 00000000 */  nop
     /* 53A68 80063268 0800E003 */  jr         $ra
     /* 53A6C 8006326C 1800BD27 */   addiu     $sp, $sp, 0x18
-endlabel func_80063248
+endlabel ___13AIHigh_Player

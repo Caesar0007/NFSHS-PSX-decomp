@@ -47,3 +47,4 @@ INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_UnPauseAndRestart__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_UnPause__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_InitReverb__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_GetTrackRecordLapTime__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_GetAsyncSfx__Fiib);

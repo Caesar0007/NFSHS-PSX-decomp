@@ -36,3 +36,7 @@ INCLUDE_ASM("asm/nonmatchings/main", ___19AIHigh_BTC_HumanCop);
 INCLUDE_ASM("asm/nonmatchings/main", ___14AIHigh_BTC_Cop);
 INCLUDE_ASM("asm/nonmatchings/main", FalseArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp);
 INCLUDE_ASM("asm/nonmatchings/main", FreezeAndEndChase__14AIHigh_BTC_Cop);
+INCLUDE_ASM("asm/nonmatchings/main", Execute__17AIState_NonActive);
+INCLUDE_ASM("asm/nonmatchings/main", ___17AIState_NonActive);
+INCLUDE_ASM("asm/nonmatchings/main", func_8005F678);
+INCLUDE_ASM("asm/nonmatchings/main", func_8005F680);

@@ -567,7 +567,7 @@ glabel HudPmx_InitTextures__Fv
     /* 83560 80092D60 21280002 */  addu       $a1, $s0, $zero
     /* 83564 80092D64 04005226 */  addiu      $s2, $s2, 0x4
     /* 83568 80092D68 14001026 */  addiu      $s0, $s0, 0x14
-    /* 8356C 80092D6C 1949020C */  jal        func_80092464
+    /* 8356C 80092D6C 1949020C */  jal        HudPmx_LoadShape__FPcP13HudPmx_tShape
     /* 83570 80092D70 01003126 */   addiu     $s1, $s1, 0x1
     /* 83574 80092D74 8300222A */  slti       $v0, $s1, 0x83
     /* 83578 80092D78 F8FF4014 */  bnez       $v0, .L80092D5C
@@ -583,7 +583,7 @@ glabel HudPmx_InitTextures__Fv
     /* 8359C 80092D9C BDFF2226 */   addiu     $v0, $s1, -0x43
     /* 835A0 80092DA0 EB0782A3 */  sb         $v0, %gp_rel(D_8013CD37)($gp)
     /* 835A4 80092DA4 FDFF4426 */  addiu      $a0, $s2, -0x3
-    /* 835A8 80092DA8 1949020C */  jal        func_80092464
+    /* 835A8 80092DA8 1949020C */  jal        HudPmx_LoadShape__FPcP13HudPmx_tShape
     /* 835AC 80092DAC 21280002 */   addu      $a1, $s0, $zero
     /* 835B0 80092DB0 14001026 */  addiu      $s0, $s0, 0x14
     /* 835B4 80092DB4 654B0208 */  j          .L80092D94
@@ -601,7 +601,7 @@ glabel HudPmx_InitTextures__Fv
     /* 835DC 80092DDC 92FF2226 */   addiu     $v0, $s1, -0x6E
     /* 835E0 80092DE0 F30782A3 */  sb         $v0, %gp_rel(D_8013CD3F)($gp)
     /* 835E4 80092DE4 FDFF4426 */  addiu      $a0, $s2, -0x3
-    /* 835E8 80092DE8 1949020C */  jal        func_80092464
+    /* 835E8 80092DE8 1949020C */  jal        HudPmx_LoadShape__FPcP13HudPmx_tShape
     /* 835EC 80092DEC 21280002 */   addu      $a1, $s0, $zero
     /* 835F0 80092DF0 14001026 */  addiu      $s0, $s0, 0x14
     /* 835F4 80092DF4 754B0208 */  j          .L80092DD4
@@ -611,31 +611,31 @@ glabel HudPmx_InitTextures__Fv
     /* 83600 80092E00 44CD8424 */  addiu      $a0, $a0, %lo(D_8013CD44)
     /* 83604 80092E04 1180103C */  lui        $s0, %hi(D_801119B8)
     /* 83608 80092E08 B8191026 */  addiu      $s0, $s0, %lo(D_801119B8)
-    /* 8360C 80092E0C 1949020C */  jal        func_80092464
+    /* 8360C 80092E0C 1949020C */  jal        HudPmx_LoadShape__FPcP13HudPmx_tShape
     /* 83610 80092E10 21280002 */   addu      $a1, $s0, $zero
     /* 83614 80092E14 1480043C */  lui        $a0, %hi(D_8013CD4C)
     /* 83618 80092E18 4CCD8424 */  addiu      $a0, $a0, %lo(D_8013CD4C)
-    /* 8361C 80092E1C 1949020C */  jal        func_80092464
+    /* 8361C 80092E1C 1949020C */  jal        HudPmx_LoadShape__FPcP13HudPmx_tShape
     /* 83620 80092E20 14000526 */   addiu     $a1, $s0, 0x14
     /* 83624 80092E24 1480043C */  lui        $a0, %hi(D_8013CD54)
     /* 83628 80092E28 54CD8424 */  addiu      $a0, $a0, %lo(D_8013CD54)
-    /* 8362C 80092E2C 1949020C */  jal        func_80092464
+    /* 8362C 80092E2C 1949020C */  jal        HudPmx_LoadShape__FPcP13HudPmx_tShape
     /* 83630 80092E30 28000526 */   addiu     $a1, $s0, 0x28
     /* 83634 80092E34 1480043C */  lui        $a0, %hi(D_8013CD5C)
     /* 83638 80092E38 5CCD8424 */  addiu      $a0, $a0, %lo(D_8013CD5C)
-    /* 8363C 80092E3C 1949020C */  jal        func_80092464
+    /* 8363C 80092E3C 1949020C */  jal        HudPmx_LoadShape__FPcP13HudPmx_tShape
     /* 83640 80092E40 3C000526 */   addiu     $a1, $s0, 0x3C
     /* 83644 80092E44 1480043C */  lui        $a0, %hi(D_8013CD64)
     /* 83648 80092E48 64CD8424 */  addiu      $a0, $a0, %lo(D_8013CD64)
-    /* 8364C 80092E4C 1949020C */  jal        func_80092464
+    /* 8364C 80092E4C 1949020C */  jal        HudPmx_LoadShape__FPcP13HudPmx_tShape
     /* 83650 80092E50 50000526 */   addiu     $a1, $s0, 0x50
     /* 83654 80092E54 1480043C */  lui        $a0, %hi(D_8013CD6C)
     /* 83658 80092E58 6CCD8424 */  addiu      $a0, $a0, %lo(D_8013CD6C)
-    /* 8365C 80092E5C 1949020C */  jal        func_80092464
+    /* 8365C 80092E5C 1949020C */  jal        HudPmx_LoadShape__FPcP13HudPmx_tShape
     /* 83660 80092E60 64000526 */   addiu     $a1, $s0, 0x64
     /* 83664 80092E64 1480043C */  lui        $a0, %hi(D_8013CD74)
     /* 83668 80092E68 74CD8424 */  addiu      $a0, $a0, %lo(D_8013CD74)
-    /* 8366C 80092E6C 1949020C */  jal        func_80092464
+    /* 8366C 80092E6C 1949020C */  jal        HudPmx_LoadShape__FPcP13HudPmx_tShape
     /* 83670 80092E70 78000526 */   addiu     $a1, $s0, 0x78
     /* 83674 80092E74 21880000 */  addu       $s1, $zero, $zero
     /* 83678 80092E78 1002B327 */  addiu      $s3, $sp, 0x210
@@ -647,7 +647,7 @@ glabel HudPmx_InitTextures__Fv
     /* 8368C 80092E8C 21284002 */  addu       $a1, $s2, $zero
     /* 83690 80092E90 14005226 */  addiu      $s2, $s2, 0x14
     /* 83694 80092E94 04001026 */  addiu      $s0, $s0, 0x4
-    /* 83698 80092E98 1949020C */  jal        func_80092464
+    /* 83698 80092E98 1949020C */  jal        HudPmx_LoadShape__FPcP13HudPmx_tShape
     /* 8369C 80092E9C 01003126 */   addiu     $s1, $s1, 0x1
     /* 836A0 80092EA0 1C00222A */  slti       $v0, $s1, 0x1C
     /* 836A4 80092EA4 F8FF4014 */  bnez       $v0, .L80092E88
@@ -656,15 +656,15 @@ glabel HudPmx_InitTextures__Fv
     /* 836B0 80092EB0 7CCD8424 */  addiu      $a0, $a0, %lo(D_8013CD7C)
     /* 836B4 80092EB4 1180023C */  lui        $v0, %hi(D_801114A4)
     /* 836B8 80092EB8 A4145024 */  addiu      $s0, $v0, %lo(D_801114A4)
-    /* 836BC 80092EBC 1949020C */  jal        func_80092464
+    /* 836BC 80092EBC 1949020C */  jal        HudPmx_LoadShape__FPcP13HudPmx_tShape
     /* 836C0 80092EC0 21280002 */   addu      $a1, $s0, $zero
     /* 836C4 80092EC4 1480043C */  lui        $a0, %hi(D_8013CBA4)
     /* 836C8 80092EC8 A4CB8424 */  addiu      $a0, $a0, %lo(D_8013CBA4)
-    /* 836CC 80092ECC 1949020C */  jal        func_80092464
+    /* 836CC 80092ECC 1949020C */  jal        HudPmx_LoadShape__FPcP13HudPmx_tShape
     /* 836D0 80092ED0 94FD0526 */   addiu     $a1, $s0, -0x26C
     /* 836D4 80092ED4 1480043C */  lui        $a0, %hi(D_8013CBAC)
     /* 836D8 80092ED8 ACCB8424 */  addiu      $a0, $a0, %lo(D_8013CBAC)
-    /* 836DC 80092EDC 1949020C */  jal        func_80092464
+    /* 836DC 80092EDC 1949020C */  jal        HudPmx_LoadShape__FPcP13HudPmx_tShape
     /* 836E0 80092EE0 A8FD0526 */   addiu     $a1, $s0, -0x258
     /* 836E4 80092EE4 1180023C */  lui        $v0, %hi(DashHUD_gInfo)
     /* 836E8 80092EE8 3027428C */  lw         $v0, %lo(DashHUD_gInfo)($v0)
@@ -673,7 +673,7 @@ glabel HudPmx_InitTextures__Fv
     /* 836F4 80092EF4 16000224 */   addiu     $v0, $zero, 0x16
     /* 836F8 80092EF8 1C04A48F */  lw         $a0, 0x41C($sp)
     /* 836FC 80092EFC 601882A3 */  sb         $v0, %gp_rel(D_8013DDAC)($gp)
-    /* 83700 80092F00 1949020C */  jal        func_80092464
+    /* 83700 80092F00 1949020C */  jal        HudPmx_LoadShape__FPcP13HudPmx_tShape
     /* 83704 80092F04 30020526 */   addiu     $a1, $s0, 0x230
   .L80092F08:
     /* 83708 80092F08 5C18848F */  lw         $a0, %gp_rel(D_8013DDA8)($gp)

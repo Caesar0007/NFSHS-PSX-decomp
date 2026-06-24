@@ -1,3 +1,4 @@
 #include "common.h"
 
 INCLUDE_ASM("asm/nonmatchings/main", Control_Human__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", Control_AI__FP8Car_tObj);

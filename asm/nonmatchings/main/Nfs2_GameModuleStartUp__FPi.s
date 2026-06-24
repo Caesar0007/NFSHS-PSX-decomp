@@ -27,7 +27,7 @@ glabel Nfs2_GameModuleStartUp__FPi
     /* 949F8 800A41F8 00000000 */   nop
     /* 949FC 800A41FC 806C030C */  jal        Loading_UpdateLoadingScreen__Fi
     /* 94A00 800A4200 01000424 */   addiu     $a0, $zero, 0x1
-    /* 94A04 800A4204 C28F020C */  jal        func_800A3F08
+    /* 94A04 800A4204 C28F020C */  jal        NFS4_LoadPerps__Fv
     /* 94A08 800A4208 00000000 */   nop
     /* 94A0C 800A420C 806C030C */  jal        Loading_UpdateLoadingScreen__Fi
     /* 94A10 800A4210 02000424 */   addiu     $a0, $zero, 0x2

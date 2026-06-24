@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800B75F8, 0x54
+nonmatching SimQueue_IsBlocking__Fi, 0x54
 
-glabel func_800B75F8
+glabel SimQueue_IsBlocking__Fi
     /* A7DF8 800B75F8 03008010 */  beqz       $a0, .L800B7608
     /* A7DFC 800B75FC 1180023C */   lui       $v0, %hi(D_801131F8)
     /* A7E00 800B7600 0800E003 */  jr         $ra
@@ -28,4 +28,4 @@ glabel func_800B75F8
   .L800B7644:
     /* A7E44 800B7644 0800E003 */  jr         $ra
     /* A7E48 800B7648 21100000 */   addu      $v0, $zero, $zero
-endlabel func_800B75F8
+endlabel SimQueue_IsBlocking__Fi

@@ -19,3 +19,4 @@ INCLUDE_ASM("asm/nonmatchings/main", AILife_IsCarInAnyVisibleArea__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AILife_IsSliceInAnyVisibleArea__Fi);
 INCLUDE_ASM("asm/nonmatchings/main", AILife_IsSliceCloseToAnyCopCar__Fi);
 INCLUDE_ASM("asm/nonmatchings/main", AILife_IsPositionInAnyVisibleArea__FP8coorddef);
+INCLUDE_ASM("asm/nonmatchings/main", AILife_Debug__FPce);

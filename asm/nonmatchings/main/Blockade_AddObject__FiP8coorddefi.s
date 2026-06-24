@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_8005C468, 0x17C
+nonmatching Blockade_AddObject__FiP8coorddefi, 0x17C
 
-glabel func_8005C468
+glabel Blockade_AddObject__FiP8coorddefi
     /* 4CC68 8005C468 F0FEBD27 */  addiu      $sp, $sp, -0x110
     /* 4CC6C 8005C46C F800B0AF */  sw         $s0, 0xF8($sp)
     /* 4CC70 8005C470 21808000 */  addu       $s0, $a0, $zero
@@ -99,4 +99,4 @@ glabel func_8005C468
     /* 4CDD8 8005C5D8 F800B08F */  lw         $s0, 0xF8($sp)
     /* 4CDDC 8005C5DC 0800E003 */  jr         $ra
     /* 4CDE0 8005C5E0 1001BD27 */   addiu     $sp, $sp, 0x110
-endlabel func_8005C468
+endlabel Blockade_AddObject__FiP8coorddefi

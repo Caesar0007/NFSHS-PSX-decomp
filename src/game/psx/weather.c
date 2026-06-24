@@ -24,3 +24,4 @@ INCLUDE_ASM("asm/nonmatchings/main", Weather_CreateSplat__FP18Weather_tSplatInfo
 INCLUDE_ASM("asm/nonmatchings/main", Weather_DoSplats__FiP18Weather_tSplatInfo);
 INCLUDE_ASM("asm/nonmatchings/main", Weather_DoWeather__FP13DRender_tView);
 INCLUDE_ASM("asm/nonmatchings/main", Weather_BuildWeather__FP13DRender_tView);
+INCLUDE_ASM("asm/nonmatchings/main", Weather_GetNumParticles__Fi);

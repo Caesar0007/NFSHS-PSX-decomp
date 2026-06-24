@@ -10,3 +10,4 @@ INCLUDE_ASM("asm/nonmatchings/main", LoadOverlay__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", NFS4_LoadingIcon__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", NFS3_CheckForFileOperations__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", main);
+INCLUDE_ASM("asm/nonmatchings/main", NFS4_LoadPerps__Fv);

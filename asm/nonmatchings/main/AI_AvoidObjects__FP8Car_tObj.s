@@ -11,7 +11,7 @@ glabel AI_AvoidObjects__FP8Car_tObj
     /* 4A138 80059938 1000BFAF */   sw        $ra, 0x10($sp)
     /* 4A13C 8005993C 1480053C */  lui        $a1, %hi(Object_customSimObjs)
     /* 4A140 80059940 CCD2A58C */  lw         $a1, %lo(Object_customSimObjs)($a1)
-    /* 4A144 80059944 CB65010C */  jal        func_8005972C
+    /* 4A144 80059944 CB65010C */  jal        AI_AddCollidableObjects__FP8Car_tObjP5Group
     /* 4A148 80059948 00000000 */   nop
   .L8005994C:
     /* 4A14C 8005994C 1000BF8F */  lw         $ra, 0x10($sp)

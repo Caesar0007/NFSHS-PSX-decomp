@@ -27,7 +27,7 @@ glabel Font_Getcharacter__Fi
     /* BBF90 800CB790 21202002 */   addu      $a0, $s1, $zero
     /* BBF94 800CB794 21284002 */  addu       $a1, $s2, $zero
     /* BBF98 800CB798 7400668E */  lw         $a2, 0x74($s3)
-    /* BBF9C 800CB79C A82D030C */  jal        func_800CB6A0
+    /* BBF9C 800CB79C A82D030C */  jal        Font_textbsearch__FiPcUlUl
     /* BBFA0 800CB7A0 0B000724 */   addiu     $a3, $zero, 0xB
     /* BBFA4 800CB7A4 EC2D0308 */  j          .L800CB7B0
     /* BBFA8 800CB7A8 00000000 */   nop

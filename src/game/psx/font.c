@@ -14,3 +14,4 @@ INCLUDE_ASM("asm/nonmatchings/main", Font_ExitFromGame__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Font_LoadFont__FPciic);
 INCLUDE_ASM("asm/nonmatchings/main", Font_TextXY__FPcii);
 INCLUDE_ASM("asm/nonmatchings/main", Font_GetUVWH__FcPiN41);
+INCLUDE_ASM("asm/nonmatchings/main", Font_textbsearch__FiPcUlUl);

@@ -4735,3 +4735,5 @@ Sim_ProcessPause__Fv = 0x800B6B9C; // type:func
 SimQueue_SetLag__Fv = 0x800B75CC; // type:func
 SimQueue_IsBlocking__Fi = 0x800B75F8; // type:func
 uppercase__FPc = 0x800D2A44; // type:func
+
+Font_textbsearch__FiPcUlUl = 0x800CB6A0; // type:func

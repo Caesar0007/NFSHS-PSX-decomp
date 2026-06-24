@@ -16,7 +16,6 @@ INCLUDE_ASM("asm/nonmatchings/main", ___23ObjectFinishedMultiAnim);
 
 INCLUDE_ASM("asm/nonmatchings/main", ___11SaveSurface);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_800CB6A0);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800E80C4);
 

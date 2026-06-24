@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_800CB6A0, 0xA0
+nonmatching Font_textbsearch__FiPcUlUl, 0xA0
 
-glabel func_800CB6A0
+glabel Font_textbsearch__FiPcUlUl
     /* BBEA0 800CB6A0 D8FFBD27 */  addiu      $sp, $sp, -0x28
     /* BBEA4 800CB6A4 2000B4AF */  sw         $s4, 0x20($sp)
     /* BBEA8 800CB6A8 21A08000 */  addu       $s4, $a0, $zero
@@ -49,4 +49,4 @@ glabel func_800CB6A0
     /* BBF34 800CB734 1000B08F */  lw         $s0, 0x10($sp)
     /* BBF38 800CB738 0800E003 */  jr         $ra
     /* BBF3C 800CB73C 2800BD27 */   addiu     $sp, $sp, 0x28
-endlabel func_800CB6A0
+endlabel Font_textbsearch__FiPcUlUl

@@ -12,16 +12,18 @@
 SerializedGroup * SerializedGroup::LocateNextGroupType(int type)
 
 {
-  int param_1 = (int)this;
-  int *piVar1;
-  int *piVar2;
+  SerializedGroup *next;
+  int zero;      /* codegen device: `== ^ zero` (runtime 0, not folded) reserves
+                    $v0 for the result so next->m_type loads into $v1 -> byte-match.
+                    Logically a no-op; do NOT simplify to `if (next->m_type==type)`
+                    (reverts to a 10-diff v0/v1 coloring miss). permuter-derived. */
 
-  piVar2 = (int *)(param_1 + *(int *)(param_1 + 4));
-  piVar1 = (int *)0x0;
-  if (*piVar2 == type) {
-    piVar1 = piVar2;
+  next = (SerializedGroup *)((int)this + this->m_length);
+  zero = 0;
+  if ((next->m_type == type) ^ zero) {
+    return next;
   }
-  return (SerializedGroup *)piVar1;
+  return (SerializedGroup *)0x0;
 }
 
 /* ---- LocateGroupType__15SerializedGroupii  [GROUP.CPP:63-99] SLD-VERIFIED ---- */

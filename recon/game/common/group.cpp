@@ -31,27 +31,33 @@ SerializedGroup * SerializedGroup::LocateGroupType(int type,int index)
 
 {
   int param_1 = (int)this;
-  u_int uVar2;
+  u_int uVar2;     /* unused; declaration order (uVar2, piVar3, newLen, iVar4, iVar5)
+                      sets gcc's pseudo numbering to the matching allocation -- do NOT
+                      remove or reorder (reverts to a 28-diff miss). */
   int *piVar3;
+  int newLen;      /* function-scope split temp (NOT block-local) -- see align below */
   int iVar4;
   int iVar5;
 
   iVar5 = 0;
-  iVar4 = *(int *)(param_1 + 0xc);
   piVar3 = (int *)(param_1 + 0x10);
-  while( true ) {
-    iVar4 = iVar4 + -1;
-    if (iVar4 == -1) {
-      return (SerializedGroup *)0x0;
+  iVar4 = *(int *)(param_1 + 0xc);
+  for (iVar4 = iVar4 + -1; iVar4 != -1; iVar4 = iVar4 + -1) {
+    if (*piVar3 == type) {
+      if (iVar5 == index) {
+        return (SerializedGroup *)piVar3;
+      }
+      iVar5 = iVar5 + 1;
     }
-    if (*piVar3 == type && iVar5++ == index) break;
-    uVar2 = piVar3[1] & 3;
-    if (uVar2 != 0) {
-      piVar3[1] = (piVar3[1] + 4U) - uVar2;
+    if ((piVar3[1] & 3) != 0) {
+      newLen = piVar3[1] + 4;          /* split temp keeps piVar3[1] in $v0 so the align
+                                          emits `(len+4) - (len&3)` like the oracle, not
+                                          the reassociated `len - ((len&3) - 4)`. */
+      piVar3[1] = newLen - (piVar3[1] & 3);
     }
     piVar3 = (int *)((int)piVar3 + piVar3[1]);
   }
-  return (SerializedGroup *)piVar3;
+  return (SerializedGroup *)0x0;
 }
 
 /* ---- LocateGroupNum__15SerializedGroupi  [GROUP.CPP:103-116] SLD-VERIFIED ---- */

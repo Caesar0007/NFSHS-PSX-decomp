@@ -3146,6 +3146,11 @@ struct Camera_tCamSlot {   /* 32 bytes */
 struct SimpleMem {   /* 12 bytes */
     void               *heap, *freeMem;   /* +0x0 */
     int                freeMemSize;   /* +0x8 */
+    /* allocator methods (non-virtual -> no layout change; defs simplemem.cpp).
+       Oracle = method-form __9SimpleMem...; flattened free-fn never matches (§3.23b). */
+    void *Alloc(int len, int feign);
+    void *FeignAlloc(int len);
+    void  ResizeToFit();
 };
 
 struct SerializedGroup {   /* 16 bytes */
@@ -3968,6 +3973,10 @@ struct TrackHeader {   /* 32 bytes */
 struct SaveSurface {   /* 8 bytes */
     short              fCount, fMaxCount;   /* +0x0 */
     tSaveSurface       *fStack;   /* +0x4 */
+    /* methods (non-virtual -> no layout change; defs track.cpp). Oracle = method-form
+       __11SaveSurface...; the ctor/dtor stay SaveSurface_ct/___11SaveSurface. (§3.23b) */
+    void Save(Trk_NewSimQuad *simQuad);
+    void RestoreAll();
 };
 
 struct tBoundingSphere {   /* 8 bytes */

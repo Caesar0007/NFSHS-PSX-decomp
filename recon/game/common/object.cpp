@@ -566,7 +566,7 @@ void Object_ClearCustomObjects(void)
     } while (i < iVar1);
   }
   if (Track_gSaveSurface != (SaveSurface *)0x0) {
-    RestoreAll(Track_gSaveSurface);
+    (Track_gSaveSurface)->RestoreAll();
   }
   return;
 }
@@ -582,7 +582,7 @@ void SetCautionSurface(coorddef *pt,BWorldSm_Pos *slicePos)
   BWorldSm_FindClosestQuadRez(pt,slicePos,1);
   simQuad = slicePos->simQuad;
   if ((simQuad != (Trk_NewSimQuad *)0x0) && ((simQuad->surface & 0x40) == 0)) {
-    Save(Track_gSaveSurface,simQuad);
+    (Track_gSaveSurface)->Save(simQuad);
     slicePos->simQuad->surface = slicePos->simQuad->surface | 0x40;
   }
   return;

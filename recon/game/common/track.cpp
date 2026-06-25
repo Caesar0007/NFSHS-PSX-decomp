@@ -76,8 +76,7 @@ void Track_AnimateTrackLighting(void);
 char * KillFile_OpenRead(void);
 void KillFile_ReadEntry(char *filePtr,int entryInd,int &chunkInd,int &objectInd);
 void Track_LoadObjectKillData(void);
-void Save(SaveSurface *pThis,Trk_NewSimQuad *simQuad);
-void RestoreAll(SaveSurface *pThis);
+/* SaveSurface::Save / ::RestoreAll are members (struct SaveSurface) -> ss->Save(...) */
 
 
 /* ---- Track_SetTrackNumber__Fi  [TRACK.CPP:95-96] SLD-VERIFIED ---- */
@@ -1347,7 +1346,7 @@ void Track_Init(char *tempName)
   }
   this_00->freeMemSize = chunkCount;
   Track_mem = this_00;
-  scratchAlloc = (int)FeignAlloc(this_00,loadResult);
+  scratchAlloc = (int)(this_00)->FeignAlloc(loadResult);
   rootSerGroup = loadfileatadr(trackName,(void *)(scratchAlloc + 0x9080));
   groupBase = (int)((SerializedGroup *)rootSerGroup)->LocateCreateGroupType(0x1f,Track_mem,0);
   Track_header = (TrackHeader *)(groupBase + 4);
@@ -1441,9 +1440,9 @@ void Track_Init(char *tempName)
   matOffset = 0;
   chunkIdx = 0;
   Chunk_numLight = *(int *)(instSubGrp + 4) - 0x10U >> 2;
-  Track_gInViewList = Alloc(Track_mem,Track_header->chunkCount * 0x48,0);
-  Track_gInViewCount = Alloc(Track_mem,Track_header->chunkCount,0);
-  Track_chunkList = Alloc(Track_mem,Track_header->chunkCount * 0x70,0);
+  Track_gInViewList = (Track_mem)->Alloc(Track_header->chunkCount * 0x48,0);
+  Track_gInViewCount = (Track_mem)->Alloc(Track_header->chunkCount,0);
+  Track_chunkList = (Track_mem)->Alloc(Track_header->chunkCount * 0x70,0);
   Chunk_Init();
   perGroup = (int)((SerializedGroup *)rootSerGroup)->LocateGroupType(0x21,0);
   pSVar4 = ((SerializedGroup *)rootSerGroup)->LocateGroupType(0x1d,0);
@@ -1490,7 +1489,7 @@ void Track_Init(char *tempName)
     pSVar4 = (SerializedGroup *)matInfo_p;
   }
   Track_InitPersistentData((SerializedGroup *)perGroup);
-  ResizeToFit(Track_mem);
+  (Track_mem)->ResizeToFit();
   Track_MakeTrackPathName(".grp");
   gPersistObjDefBoundingSpheres =
        reservememadr("bsphere",gPersistObjDef->m_num_elements << 3 | 4,0);
@@ -1634,14 +1633,14 @@ void Track_LoadObjectKillData(void)
 }
 
 /* ---- Save  [TRACK.CPP:1831-1850] SLD-VERIFIED ---- */
-void Save(SaveSurface *pThis,Trk_NewSimQuad *simQuad)
+void SaveSurface::Save(Trk_NewSimQuad *simQuad)
 
 {
-  
-  if (((int)*((short *)pThis) <= (int)((short *)pThis)[1]) && (simQuad != (Trk_NewSimQuad *)0x0)) {
-    *(Trk_NewSimQuad **)(*((short *)pThis) * 8 + *(int *)(((short *)pThis) + 2)) = simQuad;
-    *(u_char *)(*((short *)pThis) * 8 + *(int *)(((short *)pThis) + 2) + 4) = simQuad->surface;
-    *((short *)pThis) = *((short *)pThis) + 1;
+
+  if (((int)*((short *)this) <= (int)((short *)this)[1]) && (simQuad != (Trk_NewSimQuad *)0x0)) {
+    *(Trk_NewSimQuad **)(*((short *)this) * 8 + *(int *)(((short *)this) + 2)) = simQuad;
+    *(u_char *)(*((short *)this) * 8 + *(int *)(((short *)this) + 2) + 4) = simQuad->surface;
+    *((short *)this) = *((short *)this) + 1;
   }
   return;
 }
@@ -1707,22 +1706,22 @@ extern "C" void ___11SaveSurface(SaveSurface *pThis,int __in_chrg)
 }
 
 /* ---- RestoreAll  [TRACK.CPP:1871-1879] SLD-VERIFIED ---- */
-void RestoreAll(SaveSurface *pThis)
+void SaveSurface::RestoreAll()
 
 {
   int iVar1;
   int i;
-  
+
   iVar1 = 0;
-  if (0 < pThis->fCount) {
+  if (0 < this->fCount) {
     do {
-      (pThis->fStack[iVar1].fSimQuad)->surface = pThis->fStack[iVar1].fSurface;
-      pThis->fStack[iVar1].fSimQuad = (Trk_NewSimQuad *)0x0;
-      pThis->fStack[iVar1].fSurface = '\0';
+      (this->fStack[iVar1].fSimQuad)->surface = this->fStack[iVar1].fSurface;
+      this->fStack[iVar1].fSimQuad = (Trk_NewSimQuad *)0x0;
+      this->fStack[iVar1].fSurface = '\0';
       iVar1 = iVar1 + 1;
-    } while (iVar1 < pThis->fCount);
+    } while (iVar1 < this->fCount);
   }
-  pThis->fCount = 0;
+  this->fCount = 0;
   return;
 }
 

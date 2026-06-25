@@ -121,7 +121,7 @@ Group * SerializedGroup::CreateLiteGroup(SerializedGroup *source_,SimpleMem *mem
   int n;
 
   n = *(int *)(source + 4) + -0xc;
-  puVar1 = (u_int *)Alloc((SimpleMem *)mem,n,0);
+  puVar1 = (u_int *)((SimpleMem *)mem)->Alloc(n,0);
   *puVar1 = *(u_int *)(source + 0xc);
   blockmove((void *)(source + 0x10),puVar1 + 1,n);
   return (Group *)puVar1;
@@ -140,7 +140,7 @@ SerializedGroup::CreateLiteGroupDataSize(SerializedGroup *source_,SimpleMem *mem
   Group * ret;
   u_int *puVar1;
 
-  puVar1 = (u_int *)Alloc((SimpleMem *)mem,dataSize + 4,0);
+  puVar1 = (u_int *)((SimpleMem *)mem)->Alloc(dataSize + 4,0);
   *puVar1 = 0;
   blockmove((void *)(source + 0x10),puVar1 + 1,dataSize + 4);
   return (Group *)puVar1;

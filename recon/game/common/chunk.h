@@ -3,7 +3,7 @@
 #define _GAME_COMMON_CHUNK_H_
 #include "../../nfs4_types.h"
 
-void InstanceGroup__5ChunkP15SerializedGroupP9SimpleMem(Chunk *self, SerializedGroup *chunkGroup, SimpleMem *mem);   /* :83 */
+/* InstanceGroup is a real Chunk member (struct Chunk, nfs4_types.h) -> chunk->InstanceGroup(...) */
 void Chunk_UpdateSys__FP13DRender_tView(DRender_tView *Vi);   /* :274 */
 void Chunk_Init__Fv(void);   /* :291 */
 void Chunk_DeInit__Fv(void);   /* :310 */

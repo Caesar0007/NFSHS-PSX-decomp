@@ -3017,6 +3017,10 @@ struct Chunk {   /* 112 bytes */
     Group              *stripBuf, *lorezstripBuf, *objInstanceBuf, *objSpecialInstanceBuf, *simSliceBuf, *simQuadBuf, *simObjBuf, *sfxBuf, *lineBuf, *objVertexBuf, *objQuadBuf, *objQuadInstanceBuf;   /* +0x38 */
     short              firstSimSliceInd, chunkInd;   /* +0x68 */
     Group              *vertexBuf;   /* +0x6C */
+    /* container ctor as a real member (non-virtual -> no layout change; def in
+       chunk.cpp). Oracle symbol = method-form InstanceGroup__5Chunk...; flattened
+       free-fn would mangle __FP5Chunk... and never match (§3.23b). */
+    void InstanceGroup(SerializedGroup *chunkGroup, SimpleMem *mem);
 };
 
 struct BW_tContextMgr {   /* 320 bytes */

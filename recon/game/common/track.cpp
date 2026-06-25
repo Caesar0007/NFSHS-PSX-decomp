@@ -1453,7 +1453,7 @@ void Track_Init(char *tempName)
     if (groupOffset < Track_header->chunkCount + -1) {
       matInfo_p = (int)(pSVar4)->LocateNextGroupType(0x1d);
     }
-    InstanceGroup((Chunk *)(tR7 + chunkIdx),pSVar4,Track_mem);
+    ((Chunk *)(tR7 + chunkIdx))->InstanceGroup(pSVar4,Track_mem);
     pSVar4 = (pSVar4)->LocateGroupType(4,0);
     tT33 = Track_header;
     iVar44_field = pSVar4->m_num_elements;

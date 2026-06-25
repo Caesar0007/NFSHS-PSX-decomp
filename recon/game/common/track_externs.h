@@ -37,7 +37,7 @@ extern void Chunk_DeInit(void);
 extern void Chunk_Init(void);
 extern void *FeignAlloc(void *, int);
 extern void Hrz_GetHorizonPixMap(Draw_tPixMap *);
-extern void InstanceGroup(Chunk *, SerializedGroup *, SimpleMem *);
+/* InstanceGroup is a Chunk member -> chunk->InstanceGroup(...) (struct Chunk) */
 extern int Math_DistXZ(coorddef *, coorddef *);
 /* SerializedGroup container ops (CreateLiteGroup/LocateGroupNum/LocateGroupType/
    LocateCreateGroupType/LocateNextGroupType) are MEMBER fns -> see struct SerializedGroup. */

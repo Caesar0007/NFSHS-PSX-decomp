@@ -1,0 +1,36 @@
+#!/bin/sh
+# post-commit hook — when a commit touches recon/ or src/ (i.e. new match-knowledge
+# landed), refresh the ASM-pattern-catalog GAP list into catalog_gaps.txt at repo root.
+# Never fails/blocks the commit. This is the TRACKED source; install it with:
+#     cp tools/hooks/post-commit .git/hooks/post-commit && chmod +x .git/hooks/post-commit
+# (.git/hooks/ is not version-controlled, so re-run that after a fresh clone.)
+
+root="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+
+# gate: only act when this commit touched the matching corpus
+git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null | grep -qE '^(recon|src)/' || exit 0
+
+# find a python
+if command -v python >/dev/null 2>&1; then PY="python"
+elif command -v py >/dev/null 2>&1; then PY="py -3"
+else exit 0
+fi
+
+gf="$root/tools/catalog_gapfinder.py"
+[ -f "$gf" ] || exit 0
+out="$root/catalog_gaps.txt"
+tmp="$root/.catalog_gaps.tmp"
+
+$PY "$gf" > "$tmp" 2>/dev/null || { rm -f "$tmp"; exit 0; }
+{
+  echo "# ASM-pattern-catalog GAPS — auto-refreshed by .git/hooks/post-commit @ $(git rev-parse --short HEAD)"
+  echo "# Fold NOVEL rows into reference_asm_pattern_catalog.md (run: python tools/catalog_gapfinder.py --all)."
+  echo "# This file is gitignored and regenerates on every recon/ or src/ commit."
+  echo ""
+  cat "$tmp"
+} > "$out"
+rm -f "$tmp"
+
+n="$(sed -n 's/^summary : \([0-9][0-9]*\) novel.*/\1/p' "$out")"
+echo "[catalog] ${n:-?} novel trick(s) not yet catalogued -> catalog_gaps.txt"
+exit 0

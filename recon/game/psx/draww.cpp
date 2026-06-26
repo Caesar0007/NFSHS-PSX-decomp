@@ -438,19 +438,19 @@ gte_swc2(0xe,((char *)v2 + 0xc));
 void DrawW_LoadPrecVECTOR(Draw_SVertex *v,VECTOR *dv)
 
 {
-  int y;
   int x;
-  long temp;
-  u_int uVar1;
-  int iVar2;
+  int y;
   int z;
-  
-  x = dv->vx;
-  iVar2 = dv->vz;
-  uVar1 = dv->vy << 0x12 | (x & 0x3fffU) << 2;
-  v->vx = (short)uVar1;
-  v->vy = (short)(uVar1 >> 0x10);
-  v->vz = (short)(iVar2 << 2);
+
+  /* MATCH: oracle masks AFTER the shift, packs vx:vy as one word, and groups the three
+     shifts (vx<<2, vy<<18, vz<<2) in field order -- so shift into temps up front. */
+  x = dv->vx << 2;
+  y = dv->vy << 0x12;
+  z = dv->vz << 2;
+  *(u_int *)&v->vx = y | (x & 0xffffU);
+  v->vz = (short)z;   /* NEAR-MISS floor: 2 diffs -- gcc schedules this vz<<2 after the
+                         `or` (its only use is late); oracle groups it with the other two
+                         shifts.  Source levers don't move it; permuter/accept. */
   return;
 }
 
@@ -1595,7 +1595,6 @@ void DrawW_DoObjectAnimations(void)
   int (*table) [2];
   int time;
   
-  time_00 = simGlobal.gameTicks;
   if (GameSetup_gData.track == 0) {
     table = trk0;
   }
@@ -1605,6 +1604,7 @@ void DrawW_DoObjectAnimations(void)
     }
     table = trk4;
   }
+  time_00 = simGlobal.gameTicks;   /* MATCH: load deferred past the track test (oracle order) */
   iVar2 = 0;
   ppTVar1 = Anim_gInstanceFromIndex;
   do {

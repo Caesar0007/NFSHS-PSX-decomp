@@ -1,26 +1,275 @@
-/* eaclib/psx/eacpsxz/blkmov.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.
- *   Source obj : nfs4\eaclib\psx\blkmov.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col10)
- *   1 fn @0x800E62DC (796 bytes): blockmove -- EA's overlap-safe block copy (memmove with the
- *   (src, dst, n) argument order).  FULL reconstruction of the actual BEHAVIOUR (disasm-v3 MIPS).
+/* eaclib/psx/eacpsxz/blkmov.cpp -- RECONSTRUCTED from nfs4-f.exe.  HAND-WRITTEN ASSEMBLY.
+ *   Source obj : ..\eaclib\psx\eacpsxz.lib(blkmov.obj).
+ *   SYM SLD proof: the symbol's source file is `C:\LIB\PSX\BLKMOV.ASM` (Set SLD to line 8 of
+ *   file C:\LIB\PSX\BLKMOV.ASM) -- i.e. the original TU was hand-written MIPS assembly, NOT C.
+ *   The oracle confirms it: `add` (the TRAPPING add, never emitted by a C compiler), manual
+ *   `$at`, `.set noreorder` with hand-filled delay slots, and a 4-tier (64/16/4/1-byte) unrolled
+ *   copier with separate aligned (lw/sw) and unaligned (lwl/lwr/swl/swr) paths in both forward
+ *   and backward directions.  No C source compiles to this, so it is transcribed verbatim as a
+ *   file-scope __asm__ (byte-identical to BLKMOV.ASM).  @0x800E62DC, 796 bytes (199 insns).
+ *   Operands are decimal (maspsx parses memory displacements as base-10, like gcc output).
  *
- *   The binary is a hand-optimised copier: it picks copy DIRECTION by `src < dst` (overlap-safe:
- *   copy backward when the destination is higher), then for the forward case unrolls aligned 64/16/
- *   4/1-byte runs (and uses lwl/lwr/swl/swr word loads/stores on the unaligned path).  Those are
- *   pure performance details; the observable result is exactly an n-byte memmove, reconstructed here.
+ *   blockmove(src, dst, n): overlap-safe block copy.  Picks direction by `src < dst` (copy
+ *   backward when dst is higher), then unrolls aligned/unaligned runs.  == memmove(dst,src,n).
  */
 
-extern "C" void blockmove(void *src, void *dst, int n)   /* @0x800E62DC */
+#if defined(__mips__)
+__asm__(
+    "\t.set push\n"
+    "\t.set noat\n"
+    "\t.set\tnoreorder\n"   /* tab form: turns maspsx is_reorder OFF (no auto branch-delay nop) */
+    "\t.set noreorder\n"    /* space form: passes through to gnu-as (keeps as from reordering)   */
+    "\t.globl blockmove\n"
+    "blockmove:\n"
+    "\tslt    $at, $a0, $a1\n"
+    "\tbnez   $at, .L800E64D0\n"
+    ".L800E62E4:\n"
+    "\tor     $v0, $a0, $a1\n"            /* delay slot of bnez; also fall-through target */
+    "\tandi   $v0, $v0, 3\n"
+    "\tbnez   $v0, .L800E641C\n"
+    "\tnop\n"
+    "\taddiu  $a2, $a2, -64\n"
+    "\tbltz   $a2, .L800E6390\n"
+    "\tnop\n"
+    /* forward, aligned, 64-byte unroll */
+    ".L800E6300:\n"
+    "\tlw     $t0, 0($a0)\n"
+    "\tlw     $t1, 4($a0)\n"
+    "\tlw     $t2, 8($a0)\n"
+    "\tlw     $t3, 12($a0)\n"
+    "\tlw     $t4, 16($a0)\n"
+    "\tlw     $t5, 20($a0)\n"
+    "\tlw     $t6, 24($a0)\n"
+    "\tlw     $t7, 28($a0)\n"
+    "\tsw     $t0, 0($a1)\n"
+    "\tsw     $t1, 4($a1)\n"
+    "\tsw     $t2, 8($a1)\n"
+    "\tsw     $t3, 12($a1)\n"
+    "\tsw     $t4, 16($a1)\n"
+    "\tsw     $t5, 20($a1)\n"
+    "\tsw     $t6, 24($a1)\n"
+    "\tsw     $t7, 28($a1)\n"
+    "\tlw     $t0, 32($a0)\n"
+    "\tlw     $t1, 36($a0)\n"
+    "\tlw     $t2, 40($a0)\n"
+    "\tlw     $t3, 44($a0)\n"
+    "\tlw     $t4, 48($a0)\n"
+    "\tlw     $t5, 52($a0)\n"
+    "\tlw     $t6, 56($a0)\n"
+    "\tlw     $t7, 60($a0)\n"
+    "\tsw     $t0, 32($a1)\n"
+    "\tsw     $t1, 36($a1)\n"
+    "\tsw     $t2, 40($a1)\n"
+    "\tsw     $t3, 44($a1)\n"
+    "\tsw     $t4, 48($a1)\n"
+    "\tsw     $t5, 52($a1)\n"
+    "\tsw     $t6, 56($a1)\n"
+    "\tsw     $t7, 60($a1)\n"
+    "\taddiu  $a2, $a2, -64\n"
+    "\taddiu  $a0, $a0, 64\n"
+    "\tbgez   $a2, .L800E6300\n"
+    "\taddiu  $a1, $a1, 64\n"
+    /* forward, aligned, 16-byte tail */
+    ".L800E6390:\n"
+    "\taddiu  $a2, $a2, 48\n"
+    "\tbltz   $a2, .L800E63CC\n"
+    "\tnop\n"
+    ".L800E639C:\n"
+    "\tlw     $t0, 0($a0)\n"
+    "\tlw     $t1, 4($a0)\n"
+    "\tlw     $t2, 8($a0)\n"
+    "\tlw     $t3, 12($a0)\n"
+    "\tsw     $t0, 0($a1)\n"
+    "\tsw     $t1, 4($a1)\n"
+    "\tsw     $t2, 8($a1)\n"
+    "\tsw     $t3, 12($a1)\n"
+    "\taddiu  $a2, $a2, -16\n"
+    "\taddiu  $a0, $a0, 16\n"
+    "\tbgez   $a2, .L800E639C\n"
+    "\taddiu  $a1, $a1, 16\n"
+    /* forward, aligned, 4-byte tail */
+    ".L800E63CC:\n"
+    "\taddiu  $a2, $a2, 12\n"
+    "\tbltz   $a2, .L800E63F0\n"
+    "\tnop\n"
+    ".L800E63D8:\n"
+    "\tlw     $t0, 0($a0)\n"
+    "\taddiu  $a2, $a2, -4\n"
+    "\tsw     $t0, 0($a1)\n"
+    "\taddiu  $a0, $a0, 4\n"
+    "\tbgez   $a2, .L800E63D8\n"
+    "\taddiu  $a1, $a1, 4\n"
+    /* forward, 1-byte tail */
+    ".L800E63F0:\n"
+    "\taddiu  $a2, $a2, 3\n"
+    "\tbltz   $a2, .L800E6414\n"
+    "\tnop\n"
+    ".L800E63FC:\n"
+    "\tlb     $t0, 0($a0)\n"
+    "\taddiu  $a2, $a2, -1\n"
+    "\tsb     $t0, 0($a1)\n"
+    "\taddiu  $a0, $a0, 1\n"
+    "\tbgez   $a2, .L800E63FC\n"
+    "\taddiu  $a1, $a1, 1\n"
+    ".L800E6414:\n"
+    "\tjr     $ra\n"
+    "\tnop\n"
+    /* forward, unaligned (lwl/lwr/swl/swr), 16-byte unroll */
+    ".L800E641C:\n"
+    "\taddiu  $a2, $a2, -16\n"
+    "\tbltz   $a2, .L800E6478\n"
+    "\tnop\n"
+    ".L800E6428:\n"
+    "\tlwl    $t0, 3($a0)\n"
+    "\tlwr    $t0, 0($a0)\n"
+    "\tlwl    $t1, 7($a0)\n"
+    "\tlwr    $t1, 4($a0)\n"
+    "\tlwl    $t2, 11($a0)\n"
+    "\tlwr    $t2, 8($a0)\n"
+    "\tlwl    $t3, 15($a0)\n"
+    "\tlwr    $t3, 12($a0)\n"
+    "\tswl    $t0, 3($a1)\n"
+    "\tswr    $t0, 0($a1)\n"
+    "\tswl    $t1, 7($a1)\n"
+    "\tswr    $t1, 4($a1)\n"
+    "\tswl    $t2, 11($a1)\n"
+    "\tswr    $t2, 8($a1)\n"
+    "\tswl    $t3, 15($a1)\n"
+    "\tswr    $t3, 12($a1)\n"
+    "\taddiu  $a2, $a2, -16\n"
+    "\taddiu  $a0, $a0, 16\n"
+    "\tbgez   $a2, .L800E6428\n"
+    "\taddiu  $a1, $a1, 16\n"
+    /* forward, unaligned, 4-byte tail */
+    ".L800E6478:\n"
+    "\taddiu  $a2, $a2, 12\n"
+    "\tbltz   $a2, .L800E64A4\n"
+    "\tnop\n"
+    ".L800E6484:\n"
+    "\tlwl    $t0, 3($a0)\n"
+    "\tlwr    $t0, 0($a0)\n"
+    "\taddiu  $a2, $a2, -4\n"
+    "\tswl    $t0, 3($a1)\n"
+    "\tswr    $t0, 0($a1)\n"
+    "\taddiu  $a0, $a0, 4\n"
+    "\tbgez   $a2, .L800E6484\n"
+    "\taddiu  $a1, $a1, 4\n"
+    /* forward, unaligned, 1-byte tail */
+    ".L800E64A4:\n"
+    "\taddiu  $a2, $a2, 3\n"
+    "\tbltz   $a2, .L800E64C8\n"
+    "\tnop\n"
+    ".L800E64B0:\n"
+    "\tlb     $t0, 0($a0)\n"
+    "\taddiu  $a2, $a2, -1\n"
+    "\tsb     $t0, 0($a1)\n"
+    "\taddiu  $a0, $a0, 1\n"
+    "\tbgez   $a2, .L800E64B0\n"
+    "\taddiu  $a1, $a1, 1\n"
+    ".L800E64C8:\n"
+    "\tjr     $ra\n"
+    "\tnop\n"
+    /* backward path: dst is higher; bias pointers to the END, copy descending */
+    ".L800E64D0:\n"
+    "\tadd    $a3, $a0, $a2\n"            /* trapping add (hand-written) */
+    "\tslt    $at, $a1, $a3\n"
+    "\tbeqz   $at, .L800E62E4\n"          /* no real overlap -> forward copy */
+    "\tnop\n"
+    "\tadd    $a0, $a0, $a2\n"            /* trapping add (hand-written) */
+    "\tadd    $a1, $a1, $a2\n"            /* trapping add (hand-written) */
+    "\tor     $v0, $a0, $a1\n"
+    "\tandi   $v0, $v0, 3\n"
+    "\tbnez   $v0, .L800E6548\n"
+    "\tnop\n"
+    "\taddiu  $a2, $a2, -16\n"
+    "\tbltz   $a2, .L800E6534\n"
+    "\tnop\n"
+    /* backward, aligned, 16-byte unroll */
+    ".L800E6504:\n"
+    "\tlw     $t0, -16($a0)\n"
+    "\tlw     $t1, -12($a0)\n"
+    "\tlw     $t2, -8($a0)\n"
+    "\tlw     $t3, -4($a0)\n"
+    "\tsw     $t0, -16($a1)\n"
+    "\tsw     $t1, -12($a1)\n"
+    "\tsw     $t2, -8($a1)\n"
+    "\tsw     $t3, -4($a1)\n"
+    "\taddiu  $a0, $a0, -16\n"
+    "\taddiu  $a2, $a2, -16\n"
+    "\tbgez   $a2, .L800E6504\n"
+    "\taddiu  $a1, $a1, -16\n"
+    ".L800E6534:\n"
+    "\taddiu  $a2, $a2, 12\n"
+    "\tbltz   $a2, .L800E65D0\n"
+    "\tnop\n"
+    "\tj      .L800E65B0\n"
+    "\tnop\n"
+    /* backward, unaligned, 16-byte unroll */
+    ".L800E6548:\n"
+    "\taddiu  $a2, $a2, -16\n"
+    "\tbltz   $a2, .L800E65A4\n"
+    "\tnop\n"
+    ".L800E6554:\n"
+    "\tlwl    $t0, -13($a0)\n"
+    "\tlwr    $t0, -16($a0)\n"
+    "\tlwl    $t1, -9($a0)\n"
+    "\tlwr    $t1, -12($a0)\n"
+    "\tlwl    $t2, -5($a0)\n"
+    "\tlwr    $t2, -8($a0)\n"
+    "\tlwl    $t3, -1($a0)\n"
+    "\tlwr    $t3, -4($a0)\n"
+    "\tswl    $t0, -13($a1)\n"
+    "\tswr    $t0, -16($a1)\n"
+    "\tswl    $t1, -9($a1)\n"
+    "\tswr    $t1, -12($a1)\n"
+    "\tswl    $t2, -5($a1)\n"
+    "\tswr    $t2, -8($a1)\n"
+    "\tswl    $t3, -1($a1)\n"
+    "\tswr    $t3, -4($a1)\n"
+    "\taddiu  $a2, $a2, -16\n"
+    "\taddiu  $a0, $a0, -16\n"
+    "\tbgez   $a2, .L800E6554\n"
+    "\taddiu  $a1, $a1, -16\n"
+    ".L800E65A4:\n"
+    "\taddiu  $a2, $a2, 12\n"
+    "\tbltz   $a2, .L800E65D0\n"
+    "\tnop\n"
+    /* backward, unaligned, 4-byte tail */
+    ".L800E65B0:\n"
+    "\tlwl    $t0, -1($a0)\n"
+    "\tlwr    $t0, -4($a0)\n"
+    "\taddiu  $a2, $a2, -4\n"
+    "\tswl    $t0, -1($a1)\n"
+    "\tswr    $t0, -4($a1)\n"
+    "\taddiu  $a0, $a0, -4\n"
+    "\tbgez   $a2, .L800E65B0\n"
+    "\taddiu  $a1, $a1, -4\n"
+    /* backward, 1-byte tail */
+    ".L800E65D0:\n"
+    "\taddiu  $a2, $a2, 3\n"
+    "\tbltz   $a2, .L800E65F0\n"
+    ".L800E65D8:\n"
+    "\taddiu  $a2, $a2, -1\n"             /* delay slot of bltz; also loop target */
+    "\tlb     $t0, -1($a0)\n"
+    "\taddiu  $a0, $a0, -1\n"
+    "\tsb     $t0, -1($a1)\n"
+    "\tbgez   $a2, .L800E65D8\n"
+    "\taddiu  $a1, $a1, -1\n"
+    ".L800E65F0:\n"
+    "\tjr     $ra\n"
+    "\tnop\n"
+    "\t.set pop\n"
+);
+#else
+/* Portable host fallback (non-MIPS builds): the observable behaviour is an n-byte memmove
+   with the (src, dst, n) argument order. */
+extern "C" void blockmove(void *src, void *dst, int n)
 {
     char *s = (char *)src;
     char *d = (char *)dst;
-
-    if (s < d) {                       /* dst higher -> copy backward (overlap-safe) */
-        s += n;
-        d += n;
-        while (n-- > 0)
-            *--d = *--s;
-    } else {                           /* copy forward */
-        while (n-- > 0)
-            *d++ = *s++;
-    }
+    if (s < d) { s += n; d += n; while (n-- > 0) *--d = *--s; }
+    else       { while (n-- > 0) *d++ = *s++; }
 }
+#endif
+
+/* end of blkmov.cpp */

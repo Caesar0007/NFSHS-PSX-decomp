@@ -1054,7 +1054,6 @@ int R3DCar_Visibilty(Car_tObj *carObj,DRender_tView *Vi)
   int iVar6;
   int iVar7;
   int iVar8;
-  int x;
   int iVar9;
   int z;
   int iVar10;
@@ -1070,12 +1069,11 @@ int R3DCar_Visibilty(Car_tObj *carObj,DRender_tView *Vi)
   
   iVar8 = Vi->player;
   bVar2 = false;
-  x = *(int *)((char *)&(Camera_gInfo[iVar8]) + 0x74);
-  uVar11 = (u_int)x >> 0x19 & 3;
+  uVar11 = Camera_gInfo[iVar8].zooming;
   if ((((((Car_tObj *)Camera_gInfo[iVar8].anchor != carObj) || ((carObj->carFlags & 4U) == 0)) ||
-       (((u_int)x >> 0x1b & 1) == 0)) ||
+       (Camera_gInfo[iVar8].inCar == 0)) ||
       ((iVar8 = Camera_GetMode(iVar8), iVar8 != 0 &&
-       ((((*(u_int *)((char *)&(Camera_gInfo[Vi->player]) + 0x74) >> 0x1b & 1) == 0 ||
+       (((Camera_gInfo[Vi->player].inCar == 0 ||
          (iVar8 = Camera_GetMode(Vi->player), iVar8 != 1)) ||
         (bVar2 = true, ((carObj->render).inside & 1U) != 0)))))) &&
      (iVar8 = 0xc0000, (carObj->N).active != '\0')) {

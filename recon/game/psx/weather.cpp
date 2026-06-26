@@ -1008,7 +1008,7 @@ void Weather_DoWeather(DRender_tView *Vi)
       Weather_ProcessParticles(Vi,Weather_gSys.num[player],wpt,wd);
     }
     Weather_SetIdentMatrix();
-    if ((*(u_int *)((char *)&Camera_gInfo[player] + 0x74) >> 0x1b & 1) != 0) {
+    if (Camera_gInfo[player].inCar) {
       Weather_DoSplats(Weather_gSys.num[player] >> 3,Weather_gSplatInfoServer[player]);
     }
     /* emit one snow/rain primitive per particle; wpt + wprevpt advance in lockstep */

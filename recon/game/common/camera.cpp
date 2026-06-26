@@ -272,7 +272,7 @@ void Camera_UpdateBumperCam(int player)
   local_38 = Camera_gFlags[sVar1].arm.x;
   local_34 = Camera_gFlags[sVar1].arm.y;
   local_30 = Camera_gFlags[sVar1].arm.z;
-  if ((*(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) >> 5 & 1) == 0) {
+  if (Camera_gInfo[player].noLookBack == 0) {
     bVar2 = Input_gLookBehind[player] != 0;
   }
   if (bVar2) {
@@ -835,9 +835,9 @@ void SetCameraZoom(int player,int targetDist)
 {
   u_int uVar1;
   
-  if ((*(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) >> 7 & 1) == 0) {
+  if (Camera_gInfo[player].splitscreen == 0) {
     if (0x3000 < targetDist) {
-      uVar1 = *(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) >> 0x19 & 3;
+      uVar1 = Camera_gInfo[player].zooming;
       if (uVar1 == 1) {
         (*(int *)&(Camera_gGeomScreen)) = (targetDist * 0xbe) / 0x3000;
       }
@@ -1786,7 +1786,7 @@ void Camera_PitchAndRoll(int player)
   iVar1 = Camera_gInfo[player].anchor[3].objAltitude;
   fixedxformz((int)&mStack_90,(int *)Camera_gInfo[player].anchor[3].collision.collided);
   fixedxformx((int)&mStack_68,
-             (int *)(iVar1 << 1 | *(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) >> 1 & 1));
+             (int *)(iVar1 << 1 | Camera_gInfo[player].pitch));
   Math_fasttransmult(&mStack_90,&mStack_68,&mStack_40);
   Math_fasttransmult(&mStack_40,&Camera_gInfo[player].rotation,&Camera_gInfo[player].rotation);
   return;
@@ -2153,7 +2153,7 @@ void Camera_AcquireTarget(int player,coorddef *point,coorddef *pos,matrixtdef *r
     local_20 = local_20 + 3;
   }
   rot->m[8] = local_20 >> 2;
-  if ((*(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) >> 1 & 1) != 0) {
+  if (Camera_gInfo[player].pitch != 0) {
     iVar2 = rot->m[7] + 0x5333;
     if (2 < (u_short)Camera_gInfo[player].mode - 2) {
       iVar2 = rot->m[7] + 0x6666;
@@ -2338,7 +2338,7 @@ void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)
   int local_24;
   int local_20;
   
-  if ((*(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) >> 2 & 1) != 0) {
+  if (Camera_gInfo[cviewP].jostling != 0) {
     Camera_PitchAndRoll(cviewP);
   }
   iVar3 = Camera_gInfo[cviewP].position.y;
@@ -2346,20 +2346,20 @@ void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)
   (cview->translation).x = Camera_gInfo[cviewP].position.x;
   (cview->translation).y = iVar3;
   (cview->translation).z = iVar4;
-  if ((*(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) >> 4 & 1) != 0) {
+  if (Camera_gInfo[cviewP].checkwalls != 0) {
     Camera_CheckWallCollisions(cviewP,&cview->translation);
   }
   BWorldSm_FindClosestQuadRez(&cview->translation,&Camera_gInfo[cviewP].slicePos,1);
   if ((Camera_gInfo[cviewP].slicePos.offEdge == '\0') && (1 < Camera_gInfo[cviewP].mode)) {
     Camera_SetAboveGround(cviewP,&cview->translation);
   }
-  if ((*(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) >> 3 & 1) != 0) {
+  if (Camera_gInfo[cviewP].tracking != 0) {
     Camera_AcquireTarget(cviewP,(coorddef *)0x0,&cview->translation,&Camera_gInfo[cviewP].rotation,1);
   }
   if (Camera_gInfo[cviewP].mode == 0x10) {
     Camera_AcquireTarget(cviewP,gCop1Target + cviewP,&cview->translation,&Camera_gInfo[cviewP].rotation,1);
   }
-  if ((*(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) >> 5 & 1) == 0) {
+  if (Camera_gInfo[cviewP].noLookBack == 0) {
     Camera_OpponentLookBehind(cviewP,&cview->translation,(u_int)(Input_gLookBehind[cviewP] == 0));
   }
   pmVar2 = &cview->mrotation;
@@ -2445,8 +2445,8 @@ void Camera_GetAudioViewInfo(int cviewP,DRender_tCalcView *cview,coorddef **cvel
   }
   else {
     pmVar1 = &Camera_gInfo[cviewP].rotation;
-    if ((*(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) >> 5 & 1) == 0) {
-      if ((*(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) >> 3 & 1) == 0) {
+    if (Camera_gInfo[cviewP].noLookBack == 0) {
+      if (Camera_gInfo[cviewP].tracking == 0) {
         iVar3 = Camera_gInfo[cviewP].audioPos.y;
         iVar4 = Camera_gInfo[cviewP].audioPos.z;
         (cview->translation).x = Camera_gInfo[cviewP].audioPos.x;

@@ -71,102 +71,22 @@ void DrawW_AddSubdividPrimGT4(POLY_GT4 *prim,Draw_SVertex *v0,Draw_SVertex *v1,D
                Draw_tGiveShelbyMoreCache *sd)
 
 {
-  u_short uVar1;
-  u_short uVar2;
-  u_char uVar3;
-  u_char uVar4;
-  u_char uVar5;
-  u_char uVar6;
-  u_char uVar7;
-  u_char uVar8;
-  u_char uVar9;
-  u_char uVar10;
-  u_char uVar11;
-  u_char uVar12;
-  u_char uVar13;
-  u_char uVar14;
-  u_char uVar15;
-  u_char uVar16;
-  u_char uVar17;
-  short sVar18;
-  short sVar19;
-  short sVar20;
-  short sVar21;
-  short sVar22;
-  short sVar23;
-  short sVar24;
-  u_char a;
-  u_short b;
-  long c;
-  long d;
-  
+  u_int c0,c1,c2,c3, p0,p1,p2,p3;
+  u_short t0,t1,t2,t3;
+  u_char code;
+  u_short tpage, clut;
+
+  /* MATCH: field-fusion + load-4/store-4 (see GT3).  POLY_GT4 stores v2 in slot 3 (+0x28)
+     and v3 in slot 2 (+0x1C) -- the screen-quad vertex order. */
   *(u_char *)((int)&prim->tag + 3) = 0xc;
-  uVar3 = v0->g;
-  uVar4 = v0->b;
-  uVar5 = v0->a;
-  uVar6 = v1->r;
-  uVar7 = v1->g;
-  uVar8 = v1->b;
-  uVar9 = v1->a;
-  uVar10 = v2->r;
-  uVar11 = v2->g;
-  uVar12 = v2->b;
-  uVar13 = v2->a;
-  uVar14 = v3->r;
-  uVar15 = v3->g;
-  uVar16 = v3->b;
-  uVar17 = v3->a;
-  prim->r0 = v0->r;
-  prim->g0 = uVar3;
-  prim->b0 = uVar4;
-  prim->code = uVar5;
-  prim->r1 = uVar6;
-  prim->g1 = uVar7;
-  prim->b1 = uVar8;
-  prim->p1 = uVar9;
-  prim->r3 = uVar10;
-  prim->g3 = uVar11;
-  prim->b3 = uVar12;
-  prim->p3 = uVar13;
-  prim->r2 = uVar14;
-  prim->g2 = uVar15;
-  prim->b2 = uVar16;
-  prim->p2 = uVar17;
-  sVar18 = v0->dvy;
-  sVar19 = v1->dvx;
-  sVar20 = v1->dvy;
-  sVar21 = v2->dvx;
-  sVar22 = v2->dvy;
-  sVar23 = v3->dvx;
-  sVar24 = v3->dvy;
-  prim->x0 = v0->dvx;
-  prim->y0 = sVar18;
-  prim->x1 = sVar19;
-  prim->y1 = sVar20;
-  prim->x3 = sVar21;
-  prim->y3 = sVar22;
-  prim->x2 = sVar23;
-  prim->y2 = sVar24;
-  uVar3 = v0->v;
-  uVar4 = v1->u;
-  uVar5 = v1->v;
-  uVar6 = v2->u;
-  uVar7 = v2->v;
-  uVar8 = v3->u;
-  uVar9 = v3->v;
-  prim->u0 = v0->u;
-  prim->v0 = uVar3;
-  prim->u1 = uVar4;
-  prim->v1 = uVar5;
-  prim->u3 = uVar6;
-  prim->v3 = uVar7;
-  prim->u2 = uVar8;
-  prim->v2 = uVar9;
-  uVar1 = (sd->GT4Prim).tpage;
-  uVar2 = (sd->GT4Prim).clut;
-  prim->code = (sd->GT4Prim).code;
-  prim->tpage = uVar1;
-  prim->clut = uVar2;
+  c0 = *(u_int *)&v0->r;  c1 = *(u_int *)&v1->r;  c2 = *(u_int *)&v2->r;  c3 = *(u_int *)&v3->r;
+  *(u_int *)&prim->r0 = c0;  *(u_int *)&prim->r1 = c1;  *(u_int *)&prim->r3 = c2;  *(u_int *)&prim->r2 = c3;
+  p0 = *(u_int *)&v0->dvx;  p1 = *(u_int *)&v1->dvx;  p2 = *(u_int *)&v2->dvx;  p3 = *(u_int *)&v3->dvx;
+  *(u_int *)&prim->x0 = p0;  *(u_int *)&prim->x1 = p1;  *(u_int *)&prim->x3 = p2;  *(u_int *)&prim->x2 = p3;
+  t0 = *(u_short *)&v0->u;  t1 = *(u_short *)&v1->u;  t2 = *(u_short *)&v2->u;  t3 = *(u_short *)&v3->u;
+  *(u_short *)&prim->u0 = t0;  *(u_short *)&prim->u1 = t1;  *(u_short *)&prim->u3 = t2;  *(u_short *)&prim->u2 = t3;
+  code = (sd->GT4Prim).code;  tpage = (sd->GT4Prim).tpage;  clut = (sd->GT4Prim).clut;
+  prim->code = code;  prim->tpage = tpage;  prim->clut = clut;
   return;
 }
 
@@ -175,79 +95,24 @@ void DrawW_AddSubdividPrimGT3(POLY_GT3 *prim,Draw_SVertex *v0,Draw_SVertex *v1,D
                Draw_tGiveShelbyMoreCache *sd)
 
 {
-  u_short uVar1;
-  u_short uVar2;
-  u_char uVar3;
-  u_char uVar4;
-  u_char uVar5;
-  u_char uVar6;
-  u_char uVar7;
-  u_char uVar8;
-  u_char uVar9;
-  u_char uVar10;
-  u_char uVar11;
-  u_char uVar12;
-  u_char uVar13;
-  short sVar14;
-  short sVar15;
-  short sVar16;
-  short sVar17;
-  short sVar18;
-  u_char a;
-  u_short b;
-  long c;
-  
+  u_int c0,c1,c2, p0,p1,p2;
+  u_short t0,t1,t2;
+  u_char code;
+  u_short tpage, clut;
+
+  /* MATCH: field-fusion + load-3/store-3 -- the oracle copies each vertex's RGBA as one
+     32-bit word (v+0xC), XY as one word (v+0x8), UV as one halfword (v+0x6).  Loading all
+     three vertices into SEPARATE temps before storing avoids the load-delay nop that
+     `lw v0;nop;sw v0` (single-reg reuse) emits per copy. */
   *(u_char *)((int)&prim->tag + 3) = 9;
-  uVar3 = v0->g;
-  uVar4 = v0->b;
-  uVar5 = v0->a;
-  uVar6 = v1->r;
-  uVar7 = v1->g;
-  uVar8 = v1->b;
-  uVar9 = v1->a;
-  uVar10 = v2->r;
-  uVar11 = v2->g;
-  uVar12 = v2->b;
-  uVar13 = v2->a;
-  prim->r0 = v0->r;
-  prim->g0 = uVar3;
-  prim->b0 = uVar4;
-  prim->code = uVar5;
-  prim->r1 = uVar6;
-  prim->g1 = uVar7;
-  prim->b1 = uVar8;
-  prim->p1 = uVar9;
-  prim->r2 = uVar10;
-  prim->g2 = uVar11;
-  prim->b2 = uVar12;
-  prim->p2 = uVar13;
-  sVar14 = v0->dvy;
-  sVar15 = v1->dvx;
-  sVar16 = v1->dvy;
-  sVar17 = v2->dvx;
-  sVar18 = v2->dvy;
-  prim->x0 = v0->dvx;
-  prim->y0 = sVar14;
-  prim->x1 = sVar15;
-  prim->y1 = sVar16;
-  prim->x2 = sVar17;
-  prim->y2 = sVar18;
-  uVar3 = v0->v;
-  uVar4 = v1->u;
-  uVar5 = v1->v;
-  uVar6 = v2->u;
-  uVar7 = v2->v;
-  prim->u0 = v0->u;
-  prim->v0 = uVar3;
-  prim->u1 = uVar4;
-  prim->v1 = uVar5;
-  prim->u2 = uVar6;
-  prim->v2 = uVar7;
-  uVar1 = (sd->GT4Prim).tpage;
-  uVar2 = (sd->GT4Prim).clut;
-  prim->code = (sd->GT4Prim).code;
-  prim->tpage = uVar1;
-  prim->clut = uVar2;
+  c0 = *(u_int *)&v0->r;  c1 = *(u_int *)&v1->r;  c2 = *(u_int *)&v2->r;
+  *(u_int *)&prim->r0 = c0;  *(u_int *)&prim->r1 = c1;  *(u_int *)&prim->r2 = c2;
+  p0 = *(u_int *)&v0->dvx;  p1 = *(u_int *)&v1->dvx;  p2 = *(u_int *)&v2->dvx;
+  *(u_int *)&prim->x0 = p0;  *(u_int *)&prim->x1 = p1;  *(u_int *)&prim->x2 = p2;
+  t0 = *(u_short *)&v0->u;  t1 = *(u_short *)&v1->u;  t2 = *(u_short *)&v2->u;
+  *(u_short *)&prim->u0 = t0;  *(u_short *)&prim->u1 = t1;  *(u_short *)&prim->u2 = t2;
+  code = (sd->GT4Prim).code;  tpage = (sd->GT4Prim).tpage;  clut = (sd->GT4Prim).clut;
+  prim->code = code;  prim->tpage = tpage;  prim->clut = clut;
   return;
 }
 

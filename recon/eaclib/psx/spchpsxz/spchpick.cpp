@@ -150,11 +150,14 @@ extern "C" unsigned int iSPCH_GetPhraseBank(short *phraseTemplate, int paramTabl
     return (unsigned int)~(int)*outChoice >> 0x1f;
 }
 
-/* iSPCH_GetBankBits @0x80100994 : address of a bank's cycle-bits array (after its sample table). */
+/* iSPCH_GetBankBits @0x80100994 : address of a bank's cycle-bits array (after its sample table).
+ * MATCH: in-place dead-ptr: bank+=8 forces oracle's addiu a0,a0,8; addu v0,a0,mflo */
 extern "C" int iSPCH_GetBankBits(int bank)
 {
-    return bank + 8 + (int)(unsigned int)*(unsigned char *)(bank + 3) *
-                      (((int)*(unsigned char *)(bank + 2) & 0xf) + 2);
+    int stride = ((int)*(unsigned char *)(bank + 2) & 0xf) + 2;
+    int nSamp  = (int)(unsigned int)*(unsigned char *)(bank + 3);
+    bank += 8;
+    return bank + nSamp * stride;
 }
 
 /* iSPCH_ClearCycleBit @0x801009B8 : clear cycle bit `cycle` in `bank`'s bits array; returns the byte ptr. */

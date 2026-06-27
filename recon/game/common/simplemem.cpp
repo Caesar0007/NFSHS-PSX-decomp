@@ -9,15 +9,14 @@
 /* ---- Alloc__9SimpleMemii  [SIMPLEMEM.CPP:10-40] SLD-VERIFIED ---- */
 void * SimpleMem::Alloc(int len,int feign)
 {
-  u_int uVar1;
   void *ret;
 
-  uVar1 = len + 3U & 0xfffffffc;
-  if ((int)uVar1 <= this->freeMemSize) {
+  len = (len + 3) & ~3;
+  if (len <= this->freeMemSize) {
     ret = this->freeMem;
     if (feign == 0) {
-      this->freeMem = (u_char *)((int)ret + uVar1);
-      this->freeMemSize = this->freeMemSize - uVar1;
+      this->freeMem = (u_char *)((int)ret + len);
+      this->freeMemSize = this->freeMemSize - len;
     }
     return ret;
   }

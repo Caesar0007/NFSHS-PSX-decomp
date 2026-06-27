@@ -107,12 +107,12 @@ extern "C" int FILE_opensync(char *name, int a2, int a3, int *out)
 {
     int          ok = 0;
     unsigned int op = FILE_open(name, a2, a3, 0);
-    if (op == 0) {
-        *out = 0;
-    } else {
+    if (op != 0) {                                    /* oracle: beqz→zero path, fall-through→nonzero */
         FILE_waitop(op);
         ok   = (FILE_opstatus(op) == 1);
-        *out = (int)FILE_completeop(op);
+        *out = (int)FILE_completeop(op);              /* §3.21: sw in j delay slot */
+    } else {
+        *out = 0;
     }
     return ok;
 }
@@ -148,12 +148,12 @@ extern "C" int FILE_addbigsync(char *name, int a2, int a3, int *out)
 {
     int          ok = 0;
     unsigned int op = FILE_addbig(name, a2, a3, 0);
-    if (op == 0) {
-        *out = 0;
-    } else {
+    if (op != 0) {                                    /* oracle: beqz→zero path, fall-through→nonzero */
         FILE_waitop(op);
         ok   = (FILE_opstatus(op) == 1);
-        *out = (int)FILE_completeop(op);
+        *out = (int)FILE_completeop(op);              /* §3.21: sw in j delay slot */
+    } else {
+        *out = 0;
     }
     return ok;
 }

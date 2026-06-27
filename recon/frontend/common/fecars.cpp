@@ -910,7 +910,7 @@ void * tCarManager::IsCarAnAddedModel(tCarModels &model,char &color)
 {
   tCarInfo *ptVar1;
   int iVar2;
-  
+
   ptVar1 = this->GetCarFromID((short)model);
   iVar2 = (int)(signed char)ptVar1->fColorOrder[(u_char)color];
   if (iVar2 < 0) {
@@ -1441,11 +1441,12 @@ char tListIteratorCarColor::Value(tPlayer arg1)
 {
   int offset;
   tCarInfo *carInfo;
-  
+
   offset = (int)this->fPlayer;
+  carInfo = &this->fCarManager->fCars[(u_char)this->fPlayerCar[*(u_char *)offset]];
   return (u_int)(u_char)(this->_base_tListIterator).fValue
                      [(u_int)*(u_char *)offset * this->fIndexSize +
-                      (int)(signed char)this->fCarManager->fCars[(u_char)this->fPlayerCar[*(u_char *)offset]].fCarID]
+                      (int)(signed char)carInfo->fCarID]
   ;
 }
 

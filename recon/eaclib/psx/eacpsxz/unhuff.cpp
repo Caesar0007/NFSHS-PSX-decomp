@@ -589,18 +589,20 @@ extern "C" char *memcpyl(char *dst, char *src, int n)
     return end;
 }
 
-/* memcpyb @0x800F5234 : copy `n` bytes one at a time.  Returns the last byte copied. */
+/* memcpyb @0x800F5234 : copy `n` bytes one at a time.  Returns the last byte copied.
+ * MATCH: return type unsigned int + local unsigned int -- `unsigned char last` triggers
+ * an `andi v0,v0,255` mask on the return (oracle has nop there).  lbu already gives 0-255. */
 extern "C" unsigned int memcpyb(unsigned char *dst, unsigned char *src, int n)
 {
-    unsigned char last;
+    unsigned int last;
     do {
         last = *src;
         src  = src + 1;
         n    = n - 1;
-        *dst = last;
+        *dst = (unsigned char)last;
         dst  = dst + 1;
     } while (n != 0);
-    return (unsigned int)last;
+    return last;
 }
 
 /* refcpy @0x800F5254 : LZ back-reference copy -- `len` bytes from `dist` bytes behind `dst`.  Returns dst+len.

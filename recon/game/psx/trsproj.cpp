@@ -52,15 +52,12 @@ void TrsProj_SetMenuProjection(int cx,int cy,int w,int h)
 void TrsProj_SetViewTrsProjEnviro(DRender_tView *Vi)
 
 {
-  int h;
-  
   if (GameSetup_gData.commMode == 1) {
-    h = 0x78;
+    TrsProj_SetProjection(0,0,0x140,0x78);
   }
   else {
-    h = 0xf0;
+    TrsProj_SetProjection(0,0,0x140,0xf0);
   }
-  TrsProj_SetProjection(0,0,0x140,h);
   return;
 }
 

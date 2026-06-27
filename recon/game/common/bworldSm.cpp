@@ -254,10 +254,10 @@ void BWorldSm_SetSlice(int slice,BWorldSm_Pos *slicePos)
   slicePos->simQuad = (Trk_NewSimQuad *)0x0;
   slicePos->simRotFlag = 0;
   uVar1 = *(u_char *)(slicePos->slice * 0x20 + iVar2 + 0x1c);
-  slicePos->lastRezRequested = -2;
+  *(signed char *)&slicePos->lastRezRequested = -2;
   slicePos->rez = '\x01';
   slicePos->triangleFlag = '\0';
-  slicePos->quad = -1;
+  *(signed char *)&slicePos->quad = -1;
   slicePos->chunk = uVar1;
   return;
 }

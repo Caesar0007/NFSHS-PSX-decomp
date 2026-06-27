@@ -149,21 +149,17 @@ void TrackSpec_SetUp(void)
 void read(char **handle,void *buf,int bytes)
 
 {
-  char cVar1;
-  int i;
-  char *dest;
   char *source;
-  
+  int i;
+
   source = *handle;
   i = 0;
   if (0 < bytes) {
     do {
-      cVar1 = *source;
+      *(char *)buf = *source;
       source = source + 1;
       i = i + 1;
-      *(char *)buf = cVar1;
-      dest = (char *)((int)buf + 1);
-      buf = dest;
+      buf = (char *)buf + 1;
     } while (i < bytes);
   }
   *handle = source;

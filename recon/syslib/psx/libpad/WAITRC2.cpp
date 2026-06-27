@@ -17,9 +17,9 @@ extern "C" int _waitTime;    /* wait length, in (prescaled) ticks */
 /* @0x8010BFE8 : setRC2wait -- begin a wait of `ticks` and return the current counter value. */
 extern "C" unsigned setRC2wait(int ticks)
 {
-    unsigned now = T2_VALUE;
+    unsigned short now = T2_VALUE;
     _waitTime  = ticks;
-    _startTime = (int)now;
+    _startTime = now;
     return now;
 }
 

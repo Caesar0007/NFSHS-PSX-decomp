@@ -95,11 +95,14 @@ extern "C" void PadInitDirect(unsigned char *pad1, unsigned char *pad2)
     _padIntExec = 1;
 }
 
-/* @0x800FDE88 : _pad_reset_state (_padFuncClrInfo) -- wipe a port's transient state. */
+/* @0x800FDE88 : _pad_reset_state (_padFuncClrInfo) -- wipe a port's transient state.
+ * Oracle: addiu v1,a0,93; addiu a1,zero,255; addiu v0,zero,5 (ptr/fill/counter order).
+ * Loop: sb a1,0(v1); addiu v0,v0,-1; bgez v0; addiu v1,v1,1 (delay). 6 iters total. */
 extern "C" void _pad_reset_state(unsigned char *info)
 {
     if (info[0x49] != 0) {
-        int i;
+        unsigned char *p = info + 0x5d;
+        int n = 5;
         info[0x49] = 0;
         info[0x46] = 0;
         *(unsigned short *)(info + 0xe6) = 0;
@@ -113,8 +116,7 @@ extern "C" void _pad_reset_state(unsigned char *info)
         *(int *)(info + 0x00) = 0;
         *(int *)(info + 0x04) = 0;
         *(int *)(info + 0x08) = 0;
-        for (i = 0; i < 6; i++)
-            info[0x5d + i] = 0xff;
+        do { *p++ = 0xff; } while (--n >= 0);
     }
 }
 
@@ -144,12 +146,14 @@ extern "C" unsigned char *_pad_failall(int flag)
     return ret;
 }
 
-/* @0x800FDFE4 : _pad_shift (_padFuncClrCmdNo) -- consume the queued command byte. */
+/* @0x800FDFE4 : _pad_shift (_padFuncClrCmdNo) -- consume the queued command byte.
+ * MATCH: b declared unsigned (not unsigned char) to suppress the andi 0xff mask on return;
+ * lbu already zero-extends, so unsigned is semantically correct and oracle has no mask. */
 extern "C" unsigned _pad_shift(unsigned char *info)
 {
-    unsigned char b = info[0x36];
+    unsigned b = info[0x36];
     info[0x36] = 0;
-    info[0x37] = b;
+    info[0x37] = (unsigned char)b;
     return b;
 }
 
@@ -270,10 +274,12 @@ extern "C" int _pad_port_to_slot(unsigned char *p)
     return 0xff;
 }
 
-/* @0x800FE364 : _pad_get_port (_padFuncPort2Info) -- slot id -> info block ptr. */
+/* @0x800FE364 : _pad_get_port (_padFuncPort2Info) -- slot id -> info block ptr.
+ * Oracle: lui+addiu base once, then addiu v0,v0,0xF0 only if slot&0xF0 != 0 → single base reg. */
 extern "C" unsigned char *_pad_get_port(int slot)
 {
+    unsigned char *p = _pad_info;
     if ((slot & 0xf0) != 0)
-        return _pad_info + 0xf0;
-    return _pad_info;
+        p = p + 0xf0;
+    return p;
 }

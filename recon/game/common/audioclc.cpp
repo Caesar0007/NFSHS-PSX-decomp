@@ -1097,13 +1097,14 @@ void AudioClc_SoundCars(void)
       HudBustedOverlay != 0) {
     if (0 < GameSetup_gData.numPerps) {
       i = 0;
+      gs = &GameSetup_gData;
       do {
         patch = CopSpeak_GetEnginePatch(GameSetup_gData.perpInfo[i].CarType, 0);
         AudioCmn_GetAsyncSfx(1, patch, (void *)0);
         patch = CopSpeak_GetEnginePatch(GameSetup_gData.perpInfo[i].CarType, 1);
         AudioCmn_GetAsyncSfx(1, patch, (void *)0);
         i++;
-      } while (i < GameSetup_gData.numPerps);
+      } while (i < gs->numPerps);
     }
   }
 

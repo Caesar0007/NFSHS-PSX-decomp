@@ -126,7 +126,8 @@ void mdec(int handle,char *src,int x,int y)
 /* ---- mdecdone  (mdec.cpp:381, code lines 381-382) ---- */
 int mdecdone(int handle)
 
-{
+{ /* FLOOR (3 diffs): gcc-2.8.0 materializes &gMDECinfo.hDecode directly (lw v0,0) vs oracle's
+   &gMDECinfo + lw 4(v0). Source-unreachable gp-rel field-addr selection; no pin-free lever. */
   return (uint)(gMDECinfo.hDecode != handle);
 }
 

@@ -18,10 +18,12 @@ extern "C" int VoxEvent_GetFilterLengthFlag(int event);                   /* @0x
 extern "C" int iSPCH_GetOffset8(int base, int tableBase, int index);      /* @0x80100748 */
 extern "C" int iSPCH_GetOffset16(int base, int tableBase, int index);     /* @0x80100760 */
 
-/* iSPCH_GetMatchValue @0x80100710 : read the int at entry `index` of the table that starts at base+8. */
+/* iSPCH_GetMatchValue @0x80100710 : read the int at entry `index` of the table that starts at base+8.
+ * MATCH: in-place dead-ptr mutate: base += index*4 forces oracle's addu a0,a0,a1; lw v0,8(a0) */
 extern "C" int iSPCH_GetMatchValue(int base, int index)
 {
-    return *(int *)(base + index * 4 + 8);
+    base += index * 4;
+    return *(int *)(base + 8);
 }
 
 /* VoxSentence_GetShortRule @0x80100724 : low 2 bits of the sentence's flags byte (+3). */

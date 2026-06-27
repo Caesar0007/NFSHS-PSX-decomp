@@ -402,7 +402,7 @@ void Math_NormalizeShortVector(coorddef *v)
   int iVar1;
   int iVar2;
   int inverse;
-  
+
   len_or_inv = fixedmult(v->x,v->x);
   tmp = fixedmult(v->y,v->y);
   z_sq = fixedmult(v->z,v->z);

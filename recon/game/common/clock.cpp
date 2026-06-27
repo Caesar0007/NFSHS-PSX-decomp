@@ -29,14 +29,15 @@ void Clock_MasterInterruptHandler(void)
   if (stopClock == 0) {
     clock_realTime.time128Hz = clock_realTime.time128Hz + 1;
     generic128HzClock = generic128HzClock + 1;
-    if (((clock_realTime.time128Hz & 1U) == 0) &&
-       (clock_realTime.time64Hz = clock_realTime.time64Hz + 1, (clock_realTime.time64Hz & 1U) == 0))
-    {
-      clock_realTime.time32Hz = clock_realTime.time32Hz + 1;
-      if ((clock_realTime.time32Hz & 1U) == 0) {
-        Input_Update();
+    if (!(clock_realTime.time128Hz & 1U)) {
+      clock_realTime.time64Hz = clock_realTime.time64Hz + 1;
+      if (!(clock_realTime.time64Hz & 1U)) {
+        clock_realTime.time32Hz = clock_realTime.time32Hz + 1;
+        if (!(clock_realTime.time32Hz & 1U)) {
+          Input_Update();
+        }
+        Input_Store();
       }
-      Input_Store();
     }
   }
   restoregp(local_10[0]);

@@ -30,20 +30,20 @@ int CD_read_dma_mode = 0; /* @0x8013C2D4 : bit0 = copy read sectors via DMA */
 }
 
 /* @0x80109158 : default sync callback -- deliver the "command complete" CdRom event. */
-extern "C" int _cd_event_sync(int /*intr*/, int /*result*/)  { DeliverEvent(0xF0000003, 0x20); return 0; }
+extern "C" void _cd_event_sync(int /*intr*/, int /*result*/)  { DeliverEvent(0xF0000003, 0x20); }  /* MATCH: void - oracle has no addu v0,zero,zero */
 
 /* @0x80109180 : default ready callback -- deliver the "data ready" CdRom event. */
-extern "C" int _cd_event_ready(int /*intr*/, int /*result*/) { DeliverEvent(0xF0000003, 0x40); return 0; }
+extern "C" void _cd_event_ready(int /*intr*/, int /*result*/) { DeliverEvent(0xF0000003, 0x40); }  /* MATCH: void */
 
 /* @0x801091A8 : default read callback -- deliver the "data ready" CdRom event. */
-extern "C" int _cd_event_read(int /*intr*/, int /*result*/)  { DeliverEvent(0xF0000003, 0x40); return 0; }
+extern "C" void _cd_event_read(int /*intr*/, int /*result*/)  { DeliverEvent(0xF0000003, 0x40); }  /* MATCH: void */
 
 /* @0x8010911C : one bring-up attempt -- CD_init then CD_initvol; returns 1 on success. */
 extern "C" int _cd_event_init(void)
 {
     if (CD_init() != 0)
         return 0;                 /* controller init failed */
-    return CD_initvol() < 1;      /* volume init: <=0 => ok (1) */
+    return (unsigned)CD_initvol() < 1u;  /* MATCH: sltiu (unsigned < 1) not slti */
 }
 
 /* @0x8010908C : CdInit -- retry bring-up (<=5x), install default callbacks, return 1 on success. */

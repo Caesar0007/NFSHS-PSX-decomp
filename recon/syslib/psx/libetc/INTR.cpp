@@ -42,9 +42,10 @@ typedef struct {
 } IntrState;
 extern "C" IntrState g_intr;               /* @0x80134AF8 */
 
-extern "C" IntrSetter g_dma_setter   = 0;  /* @0x80135B64 (returned by startIntrDMA) */
-extern "C" IntrSetter g_vsync_setter = 0;  /* @0x80135B74 (returned by startIntrVSync) */
-extern "C" int        g_intr_timeout = 0;  /* @0x80135B90 */
+extern "C" IntrSetter       g_dma_setter   = 0;  /* @0x80135B64 (returned by startIntrDMA) */
+extern "C" IntrSetter       g_vsync_setter = 0;  /* @0x80135B74 (returned by startIntrVSync) */
+extern "C" unsigned short  *g_imask_ptr;         /* @0x80135B88 : runtime ptr to I_MASK register */
+extern "C" int              g_intr_timeout = 0;  /* @0x80135B90 */
 
 static void _bzero_w(int *p, int n)        /* @0x800F2E70 */
 {
@@ -96,14 +97,18 @@ extern "C" int VSyncCallbacks(int idx, int func)   /* @0x800F2910 */
     return g_vsync_setter(idx, func);
 }
 
-extern "C" void CheckCallback(void)        /* @0x800F2940 */
+/* @0x800F2940 -- returns g_intr.in_handler (D_80134AFA); lhu = unsigned read */
+extern "C" int CheckCallback(void)
 {
+    return (unsigned short)g_intr.in_handler;
 }
 
 extern "C" int SetIntrMask(int mask)   /* @0x800F2950 */
 {
-    int old = I_MASK;          /* returns the previous mask (callers save/restore it) */
-    I_MASK = (unsigned short)mask;
+    /* MATCH: oracle uses g_imask_ptr (D_80135B88) indirection → lw ptr; lhu *ptr; sh a0,*ptr in jr delay */
+    unsigned short *p = g_imask_ptr;
+    int old = *p;
+    *p = (unsigned short)mask;
     return old;
 }
 

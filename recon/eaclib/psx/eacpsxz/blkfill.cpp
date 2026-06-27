@@ -9,14 +9,21 @@
  *   (the asm sets a2=0 then drops straight into blockfill), i.e. blockclear = memset(dst, 0, n).
  */
 
+/* blockclear @0x800F17A0 : 1-insn fall-through into blockfill -- sets a2=0 then drops straight through.
+ * Cannot be expressed in C without a call; use file-scope asm to emit just the one insn. */
+#if defined(__mips__)
+__asm__(
+"       .globl blockclear\n"
+"blockclear:\n"
+"       addiu   $a2, $zero, 0\n"       /* set val=0, then fall through into blockfill */
+);
+#else
+extern "C" void blockclear(void *dst, int n) { blockfill(dst, n, 0); }
+#endif
+
 extern "C" void blockfill(void *dst, int n, unsigned char val)  /* @0x800F17A4 */
 {
     unsigned char *d = (unsigned char *)dst;
     while (n-- > 0)
         *d++ = val;
-}
-
-extern "C" void blockclear(void *dst, int n)                    /* @0x800F17A0 (falls into blockfill, val=0) */
-{
-    blockfill(dst, n, 0);
 }

@@ -23,18 +23,26 @@ typedef unsigned char  u_char;
 typedef unsigned short u_short;
 typedef unsigned int   u_int;
 
-/* ---- GPU context state (BSS; pointers installed at runtime by _reset) ---- */
-static volatile u_long *GPU_GP0;     /* @0x801237A0 */
-static volatile u_long *GPU_GP1;     /* @0x801237A4 */
-static volatile u_long *D2_MADR;     /* @0x801237A8 */
-static volatile u_long *D2_BCR;      /* @0x801237AC */
-static volatile u_long *D2_CHCR;     /* @0x801237B0 */
-static volatile u_long *D6_MADR;     /* @0x801237B4 */
-static volatile u_long *D6_BCR;      /* @0x801237B8 */
-static volatile u_long *D6_CHCR;     /* @0x801237BC */
-static volatile u_long *DMA_DPCR;    /* @0x801237C0 */
+/* ---- GPU context state (BSS; pointers installed at runtime by _reset) ----
+ * These 4-byte pointers would default to .sbss under -G4 (gp-relative).
+ * The oracle addresses every one of them ABSOLUTELY (lui %hi; lw %lo).
+ * Force each into regular .bss so the compiler materialises them with
+ * lui+lw, not a single gp-relative lw (§3.12 #6 absolute lever). */
+static volatile u_long *GPU_GP0  __attribute__((section(".bss")));  /* @0x801237A0 */
+static volatile u_long *GPU_GP1  __attribute__((section(".bss")));  /* @0x801237A4 */
+static volatile u_long *D2_MADR  __attribute__((section(".bss")));  /* @0x801237A8 */
+static volatile u_long *D2_BCR   __attribute__((section(".bss")));  /* @0x801237AC */
+static volatile u_long *D2_CHCR  __attribute__((section(".bss")));  /* @0x801237B0 */
+static volatile u_long *D6_MADR  __attribute__((section(".bss")));  /* @0x801237B4 */
+static volatile u_long *D6_BCR   __attribute__((section(".bss")));  /* @0x801237B8 */
+static volatile u_long *D6_CHCR  __attribute__((section(".bss")));  /* @0x801237BC */
+static volatile u_long *DMA_DPCR __attribute__((section(".bss")));  /* @0x801237C0 */
 
-static u_char _gp1_shadow[256];      /* @0x8013EAF8 : last value written per GP1 command (top byte = index) */
+/* @0x8013EAF8 : last value written per GP1 command (top byte = index).
+ * Non-static + .bss to force gcc to use the split %hi/%lo reloc displacement
+ * form (lui; addu idx; lbu/sb %lo(arr)) instead of fused lui+addiu form. */
+extern "C" u_char _gp1_shadow[256];
+u_char _gp1_shadow[256] __attribute__((section(".bss")));
 
 /* ============================ SUB-GROUP 1 ============================ */
 
@@ -95,16 +103,20 @@ extern "C" void _memset(char *p, int c, int n)
 /* @0x800EE9C8 : build a GP0 0xE5 "drawing offset" command word. */
 extern "C" u_long _set_draw_offset(int x, int y)
 {
-    return 0xe5000000u | ((u_long)(x & 0x7ff)) | ((u_long)(y & 0x7ff) << 11);
+    u_long yi = (u_long)(y & 0x7ff) << 11;
+    return 0xe5000000u | yi | (u_long)(x & 0x7ff);
 }
 
-/* @0x800EE878 : build a GP0 0xE1 "draw mode" command word (dfe=draw-to-display, dtd=dither). */
+/* @0x800EE878 : build a GP0 0xE1 "draw mode" command word (dfe=draw-to-display, dtd=dither).
+ * Oracle uses beqz dtd delay-slot=lui v1,E100 (hi base in delay slot), then beqz dfe
+ * delay-slot=andi v0,a2,9ff (lo base in delay slot).  Return or v0,v1,v0 = lo|hi. */
 extern "C" u_long _set_draw_mode(int dfe, int dtd, int tpage)
 {
-    u_long hi = dtd ? 0xe1000200u : 0xe1000000u;
     u_long lo = (u_long)(tpage & 0x9ff);
+    u_long hi = (u_long)0xe1000000u;
+    if (dtd) hi |= 0x200u;
     if (dfe) lo |= 0x400u;
-    return hi | lo;
+    return lo | hi;
 }
 
 /* ============================ SUB-GROUP 2 ============================
@@ -133,8 +145,8 @@ static int    _qout;                 /* @0x8013xxxx : consumer index (mod 64) */
 static int    _q_saved_mask;         /* @0x801237CC : imask saved across the push critical section */
 static int    _drain_saved_mask;     /* @0x801237D0 : imask saved across the drain critical section */
 static int    _q_reset_mask;         /* @0x801237D4 : imask saved across timeout/reset */
-static int    _gpu_timeout_target;   /* @0x801237D8 : VSync deadline */
-static int    _gpu_timeout_count;    /* @0x801237DC : spin counter */
+static int    _gpu_timeout_target __attribute__((section(".bss")));  /* @0x801237D8 : VSync deadline */
+static int    _gpu_timeout_count  __attribute__((section(".bss")));  /* @0x801237DC : spin counter */
 /* GEnv block small statics -> .bss (absolute), not .sdata/.sbss gp-rel.  See the GEnv_drv/_gpu_debug
  * note below (§3.12 absolute lever); the original addresses every GEnv field absolute. */
 static u_char _gpu_active __attribute__((section(".bss")));   /* @0x8012369D : driver running (set by ResetGraph) */
@@ -785,7 +797,9 @@ extern "C" int MoveImage(void *rect, int x, int y)
     return GEnv_drv->que_push((QueFunc)GEnv_drv->dma_chain, _move_prim, 0x14, 0);
 }
 
-/* @0x800EDCB4 : DrawOTag -- queue an ordering-table for DMA. */
+/* @0x800EDCB4 : DrawOTag -- queue an ordering-table for DMA.
+ * Oracle uses addu a3,$zero,$zero (independent zero) in the delay slot.
+ * Pass n and extra as separate constant paths so CSE uses $zero directly. */
 extern "C" void DrawOTag(u_long *ot)
 {
     if (_gpu_debug >= 2)

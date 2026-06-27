@@ -334,10 +334,10 @@ extern "C" int asyncloadfileatcallback(int name, int dest, int cb)
     req->callback  = cb;
     req->offset    = 0;
     op = FILE_open((char *)(size_t)(unsigned int)name, 1, 0x64, RQ(req));
-    req->dest = dest;                  /* asm: delay slot */
+    req->dest = dest;                  /* §3.21: goes in FILE_open jal delay slot */
+    req->fileop = (int)op;             /* §3.21: goes in beqz delay slot (stored even if op==0) */
     if (op == 0)
         return 0;
-    req->fileop = (int)op;
     FILE_callbackop(op, (void (*)(int, int))loadfileopencallback);
     return req->id;
 }
@@ -455,3 +455,5 @@ extern "C" int getasyncreadstatus(int id)
 
 extern "C" { AsyncQueue callqueue; AsyncQueue freequeue; int asyncfileoffset; int numrequests; int readblocksize; }  /* owning-TU defs (BSS) */
 extern "C" { void *mutex; }   /* nasync.obj async-pool mutex handle (= allocmutex() result); BSS */
+extern "C" { int asyncfilehandle; }   /* @0x8013DEB0 : open file handle for segment reads; 4B → .comm/.sbss → gp-rel */
+extern "C" { int requestidcounter; }   /* @0x8013DEB8 : request-ID counter; 4B → .comm/.sbss → gp-rel */

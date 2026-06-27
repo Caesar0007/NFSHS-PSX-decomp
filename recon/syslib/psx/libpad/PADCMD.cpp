@@ -49,14 +49,16 @@ extern "C" void _padSetAct(unsigned char *info, int data, int len)
     info[0x34] = (unsigned char)len;
 }
 
-/* @0x80105E8C : _padCmdParaMode -- 0x43 enter-config(para). */
+/* @0x80105E8C : _padCmdParaMode -- 0x43 enter-config(para).
+ * MATCH: r=1 hoisted early so v0=1 is live before sb a1,0x24; jr ra delay-slot gets sb v0,0x35. */
 extern "C" int _padCmdParaMode(unsigned char *info, int para)
 {
     info[0x36] = 0x43;
     *(unsigned char **)(info + 0x2c) = info + 0x24;
+    int r = 1;
     info[0x24] = (unsigned char)para;
-    info[0x35] = 1;
-    return 1;
+    info[0x35] = (unsigned char)r;
+    return r;
 }
 
 /* @0x80105EAC : _padCmdGetStatus -- 0x45 get-status. */
@@ -68,34 +70,40 @@ extern "C" int _padCmdGetStatus(unsigned char *info)
     return 0x45;
 }
 
-/* @0x80105EC0 : _padCmdSetMap -- 0x4C set-config-map(idx). */
+/* @0x80105EC0 : _padCmdSetMap -- 0x4C set-config-map(idx).
+ * MATCH: same r=1 hoist as _padCmdParaMode. */
 extern "C" int _padCmdSetMap(unsigned char *info, int idx)
 {
     info[0x36] = 0x4c;
     *(unsigned char **)(info + 0x2c) = info + 0x24;
+    int r = 1;
     info[0x24] = (unsigned char)idx;
-    info[0x35] = 1;
-    return 1;
+    info[0x35] = (unsigned char)r;
+    return r;
 }
 
-/* @0x80105EE0 : _padCmdGetDescR0 -- 0x46 get-descriptor-0(idx). */
+/* @0x80105EE0 : _padCmdGetDescR0 -- 0x46 get-descriptor-0(idx).
+ * MATCH: same r=1 hoist. */
 extern "C" int _padCmdGetDescR0(unsigned char *info, int idx)
 {
     info[0x36] = 0x46;
     *(unsigned char **)(info + 0x2c) = info + 0x24;
+    int r = 1;
     info[0x24] = (unsigned char)idx;
-    info[0x35] = 1;
-    return 1;
+    info[0x35] = (unsigned char)r;
+    return r;
 }
 
-/* @0x80105F00 : _padCmdGetDescR1 -- 0x47 get-descriptor-1(idx). */
+/* @0x80105F00 : _padCmdGetDescR1 -- 0x47 get-descriptor-1(idx).
+ * MATCH: same r=1 hoist. */
 extern "C" int _padCmdGetDescR1(unsigned char *info, int idx)
 {
     info[0x36] = 0x47;
     *(unsigned char **)(info + 0x2c) = info + 0x24;
+    int r = 1;
     info[0x24] = (unsigned char)idx;
-    info[0x35] = 1;
-    return 1;
+    info[0x35] = (unsigned char)r;
+    return r;
 }
 
 /* @0x80105F20 : _padCmd4B -- 0x4B exit-config. */
@@ -290,7 +298,9 @@ tail:
 
 /* =====================  set-actuator-align command  =========================================== */
 
-/* @0x80105BF4 : _padSetActAlign -- queue the actuator-alignment command (returns 1 if accepted). */
+/* @0x80105BF4 : _padSetActAlign -- queue the actuator-alignment command (returns 1 if accepted).
+ * MATCH: r=1 hoisted before info[0x46]=1 → oracle emits addiu v0,0,1 (return) then addiu v1,0,1
+ * (fresh reg for sb v1,0x46) rather than addu v1,v0,zero (copy). */
 extern "C" int _padSetActAlign(unsigned char *info, int data)
 {
     if (_padFuncChkEng(info) == 0) {
@@ -370,18 +380,25 @@ extern "C" int _padSetMainMode(unsigned char *info, int offs, int lock)
     return 0;
 }
 
-/* @0x80105DD8 : _padSetMainMode_snd. */
+/* @0x80105DD8 : _padSetMainMode_snd.
+ * MATCH: goto form → beq/beq/j pattern (not bne/bne fall-through).
+ *        info[0x35]=st in case2 delay slot reuses cached v1=st(=2). */
 extern "C" void _padSetMainMode_snd(unsigned char *info)
 {
-    if (info[0x46] == 2) {
-        info[0x36] = 0x44;
-        *(unsigned char **)(info + 0x2c) = info + 0x51;
-        info[0x35] = 2;
-    } else if (info[0x46] == 3) {
-        info[0x36] = 0x4d;
-        *(unsigned char **)(info + 0x2c) = info + 0x5d;
-        info[0x35] = 6;
-    }
+    int st = info[0x46];    /* lbu; int avoids andi 0xff promotion */
+    if (st == 2) goto case2;
+    if (st == 3) goto case3;
+    goto end;
+case2:
+    info[0x36] = 0x44;
+    *(unsigned char **)(info + 0x2c) = info + 0x51;
+    info[0x35] = st;
+    goto end;
+case3:
+    info[0x36] = 0x4d;
+    *(unsigned char **)(info + 0x2c) = info + 0x5d;
+    info[0x35] = 6;
+end: ;
 }
 
 /* @0x80105E2C : _padSetMainMode_rcv. */

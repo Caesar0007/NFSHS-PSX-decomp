@@ -17,7 +17,7 @@ spec = importlib.util.spec_from_file_location('bld', ROOT / 'tools' / 'build.py'
 bld = importlib.util.module_from_spec(spec); spec.loader.exec_module(bld)
 bld.OUT = bld.BUILD
 obj = bld.compile_cpp(cpp)
-dis = subprocess.run([OBJD, '-d', '-r', str(obj)], capture_output=True, text=True).stdout
+dis = subprocess.run([OBJD, '-d', '-r', '-z', str(obj)], capture_output=True, text=True).stdout
 
 _COP0 = {'sr':'12','status':'12','cause':'13','epc':'14','badvaddr':'8','prid':'15','index':'0',
          'random':'1','entrylo':'2','context':'4','config':'16','bpc':'3','bda':'5','dcic':'7','bdam':'9','bpcm':'11'}

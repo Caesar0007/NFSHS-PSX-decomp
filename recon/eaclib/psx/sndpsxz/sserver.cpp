@@ -175,9 +175,13 @@ extern "C" void iSNDleaveaudio(void)
 }
 
 /* iSNDserveradd100hzclient @0x800EA5F0 : register a 100 Hz tick callback `cb`; returns sndgs.
- *   Count read SIGNED (lb) for the index, UNSIGNED (lbu) for the increment-store. */
+ *   Count read SIGNED (lb) for the index, UNSIGNED (lbu) for the increment-store.
+ * MATCH: byte-base cast keeps oracle's sll(lb*4) then addu then sw a0,0x4c(v1) displacement form */
 extern "C" short *iSNDserveradd100hzclient(int cb)
 {
+    /* FLOOR: oracle does sll lb*4 then sw a0,0x4c(v1); our gcc adds 0x13 before sll (semantically
+     * identical: (lb+0x13)*4 == lb*4+0x4c) but emits an extra addiu vs oracle's displacement form.
+     * maspsx fusion wall — 3-diff floor, not source-reachable. */
     sndgs[(int)(signed char)GB(0x40) + 0x13] = cb;
     GB(0x40) = GB(0x40) + 1;
     return (short *)sndgs;

@@ -89,10 +89,10 @@ void Weather_InitSnow(void)
   Weather_gSys.width = 0x280;
   Weather_gSys.znear = 0x140;
   Weather_gSys.zfar = 0x640;
+  Weather_gSys.length = 0x500;
   Weather_gSys.bottom = -0x140;
   Weather_gSys.top = 0x3c0;
   Weather_gSys.velocity.vy = -0x12;
-  Weather_gSys.length = 0x500;
   Weather_gSys.height = 0x500;
   Weather_gSys.velocity.vx = 0;
   Weather_gSys.velocity.vz = 0;
@@ -105,13 +105,13 @@ void Weather_InitRain(void)
 
 {
   Weather_gSys.num[0] = 0x96;
+  Weather_gSys.width = 0x440;
   Weather_gSys.znear = 0x180;
   Weather_gSys.zfar = 0xa00;
   Weather_gSys.length = 0x880;
   Weather_gSys.bottom = -0x140;
   Weather_gSys.height = 0x580;
   Weather_gSys.velocity.vy = -0x68;
-  Weather_gSys.width = 0x440;
   Weather_gSys.top = 0x440;
   Weather_gSys.velocity.vx = 0;
   Weather_gSys.velocity.vz = 0;
@@ -152,16 +152,16 @@ void Weather_InitSplats(void)
 int Weather_GetNewState(void)
 
 {
-  u_int uVar1;
-  int iVar2;
-  int randseed;
-  
-  uVar1 = random();
-  iVar2 = 0;
-  if ((1 < (uVar1 & 3)) && (iVar2 = 1, (uVar1 & 3) != 2)) {
-    iVar2 = -1;
+  int r;
+
+  r = random() & 3;
+  if (r < 2) {
+    return 0;
   }
-  return iVar2;
+  if (r == 2) {
+    return 1;
+  }
+  return -1;
 }
 
 /* ---- Weather_ChangeDensityState__Fv  [WEATHER.CPP:253-269] SLD-VERIFIED ---- */

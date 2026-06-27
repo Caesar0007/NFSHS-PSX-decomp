@@ -388,12 +388,6 @@ void FeAudio_InitCommentary(int language,int arg1)
 void FeAudio_DeInitCommentary(void)
 
 {
-  char *tempChar;
-  char *streamBuffer;
-  u_int i;
-  LUMPYHEAD lumpHead;
-  char vivname [5];
-  
   if (speechfileHeader[0] != (LUMPYHEAD *)0x0) {
     purgememadr(speechfileHeader[0]);
     speechfileHeader[0] = (LUMPYHEAD *)0x0;

@@ -210,16 +210,15 @@ void SimQueue_SetLag(void)
 int SimQueue_IsBlocking(int pIndex)
 
 {
-  int i;
-  int tail;
-  
-  if (pIndex != 0) {
-    return 0;
+  if (pIndex == 0) {
+    if (GameSetup_gData.commMode != 0) {
+      if (GameSetup_gData.commMode != 1) {
+        return 0;
+      }
+    }
+    return inputQueue.TailTime[0] < inputQueue.HeadTime + maxTicksPerFrame ^ 1;
   }
-  if ((GameSetup_gData.commMode != 0) && (GameSetup_gData.commMode != 1)) {
-    return 0;
-  }
-  return inputQueue.TailTime[0] < inputQueue.HeadTime + maxTicksPerFrame ^ 1;
+  return 0;
 }
 
 /* end of simqueue.cpp */

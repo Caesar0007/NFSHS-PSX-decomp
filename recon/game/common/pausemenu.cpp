@@ -16,8 +16,7 @@ void PauseMenu_FullText(char *sMenuText,short x,short flags,short color)
 
 {
   int iVar1;
-  char *str;
-  
+
   if (gPause_CurrentY == 0x62) {
     x = 0xa0;
     flags = 2;

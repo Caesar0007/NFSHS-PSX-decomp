@@ -355,15 +355,15 @@ void Sfx_Add(Souffle_tISouffle *is)
   case 2:
   case 3:
     cycle = 0x1f;
-SfxAdd_setRandom:
-    is->cycle = cycle;
-    is->rndpixmap = random() & 1;
-    return;
+    goto SfxAdd_setRandom;
   case 6:
   case 7:
   case 9:
     cycle = 8;
-    goto SfxAdd_setRandom;
+SfxAdd_setRandom:
+    is->cycle = cycle;
+    is->rndpixmap = random() & 1;
+    return;
   case 11:
     is->rndpixmap = random() & 1;
     is->cycle = 2;

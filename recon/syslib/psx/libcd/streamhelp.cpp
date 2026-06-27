@@ -62,9 +62,10 @@ extern "C" u_long StGetNext(u_long **addr, u_long **header)
             slot[0] = 0;
         slot = (u_short *)(StRingAddr + (StRingIdx3 << 5));
     }
-    if (slot[0] != 2)                           /* not decoded yet (oracle returns 1 here) */
-        return 1;
-
+    {   u_long r = 1;                             /* MATCH: pre-load return val so gcc puts addiu v0,1 in bne delay slot */
+        if (slot[0] != 2)                       /* not decoded yet */
+            return r;
+    }
     slot[0] = 4;                                /* claim it */
     *addr   = (u_long *)(StRingAddr + (StRingSize << 5) + ((StRingIdx3 * 0x3F) << 5));
     *header = (u_long *)slot;

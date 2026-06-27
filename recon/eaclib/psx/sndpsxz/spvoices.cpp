@@ -19,7 +19,7 @@ extern "C" void STREAM_kill(int strm);
 extern "C" void iSNDserverremoveclient(void *cb);                           /* ssysserv */
 extern "C" void *memset(void *d, int c, int n);
 
-extern "C" int sndss;                       /* @0x8013EA80 */
+extern "C" int sndss[];                      /* @0x8013EA80 stream slot ptr array */
 extern "C" int sndgs[];                      /* (signed char)sndgs[0xf] = init flag, sndgs[0x22] = destroyall hook */
 
 #define MI(p,o) (*(int*)((p)+(o)))
@@ -53,7 +53,7 @@ extern "C" int SNDSTRM_destroy(int s)
     SNDPKTPLAY_destroy(MI(S, 0xc));
     if (MB(S, 0x18) == 0)                                /* owns its ring */
         STREAM_destroy(MI(S, 4));
-    (&sndss)[s] = 0;
+    sndss[s] = 0;
     return 0;
 }
 

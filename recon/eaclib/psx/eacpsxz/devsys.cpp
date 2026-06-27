@@ -6,7 +6,7 @@
 extern "C" int psxdevelopmentsystem(void);   /* @0x80106CF0 */
 extern "C" int psxdevelopmentsystem(void)
 {
-    unsigned short v = *(volatile unsigned short *)0x86;   /* PSX kernel region marker */
+    unsigned int v = *(unsigned short *)0x86;   /* PSX kernel region marker @abs 0x86; lhu base=zero */
     if (v == 0x375a) return 1;
     if (v == 0x275a) return 0;
     return -1;

@@ -29,9 +29,9 @@ extern "C" char *primptr;        /* current primitive write cursor              
 extern "C" char *nextprim;       /* next primitive link target (== otbl)          */
 extern "C" int   oti;            /* OT index                                      */
 extern "C" int   otp;            /* OT page/parity                                */
-extern "C" int   drawpending;    /* a DrawOTag is in flight                       */
-extern "C" int   linkmodeflag;   /* link/draw mode passed to initlinkmode         */
-extern "C" int   semitrans;      /* semi-transparency mode (settrans)             */
+extern "C" { int drawpending; }  /* owning-TU tentative def → .comm/.sbss → gp-rel */
+extern "C" { int linkmodeflag; } /* owning-TU tentative def → .comm/.sbss → gp-rel */
+extern "C" { int semitrans; }    /* owning-TU tentative def → .comm/.sbss → gp-rel */
 
 extern "C" void *initlinkmode(void *unused, int maxprimArg, int linkmode)   /* @0x800F05F4 */
 {
@@ -71,8 +71,11 @@ extern "C" void waitdraw(void)   /* @0x800F06E0 */
 
 extern "C" int settrans(int mode)   /* @0x800F070C */
 {
-    if (mode >= 0)
-        semitrans = (mode == 0) ? 1 : 3;           /* mode>0 -> 3, mode==0 -> 1, mode<0 -> query */
+    /* oracle: bltz→skip; beqz→1; j(delay li 3)→3 */
+    if (mode < 0) goto done;
+    if (mode != 0) { semitrans = 3; goto done; }
+    semitrans = 1;
+done:
     return semitrans >> 1;
 }
 

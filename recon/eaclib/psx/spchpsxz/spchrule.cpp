@@ -34,10 +34,12 @@ extern "C" void iSPCH_RuleSet(short *sentence, int rule, int val);        /* @0x
 extern "C" void iSPCH_GetRuleSettings(short *sentence, int *values, char *out); /* @0x8010B3CC */
 extern "C" unsigned int iSPCH_CheckSentenceRules(int testVal, int clearMask, int rulePtr); /* @0x8010B58C */
 
-/* iSPCH_GetRuleDataAddr @0x8010B140 : address of a sentence's rule-data block (after its phrase table). */
+/* iSPCH_GetRuleDataAddr @0x8010B140 : address of a sentence's rule-data block (after its phrase table).
+ * MATCH: keep the +0xc on the offset before adding sentence (delay-slot addu v0,a0,v0) */
 extern "C" int iSPCH_GetRuleDataAddr(int sentence)
 {
-    return sentence + (int)(unsigned int)*(unsigned char *)(sentence + 6) * 2 + 0xc;
+    int off = (int)(unsigned int)*(unsigned char *)(sentence + 6) * 2 + 0xc;
+    return sentence + off;
 }
 
 /* iSPCH_SentenceUsesParm @0x8010B158 : 1 if any phrase of `sentence` references parameter `paramIdx`. */

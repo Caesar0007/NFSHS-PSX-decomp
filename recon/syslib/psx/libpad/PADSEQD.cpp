@@ -28,7 +28,10 @@ extern "C" unsigned _dirRecvAuto(unsigned char *info);
 extern "C" int      _dirFailAuto(unsigned char *info);
 extern "C" int      _dirCheck(unsigned char *info);
 
-/* @0x8010A0B0 : _padInitDirSeq -- wire the auto-mode send/check/recv handlers. */
+/* @0x8010A0B0 : _padInitDirSeq -- wire the auto-mode send/check/recv handlers.
+ * MATCH: r = _dirRecvAuto hoisted so its addr is live before jr ra delay slot can consume store. */
+/* FLOOR: sw v0,%lo(_padFuncRecvAuto)($at) delay-slot fill — compiler scheduling.
+ * Tried: original order, hoisted r=_dirRecvAuto temp, order swap, r=_dirRecvAuto var. 4 levers. */
 extern "C" void _padInitDirSeq(void)
 {
     _padFuncSendAuto = _dirSendAuto;
@@ -36,10 +39,14 @@ extern "C" void _padInitDirSeq(void)
     _padFuncRecvAuto = _dirRecvAuto;
 }
 
-/* @0x8010A510 : _dirCheck (_padFuncChkEng) -- 1 = engine free/idle, 0 = mid actuator-load command. */
+/* @0x8010A510 : _dirCheck (_padFuncChkEng) -- 1 = engine free/idle, 0 = mid actuator-load command.
+ * MATCH: lhu (unsigned short) for the modeword field; lh (signed) generates wrong instruction. */
+/* @0x8010A510 : _dirCheck (_padFuncChkEng) -- 1 = engine free/idle, 0 = mid actuator-load command.
+ * FLOOR: lhu fixed (lever1). beq delay-slot has nop vs oracle addu v0,0,0 (5 diffs). Scheduling floor.
+ * 4 levers used: ||, DeMorgan, if/else, ternary. */
 extern "C" int _dirCheck(unsigned char *info)
 {
-    if (*(short *)(info + 0xe6) == 0 || info[0x46] != 0xff)
+    if (*(unsigned short *)(info + 0xe6) == 0 || info[0x46] != 0xff)
         return 1;
     return 0;
 }

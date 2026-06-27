@@ -30,8 +30,11 @@ extern "C" int            _padFixResult[2];
 extern unsigned char     *_padSioRegs;                              /* @0x80137CDC -> 0x1F801040 */
 #define JOY_DATA8 (*(volatile unsigned char *)(_padSioRegs))
 
-static int _padMtapFlag;    /* @0x8013C310 : multitap present (set by _padIntInit) */
-static int _padMtapCount;   /* @0x8013C308 : remaining bytes/sub-ports to exchange */
+/* @0x8013C308 : 12-byte block (3 words) forces out of .sdata → absolute lui/sw addressing.
+ *  [0]=_padMtapCount @0x8013C308, [1]=padding @0x8013C30C, [2]=_padMtapFlag @0x8013C310. */
+static int _padMtapData[3];
+#define _padMtapCount (_padMtapData[0])
+#define _padMtapFlag  (_padMtapData[2])
 
 /* @0x8010C0A8 : _padIntInit -- begin the exchange (issue 0x01 select). */
 extern "C" int _padIntInit(unsigned char *info)
@@ -85,18 +88,17 @@ extern "C" int _padIntRecvId(unsigned char *info)
 extern "C" unsigned _padIntRecvHdr(unsigned char *info)
 {
     int align = 0;
-    unsigned tx, r, result;
+    unsigned tx, r;
     if ((unsigned)(**(unsigned char **)(info + 0x3c) >> 4) == 8)
         align = (info[0x36] == 0);
     tx = (unsigned)_padFuncGetTxd(info, align);
     r = _padSioRW2(info, tx & 0xff);
-    result = r;
     if (r != 0x5a && r != 0) {
-        result = 0xfffffff7;
-        if ((int)r < 0)
-            result = r;
+        if ((int)r >= 0)
+            return 0xfffffff7;
+        return r;
     }
-    return result;
+    return r;
 }
 
 /* @0x8010C314 : _padIntRecvData -- stream the payload (multitap sub-ports), then advance the port. */

@@ -65,10 +65,13 @@ extern "C" int   CD_lastSector;      /* @0x80146CD4 (ctx+0x10) completion/prefet
  *      CD_sectorCache=unk_80146D00, CD_handleTable=ctx+0x34, CD_dirEntryArray=ctx+0x38).
  *      The original is one struct; the reconstruction uses flat names, so each gets its
  *      own zero-init (BSS) storage here in the owning TU. */
+/* CD_handleTable is NOT in this tentative-def block: the oracle accesses it via absolute
+ * lui/lw (D_80146CF8 = cdctx+0x34) -- a tentative def here would emit .comm (4 bytes, sbss)
+ * making it gp-rel under -G4, which disagrees with the oracle.  It is defined in the data-mat pass.
+ * All other flat-name fields below are truly owned here (never gp-rel in any oracle fn). */
 extern "C" {
 int    CD_maxOpen;
 int    CD_dirEntryCount;
-void **CD_handleTable;
 void  *CD_dirEntryArray;
 int    CD_curOff;
 int    CD_curLen;

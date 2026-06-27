@@ -24,15 +24,20 @@ extern "C" int   tolower(int c);                   /* libc C38.obj, BIOS A0:0x26
 extern "C" char *strrstr (char *s, char *set);    /* @0x800E8940 */
 extern "C" int   wildcard(char *text, char *pat); /* @0x800E89BC */
 
-/* strrstr @0x800E8940 : rightmost position in `s` of any char of `set` (0 if none). */
+/* strrstr @0x800E8940 : rightmost position in `s` of any char of `set` (0 if none).
+ * Oracle: initial beqz-if-empty guard (s1=0 in delay slot) + do-while bnez at bottom.
+ * 4-diff floor: j T (unconditional back-jump) vs beqz + nop pair — loop-entry-jump form. */
 extern "C" char *strrstr(char *s, char *set)
 {
     char *best = 0;
-    for (; *set; set++) {
+    if (*set == 0)
+        return best;
+    do {
         char *p = strrchr(s, *set);     /* libc strrchr, BIOS A0:0x1F */
         if (best < p)                    /* keep the rightmost (max) hit */
             best = p;
-    }
+        set++;
+    } while (*set);
     return best;
 }
 

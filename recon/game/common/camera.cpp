@@ -2685,22 +2685,6 @@ void Camera_ReplayUpdate(int cviewP,Camera_tCamSlot *ptr)
 /* ---- Camera_ResetRelPos__Fi  [@0x80085cd4] ---- */
 void Camera_ResetRelPos(int bitMask)
 {
-  int h1;
-  int ang;
-  int h0;
-  int maxrate;
-  int scale;
-  int lookingBehind;
-  int rate;
-  int rateY;
-  matrixtdef mx;
-  matrixtdef my;
-  matrixtdef mz;
-  coorddef des;
-  int circle_height [3];
-  int sin;
-  int cos;
-  
   if ((bitMask & 1U) != 0) {
     Camera_gInfo[0].relpos.x = ((Camera_gInfo[0].anchor)->orientMat).m[6] * -4;
     Camera_gInfo[0].relpos.y = ((Camera_gInfo[0].anchor)->orientMat).m[7] * -4;

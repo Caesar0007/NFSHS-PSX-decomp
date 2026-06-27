@@ -39,15 +39,15 @@ void AudioMus_AutoVolume(int fadeticks,int volume);
 /* ---- AudioMus_RefreshStatus__Fv  [@0x80079ef4] ---- */
 void AudioMus_RefreshStatus(void)
 {
-  if (AudioMus_g->streamhandle < 0) {
-    (AudioMus_g->streamstatus).outstandingrequests = 0;
-  }
-  else {
+  if (AudioMus_g->streamhandle >= 0) {
     SNDSTRM_status(AudioMus_g->streamhandle,(int)&AudioMus_g->streamstatus);
     if (0 < (AudioMus_g->streamstatus).outstandingrequests) {
       SNDSTRM_requeststatus((AudioMus_g->streamstatus).currentrequest,
                  (u_int)&AudioMus_g->requeststatus);
     }
+  }
+  else {
+    (AudioMus_g->streamstatus).outstandingrequests = 0;
   }
   return;
 }
@@ -73,13 +73,16 @@ int AudioMus_Threshold(void)
 /* ---- AudioMus_Buffered__Fv  [@0x80079fdc] ---- */
 int AudioMus_Buffered(void)
 {
-  if ((AudioMus_g != (AudioMus_tMusicGlobals *)0x0) && (AudioMus_g->bigfileheader != (char *)0x0)) {
-    if ((AudioMus_g->streamstatus).outstandingrequests != 0) {
-      return (AudioMus_g->requeststatus).timebuffered;
-    }
+  if (AudioMus_g == (AudioMus_tMusicGlobals *)0x0) {
     return 0;
   }
-  return 0;
+  if (AudioMus_g->bigfileheader == (char *)0x0) {
+    return 0;
+  }
+  if ((AudioMus_g->streamstatus).outstandingrequests == 0) {
+    return 0;
+  }
+  return (AudioMus_g->requeststatus).timebuffered;
 }
 
 /* ---- AudioMus_GetCurrentSong__Fv  [@0x8007a028] ---- */
@@ -694,12 +697,12 @@ void AudioMus_StopSong(int fadeticks)
     }
     else {
       if (AudioMus_g->switchsong == 0) {
-        if (AudioMus_g->streamhandle < 0) {
-          AudioMus_g->fadetime = 0;
-        }
-        else {
+        if (AudioMus_g->streamhandle >= 0) {
           SNDSTRM_autovol(AudioMus_g->streamhandle,fadeticks,0);
           AudioMus_g->fadetime = fadeticks;
+        }
+        else {
+          AudioMus_g->fadetime = 0;
         }
         AudioMus_g->songname = (char *)0x0;
       }

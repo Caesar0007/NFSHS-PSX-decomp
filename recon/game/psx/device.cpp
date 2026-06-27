@@ -58,15 +58,17 @@ int Device_Fail(int port)
   int iVar2;
 
   iVar2 = Device_VerifyType(port);
-  if (iVar2 == 0) {
-    bVar1 = failtime[port != 0];
-    if (8 < bVar1) {
-      return 1;
-    }
-    failtime[port != 0] = bVar1 + 1;
+  if (iVar2 != 0) {
+    failtime[port != 0] = '\0';
   }
   else {
-    failtime[port != 0] = '\0';
+    bVar1 = failtime[port != 0];
+    if ((u_int)bVar1 < 9) {
+      failtime[port != 0] = bVar1 + 1;
+    }
+    else {
+      return 1;
+    }
   }
   return 0;
 }

@@ -108,7 +108,7 @@ void Render_StartRenderingWorldView(int viewid)
   Camera_SetCamera(&gCView);
   Track_AnimateTrackLighting();
   Draw_StartRenderingView(viewid);
-  Render_gMenuRenderFlag = GameSetup_gData.mirrorTrack;
+  *(int *)0x1F80000C = GameSetup_gData.mirrorTrack;
   Fog_Update(gCView.player);
   DrawC_SetEnviroment();
   TrsProj_ResetTransPrecision();

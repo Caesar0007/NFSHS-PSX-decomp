@@ -21,14 +21,14 @@ int textnpixels(char *str,int n)
   stringlen = 0;
   if (0 < n) {
     do {
-      code = (*(FontDecoder *)(currentfont + 0x160))(&str);
+      code = (*(FontDecoder *)(currentfont + 0xa0))(&str);
       i = i + 1;
       if (code == 0) {
         return stringlen;
       }
       ch = getcharacter(code);
       if (ch != 0) {
-        dx = ch->advance;
+        dx = (signed char)ch->advance;
         stringlen = stringlen + dx;
       }
     } while (i < n);

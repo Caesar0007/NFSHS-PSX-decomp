@@ -11,6 +11,11 @@ typedef unsigned short u_short;
 
 #define MDEC0   (*(volatile u_long *)0x1F801820)   /* MDEC data / command port   */
 #define MDEC1   (*(volatile u_long *)0x1F801824)   /* MDEC status / control      */
+
+/* @0x80136C3C : pointer to MDEC1 register (0x1F801824); part of the HW-register
+ * pointer table @0x80136C08.  _MDEC_get_reg1 loads this pointer absolutely, then
+ * dereferences it -- NOT a direct lui+ori of the literal address. */
+static volatile u_long *MDEC1_ptr __attribute__((section(".bss")));  /* @0x80136C3C */
 #define D0_MADR (*(volatile u_long *)0x1F801080)   /* DMA ch0 (MDECin)  address  */
 #define D0_BCR  (*(volatile u_long *)0x1F801084)   /*                   block ctl */
 #define D0_CHCR (*(volatile u_long *)0x1F801088)   /*                   channel ctl */
@@ -160,10 +165,10 @@ static int MDEC_out_sync(int mode)
     return -1;
 }
 
-/* @0x800F8E2C : read the MDEC status register. */
+/* @0x800F8E2C : read the MDEC status register via the HW-pointer table entry. */
 extern "C" int _MDEC_get_reg1(void)
 {
-    return (int)MDEC1;
+    return (int)*MDEC1_ptr;
 }
 
 /* @0x800F8E44 : report a timeout and force-reset the MDEC + DMA channels. */

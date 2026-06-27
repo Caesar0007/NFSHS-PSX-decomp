@@ -198,7 +198,7 @@ void FECheat_EncodeString2(char *input,char *output)
 void FECheat_ActivateBonus(tCheatCode cheat)
 
 {
-  
+
   FECheat_HandleActivation(cheat);
   gFEBonus = gFEBonus | 1 << cheat;   /* no & cheat_NumCheats: sllv masks to 5 bits; oracle has no andi */
   return;

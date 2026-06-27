@@ -70,7 +70,7 @@ extern "C" int cd_read(int nsec, int lba, void *buf)
 /* @0x800F9360 : directory-name compare (ISO names are exact, so this is effectively ==). */
 extern "C" int _cd_cmp_name(char *a, char *b)
 {
-    return strncmp(a, b, 0xC) < 1;
+    return (unsigned)strncmp(a, b, 0xC) < 1u;   /* MATCH: sltiu (unsigned < 1) not slti */
 }
 
 /* @0x800F9644 : find the path-table entry for child (parent, name); returns its 1-based id or -1. */

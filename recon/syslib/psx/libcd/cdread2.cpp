@@ -19,10 +19,9 @@ extern "C" int  data_ready_callback(void);  /* @0x80108798 (C_004) */
 extern "C" int  StMode;                     /* @0x801489CC : streaming RGB24/mode flag */
 
 /* @0x800F8FCC : ready callback for a streaming read -- pump the stream interrupt handler. */
-extern "C" int _cdread2_ready(int /*intr*/, int /*result*/)
+extern "C" void _cdread2_ready(int /*intr*/, int /*result*/)  /* MATCH: void - oracle has no addu v0,zero,zero */
 {
     StCdInterrupt();
-    return 0;
 }
 
 /* @0x800F8F48 : CdRead2 -- begin a CdlReadS read in the given mode. */
@@ -41,5 +40,5 @@ extern "C" int CdRead2(long mode)
         CdReadyCallback((int)_cdread2_ready);
     }
 
-    return CdControl(0x1B, 0, 0);                /* CdlReadS */
+    return CdControl(0x1B, 0, 0);   /* CdlReadS -- NULL param+result */
 }

@@ -4,8 +4,8 @@
  *   Ghidra nfs4-f.exe.c (inittmr) + disasm-v3 + IDA sigs.  Bare VAs symbolicated: addexit arg 0x800F4304 =
  *   &restoretimer; blockclear target 0x8012360C = &tmrsub; creatememclass template 0x8013DD48 = &DAT_8013dd48.
  */
-extern "C" int   timerflag;     /* RCnt event installed flag */
-extern "C" int   timerevent;    /* RCnt event handle */
+extern "C" { int timerflag; }   /* @0x8013..  owning-TU tentative def → .comm/.sbss → gp-rel */
+extern "C" { int timerevent; } /* @0x8013..  owning-TU tentative def → .comm/.sbss → gp-rel */
 extern "C" int   reentryflag;   /* tmrint re-entry guard */
 extern "C" int   timerhz;       /* tick rate */
 extern "C" int   memclass;      /* memstd class id */

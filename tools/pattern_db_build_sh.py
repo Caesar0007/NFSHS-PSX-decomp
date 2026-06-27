@@ -86,8 +86,10 @@ for ci,c in enumerate(cfiles):
     sm=sh_sources(c); funcs=obj_funcs(o)
     for fn,ins in funcs.items():
         if not ins or len(ins)<3: continue
+        src=sm.get(fn)
+        if src is None: continue   # no matched C in SH src => INCLUDE_ASM (original asm, not a source->asm pair). skip.
         records.append({'func':fn,'file':'SH/'+str(c.relative_to(SH)).replace('\\','/'),'n':len(ins),
-                        'asm':ins,'src':sm.get(fn),'compiler':'gcc2.8.1','game':'sh'})
+                        'asm':ins,'src':src,'compiler':'gcc2.8.1','game':'sh'})
 # rebuild index over ALL records
 index={}
 for rid,rec in enumerate(records):

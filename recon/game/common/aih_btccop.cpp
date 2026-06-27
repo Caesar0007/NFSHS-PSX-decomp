@@ -1832,9 +1832,11 @@ void AIHigh_BTC_HumanCop::HudOn(AIHigh_BTC_Perp *arrestMe,int gameOver,
 
   if (((this->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop.copIndex_ == 0) || (gameOver != 0)) {
 
+    Car_tObj *pCVar1 = (arrestMe->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_;
+
     Hud_BustedOverlayOn(simGlobal.gameTicks - this->chaseStartTime_,
 
-               ((arrestMe->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->carInfo->driver,
+               pCVar1->carInfo->driver,
 
                (void *)(u_int)(gameOver == 0),(short)arrestingCop->carIndex);
 

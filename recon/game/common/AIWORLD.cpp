@@ -160,7 +160,6 @@ LAB_80073218:
 /* ---- AIWorld_SplineDistance__FP8Car_tObjT0  [@0x80073224] ---- */
 int AIWorld_SplineDistance(Car_tObj *carObj,Car_tObj *otherCarObj)
 {
-  int distance;
   int iVar1;
   
   iVar1 = AIWorld_ApxSplineDistance(carObj,otherCarObj);

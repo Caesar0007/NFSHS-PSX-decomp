@@ -78,7 +78,7 @@ extern CVECTOR * Chunk_lightTable;
 extern int Draw_gMidGroundOtz;
 extern int Draw_gViewOtSize;
 extern GameSetup_tData GameSetup_gData;
-extern u_char (* Night_gCopColor[2])[256][256];
+extern u_char (* Night_gCopColor[2])[256][8];
 extern u_char *** Night_gCurrentNightColor;
 extern char * Night_gNightTbl;
 extern u_char (* Night_gWeatherLightingTable[2])[256];

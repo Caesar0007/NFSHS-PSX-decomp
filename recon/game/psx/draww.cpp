@@ -636,22 +636,21 @@ void Night_NightCopCalc(VECTOR *v,short *idx)
 
 {
   int z;
-  bool bVar1;
-  int lookup;
-  u_char (*coplookuptbl) [256] [8] [256] [8];
-  int index;
+  int neg;
   int x;
-  
-  coplookuptbl = (u_char (*) [256] [8] [256] [8])v->vz;
-  if (((*coplookuptbl)[0][0][0xff] + 7 < (u_char *)0xfff) && (v->vx + 0x3ffU < 0x7ff)) {
-    bVar1 = (int)coplookuptbl < 0;
-    if (bVar1) {
-      coplookuptbl = (u_char (*) [256] [8] [256] [8])-(int)coplookuptbl;
+
+  /* MATCH: bounds via (u_int)(z+0x7FF)<0xFFF (Ghidra's [0][0][0xff]+7 idiom); sign as a
+     bgez branch (neg flag) not a srl-31; lbu+sra via (int)(u_char) (no u_int -> unsigned). */
+  z = v->vz;
+  x = v->vx;
+  if (((u_int)(z + 0x7ff) < 0xfff) && ((u_int)(x + 0x3ff) < 0x7ff)) {
+    neg = 0;
+    if (z < 0) {
+      z = -z;
+      neg = 1;
     }
-    *idx = (u_short)(*Night_gCopColor[bVar1])[(short)*idx]
-                     [(int)(u_int)(u_char)Night_gNightTbl
-                                       [((int)coplookuptbl >> 5) * 0x40 + (v->vx + 0x400 >> 5)] >> 1
-                     ];
+    *idx = (u_short)(*Night_gCopColor[neg])[(short)*idx]
+                     [(int)(u_char)Night_gNightTbl[(z >> 5) * 0x40 + ((x + 0x400) >> 5)] >> 1];
   }
   return;
 }

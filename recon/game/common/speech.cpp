@@ -2148,10 +2148,12 @@ void * KnownPerp__Q26Speech15DispatchSpeakerP8Car_tObj(DispatchSpeaker *pThis,Ca
 
   i = 0;
   do {
-    if (pThis->fPerp[i] == car) {
+    if (pThis->fPerp[i] != car) {
+      i = i + 1;
+    }
+    else {
       return (void *)0x1;
     }
-    i = i + 1;
   } while (i < 2);
   return (void *)0x0;
 }

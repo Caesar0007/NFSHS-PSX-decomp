@@ -907,16 +907,16 @@ LAB_8006ec80:
 /* ---- AISpeeds_GetLegalSpeed__Fi  [@0x8006ed0c] ---- */
 int AISpeeds_GetLegalSpeed(int slice)
 {
-  speedData_t*speedData;
-  speedData_t *psVar1;
-  speedData_t *psVar2;
-  
-  psVar1 = AISpeeds_TrackSpeeds[GameSetup_gData.track];
+  speedData_t *p;
+  int es;
+
+  p = AISpeeds_TrackSpeeds[GameSetup_gData.track];
   do {
-    psVar2 = psVar1;
-    psVar1 = psVar2 + 1;
-  } while ((int)(u_int)psVar2->endSlice < slice);
-  return (u_int)psVar2->speedMPS << 8;
+    es = (int)(u_int)p->endSlice;
+    p = p + 1;
+  } while (es < slice);
+  p = p - 1;
+  return (u_int)p->speedMPS << 8;
 }
 
 /* ---- AISpeeds_RandomizeTrafficSpeed__FP8Car_tObji  [@0x8006ed50] ---- */

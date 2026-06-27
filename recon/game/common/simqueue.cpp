@@ -197,7 +197,10 @@ void SimQueue_GetCurrentInput(int pIndex,Input_tResults *out)
 void SimQueue_SetLag(void)
 
 {
-  if ((GameSetup_gData.commMode == 0) || (GameSetup_gData.commMode == 1)) {
+  if (GameSetup_gData.commMode == 0) {
+    maxTicksPerFrame = 4;
+  }
+  else if (GameSetup_gData.commMode == 1) {
     maxTicksPerFrame = 4;
   }
   return;

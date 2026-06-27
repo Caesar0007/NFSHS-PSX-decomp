@@ -1562,8 +1562,9 @@ char * KillFile_OpenRead(void)
 void KillFile_ReadEntry(char *filePtr,int entryInd,int &chunkInd,int &objectInd)
 
 {
-  chunkInd = *(int *)(filePtr + entryInd * 8 + 4);
-  objectInd = *(int *)(filePtr + entryInd * 8 + 8);
+  filePtr += entryInd * 8;
+  chunkInd = *(int *)(filePtr + 4);
+  objectInd = *(int *)(filePtr + 8);
   return;
 }
 

@@ -190,9 +190,9 @@ void BWorld_SetSpikeBelt(int slice,int x,int width)
 {
   gSpikeBelt = 1;
   gSpikeBeltSlice = slice;
+  gSpikeBeltChunk = (u_int)*(u_char *)((char *)BWorldSm_slices + slice * 0x20 + 0x1c);
   gSpikeBeltWidth = width;
   gSpikeBeltX = x;
-  gSpikeBeltChunk = (u_int)*(u_char *)(slice * 0x20 + BWorldSm_slices + 0x1c);
   return;
 }
 

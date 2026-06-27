@@ -42,19 +42,19 @@ int AITune_GetOneWay(void)
 /* ---- AITune_GetDriveSide__Fv  [@0x80072ec0] ---- */
 int AITune_GetDriveSide(void)
 {
-  if (0xb < GameSetup_gData.track) {
-    return 1;
+  if (GameSetup_gData.track < 0xc) {
+    return AITune_trackInfo[GameSetup_gData.track].driveSide;
   }
-  return AITune_trackInfo[GameSetup_gData.track].driveSide;
+  return 1;
 }
 
 /* ---- AITune_GetRoughLapTimes__Fv  [@0x80072f00] ---- */
 int AITune_GetRoughLapTimes(void)
 {
-  if (0xb < GameSetup_gData.track) {
-    return 0xbe;
+  if (GameSetup_gData.track < 0xc) {
+    return AITune_trackInfo[GameSetup_gData.track].roughLapTimeSeconds;
   }
-  return AITune_trackInfo[GameSetup_gData.track].roughLapTimeSeconds;
+  return 0xbe;
 }
 
 /* ---- AITune_StartUp1__Fv  [@0x80072f40] ---- */

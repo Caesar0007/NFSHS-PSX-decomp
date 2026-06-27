@@ -46,8 +46,8 @@ void Sfx_BuildSmokeFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,Draw_tPixMap
   int iclut;
 
   radius = (0x1f - (u_char)is->cycle) * 4 + 0x26;
-  cosa = fixedmult(fastintcos(is->angle),radius);
-  sina = fixedmult(fastintsin(is->angle),radius);
+  cosa = fixedmult(intcos(is->angle),radius);
+  sina = fixedmult(intsin(is->angle),radius);
   dSouffle->v0.vx = is->trans.vx - (short)sina;
   dSouffle->v0.vy = is->trans.vy + (short)cosa;
   dSouffle->v0.vz = is->trans.vz;
@@ -78,8 +78,8 @@ void Sfx_ThickenXZ(SVECTOR *d,coorddef *pt1,coorddef *pt2,coorddef *cp)
   int pzp;
 
   angle = intatan(pt2->x - pt1->x,pt2->z - pt1->z);
-  pxp = fixedmult(0xe666,-fastintcos(angle)) >> 1;
-  pzp = fixedmult(0xe666,fastintsin(angle)) >> 1;
+  pxp = fixedmult(0xe666,-intcos(angle)) >> 1;
+  pzp = fixedmult(0xe666,intsin(angle)) >> 1;
   d[1].vx = (short)((pt1->x + pxp) - cp->x >> 10);
   d[1].vy = (short)(pt1->y - cp->y >> 10);
   d[1].vz = (short)((pt1->z + pzp) - cp->z >> 10);
@@ -225,13 +225,13 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
     break;
   case 6:
     radius = 0x88 - (u_char)is->cycle;
-    cosa = fixedmult(fastintcos(is->angle),radius);
-    sina = fixedmult(fastintsin(is->angle),radius);
+    cosa = fixedmult(intcos(is->angle),radius);
+    sina = fixedmult(intsin(is->angle),radius);
     goto SfxSouffle_billboard;
   case 7:
     radius = (8 - (u_char)is->cycle) * 4 + 0x19;
-    cosa = fixedmult(fastintcos(is->angle),radius);
-    sina = fixedmult(fastintsin(is->angle),radius);
+    cosa = fixedmult(intcos(is->angle),radius);
+    sina = fixedmult(intsin(is->angle),radius);
     dSouffle.v0.vx = is->trans.vx - (short)sina;  dSouffle.v0.vy = is->trans.vy + (short)cosa;  dSouffle.v0.vz = is->trans.vz;
     dSouffle.v1.vx = is->trans.vx + (short)cosa;  dSouffle.v1.vy = is->trans.vy + (short)sina;  dSouffle.v1.vz = is->trans.vz;
     dSouffle.v2.vx = is->trans.vx + (short)sina;  dSouffle.v2.vy = is->trans.vy - (short)cosa;  dSouffle.v2.vz = is->trans.vz;
@@ -241,8 +241,8 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
     break;
   case 9:
     radius = (8 - (u_char)is->cycle) * 4 + 0x19;
-    cosa = fixedmult(fastintcos(is->angle),radius);
-    sina = fixedmult(fastintsin(is->angle),radius);
+    cosa = fixedmult(intcos(is->angle),radius);
+    sina = fixedmult(intsin(is->angle),radius);
     dSouffle.v0.vx = is->trans.vx - (short)sina;  dSouffle.v0.vy = is->trans.vy + (short)cosa;  dSouffle.v0.vz = is->trans.vz;
     dSouffle.v1.vx = is->trans.vx + (short)cosa;  dSouffle.v1.vy = is->trans.vy + (short)sina;  dSouffle.v1.vz = is->trans.vz;
     dSouffle.v2.vx = is->trans.vx + (short)sina;  dSouffle.v2.vy = is->trans.vy - (short)cosa;  dSouffle.v2.vz = is->trans.vz;
@@ -252,8 +252,8 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
     break;
   case 11:
     radius = (8 - (u_char)is->cycle) * 4 + 0xc;
-    cosa = fixedmult(fastintcos(is->angle),radius);
-    sina = fixedmult(fastintsin(is->angle),radius);
+    cosa = fixedmult(intcos(is->angle),radius);
+    sina = fixedmult(intsin(is->angle),radius);
 SfxSouffle_billboard:
     dSouffle.v0.vx = is->trans.vx - (short)sina;  dSouffle.v0.vy = is->trans.vy + (short)cosa;  dSouffle.v0.vz = is->trans.vz;
     dSouffle.v1.vx = is->trans.vx + (short)cosa;  dSouffle.v1.vy = is->trans.vy + (short)sina;  dSouffle.v1.vz = is->trans.vz;
@@ -311,8 +311,8 @@ SfxSouffle_billboard:
     break;
   case 13:
   case 14:
-    cosa = fixedmult(fastintcos(is->angle),6);
-    sina = fixedmult(fastintsin(is->angle),6);
+    cosa = fixedmult(intcos(is->angle),6);
+    sina = fixedmult(intsin(is->angle),6);
     dSouffle.v0.vx = is->trans.vx - (short)sina;  dSouffle.v0.vy = is->trans.vy + (short)cosa;  dSouffle.v0.vz = is->trans.vz;
     dSouffle.v1.vx = is->trans.vx + (short)cosa;  dSouffle.v1.vy = is->trans.vy + (short)sina;  dSouffle.v1.vz = is->trans.vz;
     dSouffle.v2.vx = is->trans.vx + (short)sina;  dSouffle.v2.vy = is->trans.vy - (short)cosa;  dSouffle.v2.vz = is->trans.vz;

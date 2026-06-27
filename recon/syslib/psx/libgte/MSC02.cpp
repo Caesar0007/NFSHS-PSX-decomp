@@ -24,8 +24,8 @@ __asm__(
     "\t.set noat\n"
     "\t.set\tnoreorder\n"   /* tab form: turns maspsx's is_reorder OFF (no auto delay nop) */
     "\t.set noreorder\n"    /* space form: passes THROUGH maspsx to gnu-as */
-    "\t.globl func_800F1B3C\n"
-    "func_800F1B3C:\n"
+    "\t.globl _vec_norm_kernel\n"
+    "_vec_norm_kernel:\n"
     "\tmtc2  $t0, $9\n"                     /* IR1 = x */
     "\tmtc2  $t1, $10\n"                    /* IR2 = y */
     "\tmtc2  $t2, $11\n"                    /* IR3 = z */
@@ -88,7 +88,7 @@ __asm__(
     "\tlw    $t1, 4($a0)\n"
     "\tlw    $t2, 8($a0)\n"
     "\taddu  $a3, $ra, $zero\n"             /* save ra in $a3 (handwritten, no stack) */
-    "\tjal   func_800F1B3C\n"
+    "\tjal   _vec_norm_kernel\n"
     "\t nop\n"
     "\tsw    $t0, 0($a1)\n"
     "\tsw    $t1, 4($a1)\n"
@@ -124,7 +124,7 @@ __asm__(
     "\tlh    $t2, 4($a0)\n"
     ".L_vecnormSS_tail:\n"                    /* VectorNormalS branches here (shared tail) */
     "\taddu  $a3, $ra, $zero\n"
-    "\tjal   func_800F1B3C\n"
+    "\tjal   _vec_norm_kernel\n"
     "\t nop\n"
     "\tsh    $t0, 0($a1)\n"
     "\tsh    $t1, 2($a1)\n"

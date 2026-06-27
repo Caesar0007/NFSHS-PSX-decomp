@@ -49,7 +49,7 @@ def compile_sh(c):
     return o
 def sh_sources(c):
     txt=c.read_text(encoding='utf-8', errors='replace'); sm={}
-    for m in re.finditer(r'\n([A-Za-z_][\w \t\*]*?\b(\w+)\s*\([^;{)]*\)\s*\{)', txt):
+    for m in re.finditer(r'\n([A-Za-z_][\w \t\*]*?\b(\w+)\s*\([^;{)]*\)[^{};]*\{)', txt):  # [^{};]* allows a trailing // 0xVA comment between ) and {
         name=m.group(2); start=m.start(1); i=txt.index('{',start); depth=0; j=i
         while j<len(txt):
             ch=txt[j]

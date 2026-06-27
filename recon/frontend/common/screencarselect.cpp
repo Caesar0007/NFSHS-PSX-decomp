@@ -658,7 +658,7 @@ void tScreenCarSelect::Initialize()
   }
   mdefs = menuDefs;
   GameSetup_gData.track = (int)trackInfo.fSimNumber;
-  gShowroomLights = 1;
+  gShowroomLights[0] = 1;
   uVar6 = (menuDefs->itemDamage)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags &
           0xfffffffe;
   (menuDefs->itemDamage)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags = uVar6;
@@ -1369,7 +1369,7 @@ void tScreenCarSelectDuel::Initialize()
   
   this->_base_tScreenCarSelect.Initialize();
   (this->_base_tScreenCarSelect).fState = 0;
-  gShowroomLights = 0;
+  gShowroomLights[0] = 0;
   return;
 }
 
@@ -2226,7 +2226,7 @@ void tScreenCarSelectTwoPlayer::Initialize()
   (this->_base_tScreenCarSelect).fDestBrightness[0] = 0;
   (this->_base_tScreenCarSelect).fBrightness[1] = 0;
   (this->_base_tScreenCarSelect).fBrightness[0] = 0;
-  gShowroomLights = 0;
+  gShowroomLights[0] = 0;
   return;
 }
 

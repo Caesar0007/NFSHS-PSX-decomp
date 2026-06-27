@@ -5,7 +5,7 @@
 #include "../../lib/libfns.h"
 
 /* ===== globals ===== */
-extern int            ticks;
+extern int            ticks[];
 extern char          *Paths_Paths[];
 extern int            Draw_gPlayer1View;             /* @0x8013d3cc */
 extern Draw_tView     Draw_gView[];                  /* @0x8011ec54 */

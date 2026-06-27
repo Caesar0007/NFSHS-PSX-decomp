@@ -324,13 +324,13 @@ SetCurCtrl_dualShockDetected:
     padState = PadGetState((uint)(this->player != 0) << 4);
     if (padState == 6) {
       this->fCurrentController = '\x06';
-      fSetMenu = &menuDefs->menuControllerDualShockAnalog;
+      fSetMenu = &menuDefs[0]->menuControllerDualShockAnalog;
     }
     else {
       padState = PadGetState((uint)(this->player != 0) << 4);
       if (padState == 2) {
         this->fCurrentController = '\x05';
-        fSetMenu = &menuDefs->menuControllerAnalog;
+        fSetMenu = &menuDefs[0]->menuControllerAnalog;
       }
     }
   }
@@ -355,7 +355,7 @@ SetCurCtrl_dualShockDetected:
               ctrlType = '\x02';
             }
             this->fCurrentController = ctrlType;
-            menus = menuDefs;
+            menus = menuDefs[0];
             this->negconChoice = -1;
             fSetMenu = &menus->menuControllerNegcon;
           }
@@ -367,7 +367,7 @@ SetCurCtrl_dualShockDetected:
           }
         }
         else {
-          fSetMenu = &menuDefs->menuControllerNegcon;
+          fSetMenu = &menuDefs[0]->menuControllerNegcon;
         }
         goto SetCurCtrl_menuSetVertHelp;
       }
@@ -376,7 +376,7 @@ SetCurCtrl_dualShockDetected:
         dialogIdle = false;
         if (padState == 6) {
           this->fCurrentController = '\x04';
-          menus = menuDefs;
+          menus = menuDefs[0];
           this->fTimeOutStartTick = 0;
           fSetMenu = &menus->menuControllerDualShock;
           goto SetCurCtrl_menuSetVertHelp;
@@ -403,13 +403,13 @@ SetCurCtrl_dualShockDetected:
   }
 SetCurCtrl_menuSetVertHelp:
   if ((fSetMenu != (tInsideBoxMenu *)0x0) || (setmenutonull)) {
-    SetMenu(&menuDefs->itemControllerSettings,firsttimeU,fSetMenu);
+    SetMenu(&menuDefs[0]->itemControllerSettings,firsttimeU,fSetMenu);
   }
   if (((byte)this->fCurrentController - 5 < 2) && ((byte)this->fTextConfig < 2)) {
-    (menuDefs->menuControllerConfig)._base_tMenu.VertHelp = 1;
+    (menuDefs[0]->menuControllerConfig)._base_tMenu.VertHelp = 1;
   }
   else {
-    (menuDefs->menuControllerConfig)._base_tMenu.VertHelp = 0;
+    (menuDefs[0]->menuControllerConfig)._base_tMenu.VertHelp = 0;
   }
   return;
 }
@@ -541,10 +541,10 @@ void tScreenControllerConfig::DrawController()
   drawFlags.custom_shapes = (this->_base_tScreen).fSwapShapes.fShapes;
   bShockActive = false;
   if ((((this->fCurrentController == '\x04') &&
-       ((short)(menuDefs->menuControllerDualShock)._base_tMenu.fCurrentItem == 0)) ||
+       ((short)(menuDefs[0]->menuControllerDualShock)._base_tMenu.fCurrentItem == 0)) ||
       ((this->fCurrentController == '\x06' &&
-       ((short)(menuDefs->menuControllerDualShockAnalog)._base_tMenu.fCurrentItem == 0)))) &&
-     ((short)(menuDefs->menuControllerConfig)._base_tMenu.fCurrentItem == 1)) {
+       ((short)(menuDefs[0]->menuControllerDualShockAnalog)._base_tMenu.fCurrentItem == 0)))) &&
+     ((short)(menuDefs[0]->menuControllerConfig)._base_tMenu.fCurrentItem == 1)) {
     bShockActive = true;
   }
   if ((bShockActive) && (frontEnd.shockMode[this->player] != '\0')) {
@@ -559,10 +559,10 @@ void tScreenControllerConfig::DrawController()
   else {
     bShockActive = false;
     if ((((this->fCurrentController == '\x04') &&
-         ((short)(menuDefs->menuControllerDualShock)._base_tMenu.fCurrentItem == 1)) ||
+         ((short)(menuDefs[0]->menuControllerDualShock)._base_tMenu.fCurrentItem == 1)) ||
         ((this->fCurrentController == '\x06' &&
-         ((short)(menuDefs->menuControllerDualShockAnalog)._base_tMenu.fCurrentItem == 1)))) &&
-       ((short)(menuDefs->menuControllerConfig)._base_tMenu.fCurrentItem == 1)) {
+         ((short)(menuDefs[0]->menuControllerDualShockAnalog)._base_tMenu.fCurrentItem == 1)))) &&
+       ((short)(menuDefs[0]->menuControllerConfig)._base_tMenu.fCurrentItem == 1)) {
       bShockActive = true;
     }
     if ((bShockActive) && ((byte)frontEnd.shockImpact[this->player] != 0)) {
@@ -804,8 +804,8 @@ DrawCtrl_ticksUpdate:
   }
   if ((byte)this->fCurrentController - 5 < 2) {
     frame = 0;
-    if (((menuDefs->itemControllerSteeringRange2).fActive != 0) ||
-       ((menuDefs->itemControllerDeadSpot2).fActive != 0)) {
+    if (((menuDefs[0]->itemControllerSteeringRange2).fActive != 0) ||
+       ((menuDefs[0]->itemControllerDeadSpot2).fActive != 0)) {
       fadelevel = 0x80 - (uint)gPadinfo.buf[this->player * 4].data.negcon.leftshift;
       axisB = 0x80 - (uint)gPadinfo.buf[this->player * 4].data.negcon.buttonII;
       t = axisB;
@@ -829,8 +829,8 @@ DrawCtrl_ticksUpdate:
         frame = t / 0xd + 0x1a;
       }
     }
-    if (((menuDefs->itemControllerSteeringRange1).fActive != 0) ||
-       ((menuDefs->itemControllerDeadSpot1).fActive != 0)) {
+    if (((menuDefs[0]->itemControllerSteeringRange1).fActive != 0) ||
+       ((menuDefs[0]->itemControllerDeadSpot1).fActive != 0)) {
       fadelevel = 0x80 - (uint)gPadinfo.buf[this->player * 4].data.negcon.buttonI;
       axisB = 0x80 - (uint)gPadinfo.buf[this->player * 4].data.negcon.twist;
       t = axisB;
@@ -860,8 +860,8 @@ DrawCtrl_ticksUpdate:
   }
   frame = (uint)(byte)this->fCurrentController;
   if ((1 < frame - 1) ||
-     (((menuDefs->itemControllerJoyRange).fActive == 0 &&
-      ((menuDefs->itemControllerCenterPoint).fActive == 0)))) {
+     (((menuDefs[0]->itemControllerJoyRange).fActive == 0 &&
+      ((menuDefs[0]->itemControllerCenterPoint).fActive == 0)))) {
     if (this->fCurrentController != '\0') {
       this->ActualDrawController(0,0,0,(int)shakex,(int)shakey);
       return;
@@ -1040,12 +1040,12 @@ void tScreenControllerConfig::DrawBackground()
   int shapeX;
   int shapeY;
   
-  fade = (short)((menuDefs->menuControllerConfig).fScreenFade >> 1);
+  fade = (short)((menuDefs[0]->menuControllerConfig).fScreenFade >> 1);
   if (0x80 < fade) {
     fade = 0x80;
   }
   if ((this->fTransitionedIn == 0) &&
-     (transDone = TransitionIsFinished(&menuDefs->menuControllerConfig),
+     (transDone = TransitionIsFinished(&menuDefs[0]->menuControllerConfig),
      transDone != (void *)0x0)) {
     this->fTransitionedIn = 1;
   }
@@ -1060,7 +1060,7 @@ void tScreenControllerConfig::DrawBackground()
     this->fAnimFadeFrame = this->fAnimFadeStart;
     this->fAnimFadeController = (ushort)(byte)this->fCurrentController;
   }
-  trans2 = TransitionIsFinished(&menuDefs->menuControllerConfig);
+  trans2 = TransitionIsFinished(&menuDefs[0]->menuControllerConfig);
   if ((trans2 != (void *)0x1) && (this->fTransitionedIn != 0)) {
     if (this->fTransitioningOut != 0) goto ForceVbl_drawCtrlCheck;
     if (this->fCurrentController != '\0') {
@@ -1128,7 +1128,7 @@ void tScreenControllerConfig::DrawForeground()
   fadeDir = 8;
   if ((((this->fFadeTextOut == 0) && (fadeDir = 8, this->fAnim == 0)) &&
       (fadeDir = 8, this->fAnimFade == 0)) && (fadeDir = 8, *(int *)this->fFade == 0)) {
-    transDone = TransitionIsFinished(&menuDefs->menuControllerConfig);
+    transDone = TransitionIsFinished(&menuDefs[0]->menuControllerConfig);
     fadeDir = 8;
     if (((transDone != (void *)0x0) && (fadeDir = 8, this->fTransitioningOut == 0)) &&
        (fadeDir = -8, 0 < this->fArrowFadeDir)) {
@@ -1262,7 +1262,7 @@ void tScreenControllerConfig::DrawForeground()
       fadeDir = fadeDir + 1;
     }
     FETextRender_SetABR(0,false);
-    fadeDir = (short)((menuDefs->menuControllerConfig).fScreenFade >> 1);
+    fadeDir = (short)((menuDefs[0]->menuControllerConfig).fScreenFade >> 1);
     ColText = 0;
     if (0x80 < fadeDir) {
       fadeDir = 0x80;
@@ -1318,7 +1318,7 @@ void tScreenControllerConfig::Initialize()
   this->player = b;
   this->_base_tScreen.Initialize();
   this->fCurrentController = '\0';
-  SetMenu(&menuDefs->itemControllerSettings,true,(tInsideBoxMenu *)0x0);
+  SetMenu(&menuDefs[0]->itemControllerSettings,true,(tInsideBoxMenu *)0x0);
   this->SetCurrentController(true);
   this->SwapInController();
   this->fPrevController = this->fCurrentController;

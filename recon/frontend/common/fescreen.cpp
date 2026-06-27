@@ -595,7 +595,7 @@ int tScreen::TransitionOff(tScreen_TransitionType type,tMenu *arg2)
 {
   int iVar1;
   
-  iVar1 = ticks;
+  iVar1 = ticks[0];
   this->fScreenFadeVal = 0;
   this->fInternalScreenFadeVal = 0;
   this->fTransitionOff = 1;
@@ -613,7 +613,7 @@ int tScreen::TransitionOn(tScreen_TransitionType type,tMenu *arg2)
   int iVar1;
   
   this->fScreenFadeVal = 0x80;
-  iVar1 = ticks;
+  iVar1 = ticks[0];
   this->fInternalScreenFadeVal = 0x80;
   this->fTransitionOff = 0;
   this->fTransitionTicks = iVar1;

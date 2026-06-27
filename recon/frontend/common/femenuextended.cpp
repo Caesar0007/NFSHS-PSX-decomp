@@ -881,7 +881,7 @@ void tMenuNFS4::Draw()
     if (*(int *)(*(int *)&FEApp /* @0x800514c0 */ + 0x22c) != 0) {
       yPos = 0x79;
     }
-    DrawShapeExtended(ptVar1->fButtonImage + ((int)(*(int *)&ticks >> 4) % iVar3),0x410,0x10,yPos,0,0,&drawFlags);
+    DrawShapeExtended(ptVar1->fButtonImage + ((int)(*(int *)&ticks[0] >> 4) % iVar3),0x410,0x10,yPos,0,0,&drawFlags);
   }
   i = 0;
   ptVar1 = (this->_base_tMenu).fItemList[0];
@@ -1183,7 +1183,7 @@ void tMenuOptions::Draw()
     }
   }
   else {
-    deltaTicks = ticks - this->fMenuEnterTicks;
+    deltaTicks = ticks[0] - this->fMenuEnterTicks;
     if (0x20 < deltaTicks) {
       deltaTicks = 0x20;
       (this->_base_tMenuNFS4).fInMenuTransition = 0;
@@ -1252,7 +1252,7 @@ void tMenuOptions::TransitionOff()
   int iVar1;
   
   *(signed char *)&(this->_base_tMenuNFS4).fTransitionDirection = -1;
-  iVar1 = ticks;
+  iVar1 = ticks[0];
   (this->_base_tMenuNFS4).fInMenuTransition = 1;
   this->fMenuEnterTicks = iVar1;
   AudioCmn_PlayFESFX(0x12);
@@ -1278,7 +1278,7 @@ void tMenuOptions::TransitionOn()
     ptVar3 = (tMenuOptions *)&(ptVar3->_base_tMenuNFS4)._base_tMenu.fTitle;
   }
   (this->_base_tMenuNFS4).fTransitionDirection = '\x01';
-  iVar1 = ticks;
+  iVar1 = ticks[0];
   (this->_base_tMenuNFS4).fInMenuTransition = 1;
   this->fMenuEnterTicks = iVar1;
   AudioCmn_PlayFESFX(0xf);
@@ -1294,7 +1294,7 @@ void * tMenuOptions::TransitionIsFinished()
 {
   u_int uVar1;
   
-  uVar1 = (u_int)(ticks - this->fMenuEnterTicks < 0x20);
+  uVar1 = (u_int)(ticks[0] - this->fMenuEnterTicks < 0x20);
   (this->_base_tMenuNFS4).fInMenuTransition = uVar1;
   return (void *)(uVar1 ^ 1);
 }

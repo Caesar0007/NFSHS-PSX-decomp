@@ -18,7 +18,7 @@ void CalcPulsateYellow(void)
 {
   int pulsateval;
 
-  pulsateval = ticks % 0x80;
+  pulsateval = ticks[0] % 0x80;
   if (0x40 < pulsateval) {
     pulsateval = 0x80 - pulsateval;
   }
@@ -558,7 +558,7 @@ void tOptionsMenu::Draw()
   }
   if ((-1 < this->fFirstFrame) && (0 < this->fNumFrames)) {
     drawFlags.tint[0] = 0xcec844;
-    DrawShapeExtended(this->fFirstFrame + ((int)(*(int *)&ticks >> 4) % this->fNumFrames),0x410,0x10,0x10,0,0,&drawFlags);
+    DrawShapeExtended(this->fFirstFrame + ((int)(ticks[0] >> 4) % this->fNumFrames),0x410,0x10,0x10,0,0,&drawFlags);
   }
   i = 0;
   ptVar1 = (this->_base_tMenu).fItemList[0];
@@ -2257,7 +2257,7 @@ void tInsideBoxTwoWaySlider::Calibrate()
   u_int player;
   
   player = (u_int)(u_char)FEApp->fInputPlayer;
-  fHelpText = GetHelpText(screenControllerConfig);
+  fHelpText = GetHelpText(screenControllerConfig[0]);
   sVar2 = this->fType;
   if (sVar2 == 1) {
     uVar1 = gPadinfo.buf[player * 4].ID;
@@ -2939,7 +2939,7 @@ void tInsideBoxControllerLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInput
       cVar1 = (*(*pa_Var2)[2].pfn)
                         ((char *)ptVar4 + (int)(*pa_Var2)[2].delta,0xffffffff),
       cVar1 != ((this->_base_tInsideBoxLeftRightSlider)._base_tMenuItemLeftRightSlider.fData)->fMaxValue)))) {
-    screenControllerConfig->fResetShakeTimeOut = 1;
+    screenControllerConfig[0]->fResetShakeTimeOut = 1;
   }
   ((tMenuItemLeftRightSlider *)this)->ProcessInput(fromPlayer,keyval,command)
   ;

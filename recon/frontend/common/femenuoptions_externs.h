@@ -7,7 +7,7 @@ extern u_char *Render_gPacketPtr, *Render_gPalettePtr;
 extern tFEApplication *FEApp;
 extern tfrontEnd frontEnd;
 extern tPadModuleState gPadinfo;
-extern int ticks;
+extern int ticks[];   /* unsized array (§3.12 #5): oracle lui/lw separate-scratch (matches femenuextended/fescreen) */
 extern short MENUUSERNAME_STARTY;   /* @0x800529b2 ScreenUserName.obj-owned (cross-TU) */
 extern char *Paths_Paths[];
 extern tGlobalMenuDefs *menuDefs;
@@ -29,7 +29,7 @@ void  FETextRender_MenuTextPositionedJustify(short,short,short,short,tMenuTextSt
 int   TextSys_WordX(int);  int TextSys_WordY(int);  char *TextSys_Word(int);  int textpixels(char*);
 void  AudioCmn_PlayFESFX(int);  void AudioCmn_PlayFESFXVol(int,int);
 /* batch externs */
-extern tScreenAudio *screenAudio;  extern tScreenControllerConfig *screenControllerConfig;
+extern tScreenAudio *screenAudio;  extern tScreenControllerConfig *screenControllerConfig[];   /* unsized array (§3.12 #5): oracle lui/lw separate-scratch */
 extern tTexture_ShapeInfo *gHelpShapes;  extern tPlayer gMenu_SubMenuPlayer;
 extern int menu_kUserNameRows;
 int CalcFadeVal(int,int,int);  int CalcFadeVal(int,int,int,int);

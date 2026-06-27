@@ -7,7 +7,7 @@
 #include "femenu.h"
 
 /* ---- FEMenu.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes) ---- */
-tPlayer      gMenu_SubMenuPlayer = -1;   /* @0x800517c0 */
+tPlayer      gMenu_SubMenuPlayer[] = { (tPlayer)-1 };   /* @0x800517c0 -- unsized-array form (§3.12 #5) */
 
 
 /* ---- tListIterator::ctor  [FEMENU.CPP:61-64] SLD-VERIFIED ---- */
@@ -772,7 +772,7 @@ void tMenuItemLeftRightChoice::Draw(bool selected)
   pa_Var3 = this->fData->_vf;
   index = (*(*pa_Var3)[3].pfn)
                     ((char *)this->fData + (int)(*pa_Var3)[3].delta,
-                     gMenu_SubMenuPlayer);
+                     gMenu_SubMenuPlayer[0]);
   FETextRender_MenuTextPositioned(index,(short)((u_int)((iVar1 + 0xb4) * 0x10000) >> 0x10),(short)iVar2,textState,
              textType_Options);
   return;

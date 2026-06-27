@@ -6,7 +6,7 @@
 
 extern tfrontEnd   frontEnd;
 extern int  ticks;
-extern tGlobalMenuDefs *menuDefs;
+extern tGlobalMenuDefs *menuDefs[];
 extern int  kRGBVals[28];
 extern char textDefinitions[14][6];
 extern __vtbl_ptr_type tScreenControllerConfig_vtable[10];   /* @0x80012078 (vtables_tscreen2.cpp) */

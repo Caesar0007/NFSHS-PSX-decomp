@@ -101,13 +101,13 @@ void Anim_DeInitSystem(void)
   Trk_AnimateInst **ppTVar2;
   int iVar3;
   
-  iVar3 = 8;
+  iVar3 = 9;
   do {
-    bVar1 = -1 < iVar3;
-    iVar3 = iVar3 + -1;
-  } while (bVar1);
+    iVar3 = iVar3 - 1;
+  } while (-1 < iVar3);
   iVar3 = 0x1f;
-  ppTVar2 = Anim_gInstanceFromIndex + 0x1f;
+  ppTVar2 = Anim_gInstanceFromIndex;
+  ppTVar2 = ppTVar2 + 0x1f;
   do {
     *ppTVar2 = (Trk_AnimateInst *)0x0;
     iVar3 = iVar3 + -1;

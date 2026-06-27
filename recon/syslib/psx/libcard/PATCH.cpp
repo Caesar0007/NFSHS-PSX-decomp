@@ -50,7 +50,8 @@ __asm__(
     "_patch_card:\n"
     "\tlui   $at, %hi(D_80148AC4)\n"                /* save ra -> scratch word              */
     "\tsw    $ra, %lo(D_80148AC4)($at)\n"
-    "\tjal   EnterCriticalSection\n"                /* (+delay nop: maspsx-filled)          */
+    "\tjal   EnterCriticalSection\n"
+    "\t nop\n"                                       /* delay slot: nop (before args set)    */
     "\taddiu $t1, $zero, 0x56\n"                    /* BIOS call index 0x56                 */
     "\taddiu $t2, $zero, 0xB0\n"                    /* BIOS table base B0                   */
     "\tjalr  $t2\n"
@@ -96,7 +97,8 @@ __asm__(
     "_patch_card2:\n"
     "\tlui   $at, %hi(D_80148AC4)\n"                /* save ra -> scratch word              */
     "\tsw    $ra, %lo(D_80148AC4)($at)\n"
-    "\tjal   EnterCriticalSection\n"                /* (+delay nop: maspsx-filled)          */
+    "\tjal   EnterCriticalSection\n"
+    "\t nop\n"                                       /* delay slot: nop (before args set)    */
     "\taddiu $t1, $zero, 0x57\n"                    /* BIOS call index 0x57                 */
     "\taddiu $t2, $zero, 0xB0\n"                    /* BIOS table base B0                   */
     "\tjalr  $t2\n"
@@ -115,7 +117,8 @@ __asm__(
     "\taddiu $t2, $t2, 4\n"
     "\tbne   $t2, $t1, .L_patch_card2_loop\n"
     "\t addiu $v0, $v0, 4\n"
-    "\tjal   FlushCache\n"                          /* (+delay nop: maspsx-filled)          */
+    "\tjal   FlushCache\n"
+    "\t nop\n"                                       /* delay slot: nop                      */
     "\tlui   $ra, %hi(D_80148AC4)\n"                /* restore ra                           */
     "\tlw    $ra, %lo(D_80148AC4)($ra)\n"
     "\tnop\n"

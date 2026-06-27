@@ -62,20 +62,17 @@ void CopSpeak_Debug(void);
 void CopSpeak_RadioStaticInit(void)
 
 {
-  int i;
-  char *pcVar1;
-  int iVar2;
   int *piVar3;
-  
-  iVar2 = 0;
+  int i;
+
+  i = 0;
   piVar3 = CopSpeak_gStaticHandle;
   do {
     *piVar3 = -1;
-    pcVar1 = CopSpeak_gStaticPatch + iVar2;
-    iVar2 = iVar2 + 1;
-    *pcVar1 = -1;
+    *(signed char *)(CopSpeak_gStaticPatch + i) = -1;
+    i = i + 1;
     piVar3 = piVar3 + 1;
-  } while (iVar2 < 2);
+  } while (i < 2);
   return;
 }
 
@@ -152,17 +149,20 @@ void CopSpeak_RadioStaticSquelch(void)
 
 {
   int i;
-  int *piVar1;
-  int iVar2;
-  
-  iVar2 = 0;
+  int iVar1;
+  int *ph;
+
+  i = 0;
+  iVar1 = -1;
+  ph = CopSpeak_gStaticHandle;
   do {
-    if (CopSpeak_gStaticHandle[iVar2] != -1) {
-      SNDstop(CopSpeak_gStaticHandle[iVar2]);
-      CopSpeak_gStaticHandle[iVar2] = -1;
+    if (*ph != iVar1) {
+      SNDstop(*ph);
+      *ph = iVar1;
     }
-    iVar2 = iVar2 + 1;
-  } while (iVar2 < 2);
+    i = i + 1;
+    ph = ph + 1;
+  } while (i < 2);
   return;
 }
 
@@ -405,16 +405,11 @@ void CopSpeak_InitVars(void)
 {
   int i;
   CopSpeak_tBank *pCVar1;
-  int iVar2;
-  
-  iVar2 = 0;
-  pCVar1 = Copspeak_gBank;
-  do {
-    pCVar1->FileOpen = 0;
-    pCVar1->Index = (CopSpeak_tFileIndex *)0x0;
-    iVar2 = iVar2 + 1;
-    pCVar1 = pCVar1 + 1;
-  } while (iVar2 < 4);
+
+  for (i = 0; i < 4; i++) {
+    Copspeak_gBank[i].FileOpen = 0;
+    Copspeak_gBank[i].Index = (CopSpeak_tFileIndex *)0x0;
+  }
   CopSpeak_gSpchHandle = 0xffffffff;
   CopSpeak_gBuffer = (char *)0;
   CopSpeak_gQueueHead = 0;
@@ -653,8 +648,11 @@ int CopSpeak_GetEnginePatch(int type,int timbre)
 {
   int patch;
   int iVar1;
-  
-  iVar1 = type * 2 + timbre + 1;
+  int t1;
+
+  type = type + type;
+  t1 = timbre + 1;
+  iVar1 = type + t1;
   if (Copspeak_gBank[1].Index[iVar1].size == 0) {
     iVar1 = timbre + 0x45;
   }
@@ -1079,14 +1077,14 @@ int CopSpeak_SfxQueued(void)
 {
   int iVar1;
   int iVar2;
-  int chkQ;
   int iVar3;
-  int count;
-  
+  CopSpeak_tRequest *pEntry;
+
   iVar3 = 0;
   iVar2 = CopSpeak_gQueuePlay;
   while (iVar1 = iVar2, iVar1 != CopSpeak_gQueueHead) {
-    if ((-1 < CopSpeak_gQueue[iVar1].bank) && (CopSpeak_gQueue[iVar1].sfx != '\0')) {
+    pEntry = CopSpeak_gQueue + iVar1;
+    if ((0 <= *(signed char *)&pEntry->bank) && (pEntry->sfx != '\0')) {
       iVar3 = iVar3 + 1;
     }
     iVar2 = 0;

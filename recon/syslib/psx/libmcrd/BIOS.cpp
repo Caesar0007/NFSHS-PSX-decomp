@@ -21,6 +21,9 @@ static int          _card_evhandle[8];   /* @0x801489EC : OpenEvent handles */
 static volatile int _card_evflag[8];     /* @0x80148A0C : per-event completion flags */
 
 /* ----- event-spec callbacks: raise the matching flag (4 events x 2 slots; "x" = slot 1) ----- */
+/* NOTE: funcEvSp* are FLOORS — oracle uses assembler-macro lui/sw ($at) but our pipeline
+ *   generates explicit lui+sw ($v0/$v1) for array[0] and lui+addiu+sw for array[1-7].
+ *   The maspsx -G4 sbss-gp-rel expansion vs aspsx 2.77 absolute behavior is the root cause. */
 extern "C" int funcEvSpIOE(void)      { _card_evflag[0] = 1; return 0; }   /* @0x80109550 */
 extern "C" int funcEvSpError(void)    { _card_evflag[1] = 1; return 0; }   /* @0x80109564 */
 extern "C" int funcEvSpTimeout(void)  { _card_evflag[2] = 1; return 0; }   /* @0x80109578 */

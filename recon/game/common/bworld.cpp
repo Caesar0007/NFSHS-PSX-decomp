@@ -459,26 +459,29 @@ int SetupChunkBuildList(DRender_tView *Vi)
 }
 
 /* ---- BWorld_IsSliceInBuildList__Fi  [@0x8007e0a0] ---- */
+/* NEAR-MISS 5 diffs (20/21): oracle loads BWorld_gChunkCount into $v0 then blez + sra delay +
+ * addu $a2,$v0,zero copy. Our gcc-2.8.0 -O2 loads directly into $a2 (no intermediate v0 copy).
+ * Levers tried: (1) pre-shift hoist, (2) count local, (3) bi rename, (4) direct global read.
+ * Pre-shift hoist fixed 7→5; the remaining v0/a2 split is a scheduler floor. ACCEPT. */
 void * BWorld_IsSliceInBuildList(int slice)
 {
-  int chunk;
-  int bi;
   int *piVar1;
-  int iVar2;
-  
-  iVar2 = 0;
+  int bi;
+
+  bi = 0;
   if (slice < 0) {
     slice = slice + 7;
   }
+  slice = slice >> 3;
   if (0 < BWorld_gChunkCount) {
     piVar1 = BWorld_gChunkBuildList;
     do {
-      iVar2 = iVar2 + 1;
-      if ((int)(short)*piVar1 == slice >> 3) {
+      bi = bi + 1;
+      if ((int)(short)*piVar1 == slice) {
         return (void *)0x1;
       }
       piVar1 = piVar1 + 1;
-    } while (iVar2 < BWorld_gChunkCount);
+    } while (bi < BWorld_gChunkCount);
   }
   return (void *)0x0;
 }

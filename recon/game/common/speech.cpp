@@ -1360,7 +1360,7 @@ void Promote__Q26Speech7Speaker(Speaker *pThis)
   int iVar2;
   Speaker *Super;
   Speaker *pSVar3;
-  
+
   int cont;
 
   pSVar1 = (Speaker *)Dispatch__6Speech();

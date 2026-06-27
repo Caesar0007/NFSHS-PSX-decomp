@@ -29,3 +29,4 @@ build/decompme_claims.jsonl
 # ASM-pattern-catalog gap snapshot (post-commit hook output)
 catalog_gaps.txt
 .catalog_gaps.tmp
+tools/pattern_db.json

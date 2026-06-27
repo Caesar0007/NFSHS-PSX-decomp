@@ -25,6 +25,7 @@ _COP0 = {'sr':'12','status':'12','cause':'13','epc':'14','badvaddr':'8','prid':'
 def norm_ins(t):
     t = re.sub(r'\s+', ' ', t.strip())
     t = t.replace('$', '')                                    # drop $ on regs (oracle has them, objdump doesn't)
+    t = re.sub(r'\bs8\b', 'fp', t)                            # $30 aliases: objdump=s8, oracle=fp (same reg)
     t = re.sub(r',\s+', ',', t)                               # normalize space after commas
     t = re.sub(r'0x([0-9a-fA-F]+)', lambda m: str(int(m.group(1),16)), t)  # hex->dec (case-insens)
     # `break` code/param: objdump omits code 0 (prints bare `break`) while the oracle .s prints

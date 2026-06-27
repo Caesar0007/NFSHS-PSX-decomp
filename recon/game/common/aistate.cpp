@@ -3689,59 +3689,9 @@ int AIState_Base::TestForRelease()
 /* ---- _._12AIState_Base  AIState_Base::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
 
 AIState_Base::~AIState_Base()
-
-
-
 {
-
-  int forwardSlice;
-
-  int distMeters;
-
-  int cap;
-
-
-  int trafficInWorld;
-
-  int xDistance;
-
-  int placementSide;
-
-  int targettingStrength;
-
-  int doBrake;
-
-  int distanceAbsMeters;
-
-  int slice;
-
-  int currentBarrierLane;
-
-  int sliceLoop;
-
-  int barrierLane;
-
-  int longPos;
-
-  int backwardsBarrierEndSlice;
-
-  int forwardBarrierEndSlice;
-
-  coorddef centerBack;
-
-  coorddef right;
-
-  coorddef forward;
-
-  coorddef targetPos;
-
-  
-
   this->_vf = (__vtbl_ptr_type (*) [4])((char *)AIState_Base_vtable + 8);
-
-
   return;
-
 }
 
 

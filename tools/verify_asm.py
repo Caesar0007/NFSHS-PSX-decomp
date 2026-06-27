@@ -19,6 +19,9 @@ bld.OUT = bld.BUILD
 obj = bld.compile_cpp(cpp)
 dis = subprocess.run([OBJD, '-d', '-r', str(obj)], capture_output=True, text=True).stdout
 
+_COP0 = {'sr':'12','status':'12','cause':'13','epc':'14','badvaddr':'8','prid':'15','index':'0',
+         'random':'1','entrylo':'2','context':'4','config':'16','bpc':'3','bda':'5','dcic':'7','bdam':'9','bpcm':'11'}
+
 def norm_ins(t):
     t = re.sub(r'\s+', ' ', t.strip())
     t = t.replace('$', '')                                    # drop $ on regs (oracle has them, objdump doesn't)
@@ -32,6 +35,11 @@ def norm_ins(t):
     if m:
         ops = [o for o in re.split(r'[ ,]+', m.group(1).strip()) if o and o != '0']
         t = 'break' + ((' ' + ','.join(ops)) if ops else '')
+    m = re.match(r'^syscall\b(.*)$', t)              # objdump `syscall` == oracle `syscall 0` (code 0)
+    if m:
+        ops = [o for o in re.split(r'[ ,]+', m.group(1).strip()) if o and o != '0']
+        t = 'syscall' + ((' ' + ','.join(ops)) if ops else '')
+    t = re.sub(r'\bc0_(\w+)\b', lambda mm: _COP0.get(mm.group(1), mm.group(0)), t)  # objdump cop0 reg-names -> $N numbers (oracle uses $12 etc.)
     t = re.sub(r'\((\d+) ?>> ?(\d+)\)', lambda m: str(int(m.group(1))>>int(m.group(2))), t)  # eval (N>>M)
     t = re.sub(r'\((\d+) ?& ?(\d+)\)', lambda m: str(int(m.group(1))&int(m.group(2))), t)     # eval (N&M)
     t = re.sub(r'%hi\([^)]*\)', '0', t)            # %hi(SYM) -> 0 (objdump shows lui r,0)

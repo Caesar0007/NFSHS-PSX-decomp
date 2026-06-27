@@ -14,7 +14,7 @@ int Speech_Mobile(Car_tObj *carObj);      /* speech.obj flat (was Mobile__6Speec
 extern AIHigh_Base *highLevelAIObjs[];
 extern AITune_BTC_t AITune_BTC[];
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
-extern Car_tObj **Cars_gList;
+extern Car_tObj *Cars_gList[];
 extern GameSetup_tData   GameSetup_gData;
 extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
 extern __vtbl_ptr_type AIHigh_Human_vtable[], AIHigh_BasicPerp_vtable[], AIState_Idle_vtable[];

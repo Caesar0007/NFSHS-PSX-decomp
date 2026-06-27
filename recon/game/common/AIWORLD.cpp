@@ -280,7 +280,7 @@ int AIWorld_GetProfileMask(int laneIndex)
 /* ---- AIWorld_IsDriveableLane_UsingMask__Fii  [@0x8007343c] ---- */
 int AIWorld_IsDriveableLane_UsingMask(int slice,int mask)
 {
-  return *(short *)(slice * 0x20 + BWorldSm_slices + 0x16) & mask;
+  return *(short *)(slice * 0x20 + (int)BWorldSm_slices + 0x16) & mask;
 }
 
 /* ---- AIWorld_CheckForBarrierBetweenLanes__Fiii  [@0x80073458] ---- */

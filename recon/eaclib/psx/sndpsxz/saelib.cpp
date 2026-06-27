@@ -13,13 +13,17 @@ extern "C" int iSNDlibatodlrv(int angle, int level, int *out_l, int *out_r);   /
 extern "C" int iSNDlibatodlrv(int angle, int level, int *out_l, int *out_r)
 {
     unsigned int s = (unsigned int)iSNDsin(angle >> 6);
-    unsigned int l = (unsigned int)(level * (int)(0x10000 - s)) >> 0x10;
-    *out_l = (int)l;
+    /* gain = (unsigned)(level * delta) >> 16  (srl, value 0..0xFFFF) but compared SIGNED (slti) -> store
+     * into a signed int so the clamp test `0x7f < gain` emits `slti`, not `sltiu`. */
+    int l = (int)((unsigned int)(level * (int)(0x10000 - s)) >> 0x10);
+    *out_l = l;
     if (0x7f < l)
         *out_l = 0x7f;
-    unsigned int r = (unsigned int)(level * (int)(s + 0x10000)) >> 0x10;
-    *out_r = (int)r;
-    if (0x7f < r)
+    int r = (int)((unsigned int)(level * (int)(s + 0x10000)) >> 0x10);
+    *out_r = r;
+    if (0x7f < r) {
         *out_r = 0x7f;
+        return 0x7f;
+    }
     return 0x7f;
 }

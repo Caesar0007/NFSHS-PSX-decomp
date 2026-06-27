@@ -8,7 +8,7 @@
 CARDINFO_def *MCRD_getcard(...);
 extern AIDataRecord_TrackCurve_t AIDataRecord_TrackCurve[];
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
-extern Car_tObj **Cars_gList;
+extern Car_tObj *Cars_gList[];
 extern Car_tObj *Cars_gAIRaceCarList[9];
 extern Car_tObj *Cars_gTotalSortedList[];
 extern GameSetup_tData   GameSetup_gData;

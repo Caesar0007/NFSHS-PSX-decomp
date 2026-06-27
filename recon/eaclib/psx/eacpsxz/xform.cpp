@@ -21,10 +21,12 @@ extern "C" void xformy(matrixtdef *out, int angle)
 {
     int s, c;
     intsincos(angle, &s, &c);
-    int *m = out->m;
-    m[0] = c;  m[1] = 0;        m[2] = -s;
-    m[3] = 0;  m[4] = 0x10000;  m[5] = 0;
-    m[6] = s;  m[7] = 0;        m[8] = c;
+    /* index out->m[] directly (NOT via an `int *m=out->m` hoist): the hoist makes
+     * gcc-2.8.0 reload `c` from the stack for the 2nd use; direct indexing keeps
+     * c/s live in registers across both stores, matching the oracle (lever #1). */
+    out->m[0] = c;  out->m[1] = 0;        out->m[2] = -s;
+    out->m[3] = 0;  out->m[4] = 0x10000;  out->m[5] = 0;
+    out->m[6] = s;  out->m[7] = 0;        out->m[8] = c;
 }
 
 /* fixedxformx @0x800EABAC : X-axis rotation (fixed angle). */
@@ -32,10 +34,10 @@ extern "C" void fixedxformx(matrixtdef *out, int angle)
 {
     int s, c;
     fixedsincos(angle, &s, &c);
-    int *m = out->m;
-    m[0] = 0x10000;  m[1] = 0;   m[2] = 0;
-    m[3] = 0;        m[4] = c;   m[5] = s;
-    m[6] = 0;        m[7] = -s;  m[8] = c;
+    /* direct out->m[] index (no `int *m` hoist) -- keeps c/s register-live (lever #1) */
+    out->m[0] = 0x10000;  out->m[1] = 0;   out->m[2] = 0;
+    out->m[3] = 0;        out->m[4] = c;   out->m[5] = s;
+    out->m[6] = 0;        out->m[7] = -s;  out->m[8] = c;
 }
 
 /* fixedxformy @0x800EAC10 : Y-axis rotation (fixed angle). */
@@ -43,10 +45,10 @@ extern "C" void fixedxformy(matrixtdef *out, int angle)
 {
     int s, c;
     fixedsincos(angle, &s, &c);
-    int *m = out->m;
-    m[0] = c;  m[1] = 0;        m[2] = -s;
-    m[3] = 0;  m[4] = 0x10000;  m[5] = 0;
-    m[6] = s;  m[7] = 0;        m[8] = c;
+    /* direct out->m[] index (no `int *m` hoist) -- keeps c/s register-live (lever #1) */
+    out->m[0] = c;  out->m[1] = 0;        out->m[2] = -s;
+    out->m[3] = 0;  out->m[4] = 0x10000;  out->m[5] = 0;
+    out->m[6] = s;  out->m[7] = 0;        out->m[8] = c;
 }
 
 /* fixedxformz @0x800EAC74 : Z-axis rotation (fixed angle). */
@@ -54,8 +56,8 @@ extern "C" void fixedxformz(matrixtdef *out, int angle)
 {
     int s, c;
     fixedsincos(angle, &s, &c);
-    int *m = out->m;
-    m[0] = c;   m[1] = s;  m[2] = 0;
-    m[3] = -s;  m[4] = c;  m[5] = 0;
-    m[6] = 0;   m[7] = 0;  m[8] = 0x10000;
+    /* direct out->m[] index (no `int *m` hoist) -- keeps c/s register-live (lever #1) */
+    out->m[0] = c;   out->m[1] = s;  out->m[2] = 0;
+    out->m[3] = -s;  out->m[4] = c;  out->m[5] = 0;
+    out->m[6] = 0;   out->m[7] = 0;  out->m[8] = 0x10000;
 }

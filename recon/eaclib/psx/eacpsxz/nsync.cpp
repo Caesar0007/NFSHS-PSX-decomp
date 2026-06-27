@@ -53,11 +53,12 @@ extern "C" void *loadbigfileheaderatomic(int retry, LoadArgs *a);
 extern "C" int filesizeatomic(int retry, LoadArgs *a)   /* @0x800E5608 */
 {
     int handle;
-    if (FILE_opensync(a->name, 1, retry, &handle) == 0)
-        return 0;
-    int size = FILE_sizesync(handle, retry - 1);
-    FILE_closesync(handle, retry - 1);
-    return size;
+    if (FILE_opensync(a->name, 1, retry, &handle) != 0) {
+        int size = FILE_sizesync(handle, retry - 1);
+        FILE_closesync(handle, retry - 1);
+        return size;
+    }
+    return 0;
 }
 
 /* ===================================================================== *
@@ -80,26 +81,28 @@ extern "C" int filesize(char *name)   /* @0x800E566C */
 extern "C" void *loadfileadratomic(int retry, LoadArgs *a)   /* @0x800E56B0 */
 {
     int handle;
-    if (FILE_opensync(a->name, 1, retry, &handle) == 0)
-        return 0;                                       /* open failed */
+    /* positive-branch form (lever #7): success path = `bnez` target, open-fail
+     * return-0 the fall-through. */
+    if (FILE_opensync(a->name, 1, retry, &handle) != 0) {
+        int size = FILE_sizesync(handle, retry - 1);
+        void *buf = reservememadr(a->name, size, a->memclass);
+        if (buf == 0) {
+            FILE_closesync(handle, retry - 1);
+            return 0;                                   /* out of memory */
+        }
 
-    int size = FILE_sizesync(handle, retry - 1);
-    void *buf = reservememadr(a->name, size, a->memclass);
-    if (buf == 0) {
+        FILE_readsync(handle, 0, buf, size, retry - 1);
         FILE_closesync(handle, retry - 1);
-        return 0;                                       /* out of memory */
-    }
 
-    FILE_readsync(handle, 0, buf, size, retry - 1);
-    FILE_closesync(handle, retry - 1);
-
-    if (loadfilecallback != 0) {                        /* post-load hook */
-        void *r = (void *)loadfilecallback(buf, a->name, a->memclass);
-        if (r == 0)
-            purgememadr(buf);                           /* hook failed -> free */
-        buf = r;
+        if (loadfilecallback != 0) {                    /* post-load hook */
+            void *r = (void *)loadfilecallback(buf, a->name, a->memclass);
+            if (r == 0)
+                purgememadr(buf);                       /* hook failed -> free */
+            buf = r;
+        }
+        return buf;
     }
-    return buf;
+    return 0;                                           /* open failed */
 }
 
 /* ===================================================================== *
@@ -136,11 +139,14 @@ extern "C" int loadfileadr(char *name, int memclass)   /* @0x800E57E8 */
 extern "C" int loadfileatadratomic(int retry, LoadArgs *a)   /* @0x800E5830 */
 {
     int handle;
-    if (FILE_opensync(a->name, 1, retry, &handle) == 0)
-        return 0;
-    FILE_readsync(handle, 0, (void *)a->dest, 0x7FFFFFFF, retry - 1);
-    FILE_closesync(handle, retry - 1);
-    return a->dest;
+    /* positive-branch form (lever #7): success path is the `bnez` target, return-0
+     * the fall-through (an early `if(==0) return 0;` emits the inverted `beqz`). */
+    if (FILE_opensync(a->name, 1, retry, &handle) != 0) {
+        FILE_readsync(handle, 0, (void *)a->dest, 0x7FFFFFFF, retry - 1);
+        FILE_closesync(handle, retry - 1);
+        return a->dest;
+    }
+    return 0;
 }
 
 /* ===================================================================== *

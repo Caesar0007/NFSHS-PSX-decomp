@@ -180,11 +180,11 @@ AITrigger_TriggerManager::GetTrigger(int trigger,int *used)
   int triggerNum;
   trigger_t *ptVar1;
   
-  if (simGlobal.gameTicks - this->checkTime_[trigger] < 0xa01) {
-    *used = 1;
+  if (0xa00 < simGlobal.gameTicks - this->checkTime_[trigger]) {
+    *used = 0;
   }
   else {
-    *used = 0;
+    *used = 1;
   }
   this->checkTime_[trigger] = simGlobal.gameTicks;
   ptVar1 = (trigger_t *)0x0;

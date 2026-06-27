@@ -100,8 +100,8 @@ extern "C" int iSNDstreamgetstreamptr(int idx)
 {
     if (idx == 0)
         return sndss;
-    return 0;       /* near-miss floor: oracle keeps 2 un-merged `jr ra` tails (lui in branch
-                     * delay slot); our gcc -O2 cross-jump-merges them into one. Scheduling-only. */
+    return 0;       /* near-miss floor (3 insns): oracle keeps 2 un-merged `jr ra` tails (zero-return in a
+                     * branch delay slot); our gcc -O2 cross-jump-merges them. Optimization-level, not source. */
 }
 
 /* iSNDstreamremoverequest @0x800E8C64 : drop the request whose id == `reqid` from a stream's packet
@@ -147,7 +147,8 @@ extern "C" void iSNDstreamreleasecallback(int sample)
     int S     = (&sndss)[slot];
     STREAM_release(MI(S, 4), chunk);
     /* near-miss floor (1 insn): oracle hoists `lui %hi(sndss)` into the `lw a1` load-delay
-     * slot; our gcc -O2 leaves a nop there + emits the lui after the lbu. Scheduling-only. */
+     * slot; our gcc -O2 leaves a nop there + emits the lui after the lbu. Scheduling-only;
+     * explicit base-pointer + index forms don't move the scheduler's slot-fill choice. */
 }
 
 /* iSNDstreamnotifycallback @0x800E8DD4 : SNDPKTPLAY play-progress hook.  `bytes` were just played on
@@ -211,6 +212,9 @@ extern "C" int iSNDstreamparsenumchunks(int S, int data)
 {
     int req;
     STREAM_release(MI(S, 4), data);
+    /* near-miss floor: oracle reads parseIdx (+0x17) as `lbu; sll24; sra24` (a register sign-extend) where
+     * ours folds to a single `lb`; gcc collapses (signed char)(u8) back to lb so the split form isn't
+     * source-reachable. Semantically identical. (+ a commutative addu operand-order coloring.) */
     req = MI(S, 0) + MSB(S, 0x17) * 0x2c;
     MI(req, 0x24) = *(int *)(data + 0xc);
     return 1;
@@ -385,7 +389,8 @@ extern "C" int iSNDstreamnumcreated(void)
             count++;
         slot++; p++;
     } while (slot < 1);
-    return count;
+    return count;       /* near-miss floor (coloring): oracle colors count/slot/p -> a1/a0/v1, ours swaps;
+                         * a register tie-break on a single-iteration loop, not source-reachable. */
 }
 
 /* iSNDstreamcreate @0x800E9730 : carve a stream object + its packet array, packet player and (optionally)

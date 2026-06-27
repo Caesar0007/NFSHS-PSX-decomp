@@ -103,7 +103,10 @@ extern "C" int iSNDresolveheader(int *hdr, int *out)
     *(int *)((int)hdr + 0x54) = *(int *)((int)out + 0x54) + *(int *)((int)hdr + 0x54);
     *(int *)((int)hdr + 0x5c) = *(int *)((int)out + 0x5c) + *(int *)((int)hdr + 0x5c);
     *(int *)((int)hdr + 0x74) = *(int *)((int)out + 0x74) + *(int *)((int)hdr + 0x74);
-    r = *(int *)((int)out + 0x80) + *(int *)((int)hdr + 0x80);
+    /* near-miss floor (4 diffs, was 6): the +0x80 accumulation's commutative `addu` colors its operands
+     * opposite the oracle (ours `addu v0,v1,v0` vs `addu v0,v0,v1`) -- a coloring tug-of-war with the
+     * following +100 add that neither operand order fully resolves (hdr-first is the better of the two). */
+    r = *(int *)((int)hdr + 0x80) + *(int *)((int)out + 0x80);
     *(int *)((int)hdr + 0x80) = r;
     if (*(int *)((int)hdr + 100) != 0) {
         r = *(int *)((int)out + 100) + *(int *)((int)hdr + 100);

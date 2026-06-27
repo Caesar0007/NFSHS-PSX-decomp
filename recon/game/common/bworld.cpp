@@ -8,7 +8,7 @@
 
 /* ---- bworld.obj anon file-statics (no SYM name; Ghidra DAT_; real .bss bytes = 0) ---- */
 static void *gBWPrimPtr;    /* @0x8013c75c */
-static int   gBWMemTotal;   /* @0x8013c760 */
+int   gBWMemTotal;   /* @0x8013c760  (global, not static: per-symbol gp-rel reloc, sec.3.12 #12) */
 
 
 /* ---- bworld.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */

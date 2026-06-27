@@ -46,7 +46,13 @@ extern "C" int *iSNDmeminit(int membase, int memsize)
  *   so the trap only fires when the pool was never initialised (poolsize==0). */
 extern "C" unsigned int iSNDmemrestore(void)
 {
-    return (unsigned int)(DAT_80148788 * 100) / (unsigned int)(unsigned short)DAT_80148786;
+    /* high-water (+8) and poolsize (+6) are fields of the sndmm struct @0x80148780; read both off the
+     * single `&sndmm` base (lui;addiu materialized once, CSE'd) to match the oracle's `lw 8(a0)/lhu 6(a0)`
+     * rather than two separate absolute DAT_ loads. */
+    char          *mm = (char *)&sndmm;
+    int            hw = *(int *)(mm + 8);
+    unsigned short ps = *(unsigned short *)(mm + 6);
+    return (unsigned int)(hw * 100) / (unsigned int)ps;
 }
 
 /* iSNDmalloc @0x80106238 : first-fit allocate `size` bytes (rounded to words) from the sndmm pool,

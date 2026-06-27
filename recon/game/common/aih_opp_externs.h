@@ -9,7 +9,7 @@
 extern __vtbl_ptr_type AIHigh_Opponent_vtable[], AIState_Idle_vtable[];
 
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
-extern Car_tObj **Cars_gList;
+extern Car_tObj *Cars_gList[];
 extern GameSetup_tData   GameSetup_gData;
 extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
 extern Trk_NewSlice  *BWorldSm_slices;

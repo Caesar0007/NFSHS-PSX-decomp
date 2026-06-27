@@ -14,10 +14,10 @@ char IsNumChar(char c)
   if ((u_char)(c - 0x30U) < 10) {
     return '\x01';
   }
-  if (c != '-') {
-    return c == '+';
+  if ((u_char)c == '-') {
+    return '\x01';
   }
-  return '\x01';
+  return (u_char)c == '+';
 }
 
 /* @0x80091efc  Risk_ReadNextValue(char **aScript) -- line 462 */

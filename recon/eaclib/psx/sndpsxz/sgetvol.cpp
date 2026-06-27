@@ -14,8 +14,10 @@ extern "C" int SNDgetvol(unsigned int tag)
         return -10;
     iSNDenteraudio();
     ch = iSNDgetchan(tag);
-    iSNDleaveaudio();
-    if (ch < 0)
+    if (ch < 0) {                                   /* leaveaudio is called per-path (oracle does not tail-merge) */
+        iSNDleaveaudio();
         return -8;
-    return (int)*(char *)(ch * 100 + sndgs[0x25] + 0x2d);
+    }
+    iSNDleaveaudio();                               /* oracle: leaveaudio BEFORE reading the +0x2d vol */
+    return (int)*(signed char *)(ch * 100 + sndgs[0x25] + 0x2d);   /* +0x2d cached vol read signed (lb) */
 }

@@ -156,14 +156,12 @@ void CopSpeak_RadioStaticSquelch(void)
   int iVar2;
   
   iVar2 = 0;
-  piVar1 = CopSpeak_gStaticHandle;
   do {
-    if (*piVar1 != -1) {
-      SNDstop(*piVar1);
-      *piVar1 = -1;
+    if (CopSpeak_gStaticHandle[iVar2] != -1) {
+      SNDstop(CopSpeak_gStaticHandle[iVar2]);
+      CopSpeak_gStaticHandle[iVar2] = -1;
     }
     iVar2 = iVar2 + 1;
-    piVar1 = piVar1 + 1;
   } while (iVar2 < 2);
   return;
 }

@@ -12,6 +12,8 @@ Draw_tPixMap *CarIO_carPixMap;
 int CarIO_carPixMapCount;
 int CarIO_carVRamCount;
 int CarIO_licenseSFX_Count;
+shapetbl *CarIO_Plate1[2];
+shapetbl *CarIO_Plate2[2];
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void CarIO_StartUp(void);

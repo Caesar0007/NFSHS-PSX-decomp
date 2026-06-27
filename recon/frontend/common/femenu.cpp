@@ -184,15 +184,15 @@ int tListIteratorIndexed::Increment(tPlayer arg1)
 int tListIteratorIndexed::Decrement(tPlayer arg1)
 
 {
-  u_int uVar1;
+  char cVar1;
   int iVar2;
   char *pcVar3;
   u_char *pbVar4;
 
   pbVar4 = (u_char *)this->fIndex;
   pcVar3 = (this->_base_tListIterator).fValue;
-  uVar1 = (u_int)(u_char)pcVar3[*pbVar4];
-  if (uVar1 == 0) {
+  cVar1 = pcVar3[*pbVar4];
+  if (cVar1 == '\0') {
     iVar2 = (int)(this->_base_tListIterator).fSelectionList[(u_char)pcVar3[*pbVar4] + 1];
     if (0 < iVar2) {
       do {
@@ -205,7 +205,7 @@ int tListIteratorIndexed::Decrement(tPlayer arg1)
     }
   }
   else {
-    iVar2 = uVar1 - 1;
+    iVar2 = cVar1 - 1;
     pcVar3[*pbVar4] = (u_char)iVar2;
   }
   return iVar2;
@@ -282,20 +282,21 @@ int tListIteratorDoubleIndexed::Increment(tPlayer arg1)
 int tListIteratorDoubleIndexed::Decrement(tPlayer arg1)
 
 {
-  u_int uVar1;
+  char cVar7;
   int iVar2;
   char *pcVar3;
   u_char *pbVar4;
   int iVar5;
   u_char *pbVar6;
-  
+
   pbVar6 = (u_char *)this->fIndex1;
   iVar5 = this->index1multiplier;
   pbVar4 = (u_char *)this->fIndex2;
   pcVar3 = (this->_base_tListIterator).fValue;
-  uVar1 = (u_int)(u_char)pcVar3[(u_int)*pbVar6 * iVar5 + (u_int)*pbVar4];
-  if (uVar1 == 0) {
-    iVar2 = (int)(this->_base_tListIterator).fSelectionList[1];
+  cVar7 = pcVar3[(u_int)*pbVar6 * iVar5 + (u_int)*pbVar4];
+  if (cVar7 == '\0') {
+    iVar2 = (int)(this->_base_tListIterator).fSelectionList
+                 [(u_char)pcVar3[(u_int)*pbVar6 * iVar5 + (u_int)*pbVar4] + 1];
     if (0 < iVar2) {
       do {
         pcVar3[(u_int)*pbVar6 * iVar5 + (u_int)*pbVar4] =
@@ -311,7 +312,7 @@ int tListIteratorDoubleIndexed::Decrement(tPlayer arg1)
     }
   }
   else {
-    iVar2 = uVar1 - 1;
+    iVar2 = cVar7 - 1;
     pcVar3[(u_int)*pbVar6 * iVar5 + (u_int)*pbVar4] = (u_char)iVar2;
   }
   return iVar2;

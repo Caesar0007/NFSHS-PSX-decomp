@@ -427,10 +427,10 @@ void BworldSm_UpdateSimQuad(BWorldSm_Pos *slicePos)
 /* ---- BworldSm_IsSimQuadValid__FP12BWorldSm_Pos  [@0x8007f11c] ---- */
 int BworldSm_IsSimQuadValid(BWorldSm_Pos *slicePos)
 {
-  if (slicePos->simQuad == (Trk_NewSimQuad *)0x0) {
-    return 0;
+  if (slicePos->simQuad != (Trk_NewSimQuad *)0x0) {
+    return (u_int)(((slicePos->simQuad->surface & 0xf) ^ 0xe) != 0);
   }
-  return (u_int)((slicePos->simQuad->surface & 0xf) != 0xe);
+  return 0;
 }
 
 /* ---- RawFindClosestQuad__FP8coorddefP12BWorldSm_Pos  [@0x8007f14c] ---- */

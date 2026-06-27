@@ -11,8 +11,14 @@ extern "C" int          decodeshiftjis(unsigned char **cursor); /* @0x801069EC *
 /* remapshiftjiscode : map a 1-byte ASCII code (0x20..0x7f) to its full-width SJIS code. */
 extern "C" unsigned int remapshiftjiscode(unsigned int c)
 {
-    if (c - 0x20 < 0x60)
-        c = (unsigned int)*(unsigned short *)((char *)&DAT_8013bd50 + (c - 0x20) * 2);  /* H03: byte stride (c-0x20)*2 per oracle 0x801069D8 ($a1<<1); &DAT is u16*, so cast to byte* first */
+    /* hold (c-0x20) in ONE local so gcc CSE-keeps it in $a1 across the range test AND
+     * the index (oracle reuses $a1 for both; a recomputed `c-0x20` colored a fresh
+     * scratch -> 6 diffs).  Residual 2-diff = the oracle schedules `sll v0,a1,1` AFTER
+     * the lui/addiu address build; our build emits it before -- a gcc-2.8.0
+     * sll-index-vs-base scheduling tie-break, not source-reachable (methodology floor). */
+    unsigned int i = c - 0x20;
+    if (i < 0x60)
+        c = (unsigned int)(&DAT_8013bd50)[i];
     return c;
 }
 

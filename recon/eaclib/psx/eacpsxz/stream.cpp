@@ -524,9 +524,10 @@ extern "C" int STREAM_overhead(int numReq, int numFilters, int numConsumers)
 {
     /* FLOOR (documented): the only residual is a $v0-vs-$v1 register-coloring tie-break on the
      * `+0xAC` constant fold (oracle folds it into the filter term in $v1; gcc-2.8.0 folds it into
-     * the running total in $v0).  Tried temp-var, nested/right-assoc, and operand-swap reassociations
-     * (all regressed or unchanged) -- gcc reassociates commutative int-add freely, so the grouping is
-     * not source-controllable here.  Pre-flagged as a likely v0-vs-v1 constant-fold floor. */
+     * the running total in $v0).  Tried temp-var, nested/right-assoc, operand-swap, and an
+     * explicit filter-variable summed-last reassociation (regressed to 12 -- reorders the whole
+     * term schedule) -- gcc reassociates commutative int-add freely, so the grouping is not
+     * source-controllable here.  $v0-vs-$v1 constant-fold floor (count matches 13==13). */
     return numReq * 100 + (numFilters * 0xc + 0xac) + numConsumers * 0x10;
 }
 

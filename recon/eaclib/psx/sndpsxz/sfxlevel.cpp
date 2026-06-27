@@ -47,7 +47,12 @@ extern "C" int SNDfxlevel(int tag, int bus, int level)
             int scaled = level * (int)(signed char)*(char *)(slot + 0x34);
             int fxArg;
             *(char *)(slot + 0x35) = (char)level;
-            fxArg = (scaled * sndgs[bus * 4 + 0x28]) / 127;     /* @0x82061029 magic = signed /127 */
+            /* near-miss floor (3 diffs): the bus-master read folds +0xA0 into the load displacement in the
+             * oracle (`lw 160(s4)`) but ours emits `addiu v0,v0,160; lw 0(v0)` -- base+offset fusion floor.
+             * The /16129 (=127*127) divide IS now exact (was a /127 magic-divide bug). */
+            fxArg = (scaled * sndgs[bus * 4 + 0x28]) / 16129;   /* /(127*127): normalises BOTH the send byte
+                                                                 * and the bus-master 0..127 fractions (oracle
+                                                                 * magic 0x82061029 sra 13 == signed /16129) */
             iSNDplatformfxlevel(cur[0], bus, fxArg);
         }
     }

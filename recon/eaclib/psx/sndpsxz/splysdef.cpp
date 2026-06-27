@@ -14,7 +14,7 @@ extern "C" void SNDplaysetdef(void *def)   /* @0x800E6834 */
 {
     char *d = (char *)def;
     *(int *)(d + 0x00)   = -1;
-    *(char *)(d + 0x04)  = (char)-1;
+    *(signed char *)(d + 0x04) = -1;   /* -1 (not (char)-1=255) so it reuses the +0x00 int's v0=-1 */
     *(char *)(d + 0x05)  = 0x3C;
     *(short *)(d + 0x0C) = 0x1000;
     *(short *)(d + 0x0E) = 0x1000;

@@ -59,8 +59,8 @@ long SPCHNFS_C_A_CONFIRM(SPCHNFSType_VOICE *VOICE,int ID_UNIT,SPCHNFSType_CONFIR
   } while (-1 < iVar2);
   parms[0] = 0x151;
   parms[1] = VOICE->flags;
-  parms[3] = CONFIRM->flags;
   parms[2] = ID_UNIT;
+  parms[3] = CONFIRM->flags;
   return SPCH_AddEvent(parms);
 }
 
@@ -101,10 +101,10 @@ long SPCHNFS_D_C_BEGIN_PURS_REP_SPDR(SPCHNFSType_COLOUR *COLOUR,int ID_CAR,SPCHN
   } while (-1 < iVar2);
   parms[0] = 0x154;
   parms[1] = COLOUR->flags;
-  parms[3] = POSITION->flags;
-  parms[5] = DISTANCE->flags;
   parms[2] = ID_CAR;
+  parms[3] = POSITION->flags;
   parms[4] = ID_LOCATION;
+  parms[5] = DISTANCE->flags;
   return SPCH_AddEvent(parms);
 }
 
@@ -126,13 +126,13 @@ long SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR_REPLY(SPCHNFSType_VOICE *VOICE,int ID_UNIT
   } while (-1 < iVar2);
   parms[0] = 0x155;
   parms[1] = VOICE->flags;
+  parms[2] = ID_UNIT;
   parms[3] = COLOUR->flags;
+  parms[4] = ID_CAR;
   parms[5] = DISTANCE->flags;
   parms[6] = POSITION->flags;
   parms[7] = ID_LOCATION;
   parms[8] = CONFIRM->flags;
-  parms[2] = ID_UNIT;
-  parms[4] = ID_CAR;
   return SPCH_AddEvent(parms);
 }
 
@@ -155,13 +155,13 @@ long SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR(SPCHNFSType_VOICE *VOICE,SPCHNFSType_COLOU
   parms[0] = 0x156;
   parms[1] = VOICE->flags;
   parms[2] = COLOUR->flags;
+  parms[3] = ID_CAR;
   parms[4] = POSITION->flags;
   parms[5] = ID_LOCATION;
   parms[6] = DISTANCE->flags;
   parms[7] = ID_SPEED;
   parms[8] = vs_KMH_MPH->flags;
   parms[9] = PERP_NAME->flags;
-  parms[3] = ID_CAR;
   return SPCH_AddEvent(parms);
 }
 
@@ -223,10 +223,10 @@ long SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_STS(SPCHNFSType_VOICE *VOICE,SPCHNFSType_
   parms[0] = 0x15a;
   parms[1] = VOICE->flags;
   parms[2] = COLOUR->flags;
+  parms[3] = ID_CAR;
   parms[4] = DISTANCE->flags;
   parms[5] = POSITION->flags;
   parms[6] = ID_LOCATION;
-  parms[3] = ID_CAR;
   return SPCH_AddEvent(parms);
 }
 
@@ -247,10 +247,10 @@ long SPCHNFS_D_C_IN_PURS_NEAR_PERP_CONFIRM(SPCHNFSType_COLOUR *COLOUR,int ID_CAR
   } while (-1 < iVar2);
   parms[0] = 0x15b;
   parms[1] = COLOUR->flags;
-  parms[4] = CONFIRM->flags;
-  parms[5] = PERP_NAME->flags;
   parms[2] = ID_CAR;
   parms[3] = ID_UNIT;
+  parms[4] = CONFIRM->flags;
+  parms[5] = PERP_NAME->flags;
   return SPCH_AddEvent(parms);
 }
 
@@ -272,10 +272,10 @@ long SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_STS(SPCHNFSType_VOICE *VOICE,SPCHNFSTyp
   parms[0] = 0x15e;
   parms[1] = VOICE->flags;
   parms[2] = COLOUR->flags;
+  parms[3] = ID_CAR;
   parms[4] = POSITION->flags;
   parms[5] = ID_LOCATION;
   parms[6] = DISTANCE->flags;
-  parms[3] = ID_CAR;
   return SPCH_AddEvent(parms);
 }
 
@@ -296,10 +296,10 @@ long SPCHNFS_D_C_IN_PURS_AWAY_PERP_CONFIRM(SPCHNFSType_COLOUR *COLOUR,int ID_CAR
   } while (-1 < iVar2);
   parms[0] = 0x15f;
   parms[1] = COLOUR->flags;
-  parms[4] = CONFIRM->flags;
-  parms[5] = PERP_NAME->flags;
   parms[2] = ID_CAR;
   parms[3] = ID_UNIT;
+  parms[4] = CONFIRM->flags;
+  parms[5] = PERP_NAME->flags;
   return SPCH_AddEvent(parms);
 }
 
@@ -321,8 +321,8 @@ long SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_STS(SPCHNFSType_VOICE *VOICE,SPCHNFSTyp
   parms[0] = 0x162;
   parms[1] = VOICE->flags;
   parms[2] = COLOUR->flags;
-  parms[4] = PERP_NAME->flags;
   parms[3] = ID_CAR;
+  parms[4] = PERP_NAME->flags;
   return SPCH_AddEvent(parms);
 }
 
@@ -417,8 +417,8 @@ long SPCHNFS_D_C_RDBLK_CONFIRMED(SPCHNFSType_POSITION *POSITION,int ID_LOCATION,
   } while (-1 < iVar2);
   parms[0] = 0x16a;
   parms[1] = POSITION->flags;
-  parms[3] = DISTANCE->flags;
   parms[2] = ID_LOCATION;
+  parms[3] = DISTANCE->flags;
   return SPCH_AddEvent(parms);
 }
 
@@ -461,10 +461,10 @@ long SPCHNFS_C_D_REQUEST_BKUP(SPCHNFSType_VOICE *VOICE,SPCHNFSType_COLOUR *COLOU
   parms[0] = 0x16f;
   parms[1] = VOICE->flags;
   parms[2] = COLOUR->flags;
+  parms[3] = ID_CAR;
   parms[4] = POSITION->flags;
   parms[5] = ID_LOCATION;
   parms[6] = DISTANCE->flags;
-  parms[3] = ID_CAR;
   return SPCH_AddEvent(parms);
 }
 
@@ -548,11 +548,11 @@ long SPCHNFS_C_D_PERP_SIGHTED(SPCHNFSType_VOICE *VOICE,SPCHNFSType_COLOUR *COLOU
   parms[0] = 0x178;
   parms[1] = VOICE->flags;
   parms[2] = COLOUR->flags;
+  parms[3] = ID_CAR;
   parms[4] = DISTANCE->flags;
   parms[5] = POSITION->flags;
   parms[6] = ID_LOCATION;
   parms[7] = PERP_NAME->flags;
-  parms[3] = ID_CAR;
   return SPCH_AddEvent(parms);
 }
 
@@ -595,11 +595,11 @@ long SPCHNFS_C_D_PERP_LOST(SPCHNFSType_VOICE *VOICE,SPCHNFSType_COLOUR *COLOUR,i
   parms[0] = 0x17a;
   parms[1] = VOICE->flags;
   parms[2] = COLOUR->flags;
+  parms[3] = ID_CAR;
   parms[4] = POSITION->flags;
   parms[5] = ID_LOCATION;
   parms[6] = DISTANCE->flags;
   parms[7] = PERP_NAME->flags;
-  parms[3] = ID_CAR;
   return SPCH_AddEvent(parms);
 }
 
@@ -641,10 +641,10 @@ long SPCHNFS_C_C_PERP_REAQUIRED(SPCHNFSType_VOICE *VOICE,SPCHNFSType_COLOUR *COL
   parms[0] = 0x17c;
   parms[1] = VOICE->flags;
   parms[2] = COLOUR->flags;
+  parms[3] = ID_CAR;
   parms[4] = POSITION->flags;
   parms[5] = ID_LOCATION;
   parms[6] = DISTANCE->flags;
-  parms[3] = ID_CAR;
   return SPCH_AddEvent(parms);
 }
 
@@ -683,9 +683,9 @@ long SPCHNFS_D_C_PERP_APPREHENSION_REPLY(int ID_UNIT,SPCHNFSType_CONFIRM *CONFIR
     iVar2 = iVar2 + -1;
   } while (-1 < iVar2);
   parms[0] = 0x180;
+  parms[1] = ID_UNIT;
   parms[2] = CONFIRM->flags;
   parms[3] = PERP_NAME->flags;
-  parms[1] = ID_UNIT;
   return SPCH_AddEvent(parms);
 }
 
@@ -708,11 +708,11 @@ long SPCHNFS_C_D_PERP_CRASH_GEN(SPCHNFSType_VOICE *VOICE,SPCHNFSType_POSITION *P
   parms[0] = 0x181;
   parms[1] = VOICE->flags;
   parms[2] = POSITION->flags;
+  parms[3] = ID_LOCATION;
   parms[4] = COLOUR->flags;
   parms[5] = ID_CAR;
   parms[6] = DISTANCE->flags;
   parms[7] = PERP_NAME->flags;
-  parms[3] = ID_LOCATION;
   return SPCH_AddEvent(parms);
 }
 
@@ -890,8 +890,8 @@ long SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_LOC(SPCHNFSType_VOICE *VOICE,SPCHNFSType_
   parms[0] = 0x19e;
   parms[1] = VOICE->flags;
   parms[2] = POSITION->flags;
-  parms[4] = DISTANCE->flags;
   parms[3] = ID_LOCATION;
+  parms[4] = DISTANCE->flags;
   return SPCH_AddEvent(parms);
 }
 
@@ -911,8 +911,8 @@ long SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_SPD(SPCHNFSType_VOICE *VOICE,int ID_SPEED
   } while (-1 < iVar2);
   parms[0] = 0x19f;
   parms[1] = VOICE->flags;
-  parms[3] = vs_KMH_MPH->flags;
   parms[2] = ID_SPEED;
+  parms[3] = vs_KMH_MPH->flags;
   return SPCH_AddEvent(parms);
 }
 
@@ -935,11 +935,11 @@ long SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_LOC(SPCHNFSType_VOICE *VOICE,SPCHNFSTyp
   parms[0] = 0x1a0;
   parms[1] = VOICE->flags;
   parms[2] = POSITION->flags;
+  parms[3] = ID_LOCATION;
   parms[4] = DISTANCE->flags;
   parms[5] = COLOUR->flags;
   parms[6] = ID_CAR;
   parms[7] = PERP_NAME->flags;
-  parms[3] = ID_LOCATION;
   return SPCH_AddEvent(parms);
 }
 
@@ -961,10 +961,10 @@ long SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_LOC(SPCHNFSType_VOICE *VOICE,SPCHNFSTyp
   parms[0] = 0x1a2;
   parms[1] = VOICE->flags;
   parms[2] = POSITION->flags;
+  parms[3] = ID_LOCATION;
   parms[4] = DISTANCE->flags;
   parms[5] = COLOUR->flags;
   parms[6] = ID_CAR;
-  parms[3] = ID_LOCATION;
   return SPCH_AddEvent(parms);
 }
 
@@ -983,9 +983,9 @@ long SPCHNFS_D_C_INTRO_CALL(int ID_UNIT,int ID_UNIT1,SPCHNFSType_REVINTRO *REVIN
     iVar2 = iVar2 + -1;
   } while (-1 < iVar2);
   parms[0] = 0x1a3;
-  parms[3] = REVINTRO->flags;
   parms[1] = ID_UNIT;
   parms[2] = ID_UNIT1;
+  parms[3] = REVINTRO->flags;
   return SPCH_AddEvent(parms);
 }
 
@@ -1005,9 +1005,9 @@ long SPCHNFS_C_A_INTRO(SPCHNFSType_VOICE *VOICE,int ID_UNIT,int ID_UNIT1,SPCHNFS
   } while (-1 < iVar2);
   parms[0] = 0x1a5;
   parms[1] = VOICE->flags;
-  parms[4] = REVINTRO->flags;
   parms[2] = ID_UNIT;
   parms[3] = ID_UNIT1;
+  parms[4] = REVINTRO->flags;
   return SPCH_AddEvent(parms);
 }
 
@@ -1047,10 +1047,10 @@ long SPCHNFS_D_C_SPBLT_CONFIRMED(SPCHNFSType_POSITION *POSITION,int ID_LOCATION,
   } while (-1 < iVar2);
   parms[0] = 0x1a8;
   parms[1] = POSITION->flags;
-  parms[3] = DISTANCE->flags;
-  parms[5] = SPIKE_BELT_SIDE->flags;
   parms[2] = ID_LOCATION;
+  parms[3] = DISTANCE->flags;
   parms[4] = ID_UNIT;
+  parms[5] = SPIKE_BELT_SIDE->flags;
   return SPCH_AddEvent(parms);
 }
 
@@ -1112,8 +1112,8 @@ long SPCHNFS_W_D_RDBLK_PLC(SPCHNFSType_VOICE *VOICE,SPCHNFSType_POSITION *POSITI
   parms[0] = 0x1ab;
   parms[1] = VOICE->flags;
   parms[2] = POSITION->flags;
-  parms[4] = DISTANCE->flags;
   parms[3] = ID_LOCATION;
+  parms[4] = DISTANCE->flags;
   return SPCH_AddEvent(parms);
 }
 
@@ -1137,9 +1137,9 @@ long SPCHNFS_W_D_SPBLT_PLC(SPCHNFSType_VOICE *VOICE,SPCHNFSType_POSITION *POSITI
   parms[1] = VOICE->flags;
   parms[2] = POSITION->flags;
   parms[3] = SPIKE_BELT_SIDE->flags;
+  parms[4] = ID_UNIT;
   parms[5] = ID_LOCATION;
   parms[6] = DISTANCE->flags;
-  parms[4] = ID_UNIT;
   return SPCH_AddEvent(parms);
 }
 
@@ -1161,9 +1161,9 @@ long SPCHNFS_C_D_PERP_CRASH_ROLL(SPCHNFSType_VOICE *VOICE,SPCHNFSType_POSITION *
   parms[0] = 0x1ae;
   parms[1] = VOICE->flags;
   parms[2] = POSITION->flags;
+  parms[3] = ID_LOCATION;
   parms[4] = DISTANCE->flags;
   parms[5] = PERP_NAME->flags;
-  parms[3] = ID_LOCATION;
   return SPCH_AddEvent(parms);
 }
 

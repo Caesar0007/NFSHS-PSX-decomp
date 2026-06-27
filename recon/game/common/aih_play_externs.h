@@ -15,7 +15,7 @@ extern AITrigger_TriggerManager *triggerManagerCops;
 extern Car_tObj      *Cars_gRaceCarList[];      /* 0x8010fa00 */
 extern Car_tObj * AILife_IsSliceCloseToAnyCopCar(int slice);
 extern Car_tObj * AILife_IsSliceInAnyVisibleArea(int slice);
-extern Car_tObj **Cars_gList;
+extern Car_tObj *Cars_gList[];
 extern Car_tObj *Cars_gCopCarList[];
 extern GameSetup_tData   GameSetup_gData;
 extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */

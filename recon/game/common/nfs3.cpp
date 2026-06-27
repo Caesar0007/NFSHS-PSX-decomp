@@ -60,15 +60,12 @@ void Nfs2_SystemNLibStartUp(void)
 void Nfs2_BefuddleCode(void)
 
 {
-  char (*src) [4];
   int loop;
-  
+
   loop = 0;
-  src = befuddleExtensions;
   do {
-    strcpy(befuddleTemp,*src);
+    strcpy(befuddleTemp,befuddleExtensions[loop]);
     loop = loop + 1;
-    src = src + 1;
   } while (loop < 0xe);
   return;
 }

@@ -13,9 +13,10 @@ extern "C" int iSNDatolrv(int angle, int level, int *out_l, int *out_r);        
 extern "C" int iSNDatolrv(int angle, int level, int *out_l, int *out_r)
 {
     iSNDlibatodlrv(angle, level, out_l, out_r);
-    /* @0x8010B0C4-D4 abs(*out_l); @0x8010B0D8-E8 abs(*out_r). The return ($v0) is the (now non-negative)
-     * *out_r in BOTH branches. The recon computed r=-*out_r UNCONDITIONALLY and returned r, so for
-     * *out_r>=0 it returned a wrong-sign (negative) magnitude where the oracle returns abs(*out_r) (M05). */
+    /* @0x8010B0C4-E8: abs(*out_l)/abs(*out_r).  near-miss floor (2 insns): the oracle returns the 2nd
+     * abs's `negu` value straight out of $v0 (negu in the bgez delay slot, always-runs), avoiding a
+     * reload; gcc here keeps `*out_r` live -> a `nop` in the bgez delay slot + a `lw v0,0(s1)` reload.
+     * Branch-polarity/explicit-return reshapes only make it worse. */
     if (*out_l < 0)
         *out_l = -*out_l;
     if (*out_r < 0)

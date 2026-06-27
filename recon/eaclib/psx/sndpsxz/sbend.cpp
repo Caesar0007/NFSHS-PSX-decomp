@@ -24,13 +24,13 @@ extern "C" int iSNDunsafebend(unsigned int tag, unsigned int chan)
         cur[0] = -1;
         while (iSNDpatchkey(chanIdx, (int)cur) != 0) {
             int v = sndgs[0x25] + cur[0] * 100;
-            if ((int)*(char *)(v + 0x2f) == (int)chan)
+            if ((int)*(signed char *)(v + 0x2f) == (int)chan)   /* +0x2f detune read signed (lb); this build's char is unsigned */
                 return 0;
             if (*(short *)(v + 0x5a) == 0)
                 return 0;
             *(char *)(v + 0x2f) = (char)chan;
-            *(short *)(v + 0x5e) = 0;
             iSNDcalcpitch(cur[0]);
+            *(short *)(v + 0x5e) = 0;   /* oracle sinks this +0x5e=0 store into the calcpitch jal delay slot */
             iSNDplatformpitch(cur[0], (int)(unsigned)*(unsigned short *)(v + 0x62));
         }
     }

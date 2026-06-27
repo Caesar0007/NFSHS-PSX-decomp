@@ -410,9 +410,9 @@ void AIHigh_CleanUp(void)
 
       if (pAVar1 != (AIHigh_Base *)0x0) {
 
-        (**(int (**)(...))(pAVar1->_vf[6] + 2))
-
-                  ((int)&pAVar1->carObj_ + (int)*(short *)(pAVar1->_vf[5] + 1),3);
+        /* vtable entry 2: fn-ptr @ byte +20, this-delta @ byte +16 (byte-base, sec.3.12 #10) */
+        (*(int (**)(...))((char *)pAVar1->_vf + 20))
+                  ((int)&pAVar1->carObj_ + (int)*(short *)((char *)pAVar1->_vf + 16),3);
 
         *ppAVar2 = (AIHigh_Base *)0x0;
 
@@ -506,8 +506,9 @@ LAB_8005b2bc:
       if (bVar1) {
 
         pa_Var3 = (*ppAVar5)->_vf;
-
-        (**(int (**)(...))(pa_Var3 + 4))((int)&(*ppAVar5)->carObj_ + (int)*(short *)(pa_Var3[2] + 2));
+        /* vtable entry 1: fn-ptr @ byte +12, this-delta @ byte +8 (byte-base, sec.3.12 #10) */
+        (*(int (**)(...))((char *)pa_Var3 + 12))
+            ((int)&(*ppAVar5)->carObj_ + (int)*(short *)((char *)pa_Var3 + 8));
 
       }
 
@@ -565,8 +566,9 @@ AIHigh_Base::AIHigh_Base(Car_tObj *carObj)
   pAVar1 = this->state_;
 
   if (pAVar1 != (AIState_Base *)0x0) {
-
-    (*(int (*)(...))pAVar1->_vf[5])((int)&pAVar1->carObj_ + (int)*(short *)pAVar1->_vf[4],3);
+    /* vtable entry 2: fn-ptr @ byte +20, this-delta @ byte +16 (byte-base, sec.3.12 #10) */
+    (*(int (*)(...))*(int *)((char *)pAVar1->_vf + 20))
+        ((int)&pAVar1->carObj_ + (int)*(short *)((char *)pAVar1->_vf + 16),3);
 
   }
 
@@ -607,8 +609,9 @@ AIHigh_Base::~AIHigh_Base()
   this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_Base_vtable;
 
   if (pAVar1 != (AIState_Base *)0x0) {
-
-    (*(int (*)(...))pAVar1->_vf[5])((int)&pAVar1->carObj_ + (int)*(short *)pAVar1->_vf[4],3);
+    /* vtable entry 2: fn-ptr @ byte +20, this-delta @ byte +16 (byte-base, sec.3.12 #10) */
+    (*(int (*)(...))*(int *)((char *)pAVar1->_vf + 20))
+        ((int)&pAVar1->carObj_ + (int)*(short *)((char *)pAVar1->_vf + 16),3);
 
     this->state_ = (AIState_Base *)0x0;
 

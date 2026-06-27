@@ -11,6 +11,14 @@
  */
 
 extern "C" int sndgs[];
+extern "C" unsigned char sndpd[];   /* EA sound-driver state base @0x80147918 (unsized array: forces
+                                     * the oracle's `lui;addiu &sndpd; lw r,0x514(base)` base+offset shape
+                                     * instead of folding &sndpd+const into one absolute %lo load) */
+/* SPU register-base pointers live as fields inside the sndpd state block:
+ *   DAT_80147e28 (voice regs)   = *(int*)(sndpd + 0x510)
+ *   DAT_80147e2c (control regs) = *(int*)(sndpd + 0x514) */
+#define SNDPD_VOICEREG   (((volatile int *)sndpd)[0x510/4])
+#define SNDPD_CTRLREG    (((volatile int *)sndpd)[0x514/4])
 extern "C" int DAT_80147e28;        /* SPU voice register base (address)   */
 extern "C" int DAT_80147e2c;        /* SPU control register base (address) */
 extern "C" int DAT_801479f0;        /* packet-voice table base; entry +0x00 = SPU start addr, +0x04 idx src, +0x08 sample-rate src */
@@ -87,45 +95,64 @@ extern "C" unsigned int iSNDcalcvol(int chan)
 /* iSNDpsxkeyon @0x800FF140 : strobe the SPU key-on register for `mask` (24 voices). */
 extern "C" int iSNDpsxkeyon(int mask)
 {
-    *(short *)(DAT_80147e2c + 0x188) = (short)mask;
-    *(short *)(DAT_80147e2c + 0x18a) = (short)((unsigned)mask >> 0x10);
-    return DAT_80147e2c;
+    volatile int *base = (volatile int *)sndpd;
+    int r;
+    *(volatile short *)(base[0x514/4] + 0x188) = (short)mask;
+    r = base[0x514/4];
+    *(volatile short *)(r + 0x18a) = (short)(mask >> 0x10);
+    return r;
 }
 
 /* iSNDpsxkeyoff @0x800FF168 : strobe the SPU key-off register for `mask`. */
 extern "C" int iSNDpsxkeyoff(int mask)
 {
-    *(short *)(DAT_80147e2c + 0x18c) = (short)mask;
-    *(short *)(DAT_80147e2c + 0x18e) = (short)((unsigned)mask >> 0x10);
-    return DAT_80147e2c;
+    volatile int *base = (volatile int *)sndpd;
+    int r;
+    *(volatile short *)(base[0x514/4] + 0x18c) = (short)mask;
+    r = base[0x514/4];
+    *(volatile short *)(r + 0x18e) = (short)(mask >> 0x10);
+    return r;
 }
 
 /* iSNDpsxeffecton @0x800FF190 : enable reverb on the `mask` voices (OR into the SPU echo-on register). */
 extern "C" unsigned int iSNDpsxeffecton(int mask)
 {
+    volatile int *base = (volatile int *)sndpd;
     unsigned int r;
-    *(unsigned short *)(DAT_80147e2c + 0x198) = *(unsigned short *)(DAT_80147e2c + 0x198) | (unsigned short)mask;
-    r = (unsigned int)*(unsigned short *)(DAT_80147e2c + 0x19a) | (mask >> 0x10);
-    *(short *)(DAT_80147e2c + 0x19a) = (short)r;
+    int          c0 = base[0x514/4];
+    *(volatile unsigned short *)(c0 + 0x198) = *(volatile unsigned short *)(c0 + 0x198) | (unsigned short)mask;
+    {
+        int c1 = base[0x514/4];
+        r = (unsigned int)*(volatile unsigned short *)(c1 + 0x19a) | (mask >> 0x10);
+        *(volatile short *)(c1 + 0x19a) = (short)r;
+    }
     return r;
 }
 
 /* iSNDpsxeffectoff @0x800FF1D0 : disable reverb on the `mask` voices. */
 extern "C" unsigned int iSNDpsxeffectoff(int mask)
 {
+    volatile int *base = (volatile int *)sndpd;
     unsigned int r;
-    *(unsigned short *)(DAT_80147e2c + 0x198) = *(unsigned short *)(DAT_80147e2c + 0x198) & ~(unsigned short)mask;
-    r = (unsigned int)*(unsigned short *)(DAT_80147e2c + 0x19a) & ~(mask >> 0x10);
-    *(short *)(DAT_80147e2c + 0x19a) = (short)r;
+    int          c0 = base[0x514/4];
+    *(volatile unsigned short *)(c0 + 0x198) = *(volatile unsigned short *)(c0 + 0x198) & ~(unsigned short)mask;
+    {
+        int c1 = base[0x514/4];
+        r = (unsigned int)*(volatile unsigned short *)(c1 + 0x19a) & ~(mask >> 0x10);
+        *(volatile short *)(c1 + 0x19a) = (short)r;
+    }
     return r;
 }
 
 /* iSNDpsxeffectvol @0x800FF210 : set the SPU reverb (echo) L/R output volume. */
 extern "C" int iSNDpsxeffectvol(int left, int right)
 {
-    *(short *)(DAT_80147e2c + 0x184) = (short)left;
-    *(short *)(DAT_80147e2c + 0x186) = (short)right;
-    return DAT_80147e2c;
+    volatile int *base = (volatile int *)sndpd;
+    int r;
+    *(volatile short *)(base[0x514/4] + 0x184) = (short)left;
+    r = base[0x514/4];
+    *(volatile short *)(r + 0x186) = (short)right;
+    return r;
 }
 
 /* iSNDsetvol @0x800FF238 : write a channel's SPU voice L/R volume from logical (left,right) levels,

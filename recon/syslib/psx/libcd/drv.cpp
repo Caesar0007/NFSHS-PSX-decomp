@@ -338,19 +338,27 @@ extern "C" void CD_flush(void)
     *D_8013C21C = 0x1325;
 }
 
-/* @0x80108004 : CD_initvol -- enable CD audio and set the mixer volumes to maximum. */
+/* @0x80108004 : CD_initvol -- enable CD audio and set the mixer volumes to maximum.
+ *   MATCH (verify_asm PASS 60/60): the volume-guard is two SHORT-CIRCUIT branches in the
+ *   oracle (`bnez 0x1b8; bnez 0x1ba`), so the `A==0 && B==0` test must be written as NESTED
+ *   ifs (methodology lever #7 -- a single `&&` made gcc fold both compares into one
+ *   `sltiu;beqz`, +1 insn).  The `vol[]` byte inits must be `vol[0]=vol[2]=0x80` order (NOT
+ *   `vol[2]=vol[0]=`) so the rightmost assignment stores offset 2 before 0, matching the
+ *   oracle's `sb v0,2(sp); sb v0,0(sp)` schedule. */
 extern "C" int CD_initvol(void)
 {
     unsigned char vol[4];
-    if (D_8013C220[0x1b8 / 2] == 0 && D_8013C220[0x1ba / 2] == 0) {
-        D_8013C220[0x180 / 2] = 0x3fff;
-        D_8013C220[0x182 / 2] = 0x3fff;
+    if (D_8013C220[0x1b8 / 2] == 0) {
+        if (D_8013C220[0x1ba / 2] == 0) {
+            D_8013C220[0x180 / 2] = 0x3fff;
+            D_8013C220[0x182 / 2] = 0x3fff;
+        }
     }
     D_8013C220[0x1b0 / 2] = 0x3fff;
     D_8013C220[0x1b2 / 2] = 0x3fff;
     D_8013C220[0x1aa / 2] = 0xc001;
-    vol[2] = vol[0] = 0x80;
-    vol[3] = vol[1] = 0;
+    vol[0] = vol[2] = 0x80;
+    vol[1] = vol[3] = 0;
     CDREG0 = 2;
     CDREG2 = vol[0];
     CDREG3 = vol[1];

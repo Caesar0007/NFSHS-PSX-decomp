@@ -165,6 +165,7 @@ void * tMenuItemGoToMenuButtonFade::TransitionIsFinished()
   if (this->fFadeDir < 0) {
     if (0 < this->fFadeVal) {
       this->fInTransition = 1;
+      goto done;
     }
   }
   if (0 < this->fFadeDir) {
@@ -172,6 +173,7 @@ void * tMenuItemGoToMenuButtonFade::TransitionIsFinished()
       this->fInTransition = 1;
     }
   }
+done:
   return (void *)(this->fInTransition ^ 1);
 }
 
@@ -2804,13 +2806,19 @@ void * tUserNameMenuItem::TransitionIsFinished()
   if (this->fFadeDir < 0) {
     if (0 < this->fFadeVal) {
       this->fInTransition = 1;
+      goto done;
     }
   }
   if (0 < this->fFadeDir) {
-    if (this->fFadeVal < 0x80 || (*(u_short*)&ginfo[16]) != 0) {
+    if (this->fFadeVal < 0x80) {
+      this->fInTransition = 1;
+      goto done;
+    }
+    if ((*(u_short*)&ginfo[16]) != 0) {
       this->fInTransition = 1;
     }
   }
+done:
   return (void *)(this->fInTransition ^ 1);
 }
 

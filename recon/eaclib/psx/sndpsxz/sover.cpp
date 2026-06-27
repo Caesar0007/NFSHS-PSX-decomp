@@ -17,7 +17,7 @@ extern "C" unsigned int SNDover(unsigned int tag);    /* @0x800E7B14 */
 extern "C" unsigned int SNDover(unsigned int tag)
 {
     unsigned int r;
-    if ((signed char)sndgs[0xf] != 0) {
+    if (*(signed char *)((int)sndgs + 0x3c) != 0) {   /* init flag = low byte of sndgs[0xf]; direct-addr read */
         iSNDenteraudio();
         r = (unsigned int)iSNDgetchan(tag) >> 0x1f;   /* 1 == finished, 0 == still playing */
         iSNDleaveaudio();

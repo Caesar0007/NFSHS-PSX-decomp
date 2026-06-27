@@ -17,7 +17,7 @@ extern "C" void TransformVector(int (*vect)[4],int (*transform)[4][4],int (*resu
   short J;
   
   for (I = 0; I < 4; I = I + 1) {
-    piVar3 = *result + I;
+    piVar3 = (int *)(I * 4 + (int)*result);
     *piVar3 = 0;
     for (J = 0; J < 4; J = J + 1) {
       prod = fixedmult((*vect)[J],(*transform)[J][I]);
@@ -543,14 +543,14 @@ void tScreenCarSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
   __vtbl_ptr_type (*vtbl) [10];
   int valid;
   tCarInfo carInfo;
-  
+
   numPermShapes = 0x8e;
   numSwapShapes = 0xb;
   *permFileName = "zcars";
   vtbl = (this->_base_tScreen)._vf;
   valid = (*vtbl[1][3].pfn)
-                    ((this->_base_tScreen).fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
-  if (valid != 1) {
+                    ((this->_base_tScreen).fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo) == 1;
+  if (!valid) {
     GetStockCar(&carManager, 0,&carInfo);
   }
   this->fPreviousCar = (ushort)carInfo.fCarIndex;
@@ -1295,8 +1295,8 @@ void tScreenCarSelectDuel::PreLoad()
   (this->fOpponentShapes).fDestFile = str;
   use_default = (**(code **)((int)vtbl + 0x6c))
                           ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename +
-                           -0x14 + *(short *)((int)vtbl + 0x68),&carInfo);
-  if (use_default != 1) {
+                           -0x14 + *(short *)((int)vtbl + 0x68),&carInfo) == 1;
+  if (!use_default) {
     GetStockCar(&carManager, 0,&carInfo);
   }
   sprintf(buffer,"z%s",carInfo.fSmallName);
@@ -1481,12 +1481,12 @@ void tScreenCarSelectDuel::GetShapeInfo(short &numPermShapes,short &numSwapShape
   vtbl = (this->_base_tScreenCarSelect)._base_tScreen._vf;
   valid = (*vtbl[1][3].pfn)
                     ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename +
-                     vtbl[1][3].delta + -0x14,&carInfo);
-  if (valid != 1) {
+                     vtbl[1][3].delta + -0x14,&carInfo) == 1;
+  if (!valid) {
     GetStockCar(&carManager, 0,&carInfo);
   }
   (this->_base_tScreenCarSelect).fPreviousCar = (ushort)carInfo.fCarIndex;
-  (this->_base_tScreenCarSelect).fPreviousCarID = (short)carInfo.fCarID;
+  (this->_base_tScreenCarSelect).fPreviousCarID = (short)(signed char)carInfo.fCarID;
   this->fPreviousOpponent = -1;
   (this->_base_tScreenCarSelect).fPreviousCountry = (ushort)carInfo.fCountry;
   *permFileName = "zDuel";

@@ -231,11 +231,13 @@ short tListIteratorTrack::TextValue(tPlayer atIndex)
 
 {
   tTrackInformation *trackInfo;
+  tTrackInformation *trackEntry;
+  u_int uVar1;
 
   trackInfo = (tTrackInformation *)(this->_base_tListIteratorIndexed).fIndex;
-  return (signed char)this->fTrackManager->fTracks
-         [(u_char)(this->_base_tListIteratorIndexed)._base_tListIterator.fValue[(u_char)trackInfo->fTrackID]].
-         fTrackID + 0xd5;
+  uVar1 = (u_char)(this->_base_tListIteratorIndexed)._base_tListIterator.fValue[(u_char)trackInfo->fTrackID];
+  trackEntry = &this->fTrackManager->fTracks[uVar1];
+  return (signed char)trackEntry->fTrackID + 0xd5;
 }
 
 
@@ -245,7 +247,7 @@ short tListIteratorTrack::TextValue(tPlayer atIndex)
 void tListIteratorTrack::Increment(tPlayer atIndex)
 
 {
-  void *pvVar1;
+  int iVar1;
   char *pcVar2;
   u_char *pbVar3;
 
@@ -258,9 +260,9 @@ void tListIteratorTrack::Increment(tPlayer atIndex)
     if (this->fTrackManager->fNumTracks <= (u_int)*pbVar3) {
       *pbVar3 = 0;
     }
-    pvVar1 = this->ValidTrack((this->_base_tListIteratorIndexed)._base_tListIterator.fValue
-                             [(u_char)*(this->_base_tListIteratorIndexed).fIndex]);
-  } while (pvVar1 != (void *)0x1);
+    iVar1 = (int)this->ValidTrack((this->_base_tListIteratorIndexed)._base_tListIterator.fValue
+                             [(u_char)*(this->_base_tListIteratorIndexed).fIndex]) ^ 1;
+  } while (iVar1 != 0);
   return;
 }
 
@@ -272,9 +274,9 @@ void tListIteratorTrack::Decrement(tPlayer atIndex)
 
 {
   char cVar1;
-  void *pvVar2;
+  int iVar2;
   char *pcVar3;
-  
+
   do {
     pcVar3 = (this->_base_tListIteratorIndexed)._base_tListIterator.fValue +
              (u_char)*(this->_base_tListIteratorIndexed).fIndex;
@@ -282,10 +284,10 @@ void tListIteratorTrack::Decrement(tPlayer atIndex)
     if (cVar1 == '\0') {
       cVar1 = (char)this->fTrackManager->fNumTracks;
     }
-    *pcVar3 = cVar1 + -1;
-    pvVar2 = this->ValidTrack((this->_base_tListIteratorIndexed)._base_tListIterator.fValue
-                             [(u_char)*(this->_base_tListIteratorIndexed).fIndex]);
-  } while (pvVar2 != (void *)0x1);
+    *pcVar3 = cVar1 - 1;
+    iVar2 = (int)this->ValidTrack((this->_base_tListIteratorIndexed)._base_tListIterator.fValue
+                             [(u_char)*(this->_base_tListIteratorIndexed).fIndex]) ^ 1;
+  } while (iVar2 != 0);
   return;
 }
 

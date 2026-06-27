@@ -6,7 +6,8 @@
 
 extern tfrontEnd   frontEnd;
 extern int  ticks;
-extern tGlobalMenuDefs *menuDefs;
+extern tGlobalMenuDefs *menuDefs[];
+extern __vtbl_ptr_type tScreenAudio_vtable[10];   /* @0x80012158 (game/common/vtables_tscreen2.cpp) */
 /* (gFE_bgIndex/gFE_bgFadeVal are NOT globals: SYM STAT = DrawBackground-local statics
    lastpercentage/perfade @0x800528e0/e4 -- Ghidra mis-named them. Defined in the .cpp.) */
 extern int  gMasterSFXLevel, gMasterMusicLevel, gMasterEngineLevel, gMasterAmbientLevel;

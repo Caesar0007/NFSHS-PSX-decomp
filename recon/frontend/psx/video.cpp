@@ -93,10 +93,11 @@ void VIDEO_startplayback(int handle)
 {
   int buffered;
   
-  if (((((VIDEOSTRUCT *)handle)->id == 0x57444956   /* 'VIDW' */) && (((VIDEOSTRUCT *)handle)->state != VIDEOSTATE_IDLE)) &&
-     (buffered = STREAM_bufferusage(((VIDEOSTRUCT *)handle)->videotap), 20000 < buffered)
-     ) {
-    ((VIDEOSTRUCT *)handle)->state = VIDEOSTATE_PLAYING;
+  if ((((VIDEOSTRUCT *)handle)->id == 0x57444956   /* 'VIDW' */) && (((VIDEOSTRUCT *)handle)->state != VIDEOSTATE_IDLE)) {
+    buffered = STREAM_bufferusage(((VIDEOSTRUCT *)handle)->videotap);
+    if (buffered >= 20001) {
+      ((VIDEOSTRUCT *)handle)->state = VIDEOSTATE_PLAYING;
+    }
   }
   return;
 }
@@ -121,31 +122,27 @@ void VIDEO_abortplayback(int handle)
 VIDEOSTATE VIDEO_state(int handle)
 
 {
-  int result;
-  int streamstate;
   VIDEOSTRUCT *vid;
   SNDREQUESTSTATUS srs;
   vid = (VIDEOSTRUCT *)handle;
   
-  result = 0;
-  if (vid->id == 0x57444956   /* 'VIDW' */) {
-    if (vid->state == VIDEOSTATE_SPOOLING) {
-      streamstate = STREAM_state(vid->videotap);
-      if (streamstate == 2) {
-        vid->state = VIDEOSTATE_PLAYING;
-        vid->displaytime = 0;
-        vid->displaytimefrac = 0;
-        vid->reftime = ticks * 10;
-      }
-    }
-    else if ((vid->state == VIDEOSTATE_PLAYING) &&
-            (result = STREAM_state(vid->videotap), result == 0))
-    {
-      vid->state = VIDEOSTATE_IDLE;
-    }
-    result = vid->state;
+  if (vid->id != 0x57444956   /* 'VIDW' */) {
+    return (VIDEOSTATE)0;
   }
-  return (VIDEOSTATE)result;
+  if (vid->state == VIDEOSTATE_SPOOLING) {
+    if (STREAM_state(vid->videotap) == 2) {
+      vid->state = VIDEOSTATE_PLAYING;
+      vid->displaytime = 0;
+      vid->displaytimefrac = 0;
+      vid->reftime = ticks * 10;
+    }
+  }
+  else if ((vid->state == VIDEOSTATE_PLAYING) &&
+          (STREAM_state(vid->videotap) == 0))
+  {
+    vid->state = VIDEOSTATE_IDLE;
+  }
+  return (VIDEOSTATE)vid->state;
 }
 
 /* lines 248-256: (static data / macros / comments - no emitted code) */

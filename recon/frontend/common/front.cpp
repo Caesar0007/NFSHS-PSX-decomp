@@ -639,7 +639,7 @@ void Front_InitGraphics(void)
 
   initlinkmode(0,1,1);
   sprintf(buffer,"%szzFE.viv",Paths_Paths[0x23]);
-  iVar1 = FILE_addbigsync(buffer,(void *)0x0,100,&gFEBigHandle);
+  iVar1 = FILE_addbigsync(buffer,(void *)0x0,100,gFEBigHandle);
   if (iVar1 == 0) {
     do {
                     /* WARNING: Do nothing block with infinite loop */
@@ -734,8 +734,8 @@ FrontMenu_runFrontEndCleanup:
   TextSys_UnloadWords();
   FeTools_deinit();
   PSXExitFrontend();
-  FILE_delbigsync((char *)gFEBigHandle,(void *)0x64);
-  gFEBigHandle = 0;
+  FILE_delbigsync((char *)gFEBigHandle[0],(void *)0x64);
+  gFEBigHandle[0] = 0;
   frontEnd.recordlaptime =
        Stattool_ReturnRecordLapTime((ushort)(byte)frontEnd.track[0]);
   gLargestUnused = largestunused();

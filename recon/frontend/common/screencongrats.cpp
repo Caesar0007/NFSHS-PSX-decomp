@@ -483,8 +483,9 @@ void tScreenPinkSlipCongrats::DrawCongratsMessage()
 int tScreenPinkSlipCongrats::GetCar(tCarInfo &carInfo)
 
 {
-  
-  GetPinkSlipsCar(&carManager, (ushort)*(byte *)((int)&frontEnd + (0x126 - this->fWinner)),&carInfo,
+
+  GetPinkSlipsCar(&carManager,
+             (ushort)(byte)frontEnd.pinkSlipsCar[1 - this->fWinner],&carInfo,
              1 - this->fWinner);
   carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];
   return 1;

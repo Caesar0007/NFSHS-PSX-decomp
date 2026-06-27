@@ -260,12 +260,9 @@ void tVideoWall::Draw()
 void tVideoWall::TurnOff()
 
 {
-  int iVar1;
-  
-  iVar1 = ticks;
   if (this->fTransitionDirection != -1) {
     this->fTransitionDirection = -1;
-    this->fTVTicks = iVar1;
+    this->fTVTicks = ticks;
   }
   return;
 }
@@ -276,19 +273,15 @@ void tVideoWall::TurnOff()
 void tVideoWall::TurnOffInstant()
 
 {
-  int tv_i;
   short i;
-  int i_2;
-  
+
   this->TurnOff();
-  i_2 = 0;
   if (0 < this->fNumTVs) {
-    tv_i = 0;
+    i = 0;
     do {
-      TurnOffTV(this->fTVs + (tv_i >> 0x10));
-      i_2 = i_2 + 1;
-      tv_i = i_2 * 0x10000;
-    } while (i_2 * 0x10000 >> 0x10 < (int)this->fNumTVs);
+      TurnOffTV(this->fTVs + i);
+      i = i + 1;
+    } while (i < this->fNumTVs);
   }
   return;
 }
@@ -299,15 +292,9 @@ void tVideoWall::TurnOffInstant()
 void tVideoWall::TurnOn()
 
 {
-  int iVar1;
-  short i;
-  int textColor;
-  tDrawShapeExtended drawFlags;
-  
-  iVar1 = ticks;
   if (this->fTransitionDirection != 1) {
     this->fTransitionDirection = 1;
-    this->fTVTicks = iVar1;
+    this->fTVTicks = ticks;
   }
   return;
 }

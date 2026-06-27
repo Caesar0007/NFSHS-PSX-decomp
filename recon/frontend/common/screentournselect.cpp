@@ -136,19 +136,17 @@ void tScreenTournSelect::Cleanup()
 void tScreenTournSelect::UpdateVideoWall(tTourneyInfo *tourn)
 
 {
-  int now;
   char *fileName;
-  
-  if ((uint)tourn->fTrophyID != (int)this->fPreviousTrophy) {
+
+  if (tourn->fTrophyID != (signed char)this->fPreviousTrophy) {
     fileName = gSwapFileName;
     GetTrophyName(&tournamentManager,tourn,ts_Medium,gSwapFileName,-1);
     AsyncLoadSwapShapeFile(&this->_base_tScreen,fileName);
     this->fTVsInitialized = 0;
     this->fPreviousTrophy = tourn->fTrophyID;
-    now = ticks;
     if (-1 < this->fTransitionDirection) {
       this->fTransitionDirection = -1;
-      this->fTVTicks = now;
+      this->fTVTicks = ticks;
     }
   }
   return;

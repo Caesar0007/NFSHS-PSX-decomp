@@ -204,7 +204,7 @@ void DoLanguageScreen(void)
 
 {
   Front_InitialMemCardCheck();
-  if (frontEnd.language == -1) {
+  if ((u_char)frontEnd.language == 0xff) {   /* sentinel: -1 == 0xFF as unsigned byte (this build's char is unsigned -> lbu;bne 0xFF) */
     frontEnd.language = '\0';
   }
   return;
@@ -815,13 +815,12 @@ void LoadAllHelpShapes(void)
   
   sprintf(fullName,"%szperm.psh",Paths_Paths[0x20]);
   f = (char *)loadshapeadr(fullName,(void *)0x0);
-  index = 0;
   if (f != (char *)0x0) {
+    index = 0;
     do {
-      i = index + 1;
       FETexture_LoadPmx(f,index,gHelpShapes[0] + index);
-      index = i;
-    } while (i < 0x3b);
+      index = index + 1;
+    } while (index < 0x3b);
     purgememadr(f);
   }
   return;

@@ -457,42 +457,32 @@ int tListIteratorRange::TextValue(tPlayer arg1)
 
 /* ---- tListIteratorRange::Increment  [FEMENU.CPP:276-281] SLD-VERIFIED ---- */
 
-int tListIteratorRange::Increment(tPlayer arg1)
+void tListIteratorRange::Increment(tPlayer arg1)
 
 {
-  int iVar1;
-  u_int uVar2;
   u_char *pbVar3;
 
   pbVar3 = (u_char *)(this->_base_tListIterator).fValue;
-  uVar2 = (u_char)(this->_base_tListIterator).fMaxValue;
-  if ((u_int)*pbVar3 < uVar2) {
-    iVar1 = (u_int)*pbVar3 + 1;
-    *pbVar3 = (u_char)iVar1;
-    return iVar1;
+  if ((u_int)*pbVar3 < (u_char)(this->_base_tListIterator).fMaxValue) {
+    *pbVar3 = *pbVar3 + '\x01';
   }
-  return (u_int)*pbVar3 + 1;
+  return;
 }
 
 
 
 /* ---- tListIteratorRange::Decrement  [FEMENU.CPP:285-290] SLD-VERIFIED ---- */
 
-int tListIteratorRange::Decrement(tPlayer arg1)
+void tListIteratorRange::Decrement(tPlayer arg1)
 
 {
-  int iVar1;
-  u_int uVar2;
   u_char *pbVar3;
 
   pbVar3 = (u_char *)(this->_base_tListIterator).fValue;
-  uVar2 = (u_char)(this->_base_tListIterator).fMinValue;
-  if (uVar2 < (u_int)*pbVar3) {
-    iVar1 = (u_int)*pbVar3 - 1;
-    *pbVar3 = (u_char)iVar1;
-    return iVar1;
+  if ((u_char)(this->_base_tListIterator).fMinValue < (u_int)*pbVar3) {
+    *pbVar3 = (u_char)((u_int)*pbVar3 - 1);
   }
-  return (u_int)*pbVar3 - 1;
+  return;
 }
 
 
@@ -532,42 +522,32 @@ int tListIteratorRangeIndexed::Value(tPlayer arg1)
 
 /* ---- tListIteratorRangeIndexed::Increment  [FEMENU.CPP:313-315] SLD-VERIFIED ---- */
 
-int tListIteratorRangeIndexed::Increment(tPlayer arg1)
+void tListIteratorRangeIndexed::Increment(tPlayer arg1)
 
 {
-  int iVar1;
-  u_int uVar2;
   u_char *pbVar3;
 
   pbVar3 = (u_char *)((this->_base_tListIteratorRange)._base_tListIterator.fValue + (u_char)*this->fIndex);
-  uVar2 = (u_int)*pbVar3;
-  if (uVar2 < (u_char)(this->_base_tListIteratorRange)._base_tListIterator.fMaxValue) {
-    iVar1 = uVar2 + 1;
-    *pbVar3 = (u_char)iVar1;
-    return iVar1;
+  if ((u_int)*pbVar3 < (u_char)(this->_base_tListIteratorRange)._base_tListIterator.fMaxValue) {
+    *pbVar3 = *pbVar3 + '\x01';
   }
-  return uVar2 + 1;
+  return;
 }
 
 
 
 /* ---- tListIteratorRangeIndexed::Decrement  [FEMENU.CPP:319-321] SLD-VERIFIED ---- */
 
-int tListIteratorRangeIndexed::Decrement(tPlayer arg1)
+void tListIteratorRangeIndexed::Decrement(tPlayer arg1)
 
 {
-  int iVar1;
-  u_int uVar2;
   u_char *pbVar3;
 
   pbVar3 = (u_char *)((this->_base_tListIteratorRange)._base_tListIterator.fValue + (u_char)*this->fIndex);
-  uVar2 = (u_int)*pbVar3;
-  if ((u_char)(this->_base_tListIteratorRange)._base_tListIterator.fMinValue < uVar2) {
-    iVar1 = uVar2 - 1;
-    *pbVar3 = (u_char)iVar1;
-    return iVar1;
+  if ((u_char)(this->_base_tListIteratorRange)._base_tListIterator.fMinValue < (u_int)*pbVar3) {
+    *pbVar3 = (u_char)((u_int)*pbVar3 - 1);
   }
-  return uVar2 - 1;
+  return;
 }
 
 
@@ -783,7 +763,7 @@ void tMenuItemLeftRightChoice::Draw(bool selected)
   int iVar2;
   __vtbl_ptr_type (*pa_Var3) [6];
   tMenuTextState textState;
-  
+
   iVar1 = TextSys_WordX((this->_base_tMenuItemInteractive)._base_tMenuItem.fTextDescription);
   iVar2 = TextSys_WordY((this->_base_tMenuItemInteractive)._base_tMenuItem.fTextDescription);
   textState = (tMenuTextState)(selected != 0);

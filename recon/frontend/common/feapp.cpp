@@ -543,8 +543,11 @@ void tFEApplication::DisplayHelp(short variant)
 {
   tDialogHelp *this_tDialogHelp;
   
+  /* MATCH: store variant through the helpPopup pointer (base = this+0x158) so gcc reuses that
+   * same base ($a0) for the Display() call AND the `sh a1,0x90(a0)` store (in the jal delay
+   * slot) — not the full `sh a1,0x1E8(this)` offset with a separate base computation. */
   this_tDialogHelp = &this->helpPopup;
-  (this->helpPopup).variant = variant;
+  this_tDialogHelp->variant = variant;
   (&this_tDialogHelp->_base_tDialogBase)->Display();
   return;
 }

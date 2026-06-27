@@ -4,7 +4,7 @@
 #include "../../nfs4_types.h"
 #include "../../lib/libfns.h"
 extern short  currentSize;
-extern char  *font12, *font18, *fontTitle;
+extern char  *font12[], *font18[], *fontTitle[];   /* unsized array (§3.15): separate-$v0 scratch */
 extern tFEApplication *FEApp;
 extern int    kRGBVals[];                 /* FEColor.obj */
 int   CalcFadeVal(int color, int fade);   /* fefades.obj */

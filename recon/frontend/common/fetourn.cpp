@@ -1119,7 +1119,7 @@ int tListIteratorTournament::TextValue(tPlayer player_id)
 
 /* ---- tListIteratorTournament::Increment  [FETOURN.CPP:1134-1144] ---- */
 
-int tListIteratorTournament::Increment(tPlayer arg1)
+void tListIteratorTournament::Increment(tPlayer arg1)
 
 {
   int iVar1;
@@ -1140,14 +1140,14 @@ int tListIteratorTournament::Increment(tPlayer arg1)
     }
     iVar1 = (int)this->ValidTournament(*(this->_base_tListIterator).fValue) ^ 1;
   } while (iVar1 != 0);
-  return 0;
+  return;
 }
 
 
 
 /* ---- tListIteratorTournament::Decrement  [FETOURN.CPP:1148-1158] ---- */
 
-int tListIteratorTournament::Decrement(tPlayer arg1)
+void tListIteratorTournament::Decrement(tPlayer arg1)
 
 {
   uchar uVar1;
@@ -1168,7 +1168,7 @@ int tListIteratorTournament::Decrement(tPlayer arg1)
     *puVar5 = uVar1 - 1;
     iVar2 = (int)this->ValidTournament(*(this->_base_tListIterator).fValue) ^ 1;
   } while (iVar2 != 0);
-  return 0;
+  return;
 }
 
 

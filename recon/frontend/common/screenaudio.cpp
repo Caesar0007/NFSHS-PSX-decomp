@@ -17,7 +17,7 @@ void tScreenAudio::PlaySound()
   int vol;
   SNDSYSOPTS opts;
   
-  if (((menuDefs->itemSlidingPlayList).fActive != 0) &&
+  if (((menuDefs[0]->itemSlidingPlayList).fActive != 0) &&
      (this->fPrevSelectedSong != this->fSelectedSong)) {
     AudioMus_StopSong(10);
     AudioMus_PlaySong((char *)this->songlist[this->fSelectedSong * 8 + 1].numsongs);
@@ -45,7 +45,7 @@ void tScreenAudio::PlaySound()
     SNDSYS_setopts(&opts);
     this->prevAudioMode = frontEnd.audioMode;
   }
-  item = (short)(menuDefs->menuAudio)._base_tMenu.fCurrentItem;
+  item = (short)(menuDefs[0]->menuAudio)._base_tMenu.fCurrentItem;
   if (item < 1 || 5 < item) {
     if (this->audioTest == 0) {
       return;
@@ -154,7 +154,7 @@ void tScreenAudio::DrawForeground()
   int shapeX;
   int shapeY;
   
-  fade = (short)((menuDefs->menuAudio).fScreenFade >> 1);
+  fade = (short)((menuDefs[0]->menuAudio).fScreenFade >> 1);
   if ((fade < 0x80) && (fade < 1)) {
     fade = 0;
   }
@@ -195,26 +195,26 @@ void tScreenAudio::DrawBackground()
   char sBuildOutput [255];
   
   this->PlaySound();
-  fade = (short)((menuDefs->menuAudio).fScreenFade >> 1);
+  fade = (short)((menuDefs[0]->menuAudio).fScreenFade >> 1);
   if (0x80 < fade) {
     fade = 0x80;
   }
   percent = -1;
-  switch((short)(menuDefs->menuAudio)._base_tMenu.fCurrentItem) {
+  switch((short)(menuDefs[0]->menuAudio)._base_tMenu.fCurrentItem) {
   case 0:
-    slider = &menuDefs->itemMusicVolume;
+    slider = &menuDefs[0]->itemMusicVolume;
     break;
   case 1:
-    slider = &menuDefs->itemSoundEffectsVolume;
+    slider = &menuDefs[0]->itemSoundEffectsVolume;
     break;
   case 2:
-    slider = &menuDefs->itemEngineVolume;
+    slider = &menuDefs[0]->itemEngineVolume;
     break;
   case 3:
-    slider = &menuDefs->itemSpeechVolume;
+    slider = &menuDefs[0]->itemSpeechVolume;
     break;
   case 4:
-    slider = &menuDefs->itemAmbientVolume;
+    slider = &menuDefs[0]->itemAmbientVolume;
     break;
   default:
     goto DrawBg_noSlider;
@@ -225,7 +225,7 @@ DrawBg_noSlider:
   if ((-1 < percent) || (ColText = lastpercentage, -1 < lastpercentage)) {
     lastpercentage = ColText;
     if ((percent == -1) ||
-       (transDone = TransitionIsFinished(&menuDefs->menuAudio), transDone != (void *)0x1)) {
+       (transDone = TransitionIsFinished(&menuDefs[0]->menuAudio), transDone != (void *)0x1)) {
       perfade = perfade + 4;
     }
     else {
@@ -274,6 +274,7 @@ void tScreenAudio::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char *
 tScreenAudio::tScreenAudio()
 
 {
+  this->_base_tScreen._vf = (__vtbl_ptr_type (*)[10])tScreenAudio_vtable;
   this->fSelectedSong = 0;
   this->fCurrentAudioMode = '\0';
   this->songlist = (AudioMus_tSongList *)0x0;
@@ -287,7 +288,7 @@ void tScreenAudio::Initialize()
   tGlobalMenuDefs *menus;
   char audioMode;
   
-  menus = menuDefs;
+  menus = menuDefs[0];
   this->fPrevSelectedSong = -1;
   SetMenu(&(menus->itemSlidingPlayList)._base_tMenuItemSlidingMenu,true,
              &(menus->menuPlayListMenu)._base_tInsideBoxMenu);

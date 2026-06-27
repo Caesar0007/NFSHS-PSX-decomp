@@ -8,12 +8,12 @@ void tScreenTrackInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
                ,char **swapFileName)
 
 {
-  
+
   numPermShapes = 0x2b;
   numSwapShapes = 10;
   GetTrackToRace(&tournamentManager,&this->fTrack);
   *permFileName = "zInfo";
-  sprintf(gSwapFileName,"TR%02d%c",(int)(this->fTrack).fTrackNumber,
+  sprintf(gSwapFileName,"TR%02d%c",(int)(signed char)(this->fTrack).fTrackNumber,
              (uint)(this->fTrack).fTimeOfDay * 2 + (this->fTrack).fWeather + 0x61);
   *swapFileName = gSwapFileName;
   return;

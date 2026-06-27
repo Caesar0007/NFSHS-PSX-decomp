@@ -6,9 +6,9 @@
 
 /* ---- globals ---- */
 extern char *Paths_Paths[];
-extern char *font12;
-extern char *font18;
-extern char *fontTitle;
+extern char *font12[];      /* unsized array (§3.15): forces separate-$v0 scratch on value-load */
+extern char *font18[];
+extern char *fontTitle[];
 extern short currentSize;   /* SYM short (was wrongly int); fetextrender_externs.h agrees */
 
 /* ---- libc / psyq ---- */

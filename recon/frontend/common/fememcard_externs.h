@@ -7,7 +7,7 @@
 /* ===== globals ===== */
 extern int          ticks;
 extern tfrontEnd    frontEnd;
-extern tFEApplication *FEApp;
+extern tFEApplication *FEApp[];
 extern char        *Paths_Paths[];
 extern tTrackManager  trackManager;
 extern tCarManager    carManager;
@@ -18,7 +18,8 @@ extern tScreenMemcard *screenMemcard;
 extern int         *Stats_gTrackRecords;
 extern int          gMasterSFXLevel;
 /* FEMemCard.obj data globals */
-extern int          CURRENTPLAYER;            /* @0x80051A68 */
+extern int          CURRENTPLAYER[];          /* @0x80051A68 -- unsized-array form: int-value loads
+                                                 into an arg reg use the oracle's separate v0 scratch */
 extern char         productCode[11];          /* @0x80051A6C */
 extern int          nomessage;                /* @0x80051A78 */
 extern char         CURRENTLYUSINGMEMCARD;    /* @0x80051A7C */

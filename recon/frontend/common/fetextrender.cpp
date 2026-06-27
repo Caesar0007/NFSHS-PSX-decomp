@@ -34,9 +34,9 @@ void FETextRender_SetFont(int size)
   
   if (currentSize != size) {
     currentSize = (short)size;
-    f1 = font12;
-    if ((currentSize != 0) && (f1 = fontTitle, currentSize != 3)) {
-      f1 = font18;
+    f1 = font12[0];
+    if ((currentSize != 0) && (f1 = fontTitle[0], currentSize != 3)) {
+      f1 = font18[0];
     }
     Font_SwitchFont(f1);
   }

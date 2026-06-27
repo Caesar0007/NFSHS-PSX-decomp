@@ -9,7 +9,7 @@
 static int     width, height;                       /* 0x80052a24/28 */
 static CdlLOC  loc;                                 /* 0x80052cf8 */
 static short   PPWTop, PPWBottom, gMode;            /* 0x80052cfc/cfe/d00 */
-static int     gIsRGB24;                            /* 0x80052d04 */
+static int     gIsRGB24 __attribute__((section(".bss")));  /* 0x80052d04 (.bss=absolute, oracle %hi/%lo not gp-rel) */
 static short   gMovieHeight, gMovieWidth;           /* 0x80052d08/d0a */
 static u_long  gMovieFrame, gEndFrame;              /* 0x80052d0c/d10 */
 static int     movieFlags__[4]; /* 0x80052d14..d20 - aggregate forces .bss (absolute), not .sbss */
@@ -18,9 +18,10 @@ static int     movieFlags__[4]; /* 0x80052d14..d20 - aggregate forces .bss (abso
 #define bRewindMovie movieFlags__[2]
 #define isFirstSlice movieFlags__[3]
 static DECENV  dec;                                 /* 0x80052d28 */
-static u_long *vlcbuf0, *vlcbuf1;                   /* 0x80052d58/d5c */
-static u_short *imgbuf;                             /* 0x80052d60 */
-static u_long *sect_buff;                           /* 0x80052d64 */
+static u_long *vlcbuf0 __attribute__((section(".bss")));   /* 0x80052d58 (.bss=absolute, not .sbss) */
+static u_long *vlcbuf1 __attribute__((section(".bss")));   /* 0x80052d5c */
+static u_short *imgbuf __attribute__((section(".bss")));   /* 0x80052d60 */
+static u_long *sect_buff __attribute__((section(".bss")));   /* 0x80052d64 */
 
 /* lines 1-129: file header, #includes, static data, macros (no symbols emitted) */
 
@@ -475,18 +476,18 @@ int strNextVlc(DECENV *dec)
   do {
     next = strNext(dec);
     cnt = cnt + -1;
-    if (next != (u_long *)0x0) {
-      vid = (uint)(dec->vlcid == 0);
-      dec->vlcid = vid;
-      r = DecDCTvlc(next,dec->vlcbuf[vid]);
-      while (r != 0) {
-        r = DecDCTvlc((u_long *)0x0,(u_long *)0x0);
-      }
-      StFreeRing(next);
-      return 0;
-    }
+    if (next != (u_long *)0x0) goto found;
   } while (cnt != 0);
   return -1;
+found:
+  vid = (uint)(dec->vlcid == 0);
+  dec->vlcid = vid;
+  r = DecDCTvlc(next,dec->vlcbuf[vid]);
+  while (r != 0) {
+    r = DecDCTvlc((u_long *)0x0,(u_long *)0x0);
+  }
+  StFreeRing(next);
+  return 0;
 }
 
 /* lines 519-536: (static data / macros / comments - no emitted code) */

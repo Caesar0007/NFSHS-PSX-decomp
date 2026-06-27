@@ -8,7 +8,9 @@
    productCode="SLUS-00826" = the retail PSX game ID; textSysMemCardFail_Index = fail-message LUT).
    Only the 4 externed-not-defined gaps (nm-confirmed); TITLE/nomessage/MEMCARD_INITIALIZED are
    already defined elsewhere. ---- */
-int          CURRENTPLAYER;   /* @0x80051a68  (bss(zero)) */
+/* CURRENTPLAYER is declared (unsized-array form) in fememcard_externs.h; defined in another obj.
+   Unsized-array + [0] access makes the int-value load into an ARG reg use the oracle's SEPARATE v0
+   scratch (lui v0; lw a0,(v0)) rather than dest-as-temp (lui a0; lw a0,(a0)); §3.15-CORRECTION. */
 char         productCode[11] = { 83, 76, 85, 83, 45, 48, 48, 56, 50, 54, 0 };   /* @0x80051a6c */
 char         CURRENTLYUSINGMEMCARD;   /* @0x80051a7c  (bss(zero)) */
 int          textSysMemCardFail_Index[7] = { 0, 677, 685, 675, 811, 671, 669 };   /* @0x80051a84 */
@@ -114,9 +116,9 @@ int Confirm(int Text,int yesText)
   tDialogYesNo_ctor(&MyDialog._base_tDialogYesNo);
   MyDialog._base_tDialogYesNo._base_tDialogInteractive._base_tDialogMessageString._base_tDialogBase._base_tScreen._vf =
        (__vtbl_ptr_type (*)[10])tDialogYesNoMem_vtable;
-  bVar1 = (FEApp->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.currentlyOn != 0;
+  bVar1 = (FEApp[0]->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.currentlyOn != 0;
   if (bVar1) {
-    Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
+    Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
   }
   MyDialog._base_tDialogYesNo._base_tDialogInteractive._base_tDialogMessageString.string =
        TextSys_Word(Text);
@@ -128,30 +130,30 @@ int Confirm(int Text,int yesText)
   }
   MyDialog._base_tDialogYesNo.yesnowords[0] = yesText;
   sVar4 = Run(&MyDialog._base_tDialogYesNo._base_tDialogInteractive);
-  ptVar2 = FEApp;
+  ptVar2 = FEApp[0];
   ret = (int)sVar4;
   if (ret == -1) {
-    pcVar5 = TextSys_Word(CURRENTPLAYER + 0x32b);
-    ptVar3 = FEApp;
+    pcVar5 = TextSys_Word(CURRENTPLAYER[0] + 0x32b);
+    ptVar3 = FEApp[0];
     (ptVar2->MemCardDialog)._base_tDialogMessageString.string = pcVar5;
     Display((tDialogBase *)&ptVar3->MemCardDialog);
-    while ((FEApp->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
-      Redraw(FEApp);
+    while ((FEApp[0]->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
+      Redraw(FEApp[0]);
     }
-    Redraw(FEApp);
+    Redraw(FEApp[0]);
   }
   else if (ret != 0) {
     if (bVar1) {
-      Display((tDialogBase *)&FEApp->NoInputMemCardDialog);
-      while ((FEApp->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
-        Redraw(FEApp);
+      Display((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+      while ((FEApp[0]->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
+        Redraw(FEApp[0]);
       }
     }
     goto Confirm_redrawAndCleanup;
   }
   nomessage = 1;
 Confirm_redrawAndCleanup:
-  Redraw(FEApp);
+  Redraw(FEApp[0]);
   MakeWayForMemoryCard();
   tScreen_dtor((tScreen *)&MyDialog,2);
   return ret;
@@ -166,7 +168,7 @@ int OverwriteConfirm(void)
 {
   int iVar1;
   
-  iVar1 = Confirm(CURRENTPLAYER + 0x323,0x28f);
+  iVar1 = Confirm(CURRENTPLAYER[0] + 0x323,0x28f);
   return iVar1;
 }
 
@@ -189,7 +191,7 @@ int FormatConfirm(void)
 {
   int iVar1;
   
-  iVar1 = Confirm(CURRENTPLAYER + 0x327,0x290);
+  iVar1 = Confirm(CURRENTPLAYER[0] + 0x327,0x290);
   return iVar1;
 }
 
@@ -210,7 +212,7 @@ void LoadingProc(void)
 void LoadingRedrawProc(void)
 
 {
-  Redraw(FEApp);
+  Redraw(FEApp[0]);
   return;
 }
 
@@ -221,7 +223,7 @@ void LoadingRedrawProc(void)
 void SavingProc(void)
 
 {
-  Redraw(FEApp);
+  Redraw(FEApp[0]);
   return;
 }
 
@@ -284,7 +286,7 @@ void DeInit_Memcard(void)
   do { } while (ticks - padrestorestarttick < 0xc0);
   padinit();
   if (MEMCARDFRONTENDISINITTED != 0) {
-    UpdateMusic(FEApp);
+    UpdateMusic(FEApp[0]);
   }
   return;
 }
@@ -358,7 +360,7 @@ void * SaveGame(short player)
   iVar7 = 0;
   this_00 = &tournamentManager;
   ptVar6 = &frontEnd;
-  CURRENTPLAYER = (int)player;
+  CURRENTPLAYER[0] = (int)player;
   CURRENTLYUSINGMEMCARD = 1;
   do {
     ptVar6->AnalogOn[0] = 1;
@@ -393,10 +395,10 @@ void * SaveGame(short player)
   WarningDialog._base_tDialogMessageString._base_tDialogBase.OffsetY = 0x32;
   Display((tDialogBase *)&WarningDialog);
   while (pvVar10 = (void *)0x0, WarningDialog._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
-    Redraw(FEApp);
+    Redraw(FEApp[0]);
   }
   iVar9 = 0x28b;
-  Redraw(FEApp);
+  Redraw(FEApp[0]);
   iVar7 = ((int)((uint)(ushort)player << 0x10) >> 0xe) + 1;
   sVar8 = (short)iVar7;
   nomessage = 0;
@@ -458,20 +460,20 @@ void * SaveGame(short player)
   purgememadr(bigfile);
   BringThatBeatBack();
   if (nomessage == 0) {
-    Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
-    ptVar1 = FEApp;
+    Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+    ptVar1 = FEApp[0];
     pcVar5 = TextSys_Word(iVar9 + player);
-    ptVar2 = FEApp;
+    ptVar2 = FEApp[0];
     (ptVar1->MemCardDialog)._base_tDialogMessageString.string = pcVar5;
     Display((tDialogBase *)&ptVar2->MemCardDialog);
-    while ((FEApp->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
-      Redraw(FEApp);
+    while ((FEApp[0]->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
+      Redraw(FEApp[0]);
     }
-    Redraw(FEApp);
+    Redraw(FEApp[0]);
   }
   screenMemcard->fGetNewIcons = 1;
   Hide((tDialogBase *)&WarningDialog);
-  Redraw(FEApp);
+  Redraw(FEApp[0]);
   CURRENTLYUSINGMEMCARD = 0;
   tScreen_dtor((tScreen *)&WarningDialog,2);
   return pvVar11;
@@ -518,7 +520,7 @@ extern "C" short LoadGame__FsbT1(short player,bool PinkSlips,byte WithDialogs)
   iVar11 = (int)player;
   cardnum = (ushort)(iVar11 << 2) | 1;
   CURRENTLYUSINGMEMCARD = 1;
-  CURRENTPLAYER = iVar11;
+  CURRENTPLAYER[0] = iVar11;
   tScreen_ctor((tScreen *)&WarningDialog);
   WarningDialog._base_tDialogMessageString._base_tDialogBase.currentlyOn = 0;
   WarningDialog._base_tDialogMessageString._base_tDialogBase.reservedheight = 0;
@@ -547,9 +549,9 @@ extern "C" short LoadGame__FsbT1(short player,bool PinkSlips,byte WithDialogs)
     }
     Display((tDialogBase *)&WarningDialog);
     while (WarningDialog._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
-      Redraw(FEApp);
+      Redraw(FEApp[0]);
     }
-    Redraw(FEApp);
+    Redraw(FEApp[0]);
   }
   bVar1 = false;
   sVar13 = 0;
@@ -586,7 +588,7 @@ switchD_80035054_caseD_4:
   case 0x10:
   case 0x17:
     pCI = MCRD_getcard(iVar4 * 4 + 1);
-    Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
+    Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
     if (pCI->status == -2) {
       iVar12 = 0x29f;
       sVar13 = 2;
@@ -636,11 +638,11 @@ switchD_80035054_caseD_4:
     if (iVar10 != 0) {
       bVar1 = true;
       if (nomessage == 0) {
-        Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
-        Hide((tDialogBase *)&FEApp->MemCardDialog);
-        ptVar2 = FEApp;
+        Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+        Hide((tDialogBase *)&FEApp[0]->MemCardDialog);
+        ptVar2 = FEApp[0];
         pcVar8 = TextSys_Word(iVar4 + 0x329);
-        ptVar3 = FEApp;
+        ptVar3 = FEApp[0];
         (ptVar2->MemCardDialog)._base_tDialogMessageString.string = pcVar8;
         Display((tDialogBase *)&ptVar3->MemCardDialog);
         bVar1 = true;
@@ -661,17 +663,17 @@ LAB_80035238:
   BringThatBeatBack();
   if ((iVar12 == 0x28d) || (2 < iVar11)) {
     if ((iVar10 != 0) && (nomessage == 0)) {
-      Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
-      Hide((tDialogBase *)&FEApp->MemCardDialog);
-      ptVar2 = FEApp;
+      Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+      Hide((tDialogBase *)&FEApp[0]->MemCardDialog);
+      ptVar2 = FEApp[0];
       pcVar8 = TextSys_Word(iVar12 + player);
-      ptVar3 = FEApp;
+      ptVar3 = FEApp[0];
       (ptVar2->MemCardDialog)._base_tDialogMessageString.string = pcVar8;
       Display((tDialogBase *)&ptVar3->MemCardDialog);
-      while ((FEApp->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
-        Redraw(FEApp);
+      while ((FEApp[0]->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
+        Redraw(FEApp[0]);
       }
-      Redraw(FEApp);
+      Redraw(FEApp[0]);
     }
     Front_ResetPSXController((int)player,(uint)(byte)frontEnd.controlConfig[player]);
     if (iVar9 == 0) {
@@ -684,7 +686,7 @@ LAB_80035238:
       Hide((tDialogBase *)&WarningDialog);
     }
     if (iVar10 != 0) {
-      Redraw(FEApp);
+      Redraw(FEApp[0]);
     }
     CURRENTLYUSINGMEMCARD = 0;
     tScreen_dtor((tScreen *)&WarningDialog,2);
@@ -723,8 +725,8 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
   short cardNum;
   
   MakeWayForMemoryCard();
-  CURRENTPLAYER = (int)player;
-  iVar4 = CURRENTPLAYER * 4 + 1;
+  CURRENTPLAYER[0] = (int)player;
+  iVar4 = CURRENTPLAYER[0] * 4 + 1;
   PVar9 = PinkSlipsNoError;
   bVar1 = false;
   sVar3 = (short)iVar4;
@@ -806,7 +808,7 @@ switchD_80035530_caseD_4:
         case 0xb:
         case 0xd:
         case 0x17:
-          Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
+          Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
           pCVar7 = MCRD_getcard(iVar4 * 4 + 1);
           PVar8 = PinkSlipsError_CardFull;
           if ((pCVar7->status != -3) && (PVar8 = PinkSlipsError_SaveFailed, pCVar7->status == -1)) {
@@ -887,12 +889,12 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
   RetryCancelDialog._base_tDialogInteractive._base_tDialogMessageString._base_tDialogBase.fDefault = 1;
   RetryCancelDialog._base_tDialogInteractive._base_tDialogMessageString._base_tDialogBase.specificPlayer = player;
   do {
-    Display((tDialogBase *)&FEApp->NoInputMemCardDialog);
-    while ((FEApp->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
-      Redraw(FEApp);
+    Display((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+    while ((FEApp[0]->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
+      Redraw(FEApp[0]);
     }
     iVar5 = 0;
-    Redraw(FEApp);
+    Redraw(FEApp[0]);
     tScreen_ctor((tScreen *)&WarningDialog);
     WarningDialog._base_tDialogMessageString._base_tDialogBase.currentlyOn = 0;
     WarningDialog._base_tDialogMessageString._base_tDialogBase.reservedheight = 0;
@@ -918,9 +920,9 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
     WarningDialog._base_tDialogMessageString._base_tDialogBase.OffsetY = 0x32;
     Display((tDialogBase *)&WarningDialog);
     while (WarningDialog._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
-      Redraw(FEApp);
+      Redraw(FEApp[0]);
     }
-    Redraw(FEApp);
+    Redraw(FEApp[0]);
     do {
       PVar2 = SavePinkSlipsCars(player,withoutCarInGarageNumber);
       iVar5 = iVar5 + 1;
@@ -928,9 +930,9 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
       timedwait(5);
     } while (iVar5 < 3);
     Hide((tDialogBase *)&WarningDialog);
-    Redraw(FEApp);
+    Redraw(FEApp[0]);
     if (PVar2 != PinkSlipsNoError) {
-      Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
+      Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
       pcVar3 = TextSys_Word(textSysMemCardFail_Index[PVar2] + player_00);
       sprintf(string,pcVar3);
       if (WillLoseCar != 0) {

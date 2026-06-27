@@ -200,7 +200,7 @@ void FECheat_ActivateBonus(tCheatCode cheat)
 {
   
   FECheat_HandleActivation(cheat);
-  gFEBonus = gFEBonus | 1 << (cheat & cheat_NumCheats);
+  gFEBonus = gFEBonus | 1 << cheat;   /* no & cheat_NumCheats: sllv masks to 5 bits; oracle has no andi */
   return;
 }
 
@@ -261,7 +261,7 @@ void * FECheat_ActivateCheat(char *cheat)
 void * FECheat_IsCheatEnabled(tCheatCode cheat)
 
 {
-  return (void *)(u_int)(((gFECheats | gFEBonus) & 1 << (cheat & cheat_NumCheats)) != 0);
+  return (void *)(u_int)(((gFECheats | gFEBonus) & 1 << cheat) != 0);
 }
 
 

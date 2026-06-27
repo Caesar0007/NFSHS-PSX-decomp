@@ -9,6 +9,7 @@ extern int  ticks;
 extern tGlobalMenuDefs *menuDefs;
 extern int  kRGBVals[28];
 extern char textDefinitions[14][6];
+extern __vtbl_ptr_type tScreenControllerConfig_vtable[10];   /* @0x80012078 (vtables_tscreen2.cpp) */
 int CalcFadeVal(int col1, int amount);            /* 2-arg overload */
 int CalcFadeVal(int col1, int col2, int f1, int f2);  /* 4-arg overload */
 void trap(int code);

@@ -142,30 +142,26 @@ short tScreenControllerConfig::AnimKeyPoints(bool forward,bool pt)
 
 {
   short result;
-  uint fwdU;
-  uint ptU;
-  
-  ptU = pt;
-  fwdU = forward;
+
   if (this->fCurrentController == '\x02') {
-    if (fwdU == 0) {
+    if (forward != 0) {
       result = 0x14;
-      if (ptU != 0) {
-        return 0x28;
+      if (pt != 0) {
+        return 0;
       }
     }
     else {
       result = 0x14;
-      if (ptU != 0) {
-        return 0;
+      if (pt != 0) {
+        return 0x28;
       }
     }
   }
   else {
-    if ((ptU & fwdU) != 0) {
+    if ((pt & forward) != 0) {
       return 0;
     }
-    if ((ptU != 0) || (result = 0, fwdU != 0)) {
+    if ((pt != 0) || (result = 0, forward != 0)) {
       return 0x18;
     }
   }
@@ -1307,21 +1303,19 @@ void tScreenControllerConfig::GetShapeInfo(short &numPermShapes,short &numSwapSh
 void tScreenControllerConfig::Initialize()
 
 {
-  byte b;
+  uint b;
   char mode;
-  tFEApplication *menus;
-  
+
   (this->fShaker).active = '\0';
   this->TurnOffShakers();
   this->ClearActuators();
   this->fResetShakeTimeOut = 1;
-  menus = FEApp;
   this->fShakingItem = -1;
-  b = menus->fInputPlayer;
+  b = (uint)(byte)FEApp->fInputPlayer;
   this->fTimeOutStartTick = 0;
   this->CurrentlyLoadedArt = -1;
   this->negconChoice = -1;
-  this->player = (uint)b;
+  this->player = b;
   this->_base_tScreen.Initialize();
   this->fCurrentController = '\0';
   SetMenu(&menuDefs->itemControllerSettings,true,(tInsideBoxMenu *)0x0);
@@ -1368,13 +1362,14 @@ void tScreenControllerConfig::Cleanup()
 
 /* ---- tScreenControllerConfig::tScreenControllerConfig  (screencontroller.cpp:1889) ---- */
 tScreenControllerConfig::tScreenControllerConfig()
-
+  /* base _base_tScreen + member negconPopUp(tDialogYesNo @+0xB8) constructed implicitly by g++ */
 {
   this->fGotTick = 0;
   this->fAnim = 0;
   this->fFade[1] = 0;
   this->fFade[0] = 0;
   this->player = 0;
+  (this->_base_tScreen)._vf = (__vtbl_ptr_type (*)[10])tScreenControllerConfig_vtable;   /* vptr @0x60 */
   return;
 }
 

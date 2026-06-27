@@ -18,7 +18,7 @@ void tScreenDisplay::DrawBackground()
     fade = 0x80;
   }
   do {
-    DrawShapeExtended(0xB,0,0,0,(int)fade,0,    /* H15: args 0-3 were uninitialized; oracle 0x80045998 $a0=$s0+0xB=11 (const, set once before loop), $a1=$a2=$a3=0 */
+    DrawShapeExtended(i + 0xB,0,0,0,(int)fade,0,    /* oracle 0x80045998: $a0=$s0+0xB (loop counter i + 11), $a1=$a2=$a3=0 */
                (tDrawShapeExtended *)0x0);
     i = i + 1;
   } while (i < 0x20);

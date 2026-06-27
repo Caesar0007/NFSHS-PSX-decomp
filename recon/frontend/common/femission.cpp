@@ -75,14 +75,14 @@ short tMissionManager::GetMissionStages(short tier,short mission,tStageInfo **pS
 
 {
   int iVar1;
-  tMissionInfo *pMissionInfo;
+  tMissionInfo *pMission;
   tAcademyDefinition *ptVar2;
-  
+
   ptVar2 = this->fDefinition;
-  iVar1 = (uint)(&ptVar2->fTiers[0].fMissionOffset)[(int)((uint)(ushort)tier << 0x10) >> 0xe] +
-          (int)mission;
-  *pStages = ptVar2->fStages + ptVar2->fMissions[iVar1].fStageOffset;
-  return (short)ptVar2->fMissions[iVar1].fNumStages;
+  iVar1 = (uint)ptVar2->fTiers[tier].fMissionOffset + (int)mission;
+  pMission = &ptVar2->fMissions[iVar1];
+  *pStages = ptVar2->fStages + pMission->fStageOffset;
+  return (short)pMission->fNumStages;
 }
 
 
@@ -95,9 +95,9 @@ void tMissionManager::GetMissionToRace(tMissionInfo **mission)
   uint numStages;
   uint numMissions;
   
-  *mission = this->fDefinition->fMissions +
-             (uint)this->fDefinition->fTiers[(byte)frontEnd.policeTier].fMissionOffset +
-             (uint)(byte)frontEnd.policeMission;
+  *mission = &this->fDefinition->fMissions[
+               (uint)this->fDefinition->fTiers[(byte)frontEnd.policeTier].fMissionOffset +
+               (uint)(byte)frontEnd.policeMission];
   return;
 }
 

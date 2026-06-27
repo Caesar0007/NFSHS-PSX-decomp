@@ -7,14 +7,14 @@
 extern int          ticks;
 extern tfrontEnd    frontEnd;
 extern tFEApplication *FEApp;
-extern tGlobalMenuDefs *menuDefs;
+extern tGlobalMenuDefs *menuDefs[];
 extern char        *Paths_Paths[];
 extern tCarManager  carManager;
 extern tTournamentManager tournamentManager;
 extern tTrackManager trackManager;
 /* screen pointer globals */
-extern tScreenMain     *screenMain;
-extern tScreenCarSelect *screenCarSelect;
+extern tScreenMain     *screenMain[];
+extern tScreenCarSelect *screenCarSelect[];
 extern tScreenUserName *screenUserName;
 extern tAllScreens     *gAllScreens;
 /* menu-option select lists */

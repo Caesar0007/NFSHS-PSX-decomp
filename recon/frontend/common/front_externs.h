@@ -95,7 +95,7 @@ extern int _i;
 extern int _usePlayerUpgrades;
 extern int colourChosen[8];
 extern int gCalculateVictory;
-extern int gFEBigHandle;
+extern int gFEBigHandle[];
 extern int gLargestUnused;
 extern int gMasterAmbientLevel;
 extern int gMasterEngineLevel;

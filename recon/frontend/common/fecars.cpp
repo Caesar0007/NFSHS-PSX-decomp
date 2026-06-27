@@ -636,7 +636,7 @@ void tCarManager::GetGarageCar(short garageNumber,tCarInfo &carInfo,short player
   }
   iVar3 = (int)garageNumber;
   iVar5 = (int)(uVar4 << 0x10) >> 9;
-  src = this->GetCarFromID((short)*(char *)((int)this + (iVar3 - this->fNumCars) * 4 + iVar5 + 8));
+  src = this->GetCarFromID((short)*(signed char *)((int)this + (iVar3 - this->fNumCars) * 4 + iVar5 + 8));
   blockmove(src,&carInfo,0xcc);
   carInfo.fAvailable = '\x01';
   carInfo.fViewable = '\x01';
@@ -662,7 +662,7 @@ void tCarManager::GetPinkSlipsCar(short garageNumber,tCarInfo &carInfo,short pla
   
   iVar2 = (int)garageNumber;
   iVar3 = (int)((u_int)(u_short)playerNum << 0x10) >> 9;
-  src = this->GetCarFromID((short)*(char *)((int)this + (iVar2 - this->fNumCars) * 4 + iVar3 + 0x108)
+  src = this->GetCarFromID((short)*(signed char *)((int)this + (iVar2 - this->fNumCars) * 4 + iVar3 + 0x108)
                     );
   blockmove(src,&carInfo,0xcc);
   carInfo.fAvailable = '\x01';
@@ -912,7 +912,7 @@ void * tCarManager::IsCarAnAddedModel(tCarModels &model,char &color)
   int iVar2;
   
   ptVar1 = this->GetCarFromID((short)model);
-  iVar2 = (int)ptVar1->fColorOrder[(u_char)color];
+  iVar2 = (int)(signed char)ptVar1->fColorOrder[(u_char)color];
   if (iVar2 < 0) {
     iVar2 = iVar2 + 7;
   }
@@ -1445,7 +1445,7 @@ char tListIteratorCarColor::Value(tPlayer arg1)
   offset = (int)this->fPlayer;
   return (u_int)(u_char)(this->_base_tListIterator).fValue
                      [(u_int)*(u_char *)offset * this->fIndexSize +
-                      (int)this->fCarManager->fCars[(u_char)this->fPlayerCar[*(u_char *)offset]].fCarID]
+                      (int)(signed char)this->fCarManager->fCars[(u_char)this->fPlayerCar[*(u_char *)offset]].fCarID]
   ;
 }
 

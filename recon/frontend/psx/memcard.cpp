@@ -612,15 +612,12 @@ int MCRD_fileexists(int card,char *name)
 extern "C" void iMCRD_timersub(void)
 
 {
-  fMemCardInfo_def *pInfo;
   int i;
   
   i = 0;
-  pInfo = &gMemCardInfo;
   do {
+    gMemCardInfo.existencecheckticks[i] = gMemCardInfo.existencecheckticks[i] + -1;
     i = i + 1;
-    pInfo->existencecheckticks[0] = pInfo->existencecheckticks[0] + -1;
-    pInfo = (fMemCardInfo_def *)pInfo->productCode;
   } while (i < 8);
   return;
 }

@@ -2710,8 +2710,8 @@ struct tListIteratorRange {   /* 16 bytes */
     ~tListIteratorRange();
     int Value(tPlayer player);
     int TextValue(tPlayer player);
-    int Increment(tPlayer player);
-    int Decrement(tPlayer player);
+    void Increment(tPlayer player);
+    void Decrement(tPlayer player);
 
 };
 
@@ -4372,8 +4372,8 @@ struct tListIteratorRangeIndexed {   /* 20 bytes */
     tListIteratorRangeIndexed(char minValue, char maxValue, char *valPtr, char *index);
     ~tListIteratorRangeIndexed();
     int Value(tPlayer player);
-    int Increment(tPlayer player);
-    int Decrement(tPlayer player);
+    void Increment(tPlayer player);
+    void Decrement(tPlayer player);
 
 };
 
@@ -4925,8 +4925,8 @@ struct tListIteratorTournament {   /* 20 bytes */
     ~tListIteratorTournament();
     int   Value(tPlayer);
     int   TextValue(tPlayer);
-    int   Increment(tPlayer);
-    int   Decrement(tPlayer);
+    void  Increment(tPlayer);
+    void  Decrement(tPlayer);
     void *ValidTournament(char);
 };
 

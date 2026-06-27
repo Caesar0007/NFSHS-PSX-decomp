@@ -152,12 +152,14 @@ int tScreenTournamentStandings::ProcessInput(tPlayer keyval,tInputKeyType &key_i
 {
   int iVar1;
 
-  iVar1 = 2;
-  if ((key_input == kInput_KeyType_Cross) && (iVar1 = 1, this->fCountedDown == 0)) {
+  if (key_input != kInput_KeyType_Cross) {
+    return 2;
+  }
+  if (this->fCountedDown == 0) {
     key_input = kInput_KeyType_AlreadyProcessed;
     this->fStartCountdownNOW = 1;
   }
-  return iVar1;
+  return 1;
 }
 
 

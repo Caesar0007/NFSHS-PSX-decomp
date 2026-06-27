@@ -8,8 +8,16 @@
 /* ---- Fetools.obj-OWNED globals -- DEFINED here (self-contained; .bss zero / real bytes).
    font12/font18/fontTitle = FE font pointers (set in FeTools_init); currentSize = current font
    size (SYM short -- fetextrender uses it). FeTools_gScrollTicksOut=30 defined below. ---- */
-char *font12, *font18, *fontTitle;   /* @0x800517d4..dc  FE font pointers (set at runtime) */
-short currentSize;                   /* @0x800517e0  current FE font size (SYM short) */
+/* MATCH: font ptrs live in regular .data (defined in asm/data/front_data.data.s), reached
+ * absolutely (%hi/%lo) in every oracle, and a global VALUE loaded into an ARG reg uses a SEPARATE
+ * $v0 scratch (`lui v0; lw a0,(v0)`), not self-temp (`lui a0; lw a0,(a0)`). The unsized ARRAY shape
+ * `[]` + `[0]` access (§3.15) forces gcc to materialize the base in a separate reg before the load
+ * (a scalar folds the addr into the dest). Declared extern here (front_data.data.s owns the defn);
+ * currentSize stays a scalar but pinned to .data (it's stored, addressed absolutely). */
+extern char *font12[];
+extern char *font18[];
+extern char *fontTitle[];             /* @0x800517d4..dc  FE font pointers (.data) */
+short currentSize __attribute__((section(".data")));   /* @0x800517e0  current FE font size */
 
 
 /* ---- s_upper  [FETOOLS.CPP:90-95] SLD-VERIFIED ---- */
@@ -20,17 +28,20 @@ void s_upper(char *string)
   int len;
   int n;
   u_char *pbVar2;
-  
+
   len = strlen(string);
   n = 0;
-  pbVar2 = (u_char *)string;
   if (0 < (int)len) {
     do {
-      if (*pbVar2 - 0x61 < 0x1a) {
-        *pbVar2 = *pbVar2 - 0x20;
+      /* MATCH: index form string[n] rematerializes (s0 + a0) each iteration (incl. n==0 ->
+       * `addu a1,s0,a0`, not the hoisted `addu a1,s0,zero`). (u_int) cast forces sltiu. */
+      pbVar2 = (u_char *)(string + n);
+      if ((u_int)(*pbVar2 - 0x61) < 0x1a) {
+        /* MATCH: oracle emits `addiu v0,v1,0xE0` (=-0x20 mod 256, stored to u_char). Writing
+         * the constant as +0xE0 reproduces it; -0x20 would emit `addiu v0,v1,-32`. */
+        *pbVar2 = *pbVar2 + 0xe0;
       }
       n = n + 1;
-      pbVar2 = (u_char *)(string + n);
     } while (n < (int)len);
   }
   return;
@@ -46,17 +57,18 @@ void s_lower(char *string)
   int len;
   int n;
   u_char *pbVar2;
-  
+
   len = strlen(string);
   n = 0;
-  pbVar2 = (u_char *)string;
   if (0 < (int)len) {
     do {
-      if (*pbVar2 - 0x41 < 0x1a) {
+      /* MATCH: index form string[n] rematerializes (s0 + a0) each iteration (incl. n==0 ->
+       * `addu a1,s0,a0`, not the hoisted `addu a1,s0,zero`). (u_int) cast forces sltiu. */
+      pbVar2 = (u_char *)(string + n);
+      if ((u_int)(*pbVar2 - 0x41) < 0x1a) {
         *pbVar2 = *pbVar2 + 0x20;
       }
       n = n + 1;
-      pbVar2 = (u_char *)(string + n);
     } while (n < (int)len);
   }
   return;
@@ -133,14 +145,14 @@ void FeTools_init(void)
   
   Font_ExitFromGame();
   sprintf(filename,"%stiny.pfn",Paths_Paths[0x21]);
-  font12 = (char *)loadfileadrz(filename,(void *)0x0);
-  Font_LoadFont(font12,0x3c0,0x181,'\0');
+  font12[0] = (char *)loadfileadrz(filename,(void *)0x0);
+  Font_LoadFont(font12[0],0x3c0,0x181,'\0');
   sprintf(filename,"%ssmall.pfn",Paths_Paths[0x21]);
-  font18 = (char *)loadfileadrz(filename,(void *)0x0);
-  Font_LoadFont(font18,0x380,0x100,'\0');
+  font18[0] = (char *)loadfileadrz(filename,(void *)0x0);
+  Font_LoadFont(font18[0],0x380,0x100,'\0');
   sprintf(filename,"%stitle.pfn",Paths_Paths[0x21]);
-  fontTitle = (char *)loadfileadrz(filename,(void *)0x0);
-  Font_LoadFont(fontTitle,0x3c0,0x100,'\0');
+  fontTitle[0] = (char *)loadfileadrz(filename,(void *)0x0);
+  Font_LoadFont(fontTitle[0],0x3c0,0x100,'\0');
   currentSize = 3;
   return;
 }
@@ -152,9 +164,9 @@ void FeTools_init(void)
 void FeTools_deinit(void)
 
 {
-  purgememadr(font18);
-  purgememadr(fontTitle);
-  purgememadr(font12);
+  purgememadr(font18[0]);
+  purgememadr(fontTitle[0]);
+  purgememadr(font12[0]);
   Font_DeInit();
   return;
 }

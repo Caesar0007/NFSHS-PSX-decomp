@@ -16,16 +16,18 @@ int textnpixels(char *str,int n)
   int stringlen;
   int i;
   int dx;
-  
+  unsigned char *fontbase;
+
   i = 0;
   stringlen = 0;
   if (0 < n) {
+    fontbase = currentfont;
     do {
-      code = (*(FontDecoder *)(currentfont + 0xa0))(&str);
-      i = i + 1;
+      code = (*(FontDecoder *)(fontbase + 0xa0))(&str);
       if (code == 0) {
         return stringlen;
       }
+      i = i + 1;
       ch = getcharacter(code);
       if (ch != 0) {
         dx = (signed char)ch->advance;

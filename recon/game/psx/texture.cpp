@@ -220,11 +220,14 @@ void Texture_GetClutId(int bpp,int *xclut,int *yclut)
 }
 
 /* ---- Texture_MenuReleaseClutId__Fs  [TEXTURE.CPP:304-320] SLD-VERIFIED ---- */
+/* NEAR-MISS 4 diffs (24/24): oracle: sll v1,v0,1; addiu v0,v0,1; addu v1,v1,a0
+ * (increment BEFORE addu). Ours: sll; addu; addiu (compiler reorders independent insns).
+ * Scheduling floor — both instruction orderings are valid. ACCEPT. */
 void Texture_MenuReleaseClutId(short id)
 
 {
   int yclut;
-  
+
   yclut = (int)((u_int)(u_short)id << 0x10) >> 0x16;
   if (yclut < 0x1e8) {
     gFreePal8[gNbFreePal8] = id;

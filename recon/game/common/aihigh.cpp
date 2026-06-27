@@ -384,52 +384,28 @@ void AIHigh_Restart2(void)
 /* ---- AIHigh_CleanUp__Fv  AIHigh_CleanUp  [AIHIGH.CPP:122-131] SLD-VERIFIED ---- */
 
 void AIHigh_CleanUp(void)
-
-
-
 {
-  int carLoop;
-
   AIHigh_Base *pAVar1;
-
   AIHigh_Base **ppAVar2;
-
   int iVar3;
 
-  
-
   iVar3 = 0;
-
   if (0 < Cars_gNumCars) {
-
     ppAVar2 = highLevelAIObjs;
-
     do {
-
       pAVar1 = *ppAVar2;
-
       if (pAVar1 != (AIHigh_Base *)0x0) {
-
         /* vtable entry 2: fn-ptr @ byte +20, this-delta @ byte +16 (byte-base, sec.3.12 #10) */
         (*(int (**)(...))((char *)pAVar1->_vf + 20))
                   ((int)&pAVar1->carObj_ + (int)*(short *)((char *)pAVar1->_vf + 16),3);
-
         *ppAVar2 = (AIHigh_Base *)0x0;
-
       }
-
-      iVar3 = iVar3 + 1;
-
       ppAVar2 = ppAVar2 + 1;
-
+      iVar3 = iVar3 + 1;
     } while (iVar3 < Cars_gNumCars);
-
   }
-
   AIState_CleanUp();
-
   return;
-
 }
 
 

@@ -646,21 +646,21 @@ int AILife_IsCoordInThisLiveArea(coorddef *tPos,Car_tObj *racer)
 /* ---- AILife_IsTrafficCarInAnyLiveArea__FP8Car_tObj  [@0x80068704] ---- */
 Car_tObj * AILife_IsTrafficCarInAnyLiveArea(Car_tObj *traffic)
 {
-  int racerLoop;
-  coorddef*tPos;
   int iVar1;
   Car_tObj **ppCVar2;
   int iVar3;
+  coorddef *tPos;
   
   iVar3 = 0;
+  tPos = &(traffic->N).position;
   if (0 < Cars_gNumLifeBasisCars) {
     ppCVar2 = Cars_gLifeBasisCarList;
     do {
-      iVar1 = AILife_IsCoordInThisLiveArea(&(traffic->N).position,*ppCVar2);
-      iVar3 = iVar3 + 1;
+      iVar1 = AILife_IsCoordInThisLiveArea(tPos,*ppCVar2);
       if (iVar1 != 0) {
         return *ppCVar2;
       }
+      iVar3 = iVar3 + 1;
       ppCVar2 = ppCVar2 + 1;
     } while (iVar3 < Cars_gNumLifeBasisCars);
   }
@@ -757,20 +757,19 @@ Car_tObj * AILife_IsSliceCloseToAnyCopCar(int slice)
 /* ---- AILife_IsPositionInAnyVisibleArea__FP8coorddef  [@0x8006894c] ---- */
 Car_tObj * AILife_IsPositionInAnyVisibleArea(coorddef *pos)
 {
-  int racerLoop;
   int iVar1;
   Car_tObj **ppCVar2;
   int iVar3;
-  
+
   iVar3 = 0;
   if (0 < Cars_gNumHumanRaceCars) {
     ppCVar2 = Cars_gHumanRaceCarList;
     do {
       iVar1 = AILife_IsCoordInThisVisibleArea(pos,*ppCVar2);
-      iVar3 = iVar3 + 1;
       if (iVar1 != 0) {
         return *ppCVar2;
       }
+      iVar3 = iVar3 + 1;
       ppCVar2 = ppCVar2 + 1;
     } while (iVar3 < Cars_gNumHumanRaceCars);
   }

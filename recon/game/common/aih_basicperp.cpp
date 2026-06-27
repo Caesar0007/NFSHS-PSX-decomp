@@ -603,11 +603,15 @@ void AIHigh_BasicPerp::RemoveChaser(int copIndex,int carIndex,copType type)
 
   int *piVar2;
 
+  int *piBase;
+
   
 
-  piVar2 = (this->basicPerpInfo_).copsAssigned_ + type;
-
   iVar1 = this->copVSPositionList_[copIndex];
+
+  piBase = (this->basicPerpInfo_).copsAssigned_;
+
+  piVar2 = piBase + type;
 
   *piVar2 = *piVar2 + -1;
 
@@ -752,8 +756,6 @@ void AIHigh_BasicPerp::Clear()
 
 
 {
-  int loop;
-
   AIHigh_BasicPerp *pAVar1;
 
   int iVar2;
@@ -772,7 +774,7 @@ void AIHigh_BasicPerp::Clear()
 
     iVar2 = iVar2 + 1;
 
-    pAVar1 = (AIHigh_BasicPerp *)&(pAVar1->_base_AIHigh_Base).stateType_;
+    pAVar1 = (AIHigh_BasicPerp *)((char *)pAVar1 + 8);
 
   } while (iVar2 < 6);
 
@@ -830,5 +832,8 @@ AIHigh_BasicPerp::AIHigh_BasicPerp(Car_tObj *carObj)
    oracle = jal ___11AIHigh_Base; extern-C free fn exports the exact symbol. */
 extern "C" {
 void ___11AIHigh_Base(void *);
-void ___16AIHigh_BasicPerp(void *thisp) { ___11AIHigh_Base(thisp); }
+void ___16AIHigh_BasicPerp(void *thisp) {
+  *(void**)((char*)thisp + 0x14) = (void*)AIHigh_BasicPerp_vtable;
+  ___11AIHigh_Base(thisp);
+}
 }

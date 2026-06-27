@@ -97,7 +97,6 @@ LAB_80072a14:
 trigger_t *
 AITrigger_TriggerManager::GetNextTrigger(int car)
 {
-  int triggerNum;
   int iVar1;
   
   if (this->numTriggers_ == 0) {
@@ -118,7 +117,6 @@ AITrigger_TriggerManager::GetNextTrigger(int car)
 trigger_t *
 AITrigger_TriggerManager::GetPrevTrigger(int car)
 {
-  int triggerNum;
   int iVar1;
   
   if (this->numTriggers_ == 0) {

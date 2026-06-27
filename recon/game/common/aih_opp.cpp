@@ -590,5 +590,11 @@ int AIHigh_Opponent::DoProvokedAttack()
    oracle = jal ___11AIHigh_Base; extern-C free fn exports the exact symbol. */
 extern "C" {
 void ___11AIHigh_Base(void *);
-void ___15AIHigh_Opponent(void *thisp) { ___11AIHigh_Base(thisp); }
+}
+extern __vtbl_ptr_type AIHigh_BasicPerp_vtable[];   /* owned by aih_basicperp.obj */
+extern "C" {
+void ___15AIHigh_Opponent(void *thisp) {
+  *(void**)((char*)thisp + 0x14) = (void*)AIHigh_BasicPerp_vtable;
+  ___11AIHigh_Base(thisp);
+}
 }

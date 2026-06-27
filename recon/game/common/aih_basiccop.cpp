@@ -26,16 +26,11 @@ AIHigh_BasicCop::AIHigh_BasicCop(Car_tObj *carObj,int copIndex)
 
   this->copIndex_ = copIndex;
 
-  if ((carObj->carFlags & 0x40U) == 0) {
-
-    this->type_ = 0;
-
-  }
-
-  else {
-
+  if ((carObj->carFlags & 0x40U) != 0) {
     this->type_ = 1;
-
+  }
+  else {
+    this->type_ = 0;
   }
 
   (this->blockade_).mode = 0;

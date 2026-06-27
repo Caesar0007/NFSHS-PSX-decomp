@@ -727,18 +727,16 @@ void uppercase(char *string)
   u_int uVar1;
   int n;
   u_char *pbVar2;
-  int len;
-  
+
   uVar1 = strlen(string);
   n = 0;
-  pbVar2 = (u_char *)string;
   if (0 < (int)uVar1) {
     do {
-      if (*pbVar2 - 0x61 < 0x1a) {
-        *pbVar2 = *pbVar2 - 0x20;
+      pbVar2 = (u_char *)(string + n);
+      if ((u_int)(*pbVar2 - 0x61) < 0x1au) {
+        *pbVar2 = *pbVar2 + (u_char)0xe0;
       }
       n = n + 1;
-      pbVar2 = (u_char *)(string + n);
     } while (n < (int)uVar1);
   }
   return;

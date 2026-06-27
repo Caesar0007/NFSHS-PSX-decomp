@@ -164,8 +164,6 @@ int delsystemtask(...);   /* (int fn) */
 int deltimer(...);   /* (void (*proc)(void)) */
 int fastintcos(...);   /* (int angle) */
 int fastintsin(...);   /* (int angle) */
-int intcos(...);   /* (int angle) -- canonical name @0x800F18E4 (alias of fastintcos) */
-int intsin(...);   /* (int angle) -- canonical name @0x800F18E8 (alias of fastintsin) */
 int filesize(...);   /* (char*) */
 int fixedatan(...);   /* (int y, int x) */
 int fixedcos(...);   /* (int angle) */

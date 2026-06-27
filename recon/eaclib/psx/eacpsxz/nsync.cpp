@@ -6,7 +6,7 @@
  *
  *   STRUCTURE: each public loader (filesize / loadfileadr[z] / loadfileatadr[z] / loadbigfileheader)
  *   is a thin wrapper that packs its arguments into a LoadArgs scratch and dispatches the matching
- *   `*atomic` worker through FILE_atomic(fn, setclipwindow(), 100, &args) -- a retry/abort harness.
+ *   `*atomic` worker through FILE_atomic(fn, asyncidle(), 100, &args) -- a retry/abort harness.
  *   The `*atomic` workers do the real work over the FILE_*sync primitives + the memstd allocator.
  *   The "z" variants differ only in passing abortval=0 (vs the global `abortflag`).
  */
@@ -25,7 +25,7 @@ extern "C" int  FILE_sizesync (int handle, int retry);                         /
 extern "C" int  FILE_readsync (int handle, int offset, void *dest, int size, int retry); /* @0x800EA920 */
 extern "C" int  FILE_closesync(int handle, int retry);                         /* @0x800EA950 */
 extern "C" int  FILE_atomic   (void *fn, int idle, int retries, void *args);   /* @0x800ECB40 */
-extern "C" int  setclipwindow     (void);                                          /* @0x800F6114 */
+extern "C" int  asyncidle     (void);                                          /* @0x800F6114 */
 
 /* ---- memstd allocator (eaclib/psx/eacpsxz/memstd.cpp) ---- */
 extern "C" void *reservememadr(char *name, int size, int classid);            /* @0x800E533C */
@@ -69,7 +69,7 @@ extern "C" int filesize(char *name)   /* @0x800E566C */
     LoadArgs a;
     a.name = name;
     a.abortval = abortflag;
-    int idle = setclipwindow();
+    int idle = asyncidle();
     return FILE_atomic((void *)filesizeatomic, idle, 0x64, &a);
 }
 
@@ -114,7 +114,7 @@ extern "C" int loadfileadrz(char *name, int memclass)   /* @0x800E57A8 */
     a.name = name;
     a.memclass = memclass;
     a.abortval = 0;
-    int idle = setclipwindow();
+    int idle = asyncidle();
     return FILE_atomic((void *)loadfileadratomic, idle, 0x64, &a);
 }
 
@@ -127,7 +127,7 @@ extern "C" int loadfileadr(char *name, int memclass)   /* @0x800E57E8 */
     a.name = name;
     a.memclass = memclass;
     a.abortval = abortflag;
-    int idle = setclipwindow();
+    int idle = asyncidle();
     return FILE_atomic((void *)loadfileadratomic, idle, 0x64, &a);
 }
 
@@ -158,7 +158,7 @@ extern "C" int loadfileatadrz(char *name, int dest)   /* @0x800E58B0 */
     a.name = name;
     a.dest = dest;
     a.abortval = 0;
-    int idle = setclipwindow();
+    int idle = asyncidle();
     return FILE_atomic((void *)loadfileatadratomic, idle, 0x64, &a);
 }
 
@@ -171,7 +171,7 @@ extern "C" int loadfileatadr(char *name, int dest)   /* @0x800E58F0 */
     a.name = name;
     a.dest = dest;
     a.abortval = abortflag;
-    int idle = setclipwindow();
+    int idle = asyncidle();
     return FILE_atomic((void *)loadfileatadratomic, idle, 0x64, &a);
 }
 
@@ -228,6 +228,6 @@ extern "C" int loadbigfileheader(char *name, int memclass)   /* @0x800E5A7C */
     a.name = name;
     a.memclass = memclass;
     a.abortval = abortflag;
-    int idle = setclipwindow();
+    int idle = asyncidle();
     return FILE_atomic((void *)loadbigfileheaderatomic, idle, 0x64, &a);
 }

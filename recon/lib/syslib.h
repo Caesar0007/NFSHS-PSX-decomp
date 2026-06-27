@@ -248,7 +248,7 @@ extern void SetDrawMove(DR_MOVE *p, RECT *rect, int x, int y) ;   /* P34 */
    /* MSC02 */
 extern long VectorNormalSS(SVECTOR *v0, SVECTOR *v1);   /* MSC02 */
 void _VectorNormalS_tail();   /* MSC02 */
-void _vec_norm_kernel();   /* MSC02 */
+void _VectorNormalSS_kernel();   /* MSC02 */
    /* MSC00 */
    /* FGO_01 */
    /* REG11 */

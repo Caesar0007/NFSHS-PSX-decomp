@@ -2,9 +2,9 @@
 .set noreorder /* don't insert nops after branches */
 
 /* Handwritten function */
-nonmatching _vec_norm_kernel, 0xC0
+nonmatching _VectorNormalSS_kernel, 0xC0
 
-glabel _vec_norm_kernel
+glabel _VectorNormalSS_kernel
     /* E233C 800F1B3C 00488848 */  mtc2       $t0, $9 /* handwritten instruction */
     /* E2340 800F1B40 00508948 */  mtc2       $t1, $10 /* handwritten instruction */
     /* E2344 800F1B44 00588A48 */  mtc2       $t2, $11 /* handwritten instruction */
@@ -55,4 +55,4 @@ glabel _vec_norm_kernel
     /* E23F0 800F1BF0 0750CA01 */  srav       $t2, $t2, $t6
     /* E23F4 800F1BF4 0800E003 */  jr         $ra
     /* E23F8 800F1BF8 00000000 */   nop
-endlabel _vec_norm_kernel
+endlabel _VectorNormalSS_kernel

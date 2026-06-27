@@ -9,7 +9,7 @@ glabel VectorNormalSS
     /* E2314 800F1B14 04008A84 */  lh         $t2, 0x4($a0)
   .L800F1B18:
     /* E2318 800F1B18 2138E003 */  addu       $a3, $ra, $zero
-    /* E231C 800F1B1C CFC6030C */  jal        _vec_norm_kernel
+    /* E231C 800F1B1C CFC6030C */  jal        _VectorNormalSS_kernel
     /* E2320 800F1B20 00000000 */   nop
     /* E2324 800F1B24 0000A8A4 */  sh         $t0, 0x0($a1)
     /* E2328 800F1B28 0200A9A4 */  sh         $t1, 0x2($a1)

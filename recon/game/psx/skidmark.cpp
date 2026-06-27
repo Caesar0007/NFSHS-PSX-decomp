@@ -30,8 +30,8 @@ void CalcStartSegment(Skidmark_Segment *r1,Skidmark_Segment *r2,coorddef *cp,coo
   int pzp;
 
   angle = intatan(pt2->x - pt1->x,pt2->z - pt1->z);
-  pxp = fixedmult(tireWidth,-intcos(angle)) >> 1;
-  pzp = fixedmult(tireWidth,intsin(angle)) >> 1;
+  pxp = fixedmult(tireWidth,-fastintcos(angle)) >> 1;
+  pzp = fixedmult(tireWidth,fastintsin(angle)) >> 1;
   r1->svx[0].vx = (short)((pt1->x + pxp) - cp->x >> 6);
   r1->svx[0].vy = (short)(pt1->y - cp->y >> 6);
   r1->svx[0].vz = (short)((pt1->z + pzp) - cp->z >> 6);
@@ -56,8 +56,8 @@ void CalcOneSegment(Skidmark_Segment *r1,coorddef *cp,coorddef *pt1,coorddef *pt
   int pzp;
 
   angle = intatan(pt2->x - pt1->x,pt2->z - pt1->z);
-  pxp = fixedmult(tireWidth,-intcos(angle)) >> 1;
-  pzp = fixedmult(tireWidth,intsin(angle)) >> 1;
+  pxp = fixedmult(tireWidth,-fastintcos(angle)) >> 1;
+  pzp = fixedmult(tireWidth,fastintsin(angle)) >> 1;
   r1->svx[0].vx = (short)((pt2->x + pxp) - cp->x >> 6);
   r1->svx[0].vy = (short)(pt2->y - cp->y >> 6);
   r1->svx[0].vz = (short)((pt2->z + pzp) - cp->z >> 6);

@@ -92,6 +92,11 @@ void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int
 }
 
 /* ---- TextureProcess_DepthColorCluts__FPci  [TEXTUREPROCESS.CPP:422-462] SLD-VERIFIED ---- */
+/* NEAR-MISS 10 diffs (52/54): oracle loop structure uses `slti v0,s0,16` in both
+ * initial pre-check AND j-delay slot at loop bottom (loop-condition-in-delay optimization
+ * — 54 insns). Our gcc-2.8.0 -O2 generates simpler while-loop form (52 insns, fewer instructions).
+ * Epilogue: oracle loads numdepthclut→v1, copies v1→v0, increments v1 (3 ops);
+ * ours loads→v0, computes v1=v0+1 (2 ops). Both are coloring floors. ACCEPT. */
 int TextureProcess_DepthColorCluts(char *data,int numentry)
 {
   int i;

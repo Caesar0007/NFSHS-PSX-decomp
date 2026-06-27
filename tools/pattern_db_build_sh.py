@@ -78,16 +78,24 @@ records=[r for r in db['records'] if r.get('game')!='sh']; base=len(records)  # 
 subdirs=sys.argv[1:] or ['src']
 cfiles=[]
 for sd in subdirs: cfiles+=sorted((SH/sd).rglob('*.c'))
-cfail=0
+# GLOBAL function->source index across ALL SH .c: SH uses #include "*.c" (257x), so an
+# object's functions often live in a DIFFERENT file than the compiled TU. Scan everything.
+print('building global SH source index...',flush=True)
+GSM={}
+for c in sorted((SH/'src').rglob('*.c')):
+    for name,body in sh_sources(c).items(): GSM.setdefault(name,body)
+print(f'global source index: {len(GSM)} fns',flush=True)
+cfail=0; seen=set()
 for ci,c in enumerate(cfiles):
     if ci%25==0: print(f"[{ci+1}/{len(cfiles)}] {c.name} (sh recs:{len(records)-base} fail:{cfail})",flush=True)
     o=compile_sh(c)
     if o is None: cfail+=1; continue
-    sm=sh_sources(c); funcs=obj_funcs(o)
+    funcs=obj_funcs(o)
     for fn,ins in funcs.items():
-        if not ins or len(ins)<3: continue
-        src=sm.get(fn)
-        if src is None: continue   # no matched C in SH src => INCLUDE_ASM (original asm, not a source->asm pair). skip.
+        if not ins or len(ins)<3 or fn in seen: continue   # dedup by name (player.c #included 43x)
+        src=GSM.get(fn)
+        if src is None: continue   # genuinely no matched C anywhere (7 INCLUDE_ASM stubs project-wide)
+        seen.add(fn)
         records.append({'func':fn,'file':'SH/'+str(c.relative_to(SH)).replace('\\','/'),'n':len(ins),
                         'asm':ins,'src':src,'compiler':'gcc2.8.1','game':'sh'})
 # rebuild index over ALL records

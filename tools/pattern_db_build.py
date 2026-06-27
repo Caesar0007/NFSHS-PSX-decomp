@@ -14,6 +14,12 @@ for d in [ROOT/'asm'/'nonmatchings'/'main', ROOT/'asm'/'nonmatchings'/'front']:
 def norm(t):
     t=re.sub(r'\s+',' ',t.strip()).replace('$','');t=re.sub(r',\s+',',',t)
     t=re.sub(r'0x([0-9a-fA-F]+)',lambda m:str(int(m.group(1),16)),t)
+    m=re.match(r'^break\b(.*)$',t)
+    if m:
+        ops=[o for o in re.split(r'[ ,]+',m.group(1).strip()) if o and o!='0']
+        t='break'+((' '+','.join(ops)) if ops else '')
+    t=re.sub(r'\((\d+) ?>> ?(\d+)\)',lambda m:str(int(m.group(1))>>int(m.group(2))),t)  # eval (N>>M) — parity w/ verify_asm (else `lui r,(65536 >> 16)` != `lui r,1` = phantom diff)
+    t=re.sub(r'\((\d+) ?& ?(\d+)\)',lambda m:str(int(m.group(1))&int(m.group(2))),t)     # eval (N&M)
     t=re.sub(r'%hi\([^)]*\)','0',t);t=re.sub(r'%lo\([^)]*\)','0',t);t=re.sub(r'%gp_rel\([^)]*\)','0',t)
     t=re.sub(r'^move (\w+),(\w+)$',r'addu \1,\2,zero',t)
     t=re.sub(r'^(?:addiu|ori) (\w+),zero,(\-?\d+)$',r'li \1,\2',t)

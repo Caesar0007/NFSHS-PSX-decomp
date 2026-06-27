@@ -2,7 +2,7 @@
 # Usage: python tools/pattern_suggest.py <recon/.../file.cpp> <MangledName>
 # Compiles the fn, diffs vs oracle, isolates the oracle-side divergence windows, and
 # queries pattern_db.json for SEALED functions with those shapes -> prints their source.
-import importlib.util, subprocess, re, json, difflib, sys
+import importlib.util, subprocess, re, json, difflib, sys, math
 from pathlib import Path
 from collections import Counter
 ROOT=Path(__file__).resolve().parent.parent
@@ -15,6 +15,12 @@ for d in [ROOT/'asm'/'nonmatchings'/'main', ROOT/'asm'/'nonmatchings'/'front']:
 def norm(t):
     t=re.sub(r'\s+',' ',t.strip()).replace('$','');t=re.sub(r',\s+',',',t)
     t=re.sub(r'0x([0-9a-fA-F]+)',lambda m:str(int(m.group(1),16)),t)
+    m=re.match(r'^break\b(.*)$',t)
+    if m:
+        ops=[o for o in re.split(r'[ ,]+',m.group(1).strip()) if o and o!='0']
+        t='break'+((' '+','.join(ops)) if ops else '')
+    t=re.sub(r'\((\d+) ?>> ?(\d+)\)',lambda m:str(int(m.group(1))>>int(m.group(2))),t)  # eval (N>>M) — parity w/ verify_asm (else `lui r,(65536 >> 16)` != `lui r,1` = phantom diff)
+    t=re.sub(r'\((\d+) ?& ?(\d+)\)',lambda m:str(int(m.group(1))&int(m.group(2))),t)     # eval (N&M)
     t=re.sub(r'%hi\([^)]*\)','0',t);t=re.sub(r'%lo\([^)]*\)','0',t);t=re.sub(r'%gp_rel\([^)]*\)','0',t)
     t=re.sub(r'^move (\w+),(\w+)$',r'addu \1,\2,zero',t)
     t=re.sub(r'^(?:addiu|ori) (\w+),zero,(\-?\d+)$',r'li \1,\2',t)
@@ -69,19 +75,23 @@ for tag,i1,i2,j1,j2 in sm.get_opcodes():
     if b-a>=2: windows.append(oracle[a:b])
 print("ORACLE divergence shapes (reproduce these):")
 for w in windows[:5]: print("   [ "+'  ;  '.join(w)+" ]")
+DF_CAP=max(40,len(records)//20)   # skip shapes in >5% of records (structural boilerplate -> no discriminating power)
 hits=Counter(); shp={}
 for w in windows:
     for n in (5,4,3,2):
         for i in range(len(w)-n+1):
             key=' | '.join(canon(w[i:i+n]))
-            for rid in index.get(key,[]):
+            df=len(index.get(key,()))
+            if not df or df>DF_CAP: continue
+            wt=(n*n)/math.log2(1+df)   # IDF: rare + long shapes dominate; ubiquitous 2-grams ~0
+            for rid in index[key]:
                 if records[rid]['func']==fn: continue
-                hits[rid]+=n*n; shp.setdefault(rid,set()).add(key)
-if not hits: sys.exit("\nno sealed function has these oracle shapes (novel shape / structural floor).")
+                hits[rid]+=wt; shp.setdefault(rid,set()).add(key)
+if not hits: sys.exit("\nonly generic/ubiquitous shapes matched -> no discriminating idiom in the DB\n(likely a register-coloring / scheduling / abs residual, not a source-idiom fix).")
 print(f"\nSUGGESTIONS -- sealed fns producing the same oracle shape (=> copy their source idiom):")
 for rid,score in hits.most_common(5):
     r=records[rid]; best=sorted(shp[rid],key=lambda k:-k.count('|'))[0]
-    print(f"\n  --- {r['func']}  [{r['file']}]  score={score} ---")
+    print(f"\n  --- {r['func']}  [{r['file']}]  score={score:.1f} ---")
     print(f"      shape: {best}")
     if r['src']:
         for ln in r['src'].splitlines()[:16]: print("      "+ln)

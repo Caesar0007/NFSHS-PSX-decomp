@@ -38,7 +38,7 @@ def canon(insns):
 def compile_sh(c):
     i=SCR/'shx.i'; s=SCR/'shx.s'; o=SCR/'shx.o'
     r=subprocess.run([GCC,'-E','-nostdinc','-undef','-Iinclude','-Iinclude/psyq','-Iinclude/decomp',
-                      '-D__GNUC__=2','-Dpsx','-D__psx__','-D__mips__',str(c),'-o',str(i)],cwd=SH,capture_output=True,text=True)
+                      '-D__GNUC__=2','-Dpsx','-D__psx__','-D__mips__','-DVER_USA',str(c),'-o',str(i)],cwd=SH,capture_output=True,text=True)
     if r.returncode: return None
     r=subprocess.run([CC1,'-quiet','-O2','-G0','-mips1','-mcpu=3000','-funsigned-char','-fpeephole',
                       '-ffunction-cse','-fpcc-struct-return','-fcommon','-msoft-float',str(i),'-o',str(s)],capture_output=True,text=True)

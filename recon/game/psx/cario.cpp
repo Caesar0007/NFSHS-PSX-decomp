@@ -371,21 +371,27 @@ void CarIO_CreateLicense(char *text,int carType,int player)
 }
 
 /* ---- CarIO_CleanUpLicense__Fi  [CARIO.CPP:486-490] SLD-VERIFIED ---- */
+/* NEAR-MISS 2 diffs (29/30): oracle hoists lui CarIO_Plate2 into the load-delay nop slot
+ * after the first beqz/jal block; our gcc-2.8.0 -O2 emits nop instead (lui comes 1 insn later).
+ * Independent instruction scheduling decision — ACCEPT as FLOOR. */
 void CarIO_CleanUpLicense(int player)
 
 {
+  shapetbl **ppPlate1;
   shapetbl *psVar1;
-  
-  psVar1 = CarIO_Plate1[player];
+
+  ppPlate1 = CarIO_Plate1 + player;
+  psVar1 = *ppPlate1;
   if (psVar1 != (shapetbl *)0x0) {
     purgememadr(psVar1);
   }
-  CarIO_Plate1[player] = (shapetbl *)0x0;
-  psVar1 = CarIO_Plate2[player];
+  *ppPlate1 = (shapetbl *)0x0;
+  ppPlate1 = CarIO_Plate2 + player;
+  psVar1 = *ppPlate1;
   if (psVar1 != (shapetbl *)0x0) {
     purgememadr(psVar1);
   }
-  CarIO_Plate2[player] = (shapetbl *)0x0;
+  *ppPlate1 = (shapetbl *)0x0;
   return;
 }
 

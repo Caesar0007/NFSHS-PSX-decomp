@@ -26,7 +26,6 @@ void Audio_InitDriver(int buffersize,int spusize)
 {
   SndBnk_t *pSVar1;
   int i;
-  int memReserve;
   SNDSYSOPTS opts;
   
   i = 0;
@@ -42,9 +41,8 @@ void Audio_InitDriver(int buffersize,int spusize)
     opts.set.maxbanks = 0x30;
     SNDSYS_setopts(&opts);
     SNDSYS_vectortoreal();
-    memReserve = 0;
     Audio_gHeap = reservememadr("audio heap",0x1000,0);
-    SNDSYS_init(Audio_gHeap,0x1000,memReserve);
+    SNDSYS_init(Audio_gHeap,0x1000);
     AudioCmn_InitReverb();
   }
   if (0 < buffersize) {
@@ -71,20 +69,16 @@ void Audio_DeInitDriver(void)
 void Audio_CleanUp(void)
 
 {
-  SndBnk_t *pSVar1;
-  int i;
-  int iVar2;
-  
-  iVar2 = 0;
-  pSVar1 = gSndBnk;
+  int iVar1;
+
+  iVar1 = 0;
   do {
-    if (pSVar1->pdata != (char *)0x0) {
-      purgememadr(pSVar1->pdata);
-      pSVar1->pdata = (char *)0x0;
+    if (gSndBnk[iVar1].pdata != (char *)0x0) {
+      purgememadr(gSndBnk[iVar1].pdata);
+      gSndBnk[iVar1].pdata = (char *)0x0;
     }
-    iVar2 = iVar2 + 1;
-    pSVar1 = pSVar1 + 1;
-  } while (iVar2 < 7);
+    iVar1 = iVar1 + 1;
+  } while (iVar1 < 7);
   return;
 }
 
@@ -149,19 +143,16 @@ int AudioCmn_LoadBank(char *filename,int BankNum)
 {
   char *pdata_00;
   int iVar1;
-  char *p;
-  char *pdata;
   char bankdata [80];
-  
+
   strcpy(bankdata,filename);
   strcat(bankdata,".bnk");
   pdata_00 = (char *)loadfileadrz(bankdata,(void *)0x10);
-  iVar1 = 0;
-  if (pdata_00 != (char *)0x0) {
-    iVar1 = filesize(bankdata);
-    iVar1 = AudioCmn_AddBank(filename,iVar1,pdata_00,BankNum);
+  if (pdata_00 == (char *)0x0) {
+    return 0;
   }
-  return iVar1;
+  iVar1 = filesize(bankdata);
+  return AudioCmn_AddBank(filename,iVar1,pdata_00,BankNum);
 }
 
 /* end of audio.cpp */

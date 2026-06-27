@@ -6,6 +6,11 @@
 #include "../../nfs4_types.h"
 #include "platform_externs.h"
 
+/* D_8013DAA0 = path/directory string buffer immediately following gSysStartUp (0x8013DA9C+4).
+ * Declared here so gcc emits lui+jal+addiu(delay) for setdirectory(D_8013DAA0) instead
+ * of lui+addiu+jal+nop for &gSysStartUp+4. */
+extern char D_8013DAA0[];
+
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
@@ -20,16 +25,20 @@ char gDctBuffer[64]; char *gDctXtraMem; char gEAMemPoolBase[64]; char gPlatformI
 
 
 /* ---- Platform_InitMemory__Fv  [PLATFORM.CPP:125-135] SLD-VERIFIED ---- */
+/* NEAR-MISS 7 diffs (11/12): oracle uses subu v0,v0,v1 + addu recovery for gHigh
+ * (v0=gPlatformInitMem, v1=const). Our allocator: constant→v0, gPlatformInitMem→v1,
+ * result→a0. Register allocator coloring floor (v0/v1/a0 assignment). ACCEPT best-form
+ * below (7 diffs: early-stores form, closest to oracle structure). */
 void Platform_InitMemory(void)
 
 {
   u_int tempLow;
 
   tempLow = 0x80010080;   /* PSX prog base 0x80010000 + 0x80 EXE-header = low-mem bound; memory-map constant (no data symbol), not a VA to migrate */
-  gTotalMemory = (int)gPlatformInitMem - tempLow;
   gLowMemory = tempLow;
-  gHighMemory = (int)gPlatformInitMem;
   gCurrentMemory = tempLow;
+  gTotalMemory = (int)gPlatformInitMem - tempLow;
+  gHighMemory = (int)gPlatformInitMem;
   return;
 }
 
@@ -84,7 +93,7 @@ void Platform_SysStartUp(void)
   nfs2eacinit();
   Draw_SetEnvironment(0x200,0xf0,1,0,1,0,0,0);
   initlinkmode(0,1,1);
-  setdirectory((char *)((int)&gSysStartUp + 4));
+  setdirectory(D_8013DAA0);
   initlinkmode(0,1000,1);
   initlinkmode(0,1000,1);
   gSysStartUp = 1;

@@ -443,14 +443,13 @@ void DrawW_LoadPrecVECTOR(Draw_SVertex *v,VECTOR *dv)
   int z;
 
   /* MATCH: oracle masks AFTER the shift, packs vx:vy as one word, and groups the three
-     shifts (vx<<2, vy<<18, vz<<2) in field order -- so shift into temps up front. */
+     shifts (vx<<2, vy<<18, vz<<2) in field order. */
   x = dv->vx << 2;
   y = dv->vy << 0x12;
   z = dv->vz << 2;
   *(u_int *)&v->vx = y | (x & 0xffffU);
-  v->vz = (short)z;   /* NEAR-MISS floor: 2 diffs -- gcc schedules this vz<<2 after the
-                         `or` (its only use is late); oracle groups it with the other two
-                         shifts.  Source levers don't move it; permuter/accept. */
+  v->vz = (short)z;   /* FLOOR: 2 diffs -- gcc schedules sll a1,a1,2 after the sw;
+                         oracle groups it with the other two shifts (load-delay scheduling). */
   return;
 }
 

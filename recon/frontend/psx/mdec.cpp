@@ -144,7 +144,7 @@ void MDECCompleteHandler(void)
             (&mdec->striprect,mdec->stripbuf);
   drawsync = DrawSync(0);
   if (drawsync != 0) {
-    g_mdecdrawsyncfailed = 1;
+    g_mdecdrawsyncfailed[0] = 1;
   }
   nextx = mdec->striprect.x + mdec->bpp;
   mdec->striprect.x = nextx;

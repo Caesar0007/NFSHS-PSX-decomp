@@ -219,7 +219,7 @@ void tScreen::UploadPermanentShapes(int numPermanentShapes)
 {
   
   this->UploadShapes(this->fPermShapes,0,0,(short)numPermanentShapes,0);
-  gCurrentShapes = (this->fPermShapes).fShapes;
+  gCurrentShapes[0] = (this->fPermShapes).fShapes;
   return;
 }
 

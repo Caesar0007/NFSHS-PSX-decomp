@@ -6,9 +6,8 @@
 #include "femenuoptions.h"
 
 /* EXT/STAT data owned by FeMenuOptions.obj (byte-exact from retail binary) */
-/* Force .data (absolute addressing, NOT gp-rel/.sdata): the oracle reaches these via
- * lui %hi/%lo — no %gp_rel(PulsateYellow) exists anywhere in asm/nonmatchings (cf. §3.12#6). */
-int PulsateYellow __attribute__((section(".data"))) = 0;        /* @0x800515ac */
+/* PulsateYellow: storage in front_data.data.s @0x800515ac; declared extern int[] in
+ * femenuoptions_externs.h (store-[] lever §3.12 #5 -> addr in genreg not $at). */
 int fHelpText = 0;            /* @0x800515b0 */
 static int flareextra = 0;     /* file-static */
 
@@ -22,7 +21,7 @@ void CalcPulsateYellow(void)
   if (0x40 < pulsateval) {
     pulsateval = 0x80 - pulsateval;
   }
-  PulsateYellow = CalcFadeVal(0xbebe,pulsateval);
+  PulsateYellow[0] = CalcFadeVal(0xbebe,pulsateval);
   return;
 }
 
@@ -1118,7 +1117,7 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
       tstr10 = (int)TextSys_Word(fHelpText);
       iVar7 = TextSys_WordX(fHelpText);
       iVar8 = TextSys_WordY(fHelpText);
-      FETextRender_FullTextRGB((char *)tstr10,(short)iVar7,(short)iVar8,PulsateYellow,'\0',2);
+      FETextRender_FullTextRGB((char *)tstr10,(short)iVar7,(short)iVar8,PulsateYellow[0],'\0',2);
     }
     sMenuText = (int)TextSys_Word((this->_base_tMenuItem).fTextDescription);
     FETextRender_FullTextRGB((char *)sMenuText,(short)x,(short)y,ColText,'\0',(u_short)fPlayList);
@@ -2663,7 +2662,7 @@ int tUserNameMenuItem::Draw(bool selected)
       } while ((int)(sl * 0x10000) >> 0x10 < (int)this->fMaxStringLength);
     }
     if (this->fFadeVal == 0) {
-      fFlags.tint[0] = PulsateYellow;
+      fFlags.tint[0] = PulsateYellow[0];
       current = (int)this->fCurrentColumn + this->fCurrentRow * 9;
       current_00 = this->fRowList[0][current];
       if ((current_00 == '!') || (current_00 == '@')) {

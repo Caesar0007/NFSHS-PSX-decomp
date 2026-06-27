@@ -9,7 +9,7 @@ extern char *Paths_Paths[];
 extern char *font12[];      /* unsized array (§3.15): forces separate-$v0 scratch on value-load */
 extern char *font18[];
 extern char *fontTitle[];
-extern short currentSize;   /* SYM short (was wrongly int); fetextrender_externs.h agrees */
+extern short currentSize[]; /* unsized-array view (sec.3.15): forces address into a genreg (sh v0,%lo($v1)) not the $at store-macro */
 
 /* ---- libc / psyq ---- */
 

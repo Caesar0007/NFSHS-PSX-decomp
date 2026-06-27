@@ -6,7 +6,7 @@
 
 /* --- globals --- */
 extern tfrontEnd          frontEnd;
-extern int                ticks;
+extern int                ticks[];   /* unsized array (§3.12 #5): oracle lui/lw separate-scratch (matches femenuextended/fescreen) */
 extern tTrackManager      trackManager;
 extern tGlobalMenuDefs   *menuDefs;
 extern tFEApplication    *FEApp;

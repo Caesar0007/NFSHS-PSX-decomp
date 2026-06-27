@@ -1253,16 +1253,16 @@ tAppCommand tFEApplication::RunFrontEnd()
 /* ---- FreeHelpShapeCluts__Fv  [@0x80013ff4] ---- RECONSTRUCTED 2026-06-12 (Ghidra @NFS4.EXE.c:2489).
  *  Free fn in FEApp.obj (sits among tFEApplication methods; already called @feapp.cpp:591), skipped
  *  from the original pass. Releases the 0x3b help-shape CLUTs. func_0x800df9a4 = Texture_MenuReleaseClutId. */
-extern tTexture_ShapeInfo *gHelpShapes;            /* @0x80052a64 */
+extern tTexture_ShapeInfo *gHelpShapes[];          /* @0x80052a64; unsized-array view (sec.3.15): materialise &gHelpShapes into a genreg, shared across the loop loads */
 void Texture_MenuReleaseClutId(short clutID);      /* @0x800df9a4 */
 
 void FreeHelpShapeCluts(void)
 {
   int i;
   for (i = 0; i < 0x3b; i++) {
-    if (gHelpShapes[i].clutID != 0) {
-      Texture_MenuReleaseClutId((short)gHelpShapes[i].clutID);
-      gHelpShapes[i].clutID = 0;
+    if (gHelpShapes[0][i].clutID != 0) {
+      Texture_MenuReleaseClutId((short)gHelpShapes[0][i].clutID);
+      gHelpShapes[0][i].clutID = 0;
     }
   }
 }

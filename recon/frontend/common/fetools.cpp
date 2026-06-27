@@ -6,18 +6,18 @@
 #include "fetools.h"
 
 /* ---- Fetools.obj-OWNED globals -- DEFINED here (self-contained; .bss zero / real bytes).
-   font12/font18/fontTitle = FE font pointers (set in FeTools_init); currentSize = current font
+   font12/font18/fontTitle = FE font pointers (set in FeTools_init); currentSize[0] = current font
    size (SYM short -- fetextrender uses it). FeTools_gScrollTicksOut=30 defined below. ---- */
 /* MATCH: font ptrs live in regular .data (defined in asm/data/front_data.data.s), reached
  * absolutely (%hi/%lo) in every oracle, and a global VALUE loaded into an ARG reg uses a SEPARATE
  * $v0 scratch (`lui v0; lw a0,(v0)`), not self-temp (`lui a0; lw a0,(a0)`). The unsized ARRAY shape
  * `[]` + `[0]` access (§3.15) forces gcc to materialize the base in a separate reg before the load
  * (a scalar folds the addr into the dest). Declared extern here (front_data.data.s owns the defn);
- * currentSize stays a scalar but pinned to .data (it's stored, addressed absolutely). */
+ * currentSize[0] stays a scalar but pinned to .data (it's stored, addressed absolutely). */
 extern char *font12[];
 extern char *font18[];
 extern char *fontTitle[];             /* @0x800517d4..dc  FE font pointers (.data) */
-short currentSize __attribute__((section(".data")));   /* @0x800517e0  current FE font size */
+short currentSize[1] __attribute__((section(".data")));   /* @0x800517e0  current FE font size */
 
 
 /* ---- s_upper  [FETOOLS.CPP:90-95] SLD-VERIFIED ---- */
@@ -153,7 +153,7 @@ void FeTools_init(void)
   sprintf(filename,"%stitle.pfn",Paths_Paths[0x21]);
   fontTitle[0] = (char *)loadfileadrz(filename,(void *)0x0);
   Font_LoadFont(fontTitle[0],0x3c0,0x100,'\0');
-  currentSize = 3;
+  currentSize[0] = 3;
   return;
 }
 

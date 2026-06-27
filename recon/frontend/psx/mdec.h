@@ -21,6 +21,6 @@ void MDECCompleteHandler(void);  /* :388 EXT FCN VOID (C++ linkage, DecDCT out-c
 
 /* ---- mdec.obj data globals ---- */
 extern tMdecHandle gMDECinfo;            /* 0x80052b28  {numhandles, hDecode} */
-extern int         g_mdecdrawsyncfailed; /* 0x80052b30 */
+extern int         g_mdecdrawsyncfailed[]; /* 0x80052b30 */
 
 #endif /* _FRONTEND_PSX_MDEC_H_ */

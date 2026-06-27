@@ -60,7 +60,7 @@ void tScreenTrackSelect::DrawBackground()
     r2.h = 0x100;
     ClearImage(&r2,'\0','\0','\0');
     DrawSync(0);
-    movieRetCode = ticks;
+    movieRetCode = ticks[0];
     this->fBrightness = 0;
     this->fStartTicks = movieRetCode - 0x14;
   }
@@ -74,7 +74,7 @@ void tScreenTrackSelect::DrawBackground()
     }
   }
   else if (((this->fTicksSet != 0) || (this->fDestBrightness < this->fBrightness)) &&
-          (0x100 < ticks - this->fVideoTicks)) {
+          (0x100 < ticks[0] - this->fVideoTicks)) {
     if (this->fBrightness <= this->fDestBrightness) {
       bright = 0x20;
       if (trackInfo.fAvailable != '\0') {
@@ -211,7 +211,7 @@ void tScreenTrackSelect::Initialize()
   this->fDestBrightness = 0;
   this->fTVsInitialized = 0;
   TurnOn(this_00);
-  iVar1 = ticks;
+  iVar1 = ticks[0];
   this->fTicksSet = 1;
   this->fVideoTicks = iVar1 - 0x100;
   this->fMovieTrack = (short)trackInfo.fTrackID;
@@ -242,7 +242,7 @@ void tScreenTrackSelect::SetBrightness(short bright)
   if (bright != this->fDestBrightness) {
     this->fDestBrightness = bright;
     this->fStartBrightness = this->fBrightness;
-    iVar1 = ticks;
+    iVar1 = ticks[0];
     this->fStartTicks = iVar1;
   }
   return;
@@ -256,7 +256,7 @@ void tScreenTrackSelect::UpdateBrightness(tTrackInformation &trackInfo)
 {
   long elapsed;
   
-  elapsed = ticks - this->fStartTicks;
+  elapsed = ticks[0] - this->fStartTicks;
   if ((int)this->fDestBrightness != (int)this->fBrightness) {
     if (elapsed < 0x80) {
       if (elapsed < 0) {
@@ -276,7 +276,7 @@ void tScreenTrackSelect::UpdateBrightness(tTrackInformation &trackInfo)
   }
   elapsed = (this->fBrightness == 0 && this->fDestBrightness == 0) ? 0 : 1;
   if ((elapsed == 0) &&
-     (VIDEO_abortplayback(this->hVideo), elapsed = ticks,
+     (VIDEO_abortplayback(this->hVideo), elapsed = ticks[0],
      this->fTicksSet == 0)) {
     this->fTicksSet = 1;
     this->fVideoTicks = elapsed;

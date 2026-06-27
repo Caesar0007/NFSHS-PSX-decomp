@@ -8,6 +8,7 @@ extern tFEApplication *FEApp;
 extern tfrontEnd frontEnd;
 extern tPadModuleState gPadinfo;
 extern int ticks[];   /* unsized array (§3.12 #5): oracle lui/lw separate-scratch (matches femenuextended/fescreen) */
+extern int PulsateYellow[];   /* store-[] lever (§3.12 #5): oracle materialises addr in genreg (sw v0,%lo($v1)) not $at; storage @0x800515ac in front_data.data.s */
 extern short MENUUSERNAME_STARTY;   /* @0x800529b2 ScreenUserName.obj-owned (cross-TU) */
 extern char *Paths_Paths[];
 extern tGlobalMenuDefs *menuDefs;

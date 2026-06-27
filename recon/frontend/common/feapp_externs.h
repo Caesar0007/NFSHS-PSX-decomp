@@ -7,7 +7,7 @@
 extern tFEApplication   *FEApp;
 extern tfrontEnd         frontEnd;
 extern tCarManager       carManager;
-extern tGlobalMenuDefs  *menuDefs;
+extern tGlobalMenuDefs  *menuDefs[];
 extern tScreenUserName  *screenUserName;
 extern GameSetup_tData   GameSetup_gData;
 extern int               Cars_gNewCarStatsList;

@@ -5,13 +5,13 @@
 #include "../../lib/libfns.h"
 extern int          ticks;
 extern tfrontEnd    frontEnd;
-extern tFEApplication *FEApp;
-extern tGlobalMenuDefs *menuDefs;
+extern tFEApplication *FEApp[];
+extern tGlobalMenuDefs *menuDefs[];
 extern char        *Paths_Paths[];
 extern tCarManager  carManager;
 extern tTournamentManager tournamentManager;
 extern tTrackManager trackManager;
-extern tAllScreens *gAllScreens;
+extern tAllScreens *gAllScreens[];
 
 /* ===== auto-generated stubs ===== */
 int AddCarToIngameList(...);

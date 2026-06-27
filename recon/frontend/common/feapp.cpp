@@ -321,14 +321,14 @@ void tFEApplication::Redraw()
   }
   (this_00)->DrawAllDialogs();
   this->DrawHelpIcons();
-  globalMenuDefs = menuDefs;
+  globalMenuDefs = menuDefs[0];
   if ((gPadinfo.buf[0].nopad == '\0') && (gPadinfo.buf[4].nopad == '\0')) {
-    (menuDefs->itemMainTwoPlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags
-         = (menuDefs->itemMainTwoPlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0xfffffffe;
+    (menuDefs[0]->itemMainTwoPlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags
+         = (menuDefs[0]->itemMainTwoPlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0xfffffffe;
   }
   else {
-    (menuDefs->itemMainTwoPlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags
-         = (menuDefs->itemMainTwoPlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
+    (menuDefs[0]->itemMainTwoPlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags
+         = (menuDefs[0]->itemMainTwoPlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
     JustOneToPass = kInput_KeyType_Up;
     if ((tMenuItemGoToMenuNFS4Button *)
         this->fCurrentMenu[0]->fItemList[this->fCurrentMenu[0]->fCurrentItem] ==
@@ -336,14 +336,14 @@ void tFEApplication::Redraw()
       (&globalMenuDefs->menuMain)->ProcessInput(kPlayerOne,JustOneToPass,emptycommand);
     }
   }
-  globalMenuDefs = menuDefs;
+  globalMenuDefs = menuDefs[0];
   if (gPadinfo.buf[0].nopad == '\0') {
-    (menuDefs->itemMainOnePlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags
-         = (menuDefs->itemMainOnePlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0xfffffffe;
+    (menuDefs[0]->itemMainOnePlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags
+         = (menuDefs[0]->itemMainOnePlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0xfffffffe;
   }
   else {
-    (menuDefs->itemMainOnePlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags
-         = (menuDefs->itemMainOnePlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
+    (menuDefs[0]->itemMainOnePlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags
+         = (menuDefs[0]->itemMainOnePlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
     curItem = (int)this->fCurrentMenu[0]->fItemList[this->fCurrentMenu[0]->fCurrentItem];
     JustOneToPass_l85 = kInput_KeyType_Down;
     if ((tGlobalMenuDefs *)curItem == globalMenuDefs) {
@@ -566,7 +566,7 @@ void tFEApplication::RunDemoVideo()
   tScreen *this_00;
   char buffer [40];
   
-  if ((tMenuNFS4 *)this->fCurrentMenu[0] == &menuDefs->menuMain) {
+  if ((tMenuNFS4 *)this->fCurrentMenu[0] == &menuDefs[0]->menuMain) {
     AudioMus_StopSong(0x78);
     FeAudio_systemtask(0);
     pa_Var2 = this->fCurrentMenu[0]->_vf;
@@ -1207,10 +1207,10 @@ tAppCommand tFEApplication::RunPostGame()
       }
     }
 RunPostGame_setupNameMenu:
-    ptVar1 = menuDefs;
+    ptVar1 = menuDefs[0];
     if (this->needName[0] != 0) {
-      command.nextMenu = &(menuDefs->menuPostGamePlayer1Name)._base_tMenu;
-      (menuDefs->menuItemUserName1).fData = frontEnd.playerNameList[0];
+      command.nextMenu = &(menuDefs[0]->menuPostGamePlayer1Name)._base_tMenu;
+      (menuDefs[0]->menuItemUserName1).fData = frontEnd.playerNameList[0];
       ptVar2 = screenUserName;
       (ptVar1->menuItemUserName1).fPlayer = 0;
       (ptVar1->menuItemUserName1).fMaxStringLength = 7;
@@ -1220,8 +1220,8 @@ RunPostGame_setupNameMenu:
       goto RunPostGame_callMainLoop;
     }
     if (this->needName[1] != 0) {
-      command.nextMenu = &(menuDefs->menuPostGamePlayer2Name)._base_tMenu;
-      (menuDefs->menuItemUserName2).fPlayer = 1;
+      command.nextMenu = &(menuDefs[0]->menuPostGamePlayer2Name)._base_tMenu;
+      (menuDefs[0]->menuItemUserName2).fPlayer = 1;
       (ptVar1->menuItemUserName2).fData = frontEnd.playerNameList[4];
       ptVar2 = screenUserName;
       (ptVar1->menuItemUserName2).fMaxStringLength = 7;
@@ -1246,7 +1246,7 @@ tAppCommand tFEApplication::RunFrontEnd()
 {
   tAppCommand tVar1;
   
-  tVar1 = this->MainLoop(&(menuDefs->menuMain)._base_tMenu);
+  tVar1 = this->MainLoop(&(menuDefs[0]->menuMain)._base_tMenu);
   return tVar1;
 }
 

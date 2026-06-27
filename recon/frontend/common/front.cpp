@@ -12,7 +12,7 @@ tCarModels   superCopModels[7][5] = { 26, 26, 26, 24, 25, 26, 26, 26, 24, 25, 26
 char         gFE_Cheats[5];   /* @0x80051908  (bss(zero)) */
 int          gPSXMemCardFull;   /* @0x80051910  (bss(zero)) */
 int          colourChosen[8];   /* @0x80051914  (bss(zero)) */
-tAllScreens  *gAllScreens;   /* @0x80051934  (bss(zero)) */
+tAllScreens  *gAllScreens[0];   /* @0x80051934  (bss(zero)) */
 int          memCardReadOK;   /* @0x80051938  (bss(zero)) */
 tCarInLineup CarLineup[9];   /* @0x8005193c  (bss(zero)) */
 char         picked[11];   /* @0x80051960  (bss(zero)) */
@@ -21,10 +21,10 @@ char         picked[11];   /* @0x80051960  (bss(zero)) */
 /* ---- Front_ConstructAll  [FRONT.CPP:231-266] ---- */
 
 /* Decoded Phase 83: Front_ConstructAll() - one-shot allocate all menu screens (400 B). Sets up
-   gAllScreens layout: screenMain, screenCarSelect, screenCarSelectDuel, screenCarSelectTwoPlayer,
+   gAllScreens[0] layout: screenMain, screenCarSelect, screenCarSelectDuel, screenCarSelectTwoPlayer,
    screenPinkSlips*, screenTrackRecords, screenTrackInfo, screenTrackSelect, screenTournSelect,
    screenTournamentStandings/Trophy, screenTrophyRoom/Info, screenControllerConfig, screenDisplay,
-   screenAudio, screenMemcard. These are all the front-end screens linked by gAllScreens.
+   screenAudio, screenMemcard. These are all the front-end screens linked by gAllScreens[0].
    
    [ghidra-meta] section: front.text */
 
@@ -37,38 +37,38 @@ void Front_ConstructAll(void)
   uint size;
   
   dlgThis = __builtin_new(0x3bd8);
-  gAllScreens = tAllScreens_ctor(dlgThis);
-  screenCarSelect = &gAllScreens->screenCarSelect;
-  screenCarSelectDuel = &gAllScreens->screenCarSelectDuel;
-  screenCarSelectTwoPlayer = &gAllScreens->screenCarSelectTwoPlayer;
-  screenCarSelectPlayerTwo = &gAllScreens->screenCarSelectPlayerTwo;
-  screenPinkSlipsCarSelectTwoPlayer = &gAllScreens->screenPinkSlipsCarSelectTwoPlayer;
-  screenPinkSlipsCarSelectPlayerTwo = &gAllScreens->screenPinkSlipsCarSelectPlayerTwo;
-  screenTrackRecords = &gAllScreens->screenTrackRecords;
-  screenTrackInfo = &gAllScreens->screenTrackInfo;
-  screenTrackSelect = &gAllScreens->screenTrackSelect;
-  screenTournSelect = &gAllScreens->screenTournSelect;
-  screenTournamentStandings = &gAllScreens->screenTournamentStandings;
-  screenTournamentTrophy = &gAllScreens->screenTournamentTrophy;
-  screenTrophyRoom = &gAllScreens->screenTrophyRoom;
-  screenTrophyInfo = &gAllScreens->screenTrophyInfo;
-  screenControllerConfig = &gAllScreens->screenControllerConfig;
-  screenDisplay = &gAllScreens->screenDisplay;
-  screenAudio = &gAllScreens->screenAudio;
-  screenMemcard = &gAllScreens->screenMemcard;
-  screenUserName = &gAllScreens->screenUserName;
-  screenPinkSlipCongrats = &gAllScreens->screenPinkSlipCongrats;
-  screenPinkSlipStandings = &gAllScreens->screenPinkSlipStandings;
-  screenTournamentStandings3item = &gAllScreens->screenTournamentStandings3item;
-  screenPinkSlips = &gAllScreens->screenPinkSlips;
+  gAllScreens[0] = tAllScreens_ctor(dlgThis);
+  screenCarSelect = &gAllScreens[0]->screenCarSelect;
+  screenCarSelectDuel = &gAllScreens[0]->screenCarSelectDuel;
+  screenCarSelectTwoPlayer = &gAllScreens[0]->screenCarSelectTwoPlayer;
+  screenCarSelectPlayerTwo = &gAllScreens[0]->screenCarSelectPlayerTwo;
+  screenPinkSlipsCarSelectTwoPlayer = &gAllScreens[0]->screenPinkSlipsCarSelectTwoPlayer;
+  screenPinkSlipsCarSelectPlayerTwo = &gAllScreens[0]->screenPinkSlipsCarSelectPlayerTwo;
+  screenTrackRecords = &gAllScreens[0]->screenTrackRecords;
+  screenTrackInfo = &gAllScreens[0]->screenTrackInfo;
+  screenTrackSelect = &gAllScreens[0]->screenTrackSelect;
+  screenTournSelect = &gAllScreens[0]->screenTournSelect;
+  screenTournamentStandings = &gAllScreens[0]->screenTournamentStandings;
+  screenTournamentTrophy = &gAllScreens[0]->screenTournamentTrophy;
+  screenTrophyRoom = &gAllScreens[0]->screenTrophyRoom;
+  screenTrophyInfo = &gAllScreens[0]->screenTrophyInfo;
+  screenControllerConfig = &gAllScreens[0]->screenControllerConfig;
+  screenDisplay = &gAllScreens[0]->screenDisplay;
+  screenAudio = &gAllScreens[0]->screenAudio;
+  screenMemcard = &gAllScreens[0]->screenMemcard;
+  screenUserName = &gAllScreens[0]->screenUserName;
+  screenPinkSlipCongrats = &gAllScreens[0]->screenPinkSlipCongrats;
+  screenPinkSlipStandings = &gAllScreens[0]->screenPinkSlipStandings;
+  screenTournamentStandings3item = &gAllScreens[0]->screenTournamentStandings3item;
+  screenPinkSlips = &gAllScreens[0]->screenPinkSlips;
   size = 0x3b18;
-  screenBeTheCopCongrats = &gAllScreens->screenBeTheCopCongrats;
-  screenTournamentCongrats = &gAllScreens->screenTournamentCongrats;
-  screenMain = &gAllScreens->screenMain;
+  screenBeTheCopCongrats = &gAllScreens[0]->screenBeTheCopCongrats;
+  screenTournamentCongrats = &gAllScreens[0]->screenTournamentCongrats;
+  screenMain = &gAllScreens[0]->screenMain;
   this_00 = __builtin_new(0x380);
-  FEApp = tFEApplication_ctor(this_00);
+  FEApp[0] = tFEApplication_ctor(this_00);
   this_01 = __builtin_new(size);
-  menuDefs = tGlobalMenuDefs_ctor(this_01);
+  menuDefs[0] = tGlobalMenuDefs_ctor(this_01);
   return;
 }
 
@@ -84,14 +84,14 @@ void Front_ConstructAll(void)
 void Front_DeleteAll(void)
 
 {
-  if (gAllScreens != (tAllScreens *)0x0) {
-    tAllScreens_dtor(gAllScreens,3);
+  if (gAllScreens[0] != (tAllScreens *)0x0) {
+    tAllScreens_dtor(gAllScreens[0],3);
   }
-  if (FEApp != (tFEApplication *)0x0) {
-    tFEApplication_dtor(FEApp,3);
+  if (FEApp[0] != (tFEApplication *)0x0) {
+    tFEApplication_dtor(FEApp[0],3);
   }
-  if (menuDefs != (tGlobalMenuDefs *)0x0) {
-    tGlobalMenuDefs_dtor(menuDefs,3);
+  if (menuDefs[0] != (tGlobalMenuDefs *)0x0) {
+    tGlobalMenuDefs_dtor(menuDefs[0],3);
   }
   return;
 }
@@ -716,7 +716,7 @@ int Front_Menu(tFront_ProcessingType role)
             frontEnd.pinkSlipsWins[1] = frontEnd.pinkSlipsWins[1] + '\x01';
           }
         }
-        tVar3 = RunPostGame(FEApp);
+        tVar3 = RunPostGame(FEApp[0]);
       }
       goto FrontMenu_runFrontEndCleanup;
     }
@@ -725,7 +725,7 @@ int Front_Menu(tFront_ProcessingType role)
   }
   if (gUseFrontend != 0) {
     MenuExtended_TransitionFromPostGameToMainMenu(&tempCommand);
-    tVar3 = RunFrontEnd(FEApp);
+    tVar3 = RunFrontEnd(FEApp[0]);
   }
 FrontMenu_runFrontEndCleanup:
   Front_DeleteAll();

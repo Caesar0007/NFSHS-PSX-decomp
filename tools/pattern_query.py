@@ -47,6 +47,7 @@ for l in sys.stdin.read().splitlines():
     qn.append(norm(s))
 if not qn: sys.exit("no asm lines parsed from stdin")
 DF_CAP=max(40,len(records)//20)      # skip shapes in >5% of records (structural boilerplate, no discriminating power)
+GAME_W={'sh':0.7,'soulre':0.7,'vagrant':0.6,'sotn':0.5}         # down-weight cross-game siblings by compiler distance: nfs4(2.8.0)=1.0 > sh/soulre(2.8.1)=0.7 > vagrant(psyq4.6)=0.6 > sotn(2.6.3)=0.5
 hits=Counter(); shapes={}
 for n in (5,4,3,2):
     for i in range(len(qn)-n+1):
@@ -55,7 +56,7 @@ for n in (5,4,3,2):
         if not df or df>DF_CAP: continue
         wt=(n*n)/math.log2(1+df)     # IDF: rare + long shapes dominate; ubiquitous 2-grams ~0
         for rid in index[key]:
-            hits[rid]+=wt; shapes.setdefault(rid,set()).add(key)
+            hits[rid]+=wt*GAME_W.get(records[rid].get('game'),1.0); shapes.setdefault(rid,set()).add(key)
 print(f"query: {len(qn)} insns -> {qn}\n")
 if not hits: sys.exit("no discriminating sealed shapes found (only generic/ubiquitous shapes, if any).")
 for rid,score in hits.most_common(6):

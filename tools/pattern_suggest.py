@@ -76,6 +76,7 @@ for tag,i1,i2,j1,j2 in sm.get_opcodes():
 print("ORACLE divergence shapes (reproduce these):")
 for w in windows[:5]: print("   [ "+'  ;  '.join(w)+" ]")
 DF_CAP=max(40,len(records)//20)   # skip shapes in >5% of records (structural boilerplate -> no discriminating power)
+GAME_W={'sh':0.7,'soulre':0.7,'vagrant':0.6,'sotn':0.5}   # down-weight cross-game siblings by compiler distance: nfs4(2.8.0)=1.0 > sh/soulre(2.8.1)=0.7 > vagrant(psyq4.6)=0.6 > sotn(2.6.3)=0.5
 hits=Counter(); shp={}
 for w in windows:
     for n in (5,4,3,2):
@@ -86,7 +87,7 @@ for w in windows:
             wt=(n*n)/math.log2(1+df)   # IDF: rare + long shapes dominate; ubiquitous 2-grams ~0
             for rid in index[key]:
                 if records[rid]['func']==fn: continue
-                hits[rid]+=wt; shp.setdefault(rid,set()).add(key)
+                hits[rid]+=wt*GAME_W.get(records[rid].get('game'),1.0); shp.setdefault(rid,set()).add(key)
 if not hits: sys.exit("\nonly generic/ubiquitous shapes matched -> no discriminating idiom in the DB\n(likely a register-coloring / scheduling / abs residual, not a source-idiom fix).")
 print(f"\nSUGGESTIONS -- sealed fns producing the same oracle shape (=> copy their source idiom):")
 for rid,score in hits.most_common(5):

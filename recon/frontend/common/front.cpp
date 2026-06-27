@@ -10,10 +10,10 @@ int          ComingIntoTheFrontEndTheVeryFirstTime;   /* @0x800517ec  (bss(zero)
 tCarModels   regularCopModels[7][5] = { 24, 24, 24, 23, 22, 24, 24, 24, 23, 22, 24, 24, 24, 24, 22, 24, 24, 24, 24, 25, 26, 26, 26, 24, 25, 26, 26, 26, 24, 25, 27, 27, 27, 27, 27 };   /* @0x800517f0 */
 tCarModels   superCopModels[7][5] = { 26, 26, 26, 24, 25, 26, 26, 26, 24, 25, 26, 26, 26, 24, 25, 26, 26, 26, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27 };   /* @0x8005187c */
 char         gFE_Cheats[5];   /* @0x80051908  (bss(zero)) */
-int          gPSXMemCardFull;   /* @0x80051910  (bss(zero)) */
+int          gPSXMemCardFull[1];   /* @0x80051910  (bss(zero)) */
 int          colourChosen[8];   /* @0x80051914  (bss(zero)) */
 tAllScreens  *gAllScreens[0];   /* @0x80051934  (bss(zero)) */
-int          memCardReadOK;   /* @0x80051938  (bss(zero)) */
+int          memCardReadOK[1];   /* @0x80051938  (bss(zero)) */
 tCarInLineup CarLineup[9];   /* @0x8005193c  (bss(zero)) */
 char         picked[11];   /* @0x80051960  (bss(zero)) */
 
@@ -566,9 +566,9 @@ int LoadConfig(void)
 void Front_InitialMemCardCheck(void)
 
 {
-  MEMCARDFRONTENDISINITTED = 0;
-  gPSXMemCardFull = 0;
-  memCardReadOK = 0;
+  MEMCARDFRONTENDISINITTED[0] = 0;
+  gPSXMemCardFull[0] = 0;
+  memCardReadOK[0] = 0;
   Stattool_GetAllDefaultRecords((tRecordBuffer *)&Stats_gTrackRecords,false);
   InitFrontEndStructure();
   frontEnd.language = '\0';
@@ -599,26 +599,26 @@ void Front_SecondaryMemCardCheck(void)
   int j;
   int card_i;
   
-  MEMCARDFRONTENDISINITTED = 0;
+  MEMCARDFRONTENDISINITTED[0] = 0;
   Init_Memcard(false,0);
   card_i = 0;
   do {
     if (1 < card_i) {
       DeInit_Memcard();
       SetPads();
-      MEMCARDFRONTENDISINITTED = 1;
+      MEMCARDFRONTENDISINITTED[0] = 1;
       return;
     }
     retry_i = 0;
-    if (memCardReadOK == 0) {
+    if (memCardReadOK[0] == 0) {
       do {
         sVar1 = LoadGame((short)card_i,false,0);
-        memCardReadOK = (int)(sVar1 == 0);
+        memCardReadOK[0] = (int)(sVar1 == 0);
         retry_i = retry_i + 1;
         if (2 < retry_i) break;
-      } while (memCardReadOK == 0);
+      } while (memCardReadOK[0] == 0);
     }
-    memCardReadOK = 0;
+    memCardReadOK[0] = 0;
     card_i = card_i + 1;
   } while( true );
 }

@@ -34,6 +34,9 @@ void Sfx_Transform(coorddef *worldpt,SVECTOR *campt,coorddef *t)
 }
 
 /* ---- Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap  [SFX.CPP:106-114] SLD-VERIFIED ---- */
+/* NEAR-MISS 3 diffs (114/115): oracle has `nop; lui v1,%hi(gSMokePixmap)` (nop in bnez delay
+ * slot, lui after). Ours hoists lui v1 into the delay slot instead. Instruction scheduling
+ * floor (bnez delay slot filled differently by gcc-2.8.0 -O2). ACCEPT. */
 void Sfx_BuildSmokeFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,Draw_tPixMap *cpixmap)
 
 {

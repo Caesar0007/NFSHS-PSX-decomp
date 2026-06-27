@@ -157,12 +157,16 @@ void Night_CreateNightTable(int colorIndex,long colorH,int bright,u_char (*tbl)[
 }
 
 /* ---- Night_GenerateNextLightningEvent__Fv  [NIGHT.CPP:347-353] SLD-VERIFIED ---- */
+/* NEAR-MISS 8 diffs (29/29): oracle: `andi v0,v0,0x7ff; lw v1,%lo(simGlobal.gameTicks)(v1); addiu v0,v0,31`
+ * (keeps random result in v0 for +31). Ours: `addiu v1,v1,31` (adds +31 to gameTicks instead).
+ * Both produce the same sum; difference is which operand gets +31. Load-delay scheduling +
+ * register assignment floor — tried 2 levers (explicit grouping worsens to 12, original 8). ACCEPT. */
 void Night_GenerateNextLightningEvent(void)
 
 {
   u_int r;
   int fork;
-  
+
   r = random();
   Night_gNextLightning = simGlobal.gameTicks + (r & 0x7ff) + 0x1f;
   r = random();
@@ -336,6 +340,10 @@ void Night_InitWeatherTables(void)
 }
 
 /* ---- Night_SetWeatherColors__Fi  [NIGHT.CPP:544-546] SLD-VERIFIED ---- */
+/* NEAR-MISS 8 diffs (31/31): oracle loads Night_gWeatherColor → s1 via `lui s1; addiu s1,s1,lo`
+ * (destination = source in addiu). Ours: `lui v0; addiu s1,v0,lo` (v0 temp for high part).
+ * Same pattern for Night_gWeatherLightingTable → s0. Register coloring floor — tried 3 levers
+ * (restructure body, reversed init order, original). ACCEPT. */
 void Night_SetWeatherColors(int colorIndex)
 
 {
@@ -344,7 +352,7 @@ void Night_SetWeatherColors(int colorIndex)
   u_char (**wtblp) [256];
   long *color_walk;
   int i;
-  
+
   i = 0;
   color_walk = Night_gWeatherColor;
   wtblp = Night_gWeatherLightingTable;

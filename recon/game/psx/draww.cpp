@@ -1525,7 +1525,13 @@ int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
   int maxTick;
   
   /* MATCH: early-return the gameTicks case (inverted condition) so gcc lays out
-     [conds][gameTicks][body] like the oracle; the body then re-reads objectIndex. */
+     [conds][gameTicks][body] like the oracle; the body then re-reads objectIndex.
+     NEAR-MISS floor: 4 diffs, and OURS IS BETTER-SCHEDULED than the oracle (ours 31 vs
+     oracle 33 insns).  Oracle loads the timer into $v0, stalls a `nop`, then `move $v1,$v0`;
+     ours loads straight into $v1 and fills the load-delay with `mflo`.  This is an allocator
+     coalescing coin-flip (which dead reg the final `lw` reuses) -- NOT reachable by source
+     levers (swap compute-order / read-only temp / ternary all coalesce back).  permuter (no
+     cast here, so viable) or accept. */
   track = GameSetup_gData.track;
   if (((animInst->objectIndex == '\0') || (track == 3)) || (track == 7)) {
     return simGlobal.gameTicks;
@@ -2330,12 +2336,12 @@ int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r)
     iVar1 = pt2->z - pt1->z;
   }
   if (iVar1 < iVar2) {
-    iVar2 = iVar2 + (iVar1 >> 2);
+    dist = iVar2 + (iVar1 >> 2);
   }
   else {
-    iVar2 = iVar1 + (iVar2 >> 2);
+    dist = iVar1 + (iVar2 >> 2);
   }
-  return (u_int)(iVar2 < r);
+  return (u_int)(dist < r);
 }
 
 /* ---- Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark  [DRAWW.CPP:2900-3038] SLD-VERIFIED ---- */

@@ -1525,16 +1525,18 @@ int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
   int iVar2;
   int maxTick;
   
-  if (((animInst->objectIndex != '\0') && (GameSetup_gData.track != 3)) &&
-     (GameSetup_gData.track != 7)) {
-    iVar1 = (animInst->count + -2) * (int)animInst->interval;
-    iVar2 = animation_timer[animInst->objectIndex - 1];
-    if (iVar1 <= animation_timer[animInst->objectIndex - 1]) {
-      iVar2 = iVar1;
-    }
-    return iVar2;
+  /* MATCH: early-return the gameTicks case (inverted condition) so gcc lays out
+     [conds][gameTicks][body] like the oracle; the body then re-reads objectIndex. */
+  track = GameSetup_gData.track;
+  if (((animInst->objectIndex == '\0') || (track == 3)) || (track == 7)) {
+    return simGlobal.gameTicks;
   }
-  return simGlobal.gameTicks;
+  iVar1 = (animInst->count + -2) * (int)animInst->interval;
+  iVar2 = animation_timer[animInst->objectIndex - 1];
+  if (iVar1 <= animation_timer[animInst->objectIndex - 1]) {
+    iVar2 = iVar1;
+  }
+  return iVar2;
 }
 
 /* ---- DrawW_SetAnimationTime__FP15Trk_AnimateInstPii  [DRAWW.CPP:1721-1779] SLD-VERIFIED ---- */

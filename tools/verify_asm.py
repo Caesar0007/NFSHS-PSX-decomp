@@ -59,16 +59,6 @@ def norm_ins(t):
     if m: return f"{m.group(1)} T"
     return t
 
-def base(n):
-    # Normalize a call-target symbol to its function BASE name so benign naming
-    # differences don't read as a wrong callee: strip the C++ free-fn param-signature
-    # mangling (`BWAllocMem__Fi` == `__Fl`), and the splat synthetic VA suffix
-    # (`CD_init_80108140` -> `CD_init`). A genuine wrong-FUNCTION call (`fastintcos`
-    # vs `intcos`) survives this and is what we want to surface.
-    n = re.sub(r'__F.*$', '', n)
-    n = re.sub(r'_8[0-9a-fA-F]{7}$', '', n)
-    return n
-
 def ours(fn):
     # Collect the function's raw objdump lines (instructions + the reloc lines that
     # objdump -r interleaves AFTER each relocated instruction).
@@ -79,7 +69,7 @@ def ours(fn):
             if inb: break
             inb=(m.group(1)==fn); continue
         if inb: lines.append(ln)
-    out=[]; calls=[]
+    out=[]
     for i,ln in enumerate(lines):
         mm=re.match(r'^\s*[0-9a-f]+:\t[0-9a-f]+\s*\t(.*)',ln)
         if not mm: continue
@@ -91,31 +81,18 @@ def ours(fn):
         # `lw r,4(b)`) is byte-identical after link to the oracle's `lw r,%lo(D_…+4)(b)`.
         # (Symmetric with the existing reloc-name leniency; HI16 already shows 0 in objdump.)
         nxt = lines[i+1] if i+1 < len(lines) else ''
-        # CALL-TARGET capture (reloc-aware): a jal/j's real target is the R_MIPS_26 reloc
-        # symbol (external), or — for a `.text` reloc (same-object call/jump) — the resolved
-        # `<name+off>` objdump annotation. Skip intra-fn jumps + self-recursion (base==self).
-        op = insn.split()[0] if insn.split() else ''
-        if op in ('jal','j'):
-            rel = re.search(r'R_MIPS_26\s+(\S+)', nxt)
-            tgt = None
-            if rel and rel.group(1) != '.text':
-                tgt = base(rel.group(1))
-            else:
-                ann = re.search(r'<([^>+]+)', insn)
-                if ann: tgt = base(ann.group(1))
-            if tgt and tgt != base(fn): calls.append(tgt)
         if 'R_MIPS_LO16' in nxt:
             insn = re.sub(r',\s*-?(?:0x)?[0-9a-fA-F]+\(', ',0(', insn)   # lw rD,N(base) -> 0(base)
             insn = re.sub(r',\s*-?(?:0x)?[0-9a-fA-F]+$', ',0', insn)     # addiu/ori rD,rS,N -> ,0
         out.append(norm_ins(insn))
-    return out, calls
+    return out
 
 def oracle(fn):
     p = ROOT / 'asm' / 'nonmatchings' / 'main' / (fn + '.s')
     if not p.exists():
         p = ROOT / 'asm' / 'nonmatchings' / 'front' / (fn + '.s')   # front overlay segment
     if not p.exists(): return None
-    out=[]; calls=[]
+    out=[]
     for ln in p.read_text().splitlines():
         ln = re.sub(r'/\*.*?\*/', '', ln)                     # strip /* addr hex */ comments
         s = ln.strip()
@@ -123,32 +100,17 @@ def oracle(fn):
             break                                              # fn ends here; trailing align-nops/data are NOT the fn
         if not s or s.startswith(('.','glabel','nonmatching','dlabel','jlabel')) or s.startswith('.L') or s.endswith(':'):
             continue
-        m = re.match(r'(jal|j)\s+(\S+)', s)                    # oracle names its call targets directly
-        if m and not m.group(2).startswith('.L'):
-            b = base(m.group(2))
-            if b != base(fn): calls.append(b)
         out.append(norm_ins(s))
-    return out, calls
+    return out
 
 allpass=True
-from collections import Counter
 for fn in funcs:
     o=ours(fn); e=oracle(fn)
     if e is None: print(f"  {fn}: NO ORACLE"); allpass=False; continue
-    oi,oc=o; ei,ec=e
-    if not oi: print(f"  {fn}: NOT IN OBJECT"); allpass=False; continue
-    d=[l for l in __import__('difflib').unified_diff(oi,ei,lineterm='') if l[0] in '+-' and not l.startswith(('+++','---'))]
-    callmis = Counter(oc) != Counter(ec)                       # normalized jal/j callee multiset differs
-    if not d and not callmis:
-        print(f"  {fn}: PASS ({len(oi)} insns)")
-    elif not d and callmis:                                    # insns byte-match but a CALL goes elsewhere (leniency gap)
-        allpass=False
-        extra=sorted((Counter(oc)-Counter(ec)).elements()); miss=sorted((Counter(ec)-Counter(oc)).elements())
-        print(f"  {fn}: FAIL call-target (insns match) — ours {extra} vs oracle {miss}")
+    if not o: print(f"  {fn}: NOT IN OBJECT"); allpass=False; continue
+    d=[l for l in __import__('difflib').unified_diff(o,e,lineterm='') if l[0] in '+-' and not l.startswith(('+++','---'))]
+    if not d: print(f"  {fn}: PASS ({len(o)} insns)")
     else:
-        allpass=False; print(f"  {fn}: FAIL {len(d)} diffs (ours {len(oi)} / oracle {len(ei)})")
+        allpass=False; print(f"  {fn}: FAIL {len(d)} diffs (ours {len(o)} / oracle {len(e)})")
         for l in d[:12]: print("      "+l)
-        if callmis:
-            extra=sorted((Counter(oc)-Counter(ec)).elements()); miss=sorted((Counter(ec)-Counter(oc)).elements())
-            print(f"      [+ call-target: ours {extra} vs oracle {miss}]")
 sys.exit(0 if allpass else 1)

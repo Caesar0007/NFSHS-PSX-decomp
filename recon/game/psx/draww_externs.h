@@ -4,34 +4,13 @@
 #define DRAWW_EXTERNS_H
 
 /* ---- GTE intrinsics ---- */
-/* Real canonical PsyQ libgte inline COP2 macros (gte_ldv0/gte_rt/gte_stlvnl/
- * gte_SetRotMatrix/gte_SetTransMatrix) are vendored in the shared header below.
- * The remaining entries are still no-op stubs: the legacy gte_lwc2/gte_swc2
- * value-form externs + the not-yet-migrated GTE ops, used by the rest of draww's
- * far-miss GTE functions until the batch conversion. */
+/* Canonical PsyQ libgte inline COP2 macros are vendored in psx_gte.h (real cop2 asm).
+ * Kept here: the legacy gte_lwc2/gte_swc2 value-form externs (call sites pending
+ * conversion to gte_ldv*/gte_st* per the GTE batch) + gte_ldsxy3 (not yet vendored). */
 #include "../../lib/psx_gte.h"
-extern void gte_rtps(void);
-extern void gte_rtpt(void);
 extern void gte_lwc2(int reg, int data);
 extern void gte_swc2(int reg, void *ptr);
-#define gte_ldsv(p)             ((void)(p))
-#define gte_stsv(p)             ((void)(p))
-#define gte_stsxy(p)            ((void)(p))
-#define gte_stsz(p)             ((void)(p))
-#define gte_stflg(p)            ((void)(p))
-#define gte_rtir(args...)           ((void)0)
-#define gte_ldtr(args...)           ((void)0)
-#define gte_rtps_b(args...)         ((void)0)
-/* GTE ops Ghidra inlines as macro CALLS in draww (nclip/avsz/depth-cue/ldsxy3/ldIR0/rt) */
-#define gte_nclip(args...)          ((void)0)
-#define gte_nclip_b(args...)        ((void)0)
-#define gte_avsz4(args...)          ((void)0)
-#define gte_avsz4_b(args...)        ((void)0)
-#define gte_dpcs(args...)           ((void)0)
-#define gte_dpct(args...)           ((void)0)
 #define gte_ldsxy3(a,b,c)       ((void)0)
-#define gte_ldIR0(p)            ((void)(p))
-/* gte_rt() is now real (mvmva 1,0,0,0,0) -- see ../../lib/psx_gte.h */
 
 extern char *Render_gPacketPtr;
 extern char *Render_gPalettePtr;

@@ -730,10 +730,9 @@ void Hrz_BuildForkLightning(Draw_DCache *sd)
     sd->otz = Draw_gViewOtSize + -2;
     memset(&trans,0,0xc);
     HrzSetPsxTranslation(&trans);
-    gte_lwc2(0,((int *)&Hrz_gLightningPosInSky)[0]);
-    gte_lwc2(1,((int *)&Hrz_gLightningPosInSky)[1]);
+    gte_ldv0(&Hrz_gLightningPosInSky);
     gte_rtps();
-    gte_swc2(0xe,&screenPos);
+    gte_stSXY2(&screenPos);
     bVar1 = 0;
     if (gHrz_Lightning.numForks != '\0') {
       do {
@@ -842,13 +841,12 @@ void Hrz_RotProj16(int n, SVECTOR *s, int *z, DVECTOR *p)
   if (n != 0) {
     i = n - 1;
     do {
-      gte_lwc2(0, ((int *)s)[0]);   /* load vx,vy */
-      gte_lwc2(1, ((int *)s)[1]);   /* load vz,pad */
+      gte_ldv0(s);                  /* load vx,vy,vz into VXY0/VZ0 */
       gte_rtps();                   /* rotate / transform / perspective */
       s = s + 1;
-      gte_swc2(0xe, p);             /* store screen XY -> DVECTOR */
+      gte_stSXY2(p);                /* store screen XY -> DVECTOR (SXY2) */
       p = p + 1;
-      gte_swc2(0x1b, z);            /* store screen Z -> int */
+      gte_swc2(0x1b, z);            /* store screen Z (MAC3) -> int  [no canonical macro] */
       i = i - 1;
       z = z + 1;
     } while (i != -1);
@@ -913,37 +911,29 @@ void Hrz_BuildSky(void)
     scnt = (DVECTOR *)((char *)sd + 8);
     zcnt = (int *)((char *)sd + 0x15c);
     do {
-      gte_lwc2(0,((int *)pcnt)[0]);
-      gte_lwc2(1,((int *)pcnt)[1]);
-      gte_lwc2(2,((int *)pcnt)[2]);
-      gte_lwc2(3,((int *)pcnt)[3]);
-      gte_lwc2(4,((int *)pcnt)[4]);
-      gte_lwc2(5,((int *)pcnt)[5]);
+      gte_ldv3(pcnt, pcnt + 1, pcnt + 2);
       gte_rtpt();
       pcnt = pcnt + 3;
       n = n + -3;
       scnt = scnt + 3;
       zcnt = zcnt + 3;
-      gte_swc2(0xc,&scnt[0]);
-      gte_swc2(0xd,&scnt[1]);
-      gte_swc2(0xe,&scnt[2]);
-      gte_swc2(0x11,&zcnt[0]);
-      gte_swc2(0x12,&zcnt[1]);
-      gte_swc2(0x13,&zcnt[2]);
+      gte_stsxy3(&scnt[0],&scnt[1],&scnt[2]);
+      gte_swc2(0x11,&zcnt[0]);   /* SZ1 -> no canonical macro */
+      gte_swc2(0x12,&zcnt[1]);   /* SZ2 -> no canonical macro */
+      gte_swc2(0x13,&zcnt[2]);   /* SZ3 */
     } while (2 < n);
     scnt = &scnt[2];
     n = n + -1;
     zcnt = &zcnt[2];
     if (n != -1) {
       do {
-        gte_lwc2(0,((int *)pcnt)[0]);
-        gte_lwc2(1,((int *)pcnt)[1]);
+        gte_ldv0(pcnt);
         gte_rtps();
         pcnt = pcnt + 1;
         scnt = scnt + 1;
         zcnt = zcnt + 1;
-        gte_swc2(0xe,scnt);
-        gte_swc2(0x13,zcnt);
+        gte_stSXY2(scnt);
+        gte_stsz(zcnt);
         n = n + -1;
       } while (n != -1);
     }
@@ -957,18 +947,15 @@ void Hrz_BuildSky(void)
     zcnt = pSkyZ + -1;
     n = 0x54;
     do {
-      gte_lwc2(0,((int *)pcnt)[0]);
-      gte_lwc2(1,((int *)pcnt)[1]);
+      gte_ldv0(pcnt);
       gte_rtps();
       pcnt = pcnt + 1;
       scnt = scnt + 1;
       zcnt = zcnt + 1;
-      gte_swc2(0x19,&transformed.vx);
-      gte_swc2(0x1a,&transformed.vy);
-      gte_swc2(0x1b,&transformed.vz);
-      gte_swc2(0xe,scnt);
+      gte_stlvnl(&transformed.vx);
+      gte_stSXY2(scnt);
       scnt->vy = (short)(transformed.vy >> 2) + (short)otz_old;
-      gte_swc2(0x13,zcnt);
+      gte_stsz(zcnt);
       n = n + -1;
     } while (n != -1);
   }
@@ -1132,16 +1119,13 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
     uVar7 = 0xffffff;
     uVar8 = 0xff000000;
     do {
-      gte_lwc2(0,((int *)pcnt)[0]);
-      gte_lwc2(1,((int *)pcnt)[1]);
+      gte_ldv0(pcnt);
       gte_rtps();
       pcnt = pcnt + 1;
-      gte_swc2(0x13,&zcnt);
+      gte_stsz(&zcnt);
       if (0 < zcnt) {
-        gte_swc2(0xe,&scnt);
-        gte_swc2(0x19,&transformed.vx);
-        gte_swc2(0x1a,&transformed.vy);
-        gte_swc2(0x1b,&transformed.vz);
+        gte_stSXY2(&scnt);
+        gte_stlvnl(&transformed.vx);
         iVar1 = (transformed.vy >> 2) + iVar9;
         scnt.vy = (short)iVar1;
         if ((((scnt.vx <= (sd->head).clipW) && (-1 < scnt.vx)) &&
@@ -1284,10 +1268,9 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
   *(u_int *)tp6 = *(u_int *)tp6 & -1 << (tu8 + 1) * 8 | (u_int)auStack_4c >> (3 - tu8) * 8;
   p_.vz = (*(u_short *)&(auStack_4c));
   p_.pad = (*(u_short *)((u_char *)&(auStack_4c) + 2));
-  gte_lwc2(0,((int *)&p_)[0]);
-  gte_lwc2(1,((int *)&p_)[1]);
+  gte_ldv0(&p_);
   gte_rtps();
-  gte_swc2(0xe,&DStack_38);
+  gte_stSXY2(&DStack_38);
   tp3 = (void *)((int)&p_.vy + 1);
   tu9 = (u_int)tp3 & 3;
   tp9 = (int)tp3 - tu9;
@@ -1301,10 +1284,9 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
   p_.vz = (short)trans2.y;
   p_.pad = (*(u_short *)((u_char *)&(trans2.y) + 2));
   pDVar13 = (DVECTOR *)trans2.x;
-  gte_lwc2(0,((int *)&p_)[0]);
-  gte_lwc2(1,((int *)&p_)[1]);
+  gte_ldv0(&p_);
   gte_rtps();
-  gte_swc2(0xe,&DStack_38);
+  gte_stSXY2(&DStack_38);
   shape_overlap = 0;
   shape_visible = 0x1f800000;
   right = DStack_38;

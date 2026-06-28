@@ -71,6 +71,10 @@
 #define gte_stflg(p)  __asm__ volatile (                                       \
     "cfc2 $12, $31\n\tnop\n\tsw $12, 0(%0)"                                     \
     : : "r"(p) : "$12", "memory")
+/* generic LONE store: GTE data reg `reg` (a literal) -> memory at p+0. Use for result
+ * regs that have no dedicated bundled macro (a lone MAC1-3, SZ0-2, etc.); for the
+ * consecutive MAC1-3 / SXY0-2 triples prefer gte_stlvnl / gte_stsxy3 (immediate offsets). */
+#define gte_swc2(reg,p) __asm__ volatile ("swc2 $%1, 0(%0)" : : "r"(p), "i"(reg) : "memory")
 
 /* ---------- matrix / control-reg setup ---------- */
 /* rotation matrix (short m[3][3] at +0..+0x10) -> ctrl 0..4 */
@@ -138,6 +142,7 @@
 #define gte_stOTZ(p)           ((void)(p))
 #define gte_stMAC0(p)          ((void)(p))
 #define gte_stflg(p)           ((void)(p))
+#define gte_swc2(reg,p)        do { (void)(reg); (void)(p); } while (0)
 #define gte_SetRotMatrix(m)    ((void)(m))
 #define gte_SetTransMatrix(m)  ((void)(m))
 #define gte_ctc2(v,r)          do { (void)(v); (void)(r); } while (0)

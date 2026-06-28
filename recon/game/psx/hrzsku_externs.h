@@ -5,25 +5,11 @@
 
 #include "../../nfs4_types.h"
 #include "../../lib/libfns.h"
+#include "../../lib/psx_gte.h"
 
-/* GTE rotation/transform/perspective macros (PsyQ libgte). Reconstruction treats the GTE pipeline
-   as intrinsics: SetRotMatrix/SetTransMatrix load the cop2 regs, gte_rtps/rtpt do the projection. */
-extern void gte_rtps(void);   /* RotTransPers (1 vertex; results read from cop2 SXY/SZ) */
-extern void gte_rtpt(void);   /* RotTransPers3 (3 vertices) */
-extern void gte_lwc2(int reg, int data);   /* load word to cop2 data reg */
-extern void gte_swc2(int reg, void *ptr);  /* store cop2 data reg to memory */
-/* GTE control-reg matrix loads (ctc2). Faithful symbolic intrinsics (no-op placeholders, matching
-   the convention in the sealed trsproj/weather modules) -- the matrix build is shown explicitly. */
-#define gte_SetRotMatrix(mp)    ((void)(mp))   /* ctc2 R11R12..R33  (cop2 ctrl 0..5)  */
-#if defined(__mips__)
-/* gte_SetTransMatrix(m): m->t[0..2] (offsets 0x14/0x18/0x1C) -> GTE ctrl 5/6/7; order lw,lw,ctc2,lw,ctc2,ctc2. */
-#define gte_SetTransMatrix(mp)  __asm__ volatile (                            \
-    "lw   $12, 20(%0)\n\tlw   $13, 24(%0)\n\tctc2 $12, $5\n\t"                 \
-    "lw   $14, 28(%0)\n\tctc2 $13, $6\n\tctc2 $14, $7"                         \
-    : : "r"(mp) : "$12", "$13", "$14")
-#else
-#define gte_SetTransMatrix(mp)  ((void)(mp))   /* ctc2 TRX/TRY/TRZ  (cop2 ctrl 5..7)  */
-#endif
+/* Canonical PsyQ libgte inline COP2 macros (incl. the generic lone-store gte_swc2(reg,ptr))
+   are vendored in psx_gte.h. Lone MAC3 / SZ1 / SZ2 stores here use that shared gte_swc2;
+   all GTE loads use the canonical gte_ldv*/gte_ldV* macros (no gte_lwc2 value-form remains). */
 /* Ghidra renders raw GTE COP2 ops as calls through a code-ptr to a HW address: (*(code*)0xADDR)().
    Typedef makes them compile; the faithful gte_ macros are applied in the per-fn BODY pass. */
 typedef void (code)(void);

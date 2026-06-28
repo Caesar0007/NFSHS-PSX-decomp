@@ -247,12 +247,6 @@ void tScreenTrackRecords::DrawBackground()
   wy = TextSys_WordY(0x255);
   boxw = textpixels(string);
   PSXDrawSquare(0,0x104 - (ColTextBright >> 1),wy,boxw,9);
-  if (gCurrentShapes[0x26].width == 0) {
-    trap(0x1c00);
-  }
-  if ((gCurrentShapes[0x26].width == -1) && (ticks == -0x80000000)) {
-    trap(0x1800);
-  }
   TextSys_WordY(0x255);
   DrawShapeExtended
             ((int)this,shapeFlags,shapeX,shapeY,

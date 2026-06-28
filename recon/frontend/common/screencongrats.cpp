@@ -248,24 +248,12 @@ void tScreenCongrats::DrawBackground()
     }
     if (kTrophyBronze < this->trophy) {
       if (this->smallSpinningThing == kSpinningGold) {
-        if (this->fNumSmallSpinShapes == 0) {
-          trap(0x1c00);
-        }
-        if ((this->fNumSmallSpinShapes == -1) && (ticks >> 3 == -0x80000000)) {
-          trap(0x1800);
-        }
         fadeAmt = 0x29;
         ScaleShapeExtended    /* @0x800486c0 idx=(ticks>>3)%fNumSmallSpinShapes flags=0x610 x=0x29 y=0xBE */
                   ((ticks >> 3) % this->fNumSmallSpinShapes,0x610,0x29,0xBE,0,0,&drawFlags2);
       }
       else if (this->smallSpinningThing == kSpinningMemCard) {
         drawFlags.tint[0] = 0x551e00;
-        if (this->fNumSmallSpinShapes == 0) {
-          trap(0x1c00);
-        }
-        if ((this->fNumSmallSpinShapes == -1) && (ticks / 0x14 == -0x80000000)) {
-          trap(0x1800);
-        }
         fadeAmt = -0xc1;
         DrawShapeExtended     /* @0x80048744 idx=(ticks/20)%fNumSmallSpinShapes flags=0x610 x=-0xC1 y=0x56 */
                   ((ticks / 0x14) % this->fNumSmallSpinShapes,0x610,-0xC1,0x56,0,0,&drawFlags);

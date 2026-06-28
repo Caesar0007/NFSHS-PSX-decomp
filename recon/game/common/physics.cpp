@@ -139,9 +139,6 @@ void Physics_CalculateDerivedCarSpecs(Car_tObj *carObj)
   int iVar5;
   
   accAtMaxSpeedInHighestGear = (int)carObj->specs;
-  if (*(int *)(accAtMaxSpeedInHighestGear + 0xf0) == 0) {
-    trap(0x1c00);
-  }
   *(int *)(accAtMaxSpeedInHighestGear + 0x15c) =
        0x10000 / *(int *)(accAtMaxSpeedInHighestGear + 0xf0);
   if (carObj->carInfo->WeightTransfer == 1) {
@@ -1764,12 +1761,6 @@ void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
     piVar5 = gripLossTableWet;
   }
   iVar4 = piVar5[iVar4];
-  if (iVar4 == 0) {
-    trap(0x1c00);
-  }
-  if ((iVar4 == -1) && (iVar1 == -0x80000000)) {
-    trap(0x1800);
-  }
   if (iVar1 < totalAcc) {
     wheel->skid = wheel->skid * 3 + (totalAcc - iVar1) >> 2;
   }
@@ -1858,18 +1849,6 @@ void Physics_CalcTractionCircleAcc(Car_tObj *carObj,Physics_tWheelAccStruct *whe
     iVar5 = iVar1 - roadGrip;
     if ((carObj->carInfo->Traction == 0) || (wheel->frontTire != 0)) {
 PhyTracCircle_divCheck:
-      if (iVar3 == 0) {
-        trap(0x1c00);
-      }
-      if ((iVar3 == -1) && (iVar5 == -0x80000000)) {
-        trap(0x1800);
-      }
-      if (iVar3 == 0) {
-        trap(0x1c00);
-      }
-      if ((iVar3 == -1) && (roadGrip == -0x80000000)) {
-        trap(0x1800);
-      }
       iVar2 = iVar5 / iVar3;
       if (roadGrip / iVar3 <= iVar5 / iVar3) {
         iVar2 = roadGrip / iVar3;
@@ -2711,21 +2690,9 @@ PhyReal_calcAccel:
     }
     iVar5 = pCVar12->redline;
     iVar10 = (iVar3 << 8) / iVar5;
-    if (iVar5 == 0) {
-      trap(0x1c00);
-    }
-    if ((iVar5 == -1) && (iVar3 << 8 == -0x80000000)) {
-      trap(0x1800);
-    }
     iVar4 = iVar3 - (iVar4 >> 0x10);
     if (iVar4 < 0xc9) {
       if (iVar4 < 200) {
-        if (iVar3 == 0) {
-          trap(0x1c00);
-        }
-        if ((iVar3 == -1) && (iVar4 * 0x80 == -0x80000000)) {
-          trap(0x1800);
-        }
         iVar10 = iVar10 + (iVar4 * 0x80) / iVar3;
         if (iVar10 < 0) {
           carObj->RSGasLevel = '\0';
@@ -2740,12 +2707,6 @@ PhyReal_calcAccel:
             iVar3 = iVar4 * -0x200;
           }
           uVar13 = iVar3 / iVar5;
-          if (iVar5 == 0) {
-            trap(0x1c00);
-          }
-          if ((iVar5 == -1) && (iVar3 == -0x80000000)) {
-            trap(0x1800);
-          }
           uVar8 = uVar13 & 0xff;
           if (0xff < (int)uVar13) {
             uVar13 = 0xff;
@@ -2759,12 +2720,6 @@ PhyReal_calcAccel:
       }
     }
     else {
-      if (iVar3 == 0) {
-        trap(0x1c00);
-      }
-      if ((iVar3 == -1) && (iVar4 * 0x80 == -0x80000000)) {
-        trap(0x1800);
-      }
       iVar10 = iVar10 + (iVar4 * 0x80) / iVar3;
       if (0xe0 < iVar10) {
         iVar10 = 0xe0;

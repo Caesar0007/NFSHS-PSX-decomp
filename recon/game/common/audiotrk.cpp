@@ -137,9 +137,6 @@ void AudioTrk_AddCustomObject(AudioElem *se,int tck,coorddef *vel,int fade,Car_t
             if (se->randomRepeat != '\0') {
               uVar6 = random();
               uVar8 = (u_char)se->randomRepeat + 1;
-              if (uVar8 == 0) {
-                trap(0x1c00);
-              }
               uVar10 = (u_short)bVar1 + (short)(uVar6 % uVar8);
             }
             pAVar7->repeat = uVar10;
@@ -175,9 +172,6 @@ void AudioTrk_AddCustomObject(AudioElem *se,int tck,coorddef *vel,int fade,Car_t
           if (se->randomRepeat != '\0') {
             uVar6 = random();
             uVar8 = (u_char)se->randomRepeat + 1;
-            if (uVar8 == 0) {
-              trap(0x1c00);
-            }
             uVar10 = (u_short)bVar1 + (short)(uVar6 % uVar8);
           }
           pAVar12->repeat = uVar10;
@@ -244,12 +238,6 @@ void AudioTrk_AddCustomObject(AudioElem *se,int tck,coorddef *vel,int fade,Car_t
             iVar13 = (int)se->range * (int)se->range;
             iVar3 = fixedmult(iVar3 >> 2,iVar3 >> 2);
             iVar3 = (iVar13 >> 4) * 0x10000 - iVar3;
-            if (iVar13 == 0) {
-              trap(0x1c00);
-            }
-            if ((iVar13 == -1) && (iVar3 == -0x80000000)) {
-              trap(0x1800);
-            }
             uVar9 = (iVar3 / iVar13) * fade * 0x7f;
             uVar6 = uVar9 >> 0x13;
             if ((int)uVar9 < 0) {
@@ -265,12 +253,6 @@ void AudioTrk_AddCustomObject(AudioElem *se,int tck,coorddef *vel,int fade,Car_t
               iVar3 = (int)(iVar3 + uVar9 * -0x10000) >> 2;
               iVar3 = fixedmult(iVar3,iVar3);
               iVar3 = (iVar13 >> 4) * 0x10000 - iVar3;
-              if (iVar13 == 0) {
-                trap(0x1c00);
-              }
-              if ((iVar13 == -1) && (iVar3 == -0x80000000)) {
-                trap(0x1800);
-              }
               uVar9 = (iVar3 / iVar13) * 0x7f0;
               uVar6 = uVar9 >> 0x10;
               if ((int)uVar9 < 0) {
@@ -396,9 +378,6 @@ void AudioTrk_SoundTrack(Car_tObj *car,int trkazi)
         if (1 < (u_char)pcVar9[-1]) {
           uVar1 = random();
           sVar3 = (short)(uVar1 % (u_int)(u_char)pcVar9[-1]);
-          if ((u_char)pcVar9[-1] == 0) {
-            trap(0x1c00);
-          }
         }
         *(u_short *)(pcVar9 + -8) = (u_short)(u_char)pcVar9[-2] + (short)iVar7 + sVar3;
       }
@@ -455,28 +434,10 @@ void AudioTrk_SoundTrack(Car_tObj *car,int trkazi)
                 if (iVar5 == 0) goto LAB_8007d294;
                 iVar2 = (local_50.x - (se->cp).x) * 0x40;
                 local_60.x = iVar2 / iVar5;
-                if (iVar5 == 0) {
-                  trap(0x1c00);
-                }
-                if ((iVar5 == -1) && (iVar2 == -0x80000000)) {
-                  trap(0x1800);
-                }
                 iVar2 = (local_50.y - *(int *)(pcVar9 + -0x10)) * 0x40;
                 local_60.y = iVar2 / iVar5;
-                if (iVar5 == 0) {
-                  trap(0x1c00);
-                }
-                if ((iVar5 == -1) && (iVar2 == -0x80000000)) {
-                  trap(0x1800);
-                }
                 iVar2 = (local_50.z - *(int *)(pcVar9 + -0xc)) * 0x40;
                 local_60.z = iVar2 / iVar5;
-                if (iVar5 == 0) {
-                  trap(0x1c00);
-                }
-                if ((iVar5 == -1) && (iVar2 == -0x80000000)) {
-                  trap(0x1800);
-                }
               }
               vel = &local_60;
             }
@@ -484,12 +445,6 @@ LAB_8007d294:
             iVar5 = iVar7;
             if (0 < local_3c) {
               iVar5 = iVar7 % local_3c;
-              if (local_3c == 0) {
-                trap(0x1c00);
-              }
-              if ((local_3c == -1) && (iVar7 == -0x80000000)) {
-                trap(0x1800);
-              }
             }
             iVar7 = iVar5 >> 3;
           }

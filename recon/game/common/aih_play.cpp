@@ -869,11 +869,6 @@ void AIHigh_Player::CheckForNewLevel(int force)
 
     iVar5 = 0x10000 / iVar3;
 
-    if (iVar3 == 0) {
-
-      trap(0x1c00);
-
-    }
 
     (this->perpChaseInfo_).engagementTime_ = (iVar4 >> 0x10) << 0x15;
 
@@ -963,11 +958,6 @@ LAB_80062328:
 
   a = 0x10000 / iVar5;
 
-  if (iVar5 == 0) {
-
-    trap(0x1c00);
-
-  }
 
   (this->perpChaseInfo_).engagementTime_ = (iVar3 >> 0x10) << 0x15;
 
@@ -1390,11 +1380,6 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
 
   a = 0x10000 / iVar4;
 
-  if (iVar4 == 0) {
-
-    trap(0x1c00);
-
-  }
 
   (this->perpChaseInfo_).engagementTime_ = (iVar1 >> 0x10) << 0x15;
 
@@ -1836,11 +1821,6 @@ LAB_8006322c:
 
   a = 0x10000 / iVar5;
 
-  if (iVar5 == 0) {
-
-    trap(0x1c00);
-
-  }
 
   (this->perpChaseInfo_).engagementTime_ = (iVar2 >> 0x10) << 0x15;
 

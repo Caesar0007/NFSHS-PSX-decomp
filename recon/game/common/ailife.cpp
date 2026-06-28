@@ -97,12 +97,6 @@ void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
   }
   iVar12 = pCVar9->sortIndex;
   for (iVar6 = 0; iVar6 < Cars_gNumCars; iVar6 = iVar6 + 1) {
-    if (Cars_gNumCars == 0) {
-      trap(0x1c00);
-    }
-    if ((Cars_gNumCars == -1) && (iVar12 + Cars_gNumCars == -0x80000000)) {
-      trap(0x1800);
-    }
     pCVar9 = Cars_gSortedList[(iVar12 + Cars_gNumCars) % Cars_gNumCars];
     if (((pCVar9 != carObj) && (pCVar9 != carObj->basisCar)) && ((pCVar9->carFlags & 0x100U) != 0))
     {

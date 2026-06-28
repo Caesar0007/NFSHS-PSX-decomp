@@ -188,8 +188,6 @@ extern "C" unsigned int iSNDpacketpurgeframes(int p, unsigned int byteoff, int c
 
     do {
         blk = (unsigned)*(unsigned short *)(pp + 0x46);
-        if (blk == 0)
-            trap(0x1c00);
         span = (byteoff / blk + 1) * blk - byteoff;     /* bytes to next block boundary */
         if (count < (int)span)
             span = count;
@@ -458,8 +456,6 @@ extern "C" int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, 
     VI(DAT_801479f0, vt) = pp[0];
     VB(DAT_80147a17, vt) = (unsigned char)p;
 
-    if ((unsigned char)VB(DAT_80147a0f, vt) == 0)
-        trap(0x1c00);
     chunkBytes = 0x1000 / (unsigned char)VB(DAT_80147a0f, vt);
     *(short *)(pp + 0x11) = (short)chunkBytes;
     *(short *)((int)pp + 0x46) = (short)((int)(chunkBytes * 0x1c) >> 4);
@@ -473,8 +469,6 @@ extern "C" int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, 
     *(short *)(pp + 0xe) = (short)blockSamps;
     frames = (unsigned)(blockSamps & 0xffff);
     perCh = (unsigned char)VB(DAT_80147a0f, vt);
-    if (perCh == 0)
-        trap(0x1c00);
     *(short *)(pp + 0xe) = (short)(frames / perCh);
     {
         int total = (int)(frames / perCh) * *(unsigned short *)((int)pp + 0x46);

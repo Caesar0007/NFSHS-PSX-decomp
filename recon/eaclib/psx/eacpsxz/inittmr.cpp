@@ -61,8 +61,6 @@ extern "C" int inittimer(int hz)
         addexit((int)restoretimer);
     }
     initgp();
-    if (hz == 0)
-        trap(0x1c00);
     reentryflag = 0;
     timerhz = hz;
     SetRCnt(0xf2000002, (unsigned short)(0x409980 / hz), 0x1000);

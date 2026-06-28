@@ -15,8 +15,6 @@ extern "C" unsigned int iSNDtimeremaining(int chan);   /* @0x801049A8 */
 extern "C" unsigned int iSNDtimeremaining(int chan)
 {
     if ((&DAT_801479f8)[chan * 0xb] != 0) {
-        if ((&DAT_801479f8)[chan * 0xb] == 0)
-            trap(0x1c00);
         return (unsigned int)(*(int *)(&DAT_80147a04 + chan * 0x2c) -
                               *(int *)(&DAT_801479fc + chan * 0x2c)) /
                (unsigned int)(&DAT_801479f8)[chan * 0xb];

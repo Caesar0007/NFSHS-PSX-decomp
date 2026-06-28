@@ -239,8 +239,6 @@ extern "C" int iSNDplaytaggedtimbre(int timbre, int tag, int vol, int header,
             *(int *)(slot + 0x28) = 0x7fffffff;
         s28 = *(int *)(slot + 0x28);
         num = *(int *)(*(int *)(slot + 0x40) + 4) * 0x10000 - *(int *)(slot + 0x24);
-        if (s28 == 0)  trap(0x1c00);
-        if (s28 == -1 && num == (int)0x80000000)  trap(0x1800);
         *(int *)(slot + 0x20) = num / s28;
         *(int *)(slot + 0x50) = *(int *)(vol + 0x74);
         *(int *)(slot + 0x54) = *(int *)(vol + 0x80);
@@ -253,7 +251,6 @@ extern "C" int iSNDplaytaggedtimbre(int timbre, int tag, int vol, int header,
                 *(unsigned char *)(slot + 0x3a) = 0;
             } else {
                 iSNDrandom();
-                if (*(unsigned int *)(vol + 0x78) == 0) trap(0x1c00);
                 *(char *)(slot + 0x3a) = (char)(rv % *(unsigned int *)(vol + 0x78));
             }
             rv = *(unsigned int *)(vol + 0x8c);
@@ -261,7 +258,6 @@ extern "C" int iSNDplaytaggedtimbre(int timbre, int tag, int vol, int header,
                 *(unsigned char *)(slot + 0x3b) = 0;
             } else {
                 iSNDrandom();
-                if (*(unsigned int *)(vol + 0x84) == 0) trap(0x1c00);
                 *(char *)(slot + 0x3b) = (char)(rv % *(unsigned int *)(vol + 0x84));
             }
         }

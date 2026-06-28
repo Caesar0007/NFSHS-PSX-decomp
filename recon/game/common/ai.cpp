@@ -756,12 +756,6 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
       return;
     }
     iVar2 = iVar7 + iVar10 * carObj->direction + Cars_gNumCars;
-    if (Cars_gNumCars == 0) {
-      trap(0x1c00);
-    }
-    if ((Cars_gNumCars == -1) && (iVar2 == -0x80000000)) {
-      trap(0x1800);
-    }
     carObj_00 = Cars_gSortedList[iVar2 % Cars_gNumCars];
     if ((carObj != carObj_00) && ((carObj_00->N).active != '\0')) {
       iVar3 = AIWorld_SplineDistance(carObj_00,carObj);
@@ -968,12 +962,6 @@ void AI_CheckForClearLanes(Car_tObj *carObj)
     iVar1 = iVar7;
     do {
       if (Cars_gNumCars <= iVar1) break;
-      if (Cars_gNumCars == 0) {
-        trap(0x1c00);
-      }
-      if ((Cars_gNumCars == -1) && (iVar4 + Cars_gNumCars == -0x80000000)) {
-        trap(0x1800);
-      }
       carObj_00 = Cars_gSortedList[(iVar4 + Cars_gNumCars) % Cars_gNumCars];
       if (((carObj != carObj_00) && ((carObj_00->N).active != '\0')) &&
          (iVar2 = AIWorld_SplineDistance(carObj_00,carObj),

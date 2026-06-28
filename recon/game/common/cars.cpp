@@ -2173,12 +2173,6 @@ LAB_80089c40:
     uVar3 = uVar3 + uVar4;
     uVar4 = iVar1 + (u_int)*(u_char *)(iVar2 + 0x1f) * 0x8000 * uVar4;
     iVar1 = (uVar4 >> 1) - iVar1;
-    if (uVar3 == 0) {
-      trap(0x1c00);
-    }
-    if ((uVar3 == 0xffffffff) && (uVar4 == 0x80000000)) {
-      trap(0x1800);
-    }
     iVar2 = iVar1 + uVar4 / uVar3;
     if (uVar5 == 0) {
       iVar2 = iVar1 - uVar4 / uVar3;

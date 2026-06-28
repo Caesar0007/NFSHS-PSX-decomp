@@ -975,12 +975,6 @@ Newton_FindGE_bounceFirst:
       }
       iVar24 = iVar24 + newtonObj->groundVel;
       if (-1 < iVar24) {
-        if (count == 0) {
-          trap(0x1c00);
-        }
-        if ((count == -1) && (iVar24 == -0x80000000)) {
-          trap(0x1800);
-        }
         iVar3 = iVar24 / count >> 1;
         if (iVar24 < 0x100000) {
           ti4 = fixedmult(iVar24,0x1000);

@@ -109,9 +109,6 @@ CopSpkRadioStatic_returnLoop:
     pcVar5 = CopSpeak_gStaticPatch + iVar6;
     if (*pcVar5 == -1) {
       uVar2 = random();
-      if (uVar7 == 0) {
-        trap(0x1c00);
-      }
       *pcVar5 = (char)(uVar2 % uVar7);
     }
     piVar4 = CopSpeak_gStaticHandle + iVar6;

@@ -579,12 +579,6 @@ LAB_800750fc:
   AudioClc_gClosest[closestIndex].distSq = dsquare;
   iVar4 = car->specs->redline;
   iVar5 = car->flywheelRpm << 0x10;
-  if (iVar4 == 0) {
-    trap(0x1c00);
-  }
-  if ((iVar4 == -1) && (iVar5 == -0x80000000)) {
-    trap(0x1800);
-  }
   relvel = (car->linearVel_ch).z;
   if (relvel < 0) {
     relvel = -relvel;
@@ -784,12 +778,6 @@ LAB_80075824:
     iVar6 = iVar6 + -500;
   }
   iVar1 = car->flywheelRpm * 0x7f;
-  if (iVar6 == 0) {
-    trap(0x1c00);
-  }
-  if ((iVar6 == -1) && (iVar1 == -0x80000000)) {
-    trap(0x1800);
-  }
   if (AudioClc_gCameraVelocity == (coorddef *)0x0) {
     iVar4 = car->currentSpeed;
     if (iVar4 < 0) {

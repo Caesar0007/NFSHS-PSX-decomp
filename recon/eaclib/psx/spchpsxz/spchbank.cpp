@@ -132,21 +132,9 @@ extern "C" int *iSPCH_SetCycleBits(int *p)
     nGroups = (unsigned int)*bits;
     ret     = (int *)&DAT_80150000;
     if (nGroups != 0) {
-        if (nGroups == 0)
-            trap(0x1c00);
-        if (nGroups == 0xffffffff && gGameNum == (int)0x80000000)
-            trap(0x1800);
         t        = ((int)gGameNum % (int)nGroups) * (int)(unsigned int)*(unsigned char *)((int)p + 3);
         startBit = t / (int)nGroups;
-        if (nGroups == 0)
-            trap(0x1c00);
-        if (nGroups == 0xffffffff && t == (int)0x80000000)
-            trap(0x1800);
         t = ((int)gGameNum % (int)nGroups + 1) * (int)(unsigned int)*(unsigned char *)((int)p + 3);
-        if (nGroups == 0)
-            trap(0x1c00);
-        if (nGroups == 0xffffffff && t == (int)0x80000000)
-            trap(0x1800);
         count   = t / (int)nGroups - startBit;
         t       = startBit;
         if (startBit < 0)

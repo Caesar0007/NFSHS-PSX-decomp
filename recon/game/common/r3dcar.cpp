@@ -366,18 +366,6 @@ R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
           }
           iVar3 = (int)((u_int)(u_short)nm.vx << 0x10) >> 0x10;
           sVar6 = (short)(iVar3 / eScaleX);
-          if (eScaleX == 0) {
-            trap(0x1c00);
-          }
-          if ((eScaleX == -1) && (iVar3 == -0x80000000)) {
-            trap(0x1800);
-          }
-          if (eScaleY == 0) {
-            trap(0x1c00);
-          }
-          if ((eScaleY == -1) && (nm.vy == -0x80000000)) {
-            trap(0x1800);
-          }
           iVar3 = (int)((long long)iVar3 * (long long)iStack_30 >> 0x25) -
                   ((int)((u_int)(u_short)nm.vx << 0x10) >> 0x1f);
           uVar1 = ((int)nm.vy / eScaleY) * iVar3;
@@ -1491,12 +1479,6 @@ R_ICFt_wheelspinRpmCalc:
             iVar7 = carObj->specs->velToRpmRatio[uVar8];
             iVar9 = carObj->flywheelRpm << 0x10;
             iVar6 = iVar9 / iVar7;
-            if (iVar7 == 0) {
-              trap(0x1c00);
-            }
-            if ((iVar7 == -1) && (iVar9 == -0x80000000)) {
-              trap(0x1800);
-            }
             if (iVar16 == 2) {
               iVar6 = iVar6 << (Replay_ReplayInterface.speed + 7U & 0x1f);
             }

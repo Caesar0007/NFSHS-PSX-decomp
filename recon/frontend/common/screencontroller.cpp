@@ -583,21 +583,9 @@ void tScreenControllerConfig::DrawController()
   t = (int)maxshakex;
   if ((t != 0) || (maxshakey != 0)) {
     fadelevel = rand();
-    if (t == 0) {
-      trap(0x1c00);
-    }
-    if ((t == -1) && (fadelevel == -0x80000000)) {
-      trap(0x1800);
-    }
     shakex = (short)(fadelevel % t) - (maxshakex >> 1);
     t = rand();
     fadelevel = (int)maxshakey;
-    if (fadelevel == 0) {
-      trap(0x1c00);
-    }
-    if ((fadelevel == -1) && (t == -0x80000000)) {
-      trap(0x1800);
-    }
     shakey = (short)(t % fadelevel) - (maxshakey >> 1);
   }
   IsShapeFileLoaded(&this->_base_tScreen,&(this->_base_tScreen).fSwapShapes);
@@ -732,12 +720,6 @@ DrawCtrl_ticksUpdate:
     fadelevel = ((int)this->fAnimFadeFrame - (int)this->fAnimFadeStart) * 0x80;
     axisB = (int)this->fAnimFadeStop - (int)this->fAnimFadeStart;
     t = fadelevel / axisB;
-    if (axisB == 0) {
-      trap(0x1c00);
-    }
-    if ((axisB == -1) && (fadelevel == -0x80000000)) {
-      trap(0x1800);
-    }
     if (t < 0) {
       t = -t;
     }

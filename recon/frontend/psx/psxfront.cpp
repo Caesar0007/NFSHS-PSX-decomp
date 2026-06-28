@@ -491,20 +491,8 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
       bitOff = bitOff + 0xf;
     }
     verts_done = (int)((uint)(ushort)shp->shapex << 0x10) >> 0xc;
-    if (bpp == 0) {
-      trap(0x1c00);
-    }
-    if ((bpp == -1) && (verts_done == -0x80000000)) {
-      trap(0x1800);
-    }
     texX = (uint)(ushort)shp->shapex + (bitOff >> 4);
     texXp = (int)((texX & 0xffffffc0U) << 0x10) >> 0xc;
-    if (bpp == 0) {
-      trap(0x1c00);
-    }
-    if ((bpp == -1) && (texXp == -0x80000000)) {
-      trap(0x1800);
-    }
     shape_x = (accW + verts_done / bpp) - texXp / bpp;
     stripW = 0xff - (shape_x * 0x10000 >> 0x10);
     remW = shp->width - col;
@@ -720,12 +708,6 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
   vert_dx = (int)depth;
   tpage_word = (ushort)shp->shapex & 0x3f;
   u1_byte = (char)((uint)(tpage_word << 4) / (uint)vert_dx);
-  if (vert_dx == 0) {
-    trap(0x1c00);
-  }
-  if ((vert_dx == -1) && (tpage_word == 0x8000000)) {
-    trap(0x1800);
-  }
   srcH2 = shp->height;
   v_byte = (byte)shp->shapey;
   if ((flags & 4U) != 0) {

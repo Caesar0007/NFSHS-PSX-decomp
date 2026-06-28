@@ -279,12 +279,6 @@ void tScreenMemcard::PlaceIcons(int i,int fadeval)
     xx = (MEMCARDICONOFFX & 0xffffU) + (uint)(ushort)GRIDMEMCARD_STARTX + MEMCARD_DELTAX * yy;
     yy = (uint)(ushort)GRIDMEMCARD_STARTY + (MEMCARDICONOFFY & 0xffffU) +
             (4 - (((int)this->cursorPosition / 3) * 0x10000 >> 0x10)) * MEMCARD_DELTAY;
-    if (this->numicon[i] == 0) {
-      trap(0x1c00);
-    }
-    if ((this->numicon[i] == 0xffffffff) && (ticks >> 4 == -0x80000000)) {
-      trap(0x1800);
-    }
     if (i == this->theNFS4icon) {
       fFlags.tint[0] = 0xb55623;
       fade = (u_char *)(&*(int *)((char *)icon + 0x0) + this->fFadeIcon[i]);

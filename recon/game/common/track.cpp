@@ -424,19 +424,7 @@ void Track_AnimateTextures(void)
   while (pDVar3 = gInitialArt.pPmx, iVar8 = iVar8 + -1, iVar8 != -1) {
     if (pTVar7->type == 0x80) {
       uVar4 = (u_int)*(u_char *)((int)psVar6 + -1);
-      if (uVar4 == 0) {
-        trap(0x1c00);
-      }
-      if ((uVar4 == 0xffffffff) && (simGlobal.gameTicks == -0x80000000)) {
-        trap(0x1800);
-      }
       uVar5 = (u_int)*(u_char *)(psVar6 + -4);
-      if (uVar5 == 0) {
-        trap(0x1c00);
-      }
-      if ((uVar5 == 0xffffffff) && (simGlobal.gameTicks / (int)uVar4 == -0x80000000)) {
-        trap(0x1800);
-      }
       sVar1 = (*(Track_tMaterial **)(psVar6 + 1))->pmxIndex;
       cVar2 = (char)((simGlobal.gameTicks / (int)uVar4) % (int)uVar5);
       gInitialArt.pPmx[sVar1].v0 = *(u_char *)(psVar6 + -3) + cVar2;
@@ -446,19 +434,7 @@ void Track_AnimateTextures(void)
     }
     else if (pTVar7->type == 4) {
       uVar4 = (u_int)*(u_char *)((int)psVar6 + -1);
-      if (uVar4 == 0) {
-        trap(0x1c00);
-      }
-      if ((uVar4 == 0xffffffff) && (simGlobal.gameTicks == -0x80000000)) {
-        trap(0x1800);
-      }
       uVar5 = (u_int)*(u_char *)(psVar6 + -1);
-      if (uVar5 == 0) {
-        trap(0x1c00);
-      }
-      if ((uVar5 == 0xffffffff) && (simGlobal.gameTicks / (int)uVar4 == -0x80000000)) {
-        trap(0x1800);
-      }
       (*(Track_tMaterial **)(psVar6 + 1))->pmxIndex =
            *psVar6 + (short)((simGlobal.gameTicks / (int)uVar4) % (int)uVar5);
     }
@@ -1100,26 +1076,8 @@ void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
       pTVar13 = pTVar13 + 2;
     }
     uVar10 = (u_int)pTVar9->vertexCount;
-    if (uVar10 == 0) {
-      trap(0x1c00);
-    }
-    if ((uVar10 == 0xffffffff) && (cp.x == -0x80000000)) {
-      trap(0x1800);
-    }
     uVar4 = (u_int)pTVar9->vertexCount;
-    if (uVar4 == 0) {
-      trap(0x1c00);
-    }
-    if ((uVar4 == 0xffffffff) && (cp.y == -0x80000000)) {
-      trap(0x1800);
-    }
     uVar5 = (u_int)pTVar9->vertexCount;
-    if (uVar5 == 0) {
-      trap(0x1c00);
-    }
-    if ((uVar5 == 0xffffffff) && (cp.z == -0x80000000)) {
-      trap(0x1800);
-    }
     pTVar13 = pTVar9 + 1;
     iVar14 = 0;
     uVar11 = (u_int)pTVar9->vertexCount;

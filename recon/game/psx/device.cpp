@@ -306,9 +306,6 @@ DevAnalog_scaledByteCalc:
        * 0x800BDA28 / 0x800BDA58 that is overwritten by 0xFF/0 on the clamp paths and never reaches
        * the (signed) divide. Reconstruction fed iVar1*0xff into the scale instead of uVar2*0xff (H45). */
       iVar6 = ((int)uVar2 * 0xff) / iVar3;
-      if (iVar3 == 0) {
-        trap(0x1c00);
-      }
       if (iVar3 == -1) {
         if ((int)uVar2 * 0xff == -0x80000000) {
           trap(0x1800);

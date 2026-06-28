@@ -162,12 +162,6 @@ void RawFindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
       }
       else {
         iVar7 = iVar8 % gNumSlices;
-        if (gNumSlices == 0) {
-          trap(0x1c00);
-        }
-        if ((gNumSlices == -1) && (iVar8 == -0x80000000)) {
-          trap(0x1800);
-        }
         iVar2 = pt->x;
       }
       piVar5 = (int *)(iVar7 * 0x20 + BWorldSm_slices);
@@ -186,12 +180,6 @@ LAB_8007ec3c:
           if (iVar8 < 1) {
             iVar7 = iVar8 + 1 + iVar9;
             iVar6 = iVar7 + -1;
-            if (gNumSlices == 0) {
-              trap(0x1c00);
-            }
-            if ((gNumSlices == -1) && (iVar6 == -0x80000000)) {
-              trap(0x1800);
-            }
             piVar5 = (int *)((iVar6 % gNumSlices) * 0x20 + BWorldSm_slices);
             iVar3 = pt->x - *piVar5 >> 9;
             iVar4 = pt->z - piVar5[2] >> 9;
@@ -200,12 +188,6 @@ LAB_8007ec3c:
             }
             iVar2 = iVar7 + 1 + iVar9;
             iVar7 = iVar2 % gNumSlices;
-            if (gNumSlices == 0) {
-              trap(0x1c00);
-            }
-            if ((gNumSlices == -1) && (iVar2 == -0x80000000)) {
-              trap(0x1800);
-            }
           }
           else {
             iVar7 = iVar8 * 0x20 + BWorldSm_slices;
@@ -220,12 +202,6 @@ LAB_8007ec3c:
       }
       else {
         iVar7 = (iVar8 + 1) % gNumSlices;
-        if (gNumSlices == 0) {
-          trap(0x1c00);
-        }
-        if ((gNumSlices == -1) && (iVar8 + 1 == -0x80000000)) {
-          trap(0x1800);
-        }
         piVar5 = (int *)(iVar7 * 0x20 + BWorldSm_slices);
         iVar6 = pt->x - *piVar5 >> 9;
         iVar3 = pt->z - piVar5[2] >> 9;

@@ -312,12 +312,6 @@ void Stats_ExtrapolateOpponentTimes(int type)
       }
       iVar8 = iVar8 * (gNumSlices * GameSetup_gData.numLaps + (pCVar7->stats).extractSlice);
       iVar11 = iVar8 / iVar5;
-      if (iVar5 == 0) {
-        trap(0x1c00);
-      }
-      if ((iVar5 == -1) && (iVar8 == -0x80000000)) {
-        trap(0x1800);
-      }
       if (bVar2) {
         (pCVar7->stats).lapTime = iVar11;
       }
@@ -408,12 +402,6 @@ void Stats_ExtrapolateOpponentTimes(int type)
       }
       iVar8 = iVar8 * (gNumSlices * GameSetup_gData.numLaps + (pCVar7->stats).extractSlice);
       iVar11 = iVar8 / iVar5;
-      if (iVar5 == 0) {
-        trap(0x1c00);
-      }
-      if ((iVar5 == -1) && (iVar8 == -0x80000000)) {
-        trap(0x1800);
-      }
       if ((bVar2) || ((Cars_gHumanRaceCarList[0]->stats).finishType == 2)) {
         ((*ppCVar10)->stats).lapTime = iVar11;
       }
@@ -447,12 +435,6 @@ void Stats_ExtrapolateOpponentTimes(int type)
     iVar5 = rand();
     pCVar7 = *ppCVar10;
     iVar8 = (pCVar7->stats).finalTotalTime;
-    if (GameSetup_gData.numLaps == 0) {
-      trap(0x1c00);
-    }
-    if ((GameSetup_gData.numLaps == -1) && (iVar8 == -0x80000000)) {
-      trap(0x1800);
-    }
     iVar5 = iVar8 / GameSetup_gData.numLaps - iVar5 / 0x30;
     if (iVar5 < (pCVar7->stats).finalBestLap) {
       (pCVar7->stats).finalBestLap = iVar5;
@@ -588,12 +570,6 @@ void Stats_TrackEndGame(void)
         }
         else {
           iVar11 = (pCVar5->stats).checkpointUpdate * 0x180;
-          if (iVar4 == 0) {
-            trap(0x1c00);
-          }
-          if ((iVar4 == -1) && (iVar11 == -0x80000000)) {
-            trap(0x1800);
-          }
           (pCVar5->stats).checkpointDifference = iVar11 / iVar4;
           ((*ppCVar10)->stats).checkpointDisplay = 1;
         }

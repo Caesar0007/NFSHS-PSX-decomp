@@ -353,12 +353,6 @@ int AudioMus_Server(int mode,int ticks)
           iVar6 = AudioMus_g->availablesongs;
           if (1 < iVar6) {
             if (AudioMus_g->randomize == 0) {
-              if (iVar6 == 0) {
-                trap(0x1c00);
-              }
-              if ((iVar6 == -1) && (iVar3 + 1 == -0x80000000)) {
-                trap(0x1800);
-              }
               AudioMus_g->requestsong = (iVar3 + 1) % iVar6;
             }
             else {
@@ -371,19 +365,7 @@ int AudioMus_Server(int mode,int ticks)
               else {
                 iVar5 = GetRCnt(0);
               }
-              if (iVar7 == 0) {
-                trap(0x1c00);
-              }
-              if ((iVar7 == -1) && (iVar5 == -0x80000000)) {
-                trap(0x1800);
-              }
               iVar3 = iVar3 + 1 + iVar5 % iVar7;
-              if (iVar6 == 0) {
-                trap(0x1c00);
-              }
-              if ((iVar6 == -1) && (iVar3 == -0x80000000)) {
-                trap(0x1800);
-              }
               pAVar4->requestsong = iVar3 % iVar6;
             }
           }
@@ -811,20 +793,8 @@ int AudioMus_PlaySong(char *pattern)
           else {
             iVar6 = GetRCnt(0);
           }
-          if (iVar7 == 0) {
-            trap(0x1c00);
-          }
-          if ((iVar7 == -1) && (iVar6 == -0x80000000)) {
-            trap(0x1800);
-          }
           iVar5 = iVar5 + 1 + iVar6 % iVar7;
           iVar6 = iVar5 % iVar4;
-          if (iVar4 == 0) {
-            trap(0x1c00);
-          }
-          if ((iVar4 == -1) && (iVar5 == -0x80000000)) {
-            trap(0x1800);
-          }
         }
         else {
           iVar5 = GetRCnt(0);
@@ -836,12 +806,6 @@ int AudioMus_PlaySong(char *pattern)
             iVar5 = GetRCnt(0);
           }
           iVar6 = iVar5 % iVar4;
-          if (iVar4 == 0) {
-            trap(0x1c00);
-          }
-          if ((iVar4 == -1) && (iVar5 == -0x80000000)) {
-            trap(0x1800);
-          }
         }
         pAVar2 = AudioMus_g;
         if (AudioMus_g->switchsong == 0) {
@@ -900,12 +864,6 @@ void AudioMus_Volume(int volume)
          (iVar2 = AudioMus_g->volume, 0 < iVar2)) {
         iVar1 = AudioMus_g->fadetime * iVar1;
         s = iVar1 / iVar2;
-        if (iVar2 == 0) {
-          trap(0x1c00);
-        }
-        if ((iVar2 == -1) && (iVar1 == -0x80000000)) {
-          trap(0x1800);
-        }
       }
       if (s == 0) {
         if ((-1 < AudioMus_g->streamhandle) && (AudioMus_g->switchsong != 2)) {
@@ -914,12 +872,6 @@ void AudioMus_Volume(int volume)
       }
       else {
         iVar1 = AudioMus_g->fadetime;
-        if (iVar1 == 0) {
-          trap(0x1c00);
-        }
-        if ((iVar1 == -1) && (volume * s == -0x80000000)) {
-          trap(0x1800);
-        }
         SNDSTRM_vol(AudioMus_g->streamhandle,(volume * s) / iVar1);
         SNDSTRM_autovol(AudioMus_g->streamhandle,s,0);
       }

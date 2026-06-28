@@ -41,9 +41,6 @@ void Movie_Init(char movie)
   download[0] = 0;
   vlcbuf0 = (u_long *)reservememadr("vlcbuf0",0x28000,0x10);
   vlcbuf1 = (u_long *)reservememadr("vlcbuf1",0x28000,0x10);
-  if ((int)PPWBottom == 0) {
-    trap(0x1c00);
-  }
   imgbuf = (u_short *)reservememadr
                      ("imgbuf",((uint)((int)PPWTop << 5) / (uint)(int)PPWBottom) * 0x1e0,0x10);
   sect_buff = (u_long *)reservememadr("sect_buff",0x10000,0x10);
@@ -95,12 +92,6 @@ void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
   int bottom;
   
   bottom = (int)PPWBottom;
-  if (bottom == 0) {
-    trap(0x1c00);
-  }
-  if ((bottom == -1) && ((int)gMovieWidth * (int)PPWTop == -0x80000000)) {
-    trap(0x1800);
-  }
   dec.rect[0].h = gMovieHeight;
   dec.rect[1].h = gMovieHeight;
   dec.rect[0].w = (short)(((int)gMovieWidth * (int)PPWTop) / bottom);
@@ -175,18 +166,6 @@ int Movie_NextFrame(void)
   DecDCTinSync(1);
   bottom = (int)PPWBottom;
   xstep = ((int)PPWTop << 4) / bottom;
-  if (bottom == 0) {
-    trap(0x1c00);
-  }
-  if ((bottom == -1) && ((int)PPWTop << 4 == -0x80000000)) {
-    trap(0x1800);
-  }
-  if (xstep == 0) {
-    trap(0x1c00);
-  }
-  if ((xstep == -1) && (dec.slice.w + -1 == -0x80000000)) {
-    trap(0x1800);
-  }
   vh = dec.slice.h + -1;
   if (vh < 0) {
     vh = dec.slice.h + 0xe;
@@ -329,12 +308,6 @@ void strSetDefDecEnv(DECENV *dec)
   mh = gMovieHeight;
   top = (int)PPWTop;
   bottom = (int)PPWBottom;
-  if (bottom == 0) {
-    trap(0x1c00);
-  }
-  if ((bottom == -1) && (top << 4 == -0x80000000)) {
-    trap(0x1800);
-  }
   dec->vlcid = 0;
   dec->rectid = 0;
   dec->isdone = 0;
@@ -391,58 +364,22 @@ void strCallback(void)
     bottom = (int)PPWBottom;
     topsh = (int)PPWTop << 4;
     hstep = topsh / bottom;
-    if (bottom == 0) {
-      trap(0x1c00);
-    }
-    if ((bottom == -1) && (topsh == -0x80000000)) {
-      trap(0x1800);
-    }
     rw = (int)dec.rect[dec.rectid].w;
     rem = rw % hstep;
-    if (hstep == 0) {
-      trap(0x1c00);
-    }
-    if ((hstep == -1) && (rw == -0x80000000)) {
-      trap(0x1800);
-    }
     remTop = rem * PPWTop;
     if (rem != 0) {
-      if (bottom == 0) {
-        trap(0x1c00);
-      }
-      if ((bottom == -1) && (remTop == -0x80000000)) {
-        trap(0x1800);
-      }
       isFirstSlice = 0;
       xstep = (short)(remTop / bottom);
       goto strCallback_inlinedJoin;
     }
   }
   bottom = (int)PPWBottom;
-  if (bottom == 0) {
-    trap(0x1c00);
-  }
-  if ((bottom == -1) && ((int)PPWTop << 4 == -0x80000000)) {
-    trap(0x1800);
-  }
   xstep = (short)(((int)PPWTop << 4) / bottom);
 strCallback_inlinedJoin:
   dec.slice.x = dec.slice.x + xstep;
   if ((int)dec.slice.x < (int)dec.rect[dec.rectid].x + (int)dec.rect[dec.rectid].w) {
     bottom = (int)PPWBottom;
     hstep = ((int)PPWTop << 4) / bottom;
-    if (bottom == 0) {
-      trap(0x1c00);
-    }
-    if ((bottom == -1) && ((int)PPWTop << 4 == -0x80000000)) {
-      trap(0x1800);
-    }
-    if (hstep == 0) {
-      trap(0x1c00);
-    }
-    if ((hstep == -1) && (dec.slice.w + -1 == -0x80000000)) {
-      trap(0x1800);
-    }
     vh = dec.slice.h + -1;
     if (vh < 0) {
       vh = dec.slice.h + 0xe;
@@ -525,12 +462,6 @@ u_long * strNext(DECENV *dec)
     gMovieFrame = fc;
     if ((width != (uint)sector->width) || (height != (uint)sector->height)) {
       bottom = (int)PPWBottom;
-      if (bottom == 0) {
-        trap(0x1c00);
-      }
-      if ((bottom == -1) && (PPWTop * 0x280 == -0x80000000)) {
-        trap(0x1800);
-      }
       rect.x = 0;
       rect.y = 0;
       rect.h = 0x1e0;
@@ -541,12 +472,6 @@ u_long * strNext(DECENV *dec)
     }
     wt = width * PPWTop;
     bottom = (int)PPWBottom;
-    if (bottom == 0) {
-      trap(0x1c00);
-    }
-    if ((bottom == -1) && (wt == -0x80000000)) {
-      trap(0x1800);
-    }
     mh = (short)height;
     dec->rect[1].h = (short)height;
     dec->rect[0].h = mh;

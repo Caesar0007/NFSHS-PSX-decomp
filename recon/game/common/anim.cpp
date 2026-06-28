@@ -247,33 +247,9 @@ int Anim_GetRotPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,ma
     iVar6 = 6;
   }
   iVar13 = ticks / iVar6;
-  if (iVar6 == 0) {
-    trap(0x1c00);
-  }
-  if ((iVar6 == -1) && (ticks == -0x80000000)) {
-    trap(0x1800);
-  }
   if (((flags & 2U) == 0) || (iVar4 = 0, iVar13 < animInst->count + -1)) {
-    if (iVar6 == 0) {
-      trap(0x1c00);
-    }
-    if ((iVar6 == -1) && (ticks == -0x80000000)) {
-      trap(0x1800);
-    }
     iVar4 = animInst->count + -1;
-    if (iVar4 == 0) {
-      trap(0x1c00);
-    }
-    if ((iVar4 == -1) && (iVar13 == -0x80000000)) {
-      trap(0x1800);
-    }
     iVar8 = ticks % iVar6 << 0x10;
-    if (iVar6 == 0) {
-      trap(0x1c00);
-    }
-    if ((iVar6 == -1) && (iVar8 == -0x80000000)) {
-      trap(0x1800);
-    }
     puVar7 = (u_char *)((iVar13 % iVar4) * 0x14 + (int)pTVar9);
     puVar5 = (u_char *)((iVar13 % iVar4 + 1) * 0x14 + (int)pTVar9);
         *(tQuat *)auStack_18 = *(tQuat *)((char *)puVar7 + 0xc);   /* @0x64088 q0 = frame[idx0].quat */
@@ -316,33 +292,9 @@ int Anim_GetPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,int *
     iVar4 = 6;
   }
   iVar5 = ticks / iVar4;
-  if (iVar4 == 0) {
-    trap(0x1c00);
-  }
-  if ((iVar4 == -1) && (ticks == -0x80000000)) {
-    trap(0x1800);
-  }
   if (((flags & 2U) == 0) || (iVar1 = 0, iVar5 < animInst->count + -1)) {
-    if (iVar4 == 0) {
-      trap(0x1c00);
-    }
-    if ((iVar4 == -1) && (ticks == -0x80000000)) {
-      trap(0x1800);
-    }
     iVar1 = animInst->count + -1;
-    if (iVar1 == 0) {
-      trap(0x1c00);
-    }
-    if ((iVar1 == -1) && (iVar5 == -0x80000000)) {
-      trap(0x1800);
-    }
     iVar3 = ticks % iVar4 << 0x10;
-    if (iVar4 == 0) {
-      trap(0x1c00);
-    }
-    if ((iVar4 == -1) && (iVar3 == -0x80000000)) {
-      trap(0x1800);
-    }
     piVar2 = (int *)((int)animInst + (iVar5 % iVar1) * 0x14 + 0xc);
     local_38.x = *piVar2;
     local_38.y = piVar2[1];
@@ -354,12 +306,6 @@ int Anim_GetPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,int *
     Quatern_VecInterpolate(&local_38,&local_28,iVar3 / iVar4,pt);
     if (animTicks != (int *)0x0) {
       iVar5 = (animInst->count + -1) * iVar4;
-      if (iVar5 == 0) {
-        trap(0x1c00);
-      }
-      if ((iVar5 == -1) && (ticks == -0x80000000)) {
-        trap(0x1800);
-      }
       *animTicks = ticks % iVar5;
     }
     iVar1 = 1;
@@ -473,19 +419,7 @@ void AnimScript::GetAnimFrameInfo(int *frame,int *numFrames)
     iVar1 = 6;
   }
   iVar4 = iVar2 / iVar1;
-  if (iVar1 == 0) {
-    trap(0x1c00);
-  }
-  if ((iVar1 == -1) && (iVar2 == -0x80000000)) {
-    trap(0x1800);
-  }
   iVar2 = pTVar3->count + -1;
-  if (iVar2 == 0) {
-    trap(0x1c00);
-  }
-  if ((iVar2 == -1) && (iVar4 == -0x80000000)) {
-    trap(0x1800);
-  }
   *frame = iVar4 % iVar2;
   *numFrames = pTVar3->count + -1;
   return;

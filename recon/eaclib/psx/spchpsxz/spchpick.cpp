@@ -260,10 +260,6 @@ extern "C" int iSPCH_ConvertTime(int samples)
     int t = 0;
     if (gDataRate != 0) {
         t = (samples * 100) / gDataRate;
-        if (gDataRate == 0)
-            trap(0x1c00);
-        if (gDataRate == -1 && samples * 100 == (int)0x80000000)
-            trap(0x1800);
     }
     return t;
 }

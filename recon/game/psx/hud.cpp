@@ -2289,19 +2289,7 @@ void Hud_BuildMapMarkers(int player)
     if (*(char *)(*(int *)carInfo_iter + 0x91) != '\0') {
       carRegion_p = (int)(BWorldSm_slices + *(short *)(*(int *)carInfo_iter + 8));
       rotated_x = *(int *)carRegion_p / gMapScaleX;
-      if (gMapScaleX == 0) {
-        trap(0x1c00);
-      }
-      if ((gMapScaleX == -1) && (*(int *)carRegion_p == -0x80000000)) {
-        trap(0x1800);
-      }
       rotated_z = *(int *)(carRegion_p + 8) / gMapScaleY;
-      if (gMapScaleY == 0) {
-        trap(0x1c00);
-      }
-      if ((gMapScaleY == -1) && (*(int *)(carRegion_p + 8) == -0x80000000)) {
-        trap(0x1800);
-      }
       screen_y = fixedmult(mapMarkerMCos,rotated_x);
       marker_type = fixedmult(mapMarkerMSin,rotated_z);
       world_x_off = (ti4 + screen_y) - marker_type;
@@ -2345,19 +2333,7 @@ void Hud_BuildMapMarkers(int player)
     if (*(char *)(*(int *)carInfo_alt + 0x91) != '\0') {
       carRegion_alt = (int)(BWorldSm_slices + *(short *)(*(int *)carInfo_alt + 8));
       rotated_z_b = *(int *)carRegion_alt / gMapScaleX;
-      if (gMapScaleX == 0) {
-        trap(0x1c00);
-      }
-      if ((gMapScaleX == -1) && (*(int *)carRegion_alt == -0x80000000)) {
-        trap(0x1800);
-      }
       rotated_x_b = *(int *)(carRegion_alt + 8) / gMapScaleY;
-      if (gMapScaleY == 0) {
-        trap(0x1c00);
-      }
-      if ((gMapScaleY == -1) && (*(int *)(carRegion_alt + 8) == -0x80000000)) {
-        trap(0x1800);
-      }
       ti7 = fixedmult(mapMarkerMCos,rotated_z_b);
       ti8 = fixedmult(mapMarkerMSin,rotated_x_b);
       ti8 = (ti4 + ti7) - ti8;

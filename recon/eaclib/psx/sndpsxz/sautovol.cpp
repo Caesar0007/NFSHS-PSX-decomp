@@ -19,8 +19,6 @@ extern "C" int SNDautovol(unsigned int tag, unsigned int rate, int target)
         while (iSNDpatchkey(ch, (int)cur) != 0) {
             int v = sndgs[0x25] + cur[0] * 100;
             int delta = target * 0x10000 - *(int *)(v + 0x1c);
-            if (rate == 0) trap(0x1c00);
-            if (rate == 0xffffffff && delta == (int)0x80000000) trap(0x1800);
             *(int *)(v + 0x18) = target * 0x10000;
             *(int *)(v + 0x14) = delta / (int)rate;
         }

@@ -24,7 +24,6 @@ extern "C" int SNDSTRM_status(int tag, int s)
         frames = (unsigned int)*(unsigned short *)(sp + 7);
         if (frames != 0) {
             SNDPKTPLAY_unsafeframesoutstanding(sp[3]);
-            if (*(unsigned short *)(sp + 7) == 0) trap(0x1c00);
             *(unsigned int *)(s + 8) = (frames * 1000) / (unsigned int)*(unsigned short *)(sp + 7);
         }
     }

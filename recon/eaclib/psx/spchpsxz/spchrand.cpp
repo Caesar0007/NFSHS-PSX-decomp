@@ -71,10 +71,8 @@ extern "C" int *iSPCH_EACseedrandom(unsigned int seed)
 extern "C" int iSPCH_Rand(int n)
 {
     unsigned int r = (unsigned int)iSPCH_EACrandom();
-    if (n == 0)
-        trap(0x1c00);
-    if (n == -1 && (r & 0xffff) == 0x80000000u)
-        trap(0x1800);
+    /* signed % emits the div + break 0x1c00 (div0) + break 0x1800 (overflow)
+       guards itself under maspsx --expand-div; no manual trap() needed. */
     return (int)(r & 0xffff) % n;
 }
 

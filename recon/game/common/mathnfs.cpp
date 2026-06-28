@@ -25,25 +25,30 @@ int Math_DistXZ(coorddef *a,coorddef *b)
   int dist;
   int ax;
   int bx;
-  int z;
-  int iVar1;
+  int az;
   int bz;
   int x;
-  int az;
-  
-  z = a->x;
-  x = z - b->x;
+  int z;
+
+  ax = a->x;
+  bx = b->x;
+  x = ax - bx;
   if (x < 1) {
-    x = b->x - z;
+    x = bx - ax;
   }
-  iVar1 = a->z - b->z;
-  if (iVar1 < 1) {
-    iVar1 = b->z - a->z;
+  az = a->z;
+  bz = b->z;
+  z = az - bz;
+  if (z < 1) {
+    z = bz - az;
   }
-  if (iVar1 < x) {
-    return x + (iVar1 >> 2);
+  if (z < x) {
+    dist = x + (z >> 2);
   }
-  return iVar1 + (x >> 2);
+  else {
+    dist = z + (x >> 2);
+  }
+  return dist;
 }
 
 /* ---- Math_Dist3D__FP8coorddefT0  [MATHNFS.CPP:42-53] SLD-VERIFIED ---- */

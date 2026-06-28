@@ -40,13 +40,15 @@ char         finishOrder[8];   /* @0x8013d2c0  (bss(zero)) */
 void Nfs2_SystemNLibStartUp(void)
 
 {
-  
+  int p;
+
   Platform_SysStartUp();
   Loading_GetInitialMemory();
   if (_6Speech_fgUndefined == 0) {
-    _6Speech_fgUndefined = (int)__builtin_new(0x50);
-    *(void ***)(_6Speech_fgUndefined + 0x4c) = (void **)Speaker_vtable;
-    *(int *)(_6Speech_fgUndefined + 0x48) = 0;
+    p = (int)__builtin_new(0x50);
+    *(void ***)(p + 0x4c) = (void **)Speaker_vtable;
+    *(int *)(p + 0x48) = 0;
+    _6Speech_fgUndefined = p;
   }
   Render_InitLibRender();
   return;
@@ -528,5 +530,9 @@ int main(void)
 
 /* end of nfs3.cpp */
 
-/* owning-TU def (extern-declared, never defined; link-harness) */
-int _6Speech_fgSpeech; int _6Speech_fgUndefined;
+/* owning-TU def (extern-declared, never defined; link-harness).
+   _6Speech_fgUndefined is OWNED by Speech (3 speech fns reach it via %gp_rel); nfs3 is a
+   NON-owner -> its oracle (Nfs2_SystemNLibStartUp) uses ABSOLUTE lui/%hi, so leave it a pure
+   extern (a tentative def here forced a wrong .comm gp-rel; methodology 3.12 #6). Data lives
+   in asm/data/sdata_8013C54C.sdata.s @0x8013cd88. */
+int _6Speech_fgSpeech;

@@ -32,16 +32,19 @@ int Risk_ReadNextValue(char **aScript)
   n = 0;
   Script = *aScript;
   while (IsNumChar(*Script) == '\0') {     /* skip to the next number; oracle loop @0x80091f24 */
-    if (*Script == '/') {                    /* '/comment/' delimiter (@0x80091f48) */
-      Script = Script + 1;                   /* past the opening '/' (@0x80091f4c) */
-      if (*Script != '/') {                  /* not an empty "//" (@0x80091f58) */
-        Script = Script + 1;                 /* into the comment body (@0x80091f5c) */
-        while (*Script != '/')               /* scan to the closing '/' (@0x80091f64) */
-          Script = Script + 1;
-        Script = Script + 1;                 /* past the closing '/' (@0x80091f70) */
-      }
+    if (*Script != '/') {                    /* non-numeric, non-'/' -> advance + loop (oracle F48 bne+delay) */
+      Script = Script + 1;
+      continue;
     }
-    /* a non-numeric, non-'/' char does NOT advance Script (oracle F48 branches back) */
+    Script = Script + 1;                     /* past the opening '/' (@0x80091f4c delay) */
+    if (*Script == '/') {                    /* empty "//" -> skip 2nd '/' + loop (@0x80091f58 beq+delay) */
+      Script = Script + 1;
+      continue;
+    }
+    Script = Script + 1;                     /* into the comment body (@0x80091f5c delay) */
+    while (*Script != '/')                   /* scan to the closing '/' (@0x80091f64) */
+      Script = Script + 1;
+    Script = Script + 1;                     /* past the closing '/' (@0x80091f70 delay); j top (@0x80091f74) */
   }
   while (true) {
     cVar1 = IsNumChar(*Script);

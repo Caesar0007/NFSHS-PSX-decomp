@@ -11,17 +11,15 @@
 extern "C" void TransformVector(int (*vect)[4],int (*transform)[4][4],int (*result)[4])
 
 {
-  int *piVar3;
   int prod;
   short I;
   short J;
-  
+
   for (I = 0; I < 4; I = I + 1) {
-    piVar3 = (int *)(I * 4 + (int)*result);
-    *piVar3 = 0;
+    (*result)[I] = 0;
     for (J = 0; J < 4; J = J + 1) {
       prod = fixedmult((*vect)[J],(*transform)[J][I]);
-      *piVar3 = *piVar3 + prod;
+      (*result)[I] = (*result)[I] + prod;
     }
   }
   return;

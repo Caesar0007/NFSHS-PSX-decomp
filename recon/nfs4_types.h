@@ -3339,8 +3339,7 @@ struct tPListIterator {   /* 12 bytes */
     int Decrement(tPlayer player);
 };
 
-struct tPListIteratorIndexed {   /* 16 bytes */
-    tPListIterator     _base_tPListIterator;   /* +0x0 */
+struct tPListIteratorIndexed : public tPListIterator {   /* 16 bytes; §3.23 real inheritance (base @+0x0, non-polymorphic) */
     char               *fIndex;   /* +0xC */
     /* reconstructed PauseMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tPListIteratorIndexed(short *selection, int *valPtr, char *index);

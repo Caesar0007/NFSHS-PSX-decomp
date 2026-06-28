@@ -170,10 +170,10 @@ int tPListIterator::Decrement(tPlayer arg1)
 
 /* ---- tPListIteratorIndexed::ctor  [PAUSEMENU.CPP:197-199] SLD-VERIFIED ---- */
 tPListIteratorIndexed::tPListIteratorIndexed(short *selection,int *valPtr,char *index)
-  : _base_tPListIterator(selection,valPtr)
+  : tPListIterator(selection,valPtr)
 {
   
-  (this->_base_tPListIterator)._vf = (__vtbl_ptr_type (*) [6])tPListIteratorIndexed_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [6])tPListIteratorIndexed_vtable;
   this->fIndex = index;
   return;
 }
@@ -185,7 +185,7 @@ tPListIteratorIndexed::tPListIteratorIndexed(short *selection,int *valPtr,char *
 tPListIteratorIndexed::~tPListIteratorIndexed()
 
 {
-  (this->_base_tPListIterator)._vf = (__vtbl_ptr_type (*) [6])tPListIteratorIndexed_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [6])tPListIteratorIndexed_vtable;
   return;
 }
 
@@ -196,7 +196,7 @@ tPListIteratorIndexed::~tPListIteratorIndexed()
 int tPListIteratorIndexed::Value(tPlayer arg1)
 
 {
-  return (this->_base_tPListIterator).fValue[(u_char)*this->fIndex];
+  return this->fValue[(u_char)*this->fIndex];
 }
 
 
@@ -209,11 +209,11 @@ int tPListIteratorIndexed::TextValue(tPlayer arg1)
   __vtbl_ptr_type (*pa_Var1) [6];
   u_int uVar2;
   
-  pa_Var1 = (this->_base_tPListIterator)._vf;
+  pa_Var1 = this->_vf;
   uVar2 = (*(*pa_Var1)[2].pfn)
-                    ((int)&(this->_base_tPListIterator).fSelectionList + (int)(*pa_Var1)[2].delta,
+                    ((int)&this->fSelectionList + (int)(*pa_Var1)[2].delta,
                      0xffffffff);
-  return (int)(this->_base_tPListIterator).fSelectionList[uVar2 & 0xff];
+  return (int)this->fSelectionList[uVar2 & 0xff];
 }
 
 
@@ -225,10 +225,10 @@ int tPListIteratorIndexed::Increment(tPlayer arg1)
 {
   int *piVar1;
   
-  piVar1 = (this->_base_tPListIterator).fValue + (u_char)*this->fIndex;
+  piVar1 = this->fValue + (u_char)*this->fIndex;
   *piVar1 = *piVar1 + 1;
-  piVar1 = (this->_base_tPListIterator).fValue + (u_char)*this->fIndex;
-  if ((this->_base_tPListIterator).fSelectionList[*piVar1] == 0) {
+  piVar1 = this->fValue + (u_char)*this->fIndex;
+  if (this->fSelectionList[*piVar1] == 0) {
     *piVar1 = 0;
   }
   AudioCmn_PlayPauseSound(5);
@@ -249,15 +249,15 @@ int tPListIteratorIndexed::Decrement(tPlayer arg1)
   u_char *pbVar4;
   
   pbVar4 = (u_char *)this->fIndex;
-  piVar3 = (this->_base_tPListIterator).fValue;
+  piVar3 = this->fValue;
   iVar2 = piVar3[*pbVar4];
   if (iVar2 == 0) {
-    sVar1 = (this->_base_tPListIterator).fSelectionList[1];
+    sVar1 = this->fSelectionList[1];
     while (0 < sVar1) {
       piVar3[*pbVar4] = piVar3[*pbVar4] + 1;
       pbVar4 = (u_char *)this->fIndex;
-      piVar3 = (this->_base_tPListIterator).fValue;
-      sVar1 = (this->_base_tPListIterator).fSelectionList[piVar3[*pbVar4] + 1];
+      piVar3 = this->fValue;
+      sVar1 = this->fSelectionList[piVar3[*pbVar4] + 1];
     }
   }
   else {

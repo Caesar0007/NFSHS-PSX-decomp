@@ -5,22 +5,8 @@
 
 #include "../../nfs4_types.h"
 #include "../../lib/libfns.h"
+#include "../../lib/psx_gte.h"   /* canonical PsyQ inline COP2/GTE macros (real cop2 words) */
 
-/* ---- GTE pipeline (PsyQ libgte). Faithful symbolic intrinsics (no-op macros, sealed-module
-   convention); the cop2 op sequence is shown explicitly per the disasm-proto decode. ---- */
-extern void gte_rtps(void);
-extern void gte_rtpt(void);
-extern void gte_lwc2(int reg, int data);
-extern void gte_swc2(int reg, void *ptr);
-#define gte_SetRotMatrix(mp)    ((void)(mp))  /* ctc2 R -> cop2 ctrl 0..4  (5 ctc2)     */
-#define gte_SetTransMatrix(mp)  ((void)(mp))  /* ctc2 TR -> cop2 ctrl 5..7 (3 ctc2)     */
-#define gte_ldsv(p)             ((void)(p))   /* mtc2 short-vector -> IR1..3 (3 mtc2)   */
-#define gte_stsv(p)             ((void)(p))   /* mfc2 IR1..3 -> short-vector (3 mfc2)   */
-#define gte_stsxy(p)            ((void)(p))   /* mfc2 SXY2 -> DVECTOR (screen xy)       */
-#define gte_stsz(p)             ((void)(p))   /* mfc2 SZ3  -> short   (projected depth) */
-#define gte_rtir(args...)           ((void)0)   /* RotIR / mvmva (transform IR vector)     */
-#define gte_ldtr(args...)           ((void)0)   /* load translation vector to cop2         */
-#define gte_rtps_b(args...)         ((void)0)   /* RTPS variant (buffered)                 */
    /* PsyQ libgte RotMatrixZ */
 typedef void (code)(void);
 typedef long long undefined8;

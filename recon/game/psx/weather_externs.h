@@ -3,26 +3,9 @@
 #ifndef WEATHER_EXTERNS_H
 #define WEATHER_EXTERNS_H
 
-/* ---- PsyQ libgte.h GTE (COP2) inline macros (mirrors <libgte.h>; expand to COP2 asm on PSX).
- *      Declared no-op here for the host syntax check; the call text is the faithful source form. */
-#define gte_SetRotMatrix(m)     ((void)(m))
-#define gte_SetTransMatrix(m)   ((void)(m))
-#define gte_SetRotMatrix_pc(m)  ((void)(m))
-#define gte_ldv0(v)             ((void)(v))
-#define gte_ldv1(v)             ((void)(v))
-#define gte_ldv2(v)             ((void)(v))
-#define gte_ldv3(v0,v1,v2)      ((void)0)
-#define gte_rtps()              ((void)0)
-#define gte_rtpt()              ((void)0)
-#define gte_rt()                ((void)0)
-#define gte_stsxy(p)            ((void)(p))
-#define gte_stsxy3(a,b,c)       ((void)0)
-#define gte_stsz(p)             ((void)(p))
-#define gte_stlvnl(p)           ((void)(p))
-#define gte_ctc2(v,r)           ((void)0)
-#define gte_lwc2(r,v)           ((void)0)
-#define gte_swc2(r,p)           ((void)0)
-#define gte_mvmva(args...)          ((void)0)
+/* ---- canonical PsyQ libgte (COP2/GTE) inline macros: real cop2 asm under __mips__,
+ *      host no-op stubs for the -m32 syntax-check seal gate (section 3.4). ---- */
+#include "../../lib/psx_gte.h"
 
 /* ---- Weather state globals (SYM Globals.jsonl) ---- */
 extern int               Weather_gDensityTbl[4];               /* 0x80123384 */

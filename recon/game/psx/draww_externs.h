@@ -6,7 +6,7 @@
 /* ---- GTE intrinsics ---- */
 /* Canonical PsyQ libgte inline COP2 macros are vendored in psx_gte.h (real cop2 asm).
  * Kept here: the legacy gte_lwc2/gte_swc2 value-form externs (call sites pending
- * conversion to gte_ldv*/gte_st* per the GTE batch) + gte_ldsxy3 (not yet vendored). */
+ * conversion to gte_ldv / gte_st forms per the GTE batch) + gte_ldsxy3 (not yet vendored). */
 #include "../../lib/psx_gte.h"
 extern void gte_lwc2(int reg, int data);   /* value-form load (draww calls pending conversion to gte_ldv*) */
 #define gte_ldsxy3(a,b,c)       ((void)0)

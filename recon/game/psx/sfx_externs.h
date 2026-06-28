@@ -4,6 +4,7 @@
 
 #include "../../nfs4_types.h"
 #include "../../lib/libfns.h"
+#include "../../lib/psx_gte.h"
 
 /* ---- module / render globals ---- */
 extern matrixtdef    gWorldMat;        /* 0x8010ee40  world->camera matrix (set per facet) */
@@ -27,21 +28,9 @@ extern void  TrsProj_SetPsxMatrix(matrixtdef *m, coorddef *trans);
 extern void  Math_NormalizeVector(coorddef *v);
 extern void  ChangeTPage(u_short *tpage, int abr);
 
-/* ---- GTE (COP2) macros: declared no-op (mirror libgte.h; ops have no C-visible effect here) ---- */
-#define gte_SetRotMatrix(m)   ((void)(m))
-#define gte_ldv0(v)           ((void)(v))
-#define gte_ldv3(v0,v1,v2)    ((void)0)
-#define gte_lwc2(r,v)         ((void)0)
-#define gte_swc2(r,p)         ((void)0)
-#define gte_mvmva(args...)        ((void)0)
-#define gte_rtps()            ((void)0)
-#define gte_rtpt()            ((void)0)
-#define gte_avsz4()           ((void)0)
-#define gte_stlvnl(p)         ((void)(p))
-#define gte_stsxy(p)          ((void)(p))
-#define gte_stsxy3(a,b,c)     ((void)0)
-#define gte_stsz(p)           ((void)(p))
-#define gte_ctc2(v,r)         ((void)0)
+/* ---- GTE (COP2) macros: the real canonical PsyQ inline-asm forms come from psx_gte.h
+ *      (included above). The former no-op stubs here SHADOWED them and made every GTE
+ *      stream a far-miss — removed so the cop2 instructions actually emit. ---- */
 
 /* ---- this module (forward decls for intra-TU calls) ---- */
 extern void Sfx_Transform(coorddef *worldpt, SVECTOR *campt, coorddef *t);

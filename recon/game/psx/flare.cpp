@@ -91,15 +91,12 @@ void Flare_SetMatrix(matrixtdef *m)
   MATRIX mpsx;
   int *mm = (int *)m;
 
-  mpsx.m[0][0] = (short)(mm[0] >> 4);
-  mpsx.m[0][1] = (short)(mm[1] >> 4);
-  mpsx.m[0][2] = (short)(mm[2] >> 4);
-  mpsx.m[1][0] = (short)(mm[3] >> 4);
-  mpsx.m[1][1] = (short)(mm[4] >> 4);
-  mpsx.m[1][2] = (short)(mm[5] >> 4);
-  mpsx.m[2][0] = (short)(mm[6] >> 4);
-  mpsx.m[2][1] = (short)(mm[7] >> 4);
-  mpsx.m[2][2] = (short)(mm[8] >> 4);
+  r0 = mm[0] >> 4; r1 = mm[3] >> 4; r2 = mm[6] >> 4;
+  mpsx.m[0][0] = (short)r0; mpsx.m[0][1] = (short)r1; mpsx.m[0][2] = (short)r2;
+  r0 = mm[1] >> 4; r1 = mm[4] >> 4; r2 = mm[7] >> 4;
+  mpsx.m[1][0] = (short)r0; mpsx.m[1][1] = (short)r1; mpsx.m[1][2] = (short)r2;
+  r0 = mm[2] >> 4; r1 = mm[5] >> 4; r2 = mm[8] >> 4;
+  mpsx.m[2][0] = (short)r0; mpsx.m[2][1] = (short)r1; mpsx.m[2][2] = (short)r2;
   gte_SetRotMatrix(&mpsx);
   gte_ldtr(0,0,0);
 }
@@ -132,36 +129,28 @@ void Flare_OctFlare(long *center,int otz)
   u_char *prim;
   
   CVar6 = (*(int *)&gfrgb);
-gte_lwc2(0,*(int *)(&Flare_gOct));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x4)));
+gte_ldv0(&Flare_gOct);
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x10));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x8)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0xc)));
+gte_ldv0(((char *)&Flare_gOct + 0x8));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x10)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x14)));
+gte_ldv0(((char *)&Flare_gOct + 0x10));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x18));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x18)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x1c)));
+gte_ldv0(((char *)&Flare_gOct + 0x18));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x1c));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x20)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x24)));
+gte_ldv0(((char *)&Flare_gOct + 0x20));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x20));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x28)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x2c)));
+gte_ldv0(((char *)&Flare_gOct + 0x28));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x24));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x30)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x34)));
+gte_ldv0(((char *)&Flare_gOct + 0x30));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x28));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x38)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x3c)));
+gte_ldv0(((char *)&Flare_gOct + 0x38));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
   vert_idx = 8;
@@ -222,52 +211,40 @@ void Flare_OctFlareSpikes(long *center,int otz)
   short ts4;
   short ts5;
   
-gte_lwc2(0,*(int *)(&Flare_gSpikes));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gSpikes + 0x4)));
+gte_ldv0(&Flare_gSpikes);
   gte_rtps();
 gte_swc2(0xe,&flare_dvxy);
-gte_lwc2(0,*(int *)(((char *)&Flare_gSpikes + 0x8)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gSpikes + 0xc)));
+gte_ldv0(((char *)&Flare_gSpikes + 0x8));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x4));
-gte_lwc2(0,*(int *)(((char *)&Flare_gSpikes + 0x10)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gSpikes + 0x14)));
+gte_ldv0(((char *)&Flare_gSpikes + 0x10));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x8));
-gte_lwc2(0,*(int *)(((char *)&Flare_gSpikes + 0x18)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gSpikes + 0x1c)));
+gte_ldv0(((char *)&Flare_gSpikes + 0x18));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0xc));
-gte_lwc2(0,*(int *)(&Flare_gOct));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x4)));
+gte_ldv0(&Flare_gOct);
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x10));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x8)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0xc)));
+gte_ldv0(((char *)&Flare_gOct + 0x8));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x10)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x14)));
+gte_ldv0(((char *)&Flare_gOct + 0x10));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x18));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x18)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x1c)));
+gte_ldv0(((char *)&Flare_gOct + 0x18));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x1c));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x20)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x24)));
+gte_ldv0(((char *)&Flare_gOct + 0x20));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x20));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x28)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x2c)));
+gte_ldv0(((char *)&Flare_gOct + 0x28));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x24));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x30)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x34)));
+gte_ldv0(((char *)&Flare_gOct + 0x30));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x28));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x38)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x3c)));
+gte_ldv0(((char *)&Flare_gOct + 0x38));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
   CVar7 = gfrgb2;
@@ -337,52 +314,40 @@ void Flare_Spikes(long *center,int otz)
   CVECTOR spikeColor;
   u_char *prim;
   
-gte_lwc2(0,*(int *)(&Flare_gSpikes));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gSpikes + 0x4)));
+gte_ldv0(&Flare_gSpikes);
   gte_rtps();
 gte_swc2(0xe,&flare_dvxy);
-gte_lwc2(0,*(int *)(((char *)&Flare_gSpikes + 0x8)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gSpikes + 0xc)));
+gte_ldv0(((char *)&Flare_gSpikes + 0x8));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x4));
-gte_lwc2(0,*(int *)(((char *)&Flare_gSpikes + 0x10)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gSpikes + 0x14)));
+gte_ldv0(((char *)&Flare_gSpikes + 0x10));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x8));
-gte_lwc2(0,*(int *)(((char *)&Flare_gSpikes + 0x18)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gSpikes + 0x1c)));
+gte_ldv0(((char *)&Flare_gSpikes + 0x18));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0xc));
-gte_lwc2(0,*(int *)(&Flare_gOct));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x4)));
+gte_ldv0(&Flare_gOct);
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x10));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x8)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0xc)));
+gte_ldv0(((char *)&Flare_gOct + 0x8));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x10)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x14)));
+gte_ldv0(((char *)&Flare_gOct + 0x10));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x18));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x18)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x1c)));
+gte_ldv0(((char *)&Flare_gOct + 0x18));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x1c));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x20)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x24)));
+gte_ldv0(((char *)&Flare_gOct + 0x20));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x20));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x28)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x2c)));
+gte_ldv0(((char *)&Flare_gOct + 0x28));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x24));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x30)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x34)));
+gte_ldv0(((char *)&Flare_gOct + 0x30));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x28));
-gte_lwc2(0,*(int *)(((char *)&Flare_gOct + 0x38)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x3c)));
+gte_ldv0(((char *)&Flare_gOct + 0x38));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
   vert_idx = 8;
@@ -430,28 +395,22 @@ void Flare_HexFlare(long *center,int otz)
   u_char *prim;
   CVECTOR CVar1;
   
-gte_lwc2(0,*(int *)(&Flare_gHex));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gHex + 0x4)));
+gte_ldv0(&Flare_gHex);
   gte_rtps();
 gte_swc2(0xe,&flare_dvxy);
-gte_lwc2(0,*(int *)(((char *)&Flare_gHex + 0x8)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gHex + 0xc)));
+gte_ldv0(((char *)&Flare_gHex + 0x8));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x4));
-gte_lwc2(0,*(int *)(((char *)&Flare_gHex + 0x10)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gHex + 0x14)));
+gte_ldv0(((char *)&Flare_gHex + 0x10));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x8));
-gte_lwc2(0,*(int *)(((char *)&Flare_gHex + 0x18)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gHex + 0x1c)));
+gte_ldv0(((char *)&Flare_gHex + 0x18));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0xc));
-gte_lwc2(0,*(int *)(((char *)&Flare_gHex + 0x20)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gHex + 0x24)));
+gte_ldv0(((char *)&Flare_gHex + 0x20));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x10));
-gte_lwc2(0,*(int *)(((char *)&Flare_gHex + 0x28)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gHex + 0x2c)));
+gte_ldv0(((char *)&Flare_gHex + 0x28));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
   vert_idx = 6;
@@ -495,28 +454,22 @@ void Flare_ReflectHexFlare(long *center,int otz)
   CVECTOR CVar1;
   u_char *prim;
   
-gte_lwc2(0,*(int *)(&Flare_gReflectHex));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gReflectHex + 0x4)));
+gte_ldv0(&Flare_gReflectHex);
   gte_rtps();
 gte_swc2(0xe,&flare_dvxy);
-gte_lwc2(0,*(int *)(((char *)&Flare_gReflectHex + 0x8)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gReflectHex + 0xc)));
+gte_ldv0(((char *)&Flare_gReflectHex + 0x8));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x4));
-gte_lwc2(0,*(int *)(((char *)&Flare_gReflectHex + 0x10)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gReflectHex + 0x14)));
+gte_ldv0(((char *)&Flare_gReflectHex + 0x10));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x8));
-gte_lwc2(0,*(int *)(((char *)&Flare_gReflectHex + 0x18)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gReflectHex + 0x1c)));
+gte_ldv0(((char *)&Flare_gReflectHex + 0x18));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0xc));
-gte_lwc2(0,*(int *)(((char *)&Flare_gReflectHex + 0x20)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gReflectHex + 0x24)));
+gte_ldv0(((char *)&Flare_gReflectHex + 0x20));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x10));
-gte_lwc2(0,*(int *)(((char *)&Flare_gReflectHex + 0x28)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gReflectHex + 0x2c)));
+gte_ldv0(((char *)&Flare_gReflectHex + 0x28));
   gte_rtps();
 gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
   vert_idx = 6;
@@ -556,23 +509,19 @@ void Flare_QuadFlare(long *center,int otz)
   long save1;
   
   cp = center;
-gte_lwc2(0,*(int *)(&Flare_gQuad));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gQuad + 0x4)));
+gte_ldv0(&Flare_gQuad);
   gte_rtps();
 gte_swc2(0xe,&save1);
-gte_lwc2(0,*(int *)(((char *)&Flare_gQuad + 0x8)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gQuad + 0xc)));
+gte_ldv0(((char *)&Flare_gQuad + 0x8));
   gte_rtps();
   p2 = pt + 1;
 gte_swc2(0xe,((char *)&pt + 0x4));
   Flare_Tri(cp,&save1,p2,otz);
-gte_lwc2(0,*(int *)(((char *)&Flare_gQuad + 0x10)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gQuad + 0x14)));
+gte_ldv0(((char *)&Flare_gQuad + 0x10));
   gte_rtps();
 gte_swc2(0xe,&pt);
   Flare_Tri(center,p2,pt,otz);
-gte_lwc2(0,*(int *)(((char *)&Flare_gQuad + 0x18)));
-  gte_lwc2(1,*(int *)(((char *)&Flare_gQuad + 0x1c)));
+gte_ldv0(((char *)&Flare_gQuad + 0x18));
   gte_rtps();
 gte_swc2(0xe,((char *)&pt + 0x4));
   Flare_Tri(center,pt,p2,otz);
@@ -692,8 +641,7 @@ short * Flare_CarShapedHalo(int type,COORD16 *ptCenter,COORD16 *pt1,COORD16 *pt2
     if ((type & 0x100U) != 0) {
       ptCenter->y = -ptCenter->y - DrawC_gReflectOffset;
     }
-gte_lwc2(0,*(int *)(ptCenter));
-    gte_lwc2(1,*(int *)(((char *)ptCenter + 0x4)));
+gte_ldv0(ptCenter);
     gte_rtps();
     CVar3 = Flare_gType[ti13].chalo;
     CVar4 = Flare_gType[ti13].cbeam;
@@ -717,9 +665,7 @@ gte_lwc2(0,*(int *)(ptCenter));
       color[1].cd = (u_char)((u_int)CVar4 >> 0x18);
       color[1].b = color[1].b >> 1;
     }
-gte_swc2(0x19,&diff);
-    gte_swc2(0x1a,((char *)&diff + 0x4));
-    gte_swc2(0x1b,((char *)&diff + 0x8));
+gte_stlvnl(&diff);
     pDVar13 = (DVECTOR *)-diff.vx;
     if (((diff.vx <= diff.vz) &&
         (bVar11 = (int)pDVar13 <= diff.vz, pDVar13 = (DVECTOR *)(u_int)(diff.vz < 0x80), bVar11)) &&
@@ -734,12 +680,9 @@ gte_swc2(0xe,&sp);
         innerRadius = 0;
       }
       else {
-gte_lwc2(0,*(int *)(pt2));
-        gte_lwc2(1,*(int *)(((char *)pt2 + 0x4)));
+gte_ldv0(pt2);
         gte_rtps();
-gte_swc2(0x19,&diff2);
-        gte_swc2(0x1a,((char *)&diff2 + 0x4));
-        gte_swc2(0x1b,((char *)&diff2 + 0x8));
+gte_stlvnl(&diff2);
 gte_swc2(0xe,&sp2);
         diff_y = (int)(short)(*(u_short *)((u_char *)&(auStack_98) + 18)) - (int)sp.vy;
         diff_x = (int)(short)(*(u_short *)((u_char *)&(auStack_98) + 16)) - (int)sp.vx;
@@ -769,13 +712,10 @@ gte_swc2(0xe,&sp2);
       gscale = haloShape_p;
       if ((flagsMasked & 1U) != 0) {
         gte_ldtr(0,0,0);
-gte_lwc2(0,*(int *)(&crossprod));
-        gte_lwc2(1,*(int *)(((char *)&crossprod + 0x4)));
+gte_ldv0(&crossprod);
         gte_rtps();
         v0 = (VECTOR *)&tvec1;
-gte_swc2(0x19,&tvec1);
-        gte_swc2(0x1a,((char *)&tvec1 + 0x4));
-        gte_swc2(0x1b,((char *)&tvec1 + 0x8));
+gte_stlvnl(&tvec1);
         VectorNormal(v0,&tvec2);
         if ((flagsMasked & 2U) != 0) {
           tvec2.vz = (tvec2.vz + -0xf33) * 0x14;
@@ -993,17 +933,14 @@ int Flare_Halo2(DRender_tView *Vi,int scale,int type,coorddef *fpt,coorddef *fpt
   }
 FlareHalo2_rtpsEmit:
   Flare_SetMatrix(&gWorldMat);
-gte_lwc2(0,*(int *)(&sdiff));
-  gte_lwc2(1,*(int *)(((char *)&sdiff + 0x4)));
+gte_ldv0(&sdiff);
   gte_rtps();
   CVar3 = Flare_gType[flare_type].chalo;
   CVar4 = Flare_gType[flare_type].cbeam;
   if (scale == -1) {
     scale = Flare_gType[flare_type].scale;
   }
-gte_swc2(0x19,&diff);
-  gte_swc2(0x1a,((char *)&diff + 0x4));
-  gte_swc2(0x1b,((char *)&diff + 0x8));
+gte_stlvnl(&diff);
   pDVar1 = (DVECTOR *)-diff.vx;
   if (((diff.vx <= diff.vz) &&
       (pDVar1 = (DVECTOR *)(u_int)(diff.vz < 0x80), (int)-diff.vx <= diff.vz)) &&
@@ -1055,12 +992,9 @@ gte_stsz(&otz);
         SetDrawMode((DR_MODE *)tp2,0,0,0x120,(RECT *)0x0);
       }
       if ((halfHeight & 5U) != 0) {
-gte_lwc2(0,*(int *)(&sdiff2));
-        gte_lwc2(1,*(int *)(((char *)&sdiff2 + 0x4)));
+gte_ldv0(&sdiff2);
         gte_rtps();
-gte_swc2(0x19,&diff2);
-        gte_swc2(0x1a,((char *)&diff2 + 0x4));
-        gte_swc2(0x1b,((char *)&diff2 + 0x8));
+gte_stlvnl(&diff2);
 gte_swc2(0xe,&sp2);
       }
       if ((halfHeight & 4U) == 0) {
@@ -1338,8 +1272,7 @@ void Flare_PreCalcHexLightBeam(long *center,int otz)
   uVar8 = 0xff000000;
   uVar2 = *center;
   for (iVar7 = 0; iVar7 < 8; iVar7 = iVar7 + 1) {
-gte_lwc2(0,*(int *)(&Flare_gOct));
-    gte_lwc2(1,*(int *)(((char *)&Flare_gOct + 0x4)));
+gte_ldv0(&Flare_gOct);
     prim = *(u_int **)ppuVar8;
     puVar5 = (u_int *)(iVar9 + *(int *)ppuVar11);
     *prim = *prim & uVar8 | *puVar5 & uVar6;
@@ -1845,12 +1778,9 @@ void Flare_Sun(SVECTOR *worldPos,Draw_FlareCache *sd)
     vertRezBy2 = 0x3c;
   }
   if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr + -0x400) {
-gte_lwc2(0,*(int *)(worldPos));
-    gte_lwc2(1,*(int *)(((char *)worldPos + 0x4)));
+gte_ldv0(worldPos);
     gte_rtps();
-gte_swc2(0x19,&diff);
-    gte_swc2(0x1a,((char *)&diff + 0x4));
-    gte_swc2(0x1b,((char *)&diff + 0x8));
+gte_stlvnl(&diff);
     if ((diff.vx <= diff.vz) && (-diff.vx <= diff.vz)) {
       screenPos = &posOnScreen;
 gte_swc2(0xe,&posOnScreen);
@@ -1931,16 +1861,13 @@ void Flare_Moon(SVECTOR *worldPos,Draw_FlareCache *sd)
   if (GameSetup_gData.commMode == 1) {
     (*(u_short *)&(pshift)) = 0x3c;
   }
-gte_lwc2(0,*(int *)(worldPos));
-  gte_lwc2(1,*(int *)(((char *)worldPos + 0x4)));
+gte_ldv0(worldPos);
   gte_rtps();
   color.r = 0x80;
   color.g = 0x80;
   color.b = 0x80;
   color.cd = '\0';
-gte_swc2(0x19,&diff);
-  gte_swc2(0x1a,((char *)&diff + 0x4));
-  gte_swc2(0x1b,((char *)&diff + 0x8));
+gte_stlvnl(&diff);
   xy = &posOnScreen;
 gte_swc2(0xe,&posOnScreen);
   posOnScreen.vy = (short)(diff.vy >> 2) + (short)pshift;

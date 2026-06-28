@@ -1,4 +1,6 @@
 #include "../../lib/libfns.h"
+#include "../../nfs4_types.h"
+#include "../../lib/psx_gte.h"
 /* draww_externs.h -- extern decls for game/psx/drawc.cpp (NFS4 PSX world-geometry draw). */
 #ifndef DRAWC_EXTERNS_H
 #define DRAWC_EXTERNS_H
@@ -8,45 +10,8 @@ extern char Night_gDrawLightning;     /* @0x8013d9e0 (bss=0) */
 extern int  Night_gLightningType;     /* @0x8013da44 (bss=0) */
 extern long Night_gWeatherColor[2];   /* @0x8013da88 (bss=0) -- per-type RGB tint (bytes 0/1/2 = R/G/B) */
 
-/* ---- GTE intrinsics (no-op symbolic; faithful cop2 source) ---- */
-extern void gte_rtps(void);
-extern void gte_rtpt(void);
-extern void gte_lwc2(int reg, int data);
-extern void gte_swc2(int reg, void *ptr);
-#define gte_SetRotMatrix(args...)    ((void)0)
-#define gte_SetTransMatrix(args...)  ((void)0)
-#define gte_ldsv(args...)             ((void)0)
-#define gte_stsv(args...)             ((void)0)
-#define gte_stsxy(args...)            ((void)0)
-#define gte_stsz(args...)             ((void)0)
-#define gte_stflg(args...)            ((void)0)
-#define gte_rtir(args...)           ((void)0)
-#define gte_ldtr(args...)           ((void)0)
-#define gte_rtps_b(args...)         ((void)0)
-/* GTE ops Ghidra inlines as macro CALLS in draww (nclip/avsz/depth-cue/ldsxy3/ldIR0/rt) */
-#define gte_nclip(args...)          ((void)0)
-#define gte_nclip_b(args...)        ((void)0)
-#define gte_avsz4(args...)          ((void)0)
-#define gte_avsz4_b(args...)        ((void)0)
-#define gte_dpcs(args...)           ((void)0)
-#define gte_dpct(args...)           ((void)0)
-#define gte_ldsxy3(args...)       ((void)0)
-#define gte_ldIR0(args...)            ((void)0)
-#define gte_rt(args...)             ((void)0)
-/* drawc rtpt triangle-pipeline macros (Ghidra-named; symbolic no-ops, operands faithful) */
-#define gte_ldVXY0(args...)         ((void)0)
-#define gte_ldVZ0(args...)          ((void)0)
-#define gte_ldVXY1(args...)         ((void)0)
-#define gte_ldVZ1(args...)          ((void)0)
-#define gte_ldVXY2(args...)         ((void)0)
-#define gte_ldVZ2(args...)          ((void)0)
-#define gte_ldv3(args...)           ((void)0)   /* 0x200000f4 arg-bearing GTE load (best-effort name) */
-#define gte_avsz3(args...)          ((void)0)
-#define gte_stMAC0(args...)         ((void)0)
-#define gte_stOTZ(args...)          ((void)0)
-#define gte_stSXY0(args...)         ((void)0)
-#define gte_stSXY1(args...)         ((void)0)
-#define gte_stSXY2(args...)         ((void)0)
+/* ---- GTE intrinsics: canonical PsyQ inline COP2 macros from ../../lib/psx_gte.h ----
+ * (all gte_* loads/stores/compute live there now; the former local no-op stubs deleted). */
 
 /* ---- PsyQ libgte / libgpu (seed; extend as compile demands) ---- */
 

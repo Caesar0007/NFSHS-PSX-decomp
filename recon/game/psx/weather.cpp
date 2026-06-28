@@ -44,18 +44,27 @@ void Weather_SetMatrix(matrixtdef *m)
   int r2;
   MATRIX mpsx;
 
-  mpsx.m[0][0] = (short)((int)m->m[0] >> 4);
-  mpsx.m[0][1] = (short)((int)m->m[3] >> 4);
-  mpsx.m[0][2] = (short)((int)m->m[6] >> 4);
-  mpsx.m[1][0] = (short)((int)m->m[1] >> 4);
-  mpsx.m[1][1] = (short)((int)m->m[4] >> 4);
-  mpsx.m[1][2] = (short)((int)m->m[7] >> 4);
+  r0 = m->m[0];
+  r1 = m->m[3];
+  r2 = m->m[6];
+  mpsx.m[0][0] = (short)(r0 >> 4);
+  mpsx.m[0][1] = (short)(r1 >> 4);
+  mpsx.m[0][2] = (short)(r2 >> 4);
+  r0 = m->m[1];
+  r1 = m->m[4];
+  r2 = m->m[7];
+  mpsx.m[1][0] = (short)(r0 >> 4);
+  mpsx.m[1][1] = (short)(r1 >> 4);
+  mpsx.m[1][2] = (short)(r2 >> 4);
+  r0 = m->m[2];
+  r1 = m->m[5];
+  r2 = m->m[8];
   mpsx.t[0] = 0;
   mpsx.t[1] = 0;
   mpsx.t[2] = 0;
-  mpsx.m[2][0] = (short)((int)m->m[2] >> 4);
-  mpsx.m[2][1] = (short)((int)m->m[5] >> 4);
-  mpsx.m[2][2] = (short)((int)m->m[8] >> 4);
+  mpsx.m[2][0] = (short)(r0 >> 4);
+  mpsx.m[2][1] = (short)(r1 >> 4);
+  mpsx.m[2][2] = (short)(r2 >> 4);
   gte_SetRotMatrix(&mpsx);
   gte_SetTransMatrix(&mpsx);
 }
@@ -450,28 +459,33 @@ void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
   int r2;
   VECTOR tv;
   SVECTOR *next;
-  int i;
 
   Weather_SetMatrix(m);
   gte_ldv0(s);
-  gte_mvmva();
-  i = n + -1;
+  gte_mvmva(1,0,0,0,0);
+  n = n + -1;
   gte_stlvnl(&tv);
   while (true) {
-    i = i + -1;
+    n = n + -1;
     next = s + 1;
-    if (i == -1) break;
+    if (n == -1) break;
     gte_ldv0(next);
-    gte_mvmva();
-    s->vx = (short)tv.vx;
-    s->vy = (short)tv.vy;
-    s->vz = (short)tv.vz;
+    gte_mvmva(1,0,0,0,0);
+    r0 = tv.vx;
+    r1 = tv.vy;
+    r2 = tv.vz;
+    s->vx = (short)r0;
+    s->vy = (short)r1;
+    s->vz = (short)r2;
     gte_stlvnl(&tv);
     s = next;
   }
-  s->vx = (short)tv.vx;
-  s->vy = (short)tv.vy;
-  s->vz = (short)tv.vz;
+  r0 = tv.vx;
+  r1 = tv.vy;
+  r2 = tv.vz;
+  s->vx = (short)r0;
+  s->vy = (short)r1;
+  s->vz = (short)r2;
 }
 
 /* ---- Weather_CheckAndResetParticles__FP7SVECTOR  [WEATHER.CPP:623-668] SLD-VERIFIED ---- */
@@ -685,7 +699,7 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
   temp_vector.vy = (short)((Vi->cview.translation.y - cp->y) / 0x400);
   temp_vector.vz = (short)((Vi->cview.translation.z - cp->z) / 0x400);
   gte_ldv0(&temp_vector);
-  gte_mvmva();
+  gte_mvmva(1,0,0,0,0);
   cp->x = Vi->cview.translation.x;
   cp->y = Vi->cview.translation.y;
   cp->z = Vi->cview.translation.z;
@@ -699,7 +713,7 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
   temp_vector.vy = Weather_gSys.velocity.vy;
   temp_vector.vz = Weather_gSys.velocity.vz;
   gte_ldv0(&temp_vector);
-  gte_mvmva();
+  gte_mvmva(1,0,0,0,0);
   gte_stlvnl(&result);
   total_vector_change.vx = total_vector_change.vx + (short)result.vx;
   velocity_vector_change.vx = (short)result.vx;
@@ -715,7 +729,7 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
     temp_vector.vy = vel[1];
     temp_vector.vz = vel[2];
     gte_ldv0(&temp_vector);
-    gte_mvmva();
+    gte_mvmva(1,0,0,0,0);
     gte_stlvnl(&result);
     Weather_gTransformedRandomVelocityVectors[n].vx = (short)result.vx;
     Weather_gTransformedRandomVelocityVectors[n].vy = (short)result.vy;

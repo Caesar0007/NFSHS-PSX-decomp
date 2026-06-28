@@ -38,6 +38,15 @@
 #define gte_ldVXY2(p) __asm__ volatile ("lwc2 $4, 0(%0)" : : "r"(p))
 #define gte_ldVZ2(p)  __asm__ volatile ("lwc2 $5, 0(%0)" : : "r"(p))
 #define gte_ldIR0(p)  __asm__ volatile ("lwc2 $8, 0(%0)" : : "r"(p))
+/* load CVECTOR -> RGB (reg 6). rgb3/rgb3c: load FIFO rgb0/1/2 (regs 20/21/22) from 3
+ * pointers / one continuous base, also reloading RGB(6) from the last (PsyQ gte_ldrgb3*). */
+#define gte_ldrgb(p)   __asm__ volatile ("lwc2 $6, 0(%0)" : : "r"(p))
+#define gte_ldrgb3(a,b,c) __asm__ volatile (                                   \
+    "lwc2 $20, 0(%0)\n\tlwc2 $21, 0(%1)\n\tlwc2 $22, 0(%2)\n\tlwc2 $6, 0(%2)"   \
+    : : "r"(a), "r"(b), "r"(c))
+#define gte_ldrgb3c(p) __asm__ volatile (                                      \
+    "lwc2 $20, 0(%0)\n\tlwc2 $21, 4(%0)\n\tlwc2 $22, 8(%0)\n\tlwc2 $6, 8(%0)"   \
+    : : "r"(p))
 /* load a short[3] vector into IR1-3 (via CPU regs) */
 #define gte_ldsv(p)   __asm__ volatile (                                       \
     "lhu $12, 0(%0)\n\tlhu $13, 2(%0)\n\tlhu $14, 4(%0)\n\t"                    \
@@ -52,6 +61,10 @@
 #define gte_stlvnl(p) __asm__ volatile (                                       \
     "swc2 $25, 0(%0)\n\tswc2 $26, 4(%0)\n\tswc2 $27, 8(%0)"                     \
     : : "r"(p) : "memory")
+/* lone MAC1 / MAC2 / MAC3 stores (PsyQ gte_stlvnl0/1/2) */
+#define gte_stlvnl0(p) __asm__ volatile ("swc2 $25, 0(%0)" : : "r"(p) : "memory")
+#define gte_stlvnl1(p) __asm__ volatile ("swc2 $26, 0(%0)" : : "r"(p) : "memory")
+#define gte_stlvnl2(p) __asm__ volatile ("swc2 $27, 0(%0)" : : "r"(p) : "memory")
 /* store IR1-3 as shorts (via CPU regs) */
 #define gte_stsv(p)   __asm__ volatile (                                       \
     "mfc2 $12, $9\n\tmfc2 $13, $10\n\tmfc2 $14, $11\n\t"                        \
@@ -64,7 +77,22 @@
 #define gte_stSXY0(p) __asm__ volatile ("swc2 $12, 0(%0)" : : "r"(p) : "memory")
 #define gte_stSXY1(p) __asm__ volatile ("swc2 $13, 0(%0)" : : "r"(p) : "memory")
 #define gte_stSXY2(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
-#define gte_stsz(p)   __asm__ volatile ("swc2 $19, 0(%0)" : : "r"(p) : "memory")
+#define gte_stsz(p)   __asm__ volatile ("swc2 $19, 0(%0)" : : "r"(p) : "memory")   /* lone SZ3 */
+/* SZ stores: there is NO lone PsyQ macro for SZ1 or SZ2 -- they come only as a trio.
+ * gte_stsz3 = SZ1/SZ2/SZ3 to three pointers; gte_stsz3c = to one base at +0/4/8;
+ * gte_stsz4 = SZ0..SZ3 to four pointers; gte_stsz4c = to one base at +0/4/8/12. */
+#define gte_stsz3(a,b,c) __asm__ volatile (                                    \
+    "swc2 $17, 0(%0)\n\tswc2 $18, 0(%1)\n\tswc2 $19, 0(%2)"                     \
+    : : "r"(a), "r"(b), "r"(c) : "memory")
+#define gte_stsz3c(p)  __asm__ volatile (                                      \
+    "swc2 $17, 0(%0)\n\tswc2 $18, 4(%0)\n\tswc2 $19, 8(%0)"                     \
+    : : "r"(p) : "memory")
+#define gte_stsz4(a,b,c,d) __asm__ volatile (                                  \
+    "swc2 $16, 0(%0)\n\tswc2 $17, 0(%1)\n\tswc2 $18, 0(%2)\n\tswc2 $19, 0(%3)"  \
+    : : "r"(a), "r"(b), "r"(c), "r"(d) : "memory")
+#define gte_stsz4c(p)  __asm__ volatile (                                      \
+    "swc2 $16, 0(%0)\n\tswc2 $17, 4(%0)\n\tswc2 $18, 8(%0)\n\tswc2 $19, 12(%0)" \
+    : : "r"(p) : "memory")
 #define gte_stOTZ(p)  __asm__ volatile ("swc2 $7, 0(%0)"  : : "r"(p) : "memory")
 #define gte_stMAC0(p) __asm__ volatile ("swc2 $24, 0(%0)" : : "r"(p) : "memory")
 /* store the FLAG control reg */
@@ -129,9 +157,15 @@
 #define gte_ldVXY2(p)          ((void)(p))
 #define gte_ldVZ2(p)           ((void)(p))
 #define gte_ldIR0(p)           ((void)(p))
+#define gte_ldrgb(p)           ((void)(p))
+#define gte_ldrgb3(a,b,c)      do { (void)(a); (void)(b); (void)(c); } while (0)
+#define gte_ldrgb3c(p)         ((void)(p))
 #define gte_ldsv(p)            ((void)(p))
 #define gte_ldtr(r0,r1,r2)     do { (void)(r0); (void)(r1); (void)(r2); } while (0)
 #define gte_stlvnl(p)          ((void)(p))
+#define gte_stlvnl0(p)         ((void)(p))
+#define gte_stlvnl1(p)         ((void)(p))
+#define gte_stlvnl2(p)         ((void)(p))
 #define gte_stsv(p)            ((void)(p))
 #define gte_stsxy(p)           ((void)(p))
 #define gte_stsxy3(p0,p1,p2)   do { (void)(p0); (void)(p1); (void)(p2); } while (0)
@@ -139,6 +173,10 @@
 #define gte_stSXY1(p)          ((void)(p))
 #define gte_stSXY2(p)          ((void)(p))
 #define gte_stsz(p)            ((void)(p))
+#define gte_stsz3(a,b,c)       do { (void)(a); (void)(b); (void)(c); } while (0)
+#define gte_stsz3c(p)          ((void)(p))
+#define gte_stsz4(a,b,c,d)     do { (void)(a); (void)(b); (void)(c); (void)(d); } while (0)
+#define gte_stsz4c(p)          ((void)(p))
 #define gte_stOTZ(p)           ((void)(p))
 #define gte_stMAC0(p)          ((void)(p))
 #define gte_stflg(p)           ((void)(p))

@@ -25,11 +25,13 @@ void Sfx_Transform(coorddef *worldpt,SVECTOR *campt,coorddef *t)
   campt->vx = (short)campt32.vx;
   campt->vy = (short)campt32.vy;
   campt->vz = (short)campt32.vz;
-  ident.m[0][0] = 0x1000; ident.m[0][1] = 0; ident.m[0][2] = 0;
-  ident.m[1][0] = 0; ident.m[1][1] = 0x1000; ident.m[1][2] = 0;
-  ident.m[2][0] = 0; ident.m[2][1] = 0; ident.m[2][2] = 0x1000;
+  ident.m[0][0] = 0x1000; ident.m[1][1] = 0x1000; ident.m[2][2] = 0x1000;
+  ident.m[1][0] = 0; ident.m[2][0] = 0;
+  ident.m[0][1] = 0; ident.m[2][1] = 0;
+  ident.m[0][2] = 0; ident.m[1][2] = 0;
   ident.t[0] = 0; ident.t[1] = 0; ident.t[2] = 0;
   gte_SetRotMatrix(&ident);
+  gte_SetTransMatrix(&ident);
   return;
 }
 
@@ -139,7 +141,7 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
     }
     gte_stsxy3(&prim->x1,&prim->x3,&prim->x2);
     gte_avsz4();
-    gte_stsz(&sd->otz);
+    gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
     sd->otz = (sd->otz >> 1) + offset;
     if ((-1 < sd->otz) && (sd->otz <= Draw_gViewOtSize + -3)) {
       prim->code = 9;
@@ -289,7 +291,7 @@ SfxSouffle_billboard:
         *(int *)&prim->r0 = colorcode;
         gte_stsxy3(&prim->x0,&prim->x3,&prim->x2);
         gte_avsz4();
-        gte_stsz(&sd->otz);
+        gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
         sd->otz = (sd->otz >> 1) + otz;
         if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
           prim->code = 9;
@@ -327,7 +329,7 @@ SfxSouffle_billboard:
       *(int *)&prim->r0 = is->colour | 0x2c000000;
       gte_stsxy3(&prim->x1,&prim->x3,&prim->x2);
       gte_avsz4();
-      gte_stsz(&sd->otz);
+      gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
       sd->otz = (sd->otz >> 1) + 0xf;
       if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
         prim->code = 9;

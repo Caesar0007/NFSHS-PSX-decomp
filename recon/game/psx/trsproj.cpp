@@ -44,8 +44,7 @@ void TrsProj_SetProjection(int cx,int cy,int w,int h)
 void TrsProj_SetMenuProjection(int cx,int cy,int w,int h)
 {
   gte_ctc2(0x200,0x1a);
-  gte_ctc2((cx + w / 2) << 0x10,0x18);
-  gte_ctc2((cy + h / 2) << 0x10,0x19);
+  gte_SetGeomOffset(cx + w / 2,cy + h / 2);
 }
 
 /* ---- TrsProj_SetViewTrsProjEnviro__FP13DRender_tView  [TRSPROJ.CPP:76-100] SLD-VERIFIED ---- */
@@ -64,20 +63,29 @@ void TrsProj_SetViewTrsProjEnviro(DRender_tView *Vi)
 /* ---- TrsProj_SetPsxMatrix__FP10matrixtdefP8coorddef  [TRSPROJ.CPP:137-151] SLD-VERIFIED ---- */
 void TrsProj_SetPsxMatrix(matrixtdef *m,coorddef *t)
 {
-  int r0;
-  int r1;
-  int r2;
+  short r0;
+  short r1;
+  short r2;
   MATRIX mpsx;
 
-  mpsx.m[0][0] = (short)((int)m->m[0] >> 4);
-  mpsx.m[0][1] = (short)((int)m->m[3] >> 4);
-  mpsx.m[0][2] = (short)((int)m->m[6] >> 4);
-  mpsx.m[1][0] = (short)((int)m->m[1] >> 4);
-  mpsx.m[1][1] = (short)((int)m->m[4] >> 4);
-  mpsx.m[1][2] = (short)((int)m->m[7] >> 4);
-  mpsx.m[2][0] = (short)((int)m->m[2] >> 4);
-  mpsx.m[2][1] = (short)((int)m->m[5] >> 4);
-  mpsx.m[2][2] = (short)((int)m->m[8] >> 4);
+  r0 = (short)((int)m->m[0] >> 4);
+  r1 = (short)((int)m->m[3] >> 4);
+  r2 = (short)((int)m->m[6] >> 4);
+  mpsx.m[0][0] = r0;
+  mpsx.m[0][1] = r1;
+  mpsx.m[0][2] = r2;
+  r0 = (short)((int)m->m[1] >> 4);
+  r1 = (short)((int)m->m[4] >> 4);
+  r2 = (short)((int)m->m[7] >> 4);
+  mpsx.m[1][0] = r0;
+  mpsx.m[1][1] = r1;
+  mpsx.m[1][2] = r2;
+  r0 = (short)((int)m->m[2] >> 4);
+  r1 = (short)((int)m->m[5] >> 4);
+  r2 = (short)((int)m->m[8] >> 4);
+  mpsx.m[2][0] = r0;
+  mpsx.m[2][1] = r1;
+  mpsx.m[2][2] = r2;
   gte_SetRotMatrix(&mpsx);
   if (t != (coorddef *)0x0) {
     TrsProj_SetPsxTrans(t);
@@ -121,7 +129,7 @@ void TrsProj_TransPt(coorddef *s,coorddef *d)
   pt.vy = (short)((int)s->y >> 0xa);
   pt.vz = (short)((int)s->z >> 0xa);
   gte_ldv0(&pt);
-  gte_mvmva();
+  gte_mvmva(1,0,0,0,0);
   gte_stlvnl(&tv);
   d->x = tv.vx << 0xa;
   d->y = tv.vy << 0xa;
@@ -135,22 +143,18 @@ void TrsProj_TransPtN16(RelCoord16 *s,coorddef *d,int n)
   VECTOR tv;
   int i;
 
-  if (n != 0) {
-    i = n + -1;
-    do {
-      pt.vy = 0;
-      pt.vx = s->x;
-      pt.vz = s->z;
-      gte_ldv0(&pt);
-      gte_mvmva();
-      gte_stlvnl(&tv);
-      s = s + 1;
-      d->x = tv.vx;
-      d->y = tv.vy;
-      i = i + -1;
-      d->z = tv.vz;
-      d = d + 1;
-    } while (i != -1);
+  for (i = n - 1; i != -1; i = i - 1) {
+    pt.vx = s->x;
+    pt.vy = 0;
+    pt.vz = s->z;
+    gte_ldv0(&pt);
+    gte_mvmva(1,0,0,0,0);
+    gte_stlvnl(&tv);
+    s = s + 1;
+    d->x = tv.vx;
+    d->y = tv.vy;
+    d->z = tv.vz;
+    d = d + 1;
   }
 }
 

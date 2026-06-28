@@ -300,8 +300,7 @@ gte_swc2(0x18,&bfct);
   midOTZ = (int)((u_int)(u_short)(n + 4) << 0x10) >> 0xc;
   v0_00 = (int)&gDiv.v[0].vx + midOTZ;
   DrawW_DivVertice((Draw_SVertex *)v0_01,v0,v1);
-gte_lwc2(0,*(int *)(v0_01));
-  gte_lwc2(1,*(int *)(((char *)v0_01 + 0x4)));
+gte_ldv0((int *)(v0_01));
   gte_rtps();
   DrawW_DivVertice((Draw_SVertex *)v0_02,v1,v2);
 gte_stflg(&flag);
@@ -312,8 +311,7 @@ gte_stflg(&flag);
     (&gDiv.v[0].a)[midX_12] = '\0';
   }
 gte_swc2(0xe,((char *)&CF_DVLC + 0x1));
-gte_lwc2(0,*(int *)(v0_02));
-  gte_lwc2(1,*(int *)(((char *)v0_02 + 0x4)));
+gte_ldv0((int *)(v0_02));
   gte_rtps();
   DrawW_DivVertice((Draw_SVertex *)v0_04,v2,v3);
 gte_stflg(&flag);
@@ -324,8 +322,7 @@ gte_stflg(&flag);
     (&gDiv.v[0].a)[midX_23] = '\0';
   }
 gte_swc2(0xe,((char *)&CF_DVLC + 0x1));
-gte_lwc2(0,*(int *)(v0_04));
-  gte_lwc2(1,*(int *)(((char *)v0_04 + 0x4)));
+gte_ldv0((int *)(v0_04));
   gte_rtps();
   DrawW_DivVertice((Draw_SVertex *)v0_03,v3,v0);
 gte_stflg(&flag);
@@ -336,8 +333,7 @@ gte_stflg(&flag);
     (&gDiv.v[0].a)[midX_30] = '\0';
   }
 gte_swc2(0xe,((char *)&CF_DVLC + 0x1));
-gte_lwc2(0,*(int *)(v0_03));
-  gte_lwc2(1,*(int *)(((char *)v0_03 + 0x4)));
+gte_ldv0((int *)(v0_03));
   gte_rtps();
   DrawW_DivVertice((Draw_SVertex *)v0_00,v0,v2);
 gte_stflg(&flag);
@@ -349,8 +345,7 @@ gte_stflg(&flag);
   }
 gte_swc2(0xe,((char *)&CF_DVLC + 0x1));
   iVar1 = v0_00;
-gte_lwc2(0,*(int *)(iVar1));
-  gte_lwc2(1,*(int *)(((char *)iVar1 + 0x4)));
+gte_ldv0((int *)(iVar1));
   gte_rtps();
 gte_stflg(&flag);
   if (iStack_48 < 0) {
@@ -519,26 +514,22 @@ void DrawW_SetUpSubdividFacet(int face,Draw_tGiveShelbyMoreCache *sd)
   (sd->v3).dvx = sVar6;
   (sd->v3).dvy = sVar7;
   if ((sd->tVn0).vz < 0x140) {
-gte_lwc2(0,*(int *)(((char *)sd + 0x14c)));
-    gte_lwc2(1,*(int *)(((char *)sd + 0x150)));
+gte_ldv0(((char *)sd + 0x14c));
     gte_rtps();
 gte_swc2(0xe,((char *)sd + 0x154));
   }
   if ((sd->tVn1).vz < 0x140) {
-gte_lwc2(0,*(int *)(((char *)sd + 0x15c)));
-    gte_lwc2(1,*(int *)(((char *)sd + 0x160)));
+gte_ldv0(((char *)sd + 0x15c));
     gte_rtps();
 gte_swc2(0xe,((char *)sd + 0x164));
   }
   if ((sd->tVn2).vz < 0x140) {
-gte_lwc2(0,*(int *)(((char *)sd + 0x16c)));
-    gte_lwc2(1,*(int *)(((char *)sd + 0x170)));
+gte_ldv0(((char *)sd + 0x16c));
     gte_rtps();
 gte_swc2(0xe,((char *)sd + 0x174));
   }
   if ((sd->tVn3).vz < 0x140) {
-gte_lwc2(0,*(int *)(((char *)sd + 0x17c)));
-    gte_lwc2(1,*(int *)(((char *)sd + 0x180)));
+gte_ldv0(((char *)sd + 0x17c));
     gte_rtps();
 gte_swc2(0xe,((char *)sd + 0x184));
   }
@@ -903,20 +894,16 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   vt0.y = (short)((u_int)*(u_int *)vertProj_p >> 0x10) + ts27;
   vt0.light = (short)((u_int)*(u_int *)(vertProj_p + 4) >> 0x10);
   vt0.z = (short)*(u_int *)(vertProj_p + 4) + sVar1;
-gte_lwc2(0,*(int *)(&vt0));
-  gte_lwc2(1,*(int *)(((char *)&vt0 + 0x4)));
+gte_ldv0((int *)(&vt0));
   tp2 = (void *)(geomVerts_p + (*(u_char *)((int)((short *)inQuad) + 2) & 0xffU) * 8);
   gte_rtps_b();
   vt1.x = (short)*(u_int *)tp2 + ts31;
   vt1.y = (short)((u_int)*(u_int *)tp2 >> 0x10) + ts27;
   vt1.light = (short)((u_int)*(u_int *)((int)tp2 + 4) >> 0x10);
   vt1.z = (short)*(u_int *)((int)tp2 + 4) + sVar1;
-gte_swc2(0x19,((char *)sd + 0x98));
-  gte_swc2(0x1a,((char *)sd + 0x9c));
-  gte_swc2(0x1b,((char *)sd + 0xa0));
+gte_stlvnl(((char *)sd + 0x98));
 gte_swc2(0xe,&dvxy0);
-gte_lwc2(0,*(int *)(&vt1));
-  gte_lwc2(1,*(int *)(((char *)&vt1 + 0x4)));
+gte_ldv0((int *)(&vt1));
   tp1 = (u_int *)(geomVerts_p + (vert_y_pack & 0xffU) * 8);
   gte_rtps_b();
   tu18 = *tp1;
@@ -925,11 +912,8 @@ gte_lwc2(0,*(int *)(&vt1));
   vt2.y = (short)((u_int)tu18 >> 0x10) + ts27;
   vt2.light = (short)((u_int)tu2 >> 0x10);
   vt2.z = (short)tu2 + sVar1;
-gte_swc2(0x19,((char *)sd + 0xa8));
-  gte_swc2(0x1a,((char *)sd + 0xac));
-  gte_swc2(0x1b,((char *)sd + 0xb0));
-gte_lwc2(0,*(int *)(&vt2));
-  gte_lwc2(1,*(int *)(((char *)&vt2 + 0x4)));
+gte_stlvnl(((char *)sd + 0xa8));
+gte_ldv0((int *)(&vt2));
   tp1 = (u_int *)(geomVerts_p + (vert_x_pack & 0xffU) * 8);
   gte_rtps_b();
   tu18 = *tp1;
@@ -938,15 +922,10 @@ gte_lwc2(0,*(int *)(&vt2));
   vt3.y = (short)((u_int)tu18 >> 0x10) + ts27;
   vt3.light = (short)((u_int)tu2 >> 0x10);
   vt3.z = (short)tu2 + sVar1;
-gte_swc2(0x19,((char *)sd + 0xb8));
-  gte_swc2(0x1a,((char *)sd + 0xbc));
-  gte_swc2(0x1b,((char *)sd + 0xc0));
-gte_lwc2(0,*(int *)(&vt3));
-  gte_lwc2(1,*(int *)(((char *)&vt3 + 0x4)));
+gte_stlvnl(((char *)sd + 0xb8));
+gte_ldv0((int *)(&vt3));
   gte_rtps();
-gte_swc2(0x19,((char *)sd + 0xc8));
-  gte_swc2(0x1a,((char *)sd + 0xcc));
-  gte_swc2(0x1b,((char *)sd + 0xd0));
+gte_stlvnl(((char *)sd + 0xc8));
   if (((((((sd->tVn3).vx <= (sd->tVn3).vz) || ((sd->tVn0).vx <= (sd->tVn0).vz)) ||
         ((sd->tVn1).vx <= (sd->tVn1).vz)) || ((sd->tVn2).vx <= (sd->tVn2).vz)) &&
       (((-(sd->tVn3).vx <= (sd->tVn3).vz || (-(sd->tVn0).vx <= (sd->tVn0).vz)) ||
@@ -958,9 +937,7 @@ gte_swc2(0x19,((char *)sd + 0xc8));
     bVar2 = ((Track_tMaterial *)trk_mat_p)->flag;
 gte_swc2(0x7,((char *)sd + 0x94));
     facetIdx = bVar2 >> 3 & 2;
-gte_swc2(0xc,&dvxy1);
-    gte_swc2(0xd,&dvxy3);
-    gte_swc2(0xe,&dvxy2);
+gte_stsxy3(&dvxy1,&dvxy3,&dvxy2);
     bVar4 = 199 < sd->otz;
     if (((bVar2 >> 3 & 2) == 0) && ((bool)bVar4)) {
       gte_nclip_b();
@@ -1043,16 +1020,13 @@ gte_swc2(0x8,&depthcue);
         if (sd->light == -1) {
           a = *(long *)(Chunk_lightTable + vt2.light);
           tC30 = (int)Chunk_lightTable;
-gte_lwc2(6,*(int *)(&a));
+gte_ldrgb(&a);
           gte_dpcs();
           uStack_28 = *(u_int *)(vt3.light * 4 + tC30);
           a = *(long *)(vt0.light * 4 + tC30);
           b = *(long *)(vt1.light * 4 + tC30);
 gte_swc2(0x16,((char *)sd + 0x138));
-gte_lwc2(20,*(int *)(&a));
-          gte_lwc2(21,*(int *)(&b));
-          gte_lwc2(22,*(int *)(&c));
-          gte_lwc2(6,*(int *)(&c));
+gte_ldrgb3(&a,&b,&c);
           gte_dpct();
 gte_swc2(0x14,((char *)sd + 0x114));
         }
@@ -2353,32 +2327,20 @@ gte_SetTransMatrix((void *)0x1f800014);
     ti2 = ((coorddef *)(pt1_index + 0xc))->x;
     for (depth_skid = 0; depth_skid < (short)ti2; depth_skid = depth_skid + 1) {
       if ((Render_gPacketPtr < Render_gPacketEnd) && (((coorddef *)(pt1_index + 0x24))->y != 0)) {
-gte_lwc2(0,*(int *)(depth_index));
-        gte_lwc2(1,*(int *)(((char *)depth_index + 0x4)));
+gte_ldv0((int *)(depth_index));
         gte_rtps();
-gte_swc2(0x19,(void *)0x1f800098);
-        gte_swc2(0x1a,(void *)0x1f80009c);
-        gte_swc2(0x1b,(void *)0x1f8000a0);
+gte_stlvnl((void *)0x1f800098);
         primPtr = Render_gPacketPtr;
 gte_swc2(0xe,(void *)0x1f800008);
-gte_lwc2(0,*(int *)(depth_index));
-        gte_lwc2(1,*(int *)(((char *)depth_index + 0x4)));
+gte_ldv0((int *)(depth_index));
         gte_rtps();
-gte_swc2(0x19,(void *)0x1f8000a8);
-        gte_swc2(0x1a,(void *)0x1f8000ac);
-        gte_swc2(0x1b,(void *)0x1f8000b0);
-gte_lwc2(0,*(int *)(((coorddef *)(pt1_index + 0x24))->y + 8));
-        gte_lwc2(1,*(int *)(((coorddef *)(pt1_index + 0x24))->y + 0xc));
+gte_stlvnl((void *)0x1f8000a8);
+gte_ldv0((int *)(((coorddef *)(pt1_index + 0x24))->y + 8));
         gte_rtps();
-gte_swc2(0x19,(void *)0x1f8000b8);
-        gte_swc2(0x1a,(void *)0x1f8000bc);
-        gte_swc2(0x1b,(void *)0x1f8000c0);
-gte_lwc2(0,*(int *)(((coorddef *)(pt1_index + 0x24))->y));
-        gte_lwc2(1,*(int *)(((coorddef *)(pt1_index + 0x24))->y + 4));
+gte_stlvnl((void *)0x1f8000b8);
+gte_ldv0((int *)(((coorddef *)(pt1_index + 0x24))->y));
         gte_rtps();
-gte_swc2(0x19,(void *)0x1f8000c8);
-        gte_swc2(0x1a,(void *)0x1f8000cc);
-        gte_swc2(0x1b,(void *)0x1f8000d0);
+gte_stlvnl((void *)0x1f8000c8);
         if (((Skid_gCtrlScratch_98 < Skid_gCtrlPoint_0) ||
             (((Skid_gCtrlPoint_1 < Skid_gCtrlPoint_2 || (Skid_gCtrlPoint_3 < Skid_gCtrlPoint_4)) ||
              (Skid_gCtrlPoint_5 < Skid_gCtrlPoint_6)))) &&
@@ -2387,9 +2349,7 @@ gte_swc2(0x19,(void *)0x1f8000c8);
             (-Skid_gCtrlPoint_5 < Skid_gCtrlPoint_6)))) {
           color_pack = ((coorddef *)(pt1_index + 0x24))->x;
           pmx_dst = (int)&gSkidMarkPixmap[color_pack & 1];
-gte_swc2(0xc,(void *)0x1f800014);
-          gte_swc2(0xd,(void *)0x1f80002c);
-          gte_swc2(0xe,(void *)0x1f800020);
+gte_stsxy3((void *)0x1f800014,(void *)0x1f80002c,(void *)0x1f800020);
           gte_avsz4();
 gte_swc2(0x7,(void *)0x1f800094);
           vt_y = Skid_gCtrlScratch_94 >> 5;
@@ -2492,16 +2452,10 @@ void DrawW_SetUpSubdividFacet_Line(Draw_tGiveShelbyMoreCache *sd)
   DrawW_LoadPrecVECTOR(&sd->v1,&sd->tVn1);
   DrawW_LoadPrecVECTOR(&sd->v2,&sd->tVn2);
   DrawW_LoadPrecVECTOR(&sd->v3,&sd->tVn3);
-gte_lwc2(0,*(int *)(((char *)sd + 0x14c)));
-  gte_lwc2(1,*(int *)(((char *)sd + 0x150)));
+gte_ldv0(((char *)sd + 0x14c));
   gte_rtps();
 gte_swc2(0xe,((char *)sd + 0x154));
-gte_lwc2(0,*(int *)(((char *)sd + 0x15c)));
-  gte_lwc2(1,*(int *)(((char *)sd + 0x160)));
-  gte_lwc2(2,*(int *)(((char *)sd + 0x16c)));
-  gte_lwc2(3,*(int *)(((char *)sd + 0x170)));
-  gte_lwc2(4,*(int *)(((char *)sd + 0x17c)));
-  gte_lwc2(5,*(int *)(((char *)sd + 0x180)));
+gte_ldv3(((char *)sd + 0x15c),((char *)sd + 0x16c),((char *)sd + 0x17c));
   gte_rtpt();
   tpage_byte = (sd->GT4Prim).r1;
   tu8 = (sd->GT4Prim).g1;
@@ -2527,9 +2481,7 @@ gte_lwc2(0,*(int *)(((char *)sd + 0x15c)));
   (sd->v0).g = tu12;
   (sd->v0).b = tu13;
   (sd->v0).a = tu14;
-gte_swc2(0xc,((char *)sd + 0x164));
-  gte_swc2(0xd,((char *)sd + 0x174));
-  gte_swc2(0xe,((char *)sd + 0x184));
+gte_stsxy3(((char *)sd + 0x164),((char *)sd + 0x174),((char *)sd + 0x184));
   tu3 = *(u_short *)(((int)sd + 0x110) + 0xc);
   tu4 = *(u_short *)(((int)sd + 0x110) + 0x18);
   tu5 = *(u_short *)(((int)sd + 0x110) + 0x30);
@@ -2667,39 +2619,25 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
       vt3.z = geomVertices[2].z;
       vt3.light = geomVertices[2].light;
       v0_pack = count;
-gte_lwc2(0,*(int *)(&vt0));
-      gte_lwc2(1,*(int *)(((char *)&vt0 + 0x4)));
+gte_ldv0((int *)(&vt0));
       gte_rtps();
-gte_swc2(0x19,((char *)sd + 0x98));
-      gte_swc2(0x1a,((char *)sd + 0x9c));
-      gte_swc2(0x1b,((char *)sd + 0xa0));
+gte_stlvnl(((char *)sd + 0x98));
       tp17 = Render_gPacketPtr;
 gte_swc2(0xe,(void *)0x1f800008);
-gte_lwc2(0,*(int *)(&vt1));
-      gte_lwc2(1,*(int *)(((char *)&vt1 + 0x4)));
+gte_ldv0((int *)(&vt1));
       gte_rtps();
-gte_swc2(0x19,((char *)sd + 0xa8));
-      gte_swc2(0x1a,((char *)sd + 0xac));
-      gte_swc2(0x1b,((char *)sd + 0xb0));
-gte_lwc2(0,*(int *)(&vt2));
-      gte_lwc2(1,*(int *)(((char *)&vt2 + 0x4)));
+gte_stlvnl(((char *)sd + 0xa8));
+gte_ldv0((int *)(&vt2));
       gte_rtps();
-gte_swc2(0x19,((char *)sd + 0xb8));
-      gte_swc2(0x1a,((char *)sd + 0xbc));
-      gte_swc2(0x1b,((char *)sd + 0xc0));
-gte_lwc2(0,*(int *)(&vt3));
-      gte_lwc2(1,*(int *)(((char *)&vt3 + 0x4)));
+gte_stlvnl(((char *)sd + 0xb8));
+gte_ldv0((int *)(&vt3));
       gte_rtps();
-gte_swc2(0x19,((char *)sd + 0xc8));
-      gte_swc2(0x1a,((char *)sd + 0xcc));
-      gte_swc2(0x1b,((char *)sd + 0xd0));
+gte_stlvnl(((char *)sd + 0xc8));
       if ((((((sd->tVn0).vx < (sd->tVn0).vz) || ((sd->tVn1).vx < (sd->tVn1).vz)) ||
            ((sd->tVn2).vx < (sd->tVn2).vz)) || ((sd->tVn3).vx < (sd->tVn3).vz)) &&
          (((-(sd->tVn0).vx < (sd->tVn0).vz || (-(sd->tVn1).vx < (sd->tVn1).vz)) ||
           ((-(sd->tVn2).vx < (sd->tVn2).vz || (-(sd->tVn3).vx < (sd->tVn3).vz)))))) {
-gte_swc2(0xc,(void *)0x1f800014);
-        gte_swc2(0xd,(void *)0x1f80002c);
-        gte_swc2(0xe,(void *)0x1f800020);
+gte_stsxy3((void *)0x1f800014,(void *)0x1f80002c,(void *)0x1f800020);
         gte_avsz4();
         v1_pack_ptr = (int)&sd->otz;
 gte_swc2(0x7,v1_pack_ptr);
@@ -2746,7 +2684,7 @@ gte_swc2(0x8,&depthcue);
               tu2 = (u_int)tp1 & 3;
               *(u_int *)((int)tp1 - tu2) =
                    *(u_int *)((int)tp1 - tu2) & -1 << (tu2 + 1) * 8 | (*(u_int *)&a) >> (3 - tu2) * 8;
-gte_lwc2(6,*(int *)(&a));
+gte_ldrgb(&a);
               gte_ldIR0(depthcue);
               gte_dpcs();
 gte_swc2(0x16,((char *)sd + 0x12c));
@@ -2772,7 +2710,7 @@ gte_swc2(0x16,((char *)sd + 0x12c));
               tu2 = tp2 & 3;
               *(u_int *)(tp2 - tu2) =
                    *(u_int *)(tp2 - tu2) & -1 << (tu2 + 1) * 8 | (*(u_int *)&a) >> (3 - tu2) * 8;
-gte_lwc2(6,*(int *)(&a));
+gte_ldrgb(&a);
               gte_ldIR0(depthcue);
               gte_dpcs();
 gte_swc2(0x16,((char *)sd + 0x138));
@@ -2793,39 +2731,27 @@ gte_swc2(0x16,((char *)sd + 0x138));
               if ((sd->nightFlags & 1U) != 0) {
 gte_SetRotMatrix(((char *)sd + 0x34));
 gte_SetTransMatrix(((char *)sd + 0x34));
-gte_lwc2(0,*(int *)(&vt2));
-                gte_lwc2(1,*(int *)(((char *)&vt2 + 0x4)));
+gte_ldv0((int *)(&vt2));
                 gte_rt();
-gte_swc2(0x19,&temp0);
-                gte_swc2(0x1a,((char *)&temp0 + 0x4));
-                gte_swc2(0x1b,((char *)&temp0 + 0x8));
-gte_lwc2(0,*(int *)(&vt3));
-                gte_lwc2(1,*(int *)(((char *)&vt3 + 0x4)));
+gte_stlvnl(&temp0);
+gte_ldv0((int *)(&vt3));
                 gte_rt();
                 Night_NightCalc((VECTOR *)&a,&vt2.light,sd)
                 ;
-gte_swc2(0x19,&temp0);
-                gte_swc2(0x1a,((char *)&temp0 + 0x4));
-                gte_swc2(0x1b,((char *)&temp0 + 0x8));
+gte_stlvnl(&temp0);
                 Night_NightCalc((VECTOR *)&a,&vt3.light,sd)
                 ;
               }
               if (BW_gCopCarObj != (Car_tObj *)0x0) {
 gte_SetRotMatrix(((char *)sd + 0x54));
 gte_SetTransMatrix(((char *)sd + 0x54));
-gte_lwc2(0,*(int *)(&vt2));
-                gte_lwc2(1,*(int *)(((char *)&vt2 + 0x4)));
+gte_ldv0((int *)(&vt2));
                 gte_rt();
-gte_swc2(0x19,&temp0);
-                gte_swc2(0x1a,((char *)&temp0 + 0x4));
-                gte_swc2(0x1b,((char *)&temp0 + 0x8));
-gte_lwc2(0,*(int *)(&vt3));
-                gte_lwc2(1,*(int *)(((char *)&vt3 + 0x4)));
+gte_stlvnl(&temp0);
+gte_ldv0((int *)(&vt3));
                 gte_rt();
                 Night_NightCopCalc((VECTOR *)&a,(short *)idx);
-gte_swc2(0x19,&temp0);
-                gte_swc2(0x1a,((char *)&temp0 + 0x4));
-                gte_swc2(0x1b,((char *)&temp0 + 0x8));
+gte_stlvnl(&temp0);
                 Night_NightCopCalc((VECTOR *)&a,(short *)idx);
               }
               vert1_p = (int)(Chunk_lightTable + vt3.light);

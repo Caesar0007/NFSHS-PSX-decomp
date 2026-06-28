@@ -11,7 +11,7 @@ extern "C" int SND3dpos(unsigned int tag, unsigned int pos, int y)
 {
     int ch, cur[2];
     (void)y;
-    if ((char)sndgs[0xf] == 0) return -10;
+    if ((signed char)sndgs[0xf] == 0) return -10;
     iSNDenteraudio();
     ch = iSNDgetchan(tag);
     if (-1 < ch) {

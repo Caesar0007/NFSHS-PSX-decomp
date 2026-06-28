@@ -2592,7 +2592,7 @@ void Camera_NextMode(int cviewP)
       Anim_FreeHandle((int)Camera_gInfo[cviewP].animHandle);
       Camera_gInfo[cviewP].animHandle = -1;
     }
-    if ((char)((char *)&(Camera_gInfo[cviewP]))[0x74] < '\0') {
+    if ((signed char)((char *)&(Camera_gInfo[cviewP]))[0x74] < '\0') {
       sVar1 = Camera_gInfo[cviewP].camNum + 1;
       Camera_gInfo[cviewP].camNum = sVar1;
       Camera_gInfo[cviewP].mode =

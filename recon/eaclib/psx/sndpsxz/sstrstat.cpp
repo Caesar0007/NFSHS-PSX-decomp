@@ -18,7 +18,7 @@ extern "C" int SNDSTRM_requeststatus(unsigned int reqTag, int s)
     *(int *)(s + 4) = 0;
     *(int *)(s + 8) = 0;
     *(int *)(s + 0xc) = 0;
-    if ((char)sndgs[0xf] == 0) return -10;
+    if ((signed char)sndgs[0xf] == 0) return -10;
     if (-1 >= (int)reqTag) return -8;
     sp = (int *)iSNDstreamgetstreamptr((int)(reqTag & 0xff));
     if (sp == 0) return -8;

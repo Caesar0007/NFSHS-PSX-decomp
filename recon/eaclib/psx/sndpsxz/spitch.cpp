@@ -19,7 +19,7 @@ extern "C" int SNDpitchmult(unsigned int tag, unsigned int mult)
 {
     int chanIdx;
     int cur[2];
-    if ((char)sndgs[0xf] == 0)
+    if ((signed char)sndgs[0xf] == 0)
         return -10;
     iSNDenteraudio();
     chanIdx = iSNDgetchan(tag);

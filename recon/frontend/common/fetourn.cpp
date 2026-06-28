@@ -51,7 +51,7 @@ void tTournamentManager::Initialize()
     *(u_short *)((int)this->fTierFinishPrize + iVar2) = 6;
     *(u_short *)((int)this->fTierFinishPrizeChange + iVar2) = 0;
   } while (iVar1 * 0x10000 >> 0x10 < 3);
-  frontEnd.garageCar[0] = (char)carManager.fNumCars + -1;
+  frontEnd.garageCar[0] = (signed char)carManager.fNumCars + -1;
   frontEnd.garageCar[1] = frontEnd.garageCar[0];
   return;
 }

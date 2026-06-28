@@ -112,13 +112,13 @@ extern "C" void iSNDpacketgetirq(void)
         if ((unsigned)(VI(DAT_801479fc, vt) >> 0xb) < (unsigned)*(int *)(pp + 0xc)) {
             VI(DAT_80147a00, note * 0xb) = VI(DAT_801479fc, vt);
             if (-1 < (int)((unsigned)VB(DAT_80147a10, vt) << 0x18)) {
-                link = (char)VB(DAT_80147a10, vt);
+                link = (signed char)VB(DAT_80147a10, vt);
                 VI(DAT_80147a00, link * 0xb) = VI(DAT_801479fc, vt);
             }
         } else {
             VI(DAT_801479fc, vt) = 0;
             if (-1 < (int)((unsigned)VB(DAT_80147a10, vt) << 0x18)) {
-                link = (char)VB(DAT_80147a10, vt);
+                link = (signed char)VB(DAT_80147a10, vt);
                 VI(DAT_801479fc, link * 0x2c) = 0;
             }
         }

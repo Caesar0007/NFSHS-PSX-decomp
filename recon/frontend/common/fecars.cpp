@@ -315,7 +315,7 @@ void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
   iVar4 = (int)playerNum;
   *(u_char *)((int)((u_int *)this) + (i * 0x10000 >> 0xe) + iVar4 * 0x80 + 0x104) = 0xff;
   *(u_char *)(((u_int *)this) + iVar4 * 0x20 + 0x61) = 0xff;
-  if ((char)((u_int *)this)[iVar4 * 0x20 + ((u_int)(u_char)frontEnd.garageCar[iVar4] - *((u_int *)this)) + 0x42] < '\0') {
+  if ((signed char)((u_int *)this)[iVar4 * 0x20 + ((u_int)(u_char)frontEnd.garageCar[iVar4] - *((u_int *)this)) + 0x42] < '\0') {
     cVar1 = frontEnd.garageCar[iVar4] - 1;
     if ((u_int)(u_char)frontEnd.pinkSlipsCar[iVar4] <= *((u_int *)this)) {
       cVar1 = '\0';
@@ -1213,7 +1213,7 @@ AdjPos_clampBounds:
           *pcVar9 = cVar1 + *pcVar9;
           if (((int)(uVar13 << 0x10) < 1) ||
              (pbVar7 = (u_char *)((this->_base_tListIterator).fValue + i),
-             (int)lastCar <= (int)(char)*pbVar7)) {
+             (int)lastCar <= (int)(signed char)*pbVar7)) {
             if (((int)(uVar13 << 0x10) < 0) &&
                (pbVar7 = (u_char *)((this->_base_tListIterator).fValue + i),
                (int)firstCar <= (int)(char)*pbVar7)) {
@@ -1257,7 +1257,7 @@ AdjPos_clearCountryMark:
       pbVar7 = (u_char *)((this->_base_tListIterator).fValue + i);
       bVar4 = *pbVar7;
     } while (((oldValue != bVar4) ||
-             (((int)(char)bVar4 < (int)this->fCarManager->fNumCars &&
+             (((int)(signed char)bVar4 < (int)this->fCarManager->fNumCars &&
               ((int)frontEnd.carCountry[i * 0x18][carInfo->fCarID] != (u_int)(u_char)oldCountry)))
              ) && (pvVar6 = this->ValidCar(atIndex,*pbVar7), pvVar6 != (void *)0x1));
   }

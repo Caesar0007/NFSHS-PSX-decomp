@@ -7,6 +7,6 @@ extern "C" void SNDSTRM_getvol(int tag);          /* @0x800E83EC */
 extern "C" void SNDSTRM_getvol(int tag)
 {
     int sp;
-    if ((char)sndgs[0xf] != 0 && (sp = iSNDstreamgetstreamptr(tag)) != 0)
+    if ((signed char)sndgs[0xf] != 0 && (sp = iSNDstreamgetstreamptr(tag)) != 0)
         SNDgetvol(*(unsigned int *)(sp + 8));
 }

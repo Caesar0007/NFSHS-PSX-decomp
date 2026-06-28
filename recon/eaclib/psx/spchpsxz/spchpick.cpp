@@ -341,8 +341,8 @@ extern "C" unsigned char *iSPCH_OrderSentences(int event, int outOrder)
 extern "C" unsigned int iSPCH_RepeatEvent(unsigned short *eventArgs)
 {
     unsigned int result = 1;
-    if ((unsigned int)*eventArgs == (unsigned int)gVoxInGame && 0 < (char)eventArgs[4])
-        result = (unsigned int)(gRepeatCount < (char)eventArgs[4]);
+    if ((unsigned int)*eventArgs == (unsigned int)gVoxInGame && 0 < (signed char)eventArgs[4])
+        result = (unsigned int)(gRepeatCount < (signed char)eventArgs[4]);
     return result;
 }
 

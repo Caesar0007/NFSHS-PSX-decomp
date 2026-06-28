@@ -16,7 +16,7 @@ extern "C" int SNDmastervol(int vol);             /* @0x800E7FF0 */
 extern "C" int SNDmastervol(int vol)
 {
     int chan, off;
-    if ((char)sndgs[0xf] == 0)
+    if ((signed char)sndgs[0xf] == 0)
         return -10;
     iSNDenteraudio();
     ((char *)sndgs)[0x3d] = (char)vol;             /* sndgs[0xf]._1_1_ : master volume */

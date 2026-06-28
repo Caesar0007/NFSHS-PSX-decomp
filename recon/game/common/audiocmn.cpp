@@ -502,7 +502,7 @@ int AudioCmn_GetTimePhrase(int time)
   iVar3 = 0;
   do {
     iVar4 = iVar3;
-    if ((int)(char)*puVar2 <= iVar1 >> 6) break;
+    if ((int)(signed char)*puVar2 <= iVar1 >> 6) break;
     iVar4 = iVar3 + 1;
     puVar2 = "\f\x06\x05\x04\x03\x02\x01" + iVar3;
     iVar3 = iVar4;

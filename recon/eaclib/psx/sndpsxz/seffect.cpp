@@ -39,7 +39,7 @@ extern "C" int SNDfxmasterlevel(int bus, int level)
             do {
                 i++;
                 SNDfxlevel(*(int *)(off + sndgs[0x25]), bus,
-                           (int)(char)*(char *)(off + sndgs[0x25] + bus + 0x35));
+                           (int)(signed char)*(char *)(off + sndgs[0x25] + bus + 0x35));
                 off += 100;
             } while (i < (int)(unsigned)((unsigned char *)sndgs)[0x11]);
         }

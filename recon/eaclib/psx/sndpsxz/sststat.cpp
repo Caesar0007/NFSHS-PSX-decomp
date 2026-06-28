@@ -14,7 +14,7 @@ extern "C" int SNDSTRM_status(int tag, int s)
     *(int *)(s + 8) = 0;
     *(int *)(s + 4) = 0;
     *(int *)s = 0;
-    if ((char)sndgs[0xf] == 0) return -10;
+    if ((signed char)sndgs[0xf] == 0) return -10;
     sp = (int *)iSNDstreamgetstreamptr(tag);
     if (sp == 0) return -8;
     iSNDenteraudio();

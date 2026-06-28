@@ -91,7 +91,7 @@ extern "C" u_long *FntFlush(int id)
         } else {
 render:
             {
-                int idx = ((unsigned)(c - 0x61) < 0x1A) ? (int)(char)c - 0x40 : (int)(char)c - 0x20;
+                int idx = ((unsigned)(c - 0x61) < 0x1A) ? (int)(signed char)c - 0x40 : (int)(char)c - 0x20;
                 int q   = (idx < 0) ? idx + 0xf : idx;
                 p[0xc] = (u_char)((idx - (q >> 4) * 0x10) * 8);   /* u */
                 p[0xd] = (u_char)((q >> 4) << 3);                 /* v */

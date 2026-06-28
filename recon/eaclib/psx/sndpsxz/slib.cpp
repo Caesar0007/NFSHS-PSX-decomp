@@ -245,7 +245,7 @@ extern "C" void iSNDserve(void)
                         n = (int)(unsigned)(&DAT_80147a0f)[vt];
                         do {
                             int c = chan, cvt = vt;
-                            if (n == 2) { c = (char)vp[0x20]; cvt = (char)vp[0x20] * 0x2c; }
+                            if (n == 2) { c = (signed char)vp[0x20]; cvt = (char)vp[0x20] * 0x2c; }
                             vp = &DAT_801479f0 + cvt;
                             (&DAT_80147a0d)[cvt] = 0;
                             (&DAT_80147a0c)[cvt] = 0;

@@ -77,35 +77,35 @@ int tPauseMenuDefs_ct(int param_1)
 extern "C" void ___14tPauseMenuDefs(tPMenuItemNonInteractiveText *param_1,u_int __in_chrg)
 
 {
-  tPMenu_dt((tPMenu *)&param_1[0x40]._base_tPMenuItem.fTextDescription,2);
+  tPMenu_dt((tPMenu *)&param_1[0x40].fTextDescription,2);
   tPMenuItemCommandButton_dt((tPMenuItemCommandButton *)(param_1 + 0x3f),2);
-  tPMenuItemCommandButton_dt((tPMenuItemCommandButton *)&param_1[0x3d]._base_tPMenuItem._vf,2);
-  tPMenuItemNonInteractiveText_dt((tPMenuItemNonInteractiveText *)&param_1[0x3c]._base_tPMenuItem._vf,2);
-  tPMenuItemNonInteractiveText_dt((tPMenuItemNonInteractiveText *)&param_1[0x3b]._base_tPMenuItem._vf,2);
-  tPMenu_dt((tPMenu *)&param_1[0x34]._base_tPMenuItem._vf,2);
-  tPMenuItemLeftRightSliderIndexed_dt((tPMenuItemLeftRightSliderIndexed *)&param_1[0x32]._base_tPMenuItem._vf,2);
-  tPMenuItemLeftRightSliderIndexed_dt((tPMenuItemLeftRightSliderIndexed *)&param_1[0x30]._base_tPMenuItem._vf,2);
-  tPMenuItemLeftRightChoice_dt((tPMenuItemLeftRightChoice *)&param_1[0x2f]._base_tPMenuItem.fTextDescription,2);
-  tPMenuItemNonInteractiveText_dt((tPMenuItemNonInteractiveText *)&param_1[0x2e]._base_tPMenuItem.fTextDescription,2);
+  tPMenuItemCommandButton_dt((tPMenuItemCommandButton *)&param_1[0x3d]._vf,2);
+  tPMenuItemNonInteractiveText_dt((tPMenuItemNonInteractiveText *)&param_1[0x3c]._vf,2);
+  tPMenuItemNonInteractiveText_dt((tPMenuItemNonInteractiveText *)&param_1[0x3b]._vf,2);
+  tPMenu_dt((tPMenu *)&param_1[0x34]._vf,2);
+  tPMenuItemLeftRightSliderIndexed_dt((tPMenuItemLeftRightSliderIndexed *)&param_1[0x32]._vf,2);
+  tPMenuItemLeftRightSliderIndexed_dt((tPMenuItemLeftRightSliderIndexed *)&param_1[0x30]._vf,2);
+  tPMenuItemLeftRightChoice_dt((tPMenuItemLeftRightChoice *)&param_1[0x2f].fTextDescription,2);
+  tPMenuItemNonInteractiveText_dt((tPMenuItemNonInteractiveText *)&param_1[0x2e].fTextDescription,2);
   tPListIteratorIndexed_dt((tPListIteratorIndexed *)(param_1 + 0x2d),2);
   tPMenu_dt((tPMenu *)(param_1 + 0x26),2);
-  tPMenuItemLeftRightSlider_dt((tPMenuItemLeftRightSlider *)&param_1[0x24]._base_tPMenuItem.fTextDescription,2);
-  tPMenuItemLeftRightSlider_dt((tPMenuItemLeftRightSlider *)&param_1[0x22]._base_tPMenuItem._vf,2);
+  tPMenuItemLeftRightSlider_dt((tPMenuItemLeftRightSlider *)&param_1[0x24].fTextDescription,2);
+  tPMenuItemLeftRightSlider_dt((tPMenuItemLeftRightSlider *)&param_1[0x22]._vf,2);
   tPMenuItemLeftRightSlider_dt((tPMenuItemLeftRightSlider *)(param_1 + 0x21),2);
-  tPMenuItemLeftRightSlider_dt((tPMenuItemLeftRightSlider *)&param_1[0x1f]._base_tPMenuItem.fTextDescription,2);
-  tPMenuItemLeftRightSlider_dt((tPMenuItemLeftRightSlider *)&param_1[0x1d]._base_tPMenuItem._vf,2);
-  tPMenuItemLeftRightChoice_dt((tPMenuItemLeftRightChoice *)&param_1[0x1c]._base_tPMenuItem.fTextDescription,2);
-  tPListIterator_dt((tPListIterator *)&param_1[0x1b]._base_tPMenuItem.fTextDescription,2);
-  tPMenuItemNonInteractiveText_dt((tPMenuItemNonInteractiveText *)&param_1[0x1a]._base_tPMenuItem.fTextDescription,2);
-  tPMenu_dt((tPMenu *)&param_1[0x13]._base_tPMenuItem.fTextDescription,2);
-  tPMenuItemGoToMenuButton_dt((tPMenuItemGoToMenuButton *)&param_1[0x11]._base_tPMenuItem._vf,2);
+  tPMenuItemLeftRightSlider_dt((tPMenuItemLeftRightSlider *)&param_1[0x1f].fTextDescription,2);
+  tPMenuItemLeftRightSlider_dt((tPMenuItemLeftRightSlider *)&param_1[0x1d]._vf,2);
+  tPMenuItemLeftRightChoice_dt((tPMenuItemLeftRightChoice *)&param_1[0x1c].fTextDescription,2);
+  tPListIterator_dt((tPListIterator *)&param_1[0x1b].fTextDescription,2);
+  tPMenuItemNonInteractiveText_dt((tPMenuItemNonInteractiveText *)&param_1[0x1a].fTextDescription,2);
+  tPMenu_dt((tPMenu *)&param_1[0x13].fTextDescription,2);
+  tPMenuItemGoToMenuButton_dt((tPMenuItemGoToMenuButton *)&param_1[0x11]._vf,2);
   tPMenuItemGoToMenuButton_dt((tPMenuItemGoToMenuButton *)(param_1 + 0x10),2);
   tPMenuItemNonInteractiveText_dt(param_1 + 0xf,2);
   tPMenu_dt((tPMenu *)(param_1 + 8),2);
-  tPMenuItemCommandButton_dt((tPMenuItemCommandButton *)&param_1[6]._base_tPMenuItem._vf,2);
-  tPMenuItemCommandButton_dt((tPMenuItemCommandButton *)&param_1[5]._base_tPMenuItem.fTextDescription,2);
-  tPMenuItemGoToMenuButton_dt((tPMenuItemGoToMenuButton *)&param_1[3]._base_tPMenuItem._vf,2);
-  tPMenuItemCommandButton_dt((tPMenuItemCommandButton *)&param_1[2]._base_tPMenuItem.fTextDescription,2);
+  tPMenuItemCommandButton_dt((tPMenuItemCommandButton *)&param_1[6]._vf,2);
+  tPMenuItemCommandButton_dt((tPMenuItemCommandButton *)&param_1[5].fTextDescription,2);
+  tPMenuItemGoToMenuButton_dt((tPMenuItemGoToMenuButton *)&param_1[3]._vf,2);
+  tPMenuItemCommandButton_dt((tPMenuItemCommandButton *)&param_1[2].fTextDescription,2);
   tPMenuItemCommandButton_dt((tPMenuItemCommandButton *)(param_1 + 1),2);
   tPMenuItemNonInteractiveText_dt(param_1,2);
   if ((__in_chrg & 1) != 0) {

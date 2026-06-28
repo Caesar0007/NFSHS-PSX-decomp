@@ -3363,8 +3363,7 @@ struct tPMenuItem {   /* 12 bytes */
     void *IsDisabled();
 };
 
-struct tPMenuItemNonInteractiveText {   /* 12 bytes */
-    tPMenuItem         _base_tPMenuItem;   /* +0x0 */
+struct tPMenuItemNonInteractiveText : public tPMenuItem {   /* 12 bytes */
     /* reconstructed PauseMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tPMenuItemNonInteractiveText(unsigned int textDescription);
     ~tPMenuItemNonInteractiveText();
@@ -3372,8 +3371,7 @@ struct tPMenuItemNonInteractiveText {   /* 12 bytes */
     void *IsNavigable();
 };
 
-struct tPMenuItemInteractive {   /* 12 bytes */
-    tPMenuItem         _base_tPMenuItem;   /* +0x0 */
+struct tPMenuItemInteractive : public tPMenuItem {   /* 12 bytes */
     /* reconstructed PauseMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tPMenuItemInteractive(unsigned int textDescription);
     ~tPMenuItemInteractive();
@@ -3381,8 +3379,7 @@ struct tPMenuItemInteractive {   /* 12 bytes */
     void *IsNavigable();
 };
 
-struct tPMenuItemLeftRightChoice {   /* 16 bytes */
-    tPMenuItemInteractive _base_tPMenuItemInteractive;   /* +0x0 */
+struct tPMenuItemLeftRightChoice : public tPMenuItemInteractive {   /* 16 bytes */
     tPListIterator     *fData;   /* +0xC */
     /* reconstructed PauseMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tPMenuItemLeftRightChoice(unsigned int textDescription, tPListIterator *dataPtr);
@@ -3391,8 +3388,7 @@ struct tPMenuItemLeftRightChoice {   /* 16 bytes */
     void Draw(bool selected);
 };
 
-struct tPMenuItemLeftRightSlider {   /* 20 bytes */
-    tPMenuItemInteractive _base_tPMenuItemInteractive;   /* +0x0 */
+struct tPMenuItemLeftRightSlider : public tPMenuItemInteractive {   /* 20 bytes */
     int                *fData;   /* +0xC */
     char               fMaxVal;   /* +0x10 */
     /* reconstructed PauseMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
@@ -3403,8 +3399,7 @@ struct tPMenuItemLeftRightSlider {   /* 20 bytes */
     void Draw(bool selected);
 };
 
-struct tPMenuItemLeftRightSliderIndexed {   /* 24 bytes */
-    tPMenuItemLeftRightSlider _base_tPMenuItemLeftRightSlider;   /* +0x0 */
+struct tPMenuItemLeftRightSliderIndexed : public tPMenuItemLeftRightSlider {   /* 24 bytes */
     char               *fIndex;   /* +0x14 */
     /* reconstructed PauseMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tPMenuItemLeftRightSliderIndexed(unsigned int textDescription, int *dataPtr, char maxVal, char *index);
@@ -3413,8 +3408,7 @@ struct tPMenuItemLeftRightSliderIndexed {   /* 24 bytes */
     void Draw(bool selected);
 };
 
-struct tPMenuItemGoToMenuButton {   /* 20 bytes */
-    tPMenuItemInteractive _base_tPMenuItemInteractive;   /* +0x0 */
+struct tPMenuItemGoToMenuButton : public tPMenuItemInteractive {   /* 20 bytes */
     tPMenu             *fNewMenu;   /* +0xC */
     void               *fOnButtonPress;   /* +0x10 */
     /* reconstructed PauseMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
@@ -3424,8 +3418,7 @@ struct tPMenuItemGoToMenuButton {   /* 20 bytes */
     void ProcessInput(tInputKeyType &keyval, tPMenuCommand &command);
 };
 
-struct tPMenuItemCommandButton {   /* 16 bytes */
-    tPMenuItemInteractive _base_tPMenuItemInteractive;   /* +0x0 */
+struct tPMenuItemCommandButton : public tPMenuItemInteractive {   /* 16 bytes */
     int                fCommand;   /* +0xC */
     /* reconstructed PauseMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tPMenuItemCommandButton(unsigned int textDescription, tPMenuCommandType command);

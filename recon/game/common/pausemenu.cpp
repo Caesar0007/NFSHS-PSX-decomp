@@ -326,10 +326,10 @@ void tPMenuItem::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
 
 /* ---- tPMenuItemNonInteractiveText::ctor  [PAUSEMENU.CPP:273-274] SLD-VERIFIED ---- */
 tPMenuItemNonInteractiveText::tPMenuItemNonInteractiveText(u_int textDescription)
-  : _base_tPMenuItem(textDescription)
+  : tPMenuItem(textDescription)
 {
   
-  (this->_base_tPMenuItem)._vf = (__vtbl_ptr_type (*) [7])tPMenuItemNonInteractiveText_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [7])tPMenuItemNonInteractiveText_vtable;
   return;
 }
 
@@ -340,7 +340,7 @@ tPMenuItemNonInteractiveText::tPMenuItemNonInteractiveText(u_int textDescription
 tPMenuItemNonInteractiveText::~tPMenuItemNonInteractiveText()
 
 {
-  (this->_base_tPMenuItem)._vf = (__vtbl_ptr_type (*) [7])tPMenuItemNonInteractiveText_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [7])tPMenuItemNonInteractiveText_vtable;
   return;
 }
 
@@ -352,7 +352,7 @@ void tPMenuItemNonInteractiveText::Draw(bool selected)
 
 {
   
-  PauseMenu_MenuText((short)(this->_base_tPMenuItem).fTextDescription,false,0);
+  PauseMenu_MenuText((short)this->fTextDescription,false,0);
   return;
 }
 
@@ -360,10 +360,10 @@ void tPMenuItemNonInteractiveText::Draw(bool selected)
 
 /* ---- tPMenuItemInteractive::ctor  [PAUSEMENU.CPP:297-298] SLD-VERIFIED ---- */
 tPMenuItemInteractive::tPMenuItemInteractive(u_int textDescription)
-  : _base_tPMenuItem(textDescription)
+  : tPMenuItem(textDescription)
 {
   
-  (this->_base_tPMenuItem)._vf = (__vtbl_ptr_type (*) [7])tPMenuItemInteractive_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [7])tPMenuItemInteractive_vtable;
   return;
 }
 
@@ -374,7 +374,7 @@ tPMenuItemInteractive::tPMenuItemInteractive(u_int textDescription)
 tPMenuItemInteractive::~tPMenuItemInteractive()
 
 {
-  (this->_base_tPMenuItem)._vf = (__vtbl_ptr_type (*) [7])tPMenuItemInteractive_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [7])tPMenuItemInteractive_vtable;
   return;
 }
 
@@ -385,7 +385,7 @@ tPMenuItemInteractive::~tPMenuItemInteractive()
 void tPMenuItemInteractive::Draw(bool selected)
 
 {
-  PauseMenu_MenuText((short)(this->_base_tPMenuItem).fTextDescription,selected,(this->_base_tPMenuItem).fFlags & 1
+  PauseMenu_MenuText((short)this->fTextDescription,selected,this->fFlags & 1
             );
   return;
 }
@@ -394,10 +394,10 @@ void tPMenuItemInteractive::Draw(bool selected)
 
 /* ---- tPMenuItemLeftRightChoice::ctor  [PAUSEMENU.CPP:319-321] SLD-VERIFIED ---- */
 tPMenuItemLeftRightChoice::tPMenuItemLeftRightChoice(u_int textDescription,tPListIterator *dataPtr)
-  : _base_tPMenuItemInteractive(textDescription)
+  : tPMenuItemInteractive(textDescription)
 {
   
-  (this->_base_tPMenuItemInteractive)._base_tPMenuItem._vf =
+  this->_vf =
        (__vtbl_ptr_type (*) [7])tPMenuItemLeftRightChoice_vtable;
   this->fData = dataPtr;
   return;
@@ -410,7 +410,7 @@ tPMenuItemLeftRightChoice::tPMenuItemLeftRightChoice(u_int textDescription,tPLis
 tPMenuItemLeftRightChoice::~tPMenuItemLeftRightChoice()
 
 {
-  (this->_base_tPMenuItemInteractive)._base_tPMenuItem._vf =
+  this->_vf =
        (__vtbl_ptr_type (*) [7])tPMenuItemLeftRightChoice_vtable;
   return;
 }
@@ -468,17 +468,17 @@ void tPMenuItemLeftRightChoice::Draw(bool selected)
   u_char *drmode_p;
   int y;
   
-  labelStrId = TextSys_WordX((this->_base_tPMenuItemInteractive)._base_tPMenuItem.fTextDescription);
+  labelStrId = TextSys_WordX(this->fTextDescription);
   selected_00 = (short)selected;
-  PauseMenu_MenuTextPositioned((short)(this->_base_tPMenuItemInteractive)._base_tPMenuItem.fTextDescription,selected_00,
-             (u_short)(this->_base_tPMenuItemInteractive)._base_tPMenuItem.fFlags & 1,(short)labelStrId);
+  PauseMenu_MenuTextPositioned((short)this->fTextDescription,selected_00,
+             (u_short)this->fFlags & 1,(short)labelStrId);
   vtable_p = (int)this->fData->_vf;
   index = (**(int (**)(...))(vtable_p + 0x1c))
                     ((int)&this->fData->fSelectionList + (int)*(short *)(vtable_p + 0x18),0xffffffff
                     );
   valueStrId = TextSys_WordX((int)index);
   x = (short)valueStrId;
-  PauseMenu_MenuTextPositioned(index,selected_00,(u_short)(this->_base_tPMenuItemInteractive)._base_tPMenuItem.fFlags & 1,x);
+  PauseMenu_MenuTextPositioned(index,selected_00,(u_short)this->fFlags & 1,x);
   y = gPause_CurrentY;
   prev_pkt = Render_gPacketPtr;
   cur_pkt = Render_gPalettePtr;
@@ -508,10 +508,10 @@ void tPMenuItemLeftRightChoice::Draw(bool selected)
 
 /* ---- tPMenuItemLeftRightSlider::ctor  [PAUSEMENU.CPP:441-444] SLD-VERIFIED ---- */
 tPMenuItemLeftRightSlider::tPMenuItemLeftRightSlider(u_int textDescription,int *dataPtr,char maxVal)
-  : _base_tPMenuItemInteractive(textDescription)
+  : tPMenuItemInteractive(textDescription)
 {
   
-  (this->_base_tPMenuItemInteractive)._base_tPMenuItem._vf =
+  this->_vf =
        (__vtbl_ptr_type (*) [7])tPMenuItemLeftRightSlider_vtable;
   this->fData = dataPtr;
   this->fMaxVal = maxVal;
@@ -525,7 +525,7 @@ tPMenuItemLeftRightSlider::tPMenuItemLeftRightSlider(u_int textDescription,int *
 tPMenuItemLeftRightSlider::~tPMenuItemLeftRightSlider()
 
 {
-  (this->_base_tPMenuItemInteractive)._base_tPMenuItem._vf =
+  this->_vf =
        (__vtbl_ptr_type (*) [7])tPMenuItemLeftRightSlider_vtable;
   return;
 }
@@ -623,12 +623,12 @@ void tPMenuItemLeftRightSlider::Draw(bool selected)
   iVar2 = selected;
   endX = 0;
   xacc = 0x42;
-  labelStrId = TextSys_WordX((this->_base_tPMenuItemInteractive)._base_tPMenuItem.fTextDescription);
+  labelStrId = TextSys_WordX(this->fTextDescription);
   tickX = (int)(short)labelStrId;
   x = (short)labelStrId;
   label_y_pack = (int)(u_short)gPause_CurrentY;
-  PauseMenu_MenuTextPositioned((short)(this->_base_tPMenuItemInteractive)._base_tPMenuItem.fTextDescription,(short)iVar2,
-             (u_short)(this->_base_tPMenuItemInteractive)._base_tPMenuItem.fFlags & 1,(short)labelStrId);
+  PauseMenu_MenuTextPositioned((short)this->fTextDescription,(short)iVar2,
+             (u_short)this->fFlags & 1,(short)labelStrId);
   label_y = label_y_pack + 4;
   do {
     tp2 = Render_gPacketPtr;
@@ -679,10 +679,10 @@ Draw7ac8_labelYWrite:
 /* ---- tPMenuItemLeftRightSliderIndexed::ctor  [PAUSEMENU.CPP:541-543] SLD-VERIFIED ---- */
 tPMenuItemLeftRightSliderIndexed::tPMenuItemLeftRightSliderIndexed(u_int textDescription,int *dataPtr,char maxVal,
           char *index)
-  : _base_tPMenuItemLeftRightSlider(textDescription,dataPtr,maxVal)
+  : tPMenuItemLeftRightSlider(textDescription,dataPtr,maxVal)
 {
   
-  (this->_base_tPMenuItemLeftRightSlider)._base_tPMenuItemInteractive._base_tPMenuItem._vf =
+  this->_vf =
        (__vtbl_ptr_type (*) [7])tPMenuItemLeftRightSliderIndexed_vtable;
   this->fIndex = index;
   return;
@@ -695,7 +695,7 @@ tPMenuItemLeftRightSliderIndexed::tPMenuItemLeftRightSliderIndexed(u_int textDes
 tPMenuItemLeftRightSliderIndexed::~tPMenuItemLeftRightSliderIndexed()
 
 {
-  (this->_base_tPMenuItemLeftRightSlider)._base_tPMenuItemInteractive._base_tPMenuItem._vf =
+  this->_vf =
        (__vtbl_ptr_type (*) [7])tPMenuItemLeftRightSliderIndexed_vtable;
   return;
 }
@@ -709,10 +709,10 @@ void tPMenuItemLeftRightSliderIndexed::ProcessInput(tInputKeyType &keyval,tPMenu
 {
   int *orgdata;
   
-  orgdata = (this->_base_tPMenuItemLeftRightSlider).fData;
-  (this->_base_tPMenuItemLeftRightSlider).fData = orgdata + (u_char)*this->fIndex;
-  this->_base_tPMenuItemLeftRightSlider.ProcessInput(keyval,command);
-  (this->_base_tPMenuItemLeftRightSlider).fData = orgdata;
+  orgdata = this->fData;
+  this->fData = orgdata + (u_char)*this->fIndex;
+  this->ProcessInput(keyval,command);
+  this->fData = orgdata;
   return;
 }
 
@@ -725,10 +725,10 @@ void tPMenuItemLeftRightSliderIndexed::Draw(bool selected)
 {
   int *orgdata;
   
-  orgdata = (this->_base_tPMenuItemLeftRightSlider).fData;
-  (this->_base_tPMenuItemLeftRightSlider).fData = orgdata + (u_char)*this->fIndex;
-  this->_base_tPMenuItemLeftRightSlider.Draw(selected);
-  (this->_base_tPMenuItemLeftRightSlider).fData = orgdata;
+  orgdata = this->fData;
+  this->fData = orgdata + (u_char)*this->fIndex;
+  this->Draw(selected);
+  this->fData = orgdata;
   return;
 }
 
@@ -738,10 +738,10 @@ void tPMenuItemLeftRightSliderIndexed::Draw(bool selected)
 
 tPMenuItemGoToMenuButton::tPMenuItemGoToMenuButton(u_int textDescription,tPMenu *newMenu,
               void (*OnButtonPress)(tPMenuCommand&))
-  : _base_tPMenuItemInteractive(textDescription)
+  : tPMenuItemInteractive(textDescription)
 {
   
-  (this->_base_tPMenuItemInteractive)._base_tPMenuItem._vf =
+  this->_vf =
        (__vtbl_ptr_type (*) [7])tPMenuItemGoToMenuButton_vtable;
   this->fNewMenu = newMenu;
   this->fOnButtonPress = (u_char **)OnButtonPress;
@@ -755,7 +755,7 @@ tPMenuItemGoToMenuButton::tPMenuItemGoToMenuButton(u_int textDescription,tPMenu 
 tPMenuItemGoToMenuButton::~tPMenuItemGoToMenuButton()
 
 {
-  (this->_base_tPMenuItemInteractive)._base_tPMenuItem._vf =
+  this->_vf =
        (__vtbl_ptr_type (*) [7])tPMenuItemGoToMenuButton_vtable;
   return;
 }
@@ -783,16 +783,16 @@ void tPMenuItemGoToMenuButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand 
   
   if (keyval == kInput_KeyType_Cross) {
     AudioCmn_PlayPauseSound(4);
-    pa_Var1 = (this->_base_tPMenuItemInteractive)._base_tPMenuItem._vf;
+    pa_Var1 = this->_vf;
     iVar2 = (*(*pa_Var1)[2].pfn)
-                      ((int)&(this->_base_tPMenuItemInteractive)._base_tPMenuItem.fFlags +
+                      ((int)&this->fFlags +
                        (int)(*pa_Var1)[2].delta);
     if (iVar2 != 0) {
       command.type = kMPause_GoToMenu;
-      pa_Var1 = (this->_base_tPMenuItemInteractive)._base_tPMenuItem._vf;
+      pa_Var1 = this->_vf;
       ptVar3 = (tPMenu *)
                (*(*pa_Var1)[2].pfn)
-                         ((int)&(this->_base_tPMenuItemInteractive)._base_tPMenuItem.fFlags +
+                         ((int)&this->fFlags +
                           (int)(*pa_Var1)[2].delta);
       command.nextMenu = ptVar3;
     }
@@ -808,10 +808,10 @@ void tPMenuItemGoToMenuButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand 
 
 /* ---- tPMenuItemCommandButton::ctor  [PAUSEMENU.CPP:613-615] SLD-VERIFIED ---- */
 tPMenuItemCommandButton::tPMenuItemCommandButton(u_int textDescription,tPMenuCommandType command)
-  : _base_tPMenuItemInteractive(textDescription)
+  : tPMenuItemInteractive(textDescription)
 {
   
-  (this->_base_tPMenuItemInteractive)._base_tPMenuItem._vf =
+  this->_vf =
        (__vtbl_ptr_type (*) [7])tPMenuItemCommandButton_vtable;
   this->fCommand = command;
   return;
@@ -824,7 +824,7 @@ tPMenuItemCommandButton::tPMenuItemCommandButton(u_int textDescription,tPMenuCom
 tPMenuItemCommandButton::~tPMenuItemCommandButton()
 
 {
-  (this->_base_tPMenuItemInteractive)._base_tPMenuItem._vf =
+  this->_vf =
        (__vtbl_ptr_type (*) [7])tPMenuItemCommandButton_vtable;
   return;
 }

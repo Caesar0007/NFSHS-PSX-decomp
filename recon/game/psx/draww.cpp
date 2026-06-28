@@ -442,14 +442,18 @@ void DrawW_LoadPrecVECTOR(Draw_SVertex *v,VECTOR *dv)
   int y;
   int z;
 
-  /* MATCH: oracle masks AFTER the shift, packs vx:vy as one word, and groups the three
-     shifts (vx<<2, vy<<18, vz<<2) in field order. */
-  x = dv->vx << 2;
-  y = dv->vy << 0x12;
-  z = dv->vz << 2;
+  /* MATCH (§3.12 #15b split-load): load all three FIRST, then shift-assign -- this
+     groups the three shifts (vx<<2, vy<<18, vz<<2) the way the oracle does, instead of
+     fusing load+shift (which schedules vz's sll after the sw). Mask AFTER the shift;
+     pack vx:vy as one word. Form from DataPlusProgram decomp.me/scratch/ODvI7 (score 0). */
+  x = dv->vx;
+  y = dv->vy;
+  z = dv->vz;
+  x <<= 2;
+  y <<= 0x12;
+  z <<= 2;
   *(u_int *)&v->vx = y | (x & 0xffffU);
-  v->vz = (short)z;   /* FLOOR: 2 diffs -- gcc schedules sll a1,a1,2 after the sw;
-                         oracle groups it with the other two shifts (load-delay scheduling). */
+  v->vz = (short)z;
   return;
 }
 

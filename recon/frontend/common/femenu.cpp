@@ -109,11 +109,11 @@ int tListIterator::Decrement(tPlayer arg1)
 
 /* ---- tListIteratorIndexed::ctor  [FEMENU.CPP:104-106] SLD-VERIFIED ---- */
 tListIteratorIndexed::tListIteratorIndexed(short *selection,char *valPtr,char *index)
-  : _base_tListIterator(selection,valPtr)
+  : tListIterator(selection,valPtr)
 {
   tListIterator *in_v0;
   
-  *(void **)&((this->_base_tListIterator)._vf) = (void *)tListIteratorIndexed_vtable;
+  *(void **)&(this->_vf) = (void *)tListIteratorIndexed_vtable;
   this->fIndex = index;
   return;
 }
@@ -125,7 +125,7 @@ tListIteratorIndexed::tListIteratorIndexed(short *selection,char *valPtr,char *i
 tListIteratorIndexed::~tListIteratorIndexed()
 
 {
-  *(void **)&((this->_base_tListIterator)._vf) = (void *)tListIteratorIndexed_vtable;
+  *(void **)&(this->_vf) = (void *)tListIteratorIndexed_vtable;
   return;
 }
 
@@ -136,7 +136,7 @@ tListIteratorIndexed::~tListIteratorIndexed()
 int tListIteratorIndexed::Value(tPlayer arg1)
 
 {
-  return (u_int)(u_char)(this->_base_tListIterator).fValue[(u_char)*this->fIndex];
+  return (u_int)(u_char)this->fValue[(u_char)*this->fIndex];
 }
 
 
@@ -149,11 +149,11 @@ int tListIteratorIndexed::TextValue(tPlayer arg1)
   __vtbl_ptr_type (*pa_Var1) [6];
   u_int uVar2;
   
-  pa_Var1 = (this->_base_tListIterator)._vf;
+  pa_Var1 = this->_vf;
   uVar2 = (*(*pa_Var1)[2].pfn)
-                    ((int)&(this->_base_tListIterator).fSelectionList + (int)(*pa_Var1)[2].delta,
+                    ((int)&this->fSelectionList + (int)(*pa_Var1)[2].delta,
                      0xffffffff);
-  return (int)(this->_base_tListIterator).fSelectionList[uVar2 & 0xff];
+  return (int)this->fSelectionList[uVar2 & 0xff];
 }
 
 
@@ -167,10 +167,10 @@ int tListIteratorIndexed::Increment(tPlayer arg1)
   char *pcVar2;
   u_char *pbVar3;
   
-  pcVar2 = (this->_base_tListIterator).fValue + (u_char)*this->fIndex;
+  pcVar2 = this->fValue + (u_char)*this->fIndex;
   *pcVar2 = *pcVar2 + '\x01';
-  pbVar3 = (u_char *)((this->_base_tListIterator).fValue + (u_char)*this->fIndex);
-  iVar1 = (int)(this->_base_tListIterator).fSelectionList[*pbVar3];
+  pbVar3 = (u_char *)(this->fValue + (u_char)*this->fIndex);
+  iVar1 = (int)this->fSelectionList[*pbVar3];
   if (iVar1 == 0) {
     *pbVar3 = 0;
   }
@@ -190,16 +190,16 @@ int tListIteratorIndexed::Decrement(tPlayer arg1)
   u_char *pbVar4;
 
   pbVar4 = (u_char *)this->fIndex;
-  pcVar3 = (this->_base_tListIterator).fValue;
+  pcVar3 = this->fValue;
   cVar1 = pcVar3[*pbVar4];
   if (cVar1 == '\0') {
-    iVar2 = (int)(this->_base_tListIterator).fSelectionList[(u_char)pcVar3[*pbVar4] + 1];
+    iVar2 = (int)this->fSelectionList[(u_char)pcVar3[*pbVar4] + 1];
     if (0 < iVar2) {
       do {
         pcVar3[*pbVar4] = pcVar3[*pbVar4] + '\x01';
         pbVar4 = (u_char *)this->fIndex;
-        pcVar3 = (this->_base_tListIterator).fValue;
-        iVar2 = (int)(this->_base_tListIterator).fSelectionList[(u_char)pcVar3[*pbVar4] + 1];
+        pcVar3 = this->fValue;
+        iVar2 = (int)this->fSelectionList[(u_char)pcVar3[*pbVar4] + 1];
       } while (0 < iVar2);
       return iVar2;
     }
@@ -218,7 +218,7 @@ int tListIteratorIndexed::Decrement(tPlayer arg1)
 tListIteratorDoubleIndexed::~tListIteratorDoubleIndexed()
 
 {
-  *(void **)&((this->_base_tListIterator)._vf) = (void *)tListIteratorDoubleIndexed_vtable;
+  *(void **)&(this->_vf) = (void *)tListIteratorDoubleIndexed_vtable;
   return;
 }
 
@@ -229,7 +229,7 @@ tListIteratorDoubleIndexed::~tListIteratorDoubleIndexed()
 int tListIteratorDoubleIndexed::Value(tPlayer arg1)
 
 {
-  return (u_int)(u_char)(this->_base_tListIterator).fValue
+  return (u_int)(u_char)this->fValue
                      [(u_int)(u_char)*this->fIndex1 * this->index1multiplier +
                       (u_int)(u_char)*this->fIndex2];
 }
@@ -244,11 +244,11 @@ int tListIteratorDoubleIndexed::TextValue(tPlayer arg1)
   __vtbl_ptr_type (*pa_Var1) [6];
   u_int uVar2;
   
-  pa_Var1 = (this->_base_tListIterator)._vf;
+  pa_Var1 = this->_vf;
   uVar2 = (*(*pa_Var1)[2].pfn)
-                    ((int)&(this->_base_tListIterator).fSelectionList + (int)(*pa_Var1)[2].delta,
+                    ((int)&this->fSelectionList + (int)(*pa_Var1)[2].delta,
                      0xffffffff);
-  return (int)(this->_base_tListIterator).fSelectionList[uVar2 & 0xff];
+  return (int)this->fSelectionList[uVar2 & 0xff];
 }
 
 
@@ -262,13 +262,13 @@ int tListIteratorDoubleIndexed::Increment(tPlayer arg1)
   char *pcVar2;
   u_char *pbVar3;
   
-  pcVar2 = (this->_base_tListIterator).fValue +
+  pcVar2 = this->fValue +
            ((u_int)(u_char)*this->fIndex1 * this->index1multiplier + (u_int)(u_char)*this->fIndex2);
   *pcVar2 = *pcVar2 + '\x01';
-  pbVar3 = (u_char *)((this->_base_tListIterator).fValue +
+  pbVar3 = (u_char *)(this->fValue +
                    ((u_int)(u_char)*this->fIndex1 * this->index1multiplier + (u_int)(u_char)*this->fIndex2))
   ;
-  iVar1 = (int)(this->_base_tListIterator).fSelectionList[*pbVar3];
+  iVar1 = (int)this->fSelectionList[*pbVar3];
   if (iVar1 == 0) {
     *pbVar3 = 0;
   }
@@ -292,10 +292,10 @@ int tListIteratorDoubleIndexed::Decrement(tPlayer arg1)
   pbVar6 = (u_char *)this->fIndex1;
   iVar5 = this->index1multiplier;
   pbVar4 = (u_char *)this->fIndex2;
-  pcVar3 = (this->_base_tListIterator).fValue;
+  pcVar3 = this->fValue;
   cVar7 = pcVar3[(u_int)*pbVar6 * iVar5 + (u_int)*pbVar4];
   if (cVar7 == '\0') {
-    iVar2 = (int)(this->_base_tListIterator).fSelectionList
+    iVar2 = (int)this->fSelectionList
                  [(u_char)pcVar3[(u_int)*pbVar6 * iVar5 + (u_int)*pbVar4] + 1];
     if (0 < iVar2) {
       do {
@@ -304,8 +304,8 @@ int tListIteratorDoubleIndexed::Decrement(tPlayer arg1)
         pbVar6 = (u_char *)this->fIndex1;
         iVar5 = this->index1multiplier;
         pbVar4 = (u_char *)this->fIndex2;
-        pcVar3 = (this->_base_tListIterator).fValue;
-        iVar2 = (int)(this->_base_tListIterator).fSelectionList
+        pcVar3 = this->fValue;
+        iVar2 = (int)this->fSelectionList
                      [(u_char)pcVar3[(u_int)*pbVar6 * iVar5 + (u_int)*pbVar4] + 1];
       } while (0 < iVar2);
       return iVar2;
@@ -325,7 +325,7 @@ int tListIteratorDoubleIndexed::Decrement(tPlayer arg1)
 tListIteratorMultiPlayer::~tListIteratorMultiPlayer()
 
 {
-  *(void **)&((this->_base_tListIterator)._vf) = (void *)tListIteratorMultiPlayer_vtable;
+  *(void **)&(this->_vf) = (void *)tListIteratorMultiPlayer_vtable;
   return;
 }
 
@@ -339,7 +339,7 @@ char tListIteratorMultiPlayer::Value(tPlayer atIndex)
   if (atIndex == kPlayerBoth) {
     atIndex = kPlayerOne;
   }
-  return (this->_base_tListIterator).fValue[atIndex];
+  return this->fValue[atIndex];
 }
 
 
@@ -352,10 +352,10 @@ short tListIteratorMultiPlayer::TextValue(tPlayer atIndex)
   __vtbl_ptr_type (*pa_Var1) [6];
   u_int uVar2;
   
-  pa_Var1 = (this->_base_tListIterator)._vf;
+  pa_Var1 = this->_vf;
   uVar2 = (*(*pa_Var1)[2].pfn)
-                    ((int)&(this->_base_tListIterator).fSelectionList + (int)(*pa_Var1)[2].delta);
-  return (this->_base_tListIterator).fSelectionList[uVar2 & 0xff];
+                    ((int)&this->fSelectionList + (int)(*pa_Var1)[2].delta);
+  return this->fSelectionList[uVar2 & 0xff];
 }
 
 
@@ -371,10 +371,10 @@ void tListIteratorMultiPlayer::Increment(tPlayer atIndex)
   if (atIndex == kPlayerBoth) {
     atIndex = kPlayerOne;
   }
-  pcVar1 = (this->_base_tListIterator).fValue + atIndex;
+  pcVar1 = this->fValue + atIndex;
   *pcVar1 = *pcVar1 + '\x01';
-  pbVar2 = (u_char *)((this->_base_tListIterator).fValue + atIndex);
-  if ((this->_base_tListIterator).fSelectionList[*pbVar2] == 0) {
+  pbVar2 = (u_char *)(this->fValue + atIndex);
+  if (this->fSelectionList[*pbVar2] == 0) {
     *pbVar2 = 0;
   }
   return;
@@ -394,14 +394,14 @@ void tListIteratorMultiPlayer::Decrement(tPlayer atIndex)
   if (atIndex == kPlayerBoth) {
     atIndex = kPlayerOne;
   }
-  pcVar3 = (this->_base_tListIterator).fValue;
+  pcVar3 = this->fValue;
   cVar1 = pcVar3[atIndex];
   if (cVar1 == '\0') {
-    sVar2 = (this->_base_tListIterator).fSelectionList[(u_char)pcVar3[atIndex] + 1];
+    sVar2 = this->fSelectionList[(u_char)pcVar3[atIndex] + 1];
     while (0 < sVar2) {
       pcVar3[atIndex] = pcVar3[atIndex] + '\x01';
-      pcVar3 = (this->_base_tListIterator).fValue;
-      sVar2 = (this->_base_tListIterator).fSelectionList[(u_char)pcVar3[atIndex] + 1];
+      pcVar3 = this->fValue;
+      sVar2 = this->fSelectionList[(u_char)pcVar3[atIndex] + 1];
     }
     return;
   }
@@ -413,13 +413,13 @@ void tListIteratorMultiPlayer::Decrement(tPlayer atIndex)
 
 /* ---- tListIteratorRange::ctor  [FEMENU.CPP:250-253] SLD-VERIFIED ---- */
 tListIteratorRange::tListIteratorRange(char minValue,char maxValue,char *valPtr)
-  : _base_tListIterator((short *)0x0,valPtr)
+  : tListIterator((short *)0x0,valPtr)
 {
   tListIterator *in_v0;
   
-  *(void **)&((this->_base_tListIterator)._vf) = (void *)tListIteratorRange_vtable;
-  (this->_base_tListIterator).fMinValue = minValue;
-  (this->_base_tListIterator).fMaxValue = maxValue;
+  *(void **)&(this->_vf) = (void *)tListIteratorRange_vtable;
+  this->fMinValue = minValue;
+  this->fMaxValue = maxValue;
   return;
 }
 
@@ -430,7 +430,7 @@ tListIteratorRange::tListIteratorRange(char minValue,char maxValue,char *valPtr)
 tListIteratorRange::~tListIteratorRange()
 
 {
-  *(void **)&((this->_base_tListIterator)._vf) = (void *)tListIteratorRange_vtable;
+  *(void **)&(this->_vf) = (void *)tListIteratorRange_vtable;
   return;
 }
 
@@ -441,7 +441,7 @@ tListIteratorRange::~tListIteratorRange()
 int tListIteratorRange::Value(tPlayer arg1)
 
 {
-  return (u_int)(u_char)*(this->_base_tListIterator).fValue;
+  return (u_int)(u_char)*this->fValue;
 }
 
 
@@ -463,8 +463,8 @@ void tListIteratorRange::Increment(tPlayer arg1)
 {
   u_char *pbVar3;
 
-  pbVar3 = (u_char *)(this->_base_tListIterator).fValue;
-  if ((u_int)*pbVar3 < (u_char)(this->_base_tListIterator).fMaxValue) {
+  pbVar3 = (u_char *)this->fValue;
+  if ((u_int)*pbVar3 < (u_char)this->fMaxValue) {
     *pbVar3 = *pbVar3 + '\x01';
   }
   return;
@@ -479,8 +479,8 @@ void tListIteratorRange::Decrement(tPlayer arg1)
 {
   u_char *pbVar3;
 
-  pbVar3 = (u_char *)(this->_base_tListIterator).fValue;
-  if ((u_char)(this->_base_tListIterator).fMinValue < (u_int)*pbVar3) {
+  pbVar3 = (u_char *)this->fValue;
+  if ((u_char)this->fMinValue < (u_int)*pbVar3) {
     *pbVar3 = (u_char)((u_int)*pbVar3 - 1);
   }
   return;
@@ -490,10 +490,10 @@ void tListIteratorRange::Decrement(tPlayer arg1)
 
 /* ---- tListIteratorRangeIndexed::ctor  [FEMENU.CPP:298-300] SLD-VERIFIED ---- */
 tListIteratorRangeIndexed::tListIteratorRangeIndexed(char minValue,char maxValue,char *valPtr,char *index)
-  : _base_tListIteratorRange(minValue,maxValue,valPtr)
+  : tListIteratorRange(minValue,maxValue,valPtr)
 {
   
-  *(void **)&((this->_base_tListIteratorRange)._base_tListIterator._vf) = (void *)tListIteratorRangeIndexed_vtable;
+  *(void **)&(this->_vf) = (void *)tListIteratorRangeIndexed_vtable;
   this->fIndex = index;
   return;
 }
@@ -505,7 +505,7 @@ tListIteratorRangeIndexed::tListIteratorRangeIndexed(char minValue,char maxValue
 tListIteratorRangeIndexed::~tListIteratorRangeIndexed()
 
 {
-  *(void **)&((this->_base_tListIteratorRange)._base_tListIterator._vf) = (void *)tListIteratorRangeIndexed_vtable;
+  *(void **)&(this->_vf) = (void *)tListIteratorRangeIndexed_vtable;
   return;
 }
 
@@ -516,7 +516,7 @@ tListIteratorRangeIndexed::~tListIteratorRangeIndexed()
 int tListIteratorRangeIndexed::Value(tPlayer arg1)
 
 {
-  return (u_int)(u_char)(this->_base_tListIteratorRange)._base_tListIterator.fValue[(u_char)*this->fIndex];
+  return (u_int)(u_char)this->fValue[(u_char)*this->fIndex];
 }
 
 
@@ -528,8 +528,8 @@ void tListIteratorRangeIndexed::Increment(tPlayer arg1)
 {
   u_char *pbVar3;
 
-  pbVar3 = (u_char *)((this->_base_tListIteratorRange)._base_tListIterator.fValue + (u_char)*this->fIndex);
-  if ((u_int)*pbVar3 < (u_char)(this->_base_tListIteratorRange)._base_tListIterator.fMaxValue) {
+  pbVar3 = (u_char *)(this->fValue + (u_char)*this->fIndex);
+  if ((u_int)*pbVar3 < (u_char)this->fMaxValue) {
     *pbVar3 = *pbVar3 + '\x01';
   }
   return;
@@ -544,8 +544,8 @@ void tListIteratorRangeIndexed::Decrement(tPlayer arg1)
 {
   u_char *pbVar3;
 
-  pbVar3 = (u_char *)((this->_base_tListIteratorRange)._base_tListIterator.fValue + (u_char)*this->fIndex);
-  if ((u_char)(this->_base_tListIteratorRange)._base_tListIterator.fMinValue < (u_int)*pbVar3) {
+  pbVar3 = (u_char *)(this->fValue + (u_char)*this->fIndex);
+  if ((u_char)this->fMinValue < (u_int)*pbVar3) {
     *pbVar3 = (u_char)((u_int)*pbVar3 - 1);
   }
   return;

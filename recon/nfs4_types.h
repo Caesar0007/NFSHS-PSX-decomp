@@ -2702,9 +2702,8 @@ struct tListIterator {   /* 16 bytes */
 
 };
 
-struct tListIteratorRange {   /* 16 bytes */
+struct tListIteratorRange : public tListIterator {   /* 16 bytes */
     tListIteratorRange() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tListIterator      _base_tListIterator;   /* +0x0 */
     /* reconstructed FEMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tListIteratorRange(char minValue, char maxValue, char *valPtr);
     ~tListIteratorRange();
@@ -3454,9 +3453,8 @@ struct tNfsSystemInfo {   /* 4 bytes */
     int                userRam;   /* +0x0 */
 };
 
-struct tListIteratorIndexed {   /* 20 bytes */
+struct tListIteratorIndexed : public tListIterator {   /* 20 bytes */
     tListIteratorIndexed() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tListIterator      _base_tListIterator;   /* +0x0 */
     char               *fIndex;   /* +0x10 */
     /* reconstructed FEMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tListIteratorIndexed(short *selection, char *valPtr, char *index);
@@ -4356,9 +4354,8 @@ struct tMenuCommand {   /* 8 bytes */
     tMenu              *nextMenu;   /* +0x4 */
 };
 
-struct tListIteratorRangeIndexed {   /* 20 bytes */
+struct tListIteratorRangeIndexed : public tListIteratorRange {   /* 20 bytes */
     tListIteratorRangeIndexed() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tListIteratorRange _base_tListIteratorRange;   /* +0x0 */
     char               *fIndex;   /* +0x10 */
     /* reconstructed FEMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tListIteratorRangeIndexed(char minValue, char maxValue, char *valPtr, char *index);
@@ -4848,9 +4845,8 @@ struct tSaveCarInfo {   /* 224 bytes */
     u_char             fSaveAvailable[48], fSaveViewable[48];   /* +0x80 */
 };
 
-struct tListIteratorCar {   /* 28 bytes */
+struct tListIteratorCar : public tListIterator {   /* 28 bytes */
     tListIteratorCar() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tListIterator      _base_tListIterator;   /* +0x0 */
     int                fCarListFilter;   /* +0x10 */
     tCarManager        *fCarManager;   /* +0x14 */
     int                fNameLength;   /* +0x18 */
@@ -4866,9 +4862,8 @@ struct tListIteratorCar {   /* 28 bytes */
 
 };
 
-struct tListIteratorCarColor {   /* 32 bytes */
+struct tListIteratorCarColor : public tListIterator {   /* 32 bytes */
     tListIteratorCarColor() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tListIterator      _base_tListIterator;   /* +0x0 */
     char               *fPlayer, *fPlayerCar;   /* +0x10 */
     int                fIndexSize;   /* +0x18 */
     tCarManager        *fCarManager;   /* +0x1C */
@@ -4886,9 +4881,8 @@ struct tSaveTrackInfo {   /* 16 bytes */
     u_char             fTrackActivated[16];   /* +0x0 */
 };
 
-struct tListIteratorTrack {   /* 24 bytes */
+struct tListIteratorTrack : public tListIteratorIndexed {   /* 24 bytes */
     tListIteratorTrack() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tListIteratorIndexed _base_tListIteratorIndexed;   /* +0x0 */
     tTrackManager      *fTrackManager;   /* +0x14 */
     /* reconstructed member fns -- FETracks.obj (ABI-neutral) */
     tListIteratorTrack(char *valPtr, char *index, tTrackManager *trackManager);
@@ -4908,8 +4902,7 @@ struct tSaveTournament {   /* 176 bytes */
     short              fSaveTierFinishPrize[4];   /* +0xA8 */
 };
 
-struct tListIteratorTournament {   /* 20 bytes */
-    tListIterator      _base_tListIterator;   /* +0x0 */
+struct tListIteratorTournament : public tListIterator {   /* 20 bytes */
     tTournamentManager *fTournamentManager;   /* +0x10 */
     /* methods (non-virtual decls) — FETourn.obj */
     tListIteratorTournament() {}
@@ -5144,8 +5137,7 @@ struct tPSXToFEMapping {   /* 8 bytes */
     int                PSXKey, FEKey;   /* +0x0 */
 };
 
-struct tListIteratorDoubleIndexed {   /* 28 bytes */
-    tListIterator      _base_tListIterator;   /* +0x0 */
+struct tListIteratorDoubleIndexed : public tListIterator {   /* 28 bytes */
     char               *fIndex1;   /* +0x10 */
     int                index1multiplier;   /* +0x14 */
     char               *fIndex2;   /* +0x18 */
@@ -5158,8 +5150,7 @@ struct tListIteratorDoubleIndexed {   /* 28 bytes */
 
 };
 
-struct tListIteratorMultiPlayer {   /* 16 bytes */
-    tListIterator      _base_tListIterator;   /* +0x0 */
+struct tListIteratorMultiPlayer : public tListIterator {   /* 16 bytes */
     /* reconstructed FEMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     ~tListIteratorMultiPlayer();
     char Value(tPlayer atIndex);

@@ -204,10 +204,10 @@ tTrackInformation * tTrackManager::GetTrackByID(short track)
 
 /* ---- tListIteratorTrack::ctor  [FETRACKS.CPP:233-235] SLD-VERIFIED ---- */
 tListIteratorTrack::tListIteratorTrack(char *valPtr,char *index,tTrackManager *trackManager)
-  : _base_tListIteratorIndexed((short *)0x0,valPtr,index)
+  : tListIteratorIndexed((short *)0x0,valPtr,index)
 {
   
-  *(void **)&((this->_base_tListIteratorIndexed)._base_tListIterator._vf) = (void *)tListIteratorTrack_vtable;
+  *(void **)&(this->_vf) = (void *)tListIteratorTrack_vtable;
   this->fTrackManager = trackManager;
   return;
 }
@@ -219,7 +219,7 @@ tListIteratorTrack::tListIteratorTrack(char *valPtr,char *index,tTrackManager *t
 tListIteratorTrack::~tListIteratorTrack()
 
 {
-  *(void **)&((this->_base_tListIteratorIndexed)._base_tListIterator._vf) = (void *)tListIteratorTrack_vtable;
+  *(void **)&(this->_vf) = (void *)tListIteratorTrack_vtable;
   return;
 }
 
@@ -234,8 +234,8 @@ short tListIteratorTrack::TextValue(tPlayer atIndex)
   tTrackInformation *trackEntry;
   u_int uVar1;
 
-  trackInfo = (tTrackInformation *)(this->_base_tListIteratorIndexed).fIndex;
-  uVar1 = (u_char)(this->_base_tListIteratorIndexed)._base_tListIterator.fValue[(u_char)trackInfo->fTrackID];
+  trackInfo = (tTrackInformation *)this->fIndex;
+  uVar1 = (u_char)this->fValue[(u_char)trackInfo->fTrackID];
   trackEntry = &this->fTrackManager->fTracks[uVar1];
   return (signed char)trackEntry->fTrackID + 0xd5;
 }
@@ -252,16 +252,16 @@ void tListIteratorTrack::Increment(tPlayer atIndex)
   u_char *pbVar3;
 
   do {
-    pcVar2 = (this->_base_tListIteratorIndexed)._base_tListIterator.fValue +
-             (u_char)*(this->_base_tListIteratorIndexed).fIndex;
+    pcVar2 = this->fValue +
+             (u_char)*this->fIndex;
     *pcVar2 = *pcVar2 + '\x01';
-    pbVar3 = (u_char *)((this->_base_tListIteratorIndexed)._base_tListIterator.fValue +
-                     (u_char)*(this->_base_tListIteratorIndexed).fIndex);
+    pbVar3 = (u_char *)(this->fValue +
+                     (u_char)*this->fIndex);
     if (this->fTrackManager->fNumTracks <= (u_int)*pbVar3) {
       *pbVar3 = 0;
     }
-    iVar1 = (int)this->ValidTrack((this->_base_tListIteratorIndexed)._base_tListIterator.fValue
-                             [(u_char)*(this->_base_tListIteratorIndexed).fIndex]) ^ 1;
+    iVar1 = (int)this->ValidTrack(this->fValue
+                             [(u_char)*this->fIndex]) ^ 1;
   } while (iVar1 != 0);
   return;
 }
@@ -278,15 +278,15 @@ void tListIteratorTrack::Decrement(tPlayer atIndex)
   char *pcVar3;
 
   do {
-    pcVar3 = (this->_base_tListIteratorIndexed)._base_tListIterator.fValue +
-             (u_char)*(this->_base_tListIteratorIndexed).fIndex;
+    pcVar3 = this->fValue +
+             (u_char)*this->fIndex;
     cVar1 = *pcVar3;
     if (cVar1 == '\0') {
       cVar1 = (char)this->fTrackManager->fNumTracks;
     }
     *pcVar3 = cVar1 - 1;
-    iVar2 = (int)this->ValidTrack((this->_base_tListIteratorIndexed)._base_tListIterator.fValue
-                             [(u_char)*(this->_base_tListIteratorIndexed).fIndex]) ^ 1;
+    iVar2 = (int)this->ValidTrack(this->fValue
+                             [(u_char)*this->fIndex]) ^ 1;
   } while (iVar2 != 0);
   return;
 }

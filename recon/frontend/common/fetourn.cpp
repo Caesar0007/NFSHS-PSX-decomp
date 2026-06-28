@@ -1069,10 +1069,10 @@ void * tTournamentManager::ValidCar(tCarInfo &carInfo_r)
 
 /* ---- tListIteratorTournament::ctor  [FETOURN.CPP:1109-1111] ---- */
 tListIteratorTournament::tListIteratorTournament(char *valPtr,tTournamentManager *tournManager)
-  : _base_tListIterator((short *)0x0, valPtr)
+  : tListIterator((short *)0x0, valPtr)
 {
 
-  *(void **)&((this->_base_tListIterator)._vf) = (void *)tListIteratorTournament_vtable;
+  *(void **)&(this->_vf) = (void *)tListIteratorTournament_vtable;
   this->fTournamentManager = tournManager;
   return;
 }
@@ -1084,9 +1084,8 @@ tListIteratorTournament::tListIteratorTournament(char *valPtr,tTournamentManager
 tListIteratorTournament::~tListIteratorTournament()
 
 {
-  (this->_base_tListIterator)._vf = (__vtbl_ptr_type (*)[6])tListIteratorTournament_vtable;
-  tListIterator_dtor(&this->_base_tListIterator);
-  return;
+  this->_vf = (__vtbl_ptr_type (*)[6])tListIteratorTournament_vtable;
+  return;  /* base ~tListIterator() now implicit (§3.23 inheritance) */
 }
 
 
@@ -1096,7 +1095,7 @@ tListIteratorTournament::~tListIteratorTournament()
 int tListIteratorTournament::Value(tPlayer arg1)
 
 {
-  return (uint)(byte)*(this->_base_tListIterator).fValue;
+  return (uint)(byte)*this->fValue;
 }
 
 
@@ -1111,7 +1110,7 @@ int tListIteratorTournament::TextValue(tPlayer player_id)
 
   ptVar1 = this->fTournamentManager->fDefinition;
   return (signed char)ptVar1->fTournaments
-         [(uint)(byte)*(this->_base_tListIterator).fValue +
+         [(uint)(byte)*this->fValue +
           (uint)ptVar1->fTiers[(byte)frontEnd.tier].fTournOffset].fTournamentID + 0x341;
 }
 
@@ -1132,13 +1131,13 @@ void tListIteratorTournament::Increment(tPlayer arg1)
   uVar2 = (uint)(byte)frontEnd.tier;
   ptVar3 = this->fTournamentManager->fDefinition;
   do {
-    pcVar4 = (this->_base_tListIterator).fValue;
+    pcVar4 = this->fValue;
     *pcVar4 = *pcVar4 + '\x01';
-    pbVar5 = (byte *)(this->_base_tListIterator).fValue;
+    pbVar5 = (byte *)this->fValue;
     if (ptVar3->fTiers[uVar2].fNumTournaments <= *pbVar5) {
       *pbVar5 = 0;
     }
-    iVar1 = (int)this->ValidTournament(*(this->_base_tListIterator).fValue) ^ 1;
+    iVar1 = (int)this->ValidTournament(*this->fValue) ^ 1;
   } while (iVar1 != 0);
   return;
 }
@@ -1160,13 +1159,13 @@ void tListIteratorTournament::Decrement(tPlayer arg1)
   uVar3 = (uint)(byte)frontEnd.tier;
   ptVar4 = this->fTournamentManager->fDefinition;
   do {
-    puVar5 = (uchar *)(this->_base_tListIterator).fValue;
+    puVar5 = (uchar *)this->fValue;
     uVar1 = *puVar5;
     if (uVar1 == '\0') {
       uVar1 = ptVar4->fTiers[uVar3].fNumTournaments;
     }
     *puVar5 = uVar1 - 1;
-    iVar2 = (int)this->ValidTournament(*(this->_base_tListIterator).fValue) ^ 1;
+    iVar2 = (int)this->ValidTournament(*this->fValue) ^ 1;
   } while (iVar2 != 0);
   return;
 }

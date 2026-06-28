@@ -2272,7 +2272,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemTournamentContinue,0x5a,(tMenu *)0x0,
              MenuExtended_GoToTournTrackInfo__FR12tMenuCommand,
              0x22,10);
-  tMenuItemNFS4LeftRightChoice_ctor(&this->itemTournamentSelect,0x94,&(this->iteratorTournament)._base_tListIterator,0x2c,10);
+  tMenuItemNFS4LeftRightChoice_ctor(&this->itemTournamentSelect,0x94,(tListIterator *)&this->iteratorTournament,0x2c,10);
   pcVar4 = (char *)tMenuNFS4_ctor(&this->menuTournament,0x1000,&screenTournSelect->_base_tScreen,(tMenu *)0x0,
                       (tMenu *)0x0,
                       MenuExtended_GoToTournTrackInfo__FR12tMenuCommand,0x65,
@@ -2280,7 +2280,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tListIteratorTournament_ctor(&this->iteratorSpecialEvent,pcVar4,&tournamentManager);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemSpecialEventContinue,0x5a,(tMenu *)0x0,
              MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand,0x22,10);
-  tMenuItemNFS4LeftRightChoice_ctor(&this->itemSpecialEventSelect,0x69,&(this->iteratorSpecialEvent)._base_tListIterator,0x36,10)
+  tMenuItemNFS4LeftRightChoice_ctor(&this->itemSpecialEventSelect,0x69,(tListIterator *)&this->iteratorSpecialEvent,0x36,10)
   ;
   tMenuNFS4_ctor(&this->menuSpecialEvent,0x1000,&screenTournSelect->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,
              MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand,100,
@@ -2358,26 +2358,26 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tListIteratorIndexed_ctor(&this->iteratorWeather,SelectListOffOn,frontEnd.weather,&frontEnd.pinkSlipsTrackIndex);
   ptVar5 = tListIteratorIndexed_ctor(&this->iteratorTraffic,SelectListOffOn,frontEnd.traffic,
                       &frontEnd.pinkSlipsTrackIndex);
-  tListIterator_ctor(&ptVar5->_base_tListIterator,SelectListOffOn,&frontEnd.localSpeech);
-  tMenuItemLeftRightChoice_ctor(&(this->itemLaps)._base_tMenuItemLeftRightChoice,0xca,&(this->iteratorLaps)._base_tListIterator);
+  tListIterator_ctor((tListIterator *)ptVar5,SelectListOffOn,&frontEnd.localSpeech);
+  tMenuItemLeftRightChoice_ctor(&(this->itemLaps)._base_tMenuItemLeftRightChoice,0xca,(tListIterator *)&this->iteratorLaps);
   *(void **)&((this->itemLaps)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemOptionsLeftRightChoice_vtable;
   tMenuItemLeftRightChoice_ctor(&(this->itemTrackDirection)._base_tMenuItemLeftRightChoice,0xcc,
-             &(this->iteratorTrackDirection)._base_tListIterator);
+             (tListIterator *)&this->iteratorTrackDirection);
   *(void **)&((this->itemTrackDirection)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemOptionsLeftRightChoice_vtable;
   tMenuItemLeftRightChoice_ctor(&(this->itemTrackMirrored)._base_tMenuItemLeftRightChoice,0xcd,
-             &(this->iteratorTrackMirrored)._base_tListIterator);
+             (tListIterator *)&this->iteratorTrackMirrored);
   *(void **)&((this->itemTrackMirrored)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemOptionsTwoItemChoice_vtable;
   (this->itemTrackMirrored).fOnOffFade = 0x80;
   tMenuItemLeftRightChoice_ctor(&(this->itemTimeOfDay)._base_tMenuItemLeftRightChoice,0xce,
-             &(this->iteratorTimeOfDay)._base_tListIterator);
+             (tListIterator *)&this->iteratorTimeOfDay);
   *(void **)&((this->itemTimeOfDay)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemOptionsTwoItemChoice_vtable;
   (this->itemTimeOfDay).fOnOffFade = 0x80;
   tMenuItemLeftRightChoice_ctor(&(this->itemWeather)._base_tMenuItemLeftRightChoice,0xcf,
-             &(this->iteratorWeather)._base_tListIterator);
+             (tListIterator *)&this->iteratorWeather);
   *(void **)&((this->itemWeather)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemOptionsTwoItemChoice_vtable;
   (this->itemWeather).fOnOffFade = 0x80;
   tMenuItemLeftRightChoice_ctor(&(this->itemTraffic)._base_tMenuItemLeftRightChoice,0xd0,
-             &(this->iteratorTraffic)._base_tListIterator);
+             (tListIterator *)&this->iteratorTraffic);
   *(void **)&((this->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemOptionsTwoItemChoice_vtable;
   (this->itemTraffic).fOnOffFade = 0x80;
   tMenuItemLeftRightChoice_ctor(&(this->itemLocalSpeech)._base_tMenuItemLeftRightChoice,0xd2,&this->iteratorLocalSpeech);
@@ -2404,9 +2404,9 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuItemGoToMenuNFS4Button_ctor(ptVar14,0xbd,(tMenu *)0x0,
              MenuExtended_GoToRace__FR12tMenuCommand,0x80,10);
   ptVar10 = &this->itemCar;
-  tMenuItemNFS4LeftRightChoice_ctor(ptVar10,0x92,&this_01->_base_tListIterator,0x1c,10);
+  tMenuItemNFS4LeftRightChoice_ctor(ptVar10,0x92,(tListIterator *)this_01,0x1c,10);
   ptVar11 = &this->itemColor;
-  tMenuItemNFS4LeftRightChoice_ctor(ptVar11,0x120,&this_09->_base_tListIterator,0x26,10);
+  tMenuItemNFS4LeftRightChoice_ctor(ptVar11,0x120,(tListIterator *)this_09,0x26,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemShowcase,0x112,(tMenu *)0x0,
              MenuExtended_GoToShowroom__FR12tMenuCommand,0x30,10
             );
@@ -2418,7 +2418,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   ptVar6 = &this->iteratorGarageCar;
   tListIteratorCar_ctor(ptVar6,frontEnd.garageCar,&carManager);
   this_17 = &this->itemGarageCar;
-  tMenuItemNFS4LeftRightChoice_ctor(this_17,0x92,&ptVar6->_base_tListIterator,0x1c,10);
+  tMenuItemNFS4LeftRightChoice_ctor(this_17,0x92,(tListIterator *)ptVar6,0x1c,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemCarDealer,0x74,&(this->menuGoToCarDealer)._base_tMenu,(void *)0x0,0x3a,10);
   ptVar15 = &this->itemUpgradeCar;
   tMenuItemGoToMenuNFS4Button_ctor(ptVar15,0x91,(tMenu *)0x0,
@@ -2434,13 +2434,13 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   ptVar14 = &this->itemDuelRace;
   tMenuItemGoToMenuNFS4Button_ctor(ptVar14,0xbd,(tMenu *)0x0,
              MenuExtended_GoToRace__FR12tMenuCommand,0x2a,10);
-  tMenuItemNFS4LeftRightChoice_ctor(&this->itemCar2,0x92,&this_01->_base_tListIterator,0xc,10);
-  tMenuItemNFS4LeftRightChoice_ctor(&this->itemColor2,0x120,&this_09->_base_tListIterator,0x16,10);
+  tMenuItemNFS4LeftRightChoice_ctor(&this->itemCar2,0x92,(tListIterator *)this_01,0xc,10);
+  tMenuItemNFS4LeftRightChoice_ctor(&this->itemColor2,0x120,(tListIterator *)this_09,0x16,10);
   ptVar9 = &this->menuCarDealer;
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemGoToDuelBuyCar,0x78,&ptVar9->_base_tMenu,
              MenuExtended_GoToDealer__FR12tMenuCommand,-1,10);
   ptVar13 = &this->itemOpponentCar;
-  tMenuItemNFS4LeftRightChoice_ctor(ptVar13,0xbc,&(this->iteratorOpponentCar)._base_tListIterator,0x20,10);
+  tMenuItemNFS4LeftRightChoice_ctor(ptVar13,0xbc,(tListIterator *)&this->iteratorOpponentCar,0x20,10);
   tMenuNFS4_ctor(&this->menuDuelCarSelect,0x1800,(tScreen *)screenCarSelectDuel,(tMenu *)0x0,
              (tMenu *)ptVar12,
              MenuExtended_GoToRace__FR12tMenuCommand,0xba,
@@ -2453,8 +2453,8 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuItemGoToMenuNFS4Button_ctor(ptVar14,0xbd,(tMenu *)0x0,
              MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0x2a
              ,10);
-  tMenuItemNFS4LeftRightChoice_ctor(&this->itemCarP1,0x92,&this_01->_base_tListIterator,0xc,10);
-  tMenuItemNFS4LeftRightChoice_ctor(&this->itemColorP1,0x120,&this_09->_base_tListIterator,0x16,10);
+  tMenuItemNFS4LeftRightChoice_ctor(&this->itemCarP1,0x92,(tListIterator *)this_01,0xc,10);
+  tMenuItemNFS4LeftRightChoice_ctor(&this->itemColorP1,0x120,(tListIterator *)this_09,0x16,10);
   this_10 = &this->menuCarOptionsPlayerOne;
   tMenuNFS4TwoPlayer_ctor(&this->menuPlayerOneCarSelect,0x1008,(tScreen *)screenCarSelectTwoPlayer,(tMenu *)0x0,
              (tMenu *)this_10,
@@ -2463,8 +2463,8 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemPlayerTwoRace,0xbd,(tMenu *)0x0,
              MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0x2a
              ,10);
-  tMenuItemNFS4LeftRightChoice_ctor(&this->itemCarP2,0x92,&this_01->_base_tListIterator,0xc,10);
-  tMenuItemNFS4LeftRightChoice_ctor(&this->itemColorP2,0x120,&this_09->_base_tListIterator,0x16,10);
+  tMenuItemNFS4LeftRightChoice_ctor(&this->itemCarP2,0x92,(tListIterator *)this_01,0xc,10);
+  tMenuItemNFS4LeftRightChoice_ctor(&this->itemColorP2,0x120,(tListIterator *)this_09,0x16,10);
   this_02 = &this->menuCarOptionsPlayerTwo;
   tMenuNFS4TwoPlayer_ctor(&this->menuPlayerTwoCarSelect,0x1008,(tScreen *)screenCarSelectPlayerTwo,(tMenu *)0x0,
              (tMenu *)this_02,
@@ -2473,7 +2473,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemPlayerOneGarageRace,0xbd,(tMenu *)0x0,
              MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0x2a
              ,10);
-  tMenuItemNFS4LeftRightChoice_ctor(&this->itemGarageCarP1,0x92,&ptVar6->_base_tListIterator,0xc,10);
+  tMenuItemNFS4LeftRightChoice_ctor(&this->itemGarageCarP1,0x92,(tListIterator *)ptVar6,0xc,10);
   tMenuNFS4TwoPlayer_ctor(&this->menuPlayerOneGarage,0x1008,(tScreen *)screenCarSelectTwoPlayer,(tMenu *)0x0,
              (tMenu *)this_10,
              MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0xba
@@ -2481,7 +2481,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemPlayerTwoGarageRace,0xbd,(tMenu *)0x0,
              MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0x2a
              ,10);
-  tMenuItemNFS4LeftRightChoice_ctor(&this->itemGarageCarP2,0x92,&ptVar6->_base_tListIterator,0xc,10);
+  tMenuItemNFS4LeftRightChoice_ctor(&this->itemGarageCarP2,0x92,(tListIterator *)ptVar6,0xc,10);
   tMenuNFS4TwoPlayer_ctor(&this->menuPlayerTwoGarage,0x1008,(tScreen *)screenCarSelectPlayerTwo,(tMenu *)0x0,
              (tMenu *)this_02,
              MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0xba
@@ -2491,7 +2491,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemPlayerOnePinkSlipRace,0xbd,(tMenu *)0x0,
              MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0x2a
              ,10);
-  tMenuItemNFS4LeftRightChoice_ctor(&this->itemPinkSlipCarP1,0x92,&ptVar6->_base_tListIterator,0xc,10);
+  tMenuItemNFS4LeftRightChoice_ctor(&this->itemPinkSlipCarP1,0x92,(tListIterator *)ptVar6,0xc,10);
   tMenuNFS4TwoPlayer_ctor(&this->menuPlayerOnePinkSlipCarSelect,0x1008,
              (tScreen *)screenPinkSlipsCarSelectTwoPlayer,(tMenu *)0x0,
              (tMenu *)&this->menuPinkSlipCarOptionsPlayerOne,
@@ -2500,7 +2500,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemPlayerTwoPinkSlipRace,0xbd,(tMenu *)0x0,
              MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0x2a
              ,10);
-  tMenuItemNFS4LeftRightChoice_ctor(&this->itemPinkSlipCarP2,0x92,&ptVar6->_base_tListIterator,0xc,10);
+  tMenuItemNFS4LeftRightChoice_ctor(&this->itemPinkSlipCarP2,0x92,(tListIterator *)ptVar6,0xc,10);
   tMenuNFS4TwoPlayer_ctor(&this->menuPlayerTwoPinkSlipCarSelect,0x1008,
              (tScreen *)screenPinkSlipsCarSelectPlayerTwo,(tMenu *)0x0,
              (tMenu *)&this->menuPinkSlipCarOptionsPlayerTwo,
@@ -2515,8 +2515,8 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   ptVar6 = tListIteratorCar_ctor(&this->iteratorDealerCar,&frontEnd.dealerCar,&carManager);
   tListIteratorCarColor_ctor(&this->iteratorDealerColor,(char *)ptVar6,&FEApp->fPlayer,&frontEnd.dealerCar,0x30,
              &carManager);
-  tMenuItemNFS4LeftRightChoice_ctor(&this->itemDealerCar,0x92,&(this->iteratorDealerCar)._base_tListIterator,0x1c,10);
-  tMenuItemNFS4LeftRightChoice_ctor(&this->itemDealerColor,0x120,&(this->iteratorDealerColor)._base_tListIterator,0x26,10);
+  tMenuItemNFS4LeftRightChoice_ctor(&this->itemDealerCar,0x92,(tListIterator *)&this->iteratorDealerCar,0x1c,10);
+  tMenuItemNFS4LeftRightChoice_ctor(&this->itemDealerColor,0x120,(tListIterator *)&this->iteratorDealerColor,0x26,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemBuyCar,0x75,(tMenu *)0x0,
              MenuExtended_BuyCar__FR12tMenuCommand,0x58,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemDealerShowroom,0x112,(tMenu *)0x0,
@@ -2526,7 +2526,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
              (tMenuItem *)&this->itemDealerCar,&this->itemDealerColor,&this->itemBuyCar,
              &this->itemDealerShowroom,0);
   tListIteratorCar_ctor(&this->iteratorSellerCar,&frontEnd.sellerCar,&carManager);
-  tMenuItemNFS4LeftRightChoice_ctor(&this->itemSellerCar,0x92,&(this->iteratorSellerCar)._base_tListIterator,0x1c,10);
+  tMenuItemNFS4LeftRightChoice_ctor(&this->itemSellerCar,0x92,(tListIterator *)&this->iteratorSellerCar,0x1c,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemSellCar,0x77,(tMenu *)0x0,
              MenuExtended_SellCar__FR12tMenuCommand,0x4e,10);
   tMenuNFS4_ctor(&this->menuCarSeller,0x2200,&screenCarSelect[0]->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,
@@ -2547,22 +2547,22 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tListIteratorIndexed_ctor(this_03,SelectListTransmission,frontEnd.transmission,&FEApp->fPlayer);
   this_13 = &this->iteratorABS;
   ptVar5 = tListIteratorIndexed_ctor(this_13,SelectListOffOn,frontEnd.ABS,&FEApp->fPlayer);
-  ptVar7 = tListIterator_ctor(&ptVar5->_base_tListIterator,SelectListOffOn,&frontEnd.damage);
+  ptVar7 = tListIterator_ctor((tListIterator *)ptVar5,SelectListOffOn,&frontEnd.damage);
   tListIterator_ctor(ptVar7,SelectListOpponentUpgrades,&frontEnd.opponentUpgrades);
   this_11 = &this->itemTransmission;
-  tMenuItemLeftRightChoice_ctor(&this_11->_base_tMenuItemLeftRightChoice,0x10a,&this_03->_base_tListIterator);
+  tMenuItemLeftRightChoice_ctor(&this_11->_base_tMenuItemLeftRightChoice,0x10a,(tListIterator *)this_03);
   this_04 = &this->itemABS;
   *(void **)&((this->itemTransmission)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemOptionsLeftRightChoice_vtable;
-  tMenuItemLeftRightChoice_ctor(&this_04->_base_tMenuItemLeftRightChoice,0x10b,&this_13->_base_tListIterator);
+  tMenuItemLeftRightChoice_ctor(&this_04->_base_tMenuItemLeftRightChoice,0x10b,(tListIterator *)this_13);
   this_05 = &this->itemDamage;
   *(void **)&((this->itemABS)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemOptionsLeftRightChoice_vtable;
   tMenuItemLeftRightChoice_ctor(&this_05->_base_tMenuItemLeftRightChoice,0x111,&this->iteratorDamage);
   this_18 = &this->itemTransmission2;
   *(void **)&((this->itemDamage)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemOptionsLeftRightChoice_vtable;
-  tMenuItemLeftRightChoice_ctor(&this_18->_base_tMenuItemLeftRightChoice,0x10a,&this_03->_base_tListIterator);
+  tMenuItemLeftRightChoice_ctor(&this_18->_base_tMenuItemLeftRightChoice,0x10a,(tListIterator *)this_03);
   this_06 = &this->itemABS2;
   *(void **)&((this->itemTransmission2)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemOptionsLeftRightChoice_vtable;
-  tMenuItemLeftRightChoice_ctor(&this_06->_base_tMenuItemLeftRightChoice,0x10b,&this_13->_base_tListIterator);
+  tMenuItemLeftRightChoice_ctor(&this_06->_base_tMenuItemLeftRightChoice,0x10b,(tListIterator *)this_13);
   this_14 = &this->itemDamage2;
   *(void **)&((this->itemABS2)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemOptionsLeftRightChoice_vtable;
   tMenuItemLeftRightChoice_ctor(&this_14->_base_tMenuItemLeftRightChoice,0x111,&this->iteratorDamage);
@@ -2601,14 +2601,14 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tListIteratorRange_ctor(&this->iteratorSoundEffectsVolume,'\0','\x7f',&frontEnd.sfxVolume);
   tListIteratorRange_ctor(&this->iteratorEngineVolume,'\0','\x7f',&frontEnd.engineVolume);
   tListIteratorRange_ctor(&this->iteratorSpeechVolume,'\0','\x7f',&frontEnd.narrationVolume);
-  ptVar7 = &tListIteratorRange_ctor(&this->iteratorAmbientVolume,'\0','\x7f',&frontEnd.ambientVolume)->_base_tListIterator;
+  ptVar7 = (tListIterator *)tListIteratorRange_ctor(&this->iteratorAmbientVolume,'\0','\x7f',&frontEnd.ambientVolume);
   tListIterator_ctor(ptVar7,SelectListAudioMode,&frontEnd.audioMode);
-  tMenuItemLeftRightAudioSlider_ctor(&this->itemMusicVolume,0x1d5,&(this->iteratorMusicVolume)._base_tListIterator,0);
-  tMenuItemLeftRightAudioSlider_ctor(&this->itemSoundEffectsVolume,0x1d6,&(this->iteratorSoundEffectsVolume)._base_tListIterator,1
+  tMenuItemLeftRightAudioSlider_ctor(&this->itemMusicVolume,0x1d5,(tListIterator *)&this->iteratorMusicVolume,0);
+  tMenuItemLeftRightAudioSlider_ctor(&this->itemSoundEffectsVolume,0x1d6,(tListIterator *)&this->iteratorSoundEffectsVolume,1
             );
-  tMenuItemLeftRightAudioSlider_ctor(&this->itemEngineVolume,0x1d7,&(this->iteratorEngineVolume)._base_tListIterator,2);
-  tMenuItemLeftRightAudioSlider_ctor(&this->itemSpeechVolume,0x1d8,&(this->iteratorSpeechVolume)._base_tListIterator,3);
-  tMenuItemLeftRightAudioSlider_ctor(&this->itemAmbientVolume,0x1d9,&(this->iteratorAmbientVolume)._base_tListIterator,4);
+  tMenuItemLeftRightAudioSlider_ctor(&this->itemEngineVolume,0x1d7,(tListIterator *)&this->iteratorEngineVolume,2);
+  tMenuItemLeftRightAudioSlider_ctor(&this->itemSpeechVolume,0x1d8,(tListIterator *)&this->iteratorSpeechVolume,3);
+  tMenuItemLeftRightAudioSlider_ctor(&this->itemAmbientVolume,0x1d9,(tListIterator *)&this->iteratorAmbientVolume,4);
   tMenuItemLeftRightFade_ctor(&(this->itemAudioMode)._base_tMenuItemLeftRightFade,0x1da,&this->iteratorAudioMode);
   *(void **)&((this->itemAudioMode)._base_tMenuItemLeftRightFade._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemDisplayLeftRightChoice_vtable;
   tMenuItemSlidingMenu_ctor(&(this->itemSlidingPlayList)._base_tMenuItemSlidingMenu,0x1db,0x15e,0x2b,-0x66,0xd,false);
@@ -2630,32 +2630,32 @@ tGlobalMenuDefs::tGlobalMenuDefs()
              &FEApp->fInputPlayer);
   ptVar5 = tListIteratorIndexed_ctor(&this->iteratorDisplayLapNumber,SelectListOffOn,frontEnd.displayLapNumber,
                       &FEApp->fInputPlayer);
-  tListIterator_ctor(&ptVar5->_base_tListIterator,SelectListSplitTime,&frontEnd.checkPointType);
+  tListIterator_ctor((tListIterator *)ptVar5,SelectListSplitTime,&frontEnd.checkPointType);
   tListIteratorIndexed_ctor(&this->iteratorDisplaySplitDisplay,SelectListSplitDisplay,frontEnd.checkPointDisplay,
              &FEApp->fInputPlayer);
   tMenuItemLeftRightFade_ctor(&(this->itemDisplaySpeedometer)._base_tMenuItemLeftRightFade,0x1df,
-             &(this->iteratorDisplaySpeedometer)._base_tListIterator);
+             (tListIterator *)&this->iteratorDisplaySpeedometer);
   *(void **)&((this->itemDisplaySpeedometer)._base_tMenuItemLeftRightFade._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemDisplayLeftRightChoice_vtable;
   tMenuItemLeftRightFade_ctor(&(this->itemDisplayMap)._base_tMenuItemLeftRightFade,0x1e1,
-             &(this->iteratorDisplayMap)._base_tListIterator);
+             (tListIterator *)&this->iteratorDisplayMap);
   *(void **)&((this->itemDisplayMap)._base_tMenuItemLeftRightFade._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemDisplayLeftRightChoice_vtable;
   tMenuItemLeftRightFade_ctor(&(this->itemDisplayOpponentID)._base_tMenuItemLeftRightFade,0x1e2,
-             &(this->iteratorDisplayOpponentID)._base_tListIterator);
+             (tListIterator *)&this->iteratorDisplayOpponentID);
   *(void **)&((this->itemDisplayOpponentID)._base_tMenuItemLeftRightFade._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemDisplayLeftRightChoice_vtable;
   tMenuItemLeftRightFade_ctor(&(this->itemDisplayTime)._base_tMenuItemLeftRightFade,0x1e3,
-             &(this->iteratorDisplayTime)._base_tListIterator);
+             (tListIterator *)&this->iteratorDisplayTime);
   *(void **)&((this->itemDisplayTime)._base_tMenuItemLeftRightFade._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemOnOffLeftRightChoice_vtable;
   tMenuItemLeftRightFade_ctor(&(this->itemDisplayPosition)._base_tMenuItemLeftRightFade,0x1e6,
-             &(this->iteratorDisplayPosition)._base_tListIterator);
+             (tListIterator *)&this->iteratorDisplayPosition);
   *(void **)&((this->itemDisplayPosition)._base_tMenuItemLeftRightFade._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemOnOffLeftRightChoice_vtable;
   tMenuItemLeftRightFade_ctor(&(this->itemDisplayLapNumber)._base_tMenuItemLeftRightFade,0x1e7,
-             &(this->iteratorDisplayLapNumber)._base_tListIterator);
+             (tListIterator *)&this->iteratorDisplayLapNumber);
   *(void **)&((this->itemDisplayLapNumber)._base_tMenuItemLeftRightFade._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemOnOffLeftRightChoice_vtable;
   tMenuItemLeftRightFade_ctor(&(this->itemDisplaySplitTime)._base_tMenuItemLeftRightFade,0x1e4,
              &this->iteratorDisplaySplitTime);
   *(void **)&((this->itemDisplaySplitTime)._base_tMenuItemLeftRightFade._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemDisplayLeftRightChoice_vtable;
   tMenuItemLeftRightFade_ctor(&(this->itemDisplaySplitDisplay)._base_tMenuItemLeftRightFade,0x1e5,
-             &(this->iteratorDisplaySplitDisplay)._base_tListIterator);
+             (tListIterator *)&this->iteratorDisplaySplitDisplay);
   screenHandler_00 = screenDisplay;
   *(void **)&((this->itemDisplaySplitDisplay)._base_tMenuItemLeftRightFade._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemDisplayLeftRightChoice_vtable;
   tOptionsMenu_ctor(&this->menuDisplayOptions,0x1020,&screenHandler_00->_base_tScreen,(tMenu *)0x0,(tMenu *)0x0,
@@ -2666,7 +2666,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tListIteratorIndexed_ctor(&this->iteratorControllerConfigSelected,SelectListControllerConfig,
              frontEnd.controlConfig,&FEApp->fInputPlayer);
   tMenuItemLeftRightFade_ctor(&(this->itemControllerConfigSelected)._base_tMenuItemLeftRightFade,0x209,
-             &(this->iteratorControllerConfigSelected)._base_tListIterator);
+             (tListIterator *)&this->iteratorControllerConfigSelected);
   *(void **)&((this->itemControllerConfigSelected)._base_tMenuItemLeftRightFade._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemControllerLeftRightChoice_vtable;
   tMenuItemSlidingMenu_ctor(&this->itemControllerSettings,0x20a,0xac,0x48,0,0xd,true);
   tOptionsMenu_ctor(&this->menuControllerConfig,0x1020,&screenControllerConfig->_base_tScreen,(tMenu *)0x0,

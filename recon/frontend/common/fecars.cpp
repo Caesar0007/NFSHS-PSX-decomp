@@ -997,10 +997,10 @@ int tCarManager::FindSimilarCar(tCarModels &model,char &color,short arg3,tCarMod
 
 /* ---- tListIteratorCar::ctor  [FECARS.CPP:890-894] SLD-VERIFIED ---- */
 tListIteratorCar::tListIteratorCar(char *valPtr,tCarManager *carManager)
-  : _base_tListIterator((short *)0x0, valPtr)
+  : tListIterator((short *)0x0, valPtr)
 {
   
-  *(void **)&((this->_base_tListIterator)._vf) = (void *)tListIteratorCar_vtable;
+  *(void **)&(this->_vf) = (void *)tListIteratorCar_vtable;
   this->fCarManager = carManager;
   this->fCarListFilter = 1;
   this->fNameLength = cnl_Medium;
@@ -1014,7 +1014,7 @@ tListIteratorCar::tListIteratorCar(char *valPtr,tCarManager *carManager)
 tListIteratorCar::~tListIteratorCar()
 
 {
-  *(void **)&((this->_base_tListIterator)._vf) = (void *)tListIteratorCar_vtable;
+  *(void **)&(this->_vf) = (void *)tListIteratorCar_vtable;
   return;
 }
 
@@ -1031,7 +1031,7 @@ char tListIteratorCar::Value(tPlayer atIndex)
   if (atIndex != kPlayerBoth) {
     i = atIndex;
   }
-  return (this->_base_tListIterator).fValue[(short)i];
+  return this->fValue[(short)i];
 }
 
 
@@ -1061,7 +1061,7 @@ short tListIteratorCar::TextValue(tPlayer atIndex)
   }
   iVar6 = (int)(short)i;
   ptVar7 = this->fCarManager;
-  uVar4 = (u_int)(u_char)(this->_base_tListIterator).fValue[iVar6];
+  uVar4 = (u_int)(u_char)this->fValue[iVar6];
   uVar5 = ptVar7->fNumCars;
   if (uVar4 < uVar5) {
     sVar2 = nameBase[this->fNameLength] + (short)ptVar7->fCars[uVar4].fCarID;
@@ -1109,7 +1109,7 @@ void tListIteratorCar::AdjustPosition(tPlayer atIndex,short direction)
     uStackX_4 = (u_short)atIndex;
   }
   carInfo = (tCarInfo *)0x0;
-  pbVar7 = (u_char *)((this->_base_tListIterator).fValue + (short)uStackX_4);
+  pbVar7 = (u_char *)(this->fValue + (short)uStackX_4);
   uVar10 = (u_int)*pbVar7;
   oldValue = *pbVar7;
   if (uVar10 < this->fCarManager->fNumCars) {
@@ -1159,17 +1159,17 @@ void tListIteratorCar::AdjustPosition(tPlayer atIndex,short direction)
   }
 AdjPos_clampBounds:
   i = (int)(short)uStackX_4;
-  pbVar7 = (u_char *)((this->_base_tListIterator).fValue + i);
+  pbVar7 = (u_char *)(this->fValue + i);
   if ((int)lastCar <= (int)(u_int)*pbVar7) {
     *pbVar7 = (char)lastCar - 1;
   }
-  pbVar7 = (u_char *)((this->_base_tListIterator).fValue + i);
+  pbVar7 = (u_char *)(this->fValue + i);
   if ((int)(u_int)*pbVar7 < (int)firstCar) {
     *pbVar7 = (u_char)firstCar;
   }
   if ((int)firstCar < (int)lastCar) {
     do {
-      pbVar7 = (u_char *)((this->_base_tListIterator).fValue + i);
+      pbVar7 = (u_char *)(this->fValue + i);
       bVar4 = *pbVar7;
       cVar1 = (char)direction;
       if ((u_int)bVar4 < this->fCarManager->fNumCars) {
@@ -1182,9 +1182,9 @@ AdjPos_clampBounds:
           if (cVar2 < '\x05') {
             if (cVar2 < '\0') {
               frontEnd.carCountry[i * 0x18][cVar1] = '\x04';
-              pcVar9 = (this->_base_tListIterator).fValue + i;
+              pcVar9 = this->fValue + i;
               *pcVar9 = *pcVar9 + -1;
-              uVar10 = (u_int)(u_char)(this->_base_tListIterator).fValue[i];
+              uVar10 = (u_int)(u_char)this->fValue[i];
               if ((int)firstCar <= (int)uVar10) {
                 ptVar12 = this->fCarManager;
                 goto AdjPos_setCountryMark;
@@ -1193,9 +1193,9 @@ AdjPos_clampBounds:
           }
           else {
             frontEnd.carCountry[i * 0x18][cVar1] = '\0';
-            pcVar9 = (this->_base_tListIterator).fValue + i;
+            pcVar9 = this->fValue + i;
             *pcVar9 = *pcVar9 + '\x01';
-            uVar10 = (u_int)(u_char)(this->_base_tListIterator).fValue[i];
+            uVar10 = (u_int)(u_char)this->fValue[i];
             if ((int)uVar10 < (int)lastCar) {
               ptVar12 = this->fCarManager;
               goto AdjPos_clearCountryMark;
@@ -1209,13 +1209,13 @@ AdjPos_clampBounds:
           else {
             frontEnd.carCountry[i * 0x18][carInfo->fCarID] = '\0';
           }
-          pcVar9 = (this->_base_tListIterator).fValue + i;
+          pcVar9 = this->fValue + i;
           *pcVar9 = cVar1 + *pcVar9;
           if (((int)(uVar13 << 0x10) < 1) ||
-             (pbVar7 = (u_char *)((this->_base_tListIterator).fValue + i),
+             (pbVar7 = (u_char *)(this->fValue + i),
              (int)lastCar <= (int)(signed char)*pbVar7)) {
             if (((int)(uVar13 << 0x10) < 0) &&
-               (pbVar7 = (u_char *)((this->_base_tListIterator).fValue + i),
+               (pbVar7 = (u_char *)(this->fValue + i),
                (int)firstCar <= (int)(char)*pbVar7)) {
               uVar10 = (u_int)*pbVar7;
               ptVar12 = this->fCarManager;
@@ -1236,25 +1236,25 @@ AdjPos_clearCountryMark:
       else {
         *pbVar7 = cVar1 + bVar4;
       }
-      pbVar7 = (u_char *)((this->_base_tListIterator).fValue + i);
+      pbVar7 = (u_char *)(this->fValue + i);
       if ((int)lastCar <= (int)(char)*pbVar7) {
         *pbVar7 = (u_char)firstCar;
-        uVar10 = (u_int)(u_char)(this->_base_tListIterator).fValue[i];
+        uVar10 = (u_int)(u_char)this->fValue[i];
         if (uVar10 < this->fCarManager->fNumCars) {
           carInfo = this->fCarManager->fCars + uVar10;
           frontEnd.carCountry[i * 0x18][carInfo->fCarID] = '\0';
         }
       }
-      pcVar9 = (this->_base_tListIterator).fValue + i;
+      pcVar9 = this->fValue + i;
       if ((int)*pcVar9 < (int)firstCar) {
         *pcVar9 = (char)lastCar + -1;
-        uVar10 = (u_int)(u_char)(this->_base_tListIterator).fValue[i];
+        uVar10 = (u_int)(u_char)this->fValue[i];
         if (uVar10 < this->fCarManager->fNumCars) {
           carInfo = this->fCarManager->fCars + uVar10;
           frontEnd.carCountry[i * 0x18][carInfo->fCarID] = '\x04';
         }
       }
-      pbVar7 = (u_char *)((this->_base_tListIterator).fValue + i);
+      pbVar7 = (u_char *)(this->fValue + i);
       bVar4 = *pbVar7;
     } while (((oldValue != bVar4) ||
              (((int)(signed char)bVar4 < (int)this->fCarManager->fNumCars &&
@@ -1410,10 +1410,10 @@ ValidCar_tournValidate:
 /* ---- tListIteratorCarColor::ctor  [FECARS.CPP:1176-1181] SLD-VERIFIED ---- */
 tListIteratorCarColor::tListIteratorCarColor(char *value,char *player,char *playerCar,int indexSize,
           tCarManager *carManager)
-  : _base_tListIterator((short *)0x0, value)
+  : tListIterator((short *)0x0, value)
 {
   
-  *(void **)&((this->_base_tListIterator)._vf) = (void *)tListIteratorCarColor_vtable;
+  *(void **)&(this->_vf) = (void *)tListIteratorCarColor_vtable;
   this->fPlayer = player;
   this->fPlayerCar = playerCar;
   this->fIndexSize = indexSize;
@@ -1428,7 +1428,7 @@ tListIteratorCarColor::tListIteratorCarColor(char *value,char *player,char *play
 tListIteratorCarColor::~tListIteratorCarColor()
 
 {
-  *(void **)&((this->_base_tListIterator)._vf) = (void *)tListIteratorCarColor_vtable;
+  *(void **)&(this->_vf) = (void *)tListIteratorCarColor_vtable;
   return;
 }
 
@@ -1444,7 +1444,7 @@ char tListIteratorCarColor::Value(tPlayer arg1)
 
   offset = (int)this->fPlayer;
   carInfo = &this->fCarManager->fCars[(u_char)this->fPlayerCar[*(u_char *)offset]];
-  return (u_int)(u_char)(this->_base_tListIterator).fValue
+  return (u_int)(u_char)this->fValue
                      [(u_int)*(u_char *)offset * this->fIndexSize +
                       (int)(signed char)carInfo->fCarID]
   ;
@@ -1475,9 +1475,9 @@ int tListIteratorCarColor::Increment(tPlayer arg1)
   
   iVar1 = (u_int)(u_char)*this->fPlayer * this->fIndexSize;
   carInfo = this->fCarManager->fCars + (u_char)this->fPlayerCar[(u_char)*this->fPlayer];
-  pcVar3 = (this->_base_tListIterator).fValue + iVar1 + carInfo->fCarID;
+  pcVar3 = this->fValue + iVar1 + carInfo->fCarID;
   *pcVar3 = *pcVar3 + '\x01';
-  pbVar4 = (u_char *)((this->_base_tListIterator).fValue + iVar1 + carInfo->fCarID);
+  pbVar4 = (u_char *)(this->fValue + iVar1 + carInfo->fCarID);
   uVar2 = (u_int)((u_int)*pbVar4 <
                 (u_int)(u_char)carInfo->fNumLightColors + (u_int)(u_char)carInfo->fNumDarkColors);
   if (uVar2 == 0) {
@@ -1512,7 +1512,7 @@ int tListIteratorCarColor::Decrement(tPlayer arg1)
   
   offset = (int)this->fPlayer;
   carInfo = this->fCarManager->fCars + (u_char)this->fPlayerCar[*(u_char *)offset];
-  pbVar2 = (u_char *)((this->_base_tListIterator).fValue +
+  pbVar2 = (u_char *)(this->fValue +
                    (u_int)*(u_char *)offset * this->fIndexSize + (int)carInfo->fCarID);
   uVar1 = (u_int)*pbVar2;
   if (uVar1 == 0) {

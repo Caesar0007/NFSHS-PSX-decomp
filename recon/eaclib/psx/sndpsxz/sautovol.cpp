@@ -10,7 +10,7 @@ extern "C" int  SNDautovol(unsigned int tag, unsigned int rate, int target);   /
 extern "C" int SNDautovol(unsigned int tag, unsigned int rate, int target)
 {
     int ch, cur[2];
-    if ((char)sndgs[0xf] == 0) return -10;
+    if ((signed char)sndgs[0xf] == 0) return -10;  /* signed -> lb (ccpsx char is unsigned) */
     iSNDenteraudio();
     ch = iSNDgetchan(tag);
     if (-1 < ch) {

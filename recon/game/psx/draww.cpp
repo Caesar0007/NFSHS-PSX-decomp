@@ -184,14 +184,12 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
   int newVert_p2;
   u_int *tp2;
   int subFacet_p;
-  int child_n;
   int otz;
   int subOtz_local;
   Draw_SVertex *v4;
   int v0_01;
   POLY_GT4 *prim;
   int l_00;
-  int subDivCount;
   Draw_SVertex *v5;
   int v0_02;
   Draw_SVertex *v7;
@@ -200,7 +198,6 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
   int v0_04;
   short n_00;
   int tD13;
-  int child_l;
   int loc_68;
   int loc_64;
   int loc_60;
@@ -241,47 +238,7 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
     return;
   }
   midX_01 = DrawW_CalcSubdivision(sd,v0,v1,v2,v3);
-  if (midX_01 <= l) {
-    if (subDivide != 0) {
-      (*(u_short *)&(subDivCount)) = v0->dvx;
-      (*(u_short *)((u_char *)&(subDivCount) + 2)) = v0->dvy;
-      (*(u_short *)&(child_l)) = v2->dvx;
-      (*(u_short *)((u_char *)&(child_l) + 2)) = v2->dvy;
-      (*(u_short *)&(child_n)) = v1->dvx;
-      (*(u_short *)((u_char *)&(child_n) + 2)) = v1->dvy;
-      gte_ldsxy3(subDivCount,child_n,child_l);
-      gte_nclip();
-gte_swc2(0x18,&bfct);
-      iVar1 = 1;
-      if ((sd->head).mirror == 1) {
-        bfct = -bfct;
-      }
-      if (bfct < 0) {
-gte_swc2(0x18,&bfct);
-        if ((sd->head).mirror == iVar1) {
-          bfct = -bfct;
-        }
-        if (bfct < 0) {
-          return;
-        }
-      }
-    }
-    prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;
-    subFacet_p = (int)(sd->head).cprim.LastPrim;
-    iVar1 = subFacet_p + sd->otz * 4;
-    (sd->head).cprim.PrimPtr = (char *)(prim + 1);
-    tu1 = iVar1 + 2;
-    tu2 = tu1 & 3;
-    prim->tag = (u_long *)
-                ((*(int *)(tu1 - tu2) << (3 - tu2) * 8 |
-                 (u_int)(prim + 1) & 0xffffffffU >> (tu2 + 1) * 8) >> 8 | 0xc000000);
-    tu1 = iVar1 + 2;
-    tu3 = tu1 & 3;
-    tp2 = (u_int *)(tu1 - tu3);
-    *tp2 = *tp2 & -1 << (tu3 + 1) * 8 | (u_int)((int)prim << 8) >> (3 - tu3) * 8;
-    DrawW_AddSubdividPrimGT4(prim,v0,v1,v2,v3,sd);
-    return;
-  }
+  if (l < midX_01) {
   n_00 = n + 5;
   v0_01 = (int)&gDiv.v[0].vx + ((int)((u_int)(u_short)n << 0x10) >> 0xc);
   v0_02 = (int)&gDiv.v[0].vx + ((int)((u_int)(u_short)(n + 1) << 0x10) >> 0xc);
@@ -416,6 +373,42 @@ gte_swc2(0xe,((char *)v2 + 0xc));
   DrawW_SubdividFacet(sd,l_00,(Draw_SVertex *)v0_03,(Draw_SVertex *)v0_00,(Draw_SVertex *)v0_04,v3,n_00,
              subDivide);
   return;
+  }
+    if (subDivide != 0) {
+      iVar1 = 1;
+      gte_ldsxy3(*(int *)&v0->dvx,*(int *)&v1->dvx,*(int *)&v2->dvx);
+      gte_nclip();
+gte_swc2(0x18,&bfct);
+      if ((sd->head).mirror == iVar1) {
+        bfct = -bfct;
+      }
+      if (bfct < 0) {
+        gte_ldsxy3(*(int *)&v0->dvx,*(int *)&v2->dvx,*(int *)&v3->dvx);
+        gte_nclip();
+gte_swc2(0x18,&bfct);
+        if ((sd->head).mirror == iVar1) {
+          bfct = -bfct;
+        }
+        if (bfct < 0) {
+          return;
+        }
+      }
+    }
+    prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;
+    subFacet_p = (int)(sd->head).cprim.LastPrim;
+    iVar1 = subFacet_p + sd->otz * 4;
+    (sd->head).cprim.PrimPtr = (char *)(prim + 1);
+    tu1 = iVar1 + 2;
+    tu2 = tu1 & 3;
+    prim->tag = (u_long *)
+                ((*(int *)(tu1 - tu2) << (3 - tu2) * 8 |
+                 (u_int)(prim + 1) & 0xffffffffU >> (tu2 + 1) * 8) >> 8 | 0xc000000);
+    tu1 = iVar1 + 2;
+    tu3 = tu1 & 3;
+    tp2 = (u_int *)(tu1 - tu3);
+    *tp2 = *tp2 & -1 << (tu3 + 1) * 8 | (u_int)((int)prim << 8) >> (3 - tu3) * 8;
+    DrawW_AddSubdividPrimGT4(prim,v0,v1,v2,v3,sd);
+    return;
 }
 
 /* ---- DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR  [DRAWW.CPP:593-606] SLD-VERIFIED ---- */

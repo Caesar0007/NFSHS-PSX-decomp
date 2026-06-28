@@ -47,7 +47,7 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
   cVar6 = (this->basicPerpInfo_).crime_;
 
-  iVar1 = AISpeeds_GetLegalSpeed((int)(((this->_base_AIHigh_Base).carObj_)->N).simRoadInfo.slice);
+  iVar1 = AISpeeds_GetLegalSpeed((int)((this->carObj_)->N).simRoadInfo.slice);
 
   if (simGlobal.gameTicks - this->lastPullOverTime_ < 0x280) {
 
@@ -55,7 +55,7 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
   }
 
-  pCVar3 = (this->_base_AIHigh_Base).carObj_;
+  pCVar3 = this->carObj_;
 
   if (1 < (pCVar3->stats).finishType) {
 
@@ -95,7 +95,7 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
   }
 
-  iVar4 = ((this->_base_AIHigh_Base).carObj_)->currentSpeed;
+  iVar4 = (this->carObj_)->currentSpeed;
 
   if (iVar1 < 0) {
 
@@ -117,7 +117,7 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
   if (AITune_oneWay == 0) {
 
-    pCVar3 = (this->_base_AIHigh_Base).carObj_;
+    pCVar3 = this->carObj_;
 
     iVar1 = pCVar3->currentSpeed;
 
@@ -139,7 +139,7 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
   else {
 
-    iVar1 = ((this->_base_AIHigh_Base).carObj_)->currentSpeed;
+    iVar1 = (this->carObj_)->currentSpeed;
 
     if (GameSetup_gData.reverseTrack != 0) {
 
@@ -149,7 +149,7 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
     if (-1 < iVar1) goto LAB_8005b700;
 
-    iVar1 = ((this->_base_AIHigh_Base).carObj_)->currentSpeed;
+    iVar1 = (this->carObj_)->currentSpeed;
 
     if (iVar1 < 0) {
 
@@ -256,7 +256,7 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
   iVar3 = GameSetup_gData.skill;
 
-  pCVar9 = (this->_base_AIHigh_Base).carObj_;
+  pCVar9 = this->carObj_;
 
   if ((pCVar9->carFlags & 2U) == 0) {
 
@@ -290,7 +290,7 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
     }
 
-    pCVar9 = (this->_base_AIHigh_Base).carObj_;
+    pCVar9 = this->carObj_;
 
     iVar4 = 0;
 
@@ -338,7 +338,7 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
              ((0x9999 < (pCVar9->N).orientMat.m[4] &&
 
-              (((this->_base_AIHigh_Base).carObj_)->currentSpeed - pCVar9->currentSpeed <
+              ((this->carObj_)->currentSpeed - pCVar9->currentSpeed <
 
                AIHigh_BasicPerp_MinDeltaSpeed[iVar3])))) break;
 
@@ -360,7 +360,7 @@ LAB_8005bd40:
 
         iVar11 = (pCVar9->N).position.y;
 
-        iVar10 = (((this->_base_AIHigh_Base).carObj_)->N).position.y;
+        iVar10 = ((this->carObj_)->N).position.y;
 
         iVar7 = iVar11 - iVar10;
 
@@ -372,7 +372,7 @@ LAB_8005bd40:
 
         if (AIHigh_BasicPerp_PlayerCaughtDeltaY[iVar3] <= iVar7) goto LAB_8005bd40;
 
-        iVar7 = AIWorld_ApxSplineDistance((this->_base_AIHigh_Base).carObj_,pCVar9);
+        iVar7 = AIWorld_ApxSplineDistance(this->carObj_,pCVar9);
 
         if (iVar7 < 0) {
 
@@ -380,7 +380,7 @@ LAB_8005bd40:
 
         }
 
-        pCVar8 = (this->_base_AIHigh_Base).carObj_;
+        pCVar8 = this->carObj_;
 
         bVar1 = *(u_char *)((pCVar8->N).simRoadInfo.slice * 0x20 + BWorldSm_slices + 0x1d);
 
@@ -402,7 +402,7 @@ LAB_8005bd40:
 
               (iVar10 = AIWorld_CheckForBarrierBetweenLanes(iVar11,iVar12,iVar10), iVar10 != 0)))) {
 
-            pCVar8 = (this->_base_AIHigh_Base).carObj_;
+            pCVar8 = this->carObj_;
 
             iVar10 = AIWorld_CheckForBarrierBetweenLanes((int)(pCVar8->N).simRoadInfo.slice,pCVar9->laneIndex,
 
@@ -426,25 +426,25 @@ LAB_8005bd40:
 
             ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
 
-          a = (pCVar9->N).position.x - (((this->_base_AIHigh_Base).carObj_)->N).position.x;
+          a = (pCVar9->N).position.x - ((this->carObj_)->N).position.x;
 
-          iVar10 = (pCVar9->N).position.y - (((this->_base_AIHigh_Base).carObj_)->N).position.y;
+          iVar10 = (pCVar9->N).position.y - ((this->carObj_)->N).position.y;
 
-          iVar11 = (pCVar9->N).position.z - (((this->_base_AIHigh_Base).carObj_)->N).position.z;
+          iVar11 = (pCVar9->N).position.z - ((this->carObj_)->N).position.z;
 
-          iVar12 = fixedmult(a,(((this->_base_AIHigh_Base).carObj_)->N).orientMat.m[0]);
+          iVar12 = fixedmult(a,((this->carObj_)->N).orientMat.m[0]);
 
-          iVar5 = fixedmult(iVar10,(((this->_base_AIHigh_Base).carObj_)->N).orientMat.m[1]);
+          iVar5 = fixedmult(iVar10,((this->carObj_)->N).orientMat.m[1]);
 
-          iVar7 = fixedmult(iVar11,(((this->_base_AIHigh_Base).carObj_)->N).orientMat.m[2]);
+          iVar7 = fixedmult(iVar11,((this->carObj_)->N).orientMat.m[2]);
 
           iVar7 = iVar12 + iVar5 + iVar7;
 
-          iVar12 = fixedmult(a,(((this->_base_AIHigh_Base).carObj_)->N).orientMat.m[6]);
+          iVar12 = fixedmult(a,((this->carObj_)->N).orientMat.m[6]);
 
-          iVar5 = fixedmult(iVar10,(((this->_base_AIHigh_Base).carObj_)->N).orientMat.m[7]);
+          iVar5 = fixedmult(iVar10,((this->carObj_)->N).orientMat.m[7]);
 
-          iVar10 = fixedmult(iVar11,(((this->_base_AIHigh_Base).carObj_)->N).orientMat.m[8]);
+          iVar10 = fixedmult(iVar11,((this->carObj_)->N).orientMat.m[8]);
 
           iVar10 = iVar12 + iVar5 + iVar10;
 
@@ -452,7 +452,7 @@ LAB_8005bd40:
 
         if ((iVar6 < 0x999a) ||
 
-           ((pCVar9->speed < 0x471c7 && (((this->_base_AIHigh_Base).carObj_)->speed < 0x471c7)))) break;
+           ((pCVar9->speed < 0x471c7 && ((this->carObj_)->speed < 0x471c7)))) break;
 
         if (iVar7 < 0) {
 
@@ -527,7 +527,7 @@ void AIHigh_BasicPerp::RemoveCloseCops()
 
     if ((carObj->AIFlags & 4U) == 0) {
 
-      iVar1 = AIWorld_ApxSplineDistance(carObj,(this->_base_AIHigh_Base).carObj_);
+      iVar1 = AIWorld_ApxSplineDistance(carObj,this->carObj_);
 
       if (iVar1 < 0) {
 
@@ -714,7 +714,7 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
 
          (iVar3 = AIWorld_ApxSplineDistance(highLevelAIObjs[iVar3]->carObj_,(int)sVar1),
 
-         -0xc0001 < iVar3 * ((this->_base_AIHigh_Base).carObj_)->direction)) {
+         -0xc0001 < iVar3 * (this->carObj_)->direction)) {
 
         return iVar2;
 
@@ -804,9 +804,9 @@ AIHigh_BasicPerp::AIHigh_BasicPerp(Car_tObj *carObj)
 
 {
 
-  (new(&this->_base_AIHigh_Base) AIHigh_Base(carObj));
+  (new((AIHigh_Base *)this) AIHigh_Base(carObj));
 
-  (this->_base_AIHigh_Base)._vf = (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
 
   (this->basicPerpInfo_).copsAssigned_[0] = 0;
 

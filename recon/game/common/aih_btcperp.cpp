@@ -50,7 +50,7 @@ void AIHigh_BTC_Perp::ReleaseCops()
 
   }
 
-  ((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->forceNoSimOptz = 0;
+  (this->carObj_)->forceNoSimOptz = 0;
 
   return;
 
@@ -122,7 +122,7 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 
   fastRandom = randtemp & 0xffff;
 
-  if (((((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->carFlags & 4U) == 0) &&
+  if ((((this->carObj_)->carFlags & 4U) == 0) &&
 
      (0x3d3 < (randtemp >> 8 & 0xffff) * 1000 >> 0x10)) {
 
@@ -134,35 +134,35 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 
       if ((pCVar6->carFlags & 0x200U) != 0) {
 
-        a = (pCVar6->N).position.x - (((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->N).position.x;
+        a = (pCVar6->N).position.x - ((this->carObj_)->N).position.x;
 
         iVar1 = (pCVar6->N).position.y -
 
-                (((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->N).position.y;
+                ((this->carObj_)->N).position.y;
 
         iVar2 = (pCVar6->N).position.z -
 
-                (((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->N).position.z;
+                ((this->carObj_)->N).position.z;
 
-        iVar3 = fixedmult(a,(((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->N).orientMat.m[0]);
+        iVar3 = fixedmult(a,((this->carObj_)->N).orientMat.m[0]);
 
-        iVar4 = fixedmult(iVar1,(((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->N).orientMat.m[1])
+        iVar4 = fixedmult(iVar1,((this->carObj_)->N).orientMat.m[1])
 
         ;
 
-        iVar5 = fixedmult(iVar2,(((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->N).orientMat.m[2])
+        iVar5 = fixedmult(iVar2,((this->carObj_)->N).orientMat.m[2])
 
         ;
 
         iVar5 = iVar3 + iVar4 + iVar5;
 
-        iVar3 = fixedmult(a,(((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->N).orientMat.m[6]);
+        iVar3 = fixedmult(a,((this->carObj_)->N).orientMat.m[6]);
 
-        iVar1 = fixedmult(iVar1,(((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->N).orientMat.m[7])
+        iVar1 = fixedmult(iVar1,((this->carObj_)->N).orientMat.m[7])
 
         ;
 
-        iVar2 = fixedmult(iVar2,(((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->N).orientMat.m[8])
+        iVar2 = fixedmult(iVar2,((this->carObj_)->N).orientMat.m[8])
 
         ;
 
@@ -176,7 +176,7 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 
         if (((0x30000 < iVar5) || (0x80000 < iVar2)) || (iVar2 < 0)) {
 
-          AudioClc_HonkHorn((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_,2,0x80,0x20);
+          AudioClc_HonkHorn(this->carObj_,2,0x80,0x20);
 
           return 1;
 
@@ -259,13 +259,13 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
   
 
-  if ((this->_base_AIHigh_BasicPerp).pullOverMode_ == 0) {
+  if (this->pullOverMode_ == 0) {
 
     bVar1 = false;
 
     if (5 < this->originalActivationCop_->timeLeft_) {
 
-      iVar2 = this->_base_AIHigh_BasicPerp.CheckIfCaught();
+      iVar2 = this->CheckIfCaught();
 
       bVar1 = iVar2 != 0;
 
@@ -273,15 +273,15 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
     if (bVar1) {
 
-      ((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->pullOver = 1;
+      (this->carObj_)->pullOver = 1;
 
-      (this->_base_AIHigh_BasicPerp).beatingTicksLeft_ = 0x60;
+      this->beatingTicksLeft_ = 0x60;
 
       iVar2 = simGlobal.gameTicks;
 
-      (this->_base_AIHigh_BasicPerp).pullOverMode_ = 2;
+      this->pullOverMode_ = 2;
 
-      (this->_base_AIHigh_BasicPerp).lastPullOverTime_ = iVar2;
+      this->lastPullOverTime_ = iVar2;
 
     }
 
@@ -291,9 +291,9 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
     this->NotifyCopsOfArrest();
 
-    iVar2 = (this->_base_AIHigh_BasicPerp).beatingTicksLeft_ - AI_elapsedTime;   /* H21: decrement dropped (m2c self-assign fold); oracle 0x8005FA94 v0=beatingTicksLeft_-AI_elapsedTime, 0x8005FA9C store */
+    iVar2 = this->beatingTicksLeft_ - AI_elapsedTime;   /* H21: decrement dropped (m2c self-assign fold); oracle 0x8005FA94 v0=beatingTicksLeft_-AI_elapsedTime, 0x8005FA9C store */
 
-    (this->_base_AIHigh_BasicPerp).beatingTicksLeft_ = iVar2;
+    this->beatingTicksLeft_ = iVar2;
 
     if ((iVar2 < 1) && (this->hudActivated_ == 0)) {
 
@@ -313,13 +313,13 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
       else {
 
-        (this->_base_AIHigh_BasicPerp).lastPullOverTime_ = simGlobal.gameTicks + -0x280;
+        this->lastPullOverTime_ = simGlobal.gameTicks + -0x280;
 
         this->NotifyCopsOfFalseArrest();
 
-        ((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->pullOver = 0;
+        (this->carObj_)->pullOver = 0;
 
-        (this->_base_AIHigh_BasicPerp).pullOverMode_ = 0;
+        this->pullOverMode_ = 0;
 
         pSVar3 = (Speaker *)Speech_Mobile((Car_tObj *)0x0);
 
@@ -333,23 +333,23 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
     iVar2 = this->CheckForControlsPressed();
 
-    if (((((this->_base_AIHigh_BasicPerp).beatingTicksLeft_ < 1) &&
+    if ((((this->beatingTicksLeft_ < 1) &&
 
-         ((this->_base_AIHigh_BasicPerp).pullOverMode_ != 0)) && (iVar2 != 0)) &&
+         (this->pullOverMode_ != 0)) && (iVar2 != 0)) &&
 
        ((this->hudActivated_ == 1 &&
 
-        (0x140 < simGlobal.gameTicks - (this->_base_AIHigh_BasicPerp).lastPullOverTime_)))) {
+        (0x140 < simGlobal.gameTicks - this->lastPullOverTime_)))) {
 
-      (this->_base_AIHigh_BasicPerp).lastPullOverTime_ = simGlobal.gameTicks;
+      this->lastPullOverTime_ = simGlobal.gameTicks;
 
-      (this->_base_AIHigh_BasicPerp).basicPerpInfo_.crime_ = 0;
+      this->basicPerpInfo_.crime_ = 0;
 
       this->NotifyCopsOfArrestComplete();
 
-      ((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->pullOver = 0;
+      (this->carObj_)->pullOver = 0;
 
-      (this->_base_AIHigh_BasicPerp).pullOverMode_ = 0;
+      this->pullOverMode_ = 0;
 
       this->caught_ = 1;
 
@@ -533,7 +533,7 @@ void AIHigh_BTC_Perp::NotifyHumanCopsOfArrestHud()
 
       ((AIHigh_BTC_HumanCop *)highLevelAIObjs[pCVar1->carIndex])->HudOn(this,0,
 
-                 (this->_base_AIHigh_BasicPerp).lastArrestingCop_);
+                 this->lastArrestingCop_);
 
     }
 
@@ -564,23 +564,23 @@ void AIHigh_BTC_Perp::ClearForNewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   
 
-  this->_base_AIHigh_BasicPerp.Clear();
+  this->Clear();
 
-  pCVar1 = (this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_;
+  pCVar1 = this->carObj_;
 
-  (this->_base_AIHigh_BasicPerp).basicPerpInfo_.copsAssigned_[0] = 0;
+  this->basicPerpInfo_.copsAssigned_[0] = 0;
 
-  (this->_base_AIHigh_BasicPerp).basicPerpInfo_.copsAssigned_[1] = 0;
+  this->basicPerpInfo_.copsAssigned_[1] = 0;
 
-  (this->_base_AIHigh_BasicPerp).basicPerpInfo_.crime_ = 1;
+  this->basicPerpInfo_.crime_ = 1;
 
   this->caught_ = 0;
 
   pCVar1->unlap = 0;
 
-  ((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->lap =
+  (this->carObj_)->lap =
 
-       ((chaserCop->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop._base_AIHigh_Base.carObj_)->lap;
+       ((chaserCop)->carObj_)->lap;
 
   chaserCop->needPerp_ = 0;
 
@@ -640,7 +640,7 @@ AIHigh_BTC_Perp::CheckForActivation()
 
       iVar2 = 0;
 
-      if ((pAVar3->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop.copIndex_ == 0) {
+      if ((pAVar3)->copIndex_ == 0) {
 
         iVar2 = pAVar3->needPerp_;
 
@@ -648,7 +648,7 @@ AIHigh_BTC_Perp::CheckForActivation()
 
       if ((iVar2 != 0) &&
 
-         ((pCVar1 = (this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_, (pCVar1->carFlags & 4U) != 0 ||
+         ((pCVar1 = this->carObj_, (pCVar1->carFlags & 4U) != 0 ||
 
           (GameSetup_gData.perpInfo[pAVar3->currentStage_].CarType == pCVar1->carInfo->carType)))) {
 
@@ -708,15 +708,15 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   iVar7 = chaserCop->initialDirection_;
 
-  (this->_base_AIHigh_BTC_Perp).originalActivationCop_ = chaserCop;
+  this->originalActivationCop_ = chaserCop;
 
-  this->_base_AIHigh_BTC_Perp.ClearForNewStage(chaserCop);
+  this->ClearForNewStage(chaserCop);
 
-  this->_base_AIHigh_BTC_Perp.ReleaseCops();
+  this->ReleaseCops();
 
   randtemp = fastRandom * randSeed;
 
-  pCVar6 = (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+  pCVar6 = this->carObj_;
 
   iVar5 = iVar7 * 0x10;
 
@@ -726,7 +726,7 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   if (iVar5 < 0) {
 
-    pCVar3 = (chaserCop->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop._base_AIHigh_Base.carObj_;
+    pCVar3 = (chaserCop)->carObj_;
 
     sVar2 = (pCVar3->N).simRoadInfo.slice;
 
@@ -748,7 +748,7 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   else {
 
-    pCVar3 = (chaserCop->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop._base_AIHigh_Base.carObj_;
+    pCVar3 = (chaserCop)->carObj_;
 
     sVar2 = (pCVar3->N).simRoadInfo.slice;
 
@@ -768,9 +768,9 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   }
 
-  ((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->desiredDirection = iVar7;
+  (this->carObj_)->desiredDirection = iVar7;
 
-  pCVar6 = (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+  pCVar6 = this->carObj_;
 
   pCVar6->direction = pCVar6->desiredDirection;
 
@@ -778,15 +778,15 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   local_18 = 0;
 
-  AIWorld_FindBarrierLessLaneAndPosition((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_,&local_18,&local_14);
+  AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&local_18,&local_14);
 
-  pCVar6 = (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+  pCVar6 = this->carObj_;
 
-  AILife_PlaceCarAtLocation((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_,
+  AILife_PlaceCarAtLocation(this->carObj_,
 
              (int)(pCVar6->N).simRoadInfo.slice,local_14,pCVar6->direction,0,0);
 
-  pSVar4 = (Speaker *)Speech_Mobile((chaserCop->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop._base_AIHigh_Base.carObj_);
+  pSVar4 = (Speaker *)Speech_Mobile((chaserCop)->carObj_);
 
   (**(int (**)(...))(pSVar4->_vf[4] + 8))
 
@@ -798,23 +798,23 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
             ((int)&(pSVar4->fPosition).flags + (int)*(short *)(*pSVar4->_vf + 8),
 
-             (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_);
+             this->carObj_);
 
-  pSVar4 = (Speaker *)Speech_Mobile((chaserCop->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop._base_AIHigh_Base.carObj_);
+  pSVar4 = (Speaker *)Speech_Mobile((chaserCop)->carObj_);
 
   (**(int (**)(...))(*pSVar4->_vf + 0xc))
 
             ((int)&(pSVar4->fPosition).flags + (int)*(short *)(*pSVar4->_vf + 8),
 
-             (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_);
+             this->carObj_);
 
-  pSVar4 = (Speaker *)Speech_Mobile((chaserCop->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop._base_AIHigh_Base.carObj_);
+  pSVar4 = (Speaker *)Speech_Mobile((chaserCop)->carObj_);
 
   (**(int (**)(...))(pSVar4->_vf[1] + 0x15))
 
             ((int)&(pSVar4->fPosition).flags + (int)*(short *)(pSVar4->_vf[1] + 0x11),
 
-             (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_);
+             this->carObj_);
 
   TrgSfx_RestartTrgSfx();
 
@@ -841,9 +841,9 @@ void AIHigh_BTC_HumanPerp::HighExecute()
 
   
 
-  if (((this->_base_AIHigh_BTC_Perp).caught_ == 1) &&
+  if ((this->caught_ == 1) &&
 
-     (chaserCop = this->_base_AIHigh_BTC_Perp.CheckForActivation(),
+     (chaserCop = this->CheckForActivation(),
 
      chaserCop != (AIHigh_BTC_HumanCop *)0x0)) {
 
@@ -853,7 +853,7 @@ void AIHigh_BTC_HumanPerp::HighExecute()
 
   else {
 
-    this->_base_AIHigh_BTC_Perp.HandleCops();
+    this->HandleCops();
 
   }
 
@@ -883,21 +883,21 @@ AIHigh_BTC_AIPerp::AIHigh_BTC_AIPerp(Car_tObj *carObj)
 
   (new((AIHigh_BasicPerp *)this) AIHigh_BasicPerp(carObj));
 
-  (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base._vf =
+  this->_vf =
 
        (__vtbl_ptr_type (*) [3])(AIHigh_BTC_HumanPerp_vtable + 8);
 
-  (this->_base_AIHigh_BTC_Perp).caught_ = 1;
+  this->caught_ = 1;
 
-  pCVar1 = (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+  pCVar1 = this->carObj_;
 
-  (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base._vf =
+  this->_vf =
 
        (__vtbl_ptr_type (*) [3])AIHigh_BTC_AIPerp_vtable;
 
-  (this->_base_AIHigh_BTC_Perp).hudActivated_ = 0;
+  this->hudActivated_ = 0;
 
-  (this->_base_AIHigh_BTC_Perp).originalActivationCop_ = (AIHigh_BTC_HumanCop *)0x0;
+  this->originalActivationCop_ = (AIHigh_BTC_HumanCop *)0x0;
 
   this->perpMode_ = 0;
 
@@ -944,21 +944,21 @@ AIHigh_BTC_AIPerp::~AIHigh_BTC_AIPerp()
 
   
 
-  pCVar2 = (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+  pCVar2 = this->carObj_;
 
   iVar1 = this->originalMass_;
 
-  (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base._vf =
+  this->_vf =
 
        (__vtbl_ptr_type (*) [3])AIHigh_BTC_AIPerp_vtable;
 
   (pCVar2->N).mass = iVar1;
 
-  (((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->N).massInv =
+  ((this->carObj_)->N).massInv =
 
        this->originalMassInv_;
 
-  (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base._vf =
+  this->_vf =
 
        (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
 
@@ -1009,7 +1009,7 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
   if ((pCVar3 != (Car_tObj *)0x0) && (pCVar3->RSControl == 0)) {
 
-    pCVar5 = (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+    pCVar5 = this->carObj_;
 
     iVar4 = pCVar3->direction;
 
@@ -1061,7 +1061,7 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
           randtemp = fastRandom * randSeed;
 
-          pCVar3 = (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+          pCVar3 = this->carObj_;
 
           fastRandom = randtemp & 0xffff;
 
@@ -1117,13 +1117,13 @@ LAB_800606f0:
 
   if (bVar1) {
 
-    ((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->pullOver = 1;
+    (this->carObj_)->pullOver = 1;
 
     return;
 
   }
 
-  ((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->pullOver = 0;
+  (this->carObj_)->pullOver = 0;
 
   return;
 
@@ -1154,7 +1154,7 @@ void AIHigh_BTC_AIPerp::CalculateTimeTillContact()
 
   if ((this->closestCopCarObj_ != (Car_tObj *)0x0) && (this->perpMode_ < 2)) {
 
-    b = ((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->currentSpeed -
+    b = (this->carObj_)->currentSpeed -
 
         this->closestCopCarObj_->currentSpeed;
 
@@ -1241,7 +1241,7 @@ void AIHigh_BTC_AIPerp::FindClosestCop()
 
     if (((*ppCVar4)->carFlags & 0x200U) != 0) {
 
-      iVar1 = AIWorld_ApxSplineDistance((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_,*ppCVar4);
+      iVar1 = AIWorld_ApxSplineDistance(this->carObj_,*ppCVar4);
 
       iVar3 = iVar1;
 
@@ -1327,7 +1327,7 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
   
 
-  if ((((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->N).active != '\0') {
+  if (((this->carObj_)->N).active != '\0') {
 
     this->FindClosestCop();
 
@@ -1335,7 +1335,7 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
   }
 
-  switch((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.stateType_) {
+  switch(this->stateType_) {
 
   case 2:
 
@@ -1359,13 +1359,13 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
         if (this->perpMode_ != 2) {
 
-          pSVar2 = (Speaker *)Speech_Mobile((((this->_base_AIHigh_BTC_Perp).originalActivationCop_)->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop._base_AIHigh_Base.carObj_);
+          pSVar2 = (Speaker *)Speech_Mobile(((this->originalActivationCop_))->carObj_);
 
           (**(int (**)(...))(*pSVar2->_vf + 0xc))
 
                     ((int)&(pSVar2->fPosition).flags + (int)*(short *)(*pSVar2->_vf + 8),
 
-                     (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_);
+                     this->carObj_);
 
         }
 
@@ -1375,13 +1375,13 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
         Camera_gInfo[0].focusOnAICar =
 
-             (char)((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->carIndex;
+             (char)(this->carObj_)->carIndex;
 
         Camera_gInfo[1].forceFocus = 2;
 
         Camera_gInfo[1].focusOnAICar =
 
-             (char)((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->carIndex;
+             (char)(this->carObj_)->carIndex;
 
       }
 
@@ -1399,7 +1399,7 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
         this->perpMode_ = 5;
 
-        this->_base_AIHigh_BTC_Perp.ReleaseCops();
+        this->ReleaseCops();
 
       }
 
@@ -1407,13 +1407,13 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
         if (Camera_gInfo[0].forceFocus != 0) {
 
-          pSVar2 = (Speaker *)Speech_Mobile((((this->_base_AIHigh_BTC_Perp).originalActivationCop_)->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop._base_AIHigh_Base.carObj_);
+          pSVar2 = (Speaker *)Speech_Mobile(((this->originalActivationCop_))->carObj_);
 
           (**(int (**)(...))(pSVar2->_vf[1] + 0x15))
 
                     ((int)&(pSVar2->fPosition).flags + (int)*(short *)(pSVar2->_vf[1] + 0x11),
 
-                     (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_);
+                     this->carObj_);
 
           Camera_ResetRelPos(3);
 
@@ -1423,25 +1423,25 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
         Camera_gInfo[0].focusOnAICar =
 
-             (char)((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->carIndex;
+             (char)(this->carObj_)->carIndex;
 
         Camera_gInfo[1].forceFocus = 0;
 
         Camera_gInfo[1].focusOnAICar =
 
-             (char)((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->carIndex;
+             (char)(this->carObj_)->carIndex;
 
       }
 
-      pCVar6 = (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+      pCVar6 = this->carObj_;
 
-      otherCarObj = (((this->_base_AIHigh_BTC_Perp).originalActivationCop_)->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop._base_AIHigh_Base.carObj_;
+      otherCarObj = ((this->originalActivationCop_))->carObj_;
 
       if (otherCarObj->direction == pCVar6->direction) {
 
         iVar1 = AIWorld_ApxSplineDistance(pCVar6,otherCarObj);
 
-        pCVar6 = (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+        pCVar6 = this->carObj_;
 
         if (0 < iVar1 * pCVar6->direction) {
 
@@ -1455,7 +1455,7 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
           iVar1 = fixedmult(iVar1,0xcccc);
 
-          ((this->_base_AIHigh_BTC_Perp).originalActivationCop_)->requestedDesiredSpeed_ = iVar1;
+          (this->originalActivationCop_)->requestedDesiredSpeed_ = iVar1;
 
         }
 
@@ -1475,21 +1475,21 @@ switchD_8006094c_default:
 
     if (_Var4 != 5) break;
 
-    this->_base_AIHigh_BTC_Perp.HandleCops();
+    this->HandleCops();
 
-    if ((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp.pullOverMode_ != 2) {
+    if (this->pullOverMode_ != 2) {
 
       this->AvoidCops();
 
     }
 
-    if ((this->_base_AIHigh_BTC_Perp).caught_ == 0) break;
+    if (this->caught_ == 0) break;
 
   case 0:
 
     pAVar3 = operator new(8);
 
-    pCVar6 = (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+    pCVar6 = this->carObj_;
 
     (new(pAVar3) AIState_Base(pCVar6));
 
@@ -1503,7 +1503,7 @@ switchD_8006094c_default:
 
     (pAVar3->carObj_->N).active = '\0';
 
-    pAVar5 = (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.state_;
+    pAVar5 = this->state_;
 
     if (pAVar5 != (AIState_Base *)0x0) {
 
@@ -1511,9 +1511,9 @@ switchD_8006094c_default:
 
     }
 
-    (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.state_ = pAVar3;
+    this->state_ = pAVar3;
 
-    (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.stateType_ = 7;
+    this->stateType_ = 7;
 
     this->perpMode_ = 0;
 
@@ -1521,11 +1521,11 @@ switchD_8006094c_default:
 
   case 7:
 
-    chaserCop = this->_base_AIHigh_BTC_Perp.CheckForActivation();
+    chaserCop = this->CheckForActivation();
 
     if (chaserCop == (AIHigh_BTC_HumanCop *)0x0) {
 
-      (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.schedulingOff_ = 1;
+      this->schedulingOff_ = 1;
 
     }
 
@@ -1533,7 +1533,7 @@ switchD_8006094c_default:
 
       this->NewStage(chaserCop);
 
-      (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.schedulingOff_ = 0;
+      this->schedulingOff_ = 0;
 
     }
 
@@ -1547,13 +1547,13 @@ switchD_8006094c_default:
 
       if (this->perpMode_ != 2) {
 
-        pSVar2 = (Speaker *)Speech_Mobile((((this->_base_AIHigh_BTC_Perp).originalActivationCop_)->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop._base_AIHigh_Base.carObj_);
+        pSVar2 = (Speaker *)Speech_Mobile(((this->originalActivationCop_))->carObj_);
 
         (**(int (**)(...))(*pSVar2->_vf + 0xc))
 
                   ((int)&(pSVar2->fPosition).flags + (int)*(short *)(*pSVar2->_vf + 8),
 
-                   (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_);
+                   this->carObj_);
 
       }
 
@@ -1563,13 +1563,13 @@ switchD_8006094c_default:
 
       Camera_gInfo[0].focusOnAICar =
 
-           (char)((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->carIndex;
+           (char)(this->carObj_)->carIndex;
 
       Camera_gInfo[1].forceFocus = 2;
 
       Camera_gInfo[1].focusOnAICar =
 
-           (char)((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->carIndex;
+           (char)(this->carObj_)->carIndex;
 
     }
 
@@ -1577,9 +1577,9 @@ switchD_8006094c_default:
 
       this_00 = operator new(8);
 
-      pAVar3 = &(new(this_00) AIState_Normal((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_))->_base_AIState_Base;
+      pAVar3 = &(new(this_00) AIState_Normal(this->carObj_))->_base_AIState_Base;
 
-      pAVar5 = (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.state_;
+      pAVar5 = this->state_;
 
       if (pAVar5 != (AIState_Base *)0x0) {
 
@@ -1587,9 +1587,9 @@ switchD_8006094c_default:
 
       }
 
-      (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.state_ = pAVar3;
+      this->state_ = pAVar3;
 
-      (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.stateType_ = 2;
+      this->stateType_ = 2;
 
       this->perpMode_ = 4;
 
@@ -1597,7 +1597,7 @@ switchD_8006094c_default:
 
   }
 
-  ((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.state_)->StateExecute();
+  (this->state_)->StateExecute();
 
   return;
 
@@ -1671,11 +1671,11 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   iVar14 = chaserCop->currentStage_;
 
-  carObj = (chaserCop->_base_AIHigh_BTC_Cop)._base_AIHigh_BasicCop._base_AIHigh_Base.carObj_;
+  carObj = (chaserCop)->carObj_;
 
-  (this->_base_AIHigh_BTC_Perp).originalActivationCop_ = chaserCop;
+  this->originalActivationCop_ = chaserCop;
 
-  this->_base_AIHigh_BTC_Perp.ClearForNewStage(chaserCop);
+  this->ClearForNewStage(chaserCop);
 
   iVar11 = 0;
 
@@ -1683,43 +1683,43 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     iVar9 = iVar11 + 1;
 
-    (((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->N).damage[iVar11] = 0;
+    ((this->carObj_)->N).damage[iVar11] = 0;
 
     iVar11 = iVar9;
 
   } while (iVar9 < 10);
 
-  (((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->render).headLight = 0;
+  ((this->carObj_)->render).headLight = 0;
 
-  (((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->render).brakeLight = 0;
+  ((this->carObj_)->render).brakeLight = 0;
 
   if (GameSetup_gData.Time != 0) {
 
-    (((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->render).headLight = 0x33;
+    ((this->carObj_)->render).headLight = 0x33;
 
-    (((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->render).brakeLight = 2;
+    ((this->carObj_)->render).brakeLight = 2;
 
   }
 
-  (((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->render).signalLight[0] = 0;
+  ((this->carObj_)->render).signalLight[0] = 0;
 
-  (((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->render).signalLight[1] = 0;
+  ((this->carObj_)->render).signalLight[1] = 0;
 
-  (((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->render).damageParts = 0;
+  ((this->carObj_)->render).damageParts = 0;
 
-  ((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->forceNoSimOptz = 1;
+  (this->carObj_)->forceNoSimOptz = 1;
 
   Camera_gInfo[0].forceFocus = 1;
 
   Camera_gInfo[0].focusOnAICar =
 
-       (char)((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->carIndex;
+       (char)(this->carObj_)->carIndex;
 
   Camera_gInfo[1].forceFocus = 1;
 
   Camera_gInfo[1].focusOnAICar =
 
-       (char)((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->carIndex;
+       (char)(this->carObj_)->carIndex;
 
   Object_ClearCustomObjects();
 
@@ -1801,7 +1801,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   iVar9 = (uVar7 / 6) * iVar11 * iVar13;
 
-  pCVar12 = (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+  pCVar12 = this->carObj_;
 
   if (iVar9 < 0) {
 
@@ -1839,17 +1839,17 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   if (bVar1) {
 
-    ((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->desiredDirection = iVar11;
+    (this->carObj_)->desiredDirection = iVar11;
 
   }
 
   else {
 
-    ((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->desiredDirection = -iVar11;
+    (this->carObj_)->desiredDirection = -iVar11;
 
   }
 
-  pCVar12 = (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+  pCVar12 = this->carObj_;
 
   pCVar12->direction = pCVar12->desiredDirection;
 
@@ -1857,9 +1857,9 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   local_28 = 0;
 
-  AIWorld_FindBarrierLessLaneAndPosition((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_,&local_28,&local_24);
+  AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&local_28,&local_24);
 
-  pCVar12 = (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+  pCVar12 = this->carObj_;
 
   if (bVar3) {
 
@@ -1873,7 +1873,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   }
 
-  AILife_PlaceCarAtLocation((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_,
+  AILife_PlaceCarAtLocation(this->carObj_,
 
              (int)(pCVar12->N).simRoadInfo.slice,local_24,pCVar12->direction,iVar11,0);
 
@@ -1883,37 +1883,37 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
                       AITune_BTC[GameSetup_gData.skill].glueMult);
 
-  ((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->btcGlueModifier = iVar11;
+  (this->carObj_)->btcGlueModifier = iVar11;
 
   iVar11 = fixedmult(GameSetup_gData.perpInfo[iVar14].SpeedFactor,
 
                       AITune_BTC[GameSetup_gData.skill].speedMult);
 
-  ((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->speedFactor = iVar11;
+  (this->carObj_)->speedFactor = iVar11;
 
   iVar11 = fixedmult(this->originalMass_,GameSetup_gData.perpInfo[iVar14].WeightFactor);
 
   iVar11 = fixedmult(iVar11,AITune_BTC[GameSetup_gData.skill].weightMult);
 
-  (((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->N).mass = iVar11;
+  ((this->carObj_)->N).mass = iVar11;
 
-  iVar11 = fixeddiv(0x10000,(((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->N).mass);
+  iVar11 = fixeddiv(0x10000,((this->carObj_)->N).mass);
 
-  (((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->N).massInv = iVar11;
+  ((this->carObj_)->N).massInv = iVar11;
 
-  AIPerson_SetPersonality((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_,
+  AIPerson_SetPersonality(this->carObj_,
 
              GameSetup_gData.perpInfo[iVar14].Personality);
 
-  R3DCar_ChangeTrafficColor((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_,
+  R3DCar_ChangeTrafficColor(this->carObj_,
 
              GameSetup_gData.perpInfo[iVar14].Colour);
 
-  ((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->carInfo->SpeechColour =
+  (this->carObj_)->carInfo->SpeechColour =
 
        GameSetup_gData.perpInfo[iVar14].SpeechColour;
 
-  ((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->carInfo->HudColour =
+  (this->carObj_)->carInfo->HudColour =
 
        GameSetup_gData.perpInfo[iVar14].HudColour;
 
@@ -1925,9 +1925,9 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     this_00 = operator new(8);
 
-    pAVar4 = &(new(this_00) AIState_Normal((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_))->_base_AIState_Base;
+    pAVar4 = &(new(this_00) AIState_Normal(this->carObj_))->_base_AIState_Base;
 
-    pAVar8 = (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.state_;
+    pAVar8 = this->state_;
 
     if (pAVar8 != (AIState_Base *)0x0) {
 
@@ -1935,9 +1935,9 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     }
 
-    (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.state_ = pAVar4;
+    this->state_ = pAVar4;
 
-    (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.stateType_ = 2;
+    this->stateType_ = 2;
 
     this->perpMode_ = 1;
 
@@ -1947,11 +1947,11 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     pAVar5 = operator new(0x14);
 
-    pAVar5 = (new(pAVar5) AIState_Cruise((this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_,(cruiseMode_t)1,0x8000
+    pAVar5 = (new(pAVar5) AIState_Cruise(this->carObj_,(cruiseMode_t)1,0x8000
 
                        ));
 
-    pAVar4 = (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.state_;
+    pAVar4 = this->state_;
 
     if (pAVar4 != (AIState_Base *)0x0) {
 
@@ -1959,9 +1959,9 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     }
 
-    (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.state_ = (AIState_Base *)pAVar5;
+    this->state_ = (AIState_Base *)pAVar5;
 
-    (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.stateType_ = 10;
+    this->stateType_ = 10;
 
     this->perpMode_ = 0;
 
@@ -1979,7 +1979,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
             ((int)&(pSVar6->fPosition).flags + (int)*(short *)(*pSVar6->_vf + 8),
 
-             (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_);
+             this->carObj_);
 
   TrgSfx_RestartTrgSfx();
 
@@ -2002,7 +2002,7 @@ AIHigh_BTC_HumanPerp::~AIHigh_BTC_HumanPerp()
 
 {
 
-  (this->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base._vf =
+  this->_vf =
 
        (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
 
@@ -2026,7 +2026,7 @@ AIHigh_BTC_Perp::~AIHigh_BTC_Perp()
 
 {
 
-  (this->_base_AIHigh_BasicPerp)._base_AIHigh_Base._vf = (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
 
 
   return;

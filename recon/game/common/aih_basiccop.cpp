@@ -20,9 +20,9 @@ AIHigh_BasicCop::AIHigh_BasicCop(Car_tObj *carObj,int copIndex)
 
 {
 
-  (new(&this->_base_AIHigh_Base) AIHigh_Base(carObj));
+  (new((AIHigh_Base *)this) AIHigh_Base(carObj));
 
-  (this->_base_AIHigh_Base)._vf = (__vtbl_ptr_type (*) [3])AIHigh_BasicCop_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BasicCop_vtable;
 
   this->copIndex_ = copIndex;
 
@@ -136,7 +136,7 @@ int AIHigh_BasicCop::ShouldIPerformCutOffBlock(int chancePerSecond,Car_tObj *tar
   random1000 = (int)((((randtemp >> 8) & 0xffff) * 1000) >> 16);           /* 0x8005C334-358 (randtemp u_int -> logical shifts) */
 
   if (random1000 < chanceOutOf1000) {                                      /* 0x8005C35C/360 */
-    myCar = (this->_base_AIHigh_Base).carObj_;                             /* *(int*)this @0x8005C368 */
+    myCar = this->carObj_;                             /* *(int*)this @0x8005C368 */
     relLatPosition = *(int *)((char *)myCar  + 1396) -
                      *(int *)((char *)target + 1396);                      /* 0x8005C36C-378 */
     absRelLatPosition = (relLatPosition < 0) ? -relLatPosition : relLatPosition;   /* 0x8005C37C-384 */
@@ -704,7 +704,7 @@ void AIHigh_BasicCop::HandleBlockadeSpeech()
 
   if ((this->blockade_).blockadeSpeechFlags != 0) {
 
-    pCVar5 = (((this->blockade_).target)->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_;
+    pCVar5 = ((this->blockade_).target)->carObj_;
 
     if ((pCVar5 == (Car_tObj *)0x0) ||
 
@@ -738,7 +738,7 @@ void AIHigh_BasicCop::HandleBlockadeSpeech()
 
         if (((this->blockade_).blockadeSpeechFlags & 6U) == 6) {
 
-          pSVar4 = (Speaker *)Speech_Mobile((this->_base_AIHigh_Base).carObj_);
+          pSVar4 = (Speaker *)Speech_Mobile(this->carObj_);
 
           (**(int (**)(...))(pSVar4->_vf[1] + 0x1d))
 

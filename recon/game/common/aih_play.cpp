@@ -69,11 +69,11 @@ int AIHigh_Player::CheckIfABlockadeCanBeSetup()
 
   if ((((pcVar9->numBlockaders == 0) || ((this->perpChaseInfo_).blockadeDone_ != 0)) ||
 
-      (((this->_base_AIHigh_BasicPerp).basicPerpInfo_.copsAssigned_[0] < pcVar9->copChasers[0] &&
+      ((this->basicPerpInfo_.copsAssigned_[0] < pcVar9->copChasers[0] &&
 
        (Cars_gNumHumanRaceCars != 2)))) ||
 
-     (((this->_base_AIHigh_BasicPerp).basicPerpInfo_.copsAssigned_[1] < pcVar9->copChasers[1] &&
+     ((this->basicPerpInfo_.copsAssigned_[1] < pcVar9->copChasers[1] &&
 
       (Cars_gNumHumanRaceCars != 2)))) {
 
@@ -285,7 +285,7 @@ void AIHigh_Player::SetupBlockade()
 
   
 
-  pCVar9 = (this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_;
+  pCVar9 = this->carObj_;
 
   pcVar17 = (this->perpChaseInfo_).chaseLevel_;
 
@@ -319,7 +319,7 @@ void AIHigh_Player::SetupBlockade()
 
   local_4c = pcVar17->copBlockaders[1];
 
-  iVar14 = triggerManagerCops->CheckForClosestTriggerOfType(iVar14, (triggerType)2, ((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->direction);
+  iVar14 = triggerManagerCops->CheckForClosestTriggerOfType(iVar14, (triggerType)2, (this->carObj_)->direction);
 
   if (iVar14 == -1) {
 
@@ -361,7 +361,7 @@ LAB_80062130:
 
       }
 
-      iVar14 = triggerManagerCops->CheckForClosestTriggerOfType(iVar14, (triggerType)2, ((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->direction);
+      iVar14 = triggerManagerCops->CheckForClosestTriggerOfType(iVar14, (triggerType)2, (this->carObj_)->direction);
 
       if (iVar14 == -1) goto LAB_80062130;
 
@@ -463,7 +463,7 @@ LAB_80062130:
 
           iVar15 = (((int)uVar13 / 2) * 2 + 3) *
 
-                   ((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->direction;
+                   (this->carObj_)->direction;
 
           if (iVar15 < 0) {
 
@@ -491,7 +491,7 @@ LAB_80062130:
 
           pAVar10[2].state_ = pAVar6;
 
-          pAVar10[2].stateType_ = ((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->direction;
+          pAVar10[2].stateType_ = (this->carObj_)->direction;
 
           iVar7 = (int)pAVar10[2].state_ * 0x20 + BWorldSm_slices;
 
@@ -559,7 +559,7 @@ LAB_80062130:
 
           local_30 = pCVar12;
 
-          iVar15 = AIWorld_ApxSplineDistance((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_,(int)pAVar6);
+          iVar15 = AIWorld_ApxSplineDistance(this->carObj_,(int)pAVar6);
 
           if (iVar15 < 0) {
 
@@ -569,7 +569,7 @@ LAB_80062130:
 
           pAVar10[3].state_ = (AIState_Base *)-(iVar15 >> 0x10);
 
-          if (-(iVar15 >> 0x10) * ((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->direction < 0) {
+          if (-(iVar15 >> 0x10) * (this->carObj_)->direction < 0) {
 
             pAVar10[3].state_ = (AIState_Base *)0x0;
 
@@ -599,7 +599,7 @@ LAB_80062130:
 
           iVar15 = (((int)uVar13 / 2) * 2 + 3) *
 
-                   ((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->direction;
+                   (this->carObj_)->direction;
 
           if (iVar15 < 0) {
 
@@ -629,7 +629,7 @@ LAB_80062130:
 
           uVar19 = fastRandom * randSeed;
 
-          pAVar10[2].stateType_ = ((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->direction;
+          pAVar10[2].stateType_ = (this->carObj_)->direction;
 
           fastRandom = uVar19 & 0xffff;
 
@@ -655,7 +655,7 @@ LAB_80062130:
 
           local_30 = pCVar12;
 
-          iVar15 = AIWorld_ApxSplineDistance((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_,(int)pAVar6);
+          iVar15 = AIWorld_ApxSplineDistance(this->carObj_,(int)pAVar6);
 
           if (iVar15 < 0) {
 
@@ -665,7 +665,7 @@ LAB_80062130:
 
           pAVar10[3].state_ = (AIState_Base *)-(iVar15 >> 0x10);
 
-          if (-(iVar15 >> 0x10) * ((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->direction < 0) {
+          if (-(iVar15 >> 0x10) * (this->carObj_)->direction < 0) {
 
             pAVar10[3].state_ = (AIState_Base *)0x0;
 
@@ -783,7 +783,7 @@ LAB_800620e8: ;   /* empty stmt: gcc2.7.2 label before brace */
 
                 ((int)&(pSVar5->fPosition).flags + (int)*(short *)(pSVar5->_vf[1] + 0x11),
 
-                 (this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_);
+                 this->carObj_);
 
       pSVar5 = (Speaker *)Speech_Dispatch();
 
@@ -841,7 +841,7 @@ void AIHigh_Player::CheckForNewLevel(int force)
 
   iVar4 = (this->perpChaseInfo_).chaseLevelIndex_;
 
-  if (1 < (((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->stats).finishType) {
+  if (1 < ((this->carObj_)->stats).finishType) {
 
     (this->perpChaseInfo_).chaseLevelIndex_ = 0;
 
@@ -896,19 +896,19 @@ LAB_80062328:
 
     (this->perpChaseInfo_).blockadeDone_ = 0;
 
-    (this->_base_AIHigh_BasicPerp).basicPerpInfo_.crime_ = 0;
+    this->basicPerpInfo_.crime_ = 0;
 
     return;
 
   }
 
-  pa_Var1 = (this->_base_AIHigh_BasicPerp)._base_AIHigh_Base._vf;
+  pa_Var1 = this->_vf;
 
   (**(int (**)(...))(pa_Var1[9] + 1))
 
-            ((int)(this->_base_AIHigh_BasicPerp).positionVSCopList_ + *(short *)pa_Var1[8] + -0x1c);
+            ((int)this->positionVSCopList_ + *(short *)pa_Var1[8] + -0x1c);
 
-  if ((this->_base_AIHigh_BasicPerp).basicPerpInfo_.crime_ == 0) goto LAB_8006249c;
+  if (this->basicPerpInfo_.crime_ == 0) goto LAB_8006249c;
 
   if (force == 0) {
 
@@ -1029,7 +1029,7 @@ void AIHigh_Player::HandleSpeech()
 
   
 
-  iVar2 = (this->_base_AIHigh_BasicPerp).positionVSCopList_[0].carIndex;
+  iVar2 = this->positionVSCopList_[0].carIndex;
 
   if (iVar2 == -1) {
 
@@ -1037,7 +1037,7 @@ void AIHigh_Player::HandleSpeech()
 
   }
 
-  iVar3 = (this->_base_AIHigh_BasicPerp).positionVSCopList_[1].carIndex;
+  iVar3 = this->positionVSCopList_[1].carIndex;
 
   if ((iVar3 != -1) && (iVar3 < iVar2)) {
 
@@ -1045,7 +1045,7 @@ void AIHigh_Player::HandleSpeech()
 
   }
 
-  iVar3 = (this->_base_AIHigh_BasicPerp).positionVSCopList_[2].carIndex;
+  iVar3 = this->positionVSCopList_[2].carIndex;
 
   if ((iVar3 != -1) && (iVar3 < iVar2)) {
 
@@ -1053,9 +1053,9 @@ void AIHigh_Player::HandleSpeech()
 
   }
 
-  _Var4 = (this->_base_AIHigh_BasicPerp).pullOverMode_;
+  _Var4 = this->pullOverMode_;
 
-  iVar3 = ((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->carIndex;
+  iVar3 = (this->carObj_)->carIndex;
 
   if (_Var4 == 1) {
 
@@ -1300,9 +1300,9 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
 
   
 
-  (new(&this->_base_AIHigh_BasicPerp) AIHigh_BasicPerp(carObj));
+  (new((AIHigh_BasicPerp *)this) AIHigh_BasicPerp(carObj));
 
-  (this->_base_AIHigh_BasicPerp)._base_AIHigh_Base._vf = (__vtbl_ptr_type (*) [3])AIHigh_Player_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_Player_vtable;
 
   if (GameSetup_gData.commMode == 1) {
 
@@ -1348,7 +1348,7 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
 
   }
 
-  pCVar2 = (this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_;
+  pCVar2 = this->carObj_;
 
   this->newTriggerProb_ =
 
@@ -1457,9 +1457,9 @@ void AIHigh_Player::HandleCops()
 
     }
 
-    if ((this->_base_AIHigh_BasicPerp).basicPerpInfo_.copsAssigned_[0] +
+    if (this->basicPerpInfo_.copsAssigned_[0] +
 
-        (this->_base_AIHigh_BasicPerp).basicPerpInfo_.copsAssigned_[1] < 1) {
+        this->basicPerpInfo_.copsAssigned_[1] < 1) {
 
       (this->perpChaseInfo_).copFreeTicks_ = (this->perpChaseInfo_).copFreeTicks_ + AI_elapsedTime;   /* H28: += dropped (m2c self-assign fold); oracle 0x80062C28-34 */
 
@@ -1482,7 +1482,7 @@ void AIHigh_Player::HandleCops()
       if (-2 < iVar1 >> 0x10) {
 
         {
-          Car_tObj *pCar = (this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_;
+          Car_tObj *pCar = this->carObj_;
           /* H26: decrement dropped (m2c self-assign fold). Oracle 0x80062BA4: engagementTime_ = iVar2 -
              (AI_elapsedTime << shift), shift = 0xF if carObj[1380]*carObj[1364] < 0 else 0x10 (the
              0x80062B9C <<0xF delay slot is used on the product<0 path; 0x80062BA0 <<0x10 otherwise). */
@@ -1562,7 +1562,7 @@ void AIHigh_Player::CleanupBlockaders(int forceClearAll)
 
   
 
-  pCVar2 = (this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_;
+  pCVar2 = this->carObj_;
 
   bVar1 = false;
 
@@ -1580,13 +1580,13 @@ void AIHigh_Player::CleanupBlockaders(int forceClearAll)
 
     this_00 = (AIHigh_Cop *)highLevelAIObjs[(*ppCVar4)->carIndex];
 
-    bVar3 = (this_00->_base_AIHigh_BasicCop).blockade_.mode;
+    bVar3 = (this_00)->blockade_.mode;
 
     if ((((bVar3 == 1) || (bVar3 == 4)) || ((bVar3 == 2 && (bVar1)))) &&
 
-       ((this_00->_base_AIHigh_BasicCop).blockade_.target == this)) {
+       ((this_00)->blockade_.target == this)) {
 
-      (this_00->_base_AIHigh_BasicCop).blockade_.mode = 0;
+      (this_00)->blockade_.mode = 0;
 
       (this_00)->AssignToPlayer((AIHigh_Player *)0x0);
 
@@ -1633,9 +1633,9 @@ void AIHigh_Player::HandlePullOver()
 
   
 
-  if ((this->_base_AIHigh_BasicPerp).pullOverMode_ == 0) {
+  if (this->pullOverMode_ == 0) {
 
-    iVar2 = this->_base_AIHigh_BasicPerp.CheckIfCaught();
+    iVar2 = this->CheckIfCaught();
 
     if (iVar2 == 0) {
 
@@ -1643,7 +1643,7 @@ void AIHigh_Player::HandlePullOver()
 
     }
 
-    ((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->pullOver = 1;
+    (this->carObj_)->pullOver = 1;
 
     this->CleanupBlockaders(1);
 
@@ -1665,15 +1665,15 @@ void AIHigh_Player::HandlePullOver()
 
     }
 
-    (this->_base_AIHigh_BasicPerp).beatingTicksLeft_ = pcVar6->beatingTicks;
+    this->beatingTicksLeft_ = pcVar6->beatingTicks;
 
-    (this->_base_AIHigh_BasicPerp).lastPullOverTime_ = simGlobal.gameTicks;
+    this->lastPullOverTime_ = simGlobal.gameTicks;
 
     bVar1 = false;
 
-    if ((((this->_base_AIHigh_BasicPerp).basicPerpInfo_.crime_ != 4) &&
+    if (((this->basicPerpInfo_.crime_ != 4) &&
 
-        ((((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->stats).numFines == 0)) &&
+        (((this->carObj_)->stats).numFines == 0)) &&
 
        (((this->perpChaseInfo_).copGameInfo_)->levels[(this->perpChaseInfo_).bestChaseLevelIndex_].
 
@@ -1687,7 +1687,7 @@ void AIHigh_Player::HandlePullOver()
 
     if ((bVar1) && (this->numWarnings_ < 2)) {
 
-      pCVar4 = (this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_;
+      pCVar4 = this->carObj_;
 
       this->numWarnings_ =
 
@@ -1701,7 +1701,7 @@ void AIHigh_Player::HandlePullOver()
 
     else {
 
-      pCVar4 = (this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_;
+      pCVar4 = this->carObj_;
 
       this->numBusts_ = this->numBusts_ + 1;
 
@@ -1731,13 +1731,13 @@ void AIHigh_Player::HandlePullOver()
 
           (_Var3 = 2, Cars_gNumHumanRaceCars == 1)))) {
 
-        (this->_base_AIHigh_BasicPerp).pullOverMode_ = 3;
+        this->pullOverMode_ = 3;
 
-        pCVar4 = (this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_;
+        pCVar4 = this->carObj_;
 
-        (this->_base_AIHigh_BasicPerp).beatingTicksLeft_ =
+        this->beatingTicksLeft_ =
 
-             (this->_base_AIHigh_BasicPerp).beatingTicksLeft_ + 0xc0;
+             this->beatingTicksLeft_ + 0xc0;
 
         (pCVar4->stats).numArrests = (pCVar4->stats).numArrests + 1;
 
@@ -1747,7 +1747,7 @@ void AIHigh_Player::HandlePullOver()
 
     }
 
-    (this->_base_AIHigh_BasicPerp).pullOverMode_ = _Var3;
+    this->pullOverMode_ = _Var3;
 
 LAB_8006322c:
 
@@ -1757,9 +1757,9 @@ LAB_8006322c:
 
   }
 
-  iVar2 = (this->_base_AIHigh_BasicPerp).beatingTicksLeft_ - AI_elapsedTime;   /* H29: decrement dropped (m2c self-assign fold); oracle 0x80062DA0-B8 store+test the decremented value */
+  iVar2 = this->beatingTicksLeft_ - AI_elapsedTime;   /* H29: decrement dropped (m2c self-assign fold); oracle 0x80062DA0-B8 store+test the decremented value */
 
-  (this->_base_AIHigh_BasicPerp).beatingTicksLeft_ = iVar2;
+  this->beatingTicksLeft_ = iVar2;
 
   if (0 < iVar2) {
 
@@ -1767,7 +1767,7 @@ LAB_8006322c:
 
   }
 
-  iVar2 = ((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->carIndex;
+  iVar2 = (this->carObj_)->carIndex;
 
   if (iVar2 < 2) {
 
@@ -1775,17 +1775,17 @@ LAB_8006322c:
 
   }
 
-  (this->_base_AIHigh_BasicPerp).lastPullOverTime_ = simGlobal.gameTicks;
+  this->lastPullOverTime_ = simGlobal.gameTicks;
 
-  if ((this->_base_AIHigh_BasicPerp).pullOverMode_ == 3) {
+  if (this->pullOverMode_ == 3) {
 
-    if ((((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->carFlags & 4U) != 0) {
+    if (((this->carObj_)->carFlags & 4U) != 0) {
 
       AICop_numArrestedHumans = AICop_numArrestedHumans + 1;
 
     }
 
-    (((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->stats).finishType = 3;
+    ((this->carObj_)->stats).finishType = 3;
 
   }
 
@@ -1848,23 +1848,23 @@ LAB_80062f48:
 
   (this->perpChaseInfo_).blockadeDone_ = 0;
 
-  (this->_base_AIHigh_BasicPerp).basicPerpInfo_.crime_ = 0;
+  this->basicPerpInfo_.crime_ = 0;
 
-  this->_base_AIHigh_BasicPerp.RemoveCloseCops();
+  this->RemoveCloseCops();
 
-  if ((((this->_base_AIHigh_BasicPerp).pullOverMode_ != 3) || (Cars_gNumHumanRaceCars != 1)) ||
+  if (((this->pullOverMode_ != 3) || (Cars_gNumHumanRaceCars != 1)) ||
 
-     ((((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->carFlags & 8U) != 0)) {
+     (((this->carObj_)->carFlags & 8U) != 0)) {
 
-    Cars_ResetCollidedCars((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_,1,1);
+    Cars_ResetCollidedCars(this->carObj_,1,1);
 
   }
 
-  if ((this->_base_AIHigh_BasicPerp).pullOverMode_ == 3) {
+  if (this->pullOverMode_ == 3) {
 
     if ((Cars_gNumHumanRaceCars == 2) && (AICop_numArrestedHumans != 2)) {
 
-      DashHUD_gInfo.showhud[((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->carIndex] = 0;
+      DashHUD_gInfo.showhud[(this->carObj_)->carIndex] = 0;
 
     }
 
@@ -1872,11 +1872,11 @@ LAB_80062f48:
 
   else {
 
-    ((this->_base_AIHigh_BasicPerp)._base_AIHigh_Base.carObj_)->pullOver = 0;
+    (this->carObj_)->pullOver = 0;
 
   }
 
-  (this->_base_AIHigh_BasicPerp).pullOverMode_ = 0;
+  this->pullOverMode_ = 0;
 
   return;
 

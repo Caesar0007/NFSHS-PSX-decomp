@@ -18,11 +18,11 @@ void AIHigh_Human::HighExecute()
 
 {
 
-  this->_base_AIHigh_Player.HandleCops();
+  this->HandleCops();
 
-  (((this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->N).active = '\x01';
+  ((this->carObj_)->N).active = '\x01';
 
-  ((this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.state_)->StateExecute();
+  (this->state_)->StateExecute();
 
   return;
 
@@ -42,9 +42,9 @@ AIHigh_Human::AIHigh_Human(Car_tObj *carObj)
 
 {
 
-  (new(&this->_base_AIHigh_Player) AIHigh_Player(carObj));
+  (new((AIHigh_Player *)this) AIHigh_Player(carObj));
 
-  (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base._vf =
+  this->_vf =
 
        (__vtbl_ptr_type (*) [3])AIHigh_Human_vtable;
 
@@ -67,7 +67,7 @@ AIHigh_Human::~AIHigh_Human()
 
 {
 
-  (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base._vf =
+  this->_vf =
 
        (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
 

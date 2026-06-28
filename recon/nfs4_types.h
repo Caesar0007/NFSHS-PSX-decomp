@@ -1993,8 +1993,7 @@ struct AIHigh_Base {   /* 24 bytes */
     void StateExecute();
 };
 
-struct AIHigh_None {   /* 24 bytes */
-    AIHigh_Base        _base_AIHigh_Base;   /* +0x0 */
+struct AIHigh_None : public AIHigh_Base {   /* 24 bytes */
     AIHigh_None() {}
     ~AIHigh_None();
     void HighExecute();
@@ -2004,8 +2003,7 @@ struct tCopCarPair {   /* 8 bytes */
     int                copIndex, carIndex;   /* +0x0 */
 };
 
-struct AIHigh_BasicPerp {   /* 124 bytes */
-    AIHigh_Base        _base_AIHigh_Base;   /* +0x0 */
+struct AIHigh_BasicPerp : public AIHigh_Base {   /* 124 bytes */
     int                pullOverMode_;   /* +0x18 */
     tCopCarPair        positionVSCopList_[6];   /* +0x1C */
     int                copVSPositionList_[6];   /* +0x4C */
@@ -2023,8 +2021,7 @@ struct AIHigh_BasicPerp {   /* 124 bytes */
     void Clear();
 };
 
-struct AIHigh_Player {   /* 176 bytes */
-    AIHigh_BasicPerp   _base_AIHigh_BasicPerp;   /* +0x0 */
+struct AIHigh_Player : public AIHigh_BasicPerp {   /* 176 bytes */
     int                numWarnings_, numBusts_, newTriggerProb_, lastTriggerCheckSlice_;   /* +0x7C */
     AICop_PerpChaseInfo perpChaseInfo_;   /* +0x8C */
     AIHigh_Player() {}
@@ -2039,8 +2036,7 @@ struct AIHigh_Player {   /* 176 bytes */
     void HandlePullOver();
 };
 
-struct AIHigh_BTC_Perp {   /* 136 bytes */
-    AIHigh_BasicPerp   _base_AIHigh_BasicPerp;   /* +0x0 */
+struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {   /* 136 bytes */
     int                caught_, hudActivated_;   /* +0x7C */
     AIHigh_BTC_HumanCop *originalActivationCop_;   /* +0x84 */
     AIHigh_BTC_Perp() {}
@@ -2065,8 +2061,7 @@ struct blockade_t {   /* 52 bytes */
     short              blockadeSpeechFlags;   /* +0x30 */
 };
 
-struct AIHigh_BasicCop {   /* 88 bytes */
-    AIHigh_Base        _base_AIHigh_Base;   /* +0x0 */
+struct AIHigh_BasicCop : public AIHigh_Base {   /* 88 bytes */
     int                type_, copIndex_;   /* +0x18 */
     blockade_t         blockade_;   /* +0x20 */
     int                driveAway_;   /* +0x54 */
@@ -2078,8 +2073,7 @@ struct AIHigh_BasicCop {   /* 88 bytes */
     int ShouldIPerformCutOffBlock(int a, Car_tObj *carObj);
 };
 
-struct AIHigh_BTC_Cop {   /* 100 bytes */
-    AIHigh_BasicCop    _base_AIHigh_BasicCop;   /* +0x0 */
+struct AIHigh_BTC_Cop : public AIHigh_BasicCop {   /* 100 bytes */
     AIHigh_BTC_Perp    *perpTarget_;   /* +0x58 */
     int                chaseIndex_, freezeMode_;   /* +0x5C */
     AIHigh_BTC_Cop() {}
@@ -2095,8 +2089,7 @@ struct AIHigh_BTC_Cop {   /* 100 bytes */
     void HudOff();
 };
 
-struct AIHigh_BTC_HumanCop {   /* 140 bytes */
-    AIHigh_BTC_Cop     _base_AIHigh_BTC_Cop;   /* +0x0 */
+struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {   /* 140 bytes */
     int                currentStage_, stageRepeatCount_, stageTimeMultiplier_, timeLeft_, chaseStartTime_, wingmanStatus_, needPerp_, initialDirection_, initialMovement_, requestedDesiredSpeed_;   /* +0x64 */
     AIHigh_BTC_HumanCop() {}
     AIHigh_BTC_HumanCop(Car_tObj *carObj, int copIndex);
@@ -2120,8 +2113,7 @@ struct AIHigh_BTC_HumanCop {   /* 140 bytes */
     void HudOn(AIHigh_BTC_Perp *p, int a, Car_tObj *carObj);
 };
 
-struct AIHigh_Cop {   /* 108 bytes */
-    AIHigh_BasicCop    _base_AIHigh_BasicCop;   /* +0x0 */
+struct AIHigh_Cop : public AIHigh_BasicCop {   /* 108 bytes */
     AIHigh_Player      *perpTarget_;   /* +0x58 */
     int                forcePurgatory_, chaseIndex_, requestSpikeBeltAtSlice_, aggressionLevel_;   /* +0x5C */
     AIHigh_Cop() {}
@@ -2313,8 +2305,7 @@ struct AIState_GotoSlice {   /* 16 bytes */
     int InTargetSliceRange(int a);
 };
 
-struct AIHigh_BTC_Wingman {   /* 124 bytes */
-    AIHigh_BTC_Cop     _base_AIHigh_BTC_Cop;   /* +0x0 */
+struct AIHigh_BTC_Wingman : public AIHigh_BTC_Cop {   /* 124 bytes */
     int                currentRole_, newRole_;   /* +0x64 */
     AIHigh_BTC_HumanCop *newHumanBoss_;   /* +0x6C */
     int                spikeBeltPlaced_, spikeBeltSlice_, spikeBeltInterceptReleaseTime_;   /* +0x70 */
@@ -2328,8 +2319,7 @@ struct AIHigh_BTC_Wingman {   /* 124 bytes */
     void SetupBlockader(AIHigh_BTC_HumanCop *humanCop, int spikeBeltRequest);
 };
 
-struct AIHigh_Traffic {   /* 36 bytes */
-    AIHigh_Base        _base_AIHigh_Base;   /* +0x0 */
+struct AIHigh_Traffic : public AIHigh_Base {   /* 36 bytes */
     int                ignoreCops_, forcePurgatory_;   /* +0x18 */
     SceneElem          *accidentData_;   /* +0x20 */
     AIHigh_Traffic() {}
@@ -2371,16 +2361,14 @@ struct Skidmark_Chunk {   /* 688 bytes */
     Skidmark_Segment   seg[24];   /* +0x10 */
 };
 
-struct AIHigh_BTC_HumanPerp {   /* 136 bytes */
-    AIHigh_BTC_Perp    _base_AIHigh_BTC_Perp;   /* +0x0 */
+struct AIHigh_BTC_HumanPerp : public AIHigh_BTC_Perp {   /* 136 bytes */
     AIHigh_BTC_HumanPerp() {}
     ~AIHigh_BTC_HumanPerp();
     void NewStage(AIHigh_BTC_HumanCop *cop);
     void HighExecute();
 };
 
-struct AIHigh_BTC_AIPerp {   /* 172 bytes */
-    AIHigh_BTC_Perp    _base_AIHigh_BTC_Perp;   /* +0x0 */
+struct AIHigh_BTC_AIPerp : public AIHigh_BTC_Perp {   /* 172 bytes */
     int                perpMode_, creationTime_, madeContactTime_, timeUntilContact_, escapeDuration_, originalMass_, originalMassInv_;   /* +0x88 */
     Car_tObj           *closestCopCarObj_;   /* +0xA4 */
     int                closestCopCarDistanceMeters_;   /* +0xA8 */
@@ -2411,16 +2399,14 @@ struct AITrigger_TriggerManager {   /* 844 bytes */
     void Sort();
 };
 
-struct AIHigh_Human {   /* 176 bytes */
-    AIHigh_Player      _base_AIHigh_Player;   /* +0x0 */
+struct AIHigh_Human : public AIHigh_Player {   /* 176 bytes */
     AIHigh_Human() {}
     AIHigh_Human(Car_tObj *carObj);
     ~AIHigh_Human();
     void HighExecute();
 };
 
-struct AIHigh_Opponent {   /* 192 bytes */
-    AIHigh_Player      _base_AIHigh_Player;   /* +0x0 */
+struct AIHigh_Opponent : public AIHigh_Player {   /* 192 bytes */
     int                attackMode_;   /* +0xB0 */
     Car_tObj           *lastHumanHitter_;   /* +0xB4 */
     int                hitCount_, attackTicksLeft_;   /* +0xB8 */

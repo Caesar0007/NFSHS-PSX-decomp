@@ -47,7 +47,7 @@ AIHigh_Traffic::CheckForCops(int *closestDistance)
 
     if ((otherCarObj->AIFlags & 4U) == 0) {
 
-      iVar1 = AIWorld_ApxSplineDistance((this->_base_AIHigh_Base).carObj_,otherCarObj);
+      iVar1 = AIWorld_ApxSplineDistance(this->carObj_,otherCarObj);
 
       if (iVar1 < 0) {
 
@@ -222,11 +222,11 @@ void AIHigh_Traffic::HighExecute()
 
   
 
-  ((this->_base_AIHigh_Base).carObj_)->unlap = 0;
+  (this->carObj_)->unlap = 0;
 
-  ((this->_base_AIHigh_Base).carObj_)->lap = 0;
+  (this->carObj_)->lap = 0;
 
-  switch((this->_base_AIHigh_Base).stateType_) {
+  switch(this->stateType_) {
 
   case 0:
 
@@ -236,13 +236,13 @@ void AIHigh_Traffic::HighExecute()
 
     local_c0.z = 0;
 
-    if ((((this->_base_AIHigh_Base).carObj_)->carFlags & 0x400U) == 0) {
+    if (((this->carObj_)->carFlags & 0x400U) == 0) {
 
       pAVar5 = operator new(8);
 
-      pAVar6 = (AIState_Base *) (new(pAVar5) AIState_Purgatory((this->_base_AIHigh_Base).carObj_));
+      pAVar6 = (AIState_Base *) (new(pAVar5) AIState_Purgatory(this->carObj_));
 
-      pAVar12 = (this->_base_AIHigh_Base).state_;
+      pAVar12 = this->state_;
 
       if (pAVar12 != (AIState_Base *)0x0) {
 
@@ -258,13 +258,13 @@ void AIHigh_Traffic::HighExecute()
 
       pAVar6 = operator new(0x10);
 
-      (new(pAVar6) AIState_Base((this->_base_AIHigh_Base).carObj_));
+      (new(pAVar6) AIState_Base(this->carObj_));
 
       pAVar6->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
 
       pAVar6[1]._vf = (__vtbl_ptr_type (*) [4])0x1;
 
-      pAVar12 = (this->_base_AIHigh_Base).state_;
+      pAVar12 = this->state_;
 
       if (pAVar12 != (AIState_Base *)0x0) {
 
@@ -276,11 +276,11 @@ void AIHigh_Traffic::HighExecute()
 
     }
 
-    (this->_base_AIHigh_Base).state_ = pAVar6;
+    this->state_ = pAVar6;
 
-    (this->_base_AIHigh_Base).stateType_ = sVar7;
+    this->stateType_ = sVar7;
 
-    Newton_SetInitialSlicePositionOrientationEtc(&((this->_base_AIHigh_Base).carObj_)->N,0,&local_c0,1);
+    Newton_SetInitialSlicePositionOrientationEtc(&(this->carObj_)->N,0,&local_c0,1);
 
     return;
 
@@ -290,7 +290,7 @@ void AIHigh_Traffic::HighExecute()
 
     if (this->accidentData_ == (SceneElem *)0x0) {
 
-      pAVar6 = (this->_base_AIHigh_Base).state_;
+      pAVar6 = this->state_;
 
       pa_Var8 = pAVar6->_vf;
 
@@ -310,9 +310,9 @@ void AIHigh_Traffic::HighExecute()
 
           pAVar9 = operator new(8);
 
-          pAVar6 = &(new(pAVar9) AIState_Normal((this->_base_AIHigh_Base).carObj_))->_base_AIState_Base;
+          pAVar6 = &(new(pAVar9) AIState_Normal(this->carObj_))->_base_AIState_Base;
 
-          pAVar12 = (this->_base_AIHigh_Base).state_;
+          pAVar12 = this->state_;
 
           if (pAVar12 != (AIState_Base *)0x0) {
 
@@ -320,11 +320,11 @@ void AIHigh_Traffic::HighExecute()
 
           }
 
-          (this->_base_AIHigh_Base).state_ = pAVar6;
+          this->state_ = pAVar6;
 
-          (this->_base_AIHigh_Base).stateType_ = 2;
+          this->stateType_ = 2;
 
-          AILife_ReencarnateTraffic((this->_base_AIHigh_Base).carObj_);
+          AILife_ReencarnateTraffic(this->carObj_);
 
         }
 
@@ -336,9 +336,9 @@ void AIHigh_Traffic::HighExecute()
 
             pAVar2 = operator new(0x18);
 
-            pAVar2 = (new(pAVar2) AIState_RovingTraffic((this->_base_AIHigh_Base).carObj_,trigger));
+            pAVar2 = (new(pAVar2) AIState_RovingTraffic(this->carObj_,trigger));
 
-            pAVar6 = (this->_base_AIHigh_Base).state_;
+            pAVar6 = this->state_;
 
             if (pAVar6 != (AIState_Base *)0x0) {
 
@@ -346,11 +346,11 @@ void AIHigh_Traffic::HighExecute()
 
             }
 
-            (this->_base_AIHigh_Base).stateType_ = 6;
+            this->stateType_ = 6;
 
-            (this->_base_AIHigh_Base).state_ = &pAVar2->_base_AIState_Base;
+            this->state_ = &pAVar2->_base_AIState_Base;
 
-            AILife_ReencarnateTrafficByPosition((this->_base_AIHigh_Base).carObj_,*(int *)(trigger + 4),1,
+            AILife_ReencarnateTrafficByPosition(this->carObj_,*(int *)(trigger + 4),1,
 
                        *(coorddef **)(trigger + 0x3c),(matrixtdef *)(trigger + 0xc));
 
@@ -366,13 +366,13 @@ void AIHigh_Traffic::HighExecute()
 
       pAVar6 = operator new(0x10);
 
-      (new(pAVar6) AIState_Base((this->_base_AIHigh_Base).carObj_));
+      (new(pAVar6) AIState_Base(this->carObj_));
 
       pAVar6->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
 
       pAVar6[1]._vf = (__vtbl_ptr_type (*) [4])0x1;
 
-      pAVar12 = (this->_base_AIHigh_Base).state_;
+      pAVar12 = this->state_;
 
       if (pAVar12 != (AIState_Base *)0x0) {
 
@@ -380,19 +380,19 @@ void AIHigh_Traffic::HighExecute()
 
       }
 
-      (this->_base_AIHigh_Base).state_ = pAVar6;
+      this->state_ = pAVar6;
 
-      (this->_base_AIHigh_Base).stateType_ = 3;
+      this->stateType_ = 3;
 
       local_b0.slice = 0;
 
       BWorldSm_FindClosestSlice(&this->accidentData_->cp,&local_b0);
 
-      AILife_ReencarnateTrafficByPosition((this->_base_AIHigh_Base).carObj_,(int)local_b0.slice,1,&this->accidentData_->cp,
+      AILife_ReencarnateTrafficByPosition(this->carObj_,(int)local_b0.slice,1,&this->accidentData_->cp,
 
                  &this->accidentData_->orient);
 
-      pCVar10 = (this->_base_AIHigh_Base).carObj_;
+      pCVar10 = this->carObj_;
 
       pCVar10->carFlags = pCVar10->carFlags | 0x400;
 
@@ -404,7 +404,7 @@ void AIHigh_Traffic::HighExecute()
 
   case 2:
 
-    iVar4 = AILife_EvaluateLife((this->_base_AIHigh_Base).carObj_);
+    iVar4 = AILife_EvaluateLife(this->carObj_);
 
     if (iVar4 == 0) {
 
@@ -434,7 +434,7 @@ void AIHigh_Traffic::HighExecute()
 
             pAVar6 = operator new(0x10);
 
-            (new(pAVar6) AIState_Base((this->_base_AIHigh_Base).carObj_))
+            (new(pAVar6) AIState_Base(this->carObj_))
 
             ;
 
@@ -442,7 +442,7 @@ void AIHigh_Traffic::HighExecute()
 
             pAVar6[1]._vf = (__vtbl_ptr_type (*) [4])0x1;
 
-            pAVar12 = (this->_base_AIHigh_Base).state_;
+            pAVar12 = this->state_;
 
             if (pAVar12 != (AIState_Base *)0x0) {
 
@@ -464,17 +464,17 @@ void AIHigh_Traffic::HighExecute()
 
           }
 
-          iVar4 = (int)(((this->_base_AIHigh_Base).carObj_)->N).simRoadInfo.slice;
+          iVar4 = (int)((this->carObj_)->N).simRoadInfo.slice;
 
           this_00 = operator new(0x10);
 
-          (new(&this_00->_base_AIState_Base) AIState_Base((this->_base_AIHigh_Base).carObj_));
+          (new(&this_00->_base_AIState_Base) AIState_Base(this->carObj_));
 
           (this_00->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
 
           this_00->idleInPlaceFlag_ = 1;
 
-          pAVar6 = (this->_base_AIHigh_Base).state_;
+          pAVar6 = this->state_;
 
           if (pAVar6 != (AIState_Base *)0x0) {
 
@@ -482,11 +482,11 @@ void AIHigh_Traffic::HighExecute()
 
           }
 
-          (this->_base_AIHigh_Base).state_ = &this_00->_base_AIState_Base;
+          this->state_ = &this_00->_base_AIState_Base;
 
-          (this->_base_AIHigh_Base).stateType_ = 3;
+          this->stateType_ = 3;
 
-          if (((this->_base_AIHigh_Base).carObj_)->direction != 1) goto LAB_800664c4;
+          if ((this->carObj_)->direction != 1) goto LAB_800664c4;
 
           iVar4 = iVar4 * 0x20 + BWorldSm_slices;
 
@@ -498,17 +498,17 @@ void AIHigh_Traffic::HighExecute()
 
         else {
 
-          iVar4 = (int)(((this->_base_AIHigh_Base).carObj_)->N).simRoadInfo.slice;
+          iVar4 = (int)((this->carObj_)->N).simRoadInfo.slice;
 
           this_00 = operator new(0x10);
 
-          (new(&this_00->_base_AIState_Base) AIState_Base((this->_base_AIHigh_Base).carObj_));
+          (new(&this_00->_base_AIState_Base) AIState_Base(this->carObj_));
 
           (this_00->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
 
           this_00->idleInPlaceFlag_ = 1;
 
-          pAVar6 = (this->_base_AIHigh_Base).state_;
+          pAVar6 = this->state_;
 
           if (pAVar6 != (AIState_Base *)0x0) {
 
@@ -516,11 +516,11 @@ void AIHigh_Traffic::HighExecute()
 
           }
 
-          (this->_base_AIHigh_Base).state_ = &this_00->_base_AIState_Base;
+          this->state_ = &this_00->_base_AIState_Base;
 
-          (this->_base_AIHigh_Base).stateType_ = 3;
+          this->stateType_ = 3;
 
-          if (((this->_base_AIHigh_Base).carObj_)->direction == 1) {
+          if ((this->carObj_)->direction == 1) {
 
             iVar4 = iVar4 * 0x20 + BWorldSm_slices;
 
@@ -554,9 +554,9 @@ LAB_800664c4:
 
       pAVar5 = operator new(8);
 
-      pAVar6 = (AIState_Base *) (new(pAVar5) AIState_Purgatory((this->_base_AIHigh_Base).carObj_));
+      pAVar6 = (AIState_Base *) (new(pAVar5) AIState_Purgatory(this->carObj_));
 
-      pAVar12 = (this->_base_AIHigh_Base).state_;
+      pAVar12 = this->state_;
 
       if (pAVar12 != (AIState_Base *)0x0) {
 
@@ -572,9 +572,9 @@ LAB_800664c4:
 
       pAVar5 = operator new(8);
 
-      pAVar6 = (AIState_Base *) (new(pAVar5) AIState_Purgatory((this->_base_AIHigh_Base).carObj_));
+      pAVar6 = (AIState_Base *) (new(pAVar5) AIState_Purgatory(this->carObj_));
 
-      pAVar12 = (this->_base_AIHigh_Base).state_;
+      pAVar12 = this->state_;
 
       if (pAVar12 != (AIState_Base *)0x0) {
 
@@ -590,13 +590,13 @@ LAB_800664c4:
 
   case 3:
 
-    iVar4 = AILife_EvaluateLife((this->_base_AIHigh_Base).carObj_);
+    iVar4 = AILife_EvaluateLife(this->carObj_);
 
     if (iVar4 == 0) {
 
       pAVar3 = this->CopCheck(&iStack_24);
 
-      if ((pAVar3 != (AIHigh_Cop *)0x0) || ((((this->_base_AIHigh_Base).carObj_)->carFlags & 0x400U) != 0)
+      if ((pAVar3 != (AIHigh_Cop *)0x0) || (((this->carObj_)->carFlags & 0x400U) != 0)
 
          ) goto switchD_80065ec8_caseD_4;
 
@@ -604,9 +604,9 @@ LAB_80066684:
 
       pAVar9 = operator new(8);
 
-      pAVar6 = &(new(pAVar9) AIState_Normal((this->_base_AIHigh_Base).carObj_))->_base_AIState_Base;
+      pAVar6 = &(new(pAVar9) AIState_Normal(this->carObj_))->_base_AIState_Base;
 
-      pAVar12 = (this->_base_AIHigh_Base).state_;
+      pAVar12 = this->state_;
 
       if (pAVar12 != (AIState_Base *)0x0) {
 
@@ -622,9 +622,9 @@ LAB_80066684:
 
       pAVar5 = operator new(8);
 
-      pAVar6 = (AIState_Base *) (new(pAVar5) AIState_Purgatory((this->_base_AIHigh_Base).carObj_));
+      pAVar6 = (AIState_Base *) (new(pAVar5) AIState_Purgatory(this->carObj_));
 
-      pAVar12 = (this->_base_AIHigh_Base).state_;
+      pAVar12 = this->state_;
 
       if (pAVar12 != (AIState_Base *)0x0) {
 
@@ -644,13 +644,13 @@ LAB_80066684:
 
   case 6:
 
-    iVar4 = AILife_EvaluateLife((this->_base_AIHigh_Base).carObj_);
+    iVar4 = AILife_EvaluateLife(this->carObj_);
 
     if (iVar4 == 0) {
 
       if (this->forcePurgatory_ == 0) {
 
-        pAVar6 = (this->_base_AIHigh_Base).state_;
+        pAVar6 = this->state_;
 
         pa_Var8 = pAVar6->_vf;
 
@@ -664,9 +664,9 @@ LAB_80066684:
 
       pAVar5 = operator new(8);
 
-      pAVar6 = (AIState_Base *) (new(pAVar5) AIState_Purgatory((this->_base_AIHigh_Base).carObj_));
+      pAVar6 = (AIState_Base *) (new(pAVar5) AIState_Purgatory(this->carObj_));
 
-      pAVar12 = (this->_base_AIHigh_Base).state_;
+      pAVar12 = this->state_;
 
       if (pAVar12 != (AIState_Base *)0x0) {
 
@@ -682,9 +682,9 @@ LAB_80066684:
 
       pAVar5 = operator new(8);
 
-      pAVar6 = (AIState_Base *) (new(pAVar5) AIState_Purgatory((this->_base_AIHigh_Base).carObj_));
+      pAVar6 = (AIState_Base *) (new(pAVar5) AIState_Purgatory(this->carObj_));
 
-      pAVar12 = (this->_base_AIHigh_Base).state_;
+      pAVar12 = this->state_;
 
       if (pAVar12 != (AIState_Base *)0x0) {
 
@@ -698,13 +698,13 @@ LAB_80066684:
 
   }
 
-  (this->_base_AIHigh_Base).state_ = pAVar6;
+  this->state_ = pAVar6;
 
-  (this->_base_AIHigh_Base).stateType_ = sVar7;
+  this->stateType_ = sVar7;
 
 switchD_80065ec8_caseD_4:
 
-  ((this->_base_AIHigh_Base).state_)->StateExecute();
+  (this->state_)->StateExecute();
 
   return;
 
@@ -724,9 +724,9 @@ AIHigh_Traffic::AIHigh_Traffic(Car_tObj *carObj)
 
 {
 
-  (new(&this->_base_AIHigh_Base) AIHigh_Base(carObj));
+  (new((AIHigh_Base *)this) AIHigh_Base(carObj));
 
-  (this->_base_AIHigh_Base)._vf = (__vtbl_ptr_type (*) [3])AIHigh_Traffic_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_Traffic_vtable;
 
   this->ignoreCops_ = 0;
 
@@ -842,9 +842,9 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 
       }
 
-      iVar5 = highLevelAIObjs[pCVar6->carIndex]->_base_AIHigh_Base.lastTrafficTriggerCheckSlice_;
+      iVar5 = highLevelAIObjs[pCVar6->carIndex]->lastTrafficTriggerCheckSlice_;
 
-      highLevelAIObjs[pCVar6->carIndex]->_base_AIHigh_Base.lastTrafficTriggerCheckSlice_ = iVar4;
+      highLevelAIObjs[pCVar6->carIndex]->lastTrafficTriggerCheckSlice_ = iVar4;
 
       slice = iVar4;
 

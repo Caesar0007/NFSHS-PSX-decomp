@@ -154,21 +154,21 @@ void AIHigh_StartUp(void)
 
           (new((AIHigh_BasicPerp *)pAVar1) AIHigh_BasicPerp(pCVar8));
 
-          (pAVar1->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base._vf =
+          (pAVar1)->_vf =
 
                (__vtbl_ptr_type (*) [3])&AIHigh_kVtbl_80054dcc;
 
-          (pAVar1->_base_AIHigh_BTC_Perp).caught_ = 1;
+          (pAVar1)->caught_ = 1;
 
           ppvVar2 = (void **)AIHigh_BTC_HumanPerp_vtable;
 
-          (pAVar1->_base_AIHigh_BTC_Perp).hudActivated_ = 0;
+          (pAVar1)->hudActivated_ = 0;
 
-          (pAVar1->_base_AIHigh_BTC_Perp).originalActivationCop_ = (AIHigh_BTC_HumanCop *)0x0;
+          (pAVar1)->originalActivationCop_ = (AIHigh_BTC_HumanCop *)0x0;
 
 LAB_8005af74:
 
-          (pAVar1->_base_AIHigh_BTC_Perp)._base_AIHigh_BasicPerp._base_AIHigh_Base._vf =
+          (pAVar1)->_vf =
 
                (__vtbl_ptr_type (*) [3])ppvVar2;
 
@@ -276,7 +276,7 @@ LAB_8005af74:
 
             pAVar3 = (new(pAVar3) AIHigh_Traffic(pCVar8));
 
-            *ppAVar14 = &pAVar3->_base_AIHigh_Base;
+            *ppAVar14 = (AIHigh_Base *)pAVar3;
 
           }
 

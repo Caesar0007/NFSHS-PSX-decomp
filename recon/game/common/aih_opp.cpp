@@ -37,17 +37,17 @@ void AIHigh_Opponent::CheckForWipeOut()
 
   if ((Cars_gNumCopCars != 0) &&
 
-     (((this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->wipeOutEndTick <=
+     ((this->carObj_)->wipeOutEndTick <=
 
       simGlobal.gameTicks)) {
 
     bVar1 = false;
 
-    if (((this->_base_AIHigh_Player)._base_AIHigh_BasicPerp.basicPerpInfo_.crime_ == 0) ||
+    if ((this->basicPerpInfo_.crime_ == 0) ||
 
-       ((this->_base_AIHigh_Player)._base_AIHigh_BasicPerp.basicPerpInfo_.copsAssigned_[0] +
+       (this->basicPerpInfo_.copsAssigned_[0] +
 
-        (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp.basicPerpInfo_.copsAssigned_[1] == 0)) {
+        this->basicPerpInfo_.copsAssigned_[1] == 0)) {
 
       bVar1 = true;
 
@@ -57,9 +57,9 @@ void AIHigh_Opponent::CheckForWipeOut()
 
        (0x27f < simGlobal.gameTicks -
 
-                ((this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->wipeOutEndTick)) {
+                (this->carObj_)->wipeOutEndTick)) {
 
-      Car_tObj *oppCar = (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+      Car_tObj *oppCar = this->carObj_;
 
       /* H24: reconstructed pre-loop roll + per-human-race-car wipe-out loop (oracle 0x800633AC-0x800634D8;
          recon had an EMPTY loop AND dropped the pre-loop conditional store -> wipe-out timer never re-armed). */
@@ -71,8 +71,8 @@ void AIHigh_Opponent::CheckForWipeOut()
         oppCar->wipeOutEndTick = simGlobal.gameTicks + 0xC0;      /* 0x800633EC-F8 */
       }
       iVar2 = 0;
-      if ((this->_base_AIHigh_Player).perpChaseInfo_.bestChaseLevelIndex_ !=
-          ((this->_base_AIHigh_Player).perpChaseInfo_.copGameInfo_)->numLevels + -1) {
+      if (this->perpChaseInfo_.bestChaseLevelIndex_ !=
+          (this->perpChaseInfo_.copGameInfo_)->numLevels + -1) {
         oppLevel = *(int *)((char *)this + 148);                  /* $t7, prologue */
         oppFines = *(int *)((char *)oppCar + 932);                /* $t6, prologue */
         for (hLoop = 0; hLoop < Cars_gNumHumanRaceCars; hLoop = hLoop + 1) {   /* 0x80063450 */
@@ -139,15 +139,15 @@ int AIHigh_Opponent::DoRearEnder()
 
   
 
-  iVar1 = AIScript_DoReAction(&((this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->script,0x100);
+  iVar1 = AIScript_DoReAction(&(this->carObj_)->script,0x100);
 
   if (iVar1 != -1) {
 
     pCVar6 = Cars_gList[iVar1];
 
-    iVar2 = AIWorld_SplineDistance(pCVar6,(this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_);
+    iVar2 = AIWorld_SplineDistance(pCVar6,this->carObj_);
 
-    pCVar4 = (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+    pCVar4 = this->carObj_;
 
     iVar2 = iVar2 * pCVar4->direction;
 
@@ -179,7 +179,7 @@ int AIHigh_Opponent::DoRearEnder()
 
   }
 
-  pCVar4 = (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+  pCVar4 = this->carObj_;
 
   if ((pCVar4->N).simOptz == '\0') {
 
@@ -211,9 +211,9 @@ int AIHigh_Opponent::DoRearEnder()
 
             (int)((u_int)*(u_char *)(iVar1 + 0x1f) * 0x8000 * (*(u_char *)(iVar1 + 0x1d) & 0xf)))) {
 
-          iVar1 = AIWorld_SplineDistance(pCVar4,(this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_);
+          iVar1 = AIWorld_SplineDistance(pCVar4,this->carObj_);
 
-          pCVar6 = (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+          pCVar6 = this->carObj_;
 
           iVar1 = iVar1 * pCVar6->direction;
 
@@ -233,7 +233,7 @@ int AIHigh_Opponent::DoRearEnder()
 
              ((iVar1 + 0x3ffffU < 0x7ffff &&
 
-              (pCVar6 = (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_,
+              (pCVar6 = this->carObj_,
 
               uVar3 = *(u_int *)(pCVar6->personality + 0x4c),
 
@@ -297,15 +297,15 @@ void AIHigh_Opponent::HighExecute()
 
   
 
-  switch((this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.stateType_) {
+  switch(this->stateType_) {
 
   case 0:
 
     pAVar1 = operator new(8);
 
-    pAVar2 = &(new(pAVar1) AIState_Normal((this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_))->_base_AIState_Base;
+    pAVar2 = &(new(pAVar1) AIState_Normal(this->carObj_))->_base_AIState_Base;
 
-    pAVar4 = (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.state_;
+    pAVar4 = this->state_;
 
     if (pAVar4 != (AIState_Base *)0x0) {
 
@@ -313,19 +313,19 @@ void AIHigh_Opponent::HighExecute()
 
     }
 
-    (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.state_ = pAVar2;
+    this->state_ = pAVar2;
 
-    (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.stateType_ = 2;
+    this->stateType_ = 2;
 
     return;
 
   case 2:
 
-    this->_base_AIHigh_Player.HandleCops();
+    this->HandleCops();
 
     this->CheckForWipeOut();
 
-    iVar5 = AIScript_DoReAction(&((this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->script,0x40);
+    iVar5 = AIScript_DoReAction(&(this->carObj_)->script,0x40);
 
     if (iVar5 == -1) {
 
@@ -373,13 +373,13 @@ LAB_800638c0:
 
       pAVar7 = operator new(0x94);
 
-      pAVar7 = (new(pAVar7) AIState_Chase((this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_,
+      pAVar7 = (new(pAVar7) AIState_Chase(this->carObj_,
 
                           Cars_gList[iVar5],&cStack_28,0x20,0x960000,0x960000,aggressionLevel,
 
                           0x10000));
 
-      pAVar2 = (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.state_;
+      pAVar2 = this->state_;
 
       if (pAVar2 != (AIState_Base *)0x0) {
 
@@ -387,9 +387,9 @@ LAB_800638c0:
 
       }
 
-      (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.state_ = &pAVar7->_base_AIState_Base;
+      this->state_ = &pAVar7->_base_AIState_Base;
 
-      (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.stateType_ = 4;
+      this->stateType_ = 4;
 
     }
 
@@ -397,9 +397,9 @@ LAB_800638c0:
 
   case 4:
 
-    pAVar7 = (AIState_Chase *)(this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.state_;
+    pAVar7 = (AIState_Chase *)this->state_;
 
-    this->_base_AIHigh_Player.HandleCops();
+    this->HandleCops();
 
     this->CheckForWipeOut();
 
@@ -409,7 +409,7 @@ LAB_800638c0:
 
     if (AVar3 == 2) {
 
-      iVar5 = AIScript_DoReAction(&((this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->script,0x40)
+      iVar5 = AIScript_DoReAction(&(this->carObj_)->script,0x40)
 
       ;
 
@@ -449,13 +449,13 @@ LAB_800638c0:
 
       }
 
-      ((this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_)->desiredDirection = iVar5;
+      (this->carObj_)->desiredDirection = iVar5;
 
       pAVar1 = operator new(8);
 
-      pAVar2 = &(new(pAVar1) AIState_Normal((this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_))->_base_AIState_Base;
+      pAVar2 = &(new(pAVar1) AIState_Normal(this->carObj_))->_base_AIState_Base;
 
-      pAVar4 = (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.state_;
+      pAVar4 = this->state_;
 
       if (pAVar4 != (AIState_Base *)0x0) {
 
@@ -463,9 +463,9 @@ LAB_800638c0:
 
       }
 
-      (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.state_ = pAVar2;
+      this->state_ = pAVar2;
 
-      (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.stateType_ = 2;
+      this->stateType_ = 2;
 
       this->attackMode_ = 0;
 
@@ -473,7 +473,7 @@ LAB_800638c0:
 
   }
 
-  ((this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.state_)->StateExecute();
+  (this->state_)->StateExecute();
 
   return;
 
@@ -493,9 +493,9 @@ AIHigh_Opponent::AIHigh_Opponent(Car_tObj *carObj)
 
 {
 
-  (new(&this->_base_AIHigh_Player) AIHigh_Player(carObj));
+  (new((AIHigh_Player *)this) AIHigh_Player(carObj));
 
-  (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base._vf =
+  this->_vf =
 
        (__vtbl_ptr_type (*) [3])AIHigh_Opponent_vtable;
 
@@ -536,7 +536,7 @@ int AIHigh_Opponent::DoProvokedAttack()
 
   
 
-  pCVar3 = (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+  pCVar3 = this->carObj_;
 
   if (((simGlobal.gameTicks - (pCVar3->N).collision.lastTime < 0xf) &&
 
@@ -552,7 +552,7 @@ int AIHigh_Opponent::DoProvokedAttack()
 
     }
 
-    pCVar2 = (this->_base_AIHigh_Player)._base_AIHigh_BasicPerp._base_AIHigh_Base.carObj_;
+    pCVar2 = this->carObj_;
 
     iVar1 = this->hitCount_ + 1;
 

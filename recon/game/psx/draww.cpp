@@ -693,174 +693,90 @@ void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd)
 /* ---- DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32  [DRAWW.CPP:802-894] SLD-VERIFIED ---- */
 void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 *vt0,CCOORD16 *vt1,
                CCOORD16 *vt2,CCOORD16 *vt3)
-
 {
-  long d;
+  /* @0x800C609C, 0x45C bytes -- GTE night / cop vertex-colour transform.
+   * Canonical PsyQ inline GTE macros (../../lib/psx_gte.h): each vertex is loaded
+   * (gte_ldv0), rotated (gte_rt = mvmva 1,0,0,0,0) and its lower MAC1-3 stored
+   * (gte_stlvnl) into one shared temp0 buffer; Night_NightCalc/NightCopCalc consume
+   * temp0 while the NEXT vertex rotates (software-pipelined, as in the handwritten
+   * oracle). Vertex colours come from Chunk_lightTable[vtN->light] as word stores;
+   * the quad's verts 2 and 3 are cross-fed (vt3 -> slot2, vt2 -> slot3). */
   VECTOR temp0;
-  VECTOR tempnight;
-  u_char uVar1;
-  u_char uVar2;
-  u_char uVar3;
-  u_char uVar4;
-  u_char uVar5;
-  u_char uVar6;
-  u_char uVar7;
-  u_char uVar8;
-  u_char uVar9;
-  u_char uVar10;
-  u_char uVar11;
-  long color;
-  CVECTOR CVar12;
-  long c;
-  CVECTOR *pCVar13;
-  long b;
-  CVECTOR *pCVar14;
-  VECTOR *pVVar15;
-  long a;
-  CVECTOR *pCVar16;
-  CCOORD16 *idx;
-  VECTOR tempcop;
-  
+  u_long CVar12;
+  CVECTOR *lt;
+
   if (sd->light == -1) {
-    idx = vt1;
     if ((sd->nightFlags & 1U) != 0) {
-gte_SetRotMatrix(((char *)sd + 0x34));
-gte_SetTransMatrix(((char *)sd + 0x34));
-gte_lwc2(0,*(int *)(vt0));
-      gte_lwc2(1,*(int *)(((char *)vt0 + 0x4)));
+      gte_SetRotMatrix((char *)sd + 0x34);
+      gte_SetTransMatrix((char *)sd + 0x34);
+      gte_ldv0(vt0);
       gte_rt();
-gte_swc2(0x19,&temp0);
-      gte_swc2(0x1a,((char *)&temp0 + 0x4));
-      gte_swc2(0x1b,((char *)&temp0 + 0x8));
-gte_lwc2(0,*(int *)(vt1));
-      gte_lwc2(1,*(int *)(((char *)vt1 + 0x4)));
+      gte_stlvnl(&temp0);
+      gte_ldv0(vt1);
       gte_rt();
-      a = (long)&vt0->light;
-      Night_NightCalc(&tempcop,(short *)a,sd);
-gte_swc2(0x19,&temp0);
-      gte_swc2(0x1a,((char *)&temp0 + 0x4));
-      gte_swc2(0x1b,((char *)&temp0 + 0x8));
-gte_lwc2(0,*(int *)(vt2));
-      gte_lwc2(1,*(int *)(((char *)vt2 + 0x4)));
+      Night_NightCalc(&temp0, &vt0->light, sd);
+      gte_stlvnl(&temp0);
+      gte_ldv0(vt2);
       gte_rt();
-      Night_NightCalc(&tempcop,&vt1->light,sd);
-gte_swc2(0x19,&temp0);
-      gte_swc2(0x1a,((char *)&temp0 + 0x4));
-      gte_swc2(0x1b,((char *)&temp0 + 0x8));
-gte_lwc2(0,*(int *)(vt3));
-      gte_lwc2(1,*(int *)(((char *)vt3 + 0x4)));
+      Night_NightCalc(&temp0, &vt1->light, sd);
+      gte_stlvnl(&temp0);
+      gte_ldv0(vt3);
       gte_rt();
-      Night_NightCalc(&tempcop,&vt2->light,sd);
-gte_swc2(0x19,&temp0);
-      gte_swc2(0x1a,((char *)&temp0 + 0x4));
-      gte_swc2(0x1b,((char *)&temp0 + 0x8));
-      Night_NightCalc(&tempcop,&vt3->light,sd);
+      Night_NightCalc(&temp0, &vt2->light, sd);
+      gte_stlvnl(&temp0);
+      Night_NightCalc(&temp0, &vt3->light, sd);
     }
     if ((sd->nightFlags & 2U) != 0) {
-gte_SetRotMatrix(((char *)sd + 0x54));
-gte_SetTransMatrix(((char *)sd + 0x54));
-gte_lwc2(0,*(int *)(vt0));
-      gte_lwc2(1,*(int *)(((char *)vt0 + 0x4)));
+      gte_SetRotMatrix((char *)sd + 0x54);
+      gte_SetTransMatrix((char *)sd + 0x54);
+      gte_ldv0(vt0);
       gte_rt();
-gte_swc2(0x19,&temp0);
-      gte_swc2(0x1a,((char *)&temp0 + 0x4));
-      gte_swc2(0x1b,((char *)&temp0 + 0x8));
-gte_lwc2(0,*(int *)(vt1));
-      gte_lwc2(1,*(int *)(((char *)vt1 + 0x4)));
+      gte_stlvnl(&temp0);
+      gte_ldv0(vt1);
       gte_rt();
-      Night_NightCopCalc(&tempcop,&idx->x);
-gte_swc2(0x19,&temp0);
-      gte_swc2(0x1a,((char *)&temp0 + 0x4));
-      gte_swc2(0x1b,((char *)&temp0 + 0x8));
-gte_lwc2(0,*(int *)(vt2));
-      gte_lwc2(1,*(int *)(((char *)vt2 + 0x4)));
+      Night_NightCopCalc(&temp0, &vt0->light);
+      gte_stlvnl(&temp0);
+      gte_ldv0(vt2);
       gte_rt();
-      Night_NightCopCalc(&tempcop,&idx->x);
-gte_swc2(0x19,&temp0);
-      gte_swc2(0x1a,((char *)&temp0 + 0x4));
-      gte_swc2(0x1b,((char *)&temp0 + 0x8));
-gte_lwc2(0,*(int *)(vt3));
-      gte_lwc2(1,*(int *)(((char *)vt3 + 0x4)));
+      Night_NightCopCalc(&temp0, &vt1->light);
+      gte_stlvnl(&temp0);
+      gte_ldv0(vt3);
       gte_rt();
-      Night_NightCopCalc(&tempcop,&idx->x);
-gte_swc2(0x19,&temp0);
-      gte_swc2(0x1a,((char *)&temp0 + 0x4));
-      gte_swc2(0x1b,((char *)&temp0 + 0x8));
-      Night_NightCopCalc(&tempcop,&idx->x);
+      Night_NightCopCalc(&temp0, &vt2->light);
+      gte_stlvnl(&temp0);
+      Night_NightCopCalc(&temp0, &vt3->light);
     }
-    pCVar16 = Chunk_lightTable + vt0->light;
-    pCVar14 = Chunk_lightTable + vt1->light;
-    pCVar13 = Chunk_lightTable + vt3->light;
-    uVar1 = pCVar16->g;
-    uVar2 = pCVar16->b;
-    uVar3 = pCVar16->cd;
-    uVar4 = pCVar14->r;
-    uVar5 = pCVar14->g;
-    uVar6 = pCVar14->b;
-    uVar7 = pCVar14->cd;
-    uVar8 = pCVar13->r;
-    uVar9 = pCVar13->g;
-    uVar10 = pCVar13->b;
-    uVar11 = pCVar13->cd;
-    CVar12 = Chunk_lightTable[vt2->light];
-    prim->r0 = pCVar16->r;
-    prim->g0 = uVar1;
-    prim->b0 = uVar2;
-    prim->code = uVar3;
-    prim->r1 = uVar4;
-    prim->g1 = uVar5;
-    prim->b1 = uVar6;
-    prim->p1 = uVar7;
-    prim->r2 = uVar8;
-    prim->g2 = uVar9;
-    prim->b2 = uVar10;
-    prim->p2 = uVar11;
+    lt = Chunk_lightTable;
+    *(u_long *)&prim->r0 = *(u_long *)&lt[vt0->light];
+    *(u_long *)&prim->r1 = *(u_long *)&lt[vt1->light];
+    *(u_long *)&prim->r2 = *(u_long *)&lt[vt3->light];
+    CVar12 = *(u_long *)&lt[vt2->light];
   }
   else {
     if ((sd->nightFlags & 1U) != 0) {
-gte_SetRotMatrix(((char *)sd + 0x34));
-gte_SetTransMatrix(((char *)sd + 0x34));
-gte_lwc2(0,*(int *)(vt0));
-      gte_lwc2(1,*(int *)(((char *)vt0 + 0x4)));
+      gte_SetRotMatrix((char *)sd + 0x34);
+      gte_SetTransMatrix((char *)sd + 0x34);
+      gte_ldv0(vt0);
       gte_rt();
-      pVVar15 = &tempcop;
-gte_swc2(0x19,&tempnight);
-      gte_swc2(0x1a,((char *)&tempnight + 0x4));
-      gte_swc2(0x1b,((char *)&tempnight + 0x8));
-      Night_NightCalc(pVVar15,&sd->light,sd);
+      gte_stlvnl(&temp0);
+      Night_NightCalc(&temp0, &sd->light, sd);
     }
     if ((sd->nightFlags & 2U) != 0) {
-gte_SetRotMatrix(((char *)sd + 0x54));
-gte_SetTransMatrix(((char *)sd + 0x54));
-gte_lwc2(0,*(int *)(vt0));
-      gte_lwc2(1,*(int *)(((char *)vt0 + 0x4)));
+      gte_SetRotMatrix((char *)sd + 0x54);
+      gte_SetTransMatrix((char *)sd + 0x54);
+      gte_ldv0(vt0);
       gte_rt();
-      pVVar15 = &tempcop;
-gte_swc2(0x19,&tempcop);
-      gte_swc2(0x1a,((char *)&tempcop + 0x4));
-      gte_swc2(0x1b,((char *)&tempcop + 0x8));
-      Night_NightCopCalc(pVVar15,&vt1->x);
+      gte_stlvnl(&temp0);
+      Night_NightCopCalc(&temp0, &sd->light);
     }
-    CVar12 = Chunk_lightTable[sd->light];
-    prim->r0 = CVar12.r;
-    prim->g0 = CVar12.g;
-    prim->b0 = CVar12.b;
-    prim->code = CVar12.cd;
-    prim->r1 = CVar12.r;
-    prim->g1 = CVar12.g;
-    prim->b1 = CVar12.b;
-    prim->p1 = CVar12.cd;
-    prim->r2 = CVar12.r;
-    prim->g2 = CVar12.g;
-    prim->b2 = CVar12.b;
-    prim->p2 = CVar12.cd;
+    CVar12 = *(u_long *)&Chunk_lightTable[sd->light];
+    *(u_long *)&prim->r0 = CVar12;
+    *(u_long *)&prim->r1 = CVar12;
+    *(u_long *)&prim->r2 = CVar12;
   }
-  prim->r3 = CVar12.r;
-  prim->g3 = CVar12.g;
-  prim->b3 = CVar12.b;
-  prim->p3 = CVar12.cd;
-gte_SetRotMatrix(((char *)sd + 0x14));
-gte_SetTransMatrix(((char *)sd + 0x14));
+  *(u_long *)&prim->r3 = CVar12;
+  gte_SetRotMatrix((char *)sd + 0x14);
+  gte_SetTransMatrix((char *)sd + 0x14);
   return;
 }
 

@@ -3,21 +3,17 @@
 #ifndef DRAWW_EXTERNS_H
 #define DRAWW_EXTERNS_H
 
-/* ---- GTE intrinsics (no-op symbolic; faithful cop2 source) ---- */
+/* ---- GTE intrinsics ---- */
+/* Real canonical PsyQ libgte inline COP2 macros (gte_ldv0/gte_rt/gte_stlvnl/
+ * gte_SetRotMatrix/gte_SetTransMatrix) are vendored in the shared header below.
+ * The remaining entries are still no-op stubs: the legacy gte_lwc2/gte_swc2
+ * value-form externs + the not-yet-migrated GTE ops, used by the rest of draww's
+ * far-miss GTE functions until the batch conversion. */
+#include "../../lib/psx_gte.h"
 extern void gte_rtps(void);
 extern void gte_rtpt(void);
 extern void gte_lwc2(int reg, int data);
 extern void gte_swc2(int reg, void *ptr);
-#define gte_SetRotMatrix(mp)    ((void)(mp))
-#if defined(__mips__)
-/* gte_SetTransMatrix(m): m->t[0..2] (offsets 0x14/0x18/0x1C) -> GTE ctrl 5/6/7; order lw,lw,ctc2,lw,ctc2,ctc2. */
-#define gte_SetTransMatrix(mp)  __asm__ volatile (                            \
-    "lw   $12, 20(%0)\n\tlw   $13, 24(%0)\n\tctc2 $12, $5\n\t"                 \
-    "lw   $14, 28(%0)\n\tctc2 $13, $6\n\tctc2 $14, $7"                         \
-    : : "r"(mp) : "$12", "$13", "$14")
-#else
-#define gte_SetTransMatrix(mp)  ((void)(mp))
-#endif
 #define gte_ldsv(p)             ((void)(p))
 #define gte_stsv(p)             ((void)(p))
 #define gte_stsxy(p)            ((void)(p))
@@ -35,7 +31,7 @@ extern void gte_swc2(int reg, void *ptr);
 #define gte_dpct(args...)           ((void)0)
 #define gte_ldsxy3(a,b,c)       ((void)0)
 #define gte_ldIR0(p)            ((void)(p))
-#define gte_rt(args...)             ((void)0)
+/* gte_rt() is now real (mvmva 1,0,0,0,0) -- see ../../lib/psx_gte.h */
 
 extern char *Render_gPacketPtr;
 extern char *Render_gPalettePtr;

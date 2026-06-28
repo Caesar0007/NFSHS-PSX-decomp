@@ -9,7 +9,7 @@
 
 /* Canonical PsyQ libgte inline COP2 macros (incl. the generic lone-store gte_swc2(reg,ptr))
    are vendored in psx_gte.h. Lone MAC3 / SZ1 / SZ2 stores here use that shared gte_swc2;
-   all GTE loads use the canonical gte_ldv*/gte_ldV* macros (no gte_lwc2 value-form remains). */
+   all GTE loads use the canonical gte_ldv / gte_ldV macros (no gte_lwc2 value-form remains). */
 /* Ghidra renders raw GTE COP2 ops as calls through a code-ptr to a HW address: (*(code*)0xADDR)().
    Typedef makes them compile; the faithful gte_ macros are applied in the per-fn BODY pass. */
 typedef void (code)(void);
@@ -25,7 +25,7 @@ extern char          *Render_gPalettePtr;
 extern char          *Render_gPacketEnd;
 extern short          Render_gPacketLenLo, Render_gPacketLenHi;
 extern MATRIX         Render_gWorldMat;
-extern MATRIX         Render_gCopMat;
+extern matrixtdef     Render_gCopMat;
 
 /* ---- camera / view ---- */
 extern long           Camera_gGeomScreen;

@@ -56,6 +56,9 @@
 #define gte_ldtr(r0,r1,r2) __asm__ volatile (                                  \
     "ctc2 %0, $5\n\tctc2 %1, $6\n\tctc2 %2, $7"                                 \
     : : "r"(r0), "r"(r1), "r"(r2))
+/* zero the translation vector directly via $zero (the hand-written `ctc2 $0,$5/6/7`
+ * the oracle uses -- gte_ldtr(0,0,0) would instead materialize 0 into 3 temps first). */
+#define gte_ldtr0()   __asm__ volatile ("ctc2 $0, $5\n\tctc2 $0, $6\n\tctc2 $0, $7")
 
 /* ---------- result stores (GTE data regs -> memory, via swc2) ---------- */
 #define gte_stlvnl(p) __asm__ volatile (                                       \
@@ -162,6 +165,7 @@
 #define gte_ldrgb3c(p)         ((void)(p))
 #define gte_ldsv(p)            ((void)(p))
 #define gte_ldtr(r0,r1,r2)     do { (void)(r0); (void)(r1); (void)(r2); } while (0)
+#define gte_ldtr0()            ((void)0)
 #define gte_stlvnl(p)          ((void)(p))
 #define gte_stlvnl0(p)         ((void)(p))
 #define gte_stlvnl1(p)         ((void)(p))

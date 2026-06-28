@@ -98,7 +98,7 @@ void Flare_SetMatrix(matrixtdef *m)
   r0 = mm[2] >> 4; r1 = mm[5] >> 4; r2 = mm[8] >> 4;
   mpsx.m[2][0] = (short)r0; mpsx.m[2][1] = (short)r1; mpsx.m[2][2] = (short)r2;
   gte_SetRotMatrix(&mpsx);
-  gte_ldtr(0,0,0);
+  gte_ldtr0();
 }
 
 /* ---- Flare_IdentMatrix__FP6MATRIX  [FLARE.CPP:196-202] SLD-VERIFIED ---- */
@@ -711,7 +711,7 @@ gte_swc2(0xe,&sp2);
       haloShape_p = (ti13 + iVar12_alt + lerp_q16 >> 1) << (scaledFactor & 0x1fU);
       gscale = haloShape_p;
       if ((flagsMasked & 1U) != 0) {
-        gte_ldtr(0,0,0);
+        gte_ldtr0();
 gte_ldv0(&crossprod);
         gte_rtps();
         v0 = (VECTOR *)&tvec1;

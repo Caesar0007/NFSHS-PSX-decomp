@@ -142,8 +142,8 @@ void Sky_InitStars(void)
   if (starPosInSky == (SVECTOR *)0x0) {
     seed = random();
     seedrandom(Sky_gTrackSpec->starRandomSeed);
-    starPosInSky = reservememadr("stars",Sky_gTrackSpec->numStars << 3,0);
-    starColors = reservememadr("starCols",Sky_gTrackSpec->numStars << 2,0);
+    starPosInSky = (SVECTOR *)reservememadr("stars",Sky_gTrackSpec->numStars << 3,0);
+    starColors = (CVECTOR *)reservememadr("starCols",Sky_gTrackSpec->numStars << 2,0);
     for (iVar8 = 0; iVar8 < Sky_gTrackSpec->numStars; iVar8 = iVar8 + 1) {
       uVar1 = random();
       uVar2 = random();
@@ -184,7 +184,7 @@ void Sky_KillStars(void)
   if (starPosInSky != (SVECTOR *)0x0) {
     purgememadr(starPosInSky);
   }
-  if (starColors != (u_long *)0x0) {
+  if (starColors != (CVECTOR *)0x0) {
     purgememadr(starColors);
   }
   starPosInSky = (SVECTOR *)0x0;
@@ -546,7 +546,7 @@ void Hrz_InitHorizon(void)
 {
   Hrz_gTrackSpec = &TrackSpec_gSpec.horizonspec;
   Sky_gTrackSpec = &TrackSpec_gSpec.skyspec;
-  gRngCoordTop = reservememadr("gRngCoordTop",0x88,0);
+  gRngCoordTop = (SVECTOR *)reservememadr("gRngCoordTop",0x88,0);
   Hrz_Init2DRing();
   if ((TrackSpec_gSpec.skyspec.flags & 0x10U) != 0) {
     Sky_InitStars();
@@ -593,7 +593,7 @@ void Hrz_LightningAddFork(char direction,char column,char row)
   gHrz_Lightning.forks[uVar4].pos.vx = column * 0xf;
   gHrz_Lightning.forks[uVar4].pos.vy = row * 0xf;
   if (uVar6 == 1) {
-    Hrz_LightningAddFork(-1,(char)((uVar5 - 1) * 0x1000000 >> 0x18),row + '\x01');
+    Hrz_LightningAddFork((char)-1,(char)((uVar5 - 1) * 0x1000000 >> 0x18),row + '\x01');
     Hrz_LightningAddFork('\x01',(char)((uVar5 + 1) * 0x1000000 >> 0x18),row + '\x01');
     bVar1 = 6;
   }
@@ -656,9 +656,9 @@ void Hrz_TextureQuad(DVECTOR *pt,char type,char bright,Draw_DCache *sd)
   u_char *prev_pkt;
   void *prim;
   
-  cur_pkt = Render_gPacketPtr;
+  cur_pkt = (u_char *)Render_gPacketPtr;
   prim = cur_pkt;
-  prev_pkt = Render_gPalettePtr;
+  prev_pkt = (u_char *)Render_gPalettePtr;
   *(u_int *)Render_gPacketPtr =
        *(u_int *)Render_gPacketPtr & 0xff000000 |
        *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
@@ -864,7 +864,7 @@ void Hrz_SetDitheringPrim(int dither,int otz)
   int loc_8;
   u_char *p;
   
-  p = Render_gPacketPtr;
+  p = (u_char *)Render_gPacketPtr;
   prev_pkt_slot = (u_int *)(Render_gPalettePtr + otz * 4);
   *(u_int *)Render_gPacketPtr = *(u_int *)Render_gPacketPtr & 0xff000000 | *prev_pkt_slot & 0xffffff;
   pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
@@ -972,8 +972,8 @@ void Hrz_BuildSky(void)
   do {
     tC4 = Sky_gTrackSpec;
     ti1 = Draw_gViewOtSize;
-    tp2 = Render_gPacketPtr;
-    tp3 = Render_gPalettePtr;
+    tp2 = (u_char *)Render_gPacketPtr;
+    tp3 = (u_char *)Render_gPalettePtr;
     prim = (POLY_GT4 *)tp2;
     if (0x3f < i) {
       if ((Sky_gTrackSpec->flags & 0x40U) != 0) {
@@ -1381,9 +1381,9 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
           Horizon_InterpolateLineSCoords(pDVar13,(DVECTOR *)((int)&Hrz_gProjScratch_9C + iVar15),
                      (DVECTOR *)((int)&DrawW_gChunkVtxBuf + iVar15),&fxOverlapPercentage,1,0);
           iVar6 = Draw_gViewOtSize;
-          p = Render_gPacketPtr;
+          p = (u_char *)Render_gPacketPtr;
     prim = (POLY_GT4 *)p;
-          puVar5 = Render_gPalettePtr;
+          puVar5 = (u_char *)Render_gPalettePtr;
           puVar14 = *(u_int **)((int)gpPmx + iVar15);
           tu9 = trans2.x;
           iVar8 = trans2.y;

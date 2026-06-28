@@ -174,17 +174,11 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
                Draw_SVertex *v2,Draw_SVertex *v3,short n,short subDivide)
 
 {
-  Draw_SubdivStruct * r_div;
   int midX_01;
-  int midX_12;
-  int midX_23;
-  int midX_center;
-  int midX_30;
   int newVert_y0;
   int newVert_y1;
   u_int tu1;
   int iVar1;
-  int midOTZ;
   int v0_00;
   int newVert_p;
   int newVert_p2;
@@ -289,70 +283,65 @@ gte_swc2(0x18,&bfct);
     return;
   }
   n_00 = n + 5;
-  midX_12 = (int)((u_int)(u_short)n << 0x10) >> 0xc;
-  v0_01 = (int)&gDiv.v[0].vx + midX_12;
-  midX_23 = (int)((u_int)(u_short)(n + 1) << 0x10) >> 0xc;
-  v0_02 = (int)&gDiv.v[0].vx + midX_23;
-  midX_30 = (int)((u_int)(u_short)(n + 2) << 0x10) >> 0xc;
-  v0_04 = (int)&gDiv.v[0].vx + midX_30;
-  midX_center = (int)((u_int)(u_short)(n + 3) << 0x10) >> 0xc;
-  v0_03 = (int)&gDiv.v[0].vx + midX_center;
-  midOTZ = (int)((u_int)(u_short)(n + 4) << 0x10) >> 0xc;
-  v0_00 = (int)&gDiv.v[0].vx + midOTZ;
+  v0_01 = (int)&gDiv.v[0].vx + ((int)((u_int)(u_short)n << 0x10) >> 0xc);
+  v0_02 = (int)&gDiv.v[0].vx + ((int)((u_int)(u_short)(n + 1) << 0x10) >> 0xc);
+  v0_04 = (int)&gDiv.v[0].vx + ((int)((u_int)(u_short)(n + 2) << 0x10) >> 0xc);
+  v0_03 = (int)&gDiv.v[0].vx + ((int)((u_int)(u_short)(n + 3) << 0x10) >> 0xc);
+  v0_00 = (int)&gDiv.v[0].vx + ((int)((u_int)(u_short)(n + 4) << 0x10) >> 0xc);
   DrawW_DivVertice((Draw_SVertex *)v0_01,v0,v1);
 gte_ldv0((int *)(v0_01));
   gte_rtps();
   DrawW_DivVertice((Draw_SVertex *)v0_02,v1,v2);
 gte_stflg(&flag);
   if (flag < 0) {
-    (&gDiv.v[0].a)[midX_12] = '\x01';
+    ((Draw_SVertex *)v0_01)->a = '\x01';
   }
   else {
-    (&gDiv.v[0].a)[midX_12] = '\0';
+    ((Draw_SVertex *)v0_01)->a = '\0';
   }
 gte_swc2(0xe,((char *)&CF_DVLC + 0x1));
 gte_ldv0((int *)(v0_02));
   gte_rtps();
   DrawW_DivVertice((Draw_SVertex *)v0_04,v2,v3);
-gte_stflg(&flag);
+gte_stflg(&loc_54);
   if (loc_54 < 0) {
-    (&gDiv.v[0].a)[midX_23] = '\x01';
+    ((Draw_SVertex *)v0_02)->a = '\x01';
   }
   else {
-    (&gDiv.v[0].a)[midX_23] = '\0';
+    ((Draw_SVertex *)v0_02)->a = '\0';
   }
 gte_swc2(0xe,((char *)&CF_DVLC + 0x1));
 gte_ldv0((int *)(v0_04));
   gte_rtps();
   DrawW_DivVertice((Draw_SVertex *)v0_03,v3,v0);
-gte_stflg(&flag);
+gte_stflg(&loc_50);
   if (loc_50 < 0) {
-    (&gDiv.v[0].a)[midX_30] = '\x01';
+    ((Draw_SVertex *)v0_04)->a = '\x01';
   }
   else {
-    (&gDiv.v[0].a)[midX_30] = '\0';
+    ((Draw_SVertex *)v0_04)->a = '\0';
   }
 gte_swc2(0xe,((char *)&CF_DVLC + 0x1));
 gte_ldv0((int *)(v0_03));
   gte_rtps();
   DrawW_DivVertice((Draw_SVertex *)v0_00,v0,v2);
-gte_stflg(&flag);
+gte_stflg(&loc_4c);
   if (loc_4c < 0) {
-    (&gDiv.v[0].a)[midX_center] = '\x01';
+    ((Draw_SVertex *)v0_03)->a = '\x01';
   }
   else {
-    (&gDiv.v[0].a)[midX_center] = '\0';
+    ((Draw_SVertex *)v0_03)->a = '\0';
   }
 gte_swc2(0xe,((char *)&CF_DVLC + 0x1));
   iVar1 = v0_00;
 gte_ldv0((int *)(iVar1));
   gte_rtps();
-gte_stflg(&flag);
+gte_stflg(&iStack_48);
   if (iStack_48 < 0) {
     *(u_char *)(iVar1 + 0xf) = 1;
   }
   else {
-    (&gDiv.v[0].a)[midOTZ] = '\0';
+    ((Draw_SVertex *)v0_00)->a = '\0';
   }
   if (sd->doublelayer == 0) goto DrawWSubdiv_recurse;
   (sd->GT4Prim).code = (sd->GT4Prim).code & 0xf7;
@@ -360,7 +349,7 @@ gte_stflg(&flag);
   subOtz_local = sd->otz + 8;
   if (v0->a == '\0') {
     if (v1->a == '\0') {
-      if ((&gDiv.v[0].a)[midX_12] == '\0') {
+      if (((Draw_SVertex *)v0_01)->a == '\0') {
         newVert_p = subOtz_local * 4 + (int)Render_gPalettePtr;
         *(u_int *)Render_gPacketPtr =
              *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)newVert_p & 0xffffff;
@@ -375,7 +364,7 @@ DrawWSubdiv_testV2:
     tp5 = Render_gPacketPtr;
     if (v2->a != '\0') goto DrawWSubdiv_testV3;
     if (v3->a == '\0') {
-      if ((&gDiv.v[0].a)[midX_30] == '\0') {
+      if (((Draw_SVertex *)v0_04)->a == '\0') {
         tp2 = (u_int *)(Render_gPalettePtr + subOtz_local * 4);
         *(u_int *)Render_gPacketPtr = *(u_int *)Render_gPacketPtr & 0xff000000 | *tp2 & 0xffffff;
         tu1 = (u_int)Render_gPacketPtr & 0xffffff;
@@ -391,7 +380,7 @@ DrawWSubdiv_testV1:
     tp4 = Render_gPacketPtr;
     if (v1->a != '\0') goto DrawWSubdiv_testV2;
     if (v2->a == '\0') {
-      if ((&gDiv.v[0].a)[midX_23] == '\0') {
+      if (((Draw_SVertex *)v0_02)->a == '\0') {
         newVert_p2 = subOtz_local * 4 + (int)Render_gPalettePtr;
         *(u_int *)Render_gPacketPtr =
              *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)newVert_p2 & 0xffffff;
@@ -404,7 +393,7 @@ DrawWSubdiv_testV1:
     }
 DrawWSubdiv_testV3:
     prim_00 = Render_gPacketPtr;
-    if (((v3->a == '\0') && (v0->a == '\0')) && ((&gDiv.v[0].a)[midX_center] == '\0')) {
+    if (((v3->a == '\0') && (v0->a == '\0')) && (((Draw_SVertex *)v0_03)->a == '\0')) {
       tp2 = (u_int *)(Render_gPalettePtr + subOtz_local * 4);
       *(u_int *)Render_gPacketPtr = *(u_int *)Render_gPacketPtr & 0xff000000 | *tp2 & 0xffffff;
       tu1 = (u_int)Render_gPacketPtr & 0xffffff;

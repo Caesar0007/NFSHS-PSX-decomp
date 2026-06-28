@@ -56,7 +56,7 @@ void tScreenTrophyInfo::DrawBackground()
   tDrawShapeExtended drawFlags;
   tDrawShapeExtended drawFlags2;
   
-  FadePartIITheRevenge = (int)(this->_base_tScreen).fScreenFadeVal;
+  FadePartIITheRevenge = (int)this->fScreenFadeVal;
   FadePartI = FadePartIITheRevenge + -0x40;
   FadePartIITheRevenge = FadePartIITheRevenge << 1;
   if (FadePartI < 0) {
@@ -123,9 +123,9 @@ void tScreenTrophyInfo::DrawBackground()
     word = TextSys_Word(ti_col);
     FETextRender_WordWrapHeight(0x15b,word);
   }
-  IsShapeFileLoaded(&this->_base_tScreen,&(this->_base_tScreen).fSwapShapes);
-  if ((this->_base_tScreen).fSwapShapes.fFile != (char *)0x0) {
-    UploadSwapShapes(&this->_base_tScreen,0x20);
+  ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
+  if (this->fSwapShapes.fFile != (char *)0x0) {
+    ::UploadSwapShapes((tScreen *)this,0x20);
   }
   r.x = 0x23;
   r.y = 0x2d;
@@ -133,7 +133,7 @@ void tScreenTrophyInfo::DrawBackground()
   r.h = 100;
   word = TextSys_Word(tournID + 0x367);
   FETextRender_WordWrapTextRGBJustify(word,&r,CalcFadeVal(0x505050,ti_fade),3,0,false);
-  drawFlags.custom_shapes = (this->_base_tScreen).fSwapShapes.fShapes;
+  drawFlags.custom_shapes = this->fSwapShapes.fShapes;
   ScaleShapeExtended(bannerXOff,0x600,0x46,-5,FadePartI,0,&drawFlags);
   i = 1;
   drawFlags2.tint[0] = this->BannerCol;

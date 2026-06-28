@@ -21,7 +21,7 @@ void tScreenCongrats::Cleanup()
 {
   
   CleanupSpinningCarsMenu();
-  this->_base_tScreen.Cleanup();
+  this->Cleanup();
   return;
 }
 
@@ -130,12 +130,12 @@ void tScreenCongrats::DrawBackground()
   tDrawShapeExtended drawFlags2;
   tDrawShapeExtended drawFlags3;
   
-  drawFlags.custom_shapes = (this->_base_tScreen).fSwapShapes.fShapes;
-  drawFlags2.custom_shapes = (this->_base_tScreen).fSwapShapes.fShapes;
-  vtbl = (this->_base_tScreen)._vf;
+  drawFlags.custom_shapes = this->fSwapShapes.fShapes;
+  drawFlags2.custom_shapes = this->fSwapShapes.fShapes;
+  vtbl = this->_vf;
   StripeRGB = (int)vtbl[1][1].delta;
   carRotate = carRotate + 3;
-  (*vtbl[1][1].pfn)((this->_base_tScreen).fPermShapes.fFilename + StripeRGB + -0x14);
+  (*vtbl[1][1].pfn)(this->fPermShapes.fFilename + StripeRGB + -0x14);
   trophyClass = (tTrophyClass)this->trophy;
   if ((((trophyClass == kTrophyCar) && (this->starttick == -1)) ||
       ((this->fGotCar == 0 && (trophyClass == kTrophyCar)))) ||
@@ -160,14 +160,14 @@ void tScreenCongrats::DrawBackground()
       }
       i = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],fadeAmt);
       j = CalcFadeVal(0x232323,fadeAmt);
-      FETextRender_MenuTextFade((int)(this->_base_tScreen).fScreenFadeVal,0x317,textState_Hilighted,textType_TrackRecords
+      FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x317,textState_Hilighted,textType_TrackRecords
                 );
       wordX = TextSys_WordX(0x318);
       wordY = TextSys_WordY(0x318);
       DrawMoney
                 (wordX,wordY,6,this->CashAwarded,i,j);
       FETextRender_MenuTextFade
-                ((int)(this->_base_tScreen).fScreenFadeVal,0x316,textState_Hilighted,textType_TrackRecords
+                ((int)this->fScreenFadeVal,0x316,textState_Hilighted,textType_TrackRecords
                 );
       wordX = TextSys_WordX(0x319);
       wordY = TextSys_WordY(0x319);
@@ -294,7 +294,7 @@ DrawBgCongrats_emitShape:
       if (i != (j - (i >> 0x1f)) * 3) {
         DrawShapeExtended    /* @0x80048840 loop1 idx=bannerframe flags=0x410 x=i*2 y=0 */
                   (bannerframe,0x410,i * 2,0,
-                   (int)(this->_base_tScreen).fScreenFadeVal,1,&drawFlags3);
+                   (int)this->fScreenFadeVal,1,&drawFlags3);
       }
       i = i + 1;
       j = i / 3 + (i >> 0x1f);
@@ -306,7 +306,7 @@ DrawBgCongrats_emitShape:
       if (i != ((int)carInfo - (i >> 0x1f)) * 3) {
         DrawShapeExtended    /* loop2/3 idx=bannerframe flags=0x410 x=i*2 y=0 (@0x800488a4/0x80048910) */
                   (bannerframe,0x410,i * 2,0,
-                   (int)(this->_base_tScreen).fScreenFadeVal,1,&drawFlags3);
+                   (int)this->fScreenFadeVal,1,&drawFlags3);
       }
       i = i + 1;
       carShape = (tCarInfo *)(i / 3 + (i >> 0x1f));
@@ -320,7 +320,7 @@ DrawBgCongrats_emitShape:
       if (i != ((int)carInfo - (i >> 0x1f)) * 3) {
         DrawShapeExtended    /* loop2/3 idx=bannerframe flags=0x410 x=i*2 y=0 (@0x800488a4/0x80048910) */
                   (bannerframe,0x410,i * 2,0,
-                   (int)(this->_base_tScreen).fScreenFadeVal,1,&drawFlags3);
+                   (int)this->fScreenFadeVal,1,&drawFlags3);
       }
       i = i + 1;
       carShape = (tCarInfo *)(i / 3 + (i >> 0x1f));
@@ -382,11 +382,11 @@ void tScreenCongrats::Initialize()
   this->InExtraSpin = 0;
   this->fEnterTick = tick;
   SetLicensePlate();
-  vtbl = (this->_base_tScreen)._vf;
-  (*vtbl[1][0].pfn)((this->_base_tScreen).fPermShapes.fFilename + vtbl[1][0].delta + -0x14);
-  vtbl = (this->_base_tScreen)._vf;
+  vtbl = this->_vf;
+  (*vtbl[1][0].pfn)(this->fPermShapes.fFilename + vtbl[1][0].delta + -0x14);
+  vtbl = this->_vf;
   tick = (*vtbl[1][2].pfn)
-                    ((this->_base_tScreen).fPermShapes.fFilename + vtbl[1][2].delta + -0x14,
+                    (this->fPermShapes.fFilename + vtbl[1][2].delta + -0x14,
                      &this->fCarInfo);
   cashAwarded = this->CashAwarded;
   this->fGotCar = tick;
@@ -404,7 +404,7 @@ void tScreenCongrats::Initialize()
     cashAwarded = cashAwarded >> 6;
   }
   this->fCountSpeed = cashAwarded;
-  this->_base_tScreen.Initialize();
+  this->Initialize();
   return;
 }
 
@@ -449,7 +449,7 @@ void tScreenPinkSlipCongrats::DrawCongratsMessage()
   if ((byte)frontEnd.language - 2 < 2) {
     fmt = TextSys_Word(0x275);
     name1 = PlayerName((int)this->fWinner);
-    word = TextSys_Word((this->_base_tScreenCongrats).fCarInfo.fCarID + 0x121);
+    word = TextSys_Word(this->fCarInfo.fCarID + 0x121);
     r = (RECT *)(int)this->fWinner;
     name2 = PlayerName(1 - (int)r);
   }
@@ -458,7 +458,7 @@ void tScreenPinkSlipCongrats::DrawCongratsMessage()
     name1 = PlayerName((int)this->fWinner);
     r = (RECT *)(int)this->fWinner;
     word = PlayerName(1 - (int)r);
-    name2 = TextSys_Word((this->_base_tScreenCongrats).fCarInfo.fCarID + 0x121);
+    name2 = TextSys_Word(this->fCarInfo.fCarID + 0x121);
   }
   fmt = (char *)sprintf
                              (buffer,fmt,name1,word,name2,this->fWinner + 1);
@@ -489,30 +489,30 @@ void tScreenPinkSlipCongrats::CalculatePrizes()
   short winner;
   
   winner = this->fWinner;
-  (this->_base_tScreenCongrats).trophy = kTrophyCar;
-  (this->_base_tScreenCongrats).smallSpinningThing = kSpinningMemCard;
+  this->trophy = kTrophyCar;
+  this->smallSpinningThing = kSpinningMemCard;
   winner = this->fWinner;
-  (this->_base_tScreenCongrats).TotalCash = 0;
-  (this->_base_tScreenCongrats).CashAwarded = -1;
-  (this->_base_tScreenCongrats).congratsMessage = kScreenCongrats_Congrats;
+  this->TotalCash = 0;
+  this->CashAwarded = -1;
+  this->congratsMessage = kScreenCongrats_Congrats;
   player = 1 - winner;
-  (this->_base_tScreenCongrats).fCarPlayer = 1 - winner;
+  this->fCarPlayer = 1 - winner;
   CarIO_CleanUpLicense(player);
   CarIO_CreateLicense((char *)((int)&frontEnd + (1 - player) * 8 + 900),0,player);
-  vtbl = (this->_base_tScreenCongrats)._base_tScreen._vf;
+  vtbl = this->_vf;
   (*vtbl[1][2].pfn)
-            ((this->_base_tScreenCongrats)._base_tScreen.fPermShapes.fFilename +
+            (this->fPermShapes.fFilename +
              vtbl[1][2].delta + -0x14,&carinfo);
   if (carinfo.fSpeechCarID == -1) {
-    (this->_base_tScreenCongrats).fSpeechToPlay = this->fWinner + 0x17;
+    this->fSpeechToPlay = this->fWinner + 0x17;
   }
   else {
-    (this->_base_tScreenCongrats).fSpeechToPlay = carinfo.fSpeechCarID * 2 + this->fWinner + 0x13;
+    this->fSpeechToPlay = carinfo.fSpeechCarID * 2 + this->fWinner + 0x13;
   }
-  (this->_base_tScreenCongrats).fCarX = 0x116;
-  (this->_base_tScreenCongrats).fCarY = 0x4b;
-  (this->_base_tScreenCongrats).fCarCX = 4.0;
-  (this->_base_tScreenCongrats).fCarCY = -7.4;
+  this->fCarX = 0x116;
+  this->fCarY = 0x4b;
+  this->fCarCX = 4.0;
+  this->fCarCY = -7.4;
   return;
 }
 
@@ -527,7 +527,7 @@ void tScreenPinkSlipCongrats::Initialize()
   else {
     this->fWinner = 1;
   }
-  this->_base_tScreenCongrats.Initialize();
+  this->Initialize();
   return;
 }
 
@@ -537,7 +537,7 @@ void tScreenPinkSlipCongrats::Cleanup()
 {
   
   CleanupSpinningCarsMenu();
-  this->_base_tScreenCongrats._base_tScreen.Cleanup();
+  this->Cleanup();
   return;
 }
 
@@ -552,11 +552,11 @@ tScreenPinkSlipCongrats::~tScreenPinkSlipCongrats()
 void tScreenTournamentTrophy::ProcessInput(tPlayer p,tInputKeyType &keyval,tMenuCommand &c)
 
 {
-  if ((keyval == kInput_KeyType_Cross) && ((this->_base_tScreenCongrats).fCountedDown == 0)) {
+  if ((keyval == kInput_KeyType_Cross) && (this->fCountedDown == 0)) {
     keyval = kInput_KeyType_AlreadyProcessed;
-    (this->_base_tScreenCongrats).fStartCountdownNOW = 1;
+    this->fStartCountdownNOW = 1;
   }
-  this->_base_tScreenCongrats.ProcessInput(p,keyval,c);
+  this->ProcessInput(p,keyval,c);
   return;
 }
 
@@ -567,7 +567,7 @@ int tScreenTournamentTrophy::GetCar(tCarInfo &carInfo)
   tCarInfo *srcCar;
   tAwardInformation tInfo;
   
-  if ((this->_base_tScreenCongrats).congratsMessage == kScreenCongrats_Congrats) {
+  if (this->congratsMessage == kScreenCongrats_Congrats) {
     GetAwardInformation(&tournamentManager,&tInfo);
     srcCar = GetCarFromID(&carManager, (u_short)tInfo.fAwardCarModel);
     blockmove(srcCar,&carInfo,0xcc);
@@ -604,7 +604,7 @@ void tScreenTournamentTrophy::DrawCongratsMessage()
   r.y = 0x3c;
   r.w = 200;
   r.h = 400;
-  if ((this->_base_tScreenCongrats).congratsMessage != kScreenCongrats_Congrats) {
+  if (this->congratsMessage != kScreenCongrats_Congrats) {
     firstmessage = TextSys_WordY(800);
     word = TextSys_Word(800);
     FETextRender_FullTextRGB(word,0x120,(short)((uint)((firstmessage + -10) * 0x10000) >> 0x10),0x414141,'\x03',2);
@@ -616,7 +616,7 @@ void tScreenTournamentTrophy::DrawCongratsMessage()
            (uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset +
            tournamentManager.fTournament;
   if (tournamentManager.fPrevBestPlacement < '\x04') goto DrawCongrats_inlinedJoin084;
-  trophyClass = (tTrophyClass)(this->_base_tScreenCongrats).trophy;
+  trophyClass = (tTrophyClass)this->trophy;
   firstmessage = tourneyInfo->fTournamentID + 0x3b3;
   if (trophyClass == kTrophySilver) {
     placeoffset = 1;
@@ -638,7 +638,7 @@ DrawCongrats_inlinedJoin048:
   word2 = TextSys_Word(placeoffset + 0x3e1);
   sprintf(buffer1,word,word2);
 DrawCongrats_inlinedJoin084:
-  trophyClass = (tTrophyClass)(this->_base_tScreenCongrats).trophy;
+  trophyClass = (tTrophyClass)this->trophy;
   if (((trophyClass == kTrophyGold) && (tournamentManager.fPrevBestPlacement != '\x01')) ||
      (trophyClass == kTrophyCar)) {
     if (firstmessage == 0) {
@@ -691,9 +691,9 @@ void tScreenTournamentTrophy::CalculatePrizes()
   int place;
   tAwardInformation tInfo;
   
-  (this->_base_tScreenCongrats).congratsMessage = kScreenCongrats_Eliminated;
-  (this->_base_tScreenCongrats).trophy = kTrophyNone;
-  (this->_base_tScreenCongrats).smallSpinningThing = kSpinningMemCard;
+  this->congratsMessage = kScreenCongrats_Eliminated;
+  this->trophy = kTrophyNone;
+  this->smallSpinningThing = kSpinningMemCard;
   GetAwardInformation(&tournamentManager,&tInfo);
   def = tournamentManager.fDefinition;
   place = 900;
@@ -714,50 +714,50 @@ void tScreenTournamentTrophy::CalculatePrizes()
   }
   if (place == 1) {
     if (tInfo.fAwardCar == 0) {
-      (this->_base_tScreenCongrats).trophy = kTrophyGold;
-      (this->_base_tScreenCongrats).smallSpinningThing = kSpinningNone;
+      this->trophy = kTrophyGold;
+      this->smallSpinningThing = kSpinningNone;
     }
     else {
-      (this->_base_tScreenCongrats).trophy = kTrophyCar;
-      (this->_base_tScreenCongrats).smallSpinningThing = kSpinningGold;
+      this->trophy = kTrophyCar;
+      this->smallSpinningThing = kSpinningGold;
     }
-    (this->_base_tScreenCongrats).fSpeechToPlay = 0xf;
-    (this->_base_tScreenCongrats).congratsMessage = kScreenCongrats_Congrats;
+    this->fSpeechToPlay = 0xf;
+    this->congratsMessage = kScreenCongrats_Congrats;
   }
   else {
     if (((place < 1) || (3 < place)) || (def->fTournaments[tourIndex].fKnockout != '\0')) {
-      (this->_base_tScreenCongrats).congratsMessage = kScreenCongrats_Eliminated;
+      this->congratsMessage = kScreenCongrats_Eliminated;
       trophyClass = kTrophyCar;
     }
     else {
-      (this->_base_tScreenCongrats).fSpeechToPlay = place + 0xe;
+      this->fSpeechToPlay = place + 0xe;
       trophyClass = kTrophyBronze;
-      (this->_base_tScreenCongrats).congratsMessage = kScreenCongrats_Congrats;
+      this->congratsMessage = kScreenCongrats_Congrats;
       if (place == 2) {
         trophyClass = kTrophySilver;
       }
     }
-    (this->_base_tScreenCongrats).trophy = trophyClass;
-    (this->_base_tScreenCongrats).smallSpinningThing = kSpinningNone;
+    this->trophy = trophyClass;
+    this->smallSpinningThing = kSpinningNone;
   }
-  (this->_base_tScreenCongrats).fCarPlayer = 0;
+  this->fCarPlayer = 0;
   money = tournamentManager.fMoney;
-  (this->_base_tScreenCongrats).TotalCash = tournamentManager.fMoney;
+  this->TotalCash = tournamentManager.fMoney;
   if (tInfo.fCompletedGarageFull != 0) {
-    (this->_base_tScreenCongrats).TotalCash = money - tInfo.fCompletedBonusMoney;
+    this->TotalCash = money - tInfo.fCompletedBonusMoney;
   }
   if (tInfo.fTournMoney == 0) {
     tInfo.fTournMoney = -1;
   }
-  (this->_base_tScreenCongrats).CashAwarded = tInfo.fTournMoney;
-  (this->_base_tScreenCongrats).fCarX = 0x116;
-  (this->_base_tScreenCongrats).fCarY = 0x3f;
-  (this->_base_tScreenCongrats).fCarCY = -7.4;
-  (this->_base_tScreenCongrats).fCarCX = 4.0;
-  if ((this->_base_tScreenCongrats).congratsMessage == kScreenCongrats_Eliminated) {
-    (this->_base_tScreenCongrats).fCarX = 0x120;
-    (this->_base_tScreenCongrats).fCarY = 0x49;
-    (this->_base_tScreenCongrats).fCarCY = -8.2;
+  this->CashAwarded = tInfo.fTournMoney;
+  this->fCarX = 0x116;
+  this->fCarY = 0x3f;
+  this->fCarCY = -7.4;
+  this->fCarCX = 4.0;
+  if (this->congratsMessage == kScreenCongrats_Eliminated) {
+    this->fCarX = 0x120;
+    this->fCarY = 0x49;
+    this->fCarCY = -8.2;
   }
   return;
 }
@@ -786,12 +786,12 @@ void tScreenBeTheCopCongrats::CalculatePrizes()
 
 {
   
-  this->_base_tScreenCongrats.CalculatePrizes();
-  (this->_base_tScreenCongrats).trophy = kTrophyCar;
-  (this->_base_tScreenCongrats).fCarX = 0x116;
-  (this->_base_tScreenCongrats).fCarY = 0x4b;
-  (this->_base_tScreenCongrats).fCarCX = 4.0;
-  (this->_base_tScreenCongrats).fCarCY = -7.4;
+  this->CalculatePrizes();
+  this->trophy = kTrophyCar;
+  this->fCarX = 0x116;
+  this->fCarY = 0x4b;
+  this->fCarCX = 4.0;
+  this->fCarCY = -7.4;
   return;
 }
 
@@ -814,10 +814,10 @@ void tScreenBeTheCopCongrats::DrawCongratsMessage()
   }
   padState = PAD_state(4);
   if ((padState & 0xffff) != 0) {
-    TextSys_Word((this->_base_tScreenCongrats).fCarInfo.fCarID + 0x121);
+    TextSys_Word(this->fCarInfo.fCarID + 0x121);
   }
   fmt = TextSys_Word(wordnum);
-  copWord = TextSys_Word((this->_base_tScreenCongrats).fCarInfo.fCarID + 0x121);
+  copWord = TextSys_Word(this->fCarInfo.fCarID + 0x121);
   fmt = (char *)sprintf(buffer,fmt,copWord);
   FETextRender_WordWrapText(fmt,r,fade,textType_PostGame);
   return;
@@ -851,18 +851,18 @@ void tScreenTournamentCongrats::CalculatePrizes()
   tAwardInformation tInfo;
   
   GetAwardInformation(&tournamentManager,&tInfo);
-  this->_base_tScreenCongrats.CalculatePrizes();
-  (this->_base_tScreenCongrats).trophy = kTrophyCar;
-  (this->_base_tScreenCongrats).TotalCash = tournamentManager.fMoney;
+  this->CalculatePrizes();
+  this->trophy = kTrophyCar;
+  this->TotalCash = tournamentManager.fMoney;
   cash = -1;
   if (tInfo.fCompletedGarageFull != 0) {
     cash = tInfo.fCompletedBonusMoney;
   }
-  (this->_base_tScreenCongrats).CashAwarded = cash;
-  (this->_base_tScreenCongrats).fCarX = 0x116;
-  (this->_base_tScreenCongrats).fCarY = 0x4b;
-  (this->_base_tScreenCongrats).fCarCX = 4.0;
-  (this->_base_tScreenCongrats).fCarCY = -7.4;
+  this->CashAwarded = cash;
+  this->fCarX = 0x116;
+  this->fCarY = 0x4b;
+  this->fCarCX = 4.0;
+  this->fCarCY = -7.4;
   return;
 }
 

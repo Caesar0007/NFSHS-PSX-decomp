@@ -29,7 +29,7 @@ void tScreenUserName::Initialize()
       idx = i * 0x10000;
     } while (i * 0x10000 >> 0x10 < (int)menu_kUserNameRows);
   }
-  this->_base_tScreen.Initialize();
+  this->Initialize();
   return;
 }
 

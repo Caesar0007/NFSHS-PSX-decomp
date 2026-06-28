@@ -44,10 +44,10 @@ void tScreenTrackSelect::DrawBackground()
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
   this->UpdateBrightness(trackInfo);
   this->UpdateVideoWall(trackInfo);
-  IsShapeFileLoaded(&this->_base_tScreen,&(this->_base_tScreen).fSwapShapes);
-  if ((((this->_base_tScreen).fSwapShapes.fFile != (char *)0x0) &&
+  ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
+  if (((this->fSwapShapes.fFile != (char *)0x0) &&
       ((this->fVideoWall).fTransitionDirection != -1)) && (this->fBrightness == 0)) {
-    UploadSwapShapes(&this->_base_tScreen,10);
+    ::UploadSwapShapes((tScreen *)this,10);
     TurnOn(&this->fVideoWall);
   }
   frameEven = (this->fFrame & 1U) == 0;
@@ -195,7 +195,7 @@ void tScreenTrackSelect::Initialize()
   r.h = 0x100;
   ClearImage(&r,'\0','\0','\0');
   DrawSync(0);
-  this->_base_tScreen.Initialize();
+  this->Initialize();
   sprintf
             (moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],(int)trackInfo.fTrackID);
   iVar1 = VIDEO_create(0xa0,0x80,0xf0000,0x2c000,0x10);
@@ -204,9 +204,9 @@ void tScreenTrackSelect::Initialize()
   this_00 = &this->fVideoWall;
   VIDEO_startplayback(this->hVideo);
   this->fFrame = 0;
-  ::Initialize(this_00,this->tvConfigs,(this->_base_tScreen).fSwapShapes.fShapes,0,10,tvOrder,0x96);
+  ::Initialize(this_00,this->tvConfigs,this->fSwapShapes.fShapes,0,10,tvOrder,0x96);
   SetAvailableText(this_00,0xf8,0x140,0x50);
-  SetAvailableIcon(this_00,0x26,10,0x136,0x3c,(this->_base_tScreen).fPermShapes.fShapes);
+  SetAvailableIcon(this_00,0x26,10,0x136,0x3c,this->fPermShapes.fShapes);
   this->fBrightness = 0;
   this->fDestBrightness = 0;
   this->fTVsInitialized = 0;
@@ -227,7 +227,7 @@ void tScreenTrackSelect::Cleanup()
   
   VIDEO_destroy(this->hVideo);
   purgememadr((void *)this->hVideo);
-  this->_base_tScreen.Cleanup();
+  this->Cleanup();
   return;
 }
 
@@ -293,7 +293,7 @@ void tScreenTrackSelect::UpdateVideoWall(tTrackInformation &trackInfo)
 {
   
   if ((int)(signed char)trackInfo.fTrackID != (int)this->fPreviousTrack) {
-    AsyncLoadSwapShapeFile(&this->_base_tScreen,trackInfo.fShapeName);
+    ::AsyncLoadSwapShapeFile((tScreen *)this,trackInfo.fShapeName);
     this->fTVsInitialized = 0;
     this->fPreviousTrack = (short)(signed char)trackInfo.fTrackID;
     TurnOff(&this->fVideoWall);
@@ -316,16 +316,16 @@ void tScreenTrackSelect::DrawVideoWall()
   FETextRender_MenuTextPositionedJustify
             (trackInfo.fSpeedoCountry + 0x43,0x1de,0x21,1,textState_Unselected,textType_TrackRecords
             );
-  DrawBackgroundImage(&this->_base_tScreen,0,0x1c,(this->_base_tScreen).fPermShapes.fShapes,0x96);
+  ::DrawBackgroundImage((tScreen *)this,0,0x1c,this->fPermShapes.fShapes,0x96);
   PSXDrawTransSquare(0,0x140,0x1e,0xa0,10,1);
   FeDraw_SetABRMode(0);
-  if ((((this->_base_tScreen).fSwapShapes.fFlags & 1) != 0) && (this->fTVsInitialized == 0)) {
+  if (((this->fSwapShapes.fFlags & 1) != 0) && (this->fTVsInitialized == 0)) {
     SetAvailable(&this->fVideoWall,(ushort)trackInfo.fAvailable);
     UpdateImages(&this->fVideoWall);
     this->fTVsInitialized = 1;
   }
-  UpdateTransition(&this->fVideoWall);
-  Draw(&this->fVideoWall);
+  ::UpdateTransition(&this->fVideoWall);
+  ::Draw(&this->fVideoWall);
   return;
 }
 

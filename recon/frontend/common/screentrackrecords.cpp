@@ -24,7 +24,7 @@ void tScreenTrackRecords::Initialize()
   tRecordBuffer *recs;
   
   this->flareextra = 0;
-  this->_base_tScreen.Initialize();
+  this->Initialize();
   recs = (tRecordBuffer *)reservememadr("trkrcrds",0x168,0x10);
   this->TrackRecords = recs;
   nShowTrack = Front_GetTrackRaced();
@@ -41,7 +41,7 @@ void tScreenTrackRecords::Cleanup()
   purgememadr(this->TrackRecords);
   this->TrackRecords = (tRecordBuffer *)0x0;
   StatChk_ClearNewRecords();
-  this->_base_tScreen.Cleanup();
+  this->Cleanup();
   return;
 }
 
@@ -203,7 +203,7 @@ void tScreenTrackRecords::DrawBackground()
   char string2 [50];
   tDrawShapeExtended drawflags;
   
-  fadeCalc = (this->_base_tScreen).fScreenFadeVal * 0x134;
+  fadeCalc = this->fScreenFadeVal * 0x134;
   if (fadeCalc < 0) {
     fadeCalc = fadeCalc + 0x7f;
   }
@@ -250,15 +250,15 @@ void tScreenTrackRecords::DrawBackground()
   TextSys_WordY(0x255);
   DrawShapeExtended
             ((int)this,shapeFlags,shapeX,shapeY,
-             (int)(this->_base_tScreen).fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+             (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
   TextSys_WordY(0x255);
   DrawShapeExtended
             ((int)this,shapeFlags,shapeX,shapeY,
-             (int)(this->_base_tScreen).fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+             (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
   drawflags.tint[0] = 0x505050;
   DrawShapeExtended
             ((int)this,shapeFlags,shapeX,shapeY,
-             (int)(this->_base_tScreen).fScreenFadeVal,0,&drawflags);
+             (int)this->fScreenFadeVal,0,&drawflags);
   for (fade = 0; ColTextBright = (int)fade, ColTextBright < 3; fade = fade + 1) {
     wy = TextSys_WordX(ColTextBright + 0x24c);
     word = TextSys_Word(ColTextBright + 0x252);
@@ -289,7 +289,7 @@ void tScreenTrackRecords::DrawBackground()
     clampTmp = TextSys_WordY(0x260);
     PSXDrawSquare(0x232323,fadeCalc + -6,clampTmp + -1,2,8);
   }
-  DrawBackgroundImage(&this->_base_tScreen,0xb,0x1b,gCurrentShapes,0);
+  ::DrawBackgroundImage((tScreen *)this,0xb,0x1b,gCurrentShapes,0);
   return;
 }
 

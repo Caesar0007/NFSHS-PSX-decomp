@@ -519,7 +519,7 @@ void tScreenMemcard::SetEnablings()
         DontChangeEnablings = true;
       }
       i = i + 1;
-      walk = (tScreenMemcard *)((int)&(walk->_base_tScreen).fPermShapes.fShapes + 2);
+      walk = (tScreenMemcard *)((int)&(walk)->fPermShapes.fShapes + 2);
     } while (i < cardInfo->numfiles);
   }
   if (CURRENTLYUSINGMEMCARD != 0) {
@@ -580,7 +580,7 @@ void tScreenMemcard::DrawBackground()
     this->theNFS4icon = -1;
   }
   systemtask(0);
-  fScreenFade = (uint)(ushort)(this->_base_tScreen).fScreenFadeVal;
+  fScreenFade = (uint)(ushort)this->fScreenFadeVal;
   gray = fScreenFade * 2 + -0x80;
   fade = (short)gray;
   gray = gray * 0x10000 >> 0x10;
@@ -608,7 +608,7 @@ void tScreenMemcard::DrawBackground()
     gray = 0;
   }
   if (this->fInitedMemCard == 0) {
-    fadeVal0 = (this->_base_tScreen).fScreenFadeVal;
+    fadeVal0 = this->fScreenFadeVal;
     this->fMemCardMessageTextSys = 0x27c;
     if ((fadeVal0 == 0) && (0x80 < ticks - this->fScreenFadeReadyTick)) {
       Init_Memcard(true,0);
@@ -620,7 +620,7 @@ void tScreenMemcard::DrawBackground()
         this->numblock[i] = '\0';
         walk->fFadeIcon[0] = 0x80;
         i = i + 1;
-        walk = (tScreenMemcard *)((int)&(walk->_base_tScreen).fPermShapes.fShapes + 2);
+        walk = (tScreenMemcard *)((int)&(walk)->fPermShapes.fShapes + 2);
       } while (i < 0xf);
       this->fInitedMemCard = 1;
     }
@@ -728,7 +728,7 @@ void tScreenMemcard::DrawForeground()
   int shapeY;
   int fade_tmp;
   
-  fade_tmp = (uint)(ushort)(this->_base_tScreen).fScreenFadeVal * 2 + -0x80;
+  fade_tmp = (uint)(ushort)this->fScreenFadeVal * 2 + -0x80;
   fade = (short)fade_tmp;
   k = fade_tmp * 0x10000 >> 0x10;
   if ((k < 0x80) && (k < 1)) {
@@ -750,7 +750,7 @@ void tScreenMemcard::DrawForeground()
 tScreenMemcard::tScreenMemcard()
 
 {
-  (this->_base_tScreen)._vf = (__vtbl_ptr_type (*)[10])tScreenMemcard_vtable;
+  this->_vf = (__vtbl_ptr_type (*)[10])tScreenMemcard_vtable;
   this->message = -1;
   this->card = 1;
   return;
@@ -834,14 +834,14 @@ void tScreenMemcard::Initialize()
     walk->fFadeIcon[0] = 0x80;
     walk->fMemIconClutId[0] = 0;
     i = i + 1;
-    walk = (tScreenMemcard *)((int)&(walk->_base_tScreen).fPermShapes.fShapes + 2);
+    walk = (tScreenMemcard *)((int)&(walk)->fPermShapes.fShapes + 2);
   } while (i < 0xf);
   this->fInitedMemCard = 0;
   this->fGetNewIcons = 0;
   this->fReadyToGetNewIcons = 0;
   this->theNFS4icon = -1;
   this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 0;
-  this->_base_tScreen.Initialize();
+  this->Initialize();
   return;
 }
 
@@ -861,7 +861,7 @@ void tScreenMemcard::Cleanup()
   (menus->itemLoadGame).fFlags =
        (menus->itemLoadGame).fFlags & 0xfffffffe;
   purgememadr(iconTable);
-  this->_base_tScreen.Cleanup();
+  this->Cleanup();
   return;
 }
 

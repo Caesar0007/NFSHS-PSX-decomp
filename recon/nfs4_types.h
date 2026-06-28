@@ -3696,8 +3696,7 @@ struct tActiveLine {   /* 12 bytes */
     short              data;   /* +0xA */
 };
 
-struct tDialogBase {   /* 144 bytes */
-    tScreen            _base_tScreen;   /* +0x0 */
+struct tDialogBase : public tScreen {   /* 144 bytes */
     short              specificPlayer, left, top, width, height, reservedheight;   /* +0x64 */
     BOOL               currentlyOn;   /* +0x70 */
     long               startTicks, timeOutTicks;   /* +0x74 */
@@ -3721,8 +3720,7 @@ struct tDialogBase {   /* 144 bytes */
 
 };
 
-struct tDialogMessageString {   /* 152 bytes */
-    tDialogBase        _base_tDialogBase;   /* +0x0 */
+struct tDialogMessageString : public tDialogBase {   /* 152 bytes */
     char               *string;   /* +0x90 */
     BOOL               Centerit;   /* +0x94 */
     /* FEDialog methods */
@@ -3732,16 +3730,14 @@ struct tDialogMessageString {   /* 152 bytes */
 
 };
 
-struct tDialogInteractive {   /* 160 bytes */
-    tDialogMessageString _base_tDialogMessageString;   /* +0x0 */
+struct tDialogInteractive : public tDialogMessageString {   /* 160 bytes */
     BOOL               ReadyToReturnValue, fCurrentlyRunning;   /* +0x98 */
     /* FEDialog methods */
     short Run();
 
 };
 
-struct tDialogYesNo {   /* 168 bytes */
-    tDialogInteractive _base_tDialogInteractive;   /* +0x0 */
+struct tDialogYesNo : public tDialogInteractive {   /* 168 bytes */
     int                yesnowords[2];   /* +0xA0 */
     /* FEDialog methods */
     void CalculateDimensions();
@@ -4406,8 +4402,7 @@ struct tDrawShapeExtended {   /* 24 bytes */
     tTexture_ShapeInfo *custom_shapes;   /* +0x14 */
 };
 
-struct tDialogHelp {   /* 212 bytes */
-    tDialogBase        _base_tDialogBase;   /* +0x0 */
+struct tDialogHelp : public tDialogBase {   /* 212 bytes */
     short              variant;   /* +0x90 */
     char               *text[7];   /* +0x94 */
     int                cont[7];   /* +0xB0 */
@@ -4420,13 +4415,11 @@ struct tDialogHelp {   /* 212 bytes */
 
 };
 
-struct tDialogMessageStringWithTimeout {   /* 152 bytes */
-    tDialogMessageString _base_tDialogMessageString;   /* +0x0 */
+struct tDialogMessageStringWithTimeout : public tDialogMessageString {   /* 152 bytes */
     ~tDialogMessageStringWithTimeout();   /* @0x80015760 -- vtable slot 4 (M10) */
 };
 
-struct tDialogNoInputMessage {   /* 152 bytes */
-    tDialogMessageString _base_tDialogMessageString;   /* +0x0 */
+struct tDialogNoInputMessage : public tDialogMessageString {   /* 152 bytes */
     /* FEDialog methods */
     void ProcessInput(tPlayer atPlayer,tInputKeyType &keyval, tMenuCommand &command);
     ~tDialogNoInputMessage();
@@ -4937,8 +4930,7 @@ struct FE3d_zObj {   /* 32 bytes */
     FE3d_zFacet        *facet;   /* +0x1C */
 };
 
-struct tScreenUserName {   /* 204 bytes */
-    tScreen            _base_tScreen;   /* +0x0 */
+struct tScreenUserName : public tScreen {   /* 204 bytes */
     tOptionsMenu       *callingMenu;   /* +0x64 */
     short              fTextFade;   /* +0x68 */
     BOOL               fInTransition;   /* +0x6C */
@@ -4952,8 +4944,7 @@ struct tScreenUserName {   /* 204 bytes */
     ~tScreenUserName();
 };
 
-struct tScreenTournamentStandings {   /* 148 bytes */
-    tScreen            _base_tScreen;   /* +0x0 */
+struct tScreenTournamentStandings : public tScreen {   /* 148 bytes */
     long               moneyFinal, moneyAwarded, moneyDamage, moneyBonus;   /* +0x64 */
     int                starttick;   /* +0x74 */
     BOOL               gotmoney, gotbonus, gotbilled, fDrawMoney, fCountedDown, fStartCountdownNOW;   /* +0x78 */
@@ -4968,8 +4959,7 @@ struct tScreenTournamentStandings {   /* 148 bytes */
     ~tScreenTournamentStandings();
 };
 
-struct tScreenTournamentStandings3item {   /* 148 bytes */
-    tScreenTournamentStandings _base_tScreenTournamentStandings;   /* +0x0 */
+struct tScreenTournamentStandings3item : public tScreenTournamentStandings {   /* 148 bytes */
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
     ~tScreenTournamentStandings3item();
 };
@@ -4991,24 +4981,21 @@ struct SPEECHINFO {   /* 36 bytes */
     int                vivHandle;   /* +0x20 */
 };
 
-struct tDialogBackUpOnly {   /* 152 bytes */
-    tDialogMessageString _base_tDialogMessageString;   /* +0x0 */
+struct tDialogBackUpOnly : public tDialogMessageString {   /* 152 bytes */
     /* FEDialog methods */
     int ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval, tMenuCommand &command);
     ~tDialogBackUpOnly();
 
 };
 
-struct tDialogYesNoMem {   /* 168 bytes */
-    tDialogYesNo       _base_tDialogYesNo;   /* +0x0 */
+struct tDialogYesNoMem : public tDialogYesNo {   /* 168 bytes */
     /* FEDialog methods */
     void ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command );
     ~tDialogYesNoMem();
 
 };
 
-struct tDialogYesNoTri {   /* 168 bytes */
-    tDialogYesNo       _base_tDialogYesNo;   /* +0x0 */
+struct tDialogYesNoTri : public tDialogYesNo {   /* 168 bytes */
     /* FEDialog methods */
     void ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command );
     ~tDialogYesNoTri();
@@ -5049,8 +5036,7 @@ struct tHelpData {   /* 18 bytes */
     helpKeyData        items[4];   /* +0x2 */
 };
 
-struct tScreenControllerConfig {   /* 380 bytes */
-    tScreen            _base_tScreen;   /* +0x0 */
+struct tScreenControllerConfig : public tScreen {   /* 380 bytes */
     Force_tGlobal      fShaker;   /* +0x64 */
     char               fPrevConfig, fTextConfig, fTextController, fPrevController;   /* +0x6C */
     short              fFade[2], fFadeController[2];   /* +0x70 */
@@ -5138,8 +5124,7 @@ struct tListIteratorMultiPlayer : public tListIterator {   /* 16 bytes */
 
 };
 
-struct tScreenMain {   /* 1464 bytes */
-    tScreen            _base_tScreen;   /* +0x0 */
+struct tScreenMain : public tScreen {   /* 1464 bytes */
     int                hVideo, fFrame;   /* +0x64 */
     u_long             fStartTicks, fAnimTicks;   /* +0x6C */
     short              fAnimLocation;   /* +0x74 */
@@ -5212,8 +5197,7 @@ struct tOverlay {   /* 24 bytes */
     short              transition, delta, direction, ID;   /* +0x10 */
 };
 
-struct tScreenCarSelect {   /* 928 bytes */
-    tScreen            _base_tScreen;   /* +0x0 */
+struct tScreenCarSelect : public tScreen {   /* 928 bytes */
     tOverlay           fOverlays[7];   /* +0x64 */
     tOverlay           *fCurrentOverlays[4];   /* +0x10C */
     short              fState, fPreviousCar, fPreviousCarID, fPreviousCountry;   /* +0x11C */
@@ -5249,8 +5233,7 @@ struct tScreenCarSelect {   /* 928 bytes */
     void DrawForeground();
 };
 
-struct tScreenCarSelectDuel {   /* 976 bytes */
-    tScreenCarSelect   _base_tScreenCarSelect;   /* +0x0 */
+struct tScreenCarSelectDuel : public tScreenCarSelect {   /* 976 bytes */
     short              fPreviousOpponent;   /* +0x3A0 */
     BOOL               fOpponentTVsInitialized;   /* +0x3A4 */
     tShapeInformation  fOpponentShapes;   /* +0x3A8 */
@@ -5271,8 +5254,7 @@ struct tScreenCarSelectDuel {   /* 976 bytes */
     void DrawForeground();
 };
 
-struct tScreenCarSelectTwoPlayer {   /* 1080 bytes */
-    tScreenCarSelect   _base_tScreenCarSelect;   /* +0x0 */
+struct tScreenCarSelectTwoPlayer : public tScreenCarSelect {   /* 1080 bytes */
     tDialogBackUpOnly  CarDialog;   /* +0x3A0 */
     /* --- reconstructed member fns (TwoPlayer) --- */
     ~tScreenCarSelectTwoPlayer();
@@ -5290,8 +5272,7 @@ struct tScreenCarSelectTwoPlayer {   /* 1080 bytes */
     void Cleanup();
 };
 
-struct tScreenPinkSlipsCarSelect {   /* 1100 bytes */
-    tScreenCarSelectTwoPlayer _base_tScreenCarSelectTwoPlayer;   /* +0x0 */
+struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {   /* 1100 bytes */
     int                waitfordialog;   /* +0x438 */
     CARDINFO_def       *pCI;   /* +0x43C */
     int                fStartCheckTick;   /* +0x440 */
@@ -5309,8 +5290,7 @@ struct tScreenPinkSlipsCarSelect {   /* 1100 bytes */
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
 };
 
-struct tScreenTournSelect {   /* 712 bytes */
-    tScreen            _base_tScreen;   /* +0x0 */
+struct tScreenTournSelect : public tScreen {   /* 712 bytes */
     int                hVideo, fFrame;   /* +0x64 */
     tTVConfig          tvConfigs[8];   /* +0x6C */
     tTVConfig          trophyTV[4];   /* +0x1EC */
@@ -5332,15 +5312,13 @@ struct tScreenTournSelect {   /* 712 bytes */
     void DrawForeground();
 };
 
-struct tScreenPinkSlipStandings {   /* 148 bytes */
-    tScreenTournamentStandings3item _base_tScreenTournamentStandings3item;   /* +0x0 */
+struct tScreenPinkSlipStandings : public tScreenTournamentStandings3item {   /* 148 bytes */
     void DrawBackground();
     int ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* returns menu-cmd value */
     ~tScreenPinkSlipStandings();
 };
 
-struct tScreenTrophyRoom {   /* 344 bytes */
-    tScreen            _base_tScreen;   /* +0x0 */
+struct tScreenTrophyRoom : public tScreen {   /* 344 bytes */
     tShapeInformation  fTrophyShapes;   /* +0x64 */
     short              fNumTrophies;   /* +0x8C */
     int                startTicks;   /* +0x90 */
@@ -5367,8 +5345,7 @@ struct tScreenTrophyRoom {   /* 344 bytes */
     void LoadTrophy();
 };
 
-struct tScreenTrophyInfo {   /* 104 bytes */
-    tScreen            _base_tScreen;   /* +0x0 */
+struct tScreenTrophyInfo : public tScreen {   /* 104 bytes */
     int                BannerCol;   /* +0x64 */
     /* --- reconstructed member fns (ScreenTrophyInfo.obj; non-virtual, ABI-neutral) --- */
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
@@ -5376,16 +5353,14 @@ struct tScreenTrophyInfo {   /* 104 bytes */
     ~tScreenTrophyInfo();
 };
 
-struct tScreenDisplay {   /* 100 bytes */
-    tScreen            _base_tScreen;   /* +0x0 */
+struct tScreenDisplay : public tScreen {   /* 100 bytes */
     /* --- reconstructed member fns (ScreenDisplay.obj; non-virtual, ABI-neutral) --- */
     void DrawBackground();
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
     ~tScreenDisplay();
 };
 
-struct tScreenAudio {   /* 124 bytes */
-    tScreen            _base_tScreen;   /* +0x0 */
+struct tScreenAudio : public tScreen {   /* 124 bytes */
     short              fShapeCount;   /* +0x64 */
     char               prevAudioMode;   /* +0x66 */
     short              audioTest;   /* +0x68 */
@@ -5405,8 +5380,7 @@ struct tScreenAudio {   /* 124 bytes */
     ~tScreenAudio();
 };
 
-struct tScreenMemcard {   /* 1444 bytes */
-    tScreen            _base_tScreen;   /* +0x0 */
+struct tScreenMemcard : public tScreen {   /* 1444 bytes */
     int                theNFS4icon, card;   /* +0x64 */
     CARDINFO_def       *pCI;   /* +0x6C */
     char               fMemTitle[15][32];   /* +0x70 */
@@ -5442,8 +5416,7 @@ struct tScreenMemcard {   /* 1444 bytes */
     ~tScreenMemcard();
 };
 
-struct tScreenCongrats {   /* 388 bytes */
-    tScreen            _base_tScreen;   /* +0x0 */
+struct tScreenCongrats : public tScreen {   /* 388 bytes */
     int                congratsMessage, trophy, smallSpinningThing, fNumSpinShapes, fNumSmallSpinShapes, fCarPlayer;   /* +0x64 */
     long               TotalCash, CashAwarded;   /* +0x7C */
     int                framenum, starttick;   /* +0x84 */
@@ -5468,8 +5441,7 @@ struct tScreenCongrats {   /* 388 bytes */
     ~tScreenCongrats();
 };
 
-struct tScreenTournamentTrophy {   /* 392 bytes */
-    tScreenCongrats    _base_tScreenCongrats;   /* +0x0 */
+struct tScreenTournamentTrophy : public tScreenCongrats {   /* 392 bytes */
     short              fShapeCount;   /* +0x184 */
     char               fDoUpdate;   /* +0x186 */
     void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);
@@ -5479,8 +5451,7 @@ struct tScreenTournamentTrophy {   /* 392 bytes */
     ~tScreenTournamentTrophy();
 };
 
-struct tScreenPinkSlipCongrats {   /* 392 bytes */
-    tScreenCongrats    _base_tScreenCongrats;   /* +0x0 */
+struct tScreenPinkSlipCongrats : public tScreenCongrats {   /* 392 bytes */
     short              fWinner;   /* +0x184 */
     void DrawCongratsMessage();
     int GetCar(tCarInfo &car);
@@ -5490,24 +5461,21 @@ struct tScreenPinkSlipCongrats {   /* 392 bytes */
     ~tScreenPinkSlipCongrats();
 };
 
-struct tScreenBeTheCopCongrats {   /* 388 bytes */
-    tScreenCongrats    _base_tScreenCongrats;   /* +0x0 */
+struct tScreenBeTheCopCongrats : public tScreenCongrats {   /* 388 bytes */
     int GetCar(tCarInfo &car);
     void CalculatePrizes();
     void DrawCongratsMessage();
     ~tScreenBeTheCopCongrats();
 };
 
-struct tScreenTournamentCongrats {   /* 388 bytes */
-    tScreenCongrats    _base_tScreenCongrats;   /* +0x0 */
+struct tScreenTournamentCongrats : public tScreenCongrats {   /* 388 bytes */
     int GetCar(tCarInfo &car);
     void CalculatePrizes();
     void DrawCongratsMessage();
     ~tScreenTournamentCongrats();
 };
 
-struct tScreenTrackRecords {   /* 116 bytes */
-    tScreen            _base_tScreen;   /* +0x0 */
+struct tScreenTrackRecords : public tScreen {   /* 116 bytes */
     tRecordBuffer      *TrackRecords;   /* +0x64 */
     int                flare_intensity, flareextra;   /* +0x68 */
     BOOL               fReadNewData;   /* +0x70 */
@@ -5521,8 +5489,7 @@ struct tScreenTrackRecords {   /* 116 bytes */
     ~tScreenTrackRecords();
 };
 
-struct tScreenTrackSelect {   /* 672 bytes */
-    tScreen            _base_tScreen;   /* +0x0 */
+struct tScreenTrackSelect : public tScreen {   /* 672 bytes */
     int                hVideo, fFrame;   /* +0x64 */
     short              fPreviousTrack, fMovieTrack, fBrightness, fDestBrightness, fStartBrightness;   /* +0x6C */
     u_long             fStartTicks;   /* +0x78 */
@@ -5544,8 +5511,7 @@ struct tScreenTrackSelect {   /* 672 bytes */
     ~tScreenTrackSelect();
 };
 
-struct tScreenTrackInfo {   /* 676 bytes */
-    tScreen            _base_tScreen;   /* +0x0 */
+struct tScreenTrackInfo : public tScreen {   /* 676 bytes */
     tTrackInfo         fTrack;   /* +0x64 */
     tTVConfig          tvConfigs[10];   /* +0x8C */
     tVideoWall         fVideoWall;   /* +0x26C */
@@ -5557,8 +5523,7 @@ struct tScreenTrackInfo {   /* 676 bytes */
     ~tScreenTrackInfo();
 };
 
-struct tScreenPinkSlips {   /* 712 bytes */
-    tScreen            _base_tScreen;   /* +0x0 */
+struct tScreenPinkSlips : public tScreen {   /* 712 bytes */
     tMenu              *fMenu;   /* +0x64 */
     int                hVideo, fFrame;   /* +0x68 */
     short              fPreviousTrack, fBrightness, fDestBrightness, fStartBrightness;   /* +0x70 */

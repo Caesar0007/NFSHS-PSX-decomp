@@ -44,7 +44,7 @@ tScreenTournamentStandings::tScreenTournamentStandings()
   /* base subobject _base_tScreen is constructed implicitly by g++ -> jal __7tScreen */
 {
 
-  (this->_base_tScreen)._vf = (__vtbl_ptr_type (*)[10])tScreenTournamentStandings_vtable;
+  this->_vf = (__vtbl_ptr_type (*)[10])tScreenTournamentStandings_vtable;
   this->fDrawMoney = 0;
   return;
 }
@@ -60,7 +60,7 @@ void tScreenTournamentStandings::Initialize()
   int max_money;
   tAwardInformation tInfo;
   
-  this->_base_tScreen.Initialize();
+  this->Initialize();
   GetAwardInformation(&tournamentManager,&tInfo);
   this->gotmoney = 0;
   this->gotbonus = 0;
@@ -111,7 +111,7 @@ void tScreenTournamentStandings::Cleanup()
 
 {
   this->fDrawMoney = 0;
-  this->_base_tScreen.Cleanup();
+  this->Cleanup();
   return;
 }
 
@@ -201,7 +201,7 @@ void tScreenTournamentStandings::DrawBackground()
   int iStack_34;
   int iStack_30;
   
-  iVar9 = (int)(this->_base_tScreen).fScreenFadeVal;
+  iVar9 = (int)this->fScreenFadeVal;
   iVar8 = 0x2fe;
   tourneyInfo = (tournamentManager.fDefinition)->fTournaments +
                 (uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset
@@ -284,12 +284,12 @@ void tScreenTournamentStandings::DrawBackground()
     wobble = width - wobble;
   }
   DrawShapeExtended(0x28,0,lbx + wobble,TextSys_WordY(0x2fc) + 1,
-             (int)(this->_base_tScreen).fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+             (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
   DrawShapeExtended(0x28,0,lbx - wobble,TextSys_WordY(0x2fc) + 1,
-             (int)(this->_base_tScreen).fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+             (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
   drawflags.tint[0] = 0x282828;
   DrawShapeExtended(0x27,0x400,0,-1,
-             (int)(this->_base_tScreen).fScreenFadeVal,0,&drawflags);
+             (int)this->fScreenFadeVal,0,&drawflags);
   iVar7 = TextSys_WordX(0x2f6);
   iVar8 = TextSys_WordY(0x2fd);
   iVar8 = iVar8 + 10;
@@ -353,7 +353,7 @@ void tScreenTournamentStandings::DrawBackground()
   DrawMoney(iVar9,iVar6,9,
              ((this->moneyFinal - this->moneyAwarded) + this->moneyDamage) - this->moneyBonus,colf,
              iVar8);
-  DrawBackgroundImage(&this->_base_tScreen,10,0x1d,gCurrentShapes,0);
+  ::DrawBackgroundImage((tScreen *)this,10,0x1d,gCurrentShapes,0);
   return;
 }
 
@@ -386,7 +386,7 @@ void tScreenPinkSlipStandings::DrawBackground()
   char string [30];
   
   wwwww = 0x2fe;
-  iVar7 = (int)(this->_base_tScreenTournamentStandings3item)._base_tScreenTournamentStandings._base_tScreen.
+  iVar7 = (int)this->
                fScreenFadeVal;
   for (i = 0; textState = textState_Hilighted,
       (int)i < (int)(uint)(byte)frontEnd.pinkSlipsNumTracks; i = i + 1) {
@@ -396,7 +396,7 @@ void tScreenPinkSlipStandings::DrawBackground()
     GetTrack(&trackManager,(ushort)(byte)frontEnd.track[i],&trackInfo);
     iVar1 = TextSys_WordX(0x2f7);
     iVar2 = TextSys_WordY(wwwww);
-    FETextRender_MenuTextPositionedJustifyFade((int)(this->_base_tScreenTournamentStandings3item)._base_tScreenTournamentStandings._base_tScreen.
+    FETextRender_MenuTextPositionedJustifyFade((int)this->
                     fScreenFadeVal,trackInfo.fTrackID + 0xd5,(short)iVar1,(short)iVar2,0,textState,
                textType_TrackRecords);
     if (frontEnd.pinkSlipsWinner[i] == -1) {
@@ -450,15 +450,15 @@ void tScreenPinkSlipStandings::DrawBackground()
   }
   drawflags.tint[0] = 0x282828;
   DrawShapeExtended(0x28,0,lbx + wobble,TextSys_WordY(0x2fc) + 1,
-             (int)(this->_base_tScreenTournamentStandings3item)._base_tScreenTournamentStandings._base_tScreen.
+             (int)this->
                   fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
   DrawShapeExtended(0x28,0,lbx - wobble,TextSys_WordY(0x2fc) + 1,
-             (int)(this->_base_tScreenTournamentStandings3item)._base_tScreenTournamentStandings._base_tScreen.
+             (int)this->
                   fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
   DrawShapeExtended(0x27,0x400,0,-1,
-             (int)(this->_base_tScreenTournamentStandings3item)._base_tScreenTournamentStandings._base_tScreen.
+             (int)this->
                   fScreenFadeVal,0,&drawflags);
-  DrawBackgroundImage((tScreen *)this,10,0x1d,gCurrentShapes,0);
+  ::DrawBackgroundImage((tScreen *)this,10,0x1d,gCurrentShapes,0);
   return;
 }
 
@@ -507,7 +507,7 @@ tScreenTournamentStandings::~tScreenTournamentStandings()
   tTrackInformation trackInfo;
   char string [30];
   
-  tScreen_dtor(&this->_base_tScreen);
+  tScreen_dtor((tScreen *)this);
   return;
 }
 

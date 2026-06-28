@@ -76,11 +76,11 @@ void tScreenTrackInfo::DrawBackground()
              textType_ScreenInfo);
   FETextRender_MenuTextPositionedJustify
             (trackInfo->fSpeedoCountry + 0x43,0x1de,0x21,1,textState_Unselected,textType_TrackRecords);
-  DrawBackgroundImage(&this->_base_tScreen,0,0x21,(this->_base_tScreen).fPermShapes.fShapes,0);
+  ::DrawBackgroundImage((tScreen *)this,0,0x21,this->fPermShapes.fShapes,0);
   PSXDrawTransSquare(0,0x140,0x1e,0xa0,10,1);
   FeDraw_SetABRMode(0);
-  UpdateTransition(&this->fVideoWall);
-  Draw(&this->fVideoWall);
+  ::UpdateTransition(&this->fVideoWall);
+  ::Draw(&this->fVideoWall);
   return;
 }
 
@@ -88,8 +88,8 @@ void tScreenTrackInfo::DrawBackground()
 void tScreenTrackInfo::Initialize()
 
 {
-  this->_base_tScreen.Initialize();
-  ::Initialize(&this->fVideoWall,this->tvConfigs,(this->_base_tScreen).fSwapShapes.fShapes,0,10,tvOrder,0);
+  this->Initialize();
+  ::Initialize(&this->fVideoWall,this->tvConfigs,this->fSwapShapes.fShapes,0,10,tvOrder,0);
   UpdateImages(&this->fVideoWall);
   TurnOn(&this->fVideoWall);
   return;

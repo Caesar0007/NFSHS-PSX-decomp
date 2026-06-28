@@ -113,31 +113,31 @@ int Confirm(int Text,int yesText)
   tDialogYesNoMem MyDialog;
   
   BringThatBeatBack();
-  tDialogYesNo_ctor(&MyDialog._base_tDialogYesNo);
-  MyDialog._base_tDialogYesNo._base_tDialogInteractive._base_tDialogMessageString._base_tDialogBase._base_tScreen._vf =
+  tDialogYesNo_ctor((tDialogYesNo *)&MyDialog);
+  MyDialog._vf =
        (__vtbl_ptr_type (*)[10])tDialogYesNoMem_vtable;
-  bVar1 = (FEApp[0]->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.currentlyOn != 0;
+  bVar1 = (FEApp[0]->NoInputMemCardDialog).currentlyOn != 0;
   if (bVar1) {
     Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
   }
-  MyDialog._base_tDialogYesNo._base_tDialogInteractive._base_tDialogMessageString.string =
+  MyDialog.string =
        TextSys_Word(Text);
-  MyDialog._base_tDialogYesNo.yesnowords[1] = 0x292;
-  MyDialog._base_tDialogYesNo._base_tDialogInteractive._base_tDialogMessageString._base_tDialogBase.fDefault = 0;
+  MyDialog.yesnowords[1] = 0x292;
+  MyDialog.fDefault = 0;
   if (frontEnd.language == '\x03') {
-    MyDialog._base_tDialogYesNo._base_tDialogInteractive._base_tDialogMessageString._base_tDialogBase.OffsetX = 0;
-    MyDialog._base_tDialogYesNo._base_tDialogInteractive._base_tDialogMessageString._base_tDialogBase.OffsetY = 10;
+    MyDialog.OffsetX = 0;
+    MyDialog.OffsetY = 10;
   }
-  MyDialog._base_tDialogYesNo.yesnowords[0] = yesText;
-  sVar4 = Run(&MyDialog._base_tDialogYesNo._base_tDialogInteractive);
+  MyDialog.yesnowords[0] = yesText;
+  sVar4 = Run((tDialogInteractive *)&MyDialog);
   ptVar2 = FEApp[0];
   ret = (int)sVar4;
   if (ret == -1) {
     pcVar5 = TextSys_Word(CURRENTPLAYER[0] + 0x32b);
     ptVar3 = FEApp[0];
-    (ptVar2->MemCardDialog)._base_tDialogMessageString.string = pcVar5;
+    (ptVar2->MemCardDialog).string = pcVar5;
     Display((tDialogBase *)&ptVar3->MemCardDialog);
-    while ((FEApp[0]->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
+    while ((FEApp[0]->MemCardDialog).fFullyOpen != 1) {
       Redraw(FEApp[0]);
     }
     Redraw(FEApp[0]);
@@ -145,7 +145,7 @@ int Confirm(int Text,int yesText)
   else if (ret != 0) {
     if (bVar1) {
       Display((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
-      while ((FEApp[0]->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
+      while ((FEApp[0]->NoInputMemCardDialog).fFullyOpen != 1) {
         Redraw(FEApp[0]);
       }
     }
@@ -371,30 +371,30 @@ void * SaveGame(short player)
     ptVar6 = (tfrontEnd *)&ptVar6->raceType;
   } while (iVar7 < 2);
   tScreen_ctor((tScreen *)&WarningDialog);
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.currentlyOn = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.reservedheight = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.MaxH = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.OffsetY = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.OffsetX = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.height = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.width = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.top = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.left = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.MaxW = 0x120;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.specificPlayer = -1;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.fDefault = 0;
-  WarningDialog._base_tDialogMessageString.Centerit = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.fFullyOpen = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.timeOutTicks = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.fFadeText = 0x80;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase._base_tScreen._vf =
+  WarningDialog.currentlyOn = 0;
+  WarningDialog.reservedheight = 0;
+  WarningDialog.MaxH = 0;
+  WarningDialog.OffsetY = 0;
+  WarningDialog.OffsetX = 0;
+  WarningDialog.height = 0;
+  WarningDialog.width = 0;
+  WarningDialog.top = 0;
+  WarningDialog.left = 0;
+  WarningDialog.MaxW = 0x120;
+  WarningDialog.specificPlayer = -1;
+  WarningDialog.fDefault = 0;
+  WarningDialog.Centerit = 0;
+  WarningDialog.fFullyOpen = 0;
+  WarningDialog.timeOutTicks = 0;
+  WarningDialog.fFadeText = 0x80;
+  WarningDialog._vf =
        (__vtbl_ptr_type (*)[10])tDialogNoInputMessage_vtable;
-  WarningDialog._base_tDialogMessageString.string =
+  WarningDialog.string =
        TextSys_Word(player + 0x276);
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.OffsetX = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.OffsetY = 0x32;
+  WarningDialog.OffsetX = 0;
+  WarningDialog.OffsetY = 0x32;
   Display((tDialogBase *)&WarningDialog);
-  while (pvVar10 = (void *)0x0, WarningDialog._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
+  while (pvVar10 = (void *)0x0, WarningDialog.fFullyOpen != 1) {
     Redraw(FEApp[0]);
   }
   iVar9 = 0x28b;
@@ -464,9 +464,9 @@ void * SaveGame(short player)
     ptVar1 = FEApp[0];
     pcVar5 = TextSys_Word(iVar9 + player);
     ptVar2 = FEApp[0];
-    (ptVar1->MemCardDialog)._base_tDialogMessageString.string = pcVar5;
+    (ptVar1->MemCardDialog).string = pcVar5;
     Display((tDialogBase *)&ptVar2->MemCardDialog);
-    while ((FEApp[0]->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
+    while ((FEApp[0]->MemCardDialog).fFullyOpen != 1) {
       Redraw(FEApp[0]);
     }
     Redraw(FEApp[0]);
@@ -522,33 +522,33 @@ extern "C" short LoadGame__FsbT1(short player,bool PinkSlips,byte WithDialogs)
   CURRENTLYUSINGMEMCARD = 1;
   CURRENTPLAYER[0] = iVar11;
   tScreen_ctor((tScreen *)&WarningDialog);
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.currentlyOn = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.reservedheight = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.MaxH = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.OffsetY = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.OffsetX = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.height = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.width = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.top = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.left = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.MaxW = 0x120;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.specificPlayer = -1;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.fDefault = 0;
-  WarningDialog._base_tDialogMessageString.Centerit = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.fFullyOpen = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.timeOutTicks = 0;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase.fFadeText = 0x80;
-  WarningDialog._base_tDialogMessageString._base_tDialogBase._base_tScreen._vf =
+  WarningDialog.currentlyOn = 0;
+  WarningDialog.reservedheight = 0;
+  WarningDialog.MaxH = 0;
+  WarningDialog.OffsetY = 0;
+  WarningDialog.OffsetX = 0;
+  WarningDialog.height = 0;
+  WarningDialog.width = 0;
+  WarningDialog.top = 0;
+  WarningDialog.left = 0;
+  WarningDialog.MaxW = 0x120;
+  WarningDialog.specificPlayer = -1;
+  WarningDialog.fDefault = 0;
+  WarningDialog.Centerit = 0;
+  WarningDialog.fFullyOpen = 0;
+  WarningDialog.timeOutTicks = 0;
+  WarningDialog.fFadeText = 0x80;
+  WarningDialog._vf =
        (__vtbl_ptr_type (*)[10])tDialogNoInputMessage_vtable;
   if ((iVar10 != 0) || (iVar9 != 0)) {
-    WarningDialog._base_tDialogMessageString.string =
+    WarningDialog.string =
          TextSys_Word(iVar11 + 0x276);
     if (iVar9 == 0) {
-      WarningDialog._base_tDialogMessageString._base_tDialogBase.OffsetX = 0;
-      WarningDialog._base_tDialogMessageString._base_tDialogBase.OffsetY = 0x32;
+      WarningDialog.OffsetX = 0;
+      WarningDialog.OffsetY = 0x32;
     }
     Display((tDialogBase *)&WarningDialog);
-    while (WarningDialog._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
+    while (WarningDialog.fFullyOpen != 1) {
       Redraw(FEApp[0]);
     }
     Redraw(FEApp[0]);
@@ -643,7 +643,7 @@ switchD_80035054_caseD_4:
         ptVar2 = FEApp[0];
         pcVar8 = TextSys_Word(iVar4 + 0x329);
         ptVar3 = FEApp[0];
-        (ptVar2->MemCardDialog)._base_tDialogMessageString.string = pcVar8;
+        (ptVar2->MemCardDialog).string = pcVar8;
         Display((tDialogBase *)&ptVar3->MemCardDialog);
         bVar1 = true;
       }
@@ -668,9 +668,9 @@ LAB_80035238:
       ptVar2 = FEApp[0];
       pcVar8 = TextSys_Word(iVar12 + player);
       ptVar3 = FEApp[0];
-      (ptVar2->MemCardDialog)._base_tDialogMessageString.string = pcVar8;
+      (ptVar2->MemCardDialog).string = pcVar8;
       Display((tDialogBase *)&ptVar3->MemCardDialog);
-      while ((FEApp[0]->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
+      while ((FEApp[0]->MemCardDialog).fFullyOpen != 1) {
         Redraw(FEApp[0]);
       }
       Redraw(FEApp[0]);
@@ -866,60 +866,60 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
   tScreen_ctor((tScreen *)&WillLoseCarMessage);
   sVar1 = 0;
   player_00 = (int)player;
-  WillLoseCarMessage._base_tDialogMessageString._base_tDialogBase.currentlyOn = 0;
-  WillLoseCarMessage._base_tDialogMessageString._base_tDialogBase.reservedheight = 0;
-  WillLoseCarMessage._base_tDialogMessageString._base_tDialogBase.MaxH = 0;
-  WillLoseCarMessage._base_tDialogMessageString._base_tDialogBase.OffsetY = 0;
-  WillLoseCarMessage._base_tDialogMessageString._base_tDialogBase.OffsetX = 0;
-  WillLoseCarMessage._base_tDialogMessageString._base_tDialogBase.height = 0;
-  WillLoseCarMessage._base_tDialogMessageString._base_tDialogBase.width = 0;
-  WillLoseCarMessage._base_tDialogMessageString._base_tDialogBase.top = 0;
-  WillLoseCarMessage._base_tDialogMessageString._base_tDialogBase.left = 0;
-  WillLoseCarMessage._base_tDialogMessageString._base_tDialogBase.MaxW = 0x120;
-  WillLoseCarMessage._base_tDialogMessageString._base_tDialogBase.specificPlayer = -1;
-  WillLoseCarMessage._base_tDialogMessageString._base_tDialogBase.fDefault = 0;
-  WillLoseCarMessage._base_tDialogMessageString.Centerit = 0;
-  WillLoseCarMessage._base_tDialogMessageString._base_tDialogBase.fFullyOpen = 0;
-  WillLoseCarMessage._base_tDialogMessageString._base_tDialogBase.timeOutTicks = 0;
-  WillLoseCarMessage._base_tDialogMessageString._base_tDialogBase.fFadeText = 0x80;
-  WillLoseCarMessage._base_tDialogMessageString._base_tDialogBase._base_tScreen._vf =
+  WillLoseCarMessage.currentlyOn = 0;
+  WillLoseCarMessage.reservedheight = 0;
+  WillLoseCarMessage.MaxH = 0;
+  WillLoseCarMessage.OffsetY = 0;
+  WillLoseCarMessage.OffsetX = 0;
+  WillLoseCarMessage.height = 0;
+  WillLoseCarMessage.width = 0;
+  WillLoseCarMessage.top = 0;
+  WillLoseCarMessage.left = 0;
+  WillLoseCarMessage.MaxW = 0x120;
+  WillLoseCarMessage.specificPlayer = -1;
+  WillLoseCarMessage.fDefault = 0;
+  WillLoseCarMessage.Centerit = 0;
+  WillLoseCarMessage.fFullyOpen = 0;
+  WillLoseCarMessage.timeOutTicks = 0;
+  WillLoseCarMessage.fFadeText = 0x80;
+  WillLoseCarMessage._vf =
        (__vtbl_ptr_type (*)[10])tDialogNoInputMessage_vtable;
   RetryCancelDialog.yesnowords[0] = 0x291;
   RetryCancelDialog.yesnowords[1] = 0x292;
-  RetryCancelDialog._base_tDialogInteractive._base_tDialogMessageString._base_tDialogBase.fDefault = 1;
-  RetryCancelDialog._base_tDialogInteractive._base_tDialogMessageString._base_tDialogBase.specificPlayer = player;
+  RetryCancelDialog.fDefault = 1;
+  RetryCancelDialog.specificPlayer = player;
   do {
     Display((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
-    while ((FEApp[0]->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
+    while ((FEApp[0]->NoInputMemCardDialog).fFullyOpen != 1) {
       Redraw(FEApp[0]);
     }
     iVar5 = 0;
     Redraw(FEApp[0]);
     tScreen_ctor((tScreen *)&WarningDialog);
-    WarningDialog._base_tDialogMessageString._base_tDialogBase.currentlyOn = 0;
-    WarningDialog._base_tDialogMessageString._base_tDialogBase.reservedheight = 0;
-    WarningDialog._base_tDialogMessageString._base_tDialogBase.MaxH = 0;
-    WarningDialog._base_tDialogMessageString._base_tDialogBase.OffsetY = 0;
-    WarningDialog._base_tDialogMessageString._base_tDialogBase.OffsetX = 0;
-    WarningDialog._base_tDialogMessageString._base_tDialogBase.height = 0;
-    WarningDialog._base_tDialogMessageString._base_tDialogBase.width = 0;
-    WarningDialog._base_tDialogMessageString._base_tDialogBase.top = 0;
-    WarningDialog._base_tDialogMessageString._base_tDialogBase.left = 0;
-    WarningDialog._base_tDialogMessageString._base_tDialogBase.MaxW = 0x120;
-    WarningDialog._base_tDialogMessageString._base_tDialogBase.specificPlayer = -1;
-    WarningDialog._base_tDialogMessageString._base_tDialogBase.fDefault = 0;
-    WarningDialog._base_tDialogMessageString.Centerit = 0;
-    WarningDialog._base_tDialogMessageString._base_tDialogBase.fFullyOpen = 0;
-    WarningDialog._base_tDialogMessageString._base_tDialogBase.timeOutTicks = 0;
-    WarningDialog._base_tDialogMessageString._base_tDialogBase.fFadeText = 0x80;
-    WarningDialog._base_tDialogMessageString._base_tDialogBase._base_tScreen._vf =
+    WarningDialog.currentlyOn = 0;
+    WarningDialog.reservedheight = 0;
+    WarningDialog.MaxH = 0;
+    WarningDialog.OffsetY = 0;
+    WarningDialog.OffsetX = 0;
+    WarningDialog.height = 0;
+    WarningDialog.width = 0;
+    WarningDialog.top = 0;
+    WarningDialog.left = 0;
+    WarningDialog.MaxW = 0x120;
+    WarningDialog.specificPlayer = -1;
+    WarningDialog.fDefault = 0;
+    WarningDialog.Centerit = 0;
+    WarningDialog.fFullyOpen = 0;
+    WarningDialog.timeOutTicks = 0;
+    WarningDialog.fFadeText = 0x80;
+    WarningDialog._vf =
          (__vtbl_ptr_type (*)[10])tDialogNoInputMessage_vtable;
-    WarningDialog._base_tDialogMessageString.string =
+    WarningDialog.string =
          TextSys_Word(player_00 + 0x276);
-    WarningDialog._base_tDialogMessageString._base_tDialogBase.OffsetX = 0;
-    WarningDialog._base_tDialogMessageString._base_tDialogBase.OffsetY = 0x32;
+    WarningDialog.OffsetX = 0;
+    WarningDialog.OffsetY = 0x32;
     Display((tDialogBase *)&WarningDialog);
-    while (WarningDialog._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1) {
+    while (WarningDialog.fFullyOpen != 1) {
       Redraw(FEApp[0]);
     }
     Redraw(FEApp[0]);
@@ -943,13 +943,13 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
         pcVar3 = TextSys_Word(iVar5);
         pcVar4 = PlayerName(player_00);
         sprintf(string2,pcVar3,pcVar4);
-        WillLoseCarMessage._base_tDialogMessageString._base_tDialogBase.OffsetX = 0;
-        WillLoseCarMessage._base_tDialogMessageString._base_tDialogBase.OffsetY = -0x3c;
-        WillLoseCarMessage._base_tDialogMessageString.string = string2;
+        WillLoseCarMessage.OffsetX = 0;
+        WillLoseCarMessage.OffsetY = -0x3c;
+        WillLoseCarMessage.string = string2;
         Display((tDialogBase *)&WillLoseCarMessage);
       }
-      RetryCancelDialog._base_tDialogInteractive._base_tDialogMessageString.string = string;
-      sVar1 = Run(&RetryCancelDialog._base_tDialogInteractive);
+      RetryCancelDialog.string = string;
+      sVar1 = Run((tDialogInteractive *)&RetryCancelDialog);
       Hide((tDialogBase *)&WillLoseCarMessage);
     }
     tScreen_dtor((tScreen *)&WarningDialog,2);

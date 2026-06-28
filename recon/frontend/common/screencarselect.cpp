@@ -90,9 +90,9 @@ tScreenCarSelect::tScreenCarSelect()
   uint tu5;
   void *tp1;
   
-  tScreen_ctor(&this->_base_tScreen);
+  tScreen_ctor((tScreen *)this);
   _i = 0;
-  (this->_base_tScreen)._vf = (__vtbl_ptr_type (*)[10])tScreenCarSelect_vtable;
+  this->_vf = (__vtbl_ptr_type (*)[10])tScreenCarSelect_vtable;
   this->fPreviousCar = 0;
   this->fPreviousCarID = -1;
   this->fPreviousCountry = 0;
@@ -156,8 +156,8 @@ tScreenCarSelect::tScreenCarSelect()
 tScreenCarSelect::~tScreenCarSelect()
 
 {
-  (this->_base_tScreen)._vf = (__vtbl_ptr_type (*)[10])tScreenCarSelect_vtable;
-  tScreen_dtor(&this->_base_tScreen);
+  this->_vf = (__vtbl_ptr_type (*)[10])tScreenCarSelect_vtable;
+  tScreen_dtor((tScreen *)this);
   return;
 }
 
@@ -170,9 +170,9 @@ void tScreenCarSelect::Cleanup()
   __vtbl_ptr_type (*vtbl) [10];
   
   CleanupSpinningCarsMenu();
-  this->_base_tScreen.Cleanup();
-  vtbl = (this->_base_tScreen)._vf;
-  (*vtbl[1][5].pfn)((this->_base_tScreen).fPermShapes.fFilename + -0x14 + vtbl[1][5].delta);
+  this->Cleanup();
+  vtbl = this->_vf;
+  (*vtbl[1][5].pfn)(this->fPermShapes.fFilename + -0x14 + vtbl[1][5].delta);
   return;
 }
 
@@ -207,9 +207,9 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
   if (overlay == (tOverlay *)0x0) {
     return;
   }
-  vtbl = (this->_base_tScreen)._vf;
+  vtbl = this->_vf;
   descrItem = (int)vtbl[1][3].delta;
-  validCar = (*vtbl[1][3].pfn)((this->_base_tScreen).fPermShapes.fFilename + descrItem + -0x14,&carInfo);
+  validCar = (*vtbl[1][3].pfn)(this->fPermShapes.fFilename + descrItem + -0x14,&carInfo);
   if (overlay->direction != 0) {
     fade = overlay->transition + overlay->delta * overlay->direction;
     overlay->transition = fade;
@@ -451,7 +451,7 @@ void tScreenCarSelect::SetState(int state)
       this->tvConfigs[sVar3].transition = 0;
     } while (iVar4 * 0x10000 >> 0x10 < 10);
     if (state2 != 1) {
-      TransitionOn(&this->_base_tScreen,kScreen_TransitionTypeScreen,(tMenu *)0x0);
+      ::TransitionOn((tScreen *)this,kScreen_TransitionTypeScreen,(tMenu *)0x0);
     }
     TurnOn(this->fVideoWall);
   }
@@ -470,7 +470,7 @@ void tScreenCarSelect::SetState(int state)
     gRotateOffset[2] = 0x10000;
     gRotateOffset[1] = 0x10000;
     gRotateOffset[0] = 0x10000;
-    TransitionOff(&this->_base_tScreen,kScreen_TransitionTypeScreen,(tMenu *)0x0);
+    ::TransitionOff((tScreen *)this,kScreen_TransitionTypeScreen,(tMenu *)0x0);
   }
   return;
 }
@@ -545,9 +545,9 @@ void tScreenCarSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
   numPermShapes = 0x8e;
   numSwapShapes = 0xb;
   *permFileName = "zcars";
-  vtbl = (this->_base_tScreen)._vf;
+  vtbl = this->_vf;
   valid = (*vtbl[1][3].pfn)
-                    ((this->_base_tScreen).fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo) == 1;
+                    (this->fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo) == 1;
   if (!valid) {
     GetStockCar(&carManager, 0,&carInfo);
   }
@@ -571,7 +571,7 @@ void tScreenCarSelect::UpdateVideoWall(tCarInfo &carInfo)
       ((int)(signed char)carInfo.fCarID != (int)this->fPreviousCarID)) ||
      ((carInfo.fCarClass == '\a' && (this->fPreviousCountry != (ushort)carInfo.fCountry)))) {
     if (-1 < (signed char)carInfo.fCarID) {
-      AsyncLoadSwapShapeFile(&this->_base_tScreen,carInfo.fShapeName);
+      ::AsyncLoadSwapShapeFile((tScreen *)this,carInfo.fShapeName);
     }
     this->fPreviousCar = (ushort)carInfo.fCarIndex;
     this->fPreviousCarID = (short)(signed char)carInfo.fCarID;
@@ -593,7 +593,7 @@ void tScreenCarSelect::AllocateAsyncBuffer()
   char *str;
   
   str = Platform_GetDCTBuffer(40000,"VideoWall");
-  (this->_base_tScreen).fSwapShapes.fDestFile = str;
+  this->fSwapShapes.fDestFile = str;
   return;
 }
 
@@ -605,7 +605,7 @@ void tScreenCarSelect::FreeAsyncBuffer()
 {
   
   Platform_ResetDCTBuffer();
-  (this->_base_tScreen).fSwapShapes.fDestFile = (char *)0x0;
+  this->fSwapShapes.fDestFile = (char *)0x0;
   return;
 }
 
@@ -618,10 +618,10 @@ void tScreenCarSelect::InitializeVideoWall()
   tVideoWall *videowall;
   
   videowall = this->fVideoWall;
-  ::Initialize(&this->fVideoWall[0],this->tvConfigs,(this->_base_tScreen).fSwapShapes.fShapes,0,10,tvOrder,0x96);
+  ::Initialize(&this->fVideoWall[0],this->tvConfigs,this->fSwapShapes.fShapes,0,10,tvOrder,0x96);
   SetAvailableText(videowall,0xf8,0x140,0x50);
-  SetAvailableIcon(videowall,0x1c,10,0x136,0x3c,(this->_base_tScreen).fPermShapes.fShapes);
-  if (((this->_base_tScreen).fSwapShapes.fFlags & 1) != 0) {
+  SetAvailableIcon(videowall,0x1c,10,0x136,0x3c,this->fPermShapes.fShapes);
+  if ((this->fSwapShapes.fFlags & 1) != 0) {
     UpdateImages(videowall);
     this->fTVsInitialized = 1;
   }
@@ -663,16 +663,16 @@ void tScreenCarSelect::Initialize()
   if (frontEnd.raceType == '\x02') {
     (mdefs->itemDamage).fFlags = uVar6 | 1;
   }
-  this->_base_tScreen.Initialize();
-  vtbl = (this->_base_tScreen)._vf;
-  (*vtbl[1][4].pfn)((this->_base_tScreen).fPermShapes.fFilename + vtbl[1][4].delta + -0x14);
+  this->Initialize();
+  vtbl = this->_vf;
+  (*vtbl[1][4].pfn)(this->fPermShapes.fFilename + vtbl[1][4].delta + -0x14);
   SetLicensePlate();
-  vtbl = (this->_base_tScreen)._vf;
+  vtbl = this->_vf;
   this->fTVsInitialized = 0;
   this->fCameraRotation = 0;
   this->fInShowroom = 0;
   valid = (*vtbl[1][3].pfn)
-                    ((this->_base_tScreen).fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
+                    (this->fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
   if (valid == 0) {
     this->fPreviousCar = -1;
     this->fPreviousCountry = -1;
@@ -689,11 +689,11 @@ void tScreenCarSelect::Initialize()
   this->fDestBrightness[1] = 0;
   this->fDestBrightness[0] = 0;
   this->fShowroomTicks = valid;
-  vtbl = (this->_base_tScreen)._vf;
+  vtbl = this->_vf;
   valid = valid + -0x100;
   this->fFadeTicks[1] = valid;
   this->fFadeTicks[0] = valid;
-  (*vtbl[1][1].pfn)((this->_base_tScreen).fPermShapes.fFilename + vtbl[1][1].delta + -0x14);
+  (*vtbl[1][1].pfn)(this->fPermShapes.fFilename + vtbl[1][1].delta + -0x14);
   valid = 0;
   do {
     sVar2 = (short)valid;
@@ -728,9 +728,9 @@ int tScreenCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_input,tMenu
   
   tVar4 = key_input;
   if (tVar4 == kInput_KeyType_Square) {
-    vtbl = (this->_base_tScreen)._vf;
+    vtbl = this->_vf;
     item = (tMenuItem *)(int)vtbl[1][3].delta;
-    iVar3 = (*vtbl[1][3].pfn)((int)&item->fFlags + (int)&this->_base_tScreen,&carInfo);
+    iVar3 = (*vtbl[1][3].pfn)((int)&item->fFlags + (int)(tScreen *)this,&carInfo);
     if (FEApp->fPlayer == '\0') {
       lrItem = &menuDefs->itemABS;
     }
@@ -793,24 +793,24 @@ void tScreenCarSelect::DrawVideoWall(short y)
   byte validCar;
   tCarInfo carInfo;
   
-  vtbl = (this->_base_tScreen)._vf;
+  vtbl = this->_vf;
   valid = (*vtbl[1][3].pfn)
-                    ((this->_base_tScreen).fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
-  DrawBackgroundImage(&this->_base_tScreen,0,0x1c,(this->_base_tScreen).fPermShapes.fShapes,0x96);
+                    (this->fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
+  ::DrawBackgroundImage((tScreen *)this,0,0x1c,this->fPermShapes.fShapes,0x96);
   this->DrawOverlay(this->fCurrentOverlays[0]);
-  if ((((this->_base_tScreen).fSwapShapes.fFlags & 1) != 0) && (this->fTVsInitialized == 0)) {
+  if (((this->fSwapShapes.fFlags & 1) != 0) && (this->fTVsInitialized == 0)) {
     UpdateImages(this->fVideoWall);
     this->fTVsInitialized = 1;
   }
-  if ((0 < (this->_base_tScreen).fScreenFadeVal) && ((this->_base_tScreen).fTransitionOff != 0)) {
+  if ((0 < this->fScreenFadeVal) && (this->fTransitionOff != 0)) {
     TurnOffInstant(this->fVideoWall);
     this->SetBrightness(0,0);
   }
   this_00 = this->fVideoWall;
-  UpdateTransition(this_00);
+  ::UpdateTransition(this_00);
   SetValid(this_00,valid);
   SetAvailable(this_00,(ushort)carInfo.fAvailable);
-  Draw(this_00);
+  ::Draw(this_00);
   return;
 }
 
@@ -935,19 +935,19 @@ void tScreenCarSelect::DrawBackground()
   short bright;
   tCarInfo carInfo;
 
-  vtbl = (this->_base_tScreen)._vf;
+  vtbl = this->_vf;
   valid = (*vtbl[1][3].pfn)
-                    ((this->_base_tScreen).fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
+                    (this->fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
   if (valid != 0) {
-    IsShapeFileLoaded(&this->_base_tScreen,&(this->_base_tScreen).fSwapShapes);
+    ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
     bVar1 = false;
-    if ((((this->_base_tScreen).fSwapShapes.fFile != (char *)0x0) &&
+    if (((this->fSwapShapes.fFile != (char *)0x0) &&
         (this->fVideoWall[0].fTransitionDirection != -1)) &&
        (gCarObj[(byte)FEApp->fPlayer]->async_handle == 0)) {
       bVar1 = 0x80 < ticks - this->fFadeTicks[0];
     }
     if (bVar1) {
-      UploadSwapShapes(&this->_base_tScreen,0xb);
+      ::UploadSwapShapes((tScreen *)this,0xb);
       TurnOn(this->fVideoWall);
       if (this->fBrightness[0] == this->fDestBrightness[0]) {
         bright = 0x20;
@@ -958,9 +958,9 @@ void tScreenCarSelect::DrawBackground()
       }
     }
   }
-  if ((this->_base_tScreen).fScreenFadeVal < 0x80) {
-    vtbl = (this->_base_tScreen)._vf;
-    (*vtbl[1][0].pfn)((this->_base_tScreen).fPermShapes.fFilename + -0x14 + vtbl[1][0].delta,0);
+  if (this->fScreenFadeVal < 0x80) {
+    vtbl = this->_vf;
+    (*vtbl[1][0].pfn)(this->fPermShapes.fFilename + -0x14 + vtbl[1][0].delta,0);
   }
   return;
 }
@@ -1044,11 +1044,11 @@ void tScreenCarSelect::DrawForeground()
   int screenY;
   int camRot;
   
-  vtbl = (this->_base_tScreen)._vf;
+  vtbl = this->_vf;
   currentItem = FEApp->fCurrentMenu[0]->fCurrentItem;
   item = FEApp->fCurrentMenu[0]->fItemList[currentItem];
   iVar5 = (*vtbl[1][3].pfn)
-                    ((this->_base_tScreen).fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
+                    (this->fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
   mdefs = menuDefs;
   bShowStats = false;
   (menuDefs->itemOpponentUpgrades).fFlags =
@@ -1154,9 +1154,9 @@ DrawFG_overlayFetch:
       if (iVar5 == 0) {
         carInfo.fCarID = -1;
       }
-      vtbl = (this->_base_tScreen)._vf;
+      vtbl = this->_vf;
       (*vtbl[1][2].pfn)
-                ((this->_base_tScreen).fPermShapes.fFilename + vtbl[1][2].delta + -0x14,&carInfo);
+                (this->fPermShapes.fFilename + vtbl[1][2].delta + -0x14,&carInfo);
       if (gCarObj[(byte)FEApp->fPlayer]->async_handle != 0) {
         iVar10 = 0;
         this->SetBrightness(0,0);
@@ -1185,7 +1185,7 @@ DrawFG_overlayFetch:
           FETextRender_FullTextRGB(sMenuText,(short)iVar10,(short)iVar14,iVar7,'\0',0);
         }
         drawFlags.tint[0] = 0x551e00;
-        drawFlags.custom_shapes = (this->_base_tScreen).fSwapShapes.fShapes;
+        drawFlags.custom_shapes = this->fSwapShapes.fShapes;
         uVar15 = this->fSpeechTicks;
         iVar7 = 0x80;
         if (0x100 < uVar15) {
@@ -1284,24 +1284,24 @@ void tScreenCarSelectDuel::PreLoad()
   char buffer [32];
   
   (this->fOpponentShapes).fShapes = (tTexture_ShapeInfo *)0x0;
-  InitializeShapes((tScreen *)this,&this->fOpponentShapes,5);
+  ::InitializeShapes((tScreen *)this,&this->fOpponentShapes,5);
   ::PreLoad((tScreen *)this);
   buf_or_path = Platform_GetDCTBuffer(16000,"VideoWall");
-  (this->_base_tScreenCarSelect)._base_tScreen.fSwapShapes.fDestFile = buf_or_path;
+  this->fSwapShapes.fDestFile = buf_or_path;
   str = Platform_GetDCTBuffer(16000,"OpponentVid");
-  vtbl = (this->_base_tScreenCarSelect)._base_tScreen._vf;
+  vtbl = this->_vf;
   (this->fOpponentShapes).fDestFile = str;
   use_default = (**(code **)((int)vtbl + 0x6c))
-                          ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename +
+                          (this->fPermShapes.fFilename +
                            -0x14 + *(short *)((int)vtbl + 0x68),&carInfo) == 1;
   if (!use_default) {
     GetStockCar(&carManager, 0,&carInfo);
   }
   sprintf(buffer,"z%s",carInfo.fSmallName);
-  AsyncLoadShapeFile((tScreen *)this,buffer,&(this->_base_tScreenCarSelect)._base_tScreen.fSwapShapes);
+  ::AsyncLoadShapeFile((tScreen *)this,buffer,&this->fSwapShapes);
   GetStockCar(&carManager, (ushort)(byte)frontEnd.oppCar,&carInfo);
   sprintf(buffer,"z%s",carInfo.fSmallName);
-  AsyncLoadShapeFile((tScreen *)this,buffer,&this->fOpponentShapes);
+  ::AsyncLoadShapeFile((tScreen *)this,buffer,&this->fOpponentShapes);
   this->fOpponentTVsInitialized = 0;
   return;
 }
@@ -1323,7 +1323,7 @@ void tScreenCarSelectDuel::FreeAsyncBuffer()
 {
   
   Platform_ResetDCTBuffer();
-  (this->_base_tScreenCarSelect)._base_tScreen.fSwapShapes.fDestFile = (char *)0x0;
+  this->fSwapShapes.fDestFile = (char *)0x0;
   (this->fOpponentShapes).fDestFile = (char *)0x0;
   return;
 }
@@ -1337,23 +1337,23 @@ void tScreenCarSelectDuel::InitializeVideoWall()
   tVideoWall *vw_opp;
   tVideoWall *vw_player;
   
-  vw_player = (this->_base_tScreenCarSelect).fVideoWall;
-  ::Initialize(&this->_base_tScreenCarSelect.fVideoWall[0],(this->_base_tScreenCarSelect).tvConfigs,
-             (this->_base_tScreenCarSelect)._base_tScreen.fSwapShapes.fShapes,0,5,tvSplitOrder,0);
+  vw_player = this->fVideoWall;
+  ::Initialize(&this->fVideoWall[0],this->tvConfigs,
+             this->fSwapShapes.fShapes,0,5,tvSplitOrder,0);
   SetAvailableText(vw_player,0xf8,0x10e,0x2d);
-  if (((this->_base_tScreenCarSelect)._base_tScreen.fSwapShapes.fFlags & 1) != 0) {
+  if ((this->fSwapShapes.fFlags & 1) != 0) {
     SetOffset(vw_player,6,0);
     UpdateImages(vw_player);
-    (this->_base_tScreenCarSelect).fTVsInitialized = 1;
+    this->fTVsInitialized = 1;
   }
-  vw_opp = (this->_base_tScreenCarSelect).fVideoWall + 1;
-  ::Initialize(&this->_base_tScreenCarSelect.fVideoWall[0],(this->_base_tScreenCarSelect).tvConfigs + 5,(this->fOpponentShapes).fShapes,0,5,
+  vw_opp = this->fVideoWall + 1;
+  ::Initialize(&this->fVideoWall[0],this->tvConfigs + 5,(this->fOpponentShapes).fShapes,0,5,
              tvSplitOrder,0);
   SetAvailableText(vw_player,0xf8,0x10e,0x96);
   if (((this->fOpponentShapes).fFlags & 1) != 0) {
     SetOffset(vw_opp,6,0x69);
     UpdateImages(vw_opp);
-    (this->_base_tScreenCarSelect).fTVsInitialized = 1;
+    this->fTVsInitialized = 1;
   }
   return;
 }
@@ -1365,8 +1365,8 @@ void tScreenCarSelectDuel::Initialize()
 
 {
   
-  this->_base_tScreenCarSelect.Initialize();
-  (this->_base_tScreenCarSelect).fState = 0;
+  this->Initialize();
+  this->fState = 0;
   gShowroomLights[0] = 0;
   return;
 }
@@ -1378,8 +1378,8 @@ void tScreenCarSelectDuel::Cleanup()
 
 {
   
-  FreeShapes((tScreen *)this,&this->fOpponentShapes);
-  this->_base_tScreenCarSelect.Cleanup();
+  ::FreeShapes((tScreen *)this,&this->fOpponentShapes);
+  this->Cleanup();
   return;
 }
 
@@ -1397,33 +1397,33 @@ void tScreenCarSelectDuel::DrawVideoWall(short y)
   byte validCar;
   tCarInfo carInfo;
   
-  vtbl = (this->_base_tScreenCarSelect)._base_tScreen._vf;
+  vtbl = this->_vf;
   iVar3 = 0;
   valid = (*vtbl[1][3].pfn)
-                    ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename +
+                    (this->fPermShapes.fFilename +
                      vtbl[1][3].delta + -0x14,&carInfo);
   do {
     DrawShapeExtended(iVar3,0,0,-(int)y,
-               (int)(this->_base_tScreenCarSelect)._base_tScreen.fScreenFadeVal,0,(tDrawShapeExtended *)0x0);
+               (int)this->fScreenFadeVal,0,(tDrawShapeExtended *)0x0);
     iVar3 = iVar3 + 1;
   } while (iVar3 * 0x10000 >> 0x10 < 0xc);
-  if ((0 < (this->_base_tScreenCarSelect)._base_tScreen.fScreenFadeVal) &&
-     ((this->_base_tScreenCarSelect)._base_tScreen.fTransitionOff != 0)) {
-    TurnOffInstant((this->_base_tScreenCarSelect).fVideoWall);
-    this->_base_tScreenCarSelect.SetBrightness(0,0);
+  if ((0 < this->fScreenFadeVal) &&
+     (this->fTransitionOff != 0)) {
+    TurnOffInstant(this->fVideoWall);
+    this->SetBrightness(0,0);
   }
-  vw = (this->_base_tScreenCarSelect).fVideoWall;
-  if ((((this->_base_tScreenCarSelect)._base_tScreen.fSwapShapes.fFlags & 1) != 0) &&
-     ((this->_base_tScreenCarSelect).fTVsInitialized == 0)) {
+  vw = this->fVideoWall;
+  if (((this->fSwapShapes.fFlags & 1) != 0) &&
+     (this->fTVsInitialized == 0)) {
     SetOffset(vw,6,0);
     UpdateImages(vw);
-    (this->_base_tScreenCarSelect).fTVsInitialized = 1;
+    this->fTVsInitialized = 1;
   }
-  vw = (this->_base_tScreenCarSelect).fVideoWall;
-  UpdateTransition(vw);
+  vw = this->fVideoWall;
+  ::UpdateTransition(vw);
   SetValid(vw,valid);
   SetAvailable(vw,(ushort)carInfo.fAvailable);
-  Draw(vw);
+  ::Draw(vw);
   return;
 }
 
@@ -1440,26 +1440,26 @@ void tScreenCarSelectDuel::DrawOpponentVideoWall(short y)
   i = 0;
   do {
     DrawShapeExtended(i,0,0,-(int)y,
-               (int)(this->_base_tScreenCarSelect)._base_tScreen.fScreenFadeVal,0,(tDrawShapeExtended *)0x0);
+               (int)this->fScreenFadeVal,0,(tDrawShapeExtended *)0x0);
     i = i + 1;
   } while (i < 0xc);
-  if ((0 < (this->_base_tScreenCarSelect)._base_tScreen.fScreenFadeVal) &&
-     ((this->_base_tScreenCarSelect)._base_tScreen.fTransitionOff != 0)) {
-    TurnOffInstant((this->_base_tScreenCarSelect).fVideoWall + 1);
-    this->_base_tScreenCarSelect.SetBrightness(0,1);
+  if ((0 < this->fScreenFadeVal) &&
+     (this->fTransitionOff != 0)) {
+    TurnOffInstant(this->fVideoWall + 1);
+    this->SetBrightness(0,1);
   }
-  vw_opp = (this->_base_tScreenCarSelect).fVideoWall + 1;
-  if ((((this->_base_tScreenCarSelect)._base_tScreen.fSwapShapes.fFlags & 1) != 0) &&
+  vw_opp = this->fVideoWall + 1;
+  if (((this->fSwapShapes.fFlags & 1) != 0) &&
      (this->fOpponentTVsInitialized == 0)) {
     SetOffset(vw_opp,6,0x69);
     UpdateImages(vw_opp);
     this->fOpponentTVsInitialized = 1;
   }
-  this_00 = (this->_base_tScreenCarSelect).fVideoWall + 1;
-  UpdateTransition(this_00);
+  this_00 = this->fVideoWall + 1;
+  ::UpdateTransition(this_00);
   SetValid(this_00,1);
   SetAvailable(this_00,1);
-  Draw(this_00);
+  ::Draw(this_00);
   return;
 }
 
@@ -1476,17 +1476,17 @@ void tScreenCarSelectDuel::GetShapeInfo(short &numPermShapes,short &numSwapShape
   
   numPermShapes = 0x34;
   numSwapShapes = 5;
-  vtbl = (this->_base_tScreenCarSelect)._base_tScreen._vf;
+  vtbl = this->_vf;
   valid = (*vtbl[1][3].pfn)
-                    ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename +
+                    (this->fPermShapes.fFilename +
                      vtbl[1][3].delta + -0x14,&carInfo) == 1;
   if (!valid) {
     GetStockCar(&carManager, 0,&carInfo);
   }
-  (this->_base_tScreenCarSelect).fPreviousCar = (ushort)carInfo.fCarIndex;
-  (this->_base_tScreenCarSelect).fPreviousCarID = (short)(signed char)carInfo.fCarID;
+  this->fPreviousCar = (ushort)carInfo.fCarIndex;
+  this->fPreviousCarID = (short)(signed char)carInfo.fCarID;
   this->fPreviousOpponent = -1;
-  (this->_base_tScreenCarSelect).fPreviousCountry = (ushort)carInfo.fCountry;
+  this->fPreviousCountry = (ushort)carInfo.fCountry;
   *permFileName = "zDuel";
   *swapFileName = (char *)0x0;
   return;
@@ -1500,20 +1500,20 @@ void tScreenCarSelectDuel::UpdateVideoWall(tCarInfo &carInfo)
 {
   u_int bVar1;
 
-  if ((((ushort)carInfo.fCarIndex != (this->_base_tScreenCarSelect).fPreviousCar) ||
-      ((int)(signed char)carInfo.fCarID != (int)(this->_base_tScreenCarSelect).fPreviousCarID)) ||
+  if ((((ushort)carInfo.fCarIndex != this->fPreviousCar) ||
+      ((int)(signed char)carInfo.fCarID != (int)this->fPreviousCarID)) ||
      ((carInfo.fCarClass == '\a' &&
-      ((this->_base_tScreenCarSelect).fPreviousCountry != (ushort)carInfo.fCountry)))) {
+      (this->fPreviousCountry != (ushort)carInfo.fCountry)))) {
     if (-1 < (signed char)carInfo.fCarID) {
-      AsyncLoadSwapShapeFile((tScreen *)this,carInfo.fSmallName);
+      ::AsyncLoadSwapShapeFile((tScreen *)this,carInfo.fSmallName);
     }
-    (this->_base_tScreenCarSelect).fPreviousCar = (ushort)carInfo.fCarIndex;
-    (this->_base_tScreenCarSelect).fPreviousCarID = (short)(signed char)carInfo.fCarID;
+    this->fPreviousCar = (ushort)carInfo.fCarIndex;
+    this->fPreviousCarID = (short)(signed char)carInfo.fCarID;
     bVar1 = carInfo.fCountry;
-    (this->_base_tScreenCarSelect).fTVsInitialized = 0;
-    (this->_base_tScreenCarSelect).fPreviousCountry = (ushort)bVar1;
-    this->_base_tScreenCarSelect.SetBrightness(0,0);
-    TurnOff((this->_base_tScreenCarSelect).fVideoWall);
+    this->fTVsInitialized = 0;
+    this->fPreviousCountry = (ushort)bVar1;
+    this->SetBrightness(0,0);
+    TurnOff(this->fVideoWall);
   }
   return;
 }
@@ -1528,11 +1528,11 @@ void tScreenCarSelectDuel::UpdateOpponentVideoWall(tCarInfo &carInfo)
   
   if ((ushort)carInfo.fCarIndex != this->fPreviousOpponent) {
     sprintf(buffer,"z%s",carInfo.fSmallName);
-    AsyncLoadShapeFile((tScreen *)this,buffer,&this->fOpponentShapes);
+    ::AsyncLoadShapeFile((tScreen *)this,buffer,&this->fOpponentShapes);
     this->fOpponentTVsInitialized = 0;
     this->fPreviousOpponent = (ushort)carInfo.fCarIndex;
-    this->_base_tScreenCarSelect.SetBrightness(0,1);
-    TurnOff((this->_base_tScreenCarSelect).fVideoWall + 1);
+    this->SetBrightness(0,1);
+    TurnOff(this->fVideoWall + 1);
   }
   return;
 }
@@ -1568,7 +1568,7 @@ void tScreenCarSelectDuel::DrawBackground()
   
   drenv = (int)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
   daprim = Render_gPacketPtr;
-  (this->_base_tScreenCarSelect).fState = 7;
+  this->fState = 7;
   prev_pkt = Render_gPalettePtr;
   temp.x = 0;
   temp.y = *(short *)(drenv + 2);
@@ -1590,42 +1590,42 @@ void tScreenCarSelectDuel::DrawBackground()
   GetStockCar(&carManager, (ushort)(byte)frontEnd.oppCar,&carInfo);
   carInfo.fColor = carInfo.fColorOrder[carInfo.fDefaultColor];
   this->UpdateOpponentVideoWall(carInfo);
-  IsShapeFileLoaded((tScreen *)this,&this->fOpponentShapes);
+  ::IsShapeFileLoaded((tScreen *)this,&this->fOpponentShapes);
   bVar1 = false;
   if ((((this->fOpponentShapes).fFile != (char *)0x0) &&
-      ((this->_base_tScreenCarSelect).fVideoWall[1].fTransitionDirection != -1)) &&
+      (this->fVideoWall[1].fTransitionDirection != -1)) &&
      (gCarObj[1]->async_handle == 0)) {
-    bVar1 = 0x80 < ticks - (this->_base_tScreenCarSelect).fFadeTicks[1];
+    bVar1 = 0x80 < ticks - this->fFadeTicks[1];
   }
   if ((bool)bVar1) {
-    UploadShapes((tScreen *)this,&this->fOpponentShapes,0,0x41,5,0);
+    ::UploadShapes((tScreen *)this,&this->fOpponentShapes,0,0x41,5,0);
     this->fOpponentTVsInitialized = 0;
-    TurnOn((this->_base_tScreenCarSelect).fVideoWall + 1);
-    if ((this->_base_tScreenCarSelect).fBrightness[1] == (this->_base_tScreenCarSelect).fDestBrightness[1]) {
-      this->_base_tScreenCarSelect.SetBrightness(0x80,1);
+    TurnOn(this->fVideoWall + 1);
+    if (this->fBrightness[1] == this->fDestBrightness[1]) {
+      this->SetBrightness(0x80,1);
     }
   }
-  (this->_base_tScreenCarSelect).fCameraRotation = (this->_base_tScreenCarSelect).fCameraRotation + 3;
+  this->fCameraRotation = this->fCameraRotation + 3;
   carInfo.fUpgrades = '\0';
-  if ((gCarObj[1]->async_handle != 0) && (0x80 < ticks - (this->_base_tScreenCarSelect).fFadeTicks[1])) {
-    this->_base_tScreenCarSelect.SetBrightness(0,1);
-    TurnOff((this->_base_tScreenCarSelect).fVideoWall + 1);
-    (this->_base_tScreenCarSelect).fFadeTicks[1] = ticks;
+  if ((gCarObj[1]->async_handle != 0) && (0x80 < ticks - this->fFadeTicks[1])) {
+    this->SetBrightness(0,1);
+    TurnOff(this->fVideoWall + 1);
+    this->fFadeTicks[1] = ticks;
   }
-  this->_base_tScreenCarSelect.UpdateBrightness(1);
+  this->UpdateBrightness(1);
   showRoomFlag = 0;
-  DrawCar__FR8tCarInfossffcbUl7tPlayer(stockCarInfo,0x116,0xb8,1.7,-9.9,(char)(this->_base_tScreenCarSelect).fBrightness[1],false,
-             (this->_base_tScreenCarSelect).fCameraRotation,kPlayerTwo);
+  DrawCar__FR8tCarInfossffcbUl7tPlayer(stockCarInfo,0x116,0xb8,1.7,-9.9,(char)this->fBrightness[1],false,
+             this->fCameraRotation,kPlayerTwo);
   if (((gCarObj[1]->async_handle == 0) &&
-      (sVar2 = (this->_base_tScreenCarSelect).fBrightness[1],
-      sVar2 == (this->_base_tScreenCarSelect).fDestBrightness[1])) &&
-     ((sVar2 == 0 && (0x80 < ticks - (this->_base_tScreenCarSelect).fFadeTicks[1])))) {
-    this->_base_tScreenCarSelect.SetBrightness(0x80,1);
-    TurnOn((this->_base_tScreenCarSelect).fVideoWall + 1);
+      (sVar2 = this->fBrightness[1],
+      sVar2 == this->fDestBrightness[1])) &&
+     ((sVar2 == 0 && (0x80 < ticks - this->fFadeTicks[1])))) {
+    this->SetBrightness(0x80,1);
+    TurnOn(this->fVideoWall + 1);
   }
-  screenVtbl = (int)(this->_base_tScreenCarSelect)._base_tScreen._vf;
+  screenVtbl = (int)this->_vf;
   (**(code **)(screenVtbl + 0x84))
-            ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename +
+            (this->fPermShapes.fFilename +
              *(short *)(screenVtbl + 0x80) + -0x14,0x69);
   daprim = Render_gPacketPtr;
   cur_pkt_2 = Render_gPalettePtr;
@@ -1641,9 +1641,9 @@ void tScreenCarSelectDuel::DrawBackground()
   *(uint *)cur_pkt_2 = *(uint *)cur_pkt_2 & 0xff000000 | pkt_addr24_2;
   SetDrawArea((DR_AREA *)daprim,&temp);
   PSXDrawSquare(0,0,screenheight / 2,0x200,screenheight / 2);
-  screenVtbl2 = (int)(this->_base_tScreenCarSelect)._base_tScreen._vf;
+  screenVtbl2 = (int)this->_vf;
   ti8 = (**(code **)(screenVtbl2 + 0x6c))
-                  ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename +
+                  (this->fPermShapes.fFilename +
                    *(short *)(screenVtbl2 + 0x68) + -0x14,&carInfo);
   if (ti8 == 0) {
     carInfo.fCarID = -1;
@@ -1659,53 +1659,53 @@ void tScreenCarSelectDuel::DrawBackground()
     ts3 = TextValue(carIter,kPlayerBoth);
     DrawShape_NFS4RoundRectangle((int)ts3,&r,0);
   }
-  vtbl = (this->_base_tScreenCarSelect)._base_tScreen._vf;
+  vtbl = this->_vf;
   (*vtbl[1][2].pfn)
-            ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename + vtbl[1][2].delta + -0x14,
+            (this->fPermShapes.fFilename + vtbl[1][2].delta + -0x14,
              &carInfo);
-  if ((gCarObj[0]->async_handle != 0) && (0x80 < ticks - (this->_base_tScreenCarSelect).fFadeTicks[0])) {
-    this->_base_tScreenCarSelect.SetBrightness(0,0);
-    TurnOff((this->_base_tScreenCarSelect).fVideoWall);
-    (this->_base_tScreenCarSelect).fFadeTicks[0] = ticks;
+  if ((gCarObj[0]->async_handle != 0) && (0x80 < ticks - this->fFadeTicks[0])) {
+    this->SetBrightness(0,0);
+    TurnOff(this->fVideoWall);
+    this->fFadeTicks[0] = ticks;
   }
-  this->_base_tScreenCarSelect.UpdateBrightness(0);
+  this->UpdateBrightness(0);
   showRoomFlag = 0;
-  DrawCar__FR8tCarInfossffcbUl7tPlayer(carInfo_00,0x116,0x4f,1.7,-9.9,(char)(this->_base_tScreenCarSelect).fBrightness[0],false,
-             (this->_base_tScreenCarSelect).fCameraRotation,kPlayerOne);
+  DrawCar__FR8tCarInfossffcbUl7tPlayer(carInfo_00,0x116,0x4f,1.7,-9.9,(char)this->fBrightness[0],false,
+             this->fCameraRotation,kPlayerOne);
   if ((((gCarObj[0]->async_handle == 0) &&
-       (sVar2 = (this->_base_tScreenCarSelect).fBrightness[0],
-       sVar2 == (this->_base_tScreenCarSelect).fDestBrightness[0])) && (sVar2 == 0)) &&
-     (0x80 < ticks - (this->_base_tScreenCarSelect).fFadeTicks[0])) {
+       (sVar2 = this->fBrightness[0],
+       sVar2 == this->fDestBrightness[0])) && (sVar2 == 0)) &&
+     (0x80 < ticks - this->fFadeTicks[0])) {
     sVar2 = 0x20;
     if (carInfo.fAvailable != '\0') {
       sVar2 = 0x80;
     }
-    this->_base_tScreenCarSelect.SetBrightness(sVar2,0);
-    TurnOn((this->_base_tScreenCarSelect).fVideoWall);
+    this->SetBrightness(sVar2,0);
+    TurnOn(this->fVideoWall);
   }
   if (ti8 != 0) {
-    IsShapeFileLoaded((tScreen *)this,&(this->_base_tScreenCarSelect)._base_tScreen.fSwapShapes);
+    ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
     bVar2 = false;
-    if ((((this->_base_tScreenCarSelect)._base_tScreen.fSwapShapes.fFile != (char *)0x0) &&
-        ((this->_base_tScreenCarSelect).fVideoWall[0].fTransitionDirection != -1)) &&
+    if (((this->fSwapShapes.fFile != (char *)0x0) &&
+        (this->fVideoWall[0].fTransitionDirection != -1)) &&
        (gCarObj[0]->async_handle == 0)) {
-      bVar2 = 0x80 < ticks - (this->_base_tScreenCarSelect).fFadeTicks[0];
+      bVar2 = 0x80 < ticks - this->fFadeTicks[0];
     }
     if ((bool)bVar2) {
-      UploadSwapShapes((tScreen *)this,5);
-      TurnOn((this->_base_tScreenCarSelect).fVideoWall);
-      if ((this->_base_tScreenCarSelect).fDestBrightness[0] == (this->_base_tScreenCarSelect).fBrightness[0]) {
+      ::UploadSwapShapes((tScreen *)this,5);
+      TurnOn(this->fVideoWall);
+      if (this->fDestBrightness[0] == this->fBrightness[0]) {
         sVar2 = 0x20;
         if (carInfo.fAvailable != '\0') {
           sVar2 = 0x80;
         }
-        this->_base_tScreenCarSelect.SetBrightness(sVar2,0);
+        this->SetBrightness(sVar2,0);
       }
     }
   }
-  vtbl = (this->_base_tScreenCarSelect)._base_tScreen._vf;
+  vtbl = this->_vf;
   (*vtbl[1][0].pfn)
-            ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename + vtbl[1][0].delta + -0x14,0)
+            (this->fPermShapes.fFilename + vtbl[1][0].delta + -0x14,0)
   ;
   return;
 }
@@ -1734,9 +1734,9 @@ void tScreenCarSelectDuel::DrawForeground()
   
   fY = 0x2d;
   iVar6 = 0;
-  vtbl = (this->_base_tScreenCarSelect)._base_tScreen._vf;
+  vtbl = this->_vf;
   iVar2 = (*vtbl[1][3].pfn)
-                    ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename +
+                    (this->fPermShapes.fFilename +
                      vtbl[1][3].delta + -0x14,&tStack_f8);
   iVar3 = 0;
   while (sVar5 = 0, iVar3 >> 0x10 < 2) {
@@ -1820,23 +1820,23 @@ void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
   byte validCar;
   tCarInfo carInfo;
   
-  vtbl = (this->_base_tScreenCarSelect)._base_tScreen._vf;
+  vtbl = this->_vf;
   iVar4 = 0;
   valid = (*vtbl[1][3].pfn)
-                    ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename +
+                    (this->fPermShapes.fFilename +
                      vtbl[1][3].delta + -0x14,&carInfo);
   do {
     DrawShapeExtended(iVar4,0,0,-(int)y,
-               (int)(this->_base_tScreenCarSelect)._base_tScreen.fScreenFadeVal,0,(tDrawShapeExtended *)0x0);
+               (int)this->fScreenFadeVal,0,(tDrawShapeExtended *)0x0);
     iVar4 = iVar4 + 1;
   } while (iVar4 * 0x10000 >> 0x10 < 0xc);
-  if ((((this->_base_tScreenCarSelect)._base_tScreen.fSwapShapes.fFlags & 1) != 0) &&
-     ((this->_base_tScreenCarSelect).fTVsInitialized == 0)) {
+  if (((this->fSwapShapes.fFlags & 1) != 0) &&
+     (this->fTVsInitialized == 0)) {
     sVar2 = 0;
     if (FEApp->fPlayer != '\0') {
       sVar2 = 0x69;
     }
-    vw = (this->_base_tScreenCarSelect).fVideoWall;
+    vw = this->fVideoWall;
     SetOffset(vw,6,sVar2);
     sVar2 = 0x2d;
     if (FEApp->fPlayer != '\0') {
@@ -1844,18 +1844,18 @@ void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
     }
     SetAvailableText(vw,0xf8,0x10e,sVar2);
     UpdateImages(vw);
-    (this->_base_tScreenCarSelect).fTVsInitialized = 1;
+    this->fTVsInitialized = 1;
   }
-  if ((0 < (this->_base_tScreenCarSelect)._base_tScreen.fScreenFadeVal) &&
-     ((this->_base_tScreenCarSelect)._base_tScreen.fTransitionOff != 0)) {
-    TurnOffInstant((this->_base_tScreenCarSelect).fVideoWall);
-    this->_base_tScreenCarSelect.SetBrightness(0,0);
+  if ((0 < this->fScreenFadeVal) &&
+     (this->fTransitionOff != 0)) {
+    TurnOffInstant(this->fVideoWall);
+    this->SetBrightness(0,0);
   }
-  vw = (this->_base_tScreenCarSelect).fVideoWall;
-  UpdateTransition(vw);
+  vw = this->fVideoWall;
+  ::UpdateTransition(vw);
   SetValid(vw,valid);
   SetAvailable(vw,(ushort)carInfo.fAvailable);
-  Draw(vw);
+  ::Draw(vw);
   return;
 }
 
@@ -1888,20 +1888,20 @@ void tScreenCarSelectTwoPlayer::UpdateVideoWall(tCarInfo &carInfo)
 {
   u_int bVar1;
 
-  if ((((ushort)carInfo.fCarIndex != (this->_base_tScreenCarSelect).fPreviousCar) ||
-      ((int)(signed char)carInfo.fCarID != (int)(this->_base_tScreenCarSelect).fPreviousCarID)) ||
+  if ((((ushort)carInfo.fCarIndex != this->fPreviousCar) ||
+      ((int)(signed char)carInfo.fCarID != (int)this->fPreviousCarID)) ||
      ((carInfo.fCarClass == '\a' &&
-      ((this->_base_tScreenCarSelect).fPreviousCountry != (ushort)carInfo.fCountry)))) {
+      (this->fPreviousCountry != (ushort)carInfo.fCountry)))) {
     if (-1 < (signed char)carInfo.fCarID) {
-      AsyncLoadSwapShapeFile((tScreen *)this,carInfo.fSmallName);
+      ::AsyncLoadSwapShapeFile((tScreen *)this,carInfo.fSmallName);
     }
-    (this->_base_tScreenCarSelect).fPreviousCar = (ushort)carInfo.fCarIndex;
-    (this->_base_tScreenCarSelect).fPreviousCarID = (short)(signed char)carInfo.fCarID;
+    this->fPreviousCar = (ushort)carInfo.fCarIndex;
+    this->fPreviousCarID = (short)(signed char)carInfo.fCarID;
     bVar1 = carInfo.fCountry;
-    (this->_base_tScreenCarSelect).fTVsInitialized = 0;
-    (this->_base_tScreenCarSelect).fPreviousCountry = (ushort)bVar1;
-    TurnOff((this->_base_tScreenCarSelect).fVideoWall);
-    this->_base_tScreenCarSelect.SetBrightness(0,0);
+    this->fTVsInitialized = 0;
+    this->fPreviousCountry = (ushort)bVar1;
+    TurnOff(this->fVideoWall);
+    this->SetBrightness(0,0);
   }
   return;
 }
@@ -1912,7 +1912,7 @@ void tScreenCarSelectTwoPlayer::UpdateVideoWall(tCarInfo &carInfo)
 void tScreenCarSelectTwoPlayer::TurnOffVideoWall()
 
 {
-  TurnOffInstant((this->_base_tScreenCarSelect).fVideoWall);
+  TurnOffInstant(this->fVideoWall);
   return;
 }
 
@@ -1966,22 +1966,22 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   }
   r.w = 200;
   r.h = 0xc;
-  screenVtbl = (int)(this->_base_tScreenCarSelect)._base_tScreen._vf;
+  screenVtbl = (int)this->_vf;
   ti7 = (**(code **)(screenVtbl + 0x6c))
-                  ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename +
+                  (this->fPermShapes.fFilename +
                    *(short *)(screenVtbl + 0x68) + -0x14,&carInfo);
   if (ti7 == 0) {
     carInfo.fCarID = -1;
-    vtbl = (this->_base_tScreenCarSelect)._base_tScreen._vf;
+    vtbl = this->_vf;
     (*vtbl[1][2].pfn)
-              ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename + vtbl[1][2].delta + -0x14,
+              (this->fPermShapes.fFilename + vtbl[1][2].delta + -0x14,
                &carInfo);
     showRoomFlag = 0;
-    DrawCar__FR8tCarInfossffcbUl7tPlayer(carInfoPtr,0x116,0x4f,1.7,-9.9,(char)(this->_base_tScreenCarSelect).fBrightness[0],false,
-               (this->_base_tScreenCarSelect).fCameraRotation,(tPlayer)(byte)FEApp->fPlayer);
-    vtbl = (this->_base_tScreenCarSelect)._base_tScreen._vf;
+    DrawCar__FR8tCarInfossffcbUl7tPlayer(carInfoPtr,0x116,0x4f,1.7,-9.9,(char)this->fBrightness[0],false,
+               this->fCameraRotation,(tPlayer)(byte)FEApp->fPlayer);
+    vtbl = this->_vf;
     (*vtbl[1][6].pfn)
-              ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename + vtbl[1][6].delta + -0x14)
+              (this->fPermShapes.fFilename + vtbl[1][6].delta + -0x14)
     ;
   }
   else {
@@ -1990,65 +1990,65 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
       ts10 = 0xb8;
       r.y = 0x80;
     }
-    (this->_base_tScreenCarSelect).fCameraRotation = (this->_base_tScreenCarSelect).fCameraRotation + 3;
+    this->fCameraRotation = this->fCameraRotation + 3;
     DrawShape_NFS4RoundRectangle(carInfo.fCarID + 0x121,&r,0);
-    screenVtbl2 = (int)(this->_base_tScreenCarSelect)._base_tScreen._vf;
+    screenVtbl2 = (int)this->_vf;
     (**(code **)(screenVtbl2 + 100))
-              ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename +
+              (this->fPermShapes.fFilename +
                *(short *)(screenVtbl2 + 0x60) + -0x14,&carInfo);
     if (gCarObj[(byte)FEApp->fPlayer]->async_handle != 0) {
-      this->_base_tScreenCarSelect.SetBrightness(0,0);
-      (this->_base_tScreenCarSelect).fFadeTicks[0] = ticks;
+      this->SetBrightness(0,0);
+      this->fFadeTicks[0] = ticks;
     }
     if ((((gCarObj[(byte)FEApp->fPlayer]->async_handle == 0) &&
-         (sVar3 = (this->_base_tScreenCarSelect).fBrightness[0],
-         sVar3 == (this->_base_tScreenCarSelect).fDestBrightness[0])) && (sVar3 == 0)) &&
-       (0x80 < ticks - (this->_base_tScreenCarSelect).fFadeTicks[0])) {
+         (sVar3 = this->fBrightness[0],
+         sVar3 == this->fDestBrightness[0])) && (sVar3 == 0)) &&
+       (0x80 < ticks - this->fFadeTicks[0])) {
       carY_2 = 0x20;
       if (carInfo.fAvailable != '\0') {
         carY_2 = 0x80;
       }
-      this->_base_tScreenCarSelect.SetBrightness(carY_2,0);
-      TurnOn((this->_base_tScreenCarSelect).fVideoWall);
+      this->SetBrightness(carY_2,0);
+      TurnOn(this->fVideoWall);
     }
-    this->_base_tScreenCarSelect.UpdateBrightness(0);
+    this->UpdateBrightness(0);
     showRoomFlag = 0;
-    DrawCar__FR8tCarInfossffcbUl7tPlayer(carInfoPtr,0x116,ts10,1.7,-9.9,(char)(this->_base_tScreenCarSelect).fBrightness[0],false,
-               (this->_base_tScreenCarSelect).fCameraRotation,(tPlayer)(byte)FEApp->fPlayer);
+    DrawCar__FR8tCarInfossffcbUl7tPlayer(carInfoPtr,0x116,ts10,1.7,-9.9,(char)this->fBrightness[0],false,
+               this->fCameraRotation,(tPlayer)(byte)FEApp->fPlayer);
   }
-  IsShapeFileLoaded((tScreen *)this,&(this->_base_tScreenCarSelect)._base_tScreen.fSwapShapes);
+  ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
   bVar1 = false;
-  if ((((this->_base_tScreenCarSelect)._base_tScreen.fSwapShapes.fFile != (char *)0x0) &&
-      ((this->_base_tScreenCarSelect).fVideoWall[0].fTransitionDirection != -1)) &&
+  if (((this->fSwapShapes.fFile != (char *)0x0) &&
+      (this->fVideoWall[0].fTransitionDirection != -1)) &&
      (gCarObj[(byte)FEApp->fPlayer]->async_handle == 0)) {
-    bVar1 = 0x80 < ticks - (this->_base_tScreenCarSelect).fFadeTicks[0];
+    bVar1 = 0x80 < ticks - this->fFadeTicks[0];
   }
   if ((bool)bVar1) {
     ts3 = 0;
     if (FEApp->fPlayer == '\x01') {
       ts3 = 0x41;
     }
-    UploadShapes((tScreen *)this,&(this->_base_tScreenCarSelect)._base_tScreen.fSwapShapes,0,ts3,5,0);
-    TurnOn((this->_base_tScreenCarSelect).fVideoWall);
-    if ((this->_base_tScreenCarSelect).fDestBrightness[0] == (this->_base_tScreenCarSelect).fBrightness[0]) {
+    ::UploadShapes((tScreen *)this,&this->fSwapShapes,0,ts3,5,0);
+    TurnOn(this->fVideoWall);
+    if (this->fDestBrightness[0] == this->fBrightness[0]) {
       sVar3 = 0x20;
       if (carInfo.fAvailable != '\0') {
         sVar3 = 0x80;
       }
-      this->_base_tScreenCarSelect.SetBrightness(sVar3,0);
+      this->SetBrightness(sVar3,0);
     }
   }
   r.y = 0;
   if (FEApp->fPlayer == '\x01') {
     r.y = 0x69;
   }
-  vtbl = (this->_base_tScreenCarSelect)._base_tScreen._vf;
+  vtbl = this->_vf;
   (*vtbl[1][0].pfn)
-            ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename + vtbl[1][0].delta + -0x14,
+            (this->fPermShapes.fFilename + vtbl[1][0].delta + -0x14,
              r.y);
-  vtbl = (this->_base_tScreenCarSelect)._base_tScreen._vf;
+  vtbl = this->_vf;
   (*vtbl[1][7].pfn)
-            ((this->_base_tScreenCarSelect)._base_tScreen.fPermShapes.fFilename + vtbl[1][7].delta + -0x14);
+            (this->fPermShapes.fFilename + vtbl[1][7].delta + -0x14);
   daprim = Render_gPacketPtr;
   cur_pkt_2 = Render_gPalettePtr;
   temp.x = 0;
@@ -2167,13 +2167,13 @@ void tScreenCarSelectTwoPlayer::SetDialog()
     if (uVar4 == 0) {
       sVar2 = -0x3c;
     }
-    (this->CarDialog)._base_tDialogMessageString._base_tDialogBase.OffsetX = 0;
-    (this->CarDialog)._base_tDialogMessageString._base_tDialogBase.OffsetY = sVar2;
-    (this->CarDialog)._base_tDialogMessageString._base_tDialogBase.specificPlayer = (ushort)player2;
+    (this->CarDialog).OffsetX = 0;
+    (this->CarDialog).OffsetY = sVar2;
+    (this->CarDialog).specificPlayer = (ushort)player2;
     fmt = TextSys_Word(0x2a8);
     str = PlayerName(1 - uVar4);
     sprintf("",fmt,str);
-    (this->CarDialog)._base_tDialogMessageString.string = "";
+    (this->CarDialog).string = "";
     Display((tDialogBase *)&this->CarDialog);
   }
   return;
@@ -2188,7 +2188,7 @@ void tScreenCarSelectTwoPlayer::AllocateAsyncBuffer()
   char *str;
   
   str = Platform_GetDCTBuffer(16000,"VideoWall");
-  (this->_base_tScreenCarSelect)._base_tScreen.fSwapShapes.fDestFile = str;
+  this->fSwapShapes.fDestFile = str;
   return;
 }
 
@@ -2199,11 +2199,11 @@ void tScreenCarSelectTwoPlayer::InitializeVideoWall()
 
 {
   
-  ::Initialize(&this->_base_tScreenCarSelect.fVideoWall[0],(this->_base_tScreenCarSelect).tvConfigs,
-             (this->_base_tScreenCarSelect)._base_tScreen.fSwapShapes.fShapes,0,5,tvSplitOrder,0);
-  if (((this->_base_tScreenCarSelect)._base_tScreen.fSwapShapes.fFlags & 1) != 0) {
-    UpdateImages((this->_base_tScreenCarSelect).fVideoWall);
-    (this->_base_tScreenCarSelect).fTVsInitialized = 1;
+  ::Initialize(&this->fVideoWall[0],this->tvConfigs,
+             this->fSwapShapes.fShapes,0,5,tvSplitOrder,0);
+  if ((this->fSwapShapes.fFlags & 1) != 0) {
+    UpdateImages(this->fVideoWall);
+    this->fTVsInitialized = 1;
   }
   return;
 }
@@ -2215,15 +2215,15 @@ void tScreenCarSelectTwoPlayer::Initialize()
 
 {
   
-  this->_base_tScreenCarSelect.Initialize();
-  (this->_base_tScreenCarSelect).fState = 0;
-  (this->_base_tScreenCarSelect).fPreviousCar = -1;
-  (this->_base_tScreenCarSelect).fPreviousCarID = -1;
-  (this->_base_tScreenCarSelect).fPreviousCountry = -1;
-  (this->_base_tScreenCarSelect).fDestBrightness[1] = 0;
-  (this->_base_tScreenCarSelect).fDestBrightness[0] = 0;
-  (this->_base_tScreenCarSelect).fBrightness[1] = 0;
-  (this->_base_tScreenCarSelect).fBrightness[0] = 0;
+  this->Initialize();
+  this->fState = 0;
+  this->fPreviousCar = -1;
+  this->fPreviousCarID = -1;
+  this->fPreviousCountry = -1;
+  this->fDestBrightness[1] = 0;
+  this->fDestBrightness[0] = 0;
+  this->fBrightness[1] = 0;
+  this->fBrightness[0] = 0;
   gShowroomLights[0] = 0;
   return;
 }
@@ -2236,7 +2236,7 @@ void tScreenCarSelectTwoPlayer::Cleanup()
 {
   
   Hide((tDialogBase *)&this->CarDialog);
-  this->_base_tScreenCarSelect.Cleanup();
+  this->Cleanup();
   return;
 }
 
@@ -2271,9 +2271,9 @@ void tScreenPinkSlipsCarSelect::DrawBackground()
 {
   
   this->DoMemCardStuff();
-  this->_base_tScreenCarSelectTwoPlayer.DrawBackground();
+  this->DrawBackground();
   if (this->fExitingScreen != 0) {
-    Hide((tDialogBase *)&(this->_base_tScreenCarSelectTwoPlayer).CarDialog);
+    Hide((tDialogBase *)&this->CarDialog);
   }
   return;
 }
@@ -2320,7 +2320,7 @@ void tScreenPinkSlipsCarSelect::DoMemCardStuff()
   if (*pinkState == CardLoadedFine) {
     return;
   }
-  if ((this->_base_tScreenCarSelectTwoPlayer).CarDialog._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1)
+  if (this->CarDialog.fFullyOpen != 1)
   {
     this->waitfordialog = 0;
     return;
@@ -2401,7 +2401,7 @@ void tScreenPinkSlipsCarSelect::DrawForeground()
 
 {
   
-  this->_base_tScreenCarSelectTwoPlayer.DrawForeground();
+  this->DrawForeground();
   return;
 }
 
@@ -2422,7 +2422,7 @@ void tScreenPinkSlipsCarSelect::Initialize()
   this->pCI = cardInfo;
   Init_Memcard(true,1);
   this->fExitingScreen = 0;
-  this->_base_tScreenCarSelectTwoPlayer.Initialize();
+  this->Initialize();
   return;
 }
 
@@ -2436,9 +2436,9 @@ void tScreenPinkSlipsCarSelect::Cleanup()
   this->fExitingScreen = 1;
   PinkSlipsScreenState[0] = WhoCaresWeBeExiting;
   PinkSlipsScreenState[1] = WhoCaresWeBeExiting;
-  Hide((tDialogBase *)&(this->_base_tScreenCarSelectTwoPlayer).CarDialog);
+  Hide((tDialogBase *)&this->CarDialog);
   DeInit_Memcard();
-  this->_base_tScreenCarSelectTwoPlayer.Cleanup();
+  this->Cleanup();
   return;
 }
 
@@ -2463,13 +2463,13 @@ void tScreenPinkSlipsCarSelect::SetDialog()
   if (p == 0) {
     y_off = -0x3c;
   }
-  (this->_base_tScreenCarSelectTwoPlayer).CarDialog._base_tDialogMessageString._base_tDialogBase.OffsetX = 0;
-  (this->_base_tScreenCarSelectTwoPlayer).CarDialog._base_tDialogMessageString._base_tDialogBase.OffsetY = y_off;
-  (this->_base_tScreenCarSelectTwoPlayer).CarDialog._base_tDialogMessageString._base_tDialogBase.specificPlayer =
+  this->CarDialog.OffsetX = 0;
+  this->CarDialog.OffsetY = y_off;
+  this->CarDialog.specificPlayer =
        (ushort)p_byte;
   if (((PinkSlipsScreenState[0] != CardLoadedFine) && (p == 1)) || (this->fExitingScreen != 0)) {
 switchD_8003f3b4_caseD_7:
-    Hide((tDialogBase *)&(this->_base_tScreenCarSelectTwoPlayer).CarDialog);
+    Hide((tDialogBase *)&this->CarDialog);
     return;
   }
   if (PinkSlipsScreenState[p] != NoCardInserted) {
@@ -2486,8 +2486,8 @@ switchD_8003f3b4_caseD_7:
         iVar3 = p + 0x2a9;
       }
       str2 = TextSys_Word(iVar3);
-      (this->_base_tScreenCarSelectTwoPlayer).CarDialog._base_tDialogMessageString.string = str2;
-      Display((tDialogBase *)&(this->_base_tScreenCarSelectTwoPlayer).CarDialog);
+      this->CarDialog.string = str2;
+      Display((tDialogBase *)&this->CarDialog);
       return;
     }
     if (this->fStartCheckTick == 0) {
@@ -2515,14 +2515,14 @@ switchD_8003f3b4_caseD_7:
     goto SetDlg_loadingWord;
   case CardLoadedFine:
     if ((FEApp->waitingForOtherPlayer[p] == 0) && (PinkSlipsScreenState[1 - p] == CardLoadedFine)) {
-      Hide((tDialogBase *)&(this->_base_tScreenCarSelectTwoPlayer).CarDialog);
+      Hide((tDialogBase *)&this->CarDialog);
       this->fStartCheckTick = 0;
       goto SetDlg_cardOkReturn;
     }
     str2 = TextSys_Word(0x2a8);
     str = PlayerName(1 - p);
     sprintf("",str2,str);
-    (this->_base_tScreenCarSelectTwoPlayer).CarDialog._base_tDialogMessageString.string = "";
+    this->CarDialog.string = "";
     goto SetDlg_displayAndReset;
   case WhoCaresWeBeExiting:
     goto switchD_8003f3b4_caseD_7;
@@ -2530,9 +2530,9 @@ switchD_8003f3b4_caseD_7:
     wordnum = p + 0x280;
 SetDlg_loadingWord:
     str2 = TextSys_Word(wordnum);
-    (this->_base_tScreenCarSelectTwoPlayer).CarDialog._base_tDialogMessageString.string = str2;
+    this->CarDialog.string = str2;
 SetDlg_displayAndReset:
-    Display((tDialogBase *)&(this->_base_tScreenCarSelectTwoPlayer).CarDialog);
+    Display((tDialogBase *)&this->CarDialog);
     this->fStartCheckTick = 0;
 SetDlg_cardOkReturn:
     this->fCardFailed = 0;
@@ -2541,8 +2541,8 @@ SetDlg_cardOkReturn:
     goto switchD_8003f3b4_default;
   }
   str2 = TextSys_Word(iVar3);
-  (this->_base_tScreenCarSelectTwoPlayer).CarDialog._base_tDialogMessageString.string = str2;
-  Display((tDialogBase *)&(this->_base_tScreenCarSelectTwoPlayer).CarDialog);
+  this->CarDialog.string = str2;
+  Display((tDialogBase *)&this->CarDialog);
   this->fCardFailed = 1;
   this->fStartCheckTick = 0;
 switchD_8003f3b4_default:
@@ -2574,7 +2574,7 @@ int tScreenPinkSlipsCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_in
     PVar1 = WhoCaresWeBeExiting;
     PinkSlipsScreenState[0] = WhoCaresWeBeExiting;
     PinkSlipsScreenState[1] = WhoCaresWeBeExiting;
-    Hide((tDialogBase *)&(this->_base_tScreenCarSelectTwoPlayer).CarDialog);
+    Hide((tDialogBase *)&this->CarDialog);
   }
   return PVar1;
 }
@@ -2607,7 +2607,7 @@ tScreenPinkSlipsCarSelect::~tScreenPinkSlipsCarSelect()
 
 {
   
-  tScreen_dtor((tScreen *)&(this->_base_tScreenCarSelectTwoPlayer).CarDialog);
+  tScreen_dtor((tScreen *)&this->CarDialog);
   tScreenCarSelect_dtor((tScreenCarSelect *)this);
   return;
 }
@@ -2620,7 +2620,7 @@ tScreenCarSelectTwoPlayer::~tScreenCarSelectTwoPlayer()
 {
   
   tScreen_dtor((tScreen *)&this->CarDialog);
-  tScreenCarSelect_dtor(&this->_base_tScreenCarSelect);
+  tScreenCarSelect_dtor((tScreenCarSelect *)this);
   return;
 }
 
@@ -2644,7 +2644,7 @@ tScreenCarSelectDuel::~tScreenCarSelectDuel()
   int T [4];
   char buffer [32];
   
-  tScreenCarSelect_dtor(&this->_base_tScreenCarSelect);
+  tScreenCarSelect_dtor((tScreenCarSelect *)this);
   return;
 }
 

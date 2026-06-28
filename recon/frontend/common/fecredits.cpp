@@ -122,7 +122,7 @@ void tCreditManager::Draw(bool selected)
     iVar1 = iVar1 + 1;
     uVar3 = 0x80 - this->fTVFade;
     ptVar4->tvConfigs[0].tint = uVar3 * 0x10000 | uVar3 * 0x100 | uVar3;
-    ptVar4 = (tScreenMain *)&(ptVar4->_base_tScreen).fSwapShapes.fDestFile;
+    ptVar4 = (tScreenMain *)&(ptVar4)->fSwapShapes.fDestFile;
   } while (iVar1 < 0x10);
   if (this->fTVFade == 0) {
     if (this->fRequestDeInit != 0) {

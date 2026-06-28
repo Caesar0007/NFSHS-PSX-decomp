@@ -25,91 +25,91 @@ tFEApplication::tFEApplication()
   
   this_tDialogMessageString = &this->messagePopup;
   this_tDialogHelp = &this->helpPopup;
-  *(void **)&((this->messagePopup)._base_tDialogBase._base_tScreen._vf) = (void *)tDialogBase_vtable;
-  (this->messagePopup)._base_tDialogBase.currentlyOn = 0;
-  (this->messagePopup)._base_tDialogBase.reservedheight = 0;
-  (this->messagePopup)._base_tDialogBase.MaxH = 0;
-  (this->messagePopup)._base_tDialogBase.OffsetY = 0;
-  (this->messagePopup)._base_tDialogBase.OffsetX = 0;
-  (this->messagePopup)._base_tDialogBase.height = 0;
-  (this->messagePopup)._base_tDialogBase.width = 0;
-  (this->messagePopup)._base_tDialogBase.top = 0;
-  (this->messagePopup)._base_tDialogBase.left = 0;
-  (this->messagePopup)._base_tDialogBase.MaxW = 0x120;
-  (this->messagePopup)._base_tDialogBase.specificPlayer = -1;
-  (this->messagePopup)._base_tDialogBase.fDefault = 0;
-  (this->messagePopup)._base_tDialogBase.timeOutTicks = 0;
-  *(void **)&((this->messagePopup)._base_tDialogBase._base_tScreen._vf) = (void *)tDialogMessageString_vtable;
+  *(void **)&((this->messagePopup)._vf) = (void *)tDialogBase_vtable;
+  (this->messagePopup).currentlyOn = 0;
+  (this->messagePopup).reservedheight = 0;
+  (this->messagePopup).MaxH = 0;
+  (this->messagePopup).OffsetY = 0;
+  (this->messagePopup).OffsetX = 0;
+  (this->messagePopup).height = 0;
+  (this->messagePopup).width = 0;
+  (this->messagePopup).top = 0;
+  (this->messagePopup).left = 0;
+  (this->messagePopup).MaxW = 0x120;
+  (this->messagePopup).specificPlayer = -1;
+  (this->messagePopup).fDefault = 0;
+  (this->messagePopup).timeOutTicks = 0;
+  *(void **)&((this->messagePopup)._vf) = (void *)tDialogMessageString_vtable;
   (this->messagePopup).Centerit = 0;
-  (this->messagePopup)._base_tDialogBase.fFullyOpen = 0;
-  (this->messagePopup)._base_tDialogBase.timeOutTicks = 0;
-  (this->messagePopup)._base_tDialogBase.fFadeText = 0x80;
+  (this->messagePopup).fFullyOpen = 0;
+  (this->messagePopup).timeOutTicks = 0;
+  (this->messagePopup).fFadeText = 0x80;
   this_tDialogMessageStringWithTimeout = &this->MemCardDialog;
-  *(void **)&((this->helpPopup)._base_tDialogBase._base_tScreen._vf) = (void *)tDialogBase_vtable;
-  *(void **)&((this->helpPopup)._base_tDialogBase._base_tScreen._vf) = (void *)tDialogHelp_vtable;
-  (this->helpPopup)._base_tDialogBase.currentlyOn = 0;
-  (this->helpPopup)._base_tDialogBase.reservedheight = 0;
-  (this->helpPopup)._base_tDialogBase.MaxH = 0;
-  (this->helpPopup)._base_tDialogBase.OffsetY = 0;
-  (this->helpPopup)._base_tDialogBase.OffsetX = 0;
-  (this->helpPopup)._base_tDialogBase.height = 0;
-  (this->helpPopup)._base_tDialogBase.width = 0;
-  (this->helpPopup)._base_tDialogBase.top = 0;
-  (this->helpPopup)._base_tDialogBase.left = 0;
-  (this->helpPopup)._base_tDialogBase.MaxW = 0x120;
-  (this->helpPopup)._base_tDialogBase.specificPlayer = -1;
-  (this->helpPopup)._base_tDialogBase.fDefault = 0;
-  (this->helpPopup)._base_tDialogBase.timeOutTicks = 0;
+  *(void **)&((this->helpPopup)._vf) = (void *)tDialogBase_vtable;
+  *(void **)&((this->helpPopup)._vf) = (void *)tDialogHelp_vtable;
+  (this->helpPopup).currentlyOn = 0;
+  (this->helpPopup).reservedheight = 0;
+  (this->helpPopup).MaxH = 0;
+  (this->helpPopup).OffsetY = 0;
+  (this->helpPopup).OffsetX = 0;
+  (this->helpPopup).height = 0;
+  (this->helpPopup).width = 0;
+  (this->helpPopup).top = 0;
+  (this->helpPopup).left = 0;
+  (this->helpPopup).MaxW = 0x120;
+  (this->helpPopup).specificPlayer = -1;
+  (this->helpPopup).fDefault = 0;
+  (this->helpPopup).timeOutTicks = 0;
   (this->helpPopup).variant = -1;
-  (this->helpPopup)._base_tDialogBase.timeOutTicks = 0x578;
+  (this->helpPopup).timeOutTicks = 0x578;
   this_tDialogNoInputMessage = &this->NoInputMemCardDialog;
   /* @0x800130B8/BC/C0: three _vf stores to MemCardDialog (this+0x238): tDialogBase, tDialogMessageString,
    * then the FINAL = tDialogMessageStringWithTimeout vtable @0x80010098. The recon mis-decoded the absolute
    * VA 0x80010098 (0x80010000+0x98) as a runtime `bigBuf + 0x98` pointer, leaving _vf pointing at garbage
    * (wrong virtual dispatch). Adversarially verified: the 0x80010550 the audit suggested was helpPopup's
    * tDialogHelp vtable, mis-attributed (M10). */
-  *(void **)&((this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase._base_tScreen._vf) = (void *)tDialogBase_vtable;
-  *(void **)&((this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase._base_tScreen._vf) = (void *)tDialogMessageString_vtable;
-  *(void **)&((this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase._base_tScreen._vf) = (void *)tDialogMessageStringWithTimeout_vtable;
-  (this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.currentlyOn = 0;
-  (this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.reservedheight = 0;
-  (this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.MaxH = 0;
-  (this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.OffsetY = 0;
-  (this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.OffsetX = 0;
-  (this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.height = 0;
-  (this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.width = 0;
-  (this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.top = 0;
-  (this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.left = 0;
-  (this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.MaxW = 0x120;
-  (this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.specificPlayer = -1;
-  (this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.fDefault = 0;
-  (this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.timeOutTicks = 0;
-  (this->MemCardDialog)._base_tDialogMessageString.Centerit = 0;
-  (this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen = 0;
-  (this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.timeOutTicks = 0;
-  (this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFadeText = 0x80;
-  (this->MemCardDialog)._base_tDialogMessageString._base_tDialogBase.timeOutTicks = 0x480;
+  *(void **)&((this->MemCardDialog)._vf) = (void *)tDialogBase_vtable;
+  *(void **)&((this->MemCardDialog)._vf) = (void *)tDialogMessageString_vtable;
+  *(void **)&((this->MemCardDialog)._vf) = (void *)tDialogMessageStringWithTimeout_vtable;
+  (this->MemCardDialog).currentlyOn = 0;
+  (this->MemCardDialog).reservedheight = 0;
+  (this->MemCardDialog).MaxH = 0;
+  (this->MemCardDialog).OffsetY = 0;
+  (this->MemCardDialog).OffsetX = 0;
+  (this->MemCardDialog).height = 0;
+  (this->MemCardDialog).width = 0;
+  (this->MemCardDialog).top = 0;
+  (this->MemCardDialog).left = 0;
+  (this->MemCardDialog).MaxW = 0x120;
+  (this->MemCardDialog).specificPlayer = -1;
+  (this->MemCardDialog).fDefault = 0;
+  (this->MemCardDialog).timeOutTicks = 0;
+  (this->MemCardDialog).Centerit = 0;
+  (this->MemCardDialog).fFullyOpen = 0;
+  (this->MemCardDialog).timeOutTicks = 0;
+  (this->MemCardDialog).fFadeText = 0x80;
+  (this->MemCardDialog).timeOutTicks = 0x480;
   i = 0;
-  *(void **)&((this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase._base_tScreen._vf) = (void *)tDialogBase_vtable;
-  (this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.currentlyOn = 0;
-  (this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.reservedheight = 0;
-  (this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.MaxH = 0;
-  (this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.OffsetY = 0;
-  (this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.OffsetX = 0;
-  (this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.height = 0;
-  (this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.width = 0;
-  (this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.top = 0;
-  (this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.left = 0;
-  (this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.MaxW = 0x120;
-  (this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.specificPlayer = -1;
-  (this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.fDefault = 0;
-  (this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.timeOutTicks = 0;
-  *(void **)&((this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase._base_tScreen._vf) = (void *)tDialogMessageString_vtable;
-  (this->NoInputMemCardDialog)._base_tDialogMessageString.Centerit = 0;
-  (this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen = 0;
-  (this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.timeOutTicks = 0;
-  (this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFadeText = 0x80;
-  *(void **)&((this->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase._base_tScreen._vf) = (void *)tDialogNoInputMessage_vtable;
+  *(void **)&((this->NoInputMemCardDialog)._vf) = (void *)tDialogBase_vtable;
+  (this->NoInputMemCardDialog).currentlyOn = 0;
+  (this->NoInputMemCardDialog).reservedheight = 0;
+  (this->NoInputMemCardDialog).MaxH = 0;
+  (this->NoInputMemCardDialog).OffsetY = 0;
+  (this->NoInputMemCardDialog).OffsetX = 0;
+  (this->NoInputMemCardDialog).height = 0;
+  (this->NoInputMemCardDialog).width = 0;
+  (this->NoInputMemCardDialog).top = 0;
+  (this->NoInputMemCardDialog).left = 0;
+  (this->NoInputMemCardDialog).MaxW = 0x120;
+  (this->NoInputMemCardDialog).specificPlayer = -1;
+  (this->NoInputMemCardDialog).fDefault = 0;
+  (this->NoInputMemCardDialog).timeOutTicks = 0;
+  *(void **)&((this->NoInputMemCardDialog)._vf) = (void *)tDialogMessageString_vtable;
+  (this->NoInputMemCardDialog).Centerit = 0;
+  (this->NoInputMemCardDialog).fFullyOpen = 0;
+  (this->NoInputMemCardDialog).timeOutTicks = 0;
+  (this->NoInputMemCardDialog).fFadeText = 0x80;
+  *(void **)&((this->NoInputMemCardDialog)._vf) = (void *)tDialogNoInputMessage_vtable;
   ptVar1 = this;
   do {
     ptVar1->gotName[0] = 0;
@@ -548,7 +548,7 @@ void tFEApplication::DisplayHelp(short variant)
    * slot) — not the full `sh a1,0x1E8(this)` offset with a separate base computation. */
   this_tDialogHelp = &this->helpPopup;
   this_tDialogHelp->variant = variant;
-  (&this_tDialogHelp->_base_tDialogBase)->Display();
+  ((tDialogBase *)this_tDialogHelp)->Display();
   return;
 }
 
@@ -854,8 +854,8 @@ i = inputStartPlayer;
           if ((0xf < ticks - ticksAtLastInput[i]) ||
              ((debounce & *ptVar19) == kInput_KeyType_NoKey)) {
             *(tInputKeyType *)
-             (((tDialogBase *)(i * 4))[2]._base_tScreen.fPermShapes.fFilename +
-             (int)(&(((tDialogMessageString *)(this->fCurrentMenu + 10))->_base_tDialogBase)._base_tScreen + -1)
+             (((tDialogBase *)(i * 4))[2].fPermShapes.fFilename +
+             (int)((tScreen *)((tDialogMessageString *)(this->fCurrentMenu + 10)) + -1)
              + 0x50) = *ptVar19;
           }
           iVar10 = (i << 0x10) >> 0xe;
@@ -864,9 +864,9 @@ i = inputStartPlayer;
             dialog = ((tDialogBase *)(i * 4))->GetTopMostDialog();
             demoLoopLastInputTick = iVar4;
             *(int *)((int)ticksAtLastInput + iVar10) = iVar4;
-            if ((*piVar20 == 4) && ((this->helpPopup)._base_tDialogBase.currentlyOn != 0)) {
+            if ((*piVar20 == 4) && ((this->helpPopup).currentlyOn != 0)) {
               *piVar20 = 1;
-              (&(this->helpPopup)._base_tDialogBase)->Hide();
+              ((tDialogBase *)&this->helpPopup)->Hide();
             }
             if (dialog != 0) {
               iVar10 = (int)sVar9;
@@ -1048,9 +1048,9 @@ MainLoop_carInfoApplied:
             while ((ptVar5 = FEApp, bVar1 && (err == PinkSlipsNoError))) {
               pcVar15 = TextSys_Word(player + 0x295);
               ptVar6 = FEApp;
-              (ptVar5->NoInputMemCardDialog)._base_tDialogMessageString.string = pcVar15;
+              (ptVar5->NoInputMemCardDialog).string = pcVar15;
               ((tDialogBase *)&ptVar6->NoInputMemCardDialog)->Display();
-              while ((FEApp->NoInputMemCardDialog)._base_tDialogMessageString._base_tDialogBase.fFullyOpen != 1)
+              while ((FEApp->NoInputMemCardDialog).fFullyOpen != 1)
               {
                 FEApp->Redraw();
               }
@@ -1059,7 +1059,7 @@ MainLoop_carInfoApplied:
                 pcVar15 = TextSys_Word(0x297);
                 pcVar16 = PlayerName(0);
                 sprintf(string,pcVar15,pcVar16,1);
-                (FEApp->NoInputMemCardDialog)._base_tDialogMessageString.string = string;
+                (FEApp->NoInputMemCardDialog).string = string;
                 SavePinkSlipsCarsWithErrorDialogs(0,1,-1);
               }
               player = player + 1;

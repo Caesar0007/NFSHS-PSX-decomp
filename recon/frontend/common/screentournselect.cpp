@@ -14,7 +14,7 @@ tScreenTournSelect::tScreenTournSelect()
 
 {
 
-  (this->_base_tScreen)._vf = (__vtbl_ptr_type (*)[10])tScreenTournSelect_vtable;
+  this->_vf = (__vtbl_ptr_type (*)[10])tScreenTournSelect_vtable;
   return;
 }
 
@@ -24,8 +24,8 @@ tScreenTournSelect::tScreenTournSelect()
 tScreenTournSelect::~tScreenTournSelect()
 
 {
-  (this->_base_tScreen)._vf = (__vtbl_ptr_type (*)[10])tScreenTournSelect_vtable;
-  tScreen_dtor(&this->_base_tScreen);
+  this->_vf = (__vtbl_ptr_type (*)[10])tScreenTournSelect_vtable;
+  tScreen_dtor((tScreen *)this);
   return;
 }
 
@@ -77,7 +77,7 @@ void tScreenTournSelect::Initialize()
   r.h = 0xa0;
   ClearImage(&r,'\0','\0','\0');
   DrawSync(0);
-  this->_base_tScreen.Initialize();
+  this->Initialize();
   this->fCurrentMovie = 0;
   this->fPreviousMovie = 0;
   sprintf(moviename,"%szzzTRN.dct",Paths_Paths[0x29]);
@@ -92,7 +92,7 @@ void tScreenTournSelect::Initialize()
     do {
       js = (short)j;
       tvIdx = (short)i * 2 + (int)js;
-      InitTV(this->trophyTV + tvIdx,(this->_base_tScreen).fPermShapes.fShapes,0);
+      InitTV(this->trophyTV + tvIdx,this->fPermShapes.fShapes,0);
       j = j + 1;
       this->trophyTV[tvIdx].y = js * 0x25 + 0x8e;
       this->trophyTV[tvIdx].w = 0x4c;
@@ -126,7 +126,7 @@ void tScreenTournSelect::Cleanup()
   
   VIDEO_destroy(this->hVideo);
   purgememadr((void *)this->hVideo);
-  this->_base_tScreen.Cleanup();
+  this->Cleanup();
   return;
 }
 
@@ -141,7 +141,7 @@ void tScreenTournSelect::UpdateVideoWall(tTourneyInfo *tourn)
   if (tourn->fTrophyID != (signed char)this->fPreviousTrophy) {
     fileName = gSwapFileName;
     GetTrophyName(&tournamentManager,tourn,ts_Medium,gSwapFileName,-1);
-    AsyncLoadSwapShapeFile(&this->_base_tScreen,fileName);
+    ::AsyncLoadSwapShapeFile((tScreen *)this,fileName);
     this->fTVsInitialized = 0;
     this->fPreviousTrophy = tourn->fTrophyID;
     if (-1 < this->fTransitionDirection) {
@@ -167,8 +167,8 @@ void tScreenTournSelect::DrawVideoWall()
   tDrawShapeExtended drawFlags;
   
   i = 0xf4;
-  drawFlags.custom_shapes = (this->_base_tScreen).fSwapShapes.fShapes;
-  DrawBackgroundImage(&this->_base_tScreen,0,0x22,(this->_base_tScreen).fPermShapes.fShapes,0);
+  drawFlags.custom_shapes = this->fSwapShapes.fShapes;
+  ::DrawBackgroundImage((tScreen *)this,0,0x22,this->fPermShapes.fShapes,0);
   do {
     PSXDrawTransSquare(0x202020,transX,transY,2,0x61,1);
     i = i + 0x50;
@@ -219,7 +219,7 @@ void tScreenTournSelect::DrawVideoWall()
   abr = 0;
   i = 0x1ec;
   do {
-    DrawTV((tTVConfig *)((this->_base_tScreen).fPermShapes.fFilename + i + -0x14));
+    DrawTV((tTVConfig *)(this->fPermShapes.fFilename + i + -0x14));
     abr = abr + 1;
     i = i + 0x30;
   } while (abr < 4);
@@ -270,15 +270,15 @@ void tScreenTournSelect::DrawBackground()
   DarkGreyCol = CalcFadeVal(0x232323,(int)amount);
   GreyCol = CalcFadeVal(0x505050,(int)amount);
   number = tournamentManager.fMoney;
-  FETextRender_MenuTextFade((int)(this->_base_tScreen).fScreenFadeVal,0x7b,textState_Selected,textType_ScreenInfo);
+  FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x7b,textState_Selected,textType_ScreenInfo);
   ti6 = TextSys_WordX(0x7b);
   ti7 = TextSys_WordY(0x7b);
   DrawMoney(ti6 + 0x8c,ti7 + 9,6,number,YellowCol,DarkGreyCol);
-  FETextRender_MenuTextFade((int)(this->_base_tScreen).fScreenFadeVal,0x99,textState_Selected,textType_Default);
+  FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x99,textState_Selected,textType_Default);
   ti6 = TextSys_WordX(0x99);
   ti7 = TextSys_WordY(0x99);
   DrawMoney(ti6 + 0x8c,ti7 + 9,6,tourn->fEntranceFee,YellowCol,DarkGreyCol);
-  FETextRender_MenuTextFade((int)(this->_base_tScreen).fScreenFadeVal,0x9a,textState_Selected,textType_Default);
+  FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x9a,textState_Selected,textType_Default);
   ti6 = TextSys_WordY(0x9a);
   do {
     ti6 = ti6 + 9;
@@ -290,9 +290,9 @@ void tScreenTournSelect::DrawBackground()
     ti10 = ti10 + 1;
   } while (ti10 * 0x10000 >> 0x10 < 3);
   this->UpdateVideoWall(tourn);
-  IsShapeFileLoaded(&this->_base_tScreen,&(this->_base_tScreen).fSwapShapes);
-  if (((this->_base_tScreen).fSwapShapes.fFile != (char *)0x0) && (-1 < this->fTransitionDirection)) {
-    UploadSwapShapes(&this->_base_tScreen,0x20);
+  ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
+  if ((this->fSwapShapes.fFile != (char *)0x0) && (-1 < this->fTransitionDirection)) {
+    ::UploadSwapShapes((tScreen *)this,0x20);
     ti6 = ticks;
     this->fTransitionDirection = 1;
     this->fTVTicks = ti6;
@@ -357,7 +357,7 @@ void tScreenTournSelect::DrawBackground()
   }
   ti6 = TextValue(tp9,kPlayerBoth);
   r_00 = &r;
-  FETextRender_WordWrapFade((int)(this->_base_tScreen).fScreenFadeVal,(short)ti6,r_00,textState_Hilighted,
+  FETextRender_WordWrapFade((int)this->fScreenFadeVal,(short)ti6,r_00,textState_Hilighted,
              textType_VideoWall);
   r.x = 0xaa;
   r.w = r.w + -10;
@@ -380,9 +380,9 @@ void tScreenTournSelect::DrawBackground()
   tstr8 = TextSys_Word((int)(short)(ti6 + 0x26));
   row = CalcFadeVal(0x505050,(int)r_00);
   FETextRender_WordWrapTextRGB(tstr8,&r,row);
-  FETextRender_MenuTextPositionedJustifyFade((int)(this->_base_tScreen).fScreenFadeVal,0x3db,0xaa,0x75,0,textState_Selected,
+  FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,0x3db,0xaa,0x75,0,textState_Selected,
              textType_ScreenInfo);
-  FETextRender_MenuTextPositionedJustifyFade((int)(this->_base_tScreen).fScreenFadeVal,(short)((uint)((ti6 + 0x39) * 0x10000) >> 0x10),
+  FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,(short)((uint)((ti6 + 0x39) * 0x10000) >> 0x10),
              0xaa,0x7d,0,textState_Hilighted,textType_ScreenInfo);
   do {
     DrawTV(this->tvConfigs + (short)col);
@@ -406,8 +406,8 @@ void tScreenTournSelect::DrawForeground()
   uint movieRGB;
   tDrawShapeExtended drawFlags;
   
-  PSXDrawBrightEndLine(0x232323,0xa7,0x29,0x13c,1,3,(int)(this->_base_tScreen).fScreenFadeVal,0x14);
-  PSXDrawBrightEndLine(0x232323,0xa7,0x4a,0x13c,1,2,(int)(this->_base_tScreen).fScreenFadeVal,0x14);
+  PSXDrawBrightEndLine(0x232323,0xa7,0x29,0x13c,1,3,(int)this->fScreenFadeVal,0x14);
+  PSXDrawBrightEndLine(0x232323,0xa7,0x4a,0x13c,1,2,(int)this->fScreenFadeVal,0x14);
   return;
 }
 

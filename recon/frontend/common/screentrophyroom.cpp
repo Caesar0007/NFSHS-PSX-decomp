@@ -10,7 +10,7 @@ tScreenTrophyRoom::tScreenTrophyRoom()
 
 {
 
-  (this->_base_tScreen)._vf = (__vtbl_ptr_type (*)[10])tScreenTrophyRoom_vtable;
+  this->_vf = (__vtbl_ptr_type (*)[10])tScreenTrophyRoom_vtable;
   this->fPreviousTrophy = '\0';
   this->fRealCurrentTourn[0] = 0;
   this->fRealCurrentTourn[1] = 0;
@@ -23,8 +23,8 @@ tScreenTrophyRoom::tScreenTrophyRoom()
 tScreenTrophyRoom::~tScreenTrophyRoom()
 
 {
-  (this->_base_tScreen)._vf = (__vtbl_ptr_type (*)[10])tScreenTrophyRoom_vtable;
-  tScreen_dtor(&this->_base_tScreen);
+  this->_vf = (__vtbl_ptr_type (*)[10])tScreenTrophyRoom_vtable;
+  tScreen_dtor((tScreen *)this);
   return;
 }
 
@@ -111,7 +111,7 @@ TrophyRoomProc_keyLeftCheck:
       this->fRealCurrentTourn[this->tier] = 0;
     }
   }
-  ::ProcessInput(&this->_base_tScreen,fromPlayer,keyval,command);
+  ::ProcessInput((tScreen *)this,fromPlayer,keyval,command);
   return;
 }
 
@@ -123,16 +123,16 @@ void tScreenTrophyRoom::PreLoad()
 {
   char *name;
   
-  ::PreLoad(&this->_base_tScreen);
+  ::PreLoad((tScreen *)this);
   (this->fTrophyShapes).fShapes = (tTexture_ShapeInfo *)0x0;
-  InitializeShapes(&this->_base_tScreen,&this->fTrophyShapes,8);
+  ::InitializeShapes((tScreen *)this,&this->fTrophyShapes,8);
   if (frontEnd.tier != '\0') {
     name = "zCase2";
   }
   else {
     name = "zCase";
   }
-  AsyncLoadShapeFile(&this->_base_tScreen,name,&this->fTrophyShapes);
+  ::AsyncLoadShapeFile((tScreen *)this,name,&this->fTrophyShapes);
   return;
 }
 
@@ -151,10 +151,10 @@ void tScreenTrophyRoom::Initialize()
   short i;
   uint tour_idx;
   
-  this->_base_tScreen.Initialize();
+  this->Initialize();
   do {
     systemtask(0);
-    loaded = IsShapeFileLoaded(&this->_base_tScreen,&this->fTrophyShapes);
+    loaded = ::IsShapeFileLoaded((tScreen *)this,&this->fTrophyShapes);
   } while (loaded != (void *)0x1);
   this->tier = (uint)(byte)frontEnd.tier;
   n_trophies = 6;
@@ -205,8 +205,8 @@ void tScreenTrophyRoom::Cleanup()
 
 {
   
-  FreeShapes(&this->_base_tScreen,&this->fTrophyShapes);
-  this->_base_tScreen.Cleanup();
+  ::FreeShapes((tScreen *)this,&this->fTrophyShapes);
+  this->Cleanup();
   return;
 }
 
@@ -234,15 +234,15 @@ void tScreenTrophyRoom::DrawBackground()
   if (frontEnd.tier != '\0') {
     fModNumber = 4;
   }
-  DrawBackgroundImage(&this->_base_tScreen,0,0x18,gCurrentShapes,0);
-  PSXDrawBrightEndLine(0x232323,0x6a,0x39,300,1,3,(int)(this->_base_tScreen).fScreenFadeVal,0x1e);
+  ::DrawBackgroundImage((tScreen *)this,0,0x18,gCurrentShapes,0);
+  PSXDrawBrightEndLine(0x232323,0x6a,0x39,300,1,3,(int)this->fScreenFadeVal,0x1e);
   this->LoadTrophy();
-  IsShapeFileLoaded(&this->_base_tScreen,&(this->_base_tScreen).fSwapShapes);
-  if ((this->_base_tScreen).fSwapShapes.fFile != (char *)0x0) {
-    UploadSwapShapes(&this->_base_tScreen,0x20);
+  ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
+  if (this->fSwapShapes.fFile != (char *)0x0) {
+    ::UploadSwapShapes((tScreen *)this,0x20);
     this->startTicks = ticks;
   }
-  FETextRender_MenuTextPositionedJustifyFade((int)(this->_base_tScreen).fScreenFadeVal,
+  FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,
              (tournamentManager.fDefinition)->fTournaments
              [(uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset +
               (uint)(byte)this->fRealCurrentTourn[this->tier]].fTournamentID + 0x354,0x100,0x2f,2,
@@ -263,13 +263,13 @@ void tScreenTrophyRoom::DrawBackground()
   FETextRender_FullTextRGB(sMenuText,0x100,200,texttoshow,'\0',2);
   for (i = 0; texttoshow = (int)i, texttoshow < this->fNumTrophies; i = i + 1) {
     if ((texttoshow == this->fRealCurrentTourn[this->tier]) &&
-       (((this->_base_tScreen).fSwapShapes.fFlags & 1) != 0)) {
-      drawFlags.custom_shapes = (this->_base_tScreen).fSwapShapes.fShapes;
+       ((this->fSwapShapes.fFlags & 1) != 0)) {
+      drawFlags.custom_shapes = this->fSwapShapes.fShapes;
     }
     else {
       drawFlags.custom_shapes = (this->fTrophyShapes).fShapes;
     }
-    ScaleShapeExtended((TROPHY_LEFTOFFSET - (fModNumber * 0x5f >> 1)) + (texttoshow % fModNumber) * 0x5f,0x600,shapeArgB,shapeArgC,(int)(this->_base_tScreen).fScreenFadeVal,0,&drawFlags)
+    ScaleShapeExtended((TROPHY_LEFTOFFSET - (fModNumber * 0x5f >> 1)) + (texttoshow % fModNumber) * 0x5f,0x600,shapeArgB,shapeArgC,(int)this->fScreenFadeVal,0,&drawFlags)
     ;
   }
   return;
@@ -295,7 +295,7 @@ void tScreenTrophyRoom::LoadTrophy()
                (tournamentManager.fDefinition)->fTournaments +
                (uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset +
                (uint)(byte)this->fRealCurrentTourn[this->tier],ts_Small,gSwapFileName,-1);
-    AsyncLoadSwapShapeFile(&this->_base_tScreen,gSwapFileName);
+    ::AsyncLoadSwapShapeFile((tScreen *)this,gSwapFileName);
     this->fPreviousTrophy = (char)this->fRealCurrentTourn[this->tier];
   }
   return;

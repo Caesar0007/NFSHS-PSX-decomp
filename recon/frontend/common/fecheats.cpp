@@ -244,7 +244,7 @@ void * FECheat_ActivateCheat(char *cheat)
       ptVar1 = FEApp;
       pcVar4 = TextSys_Word(0x27a);
       ptVar2 = FEApp;
-      (ptVar1->MemCardDialog)._base_tDialogMessageString.string = pcVar4;
+      (ptVar1->MemCardDialog).string = pcVar4;
       ((tDialogBase *)&ptVar2->MemCardDialog)->Display();
       FECheat_HandleActivation((tCheatCode)cheatList[iVar7].cheat);
       gFECheats = gFECheats | 1 << (cheatList[iVar7].cheat & cheat_NumCheats);

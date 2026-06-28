@@ -225,7 +225,7 @@ DrawBg_noSlider:
   if ((-1 < percent) || (ColText = lastpercentage, -1 < lastpercentage)) {
     lastpercentage = ColText;
     if ((percent == -1) ||
-       (transDone = TransitionIsFinished(&menuDefs[0]->menuAudio), transDone != (void *)0x1)) {
+       (transDone = ::TransitionIsFinished(&menuDefs[0]->menuAudio), transDone != (void *)0x1)) {
       perfade = perfade + 4;
     }
     else {
@@ -274,7 +274,7 @@ void tScreenAudio::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char *
 tScreenAudio::tScreenAudio()
 
 {
-  this->_base_tScreen._vf = (__vtbl_ptr_type (*)[10])tScreenAudio_vtable;
+  this->_vf = (__vtbl_ptr_type (*)[10])tScreenAudio_vtable;
   this->fSelectedSong = 0;
   this->fCurrentAudioMode = '\0';
   this->songlist = (AudioMus_tSongList *)0x0;
@@ -292,7 +292,7 @@ void tScreenAudio::Initialize()
   this->fPrevSelectedSong = -1;
   SetMenu((tMenuItemSlidingMenu *)&menus->itemSlidingPlayList,true,
              &(menus->menuPlayListMenu)._base_tInsideBoxMenu);
-  this->_base_tScreen.Initialize();
+  this->Initialize();
   audioMode = frontEnd.audioMode;
   this->audioTest = 0;
   this->audioTestHandle = 0;
@@ -317,7 +317,7 @@ void tScreenAudio::Cleanup()
   gMasterEngineLevel = (int)(byte)frontEnd.engineVolume;
   gMasterAmbientLevel = (int)(byte)frontEnd.ambientVolume;
   AudioMus_Volume(gMasterMusicLevel * 0x23 >> 6);
-  this->_base_tScreen.Cleanup();
+  this->Cleanup();
   while ((*(short *)((char *)&ginfo + 0x16)) != 0) {
     FeAudio_systemtask(0);
   }

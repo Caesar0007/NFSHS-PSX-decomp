@@ -276,7 +276,7 @@ void tScreenControllerConfig::SwapInController()
   if ((this->CurrentlyLoadedArt == -1) ||
      (cmp = strcmp(fileNames[(byte)this->fCurrentController],
                          fileNames[this->CurrentlyLoadedArt]), cmp != 0)) {
-    AsyncLoadSwapShapeFile(&this->_base_tScreen,fileName);
+    ::AsyncLoadSwapShapeFile((tScreen *)this,fileName);
     this->CurrentlyLoadedArt = (ushort)(byte)this->fCurrentController;
   }
   return;
@@ -302,10 +302,10 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
   firsttimeU = firsttime;
   fSetMenu = (tInsideBoxMenu *)0x0;
   word = TextSys_Word(0x20b);
-  (this->negconPopUp)._base_tDialogInteractive._base_tDialogMessageString.string = word;
+  (this->negconPopUp).string = word;
   (this->negconPopUp).yesnowords[0] = 0x20c;
   (this->negconPopUp).yesnowords[1] = 0x20d;
-  (this->negconPopUp)._base_tDialogInteractive._base_tDialogMessageString._base_tDialogBase.fDefault = 1;
+  (this->negconPopUp).fDefault = 1;
   playerMask = -(uint)(this->player != 0);
   padOffset = playerMask & 0x20;
   setmenutonull = false;
@@ -341,14 +341,14 @@ SetCurCtrl_dualShockDetected:
         if (((firsttimeU == 0) && (this->fCurrentController != '\x02')) &&
            (this->fCurrentController != '\x01')) {
           dialogIdle = false;
-          if ((this->negconPopUp)._base_tDialogInteractive._base_tDialogMessageString._base_tDialogBase.currentlyOn ==
+          if ((this->negconPopUp).currentlyOn ==
               0) {
-            dialogIdle = (this->negconPopUp)._base_tDialogInteractive.fCurrentlyRunning == 0;
+            dialogIdle = (this->negconPopUp).fCurrentlyRunning == 0;
           }
           if ((dialogIdle) && (this->negconChoice == -1)) {
             this->fCurrentController = '\0';
             this->fArrowFade = 0x80;
-            choice = Run(&(this->negconPopUp)._base_tDialogInteractive);
+            choice = Run((tDialogInteractive *)&this->negconPopUp);
             this->negconChoice = choice;
             ctrlType = '\x01';
             if (choice != 0) {
@@ -468,7 +468,7 @@ void tScreenControllerConfig::ActualDrawController(int frame,int fadelevelmain,i
   if (this->CurrentlyLoadedArt == 0) {
     return;
   }
-  drawFlags.custom_shapes = (this->_base_tScreen).fSwapShapes.fShapes;
+  drawFlags.custom_shapes = this->fSwapShapes.fShapes;
   if ((frame == 0) && (this->CurrentlyLoadedArt != 1)) {
     ofs = Offset[this->CurrentlyLoadedArt][0];
   }
@@ -538,7 +538,7 @@ void tScreenControllerConfig::DrawController()
   shakey = 0;
   maxshakex = 0;
   maxshakey = 0;
-  drawFlags.custom_shapes = (this->_base_tScreen).fSwapShapes.fShapes;
+  drawFlags.custom_shapes = this->fSwapShapes.fShapes;
   bShockActive = false;
   if ((((this->fCurrentController == '\x04') &&
        ((short)(menuDefs[0]->menuControllerDualShock)._base_tMenu.fCurrentItem == 0)) ||
@@ -588,12 +588,12 @@ void tScreenControllerConfig::DrawController()
     fadelevel = (int)maxshakey;
     shakey = (short)(t % fadelevel) - (maxshakey >> 1);
   }
-  IsShapeFileLoaded(&this->_base_tScreen,&(this->_base_tScreen).fSwapShapes);
-  if ((this->_base_tScreen).fSwapShapes.fFile != (char *)0x0) {
-    UploadSwapShapes(&this->_base_tScreen,0x42);
+  ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
+  if (this->fSwapShapes.fFile != (char *)0x0) {
+    ::UploadSwapShapes((tScreen *)this,0x42);
     return;
   }
-  if (((this->_base_tScreen).fSwapShapes.fFlags & 1) == 0) {
+  if ((this->fSwapShapes.fFlags & 1) == 0) {
     this->fGotTick = 0;
     return;
   }
@@ -1027,7 +1027,7 @@ void tScreenControllerConfig::DrawBackground()
     fade = 0x80;
   }
   if ((this->fTransitionedIn == 0) &&
-     (transDone = TransitionIsFinished(&menuDefs[0]->menuControllerConfig),
+     (transDone = ::TransitionIsFinished(&menuDefs[0]->menuControllerConfig),
      transDone != (void *)0x0)) {
     this->fTransitionedIn = 1;
   }
@@ -1042,7 +1042,7 @@ void tScreenControllerConfig::DrawBackground()
     this->fAnimFadeFrame = this->fAnimFadeStart;
     this->fAnimFadeController = (ushort)(byte)this->fCurrentController;
   }
-  trans2 = TransitionIsFinished(&menuDefs[0]->menuControllerConfig);
+  trans2 = ::TransitionIsFinished(&menuDefs[0]->menuControllerConfig);
   if ((trans2 != (void *)0x1) && (this->fTransitionedIn != 0)) {
     if (this->fTransitioningOut != 0) goto ForceVbl_drawCtrlCheck;
     if (this->fCurrentController != '\0') {
@@ -1110,7 +1110,7 @@ void tScreenControllerConfig::DrawForeground()
   fadeDir = 8;
   if ((((this->fFadeTextOut == 0) && (fadeDir = 8, this->fAnim == 0)) &&
       (fadeDir = 8, this->fAnimFade == 0)) && (fadeDir = 8, *(int *)this->fFade == 0)) {
-    transDone = TransitionIsFinished(&menuDefs[0]->menuControllerConfig);
+    transDone = ::TransitionIsFinished(&menuDefs[0]->menuControllerConfig);
     fadeDir = 8;
     if (((transDone != (void *)0x0) && (fadeDir = 8, this->fTransitioningOut == 0)) &&
        (fadeDir = -8, 0 < this->fArrowFadeDir)) {
@@ -1232,9 +1232,9 @@ void tScreenControllerConfig::DrawForeground()
       ColText = (byte)this->fTextController - 1;
       if ((int)NumTexts[ColText][(byte)this->fTextConfig] <= (int)fadeDir) break;
       flag = false;
-      if ((this->negconPopUp)._base_tDialogInteractive._base_tDialogMessageString._base_tDialogBase.currentlyOn == 0)
+      if ((this->negconPopUp).currentlyOn == 0)
       {
-        flag = (this->negconPopUp)._base_tDialogInteractive.fCurrentlyRunning == 0;
+        flag = (this->negconPopUp).fCurrentlyRunning == 0;
       }
       if (((flag) && (-1 < ColText)) &&
          (ColText = (int)ControllerItemIndex[ColText][(byte)this->fTextConfig][fadeDir][1], ColText != -1))
@@ -1298,7 +1298,7 @@ void tScreenControllerConfig::Initialize()
   this->CurrentlyLoadedArt = -1;
   this->negconChoice = -1;
   this->player = b;
-  this->_base_tScreen.Initialize();
+  this->Initialize();
   this->fCurrentController = '\0';
   SetMenu(&menuDefs[0]->itemControllerSettings,true,(tInsideBoxMenu *)0x0);
   this->SetCurrentController(true);
@@ -1338,7 +1338,7 @@ void tScreenControllerConfig::Cleanup()
   this->ClearActuators();
   this->TurnOffShakers();
   PadStartCom();
-  this->_base_tScreen.Cleanup();
+  this->Cleanup();
   return;
 }
 
@@ -1351,7 +1351,7 @@ tScreenControllerConfig::tScreenControllerConfig()
   this->fFade[1] = 0;
   this->fFade[0] = 0;
   this->player = 0;
-  (this->_base_tScreen)._vf = (__vtbl_ptr_type (*)[10])tScreenControllerConfig_vtable;   /* vptr @0x60 */
+  this->_vf = (__vtbl_ptr_type (*)[10])tScreenControllerConfig_vtable;   /* vptr @0x60 */
   return;
 }
 

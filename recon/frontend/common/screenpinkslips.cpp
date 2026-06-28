@@ -52,11 +52,11 @@ void tScreenPinkSlips::DrawBackground()
         uVar3 = 0x3c - flareextra_248;
         uVar5 = uVar3 >> 0x1f;
       }
-      iVar4 = (((int)(uVar5 + uVar3) >> 1) + 0x14) * (0x80 - (this->_base_tScreen).fScreenFadeVal);
+      iVar4 = (((int)(uVar5 + uVar3) >> 1) + 0x14) * (0x80 - this->fScreenFadeVal);
       if (0 < iVar4) {
         Flare_2DHalo(r.x + -0xf,r.y + 6,iVar4 / 2,(iVar4 * 2) / 3,0x17);
         DrawShapeExtended(0x38,0,r.x + -0x12,r.y,
-                   (int)(this->_base_tScreen).fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+                   (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
       }
       textState = textState_Hilighted;
     }
@@ -76,9 +76,9 @@ void tScreenPinkSlips::DrawBackground()
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
              &trackInfo);
   this->UpdateVideoWall(trackInfo);
-  IsShapeFileLoaded(&this->_base_tScreen,&(this->_base_tScreen).fSwapShapes);
-  if (((this->_base_tScreen).fSwapShapes.fFile != (char *)0x0) && (-1 < this->fTransitionDirection)) {
-    UploadSwapShapes(&this->_base_tScreen,4);
+  ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
+  if ((this->fSwapShapes.fFile != (char *)0x0) && (-1 < this->fTransitionDirection)) {
+    ::UploadSwapShapes((tScreen *)this,4);
     this->fTransitionDirection = '\x01';
     this->fTVTicks = ticks;
   }
@@ -189,7 +189,7 @@ void tScreenPinkSlips::Initialize()
   Decrement(&menuDefs->iteratorTrack,kPlayerBoth);
   Increment(&menuDefs->iteratorTrack,kPlayerBoth);
   this->fMenu = FEApp->fCurrentMenu[0];
-  this->_base_tScreen.Initialize();
+  this->Initialize();
   this->fTVsInitialized = 0;
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
   sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],(int)trackInfo.fTrackID);
@@ -217,7 +217,7 @@ void tScreenPinkSlips::Cleanup()
   VIDEO_destroy(this->hVideo);
   purgememadr((void *)this->hVideo);
   frontEnd.pinkSlipsTrackIndex = '\0';
-  this->_base_tScreen.Cleanup();
+  this->Cleanup();
   return;
 }
 
@@ -231,7 +231,7 @@ void tScreenPinkSlips::UpdateVideoWall(tTrackInformation &trackInfo)
   
   if ((short)trackInfo.fTrackID != this->fPreviousTrack) {
     sprintf(gSwapFileName,"TR%02dPS",(int)trackInfo.fTrackID);
-    AsyncLoadSwapShapeFile(&this->_base_tScreen,gSwapFileName);
+    ::AsyncLoadSwapShapeFile((tScreen *)this,gSwapFileName);
     this->fTVsInitialized = 0;
     this->fPreviousTrack = (short)trackInfo.fTrackID;
     iVar1 = ticks;
@@ -263,11 +263,11 @@ void tScreenPinkSlips::DrawVideoWall()
                (tDrawShapeExtended *)0x0);
     i = i + 1;
   } while (i * 0x10000 >> 0x10 < 0x24);
-  if ((((this->_base_tScreen).fSwapShapes.fFlags & 1) != 0) && (this->fTVsInitialized == 0)) {
+  if (((this->fSwapShapes.fFlags & 1) != 0) && (this->fTVsInitialized == 0)) {
     iVar2 = 0;
     i_packed = 0;
     do {
-      InitTV(this->fImageTVs + (i_packed >> 0x10),(this->_base_tScreen).fSwapShapes.fShapes,
+      InitTV(this->fImageTVs + (i_packed >> 0x10),this->fSwapShapes.fShapes,
                  (short)((uint)i_packed >> 0x10));
       iVar2 = iVar2 + 1;
       i_packed = iVar2 * 0x10000;
@@ -364,8 +364,7 @@ void tScreenPinkSlips::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMe
 tScreenPinkSlips::~tScreenPinkSlips()
 
 {
-  
-  this->_base_tScreen.~tScreen();
+  /* base ~tScreen() runs implicitly (non-poly inheritance) */
   return;
 }
 

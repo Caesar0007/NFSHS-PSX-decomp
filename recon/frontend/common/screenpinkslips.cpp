@@ -328,31 +328,31 @@ void tScreenPinkSlips::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMe
   if (keyval == kInput_KeyType_Square) {
     GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
                &trackInfo);
-    uVar2 = (menuDefs->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags &
+    uVar2 = (menuDefs->itemTraffic).fFlags &
             0xfffffffe;
-    (menuDefs->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags = uVar2;
+    (menuDefs->itemTraffic).fFlags = uVar2;
     if ((frontEnd.gameMode != '\x01') && (frontEnd.oppNumber == '\x02')) {
-      (menuDefs->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags =
+      (menuDefs->itemTraffic).fFlags =
            uVar2 | 1;
     }
     if (2 < trackInfo.fTrackDifficulty) {
-      (menuDefs->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-           (menuDefs->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags |
+      (menuDefs->itemTraffic).fFlags =
+           (menuDefs->itemTraffic).fFlags |
            1;
     }
     if (trackInfo.fIsEgg != '\0') {
-      (menuDefs->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-           (menuDefs->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags |
+      (menuDefs->itemTraffic).fFlags =
+           (menuDefs->itemTraffic).fFlags |
            1;
     }
     if ((frontEnd.gameMode == '\x01') && (frontEnd.raceType == '\x01')) {
-      (menuDefs->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-           (menuDefs->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags |
+      (menuDefs->itemTraffic).fFlags =
+           (menuDefs->itemTraffic).fFlags |
            1;
     }
-    uVar2 = (menuDefs->itemLocalSpeech)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.
+    uVar2 = (menuDefs->itemLocalSpeech).
             fFlags | 1;
-    (menuDefs->itemLocalSpeech)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags =
+    (menuDefs->itemLocalSpeech).fFlags =
          uVar2;
   }
   return;

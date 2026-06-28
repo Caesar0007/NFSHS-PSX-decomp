@@ -323,12 +323,12 @@ void tFEApplication::Redraw()
   this->DrawHelpIcons();
   globalMenuDefs = menuDefs[0];
   if ((gPadinfo.buf[0].nopad == '\0') && (gPadinfo.buf[4].nopad == '\0')) {
-    (menuDefs[0]->itemMainTwoPlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags
-         = (menuDefs[0]->itemMainTwoPlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0xfffffffe;
+    (menuDefs[0]->itemMainTwoPlayerRace).fFlags
+         = (menuDefs[0]->itemMainTwoPlayerRace).fFlags & 0xfffffffe;
   }
   else {
-    (menuDefs[0]->itemMainTwoPlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags
-         = (menuDefs[0]->itemMainTwoPlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
+    (menuDefs[0]->itemMainTwoPlayerRace).fFlags
+         = (menuDefs[0]->itemMainTwoPlayerRace).fFlags | 1;
     JustOneToPass = kInput_KeyType_Up;
     if ((tMenuItemGoToMenuNFS4Button *)
         this->fCurrentMenu[0]->fItemList[this->fCurrentMenu[0]->fCurrentItem] ==
@@ -338,12 +338,12 @@ void tFEApplication::Redraw()
   }
   globalMenuDefs = menuDefs[0];
   if (gPadinfo.buf[0].nopad == '\0') {
-    (menuDefs[0]->itemMainOnePlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags
-         = (menuDefs[0]->itemMainOnePlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0xfffffffe;
+    (menuDefs[0]->itemMainOnePlayerRace).fFlags
+         = (menuDefs[0]->itemMainOnePlayerRace).fFlags & 0xfffffffe;
   }
   else {
-    (menuDefs[0]->itemMainOnePlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags
-         = (menuDefs[0]->itemMainOnePlayerRace)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
+    (menuDefs[0]->itemMainOnePlayerRace).fFlags
+         = (menuDefs[0]->itemMainOnePlayerRace).fFlags | 1;
     curItem = (int)this->fCurrentMenu[0]->fItemList[this->fCurrentMenu[0]->fCurrentItem];
     JustOneToPass_l85 = kInput_KeyType_Down;
     if ((tGlobalMenuDefs *)curItem == globalMenuDefs) {

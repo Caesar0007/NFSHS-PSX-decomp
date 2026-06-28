@@ -290,7 +290,7 @@ void tScreenAudio::Initialize()
   
   menus = menuDefs[0];
   this->fPrevSelectedSong = -1;
-  SetMenu(&(menus->itemSlidingPlayList)._base_tMenuItemSlidingMenu,true,
+  SetMenu((tMenuItemSlidingMenu *)&menus->itemSlidingPlayList,true,
              &(menus->menuPlayListMenu)._base_tInsideBoxMenu);
   this->_base_tScreen.Initialize();
   audioMode = frontEnd.audioMode;

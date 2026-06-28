@@ -359,39 +359,39 @@ int tScreenTrackSelect::ProcessInput(tPlayer player,tInputKeyType &keyval,
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
              &trackInfo);
   ptVar1 = menuDefs;
-  cmdResult = (menuDefs->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags &
+  cmdResult = (menuDefs->itemTraffic).fFlags &
           0xfffffffe;
-  (menuDefs->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags = cmdResult;
+  (menuDefs->itemTraffic).fFlags = cmdResult;
   if ((frontEnd.gameMode != '\x01') && (frontEnd.oppNumber == '\x02')) {
-    (ptVar1->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags = cmdResult | 1
+    (ptVar1->itemTraffic).fFlags = cmdResult | 1
     ;
   }
   if (2 < trackInfo.fTrackDifficulty) {
-    (menuDefs->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-         (menuDefs->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
+    (menuDefs->itemTraffic).fFlags =
+         (menuDefs->itemTraffic).fFlags | 1;
   }
   if (trackInfo.fIsEgg != '\0') {
-    (menuDefs->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-         (menuDefs->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
+    (menuDefs->itemTraffic).fFlags =
+         (menuDefs->itemTraffic).fFlags | 1;
   }
   if (frontEnd.gameMode == '\x01') {
     if (frontEnd.raceType != '\x01') goto ProcInpLocSpch_setFlags;
-    (menuDefs->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-         (menuDefs->itemTraffic)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
+    (menuDefs->itemTraffic).fFlags =
+         (menuDefs->itemTraffic).fFlags | 1;
   }
   if ((frontEnd.raceType == '\x01') &&
      (pvVar2 = Front_EnableLocalSpeech(), pvVar2 != (void *)0x0))
   {
-    cmdResult = (menuDefs->itemLocalSpeech)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.
+    cmdResult = (menuDefs->itemLocalSpeech).
             fFlags & 0xfffffffe;
-    (menuDefs->itemLocalSpeech)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags =
+    (menuDefs->itemLocalSpeech).fFlags =
          cmdResult;
     return cmdResult;
   }
 ProcInpLocSpch_setFlags:
-  cmdResult = (menuDefs->itemLocalSpeech)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags
+  cmdResult = (menuDefs->itemLocalSpeech).fFlags
           | 1;
-  (menuDefs->itemLocalSpeech)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags = cmdResult
+  (menuDefs->itemLocalSpeech).fFlags = cmdResult
   ;
   return cmdResult;
 }

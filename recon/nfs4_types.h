@@ -2736,9 +2736,8 @@ struct tMenuItem {   /* 28 bytes */
 
 };
 
-struct tMenuItemInteractive {   /* 28 bytes */
+struct tMenuItemInteractive : public tMenuItem {   /* 28 bytes */
     tMenuItemInteractive() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tMenuItem          _base_tMenuItem;   /* +0x0 */
     /* reconstructed FEMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tMenuItemInteractive(unsigned int textDescription);
     ~tMenuItemInteractive();
@@ -4366,9 +4365,8 @@ struct tListIteratorRangeIndexed : public tListIteratorRange {   /* 20 bytes */
 
 };
 
-struct tMenuItemLeftRightChoice {   /* 32 bytes */
+struct tMenuItemLeftRightChoice : public tMenuItemInteractive {   /* 32 bytes */
     tMenuItemLeftRightChoice() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tMenuItemInteractive _base_tMenuItemInteractive;   /* +0x0 */
     tListIterator      *fData;   /* +0x1C */
     /* reconstructed FEMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tMenuItemLeftRightChoice(unsigned int textDescription, tListIterator *dataPtr);
@@ -4378,9 +4376,8 @@ struct tMenuItemLeftRightChoice {   /* 32 bytes */
 
 };
 
-struct tMenuItemLeftRightSlider {   /* 40 bytes */
+struct tMenuItemLeftRightSlider : public tMenuItemInteractive {   /* 40 bytes */
     tMenuItemLeftRightSlider() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tMenuItemInteractive _base_tMenuItemInteractive;   /* +0x0 */
     tListIterator      *fData;   /* +0x1C */
     short              fX, fY, fWidth, fHeight;   /* +0x20 */
     /* reconstructed FEMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
@@ -4393,9 +4390,8 @@ struct tMenuItemLeftRightSlider {   /* 40 bytes */
 
 };
 
-struct tMenuItemGoToMenuButton {   /* 32 bytes */
+struct tMenuItemGoToMenuButton : public tMenuItemInteractive {   /* 32 bytes */
     tMenuItemGoToMenuButton() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tMenuItemInteractive _base_tMenuItemInteractive;   /* +0x0 */
     void               *fOnButtonPress;   /* +0x1C */
     /* reconstructed FEMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tMenuItemGoToMenuButton(unsigned int textDescription, tMenu *newMenu, void (*OnButtonPress)(tMenuCommand&));
@@ -4473,9 +4469,8 @@ struct tFEApplication {   /* 896 bytes */
 
 };
 
-struct tMenuItemGoToMenuNFS4Button {   /* 44 bytes */
+struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {   /* 44 bytes */
     tMenuItemGoToMenuNFS4Button() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tMenuItemGoToMenuButton _base_tMenuItemGoToMenuButton;   /* +0x0 */
     int                fOrdinalPos;   /* +0x20 */
     short              fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;   /* +0x24 */
     /* FEMenuExtended methods */
@@ -4490,9 +4485,8 @@ struct tMenuItemGoToMenuNFS4Button {   /* 44 bytes */
 
 };
 
-struct tMenuItemNFS4LeftRightChoice {   /* 40 bytes */
+struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {   /* 40 bytes */
     tMenuItemNFS4LeftRightChoice() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tMenuItemLeftRightChoice _base_tMenuItemLeftRightChoice;   /* +0x0 */
     short              fOffset, fTransitionVal, fTransitionSpeed, fEnabledTransitionVal;   /* +0x20 */
     /* FEMenuExtended methods */
     tMenuItemNFS4LeftRightChoice(unsigned int textDescription,tListIterator *dataPtr, int firstFrame,int numFrames);
@@ -4505,23 +4499,20 @@ struct tMenuItemNFS4LeftRightChoice {   /* 40 bytes */
 
 };
 
-struct tBlankMenuItemNFS4LeftRightChoice {   /* 40 bytes */
-    tMenuItemNFS4LeftRightChoice _base_tMenuItemNFS4LeftRightChoice;   /* +0x0 */
+struct tBlankMenuItemNFS4LeftRightChoice : public tMenuItemNFS4LeftRightChoice {   /* 40 bytes */
     void *TransitionIsFinished();
     void Draw(int, int, char);
     ~tBlankMenuItemNFS4LeftRightChoice();
 };
 
-struct tMenuItemOptionsLeftRightChoice {   /* 32 bytes */
-    tMenuItemLeftRightChoice _base_tMenuItemLeftRightChoice;   /* +0x0 */
+struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {   /* 32 bytes */
     /* FEMenuExtended methods */
     void Draw(int x,int y,bool selected);
     ~tMenuItemOptionsLeftRightChoice();
 
 };
 
-struct tMenuItemOptionsTwoItemChoice {   /* 36 bytes */
-    tMenuItemLeftRightChoice _base_tMenuItemLeftRightChoice;   /* +0x0 */
+struct tMenuItemOptionsTwoItemChoice : public tMenuItemLeftRightChoice {   /* 36 bytes */
     short              fOnOffFade;   /* +0x20 */
     /* FEMenuExtended methods */
     void TransitionOn();
@@ -4605,9 +4596,8 @@ struct tMenuOptions {   /* 132 bytes */
 
 };
 
-struct tMenuItemLeftRightFade {   /* 44 bytes */
+struct tMenuItemLeftRightFade : public tMenuItemLeftRightChoice {   /* 44 bytes */
     tMenuItemLeftRightFade() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tMenuItemLeftRightChoice _base_tMenuItemLeftRightChoice;   /* +0x0 */
     short              fFadeVal, fFadeDir;   /* +0x20 */
     BOOL               fInTransition;   /* +0x24 */
     int                flareextra;   /* +0x28 */
@@ -4656,9 +4646,8 @@ struct tInsideBoxMenu {   /* 116 bytes */
 
 };
 
-struct tMenuItemSlidingMenu {   /* 68 bytes */
+struct tMenuItemSlidingMenu : public tMenuItem {   /* 68 bytes */
     tMenuItemSlidingMenu() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tMenuItem          _base_tMenuItem;   /* +0x0 */
     tInsideBoxMenu     *currMenu, *nextMenu;   /* +0x1C */
     short              fWidth, fHeight, fOpenHeight, fSlideOffset, fFadeVal, fFadeDir;   /* +0x24 */
     BOOL               fInTransition, fTransitioningOut, fClosing;   /* +0x30 */
@@ -4681,8 +4670,7 @@ struct tMenuItemSlidingMenu {   /* 68 bytes */
 
 };
 
-struct tMenuItemSlidingActivated {   /* 72 bytes */
-    tMenuItemSlidingMenu _base_tMenuItemSlidingMenu;   /* +0x0 */
+struct tMenuItemSlidingActivated : public tMenuItemSlidingMenu {   /* 72 bytes */
     BOOL               fActive;   /* +0x44 */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
@@ -4695,16 +4683,14 @@ struct tMenuItemSlidingActivated {   /* 72 bytes */
 
 };
 
-struct tMenuItemDisplayLeftRightChoice {   /* 44 bytes */
-    tMenuItemLeftRightFade _base_tMenuItemLeftRightFade;   /* +0x0 */
+struct tMenuItemDisplayLeftRightChoice : public tMenuItemLeftRightFade {   /* 44 bytes */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     int Draw(int, int, bool);
 
 };
 
-struct tMenuItemOnOffLeftRightChoice {   /* 48 bytes */
-    tMenuItemLeftRightFade _base_tMenuItemLeftRightFade;   /* +0x0 */
+struct tMenuItemOnOffLeftRightChoice : public tMenuItemLeftRightFade {   /* 48 bytes */
     short              fOnFade;   /* +0x2C */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
@@ -4713,9 +4699,8 @@ struct tMenuItemOnOffLeftRightChoice {   /* 48 bytes */
 
 };
 
-struct tMenuItemLeftRightAudioSlider {   /* 56 bytes */
+struct tMenuItemLeftRightAudioSlider : public tMenuItemLeftRightSlider {   /* 56 bytes */
     tMenuItemLeftRightAudioSlider() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tMenuItemLeftRightSlider _base_tMenuItemLeftRightSlider;   /* +0x0 */
     short              fFadeVal, fFadeDir;   /* +0x28 */
     BOOL               fInTransition;   /* +0x2C */
     short              fAudioArt;   /* +0x30 */
@@ -4748,17 +4733,15 @@ struct tInsideBoxSongMenu {   /* 136 bytes */
 
 };
 
-struct tMenuItemControllerLeftRightChoice {   /* 44 bytes */
-    tMenuItemLeftRightFade _base_tMenuItemLeftRightFade;   /* +0x0 */
+struct tMenuItemControllerLeftRightChoice : public tMenuItemLeftRightFade {   /* 44 bytes */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     int Draw(int, int, bool);
 
 };
 
-struct tInsideBoxLeftRightSlider {   /* 40 bytes */
+struct tInsideBoxLeftRightSlider : public tMenuItemLeftRightSlider {   /* 40 bytes */
     tInsideBoxLeftRightSlider() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tMenuItemLeftRightSlider _base_tMenuItemLeftRightSlider;   /* +0x0 */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     tInsideBoxLeftRightSlider(unsigned int, tListIterator *);
@@ -4767,9 +4750,8 @@ struct tInsideBoxLeftRightSlider {   /* 40 bytes */
 
 };
 
-struct tInsideBoxTwoWaySlider {   /* 48 bytes */
+struct tInsideBoxTwoWaySlider : public tMenuItemLeftRightSlider {   /* 48 bytes */
     tInsideBoxTwoWaySlider() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tMenuItemLeftRightSlider _base_tMenuItemLeftRightSlider;   /* +0x0 */
     short              fType;   /* +0x28 */
     BOOL               fActive;   /* +0x2C */
 
@@ -4782,9 +4764,8 @@ struct tInsideBoxTwoWaySlider {   /* 48 bytes */
 
 };
 
-struct tUserNameMenuItem {   /* 140 bytes */
+struct tUserNameMenuItem : public tMenuItem {   /* 140 bytes */
     tUserNameMenuItem() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tMenuItem          _base_tMenuItem;   /* +0x0 */
     char               *fData;   /* +0x1C */
     short              fMaxStringLength, fCurrentColumn, fCurrentRow;   /* +0x20 */
     char               fRowList[10][9];   /* +0x26 */
@@ -4802,8 +4783,7 @@ struct tUserNameMenuItem {   /* 140 bytes */
 
 };
 
-struct tMenuItemGoToMenuButtonFade {   /* 44 bytes */
-    tMenuItemGoToMenuButton _base_tMenuItemGoToMenuButton;   /* +0x0 */
+struct tMenuItemGoToMenuButtonFade : public tMenuItemGoToMenuButton {   /* 44 bytes */
     short              fFadeVal, fFadeDir;   /* +0x20 */
     BOOL               fInTransition;   /* +0x24 */
     short              fEnableVal;   /* +0x28 */
@@ -4816,16 +4796,14 @@ struct tMenuItemGoToMenuButtonFade {   /* 44 bytes */
 
 };
 
-struct tMemoryCardMenuItem {   /* 44 bytes */
-    tMenuItemGoToMenuButtonFade _base_tMenuItemGoToMenuButtonFade;   /* +0x0 */
+struct tMemoryCardMenuItem : public tMenuItemGoToMenuButtonFade {   /* 44 bytes */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     int Draw(bool);
 
 };
 
-struct tBlankMenuItemGoToMenuNFS4Button {   /* 44 bytes */
-    tMenuItemGoToMenuNFS4Button _base_tMenuItemGoToMenuNFS4Button;   /* +0x0 */
+struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {   /* 44 bytes */
     void *TransitionIsFinished();
     void Draw(int, int, char);
     void Draw(int);

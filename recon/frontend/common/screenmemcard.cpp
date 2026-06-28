@@ -527,28 +527,28 @@ void tScreenMemcard::SetEnablings()
   }
   if (!DontChangeEnablings) {
     if (this->theNFS4icon == -1) {
-      (menuDefs[0]->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-           (menuDefs[0]->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
+      (menuDefs[0]->itemLoadGame).fFlags =
+           (menuDefs[0]->itemLoadGame).fFlags | 1;
     }
     else {
-      (menuDefs[0]->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-           (menuDefs[0]->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0xfffffffe;
+      (menuDefs[0]->itemLoadGame).fFlags =
+           (menuDefs[0]->itemLoadGame).fFlags & 0xfffffffe;
     }
     i = this->pCI->status;
     if ((((i == 0) || (i == -2)) || ((i == -3 && (this->theNFS4icon != -1)))) &&
        (this->player == 0)) {
-      (menuDefs[0]->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-           (menuDefs[0]->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0xfffffffe;
+      (menuDefs[0]->itemSaveGame).fFlags =
+           (menuDefs[0]->itemSaveGame).fFlags & 0xfffffffe;
     }
     else {
-      (menuDefs[0]->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-           (menuDefs[0]->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
+      (menuDefs[0]->itemSaveGame).fFlags =
+           (menuDefs[0]->itemSaveGame).fFlags | 1;
     }
   }
   cheater = FECheat_IsTheUserACryBabyCheater();
   if (cheater != (void *)0x0) {
-    (menuDefs[0]->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-         (menuDefs[0]->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
+    (menuDefs[0]->itemSaveGame).fFlags =
+         (menuDefs[0]->itemSaveGame).fFlags | 1;
   }
   return;
 }
@@ -821,11 +821,11 @@ void tScreenMemcard::Initialize()
     msgId = 0x289;
   }
   i = 0;
-  saveFlags = (menuDefs[0]->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags;
-  loadFlags = (menuDefs[0]->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags;
-  (menuDefs[0]->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fTextDescription = msgId;
-  (menus->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags = saveFlags | 1;
-  (menus->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags = loadFlags | 1;
+  saveFlags = (menuDefs[0]->itemSaveGame).fFlags;
+  loadFlags = (menuDefs[0]->itemLoadGame).fFlags;
+  (menuDefs[0]->itemLoadGame).fTextDescription = msgId;
+  (menus->itemSaveGame).fFlags = saveFlags | 1;
+  (menus->itemLoadGame).fFlags = loadFlags | 1;
   walk = this;
   do {
     this->goticon[i] = '\0';
@@ -856,10 +856,10 @@ void tScreenMemcard::Cleanup()
   DeInit_Memcard();
   iconTable = fMemIcon[0];
   menus = menuDefs[0];
-  (menus->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-       (menus->itemSaveGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0xfffffffe;
-  (menus->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-       (menus->itemLoadGame)._base_tMenuItemGoToMenuButtonFade._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0xfffffffe;
+  (menus->itemSaveGame).fFlags =
+       (menus->itemSaveGame).fFlags & 0xfffffffe;
+  (menus->itemLoadGame).fFlags =
+       (menus->itemLoadGame).fFlags & 0xfffffffe;
   purgememadr(iconTable);
   this->_base_tScreen.Cleanup();
   return;

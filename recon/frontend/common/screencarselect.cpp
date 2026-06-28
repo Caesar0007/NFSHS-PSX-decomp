@@ -657,11 +657,11 @@ void tScreenCarSelect::Initialize()
   mdefs = menuDefs;
   GameSetup_gData.track = (int)trackInfo.fSimNumber;
   gShowroomLights[0] = 1;
-  uVar6 = (menuDefs->itemDamage)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags &
+  uVar6 = (menuDefs->itemDamage).fFlags &
           0xfffffffe;
-  (menuDefs->itemDamage)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags = uVar6;
+  (menuDefs->itemDamage).fFlags = uVar6;
   if (frontEnd.raceType == '\x02') {
-    (mdefs->itemDamage)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags = uVar6 | 1;
+    (mdefs->itemDamage).fFlags = uVar6 | 1;
   }
   this->_base_tScreen.Initialize();
   vtbl = (this->_base_tScreen)._vf;
@@ -737,18 +737,18 @@ int tScreenCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_input,tMenu
     else {
       lrItem = &menuDefs->itemABS2;
     }
-    (lrItem->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription = 0x10b;
+    lrItem->fTextDescription = 0x10b;
     if (iVar3 != 0) {
       if (carInfo.fCarID == '\b') {
-        (lrItem->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription = 0x10c;
+        lrItem->fTextDescription = 0x10c;
       }
       if (carInfo.fCarID == '\x01') {
-        (lrItem->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription = 0x10d;
+        lrItem->fTextDescription = 0x10d;
       }
     }
     if ((frontEnd.oppNumber == '\x01') || (frontEnd.gameMode == '\x01')) {
-      (menuDefs->itemOpponentUpgrades)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.
-      fFlags = (menuDefs->itemOpponentUpgrades)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
+      (menuDefs->itemOpponentUpgrades).
+      fFlags = (menuDefs->itemOpponentUpgrades).fFlags | 1;
     }
     tVar4 = key_input;
   }
@@ -1051,23 +1051,23 @@ void tScreenCarSelect::DrawForeground()
                     ((this->_base_tScreen).fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
   mdefs = menuDefs;
   bShowStats = false;
-  (menuDefs->itemOpponentUpgrades)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-       (menuDefs->itemOpponentUpgrades)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.
+  (menuDefs->itemOpponentUpgrades).fFlags =
+       (menuDefs->itemOpponentUpgrades).
        fFlags | 1;
   sVar12 = this->fState;
   if (sVar12 == 1) {
     bShowStats = (tMenuItemNFS4LeftRightChoice *)item == &mdefs->itemGarageCar;
-    (mdefs->itemUpgradeCar)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-         (mdefs->itemUpgradeCar)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags &
+    (mdefs->itemUpgradeCar).fFlags =
+         (mdefs->itemUpgradeCar).fFlags &
          0xfffffffe;
     if (((frontEnd.raceType == '\x02') && (frontEnd.tier == '\0')) &&
        (pv = FECheat_IsCheatEnabled(cheat_FinishedTournament), pv != (void *)0x0)) {
-      (menuDefs->itemOpponentUpgrades)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.
-      fFlags = (menuDefs->itemOpponentUpgrades)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0xfffffffe;
+      (menuDefs->itemOpponentUpgrades).
+      fFlags = (menuDefs->itemOpponentUpgrades).fFlags & 0xfffffffe;
     }
     if ((iVar5 == 0) || (4 < carInfo.fCarClass)) {
-      (menuDefs->itemUpgradeCar)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-           (menuDefs->itemUpgradeCar)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags
+      (menuDefs->itemUpgradeCar).fFlags =
+           (menuDefs->itemUpgradeCar).fFlags
            | 1;
       this->fOverlays[4].direction = -1;
     }
@@ -1077,17 +1077,17 @@ void tScreenCarSelect::DrawForeground()
   }
   else if (sVar12 == 0) {
     bShowStats = (tMenuItemNFS4LeftRightChoice *)item == &mdefs->itemCar;
-    uVar15 = (mdefs->itemShowcase)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags;
-    (mdefs->itemColor)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-         (mdefs->itemColor)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags &
+    uVar15 = (mdefs->itemShowcase).fFlags;
+    (mdefs->itemColor).fFlags =
+         (mdefs->itemColor).fFlags &
          0xfffffffe;
-    (mdefs->itemShowcase)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
+    (mdefs->itemShowcase).fFlags =
          uVar15 & 0xfffffffe;
     if (carInfo.fCarClass == '\a') {
-      uVar15 = (mdefs->itemShowcase)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags;
-      (mdefs->itemColor)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-           (mdefs->itemColor)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
-      (mdefs->itemShowcase)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
+      uVar15 = (mdefs->itemShowcase).fFlags;
+      (mdefs->itemColor).fFlags =
+           (mdefs->itemColor).fFlags | 1;
+      (mdefs->itemShowcase).fFlags =
            uVar15 | 1;
     }
   }
@@ -1098,13 +1098,13 @@ void tScreenCarSelect::DrawForeground()
   }
   else if (sVar12 == 3) {
     bShowStats = (tMenuItemNFS4LeftRightChoice *)item == &mdefs->itemSellerCar;
-    (mdefs->itemSellCar)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-         (mdefs->itemSellCar)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags &
+    (mdefs->itemSellCar).fFlags =
+         (mdefs->itemSellCar).fFlags &
          0xfffffffe;
     if (iVar5 == 0) {
       this->fOverlays[4].direction = -1;
-      (mdefs->itemSellCar)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags =
-           (mdefs->itemSellCar)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags | 1;
+      (mdefs->itemSellCar).fFlags =
+           (mdefs->itemSellCar).fFlags | 1;
     }
     else {
       this->fOverlays[4].direction = 1;
@@ -2103,20 +2103,20 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
                     ((int)this + *(short *)(*(int *)((int)this + 0x60) + 0x68),auStack_f0);
   mdefs = menuDefs;
   if (FEApp->fPlayer == '\0') {
-    uVar4 = (menuDefs->itemColorP1)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags &
+    uVar4 = (menuDefs->itemColorP1).fFlags &
             0xfffffffe;
-    (menuDefs->itemColorP1)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags = uVar4;
+    (menuDefs->itemColorP1).fFlags = uVar4;
     if ((iVar2 == 0) || (cStack_ee == '\a')) {
-      (mdefs->itemColorP1)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags =
+      (mdefs->itemColorP1).fFlags =
            uVar4 | 1;
     }
   }
   else {
-    uVar4 = (menuDefs->itemColorP2)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags &
+    uVar4 = (menuDefs->itemColorP2).fFlags &
             0xfffffffe;
-    (menuDefs->itemColorP2)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags = uVar4;
+    (menuDefs->itemColorP2).fFlags = uVar4;
     if ((iVar2 == 0) || (cStack_ee == '\a')) {
-      (mdefs->itemColorP2)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fFlags =
+      (mdefs->itemColorP2).fFlags =
            uVar4 | 1;
     }
   }

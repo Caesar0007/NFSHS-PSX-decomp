@@ -674,10 +674,10 @@ int tMenuItem::Draw(int x,int y,int w,bool selected)
 
 /* ---- tMenuItemInteractive::ctor  [FEMENU.CPP:533-534] SLD-VERIFIED ---- */
 tMenuItemInteractive::tMenuItemInteractive(u_int textDescription)
-  : _base_tMenuItem(textDescription)
+  : tMenuItem(textDescription)
 {
   
-  *(void **)&((this->_base_tMenuItem)._vf) = (void *)tMenuItemInteractive_vtable;
+  *(void **)&(this->_vf) = (void *)tMenuItemInteractive_vtable;
   return;
 }
 
@@ -688,7 +688,7 @@ tMenuItemInteractive::tMenuItemInteractive(u_int textDescription)
 tMenuItemInteractive::~tMenuItemInteractive()
 
 {
-  *(void **)&((this->_base_tMenuItem)._vf) = (void *)tMenuItemInteractive_vtable;
+  *(void **)&(this->_vf) = (void *)tMenuItemInteractive_vtable;
   return;
 }
 
@@ -696,14 +696,14 @@ tMenuItemInteractive::~tMenuItemInteractive()
 
 /* ---- tMenuItemLeftRightChoice::ctor  [FEMENU.CPP:552-555] SLD-VERIFIED ---- */
 tMenuItemLeftRightChoice::tMenuItemLeftRightChoice(u_int textDescription,tListIterator *dataPtr)
-  : _base_tMenuItemInteractive(textDescription)
+  : tMenuItemInteractive(textDescription)
 {
   u_int uVar1;
   
-  uVar1 = (this->_base_tMenuItemInteractive)._base_tMenuItem.fFlags;
-  *(void **)&((this->_base_tMenuItemInteractive)._base_tMenuItem._vf) = (void *)tMenuItemLeftRightChoice_vtable;
+  uVar1 = this->fFlags;
+  *(void **)&(this->_vf) = (void *)tMenuItemLeftRightChoice_vtable;
   this->fData = dataPtr;
-  (this->_base_tMenuItemInteractive)._base_tMenuItem.fFlags = uVar1 | 0x400;
+  this->fFlags = uVar1 | 0x400;
   return;
 }
 
@@ -714,7 +714,7 @@ tMenuItemLeftRightChoice::tMenuItemLeftRightChoice(u_int textDescription,tListIt
 tMenuItemLeftRightChoice::~tMenuItemLeftRightChoice()
 
 {
-  *(void **)&((this->_base_tMenuItemInteractive)._base_tMenuItem._vf) = (void *)tMenuItemLeftRightChoice_vtable;
+  *(void **)&(this->_vf) = (void *)tMenuItemLeftRightChoice_vtable;
   return;
 }
 
@@ -730,7 +730,7 @@ int tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
   __vtbl_ptr_type (*pa_Var2) [6];
   int SFXnum;
   
-  uVar1 = (this->_base_tMenuItemInteractive)._base_tMenuItem.fFlags & 1;
+  uVar1 = this->fFlags & 1;
   if (uVar1 == 0) {
     if (keyval == kInput_KeyType_Left) {
       pa_Var2 = this->fData->_vf;
@@ -765,10 +765,10 @@ void tMenuItemLeftRightChoice::Draw(bool selected)
   __vtbl_ptr_type (*pa_Var3) [6];
   tMenuTextState textState;
 
-  iVar1 = TextSys_WordX((this->_base_tMenuItemInteractive)._base_tMenuItem.fTextDescription);
-  iVar2 = TextSys_WordY((this->_base_tMenuItemInteractive)._base_tMenuItem.fTextDescription);
+  iVar1 = TextSys_WordX(this->fTextDescription);
+  iVar2 = TextSys_WordY(this->fTextDescription);
   textState = (tMenuTextState)(selected != 0);
-  FETextRender_MenuTextPositioned((short)(this->_base_tMenuItemInteractive)._base_tMenuItem.fTextDescription,(short)iVar1,
+  FETextRender_MenuTextPositioned((short)this->fTextDescription,(short)iVar1,
              (short)iVar2,textState,textType_Options);
   pa_Var3 = this->fData->_vf;
   index = (*(*pa_Var3)[3].pfn)
@@ -783,17 +783,17 @@ void tMenuItemLeftRightChoice::Draw(bool selected)
 
 /* ---- tMenuItemLeftRightSlider::ctor  [FEMENU.CPP:612-616] SLD-VERIFIED ---- */
 tMenuItemLeftRightSlider::tMenuItemLeftRightSlider(u_int textDescription,tListIterator *dataPtr)
-  : _base_tMenuItemInteractive(textDescription)
+  : tMenuItemInteractive(textDescription)
 {
   u_int uVar1;
   u_int uVar2;
 
-  uVar1 = (this->_base_tMenuItemInteractive)._base_tMenuItem.fFlags;
+  uVar1 = this->fFlags;
   this->fData = dataPtr;
-  (this->_base_tMenuItemInteractive)._base_tMenuItem.fFlags = uVar1 | 0x80;
-  *(void **)&((this->_base_tMenuItemInteractive)._base_tMenuItem._vf) = (void *)tMenuItemLeftRightSlider_vtable;
-  uVar2 = (this->_base_tMenuItemInteractive)._base_tMenuItem.fFlags;
-  (this->_base_tMenuItemInteractive)._base_tMenuItem.fFlags = uVar2 | 0x80;
+  this->fFlags = uVar1 | 0x80;
+  *(void **)&(this->_vf) = (void *)tMenuItemLeftRightSlider_vtable;
+  uVar2 = this->fFlags;
+  this->fFlags = uVar2 | 0x80;
   return;
 }
 
@@ -804,7 +804,7 @@ tMenuItemLeftRightSlider::tMenuItemLeftRightSlider(u_int textDescription,tListIt
 tMenuItemLeftRightSlider::~tMenuItemLeftRightSlider()
 
 {
-  *(void **)&((this->_base_tMenuItemInteractive)._base_tMenuItem._vf) = (void *)tMenuItemLeftRightSlider_vtable;
+  *(void **)&(this->_vf) = (void *)tMenuItemLeftRightSlider_vtable;
   return;
 }
 
@@ -831,7 +831,7 @@ int tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
   int (*pcVar3)(...);
   tListIterator *ptVar4;
   
-  uVar2 = (this->_base_tMenuItemInteractive)._base_tMenuItem.fFlags & 1;
+  uVar2 = this->fFlags & 1;
   if (uVar2 == 0) {
     if (keyval == kInput_KeyType_Left) {
       ptVar4 = this->fData;
@@ -1044,13 +1044,13 @@ void tMenuItemLeftRightSlider::Draw(bool selected)
   short fSelFade;
   
   if (this->fX == 0 && this->fY == 0) {
-    iVar2 = TextSys_WordX((this->_base_tMenuItemInteractive)._base_tMenuItem.fTextDescription);
-    wordnum = (this->_base_tMenuItemInteractive)._base_tMenuItem.fTextDescription;
+    iVar2 = TextSys_WordX(this->fTextDescription);
+    wordnum = this->fTextDescription;
     this->fX = (short)iVar2;
     iVar2 = TextSys_WordY(wordnum);
     this->fY = (short)iVar2;
   }
-  FETextRender_MenuTextPositioned((short)(this->_base_tMenuItemInteractive)._base_tMenuItem.fTextDescription,this->fX + 8,
+  FETextRender_MenuTextPositioned((short)this->fTextDescription,this->fX + 8,
              this->fY + 3,(tMenuTextState)(selected != 0),textType_Options);
   pa_Var3 = this->fData->_vf;
   uVar1 = (*(*pa_Var3)[2].pfn)
@@ -1086,11 +1086,11 @@ void tMenuItemLeftRightSlider::SetDimensions(short x,short y,short width,short h
 
 tMenuItemGoToMenuButton::tMenuItemGoToMenuButton(u_int textDescription,tMenu *newMenu,
               void (*OnButtonPress)(tMenuCommand&))
-  : _base_tMenuItemInteractive(textDescription)
+  : tMenuItemInteractive(textDescription)
 {
   
-  *(void **)&((this->_base_tMenuItemInteractive)._base_tMenuItem._vf) = (void *)tMenuItemGoToMenuButton_vtable;
-  (this->_base_tMenuItemInteractive)._base_tMenuItem.fNewMenu = newMenu;
+  *(void **)&(this->_vf) = (void *)tMenuItemGoToMenuButton_vtable;
+  this->fNewMenu = newMenu;
   this->fOnButtonPress = (void *)OnButtonPress;
   return;
 }
@@ -1102,7 +1102,7 @@ tMenuItemGoToMenuButton::tMenuItemGoToMenuButton(u_int textDescription,tMenu *ne
 tMenuItemGoToMenuButton::~tMenuItemGoToMenuButton()
 
 {
-  *(void **)&((this->_base_tMenuItemInteractive)._base_tMenuItem._vf) = (void *)tMenuItemGoToMenuButton_vtable;
+  *(void **)&(this->_vf) = (void *)tMenuItemGoToMenuButton_vtable;
   return;
 }
 
@@ -1118,19 +1118,19 @@ int tMenuItemGoToMenuButton::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyv
   u_int uVar2;
   void *reg_a3;
   
-  uVar2 = (this->_base_tMenuItemInteractive)._base_tMenuItem.fFlags;
+  uVar2 = this->fFlags;
   uVar1 = uVar2 & 1;
   if (uVar1 == 0) {
     uVar1 = 2;
     if (keyval == kInput_KeyType_Cross) {
-      if ((this->_base_tMenuItemInteractive)._base_tMenuItem.fNewMenu != (tMenu *)0x0) {
+      if (this->fNewMenu != (tMenu *)0x0) {
         if ((uVar2 & 0x40) == 0) {
           command.type = kMenu_Command_GoToMenu;
         }
         else {
           command.type = kMenu_Command_GoToMenuOneWay;
         }
-        command.nextMenu = (this->_base_tMenuItemInteractive)._base_tMenuItem.fNewMenu;
+        command.nextMenu = this->fNewMenu;
       }
       if (this->fOnButtonPress != (void *)0x0) {
         ((void(*)(tMenuCommand&))this->fOnButtonPress)(command);

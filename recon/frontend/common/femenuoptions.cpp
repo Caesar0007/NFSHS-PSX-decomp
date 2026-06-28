@@ -149,7 +149,7 @@ void tMenuItemGoToMenuButtonFade::TransitionOn()
 {
   this->fFadeVal = 0x80;
   this->fFadeDir = -0x1e;
-  (this->_base_tMenuItemGoToMenuButton)._base_tMenuItemInteractive._base_tMenuItem.fSelFade = 0;
+  this->fSelFade = 0;
   this->fEnableVal = 0;
   return;
 }
@@ -194,10 +194,10 @@ void tMenuItemGoToMenuButtonFade::UpdateTransition(bool selected)
   if (iVar2 < 0) {
     iVar2 = 0;
   }
-  pa_Var1 = (this->_base_tMenuItemGoToMenuButton)._base_tMenuItemInteractive._base_tMenuItem._vf;
+  pa_Var1 = this->_vf;
   this->fFadeVal = (short)iVar2;
   (*(*pa_Var1)[9].pfn)
-            ((int)&(this->_base_tMenuItemGoToMenuButton)._base_tMenuItemInteractive._base_tMenuItem.fFlags +
+            ((int)&this->fFlags +
              (int)(*pa_Var1)[9].delta);
   ((tMenuItem *)this)->UpdateTransition(selected);
   return;
@@ -207,12 +207,12 @@ void tMenuItemGoToMenuButtonFade::UpdateTransition(bool selected)
 
 /* ---- tMenuItemLeftRightFade::ctor  [FEMENUOPTIONS.CPP:204-210] SLD-VERIFIED ---- */
 tMenuItemLeftRightFade::tMenuItemLeftRightFade(u_int textDescription,tListIterator *dataPtr)
-  : _base_tMenuItemLeftRightChoice(textDescription,dataPtr)
+  : tMenuItemLeftRightChoice(textDescription,dataPtr)
 {
   
-  *(void **)&((this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemLeftRightFade_vtable;
+  *(void **)&(this->_vf) = (void *)tMenuItemLeftRightFade_vtable;
   this->flareextra = 0;
-  (this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fSelFade = 0;
+  this->fSelFade = 0;
   return;
 }
 
@@ -239,7 +239,7 @@ void tMenuItemLeftRightFade::TransitionOn()
   this->fInTransition = 1;
   this->fFadeDir = -0x1e;
   this->flareextra = 0;
-  (this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fSelFade = 0;
+  this->fSelFade = 0;
   this->fFadeVal = 0x80;
   return;
 }
@@ -287,10 +287,10 @@ void tMenuItemLeftRightFade::UpdateTransition(bool selected)
   if (iVar2 < 0) {
     iVar2 = 0;
   }
-  pa_Var1 = (this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem._vf;
+  pa_Var1 = this->_vf;
   this->fFadeVal = (short)iVar2;
   (*(*pa_Var1)[9].pfn)
-            ((int)&(this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fFlags +
+            ((int)&this->fFlags +
              (int)(*pa_Var1)[9].delta);
   ((tMenuItem *)this)->UpdateTransition(selected);
   return;
@@ -733,23 +733,23 @@ int tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short arg5)
 /* ---- tMenuItemSlidingMenu::ctor  [FEMENUOPTIONS.CPP:612-624] SLD-VERIFIED ---- */
 tMenuItemSlidingMenu::tMenuItemSlidingMenu(u_int textDescription,short width,short height,short diffx,
           short diffy,bool fillback)
-  : _base_tMenuItem(textDescription)
+  : tMenuItem(textDescription)
 {
   u_int uVar1;
   
-  uVar1 = (this->_base_tMenuItem).fFlags;
+  uVar1 = this->fFlags;
   this->currMenu = (tInsideBoxMenu *)0x0;
   this->nextMenu = (tInsideBoxMenu *)0x0;
   this->fWidth = width;
   this->fHeight = height;
-  (this->_base_tMenuItem).fSelFade = 0;
-  (this->_base_tMenuItem).fFlags = uVar1 | 0x80;
-  uVar1 = (this->_base_tMenuItem).fFlags;
-  *(void **)&((this->_base_tMenuItem)._vf) = (void *)tMenuItemSlidingMenu_vtable;
+  this->fSelFade = 0;
+  this->fFlags = uVar1 | 0x80;
+  uVar1 = this->fFlags;
+  *(void **)&(this->_vf) = (void *)tMenuItemSlidingMenu_vtable;
   this->fDiffX = diffx;
   this->fDiffY = diffy;
   this->fFillback = fillback;
-  (this->_base_tMenuItem).fFlags = uVar1 | 0x80;
+  this->fFlags = uVar1 | 0x80;
   return;
 }
 
@@ -760,7 +760,7 @@ tMenuItemSlidingMenu::tMenuItemSlidingMenu(u_int textDescription,short width,sho
 tMenuItemSlidingMenu::~tMenuItemSlidingMenu()
 
 {
-  *(void **)&((this->_base_tMenuItem)._vf) = (void *)tMenuItemSlidingMenu_vtable;
+  *(void **)&(this->_vf) = (void *)tMenuItemSlidingMenu_vtable;
   return;
 }
 
@@ -845,10 +845,10 @@ void tMenuItemSlidingMenu::UpdateTransition(bool selected)
   if (iVar2 < 0) {
     iVar2 = 0;
   }
-  pa_Var1 = (this->_base_tMenuItem)._vf;
+  pa_Var1 = this->_vf;
   this->fFadeVal = (short)iVar2;
-  (*(*pa_Var1)[9].pfn)((int)&(this->_base_tMenuItem).fFlags + (int)(*pa_Var1)[9].delta);
-  this->_base_tMenuItem.UpdateTransition(selected);
+  (*(*pa_Var1)[9].pfn)((int)&this->fFlags + (int)(*pa_Var1)[9].delta);
+  this->UpdateTransition(selected);
   return;
 }
 
@@ -882,8 +882,8 @@ void tMenuItemSlidingMenu::Draw(bool selected)
 {
   __vtbl_ptr_type (*pa_Var1) [11];
   
-  pa_Var1 = (this->_base_tMenuItem)._vf;
-  (*(*pa_Var1)[5].pfn)((int)&(this->_base_tMenuItem).fFlags + (int)(*pa_Var1)[5].delta,0,0,selected);
+  pa_Var1 = this->_vf;
+  (*(*pa_Var1)[5].pfn)((int)&this->fFlags + (int)(*pa_Var1)[5].delta,0,0,selected);
   return;
 }
 
@@ -1034,24 +1034,24 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
   u_char *cur_pkt;
   u_char *daprim;
   
-  vtable_ptr = (int)(this->_base_tMenuItem)._vf;
+  vtable_ptr = (int)this->_vf;
   (**(int (**)(...))(vtable_ptr + 0x5c))
-            ((int)&(this->_base_tMenuItem).fFlags + (int)*(short *)(vtable_ptr + 0x58),
+            ((int)&this->fFlags + (int)*(short *)(vtable_ptr + 0x58),
              selected);
-  ColText = CalcTextFadeSelToHi(textType_Options,(this->_base_tMenuItem).fSelFade,this->fFadeVal);
-  boxHeight = TextSys_WordX((this->_base_tMenuItem).fTextDescription);
+  ColText = CalcTextFadeSelToHi(textType_Options,this->fSelFade,this->fFadeVal);
+  boxHeight = TextSys_WordX(this->fTextDescription);
   x = boxHeight + offx;
-  topShapeY = TextSys_WordY((this->_base_tMenuItem).fTextDescription);
+  topShapeY = TextSys_WordY(this->fTextDescription);
   shape = gHelpShapes;
   fHelpText = -1;
   y = topShapeY + offy;
   fPlayList = (tInsideBoxSongMenu *)this->currMenu == &menuDefs->menuPlayListMenu;
   if ((this->fFadeVal != 0x80) && (fPlayList)) {
-    DrawLeftFlare(y,(int)(this->_base_tMenuItem).fSelFade,(int)this->fFadeVal,
+    DrawLeftFlare(y,(int)this->fSelFade,(int)this->fFadeVal,
                flareextra);
   }
   if ((this->currMenu != (tInsideBoxMenu *)0x0) || (ptVar8 = 0, fPlayList)) {
-    drawFlags.tint[0] = CalcFadeVal(0,0xbebe,(int)(this->_base_tMenuItem).fSelFade,(int)this->fFadeVal);
+    drawFlags.tint[0] = CalcFadeVal(0,0xbebe,(int)this->fSelFade,(int)this->fFadeVal);
     DrawShapeExtended(0x39,0x18,((x + (fPlayList ? 0xdc : (int)this->fWidth)) - (int)shape[0x1e].width) - 0xa,(fPlayList ? y + -3 : y + -2),0,1,&drawFlags);
     DrawShapeExtended(0x3a,0x18,((x + (fPlayList ? 0xdc : (int)this->fWidth)) - (int)shape[0x1e].width) - 0xa,(fPlayList ? y + 3 : y + 4),0,1,&drawFlags);
     ptVar8 = (int)this->currMenu;
@@ -1121,7 +1121,7 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
       iVar8 = TextSys_WordY(fHelpText);
       FETextRender_FullTextRGB((char *)tstr10,(short)iVar7,(short)iVar8,PulsateYellow[0],'\0',2);
     }
-    sMenuText = (int)TextSys_Word((this->_base_tMenuItem).fTextDescription);
+    sMenuText = (int)TextSys_Word(this->fTextDescription);
     FETextRender_FullTextRGB((char *)sMenuText,(short)x,(short)y,ColText,'\0',(u_short)fPlayList);
     DrawShapeExtended(0x1e,8,(x + (fPlayList ? 0xdc : (int)this->fWidth)) - (int)shape[0x1e].width,y + -2,(int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
     if (this->fFillback != 0) {
@@ -1151,7 +1151,7 @@ void tMenuItemSlidingMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval
   if (keyval == kInput_KeyType_Down) {
     keyval = kInput_KeyType_AlreadyProcessed;
   }
-  this->_base_tMenuItem.ProcessInput(fromPlayer,keyval,command);
+  this->ProcessInput(fromPlayer,keyval,command);
   return;
 }
 
@@ -1168,10 +1168,10 @@ void tMenuItemSlidingMenu::SetMenu(bool bothmenus,tInsideBoxMenu *menu)
     this->currMenu = menu;
   }
   if (this->nextMenu == (tInsideBoxMenu *)0x0) {
-    (this->_base_tMenuItem).fFlags = (this->_base_tMenuItem).fFlags | 1;
+    this->fFlags = this->fFlags | 1;
     return;
   }
-  (this->_base_tMenuItem).fFlags = (this->_base_tMenuItem).fFlags & 0xfffffffe;
+  this->fFlags = this->fFlags & 0xfffffffe;
   return;
 }
 
@@ -1188,14 +1188,14 @@ int tMenuItemSlidingActivated::UpdatefOpenHeight(bool arg1)
   int iVar4;
   
   if (this->fActive == 0) {
-    sVar1 = (this->_base_tMenuItemSlidingMenu).fSlideOffset + 3;
+    sVar1 = this->fSlideOffset + 3;
   }
   else {
-    sVar1 = (this->_base_tMenuItemSlidingMenu).fSlideOffset + -3;
+    sVar1 = this->fSlideOffset + -3;
   }
-  (this->_base_tMenuItemSlidingMenu).fSlideOffset = sVar1;
-  iVar4 = (int)(this->_base_tMenuItemSlidingMenu).fSlideOffset;
-  iVar2 = (u_int)(u_short)(this->_base_tMenuItemSlidingMenu).fHeight << 0x10;
+  this->fSlideOffset = sVar1;
+  iVar4 = (int)this->fSlideOffset;
+  iVar2 = (u_int)(u_short)this->fHeight << 0x10;
   iVar2 = (iVar2 >> 0x10) + (iVar2 >> 0x11);
   uVar3 = (u_int)(iVar4 < iVar2);
   if (uVar3 != 0) {
@@ -1204,7 +1204,7 @@ int tMenuItemSlidingActivated::UpdatefOpenHeight(bool arg1)
   if (iVar2 < 0) {
     iVar2 = 0;
   }
-  (this->_base_tMenuItemSlidingMenu).fSlideOffset = (short)iVar2;
+  this->fSlideOffset = (short)iVar2;
   return uVar3;
 }
 
@@ -1215,12 +1215,12 @@ int tMenuItemSlidingActivated::UpdatefOpenHeight(bool arg1)
 void tMenuItemSlidingActivated::TransitionOff()
 
 {
-  (this->_base_tMenuItemSlidingMenu).fFadeDir = 0;
-  (this->_base_tMenuItemSlidingMenu).fTransitioningOut = 1;
-  if ((this->_base_tMenuItemSlidingMenu).currMenu != (tInsideBoxMenu *)0x0) {
-    (this->_base_tMenuItemSlidingMenu).fInTransition = 1;
-    (this->_base_tMenuItemSlidingMenu).fFadeDir = 0x1e;
-    (this->_base_tMenuItemSlidingMenu).fFadeVal = 0;
+  this->fFadeDir = 0;
+  this->fTransitioningOut = 1;
+  if (this->currMenu != (tInsideBoxMenu *)0x0) {
+    this->fInTransition = 1;
+    this->fFadeDir = 0x1e;
+    this->fFadeVal = 0;
   }
   return;
 }
@@ -1234,14 +1234,14 @@ void tMenuItemSlidingActivated::TransitionOn()
 {
   short sVar1;
 
-  sVar1 = (this->_base_tMenuItemSlidingMenu).fHeight;
-  (this->_base_tMenuItemSlidingMenu).fFadeDir = -0x1e;
-  (this->_base_tMenuItemSlidingMenu).fInTransition = 1;
+  sVar1 = this->fHeight;
+  this->fFadeDir = -0x1e;
+  this->fInTransition = 1;
   this->fActive = 0;
-  (this->_base_tMenuItemSlidingMenu).fTransitioningOut = 0;
-  (this->_base_tMenuItemSlidingMenu).fFadeVal = 0x80;
-  (this->_base_tMenuItemSlidingMenu).fOpenHeight = sVar1;
-  (this->_base_tMenuItemSlidingMenu).fSlideOffset = sVar1 + (sVar1 >> 1);
+  this->fTransitioningOut = 0;
+  this->fFadeVal = 0x80;
+  this->fOpenHeight = sVar1;
+  this->fSlideOffset = sVar1 + (sVar1 >> 1);
   return;
 }
 
@@ -1254,27 +1254,27 @@ void * tMenuItemSlidingActivated::TransitionIsFinished()
 {
   short sVar1;
   
-  if (((this->_base_tMenuItemSlidingMenu).currMenu == (tInsideBoxMenu *)0x0) ||
-     ((this->_base_tMenuItemSlidingMenu).nextMenu == (tInsideBoxMenu *)0x0)) {
-    (this->_base_tMenuItemSlidingMenu).fFadeDir = 0;
+  if ((this->currMenu == (tInsideBoxMenu *)0x0) ||
+     (this->nextMenu == (tInsideBoxMenu *)0x0)) {
+    this->fFadeDir = 0;
   }
   else {
-    sVar1 = (this->_base_tMenuItemSlidingMenu).fFadeDir;
+    sVar1 = this->fFadeDir;
     if (sVar1 != 0) {
       if (sVar1 < 0) {
-        if ((this->_base_tMenuItemSlidingMenu).fFadeVal < 1) goto SlideActvTrans_resetTrans;
-        sVar1 = (this->_base_tMenuItemSlidingMenu).fFadeDir;
+        if (this->fFadeVal < 1) goto SlideActvTrans_resetTrans;
+        sVar1 = this->fFadeDir;
       }
-      if ((sVar1 < 1) || ((this->_base_tMenuItemSlidingMenu).fFadeVal < 0x80)) {
-        (this->_base_tMenuItemSlidingMenu).fInTransition = 1;
+      if ((sVar1 < 1) || (this->fFadeVal < 0x80)) {
+        this->fInTransition = 1;
         goto SlideActvTrans_returnInv;
       }
     }
   }
 SlideActvTrans_resetTrans:
-  (this->_base_tMenuItemSlidingMenu).fInTransition = 0;
+  this->fInTransition = 0;
 SlideActvTrans_returnInv:
-  return (void *)((this->_base_tMenuItemSlidingMenu).fInTransition ^ 1);
+  return (void *)(this->fInTransition ^ 1);
 }
 
 
@@ -1287,17 +1287,17 @@ void tMenuItemSlidingActivated::UpdateTransition(bool selected)
   __vtbl_ptr_type (*pa_Var1) [11];
   int iVar2;
   
-  iVar2 = (int)(this->_base_tMenuItemSlidingMenu).fFadeVal + (int)(this->_base_tMenuItemSlidingMenu).fFadeDir;
+  iVar2 = (int)this->fFadeVal + (int)this->fFadeDir;
   if (0x80 < iVar2) {
     iVar2 = 0x80;
   }
   if (iVar2 < 0) {
     iVar2 = 0;
   }
-  pa_Var1 = (this->_base_tMenuItemSlidingMenu)._base_tMenuItem._vf;
-  (this->_base_tMenuItemSlidingMenu).fFadeVal = (short)iVar2;
+  pa_Var1 = this->_vf;
+  this->fFadeVal = (short)iVar2;
   (*(*pa_Var1)[9].pfn)
-            ((int)&(this->_base_tMenuItemSlidingMenu)._base_tMenuItem.fFlags + (int)(*pa_Var1)[9].delta);
+            ((int)&this->fFlags + (int)(*pa_Var1)[9].delta);
   ((tMenuItem *)this)->UpdateTransition(selected);
   return;
 }
@@ -1341,10 +1341,10 @@ void tMenuItemSlidingActivated::ProcessInput(tPlayer fromPlayer,tInputKeyType &k
     AudioMus_SysStartUp(0xd800,0x18000,"amus");
     AudioMus_PlaySong("zmenu*");
   }
-  if ((this->_base_tMenuItemSlidingMenu).fSlideOffset == 0) {
+  if (this->fSlideOffset == 0) {
     iVar2 = this->fActive;
     if (iVar2 == 0) goto SlideActivProc_callBaseProcess;
-    ptVar4 = (this->_base_tMenuItemSlidingMenu).currMenu;
+    ptVar4 = this->currMenu;
     if (ptVar4 != (tInsideBoxMenu *)0x0) {
       pa_Var3 = (ptVar4->_base_tMenu)._vf;
       (*(*pa_Var3)[3].pfn)
@@ -1377,13 +1377,13 @@ void tMenuItemLeftRightFade::MyLeftRightDraw(int x,int y)
   tDrawShapeExtended aCol;
   
   aCol.tint[0] = CalcFadeVal(0xc83c1e,0xbebe,
-                            (int)(this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fSelFade,(int)this->fFadeVal);
-  DrawLeftFlare(y,(int)(this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fSelFade,
+                            (int)this->fSelFade,(int)this->fFadeVal);
+  DrawLeftFlare(y,(int)this->fSelFade,
              (int)this->fFadeVal,this->flareextra);
   ColText = CalcTextFadeSelToHi(textType_Options,
-                   (this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fSelFade,
+                   this->fSelFade,
                    this->fFadeVal);
-  sMenuText = TextSys_Word((this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
+  sMenuText = TextSys_Word(this->fTextDescription);
   FETextRender_FullTextRGB(sMenuText,(short)x,(short)y,ColText,'\0',1);
   DrawShapeExtended(0x2e,0x18,x + 0x1a,y + 1,0,0,&aCol);
   DrawShapeExtended(0x2f,0x18,x + 0xc8,y + 1,0,0,&aCol);
@@ -1407,14 +1407,14 @@ int tMenuItemDisplayLeftRightChoice::Draw(int offx,int offy,bool selected)
   int iVar6;
   
   iVar2 = 0x80;
-  if ((this->_base_tMenuItemLeftRightFade).fFadeVal != 0x80) {
-    iVar3 = TextSys_WordX((this->_base_tMenuItemLeftRightFade)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
-    iVar2 = TextSys_WordY((this->_base_tMenuItemLeftRightFade)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
+  if (this->fFadeVal != 0x80) {
+    iVar3 = TextSys_WordX(this->fTextDescription);
+    iVar2 = TextSys_WordY(this->fTextDescription);
     ColText = CalcTextFadeSelToHi(textType_Options,
-                     (this->_base_tMenuItemLeftRightFade)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fSelFade,(this->_base_tMenuItemLeftRightFade).fFadeVal);
+                     this->fSelFade,this->fFadeVal);
     iVar6 = (iVar2 + offy) * 0x10000;
-    this->_base_tMenuItemLeftRightFade.MyLeftRightDraw((iVar3 + offx) * 0x10000 >> 0x10,iVar6 >> 0x10);
-    ptVar5 = (this->_base_tMenuItemLeftRightFade)._base_tMenuItemLeftRightChoice.fData;
+    this->MyLeftRightDraw((iVar3 + offx) * 0x10000 >> 0x10,iVar6 >> 0x10);
+    ptVar5 = this->fData;
     pa_Var4 = ptVar5->_vf;
     sVar1 = (*(*pa_Var4)[3].pfn)
                       ((char *)ptVar5 + (int)(*pa_Var4)[3].delta,gMenu_SubMenuPlayer);
@@ -1438,12 +1438,12 @@ void tMenuItemOnOffLeftRightChoice::TransitionOn()
   tListIterator *ptVar2;
   __vtbl_ptr_type (*pa_Var3) [6];
 
-  ptVar2 = (this->_base_tMenuItemLeftRightFade)._base_tMenuItemLeftRightChoice.fData;
+  ptVar2 = this->fData;
   pa_Var3 = ptVar2->_vf;
   cVar1 = (*(u_char (*)(char *, int))(*pa_Var3)[2].pfn)((char *)ptVar2 + (int)(*pa_Var3)[2].delta,0xffffffff);
   bSet = (0 < cVar1);
   this->fOnFade = (u_short)(bSet << 7);
-  this->_base_tMenuItemLeftRightFade.TransitionOn();
+  this->TransitionOn();
   return;
 }
 
@@ -1465,8 +1465,8 @@ int tMenuItemOnOffLeftRightChoice::Draw(int offx,int offy,bool selected)
   int ColTextOff;
   
   pcVar2 = (char *)0x80;
-  if ((this->_base_tMenuItemLeftRightFade).fFadeVal != 0x80) {
-    ptVar6 = (this->_base_tMenuItemLeftRightFade)._base_tMenuItemLeftRightChoice.fData;
+  if (this->fFadeVal != 0x80) {
+    ptVar6 = this->fData;
     pa_Var3 = ptVar6->_vf;
     cVar1 = (*(*pa_Var3)[2].pfn)
                       ((char *)ptVar6 + (int)(*pa_Var3)[2].delta,0xffffffff,offy,
@@ -1484,13 +1484,13 @@ int tMenuItemOnOffLeftRightChoice::Draw(int offx,int offy,bool selected)
     if (this->fOnFade < 0) {
       this->fOnFade = 0;
     }
-    iVar4 = TextSys_WordX((this->_base_tMenuItemLeftRightFade)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
+    iVar4 = TextSys_WordX(this->fTextDescription);
     iVar4 = iVar4 + offx;
-    iVar5 = TextSys_WordY((this->_base_tMenuItemLeftRightFade)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
+    iVar5 = TextSys_WordY(this->fTextDescription);
     CalcOnOffFade(textType_Options,this->fOnFade,
-               (this->_base_tMenuItemLeftRightFade)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fSelFade,(this->_base_tMenuItemLeftRightFade).fFadeVal,&ColTextOn,&ColTextOff);
+               this->fSelFade,this->fFadeVal,&ColTextOn,&ColTextOff);
     iVar5 = (iVar5 + offy) * 0x10000;
-    this->_base_tMenuItemLeftRightFade.MyLeftRightDraw(iVar4 * 0x10000 >> 0x10,iVar5 >> 0x10);
+    this->MyLeftRightDraw(iVar4 * 0x10000 >> 0x10,iVar5 >> 0x10);
     pcVar2 = TextSys_Word(0x66);
     sVar7 = (short)((u_int)iVar5 >> 0x10);
     FETextRender_FullTextRGB(pcVar2,(short)((u_int)((iVar4 + 0x37) * 0x10000) >> 0x10),sVar7,ColTextOn,'\0',0);
@@ -1505,13 +1505,13 @@ int tMenuItemOnOffLeftRightChoice::Draw(int offx,int offy,bool selected)
 /* ---- tMenuItemLeftRightAudioSlider::ctor  [FEMENUOPTIONS.CPP:1152-1156] SLD-VERIFIED ---- */
 tMenuItemLeftRightAudioSlider::tMenuItemLeftRightAudioSlider(u_int textDescription,tListIterator *dataPtr,
           int AudioArt)
-  : _base_tMenuItemLeftRightSlider(textDescription,dataPtr)
+  : tMenuItemLeftRightSlider(textDescription,dataPtr)
 {
   
-  *(void **)&((this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemLeftRightAudioSlider_vtable;
+  *(void **)&(this->_vf) = (void *)tMenuItemLeftRightAudioSlider_vtable;
   this->fAudioArt = (short)AudioArt;
   this->flareextra = 0;
-  (this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fSelFade = 0;
+  this->fSelFade = 0;
   return;
 }
 
@@ -1522,7 +1522,7 @@ tMenuItemLeftRightAudioSlider::tMenuItemLeftRightAudioSlider(u_int textDescripti
 tMenuItemLeftRightAudioSlider::~tMenuItemLeftRightAudioSlider()
 
 {
-  *(void **)&((this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemLeftRightAudioSlider_vtable;
+  *(void **)&(this->_vf) = (void *)tMenuItemLeftRightAudioSlider_vtable;
   return;
 }
 
@@ -1542,42 +1542,42 @@ int tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool selected)
   int iVar6;
   tDrawShapeExtended tCol;
   
-  coltext = TextSys_WordX((this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
-  uVar5 = (this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription;
-  (this->_base_tMenuItemLeftRightSlider).fX = (short)coltext + (short)ox;
+  coltext = TextSys_WordX(this->fTextDescription);
+  uVar5 = this->fTextDescription;
+  this->fX = (short)coltext + (short)ox;
   coltext = TextSys_WordY(uVar5);
-  uVar5 = (this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription;
-  (this->_base_tMenuItemLeftRightSlider).fY = (short)coltext + (short)oy;
+  uVar5 = this->fTextDescription;
+  this->fY = (short)coltext + (short)oy;
   coltext = TextSys_WordFlags((int)(short)uVar5);
   iVar6 = kRGBVals[(u_char)textDefinitions[coltext][5]];
-  coltext = TextSys_WordFlags((int)(short)(this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
+  coltext = TextSys_WordFlags((int)(short)this->fTextDescription);
   coltext = kRGBVals[(u_char)textDefinitions[coltext][4]];
-  DrawLeftFlare((int)(this->_base_tMenuItemLeftRightSlider).fY,
-             (int)(this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fSelFade,
+  DrawLeftFlare((int)this->fY,
+             (int)this->fSelFade,
              (int)this->fFadeVal,this->flareextra);
   coltext = CalcFadeVal(coltext,iVar6,
-                     (int)(this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fSelFade,
+                     (int)this->fSelFade,
                      (int)this->fFadeVal);
   iVar6 = 0x80;
   if (this->fFadeVal != 0x80) {
-    sMenuText = TextSys_Word((this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
-    FETextRender_FullTextRGB(sMenuText,(this->_base_tMenuItemLeftRightSlider).fX,(this->_base_tMenuItemLeftRightSlider).fY,
+    sMenuText = TextSys_Word(this->fTextDescription);
+    FETextRender_FullTextRGB(sMenuText,this->fX,this->fY,
                coltext,'\0',1);
     tCol.tint[0] = CalcFadeVal(0x551e00,0xbebe,
-                              (int)(this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fSelFade,(int)this->fFadeVal);
-    if ((this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fSelFade != 0) {
+                              (int)this->fSelFade,(int)this->fFadeVal);
+    if (this->fSelFade != 0) {
       DrawShapeExtended(this->fAudioArt + 1,0x10,0,0,0,0,&tCol);
     }
-    ptVar4 = (this->_base_tMenuItemLeftRightSlider).fData;
+    ptVar4 = this->fData;
     pa_Var3 = ptVar4->_vf;
     uVar1 = (*(*pa_Var3)[2].pfn)((char *)ptVar4 + (int)(*pa_Var3)[2].delta,0xffffffff)
     ;
-    ptVar4 = (this->_base_tMenuItemLeftRightSlider).fData;
+    ptVar4 = this->fData;
     iVar6 = (int)this->fFadeVal;
     DrawSlider(uVar1 & 0xff,(u_short)(u_char)ptVar4->fMinValue,(u_short)(u_char)ptVar4->fMaxValue,
-               (this->_base_tMenuItemLeftRightSlider).fX + 0x14,(this->_base_tMenuItemLeftRightSlider).fY + 1,
-               (this->_base_tMenuItemLeftRightSlider).fWidth,(this->_base_tMenuItemLeftRightSlider).fHeight,4,4,
-               false,0,(this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fSelFade,
+               this->fX + 0x14,this->fY + 1,
+               this->fWidth,this->fHeight,4,4,
+               false,0,this->fSelFade,
                this->fFadeVal);
   }
   return iVar6;
@@ -1598,10 +1598,10 @@ int tMenuItemLeftRightAudioSlider::Percentage()
   int iVar6;
   int percent;
   
-  ptVar5 = (this->_base_tMenuItemLeftRightSlider).fData;
+  ptVar5 = this->fData;
   pa_Var2 = ptVar5->_vf;
   uVar3 = (*(*pa_Var2)[2].pfn)((char *)ptVar5 + (int)(*pa_Var2)[2].delta,0xffffffff);
-  ptVar5 = (this->_base_tMenuItemLeftRightSlider).fData;
+  ptVar5 = this->fData;
   iVar6 = ((uVar3 & 0xff) - (u_int)(u_char)ptVar5->fMinValue) * 100;
   iVar4 = (u_int)(u_char)ptVar5->fMaxValue - (u_int)(u_char)ptVar5->fMinValue;
   percent = iVar6 / iVar4;
@@ -1634,7 +1634,7 @@ void tMenuItemLeftRightAudioSlider::TransitionOn()
 {
   this->fFadeVal = 0x80;
   this->fFadeDir = -0x3c;
-  (this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fSelFade = 0;
+  this->fSelFade = 0;
   return;
 }
 
@@ -1958,32 +1958,32 @@ int tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
   tDrawShapeExtended tCol;
   tDrawShapeExtended drawFlags;
   
-  iVar3 = TextSys_WordX((this->_base_tMenuItemLeftRightFade)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
+  iVar3 = TextSys_WordX(this->fTextDescription);
   iVar3 = iVar3 + ox;
-  iVar4 = TextSys_WordY((this->_base_tMenuItemLeftRightFade)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
+  iVar4 = TextSys_WordY(this->fTextDescription);
   shape = gHelpShapes;
   Col = CalcFadeVal(0xc83c1e,0xbebe,
-                     (int)(this->_base_tMenuItemLeftRightFade)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fSelFade,
-                     (int)(this->_base_tMenuItemLeftRightFade).fFadeVal);
+                     (int)this->fSelFade,
+                     (int)this->fFadeVal);
   ColText = CalcTextFadeSelToHi(textType_Options,
-                   (this->_base_tMenuItemLeftRightFade)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fSelFade,(this->_base_tMenuItemLeftRightFade).fFadeVal);
-  if ((this->_base_tMenuItemLeftRightFade).fFadeVal != 0x80) {
+                   this->fSelFade,this->fFadeVal);
+  if (this->fFadeVal != 0x80) {
     tCol.tint[0] = Col;
-    pcVar6 = TextSys_Word((this->_base_tMenuItemLeftRightFade)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
+    pcVar6 = TextSys_Word(this->fTextDescription);
     y = (short)((u_int)((iVar4 + oy) * 0x10000) >> 0x10);
     FETextRender_FullTextRGB(pcVar6,(short)((u_int)(iVar3 * 0x10000) >> 0x10),y,ColText,'\0',0);
-    ptVar8 = (this->_base_tMenuItemLeftRightFade)._base_tMenuItemLeftRightChoice.fData;
+    ptVar8 = this->fData;
     pa_Var7 = ptVar8->_vf;
     sVar2 = (*(*pa_Var7)[3].pfn)
                       ((char *)ptVar8 + (int)(*pa_Var7)[3].delta,gMenu_SubMenuPlayer);
     pcVar6 = TextSys_Word((int)sVar2);
     FETextRender_FullTextRGB(pcVar6,(short)((u_int)((iVar3 + 0x97) * 0x10000) >> 0x10),y,ColText,'\0',2);
   }
-  drawFlags.tint[0] = CalcFadeVal(0,0xbebe,(int)(this->_base_tMenuItemLeftRightFade)._base_tMenuItemLeftRightChoice._base_tMenuItemInteractive._base_tMenuItem.fSelFade,
-                            (int)(this->_base_tMenuItemLeftRightFade).fFadeVal);
+  drawFlags.tint[0] = CalcFadeVal(0,0xbebe,(int)this->fSelFade,
+                            (int)this->fFadeVal);
   DrawShapeExtended(0xa,0x18,iVar3 + 0x83,(int)y,0,1,&drawFlags);
   DrawShapeExtended(0xb,0x18,iVar3 + 0xa1,(int)y,0,1,&drawFlags);
-  DrawShapeExtended(0x1e,8,iVar3 - ((int)shape[0x1e].width - 0xb0),(int)y - 3,(int)(this->_base_tMenuItemLeftRightFade).fFadeVal,0,(tDrawShapeExtended *)0x0);
+  DrawShapeExtended(0x1e,8,iVar3 - ((int)shape[0x1e].width - 0xb0),(int)y - 3,(int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
   Col = (int)shape[0x1e].height;
   PSXDrawSquare(0,iVar3 * 0x10000 >> 0x10,((iVar4 + oy) * 0x10000 >> 0x10) + -3,
              0xb0 - shape[0x1e].width,Col);
@@ -1994,12 +1994,12 @@ int tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
 
 /* ---- tInsideBoxLeftRightSlider::ctor  [FEMENUOPTIONS.CPP:1465-1469] SLD-VERIFIED ---- */
 tInsideBoxLeftRightSlider::tInsideBoxLeftRightSlider(u_int textDescription,tListIterator *dataPtr)
-  : _base_tMenuItemLeftRightSlider(textDescription,dataPtr)
+  : tMenuItemLeftRightSlider(textDescription,dataPtr)
 {
   
-  *(void **)&((this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tInsideBoxLeftRightSlider_vtable;
-  (this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fSelFade = 0;
-  (this->_base_tMenuItemLeftRightSlider).fHeight = 5;
+  *(void **)&(this->_vf) = (void *)tInsideBoxLeftRightSlider_vtable;
+  this->fSelFade = 0;
+  this->fHeight = 5;
   return;
 }
 
@@ -2010,7 +2010,7 @@ tInsideBoxLeftRightSlider::tInsideBoxLeftRightSlider(u_int textDescription,tList
 tInsideBoxLeftRightSlider::~tInsideBoxLeftRightSlider()
 
 {
-  *(void **)&((this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tInsideBoxLeftRightSlider_vtable;
+  *(void **)&(this->_vf) = (void *)tInsideBoxLeftRightSlider_vtable;
   return;
 }
 
@@ -2029,28 +2029,28 @@ int tInsideBoxLeftRightSlider::Draw(int x,int y,int w,bool selected)
   __vtbl_ptr_type (*pa_Var3) [6];
   tListIterator *ptVar4;
   
-  (this->_base_tMenuItemLeftRightSlider).fX = (short)x;
-  (this->_base_tMenuItemLeftRightSlider).fY = (short)y;
+  this->fX = (short)x;
+  this->fY = (short)y;
   col = CalcFadeVal(0x551e00,0xc83c1e,
-                     (int)(this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fSelFade);
+                     (int)this->fSelFade);
   coltext = CalcTextFadeUnselToSel(textType_Options,
-                      (this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fSelFade,0);
-  PSXDrawSquare(col,(int)(this->_base_tMenuItemLeftRightSlider).fX,(int)(this->_base_tMenuItemLeftRightSlider).fY
+                      this->fSelFade,0);
+  PSXDrawSquare(col,(int)this->fX,(int)this->fY
              ,w,1);
-  PSXDrawSquare(col,(int)(this->_base_tMenuItemLeftRightSlider).fX,(this->_base_tMenuItemLeftRightSlider).fY + 8,
+  PSXDrawSquare(col,(int)this->fX,this->fY + 8,
              w,1);
-  sMenuText = TextSys_Word((this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
-  FETextRender_FullTextRGB(sMenuText,(this->_base_tMenuItemLeftRightSlider).fX + 4,
-             (this->_base_tMenuItemLeftRightSlider).fY + 10,coltext,'\0',0);
-  ptVar4 = (this->_base_tMenuItemLeftRightSlider).fData;
+  sMenuText = TextSys_Word(this->fTextDescription);
+  FETextRender_FullTextRGB(sMenuText,this->fX + 4,
+             this->fY + 10,coltext,'\0',0);
+  ptVar4 = this->fData;
   pa_Var3 = ptVar4->_vf;
   uVar1 = (*(*pa_Var3)[2].pfn)((char *)ptVar4 + (int)(*pa_Var3)[2].delta,0xffffffff);
-  ptVar4 = (this->_base_tMenuItemLeftRightSlider).fData;
-  fSelFade = (this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fSelFade;
+  ptVar4 = this->fData;
+  fSelFade = this->fSelFade;
   col = (int)fSelFade;
   DrawSlider(uVar1 & 0xff,(u_short)(u_char)ptVar4->fMinValue,(u_short)(u_char)ptVar4->fMaxValue,
-             (this->_base_tMenuItemLeftRightSlider).fX + 4,(this->_base_tMenuItemLeftRightSlider).fY + 2,
-             (short)((u_int)((w + -8) * 0x10000) >> 0x10),(this->_base_tMenuItemLeftRightSlider).fHeight,4,
+             this->fX + 4,this->fY + 2,
+             (short)((u_int)((w + -8) * 0x10000) >> 0x10),this->fHeight,4,
              4,false,0,fSelFade,0);
   return col;
 }
@@ -2059,13 +2059,13 @@ int tInsideBoxLeftRightSlider::Draw(int x,int y,int w,bool selected)
 
 /* ---- tInsideBoxTwoWaySlider::ctor  [FEMENUOPTIONS.CPP:1497-1504] SLD-VERIFIED ---- */
 tInsideBoxTwoWaySlider::tInsideBoxTwoWaySlider(u_int textDescription,tListIterator *dataPtr,int type)
-  : _base_tMenuItemLeftRightSlider(textDescription,dataPtr)
+  : tMenuItemLeftRightSlider(textDescription,dataPtr)
 {
   
-  *(void **)&((this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tInsideBoxTwoWaySlider_vtable;
+  *(void **)&(this->_vf) = (void *)tInsideBoxTwoWaySlider_vtable;
   this->fType = (short)type;
-  (this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fSelFade = 0;
-  (this->_base_tMenuItemLeftRightSlider).fHeight = 5;
+  this->fSelFade = 0;
+  this->fHeight = 5;
   this->fActive = 0;
   return;
 }
@@ -2077,7 +2077,7 @@ tInsideBoxTwoWaySlider::tInsideBoxTwoWaySlider(u_int textDescription,tListIterat
 tInsideBoxTwoWaySlider::~tInsideBoxTwoWaySlider()
 
 {
-  *(void **)&((this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tInsideBoxTwoWaySlider_vtable;
+  *(void **)&(this->_vf) = (void *)tInsideBoxTwoWaySlider_vtable;
   return;
 }
 
@@ -2141,47 +2141,47 @@ int tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool selected)
   if (this->fActive != 0) {
     this->Calibrate();
   }
-  sVar1 = (this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fSelFade;
-  (this->_base_tMenuItemLeftRightSlider).fX = (short)x;
-  (this->_base_tMenuItemLeftRightSlider).fY = (short)y;
+  sVar1 = this->fSelFade;
+  this->fX = (short)x;
+  this->fY = (short)y;
   col2 = CalcFadeVal(0x551e00,0xc83c1e,(int)sVar1);
   col = CalcFadeVal(0x551e00,0xbebe,
-                   (int)(this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fSelFade);
+                   (int)this->fSelFade);
   coltext = CalcTextFadeUnselToSel(textType_Options,
-                      (this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fSelFade,0);
+                      this->fSelFade,0);
   ww = (w >> 1) + -4;
-  PSXDrawSquare(col2,(int)(this->_base_tMenuItemLeftRightSlider).fX,(int)(this->_base_tMenuItemLeftRightSlider).fY
+  PSXDrawSquare(col2,(int)this->fX,(int)this->fY
              ,ww,1);
-  PSXDrawSquare(col2,(this->_base_tMenuItemLeftRightSlider).fX + ww + 8,
-             (int)(this->_base_tMenuItemLeftRightSlider).fY,ww,1);
-  PSXDrawSquare(col2,(int)(this->_base_tMenuItemLeftRightSlider).fX,(this->_base_tMenuItemLeftRightSlider).fY + 8,
+  PSXDrawSquare(col2,this->fX + ww + 8,
+             (int)this->fY,ww,1);
+  PSXDrawSquare(col2,(int)this->fX,this->fY + 8,
              ww,1);
-  PSXDrawSquare(col2,(this->_base_tMenuItemLeftRightSlider).fX + ww + 9,
-             (this->_base_tMenuItemLeftRightSlider).fY + 8,ww,1);
-  PSXDrawSquare(col,(this->_base_tMenuItemLeftRightSlider).fX + ww + 3,
-             (int)(this->_base_tMenuItemLeftRightSlider).fY,2,9);
-  sMenuText = TextSys_Word((this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
-  FETextRender_FullTextRGB(sMenuText,(this->_base_tMenuItemLeftRightSlider).fX + 4,
-             (this->_base_tMenuItemLeftRightSlider).fY + 10,coltext,'\0',0);
-  ptVar5 = (this->_base_tMenuItemLeftRightSlider).fData;
+  PSXDrawSquare(col2,this->fX + ww + 9,
+             this->fY + 8,ww,1);
+  PSXDrawSquare(col,this->fX + ww + 3,
+             (int)this->fY,2,9);
+  sMenuText = TextSys_Word(this->fTextDescription);
+  FETextRender_FullTextRGB(sMenuText,this->fX + 4,
+             this->fY + 10,coltext,'\0',0);
+  ptVar5 = this->fData;
   pa_Var4 = ptVar5->_vf;
   uVar2 = (*(*pa_Var4)[2].pfn)((char *)ptVar5 + (int)(*pa_Var4)[2].delta,0xffffffff);
-  ptVar5 = (this->_base_tMenuItemLeftRightSlider).fData;
+  ptVar5 = this->fData;
   fWidth = (short)((u_int)(((w >> 1) + -8) * 0x10000) >> 0x10);
   DrawSlider(uVar2 & 0xff,(u_short)(u_char)ptVar5->fMinValue,(u_short)(u_char)ptVar5->fMaxValue,
-             (this->_base_tMenuItemLeftRightSlider).fX + 1,(this->_base_tMenuItemLeftRightSlider).fY + 2,fWidth,
-             (this->_base_tMenuItemLeftRightSlider).fHeight,4,4,true,0,
-             (this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fSelFade,0);
-  ptVar5 = (this->_base_tMenuItemLeftRightSlider).fData;
+             this->fX + 1,this->fY + 2,fWidth,
+             this->fHeight,4,4,true,0,
+             this->fSelFade,0);
+  ptVar5 = this->fData;
   pa_Var4 = ptVar5->_vf;
   uVar2 = (*(*pa_Var4)[2].pfn)((char *)ptVar5 + (int)(*pa_Var4)[2].delta,0xffffffff);
-  ptVar5 = (this->_base_tMenuItemLeftRightSlider).fData;
-  sVar1 = (this->_base_tMenuItemLeftRightSlider)._base_tMenuItemInteractive._base_tMenuItem.fSelFade;
+  ptVar5 = this->fData;
+  sVar1 = this->fSelFade;
   col2 = (int)sVar1;
   DrawSlider(uVar2 & 0xff,(u_short)(u_char)ptVar5->fMinValue,(u_short)(u_char)ptVar5->fMaxValue,
-             (short)(((u_int)(u_short)(this->_base_tMenuItemLeftRightSlider).fX + ww + 10) * 0x10000 >>
-                    0x10),(this->_base_tMenuItemLeftRightSlider).fY + 2,fWidth,
-             (this->_base_tMenuItemLeftRightSlider).fHeight,4,4,false,0,sVar1,0);
+             (short)(((u_int)(u_short)this->fX + ww + 10) * 0x10000 >>
+                    0x10),this->fY + 2,fWidth,
+             this->fHeight,4,4,false,0,sVar1,0);
   return col2;
 }
 
@@ -2375,12 +2375,12 @@ void tInsideBoxTwoWaySlider::Calibrate()
 
 /* ---- tUserNameMenuItem::ctor  [FEMENUOPTIONS.CPP:1688-1697] SLD-VERIFIED ---- */
 tUserNameMenuItem::tUserNameMenuItem(u_int textDescription)
-  : _base_tMenuItem(textDescription)
+  : tMenuItem(textDescription)
 {
   short i;
   
   i = 0;
-  *(void **)&((this->_base_tMenuItem)._vf) = (void *)tUserNameMenuItem_vtable;
+  *(void **)&(this->_vf) = (void *)tUserNameMenuItem_vtable;
   this->fCurrentRow = 0;
   this->fCurrentColumn = 0;
   do {
@@ -2634,15 +2634,15 @@ int tUserNameMenuItem::Draw(bool selected)
   tDrawShapeExtended fFlags;
   int cursorX;
   
-  x = TextSys_WordX((this->_base_tMenuItem).fTextDescription);
-  y = TextSys_WordY((this->_base_tMenuItem).fTextDescription);
+  x = TextSys_WordX(this->fTextDescription);
+  y = TextSys_WordY(this->fTextDescription);
   shape = gHelpShapes;
   if (this->fFadeVal != 0x80) {
     output[1] = '\0';
     ColText = CalcFadeVal(0xbebe,(int)this->fFadeVal);
     Col = CalcFadeVal(0xbebe,(int)this->fFadeVal);
     j = 0;
-    sMenuText = TextSys_Word((this->_base_tMenuItem).fTextDescription);
+    sMenuText = TextSys_Word(this->fTextDescription);
     FETextRender_FullTextRGB(sMenuText,(short)x,(short)y,ColText,'\0',0);
     sl = strlen(this->fData);
     sVar2 = (short)sl;
@@ -2786,7 +2786,7 @@ void tUserNameMenuItem::TransitionOn()
   this->fFadeVal = 0x80;
   this->fFadeDir = -0x1e;
   sVar5 = this->fPlayer;
-  (this->_base_tMenuItem).fSelFade = 0;
+  this->fSelFade = 0;
   this->fCurrentRow = sVar2 + -1;
   if (FEApp->speechToPlay[sVar5] != -1) {
     FeAudio_AsyncPlaySpeech(2,FEApp->speechToPlay[sVar5]);
@@ -2839,10 +2839,10 @@ void tUserNameMenuItem::UpdateTransition(bool selected)
   if (iVar2 < 0) {
     iVar2 = 0;
   }
-  pa_Var1 = (this->_base_tMenuItem)._vf;
+  pa_Var1 = this->_vf;
   this->fFadeVal = (short)iVar2;
   (*(*pa_Var1)[9].pfn)((int)this + (int)(*pa_Var1)[9].delta);
-  this->_base_tMenuItem.UpdateTransition(selected);
+  this->UpdateTransition(selected);
   return;
 }
 
@@ -2869,40 +2869,40 @@ int tMemoryCardMenuItem::Draw(bool selected)
   /* SYM AUTO local optimizer-ELIMINATED (disasm: draw passes NULL, slot sp+0x20 unused) */
   tDrawShapeExtended tCol;
   
-  if (((this->_base_tMenuItemGoToMenuButtonFade)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fFlags & 1) == 0) {
-    sVar2 = (this->_base_tMenuItemGoToMenuButtonFade).fEnableVal + 8;
+  if ((this->fFlags & 1) == 0) {
+    sVar2 = this->fEnableVal + 8;
   }
   else {
-    sVar2 = (this->_base_tMenuItemGoToMenuButtonFade).fEnableVal + -8;
+    sVar2 = this->fEnableVal + -8;
   }
-  (this->_base_tMenuItemGoToMenuButtonFade).fEnableVal = sVar2;
-  sVar2 = (this->_base_tMenuItemGoToMenuButtonFade).fEnableVal;
-  fEnableSlide = (this->_base_tMenuItemGoToMenuButtonFade).fEnableVal;
+  this->fEnableVal = sVar2;
+  sVar2 = this->fEnableVal;
+  fEnableSlide = this->fEnableVal;
   if ((sVar2 < 0x100) && (sVar2 < 1)) {
     fEnableSlide = 0;
   }
   else if (0x100 < sVar2) {
     fEnableSlide = 0x100;
   }
-  (this->_base_tMenuItemGoToMenuButtonFade).fEnableVal = fEnableSlide;
+  this->fEnableVal = fEnableSlide;
   iVar6 = (int)fEnableSlide;
   fEnableFade = 0x80;
   if ((iVar6 < 0x80) && (fEnableFade = 0, 0 < iVar6)) {
     fEnableFade = iVar6;
   }
-  iVar6 = (int)(this->_base_tMenuItemGoToMenuButtonFade).fFadeVal;
-  if ((iVar6 != 0x80) && (iVar6 = 0, (this->_base_tMenuItemGoToMenuButtonFade).fEnableVal != 0)) {
-    x = TextSys_WordX((this->_base_tMenuItemGoToMenuButtonFade)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
-    y = TextSys_WordY((this->_base_tMenuItemGoToMenuButtonFade)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
+  iVar6 = (int)this->fFadeVal;
+  if ((iVar6 != 0x80) && (iVar6 = 0, this->fEnableVal != 0)) {
+    x = TextSys_WordX(this->fTextDescription);
+    y = TextSys_WordY(this->fTextDescription);
     ColText = CalcTextFadeSelToHi(textType_Options,
-                       (this->_base_tMenuItemGoToMenuButtonFade)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fSelFade,
-                       (this->_base_tMenuItemGoToMenuButtonFade).fFadeVal);
-    amount = (int)(this->_base_tMenuItemGoToMenuButtonFade)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fSelFade;
-    Col = CalcFadeVal(0xc83c1e,0xbebe,amount,(int)(this->_base_tMenuItemGoToMenuButtonFade).fFadeVal);
+                       this->fSelFade,
+                       this->fFadeVal);
+    amount = (int)this->fSelFade;
+    Col = CalcFadeVal(0xc83c1e,0xbebe,amount,(int)this->fFadeVal);
     CalcFadeVal(Col,amount);
     iVar6 = CalcFadeVal(ColText,amount);
     if (iVar6 != 0) {
-      sMenuText = TextSys_Word((this->_base_tMenuItemGoToMenuButtonFade)._base_tMenuItemGoToMenuButton._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
+      sMenuText = TextSys_Word(this->fTextDescription);
       FETextRender_FullTextRGB(sMenuText,(short)x,(short)y,iVar6,'\0',0);
     }
     shape = gHelpShapes;
@@ -2910,7 +2910,7 @@ int tMemoryCardMenuItem::Draw(bool selected)
     if (fWidth < 0) {
       fWidth = fWidth + 0x7f;
     }
-    fWidth = (fWidth >> 7) * (0x80 - (this->_base_tMenuItemGoToMenuButtonFade).fFadeVal);
+    fWidth = (fWidth >> 7) * (0x80 - this->fFadeVal);
     if (fWidth < 0) {
       fWidth = fWidth + 0x7f;
     }
@@ -2941,11 +2941,11 @@ void tInsideBoxControllerLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInput
   tVar3 = keyval;
   if (((tVar3 == kInput_KeyType_Left) || (tVar3 == kInput_KeyType_Right)) &&
      ((tVar3 != kInput_KeyType_Right ||
-      (ptVar4 = (this->_base_tInsideBoxLeftRightSlider)._base_tMenuItemLeftRightSlider.fData,
+      (ptVar4 = (this->_base_tInsideBoxLeftRightSlider).fData,
       pa_Var2 = ptVar4->_vf,
       cVar1 = (*(*pa_Var2)[2].pfn)
                         ((char *)ptVar4 + (int)(*pa_Var2)[2].delta,0xffffffff),
-      cVar1 != ((this->_base_tInsideBoxLeftRightSlider)._base_tMenuItemLeftRightSlider.fData)->fMaxValue)))) {
+      cVar1 != ((this->_base_tInsideBoxLeftRightSlider).fData)->fMaxValue)))) {
     screenControllerConfig[0]->fResetShakeTimeOut = 1;
   }
   ((tMenuItemLeftRightSlider *)this)->ProcessInput(fromPlayer,keyval,command)

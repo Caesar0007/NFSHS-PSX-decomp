@@ -173,16 +173,16 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
 
 tMenuItemGoToMenuNFS4Button::tMenuItemGoToMenuNFS4Button(u_int textDescription,tMenu *newMenu,
               void (*OnButtonPress)(tMenuCommand&),int firstFrame,int numFrames)
-  : _base_tMenuItemGoToMenuButton(textDescription,newMenu,OnButtonPress)
+  : tMenuItemGoToMenuButton(textDescription,newMenu,OnButtonPress)
 {
   
-  *(void **)&((this->_base_tMenuItemGoToMenuButton)._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemGoToMenuNFS4Button_vtable;
+  *(void **)&(this->_vf) = (void *)tMenuItemGoToMenuNFS4Button_vtable;
   this->fOffset = 0xe;
   this->fTransitionVal = 0;
   this->fTransitionSpeed = 0;
   this->fEnabledTransitionVal = 0;
-  (this->_base_tMenuItemGoToMenuButton)._base_tMenuItemInteractive._base_tMenuItem.fNumFrames = numFrames;
-  (this->_base_tMenuItemGoToMenuButton)._base_tMenuItemInteractive._base_tMenuItem.fButtonImage = firstFrame;
+  this->fNumFrames = numFrames;
+  this->fButtonImage = firstFrame;
   return;
 }
 
@@ -193,7 +193,7 @@ tMenuItemGoToMenuNFS4Button::tMenuItemGoToMenuNFS4Button(u_int textDescription,t
 tMenuItemGoToMenuNFS4Button::~tMenuItemGoToMenuNFS4Button()
 
 {
-  *(void **)&((this->_base_tMenuItemGoToMenuButton)._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemGoToMenuNFS4Button_vtable;
+  *(void **)&(this->_vf) = (void *)tMenuItemGoToMenuNFS4Button_vtable;
   return;
 }
 
@@ -214,7 +214,7 @@ void tMenuItemGoToMenuNFS4Button::Draw(int x,int y,bool selected)
   
   if ((selected != 0) || (dist = 0xe, 1 < this->fOffset + -0xe)) {
     FETextRender_SetFont(0);
-    pcVar2 = TextSys_Word((this->_base_tMenuItemGoToMenuButton)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
+    pcVar2 = TextSys_Word(this->fTextDescription);
     sprintf(buffer,"%s",pcVar2);
     s_upper(buffer);
     iVar3 = textpixels(buffer);
@@ -233,7 +233,7 @@ void tMenuItemGoToMenuNFS4Button::Draw(int x,int y,bool selected)
   }
   this->fOffset = dist;
 Draw_GoToMenuButtonOffset:
-  if ((((this->_base_tMenuItemGoToMenuButton)._base_tMenuItemInteractive._base_tMenuItem.fFlags ^ 1) & 1) == 0) {
+  if (((this->fFlags ^ 1) & 1) == 0) {
     dist = this->fEnabledTransitionVal + -0xc;
   }
   else {
@@ -258,10 +258,10 @@ Draw_GoToMenuButtonOffset:
   rect.w = (short)(iVar3 >> 7);
   rect.x = (short)x;
   rect.y = (short)y;
-  MenuNFS4_DrawTextBox((this->_base_tMenuItemGoToMenuButton)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription,rect,
+  MenuNFS4_DrawTextBox(this->fTextDescription,rect,
              0x8c,this->fOffset,
-             (this->_base_tMenuItemGoToMenuButton)._base_tMenuItemInteractive._base_tMenuItem.fSelFade,false,0);
-  if (((this->_base_tMenuItemGoToMenuButton)._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0x200) != 0) {
+             this->fSelFade,false,0);
+  if ((this->fFlags & 0x200) != 0) {
     Font_SetBlitter(FontUpsideDownBlit);
     rect.y = 0x118 - (short)y;
     rect.h = 0xb;
@@ -275,9 +275,9 @@ Draw_GoToMenuButtonOffset:
     }
     rect.w = (short)(iVar3 >> 7);
     rect.x = (short)x;
-    MenuNFS4_DrawTextBox((this->_base_tMenuItemGoToMenuButton)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription,rect
+    MenuNFS4_DrawTextBox(this->fTextDescription,rect
                ,0x8c,this->fOffset,
-               (this->_base_tMenuItemGoToMenuButton)._base_tMenuItemInteractive._base_tMenuItem.fSelFade,false,1);
+               this->fSelFade,false,1);
     Font_ReSetBlitter();
   }
   return;
@@ -345,15 +345,15 @@ UpdTrans_callBaseGoToMenu:
 /* ---- tMenuItemNFS4LeftRightChoice::ctor  [FEMENUEXTENDED.CPP:248-254] SLD-VERIFIED ---- */
 tMenuItemNFS4LeftRightChoice::tMenuItemNFS4LeftRightChoice(u_int textDescription,tListIterator *dataPtr,
           int firstFrame,int numFrames)
-  : _base_tMenuItemLeftRightChoice(textDescription,dataPtr)
+  : tMenuItemLeftRightChoice(textDescription,dataPtr)
 {
   
-  *(void **)&((this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemNFS4LeftRightChoice_vtable;
-  (this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fButtonImage = firstFrame;
+  *(void **)&(this->_vf) = (void *)tMenuItemNFS4LeftRightChoice_vtable;
+  this->fButtonImage = firstFrame;
   this->fOffset = 0xe;
   this->fTransitionVal = 0;
   this->fTransitionSpeed = 0;
-  (this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fNumFrames = numFrames;
+  this->fNumFrames = numFrames;
   return;
 }
 
@@ -364,7 +364,7 @@ tMenuItemNFS4LeftRightChoice::tMenuItemNFS4LeftRightChoice(u_int textDescription
 tMenuItemNFS4LeftRightChoice::~tMenuItemNFS4LeftRightChoice()
 
 {
-  *(void **)&((this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem._vf) = (void *)tMenuItemNFS4LeftRightChoice_vtable;
+  *(void **)&(this->_vf) = (void *)tMenuItemNFS4LeftRightChoice_vtable;
   return;
 }
 
@@ -387,7 +387,7 @@ void tMenuItemNFS4LeftRightChoice::Draw(int x,int y,bool selected)
   iVar5 = selected;
   if ((iVar5 != 0) || (dist = 0xe, 1 < this->fOffset + -0xe)) {
     FETextRender_SetFont(0);
-    string = TextSys_Word((this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
+    string = TextSys_Word(this->fTextDescription);
     iVar2 = textpixels(string);
     dist = 0xa5;
     if (0x8b < (short)iVar2) {
@@ -403,7 +403,7 @@ void tMenuItemNFS4LeftRightChoice::Draw(int x,int y,bool selected)
   }
   this->fOffset = dist;
 Draw_LRChoiceTransVal:
-  if ((((this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fFlags ^ 1) & 1) == 0) {
+  if (((this->fFlags ^ 1) & 1) == 0) {
     sVar4 = this->fEnabledTransitionVal + -0xc;
   }
   else {
@@ -432,10 +432,10 @@ Draw_LRChoiceTransVal:
   }
   rect.x = (short)x;
   rect.y = (short)y;
-  MenuNFS4_DrawTextBox((this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription,rect,
+  MenuNFS4_DrawTextBox(this->fTextDescription,rect,
              0x8c,this->fOffset,
-             (this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fSelFade,bVar3,0);
-  if (((this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fFlags & 0x200) != 0) {
+             this->fSelFade,bVar3,0);
+  if ((this->fFlags & 0x200) != 0) {
     Font_SetBlitter(FontUpsideDownBlit);
     rect.y = 0x118 - (short)y;
     rect.h = 0xb;
@@ -453,9 +453,9 @@ Draw_LRChoiceTransVal:
       bVar3 = true;
     }
     rect.x = (short)x;
-    MenuNFS4_DrawTextBox((this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription,
+    MenuNFS4_DrawTextBox(this->fTextDescription,
                rect,0x8c,this->fOffset,
-               (this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fSelFade,bVar3,1);
+               this->fSelFade,bVar3,1);
     Font_ReSetBlitter();
   }
   return;
@@ -539,11 +539,11 @@ void tMenuItemOptionsLeftRightChoice::Draw(int x,int y,bool selected)
   left = gHelpShapes;
   iVar6 = selected;
   col = CalcTextFadeSelToHi(textType_Options,
-                      (this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fSelFade,0);
-  pcVar3 = TextSys_Word((this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
+                      this->fSelFade,0);
+  pcVar3 = TextSys_Word(this->fTextDescription);
   y_00 = (short)((u_int)((y + 3) * 0x10000) >> 0x10);
   FETextRender_FullTextRGB(pcVar3,(short)((u_int)((x + 0x94) * 0x10000) >> 0x10),y_00,col,'\0',1);
-  ptVar5 = (this->_base_tMenuItemLeftRightChoice).fData;
+  ptVar5 = this->fData;
   pa_Var4 = ptVar5->_vf;
   sVar2 = (*(*pa_Var4)[3].pfn)((char *)ptVar5 + (int)(*pa_Var4)[3].delta,0xffffffff);
   pcVar3 = TextSys_Word((int)sVar2);
@@ -551,7 +551,7 @@ void tMenuItemOptionsLeftRightChoice::Draw(int x,int y,bool selected)
                                    0xd9) * 0x10000) >> 0x10),y_00,col,'\0',2);
   drawFlags.tint[0] =
        CalcFadeVal(0xb54200,0xbebe,
-                  (int)(this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fSelFade);
+                  (int)this->fSelFade);
   DrawShapeExtended(0xa,0x118,x + 0xa6,y + 6,0,(u_int)(iVar6 == 0),
              &drawFlags);
   DrawShapeExtended(0xb,0x118,(x - (int)left[0x29].width) + 0x12f,y + 6,0,(u_int)(iVar6 == 0),
@@ -576,7 +576,7 @@ void tMenuItemOptionsTwoItemChoice::TransitionOn()
   tListIterator *ptVar2;
   __vtbl_ptr_type (*pa_Var3) [6];
 
-  ptVar2 = (this->_base_tMenuItemLeftRightChoice).fData;
+  ptVar2 = this->fData;
   pa_Var3 = ptVar2->_vf;
   cVar1 = (u_char)(*(*pa_Var3)[2].pfn)((char *)ptVar2 + (int)(*pa_Var3)[2].delta,0xffffffff);
   bVar = (u_int)(0 < cVar1);
@@ -607,7 +607,7 @@ void tMenuItemOptionsTwoItemChoice::Draw(int x,int y,bool selected)
   
   left = gHelpShapes;
   iVar8 = selected;
-  ptVar4 = (this->_base_tMenuItemLeftRightChoice).fData;
+  ptVar4 = this->fData;
   pa_Var7 = ptVar4->_vf;
   cVar2 = (*(*pa_Var7)[2].pfn)((char *)ptVar4 + (int)(*pa_Var7)[2].delta,0xffffffff);
   if (cVar2 == '\0') {
@@ -621,23 +621,23 @@ void tMenuItemOptionsTwoItemChoice::Draw(int x,int y,bool selected)
   if (((sVar6 < 1) || (sVar3 = 0x80, sVar6 < 0x80)) && (sVar3 = this->fOnOffFade, sVar6 < 0)) {
     sVar3 = 0;
   }
-  sVar6 = (this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fSelFade;
+  sVar6 = this->fSelFade;
   this->fOnOffFade = sVar3;
   Col = CalcTextFadeSelToHi(textType_Options,sVar6,0);
   CalcOnOffFade(textType_Options,this->fOnOffFade,
-             (this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fSelFade,0,&ColTextOn,
+             this->fSelFade,0,&ColTextOn,
              &ColTextOff);
-  pcVar5 = TextSys_Word((this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fTextDescription);
+  pcVar5 = TextSys_Word(this->fTextDescription);
   sVar6 = (short)((u_int)((y + 3) * 0x10000) >> 0x10);
   FETextRender_FullTextRGB(pcVar5,(short)((u_int)((x + 0x94) * 0x10000) >> 0x10),sVar6,Col,'\0',1);
-  pcVar5 = TextSys_Word((int)*((this->_base_tMenuItemLeftRightChoice).fData)->fSelectionList);
+  pcVar5 = TextSys_Word((int)*(this->fData)->fSelectionList);
   FETextRender_FullTextRGB(pcVar5,(short)((u_int)((x + 0xb0) * 0x10000) >> 0x10),sVar6,ColTextOff,'\0',0);
-  pcVar5 = TextSys_Word((int)((this->_base_tMenuItemLeftRightChoice).fData)->fSelectionList[1]);
+  pcVar5 = TextSys_Word((int)(this->fData)->fSelectionList[1]);
   FETextRender_FullTextRGB(pcVar5,(short)(((x - (u_int)(u_short)left[0x29].width) + 0x126) * 0x10000 >> 0x10),
              sVar6,ColTextOn,'\0',1);
   drawFlags.tint[0] =
        CalcFadeVal(0xb54200,0xbebe,
-                  (int)(this->_base_tMenuItemLeftRightChoice)._base_tMenuItemInteractive._base_tMenuItem.fSelFade);
+                  (int)this->fSelFade);
   DrawShapeExtended(0xa,0x118,x + 0xa6,y + 6,0,(u_int)(iVar8 == 0),
              &drawFlags);
   DrawShapeExtended(0xb,0x118,(x - (int)left[0x29].width) + 0x12f,y + 6,0,(u_int)(iVar8 == 0),

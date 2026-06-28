@@ -71,9 +71,14 @@ def ours(fn):
         if inb: lines.append(ln)
     out=[]
     for i,ln in enumerate(lines):
-        mm=re.match(r'^\s*[0-9a-f]+:\t[0-9a-f]+\s*\t(.*)',ln)
+        mm=re.match(r'^\s*[0-9a-f]+:\t([0-9a-f]+)\s*\t(.*)',ln)
         if not mm: continue
-        insn=mm.group(1)
+        word=mm.group(1); insn=mm.group(2)
+        # GTE compute op (rtps/rtpt/nclip/mvmva/...): objdump prints `c2 0xNNN` (cofun only).
+        # The oracle .s encodes the SAME op as `.word 0x4Annnnnn` (spimdisasm can't name it).
+        # Match by the RAW 32-bit instruction word (byte-identical) instead of the rendering.
+        if re.match(r'c(?:op)?2\b', insn):
+            out.append('cop2 '+word); continue
         # A R_MIPS_LO16 reloc on this instruction means the displacement/immediate is
         # a relocation ADDEND (our object is UNLINKED). The oracle is LINKED + re-split
         # by splat, which folds that addend into a per-address symbol -> `%lo(SYM)` which
@@ -98,6 +103,11 @@ def oracle(fn):
         s = ln.strip()
         if s.startswith('endlabel'):
             break                                              # fn ends here; trailing align-nops/data are NOT the fn
+        # GTE compute op encoded as a raw word (opcode bits == COP2 0x12): treat as an
+        # instruction, matched by its raw word (symmetric with the `cop2 <word>` ours-side).
+        mw = re.match(r'\.word\s+0x([0-9a-fA-F]+)\b', s)
+        if mw and (int(mw.group(1),16) >> 26) == 0x12:
+            out.append('cop2 ' + mw.group(1).lower()); continue
         if not s or s.startswith(('.','glabel','nonmatching','dlabel','jlabel')) or s.startswith('.L') or s.endswith(':'):
             continue
         out.append(norm_ins(s))

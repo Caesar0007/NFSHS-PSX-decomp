@@ -2922,59 +2922,58 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
 void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
 
 {
-  u_char bVar1;
-  int iVar2;
-  int geomRez;
-  coorddef *pChunkCp;
-  coorddef *pcVar3;
-  Chunk *chunkDat;
-  Chunk *chunkDat_00;
-  Group *group;
+  int chunkCount;
   int buildInd;
-  int iVar4;
+  Chunk *chunkDat;
+  int geomRez;
+  Group *group;
   COORD16 trans;
   coorddef tmp;
   coorddef tmp2;
-  int chunkCount;
-  
-  iVar2 = BWorld_gChunkCount;
+  coorddef *pChunkCp;
+  u_char bVar1;
+
+  chunkCount = BWorld_gChunkCount;
   sd->doublelayer = 0;
   (sd->matB).t[2] = 0;
   (sd->matB).t[1] = 0;
   (sd->matB).t[0] = 0;
-gte_SetTransMatrix(((char *)sd + 0x14));
-  for (iVar4 = 0; iVar4 < iVar2; iVar4 = iVar4 + 1) {
-    if (((buildList->geomRez == '\x04') &&
-        (chunkDat_00 = Track_chunkList + buildList->chunkInd, chunkDat_00->lineBuf != (Group *)0x0))
-       && ((buildList->enableBits & 4U) != 0)) {
-      if (gNight_renderNight != 0) {
-        bVar1 = *(u_char *)((int)sd[1].matB.t + 2);
-        *(u_char *)((int)sd[1].matB.t + 2) = bVar1 | 4;
-        if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
-          *(u_char *)((int)sd[1].matB.t + 2) = bVar1 | 5;
+  gte_SetTransMatrix(&sd->matB);
+  for (buildInd = 0; buildInd < chunkCount; buildInd = buildInd + 1) {
+    geomRez = (signed char)buildList->geomRez;
+    if (geomRez == 4) {
+      chunkDat = Track_chunkList + buildList->chunkInd;
+      group = chunkDat->lineBuf;
+      if ((group != (Group *)0x0) && ((buildList->enableBits & 4U) != 0)) {
+        if (gNight_renderNight != 0) {
+          bVar1 = *(u_char *)((int)sd[1].matB.t + 2);
+          *(u_char *)((int)sd[1].matB.t + 2) = bVar1 | 4;
+          if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
+            *(u_char *)((int)sd[1].matB.t + 2) = bVar1 | 5;
+          }
+          tmp.x = (Vi->cview).translation.x - ((Camera_gInfo[Vi->player].target)->position).x;
+          tmp.y = (Vi->cview).translation.y - ((Camera_gInfo[Vi->player].target)->position).y;
+          tmp.z = (Vi->cview).translation.z - ((Camera_gInfo[Vi->player].target)->position).z;
+          transform(&tmp.x,gNightMat.m,&tmp2.x);
+          DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
+          if (BW_gCopCarObj != (Car_tObj *)0x0) {
+            tmp.x = (Vi->cview).translation.x - (BW_gCopCarObj->N).position.x;
+            tmp.y = (Vi->cview).translation.y - (BW_gCopCarObj->N).position.y;
+            tmp.z = (Vi->cview).translation.z - (BW_gCopCarObj->N).position.z;
+            transform(&tmp.x,gCopMat.m,&tmp2.x);
+            DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop);
+          }
+          (sd->matB).t[2] = 0;
+          (sd->matB).t[1] = 0;
+          (sd->matB).t[0] = 0;
+          gte_SetTransMatrix(&sd->matB);
         }
-        tmp.x = (Vi->cview).translation.x - ((Camera_gInfo[Vi->player].target)->position).x;
-        tmp.y = (Vi->cview).translation.y - ((Camera_gInfo[Vi->player].target)->position).y;
-        tmp.z = (Vi->cview).translation.z - ((Camera_gInfo[Vi->player].target)->position).z;
-        transform(&tmp.x,gNightMat.m,&tmp2.x);
-        DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
-        if (BW_gCopCarObj != (Car_tObj *)0x0) {
-          tmp.x = (Vi->cview).translation.x - (BW_gCopCarObj->N).position.x;
-          tmp.y = (Vi->cview).translation.y - (BW_gCopCarObj->N).position.y;
-          tmp.z = (Vi->cview).translation.z - (BW_gCopCarObj->N).position.z;
-          transform(&tmp.x,gCopMat.m,&tmp2.x);
-          DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop);
-        }
-        (sd->matB).t[2] = 0;
-        (sd->matB).t[1] = 0;
-        (sd->matB).t[0] = 0;
-gte_SetTransMatrix(((char *)sd + 0x14));
+        pChunkCp = Chunk_chunkCenters + buildList->chunkInd;
+        trans.x = (short)(pChunkCp->x - (Vi->cview).translation.x >> 10);
+        trans.y = (short)(pChunkCp->y - (Vi->cview).translation.y >> 10);
+        trans.z = (short)(pChunkCp->z - (Vi->cview).translation.z >> 10);
+        DrawW_BuildChunkCenterLineFacets(chunkDat,group,(Draw_tGiveShelbyMoreCache *)sd,&trans);
       }
-      pcVar3 = Chunk_chunkCenters + buildList->chunkInd;
-      trans.x = (short)(pcVar3->x - (Vi->cview).translation.x >> 10);
-      trans.y = (short)(pcVar3->y - (Vi->cview).translation.y >> 10);
-      trans.z = (short)(pcVar3->z - (Vi->cview).translation.z >> 10);
-      DrawW_BuildChunkCenterLineFacets(chunkDat_00,chunkDat_00->lineBuf,(Draw_tGiveShelbyMoreCache *)sd,&trans);
     }
     buildList = buildList + 1;
   }

@@ -316,7 +316,7 @@ extern "C" void opencallback(int a0, int a1, int s)
     h = FILE_completeop(MU(s, 0xa4));
     MU(s, 0x9c) = h;
     if (h != 0)
-        restartstream(s);
+        ((int (*)(int, int))restartstream)(s, MU(s, 0x30));  /* oracle passes a1=s->0x30; restartstream ignores it (dead 2nd param) but the caller still loads it */
 }
 
 /* closecallback @0x800FC850 : nfile close-op completion -> immediately open the next file (its name was

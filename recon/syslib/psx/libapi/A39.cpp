@@ -12,8 +12,8 @@ __asm__("\t.set push\n\t.set noreorder\n"
         "\t.globl SetSp\nSetSp:\n"
         "\taddu  $v0, $sp, $zero\n"
         "\tjr    $ra\n"
-        "\t addu $sp, $a0, $zero\n"
-        "\tnop\n"           /* @0x800E44B8 : 1-word inter-object pad (oracle carries it) */
+        "\t addu $sp, $a0, $zero\n"   /* SetSp is exactly 3 words (oracle: endlabel before the
+                                         0x800E44B8 nop -> that pad is inter-obj, not in the symbol) */
         "\t.set pop\n");
 #else
 extern "C" unsigned long SetSp(unsigned long newSp) { (void)newSp; return 0; }

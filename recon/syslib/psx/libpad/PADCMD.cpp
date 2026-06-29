@@ -64,10 +64,11 @@ extern "C" int _padCmdParaMode(unsigned char *info, int para)
 /* @0x80105EAC : _padCmdGetStatus -- 0x45 get-status. */
 extern "C" int _padCmdGetStatus(unsigned char *info)
 {
-    info[0x36] = 0x45;
+    int r = 0x45;                       /* one li v0,0x45 reused for the 0x36 store AND the return */
+    info[0x36] = (unsigned char)r;
     *(int *)(info + 0x2c) = 0;
     info[0x35] = 0;
-    return 0x45;
+    return r;
 }
 
 /* @0x80105EC0 : _padCmdSetMap -- 0x4C set-config-map(idx).
@@ -109,10 +110,11 @@ extern "C" int _padCmdGetDescR1(unsigned char *info, int idx)
 /* @0x80105F20 : _padCmd4B -- 0x4B exit-config. */
 extern "C" int _padCmd4B(unsigned char *info)
 {
-    info[0x36] = 0x4b;
+    int r = 0x4b;                       /* one li v0,0x4b reused for the 0x36 store AND the return */
+    info[0x36] = (unsigned char)r;
     *(int *)(info + 0x2c) = 0;
     info[0x35] = 0;
-    return 0x4b;
+    return r;
 }
 
 /* =====================  load-info (actuator/mode descriptor) command sequence  ================= */

@@ -523,13 +523,21 @@ void tFEApplication::SetScreen(short i,tScreen *screen)
 {
   tScreen *this_00;
   int iVar1;
-  
+
+  /* MATCH (permuter multi-basin re-seed, 2026-06-30): the residual was a base↔this_00 register SWAP —
+   * the oracle reuses the dead `this` reg as the `this+i*4` base (addu a0,a0,a1), forcing this_00 into
+   * $v0 + an `addu a0,v0,zero` move before the virtual call; ours kept this_00 in $a0 (no move). The
+   * winning combo (re-read basin, score 25→0 @iter 490): (1) the `(long long)` cast on the first
+   * fCurrentScreen[i] address load shifts how gcc materializes the base; (2) the call RE-READS
+   * fCurrentScreen[i] instead of the cached this_00; (3) the `0 != this_00` (operands swapped) compare.
+   * No `this` reassignment, so it transcribes cleanly to the method. (Manual base-once / §3.12#14 /
+   * char*p all failed; this is the "no floors" proof — an apparent ours-better floor was permuter-reachable.) */
   iVar1 = (int)((u_int)(u_short)i << 0x10) >> 0xe;
-  this_00 = *(tScreen **)((int)this->fCurrentScreen + iVar1);
+  this_00 = *(tScreen **)((long long)((int)this->fCurrentScreen + iVar1));
   if (((screen != this_00) &&
-      (*(tScreen **)((int)this->fTransitionToScreen + iVar1) = screen, this_00 != (tScreen *)0x0))
+      (*(tScreen **)((int)this->fTransitionToScreen + iVar1) = screen, (tScreen *)0x0 != this_00))
      && (screen != (tScreen *)0x0)) {
-    (this_00)->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
+    (*(tScreen **)((int)this->fCurrentScreen + iVar1))->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
   }
   return;
 }

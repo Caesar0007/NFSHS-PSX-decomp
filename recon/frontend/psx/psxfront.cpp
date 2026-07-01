@@ -233,8 +233,10 @@ void PSXExitFrontend(void)
 void PSX_AllocShapes(void)
 
 {
-  gHelpShapes[0] = (tTexture_ShapeInfo *)reservememadr("gHelpShapes",0x760,0);
-  blockclear(gHelpShapes[0],0x760);
+  tTexture_ShapeInfo **slot = gHelpShapes;   /* &gHelpShapes[0] computed BEFORE the call -> held in a
+                                                callee-saved reg (s0) across reservememadr, like the oracle */
+  *slot = (tTexture_ShapeInfo *)reservememadr("gHelpShapes",0x760,0);
+  blockclear(*slot,0x760);
   return;
 }
 

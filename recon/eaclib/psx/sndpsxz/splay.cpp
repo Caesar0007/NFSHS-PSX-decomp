@@ -33,10 +33,15 @@ extern "C" int cSNDplay(int *info, int recurse)
         if (patch < 0)
             return -8;
         if (patch < (int)(unsigned)*(unsigned short *)(bank + 6)) {
+            /* group `bank + (patch<<2)` so the base is addu operand 1 (oracle `addu v0,a1,v0`) -- FIXED
+             * the two commutative-addu diffs (11->7). RESIDUAL (7 diffs): the in-range test's branch
+             * POLARITY -- oracle `bnez v0` to the body (body = branch target, -8 = fall-through), ours
+             * `beqz v0` (body = fall-through). A gcc-2.8.0 basic-block layout coin-flip that neither the
+             * nested-if nor the inverted `>=` early-return reshapes; permuter multi-basin candidate. */
             if (*(char *)(bank + 4) == 4)
-                pp = *(int *)(bank + patch * 4 + 0x14);
+                pp = *(int *)((bank + (patch << 2)) + 0x14);
             else
-                pp = *(int *)(bank + patch * 4 + 0xc);
+                pp = *(int *)((bank + (patch << 2)) + 0xc);
             return iSNDplaytaggedpatch(pp, (int)info);
         }
     }

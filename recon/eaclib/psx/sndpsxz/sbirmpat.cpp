@@ -25,16 +25,18 @@ extern "C" int iSNDbankremovepat(int bank, int patch_idx, int *scratch)
         return -8;
     if (patch_idx < 0 || patch_idx >= (int)(unsigned)*(unsigned short *)(data + 6))
         return -8;
+    /* MATCH: group `base + (patch_idx<<2)` so the base is addu operand 1 (oracle `addu v0,s1,v0`), NOT
+     * the index-first order `addu v0,v0,s1` that `base + patch_idx*4 + 0x14` produced. */
     if (*(char *)(data + 4) == 4)
-        pp = *(int *)(base + patch_idx * 4 + 0x14);
+        pp = *(int *)((base + (patch_idx << 2)) + 0x14);
     else
-        pp = *(int *)(data + patch_idx * 4 + 0xc);
+        pp = *(int *)((data + (patch_idx << 2)) + 0xc);
     if (pp == 0)
         return -8;
     iSNDremovetaggedpatch(pp, scratch);
     if (*(char *)(data + 4) == 4)
-        *(int *)(base + patch_idx * 4 + 0x14) = 0;
+        *(int *)((base + (patch_idx << 2)) + 0x14) = 0;
     else
-        *(int *)(data + patch_idx * 4 + 0xc) = 0;
+        *(int *)((data + (patch_idx << 2)) + 0xc) = 0;
     return 0;
 }

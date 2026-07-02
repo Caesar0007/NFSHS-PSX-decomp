@@ -7,7 +7,9 @@ extern "C" int SNDSTRM_overhead(int numConsumers, int numReq);     /* @0x800EA09
    return into in_v0; restored here.) */
 extern "C" int SNDSTRM_overheadtap(int numConsumers, int numReq)
 {
-    return numConsumers * 0x2c + 0x60 + SNDPKTPLAY_overhead(numReq);
+    int oh = numConsumers * 0x2c + 0x60;   /* compute the per-consumer overhead BEFORE the call so it is
+                                            * held in a callee-saved reg (s0) across it (§3.12 #16) */
+    return oh + SNDPKTPLAY_overhead(numReq);
 }
 /* SNDSTRM_overhead : total stream-object byte overhead. */
 extern "C" int SNDSTRM_overhead(int numConsumers, int numReq)

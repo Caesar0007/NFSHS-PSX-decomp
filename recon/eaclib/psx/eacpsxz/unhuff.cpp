@@ -574,18 +574,19 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
 }
 
 /* memcpyl @0x800F51C0 : copy `n` bytes (rounded up to 4) word-at-a-time via geti/puti.  Returns dst+n.
- * src ($s2) is loop-INVARIANT: geti is the bitstream reader (advances its own stream position), so the
- * same `src` base is passed every pass while dst advances; src is bumped once after the loop. */
+ * The oracle advances src ($s2) PER ITERATION -- `addiu s2,s2,4` sits in the loop-back bgtz DELAY SLOT
+ * (runs every pass); the last (post-exit) advance is functionally dead but present in the code.  Writing
+ * `src += 4` INSIDE the loop reproduces the delay-slot fill + the s2(src)/s3(end) register choice. */
 extern "C" char *memcpyl(char *dst, char *src, int n)
 {
     char *end = dst + n;
     do {
-        unsigned int val = geti(src, 4);   /* @0x800F51E8 $a0=$s2 reloaded -- fixed src each iteration */
+        unsigned int val = geti(src, 4);   /* @0x800F51E8 a0=src (s2) each iteration */
         puti((unsigned char *)dst, val, 4);
         dst = dst + 4;
         n   = n - 4;
+        src = src + 4;                     /* @0x800F5210: in the bgtz delay slot (per-iter) */
     } while (0 < n);
-    src = src + 4;   /* @0x800F5210: src advanced ONCE, after the loop (recon advanced it per-iter -- M04) */
     return end;
 }
 

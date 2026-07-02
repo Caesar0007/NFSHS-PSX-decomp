@@ -15,13 +15,16 @@ extern "C" int iSNDunsafevol(int handle, int vol)   /* @0x800E69D0 */
         return chan;
     int iter = -1;
     int level = vol << 16;
+    /* near-miss (5 diffs, was 10): sinking `v->f14=0` before iSNDcalcvol put it in the jal delay slot.
+     * RESIDUAL: the `sll s1,s0,16` (level=vol<<16) is scheduled early by our gcc but late (after the
+     * iter/SND-base setup) by the oracle -- an instruction-scheduling coin-flip, permuter candidate. */
     while (iSNDpatchkey(chan, &iter)) {
         SndVoice *v = &SND->voices[iter];
         if (v->f1C == level)
             break;                          /* already this level -> done */
         v->f1C = level;
+        v->f14 = 0;                         /* sunk into the iSNDcalcvol jal delay slot */
         iSNDcalcvol(iter);
-        v->f14 = 0;
         iSNDvol(iter, v->vol_l);
     }
     return chan;

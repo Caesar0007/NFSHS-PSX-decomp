@@ -14,7 +14,7 @@
  *   VoxEvent_GetFilterLengthFlag / iSPCH_GetOffset16 are per-TU `static` copies (canon in spchdata.obj).
  */
 
-extern "C" int            gVoxEvents;     /* @0x80148060 : live event count + base of the 16-slot queue */
+extern "C" int            gVoxEvents[];      /* @0x80148060 : live event count + base of the 16-slot queue */
 extern "C" int            DAT_80148064;   /* @0x80148064 : "kept a 'd' event" flag */
 extern "C" int            gLastTick;      /* last insert tick */
 extern "C" unsigned short gLastSubTick;   /* sub-tick counter for same-tick inserts */
@@ -57,7 +57,7 @@ extern "C" int  iSPCH_ClearOldEvents(int winnerSlot);                    /* @0x8
 extern "C" void SPCH_PlaySpeech(void);                                   /* @0x800E7644 */
 extern "C" int  SPCH_ChooseSpeech(void);                                 /* @0x800E7684 */
 
-#define SLOT(i)  ((unsigned char *)&gVoxEvents + (i) * 0x3c)
+#define SLOT(i)  ((unsigned char *)gVoxEvents + (i) * 0x3c)
 
 /* VoxEvent_GetKeepTillExpiresFlag @0x800E6E94 : bit 2 of the event flags byte (+0xa). */
 extern "C" unsigned int VoxEvent_GetKeepTillExpiresFlag(int e)
@@ -121,11 +121,11 @@ extern "C" int GetFilterPriority(void)
 /* iSPCH_InitEventQueue @0x800E7014 : zero all 16 queue slots (header + 12 eventArgs each) and the ticks. */
 extern "C" void iSPCH_InitEventQueue(void)
 {
-    unsigned char *base = (unsigned char *)&gVoxEvents;
+    unsigned char *base = (unsigned char *)gVoxEvents;
     unsigned char *slot = base;
     unsigned char *end  = base + 0x3c0;
     int argBase = 0;
-    gVoxEvents   = 0;
+    gVoxEvents[0]   = 0;
     DAT_80148064 = 0;
     do {
         int j = 0;
@@ -152,9 +152,9 @@ extern "C" int iSPCH_FindEventSlot(unsigned int priority)
 {
     int            i;
     unsigned char *slot;
-    if (gVoxEvents < 0x10) {
+    if (gVoxEvents[0] < 0x10) {
         i = 0;
-        slot = (unsigned char *)&gVoxEvents;
+        slot = (unsigned char *)gVoxEvents;
         do {
             if (*(short *)(slot + 8) == 0)
                 return i;
@@ -165,7 +165,7 @@ extern "C" int iSPCH_FindEventSlot(unsigned int priority)
     {
         int tick = gettick();
         int idx  = 0;
-        slot = (unsigned char *)&gVoxEvents;
+        slot = (unsigned char *)gVoxEvents;
         while (1) {
             int            voxEvent = *(int *)(slot + 0x10);
             unsigned short maxAge   = *(unsigned short *)(voxEvent + 2);
@@ -175,11 +175,11 @@ extern "C" int iSPCH_FindEventSlot(unsigned int priority)
             slot = slot + 0x3c;
             if (0xf < idx) {
                 i = 0;
-                slot = (unsigned char *)&gVoxEvents;
+                slot = (unsigned char *)gVoxEvents;
                 do {
                     if (*(unsigned short *)(*(int *)(slot + 0x10) + 4) <= priority) {
                         *(short *)(slot + 8) = 0;
-                        gVoxEvents = gVoxEvents - 1;
+                        gVoxEvents[0] = gVoxEvents[0] - 1;
                         return i;
                     }
                     i = i + 1;
@@ -189,7 +189,7 @@ extern "C" int iSPCH_FindEventSlot(unsigned int priority)
             }
         }
         *(short *)(slot + 8) = 0;
-        gVoxEvents = gVoxEvents - 1;
+        gVoxEvents[0] = gVoxEvents[0] - 1;
         return idx;
     }
 }
@@ -222,7 +222,7 @@ extern "C" int SPCH_AddEvent(unsigned int *table)
                     *(unsigned int *)(s + 0x14 + j * 4) = table[j];
                     j = j + 1;
                 } while (j < 0xc);
-                gVoxEvents = gVoxEvents + 1;
+                gVoxEvents[0] = gVoxEvents[0] + 1;
                 *(short *)(s + 8) = 1;
             }
         }
@@ -240,7 +240,7 @@ extern "C" int iSPCH_ChooseEvent(void)
     unsigned short bestSub = 0;
     int            now     = gettick() + gPreLoadTicks;
     int            slotIdx = 0;
-    unsigned char *slot    = (unsigned char *)&gVoxEvents;
+    unsigned char *slot    = (unsigned char *)gVoxEvents;
     do {
         if (*(unsigned short *)(slot + 8) != 0) {
             int            voxEvent   = *(int *)(slot + 0x10);
@@ -259,7 +259,7 @@ extern "C" int iSPCH_ChooseEvent(void)
             }
             if (expired != 0 || filtered != 0) {
                 *(short *)(slot + 8) = 0;
-                gVoxEvents = gVoxEvents - 1;
+                gVoxEvents[0] = gVoxEvents[0] - 1;
             } else {
                 unsigned short pri = *(unsigned short *)(voxEvent + 4);
                 if (bestPri < (int)(unsigned int)pri) {
@@ -287,11 +287,11 @@ extern "C" int iSPCH_ChooseEvent(void)
 extern "C" void SPCH_ClearEventQueue(void)
 {
     int            i = 0;
-    unsigned char *slot = (unsigned char *)&gVoxEvents;
+    unsigned char *slot = (unsigned char *)gVoxEvents;
     do {
         if (*(unsigned short *)(slot + 8) != 0) {
             *(short *)(slot + 8) = 0;
-            gVoxEvents = gVoxEvents - 1;
+            gVoxEvents[0] = gVoxEvents[0] - 1;
         }
         i = i + 1;
         slot = slot + 0x3c;
@@ -303,7 +303,7 @@ extern "C" void SPCH_ClearEventQueue(void)
 extern "C" int iSPCH_ClearOldEvents(int winnerSlot)
 {
     int            i    = 0;
-    unsigned char *slot = (unsigned char *)&gVoxEvents;
+    unsigned char *slot = (unsigned char *)gVoxEvents;
     unsigned int   winTick = (unsigned int)*(int *)(SLOT(winnerSlot) + 0xc);
     unsigned short winSub  = *(unsigned short *)(SLOT(winnerSlot) + 0xa);
     DAT_80148064 = 0;
@@ -314,7 +314,7 @@ extern "C" int iSPCH_ClearOldEvents(int winnerSlot)
                  (int)(unsigned int)*(unsigned short *)(slot + 0xa) < (int)(unsigned int)winSub)) {
                 if ((VoxEvent_GetKeepTillExpiresFlag(*(int *)(slot + 0x10)) & 0xff) == 0) {
                     *(short *)(slot + 8) = 0;
-                    gVoxEvents = gVoxEvents - 1;
+                    gVoxEvents[0] = gVoxEvents[0] - 1;
                 }
             } else if (*(char *)(*(int *)(slot + 0x10) + 9) == 'd') {
                 DAT_80148064 = 1;
@@ -343,7 +343,7 @@ extern "C" void SPCH_PlaySpeech(void)
 extern "C" int SPCH_ChooseSpeech(void)
 {
     int result = 0;
-    if (gVoxEvents != 0) {
+    if (gVoxEvents[0] != 0) {
         int winner = iSPCH_ChooseEvent();
         if (-1 < winner) {
             unsigned int *eventArgs = (unsigned int *)(SLOT(winner) + 0x14);
@@ -363,7 +363,7 @@ extern "C" int SPCH_ChooseSpeech(void)
             }
             if (result < 0)
                 result = 0;
-            gVoxEvents = gVoxEvents - 1;
+            gVoxEvents[0] = gVoxEvents[0] - 1;
             *(short *)(SLOT(winner) + 8) = 0;
         }
     }

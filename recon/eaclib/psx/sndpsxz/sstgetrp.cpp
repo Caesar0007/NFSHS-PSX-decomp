@@ -16,6 +16,9 @@ extern "C" int iSNDstreamgetrequestptr(unsigned int idx)
     if (sp == 0)
         return 0;
     i = 0;
+    /* near-miss (15 diffs): the three `return 0`/`return rq` exits are laid out differently by gcc-2.8.0's
+     * basic-block ordering vs the oracle's shared-tail funnel (`beqz a1` to the final `addu v0,zero,zero`);
+     * an `if(sp!=0)`-nest re-broke the idx check's polarity instead. Permuter multi-basin candidate. */
     if (0 < (int)((unsigned)*(unsigned char *)((int)sp + 0x16) << 0x18)) {   /* (signed char) count > 0 */
         rq = *sp;
         do {

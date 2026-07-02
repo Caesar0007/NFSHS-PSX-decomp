@@ -16,7 +16,8 @@ extern "C" int SNDtimeremaining(unsigned int tag);             /* @0x800ED338 */
  *   iSNDtimeremaining over every voice the sound owns. */
 extern "C" int SNDtimeremaining(unsigned int tag)
 {
-    unsigned int best;
+    unsigned int best = 0xfffffc00;   /* init EARLY -> held in a callee-saved reg (s0) across the calls,
+                                       * matching the oracle's `li s0,-1024` in the prologue */
     int          chan;
     int          voice[2];
     if ((signed char)sndgs[0xf] == '\0')
@@ -28,7 +29,6 @@ extern "C" int SNDtimeremaining(unsigned int tag)
         return -8;
     }
     voice[0] = -1;
-    best = 0xfffffc00;
     while (iSNDpatchkey(chan, (int)voice) != 0) {
         unsigned int rem = iSNDtimeremaining(voice[0]);
         if ((int)best < (int)rem)

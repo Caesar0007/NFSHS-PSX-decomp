@@ -118,9 +118,10 @@ extern "C" void cancelrequest(AsyncReq *r)
 /* finishrequest @0x800F0CE8 : queue `r` for its user callback (only if it has one). */
 extern "C" void finishrequest(AsyncReq *r)
 {
-    if (r->callback == 0)                   /* poll-only request -> nothing to do */
+    int cb = r->callback;
+    r->fileop = 0;                          /* unconditional (oracle: in the beqz delay slot) */
+    if (cb == 0)                            /* poll-only request -> nothing to do */
         return;
-    r->fileop = 0;
     queueadd(&callqueue, r);
 }
 
@@ -145,8 +146,8 @@ extern "C" int loadfilereadcallback(int id, int status, AsyncReq *req)
     req->bytesread += n;
     if (n < readblocksize || req->status != 0) {            /* short read (EOF) or cancel -> close */
         nextop = FILE_close((void *)(size_t)(unsigned int)req->handle, 0x63, RQ(req));
+        req->fileop = (int)nextop;             /* §3.21: stored in the beqz delay slot (even if 0) */
         if (nextop == 0) return 0;
-        req->fileop = (int)nextop;
         FILE_callbackop(nextop, (void (*)(int, int))loadfileclosecallback);
     } else {                                                 /* full chunk -> read the next one */
         req->offset += n;
@@ -154,10 +155,14 @@ extern "C" int loadfilereadcallback(int id, int status, AsyncReq *req)
         nextop = FILE_read((void *)(size_t)(unsigned int)req->handle,
                            (unsigned int)req->offset, (unsigned int)req->dest,
                            readblocksize, 0x63, RQ(req));
+        req->fileop = (int)nextop;             /* §3.21: stored in the beqz delay slot (even if 0) */
         if (nextop == 0) return 0;
-        req->fileop = (int)nextop;
         FILE_callbackop(nextop, (void (*)(int, int))loadfilereadcallback);
     }
+    /* Residual 1-diff: oracle falls through the shared (tail-merged) FILE_callbackop call
+     * to the epilogue returning v0 (no move-v0-zero); a plain return 0 here emits the extra
+     * move-v0-zero.  Returning the tail call value un-merges the two calls (+7 diffs), so
+     * this 1-insn move-v0-zero is the clean floor. */
     return 0;
 }
 
@@ -305,11 +310,11 @@ extern "C" int asyncloadfilecallback(int name, int memclass, int cb)
     req->buffer    = 1;                 /* "allocate by size" sentinel */
     req->callback  = cb;
     req->offset    = 0;
+    req->arg24     = memclass;         /* §3.21: goes in FILE_open jal delay slot (sw s3,0x24) */
     op = FILE_open((char *)(size_t)(unsigned int)name, 1, 0x64, RQ(req));
-    req->arg24 = memclass;             /* asm: delay slot */
+    req->fileop = (int)op;             /* §3.21: goes in beqz delay slot (stored even if op==0) */
     if (op == 0)
         return 0;
-    req->fileop = (int)op;
     FILE_callbackop(op, (void (*)(int, int))loadfileopencallback);
     return req->id;
 }
@@ -333,8 +338,8 @@ extern "C" int asyncloadfileatcallback(int name, int dest, int cb)
     req->buffer    = 0;                 /* direct read (no alloc) */
     req->callback  = cb;
     req->offset    = 0;
+    req->dest      = dest;             /* §3.21: goes in FILE_open jal delay slot (sw s3,0x28) */
     op = FILE_open((char *)(size_t)(unsigned int)name, 1, 0x64, RQ(req));
-    req->dest = dest;                  /* §3.21: goes in FILE_open jal delay slot */
     req->fileop = (int)op;             /* §3.21: goes in beqz delay slot (stored even if op==0) */
     if (op == 0)
         return 0;

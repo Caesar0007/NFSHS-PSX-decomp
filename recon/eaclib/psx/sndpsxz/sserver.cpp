@@ -157,8 +157,10 @@ next_chan:
 /* iSNDenteraudio @0x800EA534 : take the audio re-entrancy lock (mutex + depth++). */
 extern "C" void iSNDenteraudio(void)
 {
+    char *g;
     SNDI_mutexlock();
-    GB(0x3f) = GB(0x3f) + 1;
+    g = (char *)sndgs;   /* materialize &sndgs (lui+addiu) AFTER the call so it lands in a caller-saved reg */
+    g[0x3f] = g[0x3f] + 1;
 }
 
 /* iSNDleaveaudio @0x800EA56C : release the audio lock; at depth 0, flush any servers deferred while held. */
@@ -179,9 +181,9 @@ extern "C" void iSNDleaveaudio(void)
  * MATCH: byte-base cast keeps oracle's sll(lb*4) then addu then sw a0,0x4c(v1) displacement form */
 extern "C" short *iSNDserveradd100hzclient(int cb)
 {
-    /* FLOOR: oracle does sll lb*4 then sw a0,0x4c(v1); our gcc adds 0x13 before sll (semantically
-     * identical: (lb+0x13)*4 == lb*4+0x4c) but emits an extra addiu vs oracle's displacement form.
-     * maspsx fusion wall — 3-diff floor, not source-reachable. */
+    /* MATCH: index sndgs by the raw client count (base = sndgs + count*4) and fold the 0x13-slot
+     * (0x4c-byte) client-array offset into the store DISPLACEMENT -- oracle emits sll(count*4);
+     * addu base; sw a0,0x4c(base), NOT (count+0x13)*4 with a 0-displacement store. */
     sndgs[(int)(signed char)GB(0x40) + 0x13] = cb;
     GB(0x40) = GB(0x40) + 1;
     return (short *)sndgs;

@@ -17,7 +17,7 @@ extern "C" int gSPCH_Initialized;  /* 0x1789a34 when initialised */
 extern "C" int gSampleRequest;     /* sample-request callback */
 extern "C" int gSentenceRuleTest;  /* current sentence rule-test fn/state */
 extern "C" int gSentenceRuleSet;   /* current sentence rule-set fn/state  */
-extern "C" int gVoxInGame;         /* in-game speech enable (-1 = on) */
+extern "C" int gVoxInGame[];       /* in-game speech enable (-1 = on); [1] aliases gRepeatCount@+4 */
 extern "C" int gRepeatCount;       /* repeated-event counter */
 extern "C" int gGameNum;           /* current game/race number (shared w/ spchbank cycle-bit hash) */
 extern "C" int gDataRate;          /* sample data rate */
@@ -75,8 +75,11 @@ extern "C" void SPCH_Deinit(void)
  *   maspsx always emits a nop after jr, so the delay-slot store can't be reproduced -- jr-slot floor.) */
 extern "C" void iSPCH_InitInGame(void)
 {
-    gVoxInGame   = -1;
-    gRepeatCount = 0;
+    /* gRepeatCount sits at gVoxInGame+4; the original wrote both through the shared %hi base
+     * (gcc materializes &gVoxInGame once, stores -1 at [0], and slots the [1]=0 store into the
+     * jr delay slot).  Model gVoxInGame as the 2-word array it is so the base is shared. */
+    gVoxInGame[0] = -1;
+    gVoxInGame[1] = 0;   /* == gRepeatCount */
 }
 
 /* SPCH_GetSampleDataRate @0x800EB66C : bytes/sec for `numSamples` at `rate`, scaled by channel mode

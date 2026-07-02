@@ -173,9 +173,14 @@ extern "C" int CD_Close(int handle)
 /* CD_Stopread @0x800FA904 : request the in-flight CD read to stop (sets Cdinfo bit 2). */
 extern "C" int CD_Stopread(int dev)
 {
+    /* Oracle returns the NEW Cdinfo value incidentally in $v0 (no `move v0,zero`);
+     * `return Cdinfo` after the |= reuses the RMW result reg (9->7 diffs).  The
+     * residual 7 = the read+write ASSEMBLER floor (§I-addendum): GNU-as expands
+     * `lw/sw Cdinfo` per-access (self-temp $v0 load + $at store) while aspsx-2.77
+     * shares one `la` base ($v1); a `&Cdinfo` pointer-temp folds back to the macro
+     * form, so it is not source-reachable. */
     (void)dev;
-    Cdinfo |= 4;
-    return 0;
+    return Cdinfo |= 4;
 }
 
 /* CD_Getinfo @0x800FA920 : query an open CD file -- optionally copy its 0xC-byte name into `namebuf`

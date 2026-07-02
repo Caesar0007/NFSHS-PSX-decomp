@@ -15,23 +15,23 @@
 
 extern "C" short          ispch_gChoice[];     /* short[6]/phrase choice records */
 extern "C" unsigned char  ispch_gPickSamples;  /* chosen sample-index pool */
-extern "C" int            gSentenceChoice;     /* @0x8014843C saved chosen sentence ptr */
+extern "C" int            gSentenceChoice[];   /* @0x8014843C saved chosen sentence ptr; [0..2]=choice/40/44, [4..15]=eventArgs */
 extern "C" int            DAT_80148440;        /* saved per-sentence ptr (this_00) */
 extern "C" int            DAT_80148444;        /* saved rule context (table index) */
-extern "C" int            DAT_80148448;        /* "one chosen" flag */
+extern "C" int            DAT_80148448[];      /* "one chosen" flag */
 extern "C" int            DAT_8014844c;        /* saved eventArgs[12] */
 extern "C" short          DAT_801484e8;        /* choice template field (IterateChoice) */
 extern "C" short          DAT_801484ea;        /* choice template field (IterateChoice) */
 
 extern "C" int  gVoxBanks;        /* spchbank */
-extern "C" int  gDataRate;        /* spchinit */
+extern "C" int  gDataRate[];      /* spchinit */
 extern "C" int  gSampleRequest;   /* spchinit (callback) */
 extern "C" int  gSentenceRuleSet; /* spchinit (callback) */
-extern "C" int  gVoxInGame;       /* spchinit */
-extern "C" int  gRepeatCount;     /* spchinit */
+extern "C" int  gVoxInGame[];     /* spchinit; [1] aliases gRepeatCount@+4 */
+extern "C" int  gRepeatCount;     /* spchinit (== gVoxInGame[1]) */
 extern "C" int  gFilterSetting;   /* spchevnt-shared */
 extern "C" int  DAT_80148064;     /* spchevnt "kept 'd' event" flag */
-extern "C" int  gPreLoadTicks;    /* spchevnt-shared */
+extern "C" int  gPreLoadTicks[];  /* spchevnt-shared */
 
 extern "C" int  iSPCH_GetMatchValue(int base, int index);                 /* spchdata */
 extern "C" int  VoxSentence_GetNumPhrases(int sentence);                  /* spchdata */
@@ -258,8 +258,8 @@ extern "C" int iSPCH_SampleLength(short *choice)
 extern "C" int iSPCH_ConvertTime(int samples)
 {
     int t = 0;
-    if (gDataRate != 0) {
-        t = (samples * 100) / gDataRate;
+    if (gDataRate[0] != 0) {
+        t = (samples * 100) / gDataRate[0];
     }
     return t;
 }
@@ -341,18 +341,26 @@ extern "C" unsigned char *iSPCH_OrderSentences(int event, int outOrder)
 extern "C" unsigned int iSPCH_RepeatEvent(unsigned short *eventArgs)
 {
     unsigned int result = 1;
-    if ((unsigned int)*eventArgs == (unsigned int)gVoxInGame && 0 < (signed char)eventArgs[4])
-        result = (unsigned int)(gRepeatCount < (signed char)eventArgs[4]);
+    if ((unsigned int)*eventArgs == (unsigned int)gVoxInGame[0] && 0 < (signed char)eventArgs[4])
+        result = (unsigned int)(gVoxInGame[1] < (signed char)eventArgs[4]);   /* [1] == gRepeatCount */
     return result;
 }
 
 /* iSPCH_ShortRuleStatus @0x80100F24 : evaluate a sentence's short-rule against `mode`. */
 extern "C" int iSPCH_ShortRuleStatus(int sentence, int mode)
 {
-    int rule = VoxSentence_GetShortRule(sentence);
     int ok = 0;
-    if ((rule == 1 && mode == 2) || (rule == 2 && mode != 2) || rule == 0)
-        ok = 1;
+    int rule = VoxSentence_GetShortRule(sentence);
+    if (rule == 1) {
+        if (mode == 2) goto ok1;
+    }
+    if (rule == 2) {
+        if (mode != rule) goto ok1;   /* rule==2 -> mode!=2 */
+    }
+    if (rule != 0) goto end;
+ok1:
+    ok = 1;
+end:
     return ok;
 }
 
@@ -569,31 +577,33 @@ extern "C" int iSPCH_MakeSampleRequests(int sentence, int paramTable)
 /* iSPCH_ClearChosen @0x80101650 : mark "nothing chosen". */
 extern "C" void iSPCH_ClearChosen(void)
 {
-    DAT_80148448 = 0;
+    DAT_80148448[0] = 0;
 }
 
 /* iSPCH_SaveChosenSentence @0x8010165C : record the chosen sentence + its 12 eventArgs.  Returns 1. */
 extern "C" int iSPCH_SaveChosenSentence(int sentence, int paramTable, int ruleCtx, int *eventArgs)
 {
-    int *p = &gSentenceChoice;
+    /* gSentenceChoice[0..2] = DAT_8014843C/40/44 (one contiguous block); [4..15] = the 12 eventArgs.
+     * The original reaches all three head fields + the loop off a single shared base. */
+    int *p = gSentenceChoice;
     int  i = 0;
-    gSentenceChoice = sentence;
-    DAT_80148440 = paramTable;
-    DAT_80148444 = ruleCtx;
+    gSentenceChoice[0] = sentence;      /* DAT_8014843C (via %hi reg) */
+    p[1] = paramTable;    /* DAT_80148440 (via base copy, shared with loop) */
+    p[2] = ruleCtx;       /* DAT_80148444 */
     do {
         p[4] = *eventArgs;
         eventArgs = eventArgs + 1;
         i = i + 1;
         p = p + 1;
     } while (i < 0xc);
-    DAT_80148448 = 1;
+    DAT_80148448[0] = 1;
     return 1;
 }
 
 /* iSPCH_OneChosen @0x801016A4 : the "one chosen" flag. */
 extern "C" int iSPCH_OneChosen(void)
 {
-    return DAT_80148448;
+    return DAT_80148448[0];
 }
 
 /* iSPCH_PlayChosen @0x801016B4 : apply rules and issue the sample requests for the chosen sentence. */
@@ -601,14 +611,14 @@ extern "C" void iSPCH_PlayChosen(void)
 {
     int paramTable = DAT_8014844c;
     if (iSPCH_OneChosen() != 0) {
-        iSPCH_RuleSet((short *)gSentenceChoice, DAT_80148444, (int)&DAT_8014844c);
-        iSPCH_ConstantRuleSet((short *)gSentenceChoice, DAT_80148440, (int)&DAT_8014844c);
+        iSPCH_RuleSet((short *)gSentenceChoice[0], DAT_80148444, (int)&DAT_8014844c);
+        iSPCH_ConstantRuleSet((short *)gSentenceChoice[0], DAT_80148440, (int)&DAT_8014844c);
         iSPCH_MakeSampleRequests(DAT_80148440, paramTable);
-        if (paramTable == gVoxInGame) {
+        if (paramTable == gVoxInGame[0]) {
             gRepeatCount = gRepeatCount + 1;
         } else {
             gRepeatCount = 1;
-            gVoxInGame = paramTable;
+            gVoxInGame[0] = paramTable;
         }
     }
     iSPCH_ClearChosen();
@@ -679,5 +689,5 @@ extern "C" int iSPCH_ChooseSentence(unsigned int *eventArgs)
 /* SPCH_SetPreLoadTicks @0x801018F4 : set the speech pre-load tick offset. */
 extern "C" void SPCH_SetPreLoadTicks(int ticks)
 {
-    gPreLoadTicks = ticks;
+    gPreLoadTicks[0] = ticks;
 }

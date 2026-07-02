@@ -12,13 +12,14 @@
  *   returns int* (the state base).
  */
 
-/* ---- 6-word PRNG state @0x801235F4 (.data; runtime-seeded by iSPCH_EACseedrandom).  data-mat #75. ---- */
-extern "C" unsigned int seedX;          /* @0x801235F4 accumulator (word0) */
-extern "C" unsigned int DAT_801235f8;   /* @0x801235F8 word1 */
-extern "C" unsigned int DAT_801235fc;   /* @0x801235FC word2 */
-extern "C" unsigned int DAT_80123600;   /* @0x80123600 word3 */
-extern "C" unsigned int DAT_80123604;   /* @0x80123604 word4 */
-extern "C" unsigned int DAT_80123608;   /* @0x80123608 word5 */
+/* ---- 6-word PRNG state @0x801235F4 (.data; runtime-seeded by iSPCH_EACseedrandom).  data-mat #75.
+ *   Contiguous int[6]: [0]=seedX accumulator, [1]=..f8, [2]=..fc, [3]=..600, [4]=..604, [5]=..608. ---- */
+extern "C" unsigned int seedX[];        /* @0x801235F4 : the 6-word state (word0 = accumulator) */
+#define DAT_801235f8  seedX[1]
+#define DAT_801235fc  seedX[2]
+#define DAT_80123600  seedX[3]
+#define DAT_80123604  seedX[4]
+#define DAT_80123608  seedX[5]
 
 extern "C" int  gEventDats[];           /* @0x80148048 : int[4] bound event-data pointers (shared w/ spchevnt) */
 extern "C" void trap(unsigned int code);
@@ -39,7 +40,7 @@ extern "C" int iSPCH_EACrandom(void)
     u2 = u1 + DAT_80123600 + carry;
     u3 = u2 + DAT_801235fc + (unsigned int)(u2 < DAT_80123600);
     u4 = u3 + DAT_801235f8 + (unsigned int)(u3 < DAT_801235fc);
-    seedX = u4 + seedX + (unsigned int)(u4 < DAT_801235f8);
+    seedX[0] = u4 + seedX[0] + (unsigned int)(u4 < DAT_801235f8);
     DAT_80123608 = DAT_80123608 + 1;
     DAT_801235f8 = u4;
     DAT_801235fc = u3;
@@ -49,21 +50,23 @@ extern "C" int iSPCH_EACrandom(void)
         (DAT_80123600 = u2 + 1, DAT_80123600 == 0) &&
         (DAT_801235fc = u3 + 1, DAT_801235fc == 0) &&
         (DAT_801235f8 = u4 + 1, DAT_801235f8 == 0))
-        seedX = seedX + 1;
-    return (int)seedX;
+        seedX[0] = seedX[0] + 1;
+    return (int)seedX[0];
 }
 
 /* iSPCH_EACseedrandom @0x800EBAC4 : seed all 6 state words from `seed` (each = seed + a fixed constant; the
- *   constants are eacpsxz srandom's default seeds, so seed==0 reproduces that default state).  Returns base. */
+ *   constants are eacpsxz srandom's default seeds, so seed==0 reproduces that default state).  Returns base.
+ *   The original chains the constants (running += delta) and stores all 6 off the shared seedX[] base. */
 extern "C" int *iSPCH_EACseedrandom(unsigned int seed)
 {
-    seedX        = seed + 0xf22d0e56u;
-    DAT_801235f8 = seed + 0x883126e9u;
-    DAT_801235fc = seed + 0xc624dd2fu;
-    DAT_80123600 = seed + 0x0702c49cu;
-    DAT_80123604 = seed + 0x9e353f7du;
-    DAT_80123608 = seed + 0x6fdf3b64u;
-    return (int *)&seedX;
+    unsigned int w = seed + 0xf22d0e56u;
+    seedX[0] = w;                    /* seed + 0xF22D0E56 */
+    w += 0x96041893u; seedX[1] = w;  /* seed + 0x883126E9 */
+    w += 0x3df3b646u; seedX[2] = w;  /* seed + 0xC624DD2F */
+    w += 0x40dde76du; seedX[3] = w;  /* seed + 0x0702C49C */
+    w += 0x97327ae1u; seedX[4] = w;  /* seed + 0x9E353F7D */
+    w += 0xd1a9fbe7u; seedX[5] = w;  /* seed + 0x6FDF3B64 */
+    return (int *)&seedX[0];
 }
 
 /* iSPCH_Rand @0x800EBB30 : a uniform pseudo-random in [0, n) from the low 16 bits of EACrandom.  The n==-1 /

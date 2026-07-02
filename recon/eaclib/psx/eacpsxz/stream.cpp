@@ -98,14 +98,18 @@ extern "C" int  STREAM_cancelrequest(int s, int req);                          /
  *   (the asm stores to *a1 and *a2, with a2 == a1+4); returns 1 otherwise. */
 extern "C" int validatehandle(int handle, int *outObj, int *outHandle)
 {
-    int sobj;
-    if (handle == 0)
-        return 1;
-    sobj = *(int *)handle;
-    if (*(int *)sobj == STRM_MAGIC) {
-        *outHandle = handle;        /* asm: *a2 = a0 (the handle)                 */
-        *outObj = sobj;             /* asm: *a1 = a3 (the stream object), delay slot */
-        return 0;
+    /* Oracle keeps TWO separate `return 1` epilogues (handle==0 vs magic-mismatch)
+     * -- do NOT let gcc tail-merge them.  `bnez a0` (handle!=0 -> check) with the
+     * handle==0 case FALLING THROUGH to its own `jr ra; li v0,1`, and the mismatch
+     * `bne`-ing to a distinct `return 1`.  Nesting the check inside `if(handle)` and
+     * returning 0 in the middle reproduces the block order + branch polarity. */
+    if (handle != 0) {
+        int sobj = *(int *)handle;
+        if (*(int *)sobj == STRM_MAGIC) {
+            *outHandle = handle;    /* asm: *a2 = a0 (the handle)                 */
+            *outObj = sobj;         /* asm: *a1 = a3 (the stream object), delay slot */
+            return 0;
+        }
     }
     return 1;
 }

@@ -18,10 +18,10 @@ extern "C" void   SNDSYS_service(void);              /* @0x80104878 */
  *   The count is read SIGNED (lb) for the array index but UNSIGNED (lbu) for the increment-store. */
 extern "C" short *iSNDserveraddclient(int cb)
 {
-    /* NOTE near-miss (3 diffs): oracle folds +0x19*4=+100 into the store displacement
-     * (`sll;addu base;sw a0,100(v1)`); gcc-2.8.0 here distributes it as `addiu v1,v1,25` first.
-     * Algebraically identical; the displacement-fold is not reachable without a single-base struct
-     * field shape that would split the count read's base -> documented base+offset association floor. */
+    /* near-miss (3 diffs): oracle folds +0x19*4=+100 into the store displacement (`sll;addu sndgs;
+     * sw a0,100(v1)`); gcc-2.8.0 here distributes it as `addiu v1,v1,25` first (count+0x19)*4. Every
+     * explicit-pointer-arith form makes gcc CSE the NCLIENT-read base (sndgs+0x41) and anchor there
+     * (displacement 35/-65) -- WORSE. base+offset fusion floor; permuter multi-basin candidate. */
     sndgs[(int)(signed char)NCLIENT + 0x19] = cb;
     NCLIENT = NCLIENT + 1;
     return (short *)sndgs;

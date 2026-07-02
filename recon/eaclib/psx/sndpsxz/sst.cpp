@@ -100,8 +100,9 @@ extern "C" int iSNDstreamgetstreamptr(int idx)
 {
     if (idx == 0)
         return sndss;
-    return 0;       /* near-miss floor (3 insns): oracle keeps 2 un-merged `jr ra` tails (zero-return in a
-                     * branch delay slot); our gcc -O2 cross-jump-merges them. Optimization-level, not source. */
+    return 0;       /* near-miss (3 insns): oracle keeps 2 un-merged `jr ra` tails (zero-return in the
+                     * 2nd jr's delay slot); our gcc -O2 cross-jump-merges the epilogue. RTL-level, not
+                     * source-reachable; permuter multi-basin candidate. */
 }
 
 /* iSNDstreamremoverequest @0x800E8C64 : drop the request whose id == `reqid` from a stream's packet
@@ -212,9 +213,11 @@ extern "C" int iSNDstreamparsenumchunks(int S, int data)
 {
     int req;
     STREAM_release(MI(S, 4), data);
-    /* near-miss floor: oracle reads parseIdx (+0x17) as `lbu; sll24; sra24` (a register sign-extend) where
-     * ours folds to a single `lb`; gcc collapses (signed char)(u8) back to lb so the split form isn't
-     * source-reachable. Semantically identical. (+ a commutative addu operand-order coloring.) */
+    /* near-miss (8 diffs): oracle reads parseIdx (+0x17) UNSIGNED (lbu) then sign-extends in registers
+     * (sll24;sra24) before *0x2c -- the codegen of a `signed char` STRUCT FIELD load. Our raw-offset
+     * pointer cast `*(signed char*)` folds to a single `lb`; gcc-2.8.0 collapses (signed char)(u8) AND
+     * ((u32<<24)>>24) back to lb, so the split is unreachable without the real struct def (shared-header
+     * change, out of scope). Same pattern in every +0x17 access in this file. */
     req = MI(S, 0) + MSB(S, 0x17) * 0x2c;
     MI(req, 0x24) = *(int *)(data + 0xc);
     return 1;

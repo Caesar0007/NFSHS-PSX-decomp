@@ -7,7 +7,7 @@
 extern "C" int  iSNDgettag(int *cursor, int *id, int *val, int *ptr);   /* sgettag */
 
 extern "C" int  SNDattributessetdef(int *attr);                         /* @0x801035B0 */
-extern "C" void iSNDpatchtohdr(short *sampleData, int *hdr, int *attr, int *extraOut); /* @0x801035E4 */
+extern "C" int  iSNDpatchtohdr(short *sampleData, int *hdr, int *attr, int *extraOut); /* @0x801035E4 (returns 0) */
 
 /* SNDattributessetdef @0x801035B0 : reset a 0xc-byte attribute block to defaults (level -1, pan 0x40,
  *   sustain 0x7f). */
@@ -26,13 +26,17 @@ extern "C" int SNDattributessetdef(int *attr)
 
 /* iSNDpatchtohdr @0x801035E4 : build the SPU playback header (`hdr`, magic 0x5622) + attribute block (`attr`)
  *   + extra word (`extraOut`) from the sample's tag stream (after its 4- or 8-byte prefix per flags bit 1). */
-extern "C" void iSNDpatchtohdr(short *sampleData, int *hdr, int *attr, int *extraOut)
+extern "C" int iSNDpatchtohdr(short *sampleData, int *hdr, int *attr, int *extraOut)
 {
     short *cursor;
     int    id, val, ptr;
     SNDattributessetdef(attr);
-    cursor = sampleData + 4;
-    if ((*((unsigned char *)sampleData + 3) & 2) == 0)
+    /* oracle stores sampleData as a default (`sw s0`), computes s0+8 in the bnez delay slot, s0+4 on
+     * fall-through -> a 3-way init + if/else, NOT `x=s0+8; if(!flag)x=s0+4`. */
+    cursor = sampleData;
+    if ((*((unsigned char *)sampleData + 3) & 2) != 0)
+        cursor = sampleData + 4;
+    else
         cursor = sampleData + 2;
     *(unsigned short *)hdr      = 0x5622;
     *((unsigned char *)hdr + 2) = 1;
@@ -48,4 +52,5 @@ extern "C" void iSNDpatchtohdr(short *sampleData, int *hdr, int *attr, int *extr
         else if (id == 5)    *attr                          = val;
         else if (id == 6)    *((unsigned char *)attr + 6)   = (unsigned char)val;
     }
+    return 0;   /* oracle: `addu v0,zero,zero` before jr ra (void->int, §3.2) */
 }

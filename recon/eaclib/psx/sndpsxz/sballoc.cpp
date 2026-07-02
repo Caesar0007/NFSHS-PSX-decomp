@@ -13,14 +13,15 @@ extern "C" int iSNDbankalloc(void);   /* @0x801027BC */
 extern "C" int iSNDbankalloc(void)
 {
     int  i = 0;
+    int  n = (int)(unsigned)(unsigned short)sndgs[3];   /* cache the bank count in a reg (oracle a1), reuse it */
     int *e = (int *)sndgs[0x26];
-    if ((unsigned short)sndgs[3] != 0) {
+    if (n != 0) {
         do {
             if (*e == 0)
                 return i;
             i++;
             e = e + 3;
-        } while (i < (int)(unsigned)(unsigned short)sndgs[3]);
+        } while (i < n);
     }
     return -9;   /* H06: SND_BANKFULL on count==0 and no-empty-slot fall-through (oracle 0x80102804 $v0=-9); was `return i` */
 }

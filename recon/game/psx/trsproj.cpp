@@ -159,30 +159,27 @@ void TrsProj_TransPtN16(RelCoord16 *s,coorddef *d,int n)
 }
 
 /* ---- TrsProj_TransformProjectVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex  [TRSPROJ.CPP:250-264] SLD-VERIFIED ----
- * NEAR-MISS 18 diffs (56/56 insns -- shape now IDENTICAL to oracle): the store order was fixed to
- * match Ghidra's exact anchor pointer &v->sv.p (x via v directly, then y,z,p via that +6 anchor,
- * with p LAST -- was previously ordered x,y,p,z which cost 12 extra diffs). Residual 18 = a pure
- * $s1<->$s2 register-pair swap (v<->i) with NO ABI anchor (neither is a call-arg or return value)
- * -- tried decl-order swap, i++ repositioning, and Yoda-vs-normal `0<n`/`n>0` compare form, all
- * no-ops on the coloring. This is a permuter-class reg-coalescing tie-break (§A pattern catalog),
- * not resolvable by a manual source lever found so far. */
+ * PASS 56/56 insns, 0 diffs (verify_asm). Prior 18-diff residual was a pure $s1<->$s2 coalescing
+ * swap (v<->i; SYM-confirmed: v=class REG value 0x12=$s2, i=class REG value 0x11=$s1, both
+ * REGPARM/REG values matching the oracle 1:1 -- m/t/n/s REGPARM 0x17/0x14/0x15/0x13=$s7/$s4/$s5/$s3
+ * all confirmed too). Cracked via §3.12 lever #15 LOOP-SHAPE: the `do{...}while(i<n)` guarded by
+ * an outer `if(0<n)` (with `i=i+1` mid-body, between the x-store and y-store) does NOT reproduce
+ * the oracle's coloring; a plain `for(i=0;i<n;i=i+1){...}` with the increment at its natural
+ * for-loop position does. (decl-order swap and Yoda-vs-normal compare form alone are no-ops, as
+ * previously found -- it's the do/if-guard-vs-for loop SHAPE that was the actual lever.) */
 void TrsProj_TransformProjectVertex(matrixtdef *m,coorddef *t,int n,coorddef *s,Draw_tVertex *v)
 {
   coorddef tmp;
   int i;
 
-  i = 0;
-  if (0 < n) {
-    do {
-      transform(&s->x,m->m,&tmp.x);
-      s = s + 1;
-      v->sv.x = (short)((tmp.x + t->x) >> 10);
-      i = i + 1;
-      v->sv.y = (short)((tmp.y + t->y) >> 10);
-      v->sv.z = (short)((tmp.z + t->z) >> 10);
-      v->sv.p = 10;
-      v = v + 1;
-    } while (i < n);
+  for (i = 0; i < n; i = i + 1) {
+    transform(&s->x,m->m,&tmp.x);
+    s = s + 1;
+    v->sv.x = (short)((tmp.x + t->x) >> 10);
+    v->sv.y = (short)((tmp.y + t->y) >> 10);
+    v->sv.z = (short)((tmp.z + t->z) >> 10);
+    v->sv.p = 10;
+    v = v + 1;
   }
 }
 

@@ -53,70 +53,47 @@ void DrawC_SetEnviroment(void)
 void DrawC_ReadLightingData(void)
 
 {
-  char *addr;
-  int val;
-  int iVar1;
-  int iVar2;
-  short *env_walk;
-  short *psVar3;
-  int off;
-  int iVar4;
   int i;
-  int i_2;
+  char *ScaneData;
   char *RenderingFileData;
   char name [256];
-  char *ScaneData;
-  
-  addr = (char *)sprintf(name,"%sTr%02d.env",Paths_Paths[6],GameSetup_gData.track);
-  loadfileadr(name,0x10);
-  ScaneData = addr;
+
+  sprintf(name,"%sTr%02d.env",Paths_Paths[6],GameSetup_gData.track);
+  RenderingFileData = (char *)loadfileadr(name,0x10);
+  ScaneData = RenderingFileData;
   DrawC_gEnvMapMax = Risk_ReadNextValue(&ScaneData);
   DrawC_gEnvMap = reservememadr("envmap",DrawC_gEnvMapMax * 6,0);
-  i_2 = 0;
   if (0 < DrawC_gEnvMapMax) {
-    off = 0;
+    i = 0;
     do {
-      val = Risk_ReadNextValue(&ScaneData);
-      *(short *)((int)&DrawC_gEnvMap->slice + off) = (short)val;
-      iVar1 = Risk_ReadNextValue(&ScaneData);
-      *(short *)((int)&DrawC_gEnvMap->tex + off) = (short)iVar1;
-      iVar1 = Risk_ReadNextValue(&ScaneData);
-      *(short *)((int)&DrawC_gEnvMap->extra + off) = (short)(iVar1 << 8);
-      iVar1 = Risk_ReadNextValue(&ScaneData);
-      env_walk = (short *)((int)&DrawC_gEnvMap->slice + off);
-      env_walk[2] = env_walk[2] + (short)iVar1;
-      if (*env_walk < 0) {
-        *env_walk = 0x7fff;
+      DrawC_gEnvMap[i].slice = (short)Risk_ReadNextValue(&ScaneData);
+      DrawC_gEnvMap[i].tex = (short)Risk_ReadNextValue(&ScaneData);
+      DrawC_gEnvMap[i].extra = (short)(Risk_ReadNextValue(&ScaneData) << 8);
+      DrawC_gEnvMap[i].extra = DrawC_gEnvMap[i].extra + (short)Risk_ReadNextValue(&ScaneData);
+      if (DrawC_gEnvMap[i].slice < 0) {
+        DrawC_gEnvMap[i].slice = 0x7fff;
         break;
       }
-      i_2 = i_2 + 1;
-      off = off + 6;
-    } while (i_2 < DrawC_gEnvMapMax);
+      i = i + 1;
+    } while (i < DrawC_gEnvMapMax);
   }
   DrawC_gShadowMax = Risk_ReadNextValue(&ScaneData);
   DrawC_gShadow = reservememadr("Shadow",DrawC_gShadowMax * 6,0);
-  iVar1 = 0;
   if (0 < DrawC_gShadowMax) {
-    iVar4 = 0;
+    i = 0;
     do {
-      iVar2 = Risk_ReadNextValue(&ScaneData);
-      *(short *)((int)&DrawC_gShadow->slice + iVar4) = (short)iVar2;
-      iVar2 = Risk_ReadNextValue(&ScaneData);
-      *(short *)((int)&DrawC_gShadow->tex + iVar4) = (short)iVar2;
-      iVar2 = Risk_ReadNextValue(&ScaneData);
-      *(short *)((int)&DrawC_gShadow->extra + iVar4) = (short)(iVar2 << 8);
-      iVar2 = Risk_ReadNextValue(&ScaneData);
-      psVar3 = (short *)((int)&DrawC_gShadow->slice + iVar4);
-      psVar3[2] = psVar3[2] + (short)iVar2;
-      if (*psVar3 < 0) {
-        *psVar3 = 0x7fff;
+      DrawC_gShadow[i].slice = (short)Risk_ReadNextValue(&ScaneData);
+      DrawC_gShadow[i].tex = (short)Risk_ReadNextValue(&ScaneData);
+      DrawC_gShadow[i].extra = (short)(Risk_ReadNextValue(&ScaneData) << 8);
+      DrawC_gShadow[i].extra = DrawC_gShadow[i].extra + (short)Risk_ReadNextValue(&ScaneData);
+      if (DrawC_gShadow[i].slice < 0) {
+        DrawC_gShadow[i].slice = 0x7fff;
         break;
       }
-      iVar1 = iVar1 + 1;
-      iVar4 = iVar4 + 6;
-    } while (iVar1 < DrawC_gShadowMax);
+      i = i + 1;
+    } while (i < DrawC_gShadowMax);
   }
-  purgememadr(addr);
+  purgememadr(RenderingFileData);
   return;
 }
 
@@ -176,6 +153,9 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
     transform(&tmp.x,gNightMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&nightMat);
     DrawW_WorldSetUpMatrix(&gNightMat,&nightMat);
+    zero.z = 0;
+    zero.y = 0;
+    zero.x = 0;
     gte_ldv0(&zero);
     gte_rt();
     v = &nightV;
@@ -883,33 +863,29 @@ void DrawC_PrimStop(Car_tObj *carObj,Draw_CarCache *sd)
 
 {
   short sVar1;
-  int iVar2;
+  int sub_otSizeM1;
   int worldZ;
-  int iVar3;
-  void *tp4;
-  Car_tObj *sort_carObj;
-  u_int *puVar4;
-  int sub_otSize;
-  
-  if ((carObj->render).sort_flag == 0) {
-    tp4 = (carObj->render).sort_carObj;
-    if (tp4 == (void *)0x0) {
-      iVar2 = (carObj->render).sub_otSize;
-      iVar3 = (carObj->render).world_otz;
+  char *tp4;
+  u_long *puVar4;
+
+  if (carObj->render.sort_flag == 0) {
+    tp4 = (char *)carObj->render.sort_carObj;
+    if (tp4 == (char *)0x0) {
+      sub_otSizeM1 = carObj->render.sub_otSize + -1;
+      worldZ = carObj->render.world_otz;
     }
     else {
-      sVar1 = *(short *)((int)tp4 + 0x87c);
-      if ((*(short *)((int)tp4 + 0x87c) != 0) &&
-         (*(short *)((int)tp4 + 0x87c) = sVar1 + -1, sVar1 != 1)) {
+      sVar1 = *(short *)(tp4 + 0x87c);
+      if ((*(short *)(tp4 + 0x87c) != 0) &&
+         (*(short *)(tp4 + 0x87c) = sVar1 + -1, sVar1 != 1)) {
         return;
       }
-      iVar2 = *(int *)((int)tp4 + 0x870);
-      iVar3 = *(int *)((int)tp4 + 0x864);
+      sub_otSizeM1 = *(int *)(tp4 + 0x870) + -1;
+      worldZ = *(int *)(tp4 + 0x864);
     }
-    *(u_int *)((int *)sd)[0xe] =
-         *(u_int *)((int *)sd)[0xe] & 0xff000000 | *(u_int *)(iVar3 * 4 + *((int *)sd)) & 0xffffff;
-    puVar4 = (u_int *)(iVar3 * 4 + *((int *)sd));
-    *puVar4 = *puVar4 & 0xff000000 | ((int *)sd)[0xe] + (iVar2 + -1) * 4 & 0xffffffU;
+    *sd->sub_ot = *sd->sub_ot & 0xff000000 | sd->head.cprim.LastPrim[worldZ] & 0xffffff;
+    puVar4 = sd->head.cprim.LastPrim + worldZ;
+    *puVar4 = *puVar4 & 0xff000000 | (u_long)(sd->sub_ot + sub_otSizeM1) & 0xffffff;
   }
   return;
 }
@@ -3878,61 +3854,53 @@ gte_SetTransMatrix(((char *)sd + 0x14));
 void DrawC_ShadowPrim(Draw_tVertex *shadowVT,Draw_CarCache *sd)
 
 {
-  POLY_FT4 * prim;
-  u_long * ot;
+  POLY_FT4 *prim;
+  u_long *ot;
   u_long l0;
   u_long l1;
   int iVar1;
-  u_int uVar2;
   u_long l2;
-  u_long *puVar3;
-  u_int *puVar4;
-  u_int uVar5;
   u_long l3;
-  u_int uVar6;
-  void *prim_pre_rtpt;
-  u_int *puVar7;
+  u_char *packetPtr;
   Draw_tPixMap *shadowPmx;
-  Draw_tPixMap *pDVar8;
-  
-  pDVar8 = gShadowPixmap[0];
+
+  shadowPmx = gShadowPixmap[0];
   if (R3DCar_InMenu != 0) {
-    pDVar8 = gMenuPixmap[1];
+    shadowPmx = gMenuPixmap[1];
   }
-  l2 = (u_long)&pDVar8->tpage;
-  ChangeTPage((u_short *)l2,2);
+  ChangeTPage(&shadowPmx->tpage,2);
 gte_SetRotMatrix(&DrawC_gScreenMat);
 gte_SetTransMatrix(&DrawC_gScreenMat);
   if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr) {
 gte_ldv0(shadowVT);
     gte_rtps();
-    prim_pre_rtpt = Render_gPacketPtr;
-gte_swc2(0xe,(void *)0x1f800008);
+    packetPtr = Render_gPacketPtr;
+gte_swc2(0xe,packetPtr + 0x8);
 gte_ldv3((char *)shadowVT + 0x8,(char *)shadowVT + 0x18,(char *)shadowVT + 0x10);
     gte_rtpt();
-gte_stsxy3((void *)0x1f800010,(void *)0x1f800020,(void *)0x1f800018);
+gte_stsxy3(packetPtr + 0x10,packetPtr + 0x20,packetPtr + 0x18);
     gte_avsz4();
     gte_stOTZ(&sd->otz);
     iVar1 = (sd->otz >> 1) + 0x28;
     sd->otz = iVar1;
     if ((-1 < iVar1) && (iVar1 <= Draw_gViewOtSize + -3)) {
-      puVar7 = (u_int *)(sd->head).cprim.PrimPtr;
-      puVar3 = (sd->head).cprim.LastPrim;
-      (sd->head).cprim.PrimPtr = (char *)(puVar7 + 10);
-      puVar4 = (u_int *)(puVar3 + iVar1);
-      *puVar7 = *puVar7 & 0xff000000 | *puVar4 & 0xffffff;
-      *puVar4 = *puVar4 & 0xff000000 | (u_int)puVar7 & 0xffffff;
-      uVar2 = sd->color;
-      *(u_char *)((int)puVar7 + 3) = 9;
-      puVar7[1] = uVar2;
-      *(u_char *)((int)puVar7 + 7) = 0x2e;
-      uVar2 = *(u_int *)&pDVar8->u1;
-      uVar5 = *(u_int *)&pDVar8->u2;
-      uVar6 = *(u_int *)&pDVar8->u3;
-      puVar7[3] = *(u_int *)pDVar8;
-      puVar7[5] = uVar2;
-      puVar7[7] = uVar5;
-      puVar7[9] = uVar6;
+      prim = (POLY_FT4 *)(sd->head).cprim.PrimPtr;
+      ot = (sd->head).cprim.LastPrim;
+      (sd->head).cprim.PrimPtr = (char *)prim + 0x28;
+      l0 = *(u_long *)prim & 0xff000000 | ot[iVar1] & 0xffffff;
+      ot[iVar1] = ot[iVar1] & 0xff000000 | (u_long)prim & 0xffffff;
+      *(u_long *)prim = l0;
+      l1 = sd->color;
+      *(u_char *)((char *)prim + 3) = 9;
+      *(u_long *)&prim->r0 = l1;
+      *(u_char *)((char *)prim + 7) = 0x2e;
+      l1 = *(u_long *)&shadowPmx->u1;
+      l2 = *(u_long *)&shadowPmx->u2;
+      l3 = *(u_long *)&shadowPmx->u3;
+      *(u_long *)&prim->u0 = *(u_long *)shadowPmx;
+      *(u_long *)&prim->u1 = l1;
+      *(u_long *)&prim->u2 = l2;
+      *(u_long *)&prim->u3 = l3;
     }
   }
   return;
@@ -3965,10 +3933,10 @@ void DrawC_DivideShadowPrim(COORD16 *vt0,COORD16 *vt1,COORD16 *vt2,COORD16 *vt3,
 gte_ldv0(vt0);
     gte_rtps();
     tp8 = Render_gPacketPtr;
-gte_swc2(0xe,(void *)0x1f800008);
+gte_swc2(0xe,(char *)tp8 + 0x8);
 gte_ldv3(vt1,vt2,vt3);
     gte_rtpt();
-gte_stsxy3((void *)0x1f800010,(void *)0x1f800020,(void *)0x1f800018);
+gte_stsxy3((char *)tp8 + 0x10,(char *)tp8 + 0x20,(char *)tp8 + 0x18);
     if (R3DCar_InMenu == 0) {
       gte_avsz4();
       gte_stOTZ(&sd->otz);

@@ -7,7 +7,13 @@
 
 char *Platform_GetDCTBuffer(...); void Platform_ResetDCTBuffer();
 extern CVECTOR * Chunk_lightTable;
+extern Car_tObj           *Cars_gList[];             /* 0x8010f9dc */
 extern Car_tObj           *Cars_gTrafficCarList[];
+extern Car_tObj           *Cars_gCopCarList[];       /* 0x8010faB4 -- alias-adjacent to
+                                                       * Cars_gTrafficCarList (same backing
+                                                       * array, +0x24/9 elems later); oracle
+                                                       * addresses this cluster via
+                                                       * Cars_gCopCarList directly. */
 extern Chunk              *Track_chunkList;
 extern GameSetup_tData   GameSetup_gData;
 extern Group              *Object_customSFXInst;     /* 0x8013d2d0 */
@@ -28,6 +34,7 @@ extern int            Chunk_numLight;            /* 0x8013d4ec */
 extern int            Draw_gPlayer1View, Draw_gPlayer2View;
 extern int            gNumSlices;
 extern int    Skid_gCtrlScratch_94, Skid_gCtrlScratch_98, Skid_gScratchPos1, Skid_gScratchPos2, gScratchLastWord;
+extern CTrackSpec     TrackSpec_gSpec;           /* 0x8012327c */
 extern int   BWorldSm_FindClosestQuadRez(coorddef *c, BWorldSm_Pos *pos, int rez);
 extern int  *Track_gInViewCount;     /* = Alloc(...), indexed */
 extern int Loading_UpdateLoadingScreen(int);

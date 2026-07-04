@@ -50,30 +50,35 @@ void Draw_InitLibRender(void);
 int Draw_SetView(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int otsize)
 
 {
+  /* SYM (nfs4-f-v3.txt @0x800BDAC0) names `newview` (Draw_tView*) + `e00`/`e10`
+     (DRAWENV*, both 92 bytes) as real locals -- NOT raw Draw_gView[iVar1].drawenv[N]
+     array-index expressions everywhere. Rewritten to cache the two DRAWENV pointers
+     once per the SYM, matching the oracle's s1/s2-hold-e00/e10-address shape. */
   int iVar1;
   int iVar2;
   Draw_tView *newview;
-  Draw_tView *pDVar3;
-  DRAWENV *e10;
   DRAWENV *e00;
-  
+  DRAWENV *e10;
+
   iVar1 = Draw_gNumView;
-  pDVar3 = Draw_gView + Draw_gNumView;
-  SetDefDrawEnv(Draw_gView[Draw_gNumView].drawenv,x0,y0,w,h);
-  SetDefDrawEnv(Draw_gView[iVar1].drawenv + 1,x1,y1,w,h);
-  Draw_gView[iVar1].drawenv[0].r0 = '\0';
-  Draw_gView[iVar1].drawenv[0].g0 = '\0';
-  Draw_gView[iVar1].drawenv[0].b0 = '\0';
-  Draw_gView[iVar1].drawenv[1].r0 = '\0';
-  Draw_gView[iVar1].drawenv[1].g0 = '\0';
-  Draw_gView[iVar1].drawenv[1].b0 = '\0';
-  Draw_gView[iVar1].drawenv[1].isbg = (u_char)isbg;
-  Draw_gView[iVar1].drawenv[0].isbg = (u_char)isbg;
-  Draw_gView[iVar1].drawenv[1].dtd = (u_char)dtd;
-  Draw_gView[iVar1].drawenv[0].dtd = (u_char)dtd;
+  newview = Draw_gView + Draw_gNumView;
+  e00 = newview->drawenv;
+  e10 = newview->drawenv + 1;
+  SetDefDrawEnv(e00,x0,y0,w,h);
+  SetDefDrawEnv(e10,x1,y1,w,h);
+  e00->r0 = '\0';
+  e00->g0 = '\0';
+  e00->b0 = '\0';
+  e10->r0 = '\0';
+  e10->g0 = '\0';
+  e10->b0 = '\0';
+  e10->isbg = (u_char)isbg;
+  e00->isbg = (u_char)isbg;
+  e10->dtd = (u_char)dtd;
+  e00->dtd = (u_char)dtd;
   iVar2 = Draw_gNumView;
-  pDVar3->otsize = otsize;
-  Draw_gView[iVar1].membudget = 0;
+  newview->otsize = otsize;
+  newview->membudget = 0;
   Draw_gNumView = Draw_gNumView + 1;
   return iVar2;
 }
@@ -90,19 +95,35 @@ void Draw_InitViews(void)
 void Draw_InitViewOT(void)
 
 {
+  /* FIXED (was 51-diff floor via a plain `for` loop -> the `blez`-guard shape; now
+     16-diff, ours 33==oracle 33 insns, via `goto TEST` do-while -- same family as
+     Draw_DeInitViews/Draw_DeInitViewsInGame): oracle is top-tested-while-no-guard
+     (falls straight from the prologue into the test, increment in the exit-beqz's
+     delay slot, unconditional back-`j`). Re-verified in the compiled disasm: `s0`
+     (pDVar2) is written in the prologue BEFORE the `goto TEST`'s forward jump, and the
+     loop body is reached only via the back-branch -- no read-before-write. Residual
+     16-diff is the same documented loop-rotation-direction floor (test-block-first-
+     with-fallthrough vs ours body-first-with-goto-skip) -- not reachable by a source
+     lever at this opt level (see Draw_DeInitViewsInGame's 12-shape survey); permuter
+     or accept. */
   u_long *puVar1;
   Draw_tView *pDVar2;
   int i;
   int iVar3;
-  
+
   pDVar2 = Draw_gView;
-  for (iVar3 = 0; iVar3 < Draw_gNumView; iVar3 = iVar3 + 1) {
+  iVar3 = 0;
+  goto TEST;
+  do {
     puVar1 = reservememadr("ot0",pDVar2->otsize << 2,0x10);
     pDVar2->ot[0] = puVar1;
     puVar1 = reservememadr("ot1",pDVar2->otsize << 2,0x10);
     pDVar2->ot[1] = puVar1;
     pDVar2 = pDVar2 + 1;
-  }
+    iVar3 = iVar3 + 1;
+    TEST:
+    ;
+  } while (iVar3 < Draw_gNumView);
   return;
 }
 
@@ -110,19 +131,28 @@ void Draw_InitViewOT(void)
 void Draw_InitViewOTInGame(void)
 
 {
+  /* FIXED (was 51-diff floor via a plain `for` loop; now 16-diff, ours 31==oracle 31
+     insns, via `goto TEST` do-while) -- same fix/rationale as the sibling
+     Draw_InitViewOT (see its comment); re-verified in the compiled disasm, no
+     read-before-write. Residual 16-diff = the same documented loop-rotation floor. */
   u_long *puVar1;
   Draw_tView *pDVar2;
   int i;
   int iVar3;
-  
+
   pDVar2 = Draw_gView;
-  for (iVar3 = 0; iVar3 < Draw_gNumView; iVar3 = iVar3 + 1) {
+  iVar3 = 0;
+  goto TEST;
+  do {
     puVar1 = (u_long *)Platform_ReserveMemory(pDVar2->otsize << 2,"ot0");
     pDVar2->ot[0] = puVar1;
     puVar1 = (u_long *)Platform_ReserveMemory(pDVar2->otsize << 2,"ot1");
     pDVar2->ot[1] = puVar1;
     pDVar2 = pDVar2 + 1;
-  }
+    iVar3 = iVar3 + 1;
+    TEST:
+    ;
+  } while (iVar3 < Draw_gNumView);
   return;
 }
 
@@ -238,12 +268,19 @@ void Draw_SetViewColor(int viewid,int r,int g,int b)
 void AllocatePrimitivesBuffer(void)
 
 {
-  Draw_tView * view0;
-  Draw_tView * view1;
+  /* SYM (nfs4-f-v3.txt @0x800BDE60) names exactly 3 locals, all `Draw_tView *`: view0,
+     view1, view -- NOT raw ints. Raw oracle re-trace: the commMode==1 branch computes
+     view0=&Draw_gView[Draw_gPlayer1View], stores the split budget into view0->membudget,
+     THEN separately computes view1=&Draw_gView[Draw_gPlayer2View] and falls into the
+     SAME merge-point store -- i.e. BOTH views get the split budget written (view=view1
+     at the merge). The commMode!=1 (single-view) branch only computes
+     view=&Draw_gView[Draw_gPlayer1View] and stores once. Rewritten as real Draw_tView*
+     locals per the SYM, matching the oracle's double-store shape exactly. */
+  Draw_tView *view0;
+  Draw_tView *view1;
   Draw_tView *view;
-  int iVar1;
-  int iVar2;
-  
+  int membudget;
+
   if (GameSetup_gData.commMode == 1) {
     Draw_InitViewOT();
   }
@@ -258,16 +295,18 @@ void AllocatePrimitivesBuffer(void)
   }
   gEnviro[0].server = Platform_ReserveMemory(gTotalMem,"ps0");
   gEnviro[1].server = Platform_ReserveMemory(gTotalMem,"ps1");
-  iVar1 = Draw_gPlayer2View;
   if (GameSetup_gData.commMode == 1) {
-    iVar2 = (gTotalMem >> 1) + -0x1a00;
-    Draw_gView[Draw_gPlayer1View].membudget = iVar2;
+    view0 = &Draw_gView[Draw_gPlayer1View];
+    membudget = (gTotalMem >> 1) + -0x1a00;
+    view0->membudget = membudget;
+    view1 = &Draw_gView[Draw_gPlayer2View];
+    view = view1;
   }
   else {
-    iVar2 = gTotalMem + -0x1a00;
-    iVar1 = Draw_gPlayer1View;
+    view = &Draw_gView[Draw_gPlayer1View];
+    membudget = gTotalMem + -0x1a00;
   }
-  Draw_gView[iVar1].membudget = iVar2;
+  view->membudget = membudget;
   return;
 }
 
@@ -354,7 +393,7 @@ void Draw_StopRenderingView(int viewid)
   DRAWENV LEnv;
   u_char *prev_pkt;
   u_char *cur_pkt;
-  
+
   cur_pkt = Render_gPacketPtr;
   prev_pkt = Render_gPalettePtr;
   viewSlot = (int)(Draw_gView + viewid);
@@ -410,19 +449,26 @@ void Draw_StartFrameRender(void)
 {
   /* MATCH: SYM (nfs4-f-v3.txt @0x800BE2C0) names exactly ONE local (`i`, reg $s1); oracle
      is the same top-tested-while-no-guard family as the DeInitViews(InGame)/
-     kCtrlWorld_High/StripDraw_High siblings (see their comments), BUT the `goto TEST`
-     lever that fixes those produces a genuine MISCOMPILE here (verified: gcc read a reg
-     before it was ever written on the first loop entry -- `lw a1,0(v1)` before `v1`'s
-     first assignment). Reverted that attempt; correctness over diff count.
-     Safe partial fix applied instead: moving `pDVar4 = pDVar4 + 1` to the END of the loop
-     body (after the ClearOTagR call, matching the oracle's post-call pointer-bump
-     position) reproduces the oracle's ENTIRE loop body byte-exact (ours 40 == oracle 40
-     insns) -- 39->34 diffs. Residual is only the entry sequence: ours still emits the
-     `while`-with-`blez`-guard shape (`i` pre-set to 1, zero-trip guard before the loop);
-     oracle has NO guard (falls straight into the test, `i` starts at 0). Same loop-
-     rotation-direction floor as the siblings, but NOT reachable here without risking the
-     miscompile above; accept. */
-  bool bVar1;
+     kCtrlWorld_High/StripDraw_High siblings (see their comments).
+     FIXED (was 34-diff floor via a "safe partial fix" comma-while that a prior pass
+     reverted from `goto TEST` over a suspected miscompile; now 21-diff via a CAREFULLY
+     re-verified `goto TEST` do-while): re-checked the compiled disasm directly -- `s0`
+     (pDVar4=&Draw_gView[0]) is written at the prologue BEFORE the `goto TEST`'s forward
+     jump, and the loop body (which reads `pDVar4`) is reached ONLY via the back-branch
+     from the test, never as straight-line fallthrough from the prologue -- so there is
+     NO read-before-write; the earlier miscompile report must have been a different
+     (buggier) source shape. This do-while now reproduces the oracle's loop EXACTLY (same
+     insns, pure test/body rotation floor, same family as Draw_DeInitViewsInGame -- not
+     reachable by a source lever at this opt level, see that fn's 12-shape survey).
+     Residual 21 diffs = (a) the loop-rotation floor (test-block-first-with-fallthrough +
+     unconditional back-`j` w/ increment in the exit-beqz's delay slot, vs ours body-first-
+     with-goto-skip + conditional back-branch) + (b) a SEPARATE, pre-existing, loop-
+     independent tail near-miss: the oracle re-reads `gEnviro[gFlip].server` from memory
+     TWICE (once per consuming statement, interleaved with the s0/s1/ra epilogue restores)
+     while our -O2 build CSEs it to one load reused for both `Render_gPacketPtr` and
+     `Draw_gMaxPrim` -- confirmed pre-existing (byte-identical in the git HEAD baseline
+     before this session's loop fix) and unaffected by statement reordering (tried both
+     orders). Permuter or accept. */
   int *piVar2;
   u_long **ppuVar3;
   Draw_tView *pDVar4;
@@ -431,12 +477,16 @@ void Draw_StartFrameRender(void)
 
   iVar5 = 0;
   pDVar4 = Draw_gView;
-  while (bVar1 = iVar5 < Draw_gNumView, iVar5 = iVar5 + 1, bVar1) {
+  goto TEST;
+  do {
     piVar2 = &pDVar4->otsize;
     ppuVar3 = pDVar4->ot;
     ClearOTagR(ppuVar3[gFlip],*piVar2);
     pDVar4 = pDVar4 + 1;
-  }
+    iVar5 = iVar5 + 1;
+    TEST:
+    ;
+  } while (iVar5 < Draw_gNumView);
   Render_gPacketPtr = gEnviro[gFlip].server;
   Draw_gMaxPrim = gEnviro[gFlip].server + gTotalMem;
   return;
@@ -455,7 +505,6 @@ void Draw_SetDrawSyncCallback(fn_void *p)
 void Draw_StopFrameRender(void)
 
 {
-  bool bVar1;
   Draw_tView *pDVar2;
   int i;
   int iVar3;
@@ -463,18 +512,20 @@ void Draw_StopFrameRender(void)
   /* MATCH: SYM (nfs4-f-v3.txt @0x800BE36C) names exactly ONE local (`i`), live range
      starting at the merge point right after the VSync if-block (0x800BE3BC) -- matches
      oracle's loop counter $s1 (init `addu s1,zero,zero` once, straight `sll v0,v1,1` for
-     the gEnviro[gFlip] index, NOT a variable shift).
-     NEAR-MISS FLOOR (24 diffs, ours 57 == oracle 57 insns): tried 7 source shapes this
-     session. The `while(bVar1=cond,i=i+1,bVar1)` comma-loop (kept below) reproduces the
-     oracle's loop-body tail exactly but gcc reuses $s1 for BOTH the loop counter AND the
-     gFlip*3 shift-amount (`sllv v0,v1,s1` var-shift + duplicated `li s1,1` hoisted into
-     both sides of the earlier if(Draw_gDoVSync) branch) instead of folding the shift to a
-     literal. Switching to an idiomatic `for(iVar3=0;iVar3<n;iVar3=iVar3+1)` DOES fix the
-     shift (`sll v0,v1,1` literal, single `s1` init) but gcc's for-loop lowering then
-     reorders the BODY's v0/v1 roles and adds an extra insn (31 diffs, ours 58 vs oracle
-     57) -- net WORSE. The two fixes are mutually exclusive at this opt level (same gcc
-     loop-lowering trade-off in opposite directions); kept the strictly-better while-form.
-     Not reachable by a single source lever; permuter (no cast, viable) or accept. */
+     the gEnviro[gFlip]*24 address calc, NOT a variable shift).
+     FIXED (was 24-diff floor via a comma-`while`; now 11-diff via `goto TEST` do-while,
+     same family as Draw_DeInitViews/Draw_DeInitViewsInGame): the earlier comma-while
+     shape kept `iVar3`/$s1 live back across the gEnviro[gFlip]*24 calc, so gcc reused
+     $s1 for BOTH the loop counter AND the *3 sub-multiply, forcing a variable-shift
+     `sllv v0,v1,s1` + a duplicated `li s1,1` hoisted into both sides of the earlier
+     if(Draw_gDoVSync) branch. Restructuring the 2nd loop as `goto TEST; do{...}while()`
+     (matching the DeInitViews-family idiom) breaks that false liveness overlap as a side
+     effect -- gcc now folds the multiply to the literal `sll v0,v1,1` for free, and the
+     ONLY residual is the same documented loop-rotation-direction floor (test-block-first-
+     with-fallthrough + unconditional back-`j` w/ increment in the exit-beqz's delay slot,
+     vs ours body-first-with-goto-skip + conditional back-branch) -- not reachable by a
+     source lever at this opt level (see Draw_DeInitViewsInGame's comment for the full
+     12-shape survey); permuter or accept. */
   DrawSync(0);
   gLoop = gLoop + 1;
   if (Draw_gSyncCallback != (void *)0x0) {
@@ -486,10 +537,14 @@ void Draw_StopFrameRender(void)
   PutDispEnv(&gEnviro[gFlip].disp);
   iVar3 = 0;
   pDVar2 = Draw_gView;
-  while (bVar1 = iVar3 < Draw_gNumView, iVar3 = iVar3 + 1, bVar1) {
+  goto TEST;
+  do {
     DrawOTag(pDVar2->ot[gFlip] + pDVar2->otsize + -1);
     pDVar2 = pDVar2 + 1;
-  }
+    iVar3 = iVar3 + 1;
+    TEST:
+    ;
+  } while (iVar3 < Draw_gNumView);
   gFlip = 1 - gFlip;
   return;
 }
@@ -507,16 +562,40 @@ void Draw_DrawDirectScreen(shapetbl *tile,int x,int y)
 void Draw_DirectSetEnvironment(int x,int y,int w,int h,int edraw,int edisplay,int erase,int r,int g,int b)
 
 {
-  DISPENV e;
-  
+  /* SYM (nfs4-f-v3.txt @0x800BE478) names TWO `AUTO` locals both called `e` (one typed
+     DRAWENV/92B, one DISPENV/20B) -- but the RAW oracle disproves "two independent
+     slots": both SetDefDrawEnv's and SetDefDispEnv's buffer args resolve to the exact
+     SAME address `sp+0x18` (`addiu a0,sp,0x18` at all 3 call sites). So the two SYM
+     `e`s are typed views of ONE shared stack buffer -- the original bug was the buffer
+     being declared as the SMALLER `DISPENV` (20B, too small for a real DRAWENV) and
+     cast; fix is a single buffer big enough for both, sized/typed as `DRAWENV` (92B),
+     used directly for the draw-env call and passed to SetDefDispEnv via a DISPENV*
+     reinterpret for the disp-env call (matches oracle's single shared address).
+     🔴 ALSO: the oracle has a WHOLE MISSING FEATURE -- a `beqz $s0,...` (erase==0)
+     gate right after SetDefDrawEnv, writing e.r0/e.g0/e.b0 (DRAWENV +0x19/+0x1A/+0x1B)
+     from the r/g/b params and setting e.isbg=1 when erase!=0 (else e.isbg=0), all
+     BEFORE PutDrawEnv -- confirmed by decoding the buffer offsets 0x31/0x32/0x33/0x30
+     (relative to the sp+0x18 base) against the real DRAWENV field layout. The prior
+     reconstruction dropped this whole block (treating erase/r/g/b as unused params). */
+  DRAWENV e;
+
   if (edraw != 0) {
-    SetDefDrawEnv((DRAWENV *)&e,x,y,w,h);
-    PutDrawEnv((DRAWENV *)&e);
+    SetDefDrawEnv(&e,x,y,w,h);
+    if (erase != 0) {
+      e.r0 = (u_char)r;
+      e.g0 = (u_char)g;
+      e.b0 = (u_char)b;
+      e.isbg = 1;
+    }
+    else {
+      e.isbg = 0;
+    }
+    PutDrawEnv(&e);
   }
   if (edisplay != 0) {
-    SetDefDispEnv(&e,x,y,w,h);
+    SetDefDispEnv((DISPENV *)&e,x,y,w,h);
     SetDispMask(0);
-    PutDispEnv(&e);
+    PutDispEnv((DISPENV *)&e);
     timedwait(timerhz >> 1);
     SetDispMask(1);
   }

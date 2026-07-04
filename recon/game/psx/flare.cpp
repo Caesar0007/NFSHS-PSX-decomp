@@ -65,19 +65,17 @@ void Flare_Tri(long *cp,long *p1,long *p2,int otz)
   u_int *prev_pkt_slot;
   int pkt_addr24;
   u_char *prim;
-  CVECTOR flareColor;
 
   prim = Render_gPacketPtr;
   prev_pkt_slot = (u_int *)(Render_gPalettePtr + otz * 4);
-  *(u_int *)Render_gPacketPtr = *(u_int *)Render_gPacketPtr & 0xff000000 | *prev_pkt_slot & 0xffffff;
-  pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x1c;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *prev_pkt_slot & 0xffffff;
+  Render_gPacketPtr = prim + 0x1c;
+  pkt_addr24 = (u_int)prim & 0xffffff;
   *prev_pkt_slot = *prev_pkt_slot & 0xff000000 | pkt_addr24;
   *(u_int *)(prim + 4) = 0x32000000;
-  flareColor = gfrgb;
   *(u_int *)(prim + 0x14) = 0;
   prim[3] = 6;
-  *(CVECTOR *)(prim + 0xc) = flareColor;
+  *(u_int *)(prim + 0xc) = *(u_int *)&gfrgb;
   *(long *)(prim + 8) = *p2;
   *(long *)(prim + 0x10) = *cp;
   *(long *)(prim + 0x18) = *p1;
@@ -127,7 +125,7 @@ void Flare_OctFlare(long *center,int otz)
   int CVar6;
   long flare_dvxy [13];
   u_char *prim;
-  
+
   CVar6 = (*(int *)&gfrgb);
 gte_ldv0(&Flare_gOct);
   gte_rtps();
@@ -271,7 +269,7 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
     *puVar1 = *puVar1 & 0xff000000 | pkt_addr24_b;
     *(u_int *)(prim + 4) = 0x3a000000;
     prim[3] = 8;
-    *(CVECTOR *)(prim + 0xc) = CVar7;
+    *(u_int *)(prim + 0xc) = *(u_int *)&CVar7;
     *(u_int *)(prim + 0x14) = 0;
     *(u_int *)(prim + 0x1c) = 0;
     pkt_addr24_c = flare_dvxy[ts1];
@@ -289,7 +287,7 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
     *puVar1 = *puVar1 & 0xff000000 | pkt_addr24_d;
     *(u_int *)(tp5 + 4) = 0x32000000;
     tp5[3] = 6;
-    *(CVECTOR *)(tp5 + 0xc) = CVar6;
+    *(u_int *)(tp5 + 0xc) = *(u_int *)&CVar6;
     *(u_int *)(tp5 + 0x14) = 0;
     pkt_addr24 = flare_dvxy[ts4];
     *(int *)(tp5 + 0x10) = center_word;
@@ -372,7 +370,7 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
     *(u_int *)(prim + 0x14) = 0;
     *(u_int *)(prim + 0x1c) = 0;
     prim[3] = 8;
-    *(CVECTOR *)(prim + 0xc) = spikeColor;
+    *(u_int *)(prim + 0xc) = *(u_int *)&spikeColor;
     *(long *)(prim + 8) = flare_dvxy[*(short *)gfHexPt1_iter];
     *(long *)(prim + 0x10) = *center;
     *(long *)(prim + 0x18) = flare_dvxy[*(short *)gfOctPt2_iter];
@@ -393,8 +391,7 @@ void Flare_HexFlare(long *center,int otz)
   int vert_idx;
   long flare_dvxy [7];
   u_char *prim;
-  CVECTOR CVar1;
-  
+
 gte_ldv0(&Flare_gHex);
   gte_rtps();
 gte_swc2(0xe,&flare_dvxy);
@@ -429,10 +426,9 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
     Render_gPacketPtr = Render_gPacketPtr + 0x1c;
     *(u_int *)prev_pkt_slot = *(u_int *)prev_pkt_slot & 0xff000000 | pkt_addr24;
     *(u_int *)(prim + 4) = 0x32000000;
-    CVar1 = gfrgb;
     *(u_int *)(prim + 0x14) = 0;
     prim[3] = 6;
-    *(CVECTOR *)(prim + 0xc) = CVar1;
+    *(u_int *)(prim + 0xc) = *(u_int *)&gfrgb;
     *(long *)(prim + 8) = flare_dvxy[*(short *)pSVar4];
     *(long *)(prim + 0x10) = *center;
     *(long *)(prim + 0x18) = flare_dvxy[*(short *)gfHexPt2_iter];
@@ -451,9 +447,8 @@ void Flare_ReflectHexFlare(long *center,int otz)
   int i;
   int vert_idx;
   long flare_dvxy [7];
-  CVECTOR CVar1;
   u_char *prim;
-  
+
 gte_ldv0(&Flare_gReflectHex);
   gte_rtps();
 gte_swc2(0xe,&flare_dvxy);
@@ -488,10 +483,9 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
     Render_gPacketPtr = Render_gPacketPtr + 0x1c;
     *(u_int *)prev_pkt_slot = *(u_int *)prev_pkt_slot & 0xff000000 | pkt_addr24;
     *(u_int *)(prim + 4) = 0x32000000;
-    CVar1 = gfrgb;
     *(u_int *)(prim + 0x14) = 0;
     prim[3] = 6;
-    *(CVECTOR *)(prim + 0xc) = CVar1;
+    *(u_int *)(prim + 0xc) = *(u_int *)&gfrgb;
     *(long *)(prim + 8) = flare_dvxy[*(short *)pSVar4];
     *(long *)(prim + 0x10) = *center;
     *(long *)(prim + 0x18) = flare_dvxy[*(short *)gfHexPt2_iter];
@@ -1118,23 +1112,20 @@ void Flare_2DSpike(long *center,long *end,int otz)
   int tl2;
   int tl3;
   u_int *prev_pkt_slot;
-  long pt [2];
   u_char *prim;
   void *tp1;
-  CVECTOR CVar1;
-  
+
   prim = Render_gPacketPtr;
   tl2 = *center;
   tl3 = *end;
   prev_pkt_slot = (u_int *)(Render_gPalettePtr + otz * 4);
-  *(u_int *)Render_gPacketPtr = *(u_int *)Render_gPacketPtr & 0xff000000 | *prev_pkt_slot & 0xffffff;
-  *prev_pkt_slot = *prev_pkt_slot & 0xff000000 | (u_int)Render_gPacketPtr & 0xffffff;
-  CVar1 = gfrgb2;
-  tp1 = Render_gPacketPtr + 3;
-  Render_gPacketPtr = Render_gPacketPtr + 0x14;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *prev_pkt_slot & 0xffffff;
+  *prev_pkt_slot = *prev_pkt_slot & 0xff000000 | (u_int)prim & 0xffffff;
+  tp1 = prim + 3;
+  Render_gPacketPtr = prim + 0x14;
   *(u_char *)tp1 = 4;
   *(u_int *)(prim + 0xc) = 0;
-  *(CVECTOR *)(prim + 4) = CVar1;
+  *(u_int *)(prim + 4) = *(u_int *)&gfrgb2;
   prim[7] = 0x52;
   *(int *)(prim + 8) = tl2;
   *(int *)(prim + 0x10) = tl3;
@@ -1252,7 +1243,6 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
 void Flare_PreCalcHexLightBeam(long *center,int otz)
 
 {
-  CVECTOR CVar1;
   u_int uVar2;
   u_int uVar3;
   u_int *prim;
@@ -1280,11 +1270,10 @@ gte_ldv0(&Flare_gOct);
     uVar3 = *puVar5;
     *(u_int **)ppuVar8 = prim + 5;
     *puVar5 = uVar3 & uVar8 | (u_int)prim & uVar6;
-    CVar1 = gfrgb2;
     gte_rtps_b();
     *(u_char *)((int)prim + 3) = 4;
     prim[3] = 0;
-    *(CVECTOR *)(prim + 1) = CVar1;
+    *(u_int *)(prim + 1) = *(u_int *)&gfrgb2;
     *(u_char *)((int)prim + 7) = 0x52;
 gte_swc2(0xe,((char *)&pt + 0x4));
     prim[2] = uVar2;
@@ -1301,12 +1290,12 @@ void Flare_Quad(long *pt,CVECTOR *color,int otz)
   u_int *puVar1;
   int pkt_addr24;
   u_char *prim;
-  
+
   prim = Render_gPacketPtr;
   puVar1 = (u_int *)(Render_gPalettePtr + otz * 4);
-  *(u_int *)Render_gPacketPtr = *(u_int *)Render_gPacketPtr & 0xff000000 | *puVar1 & 0xffffff;
-  pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x18;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *puVar1 & 0xffffff;
+  Render_gPacketPtr = prim + 0x18;
+  pkt_addr24 = (u_int)prim & 0xffffff;
   *puVar1 = *puVar1 & 0xff000000 | pkt_addr24;
   color_word = *(int *)color;
   prim[3] = 5;
@@ -1330,9 +1319,9 @@ void Flare_QuadNotTransparent(long *pt,CVECTOR *color,int otz)
   
   prim = Render_gPacketPtr;
   puVar1 = (u_int *)(Render_gPalettePtr + otz * 4);
-  *(u_int *)Render_gPacketPtr = *(u_int *)Render_gPacketPtr & 0xff000000 | *puVar1 & 0xffffff;
-  pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x18;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *puVar1 & 0xffffff;
+  Render_gPacketPtr = prim + 0x18;
+  pkt_addr24 = (u_int)prim & 0xffffff;
   *puVar1 = *puVar1 & 0xff000000 | pkt_addr24;
   color_word = *(int *)color;
   prim[3] = 5;
@@ -1357,11 +1346,11 @@ void Flare_QuadRing(long *pt,CVECTOR *color,int otz)
   
   prim = Render_gPacketPtr;
   puVar1 = (u_int *)(Render_gPalettePtr + otz * 4);
-  *(u_int *)Render_gPacketPtr = *(u_int *)Render_gPacketPtr & 0xff000000 | *puVar1 & 0xffffff;
-  *puVar1 = *puVar1 & 0xff000000 | (u_int)Render_gPacketPtr & 0xffffff;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *puVar1 & 0xffffff;
+  *puVar1 = *puVar1 & 0xff000000 | (u_int)prim & 0xffffff;
   innerColor = *(int *)color;
-  prev_pkt_slot = Render_gPacketPtr + 0xc;
-  Render_gPacketPtr = Render_gPacketPtr + 0x24;
+  prev_pkt_slot = prim + 0xc;
+  Render_gPacketPtr = prim + 0x24;
   *(u_int *)prev_pkt_slot = 0;
   *(int *)(prim + 4) = innerColor;
   outerColor = *(int *)color;
@@ -1395,9 +1384,9 @@ void Flare_TextureQuad(long *pt,CVECTOR *color,char type,int otz)
   
   prim = Render_gPacketPtr;
   puVar3 = (u_int *)(Render_gPalettePtr + otz * 4);
-  *(u_int *)Render_gPacketPtr = *(u_int *)Render_gPacketPtr & 0xff000000 | *puVar3 & 0xffffff;
-  pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x28;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *puVar3 & 0xffffff;
+  Render_gPacketPtr = prim + 0x28;
+  pkt_addr24 = (u_int)prim & 0xffffff;
   *puVar3 = *puVar3 & 0xff000000 | pkt_addr24;
   color_word = *(int *)color;
   prim[3] = 9;
@@ -1456,7 +1445,8 @@ void Flare_SingleColorHex(DVECTOR *xy,CVECTOR *color,int width,int height,int ot
   }
   sVar1 = (short)(iVar4 >> 2);
   pt[0].vx = xy->vx - sVar1;
-  sVar2 = (short)(height / 2);
+  height = height / 2;
+  sVar2 = (short)height;
   pt[0].vy = xy->vy + sVar2;
   pt[1].vx = xy->vx + sVar1;
   pt[1].vy = xy->vy + sVar2;
@@ -1523,6 +1513,8 @@ void Flare_SingleColorOctRing(DVECTOR *xy,CVECTOR *color,int width,int height,in
   int width2;
   DVECTOR pt [18];
   
+  width2 = width + -5;
+  height2 = height + -5;
   i = 0;
   uVar3 = 0;
   do {
@@ -1542,12 +1534,12 @@ void Flare_SingleColorOctRing(DVECTOR *xy,CVECTOR *color,int width,int height,in
       iVar1 = iVar1 + 0xff;
     }
     pt[uVar3].vy = xy->vy + (short)((u_int)iVar1 >> 8);
-    iVar1 = (width + -5) * (int)Flare_gOct[uVar2].vx;
+    iVar1 = width2 * (int)Flare_gOct[uVar2].vx;
     if (iVar1 < 0) {
       iVar1 = iVar1 + 0xff;
     }
     pt[uVar3 + 1].vx = xy->vx + (short)((u_int)iVar1 >> 8);
-    iVar1 = (height + -5) * (int)Flare_gOct[uVar2].vy;
+    iVar1 = height2 * (int)Flare_gOct[uVar2].vy;
     if (iVar1 < 0) {
       iVar1 = iVar1 + 0xff;
     }

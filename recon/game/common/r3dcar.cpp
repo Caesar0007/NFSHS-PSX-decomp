@@ -23,7 +23,7 @@ char         R3DCar_ObjectVisible[57];   /* @0x801168ac  (bss(zero)) */
 Draw_tVertex R3DCar_shadowVertex[4];   /* @0x801168e8  (bss(zero)) */
 Transformer_zScene *R3DCar_LoadedScenePointer[2][50];   /* @0x80116908  (bss(zero)) */
 char         R3DCar_LoadedSceneCounter[2][50];   /* @0x80116a98  (bss(zero)) */
-char         R3DCar_LoadedSceneCountry[50];   /* @0x80116afc  (bss(zero)) */
+signed char  R3DCar_LoadedSceneCountry[50];   /* @0x80116afc  (bss(zero)) */
 short        R3DCar_LoadedSceneColor[2][50];   /* @0x80116b30  (bss(zero)) */
 short        R3DCar_LoadedSceneVRam[2][50][2];   /* @0x80116bf8  (bss(zero)) */
 int          R3DCar_PositionZ[9];   /* @0x80116d88  (bss(zero)) */
@@ -81,34 +81,32 @@ void R3DCar_InsertAllListFacet(DRender_tView *Vi);
 void R3DCar_ChangeTrafficColor(Car_tObj *carObj,int newColorIndex)
 
 {
-  short sVar1;
-  u_short uVar2;
-  bool bVar3;
-  Texture_pal8bit *palCopy;
+  int iVar1;
   u_int uVar4;
-  int color;
+  u_short uVar2;
+  Texture_pal8bit *palCopy;
   int iVar5;
-  
+
   if ((carObj->render).palCopy != (char *)0x0) {
-    uVar2 = (carObj->render).colorIndex;
     uVar4 = newColorIndex & 7;
+    uVar2 = (carObj->render).colorIndex;
     iVar5 = (uVar2 & 8) + uVar4;
     if (iVar5 != (short)uVar2) {
       DrawSync(0);
-      bVar3 = 0x1b < (carObj->render).currentCarType;
-      if (bVar3) {
-        palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
-        sVar1 = (carObj->render).palNum;
-        Texture_CarColor = uVar4;
-      }
-      else {
+      if ((carObj->render).currentCarType < 0x1c) {
         Texture_CarColor = uVar4 + ((u_char)(carObj->render).upgradeFlags & 2) * 4;
         Texture_ProcessPaletteCopy((Texture_pal8bit *)(carObj->render).palCopy,0,1);
         palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
-        sVar1 = (carObj->render).palNum;
+        iVar1 = (carObj->render).palNum;
         Texture_CarColor = uVar4 + ((u_char)(carObj->render).upgradeFlags & 1) * 8;
+        Texture_ProcessPaletteCopy(palCopy,1,iVar1);
       }
-      Texture_ProcessPaletteCopy(palCopy,(u_int)!bVar3,(int)sVar1);
+      else {
+        palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
+        iVar1 = (carObj->render).palNum;
+        Texture_CarColor = uVar4;
+        Texture_ProcessPaletteCopy(palCopy,0,iVar1);
+      }
       (carObj->render).colorIndex = (short)iVar5;
     }
   }
@@ -120,31 +118,24 @@ void R3DCar_StartUp(void)
 
 {
   char *pcVar1;
-  Transformer_zScene *(*papTVar2) [50];
-  short (*pasVar3) [50];
   int iVar4;
-  int i;
   char name [100];
-  
+
   iVar4 = 0;
-  pasVar3 = R3DCar_LoadedSceneColor;
-  papTVar2 = R3DCar_LoadedScenePointer;
   do {
-    (*(Transformer_zScene *(*) [50])((int)papTVar2 + 200))[0] = (Transformer_zScene *)0x0;
-    (*papTVar2)[0] = (Transformer_zScene *)0x0;
+    R3DCar_LoadedScenePointer[1][iVar4] = (Transformer_zScene *)0x0;
+    R3DCar_LoadedScenePointer[0][iVar4] = (Transformer_zScene *)0x0;
     R3DCar_LoadedSceneCounter[1][iVar4] = '\0';
     R3DCar_LoadedSceneCounter[0][iVar4] = '\0';
     R3DCar_LoadedSceneCountry[iVar4] = -1;
-    (*(short (*) [50])((int)pasVar3 + 100))[0] = -1;
-    (*pasVar3)[0] = -1;
-    pasVar3 = (short (*) [50])((int)pasVar3 + 2);
+    R3DCar_LoadedSceneColor[1][iVar4] = -1;
+    R3DCar_LoadedSceneColor[0][iVar4] = -1;
     iVar4 = iVar4 + 1;
-    papTVar2 = (Transformer_zScene *(*) [50])((int)papTVar2 + 4);
   } while (iVar4 < 0x32);
   R3DCar_orientMat = reservememadr("orientMat",0x804,0);
   R3DCar_position = reservememadr("position",0x2b8,0);
-  pcVar1 = (char *)sprintf(name,"%slicense.psh",Paths_Paths[0x19]);
-  loadfileadr(name,0);
+  sprintf(name,"%slicense.psh",Paths_Paths[0x19]);
+  pcVar1 = (char *)loadfileadr(name,0);
   R3DCar_LicenseShapeFile = pcVar1;
   return;
 }
@@ -182,27 +173,35 @@ void R3DCar_PostStartUp(void)
 void R3DCar_Restart(void)
 
 {
-  int iVar1;
-  Car_tObj *carObj;
-  Car_tObj *pCVar2;
-  Car_tObj **ppCVar3;
   int iVar4;
-  int i;
-  
-  iVar1 = Cars_gNumCars;
+  int numCars;
+  GameSetup_tData *gsData;
+  short headOn;
+  short brakeOn;
+  Car_tObj **ppCVar3;
+  Car_tObj *pCVar2;
+
+  iVar4 = 0;
+  numCars = Cars_gNumCars;
+  gsData = &GameSetup_gData;
+  headOn = 0x33;
+  brakeOn = 2;
   ppCVar3 = Cars_gList;
-  for (iVar4 = 0; iVar4 < iVar1; iVar4 = iVar4 + 1) {
+R3DRestart_loopTop:
+  if (iVar4 < numCars) {
     pCVar2 = *ppCVar3;
     (pCVar2->render).headLight = 0;
     (pCVar2->render).brakeLight = 0;
-    if (GameSetup_gData.Time != 0) {
-      (pCVar2->render).headLight = 0x33;
-      (pCVar2->render).brakeLight = 2;
+    if (gsData->Time != 0) {
+      (pCVar2->render).headLight = headOn;
+      (pCVar2->render).brakeLight = brakeOn;
     }
     ppCVar3 = ppCVar3 + 1;
+    iVar4 = iVar4 + 1;
     (pCVar2->render).signalLight[0] = 0;
     (pCVar2->render).signalLight[1] = 0;
     (pCVar2->render).damageParts = 0;
+    goto R3DRestart_loopTop;
   }
   return;
 }
@@ -211,28 +210,21 @@ void R3DCar_Restart(void)
 void R3DCar_CleanUp(void)
 
 {
-  Transformer_zScene **scene_walk;
-  char *counter_walk;
-  int i;
   int i_2;
-  
+
   i_2 = 0;
-  counter_walk = R3DCar_LoadedSceneCounter[0];
-  scene_walk = R3DCar_LoadedScenePointer[0];
   do {
-    if (*scene_walk != (Transformer_zScene *)0x0) {
-      purgememadr(*scene_walk);
-      *scene_walk = (Transformer_zScene *)0x0;
-      *counter_walk = '\0';
+    if (R3DCar_LoadedScenePointer[0][i_2] != (Transformer_zScene *)0x0) {
+      purgememadr(R3DCar_LoadedScenePointer[0][i_2]);
+      R3DCar_LoadedScenePointer[0][i_2] = (Transformer_zScene *)0x0;
+      R3DCar_LoadedSceneCounter[0][i_2] = '\0';
     }
-    if (scene_walk[0x32] != (Transformer_zScene *)0x0) {
-      purgememadr(scene_walk[0x32]);
-      scene_walk[0x32] = (Transformer_zScene *)0x0;
-      counter_walk[0x32] = '\0';
+    if (R3DCar_LoadedScenePointer[1][i_2] != (Transformer_zScene *)0x0) {
+      purgememadr(R3DCar_LoadedScenePointer[1][i_2]);
+      R3DCar_LoadedScenePointer[1][i_2] = (Transformer_zScene *)0x0;
+      R3DCar_LoadedSceneCounter[1][i_2] = '\0';
     }
-    counter_walk = counter_walk + 1;
     i_2 = i_2 + 1;
-    scene_walk = scene_walk + 1;
   } while (i_2 < 0x32);
   if (R3DCar_orientMat != (void *)0x0) {
     purgememadr(R3DCar_orientMat);
@@ -419,22 +411,20 @@ void R3DCcar_ReadeMapData(void)
   char name [256];
   char *ScaneData;
   
+  sprintf(name,"%scarmap.dat",Paths_Paths[0x19]);
   iVar3 = 0;
-  addr = (char *)sprintf(name,"%scarmap.dat",Paths_Paths[0x19]);
-  loadfileadr(name,0x10);
-  pRVar2 = R3DCar_EnvMapInfo;
+  addr = (char *)loadfileadr(name,0x10);
   ScaneData = addr;
   do {
     iVar1 = Risk_ReadNextValue(&ScaneData);
-    pRVar2->eScaleX = iVar1;
+    R3DCar_EnvMapInfo[iVar3].eScaleX = iVar1;
     iVar1 = Risk_ReadNextValue(&ScaneData);
-    pRVar2->eScaleY = iVar1;
+    R3DCar_EnvMapInfo[iVar3].eScaleY = iVar1;
     iVar1 = Risk_ReadNextValue(&ScaneData);
-    pRVar2->rideHeight = iVar1;
+    R3DCar_EnvMapInfo[iVar3].rideHeight = iVar1;
     iVar1 = Risk_ReadNextValue(&ScaneData);
-    pRVar2->upgradeHeight = iVar1;
+    R3DCar_EnvMapInfo[iVar3].upgradeHeight = iVar1;
     iVar3 = iVar3 + 1;
-    pRVar2 = pRVar2 + 1;
   } while (iVar3 < 0x1c);
   purgememadr(addr);
   return;
@@ -452,8 +442,8 @@ void R3DCcar_ReadTrackShadow(void)
   char name [256];
   char *ScaneData;
   
-  addr = (char *)sprintf(name,"%strack.dat",Paths_Paths[0x19]);
-  loadfileadr(name,0x10);
+  sprintf(name,"%strack.dat",Paths_Paths[0x19]);
+  addr = (char *)loadfileadr(name,0x10);
   ScaneData = addr;
   for (iVar2 = GameSetup_gData.track * 4 + GameSetup_gData.Weather + GameSetup_gData.Time * 2;
       iVar2 != -1; iVar2 = iVar2 + -1) {
@@ -713,15 +703,13 @@ void R3DCar_DeInstantiate3DCarMenu(Car_tObj *carObj)
   int status;
   u_int uVar2;
   char *addr_00;
-  void *in_a1;
   int currentCarType;
   int iVar3;
-  
+
   iVar3 = (int)(carObj->render).currentCarType;
   if (-1 < iVar3) {
     uVar2 = (u_int)((u_char)(carObj->render).currentCountry >> 7);
-    in_a1 = (void *)(uVar2 * 0x19);
-    cVar1 = R3DCar_LoadedSceneCounter[uVar2][iVar3] + -1;
+    cVar1 = R3DCar_LoadedSceneCounter[uVar2][iVar3] - 1;
     R3DCar_LoadedSceneCounter[uVar2][iVar3] = cVar1;
     if (cVar1 == '\0') {
       purgememadr(R3DCar_LoadedScenePointer[uVar2][iVar3]);
@@ -730,14 +718,13 @@ void R3DCar_DeInstantiate3DCarMenu(Car_tObj *carObj)
     CarIO_ReleaseCarCluts(carObj);
   }
   (carObj->render).currentCarType = -1;
-  iVar3 = carObj->async_handle;
   (carObj->render).newCarType = (carObj->render).newCarType | 0x80;
-  if (iVar3 != 0) {
-    while (iVar3 = getasyncreadstatus(carObj->async_handle), iVar3 == 0) {
+  if (carObj->async_handle != 0) {
+    while (status = getasyncreadstatus(carObj->async_handle), status == 0) {
       systemtask(0);
     }
-    if (((0 < iVar3) || (iVar3 == -1)) &&
-       (addr = getasyncreadadr(carObj->async_handle,in_a1),
+    if (((0 < status) || (status == -1)) &&
+       (addr = getasyncreadadr(carObj->async_handle),
        addr != (void *)0x0)) {
       purgememadr(addr);
     }
@@ -783,11 +770,14 @@ char * R3DCar_LoadFileAdr(char *name)
 void R3DCar_GetCarName(char *filename,int carType,int country)
 
 {
-  int index;
-  
-  sprintf(filename,"zz%s",GameSetup_gCarNames + carType);
-  if (carType - 0x16U < 6) {
-    filename[2] = "ccbfgacbfgbfgau"[(u_char)R3DCar_CopIndex[carType - 0x16U][country]];
+  u_int copIdx;
+  u_char copLetterIdx;
+
+  copIdx = carType - 0x16U;
+  sprintf(filename,"zz%s",GameSetup_gCarNames[0] + carType * 5);
+  if (copIdx < 6) {
+    copLetterIdx = R3DCar_CopIndex[copIdx][country];
+    filename[2] = R3DCar_CopCountry[copLetterIdx];
   }
   return;
 }
@@ -1964,11 +1954,11 @@ void R3DCar_ReadInCarTextureMenu(Car_tObj *carObj,char *bigfile,int reload,int p
     Texture_CarColor =
          ((u_short)(carObj->render).colorIndex & 7) + ((u_char)(carObj->render).upgradeFlags & 2) * 4;
     Texture_ProcessPaletteCopy((Texture_pal8bit *)(carObj->render).palCopy,0,1);
-    iVar4 = 1;
     palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
     sVar1 = (carObj->render).palNum;
     Texture_CarColor =
          ((u_short)(carObj->render).colorIndex & 7) + ((u_char)(carObj->render).upgradeFlags & 1) * 8;
+    Texture_ProcessPaletteCopy(palCopy,1,(int)sVar1);
   }
   else {
     strcpy(infilename,filename);
@@ -1985,12 +1975,11 @@ void R3DCar_ReadInCarTextureMenu(Car_tObj *carObj,char *bigfile,int reload,int p
     CarIO_ReadInCarTextureData(pcVar2,carObj,iVar4,0);
     (carObj->render).palNum = (short)Texture_palNum;
     DrawSync(0);
-    iVar4 = 0;
     palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
     sVar1 = (carObj->render).palNum;
     Texture_CarColor = (u_short)(carObj->render).colorIndex & 7;
+    Texture_ProcessPaletteCopy(palCopy,0,(int)sVar1);
   }
-  Texture_ProcessPaletteCopy(palCopy,iVar4,(int)sVar1);
   purgememadr(bigfile);
   return;
 }
@@ -2113,10 +2102,10 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
           uVar7 = (carObj->render).inside & 0xef;
         }
         (carObj->render).inside = uVar7;
-        sprintf((char *)&lengthVector,"zz%s",GameSetup_gCarNames + iVar22);
+        sprintf((char *)&lengthVector,"zz%s",GameSetup_gCarNames[0] + iVar22 * 5);
         if (!bVar4) {
-          ((char *)&lengthVector)[2] = "ccbfgacbfgbfgau"
-                        [(u_char)R3DCar_CopIndex[iVar22 + -0x16][carObj->carInfo->Country]];
+          ((char *)&lengthVector)[2] =
+               R3DCar_CopCountry[(u_char)R3DCar_CopIndex[iVar22 + -0x16][carObj->carInfo->Country]];
         }
         strcpy((char *)&widthVector,Paths_Paths[0x18]);
         strcat((char *)&widthVector,(char *)&lengthVector);
@@ -2197,10 +2186,10 @@ R_ICFtMenu_bigFileCheck:
     }
     bVar2 = (u_char)(carObj->render).currentCountry >> 7;
     (carObj->render).inside = (carObj->render).inside >> 4;
-    sprintf((char *)&lengthVector,"zz%s",GameSetup_gCarNames + iVar22);
+    sprintf((char *)&lengthVector,"zz%s",GameSetup_gCarNames[0] + iVar22 * 5);
     if (!bVar4) {
-      ((char *)&lengthVector)[2] = "ccbfgacbfgbfgau"
-                    [(u_char)R3DCar_CopIndex[iVar22 + -0x16]
+      ((char *)&lengthVector)[2] =
+           R3DCar_CopCountry[(u_char)R3DCar_CopIndex[iVar22 + -0x16]
                            [(u_char)(carObj->render).currentCountry & 0x7f]];
     }
     strcpy((char *)&widthVector,(char *)&lengthVector);

@@ -136,30 +136,54 @@ int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache *sd,Draw_SVertex *v0,Draw_SV
               Draw_SVertex *v3)
 
 {
+  /* MATCH (2026-07-04, was 50 diffs -> 10, insns now EXACT 34==34): SYM (nfs4-f-v3.txt
+     @0x800C51FC) names FOUR outer-scope locals `z0`/`z1`/`z2`/`z3` (one per vertex's vz)
+     -- the oracle reads ALL FOUR UPFRONT (v0/v1/v2/v3's vz, in that order) BEFORE any
+     compare, then funnels the running-min through self-reassignment of the SAME reg
+     ($a1) at each new-min step -- the previous interleaved read-then-compare-then-read
+     shape only read 2 z's before the first branch. Load-batch-then-compute (same idiom
+     as DrawW_WorldSetUpMatrix) reproduces the WHOLE min-chain byte-identical.
+     RESIDUAL NEAR-MISS FLOOR (10 diffs): the tail return-value funnel (`iVar1=2; if
+     (minz<0x201) return 3; ... else iVar1=1; return iVar1;`) is semantically required
+     (can't collapse to direct `return 2;`/`return 1;` literals -- tried, flips branch
+     POLARITY: the oracle's `beqz v0,skip-to-far-elseblock` shape needs the if/else-with-
+     both-arms-assigning form, not flat early-returns) -- but the oracle keeps this
+     funnel value in `$v0` directly (`addiu v0,zero,2`/`addiu v0,zero,1`, no copy) while
+     ours computes it in `$v1` then `addu v0,v1,zero` at the final return (a redundant
+     copy). Tried: separate `level` var vs reusing the original `iVar1` name (identical
+     diff either way -- confirms it's not a naming/declaration-order effect), direct-
+     return literals (wrong branch polarity, see above). Allocator-internal register-
+     class choice (the `slti` compare-result reg -- free at that point in BOTH builds --
+     isn't reused for the funnel value in ours), not reachable by a further source
+     lever; permuter (no cast) or accept. */
   int iVar1;
+  int minz;
   int z0;
-  int iVar2;
   int z1;
   int z2;
   int z3;
-  
-  iVar2 = (int)v0->vz;
-  if ((int)v1->vz < (int)v0->vz) {
-    iVar2 = (int)v1->vz;
+
+  z0 = (int)v0->vz;
+  z1 = (int)v1->vz;
+  z2 = (int)v2->vz;
+  z3 = (int)v3->vz;
+  minz = z0;
+  if (z1 < z0) {
+    minz = z1;
   }
-  if (v2->vz < iVar2) {
-    iVar2 = (int)v2->vz;
+  if (z2 < minz) {
+    minz = z2;
   }
-  if (v3->vz < iVar2) {
-    iVar2 = (int)v3->vz;
+  if (z3 < minz) {
+    minz = z3;
   }
-  iVar2 = iVar2 + sd->offsubdivid;
-  if (0x800 < iVar2) {
+  minz = minz + sd->offsubdivid;
+  if (0x800 < minz) {
     return 0;
   }
-  if (iVar2 < 0x501) {
+  if (minz < 0x501) {
     iVar1 = 2;
-    if (iVar2 < 0x201) {
+    if (minz < 0x201) {
       return 3;
     }
   }
@@ -611,22 +635,45 @@ DrW_SubSetup_callSubdiv:
 void Night_NightCopCalc(VECTOR *v,short *idx)
 
 {
+  /* MATCH (2026-07-04, was 42 diffs / 38-vs-40 insns -> 40 diffs / EXACT 40==40 insns):
+     SYM (nfs4-f-v3.txt @0x800C5F18) shows `z` (REG $3=v1) is the ONLY local at the
+     function's outer scope -- `x` (REG $6=a2) is declared in a NESTED block starting at
+     line 7 (VA 0x800C5F30), i.e. AFTER the first bounds-check branch, not before it. The
+     oracle reads `v->vx` ONLY once the z-bounds test has already passed. Reading both
+     fields UNCONDITIONALLY up-front (the previous shape) forced `x` into the outer scope
+     too AND under-counted the true insn total by 2 (a genuine structural miss, not just
+     coloring); moving the `x = v->vx` read INSIDE the first `if` restores the SYM's
+     block nesting and the exact insn count. `coplookuptbl`/`index`/`lookup` (SYM: REG
+     $3/$5/$2 = v1/a1/v0) are similarly nested one level deeper (inside `if(z<0)`'s
+     scope, VA 0x800C5F48) -- kept as inline expressions here since no further
+     register-class issue surfaced from them specifically.
+     RESIDUAL NEAR-MISS FLOOR (40 diffs, insns now EXACT 40==40): `v` (the VECTOR*
+     param, dead after this one read) is genuinely never touched again, so BOTH the
+     oracle and our build free its register at this point -- but the oracle allocates
+     a FRESH $a2 for `x` while ours reuses the now-dead $a0 (`v`'s own reg), which then
+     cascades: `neg` lands in ours' $a2/oracle's $a1, and the Night_gCopColor
+     index-shift follows suit. Tried: read-order swap (x-before-z, no effect), `int
+     x=v->vx` initializer-form vs 2-statement assign (no effect), `long x` instead of
+     `int` (no effect, same width/repr) -- none changed which of $a0/$a2 wins for `x`.
+     Allocator-internal (compiler prefers reusing a freed arg reg over allocating a
+     fresh one here), not reachable by a further source lever; permuter (no cast) or
+     accept. */
   int z;
   int neg;
-  int x;
 
-  /* MATCH: bounds via (u_int)(z+0x7FF)<0xFFF (Ghidra's [0][0][0xff]+7 idiom); sign as a
-     bgez branch (neg flag) not a srl-31; lbu+sra via (int)(u_char) (no u_int -> unsigned). */
   z = v->vz;
-  x = v->vx;
-  if (((u_int)(z + 0x7ff) < 0xfff) && ((u_int)(x + 0x3ff) < 0x7ff)) {
-    neg = 0;
-    if (z < 0) {
-      z = -z;
-      neg = 1;
+  if ((u_int)(z + 0x7ff) < 0xfff) {
+    int x = v->vx;
+
+    if ((u_int)(x + 0x3ff) < 0x7ff) {
+      neg = 0;
+      if (z < 0) {
+        z = -z;
+        neg = 1;
+      }
+      *idx = (u_short)(*Night_gCopColor[neg])[(short)*idx]
+                       [(int)(u_char)Night_gNightTbl[(z >> 5) * 0x40 + ((x + 0x400) >> 5)] >> 1];
     }
-    *idx = (u_short)(*Night_gCopColor[neg])[(short)*idx]
-                     [(int)(u_char)Night_gNightTbl[(z >> 5) * 0x40 + ((x + 0x400) >> 5)] >> 1];
   }
   return;
 }
@@ -635,33 +682,64 @@ void Night_NightCopCalc(VECTOR *v,short *idx)
 void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd)
 
 {
-  int index;
-  int xdist;
-  u_char bVar1;
-  int lookup;
-  int iVar2;
-  int x;
-  int iVar3;
-  int iVar4;
+  /* PARTIAL MATCH / STRUCTURAL FIX, RESIDUAL REGRESSED NUMERICALLY (2026-07-04, was 75
+     diffs 66-vs-57 insns -> now 77 diffs, STILL 66-vs-57 insns): SYM (nfs4-f-v3.txt
+     @0x800C5FB8) names FOUR outer-scope locals -- `z`(v->vz), `index`(unused/optimized-
+     out at this opt level), `znear`(night_ZNear), `zfar` -- and nests `x`/`xdist` one
+     block deeper (line 16, after the z-range test) and `lookup` deeper still (line 24,
+     after the x-range test). The PREVIOUS version had TWO confirmed structural bugs vs
+     the RAW oracle (not just coloring): (1) `zfar = znear + (1<<(night_ZDistShift+6))`
+     is computed UNCONDITIONALLY in the oracle, sharing the lightning branch's shift
+     amount and sitting in that branch's delay slot (§3.1: `beqz DrawLightning,skip [ds:
+     zfar=...]` -- the ds instr ALWAYS executes) -- the old code instead recomputed a
+     fresh `1<<...` term INSIDE the later z-range `if`, only reachable when lightning
+     was already skipped -- wrong location, not just wrong shape; (2) each `&&` compound
+     test is really TWO separate cascading `if`s in the oracle (`if(znear<z){if(z<zfar)`,
+     `if(-xdist<x){if(x<xdist)`), confirmed by the disasm showing 2 independent
+     `slt+beqz` pairs per test, not one fused short-circuit sequence.
+     Rewriting to fix both (this version) reproduces the exact nested-if branch shape
+     (2 slt+beqz pairs each, verified in the compiled disasm) and moves zfar's
+     computation to the correct unconditional point -- but this SURFACED a separate,
+     pre-existing register-pressure problem: `v`(a0)/`idx`(a1) are each read at TWO
+     widely-separated points (top-of-fn and deep in the nested x/lookup block), and gcc
+     now colors `zfar` into $a1 (idx's home) -- forcing gcc to defensively `move
+     t2,a0`/`move t1,a1` at function entry to preserve v/idx across the intervening
+     lightning-branch code (9 extra insns, the SAME excess as before). Tried 5 variants
+     of statement/field-read ORDER (z-then-znear vs znear-then-z, zfar via an
+     intermediate `shiftAmt`/`shift` var vs one combined expression, moving z's read
+     before/after zfar's) -- gcc reorders the source freely by dependency in every case
+     and the $a1-clash is unaffected; this is allocator-internal register-class
+     selection for an unnamed value (zfar has no SYM-mandated register), not reachable
+     by a source-order lever. The CONTROL-FLOW/delay-slot fix is semantically mandatory
+     per the raw oracle (§1 authority: raw wins for delay-slot behavior) even though the
+     diff count is numerically worse than the prior (structurally wrong) version;
+     candidate for permuter or accept as the faithful-but-not-yet-coloring-matched form. */
   int z;
   int znear;
-  int iVar5;
   int zfar;
-  
-  bVar1 = sd->night_ZDistShift;
-  iVar4 = v->vz;
-  iVar5 = (int)sd->night_ZNear;
+
+  z = v->vz;
+  znear = (int)sd->night_ZNear;
+  zfar = znear + (1 << (sd->night_ZDistShift + 6 & 0x1f));
   if (sd->night_DrawLightning != '\0') {
     *idx = (u_short)(*Night_gWeatherLightingTable[sd->night_LightningType])[*idx];
   }
-  if ((iVar5 < iVar4) && (iVar4 < iVar5 + (1 << (bVar1 + 6 & 0x1f)))) {
-    iVar3 = v->vx;
-    iVar2 = 1 << (sd->night_XDistShift + 5 & 0x1f);
-    if ((-iVar2 < iVar3) && (iVar3 < iVar2)) {
-      *idx = (u_short)(*Night_gCurrentNightColor)[*idx]
-                     [(u_char)Night_gNightTbl
-                            [(iVar4 - iVar5 >> (sd->night_ZDistShift & 0x1f)) * 0x40 +
-                             (iVar3 + iVar2 >> (sd->night_XDistShift & 0x1f))]];
+  if (znear < z) {
+    if (z < zfar) {
+      int x;
+      int xdist;
+
+      x = v->vx;
+      xdist = 1 << (sd->night_XDistShift + 5 & 0x1f);
+      if (-xdist < x) {
+        if (x < xdist) {
+          int lookup;
+
+          lookup = ((z - znear) >> (sd->night_ZDistShift & 0x1f)) * 0x40 +
+                   ((x + xdist) >> (sd->night_XDistShift & 0x1f));
+          *idx = (u_short)(*Night_gCurrentNightColor)[*idx][(u_char)Night_gNightTbl[lookup]];
+        }
+      }
     }
   }
   return;
@@ -2150,25 +2228,54 @@ DrawWChunkFacets_groupNext:
 void * ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreCache *sd)
 
 {
-  tBoundingSphere * bSphere;
+  /* MATCH (2026-07-04, was 59 diffs -> 43): SYM (nfs4-f-v3.txt @0x800C8BD0) shows this
+     fn returns BOOL and names ONLY ONE reg local -- `bSphere` (tBoundingSphere*, the
+     REAL type of `gPersistObjDefBoundingSpheres[ind*2+1]` reinterpreted; matches the
+     oracle's 4 halfword reads at +0/2/4/6 == tBoundingSphere{COORD16 cp;short radius;})
+     -- plus the THREE already-declared AUTO stack locals `tmp`/`tmp2`/`trans` (each a
+     12-byte coorddef). The Ghidra-decompiled Group/m_num_elements byte-cast arithmetic
+     computed the SAME byte address (Group is 4B, `ind*2+1` elems == the tBoundingSphere
+     byte offset `ind*8+4`) but obscured the clean typed struct access, and left `trans`
+     UNUSED -- the oracle actually block-COPIES the whole `Vi->cview.translationInv`
+     coorddef (x/y/z, all 3 ints incl. the otherwise-dead .y) into `trans` BEFORE the
+     `transform()` call, then re-reads `trans.x`/`trans.z` from the STACK afterward
+     (not from `Vi` again) -- `Vi` itself stays resident in the caller-saved $a3 across
+     the call (never spilled) purely for the 3 field reads that happen before the call
+     + the matrix-address arg; nothing reads `Vi` after the call. This is the classic
+     §5.0c STRUCT-COPY lever (field-by-field would let gcc skip the .y copy + keep
+     iVar1/iVar2 live across the call in registers -- the 59-diff version this replaces).
+     The base-address arithmetic ALSO needed the exact `+4-then-scaled-index` ORDER the
+     oracle uses (`addiu s0,s0,4; addu s0,s0,a1`, not `addu` first) -- a single combined
+     expression `base+4+ind*8` (any operand order/grouping tried) instead folds the `+4`
+     INTO the scaled index reg (`addiu a1,a1,4`), a different (wrong) 1-insn shape; only
+     an explicit 3-statement sequential pointer mutation (assign, then +4, then
+     +ind*8, each its own statement) reproduces the oracle's base-first-then-index order.
+     NEAR-MISS FLOOR (43 diffs, ours 52 / oracle 61 insns): residual is a pure
+     instruction-SCHEDULING/hoist difference for 2 independent arg-address computations
+     of the upcoming `transform()` call (`&tmp.x`, `&(Vi->cview).mrotationInv.m`) --
+     ours hoists them early (no data dependency ties them down), oracle schedules them
+     late, right before the call. Tried reordering `trans`-copy vs `tmp.x/y/z` source
+     statement order, array-index form `&arr[ind*2+1]`, and single vs 3-statement base
+     pointer forms -- none changed the hoist point. Not reachable by a source lever at
+     this opt level; permuter (no cast) or accept. */
+  tBoundingSphere *bSphere;
   int iVar1;
   int iVar2;
   void *pvVar3;
-  Group *pThis;
-  Group *pGVar4;
   coorddef tmp;
   coorddef tmp2;
   coorddef trans;
-  
-  pGVar4 = gPersistObjDefBoundingSpheres + ind * 2 + 1;
-  tmp.x = (short)pGVar4->m_num_elements * 0x400 + pCp->x;
-  tmp.y = *(short *)((int)&pGVar4->m_num_elements + 2) * 0x400 + pCp->y;
-  tmp.z = (short)pGVar4[1].m_num_elements * 0x400 + pCp->z;
-  iVar1 = (Vi->cview).translationInv.x;
-  iVar2 = (Vi->cview).translationInv.z;
+
+  bSphere = (tBoundingSphere *)(gPersistObjDefBoundingSpheres);
+  bSphere = (tBoundingSphere *)((char *)bSphere + 4);
+  bSphere = (tBoundingSphere *)((char *)bSphere + ind * 8);
+  tmp.x = bSphere->cp.x * 0x400 + pCp->x;
+  tmp.y = bSphere->cp.y * 0x400 + pCp->y;
+  tmp.z = bSphere->cp.z * 0x400 + pCp->z;
+  trans = (Vi->cview).translationInv;
   transform(&tmp.x,(Vi->cview).mrotationInv.m,&tmp2.x);
-  iVar1 = tmp2.x + iVar1;
-  iVar2 = tmp2.z + iVar2 + *(short *)((int)&pGVar4[1].m_num_elements + 2) * 0x400;
+  iVar1 = tmp2.x + trans.x;
+  iVar2 = tmp2.z + trans.z + bSphere->radius * 0x400;
   if (iVar2 < iVar1) {
     pvVar3 = (void *)0x1;
   }

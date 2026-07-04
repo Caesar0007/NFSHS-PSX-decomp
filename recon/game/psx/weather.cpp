@@ -150,16 +150,18 @@ void Weather_InitRain(void)
 }
 
 /* ---- Weather_InitSplats__Fv  [WEATHER.CPP:182-191] SLD-VERIFIED ----
- * NEAR-MISS 11 diffs (68/69 insns, down from 65 diffs): replaced the manual
- * (u64)rnd*0xcccccccd>>0x28 emulation with a plain `% 320` (gcc-2.8 -O2 auto-generates the
- * identical multu+mfhi magic-divide from a real modulo -- the 64-bit cast forced an unwanted
- * mflo too); hoisted &GameSetup_gData + the constant 1 into named locals (gs/commModeNetwork,
- * held across the whole loop like the oracle's s4/s3). Residual 11: the oracle ROTATES the loop
- * (single top-of-loop test reached both on entry AND via an unconditional `j` at the back-edge)
- * while ours keeps a bottom re-test (`for`/`while`/`do-while` + early-return guard all produce
- * the SAME shape on this compiler) -- a loop-rotation codegen difference, not reachable via the
- * source-level loop-shape levers tried. */
-void Weather_InitSplats(void)
+ * NEAR-MISS 7 diffs (68/69 insns, down from 11): moving `splat_i = 0` to be the FIRST statement
+ * (before gs/commModeNetwork) fixed the callee-saved SAVE ORDER (oracle inits+saves $s2 first, as
+ * the loop counter is the first-used var per IDA sub_800E1FD8). Also made the return type the TRUE
+ * `int` per IDA (`BOOL f(){ for(i=0;;++i){ result=i<19; if(i>=19)break; ...} return result; }`) --
+ * the SYM types it VOID but the codegen returns the loop's final `i<19` in $v0 (same void-return
+ * mistype class as Ghidra, methodology 3.2; the sole caller ignores the value so `int` is harmless).
+ * Kept the plain `% 320`/`% y_max`/`% 300` (gcc-2.8 -O2 auto-emits the multu+mfhi magic-divide; a
+ * 64-bit cast forced an unwanted mflo). Residual 7: the oracle keeps the loop UN-rotated (top-test
+ * `slti;beqz->exit` + unconditional `j` back-edge) while gcc rotates ours to a bottom-test `slti;
+ * bnez` -- gcc-2.8 rotates because 0<19 folds true; no for/while/infinite-for/live-out-result source
+ * form defeats the rotation. Genuine loop-rotation codegen floor (permuter class). */
+int Weather_InitSplats(void)
 
 {
   u_int rnd;
@@ -168,12 +170,16 @@ void Weather_InitSplats(void)
   u_int y_max;
   int i;
   int splat_i;
+  int result;
   GameSetup_tData *gs;
   int commModeNetwork;
 
+  splat_i = 0;
   gs = &GameSetup_gData;
   commModeNetwork = 1;
-  for (splat_i = 0; splat_i < 0x13; splat_i = splat_i + 1) {
+  for ( ; ; splat_i = splat_i + 1) {
+    result = splat_i < 0x13;
+    if (splat_i >= 0x13) break;
     y_max = 0xf0;
     if (gs->commMode == commModeNetwork) {
       y_max = 0x78;
@@ -187,7 +193,7 @@ void Weather_InitSplats(void)
     uVar1 = random();
     Weather_gSplatInfo[splat_i].startTick = uVar1 % 300;
   }
-  return;
+  return result;
 }
 
 /* ---- Weather_GetNewState__Fv  [WEATHER.CPP:238-249] SLD-VERIFIED ---- */

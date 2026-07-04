@@ -23,7 +23,7 @@ extern DrawC_tEnvMap     *DrawC_gEnvMap, *DrawC_gShadow;
 extern int                DrawC_gEnvMapMax, DrawC_gShadowMax, DrawC_gWetRoad;
 extern MATRIX             DrawC_gScreenMat;
 extern GameSetup_tData    GameSetup_gData;
-extern char               GameSetup_gCarNames[][8];
+extern char               GameSetup_gCarNames[51][5];
 extern char              *Paths_Paths[];
 extern int                Render_gMenuRenderFlag;
 extern int                Texture_CarColor, Texture_palNum;
@@ -71,7 +71,7 @@ extern void  TrsProj_TransformProjectVertex(matrixtdef *m, coorddef *t, int n, c
 // [owned->defined in r3dcar.cpp] extern Draw_tVertex       R3DCar_shadowVertex[4];            /* 32B */
 // [owned->defined in r3dcar.cpp] extern Transformer_zScene *R3DCar_LoadedScenePointer[2][50]; /* 400B */
 // [owned->defined in r3dcar.cpp] extern char               R3DCar_LoadedSceneCounter[2][50];  /* 100B */
-// [owned->defined in r3dcar.cpp] extern char               R3DCar_LoadedSceneCountry[52];     /* 52B */
+// [owned->defined in r3dcar.cpp] extern signed char        R3DCar_LoadedSceneCountry[52];     /* 52B: signed sentinel -1 (§3.12 #9 char-unsigned-default) */
 // [owned->defined in r3dcar.cpp] extern short              R3DCar_LoadedSceneColor[2][50];    /* 200B */
 // [owned->defined in r3dcar.cpp] extern short              R3DCar_LoadedSceneVRam[2][50][2];  /* 400B: [color][carType][x,y] */
 // [owned->defined in r3dcar.cpp] extern int                R3DCar_PositionZ[9];               /* 36B */

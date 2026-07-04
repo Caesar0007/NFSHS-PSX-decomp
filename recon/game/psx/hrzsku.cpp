@@ -511,9 +511,12 @@ void Hrz_GetHorizonPixMap(Draw_tPixMap *p)
   int i;
   int src_off;
   int dst_off;
+  int pixmap_base;
+  int pixmap_base2;
 
   i = 0xb;
-  skytbl_walk = &gHorizonPixmap[0xb];
+  pixmap_base = (int)&gHorizonPixmap;
+  skytbl_walk = (Draw_tPixMap **)(pixmap_base + 0x2c);
   p_walk = p + 0xb;
   do {
     *skytbl_walk = p_walk;
@@ -522,15 +525,16 @@ void Hrz_GetHorizonPixMap(Draw_tPixMap *p)
     p_walk = p_walk + -1;
   } while (-1 < i);
   i = 0;
+  pixmap_base2 = (int)&gHorizonPixmap;
   dst_off = 0x30;
   extra_pmx = (int)&gHorizonExtraSkyPixmaps;
   src_off = 0x20;
   do {
-    tp2 = (void *)((int)&gHorizonPixmap + src_off);
+    tp2 = (void *)(src_off + pixmap_base2);
     src_off = src_off + 4;
     i = i + 1;
     Texture_CloneUVPmx(*(Draw_tPixMap **)tp2,0,(Draw_tPixMap *)extra_pmx);
-    tp3 = (int)&gHorizonPixmap + dst_off;
+    tp3 = dst_off + pixmap_base2;
     dst_off = dst_off + 4;
     *(int *)tp3 = extra_pmx;
     extra_pmx = extra_pmx + 0x10;
@@ -800,20 +804,27 @@ void Hrz_LightningFlicker(int on)
 /* ---- HrzSetPsxMatrix__FP10matrixtdef  [HRZSKU.CPP:982-1017] SLD-VERIFIED ---- */
 void HrzSetPsxMatrix(matrixtdef *m)
 {
-  int r2, r0, r1, t2, t1, t3;
   MATRIX mpsx;
   matrixtdef temp;
-  int *mm = (int *)m;
 
-  mpsx.m[0][0] = (short)(mm[0] >> 4);
-  mpsx.m[0][1] = (short)(mm[3] >> 4);
-  mpsx.m[0][2] = (short)(mm[6] >> 4);
-  mpsx.m[1][0] = (short)(-mm[1] >> 4);
-  mpsx.m[1][1] = (short)(-mm[4] >> 4);
-  mpsx.m[1][2] = (short)(-mm[7] >> 4);
-  mpsx.m[2][0] = (short)(mm[2] >> 4);
-  mpsx.m[2][1] = (short)(mm[5] >> 4);
-  mpsx.m[2][2] = (short)(mm[8] >> 4);
+  temp.m[0] = m->m[0];
+  temp.m[1] = -m->m[1];
+  temp.m[2] = m->m[2];
+  temp.m[3] = m->m[3];
+  temp.m[4] = -m->m[4];
+  temp.m[5] = m->m[5];
+  temp.m[6] = m->m[6];
+  temp.m[7] = -m->m[7];
+  temp.m[8] = m->m[8];
+  mpsx.m[0][0] = (short)(temp.m[0] >> 4);
+  mpsx.m[1][0] = (short)(temp.m[1] >> 4);
+  mpsx.m[2][0] = (short)(temp.m[2] >> 4);
+  mpsx.m[0][1] = (short)(temp.m[3] >> 4);
+  mpsx.m[1][1] = (short)(temp.m[4] >> 4);
+  mpsx.m[2][1] = (short)(temp.m[5] >> 4);
+  mpsx.m[0][2] = (short)(temp.m[6] >> 4);
+  mpsx.m[1][2] = (short)(temp.m[7] >> 4);
+  mpsx.m[2][2] = (short)(temp.m[8] >> 4);
   gte_SetRotMatrix(&mpsx);
 }
 
@@ -860,11 +871,11 @@ void Hrz_SetDitheringPrim(int dither,int otz)
   int loc_8;
   u_char *p;
   
-  p = (u_char *)Render_gPacketPtr;
   prev_pkt_slot = (u_int *)(Render_gPalettePtr + otz * 4);
-  *(u_int *)Render_gPacketPtr = *(u_int *)Render_gPacketPtr & 0xff000000 | *prev_pkt_slot & 0xffffff;
-  pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0xc;
+  p = (u_char *)Render_gPacketPtr;
+  *(u_int *)Render_gPacketPtr = *prev_pkt_slot & 0xffffff | *(u_int *)Render_gPacketPtr & 0xff000000;
+  Render_gPacketPtr = p + 0xc;
+  pkt_addr24 = (u_int)p & 0xffffff;
   *prev_pkt_slot = *prev_pkt_slot & 0xff000000 | pkt_addr24;
   SetDrawMode((DR_MODE *)p,0,dither,0x100,(RECT *)0x0);
   return;

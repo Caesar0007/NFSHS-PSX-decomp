@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX, 0x9C
 
 glabel DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX

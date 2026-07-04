@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching FILE_cancelop, 0x1B4
 
 glabel FILE_cancelop

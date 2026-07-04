@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching Weather_SetMatrix__FP10matrixtdef, 0xC4
 
 glabel Weather_SetMatrix__FP10matrixtdef

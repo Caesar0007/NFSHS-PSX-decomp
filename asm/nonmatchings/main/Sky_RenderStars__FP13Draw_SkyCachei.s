@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching Sky_RenderStars__FP13Draw_SkyCachei, 0x1BC
 
 glabel Sky_RenderStars__FP13Draw_SkyCachei

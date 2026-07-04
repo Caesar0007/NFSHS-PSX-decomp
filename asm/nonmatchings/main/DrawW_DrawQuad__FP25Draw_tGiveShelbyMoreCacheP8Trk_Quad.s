@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad, 0x940
 
 glabel DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad

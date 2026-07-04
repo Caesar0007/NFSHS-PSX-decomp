@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache, 0x4A4
 
 glabel DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache

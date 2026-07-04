@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching TrsProj_SetMenuProjection__Fiiii, 0x40
 
 glabel TrsProj_SetMenuProjection__Fiiii

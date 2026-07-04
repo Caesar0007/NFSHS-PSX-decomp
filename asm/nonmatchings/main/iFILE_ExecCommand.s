@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching iFILE_ExecCommand, 0x488
 
 glabel iFILE_ExecCommand

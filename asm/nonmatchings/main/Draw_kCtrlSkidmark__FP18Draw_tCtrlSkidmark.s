@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark, 0x584
 
 glabel Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark

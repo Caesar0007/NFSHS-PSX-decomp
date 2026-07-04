@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR, 0x44
 
 glabel Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR

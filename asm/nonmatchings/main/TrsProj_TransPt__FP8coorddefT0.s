@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching TrsProj_TransPt__FP8coorddefT0, 0x8C
 
 glabel TrsProj_TransPt__FP8coorddefT0

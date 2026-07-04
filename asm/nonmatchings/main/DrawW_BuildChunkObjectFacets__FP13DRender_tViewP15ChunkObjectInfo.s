@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo, 0x6C8
 
 glabel DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo

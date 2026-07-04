@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache, 0x9D8
 
 glabel Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache

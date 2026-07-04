@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX, 0x44
 
 glabel DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX

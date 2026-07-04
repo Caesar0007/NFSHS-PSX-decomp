@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching Flare_SetMatrix__FP10matrixtdef, 0xAC
 
 glabel Flare_SetMatrix__FP10matrixtdef

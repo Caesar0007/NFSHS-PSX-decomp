@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching DrawC_NightHeadlight__FP8Car_tObj, 0x1AC
 
 glabel DrawC_NightHeadlight__FP8Car_tObj

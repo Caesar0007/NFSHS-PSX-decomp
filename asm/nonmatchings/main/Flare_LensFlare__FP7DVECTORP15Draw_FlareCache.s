@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching Flare_LensFlare__FP7DVECTORP15Draw_FlareCache, 0x664
 
 glabel Flare_LensFlare__FP7DVECTORP15Draw_FlareCache

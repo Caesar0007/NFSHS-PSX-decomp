@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc, 0x3EC
 
 glabel Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc

@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache, 0x96C
 
 glabel Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache

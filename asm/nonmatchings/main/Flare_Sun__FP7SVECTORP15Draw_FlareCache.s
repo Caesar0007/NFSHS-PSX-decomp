@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching Flare_Sun__FP7SVECTORP15Draw_FlareCache, 0x2EC
 
 glabel Flare_Sun__FP7SVECTORP15Draw_FlareCache

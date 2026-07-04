@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching STREAM_queuemem, 0x12C
 
 glabel STREAM_queuemem

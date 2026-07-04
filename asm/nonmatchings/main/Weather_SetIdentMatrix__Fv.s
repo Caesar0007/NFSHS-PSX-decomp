@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching Weather_SetIdentMatrix__Fv, 0x84
 
 glabel Weather_SetIdentMatrix__Fv

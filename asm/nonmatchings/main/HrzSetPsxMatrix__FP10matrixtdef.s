@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching HrzSetPsxMatrix__FP10matrixtdef, 0xE0
 
 glabel HrzSetPsxMatrix__FP10matrixtdef

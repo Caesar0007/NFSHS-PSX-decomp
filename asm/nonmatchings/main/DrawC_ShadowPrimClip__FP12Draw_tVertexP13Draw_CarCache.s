@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching DrawC_ShadowPrimClip__FP12Draw_tVertexP13Draw_CarCache, 0x53C
 
 glabel DrawC_ShadowPrimClip__FP12Draw_tVertexP13Draw_CarCache

@@ -1,7 +1,6 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-/* Handwritten function */
 nonmatching Sfx_Transform__FP8coorddefP7SVECTORT0, 0x154
 
 glabel Sfx_Transform__FP8coorddefP7SVECTORT0

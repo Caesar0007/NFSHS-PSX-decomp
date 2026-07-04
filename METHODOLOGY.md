@@ -96,6 +96,24 @@ validates this playbook:
 (not structure), it IS the compiler — match a known idiom or grind the permuter; don't
 invent non-original source. SH confirms there's no magic flag; it's source shape + permuter.
 
+## Reference project: Xeeynamo/psyz (PsyQ SDK decomp — the CD/libcd sibling)
+
+[Xeeynamo/psyz](https://github.com/Xeeynamo/psyz) `decomp/` byte-match-decompiles the **PsyQ
+4.0 / 4.7 SDK libraries** (a spin-off of sotn-decomp psxsdk), built with **gcc-2.7.2-psx** — our
+compiler. Cloned locally at `C:\Temp\psyz`. Crucially its **libcd is the fuller/DMA-capable variant
+NFS4 links** (`cb_data`, `CD_cachefile`-based iso9660) — the same version *family* as ours, unlike
+SOTN's simpler variant. Fully-decompiled C for `iso9660.c`, `sys.c`, `toc.c` (+ libapi a07–a70).
+
+**When it pays off (proven — iso9660 trio 509→316 diffs):** aim it at **complex far-misses with a
+structural reconstruction error**. psyz reveals the original source *shape* the far-miss got wrong:
+split-loop exit tests, `do{}while(0)` wrappers, misaligned `union{int addr; CdlLOC i;}` reads that
+compile to `lwl/lwr` (byte-assembly `rd32le` does NOT), name `sh`-stores via `__builtin_memcpy((short*)
+p,".",2)`, and re-reading a length field instead of caching it.
+**When it does NOT:** simple wrappers (CdControl family, CdIntToPos, CdGetToc2) — NFS4 already matches
+its own **4.3** oracle and psyz's **4.0/4.7** form *diverges* (porting CdIntToPos scored **65→87**,
+reverted; CdGetToc2 has a 4.3-only "wrong-register" quirk psyz lacks). **Rule: port structure to
+complex far-misses, never to near-miss wrappers.**
+
 ## Per-function workflow
 
 1. **Pick a target** — a function below 100% in the objdiff report (see *Build &
@@ -256,6 +274,15 @@ Use **Python 3.12** for splat/objdiff tooling. objdiff-cli is a Windows exe — 
 `/tmp` paths (use `C:/Temp/...`).
 
 ## Status (update this when it moves)
+
+- **libcd (2026-07-04): iso9660 trio ported from psyz (see psyz reference above), 509→316 diffs —
+  CD_cachefile 200→99, CD_newmedia 190→125, CdSearchFile 119→92** (split loops, misaligned `LBA`
+  union reads → `lwl/lwr`, `do{}while(0)`, `sh` names, namelen re-read). **drv: CD_getsector2 PASS**
+  (`volatile int` MMIO readback → stack slot), **CD_initintr 19→15** (`CD_status`/`CD_status1` are
+  `int`, not `unsigned char`; note `CdStatus` keeps its `unsigned char` view for the `lbu` read).
+  iso9660 residuals now = array-index strength-reduction (§3.12 #1) + coloring; wrappers are
+  version-divergent coloring floors (not psyz-portable). eacpsxz/cdfs (Cdinfo context struct+`volatile`)
+  already landed in `e1de3b6`.
 
 - **UNITS (2026-06-16): aiinit 17/17 ✅ · aitune 7/7 ✅ · aiperson 8/8 ✅ · aiscript 8/8 ✅ (ProcessActions SEALED 100% @1d71c4c).**
   aiperson COMPLETE — both "hard class" holdouts cracked via m2c `--reg-vars` (see ⭐ section above).

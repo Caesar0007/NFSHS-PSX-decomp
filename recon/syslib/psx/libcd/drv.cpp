@@ -54,8 +54,8 @@ extern "C" {
 extern int           CD_cbsync;   /* @0x8013BF48 : sync-complete callback */
 extern int           CD_cbready;  /* @0x8013BF4C : data-ready callback */
 extern int           CD_debug;    /* @0x8013BF50 : debug verbosity */
-extern unsigned char CD_status;   /* @0x8013BF54 : last controller status */
-extern unsigned char CD_status1;  /* @0x8013BF58 */
+extern int           CD_status;   /* @0x8013BF54 : last controller status (WORD: oracle sw/lw, 4-byte spaced) */
+extern int           CD_status1;  /* @0x8013BF58 */
 extern unsigned char CD_pos[4];   /* @0x8013BF60 : last seek location (MSF) */
 extern unsigned char CD_mode;     /* @0x8013BF64 */
 extern unsigned char CD_com;      /* @0x8013BF65 : last command */
@@ -469,7 +469,7 @@ extern "C" int CD_getsector(void *madr, int size)
 /* @0x80108588 : CD_getsector2 -- async variant (kick the DMA, do not wait for completion). */
 extern "C" int CD_getsector2(void *madr, int size)
 {
-    int tmp;
+    volatile int tmp;    /* oracle spills the D3_CHCR readback to a stack slot -> volatile local */
     CDREG0 = 0;
     CDREG3 = 0x80;
     *D_8013C240 = 0x21020843;
@@ -480,8 +480,7 @@ extern "C" int CD_getsector2(void *madr, int size)
     while ((CDREG0 & 0x40) == 0)
         ;
     *D_8013C250 = 0x11400100;
-    tmp = *D_8013C250;
-    (void)tmp;
+    tmp = *D_8013C250;   /* readback stored to the stack slot; NOT re-read (no `(void)tmp` -> no extra lw) */
     return 0;
 }
 

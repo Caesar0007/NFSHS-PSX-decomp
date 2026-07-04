@@ -26,6 +26,9 @@ typedef unsigned long  u_long;
 struct CdlLOC  { u_char minute, second, sector, track; };
 struct CdlFILE { CdlLOC pos; u_long size; char name[16]; };          /* 0x18 */
 struct CdPathEnt { int index; int parent; int lba; char name[0x20]; };/* 0x2C */
+/* ISO9660 32-bit fields are MISALIGNED LE ints (record offset +2/+8C); the original reads them
+ * through this CdlLOC-shaped union (misaligned load) -- byte-assembly rd32le diverges. */
+union LBA { int addr; CdlLOC i; };
 
 /* ---- libc (BIOS) / libcd / driver externs ----------------------------------------------------- */
 extern "C" int      strncmp(const char *, const char *, unsigned);  /* BIOS A0:0x18 @0x800EB1D0 */
@@ -90,8 +93,9 @@ extern "C" int _cd_find_path(int parent, char *name)
 /* @0x800F9380 : mount new media -- read the PVD, verify it, read & cache the whole path table. */
 extern "C" int CD_newmedia(void)
 {
+    LBA     pt_lba;
     u_char *rec;
-    int     pt_lba, idx;
+    int     idx;
 
     if (cd_read(1, 0x10, _cd_secbuf) != 1) {                 /* read PVD at LBA 0x10 */
         if (CD_debug > 0) printf("CD_newmedia: Read error in cd_read(PVD)\n");
@@ -102,41 +106,47 @@ extern "C" int CD_newmedia(void)
         return 0;
     }
 
-    pt_lba = rd32le((u_char *)_cd_secbuf + 140);             /* type-L path table location */
-    if (cd_read(1, pt_lba, _cd_secbuf) != 1) {
-        if (CD_debug > 0) printf("CD_newmedia: Read error (PT:%08x)\n", pt_lba);
+    pt_lba.i = ((LBA *)((u_char *)_cd_secbuf + 140))->i;     /* type-L path table LBA (misaligned) */
+    if (cd_read(1, pt_lba.addr, _cd_secbuf) != 1) {
+        if (CD_debug > 0) printf("CD_newmedia: Read error (PT:%08x)\n", pt_lba.addr);
         return 0;
     }
-    if (CD_debug >= 2) printf("CD_newmedia: sarching dir..\n");
+    if (CD_debug > 1) printf("CD_newmedia: sarching dir..\n");
 
-    rec = (u_char *)_cd_secbuf;
-    idx = 0;
-    while (rec < (u_char *)_cd_secbuf + 0x800 && rec[0] != 0 && idx < 0x80) {
-        int namelen = rec[0];
-        _cd_pathtbl[idx].index  = idx + 1;
-        _cd_pathtbl[idx].parent = rec[6];                   /* parent directory number */
-        _cd_pathtbl[idx].lba    = rd32le(rec + 2);          /* extent LBA */
-        memcpy(_cd_pathtbl[idx].name, rec + 8, namelen);
-        _cd_pathtbl[idx].name[namelen] = 0;
-        if (CD_debug >= 2)
-            printf("\t%08x,%04x,%04x,%s\n", _cd_pathtbl[idx].lba, _cd_pathtbl[idx].index,
-                   _cd_pathtbl[idx].parent, _cd_pathtbl[idx].name);
-        rec += namelen + 8 + (namelen & 1);                 /* ISO path-table record stride */
-        idx++;
-    }
-    if (idx < 0x80)
-        _cd_pathtbl[idx].parent = 0;                        /* terminate the cache */
+    do {
+        idx = 0;
+        rec = (u_char *)_cd_secbuf;
+        while (rec < (u_char *)_cd_secbuf + 0x800) {
+            if (rec[0] == 0)
+                break;
+            ((LBA *)&_cd_pathtbl[idx].lba)->i = ((LBA *)&rec[2])->i;  /* extent LBA (misaligned) */
+            _cd_pathtbl[idx].parent = rec[6];               /* parent directory number */
+            _cd_pathtbl[idx].index  = idx + 1;
+            memcpy(_cd_pathtbl[idx].name, &rec[8], rec[0]);
+            _cd_pathtbl[idx].name[rec[0]] = '\0';
+            rec += 8 + rec[0] + rec[0] % 2;                 /* ISO path-table record stride */
+            if (CD_debug > 1)
+                printf("\t%08x,%04x,%04x,%s\n", _cd_pathtbl[idx].lba, _cd_pathtbl[idx].index,
+                       _cd_pathtbl[idx].parent, _cd_pathtbl[idx].name);
+            if (++idx >= 0x80)
+                break;
+        }
+        if (idx < 0x80)
+            _cd_pathtbl[idx].parent = 0;                    /* sentinel: no more entries */
+    } while (0);
 
     _cd_cached_dir = 0;
-    if (CD_debug >= 2) printf("CD_newmedia: %d dir entries found\n", idx);
+    if (CD_debug > 1) printf("CD_newmedia: %d dir entries found\n", idx);
     return 1;
 }
 
 /* @0x800F96E8 : read directory `dir` (1-based path-table id) and cache its file records. */
 extern "C" int CD_cachefile(int dir)
 {
+    LBA     entryLba;
     u_char *rec;
     int     i;
+    short  *namePtr;
 
     if (dir == _cd_cached_dir)
         return 1;                                           /* already resident */
@@ -145,70 +155,81 @@ extern "C" int CD_cachefile(int dir)
         if (CD_debug > 0) printf("CD_cachefile: dir not found\n");
         return -1;
     }
-    if (CD_debug >= 2) printf("CD_cachefile: searching...\n");
+    if (CD_debug > 1) printf("CD_cachefile: searching...\n");
 
     rec = (u_char *)_cd_secbuf;
     i   = 0;
-    while (rec < (u_char *)_cd_secbuf + 0x800 && rec[0] != 0 && i < 0x40) {
-        CdIntToPos(rd32le(rec + 2), &_cd_dir[i].pos);       /* extent LBA -> MSF */
-        _cd_dir[i].size = (u_long)rd32le(rec + 10);         /* data length */
-        if (i == 0) {                                       /* first record = "." */
-            _cd_dir[0].name[0] = '.';
-            _cd_dir[0].name[1] = 0;
-        } else if (i == 1) {                                /* second record = ".." */
-            _cd_dir[1].name[0] = '.';
-            _cd_dir[1].name[1] = '.';
-            _cd_dir[1].name[2] = 0;
-        } else {
-            int namelen = rec[32];
-            memcpy(_cd_dir[i].name, rec + 33, namelen);
-            _cd_dir[i].name[namelen] = 0;
+    while (rec < (u_char *)_cd_secbuf + 0x800) {
+        if (rec[0] == 0)                                    /* zero reclen -> end of records */
+            break;
+        entryLba.i = ((LBA *)&rec[2])->i;                   /* extent LBA (misaligned -> lwl/lwr) */
+        CdIntToPos(entryLba.addr, &_cd_dir[i].pos);
+        ((LBA *)&_cd_dir[i].size)->i = ((LBA *)&rec[0xA])->i; /* data length (misaligned copy) */
+        switch (i) {
+        case 0:                                             /* first record = "." */
+            namePtr = (short *)_cd_dir[i].name;
+            __builtin_memcpy(namePtr, ".", 2);              /* halfword store (oracle: sh) */
+            break;
+        case 1:                                             /* second record = ".." */
+            namePtr = (short *)_cd_dir[i].name;
+            __builtin_memcpy(namePtr, "..", 3);             /* sh + sb (oracle) */
+            break;
+        default:
+            memcpy(_cd_dir[i].name, &rec[0x21], rec[0x20]); /* namelen re-read (oracle: 2x lbu 0x20) */
+            _cd_dir[i].name[rec[0x20]] = '\0';
+            break;
         }
-        if (CD_debug >= 2)
+        if (CD_debug > 1)
             printf("\t(%02x:%02x:%02x) %8d %s\n", _cd_dir[i].pos.minute, _cd_dir[i].pos.second,
                    _cd_dir[i].pos.sector, (int)_cd_dir[i].size, _cd_dir[i].name);
         rec += rec[0];                                      /* ISO directory-record stride */
-        i++;
+        if (++i >= 0x40)
+            break;
     }
 
     _cd_cached_dir = dir;
     if (i < 0x40)
         _cd_dir[i].name[0] = 0;                             /* terminate the cache */
-    if (CD_debug >= 2) printf("CD_cachefile: %d files found\n", i);
+    if (CD_debug > 1) printf("CD_cachefile: %d files found\n", i);
     return 1;
 }
 
 /* @0x800F9088 : resolve an absolute "\\dir\\file" path to its CdlFILE. */
 extern "C" CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
 {
-    char  comp[36];
-    int   dir, level;
-    int   i;
-    char *s;
-    char *q;
+    char           comp[0x20];
+    int            dir;                                     /* current parent dir number */
+    int            i;
+    unsigned char *s;                                       /* cursor into `name` */
+    unsigned char *q;                                       /* cursor into `comp` */
+    unsigned char  ch;
 
     if (_cd_search_nopen != CD_nopen) {                     /* media changed -> remount */
         if (CD_newmedia() == 0)
             return 0;
         _cd_search_nopen = CD_nopen;
     }
+    dir = 1;                                                /* root */
     if (*name != '\\')                                     /* paths must be absolute */
         return 0;
-
     comp[0] = 0;
-    dir = 1;                                                /* root */
-    s = name;
+    s = (unsigned char *)name;
     /* split on '\\'; descend through each directory component, leaving the filename in `comp`.
-     * (the binary threads the parent dir id through $a0 across _cd_find_path calls.) */
-    for (level = 0; level < 8; level++) {
-        q = comp;
-        while (*s != '\\') {
-            if (*s == 0)
+     * (the binary threads the parent dir id through $a0 across _cd_find_path calls, and keeps fp
+     * live across the loop -- reproduced with the `fp++;fp--;` no-op.) */
+    for (i = 0; i < 8; i++) {
+        fp++;
+        fp--;
+        ch = *s;
+        q = (unsigned char *)comp;
+        while (ch != '\\') {
+            if (!ch)
                 goto out;                                   /* reached the filename */
-            *q++ = *s++;
+            *q++ = ch;
+            ch = *++s;
         }
-        if (*s == 0)
-            goto out;
+        if (!*s)
+            break;
         s++;                                                /* skip the separator */
         *q = 0;
         dir = _cd_find_path(dir, comp);
@@ -218,9 +239,8 @@ extern "C" CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
         }
     }
 out:
-
-    if (level >= 8) {
-        if (CD_debug > 0) printf("%s: path level (%d) error\n", name, level);
+    if (i >= 8) {
+        if (CD_debug > 0) printf("%s: path level (%d) error\n", name, i);
         return 0;
     }
     if (comp[0] == 0) {
@@ -229,20 +249,20 @@ out:
     }
 
     *q = 0;                                                 /* terminate the filename component */
-    if (CD_cachefile(dir) != 0) {                           /* (else-branch is dead: returns +/-1) */
-        if (CD_debug >= 2) printf("CdSearchFile: searching %s...\n", comp);
-        for (i = 0; i < 64 && _cd_dir[i].name[0] != 0; i++) {
-            if (_cd_cmp_name(_cd_dir[i].name, comp)) {
-                if (CD_debug >= 2) printf("%s:  found\n", comp);
-                *fp = _cd_dir[i];                           /* copy the 24-byte record out */
-                return &_cd_dir[i];                         /* (binary returns the cache slot) */
-            }
-        }
-    } else if (CD_debug > 0) {
-        printf("CdSearchFile: disc error\n");
+    if (CD_cachefile(dir) == 0) {                           /* disc error (else-arm dead: +/-1) */
+        if (CD_debug > 0) printf("CdSearchFile: disc error\n");
         return 0;
     }
-
+    if (CD_debug >= 2) printf("CdSearchFile: searching %s...\n", comp);
+    for (i = 0; i < 64; i++) {
+        if (_cd_dir[i].name[0] == 0)
+            break;
+        if (_cd_cmp_name(_cd_dir[i].name, comp)) {
+            if (CD_debug >= 2) printf("%s:  found\n", comp);
+            *fp = _cd_dir[i];                               /* copy the 24-byte record out */
+            return &_cd_dir[i];                             /* (binary returns the cache slot) */
+        }
+    }
     if (CD_debug > 0) printf("%s: not found\n", name);
     return 0;
 }

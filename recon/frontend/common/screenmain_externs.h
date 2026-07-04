@@ -11,7 +11,6 @@ extern tFEApplication    *FEApp;
 extern int                ticks;
 extern char              *Paths_Paths[];
 extern tCreditManager     CreditManager;
-extern u_char            *Render_gPacketPtr, *Render_gPalettePtr;
 
 /* ===== statics owned by ScreenMain.obj ===== */
 extern tScreenMain        screenMain;                /* EXT @0x80051E58 */

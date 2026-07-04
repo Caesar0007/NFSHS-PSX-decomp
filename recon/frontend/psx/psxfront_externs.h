@@ -58,8 +58,6 @@ extern char GameSetup_gCarNames[51][5];
 extern GameSetup_tData GameSetup_gData;
 extern char *Paths_Paths[50];
 extern int R3DCar_InMenu;
-extern u_char *Render_gPacketPtr;   /* GPU packet build cursor (byte-arith) */
-extern u_char *Render_gPalettePtr;   /* GPU packet build cursor (byte-arith) */
 extern u_long font_tint;
 extern tfrontEnd frontEnd;
 extern DRender_tView gCView;

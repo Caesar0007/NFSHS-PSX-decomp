@@ -26,8 +26,10 @@ int          Render_gPauseMenuView;   /* @0x8013d3e8  (bss(zero)) */
    render.cpp is canonical owner of the Render_ packet/scratchpad namespace; draww + FE extern
    these). Defined here so the project links self-contained. ---- */
 int     Render_gMenuRenderFlag;   /* render mirror/menu render flag (render-owned scratch) */
-u_char *Render_gPacketPtr;        /* @0x1F800004  GPU OT packet build pointer */
-u_char *Render_gPalettePtr;       /* @0x1F800000  palette/CLUT scratch pointer */
+/* Render_gPacketPtr (@0x1F800004) / Render_gPalettePtr (@0x1F800000) are NOT storage globals:
+   they live at fixed PSX scratchpad addresses, so they are fixed-address lvalue macros defined
+   in nfs4_types.h (the universal include). The oracle materializes them as literal `lui;ori`/
+   `lui;lw` constants, which a linked symbol can't reproduce. Do NOT re-add a definition here. */
 u_char *Render_gPacketEnd;        /* GPU OT packet-buffer end pointer */
 MATRIX  Render_gWorldMat;         /* @0x1F800014  world->view matrix (scratchpad) */
 MATRIX  Render_gNightMat;         /* night-lighting matrix (scratchpad) */

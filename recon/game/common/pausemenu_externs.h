@@ -12,7 +12,6 @@ extern void trap(int code);   /* gcc MIPS div/overflow break helper */
 extern int              gMPauseUpdateNextTime;        /* mpause.obj */
 extern GameSetup_tData  GameSetup_gData;              /* gamesetup.obj */
 extern HudPmx_tShape    HudPmx_gShapes[];             /* hud.obj */
-extern u_char          *Render_gPacketPtr, *Render_gPalettePtr;   /* render.obj */
 
 /* ---- cross-TU functions (demangled) ---- */
 extern int   textpixels(char *s);                                 /* textpix.obj */

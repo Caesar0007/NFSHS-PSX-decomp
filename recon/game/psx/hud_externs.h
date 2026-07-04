@@ -31,8 +31,6 @@ extern int            gFlip;             /* 0x8013d7b4 */
 extern DRender_tView  gCView;            /* 0x80116f7c */
 
 /* ---- GPU packet cursors (scratchpad linked-list) ---- */
-extern u_char        *Render_gPacketPtr;
-extern u_char        *Render_gPalettePtr;
 
 /* ---- HUD module globals ---- */
 // [owned->defined in hud.cpp] extern int            Hud_gHudView[2], Hud_gMapView[2], Hud_gTacView[2];

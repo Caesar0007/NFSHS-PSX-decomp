@@ -11,7 +11,6 @@ extern tTrackManager      trackManager;
 extern tGlobalMenuDefs   *menuDefs;
 extern tFEApplication    *FEApp;
 extern char              *Paths_Paths[];
-extern u_char            *Render_gPacketPtr, *Render_gPalettePtr;
 
 /* --- storage owned by ScreenTracks.obj --- */
 static short tvOrder[10] = { 2, 7, 4, 8, 1, 6, 0, 9, 3, 5 };   /* STAT @0x800520a0 */

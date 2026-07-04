@@ -12,7 +12,6 @@ extern tScreenUserName  *screenUserName;
 extern GameSetup_tData   GameSetup_gData;
 extern int               Cars_gNewCarStatsList;
 extern tPadModuleState   gPadinfo;
-extern u_char           *Render_gPacketPtr, *Render_gPalettePtr;
 extern char              bigBuf[];
 extern int               Cars_gNumRaceCars;
 extern int               screenheight, ticks, gFlip, gLargestUnused, Draw_gPlayer1View, Draw_gDoVSync, currentVideo;

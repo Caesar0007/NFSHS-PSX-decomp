@@ -3,7 +3,6 @@
 #define _FE_SCREENS_FEMENUOPTIONS_EXTERNS_H_
 #include "../../nfs4_types.h"
 #include "../../lib/libfns.h"
-extern u_char *Render_gPacketPtr, *Render_gPalettePtr;
 extern tFEApplication *FEApp;
 extern tfrontEnd frontEnd;
 extern tPadModuleState gPadinfo;

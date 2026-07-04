@@ -42,6 +42,23 @@ typedef unsigned short ushort;
 typedef unsigned char uchar;
 typedef unsigned char undefined;
 
+/* ---- PSX scratchpad-resident render globals (0x1F800000 region) ----------------------
+ * Render_gPacketPtr (GPU OT packet-build cursor) and Render_gPalettePtr (palette/CLUT
+ * scratch cursor) are POINTER variables whose STORAGE lives at fixed PSX scratchpad
+ * addresses 0x1F800004 / 0x1F800000 (1KB fast RAM 0x1F800000-0x1F8003FF). The retail EA
+ * source reached them through their literal storage address, so every oracle materializes
+ * that address as an INTEGER CONSTANT (`lui;ori 0x1F800004` reused at offset 0, `lui;lw
+ * 0x1F800000`) -- NOT a %hi/%lo(sym) relocation against a linked symbol. A plain `extern`
+ * symbol can never reproduce that in the unlinked object verify_asm diffs (%hi/%lo -> 0),
+ * so we model them as fixed-address lvalue macros. This reproduces the oracle codegen for
+ * EVERY consumer -- both the value use (`Render_gPacketPtr`) and the base-address use
+ * (`&Render_gPalettePtr` == 0x1F800000, used as a scratchpad cache base) -- and replaces
+ * the per-file `(*(u_char**)0x1F80000x)` workarounds. Defined once here (the universal
+ * include) so a bare `Render_gPacketPtr` in any TU resolves to the literal scratchpad addr.
+ * (See render.cpp for the historical owned-global note.) */
+#define Render_gPacketPtr  (*(u_char **)0x1F800004)
+#define Render_gPalettePtr (*(u_char **)0x1F800000)
+
 /* ---- forward declarations (pointer cycles) ---- */
 #ifndef NFS4_PSYQ_HEADERS
 typedef struct MATRIX MATRIX;

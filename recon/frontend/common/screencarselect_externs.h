@@ -16,7 +16,6 @@ extern int                ticks;
 extern char              *Paths_Paths[];
 extern int                kRGBVals[28];
 extern char               textDefinitions[14][6];
-extern u_char            *Render_gPacketPtr, *Render_gPalettePtr;
 extern tPadModuleState    gPadinfo;
 extern int                screenheight, showRoomFlag, gFlip, gStopCommentaryNow;
 extern int                gShowroomLights[];   /* store-[] lever: cc1 materialises addr in a genreg (sw $0,%lo($v0)) not $at */

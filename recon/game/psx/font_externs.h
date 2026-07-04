@@ -21,8 +21,6 @@ extern long      colourRGB[16];           /* 0x8011fd70  (ARY LONG, 64 bytes) */
 extern u_char    currentfont[0xa0];       /* 0x80135ba0  (active font header buffer) */
 
 /* ---- render packet/palette ring (shared) ---- */
-extern char     *Render_gPacketPtr;
-extern char     *Render_gPalettePtr;
 
 /* ---- PsyQ libgpu ---- */
 

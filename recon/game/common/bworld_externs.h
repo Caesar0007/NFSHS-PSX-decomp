@@ -37,7 +37,6 @@ extern int Night_gZDistShift;
 extern int Night_gZNear;
 extern int gNight_renderNight;
 extern short ** Track_gInViewList;
-extern u_char           *Render_gPacketPtr, *Render_gPalettePtr;
 extern u_long              gWSavePtr;
 extern void  Math_fasttransmult(matrixtdef *a, matrixtdef *b, matrixtdef *out);
 extern void BWorldSm_Restart(void);

@@ -10,8 +10,6 @@ extern tfrontEnd   frontEnd;
 extern int  ticks;
 extern int  CURRENTLYUSINGMEMCARD;
 extern char (*fMemIcon[])[15][3][192];   /* unsized-array shape -> absolute + separate-temp arg-load (3.12#5) */
-extern u_char *Render_gPacketPtr;      /* PSX scratchpad 0x1F800004: GPU packet build ptr */
-extern u_char *Render_gPalettePtr;     /* PSX scratchpad 0x1F800000: palette ptr */
 int CalcFadeVal(int col1, int col2, int amount);
 int CalcFadeVal(int col1, int amount);   /* 2-arg overload */
 /* SCREENMEMCARD.CPP layout int globals (@0x800528xx) are DEFINED in the .cpp (this TU owns them;

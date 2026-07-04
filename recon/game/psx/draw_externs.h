@@ -22,8 +22,6 @@ extern int Draw_gMidGroundOtz;
 extern int Draw_gViewOtSize;
 extern int gFlip;  extern int Draw_gPlayer1View;
 extern short          Render_gPacketLenLo, Render_gPacketLenHi;
-extern u_char           *Render_gPacketPtr, *Render_gPalettePtr;
-extern u_char *Render_gPacketPtr;      /* PSX scratchpad 0x1F800004: GPU packet build ptr */
 
 /* ---- SYM Globals (type+dims) + free fns ---- */
 extern int Draw_gMaxPrim;

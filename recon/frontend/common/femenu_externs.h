@@ -19,7 +19,6 @@ extern __vtbl_ptr_type tMenuItemGoToMenuButton_vtable[];
 extern __vtbl_ptr_type tMenu_vtable[];
 
 /* ===== globals ===== */
-extern u_char        *Render_gPacketPtr, *Render_gPalettePtr;
 extern tFEApplication *FEApp;
 extern tPlayer        gMenu_SubMenuPlayer[];   /* unsized array (§3.12 #5): forces separate-$v0 scratch on value-load (oracle lui/lw, not gp-rel) */
 

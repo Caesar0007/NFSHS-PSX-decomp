@@ -20,8 +20,6 @@ static inline u_int   CONCAT22(u_short hi, u_short lo) { return ((u_int)hi << 16
 static inline u_short SUB42(u_int v, int n) { return (u_short)(v >> (n * 8)); }
 
 /* ---- GPU packet cursors + matrices ---- */
-extern char          *Render_gPacketPtr;
-extern char          *Render_gPalettePtr;
 extern char          *Render_gPacketEnd;
 extern short          Render_gPacketLenLo, Render_gPacketLenHi;
 extern MATRIX         Render_gWorldMat;

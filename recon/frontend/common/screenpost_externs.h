@@ -17,7 +17,6 @@ extern int                ticks;
 extern char              *Paths_Paths[];
 extern int                kRGBVals[28];
 extern char               textDefinitions[14][6];
-extern u_char            *Render_gPacketPtr, *Render_gPalettePtr;
 extern tPadModuleState    gPadinfo;
 extern int                screenheight, showRoomFlag, gFlip, gShowroomLights, gStopCommentaryNow;
 extern int gMenuRotate[2];

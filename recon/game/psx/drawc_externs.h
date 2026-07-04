@@ -53,7 +53,6 @@ extern CVECTOR R3DCar_eMapColour;
 extern short R3DCar_yawCam;
 extern void R3DCcar_ReadTrackShadow(void);
 extern void R3DCcar_ReadeMapData(void);
-extern char *Render_gPacketPtr;
 extern int Risk_ReadNextValue(char **);
 extern char SP[];
 extern int             Texture_CarColor;        /* 0x8013db08 */

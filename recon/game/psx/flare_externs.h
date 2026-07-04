@@ -16,8 +16,6 @@ static inline u_short CONCAT11(u_char hi, u_char lo)   { return (u_short)(((u_in
 static inline u_short SUB42(u_int v, int n) { return (u_short)(v >> (n * 8)); }
 
 /* ---- GPU packet cursors + matrices ---- */
-extern char         *Render_gPacketPtr;
-extern char         *Render_gPalettePtr;
 extern char         *Render_gPacketEnd;
 extern matrixtdef    gWorldMat;                 /* 0x8010ee40 (36 B = 9 ints, game matrix) */
 

@@ -10,8 +10,6 @@
 #include "../../lib/psx_gte.h"
 extern void gte_lwc2(int reg, int data);   /* value-form load (draww calls pending conversion to gte_ldv*) */
 
-extern char *Render_gPacketPtr;
-extern char *Render_gPalettePtr;
 extern char *Render_gPacketEnd;
 
 /* ---- world/cop/night transform matrices (Ghidra-named; matrixtdef like SYM gWorldMat) ---- */

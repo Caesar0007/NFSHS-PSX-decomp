@@ -5,8 +5,6 @@
 #include "../../nfs4_types.h"
 #include "../../lib/libfns.h"
 
-extern u_char *Render_gPacketPtr;    /* GPU packet build cursor (byte-arith) */
-extern u_char *Render_gPalettePtr;   /* GPU packet build cursor (byte-arith) */
 extern tTexture_ShapeInfo *gHelpShapes;   /* shape table (PSXFront) */
 
 extern "C" {  /* PsyQ libgpu */

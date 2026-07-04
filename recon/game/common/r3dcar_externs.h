@@ -25,7 +25,6 @@ extern MATRIX             DrawC_gScreenMat;
 extern GameSetup_tData    GameSetup_gData;
 extern char               GameSetup_gCarNames[][8];
 extern char              *Paths_Paths[];
-extern u_char            *Render_gPalettePtr;
 extern int                Render_gMenuRenderFlag;
 extern int                Texture_CarColor, Texture_palNum;
 extern DRender_tView      gCView;

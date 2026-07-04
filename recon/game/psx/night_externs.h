@@ -46,7 +46,6 @@ extern camera_info    Camera_gInfo[];            /* 0x8010f2ac */
 extern char          *Paths_Paths[];             /* 0x80116468 */
 extern tCompRGB      *Chunk_lightTable;          /* 0x8013c818 */
 extern int            Chunk_numLight;            /* 0x8013d4ec */
-extern u_char        *Render_gPalettePtr;        /* scratch the table-cache aliases */
 
 /* ---- eaclib / syslib / sibling-module helpers ---- */
 extern void  AudioCmn_PlayThunder(int intensity, int azimuth);

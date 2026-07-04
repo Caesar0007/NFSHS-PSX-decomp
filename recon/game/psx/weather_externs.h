@@ -55,8 +55,6 @@ extern void *BWorldSm_TunnelFlagSm(void *slicePos);     /* __FP12BWorldSm_Pos ->
    /* PsyQ libgpu */
 
 /* render packet/palette write cursors + per-player weather pixmaps + look-behind input */
-extern char        *Render_gPacketPtr;             /* GPU primitive write cursor   */
-extern char        *Render_gPalettePtr;            /* shared palette/template word */
 extern Draw_tPixMap *gWeatherPixmap[3];            /* 0x80112b7c  snow/rain sprites */
 extern int          Input_gLookBehind[2];          /* 0x8013d230 */
 extern int          timechange;                    /* 0x8013de4c */

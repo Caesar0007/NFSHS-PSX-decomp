@@ -208,17 +208,18 @@ extern "C" int iSNDstreamparseheader(int S, int data)
     return 0;
 }
 
-/* iSNDstreamparsenumchunks @0x800E9044 : 'SCCl' chunk -- record the stream's chunk count. */
+/* iSNDstreamparsenumchunks @0x800E9044 : 'SCCl' chunk -- record the stream's chunk count.
+ * MATCH: parseIdx (+0x17) needs the LITERAL oracle shift-chain `((u8<<24)>>24)`, not the `MSB` macro's
+ * `*(signed char*)` cast -- plain `(signed char)`/`(int)(signed char)` both compile to a bare `lb` and
+ * gcc-2.8.0 collapses even the manual shift-chain right back to `lb` UNLESS the byte read is `volatile`
+ * (blocks that specific reassociation, forcing the oracle's `lbu;sll24;sra24`). Also: the scaled-index
+ * term must come FIRST in the `+ MI(S,0)` addition (index-first commutative-addu tie-break, matching
+ * `addu v0,v0,v1` not `addu v1,v1,v0`). */
 extern "C" int iSNDstreamparsenumchunks(int S, int data)
 {
     int req;
     STREAM_release(MI(S, 4), data);
-    /* near-miss (8 diffs): oracle reads parseIdx (+0x17) UNSIGNED (lbu) then sign-extends in registers
-     * (sll24;sra24) before *0x2c -- the codegen of a `signed char` STRUCT FIELD load. Our raw-offset
-     * pointer cast `*(signed char*)` folds to a single `lb`; gcc-2.8.0 collapses (signed char)(u8) AND
-     * ((u32<<24)>>24) back to lb, so the split is unreachable without the real struct def (shared-header
-     * change, out of scope). Same pattern in every +0x17 access in this file. */
-    req = MI(S, 0) + MSB(S, 0x17) * 0x2c;
+    req = (((int)(*(volatile unsigned char *)(S + 0x17)) << 24) >> 24) * 0x2c + MI(S, 0);
     MI(req, 0x24) = *(int *)(data + 0xc);
     return 1;
 }
@@ -392,8 +393,10 @@ extern "C" int iSNDstreamnumcreated(void)
             count++;
         slot++; p++;
     } while (slot < 1);
-    return count;       /* near-miss floor (coloring): oracle colors count/slot/p -> a1/a0/v1, ours swaps;
-                         * a register tie-break on a single-iteration loop, not source-reachable. */
+    return count;       /* near-miss floor (coloring): oracle colors count/slot/p -> a1/a0/v1, ours swaps
+                         * (a0<->pointer role, v1<->counter role). Tried: `for`-loop rotation (no change,
+                         * gcc canonicalizes to the same loop form). A register tie-break on a
+                         * compile-time-single-iteration loop; not source-reachable. Permuter candidate. */
 }
 
 /* iSNDstreamcreate @0x800E9730 : carve a stream object + its packet array, packet player and (optionally)

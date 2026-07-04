@@ -22,28 +22,26 @@ extern "C" int SNDplay(int *info)
     return cSNDplay(info, 0);
 }
 
-/* cSNDplay @0x800E7A68 : resolve the play-info's (bank, patch) to a tagged patch and play it. */
+/* cSNDplay @0x800E7A68 : resolve the play-info's (bank, patch) to a tagged patch and play it.
+ * MATCH: 3 FLAT early-returns `if (!cond) return -8;` (not a nested if-body / goto-fail) reproduces
+ * the oracle's exact basic-block layout for the in-range test (branch-polarity + which path needs the
+ * extra `j`-trampoline); a nested `if (cond) { body }` or an explicit `goto fail;` both left the
+ * in-range test's branch inverted (7-diff residual) even though they're semantically identical. */
 extern "C" int cSNDplay(int *info, int recurse)
 {
     int patch, bank, pp;
     (void)recurse;
-    if (-1 < iSNDvalidbank((int)(signed char)info[1])) {
-        patch = info[0];
-        bank = *(int *)((signed char)info[1] * 0xc + sndgs[0x26]);
-        if (patch < 0)
-            return -8;
-        if (patch < (int)(unsigned)*(unsigned short *)(bank + 6)) {
-            /* group `bank + (patch<<2)` so the base is addu operand 1 (oracle `addu v0,a1,v0`) -- FIXED
-             * the two commutative-addu diffs (11->7). RESIDUAL (7 diffs): the in-range test's branch
-             * POLARITY -- oracle `bnez v0` to the body (body = branch target, -8 = fall-through), ours
-             * `beqz v0` (body = fall-through). A gcc-2.8.0 basic-block layout coin-flip that neither the
-             * nested-if nor the inverted `>=` early-return reshapes; permuter multi-basin candidate. */
-            if (*(char *)(bank + 4) == 4)
-                pp = *(int *)((bank + (patch << 2)) + 0x14);
-            else
-                pp = *(int *)((bank + (patch << 2)) + 0xc);
-            return iSNDplaytaggedpatch(pp, (int)info);
-        }
-    }
-    return -8;
+    if (iSNDvalidbank((int)(signed char)info[1]) < 0)
+        return -8;
+    patch = info[0];
+    bank = *(int *)((signed char)info[1] * 0xc + sndgs[0x26]);
+    if (patch < 0)
+        return -8;
+    if (!(patch < (int)(unsigned)*(unsigned short *)(bank + 6)))
+        return -8;
+    if (*(char *)(bank + 4) == 4)
+        pp = *(int *)((bank + (patch << 2)) + 0x14);
+    else
+        pp = *(int *)((bank + (patch << 2)) + 0xc);
+    return iSNDplaytaggedpatch(pp, (int)info);
 }

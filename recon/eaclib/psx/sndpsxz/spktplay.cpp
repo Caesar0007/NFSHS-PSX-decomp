@@ -301,7 +301,12 @@ extern "C" int SNDPKTPLAY_purge(int p, int lo, int hi)
     return 0;
 }
 
-/* SNDPKTPLAY_stop @0x80103118 : stop the voice, purge the whole ring, and idle the player. */
+/* SNDPKTPLAY_stop @0x80103118 : stop the voice, purge the whole ring, and idle the player.
+ * MATCH: the +0xc pitch field is read TWICE (guard + multiply) and the +0 state word is re-set right
+ * before iSNDleaveaudio -- the oracle genuinely RELOADS +0xc a second time (fresh `lhu`) and does NOT
+ * sink the +0 store into iSNDleaveaudio's jal delay slot, both of which gcc's CSE/scheduler undo unless
+ * the accesses are `volatile` (this player slot IS touched by async playback/IRQ, so the qualifier is
+ * semantically correct, not just a match hack). */
 extern "C" int SNDPKTPLAY_stop(int p)
 {
     int ppp;
@@ -311,10 +316,11 @@ extern "C" int SNDPKTPLAY_stop(int p)
     iSNDenteraudio();
     SNDstop(MI(ppp, 0));
     SNDPKTPLAY_purge(p, 0, 0x7fffffff);
-    if (*(void **)(ppp + 0x1c) != 0 && -1 < (int)((unsigned)MUH(ppp, 0xc) << 0x10)) {
-        (*(void (**)(int))(ppp + 0x1c))(MI(ppp, (short)MH(ppp, 0xc) * 0x18 + 0x30));
+    if (*(void **)(ppp + 0x1c) != 0 &&
+        -1 < (int)((unsigned)*(volatile unsigned short *)(ppp + 0xc) << 0x10)) {
+        (*(void (**)(int))(ppp + 0x1c))(MI(ppp, (short) * (volatile short *)(ppp + 0xc) * 0x18 + 0x30));
     }
-    MI(ppp, 0) = -1;
+    *(volatile int *)(ppp + 0) = -1;
     iSNDleaveaudio();
     return 0;
 }

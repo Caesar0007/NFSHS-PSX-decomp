@@ -181,10 +181,13 @@ extern "C" void iSNDleaveaudio(void)
  * MATCH: byte-base cast keeps oracle's sll(lb*4) then addu then sw a0,0x4c(v1) displacement form */
 extern "C" short *iSNDserveradd100hzclient(int cb)
 {
-    /* MATCH: index sndgs by the raw client count (base = sndgs + count*4) and fold the 0x13-slot
-     * (0x4c-byte) client-array offset into the store DISPLACEMENT -- oracle emits sll(count*4);
-     * addu base; sw a0,0x4c(base), NOT (count+0x13)*4 with a 0-displacement store. */
-    sndgs[(int)(signed char)GB(0x40) + 0x13] = cb;
+    /* MATCH: index sndgs by the raw client count ONLY (base = sndgs + count*4, scaled by sizeof(int)
+     * with no other term folded into the index) and fold the 0x13-slot (0x4c-byte) client-array
+     * offset into the store DISPLACEMENT via a byte-base cast -- oracle emits sll(count*4); addu
+     * base; sw a0,0x4c(base). Indexing sndgs[count+0x13] instead adds 0x13 to the INDEX before the
+     * *4 scale (extra addiu v1,v1,19 before the sll) -- not what the oracle does. */
+    char *base = (char *)sndgs;
+    *(int *)(base + (signed char)base[0x40] * 4 + 0x4c) = cb;
     GB(0x40) = GB(0x40) + 1;
     return (short *)sndgs;
 }

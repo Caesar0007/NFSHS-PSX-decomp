@@ -74,8 +74,18 @@ extern "C" unsigned int iSPCH_GetRuleID(int sentence, int index)
 {
     unsigned int result = 0xffffffff;
     int ruleData = iSPCH_GetRuleDataAddr(sentence);
-    if ((unsigned int)index < 8)
-        result = (unsigned int)*(unsigned char *)(index * 2 + ruleData);
+    if ((unsigned int)index < 8) {
+        unsigned char *rule = (unsigned char *)(index * 2 + ruleData);
+        unsigned int idCopy;
+        volatile unsigned int id;
+        volatile unsigned int param;
+        volatile unsigned int type;
+        idCopy = *rule;
+        id     = idCopy;
+        param  = *(rule + 1) & 0xf;
+        type   = (unsigned int)(unsigned char)*(rule + 1) >> 4;
+        result = idCopy;
+    }
     return result;
 }
 
@@ -122,9 +132,16 @@ extern "C" void iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
         values = values + 1;
         if (0 < numRules) {
             do {
-                unsigned int paramIdx = (unsigned int)(p[1] & 0xf);
+                volatile unsigned int ruleId0;
+                volatile unsigned int paramNib;
+                volatile unsigned int typeNib;
+                unsigned int paramIdx;
                 int          v        = 0;
                 int          doTest   = 0;
+                ruleId0  = p[0];
+                paramNib = p[1] & 0xf;
+                typeNib  = (unsigned int)(unsigned char)p[1] >> 4;
+                paramIdx = paramNib;
                 if (ruleType == 0xc) {
                     if (paramIdx == 0)
                         doTest = 1;
@@ -132,7 +149,7 @@ extern "C" void iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
                     v      = *values;
                     doTest = 1;
                 }
-                if (doTest && ((unsigned int)(p[1] >> 4) != 4)) {
+                if (doTest && (typeNib != 4)) {
                     int r;
                     if (gSentenceRuleTest == 0)
                         r = -1;

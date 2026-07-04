@@ -27,6 +27,11 @@ dis = subprocess.run([OBJD, '-d', '-r', '-z', str(obj)], capture_output=True, te
 _symtab = subprocess.run([OBJD, '-t', str(obj)], capture_output=True, text=True).stdout
 _name2addr = {}
 for _ln in _symtab.splitlines():
+    # Skip UNDEFINED (`*UND*`) and file/abs (`*ABS*`) symbols: an undefined extern decl has a
+    # bogus address 00000000 that would otherwise alias-resolve to whatever real function objdump
+    # labels at offset 0 (false PASS/FAIL). Only DEFINED symbols (real section) get an addr entry.
+    if '*UND*' in _ln or '*ABS*' in _ln:
+        continue
     _t = _ln.split()
     if len(_t) >= 2 and re.match(r'^[0-9a-f]{8}$', _t[0]):
         _name2addr[_t[-1]] = _t[0]

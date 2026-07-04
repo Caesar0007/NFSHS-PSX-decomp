@@ -58,33 +58,64 @@ extern "C" void  restoregp(int saved);
 /* ---- additional CD context globals + the CD machinery ---- */
 extern "C" int   CD_lastSector;      /* @0x80146CD4 (ctx+0x10) completion/prefetch loop marker   */
 
-/* ---- cdfs.obj-OWNED storage definitions for the CD-filesystem state above.
- *      These were `extern`-declared (a promise) but never defined -> surfaced by the
- *      link harness. They are the fields of the CD context (Cdinfo @0x80146CC4 region;
- *      IDA-confirmed: CD_curLen=dword_80146CE4, CD_curDst=dword_80146CF0,
- *      CD_sectorCache=unk_80146D00, CD_handleTable=ctx+0x34, CD_dirEntryArray=ctx+0x38).
- *      The original is one struct; the reconstruction uses flat names, so each gets its
- *      own zero-init (BSS) storage here in the owning TU. */
-/* CD_handleTable is NOT in this tentative-def block: the oracle accesses it via absolute
- * lui/lw (D_80146CF8 = cdctx+0x34) -- a tentative def here would emit .comm (4 bytes, sbss)
- * making it gp-rel under -G4, which disagrees with the oracle.  It is defined in the data-mat pass.
- * All other flat-name fields below are truly owned here (never gp-rel in any oracle fn). */
+/* ---- cdfs.obj-OWNED storage for the CD-filesystem state above.
+ *   ROOT CAUSE FIX (inverse of methodology-§3.12 lever #6): the original is ONE 0x83C-byte
+ *   struct based @Cdinfo (0x80146CC4).  Splitting it into per-field `.comm NAME,4` tentative
+ *   defs made each field <= -G4 -> .sbss -> gp-relative (`lw r,%gp_rel(F)(gp)`, 1 insn).  The
+ *   oracle uses ZERO gp-rel for ANY CD field: it loads &Cdinfo ONCE (lui %hi;addiu %lo) and
+ *   reaches every field as an ABSOLUTE displacement off that base (`sw v0,0x20(a0)` = curLen,
+ *   `lw v0,0x18(s0)` = timeout, ...) -- 2 insns.  Modelling the context as one big struct puts
+ *   it in regular .bss (0x83C >> 4 bytes, gp-INeligible) -> every access is absolute AND gcc
+ *   CSE-hoists the shared base, matching the oracle.  Offsets below are proven from the oracle
+ *   .s displacement stores (readsectorB/CD_Read/CD_timerfunc).  The flat names are kept via
+ *   accessor macros so no call site changes.  (timerhz/g_currentthread live at 0x8013Dxxx, NOT
+ *   in this struct -> they stay plain externs = absolute, already correct.)
+ *   VOLATILE: only `info` (the IRQ-polled sync-flags word) is volatile -- readsectorB's bare
+ *   spin `while((Cdinfo&3)!=0);` re-reads it every iteration (a non-volatile field would fold
+ *   to `while(true)`), and CdReadyHandler mutates it behind the compiler's back.  The DATA
+ *   fields it guards are ordinary: proven by CD_timerfunc PASS (timeout non-volatile) and by a
+ *   read-state-cluster-volatile test that REGRESSED CD_Read 198->255 / CdReadyHandler 325->367.
+ *   Same shape SOTN uses (libcd cdread.c `volatile cdreadStruct`) and NFS4's own `volatile
+ *   CdrEnv _cdr` -- one struct, sync-word volatile, accessed via the gcc-CSE'd base. */
 extern "C" {
-int    CD_maxOpen;
-int    CD_dirEntryCount;
-void  *CD_dirEntryArray;
-int    CD_curOff;
-int    CD_curLen;
-int    CD_remLen;
-int    CD_ringIdx;
-int    CD_curSector;
-int    CD_timeout;
-void  *CD_curDst;
-void (*CD_completionCallback)(int);
-int    CD_cachedSector;
-unsigned char CD_sectorCache[0x800];   /* @0x80146D00 : the cached 0x800-byte sector */
-int    CD_lastSector;
+struct CD_ctx_t {
+    volatile int info;                 /* +0x00  Cdinfo (IRQ-polled sync flags; bit2==stop-req) */
+    int   maxOpen;                     /* +0x04  CD_maxOpen                                    */
+    int   dirEntryCount;               /* +0x08  CD_dirEntryCount                              */
+    int   cachedSector;                /* +0x0C  CD_cachedSector                               */
+    int   lastSector;                  /* +0x10  CD_lastSector                                 */
+    int   curSector;                   /* +0x14  CD_curSector                                  */
+    int   timeout;                     /* +0x18  CD_timeout  (NON-volatile: proven by CD_timerfunc PASS) */
+    int   ringIdx;                     /* +0x1C  CD_ringIdx                                    */
+    int   curLen;                      /* +0x20  CD_curLen                                     */
+    int   remLen;                      /* +0x24  CD_remLen                                     */
+    int   curOff;                      /* +0x28  CD_curOff                                     */
+    void *curDst;                      /* +0x2C  CD_curDst                                     */
+    void (*completionCallback)(int);   /* +0x30  CD_completionCallback                         */
+    void **handleTable;                /* +0x34  CD_handleTable                                */
+    void *dirEntryArray;               /* +0x38  CD_dirEntryArray                              */
+    unsigned char sectorCache[0x800];  /* +0x3C  CD_sectorCache  (0x800-byte cached sector)    */
+};                                     /* sizeof == 0x83C == blockclear(&Cdinfo,0x83C)         */
+CD_ctx_t CD_ctx;                       /* the whole CD context @0x80146CC4 (one .bss object)   */
 }
+/* Flat-name -> struct-member accessor macros (call sites unchanged; each expands to an
+ * absolute-addressed struct field, killing the gp-rel divergence). */
+#define Cdinfo                CD_ctx.info
+#define CD_maxOpen            CD_ctx.maxOpen
+#define CD_dirEntryCount      CD_ctx.dirEntryCount
+#define CD_cachedSector       CD_ctx.cachedSector
+#define CD_lastSector         CD_ctx.lastSector
+#define CD_curSector          CD_ctx.curSector
+#define CD_timeout            CD_ctx.timeout
+#define CD_ringIdx            CD_ctx.ringIdx
+#define CD_curLen             CD_ctx.curLen
+#define CD_remLen             CD_ctx.remLen
+#define CD_curOff             CD_ctx.curOff
+#define CD_curDst             CD_ctx.curDst
+#define CD_completionCallback CD_ctx.completionCallback
+#define CD_handleTable        CD_ctx.handleTable
+#define CD_dirEntryArray      CD_ctx.dirEntryArray
+#define CD_sectorCache        CD_ctx.sectorCache
 
 /* PsyQ libcd location: BCD minute/second/sector + mode/track */
 typedef struct CdlLOC { unsigned char minute, second, sector, track; } CdlLOC;
@@ -173,14 +204,14 @@ extern "C" int CD_Close(int handle)
 /* CD_Stopread @0x800FA904 : request the in-flight CD read to stop (sets Cdinfo bit 2). */
 extern "C" int CD_Stopread(int dev)
 {
-    /* Oracle returns the NEW Cdinfo value incidentally in $v0 (no `move v0,zero`);
-     * `return Cdinfo` after the |= reuses the RMW result reg (9->7 diffs).  The
-     * residual 7 = the read+write ASSEMBLER floor (§I-addendum): GNU-as expands
-     * `lw/sw Cdinfo` per-access (self-temp $v0 load + $at store) while aspsx-2.77
-     * shares one `la` base ($v1); a `&Cdinfo` pointer-temp folds back to the macro
-     * form, so it is not source-reachable. */
+    /* Cdinfo (info) is volatile (the IRQ + readsectorB's spin re-read it), so a bare
+     * `return Cdinfo |= 4;` would RE-READ info after the store to source the return
+     * value (an extra `lw`).  The oracle reads once, ORs, writes, and returns the
+     * COMPUTED value -> keep it in a temp and return that (no re-read). */
+    int v = Cdinfo | 4;
     (void)dev;
-    return Cdinfo |= 4;
+    Cdinfo = v;
+    return v;
 }
 
 /* CD_Getinfo @0x800FA920 : query an open CD file -- optionally copy its 0xC-byte name into `namebuf`

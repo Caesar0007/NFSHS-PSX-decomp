@@ -43,7 +43,7 @@ void Hrz_Init2DRing(void);
 void Hrz_GetHorizonPixMap(Draw_tPixMap *p);
 void Hrz_InitHorizon(void);
 void Hrz_KillHorizon(void);
-void Hrz_LightningAddFork(char direction,char column,char row);
+void Hrz_LightningAddFork(signed char direction,signed char column,signed char row);
 void Hrz_CalculateLightning(void);
 void Hrz_TextureQuad(DVECTOR *pt,char type,char bright,Draw_DCache *sd);
 void Hrz_SetLightingPosInSky(DRender_tView *Vi);
@@ -503,40 +503,38 @@ void Hrz_Init2DRing(void)
 void Hrz_GetHorizonPixMap(Draw_tPixMap *p)
 
 {
-  int skytbl_walk;
+  Draw_tPixMap **skytbl_walk;
+  Draw_tPixMap *p_walk;
   void *tp2;
   int tp3;
-  Draw_tPixMap *p_walk;
   int extra_pmx;
   int i;
-  int i_back;
-  int i_fwd;
   int src_off;
   int dst_off;
-  
-  i_back = 0xb;
-  skytbl_walk = -0x7fedfcdc;
+
+  i = 0xb;
+  skytbl_walk = &gHorizonPixmap[0xb];
   p_walk = p + 0xb;
   do {
-    *(Draw_tPixMap **)skytbl_walk = p_walk;
-    skytbl_walk = skytbl_walk + -4;
-    i_back = i_back + -1;
+    *skytbl_walk = p_walk;
+    skytbl_walk = skytbl_walk + -1;
+    i = i - 1;
     p_walk = p_walk + -1;
-  } while (-1 < i_back);
-  i_fwd = 0;
+  } while (-1 < i);
+  i = 0;
   dst_off = 0x30;
   extra_pmx = (int)&gHorizonExtraSkyPixmaps;
   src_off = 0x20;
   do {
     tp2 = (void *)((int)&gHorizonPixmap + src_off);
     src_off = src_off + 4;
-    i_fwd = i_fwd + 1;
+    i = i + 1;
     Texture_CloneUVPmx(*(Draw_tPixMap **)tp2,0,(Draw_tPixMap *)extra_pmx);
     tp3 = (int)&gHorizonPixmap + dst_off;
     dst_off = dst_off + 4;
     *(int *)tp3 = extra_pmx;
     extra_pmx = extra_pmx + 0x10;
-  } while (i_fwd < 4);
+  } while (i < 4);
   return;
 }
 
@@ -564,7 +562,7 @@ void Hrz_KillHorizon(void)
 }
 
 /* ---- Hrz_LightningAddFork__FScScSc  [HRZSKU.CPP:783-822] SLD-VERIFIED ---- */
-void Hrz_LightningAddFork(char direction,char column,char row)
+void Hrz_LightningAddFork(signed char direction,signed char column,signed char row)
 
 {
   u_char bVar1;
@@ -719,13 +717,11 @@ void Hrz_BuildForkLightning(Draw_DCache *sd)
 
 {
   tHrz_LightningFork *fork;
-  char i;
-  u_char bVar1;
-  u_char bVar2;
+  u_char i;
   DVECTOR pos;
   DVECTOR screenPos;
   coorddef trans;
-  
+
   if (0 < gHrz_Lightning.brightness) {
     sd->otz = Draw_gViewOtSize + -2;
     memset(&trans,0,0xc);
@@ -733,15 +729,15 @@ void Hrz_BuildForkLightning(Draw_DCache *sd)
     gte_ldv0(&Hrz_gLightningPosInSky);
     gte_rtps();
     gte_stSXY2(&screenPos);
-    bVar1 = 0;
     if (gHrz_Lightning.numForks != '\0') {
+      i = 0;
       do {
-        bVar2 = bVar1 + 1;
-        pos.vx = gHrz_Lightning.forks[bVar1].pos.vx + screenPos.vx;
-        pos.vy = gHrz_Lightning.forks[bVar1].pos.vy + screenPos.vy;
-        Hrz_TextureQuad(&pos,gHrz_Lightning.forks[bVar1].pmxIndex,(char)gHrz_Lightning.brightness,sd);
-        bVar1 = bVar2;
-      } while (bVar2 < (u_char)gHrz_Lightning.numForks);
+        fork = &gHrz_Lightning.forks[i];
+        pos.vx = fork->pos.vx + screenPos.vx;
+        pos.vy = fork->pos.vy + screenPos.vy;
+        i = i + 1;
+        Hrz_TextureQuad(&pos,fork->pmxIndex,(char)gHrz_Lightning.brightness,sd);
+      } while (i < (u_char)gHrz_Lightning.numForks);
     }
     gHrz_Lightning.brightness = gHrz_Lightning.brightness + -0x10;
   }

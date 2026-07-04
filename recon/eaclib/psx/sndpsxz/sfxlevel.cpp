@@ -47,10 +47,14 @@ extern "C" int SNDfxlevel(int tag, int bus, int level)
             int scaled = level * (int)(signed char)*(char *)(slot + 0x34);
             int fxArg;
             *(char *)(slot + 0x35) = (char)level;
-            /* near-miss (3 diffs): the loop-invariant bus-master base (sndgs + bus*16) is hoisted to s4;
-             * oracle folds +0xA0 into the load displacement (`lw v0,160(s4)`), ours folds it into the base
-             * (`addiu v0,v0,160; lw 0(v0)`). base+offset fusion floor; explicit hoists shift the whole
-             * regalloc (worse). /16129 (=127*127) is exact. */
+            /* near-miss floor (3 diffs, was 7): the loop-invariant bus-master base (sndgs + bus*16) is
+             * hoisted to s4; oracle folds +0xA0 into the load displacement (`lw v0,160(s4)`), ours folds
+             * it into the base (`addiu v0,v0,160; lw 0(v0)`). Tried: a separate `char*`/`int*` busbase
+             * local hoisted just before the loop (regressed 34 diffs -- shifted arg-reg allocation from
+             * function entry since `sndgs` is ALSO used as int* elsewhere in this fn, unlike the sibling
+             * fns where this exact lever worked); an all-in-one char*-cast inline expr with the +0xa0
+             * folded various ways (still 5 diffs, +1 insn). base+offset fusion floor; /16129 (=127*127)
+             * is exact. Permuter multi-basin candidate. */
             fxArg = (scaled * sndgs[bus * 4 + 0x28]) / 16129;   /* /(127*127): normalises BOTH the send byte
                                                                  * and the bus-master 0..127 fractions (oracle
                                                                  * magic 0x82061029 sra 13 == signed /16129) */

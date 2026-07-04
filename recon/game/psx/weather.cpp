@@ -5,6 +5,14 @@
 #include "../../nfs4_types.h"
 #include "weather_externs.h"
 
+/* This TU's original obj (WEATHER.CPP) reaches the packet/palette scratchpad pointers via their
+ * FIXED scratchpad storage address (0x1F800004 / 0x1F800000) rather than the linked symbol --
+ * every oracle site (Weather_CreateSnow/CreateRain/CreateSplat/DoWeather) shows a literal
+ * lui-ori 0x1F800004 / lui-lw 0x1F800000, not a %hi/%lo(sym) reloc (same pattern already
+ * fixed in game/psx/sfx.cpp's Sfx_AdditivePrim/Sfx_BuildSouffleFacet). */
+#define RENDER_PACKETPTR_ADDR (*(u_char **)0x1F800004)
+#define RENDER_PALETTEPTR_ADDR (*(u_char **)0x1F800000)
+
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
@@ -36,7 +44,11 @@ int Weather_GetNumParticles(int player)
   return Weather_gSys.num[0];
 }
 
-/* ---- Weather_SetMatrix__FP10matrixtdef  [WEATHER.CPP:112-123] SLD-VERIFIED ---- */
+/* ---- Weather_SetMatrix__FP10matrixtdef  [WEATHER.CPP:112-123] SLD-VERIFIED ----
+ * NEAR-MISS 6 diffs (49/49 insns): compute-all-3-then-store-all-3 grouping fixed 26->6 diffs.
+ * Residual: oracle reuses the now-dead $a0(m) register for the LAST field read (m->m[8], the
+ * final use of `m`) instead of continuing with $a1 -- a dead-arg-reuse register choice, no ABI
+ * anchor found; same coloring-tiebreak family as TrsProj_TransformProjectVertex. */
 void Weather_SetMatrix(matrixtdef *m)
 {
   int r0;
@@ -47,24 +59,33 @@ void Weather_SetMatrix(matrixtdef *m)
   r0 = m->m[0];
   r1 = m->m[3];
   r2 = m->m[6];
-  mpsx.m[0][0] = (short)(r0 >> 4);
-  mpsx.m[0][1] = (short)(r1 >> 4);
-  mpsx.m[0][2] = (short)(r2 >> 4);
+  r0 = r0 >> 4;
+  r1 = r1 >> 4;
+  r2 = r2 >> 4;
+  mpsx.m[0][0] = (short)r0;
+  mpsx.m[0][1] = (short)r1;
+  mpsx.m[0][2] = (short)r2;
   r0 = m->m[1];
   r1 = m->m[4];
   r2 = m->m[7];
-  mpsx.m[1][0] = (short)(r0 >> 4);
-  mpsx.m[1][1] = (short)(r1 >> 4);
-  mpsx.m[1][2] = (short)(r2 >> 4);
+  r0 = r0 >> 4;
+  r1 = r1 >> 4;
+  r2 = r2 >> 4;
+  mpsx.m[1][0] = (short)r0;
+  mpsx.m[1][1] = (short)r1;
+  mpsx.m[1][2] = (short)r2;
   r0 = m->m[2];
   r1 = m->m[5];
   r2 = m->m[8];
   mpsx.t[0] = 0;
   mpsx.t[1] = 0;
   mpsx.t[2] = 0;
-  mpsx.m[2][0] = (short)(r0 >> 4);
-  mpsx.m[2][1] = (short)(r1 >> 4);
-  mpsx.m[2][2] = (short)(r2 >> 4);
+  r0 = r0 >> 4;
+  r1 = r1 >> 4;
+  r2 = r2 >> 4;
+  mpsx.m[2][0] = (short)r0;
+  mpsx.m[2][1] = (short)r1;
+  mpsx.m[2][2] = (short)r2;
   gte_SetRotMatrix(&mpsx);
   gte_SetTransMatrix(&mpsx);
 }
@@ -128,7 +149,16 @@ void Weather_InitRain(void)
   return;
 }
 
-/* ---- Weather_InitSplats__Fv  [WEATHER.CPP:182-191] SLD-VERIFIED ---- */
+/* ---- Weather_InitSplats__Fv  [WEATHER.CPP:182-191] SLD-VERIFIED ----
+ * NEAR-MISS 11 diffs (68/69 insns, down from 65 diffs): replaced the manual
+ * (u64)rnd*0xcccccccd>>0x28 emulation with a plain `% 320` (gcc-2.8 -O2 auto-generates the
+ * identical multu+mfhi magic-divide from a real modulo -- the 64-bit cast forced an unwanted
+ * mflo too); hoisted &GameSetup_gData + the constant 1 into named locals (gs/commModeNetwork,
+ * held across the whole loop like the oracle's s4/s3). Residual 11: the oracle ROTATES the loop
+ * (single top-of-loop test reached both on entry AND via an unconditional `j` at the back-edge)
+ * while ours keeps a bottom re-test (`for`/`while`/`do-while` + early-return guard all produce
+ * the SAME shape on this compiler) -- a loop-rotation codegen difference, not reachable via the
+ * source-level loop-shape levers tried. */
 void Weather_InitSplats(void)
 
 {
@@ -138,15 +168,18 @@ void Weather_InitSplats(void)
   u_int y_max;
   int i;
   int splat_i;
-  
+  GameSetup_tData *gs;
+  int commModeNetwork;
+
+  gs = &GameSetup_gData;
+  commModeNetwork = 1;
   for (splat_i = 0; splat_i < 0x13; splat_i = splat_i + 1) {
     y_max = 0xf0;
-    if (GameSetup_gData.commMode == 1) {
+    if (gs->commMode == commModeNetwork) {
       y_max = 0x78;
     }
     rnd = random();
-    Weather_gSplatInfo[splat_i].pos.vx =
-         (short)rnd + (short)((unsigned long long)rnd * 0xcccccccd >> 0x28) * -0x140;
+    Weather_gSplatInfo[splat_i].pos.vx = (short)(rnd % 320);
     uVar1 = random();
     if (y_max == 0) {
     }
@@ -173,43 +206,53 @@ int Weather_GetNewState(void)
   return -1;
 }
 
-/* ---- Weather_ChangeDensityState__Fv  [WEATHER.CPP:253-269] SLD-VERIFIED ---- */
+/* ---- Weather_ChangeDensityState__Fv  [WEATHER.CPP:253-269] SLD-VERIFIED ----
+ * Oracle keeps Weather_GetNewState()'s result in a REGISTER ($a0) through both conditional
+ * overrides, only committing to Weather_gDensityChangeFactor ONCE at the end (with the goalState
+ * add + the ==0 check both reading that same held value) -- not re-storing the raw pre-override
+ * return value to the global first. */
 void Weather_ChangeDensityState(void)
 
 {
   int statechange;
-  
-  Weather_gDensityChangeFactor = Weather_GetNewState();
-  if (Weather_gDensityGoalState + Weather_gDensityChangeFactor < 4) {
-    if (Weather_gDensityGoalState + Weather_gDensityChangeFactor < 0) {
-      Weather_gDensityChangeFactor = 1;
-    }
+  int goalPlusChange;
+
+  statechange = Weather_GetNewState();
+  goalPlusChange = Weather_gDensityGoalState + statechange;
+  if (goalPlusChange >= 4) {
+    statechange = -1;
   }
-  else {
-    Weather_gDensityChangeFactor = -1;
+  else if (goalPlusChange < 0) {
+    statechange = 1;
   }
-  Weather_gDensityGoalState = Weather_gDensityGoalState + Weather_gDensityChangeFactor;
-  if (Weather_gDensityChangeFactor == 0) {
+  Weather_gDensityChangeFactor = statechange;
+  Weather_gDensityGoalState = Weather_gDensityGoalState + statechange;
+  if (statechange == 0) {
     Weather_gDensityTimerGoal = simGlobal.gameTicks + 0x400;
   }
   return;
 }
 
-/* ---- Weather_ChangeIntensityState__Fv  [WEATHER.CPP:273-292] SLD-VERIFIED ---- */
+/* ---- Weather_ChangeIntensityState__Fv  [WEATHER.CPP:273-292] SLD-VERIFIED ----
+ * Same held-register-temp fix as Weather_ChangeDensityState: keep Weather_GetNewState()'s result
+ * in a local through both conditional overrides, commit to the global ONCE at the end. */
 void Weather_ChangeIntensityState(void)
 
 {
   int statechange;
-  
-  Weather_gIntensityChangeFactor = Weather_GetNewState();
-  if (Weather_gTrackIntensityLimit < Weather_gIntensityGoalState + Weather_gIntensityChangeFactor) {
-    Weather_gIntensityChangeFactor = -1;
+  int goalPlusChange;
+
+  statechange = Weather_GetNewState();
+  goalPlusChange = Weather_gIntensityGoalState + statechange;
+  if (Weather_gTrackIntensityLimit < goalPlusChange) {
+    statechange = -1;
   }
-  else if (Weather_gIntensityGoalState + Weather_gIntensityChangeFactor < 0) {
-    Weather_gIntensityChangeFactor = 1;
+  else if (goalPlusChange < 0) {
+    statechange = 1;
   }
-  Weather_gIntensityGoalState = Weather_gIntensityGoalState + Weather_gIntensityChangeFactor;
-  if (Weather_gIntensityChangeFactor == 0) {
+  Weather_gIntensityChangeFactor = statechange;
+  Weather_gIntensityGoalState = Weather_gIntensityGoalState + statechange;
+  if (statechange == 0) {
     Weather_gIntensityTimerGoal = simGlobal.gameTicks + 0x400;
   }
   return;
@@ -219,15 +262,18 @@ void Weather_ChangeIntensityState(void)
 void Weather_ChangeDensityBasedOnTime(void)
 
 {
-  if (Weather_gDensityChangeFactor < 1) {
-    if (Weather_gDensityChangeFactor < 0) {
-      if (Weather_gDensityTbl[Weather_gDensityGoalState] < Weather_gSys.num[0])
-      goto WeatherDensity_numAdd;
-    }
-    else if (simGlobal.gameTicks <= Weather_gDensityTimerGoal) goto WeatherDensity_numAdd;
-  }
-  else if (Weather_gSys.num[0] < Weather_gDensityTbl[Weather_gDensityGoalState])
+  if (Weather_gDensityChangeFactor <= 0) goto WeatherDensity_checkZero;
+  if (Weather_gSys.num[0] < Weather_gDensityTbl[Weather_gDensityGoalState])
   goto WeatherDensity_numAdd;
+  goto WeatherDensity_call;
+WeatherDensity_checkZero:
+  if (Weather_gDensityChangeFactor >= 0) goto WeatherDensity_checkTime;
+  if (!(Weather_gSys.num[0] > Weather_gDensityTbl[Weather_gDensityGoalState]))
+  goto WeatherDensity_call;
+  goto WeatherDensity_numAdd;
+WeatherDensity_checkTime:
+  if (simGlobal.gameTicks <= Weather_gDensityTimerGoal) goto WeatherDensity_numAdd;
+WeatherDensity_call:
   Weather_ChangeDensityState();
 WeatherDensity_numAdd:
   Weather_gSys.num[0] = Weather_gSys.num[0] + Weather_gDensityChangeFactor;
@@ -237,23 +283,39 @@ WeatherDensity_numAdd:
   return;
 }
 
-/* ---- Weather_ChangeIntensityBasedOnTime__Fv  [WEATHER.CPP:323-350] SLD-VERIFIED ---- */
+/* ---- Weather_ChangeIntensityBasedOnTime__Fv  [WEATHER.CPP:323-350] SLD-VERIFIED ----
+ * NEAR-MISS 4 diffs (62/62 insns, down from 56 diffs): goto-based control-flow rewrite matching
+ * the oracle's exact branch graph (fixes the Weather_ChangeDensityBasedOnTime family of bugs) +
+ * explicit if/else for the Weather_gType tail (was a compact bool-store). Residual: one
+ * beqz/bnez polarity flip on the FIRST branch's slt -- direct-condition form places the slt
+ * correctly but wrong branch sense; negated form gets the right branch sense but the compiler
+ * hoists the slt past an unconditional j (looks like a scheduling tie-break, same family as the
+ * TrsProj_TransformProjectVertex register-coloring residual). Tried >=, <=-with-swapped-operands,
+ * !(<) -- none land both position AND polarity simultaneously. */
 void Weather_ChangeIntensityBasedOnTime(void)
 
 {
-  if (Weather_gIntensityChangeFactor < 1) {
-    if (Weather_gIntensityChangeFactor < 0) {
-      if (Weather_gIntensityTbl[Weather_gIntensityGoalState] < (int)Weather_gSys.velocity.vy)
-      goto WeatherIntensity_velYUpdate;
-    }
-    else if (simGlobal.gameTicks <= Weather_gIntensityTimerGoal) goto WeatherIntensity_velYUpdate;
-  }
-  else if ((int)Weather_gSys.velocity.vy < Weather_gIntensityTbl[Weather_gIntensityGoalState])
+  if (Weather_gIntensityChangeFactor <= 0) goto WeatherIntensity_checkZero;
+  if (!((int)Weather_gSys.velocity.vy < Weather_gIntensityTbl[Weather_gIntensityGoalState]))
+  goto WeatherIntensity_call;
   goto WeatherIntensity_velYUpdate;
+WeatherIntensity_checkZero:
+  if (Weather_gIntensityChangeFactor >= 0) goto WeatherIntensity_checkTime;
+  if ((int)Weather_gSys.velocity.vy > Weather_gIntensityTbl[Weather_gIntensityGoalState])
+  goto WeatherIntensity_velYUpdate;
+  goto WeatherIntensity_call;
+WeatherIntensity_checkTime:
+  if (simGlobal.gameTicks <= Weather_gIntensityTimerGoal) goto WeatherIntensity_velYUpdate;
+WeatherIntensity_call:
   Weather_ChangeIntensityState();
 WeatherIntensity_velYUpdate:
   Weather_gSys.velocity.vy = Weather_gSys.velocity.vy + (short)Weather_gIntensityChangeFactor;
-  Weather_gType = (Weather_tState)(Weather_gSys.velocity.vy < -0x20);
+  if (Weather_gSys.velocity.vy < -0x20) {
+    Weather_gType = 1;
+  }
+  else {
+    Weather_gType = 0;
+  }
   return;
 }
 
@@ -262,9 +324,10 @@ void Weather_InitStateControls(void)
 
 {
   int track;
-  
-  Weather_gTrackIntensityLimit = Weather_gTrackIntensityLimitTbl[GameSetup_gData.track];
-  if ((GameSetup_gData.track == 0) || (GameSetup_gData.track == 4)) {
+
+  track = GameSetup_gData.track;
+  Weather_gTrackIntensityLimit = Weather_gTrackIntensityLimitTbl[track];
+  if ((track == 0) || (track == 4)) {
     Weather_gSnowTrack = 1;
     Weather_gIntensityGoalState = 3;
   }
@@ -273,7 +336,12 @@ void Weather_InitStateControls(void)
     Weather_gIntensityGoalState = 0;
   }
   Weather_gSys.velocity.vy = (short)Weather_gIntensityTbl[Weather_gIntensityGoalState];
-  Weather_gType = (Weather_tState)(Weather_gIntensityGoalState != 3);
+  if (Weather_gIntensityGoalState == 3) {
+    Weather_gType = 0;
+  }
+  else {
+    Weather_gType = 1;
+  }
   Weather_gDensityGoalState = 3;
   Weather_gIntensityChangeFactor = 0;
   Weather_gDensityChangeFactor = 0;
@@ -451,7 +519,13 @@ void Weather_DeInit(void)
   return;
 }
 
-/* ---- Weather_TransformVertex__FP10matrixtdefiP7SVECTOR  [WEATHER.CPP:581-615] SLD-VERIFIED ---- */
+/* ---- Weather_TransformVertex__FP10matrixtdefiP7SVECTOR  [WEATHER.CPP:581-615] SLD-VERIFIED ----
+ * NEAR-MISS 32 diffs (49/49 insns, down from 39): moved the loop's break-test BEFORE `next=s+1`
+ * (oracle computes `next` only on the non-exiting path) -- the earlier form computed `next`
+ * unconditionally every iteration incl. the final exit. Residual: a pure `next` register
+ * coloring swap (ours=v0, oracle=a1) cascading into the tv.vx/vy/vz field-register triple
+ * shifting by one slot; no ABI anchor found (next isn't a call-arg/return at its use point) --
+ * same permuter-class coloring-tiebreak family as TrsProj_TransformProjectVertex. */
 void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
 {
   int r0;
@@ -467,8 +541,8 @@ void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
   gte_stlvnl(&tv);
   while (true) {
     n = n + -1;
-    next = s + 1;
     if (n == -1) break;
+    next = s + 1;
     gte_ldv0(next);
     gte_mvmva(1,0,0,0,0);
     r0 = tv.vx;
@@ -777,10 +851,10 @@ void Weather_CreateSnow(SVECTOR *pt)
   /* project corners 0..2 with the GTE, link a POLY_FT4 into the ordering table */
   gte_ldv3(&gv[0],&gv[1],&gv[2]);
   gte_rtpt();
-  prim = (POLY_FT4 *)Render_gPacketPtr;
-  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x28;
-  *(u_int *)Render_gPalettePtr = *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
+  prim = (POLY_FT4 *)RENDER_PACKETPTR_ADDR;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)RENDER_PALETTEPTR_ADDR & 0xffffff;
+  RENDER_PACKETPTR_ADDR = RENDER_PACKETPTR_ADDR + 0x28;
+  *(u_int *)RENDER_PALETTEPTR_ADDR = *(u_int *)RENDER_PALETTEPTR_ADDR & 0xff000000 | (u_int)prim & 0xffffff;
   *((char *)prim + 3) = 9;                                  /* OT tag length (9 words) */
   gte_stsxy3(&prim->x0,&prim->x1,&prim->x2);
 
@@ -815,10 +889,10 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
     ny = pt1->vy;
     gte_ldv0(&gv);
     gte_rtps();
-    prim = (LINE_G2 *)Render_gPacketPtr;
-    *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0x14;
-    *(u_int *)Render_gPalettePtr = *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
+    prim = (LINE_G2 *)RENDER_PACKETPTR_ADDR;
+    *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)RENDER_PALETTEPTR_ADDR & 0xffffff;
+    RENDER_PACKETPTR_ADDR = RENDER_PACKETPTR_ADDR + 0x14;
+    *(u_int *)RENDER_PALETTEPTR_ADDR = *(u_int *)RENDER_PALETTEPTR_ADDR & 0xff000000 | (u_int)prim & 0xffffff;
     *((char *)prim + 3) = 4;                       /* OT tag length (4 words) */
     *(u_int *)&prim->r0 = 0x52000000;              /* rgb0=0, code=0x52 (LINE_G2) */
     *(u_int *)&prim->r1 = 0x402020;                /* r1=0x20,g1=0x20,b1=0x40 */
@@ -830,10 +904,10 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
     /* first frame for this drop -> zero-length line at the current point */
     gte_ldv0(&gv);
     gte_rtps();
-    prim = (LINE_G2 *)Render_gPacketPtr;
-    *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0x14;
-    *(u_int *)Render_gPalettePtr = *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
+    prim = (LINE_G2 *)RENDER_PACKETPTR_ADDR;
+    *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)RENDER_PALETTEPTR_ADDR & 0xffffff;
+    RENDER_PACKETPTR_ADDR = RENDER_PACKETPTR_ADDR + 0x14;
+    *(u_int *)RENDER_PALETTEPTR_ADDR = *(u_int *)RENDER_PALETTEPTR_ADDR & 0xff000000 | (u_int)prim & 0xffffff;
     *((char *)prim + 3) = 4;
     *(u_int *)&prim->r0 = 0x52000000;
     *(u_int *)&prim->r1 = 0x402020;
@@ -873,14 +947,14 @@ void Weather_CreateSplat
   short ts1;
   short ts3;
   
-  prim = Render_gPacketPtr;
-  tp3 = Render_gPalettePtr;
+  prim = RENDER_PACKETPTR_ADDR;
+  tp3 = RENDER_PALETTEPTR_ADDR;
   ts3 = (splat->pos).vx;
   ts1 = (splat->pos).vy;
-  *(u_int *)Render_gPacketPtr =
-       *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  uv_pack = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x28;
+  *(u_int *)RENDER_PACKETPTR_ADDR =
+       *(u_int *)RENDER_PACKETPTR_ADDR & 0xff000000 | *(u_int *)RENDER_PALETTEPTR_ADDR & 0xffffff;
+  uv_pack = (u_int)RENDER_PACKETPTR_ADDR & 0xffffff;
+  RENDER_PACKETPTR_ADDR = RENDER_PACKETPTR_ADDR + 0x28;
   *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | uv_pack;
   prim[3] = 9;
   prim[7] = 0x2e;
@@ -924,7 +998,6 @@ void Weather_DoSplats
   short y_pos;
   u_int rnd;
   u_int uVar1;
-  Weather_tSplatInfo *in_t1_local;
   int i;
   int local_s1_64;
   int num_reg;
@@ -942,7 +1015,7 @@ void Weather_DoSplats
           if ((gCurrentNumSplats <= num) ||
              (new_count = local_s1_64, local_s1_64 != gCurrentNumSplats + -1)) {
             rnd = random();
-            (splats->pos).vx = (short)rnd + (short)((unsigned long long)rnd * 0xcccccccd >> 0x28) * -0x140;
+            (splats->pos).vx = (short)(rnd % 320);
             if (GameSetup_gData.commMode == 1) {
               uVar1 = random();
               y_pos = (short)(uVar1 % 0xf0 >> 1);
@@ -1041,10 +1114,10 @@ void Weather_DoWeather(DRender_tView *Vi)
       } while (n < Weather_gSys.num[player]);
     }
     /* tail: link a DR_MODE primitive into the OT to reset the texture page */
-    prim = (DR_MODE *)Render_gPacketPtr;
-    *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0xc;
-    *(u_int *)Render_gPalettePtr = *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
+    prim = (DR_MODE *)RENDER_PACKETPTR_ADDR;
+    *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)RENDER_PALETTEPTR_ADDR & 0xffffff;
+    RENDER_PACKETPTR_ADDR = RENDER_PACKETPTR_ADDR + 0xc;
+    *(u_int *)RENDER_PALETTEPTR_ADDR = *(u_int *)RENDER_PALETTEPTR_ADDR & 0xff000000 | (u_int)prim & 0xffffff;
     SetDrawMode(prim,0,0,0x20,(RECT *)0x0);
   }
 }

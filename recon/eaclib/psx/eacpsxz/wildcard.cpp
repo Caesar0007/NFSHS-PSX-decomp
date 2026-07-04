@@ -25,19 +25,23 @@ extern "C" char *strrstr (char *s, char *set);    /* @0x800E8940 */
 extern "C" int   wildcard(char *text, char *pat); /* @0x800E89BC */
 
 /* strrstr @0x800E8940 : rightmost position in `s` of any char of `set` (0 if none).
- * Oracle: initial beqz-if-empty guard (s1=0 in delay slot) + do-while bnez at bottom.
- * 4-diff floor: j T (unconditional back-jump) vs beqz + nop pair — loop-entry-jump form. */
+ * Oracle: initial beqz-if-empty guard (s1=0 in delay slot) falls through into the do-while body;
+ * a `do{}while(cond); return X;` where the guard is an early `return X;` (same shape) makes gcc
+ * ROTATE the guard into an unconditional `j` to the loop's bottom test instead of the oracle's real
+ * `beqz`-to-exit + fall-through-into-body. Nesting the do-while inside `if (cond) { ... }` (no early
+ * return) suppresses the rotation and matches byte-for-byte -- branch-polarity/early-return lever
+ * (§3.12 #7 pairing) applied to a loop guard, not just a boolean select. */
 extern "C" char *strrstr(char *s, char *set)
 {
     char *best = 0;
-    if (*set == 0)
-        return best;
-    do {
-        char *p = strrchr(s, *set);     /* libc strrchr, BIOS A0:0x1F */
-        if (best < p)                    /* keep the rightmost (max) hit */
-            best = p;
-        set++;
-    } while (*set);
+    if (*set != 0) {
+        do {
+            char *p = strrchr(s, *set);     /* libc strrchr, BIOS A0:0x1F */
+            if (best < p)                    /* keep the rightmost (max) hit */
+                best = p;
+            set++;
+        } while (*set);
+    }
     return best;
 }
 

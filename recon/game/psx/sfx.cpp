@@ -112,21 +112,26 @@ void Sfx_BuildFastDisolveFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,Draw_t
   return;
 }
 
-/* ---- Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache  [SFX.CPP:306-363] SLD-VERIFIED ---- */
+/* ---- Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache  [SFX.CPP:306-363] SLD-VERIFIED ----
+ * This TU's original obj (SFX.CPP) reaches Render_gPacketPtr/Render_gPalettePtr via their FIXED
+ * scratchpad storage address (0x1F800004 / 0x1F800000) rather than the linked symbol -- oracle
+ * shows literal `lui;lw 0x1F800004`/`0x1F800000` loads, not a %hi/%lo(Render_gPacketPtr) reloc.
+ * Access via the fixed-address pointer-to-pointer form (same storage as render.cpp's owned global,
+ * byte-identical semantics) to reproduce that codegen. */
+#define RENDER_PACKETPTR_ADDR (*(u_char **)0x1F800004)
+#define RENDER_PALETTEPTR_ADDR (*(u_char **)0x1F800000)
 void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCache *sd)
 
 {
   POLY_FT4 *prim;
   u_long l0;
-  u_long l1;
-  u_long l2;
-  u_long l3;
+  u_long v0f,v1f,v2f,v3f;
   u_short tpage;
 
   if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
     gte_ldv0(pt);
     gte_rtps();
-    prim = (POLY_FT4 *)Render_gPacketPtr;
+    prim = (POLY_FT4 *)RENDER_PACKETPTR_ADDR;
     gte_stsxy(&prim->x0);
     gte_ldv3(pt + 1,pt + 2,pt + 3);
     gte_rtpt();
@@ -144,23 +149,29 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
     gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
     sd->otz = (sd->otz >> 1) + offset;
     if ((-1 < sd->otz) && (sd->otz <= Draw_gViewOtSize + -3)) {
-      prim->code = 9;
-      l1 = *(u_int *)&pmx->u1;
-      l2 = *(u_int *)&pmx->u2;
-      l3 = *(u_int *)&pmx->u3;
-      *(u_int *)&prim->u0 = *(u_int *)&pmx->u0;
-      *(u_int *)&prim->u1 = l1;
-      *(u_int *)&prim->u2 = l2;
-      *(u_int *)&prim->u3 = l3;
+      *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
+      v0f = *(u_int *)&pmx->u0;
+      v1f = *(u_int *)&pmx->u1;
+      v2f = *(u_int *)&pmx->u2;
+      v3f = *(u_int *)&pmx->u3;
+      *(u_int *)&prim->u0 = v0f;
+      *(u_int *)&prim->u1 = v1f;
+      *(u_int *)&prim->u2 = v2f;
+      *(u_int *)&prim->u3 = v3f;
       tpage = pmx->tpage;
-      ChangeTPage(&tpage,(mode & 1U) == 0 ? 1 : 2);
+      if ((mode & 1U) != 0) {
+        ChangeTPage(&tpage,2);
+      }
+      else {
+        ChangeTPage(&tpage,1);
+      }
       prim->tpage = tpage;
       prim->tag = prim->tag & 0xff000000 |
-                  *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
-      l0 = (u_int)Render_gPacketPtr & 0xffffff;
-      Render_gPacketPtr = Render_gPacketPtr + 0x28;
-      *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
-           *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | l0;
+                  *(u_int *)(RENDER_PALETTEPTR_ADDR + sd->otz * 4) & 0xffffff;
+      l0 = (u_int)RENDER_PACKETPTR_ADDR & 0xffffff;
+      RENDER_PACKETPTR_ADDR = RENDER_PACKETPTR_ADDR + 0x28;
+      *(u_int *)(RENDER_PALETTEPTR_ADDR + sd->otz * 4) =
+           *(u_int *)(RENDER_PALETTEPTR_ADDR + sd->otz * 4) & 0xff000000 | l0;
     }
   }
   return;
@@ -186,7 +197,7 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
   int otz;
   int colorcode;
 
-  sd = &Sfx_gCache;
+  sd = (Sfx_tCache *)0x1f800000;   /* oracle: literal scratchpad address, not %hi/%lo(Sfx_gCache) */
   switch((u_char)is->type) {
   case 1:
     Sfx_BuildSmokeFacet(is,&dSouffle,gSMokePalette);
@@ -294,7 +305,7 @@ SfxSouffle_billboard:
         gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
         sd->otz = (sd->otz >> 1) + otz;
         if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
-          prim->code = 9;
+          *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
           *(u_int *)&prim->u0 = *(u_int *)&pmx->u0;
           *(u_int *)&prim->u1 = *(u_int *)&pmx->u1;
           *(u_int *)&prim->u2 = *(u_int *)&pmx->u2;
@@ -332,7 +343,7 @@ SfxSouffle_billboard:
       gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
       sd->otz = (sd->otz >> 1) + 0xf;
       if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
-        prim->code = 9;
+        *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
         *(u_int *)&prim->u0 = *(u_int *)&gLeafPixmap->u0;
         *(u_int *)&prim->u1 = *(u_int *)&gLeafPixmap->u1;
         *(u_int *)&prim->u2 = *(u_int *)&gLeafPixmap->u2;

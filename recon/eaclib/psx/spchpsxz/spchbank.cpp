@@ -15,7 +15,7 @@ extern "C" int gNumBanks[]; /* @0x801370B8  : number of bank slots */
 extern "C" int gGameNum;    /* shared game global : current game/race number (cycle-bit hash key) */
 extern "C" int DAT_80150000;/* @0x80150000  : SetCycleBits default-return placeholder */
 
-extern "C" void iSPCH_MemAlloc(void);          /* spchinit (allocates gVoxBanks[0] from gNumBanks[0]) */
+extern "C" int  iSPCH_MemAlloc(int numBytes, const char *tag); /* spchinit; returns the allocated ptr (0 = failed) */
 extern "C" void iSPCH_MemFree(void);           /* spchinit */
 extern "C" int  iSPCH_GetBankBits(int bank);   /* spchpick (returns the bank's cycle-bits array) */
 extern "C" void trap(unsigned int code);
@@ -40,8 +40,7 @@ extern "C" void iSPCH_InitBanks(void)
 extern "C" void iSPCH_DisposeBanks(void)
 {
     int *banks = gVoxBanks;   /* hold base across the MemFree call (oracle keeps &gVoxBanks in s0) */
-    int  cur   = banks[0];
-    if (cur != 0)
+    if (banks[0] != 0)
         iSPCH_MemFree();
     banks[0] = 0;
     gNumBanks[0] = 0;
@@ -51,17 +50,21 @@ extern "C" void iSPCH_DisposeBanks(void)
 extern "C" int iSPCH_BankMemAlloc(unsigned int numBanks)
 {
     if (gVoxBanks[0] == 0) {
-        gNumBanks[0] = (int)numBanks;
-        iSPCH_MemAlloc();
-        if (gVoxBanks[0] != 0 && 0 < gNumBanks[0]) {
-            int   i = 0;
-            int  *p = (int *)gVoxBanks[0];
-            unsigned int n = (unsigned int)gNumBanks[0];
-            do {
-                *p = 0;
-                i++;
-                p++;
-            } while (i < (int)n);
+        int allocated;
+        gNumBanks[0] = numBanks;
+        allocated = iSPCH_MemAlloc(numBanks << 2, "spch banks");
+        if (allocated != 0) {
+            gVoxBanks[0] = allocated;
+            if (0 < gNumBanks[0]) {
+                int i = 0;
+                int *p = (int *)allocated;
+                int n = gNumBanks[0];
+                do {
+                    *p = 0;
+                    i++;
+                    p++;
+                } while (i < n);
+            }
         }
     }
     return gVoxBanks[0];
@@ -72,17 +75,19 @@ extern "C" int iSPCH_GetFreeBank(void)
 {
     int result = -1;
     if (0 < gNumBanks[0]) {
+        int count = gNumBanks[0];
         int  i = 0;
         int *p = (int *)gVoxBanks[0];
         do {
             if (*p == 0) {
                 result = i;
-                break;
+                goto done;
             }
             i++;
             p++;
-        } while (i < gNumBanks[0]);
+        } while (i < count);
     }
+done:
     return result;
 }
 
@@ -114,7 +119,7 @@ extern "C" unsigned int iSPCH_TestSubBankBounds(int bankIdx, int subIdx)
     unsigned int count;
     if (base == 0)         goto ret;
     if (bankIdx < 0)       goto ret;
-    count = (unsigned int)*(unsigned short *)(*(int *)(bankIdx * 4 + base) + 6);
+    count = *(unsigned short *)(*(int *)(bankIdx * 4 + base) + 6);
     if (count == 0xffff)   goto ret;
     if (subIdx < 0)        goto ret;
     result = (unsigned int)(subIdx < (int)count);

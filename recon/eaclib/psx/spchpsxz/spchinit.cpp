@@ -32,7 +32,7 @@ extern "C" int *iSPCH_EACseedrandom(unsigned int seed);        /* spchrand */
 extern "C" void iSPCH_ClearChosen(void);                       /* spchpick */
 extern "C" int  SPCH_SetPreLoadTicks(int ticks);              /* spchpick */
 
-extern "C" int  iSPCH_MemAlloc(void);                                       /* @0x800EB5A4 */
+extern "C" int  iSPCH_MemAlloc(int numBytes, const char *tag);              /* @0x800EB5A4 */
 extern "C" void iSPCH_MemFree(void);                                        /* @0x800EB5D4 */
 extern "C" void SPCH_Deinit(void);                                          /* @0x800EB600 */
 extern "C" void iSPCH_InitInGame(void);                                     /* @0x800EB654 */
@@ -41,12 +41,14 @@ extern "C" int  SPCH_InitBankMem(int memAllocFn, int memFreeFn, int numBanks);  
 extern "C" int  SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate); /* @0x800EB748 */
 
 /* iSPCH_MemAlloc @0x800EB5A4 : invoke the user's allocation callback (which fills gVoxBanks); returns
- *   the callback's result, or 0 if no callback is registered. */
-extern "C" int iSPCH_MemAlloc(void)
+ *   the callback's result, or 0 if no callback is registered.  `numBytes`/`tag` are passed through to
+ *   the callback (a debug-tagging alloc convention -- e.g. "spch banks") but this wrapper itself never
+ *   reads them (its own oracle body takes no args -- classic nullsub-still-takes-real-args). */
+extern "C" int iSPCH_MemAlloc(int numBytes, const char *tag)
 {
     int result = 0;
     if (gMemAlloc[0] != 0)
-        result = ((int (*)(void))gMemAlloc[0])();
+        result = ((int (*)(int, const char *))gMemAlloc[0])(numBytes, tag);
     return result;
 }
 
@@ -86,14 +88,24 @@ extern "C" void iSPCH_InitInGame(void)
  *   (1 = /10, 2 = *2/7).  The (x+7)>>3 is a round-toward-zero divide-by-8. */
 extern "C" int SPCH_GetSampleDataRate(int numSamples, int rate, int channels)
 {
-    int v = numSamples * rate;
-    if (v < 0)
-        v = v + 7;
-    v = v >> 3;
+    int raw = numSamples * rate;
+    int v;
+    if (raw < 0)
+        raw = raw + 7;
+    v = raw >> 3;
     if (channels == 1)
-        v = v / 10;
-    else if (channels == 2)
-        v = (v * 2) / 7;
+        goto div10;
+    if (channels == 0)
+        goto done;
+    if (channels == 2)
+        goto mul27;
+    goto done;
+div10:
+    v = v / 10;
+    goto done;
+mul27:
+    v = (v * 2) / 7;
+done:
     return v;
 }
 
@@ -114,13 +126,13 @@ extern "C" int SPCH_InitBankMem(int memAllocFn, int memFreeFn, int numBanks)
  *   pick/event/bank state, and mark it live.  Returns 1. */
 extern "C" int SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate)
 {
+    gSampleRequest    = sampleRequestCb;
+    gGameNum          = (int)gameNum;
+    gDataRate         = dataRate;
     gMemAlloc[0]      = 0;
     gMemFree          = 0;
     gSentenceRuleTest = 0;
     gSentenceRuleSet  = 0;
-    gSampleRequest    = sampleRequestCb;
-    gGameNum          = (int)gameNum;
-    gDataRate         = dataRate;
     iSPCH_EACseedrandom(gameNum);
     iSPCH_ClearChosen();
     SPCH_SetPreLoadTicks(0);

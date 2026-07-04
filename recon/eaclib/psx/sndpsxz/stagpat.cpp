@@ -103,9 +103,12 @@ extern "C" int iSNDresolveheader(int *hdr, int *out)
     *(int *)((int)hdr + 0x54) = *(int *)((int)out + 0x54) + *(int *)((int)hdr + 0x54);
     *(int *)((int)hdr + 0x5c) = *(int *)((int)out + 0x5c) + *(int *)((int)hdr + 0x5c);
     *(int *)((int)hdr + 0x74) = *(int *)((int)out + 0x74) + *(int *)((int)hdr + 0x74);
-    /* near-miss (4 diffs): the +0x80 accumulation feeds `r` (returned); ours hoists the hdr+0x80 load
-     * ahead of the +0x74 store + colors the commutative addu operands opposite the oracle. Coloring
-     * tug-of-war with the following +100 conditional; permuter multi-basin candidate. hdr-first is best. */
+    /* near-miss floor (4 diffs, 32==32 insns): the +0x80 accumulation feeds `r` (returned); ours
+     * hoists the hdr+0x80 load ahead of the +0x74 store + colors the commutative addu operands
+     * opposite the oracle. Tried: out-first operand order (regressed, 6 diffs -- hdr-first is
+     * correct), direct-store-then-reread (regressed, +2 insns), an interleaved `guard` temp for
+     * the +100 read (no change). Pure gcc-2.8.0 scheduling/coloring tie-break across the block
+     * boundary; not source-reachable. Permuter multi-basin candidate. */
     r = *(int *)((int)hdr + 0x80) + *(int *)((int)out + 0x80);
     *(int *)((int)hdr + 0x80) = r;
     if (*(int *)((int)hdr + 100) != 0) {

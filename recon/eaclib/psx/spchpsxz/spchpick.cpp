@@ -120,25 +120,37 @@ extern "C" int iSPCH_MatchSample(int bank, int sample, int phraseTemplate, int u
  *   into outChoice[0..1].  Returns 0 on success, nonzero (sign of ~choice) on failure. */
 extern "C" unsigned int iSPCH_GetPhraseBank(short *phraseTemplate, int paramTable, short *outChoice)
 {
-    int           wanted = (int)(unsigned int)(unsigned short)*phraseTemplate;
-    unsigned char flags  = *(unsigned char *)(phraseTemplate + 1);
-    unsigned char mode   = flags >> 4;
-    unsigned int  param  = flags & 0xf;
-    int           choice;
+    unsigned short wanted = *(unsigned short *)phraseTemplate;
+    unsigned int   flags  = *(unsigned char *)(phraseTemplate + 1);
+    unsigned int   mode   = flags >> 4;
+    unsigned int   param  = flags & 0xf;
+    int            choice;
     outChoice[1] = -1;
     *outChoice   = -1;
-    if (mode == 1) {
-        choice = *(int *)(param * 4 + paramTable);
-        if (-1 < choice &&
-            (int)(unsigned int)**(unsigned short **)(choice * 4 + gVoxBanks) != wanted)
+    if (mode == 1)
+        goto byParam;
+    if (mode == 0)
+        goto byFind;
+    if (mode == 2)
+        goto bySub;
+    goto done;
+byParam:
+    choice = *(int *)(param * 4 + paramTable);
+    if (-1 < choice) {
+        int voxBase = gVoxBanks;
+        if ((unsigned int)**(unsigned short **)(choice * 4 + voxBase) != (unsigned int)wanted)
             choice = -1;
-        *outChoice = (short)choice;
-    } else if (mode == 0) {
-        choice = iSPCH_FindBank(wanted);
-        *outChoice = (short)choice;
-    } else if (mode == 2) {
+    }
+    *outChoice = (short)choice;
+    goto done;
+byFind:
+    choice = iSPCH_FindBank((unsigned int)wanted);
+    *outChoice = (short)choice;
+    goto done;
+bySub:
+    {
         int *pv;
-        choice = iSPCH_FindBank(wanted);
+        choice = iSPCH_FindBank((unsigned int)wanted);
         pv = (int *)(param * 4 + paramTable);
         if (iSPCH_TestSubBankBounds(choice, *pv) == 0)
             choice = -1;
@@ -146,6 +158,7 @@ extern "C" unsigned int iSPCH_GetPhraseBank(short *phraseTemplate, int paramTabl
             outChoice[1] = (short)*pv;
         *outChoice = (short)choice;
     }
+done:
     /* mode > 2: outChoice stays -1 */
     return (unsigned int)~(int)*outChoice >> 0x1f;
 }
@@ -164,13 +177,18 @@ extern "C" int iSPCH_GetBankBits(int bank)
 extern "C" unsigned char *iSPCH_ClearCycleBit(int bank, int cycle)
 {
     int            r = cycle;
-    int            bits;
+    int            off;
+    unsigned int   mask;
+    unsigned char *bits;
     unsigned char *p;
     if (cycle < 0)
         r = cycle + 7;
-    bits = iSPCH_GetBankBits(bank);
-    p = (unsigned char *)(bits + (r >> 3) + 1);
-    *p = *p & ~(unsigned char)(1 << ((unsigned int)(cycle + (r >> 3) * -8) & 0x1f));
+    r = r >> 3;
+    off = r + 1;
+    mask = ~(1 << (cycle - (r << 3)));
+    bits = (unsigned char *)iSPCH_GetBankBits(bank);
+    p = bits + off;
+    *p = (unsigned char)(*p & mask);
     return p;
 }
 
@@ -178,12 +196,14 @@ extern "C" unsigned char *iSPCH_ClearCycleBit(int bank, int cycle)
 extern "C" unsigned int iSPCH_CheckBankBit(int bank, int cycle)
 {
     int r = cycle;
-    int bits;
+    unsigned int bit;
+    unsigned char *bits;
     if (cycle < 0)
         r = cycle + 7;
-    bits = iSPCH_GetBankBits(bank);
-    return (unsigned int)*(unsigned char *)(bits + (r >> 3)) &
-           (1 << ((unsigned int)(cycle + (r >> 3) * -8) & 0x1f));
+    r = r >> 3;
+    bit = 1 << (cycle - (r << 3));
+    bits = (unsigned char *)iSPCH_GetBankBits(bank);
+    return (unsigned int)*(unsigned char *)(bits + r) & bit;
 }
 
 /* iSPCH_CheckTemplateSample @0x80100A70 : whether choice's template sample bit is set for this bank. */
@@ -246,9 +266,12 @@ extern "C" int iSPCH_ChooseSamples(short *choice, int maxToPick, int phraseTempl
 extern "C" int iSPCH_SampleLength(short *choice)
 {
     int tmp[4];
-    int r = iSPCH_UnPackSample(*(int *)(*choice * 4 + gVoxBanks),
-                               (unsigned int)PICK(choice[4]), tmp);
+    unsigned char *pickAddr = &ispch_gPickSamples;
+    int voxBase = gVoxBanks;
     int len = 0;
+    pickAddr = pickAddr + choice[4];
+    int bank = *(int *)(*choice * 4 + voxBase);
+    int r = iSPCH_UnPackSample(bank, (unsigned int)*pickAddr, tmp);
     if (r != 0)
         len = tmp[0];
     return len;
@@ -585,11 +608,12 @@ extern "C" int iSPCH_SaveChosenSentence(int sentence, int paramTable, int ruleCt
 {
     /* gSentenceChoice[0..2] = DAT_8014843C/40/44 (one contiguous block); [4..15] = the 12 eventArgs.
      * The original reaches all three head fields + the loop off a single shared base. */
-    int *p = gSentenceChoice;
     int  i = 0;
+    int *p;
     gSentenceChoice[0] = sentence;      /* DAT_8014843C (via %hi reg) */
-    p[1] = paramTable;    /* DAT_80148440 (via base copy, shared with loop) */
-    p[2] = ruleCtx;       /* DAT_80148444 */
+    gSentenceChoice[1] = paramTable;    /* DAT_80148440 */
+    gSentenceChoice[2] = ruleCtx;       /* DAT_80148444 */
+    p = gSentenceChoice;
     do {
         p[4] = *eventArgs;
         eventArgs = eventArgs + 1;

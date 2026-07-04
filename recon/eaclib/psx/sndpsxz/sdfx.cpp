@@ -95,6 +95,14 @@ extern "C" unsigned int iSNDpsxfxinit(int mode)
 }
 
 /* iSNDplatformfxinit @0x80100584 : record the requested fx `mode` and, if audio is up, apply it now. */
+/* near-miss floor (11 diffs): oracle's `lui v0,%hi(D_8014791c)` (computed early, before the
+ * `sndgs[0xf]` branch) is REUSED as the store's base in the branch's delay slot (`sw a0,%lo(...)(v0)`);
+ * our gcc materializes a FRESH `$at` scratch for the store instead of reusing an already-live v0, and
+ * reads the guard byte into v0 (ours) vs v1 (oracle). Tried: store-in-branch+early-return (regressed,
+ * duplicated the store, 17 diffs), an explicit `int *slot=&DAT_...` local (no change), pre-reading the
+ * guard into a named `signed char` (regressed, +1 insn re-extension), reordering the `(void)reserved;`
+ * no-op (no change, as expected). Pure gcc-2.8.0 scratch-register/scheduling tie-break across the
+ * branch; not source-reachable. Permuter multi-basin candidate. */
 extern "C" int iSNDplatformfxinit(int reserved, int mode)
 {
     (void)reserved;

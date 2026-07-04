@@ -13,9 +13,12 @@ extern "C" int iSNDbankalloc(void);   /* @0x801027BC */
 extern "C" int iSNDbankalloc(void)
 {
     int  i = 0;
-    int  n = (int)(unsigned)(unsigned short)sndgs[3];   /* cache the bank count in a reg (oracle a1), reuse it */
-    int *e = (int *)sndgs[0x26];
-    if (n != 0) {
+    unsigned short rawcount = (unsigned short)sndgs[3];
+    if (rawcount != 0) {
+        int n = rawcount;               /* cache the bank count in a reg (oracle a1), reuse it */
+        int *e = (int *)sndgs[0x26];   /* table base -- loaded INSIDE the guard, matching the oracle's
+                                        * deferred `lw a0,0x98(v0)` (ours hoisted it above the count's
+                                        * `beqz` when it was a function-scope init). */
         do {
             if (*e == 0)
                 return i;

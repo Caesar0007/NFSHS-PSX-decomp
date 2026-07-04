@@ -208,6 +208,11 @@ extern "C" unsigned int iSNDsetvol(int chan, int left, int right)
 
 /* iSNDsetslot @0x800FF394 : program a channel's SPU voice ADSR + pitch slot (attack/decay rate, start
  *   address, sample rate). */
+/* near-miss floor (6 diffs): oracle's `lui;sll(chan*0x10);sra(addr>>3);lw` interleaves the two
+ * independent shifts INTO the DAT_80147e28 lui/lw pair's gap; our gcc-2.8.0 emits the lui+lw
+ * back-to-back and both shifts after. Tried: pre-computing addr>>3/chan*0x10 as named locals
+ * (before/after/either order), in-place mutation of the params -- all reproduce this identical
+ * schedule. Pure RTL instruction-scheduling choice, not source-reachable; permuter candidate. */
 extern "C" int iSNDsetslot(int chan, int addr, int pitch)
 {
     int r = DAT_80147e28 + chan * 0x10;

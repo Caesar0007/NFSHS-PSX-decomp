@@ -66,7 +66,7 @@ void Flare_Tri(long *cp,long *p1,long *p2,int otz)
   int pkt_addr24;
   u_char *prim;
   CVECTOR flareColor;
-  
+
   prim = Render_gPacketPtr;
   prev_pkt_slot = (u_int *)(Render_gPalettePtr + otz * 4);
   *(u_int *)Render_gPacketPtr = *(u_int *)Render_gPacketPtr & 0xff000000 | *prev_pkt_slot & 0xffffff;
@@ -505,26 +505,27 @@ void Flare_QuadFlare(long *center,int otz)
 {
   long *cp;
   long *p2;
-  long pt [4];
+  long ptA;
+  long ptB;
   long save1;
-  
+
   cp = center;
 gte_ldv0(&Flare_gQuad);
   gte_rtps();
 gte_swc2(0xe,&save1);
 gte_ldv0(((char *)&Flare_gQuad + 0x8));
   gte_rtps();
-  p2 = pt + 1;
-gte_swc2(0xe,((char *)&pt + 0x4));
+  p2 = &ptA;
+gte_swc2(0xe,&ptA);
   Flare_Tri(cp,&save1,p2,otz);
 gte_ldv0(((char *)&Flare_gQuad + 0x10));
   gte_rtps();
-gte_swc2(0xe,&pt);
-  Flare_Tri(center,p2,pt,otz);
+gte_swc2(0xe,&ptB);
+  Flare_Tri(center,p2,&ptB,otz);
 gte_ldv0(((char *)&Flare_gQuad + 0x18));
   gte_rtps();
-gte_swc2(0xe,((char *)&pt + 0x4));
-  Flare_Tri(center,pt,p2,otz);
+gte_swc2(0xe,&ptA);
+  Flare_Tri(center,&ptB,p2,otz);
   Flare_Tri(center,p2,&save1,otz);
   return;
 }
@@ -1448,7 +1449,7 @@ void Flare_SingleColorHex(DVECTOR *xy,CVECTOR *color,int width,int height,int ot
   short sVar3;
   int iVar4;
   DVECTOR pt [6];
-  
+
   iVar4 = width;
   if (width < 0) {
     iVar4 = width + 3;

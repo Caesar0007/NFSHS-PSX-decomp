@@ -133,9 +133,17 @@ void Draw_DeInitViews(void)
   Draw_tView *pDVar1;
   int i;
   int iVar2;
-  
+
+  /* MATCH: SYM (nfs4-f-v3.txt @0x800BDCE0) names exactly ONE local (`i`); the oracle is a
+     genuine top-tested while (test-block-first-with-fallthrough, unconditional `j` back-
+     edge, NO zero-trip `blez` guard) -- same family as the sibling Draw_DeInitViewsInGame
+     (see that fn's comment). The goto-TEST do-while below reproduces the oracle's exact
+     insn count/addressing/reg-coloring; residual is the same loop-rotation-direction
+     floor documented there. */
+  iVar2 = 0;
   pDVar1 = Draw_gView;
-  for (iVar2 = 0; iVar2 < Draw_gNumView; iVar2 = iVar2 + 1) {
+  goto TEST;
+  do {
     if (pDVar1->ot[0] != (u_long *)0x0) {
       purgememadr(pDVar1->ot[0]);
     }
@@ -145,7 +153,10 @@ void Draw_DeInitViews(void)
     pDVar1->ot[0] = (u_long *)0x0;
     pDVar1->ot[1] = (u_long *)0x0;
     pDVar1 = pDVar1 + 1;
-  }
+    iVar2 = iVar2 + 1;
+    TEST:
+    ;
+  } while (iVar2 < Draw_gNumView);
   return;
 }
 
@@ -153,20 +164,38 @@ void Draw_DeInitViews(void)
 void Draw_DeInitViewsInGame(void)
 
 {
-  bool bVar1;
+  int i;
   int iVar2;
   Draw_tView *pDVar3;
-  int iVar4;
-  int i;
-  
+
+  /* MATCH: SYM (nfs4-f-v3.txt @0x800BDD68) names exactly ONE local (`i`) -- the pointer
+     walk + cached-count temps below are compiler-internal, not separately named, so their
+     C form is chosen purely to reproduce the oracle's addressing/stride (base-pointer `v1`
+     walked +0xC8/struct with `sw` at +0xC0/+0xC4, NOT a field-biased pointer).
+     NEAR-MISS FLOOR (10 diffs, down from 17): the goto-TEST do-while below reproduces the
+     oracle's exact insn COUNT (13) and the exact addressing/stride/register-coloring; the
+     residual 10-diff is a genuine LOOP-ROTATION direction swap -- oracle is test-block-
+     first-with-plain-fallthrough + unconditional back-jump (`slt;beqz-fwd` then body then
+     `j`-back), ours is body-first-with-goto-skip + conditional back-branch (`j`-fwd-skip
+     then body then `slt;bnez`-back). Tried 12 source shapes this session (plain `while`,
+     `for`, `for(;;)+break`, do-while-with-precheck, array-indexed `Draw_gView[i]` instead
+     of the pointer, ot[0]/ot[1] store-order swap, pointer-vs-counter increment order) --
+     every natural `while`/`for` gcc-2.8 idiom inserts a `blez`-zero-trip guard the oracle
+     doesn't have; every `goto`-based do-while gets the body/test blocks in the OPPOSITE
+     position from the oracle. Not reachable by a source lever at this opt level; permuter
+     (no cast) or accept. */
+  i = 0;
   iVar2 = Draw_gNumView;
-  iVar4 = 0;
   pDVar3 = Draw_gView;
-  while (bVar1 = iVar4 < iVar2, iVar4 = iVar4 + 1, bVar1) {
+  goto TEST;
+  do {
     pDVar3->ot[0] = (u_long *)0x0;
     pDVar3->ot[1] = (u_long *)0x0;
     pDVar3 = pDVar3 + 1;
-  }
+    i = i + 1;
+    TEST:
+    ;
+  } while (i < iVar2);
   return;
 }
 
@@ -379,20 +408,34 @@ void Draw_CheckFirstFrameRender(void)
 void Draw_StartFrameRender(void)
 
 {
+  /* MATCH: SYM (nfs4-f-v3.txt @0x800BE2C0) names exactly ONE local (`i`, reg $s1); oracle
+     is the same top-tested-while-no-guard family as the DeInitViews(InGame)/
+     kCtrlWorld_High/StripDraw_High siblings (see their comments), BUT the `goto TEST`
+     lever that fixes those produces a genuine MISCOMPILE here (verified: gcc read a reg
+     before it was ever written on the first loop entry -- `lw a1,0(v1)` before `v1`'s
+     first assignment). Reverted that attempt; correctness over diff count.
+     Safe partial fix applied instead: moving `pDVar4 = pDVar4 + 1` to the END of the loop
+     body (after the ClearOTagR call, matching the oracle's post-call pointer-bump
+     position) reproduces the oracle's ENTIRE loop body byte-exact (ours 40 == oracle 40
+     insns) -- 39->34 diffs. Residual is only the entry sequence: ours still emits the
+     `while`-with-`blez`-guard shape (`i` pre-set to 1, zero-trip guard before the loop);
+     oracle has NO guard (falls straight into the test, `i` starts at 0). Same loop-
+     rotation-direction floor as the siblings, but NOT reachable here without risking the
+     miscompile above; accept. */
   bool bVar1;
   int *piVar2;
   u_long **ppuVar3;
   Draw_tView *pDVar4;
   int i;
   int iVar5;
-  
+
   iVar5 = 0;
   pDVar4 = Draw_gView;
   while (bVar1 = iVar5 < Draw_gNumView, iVar5 = iVar5 + 1, bVar1) {
     piVar2 = &pDVar4->otsize;
     ppuVar3 = pDVar4->ot;
-    pDVar4 = pDVar4 + 1;
     ClearOTagR(ppuVar3[gFlip],*piVar2);
+    pDVar4 = pDVar4 + 1;
   }
   Render_gPacketPtr = gEnviro[gFlip].server;
   Draw_gMaxPrim = gEnviro[gFlip].server + gTotalMem;
@@ -416,7 +459,22 @@ void Draw_StopFrameRender(void)
   Draw_tView *pDVar2;
   int i;
   int iVar3;
-  
+
+  /* MATCH: SYM (nfs4-f-v3.txt @0x800BE36C) names exactly ONE local (`i`), live range
+     starting at the merge point right after the VSync if-block (0x800BE3BC) -- matches
+     oracle's loop counter $s1 (init `addu s1,zero,zero` once, straight `sll v0,v1,1` for
+     the gEnviro[gFlip] index, NOT a variable shift).
+     NEAR-MISS FLOOR (24 diffs, ours 57 == oracle 57 insns): tried 7 source shapes this
+     session. The `while(bVar1=cond,i=i+1,bVar1)` comma-loop (kept below) reproduces the
+     oracle's loop-body tail exactly but gcc reuses $s1 for BOTH the loop counter AND the
+     gFlip*3 shift-amount (`sllv v0,v1,s1` var-shift + duplicated `li s1,1` hoisted into
+     both sides of the earlier if(Draw_gDoVSync) branch) instead of folding the shift to a
+     literal. Switching to an idiomatic `for(iVar3=0;iVar3<n;iVar3=iVar3+1)` DOES fix the
+     shift (`sll v0,v1,1` literal, single `s1` init) but gcc's for-loop lowering then
+     reorders the BODY's v0/v1 roles and adds an extra insn (31 diffs, ours 58 vs oracle
+     57) -- net WORSE. The two fixes are mutually exclusive at this opt level (same gcc
+     loop-lowering trade-off in opposite directions); kept the strictly-better while-form.
+     Not reachable by a single source lever; permuter (no cast, viable) or accept. */
   DrawSync(0);
   gLoop = gLoop + 1;
   if (Draw_gSyncCallback != (void *)0x0) {
@@ -425,8 +483,8 @@ void Draw_StopFrameRender(void)
   if (Draw_gDoVSync != 0) {
     VSync(0);
   }
-  iVar3 = 0;
   PutDispEnv(&gEnviro[gFlip].disp);
+  iVar3 = 0;
   pDVar2 = Draw_gView;
   while (bVar1 = iVar3 < Draw_gNumView, iVar3 = iVar3 + 1, bVar1) {
     DrawOTag(pDVar2->ot[gFlip] + pDVar2->otsize + -1);

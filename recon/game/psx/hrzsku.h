@@ -12,7 +12,7 @@ void Hrz_Init2DRing__Fv(void);   /* :337 */
 void Hrz_GetHorizonPixMap__FP12Draw_tPixMap(Draw_tPixMap *p);   /* :419 */
 void Hrz_InitHorizon__Fv(void);   /* :432 */
 void Hrz_KillHorizon__Fv(void);   /* :447 */
-void Hrz_LightningAddFork__FScScSc(char direction, char column, char row);   /* :783 */
+void Hrz_LightningAddFork__FScScSc(signed char direction, signed char column, signed char row);   /* :783 */
 void Hrz_CalculateLightning__Fv(void);   /* :826 */
 void Hrz_TextureQuad__FP7DVECTORccP11Draw_DCache(DVECTOR *pt, char type, char bright, Draw_DCache *sd);   /* :833 */
 void Hrz_SetLightingPosInSky__FP13DRender_tView(DRender_tView *Vi);   /* :862 */

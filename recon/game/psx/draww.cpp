@@ -1120,16 +1120,38 @@ gte_SetTransMatrix(((char *)sd + 0x14));
 void DrawW_kCtrlWorld_High(Draw_tGiveShelbyMoreCache *sd)
 
 {
+  /* MATCH: SYM (nfs4-f-v3.txt @0x800C6E38) names `numQuads` (reg $s0) and `pquad` (reg
+     $s1, PTR Trk_Quad size 6); `sd` REGPARM lives in $s2. frame mask 0x800f0000 = ra+s0+
+     s1+s2+s3 (FOUR saved regs) -- oracle's $s3 is a genuine dedicated `-1` sentinel local
+     (materialized lazily: `li v0,-1` up front for the guard-check, then copied into `s3`
+     only in the guard-branch's delay slot, once we know the loop runs >=1 time).
+     BUG FIX (was a real correctness bug, not just a near-miss): `pquad` was never
+     advanced -- every call drew the SAME quad. Oracle's `addiu $s1,$s1,0x6`
+     (sizeof(Trk_Quad)) sits INSIDE the if-taken path, right after the DrawW_DrawQuad
+     call -- pquad only advances when a quad is actually drawn.
+     NEAR-MISS FLOOR (12 diffs, down from 34, ours 32 == oracle 32 insns): this do-while
+     + explicit `sentinel` local reproduces the oracle's control-flow/frame/sentinel-
+     lifetime exactly; residual is a register-CLASS choice for the raw `sd->quadCount`
+     byte-load (oracle loads it straight into $s0, ours stages it through $v0 first) --
+     tried splitting the load/decrement into two statements (frees $s0 for the load, but
+     wrecks the surrounding do-while into a worse `beq+fallthrough+extra-j` shape) and a
+     u_char staging temp (no effect); no clean source lever found. Allocator-internal,
+     not reachable without a structural regression; permuter (no cast) or accept. */
+  int sentinel;
   int numQuads;
-  u_int n_remaining;
   Trk_Quad *pquad;
-  
-  n_remaining = (u_int)sd->quadCount;
+
+  sentinel = -1;
   pquad = (Trk_Quad *)sd->quads;
-  while (n_remaining = n_remaining - 1, n_remaining != 0xffffffff) {
-    if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr) {
-      DrawW_DrawQuad(sd,pquad);
-    }
+  numQuads = (int)sd->quadCount - 1;
+  if (numQuads != sentinel) {
+    do {
+      if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr) {
+        DrawW_DrawQuad(sd,pquad);
+        pquad = pquad + 1;
+      }
+      numQuads = numQuads - 1;
+    } while (numQuads != sentinel);
   }
   return;
 }
@@ -1138,37 +1160,66 @@ void DrawW_kCtrlWorld_High(Draw_tGiveShelbyMoreCache *sd)
 void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
 
 {
+  /* MATCH: SYM (nfs4-f-v3.txt @0x800C6EB8) names `r0`,`r1` sharing ONE register ($v0) and
+     `r2`,`r3` sharing ANOTHER ($v1) in the innermost block -- i.e. topVert/iquad is loaded
+     ONCE into r0, reused for BOTH aPoints[1]=r0 and aPoints[0]=r0+1 (assigned to r1); same
+     for botVert into r2/r3 -> aPoints[2]=r2, aPoints[3]=r3=r2+1. The previous version
+     re-read pTVar4->topVert/botVert via 4 independent expressions (4 loads instead of 2) --
+     also needed BOTH topVert/botVert loaded back-to-back BEFORE either `+iquad` add (same
+     load-batch-then-compute idiom as DrawW_WorldSetUpMatrix), and a dedicated `pMaterial`
+     pointer pre-offset by +4 (walked +2/iter) instead of re-deriving `(char*)pTVar4+4+
+     iquad*2` each pass (frees $s2 for the oracle's addressing).
+     NEAR-MISS FLOOR (10 diffs, down from 38; ours 58 == oracle 58 insns): the inner loop
+     needed the SAME goto-TEST do-while lever as the sibling DrawW_kCtrlWorld_High/
+     Draw_DeInitViews(InGame) -- oracle's inner for-loop is test-first-with-plain-
+     fallthrough + unconditional `j`-back; ours is body-first-with-goto-skip + conditional
+     `bnez`-back. Tried swapping the `iquad++`/`pMaterial++` increment order (regressed to
+     12); this is the same loop-rotation-direction floor documented on the sibling fns --
+     not reachable by a source lever at this opt level; permuter (no cast) or accept. */
   int r0;
+  int r1;
   int r2;
+  int r3;
   u_char bVar1;
   short sVar2;
-  int r1;
-  int r3;
   int iquad;
-  int iVar3;
+  int numQuads;
   Trk_NewStrip *stripPtr;
   Trk_NewStrip *pTVar4;
-  int numQuads;
+  u_short *pMaterial;
   Trk_Quad newQuad;
-  
+
   pTVar4 = sd->stripPtr;
   sd->doublelayer = 1;
   while( true ) {
     sVar2 = sd->numStrips + -1;
     sd->numStrips = sVar2;
-    iVar3 = 0;
+    iquad = 0;
     if (sVar2 == -1) break;
     bVar1 = pTVar4->quadCount;
-    for (; iVar3 < (int)(u_int)bVar1; iVar3 = iVar3 + 1) {
+    numQuads = (int)(u_int)bVar1;
+    pMaterial = (u_short *)((char *)pTVar4 + 4);
+    goto QUAD_TEST;
+    do {
       if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr) {
-        newQuad.material = *(u_short *)((char *)pTVar4 + 4 + iVar3 * 2);
-        newQuad.aPoints[0] = (u_char)(*(u_char *)pTVar4 + iVar3 + 1);
-        newQuad.aPoints[1] = (u_char)(*(u_char *)pTVar4 + iVar3);
-        newQuad.aPoints[2] = (u_char)(*(u_char *)((char *)pTVar4 + 1) + iVar3);
-        newQuad.aPoints[3] = (u_char)(*(u_char *)((char *)pTVar4 + 1) + iVar3 + 1);
+        newQuad.material = *pMaterial;
+        r0 = pTVar4->topVert;
+        r2 = pTVar4->botVert;
+        r0 = r0 + iquad;
+        newQuad.aPoints[1] = (u_char)r0;
+        r1 = r0 + 1;
+        r2 = r2 + iquad;
+        newQuad.aPoints[2] = (u_char)r2;
+        r3 = r2 + 1;
+        newQuad.aPoints[0] = (u_char)r1;
+        newQuad.aPoints[3] = (u_char)r3;
         DrawW_DrawQuad(sd,&newQuad);
       }
-    }
+      pMaterial = pMaterial + 1;
+      iquad = iquad + 1;
+      QUAD_TEST:
+      ;
+    } while (iquad < numQuads);
     pTVar4 = (Trk_NewStrip *)(&pTVar4->topVert + (u_char)pTVar4->size);
   }
   return;
@@ -1329,29 +1380,53 @@ DrawWTrough_setStateCallHigh:
 void DrawW_WorldSetUpMatrix(matrixtdef *m,MATRIX *mat)
 
 {
+  /* MATCH: SYM (nfs4-f-v3.txt @0x800C753C) shows the SAME "line = 3" repeated in THREE
+     separate nested block scopes, each with its own {r0,r1,r2} REG triplet -- i.e. all
+     three loads happen first, THEN all three shifts, THEN all three stores per row (not
+     interleaved load-shift-store per element). Register classes per block: row0/row1 use
+     $2/$3/$6 (v0/v1/a2), row2 uses $2/$3/$4 (v0/v1/a0 -- `m` is dead after its last read).
+     NEAR-MISS FLOOR (6 diffs, down from 32): this shape reproduces row0/row1 byte-exact and
+     gets row2's addressing/shift/store right; the residual is ONLY the 3rd-element temp's
+     register class (oracle frees dead $a0/`m` and reuses it there, ours keeps allocating
+     $a2). A real `for(i=0;i<3;i++)` loop does NOT reproduce this (gcc-2.8 does not unroll
+     it here -- produces a genuine 57-insn branch-back loop, far worse); tried direct-cast
+     `((int*)m)[8]`, no-temp inline row2, and reversed read-order within row2 (5 variants) --
+     none freed $a0. Allocator-internal register-class choice, not reachable by a source
+     lever at this opt level; permuter (no cast on the hot path) or accept. */
   int r0;
   int r1;
-  int iVar1;
-  int iVar2;
   int r2;
-  
+
   r0 = m->m[0];
-  iVar1 = m->m[3];
-  iVar2 = m->m[6];
-  mat->m[0][0] = (short)(r0 >> 4);
-  mat->m[0][1] = (short)(iVar1 >> 4);
-  (*(u_short *)&(r2)) = (short)(iVar2 >> 4);
+  r1 = m->m[3];
+  r2 = m->m[6];
+  r0 = r0 >> 4;
+  r1 = r1 >> 4;
+  r2 = r2 >> 4;
+  mat->m[0][0] = (short)r0;
+  mat->m[0][1] = (short)r1;
   mat->m[0][2] = (short)r2;
-  iVar1 = m->m[4];
-  iVar2 = m->m[7];
-  mat->m[1][0] = (short)(m->m[1] >> 4);
-  mat->m[1][1] = (short)(iVar1 >> 4);
-  mat->m[1][2] = (short)(iVar2 >> 4);
-  iVar1 = m->m[5];
-  iVar2 = m->m[8];
-  mat->m[2][0] = (short)(m->m[2] >> 4);
-  mat->m[2][1] = (short)(iVar1 >> 4);
-  mat->m[2][2] = (short)(iVar2 >> 4);
+
+  r0 = m->m[1];
+  r1 = m->m[4];
+  r2 = m->m[7];
+  r0 = r0 >> 4;
+  r1 = r1 >> 4;
+  r2 = r2 >> 4;
+  mat->m[1][0] = (short)r0;
+  mat->m[1][1] = (short)r1;
+  mat->m[1][2] = (short)r2;
+
+  r0 = m->m[2];
+  r1 = m->m[5];
+  r2 = m->m[8];
+  r0 = r0 >> 4;
+  r1 = r1 >> 4;
+  r2 = r2 >> 4;
+  mat->m[2][0] = (short)r0;
+  mat->m[2][1] = (short)r1;
+  mat->m[2][2] = (short)r2;
+
 gte_SetRotMatrix(mat);
   return;
 }
@@ -1395,26 +1470,32 @@ int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
 
 {
   int track;
-  int iVar1;
-  int iVar2;
   int maxTick;
-  
+  int iVar2;
+
   /* MATCH: early-return the gameTicks case (inverted condition) so gcc lays out
      [conds][gameTicks][body] like the oracle; the body then re-reads objectIndex.
-     NEAR-MISS floor: 4 diffs, and OURS IS BETTER-SCHEDULED than the oracle (ours 31 vs
-     oracle 33 insns).  Oracle loads the timer into $v0, stalls a `nop`, then `move $v1,$v0`;
-     ours loads straight into $v1 and fills the load-delay with `mflo`.  This is an allocator
-     coalescing coin-flip (which dead reg the final `lw` reuses) -- NOT reachable by source
-     levers (swap compute-order / read-only temp / ternary all coalesce back).  permuter (no
-     cast here, so viable) or accept. */
+     SYM (nfs4-f-v3.txt @0x800C7644): inner block [0x800C7678,0x800C76C0) (line 11-13)
+     names exactly ONE REG local, `maxTick` -- its live range spans the multiply result
+     through the final compare/return, matching oracle reg $a1 (mflo -> slt -> conditional
+     move -> jr-delay-slot v0). The animation_timer[] load is an unnamed expression temp
+     (shorter live range, no SYM name) -- kept here as iVar2.
+     NEAR-MISS FLOOR (4 diffs, re-confirmed): oracle's `lw v0,0(v0); nop; addu v1,v0,zero`
+     (a genuine load-delay stall + redundant move) vs ours `lw v1,0(v0)` straight + `mflo`
+     filling the delay slot naturally (ours 31 insns vs oracle 33 -- ours is objectively
+     BETTER-scheduled). Re-tried compute-order swap, ternary-return, cached-address
+     (int* pTick), and direct-dual-return (no iVar2) shapes this session -- all reproduce
+     the identical 4-diff register-coloring floor or regress further. Not reachable by a
+     source lever; candidate for permuter (no pointer/int cast on the hot path, so a
+     re-seed is viable) or accept-as-is. */
   track = GameSetup_gData.track;
   if (((animInst->objectIndex == '\0') || (track == 3)) || (track == 7)) {
     return simGlobal.gameTicks;
   }
-  iVar1 = (animInst->count + -2) * (int)animInst->interval;
+  maxTick = (animInst->count + -2) * (int)animInst->interval;
   iVar2 = animation_timer[animInst->objectIndex - 1];
-  if (iVar1 <= animation_timer[animInst->objectIndex - 1]) {
-    iVar2 = iVar1;
+  if (maxTick <= animation_timer[animInst->objectIndex - 1]) {
+    iVar2 = maxTick;
   }
   return iVar2;
 }

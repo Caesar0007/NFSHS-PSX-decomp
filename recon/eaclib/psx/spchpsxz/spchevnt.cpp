@@ -68,7 +68,7 @@ extern "C" unsigned int VoxEvent_GetKeepTillExpiresFlag(int e)
 /* iSPCH_SearchEventDat @0x800E6EC4 : address of the entry in blob `dat` whose id == eventID, or 0. */
 extern "C" int iSPCH_SearchEventDat(int dat, unsigned int eventID)
 {
-    unsigned short count = *(unsigned short *)(dat + 2);
+    unsigned int count = *(unsigned short *)(dat + 2);
     int table = 0;
     if (count != 0) {
         do {
@@ -76,7 +76,7 @@ extern "C" int iSPCH_SearchEventDat(int dat, unsigned int eventID)
             table = table + 1;
             if (*p == eventID)
                 return (int)p;
-        } while (table < (int)(unsigned int)count);
+        } while (table < (int)count);
     }
     return 0;
 }

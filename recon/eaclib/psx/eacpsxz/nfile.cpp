@@ -41,60 +41,98 @@
  */
 #include "../../../lib/nfile.h"
 
+/* iFILE critical section -- raw cop0 SR mask/restore (NOT a BIOS syscall).  The oracle inlines this
+ * exact sequence (mfc0/and-mask/mtc0, three trailing nops for the mtc0-writeback hazard) at every
+ * FILE_enterCS/FILE_leaveCS call site rather than calling a real function -- nfile.h's FILE_enterCS()/
+ * FILE_leaveCS() declarations (void->void, no SR threaded through) can't express that shape, so this TU
+ * bypasses them with a local macro pair that threads the saved SR through a real C local (survives
+ * across any jal in the critical section, exactly like the oracle's per-fn s0/a3/t5/t1/a2/t9 choice).
+ * Mask -0x402 clears bits 0x400+0x2 of SR (IEc + one IM bit) -- same constant at every call site. */
+#if defined(__mips__)
+#define FILE_CS_ENTER(saved) \
+    __asm__ volatile("mfc0 %0,$12\n\t nop\n\t addiu $at,$zero,-0x402\n\t and $8,%0,$at\n\t mtc0 $8,$12\n\t nop\n\t nop\n\t nop" \
+                      : "=r"(saved) : : "at", "t0")
+#define FILE_CS_LEAVE(saved) __asm__ volatile("mtc0 %0,$12" : : "r"(saved))
+#else
+#define FILE_CS_ENTER(saved) ((void)(saved = 0))
+#define FILE_CS_LEAVE(saved) ((void)(saved))
+#endif
+
 /* freeop @0x800ED1F8 : clear a 0x30-byte op slot (release it back to the pool). */
 extern "C" void freeop(FileOp *op)
 {
-    FILE_enterCS();
+    int sr;
+    FILE_CS_ENTER(sr);
     blockclear(op, 0x30);
-    FILE_leaveCS();
+    FILE_CS_LEAVE(sr);
 }
 
 /* freehandle @0x800ED2F0 : clear a 0x4C-byte file handle (release it). */
 extern "C" void freehandle(FileHandle *h)
 {
-    FILE_enterCS();
+    int sr;
+    FILE_CS_ENTER(sr);
     blockclear(h, 0x4C);
-    FILE_leaveCS();
+    FILE_CS_LEAVE(sr);
 }
 
-/* reservehandle @0x800ED240 : find a free (inuse==0) handle slot, mark it used, return it (0 if none). */
+/* reservehandle @0x800ED240 : find a free (inuse==0) handle slot, mark it used, return it (0 if none).
+ * asm: walks a pointer (not an indexed array) to find the slot but, after leaving the CS, RECOMPUTES
+ * the found slot's address from the loop COUNTER alone (handlearray + i*0x4C) rather than carrying the
+ * walking pointer out -- so the C tracks only the index `i`, never a separate result pointer. */
 extern "C" FileHandle *reservehandle(void)
 {
-    FileHandle *result = 0;
-    int i;
-    FILE_enterCS();
-    for (i = 0; i < gFileMgr.handlecount; i++) {
-        FileHandle *h = (FileHandle *)((char *)gFileMgr.handlearray + i * 0x4C);
-        if (h->inuse == 0) {       /* first empty slot */
-            h->inuse = 1;
-            result = h;
-            break;
+    int i, sr;
+    FILE_CS_ENTER(sr);
+    i = 0;
+    if (gFileMgr.handlecount > 0) {
+        FileHandle *h = gFileMgr.handlearray;
+        for (;;) {
+            if (h->inuse == 0) {      /* first empty slot */
+                h->inuse = 1;
+                break;
+            }
+            i++;
+            if (i >= gFileMgr.handlecount)
+                break;
+            h = (FileHandle *)((char *)h + 0x4C);
         }
     }
-    FILE_leaveCS();
-    return result;
+    FILE_CS_LEAVE(sr);
+    if (i == gFileMgr.handlecount)
+        return 0;
+    return (FileHandle *)((char *)gFileMgr.handlearray + i * 0x4C);
 }
 
-/* reserveop @0x800ED0DC : claim a free op slot, stamp it with op index + a fresh 20-bit request id. */
+/* reserveop @0x800ED0DC : claim a free op slot, stamp it with op index + a fresh 20-bit request id.
+ * asm: same shape as reservehandle -- walks a pointer to find the slot but, after leaving the CS,
+ * RECOMPUTES the slot's address from the loop COUNTER alone (oparray + i*0x30); the C tracks only `i`. */
 extern "C" FileOp *reserveop(void)
 {
-    FileOp *result = 0;
-    int i;
-    FILE_enterCS();
-    for (i = 0; i < gFileMgr.opcount; i++) {
-        FileOp *op = (FileOp *)((char *)gFileMgr.oparray + i * 0x30);
-        if (((op->id >> 0x14) & 0xF) == 0) {                 /* type nibble (bits 20-23) == 0 -> free */
-            op->id = (op->id & 0xFF0FFFFFu) | 0x100000u;     /* set type nibble = 1 */
-            ((unsigned char *)&op->id)[3] = (unsigned char)i;/* byte3 (bits 24-31) = op index */
-            op->id = (op->id & 0xFFF00000u) | (gFileOpSeq & 0xFFFFF);  /* bits 0-19 = request seq */
-            if (++gFileOpSeq > 0xFFFFF)                      /* 20-bit wrap */
-                gFileOpSeq = 0;
-            result = op;
-            break;
+    int i, sr;
+    FILE_CS_ENTER(sr);
+    i = 0;
+    if (gFileMgr.opcount > 0) {
+        FileOp *op = gFileMgr.oparray;
+        for (;;) {
+            if (((op->id >> 0x14) & 0xF) == 0) {             /* type nibble (bits 20-23) == 0 -> free */
+                op->id = (op->id & 0xFF0FFFFFu) | 0x100000u; /* set type nibble = 1 */
+                ((unsigned char *)&op->id)[3] = (unsigned char)i;  /* byte3 = op index */
+                op->id = (op->id & 0xFFF00000u) | (gFileOpSeq & 0xFFFFF);  /* bits 0-19 = request seq */
+                if (++gFileOpSeq > 0xFFFFF)                  /* 20-bit wrap */
+                    gFileOpSeq = 0;
+                break;
+            }
+            i++;
+            if (i >= gFileMgr.opcount)
+                break;
+            op = (FileOp *)((char *)op + 0x30);
         }
     }
-    FILE_leaveCS();
-    return result;
+    FILE_CS_LEAVE(sr);
+    if (i == gFileMgr.opcount)
+        return 0;
+    return (FileOp *)((char *)gFileMgr.oparray + i * 0x30);
 }
 
 /* FILE_overhead @0x800EBD74 : total RAM the FILE system needs for the given pool sizes (0 -> default). */
@@ -103,19 +141,23 @@ extern "C" int FILE_overhead(int handlecount, int memsize, int opcount)
     if (handlecount == 0) handlecount = 0x18;     /* 24 handles  */
     if (memsize == 0)     memsize     = 0x800;    /* 2 KB io mem */
     if (opcount == 0)     opcount     = 0xA;      /* 10 ops      */
-    return ((5 * handlecount + 3 * opcount) << 4) + 20 * memsize;  /* 80*h + 48*op + 20*mem */
+    return ((3 * opcount + 5 * handlecount) << 4) + 20 * memsize;  /* 80*h + 48*op + 20*mem */
 }
 
 /* FILE_opstatus @0x800EBDC4 : status of the op named by `id` (index=id>>24); -3 if id is 0 or stale. */
 extern "C" int FILE_opstatus(unsigned int id)
 {
     FileOp *op;
-    if (id == 0)
-        return -3;
-    op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
-    if ((id & 0xFFFFF) != (op->id & 0xFFFFF))     /* request id no longer matches -> stale */
-        return -3;
-    return op->status;
+    int result;
+    if (id != 0) {
+        op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
+        if ((id & 0xFFFFF) == (op->id & 0xFFFFF)) {   /* request id still matches -> not stale */
+            result = op->status;
+            return result;
+        }
+    }
+    result = -3;
+    return result;
 }
 
 /* FILE_operror @0x800EBE1C : raw error code of the op named by `id` (index=id>>24; no validation). */
@@ -328,13 +370,14 @@ extern "C" int FILE_atomic(int (*fn)(int, int), int unused, int a3, int a4)
 extern "C" void FILE_priorityop(unsigned int id, int priority)
 {
     FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
-    int oldprio;
+    int oldprio, sr;
+    FileOp *prev, *node;
 
-    FILE_enterCS();
+    FILE_CS_ENTER(sr);
     oldprio = op->prio;
     op->prio = priority;
     if (gFileMgr.state >= 2 && op != gFileMgr.curop && op->status == 0 && oldprio != priority) {
-        FileOp *prev = 0, *node = gFileMgr.queuehead;
+        prev = 0; node = gFileMgr.queuehead;
         while (node && node != op) {                 /* find op in the queue */
             prev = node;
             node = node->qnext;
@@ -352,7 +395,7 @@ extern "C" void FILE_priorityop(unsigned int id, int priority)
         if (prev == 0) gFileMgr.queuehead = op;
         else           prev->qnext        = op;
     }
-    FILE_leaveCS();
+    FILE_CS_LEAVE(sr);
 }
 
 /* FILE device backend (other objs) + the manager init's CD/file-io bring-up. */
@@ -399,14 +442,14 @@ extern "C" void stopreadfile(int dev);   /* @0x800F4100 abort an in-flight read 
 extern "C" void FILE_cancelop(unsigned int id)
 {
     FileOp *op;
-    int     nibble, action = 0;
+    int     nibble, action = 0, sr;
 
-    FILE_enterCS();
-    if (id == 0) { FILE_leaveCS(); return; }
+    FILE_CS_ENTER(sr);
+    if (id == 0) goto cleanup;
     op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
-    if ((id & 0xFFFFF) != (op->id & 0xFFFFF)) { FILE_leaveCS(); return; }   /* stale id */
+    if ((id & 0xFFFFF) != (op->id & 0xFFFFF)) goto cleanup;   /* stale id */
     nibble = (id >> 0x14) & 0xF;
-    if (nibble == 3 || nibble == 0xA) { FILE_leaveCS(); return; }           /* close/type-10: not cancellable */
+    if (nibble == 3 || nibble == 0xA) goto cleanup;           /* close/type-10: not cancellable */
 
     if (op == gFileMgr.curop) {                  /* op is in flight */
         op->cancelreq = 1;
@@ -415,9 +458,9 @@ extern "C" void FILE_cancelop(unsigned int id)
         op->status = -1;                         /* mark cancelled (no further action) */
     } else {                                     /* still queued -> remove it */
         FileOp *prev = 0, *node = gFileMgr.queuehead;
-        if (node == 0) { FILE_leaveCS(); return; }
+        if (node == 0) goto cleanup;
         while (node && node != op) { prev = node; node = node->qnext; }
-        if (node == 0) { FILE_leaveCS(); return; }              /* not in queue */
+        if (node == 0) goto cleanup;              /* not in queue */
         if (prev == 0) gFileMgr.queuehead = op->qnext;
         else           prev->qnext        = op->qnext;
         gFileMgr.state--;                        /* one fewer queued op */
@@ -440,7 +483,8 @@ extern "C" void FILE_cancelop(unsigned int id)
             cb((int)op->id, -1, op->param);
         }
     }
-    FILE_leaveCS();
+cleanup:
+    FILE_CS_LEAVE(sr);
 }
 
 /* iFILE_delbigclosecallback @0x800EC980 : completion callback for the BIG-archive close op -- harvest
@@ -462,11 +506,16 @@ extern "C" int iFILE_CommandCompleteCallback(int result)
     int status;
     if (cmd == 0)
         return 0;
-    /* @0x800ED040-50: delay slots set the stored value -- cancelreq!=0 -> -1, result==0 -> -2, else 1.
-     * The recon stored cmd->cancelreq (the flag value, ~1) instead of -1, and -1 instead of -2 (M03). */
-    if (cmd->cancelreq != 0) status = -1;               /* cancel in flight -> cancelled */
-    else if (result == 0)    status = -2;               /* device reported failure */
-    else                     status = 1;                /* success */
+    /* @0x800ED040-50: a flat chain of early-out tests, EACH jumping (with its value already loaded in
+     * the branch's delay slot) straight to the shared store -- not an if/else-if/else (that nests the
+     * tests instead of chaining independent early-outs to one target). cancelreq!=0 -> -1, result==0 ->
+     * -2, else 1 (fall-through default). */
+    status = -1;
+    if (cmd->cancelreq != 0) goto store_status;         /* cancel in flight -> cancelled */
+    status = -2;
+    if (result == 0) goto store_status;                 /* device reported failure */
+    status = 1;                                         /* success (fall-through default) */
+store_status:
     cmd->status = status;
     gFileMgr.curop = 0;
     if (cmd->callback) {
@@ -686,9 +735,9 @@ extern "C" void  freehandle(FileHandle *h);                     /* @0x800ED2F0 (
 extern "C" int iFILE_ExecCommand(void *cmdp)
 {
     FileOp *cmd = (FileOp *)cmdp;
-    int type, ccc;
+    int type, ccc, sr;
 
-    FILE_enterCS();                              /* cop0: disable IRQs */
+    FILE_CS_ENTER(sr);                           /* cop0: disable IRQs */
 
     if (cmd != 0) {                              /* insert into the priority-sorted pending queue */
         FileOp *prev = 0;
@@ -715,7 +764,7 @@ extern "C" int iFILE_ExecCommand(void *cmdp)
     }
 
     if (gFileMgr.curop != 0) {                   /* an op is already being dispatched */
-        FILE_leaveCS();
+        FILE_CS_LEAVE(sr);
         return 0;
     }
 
@@ -730,7 +779,7 @@ extern "C" int iFILE_ExecCommand(void *cmdp)
         gFileMgr.curop = pick;
         cmd = pick;
     }
-    FILE_leaveCS();                              /* cop0: re-enable IRQs */
+    FILE_CS_LEAVE(sr);                           /* cop0: re-enable IRQs */
 
     if (cmd == 0)
         return 0;                                /* nothing to dispatch */

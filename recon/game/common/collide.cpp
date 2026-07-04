@@ -1772,13 +1772,7 @@ void Collide_LimitAngularVel(BO_tNewtonObj *o)
 
   else {
 
-    iVar2 = 0x18000;
-
-    if (iVar1 < 0x18001) {
-
-      iVar2 = iVar1;
-
-    }
+    iVar2 = (0x18000 < iVar1) ? 0x18000 : iVar1;
 
     (o->angularVel).x = iVar2;
 
@@ -1800,13 +1794,7 @@ void Collide_LimitAngularVel(BO_tNewtonObj *o)
 
   else {
 
-    iVar2 = 0x18000;
-
-    if (iVar1 < 0x18001) {
-
-      iVar2 = iVar1;
-
-    }
+    iVar2 = (0x18000 < iVar1) ? 0x18000 : iVar1;
 
     (o->angularVel).y = iVar2;
 
@@ -1828,13 +1816,7 @@ void Collide_LimitAngularVel(BO_tNewtonObj *o)
 
   }
 
-  iVar2 = 0x18000;
-
-  if (iVar1 < 0x18001) {
-
-    iVar2 = iVar1;
-
-  }
+  iVar2 = (0x18000 < iVar1) ? 0x18000 : iVar1;
 
   (o->angularVel).z = iVar2;
 
@@ -5993,11 +5975,9 @@ int Collide_CheckForCollisionBetween(BO_tNewtonObj *o0,BO_tNewtonObj *o1)
 
 
 {
-  coorddef p;
-  coorddef normal;
-  int count;
+  coorddef *new_var;
 
-  bool bVar1;
+  int speedThresh;
 
   int iVar2;
 
@@ -6009,7 +5989,7 @@ int Collide_CheckForCollisionBetween(BO_tNewtonObj *o0,BO_tNewtonObj *o1)
 
   coorddef cStack_28;
 
-  
+
 
   (o0->collision).impulse = 0;
 
@@ -6019,61 +5999,69 @@ int Collide_CheckForCollisionBetween(BO_tNewtonObj *o0,BO_tNewtonObj *o1)
 
   if (iVar2 == 0) {
 
-    iVar2 = 0;
+    return 0;
 
   }
 
-  else {
+  Collide_DoObjectObjectCollision(o0,o1,&cStack_38,&cStack_28);
 
-    Collide_DoObjectObjectCollision(o0,o1,&cStack_38,&cStack_28);
+  iVar4 = 8;
 
-    iVar4 = 8;
+  Physics_TestForBarrierCollision((Car_tObj *)o0);
+
+  Physics_TestForBarrierCollision((Car_tObj *)o1);
+
+  new_var = &cStack_28;
+
+  speedThresh = 0xf0000;
+
+  while( true ) {
+
+    iVar3 = Collide_TestObjectVertices(o0,o1,&cStack_38,new_var);
+
+    if (iVar3 == 0) {
+
+      return 1;
+
+    }
+
+    if (iVar4 <= 0) {
+
+      return 1;
+
+    }
+
+    iVar4 = iVar4 - 1;
+
+    iVar2 = Collide_DoObjectObjectCollision(o0,o1,&cStack_38,new_var);
+
+    if (iVar2 == 0) {
+
+      return 1;
+
+    }
 
     Physics_TestForBarrierCollision((Car_tObj *)o0);
 
     Physics_TestForBarrierCollision((Car_tObj *)o1);
 
-    while( true ) {
+    if (iVar4 == 0) {
 
-      iVar3 = Collide_TestObjectVertices(o0,o1,&cStack_38,&cStack_28);
+      if ((o0[1].collision.lastCollision != 0) && (speedThresh < o0->speedXZ)) {
 
-      iVar2 = 1;
-
-      if ((iVar3 == 0) || (bVar1 = iVar4 < 1, iVar4 = iVar4 + -1, bVar1)) break;
-
-      iVar2 = Collide_DoObjectObjectCollision(o0,o1,&cStack_38,&cStack_28);
-
-      if (iVar2 == 0) {
-
-        return 1;
+        Newton_AddDamageZone(o0,0x640000,8,2);
 
       }
 
-      Physics_TestForBarrierCollision((Car_tObj *)o0);
+      if ((o1[1].collision.lastCollision != 0) && (speedThresh < o1->speedXZ)) {
 
-      Physics_TestForBarrierCollision((Car_tObj *)o1);
-
-      if (iVar4 == 0) {
-
-        if ((o0[1].collision.lastCollision != 0) && (0xf0000 < o0->speedXZ)) {
-
-          Newton_AddDamageZone(o0,0x640000,8,2);
-
-        }
-
-        if ((o1[1].collision.lastCollision != 0) && (0xf0000 < o1->speedXZ)) {
-
-          Newton_AddDamageZone(o1,0x640000,8,2);
-
-        }
+        Newton_AddDamageZone(o1,0x640000,8,2);
 
       }
 
     }
 
   }
-
-  return iVar2;
 
 }
 
@@ -6234,9 +6222,6 @@ int Collide_CheckAccuratePointRadiusCollision(BO_tNewtonObj *newObj,coorddef *po
 
 {
   coorddef d;
-  int temp;
-
-  int iVar1;
 
   int iVar2;
 
@@ -6246,41 +6231,41 @@ int Collide_CheckAccuratePointRadiusCollision(BO_tNewtonObj *newObj,coorddef *po
 
   u_int uVar5;
 
-  int a;
 
-  
 
-  a = point->x - (newObj->position).x;
+  d.x = point->x - (newObj->position).x;
 
-  iVar1 = point->z - (newObj->position).z;
+  d.z = point->z - (newObj->position).z;
 
-  iVar2 = fixedmult(a,(newObj->orientMat).m[0]);
+  d.y = 0;
 
-  iVar3 = fixedmult(0,(newObj->orientMat).m[1]);
+  iVar2 = fixedmult(d.x,(newObj->orientMat).m[0]);
 
-  iVar4 = fixedmult(iVar1,(newObj->orientMat).m[2]);
+  iVar3 = fixedmult(d.y,(newObj->orientMat).m[1]);
 
-  if (iVar2 + iVar3 + iVar4 < 1) {
+  iVar4 = fixedmult(d.z,(newObj->orientMat).m[2]);
 
-    iVar2 = fixedmult(a,(newObj->orientMat).m[0]);
+  if (iVar3 + iVar4 + iVar2 > 0) {
 
-    iVar3 = fixedmult(0,(newObj->orientMat).m[1]);
+    iVar2 = fixedmult(d.x,(newObj->orientMat).m[0]);
 
-    iVar4 = fixedmult(iVar1,(newObj->orientMat).m[2]);
+    iVar3 = fixedmult(d.y,(newObj->orientMat).m[1]);
 
-    iVar2 = -(iVar2 + iVar3 + iVar4);
+    iVar4 = fixedmult(d.z,(newObj->orientMat).m[2]);
+
+    iVar2 = iVar2 + iVar3 + iVar4;
 
   }
 
   else {
 
-    iVar3 = fixedmult(a,(newObj->orientMat).m[0]);
+    iVar2 = fixedmult(d.x,(newObj->orientMat).m[0]);
 
-    iVar4 = fixedmult(0,(newObj->orientMat).m[1]);
+    iVar3 = fixedmult(d.y,(newObj->orientMat).m[1]);
 
-    iVar2 = fixedmult(iVar1,(newObj->orientMat).m[2]);
+    iVar4 = fixedmult(d.z,(newObj->orientMat).m[2]);
 
-    iVar2 = iVar3 + iVar4 + iVar2;
+    iVar2 = -(iVar2 + iVar3 + iVar4);
 
   }
 
@@ -6288,37 +6273,35 @@ int Collide_CheckAccuratePointRadiusCollision(BO_tNewtonObj *newObj,coorddef *po
 
   if (iVar2 <= (newObj->dimension).x + radius) {
 
-    iVar2 = fixedmult(a,(newObj->orientMat).m[6]);
+    iVar3 = fixedmult(d.y,(newObj->orientMat).m[7]);
 
-    iVar3 = fixedmult(0,(newObj->orientMat).m[7]);
+    iVar4 = fixedmult(d.z,(newObj->orientMat).m[8]);
 
-    iVar4 = fixedmult(iVar1,(newObj->orientMat).m[8]);
+    if (fixedmult(d.x,(newObj->orientMat).m[6]) + iVar3 + iVar4 > 0) {
 
-    if (iVar2 + iVar3 + iVar4 < 1) {
+      iVar2 = fixedmult(d.x,(newObj->orientMat).m[6]);
 
-      iVar2 = fixedmult(a,(newObj->orientMat).m[6]);
+      iVar3 = fixedmult(d.y,(newObj->orientMat).m[7]);
 
-      iVar3 = fixedmult(0,(newObj->orientMat).m[7]);
+      iVar4 = fixedmult(d.z,(newObj->orientMat).m[8]);
 
-      iVar1 = fixedmult(iVar1,(newObj->orientMat).m[8]);
-
-      iVar1 = -(iVar2 + iVar3 + iVar1);
+      iVar2 = iVar2 + iVar3 + iVar4;
 
     }
 
     else {
 
-      iVar2 = fixedmult(a,(newObj->orientMat).m[6]);
+      iVar2 = fixedmult(d.x,(newObj->orientMat).m[6]);
 
-      iVar3 = fixedmult(0,(newObj->orientMat).m[7]);
+      iVar3 = fixedmult(d.y,(newObj->orientMat).m[7]);
 
-      iVar1 = fixedmult(iVar1,(newObj->orientMat).m[8]);
+      iVar4 = fixedmult(d.z,(newObj->orientMat).m[8]);
 
-      iVar1 = iVar2 + iVar3 + iVar1;
+      iVar2 = -(iVar2 + iVar3 + iVar4);
 
     }
 
-    uVar5 = (newObj->dimension).z + radius < iVar1 ^ 1;
+    uVar5 = (newObj->dimension).z + radius < iVar2 ^ 1;
 
   }
 

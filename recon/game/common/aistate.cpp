@@ -207,9 +207,17 @@ void AIState_Idle::Execute()
 
   Car_tObj *pCVar2;
 
-  
 
-  if (this->idleInPlaceFlag_ == 0) {
+
+  if (this->idleInPlaceFlag_ != 0) {
+
+    ((this->_base_AIState_Base).carObj_)->desiredSpeed = 0;
+
+    ((this->_base_AIState_Base).carObj_)->desiredLatPos = ((this->_base_AIState_Base).carObj_)->roadPosition;
+
+  }
+
+  else {
 
     pCVar2 = (this->_base_AIState_Base).carObj_;
 
@@ -223,9 +231,7 @@ void AIState_Idle::Execute()
 
       AISpeeds_CalcDesiredSpeed(pCVar2);
 
-      pCVar2 = (this->_base_AIState_Base).carObj_;
-
-      iVar1 = pCVar2->desiredSpeed;
+      iVar1 = ((this->_base_AIState_Base).carObj_)->desiredSpeed;
 
       if (iVar1 < 0) {
 
@@ -233,21 +239,11 @@ void AIState_Idle::Execute()
 
       }
 
-      pCVar2->desiredSpeed = iVar1 >> 2;
+      ((this->_base_AIState_Base).carObj_)->desiredSpeed = iVar1 >> 2;
 
     }
 
     ((this->_base_AIState_Base).carObj_)->desiredLatPos = this->roadPosition_;
-
-  }
-
-  else {
-
-    ((this->_base_AIState_Base).carObj_)->desiredSpeed = 0;
-
-    pCVar2 = (this->_base_AIState_Base).carObj_;
-
-    pCVar2->desiredLatPos = pCVar2->roadPosition;
 
   }
 
@@ -386,13 +382,15 @@ void AIState_Chase::SetTarget(Car_tObj *targetCar,coorddef *relPosition)
 
 {
 
+  int relX, relY, relZ;
+
   int iVar1;
 
   int iVar2;
 
   int iVar3;
 
-  
+
 
   if (this->targetCar_ != targetCar) {
 
@@ -404,15 +402,17 @@ void AIState_Chase::SetTarget(Car_tObj *targetCar,coorddef *relPosition)
 
   this->targetCar_ = targetCar;
 
-  iVar2 = relPosition->y;
+  relX = relPosition->x;
 
-  iVar3 = relPosition->z;
+  relY = relPosition->y;
 
-  (this->relPosition_).x = relPosition->x;
+  relZ = relPosition->z;
 
-  (this->relPosition_).y = iVar2;
+  (this->relPosition_).x = relX;
 
-  (this->relPosition_).z = iVar3;
+  (this->relPosition_).y = relY;
+
+  (this->relPosition_).z = relZ;
 
   this->longTargetRegion_ = 0;
 
@@ -501,9 +501,7 @@ void AIState_Chase::SetUp()
 
   int iVar2;
 
-  coorddef local_20;
 
-  
 
   (&this->delayCar_)->Update();
 
@@ -531,13 +529,13 @@ void AIState_Chase::SetUp()
 
   this->latMetersBetween_ = pCVar1->roadPosition - (this->delayCar_).roadPosition_;
 
-  local_20.x = (this->delayCar_).position_.x;
+  targetCarPosition.x = (this->delayCar_).position_.x;
 
-  local_20.y = (this->delayCar_).position_.y;
+  targetCarPosition.y = (this->delayCar_).position_.y;
 
-  local_20.z = (this->delayCar_).position_.z;
+  targetCarPosition.z = (this->delayCar_).position_.z;
 
-  iVar2 = AIWorld_SplineDistance((this->_base_AIState_Base).carObj_,(this->delayCar_).slice_,&local_20);
+  iVar2 = AIWorld_SplineDistance((this->_base_AIState_Base).carObj_,(this->delayCar_).slice_,&targetCarPosition);
 
   pCVar1 = (this->_base_AIState_Base).carObj_;
 
@@ -561,7 +559,7 @@ void AIState_Chase::SetUp()
 
   if (((this->_base_AIState_Base).carObj_)->accNitrous != 0x10000) {
 
-    this->nitrousTicks_ = this->nitrousTicks_;
+    this->nitrousTicks_ = this->nitrousTicks_ - AI_elapsedTime;
 
   }
 
@@ -617,33 +615,31 @@ void AIState_Chase::DoNitrous(int checkForHumans)
   int humanLoop;
   int distanceMeters;
 
-  int iVar1;
-
   Car_tObj *pCVar2;
 
   Car_tObj **ppCVar3;
 
-  int iVar4;
 
-  
 
-  if ((0 < this->nitrousTicks_) && (this->slowDownEndTime_ <= simGlobal.gameTicks)) {
+  if ((0 < this->nitrousTicks_) && (simGlobal.gameTicks >= this->slowDownEndTime_)) {
 
     ((this->_base_AIState_Base).carObj_)->accNitrous = 0x30000;
 
-    ppCVar3 = Cars_gHumanRaceCarList;
-
     ((this->_base_AIState_Base).carObj_)->speedNitrous = 0x28000;
 
-    for (iVar4 = 0; (checkForHumans != 0 && (iVar4 < Cars_gNumHumanRaceCars)); iVar4 = iVar4 + 1) {
+    ppCVar3 = Cars_gHumanRaceCarList;
 
-      iVar1 = AIWorld_ApxSplineDistance((this->_base_AIState_Base).carObj_,*ppCVar3);
+    humanLoop = 0;
+
+    while (checkForHumans != 0 && (humanLoop < Cars_gNumHumanRaceCars)) {
+
+      distanceMeters = AIWorld_ApxSplineDistance((this->_base_AIState_Base).carObj_,*ppCVar3);
 
       pCVar2 = (this->_base_AIState_Base).carObj_;
 
-      iVar1 = iVar1 * pCVar2->direction;
+      distanceMeters = distanceMeters * pCVar2->direction;
 
-      if ((0 < iVar1) && (iVar1 < this->nitrousMinForeDistance_)) {
+      if ((0 < distanceMeters) && (distanceMeters < this->nitrousMinForeDistance_)) {
 
         pCVar2->accNitrous = 0x10000;
 
@@ -651,7 +647,7 @@ void AIState_Chase::DoNitrous(int checkForHumans)
 
       }
 
-      if ((iVar1 < 0) && (-this->nitrousMinAftDistance_ < iVar1)) {
+      if ((distanceMeters < 0) && (-this->nitrousMinAftDistance_ < distanceMeters)) {
 
         ((this->_base_AIState_Base).carObj_)->accNitrous = 0x10000;
 
@@ -660,6 +656,8 @@ void AIState_Chase::DoNitrous(int checkForHumans)
       }
 
       ppCVar3 = ppCVar3 + 1;
+
+      humanLoop = humanLoop + 1;
 
     }
 
@@ -702,15 +700,17 @@ void AIState_Chase::Execute()
 
   iVar2 = fixedmult(this->longMetersBetween_,0x666);
 
+  iVar4 = (this->_base_AIState_Base).carObj_->currentSpeed;
+
   iVar3 = this->targetCar_->currentSpeed;
+
+  iVar4 = iVar4 - iVar3;
 
   if (iVar2 < 0) {
 
     iVar2 = -iVar2;
 
   }
-
-  iVar4 = ((this->_base_AIState_Base).carObj_)->currentSpeed - iVar3;
 
   if (iVar4 < 0) {
 
@@ -815,17 +815,17 @@ void AIState_Chase::FarTargeting()
 
   this->inTargetRegion_ = 0;
 
-  if (this->noTurnAroundEndTime_ < simGlobal.gameTicks) {
+  if (simGlobal.gameTicks > this->noTurnAroundEndTime_) {
 
-    if (this->longMetersBetween_ < 1) {
+    if (0 < this->longMetersBetween_) {
 
-      ((this->_base_AIState_Base).carObj_)->desiredDirection = 1;
+      ((this->_base_AIState_Base).carObj_)->desiredDirection = -1;
 
     }
 
     else {
 
-      ((this->_base_AIState_Base).carObj_)->desiredDirection = -1;
+      ((this->_base_AIState_Base).carObj_)->desiredDirection = 1;
 
     }
 
@@ -861,50 +861,52 @@ int AIState_Chase::CalculateCloseTargettingAheadSlowDownFactor()
 
 
 {
-  int absLongMetersBetween;
   int slowDown;
+  int absLongMetersBetween;
 
-  int iVar1;
 
-  int iVar2;
 
-  
+  absLongMetersBetween = this->longMetersBetween_;
 
-  iVar1 = this->longMetersBetween_;
+  if (absLongMetersBetween < 0) {
 
-  if (iVar1 < 0) {
-
-    iVar1 = -iVar1;
+    absLongMetersBetween = -absLongMetersBetween;
 
   }
 
-  iVar2 = 0x9999;
+  slowDown = 0x9999;
 
-  if (iVar1 < 0x1e0000) {
+  if (absLongMetersBetween < 0x1e0000) {
 
-    iVar2 = 0xf333;
-
-  }
-
-  else if ((iVar1 < 0x320000) || (iVar1 < 0x640000)) {
-
-    iVar2 = 0xcccc;
+    slowDown = 0xf333;
 
   }
 
-  else if (iVar1 < 0x960000) {
+  else if (absLongMetersBetween < 0x320000) {
 
-    iVar2 = 0xc000;
-
-  }
-
-  else if (iVar1 < 0xc80000) {
-
-    iVar2 = 0xb333;
+    slowDown = 0xcccc;
 
   }
 
-  return iVar2;
+  else if (absLongMetersBetween < 0x640000) {
+
+    slowDown = 0xcccc;
+
+  }
+
+  else if (absLongMetersBetween < 0x960000) {
+
+    slowDown = 0xc000;
+
+  }
+
+  else if (absLongMetersBetween < 0xc80000) {
+
+    slowDown = 0xb333;
+
+  }
+
+  return slowDown;
 
 }
 
@@ -2375,17 +2377,19 @@ int AIState_Purgatory::TestForRelease()
 
 
 {
+  Car_tObj *pCVar2;
+
   int trafficInWorld;
 
   int iVar1;
 
-  Car_tObj *pCVar2;
 
-  
 
   pCVar2 = (this->_base_AIState_NonActive)._base_AIState_Base.carObj_;
 
   if (pCVar2->physicsModelTimer < 1) {
+
+    trafficInWorld = Cars_gNumTrafficCars - AIState_Purgatory_numTrafficCarsInPurgatory;
 
     iVar1 = GameSetup_gData.trafficDensity * 4;
 
@@ -2395,7 +2399,7 @@ int AIState_Purgatory::TestForRelease()
 
     }
 
-    if (Cars_gNumTrafficCars - AIState_Purgatory_numTrafficCarsInPurgatory < *(int *)((int)AITune_MaxTraffic[0] + iVar1)) {
+    if (trafficInWorld < *(int *)((int)AITune_MaxTraffic[0] + iVar1)) {
 
       return 1;
 
@@ -2436,7 +2440,7 @@ void AIState_Purgatory::Execute()
 
   if (((pCVar1->carFlags & 0x20U) == 0) && (0x3bf < simGlobal.gameTicks)) {
 
-    pCVar1->physicsModelTimer = pCVar1->physicsModelTimer;
+    pCVar1->physicsModelTimer = pCVar1->physicsModelTimer - AI_elapsedTime;
 
   }
 
@@ -3215,23 +3219,20 @@ void AIState_GotoSlice::Execute()
 
 
 {
-  int longMetersBetween;
-  int distMeters;
-  int cap;
-
+      
   bool bVar1;
 
-  int iVar2;
+  int distMeters;
 
   Car_tObj *pCVar3;
 
-  int iVar4;
+  int cap;
 
   
 
-  iVar2 = AIWorld_ApxSplineDistance(this->targetSlice_,(this->_base_AIState_Normal)._base_AIState_Base.carObj_);
+  distMeters = AIWorld_ApxSplineDistance(this->targetSlice_,(this->_base_AIState_Normal)._base_AIState_Base.carObj_);
 
-  if (iVar2 < 0) {
+  if (distMeters < 0) {
 
     ((this->_base_AIState_Normal)._base_AIState_Base.carObj_)->desiredDirection = -1;
 
@@ -3247,63 +3248,63 @@ void AIState_GotoSlice::Execute()
 
   if (this->stopWhenArrivedAtSlice_ != 0) {
 
-    if (iVar2 < 0) {
+    if (distMeters < 0) {
 
-      iVar2 = -iVar2;
-
-    }
-
-    iVar4 = 0xc80000;
-
-    if (iVar2 < 0xc0000) {
-
-      iVar4 = 0x40000;
+      distMeters = -distMeters;
 
     }
 
-    else if (iVar2 < 0x320000) {
+    cap = 0xc80000;
 
-      iVar4 = 0x140000;
+    if (distMeters < 0xc0000) {
 
-    }
-
-    else if (iVar2 < 0x960000) {
-
-      iVar4 = 0x280000;
+      cap = 0x40000;
 
     }
 
-    else if (iVar2 < 0x1900000) {
+    else if (distMeters < 0x320000) {
 
-      iVar4 = 0x500000;
+      cap = 0x140000;
+
+    }
+
+    else if (distMeters < 0x960000) {
+
+      cap = 0x280000;
+
+    }
+
+    else if (distMeters < 0x1900000) {
+
+      cap = 0x500000;
 
     }
 
     pCVar3 = (this->_base_AIState_Normal)._base_AIState_Base.carObj_;
 
-    iVar2 = pCVar3->desiredSpeed;
+    distMeters = pCVar3->desiredSpeed;
 
-    if (iVar2 < 0) {
+    if (distMeters < 0) {
 
-      iVar4 = -iVar4;
+      cap = -cap;
 
-      bVar1 = iVar4 < iVar2;
+      bVar1 = cap < distMeters;
 
     }
 
     else {
 
-      bVar1 = iVar2 < iVar4;
+      bVar1 = distMeters < cap;
 
     }
 
     if (bVar1) {
 
-      iVar4 = iVar2;
+      cap = distMeters;
 
     }
 
-    pCVar3->desiredSpeed = iVar4;
+    pCVar3->desiredSpeed = cap;
 
   }
 
@@ -3402,7 +3403,17 @@ void AIState_Cruise::Execute()
 
   cVar2 = this->cruiseMode_;
 
-  if (cVar2 == 1) {
+  switch (cVar2) {
+
+  case CRUISE_ATSETSPEED:
+
+    pCVar3 = (this->_base_AIState_Normal)._base_AIState_Base.carObj_;
+
+    pCVar3->desiredSpeed = this->cruiseSpeed_ * pCVar3->direction;
+
+    break;
+
+  case CRUISE_ATFACTOR:
 
     AISpeeds_CalcDesiredSpeed((this->_base_AIState_Normal)._base_AIState_Base.carObj_);
 
@@ -3412,23 +3423,13 @@ void AIState_Cruise::Execute()
 
     ((this->_base_AIState_Normal)._base_AIState_Base.carObj_)->desiredSpeed = iVar1;
 
-  }
+    break;
 
-  else if ((int)cVar2 < 2) {
-
-    if (cVar2 == 0) {
-
-      pCVar3 = (this->_base_AIState_Normal)._base_AIState_Base.carObj_;
-
-      pCVar3->desiredSpeed = this->cruiseSpeed_ * pCVar3->direction;
-
-    }
-
-  }
-
-  else if (cVar2 == 2) {
+  case CRUISE_ATTRAFFICSPEED:
 
     AISpeeds_CalcTrafficTopSpeed((this->_base_AIState_Normal)._base_AIState_Base.carObj_);
+
+    break;
 
   }
 

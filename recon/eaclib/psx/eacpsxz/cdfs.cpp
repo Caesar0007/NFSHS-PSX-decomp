@@ -1,4 +1,4 @@
-/* eaclib/psx/eacpsxz/cdfs.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 14/14 SEALED ***
+/* eaclib/psx/eacpsxz/cdfs.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 8/14 PASS ***
  *   Source obj : nfs4\eaclib\psx\cdfs.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col11)
  *   14 fns @[0x800F9AE8 .. 0x800FA920].  EA CD-ROM filesystem (fs 1): the CD_* backend fileroot calls.
  *   Dual-source reconstruction: Ghidra `C:\Temp\claud\nfs4-f.exe.c` (primary) verified vs disasm-v3.
@@ -8,12 +8,14 @@
  *   1-based index into CD_handleTable[]; each slot holds a pointer to the file's ISO9660 directory entry
  *   (0x14 bytes: name[0xC], start sector @+0xC, size @+0x10).
  *
- *   PROGRESS (incremental):
- *     [done] CD_Open, CD_Close, CD_Stopread, CD_Getinfo, CD_Read   -- leaves + the sector-ring read entry
- *     [done] readsectorB (sync sector read), loaddirinfo (recursive ISO9660 dir walker), dircompare,
- *            CD_Restore (addexit cleanup), CD_Init (mount: PVD->root dir), CD_Restart (re-seek/read),
- *            CD_systaskfunc (disc-swap recovery task), CD_timerfunc (read watchdog),
- *            CdReadyHandler (1200B CD IRQ -- the streaming sector engine)   -- the CD machinery
+ *   PROGRESS (`python tools/verify_asm.py cdfs.cpp <fn>`, 2026-07-05 sweep):
+ *     [PASS]  CD_Close, CD_Stopread, CD_Getinfo, readsectorB, dircompare, CD_Restore, CD_Init,
+ *             CD_timerfunc                                                            -- 8/14
+ *     [near]  CD_Open (11 diffs), CD_Restart (4 diffs), CD_systaskfunc (71 diffs) -- pure register-
+ *             coloring/scheduling residuals; structural forms tried + a permuter pass run on each,
+ *             no clean source lever found yet (no asm pins per HARD RULE -- see report)
+ *     [FAIL]  CD_Read (198), loaddirinfo (133), CdReadyHandler (325) -- deeper structural gaps,
+ *             not yet attempted this session (bigger targets, budget went to the <20-diff bucket)
  *
  *   ISO9660 directory record (loaddirinfo/CD_Init):  [0]=reclen [1]=ext_attr_len  extent(LE)@+0x02
  *     data_len(LE)@+0x0A  flags@+0x19(bit1=directory)  name_len@+0x20  name@+0x21 (";1" stripped).
@@ -153,11 +155,17 @@ extern "C" int   CD_Restart(int startSector);                      /* @0x800FA4A
 extern "C" void  CD_systaskfunc(void);                             /* @0x800F9AE8 */
 extern "C" void  CdReadyHandler(int intr, unsigned char *result);  /* @0x800F9CA4 */
 
-/* unaligned little-endian 32-bit load (the asm uses lwl/lwr; ISO9660 stores LE first) */
-static int rd_le32(const unsigned char *q)
+/* unaligned little-endian 32-bit load (the asm uses lwl/lwr; ISO9660 stores LE first).  MUST be
+ * `inline` (a bare `static` at -O2 on this toolchain still emits an out-of-line call) -- the oracle
+ * has ZERO `jal rd_le32`s; every call site is inlined straight to an lwl/lwr pair (CD_Init's PVD
+ * root-dir-record read, loaddirinfo's per-record extent/size reads).  A byte-shift-and-OR body
+ * compiles to 4 separate `lbu`+`sll`+`or` -- the oracle's single lwl/lwr pair only comes from a
+ * DIRECT unaligned word dereference (the target is little-endian, so `*(unsigned int*)q` on an
+ * unproven-aligned byte pointer already yields the LE32 value with no swap needed). */
+struct rd_le32_unaligned { int v; } __attribute__((packed));
+static inline int rd_le32(const unsigned char *q)
 {
-    return (int)((unsigned)q[0] | ((unsigned)q[1] << 8) |
-                 ((unsigned)q[2] << 16) | ((unsigned)q[3] << 24));
+    return ((const struct rd_le32_unaligned *)q)->v;
 }
 
 /* CD_Open @0x800FA554 : open `name` on the CD; writes the 1-based handle to *outp.  Finds a free slot,
@@ -173,11 +181,8 @@ extern "C" int CD_Open(char *name, int flags, int *outp)
     int    c;
     (void)flags;
 
-    if (CD_maxOpen > 0) {                       /* find the first free slot */
-        while (slot < CD_maxOpen) {
-            if (*h == 0) break;
-            slot++; h++;
-        }
+    for (slot = 0; slot < CD_maxOpen; slot++, h++) {   /* find the first free slot */
+        if (*h == 0) break;
     }
     do {                                        /* upper-case the name into a scratch buffer */
         c = toupper((unsigned char)*name++);
@@ -218,12 +223,14 @@ extern "C" int CD_Stopread(int dev)
  *   and write its size to *sizeout; returns the size. */
 extern "C" int CD_Getinfo(int handle, int namebuf, int *sizeout)
 {
-    void *entry = CD_handleTable[handle - 1];
+    void **slot = &CD_handleTable[handle - 1];       /* the SLOT address is what's kept; the entry
+                                                         pointer itself is RELOADED at every use below
+                                                         (oracle @0x800FA950/964/978 -- no cached copy) */
     if (namebuf != 0)
-        strncpy((char *)namebuf, (char *)entry, 0xC);     /* directory entry name (0xC bytes) */
+        strncpy((char *)namebuf, (char *)*slot, 0xC);     /* directory entry name (0xC bytes) */
     if (sizeout != 0)
-        *sizeout = *(int *)((char *)entry + 0x10);        /* file size */
-    return *(int *)((char *)entry + 0x10);
+        *sizeout = *(int *)((char *)*slot + 0x10);        /* file size */
+    return *(int *)((char *)*slot + 0x10);
 }
 
 /* CD_Read @0x800FA678 : arm a read of `len` bytes from file `dev` at `offset` into `dest`.  Sets up the
@@ -288,16 +295,29 @@ extern "C" int CD_Read(int dev, int dest, int offset, int len)
 /* readsectorB @0x800FA154 : synchronously read CD_curSector into the global sector cache.  Arms a
  *   single-sector transfer (CD_curLen=0x800, in-progress|partial flags) into the cache buffer and
  *   busy-waits until CdReadyHandler clears the in-progress bits.  Returns the cache pointer.
- *   (Ghidra rendered the spin-wait as an "infinite loop" -- the loop exits when the IRQ runs.) */
+ *   (Ghidra rendered the spin-wait as an "infinite loop" -- the loop exits when the IRQ runs.)
+ *   @0x800FA17C: the oracle's `beqz v0,.L800FA19C` tests `(Cdinfo&3)` but its DELAY SLOT stores
+ *   `CD_curDst=&CD_sectorCache` UNCONDITIONALLY (methodology-§3.1: a delay-slot store runs on both
+ *   branch paths) -- not gated by the "if" the Ghidra shape implied.  (Harmless either way since
+ *   Cdinfo was just set to 0xA above so the gate is always true, but the C must mirror the
+ *   unconditional-store shape to reproduce the branch-then-delay-slot instruction order.)
+ *   LOOP-ROTATED shape (methodology-§3.12 #15a): the guard test's RELOAD is reused as-is to decide
+ *   whether to enter the loop, but the loop body reloads Cdinfo FRESH every pass (incl. the first) --
+ *   a `do{}while()` gated by an outer `if`, not a `while(){}` (which would test-before-every-pass off
+ *   the SAME reload as the guard, an extra reload+branch pair the oracle doesn't have). */
 extern "C" unsigned char *readsectorB(void)
 {
+    int busy;
+
     CD_curLen  = 0x800;
     CD_ringIdx = 0;
     Cdinfo     = 0xA;                     /* read-in-progress (2) | partial (8) */
-    if ((Cdinfo & 3) != 0)
-        CD_curDst = CD_sectorCache;       /* ctx+0x3C == &CD_sectorCache (0x80146D00) */
-    while ((Cdinfo & 3) != 0)
-        ;                                 /* spin until the CD IRQ completes this sector */
+    CD_curDst = CD_sectorCache;           /* ctx+0x3C == &CD_sectorCache (0x80146D00) -- unconditional */
+    if ((Cdinfo & 3) != 0) {
+        do {
+            busy = (Cdinfo & 3);          /* spin until the CD IRQ completes this sector */
+        } while (busy != 0);
+    }
     return CD_sectorCache;
 }
 
@@ -345,7 +365,11 @@ extern "C" int *loaddirinfo(int startSector, int numSectors, int maxEntries)
     }
 
     CD_curSector = savedSector;
-    return (int *)0x80140000;             /* fixed return; callers ignore it */
+    /* oracle epilogue (asm/nonmatchings/main/loaddirinfo.s tail): `jr ra` with NO explicit $v0 set --
+     * the return value is genuinely UNSPECIFIED (whatever $v0 held from the last executed insn); every
+     * caller (CD_Init, the recursive self-call) discards it.  Returning a real in-scope symbol instead
+     * of a fabricated bare VA keeps this a legitimate C value without affecting any caller. */
+    return (int *)CD_dirEntryArray;
 }
 
 /* dircompare @0x800FA344 : qsort/bsearch comparator -- compares the 0xC-byte names of two dir entries. */
@@ -369,7 +393,8 @@ extern "C" int CD_Init(int maxOpen, int numEntries, void *buffer, void (*callbac
 {
     CdlLOC         toc[2];
     unsigned char *root;
-    int            rootExtent, rootSize;
+    int            rootExtent;
+    unsigned int   rootSize;              /* oracle: srl (unsigned) for the >>0xB below */
 
     if (CD_dirEntryCount != 0)            /* already mounted */
         return 0;
@@ -400,10 +425,13 @@ extern "C" int CD_Init(int maxOpen, int numEntries, void *buffer, void (*callbac
  *   0x10).  Loops CdlSetmode until accepted, flushes, installs CdReadyHandler, and issues CdlReadN. */
 extern "C" int CD_Restart(int startSector)
 {
-    unsigned char mode[8];
     unsigned char pos[8];
+    unsigned char mode[8];
     int           rc;
 
+    (void)Cdinfo;                         /* oracle @0x800FA4B4: lui/lw Cdinfo, result discarded --
+                                              a volatile touch (its read is not elided) before arming
+                                              the new read mode below */
     mode[0] = 0xA0;                       /* double-speed read mode */
     do {
         rc = CdControlB(0x0E, mode, 0);   /* CdlSetmode -- retry until the drive accepts it */
@@ -432,7 +460,10 @@ extern "C" void CD_systaskfunc(void)
     int           done = 0;
 
     ready = CdDiskReady(1);
-    if (ready == 5) {                     /* CdlDiskError -> run down the watchdog */
+    switch (ready) {                       /* oracle: beq==5 first, THEN a slti<6+bne!=2 guard for
+                                               case 2 -- a genuine switch (not if/else-if), the case-2
+                                               arm gets a redundant bounds pre-check gcc emits for it */
+    case 5:                                /* CdlDiskError -> run down the watchdog */
         /* @0x800F9B48-B74: the watchdog only writes back at the boundaries -- CD_timeout==0 re-arms to
          * timerhz*5; CD_timeout==1 stores 0 + done=1; for CD_timeout>=2 the branch at 0x800F9B6C exits
          * WITHOUT storing, so the timeout is left UNCHANGED here (decremented elsewhere). The recon
@@ -443,9 +474,12 @@ extern "C" void CD_systaskfunc(void)
             CD_timeout = 0;
             done = 1;
         }
-    } else if (ready == 2) {              /* CdlComplete -> a disc settled */
+        break;
+    case 2: {                              /* CdlComplete -> a disc settled */
         int t = CdGetDiskType();
         done = ((unsigned)(t - 1) < 2);   /* disc type 1 or 2 == a usable disc */
+        break;
+    }
     }
 
     if (done) {

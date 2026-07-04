@@ -11,7 +11,7 @@
 int          BigBTCTime_state1 = 50;   /* @0x8013d920 */
 int          BigBTCTime_state2;   /* @0x8013d924  (bss(zero)) */
 int          keepup;   /* @0x8013D900  (bss(zero)) */
-char         oldCountdown = -1;   /* @0x8013D91D */
+signed char  oldCountdown = -1;   /* @0x8013D91D */
 tSmallCoordXY Hud_gElementPositions[2][19] = { { {22, 54}, {159, 19}, {8, 19}, {18, 35}, {8, 204}, {221, 24}, {23, -2}, {21, -2}, {23, -3}, {2, -4}, {7, 50}, {4, 18}, {-41, 0}, {90, 212}, {253, 162}, {8, 196}, {218, 20}, {160, 97}, {160, 97} }, { {22, 56}, {252, 17}, {8, 17}, {26, 30}, {8, 101}, {128, 18}, {23, -2}, {21, -2}, {23, -3}, {2, -1}, {7, 52}, {4, 18}, {-42, 0}, {90, 105}, {259, 60}, {8, 72}, {215, 22}, {160, 99}, {160, 42} } };   /* @0x80120924 */
 u_long       day_needle[30] = { 657850u, 16053492u, 657850u, 657850u, 657850u, 236260u, 657850u, 657850u, 657850u, 657850u, 526344u, 657850u, 16053492u, 43184u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 43184u, 657850u, 0, 0, 0 };   /* @0x801209bc */
 u_long       night_needle[30] = { 657850u, 1147055u, 4168420u, 657850u, 657850u, 236260u, 657850u, 657850u, 657850u, 657850u, 526344u, 4110581u, 2648104u, 43184u, 657850u, 657850u, 4110581u, 4168420u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 4110581u, 43184u, 657850u, 0, 0, 0 };   /* @0x80120a34 */
@@ -87,7 +87,7 @@ void Hud_BuildFT4(POLY_FT4 *prim,HudPmx_tShape *shape,int x,int y,u_long color,i
 void Hud_BuildMirrorFT4(POLY_FT4 *prim,HudPmx_tShape *shape,int x,int y,u_long color,int trans);
 void Hud_BuildMapMirrorFT4(POLY_FT4 *prim,HudPmx_tShape *shape,int x,int y,u_long color,int trans);
 void Hud_BuildF4(POLY_F4 *prim,int trans,int x,int y,int w,int h,u_long color);
-void Hud_BuildF4o(POLY_F4 *prim,int trans,int x,int y,int w,int h,u_long color,char x0off,char x1off);
+void Hud_BuildF4o(POLY_F4 *prim,int trans,int x,int y,int w,int h,u_long color,signed char x0off,signed char x1off);
 void Hud_FBuildGT4(HudPmx_tShape *shape, int x, int y, u_long col1);
 void Hud_FBuildFT4(HudPmx_tShape *shape, int x, int y, u_long col1);
 void Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char x0off, char x1off);
@@ -180,10 +180,10 @@ void Hud_GoTpage(int page)
   
   p = Render_gPacketPtr;
   tp1 = Render_gPalettePtr;
-  *(u_int *)Render_gPacketPtr =
-       *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  addr_24 = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0xc;
+  *(u_int *)p =
+       *(u_int *)p & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+  addr_24 = (u_int)p & 0xffffff;
+  Render_gPacketPtr = p + 0xc;
   *(u_int *)tp1 = *(u_int *)tp1 & 0xff000000 | addr_24;
   SetDrawMode((DR_MODE *)p,0,0,(page * 0x40 + 0x80U & 0x3ff) >> 6,(RECT *)0x0);
   return;
@@ -262,13 +262,13 @@ void Hud_FBuildSprite(int shapeIdx,int x,int y,u_long color,int trans)
   int tu1;
   u_char *prim;
   u_char *prev_pkt;
-  
+
   prim = Render_gPacketPtr;
   prev_pkt = Render_gPalettePtr;
-  *(u_int *)Render_gPacketPtr =
-       *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  tu1 = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x14;
+  *(u_int *)prim =
+       *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+  tu1 = (u_int)prim & 0xffffff;
+  Render_gPacketPtr = prim + 0x14;
   *(u_int *)prev_pkt = *(u_int *)prev_pkt & 0xff000000 | tu1;
   Hud_BuildSprite((SPRT *)prim,shapeIdx,x,y,color,trans);
   return;
@@ -639,7 +639,7 @@ void Hud_BuildG4(POLY_G4 *prim,int trans,int x,int y,int w,int h,u_long col1,u_l
 }
 
 /* ---- Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc  [HUD.CPP:747-757] SLD-VERIFIED ---- */
-void Hud_BuildF4o(POLY_F4 *prim,int trans,int x,int y,int w,int h,u_long color,char x0off,char x1off)
+void Hud_BuildF4o(POLY_F4 *prim,int trans,int x,int y,int w,int h,u_long color,signed char x0off,signed char x1off)
 
 {
   u_int uVar1;
@@ -678,10 +678,10 @@ void Hud_FBuildGT4(HudPmx_tShape *shape, int x, int y, u_long col1)
 
   prim     = (POLY_GT4 *)Render_gPacketPtr;
   prev_pkt = Render_gPalettePtr;
-  *(u_int *)Render_gPacketPtr =
-       *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x34;
+  *(u_int *)prim =
+       *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+  Render_gPacketPtr = (u_char *)prim + 0x34;
+  pkt_addr24 = (u_int)prim & 0xffffff;
   *(u_int *)prev_pkt = *(u_int *)prev_pkt & 0xff000000 | pkt_addr24;
   Hud_BuildGT4(prim, shape, x, y, col1);
 }
@@ -695,10 +695,10 @@ void Hud_FBuildFT4(HudPmx_tShape *shape, int x, int y, u_long col1)
 
   prim     = (POLY_FT4 *)Render_gPacketPtr;
   prev_pkt = Render_gPalettePtr;
-  *(u_int *)Render_gPacketPtr =
-       *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x28;
+  *(u_int *)prim =
+       *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+  pkt_addr24 = (u_int)prim & 0xffffff;
+  Render_gPacketPtr = (u_char *)prim + 0x28;
   *(u_int *)prev_pkt = *(u_int *)prev_pkt & 0xff000000 | pkt_addr24;
   Hud_BuildFT4(prim, shape, x, y, col1, 0);
 }
@@ -712,10 +712,10 @@ void Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char
 
   prim     = (POLY_F4 *)Render_gPacketPtr;
   prev_pkt = Render_gPalettePtr;
-  *(u_int *)Render_gPacketPtr =
-       *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x18;
+  *(u_int *)prim =
+       *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+  pkt_addr24 = (u_int)prim & 0xffffff;
+  Render_gPacketPtr = (u_char *)prim + 0x18;
   *(u_int *)prev_pkt = *(u_int *)prev_pkt & 0xff000000 | pkt_addr24;
   Hud_BuildF4o(prim, transparent, x, y, w, h, col1, x0off, x1off);
 }
@@ -3362,6 +3362,7 @@ void Hud_Render321Go(void)
   gCView.id = Hud_gStatsView;
   Draw_StartRenderingView(Hud_gStatsView);
   y_00 = (int)g1Player[0x11].y;
+  x = 160;
   if ((int)oldCountdown != (u_int)(u_char)countdown) {
     oldCountdown = countdown;
     countdownTick_216 = ticks;
@@ -3369,21 +3370,21 @@ void Hud_Render321Go(void)
   uVar1 = ticks - countdownTick_216;
   if ((u_char)countdown == 4) {
     if (uVar1 < 100) {
-      flare_intensity_00 = uVar1 * -0x50 + 8000;
+      flare_intensity_00 = 8000 - uVar1 * 0x50;
       goto HudRender321_drawCountNum;
     }
   }
   else if (uVar1 < 100) {
-    flare_intensity_00 = uVar1 * -0x3c + 6000;
+    flare_intensity_00 = 6000 - uVar1 * 0x3c;
     goto HudRender321_drawCountNum;
   }
   flare_intensity_00 = 0;
 HudRender321_drawCountNum:
   num_00 = 4 - (u_int)(u_char)countdown;
   if ((u_char)countdown != 4) {
-    Hud_Draw321Num(0x48,y_00,num_00,flare_intensity_00,1,0);
-    Hud_Draw321Num(0x87,y_00,num_00,flare_intensity_00,0,0);
-    Hud_Draw321Num(0xc6,y_00,num_00,flare_intensity_00,0,1);
+    Hud_Draw321Num(x-0x58,y_00,num_00,flare_intensity_00,1,0);
+    Hud_Draw321Num(x-0x19,y_00,num_00,flare_intensity_00,0,0);
+    Hud_Draw321Num(x+0x26,y_00,num_00,flare_intensity_00,0,1);
   }
   Draw_StopRenderingView(Hud_gStatsView);
   return;
@@ -3854,8 +3855,7 @@ void Hud_PositionMap(void)
 {
   int track;
 
-  track = GameSetup_gData.track;
-  gMapScaleX = (int)(fMapScaleX[track] * 65536.0f);
+  gMapScaleX = (int)(fMapScaleX[track = GameSetup_gData.track] * 65536.0f);
   gMapScaleY = (int)(fMapScaleY[track] * 65536.0f);
   gMapOffX = fMapOffX[track];
   if (GameSetup_gData.mirrorTrack != 0) {
@@ -3973,7 +3973,7 @@ void Hud_BTC_QuitOut(void)
   int i;
   int slot_i;
   char *name_tail;
-  
+
   if (HudBustedOverlay == 0) {
     slot_i = 0;
     row_off = 0;
@@ -3981,16 +3981,10 @@ void Hud_BTC_QuitOut(void)
       perp_idx = Hud_NextPerp + slot_i;
       sprintf(BTCPerpInfo[0][*perp_idx].name + row_off,BTC_CurrentPerpName);
       name_tail = BTCPerpInfo[0][*perp_idx].name + row_off + 0xc;
-      name_tail[0] = '\0';
-      name_tail[1] = '\0';
-      name_tail[2] = '\0';
-      name_tail[3] = '\0';
+      *(u_int *)name_tail = 0;
       slot_i = slot_i + 1;
       name_tail = BTCPerpInfo[0][*perp_idx].name + row_off + 8;
-      name_tail[0] = '\0';
-      name_tail[1] = '\0';
-      name_tail[2] = '\0';
-      name_tail[3] = '\0';
+      *(u_int *)name_tail = 0;
       *perp_idx = *perp_idx + 1;
       row_off = row_off + 0xa0;
     } while (slot_i < 2);

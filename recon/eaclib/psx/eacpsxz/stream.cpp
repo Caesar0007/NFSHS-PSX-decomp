@@ -56,13 +56,37 @@ extern "C" unsigned int requestidcounter;
 
 #define STRM_MAGIC 0x4D525453            /* 'STRM' little-endian */
 
-/* ---- cop0 IRQ-disabled critical section (host no-op; faithful intent on the MIPS target) ---- */
+/* ---- cop0 IRQ-disabled critical section ----
+ * NOT a call in the oracle: every STREAM_enterCS()/STREAM_leaveCS() site in the real binary is a
+ * FULLY INLINED cop0 SR read/mask/write pair (confirmed identically at getfreerequest/queuerequest/
+ * decbufferusage/parsechunks/etc, and project-wide in nfile/nasync/InitGeom/iSND*):
+ *   mfc0 R,$12; nop; addiu at,zero,-0x402; and t0,R,at; mtc0 t0,$12; nop;nop;nop   (enter, R = old SR)
+ *   ...body...
+ *   mtc0 R,$12                                                                     (leave, restore R)
+ * `-0x402` clears bits 1 and 10 of SR (IRQ enable + one IRQ-mask bit) -- the retail crit-section idiom.
+ * Modeled as a value-returning enter/leave pair (the old SR must stay live across the body) so each
+ * call site holds it in a real local, matching the oracle's register-held-across-body shape. */
 #if defined(__mips__)
-extern "C" void STREAM_enterCS(void);
-extern "C" void STREAM_leaveCS(void);
+static inline int STREAM_enterCS(void)
+{
+    int sr;
+    __asm__ volatile(
+        "mfc0 %0,$12\n\t"
+        "nop\n\t"
+        "li $1,-0x402\n\t"
+        "and $8,%0,$1\n\t"
+        "mtc0 $8,$12\n\t"
+        "nop\n\tnop\n\tnop"
+        : "=r"(sr) : : "$1", "$8");
+    return sr;
+}
+static inline void STREAM_leaveCS(int sr)
+{
+    __asm__ volatile("mtc0 %0,$12" : : "r"(sr));
+}
 #else
-static inline void STREAM_enterCS(void) {}
-static inline void STREAM_leaveCS(void) {}
+static inline int  STREAM_enterCS(void) { return 0; }
+static inline void STREAM_leaveCS(int sr) { (void)sr; }
 #endif
 
 /* byte-offset accessors on a stream/request/consumer object held as an int address */
@@ -117,33 +141,42 @@ extern "C" int validatehandle(int handle, int *outObj, int *outHandle)
 /* inbetween @0x800FC334 : is offset `c` inside the (possibly wrapped) ring interval [a, b)? */
 extern "C" unsigned int inbetween(unsigned int a, unsigned int b, unsigned int c)
 {
+    unsigned int ret;
     if (a <= b) {
+        ret = 0u;
         if (a <= c)
-            return (c < b) ? 1u : 0u;
-        return 0u;
+            ret = c < b;
+        return ret;
     }
-    if (a <= c || c < b)
-        return 1u;
-    return 0u;
+    ret = 0u;
+    if (a <= c)
+        ret = 1u;
+    else if (c < b)
+        ret = 1u;
+    return ret;
 }
 
 /* decbufferusage @0x800FC374 : subtract `amount` bytes from the stream's buffer usage (+0x3C), inside a
  *   critical section.  If usage falls back below the greedy level while the stream is actively reading
- *   (state==1), drop the in-flight read's priority via FILE_priorityop. */
+ *   (state==1), drop the in-flight read's priority via FILE_priorityop.  NOTE: the oracle's epilogue does
+ *   NOT reload/preserve the return value across the FILE_priorityop call on the greedy-on path -- it
+ *   falls through with whatever $v0 holds post-call (the call's own return, clobbering the earlier `1`).
+ *   A faithful transcription must NOT hold `ret` live across that call either. */
 extern "C" int decbufferusage(int s, int amount)
 {
-    int old, neu, ret;
-    STREAM_enterCS();
+    int sr, old, neu, ret;
+    sr = STREAM_enterCS();
     old = MI(s, 0x3c);
     neu = old - amount;
     MI(s, 0x3c) = neu;
-    STREAM_leaveCS();
+    STREAM_leaveCS(sr);
     ret = (neu < MI(s, 0x34));
     if (MI(s, 0x34) <= old && ret != 0) {
-        ret = 1;
         MI(s, 0x38) = 1;                       /* greedy state on */
-        if (MI(s, 0x28) == 1)
-            FILE_priorityop(MI(s, 0xa4), MI(s, 0x30));
+        if (MI(s, 0x28) != 1)
+            return 1;
+        FILE_priorityop(MI(s, 0xa4), MI(s, 0x30));
+        return 1;
     }
     return ret;
 }
@@ -153,18 +186,18 @@ extern "C" int decbufferusage(int s, int amount)
 extern "C" int *getfreerequest(int s)
 {
     int *req, *ret;
-    STREAM_enterCS();
+    int sr = STREAM_enterCS();
     req = *(int **)(s + 0x58);
     ret = 0;
     if (req != 0) {
+        ret = req;
         requestidcounter += 0x100;
         MI(s, 0x58) = req[3];                  /* freelist head = req->next (+0xC) */
         if (requestidcounter == 0)
             requestidcounter = 0x100;
         req[0] = (int)((unsigned char)req[0] | requestidcounter);  /* id = slot | counter */
-        ret = req;
     }
-    STREAM_leaveCS();
+    STREAM_leaveCS(sr);
     return ret;
 }
 
@@ -172,22 +205,22 @@ extern "C" int *getfreerequest(int s)
  *   inside a critical section.  Returns the previous tail (0 if the queue was empty). */
 extern "C" int queuerequest(int s, int req)
 {
-    int ret;
+    int ret, sr, tail;
     MI(req, 4) = 1;                            /* state = queued */
     MI(req, 0xc) = 0;                          /* next = 0 */
-    STREAM_enterCS();
-    if (MI(s, 0x54) == 0) {                    /* empty queue */
+    sr = STREAM_enterCS();
+    ret = tail = MI(s, 0x54);
+    if (tail == 0) {                           /* empty queue */
         MI(req, 8) = 0;
         MI(s, 0x4c) = req;                     /* head = cur = req */
         MI(s, 0x50) = req;
-        ret = 0;
     } else {
-        MI(req, 8) = MI(s, 0x54);              /* prev = old tail */
+        MI(req, 8) = tail;                     /* prev = old tail */
         ret = MI(s, 0x54);
         MI(ret, 0xc) = req;                    /* old tail->next = req */
     }
     MI(s, 0x54) = req;                         /* tail = req */
-    STREAM_leaveCS();
+    STREAM_leaveCS(sr);
     return ret;
 }
 
@@ -234,18 +267,23 @@ extern "C" int freerequest(int s, int req)
 
 /* filterchunk @0x800FC5E4 : classify a chunk by its first word against the filter table; returns the
  *   matching filter's consumer value, or 0xFFFFFFFE ("skip") if none match. */
+/* NOTE: the oracle keeps ONE pointer (f, byte offsets 0/4/8, +0xC per iter); gcc-2.8.0 here instead
+ * CSEs a SECOND base (f+8) to serve f[1]/f[2] -- tried unsigned-int* w/ +=3, char*-byte-advance, and a
+ * raw MI/MU byte-offset int local; all three reproduce the identical dual-base split. Documenting as a
+ * near-miss (21 diffs, was 27) rather than a source-shape floor pending further investigation. */
 extern "C" unsigned int filterchunk(int s, int chunk)
 {
     unsigned int *f;
-    int i = 0;
-    if (0 < MI(s, 0x14)) {
+    int i = 0, n;
+    n = MI(s, 0x14);
+    if (0 < n) {
         f = *(unsigned int **)(s + 0x10);      /* filterArray */
         do {
             i++;
             if ((*(unsigned int *)chunk & f[0]) == f[1])
                 return f[2];
             f += 3;
-        } while (i < MI(s, 0x14));
+        } while (i < n);
     }
     return 0xfffffffeu;
 }
@@ -261,6 +299,7 @@ extern "C" int parsechunks(int s)
     unsigned int uVar3, uVar5;
     int  *chunk;
     int   reqcur;
+    int   sr;
 
     uVar3   = MU(s, 0x48);                      /* fillptr */
     chunk   = *(int **)(s + 0x44);              /* writeptr */
@@ -274,16 +313,16 @@ extern "C" int parsechunks(int s)
 
         uVar3 = filterchunk(s, (int)chunk);
         if ((int)uVar3 < 0) {                   /* no consumer (skip) */
-            STREAM_enterCS();
+            sr = STREAM_enterCS();
             bvar1 = (MI(reqcur, 4) == 4);       /* request cancelled? */
             if (!bvar1) {
                 chunk[0] = -2;                  /* mark chunk free */
                 MI(s, 0x44) += uVar5;           /* advance writeptr */
             }
-            STREAM_leaveCS();
+            STREAM_leaveCS(sr);
         } else {                                /* routed to consumer uVar3 */
             chunk[1] = chunk[1] | (uVar3 << 0x18);
-            STREAM_enterCS();
+            sr = STREAM_enterCS();
             bvar1 = (MI(reqcur, 4) == 4);
             if (!bvar1) {
                 int cons = MI(s, 0x18) + uVar3 * 0x10 - 0x10;  /* consumer slot */
@@ -298,7 +337,7 @@ extern "C" int parsechunks(int s)
                 if (iVar2 < MI(s, 0x34) && MI(s, 0x34) <= iVar4)
                     MI(s, 0x38) = 0;            /* crossed greedy level -> greedy off */
             }
-            STREAM_leaveCS();
+            STREAM_leaveCS(sr);
         }
         if (bvar1)
             break;
@@ -361,9 +400,11 @@ extern "C" int readcallback(int a0, int a1, int s)
     if (MI(reqcur, 4) != 4) {                   /* not cancelled */
         if (!bvar1 && iVar2 == 0)
             return restartstream(s);            /* more to read, no EOS -> keep going */
-        STREAM_enterCS();
-        MI(reqcur, 4) = 3;                      /* request done */
-        STREAM_leaveCS();
+        {
+            int sr = STREAM_enterCS();
+            MI(reqcur, 4) = 3;                  /* request done */
+            STREAM_leaveCS(sr);
+        }
     }
     return startnextrequest(s, MU(s, 0x30), (unsigned int)s);
 }
@@ -377,9 +418,10 @@ extern "C" int startnextrequest(int s, unsigned int prio, unsigned int x)
     int  ret = 0;
     int  cur;
     int  req;
+    int  sr;
     (void)x;
 
-    STREAM_enterCS();
+    sr = STREAM_enterCS();
     cur  = MI(s, 0x50);
     done = 1;
     if (cur != 0) {
@@ -401,7 +443,7 @@ extern "C" int startnextrequest(int s, unsigned int prio, unsigned int x)
         ret = 2;
         MI(req, 4) = 2;                          /* state = active */
     }
-    STREAM_leaveCS();
+    STREAM_leaveCS(sr);
 
     if (!done) {
         MI(s, 0x48) = MI(s, 0x44);               /* fillptr = writeptr */
@@ -445,6 +487,7 @@ extern "C" int restartstream(int s)
     unsigned int uVar3, uVar5;
     int *p;
     int *q;
+    int  sr;
 
     /* skip wrap/free markers at the read head (+0x40) up to the writeptr (+0x44) */
     iVar1 = MI(s, 0x40);
@@ -461,7 +504,7 @@ extern "C" int restartstream(int s)
     }
 
     /* free finished requests whose data has been fully consumed */
-    STREAM_enterCS();
+    sr = STREAM_enterCS();
     iVar1 = MI(s, 0x4c);                         /* queue head */
     iVar2 = MI(iVar1, 0xc);
     while (iVar2 != 0 && MI(MI(iVar1, 0xc) + 4, 0) != 1 &&
@@ -470,7 +513,7 @@ extern "C" int restartstream(int s)
         iVar1 = MI(s, 0x4c);
         iVar2 = MI(iVar1, 0xc);
     }
-    STREAM_leaveCS();
+    STREAM_leaveCS(sr);
 
     /* compute the next contiguous fill region [fillptr .. readptr) */
     uVar3 = MU(s, 0x40);                         /* readptr */
@@ -739,12 +782,12 @@ extern "C" unsigned int STREAM_queuefile(int s, char *name, int off, int len)
     req[0x17] = len;
     queuerequest(out[0], (int)req);
     {
-        int wasidle;
-        STREAM_enterCS();
+        int wasidle, sr;
+        sr = STREAM_enterCS();
         wasidle = (MI(out[0], 0x28) == 0);
         if (wasidle)
             MI(out[0], 0x28) = 1;
-        STREAM_leaveCS();
+        STREAM_leaveCS(sr);
         if (wasidle) {
             unsigned int prio = (MI(out[0], 0x38) == 0) ? MU(out[0], 0x2c) : MU(out[0], 0x30);
             startnextrequest(out[0], prio, id);
@@ -782,12 +825,12 @@ extern "C" unsigned int STREAM_queuemem(int s, int blocklist, void *ptr, int len
     req[0x17] = len;
     queuerequest(out[0], (int)req);
     {
-        int wasidle;
-        STREAM_enterCS();
+        int wasidle, sr;
+        sr = STREAM_enterCS();
         wasidle = (MI(out[0], 0x28) == 0);
         if (wasidle)
             MI(out[0], 0x28) = 1;
-        STREAM_leaveCS();
+        STREAM_leaveCS(sr);
         if (wasidle)
             startnextrequest(out[0], 0, 0);
     }
@@ -803,12 +846,13 @@ extern "C" int STREAM_cancelrequest(int s, int reqid)
     int ret;
     int req;
     int *s4, *s6, *s7;
+    int sr;
 
     if (validatehandle(s, &out[0], &out[1]) != 0)
         return 1;
     s = out[0];                                   /* stream object */
 
-    STREAM_enterCS();
+    sr = STREAM_enterCS();
     req = locaterequest(s, reqid);
     if (req != 0 && MI(req, 4) != 4) {
         if (MI(req, 4) != 1) {                     /* active (not merely queued) */
@@ -833,7 +877,7 @@ extern "C" int STREAM_cancelrequest(int s, int reqid)
     }
     ret = 1;
 reclaim:
-    STREAM_leaveCS();
+    STREAM_leaveCS(sr);
     if (ret != 0)
         return ret;
 
@@ -865,9 +909,9 @@ reclaim:
                             } else {
                                 unsigned int len = p[1] & 0xffffff;
                                 if ((unsigned int)(p[1] & 0xff000000) == (unsigned int)(rstate << 0x18)) {
-                                    STREAM_enterCS();
+                                    int sr2 = STREAM_enterCS();
                                     MI(cons, 8) -= len;
-                                    STREAM_leaveCS();
+                                    STREAM_leaveCS(sr2);
                                     decbufferusage(s, len);
                                     p[0] = -2;
                                     p[1] = len;
@@ -953,11 +997,11 @@ extern "C" int STREAM_get(int consumer, void *buf, int len)
     chunk = MI(cons, 0xc);                          /* readcursor */
     hdr = MU(chunk, 4) & 0xffffff;
     MU(chunk, 4) = hdr;                             /* strip the consumer tag */
-    STREAM_enterCS();
     {
+        int sr = STREAM_enterCS();
         int rem = MI(cons, 8) - hdr;
         MI(cons, 8) = rem;                          /* count -= len */
-        STREAM_leaveCS();
+        STREAM_leaveCS(sr);
         if (0 < rem) {                              /* advance cursor to next same-tagged chunk */
             p = (int *)(chunk + hdr);
             hdr = p[1];
@@ -990,12 +1034,12 @@ extern "C" void STREAM_release(int s, int chunk)
     decbufferusage(out[0], MI(chunk, 4));            /* account the chunk's bytes back */
     MI(chunk, 0) = -2;                              /* mark free */
     {
-        int wasstall;
-        STREAM_enterCS();
+        int wasstall, sr;
+        sr = STREAM_enterCS();
         wasstall = (MI(out[0], 0x28) == 2);
         if (wasstall)
             MI(out[0], 0x28) = 1;
-        STREAM_leaveCS();
+        STREAM_leaveCS(sr);
         if (wasstall)
             restartstream(out[0]);
     }

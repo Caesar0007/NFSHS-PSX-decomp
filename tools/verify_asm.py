@@ -19,6 +19,26 @@ bld.OUT = bld.BUILD
 obj = bld.compile_cpp(cpp)
 dis = subprocess.run([OBJD, '-d', '-r', '-z', str(obj)], capture_output=True, text=True).stdout
 
+# Alias resolution: several XDEF names can share ONE address (a nullsub with N co-equal entry
+# points, or rdiv/fixeddiv-style co-equal pairs). objdump -d labels the disassembly with the
+# ALPHABETICALLY-FIRST symbol at the address, so a request for a non-alpha-first CANONICAL name
+# (setclipwindow, intcos, rdiv) would miss it. Map name->addr (objdump -t) and addr->disasm label,
+# then diff the block at the requested symbol's address whatever objdump happened to name it.
+_symtab = subprocess.run([OBJD, '-t', str(obj)], capture_output=True, text=True).stdout
+_name2addr = {}
+for _ln in _symtab.splitlines():
+    _t = _ln.split()
+    if len(_t) >= 2 and re.match(r'^[0-9a-f]{8}$', _t[0]):
+        _name2addr[_t[-1]] = _t[0]
+_addr2label = {}
+for _ln in dis.splitlines():
+    _m = re.match(r'^([0-9a-f]{8}) <(.+)>:', _ln)
+    if _m:
+        _addr2label.setdefault(_m.group(1), _m.group(2))
+def _resolve(fn):
+    a = _name2addr.get(fn)
+    return _addr2label.get(a, fn) if a else fn
+
 _COP0 = {'sr':'12','status':'12','cause':'13','epc':'14','badvaddr':'8','prid':'15','index':'0',
          'random':'1','entrylo':'2','context':'4','config':'16','bpc':'3','bda':'5','dcic':'7','bdam':'9','bpcm':'11'}
 
@@ -47,6 +67,12 @@ def norm_ins(t):
     t = re.sub(r'%lo\([^)]*\)', '0', t)            # %lo(SYM) -> 0
     t = re.sub(r'%gp_rel\([^)]*\)', '0', t)        # %gp_rel(SYM) -> 0
     t = re.sub(r'^move (\w+),(\w+)$', r'addu \1,\2,zero', t)   # objdump move idiom -> addu
+    # hand-asm `or rd,zero,rs`/`or rd,rs,zero`/`or rd,zero,zero` is a reg-move / zero-load: spimdisasm
+    # (oracle .s) renders it raw as `or`, while objdump aliases the SAME bytes to `move` -> addu (above).
+    # Normalize the or-move forms to the same `addu rd,rs,zero` canonical (mirrors the move rule; purely
+    # additive -- ours always aliases to move, so an oracle-side raw `or`-move otherwise always false-diffs).
+    t = re.sub(r'^or (\w+),zero,(\w+)$', r'addu \1,\2,zero', t)
+    t = re.sub(r'^or (\w+),(\w+),zero$', r'addu \1,\2,zero', t)
     # normalize load-immediate idioms BOTH ways -> `li reg,N` (objdump shows `li`;
     # oracle .s shows addiu/ori reg,zero,N depending on the value's sign-range)
     t = re.sub(r'^(?:addiu|ori) (\w+),zero,(\-?\d+)$', r'li \1,\2', t)
@@ -62,6 +88,7 @@ def norm_ins(t):
 def ours(fn):
     # Collect the function's raw objdump lines (instructions + the reloc lines that
     # objdump -r interleaves AFTER each relocated instruction).
+    fn = _resolve(fn)                 # follow aliases to the block objdump actually labeled
     lines=[]; inb=False
     for ln in dis.splitlines():
         m=re.match(r'^[0-9a-f]{8} <(.+)>:',ln)

@@ -730,7 +730,7 @@ int tScreenCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_input,tMenu
   if (tVar4 == kInput_KeyType_Square) {
     vtbl = this->_vf;
     item = (tMenuItem *)(int)vtbl[1][3].delta;
-    iVar3 = (*vtbl[1][3].pfn)((int)&item->fFlags + (int)(tScreen *)this,&carInfo);
+    iVar3 = (*vtbl[1][3].pfn)((int)(tScreen *)this + (int)&item->fFlags,&carInfo);
     if (FEApp->fPlayer == '\0') {
       lrItem = &menuDefs->itemABS;
     }
@@ -739,10 +739,10 @@ int tScreenCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_input,tMenu
     }
     lrItem->fTextDescription = 0x10b;
     if (iVar3 != 0) {
-      if (carInfo.fCarID == '\b') {
+      if ((signed char)carInfo.fCarID == '\b') {
         lrItem->fTextDescription = 0x10c;
       }
-      if (carInfo.fCarID == '\x01') {
+      if ((signed char)carInfo.fCarID == '\x01') {
         lrItem->fTextDescription = 0x10d;
       }
     }
@@ -758,27 +758,28 @@ int tScreenCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_input,tMenu
   state2 = this->fState;
   if (state2 == 5) {
     state = 0;
-    iVar3 = 1;
+    this->SetState(state);
+    return 1;
   }
   else if (state2 < 6) {
     if (state2 < 2) {
       return -0x7fef0000;
     }
-    iVar3 = 1;
     if (frontEnd.gameMode == '\x01') {
       return 1;
     }
     state = 1;
+    this->SetState(state);
+    return 1;
   }
   else {
-    iVar3 = 6;
     if (state2 != 6) {
       return 6;
     }
     state = 2;
+    this->SetState(state);
+    return 6;
   }
-  this->SetState(state);
-  return iVar3;
 }
 
 
@@ -894,29 +895,23 @@ void tScreenCarSelect::UpdateBrightness(short i)
   short destBrightness;
   short brightness;
   short sVar3;
-  short sVar4;
-  int iVar5;
-  
-  iVar5 = (int)((uint)(ushort)i << 0x10) >> 0xf;
-  destBrightness = *(short *)((int)this->fDestBrightness + iVar5);
-  brightness = *(short *)((int)this->fBrightness + iVar5);
-  sVar4 = *(short *)((int)this->fBrightness + iVar5);
-  sVar3 = sVar4 + 8;
+
+  destBrightness = this->fDestBrightness[i];
+  brightness = this->fBrightness[i];
+  sVar3 = brightness + 8;
   if (brightness < destBrightness) {
-    *(short *)((int)this->fBrightness + iVar5) = sVar3;
+    this->fBrightness[i] = sVar3;
     if (destBrightness < sVar3) {
-      *(u_short *)((int)this->fBrightness + iVar5) =
-           *(u_short *)((int)this->fDestBrightness + iVar5);
+      *(u_short *)&this->fBrightness[i] = *(u_short *)&this->fDestBrightness[i];
       return;
     }
   }
   else {
-    sVar4 = sVar4 + -8;
+    brightness = brightness + -8;
     if (destBrightness < brightness) {
-      *(short *)((int)this->fBrightness + iVar5) = sVar4;
-      if (sVar4 < *(short *)((int)this->fDestBrightness + iVar5)) {
-        *(u_short *)((int)this->fBrightness + iVar5) =
-             *(u_short *)((int)this->fDestBrightness + iVar5);
+      this->fBrightness[i] = brightness;
+      if (brightness < this->fDestBrightness[i]) {
+        *(u_short *)&this->fBrightness[i] = *(u_short *)&this->fDestBrightness[i];
       }
     }
   }
@@ -940,12 +935,10 @@ void tScreenCarSelect::DrawBackground()
                     (this->fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
   if (valid != 0) {
     ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
-    bVar1 = false;
-    if (((this->fSwapShapes.fFile != (char *)0x0) &&
-        (this->fVideoWall[0].fTransitionDirection != -1)) &&
-       (gCarObj[(byte)FEApp->fPlayer]->async_handle == 0)) {
-      bVar1 = 0x80 < ticks - this->fFadeTicks[0];
-    }
+    bVar1 = (this->fSwapShapes.fFile != (char *)0x0) &&
+            (this->fVideoWall[0].fTransitionDirection != -1) &&
+            (gCarObj[(byte)FEApp->fPlayer]->async_handle == 0) &&
+            (0x80 < ticks - this->fFadeTicks[0]);
     if (bVar1) {
       ::UploadSwapShapes((tScreen *)this,0xb);
       TurnOn(this->fVideoWall);
@@ -1347,7 +1340,7 @@ void tScreenCarSelectDuel::InitializeVideoWall()
     this->fTVsInitialized = 1;
   }
   vw_opp = this->fVideoWall + 1;
-  ::Initialize(&this->fVideoWall[0],this->tvConfigs + 5,(this->fOpponentShapes).fShapes,0,5,
+  ::Initialize(&this->fVideoWall[1],this->tvConfigs + 5,(this->fOpponentShapes).fShapes,0,5,
              tvSplitOrder,0);
   SetAvailableText(vw_player,0xf8,0x10e,0x96);
   if (((this->fOpponentShapes).fFlags & 1) != 0) {
@@ -1393,20 +1386,19 @@ void tScreenCarSelectDuel::DrawVideoWall(short y)
   __vtbl_ptr_type (*vtbl) [10];
   tVideoWall *vw;
   short i;
-  int iVar3;
   byte validCar;
   tCarInfo carInfo;
-  
+
   vtbl = this->_vf;
-  iVar3 = 0;
   valid = (*vtbl[1][3].pfn)
-                    (this->fPermShapes.fFilename +
-                     vtbl[1][3].delta + -0x14,&carInfo);
+                    (this->fPermShapes.fFilename + -0x14 +
+                     vtbl[1][3].delta,&carInfo);
+  i = 0;
   do {
-    DrawShapeExtended(iVar3,0,0,-(int)y,
+    DrawShapeExtended(i,0,0,-(int)y,
                (int)this->fScreenFadeVal,0,(tDrawShapeExtended *)0x0);
-    iVar3 = iVar3 + 1;
-  } while (iVar3 * 0x10000 >> 0x10 < 0xc);
+    i = i + 1;
+  } while (i < 0xc);
   if ((0 < this->fScreenFadeVal) &&
      (this->fTransitionOff != 0)) {
     TurnOffInstant(this->fVideoWall);
@@ -1478,15 +1470,15 @@ void tScreenCarSelectDuel::GetShapeInfo(short &numPermShapes,short &numSwapShape
   numSwapShapes = 5;
   vtbl = this->_vf;
   valid = (*vtbl[1][3].pfn)
-                    (this->fPermShapes.fFilename +
-                     vtbl[1][3].delta + -0x14,&carInfo) == 1;
+                    (this->fPermShapes.fFilename + -0x14 +
+                     vtbl[1][3].delta,&carInfo) == 1;
   if (!valid) {
     GetStockCar(&carManager, 0,&carInfo);
   }
   this->fPreviousCar = (ushort)carInfo.fCarIndex;
   this->fPreviousCarID = (short)(signed char)carInfo.fCarID;
-  this->fPreviousOpponent = -1;
   this->fPreviousCountry = (ushort)carInfo.fCountry;
+  this->fPreviousOpponent = -1;
   *permFileName = "zDuel";
   *swapFileName = (char *)0x0;
   return;
@@ -1816,30 +1808,31 @@ void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
   short sVar2;
   tVideoWall *vw;
   short i;
-  int iVar4;
   byte validCar;
   tCarInfo carInfo;
-  
+  tFEApplication *feApp;
+
   vtbl = this->_vf;
-  iVar4 = 0;
   valid = (*vtbl[1][3].pfn)
-                    (this->fPermShapes.fFilename +
-                     vtbl[1][3].delta + -0x14,&carInfo);
+                    (this->fPermShapes.fFilename + -0x14 +
+                     vtbl[1][3].delta,&carInfo);
+  i = 0;
   do {
-    DrawShapeExtended(iVar4,0,0,-(int)y,
+    DrawShapeExtended(i,0,0,-(int)y,
                (int)this->fScreenFadeVal,0,(tDrawShapeExtended *)0x0);
-    iVar4 = iVar4 + 1;
-  } while (iVar4 * 0x10000 >> 0x10 < 0xc);
+    i = i + 1;
+  } while (i < 0xc);
   if (((this->fSwapShapes.fFlags & 1) != 0) &&
      (this->fTVsInitialized == 0)) {
+    feApp = FEApp;
     sVar2 = 0;
-    if (FEApp->fPlayer != '\0') {
+    if (feApp->fPlayer != '\0') {
       sVar2 = 0x69;
     }
     vw = this->fVideoWall;
     SetOffset(vw,6,sVar2);
     sVar2 = 0x2d;
-    if (FEApp->fPlayer != '\0') {
+    if (feApp->fPlayer != '\0') {
       sVar2 = 0x96;
     }
     SetAvailableText(vw,0xf8,0x10e,sVar2);
@@ -2150,31 +2143,30 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
 void tScreenCarSelectTwoPlayer::SetDialog()
 
 {
-  byte player2;
+  tDialogBackUpOnly *dlg;
+  u_int player2;
   short sVar2;
   char *fmt;
   char *str;
-  uint uVar4;
-  int player;
-  
+
   player2 = FEApp->fPlayer;
-  uVar4 = (uint)player2;
-  if (FEApp->waitingForOtherPlayer[uVar4] == 0) {
-    Hide((tDialogBase *)&this->CarDialog);
+  dlg = &this->CarDialog;
+  if (FEApp->waitingForOtherPlayer[player2] == 0) {
+    Hide((tDialogBase *)dlg);
   }
   else {
     sVar2 = 0x3c;
-    if (uVar4 == 0) {
+    if (player2 == 0) {
       sVar2 = -0x3c;
     }
-    (this->CarDialog).OffsetX = 0;
-    (this->CarDialog).OffsetY = sVar2;
-    (this->CarDialog).specificPlayer = (ushort)player2;
+    dlg->OffsetX = 0;
+    dlg->OffsetY = sVar2;
+    dlg->specificPlayer = (ushort)player2;
     fmt = TextSys_Word(0x2a8);
-    str = PlayerName(1 - uVar4);
+    str = PlayerName(1 - player2);
     sprintf("",fmt,str);
-    (this->CarDialog).string = "";
-    Display((tDialogBase *)&this->CarDialog);
+    dlg->string = "";
+    Display((tDialogBase *)dlg);
   }
   return;
 }

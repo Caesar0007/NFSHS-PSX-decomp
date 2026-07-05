@@ -65,7 +65,7 @@ long SPCH_Deinit(int = 0, ...);
 long SPCH_GetSampleDataRate(int = 0, ...);
 long SPCH_Init(int = 0, ...);
 long SPCH_InitBankMem(int = 0, ...);
-long SPCH_PlaySpeech(int = 0, ...);
+long SPCH_PlaySpeech(...);
 long SPCH_ResolveData(int = 0, ...);
 }
 

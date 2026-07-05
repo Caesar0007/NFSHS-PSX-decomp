@@ -21,13 +21,21 @@ Speech_tCallSignDescription Speech_gCallSignDescription[1];
 Speech_tMobileVoiceAttr     Speech_gCopAttr[9];
 /* Speech::fgSpeech static-member singleton (active engine instance; $gp+0x838=0x8013cd84) */
 Speech            *Speech_fgSpeech;
-/* Speech::fgUndefined static-member buffer (cfront fn-local static _6Speech.fgUndefined,
-   756 B @0x8013cd88). NOT zero scratch -- it is a packed bank-name lookup table: slot[0]
-   is a runtime Speaker* (0 in image), followed by 3-/4-char model abbreviations + full names
-   compared in Speech_CarBankName (strncmp vs +0x2c4/+0x2cc/+0x2d4/+0x2dc). Bytes verified
-   byte-exact vs NFS4.EXE .data. All bytes <=0x7f -> fit signed char, no narrowing. */
-char Speech_fgUndefined[756] = {
-    0x00,0x00,0x00,0x00,0x42,0x4d,0x57,0x5a,0x00,0x00,0x00,0x00,
+/* Speech::fgUndefined static-member (cfront fn-local static _6Speech.fgUndefined; SYM-confirmed
+   scalar Speaker* @0x8013cd88 -- oracle sdata dump (asm/data/sdata_8013C54C.sdata.s) shows it as
+   ONE `.word 0x00000000`, NOT an array; 3 speech fns (Dispatch/FindMobile/Mobile) reach it via
+   %gp_rel, which only applies to a true <=4B scalar (methodology 3.12 #6). nfs3.cpp's non-owner
+   extern (_6Speech_fgUndefined) confirms the ownership + gp-rel-only-for-owner split. The 752
+   bytes previously bundled into this symbol as a fake "array" are really a SEPARATE run of
+   discrete per-string rodata dlabels the linker placed contiguously after it (D_8013CD8C.. =
+   "BMWZ"/"bmwz3."/... car-abbreviation strings, ending in the 4 strings CheckMultiBank__6Speech...
+   strncmp's against: "j:id\", "j:cars\", "j:cid\", "j:clip."). Preserved verbatim below as an
+   opaque byte blob (Speech_gBankNameStrings) so any other absolute-VA pointer into this region
+   keeps byte-exact content; CheckMultiBank's 4 named comparisons now use the literal strings
+   directly (matches the oracle's per-dlabel D_8013D04C.."j:id\" family, confirmed via disasm). */
+Speaker *Speech_fgUndefined;
+static const unsigned char Speech_gBankNameStrings[752] = {
+    0x42,0x4d,0x57,0x5a,0x00,0x00,0x00,0x00,
     0x62,0x6d,0x77,0x7a,0x33,0x2e,0x00,0x00,0x62,0x6d,0x77,0x2e,
     0x00,0x00,0x00,0x00,0x7a,0x33,0x2e,0x00,0x48,0x53,0x56,0x54,
     0x00,0x00,0x00,0x00,0x73,0x65,0x64,0x61,0x6e,0x2e,0x00,0x00,
@@ -152,7 +160,7 @@ void Deny__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis);
 void Grant__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis);
 void Ready__Q26Speech15DispatchSpeakerP8Car_tObj(DispatchSpeaker *pThis,Car_tObj *carObj);
 int PickVoice__6SpeechP8Car_tObj(Speech *pThis,Car_tObj *carObj);
-void GetVoice__6SpeechP8Car_tObj(Car_tObj *carObj);
+int GetVoice__6SpeechP8Car_tObj(Car_tObj *carObj);
 void Activate__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj *carObj);
 void ReActivate__Q26Speech13MobileSpeaker(MobileSpeaker *pThis);
 Speaker * FindMobile__6SpeechP8Car_tObj(Speech *pThis,Car_tObj *carObj);
@@ -229,25 +237,21 @@ void Speech_HandleRequest__Fllll(long bank,long localoffset,long size,long event
 void SetCar__Q26Speech11CarBankNamei(u_int *param_1,int carIndex)
 
 {
-  char*game;
-  Speech_tCarDescription * d;
-  int iVar1;
+  char *game;
+  Speech_tCarDescription *d;
   int iVar2;
-  char *pcVar3;
-  Speech_tCarDescription *pSVar4;
-  
-  pSVar4 = Speech_gCarDescription;
-  iVar1 = GameSetup_gData.carInfo[carIndex].carType;
-  pcVar3 = Speech_gCarDescription[0].game;
-  while ((pcVar3 != (char *)0x0 &&
-         (iVar2 = strncmp(GameSetup_gCarNames[iVar1],pSVar4->game,4), iVar2 != 0)
+
+  d = Speech_gCarDescription;
+  game = Speech_gCarDescription[0].game;
+  while ((game != (char *)0x0 &&
+         (iVar2 = strncmp(GameSetup_gCarNames[GameSetup_gData.carInfo[carIndex].carType],d->game,4), iVar2 != 0)
          )) {
-    pSVar4 = pSVar4 + 1;
-    pcVar3 = pSVar4->game;
+    d = d + 1;
+    game = d->game;
   }
-  *param_1 = pSVar4->full;
-  param_1[1] = pSVar4->make;
-  param_1[2] = pSVar4->model;
+  *param_1 = d->full;
+  param_1[1] = d->make;
+  param_1[2] = d->model;
   return;
 }
 
@@ -307,18 +311,22 @@ CheckCarBank__6SpeechPQ26Speech7CarBankPciPQ26Speech11CarBankName(int param_1,in
   int iVar1;
   int iVar2;
   u_int uVar3;
-  
+  int carbankWalk;
+  int banknameWalk;
+
   iVar2 = 0;
   uVar3 = 0;
   if (0 < *(int *)(param_1 + 0x37c)) {
+    banknameWalk = bankname;
+    carbankWalk = carbank;
     do {
-      iVar1 = Check__Q26Speech7CarBankPciPQ26Speech11CarBankName(carbank,name,id,bankname);
+      iVar1 = Check__Q26Speech7CarBankPciPQ26Speech11CarBankName(carbankWalk,name,id,banknameWalk);
       if (iVar1 != 0) {
         uVar3 = 1;
       }
-      carbank = carbank + 0xc;
+      banknameWalk = banknameWalk + 0xc;
+      carbankWalk = carbankWalk + 0xc;
       iVar2 = iVar2 + 1;
-      bankname = bankname + 0xc;
     } while (iVar2 < *(int *)(param_1 + 0x37c));
   }
   return uVar3;
@@ -349,9 +357,11 @@ void SetCar__Q26Speech7SpeakerP8Car_tObj(Speaker *pThis,Car_tObj *car)
     else {
       (pThis->fColour).flags = uVar3 | 0x78020;
     }
-    iVar2 = Dispatch__6Speech();
-    iVar2 = (**(int (**)(...))(*(int *)(iVar2 + 0x4c) + 0x94))
-                      (iVar2 + *(short *)(*(int *)(iVar2 + 0x4c) + 0x90),car);
+    {
+      int *dispatchThis = (int *)Dispatch__6Speech();
+      iVar2 = (**(int (**)(...))(*(int *)((int)dispatchThis + 0x4c) + 0x94))
+                        ((int)dispatchThis + *(short *)(*(int *)((int)dispatchThis + 0x4c) + 0x90),car);
+    }
     if (iVar2 != 0) {
       iVar2 = (*(*pThis->_vf)[0x1c].pfn)
                         ((int)&(pThis->fPosition).flags + (int)(*pThis->_vf)[0x1c].delta,car->carIndex
@@ -676,7 +686,7 @@ u_int CheckMultiBank__6SpeechPciPQ26Speech11CarBankName(int param_1,char *name,u
   int iVar1;
   u_int uVar2;
   
-  iVar1 = strncmp(name,(char *)(Speech_fgUndefined + 0x2c4),5);
+  iVar1 = strncmp(name,"j:id\\",5);
   if (iVar1 == 0) {
     iVar1 = param_1 + 0x31c;
     name = name + 5;
@@ -684,7 +694,7 @@ CheckMBank_callSign:
     uVar2 = CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci(param_1,iVar1,name,id);
   }
   else {
-    iVar1 = strncmp(name,(char *)(Speech_fgUndefined + 0x2cc),7);
+    iVar1 = strncmp(name,"j:cars\\",7);
     if (iVar1 == 0) {
       name = name + 7;
       iVar1 = param_1 + 0x6c;
@@ -697,7 +707,7 @@ CheckMBank_carBank:
       iVar1 = param_1 + 0x1d8;
     }
     else {
-      iVar1 = strncmp(name,(char *)(Speech_fgUndefined + 0x2d4),6);
+      iVar1 = strncmp(name,"j:cid\\",6);
       if (iVar1 == 0) {
         iVar1 = param_1 + 0x2d8;
         name = name + 6;
@@ -711,7 +721,7 @@ CheckMBank_carBank:
       }
       iVar1 = strncmp(name,"j:clocaton\\",0xb);
       if (iVar1 != 0) {
-        iVar1 = strncmp(name,(char *)(Speech_fgUndefined + 0x2dc),7);
+        iVar1 = strncmp(name,"j:clip.",7);
         if (iVar1 == 0) {
           *(u_int *)(param_1 + 0x374) = id;
         }
@@ -1196,54 +1206,47 @@ u_int BankPatch__6SpeechlP8Car_tObj(int param_1,int bank,int car)
   if (bank == *(int *)(param_1 + 0x378)) {
     return 0x15;
   }
-  if (bank != *(int *)(param_1 + 0x374)) {
-    return 0xffffffff;
+  if (bank == *(int *)(param_1 + 0x374)) {
+    if (car == 0) {
+      return 0x13;
+    }
+    return 0x14;
   }
-  if (car == 0) {
-    return 0x13;
-  }
-  return 0x14;
+  return 0xffffffff;
 }
 
 /* ---- SubmitRequest__6Speechlll  [SPEECH.CPP:1317-1342] SLD-VERIFIED ---- */
 int SubmitRequest__6Speechlll(int param_1,int localoffset,u_int size)
 
 {
-  Speech *pThis;  /* folded receiver temp (SYM REG `this`) */
-  Car_tObj * car;
   int patch;
   long offset;
-  long bank;
-  int iVar1;
-  int iVar2;
-  u_int uVar3;
-  
+  u_int bank;
+
   if (((int)Speech_fgSpeech) == 0) {
-    iVar2 = 0;
+    return 0;
+  }
+  *(u_int *)(*(int *)(((int)Speech_fgSpeech) + 0x3a0) + 0x54) = 0;
+  *(u_int *)(*(int *)(((int)Speech_fgSpeech) + 0x3a0) + 0x50) = 0x200;
+  bank = *(u_int *)(((int)Speech_fgSpeech) + 0x38c);
+  patch = BankPatch__6SpeechlP8Car_tObj(((int)Speech_fgSpeech),param_1,bank);
+  if ((param_1 >= 0) && (param_1 < *(int *)(((int)Speech_fgSpeech) + 0x370))) {
+    offset = *(int *)(param_1 * 4 + *(int *)(((int)Speech_fgSpeech) + 0x36c));
   }
   else {
-    *(u_int *)(*(int *)(((int)Speech_fgSpeech) + 0x3a0) + 0x54) = 0;
-    *(u_int *)(*(int *)(((int)Speech_fgSpeech) + 0x3a0) + 0x50) = 0x200;
-    uVar3 = *(u_int *)(((int)Speech_fgSpeech) + 0x38c);
-    iVar1 = BankPatch__6SpeechlP8Car_tObj(((int)Speech_fgSpeech),param_1,uVar3);
-    if ((param_1 < 0) || (*(int *)(((int)Speech_fgSpeech) + 0x370) <= param_1)) {
-      iVar2 = 0;
-    }
-    else {
-      iVar2 = *(int *)(param_1 * 4 + *(int *)(((int)Speech_fgSpeech) + 0x36c));
-    }
-    if (iVar1 < 0) {
-      if (iVar2 != 0) {
-        CopSpeak_DirectRequest(*(u_int *)(((int)Speech_fgSpeech) + 0x368),iVar2 + localoffset,size,uVar3,0);
-      }
-      iVar2 = iVar2 + localoffset;
-    }
-    else {
-      CopSpeak_GenericBankRequest(iVar1,uVar3);
-      iVar2 = iVar2 + localoffset;
-    }
+    offset = 0;
   }
-  return iVar2;
+  if (patch < 0) {
+    if (offset != 0) {
+      CopSpeak_DirectRequest(*(u_int *)(((int)Speech_fgSpeech) + 0x368),offset + localoffset,size,bank,0);
+    }
+    offset = offset + localoffset;
+  }
+  else {
+    CopSpeak_GenericBankRequest(patch,bank);
+    offset = offset + localoffset;
+  }
+  return offset;
 }
 
 /* ---- Report__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:1352-1356] SLD-VERIFIED ---- */
@@ -1355,21 +1358,19 @@ void Purge__Q26Speech7Speaker(Speaker *pThis)
 void Promote__Q26Speech7Speaker(Speaker *pThis)
 
 {
-  Speaker * Sub;
-  Speaker *pSVar1;
-  int iVar2;
   Speaker *Super;
-  Speaker *pSVar3;
-
+  Speaker *Sub;
   int cont;
+  int iVar2;
 
-  pSVar1 = (Speaker *)Dispatch__6Speech();
-  do {
-    pSVar3 = pSVar1;
-    pSVar1 = pSVar3->fSub;
-    cont = pSVar1 != (Speaker *)0x0 && pSVar1 != pThis;
-  } while (cont);
-  pSVar3->fSub = pThis->fSub;
+  Super = (Speaker *)Dispatch__6Speech();
+  for (;;) {
+    Sub = Super->fSub;
+    cont = Sub != (Speaker *)0x0 && Sub != pThis;
+    if (!cont) break;
+    Super = Sub;
+  }
+  Super->fSub = pThis->fSub;
   iVar2 = Dispatch__6Speech();
   pThis->fSub = *(Speaker **)(iVar2 + 0x48);
   iVar2 = Dispatch__6Speech();
@@ -1436,12 +1437,10 @@ void Activate__Q26Speech15DispatchSpeakeri(int param_1,u_int seedupdatecount)
 int Dispatch__6Speech(void)
 
 {
-  Speaker *result;
-  
   if ((((int)Speech_fgSpeech) != 0) && (*(int *)(((int)Speech_fgSpeech) + 0x36c) != 0)) {
     return *(int *)(((int)Speech_fgSpeech) + 0x3a0);
   }
-  return (*(int *)&(Speech_fgUndefined));
+  return (int)Speech_fgUndefined;
 }
 
 /* ---- Roger__Q26Speech15DispatchSpeaker  [SPEECH.CPP:1592-1629] SLD-VERIFIED ---- */
@@ -2290,22 +2289,25 @@ void Deny__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
 void Grant__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
 
 {
-  int *piVar1;
-  Speaker *pSVar2;
+  Speaker *pSVar1;
   SPCHNFSType_vs_RDBLK_SSTRP *vs_RDBLK_SSTRP;
   SPCHNFSType_CONFIRM *CONFIRM;
-  int reg_a2;
-  int reg_a3;
-  
-  pSVar2 = (pThis->_base_Speaker).fSub;
-  if (((pSVar2 != (Speaker *)0x0) && (pSVar2 != (Speaker *)0xffffffec)) &&
-     (piVar1 = (int *)(((int)Speech_fgSpeech) + 0x388), *(u_int *)(((int)Speech_fgSpeech) + 0x38c) = 0,
-     *piVar1 == 0)) {
-    CONFIRM = &(pThis->_base_Speaker).fConfirm;
-    vs_RDBLK_SSTRP = &((pThis->_base_Speaker).fSub)->fBlockade;
-    SPCHNFS_D_C_RDBLK_SPBLT_GRANT_REPLY(vs_RDBLK_SSTRP,CONFIRM);
-    SPCH_PlaySpeech(vs_RDBLK_SSTRP,(int)CONFIRM,reg_a2,reg_a3);
+
+  pSVar1 = (pThis->_base_Speaker).fSub;
+  if (pSVar1 == (Speaker *)0x0) {
+    return;
   }
+  vs_RDBLK_SSTRP = &pSVar1->fBlockade;
+  if (vs_RDBLK_SSTRP == (SPCHNFSType_vs_RDBLK_SSTRP *)0x0) {
+    return;
+  }
+  *(u_int *)(((int)Speech_fgSpeech) + 0x38c) = 0;
+  if (*(int *)(((int)Speech_fgSpeech) + 0x388) != 0) {
+    return;
+  }
+  CONFIRM = &(pThis->_base_Speaker).fConfirm;
+  SPCHNFS_D_C_RDBLK_SPBLT_GRANT_REPLY(&(pThis->_base_Speaker).fSub->fBlockade,CONFIRM);
+  SPCH_PlaySpeech();
   return;
 }
 
@@ -2359,34 +2361,32 @@ int PickVoice__6SpeechP8Car_tObj(Speech *pThis,Car_tObj *carObj)
 }
 
 /* ---- GetVoice__6SpeechP8Car_tObj  [SPEECH.CPP:2156-2157] SLD-VERIFIED ---- */
-void GetVoice__6SpeechP8Car_tObj(Car_tObj *carObj)
+int GetVoice__6SpeechP8Car_tObj(Car_tObj *carObj)
 
 {
-  PickVoice__6SpeechP8Car_tObj((Speech *)((int)Speech_fgSpeech),carObj);
-  return;
+  return PickVoice__6SpeechP8Car_tObj((Speech *)((int)Speech_fgSpeech),carObj);
 }
 
 /* ---- Activate__Q26Speech13MobileSpeakerP8Car_tObj  [SPEECH.CPP:2163-2189] SLD-VERIFIED ---- */
 void Activate__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj *carObj)
 
 {
-  Speech_tMobileVoiceAttr * a;
-  int reg_v0;
+  Speech_tMobileVoiceAttr *a;
   int Voice;
   u_long uVar1;
   __vtbl_ptr_type (*pa_Var2) [31];
   int iVar3;
-  int unit;
-  
+
   pThis->fCarObj = carObj;
-  GetVoice__6SpeechP8Car_tObj(carObj);
-  pThis->fUnit = reg_v0;
-  if ((carObj->carFlags & 0x40U) == 0) {
-    uVar1 = Speech_gCopAttr[reg_v0].voice;
+  Voice = GetVoice__6SpeechP8Car_tObj(carObj);
+  pThis->fUnit = Voice;
+  a = &Speech_gCopAttr[Voice];
+  if ((carObj->carFlags & 0x40U) != 0) {
+    pThis->fUnit = Voice + 9;
+    uVar1 = 8;
   }
   else {
-    pThis->fUnit = reg_v0 + 9;
-    uVar1 = 8;
+    uVar1 = a->voice;
   }
   (pThis->fVoice).flags = uVar1;
   pa_Var2 = (pThis->_base_Speaker)._vf;
@@ -2410,29 +2410,27 @@ void Activate__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj 
 void ReActivate__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
 
 {
-  int reg_v0;
+  Speech_tMobileVoiceAttr *a;
   int Voice;
   int tu2;
   __vtbl_ptr_type (*pa_Var1) [31];
-  int iVar2;
   int unit;
-  Speech_tMobileVoiceAttr *a;
-  
-  a = (Speech_tMobileVoiceAttr *)pThis->fCarObj;
-  GetVoice__6SpeechP8Car_tObj((Car_tObj *)a);
-  pThis->fUnit = reg_v0;
-  if ((pThis->fCarObj->carFlags & 0x40U) == 0) {
-    tu2 = Speech_gCopAttr[reg_v0].voice;
+
+  Voice = GetVoice__6SpeechP8Car_tObj(pThis->fCarObj);
+  pThis->fUnit = Voice;
+  a = &Speech_gCopAttr[Voice];
+  if ((pThis->fCarObj->carFlags & 0x40U) != 0) {
+    pThis->fUnit = Voice + 9;
+    tu2 = 8;
   }
   else {
-    pThis->fUnit = reg_v0 + 9;
-    tu2 = 8;
+    tu2 = a->voice;
   }
   (pThis->fVoice).flags = tu2;
   pa_Var1 = (pThis->_base_Speaker)._vf;
-  iVar2 = (*(*pa_Var1)[0x1e].pfn)
+  unit = (*(*pa_Var1)[0x1e].pfn)
                     ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1e].delta);
-  (pThis->_base_Speaker).fFrom = *(int *)(iVar2 + pThis->fUnit * 4 + 8);
+  (pThis->_base_Speaker).fFrom = *(int *)(unit + pThis->fUnit * 4 + 8);
   return;
 }
 
@@ -2456,7 +2454,7 @@ Speaker * FindMobile__6SpeechP8Car_tObj(Speech *pThis,Car_tObj *carObj)
   }
   while( true ) {
     if (3 < iVar2) {
-      return (Speaker *)(*(int *)&(Speech_fgUndefined));
+      return Speech_fgUndefined;
     }
     if (pThis->fMobile[0]->fCarObj == (Car_tObj *)0x0) break;
     pThis = (Speech *)&(pThis->fCarBank).Mobile[0].fMake;
@@ -2472,7 +2470,7 @@ int Mobile__6SpeechP8Car_tObj(Car_tObj *carObj)
 {
   Speaker *pSVar1;
 
-  pSVar1 = (Speaker *)(*(int *)&(Speech_fgUndefined));
+  pSVar1 = Speech_fgUndefined;
   if ((((int)Speech_fgSpeech) != 0) && (*(int *)(((int)Speech_fgSpeech) + 0x36c) != 0)) {
     pSVar1 = FindMobile__6SpeechP8Car_tObj((Speech *)((int)Speech_fgSpeech),carObj);
   }
@@ -3407,16 +3405,9 @@ void Roger__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
 void Bullhorn__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
 
 {
-  Car_tObj *carObj;
-  SPCHNFSType_VOICE *VOICE;
-  int reg_a1;
-  int reg_a2;
-  int reg_a3;
-  
-  VOICE = &pThis->fVoice;
   *(Car_tObj **)(((int)Speech_fgSpeech) + 0x38c) = pThis->fCarObj;
-  SPCHNFS_C_P_BULLHORN_SPEECH(VOICE);
-  SPCH_PlaySpeech(VOICE,reg_a1,reg_a2,reg_a3);
+  SPCHNFS_C_P_BULLHORN_SPEECH(&pThis->fVoice);
+  SPCH_PlaySpeech();
   return;
 }
 

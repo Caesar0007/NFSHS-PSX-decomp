@@ -331,7 +331,13 @@ int AskTheUserToSaveTheGame(void)
      vs v0-in-beqz-delay-slot (oracle); this cascades to sp-relative vs s0-relative field stores
      because the oracle frees s0 to hold the dialog `this`. gcc-2.7.2 keeps the 0 default in a
      callee-saved reg across the body (can't prove it dead post-Run); not source-reachable without
-     a pin (forbidden) -- early-return / goto-tail both SPLIT the shared epilogue (=> 39 diffs). */
+     a pin (forbidden) -- early-return / goto-tail both SPLIT the shared epilogue (=> 39 diffs).
+     [2026-07-05 CONFIRMED] Tried block-scoping YesNoDialog into the if (the fix that cracked
+     MenuExtended_LoadGame's ctor-hoist bug) -- made it WORSE (25->29). This function's ctor
+     call is ALREADY correctly conditional even at function scope (FECheat_IsTheUserACryBabyCheater()
+     has no ctor-hoist concern since YesNoDialog's ctor call site itself is inside the `if` in
+     both scopings); the residual really is the answer-default coloring the prior note describes.
+     Reverted to function-scope locals. */
   is_cheater = (int)FECheat_IsTheUserACryBabyCheater();
   answer = 0;
   if ((is_cheater ^ 1) != 0) {
@@ -374,23 +380,27 @@ extern "C" void MenuExtended_TransitionFromPostGameToMainMenu__FR12tMenuCommand(
 /* Decoded Phase 83: MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame__FR12tMenuCommand(tMenuCommand&) -
    auto-save then return to main menu (76 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
-   
-   [ghidra-meta] section: front.text */
+
+   [ghidra-meta] section: front.text
+
+   [Match 2026-07-05] ptVar1=menuDefs[0] moved INTO the save-branch only (oracle never
+   loads menuDefs on the tail-call path) + branch-polarity flip (save-branch is the
+   fall-through, the tail-call is the branch target) -> byte-match, 19/19 insns. */
 
 extern "C" void MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tGlobalMenuDefs *ptVar1;
   int iVar2;
-  
+
   iVar2 = AskTheUserToSaveTheGame();
-  ptVar1 = menuDefs[0];
-  if (iVar2 == 0) {
-    MenuExtended_TransitionFromPostGameToMainMenu__FR12tMenuCommand(command);
-  }
-  else {
+  if (iVar2 != 0) {
+    ptVar1 = menuDefs[0];
     command->type = kMenu_Command_GoToMenuOneWay;
     command->nextMenu = (tMenu *)&(ptVar1->menuPostGameSave)._base_tMenu;
+  }
+  else {
+    MenuExtended_TransitionFromPostGameToMainMenu__FR12tMenuCommand(command);
   }
   return;
 }
@@ -541,7 +551,7 @@ extern "C" void MenuExtended_GoToDealer__FR12tMenuCommand(tMenuCommand *command)
 {
   tGlobalMenuDefs *ptVar1;
   tScreenCarSelect *dlgThis;
-  
+
   dlgThis = screenCarSelect[0];
   ptVar1 = menuDefs[0];
   command->type = 1;
@@ -1026,29 +1036,43 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
 /* Decoded Phase 83: MenuExtended_EnterUserName__FR12tMenuCommand(tMenuCommand&) - prompt user-name entry (initial
    profile setup) (100 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
-   
-   [ghidra-meta] section: front.text */
+
+   [ghidra-meta] section: front.text
+
+   [NEAR-MISS 2026-07-05, was 30 diffs, now 7] Three real fixes landed: (1) playerNameList
+   is char[2][8] (8-byte rows) -- the old `frontEnd.playerNameList[bVar2*4]` byte-offset hack
+   was WRONG indexing (should scale by 8, not 4); plain `playerNameList[bVar2]` row-index lets
+   the compiler emit the correct sll-by-3. (2) dlgThis=&ptVar3->menuItemUserName hoisted once
+   (oracle materializes this base ONE time via addiu right after the menuDefs load; the old
+   code recomputed the full absolute offset per field). (3) bVar1/bVar2 as u_int (not byte)
+   drops the redundant andi 0xff the oracle doesn't have (a same-typed `byte` local re-masks
+   on every use in this build). Residual = bVar1/bVar2 are the textually-identical expression
+   `FEApp->fInputPlayer`; the oracle emits it as TWO separate lbu (a3 then v1), ours CSEs to
+   ONE lbu + reused v1. Tried: reordering (moves the residual, doesn't remove it), a volatile
+   read (forces the 2 separate loads back but reintroduces the dropped andi -- net same size,
+   less honest). Left as the compiler's own CSE decision; not source-reachable without
+   register pins (forbidden) or a real volatile FEApp (shared-header change, unjustified --
+   nothing else about FEApp needs it). */
 
 extern "C" void MenuExtended_EnterUserName__FR12tMenuCommand(tMenuCommand *command)
 
 {
-  byte bVar1;
-  byte bVar2;
+  u_int bVar1;
+  u_int bVar2;
   tGlobalMenuDefs *ptVar3;
   tScreenUserName *ptVar4;
-  char *data;
   tUserNameMenuItem *dlgThis;
-  tOptionsMenu *m;
-  
+
   ptVar3 = menuDefs[0];
+  dlgThis = &ptVar3->menuItemUserName;
   bVar1 = FEApp->fInputPlayer;
   bVar2 = FEApp->fInputPlayer;
-  (menuDefs[0]->menuItemUserName).fMaxStringLength = 7;
+  dlgThis->fMaxStringLength = 7;
   ptVar4 = screenUserName;
-  (ptVar3->menuItemUserName).fCurrentRow = 0;
-  (ptVar3->menuItemUserName).fCurrentColumn = 0;
-  (ptVar3->menuItemUserName).fPlayer = (ushort)bVar1;
-  (ptVar3->menuItemUserName).fData = frontEnd.playerNameList[(uint)bVar2 * 4];
+  dlgThis->fCurrentRow = 0;
+  dlgThis->fCurrentColumn = 0;
+  dlgThis->fPlayer = (ushort)bVar1;
+  dlgThis->fData = frontEnd.playerNameList[bVar2];
   ptVar4->callingMenu = &ptVar3->menuUserName;
   command->type = kMenu_Command_GoToMenu;
   command->nextMenu = (tMenu *)&(ptVar3->menuUserName)._base_tMenu;
@@ -1519,23 +1543,32 @@ void GenericMenuLoadGame(int player)
    context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
    
    [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_LoadGame__FR12tMenuCommand(int arg0)'.Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling pattern.
-    */
+
+   [NEAR-MISS 2026-07-05, was 33 diffs, now 18] Real fix: `AreYouSure`/`sVar1`/`dlgThis` moved
+   from function scope INTO the `if` block. A C++ local object's non-trivial ctor runs
+   unconditionally at its declaration's scope entry -- with `AreYouSure` at function scope its
+   ctor call was hoisted BEFORE the fFlags guard test entirely (oracle's ctor call is
+   genuinely conditional, reached only in the fFlags==0 fall-through). Block-scoping it
+   restores the right control flow; `dlgThis` (unused before) now carries the &AreYouSure
+   hoist matching the ExitPinkSlipsEarly/EnterUserName fix family. Residual = an 8-byte frame
+   gap (oracle -0xC8 vs ours -0xC0) whose source remains unidentified; tried re-scoping every
+   local, no change -- likely a 2nd allocated-but-unused local in the original, not yet
+   found. */
 
 extern "C" void MenuExtended_LoadGame__FR12tMenuCommand(tMenuCommand *command)
 
 {
-  short sVar1;
-  tDialogYesNo *dlgThis;
-  tDialogYesNo AreYouSure;
-  
   if (((menuDefs[0]->itemLoadGame).fFlags & 1) == 0) {
+    short sVar1;
+    tDialogYesNo *dlgThis;
+    tDialogYesNo AreYouSure;
     tDialogYesNo_ctor(&AreYouSure);
-    AreYouSure.yesnowords[0] = 0x321;
-    AreYouSure.yesnowords[1] = 0x322;
-    AreYouSure.fDefault = 0;
-    AreYouSure.string =
-         TextSys_Word(0x2c0);
-    sVar1 = Run((tDialogInteractive *)&AreYouSure);
+    dlgThis = &AreYouSure;
+    dlgThis->yesnowords[0] = 0x321;
+    dlgThis->yesnowords[1] = 0x322;
+    dlgThis->fDefault = 0;
+    dlgThis->string = TextSys_Word(0x2c0);
+    sVar1 = Run((tDialogInteractive *)dlgThis);
     if (sVar1 != 0) {
       GenericMenuLoadGame((int)screenMemcard->player);
     }
@@ -1551,8 +1584,12 @@ extern "C" void MenuExtended_LoadGame__FR12tMenuCommand(tMenuCommand *command)
 /* Decoded Phase 83: MenuExtended_TierFinished__FR12tMenuCommand(tMenuCommand&) - tournament tier complete; advance to
    next tier (128 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
-   
-   [ghidra-meta] section: front.text */
+
+   [ghidra-meta] section: front.text
+
+   [Match 2026-07-05] Branch-polarity flip (oracle emits the else/congrats block as
+   fall-through, the if/AskUser block as the branch target -- both nested ifs written
+   inverted vs the natural Ghidra reading) -> byte-match, 32/32 insns. */
 
 extern "C" void MenuExtended_TierFinished__FR12tMenuCommand(tMenuCommand *command)
 
@@ -1563,17 +1600,17 @@ extern "C" void MenuExtended_TierFinished__FR12tMenuCommand(tMenuCommand *comman
   
   command->type = kMenu_Command_GoToMenuOneWay;
   GetAwardInformation(&tournamentManager,&award);
-  if (award.fCompletedTier == 0) {
-    iVar1 = AskTheUserToSaveTheGame();
-    if (iVar1 == 0) {
-      ptVar2 = &(menuDefs[0]->menuMain)._base_tMenu;
-    }
-    else {
-      ptVar2 = &(menuDefs[0]->menuPostGameSave)._base_tMenu;
-    }
+  if (award.fCompletedTier != 0) {
+    ptVar2 = (tMenu *)&menuDefs[0]->menuTierCompleteCongrats;
   }
   else {
-    ptVar2 = (tMenu *)&menuDefs[0]->menuTierCompleteCongrats;
+    iVar1 = AskTheUserToSaveTheGame();
+    if (iVar1 != 0) {
+      ptVar2 = &(menuDefs[0]->menuPostGameSave)._base_tMenu;
+    }
+    else {
+      ptVar2 = &(menuDefs[0]->menuMain)._base_tMenu;
+    }
   }
   command->nextMenu = ptVar2;
   return;
@@ -1768,33 +1805,36 @@ extern "C" void MenuExtended_FinishedPlayer2GetName__FR12tMenuCommand(tMenuComma
    
    [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SetPinkSlips__FR12tMenuCommand(int
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
-   pattern. */
+   pattern.
+
+   [Match 2026-07-05] Both loops were Ghidra's `short`-counter-as-int artifact
+   (`iVar1<<0x10>>0xf` / `iVar1>>0x10`/`iVar2*0x10000`) -- the declared-but-unused `short i`
+   was the real loop counter (methodology 3.12 lever #9c). Rewriting both loops as plain
+   `short i` down-to-up counts + natural array indexing (`pinkSlipsWins[i]`/
+   `pinkSlipsWinner[i]=-1`) reproduces the oracle's per-iteration sll<<16;sra>>16 exactly.
+   -> byte-match, 48/48 insns. */
 
 extern "C" void MenuExtended_SetPinkSlips__FR12tMenuCommand(tMenuCommand *command)
 
 {
-  int iVar1;
   short i;
-  int iVar2;
-  
+
   SwapBackground(screenMain[0],-1);
-  iVar2 = 0;
   frontEnd.raceType = '\x06';
   frontEnd.gameMode = '\x01';
   frontEnd.oppNumber = '\0';
   frontEnd.pinkSlipsForfeit = -1;
   frontEnd.pinkSlipsTrackIndex = '\0';
-  iVar1 = 0;
+  i = 0;
   do {
-    frontEnd.pinkSlipsWins[iVar1 >> 0x10] = '\0';
-    iVar2 = iVar2 + 1;
-    iVar1 = iVar2 * 0x10000;
-  } while (iVar2 * 0x10000 >> 0x10 < 2);
-  iVar1 = 0;
+    frontEnd.pinkSlipsWins[i] = '\0';
+    i = i + 1;
+  } while (i < 2);
+  i = 0;
   do {
-    *(u_short *)((int)frontEnd.pinkSlipsWinner + ((iVar1 << 0x10) >> 0xf)) = 0xffff;
-    iVar1 = iVar1 + 1;
-  } while (iVar1 * 0x10000 >> 0x10 < 5);
+    frontEnd.pinkSlipsWinner[i] = -1;
+    i = i + 1;
+  } while (i < 5);
   return;
 }
 
@@ -2066,43 +2106,51 @@ extern "C" void MenuExtended_ExitTourney__FR12tMenuCommand(tMenuCommand *command
 /* Decoded Phase 83: MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand(tMenuCommand&) - allow user to back out of
    pinkslips before commit (304 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
-   
-   [ghidra-meta] section: front.text */
+
+   [ghidra-meta] section: front.text
+
+   [NEAR-MISS 2026-07-05, was 32 diffs, now 15] Real fix: the declared-but-unused `dlgThis`
+   local IS the oracle's hoisted `&AreYouSure` base (oracle materializes it ONCE via
+   `addiu s0,sp,0x10` right after the ctor and reaches yesnowords/fDefault/string through it;
+   our direct `AreYouSure.field` accesses were emitting raw sp-relative offsets instead).
+   Residual = the for/while player_00<2 loop lacks the oracle's PRE-loop guard test (oracle
+   computes `slti v0,s1,2` BOTH before the loop label AND again in the back-edge's delay slot
+   -- a rotated loop -- but with player_00 freshly set to the constant 0 this build proves the
+   first iteration always runs and drops the pre-check; the oracle's build didn't fold it).
+   Tried for-clause vs while-with-tail-increment vs short-typed counters -- none reproduce the
+   kept pre-check; loop-invariant constant-fold difference, not source-reachable without a
+   pin. */
 
 extern "C" void MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand(tMenuCommand *command)
 
 {
-  bool bVar1;
   tGlobalMenuDefs *ptVar2;
   short sVar3;
   char *fmt;
   char *pcVar4;
   tDialogYesNo *dlgThis;
   int iVar5;
-  int player;
   int player_00;
   tDialogYesNo AreYouSure;
   char string [80];
   
   tDialogYesNo_ctor(&AreYouSure);
-  AreYouSure.yesnowords[0] = 0x321;
-  AreYouSure.yesnowords[1] = 0x322;
-  AreYouSure.fDefault = 0;
-  AreYouSure.string =
-       TextSys_Word(0x9d);
-  sVar3 = Run((tDialogInteractive *)&AreYouSure);
+  dlgThis = &AreYouSure;
+  dlgThis->yesnowords[0] = 0x321;
+  dlgThis->yesnowords[1] = 0x322;
+  dlgThis->fDefault = 0;
+  dlgThis->string = TextSys_Word(0x9d);
+  sVar3 = Run((tDialogInteractive *)dlgThis);
   if (sVar3 != 0) {
     Init_Memcard(false,1);
-    bVar1 = true;
     player_00 = 0;
-    while (bVar1) {
+    while (player_00 < 2) {
       fmt = TextSys_Word(0x297);
       pcVar4 = PlayerName(player_00);
       iVar5 = player_00 + 1;
       sprintf(string,fmt,pcVar4,iVar5);
       (FEApp->NoInputMemCardDialog).string = string;
       SavePinkSlipsCarsWithErrorDialogs((short)player_00,1,-1);
-      bVar1 = iVar5 < 2;
       player_00 = iVar5;
     }
     DeInit_Memcard();
@@ -2123,24 +2171,36 @@ extern "C" void MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand(tMenuCommand *
 /* Decoded Phase 83: MenuExtended_PinkSlipsContinue__FR12tMenuCommand(tMenuCommand&) - after pinkslips win, continue
    to next race (108 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
-   
-   [ghidra-meta] section: front.text */
+
+   [ghidra-meta] section: front.text
+
+   [Match 2026-07-05] Three levers: (1) bVar2 as plain int (not byte) so the two
+   byte-field compares emit signed `slt`, matching the oracle -- two same-typed
+   `byte` operands otherwise fold to `sltu`; (2) ptVar1=menuDefs[0] moved into the
+   else/GoToMenuOneWay path only (oracle never touches menuDefs on the win path);
+   (3) physical block-order swap (else-body first, win-body reached via a trailing
+   goto) for branch polarity -- the natural `&&`/nested-if emits the opposite
+   fall-through no matter how the C conditions are phrased. -> byte-match, 27/27. */
 
 extern "C" void MenuExtended_PinkSlipsContinue__FR12tMenuCommand(tMenuCommand *command)
 
 {
   tGlobalMenuDefs *ptVar1;
-  byte bVar2;
-  
-  ptVar1 = menuDefs[0];
+  int bVar2;
+
   bVar2 = ((byte)frontEnd.pinkSlipsNumTracks >> 1) + 1;
-  if (((byte)frontEnd.pinkSlipsWins[0] < bVar2) && ((byte)frontEnd.pinkSlipsWins[1] < bVar2)) {
-    frontEnd.pinkSlipsTrackIndex = frontEnd.pinkSlipsTrackIndex + '\x01';
-    command->type = kMenu_Command_StartRace;
-    return;
+  if ((byte)frontEnd.pinkSlipsWins[0] < bVar2) {
+    if ((byte)frontEnd.pinkSlipsWins[1] < bVar2) {
+      goto winCase;
+    }
   }
+  ptVar1 = menuDefs[0];
   command->type = kMenu_Command_GoToMenuOneWay;
   command->nextMenu = (tMenu *)&ptVar1->menuPinkSlipCongrats;
+  return;
+winCase:
+  frontEnd.pinkSlipsTrackIndex = frontEnd.pinkSlipsTrackIndex + '\x01';
+  command->type = kMenu_Command_StartRace;
   return;
 }
 
@@ -3113,7 +3173,6 @@ void tBlankMenuItemGoToMenuNFS4Button::Draw(int arg1)
 tBlankMenuItemGoToMenuNFS4Button::~tBlankMenuItemGoToMenuNFS4Button()
 
 {
-  tMenuItemGoToMenuNFS4Button_dtor((tMenuItemGoToMenuNFS4Button *)this);
   return;
 }
 
@@ -3136,14 +3195,6 @@ void tBlankMenuItemNFS4LeftRightChoice::Draw(int x,int y,char flags)
 tBlankMenuItemNFS4LeftRightChoice::~tBlankMenuItemNFS4LeftRightChoice()
 
 {
-  short i;
-  int upgradeFlag;
-  int fWinner;
-  char string [80];
-  tDialogYesNo RetryCancelDialog;
-  short nBestCarIndex;
-  
-  tMenuItemNFS4LeftRightChoice_dtor((tMenuItemNFS4LeftRightChoice *)this);
   return;
 }
 

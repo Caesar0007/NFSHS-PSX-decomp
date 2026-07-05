@@ -679,10 +679,7 @@ int Front_Menu(tFront_ProcessingType role)
 
 {
   ushort uVar1;
-  Car_tStats *dummyCars;
   long extraMoney;
-  int *in_a3;
-  int result;
   tAppCommand tVar3;
   tMenuCommand tempCommand;
   
@@ -834,15 +831,15 @@ int Front_GetLapsForType(void)
 {
   uint uVar1;
   short lapconv [2];
-  
+
   lapconv[0] = 2;
   lapconv[1] = 4;
-  if (frontEnd.raceType == '\x02') {
-    uVar1 = (uint)(tournamentManager.fDefinition)->fTournaments
-                  [(uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset + tournamentManager.fTournament].fNumLaps;
+  if (frontEnd.raceType != '\x02') {
+    uVar1 = (uint)lapconv[(byte)frontEnd.lapind[(byte)frontEnd.pinkSlipsTrackIndex]];
   }
   else {
-    uVar1 = (uint)lapconv[(byte)frontEnd.lapind[(byte)frontEnd.pinkSlipsTrackIndex]];
+    uVar1 = (uint)((tournamentManager.fDefinition)->fTournaments +
+                  ((uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset + tournamentManager.fTournament))->fNumLaps;
   }
   return uVar1;
 }
@@ -2647,34 +2644,30 @@ void SetLicensePlate(void)
 void SetPlayList(int ivealreadygotone)
 
 {
-  AudioMus_tSongList *addr;
-  int iVar1;
   int i;
-  int iVar2;
   AudioMus_tSongList *songlist;
-  AudioMus_tSongList *pAVar3;
-  
+
   AudioMus_SysCleanUp();
   AudioMus_SysStartUp(0xc000,0x18000,"ymus");
-  addr = AudioMus_GetSongList("game*",0);
+  songlist = AudioMus_GetSongList("game*",0);
   if (ivealreadygotone == 0) {
-    iVar2 = 0x27;
+    i = 0x27;
     do {
-      frontEnd.FEPlayList[iVar2] = 0;
-      iVar2 = iVar2 + -1;
-    } while (-1 < iVar2);
-    pAVar3 = addr;
-    iVar1 = 0;
-    if (0 < addr->numsongs) {
+      frontEnd.FEPlayList[i] = 0;
+      i = i + -1;
+    } while (-1 < i);
+    i = 0;
+    if (0 < songlist->numsongs) {
+      AudioMus_tSongList *pAVar3 = songlist;
       do {
         frontEnd.FEPlayList[pAVar3[4].currentsong] = 1;
         pAVar3 = pAVar3 + 8;
-        iVar1 = iVar1 + 1;
-      } while (iVar1 < addr->numsongs);
+        i = i + 1;
+      } while (i < songlist->numsongs);
     }
   }
   frontEnd.GotAPlayList = 1;
-  purgememadr(addr);
+  purgememadr(songlist);
   AudioMus_SysCleanUp();
   AudioMus_SysStartUp(0xd800,0x18000,"amus");
   return;

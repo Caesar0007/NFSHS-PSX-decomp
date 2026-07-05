@@ -174,17 +174,20 @@ void Hud_GoTpage(int page)
 
 {
   int addr_24;
+  u_int tp1_hi;
   DR_MODE *prim;
   u_char *p;
   u_char *tp1;
-  
+
+  addr_24 = (int)&Render_gPalettePtr;
   p = Render_gPacketPtr;
   tp1 = Render_gPalettePtr;
   *(u_int *)p =
-       *(u_int *)p & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  addr_24 = (u_int)p & 0xffffff;
+       *(u_int *)p & 0xff000000 | *(u_int *)*(u_char **)addr_24 & 0xffffff;
+  tp1_hi = *(u_int *)tp1 & 0xff000000;
   Render_gPacketPtr = p + 0xc;
-  *(u_int *)tp1 = *(u_int *)tp1 & 0xff000000 | addr_24;
+  addr_24 = (u_int)p & 0xffffff;
+  *(u_int *)tp1 = tp1_hi | addr_24;
   SetDrawMode((DR_MODE *)p,0,0,(page * 0x40 + 0x80U & 0x3ff) >> 6,(RECT *)0x0);
   return;
 }
@@ -262,14 +265,16 @@ void Hud_FBuildSprite(int shapeIdx,int x,int y,u_long color,int trans)
   int tu1;
   u_char *prim;
   u_char *prev_pkt;
+  u_int   prev_hi;
 
   prim = Render_gPacketPtr;
   prev_pkt = Render_gPalettePtr;
   *(u_int *)prim =
        *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  tu1 = (u_int)prim & 0xffffff;
+  prev_hi = *(u_int *)prev_pkt & 0xff000000;
   Render_gPacketPtr = prim + 0x14;
-  *(u_int *)prev_pkt = *(u_int *)prev_pkt & 0xff000000 | tu1;
+  tu1 = (u_int)prim & 0xffffff;
+  *(u_int *)prev_pkt = prev_hi | tu1;
   Hud_BuildSprite((SPRT *)prim,shapeIdx,x,y,color,trans);
   return;
 }
@@ -646,26 +651,19 @@ void Hud_BuildF4o(POLY_F4 *prim,int trans,int x,int y,int w,int h,u_long color,s
   u_int uVar2;
   u_int uVar3;
   u_int uVar4;
-  
-  prim->r0 = (u_char)color;
-  prim->g0 = ((u_char *)&(color))[1];
-  prim->b0 = ((u_char *)&(color))[2];
-  prim->code = ((u_char *)&(color))[3];
+
+  *(u_int *)&prim->r0 = color;
   SetPolyF4(prim);
   SetSemiTrans(prim,trans);
   uVar2 = y << 0x10 | x + x0off;
+  *(u_int *)&prim->x0 = uVar2;
   uVar1 = y << 0x10 | x + w + (int)x1off;
+  *(u_int *)&prim->x1 = uVar1;
   uVar3 = (y + h) * 0x10000;
   uVar4 = uVar3 | x;
+  *(u_int *)&prim->x2 = uVar4;
   uVar3 = uVar3 | x + w;
-  prim->x0 = (short)uVar2;
-  prim->y0 = (short)(uVar2 >> 0x10);
-  prim->x1 = (short)uVar1;
-  prim->y1 = (short)(uVar1 >> 0x10);
-  prim->x2 = (short)uVar4;
-  prim->y2 = (short)(uVar4 >> 0x10);
-  prim->x3 = (short)uVar3;
-  prim->y3 = (short)(uVar3 >> 0x10);
+  *(u_int *)&prim->x3 = uVar3;
   return;
 }
 
@@ -674,15 +672,17 @@ void Hud_FBuildGT4(HudPmx_tShape *shape, int x, int y, u_long col1)
 {
   POLY_GT4 *prim;
   u_char   *prev_pkt;
+  u_int     prev_hi;
   int       pkt_addr24;
 
   prim     = (POLY_GT4 *)Render_gPacketPtr;
   prev_pkt = Render_gPalettePtr;
   *(u_int *)prim =
        *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+  prev_hi = *(u_int *)prev_pkt & 0xff000000;
   Render_gPacketPtr = (u_char *)prim + 0x34;
   pkt_addr24 = (u_int)prim & 0xffffff;
-  *(u_int *)prev_pkt = *(u_int *)prev_pkt & 0xff000000 | pkt_addr24;
+  *(u_int *)prev_pkt = prev_hi | pkt_addr24;
   Hud_BuildGT4(prim, shape, x, y, col1);
 }
 
@@ -691,15 +691,17 @@ void Hud_FBuildFT4(HudPmx_tShape *shape, int x, int y, u_long col1)
 {
   POLY_FT4 *prim;
   u_char   *prev_pkt;
+  u_int     prev_hi;
   int       pkt_addr24;
 
   prim     = (POLY_FT4 *)Render_gPacketPtr;
   prev_pkt = Render_gPalettePtr;
   *(u_int *)prim =
        *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  pkt_addr24 = (u_int)prim & 0xffffff;
+  prev_hi = *(u_int *)prev_pkt & 0xff000000;
   Render_gPacketPtr = (u_char *)prim + 0x28;
-  *(u_int *)prev_pkt = *(u_int *)prev_pkt & 0xff000000 | pkt_addr24;
+  pkt_addr24 = (u_int)prim & 0xffffff;
+  *(u_int *)prev_pkt = prev_hi | pkt_addr24;
   Hud_BuildFT4(prim, shape, x, y, col1, 0);
 }
 
@@ -708,15 +710,17 @@ void Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char
 {
   POLY_F4 *prim;
   u_char  *prev_pkt;
+  u_int    prev_hi;
   int      pkt_addr24;
 
   prim     = (POLY_F4 *)Render_gPacketPtr;
   prev_pkt = Render_gPalettePtr;
   *(u_int *)prim =
        *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  pkt_addr24 = (u_int)prim & 0xffffff;
+  prev_hi = *(u_int *)prev_pkt & 0xff000000;
   Render_gPacketPtr = (u_char *)prim + 0x18;
-  *(u_int *)prev_pkt = *(u_int *)prev_pkt & 0xff000000 | pkt_addr24;
+  pkt_addr24 = (u_int)prim & 0xffffff;
+  *(u_int *)prev_pkt = prev_hi | pkt_addr24;
   Hud_BuildF4o(prim, transparent, x, y, w, h, col1, x0off, x1off);
 }
 

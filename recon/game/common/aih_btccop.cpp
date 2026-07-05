@@ -16,7 +16,7 @@ extern int AI_elapsedTime;   /* H19: ai.cpp @0x8013C554 (not in this TU's extern
    _19AIHigh_BTC_HumanCop.lastInputRequestTick_). Image value 0; reset to 0 each ::reset. */
 int          _19AIHigh_BTC_HumanCop_lastInputRequestTick_ = 0;   /* @0x8013c560 */
 /* anonymous file-static toggle (no SYM name) immediately following; image value 1 (engaged). */
-static int   AIH_BTCCop_freezeToggle_8013c564 = 1;               /* @0x8013c564 */
+int   AIH_BTCCop_freezeToggle_8013c564 = 1;               /* @0x8013c564 */
 
 /* ---- aih_btccop.obj-owned globals (.bss zero) ---- */
 int          AIH_BTC_Cop_1HC1HP_StageTimes[3] = { 60, 60, 60 };   /* @0x8010cd98 */
@@ -98,41 +98,41 @@ int AIHigh_BTC_Cop::GetCheckChasePosition(coorddef *pos)
   int newPosition;
   int changed;
 
-  bool bVar1;
-
   int iVar2;
 
   int iVar3;
 
   int iVar4;
 
-  
+
+
+  changed = 0;
 
   iVar2 = ((AIHigh_BasicPerp *)this->perpTarget_)->CheckChaserPosition(this->copIndex_,
 
                      (this->carObj_)->carIndex);
 
-  bVar1 = iVar2 != this->chaseIndex_;
+  if (iVar2 != this->chaseIndex_) {
 
-  if (bVar1) {
+    changed = 1;
 
     this->chaseIndex_ = iVar2;
 
   }
 
-  iVar2 = this->chaseIndex_;
+  newPosition = this->chaseIndex_;
 
-  iVar3 = AIH_BTCCop_chasePositions[0][iVar2].y;
+  iVar3 = AIH_BTCCop_chasePositions[0][newPosition].y;
 
-  iVar4 = AIH_BTCCop_chasePositions[0][iVar2].z;
+  iVar4 = AIH_BTCCop_chasePositions[0][newPosition].z;
 
-  pos->x = AIH_BTCCop_chasePositions[0][iVar2].x;
+  pos->x = AIH_BTCCop_chasePositions[0][newPosition].x;
 
   pos->y = iVar3;
 
   pos->z = iVar4;
 
-  return (u_int)bVar1;
+  return changed;
 
 }
 
@@ -802,41 +802,33 @@ void AIHigh_BTC_HumanCop::CheckConditionWithCop0()
 
   
 
-  pAVar1 = highLevelAIObjs[0];
-
   if (this->copIndex_ != 0) {
+
+    pAVar1 = highLevelAIObjs[0];
 
     if (this->currentStage_ < (int)highLevelAIObjs[0][4].state_) {
 
+      int movement;
+
       direction = highLevelAIObjs[0][5].stateType_;
+
+      movement = highLevelAIObjs[0][5].schedulingOff_;
 
       iVar3 = (int)(highLevelAIObjs[0]->carObj_->N).simRoadInfo.slice;
 
-      if ((this->currentStage_ + 1U & 1) == 0) {
-
-        iVar2 = direction * -0xe;
-
-      }
-
-      else {
+      if ((this->currentStage_ + 1U & 1) != 0) {
 
         iVar2 = direction * 0xe;
 
       }
 
-      if (iVar2 < 0) {
+      else {
 
-        iVar3 = iVar3 + iVar2;
-
-        if (iVar3 < 0) {
-
-          iVar3 = iVar3 + gNumSlices;
-
-        }
+        iVar2 = direction * -0xe;
 
       }
 
-      else {
+      if (0 <= iVar2) {
 
         iVar3 = iVar3 + iVar2;
 
@@ -848,7 +840,19 @@ void AIHigh_BTC_HumanCop::CheckConditionWithCop0()
 
       }
 
-      this->NewStage(iVar3,direction,highLevelAIObjs[0][5].schedulingOff_);
+      else {
+
+        iVar3 = iVar3 + iVar2;
+
+        if (iVar3 < 0) {
+
+          iVar3 = iVar3 + gNumSlices;
+
+        }
+
+      }
+
+      this->NewStage(iVar3,direction,movement);
 
     }
 
@@ -1126,23 +1130,23 @@ void AIHigh_BTC_HumanCop::UpdateAndCheckTimeLeft()
 
   pAVar1 = this->perpTarget_;
 
-  if (pAVar1 == (AIHigh_BTC_Perp *)0x0) {
+  if (pAVar1 != (AIHigh_BTC_Perp *)0x0) {
 
-    perpname = (char *)0x0;
+    timeleft = this->timeLeft_;
+
+    perpname = ((pAVar1)->carObj_)->carInfo->driver;
 
     iVar4 = (this->carObj_)->RSControl;
-
-    timeleft = 0;
 
   }
 
   else {
 
-    timeleft = this->timeLeft_;
-
     iVar4 = (this->carObj_)->RSControl;
 
-    perpname = ((pAVar1)->carObj_)->carInfo->driver;
+    perpname = (char *)0x0;
+
+    timeleft = 0;
 
   }
 
@@ -1154,9 +1158,9 @@ void AIHigh_BTC_HumanCop::UpdateAndCheckTimeLeft()
 
       pSVar2 = (Speaker *)Speech_Mobile(this->carObj_);
 
-      (**(int (**)(...))(pSVar2->_vf[1] + 0x1d))
+      (**(int (**)(...))((int)*pSVar2->_vf + 0x3c))
 
-                ((int)&(pSVar2->fPosition).flags + (int)*(short *)(pSVar2->_vf[1] + 0x19));
+                ((int)&(pSVar2->fPosition).flags + (int)*(short *)((int)*pSVar2->_vf + 0x38));
 
       AIH_BTCCop_freezeToggle_8013c564 = 0;
 
@@ -1199,7 +1203,7 @@ void AIHigh_BTC_HumanCop::UpdateFreezeModeAndPullOverMode()
 
   int _Var2;
 
-  
+
 
   if (this->timeLeft_ < 0) {
 
@@ -1297,11 +1301,13 @@ void AIHigh_BTC_HumanCop::RequestWingman()
 
   Speaker *pSVar1;
 
+  Speaker *pSVar3;
+
   int iVar2;
 
-  
 
-  if (1 < this->freezeMode_ - 3) {
+
+  if (1 < (u_int)(this->freezeMode_ - 3)) {
 
     iVar2 = GameSetup_gData.perpInfo[this->currentStage_].WingmanTime * 0x40 +
 
@@ -1309,27 +1315,33 @@ void AIHigh_BTC_HumanCop::RequestWingman()
 
     pSVar1 = (Speaker *)Speech_Mobile(this->carObj_);
 
-    (**(int (**)(...))(pSVar1->_vf[3] + 7))
+    (**(int (**)(...))((int)*pSVar1->_vf + 0x64))
 
-              ((int)&(pSVar1->fPosition).flags + (int)*(short *)(pSVar1->_vf[3] + 3));
+              ((int)&(pSVar1->fPosition).flags + (int)*(short *)((int)*pSVar1->_vf + 0x60));
 
-    if ((((this->chaseStartTime_ == 0) || (iVar2 == 0)) ||
+    if (this->chaseStartTime_ == 0) goto LAB_dispatch;
 
-        (simGlobal.gameTicks - this->chaseStartTime_ <= iVar2)) || (this->wingmanStatus_ == 4)) {
+    if (iVar2 == 0) goto LAB_dispatch;
 
-      pSVar1 = (Speaker *)Speech_Dispatch();
+    if (simGlobal.gameTicks - this->chaseStartTime_ <= iVar2) goto LAB_dispatch;
 
-      (**(int (**)(...))(*pSVar1->_vf + 0x1c))
-
-                ((int)&(pSVar1->fPosition).flags + (int)*(short *)(*pSVar1->_vf + 0x18));
-
-    }
-
-    else {
+    if (this->wingmanStatus_ != 4) {
 
       this->wingmanStatus_ = 1;
 
+      goto LAB_end;
+
     }
+
+LAB_dispatch:
+
+    pSVar3 = (Speaker *)Speech_Dispatch();
+
+    (**(int (**)(...))((int)*pSVar3->_vf + 0x1c))
+
+              ((int)&(pSVar3->fPosition).flags + (int)*(short *)((int)*pSVar3->_vf + 0x18));
+
+LAB_end: ;
 
   }
 
@@ -1355,35 +1367,27 @@ void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
 
   Speaker *pSVar1;
 
+  Speaker *pSVar2;
+
+  Speaker *pSVar4;
+
+  Speaker *pSVar5;
+
   int iVar2;
 
   int iVar3;
 
-  
 
-  if (1 < this->freezeMode_ - 3) {
 
-    if (spikeBeltRequest == 0) {
+  if (1 < (u_int)(this->freezeMode_ - 3)) {
 
-      pSVar1 = (Speaker *)Speech_Mobile(this->carObj_);
-
-      (**(int (**)(...))(pSVar1->_vf[2] + 0x16))
-
-                ((int)&(pSVar1->fPosition).flags + (int)*(short *)(pSVar1->_vf[2] + 0x12));
-
-      iVar3 = GameSetup_gData.perpInfo[this->currentStage_].BlockadeCopTime;
-
-      iVar2 = AITune_BTC[GameSetup_gData.skill].blockaderTime;
-
-    }
-
-    else {
+    if (spikeBeltRequest != 0) {
 
       pSVar1 = (Speaker *)Speech_Mobile(this->carObj_);
 
-      (**(int (**)(...))(pSVar1->_vf[2] + 0x1e))
+      (**(int (**)(...))((int)*pSVar1->_vf + 0x5c))
 
-                ((int)&(pSVar1->fPosition).flags + (int)*(short *)(pSVar1->_vf[2] + 0x1a));
+                ((int)&(pSVar1->fPosition).flags + (int)*(short *)((int)*pSVar1->_vf + 0x58));
 
       iVar3 = GameSetup_gData.perpInfo[this->currentStage_].SpikeBeltTime;
 
@@ -1391,27 +1395,35 @@ void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
 
     }
 
-    iVar2 = iVar3 * 0x40 + iVar2;
+    else {
 
-    if ((((this->chaseStartTime_ == 0) || (iVar2 < 1)) ||
+      pSVar2 = (Speaker *)Speech_Mobile(this->carObj_);
 
-        (simGlobal.gameTicks - this->chaseStartTime_ <= iVar2)) || (this->wingmanStatus_ == 5)) {
+      (**(int (**)(...))((int)*pSVar2->_vf + 0x54))
 
-      pSVar1 = (Speaker *)Speech_Dispatch();
+                ((int)&(pSVar2->fPosition).flags + (int)*(short *)((int)*pSVar2->_vf + 0x50));
 
-      (**(int (**)(...))(*pSVar1->_vf + 0x1c))
+      iVar3 = GameSetup_gData.perpInfo[this->currentStage_].BlockadeCopTime;
 
-                ((int)&(pSVar1->fPosition).flags + (int)*(short *)(*pSVar1->_vf + 0x18));
+      iVar2 = AITune_BTC[GameSetup_gData.skill].blockaderTime;
 
     }
 
-    else {
+    iVar2 = iVar3 * 0x40 + iVar2;
 
-      pSVar1 = (Speaker *)Speech_Dispatch();
+    if (this->chaseStartTime_ == 0) goto LAB_dispatch;
 
-      (**(int (**)(...))(pSVar1->_vf[1] + 5))
+    if (iVar2 < 1) goto LAB_dispatch;
 
-                ((int)&(pSVar1->fPosition).flags + (int)*(short *)(pSVar1->_vf[1] + 1));
+    if (simGlobal.gameTicks - this->chaseStartTime_ <= iVar2) goto LAB_dispatch;
+
+    if (this->wingmanStatus_ != 5) {
+
+      pSVar4 = (Speaker *)Speech_Dispatch();
+
+      (**(int (**)(...))((int)*pSVar4->_vf + 0x24))
+
+                ((int)&(pSVar4->fPosition).flags + (int)*(short *)((int)*pSVar4->_vf + 0x20));
 
       if (spikeBeltRequest == 0) {
 
@@ -1425,7 +1437,19 @@ void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
 
       }
 
+      goto LAB_end;
+
     }
+
+LAB_dispatch:
+
+    pSVar5 = (Speaker *)Speech_Dispatch();
+
+    (**(int (**)(...))((int)*pSVar5->_vf + 0x1c))
+
+              ((int)&(pSVar5->fPosition).flags + (int)*(short *)((int)*pSVar5->_vf + 0x18));
+
+LAB_end: ;
 
   }
 
@@ -1510,33 +1534,35 @@ void AIHigh_BTC_HumanCop::UpdateWingmanRole(Wingman_Role currentRole)
 
 {
 
-  if (currentRole == 1) {
-
-    this->wingmanStatus_ = 4;
-
-    return;
-
-  }
+  if (currentRole == 1) goto LAB_role1;
 
   if ((int)currentRole < 2) {
 
-    if (currentRole == 0) {
+    if (currentRole == 0) goto LAB_role0;
 
-      this->wingmanStatus_ = 0;
-
-      return;
-
-    }
+    goto LAB_ret;
 
   }
 
-  else if ((int)currentRole < 4) {
+  if ((int)currentRole >= 4) goto LAB_ret;
 
-    this->wingmanStatus_ = 5;
+  this->wingmanStatus_ = 5;
 
-    return;
+  return;
 
-  }
+LAB_role1:
+
+  this->wingmanStatus_ = 4;
+
+  return;
+
+LAB_ret:
+
+  return;
+
+LAB_role0:
+
+  this->wingmanStatus_ = 0;
 
   return;
 
@@ -1560,29 +1586,23 @@ void AIHigh_BTC_HumanCop::ClearTrafficToPurgatory()
   Car_tObj*testTrafficCarObj;
   AIHigh_Traffic*testTrafficHigh;
 
-  bool bVar1;
-
-  int iVar2;
-
   Car_tObj *pCVar3;
 
   Car_tObj **ppCVar4;
 
   int iVar5;
 
-  
 
-  iVar2 = Cars_gNumTrafficCars;
 
   iVar5 = 0;
 
-  ppCVar4 = Cars_gTrafficCarList;
+  while (1) {
 
-  while (bVar1 = iVar5 < iVar2, iVar5 = iVar5 + 1, bVar1) {
+    if (Cars_gNumTrafficCars <= iVar5) break;
 
-    pCVar3 = *ppCVar4;
+    pCVar3 = Cars_gTrafficCarList[iVar5];
 
-    ppCVar4 = ppCVar4 + 1;
+    iVar5 = iVar5 + 1;
 
     highLevelAIObjs[pCVar3->carIndex][1].state_ = (AIState_Base *)0x1;
 
@@ -1610,29 +1630,21 @@ void AIHigh_BTC_HumanCop::ResetClearTrafficToPurgatory()
   Car_tObj*testTrafficCarObj;
   AIHigh_Traffic*testTrafficHigh;
 
-  bool bVar1;
-
-  int iVar2;
-
   Car_tObj *pCVar3;
-
-  Car_tObj **ppCVar4;
 
   int iVar5;
 
-  
 
-  iVar2 = Cars_gNumTrafficCars;
 
   iVar5 = 0;
 
-  ppCVar4 = Cars_gTrafficCarList;
+  while (1) {
 
-  while (bVar1 = iVar5 < iVar2, iVar5 = iVar5 + 1, bVar1) {
+    if (Cars_gNumTrafficCars <= iVar5) break;
 
-    pCVar3 = *ppCVar4;
+    pCVar3 = Cars_gTrafficCarList[iVar5];
 
-    ppCVar4 = ppCVar4 + 1;
+    iVar5 = iVar5 + 1;
 
     highLevelAIObjs[pCVar3->carIndex][1].state_ = (AIState_Base *)0x0;
 

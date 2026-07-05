@@ -1572,7 +1572,7 @@ int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
   }
   maxTick = (animInst->count + -2) * (int)animInst->interval;
   iVar2 = animation_timer[animInst->objectIndex - 1];
-  if (maxTick <= animation_timer[animInst->objectIndex - 1]) {
+  if (maxTick <= iVar2) {
     iVar2 = maxTick;
   }
   return iVar2;
@@ -2250,14 +2250,26 @@ void * ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMor
      INTO the scaled index reg (`addiu a1,a1,4`), a different (wrong) 1-insn shape; only
      an explicit 3-statement sequential pointer mutation (assign, then +4, then
      +ind*8, each its own statement) reproduces the oracle's base-first-then-index order.
-     NEAR-MISS FLOOR (43 diffs, ours 52 / oracle 61 insns): residual is a pure
-     instruction-SCHEDULING/hoist difference for 2 independent arg-address computations
-     of the upcoming `transform()` call (`&tmp.x`, `&(Vi->cview).mrotationInv.m`) --
-     ours hoists them early (no data dependency ties them down), oracle schedules them
-     late, right before the call. Tried reordering `trans`-copy vs `tmp.x/y/z` source
-     statement order, array-index form `&arr[ind*2+1]`, and single vs 3-statement base
-     pointer forms -- none changed the hoist point. Not reachable by a source lever at
-     this opt level; permuter (no cast) or accept. */
+     PASS (2026-07-05, was 43 diffs 52-vs-61 insns -> 100% MATCH, 61==61 insns). The
+     43-diff residual was NOT a scheduling/hoist issue as first suspected -- it was TWO
+     more source-shape misses, same family as the STRUCT-COPY lever above:
+     (1) `trans = (Vi->cview).translationInv;` (an aggregate struct assign) makes gcc
+     block-copy via 3 PARALLEL temps ($t0-$t2 load-all/store-all); the oracle instead
+     copies FIELD-BY-FIELD, one load+store at a time (`lw v0,0x38(a3); sw v0,0x30(sp);
+     lw v0,0x3c(a3); sw v0,0x34(sp); ...`), reusing a SINGLE scratch ($v0) interleaved
+     with the `transform()` arg-address computations -- writing `trans.x=...; trans.y=
+     ...; trans.z=...;` as 3 separate field assigns reproduces this exactly.
+     (2) `iVar1`/`iVar2` as separate scalars is wrong -- the oracle keeps the running sum
+     IN `tmp2.x`/`tmp2.z` themselves (`tmp2.x += trans.x; tmp2.y += trans.y; tmp2.z +=
+     trans.z;` -- note the otherwise-DEAD `.y` sum IS computed+stored, confirming an
+     in-place 3-field accumulate, not 2 scalar adds) and again for the radius term
+     (`tmp2.z += bSphere->radius*0x400;`) -- giving `iVar1=tmp2.x`/`iVar2=tmp2.z` as
+     mere aliases of the accumulated fields, not independent locals.
+     (3) the final `if/else` arms were SWAPPED vs the oracle's branch polarity: oracle's
+     `bnez v0,.trueLabel` falls through to the `else`-shaped body first (delay-slot
+     `sw`+`negu`+`j`+`slt`) and jumps forward only for the `pvVar3=1` arm -- writing
+     `if(iVar1<=iVar2){slt-arm} else {pvVar3=1;}` (arms swapped from the natural
+     `if(iVar2<iVar1)` reading) matches. All three combined -> 61==61, byte-identical. */
   tBoundingSphere *bSphere;
   int iVar1;
   int iVar2;
@@ -2272,15 +2284,21 @@ void * ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMor
   tmp.x = bSphere->cp.x * 0x400 + pCp->x;
   tmp.y = bSphere->cp.y * 0x400 + pCp->y;
   tmp.z = bSphere->cp.z * 0x400 + pCp->z;
-  trans = (Vi->cview).translationInv;
+  trans.x = (Vi->cview).translationInv.x;
+  trans.y = (Vi->cview).translationInv.y;
+  trans.z = (Vi->cview).translationInv.z;
   transform(&tmp.x,(Vi->cview).mrotationInv.m,&tmp2.x);
-  iVar1 = tmp2.x + trans.x;
-  iVar2 = tmp2.z + trans.z + bSphere->radius * 0x400;
-  if (iVar2 < iVar1) {
-    pvVar3 = (void *)0x1;
+  tmp2.x = tmp2.x + trans.x;
+  tmp2.y = tmp2.y + trans.y;
+  tmp2.z = tmp2.z + trans.z;
+  iVar1 = tmp2.x;
+  tmp2.z = tmp2.z + bSphere->radius * 0x400;
+  iVar2 = tmp2.z;
+  if (iVar1 <= iVar2) {
+    pvVar3 = (void *)(u_int)(iVar2 < -iVar1);
   }
   else {
-    pvVar3 = (void *)(u_int)(iVar2 < -iVar1);
+    pvVar3 = (void *)0x1;
   }
   return pvVar3;
 }

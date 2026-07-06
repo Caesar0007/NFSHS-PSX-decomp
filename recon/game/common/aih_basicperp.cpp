@@ -521,7 +521,9 @@ void AIHigh_BasicPerp::RemoveCloseCops()
 
   ppCVar5 = Cars_gCopCarList;
 
-  for (iVar6 = 0; iVar6 < Cars_gNumCopCars; iVar6 = iVar6 + 1) {
+  iVar6 = 0;
+
+  while (iVar6 < Cars_gNumCopCars) {
 
     carObj = *ppCVar5;
 
@@ -567,15 +569,20 @@ void AIHigh_BasicPerp::RemoveCloseCops()
 
         pSVar2 = (Speaker *)Speech_Mobile(pAVar3->carObj_);
 
-        (**(int (**)(...))(pSVar2->_vf[4] + 8))
+        /* manual-vtable slot 16 (raw byte offsets from the oracle jalr/lh -- __vtbl_ptr_type
+           is 8 bytes, so a typed _vf[N] index/pointer-add is 8x too large; decay to a byte
+           base and use the RAW displacement, Â§3.12 lever #10). */
+        (**(int (**)(...))((char *)pSVar2->_vf + 0x84))
 
-                  ((int)&(pSVar2->fPosition).flags + (int)*(short *)(pSVar2->_vf[4] + 4));
+                  ((int)&(pSVar2->fPosition).flags + (int)*(short *)((char *)pSVar2->_vf + 0x80));
 
       }
 
     }
 
     ppCVar5 = ppCVar5 + 1;
+
+    iVar6 = iVar6 + 1;
 
   }
 
@@ -643,17 +650,25 @@ int AIHigh_BasicPerp::AddChaser(int copIndex,int carIndex,copType type)
 
   int *piVar2;
 
-  
+  tCopCarPair *pPVar3;
 
-  piVar2 = (this->basicPerpInfo_).copsAssigned_ + type;
+
+
+  piVar2 = this->basicPerpInfo_.copsAssigned_;
+
+  piVar2 = piVar2 + type;
 
   *piVar2 = *piVar2 + 1;
 
-  this->positionVSCopList_[5].copIndex = copIndex;
+  pPVar3 = (tCopCarPair *)&this->positionVSCopList_[1].carIndex;
 
-  this->positionVSCopList_[5].carIndex = carIndex;
+  pos = 5;
 
-  this->copVSPositionList_[copIndex] = 5;
+  *(int *)((char *)pPVar3 + 0x1C) = copIndex;
+
+  *(int *)((char *)pPVar3 + 0x20) = carIndex;
+
+  this->copVSPositionList_[copIndex] = pos;
 
   iVar1 = this->CheckChaserPosition(copIndex,carIndex);
 
@@ -688,7 +703,7 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
 
   int iVar4;
 
-  
+
 
   sVar1 = (highLevelAIObjs[carIndex]->carObj_->N).simRoadInfo.slice;
 
@@ -756,25 +771,19 @@ void AIHigh_BasicPerp::Clear()
 
 
 {
-  AIHigh_BasicPerp *pAVar1;
-
   int iVar2;
 
-  
+
 
   iVar2 = 0;
 
-  pAVar1 = this;
-
   do {
 
-    pAVar1->positionVSCopList_[0].copIndex = -1;
+    this->positionVSCopList_[iVar2].copIndex = -1;
 
-    pAVar1->positionVSCopList_[0].carIndex = -1;
+    this->positionVSCopList_[iVar2].carIndex = -1;
 
     iVar2 = iVar2 + 1;
-
-    pAVar1 = (AIHigh_BasicPerp *)((char *)pAVar1 + 8);
 
   } while (iVar2 < 6);
 
@@ -828,7 +837,7 @@ AIHigh_BasicPerp::AIHigh_BasicPerp(Car_tObj *carObj)
 
 /* end of aih_basicperp.cpp */
 
-/* cont.35 B3b: base-forward dtor re-attributed from main.c (§3.23 simple variant);
+/* cont.35 B3b: base-forward dtor re-attributed from main.c (ï¿½3.23 simple variant);
    oracle = jal ___11AIHigh_Base; extern-C free fn exports the exact symbol. */
 extern "C" {
 void ___11AIHigh_Base(void *);

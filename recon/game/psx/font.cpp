@@ -60,19 +60,19 @@ void Font_TextTint(int rgb)
 }
 
 /* ---- Font_SetABR__Fi  [FONT.CPP:96-101] SLD-FLAG:NONMONO ---- */
-/* NEAR-MISS 6 diffs (18/18): oracle loads val into a2 (lw a2,0xC(v0)), ours into a3.
- * Then oracle: sll a3,a2,4; sll a2,a2,20 (a3=val<<4, a2 overwritten).
- * Ours: sll a2,a3,20; sll a3,a3,4 (same final result, opposite temp register).
- * Register allocator coloring floor — tried 4 levers (inline/named-local/fp-local/fbase-local).
- * All produce identical instruction count (18/18) with a3 vs a2 as the lw temp. ACCEPT. */
 void Font_SetABR(int abr)
 
 {
+  int y;
+  int val;
+
   font_abr = abr;
+  val = *(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc);
+  y = (val << 4) >> 20;
   font_currentTPage =
        GetTPage(*(u_char *)(*(int *)((u_char *)&(currentfont) + 136)) & 3,abr,
-                  (*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 0x14) >> 0x14,
-                  (*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 4) >> 0x14);
+                  (val << 0x14) >> 0x14,
+                  y);
   return;
 }
 

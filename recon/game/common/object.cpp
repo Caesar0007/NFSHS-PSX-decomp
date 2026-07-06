@@ -661,7 +661,7 @@ int Object_FindDefWithThisID(int ID)
   Trk_ObjectDef *objDef;
   int i;
   Trk_ObjectDef **ppTVar2;
-  
+
   i = 0;
   ppTVar2 = Track_gObjDefs;
   while( true ) {
@@ -670,10 +670,13 @@ int Object_FindDefWithThisID(int ID)
     }
     objDef = *ppTVar2;
     ppTVar2 = ppTVar2 + 1;
-    if (ID == objDef->id) break;
-    i = i + 1;
+    if (ID == objDef->id) {
+      return i;
+    }
+    else {
+      i = i + 1;
+    }
   }
-  return i;
 }
 
 
@@ -807,6 +810,7 @@ void GetObjMaxDimensions(Trk_ObjectDef **pObjDefs,Trk_SimpleInst *objInstance,co
   Trk_ObjectDef *objDef;
   int vertCount;
   int lastVert;
+  int stopVert;
   CCOORD16 *pts;
   CCOORD16 minDim;
   CCOORD16 maxDim;
@@ -817,26 +821,31 @@ void GetObjMaxDimensions(Trk_ObjectDef **pObjDefs,Trk_SimpleInst *objInstance,co
   lastVert = -1;
   vertCount = (int)objDef->vertexCount;
   pts = (CCOORD16 *)(objDef + 1);
-  while (vertCount = vertCount + -1, vertCount != lastVert) {
-    if (maxDim.x < pts->x) {
+  vertCount = vertCount + -1;
+  if (vertCount != lastVert) {
+    stopVert = lastVert;
+    do {
+    if (pts->x > maxDim.x) {
       maxDim.x = pts->x;
     }
     else if (pts->x < minDim.x) {
       minDim.x = pts->x;
     }
-    if (maxDim.y < pts->y) {
+    if (pts->y > maxDim.y) {
       maxDim.y = pts->y;
     }
     else if (pts->y < minDim.y) {
       minDim.y = pts->y;
     }
-    if (maxDim.z < pts->z) {
+    if (pts->z > maxDim.z) {
       maxDim.z = pts->z;
     }
     else if (pts->z < minDim.z) {
       minDim.z = pts->z;
     }
     pts = pts + 1;
+    vertCount = vertCount + -1;
+    } while (vertCount != stopVert);
   }
   dimensions->x = ((int)maxDim.x - (int)minDim.x) * 0x200;
   dimensions->y = ((int)maxDim.y - (int)minDim.y) * 0x200;
@@ -1294,7 +1303,7 @@ extern "C" void ___14ObjectSignAnim(ObjectSignAnim *pThis,int __in_chrg)
   pOVar2 = pThis->finishedAnim;
   if (pOVar2 != (ObjectFinishedSignAnim *)0x0) {
     pa_Var1 = (pOVar2->_base_ObjectAnim)._vf;
-    (*(*pa_Var1)[1].pfn)((int)(pOVar2->finalMatrix).m + (*pa_Var1)[1].delta + -4,3);
+    (*(*pa_Var1)[1].pfn)((int)&(pOVar2->_base_ObjectAnim)._vf + (int)(*pa_Var1)[1].delta,3);
   }
   (pThis->_base_ObjectAnim)._vf = (__vtbl_ptr_type (*) [3])ObjectAnim_vtable;
   if ((__in_chrg & 1U) != 0) {

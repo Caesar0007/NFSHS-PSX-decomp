@@ -238,11 +238,13 @@ void tScreenTrackSelect::SetBrightness(short bright)
 
 {
   int iVar1;
+  short curBrightness;
 
   if (bright != this->fDestBrightness) {
-    this->fDestBrightness = bright;
+    curBrightness = this->fBrightness;
     iVar1 = ticks[0];
-    this->fStartBrightness = this->fBrightness;
+    this->fDestBrightness = bright;
+    this->fStartBrightness = curBrightness;
     this->fStartTicks = iVar1;
   }
   return;
@@ -402,10 +404,6 @@ ProcInpLocSpch_setFlags:
 tScreenTrackSelect::~tScreenTrackSelect()
 
 {
-  int elapsed;
-  short shapeY;
-  RECT r;
-  char moviename [80];
   return;
 }
 

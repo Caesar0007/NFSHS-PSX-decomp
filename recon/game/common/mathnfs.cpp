@@ -32,12 +32,12 @@ int Math_DistXZ(coorddef *a,coorddef *b)
 
   ax = a->x;
   bx = b->x;
+  az = a->z;
+  bz = b->z;
   x = ax - bx;
   if (x < 1) {
     x = bx - ax;
   }
-  az = a->z;
-  bz = b->z;
   z = az - bz;
   if (z < 1) {
     z = bz - az;
@@ -411,14 +411,14 @@ void Math_NormalizeShortVector(coorddef *v)
   len_or_inv = fixedmult(v->x,v->x);
   tmp = fixedmult(v->y,v->y);
   z_sq = fixedmult(v->z,v->z);
-  iVar1 = fixedsqrt(len_or_inv + tmp + z_sq);
-  if (iVar1 != 0) {
-    iVar1 = fixeddiv(0x10000,iVar1);
-    iVar2 = fixedmult(v->x,iVar1);
+  length = fixedsqrt(len_or_inv + tmp + z_sq);
+  if (length != 0) {
+    inverse = fixeddiv(0x10000,length);
+    iVar2 = fixedmult(v->x,inverse);
     v->x = iVar2;
-    iVar2 = fixedmult(v->y,iVar1);
+    iVar2 = fixedmult(v->y,inverse);
     v->y = iVar2;
-    iVar1 = fixedmult(v->z,iVar1);
+    iVar1 = fixedmult(v->z,inverse);
     v->z = iVar1;
   }
   return;

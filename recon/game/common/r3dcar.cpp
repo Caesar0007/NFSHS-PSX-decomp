@@ -87,8 +87,9 @@ void R3DCar_ChangeTrafficColor(Car_tObj *carObj,int newColorIndex)
   Texture_pal8bit *palCopy;
   int iVar5;
 
+  uVar4 = newColorIndex;
   if ((carObj->render).palCopy != (char *)0x0) {
-    uVar4 = newColorIndex & 7;
+    uVar4 = uVar4 & 7;
     uVar2 = (carObj->render).colorIndex;
     iVar5 = (uVar2 & 8) + uVar4;
     if (iVar5 != (short)uVar2) {
@@ -441,12 +442,12 @@ void R3DCcar_ReadTrackShadow(void)
   char *RenderingFileData;
   char name [256];
   char *ScaneData;
-  
+
   sprintf(name,"%strack.dat",Paths_Paths[0x19]);
   addr = (char *)loadfileadr(name,0x10);
   ScaneData = addr;
-  for (iVar2 = GameSetup_gData.track * 4 + GameSetup_gData.Weather + GameSetup_gData.Time * 2;
-      iVar2 != -1; iVar2 = iVar2 + -1) {
+  iVar2 = GameSetup_gData.track * 4 + GameSetup_gData.Weather + GameSetup_gData.Time * 2;
+  while (iVar2 != -1) {
     iVar1 = Risk_ReadNextValue(&ScaneData);
     R3DCar_shadowColour.r = (u_char)iVar1;
     iVar1 = Risk_ReadNextValue(&ScaneData);
@@ -458,6 +459,7 @@ void R3DCcar_ReadTrackShadow(void)
     iVar1 = Risk_ReadNextValue(&ScaneData);
     R3DCar_eMapColour.g = (u_char)iVar1;
     iVar1 = Risk_ReadNextValue(&ScaneData);
+    iVar2 = iVar2 + -1;
     R3DCar_eMapColour.b = (u_char)iVar1;
   }
   purgememadr(addr);

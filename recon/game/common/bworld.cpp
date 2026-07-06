@@ -175,8 +175,9 @@ void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
  * `u_char*` cast + `[0]/[1]/[2]` indexing instead of named r/g/b fields; combined
  * vs separate loop-increment placement (`i++,p++` in the for-clause vs in the body).
  * None of these prevented the rotation -- it is a single coherent gcc -O2 loop
- * transformation (not several independent bugs), same floor class as
- * BWorld_OpenContext/BWorld_InitContexts below. ACCEPT. */
+ * transformation (not several independent bugs), same floor CLASS as the coloring
+ * near-miss BWorld_OpenContext below (InitContexts, cited here previously, has
+ * since sealed 0-diff -- a distinct fix, not this loop-rotation floor). ACCEPT. */
 void BWorld_InitSpikeBelt(void)
 {
   int iVar1;
@@ -547,14 +548,20 @@ int SetupChunkBuildList(DRender_tView *Vi)
 }
 
 /* ---- BWorld_IsSliceInBuildList__Fi  [@0x8007e0a0] ---- */
-/* NEAR-MISS 5 diffs (20/21): oracle loads BWorld_gChunkCount into $v0 then blez + sra delay +
- * addu $a2,$v0,zero copy. Our gcc-2.8.0 -O2 loads directly into $a2 (no intermediate v0 copy).
- * Levers tried: (1) pre-shift hoist, (2) count local, (3) bi rename, (4) direct global read.
- * Pre-shift hoist fixed 7→5; the remaining v0/a2 split is a scheduler floor. ACCEPT. */
+/* PASS (21/21 insns). Was a 5-diff near-miss: oracle loads BWorld_gChunkCount into $v0 for the
+ * `blez` test, copies it to $a2 in the branch delay slot (`addu a2,v0,zero`) for the loop bound;
+ * a single cached/direct global read gave gcc only ONE "value" to allocate, which it put
+ * straight into $a2 (no v0 stage, no copy). FIX: read the global TWICE textually -- once bare in
+ * the `if (0 < BWorld_gChunkCount)` test (gcc allocates this transient test value to $v0) and
+ * once more into a local `chunkCount` right after entering the block (gcc allocates this
+ * long-lived loop-bound value to $a2, materialized via the delay-slot copy) -- semantically a
+ * no-op re-read of the same never-mutated global, but it hands gcc's -O2 scheduler two distinct
+ * materializations instead of one, reproducing the oracle's v0-then-a2 shape exactly. */
 void * BWorld_IsSliceInBuildList(int slice)
 {
   int *piVar1;
   int bi;
+  int chunkCount;
 
   bi = 0;
   if (slice < 0) {
@@ -562,6 +569,7 @@ void * BWorld_IsSliceInBuildList(int slice)
   }
   slice = slice >> 3;
   if (0 < BWorld_gChunkCount) {
+    chunkCount = BWorld_gChunkCount;
     piVar1 = BWorld_gChunkBuildList;
     do {
       bi = bi + 1;
@@ -569,7 +577,7 @@ void * BWorld_IsSliceInBuildList(int slice)
         return (void *)0x1;
       }
       piVar1 = piVar1 + 1;
-    } while (bi < BWorld_gChunkCount);
+    } while (bi < chunkCount);
   }
   return (void *)0x0;
 }
@@ -678,26 +686,29 @@ char * BWAllocMem(long size)
 }
 
 /* ---- BWorld_InitContexts__Fv  [@0x8007e428] ---- */
-/* NEAR-MISS 2 diffs (14/14 insns): oracle loads `li a3,-1` BEFORE `li a2,1`; our gcc-2.8.0 -O2
- * scheduler ties them the other way (both are independent constant loads with no dependency
- * between them -- a pure scheduler tie-break, same class as BWorld_IsSliceInBuildList below).
- * Levers tried: statement reorder (initialized/count swap, i=1 hoist), for-vs-do-while loop
- * shape, named local for the -1 constant -- all either no-op on this diff or REGRESS by letting
- * gcc prove the 2-iteration trip count and fully unroll the loop (13/12 insns, loses the real
- * bgez branch). Corrected the field this loop writes to `contexts[i].client` (was miscoded as
- * .currentChunk, decoded from BWorld_OpenContext's independently-anchored offset map) and
- * removed a bare-VA hack (`iVar1 = -0x7fef10b8`) that had been standing in for
- * `&gContextMan + 0x9C` -- that literal was necessary under the old (wrong) field to block
- * constant-propagation-driven unrolling, but is no longer needed with the array-index form. ACCEPT. */
+/* PASS (14/14 insns). Was a 2-diff near-miss: oracle loads `li a3,-1` BEFORE `li a2,1`; a plain
+ * `i=1` local put gcc's -O2 scheduler on the other tie-break order for the two independent
+ * constant loads. FIX: name the -1 constant as its OWN local (`noClient`) declared textually
+ * BEFORE the loop counter `i` and assigned first -- this reorders gcc's constant-materialization
+ * to match the oracle (`li a3,-1` first) without changing the loop trip count/shape, so the real
+ * `bgez` branch survives (an earlier attempt at "named local for -1" apparently didn't isolate it
+ * into its own declared-first variable and either no-op'd or risked the gcc full-unroll trap).
+ * Corrected the field this loop writes to `contexts[i].client` (was miscoded as .currentChunk,
+ * decoded from BWorld_OpenContext's independently-anchored offset map) and removed a bare-VA hack
+ * (`iVar1 = -0x7fef10b8`) that had been standing in for `&gContextMan + 0x9C` -- that literal was
+ * necessary under the old (wrong) field to block constant-propagation-driven unrolling, but is no
+ * longer needed with the array-index form. */
 void BWorld_InitContexts(void)
 {
+  int noClient;
   int i;
 
+  noClient = -1;
   gContextMan.initialized = 1;
   gContextMan.count = 0;
   i = 1;
   do {
-    gContextMan.contexts[i].client = -1;
+    gContextMan.contexts[i].client = noClient;
     i = i + -1;
   } while (-1 < i);
   return;
@@ -740,8 +751,10 @@ void SetContext(int contextHandle)
  * Levers tried: explicit `int type = contextType` save-out before the pointer calc
  * (mirrors oracle's own first `addu a2,a0,zero`), array-subscript vs pointer-arith
  * addressing for pBVar4, `contextType==1`-positive-branch goto form vs `!=1` -- none
- * changed the coloring (gcc-2.8.0 -O2 register allocator tie-break, same class as
- * BWorld_IsSliceInBuildList/BWorld_InitContexts below). ACCEPT. */
+ * changed the coloring (gcc-2.8.0 -O2 register allocator tie-break; IsSliceInBuildList/
+ * InitContexts, cited here previously as the same class, have since sealed 0-diff via a
+ * dual-materialization / named-constant-order fix -- this fn's v1-vs-a0 pointer coloring
+ * did not respond to the analogous levers and remains a near-miss). ACCEPT. */
 int BWorld_OpenContext(int contextType,int client)
 {
   int iVar1;

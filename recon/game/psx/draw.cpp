@@ -166,14 +166,16 @@ void Draw_DeInitViews(void)
 
   /* MATCH: SYM (nfs4-f-v3.txt @0x800BDCE0) names exactly ONE local (`i`); the oracle is a
      genuine top-tested while (test-block-first-with-fallthrough, unconditional `j` back-
-     edge, NO zero-trip `blez` guard) -- same family as the sibling Draw_DeInitViewsInGame
-     (see that fn's comment). The goto-TEST do-while below reproduces the oracle's exact
-     insn count/addressing/reg-coloring; residual is the same loop-rotation-direction
-     floor documented there. */
+     edge, NO zero-trip `blez` guard) -- same family as the sibling Draw_DeInitViewsInGame.
+     LEVER: `label: if(cond){body; goto label;}` (an if-guarded explicit backward goto,
+     NOT a `goto TEST;do{}while()` do-while) is the C shape gcc-2.8.0 lowers to this exact
+     topology -- confirmed against the PASSing sibling AIPerson_SetPersonalityPointers,
+     the only other function in the whole oracle corpus with this fallthrough-test/
+     unconditional-back-j shape. Sealed 100% (was a documented "floor"). */
   iVar2 = 0;
   pDVar1 = Draw_gView;
-  goto TEST;
-  do {
+ loopTop:
+  if (iVar2 < Draw_gNumView) {
     if (pDVar1->ot[0] != (u_long *)0x0) {
       purgememadr(pDVar1->ot[0]);
     }
@@ -184,9 +186,8 @@ void Draw_DeInitViews(void)
     pDVar1->ot[1] = (u_long *)0x0;
     pDVar1 = pDVar1 + 1;
     iVar2 = iVar2 + 1;
-    TEST:
-    ;
-  } while (iVar2 < Draw_gNumView);
+    goto loopTop;
+  }
   return;
 }
 
@@ -217,15 +218,14 @@ void Draw_DeInitViewsInGame(void)
   i = 0;
   iVar2 = Draw_gNumView;
   pDVar3 = Draw_gView;
-  goto TEST;
-  do {
+ loopTop:
+  if (i < iVar2) {
     pDVar3->ot[0] = (u_long *)0x0;
     pDVar3->ot[1] = (u_long *)0x0;
     pDVar3 = pDVar3 + 1;
     i = i + 1;
-    TEST:
-    ;
-  } while (i < iVar2);
+    goto loopTop;
+  }
   return;
 }
 
@@ -513,19 +513,16 @@ void Draw_StopFrameRender(void)
      starting at the merge point right after the VSync if-block (0x800BE3BC) -- matches
      oracle's loop counter $s1 (init `addu s1,zero,zero` once, straight `sll v0,v1,1` for
      the gEnviro[gFlip]*24 address calc, NOT a variable shift).
-     FIXED (was 24-diff floor via a comma-`while`; now 11-diff via `goto TEST` do-while,
-     same family as Draw_DeInitViews/Draw_DeInitViewsInGame): the earlier comma-while
-     shape kept `iVar3`/$s1 live back across the gEnviro[gFlip]*24 calc, so gcc reused
-     $s1 for BOTH the loop counter AND the *3 sub-multiply, forcing a variable-shift
-     `sllv v0,v1,s1` + a duplicated `li s1,1` hoisted into both sides of the earlier
-     if(Draw_gDoVSync) branch. Restructuring the 2nd loop as `goto TEST; do{...}while()`
-     (matching the DeInitViews-family idiom) breaks that false liveness overlap as a side
-     effect -- gcc now folds the multiply to the literal `sll v0,v1,1` for free, and the
-     ONLY residual is the same documented loop-rotation-direction floor (test-block-first-
-     with-fallthrough + unconditional back-`j` w/ increment in the exit-beqz's delay slot,
-     vs ours body-first-with-goto-skip + conditional back-branch) -- not reachable by a
-     source lever at this opt level (see Draw_DeInitViewsInGame's comment for the full
-     12-shape survey); permuter or accept. */
+     FIXED (was 24-diff floor via a comma-`while`; then 11-diff via `goto TEST` do-while,
+     same family as Draw_DeInitViews/Draw_DeInitViewsInGame; the comma-while shape kept
+     `iVar3`/$s1 live back across the gEnviro[gFlip]*24 calc, so gcc reused $s1 for BOTH the
+     loop counter AND the *3 sub-multiply -- the do-while broke that false liveness overlap).
+     LEVER: `label: if(cond){body; goto label;}` (an if-guarded explicit backward goto, NOT
+     a `goto TEST;do{}while()` do-while) is the C shape gcc-2.8.0 lowers to the oracle's
+     test-block-first-fallthrough + unconditional-back-`j` topology -- confirmed against the
+     PASSing sibling AIPerson_SetPersonalityPointers, the only other function in the whole
+     oracle corpus with this shape. Keeps the same liveness break (still no comma-while).
+     Sealed 100% (was a documented "floor"). */
   DrawSync(0);
   gLoop = gLoop + 1;
   if (Draw_gSyncCallback != (void *)0x0) {
@@ -537,14 +534,13 @@ void Draw_StopFrameRender(void)
   PutDispEnv(&gEnviro[gFlip].disp);
   iVar3 = 0;
   pDVar2 = Draw_gView;
-  goto TEST;
-  do {
+ loopTop:
+  if (iVar3 < Draw_gNumView) {
     DrawOTag(pDVar2->ot[gFlip] + pDVar2->otsize + -1);
     pDVar2 = pDVar2 + 1;
     iVar3 = iVar3 + 1;
-    TEST:
-    ;
-  } while (iVar3 < Draw_gNumView);
+    goto loopTop;
+  }
   gFlip = 1 - gFlip;
   return;
 }

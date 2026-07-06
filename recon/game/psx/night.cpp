@@ -157,20 +157,21 @@ void Night_CreateNightTable(int colorIndex,long colorH,int bright,u_char (*tbl)[
 }
 
 /* ---- Night_GenerateNextLightningEvent__Fv  [NIGHT.CPP:347-353] SLD-VERIFIED ---- */
-/* NEAR-MISS 8 diffs (29/29): oracle: `andi v0,v0,0x7ff; lw v1,%lo(simGlobal.gameTicks)(v1); addiu v0,v0,31`
- * (keeps random result in v0 for +31). Ours: `addiu v1,v1,31` (adds +31 to gameTicks instead).
- * Both produce the same sum; difference is which operand gets +31. Load-delay scheduling +
- * register assignment floor — tried 2 levers (explicit grouping worsens to 12, original 8). ACCEPT. */
 void Night_GenerateNextLightningEvent(void)
 
 {
   u_int r;
   int fork;
+  int rmask;
+  int *ticksp;
 
+  ticksp = &simGlobal.gameTicks;
   r = random();
-  Night_gNextLightning = simGlobal.gameTicks + (r & 0x7ff) + 0x1f;
+  rmask = (r & 0x7ff) + 0x1f;
+  Night_gNextLightning = *ticksp + rmask;
   r = random();
-  Night_gEndNextLightning = Night_gNextLightning + (r & 0xf) + 0xf;
+  rmask = (r & 0xf) + 0xf;
+  Night_gEndNextLightning = Night_gNextLightning + rmask;
   Night_gNextFlicker = Night_gNextLightning;
   r = random();
   Night_gFlashAzimuth = r & 0xffff;
@@ -284,6 +285,19 @@ void Night_InitPlayerHeadLightColor(int player)
 }
 
 /* ---- Night_SetPlayerHeadLightColor__Fiii  [NIGHT.CPP:501-503] SLD-VERIFIED ---- */
+/* NEAR-MISS 10 diffs (15/15): oracle computes the element address as
+ * `sll v0,a0,2; lui v1,%hi(Night_gPlayerHeadLightColor); addiu v1,...; addu v0,v0,v1;
+ * lw a1,0(v0)` (shift result keeps v0, base-address scratch is v1). Ours swaps the two:
+ * shift->v1, base-address->v0, so the final `lw a1,...` reads off v1 instead. Same
+ * register-materialization tie-break as Night_SetWeatherColors (catalog §E "v0-vs-a2"):
+ * tried named local for the array element (direct + split), address-of-element pointer
+ * (folds back — no intervening call to force materialization, unlike
+ * Night_GenerateNextLightningEvent's `ticksp` fix), pointer-arithmetic form matching the
+ * sibling Night_InitPlayerHeadLightColor's `Night_gPlayerHeadLightColor + player` idiom —
+ * all no-change. Permuter (supervised, base score 65, 100+ iters) plateaued at 65, never
+ * improved; needs a multi-basin re-seed this session didn't attempt (long unsupervised
+ * grind risked contending with concurrent sibling sessions on this machine). GENUINE
+ * FLOOR. ACCEPT. */
 void Night_SetPlayerHeadLightColor(int player,int colorIndex,int bright)
 
 {
@@ -342,8 +356,12 @@ void Night_InitWeatherTables(void)
 /* ---- Night_SetWeatherColors__Fi  [NIGHT.CPP:544-546] SLD-VERIFIED ---- */
 /* NEAR-MISS 8 diffs (31/31): oracle loads Night_gWeatherColor → s1 via `lui s1; addiu s1,s1,lo`
  * (destination = source in addiu). Ours: `lui v0; addiu s1,v0,lo` (v0 temp for high part).
- * Same pattern for Night_gWeatherLightingTable → s0. Register coloring floor — tried 3 levers
- * (restructure body, reversed init order, original). ACCEPT. */
+ * Same pattern for Night_gWeatherLightingTable → s0. Register-materialization tie-break
+ * (catalog §E "v0-vs-a2"), not source-shapable: tried &arr[0] form, swapped init order,
+ * i=0-after-inits, extra-pointer-then-copy (the exact lever that PASSed
+ * Night_GenerateNextLightningEvent) — all no-change or regress (up to 20 diffs). Permuter
+ * (short supervised grind, base score 80, 4 iters, no improvement) also didn't crack it.
+ * GENUINE FLOOR. ACCEPT. */
 void Night_SetWeatherColors(int colorIndex)
 
 {

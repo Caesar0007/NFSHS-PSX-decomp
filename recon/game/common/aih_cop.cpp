@@ -58,13 +58,11 @@ void AIHigh_Cop::SetTuningLevers()
 
 
 {
-  int carTypeIndex;
-
   Car_tObj *pCVar1;
 
   int iVar2;
 
-  
+
 
   pCVar1 = this->carObj_;
 
@@ -72,25 +70,21 @@ void AIHigh_Cop::SetTuningLevers()
 
   if (this->type_ == 1) {
 
-    iVar2 = iVar2 + -0x16;
-
-    pCVar1->copTopSpeed = copTuningInfo[iVar2].superCopTopSpeedCap;
+    pCVar1->copTopSpeed = copTuningInfo[iVar2 + -0x16].superCopTopSpeedCap;
 
     (this->carObj_)->copAccMult =
 
-         copTuningInfo[iVar2].superCopAccMultiplier;
+         copTuningInfo[iVar2 + -0x16].superCopAccMultiplier;
 
     return;
 
   }
 
-  iVar2 = iVar2 + -0x16;
-
-  pCVar1->copTopSpeed = copTuningInfo[iVar2].regularCopTopSpeedCap;
+  pCVar1->copTopSpeed = copTuningInfo[iVar2 + -0x16].regularCopTopSpeedCap;
 
   (this->carObj_)->copAccMult =
 
-       copTuningInfo[iVar2].regularCopAccMultiplier;
+       copTuningInfo[iVar2 + -0x16].regularCopAccMultiplier;
 
   return;
 
@@ -110,37 +104,6 @@ void AIHigh_Cop::HighExecute()
 
 
 {
-  trigger_t *pNewTrigger;
-  AIState_Base*newState;
-  int forceForwardTrigger;
-  union newTrigger;
-  int distanceMeters;
-  int oldSlice;
-  int direction;
-  coorddef pos;
-  coorddef newPos;
-  AIState_Chase*chaseState;
-  int endSlice;
-  int slowDownEndTime;
-  int minTimeInZone;
-  int minLatMetersDistance;
-  int minLongMetersDistance;
-  coorddef zero;
-  int rbDistanceMeters;
-  int rbAbsDistanceMeters;
-  int release;
-  int size;
-  int left;
-  int right;
-  int slice;
-  int rightLatPos;
-  int timeNow;
-  int timeToRB;
-  int hLoop;
-  Car_tObj*thisPlayerObj;
-  AIHigh_Player*thisPlayer;
-  AIState_GotoSlice*gotoState;
-
   bool bVar1;
 
   coorddef *pcVar2;
@@ -239,7 +202,7 @@ void AIHigh_Cop::HighExecute()
 
       if (pAVar22 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+        (*(int (**)(...))((char *)pAVar22->_vf + 20))((int)&pAVar22->carObj_ + (int)*(short *)((char *)pAVar22->_vf + 16),3);
 
       }
 
@@ -261,7 +224,7 @@ void AIHigh_Cop::HighExecute()
 
       if (pAVar22 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+        (*(int (**)(...))((char *)pAVar22->_vf + 20))((int)&pAVar22->carObj_ + (int)*(short *)((char *)pAVar22->_vf + 16),3);
 
       }
 
@@ -311,7 +274,7 @@ void AIHigh_Cop::HighExecute()
 
       if (pAVar22 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+        (*(int (**)(...))((char *)pAVar22->_vf + 20))((int)&pAVar22->carObj_ + (int)*(short *)((char *)pAVar22->_vf + 16),3);
 
       }
 
@@ -439,7 +402,7 @@ void AIHigh_Cop::HighExecute()
 
             if (pAVar22 != (AIState_Base *)0x0) {
 
-              (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+              (*(int (**)(...))((char *)pAVar22->_vf + 20))((int)&pAVar22->carObj_ + (int)*(short *)((char *)pAVar22->_vf + 16),3);
 
             }
 
@@ -461,7 +424,7 @@ void AIHigh_Cop::HighExecute()
 
             if (pAVar22 != (AIState_Base *)0x0) {
 
-              (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+              (*(int (**)(...))((char *)pAVar22->_vf + 20))((int)&pAVar22->carObj_ + (int)*(short *)((char *)pAVar22->_vf + 16),3);
 
             }
 
@@ -503,7 +466,7 @@ void AIHigh_Cop::HighExecute()
 
             if (pAVar14 != (AIState_Base *)0x0) {
 
-              (*(int (*)(...))pAVar14->_vf[5])((int)&pAVar14->carObj_ + (int)*(short *)pAVar14->_vf[4],3);
+              (*(int (**)(...))((char *)pAVar14->_vf + 20))((int)&pAVar14->carObj_ + (int)*(short *)((char *)pAVar14->_vf + 16),3);
 
             }
 
@@ -523,7 +486,7 @@ void AIHigh_Cop::HighExecute()
 
     }
 
-    goto switchD_80063d30_caseD_6;
+    goto stateExecuteAndReturn;
 
   case 2:
 
@@ -567,7 +530,7 @@ void AIHigh_Cop::HighExecute()
 
         if (pAVar14 != (AIState_Base *)0x0) {
 
-          (*(int (*)(...))pAVar14->_vf[5])((int)&pAVar14->carObj_ + (int)*(short *)pAVar14->_vf[4],3);
+          (*(int (**)(...))((char *)pAVar14->_vf + 20))((int)&pAVar14->carObj_ + (int)*(short *)((char *)pAVar14->_vf + 16),3);
 
         }
 
@@ -579,9 +542,9 @@ void AIHigh_Cop::HighExecute()
 
         pSVar8 = (Speaker *)Speech_Mobile(pCVar21);
 
-        (**(int (**)(...))(pSVar8->_vf[1] + 0x15))
+        (**(int (**)(...))((char *)pSVar8->_vf + 52))
 
-                  ((int)&(pSVar8->fPosition).flags + (int)*(short *)(pSVar8->_vf[1] + 0x11),
+                  ((int)&(pSVar8->fPosition).flags + (int)*(short *)((char *)pSVar8->_vf + 48),
 
                    (this->perpTarget_)->carObj_);
 
@@ -593,7 +556,7 @@ void AIHigh_Cop::HighExecute()
 
        (iVar12 = AILife_EvaluateLife(this->carObj_), iVar12 == 0))
 
-    goto switchD_80063d30_caseD_6;
+    goto stateExecuteAndReturn;
 
     pCVar21 = this->carObj_;
 
@@ -601,9 +564,9 @@ void AIHigh_Cop::HighExecute()
 
     pSVar8 = (Speaker *)Speech_Mobile(pCVar21);
 
-    (**(int (**)(...))(pSVar8->_vf[4] + 8))
+    (**(int (**)(...))((char *)pSVar8->_vf + 132))
 
-              ((int)&(pSVar8->fPosition).flags + (int)*(short *)(pSVar8->_vf[4] + 4));
+              ((int)&(pSVar8->fPosition).flags + (int)*(short *)((char *)pSVar8->_vf + 128));
 
     this->AssignToPlayer((AIHigh_Player *)0x0);
 
@@ -615,7 +578,7 @@ void AIHigh_Cop::HighExecute()
 
     if (pAVar22 != (AIState_Base *)0x0) {
 
-      (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+      (*(int (**)(...))((char *)pAVar22->_vf + 20))((int)&pAVar22->carObj_ + (int)*(short *)((char *)pAVar22->_vf + 16),3);
 
     }
 
@@ -651,7 +614,7 @@ void AIHigh_Cop::HighExecute()
 
       if (pAVar22 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+        (*(int (**)(...))((char *)pAVar22->_vf + 20))((int)&pAVar22->carObj_ + (int)*(short *)((char *)pAVar22->_vf + 16),3);
 
       }
 
@@ -697,7 +660,7 @@ void AIHigh_Cop::HighExecute()
 
             if (pAVar14 != (AIState_Base *)0x0) {
 
-              (*(int (*)(...))pAVar14->_vf[5])((int)&pAVar14->carObj_ + (int)*(short *)pAVar14->_vf[4],3);
+              (*(int (**)(...))((char *)pAVar14->_vf + 20))((int)&pAVar14->carObj_ + (int)*(short *)((char *)pAVar14->_vf + 16),3);
 
             }
 
@@ -709,19 +672,19 @@ void AIHigh_Cop::HighExecute()
 
             pSVar8 = (Speaker *)Speech_Mobile(pCVar21);
 
-            (**(int (**)(...))(pSVar8->_vf[1] + 0x15))
+            (**(int (**)(...))((char *)pSVar8->_vf + 52))
 
-                      ((int)&(pSVar8->fPosition).flags + (int)*(short *)(pSVar8->_vf[1] + 0x11),
+                      ((int)&(pSVar8->fPosition).flags + (int)*(short *)((char *)pSVar8->_vf + 48),
 
                        (this->perpTarget_)->carObj_);
 
-            goto switchD_80063d30_caseD_6;
+            goto stateExecuteAndReturn;
 
           }
 
           iVar12 = AILife_EvaluateLife(this->carObj_);
 
-          if (iVar12 == 0) goto switchD_80063d30_caseD_6;
+          if (iVar12 == 0) goto stateExecuteAndReturn;
 
           this->AssignToPlayer((AIHigh_Player *)0x0);
 
@@ -733,7 +696,7 @@ void AIHigh_Cop::HighExecute()
 
           if (pAVar22 != (AIState_Base *)0x0) {
 
-            (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+            (*(int (**)(...))((char *)pAVar22->_vf + 20))((int)&pAVar22->carObj_ + (int)*(short *)((char *)pAVar22->_vf + 16),3);
 
           }
 
@@ -933,7 +896,7 @@ LAB_80064df8:
 
           if (this->blockade_.initialPlayerDistanceMetersInt * (iVar12 >> 0x10) <
 
-              1) goto switchD_80063d30_caseD_6;
+              1) goto stateExecuteAndReturn;
 
         }
 
@@ -967,7 +930,7 @@ LAB_80064df8:
 
         if (pAVar14 != (AIState_Base *)0x0) {
 
-          (*(int (*)(...))pAVar14->_vf[5])((int)&pAVar14->carObj_ + (int)*(short *)pAVar14->_vf[4],3);
+          (*(int (**)(...))((char *)pAVar14->_vf + 20))((int)&pAVar14->carObj_ + (int)*(short *)((char *)pAVar14->_vf + 16),3);
 
         }
 
@@ -983,7 +946,7 @@ LAB_80064df8:
 
         }
 
-        goto switchD_80063d30_caseD_6;
+        goto stateExecuteAndReturn;
 
       }
 
@@ -1011,7 +974,7 @@ LAB_80064a0c:
 
       if (pAVar22 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+        (*(int (**)(...))((char *)pAVar22->_vf + 20))((int)&pAVar22->carObj_ + (int)*(short *)((char *)pAVar22->_vf + 16),3);
 
       }
 
@@ -1029,7 +992,7 @@ LAB_80064a0c:
 
       this->driveAway_ = 0;
 
-      goto switchD_80063d30_caseD_6;
+      goto stateExecuteAndReturn;
 
     }
 
@@ -1039,9 +1002,9 @@ LAB_80064a0c:
 
     pSVar8 = (Speaker *)Speech_Mobile(pCVar21);
 
-    (**(int (**)(...))(pSVar8->_vf[4] + 8))
+    (**(int (**)(...))((char *)pSVar8->_vf + 132))
 
-              ((int)&(pSVar8->fPosition).flags + (int)*(short *)(pSVar8->_vf[4] + 4));
+              ((int)&(pSVar8->fPosition).flags + (int)*(short *)((char *)pSVar8->_vf + 128));
 
     this->AssignToPlayer((AIHigh_Player *)0x0);
 
@@ -1053,7 +1016,7 @@ LAB_80064a0c:
 
     if (pAVar22 != (AIState_Base *)0x0) {
 
-      (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+      (*(int (**)(...))((char *)pAVar22->_vf + 20))((int)&pAVar22->carObj_ + (int)*(short *)((char *)pAVar22->_vf + 16),3);
 
     }
 
@@ -1081,7 +1044,7 @@ LAB_80064a0c:
 
       if (pAVar14 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar14->_vf[5])((int)&pAVar14->carObj_ + (int)*(short *)pAVar14->_vf[4],3);
+        (*(int (**)(...))((char *)pAVar14->_vf + 20))((int)&pAVar14->carObj_ + (int)*(short *)((char *)pAVar14->_vf + 16),3);
 
       }
 
@@ -1093,9 +1056,9 @@ LAB_80064a0c:
 
       pSVar8 = (Speaker *)Speech_Mobile(pCVar21);
 
-      (**(int (**)(...))(pSVar8->_vf[1] + 0x1d))
+      (**(int (**)(...))((char *)pSVar8->_vf + 60))
 
-                ((int)&(pSVar8->fPosition).flags + (int)*(short *)(pSVar8->_vf[1] + 0x19));
+                ((int)&(pSVar8->fPosition).flags + (int)*(short *)((char *)pSVar8->_vf + 56));
 
     }
 
@@ -1247,7 +1210,7 @@ LAB_80064778:
 
       if (pAVar22 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+        (*(int (**)(...))((char *)pAVar22->_vf + 20))((int)&pAVar22->carObj_ + (int)*(short *)((char *)pAVar22->_vf + 16),3);
 
       }
 
@@ -1271,7 +1234,7 @@ LAB_80064778:
 
        (iVar12 = AILife_EvaluateLife(this->carObj_), iVar12 == 0)) {
 
-      if (this->driveAway_ == 0) goto switchD_80063d30_caseD_6;
+      if (this->driveAway_ == 0) goto stateExecuteAndReturn;
 
       goto LAB_80064a0c;
 
@@ -1283,17 +1246,17 @@ LAB_80064778:
 
       pSVar8 = (Speaker *)Speech_Mobile(this->carObj_);
 
-      (**(int (**)(...))(pSVar8->_vf[1] + 0x1d))
+      (**(int (**)(...))((char *)pSVar8->_vf + 60))
 
-                ((int)&(pSVar8->fPosition).flags + (int)*(short *)(pSVar8->_vf[1] + 0x19));
+                ((int)&(pSVar8->fPosition).flags + (int)*(short *)((char *)pSVar8->_vf + 56));
 
     }
 
     pSVar8 = (Speaker *)Speech_Mobile(this->carObj_);
 
-    (**(int (**)(...))(pSVar8->_vf[4] + 8))
+    (**(int (**)(...))((char *)pSVar8->_vf + 132))
 
-              ((int)&(pSVar8->fPosition).flags + (int)*(short *)(pSVar8->_vf[4] + 4));
+              ((int)&(pSVar8->fPosition).flags + (int)*(short *)((char *)pSVar8->_vf + 128));
 
     this->forcePurgatory_ = 0;
 
@@ -1307,7 +1270,7 @@ LAB_80064778:
 
     if (pAVar22 != (AIState_Base *)0x0) {
 
-      (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+      (*(int (**)(...))((char *)pAVar22->_vf + 20))((int)&pAVar22->carObj_ + (int)*(short *)((char *)pAVar22->_vf + 16),3);
 
     }
 
@@ -1371,7 +1334,7 @@ LAB_80064778:
 
       if (pAVar22 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+        (*(int (**)(...))((char *)pAVar22->_vf + 20))((int)&pAVar22->carObj_ + (int)*(short *)((char *)pAVar22->_vf + 16),3);
 
       }
 
@@ -1385,7 +1348,7 @@ LAB_80064778:
 
        (iVar12 = AILife_EvaluateLife(this->carObj_), iVar12 == 0))
 
-    goto switchD_80063d30_caseD_6;
+    goto stateExecuteAndReturn;
 
     (this->carObj_)->extraWallCollisionAllowance = 0;
 
@@ -1401,7 +1364,7 @@ LAB_80064778:
 
     if (pAVar22 != (AIState_Base *)0x0) {
 
-      (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+      (*(int (**)(...))((char *)pAVar22->_vf + 20))((int)&pAVar22->carObj_ + (int)*(short *)((char *)pAVar22->_vf + 16),3);
 
     }
 
@@ -1411,7 +1374,7 @@ LAB_80064778:
 
   default:
 
-    goto switchD_80063d30_caseD_6;
+    goto stateExecuteAndReturn;
 
   case 9:
 
@@ -1421,7 +1384,7 @@ LAB_80064778:
 
     iVar12 = (pAVar25)->InTargetSliceRange(0xa0000);
 
-    if (iVar12 == 0) goto switchD_80063d30_caseD_6;
+    if (iVar12 == 0) goto stateExecuteAndReturn;
 
     pAVar13 = operator new(8);
 
@@ -1431,7 +1394,7 @@ LAB_80064778:
 
     if (pAVar22 != (AIState_Base *)0x0) {
 
-      (*(int (*)(...))pAVar22->_vf[5])((int)&pAVar22->carObj_ + (int)*(short *)pAVar22->_vf[4],3);
+      (*(int (**)(...))((char *)pAVar22->_vf + 20))((int)&pAVar22->carObj_ + (int)*(short *)((char *)pAVar22->_vf + 16),3);
 
     }
 
@@ -1443,7 +1406,7 @@ LAB_80064778:
 
   this->stateType_ = sVar15;
 
-switchD_80063d30_caseD_6:
+stateExecuteAndReturn:
 
   (this->state_)->StateExecute()
 
@@ -1467,11 +1430,6 @@ int AIHigh_Cop::CheckForNeedyPlayers()
 
 
 {
-  int needy;
-  int hLoop;
-  Car_tObj*thisPlayerObj;
-  AIHigh_Player*thisPlayer;
-
   int iVar1;
 
   int iVar2;
@@ -1482,7 +1440,7 @@ int AIHigh_Cop::CheckForNeedyPlayers()
 
   int iVar5;
 
-  
+
 
   iVar5 = -1;
 
@@ -1532,13 +1490,6 @@ void AIHigh_Cop::CheckForWipeOut()
 
 
 {
-  int perTickProb;
-  int randVal;
-  int thisTargetLevel;
-  int hLoop;
-  Car_tObj*thisPlayerObj;
-  AIHigh_Player*thisPlayer;
-
   bool bVar1;
 
   int iVar2;
@@ -1621,17 +1572,6 @@ int AIHigh_Cop::CheckForNewTarget()
 
 
 {
-  AIHigh_Player*newTarget;
-  int newTargetDistance;
-  int playerLoop;
-  AIHigh_Player*old;
-  int thisCarIndex;
-  AIHigh_Player*thisPlayer;
-  int needs;
-  int got;
-  copType type;
-  int copToTargetDistanceMeters;
-
   bool bVar1;
 
   int iVar2;
@@ -1845,10 +1785,7 @@ int AIHigh_Cop::GetCheckChasePosition(coorddef *pos)
 
 
 {
-  int newPosition;
   int changed;
-
-  bool bVar1;
 
   int iVar2;
 
@@ -1858,17 +1795,19 @@ int AIHigh_Cop::GetCheckChasePosition(coorddef *pos)
 
   int iVar5;
 
-  
+
+
+  changed = 0;
 
   iVar2 = ((AIHigh_BasicPerp *)this->perpTarget_)->CheckChaserPosition(this->copIndex_,
 
                      (this->carObj_)->carIndex);
 
-  bVar1 = iVar2 != this->chaseIndex_;
-
-  if (bVar1) {
+  if (iVar2 != this->chaseIndex_) {
 
     this->chaseIndex_ = iVar2;
+
+    changed = 1;
 
   }
 
@@ -1886,7 +1825,7 @@ int AIHigh_Cop::GetCheckChasePosition(coorddef *pos)
 
   pos->z = iVar5;
 
-  return (u_int)bVar1;
+  return (u_int)changed;
 
 }
 
@@ -1904,26 +1843,6 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
 
 
 {
-  int sortedLoop;
-  Car_tObj*testCar;
-  int dir;
-  AIHigh_Player*thisPlayer;
-  int needs;
-  int got;
-  copLevel_t*pLevel;
-  int thisSlice;
-  int startSlice;
-  int endSlice;
-  int fRandomChance;
-  copType type;
-  int newSlice;
-  int temp;
-  int sliceLoop;
-  int triggerHere;
-  int iRandomChance;
-  int randomValue;
-  int unused;
-
   copType cVar1;
 
   int iVar2;
@@ -2126,7 +2045,7 @@ LAB_80065c28:
 
 /* end of aih_cop.cpp */
 
-/* cont.35 B3b: base-forward dtor re-attributed from main.c (§3.23 simple variant);
+/* cont.35 B3b: base-forward dtor re-attributed from main.c (ï¿½3.23 simple variant);
    oracle = jal ___11AIHigh_Base; extern-C free fn exports the exact symbol. */
 extern "C" {
 void ___11AIHigh_Base(void *);

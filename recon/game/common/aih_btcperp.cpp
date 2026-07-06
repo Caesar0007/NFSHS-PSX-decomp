@@ -24,25 +24,20 @@ void AIHigh_BTC_Perp::ReleaseCops()
 
 {
   int carLoop;
-  Car_tObj*otherCarObj;
 
-  Car_tObj *pCVar1;
+  Car_tObj *otherCarObj;
 
   Car_tObj **ppCVar2;
 
-  int iVar3;
 
-  
 
-  ppCVar2 = Cars_gList;
+  for (carLoop = 0, ppCVar2 = Cars_gList; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
 
-  for (iVar3 = 0; iVar3 < Cars_gNumCars; iVar3 = iVar3 + 1) {
+    otherCarObj = *ppCVar2;
 
-    pCVar1 = *ppCVar2;
+    if (((otherCarObj->carFlags & 0x200U) != 0) && ((otherCarObj->N).active != '\0')) {
 
-    if (((pCVar1->carFlags & 0x200U) != 0) && ((pCVar1->N).active != '\0')) {
-
-      ((AIHigh_BTC_HumanCop *)highLevelAIObjs[pCVar1->carIndex])->ReleaseAndStartChase(this);
+      ((AIHigh_BTC_HumanCop *)highLevelAIObjs[otherCarObj->carIndex])->ReleaseAndStartChase(this);
 
     }
 
@@ -259,47 +254,37 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
   
 
-  if (this->pullOverMode_ == 0) {
-
-    bVar1 = false;
-
-    if (5 < this->originalActivationCop_->timeLeft_) {
-
-      iVar2 = this->CheckIfCaught();
-
-      bVar1 = iVar2 != 0;
-
-    }
-
-    if (bVar1) {
-
-      (this->carObj_)->pullOver = 1;
-
-      this->beatingTicksLeft_ = 0x60;
-
-      iVar2 = simGlobal.gameTicks;
-
-      this->pullOverMode_ = 2;
-
-      this->lastPullOverTime_ = iVar2;
-
-    }
-
-  }
-
-  else {
+  if (this->pullOverMode_ != 0) {
 
     this->NotifyCopsOfArrest();
 
-    iVar2 = this->beatingTicksLeft_ - AI_elapsedTime;   /* H21: decrement dropped (m2c self-assign fold); oracle 0x8005FA94 v0=beatingTicksLeft_-AI_elapsedTime, 0x8005FA9C store */
+    this->beatingTicksLeft_ -= AI_elapsedTime;   /* H21: oracle 0x8005FA94 v0=beatingTicksLeft_-AI_elapsedTime, 0x8005FA9C store */
 
-    this->beatingTicksLeft_ = iVar2;
+    iVar2 = this->beatingTicksLeft_;
 
     if ((iVar2 < 1) && (this->hudActivated_ == 0)) {
 
       iVar2 = this->IsFalseArrest();
 
-      if (iVar2 == 0) {
+      if (iVar2 != 0) {
+
+        this->lastPullOverTime_ = simGlobal.gameTicks + -0x280;
+
+        this->NotifyCopsOfFalseArrest();
+
+        (this->carObj_)->pullOver = 0;
+
+        this->pullOverMode_ = 0;
+
+        pSVar3 = (Speaker *)Speech_Mobile(Cars_gList[0]);
+
+        (**(int (**)(...))((int)*pSVar3->_vf + 0x3c))
+
+                  ((int)&(pSVar3->fPosition).flags + (int)*(short *)((int)*pSVar3->_vf + 0x38));
+
+      }
+
+      else {
 
         if (this->hudActivated_ == 0) {
 
@@ -311,31 +296,13 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
       }
 
-      else {
-
-        this->lastPullOverTime_ = simGlobal.gameTicks + -0x280;
-
-        this->NotifyCopsOfFalseArrest();
-
-        (this->carObj_)->pullOver = 0;
-
-        this->pullOverMode_ = 0;
-
-        pSVar3 = (Speaker *)Speech_Mobile((Car_tObj *)0x0);
-
-        (**(int (**)(...))(pSVar3->_vf[1] + 0x1d))
-
-                  ((int)&(pSVar3->fPosition).flags + (int)*(short *)(pSVar3->_vf[1] + 0x19));
-
-      }
-
     }
 
-    iVar2 = this->CheckForControlsPressed();
+    userReadyToContinue = this->CheckForControlsPressed();
 
     if ((((this->beatingTicksLeft_ < 1) &&
 
-         (this->pullOverMode_ != 0)) && (iVar2 != 0)) &&
+         (this->pullOverMode_ != 0)) && (userReadyToContinue != 0)) &&
 
        ((this->hudActivated_ == 1 &&
 
@@ -354,6 +321,26 @@ void AIHigh_BTC_Perp::HandlePullOver()
       this->caught_ = 1;
 
       this->hudActivated_ = 0;
+
+    }
+
+  }
+
+  else {
+
+    bVar1 = (5 < this->originalActivationCop_->timeLeft_) && (this->CheckIfCaught() != 0);
+
+    if (bVar1) {
+
+      (this->carObj_)->pullOver = 1;
+
+      this->beatingTicksLeft_ = 0x60;
+
+      iVar2 = simGlobal.gameTicks;
+
+      this->pullOverMode_ = 2;
+
+      this->lastPullOverTime_ = iVar2;
 
     }
 
@@ -788,31 +775,31 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   pSVar4 = (Speaker *)Speech_Mobile((chaserCop)->carObj_);
 
-  (**(int (**)(...))(pSVar4->_vf[4] + 8))
+  (**(int (**)(...))((int)*pSVar4->_vf + 0x84))
 
-            ((int)&(pSVar4->fPosition).flags + (int)*(short *)(pSVar4->_vf[4] + 4));
+            ((int)&(pSVar4->fPosition).flags + (int)*(short *)((int)*pSVar4->_vf + 0x80));
 
   pSVar4 = (Speaker *)Speech_Dispatch();
 
-  (**(int (**)(...))(*pSVar4->_vf + 0xc))
+  (**(int (**)(...))((int)*pSVar4->_vf + 0xc))
 
-            ((int)&(pSVar4->fPosition).flags + (int)*(short *)(*pSVar4->_vf + 8),
-
-             this->carObj_);
-
-  pSVar4 = (Speaker *)Speech_Mobile((chaserCop)->carObj_);
-
-  (**(int (**)(...))(*pSVar4->_vf + 0xc))
-
-            ((int)&(pSVar4->fPosition).flags + (int)*(short *)(*pSVar4->_vf + 8),
+            ((int)&(pSVar4->fPosition).flags + (int)*(short *)((int)*pSVar4->_vf + 8),
 
              this->carObj_);
 
   pSVar4 = (Speaker *)Speech_Mobile((chaserCop)->carObj_);
 
-  (**(int (**)(...))(pSVar4->_vf[1] + 0x15))
+  (**(int (**)(...))((int)*pSVar4->_vf + 0xc))
 
-            ((int)&(pSVar4->fPosition).flags + (int)*(short *)(pSVar4->_vf[1] + 0x11),
+            ((int)&(pSVar4->fPosition).flags + (int)*(short *)((int)*pSVar4->_vf + 8),
+
+             this->carObj_);
+
+  pSVar4 = (Speaker *)Speech_Mobile((chaserCop)->carObj_);
+
+  (**(int (**)(...))((int)*pSVar4->_vf + 0x34))
+
+            ((int)&(pSVar4->fPosition).flags + (int)*(short *)((int)*pSVar4->_vf + 0x30),
 
              this->carObj_);
 
@@ -1146,35 +1133,31 @@ void AIHigh_BTC_AIPerp::CalculateTimeTillContact()
   int distance;
   int relVel;
 
-  int iVar1;
 
-  int b;
 
-  
+  if ((this->closestCopCarObj_ != (Car_tObj *)0x0) && ((u_int)this->perpMode_ < 2)) {
 
-  if ((this->closestCopCarObj_ != (Car_tObj *)0x0) && (this->perpMode_ < 2)) {
-
-    b = (this->carObj_)->currentSpeed -
+    relVel = (this->carObj_)->currentSpeed -
 
         this->closestCopCarObj_->currentSpeed;
 
-    iVar1 = 0x3e80000;
+    distance = 0x3e80000;
 
-    if (0xfffe < b + 0x7fffU) {
+    if (0xfffe < relVel + 0x7fffU) {
 
-      iVar1 = fixeddiv(this->closestCopCarDistanceMeters_,b);
+      distance = fixeddiv(this->closestCopCarDistanceMeters_,relVel);
 
-      if (iVar1 < 0) {
+      if (distance < 0) {
 
-        iVar1 = iVar1 + 0x3ff;
+        distance = distance + 0x3ff;
 
       }
 
-      iVar1 = -(iVar1 >> 10);
+      distance = -(distance >> 10);
 
     }
 
-    this->timeUntilContact_ = iVar1;
+    this->timeUntilContact_ = distance;
 
     if (-1 < this->timeUntilContact_) {
 
@@ -1211,53 +1194,41 @@ void AIHigh_BTC_AIPerp::FindClosestCop()
   int longMetersBetween;
   int absLongMetersBetween;
 
-  int iVar1;
-
   Car_tObj *pCVar2;
-
-  int iVar3;
 
   Car_tObj **ppCVar4;
 
-  int iVar5;
 
-  int iVar6;
 
-  int iVar7;
+  closestCopInMeters = 0x270f0000;
 
-  int iVar8;
+  closestCopInMetersAbs = 0x270f0000;
 
-  
-
-  iVar8 = 0x270f0000;
-
-  iVar6 = 0x270f0000;
-
-  iVar7 = -1;
+  closestCarIndex = -1;
 
   ppCVar4 = Cars_gHumanRaceCarList;
 
-  for (iVar5 = 0; iVar5 < Cars_gNumHumanRaceCars; iVar5 = iVar5 + 1) {
+  for (copLoop = 0; copLoop < Cars_gNumHumanRaceCars; copLoop = copLoop + 1) {
 
     if (((*ppCVar4)->carFlags & 0x200U) != 0) {
 
-      iVar1 = AIWorld_ApxSplineDistance(this->carObj_,*ppCVar4);
+      longMetersBetween = AIWorld_ApxSplineDistance(this->carObj_,*ppCVar4);
 
-      iVar3 = iVar1;
+      absLongMetersBetween = longMetersBetween;
 
-      if (iVar1 < 0) {
+      if (longMetersBetween < 0) {
 
-        iVar3 = -iVar1;
+        absLongMetersBetween = -longMetersBetween;
 
       }
 
-      if (iVar3 < iVar6) {
+      if (absLongMetersBetween < closestCopInMetersAbs) {
 
-        iVar7 = (*ppCVar4)->carIndex;
+        closestCarIndex = (*ppCVar4)->carIndex;
 
-        iVar6 = iVar3;
+        closestCopInMetersAbs = absLongMetersBetween;
 
-        iVar8 = iVar1;
+        closestCopInMeters = longMetersBetween;
 
       }
 
@@ -1267,7 +1238,7 @@ void AIHigh_BTC_AIPerp::FindClosestCop()
 
   }
 
-  if (iVar7 == -1) {
+  if (closestCarIndex == -1) {
 
     this->closestCopCarObj_ = (Car_tObj *)0x0;
 
@@ -1275,9 +1246,9 @@ void AIHigh_BTC_AIPerp::FindClosestCop()
 
   else {
 
-    pCVar2 = Cars_gList[iVar7];
+    pCVar2 = Cars_gList[closestCarIndex];
 
-    this->closestCopCarDistanceMeters_ = iVar8;
+    this->closestCopCarDistanceMeters_ = closestCopInMeters;
 
     this->closestCopCarObj_ = pCVar2;
 
@@ -1361,9 +1332,9 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
           pSVar2 = (Speaker *)Speech_Mobile(((this->originalActivationCop_))->carObj_);
 
-          (**(int (**)(...))(*pSVar2->_vf + 0xc))
+          (**(int (**)(...))((int)*pSVar2->_vf + 0xc))
 
-                    ((int)&(pSVar2->fPosition).flags + (int)*(short *)(*pSVar2->_vf + 8),
+                    ((int)&(pSVar2->fPosition).flags + (int)*(short *)((int)*pSVar2->_vf + 8),
 
                      this->carObj_);
 
@@ -1409,9 +1380,9 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
           pSVar2 = (Speaker *)Speech_Mobile(((this->originalActivationCop_))->carObj_);
 
-          (**(int (**)(...))(pSVar2->_vf[1] + 0x15))
+          (**(int (**)(...))((int)*pSVar2->_vf + 0x34))
 
-                    ((int)&(pSVar2->fPosition).flags + (int)*(short *)(pSVar2->_vf[1] + 0x11),
+                    ((int)&(pSVar2->fPosition).flags + (int)*(short *)((int)*pSVar2->_vf + 0x30),
 
                      this->carObj_);
 
@@ -1465,13 +1436,13 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
     default:
 
-      goto switchD_8006094c_default;
+      goto perpMode_merge;
 
     }
 
     _Var4 = this->perpMode_;
 
-switchD_8006094c_default:
+perpMode_merge:
 
     if (_Var4 != 5) break;
 
@@ -1507,7 +1478,7 @@ switchD_8006094c_default:
 
     if (pAVar5 != (AIState_Base *)0x0) {
 
-      (*(int (*)(...))pAVar5->_vf[5])((int)&pAVar5->carObj_ + (int)*(short *)pAVar5->_vf[4],3);
+      (*(int (*)(...))((int)pAVar5->_vf + 0x14))((int)&pAVar5->carObj_ + (int)*(short *)((int)pAVar5->_vf + 0x10),3);
 
     }
 
@@ -1549,9 +1520,9 @@ switchD_8006094c_default:
 
         pSVar2 = (Speaker *)Speech_Mobile(((this->originalActivationCop_))->carObj_);
 
-        (**(int (**)(...))(*pSVar2->_vf + 0xc))
+        (**(int (**)(...))((int)*pSVar2->_vf + 0xc))
 
-                  ((int)&(pSVar2->fPosition).flags + (int)*(short *)(*pSVar2->_vf + 8),
+                  ((int)&(pSVar2->fPosition).flags + (int)*(short *)((int)*pSVar2->_vf + 8),
 
                    this->carObj_);
 
@@ -1583,7 +1554,7 @@ switchD_8006094c_default:
 
       if (pAVar5 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar5->_vf[5])((int)&pAVar5->carObj_ + (int)*(short *)pAVar5->_vf[4],3);
+        (*(int (*)(...))((int)pAVar5->_vf + 0x14))((int)&pAVar5->carObj_ + (int)*(short *)((int)pAVar5->_vf + 0x10),3);
 
       }
 
@@ -1931,7 +1902,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     if (pAVar8 != (AIState_Base *)0x0) {
 
-      (*(int (*)(...))pAVar8->_vf[5])((int)&pAVar8->carObj_ + (int)*(short *)pAVar8->_vf[4],3);
+      (*(int (*)(...))((int)pAVar8->_vf + 0x14))((int)&pAVar8->carObj_ + (int)*(short *)((int)pAVar8->_vf + 0x10),3);
 
     }
 
@@ -1955,7 +1926,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     if (pAVar4 != (AIState_Base *)0x0) {
 
-      (*(int (*)(...))pAVar4->_vf[5])((int)&pAVar4->carObj_ + (int)*(short *)pAVar4->_vf[4],3);
+      (*(int (*)(...))((int)pAVar4->_vf + 0x14))((int)&pAVar4->carObj_ + (int)*(short *)((int)pAVar4->_vf + 0x10),3);
 
     }
 
@@ -1969,15 +1940,15 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   pSVar6 = (Speaker *)Speech_Mobile(carObj);
 
-  (**(int (**)(...))(pSVar6->_vf[4] + 8))
+  (**(int (**)(...))((int)*pSVar6->_vf + 0x84))
 
-            ((int)&(pSVar6->fPosition).flags + (int)*(short *)(pSVar6->_vf[4] + 4));
+            ((int)&(pSVar6->fPosition).flags + (int)*(short *)((int)*pSVar6->_vf + 0x80));
 
   pSVar6 = (Speaker *)Speech_Dispatch();
 
-  (**(int (**)(...))(*pSVar6->_vf + 0xc))
+  (**(int (**)(...))((int)*pSVar6->_vf + 0xc))
 
-            ((int)&(pSVar6->fPosition).flags + (int)*(short *)(*pSVar6->_vf + 8),
+            ((int)&(pSVar6->fPosition).flags + (int)*(short *)((int)*pSVar6->_vf + 8),
 
              this->carObj_);
 

@@ -759,9 +759,9 @@ LAB_800620e8: ;   /* empty stmt: gcc2.7.2 label before brace */
 
         pSVar5 = (Speaker *)Speech_Mobile(pAVar18->carObj_);
 
-        sVar1 = *(short *)(pSVar5->_vf[2] + 0x12);
+        sVar1 = (*pSVar5->_vf)[11].delta;
 
-        pcVar8 = *(int (**)(...))(pSVar5->_vf[2] + 0x16);
+        pcVar8 = (*pSVar5->_vf)[11].pfn;
 
       }
 
@@ -769,33 +769,27 @@ LAB_800620e8: ;   /* empty stmt: gcc2.7.2 label before brace */
 
         pSVar5 = (Speaker *)Speech_Mobile(pAVar18->carObj_);
 
-        sVar1 = *(short *)(pSVar5->_vf[2] + 0x1a);
+        sVar1 = (*pSVar5->_vf)[10].delta;
 
-        pcVar8 = *(int (**)(...))(pSVar5->_vf[2] + 0x1e);
+        pcVar8 = (*pSVar5->_vf)[10].pfn;
 
       }
 
-      (*pcVar8)((int)&(pSVar5->fPosition).flags + (int)sVar1);
+      (*pcVar8)((int)pSVar5 + (int)sVar1);
 
       pSVar5 = (Speaker *)Speech_Mobile(pAVar18->carObj_);
 
-      (**(int (**)(...))(pSVar5->_vf[1] + 0x15))
-
-                ((int)&(pSVar5->fPosition).flags + (int)*(short *)(pSVar5->_vf[1] + 0x11),
+      (*(*pSVar5->_vf)[6].pfn)((int)pSVar5 + (*pSVar5->_vf)[6].delta,
 
                  this->carObj_);
 
       pSVar5 = (Speaker *)Speech_Dispatch();
 
-      (**(int (**)(...))(pSVar5->_vf[1] + 5))
-
-                ((int)&(pSVar5->fPosition).flags + (int)*(short *)(pSVar5->_vf[1] + 1));
+      (*(*pSVar5->_vf)[4].pfn)((int)pSVar5 + (*pSVar5->_vf)[4].delta);
 
       pSVar5 = (Speaker *)Speech_Dispatch();
 
-      (**(int (**)(...))(pSVar5->_vf[1] + 0xd))
-
-                ((int)&(pSVar5->fPosition).flags + (int)*(short *)(pSVar5->_vf[1] + 9),
+      (*(*pSVar5->_vf)[5].pfn)((int)pSVar5 + (*pSVar5->_vf)[5].delta,
 
                  pAVar18->carObj_);
 
@@ -837,25 +831,29 @@ void AIHigh_Player::CheckForNewLevel(int force)
 
   int a;
 
-  
+  AICop_PerpChaseInfo *pInfo;
 
-  iVar4 = (this->perpChaseInfo_).chaseLevelIndex_;
+
+
+  pInfo = &this->perpChaseInfo_;
+
+  iVar4 = pInfo->chaseLevelIndex_;
 
   if (1 < ((this->carObj_)->stats).finishType) {
 
-    (this->perpChaseInfo_).chaseLevelIndex_ = 0;
+    pInfo->chaseLevelIndex_ = 0;
 
-    if ((this->perpChaseInfo_).bestChaseLevelIndex_ < 0) {
+    if (pInfo->bestChaseLevelIndex_ < 0) {
 
-      (this->perpChaseInfo_).bestChaseLevelIndex_ = 0;
+      pInfo->bestChaseLevelIndex_ = 0;
 
     }
 
-    pcVar2 = ((this->perpChaseInfo_).copGameInfo_)->levels + (this->perpChaseInfo_).chaseLevelIndex_
+    pcVar2 = (pInfo->copGameInfo_)->levels + pInfo->chaseLevelIndex_
 
     ;
 
-    (this->perpChaseInfo_).chaseLevel_ = pcVar2;
+    pInfo->chaseLevel_ = pcVar2;
 
     iVar4 = pcVar2->engagementLapFraction * AITune_gRoughLapTime;
 
@@ -870,9 +868,9 @@ void AIHigh_Player::CheckForNewLevel(int force)
     iVar5 = 0x10000 / iVar3;
 
 
-    (this->perpChaseInfo_).engagementTime_ = (iVar4 >> 0x10) << 0x15;
+    pInfo->engagementTime_ = (iVar4 >> 0x10) << 0x15;
 
-    (this->perpChaseInfo_).engagementPercentIncreasePerTick_ = iVar5;
+    pInfo->engagementPercentIncreasePerTick_ = iVar5;
 
     if (GameSetup_gData.numLaps == 2) {
 
@@ -890,11 +888,11 @@ void AIHigh_Player::CheckForNewLevel(int force)
 
     iVar4 = fixedmult(iVar5,iVar4);
 
-    (this->perpChaseInfo_).engagementPercentIncreasePerTick_ = iVar4;
+    pInfo->engagementPercentIncreasePerTick_ = iVar4;
 
 LAB_80062328:
 
-    (this->perpChaseInfo_).blockadeDone_ = 0;
+    pInfo->blockadeDone_ = 0;
 
     this->basicPerpInfo_.crime_ = 0;
 
@@ -904,15 +902,15 @@ LAB_80062328:
 
   pa_Var1 = this->_vf;
 
-  (**(int (**)(...))(pa_Var1[9] + 1))
+  (**(int (**)(...))((char *)pa_Var1 + 28))
 
-            ((int)this->positionVSCopList_ + *(short *)pa_Var1[8] + -0x1c);
+            ((int)this + *(short *)((char *)pa_Var1 + 24));
 
   if (this->basicPerpInfo_.crime_ == 0) goto LAB_8006249c;
 
   if (force == 0) {
 
-    iVar3 = (this->perpChaseInfo_).engagementTime_;
+    iVar3 = pInfo->engagementTime_;
 
     if (iVar3 < 0) {
 
@@ -924,7 +922,7 @@ LAB_80062328:
 
   }
 
-  iVar3 = ((this->perpChaseInfo_).copGameInfo_)->numLevels;
+  iVar3 = (pInfo->copGameInfo_)->numLevels;
 
   iVar5 = iVar4 + 1;
 
@@ -934,17 +932,17 @@ LAB_80062328:
 
   }
 
-  (this->perpChaseInfo_).chaseLevelIndex_ = iVar5;
+  pInfo->chaseLevelIndex_ = iVar5;
 
-  if ((this->perpChaseInfo_).bestChaseLevelIndex_ < iVar5) {
+  if (pInfo->bestChaseLevelIndex_ < iVar5) {
 
-    (this->perpChaseInfo_).bestChaseLevelIndex_ = iVar5;
+    pInfo->bestChaseLevelIndex_ = iVar5;
 
   }
 
-  pcVar2 = ((this->perpChaseInfo_).copGameInfo_)->levels + (this->perpChaseInfo_).chaseLevelIndex_;
+  pcVar2 = (pInfo->copGameInfo_)->levels + pInfo->chaseLevelIndex_;
 
-  (this->perpChaseInfo_).chaseLevel_ = pcVar2;
+  pInfo->chaseLevel_ = pcVar2;
 
   iVar3 = pcVar2->engagementLapFraction * AITune_gRoughLapTime;
 
@@ -959,9 +957,9 @@ LAB_80062328:
   a = 0x10000 / iVar5;
 
 
-  (this->perpChaseInfo_).engagementTime_ = (iVar3 >> 0x10) << 0x15;
+  pInfo->engagementTime_ = (iVar3 >> 0x10) << 0x15;
 
-  (this->perpChaseInfo_).engagementPercentIncreasePerTick_ = a;
+  pInfo->engagementPercentIncreasePerTick_ = a;
 
   if (GameSetup_gData.numLaps == 2) {
 
@@ -971,7 +969,7 @@ LAB_80062488:
 
     iVar3 = fixedmult(a,iVar3);
 
-    (this->perpChaseInfo_).engagementPercentIncreasePerTick_ = iVar3;
+    pInfo->engagementPercentIncreasePerTick_ = iVar3;
 
   }
 
@@ -983,11 +981,11 @@ LAB_80062488:
 
   }
 
-  (this->perpChaseInfo_).blockadeDone_ = 0;
+  pInfo->blockadeDone_ = 0;
 
 LAB_8006249c:
 
-  if (iVar4 == (this->perpChaseInfo_).chaseLevelIndex_) {
+  if (iVar4 == pInfo->chaseLevelIndex_) {
 
     return;
 
@@ -995,7 +993,7 @@ LAB_8006249c:
 
   this->newTriggerProb_ =
 
-       triggerManagerCops->invNumTriggers_ * ((this->perpChaseInfo_).chaseLevel_)->copsPerLap;
+       triggerManagerCops->invNumTriggers_ * (pInfo->chaseLevel_)->copsPerLap;
 
   return;
 
@@ -1021,83 +1019,87 @@ void AIHigh_Player::HandleSpeech()
 
   Speaker *pSVar1;
 
-  int iVar2;
-
   int iVar3;
 
   int _Var4;
 
-  
 
-  iVar2 = this->positionVSCopList_[0].carIndex;
 
-  if (iVar2 == -1) {
+  player = this->positionVSCopList_[0].carIndex;
 
-    iVar2 = (*(int *)((char *)Cars_gCopCarList[0] + 0x254));
+  if (player == -1) {
 
-  }
-
-  iVar3 = this->positionVSCopList_[1].carIndex;
-
-  if ((iVar3 != -1) && (iVar3 < iVar2)) {
-
-    iVar2 = iVar3;
+    highestRankedCopIndex = (*(int *)((char *)Cars_gCopCarList[0] + 0x254));
 
   }
 
-  iVar3 = this->positionVSCopList_[2].carIndex;
+  else {
 
-  if ((iVar3 != -1) && (iVar3 < iVar2)) {
+    highestRankedCopIndex = player;
 
-    iVar2 = iVar3;
+  }
+
+  player = this->positionVSCopList_[1].carIndex;
+
+  if ((player != -1) && (player < highestRankedCopIndex)) {
+
+    highestRankedCopIndex = player;
+
+  }
+
+  player = this->positionVSCopList_[2].carIndex;
+
+  if ((player != -1) && (player < highestRankedCopIndex)) {
+
+    highestRankedCopIndex = player;
 
   }
 
   _Var4 = this->pullOverMode_;
 
-  iVar3 = (this->carObj_)->carIndex;
+  arrestType = (this->carObj_)->carIndex;
 
-  if (_Var4 == 1) {
-
-    Hud_Perp_OverlayOn(iVar3,0);
-
-    iVar3 = 2;
-
-    goto LAB_800625d0;
-
-  }
+  if (_Var4 == 1) goto LAB_pullover_flag;
 
   if (1 < (int)_Var4) {
 
-    if (_Var4 == 2) {
+    if (_Var4 == 2) goto LAB_pullover_arrest;
 
-      Hud_Perp_OverlayOn(iVar3,1);
-
-      iVar3 = 8;
-
-      if (2 < this->numBusts_) {
-
-        iVar3 = this->numBusts_ + 6;
-
-      }
-
-      goto LAB_800625d0;
-
-    }
-
-    if (_Var4 == 3) {
-
-      Hud_Perp_OverlayOn(iVar3,2);
-
-      iVar3 = 1;
-
-      goto LAB_800625d0;
-
-    }
+    if (_Var4 == 3) goto LAB_pullover_evade;
 
   }
 
   iVar3 = 4;
+
+  goto LAB_800625d0;
+
+LAB_pullover_flag:
+
+  Hud_Perp_OverlayOn(arrestType,0);
+
+  iVar3 = 2;
+
+  goto LAB_800625d0;
+
+LAB_pullover_arrest:
+
+  Hud_Perp_OverlayOn(arrestType,1);
+
+  iVar3 = 8;
+
+  if (2 < this->numBusts_) {
+
+    iVar3 = this->numBusts_ + 6;
+
+  }
+
+  goto LAB_800625d0;
+
+LAB_pullover_evade:
+
+  Hud_Perp_OverlayOn(arrestType,2);
+
+  iVar3 = 1;
 
 LAB_800625d0:
 
@@ -1107,11 +1109,9 @@ LAB_800625d0:
 
   }
 
-  pSVar1 = (Speaker *)Speech_Mobile(Cars_gList[iVar2]);
+  pSVar1 = (Speaker *)Speech_Mobile(Cars_gList[highestRankedCopIndex]);
 
-  (**(int (**)(...))(pSVar1->_vf[2] + 0xe))
-
-            ((int)&(pSVar1->fPosition).flags + (int)*(short *)(pSVar1->_vf[2] + 10),iVar3);
+  (*(*pSVar1->_vf)[9].pfn)((int)pSVar1 + (*pSVar1->_vf)[9].delta,iVar3);
 
   return;
 
@@ -1298,11 +1298,15 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
 
   int a;
 
-  
+  AICop_PerpChaseInfo *pInfo;
+
+
 
   (new((AIHigh_BasicPerp *)this) AIHigh_BasicPerp(carObj));
 
   this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_Player_vtable;
+
+  pInfo = &this->perpChaseInfo_;
 
   if (GameSetup_gData.commMode == 1) {
 
@@ -1318,25 +1322,25 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
 
   iVar1 = iVar1 + (u_int)(GameSetup_gData.numLaps != 2);
 
-  (this->perpChaseInfo_).copGameInfo_ = copGame + iVar1;
+  pInfo->copGameInfo_ = copGame + iVar1;
 
-  (this->perpChaseInfo_).chaseLevelIndex_ = 0;
+  pInfo->chaseLevelIndex_ = 0;
 
-  (this->perpChaseInfo_).engagementTime_ = 0;
+  pInfo->engagementTime_ = 0;
 
-  (this->perpChaseInfo_).bestChaseLevelIndex_ = 0;
+  pInfo->bestChaseLevelIndex_ = 0;
 
   pcVar3 = copGame[iVar1].levels;
 
-  (this->perpChaseInfo_).blockadeDone_ = 0;
+  pInfo->blockadeDone_ = 0;
 
-  (this->perpChaseInfo_).copFreeTicks_ = 0;
+  pInfo->copFreeTicks_ = 0;
 
-  (this->perpChaseInfo_).totalEngagementPercent_ = 0;
+  pInfo->totalEngagementPercent_ = 0;
 
-  (this->perpChaseInfo_).engagementPercentIncreasePerTick_ = 0;
+  pInfo->engagementPercentIncreasePerTick_ = 0;
 
-  (this->perpChaseInfo_).chaseLevel_ = pcVar3 + (this->perpChaseInfo_).chaseLevelIndex_;
+  pInfo->chaseLevel_ = pcVar3 + pInfo->chaseLevelIndex_;
 
   this->numWarnings_ = 0;
 
@@ -1352,21 +1356,21 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
 
   this->newTriggerProb_ =
 
-       triggerManagerCops->invNumTriggers_ * ((this->perpChaseInfo_).chaseLevel_)->copsPerLap;
+       triggerManagerCops->invNumTriggers_ * (pInfo->chaseLevel_)->copsPerLap;
 
   this->lastTriggerCheckSlice_ = (int)(pCVar2->N).simRoadInfo.slice;
 
-  (this->perpChaseInfo_).chaseLevelIndex_ = 0;
+  pInfo->chaseLevelIndex_ = 0;
 
-  if ((this->perpChaseInfo_).bestChaseLevelIndex_ < 0) {
+  if (pInfo->bestChaseLevelIndex_ < 0) {
 
-    (this->perpChaseInfo_).bestChaseLevelIndex_ = 0;
+    pInfo->bestChaseLevelIndex_ = 0;
 
   }
 
-  pcVar3 = ((this->perpChaseInfo_).copGameInfo_)->levels + (this->perpChaseInfo_).chaseLevelIndex_;
+  pcVar3 = (pInfo->copGameInfo_)->levels + pInfo->chaseLevelIndex_;
 
-  (this->perpChaseInfo_).chaseLevel_ = pcVar3;
+  pInfo->chaseLevel_ = pcVar3;
 
   iVar1 = pcVar3->engagementLapFraction * AITune_gRoughLapTime;
 
@@ -1381,9 +1385,9 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
   a = 0x10000 / iVar4;
 
 
-  (this->perpChaseInfo_).engagementTime_ = (iVar1 >> 0x10) << 0x15;
+  pInfo->engagementTime_ = (iVar1 >> 0x10) << 0x15;
 
-  (this->perpChaseInfo_).engagementPercentIncreasePerTick_ = a;
+  pInfo->engagementPercentIncreasePerTick_ = a;
 
   if (GameSetup_gData.numLaps == 2) {
 
@@ -1401,11 +1405,11 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
 
   iVar1 = fixedmult(a,iVar1);
 
-  (this->perpChaseInfo_).engagementPercentIncreasePerTick_ = iVar1;
+  pInfo->engagementPercentIncreasePerTick_ = iVar1;
 
 LAB_80062aa8:
 
-  (this->perpChaseInfo_).blockadeDone_ = 0;
+  pInfo->blockadeDone_ = 0;
 
   return;
 
@@ -1435,9 +1439,13 @@ void AIHigh_Player::HandleCops()
 
   copLevel_t *pcVar3;
 
-  
+  AICop_PerpChaseInfo *pInfo;
 
-  pcVar3 = (this->perpChaseInfo_).chaseLevel_;
+
+
+  pInfo = &this->perpChaseInfo_;
+
+  pcVar3 = pInfo->chaseLevel_;
 
   if (Cars_gNumCopCars != 0) {
 
@@ -1457,19 +1465,25 @@ void AIHigh_Player::HandleCops()
 
     }
 
-    if (this->basicPerpInfo_.copsAssigned_[0] +
+    {
+      Car_tObj *pCar = this->carObj_;
+      int prodSlipYaw;
+      int elapsed;
 
-        this->basicPerpInfo_.copsAssigned_[1] < 1) {
+      /* H26 setup: product computed UNCONDITIONALLY here (oracle 0x80062B30-60), the
+         AI_elapsedTime load likewise (oracle 0x80062B54-58) -- both live across the
+         copsAssigned_ branch below and are reused in the engagementTime_ shift-select. */
+      prodSlipYaw = *(int *)((char *)pCar + 1380) * *(int *)((char *)pCar + 1364);
 
-      (this->perpChaseInfo_).copFreeTicks_ = (this->perpChaseInfo_).copFreeTicks_ + AI_elapsedTime;   /* H28: += dropped (m2c self-assign fold); oracle 0x80062C28-34 */
+      elapsed = AI_elapsedTime;
 
-    }
+    if (0 < this->basicPerpInfo_.copsAssigned_[0] +
 
-    else {
+            this->basicPerpInfo_.copsAssigned_[1]) {
 
-      (this->perpChaseInfo_).copFreeTicks_ = 0;
+      pInfo->copFreeTicks_ = 0;
 
-      iVar2 = (this->perpChaseInfo_).engagementTime_;
+      iVar2 = pInfo->engagementTime_;
 
       iVar1 = iVar2;
 
@@ -1481,16 +1495,12 @@ void AIHigh_Player::HandleCops()
 
       if (-2 < iVar1 >> 0x10) {
 
-        {
-          Car_tObj *pCar = this->carObj_;
-          /* H26: decrement dropped (m2c self-assign fold). Oracle 0x80062BA4: engagementTime_ = iVar2 -
-             (AI_elapsedTime << shift), shift = 0xF if carObj[1380]*carObj[1364] < 0 else 0x10 (the
-             0x80062B9C <<0xF delay slot is used on the product<0 path; 0x80062BA0 <<0x10 otherwise). */
-          (this->perpChaseInfo_).engagementTime_ = iVar2 - (AI_elapsedTime <<
-              ((*(int *)((char *)pCar + 1380) * *(int *)((char *)pCar + 1364)) < 0 ? 0xF : 0x10));
-        }
+        /* H26: decrement dropped (m2c self-assign fold). Oracle 0x80062BA4: engagementTime_ = iVar2 -
+           (AI_elapsedTime << shift), shift = 0xF if carObj[1380]*carObj[1364] < 0 else 0x10 (the
+           0x80062B9C <<0xF delay slot is used on the product<0 path; 0x80062BA0 <<0x10 otherwise). */
+        pInfo->engagementTime_ = iVar2 - (elapsed << (prodSlipYaw < 0 ? 0xF : 0x10));
 
-        iVar1 = (this->perpChaseInfo_).engagementTime_;
+        iVar1 = pInfo->engagementTime_;
 
         if (iVar1 < 0) {
 
@@ -1498,7 +1508,7 @@ void AIHigh_Player::HandleCops()
 
         }
 
-        iVar2 = ((this->perpChaseInfo_).chaseLevel_)->engagementLapFraction * AITune_gRoughLapTime;
+        iVar2 = (pInfo->chaseLevel_)->engagementLapFraction * AITune_gRoughLapTime;
 
         if (iVar2 < 0) {
 
@@ -1508,15 +1518,22 @@ void AIHigh_Player::HandleCops()
 
         if (iVar1 >> 0x10 < (iVar2 >> 0x10) * 0x20 + -0x80) {
 
-          (this->perpChaseInfo_).totalEngagementPercent_ =
+          pInfo->totalEngagementPercent_ =
 
-               (this->perpChaseInfo_).totalEngagementPercent_ +
-               (this->perpChaseInfo_).engagementPercentIncreasePerTick_ * AI_elapsedTime;   /* H27: += dropped (m2c self-assign fold); oracle 0x80062C08-24 */
+               pInfo->totalEngagementPercent_ +
+               pInfo->engagementPercentIncreasePerTick_ * elapsed;   /* H27: += dropped (m2c self-assign fold); oracle 0x80062C08-24 */
 
         }
 
       }
 
+    }
+
+    else {
+
+      pInfo->copFreeTicks_ = pInfo->copFreeTicks_ + elapsed;   /* H28: += dropped (m2c self-assign fold); oracle 0x80062C28-34 */
+
+    }
     }
 
     this->CheckForNewLevel(0);
@@ -1544,55 +1561,48 @@ void AIHigh_Player::CleanupBlockaders(int forceClearAll)
 
 {
   int clearWaitingBlockaders;
+  Car_tObj **ppCVar4;
   int copLoop;
   AIHigh_Cop*thisCop;
   blockade_t*blockade;
-
-  bool bVar1;
 
   Car_tObj *pCVar2;
 
   blockadeMode_t bVar3;
 
-  AIHigh_Cop *this_00;
 
-  Car_tObj **ppCVar4;
-
-  int iVar5;
-
-  
 
   pCVar2 = this->carObj_;
 
-  bVar1 = false;
+  clearWaitingBlockaders = 0;
 
-  if (((0 < (pCVar2->stats).numArrests) || (1 < (pCVar2->stats).finishType)) || (forceClearAll != 0)
+  if ((0 < (pCVar2->stats).numArrests) || (1 < (pCVar2->stats).finishType) || (forceClearAll != 0)) {
 
-     ) {
-
-    bVar1 = true;
+    clearWaitingBlockaders = 1;
 
   }
 
   ppCVar4 = Cars_gCopCarList;
 
-  for (iVar5 = 0; iVar5 < Cars_gNumCopCars; iVar5 = iVar5 + 1) {
+  for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
 
-    this_00 = (AIHigh_Cop *)highLevelAIObjs[(*ppCVar4)->carIndex];
+    thisCop = (AIHigh_Cop *)highLevelAIObjs[(*ppCVar4)->carIndex];
 
-    bVar3 = (this_00)->blockade_.mode;
+    blockade = &thisCop->blockade_;
 
-    if ((((bVar3 == 1) || (bVar3 == 4)) || ((bVar3 == 2 && (bVar1)))) &&
+    bVar3 = (blockadeMode_t)blockade->mode;
 
-       ((this_00)->blockade_.target == this)) {
+    if ((((bVar3 == 1) || (bVar3 == 4)) || ((bVar3 == 2 && (clearWaitingBlockaders)))) &&
 
-      (this_00)->blockade_.mode = 0;
+       (blockade->target == this)) {
 
-      (this_00)->AssignToPlayer((AIHigh_Player *)0x0);
+      blockade->mode = 0;
+
+      thisCop->AssignToPlayer((AIHigh_Player *)0x0);
 
     }
 
-    ppCVar4 = ppCVar4 + 1;
+    ppCVar4++;
 
   }
 

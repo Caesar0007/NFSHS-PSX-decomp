@@ -33,7 +33,8 @@ void AIHigh_Opponent::CheckForWipeOut()
 
   int iVar2;
 
-  
+  oppLevel = *(int *)((char *)this + 148);                    /* $t7, unconditional prologue load */
+  oppFines = *(int *)((char *)this->carObj_ + 932);           /* $t6, unconditional prologue load (via carObj_ = $v1) */
 
   if ((Cars_gNumCopCars != 0) &&
 
@@ -59,22 +60,24 @@ void AIHigh_Opponent::CheckForWipeOut()
 
                 (this->carObj_)->wipeOutEndTick)) {
 
-      Car_tObj *oppCar = this->carObj_;
-
       /* H24: reconstructed pre-loop roll + per-human-race-car wipe-out loop (oracle 0x800633AC-0x800634D8;
-         recon had an EMPTY loop AND dropped the pre-loop conditional store -> wipe-out timer never re-armed). */
+         recon had an EMPTY loop AND dropped the pre-loop conditional store -> wipe-out timer never re-armed).
+         The oracle RE-LOADS this->carObj_ fresh at EACH wipeOutEndTick write site (via the stable $t0=this
+         base), rather than caching it in one register across the whole function -- write through
+         this->carObj_->wipeOutEndTick directly at each site, don't cache into a local. HELD (near-miss,
+         see final report): the $t0=this move + the mid-function block reorder are NOT reachable via this
+         or any other manual source lever tried (self-alias, statement order, drop-cache) -- residual
+         143-diff structural gap, not a coloring tie-break. */
       randtemp    = fastRandom * randSeed;                        /* 0x800633AC */
       fastRandom  = randtemp & 0xffff;                            /* 0x800633C8/E4 */
       randVal     = (int)(randtemp >> 8) & 0xffff;                /* $t1, 0x800633D4-D8 */
       perTickProb = AI_elapsedTime * 2 + AI_elapsedTime;          /* $a0 = 3*ae, 0x800633BC-C0 */
       if (randVal < perTickProb) {                                /* 0x800633DC-E8 */
-        oppCar->wipeOutEndTick = simGlobal.gameTicks + 0xC0;      /* 0x800633EC-F8 */
+        this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;      /* 0x800633EC-F8 */
       }
       iVar2 = 0;
       if (this->perpChaseInfo_.bestChaseLevelIndex_ !=
           (this->perpChaseInfo_.copGameInfo_)->numLevels + -1) {
-        oppLevel = *(int *)((char *)this + 148);                  /* $t7, prologue */
-        oppFines = *(int *)((char *)oppCar + 932);                /* $t6, prologue */
         for (hLoop = 0; hLoop < Cars_gNumHumanRaceCars; hLoop = hLoop + 1) {   /* 0x80063450 */
           Car_tObj    *carObj_h     = Cars_gHumanRaceCarList[hLoop];           /* 0x8006345C */
           int          field1380    = *(int *)((char *)carObj_h + 1380);       /* 0x80063468 */
@@ -86,10 +89,10 @@ void AIHigh_Opponent::CheckForWipeOut()
             if (state < 2 && !(oppLevel < 3)) {                                /* 0x80063494-A0: skips the fines check */
               /* branch 0x800634A0's DELAY SLOT (0x800634A4 $a0=$t2<<2=116*ae) runs before reaching RANDGATE */
               if (randVal < AI_elapsedTime * 116)                              /* 0x800634B8 */
-                oppCar->wipeOutEndTick = simGlobal.gameTicks + 0xC0;           /* 0x800634C4-D0 */
+                this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;    /* 0x800634C4-D0 */
             } else if (2 <= oppFines_v1 - oppFines) {                          /* 0x800634A8-B0 (skip if <2) */
               if (randVal < AI_elapsedTime * 116)                             /* $t2<<2, 0x800634B4-BC */
-                oppCar->wipeOutEndTick = simGlobal.gameTicks + 0xC0;           /* 0x800634C4-D0 */
+                this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;    /* 0x800634C4-D0 */
             }
           }
         }
@@ -137,7 +140,9 @@ int AIHigh_Opponent::DoRearEnder()
 
   Car_tObj **ppCVar7;
 
-  
+  int *tickPtr;
+
+
 
   iVar1 = AIScript_DoReAction(&(this->carObj_)->script,0x100);
 
@@ -197,6 +202,11 @@ int AIHigh_Opponent::DoRearEnder()
 
       ppCVar7 = Cars_gHumanRaceCarList;
 
+      tickPtr = &simGlobal.gameTicks;   /* §3.12 lever #16: hold the address across the AIWorld_SplineDistance
+                                            call (oracle keeps &simGlobal in a callee-saved $s4, re-reading
+                                            gameTicks via 4($s4) at BOTH mask-check sites, instead of
+                                            rematerializing %hi/%lo(simGlobal) fresh each time) */
+
       for (; iVar2 < Cars_gNumHumanRaceCars; iVar2 = iVar2 + 1) {
 
         pCVar4 = *ppCVar7;
@@ -229,7 +239,7 @@ int AIHigh_Opponent::DoRearEnder()
 
               (uVar3 = *(u_int *)(pCVar6->personality + 0x48),
 
-              (simGlobal.gameTicks + pCVar6->carIndex * 0x7b & uVar3) == uVar3)) ||
+              (*tickPtr + pCVar6->carIndex * 0x7b & uVar3) == uVar3)) ||
 
              ((iVar1 + 0x3ffffU < 0x7ffff &&
 
@@ -237,7 +247,7 @@ int AIHigh_Opponent::DoRearEnder()
 
               uVar3 = *(u_int *)(pCVar6->personality + 0x4c),
 
-              (simGlobal.gameTicks + pCVar6->carIndex * 0x7b & uVar3) == uVar3)))) {
+              (*tickPtr + pCVar6->carIndex * 0x7b & uVar3) == uVar3)))) {
 
             return pCVar4->carIndex;
 
@@ -299,6 +309,16 @@ void AIHigh_Opponent::HighExecute()
 
   switch(this->stateType_) {
 
+  case 1:
+  case 3:
+  case 5:
+  case 6:
+  case 7:
+  case 8:
+  case 9:
+  case 10:
+    break;
+
   case 0:
 
     pAVar1 = operator new(8);
@@ -309,7 +329,11 @@ void AIHigh_Opponent::HighExecute()
 
     if (pAVar4 != (AIState_Base *)0x0) {
 
-      (*(int (*)(...))pAVar4->_vf[5])((int)&pAVar4->carObj_ + (int)*(short *)pAVar4->_vf[4],3);
+      /* manual-vtable slot 2 (raw byte offsets from the oracle jalr/lh -- __vtbl_ptr_type
+         is 8 bytes, so a typed _vf[N] index/pointer-add is 8x too large; decay to a byte
+         base and use the RAW displacement, §3.12 lever #10). */
+      (**(int (**)(...))((char *)pAVar4->_vf + 0x14))
+                ((int)&pAVar4->carObj_ + (int)*(short *)((char *)pAVar4->_vf + 0x10),3);
 
     }
 
@@ -383,7 +407,11 @@ LAB_800638c0:
 
       if (pAVar2 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar2->_vf[5])((int)&pAVar2->carObj_ + (int)*(short *)pAVar2->_vf[4],3);
+        /* manual-vtable slot 2 (raw byte offsets from the oracle jalr/lh -- __vtbl_ptr_type
+           is 8 bytes, so a typed _vf[N] index/pointer-add is 8x too large; decay to a byte
+           base and use the RAW displacement, §3.12 lever #10). */
+        (**(int (**)(...))((char *)pAVar2->_vf + 0x14))
+                  ((int)&pAVar2->carObj_ + (int)*(short *)((char *)pAVar2->_vf + 0x10),3);
 
       }
 
@@ -459,7 +487,11 @@ LAB_800638c0:
 
       if (pAVar4 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar4->_vf[5])((int)&pAVar4->carObj_ + (int)*(short *)pAVar4->_vf[4],3);
+        /* manual-vtable slot 2 (raw byte offsets from the oracle jalr/lh -- __vtbl_ptr_type
+         is 8 bytes, so a typed _vf[N] index/pointer-add is 8x too large; decay to a byte
+         base and use the RAW displacement, §3.12 lever #10). */
+      (**(int (**)(...))((char *)pAVar4->_vf + 0x14))
+                ((int)&pAVar4->carObj_ + (int)*(short *)((char *)pAVar4->_vf + 0x10),3);
 
       }
 
@@ -528,19 +560,21 @@ int AIHigh_Opponent::DoProvokedAttack()
 
   int iVar1;
 
-  Car_tObj *pCVar2;
+  Car_tObj *myCarObj;
 
   Car_tObj *pCVar3;
 
+  Car_tObj *oppCarObj;
+
   int iVar4;
 
-  
 
-  pCVar3 = this->carObj_;
 
-  if (((simGlobal.gameTicks - (pCVar3->N).collision.lastTime < 0xf) &&
+  myCarObj = this->carObj_;
 
-      (pCVar3 = (Car_tObj *)(pCVar3->N).collision.lastOtherObj, pCVar3 != (Car_tObj *)0x0)) &&
+  if (((simGlobal.gameTicks - (myCarObj->N).collision.lastTime < 0xf) &&
+
+      (pCVar3 = (Car_tObj *)(myCarObj->N).collision.lastOtherObj, pCVar3 != (Car_tObj *)0x0)) &&
 
      ((pCVar3->carFlags & 4U) != 0)) {
 
@@ -552,13 +586,11 @@ int AIHigh_Opponent::DoProvokedAttack()
 
     }
 
-    pCVar2 = this->carObj_;
+    iVar1 = ++this->hitCount_;
 
-    iVar1 = this->hitCount_ + 1;
+    oppCarObj = this->carObj_;
 
-    this->hitCount_ = iVar1;
-
-    iVar4 = pCVar2->personality;
+    iVar4 = oppCarObj->personality;
 
     if (*(int *)(iVar4 + 0x24) < iVar1) {
 
@@ -586,7 +618,7 @@ int AIHigh_Opponent::DoProvokedAttack()
 
 /* end of aih_opp.cpp */
 
-/* cont.35 B3b: base-forward dtor re-attributed from main.c (�3.23 simple variant);
+/* cont.35 B3b: base-forward dtor re-attributed from main.c (�3.23 simple variant);
    oracle = jal ___11AIHigh_Base; extern-C free fn exports the exact symbol. */
 extern "C" {
 void ___11AIHigh_Base(void *);

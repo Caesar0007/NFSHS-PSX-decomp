@@ -23,53 +23,39 @@ AIHigh_Traffic::CheckForCops(int *closestDistance)
   Car_tObj*cop;
   int sliceDistance;
 
-  int iVar1;
 
-  Car_tObj *otherCarObj;
 
-  Car_tObj **ppCVar2;
-
-  int iVar3;
-
-  Car_tObj *pCVar4;
-
-  
-
-  pCVar4 = (Car_tObj *)0x0;
+  closestCop = (Car_tObj *)0x0;
 
   *closestDistance = 0x4e200000;
 
-  ppCVar2 = Cars_gCopCarList;
+  for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
 
-  for (iVar3 = 0; iVar3 < Cars_gNumCopCars; iVar3 = iVar3 + 1) {
+    cop = Cars_gCopCarList[copLoop];
 
-    otherCarObj = *ppCVar2;
+    if ((cop->AIFlags & 4U) == 0) {
 
-    if ((otherCarObj->AIFlags & 4U) == 0) {
+      sliceDistance = AIWorld_ApxSplineDistance(this->carObj_,cop);
 
-      iVar1 = AIWorld_ApxSplineDistance(this->carObj_,otherCarObj);
+      if (sliceDistance < 0) {
 
-      if (iVar1 < 0) {
-
-        iVar1 = -iVar1;
+        sliceDistance = -sliceDistance;
 
       }
 
-      if (iVar1 < *closestDistance) {
+      if (sliceDistance < *closestDistance) {
 
-        *closestDistance = iVar1;
+        *closestDistance = sliceDistance;
 
-        pCVar4 = otherCarObj;
+        closestCop = cop;
 
       }
 
     }
 
-    ppCVar2 = ppCVar2 + 1;
-
   }
 
-  return pCVar4;
+  return closestCop;
 
 }
 
@@ -93,61 +79,57 @@ AIHigh_Traffic::CopCheck(int *blockade)
   int speed;
   AIHigh_Cop*cop;
 
-  Car_tObj *pCVar1;
 
-  int iVar2;
-
-  AIHigh_Cop *pAVar3;
-
-  int local_18 [2];
-
-  
 
   *blockade = 0;
 
-  pAVar3 = (AIHigh_Cop *)0x0;
+  cop = (AIHigh_Cop *)0x0;
 
   if (Cars_gNumCopCars != 0) {
 
-    pCVar1 = this->CheckForCops(local_18);
+    closest = this->CheckForCops(&closestDistance);
 
-    pAVar3 = (AIHigh_Cop *)0x0;
+    if (closest != (Car_tObj *)0x0) {
 
-    if (pCVar1 != (Car_tObj *)0x0) {
+      speed = closest->currentSpeed;
 
-      iVar2 = pCVar1->currentSpeed;
+      if (speed < 0) {
 
-      if (iVar2 < 0) {
-
-        iVar2 = -iVar2;
+        speed = -speed;
 
       }
 
-      if ((iVar2 < 0x20000) && (local_18[0] < 0x4b0000)) {
+      if ((speed <= 0x1ffff) && (closestDistance <= 0x4affff)) {
 
         *blockade = 1;
 
-        pAVar3 = (AIHigh_Cop *)highLevelAIObjs[pCVar1->carIndex];
+        cop = (AIHigh_Cop *)highLevelAIObjs[closest->carIndex];
 
-        if (((AIHigh_Cop *)highLevelAIObjs[pCVar1->carIndex])->perpTarget_ == (AIHigh_Player *)0x0)
+        if (((AIHigh_Cop *)highLevelAIObjs[closest->carIndex])->perpTarget_ == (AIHigh_Player *)0x0)
 
         {
 
-          pAVar3 = (AIHigh_Cop *)0x0;
+          cop = (AIHigh_Cop *)0x0;
 
         }
+
+      }
+
+      else if (speed <= 0x1ffff) {
+
+        return cop;
+
+      }
+
+      else if (0x4affff < closestDistance) {
+
+        return cop;
 
       }
 
       else {
 
-        pAVar3 = (AIHigh_Cop *)0x0;
-
-        if ((0x20000 < iVar2) && (pAVar3 = (AIHigh_Cop *)0x0, local_18[0] < 0x4b0000)) {
-
-          pAVar3 = (AIHigh_Cop *)highLevelAIObjs[pCVar1->carIndex];
-
-        }
+        cop = (AIHigh_Cop *)highLevelAIObjs[closest->carIndex];
 
       }
 
@@ -155,7 +137,7 @@ AIHigh_Traffic::CopCheck(int *blockade)
 
   }
 
-  return pAVar3;
+  return cop;
 
 }
 
@@ -246,7 +228,7 @@ void AIHigh_Traffic::HighExecute()
 
       if (pAVar12 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar12->_vf[5])((int)&pAVar12->carObj_ + (int)*(short *)pAVar12->_vf[4],3);
+        (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
 
       }
 
@@ -268,7 +250,7 @@ void AIHigh_Traffic::HighExecute()
 
       if (pAVar12 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar12->_vf[5])((int)&pAVar12->carObj_ + (int)*(short *)pAVar12->_vf[4],3);
+        (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
 
       }
 
@@ -294,7 +276,7 @@ void AIHigh_Traffic::HighExecute()
 
       pa_Var8 = pAVar6->_vf;
 
-      iVar4 = (*(int (*)(...))pa_Var8[7])((int)&pAVar6->carObj_ + (int)*(short *)pa_Var8[6]);
+      iVar4 = (*(*pa_Var8)[3].pfn)((int)&pAVar6->carObj_ + (*pa_Var8)[3].delta);
 
       if (iVar4 != 0) {
 
@@ -316,7 +298,7 @@ void AIHigh_Traffic::HighExecute()
 
           if (pAVar12 != (AIState_Base *)0x0) {
 
-            (*(int (*)(...))pAVar12->_vf[5])((int)&pAVar12->carObj_ + (int)*(short *)pAVar12->_vf[4],3);
+            (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
 
           }
 
@@ -342,7 +324,7 @@ void AIHigh_Traffic::HighExecute()
 
             if (pAVar6 != (AIState_Base *)0x0) {
 
-              (*(int (*)(...))pAVar6->_vf[5])((int)&pAVar6->carObj_ + (int)*(short *)pAVar6->_vf[4],3);
+              (*(*pAVar6->_vf)[2].pfn)((int)&pAVar6->carObj_ + (*pAVar6->_vf)[2].delta,3);
 
             }
 
@@ -376,7 +358,7 @@ void AIHigh_Traffic::HighExecute()
 
       if (pAVar12 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar12->_vf[5])((int)&pAVar12->carObj_ + (int)*(short *)pAVar12->_vf[4],3);
+        (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
 
       }
 
@@ -400,7 +382,7 @@ void AIHigh_Traffic::HighExecute()
 
     }
 
-    goto switchD_80065ec8_caseD_4;
+    goto stateExecuteAndReturn;
 
   case 2:
 
@@ -416,11 +398,11 @@ void AIHigh_Traffic::HighExecute()
 
           this->ignoreCops_ = 0;
 
-          goto switchD_80065ec8_caseD_4;
+          goto stateExecuteAndReturn;
 
         }
 
-        if (this->ignoreCops_ != 0) goto switchD_80065ec8_caseD_4;
+        if (this->ignoreCops_ != 0) goto stateExecuteAndReturn;
 
         randtemp = fastRandom * randSeed;
 
@@ -446,7 +428,7 @@ void AIHigh_Traffic::HighExecute()
 
             if (pAVar12 != (AIState_Base *)0x0) {
 
-              (*(int (*)(...))pAVar12->_vf[5])((int)&pAVar12->carObj_ + (int)*(short *)pAVar12->_vf[4],3);
+              (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
 
             }
 
@@ -460,7 +442,7 @@ void AIHigh_Traffic::HighExecute()
 
             this->ignoreCops_ = 1;
 
-            goto switchD_80065ec8_caseD_4;
+            goto stateExecuteAndReturn;
 
           }
 
@@ -478,7 +460,7 @@ void AIHigh_Traffic::HighExecute()
 
           if (pAVar6 != (AIState_Base *)0x0) {
 
-            (*(int (*)(...))pAVar6->_vf[5])((int)&pAVar6->carObj_ + (int)*(short *)pAVar6->_vf[4],3);
+            (*(*pAVar6->_vf)[2].pfn)((int)&pAVar6->carObj_ + (*pAVar6->_vf)[2].delta,3);
 
           }
 
@@ -512,7 +494,7 @@ void AIHigh_Traffic::HighExecute()
 
           if (pAVar6 != (AIState_Base *)0x0) {
 
-            (*(int (*)(...))pAVar6->_vf[5])((int)&pAVar6->carObj_ + (int)*(short *)pAVar6->_vf[4],3);
+            (*(*pAVar6->_vf)[2].pfn)((int)&pAVar6->carObj_ + (*pAVar6->_vf)[2].delta,3);
 
           }
 
@@ -548,7 +530,7 @@ LAB_800664c4:
 
         (this_00)->SetIdlePosition(local_20);
 
-        goto switchD_80065ec8_caseD_4;
+        goto stateExecuteAndReturn;
 
       }
 
@@ -560,7 +542,7 @@ LAB_800664c4:
 
       if (pAVar12 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar12->_vf[5])((int)&pAVar12->carObj_ + (int)*(short *)pAVar12->_vf[4],3);
+        (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
 
       }
 
@@ -578,7 +560,7 @@ LAB_800664c4:
 
       if (pAVar12 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar12->_vf[5])((int)&pAVar12->carObj_ + (int)*(short *)pAVar12->_vf[4],3);
+        (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
 
       }
 
@@ -598,7 +580,7 @@ LAB_800664c4:
 
       if ((pAVar3 != (AIHigh_Cop *)0x0) || (((this->carObj_)->carFlags & 0x400U) != 0)
 
-         ) goto switchD_80065ec8_caseD_4;
+         ) goto stateExecuteAndReturn;
 
 LAB_80066684:
 
@@ -610,7 +592,7 @@ LAB_80066684:
 
       if (pAVar12 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar12->_vf[5])((int)&pAVar12->carObj_ + (int)*(short *)pAVar12->_vf[4],3);
+        (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
 
       }
 
@@ -628,7 +610,7 @@ LAB_80066684:
 
       if (pAVar12 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar12->_vf[5])((int)&pAVar12->carObj_ + (int)*(short *)pAVar12->_vf[4],3);
+        (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
 
       }
 
@@ -640,7 +622,7 @@ LAB_80066684:
 
   default:
 
-    goto switchD_80065ec8_caseD_4;
+    goto stateExecuteAndReturn;
 
   case 6:
 
@@ -654,9 +636,9 @@ LAB_80066684:
 
         pa_Var8 = pAVar6->_vf;
 
-        iVar4 = (*(int (*)(...))pa_Var8[7])((int)&pAVar6->carObj_ + (int)*(short *)pa_Var8[6]);
+        iVar4 = (*(*pa_Var8)[3].pfn)((int)&pAVar6->carObj_ + (*pa_Var8)[3].delta);
 
-        if (iVar4 == 0) goto switchD_80065ec8_caseD_4;
+        if (iVar4 == 0) goto stateExecuteAndReturn;
 
         goto LAB_80066684;
 
@@ -670,7 +652,7 @@ LAB_80066684:
 
       if (pAVar12 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar12->_vf[5])((int)&pAVar12->carObj_ + (int)*(short *)pAVar12->_vf[4],3);
+        (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
 
       }
 
@@ -688,7 +670,7 @@ LAB_80066684:
 
       if (pAVar12 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar12->_vf[5])((int)&pAVar12->carObj_ + (int)*(short *)pAVar12->_vf[4],3);
+        (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
 
       }
 
@@ -702,7 +684,7 @@ LAB_80066684:
 
   this->stateType_ = sVar7;
 
-switchD_80065ec8_caseD_4:
+stateExecuteAndReturn:
 
   (this->state_)->StateExecute();
 
@@ -842,9 +824,11 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 
       }
 
-      iVar5 = highLevelAIObjs[pCVar6->carIndex]->lastTrafficTriggerCheckSlice_;
+      thisPlayer = (AIHigh_Base *)highLevelAIObjs[pCVar6->carIndex];
 
-      highLevelAIObjs[pCVar6->carIndex]->lastTrafficTriggerCheckSlice_ = iVar4;
+      iVar5 = thisPlayer->lastTrafficTriggerCheckSlice_;
+
+      thisPlayer->lastTrafficTriggerCheckSlice_ = iVar4;
 
       slice = iVar4;
 
@@ -904,7 +888,7 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 
 /* end of aistate.cpp */
 
-/* cont.35 B3b: base-forward dtor re-attributed from main.c (§3.23 simple variant);
+/* cont.35 B3b: base-forward dtor re-attributed from main.c (ï¿½3.23 simple variant);
    oracle = jal ___11AIHigh_Base; extern-C free fn exports the exact symbol. */
 extern "C" {
 void ___11AIHigh_Base(void *);

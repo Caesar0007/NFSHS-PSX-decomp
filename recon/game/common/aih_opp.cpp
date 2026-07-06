@@ -303,7 +303,7 @@ void AIHigh_Opponent::HighExecute()
 
     pAVar1 = operator new(8);
 
-    pAVar2 = &(new(pAVar1) AIState_Normal(this->carObj_))->_base_AIState_Base;
+    pAVar2 = (AIState_Base*)(new(pAVar1) AIState_Normal(this->carObj_));
 
     pAVar4 = this->state_;
 
@@ -387,7 +387,7 @@ LAB_800638c0:
 
       }
 
-      this->state_ = &pAVar7->_base_AIState_Base;
+      this->state_ = (AIState_Base*)pAVar7;
 
       this->stateType_ = 4;
 
@@ -453,7 +453,7 @@ LAB_800638c0:
 
       pAVar1 = operator new(8);
 
-      pAVar2 = &(new(pAVar1) AIState_Normal(this->carObj_))->_base_AIState_Base;
+      pAVar2 = (AIState_Base*)(new(pAVar1) AIState_Normal(this->carObj_));
 
       pAVar4 = this->state_;
 

@@ -453,7 +453,7 @@ void AIHigh_Cop::HighExecute()
 
             pAVar13 = operator new(8);
 
-            pAVar14 = &(new(pAVar13) AIState_Normal(this->carObj_))->_base_AIState_Base
+            pAVar14 = (AIState_Base*)(new(pAVar13) AIState_Normal(this->carObj_))
 
             ;
 
@@ -507,7 +507,7 @@ void AIHigh_Cop::HighExecute()
 
             }
 
-            this->state_ = &pAVar7->_base_AIState_Base;
+            this->state_ = (AIState_Base*)pAVar7;
 
             this->stateType_ = 5;
 
@@ -573,7 +573,7 @@ void AIHigh_Cop::HighExecute()
 
         pCVar21 = this->carObj_;
 
-        this->state_ = &pAVar26->_base_AIState_Base;
+        this->state_ = (AIState_Base*)pAVar26;
 
         this->stateType_ = 4;
 
@@ -645,7 +645,7 @@ void AIHigh_Cop::HighExecute()
 
       pAVar13 = operator new(8);
 
-      pAVar14 = &(new(pAVar13) AIState_Normal(this->carObj_))->_base_AIState_Base;
+      pAVar14 = (AIState_Base*)(new(pAVar13) AIState_Normal(this->carObj_));
 
       pAVar22 = this->state_;
 
@@ -703,7 +703,7 @@ void AIHigh_Cop::HighExecute()
 
             pCVar21 = this->carObj_;
 
-            this->state_ = &pAVar26->_base_AIState_Base;
+            this->state_ = (AIState_Base*)pAVar26;
 
             this->stateType_ = 4;
 
@@ -973,7 +973,7 @@ LAB_80064df8:
 
         iVar12 = this->blockade_.reverse;
 
-        this->state_ = &pAVar26->_base_AIState_Base;
+        this->state_ = (AIState_Base*)pAVar26;
 
         this->stateType_ = 4;
 
@@ -1005,7 +1005,7 @@ LAB_80064a0c:
 
       pAVar13 = operator new(8);
 
-      pAVar14 = &(new(pAVar13) AIState_Normal(this->carObj_))->_base_AIState_Base;
+      pAVar14 = (AIState_Base*)(new(pAVar13) AIState_Normal(this->carObj_));
 
       pAVar22 = this->state_;
 
@@ -1241,7 +1241,7 @@ LAB_80064778:
 
       pAVar13 = operator new(8);
 
-      pAVar14 = &(new(pAVar13) AIState_Normal(this->carObj_))->_base_AIState_Base;
+      pAVar14 = (AIState_Base*)(new(pAVar13) AIState_Normal(this->carObj_));
 
       pAVar22 = this->state_;
 
@@ -1365,7 +1365,7 @@ LAB_80064778:
 
       pAVar13 = operator new(8);
 
-      pAVar14 = &(new(pAVar13) AIState_Normal(this->carObj_))->_base_AIState_Base;
+      pAVar14 = (AIState_Base*)(new(pAVar13) AIState_Normal(this->carObj_));
 
       pAVar22 = this->state_;
 
@@ -1425,7 +1425,7 @@ LAB_80064778:
 
     pAVar13 = operator new(8);
 
-    pAVar14 = &(new(pAVar13) AIState_Normal(this->carObj_))->_base_AIState_Base;
+    pAVar14 = (AIState_Base*)(new(pAVar13) AIState_Normal(this->carObj_));
 
     pAVar22 = this->state_;
 

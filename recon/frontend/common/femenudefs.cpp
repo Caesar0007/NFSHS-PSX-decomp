@@ -238,7 +238,7 @@ extern "C" void MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand(tMenuComm
       Decrement(&ptVar1->iteratorDealerCar,kPlayerBoth);
       Increment(&menuDefs[0]->iteratorDealerCar,kPlayerBoth);
       this_00 = screenCarSelect[0];
-      command->nextMenu = (tMenu *)&(menuDefs[0]->menuCarDealer)._base_tMenu;
+      command->nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuCarDealer;
       SetState(this_00,2);
     }
   }
@@ -246,7 +246,7 @@ extern "C" void MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand(tMenuComm
     MenuExtended_SetSoloRace__FR12tMenuCommand(command);
     ptVar1 = menuDefs[0];
     command->type = kMenu_Command_GoToMenu;
-    command->nextMenu = (tMenu *)&(ptVar1->menuSingleTrackSelect)._base_tMenu;
+    command->nextMenu = (tMenu *)(tMenu*)&ptVar1->menuSingleTrackSelect;
   }
   tScreen_dtor((tScreen *)&YesNoDialog,2);
   return;
@@ -369,7 +369,7 @@ extern "C" void MenuExtended_TransitionFromPostGameToMainMenu__FR12tMenuCommand(
   
   ptVar1 = menuDefs[0];
   command->type = kMenu_Command_GoToMenuOneWay;
-  command->nextMenu = (tMenu *)&(ptVar1->menuMain)._base_tMenu;
+  command->nextMenu = (tMenu *)(tMenu*)&ptVar1->menuMain;
   return;
 }
 
@@ -397,7 +397,7 @@ extern "C" void MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame__FR12tM
   if (iVar2 != 0) {
     ptVar1 = menuDefs[0];
     command->type = kMenu_Command_GoToMenuOneWay;
-    command->nextMenu = (tMenu *)&(ptVar1->menuPostGameSave)._base_tMenu;
+    command->nextMenu = (tMenu *)(tMenu*)&ptVar1->menuPostGameSave;
   }
   else {
     MenuExtended_TransitionFromPostGameToMainMenu__FR12tMenuCommand(command);
@@ -455,10 +455,10 @@ extern "C" void MenuExtended_GoToCarSelect__FR12tMenuCommand(tMenuCommand *comma
     if (frontEnd.oppNumber == '\x01') {
       command->type = kMenu_Command_GoToMenu;
       if (frontEnd.raceType == '\x01') {
-        ptVar4 = &(menuDefs[0]->menuHPDuelCarSelect)._base_tMenu;
+        ptVar4 = (tMenu*)&menuDefs[0]->menuHPDuelCarSelect;
       }
       else {
-        ptVar4 = &(menuDefs[0]->menuDuelCarSelect)._base_tMenu;
+        ptVar4 = (tMenu*)&menuDefs[0]->menuDuelCarSelect;
       }
       command->nextMenu = ptVar4;
       state = 7;
@@ -468,10 +468,10 @@ extern "C" void MenuExtended_GoToCarSelect__FR12tMenuCommand(tMenuCommand *comma
       command->type = kMenu_Command_GoToMenu;
       this_00 = (tScreenCarSelectDuel *)screenCarSelect[0];
       if (frontEnd.carListType != '\0') {
-        ptVar4 = &(menuDefs[0]->menuCarGarage)._base_tMenu;
+        ptVar4 = (tMenu*)&menuDefs[0]->menuCarGarage;
       }
       else {
-        ptVar4 = &(menuDefs[0]->menuSingleCarSelect)._base_tMenu;
+        ptVar4 = (tMenu*)&menuDefs[0]->menuSingleCarSelect;
       }
       state = (uint)(frontEnd.carListType != '\0');
       command->nextMenu = ptVar4;
@@ -604,7 +604,7 @@ extern "C" void MenuExtended_GoToUpgrades__FR12tMenuCommand(tMenuCommand *comman
   
   ptVar1 = menuDefs[0];
   command->type = kMenu_Command_GoToMenu;
-  command->nextMenu = (tMenu *)&(ptVar1->menuCarUpgrades)._base_tMenu;
+  command->nextMenu = (tMenu *)(tMenu*)&ptVar1->menuCarUpgrades;
   SetState(screenCarSelect[0],4);
   return;
 }
@@ -731,7 +731,7 @@ extern "C" void MenuExtended_GoToBestOfOne__FR12tMenuCommand(tMenuCommand *comma
   if (pvVar2 != (void *)0x0) {
     ptVar1 = menuDefs[0];
     command->type = kMenu_Command_GoToMenu;
-    command->nextMenu = (tMenu *)&(ptVar1->menuSingleTrackSelect)._base_tMenu;
+    command->nextMenu = (tMenu *)(tMenu*)&ptVar1->menuSingleTrackSelect;
   }
   else {
     command->type = kMenu_Command_None;
@@ -761,7 +761,7 @@ extern "C" void MenuExtended_GoToBestOfThree__FR12tMenuCommand(tMenuCommand *com
   if (pvVar2 != (void *)0x0) {
     ptVar1 = menuDefs[0];
     command->type = kMenu_Command_GoToMenu;
-    command->nextMenu = (tMenu *)&(ptVar1->menuPinkSlipsBestOfThree)._base_tMenu;
+    command->nextMenu = (tMenu *)(tMenu*)&ptVar1->menuPinkSlipsBestOfThree;
   }
   else {
     command->type = kMenu_Command_None;
@@ -791,7 +791,7 @@ extern "C" void MenuExtended_GoToBestOfFive__FR12tMenuCommand(tMenuCommand *comm
   if (pvVar2 != (void *)0x0) {
     ptVar1 = menuDefs[0];
     command->type = kMenu_Command_GoToMenu;
-    command->nextMenu = (tMenu *)&(ptVar1->menuPinkSlipsBestOfFive)._base_tMenu;
+    command->nextMenu = (tMenu *)(tMenu*)&ptVar1->menuPinkSlipsBestOfFive;
   }
   else {
     command->type = kMenu_Command_None;
@@ -963,7 +963,7 @@ extern "C" void MenuExtended_GoToTournTrackInfo__FR12tMenuCommand(tMenuCommand *
   StartNewTournament(&tournamentManager,0,frontEnd.tournament);
   ptVar2 = menuDefs[0];
   command->type = kMenu_Command_GoToMenu;
-  command->nextMenu = (tMenu *)&(ptVar2->menuTrackInfo)._base_tMenu;
+  command->nextMenu = (tMenu *)(tMenu*)&ptVar2->menuTrackInfo;
   return;
 }
 
@@ -1025,7 +1025,7 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
   StartNewTournament(&tournamentManager,1,frontEnd.specialevent);
   ptVar2 = menuDefs[0];
   command->type = kMenu_Command_GoToMenu;
-  command->nextMenu = (tMenu *)&(ptVar2->menuTrackInfo)._base_tMenu;
+  command->nextMenu = (tMenu *)(tMenu*)&ptVar2->menuTrackInfo;
   return;
 }
 
@@ -1075,7 +1075,7 @@ extern "C" void MenuExtended_EnterUserName__FR12tMenuCommand(tMenuCommand *comma
   dlgThis->fData = frontEnd.playerNameList[bVar2];
   ptVar4->callingMenu = &ptVar3->menuUserName;
   command->type = kMenu_Command_GoToMenu;
-  command->nextMenu = (tMenu *)&(ptVar3->menuUserName)._base_tMenu;
+  command->nextMenu = (tMenu *)(tMenu*)&ptVar3->menuUserName;
   return;
 }
 
@@ -1606,10 +1606,10 @@ extern "C" void MenuExtended_TierFinished__FR12tMenuCommand(tMenuCommand *comman
   else {
     iVar1 = AskTheUserToSaveTheGame();
     if (iVar1 != 0) {
-      ptVar2 = &(menuDefs[0]->menuPostGameSave)._base_tMenu;
+      ptVar2 = (tMenu*)&menuDefs[0]->menuPostGameSave;
     }
     else {
-      ptVar2 = &(menuDefs[0]->menuMain)._base_tMenu;
+      ptVar2 = (tMenu*)&menuDefs[0]->menuMain;
     }
   }
   command->nextMenu = ptVar2;
@@ -1680,11 +1680,11 @@ extern "C" void MenuExtended_PostGameMenu__FR12tMenuCommand(tMenuCommand *comman
   if (frontEnd.raceType == '\x02') {
     sVar1 = IsTournamentFinished(&tournamentManager);
     if (sVar1 == 0) {
-      command->nextMenu = (tMenu *)&(menuDefs[0]->menuTournamentStandings)._base_tMenu;
+      command->nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuTournamentStandings;
       ptVar4 = (tScreenTournamentStandings *)screenTournamentStandings3item;
     }
     else {
-      command->nextMenu = (tMenu *)&(menuDefs[0]->menuTournamentFinished)._base_tMenu;
+      command->nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuTournamentFinished;
       ptVar4 = screenTournamentStandings;
     }
     ptVar4->fDrawMoney = 1;
@@ -1698,10 +1698,10 @@ extern "C" void MenuExtended_PostGameMenu__FR12tMenuCommand(tMenuCommand *comman
     }
   }
   else if (frontEnd.raceType == '\x06') {
-    ptVar3 = &(menuDefs[0]->menuPinkSlipStandings)._base_tMenu;
+    ptVar3 = (tMenu*)&menuDefs[0]->menuPinkSlipStandings;
     goto MXPostGameMenu_setNextMenu;
   }
-  ptVar3 = &(menuDefs[0]->menuMain)._base_tMenu;
+  ptVar3 = (tMenu*)&menuDefs[0]->menuMain;
 MXPostGameMenu_setNextMenu:
   command->nextMenu = ptVar3;
   return;
@@ -1742,7 +1742,7 @@ extern "C" void MenuExtended_FinishedPlayer1GetName__FR12tMenuCommand(tMenuComma
     if (sVar4 != 0) {
       StatChk_SaveTopTime(Cars_gNewCarStatsList,(short)Cars_gNumRaceCars);
     }
-    command->nextMenu = (tMenu *)&(menuDefs[0]->menuPostGameTrackRecords)._base_tMenu;
+    command->nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuPostGameTrackRecords;
   }
   else {
     (menuDefs[0]->menuItemUserName2).fPlayer = 1;
@@ -1752,7 +1752,7 @@ extern "C" void MenuExtended_FinishedPlayer1GetName__FR12tMenuCommand(tMenuComma
     (ptVar2->menuItemUserName2).fCurrentRow = 0;
     (ptVar2->menuItemUserName2).fCurrentColumn = 0;
     ptVar3->callingMenu = &ptVar2->menuPostGamePlayer2Name;
-    command->nextMenu = (tMenu *)&(ptVar2->menuPostGamePlayer2Name)._base_tMenu;
+    command->nextMenu = (tMenu *)(tMenu*)&ptVar2->menuPostGamePlayer2Name;
   }
   return;
 }
@@ -1786,7 +1786,7 @@ extern "C" void MenuExtended_FinishedPlayer2GetName__FR12tMenuCommand(tMenuComma
   }
   ptVar1 = menuDefs[0];
   command->type = kMenu_Command_GoToMenuOneWay;
-  command->nextMenu = (tMenu *)&(ptVar1->menuPostGameTrackRecords)._base_tMenu;
+  command->nextMenu = (tMenu *)(tMenu*)&ptVar1->menuPostGameTrackRecords;
   return;
 }
 
@@ -1892,7 +1892,7 @@ extern "C" void MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand(tMenuCommand *c
   Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
   command->type = kMenu_Command_GoToMenuOneWay;
   ptVar1 = FEApp;
-  command->nextMenu = (tMenu *)&(menuDefs[0]->menuMain)._base_tMenu;
+  command->nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuMain;
   pcVar4 = TextSys_Word(0x274);
   ptVar2 = FEApp;
   (ptVar1->NoInputMemCardDialog).string = pcVar4;
@@ -1906,7 +1906,7 @@ extern "C" void MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand(tMenuCommand *c
   Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
   ptVar3 = menuDefs[0];
   command->type = kMenu_Command_GoToMenuOneWay;
-  command->nextMenu = (tMenu *)&(ptVar3->menuMain)._base_tMenu;
+  command->nextMenu = (tMenu *)(tMenu*)&ptVar3->menuMain;
   tScreen_dtor((tScreen *)&RetryCancelDialog,2);
   return;
 }
@@ -1934,10 +1934,10 @@ extern "C" void MenuExtended_GoToGarage__FR12tMenuCommand(tMenuCommand *command)
   Increment(&menuDefs[0]->iteratorGarageCar,kPlayerBoth);
   command->type = kMenu_Command_GoToMenu;
   if (tournamentManager.fCurrentTrack == 0) {
-    ptVar1 = &(menuDefs[0]->menuCarGarage)._base_tMenu;
+    ptVar1 = (tMenu*)&menuDefs[0]->menuCarGarage;
   }
   else {
-    ptVar1 = &(menuDefs[0]->menuPostCarGarage)._base_tMenu;
+    ptVar1 = (tMenu*)&menuDefs[0]->menuPostCarGarage;
   }
   command->nextMenu = ptVar1;
   SetState(screenCarSelect[0],1);
@@ -2093,7 +2093,7 @@ extern "C" void MenuExtended_ExitTourney__FR12tMenuCommand(tMenuCommand *command
   }
   else {
     command->type = kMenu_Command_GoToMenuOneWay;
-    command->nextMenu = (tMenu *)&(ptVar1->menuMain)._base_tMenu;
+    command->nextMenu = (tMenu *)(tMenu*)&ptVar1->menuMain;
   }
   tScreen_dtor((tScreen *)&AreYouSure,2);
   return;
@@ -2157,7 +2157,7 @@ extern "C" void MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand(tMenuCommand *
     Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
     ptVar2 = menuDefs[0];
     command->type = kMenu_Command_GoToMenuOneWay;
-    command->nextMenu = (tMenu *)&(ptVar2->menuMain)._base_tMenu;
+    command->nextMenu = (tMenu *)(tMenu*)&ptVar2->menuMain;
     frontEnd.raceType = '\0';
   }
   tScreen_dtor((tScreen *)&AreYouSure,2);
@@ -2252,15 +2252,15 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuItemOptionsLeftRightChoice *this_18;
   tMemoryCardMenuItem *this_19;
   
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemMainOnePlayerRace,0x5b,&(this->menuOnePlayer)._base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemMainOnePlayerRace,0x5b,(tMenu*)&this->menuOnePlayer,
              MenuExtended_SetOnePlayer__FR12tMenuCommand,0x1e,10
             );
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemMainTwoPlayerRace,0x5c,&(this->menuTwoPlayer)._base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemMainTwoPlayerRace,0x5c,(tMenu*)&this->menuTwoPlayer,
              MenuExtended_SetTwoPlayer__FR12tMenuCommand,0x28,10
             );
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemMainTrophyRoom,0x5e,&(this->menuTrophyRoomSelect)._base_tMenu,(void *)0x0,0x32,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemMainTrophyRoom,0x5e,(tMenu*)&this->menuTrophyRoomSelect,(void *)0x0,0x32,
              10);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemMainOptions,0x5d,&(this->menuOptions)._base_tMenu,(void *)0x0,0x3c,10);
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemMainOptions,0x5d,(tMenu*)&this->menuOptions,(void *)0x0,0x3c,10);
   tMenuNFS4_ctor(&this->menuMain,0x1014,(tScreen *)screenMain[0],(tMenu *)0x0,(tMenu *)0x0,(void *)0x0,
              0xb4,(tMenuItem *)this,&this->itemMainTwoPlayerRace,&this->itemMainOptions,
              &this->itemMainTrophyRoom,0);
@@ -2275,54 +2275,54 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuBlank_ctor(&this->menuTrophyInfo,0x4000,(tScreen *)screenTrophyInfo,(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,-1);
   ptVar9 = &this->menuSingleTrackSelect;
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemSkillBeginner,0xa1,&ptVar9->_base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemSkillBeginner,0xa1,(tMenu*)ptVar9,
              MenuExtended_SetBeginner__FR12tMenuCommand,0x8c,10)
   ;
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemSkillIntermediate,0xa2,&ptVar9->_base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemSkillIntermediate,0xa2,(tMenu*)ptVar9,
              MenuExtended_SetIntermediate__FR12tMenuCommand,0x96
              ,10);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemSkillExpert,0xa3,&ptVar9->_base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemSkillExpert,0xa3,(tMenu*)ptVar9,
              MenuExtended_SetExpert__FR12tMenuCommand,0xa0,10);
   this_16 = &this->menuSkillLevel;
   tMenuNFS4_ctor(this_16,0x1004,(tScreen *)screenMain[0],(tMenu *)0x0,(tMenu *)0x0,(void *)0x0,0xb7,
              (tMenuItem *)&this->itemSkillBeginner,&this->itemSkillIntermediate,
              &this->itemSkillExpert,0);
   this_00 = &this->menuTestDriveTrackSelect;
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemOnePlayerTestDrive,0x60,&this_00->_base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemOnePlayerTestDrive,0x60,(tMenu*)this_00,
              MenuExtended_SetTestDrive__FR12tMenuCommand,0xf0,10
             );
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemOnePlayerSingleRace,0x72,&(this->menuSingleRace)._base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemOnePlayerSingleRace,0x72,(tMenu*)&this->menuSingleRace,
              MenuExtended_SetSingleRace__FR12tMenuCommand,0x46,
              10);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemOnePlayerPursuit,0x71,&(this->menuHotPursuit)._base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemOnePlayerPursuit,0x71,(tMenu*)&this->menuHotPursuit,
              MenuExtended_SetHotPursuit__FR12tMenuCommand,0x50,
              10);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemOnePlayerTournament,99,&(this->menuTournament)._base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemOnePlayerTournament,99,(tMenu*)&this->menuTournament,
              MenuExtended_SetTournament__FR12tMenuCommand,0x5a,
              10);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemOnePlayerSpecialEvents,0x69,&(this->menuSpecialEvent)._base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemOnePlayerSpecialEvents,0x69,(tMenu*)&this->menuSpecialEvent,
              MenuExtended_SetSpecialEvent__FR12tMenuCommand,100,
              10);
   tMenuNFS4_ctor(&this->menuOnePlayer,0x1004,(tScreen *)screenMain[0],(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,0xb5,(tMenuItem *)&this->itemOnePlayerTestDrive,
              &this->itemOnePlayerSingleRace,&this->itemOnePlayerPursuit,
              &this->itemOnePlayerTournament,&this->itemOnePlayerSpecialEvents,0);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemSingleRaceSolo,0x6c,&ptVar9->_base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemSingleRaceSolo,0x6c,(tMenu*)ptVar9,
              MenuExtended_SetSoloRace__FR12tMenuCommand,0x6e,10)
   ;
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemSingleRaceDuel,0x6d,&this_16->_base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemSingleRaceDuel,0x6d,(tMenu*)this_16,
              MenuExtended_SetDuelRace__FR12tMenuCommand,0x78,10)
   ;
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemSingleRaceFullGrid,0x6f,&this_16->_base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemSingleRaceFullGrid,0x6f,(tMenu*)this_16,
              MenuExtended_SetFullGrid__FR12tMenuCommand,0x82,10)
   ;
   tMenuNFS4_ctor(&this->menuSingleRace,0x1004,(tScreen *)screenMain[0],(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,0xb6,(tMenuItem *)&this->itemSingleRaceSolo,&this->itemSingleRaceDuel,
              &this->itemSingleRaceFullGrid,0);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemHotPursuitSolo,0x6c,&this_16->_base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemHotPursuitSolo,0x6c,(tMenu*)this_16,
              MenuExtended_SetHPSoloRace__FR12tMenuCommand,0x6e,
              10);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemHotPursuitDuel,0x6d,&this_16->_base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemHotPursuitDuel,0x6d,(tMenu*)this_16,
              MenuExtended_SetHPDuelRace__FR12tMenuCommand,0x78,
              10);
   pcVar4 = (char *)tMenuNFS4_ctor(&this->menuHotPursuit,0x1004,(tScreen *)screenMain[0],(tMenu *)0x0,(tMenu *)0x0,
@@ -2345,27 +2345,27 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuNFS4_ctor(&this->menuSpecialEvent,0x1000,(tScreen *)screenTournSelect,(tMenu *)0x0,(tMenu *)0x0,
              MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand,100,
              (tMenuItem *)&this->itemSpecialEventContinue,&this->itemSpecialEventSelect,0);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemTwoPlayerTestDrive,0x60,&this_00->_base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemTwoPlayerTestDrive,0x60,(tMenu*)this_00,
              MenuExtended_SetTestDrive__FR12tMenuCommand,0xf0,10
             );
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemTwoPlayerDuel,0x72,(tMenu *)0x0,
              MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand,0x46,10);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemTwoPlayerHotPursuit,0x71,&this_16->_base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemTwoPlayerHotPursuit,0x71,(tMenu*)this_16,
              MenuExtended_SetHotPursuit__FR12tMenuCommand,0x50,
              10);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemTwoPlayerPinkSlips,0x6a,&(this->menuPinkSlipSelect)._base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemTwoPlayerPinkSlips,0x6a,(tMenu*)&this->menuPinkSlipSelect,
              MenuExtended_SetPinkSlips__FR12tMenuCommand,0xaa,10
             );
   tMenuNFS4_ctor(&this->menuTwoPlayer,0x1004,(tScreen *)screenMain[0],(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,0xb5,(tMenuItem *)&this->itemTwoPlayerTestDrive,&this->itemTwoPlayerDuel
              ,&this->itemTwoPlayerHotPursuit,&this->itemTwoPlayerPinkSlips,0);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemBestOfOne,0xc0,&ptVar9->_base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemBestOfOne,0xc0,(tMenu*)ptVar9,
              MenuExtended_GoToBestOfOne__FR12tMenuCommand,0xaa,
              10);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemBestOfThree,0xc1,&(this->menuPinkSlipsBestOfThree)._base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemBestOfThree,0xc1,(tMenu*)&this->menuPinkSlipsBestOfThree,
              MenuExtended_GoToBestOfThree__FR12tMenuCommand,0xaa
              ,10);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemBestOfFive,0xc2,&(this->menuPinkSlipsBestOfFive)._base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemBestOfFive,0xc2,(tMenu*)&this->menuPinkSlipsBestOfFive,
              MenuExtended_GoToBestOfFive__FR12tMenuCommand,0xaa,
              10);
   tMenuNFS4_ctor(&this->menuPinkSlipSelect,0x1000,(tScreen *)screenMain[0],(tMenu *)0x0,(tMenu *)0x0,
@@ -2401,7 +2401,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   ptVar10 = &this->itemTrack;
   tMenuItemNFS4LeftRightChoice_ctor(ptVar10,0x93,(tListIterator *)this_12,0x26,10);
   ptVar14 = &this->itemTrackRecords;
-  tMenuItemGoToMenuNFS4Button_ctor(ptVar14,0xd4,&(this->menuTrackRecords)._base_tMenu,(void *)0x0,0x3a,10);
+  tMenuItemGoToMenuNFS4Button_ctor(ptVar14,0xd4,(tMenu*)&this->menuTrackRecords,(void *)0x0,0x3a,10);
   tMenuNFS4_ctor(ptVar9,0x1600,(tScreen *)screenTrackSelect,(tMenu *)0x0,(tMenu *)ptVar12,
              MenuExtended_GoToCarSelect__FR12tMenuCommand,200,
              (tMenuItem *)ptVar15,ptVar10,ptVar14,0);
@@ -2479,7 +2479,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tListIteratorCar_ctor(ptVar6,frontEnd.garageCar,&carManager);
   this_17 = &this->itemGarageCar;
   tMenuItemNFS4LeftRightChoice_ctor(this_17,0x92,(tListIterator *)ptVar6,0x1c,10);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemCarDealer,0x74,&(this->menuGoToCarDealer)._base_tMenu,(void *)0x0,0x3a,10);
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemCarDealer,0x74,(tMenu*)&this->menuGoToCarDealer,(void *)0x0,0x3a,10);
   ptVar15 = &this->itemUpgradeCar;
   tMenuItemGoToMenuNFS4Button_ctor(ptVar15,0x91,(tMenu *)0x0,
              MenuExtended_GoToUpgrades__FR12tMenuCommand,0x44,10
@@ -2497,7 +2497,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuItemNFS4LeftRightChoice_ctor(&this->itemCar2,0x92,(tListIterator *)this_01,0xc,10);
   tMenuItemNFS4LeftRightChoice_ctor(&this->itemColor2,0x120,(tListIterator *)this_09,0x16,10);
   ptVar9 = &this->menuCarDealer;
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemGoToDuelBuyCar,0x78,&ptVar9->_base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemGoToDuelBuyCar,0x78,(tMenu*)ptVar9,
              MenuExtended_GoToDealer__FR12tMenuCommand,-1,10);
   ptVar13 = &this->itemOpponentCar;
   tMenuItemNFS4LeftRightChoice_ctor(ptVar13,0xbc,(tListIterator *)&this->iteratorOpponentCar,0x20,10);
@@ -2566,9 +2566,9 @@ tGlobalMenuDefs::tGlobalMenuDefs()
              (tMenu *)&this->menuPinkSlipCarOptionsPlayerTwo,
              MenuExtended_GoTo2PlayerRace__FR12tMenuCommand,0xba
              ,(tMenuItem *)&this->itemPlayerTwoPinkSlipRace,&this->itemPinkSlipCarP2,0);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemGoToBuyCar,0x78,&ptVar9->_base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemGoToBuyCar,0x78,(tMenu*)ptVar9,
              MenuExtended_GoToDealer__FR12tMenuCommand,0x58,10);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemGoToSellCar,0x79,&(this->menuCarSeller)._base_tMenu,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemGoToSellCar,0x79,(tMenu*)&this->menuCarSeller,
              MenuExtended_GoToSeller__FR12tMenuCommand,0x4e,10);
   tMenuNFS4_ctor(&this->menuGoToCarDealer,0x1200,(tScreen *)screenCarSelect[0],(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,0x90,(tMenuItem *)&this->itemGoToBuyCar,&this->itemGoToSellCar,0);
@@ -2643,12 +2643,12 @@ tGlobalMenuDefs::tGlobalMenuDefs()
              (tScreen *)screenPinkSlipsCarSelectPlayerTwo,(tMenu *)0x0,(tMenu *)0x0,(void *)0x0,
              0xbb,1,(tMenuItem *)this_18,this_06,this_14,0);
   tMenuBlank_ctor(&this->menuShowroom,0x4000,(tScreen *)0x0,(tMenu *)0x0,(tMenu *)0x0,(void *)0x0,-1);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemOptionsAudio,0x1c5,&(this->menuAudio)._base_tMenu,(void *)0x0,0xb4,10);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemOptionsDisplay,0x1c6,&(this->menuDisplayOptions)._base_tMenu,(void *)0x0,0xbe,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemOptionsAudio,0x1c5,(tMenu*)&this->menuAudio,(void *)0x0,0xb4,10);
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemOptionsDisplay,0x1c6,(tMenu*)&this->menuDisplayOptions,(void *)0x0,0xbe,
              10);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemOptionsControllers,0x1c8,&(this->menuControllerConfig)._base_tMenu,(void *)0x0,
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemOptionsControllers,0x1c8,(tMenu*)&this->menuControllerConfig,(void *)0x0,
              200,10);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemOptionsMemoryCard,0x1c9,&(this->menuMemory)._base_tMenu,(void *)0x0,0xd2,10);
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemOptionsMemoryCard,0x1c9,(tMenu*)&this->menuMemory,(void *)0x0,0xd2,10);
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemOptionsUsername,0x1ca,(tMenu *)0x0,
              MenuExtended_EnterUserName__FR12tMenuCommand,0xdc,
              10);
@@ -2814,7 +2814,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuNFS4_ctor(&this->menuPinkSlipStandings,0x1004,(tScreen *)screenPinkSlipStandings,(tMenu *)0x0,
              (tMenu *)0x0,(void *)0x0,0x2f4,(tMenuItem *)&this->itemPinkSlipStandingsForward,
              &this->itemPinkSlipStandingsExit,0);
-  tMenuItemGoToMenuNFS4Button_ctor(&this->itemTournStandingsForward,0x5a,&(this->menuTrackInfo)._base_tMenu,(void *)0x0,0,10)
+  tMenuItemGoToMenuNFS4Button_ctor(&this->itemTournStandingsForward,0x5a,(tMenu*)&this->menuTrackInfo,(void *)0x0,0,10)
   ;
   tMenuItemGoToMenuNFS4Button_ctor(&this->itemTournStandingsExit,0x9b,(tMenu *)0x0,
              MenuExtended_ExitTourney__FR12tMenuCommand,0,10);
@@ -2861,10 +2861,10 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   *(void **)&((this->itemMemContinue)._vf) = (void *)tMemoryCardMenuItem_vtable;
   tOptionsMenu_ctor(&this->menuPostGameSave,0x1040,(tScreen *)ptVar3,(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,-1,0x2e,10,(tMenuItem *)&this->itemMemContinue,this_19,0);
-  (this->menuPlayerOneCarSelect)._base_tMenuNFS4._base_tMenu.fChildMenu = (tMenu *)&this->menuPlayerTwoCarSelect
+  (this->menuPlayerOneCarSelect).fChildMenu = (tMenu *)&this->menuPlayerTwoCarSelect
   ;
-  (this->menuPlayerOneGarage)._base_tMenuNFS4._base_tMenu.fChildMenu = (tMenu *)&this->menuPlayerTwoGarage;
-  (this->menuPlayerOnePinkSlipCarSelect)._base_tMenuNFS4._base_tMenu.fChildMenu =
+  (this->menuPlayerOneGarage).fChildMenu = (tMenu *)&this->menuPlayerTwoGarage;
+  (this->menuPlayerOnePinkSlipCarSelect).fChildMenu =
        (tMenu *)&this->menuPlayerTwoPinkSlipCarSelect;
   SetDimensions((tMenuItemLeftRightSlider *)&this->itemMusicVolume,0,0,0x78,5);
   SetDimensions((tMenuItemLeftRightSlider *)&this->itemSoundEffectsVolume,0,0,0x78,5);
@@ -2876,15 +2876,15 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   (this->iteratorGarageCar).fCarListFilter = 2;
   (this->iteratorDealerCar).fCarListFilter = 1;
   (this->iteratorSellerCar).fCarListFilter = 2;
-  (this->menuAudio)._base_tMenu.VertHelp = 0;
-  (this->menuDisplayOptions)._base_tMenu.VertHelp = 0;
-  (this->menuControllerConfig)._base_tMenu.VertHelp = 1;
+  (this->menuAudio).VertHelp = 0;
+  (this->menuDisplayOptions).VertHelp = 0;
+  (this->menuControllerConfig).VertHelp = 1;
   (this->itemTournamentFinishedHome).fFlags =
        uVar8 | 0x40;
-  (this->menuMemory)._base_tMenu.VertHelp = 0;
-  (this->menuUserName)._base_tMenu.VertHelp = 0;
-  (this->menuTrackRecords)._base_tMenu.VertHelp = 1;
-  (this->menuTrophyInfo)._base_tMenuNFS4._base_tMenu.VertHelp = 0;
+  (this->menuMemory).VertHelp = 0;
+  (this->menuUserName).VertHelp = 0;
+  (this->menuTrackRecords).VertHelp = 1;
+  (this->menuTrophyInfo).VertHelp = 0;
   return;
 }
 

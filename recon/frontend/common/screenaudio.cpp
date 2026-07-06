@@ -45,7 +45,7 @@ void tScreenAudio::PlaySound()
     SNDSYS_setopts(&opts);
     this->prevAudioMode = frontEnd.audioMode;
   }
-  item = (short)(menuDefs[0]->menuAudio)._base_tMenu.fCurrentItem;
+  item = (short)(menuDefs[0]->menuAudio).fCurrentItem;
   if (item < 1 || 5 < item) {
     if (this->audioTest == 0) {
       return;
@@ -200,7 +200,7 @@ void tScreenAudio::DrawBackground()
     fade = 0x80;
   }
   percent = -1;
-  switch((short)(menuDefs[0]->menuAudio)._base_tMenu.fCurrentItem) {
+  switch((short)(menuDefs[0]->menuAudio).fCurrentItem) {
   case 0:
     slider = &menuDefs[0]->itemMusicVolume;
     break;
@@ -291,7 +291,7 @@ void tScreenAudio::Initialize()
   menus = menuDefs[0];
   this->fPrevSelectedSong = -1;
   SetMenu((tMenuItemSlidingMenu *)&menus->itemSlidingPlayList,true,
-             &(menus->menuPlayListMenu)._base_tInsideBoxMenu);
+             (tInsideBoxMenu*)&menus->menuPlayListMenu);
   this->Initialize();
   audioMode = frontEnd.audioMode;
   this->audioTest = 0;

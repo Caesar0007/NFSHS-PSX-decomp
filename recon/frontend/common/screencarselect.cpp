@@ -279,7 +279,7 @@ DrawOvl_transitionPos:
         if (overlay->ID == 3) {
           carInfo.fPrices[0] =
                carInfo.fPrices
-               [upgradeTranslate[(short)(menuDefs->menuCarUpgrades)._base_tMenu.fCurrentItem]];
+               [upgradeTranslate[(short)(menuDefs->menuCarUpgrades).fCurrentItem]];
         }
         else {
           carInfo.fPrices[0] =
@@ -324,11 +324,11 @@ DrawOvl_transitionPos:
       temp.w = pos.w + -0x3c;
       temp.h = pos.h + -0x4b;
       textState = menuDefs;
-      FETextRender_MenuTextPositionedJustify((short)((uint)(((menuDefs->menuCarUpgrades)._base_tMenu.fCurrentItem + 0x96) * 0x10000)
+      FETextRender_MenuTextPositionedJustify((short)((uint)(((menuDefs->menuCarUpgrades).fCurrentItem + 0x96) * 0x10000)
                         >> 0x10),
                  (short)(((uint)(ushort)pos.x + ((int)((uint)(ushort)pos.w << 0x10) >> 0x11)) *
                          0x10000 >> 0x10),pos.y + 0x18,2,textState_Hilighted,textType_FramedInfo);
-      iVar5 = (short)(menuDefs->menuCarUpgrades)._base_tMenu.fCurrentItem + 0xaf;
+      iVar5 = (short)(menuDefs->menuCarUpgrades).fCurrentItem + 0xaf;
       r = (RECT *)0xc;
       if (iVar5 == 0xb0) {
         textState = (tGlobalMenuDefs *)(int)carInfo.fCarID;
@@ -346,7 +346,7 @@ DrawOvl_wordWrapEmit:
       FETextRender_WordWrap(sVar3,r,(tMenuTextState)(int)textState,textType_PopUpText);
       sVar3 = 0xa0;
       if (((ushort)((ushort)carInfo.fUpgrades &
-                   upgradeIcons[(short)(menuDefs->menuCarUpgrades)._base_tMenu.fCurrentItem]) == 0) &&
+                   upgradeIcons[(short)(menuDefs->menuCarUpgrades).fCurrentItem]) == 0) &&
          (sVar3 = 0x9e, gPadinfo.buf[0].ID == '#')) {
         sVar3 = 0x9f;
       }

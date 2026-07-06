@@ -669,7 +669,8 @@ void AIState_None::Execute()
 
 /* ---- _._12AIState_None  AIState_None::dtor  [AIHIGH.CPP:?] SLD-FLAG:NO_SLD ---- */
 
-AIState_None::~AIState_None()
+extern void __builtin_delete(void *);
+extern "C" void ___12AIState_None(AIState_None *pThis, int __in_chrg)
 
 
 
@@ -678,9 +679,10 @@ AIState_None::~AIState_None()
 
   
 
-  (this->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])AIState_None_vtable;
-
-
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_None_vtable;
+  if ((__in_chrg & 1U) != 0) {
+    __builtin_delete(pThis);
+  }
   return;
 
 }

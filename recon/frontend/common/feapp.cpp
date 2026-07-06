@@ -1217,7 +1217,7 @@ tAppCommand tFEApplication::RunPostGame()
 RunPostGame_setupNameMenu:
     ptVar1 = menuDefs[0];
     if (this->needName[0] != 0) {
-      command.nextMenu = &(menuDefs[0]->menuPostGamePlayer1Name)._base_tMenu;
+      command.nextMenu = (tMenu*)&menuDefs[0]->menuPostGamePlayer1Name;
       (menuDefs[0]->menuItemUserName1).fData = frontEnd.playerNameList[0];
       ptVar2 = screenUserName;
       (ptVar1->menuItemUserName1).fPlayer = 0;
@@ -1228,7 +1228,7 @@ RunPostGame_setupNameMenu:
       goto RunPostGame_callMainLoop;
     }
     if (this->needName[1] != 0) {
-      command.nextMenu = &(menuDefs[0]->menuPostGamePlayer2Name)._base_tMenu;
+      command.nextMenu = (tMenu*)&menuDefs[0]->menuPostGamePlayer2Name;
       (menuDefs[0]->menuItemUserName2).fPlayer = 1;
       (ptVar1->menuItemUserName2).fData = frontEnd.playerNameList[4];
       ptVar2 = screenUserName;
@@ -1254,7 +1254,7 @@ tAppCommand tFEApplication::RunFrontEnd()
 {
   tAppCommand tVar1;
   
-  tVar1 = this->MainLoop(&(menuDefs[0]->menuMain)._base_tMenu);
+  tVar1 = this->MainLoop((tMenu*)&menuDefs[0]->menuMain);
   return tVar1;
 }
 

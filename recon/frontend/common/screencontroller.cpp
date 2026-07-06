@@ -406,10 +406,10 @@ SetCurCtrl_menuSetVertHelp:
     SetMenu(&menuDefs[0]->itemControllerSettings,firsttimeU,fSetMenu);
   }
   if (((byte)this->fCurrentController - 5 < 2) && ((byte)this->fTextConfig < 2)) {
-    (menuDefs[0]->menuControllerConfig)._base_tMenu.VertHelp = 1;
+    (menuDefs[0]->menuControllerConfig).VertHelp = 1;
   }
   else {
-    (menuDefs[0]->menuControllerConfig)._base_tMenu.VertHelp = 0;
+    (menuDefs[0]->menuControllerConfig).VertHelp = 0;
   }
   return;
 }
@@ -541,10 +541,10 @@ void tScreenControllerConfig::DrawController()
   drawFlags.custom_shapes = this->fSwapShapes.fShapes;
   bShockActive = false;
   if ((((this->fCurrentController == '\x04') &&
-       ((short)(menuDefs[0]->menuControllerDualShock)._base_tMenu.fCurrentItem == 0)) ||
+       ((short)(menuDefs[0]->menuControllerDualShock).fCurrentItem == 0)) ||
       ((this->fCurrentController == '\x06' &&
-       ((short)(menuDefs[0]->menuControllerDualShockAnalog)._base_tMenu.fCurrentItem == 0)))) &&
-     ((short)(menuDefs[0]->menuControllerConfig)._base_tMenu.fCurrentItem == 1)) {
+       ((short)(menuDefs[0]->menuControllerDualShockAnalog).fCurrentItem == 0)))) &&
+     ((short)(menuDefs[0]->menuControllerConfig).fCurrentItem == 1)) {
     bShockActive = true;
   }
   if ((bShockActive) && (frontEnd.shockMode[this->player] != '\0')) {
@@ -559,10 +559,10 @@ void tScreenControllerConfig::DrawController()
   else {
     bShockActive = false;
     if ((((this->fCurrentController == '\x04') &&
-         ((short)(menuDefs[0]->menuControllerDualShock)._base_tMenu.fCurrentItem == 1)) ||
+         ((short)(menuDefs[0]->menuControllerDualShock).fCurrentItem == 1)) ||
         ((this->fCurrentController == '\x06' &&
-         ((short)(menuDefs[0]->menuControllerDualShockAnalog)._base_tMenu.fCurrentItem == 1)))) &&
-       ((short)(menuDefs[0]->menuControllerConfig)._base_tMenu.fCurrentItem == 1)) {
+         ((short)(menuDefs[0]->menuControllerDualShockAnalog).fCurrentItem == 1)))) &&
+       ((short)(menuDefs[0]->menuControllerConfig).fCurrentItem == 1)) {
       bShockActive = true;
     }
     if ((bShockActive) && ((byte)frontEnd.shockImpact[this->player] != 0)) {

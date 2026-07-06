@@ -303,11 +303,11 @@ void tMenuItemLeftRightFade::UpdateTransition(bool selected)
 tOptionsMenu::tOptionsMenu(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
               tMenu *optionsMenu,void (*OnButtonPress)(tMenuCommand&),short title,int firstframe,int numframes,
               tMenuItem *firstItem,...)
-  : _base_tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
+  : tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
   
-  this->_base_tMenu._vf = (__vtbl_ptr_type (*)[11])tOptionsMenu_vtable;
-  this->_base_tMenu.tMenuConstructor(firstItem,(&firstItem + 1));
+  this->_vf = (__vtbl_ptr_type (*)[11])tOptionsMenu_vtable;
+  this->tMenuConstructor(firstItem,(&firstItem + 1));
   this->fScreenFade = 0;
   this->fPrevItem = 0;
   this->fFirstFrame = firstframe;
@@ -322,7 +322,7 @@ tOptionsMenu::tOptionsMenu(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
 tOptionsMenu::~tOptionsMenu()
 
 {
-  *(void **)&((this->_base_tMenu)._vf) = (void *)tOptionsMenu_vtable;
+  *(void **)&(this->_vf) = (void *)tOptionsMenu_vtable;
   return;
 }
 
@@ -336,7 +336,7 @@ long tOptionsMenu::DebounceKeys()
   long lVar1;
   tMenuItem *ptVar2;
   
-  ptVar2 = (this->_base_tMenu).fItemList[(this->_base_tMenu).fCurrentItem];
+  ptVar2 = this->fItemList[this->fCurrentItem];
   if ((ptVar2 != (tMenuItem *)0x0) && (((ptVar2->fFlags & 1) ^ 1) != 0)) {
     return (*(*ptVar2->_vf)[2].pfn)((int)ptVar2 + (int)(*ptVar2->_vf)[2].delta);
   }
@@ -356,15 +356,15 @@ void tOptionsMenu::TransitionOff()
   int i;
   
   i = 0;
-  ptVar2 = (this->_base_tMenu).fItemList[0];
+  ptVar2 = this->fItemList[0];
   this->fTransitionDirection = '(';
   this->fScreenFade = 0;
   while (ptVar2 != (tMenuItem *)0x0) {
-    iVar3 = *(int *)((int)(this->_base_tMenu).fItemList + ((i << 0x10) >> 0xe));
+    iVar3 = *(int *)((int)this->fItemList + ((i << 0x10) >> 0xe));
     iVar1 = *(int *)(iVar3 + 0x18);
     (**(int (**)(...))(iVar1 + 0x3c))(iVar3 + *(short *)(iVar1 + 0x38));
     i = i + 1;
-    ptVar2 = *(tMenuItem **)((int)(this->_base_tMenu).fItemList + (i * 0x10000 >> 0xe));
+    ptVar2 = *(tMenuItem **)((int)this->fItemList + (i * 0x10000 >> 0xe));
   }
   this->fInMenuTransition = 1;
   return;
@@ -383,16 +383,16 @@ void tOptionsMenu::TransitionOn()
   int i;
   
   i = 0;
-  ptVar2 = (this->_base_tMenu).fItemList[0];
+  ptVar2 = this->fItemList[0];
   this->fTransitionDirection = -0x28;
   this->fInMenuTransition = 1;
   this->fScreenFade = 0x228;
   while (ptVar2 != (tMenuItem *)0x0) {
-    iVar3 = *(int *)((int)(this->_base_tMenu).fItemList + ((i << 0x10) >> 0xe));
+    iVar3 = *(int *)((int)this->fItemList + ((i << 0x10) >> 0xe));
     iVar1 = *(int *)(iVar3 + 0x18);
     (**(int (**)(...))(iVar1 + 0x44))(iVar3 + *(short *)(iVar1 + 0x40));
     i = i + 1;
-    ptVar2 = *(tMenuItem **)((int)(this->_base_tMenu).fItemList + (i * 0x10000 >> 0xe));
+    ptVar2 = *(tMenuItem **)((int)this->fItemList + (i * 0x10000 >> 0xe));
   }
   return;
 }
@@ -419,16 +419,16 @@ void * tOptionsMenu::TransitionIsFinished()
   }
   if (this->fInMenuTransition == 0) {
     i = 0;
-    ptVar1 = (this->_base_tMenu).fItemList[0];
+    ptVar1 = this->fItemList[0];
     while (ptVar1 != (tMenuItem *)0x0) {
-      iVar4 = *(int *)((int)(this->_base_tMenu).fItemList + ((i << 0x10) >> 0xe));
+      iVar4 = *(int *)((int)this->fItemList + ((i << 0x10) >> 0xe));
       iVar2 = *(int *)(iVar4 + 0x18);
       iVar2 = (**(int (**)(...))(iVar2 + 0x4c))(iVar4 + *(short *)(iVar2 + 0x48));
       i = i + 1;
       if (iVar2 != 1) {
         this->fInMenuTransition = 1;
       }
-      ptVar1 = *(tMenuItem **)((int)(this->_base_tMenu).fItemList + (i * 0x10000 >> 0xe));
+      ptVar1 = *(tMenuItem **)((int)this->fItemList + (i * 0x10000 >> 0xe));
     }
   }
   pa_Var3 = FEApp->fCurrentScreen[0]->_vf;
@@ -458,17 +458,17 @@ void tOptionsMenu::UpdateTransition()
   
   if (this->fInMenuTransition == 0) {
     i = 0;
-    ptVar5 = (this->_base_tMenu).fItemList[0];
+    ptVar5 = this->fItemList[0];
     while (ptVar5 != (tMenuItem *)0x0) {
-      ptVar5 = (this->_base_tMenu).fItemList[(short)i];
+      ptVar5 = this->fItemList[(short)i];
       pa_Var3 = ptVar5->_vf;
       bVar6 = false;
       if (this->fInMenuTransition == 0) {
-        bVar6 = (int)(short)i == (this->_base_tMenu).fCurrentItem;
+        bVar6 = (int)(short)i == this->fCurrentItem;
       }
       (*(*pa_Var3)[10].pfn)((char *)ptVar5 + (int)(*pa_Var3)[10].delta,bVar6);
       i = i + 1;
-      ptVar5 = *(tMenuItem **)((int)(this->_base_tMenu).fItemList + (i * 0x10000 >> 0xe));
+      ptVar5 = *(tMenuItem **)((int)this->fItemList + (i * 0x10000 >> 0xe));
     }
     goto UpdTrans_callVT7;
   }
@@ -482,32 +482,32 @@ void tOptionsMenu::UpdateTransition()
       goto UpdTrans_callVT7;
     }
     i = 0;
-    if ((this->_base_tMenu).fItemList[0] == (tMenuItem *)0x0) goto UpdTrans_callVT7;
+    if (this->fItemList[0] == (tMenuItem *)0x0) goto UpdTrans_callVT7;
     do {
-      iVar4 = *(int *)((int)(this->_base_tMenu).fItemList + ((i << 0x10) >> 0xe));
+      iVar4 = *(int *)((int)this->fItemList + ((i << 0x10) >> 0xe));
       iVar2 = *(int *)(iVar4 + 0x18);
       iVar2 = (**(int (**)(...))(iVar2 + 0x4c))(iVar4 + *(short *)(iVar2 + 0x48));
       iVar4 = i + 1;
       if (iVar2 == 0) break;
       i = iVar4;
-    } while (*(int *)((int)(this->_base_tMenu).fItemList + (iVar4 * 0x10000 >> 0xe)) != 0);
-    ptVar5 = *(tMenuItem **)((int)(this->_base_tMenu).fItemList + ((i << 0x10) >> 0xe));
+    } while (*(int *)((int)this->fItemList + (iVar4 * 0x10000 >> 0xe)) != 0);
+    ptVar5 = *(tMenuItem **)((int)this->fItemList + ((i << 0x10) >> 0xe));
     if (ptVar5 == (tMenuItem *)0x0) goto UpdTrans_callVT7;
 feo_gotItem:
     (*(*ptVar5->_vf)[10].pfn)((char *)ptVar5 + (int)(*ptVar5->_vf)[10].delta,0);
   }
   else {
     i = 0;
-    ptVar5 = (this->_base_tMenu).fItemList[0];
+    ptVar5 = this->fItemList[0];
     while (ptVar5 != (tMenuItem *)0x0) {
       i = i + 1;
-      ptVar5 = *(tMenuItem **)((int)(this->_base_tMenu).fItemList + (i * 0x10000 >> 0xe));
+      ptVar5 = *(tMenuItem **)((int)this->fItemList + (i * 0x10000 >> 0xe));
     }
     i = i + -1;
     if (i * 0x10000 >> 0x10 != -1) {
       do {
         sVar7 = (short)i;
-        iVar4 = *(int *)((int)(this->_base_tMenu).fItemList + ((i << 0x10) >> 0xe));
+        iVar4 = *(int *)((int)this->fItemList + ((i << 0x10) >> 0xe));
         iVar2 = *(int *)(iVar4 + 0x18);
         iVar2 = (**(int (**)(...))(iVar2 + 0x4c))(iVar4 + *(short *)(iVar2 + 0x48));
         i = i + -1;
@@ -515,7 +515,7 @@ feo_gotItem:
         sVar7 = (short)i;
       } while (i * 0x10000 >> 0x10 != -1);
       if (sVar7 != -1) {
-        ptVar5 = (this->_base_tMenu).fItemList[sVar7];
+        ptVar5 = this->fItemList[sVar7];
         goto feo_gotItem;
       }
     }
@@ -526,8 +526,8 @@ feo_gotItem:
     }
   }
 UpdTrans_callVT7:
-  pa_Var3 = (this->_base_tMenu)._vf;
-  (*(*pa_Var3)[7].pfn)((int)(this->_base_tMenu).fItemList + (*pa_Var3)[7].delta + -0x10);
+  pa_Var3 = this->_vf;
+  (*(*pa_Var3)[7].pfn)((int)this->fItemList + (*pa_Var3)[7].delta + -0x10);
   return;
 }
 
@@ -545,34 +545,34 @@ void tOptionsMenu::Draw()
   tDrawShapeExtended drawFlags;
   
   CalcPulsateYellow();
-  ptVar1 = (this->_base_tMenu).fItemList[(this->_base_tMenu).fCurrentItem];
+  ptVar1 = this->fItemList[this->fCurrentItem];
   if ((ptVar1 == (tMenuItem *)0x0) || ((ptVar1->fFlags & 1) != 0)) {
-    (this->_base_tMenu).fCurrentItem = 0;
+    this->fCurrentItem = 0;
   }
-  while ((i = (this->_base_tMenu).fCurrentItem, ((this->_base_tMenu).fItemList[i]->fFlags & 1) != 0 &&
-         ((this->_base_tMenu).fItemList[i + 1] != (tMenuItem *)0x0))) {
-    (this->_base_tMenu).fCurrentItem = i + 1;
+  while ((i = this->fCurrentItem, (this->fItemList[i]->fFlags & 1) != 0 &&
+         (this->fItemList[i + 1] != (tMenuItem *)0x0))) {
+    this->fCurrentItem = i + 1;
   }
-  while ((i = (this->_base_tMenu).fCurrentItem, ((this->_base_tMenu).fItemList[i]->fFlags & 1) != 0 &&
+  while ((i = this->fCurrentItem, (this->fItemList[i]->fFlags & 1) != 0 &&
          (0 < i))) {
-    (this->_base_tMenu).fCurrentItem = i + -1;
+    this->fCurrentItem = i + -1;
   }
   if ((-1 < this->fFirstFrame) && (0 < this->fNumFrames)) {
     drawFlags.tint[0] = 0xcec844;
     DrawShapeExtended(this->fFirstFrame + ((int)(ticks[0] >> 4) % this->fNumFrames),0x410,0x10,0x10,0,0,&drawFlags);
   }
   i = 0;
-  ptVar1 = (this->_base_tMenu).fItemList[0];
+  ptVar1 = this->fItemList[0];
   while (ptVar1 != (tMenuItem *)0x0) {
-    ptVar1 = (this->_base_tMenu).fItemList[(short)i];
+    ptVar1 = this->fItemList[(short)i];
     pa_Var2 = ptVar1->_vf;
     bVar4 = false;
     if (this->fInMenuTransition == 0) {
-      bVar4 = (int)(short)i == (this->_base_tMenu).fCurrentItem;
+      bVar4 = (int)(short)i == this->fCurrentItem;
     }
     (*(*pa_Var2)[5].pfn)((char *)ptVar1 + (int)(*pa_Var2)[5].delta,0,0,bVar4);
     i = i + 1;
-    ptVar1 = *(tMenuItem **)((int)(this->_base_tMenu).fItemList + (i * 0x10000 >> 0xe));
+    ptVar1 = *(tMenuItem **)((int)this->fItemList + (i * 0x10000 >> 0xe));
   }
   return;
 }
@@ -586,14 +586,14 @@ void tOptionsMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCo
 {
   short sVar1;
   
-  sVar1 = this->_base_tMenu.GetNumberEnabledItems();
+  sVar1 = this->GetNumberEnabledItems();
   if (sVar1 == 0) {
-    (this->_base_tMenu).fCurrentItem = 0;
+    this->fCurrentItem = 0;
     if ((keyval != kInput_KeyType_Triangle) && (keyval != kInput_KeyType_Circle)) {
       keyval = kInput_KeyType_AlreadyProcessed;
     }
   }
-  this->_base_tMenu.ProcessInput(fromPlayer,keyval,command);
+  this->tMenu::ProcessInput(fromPlayer,keyval,command);
   return;
 }
 
@@ -603,11 +603,11 @@ void tOptionsMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCo
 
 tInsideBoxMenu::tInsideBoxMenu(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
               tMenu *optionsMenu,void (*OnButtonPress)(tMenuCommand&),short title,tMenuItem *firstItem,...)
-  : _base_tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
+  : tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
   
-  this->_base_tMenu._vf = (__vtbl_ptr_type (*)[11])tInsideBoxMenu_vtable;
-  this->_base_tMenu.tMenuConstructor(firstItem,(&firstItem + 1));
+  this->_vf = (__vtbl_ptr_type (*)[11])tInsideBoxMenu_vtable;
+  this->tMenuConstructor(firstItem,(&firstItem + 1));
   this->fPrevItem = 0;
   this->fMoving = 0;
   this->fMovingDir = 0;
@@ -621,7 +621,7 @@ tInsideBoxMenu::tInsideBoxMenu(u_int flags,tScreen *screenHandler,tMenu *nextMen
 tInsideBoxMenu::~tInsideBoxMenu()
 
 {
-  *(void **)&((this->_base_tMenu)._vf) = (void *)tInsideBoxMenu_vtable;
+  *(void **)&(this->_vf) = (void *)tInsideBoxMenu_vtable;
   return;
 }
 
@@ -644,14 +644,14 @@ void tInsideBoxMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenu
   }
   tVar2 = keyval;
 ProcInpFE_keyUpItemZero:
-  if ((tVar2 == kInput_KeyType_Up) && ((this->_base_tMenu).fCurrentItem == 0)) {
-    ptVar3 = (this->_base_tMenu).fItemList[0];
+  if ((tVar2 == kInput_KeyType_Up) && (this->fCurrentItem == 0)) {
+    ptVar3 = this->fItemList[0];
     pa_Var1 = ptVar3->_vf;
     (*(*pa_Var1)[3].pfn)((char *)ptVar3 + (int)(*pa_Var1)[3].delta);
   }
   else if ((keyval != kInput_KeyType_Down) ||
-          ((this->_base_tMenu).fItemList[(this->_base_tMenu).fCurrentItem + 1] != (tMenuItem *)0x0)) {
-    this->_base_tMenu.ProcessInput(fromPlayer,keyval,command);
+          (this->fItemList[this->fCurrentItem + 1] != (tMenuItem *)0x0)) {
+    this->tMenu::ProcessInput(fromPlayer,keyval,command);
   }
   return;
 }
@@ -671,7 +671,7 @@ int tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short arg5)
   tMenuItem *ptVar6;
   bool bVar7;
   
-  i = (this->_base_tMenu).fCurrentItem;
+  i = this->fCurrentItem;
   if (i != this->fPrevItem) {
     if (this->fPrevItem < i) {
       this->fMoving = 0x18;
@@ -682,7 +682,7 @@ int tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short arg5)
       sVar1 = 4;
     }
     this->fMovingDir = sVar1;
-    this->fPrevItem = (short)(this->_base_tMenu).fCurrentItem;
+    this->fPrevItem = (short)this->fCurrentItem;
   }
   if (this->fMoving != 0) {
     uVar2 = this->fMoving + this->fMovingDir;
@@ -696,24 +696,24 @@ int tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short arg5)
   }
   i = 0;
   do {
-    j = (u_int)(u_short)(this->_base_tMenu).fCurrentItem + i + -2;
+    j = (u_int)(u_short)this->fCurrentItem + i + -2;
     if ((3 < (short)i) &&
-       (*(int *)((int)(this->_base_tMenu).fItemList + (j * 0x10000 >> 0xe) + -4) == 0)) {
+       (*(int *)((int)this->fItemList + (j * 0x10000 >> 0xe) + -4) == 0)) {
       return 0;
     }
     j = j * 0x10000 >> 0x10;
-    if ((-1 < j) && (ptVar6 = (this->_base_tMenu).fItemList[j], ptVar6 != (tMenuItem *)0x0)) {
+    if ((-1 < j) && (ptVar6 = this->fItemList[j], ptVar6 != (tMenuItem *)0x0)) {
       if (this->fMoving == 0) {
-        bVar7 = j == (this->_base_tMenu).fCurrentItem;
+        bVar7 = j == this->fCurrentItem;
       }
       else {
         bVar7 = false;
       }
       (*(*ptVar6->_vf)[10].pfn)((char *)ptVar6 + (int)(*ptVar6->_vf)[10].delta,bVar7);
-      ptVar6 = (this->_base_tMenu).fItemList[(short)j];
+      ptVar6 = this->fItemList[(short)j];
       pa_Var3 = ptVar6->_vf;
       if (this->fMoving == 0) {
-        bVar7 = (int)(short)j == (this->_base_tMenu).fCurrentItem;
+        bVar7 = (int)(short)j == this->fCurrentItem;
       }
       else {
         bVar7 = false;
@@ -866,7 +866,7 @@ long tMenuItemSlidingMenu::DebounceKeys()
   ptVar3 = this->currMenu;
   uVar1 = 0x600;
   if (ptVar3 != (tInsideBoxMenu *)0x0) {
-    pa_Var2 = (ptVar3->_base_tMenu)._vf;
+    pa_Var2 = (ptVar3)->_vf;
     uVar1 = (*(*pa_Var2)[4].pfn)((int)ptVar3 + (*pa_Var2)[4].delta);
     uVar1 = uVar1 | 0x600;
   }
@@ -1084,9 +1084,9 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
     shapetop = ptVar6 + 0x1f;
     shapebottom = ptVar6 + 0x20;
     index = this->currMenu;
-    pa_Var3 = (int)(index->_base_tMenu)._vf;
+    pa_Var3 = (int)(index)->_vf;
     (**(int (**)(...))(pa_Var3 + 0x5c))
-              ((int)(index->_base_tMenu).fItemList + *(short *)(pa_Var3 + 0x58) + -0x10,
+              ((int)(index)->fItemList + *(short *)(pa_Var3 + 0x58) + -0x10,
                xx * 0x10000 >> 0x10,yy * 0x10000 >> 0x10,ww,
                (int)((u_int)(u_short)this->fSlideOffset << 0x11) >> 0x10,(int)this->fHeight);
     itemColor = hh >> 0x10;
@@ -1145,7 +1145,7 @@ void tMenuItemSlidingMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval
   
   if ((this->fOpenHeight == this->fHeight) &&
      (ptVar2 = this->currMenu, ptVar2 != (tInsideBoxMenu *)0x0)) {
-    pa_Var1 = (ptVar2->_base_tMenu)._vf;
+    pa_Var1 = (ptVar2)->_vf;
     (*(*pa_Var1)[3].pfn)((int)ptVar2 + (*pa_Var1)[3].delta);
   }
   if (keyval == kInput_KeyType_Down) {
@@ -1346,9 +1346,9 @@ void tMenuItemSlidingActivated::ProcessInput(tPlayer fromPlayer,tInputKeyType &k
     if (iVar2 == 0) goto SlideActivProc_callBaseProcess;
     ptVar4 = this->currMenu;
     if (ptVar4 != (tInsideBoxMenu *)0x0) {
-      pa_Var3 = (ptVar4->_base_tMenu)._vf;
+      pa_Var3 = (ptVar4)->_vf;
       (*(*pa_Var3)[3].pfn)
-                ((int)(ptVar4->_base_tMenu).fItemList + (*pa_Var3)[3].delta + -0x10,fromPlayer,keyval,
+                ((int)(ptVar4)->fItemList + (*pa_Var3)[3].delta + -0x10,fromPlayer,keyval,
                  command);
       goto SlideActivProc_getActive;
     }
@@ -1682,24 +1682,24 @@ void tMenuItemLeftRightAudioSlider::UpdateTransition(bool selected)
 
 tInsideBoxSongMenu::tInsideBoxSongMenu(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
               tMenu *optionsMenu,void (*OnButtonPress)(tMenuCommand&),short title,tMenuItem *firstItem,...)
-  : _base_tInsideBoxMenu()
+  : tInsideBoxMenu()
 {
   tInsideBoxSongMenu *ptVar1;
   int j;
   
   *(tMenu *)this = tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title);
   j = 0;
-  *(void **)&((this->_base_tInsideBoxMenu)._base_tMenu._vf) = (void *)tInsideBoxSongMenu_vtable;
+  *(void **)&(this->_vf) = (void *)tInsideBoxSongMenu_vtable;
   ptVar1 = this;
   do {
     ptVar1->fSelFade[0] = 0;
     ptVar1->fOnOffFade[0] = 0;
     j = j + 1;
-    ptVar1 = (tInsideBoxSongMenu *)((int)&(ptVar1->_base_tInsideBoxMenu)._base_tMenu.fFlags + 2);
+    ptVar1 = (tInsideBoxSongMenu *)((int)&(ptVar1)->fFlags + 2);
   } while (j < 5);
   ((tMenu *)this)->tMenuConstructor(firstItem,(&firstItem + 1));
-  (this->_base_tInsideBoxMenu).fMoving = 0;
-  (this->_base_tInsideBoxMenu).fMovingDir = 0;
+  this->fMoving = 0;
+  this->fMovingDir = 0;
   return;
 }
 
@@ -1710,7 +1710,7 @@ tInsideBoxSongMenu::tInsideBoxSongMenu(u_int flags,tScreen *screenHandler,tMenu 
 tInsideBoxSongMenu::~tInsideBoxSongMenu()
 
 {
-  *(void **)&((this->_base_tInsideBoxMenu)._base_tMenu._vf) = (void *)tInsideBoxSongMenu_vtable;
+  *(void **)&(this->_vf) = (void *)tInsideBoxSongMenu_vtable;
   return;
 }
 
@@ -1744,23 +1744,23 @@ void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short ma
         ptVar6->fSelFade[0] = (short)iVar4;
       }
       j = j + 1;
-      ptVar6 = (tInsideBoxSongMenu *)((int)&(ptVar6->_base_tInsideBoxMenu)._base_tMenu.fFlags + 2);
+      ptVar6 = (tInsideBoxSongMenu *)((int)&(ptVar6)->fFlags + 2);
     } while (j < 5);
     j = this->fSelFade[2] + 8;
     if (0x80 < j) {
       j = 0x80;
     }
-    sVar3 = (this->_base_tInsideBoxMenu).fMoving;
-    sVar1 = (this->_base_tInsideBoxMenu).fMoving;
+    sVar3 = this->fMoving;
+    sVar1 = this->fMoving;
     this->fSelFade[2] = (short)j;
     if (sVar3 != 0) {
-      uVar2 = sVar1 + (this->_base_tInsideBoxMenu).fMovingDir * 2;
-      (this->_base_tInsideBoxMenu).fMoving = uVar2;
-      if (((this->_base_tInsideBoxMenu).fMovingDir < 0) && ((int)((u_int)uVar2 << 0x10) < 0)) {
-        (this->_base_tInsideBoxMenu).fMoving = 0;
+      uVar2 = sVar1 + this->fMovingDir * 2;
+      this->fMoving = uVar2;
+      if ((this->fMovingDir < 0) && ((int)((u_int)uVar2 << 0x10) < 0)) {
+        this->fMoving = 0;
       }
-      if ((0 < (this->_base_tInsideBoxMenu).fMovingDir) && (0 < (this->_base_tInsideBoxMenu).fMoving)) {
-        (this->_base_tInsideBoxMenu).fMoving = 0;
+      if ((0 < this->fMovingDir) && (0 < this->fMoving)) {
+        this->fMoving = 0;
       }
     }
     j = 0;
@@ -1783,18 +1783,18 @@ void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short ma
         if (ptVar6->fOnOffFade[0] < 0) {
           ptVar6->fOnOffFade[0] = 0;
         }
-        pa_Var7 = (this->_base_tInsideBoxMenu)._base_tMenu._vf;
+        pa_Var7 = this->_vf;
         (*pa_Var7[1][1].pfn)
-                  ((int)(this->_base_tInsideBoxMenu)._base_tMenu.fItemList + pa_Var7[1][1].delta + -0x10,
+                  ((int)this->fItemList + pa_Var7[1][1].delta + -0x10,
                    song * 0x10000 >> 0x10,(int)x,
                    (int)(((u_int)(u_short)slideOffset +
-                         (u_int)(u_short)(this->_base_tInsideBoxMenu).fMoving +
+                         (u_int)(u_short)this->fMoving +
                          (int)y + (maxheight + -0x15 >> 1) + drawY) * 0x10000) >> 0x10,(int)w,
                    (int)ptVar6->fOnOffFade[0],(int)ptVar6->fSelFade[0]);
       }
       drawY = drawY + 0x15;
       j = j + 1;
-      ptVar6 = (tInsideBoxSongMenu *)((int)&(ptVar6->_base_tInsideBoxMenu)._base_tMenu.fFlags + 2);
+      ptVar6 = (tInsideBoxSongMenu *)((int)&(ptVar6)->fFlags + 2);
     } while (j < 5);
   }
   return;
@@ -1884,9 +1884,9 @@ InBoxSong_playSfx:
   tVar2 = keyval;
   if (tVar2 == kInput_KeyType_Down) {
     if ((screenAudio->songlist->numsongs + -1 <= (int)screenAudio->fSelectedSong) ||
-       ((this->_base_tInsideBoxMenu).fMoving != 0)) goto InBoxSong_finishReturn;
-    (this->_base_tInsideBoxMenu).fMoving = 0x15;
-    (this->_base_tInsideBoxMenu).fMovingDir = -4;
+       (this->fMoving != 0)) goto InBoxSong_finishReturn;
+    this->fMoving = 0x15;
+    this->fMovingDir = -4;
     iVar5 = 0;
     j = 0;
     do {
@@ -1914,10 +1914,10 @@ InBoxSong_playSfx:
     if (tVar2 != kInput_KeyType_Up) {
       return -0x7ffb0000;
     }
-    if ((screenAudio->fSelectedSong < 1) || ((this->_base_tInsideBoxMenu).fMoving != 0))
+    if ((screenAudio->fSelectedSong < 1) || (this->fMoving != 0))
     goto InBoxSong_finishReturn;
-    (this->_base_tInsideBoxMenu).fMoving = -0x15;
-    (this->_base_tInsideBoxMenu).fMovingDir = 4;
+    this->fMoving = -0x15;
+    this->fMovingDir = 4;
     j = 4;
     do {
       iVar5 = j + -1;

@@ -1577,7 +1577,7 @@ switchD_8006094c_default:
 
       this_00 = operator new(8);
 
-      pAVar3 = &(new(this_00) AIState_Normal(this->carObj_))->_base_AIState_Base;
+      pAVar3 = (AIState_Base*)(new(this_00) AIState_Normal(this->carObj_));
 
       pAVar5 = this->state_;
 
@@ -1925,7 +1925,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     this_00 = operator new(8);
 
-    pAVar4 = &(new(this_00) AIState_Normal(this->carObj_))->_base_AIState_Base;
+    pAVar4 = (AIState_Base*)(new(this_00) AIState_Normal(this->carObj_));
 
     pAVar8 = this->state_;
 

@@ -310,7 +310,7 @@ void AIHigh_Traffic::HighExecute()
 
           pAVar9 = operator new(8);
 
-          pAVar6 = &(new(pAVar9) AIState_Normal(this->carObj_))->_base_AIState_Base;
+          pAVar6 = (AIState_Base*)(new(pAVar9) AIState_Normal(this->carObj_));
 
           pAVar12 = this->state_;
 
@@ -348,7 +348,7 @@ void AIHigh_Traffic::HighExecute()
 
             this->stateType_ = 6;
 
-            this->state_ = &pAVar2->_base_AIState_Base;
+            this->state_ = (AIState_Base*)pAVar2;
 
             AILife_ReencarnateTrafficByPosition(this->carObj_,*(int *)(trigger + 4),1,
 
@@ -468,9 +468,9 @@ void AIHigh_Traffic::HighExecute()
 
           this_00 = operator new(0x10);
 
-          (new(&this_00->_base_AIState_Base) AIState_Base(this->carObj_));
+          (new((AIState_Base*)this_00) AIState_Base(this->carObj_));
 
-          (this_00->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
+          (this_00)->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
 
           this_00->idleInPlaceFlag_ = 1;
 
@@ -482,7 +482,7 @@ void AIHigh_Traffic::HighExecute()
 
           }
 
-          this->state_ = &this_00->_base_AIState_Base;
+          this->state_ = (AIState_Base*)this_00;
 
           this->stateType_ = 3;
 
@@ -502,9 +502,9 @@ void AIHigh_Traffic::HighExecute()
 
           this_00 = operator new(0x10);
 
-          (new(&this_00->_base_AIState_Base) AIState_Base(this->carObj_));
+          (new((AIState_Base*)this_00) AIState_Base(this->carObj_));
 
-          (this_00->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
+          (this_00)->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
 
           this_00->idleInPlaceFlag_ = 1;
 
@@ -516,7 +516,7 @@ void AIHigh_Traffic::HighExecute()
 
           }
 
-          this->state_ = &this_00->_base_AIState_Base;
+          this->state_ = (AIState_Base*)this_00;
 
           this->stateType_ = 3;
 
@@ -604,7 +604,7 @@ LAB_80066684:
 
       pAVar9 = operator new(8);
 
-      pAVar6 = &(new(pAVar9) AIState_Normal(this->carObj_))->_base_AIState_Base;
+      pAVar6 = (AIState_Base*)(new(pAVar9) AIState_Normal(this->carObj_));
 
       pAVar12 = this->state_;
 

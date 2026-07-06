@@ -10,6 +10,22 @@ extern __vtbl_ptr_type AIState_Base_vtable[], AIState_Normal_vtable[], AIState_N
   AIState_Idle_vtable[], AIState_Chase_vtable[], AIState_Offroad_vtable[], AIState_Purgatory_vtable[],
   AIState_RovingTraffic_vtable[], AIState_Donuts_vtable[], AIState_GotoSlice_vtable[], AIState_Cruise_vtable[];
 
+/* ---- SS3.23 deleting-dtor free fns (SaveSurface/ObjectFinishedSignAnim pattern): the oracle
+   is a real per-class deleting dtor for each of these (not a base-forward that gcc's default
+   non-polymorphic-single-inheritance member-dtor synthesis would produce), so the ABI shape is
+   hand-written as an extern "C" free fn taking the raw (self,__in_chrg) pair. ---- */
+extern void  __builtin_delete(void *);
+extern "C" void ___14AIState_Normal(AIState_Normal*,int);
+extern "C" void ___17AIState_NonActive(AIState_NonActive*,int);
+extern "C" void ___13AIState_Chase(AIState_Chase*,int);
+extern "C" void ___17AIState_GotoSlice(AIState_GotoSlice*,int);
+extern "C" void ___12AIState_Idle(AIState_Idle*,int);
+extern "C" void ___15AIState_Offroad(AIState_Offroad*,int);
+extern "C" void ___17AIState_Purgatory(AIState_Purgatory*,int);
+extern "C" void ___21AIState_RovingTraffic(AIState_RovingTraffic*,int);
+extern "C" void ___14AIState_Donuts(AIState_Donuts*,int);
+extern "C" void ___14AIState_Cruise(AIState_Cruise*,int);
+
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj      *Cars_gSortedList[];
 extern GameSetup_tData   GameSetup_gData;

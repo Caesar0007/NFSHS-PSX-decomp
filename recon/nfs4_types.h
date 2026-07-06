@@ -1977,25 +1977,26 @@ struct AIState_Base {   /* 8 bytes */
     int TestForRelease();
 };
 
-struct AIState_None {   /* 8 bytes */
-    AIState_Base       _base_AIState_Base;   /* +0x0 */
+struct AIState_None : public AIState_Base {   /* 8 bytes */
     AIState_None() {}
-    ~AIState_None();
+    /* ~AIState_None(): reconstructed as extern "C" ___12AIState_None(AIState_None*,int) free fn -- see AIState_Normal comment. */
     void Execute();
 };
 
-struct AIState_Normal {   /* 8 bytes */
-    AIState_Base       _base_AIState_Base;   /* +0x0 */
+struct AIState_Normal : public AIState_Base {   /* 8 bytes */
     AIState_Normal() {}
     AIState_Normal(Car_tObj *carObj);
-    ~AIState_Normal();
+    /* ~AIState_Normal(): reconstructed as extern "C" ___14AIState_Normal(AIState_Normal*,int)
+       free fn (SaveSurface/ObjectFinishedSignAnim pattern) -- the oracle is a REAL per-class
+       deleting dtor (__in_chrg + andi&1 + __builtin_delete), not a base-forward; a real C++
+       member dtor for this non-polymorphic single-inheritance shape always compiles to gcc's
+       default simple base-forward (proven empirically), so the ABI-shape is hand-written. */
     void Execute();
 };
 
-struct AIState_NonActive {   /* 8 bytes */
-    AIState_Base       _base_AIState_Base;   /* +0x0 */
+struct AIState_NonActive : public AIState_Base {   /* 8 bytes */
     AIState_NonActive() {}
-    ~AIState_NonActive();
+    /* ~AIState_NonActive(): see AIState_Normal comment -- extern "C" ___17AIState_NonActive free fn. */
     void Execute();
 };
 
@@ -2288,8 +2289,7 @@ struct Track_tMaterial {   /* 4 bytes */
     short              pmxIndex;   /* +0x2 */
 };
 
-struct AIState_Chase {   /* 148 bytes */
-    AIState_Base       _base_AIState_Base;   /* +0x0 */
+struct AIState_Chase : public AIState_Base {   /* 148 bytes */
     AIDelayCar         delayCar_;   /* +0x8 */
     int                noTurnAroundEndTime_;   /* +0x44 */
     Car_tObj           *targetCar_;   /* +0x48 */
@@ -2297,7 +2297,7 @@ struct AIState_Chase {   /* 148 bytes */
     int                longTargetRegion_, latTargetRegion_, targetDir_, carDir_, longMetersBetween_, latMetersBetween_, murderMode_, murderEndTime_, inTargetRegion_, nitrousTicks_, nitrousMinForeDistance_, nitrousMinAftDistance_, aggressionLevel_, slowDownEndTime_, barrierTicks32_;   /* +0x58 */
     AIState_Chase() {}
     AIState_Chase(Car_tObj *carObj, Car_tObj *target, coorddef *pt, int a, int b, int c, int d, int e);
-    ~AIState_Chase();
+    /* ~AIState_Chase(): see AIState_Normal comment -- extern "C" ___13AIState_Chase free fn. */
     void SetTarget(Car_tObj *target, coorddef *pt);
     void SetMurderMode(int a, int b);
     void SetUp();
@@ -2312,12 +2312,11 @@ struct AIState_Chase {   /* 148 bytes */
     int FindBarrierEndSlice();
 };
 
-struct AIState_GotoSlice {   /* 16 bytes */
-    AIState_Normal     _base_AIState_Normal;   /* +0x0 */
+struct AIState_GotoSlice : public AIState_Normal {   /* 16 bytes */
     int                targetSlice_, stopWhenArrivedAtSlice_;   /* +0x8 */
     AIState_GotoSlice() {}
     AIState_GotoSlice(Car_tObj *carObj, int a, int b);
-    ~AIState_GotoSlice();
+    /* ~AIState_GotoSlice(): see AIState_Normal comment -- extern "C" ___17AIState_GotoSlice free fn. */
     void Execute();
     int InTargetSliceRange(int a);
 };
@@ -2439,11 +2438,10 @@ struct tCopMurderThresholds {   /* 20 bytes */
     int                ticksInChaseRegionForMurder, minLatMetersDistanceForMurder, minLongMetersDistanceForMurder, murderTicks, nitrousTicks;   /* +0x0 */
 };
 
-struct AIState_Idle {   /* 16 bytes */
-    AIState_Base       _base_AIState_Base;   /* +0x0 */
+struct AIState_Idle : public AIState_Base {   /* 16 bytes */
     int                roadPosition_, idleInPlaceFlag_;   /* +0x8 */
     AIState_Idle() {}
-    ~AIState_Idle();
+    /* ~AIState_Idle(): see AIState_Normal comment -- extern "C" ___12AIState_Idle free fn. */
     void Execute();
     void SetIdlePosition(int pos);
 };
@@ -2500,8 +2498,7 @@ struct speedData_t {   /* 4 bytes */
     u_short            endSlice, speedMPS;   /* +0x0 */
 };
 
-struct AIState_Offroad {   /* 104 bytes */
-    AIState_Base       _base_AIState_Base;   /* +0x0 */
+struct AIState_Offroad : public AIState_Base {   /* 104 bytes */
     int                startSlice_;   /* +0x8 */
     coorddef           startPosition_;   /* +0xC */
     matrixtdef         startOrientation_;   /* +0x18 */
@@ -2511,48 +2508,44 @@ struct AIState_Offroad {   /* 104 bytes */
     int                longMetersBetween_, letGo_, maxSpeedMPS_, releaseTime_;   /* +0x58 */
     AIState_Offroad() {}
     AIState_Offroad(Car_tObj *carObj, int a, coorddef *pt, matrixtdef *mat, int b, int c, int d);
-    ~AIState_Offroad();
+    /* ~AIState_Offroad(): see AIState_Normal comment -- extern "C" ___15AIState_Offroad free fn. */
     void UnleashIfInRange(Car_tObj *carObj);
     void Execute();
 };
 
-struct AIState_Purgatory {   /* 8 bytes */
-    AIState_NonActive  _base_AIState_NonActive;   /* +0x0 */
+struct AIState_Purgatory : public AIState_NonActive {   /* 8 bytes */
     AIState_Purgatory() {}
     AIState_Purgatory(Car_tObj *carObj);
-    ~AIState_Purgatory();
+    /* ~AIState_Purgatory(): see AIState_Normal comment -- extern "C" ___17AIState_Purgatory free fn. */
     int TestForRelease();
     void Execute();
     static void StartUp();
 };
 
-struct AIState_RovingTraffic {   /* 24 bytes */
-    AIState_Base       _base_AIState_Base;   /* +0x0 */
+struct AIState_RovingTraffic : public AIState_Base {   /* 24 bytes */
     trigger_pathPosition_t *path_;   /* +0x8 */
     int                numPathPoints_, pathIndex_;   /* +0xC */
     long               waitTick_;   /* +0x14 */
     AIState_RovingTraffic() {}
     AIState_RovingTraffic(Car_tObj *carObj, trigger_t *trig);
-    ~AIState_RovingTraffic();
+    /* ~AIState_RovingTraffic(): see AIState_Normal comment -- extern "C" ___21AIState_RovingTraffic free fn. */
     void CheckIfCarIsNearbyAndStop(Car_tObj *carObj, int &status);
     void Execute();
     int TestForRelease();
 };
 
-struct AIState_Donuts {   /* 16 bytes */
-    AIState_Base       _base_AIState_Base;   /* +0x0 */
+struct AIState_Donuts : public AIState_Base {   /* 16 bytes */
     int                donutLookForward_, donutMode_;   /* +0x8 */
     AIState_Donuts() {}
-    ~AIState_Donuts();
+    /* ~AIState_Donuts(): see AIState_Normal comment -- extern "C" ___14AIState_Donuts free fn. */
     void Execute();
 };
 
-struct AIState_Cruise {   /* 20 bytes */
-    AIState_Normal     _base_AIState_Normal;   /* +0x0 */
+struct AIState_Cruise : public AIState_Normal {   /* 20 bytes */
     int                cruiseMode_, cruiseSpeed_, cruiseFactor_;   /* +0x8 */
     AIState_Cruise() {}
     AIState_Cruise(Car_tObj *carObj, cruiseMode_t mode, int a);
-    ~AIState_Cruise();
+    /* ~AIState_Cruise(): see AIState_Normal comment -- extern "C" ___14AIState_Cruise free fn. */
     void Execute();
 };
 
@@ -4517,9 +4510,8 @@ struct tMenuItemOptionsTwoItemChoice : public tMenuItemLeftRightChoice {   /* 36
 
 };
 
-struct tMenuNFS4 {   /* 124 bytes */
+struct tMenuNFS4 : public tMenu {   /* 124 bytes */
     tMenuNFS4() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tMenu              _base_tMenu;   /* +0x0 */
     BOOL               fInItemTransition, fInMenuTransition;   /* +0x6C */
     short              fTransitionVal;   /* +0x74 */
     char               fTransitionDirection, fLastItem, fNumItems;   /* +0x76 */
@@ -4538,9 +4530,8 @@ struct tMenuNFS4 {   /* 124 bytes */
 
 };
 
-struct tMenuNFS4TwoPlayer {   /* 124 bytes */
+struct tMenuNFS4TwoPlayer : public tMenuNFS4 {   /* 124 bytes */
     tMenuNFS4TwoPlayer() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tMenuNFS4          _base_tMenuNFS4;   /* +0x0 */
     /* FEMenuExtended methods */
     tMenuNFS4TwoPlayer(unsigned int flags,tScreen *screenHandler,tMenu *nextMenu, tMenu *optionsMenu,void (*OnButtonPress)(tMenuCommand&),short title,tMenuItem *firstItem,...);
     ~tMenuNFS4TwoPlayer();
@@ -4548,9 +4539,8 @@ struct tMenuNFS4TwoPlayer {   /* 124 bytes */
 
 };
 
-struct tMenuNFS4Bottom {   /* 124 bytes */
+struct tMenuNFS4Bottom : public tMenuNFS4 {   /* 124 bytes */
     tMenuNFS4Bottom() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tMenuNFS4          _base_tMenuNFS4;   /* +0x0 */
     /* FEMenuExtended methods */
     tMenuNFS4Bottom(unsigned int flags,tScreen *screenHandler,tMenu *nextMenu, tMenu *optionsMenu,void (*OnButtonPress)(tMenuCommand&),short title,tMenuItem *firstItem,...);
     ~tMenuNFS4Bottom();
@@ -4558,9 +4548,8 @@ struct tMenuNFS4Bottom {   /* 124 bytes */
 
 };
 
-struct tMenuBlank {   /* 124 bytes */
+struct tMenuBlank : public tMenuNFS4 {   /* 124 bytes */
     tMenuBlank() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tMenuNFS4          _base_tMenuNFS4;   /* +0x0 */
     /* FEMenuExtended methods */
     tMenuBlank(unsigned int flags,tScreen *screenHandler,tMenu *nextMenu,tMenu *optionsMenu ,void (*OnButtonPress)(tMenuCommand&),short title);
     ~tMenuBlank();
@@ -4575,9 +4564,8 @@ struct tMenuBlank {   /* 124 bytes */
 
 };
 
-struct tMenuOptions {   /* 132 bytes */
+struct tMenuOptions : public tMenuNFS4 {   /* 132 bytes */
     tMenuOptions() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tMenuNFS4          _base_tMenuNFS4;   /* +0x0 */
     u_long             fMenuEnterTicks;   /* +0x7C */
     short              fPlayer;   /* +0x80 */
     /* FEMenuExtended methods */
@@ -4608,9 +4596,8 @@ struct tMenuItemLeftRightFade : public tMenuItemLeftRightChoice {   /* 44 bytes 
 
 };
 
-struct tOptionsMenu {   /* 128 bytes */
+struct tOptionsMenu : public tMenu {   /* 128 bytes */
     tOptionsMenu() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tMenu              _base_tMenu;   /* +0x0 */
     BOOL               fInMenuTransition;   /* +0x6C */
     char               fTransitionDirection;   /* +0x70 */
     short              fPrevItem;   /* +0x72 */
@@ -4629,8 +4616,7 @@ struct tOptionsMenu {   /* 128 bytes */
 
 };
 
-struct tInsideBoxMenu {   /* 116 bytes */
-    tMenu              _base_tMenu;   /* +0x0 */
+struct tInsideBoxMenu : public tMenu {   /* 116 bytes */
     short              fPrevItem, fMoving, fMovingDir;   /* +0x6C */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
@@ -4714,9 +4700,8 @@ struct tMenuItemLeftRightAudioSlider : public tMenuItemLeftRightSlider {   /* 56
 
 };
 
-struct tInsideBoxSongMenu {   /* 136 bytes */
+struct tInsideBoxSongMenu : public tInsideBoxMenu {   /* 136 bytes */
     tInsideBoxSongMenu() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    tInsideBoxMenu     _base_tInsideBoxMenu;   /* +0x0 */
     short              fOnOffFade[5], fSelFade[5];   /* +0x74 */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */

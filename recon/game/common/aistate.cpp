@@ -1,8 +1,9 @@
 /* game/common/aistate.cpp -- RECONSTRUCTED (AI state-machine hierarchy; C++ TU)
  *   52 fns across 11 classes (AIState_Base + Normal/NonActive/Idle/Chase/Offroad/Purgatory/
  *   RovingTraffic/Donuts/GotoSlice/Cruise) + 3 free AIState_StartUp/Restart/CleanUp.
- *   Composition-modeled inheritance (_base_ members); manual _vf vtable dispatch (8-byte
- *   __vtbl_ptr_type entries); deleting dtors. Each ctor/dtor installs AIState_<C>_vtable.
+ *   Real non-polymorphic C++ inheritance (SS3.23/3.23c conversion, 2026-07-06 -- was
+ *   composition-modeled); manual _vf vtable dispatch (8-byte __vtbl_ptr_type entries);
+ *   deleting dtors. Each ctor/dtor installs AIState_<C>_vtable.
  *   Faithful C++ (option A). NOT original source; SYM-faithful, recompilable. vs disasm-v2.
  */
 #include "../../nfs4_types.h"
@@ -139,13 +140,13 @@ void AIState_Normal::Execute()
 
 {
 
-  AISpeeds_CalcDesiredSpeed((this->_base_AIState_Base).carObj_);
+  AISpeeds_CalcDesiredSpeed(this->carObj_);
 
-  AI_GenericBeginCycle((this->_base_AIState_Base).carObj_);
+  AI_GenericBeginCycle(this->carObj_);
 
-  AI_GenericCycle((this->_base_AIState_Base).carObj_);
+  AI_GenericCycle(this->carObj_);
 
-  AI_GenericEndCycle((this->_base_AIState_Base).carObj_);
+  AI_GenericEndCycle(this->carObj_);
 
   return;
 
@@ -161,7 +162,7 @@ void AIState_Normal::Execute()
 /* ---- __14AIState_NormalP8Car_tObj  AIState_Normal::ctor  [AISTATE.CPP:105-110] SLD-VERIFIED ---- */
 
 AIState_Normal::AIState_Normal(Car_tObj *carObj)
-  : _base_AIState_Base(carObj)
+  : AIState_Base(carObj)
 {
 
   Car_tObj *pCVar1;
@@ -169,9 +170,9 @@ AIState_Normal::AIState_Normal(Car_tObj *carObj)
   
 
 
-  pCVar1 = (this->_base_AIState_Base).carObj_;
+  pCVar1 = this->carObj_;
 
-  (this->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])AIState_Normal_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Normal_vtable;
 
   (pCVar1->targetPos).z = 0;
 
@@ -179,9 +180,9 @@ AIState_Normal::AIState_Normal(Car_tObj *carObj)
 
   (pCVar1->targetPos).x = 0;
 
-  ((this->_base_AIState_Base).carObj_)->targetLatPos = 0;
+  (this->carObj_)->targetLatPos = 0;
 
-  (((this->_base_AIState_Base).carObj_)->N).active = '\x01';
+  ((this->carObj_)->N).active = '\x01';
 
   return;
 
@@ -211,15 +212,15 @@ void AIState_Idle::Execute()
 
   if (this->idleInPlaceFlag_ != 0) {
 
-    ((this->_base_AIState_Base).carObj_)->desiredSpeed = 0;
+    (this->carObj_)->desiredSpeed = 0;
 
-    ((this->_base_AIState_Base).carObj_)->desiredLatPos = ((this->_base_AIState_Base).carObj_)->roadPosition;
+    (this->carObj_)->desiredLatPos = (this->carObj_)->roadPosition;
 
   }
 
   else {
 
-    pCVar2 = (this->_base_AIState_Base).carObj_;
+    pCVar2 = this->carObj_;
 
     if ((pCVar2->roadPosition - this->roadPosition_) + 0xffffU < 0x1ffff) {
 
@@ -231,7 +232,7 @@ void AIState_Idle::Execute()
 
       AISpeeds_CalcDesiredSpeed(pCVar2);
 
-      iVar1 = ((this->_base_AIState_Base).carObj_)->desiredSpeed;
+      iVar1 = (this->carObj_)->desiredSpeed;
 
       if (iVar1 < 0) {
 
@@ -239,11 +240,11 @@ void AIState_Idle::Execute()
 
       }
 
-      ((this->_base_AIState_Base).carObj_)->desiredSpeed = iVar1 >> 2;
+      (this->carObj_)->desiredSpeed = iVar1 >> 2;
 
     }
 
-    ((this->_base_AIState_Base).carObj_)->desiredLatPos = this->roadPosition_;
+    (this->carObj_)->desiredLatPos = this->roadPosition_;
 
   }
 
@@ -288,11 +289,11 @@ AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relP
           int nitrousTicks,int nitrousMinForeDistance,int nitrousMinAftDistance,int aggressionLevel,
 
           int delayTime)
-  : _base_AIState_Base(carObj), delayCar_(carObj,targetCar,delayTime)
+  : AIState_Base(carObj), delayCar_(carObj,targetCar,delayTime)
 {
 
 
-  (this->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])AIState_Chase_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Chase_vtable;
 
   /* delayCar_ AIDelayCar(carObj,targetCar,delayTime) constructed in member-init list above (was flat __10AIDelayCarP8Car_tObjT1i) */
 
@@ -300,9 +301,9 @@ AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relP
 
   this->SetTarget(targetCar,relPosition);
 
-  ((this->_base_AIState_Base).carObj_)->accNitrous = 0x10000;
+  (this->carObj_)->accNitrous = 0x10000;
 
-  ((this->_base_AIState_Base).carObj_)->speedNitrous = 0x10000;
+  (this->carObj_)->speedNitrous = 0x10000;
 
   this->nitrousMinForeDistance_ = nitrousMinForeDistance;
 
@@ -328,8 +329,13 @@ AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relP
 
 
 /* ---- _._13AIState_Chase  AIState_Chase::dtor  [AISTATE.CPP:205-212] SLD-VERIFIED ---- */
+/* reconstructed as extern "C" ___13AIState_Chase(AIState_Chase*,int) free fn (SaveSurface/
+   ObjectFinishedSignAnim pattern): the oracle is a REAL per-class deleting dtor (__in_chrg +
+   andi&1 + __builtin_delete), not a base-forward; a real C++ member dtor for this non-
+   polymorphic single-inheritance shape always compiles to gcc's default simple base-forward
+   (proven empirically), so the ABI-shape is hand-written. */
 
-AIState_Chase::~AIState_Chase()
+extern "C" void ___13AIState_Chase(AIState_Chase *pThis,int __in_chrg)
 
 
 
@@ -338,11 +344,11 @@ AIState_Chase::~AIState_Chase()
   Car_tObj *pCVar1;
 
 
-  
 
-  pCVar1 = (this->_base_AIState_Base).carObj_;
 
-  (this->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])AIState_Chase_vtable;
+  pCVar1 = pThis->carObj_;
+
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Chase_vtable;
 
   (pCVar1->targetPos).z = 0;
 
@@ -350,18 +356,21 @@ AIState_Chase::~AIState_Chase()
 
   (pCVar1->targetPos).x = 0;
 
-  ((this->_base_AIState_Base).carObj_)->targetLatPos = 0;
+  (pThis->carObj_)->targetLatPos = 0;
 
-  ((this->_base_AIState_Base).carObj_)->preferredLateralPosition = 0;
+  (pThis->carObj_)->preferredLateralPosition = 0;
 
-  ((this->_base_AIState_Base).carObj_)->preferredLateralPositionPower = 0;
+  (pThis->carObj_)->preferredLateralPositionPower = 0;
 
-  ((this->_base_AIState_Base).carObj_)->accNitrous = 0x10000;
+  (pThis->carObj_)->accNitrous = 0x10000;
 
-  ((this->_base_AIState_Base).carObj_)->speedNitrous = 0x10000;
+  (pThis->carObj_)->speedNitrous = 0x10000;
 
-  (this->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])((char *)AIState_Chase_vtable + 8);
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
+  if ((__in_chrg & 1U) != 0) {
+    __builtin_delete(pThis);
+  }
 
   return;
 
@@ -507,7 +516,7 @@ void AIState_Chase::SetUp()
 
   iVar2 = -1;
 
-  if (-1 < ((this->_base_AIState_Base).carObj_)->currentSpeed) {
+  if (-1 < (this->carObj_)->currentSpeed) {
 
     iVar2 = 1;
 
@@ -523,7 +532,7 @@ void AIState_Chase::SetUp()
 
   }
 
-  pCVar1 = (this->_base_AIState_Base).carObj_;
+  pCVar1 = this->carObj_;
 
   this->targetDir_ = iVar2;
 
@@ -535,9 +544,9 @@ void AIState_Chase::SetUp()
 
   targetCarPosition.z = (this->delayCar_).position_.z;
 
-  iVar2 = AIWorld_SplineDistance((this->_base_AIState_Base).carObj_,(this->delayCar_).slice_,&targetCarPosition);
+  iVar2 = AIWorld_SplineDistance(this->carObj_,(this->delayCar_).slice_,&targetCarPosition);
 
-  pCVar1 = (this->_base_AIState_Base).carObj_;
+  pCVar1 = this->carObj_;
 
   this->longMetersBetween_ = iVar2;
 
@@ -547,7 +556,7 @@ void AIState_Chase::SetUp()
 
   (pCVar1->targetPos).x = 0;
 
-  ((this->_base_AIState_Base).carObj_)->targetLatPos = 0;
+  (this->carObj_)->targetLatPos = 0;
 
   if ((this->murderMode_ != 0) && (this->murderEndTime_ <= simGlobal.gameTicks)) {
 
@@ -557,19 +566,19 @@ void AIState_Chase::SetUp()
 
   }
 
-  if (((this->_base_AIState_Base).carObj_)->accNitrous != 0x10000) {
+  if ((this->carObj_)->accNitrous != 0x10000) {
 
     this->nitrousTicks_ = this->nitrousTicks_ - AI_elapsedTime;
 
   }
 
-  ((this->_base_AIState_Base).carObj_)->accNitrous = 0x10000;
+  (this->carObj_)->accNitrous = 0x10000;
 
-  ((this->_base_AIState_Base).carObj_)->speedNitrous = 0x10000;
+  (this->carObj_)->speedNitrous = 0x10000;
 
-  ((this->_base_AIState_Base).carObj_)->preferredLateralPosition = 0;
+  (this->carObj_)->preferredLateralPosition = 0;
 
-  ((this->_base_AIState_Base).carObj_)->preferredLateralPositionPower = 0;
+  (this->carObj_)->preferredLateralPositionPower = 0;
 
   return;
 
@@ -590,9 +599,9 @@ void AIState_Chase::DoSlowNitrous()
 
 {
 
-  ((this->_base_AIState_Base).carObj_)->accNitrous = 0x8000;
+  (this->carObj_)->accNitrous = 0x8000;
 
-  ((this->_base_AIState_Base).carObj_)->speedNitrous = 0xc000;
+  (this->carObj_)->speedNitrous = 0xc000;
 
   return;
 
@@ -623,9 +632,9 @@ void AIState_Chase::DoNitrous(int checkForHumans)
 
   if ((0 < this->nitrousTicks_) && (simGlobal.gameTicks >= this->slowDownEndTime_)) {
 
-    ((this->_base_AIState_Base).carObj_)->accNitrous = 0x30000;
+    (this->carObj_)->accNitrous = 0x30000;
 
-    ((this->_base_AIState_Base).carObj_)->speedNitrous = 0x28000;
+    (this->carObj_)->speedNitrous = 0x28000;
 
     ppCVar3 = Cars_gHumanRaceCarList;
 
@@ -633,9 +642,9 @@ void AIState_Chase::DoNitrous(int checkForHumans)
 
     while (checkForHumans != 0 && (humanLoop < Cars_gNumHumanRaceCars)) {
 
-      distanceMeters = AIWorld_ApxSplineDistance((this->_base_AIState_Base).carObj_,*ppCVar3);
+      distanceMeters = AIWorld_ApxSplineDistance(this->carObj_,*ppCVar3);
 
-      pCVar2 = (this->_base_AIState_Base).carObj_;
+      pCVar2 = this->carObj_;
 
       distanceMeters = distanceMeters * pCVar2->direction;
 
@@ -643,15 +652,15 @@ void AIState_Chase::DoNitrous(int checkForHumans)
 
         pCVar2->accNitrous = 0x10000;
 
-        ((this->_base_AIState_Base).carObj_)->speedNitrous = 0x10000;
+        (this->carObj_)->speedNitrous = 0x10000;
 
       }
 
       if ((distanceMeters < 0) && (-this->nitrousMinAftDistance_ < distanceMeters)) {
 
-        ((this->_base_AIState_Base).carObj_)->accNitrous = 0x10000;
+        (this->carObj_)->accNitrous = 0x10000;
 
-        ((this->_base_AIState_Base).carObj_)->speedNitrous = 0x10000;
+        (this->carObj_)->speedNitrous = 0x10000;
 
       }
 
@@ -700,7 +709,7 @@ void AIState_Chase::Execute()
 
   iVar2 = fixedmult(this->longMetersBetween_,0x666);
 
-  iVar4 = (this->_base_AIState_Base).carObj_->currentSpeed;
+  iVar4 = this->carObj_->currentSpeed;
 
   iVar3 = this->targetCar_->currentSpeed;
 
@@ -819,13 +828,13 @@ void AIState_Chase::FarTargeting()
 
     if (0 < this->longMetersBetween_) {
 
-      ((this->_base_AIState_Base).carObj_)->desiredDirection = -1;
+      (this->carObj_)->desiredDirection = -1;
 
     }
 
     else {
 
-      ((this->_base_AIState_Base).carObj_)->desiredDirection = 1;
+      (this->carObj_)->desiredDirection = 1;
 
     }
 
@@ -833,15 +842,15 @@ void AIState_Chase::FarTargeting()
 
   this->DoNitrous(1);
 
-  AISpeeds_CalcDesiredSpeed((this->_base_AIState_Base).carObj_);
+  AISpeeds_CalcDesiredSpeed(this->carObj_);
 
-  AI_GenericBeginCycle((this->_base_AIState_Base).carObj_);
+  AI_GenericBeginCycle(this->carObj_);
 
   this->CheckForBarriersAndTargetAroundThem();
 
-  AI_GenericCycle((this->_base_AIState_Base).carObj_);
+  AI_GenericCycle(this->carObj_);
 
-  AI_GenericEndCycle((this->_base_AIState_Base).carObj_);
+  AI_GenericEndCycle(this->carObj_);
 
   return;
 
@@ -964,7 +973,7 @@ void AIState_Chase::CloseTargeting()
 
   iVar8 = 0;
 
-  iVar10 = ((this->_base_AIState_Base).carObj_)->direction;
+  iVar10 = (this->carObj_)->direction;
 
   this->DoNitrous(1);
 
@@ -1140,9 +1149,9 @@ void AIState_Chase::CloseTargeting()
 
 LAB_80070704:
 
-  AISpeeds_CalcDesiredSpeed((this->_base_AIState_Base).carObj_);
+  AISpeeds_CalcDesiredSpeed(this->carObj_);
 
-  pCVar2 = (this->_base_AIState_Base).carObj_;
+  pCVar2 = this->carObj_;
 
   iVar7 = pCVar2->desiredSpeed;
 
@@ -1154,7 +1163,7 @@ LAB_80070704:
 
   pCVar2->desiredSpeed = iVar7;
 
-  pCVar2 = (this->_base_AIState_Base).carObj_;
+  pCVar2 = this->carObj_;
 
   iVar7 = pCVar2->desiredSpeed;
 
@@ -1174,7 +1183,7 @@ LAB_80070704:
 
   pCVar2->desiredSpeed = iVar4 * iVar10;
 
-  AI_GenericBeginCycle((this->_base_AIState_Base).carObj_);
+  AI_GenericBeginCycle(this->carObj_);
 
   if (bVar1) {
 
@@ -1196,7 +1205,7 @@ LAB_80070704:
 
       iVar8 = (this->delayCar_).roadPosition_ + iVar7 * iVar10;
 
-      iVar10 = (((this->_base_AIState_Base).carObj_)->N).simRoadInfo.slice * 0x20 + BWorldSm_slices;
+      iVar10 = ((this->carObj_)->N).simRoadInfo.slice * 0x20 + BWorldSm_slices;
 
       iVar7 = -((u_int)*(u_char *)(iVar10 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar10 + 0x1d) >> 4));
 
@@ -1224,17 +1233,17 @@ LAB_80070704:
 
     }
 
-    ((this->_base_AIState_Base).carObj_)->preferredLateralPosition = iVar8;
+    (this->carObj_)->preferredLateralPosition = iVar8;
 
-    ((this->_base_AIState_Base).carObj_)->preferredLateralPositionPower = iVar4;
+    (this->carObj_)->preferredLateralPositionPower = iVar4;
 
   }
 
   this->CheckForBarriersAndTargetAroundThem();
 
-  AI_GenericCycle((this->_base_AIState_Base).carObj_);
+  AI_GenericCycle(this->carObj_);
 
-  AI_GenericEndCycle((this->_base_AIState_Base).carObj_);
+  AI_GenericEndCycle(this->carObj_);
 
   return;
 
@@ -1273,7 +1282,7 @@ void AIState_Chase::ApproachTargeting(int intercept)
 
   
 
-  pCVar4 = (this->_base_AIState_Base).carObj_;
+  pCVar4 = this->carObj_;
 
   iVar6 = (pCVar4->N).position.x - (this->targetCar_->N).position.x;
 
@@ -1309,19 +1318,19 @@ void AIState_Chase::ApproachTargeting(int intercept)
 
     if (this->longMetersBetween_ < 1) {
 
-      ((this->_base_AIState_Base).carObj_)->desiredDirection = 1;
+      (this->carObj_)->desiredDirection = 1;
 
     }
 
     else {
 
-      ((this->_base_AIState_Base).carObj_)->desiredDirection = -1;
+      (this->carObj_)->desiredDirection = -1;
 
     }
 
   }
 
-  AISpeeds_CalcDesiredSpeed((this->_base_AIState_Base).carObj_);
+  AISpeeds_CalcDesiredSpeed(this->carObj_);
 
   iVar2 = this->aggressionLevel_;
 
@@ -1383,7 +1392,7 @@ void AIState_Chase::ApproachTargeting(int intercept)
 
 LAB_80070adc:
 
-  pCVar4 = (this->_base_AIState_Base).carObj_;
+  pCVar4 = this->carObj_;
 
   iVar6 = -iVar5;
 
@@ -1413,17 +1422,17 @@ LAB_80070adc:
 
   pCVar4->desiredSpeed = iVar6;
 
-  AI_GenericBeginCycle((this->_base_AIState_Base).carObj_);
+  AI_GenericBeginCycle(this->carObj_);
 
   this->CheckForBarriersAndTargetAroundThem();
 
-  AI_GenericCycle((this->_base_AIState_Base).carObj_);
+  AI_GenericCycle(this->carObj_);
 
-  AI_GenericEndCycle((this->_base_AIState_Base).carObj_);
+  AI_GenericEndCycle(this->carObj_);
 
   if (intercept != 0) {
 
-    pCVar3 = (this->_base_AIState_Base).carObj_;
+    pCVar3 = this->carObj_;
 
     pCVar4 = this->targetCar_;
 
@@ -1437,11 +1446,11 @@ LAB_80070adc:
 
     (pCVar3->targetPos).z = iVar2;
 
-    ((this->_base_AIState_Base).carObj_)->targetLatPos = this->targetCar_->roadPosition;
+    (this->carObj_)->targetLatPos = this->targetCar_->roadPosition;
 
-    ((this->_base_AIState_Base).carObj_)->preferredLateralPosition = this->targetCar_->roadPosition;
+    (this->carObj_)->preferredLateralPosition = this->targetCar_->roadPosition;
 
-    ((this->_base_AIState_Base).carObj_)->preferredLateralPositionPower = 0xf0000;
+    (this->carObj_)->preferredLateralPositionPower = 0xf0000;
 
   }
 
@@ -1494,7 +1503,7 @@ void AIState_Chase::CheckForBarriersAndTargetAroundThem()
 
   if (iVar2 < 0x1f40001) {
 
-    pCVar3 = (this->_base_AIState_Base).carObj_;
+    pCVar3 = this->carObj_;
 
     slice = (int)(pCVar3->N).simRoadInfo.slice;
 
@@ -1528,15 +1537,15 @@ void AIState_Chase::CheckForBarriersAndTargetAroundThem()
 
       else if (iVar4 == 0) {
 
-        pCVar3 = (this->_base_AIState_Base).carObj_;
+        pCVar3 = this->carObj_;
 
         this->barrierTicks32_ = 0;
 
         AI_TargetLane(pCVar3,lane0);
 
-        AI_TargetLane((this->_base_AIState_Base).carObj_,lane0);
+        AI_TargetLane(this->carObj_,lane0);
 
-        AI_TargetLane((this->_base_AIState_Base).carObj_,lane0);
+        AI_TargetLane(this->carObj_,lane0);
 
       }
 
@@ -1616,7 +1625,7 @@ int AIState_Chase::FindBarrierEndSlice()
 
   
 
-  pCVar3 = (this->_base_AIState_Base).carObj_;
+  pCVar3 = this->carObj_;
 
   iVar7 = pCVar3->laneIndex;
 
@@ -1812,8 +1821,17 @@ LAB_80070f54:
 
 
 /* ---- _._15AIState_Offroad  AIState_Offroad::dtor  [AISTATE.CPP:887-891] SLD-VERIFIED ---- */
+/* reconstructed as extern "C" ___15AIState_Offroad(AIState_Offroad*,int) free fn -- see
+   AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle).
+   WALL (register-coloring near-miss, 25 diffs 28/29 insns): the oracle copies pThis out of
+   a0 into a2 up front (`addu a2,a0,zero`) and re-derives carObj_ via a2 for every use; our
+   codegen keeps pThis live in a0 throughout and reloads carObj_ via a0 each time -- same
+   logic/shape (confirmed structurally identical to the byte-matching AIState_Chase dtor,
+   which has MORE carObj_ dereferences yet colors with a0), a gcc-2.x allocator coin-flip
+   the methodology calls a "permuter plateau" (SS5.0c). Tried: self-alias local (no effect,
+   optimized away), statement reordering. Left as a documented near-miss. */
 
-AIState_Offroad::~AIState_Offroad()
+extern "C" void ___15AIState_Offroad(AIState_Offroad *pThis,int __in_chrg)
 
 
 
@@ -1822,11 +1840,10 @@ AIState_Offroad::~AIState_Offroad()
   Car_tObj *pCVar1;
 
 
-  
 
-  pCVar1 = (this->_base_AIState_Base).carObj_;
+  pCVar1 = pThis->carObj_;
 
-  (this->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])AIState_Offroad_vtable;
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Offroad_vtable;
 
   (pCVar1->targetPos).z = 0;
 
@@ -1834,14 +1851,17 @@ AIState_Offroad::~AIState_Offroad()
 
   (pCVar1->targetPos).x = 0;
 
-  ((this->_base_AIState_Base).carObj_)->targetLatPos = 0;
+  (pThis->carObj_)->targetLatPos = 0;
 
-  pCVar1 = (this->_base_AIState_Base).carObj_;
+  pCVar1 = pThis->carObj_;
 
   pCVar1->carFlags = pCVar1->carFlags & 0xfffff7ff;
 
-  (this->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])((char *)AIState_Offroad_vtable + 8);
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
+  if ((__in_chrg & 1U) != 0) {
+    __builtin_delete(pThis);
+  }
 
   return;
 
@@ -1859,7 +1879,7 @@ AIState_Offroad::~AIState_Offroad()
 AIState_Offroad::AIState_Offroad(Car_tObj *carObj,int startSlice,coorddef *position,
 
           matrixtdef *orientation,int maxSpeedKPH,int releaseTime,int endSlice)
-  : _base_AIState_Base(carObj)
+  : AIState_Base(carObj)
 {
 
   int *piVar1;
@@ -1879,7 +1899,7 @@ AIState_Offroad::AIState_Offroad(Car_tObj *carObj,int startSlice,coorddef *posit
 
   pmVar2 = &this->startOrientation_;
 
-  (this->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])AIState_Offroad_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Offroad_vtable;
 
   this->letGo_ = 0;
 
@@ -1951,7 +1971,7 @@ AIState_Offroad::AIState_Offroad(Car_tObj *carObj,int startSlice,coorddef *posit
 
   (this->targetPosition_).z = iVar5;
 
-  pCVar3 = (this->_base_AIState_Base).carObj_;
+  pCVar3 = this->carObj_;
 
   pCVar3->carFlags = pCVar3->carFlags | 0x800;
 
@@ -1984,7 +2004,7 @@ void AIState_Offroad::UnleashIfInRange(Car_tObj *car)
 
   
 
-  iVar2 = AIWorld_SplineDistance((this->_base_AIState_Base).carObj_,car);
+  iVar2 = AIWorld_SplineDistance(this->carObj_,car);
 
   if (iVar2 < 0) {
 
@@ -2052,7 +2072,7 @@ void AIState_Offroad::Execute()
 
     memset((u_char *)&local_18,'\0',0xc);
 
-    pCVar1 = (this->_base_AIState_Base).carObj_;
+    pCVar1 = this->carObj_;
 
     (pCVar1->N).linearVel.x = local_18;
 
@@ -2060,7 +2080,7 @@ void AIState_Offroad::Execute()
 
     (pCVar1->N).linearVel.z = local_10;
 
-    pCVar1 = (this->_base_AIState_Base).carObj_;
+    pCVar1 = this->carObj_;
 
     (pCVar1->N).angularVel.x = local_18;
 
@@ -2068,9 +2088,9 @@ void AIState_Offroad::Execute()
 
     (pCVar1->N).angularVel.z = local_10;
 
-    ((this->_base_AIState_Base).carObj_)->desiredSpeed = 0;
+    (this->carObj_)->desiredSpeed = 0;
 
-    pCVar1 = (this->_base_AIState_Base).carObj_;
+    pCVar1 = this->carObj_;
 
     pmVar3 = &this->startOrientation_;
 
@@ -2084,7 +2104,7 @@ void AIState_Offroad::Execute()
 
     (pCVar1->N).position.z = iVar5;
 
-    pmVar2 = &(((this->_base_AIState_Base).carObj_)->N).orientMat;
+    pmVar2 = &((this->carObj_)->N).orientMat;
 
     do {
 
@@ -2110,7 +2130,7 @@ void AIState_Offroad::Execute()
 
     pmVar2->m[0] = pmVar3->m[0];
 
-    pCVar1 = (this->_base_AIState_Base).carObj_;
+    pCVar1 = this->carObj_;
 
     (pCVar1->targetPos).z = 0;
 
@@ -2122,9 +2142,9 @@ void AIState_Offroad::Execute()
 
   else {
 
-    iVar4 = AIWorld_ApxSplineDistance((this->_base_AIState_Base).carObj_,this->targetSlice_);
+    iVar4 = AIWorld_ApxSplineDistance(this->carObj_,this->targetSlice_);
 
-    pCVar1 = (this->_base_AIState_Base).carObj_;
+    pCVar1 = this->carObj_;
 
     this->longMetersBetween_ = iVar4;
 
@@ -2132,27 +2152,27 @@ void AIState_Offroad::Execute()
 
     if (this->longMetersBetween_ < 1) {
 
-      ((this->_base_AIState_Base).carObj_)->desiredDirection = 1;
+      (this->carObj_)->desiredDirection = 1;
 
     }
 
     else {
 
-      ((this->_base_AIState_Base).carObj_)->desiredDirection = -1;
+      (this->carObj_)->desiredDirection = -1;
 
-      pCVar1 = (this->_base_AIState_Base).carObj_;
+      pCVar1 = this->carObj_;
 
       pCVar1->desiredSpeed = -pCVar1->desiredSpeed;
 
     }
 
-    AI_GenericBeginCycle((this->_base_AIState_Base).carObj_);
+    AI_GenericBeginCycle(this->carObj_);
 
-    AI_GenericCycle((this->_base_AIState_Base).carObj_);
+    AI_GenericCycle(this->carObj_);
 
-    AI_GenericEndCycle((this->_base_AIState_Base).carObj_);
+    AI_GenericEndCycle(this->carObj_);
 
-    pCVar1 = (this->_base_AIState_Base).carObj_;
+    pCVar1 = this->carObj_;
 
     iVar4 = (this->targetPosition_).y;
 
@@ -2166,7 +2186,7 @@ void AIState_Offroad::Execute()
 
   }
 
-  ((this->_base_AIState_Base).carObj_)->targetLatPos = 0;
+  (this->carObj_)->targetLatPos = 0;
 
   return;
 
@@ -2201,9 +2221,9 @@ AIState_Purgatory::AIState_Purgatory(Car_tObj *carObj)
 
   
 
-  (this->_base_AIState_NonActive)._base_AIState_Base.carObj_ = carObj;
+  this->carObj_ = carObj;
 
-  (this->_base_AIState_NonActive)._base_AIState_Base._vf =
+  this->_vf =
 
        (__vtbl_ptr_type (*) [4])((char *)AIState_Purgatory_vtable + 8);
 
@@ -2211,33 +2231,33 @@ AIState_Purgatory::AIState_Purgatory(Car_tObj *carObj)
 
   cStack_20.y = carObj->carIndex * 0xa0000;
 
-  Newton_SetInitialSlicePositionOrientationEtc(&((this->_base_AIState_NonActive)._base_AIState_Base.carObj_)->N,0,&cStack_20,1);
+  Newton_SetInitialSlicePositionOrientationEtc(&(this->carObj_)->N,0,&cStack_20,1);
 
-  (((this->_base_AIState_NonActive)._base_AIState_Base.carObj_)->N).active = '\0';
+  ((this->carObj_)->N).active = '\0';
 
   uVar1 = randSeed;
 
-  (this->_base_AIState_NonActive)._base_AIState_Base._vf = (__vtbl_ptr_type (*) [4])AIState_Purgatory_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Purgatory_vtable;
 
   uVar1 = fastRandom * uVar1;
 
-  ((this->_base_AIState_NonActive)._base_AIState_Base.carObj_)->basisCar = (Car_tObj *)0x0;
+  (this->carObj_)->basisCar = (Car_tObj *)0x0;
 
   bVar2 = false;
 
   randtemp = uVar1;
 
-  ((this->_base_AIState_NonActive)._base_AIState_Base.carObj_)->physicsModelTimer =
+  (this->carObj_)->physicsModelTimer =
 
        (AITune_LifeTimer[Cars_gNumTrafficCars] * (uVar1 >> 8 & 0xffff) >> 0x10) + 1;
 
   fastRandom = uVar1 & 0xffff;
 
-  iVar3 = strcmp(((this->_base_AIState_NonActive)._base_AIState_Base.carObj_)->carName,"SBUS");
+  iVar3 = strcmp((this->carObj_)->carName,"SBUS");
 
   if ((iVar3 == 0) ||
 
-     (iVar3 = strcmp(((this->_base_AIState_NonActive)._base_AIState_Base.carObj_)->carName,"TBUS"),
+     (iVar3 = strcmp((this->carObj_)->carName,"TBUS"),
 
      iVar3 == 0)) {
 
@@ -2247,17 +2267,17 @@ AIState_Purgatory::AIState_Purgatory(Car_tObj *carObj)
 
   if (bVar2) {
 
-    pCVar4 = (this->_base_AIState_NonActive)._base_AIState_Base.carObj_;
+    pCVar4 = this->carObj_;
 
     pCVar4->physicsModelTimer = pCVar4->physicsModelTimer * 5;
 
   }
 
-  pCVar4 = (this->_base_AIState_NonActive)._base_AIState_Base.carObj_;
+  pCVar4 = this->carObj_;
 
   pCVar4->AIFlags = pCVar4->AIFlags | 4;
 
-  if ((((this->_base_AIState_NonActive)._base_AIState_Base.carObj_)->carFlags & 0x10U) != 0) {
+  if (((this->carObj_)->carFlags & 0x10U) != 0) {
 
     AIState_Purgatory_numTrafficCarsInPurgatory = AIState_Purgatory_numTrafficCarsInPurgatory + 1;
 
@@ -2275,13 +2295,19 @@ AIState_Purgatory::AIState_Purgatory(Car_tObj *carObj)
 
 
 /* ---- _._17AIState_Purgatory  AIState_Purgatory::dtor  [AISTATE.CPP:1021-1041] SLD-VERIFIED ---- */
+/* reconstructed as extern "C" ___17AIState_Purgatory(AIState_Purgatory*,int) free fn -- see
+   AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle); __in_chrg
+   is now a real usable param (was previously unreachable/removed from a true member dtor).
+   WALL (register-coloring near-miss, 79 diffs 69/72 insns) -- same root symptom as the
+   AIState_Offroad dtor (see its WALL comment): oracle copies pThis a0->a3 up front (this
+   fn's bigger body needs a3 not a2, one more caller-saved reg already in play), ours keeps
+   pThis in a0. Same gcc-2.x allocator coin-flip; documented near-miss. */
 
-AIState_Purgatory::~AIState_Purgatory()
+extern "C" void ___17AIState_Purgatory(AIState_Purgatory *pThis,int __in_chrg)
 
 
 
 {
-  /* removed unused `int __in_chrg;` — shadowed cfront's implicit dtor in-charge param */
   int search;
   Car_tObj*test;
 
@@ -2292,21 +2318,21 @@ AIState_Purgatory::~AIState_Purgatory()
 
   Car_tObj **ppCVar3;
 
-  
 
-  pCVar1 = (this->_base_AIState_NonActive)._base_AIState_Base.carObj_;
 
-  (this->_base_AIState_NonActive)._base_AIState_Base._vf = (__vtbl_ptr_type (*) [4])AIState_Purgatory_vtable;
+  pCVar1 = pThis->carObj_;
+
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Purgatory_vtable;
 
   (pCVar1->collision).resetTimer = 0;
 
-  (((this->_base_AIState_NonActive)._base_AIState_Base.carObj_)->N).collision.disableCollisionTimer = 0;
+  ((pThis->carObj_)->N).collision.disableCollisionTimer = 0;
 
-  pCVar1 = (this->_base_AIState_NonActive)._base_AIState_Base.carObj_;
+  pCVar1 = pThis->carObj_;
 
   pCVar1->AIFlags = pCVar1->AIFlags & 0xfffffffb;
 
-  if ((((this->_base_AIState_NonActive)._base_AIState_Base.carObj_)->carFlags & 0x10U) != 0) {
+  if (((pThis->carObj_)->carFlags & 0x10U) != 0) {
 
     AIState_Purgatory_numTrafficCarsInPurgatory = AIState_Purgatory_numTrafficCarsInPurgatory + -1;
 
@@ -2316,7 +2342,7 @@ AIState_Purgatory::~AIState_Purgatory()
 
   ppCVar3 = Cars_gSortedList + iVar2;
 
-  pCVar1 = (this->_base_AIState_NonActive)._base_AIState_Base.carObj_;
+  pCVar1 = pThis->carObj_;
 
   pCVar1->direction = 1;
 
@@ -2328,18 +2354,19 @@ AIState_Purgatory::~AIState_Purgatory()
 
 LAB_80071718:
 
-      pCVar1 = (this->_base_AIState_NonActive)._base_AIState_Base.carObj_;
+      pCVar1 = pThis->carObj_;
 
-      (this->_base_AIState_NonActive)._base_AIState_Base._vf =
+      pThis->_vf =
 
            (__vtbl_ptr_type (*) [4])((char *)AIState_Purgatory_vtable + 8);
 
       (pCVar1->N).active = '\x01';
 
-      (this->_base_AIState_NonActive)._base_AIState_Base._vf =
+      pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
-           (__vtbl_ptr_type (*) [4])((char *)AIState_Purgatory_vtable + 8);
-
+      if ((__in_chrg & 1U) != 0) {
+        __builtin_delete(pThis);
+      }
 
       return;
 
@@ -2351,7 +2378,7 @@ LAB_80071718:
 
     if ((pCVar1->carFlags & 0x100U) != 0) {
 
-      ((this->_base_AIState_NonActive)._base_AIState_Base.carObj_)->basisCar = pCVar1;
+      (pThis->carObj_)->basisCar = pCVar1;
 
       goto LAB_80071718;
 
@@ -2385,7 +2412,7 @@ int AIState_Purgatory::TestForRelease()
 
 
 
-  pCVar2 = (this->_base_AIState_NonActive)._base_AIState_Base.carObj_;
+  pCVar2 = this->carObj_;
 
   if (pCVar2->physicsModelTimer < 1) {
 
@@ -2432,11 +2459,11 @@ void AIState_Purgatory::Execute()
 
   
 
-  (((this->_base_AIState_NonActive)._base_AIState_Base.carObj_)->collision).resetTimer = 0;
+  ((this->carObj_)->collision).resetTimer = 0;
 
-  (((this->_base_AIState_NonActive)._base_AIState_Base.carObj_)->N).collision.disableCollisionTimer = 0;
+  ((this->carObj_)->N).collision.disableCollisionTimer = 0;
 
-  pCVar1 = (this->_base_AIState_NonActive)._base_AIState_Base.carObj_;
+  pCVar1 = this->carObj_;
 
   if (((pCVar1->carFlags & 0x20U) == 0) && (0x3bf < simGlobal.gameTicks)) {
 
@@ -2479,7 +2506,7 @@ void AIState_Purgatory::StartUp(void)
 /* ---- __21AIState_RovingTrafficP8Car_tObjP9trigger_t  AIState_RovingTraffic::ctor  [AISTATE.CPP:1103-1109] SLD-VERIFIED ---- */
 
 AIState_RovingTraffic::AIState_RovingTraffic(Car_tObj *carObj,trigger_t *trigger)
-  : _base_AIState_Base(carObj)
+  : AIState_Base(carObj)
 {
 
   int iVar1;
@@ -2489,9 +2516,9 @@ AIState_RovingTraffic::AIState_RovingTraffic(Car_tObj *carObj,trigger_t *trigger
   
 
 
-  (this->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])AIState_RovingTraffic_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_RovingTraffic_vtable;
 
-  pCVar2 = (this->_base_AIState_Base).carObj_;
+  pCVar2 = this->carObj_;
 
   this->path_ = *(trigger_pathPosition_t **)((char *)trigger + 0x3c);
 
@@ -2541,7 +2568,7 @@ void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int 
 
   
 
-  carObj = (this->_base_AIState_Base).carObj_;
+  carObj = this->carObj_;
 
   if ((carObj == otherCarObj) || ((otherCarObj->N).active == '\0')) {
 
@@ -2557,7 +2584,7 @@ LAB_80071a40:
 
     if (iVar1 < 1) {
 
-      iVar1 = AIWorld_SplineDistance((this->_base_AIState_Base).carObj_,otherCarObj);
+      iVar1 = AIWorld_SplineDistance(this->carObj_,otherCarObj);
 
       iVar1 = -iVar1;
 
@@ -2565,7 +2592,7 @@ LAB_80071a40:
 
     else {
 
-      iVar1 = AIWorld_SplineDistance((this->_base_AIState_Base).carObj_,otherCarObj);
+      iVar1 = AIWorld_SplineDistance(this->carObj_,otherCarObj);
 
     }
 
@@ -2577,7 +2604,7 @@ LAB_80071a40:
 
     }
 
-    iVar5 = ((this->_base_AIState_Base).carObj_)->roadPosition;
+    iVar5 = (this->carObj_)->roadPosition;
 
     iVar1 = iVar5 - otherCarObj->roadPosition;
 
@@ -2597,27 +2624,27 @@ LAB_80071a40:
 
     iVar1 = (otherCarObj->N).position.y;
 
-    iVar3 = (((this->_base_AIState_Base).carObj_)->N).position.y;
+    iVar3 = ((this->carObj_)->N).position.y;
 
     iVar5 = (otherCarObj->N).position.z;
 
-    iVar4 = (((this->_base_AIState_Base).carObj_)->N).position.z;
+    iVar4 = ((this->carObj_)->N).position.z;
 
-    iVar2 = fixedmult((((this->_base_AIState_Base).carObj_)->N).orientMat.m[6],
+    iVar2 = fixedmult(((this->carObj_)->N).orientMat.m[6],
 
-                       (otherCarObj->N).position.x - (((this->_base_AIState_Base).carObj_)->N).position.x)
+                       (otherCarObj->N).position.x - ((this->carObj_)->N).position.x)
 
     ;
 
-    iVar1 = fixedmult((((this->_base_AIState_Base).carObj_)->N).orientMat.m[7],iVar1 - iVar3);
+    iVar1 = fixedmult(((this->carObj_)->N).orientMat.m[7],iVar1 - iVar3);
 
-    iVar5 = fixedmult((((this->_base_AIState_Base).carObj_)->N).orientMat.m[8],iVar5 - iVar4);
+    iVar5 = fixedmult(((this->carObj_)->N).orientMat.m[8],iVar5 - iVar4);
 
     if (0 < iVar2 + iVar1 + iVar5) {
 
-      AudioClc_HonkHorn((this->_base_AIState_Base).carObj_,4,0x10,8);
+      AudioClc_HonkHorn(this->carObj_,4,0x10,8);
 
-      ((this->_base_AIState_Base).carObj_)->desiredSpeed = 0;
+      (this->carObj_)->desiredSpeed = 0;
 
       *status = 1;
 
@@ -2673,7 +2700,7 @@ void AIState_RovingTraffic::Execute()
 
   
 
-  pCVar4 = (this->_base_AIState_Base).carObj_;
+  pCVar4 = this->carObj_;
 
   ptVar1 = this->path_ + this->pathIndex_;
 
@@ -2687,17 +2714,17 @@ void AIState_RovingTraffic::Execute()
 
   (pCVar4->targetPos).z = iVar9;
 
-  ((this->_base_AIState_Base).carObj_)->desiredSpeed = this->path_[this->pathIndex_].targetSpeed * 0x7247;
+  (this->carObj_)->desiredSpeed = this->path_[this->pathIndex_].targetSpeed * 0x7247;
 
-  piVar2 = (int *)((((this->_base_AIState_Base).carObj_)->N).simRoadInfo.slice * 0x20 + BWorldSm_slices);
+  piVar2 = (int *)(((this->carObj_)->N).simRoadInfo.slice * 0x20 + BWorldSm_slices);
 
-  iVar8 = (((this->_base_AIState_Base).carObj_)->targetPos).x - *piVar2;
+  iVar8 = ((this->carObj_)->targetPos).x - *piVar2;
 
-  iVar9 = (((this->_base_AIState_Base).carObj_)->targetPos).y - piVar2[1];
+  iVar9 = ((this->carObj_)->targetPos).y - piVar2[1];
 
-  iVar3 = (((this->_base_AIState_Base).carObj_)->targetPos).z - piVar2[2];
+  iVar3 = ((this->carObj_)->targetPos).z - piVar2[2];
 
-  pCVar4 = (this->_base_AIState_Base).carObj_;
+  pCVar4 = this->carObj_;
 
   iVar5 = (pCVar4->N).roadMatrix.m[0];
 
@@ -2745,11 +2772,11 @@ void AIState_RovingTraffic::Execute()
 
        (iVar5 >> 8) * (iVar8 >> 8) + (iVar6 >> 8) * (iVar9 >> 8) + (iVar7 >> 8) * (iVar3 >> 8);
 
-  pCVar4 = (this->_base_AIState_Base).carObj_;
+  pCVar4 = this->carObj_;
 
   iVar9 = (pCVar4->targetPos).x - (pCVar4->N).position.x >> 0xc;
 
-  pCVar4 = (this->_base_AIState_Base).carObj_;
+  pCVar4 = this->carObj_;
 
   iVar8 = (pCVar4->targetPos).z - (pCVar4->N).position.z >> 0xc;
 
@@ -2763,7 +2790,7 @@ void AIState_RovingTraffic::Execute()
 
     if (simGlobal.gameTicks < this->waitTick_) {
 
-      ((this->_base_AIState_Base).carObj_)->desiredSpeed = 0;
+      (this->carObj_)->desiredSpeed = 0;
 
     }
 
@@ -2779,7 +2806,7 @@ void AIState_RovingTraffic::Execute()
 
   local_20[0] = 2;
 
-  iVar8 = ((this->_base_AIState_Base).carObj_)->sortIndex + 1;
+  iVar8 = (this->carObj_)->sortIndex + 1;
 
   ppCVar10 = Cars_gSortedList + iVar8;
 
@@ -2799,7 +2826,7 @@ void AIState_RovingTraffic::Execute()
 
     local_20[0] = 2;
 
-    iVar8 = ((this->_base_AIState_Base).carObj_)->sortIndex + -1;
+    iVar8 = (this->carObj_)->sortIndex + -1;
 
     ppCVar10 = Cars_gSortedList + iVar8;
 
@@ -2829,8 +2856,10 @@ void AIState_RovingTraffic::Execute()
 
 
 /* ---- _._14AIState_Donuts  AIState_Donuts::dtor  [AISTATE.CPP:1248-1253] SLD-VERIFIED ---- */
+/* reconstructed as extern "C" ___14AIState_Donuts(AIState_Donuts*,int) free fn -- see
+   AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle). */
 
-AIState_Donuts::~AIState_Donuts()
+extern "C" void ___14AIState_Donuts(AIState_Donuts *pThis,int __in_chrg)
 
 
 
@@ -2839,11 +2868,10 @@ AIState_Donuts::~AIState_Donuts()
   Car_tObj *pCVar1;
 
 
-  
 
-  pCVar1 = (this->_base_AIState_Base).carObj_;
+  pCVar1 = pThis->carObj_;
 
-  (this->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])AIState_Donuts_vtable;
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Donuts_vtable;
 
   (pCVar1->targetPos).z = 0;
 
@@ -2851,12 +2879,15 @@ AIState_Donuts::~AIState_Donuts()
 
   (pCVar1->targetPos).x = 0;
 
-  ((this->_base_AIState_Base).carObj_)->targetLatPos = 0;
+  (pThis->carObj_)->targetLatPos = 0;
 
-  ((this->_base_AIState_Base).carObj_)->donutMode = 0;
+  (pThis->carObj_)->donutMode = 0;
 
-  (this->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])((char *)AIState_Donuts_vtable + 8);
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
+  if ((__in_chrg & 1U) != 0) {
+    __builtin_delete(pThis);
+  }
 
   return;
 
@@ -2911,7 +2942,7 @@ void AIState_Donuts::Execute()
 
   
 
-  pCVar10 = (this->_base_AIState_Base).carObj_;
+  pCVar10 = this->carObj_;
 
   iVar7 = (pCVar10->N).orientMat.m[6];
 
@@ -2977,7 +3008,7 @@ void AIState_Donuts::Execute()
 
   if ((this->donutMode_ == 1) || (this->donutMode_ == 3)) {
 
-    pCVar10 = (this->_base_AIState_Base).carObj_;
+    pCVar10 = this->carObj_;
 
     iVar7 = (pCVar10->N).orientMat.m[6];
 
@@ -3057,7 +3088,7 @@ void AIState_Donuts::Execute()
 
     local_20.z = piVar5[2];
 
-    iVar7 = ((this->_base_AIState_Base).carObj_)->roadPosition;
+    iVar7 = (this->carObj_)->roadPosition;
 
     if (iVar7 < 0) {
 
@@ -3091,13 +3122,13 @@ void AIState_Donuts::Execute()
 
     }
 
-    pCVar10 = (this->_base_AIState_Base).carObj_;
+    pCVar10 = this->carObj_;
 
     iVar1 = (pCVar10->N).orientMat.m[1];
 
     iVar8 = (pCVar10->N).orientMat.m[2];
 
-    pCVar6 = (this->_base_AIState_Base).carObj_;
+    pCVar6 = this->carObj_;
 
     iVar2 = (pCVar6->N).orientMat.m[6];
 
@@ -3117,17 +3148,17 @@ void AIState_Donuts::Execute()
 
     local_20.z = fixedmult(this->donutLookForward_,iVar3);
 
-    local_20.x = (((this->_base_AIState_Base).carObj_)->N).position.x + iVar7 + iVar2;
+    local_20.x = ((this->carObj_)->N).position.x + iVar7 + iVar2;
 
-    local_20.y = (((this->_base_AIState_Base).carObj_)->N).position.y + iVar1 + iVar9;
+    local_20.y = ((this->carObj_)->N).position.y + iVar1 + iVar9;
 
-    local_20.z = (((this->_base_AIState_Base).carObj_)->N).position.z + iVar8 + local_20.z;
+    local_20.z = ((this->carObj_)->N).position.z + iVar8 + local_20.z;
 
-    pCVar10 = (this->_base_AIState_Base).carObj_;
+    pCVar10 = this->carObj_;
 
     iVar1 = Newton_CalculateRoadPositionFromSliceAndPosition((int)(pCVar10->N).simRoadInfo.slice,&local_20,&(pCVar10->N).roadMatrix);
 
-    iVar7 = ((this->_base_AIState_Base).carObj_)->roadPosition;
+    iVar7 = (this->carObj_)->roadPosition;
 
     if (iVar7 < 0) {
 
@@ -3157,15 +3188,15 @@ void AIState_Donuts::Execute()
 
 LAB_800722ec:
 
-  ((this->_base_AIState_Base).carObj_)->donutMode = this->donutMode_;
+  (this->carObj_)->donutMode = this->donutMode_;
 
-  AI_GenericBeginCycle((this->_base_AIState_Base).carObj_);
+  AI_GenericBeginCycle(this->carObj_);
 
-  AI_GenericCycle((this->_base_AIState_Base).carObj_);
+  AI_GenericCycle(this->carObj_);
 
-  AI_GenericEndCycle((this->_base_AIState_Base).carObj_);
+  AI_GenericEndCycle(this->carObj_);
 
-  pCVar10 = (this->_base_AIState_Base).carObj_;
+  pCVar10 = this->carObj_;
 
   (pCVar10->targetPos).x = local_20.x;
 
@@ -3173,9 +3204,9 @@ LAB_800722ec:
 
   (pCVar10->targetPos).z = local_20.z;
 
-  ((this->_base_AIState_Base).carObj_)->targetLatPos = iVar1;
+  (this->carObj_)->targetLatPos = iVar1;
 
-  ((this->_base_AIState_Base).carObj_)->desiredSpeed = 0x471c7;
+  (this->carObj_)->desiredSpeed = 0x471c7;
 
   return;
 
@@ -3191,11 +3222,11 @@ LAB_800722ec:
 /* ---- __17AIState_GotoSliceP8Car_tObjii  AIState_GotoSlice::ctor  [AISTATE.CPP:1348-1351] SLD-VERIFIED ---- */
 
 AIState_GotoSlice::AIState_GotoSlice(Car_tObj *carObj,int targetSlice,int stopWhenArrivedAtSlice)
-  : _base_AIState_Normal(carObj)
+  : AIState_Normal(carObj)
 {
 
 
-  (this->_base_AIState_Normal)._base_AIState_Base._vf = (__vtbl_ptr_type (*) [4])AIState_GotoSlice_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_GotoSlice_vtable;
 
   this->targetSlice_ = targetSlice;
 
@@ -3230,21 +3261,21 @@ void AIState_GotoSlice::Execute()
 
   
 
-  distMeters = AIWorld_ApxSplineDistance(this->targetSlice_,(this->_base_AIState_Normal)._base_AIState_Base.carObj_);
+  distMeters = AIWorld_ApxSplineDistance(this->targetSlice_,this->carObj_);
 
   if (distMeters < 0) {
 
-    ((this->_base_AIState_Normal)._base_AIState_Base.carObj_)->desiredDirection = -1;
+    (this->carObj_)->desiredDirection = -1;
 
   }
 
   else {
 
-    ((this->_base_AIState_Normal)._base_AIState_Base.carObj_)->desiredDirection = 1;
+    (this->carObj_)->desiredDirection = 1;
 
   }
 
-  this->_base_AIState_Normal.Execute();
+  this->AIState_Normal::Execute();
 
   if (this->stopWhenArrivedAtSlice_ != 0) {
 
@@ -3280,7 +3311,7 @@ void AIState_GotoSlice::Execute()
 
     }
 
-    pCVar3 = (this->_base_AIState_Normal)._base_AIState_Base.carObj_;
+    pCVar3 = this->carObj_;
 
     distMeters = pCVar3->desiredSpeed;
 
@@ -3332,7 +3363,7 @@ int AIState_GotoSlice::InTargetSliceRange(int rangeMeters)
 
   
 
-  iVar1 = AIWorld_ApxSplineDistance((this->_base_AIState_Normal)._base_AIState_Base.carObj_,this->targetSlice_);
+  iVar1 = AIWorld_ApxSplineDistance(this->carObj_,this->targetSlice_);
 
   if (iVar1 < 0) {
 
@@ -3354,11 +3385,11 @@ int AIState_GotoSlice::InTargetSliceRange(int rangeMeters)
 /* ---- __14AIState_CruiseP8Car_tObj12cruiseMode_ti  AIState_Cruise::ctor  [AISTATE.CPP:1403-1408] SLD-VERIFIED ---- */
 
 AIState_Cruise::AIState_Cruise(Car_tObj *carObj,cruiseMode_t cruiseMode,int speedOrFactor)
-  : _base_AIState_Normal(carObj)
+  : AIState_Normal(carObj)
 {
 
 
-  (this->_base_AIState_Normal)._base_AIState_Base._vf = (__vtbl_ptr_type (*) [4])AIState_Cruise_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Cruise_vtable;
 
   this->cruiseMode_ = cruiseMode;
 
@@ -3407,7 +3438,7 @@ void AIState_Cruise::Execute()
 
   case CRUISE_ATSETSPEED:
 
-    pCVar3 = (this->_base_AIState_Normal)._base_AIState_Base.carObj_;
+    pCVar3 = this->carObj_;
 
     pCVar3->desiredSpeed = this->cruiseSpeed_ * pCVar3->direction;
 
@@ -3415,29 +3446,29 @@ void AIState_Cruise::Execute()
 
   case CRUISE_ATFACTOR:
 
-    AISpeeds_CalcDesiredSpeed((this->_base_AIState_Normal)._base_AIState_Base.carObj_);
+    AISpeeds_CalcDesiredSpeed(this->carObj_);
 
-    iVar1 = fixedmult(((this->_base_AIState_Normal)._base_AIState_Base.carObj_)->desiredSpeed,
+    iVar1 = fixedmult((this->carObj_)->desiredSpeed,
 
                        this->cruiseFactor_);
 
-    ((this->_base_AIState_Normal)._base_AIState_Base.carObj_)->desiredSpeed = iVar1;
+    (this->carObj_)->desiredSpeed = iVar1;
 
     break;
 
   case CRUISE_ATTRAFFICSPEED:
 
-    AISpeeds_CalcTrafficTopSpeed((this->_base_AIState_Normal)._base_AIState_Base.carObj_);
+    AISpeeds_CalcTrafficTopSpeed(this->carObj_);
 
     break;
 
   }
 
-  AI_GenericBeginCycle((this->_base_AIState_Normal)._base_AIState_Base.carObj_);
+  AI_GenericBeginCycle(this->carObj_);
 
-  AI_GenericCycle((this->_base_AIState_Normal)._base_AIState_Base.carObj_);
+  AI_GenericCycle(this->carObj_);
 
-  AI_GenericEndCycle((this->_base_AIState_Normal)._base_AIState_Base.carObj_);
+  AI_GenericEndCycle(this->carObj_);
 
   return;
 
@@ -3451,18 +3482,21 @@ void AIState_Cruise::Execute()
 
 
 /* ---- _._14AIState_Cruise  AIState_Cruise::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* reconstructed as extern "C" ___14AIState_Cruise(AIState_Cruise*,int) free fn -- see
+   AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle). */
 
-AIState_Cruise::~AIState_Cruise()
+extern "C" void ___14AIState_Cruise(AIState_Cruise *pThis,int __in_chrg)
 
 
 
 {
 
 
-  
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
-  (this->_base_AIState_Normal)._base_AIState_Base._vf = (__vtbl_ptr_type (*) [4])((char *)AIState_Cruise_vtable + 8);
-
+  if ((__in_chrg & 1U) != 0) {
+    __builtin_delete(pThis);
+  }
 
   return;
 
@@ -3476,18 +3510,21 @@ AIState_Cruise::~AIState_Cruise()
 
 
 /* ---- _._17AIState_GotoSlice  AIState_GotoSlice::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* reconstructed as extern "C" ___17AIState_GotoSlice(AIState_GotoSlice*,int) free fn -- see
+   AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle). */
 
-AIState_GotoSlice::~AIState_GotoSlice()
+extern "C" void ___17AIState_GotoSlice(AIState_GotoSlice *pThis,int __in_chrg)
 
 
 
 {
 
 
-  
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
-  (this->_base_AIState_Normal)._base_AIState_Base._vf = (__vtbl_ptr_type (*) [4])((char *)AIState_GotoSlice_vtable + 8);
-
+  if ((__in_chrg & 1U) != 0) {
+    __builtin_delete(pThis);
+  }
 
   return;
 
@@ -3520,8 +3557,13 @@ int AIState_RovingTraffic::TestForRelease()
 
 
 /* ---- _._21AIState_RovingTraffic  AIState_RovingTraffic::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* reconstructed as extern "C" ___21AIState_RovingTraffic(AIState_RovingTraffic*,int) free fn
+   -- see AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle).
+   WALL (register-coloring near-miss, 25 diffs 28/29 insns) -- identical symptom + identical
+   body shape to the AIState_Offroad dtor (see its WALL comment): oracle copies pThis a0->a2
+   up front, ours keeps pThis in a0. Same gcc-2.x allocator coin-flip; documented near-miss. */
 
-AIState_RovingTraffic::~AIState_RovingTraffic()
+extern "C" void ___21AIState_RovingTraffic(AIState_RovingTraffic *pThis,int __in_chrg)
 
 
 
@@ -3530,11 +3572,10 @@ AIState_RovingTraffic::~AIState_RovingTraffic()
   Car_tObj *pCVar1;
 
 
-  
 
-  pCVar1 = (this->_base_AIState_Base).carObj_;
+  pCVar1 = pThis->carObj_;
 
-  (this->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])AIState_RovingTraffic_vtable;
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_RovingTraffic_vtable;
 
   (pCVar1->targetPos).z = 0;
 
@@ -3542,14 +3583,17 @@ AIState_RovingTraffic::~AIState_RovingTraffic()
 
   (pCVar1->targetPos).x = 0;
 
-  ((this->_base_AIState_Base).carObj_)->targetLatPos = 0;
+  (pThis->carObj_)->targetLatPos = 0;
 
-  pCVar1 = (this->_base_AIState_Base).carObj_;
+  pCVar1 = pThis->carObj_;
 
   pCVar1->carFlags = pCVar1->carFlags & 0xfffff7ff;
 
-  (this->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])((char *)AIState_RovingTraffic_vtable + 8);
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
+  if ((__in_chrg & 1U) != 0) {
+    __builtin_delete(pThis);
+  }
 
   return;
 
@@ -3582,22 +3626,25 @@ void AIState_NonActive::Execute()
 
 
 /* ---- _._17AIState_NonActive  AIState_NonActive::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* reconstructed as extern "C" ___17AIState_NonActive(AIState_NonActive*,int) free fn -- see
+   AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle). */
 
-AIState_NonActive::~AIState_NonActive()
+extern "C" void ___17AIState_NonActive(AIState_NonActive *pThis,int __in_chrg)
 
 
 
 {
 
 
-  
+  pThis->_vf = (__vtbl_ptr_type (*) [4])((char *)AIState_NonActive_vtable + 8);
 
-  (this->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])((char *)AIState_NonActive_vtable + 8);
+  ((pThis->carObj_)->N).active = '\x01';
 
-  (((this->_base_AIState_Base).carObj_)->N).active = '\x01';
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
-  (this->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])((char *)AIState_NonActive_vtable + 8);
-
+  if ((__in_chrg & 1U) != 0) {
+    __builtin_delete(pThis);
+  }
 
   return;
 
@@ -3611,8 +3658,10 @@ AIState_NonActive::~AIState_NonActive()
 
 
 /* ---- _._12AIState_Idle  AIState_Idle::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* reconstructed as extern "C" ___12AIState_Idle(AIState_Idle*,int) free fn -- see
+   AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle). */
 
-AIState_Idle::~AIState_Idle()
+extern "C" void ___12AIState_Idle(AIState_Idle *pThis,int __in_chrg)
 
 
 
@@ -3621,16 +3670,18 @@ AIState_Idle::~AIState_Idle()
   Car_tObj *pCVar1;
 
 
-  
 
-  pCVar1 = (this->_base_AIState_Base).carObj_;
+  pCVar1 = pThis->carObj_;
 
-  (this->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
 
   pCVar1->carFlags = pCVar1->carFlags & 0xfffffbff;
 
-  (this->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])((char *)AIState_Idle_vtable + 8);
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
+  if ((__in_chrg & 1U) != 0) {
+    __builtin_delete(pThis);
+  }
 
   return;
 
@@ -3644,18 +3695,21 @@ AIState_Idle::~AIState_Idle()
 
 
 /* ---- _._14AIState_Normal  AIState_Normal::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* reconstructed as extern "C" ___14AIState_Normal(AIState_Normal*,int) free fn -- see
+   AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle). */
 
-AIState_Normal::~AIState_Normal()
+extern "C" void ___14AIState_Normal(AIState_Normal *pThis,int __in_chrg)
 
 
 
 {
 
 
-  
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
-  (this->_base_AIState_Base)._vf = (__vtbl_ptr_type (*) [4])((char *)AIState_Normal_vtable + 8);
-
+  if ((__in_chrg & 1U) != 0) {
+    __builtin_delete(pThis);
+  }
 
   return;
 

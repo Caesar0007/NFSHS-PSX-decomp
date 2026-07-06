@@ -111,14 +111,18 @@ def ours(fn):
         # Match by the RAW 32-bit instruction word (byte-identical) instead of the rendering.
         if re.match(r'c(?:op)?2\b', insn):
             out.append('cop2 '+word); continue
-        # A R_MIPS_LO16 reloc on this instruction means the displacement/immediate is
-        # a relocation ADDEND (our object is UNLINKED). The oracle is LINKED + re-split
-        # by splat, which folds that addend into a per-address symbol -> `%lo(SYM)` which
-        # we already normalize to 0. So zero OUR addend too: `simGlobal+4` reloc (objdump
-        # `lw r,4(b)`) is byte-identical after link to the oracle's `lw r,%lo(D_…+4)(b)`.
+        # A R_MIPS_LO16 (or R_MIPS_GPREL16) reloc on this instruction means the
+        # displacement/immediate is a relocation ADDEND (our object is UNLINKED). The oracle
+        # is LINKED + re-split by splat, which folds that addend into a per-address symbol ->
+        # `%lo(SYM)` / `%gp_rel(SYM)` which we already normalize to 0. So zero OUR addend too:
+        # `simGlobal+4` reloc (objdump `lw r,4(b)`) is byte-identical after link to the oracle's
+        # `lw r,%lo(D_…+4)(b)`. GPREL16 case: a CVECTOR `.g`/`.b` field store `sb v0,1(gp)`
+        # (R_MIPS_GPREL16 vs base, addend 1 in the immediate) links to the SAME word as the
+        # oracle's `sb v0,%gp_rel(D_…39D)(gp)` (splat's synthetic per-byte gp symbol) -- verified
+        # by hand on R3DCcar_ReadTrackShadow (oracle 0xA3820E50..56 == ours after link).
         # (Symmetric with the existing reloc-name leniency; HI16 already shows 0 in objdump.)
         nxt = lines[i+1] if i+1 < len(lines) else ''
-        if 'R_MIPS_LO16' in nxt:
+        if 'R_MIPS_LO16' in nxt or 'R_MIPS_GPREL16' in nxt:
             insn = re.sub(r',\s*-?(?:0x)?[0-9a-fA-F]+\(', ',0(', insn)   # lw rD,N(base) -> 0(base)
             insn = re.sub(r',\s*-?(?:0x)?[0-9a-fA-F]+$', ',0', insn)     # addiu/ori rD,rS,N -> ,0
         out.append(norm_ins(insn))

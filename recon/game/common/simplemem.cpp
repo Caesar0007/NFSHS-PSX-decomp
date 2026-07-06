@@ -11,16 +11,17 @@ void * SimpleMem::Alloc(int len,int feign)
 {
   void *ret;
 
-  len = (len + 3) & ~3;
-  if (len <= this->freeMemSize) {
-    ret = this->freeMem;
-    if (feign == 0) {
-      this->freeMem = (u_char *)((int)ret + len);
-      this->freeMemSize = this->freeMemSize - len;
-    }
-    return ret;
+  len = len + 3;
+  len = len & ~3;
+  if (this->freeMemSize < len) {
+    return (void *)0x0;
   }
-  return (void *)0x0;
+  ret = this->freeMem;
+  if (feign == 0) {
+    this->freeMem = (u_char *)((int)ret + len);
+    this->freeMemSize = this->freeMemSize - len;
+  }
+  return ret;
 }
 
 /* ---- FeignAlloc__9SimpleMemi  [SIMPLEMEM.CPP:45-46] SLD-VERIFIED ---- */
@@ -41,7 +42,8 @@ void SimpleMem::ResizeToFit()
 
   tp1 = this->freeMem;
   this->freeMem = (u_char *)0x0;
-  resizememadr(this->heap,(int)tp1 - (int)this->heap);
+  newSize = (int)tp1 - (int)this->heap;
+  resizememadr(this->heap,newSize);
   return;
 }
 

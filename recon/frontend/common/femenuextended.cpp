@@ -658,8 +658,8 @@ tMenuNFS4::tMenuNFS4(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
                  tMenu *optionsMenu,void (*OnButtonPress)(tMenuCommand&),short title,tMenuItem *firstItem,...)
   : tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
-  
-  *(void **)&(this->_vf) = (void *)tMenuNFS4_vtable;
+
+  this->_vf = (__vtbl_ptr_type (*)[11])tMenuNFS4_vtable;
   this->tMenuConstructor(firstItem,(&firstItem + 1));
   return;
 }
@@ -904,7 +904,7 @@ tMenuNFS4TwoPlayer::tMenuNFS4TwoPlayer(u_int flags,tScreen *screenHandler,tMenu 
   : tMenuNFS4(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
   
-  *(void **)&(this->_vf) = (void *)tMenuNFS4TwoPlayer_vtable;
+  this->_vf = (__vtbl_ptr_type (*)[11])tMenuNFS4TwoPlayer_vtable;
   this->fChildMenu = (tMenu *)0x0;
   ((tMenu *)this)->tMenuConstructor(firstItem,(&firstItem + 1));
   return;
@@ -953,7 +953,7 @@ tMenuNFS4Bottom::tMenuNFS4Bottom(u_int flags,tScreen *screenHandler,tMenu *nextM
   : tMenuNFS4(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
   
-  *(void **)&(this->_vf) = (void *)tMenuNFS4Bottom_vtable;
+  this->_vf = (__vtbl_ptr_type (*)[11])tMenuNFS4Bottom_vtable;
   ((tMenu *)this)->tMenuConstructor(firstItem,(&firstItem + 1));
   return;
 }
@@ -1136,7 +1136,7 @@ tMenuOptions::tMenuOptions(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
   : tMenuNFS4(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
   
-  *(void **)&(this->_vf) = (void *)tMenuOptions_vtable;
+  this->_vf = (__vtbl_ptr_type (*)[11])tMenuOptions_vtable;
   ((tMenu *)this)->tMenuConstructor(firstItem,(&firstItem + 1));
   this->fPlayer = player;
   return;

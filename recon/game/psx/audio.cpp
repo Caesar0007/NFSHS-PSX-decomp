@@ -24,17 +24,14 @@ int AudioCmn_LoadBank(char *filename,int BankNum);
 void Audio_InitDriver(int buffersize,int spusize)
 
 {
-  SndBnk_t *pSVar1;
   int i;
   SNDSYSOPTS opts;
-  
+
   i = 0;
-  pSVar1 = gSndBnk;
   do {
-    pSVar1->bnkID = i;
-    pSVar1->pdata = (char *)0x0;
+    gSndBnk[i].bnkID = i;
+    gSndBnk[i].pdata = (char *)0x0;
     i = i + 1;
-    pSVar1 = pSVar1 + 1;
   } while (i < 7);
   if ((AudioCmn_kAudioOn != 0) || (AudioCmn_kAudioStreamingOn != 0)) {
     SNDSYS_getopts(&opts);

@@ -7,12 +7,12 @@
 
 CARDINFO_def *MCRD_getcard(...);
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
-extern Car_tObj **Cars_gList;
+extern Car_tObj *Cars_gList[];   /* real def: cars.cpp Car_tObj *Cars_gList[9] (array, NOT Car_tObj**) */
 extern GameSetup_tData   GameSetup_gData;
 extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
 extern camera_info       Camera_gInfo[2];            /* camera.obj */
 extern char *Audio_gLangAssignmentTable[];
-extern char *gAudioBasePath;
+extern char *gAudioBasePath[];
 extern char GameSetup_gCarNames[51][5];
 extern int            gNumSlices;
 extern int       Cars_gNumHumanRaceCars;

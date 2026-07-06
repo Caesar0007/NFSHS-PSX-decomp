@@ -735,23 +735,26 @@ void Hrz_LightningFlicker(int on)
 
 {
   int i;
+  u_int col;
 
   if (on != 0) {
     if (on == 1) {
       if (Night_gShowForks == '\0') {
         *(u_int *)&Sky_gTrackSpec->frontcolors[0] = 0xffc0c0;
+        col = 0xffc0c0;
         i = 0x54;
         do {
-          *(u_int *)&gSkyColor[i] = 0xffc0c0;
+          *(u_int *)&gSkyColor[i] = col;
           i = i - 1;
         } while (-1 < i);
       }
     }
     else if (Night_gShowForks == '\0') {
       *(u_int *)&Sky_gTrackSpec->frontcolors[0] = 0xc02828;
+      col = 0xc02828;
       i = 0x54;
       do {
-        *(u_int *)&gSkyColor[i] = 0xc02828;
+        *(u_int *)&gSkyColor[i] = col;
         i = i - 1;
       } while (-1 < i);
     }
@@ -807,18 +810,14 @@ void Hrz_RotProj16(int n, SVECTOR *s, int *z, DVECTOR *p)
 {
   int i;
 
-  if (n != 0) {
-    i = n - 1;
-    do {
-      gte_ldv0(s);                  /* load vx,vy,vz into VXY0/VZ0 */
-      gte_rtps();                   /* rotate / transform / perspective */
-      s = s + 1;
-      gte_stSXY2(p);                /* store screen XY -> DVECTOR (SXY2) */
-      p = p + 1;
-      gte_swc2(0x1b, z);            /* store screen Z (MAC3) -> int  [no canonical macro] */
-      i = i - 1;
-      z = z + 1;
-    } while (i != -1);
+  for (i = n - 1; i != -1; i--) {
+    gte_ldv0(s);                  /* load vx,vy,vz into VXY0/VZ0 */
+    gte_rtps();                   /* rotate / transform / perspective */
+    s = s + 1;
+    gte_stSXY2(p);                /* store screen XY -> DVECTOR (SXY2) */
+    p = p + 1;
+    gte_swc2(0x1b, z);            /* store screen Z (MAC3) -> int  [no canonical macro] */
+    z = z + 1;
   }
 }
 
@@ -828,12 +827,14 @@ void Hrz_SetDitheringPrim(int dither,int otz)
 {
   DR_MODE *prim;
   u_int *prev_pkt_slot;
+  u_int prev_val;
 
   prev_pkt_slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
   prim = (DR_MODE *)Render_gPacketPtr;
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *prev_pkt_slot & 0xffffff;
+  prev_val = *prev_pkt_slot;
   Render_gPacketPtr = (u_char *)prim + 0xc;
-  *prev_pkt_slot = *prev_pkt_slot & 0xff000000 | (u_int)prim & 0xffffff;
+  *prev_pkt_slot = (prev_val & 0xff000000) | ((u_int)prim & 0xffffff);
   SetDrawMode(prim,0,dither,0x100,(RECT *)0x0);
   return;
 }

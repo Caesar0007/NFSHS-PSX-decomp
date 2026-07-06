@@ -1437,10 +1437,14 @@ void Activate__Q26Speech15DispatchSpeakeri(int param_1,u_int seedupdatecount)
 int Dispatch__6Speech(void)
 
 {
-  if ((((int)Speech_fgSpeech) != 0) && (*(int *)(((int)Speech_fgSpeech) + 0x36c) != 0)) {
-    return *(int *)(((int)Speech_fgSpeech) + 0x3a0);
+  if ((int)Speech_fgSpeech != 0) {
+    if (*(int *)(((int)Speech_fgSpeech) + 0x36c) != 0) {
+      goto Dispatch_useValue;
+    }
   }
   return (int)Speech_fgUndefined;
+Dispatch_useValue:
+  return *(int *)(((int)Speech_fgSpeech) + 0x3a0);
 }
 
 /* ---- Roger__Q26Speech15DispatchSpeaker  [SPEECH.CPP:1592-1629] SLD-VERIFIED ---- */
@@ -2412,7 +2416,6 @@ void ReActivate__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
 {
   Speech_tMobileVoiceAttr *a;
   int Voice;
-  int tu2;
   __vtbl_ptr_type (*pa_Var1) [31];
   int unit;
 
@@ -2421,16 +2424,18 @@ void ReActivate__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
   a = &Speech_gCopAttr[Voice];
   if ((pThis->fCarObj->carFlags & 0x40U) != 0) {
     pThis->fUnit = Voice + 9;
-    tu2 = 8;
+    (pThis->fVoice).flags = 8;
   }
   else {
-    tu2 = a->voice;
+    (pThis->fVoice).flags = a->voice;
   }
-  (pThis->fVoice).flags = tu2;
   pa_Var1 = (pThis->_base_Speaker)._vf;
   unit = (*(*pa_Var1)[0x1e].pfn)
                     ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1e].delta);
-  (pThis->_base_Speaker).fFrom = *(int *)(unit + pThis->fUnit * 4 + 8);
+  {
+    int *pFrom = (int *)(unit + pThis->fUnit * 4 + 8);
+    (pThis->_base_Speaker).fFrom = *pFrom;
+  }
   return;
 }
 
@@ -2470,10 +2475,15 @@ int Mobile__6SpeechP8Car_tObj(Car_tObj *carObj)
 {
   Speaker *pSVar1;
 
-  pSVar1 = Speech_fgUndefined;
-  if ((((int)Speech_fgSpeech) != 0) && (*(int *)(((int)Speech_fgSpeech) + 0x36c) != 0)) {
-    pSVar1 = FindMobile__6SpeechP8Car_tObj((Speech *)((int)Speech_fgSpeech),carObj);
+  if ((int)Speech_fgSpeech != 0) {
+    if (*(int *)(((int)Speech_fgSpeech) + 0x36c) != 0) {
+      goto Mobile_findIt;
+    }
   }
+  pSVar1 = Speech_fgUndefined;
+  return (int)pSVar1;
+Mobile_findIt:
+  pSVar1 = FindMobile__6SpeechP8Car_tObj((Speech *)((int)Speech_fgSpeech),carObj);
   return (int)pSVar1;
 }
 

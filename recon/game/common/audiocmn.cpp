@@ -7,7 +7,7 @@
 #include "audiocmn_externs.h"
 
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
-char *gAudioBasePath;
+char *gAudioBasePath[1] __attribute__((section(".bss")));   /* .bss=absolute; oracle never %gp_rel's this symbol */
 
 /* ---- AudioCmn.obj-OWNED data globals -- extern-declared in audiocmn_externs.h but never
    defined (surfaced by the link harness). Defined here in the owning TU; BSS zero. */
@@ -195,20 +195,15 @@ void AudioCmn_UpdateThunder(void)
 /* ---- AudioCmn_InitAsyncSfx__Fv  [@0x8007657c] ---- */
 void AudioCmn_InitAsyncSfx(void)
 {
-  int i;
-  bool bVar1;
-  AudioCmn_tAsyncSfxSlot *pAVar2;
   int iVar3;
-  
+
   iVar3 = 0;
-  pAVar2 = AudioCmn_gSfxSlot;
   while (1) {
     if (0x20 <= iVar3) break;
+    AudioCmn_gSfxSlot[iVar3].patch = -1;
+    AudioCmn_gSfxSlot[iVar3].handle = -1;
+    AudioCmn_gSfxSlot[iVar3].header = (char *)0x0;
     iVar3 = iVar3 + 1;
-    pAVar2->patch = -1;
-    pAVar2->handle = -1;
-    pAVar2->header = (char *)0x0;
-    pAVar2 = pAVar2 + 1;
   }
   return;
 }
@@ -674,7 +669,7 @@ void AudioCmn_LoadFESamples(void)
 {
   char acStack_70 [104];
 
-  strcpy(acStack_70, gAudioBasePath);
+  strcpy(acStack_70, gAudioBasePath[0]);
   strcat(acStack_70, "fesfx");
   AudioCmn_LoadBank(acStack_70,0);
   return;
@@ -691,7 +686,7 @@ void AudioCmn_LoadGameSamples(void)
     AudioEng_StartUp(1,GameSetup_gCarNames[0] + GameSetup_gData.carInfo[1].carType * 5);
   }
   AudioEng_StartServer();
-  strcpy(filename, gAudioBasePath);
+  strcpy(filename, gAudioBasePath[0]);
   strcat(filename, "Gen");
   memcpy(TrackGenBank, (char **)AudioCmn_FESFX_loadLangMap, sizeof(TrackGenBank));
   strcat(filename, TrackGenBank[(int)Audio_gFESFXTable.languages]);

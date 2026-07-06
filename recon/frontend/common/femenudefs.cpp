@@ -543,8 +543,26 @@ MX_GoToCar_oppFilterSetup:
 
 /* Decoded Phase 83: MenuExtended_GoToDealer__FR12tMenuCommand(tMenuCommand&) - transition to buy-car dealer screen(104 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
-   
-   [ghidra-meta] section: front.text */
+
+   [ghidra-meta] section: front.text
+
+   [NEAR-MISS 2026-07-06/07, 10 diffs, WALL] `command->type=1` (a v1-const) and
+   `command->nextMenu=&ptVar1->menuCarDealer` (a v0-computed ptr) swap which of {v0,v1} each
+   lands in vs the oracle (oracle: const->v1, ptr->v0; ours: const->v0, ptr->v1); count matches
+   (26 insns both sides), so it's pure register-coloring, not structural. IDENTICAL shape/residual
+   on sibling GoToSeller. Tried and REJECTED (all revert to the 10-diff form): swap the two
+   command-> statement order; swap ptVar1/dlgThis declaration+assignment order (regresses to 12);
+   materialize the pointer into a fresh named local before the stores (no change); compute dlgThis
+   last, right before SetState (regresses to 11, drops an insn); inline screenCarSelect[0] at the
+   SetState call site instead of caching dlgThis (regresses to 11); named kMenu_Command_GoToMenu
+   enum vs literal 1 (no change, confirmed codegen-neutral). PERMUTER (2 re-seeded basins, ~220
+   iterations total, decomp-permuter via tools/run_permuter.py) plateaus at the SAME 10-diff shape
+   (internal score 30) from every mutation path tried -- multi-basin re-seed did not find a
+   downhill path below it either. Conclusion: GENUINE gcc scratch-register tie-break floor (same
+   family as the documented §3.15 v0-vs-scratch tie-break in the methodology doc) -- accept, do
+   NOT pin (`register T x asm("$N")` forbidden). Compare GoToGarage (sibling shape, SAME v0/v1-
+   swap family) which WAS fixable because it had a genuine double pointer-derivation to collapse;
+   this fn has no such redundancy to remove. */
 
 extern "C" void MenuExtended_GoToDealer__FR12tMenuCommand(tMenuCommand *command)
 
@@ -568,8 +586,16 @@ extern "C" void MenuExtended_GoToDealer__FR12tMenuCommand(tMenuCommand *command)
 
 /* Decoded Phase 83: MenuExtended_GoToSeller__FR12tMenuCommand(tMenuCommand&) - transition to sell-car screen (104 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
-   
-   [ghidra-meta] section: front.text */
+
+   [ghidra-meta] section: front.text
+
+   [NEAR-MISS 2026-07-06/07, 10 diffs, WALL] IDENTICAL residual/shape to sibling GoToDealer (same
+   v0/v1 const-vs-pointer coloring swap on the command->type / command->nextMenu pair; count
+   matches, 26 insns both sides). See GoToDealer's near-miss note above for the full list of
+   rejected levers (statement/decl reorders, fresh-local materialization, inline-call-arg,
+   named-enum-vs-literal) and the 2-basin permuter run (~220 iterations, plateaus at the same
+   shape, internal score 30). Same conclusion: genuine gcc scratch-register tie-break floor,
+   accept, do not pin. */
 
 extern "C" void MenuExtended_GoToSeller__FR12tMenuCommand(tMenuCommand *command)
 
@@ -1052,7 +1078,19 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
    read (forces the 2 separate loads back but reintroduces the dropped andi -- net same size,
    less honest). Left as the compiler's own CSE decision; not source-reachable without
    register pins (forbidden) or a real volatile FEApp (shared-header change, unjustified --
-   nothing else about FEApp needs it). */
+   nothing else about FEApp needs it).
+
+   [2026-07-07 addendum] Also tried: dropping bVar1/bVar2 entirely and reading
+   `FEApp->fInputPlayer` inline at each of the two use sites (fPlayer=/fData=) -- regresses to 17
+   diffs AND changes insn count (26 vs 25; gcc re-schedules the loads to sit right before each use,
+   interleaved with the zero-stores, which is a WORSE shape than the current CSE-then-diverge one).
+   Swapping fCurrentRow/fCurrentColumn write order (a permuter-suggested candidate, see below)
+   regresses to 9. PERMUTER (~130 iterations, tools/run_permuter.py) found only a same-shape
+   candidate (internal score 100->95, the fCurrentRow/Column swap just mentioned) which verify_asm
+   confirms is WORSE, not better -- the permuter's internal Levenshtein score does not reliably
+   track verify_asm's diff-line count here (known caveat, [[reference_psx_cpp_reconstruction_methodology]]
+   "survey tools over-count vs verify_asm"). No path below 7 found; WALL, same v0/v1 %hi-scratch
+   tie-break family as GoToDealer/GoToSeller's residual. Do not pin. */
 
 extern "C" void MenuExtended_EnterUserName__FR12tMenuCommand(tMenuCommand *command)
 
@@ -1917,8 +1955,19 @@ extern "C" void MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand(tMenuCommand *c
 
 /* Decoded Phase 83: MenuExtended_GoToGarage__FR12tMenuCommand(tMenuCommand&) - transition to garage screen (168 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
-   
-   [ghidra-meta] section: front.text */
+
+   [ghidra-meta] section: front.text
+
+   [SEALED 2026-07-06/07, was 10 diffs, now PASS] Fix = reuse the already-computed `this_00`
+   pointer for the fCarListFilter store instead of re-deriving `menuDefs[0]->iteratorGarageCar`
+   a second time. The old code recomputed the base a second time via
+   `(menuDefs[0]->iteratorGarageCar).fCarListFilter = 0x40;`, forcing gcc to hold TWO copies of
+   the same address (menuDefs[0]->iteratorGarageCar) live in separate regs (a2 vs a0) across the
+   Decrement() jal. `this_00->fCarListFilter = 0x40;` collapses it to one live pointer, matching
+   the oracle's single `addiu a0,a0,0x12CC; sw v0,0x10(a0)` (a0 = this_00, used for both the
+   store and as Decrement's arg). This is the same "greedy pointer re-derivation" family as the
+   sibling GoToDealer/GoToSeller residual but WAS fixable here because this fn had a genuine
+   double-derivation to collapse; GoToDealer/GoToSeller do not (see their own near-miss notes). */
 
 extern "C" void MenuExtended_GoToGarage__FR12tMenuCommand(tMenuCommand *command)
 
@@ -1929,7 +1978,7 @@ extern "C" void MenuExtended_GoToGarage__FR12tMenuCommand(tMenuCommand *command)
   
   frontEnd.carListType = '\x01';
   this_00 = &menuDefs[0]->iteratorGarageCar;
-  (menuDefs[0]->iteratorGarageCar).fCarListFilter = 0x40;
+  this_00->fCarListFilter = 0x40;
   Decrement(this_00,kPlayerBoth);
   Increment(&menuDefs[0]->iteratorGarageCar,kPlayerBoth);
   command->type = kMenu_Command_GoToMenu;

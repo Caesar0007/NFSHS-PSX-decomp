@@ -1534,37 +1534,20 @@ void AIHigh_BTC_HumanCop::UpdateWingmanRole(Wingman_Role currentRole)
 
 {
 
-  if (currentRole == 1) goto LAB_role1;
-
-  if ((int)currentRole < 2) {
-
-    if (currentRole == 0) goto LAB_role0;
-
-    goto LAB_ret;
-
+  switch ((int)currentRole) {
+  case 0:
+    this->wingmanStatus_ = 0;
+    return;
+  case 1:
+    this->wingmanStatus_ = 4;
+    return;
+  case 2:
+  case 3:
+    this->wingmanStatus_ = 5;
+    return;
+  default:
+    return;
   }
-
-  if ((int)currentRole >= 4) goto LAB_ret;
-
-  this->wingmanStatus_ = 5;
-
-  return;
-
-LAB_role1:
-
-  this->wingmanStatus_ = 4;
-
-  return;
-
-LAB_ret:
-
-  return;
-
-LAB_role0:
-
-  this->wingmanStatus_ = 0;
-
-  return;
 
 }
 

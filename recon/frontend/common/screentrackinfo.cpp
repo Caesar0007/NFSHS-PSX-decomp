@@ -13,8 +13,10 @@ void tScreenTrackInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
   numSwapShapes = 10;
   GetTrackToRace(&tournamentManager,&this->fTrack);
   *permFileName = "zInfo";
+  int dayTimes2 = (uint)(this->fTrack).fTimeOfDay * 2;
+  int weatherPlus = (this->fTrack).fWeather + 0x61;
   sprintf(gSwapFileName,"TR%02d%c",(int)(signed char)(this->fTrack).fTrackNumber,
-             (uint)(this->fTrack).fTimeOfDay * 2 + (this->fTrack).fWeather + 0x61);
+             dayTimes2 + weatherPlus);
   *swapFileName = gSwapFileName;
   return;
 }
@@ -102,11 +104,10 @@ void tScreenTrackInfo::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
 {
   if ((keyval == kInput_KeyType_Triangle) &&
      (TurnOffInstant(&this->fVideoWall), tournamentManager.fCurrentTrack == 0)) {
-    tournamentManager.fMoney =
-         tournamentManager.fMoney +
-         (tournamentManager.fDefinition)->fTournaments
-         [(uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset +
-          tournamentManager.fTournament].fEntranceFee;
+    long fee = *(long *)((char *)(tournamentManager.fDefinition) +
+         ((uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset +
+          tournamentManager.fTournament) * sizeof(tTourneyInfo) + 0x54);
+    tournamentManager.fMoney = tournamentManager.fMoney + fee;
   }
   return;
 }

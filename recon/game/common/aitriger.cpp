@@ -98,7 +98,7 @@ trigger_t *
 AITrigger_TriggerManager::GetNextTrigger(int car)
 {
   int iVar1;
-  
+
   if (this->numTriggers_ == 0) {
     return (trigger_t *)0x0;
   }
@@ -107,10 +107,10 @@ AITrigger_TriggerManager::GetNextTrigger(int car)
   if (iVar1 == this->numTriggers_) {
     this->lastTriggerChecked_[car] = 0;
   }
-  if (this->lastTriggerChecked_[car] < this->numTriggers_) {
-    return this->triggers_[this->lastTriggerChecked_[car]];
+  if (this->lastTriggerChecked_[car] >= this->numTriggers_) {
+    return (trigger_t *)0x0;
   }
-  return (trigger_t *)0x0;
+  return this->triggers_[this->lastTriggerChecked_[car]];
 }
 
 /* ---- AITrigger_TriggerManager::GetPrevTrigger  [@0x80072ab4] ---- */
@@ -118,7 +118,7 @@ trigger_t *
 AITrigger_TriggerManager::GetPrevTrigger(int car)
 {
   int iVar1;
-  
+
   if (this->numTriggers_ == 0) {
     return (trigger_t *)0x0;
   }
@@ -127,10 +127,10 @@ AITrigger_TriggerManager::GetPrevTrigger(int car)
   if (iVar1 == -1) {
     this->lastTriggerChecked_[car] = this->numTriggers_ + -1;
   }
-  if (this->lastTriggerChecked_[car] < this->numTriggers_) {
-    return this->triggers_[this->lastTriggerChecked_[car]];
+  if (this->lastTriggerChecked_[car] >= this->numTriggers_) {
+    return (trigger_t *)0x0;
   }
-  return (trigger_t *)0x0;
+  return this->triggers_[this->lastTriggerChecked_[car]];
 }
 
 /* ---- AITrigger_TriggerManager::CheckForTriggerAtSlice  [@0x80072b24] ---- */

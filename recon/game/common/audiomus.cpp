@@ -607,11 +607,7 @@ void AudioMus_SysStartUp(int buffersize,int spusize,char *songs)
     AudioMus_g = reservememadr("Music Globals",0x158,0);
     if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
       AudioMus_InitGlobals();
-      iVar2 = buffersize;
-      if (buffersize < 0) {
-        iVar2 = buffersize + 0x3ff;
-      }
-      iVar2 = SNDSTRM_overhead(0x1,iVar2 >> 10);
+      iVar2 = SNDSTRM_overhead(0x1,buffersize / 0x400);
       pcVar1 = reservememadr("Music Buffer",buffersize + iVar2,0);
       AudioMus_g->streambuffer = pcVar1;
       AudioMus_DriverStartUp(buffersize,spusize);

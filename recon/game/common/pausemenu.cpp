@@ -15,15 +15,17 @@ static int gPause_CurrentY;
 void PauseMenu_FullText(char *sMenuText,short x,short flags,short color)
 
 {
+  char *new_var;
   int iVar1;
 
+  new_var = sMenuText;
   if (gPause_CurrentY == 0x62) {
     x = 0xa0;
     flags = 2;
     color = 6;
   }
   if (flags == 1) {
-    iVar1 = textpixels(sMenuText);
+    iVar1 = textpixels(new_var);
     x = x - (short)iVar1;
   }
   else if (flags == 2) {
@@ -31,7 +33,7 @@ void PauseMenu_FullText(char *sMenuText,short x,short flags,short color)
     x = x - (short)(iVar1 / 2);
   }
   Font_TextColor((int)color);
-  Font_TextXY(sMenuText,(int)x,gPause_CurrentY);
+  Font_TextXY(new_var,(int)x,gPause_CurrentY);
   return;
 }
 

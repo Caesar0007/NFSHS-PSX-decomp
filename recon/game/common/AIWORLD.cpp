@@ -161,10 +161,10 @@ LAB_80073218:
 int AIWorld_SplineDistance(Car_tObj *carObj,Car_tObj *otherCarObj)
 {
   int iVar1;
-  
+
   iVar1 = AIWorld_ApxSplineDistance(carObj,otherCarObj);
   if (iVar1 + 0xc0000U < 0x180001) {
-    iVar1 = AIWorld_ZSplineDistance(carObj,otherCarObj);
+    return AIWorld_ZSplineDistance(carObj,otherCarObj);
   }
   return iVar1;
 }
@@ -174,10 +174,10 @@ int AIWorld_SplineDistance(Car_tObj *carObj,int location,coorddef *position)
 {
   int distance;
   int iVar1;
-  
+
   iVar1 = AIWorld_ApxSplineDistance(carObj,location);
   if (iVar1 + 0xc0000U < 0x180001) {
-    iVar1 = AIWorld_ZSplineDistance(&(carObj->N).position,position,&(carObj->N).roadMatrix);
+    return AIWorld_ZSplineDistance(&(carObj->N).position,position,&(carObj->N).roadMatrix);
   }
   return iVar1;
 }

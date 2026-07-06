@@ -156,7 +156,16 @@ def reduce_to_fn(text: str, target: str) -> str:
                 out.extend(chunk)
             chunk, header, saw_body = [], [], False
     out.extend(chunk)   # trailing fragment, if any
-    return "".join(out)
+    result = "".join(out)
+    # pycparser (C99) chokes on C++ keywords that survive in KEPT top-level
+    # prototypes/decls (e.g. a `bool foo(bool);` forward-decl elsewhere in the
+    # TU). Rewrite them -- parse-only: the target fn is compiled by the real
+    # CC1PLPSX, and these keywords appear only in sibling prototypes the target
+    # usually doesn't call, so it's codegen-neutral (proven on hud FBuildGT4/FT4).
+    result = re.sub(r'\bbool\b', 'int', result)
+    result = re.sub(r'\btrue\b', '1', result)
+    result = re.sub(r'\bfalse\b', '0', result)
+    return result
 
 
 def main():

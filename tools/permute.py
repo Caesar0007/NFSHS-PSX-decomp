@@ -124,6 +124,28 @@ def _lower_method(text, fnname):
             base_cls, base_cls, base_member, (", " + baseargs if baseargs else ""))
         ret, base_proto = "void ", "extern int %s__%s(...);\n" % (base_cls, base_cls)
 
+    # real-inheritance field access: `permuter_sanitize.sanitize()` flattens
+    # `struct D : public B { ... }` to `struct D { B _vbase_; ... };` (layout-
+    # neutral) but does NOT rewrite call sites, so a method body's transparent
+    # `this->baseField` (valid in real C++, since D IS-A B) no longer resolves
+    # in the lowered plain-C struct. Find D's `_vbase_` member type, pull ITS
+    # field names from its own (possibly-also-flattened, single-level) struct
+    # body, and redirect `this->baseField` -> `this->_vbase_.baseField` for
+    # exactly those names (never touching D's own fields or method calls,
+    # which the existing rules below already handle).
+    vbase_m = re.search(r"\bstruct\s+" + re.escape(cls) + r"\s*\{\s*(\w+)\s+_vbase_\s*;", text)
+    if vbase_m:
+        base_cls = vbase_m.group(1)
+        base_body_m = re.search(r"\bstruct\s+" + re.escape(base_cls) + r"\s*\{([^}]*)\}", text)
+        if base_body_m:
+            base_fields = set(re.findall(r"(\w+)\s*(?:\[[^\]]*\])?\s*;", base_body_m.group(1)))
+            # a field-pointer decl `T (*name)[N];` (e.g. the vtable `_vf`) needs
+            # its own pattern (the generic one above only sees plain `name;`).
+            base_fields |= set(re.findall(r"\(\s*\*\s*(\w+)\s*\)", base_body_m.group(1)))
+            for fld in base_fields:
+                body = re.sub(r"\bthis\s*->\s*" + re.escape(fld) + r"\b(?!\s*\()",
+                               "this->_vbase_." + fld, body)
+
     called = set(re.findall(r"this\s*->\s*(\w+)\s*\(", body))
     body = re.sub(r"this\s*->\s*(\w+)\s*\(\s*\)", cls + r"__\1(thiz)", body)
     body = re.sub(r"this\s*->\s*(\w+)\s*\(", cls + r"__\1(thiz, ", body)

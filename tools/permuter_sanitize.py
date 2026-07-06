@@ -165,6 +165,18 @@ def reduce_to_fn(text: str, target: str) -> str:
     result = re.sub(r'\bbool\b', 'int', result)
     result = re.sub(r'\btrue\b', '1', result)
     result = re.sub(r'\bfalse\b', '0', result)
+    # C++ default-argument syntax on a surviving `extern ... (...);` PROTOTYPE
+    # LINE (e.g. `extern void f(int code = 0);`) is real C++ the actual
+    # CC1PLPSX compile needs (a zero-arg call site relies on the default) but
+    # pycparser (C99) rejects. Parse-only, codegen-neutral: strip
+    # `= <default-expr>` from the parameter list of a *bare extern prototype*
+    # line only (never a function body / call-site line, which can't start
+    # with `extern` + end `;` on one line without braces), so a real `=`
+    # assignment anywhere else in the TU is untouched.
+    result = re.sub(
+        r'^(\s*extern\b[^{};\n]*\([^()]*\));\s*$',
+        lambda m: re.sub(r'\s*=\s*[^,()]+(?=[,)])', '', m.group(1)) + ';',
+        result, flags=re.MULTILINE)
     return result
 
 

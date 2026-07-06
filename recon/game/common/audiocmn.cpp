@@ -135,10 +135,10 @@ void AudioCmn_InitReverb(void);
 /* ---- AudioCmn_MusicLevel__Fi  [@0x80076420] ---- */
 int AudioCmn_MusicLevel(int level)
 {
-  if (level < 0x56) {
-    return level * 0x46 >> 7;
+  if (0x56 <= level) {
+    return (((level + -0x55) * 7) / 2 + 0x55) * 0x46 >> 7;
   }
-  return (((level + -0x55) * 7) / 2 + 0x55) * 0x46 >> 7;
+  return level * 0x46 >> 7;
 }
 
 /* ---- AudioCmn_GetTrackRecordLapTime__Fv  [@0x80076480] ---- */
@@ -176,17 +176,16 @@ void AudioCmn_UpdateThunder(void)
   if ((0 < AudioCmn_ThunderAmp) &&
      (AudioCmn_ThunderDel = AudioCmn_ThunderDel + -1, AudioCmn_ThunderDel < 0)) {
     AudioCmn_PlaySound(gSndBnk[3].bnkID,0x16,AudioCmn_ThunderAzi,AudioCmn_ThunderAmp,0x40);
-    if (AudioCmn_ThunderAmp < 0x2e) {
-      uVar1 = random();
-      uVar1 = uVar1 & 7;
-      iVar2 = AudioCmn_ThunderAmp + 2;
-    }
-    else {
-      uVar1 = random();
-      uVar1 = uVar1 & 0xf;
+    if (0x2e <= AudioCmn_ThunderAmp) {
+      uVar1 = random() & 0xf;
       iVar2 = AudioCmn_ThunderAmp + 3;
     }
-    AudioCmn_ThunderAmp = iVar2 - uVar1;
+    else {
+      uVar1 = random() & 7;
+      iVar2 = AudioCmn_ThunderAmp + 2;
+    }
+    iVar2 -= uVar1;
+    AudioCmn_ThunderAmp = iVar2;
     iVar2 = random();
     AudioCmn_ThunderDel = iVar2 + 0x14U & 3;
   }
@@ -203,7 +202,9 @@ void AudioCmn_InitAsyncSfx(void)
   
   iVar3 = 0;
   pAVar2 = AudioCmn_gSfxSlot;
-  while (bVar1 = iVar3 < 0x20, iVar3 = iVar3 + 1, bVar1) {
+  while (1) {
+    if (0x20 <= iVar3) break;
+    iVar3 = iVar3 + 1;
     pAVar2->patch = -1;
     pAVar2->handle = -1;
     pAVar2->header = (char *)0x0;
@@ -215,21 +216,21 @@ void AudioCmn_InitAsyncSfx(void)
 /* ---- AudioCmn_RemoveAsyncSfx__Fi  [@0x800765b4] ---- */
 void AudioCmn_RemoveAsyncSfx(int slot)
 {
-  AudioCmn_tAsyncSfxSlot*s;
+  AudioCmn_tAsyncSfxSlot *s;
   char *ptr;
-  
-  if (AudioCmn_gSfxSlot[slot].patch != -1) {
-    if (AudioCmn_gSfxSlot[slot].handle !=
-        0xffffffff) {
-      SNDbankremove(AudioCmn_gSfxSlot[slot].handle);
-      ptr = AudioCmn_gSfxSlot[slot].header;
-      AudioCmn_gSfxSlot[slot].handle = -1;
+
+  s = &AudioCmn_gSfxSlot[slot];
+  if (s->patch != -1) {
+    if (s->handle != 0xffffffff) {
+      SNDbankremove(s->handle);
+      ptr = s->header;
+      s->handle = -1;
       if (ptr != (char *)0x0) {
         purgememadr(ptr);
-        AudioCmn_gSfxSlot[slot].header = (char *)0x0;
+        s->header = (char *)0x0;
       }
     }
-    AudioCmn_gSfxSlot[slot].patch = -1;
+    s->patch = -1;
   }
   return;
 }
@@ -487,27 +488,24 @@ void AudioCmn_SetLevels(void)
 int AudioCmn_GetTimePhrase(int time)
 {
   int seconds;
-  static char compareTimes[25];
+  static char compareTimes[25] = {
+    30, 12, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9,
+    -10, -11, -12, -15, -20, -25, -30
+  };
   int index;
-  int iVar1;
-  u_char *puVar2;
-  int iVar3;
-  int iVar4;
-  
-  iVar1 = time + -1;
+
   if (-1 < time) {
-    iVar1 = time;
+    seconds = time >> 6;
   }
-  puVar2 = "\x1e\f\x06\x05\x04\x03\x02\x01";
-  iVar3 = 0;
+  else {
+    seconds = (time + -1) >> 6;
+  }
+  index = 0;
   do {
-    iVar4 = iVar3;
-    if ((int)(signed char)*puVar2 <= iVar1 >> 6) break;
-    iVar4 = iVar3 + 1;
-    puVar2 = "\f\x06\x05\x04\x03\x02\x01" + iVar3;
-    iVar3 = iVar4;
-  } while (iVar4 < 0x19);
-  return iVar4 + 0x35;
+    if ((signed char)compareTimes[index] <= seconds) break;
+    index = index + 1;
+  } while (index < 0x19);
+  return index + 0x35;
 }
 
 /* ---- AudioCmn_CheckState__FP8Car_tObj  [@0x800770bc] ---- */
@@ -674,9 +672,8 @@ LAB_800774e0:
 /* ---- AudioCmn_LoadFESamples__Fv  [@0x80077738] ---- */
 void AudioCmn_LoadFESamples(void)
 {
-  char filename[100];
   char acStack_70 [104];
-  
+
   strcpy(acStack_70, gAudioBasePath);
   strcat(acStack_70, "fesfx");
   AudioCmn_LoadBank(acStack_70,0);
@@ -687,46 +684,18 @@ void AudioCmn_LoadFESamples(void)
 void AudioCmn_LoadGameSamples(void)
 {
   char filename[100];
-  char*TrackGenBank[11];
-  char **ppcVar1;
-  u_int *puVar2;
-  char **ppcVar3;
-  u_int *puVar4;
-  char *pcVar5;
-  char *pcVar6;
-  char *pcVar7;
-  char acStack_a8 [104];
-  u_int local_40 [12];
-  
+  char *TrackGenBank[11];
+
   AudioEng_StartUp(0,GameSetup_gCarNames[0] + GameSetup_gData.carInfo[0].carType * 5);
   if (GameSetup_gData.commMode == 1) {
     AudioEng_StartUp(1,GameSetup_gCarNames[0] + GameSetup_gData.carInfo[1].carType * 5);
   }
   AudioEng_StartServer();
-  strcpy(acStack_a8, gAudioBasePath);
-  strcat(acStack_a8, "Gen");
-  ppcVar1 = Audio_gLangAssignmentTable + 1;
-  puVar2 = local_40;
-  do {
-    puVar4 = puVar2;
-    ppcVar3 = ppcVar1;
-    pcVar5 = ppcVar3[1];
-    pcVar6 = ppcVar3[2];
-    pcVar7 = ppcVar3[3];
-    *puVar4 = *ppcVar3;
-    puVar4[1] = pcVar5;
-    puVar4[2] = pcVar6;
-    puVar4[3] = pcVar7;
-    ppcVar1 = ppcVar3 + 4;
-    puVar2 = puVar4 + 4;
-  } while (ppcVar3 + 4 != Audio_gLangAssignmentTable + 9);
-  pcVar5 = ppcVar3[5];
-  pcVar6 = ppcVar3[6];
-  puVar4[4] = Audio_gFESFXTable.languages;
-  puVar4[5] = pcVar5;
-  puVar4[6] = pcVar6;
-  strcat(acStack_a8, (char *)local_40[(int)Audio_gFESFXTable.languages]);
-  AudioCmn_LoadBank(acStack_a8,3);
+  strcpy(filename, gAudioBasePath);
+  strcat(filename, "Gen");
+  memcpy(TrackGenBank, (char **)AudioCmn_FESFX_loadLangMap, sizeof(TrackGenBank));
+  strcat(filename, TrackGenBank[(int)Audio_gFESFXTable.languages]);
+  AudioCmn_LoadBank(filename,3);
   gSndBnk[5].bnkID = -2;
   gSndBnk[2].bnkID = -3;
   return;
@@ -759,23 +728,30 @@ int scaleFrequency(int sndPlayer,int iSFXnum,int tweakedForce)
   u_int uVar1;
   u_int uVar2;
   
-  if ((sndPlayer - 0x12U < 2) || (sndPlayer - 0x14U < 2)) {
+  if (sndPlayer - 0x12U < 2) {
     uVar1 = (tweakedForce * 0x7f) / 0xa0000;
     uVar2 = 0x7f;
     if ((int)uVar1 < 0x80) {
       uVar2 = uVar1;
     }
   }
-  else if (gaChannel[sndPlayer].SFXnum == iSFXnum) {
-    uVar2 = (u_int)(u_char)gAudioCmnLastFreq[sndPlayer];
+  else if (sndPlayer - 0x14U < 2) {
+    uVar1 = (tweakedForce * 0x7f) / 0xa0000;
+    uVar2 = 0x7f;
+    if ((int)uVar1 < 0x80) {
+      uVar2 = uVar1;
+    }
   }
-  else {
+  else if (gaChannel[sndPlayer].SFXnum != iSFXnum) {
     uVar1 = (tweakedForce * 0x7f) / 0xa0000;
     uVar2 = 0x7f;
     if ((int)uVar1 < 0x80) {
       uVar2 = uVar1;
     }
     gAudioCmnLastFreq[sndPlayer] = (char)uVar2;
+  }
+  else {
+    uVar2 = (u_int)(u_char)gAudioCmnLastFreq[sndPlayer];
   }
   return uVar2;
 }
@@ -1677,11 +1653,11 @@ void AudioCmn_PlayerHornOn(int carIndex,int Distsq,int iFreqIn,int azimuth,int d
     iSFXnum = 3;
     if (GameSetup_gData.commMode == 1) {
       iSFXnum = 10;
-      if (carIndex != 0) {
-        sndPlayer = 0x2a;
+      if (carIndex == 0) {
+        sndPlayer = 0x29;
       }
       else {
-        sndPlayer = 0x29;
+        sndPlayer = 0x2a;
       }
     }
     else {
@@ -1701,15 +1677,20 @@ int AudioCmn_PlayerHornOff(int carIndex)
   int player;
   u_int uVar1;
   int sndPlayer;
-  
+
+  if (AudioCmn_kAudioOn == 0) {
+    return 0;
+  }
   sndPlayer = 0x29;
-  if (carIndex == 0) {
+  if (carIndex != 0) {
+    if (GameSetup_gData.commMode == 1) {
+      sndPlayer = 0x2a;
+      goto LAB_8007957c;
+    }
+  }
+  else {
 LAB_8007957c:
     if (GameSetup_gData.commMode == 1) goto LAB_800795e8;
-  }
-  else if (GameSetup_gData.commMode == 1) {
-    sndPlayer = 0x2a;
-    goto LAB_8007957c;
   }
   if (((Cars_gList[carIndex]->carInfo->carType == 0x14) &&
       (gaChannel[sndPlayer].Partial != 0xffffffff)) &&
@@ -1795,16 +1776,16 @@ void SirenOn(int sirennum,int supercop)
 {
   if (bSirenOn[sirennum] == 0) {
     bSirenOn[sirennum] = 1;
-    if (supercop == 0) {
+    if (supercop != 0) {
+      quickSirenActive[sirennum] = 1;
+      sirenCount[sirennum] = -1;
+      SuperCopSirenOn(sirennum);
+    }
+    else {
       quickSirenActive[sirennum] = 1;
       sirenCount[sirennum] = gQuickSirenCount;
       quickSirenOn(sirennum);
       gQuickSirenCount = gQuickSirenCount + 1;
-    }
-    else {
-      quickSirenActive[sirennum] = 1;
-      sirenCount[sirennum] = -1;
-      SuperCopSirenOn(sirennum);
     }
   }
   return;
@@ -2056,6 +2037,7 @@ void AudioCmn_Pause(void)
 void AudioCmn_UnPauseAndQuit(void)
 {
   int i;
+  int j;
 
   while (SNDover(AudioCmn_gCursorSndHandle) == 0)
     systemtask(0);
@@ -2063,23 +2045,25 @@ void AudioCmn_UnPauseAndQuit(void)
   SNDmastervol(0);
   AudioMus_StopSong(0);
   for (i = 0; i < 71; i++) {
-    if (gaChannel[i].Partial != -1)
+    if (gaChannel[i].Partial != -1) {
       SNDstop(gaChannel[i].Partial);
-    gaChannel[i].Partial = -1;
-    gaChannel[i].SFXnum  = -1;
+      gaChannel[i].Partial = -1;
+      gaChannel[i].SFXnum  = -1;
+    }
   }
   GameSetup_gData.userSetting.sfxLevel   = gMasterSFXLevel;
   GameSetup_gData.userSetting.musicLevel = gMasterMusicLevel;
   if (fReverbOn)
     AudioCmn_ReverbOff();
-  for (i = 0; i < 0x80; i++)
-    SNDmastervol(i);
+  for (j = 0; j < 0x80; j++)
+    SNDmastervol(j);
 }
 
 /* ---- AudioCmn_UnPauseAndRestart__Fv  [@0x80079d8c] ---- */
 void AudioCmn_UnPauseAndRestart(void)
 {
   int i;
+  int j;
 
   SPCH_ClearEventQueue();
   while (SNDover(AudioCmn_gCursorSndHandle) == 0)
@@ -2089,13 +2073,14 @@ void AudioCmn_UnPauseAndRestart(void)
   AudioCmn_DeInitAsyncSfx();
   AudioMus_StopSong(0);
   for (i = 0; i < 71; i++) {
-    if (gaChannel[i].Partial != -1)
+    if (gaChannel[i].Partial != -1) {
       SNDstop(gaChannel[i].Partial);
-    gaChannel[i].Partial = -1;
-    gaChannel[i].SFXnum  = -1;
+      gaChannel[i].Partial = -1;
+      gaChannel[i].SFXnum  = -1;
+    }
   }
-  for (i = 0; i < 0x80; i++)
-    SNDmastervol(i);
+  for (j = 0; j < 0x80; j++)
+    SNDmastervol(j);
   if (fReverbOn)
     AudioCmn_ReverbOff();
   GameSetup_gData.userSetting.sfxLevel   = gMasterSFXLevel;
@@ -2108,15 +2093,15 @@ void AudioCmn_UnPause(void)
 {
   int iVar1;
   int iVar2;
-  
+
   SNDmastervol(0x7f);
-  iVar1 = gMasterMusicLevel << 3;
   iVar2 = gMasterMusicLevel;
-  if (0x55 < gMasterMusicLevel) {
-    iVar2 = ((gMasterMusicLevel + -0x55) * 7) / 2 + 0x55;
-    iVar1 = iVar2 * 8;
+  iVar1 = iVar2 << 3;
+  if (0x55 < iVar2) {
+    iVar2 = ((iVar2 + -0x55) * 7) / 2 + 0x55;
+    iVar1 = iVar2 << 3;
   }
-  AudioMus_Volume((iVar1 * 4 + iVar2 * 3) * 2 >> 7);
+  AudioMus_Volume(((iVar1 + iVar2) * 4 - iVar2) * 2 >> 7);
   AudioEng_Resume();
   GameSetup_gData.userSetting.sfxLevel = gMasterSFXLevel;
   GameSetup_gData.userSetting.musicLevel = gMasterMusicLevel;

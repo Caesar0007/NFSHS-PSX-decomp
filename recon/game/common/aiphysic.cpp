@@ -480,12 +480,17 @@ action:
  * simGlobal.gameStarted→simGlobal[0], (char*) casts for personality byte-arith.
  * ========================================================================== */
 
-/* ---- AIPhysic_StopCar__FP8Car_tObjii ---- */
+/* ---- AIPhysic_StopCar__FP8Car_tObjii  (oracle STAGGERS each fixedmult store into the NEXT
+ * field's clamp-check delay slot -- linearVel.x's store rides bgez(prodY), .y's rides the
+ * fallthrough after prodZ's mult, .z's rides bgez(angularVel.y); reproduce the exact stagger,
+ * not a per-field sequential store, or the branch/delay-slot shape won't match) ---- */
 void AIPhysic_StopCar(Car_tObj *carObj,int velScale,int rotScale)
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
+  int scaleShifted;
+  int prodX;
+  int prodY;
+  int prodZ;
+  int angY;
 
   (carObj->angularAcc).z = 0;
   (carObj->angularAcc).y = 0;
@@ -499,55 +504,58 @@ void AIPhysic_StopCar(Car_tObj *carObj,int velScale,int rotScale)
   if (velScale < 0) {
     velScale = velScale + 0xff;
   }
-  iVar3 = velScale >> 8;
-  iVar1 = iVar3 * (carObj->N).linearVel.x;
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
+  scaleShifted = velScale >> 8;
+  prodX = scaleShifted * (carObj->N).linearVel.x;
+  if (prodX < 0) {
+    prodX = prodX + 0xff;
   }
-  iVar2 = iVar3 * (carObj->N).linearVel.y;
-  (carObj->N).linearVel.x = iVar1 >> 8;
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
+  prodY = scaleShifted * (carObj->N).linearVel.y;
+  if (prodY < 0) {
+    prodY = prodY + 0xff;
   }
-  (carObj->N).linearVel.y = iVar2 >> 8;
-  iVar3 = iVar3 * (carObj->N).linearVel.z;
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
+  (carObj->N).linearVel.x = prodX >> 8;
+  (carObj->N).linearVel.y = prodY >> 8;
+  prodZ = scaleShifted * (carObj->N).linearVel.z;
+  if (prodZ < 0) {
+    prodZ = prodZ + 0xff;
   }
-  iVar1 = (carObj->N).angularVel.y;
-  (carObj->N).linearVel.z = iVar3 >> 8;
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
+  angY = (carObj->N).angularVel.y;
+  if (angY < 0) {
+    angY = angY + 0xff;
   }
+  (carObj->N).linearVel.z = prodZ >> 8;
   if (rotScale < 0) {
     rotScale = rotScale + 0xff;
   }
-  (carObj->N).angularVel.y = (iVar1 >> 8) * (rotScale >> 8);
+  angY = angY >> 8;
+  (carObj->N).angularVel.y = angY * (rotScale >> 8);
   return;
 }
 
-/* ---- AIPhysic_RevEngine__FP8Car_tObj ---- */
+/* ---- AIPhysic_RevEngine__FP8Car_tObj  (oracle reloads flywheelRpm 3x -- parity test, the add,
+ * and the final clamp-check -- and shifts redLine>>16 IN PLACE inside the parity branch's delay
+ * slot, not as a fresh expr in the final compare; carIndex%2 (NOT flywheelRpm) feeds `increase`) ---- */
 void AIPhysic_RevEngine(Car_tObj *carObj)
 {
-  int increase;
   int redLine;
-  int iVar1;
-  int iVar2;
+  int increase;
 
-  iVar2 = carObj->redLine;
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xffff;
+  redLine = carObj->redLine;
+  if (redLine < 0) {
+    redLine = redLine + 0xffff;
   }
-  iVar1 = carObj->flywheelRpm;
-  increase = (((*(int *)((char *)carObj + 596) % 2) + 1) * AIPhysic_elapsedTime) * 0x8C;
-  if ((iVar1 & 1) != 0) {
+  increase = ((carObj->carIndex % 2 + 1) * AIPhysic_elapsedTime) * 0x8c;
+  if ((carObj->flywheelRpm & 1) != 0) {
+    redLine = redLine >> 0x10;
     increase = -(increase >> 1);
     if ((increase & 1) != 0) increase = increase - 1;
+    goto haveRedLine;
   }
-  iVar1 = iVar1 + increase;
-  carObj->flywheelRpm = iVar1;
-  if (iVar2 >> 0x10 < iVar1) {
-    carObj->flywheelRpm = (iVar2 >> 0x10) - (iVar2 >> 0x1f) >> 1 | 1;
+  redLine = redLine >> 0x10;
+haveRedLine:
+  carObj->flywheelRpm = carObj->flywheelRpm + increase;
+  if (redLine < carObj->flywheelRpm) {
+    carObj->flywheelRpm = (redLine - (redLine >> 0x1f) >> 1) | 1;
   }
   if (carObj->flywheelRpm < 0x1f5) {
     carObj->flywheelRpm = 500;
@@ -728,11 +736,17 @@ int AIPhysic_CalcAcceleration(Car_tObj *carObj,int speed)
   return iVar1;
 }
 
-/* ---- AIPhysic_CheckDesiredDirection__FP8Car_tObj ---- */
+/* ---- AIPhysic_CheckDesiredDirection__FP8Car_tObj  (oracle keeps a dead carFlags&0x20-gated
+ * GameSetup_gData.raceType read that Ghidra folded away -- §3.2c "folded gate/dead load";
+ * turnAroundSpeed is the SYM-named REG local, always 0x8E38E in this build) ---- */
 void AIPhysic_CheckDesiredDirection(Car_tObj *carObj)
 {
-  int turnAroundSpeed;
-  if (carObj->speed < 0x8e38e) {
+  int turnAroundSpeed = 0x8e38e;
+  if (carObj->carFlags & 0x20) {
+    int deadRaceType = ((volatile GameSetup_tData *)&GameSetup_gData)->raceType;
+    (void)deadRaceType;
+  }
+  if (carObj->speed < turnAroundSpeed) {
     carObj->direction = carObj->desiredDirection;
   }
   return;
@@ -1988,45 +2002,56 @@ void AIPhysic_FinishUp(Car_tObj *carObj)
   return;
 }
 
-/* ---- AIPhysic_CalculateRampedDesiredLatPos__FP8Car_tObj9eRampType ---- */
+/* ---- AIPhysic_CalculateRampedDesiredLatPos__FP8Car_tObj9eRampType  (oracle computes a per-tick
+ * ramp STEP = elapsedTime*51 + (elapsedTime*51)<<8 = elapsedTime*13107 (via 3<<4+3 shift-add, not
+ * a plain multiply) and clamps rampDesiredLatPos toward desiredLatPos by at most that step; my
+ * earlier recon dropped the whole step-ramp tail entirely -- SYM/oracle-driven full rewrite) ---- */
 void AIPhysic_CalculateRampedDesiredLatPos(Car_tObj *carObj,eRampType rampType)
 {
-  int rampSpeed;
-  bool bVar1;
-  int iVar2;
-  int iVar3;
+  int rampStepLo;
+  int rampStepHi;
+  int rampStep;
+  int roadPos;
+  int rampPos;
+  int desiredPos;
 
   if (rampType == 1) {
     carObj->rampDesiredLatPos = carObj->desiredLatPos;
+    return;
   }
-  else {
-    AIWorld_CalculateDeltaRoadYaw(carObj);
-    iVar3 = carObj->roadPosition;
-    if ((carObj->desiredLatPos < iVar3) && (iVar3 < carObj->rampDesiredLatPos + -0x10000)) {
-      carObj->rampDesiredLatPos = iVar3;
+  AIWorld_CalculateDeltaRoadYaw(carObj);
+  roadPos = carObj->roadPosition;
+  rampStepLo = AIPhysic_elapsedTime * 3;
+  rampStepLo = rampStepLo + rampStepLo * 16;
+  rampStepHi = rampStepLo << 8;
+  if (carObj->desiredLatPos < roadPos) {
+    rampStep = rampStepLo + rampStepHi;
+    if (roadPos < carObj->rampDesiredLatPos + -0x10000) {
+      carObj->rampDesiredLatPos = roadPos;
+      goto tail;
     }
-    else {
-      iVar3 = carObj->roadPosition;
-      if ((carObj->rampDesiredLatPos + 0x10000 < iVar3) && (iVar3 < carObj->desiredLatPos)) {
-        carObj->rampDesiredLatPos = iVar3;
-      }
+  } else {
+    rampStep = rampStepLo + rampStepHi;
+  }
+  roadPos = carObj->roadPosition;
+  if ((carObj->rampDesiredLatPos + 0x10000 < roadPos) && (roadPos < carObj->desiredLatPos)) {
+    carObj->rampDesiredLatPos = roadPos;
+  }
+tail:
+  rampPos = carObj->rampDesiredLatPos;
+  desiredPos = carObj->desiredLatPos;
+  if (rampPos < desiredPos) {
+    rampPos = rampPos + rampStep;
+    carObj->rampDesiredLatPos = rampPos;
+    if (desiredPos < rampPos) {
+      carObj->rampDesiredLatPos = desiredPos;
     }
-    iVar3 = carObj->rampDesiredLatPos;
-    iVar2 = carObj->desiredLatPos;
-    if (iVar3 < iVar2) {
-      carObj->rampDesiredLatPos = iVar3;
-      bVar1 = iVar2 < iVar3;
-    }
-    else {
-      if (iVar3 <= iVar2) {
-        return;
-      }
-      iVar2 = carObj->desiredLatPos;
-      carObj->rampDesiredLatPos = iVar3;
-      bVar1 = iVar3 < iVar2;
-    }
-    if (bVar1) {
-      carObj->rampDesiredLatPos = iVar2;
+  } else if (desiredPos < rampPos) {
+    rampPos = rampPos - rampStep;
+    desiredPos = carObj->desiredLatPos;
+    carObj->rampDesiredLatPos = rampPos;
+    if (rampPos < desiredPos) {
+      carObj->rampDesiredLatPos = desiredPos;
     }
   }
   return;
@@ -2053,10 +2078,9 @@ void AIPhysic_CheckForGripReduction(Car_tObj *carObj)
     }
     else {
       iVar3 = carObj->personality->gripLossMinFactor;
-      iVar2 = -iVar3;
-      iVar1 = iVar2 + 0x10000;
+      iVar1 = 0x10000 - iVar3;
       if (iVar1 < 0) {
-        iVar1 = iVar2 + 0x10003;
+        iVar1 = iVar1 + 3;
       }
       if (iVar3 + (iVar1 >> 2) < iVar4) {
         carObj->gripFactor = 0x10000;

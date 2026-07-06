@@ -24,7 +24,7 @@ int TextureProcess_TransColorCheck(char *data,int numentry)
 {
   u_short uVar1;
   int translucent_flag;
-  
+
   translucent_flag = 0;
   while (numentry = numentry + -1, numentry != -1) {
     uVar1 = *(u_short *)data;
@@ -92,11 +92,6 @@ void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int
 }
 
 /* ---- TextureProcess_DepthColorCluts__FPci  [TEXTUREPROCESS.CPP:422-462] SLD-VERIFIED ---- */
-/* NEAR-MISS 10 diffs (52/54): oracle loop structure uses `slti v0,s0,16` in both
- * initial pre-check AND j-delay slot at loop bottom (loop-condition-in-delay optimization
- * — 54 insns). Our gcc-2.8.0 -O2 generates simpler while-loop form (52 insns, fewer instructions).
- * Epilogue: oracle loads numdepthclut→v1, copies v1→v0, increments v1 (3 ops);
- * ours loads→v0, computes v1=v0+1 (2 ops). Both are coloring floors. ACCEPT. */
 int TextureProcess_DepthColorCluts(char *data,int numentry)
 {
   int i;
@@ -125,7 +120,7 @@ FogKey * Fog_CheckRange(int currentslice,FogKey *fkey)
   FogKey *pFVar1;
   int iVar2;
   int iVar3;
-  
+
   keynext = fkey->next;
   iVar2 = (int)fkey->slice;
   iVar3 = (int)keynext->slice;
@@ -136,8 +131,13 @@ FogKey * Fog_CheckRange(int currentslice,FogKey *fkey)
   }
   else {
     pFVar1 = (FogKey *)0x0;
-    if ((iVar2 <= currentslice) && (pFVar1 = fkey, iVar3 <= currentslice)) {
-      pFVar1 = (FogKey *)0x0;
+    if (iVar2 <= currentslice) {
+      if (currentslice < iVar3) {
+        pFVar1 = fkey;
+      }
+      else {
+        pFVar1 = (FogKey *)0x0;
+      }
     }
   }
   return pFVar1;
@@ -174,10 +174,10 @@ FogKey * Fog_FindKey(int currentslice,FogKey *fkey)
 FogKey * Fog_AllocKey(void)
 
 {
-  int *piVar1;
   FogKey *pFVar2;
   int i;
-  
+  int *piVar1;
+
   i = 0;
   pFVar2 = Fog_gBuf;
   piVar1 = openkeys;
@@ -247,9 +247,11 @@ void Fog_Update(int player)
     key = Fog_FindKey(currentslice,Fog_gCurrentKey[player]);
     Fog_gCurrentKey[player] = key;
     nextkey = key->next;
-    TrackSpec_gSpec.fogspec.start = key->distance;
     nextslice = nextkey->slice;
-    if (key->distance != nextkey->distance) {
+    if (key->distance == nextkey->distance) {
+      TrackSpec_gSpec.fogspec.start = key->distance;
+    }
+    else {
       if (nextslice < key->slice) {
         numslices = gNumSlices;
         nextslice = nextslice + numslices;
@@ -282,28 +284,26 @@ int Fog_ReadFogKeys(void)
   bool bVar3;
   char *strspc;
   int i;
-  char *ext;
   u_int *puVar5;
   int *readmem;
   u_int numkeys;
-  
-  if ((GameSetup_gData.Time == 0) || (GameSetup_gData.Weather == 0)) {
-    if (GameSetup_gData.Time == 0) {
-      if (GameSetup_gData.Weather == 0) {
-        ext = ".fog";
-      }
-      else {
-        ext = "W.fog";
-      }
-    }
-    else {
-      ext = "N.fog";
+
+  if (GameSetup_gData.Time != 0) {
+    if (GameSetup_gData.Weather == 0) {
+      strspc = Fog_MakeTrackPathName("N.fog");
+      goto haveext;
     }
   }
-  else {
-    ext = "S.fog";
+  if (GameSetup_gData.Time == 0) {
+    strspc = Fog_MakeTrackPathName("W.fog");
+    goto haveext;
   }
-  strspc = Fog_MakeTrackPathName(ext);
+  if (GameSetup_gData.Weather == 0) {
+    strspc = Fog_MakeTrackPathName("S.fog");
+    goto haveext;
+  }
+  strspc = Fog_MakeTrackPathName(".fog");
+haveext:
   readmem = (int *)loadfileadr(strspc,0);
   i = 0;
   if (readmem != (u_int *)0x0) {

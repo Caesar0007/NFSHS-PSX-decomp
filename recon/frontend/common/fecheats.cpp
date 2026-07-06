@@ -127,7 +127,7 @@ void FECheat_EncodeString(char *input,char *output)
     uVar5 = 0;
     do {
       pbVar4 = (u_char *)(buffer + uVar5);
-      output[iVar6] = output[iVar6] | (u_char)((*pbVar4 & 1) << (uVar5 & 0x1f));
+      output[iVar6] = output[iVar6] | (u_char)((*pbVar4 & 1) << uVar5);
       uVar5 = uVar5 + 1;
       *pbVar4 = *pbVar4 >> 1;
     } while ((int)uVar5 < 8);
@@ -148,29 +148,32 @@ void FECheat_EncodeString2(char *input,char *output)
   u_char bVar3;
   u_char *pbVar4;
   u_char *pbVar5;
+  u_char *inBase;
+  u_char *outBase;
   int iVar6;
   int i;
   u_int uVar7;
   char buffer [8];
-  
+
   iVar6 = 0;
-  pbVar5 = (u_char *)input;
+  inBase = (u_char *)input;
+  outBase = (u_char *)output;
   do {
+    pbVar5 = inBase + iVar6;
     buffer[iVar6] = ~*pbVar5;
-    pbVar4 = (u_char *)(output + iVar6);
+    pbVar4 = outBase + iVar6;
     iVar6 = iVar6 + 1;
     *pbVar4 = ~*pbVar5;
-    pbVar5 = (u_char *)(input + iVar6);
   } while (iVar6 < 8);
   uVar7 = 0;
   do {
     pbVar5 = (u_char *)(output + uVar7);
-    *output = *output ^ (u_char)(((int)(u_int)(u_char)*output >> (uVar7 & 0x1f) & 1U) << (uVar7 & 0x1f));
-    *pbVar5 = *pbVar5 ^ (u_char)(((int)(u_int)*pbVar5 >> (uVar7 & 0x1f) & 1U) << (uVar7 & 0x1f));
-    *output = *output | (u_char)(((int)(u_int)(u_char)buffer[uVar7] >> (uVar7 & 0x1f) & 1U) <<
-                              (uVar7 & 0x1f));
-    uVar2 = uVar7 & 0x1f;
-    uVar1 = uVar7 & 0x1f;
+    *output = *output ^ (u_char)(((int)(u_int)(u_char)*output >> uVar7 & 1U) << uVar7);
+    *pbVar5 = *pbVar5 ^ (u_char)(((int)(u_int)*pbVar5 >> uVar7 & 1U) << uVar7);
+    *output = *output | (u_char)(((int)(u_int)(u_char)buffer[uVar7] >> uVar7 & 1U) <<
+                              uVar7);
+    uVar2 = uVar7;
+    uVar1 = uVar7;
     uVar7 = uVar7 + 1;
     *pbVar5 = *pbVar5 | (u_char)(((int)(u_int)(u_char)buffer[0] >> uVar2 & 1U) << uVar1);
   } while ((int)uVar7 < 8);
@@ -181,12 +184,12 @@ void FECheat_EncodeString2(char *input,char *output)
     pbVar5 = (u_char *)(buffer + iVar6);
     bVar3 = *pbVar4 & 0xfe;
     *pbVar4 = bVar3;
-    bVar3 = bVar3 ^ (u_char)(((int)(u_int)bVar3 >> (uVar7 & 0x1f) & 1U) << (uVar7 & 0x1f));
+    bVar3 = bVar3 ^ (u_char)(((int)(u_int)bVar3 >> uVar7 & 1U) << uVar7);
     *pbVar4 = bVar3;
-    bVar3 = bVar3 | (u_char)((int)(u_int)*pbVar5 >> (uVar7 & 0x1f)) & 1;
+    bVar3 = bVar3 | (u_char)((int)(u_int)*pbVar5 >> uVar7) & 1;
     *pbVar4 = bVar3;
     iVar6 = iVar6 + 1;
-    *pbVar4 = bVar3 | (u_char)((*pbVar5 & 1) << (uVar7 & 0x1f));
+    *pbVar4 = bVar3 | (u_char)((*pbVar5 & 1) << uVar7);
   } while (iVar6 < 8);
   return;
 }
@@ -247,7 +250,7 @@ void * FECheat_ActivateCheat(char *cheat)
       (ptVar1->MemCardDialog).string = pcVar4;
       ((tDialogBase *)&ptVar2->MemCardDialog)->Display();
       FECheat_HandleActivation((tCheatCode)cheatList[iVar7].cheat);
-      gFECheats = gFECheats | 1 << (cheatList[iVar7].cheat & cheat_NumCheats);
+      gFECheats = gFECheats | 1 << cheatList[iVar7].cheat;
       return (void *)0x1;
     }
     iVar7 = iVar7 + 1;
@@ -284,12 +287,11 @@ void FECheat_LoadBonus(u_long &cheat)
 {
   int i;
   u_int i_2;
-  
   i_2 = 0;
   gFEBonus = cheat;
   gFECheats = 0;
   do {
-    if ((gFEBonus & 1 << (i_2 & cheat_NumCheats)) != 0) {
+    if ((gFEBonus & 1 << i_2) != 0) {
       FECheat_HandleActivation((tCheatCode)(i_2));
     }
     i_2 = i_2 + cheat_Pony;

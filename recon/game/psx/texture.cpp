@@ -220,9 +220,6 @@ void Texture_GetClutId(int bpp,int *xclut,int *yclut)
 }
 
 /* ---- Texture_MenuReleaseClutId__Fs  [TEXTURE.CPP:304-320] SLD-VERIFIED ---- */
-/* NEAR-MISS 4 diffs (24/24): oracle: sll v1,v0,1; addiu v0,v0,1; addu v1,v1,a0
- * (increment BEFORE addu). Ours: sll; addu; addiu (compiler reorders independent insns).
- * Scheduling floor — both instruction orderings are valid. ACCEPT. */
 void Texture_MenuReleaseClutId(short id)
 
 {
@@ -230,12 +227,10 @@ void Texture_MenuReleaseClutId(short id)
 
   yclut = (int)((u_int)(u_short)id << 0x10) >> 0x16;
   if (yclut < 0x1e8) {
-    gFreePal8[gNbFreePal8] = id;
-    gNbFreePal8 = gNbFreePal8 + 1;
+    gFreePal8[gNbFreePal8++] = id;
     return;
   }
-  gFreePal4[gNbFreePal4] = id;
-  gNbFreePal4 = gNbFreePal4 + 1;
+  gFreePal4[gNbFreePal4++] = id;
   return;
 }
 
@@ -262,22 +257,26 @@ void Texture_ColorCarPalette(char *from,char *to,int numentry)
 }
 
 /* ---- Texture_CopyPalette__FPciii  [TEXTURE.CPP:339-352] SLD-VERIFIED ---- */
+/* SYM locals (no separate 'slot' local -- fold the address inline, SYM order i/dest/source).
+ * `zero` is a runtime-zero device (permuter-derived, cf. methodology sec 3.13 "^ zero"):
+ * a typed 0-holder shared by the counter init AND the initial-guard compare is what pins
+ * i/dest onto the oracle's t0/t1 pair instead of the reverse coloring. Pin-free (plain C). */
 void Texture_CopyPalette(char *data,int width,int x,int y)
 
 {
-  short entry;
-  Texture_pal8bit *slot;
-  short *source;
-  int i;
   short *dest;
-  
-  i = 0;
-  slot = Texture_palCopy + Texture_palNum;
-  dest = slot->pal;
+  int i;
+  short *source;
+  u_char zero;
+  short entry;
+
+  zero = 0;
+  i = zero;
+  (Texture_palCopy + Texture_palNum)->x = x;
+  (Texture_palCopy + Texture_palNum)->y = y;
+  dest = (Texture_palCopy + Texture_palNum)->pal;
   source = (short *)data;
-  slot->x = x;
-  slot->y = y;
-  if (0 < width) {
+  if (zero < width) {
     do {
       entry = *source;
       source = source + 1;
@@ -423,24 +422,25 @@ int Texture_GetTranslucencyMode(shapetbl *shp)
 
 {
   u_int abr;
-  
+
   while( true ) {
     if (shp == (shapetbl *)0x0) {
       return 0;
     }
-    if (*(char *)shp == 'k') break;
-    if ((*(u_int *)shp & 0xffffff00) == 0) {
-      shp = (shapetbl *)0x0;
+    if (*(char *)shp == 'k') {
+      abr = (u_short)shp->width >> 5 & 3;
+      if (abr != 3) {
+        return abr;
+      }
+      return 2;
     }
-    else {
+    if ((*(u_int *)shp & 0xffffff00) != 0) {
       shp = (shapetbl *)((int)&(*(u_int *)((char *)shp + 0x0)) + ((int)*(u_int *)shp >> 8));
     }
+    else {
+      shp = (shapetbl *)0x0;
+    }
   }
-  abr = (u_short)shp->width >> 5 & 3;
-  if (abr == 3) {
-    return 2;
-  }
-  return abr;
 }
 
 /* ---- Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap  [TEXTURE.CPP:538-667] SLD-FLAG:NONMONO ---- */
@@ -743,10 +743,10 @@ void Texture_LoadMenuTexture(void)
   Draw_tPixMap *pmx;
   char *shpfile;
   char name [255];
-  
+
   if (gMenuPixmap[0] == (Draw_tPixMap *)0x0) {
-    shapefile = (char *)sprintf(name,"%sshow.psh",Paths_Paths[0x19]);
-    loadfileadr(name,0);
+    sprintf(name,"%sshow.psh",Paths_Paths[0x19]);
+    shapefile = (char *)loadfileadr(name,0);
     Texture_ResetPaletteSharing();
     Texture_LoadPmx(shapefile,"show",0,0x380,0x180,-1,-1,gMenuPixmapAlloc);
     gMenuPixmap[0] = gMenuPixmapAlloc;

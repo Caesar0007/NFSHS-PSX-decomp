@@ -907,16 +907,18 @@ LAB_8006ec80:
 /* ---- AISpeeds_GetLegalSpeed__Fi  [@0x8006ed0c] ---- */
 int AISpeeds_GetLegalSpeed(int slice)
 {
-  speedData_t *p;
-  int es;
+  speedData_t *speedData;   /* SYM-v3: single REG local 'speedData_t *speedData' -- no separate scratch */
 
-  p = AISpeeds_TrackSpeeds[GameSetup_gData.track];
+  speedData = AISpeeds_TrackSpeeds[GameSetup_gData.track];
   do {
-    es = (int)(u_int)p->endSlice;
-    p = p + 1;
-  } while (es < slice);
-  p = p - 1;
-  return (u_int)p->speedMPS << 8;
+  } while (speedData++->endSlice < slice);
+  speedData = speedData - 1;
+  /* H40: `volatile` here is a CODEGEN DEVICE, not a semantic hardware/IRQ property (cf. the "^ zero"
+   * runtime-zero idiom, §3.13) -- gcc otherwise re-associates the "-1" pointer correction straight
+   * into this load's displacement (lhu v0,-2(v1), 1 insn) instead of emitting the oracle's genuine
+   * `addiu v1,v1,-4` decrement + `lhu v0,2(v1)` (2 insns). DO NOT "clean up" by dropping the cast --
+   * it silently regresses this fn to a 3-diff near-miss. */
+  return (u_int)((volatile speedData_t *)speedData)->speedMPS << 8;
 }
 
 /* ---- AISpeeds_RandomizeTrafficSpeed__FP8Car_tObji  [@0x8006ed50] ---- */

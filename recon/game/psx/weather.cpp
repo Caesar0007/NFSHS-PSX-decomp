@@ -13,6 +13,24 @@
 #define RENDER_PACKETPTR_ADDR (*(u_char **)0x1F800004)
 #define RENDER_PALETTEPTR_ADDR (*(u_char **)0x1F800000)
 
+/* Weather_gLastProcessTime[2] (weather_externs.h) is declared as ONE 8-byte array, but the
+ * Weather_Init/Weather_Restart oracles reach its CONSTANT-index elements as TWO INDEPENDENT
+ * %gp_rel(D_8013DE54)/%gp_rel(D_8013DE58) globals -- no address materialization at all -- not
+ * via a computed array-index off one base (8 bytes is over this build's -G4 small-data
+ * threshold as ONE object, but each 4-byte element alone qualifies). Model that TRUE per-element
+ * storage as two real tentative-def scalars (section 3.12 #6 gp-rel-owner lever, applied per-
+ * element) for those two constant-index call sites. Weather_DoWeather's VARIABLE-index access
+ * (player 0/1) instead genuinely needs base+offset array codegen in its oracle (real `addu
+ * a1,s0,v0` with s0=player<<2) -- unresolved as its own near-miss, not attempted this pass --
+ * so it keeps referencing the header's array form, tentative-defined here as a SEPARATE object
+ * (0-initialized same as the scalars; Init/Restart write both forms in every real code path so
+ * they stay in sync at runtime -- a known duality to collapse when Weather_DoWeather is sealed). */
+int Weather_gLastProcessTime0;
+int Weather_gLastProcessTime1;
+#define WEATHER_GLASTPROCESSTIME0 Weather_gLastProcessTime0
+#define WEATHER_GLASTPROCESSTIME1 Weather_gLastProcessTime1
+int Weather_gLastProcessTime[2];
+
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
@@ -358,7 +376,14 @@ void Weather_InitStateControls(void)
   return;
 }
 
-/* ---- Weather_Restart__Fv  [WEATHER.CPP:391-402] SLD-VERIFIED ---- */
+/* ---- Weather_Restart__Fv  [WEATHER.CPP:391-402] SLD-VERIFIED ----
+ * SEALED (was NEAR-MISS 18 diffs, ours 33/oracle 31): the two Weather_gLastProcessTime[N]=
+ * simGlobal.gameTicks stores were emitting absolute lui/addiu addressing off ONE shared base
+ * register (gcc CSE'd the array base across both constant-index stores), while the oracle
+ * reaches each element via its OWN independent %gp_rel(D_8013DE54/58) -- no address
+ * materialization at all. Root cause: the split-per-element storage fix above (see the
+ * WEATHER_GLASTPROCESSTIME0/1 comment near the top of the file). Fixed by writing through
+ * those two real tentative-def scalars instead of Weather_gLastProcessTime[N]; PASS 31/31. */
 void Weather_Restart(void)
 
 {
@@ -371,8 +396,8 @@ void Weather_Restart(void)
       Weather_InitStateControls();
     }
     iVar2 = 0;
-    Weather_gLastProcessTime[1] = simGlobal.gameTicks;
-    Weather_gLastProcessTime[0] = simGlobal.gameTicks;
+    WEATHER_GLASTPROCESSTIME1 = simGlobal.gameTicks;
+    WEATHER_GLASTPROCESSTIME0 = simGlobal.gameTicks;
     do {
       pcVar1 = Weather_gWasDrawn + iVar2;
       iVar2 = iVar2 + 1;
@@ -420,8 +445,8 @@ void Weather_Init(void)
     if (Weather_gWasDrawn == (char *)0x0) {
       Weather_gWasDrawn = reservememadr("weather3",0x98,0);
     }
-    Weather_gLastProcessTime[1] = simGlobal.gameTicks;
-    Weather_gLastProcessTime[0] = simGlobal.gameTicks;
+    WEATHER_GLASTPROCESSTIME1 = simGlobal.gameTicks;
+    WEATHER_GLASTPROCESSTIME0 = simGlobal.gameTicks;
     Weather_gPServer[0] = Weather_gPos;
     Weather_gPrevPServer[0] = Weather_gPrevPos;
     Weather_gDrawnServer[0] = Weather_gWasDrawn;

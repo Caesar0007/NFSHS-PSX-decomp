@@ -8,7 +8,7 @@
 extern AIDataRecord_BestLine_t *AIDataRecord_BestLine;   /* @0x8013c5a0 */
 extern Car_tObj      *Cars_gSortedList[];
 extern Car_tObj * AILife_IsCarInAnyVisibleArea(Car_tObj *carObj);
-extern Car_tObj **Cars_gList;
+extern Car_tObj *Cars_gList[];
 extern Car_tObj *Cars_gHumanRaceCarList[];
 extern Car_tObj *Cars_gTotalSortedList[];
 extern GameSetup_tData   GameSetup_gData;

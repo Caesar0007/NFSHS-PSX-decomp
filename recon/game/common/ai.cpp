@@ -321,22 +321,27 @@ LAB_80057f34:
 /* ---- AI_DoReactionsAndBehavior__FP8Car_tObj  [@0x80058014] ---- */
 void AI_DoReactionsAndBehavior(Car_tObj *carObj)
 {
-  int t;
   Car_tObj *otherCarObj;
-  Car_tObj **ppCVar1;
   int iVar2;
-  
+  Car_tObj **ppCVar1;
+
   AI_DoReactions(carObj);
+  iVar2 = 0;
   ppCVar1 = Cars_gList;
-  for (iVar2 = 0; iVar2 < Cars_gNumCars; iVar2 = iVar2 + 1) {
+  while (1) {
+    if (Cars_gNumCars <= iVar2) {
+      break;
+    }
     otherCarObj = *ppCVar1;
-    if ((((carObj != otherCarObj) && ((otherCarObj->N).active != '\0')) &&
-        ((otherCarObj->carFlags & 4U) != 0)) &&
-       (AI_CheckForPlayerActions(carObj,otherCarObj), (carObj->carFlags & 8U) != 0))
-    {
-      AI_OpponentBlockPlayer(carObj,otherCarObj);
+    if (((carObj != otherCarObj) && ((otherCarObj->N).active != '\0')) &&
+        ((otherCarObj->carFlags & 4U) != 0)) {
+      AI_CheckForPlayerActions(carObj,otherCarObj);
+      if ((carObj->carFlags & 8U) != 0) {
+        AI_OpponentBlockPlayer(carObj,otherCarObj);
+      }
     }
     ppCVar1 = ppCVar1 + 1;
+    iVar2 = iVar2 + 1;
   }
   return;
 }
@@ -581,42 +586,40 @@ void AI_HandleChangeInNumLanes(Car_tObj *carObj)
   int lookAhead;
   int laneIndex;
   u_char bVar1;
-  int iVar2;
-  int iVar3;
-  
-  iVar3 = carObj->currentSpeed;
-  if (iVar3 < 0) {
-    iVar3 = -iVar3;
+
+  lookAhead = carObj->currentSpeed;
+  if (lookAhead < 0) {
+    lookAhead = -lookAhead;
   }
-  iVar3 = fixedmult(iVar3,0x6aaa);
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xffff;
+  lookAhead = fixedmult(lookAhead,0x6aaa);
+  if (lookAhead < 0) {
+    lookAhead = lookAhead + 0xffff;
   }
-  iVar3 = iVar3 >> 0x10;
-  if (iVar3 < 5) {
-    iVar3 = 5;
+  lookAhead = lookAhead >> 0x10;
+  if (lookAhead < 5) {
+    lookAhead = 5;
   }
-  iVar3 = iVar3 * carObj->direction;
-  if (iVar3 < 0) {
-    iVar3 = (carObj->N).simRoadInfo.slice + iVar3;
-    iVar2 = iVar3 * 0x20;
-    if (-1 < iVar3) goto LAB_800588a4;
-    iVar3 = iVar3 + gNumSlices;
+  absLaneLookAhead = lookAhead * carObj->direction;
+  if (absLaneLookAhead < 0) {
+    absLaneLookAhead = (carObj->N).simRoadInfo.slice + absLaneLookAhead;
+    lookAheadSlice = absLaneLookAhead * 0x20;
+    if (-1 < absLaneLookAhead) goto LAB_800588a4;
+    absLaneLookAhead = absLaneLookAhead + gNumSlices;
   }
   else {
-    iVar3 = (carObj->N).simRoadInfo.slice + iVar3;
-    iVar2 = iVar3 * 0x20;
-    if (iVar3 < gNumSlices) goto LAB_800588a4;
-    iVar3 = iVar3 - gNumSlices;
+    absLaneLookAhead = (carObj->N).simRoadInfo.slice + absLaneLookAhead;
+    lookAheadSlice = absLaneLookAhead * 0x20;
+    if (absLaneLookAhead < gNumSlices) goto LAB_800588a4;
+    absLaneLookAhead = absLaneLookAhead - gNumSlices;
   }
-  iVar2 = iVar3 << 5;
+  lookAheadSlice = absLaneLookAhead << 5;
 LAB_800588a4:
-  bVar1 = *(u_char *)(iVar2 + BWorldSm_slices + 0x1d);
-  iVar3 = carObj->laneIndex;
-  if ((((iVar3 < (int)(7 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 6) < iVar3)) &&
-      (bVar1 = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + BWorldSm_slices + 0x1d),
-      (int)(7 - (u_int)(bVar1 >> 4)) <= iVar3)) && (iVar3 <= (int)((bVar1 & 0xf) + 6))) {
-    if (iVar3 < 7) {
+  bVar1 = *(u_char *)((char *)BWorldSm_slices + lookAheadSlice + 0x1d);
+  laneIndex = carObj->laneIndex;
+  if ((((laneIndex < (int)(7 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 6) < laneIndex)) &&
+      (bVar1 = *(u_char *)((char *)BWorldSm_slices + (carObj->N).simRoadInfo.slice * 0x20 + 0x1d),
+      (int)(7 - (u_int)(bVar1 >> 4)) <= laneIndex)) && (laneIndex <= (int)((bVar1 & 0xf) + 6))) {
+    if (laneIndex < 7) {
       CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + 0x280000;
     }
     else {
@@ -647,10 +650,10 @@ void AI_HandleShouldersAndOffRoad(Car_tObj *carObj)
     iVar4 = 0x50000;
   }
   iVar3 = carObj->laneIndex + -1;
-  bVar1 = *(u_char *)(iVar5 * 0x20 + BWorldSm_slices + 0x1d);
+  bVar1 = *(u_char *)((char *)BWorldSm_slices + iVar5 * 0x20 + 0x1d);
   if ((iVar3 == 6 - (u_int)(bVar1 >> 4)) || (iVar3 == (bVar1 & 0xf) + 7)) {
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + iVar4;
-    iVar3 = (carObj->N).simRoadInfo.slice * 0x20 + BWorldSm_slices;
+    iVar3 = (int)((char *)BWorldSm_slices + (carObj->N).simRoadInfo.slice * 0x20);
     if ((int)(*(short *)(iVar3 + 0x18) * 0x100 -
              (u_int)*(u_char *)(iVar3 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar3 + 0x1d) >> 4)) <
         (carObj->N).dimension.x) {
@@ -658,44 +661,44 @@ void AI_HandleShouldersAndOffRoad(Car_tObj *carObj)
     }
   }
   iVar3 = carObj->laneIndex + 1;
-  bVar1 = *(u_char *)(iVar5 * 0x20 + BWorldSm_slices + 0x1d);
+  bVar1 = *(u_char *)((char *)BWorldSm_slices + iVar5 * 0x20 + 0x1d);
   if ((iVar3 == 6 - (u_int)(bVar1 >> 4)) || (iVar3 == (bVar1 & 0xf) + 7)) {
     CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + iVar4;
-    iVar3 = (carObj->N).simRoadInfo.slice * 0x20 + BWorldSm_slices;
+    iVar3 = (int)((char *)BWorldSm_slices + (carObj->N).simRoadInfo.slice * 0x20);
     if ((int)(*(short *)(iVar3 + 0x1a) * 0x100 -
              (u_int)*(u_char *)(iVar3 + 0x1f) * 0x8000 * (*(u_char *)(iVar3 + 0x1d) & 0xf)) <
         (carObj->N).dimension.x) {
       CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0x640000;
     }
   }
-  bVar1 = *(u_char *)(iVar5 * 0x20 + BWorldSm_slices + 0x1d);
+  bVar1 = *(u_char *)((char *)BWorldSm_slices + iVar5 * 0x20 + 0x1d);
   if ((carObj->laneIndex == 6 - (u_int)(bVar1 >> 4)) || (carObj->laneIndex == (bVar1 & 0xf) + 7)) {
     CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + iVar4;
     bVar2 = carObj->laneIndex < 7;
     if (((bVar2) &&
-        (iVar4 = (carObj->N).simRoadInfo.slice * 0x20 + BWorldSm_slices,
+        (iVar4 = (int)((char *)BWorldSm_slices + (carObj->N).simRoadInfo.slice * 0x20),
         (int)(*(short *)(iVar4 + 0x18) * 0x100 -
              (u_int)*(u_char *)(iVar4 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar4 + 0x1d) >> 4)) <
         (carObj->N).dimension.x)) ||
        ((!bVar2 &&
-        (iVar4 = (carObj->N).simRoadInfo.slice * 0x20 + BWorldSm_slices,
+        (iVar4 = (int)((char *)BWorldSm_slices + (carObj->N).simRoadInfo.slice * 0x20),
         (int)(*(short *)(iVar4 + 0x1a) * 0x100 -
              (u_int)*(u_char *)(iVar4 + 0x1f) * 0x8000 * (*(u_char *)(iVar4 + 0x1d) & 0xf)) <
         (carObj->N).dimension.x)))) {
       CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + -0x640000;
     }
   }
-  bVar1 = *(u_char *)(iVar5 * 0x20 + BWorldSm_slices + 0x1d);
+  bVar1 = *(u_char *)((char *)BWorldSm_slices + iVar5 * 0x20 + 0x1d);
   iVar4 = carObj->laneIndex + -1;
   if ((iVar4 < (int)(6 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 7) < iVar4)) {
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + -0x3e80000;
   }
-  bVar1 = *(u_char *)(iVar5 * 0x20 + BWorldSm_slices + 0x1d);
+  bVar1 = *(u_char *)((char *)BWorldSm_slices + iVar5 * 0x20 + 0x1d);
   if ((carObj->laneIndex < (int)(6 - (u_int)(bVar1 >> 4))) ||
      ((int)((bVar1 & 0xf) + 7) < carObj->laneIndex)) {
     CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + -0x3e80000;
   }
-  bVar1 = *(u_char *)(iVar5 * 0x20 + BWorldSm_slices + 0x1d);
+  bVar1 = *(u_char *)((char *)BWorldSm_slices + iVar5 * 0x20 + 0x1d);
   iVar4 = carObj->laneIndex + 1;
   if ((iVar4 < (int)(6 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 7) < iVar4)) {
     CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0x3e80000;
@@ -1062,7 +1065,7 @@ void AI_AddCollidableObjects(Car_tObj *carObj,Group *groupSimObjs)
     BWorldSm_FindClosestSlice(&local_48,(BWorldSm_Pos *)&spos);
     iVar1 = AIWorld_ApxSplineDistance(spos.slice,carObj);   /* H17: arg0 was 0; oracle 0x800597B4 $a0=*(short*)spos=spos.slice */
     if (iVar1 * carObj->direction - 1U < 0x63ffff) {
-      piVar2 = (int *)((carObj->N).simRoadInfo.slice * 0x20 + BWorldSm_slices);
+      piVar2 = (int *)((char *)BWorldSm_slices + (carObj->N).simRoadInfo.slice * 0x20);
       local_38 = *piVar2;
       local_34 = piVar2[1];
       local_30 = piVar2[2];
@@ -1119,20 +1122,20 @@ void AI_AvoidObjects(Car_tObj *carObj)
 /* ---- AI_AvoidSpikeBelt__FP8Car_tObj  [@0x8005995c] ---- */
 void AI_AvoidSpikeBelt(Car_tObj *carObj)
 {
+  int iVar1;
   int spikeSlice;
   int leftLatPos;
   int width;
-  int iVar1;
-  int local_18;
-  int local_14;
-  int local_10 [2];
-  
-  iVar1 = BWorld_GetSpikeBelt(&local_18,&local_14,local_10);
-  if ((iVar1 != 0) &&
-     (iVar1 = AIWorld_ApxSplineDistance(local_18,carObj),
-     iVar1 * carObj->direction - 1U < 0x63ffff)) {
-    AI_SubmitObstacle(carObj,-0x280000,local_14,local_14 + local_10[0],local_18);
+
+  iVar1 = BWorld_GetSpikeBelt(&spikeSlice,&leftLatPos,&width);
+  if (iVar1 == 0) {
+    return;
   }
+  iVar1 = AIWorld_ApxSplineDistance(spikeSlice,carObj);
+  if (0x63ffff <= iVar1 * carObj->direction - 1U) {
+    return;
+  }
+  AI_SubmitObstacle(carObj,-0x280000,leftLatPos,leftLatPos + width,spikeSlice);
   return;
 }
 
@@ -1194,19 +1197,17 @@ void AI_SubmitObstacle(Car_tObj *carObj,int importance,int leftLatPosition,int r
 void AI_HandleTrafficHonking(Car_tObj *carObj)
 {
   Car_tObj*visibleCar;
-  Car_tObj *pCVar1;
-  u_int uVar2;
-  
-  pCVar1 = AILife_IsCarInAnyVisibleArea(carObj);
+  int iVar2;
+
+  visibleCar = AILife_IsCarInAnyVisibleArea(carObj);
   if ((carObj->carFlags & 0x10U) != 0) {
-    uVar2 = ~carObj->direction;
+    iVar2 = ~carObj->direction;
     if (GameSetup_gData.reverseTrack == 0) {
-      uVar2 = carObj->direction ^ 1;
+      iVar2 = carObj->direction ^ 1;
     }
-    /* @0x80059BC8: signed slt -- honk only when 0 < (int)uVar2 (uVar2 = ~direction / direction^1, which
-     * can be negative, e.g. -2). The recon used an UNSIGNED `uVar2 != 0` test, true for those negative
-     * values where the signed oracle test is false (M17). */
-    if (((0 < (int)uVar2) && (pCVar1 != (Car_tObj *)0x0)) && (-0x30000 < AI_Info.laneSpeeds[1])) {
+    /* @0x80059BC8: signed slt -- honk only when 0 < iVar2 (iVar2 = ~direction / direction^1, which
+     * can be negative, e.g. -2). */
+    if (((0 < iVar2) && (visibleCar != (Car_tObj *)0x0)) && (-0x30000 < AI_Info.laneSpeeds[1])) {
       randtemp = fastRandom * randSeed;
       fastRandom = randtemp & 0xffff;
       if (((GameSetup_gData.commMode != 1) && ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < 5)) &&
@@ -1225,23 +1226,20 @@ void AI_CheckForCarsOnSide(Car_tObj *carObj)
   int ci;
   int absDistance;
   int blockDistance;
-  int iVar1;
-  int iVar2;
   Car_tObj *carObj_00;
-  int iVar3;
   Car_tObj **ppCVar4;
-  
-  iVar3 = 0;
-  if (((carObj->carFlags & 0x10U) == 0) && (iVar1 = (carObj->N).dimension.z, 0 < Cars_gNumCars)) {
+
+  ci = 0;
+  if (((carObj->carFlags & 0x10U) == 0) && (blockDistance = (carObj->N).dimension.z, 0 < Cars_gNumCars)) {
     ppCVar4 = Cars_gList;
     do {
       carObj_00 = *ppCVar4;
       if ((carObj != carObj_00) && ((carObj_00->N).active != '\0')) {
-        iVar2 = AIWorld_SplineDistance(carObj_00,carObj);
-        if (iVar2 < 0) {
-          iVar2 = -iVar2;
+        absDistance = AIWorld_SplineDistance(carObj_00,carObj);
+        if (absDistance < 0) {
+          absDistance = -absDistance;
         }
-        if ((iVar2 < 0xa0001) && (iVar2 < iVar1 * 2 + iVar1 / 2)) {
+        if ((absDistance < 0xa0001) && (absDistance < blockDistance * 2 + blockDistance / 2)) {
           if (carObj_00->laneIndex == carObj->laneIndex + -1) {
             CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + -0x60000;
           }
@@ -1250,9 +1248,9 @@ void AI_CheckForCarsOnSide(Car_tObj *carObj)
           }
         }
       }
-      iVar3 = iVar3 + 1;
+      ci = ci + 1;
       ppCVar4 = ppCVar4 + 1;
-    } while (iVar3 < Cars_gNumCars);
+    } while (ci < Cars_gNumCars);
   }
   return;
 }
@@ -1271,18 +1269,18 @@ void AI_ProcessObservationsAndChooseLane(Car_tObj *carObj)
 void AI_ChooseBestLane(Car_tObj *carObj)
 {
   int best;
-  int iVar1;
-  
+
+  best = AI_Info.laneWeights[1];
   AI_Info.desiredLane = carObj->laneIndex;
-  iVar1 = AI_Info.laneWeights[1];
+  AI_Info.desiredLaneSide = 1;
   if (AI_Info.laneWeights[1] < AI_Info.laneWeights[0]) {
     AI_Info.desiredLane = carObj->laneIndex + -1;
-    iVar1 = AI_Info.laneWeights[0];
+    best = AI_Info.laneWeights[0];
+    AI_Info.desiredLaneSide = 0;
   }
-  AI_Info.desiredLaneSide = (int)(AI_Info.laneWeights[1] >= AI_Info.laneWeights[0]);
-  if (iVar1 < AI_Info.laneWeights[2]) {
-    AI_Info.desiredLaneSide = 2;
+  if (best < AI_Info.laneWeights[2]) {
     AI_Info.desiredLane = carObj->laneIndex + 1;
+    AI_Info.desiredLaneSide = 2;
   }
   if (AI_Info.desiredLane < 0) {
     AI_Info.desiredLane = 0;
@@ -1379,12 +1377,12 @@ int AI_TryToShareLanes(Car_tObj *carObj,Car_tObj *carInWay)
   iVar3 = (carObj->N).dimension.x;
   iVar3 = iVar3 + iVar3 / 2;
   if (AI_Info.desiredLane < 7) {
-    uVar2 = (u_int)*(u_char *)((carInWay->N).simRoadInfo.slice * 0x20 + BWorldSm_slices + 0x1e);
+    uVar2 = (u_int)*(u_char *)((char *)BWorldSm_slices + (carInWay->N).simRoadInfo.slice * 0x20 + 0x1e);
     iVar1 = (AI_Info.desiredLane + -6) * uVar2 * 0x8000;
     iVar4 = iVar1 + uVar2 * -0x8000;
   }
   else {
-    iVar1 = (u_int)*(u_char *)((carInWay->N).simRoadInfo.slice * 0x20 + BWorldSm_slices + 0x1f) *
+    iVar1 = (u_int)*(u_char *)((char *)BWorldSm_slices + (carInWay->N).simRoadInfo.slice * 0x20 + 0x1f) *
             0x8000;
     iVar4 = (AI_Info.desiredLane + -7) * iVar1;
     iVar1 = iVar4 + iVar1;
@@ -1577,26 +1575,23 @@ int AI_IsMellowZone(Car_tObj *carObj,int delay)
   int odom;
   int endMellow;
   u_char bVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  
-  iVar4 = carObj->sortIndex;
-  iVar2 = AIWorld_GameOdometer(carObj);
+
+  index = carObj->sortIndex;
+  odom = AIWorld_GameOdometer(carObj);
   if ((carObj->carFlags & 8U) != 0) {
-    bVar1 = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + BWorldSm_slices + 0x1d);
+    bVar1 = *(u_char *)((char *)BWorldSm_slices + (carObj->N).simRoadInfo.slice * 0x20 + 0x1d);
     if ((carObj->laneIndex != 6 - (u_int)(bVar1 >> 4)) && (carObj->laneIndex != (bVar1 & 0xf) + 7)) {
-      iVar3 = 0x6400000;
+      endMellow = 0x6400000;
       if (Cars_gNumAIRaceCars < 5) {
-        iVar3 = 0x3200000;
+        endMellow = 0x3200000;
       }
       if (Cars_gNumAIRaceCars < 2) {
-        iVar3 = 0xc80000;
+        endMellow = 0xc80000;
       }
       if (Cars_gNumAIRaceCars == 0) {
-        iVar3 = 0;
+        endMellow = 0;
       }
-      return iVar3 + delay < iVar2 + iVar4 * 0x540000 ^ 1;
+      return endMellow + delay < odom + index * 0x540000 ^ 1;
     }
   }
   return 0;
@@ -1639,7 +1634,7 @@ void AI_PushFinishedCarsToSide(Car_tObj *carObj)
     }
     if (iVar3 * 0x280000 <= iVar2) {
       iVar2 = carObj->laneIndex;
-      bVar1 = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + BWorldSm_slices + 0x1d);
+      bVar1 = *(u_char *)((char *)BWorldSm_slices + (carObj->N).simRoadInfo.slice * 0x20 + 0x1d);
       if ((iVar2 == 6 - (u_int)(bVar1 >> 4)) || (iVar2 == (bVar1 & 0xf) + 7)) {
         CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + 0x960000;
       }
@@ -1659,28 +1654,28 @@ void AI_MaybeChangeLaneSlack(Car_tObj *carObj)
 {
   int adaptedSlice;
   int range;
-  int iVar1;
   u_int uVar2;
-  
-  iVar1 = carObj->carIndex * 2;
-  if (iVar1 < 0) {
-    iVar1 = (carObj->N).simRoadInfo.slice + iVar1;
-    if (iVar1 < 0) {
-      iVar1 = iVar1 + gNumSlices;
+
+  adaptedSlice = carObj->carIndex * 2;
+  if (0 <= adaptedSlice) {
+    adaptedSlice = (carObj->N).simRoadInfo.slice + adaptedSlice;
+    if (gNumSlices <= adaptedSlice) {
+      adaptedSlice = adaptedSlice - gNumSlices;
     }
   }
   else {
-    iVar1 = (carObj->N).simRoadInfo.slice + iVar1;
-    if (gNumSlices <= iVar1) {
-      iVar1 = iVar1 - gNumSlices;
+    adaptedSlice = (carObj->N).simRoadInfo.slice + adaptedSlice;
+    if (adaptedSlice < 0) {
+      adaptedSlice = adaptedSlice + gNumSlices;
     }
   }
   uVar2 = carObj->carFlags;
-  if ((((uVar2 & 4) == 0) && (((uVar2 & 8) == 0 || ((iVar1 >> 4) << 4 == iVar1)))) &&
-     (((uVar2 & 0x10) == 0 || ((iVar1 >> 1) << 1 == iVar1)))) {
+  if ((((uVar2 & 4) == 0) && (((uVar2 & 8) == 0 || ((adaptedSlice >> 4) << 4 == adaptedSlice)))) &&
+     (((uVar2 & 0x10) == 0 || ((adaptedSlice >> 1) << 1 == adaptedSlice)))) {
     randtemp = fastRandom * randSeed;
     fastRandom = randtemp & 0xffff;
-    if (*(int *)(carObj->personality + 0x1c) * (randtemp >> 8 & 0xffff) >> 0x10 == 1) {
+    range = *(int *)((char *)carObj->personality + 0x1c);
+    if (range * (randtemp >> 8 & 0xffff) >> 0x10 == 1) {
       AI_ChooseNewLaneSlack(carObj);
     }
   }
@@ -1690,27 +1685,8 @@ void AI_MaybeChangeLaneSlack(Car_tObj *carObj)
 /* ---- AI_ChooseNewLaneSlack__FP8Car_tObj  [@0x8005a9dc] ---- */
 void AI_ChooseNewLaneSlack(Car_tObj *carObj)
 {
-  char *buffer;
-  int aheadCollisionSpeed;
-  int inverseAheadCollisionTime;
-  int latPos;
-  int inverseCollisionTime;
-  int distanceFixedMetersSignChecked;
-  int shoulder_merit;
-  Trk_SimObject *simObjs;
-  int lanesFilled;
-  int cSpeed;
-  int dSpeed;
-  int considerDesired;
-  int ci;
-  int carObjRightLaneBits;
-  int carObjThisLaneBits;
-  int masks [3];
-  int clearAheadMerits [3];
-  int maxDistanceToCheck;
-  
   randtemp = fastRandom * randSeed;
   fastRandom = randtemp & 0xffff;
-  carObj->laneSlack = *(int *)(carObj->personality + (randtemp >> 6 & 0xc) + 0xc);
+  carObj->laneSlack = *(int *)((char *)carObj->personality + (randtemp >> 6 & 0xc) + 0xc);
   return;
 }

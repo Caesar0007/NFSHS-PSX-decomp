@@ -53,13 +53,13 @@ tCarInfo * tCarManager::GetCarFromID(short carID)
 {
   u_int i;
   tCarInfo *ptVar2;
-  
+
   i = 0;
   if (this->fNumCars != 0) {
     ptVar2 = this->fCars;
     do {
       i = i + 1;
-      if ((int)ptVar2->fCarID == (int)carID) {
+      if ((int)(signed char)ptVar2->fCarID == (int)carID) {
         return ptVar2;
       }
       ptVar2 = ptVar2 + 1;
@@ -395,19 +395,18 @@ void tCarManager::AddUpgradesToPinkSlipsList(short garageNumber,short upgradeFla
 void tCarManager::LoadCars(tSaveCarInfo &load,short playerNum)
 
 {
-  tSaveCarInfo *ptVar1;
   u_int i;
-  u_int uVar3;
-  
-  blockmove(&load,this->fCarGarage + playerNum * 0x10,0x80);
-  if ((playerNum == 0) && (i = 0, ptVar1 = &load, this->fNumCars != 0)) {
-    do {
-      this->fAvailableCars[i] = ptVar1->fSaveAvailable[0];
-      this->fViewableCars[i] = ptVar1->fSaveViewable[0];
-      uVar3 = i + 1;
-      ptVar1 = (tSaveCarInfo *)(&load.fSaveInfo[0].fUpgrades + i);
-      i = uVar3;
-    } while (uVar3 < this->fNumCars);
+
+  blockmove(&load,this->fCarGarage[playerNum],0x80);
+  if (playerNum == 0) {
+    i = 0;
+    if (this->fNumCars != 0) {
+      do {
+        this->fAvailableCars[i] = load.fSaveAvailable[i];
+        this->fViewableCars[i] = load.fSaveViewable[i];
+        i = i + 1;
+      } while (i < this->fNumCars);
+    }
   }
   return;
 }
@@ -419,21 +418,16 @@ void tCarManager::LoadCars(tSaveCarInfo &load,short playerNum)
 void tCarManager::SaveCars(tSaveCarInfo &save)
 
 {
-  tCarManager *ptVar1;
   u_long i;
-  u_int uVar2;
-  
+
   blockmove(this->fCarGarage,&save,0x80);
   i = 0;
-  ptVar1 = this;
   if (this->fNumCars != 0) {
     do {
-      save.fSaveAvailable[i] = ptVar1->fAvailableCars[0];
-      save.fSaveViewable[i] = ptVar1->fViewableCars[0];
-      uVar2 = i + 1;
-      ptVar1 = (tCarManager *)((char *)((tCarManager *)(this + -1))->fNumCars + i + 1);
-      i = uVar2;
-    } while (uVar2 < this->fNumCars);
+      save.fSaveAvailable[i] = this->fAvailableCars[i];
+      save.fSaveViewable[i] = this->fViewableCars[i];
+      i = i + 1;
+    } while (i < this->fNumCars);
   }
   return;
 }
@@ -449,7 +443,7 @@ void tCarManager::LoadPinkSlipsCars(tSaveCarInfo &load,short playerNum)
   u_int i;
   int iVar3;
   
-  blockmove(&load,this->fPinkSlipsCars + playerNum * 0x10,0x80);
+  blockmove(&load,this->fPinkSlipsCars[playerNum],0x80);
   i = 0;
   if (this->fNumCars != 0) {
     iVar3 = playerNum * 0x30;
@@ -480,7 +474,7 @@ void tCarManager::SavePinkSlipsCars(tSaveCarInfo &save,short playerNum,short wit
     this->GetPinkSlipsCar(withoutCarInGarageNumber,carInfo,playerNum);
     this->RemoveFromPinkSlipsList(withoutCarInGarageNumber,playerNum);
   }
-  blockmove(this->fPinkSlipsCars + playerNum * 0x10,&save,0x80);
+  blockmove(this->fPinkSlipsCars[playerNum],&save,0x80);
   i = 0;
   if (this->fNumCars != 0) {
     iVar3 = playerNum * 0x30;
@@ -507,21 +501,22 @@ void tCarManager::SavePinkSlipsCars(tSaveCarInfo &save,short playerNum,short wit
 void tCarManager::SetClassAvailable(tCarClassType carClass,bool avail)
 
 {
-  char *pcVar1;
-  int iVar2;
-  int iVar3;
   u_int i;
-  
+  u_int iVar3;
+  tCarInfo *carInfo;
+  int iVar2;
+
   i = 0;
   if (this->fNumCars != 0) {
     iVar3 = 0;
     do {
-      pcVar1 = this->fCars->fShapeName + iVar3 + -8;
-      iVar2 = (int)*pcVar1;
-      if (((-1 < iVar2) && ((u_char)pcVar1[2] == carClass)) &&
-         (this->fAvailableCars[iVar2] = avail, avail != 0))
-      {
-        this->fViewableCars[this->fCars->fShapeName[iVar3 + -8]] = '\x01';
+      carInfo = (tCarInfo *)((char *)this->fCars + iVar3);
+      iVar2 = (int)(signed char)carInfo->fCarID;
+      if ((-1 < iVar2) && ((u_char)carInfo->fCarClass == carClass)) {
+        this->fAvailableCars[iVar2] = avail;
+        if (avail != 0) {
+          this->fViewableCars[iVar2] = '\x01';
+        }
       }
       i = i + 1;
       iVar3 = iVar3 + 0xcc;
@@ -552,22 +547,24 @@ void tCarManager::SetCarAvailable(tCarModels carModel,bool avail)
 void tCarManager::SetClassViewable(tCarClassType carClass,bool view)
 
 {
-  char *pcVar1;
-  int iVar2;
   u_int i;
-  int iVar4;
-  
+  u_int iVar4;
+  tCarInfo *carInfo;
+  int iVar2;
+
   i = 0;
   if (this->fNumCars != 0) {
     iVar4 = 0;
     do {
-      pcVar1 = this->fCars->fShapeName + iVar4 + -8;
-      iVar2 = (int)*pcVar1;
-      if (iVar2 < 0) {
-        this->fViewableCars[iVar2] = '\0';
+      carInfo = (tCarInfo *)((char *)this->fCars + iVar4);
+      iVar2 = (int)(signed char)carInfo->fCarID;
+      if (iVar2 >= 0) {
+        if ((u_char)carInfo->fCarClass == carClass) {
+          this->fViewableCars[iVar2] = view;
+        }
       }
-      else if ((u_char)pcVar1[2] == carClass) {
-        this->fViewableCars[iVar2] = view;
+      else {
+        this->fViewableCars[iVar2] = '\0';
       }
       i = i + 1;
       iVar4 = iVar4 + 0xcc;
@@ -599,18 +596,18 @@ void tCarManager::GetStockCar(short carNumber,tCarInfo &carInfo)
 
 {
   uchar uVar1;
-  
-  if ((u_int)(int)carNumber < this->fNumCars) {
-    blockmove(this->fCars + carNumber,&carInfo,0xcc);
-    carInfo.fAvailable = this->fAvailableCars[carInfo.fCarID];
-    uVar1 = this->fViewableCars[carInfo.fCarID];
-    carInfo.fUpgrades = '\0';
-    carInfo.fCountry = '\0';
-    carInfo.fViewable = uVar1;
+
+  if ((u_int)(int)carNumber >= this->fNumCars) {
+    this->GetGarageCar(carNumber,carInfo,0);
     carInfo.fCarIndex = (uchar)carNumber;
   }
   else {
-    this->GetGarageCar(carNumber,carInfo,0);
+    blockmove(this->fCars + carNumber,&carInfo,0xcc);
+    carInfo.fAvailable = this->fAvailableCars[(signed char)carInfo.fCarID];
+    uVar1 = this->fViewableCars[(signed char)carInfo.fCarID];
+    carInfo.fUpgrades = '\0';
+    carInfo.fCountry = '\0';
+    carInfo.fViewable = uVar1;
     carInfo.fCarIndex = (uchar)carNumber;
   }
   return;
@@ -627,21 +624,21 @@ void tCarManager::GetGarageCar(short garageNumber,tCarInfo &carInfo,short player
   u_short uVar2;
   tCarInfo *src;
   int iVar3;
-  u_int uVar4;
+  u_short uVar4;
   int iVar5;
-  
-  uVar4 = (u_int)(u_short)playerNum;
+
+  uVar4 = (u_short)playerNum;
   if ((playerNum == 1) && (uVar2 = this->GetNumOwnedCars(1), (int)((u_int)uVar2 << 0x10) < 1)) {
     uVar4 = 0;
   }
   iVar3 = (int)garageNumber;
   iVar5 = (int)(uVar4 << 0x10) >> 9;
-  src = this->GetCarFromID((short)*(signed char *)((int)this + (iVar3 - this->fNumCars) * 4 + iVar5 + 8));
+  src = this->GetCarFromID((short)*(signed char *)((iVar3 - this->fNumCars) * 4 + iVar5 + 8 + (int)this));
   blockmove(src,&carInfo,0xcc);
   carInfo.fAvailable = '\x01';
   carInfo.fViewable = '\x01';
-  carInfo.fUpgrades = *(uchar *)((int)this + (iVar3 - this->fNumCars) * 4 + iVar5 + 9);
-  uVar1 = *(uchar *)((int)this + (iVar3 - this->fNumCars) * 4 + iVar5 + 10);
+  carInfo.fUpgrades = *(uchar *)((iVar3 - this->fNumCars) * 4 + iVar5 + 9 + (int)this);
+  uVar1 = *(uchar *)((iVar3 - this->fNumCars) * 4 + iVar5 + 10 + (int)this);
   carInfo.fCountry = '\0';
   carInfo.fCarIndex = (uchar)garageNumber;
   carInfo.fColor = uVar1;
@@ -662,13 +659,13 @@ void tCarManager::GetPinkSlipsCar(short garageNumber,tCarInfo &carInfo,short pla
   
   iVar2 = (int)garageNumber;
   iVar3 = (int)((u_int)(u_short)playerNum << 0x10) >> 9;
-  src = this->GetCarFromID((short)*(signed char *)((int)this + (iVar2 - this->fNumCars) * 4 + iVar3 + 0x108)
+  src = this->GetCarFromID((short)*(signed char *)((iVar2 - this->fNumCars) * 4 + iVar3 + 0x108 + (int)this)
                     );
   blockmove(src,&carInfo,0xcc);
   carInfo.fAvailable = '\x01';
   carInfo.fViewable = '\x01';
-  carInfo.fUpgrades = *(uchar *)((int)this + (iVar2 - this->fNumCars) * 4 + iVar3 + 0x109);
-  uVar1 = *(uchar *)((int)this + (iVar2 - this->fNumCars) * 4 + iVar3 + 0x10a);
+  carInfo.fUpgrades = *(uchar *)((iVar2 - this->fNumCars) * 4 + iVar3 + 0x109 + (int)this);
+  uVar1 = *(uchar *)((iVar2 - this->fNumCars) * 4 + iVar3 + 0x10a + (int)this);
   carInfo.fCountry = '\0';
   carInfo.fCarIndex = (uchar)garageNumber;
   carInfo.fColor = uVar1;
@@ -762,12 +759,12 @@ short tCarManager::GetNumOwnedCars(short playerNum)
   int i;
   int iVar2;
   short num;
-  
+
   num = 0;
   i = 0;
   iVar2 = (int)((u_int)(u_short)playerNum << 0x10) >> 9;
   do {
-    if (-1 < (&this->fCarGarage[0][0].fCarID)[iVar2]) {
+    if (-1 < *(signed char *)((char *)this + iVar2 + 8)) {
       num = num + 1;
     }
     i = i + 1;
@@ -795,10 +792,10 @@ short tCarManager::GetNumTourneyCars(short playerNum)
   i = 0;
   iVar4 = (int)((u_int)(u_short)playerNum << 0x10) >> 9;
   do {
-    cVar1 = (&this->fCarGarage[0][0].fCarID)[iVar4];
-    carInfo.fCarID = (&this->fCarGarage[0][0].fCarID)[iVar4];
+    cVar1 = *(signed char *)((char *)this + iVar4 + 8);
+    carInfo.fCarID = *(u_char *)((char *)this + iVar4 + 8);
     if (-1 < cVar1) {
-      carInfo.fUpgrades = (&this->fCarGarage[0][0].fUpgrades)[iVar4];
+      carInfo.fUpgrades = *(u_char *)((char *)this + iVar4 + 9);
       ptVar2 = this->GetCarFromID((short)cVar1);
       carInfo.fCarClass = ptVar2->fCarClass;
       pvVar3 = tournamentManager.ValidCar(carInfo);   /* ValidCar now takes tCarInfo& */
@@ -827,7 +824,7 @@ short tCarManager::GetNumPinkSlipsCars(short playerNum)
   i = 0;
   iVar2 = (int)((u_int)(u_short)playerNum << 0x10) >> 9;
   do {
-    if (-1 < (&this->fPinkSlipsCars[0][0].fCarID)[iVar2]) {
+    if (-1 < *(signed char *)((char *)this + iVar2 + 0x108)) {
       num = num + 1;
     }
     i = i + 1;
@@ -883,21 +880,18 @@ short tCarManager::GetClassList(tCarClassType carClass,short numElements,tCarMod
 void tCarManager::InitializeIngameCarList()
 
 {
-  int iVar1;
-  int j;
   short i;
-  
+  short j;
+
   i = 0;
   do {
     j = 0;
-    iVar1 = 0;
     do {
-      gCarSelected[(short)i][iVar1 >> 0x10] = '\0';
+      gCarSelected[i][j] = '\0';
       j = j + 1;
-      iVar1 = j * 0x10000;
-    } while (j * 0x10000 >> 0x10 < 0x32);
+    } while (j < 0x32);
     i = i + 1;
-  } while (i * 0x10000 >> 0x10 < 2);
+  } while (i < 2);
   return;
 }
 
@@ -910,13 +904,17 @@ void * tCarManager::IsCarAnAddedModel(tCarModels &model,char &color)
 {
   tCarInfo *ptVar1;
   int iVar2;
+  char *base;
+  u_int index;
 
   ptVar1 = this->GetCarFromID((short)model);
   iVar2 = (int)(signed char)ptVar1->fColorOrder[(u_char)color];
+  base = &gCarSelected[0][0];
   if (iVar2 < 0) {
     iVar2 = iVar2 + 7;
   }
-  return (void *)(u_int)(gCarSelected[iVar2 >> 3][model] != '\0');
+  index = (u_int)model + (iVar2 >> 3) * 50;
+  return (void *)(u_int)(base[index] != '\0');
 }
 
 
@@ -929,7 +927,7 @@ void tCarManager::AddCarToIngameList(tCarModels &model,char &color)
   tCarInfo *ptVar1;
   u_int uVar2;
   u_int carColor;
-  
+
   ptVar1 = this->GetCarFromID((short)model);
   carColor = (u_int)ptVar1->fColorOrder[(u_char)color];
   uVar2 = carColor;
@@ -1493,33 +1491,20 @@ int tListIteratorCarColor::Increment(tPlayer arg1)
 int tListIteratorCarColor::Decrement(tPlayer arg1)
 
 {
-  int offset;
-  u_int uVar1;
-  int carPrice;
-  u_char *pbVar2;
+  int iVar1;
+  u_int uVar2;
+  u_char *pbVar3;
   tCarInfo *carInfo;
-  short num;
-  short j;
-  short numCars;
-  short colorScheme;
-  short numColors;
-  int result;
-  short k;
-  int firstCar;
-  tCarInfo garageCar;
-  tTrackInformation trackInfo;
-  short nameBase [3];
-  
-  offset = (int)this->fPlayer;
-  carInfo = this->fCarManager->fCars + (u_char)this->fPlayerCar[*(u_char *)offset];
-  pbVar2 = (u_char *)(this->fValue +
-                   (u_int)*(u_char *)offset * this->fIndexSize + (int)carInfo->fCarID);
-  uVar1 = (u_int)*pbVar2;
-  if (uVar1 == 0) {
-    uVar1 = (u_int)(u_char)carInfo->fNumLightColors + (u_int)(u_char)carInfo->fNumDarkColors;
+
+  iVar1 = (u_int)(u_char)*this->fPlayer * this->fIndexSize;
+  carInfo = this->fCarManager->fCars + (u_char)this->fPlayerCar[(u_char)*this->fPlayer];
+  pbVar3 = (u_char *)(iVar1 + (int)(signed char)carInfo->fCarID + this->fValue);
+  uVar2 = (u_int)*pbVar3;
+  if (uVar2 == 0) {
+    uVar2 = (u_int)(u_char)carInfo->fNumLightColors + (u_int)(u_char)carInfo->fNumDarkColors;
   }
-  *pbVar2 = (u_char)(uVar1 - 1);
-  return uVar1 - 1;
+  *pbVar3 = (u_char)(uVar2 - 1);
+  return uVar2 - 1;
 }
 
 

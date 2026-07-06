@@ -232,21 +232,11 @@ void Hud_BuildSprite(SPRT *sprt,int shapeIdx,int x,int y,u_long color,int trans)
   SetSemiTrans(sprt,trans);
   *(u_char *)((int)&sprt->tag + 3) = 4;
   uVar4 = color | 0x66000000;
+  *(u_int *)&sprt->r0 = uVar4;
   uVar5 = y << 0x10 | x;
-  sprt->r0 = (char)uVar4;
-  sprt->g0 = (char)(uVar4 >> 8);
-  sprt->b0 = (char)(uVar4 >> 0x10);
-  sprt->code = (char)(uVar4 >> 0x18);
-  sprt->x0 = (short)uVar5;
-  sprt->y0 = (short)(uVar5 >> 0x10);
-  uVar1 = (pHVar3->pixmap).v0;
-  uVar2 = (pHVar3->pixmap).clut;
-  sprt->u0 = (pHVar3->pixmap).u0;
-  sprt->v0 = uVar1;
-  sprt->clut = uVar2;
-  uVar4 = (int)HudPmx_gShapes[shapeIdx].height << 0x10 | (int)HudPmx_gShapes[shapeIdx].width;
-  sprt->w = (short)uVar4;
-  sprt->h = (short)(uVar4 >> 0x10);
+  *(u_int *)&sprt->x0 = uVar5;
+  *(u_int *)&sprt->u0 = *(u_int *)&pHVar3->pixmap;
+  *(u_int *)&sprt->w = (int)HudPmx_gShapes[shapeIdx].height << 0x10 | (int)HudPmx_gShapes[shapeIdx].width;
   return;
 }
 
@@ -292,14 +282,8 @@ void Hud_BuildSpriteFromFont(SPRT *sprt,char ch,int x,int y)
   
   Font_GetUVWH(ch,&u,&v,&w,&h,&yo);
   *(u_char *)((int)&sprt->tag + 3) = 4;
-  uVar1 = currentSpriteColor | 0x66000000;
-  sprt->r0 = (char)uVar1;
-  sprt->g0 = (char)(uVar1 >> 8);
-  sprt->b0 = (char)(uVar1 >> 0x10);
-  sprt->code = (char)(uVar1 >> 0x18);
-  uVar1 = (y + yo) * 0x10000 | x;
-  sprt->x0 = (short)uVar1;
-  sprt->y0 = (short)(uVar1 >> 0x10);
+  *(u_int *)&sprt->r0 = currentSpriteColor | 0x66000000;
+  *(u_int *)&sprt->x0 = (y + yo) * 0x10000 | x;
   sprt->u0 = (u_char)u;
   sprt->v0 = (u_char)v;
   sprt->clut = gFontClut;
@@ -314,23 +298,15 @@ void Hud_BuildF3(POLY_F3 *prim,HudPmx_tShape *shape,int x,int y,u_long color)
 {
   u_int uVar1;
   int iVar2;
-  
-  prim->r0 = (u_char)color;
-  prim->g0 = ((u_char *)&(color))[1];
-  prim->b0 = ((u_char *)&(color))[2];
-  prim->code = ((u_char *)&(color))[3];
+  int iVar3;
+
+  *(u_int *)&prim->r0 = color;
   SetPolyF3(prim);
-  uVar1 = y << 0x10 | x;
-  prim->x0 = (short)uVar1;
-  prim->y0 = (short)(uVar1 >> 0x10);
-  iVar2 = (u_int)(u_short)shape->height << 0x10;
-  uVar1 = (y - ((iVar2 >> 0x10) - (iVar2 >> 0x1f) >> 1)) * 0x10000 | x + shape->width;
-  prim->x1 = (short)uVar1;
-  prim->y1 = (short)(uVar1 >> 0x10);
-  iVar2 = (u_int)(u_short)shape->height << 0x10;
-  uVar1 = (y + ((iVar2 >> 0x10) - (iVar2 >> 0x1f) >> 1)) * 0x10000 | x + shape->width;
-  prim->x2 = (short)uVar1;
-  prim->y2 = (short)(uVar1 >> 0x10);
+  *(u_int *)&prim->x0 = y << 0x10 | x;
+  iVar2 = (short)shape->height / 2;
+  *(u_int *)&prim->x1 = (y - iVar2) * 0x10000 | x + shape->width;
+  iVar3 = (short)shape->height / 2;
+  *(u_int *)&prim->x2 = (y + iVar3) * 0x10000 | x + shape->width;
   return;
 }
 
@@ -347,55 +323,18 @@ void Hud_BuildGT4(POLY_GT4 *prim,HudPmx_tShape *shape,int x,int y,u_long color)
   int w_h_pack;
   
   *(u_char *)((int)&prim->tag + 3) = 0xc;
-  uVar3 = y << 0x10 | x;
-  prim->x0 = (short)uVar3;
-  prim->y0 = (short)(uVar3 >> 0x10);
-  uVar3 = color | 0x3e000000;
-  prim->r0 = (char)uVar3;
-  prim->g0 = (char)(uVar3 >> 8);
-  prim->b0 = (char)(uVar3 >> 0x10);
-  prim->code = (char)(uVar3 >> 0x18);
-  prim->r1 = (u_char)color;
-  prim->g1 = ((u_char *)&(color))[1];
-  prim->b1 = ((u_char *)&(color))[2];
-  prim->p1 = ((u_char *)&(color))[3];
-  prim->r2 = (u_char)color;
-  prim->g2 = ((u_char *)&(color))[1];
-  prim->b2 = ((u_char *)&(color))[2];
-  prim->p2 = ((u_char *)&(color))[3];
-  prim->r3 = (u_char)color;
-  prim->g3 = ((u_char *)&(color))[1];
-  prim->b3 = ((u_char *)&(color))[2];
-  prim->p3 = ((u_char *)&(color))[3];
-  uVar1 = (shape->pixmap).v0;
-  uVar2 = (shape->pixmap).clut;
-  prim->u0 = (shape->pixmap).u0;
-  prim->v0 = uVar1;
-  prim->clut = uVar2;
-  uVar3 = y << 0x10 | x + shape->width;
-  prim->x1 = (short)uVar3;
-  prim->y1 = (short)(uVar3 >> 0x10);
-  uVar1 = (shape->pixmap).v1;
-  uVar2 = (shape->pixmap).tpage;
-  prim->u1 = (shape->pixmap).u1;
-  prim->v1 = uVar1;
-  prim->tpage = uVar2;
-  uVar3 = (y + shape->height) * 0x10000 | x;
-  prim->x2 = (short)uVar3;
-  prim->y2 = (short)(uVar3 >> 0x10);
-  uVar1 = (shape->pixmap).v2;
-  uVar2 = (shape->pixmap).pad2;
-  prim->u2 = (shape->pixmap).u2;
-  prim->v2 = uVar1;
-  prim->pad2 = uVar2;
-  uVar3 = (y + shape->height) * 0x10000 | x + shape->width;
-  prim->x3 = (short)uVar3;
-  prim->y3 = (short)(uVar3 >> 0x10);
-  uVar1 = (shape->pixmap).v3;
-  uVar2 = (shape->pixmap).flag;
-  prim->u3 = (shape->pixmap).u3;
-  prim->v3 = uVar1;
-  prim->pad3 = uVar2;
+  *(u_int *)&prim->x0 = y << 0x10 | x;
+  *(u_int *)&prim->r0 = color | 0x3e000000;
+  *(u_int *)&prim->r1 = color;
+  *(u_int *)&prim->r2 = color;
+  *(u_int *)&prim->r3 = color;
+  *(u_int *)&prim->u0 = *(u_int *)((char *)&shape->pixmap + 0x0);
+  *(u_int *)&prim->x1 = y << 0x10 | x + shape->width;
+  *(u_int *)&prim->u1 = *(u_int *)((char *)&shape->pixmap + 0x4);
+  *(u_int *)&prim->x2 = (y + shape->height) * 0x10000 | x;
+  *(u_int *)&prim->u2 = *(u_int *)((char *)&shape->pixmap + 0x8);
+  *(u_int *)&prim->x3 = (y + shape->height) * 0x10000 | x + shape->width;
+  *(u_int *)&prim->u3 = *(u_int *)((char *)&shape->pixmap + 0xc);
   return;
 }
 
@@ -411,44 +350,17 @@ void Hud_BuildFT4(POLY_FT4 *prim,HudPmx_tShape *shape,int x,int y,u_long color,i
   int tu4;
   int tu5;
   
-  prim->r0 = (u_char)color;
-  prim->g0 = ((u_char *)&(color))[1];
-  prim->b0 = ((u_char *)&(color))[2];
-  prim->code = ((u_char *)&(color))[3];
+  *(u_int *)&prim->r0 = color;
   SetPolyFT4(prim);
   SetSemiTrans(prim,trans);
-  uVar3 = y << 0x10 | x;
-  prim->x0 = (short)uVar3;
-  prim->y0 = (short)(uVar3 >> 0x10);
-  uVar1 = (shape->pixmap).v0;
-  uVar2 = (shape->pixmap).clut;
-  prim->u0 = (shape->pixmap).u0;
-  prim->v0 = uVar1;
-  prim->clut = uVar2;
-  uVar3 = y << 0x10 | x + shape->width;
-  prim->x1 = (short)uVar3;
-  prim->y1 = (short)(uVar3 >> 0x10);
-  uVar1 = (shape->pixmap).v1;
-  uVar2 = (shape->pixmap).tpage;
-  prim->u1 = (shape->pixmap).u1;
-  prim->v1 = uVar1;
-  prim->tpage = uVar2;
-  uVar3 = (y + shape->height) * 0x10000 | x;
-  prim->x2 = (short)uVar3;
-  prim->y2 = (short)(uVar3 >> 0x10);
-  uVar1 = (shape->pixmap).v2;
-  uVar2 = (shape->pixmap).pad2;
-  prim->u2 = (shape->pixmap).u2;
-  prim->v2 = uVar1;
-  prim->pad1 = uVar2;
-  uVar3 = (y + shape->height) * 0x10000 | x + shape->width;
-  prim->x3 = (short)uVar3;
-  prim->y3 = (short)(uVar3 >> 0x10);
-  uVar1 = (shape->pixmap).v3;
-  uVar2 = (shape->pixmap).flag;
-  prim->u3 = (shape->pixmap).u3;
-  prim->v3 = uVar1;
-  prim->pad2 = uVar2;
+  *(u_int *)&prim->x0 = y << 0x10 | x;
+  *(u_int *)&prim->u0 = *(u_int *)((char *)&shape->pixmap + 0x0);
+  *(u_int *)&prim->x1 = y << 0x10 | x + shape->width;
+  *(u_int *)&prim->u1 = *(u_int *)((char *)&shape->pixmap + 0x4);
+  *(u_int *)&prim->x2 = (y + shape->height) * 0x10000 | x;
+  *(u_int *)&prim->u2 = *(u_int *)((char *)&shape->pixmap + 0x8);
+  *(u_int *)&prim->x3 = (y + shape->height) * 0x10000 | x + shape->width;
+  *(u_int *)&prim->u3 = *(u_int *)((char *)&shape->pixmap + 0xc);
   return;
 }
 
@@ -465,47 +377,19 @@ void Hud_BuildMirrorFT4(POLY_FT4 *prim,HudPmx_tShape *shape,int x,int y,u_long c
   int tu4;
   int tu5;
   
-  prim->r0 = (u_char)color;
-  prim->g0 = ((u_char *)&(color))[1];
-  prim->b0 = ((u_char *)&(color))[2];
-  prim->code = ((u_char *)&(color))[3];
+  *(u_int *)&prim->r0 = color;
   SetPolyFT4(prim);
   SetSemiTrans(prim,trans);
-  uVar4 = y << 0x10 | x + shape->width;
-  prim->x0 = (short)uVar4;
-  prim->y0 = (short)(uVar4 >> 0x10);
-  uVar1 = (shape->pixmap).u0;
-  uVar2 = (shape->pixmap).v0;
-  uVar3 = (shape->pixmap).clut;
-  uVar4 = y << 0x10 | x;
-  prim->x1 = (short)uVar4;
-  prim->y1 = (short)(uVar4 >> 0x10);
-  prim->u0 = uVar1;
-  prim->v0 = uVar2;
-  prim->clut = uVar3;
-  uVar1 = (shape->pixmap).v1;
-  uVar3 = (shape->pixmap).tpage;
-  prim->u1 = (shape->pixmap).u1;
-  prim->v1 = uVar1;
-  prim->tpage = uVar3;
-  prim->u1 = prim->u1 + 0xff;
-  uVar4 = (y + shape->height) * 0x10000 | x + shape->width;
-  prim->x2 = (short)uVar4;
-  prim->y2 = (short)(uVar4 >> 0x10);
-  uVar1 = (shape->pixmap).v2;
-  uVar3 = (shape->pixmap).pad2;
-  prim->u2 = (shape->pixmap).u2;
-  prim->v2 = uVar1;
-  prim->pad1 = uVar3;
-  uVar4 = (y + shape->height) * 0x10000 | x;
-  prim->x3 = (short)uVar4;
-  prim->y3 = (short)(uVar4 >> 0x10);
-  uVar1 = (shape->pixmap).v3;
-  uVar3 = (shape->pixmap).flag;
-  prim->u3 = (shape->pixmap).u3;
-  prim->v3 = uVar1;
-  prim->pad2 = uVar3;
-  prim->u3 = prim->u3 + 0xff;
+  *(u_int *)&prim->x0 = y << 0x10 | x + shape->width;
+  *(u_int *)&prim->u0 = *(u_int *)((char *)&shape->pixmap + 0x0);
+  *(u_int *)&prim->x1 = y << 0x10 | x;
+  *(u_int *)&prim->u1 = *(u_int *)((char *)&shape->pixmap + 0x4);
+  prim->u1 = prim->u1 - 1;
+  *(u_int *)&prim->x2 = (y + shape->height) * 0x10000 | x + shape->width;
+  *(u_int *)&prim->u2 = *(u_int *)((char *)&shape->pixmap + 0x8);
+  *(u_int *)&prim->x3 = (y + shape->height) * 0x10000 | x;
+  *(u_int *)&prim->u3 = *(u_int *)((char *)&shape->pixmap + 0xc);
+  prim->u3 = prim->u3 - 1;
   return;
 }
 
@@ -520,50 +404,20 @@ void Hud_BuildMapMirrorFT4(POLY_FT4 *prim,HudPmx_tShape *shape,int x,int y,u_lon
   int tu2;
   int tu3;
   
-  prim->r0 = (u_char)color;
-  prim->g0 = ((u_char *)&(color))[1];
-  prim->b0 = ((u_char *)&(color))[2];
-  prim->code = ((u_char *)&(color))[3];
+  *(u_int *)&prim->r0 = color;
   SetPolyFT4(prim);
   SetSemiTrans(prim,trans);
-  uVar4 = y << 0x10 | x + shape->width;
-  prim->x0 = (short)uVar4;
-  prim->y0 = (short)(uVar4 >> 0x10);
-  uVar1 = (shape->pixmap).u0;
-  uVar2 = (shape->pixmap).v0;
-  uVar3 = (shape->pixmap).clut;
-  uVar4 = y << 0x10 | x;
-  prim->x1 = (short)uVar4;
-  prim->y1 = (short)(uVar4 >> 0x10);
-  prim->u0 = uVar1;
-  prim->v0 = uVar2;
-  prim->clut = uVar3;
-  uVar1 = (shape->pixmap).u1;
-  uVar2 = (shape->pixmap).v1;
-  uVar3 = (shape->pixmap).tpage;
-  prim->x1 = prim->x1 + -3;
+  *(u_int *)&prim->x0 = y << 0x10 | x + shape->width;
+  *(u_int *)&prim->u0 = *(u_int *)((char *)&shape->pixmap + 0x0);
+  *(u_int *)&prim->x1 = y << 0x10 | x;
+  *(u_int *)&prim->u1 = *(u_int *)((char *)&shape->pixmap + 0x4);
   prim->x0 = prim->x0 + -3;
-  prim->u1 = uVar1;
-  prim->v1 = uVar2;
-  prim->tpage = uVar3;
-  uVar4 = (y + shape->height) * 0x10000 | x + shape->width;
-  prim->x2 = (short)uVar4;
-  prim->y2 = (short)(uVar4 >> 0x10);
-  uVar1 = (shape->pixmap).v2;
-  uVar3 = (shape->pixmap).pad2;
-  prim->u2 = (shape->pixmap).u2;
-  prim->v2 = uVar1;
-  prim->pad1 = uVar3;
-  uVar4 = (y + shape->height) * 0x10000 | x;
-  prim->x3 = (short)uVar4;
-  prim->y3 = (short)(uVar4 >> 0x10);
-  uVar1 = (shape->pixmap).u3;
-  uVar2 = (shape->pixmap).v3;
-  uVar3 = (shape->pixmap).flag;
+  prim->x1 = prim->x1 + -3;
+  *(u_int *)&prim->x2 = (y + shape->height) * 0x10000 | x + shape->width;
+  *(u_int *)&prim->u2 = *(u_int *)((char *)&shape->pixmap + 0x8);
+  *(u_int *)&prim->x3 = (y + shape->height) * 0x10000 | x;
+  *(u_int *)&prim->u3 = *(u_int *)((char *)&shape->pixmap + 0xc);
   prim->x2 = prim->x2 + -3;
-  prim->u3 = uVar1;
-  prim->v3 = uVar2;
-  prim->pad2 = uVar3;
   prim->x3 = prim->x3 + -3;
   return;
 }
@@ -572,30 +426,16 @@ void Hud_BuildMapMirrorFT4(POLY_FT4 *prim,HudPmx_tShape *shape,int x,int y,u_lon
 void Hud_BuildF4(POLY_F4 *prim,int trans,int x,int y,int w,int h,u_long color)
 
 {
-  u_int uVar1;
-  u_int uVar2;
   u_int uVar3;
-  u_int uVar4;
-  
-  prim->r0 = (u_char)color;
-  prim->g0 = ((u_char *)&(color))[1];
-  prim->b0 = ((u_char *)&(color))[2];
-  prim->code = ((u_char *)&(color))[3];
+
+  *(u_int *)&prim->r0 = color;
   SetPolyF4(prim);
   SetSemiTrans(prim,trans);
-  uVar2 = y << 0x10 | x;
-  uVar1 = y << 0x10 | x + w;
+  *(u_int *)&prim->x0 = y << 0x10 | x;
+  *(u_int *)&prim->x1 = y << 0x10 | x + w;
   uVar3 = (y + h) * 0x10000;
-  uVar4 = uVar3 | x;
-  uVar3 = uVar3 | x + w;
-  prim->x0 = (short)uVar2;
-  prim->y0 = (short)(uVar2 >> 0x10);
-  prim->x1 = (short)uVar1;
-  prim->y1 = (short)(uVar1 >> 0x10);
-  prim->x2 = (short)uVar4;
-  prim->y2 = (short)(uVar4 >> 0x10);
-  prim->x3 = (short)uVar3;
-  prim->y3 = (short)(uVar3 >> 0x10);
+  *(u_int *)&prim->x2 = uVar3 | x;
+  *(u_int *)&prim->x3 = uVar3 | x + w;
   return;
 }
 
@@ -604,42 +444,19 @@ void Hud_BuildG4(POLY_G4 *prim,int trans,int x,int y,int w,int h,u_long col1,u_l
                u_long col4)
 
 {
-  u_int uVar1;
-  u_int uVar2;
   u_int uVar3;
-  u_int uVar4;
-  
-  prim->r0 = (u_char)col1;
-  prim->g0 = ((u_char *)&(col1))[1];
-  prim->b0 = ((u_char *)&(col1))[2];
-  prim->code = ((u_char *)&(col1))[3];
-  prim->r1 = (u_char)col2;
-  prim->g1 = ((u_char *)&(col2))[1];
-  prim->b1 = ((u_char *)&(col2))[2];
-  prim->pad1 = ((u_char *)&(col2))[3];
-  prim->r2 = (u_char)col3;
-  prim->g2 = ((u_char *)&(col3))[1];
-  prim->b2 = ((u_char *)&(col3))[2];
-  prim->pad2 = ((u_char *)&(col3))[3];
-  prim->r3 = (u_char)col4;
-  prim->g3 = ((u_char *)&(col4))[1];
-  prim->b3 = ((u_char *)&(col4))[2];
-  prim->pad3 = ((u_char *)&(col4))[3];
+
+  *(u_int *)&prim->r0 = col1;
+  *(u_int *)&prim->r1 = col2;
+  *(u_int *)&prim->r2 = col3;
+  *(u_int *)&prim->r3 = col4;
   SetPolyG4(prim);
   SetSemiTrans(prim,trans);
-  uVar2 = y << 0x10 | x;
-  uVar1 = y << 0x10 | x + w;
+  *(u_int *)&prim->x0 = y << 0x10 | x;
+  *(u_int *)&prim->x1 = y << 0x10 | x + w;
   uVar3 = (y + h) * 0x10000;
-  uVar4 = uVar3 | x;
-  uVar3 = uVar3 | x + w;
-  prim->x0 = (short)uVar2;
-  prim->y0 = (short)(uVar2 >> 0x10);
-  prim->x1 = (short)uVar1;
-  prim->y1 = (short)(uVar1 >> 0x10);
-  prim->x2 = (short)uVar4;
-  prim->y2 = (short)(uVar4 >> 0x10);
-  prim->x3 = (short)uVar3;
-  prim->y3 = (short)(uVar3 >> 0x10);
+  *(u_int *)&prim->x2 = uVar3 | x;
+  *(u_int *)&prim->x3 = uVar3 | x + w;
   return;
 }
 
@@ -2181,16 +1998,12 @@ HudNum_drawSpeedDigits:
 void Hud_InitMap(void)
 
 {
-  u_char uVar1;
-  u_char uVar2;
-  u_char uVar3;
   int iVar4;
   GameSetup_tCarData *pGVar5;
-  int i;
   int iVar6;
   Car_tObj **ppCVar7;
   CVECTOR *pCVar8;
-  
+
   iVar4 = Cars_gNumRaceCars;
   iVar6 = 0;
   if (0 < Cars_gNumRaceCars) {
@@ -2199,14 +2012,8 @@ void Hud_InitMap(void)
     do {
       pGVar5 = (*ppCVar7)->carInfo;
       ppCVar7 = ppCVar7 + 1;
-      uVar1 = *(u_char *)((int)&pGVar5->HudColour + 1);
-      uVar2 = *(u_char *)((int)&pGVar5->HudColour + 2);
-      uVar3 = *(u_char *)((int)&pGVar5->HudColour + 3);
       iVar6 = iVar6 + 1;
-      pCVar8->r = *(u_char *)&pGVar5->HudColour;
-      pCVar8->g = uVar1;
-      pCVar8->b = uVar2;
-      pCVar8->cd = uVar3;
+      *(int *)pCVar8 = pGVar5->HudColour;
       pCVar8 = pCVar8 + 1;
     } while (iVar6 < iVar4);
   }
@@ -2218,14 +2025,8 @@ void Hud_InitMap(void)
     do {
       pGVar5 = (*ppCVar7)->carInfo;
       ppCVar7 = ppCVar7 + 1;
-      uVar1 = *(u_char *)((int)&pGVar5->HudColour + 1);
-      uVar2 = *(u_char *)((int)&pGVar5->HudColour + 2);
-      uVar3 = *(u_char *)((int)&pGVar5->HudColour + 3);
       iVar6 = iVar6 + 1;
-      pCVar8->r = *(u_char *)&pGVar5->HudColour;
-      pCVar8->g = uVar1;
-      pCVar8->b = uVar2;
-      pCVar8->cd = uVar3;
+      *(int *)pCVar8 = pGVar5->HudColour;
       pCVar8 = pCVar8 + 1;
     } while (iVar6 < iVar4);
   }
@@ -2391,7 +2192,7 @@ void Hud_BuildMapMarkers(int player)
 void Hud_WingmanFlash(int player,int index)
 
 {
-  
+
   if ((Replay_ReplayMode < 2) && (HudBustedOverlay == 0)) {
     if (Hud_gWingmanInterface[player] != '\x01') {
       Hud_InitMapFrame(player,1);
@@ -3259,6 +3060,8 @@ void Hud_RenderMapView(void)
 }
 
 /* ---- Hud_BlackThinBox__Fiiii  [HUD.CPP:3082-3116] SLD-VERIFIED ---- */
+static inline int hud_sub2(int a, int b) { return a - b; }
+
 void Hud_BlackThinBox(int x, int y, int w, int h)
 {
   short CORNERHEIGHT;
@@ -3266,26 +3069,26 @@ void Hud_BlackThinBox(int x, int y, int w, int h)
   int   x_left, top_w, side_y, side_h, x_right, y_bottom;
 
   CORNERWIDTH  = HudPmx_gShapes[0x11].width;
-  x_left = (x + CORNERWIDTH) - 2;
-  top_w  = (w - CORNERWIDTH * 2) + 2;
+  x_left = hud_sub2(x + CORNERWIDTH, 2);
+  top_w  = hud_sub2(w, CORNERWIDTH * 2) + 2;
   CORNERHEIGHT = HudPmx_gShapes[0x11].height;
   /* top edge */
-  Hud_FBuildF4(0, x_left, y - 2, top_w, 2, 0, '\0', '\0');
+  Hud_FBuildF4(0, x_left, hud_sub2(y, 2), top_w, 2, 0, '\0', '\0');
   /* left edge */
-  side_y = (y + CORNERHEIGHT) - 2;
-  side_h = (h - CORNERHEIGHT * 2) + 4;
-  Hud_FBuildF4(0, x - 2, side_y, 2, side_h, 0, '\0', '\0');
+  side_y = hud_sub2(y + CORNERHEIGHT, 2);
+  side_h = hud_sub2(h, CORNERHEIGHT * 2) + 4;
+  Hud_FBuildF4(0, hud_sub2(x, 2), side_y, 2, side_h, 0, '\0', '\0');
   /* right edge */
   x_right = x + w;
-  Hud_FBuildF4(0, x_right - 2, side_y, 2, side_h, 0, '\0', '\0');
+  Hud_FBuildF4(0, hud_sub2(x_right, 2), side_y, 2, side_h, 0, '\0', '\0');
   /* bottom edge */
   y_bottom = y + h;
   Hud_FBuildF4(0, x_left, y_bottom, top_w, 2, 0, '\0', '\0');
   /* 4 rounded corners */
-  Hud_FBuildGT4(&HudPmx_gShapes[0x1f], x - 2,                 y - 2,                    0);
-  Hud_FBuildGT4(&HudPmx_gShapes[0x20], x_right - CORNERWIDTH, y - 2,                    0);
-  Hud_FBuildGT4(&HudPmx_gShapes[0x21], x - 2,                 y_bottom - (CORNERHEIGHT - 2), 0);
-  Hud_FBuildGT4(&HudPmx_gShapes[0x22], x_right - CORNERWIDTH, y_bottom - (CORNERHEIGHT - 2), 0);
+  Hud_FBuildGT4(&HudPmx_gShapes[0xe],  hud_sub2(x, 2),                 hud_sub2(y, 2),                    0);
+  Hud_FBuildGT4(&HudPmx_gShapes[0xf],  hud_sub2(x_right, CORNERWIDTH), hud_sub2(y, 2),                    0);
+  Hud_FBuildGT4(&HudPmx_gShapes[0x10], hud_sub2(x, 2),                 hud_sub2(y_bottom, hud_sub2(CORNERHEIGHT, 2)), 0);
+  Hud_FBuildGT4(&HudPmx_gShapes[0x11], hud_sub2(x_right, CORNERWIDTH), hud_sub2(y_bottom, CORNERHEIGHT - 2), 0);
 }
 
 /* ---- Hud_Draw321Num__Fiiiiii  [HUD.CPP:3155-3254] SLD-VERIFIED ---- */
@@ -3973,6 +3776,7 @@ void Hud_BTC_QuitOut(void)
 
 {
   short *perp_idx;
+  tBTCPerpInfo *row_base;
   int row_off;
   int i;
   int slot_i;
@@ -3980,14 +3784,15 @@ void Hud_BTC_QuitOut(void)
 
   if (HudBustedOverlay == 0) {
     slot_i = 0;
+    row_base = BTCPerpInfo[0];
     row_off = 0;
     do {
       perp_idx = Hud_NextPerp + slot_i;
-      sprintf(BTCPerpInfo[0][*perp_idx].name + row_off,BTC_CurrentPerpName);
-      name_tail = BTCPerpInfo[0][*perp_idx].name + row_off + 0xc;
+      sprintf(row_base[*perp_idx].name + row_off,BTC_CurrentPerpName);
+      name_tail = row_base[*perp_idx].name + row_off + 0xc;
       *(u_int *)name_tail = 0;
       slot_i = slot_i + 1;
-      name_tail = BTCPerpInfo[0][*perp_idx].name + row_off + 8;
+      name_tail = row_base[*perp_idx].name + row_off + 8;
       *(u_int *)name_tail = 0;
       *perp_idx = *perp_idx + 1;
       row_off = row_off + 0xa0;

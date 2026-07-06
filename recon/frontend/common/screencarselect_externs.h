@@ -48,7 +48,7 @@ extern __vtbl_ptr_type tScreenCarSelect_vtable[], tScreenCarSelectDuel_vtable[],
 tScreenCarSelect *screenCarSelect;
 
 /* ===== base ctor/dtor helpers ===== */
-void tScreen_ctor(tScreen*); void tScreen_dtor(tScreen*);
+void tScreen_ctor(tScreen*); void tScreen_dtor(tScreen*, int __in_chrg);
 void tScreenCarSelect_ctor(tScreenCarSelect*); void tScreenCarSelect_dtor(tScreenCarSelect*);
 void tScreenCarSelectTwoPlayer_ctor(tScreenCarSelectTwoPlayer*); void tScreenCarSelectTwoPlayer_dtor(tScreenCarSelectTwoPlayer*);
 void tScreenCarSelectDuel_dtor(tScreenCarSelectDuel*); void tScreenPinkSlipsCarSelect_dtor(tScreenPinkSlipsCarSelect*);

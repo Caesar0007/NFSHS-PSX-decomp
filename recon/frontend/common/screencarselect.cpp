@@ -157,7 +157,7 @@ tScreenCarSelect::~tScreenCarSelect()
 
 {
   this->_vf = (__vtbl_ptr_type (*)[10])tScreenCarSelect_vtable;
-  tScreen_dtor((tScreen *)this);
+  /* base ~tScreen is emitted implicitly (: public tScreen) -- no explicit call */
   return;
 }
 
@@ -2599,8 +2599,8 @@ tScreenPinkSlipsCarSelect::~tScreenPinkSlipsCarSelect()
 
 {
   
-  tScreen_dtor((tScreen *)&this->CarDialog);
-  tScreenCarSelect_dtor((tScreenCarSelect *)this);
+  tScreen_dtor((tScreen *)&this->CarDialog, 2);
+  /* base ~tScreenCarSelect emitted implicitly (: public tScreenCarSelect) */
   return;
 }
 
@@ -2610,9 +2610,7 @@ tScreenPinkSlipsCarSelect::~tScreenPinkSlipsCarSelect()
 tScreenCarSelectTwoPlayer::~tScreenCarSelectTwoPlayer()
 
 {
-  
-  tScreen_dtor((tScreen *)&this->CarDialog);
-  tScreenCarSelect_dtor((tScreenCarSelect *)this);
+  /* CarDialog member (a1=2) + base ~tScreenCarSelect both destroyed implicitly */
   return;
 }
 
@@ -2622,21 +2620,7 @@ tScreenCarSelectTwoPlayer::~tScreenCarSelectTwoPlayer()
 tScreenCarSelectDuel::~tScreenCarSelectDuel()
 
 {
-  int ret;
-  int value;
-  int fadeVal;
-  short text;
-  int card;
-  DRAWENV *drenv;
-  int garageNumber;
-  int currentplayer;
-  RECT pos;
-  RECT temp;
-  RECT r;
-  int T [4];
-  char buffer [32];
-  
-  tScreenCarSelect_dtor((tScreenCarSelect *)this);
+  /* retail dtor is empty -- only the implicit base ~tScreenCarSelect runs */
   return;
 }
 

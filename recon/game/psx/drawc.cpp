@@ -865,28 +865,29 @@ void DrawC_PrimStop(Car_tObj *carObj,Draw_CarCache *sd)
   short sVar1;
   int sub_otSizeM1;
   int worldZ;
-  char *tp4;
+  Car_tObj *tp4;
   u_long *puVar4;
 
-  if (carObj->render.sort_flag == 0) {
-    tp4 = (char *)carObj->render.sort_carObj;
-    if (tp4 == (char *)0x0) {
-      sub_otSizeM1 = carObj->render.sub_otSize + -1;
-      worldZ = carObj->render.world_otz;
-    }
-    else {
-      sVar1 = *(short *)(tp4 + 0x87c);
-      if ((*(short *)(tp4 + 0x87c) != 0) &&
-         (*(short *)(tp4 + 0x87c) = sVar1 + -1, sVar1 != 1)) {
-        return;
-      }
-      sub_otSizeM1 = *(int *)(tp4 + 0x870) + -1;
-      worldZ = *(int *)(tp4 + 0x864);
-    }
-    *sd->sub_ot = *sd->sub_ot & 0xff000000 | sd->head.cprim.LastPrim[worldZ] & 0xffffff;
-    puVar4 = sd->head.cprim.LastPrim + worldZ;
-    *puVar4 = *puVar4 & 0xff000000 | (u_long)(sd->sub_ot + sub_otSizeM1) & 0xffffff;
+  if (carObj->render.sort_flag != 0) {
+    return;
   }
+  tp4 = (Car_tObj *)carObj->render.sort_carObj;
+  if (tp4 != (Car_tObj *)0x0) {
+    sVar1 = tp4->render.sort_flag;
+    if ((tp4->render.sort_flag != 0) &&
+       (tp4->render.sort_flag = sVar1 + -1, sVar1 != 1)) {
+      return;
+    }
+    sub_otSizeM1 = tp4->render.sub_otSize + -1;
+    worldZ = tp4->render.world_otz;
+  }
+  else {
+    sub_otSizeM1 = carObj->render.sub_otSize + -1;
+    worldZ = carObj->render.world_otz;
+  }
+  *sd->head.cprim.LastPrim = *sd->head.cprim.LastPrim & 0xff000000 | sd->sub_ot[worldZ] & 0xffffff;
+  puVar4 = sd->sub_ot + worldZ;
+  *puVar4 = *puVar4 & 0xff000000 | (u_long)(sd->head.cprim.LastPrim + sub_otSizeM1) & 0xffffff;
   return;
 }
 
@@ -3928,7 +3929,7 @@ void DrawC_DivideShadowPrim(COORD16 *vt0,COORD16 *vt1,COORD16 *vt2,COORD16 *vt3,
   u_int *puVar7;
   void *tp8;
   u_int *puVar8;
-  
+
   if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr) {
 gte_ldv0(vt0);
     gte_rtps();

@@ -31,7 +31,13 @@ void AIHigh_BTC_Perp::ReleaseCops()
 
 
 
-  for (carLoop = 0, ppCVar2 = Cars_gList; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
+  carLoop = 0;
+  ppCVar2 = Cars_gList;
+  while (true) {
+
+    if (Cars_gNumCars <= carLoop) {
+      break;
+    }
 
     otherCarObj = *ppCVar2;
 
@@ -42,6 +48,8 @@ void AIHigh_BTC_Perp::ReleaseCops()
     }
 
     ppCVar2 = ppCVar2 + 1;
+
+    carLoop = carLoop + 1;
 
   }
 
@@ -121,9 +129,13 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 
      (0x3d3 < (randtemp >> 8 & 0xffff) * 1000 >> 0x10)) {
 
+    iVar8 = 0;
     ppCVar7 = Cars_gList;
+    while (true) {
 
-    for (iVar8 = 0; iVar8 < Cars_gNumCars; iVar8 = iVar8 + 1) {
+      if (Cars_gNumCars <= iVar8) {
+        break;
+      }
 
       pCVar6 = *ppCVar7;
 
@@ -180,6 +192,8 @@ int AIHigh_BTC_Perp::IsFalseArrest()
       }
 
       ppCVar7 = ppCVar7 + 1;
+
+      iVar8 = iVar8 + 1;
 
     }
 
@@ -328,7 +342,10 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
   else {
 
-    bVar1 = (5 < this->originalActivationCop_->timeLeft_) && (this->CheckIfCaught() != 0);
+    bVar1 = false;
+    if (5 < this->originalActivationCop_->timeLeft_) {
+      bVar1 = this->CheckIfCaught() != 0;
+    }
 
     if (bVar1) {
 
@@ -375,9 +392,13 @@ void AIHigh_BTC_Perp::NotifyCopsOfArrest()
 
   
 
+  iVar3 = 0;
   ppCVar2 = Cars_gList;
+  while (true) {
 
-  for (iVar3 = 0; iVar3 < Cars_gNumCars; iVar3 = iVar3 + 1) {
+    if (Cars_gNumCars <= iVar3) {
+      break;
+    }
 
     pCVar1 = *ppCVar2;
 
@@ -388,6 +409,8 @@ void AIHigh_BTC_Perp::NotifyCopsOfArrest()
     }
 
     ppCVar2 = ppCVar2 + 1;
+
+    iVar3 = iVar3 + 1;
 
   }
 
@@ -420,9 +443,13 @@ void AIHigh_BTC_Perp::NotifyCopsOfArrestComplete()
 
   
 
+  iVar3 = 0;
   ppCVar2 = Cars_gList;
+  while (true) {
 
-  for (iVar3 = 0; iVar3 < Cars_gNumCars; iVar3 = iVar3 + 1) {
+    if (Cars_gNumCars <= iVar3) {
+      break;
+    }
 
     pCVar1 = *ppCVar2;
 
@@ -433,6 +460,8 @@ void AIHigh_BTC_Perp::NotifyCopsOfArrestComplete()
     }
 
     ppCVar2 = ppCVar2 + 1;
+
+    iVar3 = iVar3 + 1;
 
   }
 
@@ -465,9 +494,13 @@ void AIHigh_BTC_Perp::NotifyCopsOfFalseArrest()
 
   
 
+  iVar3 = 0;
   ppCVar2 = Cars_gList;
+  while (true) {
 
-  for (iVar3 = 0; iVar3 < Cars_gNumCars; iVar3 = iVar3 + 1) {
+    if (Cars_gNumCars <= iVar3) {
+      break;
+    }
 
     pCVar1 = *ppCVar2;
 
@@ -478,6 +511,8 @@ void AIHigh_BTC_Perp::NotifyCopsOfFalseArrest()
     }
 
     ppCVar2 = ppCVar2 + 1;
+
+    iVar3 = iVar3 + 1;
 
   }
 
@@ -510,9 +545,13 @@ void AIHigh_BTC_Perp::NotifyHumanCopsOfArrestHud()
 
   
 
+  iVar3 = 0;
   ppCVar2 = Cars_gList;
+  while (true) {
 
-  for (iVar3 = 0; iVar3 < Cars_gNumCars; iVar3 = iVar3 + 1) {
+    if (Cars_gNumCars <= iVar3) {
+      break;
+    }
 
     pCVar1 = *ppCVar2;
 
@@ -525,6 +564,8 @@ void AIHigh_BTC_Perp::NotifyHumanCopsOfArrestHud()
     }
 
     ppCVar2 = ppCVar2 + 1;
+
+    iVar3 = iVar3 + 1;
 
   }
 
@@ -605,6 +646,8 @@ AIHigh_BTC_Perp::CheckForActivation()
 
   int iVar5;
 
+  Car_tObj *pCVar6;
+
   
 
   iVar5 = 0;
@@ -633,13 +676,21 @@ AIHigh_BTC_Perp::CheckForActivation()
 
       }
 
-      if ((iVar2 != 0) &&
+      if (iVar2 != 0) {
 
-         ((pCVar1 = this->carObj_, (pCVar1->carFlags & 4U) != 0 ||
+        pCVar6 = this->carObj_;
 
-          (GameSetup_gData.perpInfo[pAVar3->currentStage_].CarType == pCVar1->carInfo->carType)))) {
+        if ((pCVar6->carFlags & 4U) != 0) {
 
-        return pAVar3;
+          return pAVar3;
+
+        }
+
+        if (GameSetup_gData.perpInfo[pAVar3->currentStage_].CarType == pCVar6->carInfo->carType) {
+
+          return pAVar3;
+
+        }
 
       }
 

@@ -1131,16 +1131,6 @@ void AIHigh_Player::MaintainAvailableCops()
 
 
 {
-  int need[2];
-  int got[2];
-  int availableCops;
-  int playLoop;
-  Car_tObj*playerCarObj;
-  AIHigh_Player*playerHighObj;
-  int copLoop;
-  Car_tObj*copCarObj;
-  AIHigh_Cop*copHighObj;
-
   bool bVar1;
 
   int iVar2;

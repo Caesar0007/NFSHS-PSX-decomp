@@ -18,8 +18,8 @@ AIHigh_Traffic::CheckForCops(int *closestDistance)
 
 
 {
-  int copLoop;
   Car_tObj*closestCop;
+  int copLoop;
   Car_tObj*cop;
   int sliceDistance;
 
@@ -148,6 +148,12 @@ AIHigh_Traffic::CopCheck(int *blockade)
 
 
 
+/* TU-local rodata: the case-0 initial offset {0, 0x640000, 0}. Oracle @0x800551A4 loads this
+ * via 3 `lw`s and stores to the stack, NOT via 3 immediate `li`/`sw`s -- confirming the source
+ * assigns from a named const struct, not per-field literals. Sits immediately before this TU's
+ * own _vt_14AIHigh_Traffic in rodata -> TU-owned, not a cross-module extern. */
+static const coorddef D_800551A4 = { 0, 0x640000, 0 };
+
 /* ---- HighExecute__14AIHigh_Traffic  AIHigh_Traffic::HighExecute  [AIH_TRAF.CPP:129-340] SLD-VERIFIED ---- */
 
 void AIHigh_Traffic::HighExecute()
@@ -155,15 +161,6 @@ void AIHigh_Traffic::HighExecute()
 
 
 {
-  trigger_t *pNewTrigger;
-  coorddef trafficOffset;
-  AIState_Base*newState;
-  BWorldSm_Pos spos;
-  int blockade;
-  int cRand;
-  AIState_Idle*idleState;
-  int slice;
-
   bool bVar1;
 
   trigger_t *trigger;
@@ -188,13 +185,13 @@ void AIHigh_Traffic::HighExecute()
 
   Car_tObj *pCVar10;
 
-  u_int uVar11;
+  int uVar11;
 
   AIState_Base *pAVar12;
 
-  coorddef local_c0;
+  coorddef trafficOffset;
 
-  BWorldSm_Pos local_b0;
+  BWorldSm_Pos spos;
 
   int local_28;
 
@@ -202,7 +199,7 @@ void AIHigh_Traffic::HighExecute()
 
   int local_20;
 
-  
+
 
   (this->carObj_)->unlap = 0;
 
@@ -212,11 +209,7 @@ void AIHigh_Traffic::HighExecute()
 
   case 0:
 
-    local_c0.x = 0;
-
-    local_c0.y = 0x640000;
-
-    local_c0.z = 0;
+    trafficOffset = D_800551A4;
 
     if (((this->carObj_)->carFlags & 0x400U) == 0) {
 
@@ -262,7 +255,7 @@ void AIHigh_Traffic::HighExecute()
 
     this->stateType_ = sVar7;
 
-    Newton_SetInitialSlicePositionOrientationEtc(&(this->carObj_)->N,0,&local_c0,1);
+    Newton_SetInitialSlicePositionOrientationEtc(&(this->carObj_)->N,0,&trafficOffset,1);
 
     return;
 
@@ -366,11 +359,11 @@ void AIHigh_Traffic::HighExecute()
 
       this->stateType_ = 3;
 
-      local_b0.slice = 0;
+      spos.slice = 0;
 
-      BWorldSm_FindClosestSlice(&this->accidentData_->cp,&local_b0);
+      BWorldSm_FindClosestSlice(&this->accidentData_->cp,&spos);
 
-      AILife_ReencarnateTrafficByPosition(this->carObj_,(int)local_b0.slice,1,&this->accidentData_->cp,
+      AILife_ReencarnateTrafficByPosition(this->carObj_,(int)spos.slice,1,&this->accidentData_->cp,
 
                  &this->accidentData_->orient);
 
@@ -619,6 +612,18 @@ LAB_80066684:
     }
 
     break;
+
+  case 4:
+
+  case 5:
+
+  case 7:
+
+  case 8:
+
+  case 9:
+
+  case 10:
 
   default:
 

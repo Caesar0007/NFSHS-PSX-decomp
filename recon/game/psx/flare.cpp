@@ -62,16 +62,15 @@ void Flare_Moon(SVECTOR *worldPos,Draw_FlareCache *sd);
 void Flare_Tri(long *cp,long *p1,long *p2,int otz)
 
 {
-  u_int *prev_pkt_slot;
   int pkt_addr24;
   u_char *prim;
 
+  otz = otz * 4 + (int)Render_gPalettePtr;
   prim = Render_gPacketPtr;
-  prev_pkt_slot = (u_int *)(Render_gPalettePtr + otz * 4);
-  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *prev_pkt_slot & 0xffffff;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
   Render_gPacketPtr = prim + 0x1c;
   pkt_addr24 = (u_int)prim & 0xffffff;
-  *prev_pkt_slot = *prev_pkt_slot & 0xff000000 | pkt_addr24;
+  *(u_int *)otz = *(u_int *)otz & 0xff000000 | pkt_addr24;
   *(u_int *)(prim + 4) = 0x32000000;
   *(u_int *)(prim + 0x14) = 0;
   prim[3] = 6;
@@ -384,7 +383,7 @@ void Flare_HexFlare(long *center,int otz)
 
 {
   int pkt_addr24;
-  void *prev_pkt_slot;
+  int prev_pkt_slot;
   int pSVar4;
   int gfHexPt2_iter;
   int i;
@@ -419,7 +418,7 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
     vert_idx = vert_idx + -1;
     pSVar4 = pSVar4 + -2;
     if (vert_idx == -1) break;
-    prev_pkt_slot = Render_gPalettePtr + otz * 4;
+    prev_pkt_slot = otz * 4 + (int)Render_gPalettePtr;
     *(u_int *)Render_gPacketPtr =
          *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)prev_pkt_slot & 0xffffff;
     pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
@@ -441,7 +440,7 @@ void Flare_ReflectHexFlare(long *center,int otz)
 
 {
   int pkt_addr24;
-  void *prev_pkt_slot;
+  int prev_pkt_slot;
   int pSVar4;
   int gfHexPt2_iter;
   int i;
@@ -476,7 +475,7 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
     vert_idx = vert_idx + -1;
     pSVar4 = pSVar4 + -2;
     if (vert_idx == -1) break;
-    prev_pkt_slot = Render_gPalettePtr + otz * 4;
+    prev_pkt_slot = otz * 4 + (int)Render_gPalettePtr;
     *(u_int *)Render_gPacketPtr =
          *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)prev_pkt_slot & 0xffffff;
     pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
@@ -1109,26 +1108,24 @@ void Flare_Halo(DRender_tView *Vi,int scale,int type,coorddef *fpt,Draw_FlareCac
 void Flare_2DSpike(long *center,long *end,int otz)
 
 {
-  int tl2;
-  int tl3;
-  u_int *prev_pkt_slot;
+  long saved [2];
   u_char *prim;
   void *tp1;
 
+  saved[0] = *center;
+  saved[1] = *end;
+  otz = otz * 4 + (int)Render_gPalettePtr;
   prim = Render_gPacketPtr;
-  tl2 = *center;
-  tl3 = *end;
-  prev_pkt_slot = (u_int *)(Render_gPalettePtr + otz * 4);
-  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *prev_pkt_slot & 0xffffff;
-  *prev_pkt_slot = *prev_pkt_slot & 0xff000000 | (u_int)prim & 0xffffff;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
+  *(u_int *)otz = *(u_int *)otz & 0xff000000 | (u_int)prim & 0xffffff;
   tp1 = prim + 3;
   Render_gPacketPtr = prim + 0x14;
   *(u_char *)tp1 = 4;
   *(u_int *)(prim + 0xc) = 0;
   *(u_int *)(prim + 4) = *(u_int *)&gfrgb2;
   prim[7] = 0x52;
-  *(int *)(prim + 8) = tl2;
-  *(int *)(prim + 0x10) = tl3;
+  *(long *)(prim + 8) = saved[0];
+  *(long *)(prim + 0x10) = saved[1];
   return;
 }
 
@@ -1248,22 +1245,23 @@ void Flare_PreCalcHexLightBeam(long *center,int otz)
   u_int *prim;
   u_int *puVar5;
   u_int uVar6;
-  long i;
   int iVar7;
   void *ppuVar8;
   u_int uVar8;
   int iVar9;
   void *ppuVar11;
+  SVECTOR *octpt;
   long pt [2];
-  
+
   ppuVar8 = &Render_gPacketPtr;
   ppuVar11 = &Render_gPalettePtr;
   iVar9 = otz << 2;
   uVar6 = 0xffffff;
   uVar8 = 0xff000000;
   uVar2 = *center;
+  octpt = Flare_gOct;
   for (iVar7 = 0; iVar7 < 8; iVar7 = iVar7 + 1) {
-gte_ldv0(&Flare_gOct);
+gte_ldv0(octpt);
     prim = *(u_int **)ppuVar8;
     puVar5 = (u_int *)(iVar9 + *(int *)ppuVar11);
     *prim = *prim & uVar8 | *puVar5 & uVar6;
@@ -1278,6 +1276,7 @@ gte_ldv0(&Flare_gOct);
 gte_swc2(0xe,((char *)&pt + 0x4));
     prim[2] = uVar2;
     prim[4] = pt[1];
+    octpt = octpt + 1;
   }
   return;
 }
@@ -1287,16 +1286,15 @@ void Flare_Quad(long *pt,CVECTOR *color,int otz)
 
 {
   int color_word;
-  u_int *puVar1;
   int pkt_addr24;
   u_char *prim;
 
+  otz = otz * 4 + (int)Render_gPalettePtr;
   prim = Render_gPacketPtr;
-  puVar1 = (u_int *)(Render_gPalettePtr + otz * 4);
-  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *puVar1 & 0xffffff;
-  Render_gPacketPtr = prim + 0x18;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
   pkt_addr24 = (u_int)prim & 0xffffff;
-  *puVar1 = *puVar1 & 0xff000000 | pkt_addr24;
+  *(u_int *)otz = *(u_int *)otz & 0xff000000 | pkt_addr24;
+  Render_gPacketPtr = prim + 0x18;
   color_word = *(int *)color;
   prim[3] = 5;
   *(int *)(prim + 4) = color_word;
@@ -1313,16 +1311,15 @@ void Flare_QuadNotTransparent(long *pt,CVECTOR *color,int otz)
 
 {
   int color_word;
-  u_int *puVar1;
   int pkt_addr24;
   u_char *prim;
-  
+
+  otz = otz * 4 + (int)Render_gPalettePtr;
   prim = Render_gPacketPtr;
-  puVar1 = (u_int *)(Render_gPalettePtr + otz * 4);
-  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *puVar1 & 0xffffff;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
   Render_gPacketPtr = prim + 0x18;
   pkt_addr24 = (u_int)prim & 0xffffff;
-  *puVar1 = *puVar1 & 0xff000000 | pkt_addr24;
+  *(u_int *)otz = *(u_int *)otz & 0xff000000 | pkt_addr24;
   color_word = *(int *)color;
   prim[3] = 5;
   *(int *)(prim + 4) = color_word;
@@ -1340,14 +1337,13 @@ void Flare_QuadRing(long *pt,CVECTOR *color,int otz)
 {
   int innerColor;
   int outerColor;
-  u_int *puVar1;
   void *prev_pkt_slot;
   u_char *prim;
-  
+
+  otz = otz * 4 + (int)Render_gPalettePtr;
   prim = Render_gPacketPtr;
-  puVar1 = (u_int *)(Render_gPalettePtr + otz * 4);
-  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *puVar1 & 0xffffff;
-  *puVar1 = *puVar1 & 0xff000000 | (u_int)prim & 0xffffff;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
+  *(u_int *)otz = *(u_int *)otz & 0xff000000 | (u_int)prim & 0xffffff;
   innerColor = *(int *)color;
   prev_pkt_slot = prim + 0xc;
   Render_gPacketPtr = prim + 0x24;
@@ -1369,25 +1365,20 @@ void Flare_QuadRing(long *pt,CVECTOR *color,int otz)
 void Flare_TextureQuad(long *pt,CVECTOR *color,char type,int otz)
 
 {
-  u_long l3;
-  int shape_p;
+  Draw_tPixMap *shape_p;
   int pkt_addr24_b;
-  u_long l0;
   int color_word;
-  u_long l1;
   u_int uVar1;
-  u_long l2;
   u_int uVar2;
-  u_int *puVar3;
   int pkt_addr24;
   u_char *prim;
-  
+
+  otz = otz * 4 + (int)Render_gPalettePtr;
   prim = Render_gPacketPtr;
-  puVar3 = (u_int *)(Render_gPalettePtr + otz * 4);
-  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *puVar3 & 0xffffff;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
   Render_gPacketPtr = prim + 0x28;
   pkt_addr24 = (u_int)prim & 0xffffff;
-  *puVar3 = *puVar3 & 0xff000000 | pkt_addr24;
+  *(u_int *)otz = *(u_int *)otz & 0xff000000 | pkt_addr24;
   color_word = *(int *)color;
   prim[3] = 9;
   *(int *)(prim + 4) = color_word;
@@ -1396,10 +1387,10 @@ void Flare_TextureQuad(long *pt,CVECTOR *color,char type,int otz)
   *(long *)(prim + 0x10) = pt[1];
   *(long *)(prim + 0x18) = pt[2];
   *(long *)(prim + 0x20) = pt[3];
-  shape_p = (int)&gFlarePixmap[(u_char)type];
-  uVar1 = *(u_int *)(shape_p + 4);
-  uVar2 = *(u_int *)(shape_p + 8);
-  pkt_addr24_b = *(int *)(shape_p + 0xc);
+  shape_p = gFlarePixmap[(u_char)type];
+  uVar1 = *(u_int *)((char *)shape_p + 4);
+  uVar2 = *(u_int *)((char *)shape_p + 8);
+  pkt_addr24_b = *(int *)((char *)shape_p + 0xc);
   *(u_int *)(prim + 0xc) = *(u_int *)shape_p;
   *(u_int *)(prim + 0x14) = uVar1;
   *(u_int *)(prim + 0x1c) = uVar2;
@@ -1822,44 +1813,19 @@ gte_SetRotMatrix(&scalemat);
 void Flare_Moon(SVECTOR *worldPos,Draw_FlareCache *sd)
 
 {
-  char i2;
-  int dvz;
   DVECTOR *xy;
   int pshift;
-  int dz;
-  char index;
-  int height2;
-  int width2;
-  int difx;
-  int flare_type;
-  int sizeOuter;
-  int flags;
-  char flareVis;
-  int angleZ;
-  int sy;
-  int cent;
-  SVECTOR sdiff;
-  SVECTOR sdiff2;
-  DVECTOR sp;
-  DVECTOR pxy;
-  CVECTOR save;
-  CVECTOR col;
-  MATRIX mtx2;
-  DVECTOR npt [2];
   VECTOR diff;
   CVECTOR color;
   DVECTOR posOnScreen;
-  
-  (*(u_short *)&(pshift)) = 0x78;
+
+  pshift = 0x78;
   if (GameSetup_gData.commMode == 1) {
-    (*(u_short *)&(pshift)) = 0x3c;
+    pshift = 0x3c;
   }
 gte_ldv0(worldPos);
   gte_rtps();
-  color.r = 0x80;
-  color.g = 0x80;
-  color.b = 0x80;
-  color.cd = '\0';
+  *(u_int *)&color = 0x808080;
 gte_stlvnl(&diff);
   xy = &posOnScreen;
 gte_swc2(0xe,&posOnScreen);

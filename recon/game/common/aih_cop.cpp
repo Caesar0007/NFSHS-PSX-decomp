@@ -10,6 +10,9 @@
 #include "aih_cop_externs.h"
 
 extern int AI_elapsedTime;   /* H22: ai.cpp @0x8013C554 (not in this TU's externs) */
+extern int D_8011E0B0[];   /* == &simGlobal.gameTicks (distinct alias symbol the oracle addresses
+                              directly for a gameTicks re-read the compiler can't CSE against the
+                              nearby simGlobal.gameTicks store -- see aih_basiccop.cpp/aiphysic.cpp) */
 
 /* ---- aistate.obj-owned globals (.bss zero) ---- */
 int          *AIHigh_Cop_HighExecute_jt[11];   /* @0x8005516c */
@@ -185,6 +188,12 @@ void AIHigh_Cop::HighExecute()
   switch(this->stateType_) {
 
   case 0:
+    {
+    AIState_Base *newState;
+
+    AIState_Base *oldState;
+
+    stateType_t newStateType;
 
     this->AssignToPlayer((AIHigh_Player *)0x0);
 
@@ -196,47 +205,48 @@ void AIHigh_Cop::HighExecute()
 
       pAVar11 = operator new(8);
 
-      pAVar14 = (AIState_Base *) (new(pAVar11) AIState_Purgatory(this->carObj_));
+      newState = (AIState_Base *) (new(pAVar11) AIState_Purgatory(this->carObj_));
 
-      pAVar22 = this->state_;
+      oldState = this->state_;
 
-      if (pAVar22 != (AIState_Base *)0x0) {
+      if (oldState != (AIState_Base *)0x0) {
 
-        (*(int (**)(...))((char *)pAVar22->_vf + 20))((int)&pAVar22->carObj_ + (int)*(short *)((char *)pAVar22->_vf + 16),3);
+        (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
 
       }
 
-      sVar15 = 1;
+      newStateType = 1;
 
     }
 
     else {
 
-      pAVar14 = operator new(0x10);
+      newState = operator new(0x10);
 
-      (new(pAVar14) AIState_Base(this->carObj_));
+      (new(newState) AIState_Base(this->carObj_));
 
-      pAVar14->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
+      newState->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
 
-      pAVar14[1]._vf = (__vtbl_ptr_type (*) [4])0x1;
+      newState[1]._vf = (__vtbl_ptr_type (*) [4])0x1;
 
-      pAVar22 = this->state_;
+      oldState = this->state_;
 
-      if (pAVar22 != (AIState_Base *)0x0) {
+      if (oldState != (AIState_Base *)0x0) {
 
-        (*(int (**)(...))((char *)pAVar22->_vf + 20))((int)&pAVar22->carObj_ + (int)*(short *)((char *)pAVar22->_vf + 16),3);
+        (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
 
       }
 
-      sVar15 = 3;
+      newStateType = 3;
 
     }
 
-    this->state_ = pAVar14;
+    this->state_ = newState;
 
-    this->stateType_ = sVar15;
+    this->stateType_ = newStateType;
 
     return;
+    }
 
   case 1:
 
@@ -1372,6 +1382,14 @@ LAB_80064778:
 
     break;
 
+  case 6:
+
+  case 7:
+
+  case 8:
+
+  case 10:
+
   default:
 
     goto stateExecuteAndReturn;
@@ -1430,29 +1448,29 @@ int AIHigh_Cop::CheckForNeedyPlayers()
 
 
 {
-  int iVar1;
+  int needy;
 
-  int iVar2;
+  int hLoop;
+
+  Car_tObj *thisPlayerObj;
+
+  int iVar1;
 
   Car_tObj **ppCVar3;
 
-  int iVar4;
-
-  int iVar5;
 
 
-
-  iVar5 = -1;
+  needy = -1;
 
   ppCVar3 = Cars_gHumanRaceCarList;
 
-  for (iVar4 = 0; iVar4 < Cars_gNumHumanRaceCars; iVar4 = iVar4 + 1) {
+  for (hLoop = 0; hLoop < Cars_gNumHumanRaceCars; hLoop = hLoop + 1) {
 
-    iVar2 = (*ppCVar3)->carIndex;
+    thisPlayerObj = *ppCVar3;
 
-    if (800 < (int)highLevelAIObjs[iVar2][7].state_) {
+    if (800 < (int)highLevelAIObjs[thisPlayerObj->carIndex][7].state_) {
 
-      iVar1 = (*ppCVar3)->currentSpeed;
+      iVar1 = thisPlayerObj->currentSpeed;
 
       if (iVar1 < 0) {
 
@@ -1462,7 +1480,7 @@ int AIHigh_Cop::CheckForNeedyPlayers()
 
       if (0x140000 < iVar1) {
 
-        iVar5 = iVar2;
+        needy = thisPlayerObj->carIndex;
 
       }
 
@@ -1472,7 +1490,7 @@ int AIHigh_Cop::CheckForNeedyPlayers()
 
   }
 
-  return iVar5;
+  return needy;
 
 }
 
@@ -1512,7 +1530,7 @@ void AIHigh_Cop::CheckForWipeOut()
 
       ((((pAVar3)->carObj_)->carFlags & 8U) != 0)) &&
 
-     ((this->carObj_)->wipeOutEndTick <= simGlobal.gameTicks)) {
+     ((this->carObj_)->wipeOutEndTick <= D_8011E0B0[0])) {
 
     iVar2 = (pAVar3->perpChaseInfo_).engagementTime_;
 
@@ -1533,25 +1551,44 @@ LAB_800654b8:
   iVar2 = 0;
 
   if (!bVar1) {
-    int       randVal, thisTargetLevel, perTickProb;
-    Car_tObj *copCar = this->carObj_;
+    int perTickProb;
 
-    /* H22: reconstructed pre-loop RNG/threshold + per-human-race-car wipe-out roll
-       (oracle 0x800654C0-0x8006559C; recon had an EMPTY loop -> cop never scheduled a wipe-out). */
-    thisTargetLevel = *(int *)((char *)*(int **)((char *)this + 88) + 148);  /* $t0 = *(148 + *(88+this)) 0x800654F4/65514 */
-    randtemp   = fastRandom * randSeed;                                      /* 0x800654E0 / 65528 */
-    fastRandom = randtemp & 0xffff;                                          /* 0x8006552C-34 */
-    randVal    = (int)((randtemp >> 8) & 0xffff);                            /* $a0 = (randtemp>>8)&0xffff 0x8006551C-20 */
-    perTickProb = AI_elapsedTime * 89;                                       /* $t1+$a2 = ae*88 + ae 0x80065500-510 / 65574 */
+    int randVal;
 
-    for (iVar2 = 0; iVar2 < Cars_gNumHumanRaceCars; iVar2 = iVar2 + 1) {     /* 0x80065538 */
-      Car_tObj    *carObj_h = Cars_gHumanRaceCarList[iVar2];                 /* *(int*)$a1 0x80065544 */
-      AIHigh_Base *aiObj    = highLevelAIObjs[*(int *)((char *)carObj_h + 596)]; /* highLevelAIObjs[carIndex] 0x8006554C-5C */
-      if (thisTargetLevel < *(int *)((char *)aiObj + 148) &&                 /* state, 0x80065564-6C */
-          randVal < perTickProb) {                                          /* 0x80065574-7C */
-        copCar->wipeOutEndTick = simGlobal.gameTicks + 0x280;               /* 0x80065584-90 */
+    int thisTargetLevel;
+
+    int hLoop;
+
+    Car_tObj *thisPlayerObj;
+
+    AIHigh_Player *thisPlayer;
+
+    randtemp = fastRandom * randSeed;
+
+    perTickProb = AI_elapsedTime * 89;
+
+    thisTargetLevel = (this->perpTarget_->perpChaseInfo_).chaseLevelIndex_;
+
+    randVal = (int)((randtemp >> 8) & 0xffff);
+
+    fastRandom = randtemp & 0xffff;
+
+    for (hLoop = 0; hLoop < Cars_gNumHumanRaceCars; hLoop = hLoop + 1) {
+
+      thisPlayerObj = Cars_gHumanRaceCarList[hLoop];
+
+      thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisPlayerObj->carIndex];
+
+      if (thisTargetLevel < (thisPlayer->perpChaseInfo_).chaseLevelIndex_ &&
+
+          randVal < perTickProb) {
+
+        (this->carObj_)->wipeOutEndTick = simGlobal.gameTicks + 0x280;
+
       }
+
     }
+
   }
 
   return;
@@ -1581,8 +1618,6 @@ int AIHigh_Cop::CheckForNewTarget()
   int iVar4;
 
   AIHigh_Player *pAVar5;
-
-  Car_tObj **ppCVar6;
 
   int iVar7;
 
@@ -1616,11 +1651,9 @@ int AIHigh_Cop::CheckForNewTarget()
 
   }
 
-  ppCVar6 = Cars_gRaceCarList;
-
   for (iVar7 = 0; iVar7 < Cars_gNumRaceCars; iVar7 = iVar7 + 1) {
 
-    pAVar5 = (AIHigh_Player *)highLevelAIObjs[(*ppCVar6)->carIndex];
+    pAVar5 = (AIHigh_Player *)highLevelAIObjs[Cars_gRaceCarList[iVar7]->carIndex];
 
     iVar4 = 0;
 
@@ -1660,19 +1693,15 @@ int AIHigh_Cop::CheckForNewTarget()
 
     }
 
-    ppCVar6 = ppCVar6 + 1;
-
   }
 
   iVar7 = 0;
 
   if (target == (AIHigh_Player *)0x0) {
 
-    ppCVar6 = Cars_gRaceCarList;
-
     for (; iVar7 < Cars_gNumRaceCars; iVar7 = iVar7 + 1) {
 
-      pAVar5 = (AIHigh_Player *)highLevelAIObjs[(*ppCVar6)->carIndex];
+      pAVar5 = (AIHigh_Player *)highLevelAIObjs[Cars_gRaceCarList[iVar7]->carIndex];
 
       iVar4 = AIWorld_ApxSplineDistance(this->carObj_,
 
@@ -1691,8 +1720,6 @@ int AIHigh_Cop::CheckForNewTarget()
         iVar8 = iVar4;
 
       }
-
-      ppCVar6 = ppCVar6 + 1;
 
     }
 
@@ -1787,7 +1814,7 @@ int AIHigh_Cop::GetCheckChasePosition(coorddef *pos)
 {
   int changed;
 
-  int iVar2;
+  int newPosition;
 
   int iVar3;
 
@@ -1799,27 +1826,25 @@ int AIHigh_Cop::GetCheckChasePosition(coorddef *pos)
 
   changed = 0;
 
-  iVar2 = ((AIHigh_BasicPerp *)this->perpTarget_)->CheckChaserPosition(this->copIndex_,
+  newPosition = ((AIHigh_BasicPerp *)this->perpTarget_)->CheckChaserPosition(this->copIndex_,
 
                      (this->carObj_)->carIndex);
 
-  if (iVar2 != this->chaseIndex_) {
+  if (newPosition != this->chaseIndex_) {
 
-    this->chaseIndex_ = iVar2;
+    this->chaseIndex_ = newPosition;
 
     changed = 1;
 
   }
 
-  iVar2 = this->chaseIndex_;
-
   iVar3 = this->aggressionLevel_;
 
-  iVar4 = AIH_Cop_chasePositions[iVar3][iVar2].y;   /* H23: per-aggression stride is 72B = one [6] row; the `*2` (->144B) read OOB for aggression 2 (oracle 0x800658F0 a1*72) */
+  iVar4 = AIH_Cop_chasePositions[iVar3][this->chaseIndex_].y;   /* H23: per-aggression stride is 72B = one [6] row; the `*2` (->144B) read OOB for aggression 2 (oracle 0x800658F0 a1*72) */
 
-  iVar5 = AIH_Cop_chasePositions[iVar3][iVar2].z;
+  iVar5 = AIH_Cop_chasePositions[iVar3][this->chaseIndex_].z;
 
-  pos->x = AIH_Cop_chasePositions[iVar3][iVar2].x;
+  pos->x = AIH_Cop_chasePositions[iVar3][this->chaseIndex_].x;
 
   pos->y = iVar4;
 

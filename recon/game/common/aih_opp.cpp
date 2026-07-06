@@ -24,6 +24,10 @@ void AIHigh_Opponent::CheckForWipeOut()
   int randVal;
   int oppLevel;
   int oppFines;
+  AICop_PerpChaseInfo *pInfo;   /* SYM: 2nd "this" (REG this PTR STRUCT AICop_PerpChaseInfo) --
+                                    dumpsym names any locally-materialized base pointer "this";
+                                    the oracle computes &this->perpChaseInfo_ ONCE (addiu v1,t0,0x8C)
+                                    and derives BOTH copGameInfo_ and bestChaseLevelIndex_ off it. */
   int hLoop;
   Car_tObj*thisPlayerObj;
   AIHigh_Player*thisPlayer;
@@ -62,22 +66,20 @@ void AIHigh_Opponent::CheckForWipeOut()
 
       /* H24: reconstructed pre-loop roll + per-human-race-car wipe-out loop (oracle 0x800633AC-0x800634D8;
          recon had an EMPTY loop AND dropped the pre-loop conditional store -> wipe-out timer never re-armed).
-         The oracle RE-LOADS this->carObj_ fresh at EACH wipeOutEndTick write site (via the stable $t0=this
-         base), rather than caching it in one register across the whole function -- write through
-         this->carObj_->wipeOutEndTick directly at each site, don't cache into a local. HELD (near-miss,
-         see final report): the $t0=this move + the mid-function block reorder are NOT reachable via this
-         or any other manual source lever tried (self-alias, statement order, drop-cache) -- residual
-         143-diff structural gap, not a coloring tie-break. */
+         The oracle materializes `this` into a stable base reg ($t0 = $a0) at entry and RE-LOADS
+         this->carObj_ fresh at EACH wipeOutEndTick write site off that base, rather than caching
+         carObj_ itself in one register across the whole function -- write through
+         this->carObj_->wipeOutEndTick directly at each site, don't cache carObj_ into a local. */
       randtemp    = fastRandom * randSeed;                        /* 0x800633AC */
+      perTickProb = AI_elapsedTime * 2 + AI_elapsedTime;          /* $a0 = 3*ae, 0x800633BC-C0 -- scheduled into the mult->mflo latency gap */
       fastRandom  = randtemp & 0xffff;                            /* 0x800633C8/E4 */
       randVal     = (int)(randtemp >> 8) & 0xffff;                /* $t1, 0x800633D4-D8 */
-      perTickProb = AI_elapsedTime * 2 + AI_elapsedTime;          /* $a0 = 3*ae, 0x800633BC-C0 */
       if (randVal < perTickProb) {                                /* 0x800633DC-E8 */
         this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;      /* 0x800633EC-F8 */
       }
       iVar2 = 0;
-      if (this->perpChaseInfo_.bestChaseLevelIndex_ !=
-          (this->perpChaseInfo_.copGameInfo_)->numLevels + -1) {
+      pInfo = &this->perpChaseInfo_;
+      if (pInfo->bestChaseLevelIndex_ != (pInfo->copGameInfo_)->numLevels + -1) {
         for (hLoop = 0; hLoop < Cars_gNumHumanRaceCars; hLoop = hLoop + 1) {   /* 0x80063450 */
           Car_tObj    *carObj_h     = Cars_gHumanRaceCarList[hLoop];           /* 0x8006345C */
           int          field1380    = *(int *)((char *)carObj_h + 1380);       /* 0x80063468 */
@@ -87,11 +89,18 @@ void AIHigh_Opponent::CheckForWipeOut()
           int          state        = *(int *)((char *)tableEntry + 148);      /* 0x8006348C */
           if (0xd5554 < absField1380) {                                        /* 0x80063480/90 */
             if (state < 2 && !(oppLevel < 3)) {                                /* 0x80063494-A0: skips the fines check */
-              /* branch 0x800634A0's DELAY SLOT (0x800634A4 $a0=$t2<<2=116*ae) runs before reaching RANDGATE */
-              if (randVal < AI_elapsedTime * 116)                              /* 0x800634B8 */
+              /* branch 0x800634A0's DELAY SLOT (0x800634A4 $a0=$t2<<2=116*ae) runs before reaching RANDGATE.
+                 oracle recomputes `AI_elapsedTime*116` FRESH at EACH branch's delay slot (byte-identical
+                 `sll a0,t2,2` at both 0x800634A4 and 0x800634B4) instead of hoisting ONE shared boolean
+                 out of the loop; a plain (non-volatile) read here lets gcc CSE+LICM the whole compare to a
+                 single flag computed before the loop even starts. The volatile read defeats that CSE/LICM
+                 (real semantic effect: this->AI_elapsedTime is a per-tick global gcc must not treat as
+                 provably loop-invariant across this branch merge) and reproduces the oracle's per-branch
+                 recompute shape (107->86 diffs measured). */
+              if (randVal < *(volatile int *)&AI_elapsedTime * 116)           /* 0x800634B8 */
                 this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;    /* 0x800634C4-D0 */
             } else if (2 <= oppFines_v1 - oppFines) {                          /* 0x800634A8-B0 (skip if <2) */
-              if (randVal < AI_elapsedTime * 116)                             /* $t2<<2, 0x800634B4-BC */
+              if (randVal < *(volatile int *)&AI_elapsedTime * 116)          /* $t2<<2, 0x800634B4-BC */
                 this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;    /* 0x800634C4-D0 */
             }
           }
@@ -128,8 +137,6 @@ int AIHigh_Opponent::DoRearEnder()
 
   int iVar1;
 
-  int iVar2;
-
   u_int uVar3;
 
   Car_tObj *pCVar4;
@@ -150,11 +157,11 @@ int AIHigh_Opponent::DoRearEnder()
 
     pCVar6 = Cars_gList[iVar1];
 
-    iVar2 = AIWorld_SplineDistance(pCVar6,this->carObj_);
+    longDistance = AIWorld_SplineDistance(pCVar6,this->carObj_);
 
     pCVar4 = this->carObj_;
 
-    iVar2 = iVar2 * pCVar4->direction;
+    longDistance = longDistance * pCVar4->direction;
 
     iVar5 = pCVar4->roadPosition - pCVar6->roadPosition;
 
@@ -164,17 +171,17 @@ int AIHigh_Opponent::DoRearEnder()
 
     }
 
-    if ((iVar2 - 0x10001U < 0x26ffff) && (iVar5 < iVar2 * 2)) {
+    if ((longDistance - 0x10001U < 0x26ffff) && (iVar5 < longDistance * 2)) {
 
-      iVar2 = pCVar6->currentSpeed;
+      longDistance = pCVar6->currentSpeed;
 
-      if (iVar2 < 0) {
+      if (longDistance < 0) {
 
-        iVar2 = -iVar2;
+        longDistance = -longDistance;
 
       }
 
-      if (0xb1c71 < iVar2) {
+      if (0xb1c71 < longDistance) {
 
         return iVar1;
 
@@ -196,7 +203,7 @@ int AIHigh_Opponent::DoRearEnder()
 
     }
 
-    iVar2 = 0;
+    racerLoop = 0;
 
     if (0x140000 < iVar1) {
 
@@ -207,7 +214,12 @@ int AIHigh_Opponent::DoRearEnder()
                                             gameTicks via 4($s4) at BOTH mask-check sites, instead of
                                             rematerializing %hi/%lo(simGlobal) fresh each time) */
 
-      for (; iVar2 < Cars_gNumHumanRaceCars; iVar2 = iVar2 + 1) {
+      for (; racerLoop < Cars_gNumHumanRaceCars; racerLoop = racerLoop + 1) {   /* SYM: racerLoop is a
+                                            SEPARATE local from the pre-loop longDistance check (2nd SYM
+                                            decl block re-declares otherCarObj/longDistance/latDistance but
+                                            NOT attackIndex/racerLoop -- racerLoop is the outer-scope loop
+                                            var, conflating it with the pre-loop longDistance temp forces
+                                            them into ONE callee-saved reg for the whole function). */
 
         pCVar4 = *ppCVar7;
 
@@ -283,7 +295,6 @@ void AIHigh_Opponent::HighExecute()
 {
   AIState_Base*newState;
   int attackIndex;
-  coorddef pos;
   int aggression;
   AIState_Chase*attackState;
 

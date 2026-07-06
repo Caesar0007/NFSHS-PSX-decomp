@@ -1582,6 +1582,30 @@ int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
 void DrawW_SetAnimationTime(Trk_AnimateInst *animInst,int *table,int time)
 
 {
+  /* MATCH (2026-07-06, was 97 diffs 71-vs-80 insns -> 57 diffs 75-vs-80 insns): three
+     combined fixes vs the previous shape (which read the SAME condition via `piVar2`
+     for the inner early-out check, letting gcc CSE it into ONE load): (1) the inner
+     `0 < *piVar2` re-reads `animation_timer[iVar3]` directly (a SECOND, non-CSE'd
+     array access) instead of through `*piVar2` -- the oracle reloads from memory
+     there (register $v0 was consumed by the outer `slti` and never saved), so the
+     source must independently re-express the same read to block the CSE; (2) the
+     if/else bodies are SWAPPED (test inverted to `0xf00 < animation_timer[iVar3]`)
+     to match the oracle's branch polarity -- oracle lays out the >=0xf01 (no-early-
+     return) arm as the FALL-THROUGH and the <0xf01 (early-return) arm as the branch
+     TARGET, opposite of the natural `if(<0xf01){...} else {...}` order; (3) each
+     `Cars_gNumHumanRaceCars` global load moved INTO its own if/else arm (the oracle
+     never hoists it before the branch -- both arms load it independently right
+     before their `for` loop). RESIDUAL (57 diffs): both `for` loops still emit
+     gcc's default duplicated-test loop shape (test at top AND bottom, conditional
+     `bnez` back-edge) where the oracle rotates to a SINGLE shared test with an
+     unconditional `j` back-edge -- tried converting each loop to the goto-skip-to-
+     test do-while idiom that cracked this shape elsewhere (DrawW_kCtrlWorld_High):
+     it DOES flip the rotation and reaches the oracle's EXACT 80-insn count, but
+     regresses the diff count (62, then 116 with both loops converted) via a
+     register cascade through the shared `iVar1`/`ppCVar5`/`table[iVar3*2]` loop-
+     invariant terms -- reverted, the un-rotated 57-diff form is strictly better.
+     Same loop-rotation-direction floor as DrawW_StripDraw_High/DrawW_kCtrlWorld_High;
+     not reachable here without a wider regression; permuter or accept. */
   int objIndex;
   int iVar1;
   int *piVar2;
@@ -1592,30 +1616,31 @@ void DrawW_SetAnimationTime(Trk_AnimateInst *animInst,int *table,int time)
   int i;
   int iVar6;
   
-  iVar1 = Cars_gNumHumanRaceCars;
   iVar3 = animInst->objectIndex - 1;
-  if (animation_timer[iVar3] < 0xf01) {
-    piVar2 = animation_timer + iVar3;
-    iVar6 = 0;
-    if (0 < *piVar2) {
-      *piVar2 = *piVar2 + 1;
-      return;
-    }
-    ppCVar5 = Cars_gHumanRaceCarList;
-    for (; iVar6 < iVar1; iVar6 = iVar6 + 1) {
-      iVar4 = (int)((*ppCVar5)->N).simRoadInfo.slice;
-      if ((table[iVar3 * 2] <= iVar4) && (iVar4 <= (table + iVar3 * 2)[1])) {
-        *piVar2 = *piVar2 + 1;
-      }
-      ppCVar5 = ppCVar5 + 1;
-    }
-  }
-  else {
+  if (0xf00 < animation_timer[iVar3]) {
+    iVar1 = Cars_gNumHumanRaceCars;
     ppCVar5 = Cars_gHumanRaceCarList;
     for (iVar6 = 0; iVar6 < iVar1; iVar6 = iVar6 + 1) {
       iVar4 = (int)((*ppCVar5)->N).simRoadInfo.slice;
       if ((iVar4 < table[iVar3 * 2]) || ((table + iVar3 * 2)[1] < iVar4)) {
         animation_timer[iVar3] = 0;
+      }
+      ppCVar5 = ppCVar5 + 1;
+    }
+  }
+  else {
+    piVar2 = animation_timer + iVar3;
+    iVar6 = 0;
+    if (0 < animation_timer[iVar3]) {
+      *piVar2 = *piVar2 + 1;
+      return;
+    }
+    iVar1 = Cars_gNumHumanRaceCars;
+    ppCVar5 = Cars_gHumanRaceCarList;
+    for (; iVar6 < iVar1; iVar6 = iVar6 + 1) {
+      iVar4 = (int)((*ppCVar5)->N).simRoadInfo.slice;
+      if ((table[iVar3 * 2] <= iVar4) && (iVar4 <= (table + iVar3 * 2)[1])) {
+        *piVar2 = *piVar2 + 1;
       }
       ppCVar5 = ppCVar5 + 1;
     }

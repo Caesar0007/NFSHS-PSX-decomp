@@ -62,58 +62,49 @@ void Hrz_BuildHorizon(DRender_tView *Vi);
 void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *percentage,int n,int bPercentageArray)
 
 {
-  int iVar1;
-  int iVar2;
-  short *pScOut;
-  int p;
   int i;
-  int iVar3;
-  
-  pScOut = (short *)sc;
-  if (bPercentageArray == 0) {
-    iVar3 = *percentage;
-    iVar1 = 0;
+  int p;
+
+  if (bPercentageArray != 0) {
     if (0 < n) {
+      i = 0;
       do {
-        iVar2 = iVar3 * ((int)s1->vx - (int)s0->vx);
-        if (iVar2 < 0) {
-          iVar2 = iVar2 + 0xffff;
+        p = *percentage * ((int)s1->vx - (int)s0->vx);
+        if (p < 0) {
+          p = p + 0xffff;
         }
-        *pScOut = s0->vx + (short)((u_int)iVar2 >> 0x10);
-        iVar2 = iVar3 * ((int)s1->vy - (int)s0->vy);
-        if (iVar2 < 0) {
-          iVar2 = iVar2 + 0xffff;
+        sc->vx = s0->vx + (short)(p >> 0x10);
+        p = *percentage * ((int)s1->vy - (int)s0->vy);
+        if (p < 0) {
+          p = p + 0xffff;
         }
-        pScOut[1] = s0->vy + (short)((u_int)iVar2 >> 0x10);
-        s0 = s0 + 1;
-        s1 = s1 + 1;
-        iVar1 = iVar1 + 1;
-        pScOut = pScOut + 2;
-      } while (iVar1 < n);
-      return;
-    }
-  }
-  else {
-    iVar3 = 0;
-    if (0 < n) {
-      do {
-        iVar1 = *percentage * ((int)s1->vx - (int)s0->vx);
-        if (iVar1 < 0) {
-          iVar1 = iVar1 + 0xffff;
-        }
-        *pScOut = s0->vx + (short)((u_int)iVar1 >> 0x10);
-        iVar1 = *percentage * ((int)s1->vy - (int)s0->vy);
-        if (iVar1 < 0) {
-          iVar1 = iVar1 + 0xffff;
-        }
-        pScOut[1] = s0->vy + (short)((u_int)iVar1 >> 0x10);
+        sc->vy = s0->vy + (short)(p >> 0x10);
         percentage = percentage + 1;
         s0 = s0 + 1;
         s1 = s1 + 1;
-        iVar3 = iVar3 + 1;
-        pScOut = pScOut + 2;
-      } while (iVar3 < n);
+        i = i + 1;
+        sc = sc + 1;
+      } while (i < n);
     }
+  }
+  else if (0 < n) {
+    i = 0;
+    do {
+      p = *percentage * ((int)s1->vx - (int)s0->vx);
+      if (p < 0) {
+        p = p + 0xffff;
+      }
+      sc->vx = s0->vx + (short)(p >> 0x10);
+      p = *percentage * ((int)s1->vy - (int)s0->vy);
+      if (p < 0) {
+        p = p + 0xffff;
+      }
+      sc->vy = s0->vy + (short)(p >> 0x10);
+      s0 = s0 + 1;
+      s1 = s1 + 1;
+      i = i + 1;
+      sc = sc + 1;
+    } while (i < n);
   }
   return;
 }
@@ -645,49 +636,45 @@ void Hrz_CalculateLightning(void)
 void Hrz_TextureQuad(DVECTOR *pt,char type,char bright,Draw_DCache *sd)
 
 {
-  u_long l3;
-  int pDVar1;
-  int pixmap_w3;
+  POLY_FT4 *prim;
   u_long l0;
   u_long l1;
-  u_int uVar1;
   u_long l2;
-  u_int uVar2;
-  int pkt_addr24;
-  u_char *cur_pkt;
-  u_char *prev_pkt;
-  void *prim;
-  
-  cur_pkt = (u_char *)Render_gPacketPtr;
-  prim = cur_pkt;
-  prev_pkt = (u_char *)Render_gPalettePtr;
-  *(u_int *)Render_gPacketPtr =
-       *(u_int *)Render_gPacketPtr & 0xff000000 |
-       *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
-  pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x28;
-  *(u_int *)(prev_pkt + sd->otz * 4) = *(u_int *)(prev_pkt + sd->otz * 4) & 0xff000000 | pkt_addr24;
-  cur_pkt[3] = 9;
-  cur_pkt[7] = 0x2e;
-  cur_pkt[6] = bright;
-  cur_pkt[5] = bright;
-  cur_pkt[4] = bright;
-  *(short *)(cur_pkt + 8) = pt->vx;
-  *(short *)(cur_pkt + 10) = pt->vy;
-  *(short *)(cur_pkt + 0x18) = pt->vx;
-  *(short *)(cur_pkt + 0x1a) = pt->vy + 0x10;
-  *(short *)(cur_pkt + 0x10) = pt->vx + 0x10;
-  *(short *)(cur_pkt + 0x12) = pt->vy;
-  *(short *)(cur_pkt + 0x20) = pt->vx + 0x10;
-  *(short *)(cur_pkt + 0x22) = pt->vy + 0x10;
-  pDVar1 = (int)&gLightningPixmap[(u_char)type];
-  uVar1 = *(u_int *)(pDVar1 + 4);
-  uVar2 = *(u_int *)(pDVar1 + 8);
-  pixmap_w3 = *(int *)(pDVar1 + 0xc);
-  *(u_int *)(cur_pkt + 0xc) = *(u_int *)pDVar1;
-  *(u_int *)(cur_pkt + 0x14) = uVar1;
-  *(u_int *)(cur_pkt + 0x1c) = uVar2;
-  *(int *)(cur_pkt + 0x24) = pixmap_w3;
+  u_long l3;
+  Draw_tPixMap *pmx;
+
+  prim = (POLY_FT4 *)Render_gPacketPtr;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
+  *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
+       *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | (u_int)prim & 0xffffff;
+  Render_gPacketPtr = (u_char *)prim + 0x28;
+  prim->code = 9;
+  prim->tpage = 0x2e;
+  prim->b0 = bright;
+  prim->g0 = bright;
+  prim->r0 = bright;
+  prim->x0 = pt->vx;
+  prim->y0 = pt->vy;
+  prim->x2 = pt->vx;
+  prim->y2 = pt->vy + 0x10;
+  prim->x1 = pt->vx + 0x10;
+  prim->y1 = pt->vy;
+  prim->x3 = pt->vx + 0x10;
+  prim->y3 = pt->vy + 0x10;
+  /* gLightningPixmap is genuinely `Draw_tPixMap *gLightningPixmap[16]` (array of POINTERS,
+     stride 4 -- see genericpmx.cpp, the owning TU); the hrzsku_externs.h extern's array-of-
+     structs shape is wrong (a shared-header issue, left as-is per policy) -- reinterpret the
+     address locally with the correct stride/indirection so the oracle's `sll a1,a1,2` (x4)
+     is reproduced instead of a wrong x16 struct-array stride. */
+  pmx = ((Draw_tPixMap **)&gLightningPixmap)[(u_char)type];
+  l0 = *(u_long *)pmx;
+  l1 = *(u_long *)((char *)pmx + 4);
+  l2 = *(u_long *)((char *)pmx + 8);
+  l3 = *(u_long *)((char *)pmx + 0xc);
+  *(u_long *)&prim->u0 = l0;
+  *(u_long *)&prim->u1 = l1;
+  *(u_long *)&prim->u2 = l2;
+  *(u_long *)&prim->u3 = l3;
   return;
 }
 
@@ -695,24 +682,19 @@ void Hrz_TextureQuad(DVECTOR *pt,char type,char bright,Draw_DCache *sd)
 void Hrz_SetLightingPosInSky(DRender_tView *Vi)
 
 {
-  u_int uVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
   coorddef forwardVec;
-  
-  iVar2 = (Vi->cview).mrotation.m[6];
-  iVar3 = (Vi->cview).mrotation.m[7];
-  iVar4 = (Vi->cview).mrotation.m[8];
+  u_int uVar1;
+
+  forwardVec = *(coorddef *)&(Vi->cview).mrotation.m[6];
   uVar1 = random();
   Hrz_gLightningPosInSky.vx =
-       (short)(iVar2 >> 2) + (short)uVar1 + (short)(uVar1 / 8000) * -8000 + -4000;
+       (short)(forwardVec.x >> 2) + (short)uVar1 + (short)(uVar1 / 8000) * -8000 + -4000;
   uVar1 = random();
   Hrz_gLightningPosInSky.vy =
-       (short)(iVar3 >> 2) + 8000 + (short)uVar1 + (short)(uVar1 / 3000) * -3000;
+       (short)(forwardVec.y >> 2) + 8000 + (short)uVar1 + (short)(uVar1 / 3000) * -3000;
   uVar1 = random();
   Hrz_gLightningPosInSky.vz =
-       (short)(iVar4 >> 2) + (short)uVar1 + (short)(uVar1 / 8000) * -8000 + -4000;
+       (short)(forwardVec.z >> 2) + (short)uVar1 + (short)(uVar1 / 8000) * -8000 + -4000;
   return;
 }
 
@@ -720,8 +702,8 @@ void Hrz_SetLightingPosInSky(DRender_tView *Vi)
 void Hrz_BuildForkLightning(Draw_DCache *sd)
 
 {
-  tHrz_LightningFork *fork;
   u_char i;
+  tHrz_LightningFork *fork;
   DVECTOR pos;
   DVECTOR screenPos;
   coorddef trans;
@@ -752,51 +734,31 @@ void Hrz_BuildForkLightning(Draw_DCache *sd)
 void Hrz_LightningFlicker(int on)
 
 {
-  CSkySpec *pCVar1;
-  CVECTOR *pCVar2;
   int i;
-  int iVar3;
-  
-  if (on == 0) {
-    Sky_gTrackSpec->frontcolors[0] = Hrz_gSaveCol[1];
-    Hrz_InitSkyColor();
-  }
-  else {
-    pCVar1 = Sky_gTrackSpec;
+
+  if (on != 0) {
     if (on == 1) {
       if (Night_gShowForks == '\0') {
-        iVar3 = 0x54;
-        pCVar2 = gSkyColor + 0x54;
-        pCVar1->frontcolors[0].r = 0xc0;
-        pCVar1->frontcolors[0].g = 0xc0;
-        pCVar1->frontcolors[0].b = 0xff;
-        pCVar1->frontcolors[0].cd = '\0';
+        *(u_int *)&Sky_gTrackSpec->frontcolors[0] = 0xffc0c0;
+        i = 0x54;
         do {
-          pCVar2->r = 0xc0;
-          pCVar2->g = 0xc0;
-          pCVar2->b = 0xff;
-          pCVar2->cd = '\0';
-          iVar3 = iVar3 + -1;
-          pCVar2 = pCVar2 + -1;
-        } while (-1 < iVar3);
+          *(u_int *)&gSkyColor[i] = 0xffc0c0;
+          i = i - 1;
+        } while (-1 < i);
       }
     }
     else if (Night_gShowForks == '\0') {
-      iVar3 = 0x54;
-      pCVar2 = gSkyColor + 0x54;
-      pCVar1->frontcolors[0].r = '(';
-      pCVar1->frontcolors[0].g = '(';
-      pCVar1->frontcolors[0].b = 0xc0;
-      pCVar1->frontcolors[0].cd = '\0';
+      *(u_int *)&Sky_gTrackSpec->frontcolors[0] = 0xc02828;
+      i = 0x54;
       do {
-        pCVar2->r = '(';
-        pCVar2->g = '(';
-        pCVar2->b = 0xc0;
-        pCVar2->cd = '\0';
-        iVar3 = iVar3 + -1;
-        pCVar2 = pCVar2 + -1;
-      } while (-1 < iVar3);
+        *(u_int *)&gSkyColor[i] = 0xc02828;
+        i = i - 1;
+      } while (-1 < i);
     }
+  }
+  else {
+    *(u_int *)&Sky_gTrackSpec->frontcolors[0] = *(u_int *)&Hrz_gSaveCol[1];
+    Hrz_InitSkyColor();
   }
   return;
 }
@@ -866,18 +828,13 @@ void Hrz_SetDitheringPrim(int dither,int otz)
 {
   DR_MODE *prim;
   u_int *prev_pkt_slot;
-  int pkt_addr24;
-  int loc_10;
-  int loc_8;
-  u_char *p;
-  
-  prev_pkt_slot = (u_int *)(Render_gPalettePtr + otz * 4);
-  p = (u_char *)Render_gPacketPtr;
-  *(u_int *)Render_gPacketPtr = *prev_pkt_slot & 0xffffff | *(u_int *)Render_gPacketPtr & 0xff000000;
-  Render_gPacketPtr = p + 0xc;
-  pkt_addr24 = (u_int)p & 0xffffff;
-  *prev_pkt_slot = *prev_pkt_slot & 0xff000000 | pkt_addr24;
-  SetDrawMode((DR_MODE *)p,0,dither,0x100,(RECT *)0x0);
+
+  prev_pkt_slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
+  prim = (DR_MODE *)Render_gPacketPtr;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *prev_pkt_slot & 0xffffff;
+  Render_gPacketPtr = (u_char *)prim + 0xc;
+  *prev_pkt_slot = *prev_pkt_slot & 0xff000000 | (u_int)prim & 0xffffff;
+  SetDrawMode(prim,0,dither,0x100,(RECT *)0x0);
   return;
 }
 

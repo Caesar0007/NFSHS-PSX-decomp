@@ -480,7 +480,7 @@ void tScreenPinkSlipCongrats::DrawCongratsMessage()
    * not an early-assigned `fade` local kept live across the if/else (that shared-liveness forced
    * the same register to also serve the branches' `1-fWinner` literal, an oracle mismatch). */
   FETextRender_WordWrapText
-            (fmt,&r,textState_Selected,textType_PostGame);
+            (fmt,r,textState_Selected,textType_PostGame);
   return;
 }
 
@@ -685,13 +685,13 @@ DrawCongrats_inlinedJoin084:
   /* @0x80049108/144/1C4: oracle reads `this->fScreenFadeVal` (lh a0,0x5C(s4)) fresh right before
    * EACH of the 3 calls below, not an uninitialized `int fade;` local. */
   if (firstmessage != 0) {
-    FETextRender_WordWrapTextFade((int)this->fScreenFadeVal,buffer1,&r,textState_Selected,textType_PostGame);
+    FETextRender_WordWrapTextFade((int)this->fScreenFadeVal,buffer1,r,textState_Selected,textType_PostGame);
     firstmessage = FETextRender_WordWrapHeight(r.w,buffer1);
     r.y = r.y + (short)firstmessage;
   }
   if (secondmessage != 0) {
     FETextRender_WordWrapTextFade
-              ((int)this->fScreenFadeVal,buffer2,&r,textState_Selected,textType_PostGame);
+              ((int)this->fScreenFadeVal,buffer2,r,textState_Selected,textType_PostGame);
   }
   GetAwardInformation(&tournamentManager,&tInfo);
   if (tInfo.fAwardCarGarageFull != 0) {
@@ -703,7 +703,7 @@ DrawCongrats_inlinedJoin084:
     sprintf(buffer,word,money);
     word = TextSys_Word(0x40);
     FETextRender_WordWrapTextFade
-              ((int)this->fScreenFadeVal,word,&r,textState_Selected,textType_PostGame);
+              ((int)this->fScreenFadeVal,word,r,textState_Selected,textType_PostGame);
   }
   return;
 }
@@ -865,7 +865,7 @@ void tScreenBeTheCopCongrats::DrawCongratsMessage()
   fmt = TextSys_Word(wordnum);
   copWord = TextSys_Word((signed char)this->fCarInfo.fCarID + 0x121);
   fmt = (char *)sprintf(buffer,fmt,copWord);
-  FETextRender_WordWrapText(fmt,&r,fade,textType_PostGame);
+  FETextRender_WordWrapText(fmt,r,fade,textType_PostGame);
   return;
 }
 
@@ -936,7 +936,7 @@ void tScreenTournamentCongrats::DrawCongratsMessage()
   fade = textState_Selected;
   GetAwardInformation(&tournamentManager,&tInfo);
   word = TextSys_Word((int)tInfo.fCompletedText);
-  FETextRender_WordWrapText(word,&r,fade,textType_PostGame);
+  FETextRender_WordWrapText(word,r,fade,textType_PostGame);
   if (tInfo.fCompletedGarageFull != 0) {
     /* @0x39F4C-58: oracle overwrites r.y/r.w here (NOT r.w/r.h) -- confirmed via the exact sp
      * offsets (0x12=r.y, 0x14=r.w), not a naive "next two fields" guess. */
@@ -946,7 +946,7 @@ void tScreenTournamentCongrats::DrawCongratsMessage()
     word = TextSys_Word(0x40);
     sprintf(buffer,word,money);
     word = TextSys_Word(0x40);
-    FETextRender_WordWrapText(word,&r,fade,textType_PostGame);
+    FETextRender_WordWrapText(word,r,fade,textType_PostGame);
   }
   return;
 }

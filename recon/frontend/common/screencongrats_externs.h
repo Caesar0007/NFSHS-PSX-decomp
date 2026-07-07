@@ -37,8 +37,8 @@ void  ScaleShapeExtended(int index, int flags, int x, int y, int fade, int abr, 
 void  FETextRender_FullTextRGB(char *s, short x, short y, int col, char size, short justify);
 void  FETextRender_MenuTextFade(int fade, short index, tMenuTextState st, tMenuTextType ty);
 int   FETextRender_WordWrapHeight(short width, char *str);
-void  FETextRender_WordWrapText(char *str, RECT *r, tMenuTextState st, tMenuTextType ty);
-void  FETextRender_WordWrapTextFade(int fade, char *str, RECT *r, tMenuTextState st, tMenuTextType ty);
+void  FETextRender_WordWrapText(char *str, RECT &r, tMenuTextState st, tMenuTextType ty);
+void  FETextRender_WordWrapTextFade(int fade, char *str, RECT &r, tMenuTextState st, tMenuTextType ty);
 short FeAudio_AsyncPlaySpeech(int type, int index);
 void  FeTools_FormatMoney(char *string, long amount);
 char *PlayerName(int player);

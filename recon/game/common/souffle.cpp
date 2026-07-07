@@ -58,16 +58,13 @@ void GetAngleWind(Souffle_tISouffle *is)
 void MoveAngleWind(Souffle_tISouffle *is)
 
 {
-  int iVar1;
-
-  iVar1 = is->aspeed;
-  is->angle = is->angle + iVar1;
-  if (iVar1 < -8) {
-    is->aspeed = iVar1 + 1;
+  is->angle = is->angle + is->aspeed;
+  if (is->aspeed < -8) {
+    is->aspeed = is->aspeed + 1;
     return;
   }
-  if (8 < iVar1) {
-    is->aspeed = iVar1 + -1;
+  if (8 < is->aspeed) {
+    is->aspeed = is->aspeed + -1;
   }
   return;
 }

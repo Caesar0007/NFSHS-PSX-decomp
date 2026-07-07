@@ -185,20 +185,17 @@ void Sched_Execute(Sched_tSchedule *schedule)
   int distanceIndex;
   int j;
   int n;
-  Sched_tSchedule *pSVar1;
   int i;
   int iVar2;
-  
+
   iVar2 = 0;
-  pSVar1 = schedule;
   if (0 < schedule->numFunctions) {
     do {
-      ppuVar1 = pSVar1->func[0].function;
+      ppuVar1 = schedule->func[iVar2].function;
       if (ppuVar1 != (void *)0x0) {
-        (*(fn_void *)ppuVar1)(pSVar1->func[0].var1);
+        (*(fn_void *)ppuVar1)(schedule->func[iVar2].var1);
       }
       iVar2 = iVar2 + 1;
-      pSVar1 = (Sched_tSchedule *)&pSVar1->func[0].var1;
     } while (iVar2 < schedule->numFunctions);
   }
   return;

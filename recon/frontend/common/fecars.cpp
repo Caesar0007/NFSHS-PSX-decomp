@@ -759,16 +759,17 @@ short tCarManager::GetNumOwnedCars(short playerNum)
   int i;
   int iVar2;
   short num;
+  int base;
 
   num = 0;
   i = 0;
-  iVar2 = (int)((u_int)(u_short)playerNum << 0x10) >> 9;
+  base = (int)((u_int)(u_short)playerNum << 0x10) >> 9;
   do {
+    iVar2 = base + i * 4;
     if (-1 < *(signed char *)((char *)this + iVar2 + 8)) {
       num = num + 1;
     }
     i = i + 1;
-    iVar2 = iVar2 + 4;
   } while (i < 0x20);
   return num;
 }
@@ -819,16 +820,17 @@ short tCarManager::GetNumPinkSlipsCars(short playerNum)
   int i;
   int iVar2;
   short num;
-  
+  int base;
+
   num = 0;
   i = 0;
-  iVar2 = (int)((u_int)(u_short)playerNum << 0x10) >> 9;
+  base = (int)((u_int)(u_short)playerNum << 0x10) >> 9;
   do {
+    iVar2 = base + i * 4;
     if (-1 < *(signed char *)((char *)this + iVar2 + 0x108)) {
       num = num + 1;
     }
     i = i + 1;
-    iVar2 = iVar2 + 4;
   } while (i < 0x20);
   return num;
 }

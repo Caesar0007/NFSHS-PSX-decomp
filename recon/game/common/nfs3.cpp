@@ -375,8 +375,8 @@ void NFS4_LoadingIcon(void)
   char fname [80];
   RECT r;
 
-  ldfile = (void *)sprintf(fname,"%sldic.psh",Paths_Paths[0x25]);
-  loadfileadr(fname,0);
+  sprintf(fname,"%sldic.psh",Paths_Paths[0x25]);
+  ldfile = loadfileadr(fname,0);
   lang = (int)(u_char)frontEnd.language;
   if (5 < lang) {
     lang = 0;

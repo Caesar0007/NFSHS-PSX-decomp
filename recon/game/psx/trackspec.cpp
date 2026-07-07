@@ -150,15 +150,19 @@ void read(char **handle,void *buf,int bytes)
 
 {
   char *source;
+  int new_var;
   int i;
+  char c;
 
   source = *handle;
   i = 0;
-  if (0 < bytes) {
+  new_var = 0;
+  if (new_var < bytes) {
     do {
-      *(char *)buf = *source;
+      c = *source;
       source = source + 1;
       i = i + 1;
+      *(char *)buf = c;
       buf = (char *)buf + 1;
     } while (i < bytes);
   }

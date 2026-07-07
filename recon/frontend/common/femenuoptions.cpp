@@ -12,12 +12,21 @@ int fHelpText = 0;            /* @0x800515b0 */
 static int flareextra = 0;     /* file-static */
 
 
+/* permuter-found register-materialization lever (score-0, iter 289): routing the
+ * ticks[0] read through an inline pointer-arg helper (vs a direct array index)
+ * changes how gcc schedules the two live copies of `ticks` needed by the signed
+ * %128 idiom below -- verified byte-exact via verify_asm, not just permuter score. */
+static inline int inline_fn(int *arg0)
+{
+  return arg0[0];
+}
+
 /* ---- CalcPulsateYellow  [FEMENUOPTIONS.CPP:77-82] SLD-VERIFIED ---- */
 void CalcPulsateYellow(void)
 {
   int pulsateval;
 
-  pulsateval = ticks[0] % 0x80;
+  pulsateval = inline_fn(ticks) % 0x80;
   if (0x40 < pulsateval) {
     pulsateval = 0x80 - pulsateval;
   }

@@ -1048,14 +1048,6 @@ tDialogHelp::~tDialogHelp()
 tDialogBase::~tDialogBase()
 
 {
-  int newWidth;
-  int card;
-  int x;
-  int numLetters;
-  u_int debounce;
-  char buffer [80];
-  RECT r;
-  
   return;
 }
 

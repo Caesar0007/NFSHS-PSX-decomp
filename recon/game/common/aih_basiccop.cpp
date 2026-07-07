@@ -78,7 +78,11 @@ void AIHigh_BasicCop::CheckSpikeBelt()
 
   if (AICop_spikeBelt.active_ != 0) {
 
-    freshenElapsed = 0x13f < simGlobal.gameTicks - AICop_spikeBelt.freshenTime_;
+    timeNow = D_8011E0B0[0];
+
+    timeNow -= AICop_spikeBelt.freshenTime_;
+
+    freshenElapsed = timeNow > 0x13f;
 
   }
 
@@ -135,6 +139,7 @@ int AIHigh_BasicCop::ShouldIPerformCutOffBlock(int chancePerSecond,Car_tObj *tar
   int chanceForElapsedTime;
   int chanceOutOf1000;
   int random1000;
+  int targetLatPosition;
   int relLatPosition;
   int absRelLatPosition;
   int metersBetween;
@@ -152,16 +157,20 @@ int AIHigh_BasicCop::ShouldIPerformCutOffBlock(int chancePerSecond,Car_tObj *tar
   random1000 = (int)((((randtemp >> 8) & 0xffff) * 1000) >> 16);           /* 0x8005C334-358 (randtemp u_int -> logical shifts) */
 
   if (random1000 < chanceOutOf1000) {                                      /* 0x8005C35C/360 */
-    relLatPosition = *(int *)((char *)target + 1396);
+    targetLatPosition = *(int *)((char *)target + 1396);
 
-    relLatPosition = *(int *)((char *)this->carObj_ + 1396) - relLatPosition;   /* 0x8005C36C-378 */
-    absRelLatPosition = (relLatPosition < 0) ? -relLatPosition : relLatPosition;   /* 0x8005C37C-384 */
+    relLatPosition = *(int *)((char *)this->carObj_ + 1396) - targetLatPosition;   /* 0x8005C36C-378 */
+    absRelLatPosition = __builtin_abs(relLatPosition);
     if ((*(int *)((char *)target + 308) + 0x10000) < absRelLatPosition &&  /* 0x8005C388-398 */
         absRelLatPosition <= 0x3FFFF) {                                    /* 0x8005C39C-3A8 */
       metersBetween = AIWorld_SplineDistance(this->carObj_, target);      /* 0x8005C3B0 */
       carLength = metersBetween * *(int *)((char *)this->carObj_ + 1364);  /* 0x8005C3B8-C8/DC */
       if ((*(int *)((char *)target + 316) * 2 + 0x20000) < carLength &&    /* 0x8005C3CC-E4 */
-          0xBFFFF < carLength) {                                          /* 0x8005C3E8-F4 */
+          carLength < 0xC0000) {   /* H18-fix: was `0xBFFFF < carLength` (wrong polarity/logic --
+                                       traced the beqz+delay-slot-1 idiom at 0x8005C3F4/F8: branch
+                                       TAKEN (v1==0) skips the v0-reset and returns the delay slot's
+                                       v0=1 -- so it's an UPPER-cap range check, not an open lower
+                                       bound; verify_asm PASS confirms) 0x8005C3E8-F4 */
         return 1;                                                          /* 0x8005C3F8 */
       }
     }

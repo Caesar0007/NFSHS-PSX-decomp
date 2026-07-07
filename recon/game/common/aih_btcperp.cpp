@@ -32,22 +32,19 @@ void AIHigh_BTC_Perp::ReleaseCops()
 
 
   carLoop = 0;
-  ppCVar2 = Cars_gList;
   while (true) {
 
     if (Cars_gNumCars <= carLoop) {
       break;
     }
 
-    otherCarObj = *ppCVar2;
+    otherCarObj = Cars_gList[carLoop];
 
     if (((otherCarObj->carFlags & 0x200U) != 0) && ((otherCarObj->N).active != '\0')) {
 
       ((AIHigh_BTC_HumanCop *)highLevelAIObjs[otherCarObj->carIndex])->ReleaseAndStartChase(this);
 
     }
-
-    ppCVar2 = ppCVar2 + 1;
 
     carLoop = carLoop + 1;
 
@@ -393,22 +390,19 @@ void AIHigh_BTC_Perp::NotifyCopsOfArrest()
   
 
   iVar3 = 0;
-  ppCVar2 = Cars_gList;
   while (true) {
 
     if (Cars_gNumCars <= iVar3) {
       break;
     }
 
-    pCVar1 = *ppCVar2;
+    pCVar1 = Cars_gList[iVar3];
 
     if (((pCVar1->carFlags & 0x220U) != 0) && ((pCVar1->N).active != '\0')) {
 
       ((AIHigh_BTC_Cop *)highLevelAIObjs[pCVar1->carIndex])->StartArrest(this);
 
     }
-
-    ppCVar2 = ppCVar2 + 1;
 
     iVar3 = iVar3 + 1;
 
@@ -444,22 +438,19 @@ void AIHigh_BTC_Perp::NotifyCopsOfArrestComplete()
   
 
   iVar3 = 0;
-  ppCVar2 = Cars_gList;
   while (true) {
 
     if (Cars_gNumCars <= iVar3) {
       break;
     }
 
-    pCVar1 = *ppCVar2;
+    pCVar1 = Cars_gList[iVar3];
 
     if (((pCVar1->carFlags & 0x220U) != 0) && ((pCVar1->N).active != '\0')) {
 
       ((AIHigh_BTC_Cop *)highLevelAIObjs[pCVar1->carIndex])->FinishArrest(this);
 
     }
-
-    ppCVar2 = ppCVar2 + 1;
 
     iVar3 = iVar3 + 1;
 
@@ -495,22 +486,19 @@ void AIHigh_BTC_Perp::NotifyCopsOfFalseArrest()
   
 
   iVar3 = 0;
-  ppCVar2 = Cars_gList;
   while (true) {
 
     if (Cars_gNumCars <= iVar3) {
       break;
     }
 
-    pCVar1 = *ppCVar2;
+    pCVar1 = Cars_gList[iVar3];
 
     if (((pCVar1->carFlags & 0x220U) != 0) && ((pCVar1->N).active != '\0')) {
 
       ((AIHigh_BTC_Cop *)highLevelAIObjs[pCVar1->carIndex])->FalseArrest(this);
 
     }
-
-    ppCVar2 = ppCVar2 + 1;
 
     iVar3 = iVar3 + 1;
 
@@ -546,14 +534,13 @@ void AIHigh_BTC_Perp::NotifyHumanCopsOfArrestHud()
   
 
   iVar3 = 0;
-  ppCVar2 = Cars_gList;
   while (true) {
 
     if (Cars_gNumCars <= iVar3) {
       break;
     }
 
-    pCVar1 = *ppCVar2;
+    pCVar1 = Cars_gList[iVar3];
 
     if (((pCVar1->carFlags & 0x200U) != 0) && ((pCVar1->N).active != '\0')) {
 
@@ -562,8 +549,6 @@ void AIHigh_BTC_Perp::NotifyHumanCopsOfArrestHud()
                  this->lastArrestingCop_);
 
     }
-
-    ppCVar2 = ppCVar2 + 1;
 
     iVar3 = iVar3 + 1;
 
@@ -652,17 +637,15 @@ AIHigh_BTC_Perp::CheckForActivation()
 
   iVar5 = 0;
 
-  ppCVar4 = Cars_gList;
-
-  do {
+  while (true) {
 
     if (Cars_gNumCars <= iVar5) {
 
-      return (AIHigh_BTC_HumanCop *)0x0;
+      break;
 
     }
 
-    pCVar1 = *ppCVar4;
+    pCVar1 = Cars_gList[iVar5];
 
     if (((pCVar1->carFlags & 0x200U) != 0) && ((pCVar1->N).active != '\0')) {
 
@@ -696,11 +679,11 @@ AIHigh_BTC_Perp::CheckForActivation()
 
     }
 
-    ppCVar4 = ppCVar4 + 1;
-
     iVar5 = iVar5 + 1;
 
-  } while( true );
+  }
+
+  return (AIHigh_BTC_HumanCop *)0x0;
 
 }
 

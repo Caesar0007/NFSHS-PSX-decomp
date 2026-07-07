@@ -177,6 +177,20 @@ def reduce_to_fn(text: str, target: str) -> str:
         r'^(\s*extern\b[^{};\n]*\([^()]*\));\s*$',
         lambda m: re.sub(r'\s*=\s*[^,()]+(?=[,)])', '', m.group(1)) + ';',
         result, flags=re.MULTILINE)
+    # C++ reference parameters `T &name` surviving in a KEPT top-level PROTOTYPE
+    # (a `<rettype> <name>(<params>);` forward-decl pulled from a shared externs
+    # header, e.g. `int f(char *s, RECT &r, int n);`) are C++ that pycparser can't
+    # parse -- and this breaks setup for EVERY fn in the TU, even ones that never
+    # call `f`. Lower `&`->`*` in the param list of such prototype lines only.
+    # Parse-only & codegen-neutral: CC1PLPSX diffs only the target fn, and these
+    # are sibling forward-decls it doesn't call (splat externs pull the whole
+    # module API). The `(?:word[\s*]+)+word(` prefix REQUIRES a return type before
+    # the fn name, so it can't match a call `foo(&bar);` (no rettype), an
+    # expression `a & b` (no `(...);`), or a definition `... ) {` (ends `{` not `;`).
+    result = re.sub(
+        r'^(\s*(?:[A-Za-z_]\w*[\s\*]+)+[A-Za-z_]\w*\s*\()([^;{}=]*&[^;{}=]*)(\)\s*;)\s*$',
+        lambda m: m.group(1) + m.group(2).replace('&', '*') + m.group(3),
+        result, flags=re.MULTILINE)
     return result
 
 

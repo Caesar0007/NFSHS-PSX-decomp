@@ -14,6 +14,7 @@ void tVideoWall::Initialize
 {
   short i;
 
+  i = 0;
   this->fTVs = tvs;
   this->fFirstTVShape = firstTV;
   this->fTVShapes = shapes;
@@ -30,7 +31,6 @@ void tVideoWall::Initialize
   this->fTVTicks = ticks;
   this->fFlipAxis = flip_axis;
   if (0 < this->fNumTVs) {
-    i = 0;
     do {
       this->fTVs[i].state = tv_StateOff;
       i = i + 1;
@@ -44,30 +44,23 @@ void tVideoWall::Initialize
 void tVideoWall::UpdateImages()
 
 {
-  int tv_i;
-  int iVar1;
-  short i;
-  int i_2;
-  
+  short i_2;
+
   i_2 = 0;
   if (0 < this->fNumTVs) {
-    tv_i = 0;
     do {
-      iVar1 = tv_i >> 0x10;
-      InitTV(this->fTVs + iVar1,this->fTVShapes,
-                 (short)(((uint)(ushort)this->fFirstTVShape + i_2) * 0x10000 >> 0x10));
-      this->fTVs[iVar1].x = this->fTVs[iVar1].x + this->fOffsetX;
-      this->fTVs[iVar1].y = this->fTVs[iVar1].y + this->fOffsetY;
+      InitTV(this->fTVs + i_2,this->fTVShapes,(short)(this->fFirstTVShape + i_2));
+      this->fTVs[i_2].x = this->fTVs[i_2].x + this->fOffsetX;
+      this->fTVs[i_2].y = this->fTVs[i_2].y + this->fOffsetY;
       if (0 < this->fFlipAxis) {
-        this->fTVs[iVar1].flags = this->fTVs[iVar1].flags | 4;
-        this->fTVs[iVar1].flip_axis = this->fFlipAxis;
+        this->fTVs[i_2].flags = this->fTVs[i_2].flags | 4;
+        this->fTVs[i_2].flip_axis = this->fFlipAxis;
       }
       if ((this->fValid == 0) || (this->fAvailable == 0)) {
-        this->fTVs[iVar1].flags = this->fTVs[iVar1].flags | 0x28;
+        this->fTVs[i_2].flags = this->fTVs[i_2].flags | 0x28;
       }
       i_2 = i_2 + 1;
-      tv_i = i_2 * 0x10000;
-    } while (i_2 * 0x10000 >> 0x10 < (int)this->fNumTVs);
+    } while (i_2 < this->fNumTVs);
   }
   this->fUpdated = 1;
   return;
@@ -139,48 +132,44 @@ void tVideoWall::SetValid(short valid)
 void tVideoWall::UpdateTransition()
 
 {
-  short sVar1;
-  int iVar2;
-  short j;
-  int iVar3;
+  int elapsed = (ticks - this->fTVTicks) >> 3;
   short i;
-  
-  sVar1 = (short)(ticks - this->fTVTicks >> 3);
-  if (this->fTransitionDirection < 1) {
-    iVar3 = 0;
+
+  if (0 < this->fTransitionDirection) {
+    if (this->fValid != 0) {
+      short sVar1 = (short)elapsed;
+      i = 0;
+      if (0 < sVar1) {
+        do {
+          if ((int)this->fNumTVs <= i) {
+            return;
+          }
+          if (((this->fTVs[this->tvOrder[i]].state == tv_StateOff) && (this->fValid != 0))
+             && (this->fAvailable != 0)) {
+            TurnOnTV(this->fTVs + this->tvOrder[i]);
+          }
+          i = i + 1;
+        } while (i < sVar1);
+      }
+    }
+    else {
+      this->fTVTicks = ticks;
+    }
+  }
+  else {
+    short sVar1 = (short)elapsed;
+    i = 0;
     if (0 < sVar1) {
-      iVar2 = 0;
       do {
-        if ((int)this->fNumTVs <= iVar2 >> 0x10) break;
-        if (this->fTVs[this->tvOrder[iVar2 >> 0x10]].state == tv_StateOn) {
-          TurnOffTV(this->fTVs + this->tvOrder[iVar2 >> 0x10]);
+        if ((int)this->fNumTVs <= i) break;
+        if (this->fTVs[this->tvOrder[i]].state == tv_StateOn) {
+          TurnOffTV(this->fTVs + this->tvOrder[i]);
         }
-        iVar3 = iVar3 + 1;
-        iVar2 = iVar3 * 0x10000;
-      } while (iVar3 * 0x10000 >> 0x10 < (int)sVar1);
+        i = i + 1;
+      } while (i < sVar1);
     }
     if (this->fNumTVs <= sVar1) {
       this->fTransitionDirection = 0;
-    }
-  }
-  else if (this->fValid == 0) {
-    this->fTVTicks = ticks;
-  }
-  else {
-    iVar3 = 0;
-    if (0 < sVar1) {
-      iVar2 = 0;
-      do {
-        if ((int)this->fNumTVs <= iVar2 >> 0x10) {
-          return;
-        }
-        if (((this->fTVs[this->tvOrder[iVar2 >> 0x10]].state == tv_StateOff) && (this->fValid != 0))
-           && (this->fAvailable != 0)) {
-          TurnOnTV(this->fTVs + this->tvOrder[iVar2 >> 0x10]);
-        }
-        iVar3 = iVar3 + 1;
-        iVar2 = iVar3 * 0x10000;
-      } while (iVar3 * 0x10000 >> 0x10 < (int)sVar1);
     }
   }
   return;
@@ -192,38 +181,33 @@ void tVideoWall::UpdateTransition()
 void tVideoWall::Draw()
 
 {
-  short bright;
-  int scratch_int;
   int textColor;
   char *sMenuText;
   int iVar2;
-  int i;
+  short i;
   tDrawShapeExtended drawFlags;
   
-  if ((this->fAvailable == 0) && (this->fValid != 0)) {
-    bright = this->fAvailableBright + 4;
+  if ((this->fAvailable != 0) || (this->fValid == 0)) {
+    this->fAvailableBright = this->fAvailableBright + -4;
   }
   else {
-    bright = this->fAvailableBright + -4;
+    this->fAvailableBright = this->fAvailableBright + 4;
   }
-  this->fAvailableBright = bright;
-  if (this->fAvailableBright < 0x41) {
+  if (0x40 < this->fAvailableBright) {
+    this->fAvailableBright = 0x40;
+  }
+  else {
     if (this->fAvailableBright < 0) {
       this->fAvailableBright = 0;
     }
   }
-  else {
-    this->fAvailableBright = 0x40;
-  }
   if (((this->fValid == 0) || (this->fAvailable == 0)) || (this->fAvailableBright != 0)) {
     i = 0;
     if (0 < this->fNumTVs) {
-      scratch_int = 0;
       do {
-        DrawTVLines(this->fTVs + (scratch_int >> 0x10));
+        DrawTVLines(this->fTVs + i);
         i = i + 1;
-        scratch_int = i * 0x10000;
-      } while (i * 0x10000 >> 0x10 < (int)this->fNumTVs);
+      } while (i < this->fNumTVs);
     }
     if (0 < this->fAvailableBright) {
       textColor = CalcFadeVal(0xbebe,0x80 - this->fAvailableBright);
@@ -243,13 +227,12 @@ void tVideoWall::Draw()
     }
   }
   if ((((this->fUpdated != 0) || (this->fValid == 0)) || (this->fAvailable == 0)) &&
-     (textColor = 0, 0 < this->fNumTVs)) {
-    iVar2 = 0;
+     (0 < this->fNumTVs)) {
+    i = 0;
     do {
-      DrawTV(this->fTVs + (iVar2 >> 0x10));
-      textColor = textColor + 1;
-      iVar2 = textColor * 0x10000;
-    } while (textColor * 0x10000 >> 0x10 < (int)this->fNumTVs);
+      DrawTV(this->fTVs + i);
+      i = i + 1;
+    } while (i < this->fNumTVs);
   }
   return;
 }

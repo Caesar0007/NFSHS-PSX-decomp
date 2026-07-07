@@ -355,11 +355,10 @@ void tScreenCongrats::CalculatePrizes()
   this->smallSpinningThing = kSpinningNone;
   this->fCarPlayer = 0;
   this->TotalCash = 0;
-  /* @0x80048A04: fCarCX=4.0 is written ONLY inside the congratsMessage==Eliminated branch (dead here --
-   * congratsMessage was just set to Congrats=0 @0x800489E0). The recon hoisted it to an UNCONDITIONAL
-   * store, so fCarCX always became 4.0 instead of retaining its prior value (M12). */
+  /* @0x80048A04: fCarCX=4.0 is a JAL-independent branch's DELAY-SLOT store (oracle `bne v1,v0,.L; sw a1,0x17C(a0)`)
+   * -- it runs UNCONDITIONALLY regardless of the compare result (MIPS delay slot semantics, always executes). */
+  this->fCarCX = 4.0;
   if (this->congratsMessage == kScreenCongrats_Eliminated) {
-    this->fCarCX = 4.0;
     this->fCarX = 0x120;
     this->fCarY = 0x49;
     this->fCarCY = -8.2;
@@ -374,7 +373,7 @@ void tScreenCongrats::Initialize()
   __vtbl_ptr_type (*vtbl) [10];
   int tick;
   int cashAwarded;
-  
+
   tick = ticks;
   this->fSpeechToPlay = 0;
   this->starttick = -1;
@@ -390,18 +389,24 @@ void tScreenCongrats::Initialize()
                      &this->fCarInfo);
   cashAwarded = this->CashAwarded;
   this->fGotCar = tick;
-  if (cashAwarded < 1) {
-    this->fCountedDown = 1;
-    this->fStartCountdownNOW = 1;
-    cashAwarded = 1000;
-  }
-  else {
+  /* @0x80048AA0: oracle `blez v1,.L(cashAwarded<1 case)` computes the cashAwarded>=1 (else) body
+   * on the FALLTHROUGH and the cashAwarded<1 (if) body at the branch target -- invert polarity.
+   * NOTE: oracle keeps a provably-dead-given-the-outer->0-guard `<0` recheck (`bgez`+`+0x3f`
+   * adjust) that this toolchain's -O2 elides regardless of how the two tests are source-shaped
+   * (tried: cached-local vs fresh-field-read, separate-tracked-var, identical operator form --
+   * all fold identically); residual left for permuter/coloring, not a clean structural lever. */
+  if (cashAwarded > 0) {
     this->fCountedDown = 0;
     this->fStartCountdownNOW = 0;
     if (cashAwarded < 0) {
       cashAwarded = cashAwarded + 0x3f;
     }
     cashAwarded = cashAwarded >> 6;
+  }
+  else {
+    this->fCountedDown = 1;
+    this->fStartCountdownNOW = 1;
+    cashAwarded = 1000;
   }
   this->fCountSpeed = cashAwarded;
   this->Initialize();
@@ -442,28 +447,40 @@ void tScreenPinkSlipCongrats::DrawCongratsMessage()
   char *name1;
   char *word;
   char *name2;
-  RECT *r;
-  tMenuTextState fade;
+  RECT r;
   char buffer [250];
-  
-  if ((byte)frontEnd.language - 2 < 2) {
+
+  /* @0x80048B54-70: oracle materializes a real RECT{x=0x29,y=0x3C,w=0x1A4,h=0xC8} local (same idiom
+   * as the sibling DrawCongratsMessage fns) -- the prior recon's `RECT *r = (RECT*)(int)this->fWinner`
+   * was a bogus reuse of an int-scratch cast, dropping the real RECT init AND corrupting the
+   * `1-fWinner` PlayerName arg (computed as `1-(int)r` through the fake pointer). */
+  r.x = 0x29;
+  r.y = 0x3c;
+  r.w = 0x1a4;
+  r.h = 200;
+  /* @0x80048B88-90: oracle's compare is `sltiu` (unsigned), not `slti` (signed) -- the classic
+   * range-check idiom `(unsigned)(x-lo) < (hi-lo+1)` forces an unsigned subtract+compare. */
+  if ((uint)((byte)frontEnd.language - 2) < 2) {
     fmt = TextSys_Word(0x275);
     name1 = PlayerName((int)this->fWinner);
-    word = TextSys_Word(this->fCarInfo.fCarID + 0x121);
-    r = (RECT *)(int)this->fWinner;
-    name2 = PlayerName(1 - (int)r);
+    /* fCarID is a shared-header plain `char` (unsigned by platform default); oracle reads it
+     * SIGNED (`lb`) here. */
+    word = TextSys_Word((signed char)this->fCarInfo.fCarID + 0x121);
+    name2 = PlayerName(1 - this->fWinner);
   }
   else {
     fmt = TextSys_Word(0x275);
     name1 = PlayerName((int)this->fWinner);
-    r = (RECT *)(int)this->fWinner;
-    word = PlayerName(1 - (int)r);
-    name2 = TextSys_Word(this->fCarInfo.fCarID + 0x121);
+    word = PlayerName(1 - this->fWinner);
+    name2 = TextSys_Word((signed char)this->fCarInfo.fCarID + 0x121);
   }
   fmt = (char *)sprintf
                              (buffer,fmt,name1,word,name2,this->fWinner + 1);
+  /* oracle's 3rd arg is a LITERAL `li a2,1` (=textState_Selected) materialized right at the call,
+   * not an early-assigned `fade` local kept live across the if/else (that shared-liveness forced
+   * the same register to also serve the branches' `1-fWinner` literal, an oracle mismatch). */
   FETextRender_WordWrapText
-            (fmt,r,fade,textType_PostGame);
+            (fmt,&r,textState_Selected,textType_PostGame);
   return;
 }
 
@@ -486,28 +503,39 @@ void tScreenPinkSlipCongrats::CalculatePrizes()
   __vtbl_ptr_type (*vtbl)[10];
   int player;
   tCarInfo carinfo;
-  short winner;
-  
+  int winner;
+
+  /* @0x80048CFC: oracle `lh s1,0x184(s3)` reads fWinner into a NAMED local (held live, callee-saved s1,
+   * past the two library calls below) as the FIRST body instruction, right after the prologue's
+   * register-save block -- source it first so gcc groups the sw-prologue before any field store. */
   winner = this->fWinner;
-  this->trophy = kTrophyCar;
   this->smallSpinningThing = kSpinningMemCard;
-  winner = this->fWinner;
   this->TotalCash = 0;
   this->CashAwarded = -1;
   this->congratsMessage = kScreenCongrats_Congrats;
   player = 1 - winner;
-  this->fCarPlayer = 1 - winner;
+  /* @0x80048D24-34: `fCarPlayer`'s `1-fWinner` is a SEPARATE re-read+recompute (oracle 2nd `lh` + 2nd
+   * `subu`), not a reuse of `player` -- keep it its own un-shared expression (delay-slot store of the jal). */
+  this->fCarPlayer = 1 - this->fWinner;
+  this->trophy = kTrophyCar;
   CarIO_CleanUpLicense(player);
   CarIO_CreateLicense((char *)((int)&frontEnd + (1 - player) * 8 + 900),0,player);
   vtbl = this->_vf;
   (*vtbl[1][2].pfn)
             (this->fPermShapes.fFilename +
              vtbl[1][2].delta + -0x14,&carinfo);
-  if (carinfo.fSpeechCarID == -1) {
-    this->fSpeechToPlay = this->fWinner + 0x17;
+  /* @0x80048D74: oracle `lb v1,0xD1(sp)` reads fSpeechCarID as SIGNED (matches its use in a real
+   * `==-1` compare below); tCarInfo::fSpeechCarID is a shared-header plain `char` (platform default
+   * unsigned on this toolchain, hence a stray `lbu` -- cast to `signed char` here, in-TU only).
+   * @0x80048D7C: oracle's `beq v1,s2,.L(==-1 case)` computes the `!=-1` (else) body INLINE on the
+   * fallthrough and jumps PAST the ==-1 body -- invert the branch polarity to match. */
+  if ((signed char)carinfo.fSpeechCarID != -1) {
+    /* @0x80048D84-8C: oracle adds 0x13 to fWinner FIRST (`lh v0,388;addiu v0,19`), THEN adds the
+     * doubled speech-car-id (`addu v1,v1,v0`) -- explicit grouping to match that addition order. */
+    this->fSpeechToPlay = (signed char)carinfo.fSpeechCarID * 2 + (this->fWinner + 0x13);
   }
   else {
-    this->fSpeechToPlay = carinfo.fSpeechCarID * 2 + this->fWinner + 0x13;
+    this->fSpeechToPlay = this->fWinner + 0x17;
   }
   this->fCarX = 0x116;
   this->fCarY = 0x4b;
@@ -588,7 +616,6 @@ void tScreenTournamentTrophy::DrawCongratsMessage()
   char *word;
   char *word2;
   tTrophyClass trophyClass;
-  int fade;
   int placeoffset;
   tTourneyInfo *tourneyInfo;
   int firstmessage;
@@ -615,9 +642,11 @@ void tScreenTournamentTrophy::DrawCongratsMessage()
   tourneyInfo = (tournamentManager.fDefinition)->fTournaments +
            (uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset +
            tournamentManager.fTournament;
-  if (tournamentManager.fPrevBestPlacement < '\x04') goto DrawCongrats_inlinedJoin084;
+  /* fPrevBestPlacement/fTournamentID are shared-header plain `char` (unsigned by platform default);
+   * oracle reads BOTH signed (`lb`) throughout this fn -- cast in-TU only at every read site. */
+  if ((signed char)tournamentManager.fPrevBestPlacement < '\x04') goto DrawCongrats_inlinedJoin084;
   trophyClass = (tTrophyClass)this->trophy;
-  firstmessage = tourneyInfo->fTournamentID + 0x3b3;
+  firstmessage = (signed char)tourneyInfo->fTournamentID + 0x3b3;
   if (trophyClass == kTrophySilver) {
     placeoffset = 1;
   }
@@ -634,33 +663,35 @@ DrawCongrats_inlinedJoin048:
     if (trophyClass == kTrophyCar) goto DrawCongrats_inlinedJoin048;
     placeoffset = 2;
   }
-  word = TextSys_Word(tourneyInfo->fTournamentID + 0x3b3);
+  word = TextSys_Word((signed char)tourneyInfo->fTournamentID + 0x3b3);
   word2 = TextSys_Word(placeoffset + 0x3e1);
   sprintf(buffer1,word,word2);
 DrawCongrats_inlinedJoin084:
   trophyClass = (tTrophyClass)this->trophy;
-  if (((trophyClass == kTrophyGold) && (tournamentManager.fPrevBestPlacement != '\x01')) ||
+  if (((trophyClass == kTrophyGold) && ((signed char)tournamentManager.fPrevBestPlacement != '\x01')) ||
      (trophyClass == kTrophyCar)) {
     if (firstmessage == 0) {
-      firstmessage = tourneyInfo->fTournamentID + 0x3c6;
+      firstmessage = (signed char)tourneyInfo->fTournamentID + 0x3c6;
       word = TextSys_Word(firstmessage);
       word2 = buffer1;
     }
     else {
-      secondmessage = tourneyInfo->fTournamentID + 0x3c6;
+      secondmessage = (signed char)tourneyInfo->fTournamentID + 0x3c6;
       word = TextSys_Word(secondmessage);
       word2 = buffer2;
     }
     sprintf(word2,word);
   }
+  /* @0x80049108/144/1C4: oracle reads `this->fScreenFadeVal` (lh a0,0x5C(s4)) fresh right before
+   * EACH of the 3 calls below, not an uninitialized `int fade;` local. */
   if (firstmessage != 0) {
-    FETextRender_WordWrapTextFade(fade,buffer1,&r,textState_Selected,textType_PostGame);
+    FETextRender_WordWrapTextFade((int)this->fScreenFadeVal,buffer1,&r,textState_Selected,textType_PostGame);
     firstmessage = FETextRender_WordWrapHeight(r.w,buffer1);
     r.y = r.y + (short)firstmessage;
   }
   if (secondmessage != 0) {
     FETextRender_WordWrapTextFade
-              (fade,buffer2,&r,textState_Selected,textType_PostGame);
+              ((int)this->fScreenFadeVal,buffer2,&r,textState_Selected,textType_PostGame);
   }
   GetAwardInformation(&tournamentManager,&tInfo);
   if (tInfo.fAwardCarGarageFull != 0) {
@@ -672,7 +703,7 @@ DrawCongrats_inlinedJoin084:
     sprintf(buffer,word,money);
     word = TextSys_Word(0x40);
     FETextRender_WordWrapTextFade
-              (fade,word,&r,textState_Selected,textType_PostGame);
+              ((int)this->fScreenFadeVal,word,&r,textState_Selected,textType_PostGame);
   }
   return;
 }
@@ -682,7 +713,6 @@ void tScreenTournamentTrophy::CalculatePrizes()
 
 {
   long money;
-  tTournamentDefinition *def;
   short ranking;
   int numRanked;
   tTrophyClass trophyClass;
@@ -690,17 +720,21 @@ void tScreenTournamentTrophy::CalculatePrizes()
   int i;
   int place;
   tAwardInformation tInfo;
-  
+  tTourneyInfo *tourneyInfo;
+
   this->congratsMessage = kScreenCongrats_Eliminated;
   this->trophy = kTrophyNone;
   this->smallSpinningThing = kSpinningMemCard;
   GetAwardInformation(&tournamentManager,&tInfo);
-  def = tournamentManager.fDefinition;
   place = 900;
   tourIndex = (uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset +
           tournamentManager.fTournament;
+  /* @0x800492A8-D4/0x80049380: oracle computes the tourneyInfo (fTournaments[tourIndex]) POINTER
+   * ONCE (kept live in s5) and reuses it for BOTH fKnockout checks below (numRanked's ".fKnockout"
+   * AND the later `def->fTournaments[tourIndex].fKnockout` re-test) -- one named local matches. */
+  tourneyInfo = (tournamentManager.fDefinition)->fTournaments + tourIndex;
   numRanked = (int)(((int)(short)tournamentManager.fNumRacers +
-                (uint)((tournamentManager.fDefinition)->fTournaments[tourIndex].fKnockout != '\0')) *
+                (uint)(tourneyInfo->fKnockout != '\0')) *
                0x10000) >> 0x10;
   i = 1;
   if (0 < numRanked) {
@@ -725,7 +759,7 @@ void tScreenTournamentTrophy::CalculatePrizes()
     this->congratsMessage = kScreenCongrats_Congrats;
   }
   else {
-    if (((place < 1) || (3 < place)) || (def->fTournaments[tourIndex].fKnockout != '\0')) {
+    if (((place < 1) || (3 < place)) || (tourneyInfo->fKnockout != '\0')) {
       this->congratsMessage = kScreenCongrats_Eliminated;
       trophyClass = kTrophyCar;
     }
@@ -802,24 +836,36 @@ void tScreenBeTheCopCongrats::DrawCongratsMessage()
   uint padState;
   char *fmt;
   char *copWord;
-  RECT *r;
+  RECT r;
   tMenuTextState fade;
   int wordnum;
   char buffer [250];
-  
+
+  /* @0x80049540-58: oracle materializes a real RECT{x=0x29,y=0x3C,w=0xC8,h=0xC8} local (same idiom
+   * as TournamentTrophy's DrawCongratsMessage, h differs: 0xC8 here not 0x190) -- the prior recon's
+   * `(RECT*)(uint)(byte)congratsCopCar` cast was a bogus reuse of the field-compare value as the
+   * RECT pointer arg (dropped the real RECT init entirely). */
+  r.x = 0x29;
+  r.y = 0x3c;
+  r.w = 200;
+  r.h = 200;
+  /* @0x80049598/end: oracle's FETextRender_WordWrapText 3rd arg is a LITERAL `li a2,1` (=
+   * textState_Selected), not a read of an uninitialized `fade` local. */
+  fade = textState_Selected;
   wordnum = 0x4c;
-  r = (RECT *)(uint)(byte)frontEnd.congratsCopCar;
-  if (r == (RECT *)0x1c) {
+  if (frontEnd.congratsCopCar == 0x1c) {
     wordnum = 0x4d;
   }
   padState = PAD_state(4);
   if ((padState & 0xffff) != 0) {
-    TextSys_Word(this->fCarInfo.fCarID + 0x121);
+    /* fCarID is a shared-header plain `char` (unsigned by platform default); oracle reads it
+     * SIGNED (`lb`) here -- cast in-TU only, matches the fSpeechCarID precedent elsewhere. */
+    TextSys_Word((signed char)this->fCarInfo.fCarID + 0x121);
   }
   fmt = TextSys_Word(wordnum);
-  copWord = TextSys_Word(this->fCarInfo.fCarID + 0x121);
+  copWord = TextSys_Word((signed char)this->fCarInfo.fCarID + 0x121);
   fmt = (char *)sprintf(buffer,fmt,copWord);
-  FETextRender_WordWrapText(fmt,r,fade,textType_PostGame);
+  FETextRender_WordWrapText(fmt,&r,fade,textType_PostGame);
   return;
 }
 
@@ -871,21 +917,36 @@ void tScreenTournamentCongrats::DrawCongratsMessage()
 
 {
   char *word;
-  RECT *r;
+  RECT r;
   tMenuTextState fade;
   tAwardInformation tInfo;
   char buffer [256];
   char money [64];
-  
+
+  /* @0x800496E0-FC/0x39F4C-58: oracle materializes a real RECT{x=0x29,y=0x3C,w=0xC8,h=0x190} local
+   * (same idiom as the sibling DrawCongratsMessage fns) then, inside the fCompletedGarageFull branch,
+   * OVERWRITES r.w/r.h to {0xB4,0x1AE} for the money-line rewrap -- the prior recon's uninitialized
+   * `RECT *r;`/`tMenuTextState fade;` dropped this entirely (real bug: NULL/garbage RECT ptr). */
+  r.x = 0x29;
+  r.y = 0x3c;
+  r.w = 200;
+  r.h = 400;
+  /* oracle's FETextRender_WordWrapText 3rd arg is a LITERAL `li a2,1` (=textState_Selected), not a
+   * read of an uninitialized `fade` local (both call sites). */
+  fade = textState_Selected;
   GetAwardInformation(&tournamentManager,&tInfo);
   word = TextSys_Word((int)tInfo.fCompletedText);
-  FETextRender_WordWrapText(word,r,fade,textType_PostGame);
+  FETextRender_WordWrapText(word,&r,fade,textType_PostGame);
   if (tInfo.fCompletedGarageFull != 0) {
+    /* @0x39F4C-58: oracle overwrites r.y/r.w here (NOT r.w/r.h) -- confirmed via the exact sp
+     * offsets (0x12=r.y, 0x14=r.w), not a naive "next two fields" guess. */
+    r.y = 0xb4;
+    r.w = 0x1ae;
     FeTools_FormatMoney(money,tInfo.fCompletedBonusMoney);
     word = TextSys_Word(0x40);
     sprintf(buffer,word,money);
     word = TextSys_Word(0x40);
-    FETextRender_WordWrapText(word,r,fade,textType_PostGame);
+    FETextRender_WordWrapText(word,&r,fade,textType_PostGame);
   }
   return;
 }

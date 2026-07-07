@@ -46,6 +46,14 @@ extern camera_info    Camera_gInfo[];            /* 0x8010f2ac */
 extern char          *Paths_Paths[];             /* 0x80116468 */
 extern tCompRGB      *Chunk_lightTable;          /* 0x8013c818 */
 extern int            Chunk_numLight;            /* 0x8013d4ec */
+extern int             Weather_gType;            /* 0x8013dbec  enum Weather_tState */
+extern int             D_80113228[];             /* @0x80113228 == &GameSetup_gData.track; distinct
+                                                     alias symbol the oracle addresses directly (unsized
+                                                     array shape, §3.12#5) -- same global used this way
+                                                     in aidatarecord.cpp */
+extern int             D_8011E0B0[];             /* == &simGlobal.gameTicks; distinct alias symbol the
+                                                     oracle addresses directly (unsized array, §3.12#5) --
+                                                     same global used this way in aiphysic.cpp/aih_*.cpp */
 
 /* ---- eaclib / syslib / sibling-module helpers ---- */
 extern void  AudioCmn_PlayThunder(int intensity, int azimuth);

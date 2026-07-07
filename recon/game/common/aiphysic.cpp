@@ -510,20 +510,20 @@ void AIPhysic_StopCar(Car_tObj *carObj,int velScale,int rotScale)
     prodX = prodX + 0xff;
   }
   prodY = scaleShifted * (carObj->N).linearVel.y;
+  (carObj->N).linearVel.x = prodX >> 8;
   if (prodY < 0) {
     prodY = prodY + 0xff;
   }
-  (carObj->N).linearVel.x = prodX >> 8;
-  (carObj->N).linearVel.y = prodY >> 8;
   prodZ = scaleShifted * (carObj->N).linearVel.z;
+  (carObj->N).linearVel.y = prodY >> 8;
   if (prodZ < 0) {
     prodZ = prodZ + 0xff;
   }
   angY = (carObj->N).angularVel.y;
+  (carObj->N).linearVel.z = prodZ >> 8;
   if (angY < 0) {
     angY = angY + 0xff;
   }
-  (carObj->N).linearVel.z = prodZ >> 8;
   if (rotScale < 0) {
     rotScale = rotScale + 0xff;
   }
@@ -545,14 +545,11 @@ void AIPhysic_RevEngine(Car_tObj *carObj)
     redLine = redLine + 0xffff;
   }
   increase = ((carObj->carIndex % 2 + 1) * AIPhysic_elapsedTime) * 0x8c;
+  redLine = redLine >> 0x10;
   if ((carObj->flywheelRpm & 1) != 0) {
-    redLine = redLine >> 0x10;
     increase = -(increase >> 1);
     if ((increase & 1) != 0) increase = increase - 1;
-    goto haveRedLine;
   }
-  redLine = redLine >> 0x10;
-haveRedLine:
   carObj->flywheelRpm = carObj->flywheelRpm + increase;
   if (redLine < carObj->flywheelRpm) {
     carObj->flywheelRpm = (redLine - (redLine >> 0x1f) >> 1) | 1;
@@ -2024,8 +2021,8 @@ void AIPhysic_CalculateRampedDesiredLatPos(Car_tObj *carObj,eRampType rampType)
   rampStepLo = AIPhysic_elapsedTime * 3;
   rampStepLo = rampStepLo + rampStepLo * 16;
   rampStepHi = rampStepLo << 8;
+  rampStep = rampStepLo + rampStepHi;
   if (carObj->desiredLatPos < roadPos) {
-    rampStep = rampStepLo + rampStepHi;
     if (roadPos < carObj->rampDesiredLatPos + -0x10000) {
       carObj->rampDesiredLatPos = roadPos;
       goto tail;
@@ -2066,6 +2063,7 @@ void AIPhysic_CheckForGripReduction(Car_tObj *carObj)
   int iVar2;
   int iVar3;
   int iVar4;
+  int iVar5;
 
   iVar4 = carObj->gripFactor;
   if (iVar4 < 0x10000) {
@@ -2088,21 +2086,22 @@ void AIPhysic_CheckForGripReduction(Car_tObj *carObj)
     }
   }
   else if (((carObj->N).simOptz == '\0') && ((carObj->carFlags & 0x28U) != 0)) {
-    iVar4 = AIWorld_CalcRoadBend(carObj,1);
-    if (iVar4 < 1) {
-      iVar4 = AIWorld_CalcRoadBend(carObj,1);
-      iVar4 = -iVar4;
+    iVar5 = AIWorld_CalcRoadBend(carObj,1);
+    if (iVar5 >= 1) {
+      iVar5 = AIWorld_CalcRoadBend(carObj,1);
     }
     else {
-      iVar4 = AIWorld_CalcRoadBend(carObj,1);
+      iVar5 = AIWorld_CalcRoadBend(carObj,1);
+      iVar5 = -iVar5;
     }
-    if (2000 < iVar4) {
-      perTickProb = AIPhysic_elapsedTime * carObj->personality->gripLossProbPerSecond;
+    if (2000 < iVar5) {
+      AIPerson_t *pers = carObj->personality;
+      perTickProb = AIPhysic_elapsedTime * pers->gripLossProbPerSecond;
       randtemp = fastRandom * randSeed;
-      randVal = (int)((randtemp >> 8) & 0xffff);
+      randVal = (int)(((u_int)randtemp >> 8) & 0xffff);
       fastRandom = randtemp & 0xffff;
       if (randVal < perTickProb / 32) {
-        carObj->gripFactor = carObj->personality->gripLossMinFactor;
+        carObj->gripFactor = pers->gripLossMinFactor;
       }
     }
   }
@@ -2122,14 +2121,15 @@ void AIPhysic_InitCar(Car_tObj *carObj)
   AIPhysic_BrakeInfo *pAVar1;
   int iVar2;
   int iVar3;
+  u_int carFlags;
   u_int uVar4;
   int iVar5;
   int iVar6;
 
-  uVar4 = carObj->carFlags;
-  if ((uVar4 & 2) != 0) {
+  carFlags = carObj->carFlags;
+  if ((carFlags & 2) != 0) {
     iVar5 = 0xc0000;
-    if ((uVar4 & 0x28) != 0) {
+    if ((carFlags & 0x28) != 0) {
       iVar5 = 0xb0000;
     }
     iVar3 = *(int *)((char *)carObj->personality + 0x20);
@@ -2137,7 +2137,7 @@ void AIPhysic_InitCar(Car_tObj *carObj)
       iVar3 = iVar3 + 0xff;
     }
     iVar5 = (iVar3 >> 8) * (iVar5 >> 8);
-    if ((uVar4 & 8) != 0) {
+    if ((carFlags & 8) != 0) {
       iVar3 = AISpeeds_GetUpgradeBrakeMult(carObj->carIndex);
       if (iVar5 < 0) {
         iVar5 = iVar5 + 0xff;

@@ -13,6 +13,25 @@ int Device_gForcePause;
 int Device_gPausePort;
 int Device_gPaused;
 
+/* Device_gToggleTime[2]/Device_gPrev[2] (device_externs.h) are declared as ONE 8-byte
+ * array each, but the Device_StartUp/Device_Update oracles reach every access -- all
+ * CONSTANT-index [0]/[1] -- as TWO INDEPENDENT %gp_rel(SYM)/%gp_rel(D_..) globals, no
+ * address materialization at all (8 bytes is over this build's -G4 small-data threshold
+ * as ONE object, but each 4-byte element alone qualifies; both D_ syms are listed in
+ * configs/gp_rel_symbols.txt). Same fix as weather.cpp's Weather_gLastProcessTime0/1
+ * precedent (section 3.12 #6, applied per-element): model the TRUE per-element storage
+ * as real tentative-def scalars for these constant-index sites. Neither array has any
+ * OTHER (variable-index) reference anywhere in the project's oracle set, so no residual
+ * array-form duality to keep in sync here. */
+int Device_gToggleTime0;
+int Device_gToggleTime1;
+#define DEVICE_GTOGGLETIME0 Device_gToggleTime0
+#define DEVICE_GTOGGLETIME1 Device_gToggleTime1
+u_long Device_gPrev0;
+u_long Device_gPrev1;
+#define DEVICE_GPREV0 Device_gPrev0
+#define DEVICE_GPREV1 Device_gPrev1
+
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 int Device_VerifyType(int port);
 int Device_Fail(int port);
@@ -26,23 +45,46 @@ int Device_Analog(u_long param);
 int Device_Null(u_long param);
 
 
-/* ---- Device_VerifyType__Fi  [DEVICE.CPP:51-66] SLD-VERIFIED ---- */
+/* ---- Device_VerifyType__Fi  [DEVICE.CPP:51-66] SLD-VERIFIED ----
+ * NEAR-MISS (was 31 diffs -> now 11, ours 41/oracle 42): the two structural bugs are
+ * fixed -- (a) controllerConfig access is now the array-index form GameSetup_gData.
+ * controllerData.controllerConfig[isP2] (mined from the sealed sibling MPause_
+ * EndPauseMenu's identical idiom via tools/pattern_suggest.py); (b) the controlType
+ * short access now correctly reads/writes SIGNED (was wrongly u_short) at the oracle's
+ * real field offset 0x35E(s1) with s1=&frontEnd+uVar2 (the reinterpret-cast-through-
+ * pfe form reproduces the oracle's base-materializes-BEFORE-mask instruction order).
+ * RESIDUAL (11 diffs, pure reg/algebraic, all content already matches -- both sides
+ * carry the same 862-offset load/store, just via a different index computation): the
+ * oracle computes uVar2/uVar1&4 via sltu+negu+andi (an un-simplified -(bool)&N mask,
+ * exactly the source form below), but THIS gcc-2.8.0 always constant-folds that same
+ * source expression down to a shift (bool<<1 / bool<<2) once it can prove isP2 is a
+ * strict 0/1 boolean -- confirmed the fold happens at every source variant tried:
+ * shared named bool, inline recomputation, pre-materialized base pointer, volatile
+ * uVar1 (that regressed further, +stack spill). Not a permuter target either (90-iter
+ * run plateaued >=100, natural basin has no downhill path per section 3.13 -- would
+ * need a hand multi-basin re-seed, not attempted this pass). Parking as an honest
+ * near-miss; the remaining lever to try next session is a source form where isP2's
+ * boolean range is NOT directly provable at the mask computation (e.g. route it
+ * through an opaque/indirect load) rather than fighting the optimizer's own proof. */
 int Device_VerifyType(int port)
 
 {
+  tfrontEnd *pfe;
+  u_int isP2;
   u_int uVar1;
   u_int uVar2;
-  
+
   if (gUseFrontend != 0) {
     if (gPadinfo.buf[port].nopad != '\0') {
       return 0;
     }
-    uVar1 = -(u_int)(port != 0);
+    pfe = &frontEnd;
+    isP2 = (u_int)(port != 0);
+    uVar1 = -isP2;
     uVar2 = uVar1 & 2;
-    if ((u_short)gPadinfo.buf[port].ID != *(u_short *)((int)frontEnd.controlType + uVar2)) {
-      InGame_ResetPSXController((u_int)(port != 0),
-                 *(int *)((int)GameSetup_gData.controllerData.controllerConfig + (uVar1 & 4)));
-      *(u_short *)((int)frontEnd.controlType + uVar2) = (u_short)gPadinfo.buf[port].ID;
+    if (gPadinfo.buf[port].ID != ((tfrontEnd *)((char *)pfe + uVar2))->controlType[0]) {
+      InGame_ResetPSXController(isP2, GameSetup_gData.controllerData.controllerConfig[isP2]);
+      ((tfrontEnd *)((char *)pfe + uVar2))->controlType[0] = gPadinfo.buf[port].ID;
       return 1;
     }
   }
@@ -81,36 +123,34 @@ void Device_Update(void)
   int iVar2;
   
   PAD_update();
-  if (simVar.pauseSim == 0) {
-    if (Device_gPaused != 0) {
-      Device_gPaused = 0;
-      Device_gPausePort = -1;
-      Device_gToggleTime[0] = 0;
-      Device_gToggleTime[1] = 0;
-    }
-  }
-  else {
+  if (simVar.pauseSim != 0) {
     Device_gPaused = 1;
-    Device_gToggleTime[0] = 0x11;
-    Device_gToggleTime[1] = 0x11;
+    DEVICE_GTOGGLETIME0 = 0x11;
+    DEVICE_GTOGGLETIME1 = 0x11;
+  }
+  else if (Device_gPaused != 0) {
+    Device_gPaused = 0;
+    Device_gPausePort = -1;
+    DEVICE_GTOGGLETIME0 = 0;
+    DEVICE_GTOGGLETIME1 = 0;
   }
   if (simVar.pauseSim == 0) {
     iVar2 = Device_Fail(0);
-    iVar1 = GameSetup_gData.commMode;
-    if (iVar2 == 0) {
-      if ((GameSetup_gData.commMode == 1) && (iVar2 = Device_Fail(4), iVar2 != 0)) {
+    if (iVar2 != 0) {
+      Device_gForcePause = 1;
+      Device_gPausePort = 0;
+      Device_gPausePortIndex = '\0';
+    }
+    else {
+      iVar1 = GameSetup_gData.commMode;
+      if ((iVar1 == 1) && (iVar2 = Device_Fail(4), iVar2 != 0)) {
         Device_gForcePause = iVar1;
         Device_gPausePort = 4;
-        Device_gPausePortIndex = '\x01';
+        Device_gPausePortIndex = (char)iVar1;
       }
       else {
         Device_gForcePause = 0;
       }
-    }
-    else {
-      Device_gForcePause = 1;
-      Device_gPausePort = 0;
-      Device_gPausePortIndex = '\0';
     }
   }
   return;
@@ -123,10 +163,10 @@ void Device_StartUp(void)
   Device_gPaused = 0;
   Device_gForcePause = 0;
   Device_gPausePort = -1;
-  Device_gToggleTime[0] = 0;
-  Device_gToggleTime[1] = 0;
-  Device_gPrev[0] = 0;
-  Device_gPrev[1] = 0;
+  DEVICE_GTOGGLETIME0 = 0;
+  DEVICE_GTOGGLETIME1 = 0;
+  DEVICE_GPREV0 = 0;
+  DEVICE_GPREV1 = 0;
   return;
 }
 
@@ -152,14 +192,18 @@ int Device_PSXPad(u_long param)
 
 {
   int iVar1;
-  
+  u_short state;
+
   iVar1 = Device_VerifyType(param >> 0x10);
-  if ((iVar1 == 0) ||
-     (iVar1 = 0xff, (~(u_int)gPadinfo.buf[param >> 0x10].data.standard.state & 0xffff & param) == 0))
-  {
-    iVar1 = 0;
+  if (iVar1 == 0) {
+    return 0;
   }
-  return iVar1;
+  state = *(u_short *)((char *)&gPadinfo.buf[0].data.standard.state +
+                        (param >> 0x10) * sizeof(PAD_COMMON));
+  if (((u_short)~state & param) != 0) {
+    return 0xff;
+  }
+  return 0;
 }
 
 /* ---- Device_ReadPad__FiUl  [DEVICE.CPP:261-302] SLD-VERIFIED ---- */
@@ -230,17 +274,47 @@ DevReadPad_negconPath:
   return pvVar2;
 }
 
-/* ---- Device_PSXPadMulti__FUl  [DEVICE.CPP:306-342] SLD-VERIFIED ---- */
+/* ---- Device_PSXPadMulti__FUl  [DEVICE.CPP:306-342] SLD-VERIFIED ----
+ * NEAR-MISS (was 46 diffs -> now 17, ours 56/oracle 55): outer if/else branch polarity
+ * inverted to match the oracle's beqz-pauseSim==0 fall-through (same class as Device_
+ * Update); the inner "port 0 found" if/else polarity flipped to match too; dropped a
+ * redundant `iVar2=0` comma side-effect from the Replay_ReplayMode||commMode==1 gate
+ * (was forcing an xori-based != codegen -- oracle uses a plain bne). RESIDUAL (17
+ * diffs, all content-identical, pure v0/v1/a0 register-coloring): at all 3
+ * Device_ReadPad call sites the oracle caches the raw call return into a FRESH reg
+ * (addu v1,v0,zero) before testing it, freeing v0 to stage the 0xff/0 return value
+ * directly; ours tests the call return in-place (v0) and stages 0xff/0 via a0 with an
+ * extra move at the epilogue. Tried: void*->u_int retype (no effect), ternary for the
+ * first block's iVar2 select (no net improvement, shifts which sub-block loses),
+ * direct early-return for the first block (regressed, +1 insn + wrong polarity there).
+ * Permuter (100-iter run) plateaued at base score 135, same basin, no downhill path
+ * found. Parking as an honest near-miss; the call-result-caching habit repeats
+ * identically at all 3 ReadPad sites so a single source-level lever (if found) should
+ * clear the whole residual at once -- worth another dedicated pass. */
 int Device_PSXPadMulti(u_long param)
 
 {
   void *pvVar1;
   int iVar2;
-  
-  if (simVar.pauseSim == 0) {
-    pvVar1 = Device_ReadPad(0,param);
+
+  if (simVar.pauseSim != 0) {
+    pvVar1 = Device_ReadPad(Device_gPausePort,param);
+    iVar2 = 0xff;
     if (pvVar1 == (void *)0x0) {
-      if ((1 < Replay_ReplayMode) || (iVar2 = 0, GameSetup_gData.commMode == 1)) {
+      iVar2 = 0;
+    }
+  }
+  else {
+    pvVar1 = Device_ReadPad(0,param);
+    if (pvVar1 != (void *)0x0) {
+      iVar2 = 0xff;
+      if ((param & 0xffff) == 8) {
+        Device_gPausePort = 0;
+        Device_gPausePortIndex = '\0';
+      }
+    }
+    else {
+      if ((1 < Replay_ReplayMode) || (GameSetup_gData.commMode == 1)) {
         pvVar1 = Device_ReadPad(4,param);
         if (pvVar1 == (void *)0x0) {
           iVar2 = 0;
@@ -253,44 +327,48 @@ int Device_PSXPadMulti(u_long param)
           iVar2 = 0xff;
         }
       }
-    }
-    else {
-      iVar2 = 0xff;
-      if ((param & 0xffff) == 8) {
-        Device_gPausePort = 0;
-        Device_gPausePortIndex = '\0';
+      else {
+        iVar2 = 0;
       }
-    }
-  }
-  else {
-    pvVar1 = Device_ReadPad(Device_gPausePort,param);
-    iVar2 = 0xff;
-    if (pvVar1 == (void *)0x0) {
-      iVar2 = 0;
     }
   }
   return iVar2;
 }
 
-/* ---- Device_Analog__FUl  [DEVICE.CPP:352-384] SLD-VERIFIED ---- */
+/* ---- Device_Analog__FUl  [DEVICE.CPP:352-384] SLD-VERIFIED ----
+ * NEAR-MISS (was 63 diffs -> now 57, ours 67/oracle 64): uVar2/uVar4/uVar5 retyped
+ * u_int->int -- the oracle's clamp compares are SIGNED (slt), but these were declared
+ * u_int so the compare chain emitted sltu; fixed all 3 comparison sites at once (a
+ * whole cluster of "slt" vs "sltu" diffs vanished). RESIDUAL (57 diffs): a persistent
+ * beqz/bnez branch-POLARITY mismatch on the outer Device_VerifyType==0 early-return
+ * (oracle: bnez-continue/fall-through-return0; ours: beqz-return0/fall-through-
+ * continue) -- tried both `if(iVar1==0)return 0;` (early-return) and the inverted
+ * `if(iVar1!=0){...whole body...}return 0;` wrap; BOTH compile to the identical beqz
+ * shape (gcc folds the wrap back to the early-return form regardless of source
+ * polarity, similar to the shift-simplification seen on Device_VerifyType). The
+ * downstream subtract/divide-guard chain (DevAnalog_scaledByteCalc goto-merge, the
+ * div-by-INT_MIN/-1 break guard) carries its own separate scheduling residuals not
+ * yet investigated in isolation. v/max/min are declared-but-unused locals (present
+ * before this pass, left untouched per the "unused local can be load-bearing"
+ * caution -- section 3.12 #15 -- not confirmed either way this session). */
 int Device_Analog(u_long param)
 
 {
   int iVar1;
   int v;
-  u_int uVar2;
+  int uVar2;
   int iVar3;
   int max;
-  u_int uVar4;
+  int uVar4;
   int min;
-  u_int uVar5;
+  int uVar5;
   int iVar6;
-  
+
   iVar1 = Device_VerifyType(param >> 0x14);
   if (iVar1 == 0) {
     return 0;
   }
-  uVar2 = (u_int)*(u_char *)((int)&gPadinfo.buf[param >> 0x14].data + (param >> 0x10 & 3) + 2);
+  uVar2 = (int)*(u_char *)((int)&gPadinfo.buf[param >> 0x14].data + (param >> 0x10 & 3) + 2);
   uVar5 = param >> 8 & 0xff;
   uVar4 = param & 0xff;
   if (uVar5 < uVar4) {

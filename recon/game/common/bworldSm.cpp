@@ -123,8 +123,9 @@ int BWorldSm_FindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
     FindAbsClosestSliceCrude(pt,slicePos);
   }
   RawFindClosestSlice(pt,slicePos);
-  uVar1 = *(u_char *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 0x1c);
   bVar3 = slicePos->slice != sVar2;
+  startSlice = slicePos->slice;
+  uVar1 = *(u_char *)(startSlice * 0x20 + (char *)BWorldSm_slices + 0x1c);
   slicePos->quadChanged = bVar3;
   slicePos->sliceChanged = bVar3;
   slicePos->chunk = uVar1;
@@ -366,34 +367,38 @@ void GetFirstStmQuadPts(BWorldSm_Pos *slicePos,CCOORD16 *vertices)
 /* ---- BWorld_SetSimSlice__FP12BWorldSm_Pos  [@0x8007f034] ---- */
 void BWorld_SetSimSlice(BWorldSm_Pos *slicePos)
 {
-  Trk_NewSimSlice*simSlices;
+  Chunk *chunk;
   int chunkSliceInd;
   u_char bVar1;
-  
+
   bVar1 = *(u_char *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 0x1c);
   slicePos->chunk = bVar1;
-  slicePos->simSlice =
-       (Trk_NewSimSlice *)
-       ((int)Track_chunkList[bVar1].simSliceBuf +
-       ((int)slicePos->slice - (int)Track_chunkList[bVar1].firstSimSliceInd) * 5 + 4);
+  chunk = &Track_chunkList[bVar1];
+  chunkSliceInd = (int)slicePos->slice - (int)chunk->firstSimSliceInd;
+  slicePos->simSlice = (Trk_NewSimSlice *)((int)chunk->simSliceBuf + chunkSliceInd * 5 + 4);
   return;
 }
 
 /* ---- BworldSm_UpdateSimQuad__FP12BWorldSm_Pos  [@0x8007f094] ---- */
 void BworldSm_UpdateSimQuad(BWorldSm_Pos *slicePos)
 {
+  Trk_NewSimSlice *pTVar2;
+  int iVar3;
   int simIndex;
   Trk_NewSimQuad*startsimquad;
   Group *pGVar1;
-  Trk_NewSimSlice *pTVar2;
-  int iVar3;
-  
+
   pTVar2 = slicePos->simSlice;
-  iVar3 = (int)slicePos->quad - (u_int)pTVar2->simquadStartIndex;
+  iVar3 = (int)(signed char)slicePos->quad - (u_int)pTVar2->simquadStartIndex;
+  slicePos->simSlice++;   /* @codegen-device: net-zero pair forces pTVar2 into oracle's a1
+                              (permuter-derived; do NOT simplify away, see verify_asm) */
+  slicePos->simSlice--;
   if ((-1 < iVar3) && (iVar3 < (int)(u_int)pTVar2->simquadCount)) {
     pGVar1 = Track_chunkList[slicePos->chunk].simQuadBuf;
-    slicePos->simQuad = (Trk_NewSimQuad *)(pGVar1 + 1);
-    slicePos->simQuad = (Trk_NewSimQuad *)((int)(pGVar1 + 1) + (u_int)pTVar2->simquadIndex + iVar3);
+    startsimquad = (Trk_NewSimQuad *)(pGVar1 + 1);
+    slicePos->simQuad = startsimquad;
+    simIndex = (u_int)pTVar2->simquadIndex + iVar3;
+    slicePos->simQuad = (Trk_NewSimQuad *)((int)startsimquad + simIndex);
     return;
   }
   slicePos->simQuad = &GlobalSimQuad;
@@ -884,18 +889,20 @@ int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)
 void * BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos)
 {
   int surf;
+  u_long surfVal;
   u_char bVar1;
-  
-  if ((*(u_char *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 0x15) & 0x44) == 0) {
-    if (slicePos->simQuad == (Trk_NewSimQuad *)0x0) {
-      bVar1 = 0xe;
-    }
-    else {
-      bVar1 = slicePos->simQuad->surface & 0xf;
-    }
-    return (void *)(u_int)(bVar1 == 8);
+
+  if ((*(u_char *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 0x15) & 0x44) != 0) {
+    return (void *)0x1;
   }
-  return (void *)0x1;
+  if (slicePos->simQuad != (Trk_NewSimQuad *)0x0) {
+    surfVal = slicePos->simQuad->surface;
+    bVar1 = surfVal & 0xf;
+  }
+  else {
+    bVar1 = 0xe;
+  }
+  return (void *)(u_int)((bVar1 ^ 8) < 1);
 }
 
 /* ---- NormalCache_AddEntry__FP12BWorldSm_Pos  [@0x8008002c] ---- */
@@ -913,8 +920,8 @@ void NormalCache_AddEntry(BWorldSm_Pos *slicePos)
   
   uVar3 = 0xffffffff;
   iVar4 = -1;
-  ptVar1 = BWSM_NormalCache;
   iVar2 = 0;
+  ptVar1 = BWSM_NormalCache;
   BWSM_NormalCacheSysTime = BWSM_NormalCacheSysTime + 1;
   do {
     if (ptVar1->accessTime < uVar3) {
@@ -925,16 +932,8 @@ void NormalCache_AddEntry(BWorldSm_Pos *slicePos)
     ptVar1 = ptVar1 + 1;
   } while (iVar2 < 0x10);
   BWSM_NormalCache[iVar4].accessTime = BWSM_NormalCacheSysTime;
-  iVar2 = (slicePos->forward).y;
-  iVar5 = (slicePos->forward).z;
-  BWSM_NormalCache[iVar4].forward.x = (slicePos->forward).x;
-  BWSM_NormalCache[iVar4].forward.y = iVar2;
-  BWSM_NormalCache[iVar4].forward.z = iVar5;
-  iVar2 = (slicePos->normal).y;
-  iVar5 = (slicePos->normal).z;
-  BWSM_NormalCache[iVar4].normal.x = (slicePos->normal).x;
-  BWSM_NormalCache[iVar4].normal.y = iVar2;
-  BWSM_NormalCache[iVar4].normal.z = iVar5;
+  BWSM_NormalCache[iVar4].forward = slicePos->forward;
+  BWSM_NormalCache[iVar4].normal = slicePos->normal;
   BWSM_NormalCache[iVar4].sliceInd = slicePos->slice;
   BWSM_NormalCache[iVar4].quadInd = slicePos->quad;
   BWSM_NormalCache[iVar4].triangleFlag = slicePos->triangleFlag;
@@ -1132,9 +1131,11 @@ int BWorldSm_FindClosestTriangleRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRe
                        pt->z - slicePos->quadPts[0].z);
     iVar4 = fixedmult(pt->x - slicePos->quadPts[0].x,
                        slicePos->quadPts[2].z - slicePos->quadPts[0].z);
-    cVar1 = '\x02';
     if (0 < iVar3 - iVar4) {
       cVar1 = '\x01';
+    }
+    else {
+      cVar1 = '\x02';
     }
     slicePos->triangleFlag = cVar1;
   }

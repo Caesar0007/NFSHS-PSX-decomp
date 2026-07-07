@@ -191,19 +191,19 @@ void Night_PauseLightningEffect(int player)
   int pause_flag;
 
   slice = Camera_gInfo[player].slicePos.slice;
-  track = GameSetup_gData.track;
+  track = D_80113228[0];
   pause_flag = 0;
   startp = Night_gLightningPauseAreas[track][0];
   endp = Night_gLightningPauseAreas[track][1];
   if (startp < slice) {
     pause_flag = slice < endp;
   }
-  if (GameSetup_gData.Weather != 1) {
+  if (Weather_gType == 0) {
     pause_flag = 1;
   }
   if (pause_flag != 0) {
-    Night_gNextLightning = simGlobal.gameTicks;
-    Night_gEndNextLightning = simGlobal.gameTicks;
+    Night_gNextLightning = D_8011E0B0[0];
+    Night_gEndNextLightning = D_8011E0B0[0];
   }
   return;
 }
@@ -252,7 +252,6 @@ void Night_DoLightningEffect(DRender_tView *Vi)
 void Night_SetCopColor(GameSetup_tCarData *carinfo)
 
 {
-  u_char*copColors[2][256][8];
   int cartype;
   int country;
   int col1;
@@ -276,11 +275,11 @@ void Night_SetCopColor(GameSetup_tCarData *carinfo)
 void Night_InitPlayerHeadLightColor(int player)
 
 {
-  
+
   if (Night_gPlayerLightingTable == (u_char (*) [256] [16])0x0) {
     Night_gPlayerLightingTable = reservememadr("plnight",0x1000,0);
   }
-  *(CVECTOR *)(Night_gPlayerHeadLightColor + player) = TrackSpec_gSpec.nightspec.nightcolor;
+  Night_gPlayerHeadLightColor[player] = *(long *)&TrackSpec_gSpec.nightspec.nightcolor;
   return;
 }
 
@@ -488,7 +487,7 @@ void Night_InitNightDriving(void)
   if (GameSetup_gData.Weather == 1) {
     Night_gLightning = 0;
     r = random();
-    Night_gNextLightning = simGlobal.gameTicks + (r & 0x1ff);
+    Night_gNextLightning = D_8011E0B0[0] + (r & 0x1ff);
     r = random();
     Night_gEndNextLightning = Night_gNextLightning + (r & 0x31);
     Night_gNextFlicker = Night_gNextLightning;
@@ -562,7 +561,7 @@ void Night_SetEnviroment(DRender_tView *Vi)
     Night_gXDistShift = 10;
     Night_gZDistShift = 0xc;
     Night_gZNear = 0x80;
-    if ((Camera_gInfo[Vi->player].target[1].shadowCoord[2].y & 0x4000000) != 0) {
+    if ((*((u_char *)&Camera_gInfo[Vi->player].target[1].shadowCoord[2].y + 3) & 4) != 0) {
       Night_gZDistShift = 0xd;
       Night_gXDistShift = 0xb;
     }

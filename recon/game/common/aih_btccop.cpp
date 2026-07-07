@@ -1891,19 +1891,14 @@ void AIHigh_BTC_Wingman::HighExecute()
 
 
 {
-  Car_tObj*carObj;
-  coorddef trafficOffset;
   coorddef pos;
-  AIState_Base*newState;
   coorddef newPos;
-  AIState_Chase*chaseState;
-  int endSlice;
-  int rbDistanceMeters;
-  int rbAbsDistanceMeters;
-  int release;
-  int timeNow;
-  int timeToRB;
-  AIState_GotoSlice*gotoState;
+  coorddef trafficOffset;
+  coorddef *offset;
+
+  AIState_Base *newState;
+  AIState_Base *oldState;
+  Car_tObj *carObj;
 
   bool bVar1;
 
@@ -1913,31 +1908,11 @@ void AIHigh_BTC_Wingman::HighExecute()
 
   int iVar3;
 
-  AIState_Normal *pAVar4;
-
-  AIState_Base *pAVar5;
-
   stateType_t sVar6;
 
   Wingman_Role WVar7;
 
-  AIState_Base *pAVar8;
 
-  Car_tObj *pCVar9;
-
-  coorddef *offset;
-
-  AIState_GotoSlice *pAVar10;
-
-  AIState_Chase *pAVar11;
-
-  coorddef cStack_40;
-
-  coorddef cStack_30;
-
-  coorddef cStack_20;
-
-  
 
   ((AIHigh_BasicCop *)this)->CheckSpikeBelt();
 
@@ -1947,49 +1922,47 @@ void AIHigh_BTC_Wingman::HighExecute()
 
   case 0:
 
-    pCVar9 = this->carObj_;
+    this->carObj_->AIFlags = this->carObj_->AIFlags & 0xfffffffd;
 
-    pCVar9->AIFlags = pCVar9->AIFlags & 0xfffffffd;
+    newState = operator new(8);
 
-    pAVar5 = operator new(8);
+    carObj = this->carObj_;
 
-    pCVar9 = this->carObj_;
+    (new(newState) AIState_Base(carObj));
 
-    (new(pAVar5) AIState_Base(pCVar9));
+    newState->_vf = (__vtbl_ptr_type (*) [4])AIHigh_BTC_Wingman_vtable;
 
-    pAVar5->_vf = (__vtbl_ptr_type (*) [4])AIHigh_BTC_Wingman_vtable;
+    memset((u_char *)&pos,'\0',0xc);
 
-    memset((u_char *)&cStack_40,'\0',0xc);
+    pos.y = carObj->carIndex * 0xa0000;
 
-    cStack_40.y = pCVar9->carIndex * 0xa0000;
+    Newton_SetInitialSlicePositionOrientationEtc(&newState->carObj_->N,0,&pos,1);
 
-    Newton_SetInitialSlicePositionOrientationEtc(&pAVar5->carObj_->N,0,&cStack_40,1);
+    (newState->carObj_->N).active = '\0';
 
-    (pAVar5->carObj_->N).active = '\0';
+    oldState = this->state_;
 
-    pAVar8 = this->state_;
+    if (oldState != (AIState_Base *)0x0) {
 
-    if (pAVar8 != (AIState_Base *)0x0) {
-
-      (*(int (*)(...))pAVar8->_vf[5])((int)&pAVar8->carObj_ + (int)*(short *)pAVar8->_vf[4],3);
+      (*(int (*)(...))oldState->_vf[5])((int)&oldState->carObj_ + (int)*(short *)oldState->_vf[4],3);
 
     }
 
     sVar6 = 7;
 
-    this->state_ = pAVar5;
+    this->state_ = newState;
 
     goto LAB_8005eda0;
 
+  case 10:
+
   default:
 
-    goto switchD_8005e388_caseD_1;
+    goto stateExecuteAndReturn;
 
   case 2:
 
-    pCVar9 = this->carObj_;
-
-    pCVar9->AIFlags = pCVar9->AIFlags & 0xfffffffd;
+    this->carObj_->AIFlags = this->carObj_->AIFlags & 0xfffffffd;
 
     if ((this->newRole_ == this->currentRole_) || (1 < this->newRole_ - 2)) {
 
@@ -1997,19 +1970,19 @@ void AIHigh_BTC_Wingman::HighExecute()
 
       if (this->perpTarget_ != (AIHigh_BTC_Perp *)0x0) {
 
-        this->GetCheckChasePosition(&cStack_40);
+        this->GetCheckChasePosition(&pos);
 
-        pAVar11 = operator new(0x94);
+        newState = operator new(0x94);
 
-        pAVar11 = (new(pAVar11) AIState_Chase(this->carObj_,
+        newState = (AIState_Base*)(new((AIState_Chase*)newState) AIState_Chase(this->carObj_,
 
-                             ((this->perpTarget_))->carObj_,&cStack_40,0x200,0x3c0000,0x190000,2,0x10000));
+                             ((this->perpTarget_))->carObj_,&pos,0x200,0x3c0000,0x190000,2,0x10000));
 
-        pAVar5 = this->state_;
+        oldState = this->state_;
 
-        if (pAVar5 != (AIState_Base *)0x0) {
+        if (oldState != (AIState_Base *)0x0) {
 
-          (*(int (*)(...))pAVar5->_vf[5])((int)&pAVar5->carObj_ + (int)*(short *)pAVar5->_vf[4],3);
+          (*(int (*)(...))oldState->_vf[5])((int)&oldState->carObj_ + (int)*(short *)oldState->_vf[4],3);
 
         }
 
@@ -2023,9 +1996,9 @@ void AIHigh_BTC_Wingman::HighExecute()
 
     else {
 
-      pCVar9 = AILife_IsCarInAnyVisibleArea(this->carObj_);
+      carObj = AILife_IsCarInAnyVisibleArea(this->carObj_);
 
-      if (pCVar9 == (Car_tObj *)0x0) {
+      if (carObj == (Car_tObj *)0x0) {
 
         pSVar2 = (Speaker *)Speech_Mobile(this->carObj_);
 
@@ -2037,19 +2010,19 @@ void AIHigh_BTC_Wingman::HighExecute()
 
         this->SetupBlockader(this->newHumanBoss_,(u_int)(this->newRole_ == 3));
 
-        pAVar11 = operator new(0x10);
+        newState = operator new(0x10);
 
-        (new((AIState_Base*)pAVar11) AIState_Base(this->carObj_));
+        (new(newState) AIState_Base(this->carObj_));
 
-        (pAVar11)->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
+        newState->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
 
-        (pAVar11->delayCar_).basisCar_ = (Car_tObj *)0x1;
+        ((AIState_Idle *)newState)->roadPosition_ = 1;
 
-        pAVar5 = this->state_;
+        oldState = this->state_;
 
-        if (pAVar5 != (AIState_Base *)0x0) {
+        if (oldState != (AIState_Base *)0x0) {
 
-          (*(int (*)(...))pAVar5->_vf[5])((int)&pAVar5->carObj_ + (int)*(short *)pAVar5->_vf[4],3);
+          (*(int (*)(...))oldState->_vf[5])((int)&oldState->carObj_ + (int)*(short *)oldState->_vf[4],3);
 
         }
 
@@ -2057,7 +2030,7 @@ void AIHigh_BTC_Wingman::HighExecute()
 
 LAB_8005e5d8:
 
-        this->state_ = (AIState_Base*)pAVar11;
+        this->state_ = newState;
 
         this->stateType_ = sVar6;
 
@@ -2067,33 +2040,31 @@ LAB_8005e5d8:
 
     iVar3 = this->UpdateFreezeModeAndPullOverMode();
 
-    if (iVar3 == 0) goto switchD_8005e388_caseD_1;
+    if (iVar3 == 0) goto stateExecuteAndReturn;
 
     this->AssignToPlayer((AIHigh_BTC_Perp *)0x0)
 
     ;
 
-    pAVar5 = operator new(8);
+    newState = operator new(8);
 
-    pCVar9 = this->carObj_;
+    carObj = this->carObj_;
 
-    (new(pAVar5) AIState_Base(pCVar9));
+    (new(newState) AIState_Base(carObj));
 
-    pAVar5->_vf = (__vtbl_ptr_type (*) [4])AIHigh_BTC_Wingman_vtable;
+    newState->_vf = (__vtbl_ptr_type (*) [4])AIHigh_BTC_Wingman_vtable;
 
-    memset((u_char *)&cStack_40,'\0',0xc);
+    memset((u_char *)&pos,'\0',0xc);
 
-    offset = &cStack_40;
+    offset = &pos;
 
-    cStack_40.y = pCVar9->carIndex * 0xa0000;
+    pos.y = carObj->carIndex * 0xa0000;
 
     break;
 
   case 3:
 
-    pCVar9 = this->carObj_;
-
-    pCVar9->AIFlags = pCVar9->AIFlags | 2;
+    this->carObj_->AIFlags = this->carObj_->AIFlags | 2;
 
     this->CheckForNewTarget();
 
@@ -2105,19 +2076,19 @@ LAB_8005e5d8:
 
       this->currentRole_ = 1;
 
-      pAVar4 = operator new(8);
+      newState = operator new(8);
 
-      pAVar5 = (AIState_Base*)(new(pAVar4) AIState_Normal(this->carObj_));
+      newState = (AIState_Base*)(new(newState) AIState_Normal(this->carObj_));
 
-      pAVar8 = this->state_;
+      oldState = this->state_;
 
-      if (pAVar8 != (AIState_Base *)0x0) {
+      if (oldState != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar8->_vf[5])((int)&pAVar8->carObj_ + (int)*(short *)pAVar8->_vf[4],3);
+        (*(int (*)(...))oldState->_vf[5])((int)&oldState->carObj_ + (int)*(short *)oldState->_vf[4],3);
 
       }
 
-      this->state_ = pAVar5;
+      this->state_ = newState;
 
       this->stateType_ = 2;
 
@@ -2125,7 +2096,7 @@ LAB_8005e5d8:
 
     }
 
-    this->GetCheckChasePosition(&cStack_40);
+    this->GetCheckChasePosition(&pos);
 
     if ((this->spikeBeltPlaced_ != 0) && (AICop_spikeBelt.slice_ == this->spikeBeltSlice_)) {
 
@@ -2179,21 +2150,21 @@ LAB_8005ea9c:
 
       this->currentRole_ = 1;
 
-      pAVar11 = operator new(0x94);
+      newState = operator new(0x94);
 
-      pAVar11 = (new(pAVar11) AIState_Chase(this->carObj_,
+      newState = (AIState_Base*)(new((AIState_Chase*)newState) AIState_Chase(this->carObj_,
 
-                           ((this->perpTarget_))->carObj_,&cStack_40,0x200,0x3c0000,0x190000,2,0x10000));
+                           ((this->perpTarget_))->carObj_,&pos,0x200,0x3c0000,0x190000,2,0x10000));
 
-      pAVar5 = this->state_;
+      oldState = this->state_;
 
-      if (pAVar5 != (AIState_Base *)0x0) {
+      if (oldState != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar5->_vf[5])((int)&pAVar5->carObj_ + (int)*(short *)pAVar5->_vf[4],3);
+        (*(int (*)(...))oldState->_vf[5])((int)&oldState->carObj_ + (int)*(short *)oldState->_vf[4],3);
 
       }
 
-      this->state_ = (AIState_Base*)pAVar11;
+      this->state_ = newState;
 
       this->stateType_ = 4;
 
@@ -2203,19 +2174,19 @@ LAB_8005ea9c:
 
       this->currentRole_ = 1;
 
-      pAVar4 = operator new(8);
+      newState = operator new(8);
 
-      pAVar5 = (AIState_Base*)(new(pAVar4) AIState_Normal(this->carObj_));
+      newState = (AIState_Base*)(new(newState) AIState_Normal(this->carObj_));
 
-      pAVar8 = this->state_;
+      oldState = this->state_;
 
-      if (pAVar8 != (AIState_Base *)0x0) {
+      if (oldState != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar8->_vf[5])((int)&pAVar8->carObj_ + (int)*(short *)pAVar8->_vf[4],3);
+        (*(int (*)(...))oldState->_vf[5])((int)&oldState->carObj_ + (int)*(short *)oldState->_vf[4],3);
 
       }
 
-      this->state_ = pAVar5;
+      this->state_ = newState;
 
       this->stateType_ = 2;
 
@@ -2223,65 +2194,63 @@ LAB_8005ea9c:
 
     iVar3 = this->UpdateFreezeModeAndPullOverMode();
 
-    if (iVar3 == 0) goto switchD_8005e388_caseD_1;
+    if (iVar3 == 0) goto stateExecuteAndReturn;
 
     this->AssignToPlayer((AIHigh_BTC_Perp *)0x0)
 
     ;
 
-    pAVar5 = operator new(8);
+    newState = operator new(8);
 
-    pCVar9 = this->carObj_;
+    carObj = this->carObj_;
 
-    (new(pAVar5) AIState_Base(pCVar9));
+    (new(newState) AIState_Base(carObj));
 
-    pAVar5->_vf = (__vtbl_ptr_type (*) [4])AIHigh_BTC_Wingman_vtable;
+    newState->_vf = (__vtbl_ptr_type (*) [4])AIHigh_BTC_Wingman_vtable;
 
-    memset((u_char *)&cStack_30,'\0',0xc);
+    memset((u_char *)&newPos,'\0',0xc);
 
-    offset = &cStack_30;
+    offset = &newPos;
 
-    cStack_30.y = pCVar9->carIndex * 0xa0000;
+    newPos.y = carObj->carIndex * 0xa0000;
 
     break;
 
   case 4:
 
-    pCVar9 = this->carObj_;
+    newState = this->state_;
 
-    pAVar11 = (AIState_Chase *)this->state_;
-
-    pCVar9->AIFlags = pCVar9->AIFlags | 2;
+    this->carObj_->AIFlags = this->carObj_->AIFlags | 2;
 
     ((AIHigh_BasicCop *)this)->HandleBlockadeSpeech();
 
-    iVar3 = this->GetCheckChasePosition(&cStack_40);
+    iVar3 = this->GetCheckChasePosition(&pos);
 
     if (iVar3 != 0) {
 
-      (pAVar11)->SetTarget(((this->perpTarget_))->carObj_,&cStack_40);
+      ((AIState_Chase *)newState)->SetTarget(((this->perpTarget_))->carObj_,&pos);
 
     }
 
-    if (0xa0 < pAVar11->barrierTicks32_) {
+    if (0xa0 < ((AIState_Chase *)newState)->barrierTicks32_) {
 
-      iVar3 = (pAVar11)->FindBarrierEndSlice();
+      iVar3 = ((AIState_Chase *)newState)->FindBarrierEndSlice();
 
-      pAVar10 = operator new(0x10);
+      carObj = (Car_tObj *)operator new(0x10);
 
-      pAVar10 = (new(pAVar10) AIState_GotoSlice(this->carObj_,iVar3,
+      carObj = (Car_tObj *)(new((AIState_GotoSlice *)carObj) AIState_GotoSlice(this->carObj_,iVar3,
 
                            0));
 
-      pAVar5 = this->state_;
+      oldState = this->state_;
 
-      if (pAVar5 != (AIState_Base *)0x0) {
+      if (oldState != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar5->_vf[5])((int)&pAVar5->carObj_ + (int)*(short *)pAVar5->_vf[4],3);
+        (*(int (*)(...))oldState->_vf[5])((int)&oldState->carObj_ + (int)*(short *)oldState->_vf[4],3);
 
       }
 
-      this->state_ = (AIState_Base *)pAVar10;
+      this->state_ = (AIState_Base *)carObj;
 
       this->stateType_ = 9;
 
@@ -2291,17 +2260,17 @@ LAB_8005ea9c:
 
     if (iVar3 != 0) {
 
-      this->GetCheckChasePosition(&cStack_30);
+      this->GetCheckChasePosition(&newPos);
 
-      (pAVar11)->SetTarget(((this->perpTarget_))->carObj_,&cStack_30);
+      ((AIState_Chase *)newState)->SetTarget(((this->perpTarget_))->carObj_,&newPos);
 
     }
 
     bVar1 = false;
 
-    if (8 < pAVar11->inTargetRegion_) {
+    if (8 < ((AIState_Chase *)newState)->inTargetRegion_) {
 
-      iVar3 = pAVar11->latMetersBetween_;
+      iVar3 = ((AIState_Chase *)newState)->latMetersBetween_;
 
       if (iVar3 < 0) {
 
@@ -2311,7 +2280,7 @@ LAB_8005ea9c:
 
       if (iVar3 < 0xe0000) {
 
-        iVar3 = pAVar11->longMetersBetween_;
+        iVar3 = ((AIState_Chase *)newState)->longMetersBetween_;
 
         if (iVar3 < 0) {
 
@@ -2327,7 +2296,7 @@ LAB_8005ea9c:
 
     if (bVar1) {
 
-      (pAVar11)->SetMurderMode(1,0x300);
+      ((AIState_Chase *)newState)->SetMurderMode(1,0x300);
 
     }
 
@@ -2335,19 +2304,19 @@ LAB_8005ea9c:
 
       this->AssignToPlayer((AIHigh_BTC_Perp *)0x0);
 
-      pAVar4 = operator new(8);
+      newState = operator new(8);
 
-      pAVar5 = (AIState_Base*)(new(pAVar4) AIState_Normal(this->carObj_));
+      newState = (AIState_Base*)(new(newState) AIState_Normal(this->carObj_));
 
-      pAVar8 = this->state_;
+      oldState = this->state_;
 
-      if (pAVar8 != (AIState_Base *)0x0) {
+      if (oldState != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar8->_vf[5])((int)&pAVar8->carObj_ + (int)*(short *)pAVar8->_vf[4],3);
+        (*(int (*)(...))oldState->_vf[5])((int)&oldState->carObj_ + (int)*(short *)oldState->_vf[4],3);
 
       }
 
-      this->state_ = pAVar5;
+      this->state_ = newState;
 
       this->stateType_ = 2;
 
@@ -2355,31 +2324,27 @@ LAB_8005ea9c:
 
     if ((this->newRole_ != this->currentRole_) && (this->newRole_ - 2 < 2)) {
 
-      pCVar9 = this->carObj_;
-
-      pCVar9->desiredDirection = -pCVar9->desiredDirection;
+      this->carObj_->desiredDirection = -this->carObj_->desiredDirection;
 
       this->AssignToPlayer((AIHigh_BTC_Perp *)0x0);
 
-      pAVar4 = operator new(8);
+      newState = operator new(8);
 
-      pAVar5 = (AIState_Base*)(new(pAVar4) AIState_Normal(this->carObj_));
+      newState = (AIState_Base*)(new(newState) AIState_Normal(this->carObj_));
 
-      pAVar8 = this->state_;
+      oldState = this->state_;
 
-      if (pAVar8 != (AIState_Base *)0x0) {
+      if (oldState != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))pAVar8->_vf[5])((int)&pAVar8->carObj_ + (int)*(short *)pAVar8->_vf[4],3);
+        (*(int (*)(...))oldState->_vf[5])((int)&oldState->carObj_ + (int)*(short *)oldState->_vf[4],3);
 
       }
 
-      pCVar9 = this->carObj_;
-
-      this->state_ = pAVar5;
+      this->state_ = newState;
 
       this->stateType_ = 2;
 
-      pSVar2 = (Speaker *)Speech_Mobile(pCVar9);
+      pSVar2 = (Speaker *)Speech_Mobile(this->carObj_);
 
       (**(int (**)(...))(pSVar2->_vf[1] + 0x1d))
 
@@ -2389,37 +2354,35 @@ LAB_8005ea9c:
 
     iVar3 = this->UpdateFreezeModeAndPullOverMode();
 
-    if (iVar3 == 0) goto switchD_8005e388_caseD_1;
+    if (iVar3 == 0) goto stateExecuteAndReturn;
 
     this->AssignToPlayer((AIHigh_BTC_Perp *)0x0)
 
     ;
 
-    pAVar5 = operator new(8);
+    newState = operator new(8);
 
-    pCVar9 = this->carObj_;
+    carObj = this->carObj_;
 
-    (new(pAVar5) AIState_Base(pCVar9));
+    (new(newState) AIState_Base(carObj));
 
-    pAVar5->_vf = (__vtbl_ptr_type (*) [4])AIHigh_BTC_Wingman_vtable;
+    newState->_vf = (__vtbl_ptr_type (*) [4])AIHigh_BTC_Wingman_vtable;
 
-    memset((u_char *)&cStack_20,'\0',0xc);
+    memset((u_char *)&trafficOffset,'\0',0xc);
 
-    offset = &cStack_20;
+    offset = &trafficOffset;
 
-    cStack_20.y = pCVar9->carIndex * 0xa0000;
+    trafficOffset.y = carObj->carIndex * 0xa0000;
 
     break;
 
   case 7:
 
-    pCVar9 = this->carObj_;
-
-    pCVar9->AIFlags = pCVar9->AIFlags & 0xfffffffd;
+    this->carObj_->AIFlags = this->carObj_->AIFlags & 0xfffffffd;
 
     WVar7 = this->newRole_;
 
-    if (this->currentRole_ == WVar7) goto switchD_8005e388_caseD_1;
+    if (this->currentRole_ == WVar7) goto stateExecuteAndReturn;
 
     if (WVar7 == 1) {
 
@@ -2431,25 +2394,25 @@ LAB_8005ea9c:
 
     }
 
-    if (1 < WVar7 - 2) goto switchD_8005e388_caseD_1;
+    if (1 < WVar7 - 2) goto stateExecuteAndReturn;
 
     this->currentRole_ = WVar7;
 
     this->SetupBlockader(this->newHumanBoss_,(u_int)(this->newRole_ == 3));
 
-    pAVar5 = operator new(0x10);
+    newState = operator new(0x10);
 
-    (new(pAVar5) AIState_Base(this->carObj_));
+    (new(newState) AIState_Base(this->carObj_));
 
-    pAVar5->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
+    newState->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
 
-    pAVar5[1]._vf = (__vtbl_ptr_type (*) [4])0x1;
+    ((AIState_Idle *)newState)->roadPosition_ = 1;
 
-    pAVar8 = this->state_;
+    oldState = this->state_;
 
-    if (pAVar8 != (AIState_Base *)0x0) {
+    if (oldState != (AIState_Base *)0x0) {
 
-      (*(int (*)(...))pAVar8->_vf[5])((int)&pAVar8->carObj_ + (int)*(short *)pAVar8->_vf[4],3);
+      (*(int (*)(...))oldState->_vf[5])((int)&oldState->carObj_ + (int)*(short *)oldState->_vf[4],3);
 
     }
 
@@ -2459,27 +2422,27 @@ LAB_8005ea9c:
 
   case 9:
 
-    pAVar10 = (AIState_GotoSlice *)this->state_;
+    carObj = (Car_tObj *)this->state_;
 
     this->AssignToPlayer((AIHigh_BTC_Perp *)0x0)
 
     ;
 
-    iVar3 = (pAVar10)->InTargetSliceRange(0xa0000);
+    iVar3 = ((AIState_GotoSlice *)carObj)->InTargetSliceRange(0xa0000);
 
-    if (iVar3 == 0) goto switchD_8005e388_caseD_1;
+    if (iVar3 == 0) goto stateExecuteAndReturn;
 
 LAB_8005ed58:
 
-    pAVar4 = operator new(8);
+    newState = operator new(8);
 
-    pAVar5 = (AIState_Base*)(new(pAVar4) AIState_Normal(this->carObj_));
+    newState = (AIState_Base*)(new(newState) AIState_Normal(this->carObj_));
 
-    pAVar8 = this->state_;
+    oldState = this->state_;
 
-    if (pAVar8 != (AIState_Base *)0x0) {
+    if (oldState != (AIState_Base *)0x0) {
 
-      (*(int (*)(...))pAVar8->_vf[5])((int)&pAVar8->carObj_ + (int)*(short *)pAVar8->_vf[4],3);
+      (*(int (*)(...))oldState->_vf[5])((int)&oldState->carObj_ + (int)*(short *)oldState->_vf[4],3);
 
     }
 
@@ -2487,29 +2450,29 @@ LAB_8005ed58:
 
 LAB_8005ed9c:
 
-    this->state_ = pAVar5;
+    this->state_ = newState;
 
 LAB_8005eda0:
 
     this->stateType_ = sVar6;
 
-    goto switchD_8005e388_caseD_1;
+    goto stateExecuteAndReturn;
 
   }
 
-  Newton_SetInitialSlicePositionOrientationEtc(&pAVar5->carObj_->N,0,offset,1);
+  Newton_SetInitialSlicePositionOrientationEtc(&newState->carObj_->N,0,offset,1);
 
-  (pAVar5->carObj_->N).active = '\0';
+  (newState->carObj_->N).active = '\0';
 
-  pAVar8 = this->state_;
+  oldState = this->state_;
 
-  if (pAVar8 != (AIState_Base *)0x0) {
+  if (oldState != (AIState_Base *)0x0) {
 
-    (*(int (*)(...))pAVar8->_vf[5])((int)&pAVar8->carObj_ + (int)*(short *)pAVar8->_vf[4],3);
+    (*(int (*)(...))oldState->_vf[5])((int)&oldState->carObj_ + (int)*(short *)oldState->_vf[4],3);
 
   }
 
-  this->state_ = pAVar5;
+  this->state_ = newState;
 
   this->stateType_ = 7;
 
@@ -2517,7 +2480,7 @@ LAB_8005eda0:
 
   this->currentRole_ = 0;
 
-switchD_8005e388_caseD_1:
+stateExecuteAndReturn:
 
   (this->state_)->StateExecute();
 

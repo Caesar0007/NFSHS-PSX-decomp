@@ -502,7 +502,7 @@ DrawBg_tvConfigsLoop:
     r.w = 0x11c;
     r.h = 0x2a;
     str = TextSys_Word(0x272);
-    FETextRender_WordWrapTextRGB(str,&r,iVar7);
+    FETextRender_WordWrapTextRGB(str,r,iVar7);
     iVar7 = 0;
     FETextRender_SetABR(0,false);
     FeDraw_SetABRMode(iVar7);

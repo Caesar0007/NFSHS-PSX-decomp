@@ -20,7 +20,7 @@ int   CalcFadeVal(int, int);
 void  DrawShapeExtended(int, int, int, int, int, int, tDrawShapeExtended*);
 void  FETextRender_SetABR(int, bool);
 void  FETextRender_FullTextRGB(char*, short, short, int, char, short);
-int   FETextRender_WordWrapTextRGBJustify(char*, RECT*, int, int, int, bool);
+int   FETextRender_WordWrapTextRGBJustify(char*, RECT&, int, int, int, bool);
 void  FETextRender_SetFont(int);
 char *TextSys_Word(int);
 int   textpixels(char*);

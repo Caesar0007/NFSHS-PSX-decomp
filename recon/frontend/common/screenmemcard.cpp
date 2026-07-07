@@ -646,7 +646,7 @@ DrawBg47470_calcFadeMessage:
   rr.h = 0;
   rr.x = (ushort)kMemCardMessageX;
   rr.y = (short)kMemCardMessageY;
-  FETextRender_WordWrapTextRGBJustify(this->fMemCardMessage,&rr,textCol,textJustify,0,false);
+  FETextRender_WordWrapTextRGBJustify(this->fMemCardMessage,rr,textCol,textJustify,0,false);
   word = TextSys_Word(this->player + 0x293);
   FETextRender_FullTextRGB
             (word,(short)kMemCardMessage1X,(short)kMemCardMessage1Y,gray,'\0',2);

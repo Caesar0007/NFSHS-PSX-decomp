@@ -379,7 +379,7 @@ void tScreenTournSelect::DrawBackground()
   col = 0;
   tstr8 = TextSys_Word((int)(short)(ti6 + 0x26));
   row = CalcFadeVal(0x505050,(int)r_00);
-  FETextRender_WordWrapTextRGB(tstr8,&r,row);
+  FETextRender_WordWrapTextRGB(tstr8,r,row);
   FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,0x3db,0xaa,0x75,0,textState_Selected,
              textType_ScreenInfo);
   FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,(short)((uint)((ti6 + 0x39) * 0x10000) >> 0x10),

@@ -39,7 +39,7 @@ void FeTools_DrawPSXButton(u_char,u_short,int,int);
 void FETextRender_SetABR(int,bool);
 void FETextRender_FullText(char*,short,short,tMenuTextType,tMenuTextState,short);
 int  FETextRender_WordWrapHeight(...);
-void FETextRender_WordWrapTextRGB(...);
+void FETextRender_WordWrapTextRGB(char*, RECT&, int);
 int  FEInput_GetKeyFromPlayer(...);
 extern int CURRENTPLAYER;
 int MCRD_handlecardevents(...);  int MCRD_getcard(...);

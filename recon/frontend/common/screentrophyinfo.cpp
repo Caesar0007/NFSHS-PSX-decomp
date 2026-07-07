@@ -102,7 +102,7 @@ void tScreenTrophyInfo::DrawBackground()
     r.y = yyy;
     word = TextSys_Word(ti_col);
     ti_fade = CalcFadeVal(0x505050,ti_fade);
-    FETextRender_WordWrapTextRGB(word,&r,ti_fade);
+    FETextRender_WordWrapTextRGB(word,r,ti_fade);
     word = TextSys_Word(ti_col);
     ti_col = FETextRender_WordWrapHeight(0x15b,word);
     yyy = yyy + (short)ti_col;
@@ -119,7 +119,7 @@ void tScreenTrophyInfo::DrawBackground()
     r.y = yyy;
     word = TextSys_Word(ti_col);
     ti_fade = CalcFadeVal(0x505050,ti_fade);
-    FETextRender_WordWrapTextRGB(word,&r,ti_fade);
+    FETextRender_WordWrapTextRGB(word,r,ti_fade);
     word = TextSys_Word(ti_col);
     FETextRender_WordWrapHeight(0x15b,word);
   }
@@ -132,7 +132,7 @@ void tScreenTrophyInfo::DrawBackground()
   r.w = 0x1c4;
   r.h = 100;
   word = TextSys_Word(tournID + 0x367);
-  FETextRender_WordWrapTextRGBJustify(word,&r,CalcFadeVal(0x505050,ti_fade),3,0,false);
+  FETextRender_WordWrapTextRGBJustify(word,r,CalcFadeVal(0x505050,ti_fade),3,0,false);
   drawFlags.custom_shapes = this->fSwapShapes.fShapes;
   ScaleShapeExtended(bannerXOff,0x600,0x46,-5,FadePartI,0,&drawFlags);
   i = 1;

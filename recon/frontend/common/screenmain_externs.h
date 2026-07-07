@@ -48,7 +48,7 @@ void  PSXDrawTransSquare(int, int, int, int, int, short);
 void  PSXDrawSquare(int, int, int, int, int);
 void  FeDraw_SetABRMode(int);
 void  FETextRender_SetABR(int, bool);
-void  FETextRender_WordWrapTextRGB(char*, RECT*, int);
+void  FETextRender_WordWrapTextRGB(char*, RECT&, int);
 int   CalcFadeVal(int, int);
 char *TextSys_Word(int);
 void  DrawTV(tTVConfig*);

@@ -288,7 +288,7 @@ void tCreditManager::DrawCurrCredit()
     r.w = fShowCred->titleWidth;
     r.h = 100;
     wordText = (int)TextSys_Word(fShowCred->titleTextID + 0x514);
-    FETextRender_WordWrapTextRGBJustify((char *)wordText,&r,ColTextTitle,fShowCred->titleJustify,0,false);
+    FETextRender_WordWrapTextRGBJustify((char *)wordText,r,ColTextTitle,fShowCred->titleJustify,0,false);
   }
   if (fShowCred->subTitleWidth == 0) {
     fadeAlpha = (ushort)tu1 + 8;
@@ -303,7 +303,7 @@ void tCreditManager::DrawCurrCredit()
     r.w = fShowCred->subTitleWidth;
     r.h = 100;
     pcVar3 = TextSys_Word(fShowCred->subTitleTextID + 0x514);
-    ColTextTitle = FETextRender_WordWrapTextRGBJustify(pcVar3,&r,ColTextSubTitle,fShowCred->subTitleJustify,0,false);
+    ColTextTitle = FETextRender_WordWrapTextRGBJustify(pcVar3,r,ColTextSubTitle,fShowCred->subTitleJustify,0,false);
     fadeAlpha = (uint)(ushort)tu1 + ColTextTitle;
     ColTextTitle = ColTextSubTitle;
   }
@@ -419,7 +419,7 @@ void tCreditManager::DrawCurrCredit()
       r.h = 100;
       pcVar3 = TextSys_Word(0x596);
       ColTextTitle = ColText;
-      FETextRender_WordWrapTextRGBJustify(pcVar3,&r,ColText,0,0,false);
+      FETextRender_WordWrapTextRGBJustify(pcVar3,r,ColText,0,0,false);
       fadeAlpha = fadeAlpha + 8;
     }
     else if (hidden) {

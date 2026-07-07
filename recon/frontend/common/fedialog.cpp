@@ -620,7 +620,7 @@ void tDialogMessageString::Draw()
     r.h = this->height - (this->reservedheight + 8);
     FETextRender_SetABR(1,true);
     if (this->Centerit == 0) {
-      FETextRender_WordWrapTextRGB(this->string,&r,col);
+      FETextRender_WordWrapTextRGB(this->string,r,col);
     }
     else {
       FETextRender_FullTextRGB(this->string,

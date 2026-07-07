@@ -54,7 +54,7 @@ void  DrawMoney(int x, int y, int digits, long amount, int rgb1, int rgb2);
 void  FETextRender_MenuTextFade(int fade, short index, tMenuTextState st, tMenuTextType tt);
 void  FETextRender_FullTextRGB(char *s, short x, short y, int rgb, char a, short b);
 void  FETextRender_WordWrapFade(int fade, short index, RECT *r, tMenuTextState st, tMenuTextType tt);
-void  FETextRender_WordWrapTextRGB(char *s, RECT *r, int rgb);
+void  FETextRender_WordWrapTextRGB(char *s, RECT &r, int rgb);
 short FETextRender_WordWrapHeight(short w, char *s);
 void  FETextRender_MenuTextPositionedJustifyFade(int fade, short index, short x, short y, short j, tMenuTextState st, tMenuTextType tt);
 short TextValue(tListIteratorTournament *it, tPlayer p);

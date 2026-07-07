@@ -95,7 +95,7 @@ void FindAbsClosestSliceCrude(coorddef *pt,BWorldSm_Pos *slicePos)
   iVar3 = 0;
   if (0 < gNumSlices) {
     do {
-      iVar2 = xzsquaredist32((coorddef *)(BWorldSm_slices + iVar3 * 0x20),pt);
+      iVar2 = xzsquaredist32((coorddef *)((char *)BWorldSm_slices +iVar3 * 0x20),pt);
       if (iVar2 < iVar4) {
         iVar4 = iVar2;
         iVar6 = iVar3;
@@ -118,12 +118,12 @@ int BWorldSm_FindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
   int iVar4;
   
   sVar2 = slicePos->slice;
-  iVar4 = Math_DistXZ((coorddef *)(BWorldSm_slices + sVar2 * 0x20),pt);
+  iVar4 = Math_DistXZ((coorddef *)((char *)BWorldSm_slices +sVar2 * 0x20),pt);
   if (0x800000 < iVar4) {
     FindAbsClosestSliceCrude(pt,slicePos);
   }
   RawFindClosestSlice(pt,slicePos);
-  uVar1 = *(u_char *)(slicePos->slice * 0x20 + BWorldSm_slices + 0x1c);
+  uVar1 = *(u_char *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 0x1c);
   bVar3 = slicePos->slice != sVar2;
   slicePos->quadChanged = bVar3;
   slicePos->sliceChanged = bVar3;
@@ -164,12 +164,12 @@ void RawFindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
         iVar7 = iVar8 % gNumSlices;
         iVar2 = pt->x;
       }
-      piVar5 = (int *)(iVar7 * 0x20 + BWorldSm_slices);
+      piVar5 = (int *)(iVar7 * 0x20 + (char *)BWorldSm_slices);
       iVar7 = iVar2 - *piVar5 >> 9;
       iVar2 = pt->z - piVar5[2] >> 9;
       iVar2 = iVar7 * iVar7 + iVar2 * iVar2;
       if (iVar8 < gNumSlices + -2) {
-        iVar6 = iVar8 * 0x20 + BWorldSm_slices;
+        iVar6 = iVar8 * 0x20 + (char *)BWorldSm_slices;
         iVar7 = pt->x - *(int *)(iVar6 + 0x20) >> 9;
         iVar6 = pt->z - *(int *)(iVar6 + 0x28) >> 9;
         if (iVar7 * iVar7 + iVar6 * iVar6 < iVar2) {
@@ -180,7 +180,7 @@ LAB_8007ec3c:
           if (iVar8 < 1) {
             iVar7 = iVar8 + 1 + iVar9;
             iVar6 = iVar7 + -1;
-            piVar5 = (int *)((iVar6 % gNumSlices) * 0x20 + BWorldSm_slices);
+            piVar5 = (int *)((iVar6 % gNumSlices) * 0x20 + (char *)BWorldSm_slices);
             iVar3 = pt->x - *piVar5 >> 9;
             iVar4 = pt->z - piVar5[2] >> 9;
             if (iVar3 * iVar3 + iVar4 * iVar4 < iVar2) {
@@ -190,7 +190,7 @@ LAB_8007ec3c:
             iVar7 = iVar2 % gNumSlices;
           }
           else {
-            iVar7 = iVar8 * 0x20 + BWorldSm_slices;
+            iVar7 = iVar8 * 0x20 + (char *)BWorldSm_slices;
             iVar6 = pt->x - *(int *)(iVar7 + -0x20) >> 9;
             iVar3 = pt->z - *(int *)(iVar7 + -0x18) >> 9;
             iVar7 = iVar8;
@@ -202,7 +202,7 @@ LAB_8007ec3c:
       }
       else {
         iVar7 = (iVar8 + 1) % gNumSlices;
-        piVar5 = (int *)(iVar7 * 0x20 + BWorldSm_slices);
+        piVar5 = (int *)(iVar7 * 0x20 + (char *)BWorldSm_slices);
         iVar6 = pt->x - *piVar5 >> 9;
         iVar3 = pt->z - piVar5[2] >> 9;
         if (iVar2 <= iVar6 * iVar6 + iVar3 * iVar3) goto LAB_8007ec3c;
@@ -370,7 +370,7 @@ void BWorld_SetSimSlice(BWorldSm_Pos *slicePos)
   int chunkSliceInd;
   u_char bVar1;
   
-  bVar1 = *(u_char *)(slicePos->slice * 0x20 + BWorldSm_slices + 0x1c);
+  bVar1 = *(u_char *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 0x1c);
   slicePos->chunk = bVar1;
   slicePos->simSlice =
        (Trk_NewSimSlice *)
@@ -724,9 +724,9 @@ int FindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
     pTVar7 = slicePos->simQuad;
     for (iVar6 = 0; (pTVar7 == (Trk_NewSimQuad *)0x0 && (iVar6 < 10)); iVar6 = iVar6 + 1) {
       corrPt.x = corrPt.x +
-                    (*(int *)(slicePos->slice * 0x20 + BWorldSm_slices) - corrPt.x >> 5);
+                    (*(int *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices) - corrPt.x >> 5);
       corrPt.z = corrPt.z +
-                    (*(int *)(slicePos->slice * 0x20 + BWorldSm_slices + 8) - corrPt.z >> 5);
+                    (*(int *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 8) - corrPt.z >> 5);
       RawFindClosestQuad(&corrPt,slicePos);
       pTVar7 = slicePos->simQuad;
     }
@@ -886,7 +886,7 @@ void * BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos)
   int surf;
   u_char bVar1;
   
-  if ((*(u_char *)(slicePos->slice * 0x20 + BWorldSm_slices + 0x15) & 0x44) == 0) {
+  if ((*(u_char *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 0x15) & 0x44) == 0) {
     if (slicePos->simQuad == (Trk_NewSimQuad *)0x0) {
       bVar1 = 0xe;
     }

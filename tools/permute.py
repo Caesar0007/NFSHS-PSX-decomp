@@ -128,23 +128,65 @@ def _lower_method(text, fnname):
     # `struct D : public B { ... }` to `struct D { B _vbase_; ... };` (layout-
     # neutral) but does NOT rewrite call sites, so a method body's transparent
     # `this->baseField` (valid in real C++, since D IS-A B) no longer resolves
-    # in the lowered plain-C struct. Find D's `_vbase_` member type, pull ITS
-    # field names from its own (possibly-also-flattened, single-level) struct
-    # body, and redirect `this->baseField` -> `this->_vbase_.baseField` for
-    # exactly those names (never touching D's own fields or method calls,
-    # which the existing rules below already handle).
-    vbase_m = re.search(r"\bstruct\s+" + re.escape(cls) + r"\s*\{\s*(\w+)\s+_vbase_\s*;", text)
-    if vbase_m:
+    # in the lowered plain-C struct. Walk D's base chain (D -> B -> B's own
+    # base -> ...) collecting each level's OWN field names, and redirect
+    # `this->baseField` -> `this->_vbase_[._vbase_...].baseField` with the
+    # right number of `_vbase_` hops for whichever level actually declares it
+    # (never touching D's own fields or method calls, which the existing
+    # rules below already handle).
+    #
+    # 🔴 TWO BUGS FIXED HERE (2026-07-07, found on tMenuItemSlidingActivated::
+    # TransitionOn -- a 2-level chain, tMenuItemSlidingActivated->
+    # tMenuItemSlidingMenu->tMenuItem, where tMenuItemSlidingMenu declares 13
+    # fields across multi-declarator lines):
+    #   (a) UNDERCAPTURE — `(\w+)\s*(?:\[...\])?\s*;` only grabs the LAST name
+    #       before each `;`, so a comma-list declarator line like
+    #       `short fWidth, fHeight, fOpenHeight, fSlideOffset, fFadeVal,
+    #       fFadeDir;` yielded ONLY `fFadeDir`, silently dropping the other 5
+    #       (and `tInsideBoxMenu *currMenu, *nextMenu;` dropped `currMenu`).
+    #       Symptom: most inherited-field accesses in the method body were
+    #       left as bare `this->field` — invalid C after flattening, and
+    #       pycparser/cc1 rejects the whole base.c ("has no member named").
+    #   (b) OVERCAPTURE — the synthetic `_vbase_` member name of a base-of-
+    #       base (e.g. `tMenuItem _vbase_;` inside `tMenuItemSlidingMenu`'s
+    #       own flattened body) matched the SAME generic `(\w+)\s*;` pattern
+    #       and got treated as a real field to rewrite. Applying its rewrite
+    #       rule AFTER a field that ALREADY got correctly rewritten to
+    #       `this->_vbase_.fFadeDir` re-matched the literal `_vbase_` inside
+    #       that result and prefixed it AGAIN -> `this->_vbase_._vbase_.
+    #       fFadeDir` (wrong: double-hop for a field that's only 1 level up).
+    # Fix: split multi-declarator lines on `,` before extracting names, strip
+    # any leading `*`/array suffix per name, and explicitly exclude the
+    # `_vbase_` sentinel itself from the field set at each level.
+    prefix = ""
+    cur_cls = cls
+    seen_levels = 0
+    while seen_levels < 8:                       # generous depth guard, not a real limit
+        vbase_m = re.search(r"\bstruct\s+" + re.escape(cur_cls) + r"\s*\{\s*(\w+)\s+_vbase_\s*;", text)
+        if not vbase_m:
+            break
         base_cls = vbase_m.group(1)
+        prefix += "_vbase_."
         base_body_m = re.search(r"\bstruct\s+" + re.escape(base_cls) + r"\s*\{([^}]*)\}", text)
         if base_body_m:
-            base_fields = set(re.findall(r"(\w+)\s*(?:\[[^\]]*\])?\s*;", base_body_m.group(1)))
-            # a field-pointer decl `T (*name)[N];` (e.g. the vtable `_vf`) needs
-            # its own pattern (the generic one above only sees plain `name;`).
-            base_fields |= set(re.findall(r"\(\s*\*\s*(\w+)\s*\)", base_body_m.group(1)))
-            for fld in base_fields:
+            raw_body = base_body_m.group(1)
+            own_fields = set()
+            for decl in raw_body.split(";"):
+                # each `;`-terminated declarator list, e.g. " short fWidth, fHeight"
+                # or " tInsideBoxMenu *currMenu, *nextMenu" or " tMenuItem _vbase_"
+                for part in decl.split(","):
+                    nm = re.findall(r"(\w+)\s*(?:\[[^\]]*\])?\s*$", part.strip())
+                    if nm:
+                        own_fields.add(nm[-1])
+                # field-pointer decl `T (*name)[N]` (e.g. the vtable `_vf`) needs its
+                # own pattern (the generic split-on-comma above misparses the `(*name)`).
+                own_fields |= set(re.findall(r"\(\s*\*\s*(\w+)\s*\)", decl))
+            own_fields.discard("_vbase_")             # exclude the sentinel itself (bug b)
+            for fld in own_fields:
                 body = re.sub(r"\bthis\s*->\s*" + re.escape(fld) + r"\b(?!\s*\()",
-                               "this->_vbase_." + fld, body)
+                               "this->" + prefix + fld, body)
+        cur_cls = base_cls
+        seen_levels += 1
 
     called = set(re.findall(r"this\s*->\s*(\w+)\s*\(", body))
     body = re.sub(r"this\s*->\s*(\w+)\s*\(\s*\)", cls + r"__\1(thiz)", body)
@@ -176,6 +218,7 @@ def do_setup(module, symbol, asm_rel):
     mod = RECON / module
     pp = subprocess.run(
         [str(SYSCPP), "-P", "-nostdinc", "-DPERMUTER",
+         "-D__mips__", "-D__psx__",
          "-I", str(mod.parent), "-I", str(RECON), str(mod)],
         capture_output=True, text=True)
     if pp.returncode:

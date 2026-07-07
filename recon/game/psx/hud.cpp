@@ -62,6 +62,20 @@ int          HudSplitTimeDiff2[2];   /* @0x8013de20  (bss(zero)) */
 int          BTC_BonusTime;   /* @0x8013de28  (bss(zero)) */
 int          BTC_BonusTimeTick;   /* @0x8013de2c  (bss(zero)) */
 int          BTC_UserHasControl;   /* @0x8013de30  (bss(zero)) */
+/* PerpOverlayOn[2] @0x8013de38 (bss(zero)). NEAR-MISS FLOOR note (Hud_Reset__Fv, 8 diffs):
+ * the oracle reaches this array's CONSTANT-index [0]/[1] clears as two INDEPENDENT
+ * %gp_rel(D_8013DE38)/%gp_rel(D_8013DE3C) 4-byte scalars (each <=G4 -> gp-rel; both listed in
+ * configs/gp_rel_symbols.txt), while Hud_Init/Perp_OverlayOn/Off/RenderHudView use runtime-index/
+ * pointer-walk/byte-offset and keep absolute array codegen. Our gcc-2.8.0 CSEs the two adjacent
+ * constant-index stores onto ONE absolute base (lui+sw+addiu+sw), so GAS -G4 sees one 8-byte
+ * object, not two 4-byte ones. Splitting into two tentative-def scalars (weather.cpp
+ * Weather_gLastProcessTime0/1 precedent) DOES defeat the CSE and reproduce the per-element gp-rel
+ * (8 -> 2 diffs, insn count matches 22/22, 0 verify_asm regressions since .bss isn't byte-compared);
+ * the residual 2 is a genuine `lui $a1,%hi(BTC_CurrentPerpName)` HOIST-POSITION scheduling tie
+ * (oracle emits it before `lui $v1,%hi(Hud_NextPerp)`, ours after -- not source-reachable). NOT
+ * landed: the scalar/array duality needs link-level aliasing verification (do the scalars overlay
+ * &PerpOverlayOn[0..1] so Hud_Reset's clears stay runtime-faithful) -- a dedicated data-layout
+ * pass, same open "duality to collapse" as weather.cpp. gp_rel_symbols.txt is CORRECT, not stale. */
 int          PerpOverlayOn[2];   /* @0x8013de38  (bss(zero)) */
 int          PerpOverlayMessage[2];   /* @0x8013de40  (bss(zero)) */
 int          Hud_gShowedCDPlayer;   /* @0x8013de48  (bss(zero)) */

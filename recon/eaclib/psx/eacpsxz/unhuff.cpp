@@ -205,9 +205,10 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
                     {
                         unsigned int basecmp;
 
+                        numchars = 0;
+
                         SQgetbits(clue,8);                          /* clue byte */
 
-                        numchars = 0;
                         numbits = 1;
                         basecmp = (unsigned int) 0;
 
@@ -246,22 +247,27 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
                         SQmemset(leap,0,256);
                         nextchar = (unsigned char) -1;
 
-                        for (i=0;i<numchars;++i)
+                        if (numchars > 0)
                         {
-                            int leapdelta=0;
-
-                            SQgetnum(leapdelta);
-                            ++leapdelta;
-
+                            i = 0;
                             do
                             {
-                                ++nextchar;
-                                if (!leap[nextchar])
-                                    --leapdelta;
-                            } while (leapdelta);
+                                int leapdelta=0;
 
-                            leap[nextchar] = 1;
-                            codetbl[i] = nextchar;
+                                SQgetnum(leapdelta);
+                                ++leapdelta;
+
+                                do
+                                {
+                                    ++nextchar;
+                                    if (!leap[nextchar])
+                                        --leapdelta;
+                                } while (leapdelta);
+
+                                leap[nextchar] = 1;
+                                codetbl[i] = nextchar;
+                                ++i;
+                            } while (i < numchars);
                         }
                     }
                 }

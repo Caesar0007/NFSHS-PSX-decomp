@@ -62,11 +62,11 @@ extern "C" int iSNDstop(unsigned int chan)
     iSNDfreechan((int)chan);
     (&DAT_80147a0d)[vt] = 3;
     (&DAT_80147a0c)[vt] = 0;
-    mask = 1u << (chan & 0x1f);
+    mask = 1u << (chan);
     if (1 < (&DAT_80147a0f)[vt]) {                             /* linked pair -> stop the partner too */
         link = (unsigned)(char)(&DAT_80147a10)[vt];
         iSNDfreechan((int)link);
-        mask |= 1u << (link & 0x1f);
+        mask |= 1u << (link);
         (&DAT_80147a0d)[link * 0x2c] = 3;
         (&DAT_80147a0c)[link * 0x2c] = 0;
     }
@@ -105,9 +105,9 @@ extern "C" int iSNDplatformfxlevel(unsigned int chan, int bus, int fxon)
         (&DAT_80147a13)[vt] = (char)fxon;
         return 0;
     }
-    mask = 1u << (chan & 0x1f);                               /* (computed even when the branch below skips) */
+    mask = 1u << (chan);                               /* (computed even when the branch below skips) */
     if ((&DAT_80147a0f)[vt] == 2)
-        mask |= 1u << ((unsigned char)(&DAT_80147a10)[vt] & 0x1f);
+        mask |= 1u << ((unsigned char)(&DAT_80147a10)[vt]);
     if (fxon == 0)
         iSNDpsxeffectoff((int)mask);
     else

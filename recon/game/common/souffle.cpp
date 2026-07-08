@@ -205,9 +205,9 @@ void Souffle_DoSouffle(void)
       if (Replay_ReplayMode == 2) {
         uVar4 = 2 - Replay_ReplayInterface.speed;
         if (0 < (int)uVar4) {
-          motion.x = motion.x >> (uVar4 & 0x1f);
-          motion.z = motion.z >> (uVar4 & 0x1f);
-          motion.y = motion.y >> (uVar4 & 0x1f);
+          motion.x = motion.x >> (uVar4);
+          motion.z = motion.z >> (uVar4);
+          motion.y = motion.y >> (uVar4);
         }
         if ((int)uVar4 < 0) {
           motion.x = motion.x << 1;
@@ -245,8 +245,8 @@ void Souffle_DoSouffle(void)
         if (Replay_ReplayMode == 2) {
           uVar4 = 2 - Replay_ReplayInterface.speed;
           if (0 < (int)uVar4) {
-            extramotion.x = extramotion.x >> (uVar4 & 0x1f);
-            extramotion.z = extramotion.z >> (uVar4 & 0x1f);
+            extramotion.x = extramotion.x >> (uVar4);
+            extramotion.z = extramotion.z >> (uVar4);
           }
           if ((int)uVar4 < 0) {
             extramotion.x = extramotion.x << 1;

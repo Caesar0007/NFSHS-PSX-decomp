@@ -868,7 +868,7 @@ void Cars_AddCarSfx(Car_tObj *carObj,int wheel,coorddef *skidpt,int roadSurface,
   int type;
   
   iVar6 = Cars_kSmokingSurface[roadSurface & 0xfU];
-  uVar5 = 1 << (wheel & 0x1fU);
+  uVar5 = 1 << (wheel);
   car = (carObj->N).objID;
   type = Cars_kConvertFromRoadToSfxType[roadSurface & 0xfU];
   if (surfaceType == 3) {

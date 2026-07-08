@@ -1139,7 +1139,7 @@ gte_swc2(0x16,((char *)sd + 0x12c));
       prim->v3 = (char)((u_int)uVar7_00 >> 8);
       prim->pad3 = (short)((u_int)uVar7_00 >> 0x10);
       if (prim->clut == 0xffff) {
-        ti18 = (bfctResult - sd->startfog) * 0x10 >> ((int)sd->distfog & 0x1fU);
+        ti18 = (bfctResult - sd->startfog) * 0x10 >> ((int)sd->distfog);
         if (ti18 < 0) {
           ti18 = 0;
         }
@@ -2598,7 +2598,7 @@ gte_swc2(0x7,(void *)0x1f800094);
           *(int *)((int)primPtr + 0x24) = uv_u_pack;
           *(int *)((int)primPtr + 0x30) = uv_alpha;
           if (*(short *)((int)primPtr + 0xe) == -1) {
-            vert_idx = (vt_y - (short)Skid_gScratchPos1) * 0x10 >> (Skid_gScratchPos2 & 0x1f);
+            vert_idx = (vt_y - (short)Skid_gScratchPos1) * 0x10 >> (Skid_gScratchPos2);
             if (vert_idx < 0) {
               vert_idx = 0;
             }
@@ -3010,7 +3010,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
             ((POLY_GT4 *)primSlot)->v3 = (char)((u_int)uVar2 >> 8);
             ((POLY_GT4 *)primSlot)->pad3 = (short)((u_int)uVar2 >> 0x10);
             if (((POLY_GT4 *)primSlot)->clut == 0xffff) {
-              ti9 = (save_pre_otz_l - sd->startfog) * 0x10 >> ((int)sd->distfog & 0x1fU);
+              ti9 = (save_pre_otz_l - sd->startfog) * 0x10 >> ((int)sd->distfog);
               if (ti9 < 0) {
                 ti9 = 0;
               }

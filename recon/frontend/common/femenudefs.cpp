@@ -1407,7 +1407,7 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
      and costs a 6th saved reg (s5) + a bigger frame. The hoist is a gcc code-motion choice not
      reachable from C statement order (the ctor is already nested in the inner else). Forbidden to
      pin. Param->s0 vs s3 cascades through the sllv/and/slt register coloring = the bulk of the 73. */
-  uVar5 = 1 << (upgradeNumber & 0x1fU);
+  uVar5 = 1 << (upgradeNumber);
   GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],&carInfo,0);
   if ((carInfo.fUpgrades & uVar5) == 0) {
     if (tournamentManager.fMoney < carInfo.fPrices[upgradeNumber + 1]) {

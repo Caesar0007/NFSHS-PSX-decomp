@@ -464,7 +464,7 @@ extern "C" int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, 
         pp[0x12] = (int)(pp + 0x14);
         *(char *)((int)pp + 0x43) = (char)(0xd - ch);
         pp[0x13] = (int)pp + *(unsigned short *)(pp + 0x11) + 0x50;
-        blockSamps = (int)pp[1] >> (0xd - ch & 0x1f);
+        blockSamps = (int)pp[1] >> (0xd - ch);
     }
     *(short *)(pp + 0xe) = (short)blockSamps;
     frames = (unsigned)(blockSamps & 0xffff);
@@ -480,7 +480,7 @@ extern "C" int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, 
         *(short *)((int)pp + 0x32) = 0;
         *(short *)(pp + 0xf) = 0;
         pp[9] = 0; pp[8] = 0; pp[7] = 0; pp[6] = 0; pp[5] = 0;
-        pp[2] = (unsigned)*(unsigned short *)(pp + 0xe) << (*(unsigned char *)((int)pp + 0x43) & 0x1f);
+        pp[2] = (unsigned)*(unsigned short *)(pp + 0xe) << (*(unsigned char *)((int)pp + 0x43));
         pp[3] = total;
         pp[4] = total - (unsigned)*(unsigned short *)((int)pp + 0x46);
     }

@@ -748,9 +748,9 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
   AI_Info.laneSpeeds[2] = carObj->desiredSpeed;
   uVar4 = carObj->laneIndex;
   iVar7 = carObj->sortIndex;
-  uVar12 = 1 << (uVar4 - 1 & 0x1f);
-  uVar11 = 1 << (uVar4 & 0x1f);
-  uVar4 = 1 << (uVar4 + 1 & 0x1f);
+  uVar12 = 1 << (uVar4 - 1);
+  uVar11 = 1 << (uVar4);
+  uVar4 = 1 << (uVar4 + 1);
   AI_Info.laneSpeedsAhead[0] = AI_Info.laneSpeeds[0];
   AI_Info.laneSpeedsAhead[1] = AI_Info.laneSpeeds[1];
   AI_Info.laneSpeedsAhead[2] = AI_Info.laneSpeeds[2];
@@ -970,25 +970,25 @@ void AI_CheckForClearLanes(Car_tObj *carObj)
          (iVar2 = AIWorld_SplineDistance(carObj_00,carObj),
          iVar2 + 0x40000U < 0x6e0000)) {
         uVar3 = carObj->laneIndex;
-        if (((carObj_00->carInLane >> (uVar3 & 0x1f) & 1U) != 0) &&
-           (((int)uVar5 >> (uVar3 & 0x1f) & 1U) == 0)) {
+        if (((carObj_00->carInLane >> (uVar3) & 1U) != 0) &&
+           (((int)uVar5 >> (uVar3) & 1U) == 0)) {
           local_34 = 0;
           iVar6 = iVar6 + 1;
-          uVar5 = uVar5 | 1 << (carObj->laneIndex & 0x1fU);
+          uVar5 = uVar5 | 1 << (carObj->laneIndex);
           uVar3 = carObj->laneIndex;
         }
-        if (((0 < (int)uVar3) && ((carObj_00->carInLane >> (uVar3 - 1 & 0x1f) & 1U) != 0)) &&
-           (((int)uVar5 >> (uVar3 - 1 & 0x1f) & 1U) == 0)) {
+        if (((0 < (int)uVar3) && ((carObj_00->carInLane >> (uVar3 - 1) & 1U) != 0)) &&
+           (((int)uVar5 >> (uVar3 - 1) & 1U) == 0)) {
           local_38 = 0;
           iVar6 = iVar6 + 1;
-          uVar5 = uVar5 | 1 << (carObj->laneIndex - 1U & 0x1f);
+          uVar5 = uVar5 | 1 << (carObj->laneIndex - 1U);
         }
         uVar3 = carObj->laneIndex + 1;
-        if (((uVar3 < 0xe) && ((carObj_00->carInLane >> (uVar3 & 0x1f) & 1U) != 0)) &&
-           (((int)uVar5 >> (uVar3 & 0x1f) & 1U) == 0)) {
+        if (((uVar3 < 0xe) && ((carObj_00->carInLane >> (uVar3) & 1U) != 0)) &&
+           (((int)uVar5 >> (uVar3) & 1U) == 0)) {
           local_30 = 0;
           iVar6 = iVar6 + 1;
-          uVar5 = uVar5 | 1 << (carObj->laneIndex + 1U & 0x1f);
+          uVar5 = uVar5 | 1 << (carObj->laneIndex + 1U);
         }
       }
       iVar4 = iVar4 + iVar7;

@@ -97,7 +97,7 @@ extern "C" int iSPCH_MatchSample(int bank, int sample, int phraseTemplate, int u
                     break;
                 result = 0;
                 {
-                    unsigned int bit      = 1u << (cycleByte & 0x1f);
+                    unsigned int bit      = 1u << (cycleByte);
                     int          matchVal = iSPCH_GetMatchValue(sample, i);
                     int          lowNib   = matchVal & 0xf;
                     if ((bit & (unsigned int)matchVal) != 0 &&

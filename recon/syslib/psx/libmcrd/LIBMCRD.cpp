@@ -623,7 +623,7 @@ extern "C" long MemCardGetDirentry(long chan, char *name, void *dir, long *files
     idx     = 0;
     stored  = 0;
     fretry  = 0;
-    _mc_present |= 1 << (_mc_chan & 0x1f);
+    _mc_present |= 1 << (_mc_chan);
 
     if (ofs + max > 0) {
         do {
@@ -729,7 +729,7 @@ extern "C" long MemCardCreateFile(long chan, char *file, long blocks)
     retry = 0;
     make_devname(chan, devname);
     strcat(devname, file);
-    _mc_present |= 1 << (_mc_chan & 0x1f);
+    _mc_present |= 1 << (_mc_chan);
 
     fd = open(devname, 1);                       /* probe: does it already exist? */
     if (fd >= 0) {
@@ -787,7 +787,7 @@ extern "C" long MemCardDeleteFile(long chan, char *file)
     retry = 0;
     make_devname(chan, devname);
     strcat(devname, file);
-    _mc_present |= 1 << (_mc_chan & 0x1f);
+    _mc_present |= 1 << (_mc_chan);
 
     while (1) {
         if (erase(devname) != 0)
@@ -830,7 +830,7 @@ extern "C" long MemCardFormat(long chan)
         return -1;
     }
 
-    _mc_present |= 1 << (_mc_chan & 0x1f);
+    _mc_present |= 1 << (_mc_chan);
     make_devname(chan, devname);
     _clr_card_event();
     format(devname);

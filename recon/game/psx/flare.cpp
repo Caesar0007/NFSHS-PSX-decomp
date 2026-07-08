@@ -702,7 +702,7 @@ gte_swc2(0xe,&sp2);
         iVar14 = (int)(short)(sVar5 - sVar6);
         lerp_q16 = iVar14 * iVar14;
       }
-      haloShape_p = (ti13 + iVar12_alt + lerp_q16 >> 1) << (scaledFactor & 0x1fU);
+      haloShape_p = (ti13 + iVar12_alt + lerp_q16 >> 1) << (scaledFactor);
       gscale = haloShape_p;
       if ((flagsMasked & 1U) != 0) {
         gte_ldtr0();

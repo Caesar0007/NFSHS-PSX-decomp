@@ -254,7 +254,7 @@ int AIWorld_IsDriveableLane(int slice,int laneIndex)
   if (0xf < iVar1) {
     iVar1 = 0xf;
   }
-  return (int)*(short *)(slice * 0x20 + BWorldSm_slices + 0x16) & 1 << (0xfU - iVar1 & 0x1f);
+  return (int)*(short *)(slice * 0x20 + BWorldSm_slices + 0x16) & 1 << (0xfU - iVar1);
 }
 
 /* ---- AIWorld_GetProfileMask__Fi  [@0x800733fc] ---- */
@@ -273,7 +273,7 @@ int AIWorld_GetProfileMask(int laneIndex)
   if (0xf < iVar1) {
     iVar2 = 0xf;
   }
-  return 1 << (0xfU - iVar2 & 0x1f);
+  return 1 << (0xfU - iVar2);
 }
 
 /* ---- AIWorld_IsDriveableLane_UsingMask__Fii  [@0x8007343c] ---- */
@@ -296,9 +296,9 @@ int AIWorld_CheckForBarrierBetweenLanes(int slice,int lane0,int lane1)
   uVar1 = 0xe - lane1;
   uVar2 = (u_int)*(short *)(slice * 0x20 + BWorldSm_slices + 0x16);
   if ((int)uVar3 <= (int)uVar1) {
-    return (int)~uVar2 >> (uVar3 & 0x1f) & ~(-1 << ((uVar1 - uVar3) + 1 & 0x1f));
+    return (int)~uVar2 >> (uVar3) & ~(-1 << ((uVar1 - uVar3) + 1));
   }
-  return (int)~uVar2 >> (uVar1 & 0x1f) & ~(-1 << ((uVar3 - uVar1) + 1 & 0x1f));
+  return (int)~uVar2 >> (uVar1) & ~(-1 << ((uVar3 - uVar1) + 1));
 }
 
 /* ---- AIWorld_LaneIndex__Fii  [@0x800734cc] ---- */
@@ -354,7 +354,7 @@ void AIWorld_CalculateLaneInfo(Car_tObj *carObj)
                        carObj->roadPosition + carObj->roadSpan + -0x8000);
     if ((uVar4 < 0xe) && (uVar3 < 0xe)) {
       for (; (int)uVar3 <= (int)uVar4; uVar3 = uVar3 + 1) {
-        carObj->carInLane = carObj->carInLane | 1 << (uVar3 & 0x1f);
+        carObj->carInLane = carObj->carInLane | 1 << (uVar3);
       }
     }
   }

@@ -980,13 +980,13 @@ void ReduceObjectPrecision(Group *instGroup,Group *defGroup,int bits)
           ((u_char *)&(sVar1))[0] = pTVar4[1].vertexCount;
           ((u_char *)&(sVar1))[1] = pTVar4[1].quadCount;
           sVar2 = pTVar5->id;
-          pTVar6->id = (short)((int)pTVar6->id >> (bits & 0x1fU));
-          tu5 = (short)((int)sVar1 >> (bits & 0x1fU));
+          pTVar6->id = (short)((int)pTVar6->id >> (bits));
+          tu5 = (short)((int)sVar1 >> (bits));
           ((u_char *)&(tu5))[0] = (u_char)tu5;
           ((u_char *)&(tu5))[1] = (u_char)((u_short)tu5 >> 8);
           pTVar4[1].vertexCount = (u_char)tu5;
           pTVar4[1].quadCount = ((u_char *)&(tu5))[1];
-          pTVar5->id = (short)((int)sVar2 >> (bits & 0x1fU));
+          pTVar5->id = (short)((int)sVar2 >> (bits));
           pTVar6 = pTVar6 + 2;
           pTVar4 = pTVar5;
         }

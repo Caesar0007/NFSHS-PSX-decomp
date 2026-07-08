@@ -3130,7 +3130,7 @@ int Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
       iVar2 = 0;
       iVar3 = x;
       do {
-        if ((Hud_Character[num] & 1 << (uVar4 & 0x1f)) != 0) {
+        if ((Hud_Character[num] & 1 << (uVar4)) != 0) {
           Flare_2DHalo(iVar3 + 4,iVar6 + 4,flare_intensity,flare_intensity,6);
         }
         iVar3 = iVar3 + 10;
@@ -3152,7 +3152,7 @@ int Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
       x_00 = iVar3 + 1;
       iVar3 = iVar3 + 10;
       iVar2 = iVar2 + 1;
-      uVar1 = uVar4 & 0x1f;
+      uVar1 = uVar4;
       uVar4 = uVar4 + 1;
       Hud_FBuildSprite((Hud_Character[num] & 1 << uVar1) != 0 | 0x3c,x_00,iVar6 + 1,0x808080,0);
     } while (iVar2 < 5);

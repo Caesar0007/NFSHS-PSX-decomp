@@ -156,7 +156,7 @@ extern "C" int *iSPCH_SetCycleBits(int *p)
         i = 0;
         if (0 < count) {
             do {
-                unsigned int b = (unsigned int)bitInByte & 0x1f;
+                unsigned int b = (unsigned int)bitInByte;
                 bitInByte = bitInByte + 1;
                 bits[byteIdx] = bits[byteIdx] | (unsigned char)(1 << b);
                 if (bitInByte == 8) {

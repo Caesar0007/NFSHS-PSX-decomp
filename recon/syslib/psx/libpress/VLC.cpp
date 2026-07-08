@@ -90,7 +90,7 @@ next_run:
             } else {
                 extra = _vlc_ac[(acc >> 0x13) * 2 + 1];
             }
-            acc <<= (code & 0x1f);
+            acc <<= (code);
             { int t = bit + (code & 0xff); bit = t & 0xf;
               if (t & 0x10) { acc |= (u_int)(u_short)*rd++ << bit; } }
             wr = blk0;
@@ -135,12 +135,12 @@ last:
                 u_int clen = dct[(saved >> 0x18) * 2];
                 u_int dlen = dct[(saved >> 0x18) * 2 + 1];
                 u_int diff = 0;
-                acc = saved << (clen & 0x1f);
+                acc = saved << (clen);
                 if (dlen != 0) {
-                    diff = acc >> ((0x20 - dlen) & 0x1f);
+                    diff = acc >> ((0x20 - dlen));
                     int neg = (int)acc >= 0;
-                    acc <<= (dlen & 0x1f);
-                    if (neg) diff -= (0xffffffffu >> ((0x20 - dlen) & 0x1f));
+                    acc <<= (dlen);
+                    if (neg) diff -= (0xffffffffu >> ((0x20 - dlen)));
                     bit += dlen;
                 }
                 { int t = bit + clen; bit = t & 0xf;

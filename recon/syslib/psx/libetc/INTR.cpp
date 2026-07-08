@@ -125,7 +125,7 @@ extern "C" void _intrhand(void)            /* @0x800F2A40 */
             int *cb = g_intr.cb;
             for (unsigned int i = 0; (pending != 0 && (int)i < 0xb); i = i + 1) {
                 if ((pending & 1) != 0) {
-                    I_STAT = ~(unsigned short)(1 << (i & 0x1f));
+                    I_STAT = ~(unsigned short)(1 << (i));
                     if (*cb) ((void (*)())*cb)();
                 }
                 cb = cb + 1;
@@ -158,13 +158,13 @@ extern "C" void _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C
     if ((handler != old) && (g_intr.inited != 0)) {
         I_MASK = 0;
         if (handler == 0) {
-            unsigned short bit = ~(unsigned short)(1 << (idx & 0x1f));
+            unsigned short bit = ~(unsigned short)(1 << (idx));
             *slot = 0;
             imask = imask & bit;
             g_intr.enabled = g_intr.enabled & bit;
         } else {
             *slot = handler;
-            unsigned short bit = (unsigned short)(1 << (idx & 0x1f));
+            unsigned short bit = (unsigned short)(1 << (idx));
             imask = imask | bit;
             g_intr.enabled = g_intr.enabled | bit;
         }

@@ -16,7 +16,7 @@ extern "C" unsigned int __fixsfsi(unsigned int arg1)   /* @0x800F3938 */
         if (e < 1) {
             unsigned int mant = (arg1 & 0x7fffff) | 0x800000;
             if ((exp - 0x7e < 0x20) && (mant != 0)) {
-                result = (int)(mant << 7) >> (-e & 0x1fU);
+                result = (int)(mant << 7) >> (-e);
                 if ((int)arg1 < 0) result = -result;
             } else {
                 result = 0;

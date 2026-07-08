@@ -157,7 +157,7 @@ extern "C" void iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
                         r = ((int (*)(int, int, int, int, int, int))gSentenceRuleTest)
                                 ((int)*sentence, (int)*p, v, (int)sentence, (int)*p, (int)paramIdx);
                     if (r != 0 && r < 1)
-                        result = result | (1 << ((7 - i) & 0x1f));
+                        result = result | (1 << (7 - i));
                 }
                 i = i + 1;
                 p = p + 2;

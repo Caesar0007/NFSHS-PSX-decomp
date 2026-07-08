@@ -29,12 +29,27 @@ extern "C" char          *memcpyl(char *dst, char *src, int n);                 
 extern "C" unsigned int   memcpyb(unsigned char *dst, unsigned char *src, int n);        /* @0x800F5234 */
 extern "C" unsigned char *refcpy(unsigned char *dst, unsigned int dist, int len);        /* @0x800F5254 */
 
-/* unhuff @0x800F459C : decompress `comp` (an EA Huff stream) into `out`; returns the uncompressed size. */
+/* unhuff @0x800F459C : decompress `comp` (an EA Huff stream) into `out`; returns the uncompressed size.
+ * 2026-07-08: STRUCTURE ORACLE = the NFS2 PC-beta build C:\Temp
+fs2-clean\pc-beta
+fsw.exe
+ * (Watcom debug: unhuff.obj, _unhuff @0x004a39f0; Ghidra body in nfsw.Ghidra.c) -- the SAME EA
+ * source compiled for PC. Two fixes landed from it (1531 -> 1405 diffs, insns 788 -> 772/777):
+ * (1) the bit-refill primitive reads ip[0]/ip[1] DIRECTLY in the expression + ip+=2 AFTER
+ *     (`more = ip[1] | ((ip[0] | more<<8) << 8); ip += 2;`) -- the old b0/ip1 staging temps
+ *     were fn-wide pseudos pinning 2 registers (25 sites);
+ * (2) the header builds the accumulator INCREMENTALLY through the same primitive: 16-bit
+ *     `magic` word first, odd-size test = `magic & 0x100` (bit 8 of the WORD == comp[0]&1),
+ *     taken path continues via `<< bc` VARIABLE shifts (bc==8 -> the oracle's 5 sllv), and
+ *     the mask is `magic &= ~0x100` (addiu -0x101 + and).
+ * REMAINING (the full crack, banked): ours conflates the RESULT var with the shifted bit-
+ * WINDOW -- oracle keeps THREE distinct vars: result s6 (PC local_84, =0 in prologue, size
+ * assembled right after the header), window a1 (PC uVar13/uVar14), accumulator t0 (PC
+ * local_24); plus `out` is spilled to its ARG SLOT (0x4F4(sp), PC `local_8c = param_2`) with
+ * a t7 working copy. Re-derive the variable set from the PC body to finish. */
 extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
 {
     unsigned char *ip;          /* input byte cursor (pnVar20) */
-    unsigned char *ip1;         /* pnVar1 */
-    unsigned char  b0;          /* nVar3 : byte temp */
     unsigned int   more;        /* uVar19 : BE word / 16-bit refill register */
     unsigned int   bits;        /* uVar14 : 32-bit MSB bit accumulator */
     unsigned int   t13, t8, t16;/* uVar13, uVar8, uVar16 */
@@ -71,34 +86,32 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
         return 0;
 
     /* --- header + bit-reader prime --- */
-    ip    = comp + 4;
+    ip    = comp;
     bc    = 0;
-    magic = ((unsigned int)comp[0] << 8) | comp[1];
-    more  = ((unsigned int)comp[0] << 24) | ((unsigned int)comp[1] << 16) |
-            ((unsigned int)comp[2] << 8) | comp[3];
+    more  = ((unsigned int)ip[0] << 8) | ip[1]; ip = ip + 2;
+    magic = more;
+    more  = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
     usize = more << 0x10;
-    if ((comp[0] & 1) != 0) {
-        ip    = comp + 8;
+    if ((magic & 0x100) != 0) {
         bc    = 8;
-        more  = ((unsigned int)comp[5] << 16) | ((unsigned int)comp[6] << 8) | comp[7];
-        usize = more << 8;
+        more  = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << bc) << bc); ip = ip + 2;
+        more  = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << bc) << bc); ip = ip + 2;
+        usize = more << bc;
     }
-    magic = magic & 0xfeff;
+    magic = magic & ~0x100;
     bc2   = bc - 8;
     t13   = usize << 8;
     if (bc2 < 0) {
-        b0 = *ip; ip1 = ip + 1; ip = ip + 2;
         t13 = -bc2;
         bc2 = bc + 8;
-        more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-        t13 = more << (t13 & 0x1f);
+        more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+        t13 = more << (t13);
     }
     bc   = bc2 - 0x10;
     bits = t13 << 0x10;
     if (bc < 0) {
-        b0 = *ip; ip1 = ip + 1; ip = ip + 2;
-        more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-        bits = more << (-bc & 0x1fU);
+        more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+        bits = more << (-bc);
         bc   = bc2;
     }
     usize = t13 >> 0x10 | (usize >> 0x18) << 0x10;
@@ -109,11 +122,10 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
         bc2 = bc - 8;
         bits = bits << 8;
         if (bc2 < 0) {
-            b0 = *ip; ip1 = ip + 1; ip = ip + 2;
             t13 = -bc2;
             bc2 = bc + 8;
-            more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-            bits = more << (t13 & 0x1f);
+            more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+            bits = more << (t13);
         }
         ncodes = 0;
         t24    = 0;
@@ -129,11 +141,10 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
                 bc = bc2 - 3;
                 bits = bits << 3;
                 if (bc < 0) {
-                    b0 = *ip; ip1 = ip + 1; ip = ip + 2;
                     bits = -bc;
                     bc = bc2 + 0xd;
-                    more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                    bits = more << (bits & 0x1f);
+                    more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                    bits = more << (bits);
                 }
             } else {
                 t13 = 2;
@@ -144,11 +155,10 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
                         bc = bc2 - 1;
                         t8 = bits << 1;
                         if (bc < 0) {
-                            b0 = *ip; ip1 = ip + 1; ip = ip + 2;
                             t16 = -bc;
                             bc = bc2 + 0xf;
-                            more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                            t8 = more << (t16 & 0x1f);
+                            more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                            t8 = more << (t16);
                         }
                         i = (-1 < (int)bits);
                         bits = t8;
@@ -164,44 +174,40 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
                     bc = (bc2 + 1) - t13;
                     t8 = t8 << 2;
                     if (bc < 0) {
-                        b0 = *ip; ip1 = ip + 1; ip = ip + 2;
                         bits = -bc;
                         bc = bc + 0x10;
-                        more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                        t8 = more << (bits & 0x1f);
+                        more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                        t8 = more << (bits);
                     }
                 }
                 if ((int)t13 < 0x11) {
                     bc = bc - t13;
-                    bits = t8 << (t13 & 0x1f);
+                    bits = t8 << (t13);
                     if (bc < 0) {
-                        b0 = *ip; ip1 = ip + 1; ip = ip + 2;
                         bits = -bc;
                         bc = bc + 0x10;
-                        more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                        bits = more << (bits & 0x1f);
+                        more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                        bits = more << (bits);
                     }
-                    t13 = (t8 >> (0x20 - t13 & 0x1f)) + (1 << (t13 & 0x1f));
+                    t13 = (t8 >> (0x20 - t13)) + (1 << (t13));
                 } else {
-                    t16 = t8 << (t13 - 0x10 & 0x1f);
+                    t16 = t8 << (t13 - 0x10);
                     bc2 = (bc + 0x10) - t13;
                     if (bc2 < 0) {
-                        b0 = *ip; ip1 = ip + 1; ip = ip + 2;
                         bits = -bc2;
                         bc2 = bc2 + 0x10;
-                        more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                        t16 = more << (bits & 0x1f);
+                        more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                        t16 = more << (bits);
                     }
                     bc = bc2 - 0x10;
                     bits = t16 << 0x10;
                     if (bc < 0) {
-                        b0 = *ip; ip1 = ip + 1; ip = ip + 2;
-                        more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                        bits = more << (-bc & 0x1fU);
+                        more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                        bits = more << (-bc);
                         bc = bc2;
                     }
-                    t13 = (t16 >> 0x10 | (t8 >> (0x30 - t13 & 0x1f)) << 0x10) +
-                          (1 << (t13 & 0x1f));
+                    t13 = (t16 >> 0x10 | (t8 >> (0x30 - t13)) << 0x10) +
+                          (1 << (t13));
                 }
             }
             t21 = t13 - 4;
@@ -210,7 +216,7 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
             t24 = t24 * 2 + t21;
             t13 = 0;
             if (t21 != 0)
-                t13 = t24 << (0x10U - curlen & 0x1f) & 0xffff;
+                t13 = t24 << (0x10U - curlen) & 0xffff;
             *(unsigned int *)((char *)firstcode + off26) = t13;
             ncp = ncp + 1;
             off26 = off26 + 4;
@@ -233,11 +239,10 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
                     bc = bc2 - 3;
                     bits = bits << 3;
                     if (bc < 0) {
-                        b0 = *ip; ip1 = ip + 1; ip = ip + 2;
                         bits = -bc;
                         bc = bc2 + 0xd;
-                        more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                        bits = more << (bits & 0x1f);
+                        more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                        bits = more << (bits);
                     }
                 } else {
                     t13 = 2;
@@ -248,11 +253,10 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
                             bc = bc2 - 1;
                             t8 = bits << 1;
                             if (bc < 0) {
-                                b0 = *ip; ip1 = ip + 1; ip = ip + 2;
                                 t16 = -bc;
                                 bc = bc2 + 0xf;
-                                more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                                t8 = more << (t16 & 0x1f);
+                                more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                                t8 = more << (t16);
                             }
                             i = (-1 < (int)bits);
                             bits = t8;
@@ -268,44 +272,40 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
                         bc = (bc2 + 1) - t13;
                         t8 = t8 << 2;
                         if (bc < 0) {
-                            b0 = *ip; ip1 = ip + 1; ip = ip + 2;
                             bits = -bc;
                             bc = bc + 0x10;
-                            more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                            t8 = more << (bits & 0x1f);
+                            more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                            t8 = more << (bits);
                         }
                     }
                     if ((int)t13 < 0x11) {
                         bc = bc - t13;
-                        bits = t8 << (t13 & 0x1f);
+                        bits = t8 << (t13);
                         if (bc < 0) {
-                            b0 = *ip; ip1 = ip + 1; ip = ip + 2;
                             bits = -bc;
                             bc = bc + 0x10;
-                            more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                            bits = more << (bits & 0x1f);
+                            more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                            bits = more << (bits);
                         }
-                        t13 = (t8 >> (0x20 - t13 & 0x1f)) + (1 << (t13 & 0x1f));
+                        t13 = (t8 >> (0x20 - t13)) + (1 << (t13));
                     } else {
-                        t16 = t8 << (t13 - 0x10 & 0x1f);
+                        t16 = t8 << (t13 - 0x10);
                         bc2 = (bc + 0x10) - t13;
                         if (bc2 < 0) {
-                            b0 = *ip; ip1 = ip + 1; ip = ip + 2;
                             bits = -bc2;
                             bc2 = bc2 + 0x10;
-                            more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                            t16 = more << (bits & 0x1f);
+                            more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                            t16 = more << (bits);
                         }
                         bc = bc2 - 0x10;
                         bits = t16 << 0x10;
                         if (bc < 0) {
-                            b0 = *ip; ip1 = ip + 1; ip = ip + 2;
-                            more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                            bits = more << (-bc & 0x1fU);
+                            more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                            bits = more << (-bc);
                             bc = bc2;
                         }
-                        t13 = (t16 >> 0x10 | (t8 >> (0x30 - t13 & 0x1f)) << 0x10) +
-                              (1 << (t13 & 0x1f));
+                        t13 = (t16 >> 0x10 | (t8 >> (0x30 - t13)) << 0x10) +
+                              (1 << (t13));
                     }
                 }
                 bc2 = t13 - 3;
@@ -336,7 +336,7 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
                 bc2 = *ncp;
                 if (8 < (int)t13)
                     break;
-                t23 = 1 << (8 - t13 & 0x1f);
+                t23 = 1 << (8 - t13);
                 while (bc2 = bc2 - 1, bc2 != -1) {
                     sym = *symp;
                     symp = symp + 1;
@@ -367,28 +367,28 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
         t13 = bits >> 0x18;
         t16 = lenbyprefix[t13];
         for (bc = bc - t16; op2 = op, -1 < bc; bc = bc - t16) {
-            bits = bits << (t16 & 0x1f);
+            bits = bits << (t16);
             t8 = bits >> 0x18;
             *op = symbyprefix[t13];
             t16 = lenbyprefix[t8];
             bc = bc - t16;
             op2 = op + 1;
             if (bc < 0) break;
-            bits = bits << (t16 & 0x1f);
+            bits = bits << (t16);
             t13 = bits >> 0x18;
             op[1] = symbyprefix[t8];
             t16 = lenbyprefix[t13];
             bc = bc - t16;
             op2 = op + 2;
             if (bc < 0) break;
-            bits = bits << (t16 & 0x1f);
+            bits = bits << (t16);
             t8 = bits >> 0x18;
             op[2] = symbyprefix[t13];
             t16 = lenbyprefix[t8];
             bc = bc - t16;
             op2 = op + 3;
             if (bc < 0) break;
-            bits = bits << (t16 & 0x1f);
+            bits = bits << (t16);
             t13 = bits >> 0x18;
             op[3] = symbyprefix[t8];
             t16 = lenbyprefix[t13];
@@ -406,18 +406,17 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
                     t13 = t13 + 1;
                 } while (*fcp <= bits >> 0x10);
             }
-            t8 = bits >> (0x20 - t13 & 0x1f);
-            bits = bits << (t13 & 0x1f);
+            t8 = bits >> (0x20 - t13);
+            bits = bits << (t13);
             sym = symtab[t8 - basecode[t13]];
             bc2 = (bc + (t16 - 0x10)) - t13;
             if (sym == escape) {
                 if (bc2 < 0) {
                   refill_e38:
-                    b0 = *ip; ip1 = ip + 1; ip = ip + 2;
                     t13 = -bc2;
                     bc2 = bc2 + 0x10;
-                    more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                    bits = more << (t13 & 0x1f);
+                    more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                    bits = more << (t13);
                 }
                 if (sym == escape) {
                     if ((int)bits < 0) {
@@ -425,11 +424,10 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
                         bc = bc2 - 3;
                         bits = bits << 3;
                         if (bc < 0) {
-                            b0 = *ip; ip1 = ip + 1; ip = ip + 2;
                             bits = -bc;
                             bc = bc2 + 0xd;
-                            more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                            bits = more << (bits & 0x1f);
+                            more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                            bits = more << (bits);
                         }
                         bc2 = t13 - 4;
                     } else {
@@ -441,11 +439,10 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
                                 bc = bc2 - 1;
                                 t8 = bits << 1;
                                 if (bc < 0) {
-                                    b0 = *ip; ip1 = ip + 1; ip = ip + 2;
                                     t16 = -bc;
                                     bc = bc2 + 0xf;
-                                    more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                                    t8 = more << (t16 & 0x1f);
+                                    more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                                    t8 = more << (t16);
                                 }
                                 i = (-1 < (int)bits);
                                 bits = t8;
@@ -461,44 +458,40 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
                             bc = (bc2 + 1) - t13;
                             t8 = t8 << 2;
                             if (bc < 0) {
-                                b0 = *ip; ip1 = ip + 1; ip = ip + 2;
                                 bits = -bc;
                                 bc = bc + 0x10;
-                                more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                                t8 = more << (bits & 0x1f);
+                                more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                                t8 = more << (bits);
                             }
                         }
                         if ((int)t13 < 0x11) {
                             bc = bc - t13;
-                            bits = t8 << (t13 & 0x1f);
+                            bits = t8 << (t13);
                             if (bc < 0) {
-                                b0 = *ip; ip1 = ip + 1; ip = ip + 2;
                                 bits = -bc;
                                 bc = bc + 0x10;
-                                more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                                bits = more << (bits & 0x1f);
+                                more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                                bits = more << (bits);
                             }
-                            bc2 = (t8 >> (0x20 - t13 & 0x1f)) + (1 << (t13 & 0x1f)) + -4;
+                            bc2 = (t8 >> (0x20 - t13)) + (1 << (t13)) + -4;
                         } else {
-                            t16 = t8 << (t13 - 0x10 & 0x1f);
+                            t16 = t8 << (t13 - 0x10);
                             bc2 = (bc + 0x10) - t13;
                             if (bc2 < 0) {
-                                b0 = *ip; ip1 = ip + 1; ip = ip + 2;
                                 bits = -bc2;
                                 bc2 = bc2 + 0x10;
-                                more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                                t16 = more << (bits & 0x1f);
+                                more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                                t16 = more << (bits);
                             }
                             bc = bc2 - 0x10;
                             bits = t16 << 0x10;
                             if (bc < 0) {
-                                b0 = *ip; ip1 = ip + 1; ip = ip + 2;
-                                more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                                bits = more << (-bc & 0x1fU);
+                                more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                                bits = more << (-bc);
                                 bc = bc2;
                             }
-                            bc2 = (t16 >> 0x10 | (t8 >> (0x30 - t13 & 0x1f)) << 0x10) +
-                                  (1 << (t13 & 0x1f)) + -4;
+                            bc2 = (t16 >> 0x10 | (t8 >> (0x30 - t13)) << 0x10) +
+                                  (1 << (t13)) + -4;
                         }
                     }
                     op2 = op + bc2;
@@ -506,11 +499,10 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
                         t23 = bc - 1;
                         bc2 = bits << 1;
                         if (t23 < 0) {
-                            b0 = *ip; ip1 = ip + 1; ip = ip + 2;
                             t13 = -t23;
                             t23 = bc + 0xf;
-                            more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                            bc2 = more << (t13 & 0x1f);
+                            more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                            bc2 = more << (t13);
                         }
                         if ((int)bits < 0) {              /* end of stream -> delta post-filter + return */
                             if (magic == 0x32fb) {
@@ -537,11 +529,10 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
                         bc = t23 - 8;
                         bits = (unsigned int)bc2 << 8;
                         if (bc < 0) {
-                            b0 = *ip; ip1 = ip + 1; ip = ip + 2;
                             t13 = -bc;
                             bc = t23 + 8;
-                            more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-                            bits = more << (t13 & 0x1f);
+                            more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+                            bits = more << (t13);
                         }
                         *op = (unsigned char)((unsigned int)bc2 >> 0x18);
                         op = op + 1;
@@ -566,9 +557,8 @@ extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
             continue;
         }
         *op = symbyprefix[bits >> 0x18];
-        b0 = *ip; ip1 = ip + 1; ip = ip + 2;
-        more = (unsigned int)*ip1 | (((unsigned int)b0 | more << 8) << 8);
-        bits = more << (0x10U - bc & 0x1f);
+        more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
+        bits = more << (0x10U - bc);
         op = op + 1;
     }
 }

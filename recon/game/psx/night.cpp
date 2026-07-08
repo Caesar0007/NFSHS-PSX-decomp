@@ -569,8 +569,8 @@ void Night_SetEnviroment(DRender_tView *Vi)
     if (mode == 0) {
       Night_gZNear = -0x200;
     }
-    Night_gXDist = 1 << (Night_gXDistShift & 0x1fU);
-    Night_gZDist = 1 << (Night_gZDistShift & 0x1fU);
+    Night_gXDist = 1 << (Night_gXDistShift);
+    Night_gZDist = 1 << (Night_gZDistShift);
     Night_gZDistShift = Night_gZDistShift + -6;
     Night_gXDistShift = Night_gXDistShift + -5;
   }
@@ -595,10 +595,10 @@ void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
 
   z = v->vz;
   znear = Night_gZNear;
-  zfar = 1 << (Night_gZDistShift + 6 & 0x1fU);
+  zfar = 1 << (Night_gZDistShift + 6);
   if ((znear < z) && (z < znear + zfar)) {
     x = v->vx;
-    xdist = 1 << (Night_gXDistShift + 5 & 0x1fU);
+    xdist = 1 << (Night_gXDistShift + 5);
     if ((-xdist < x) && (x < xdist)) {
       index = (((z - znear) >> Night_gZDistShift) << 6) + ((x + xdist) >> Night_gXDistShift);
       addColor = *(long *)&Night_gAdditiveHeadlightColor[(u_char)Night_gNightTbl[index]];

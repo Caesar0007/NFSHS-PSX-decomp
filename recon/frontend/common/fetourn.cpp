@@ -408,7 +408,7 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill_r
     uVar1 = 0;
     iVar2 = 4;
     do {
-      if ((ushort)((ushort)carInfo.fUpgrades & (ushort)(1 << (uVar1 & 0x1f))) != 0) {
+      if ((ushort)((ushort)carInfo.fUpgrades & (ushort)(1 << (uVar1))) != 0) {
         carInfo.fPrices[0] = carInfo.fPrices[0] + *(int *)((int)carInfo.fPrices + iVar2);
       }
       uVar1 = uVar1 + 1;

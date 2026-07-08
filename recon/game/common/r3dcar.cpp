@@ -1456,7 +1456,7 @@ R_ICFt_headlight2_retryDmg:
       pCVar18 = carObj;
       for (; iVar5 < 2; iVar5 = iVar5 + 1) {
         if (iVar16 == 2) {
-          iVar6 = (carObj->linearVel_ch).z >> (8U - Replay_ReplayInterface.speed & 0x1f);
+          iVar6 = (carObj->linearVel_ch).z >> (8U - Replay_ReplayInterface.speed);
         }
         else {
           iVar6 = (carObj->linearVel_ch).z >> 6;
@@ -1472,7 +1472,7 @@ R_ICFt_wheelspinRpmCalc:
             iVar9 = carObj->flywheelRpm << 0x10;
             iVar6 = iVar9 / iVar7;
             if (iVar16 == 2) {
-              iVar6 = iVar6 << (Replay_ReplayInterface.speed + 7U & 0x1f);
+              iVar6 = iVar6 << (Replay_ReplayInterface.speed + 7U);
             }
             else {
               iVar6 = iVar6 << 9;
@@ -1837,7 +1837,7 @@ R_ICFt_matrixCopyDone:
     if (Replay_ReplayMode == 2) {
       (carObj->N).positionXZ =
            (carObj->N).positionXZ +
-           (short)((carObj->linearVel_ch).z >> (0x12U - Replay_ReplayInterface.speed & 0x1f));
+           (short)((carObj->linearVel_ch).z >> (0x12U - Replay_ReplayInterface.speed));
     }
     else {
       (carObj->N).positionXZ =

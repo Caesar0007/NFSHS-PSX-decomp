@@ -273,7 +273,7 @@ long tCarManager::PurchaseUpgrade(short garageNumber,short upgradeFlags,short pl
   i = 0;
   iVar3 = 0;
   do {
-    mask = 1 << (iVar3 >> 0x10 & 0x1fU);
+    mask = 1 << (iVar3 >> 0x10);
     if (((u_short)upgradeFlags & mask) != 0) {
       iVar4 = ((int)garageNumber - this->fNumCars) * 4 + iVar7;
       bVar1 = *(u_char *)((int)this + iVar4 + 9);
@@ -383,7 +383,7 @@ void tCarManager::AddUpgradesToPinkSlipsList(short garageNumber,short upgradeFla
       }
     }
     i = i + 1;
-    mask = 1 << (i & 0x1f);
+    mask = 1 << (i);
   } while ((int)(i * 0x10000) >> 0x10 < 3);
   return;
 }
@@ -1368,7 +1368,7 @@ void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
   if (bVar2 == 7) {
     if ((this->fCarListFilter & 0xcU) != 0) {
       if (((int)(u_int)ptVar5[(u_char)carNumber].fCountries >>
-           ((int)frontEnd.carCountry[i * 0x18][carID] & 0x1fU) & 1U) != 0) {
+           ((int)frontEnd.carCountry[i * 0x18][carID]) & 1U) != 0) {
         trackManager.GetTrack((u_short)(u_char)frontEnd.track[0],trackInfo);
         pvVar6 = FECheat_IsCheatEnabled(cheat_AllCops);
         if (pvVar6 != (void *)0x0) goto ValidCar_filter10Path;

@@ -253,7 +253,7 @@ extern "C" void iSNDserve(void)
                             iSNDfreechan(c);
                             vreg = (short *)(c * 0x10 + DAT_80147e28);
                             vreg[3] = 0x200;                 /* ADSR -> 0, then key-on to force silence */
-                            kon = kon | (1u << (c & 0x1f));
+                            kon = kon | (1u << c);
                             vreg[0] = 0;
                             vreg[1] = 0;
                         } while (0 < n);
@@ -279,13 +279,13 @@ extern "C" void iSNDserve(void)
                 }
             } else if ((&DAT_80147a0d)[vt] == 3) {                   /* voice fully stopped */
                 if (vreg[6] == 0) {
-                    kon = kon | (1u << (chan & 0x1f));               /* (Ghidra `mask`) */
+                    kon = kon | (1u << chan);               /* (Ghidra `mask`) */
                     (&DAT_80147a0d)[vt] = 0;
                     vreg[3] = 0x200;
                     vreg[0] = 0;
                     vreg[1] = 0;
                 } else {
-                    koff = koff | (1u << (chan & 0x1f));             /* (Ghidra `local_30`) */
+                    koff = koff | (1u << chan);             /* (Ghidra `local_30`) */
                 }
             }
             vp = &DAT_801479f0 + vt;

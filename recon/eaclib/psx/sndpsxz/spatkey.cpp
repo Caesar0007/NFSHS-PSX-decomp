@@ -238,7 +238,7 @@ extern "C" unsigned int iSNDstartvoice(unsigned int chan)
     SB(DAT_80147a14, vt) = 0;
     SB(DAT_80147a15, vt) = 0;
     iSNDsetslot((int)chan, f0, pitch);               /* H08: was (chan,0,0) -> addr+pitch were zeroed (oracle 0x800FF438) */
-    mask = 1u << (chan & 0x1f);
+    mask = 1u << (chan);
     SB(DAT_80147a0c, vt) = 2;
     SB(DAT_80147a0d, vt) = 2;
     SB(DAT_80147a16, vt) = 0;
@@ -261,7 +261,7 @@ extern "C" unsigned int iSNDstartvoice(unsigned int chan)
         SB(DAT_80147a0c, vt2) = 2;
         SB(DAT_80147a0d, vt2) = 2;
         SB(DAT_80147a16, vt2) = 0;
-        mask = mask | (1u << ((int)link & 0x1f));
+        mask = mask | (1u << ((int)link));
     }
     iSNDvol((int)chan, (int)(char)SB(DAT_80147a12, vt));
     iSNDplatformfxlevel(chan);

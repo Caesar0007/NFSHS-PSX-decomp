@@ -143,19 +143,13 @@ int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache *sd,Draw_SVertex *v0,Draw_SV
      ($a1) at each new-min step -- the previous interleaved read-then-compare-then-read
      shape only read 2 z's before the first branch. Load-batch-then-compute (same idiom
      as DrawW_WorldSetUpMatrix) reproduces the WHOLE min-chain byte-identical.
-     RESIDUAL NEAR-MISS FLOOR (10 diffs): the tail return-value funnel (`iVar1=2; if
-     (minz<0x201) return 3; ... else iVar1=1; return iVar1;`) is semantically required
-     (can't collapse to direct `return 2;`/`return 1;` literals -- tried, flips branch
-     POLARITY: the oracle's `beqz v0,skip-to-far-elseblock` shape needs the if/else-with-
-     both-arms-assigning form, not flat early-returns) -- but the oracle keeps this
-     funnel value in `$v0` directly (`addiu v0,zero,2`/`addiu v0,zero,1`, no copy) while
-     ours computes it in `$v1` then `addu v0,v1,zero` at the final return (a redundant
-     copy). Tried: separate `level` var vs reusing the original `iVar1` name (identical
-     diff either way -- confirms it's not a naming/declaration-order effect), direct-
-     return literals (wrong branch polarity, see above). Allocator-internal register-
-     class choice (the `slti` compare-result reg -- free at that point in BOTH builds --
-     isn't reused for the funnel value in ours), not reachable by a further source
-     lever; permuter (no cast) or accept. */
+     MATCH 100% (2026-07-08): the tail is a FLAT DESCENDING guard-chain of direct
+     returns -- `if (0x500 < minz) return 1; if (0x200 < minz) return 2; return 3;`
+     (the natural LOD selector). Direct return-literals expand straight into $v0 (no
+     iVar1 funnel var / no `addu v0,v1` copy), and the DESCENDING `0xN < minz` guard
+     order gives the oracle's beqz-to-far-block layout + duplicated `jr` returns.
+     Every funnel/ternary/nested form leaves the value in $v1 + a copy (14 diffs), and
+     the ascending/nested direct-return orders flip branch polarity (6-10 diffs). */
   int iVar1;
   int minz;
   int z0;
@@ -181,16 +175,13 @@ int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache *sd,Draw_SVertex *v0,Draw_SV
   if (0x800 < minz) {
     return 0;
   }
-  if (minz < 0x501) {
-    iVar1 = 2;
-    if (minz < 0x201) {
-      return 3;
-    }
+  if (0x500 < minz) {
+    return 1;
   }
-  else {
-    iVar1 = 1;
+  if (0x200 < minz) {
+    return 2;
   }
-  return iVar1;
+  return 3;
 }
 
 /* ---- DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss  [DRAWW.CPP:425-590] SLD-VERIFIED ---- */
@@ -647,32 +638,38 @@ void Night_NightCopCalc(VECTOR *v,short *idx)
      $3/$5/$2 = v1/a1/v0) are similarly nested one level deeper (inside `if(z<0)`'s
      scope, VA 0x800C5F48) -- kept as inline expressions here since no further
      register-class issue surfaced from them specifically.
-     RESIDUAL NEAR-MISS FLOOR (40 diffs, insns now EXACT 40==40): `v` (the VECTOR*
-     param, dead after this one read) is genuinely never touched again, so BOTH the
-     oracle and our build free its register at this point -- but the oracle allocates
-     a FRESH $a2 for `x` while ours reuses the now-dead $a0 (`v`'s own reg), which then
-     cascades: `neg` lands in ours' $a2/oracle's $a1, and the Night_gCopColor
-     index-shift follows suit. Tried: read-order swap (x-before-z, no effect), `int
-     x=v->vx` initializer-form vs 2-statement assign (no effect), `long x` instead of
-     `int` (no effect, same width/repr) -- none changed which of $a0/$a2 wins for `x`.
-     Allocator-internal (compiler prefers reusing a freed arg reg over allocating a
-     fresh one here), not reachable by a further source lever; permuter (no cast) or
-     accept. */
+     2026-07-08 (40 -> 32 diffs, insns EXACT 40==40): restored the SYM's deeper-nested
+     named locals (`coplookuptbl` = &Night_gNightTbl[(z<<6)+x] pointer, table byte >>1,
+     `neg` moved into the innermost block) + the oracle's SELF-MUTATING `z >>= 5;` /
+     `x = (x+0x400) >> 5;` statements (sra v1,v1 / addiu-sra a2,a2 in place).
+     RESIDUAL 32 = ONE allocno decision cascading uniformly: oracle gives `neg` $a1,
+     which CONFLICTS with idx (live to the end) -> idx gets an entry copy `addu a3,a1`
+     + lives in $a3, and `x` takes a FRESH $a2; ours gives neg $a2, idx stays $a1
+     (no copy), x reuses dead $a0 (v's reg). Tried: neg decl position (fn-scope/
+     inner-first/inner-last), lookup-as-*idx-value reinterpretation, short lookup --
+     all identical 32. Pure register permutation, exact insn count -> permuter
+     multi-basin candidate (no cast on the hot path). */
   int z;
-  int neg;
 
   z = v->vz;
   if ((u_int)(z + 0x7ff) < 0xfff) {
     int x = v->vx;
 
     if ((u_int)(x + 0x3ff) < 0x7ff) {
+      int neg;
+      char *coplookuptbl;
+      int lookup;
+
       neg = 0;
       if (z < 0) {
         z = -z;
         neg = 1;
       }
-      *idx = (u_short)(*Night_gCopColor[neg])[(short)*idx]
-                       [(int)(u_char)Night_gNightTbl[(z >> 5) * 0x40 + ((x + 0x400) >> 5)] >> 1];
+      z = z >> 5;
+      x = (x + 0x400) >> 5;
+      coplookuptbl = &Night_gNightTbl[(z << 6) + x];
+      lookup = (u_char)*coplookuptbl >> 1;
+      *idx = (u_short)(*Night_gCopColor[neg])[(short)*idx][lookup];
     }
   }
   return;
@@ -715,12 +712,13 @@ void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd)
      diff count is numerically worse than the prior (structurally wrong) version;
      candidate for permuter or accept as the faithful-but-not-yet-coloring-matched form. */
   int z;
+  int index;
   int znear;
   int zfar;
 
   z = v->vz;
   znear = (int)sd->night_ZNear;
-  zfar = znear + (1 << (sd->night_ZDistShift + 6 & 0x1f));
+  zfar = znear + (1 << (sd->night_ZDistShift + 6));
   if (sd->night_DrawLightning != '\0') {
     *idx = (u_short)(*Night_gWeatherLightingTable[sd->night_LightningType])[*idx];
   }
@@ -730,13 +728,13 @@ void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd)
       int xdist;
 
       x = v->vx;
-      xdist = 1 << (sd->night_XDistShift + 5 & 0x1f);
+      xdist = 1 << (sd->night_XDistShift + 5);
       if (-xdist < x) {
         if (x < xdist) {
           int lookup;
 
-          lookup = ((z - znear) >> (sd->night_ZDistShift & 0x1f)) * 0x40 +
-                   ((x + xdist) >> (sd->night_XDistShift & 0x1f));
+          lookup = ((z - znear) >> sd->night_ZDistShift) * 0x40 +
+                   ((x + xdist) >> sd->night_XDistShift);
           *idx = (u_short)(*Night_gCurrentNightColor)[*idx][(u_char)Night_gNightTbl[lookup]];
         }
       }
@@ -801,6 +799,12 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
       gte_stlvnl(&temp0);
       Night_NightCopCalc(&temp0, &vt3->light);
     }
+    /* NOTE (2026-07-08): the oracle BATCHES these four lh+sll+addu+lw chains through
+       four DISTINCT caller-saved regs (a2/a0/v1/v0, values then stored) -- a 3-named-
+       u_long-temp batch form reproduces the EXACT insn count (279==279, ours-serialized
+       is 286) but re-permutes the vt1/vt2/vt3 param s-reg assignment (45 -> 180 diffs;
+       decl position irrelevant). Serialized form kept: params right, tail block ~24 of
+       the 45 residual diffs. Crackable if the param-priority flip is ever solved. */
     lt = Chunk_lightTable;
     *(u_long *)&prim->r0 = *(u_long *)&lt[vt0->light];
     *(u_long *)&prim->r1 = *(u_long *)&lt[vt1->light];
@@ -1207,22 +1211,24 @@ void DrawW_kCtrlWorld_High(Draw_tGiveShelbyMoreCache *sd)
      advanced -- every call drew the SAME quad. Oracle's `addiu $s1,$s1,0x6`
      (sizeof(Trk_Quad)) sits INSIDE the if-taken path, right after the DrawW_DrawQuad
      call -- pquad only advances when a quad is actually drawn.
-     NEAR-MISS FLOOR (12 diffs, down from 34, ours 32 == oracle 32 insns): this do-while
-     + explicit `sentinel` local reproduces the oracle's control-flow/frame/sentinel-
-     lifetime exactly; residual is a register-CLASS choice for the raw `sd->quadCount`
-     byte-load (oracle loads it straight into $s0, ours stages it through $v0 first) --
-     tried splitting the load/decrement into two statements (frees $s0 for the load, but
-     wrecks the surrounding do-while into a worse `beq+fallthrough+extra-j` shape) and a
-     u_char staging temp (no effect); no clean source lever found. Allocator-internal,
-     not reachable without a structural regression; permuter (no cast) or accept. */
+     MATCH 100% (2026-07-08, was a 12-diff "floor"): THREE cooperating shape details --
+     (1) SPLIT the load from the decrement (`numQuads = sd->quadCount; ... numQuads =
+     numQuads - 1;`, methodology par.3.12 #15b) so the lbu lands straight in $s0;
+     (2) guard compares the LITERAL `!= -1` (materialized once in temp $v0);
+     (3) `sentinel = -1` assigned INSIDE the guard body -- gcc CSEs it as a COPY of the
+     guard's -1 temp and fills the guard-branch delay slot with it (`addu s3,v0`),
+     exactly the oracle's lazy sentinel. The earlier attempt failed because it kept
+     `sentinel = -1` UP FRONT (sentinel then owns the -1 materialization in $s3 and the
+     guard compares vs $s3) AND fused the load-decrement through a $v0 stage. */
   int sentinel;
   int numQuads;
   Trk_Quad *pquad;
 
-  sentinel = -1;
+  numQuads = sd->quadCount;
   pquad = (Trk_Quad *)sd->quads;
-  numQuads = (int)sd->quadCount - 1;
-  if (numQuads != sentinel) {
+  numQuads = numQuads - 1;
+  if (numQuads != -1) {
+    sentinel = -1;
     do {
       if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr) {
         DrawW_DrawQuad(sd,pquad);
@@ -1247,13 +1253,15 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
      load-batch-then-compute idiom as DrawW_WorldSetUpMatrix), and a dedicated `pMaterial`
      pointer pre-offset by +4 (walked +2/iter) instead of re-deriving `(char*)pTVar4+4+
      iquad*2` each pass (frees $s2 for the oracle's addressing).
-     NEAR-MISS FLOOR (10 diffs, down from 38; ours 58 == oracle 58 insns): the inner loop
-     needed the SAME goto-TEST do-while lever as the sibling DrawW_kCtrlWorld_High/
-     Draw_DeInitViews(InGame) -- oracle's inner for-loop is test-first-with-plain-
-     fallthrough + unconditional `j`-back; ours is body-first-with-goto-skip + conditional
-     `bnez`-back. Tried swapping the `iquad++`/`pMaterial++` increment order (regressed to
-     12); this is the same loop-rotation-direction floor documented on the sibling fns --
-     not reachable by a source lever at this opt level; permuter (no cast) or accept. */
+     NEAR-MISS 2 diffs (2026-07-08, was 10): the inner loop is the EXIT-IN-THE-MIDDLE
+     no-rotation shape (methodology par.3.12 #15a) -- `while(true){ if(numQuads<=iquad)
+     break; body; }` keeps gcc's top-test + unconditional `j`-back (the oracle's form);
+     BOTH a goto-test do-while AND a plain `while(iquad<numQuads)` get rotated to a
+     bottom-test `bnez`-back (10-11 diffs). RESIDUAL 2 = one scheduling transposition:
+     ours hoists `addu v1,v1,s0` (r2+=iquad) up beside r0's add (sched priority: its
+     consumer sb lands in the jal delay slot = longest path), oracle keeps it after
+     `r1=r0+1`. 4 load/add placement variants all converge to the same 2; late-loading
+     botVert regresses (+nop). Scheduler-priority artifact -> permuter candidate. */
   int r0;
   int r1;
   int r2;
@@ -1277,8 +1285,8 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
     bVar1 = pTVar4->quadCount;
     numQuads = (int)(u_int)bVar1;
     pMaterial = (u_short *)((char *)pTVar4 + 4);
-    goto QUAD_TEST;
-    do {
+    while (true) {
+      if (numQuads <= iquad) break;
       if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr) {
         newQuad.material = *pMaterial;
         r0 = pTVar4->topVert;
@@ -1295,9 +1303,7 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
       }
       pMaterial = pMaterial + 1;
       iquad = iquad + 1;
-      QUAD_TEST:
-      ;
-    } while (iquad < numQuads);
+    }
     pTVar4 = (Trk_NewStrip *)(&pTVar4->topVert + (u_char)pTVar4->size);
   }
   return;
@@ -1458,52 +1464,47 @@ DrawWTrough_setStateCallHigh:
 void DrawW_WorldSetUpMatrix(matrixtdef *m,MATRIX *mat)
 
 {
-  /* MATCH: SYM (nfs4-f-v3.txt @0x800C753C) shows the SAME "line = 3" repeated in THREE
-     separate nested block scopes, each with its own {r0,r1,r2} REG triplet -- i.e. all
-     three loads happen first, THEN all three shifts, THEN all three stores per row (not
-     interleaved load-shift-store per element). Register classes per block: row0/row1 use
-     $2/$3/$6 (v0/v1/a2), row2 uses $2/$3/$4 (v0/v1/a0 -- `m` is dead after its last read).
-     NEAR-MISS FLOOR (6 diffs, down from 32): this shape reproduces row0/row1 byte-exact and
-     gets row2's addressing/shift/store right; the residual is ONLY the 3rd-element temp's
-     register class (oracle frees dead $a0/`m` and reuses it there, ours keeps allocating
-     $a2). A real `for(i=0;i<3;i++)` loop does NOT reproduce this (gcc-2.8 does not unroll
-     it here -- produces a genuine 57-insn branch-back loop, far worse); tried direct-cast
-     `((int*)m)[8]`, no-temp inline row2, and reversed read-order within row2 (5 variants) --
-     none freed $a0. Allocator-internal register-class choice, not reachable by a source
-     lever at this opt level; permuter (no cast on the hot path) or accept. */
-  int r0;
-  int r1;
-  int r2;
-
-  r0 = m->m[0];
-  r1 = m->m[3];
-  r2 = m->m[6];
-  r0 = r0 >> 4;
-  r1 = r1 >> 4;
-  r2 = r2 >> 4;
-  mat->m[0][0] = (short)r0;
-  mat->m[0][1] = (short)r1;
-  mat->m[0][2] = (short)r2;
-
-  r0 = m->m[1];
-  r1 = m->m[4];
-  r2 = m->m[7];
-  r0 = r0 >> 4;
-  r1 = r1 >> 4;
-  r2 = r2 >> 4;
-  mat->m[1][0] = (short)r0;
-  mat->m[1][1] = (short)r1;
-  mat->m[1][2] = (short)r2;
-
-  r0 = m->m[2];
-  r1 = m->m[5];
-  r2 = m->m[8];
-  r0 = r0 >> 4;
-  r1 = r1 >> 4;
-  r2 = r2 >> 4;
-  mat->m[2][0] = (short)r0;
-  mat->m[2][1] = (short)r1;
-  mat->m[2][2] = (short)r2;
+  /* MATCH 100% (2026-07-08): the SYM (nfs4-f-v3.txt @0x800C753C) shows THREE separate
+     nested BLOCK scopes, each with its own {r0,r1,r2} REG triplet -- and that block
+     structure is LOAD-BEARING (methodology par.3.12 #15 declaration-scope rule): each
+     block's r0/r1/r2 are FRESH gcc pseudos, so block 3's r2 grabs the just-freed $a0
+     (`m` dies at its last read `lw $a0,0x20($a0)`), while a function-scope r2 kept its
+     block-1 coloring $a2 forever (= the old 6-diff "floor"). DO NOT hoist the decls out
+     of the blocks or merge the blocks -- that reverts to the near-miss. Per-row shape:
+     all 3 loads, then all 3 shifts, then all 3 stores (not interleaved). */
+  {
+    int r0 = m->m[0];
+    int r1 = m->m[3];
+    int r2 = m->m[6];
+    r0 = r0 >> 4;
+    r1 = r1 >> 4;
+    r2 = r2 >> 4;
+    mat->m[0][0] = (short)r0;
+    mat->m[0][1] = (short)r1;
+    mat->m[0][2] = (short)r2;
+  }
+  {
+    int r0 = m->m[1];
+    int r1 = m->m[4];
+    int r2 = m->m[7];
+    r0 = r0 >> 4;
+    r1 = r1 >> 4;
+    r2 = r2 >> 4;
+    mat->m[1][0] = (short)r0;
+    mat->m[1][1] = (short)r1;
+    mat->m[1][2] = (short)r2;
+  }
+  {
+    int r0 = m->m[2];
+    int r1 = m->m[5];
+    int r2 = m->m[8];
+    r0 = r0 >> 4;
+    r1 = r1 >> 4;
+    r2 = r2 >> 4;
+    mat->m[2][0] = (short)r0;
+    mat->m[2][1] = (short)r1;
+    mat->m[2][2] = (short)r2;
+  }
 
 gte_SetRotMatrix(mat);
   return;

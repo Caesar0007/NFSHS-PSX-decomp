@@ -30,537 +30,483 @@ extern "C" unsigned int   memcpyb(unsigned char *dst, unsigned char *src, int n)
 extern "C" unsigned char *refcpy(unsigned char *dst, unsigned int dist, int len);        /* @0x800F5254 */
 
 /* unhuff @0x800F459C : decompress `comp` (an EA Huff stream) into `out`; returns the uncompressed size.
- * 2026-07-08: STRUCTURE ORACLE = the NFS2 PC-beta build C:\Temp
-fs2-clean\pc-beta
-fsw.exe
- * (Watcom debug: unhuff.obj, _unhuff @0x004a39f0; Ghidra body in nfsw.Ghidra.c) -- the SAME EA
- * source compiled for PC. Two fixes landed from it (1531 -> 1405 diffs, insns 788 -> 772/777):
- * (1) the bit-refill primitive reads ip[0]/ip[1] DIRECTLY in the expression + ip+=2 AFTER
- *     (`more = ip[1] | ((ip[0] | more<<8) << 8); ip += 2;`) -- the old b0/ip1 staging temps
- *     were fn-wide pseudos pinning 2 registers (25 sites);
- * (2) the header builds the accumulator INCREMENTALLY through the same primitive: 16-bit
- *     `magic` word first, odd-size test = `magic & 0x100` (bit 8 of the WORD == comp[0]&1),
- *     taken path continues via `<< bc` VARIABLE shifts (bc==8 -> the oracle's 5 sllv), and
- *     the mask is `magic &= ~0x100` (addiu -0x101 + and).
- * REMAINING (the full crack, banked): ours conflates the RESULT var with the shifted bit-
- * WINDOW -- oracle keeps THREE distinct vars: result s6 (PC local_84, =0 in prologue, size
- * assembled right after the header), window a1 (PC uVar13/uVar14), accumulator t0 (PC
- * local_24); plus `out` is spilled to its ARG SLOT (0x4F4(sp), PC `local_8c = param_2`) with
- * a t7 working copy. Re-derive the variable set from the PC body to finish. */
+ * 2026-07-08 FULL RE-TRANSCRIPTION from the ORIGINAL EA Canada source: EA's 2025 GPL release of
+ * C&C Generals ships `Compression/EAC/huffdecode.cpp` ("Copyright (C) Electronic Arts Canada Inc.
+ * 1995-2002") = the same codebase lineage as this 1998 PSX build (cross-checked against the NFS2
+ * PC-beta nfsw.exe Watcom-debug `unhuff.obj` and this oracle). Macro/variable names below are EA's
+ * own (GET16BITS / SQgetbits / SQgetnum / SQmemset; qs/qd/bits/bitsunshifted/bitsleft/type/clue/
+ * cluelen/ulen/bitnumtbl/deltatbl/cmptbl/codetbl/quickcodetbl/quicklentbl/leap).
+ * PSX-variant deltas vs the Generals version (per THIS oracle): no `type & 0x8000` 4-byte-size
+ * branch (3-byte ulen only); an extra `doDecode` arg gates the table build; undelta checks plain
+ * 0x32fb / 0x34fb (no 0xb?fb aliases); SQgetbits carries no `if (n)` guard (the later `ZERO`
+ * device is hand-folded at the two refill-only sites, matching the oracle's lack of any ZERO load);
+ * the quick-8 loop caches `bits>>24` in `idx` (`char idx`; the oracle reuses the extract across the
+ * unroll back-edge -- gcc cannot CSE across the join, so the variable is original); the quick-8
+ * STORE address is materialized into a `cp = quickcodeptr + idx` pointer BEFORE the `bits<<=numbits`
+ * shift (matching the oracle's `addu t6,v1` ahead of `sllv`); the clue byte is read DIRECT
+ * `SQgetbits(clue,8)` (no `unsigned int t` temp -- the oracle coalesces clue into $30);
+ * `cluelen`/`bitnum` carry NO `=0` initializers (the oracle has no init store to cluelen's spill).
+ * RESULT 2026-07-08: 1531 -> 22 diffs, ours 777 == oracle 777 (EXACT instruction count).
+ * RESIDUAL 22 (traced to a single CROSS-LOOP COLORING coin-flip -- NOT a structural miss): the
+ * leapfrog `for (i=0;i<numchars;++i)` emits a top-test (`slt;beqz;...;j back`) where the oracle
+ * ROTATES it to a `blez numchars` guard + bottom-`slt` do-while. Forcing the rotation with an
+ * explicit `if(numchars>0){do{...}while(i<numchars);}` DOES produce the mnemonic-exact blez+rotated
+ * shape, but flips `numchars` from $s1 to $s0 across the WHOLE function -> breaks the earlier
+ * bitnum-decode loop (which needs numchars=$s1) = 40 diffs. So the oracle wants numchars=$s1 AND a
+ * rotated leapfrog; our gcc-2.8.0 build gives one XOR the other (retail ccpsx rotates a for-loop
+ * with a complex SQgetnum head that our build won't). Plain-for kept: numchars=$s1 correct, exact
+ * count, only the leapfrog entry/back-edge shape diverges. => permuter multi-basin (the do-while
+ * basin is structurally exact, needs the $s0->$s1 flip). NOT toolchain-fixable at source. */
+
+#define GET16BITS() \
+    bitsunshifted = qs[0] | (bitsunshifted << 8);\
+    bitsunshifted = qs[1] | (bitsunshifted << 8);\
+    qs += 2;
+
+#define SQgetbits(v,n)\
+    v = bits >> (32-(n));\
+    bits <<= (n);\
+    bitsleft -= (n);\
+    if (bitsleft<0)\
+    {\
+        GET16BITS() \
+        bits = bitsunshifted<<(-bitsleft);\
+        bitsleft += 16;\
+    }
+
+#define SQrefill()\
+    if (bitsleft<0)\
+    {\
+        GET16BITS() \
+        bits = bitsunshifted<<(-bitsleft);\
+        bitsleft += 16;\
+    }
+
+#define SQgetnum(v) \
+    if ((int)bits<0)\
+    {\
+        SQgetbits(v,3);\
+        v -= 4;\
+    }\
+    else\
+    {\
+        int             n;\
+        unsigned int   v1;\
+\
+        if (bits>>16)\
+        {\
+            n=2;\
+            do\
+            {\
+                bits <<= 1; \
+                ++n;\
+            }\
+            while ((int)bits>=0);\
+            bits <<= 1;\
+            bitsleft -= (n-1);\
+            SQrefill();\
+        }\
+        else\
+        {\
+            n=2;\
+            do\
+            {\
+                ++n;\
+                SQgetbits(v,1);\
+            }\
+            while (!v);\
+        }\
+        if (n>16)\
+        {\
+            SQgetbits(v,n-16);\
+            SQgetbits(v1,16);\
+            v = (v1|(v<<16))+(1<<n)-4;\
+        }\
+        else\
+        {\
+            SQgetbits(v,n);\
+            v = (v+(1<<n)-4);\
+        }\
+    }
+
+/* note:  requires 'amt' be a multiple of 16 */
+#define SQmemset(ptr, val, amt) \
+{\
+    int i = amt/16;\
+    int intval = (val<<24)|(val<<16)|(val<<8)|val;\
+    int* lptr = (int*)ptr;\
+\
+    while (i)\
+    {\
+        lptr[0] = intval;\
+        lptr[1] = intval;\
+        lptr[2] = intval;\
+        lptr[3] = intval;\
+        lptr += 4;\
+        --i;\
+    }\
+}\
+
 extern "C" int unhuff(unsigned char *comp, unsigned char *out, int doDecode)
 {
-    unsigned char *ip;          /* input byte cursor (pnVar20) */
-    unsigned int   more;        /* uVar19 : BE word / 16-bit refill register */
-    unsigned int   bits;        /* uVar14 : 32-bit MSB bit accumulator */
-    unsigned int   t13, t8, t16;/* uVar13, uVar8, uVar16 */
-    int            bc, bc2;     /* iVar17, iVar18 : bit-count (Ghidra SSA split) */
-    int            curlen;      /* iVar15 : current code length */
-    unsigned int   magic;       /* uVar30 : 16-bit format magic */
-    unsigned int   usize;       /* uVar12 : uncompressed size (return) */
-    unsigned char *op;          /* pbVar22 : output write cursor */
-    unsigned char *op2;         /* pbVar25 : output / table temp */
-    unsigned char *dp;          /* pbVar27 : decode-symbol fill ptr */
-    unsigned char *symp;        /* pbVar31 : symbol-table read ptr */
-    int            t21, t23, t24;
-    int            ncodes;      /* iVar29 : total #codes */
-    int            off26;       /* iVar26 : byte offset into basecode/firstcode */
-    int           *ncp;         /* piVar28 : numcodes ptr */
-    unsigned char  sym;         /* bVar10 : current symbol / length-walk index */
-    unsigned char  escape;      /* unaff_s8 : escape/literal marker symbol */
-    unsigned int   escapelen;   /* local_30 */
-    unsigned int  *fcp;         /* puVar9 : firstcode walk ptr */
-    unsigned char *endp;        /* puVar11 : delta-filter end ptr */
-    unsigned char  acc;         /* uVar5 */
-    char           acc2;        /* cVar6 */
-    int            i;
+    unsigned int    type;
+    unsigned char   clue;
+    int            ulen;
+    unsigned int    cmp;
+    int             bitnum;
+    int             cluelen;
+    unsigned char   *qs;
+    unsigned char   *qd;
+    unsigned int   bits;
+    unsigned int   bitsunshifted=0;
+    int             numbits;
+    int             bitsleft;
+    unsigned int   v;
 
-    int            numcodes[15];     /* local_4ec : #codes per length */
-    int            basecode[16];     /* aiStack_4b0 */
-    unsigned int   firstcode[17];    /* auStack_470[8]+uStack_450+local_44c[7] (contiguous; +sentinel slot) */
-    unsigned char  symtab[256];      /* local_430 : symbol table */
-    unsigned char  symbyprefix[256]; /* local_330 : symbol per 8-bit prefix */
-    unsigned char  lenbyprefix[256]; /* local_230+local_22c : code length per 8-bit prefix */
-    unsigned char  seen[256];        /* local_130+local_12c : symbol-seen flags */
+    qs = comp;
+    qd = out;
+    ulen = 0;
 
-    if (comp == (unsigned char *)0)
-        return 0;
+    if (qs)
+    {
+        {
+            int             mostbits;
+            int             i;
+            int             bitnumtbl[16];
+            unsigned int    deltatbl[16];
+            unsigned int    cmptbl[16];
+            unsigned char   codetbl[256];
+            unsigned char   quickcodetbl[256];
+            unsigned char   quicklentbl[256];
 
-    /* --- header + bit-reader prime --- */
-    ip    = comp;
-    bc    = 0;
-    more  = ((unsigned int)ip[0] << 8) | ip[1]; ip = ip + 2;
-    magic = more;
-    more  = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-    usize = more << 0x10;
-    if ((magic & 0x100) != 0) {
-        bc    = 8;
-        more  = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << bc) << bc); ip = ip + 2;
-        more  = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << bc) << bc); ip = ip + 2;
-        usize = more << bc;
-    }
-    magic = magic & ~0x100;
-    bc2   = bc - 8;
-    t13   = usize << 8;
-    if (bc2 < 0) {
-        t13 = -bc2;
-        bc2 = bc + 8;
-        more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-        t13 = more << (t13);
-    }
-    bc   = bc2 - 0x10;
-    bits = t13 << 0x10;
-    if (bc < 0) {
-        more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-        bits = more << (-bc);
-        bc   = bc2;
-    }
-    usize = t13 >> 0x10 | (usize >> 0x18) << 0x10;
-    op = out;
+            bitsleft = -16;                                 /* init bit stream */
+            bits = 0;
+            SQrefill();
 
-    if (doDecode != 0) {
-        escape = bits >> 0x18;
-        bc2 = bc - 8;
-        bits = bits << 8;
-        if (bc2 < 0) {
-            t13 = -bc2;
-            bc2 = bc + 8;
-            more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-            bits = more << (t13);
-        }
-        ncodes = 0;
-        t24    = 0;
-        ncp    = numcodes;
-        off26  = 4;
-        t23    = 1;
-        /* --- read canonical code-length deltas, build numcodes / basecode / firstcode --- */
-        do {
-            curlen = t23;
-            *(int *)((char *)basecode + off26) = t24 * 2 - ncodes;
-            if ((int)bits < 0) {
-                t13 = bits >> 0x1d;
-                bc = bc2 - 3;
-                bits = bits << 3;
-                if (bc < 0) {
-                    bits = -bc;
-                    bc = bc2 + 0xd;
-                    more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                    bits = more << (bits);
-                }
-            } else {
-                t13 = 2;
-                if (bits >> 0x10 == 0) {
-                    t16 = 3;
-                    do {
-                        t13 = t16;
-                        bc = bc2 - 1;
-                        t8 = bits << 1;
-                        if (bc < 0) {
-                            t16 = -bc;
-                            bc = bc2 + 0xf;
-                            more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                            t8 = more << (t16);
+            SQgetbits(type,16);
+
+            /* (skip nothing for 0x30fb) */
+            if (type&0x100)                                 /* skip ulen */
+            {
+                SQgetbits(v,8);
+                SQgetbits(v,16);
+            }
+            type &= ~0x100;
+
+            SQgetbits(v,8);                                 /* unpack len */
+            SQgetbits(ulen,16);
+            ulen |= (v<<16);
+
+            if (doDecode)
+            {
+                {
+                    int numchars;
+
+                    {
+                        unsigned int basecmp;
+
+                        SQgetbits(clue,8);                          /* clue byte */
+
+                        numchars = 0;
+                        numbits = 1;
+                        basecmp = (unsigned int) 0;
+
+                        /* decode bitnums */
+
+                        do
+                        {
+                            basecmp <<= 1;
+                            deltatbl[numbits] = basecmp-numchars;
+
+                            SQgetnum(bitnum);               /* # of codes of n bits */
+                            bitnumtbl[numbits] = bitnum;
+
+                            numchars += bitnum;
+                            basecmp += bitnum;
+
+                            cmp = 0;
+                            if (bitnum)                             /* left justify cmp */
+                                cmp = (basecmp << (16-numbits) & 0xffff);
+
+                            cmptbl[numbits++] = cmp;
+
                         }
-                        i = (-1 < (int)bits);
-                        bits = t8;
-                        bc2 = bc;
-                        t16 = t13 + 1;
-                    } while (i);
-                } else {
-                    do {
-                        t8 = bits;
-                        bits = t8 << 1;
-                        t13 = t13 + 1;
-                    } while (-1 < (int)bits);
-                    bc = (bc2 + 1) - t13;
-                    t8 = t8 << 2;
-                    if (bc < 0) {
-                        bits = -bc;
-                        bc = bc + 0x10;
-                        more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                        t8 = more << (bits);
+                        while (!bitnum || cmp);                     /* n+1 bits in cmp? */
+                    }
+                    cmptbl[numbits-1] = 0xffffffff;               /* force match on most bits */
+
+                    mostbits = numbits-1;
+
+                    /* decode leapfrog code table */
+
+                    {
+                        signed char     leap[256];
+                        unsigned char   nextchar;
+
+                        SQmemset(leap,0,256);
+                        nextchar = (unsigned char) -1;
+
+                        for (i=0;i<numchars;++i)
+                        {
+                            int leapdelta=0;
+
+                            SQgetnum(leapdelta);
+                            ++leapdelta;
+
+                            do
+                            {
+                                ++nextchar;
+                                if (!leap[nextchar])
+                                    --leapdelta;
+                            } while (leapdelta);
+
+                            leap[nextchar] = 1;
+                            codetbl[i] = nextchar;
+                        }
                     }
                 }
-                if ((int)t13 < 0x11) {
-                    bc = bc - t13;
-                    bits = t8 << (t13);
-                    if (bc < 0) {
-                        bits = -bc;
-                        bc = bc + 0x10;
-                        more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                        bits = more << (bits);
+
+/****************************************************************/
+/*  Make fast 8 tables                                          */
+/****************************************************************/
+
+                SQmemset(quicklentbl,64,256);
+
+                {
+                    int bits;
+                    int bitnum;
+                    int numbitentries;
+                    int nextcode;
+                    int nextlen;
+                    int i;
+                    unsigned char *codeptr;
+                    unsigned char *quickcodeptr;
+                    unsigned char *quicklenptr;
+
+                    codeptr = codetbl;
+                    quickcodeptr = quickcodetbl;
+                    quicklenptr = quicklentbl;
+
+                    for (bits=1; bits<=mostbits; ++bits)
+                    {
+                        bitnum = bitnumtbl[bits];
+                        if (bits>=9)
+                            break;
+                        numbitentries = 1<<(8-bits);
+
+                        while (bitnum--)
+                        {
+                            nextcode = *codeptr++;
+                            nextlen = bits;
+                            if (nextcode==clue)
+                            {
+                                cluelen = bits;
+                                nextlen = 96;                   /* will force out of main loop */
+                            }
+                            for (i=0; i<numbitentries; ++i)
+                            {
+                                *quickcodeptr++ = (unsigned char) nextcode;
+                                *quicklenptr++ = (unsigned char) nextlen;
+                            }
+                        }
                     }
-                    t13 = (t8 >> (0x20 - t13)) + (1 << (t13));
-                } else {
-                    t16 = t8 << (t13 - 0x10);
-                    bc2 = (bc + 0x10) - t13;
-                    if (bc2 < 0) {
-                        bits = -bc2;
-                        bc2 = bc2 + 0x10;
-                        more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                        t16 = more << (bits);
-                    }
-                    bc = bc2 - 0x10;
-                    bits = t16 << 0x10;
-                    if (bc < 0) {
-                        more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                        bits = more << (-bc);
-                        bc = bc2;
-                    }
-                    t13 = (t16 >> 0x10 | (t8 >> (0x30 - t13)) << 0x10) +
-                          (1 << (t13));
                 }
             }
-            t21 = t13 - 4;
-            *ncp = t21;
-            ncodes = ncodes + t21;
-            t24 = t24 * 2 + t21;
-            t13 = 0;
-            if (t21 != 0)
-                t13 = t24 << (0x10U - curlen) & 0xffff;
-            *(unsigned int *)((char *)firstcode + off26) = t13;
-            ncp = ncp + 1;
-            off26 = off26 + 4;
-            t23 = curlen + 1;
-            bc2 = bc;
-        } while ((t21 == 0) || (t13 != 0));
-        firstcode[curlen] = 0xffffffff;
 
-        for (i = 0; i < 256; i++)                 /* zero seen[256] (local_130/local_12c) */
-            seen[i] = 0;
+/****************************************************************/
+/*  Main decoder                                                */
+/****************************************************************/
 
-        sym = 0xff;
-        t23 = 0;
-        bc2 = bc;
-        /* --- read the symbol table --- */
-        if (0 < ncodes) {
-            do {
-                if ((int)bits < 0) {
-                    t13 = bits >> 0x1d;
-                    bc = bc2 - 3;
-                    bits = bits << 3;
-                    if (bc < 0) {
-                        bits = -bc;
-                        bc = bc2 + 0xd;
-                        more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                        bits = more << (bits);
+            for (;;)
+            {
+                unsigned char   *quickcodeptr = quickcodetbl;
+                unsigned char   *quicklenptr  = quicklentbl;
+                unsigned int    idx;
+                unsigned char  *cp;
+
+                goto nextloop;
+
+/* quick 8 fetch */
+
+                do
+                {
+
+                    *qd++ = quickcodeptr[bits>>24];
+                    GET16BITS();
+                    bits = bitsunshifted<<(16-bitsleft);
+
+/* quick 8 decode */
+
+nextloop:
+                    idx = bits>>24;
+                    numbits = quicklenptr[idx];
+                    bitsleft -= numbits;
+
+                    if (bitsleft>=0)
+                    {
+                        do
+                        {
+                            cp = quickcodeptr + idx;
+                            bits <<= numbits;
+                            *qd++ = *cp;
+                            idx = bits>>24;
+
+                            numbits = quicklenptr[idx];
+                            bitsleft -= numbits;
+                            if (bitsleft<0) break;
+                            cp = quickcodeptr + idx;
+                            bits <<= numbits;
+                            *qd++ = *cp;
+                            idx = bits>>24;
+
+                            numbits = quicklenptr[idx];
+                            bitsleft -= numbits;
+                            if (bitsleft<0) break;
+                            cp = quickcodeptr + idx;
+                            bits <<= numbits;
+                            *qd++ = *cp;
+                            idx = bits>>24;
+
+                            numbits = quicklenptr[idx];
+                            bitsleft -= numbits;
+                            if (bitsleft<0) break;
+                            cp = quickcodeptr + idx;
+                            bits <<= numbits;
+                            *qd++ = *cp;
+                            idx = bits>>24;
+
+                            numbits = quicklenptr[idx];
+                            bitsleft -= numbits;
+
+                        } while (bitsleft>=0);
                     }
-                } else {
-                    t13 = 2;
-                    if (bits >> 0x10 == 0) {
-                        t16 = 3;
-                        do {
-                            t13 = t16;
-                            bc = bc2 - 1;
-                            t8 = bits << 1;
-                            if (bc < 0) {
-                                t16 = -bc;
-                                bc = bc2 + 0xf;
-                                more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                                t8 = more << (t16);
-                            }
-                            i = (-1 < (int)bits);
-                            bits = t8;
-                            bc2 = bc;
-                            t16 = t13 + 1;
-                        } while (i);
-                    } else {
-                        do {
-                            t8 = bits;
-                            bits = t8 << 1;
-                            t13 = t13 + 1;
-                        } while (-1 < (int)bits);
-                        bc = (bc2 + 1) - t13;
-                        t8 = t8 << 2;
-                        if (bc < 0) {
-                            bits = -bc;
-                            bc = bc + 0x10;
-                            more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                            t8 = more << (bits);
+                    bitsleft += 16;
+
+                } while (bitsleft>=0);  /* would fetching 16 bits do it? */
+
+                bitsleft = bitsleft-16+numbits;   /* back to normal */
+
+/****************************************************************/
+/*  16 bit decoder                                              */
+/****************************************************************/
+
+                {
+                    unsigned char   code;
+
+
+                    if (numbits!=96)
+                    {
+                        cmp = (unsigned int) (bits>>16);  /* 16 bit left justified compare */
+
+                        numbits = 8;
+                        do
+                        {
+                            ++numbits;
+                        }
+                        while (cmp>=cmptbl[numbits]);
+                    }
+                    else
+                        numbits = cluelen;
+
+
+                    cmp = bits >> (32-(numbits));
+                    bits <<= (numbits);
+                    bitsleft -= (numbits);
+
+                    code = codetbl[cmp-deltatbl[numbits]];  /* the code */
+
+                    if (code!=clue && bitsleft>=0)
+                    {
+                        *qd++ = code;
+                        goto nextloop;
+                    }
+
+                    if (bitsleft<0)
+                    {
+                        GET16BITS();
+                        bits = bitsunshifted<<-bitsleft;
+                        bitsleft += 16;
+                    }
+
+                    if (code!=clue)
+                    {
+                        *qd++ = code;
+                        goto nextloop;
+                    }
+
+                    /* handle clue */
+
+                    {
+                        int    runlen=0;
+                        unsigned char *d=qd;
+                        unsigned char *dest;
+
+                        SQgetnum(runlen);
+                        if (runlen)                             /* runlength sequence */
+                        {
+                            dest = d+runlen;
+                            code = *(d-1);
+                            do
+                            {
+                                *d++ = code;
+                            } while (d<dest);
+
+                            qd = d;
+                            goto nextloop;
                         }
                     }
-                    if ((int)t13 < 0x11) {
-                        bc = bc - t13;
-                        bits = t8 << (t13);
-                        if (bc < 0) {
-                            bits = -bc;
-                            bc = bc + 0x10;
-                            more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                            bits = more << (bits);
-                        }
-                        t13 = (t8 >> (0x20 - t13)) + (1 << (t13));
-                    } else {
-                        t16 = t8 << (t13 - 0x10);
-                        bc2 = (bc + 0x10) - t13;
-                        if (bc2 < 0) {
-                            bits = -bc2;
-                            bc2 = bc2 + 0x10;
-                            more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                            t16 = more << (bits);
-                        }
-                        bc = bc2 - 0x10;
-                        bits = t16 << 0x10;
-                        if (bc < 0) {
-                            more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                            bits = more << (-bc);
-                            bc = bc2;
-                        }
-                        t13 = (t16 >> 0x10 | (t8 >> (0x30 - t13)) << 0x10) +
-                              (1 << (t13));
+
+                    SQgetbits(v,1);                         /* End Of File */
+                    if (v)
+                        break;
+
+                    {
+                        unsigned int t;
+                        SQgetbits(t,8);                    /* explicite byte */
+                        code = (unsigned char)t;
+                    }
+                    *qd++ = code;
+                    goto nextloop;
+                }
+
+            }
+
+
+/****************************************************************/
+/*  Undelta                                                     */
+/****************************************************************/
+
+            {
+                int i;
+                int nextchar;
+
+                if (type==0x32fb)                           /* deltaed? */
+                {
+                    i = 0;
+                    qd = out;
+                    while (qd<out+ulen)
+                    {
+                        i += (int) *qd;
+                        *qd++ = (unsigned char) i;
                     }
                 }
-                bc2 = t13 - 3;
-                do {
-                    sym = sym + 1;
-                    if (seen[sym] == 0)
-                        bc2 = bc2 - 1;
-                } while (bc2 != 0);
-                t24 = t23 + 1;
-                seen[sym] = 1;
-                symtab[t23] = sym;
-                bc2 = bc;
-                t23 = t24;
-            } while (t24 < ncodes);
-        }
+                else if (type==0x34fb)                      /* accelerated? */
+                {
 
-        for (i = 0; i < 256; i++)                 /* fill lenbyprefix[256] with 0x40 (local_230/local_22c) */
-            lenbyprefix[i] = 0x40;
-
-        symp = symtab;
-        dp   = symbyprefix;
-        op2  = lenbyprefix;
-        t13  = 1;
-        /* --- build the 8-bit fast-prefix decode tables --- */
-        if (0 < curlen) {
-            ncp = numcodes;
-            do {
-                bc2 = *ncp;
-                if (8 < (int)t13)
-                    break;
-                t23 = 1 << (8 - t13);
-                while (bc2 = bc2 - 1, bc2 != -1) {
-                    sym = *symp;
-                    symp = symp + 1;
-                    t16 = t13;
-                    if (sym == escape) {
-                        escapelen = t13;
-                        t16 = 0x60;
-                    }
-                    t24 = 0;
-                    if (0 < t23) {
-                        do {
-                            *dp = sym;
-                            dp = dp + 1;
-                            *op2 = (unsigned char)t16;
-                            t24 = t24 + 1;
-                            op2 = op2 + 1;
-                        } while (t24 < t23);
+                    i = 0;
+                    nextchar = 0;
+                    qd = out;
+                    while (qd<out+ulen)
+                    {
+                        i += (int) *qd;
+                        nextchar += i;
+                        *qd++ = (unsigned char) nextchar;
                     }
                 }
-                t13 = t13 + 1;
-                ncp = ncp + 1;
-            } while ((int)t13 <= curlen);
+            }
         }
     }
-
-    /* --- main decode loop --- */
-    for (;;) {
-        t13 = bits >> 0x18;
-        t16 = lenbyprefix[t13];
-        for (bc = bc - t16; op2 = op, -1 < bc; bc = bc - t16) {
-            bits = bits << (t16);
-            t8 = bits >> 0x18;
-            *op = symbyprefix[t13];
-            t16 = lenbyprefix[t8];
-            bc = bc - t16;
-            op2 = op + 1;
-            if (bc < 0) break;
-            bits = bits << (t16);
-            t13 = bits >> 0x18;
-            op[1] = symbyprefix[t8];
-            t16 = lenbyprefix[t13];
-            bc = bc - t16;
-            op2 = op + 2;
-            if (bc < 0) break;
-            bits = bits << (t16);
-            t8 = bits >> 0x18;
-            op[2] = symbyprefix[t13];
-            t16 = lenbyprefix[t8];
-            bc = bc - t16;
-            op2 = op + 3;
-            if (bc < 0) break;
-            bits = bits << (t16);
-            t13 = bits >> 0x18;
-            op[3] = symbyprefix[t8];
-            t16 = lenbyprefix[t13];
-            op = op + 4;
-        }
-        op = op2;
-        bc = bc + 0x10;
-        if (bc < 0) {
-            t13 = escapelen;
-            if (t16 != 0x60) {
-                t13 = 8;
-                fcp = &firstcode[8];
-                do {
-                    fcp = fcp + 1;
-                    t13 = t13 + 1;
-                } while (*fcp <= bits >> 0x10);
-            }
-            t8 = bits >> (0x20 - t13);
-            bits = bits << (t13);
-            sym = symtab[t8 - basecode[t13]];
-            bc2 = (bc + (t16 - 0x10)) - t13;
-            if (sym == escape) {
-                if (bc2 < 0) {
-                  refill_e38:
-                    t13 = -bc2;
-                    bc2 = bc2 + 0x10;
-                    more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                    bits = more << (t13);
-                }
-                if (sym == escape) {
-                    if ((int)bits < 0) {
-                        t13 = bits >> 0x1d;
-                        bc = bc2 - 3;
-                        bits = bits << 3;
-                        if (bc < 0) {
-                            bits = -bc;
-                            bc = bc2 + 0xd;
-                            more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                            bits = more << (bits);
-                        }
-                        bc2 = t13 - 4;
-                    } else {
-                        t13 = 2;
-                        if (bits >> 0x10 == 0) {
-                            t16 = 3;
-                            do {
-                                t13 = t16;
-                                bc = bc2 - 1;
-                                t8 = bits << 1;
-                                if (bc < 0) {
-                                    t16 = -bc;
-                                    bc = bc2 + 0xf;
-                                    more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                                    t8 = more << (t16);
-                                }
-                                i = (-1 < (int)bits);
-                                bits = t8;
-                                t16 = t13 + 1;
-                                bc2 = bc;
-                            } while (i);
-                        } else {
-                            do {
-                                t8 = bits;
-                                bits = t8 << 1;
-                                t13 = t13 + 1;
-                            } while (-1 < (int)bits);
-                            bc = (bc2 + 1) - t13;
-                            t8 = t8 << 2;
-                            if (bc < 0) {
-                                bits = -bc;
-                                bc = bc + 0x10;
-                                more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                                t8 = more << (bits);
-                            }
-                        }
-                        if ((int)t13 < 0x11) {
-                            bc = bc - t13;
-                            bits = t8 << (t13);
-                            if (bc < 0) {
-                                bits = -bc;
-                                bc = bc + 0x10;
-                                more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                                bits = more << (bits);
-                            }
-                            bc2 = (t8 >> (0x20 - t13)) + (1 << (t13)) + -4;
-                        } else {
-                            t16 = t8 << (t13 - 0x10);
-                            bc2 = (bc + 0x10) - t13;
-                            if (bc2 < 0) {
-                                bits = -bc2;
-                                bc2 = bc2 + 0x10;
-                                more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                                t16 = more << (bits);
-                            }
-                            bc = bc2 - 0x10;
-                            bits = t16 << 0x10;
-                            if (bc < 0) {
-                                more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                                bits = more << (-bc);
-                                bc = bc2;
-                            }
-                            bc2 = (t16 >> 0x10 | (t8 >> (0x30 - t13)) << 0x10) +
-                                  (1 << (t13)) + -4;
-                        }
-                    }
-                    op2 = op + bc2;
-                    if (bc2 == 0) {                       /* literal byte (or end-of-stream) */
-                        t23 = bc - 1;
-                        bc2 = bits << 1;
-                        if (t23 < 0) {
-                            t13 = -t23;
-                            t23 = bc + 0xf;
-                            more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                            bc2 = more << (t13);
-                        }
-                        if ((int)bits < 0) {              /* end of stream -> delta post-filter + return */
-                            if (magic == 0x32fb) {
-                                endp = out + usize;
-                                acc = 0;
-                                for (; out < endp; out = out + 1) {
-                                    acc = acc + *out;
-                                    *out = acc;
-                                }
-                                return usize;
-                            }
-                            if (magic != 0x34fb)
-                                return usize;
-                            acc2 = 0;
-                            endp = out + usize;
-                            acc  = 0;
-                            for (; out < endp; out = out + 1) {
-                                acc2 = acc2 + *out;
-                                acc  = acc + acc2;
-                                *out = acc;
-                            }
-                            return usize;
-                        }
-                        bc = t23 - 8;
-                        bits = (unsigned int)bc2 << 8;
-                        if (bc < 0) {
-                            t13 = -bc;
-                            bc = t23 + 8;
-                            more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-                            bits = more << (t13);
-                        }
-                        *op = (unsigned char)((unsigned int)bc2 >> 0x18);
-                        op = op + 1;
-                    } else {                              /* repeat run (back-reference of last byte) */
-                        sym = op[-1];
-                        do {
-                            *op = sym;
-                            op = op + 1;
-                        } while (op < op2);
-                    }
-                    continue;
-                }
-                *op = sym;
-                bc = bc2;
-            } else {
-                if (bc2 < 0)
-                    goto refill_e38;
-                *op = sym;
-                bc = bc2;
-            }
-            op = op + 1;
-            continue;
-        }
-        *op = symbyprefix[bits >> 0x18];
-        more = (unsigned int)ip[1] | (((unsigned int)ip[0] | more << 8) << 8); ip = ip + 2;
-        bits = more << (0x10U - bc);
-        op = op + 1;
-    }
+    return(ulen);
 }
 
 /* memcpyl @0x800F51C0 : copy `n` bytes (rounded up to 4) word-at-a-time via geti/puti.  Returns dst+n.

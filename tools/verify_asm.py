@@ -16,7 +16,7 @@ import importlib.util
 spec = importlib.util.spec_from_file_location('bld', ROOT / 'tools' / 'build.py')
 bld = importlib.util.module_from_spec(spec); spec.loader.exec_module(bld)
 bld.OUT = bld.BUILD
-obj = bld.compile_cpp(cpp)
+obj = bld.compile_c(cpp, skip_asm=False) if cpp.suffix == '.c' else bld.compile_cpp(cpp)
 dis = subprocess.run([OBJD, '-d', '-r', '-z', str(obj)], capture_output=True, text=True).stdout
 
 # Alias resolution: several XDEF names can share ONE address (a nullsub with N co-equal entry

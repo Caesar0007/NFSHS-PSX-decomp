@@ -232,6 +232,9 @@ def main():
         print("== compiling vendored reconstruction C++ TUs ==")
         for cpp in sorted(RECON.rglob("*.cpp")):
             _try(compile_cpp, cpp)
+        # recon C TUs (modules the retail lib built with CC1PSX, e.g. eacpsxz unhuff.obj)
+        for c in sorted(RECON.rglob("*.c")):
+            _try(lambda s: compile_c(s, skip_asm), c)
 
     if failures:
         print(f"== {len(failures)} TU(s) FAILED to build (skipped; report covers the rest) ==")

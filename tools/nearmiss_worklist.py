@@ -30,8 +30,8 @@ def oracle_ins(p):
         out.append(norm(s))
     return out
 rows=[]
-for m in sorted(ROOT.glob('recon/**/*.cpp')):
-    try: obj=bld.compile_cpp(m)
+for m in sorted([*ROOT.glob('recon/**/*.cpp'), *ROOT.glob('recon/**/*.c')]):
+    try: obj=bld.compile_c(m, False) if m.suffix=='.c' else bld.compile_cpp(m)
     except SystemExit: continue
     except Exception: continue
     dis=subprocess.run([OBJD,'-d','-r',str(obj)],capture_output=True,text=True).stdout

@@ -32,10 +32,11 @@ def oracle_ins(fn):
         if not s or s.startswith(('.','glabel','nonmatching','dlabel','jlabel')) or s.startswith('.L') or s.endswith(':'):continue
         out.append(norm(s))
     return out
-mods=sorted((ROOT/sys.argv[1] if len(sys.argv)>1 else ROOT/'recon'/'game'/'common').glob('*.cpp'))
+_d=(ROOT/sys.argv[1] if len(sys.argv)>1 else ROOT/'recon'/'game'/'common')
+mods=sorted([*_d.glob('*.cpp'), *_d.glob('*.c')])   # .c = C-module TUs (eaclib/syslib ruling 2026-07-09)
 tot_fn=0; tot_pass=0; near=0; far=0; comp_fail=0; matched=[]; near_list=[]
 for m in mods:
-    try: obj=bld.compile_cpp(m)
+    try: obj=bld.compile_c(m, False) if m.suffix=='.c' else bld.compile_cpp(m)
     except SystemExit: comp_fail+=1; continue
     except Exception: comp_fail+=1; continue
     dis=subprocess.run([OBJD,'-d','-r',str(obj)],capture_output=True,text=True).stdout

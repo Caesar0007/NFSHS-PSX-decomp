@@ -118,6 +118,15 @@
     "swc2 $16, 0(%0)\n\tswc2 $17, 4(%0)\n\tswc2 $18, 8(%0)\n\tswc2 $19, 12(%0)" \
     : : "r"(p) : "memory")
 #define gte_stOTZ(p)  __asm__ volatile ("swc2 $7, 0(%0)"  : : "r"(p) : "memory")
+/* "m"-FORM stores (2026-07-09): output-memory-operand variants -- gcc emits the FULL
+ * base+displacement addressing itself (`swc2 $24,0xC4($t0)` off a live struct base),
+ * matching the EA-expander sites where the "r"-form would materialize an address first.
+ * Pass the LVALUE (sd->bfct), not its address. */
+#define gte_stMAC0m(x) __asm__ volatile ("swc2 $24, %0" : "=m"(x))
+#define gte_stOTZm(x)  __asm__ volatile ("swc2 $7, %0"  : "=m"(x))
+#define gte_stSXY0m(x) __asm__ volatile ("swc2 $12, %0" : "=m"(x))
+#define gte_stSXY1m(x) __asm__ volatile ("swc2 $13, %0" : "=m"(x))
+#define gte_stSXY2m(x) __asm__ volatile ("swc2 $14, %0" : "=m"(x))
 #define gte_stMAC0(p) __asm__ volatile ("swc2 $24, 0(%0)" : : "r"(p) : "memory")
 /* store the FLAG control reg */
 #define gte_stflg(p)  __asm__ volatile (                                       \
@@ -216,6 +225,11 @@
 #define gte_stsz4(a,b,c,d)     do { (void)(a); (void)(b); (void)(c); (void)(d); } while (0)
 #define gte_stsz4c(p)          ((void)(p))
 #define gte_stOTZ(p)           ((void)(p))
+#define gte_stMAC0m(x)         ((void)(x))
+#define gte_stOTZm(x)          ((void)(x))
+#define gte_stSXY0m(x)         ((void)(x))
+#define gte_stSXY1m(x)         ((void)(x))
+#define gte_stSXY2m(x)         ((void)(x))
 #define gte_stMAC0(p)          ((void)(p))
 #define gte_stflg(p)           ((void)(p))
 #define gte_swc2(reg,p)        do { (void)(reg); (void)(p); } while (0)

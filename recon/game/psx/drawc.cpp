@@ -6,6 +6,19 @@
 #include "../../nfs4_types.h"
 #include "drawc_externs.h"
 
+/* ---- EA DMPSX-analog OT-link templates (2026-07-09, see fastmovf.c + hub) ----
+ * Variant A (FT3 alloc): prim = sd->PrimPtr; slot = sub_ot+otz; PrimPtr += 0x20;
+ *   prim->tag = slot->addr24 | 7<<24; slot->addr24 = prim.  prim -> OUTPUT reg.
+ * Variant B (12-byte mode packet): copy 3 words from sd+OFF (prebuilt DR_MODE
+ *   packet, word0 already carries the len byte); FUSED 24-bit link (extract/insert
+ *   shifts cancel).  Fully fixed regs incl. $s0 (forces the s0 save). */
+#define DRAWC_OTLINK_FT3(sd_, primout_) __asm__ volatile( \
+    "lw\t%0,4(%1)\n\tlw\t$t4,60(%1)\n\tlw\t$t5,56(%1)\n\taddiu\t$t6,%0,32\n\tsll\t$t4,$t4,2\n\taddu\t$t5,$t5,$t4\n\tsw\t$t6,4(%1)\n\tlwl\t$t6,2($t5)\n\tlui\t$t4,0x0700\n\tsrl\t$t6,$t6,8\n\tor\t$t6,$t6,$t4\n\tsll\t$t4,%0,8\n\tsw\t$t6,0(%0)\n\tswl\t$t4,2($t5)" \
+    : "=&r"(primout_) : "r"(sd_) : "$12", "$13", "$14", "memory")
+#define DRAWC_OTLINK_MODE(sd_, srcoff_) __asm__ volatile( \
+    "lw\t$t4,4(%0)\n\tlw\t$t5,60(%0)\n\tlw\t$t6,56(%0)\n\taddiu\t$t7,$t4,12\n\tsll\t$t5,$t5,2\n\taddu\t$t6,$t6,$t5\n\tsw\t$t7,4(%0)\n\tlw\t$t5," srcoff_ "(%0)\n\tlw\t$t7," srcoff_ "+4(%0)\n\tlw\t$s0," srcoff_ "+8(%0)\n\tsw\t$t5,0($t4)\n\tsw\t$t7,4($t4)\n\tsw\t$s0,8($t4)\n\tlwl\t$t5,2($t6)\n\tsll\t$t7,$t4,8\n\tswl\t$t5,2($t4)\n\tswl\t$t7,2($t6)" \
+    : : "r"(sd_) : "$12", "$13", "$14", "$15", "$16", "memory")
+
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
@@ -2010,8 +2023,8 @@ void DrawC_DividePrim(COORD16 *vt0,COORD16 *vt1,COORD16 *vt2,u_short *u0,u_short
   u_char code;
   u_short uv1;
   u_short uv2;
-  short sVar1;
-  short sVar2;
+  int sVar1;      /* clipW held as INT (oracle: lh, no per-use re-extension) */
+  int sVar2;      /* clipH likewise */
   u_short uVar3;
   u_short uVar4;
   u_int *puVar5;
@@ -2030,15 +2043,15 @@ void DrawC_DividePrim(COORD16 *vt0,COORD16 *vt1,COORD16 *vt2,u_short *u0,u_short
 gte_ldv3(vt0,vt1,vt2);
     gte_rtpt();
     gte_nclip();
-    gte_stMAC0(&sd->bfct);
+    gte_stMAC0m(sd->bfct);   /* m-form: swc2 $24,0x44(sd) direct displacement (EA-expander site) */
     iVar6 = sd->bfct;
     if ((sd->head).mirror != 0) {
       iVar6 = -iVar6;
     }
     if (0 < iVar6) {
-      gte_stSXY0(&sd->dvx0);
-      gte_stSXY1(&sd->dvx1);
-      gte_stSXY2(&sd->dvx2);
+      gte_stSXY0m(sd->dvx0);   /* m-form: swc2 $12,0xC4(sd) etc. */
+      gte_stSXY1m(sd->dvx1);
+      gte_stSXY2m(sd->dvx2);
       sVar1 = (sd->head).clipW;
       sVar2 = (sd->head).clipH;
       if (((((((sd->dvx0 <= sVar1) || (sd->dvx1 <= sVar1)) || (sd->dvx2 <= sVar1)) &&
@@ -2047,22 +2060,31 @@ gte_ldv3(vt0,vt1,vt2);
           (((-1 < sd->dvy0 || (-1 < sd->dvy1)) || (-1 < sd->dvy2)))) &&
          (((-1 < vt0->z || (-1 < vt1->z)) || (-1 < vt2->z)))) {
         gte_avsz3();
-        gte_stOTZ(&sd->otz);
+        gte_stOTZm(sd->otz);
         iVar6 = sd->otz + sd->sub_otz;
         sd->otz = iVar6;
         if ((-1 < iVar6) && (iVar6 <= sd->sub_otSize)) {
-          puVar7 = (u_int *)(sd->head).cprim.PrimPtr;
-          iVar6 = sd->otz;
-          puVar10 = sd->sub_ot;
-          (sd->head).cprim.PrimPtr = (char *)(puVar7 + 8);
-          uVar8 = (int)puVar10 + iVar6 * 4 + 2;
-          uVar9 = uVar8 & 3;
-          *puVar7 = (*(int *)(uVar8 - uVar9) << (3 - uVar9) * 8 |
-                    (u_int)(puVar7 + 8) & 0xffffffffU >> (uVar9 + 1) * 8) >> 8 | 0x7000000;
-          uVar8 = (int)puVar10 + iVar6 * 4 + 2;
-          uVar9 = uVar8 & 3;
-          puVar5 = (u_int *)(uVar8 - uVar9);
-          *puVar5 = *puVar5 & -1 << (uVar9 + 1) * 8 | (u_int)((int)puVar7 << 8) >> (3 - uVar9) * 8;
+          /* OT-link, EA DMPSX-analog FIXED-REG TEMPLATE variant A / FULL BLOCK (2026-07-09):
+           * prim = sd->PrimPtr; slot = sd->sub_ot + sd->otz; sd->PrimPtr += 0x20;
+           * prim->tag = slot->addr24 | (7<<24); slot->addr24 = prim.
+           * $t4/$t5/$t6 hardcoded (the expander's temps); prim is the asm OUTPUT. */
+          __asm__ volatile(
+              "lw	%0,4(%1)
+	lw	$t4,60(%1)
+	lw	$t5,56(%1)
+	addiu	$t6,%0,32
+	sll	$t4,$t4,2
+	addu	$t5,$t5,$t4
+	sw	$t6,4(%1)
+	lwl	$t6,2($t5)
+	lui	$t4,0x0700
+	srl	$t6,$t6,8
+	or	$t6,$t6,$t4
+	sll	$t4,%0,8
+	sw	$t6,0(%0)
+	swl	$t4,2($t5)"
+              : "=&r"(puVar7) : "r"(sd)
+              : "$12", "$13", "$14", "memory");
           uVar8 = *(u_int *)&sd->dvx1;
           uVar9 = *(u_int *)&sd->dvx2;
           puVar7[2] = *(u_int *)&sd->dvx0;
@@ -2070,14 +2092,16 @@ gte_ldv3(vt0,vt1,vt2);
           puVar7[6] = uVar9;
           puVar7[1] = sd->color;
           *(u_char *)((int)puVar7 + 7) = 0x24;
-          uVar3 = pmx->tpage;
-          *(u_short *)((int)puVar7 + 0xe) = pmx->clut;
-          *(u_short *)((int)puVar7 + 0x16) = uVar3;
-          uVar3 = *u1;
-          uVar4 = *u2;
-          *(u_short *)(puVar7 + 3) = *u0;
-          *(u_short *)(puVar7 + 5) = uVar3;
-          *(u_short *)(puVar7 + 7) = uVar4;
+          clut  = pmx->clut;                       /* clut first (v0), tpage second (a0) */
+          tpage = pmx->tpage;
+          *(u_short *)((int)puVar7 + 0xe) = clut;
+          *(u_short *)((int)puVar7 + 0x16) = tpage;
+          uv1 = *u1;                               /* u1 loads FIRST (a0) */
+          uv0 = *u0;                               /* then u0 (a1) */
+          uv2 = *u2;                               /* then u2 (v0) */
+          *(u_short *)(puVar7 + 3) = uv0;
+          *(u_short *)(puVar7 + 5) = uv1;
+          *(u_short *)(puVar7 + 7) = uv2;
         }
       }
     }
@@ -3530,60 +3554,12 @@ DrawCPrimMenu_facetLoopTop:
       }
     }
     if ((envmap & 1U) != 0) {
-      puVar27 = (u_int *)(sd->head).cprim.PrimPtr;
-      iVar16 = sd->otz;
-      puVar31 = sd->sub_ot;
-      (sd->head).cprim.PrimPtr = (char *)(puVar27 + 3);
-      puVar29 = (sd->drawModeOff).tag;
-      uVar20 = (sd->drawModeOff).code[0];
-      uVar32 = (sd->drawModeOff).code[1];
-      *puVar27 = (u_int)puVar29;
-      puVar27[1] = uVar20;
-      puVar27[2] = uVar32;
-      uVar20 = (int)puVar31 + iVar16 * 4 + 2;
-      uVar32 = uVar20 & 3;
-      uVar9 = (int)puVar27 + 2U & 3;
-      puVar10 = (u_int *)(((int)puVar27 + 2U) - uVar9);
-      *puVar10 = *puVar10 & -1 << (uVar9 + 1) * 8 |
-                 (*(int *)(uVar20 - uVar32) << (3 - uVar32) * 8 |
-                 (u_int)puVar29 & 0xffffffffU >> (uVar32 + 1) * 8) >> (3 - uVar9) * 8;
-      uVar20 = (int)puVar31 + iVar16 * 4 + 2;
-      uVar32 = uVar20 & 3;
-      puVar10 = (u_int *)(uVar20 - uVar32);
-      *puVar10 = *puVar10 & -1 << (uVar32 + 1) * 8 | (u_int)((int)puVar27 << 8) >> (3 - uVar32) * 8;
-      puVar27 = (u_int *)(sd->head).cprim.PrimPtr;
-      iVar16 = sd->otz;
-      puVar31 = sd->sub_ot;
-      (sd->head).cprim.PrimPtr = (char *)(puVar27 + 8);
-      uVar20 = (int)puVar31 + iVar16 * 4 + 2;
-      uVar32 = uVar20 & 3;
-      *puVar27 = (*(int *)(uVar20 - uVar32) << (3 - uVar32) * 8 |
-                 (u_int)(puVar27 + 8) & 0xffffffffU >> (uVar32 + 1) * 8) >> 8 | 0x7000000;
-      uVar20 = (int)puVar31 + iVar16 * 4 + 2;
-      uVar32 = uVar20 & 3;
-      puVar10 = (u_int *)(uVar20 - uVar32);
-      *puVar10 = *puVar10 & -1 << (uVar32 + 1) * 8 | (u_int)((int)puVar27 << 8) >> (3 - uVar32) * 8;
-      puVar28 = (u_int *)(sd->head).cprim.PrimPtr;
-      iVar16 = sd->otz;
-      puVar31 = sd->sub_ot;
-      (sd->head).cprim.PrimPtr = (char *)(puVar28 + 3);
-      puVar29 = (sd->drawModeOn).tag;
-      uVar20 = (sd->drawModeOn).code[0];
-      uVar32 = (sd->drawModeOn).code[1];
-      *puVar28 = (u_int)puVar29;
-      puVar28[1] = uVar20;
-      puVar28[2] = uVar32;
-      uVar20 = (int)puVar31 + iVar16 * 4 + 2;
-      uVar32 = uVar20 & 3;
-      uVar9 = (int)puVar28 + 2U & 3;
-      puVar10 = (u_int *)(((int)puVar28 + 2U) - uVar9);
-      *puVar10 = *puVar10 & -1 << (uVar9 + 1) * 8 |
-                 (*(int *)(uVar20 - uVar32) << (3 - uVar32) * 8 |
-                 (u_int)puVar29 & 0xffffffffU >> (uVar32 + 1) * 8) >> (3 - uVar9) * 8;
-      uVar20 = (int)puVar31 + iVar16 * 4 + 2;
-      uVar32 = uVar20 & 3;
-      puVar10 = (u_int *)(uVar20 - uVar32);
-      *puVar10 = *puVar10 & -1 << (uVar32 + 1) * 8 | (u_int)((int)puVar28 << 8) >> (3 - uVar32) * 8;
+      /* mode-packet OT-link: variant B template (drawModeOff @ sd+0x54) */
+      DRAWC_OTLINK_MODE(sd, "84");
+      /* FT3 OT-link: variant A template (prim -> puVar27) */
+      DRAWC_OTLINK_FT3(sd, puVar27);
+      /* mode-packet OT-link: variant B template (drawModeOn @ sd+0x48) */
+      DRAWC_OTLINK_MODE(sd, "72");
       uVar20 = *(u_int *)&sd->dvx1;
       uVar32 = *(u_int *)&sd->dvx2;
       puVar27[2] = *(u_int *)&sd->dvx0;
@@ -3612,18 +3588,8 @@ DrawCPrimMenu_facetLoopTop:
       *(u_char *)((int)puVar27 + 0x1d) = cVar5 + uVar4;
     }
     if ((uVar33 & 3) == 0) {
-      puVar27 = (u_int *)(sd->head).cprim.PrimPtr;
-      iVar16 = sd->otz;
-      puVar31 = sd->sub_ot;
-      (sd->head).cprim.PrimPtr = (char *)(puVar27 + 8);
-      uVar33 = (int)puVar31 + iVar16 * 4 + 2;
-      uVar20 = uVar33 & 3;
-      *puVar27 = (*(int *)(uVar33 - uVar20) << (3 - uVar20) * 8 |
-                 (u_int)(puVar27 + 8) & 0xffffffffU >> (uVar20 + 1) * 8) >> 8 | 0x7000000;
-      uVar33 = (int)puVar31 + iVar16 * 4 + 2;
-      uVar20 = uVar33 & 3;
-      puVar10 = (u_int *)(uVar33 - uVar20);
-      *puVar10 = *puVar10 & -1 << (uVar20 + 1) * 8 | (u_int)((int)puVar27 << 8) >> (3 - uVar20) * 8;
+      /* FT3 OT-link: variant A template (prim -> puVar27) */
+      DRAWC_OTLINK_FT3(sd, puVar27);
       uVar33 = *(u_int *)&sd->dvx0;
       uVar20 = *(u_int *)&sd->dvx2;
       puVar27[4] = *(u_int *)&sd->dvx1;
@@ -3652,19 +3618,9 @@ DrawCPrimMenu_facetLoopTop:
       *(u_short *)((int)puVar27 + 0xe) = sd->pmxStart[(u_char)puVar25[1]].clut;
     }
     else {
-      puVar27 = (u_int *)(sd->head).cprim.PrimPtr;
       pTVar23 = overlay + (u_int)(u_char)puVar25[1] * 3 + ((uVar33 & 3) - 1);
-      iVar16 = sd->otz;
-      puVar31 = sd->sub_ot;
-      (sd->head).cprim.PrimPtr = (char *)(puVar27 + 8);
-      uVar33 = (int)puVar31 + iVar16 * 4 + 2;
-      uVar20 = uVar33 & 3;
-      *puVar27 = (*(int *)(uVar33 - uVar20) << (3 - uVar20) * 8 |
-                 (u_int)(puVar27 + 8) & 0xffffffffU >> (uVar20 + 1) * 8) >> 8 | 0x7000000;
-      uVar33 = (int)puVar31 + iVar16 * 4 + 2;
-      uVar20 = uVar33 & 3;
-      puVar10 = (u_int *)(uVar33 - uVar20);
-      *puVar10 = *puVar10 & -1 << (uVar20 + 1) * 8 | (u_int)((int)puVar27 << 8) >> (3 - uVar20) * 8;
+      /* FT3 OT-link: variant A template (loop instance) */
+      DRAWC_OTLINK_FT3(sd, puVar27);
       uVar33 = *(u_int *)&sd->dvx1;
       uVar20 = *(u_int *)&sd->dvx2;
       puVar27[2] = *(u_int *)&sd->dvx0;
@@ -3912,6 +3868,9 @@ void DrawC_DivideShadowPrim(COORD16 *vt0,COORD16 *vt1,COORD16 *vt2,COORD16 *vt3,
                ,u_short *u3,Draw_tPixMap *pmx,Draw_CarCache *sd)
 
 {
+  void *tp8;
+  u_int mlo;      /* 0x00FFFFFF addr mask (oracle: $a1) */
+  u_int mhi;      /* 0xFF000000 len mask  (oracle: $a2) */
   POLY_FT4 * prim;
   u_long * ot;
   u_short uv2;
@@ -3927,20 +3886,37 @@ void DrawC_DivideShadowPrim(COORD16 *vt0,COORD16 *vt1,COORD16 *vt2,COORD16 *vt3,
   u_short uv0;
   u_long *puVar6;
   u_int *puVar7;
-  void *tp8;
   u_int *puVar8;
 
   if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr) {
 gte_ldv0(vt0);
     gte_rtps();
-    tp8 = Render_gPacketPtr;
-gte_swc2(0xe,(char *)tp8 + 0x8);
+    /* scratchpad SXY staging = EA-expander template block (scratches $t0/$v0/$v1/$a0 --
+     * the reason vt0 is copied out of $a0 up-front). Two asm halves share the packet
+     * cursor via tp8; low-reg clobbers steer the cursor into $t0 like retail. */
+    __asm__ volatile(
+        "lui	%0,0x1f80
+	lw	%0,4(%0)
+	addiu	$v0,%0,8
+	swc2	$14,0($v0)"
+        : "=&r"(tp8) : : "$2", "$3", "$4", "memory");
 gte_ldv3(vt1,vt2,vt3);
     gte_rtpt();
-gte_stsxy3((char *)tp8 + 0x10,(char *)tp8 + 0x20,(char *)tp8 + 0x18);
-    if (R3DCar_InMenu == 0) {
+    __asm__ volatile(
+        "addiu	$a0,%0,16
+	addiu	$v1,%0,32
+	addiu	$v0,%0,24
+	"
+        "swc2	$12,0($a0)
+	swc2	$13,0($v1)
+	swc2	$14,0($v0)"
+        : : "r"(tp8) : "$2", "$3", "$4", "memory");
+    if (R3DCar_InMenu != 0) {                /* fall-through arm = InMenu (oracle beqz jumps to avsz4) */
+      sd->otz = 0;
+    }
+    else {
       gte_avsz4();
-      gte_stOTZ(&sd->otz);
+      gte_stOTZm(sd->otz);
       iVar4 = (sd->otz >> 3) + 0x28;
       sd->otz = iVar4;
       if (iVar4 < 0) {
@@ -3950,16 +3926,17 @@ gte_stsxy3((char *)tp8 + 0x10,(char *)tp8 + 0x20,(char *)tp8 + 0x18);
         return;
       }
     }
-    else {
-      sd->otz = 0;
-    }
     if ((((-1 < *(short *)(((int)vt0) + 4)) || (-1 < vt1->z)) || (-1 < vt2->z)) || (-1 < vt3->z)) {
+      mlo = 0xffffff;                          /* masks FIRST (oracle: a1/a2 hoisted before the loads,
+                                                * first lui even sits in the z-chain delay slot) */
+      mhi = 0xff000000;
       puVar8 = (u_int *)(sd->head).cprim.PrimPtr;
       puVar6 = (sd->head).cprim.LastPrim;
       (sd->head).cprim.PrimPtr = (char *)(puVar8 + 10);
-      puVar7 = (u_int *)(puVar6 + sd->otz);
-      *puVar8 = *puVar8 & 0xff000000 | *puVar7 & 0xffffff;
-      *puVar7 = *puVar7 & 0xff000000 | (u_int)puVar8 & 0xffffff;
+      /* volatile: the oracle reloads sd->otz fresh here (stored just above) */
+      puVar7 = (u_int *)(puVar6 + *(int volatile *)&sd->otz);
+      *puVar8 = *puVar8 & mhi | *puVar7 & mlo;
+      *puVar7 = *puVar7 & mhi | (u_int)puVar8 & mlo;
       uVar5 = sd->color;
       *(u_char *)((int)puVar8 + 3) = 9;
       puVar8[1] = uVar5;
@@ -3967,13 +3944,15 @@ gte_stsxy3((char *)tp8 + 0x10,(char *)tp8 + 0x20,(char *)tp8 + 0x18);
       uVar1 = pmx->tpage;
       *(u_short *)((int)puVar8 + 0xe) = pmx->clut;
       *(u_short *)((int)puVar8 + 0x16) = uVar1;
-      uVar1 = *u1;
-      uVar2 = *u3;
-      uVar3 = *u2;
-      *(u_short *)(puVar8 + 3) = *u0;
-      *(u_short *)(puVar8 + 5) = uVar1;
-      *(u_short *)(puVar8 + 7) = uVar2;
-      *(u_short *)(puVar8 + 9) = uVar3;
+      uv0 = *u0;                    /* oracle load order: u0, u1, u3, u2 */
+      uv1 = *u1;
+      uv3 = *u3;
+      uv2 = *u2;
+      *(u_short *)(puVar8 + 3) = uv0;
+      *(u_short *)(puVar8 + 5) = uv1;
+      *(u_short *)(puVar8 + 7) = uv3;    /* EA swap: prim u2 slot <- *u3 */
+      *(u_short *)(puVar8 + 9) = uv2;
+
     }
   }
   return;

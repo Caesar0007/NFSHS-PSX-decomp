@@ -85,6 +85,22 @@
 #define gte_stSXY0(p) __asm__ volatile ("swc2 $12, 0(%0)" : : "r"(p) : "memory")
 #define gte_stSXY1(p) __asm__ volatile ("swc2 $13, 0(%0)" : : "r"(p) : "memory")
 #define gte_stSXY2(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
+/* PACKET-targeted SXY/RGB stores (DMPSX Inlinref Tables 1-30/1-38, added 2026-07-09):
+ * ONE packet base + the POLY_* fixed field offsets -- the oracle form in the EA render
+ * loop (DrawC_Prim: `swc2 $12,8(a1); $13,16(a1); $14,24(a1)` == gte_stsxy3_ft3(prim)).
+ * Offsets = canonical PsyQ POLY layouts (FT3 8/16/24 verified against the DrawC oracle). */
+#define gte_stsxy3_f3(p)  __asm__ volatile ("swc2 $12, 8(%0)\n\tswc2 $13, 12(%0)\n\tswc2 $14, 16(%0)" : : "r"(p) : "memory")
+#define gte_stsxy3_ft3(p) __asm__ volatile ("swc2 $12, 8(%0)\n\tswc2 $13, 16(%0)\n\tswc2 $14, 24(%0)" : : "r"(p) : "memory")
+#define gte_stsxy3_g3(p)  __asm__ volatile ("swc2 $12, 8(%0)\n\tswc2 $13, 16(%0)\n\tswc2 $14, 24(%0)" : : "r"(p) : "memory")
+#define gte_stsxy3_gt3(p) __asm__ volatile ("swc2 $12, 8(%0)\n\tswc2 $13, 20(%0)\n\tswc2 $14, 32(%0)" : : "r"(p) : "memory")
+#define gte_stsxy3_f4(p)  __asm__ volatile ("swc2 $12, 8(%0)\n\tswc2 $13, 12(%0)\n\tswc2 $14, 16(%0)" : : "r"(p) : "memory")
+#define gte_stsxy3_ft4(p) __asm__ volatile ("swc2 $12, 8(%0)\n\tswc2 $13, 16(%0)\n\tswc2 $14, 24(%0)" : : "r"(p) : "memory")
+#define gte_stsxy3_g4(p)  __asm__ volatile ("swc2 $12, 8(%0)\n\tswc2 $13, 16(%0)\n\tswc2 $14, 24(%0)" : : "r"(p) : "memory")
+#define gte_stsxy3_gt4(p) __asm__ volatile ("swc2 $12, 8(%0)\n\tswc2 $13, 20(%0)\n\tswc2 $14, 32(%0)" : : "r"(p) : "memory")
+#define gte_strgb3_g3(p)  __asm__ volatile ("swc2 $20, 4(%0)\n\tswc2 $21, 12(%0)\n\tswc2 $22, 20(%0)" : : "r"(p) : "memory")
+#define gte_strgb3_gt3(p) __asm__ volatile ("swc2 $20, 4(%0)\n\tswc2 $21, 16(%0)\n\tswc2 $22, 28(%0)" : : "r"(p) : "memory")
+#define gte_strgb3_g4(p)  __asm__ volatile ("swc2 $20, 4(%0)\n\tswc2 $21, 12(%0)\n\tswc2 $22, 20(%0)" : : "r"(p) : "memory")
+#define gte_strgb3_gt4(p) __asm__ volatile ("swc2 $20, 4(%0)\n\tswc2 $21, 16(%0)\n\tswc2 $22, 28(%0)" : : "r"(p) : "memory")
 #define gte_stsz(p)   __asm__ volatile ("swc2 $19, 0(%0)" : : "r"(p) : "memory")   /* lone SZ3 */
 /* SZ stores: there is NO lone PsyQ macro for SZ1 or SZ2 -- they come only as a trio.
  * gte_stsz3 = SZ1/SZ2/SZ3 to three pointers; gte_stsz3c = to one base at +0/4/8;
@@ -182,6 +198,18 @@
 #define gte_stSXY0(p)          ((void)(p))
 #define gte_stSXY1(p)          ((void)(p))
 #define gte_stSXY2(p)          ((void)(p))
+#define gte_stsxy3_f3(p)       ((void)(p))
+#define gte_stsxy3_ft3(p)      ((void)(p))
+#define gte_stsxy3_g3(p)       ((void)(p))
+#define gte_stsxy3_gt3(p)      ((void)(p))
+#define gte_stsxy3_f4(p)       ((void)(p))
+#define gte_stsxy3_ft4(p)      ((void)(p))
+#define gte_stsxy3_g4(p)       ((void)(p))
+#define gte_stsxy3_gt4(p)      ((void)(p))
+#define gte_strgb3_g3(p)       ((void)(p))
+#define gte_strgb3_gt3(p)      ((void)(p))
+#define gte_strgb3_g4(p)       ((void)(p))
+#define gte_strgb3_gt4(p)      ((void)(p))
 #define gte_stsz(p)            ((void)(p))
 #define gte_stsz3(a,b,c)       do { (void)(a); (void)(b); (void)(c); } while (0)
 #define gte_stsz3c(p)          ((void)(p))

@@ -87,7 +87,9 @@ new_units = []        # objdiff unit dicts
 stub_writes = []      # (path, text)
 skipped_empty = 0
 
-for cpp in sorted(ROOT.glob("recon/**/*.cpp")):
+# *.c = C-module TUs (eaclib CC1PSX seals: unhuff.c, loadshp.c, ...) — same unit shape,
+# base_path just ends .c.o. Without this a regen would DROP their units (0% on decomp.dev).
+for cpp in sorted([*ROOT.glob("recon/**/*.cpp"), *ROOT.glob("recon/**/*.c")]):
     rel = cpp.relative_to(ROOT / "recon")          # e.g. game/common/audiocmn.cpp
     mod = rel.stem
     if mod in PREWIRED and rel.parent.as_posix() == "game/common":

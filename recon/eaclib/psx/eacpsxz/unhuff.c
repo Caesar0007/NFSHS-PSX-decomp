@@ -460,3 +460,69 @@ nextloop:
     }
     return(ulen);
 }
+
+/* ================================================================================================
+ * unhuff.obj siblings (memcpyl / memcpyb / refcpy) -- moved here from unhuff.cpp 2026-07-09:
+ * the WHOLE obj is one C module (CC1PSX), so the 1-obj-1-TU shape is this single .c.
+ * All three verified PASS under compile_c (29/8/25 insns) before the move.
+ *   memcpyl @0x800F51C0 -- word-at-a-time copy (rounded to 4) via geti/puti
+ *   memcpyb @0x800F5234 -- byte-at-a-time copy
+ *   refcpy  @0x800F5254 -- LZ back-reference copy (shared with unref's RefPack decoder)
+ * ================================================================================================ */
+extern unsigned int   geti(void *p, char nbits);                          /* getm */
+extern void           puti(unsigned char *buf, unsigned int val, int n);  /* textcrnt */
+extern void          *memset(void *s, int c, unsigned int n);             /* syslib C43 */
+
+char          *memcpyl(char *dst, char *src, int n);                          /* @0x800F51C0 */
+unsigned int   memcpyb(unsigned char *dst, unsigned char *src, int n);        /* @0x800F5234 */
+unsigned char *refcpy(unsigned char *dst, unsigned int dist, int len);        /* @0x800F5254 */
+
+/* memcpyl @0x800F51C0 : copy `n` bytes (rounded up to 4) word-at-a-time via geti/puti.  Returns dst+n.
+ * The oracle advances src ($s2) PER ITERATION -- `addiu s2,s2,4` sits in the loop-back bgtz DELAY SLOT
+ * (runs every pass); the last (post-exit) advance is functionally dead but present in the code.  Writing
+ * `src += 4` INSIDE the loop reproduces the delay-slot fill + the s2(src)/s3(end) register choice. */
+char *memcpyl(char *dst, char *src, int n)
+{
+    char *end = dst + n;
+    do {
+        unsigned int val = geti(src, 4);   /* @0x800F51E8 a0=src (s2) each iteration */
+        puti((unsigned char *)dst, val, 4);
+        dst = dst + 4;
+        n   = n - 4;
+        src = src + 4;                     /* @0x800F5210: in the bgtz delay slot (per-iter) */
+    } while (0 < n);
+    return end;
+}
+
+/* memcpyb @0x800F5234 : copy `n` bytes one at a time.  Returns the last byte copied.
+ * MATCH: return type unsigned int + local unsigned int -- `unsigned char last` triggers
+ * an `andi v0,v0,255` mask on the return (oracle has nop there).  lbu already gives 0-255. */
+unsigned int memcpyb(unsigned char *dst, unsigned char *src, int n)
+{
+    unsigned int last;
+    do {
+        last = *src;
+        src  = src + 1;
+        n    = n - 1;
+        *dst = (unsigned char)last;
+        dst  = dst + 1;
+    } while (n != 0);
+    return last;
+}
+
+/* refcpy @0x800F5254 : LZ back-reference copy -- `len` bytes from `dist` bytes behind `dst`.  Returns dst+len.
+ *   dist==1 is a run (memset of dst[-1]); dist 2..3 overlap byte-copy; dist>=4 word-copy. */
+unsigned char *refcpy(unsigned char *dst, unsigned int dist, int len)
+{
+    unsigned char *end;
+    if (dist < 4) {
+        end = dst + len;
+        if (dist == 1)
+            memset(dst, dst[-1], (unsigned int)len);
+        else
+            memcpyb(dst, dst - dist, len);
+    } else {
+        end = (unsigned char *)memcpyl((char *)dst, (char *)(dst - dist), len);
+    }
+    return end;
+}

@@ -234,9 +234,9 @@
     {
       "name": "eaclib/psx/eacpsxz/loadshp",
       "target_path": "expected/src/eaclib/psx/eacpsxz/loadshp.c.o",
-      "base_path": "build/recon/eaclib/psx/eacpsxz/loadshp.cpp.o",
+      "base_path": "build/recon/eaclib/psx/eacpsxz/loadshp.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/eacpsxz/loadshp.cpp"
+        "source_path": "recon/eaclib/psx/eacpsxz/loadshp.c"
       }
     },
     {
@@ -522,9 +522,9 @@
     {
       "name": "eaclib/psx/eacpsxz/unhuff",
       "target_path": "expected/src/eaclib/psx/eacpsxz/unhuff.c.o",
-      "base_path": "build/recon/eaclib/psx/eacpsxz/unhuff.cpp.o",
+      "base_path": "build/recon/eaclib/psx/eacpsxz/unhuff.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/eacpsxz/unhuff.cpp"
+        "source_path": "recon/eaclib/psx/eacpsxz/unhuff.c"
       }
     },
     {

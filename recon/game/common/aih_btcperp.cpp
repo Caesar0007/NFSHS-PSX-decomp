@@ -339,10 +339,8 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
   else {
 
-    bVar1 = false;
-    if (5 < this->originalActivationCop_->timeLeft_) {
-      bVar1 = this->CheckIfCaught() != 0;
-    }
+    int cond5 = 5 < this->originalActivationCop_->timeLeft_;  /* MATCH: materialized bool (slti+xori, 2 uses) */
+    bVar1 = cond5 && (this->CheckIfCaught() != 0);  /* MATCH: &&-value funnel into a FRESH var — sltu joins in v1, beqz v1, no copy */
 
     if (bVar1) {
 

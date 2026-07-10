@@ -56,13 +56,24 @@ extern "C" int intarcsin(int x)   /* @0x800EACD8 */
     if (x < 0) { x = -x; sign = 1; }            /* abs, remember sign  */
 
     int result;
-    if (0xFA00 < x) {                            /* steep region near +/-1.0 */
+    /* MATCH: coarse region = the if-BODY (bnez -> out-of-line steep block); the round
+     * select is a BRANCHED if/else (a ?: strength-reduces to the branchless
+     * (x>>6&1)+(x>>7)); the steep t0/t1 pair reads through ONE element pointer. */
+    int idx;                                     /* ONE fn-scope index shared by BOTH regions (a1) */
+    if (x <= 0xFA00) {                           /* coarse region: round-to-nearest lookup */
+        if (x & 0x40)
+            idx = (x >> 7) + 1;
+        else
+            idx = x >> 7;
+        result = kArcsinTable[idx];
+    } else {                                     /* steep region near +/-1.0 */
         if (0xFFFF < x) {
             result = 0x100;                      /* clamp to 90 degrees */
         } else {
-            int idx  = x >> 7;
-            int frac = x & 0x7F;                 /* 0x800EAD40 (branch delay slot -> both paths) */
+            int frac;
             int t0, t1;
+            idx  = x >> 7;
+            frac = x & 0x7F;                     /* 0x800EAD40 (branch delay slot -> both paths) */
             if (idx == 0x1FF) {                  /* top step interpolates toward 90deg */
                 t0 = kArcsinTable[0x1FF];
                 t1 = 0x100;
@@ -72,9 +83,6 @@ extern "C" int intarcsin(int x)   /* @0x800EACD8 */
             }
             result = t0 + (((t1 - t0) * frac) >> 7);
         }
-    } else {                                     /* coarse region: round-to-nearest lookup */
-        int idx = (x & 0x40) ? (x >> 7) + 1 : (x >> 7);
-        result = kArcsinTable[idx];
     }
 
     if (sign) result = -result;

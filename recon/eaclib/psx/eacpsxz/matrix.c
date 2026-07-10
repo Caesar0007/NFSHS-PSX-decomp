@@ -41,25 +41,35 @@ extern int *scalematrix(int *m, int scalar, int *out)   /* @0x800F026C */
     return out;
 }
 
+/* 36-byte matrix as a STRUCT: the oracle's 4-word/iter copy loops (+1-word tail, end-ptr
+ * compare vs base+0x20) are gcc's movstrsi block-move expansion of STRUCT ASSIGNMENTS --
+ * per-element copy loops do NOT emit this shape. */
+typedef struct { int m[9]; } mtx;
+
+static const int coef[4] = { 16384, -8192, 6144, -5120 };   /* @0x80123810 (coef[0] unused) */
+
 extern int reorthogonalize(int *M)   /* @0x800F02E4 */
 {
-    static const int coef[4] = { 16384, -8192, 6144, -5120 };   /* @0x80123810 (coef[0] unused) */
-    int it;
+    /* MATCH (197->7; residual = ONE scheduling divergence at the S=mt copy-tail/scalematrix-call boundary -- ours interleaves the coef load into the tail's load-delay, oracle leaves the nop -- same unscheduled-oracle class as trnsmult): FIVE stack buffers only, decl order = stack order (mtm@sp+0x10,
+     * mt@0x38, A@0x60, S@0x88, acc@0xB0); tmp REUSES mt, tmp2 REUSES mtm, mcopy REUSES mt;
+     * struct-assigns for every 9-word copy; coef accessed by INDEX coef[k] (the giv reduces
+     * to s0=coef+4 walking +4 -- a pointer variable stays un-reduced); NO explicit return
+     * ($v0 after the last transmult is incidental -- oracle writes no v0). */
+    mtx mtm, mt, A, S, acc;
+    register int it, k;
     for (it = 0; it < 4; it++) {
-        int mt[9], mtm[9], A[9], S[9], acc[9], tmp[9], mcopy[9];
-        int i, k;
-        transpose(M, mt);                          /* mt  = M^T            */
-        multiplymatrix(mt, M, mtm);                /* mtm = M^T M          */
-        submatrix(mtm, (int *)identitymatrix, A);  /* A   = M^T M - I      */
-        for (i = 0; i < 9; i++) { S[i] = identitymatrix[i]; acc[i] = identitymatrix[i]; }
+        transpose(M, mt.m);                            /* mt  = M^T            */
+        multiplymatrix(mt.m, M, mtm.m);                /* mtm = M^T M          */
+        submatrix(mtm.m, (int *)identitymatrix, A.m);  /* A   = M^T M - I      */
+        S = *(mtx *)identitymatrix;
+        acc = *(mtx *)identitymatrix;
         for (k = 1; k < 4; k++) {
-            multiplymatrix(S, A, tmp);             /* S   = S * A          */
-            for (i = 0; i < 9; i++) S[i] = tmp[i];
-            scalematrix(S, coef[k], tmp);          /* tmp = coef[k] * S^k  */
-            addmatrix(acc, tmp, acc);              /* acc += tmp           */
+            multiplymatrix(S.m, A.m, mt.m);            /* mt(tmp) = S * A      */
+            S = mt;
+            scalematrix(S.m, coef[k], mtm.m);          /* mtm(tmp2) = coef[k] * S^k */
+            addmatrix(acc.m, mtm.m, acc.m);            /* acc += tmp2          */
         }
-        for (i = 0; i < 9; i++) mcopy[i] = M[i];
-        multiplymatrix(mcopy, acc, M);             /* M = M * series       */
+        mt = *(mtx *)M;                                /* mcopy reuses mt      */
+        multiplymatrix(mt.m, acc.m, M);                /* M = M * series       */
     }
-    return 1;
 }

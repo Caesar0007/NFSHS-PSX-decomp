@@ -10,30 +10,40 @@
 extern int fastintsin(int angle);   /* sinfunc @0x800F18E8 */
 extern int fastintcos(int angle);   /* sinfunc @0x800F18E4 */
 
-/* P(f): the fixed-point fractional-angle weight, transcribed shift-for-shift from the MIPS. */
-static int spch_poly(int f)
-{
-    int v1 = (f << 1) + f;        /* 3f  */
-    v1 = v1 + (v1 << 6);          /* *65 */
-    v1 = v1 << 5;                 /* *32 */
-    v1 = v1 - f;
-    v1 = v1 + (v1 << 5);          /* *33 */
-    v1 = v1 << 1;
-    return v1 >> 9;
-}
+/* MATCH (both fns): the weight polynomial P(f) is INLINE (no helper call in the binary),
+ * the coarse angle x>>6 is ONE shared local (s1, reused for both call args, then the
+ * base result reuses its reg), and the products are plain 32-bit mult (no long long). */
 
 extern int fixedsin(int x)   /* @0x800ED424 */
 {
-    int base  = fastintsin(x >> 6);
-    int deriv = fastintcos(x >> 6);
-    int p = spch_poly(x & 0x3F);
-    return base + (int)(((long long)(deriv >> 2) * (long long)p) >> 21);
+    int a = x >> 6;
+    int base  = fastintsin(a);
+    int deriv = fastintcos(a);
+    int p;
+    x = x & 0x3F;
+    p = (x << 1) + x;             /* 3f  */
+    p = p + (p << 6);             /* *65 */
+    p = p << 5;                   /* *32 */
+    p = p - x;
+    p = p + (p << 5);             /* *33 */
+    p = p << 1;
+    p = p >> 9;
+    return base + (((deriv >> 2) * p) >> 21);
 }
 
 extern int fixedcos(int x)   /* @0x800ED4A4 */
 {
-    int base  = fastintcos(x >> 6);
-    int deriv = -fastintsin(x >> 6);
-    int p = spch_poly(x & 0x3F);
-    return base + (int)(((long long)(deriv >> 2) * (long long)p) >> 21);
+    int a = x >> 6;
+    int base  = fastintcos(a);
+    int deriv = -fastintsin(a);
+    int p;
+    x = x & 0x3F;
+    p = (x << 1) + x;
+    p = p + (p << 6);
+    p = p << 5;
+    p = p - x;
+    p = p + (p << 5);
+    p = p << 1;
+    p = p >> 9;
+    return base + (((deriv >> 2) * p) >> 21);
 }

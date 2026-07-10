@@ -670,12 +670,10 @@ int Object_FindDefWithThisID(int ID)
     }
     objDef = *ppTVar2;
     ppTVar2 = ppTVar2 + 1;
-    if (ID == objDef->id) {
+    if (ID == objDef->id) {  /* NEAR-MISS 10: gcc lays beq-to-return + inline i++/j; oracle bne-around-return. if/else, continue, no-else, for all emit the same layout (jump-opt tie) */
       return i;
     }
-    else {
-      i = i + 1;
-    }
+    i = i + 1;
   }
 }
 

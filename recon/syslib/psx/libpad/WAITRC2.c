@@ -17,6 +17,10 @@ extern int _waitTime;    /* wait length, in (prescaled) ticks */
 /* @0x8010BFE8 : setRC2wait -- begin a wait of `ticks` and return the current counter value. */
 extern unsigned setRC2wait(int ticks)
 {
+    /* NEAR-MISS (4): oracle lhu carries the zero-extend implicitly -- cc1 2.8.0 keeps an
+     * explicit andi 0xffff after a VOLATILE HImode read (combine refuses volatile MEMs);
+     * non-volatile read kills the andi but un-folds the MMIO address (lui/ori->lui+disp,
+     * net worse). Compiler-era artifact + jr-slot store-macro split (maspsx floor). */
     unsigned short now = T2_VALUE;
     _waitTime  = ticks;
     _startTime = now;

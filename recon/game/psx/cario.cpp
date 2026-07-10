@@ -371,9 +371,10 @@ void CarIO_CreateLicense(char *text,int carType,int player)
 }
 
 /* ---- CarIO_CleanUpLicense__Fi  [CARIO.CPP:486-490] SLD-VERIFIED ---- */
-/* NEAR-MISS 2 diffs (29/30): oracle hoists lui CarIO_Plate2 into the load-delay nop slot
- * after the first beqz/jal block; our gcc-2.8.0 -O2 emits nop instead (lui comes 1 insn later).
- * Independent instruction scheduling decision — ACCEPT as FLOOR. */
+/* NEAR-MISS 2 diffs (30/30): OURS fills the first beqz's delay slot with the join block's
+ * `lui v0,%hi(CarIO_Plate2)` (reorg steal-from-target + duplicate on the jal path); the oracle
+ * leaves a nop and keeps ONE lui at the join. Index-form rewrite = 6 diffs (reverted). A reorg
+ * slot-steal tie (same class as Sfx_BuildSmokeFacet); permuter class. ACCEPT for now. */
 void CarIO_CleanUpLicense(int player)
 
 {

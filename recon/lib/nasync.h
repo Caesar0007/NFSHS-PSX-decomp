@@ -39,8 +39,15 @@ extern AsyncReq  *request;          /* the request slot pool (reservememadr'd in
 extern int        numrequests;      /* pool size                                                       */
 extern int        readblocksize;    /* per-chunk read size                                             */
 extern int        requestidcounter; /* rolling id stamp (+= 0x100, never 0)                            */
-extern AsyncQueue freequeue;        /* @0x8013DEA0 : free slots                                        */
-extern AsyncQueue callqueue;        /* @0x8013DEA8 : finished slots awaiting their user callback        */
+/* The two FIFOs live in .sbss as FOUR gp-addressable words (SYM: `freequeue` @0x8013DEA0, `callqueue`
+ * @0x8013DEA8; the original EACLIB build gp-rels each word — initasync.s %gp_rel(D_8013DEA0..AC)).  Under
+ * our -G4 an 8-byte AsyncQueue .comm cannot be gp-rel, so model each word as its own 4-byte tentative def
+ * (value access = gp-rel, `la` of the head = absolute lui/addiu — byte-identical to retail; proven by
+ * setasyncfile/asyncfilehandle).  `(AsyncQueue *)&freequeuehead` is the {head,tail} view for queueadd/fetch. */
+extern AsyncReq  *freequeuehead;    /* @0x8013DEA0 : free-slot FIFO head                                */
+extern AsyncReq  *freequeuetail;    /* @0x8013DEA4 : free-slot FIFO tail                                */
+extern AsyncReq  *callqueuehead;    /* @0x8013DEA8 : finished-slot FIFO head (user callback pending)    */
+extern AsyncReq  *callqueuetail;    /* @0x8013DEAC : finished-slot FIFO tail                            */
 extern int        asyncfilehandle;  /* @0x8013DEB0 : the FILE handle set by setasyncfile (segment loads)*/
 extern int        asyncfileoffset;  /* running file offset for segment loads                           */
 extern void      *mutex;            /* allocmutex() handle                                             */

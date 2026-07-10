@@ -127,7 +127,8 @@ void mdec(int handle,char *src,int x,int y)
 int mdecdone(int handle)
 
 { /* FLOOR (3 diffs): gcc-2.8.0 materializes &gMDECinfo.hDecode directly (lw v0,0) vs oracle's
-   &gMDECinfo + lw 4(v0). Source-unreachable gp-rel field-addr selection; no pin-free lever. */
+   &gMDECinfo + lw 4(v0). Source-unreachable gp-rel field-addr selection; no pin-free lever.
+   Re-falsified 2026-07-11: ptr-temp, ((int*)&g)[1], unsized-array-cast all fold back. */
   return (uint)(gMDECinfo.hDecode != handle);
 }
 

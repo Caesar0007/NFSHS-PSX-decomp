@@ -34,11 +34,14 @@ static int gLocatebigSizeSink;
  * ===================================================================== */
 extern "C" int typeofbigfile(void *buf)
 {
+    /* MATCH: result-FUNNEL var (s0, init 0 in the prologue) set per branch, ONE return --
+     * early returns emit a different tail; the else-getm's a0 rides the first bne's slot. */
+    int type = 0;
     if (getm(buf, 2) == 0xC0FB)
-        return 1;
-    if (getm(buf, 4) == 0x42494746u)        /* "BIGF" */
-        return 2;
-    return 0;
+        type = 1;
+    else if (getm(buf, 4) == 0x42494746u)   /* "BIGF" */
+        type = 2;
+    return type;
 }
 
 /* ===================================================================== *
@@ -46,11 +49,15 @@ extern "C" int typeofbigfile(void *buf)
  * ===================================================================== */
 extern "C" int sizeofbigfileheader(void *buf)
 {
+    /* MATCH: result funnel + SWITCH dispatch (two forward beq's to out-of-line case
+     * blocks, default j to the shared return; else-if inlines the bodies instead).
+     * r=0 fills the typeofbigfile jal slot. */
+    int r = 0;
     switch (typeofbigfile(buf)) {
-    case 1:  return (int)getm((char *)buf + 2, 2) + 4;
-    case 2:  return (int)getm((char *)buf + 0xC, 4);
-    default: return 0;
+    case 1:  r = (int)getm((char *)buf + 2, 2) + 4;  break;
+    case 2:  r = (int)getm((char *)buf + 0xC, 4);    break;
     }
+    return r;
 }
 
 /* ===================================================================== *
@@ -58,11 +65,13 @@ extern "C" int sizeofbigfileheader(void *buf)
  * ===================================================================== */
 extern "C" int bigcount(void *buf)
 {
+    /* MATCH: same funnel + switch-dispatch shape as sizeofbigfileheader. */
+    int r = 0;
     switch (typeofbigfile(buf)) {
-    case 1:  return (int)getm((char *)buf + 4, 2);
-    case 2:  return (int)getm((char *)buf + 8, 4);
-    default: return 0;
+    case 1:  r = (int)getm((char *)buf + 4, 2);  break;
+    case 2:  r = (int)getm((char *)buf + 8, 4);  break;
     }
+    return r;
 }
 
 /* ===================================================================== *
@@ -127,6 +136,10 @@ extern "C" int locatebigoffset(void *buf, char *name)
  * ===================================================================== */
 extern "C" char *locatebig(void *buf, char *name)
 {
+    /* MATCH: result-funnel var (s0=0 in the jal slot), conditional assign, one return. */
+    char *r = 0;
     int off = locatebigoffset(buf, name);
-    return off ? (char *)buf + off : 0;
+    if (off != 0)
+        r = (char *)buf + off;
+    return r;
 }

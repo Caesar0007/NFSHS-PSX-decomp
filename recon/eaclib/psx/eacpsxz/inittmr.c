@@ -6,17 +6,26 @@
  */
  int timerflag;    /* @0x8013..  owning-TU tentative def → .comm/.sbss → gp-rel */
  int timerevent;  /* @0x8013..  owning-TU tentative def → .comm/.sbss → gp-rel */
-extern int   reentryflag;   /* tmrint re-entry guard */
+ int reentryflag;  /* tmrint re-entry guard -- owning-TU tentative def → .comm/.sbss → gp-rel
+                    * (only inittimer.s oracle gp-rels it: `sw zero,%gp_rel(reentryflag)(gp)`) */
 extern int   timerhz;       /* tick rate */
-extern int   memclass;      /* memstd class id */
-extern int   DAT_8013e904;  /* cached memclass */
-extern int   DAT_8013dd48;  /* creatememclass template */
-extern int   tmrsub;        /* int[8] : per-tick handler list */
-extern int   ticks;         /* raw tick counter */
-extern int   libticks;      /* library tick counter */
+extern int   memclass[];    /* @0x8013E900 memstd class id; [1] = the cached copy @0x8013E904
+                             * (UNSIZED array shape: oracle shares ONE %hi -- lw %lo(memclass)(v1);
+                             *  addiu v1,%lo; sw a0,4(v1)) */
+extern int   DAT_8013dd48;  /* creatememclass name/template @0x8013DD48 */
+extern unsigned int MEM_defaultevent(void);   /* meminit.obj default event handler */
+extern int   tmrsub[];      /* int[8] : per-tick handler list (UNSIZED array shape, lever #5) */
+extern volatile int ticks;    /* raw tick counter -- volatile (IRQ counter): keeps the oracle's
+                               * strict ticks++/g_currentthread=1/libticks++ order + the li-1 reuse
+                               * (non-volatile lets sched1 hoist the g_currentthread store and fuse
+                               * the two increments; MATCH lever, tmrint 16->0) */
+extern volatile int libticks; /* library tick counter -- volatile, same as ticks */
 extern int   g_currentthread;
 
-extern int  creatememclass(char *name, int tmpl);   /* memstd */
+extern int  creatememclass(int id, char *name, char *membuf, int bufsize,
+                           int granularity, int alignment, int infosize,
+                           int lowguard, int reserved9, int highguard,
+                           int usemutex, int field3c);   /* memstd, TRUE 12-arg sig */
 extern void blockclear(int dst, int len);           /* blkfill */
 extern int  addexit(int fn);                        /* exit */
 extern void initgp(void);                           /* savegp */
@@ -38,12 +47,13 @@ extern int  inittimer(int hz);                /* @0x800F41F0 */
 extern void restoretimer(void);               /* @0x800F4304 */
 extern unsigned int tmrint(void);             /* @0x800F4328 */
 
-/* initmemadr @0x800F4180 : create the timer's memory class from the static template. */
+/* initmemadr @0x800F4180 : carve `base[size]` into the default memory class (id 0),
+ * gran 8 / align 0x20 / no guards / MEM_defaultevent handler, and cache the class id. */
 extern int initmemadr(int base, int size)
 {
-    int r = creatememclass((char *)0, (int)&DAT_8013dd48);
-    (void)base; (void)size;
-    DAT_8013e904 = memclass;
+    int r = creatememclass(0, (char *)&DAT_8013dd48, (char *)base, size,
+                           8, 0x20, 0, 0, 0, 0, 0, (int)MEM_defaultevent);
+    memclass[1] = memclass[0];               /* cached copy @0x8013E904 */
     return r;
 }
 
@@ -54,15 +64,15 @@ extern int inittimer(int hz)
         hz = 100;
     EnterCriticalSection();
     if (timerflag == 0) {
-        blockclear((int)&tmrsub, 0x20);
+        blockclear((int)tmrsub, 0x20);
         timerevent = OpenEvent(0xf2000002, 2, 0x1000, (int *)tmrint);
         EnableEvent(timerevent);
         timerflag = 1;
         addexit((int)restoretimer);
     }
     initgp();
-    reentryflag = 0;
     timerhz = hz;
+    reentryflag = 0;
     SetRCnt(0xf2000002, (unsigned short)(0x409980 / hz), 0x1000);
     StartRCnt(0xf2000002);
     ExitCriticalSection();
@@ -81,9 +91,13 @@ extern void restoretimer(void)
 extern unsigned int tmrint(void)
 {
     unsigned int gpbuf[2];
-    int          i = 0;
-    int         *p = &tmrsub;
+    int          i;
+    int         *p;
     savegp(gpbuf);
+    /* MATCH: i/p assigned AFTER the savegp call (oracle zeroes s1 + materializes &tmrsub
+     * post-call, %hi via a v1 scratch into s0); initialized decls hoist both before the jal. */
+    i = 0;
+    p = tmrsub;
     ticks = ticks + 1;
     g_currentthread = 1;
     libticks = libticks + 1;

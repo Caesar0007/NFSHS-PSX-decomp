@@ -730,41 +730,40 @@ void CopSpeak_Skip(void)
 int CopSpeak_Request(CopSpeak_tRequest *r)
 
 {
-  signed char bankIdx;
+  int head;
   int iVar6;
-  int iVar7;
   int next;
+  CopSpeak_tBank *bank;  /* SYM: Def class REG $5 (a1) PTR CopSpeak_tBank name bank */
 
+  head = CopSpeak_gQueueHead;  /* MATCH: single top capture (a3) reused for guard 1 + copy index + return; guard 2 re-reads the global (a1) */
   iVar6 = 0;
-  if (CopSpeak_gQueueHead < 0x3f) {
-    iVar6 = CopSpeak_gQueueHead + 1;
+  if (head < 0x3f) {
+    iVar6 = head + 1;
   }
   if (iVar6 == CopSpeak_gQueuePlay) {
     return -1;
   }
-  bankIdx = *(signed char *)&r->bank;
-  iVar7 = Copspeak_gBank[bankIdx].FileOpen;
-  if (((iVar7 == 0) ||
-      (Copspeak_gBank[bankIdx].Index == (CopSpeak_tFileIndex *)0x0)) || (r->phrase < 0)) {
+  bank = &Copspeak_gBank[*(signed char *)&r->bank];
+  if (((bank->FileOpen == 0) ||
+      (bank->Index == (CopSpeak_tFileIndex *)0x0)) || (r->phrase < 0)) {
     return -1;
   }
-  if (Copspeak_gBank[bankIdx].Count < r->phrase) {
+  if (bank->Count < r->phrase) {
     return -1;
   }
-  r->filehandle = Copspeak_gBank[bankIdx].FileHandle;
-  r->offset = Copspeak_gBank[bankIdx].Index[r->phrase].offset;
-  r->size = Copspeak_gBank[bankIdx].Index[r->phrase].size;
+  r->filehandle = bank->FileHandle;
+  r->offset = bank->Index[r->phrase].offset;
+  r->size = bank->Index[r->phrase].size;
   if (r->size == 0) {
     return -1;
   }
-  CopSpeak_gQueue[CopSpeak_gQueueHead] = *r;
+  CopSpeak_gQueue[head] = *r;
   next = 0;
   if (CopSpeak_gQueueHead < 0x3f) {
     next = CopSpeak_gQueueHead + 1;
   }
-  iVar7 = CopSpeak_gQueueHead;
   CopSpeak_gQueueHead = next;
-  return iVar7;
+  return head;
 }
 
 /* ---- CopSpeak_BankVolume__FP17CopSpeak_tRequest  [COPSPEAK.CPP:1095-1099] SLD-VERIFIED ---- */

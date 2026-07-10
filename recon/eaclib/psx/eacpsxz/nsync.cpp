@@ -84,25 +84,29 @@ extern "C" void *loadfileadratomic(int retry, LoadArgs *a)   /* @0x800E56B0 */
     /* positive-branch form (lever #7): success path = `bnez` target, open-fail
      * return-0 the fall-through. */
     if (FILE_opensync(a->name, 1, retry, &handle) != 0) {
-        int size = FILE_sizesync(handle, retry - 1);
-        void *buf = reservememadr(a->name, size, a->memclass);
-        if (buf == 0) {
-            FILE_closesync(handle, retry - 1);
-            return 0;                                   /* out of memory */
-        }
+        int retry1 = retry - 1;
+        int size;
+        void *buf;
+        size = FILE_sizesync(handle, retry1);
+        buf = reservememadr(a->name, size, a->memclass);
+        /* MATCH: success path = if-BODY (beqz buf -> out-of-line OOM close after it,
+         * falling into the shared outer `return 0`).  An inline `if(buf==0){close;
+         * return 0;}` emits the OOM block mid-fn behind a bnez instead. */
+        if (buf != 0) {
+            FILE_readsync(handle, 0, buf, size, retry1);
+            FILE_closesync(handle, retry1);
 
-        FILE_readsync(handle, 0, buf, size, retry - 1);
-        FILE_closesync(handle, retry - 1);
-
-        if (loadfilecallback != 0) {                    /* post-load hook */
-            void *r = (void *)loadfilecallback(buf, a->name, a->memclass);
-            if (r == 0)
-                purgememadr(buf);                       /* hook failed -> free */
-            buf = r;
+            if (loadfilecallback != 0) {                /* post-load hook */
+                void *r = (void *)loadfilecallback(buf, a->name, a->memclass);
+                if (r == 0)
+                    purgememadr(buf);                   /* hook failed -> free */
+                buf = r;
+            }
+            return buf;
         }
-        return buf;
+        FILE_closesync(handle, retry1);                 /* out of memory */
     }
-    return 0;                                           /* open failed */
+    return 0;                                           /* open failed / OOM */
 }
 
 /* ===================================================================== *
@@ -139,12 +143,17 @@ extern "C" int loadfileadr(char *name, int memclass)   /* @0x800E57E8 */
 extern "C" int loadfileatadratomic(int retry, LoadArgs *a)   /* @0x800E5830 */
 {
     int handle;
-    /* positive-branch form (lever #7): success path is the `bnez` target, return-0
+    /* MATCH: post-call accesses go through a SEPARATE local pointer `p` -- splits the
+     * pseudo so `a` dies into a caller-saved temp at the open call (lw a0,0(v0)) and
+     * `p` takes the callee-saved s1 via a copy in the jal delay slot (addu s1,v0,zero).
+     * A single pseudo (a->dest everywhere) copies a1->s1 up-front instead (1 shorter).
+     * Positive-branch form (lever #7): success path is the `bnez` target, return-0
      * the fall-through (an early `if(==0) return 0;` emits the inverted `beqz`). */
+    LoadArgs *p = a;
     if (FILE_opensync(a->name, 1, retry, &handle) != 0) {
-        FILE_readsync(handle, 0, (void *)a->dest, 0x7FFFFFFF, retry - 1);
+        FILE_readsync(handle, 0, (void *)p->dest, 0x7FFFFFFF, retry - 1);
         FILE_closesync(handle, retry - 1);
-        return a->dest;
+        return p->dest;
     }
     return 0;
 }
@@ -184,39 +193,48 @@ extern "C" int loadfileatadr(char *name, int dest)   /* @0x800E58F0 */
 extern "C" void *loadbigfileheaderatomic(int retry, LoadArgs *a)   /* @0x800E5938 */
 {
     int handle;
+    void *buf;
     if (FILE_opensync(a->name, 1, retry, &handle) == 0)
-        return 0;
+        return 0;                                       /* open fail: no close */
 
-    void *buf = reservememadr(a->name, 0xA90, a->memclass);
-    if (buf == 0) {
-        FILE_closesync(handle, retry - 1);
-        return 0;
-    }
+    /* MATCH: goto ERROR-TAIL idiom -- one shared `closefail` (close+return 0) block at
+     * the end; the typeof-fail purge block sits inline (bnez around it) and the
+     * full==0 fail is a byte-identical `purge; goto closefail` that gcc CROSS-JUMPS
+     * backward into it.  Inline structured fail blocks emit 3 separate tails.
+     * `retry - 1` stays an EXPRESSION per call site (CSE makes the s3 temp for the
+     * readsync path; the closes off the join recompute addiu a1,s4,-1). */
+    buf = reservememadr(a->name, 0xA90, a->memclass);
+    if (buf == 0)
+        goto closefail;
 
     FILE_readsync(handle, 0, buf, 0xA90, retry - 1);
 
     if (typeofbigfile(buf) == 0) {                      /* not a big file */
+purgefail:
         purgememadr(buf);
-        FILE_closesync(handle, retry - 1);
+        FILE_closesync(handle, retry - 1);              /* CSE: a1=s3 on this path */
         return 0;
     }
 
-    int fullsize = sizeofbigfileheader(buf);
-    if (fullsize >= 0xA91) {                            /* header exceeds first read */
-        void *full = reservememadr(a->name, fullsize, a->memclass);
-        if (full == 0) {
+    {
+        unsigned int fullsize = sizeofbigfileheader(buf);   /* unsigned: sltiu 0xA91 */
+        if (fullsize >= 0xA91) {                        /* header exceeds first read */
+            void *full = reservememadr(a->name, fullsize, a->memclass);
+            if (full == 0)
+                goto purgefail;                         /* backward jump into the inline purge block */
+            blockmove(buf, full, 0xA90);                /* keep the bytes already read */
             purgememadr(buf);
-            FILE_closesync(handle, retry - 1);
-            return 0;
+            buf = full;
+            FILE_readsync(handle, 0xA90, (char *)buf + 0xA90, fullsize - 0xA90, retry - 1);
         }
-        blockmove(buf, full, 0xA90);                    /* keep the bytes already read */
-        purgememadr(buf);
-        buf = full;
-        FILE_readsync(handle, 0xA90, (char *)buf + 0xA90, fullsize - 0xA90, retry - 1);
     }
 
     FILE_closesync(handle, retry - 1);
     return buf;
+
+closefail:
+    FILE_closesync(handle, retry - 1);
+    return 0;
 }
 
 /* ===================================================================== *

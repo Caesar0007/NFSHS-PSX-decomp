@@ -17,6 +17,7 @@ void Paths_StartUp(void)
 {
   int dirCounter;
   char *scan;
+  int deadfrm[5];  /* MATCH: unused frame filler — SYM shows scan as class AUTO @-8 (0x18 frame in the oracle); 20 dead bytes reproduce it */
 
   scan = burnPath;
   dirCounter = 0x31;

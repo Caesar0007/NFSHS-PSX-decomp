@@ -561,12 +561,11 @@ void Night_SetEnviroment(DRender_tView *Vi)
     Night_gXDistShift = 10;
     Night_gZDistShift = 0xc;
     Night_gZNear = 0x80;
-    if ((*((u_char *)&Camera_gInfo[Vi->player].target[1].shadowCoord[2].y + 3) & 4) != 0) {
+    if ((*((u_char *)Camera_gInfo[Vi->player].target + 0x447) & 4) != 0) {
       Night_gZDistShift = 0xd;
       Night_gXDistShift = 0xb;
     }
-    mode = Camera_GetMode(Vi->player);
-    if (mode == 0) {
+    if (Camera_GetMode(Vi->player) == 0) {
       Night_gZNear = -0x200;
     }
     Night_gXDist = 1 << (Night_gXDistShift);

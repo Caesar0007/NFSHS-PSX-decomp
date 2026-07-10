@@ -1106,12 +1106,12 @@ int tListIteratorTournament::TextValue(tPlayer player_id)
 
 {
   short tournIndex;
-  tTournamentDefinition *ptVar1;
 
-  ptVar1 = this->fTournamentManager->fDefinition;
-  return (signed char)ptVar1->fTournaments
-         [(uint)(byte)*this->fValue +
-          (uint)ptVar1->fTiers[(byte)frontEnd.tier].fTournOffset].fTournamentID + 0x341;
+  /* MATCH: SYM = one local (tournIndex); the fDefinition chain written TWICE (CSE -> in-place a1) */
+  tournIndex = this->fTournamentManager->fDefinition->fTiers[(byte)frontEnd.tier].fTournOffset
+      + (byte)*this->fValue;
+  return (signed char)this->fTournamentManager->fDefinition->fTournaments[tournIndex]
+             .fTournamentID + 0x341;
 }
 
 

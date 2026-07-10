@@ -1241,16 +1241,15 @@ void tMenuItemSlidingActivated::TransitionOff()
 void tMenuItemSlidingActivated::TransitionOn()
 
 {
-  short sVar1;
-
-  sVar1 = this->fHeight;
+  /* MATCH: SYM = no locals; direct member exprs, fSlideOffset BEFORE fOpenHeight
+     (oracle keeps pre-sum fHeight copied to a1, stores 0x2A then 0x28-in-jr-slot) */
   this->fFadeDir = -0x1e;
   this->fInTransition = 1;
   this->fActive = 0;
   this->fTransitioningOut = 0;
   this->fFadeVal = 0x80;
-  this->fOpenHeight = sVar1;
-  this->fSlideOffset = sVar1 + (sVar1 >> 1);
+  this->fSlideOffset = this->fHeight + (this->fHeight >> 1);
+  this->fOpenHeight = this->fHeight;
   return;
 }
 

@@ -33,7 +33,7 @@ int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
   
   Platform_ResetDCTBuffer();
   sprintf(fname,"%sDCT.BIN",Paths_Paths[0x20]);
-  handle = asyncloadfileat(fname,(int)&CF_DVLC);
+  handle = asyncloadfileat(fname,(int)CF_DVLC);
   while (status = getasyncreadstatus(handle), status == 0) {
     systemtask(0);
   }
@@ -49,10 +49,8 @@ int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
   STREAM_setfilter(vid->videotap,1,0xffff,0x4353,2);
   {
     extern int screenbpp[];
-    vid->mdechandle = initmdec(width,height,screenbpp[0],memtype);
-  }
-  {
     extern int timerhz[];
+    vid->mdechandle = initmdec(width,height,screenbpp[0],memtype);
     vid->displaytimeincr = fixeddiv(fixedmult(timerhz[0] << 0x10,0xa0000),fps);
   }
   vid->state = VIDEOSTATE_IDLE;

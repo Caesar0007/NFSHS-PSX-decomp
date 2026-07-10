@@ -78,14 +78,17 @@ extern "C" int       MEM_tailsize(char *name, int id);
  * ===================================================================== */
 extern "C" MemBlock *FREE_find(MemClass *mb, int size, int reverse)   /* @0x800E4D4C */
 {
+    /* MATCH: forward walk = the if-BODY (bnez a2 -> out-of-line reverse loop); walker
+     * reuses the dead param reg (addiu a0,a0,16 in the bnez slot); ring-head tail is a
+     * FUNNEL (p = 0) not an early return. */
     MemBlock *p = (MemBlock *)((char *)mb + 0x10);   /* &freehead (delay-slot a0+=0x10) */
-    if (reverse != 0) {
-        do { p = p->freeprev; } while (p->size < size);
-    } else {
+    if (reverse == 0) {
         do { p = p->freenext; } while (p->size < size);
+    } else {
+        do { p = p->freeprev; } while (p->size < size);
     }
     if (p->magic == MAGIC_HEAD)          /* wrapped to the ring head -> none */
-        return 0;
+        p = 0;
     return p;
 }
 

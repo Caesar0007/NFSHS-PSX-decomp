@@ -3,7 +3,7 @@
  *   decode (the obj name is a misnomer -- it holds the SJIS remap, not an isqrt table).
  *   Ghidra nfs4-f.exe.c + IDA sigs.
  */
-extern unsigned short DAT_8013bd50;   /* @0x8013BD50 : ASCII(0x20..0x7f)->SJIS remap table [0x60] (rodata) */
+extern unsigned short DAT_8013bd50[];   /* @0x8013BD50 : ASCII(0x20..0x7f)->SJIS remap table [0x60] (rodata) */
 
 extern unsigned int remapshiftjiscode(unsigned int c);      /* @0x801069C4 */
 extern int          decodeshiftjis(unsigned char **cursor); /* @0x801069EC */
@@ -18,24 +18,26 @@ extern unsigned int remapshiftjiscode(unsigned int c)
      * sll-index-vs-base scheduling tie-break, not source-reachable (methodology floor). */
     unsigned int i = c - 0x20;
     if (i < 0x60)
-        c = (unsigned int)(&DAT_8013bd50)[i];
+        c = (unsigned int)DAT_8013bd50[i];
     return c;
 }
 
 /* decodeshiftjis : next SJIS char from a cursor -- 1 byte (remapped) if high bit clear, else a 2-byte code. */
 extern int decodeshiftjis(unsigned char **cursor)
 {
+    /* MATCH: ONE in-place pointer (s0) -- `p++` lands in the beqz delay slot (runs on
+     * BOTH paths); 2-byte path is the fall-through (`if (b1 & 0x80)`), the remap call
+     * the out-of-line else.  b1 dies into the call arg -> colors $a0. */
     unsigned char *p = *cursor;
-    unsigned char  b1 = *p;
-    unsigned char *next = p + 1;
+    unsigned int   b1 = *p;
     unsigned int   code;
-    if ((b1 & 0x80) == 0) {
-        code = remapshiftjiscode((unsigned int)b1);
+    p = p + 1;
+    if ((b1 & 0x80) != 0) {
+        code = (unsigned int)*p | (b1 << 8);
+        p = p + 1;
     } else {
-        unsigned char b2 = *next;
-        next = p + 2;
-        code = ((unsigned int)b1 << 8) | b2;
+        code = remapshiftjiscode(b1);
     }
-    *cursor = next;
+    *cursor = p;
     return (int)(code & 0xffff);
 }

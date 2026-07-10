@@ -17,16 +17,38 @@ extern void blockmove(void *src, void *dst, int n);        /* eacpsxz @0x800E62D
 
 extern int *transmult(int *a, int *b, int *out)            /* @0x80105F40 */
 {
-    int scratch[9];
-    int i, k;
-    for (i = 0; i < 3; i++) {
-        for (k = 0; k < 3; k++) {
-            int acc = fixedmult(a[i * 3 + 0], b[0 * 3 + k]);
-            acc += fixedmult(a[i * 3 + 1], b[1 * 3 + k]);
-            acc += fixedmult(a[i * 3 + 2], b[2 * 3 + k]);
-            scratch[i * 3 + k] = acc;
+    int temp[9];
+    int *pa[2];
+    register int i, j;
+    register int i2, i1;
+    register int j2, j1;
+    register int acc;
+    /* MATCH (107->31; residual = pure instruction-ORDER/scratch-serialization: the oracle .obj shows unscheduled reload output -- serial single-v1 reloads with unfillable load-delay nops -- not reachable under the gate's fixed -O2+sched flags; with -fno-schedule-insns{,2} the insn COUNT is exact 81/81): flat-index outer i BY 3, guard i<9 (oracle slti s5,9); SEPARATE
+     * byte-offset walkers i1/i2 (a row elems, step 12) + j1/j2 (b column walk, step 4) =
+     * independent variables so no combine_givs base-fold; the two a-element pointers live in
+     * a POINTER ARRAY pa[2] (memory by construction -- the temp[] stores alias-block hoisting,
+     * so they reload per inner iter at sp+0x38/0x3C like the oracle) which frees exactly the
+     * two callee regs i1/i2 need; decl/init order i2-before-i1, j2-before-j1 puts i2->fp,
+     * i1->s7, j2->s4, j1->s3; progressive acc (+= per call) avoids a park reg; NO explicit
+     * return -- $v0 after blockmove is incidental (oracle writes no v0). */
+    i = 0;
+    i2 = 8;
+    i1 = 4;
+    for (; i < 9; i += 3) {
+        pa[0] = (int *)((char *)a + i1);
+        pa[1] = (int *)((char *)a + i2);
+        j2 = 24;
+        j1 = 12;
+        for (j = 0; j < 3; j++) {
+            acc  = fixedmult(a[i], b[j]);
+            acc += fixedmult(*pa[0], *(int *)((char *)b + j1));
+            acc += fixedmult(*pa[1], *(int *)((char *)b + j2));
+            temp[i + j] = acc;
+            j1 += 4;
+            j2 += 4;
         }
+        i2 += 12;
+        i1 += 12;
     }
-    blockmove(scratch, out, 0x24);                              /* 9 ints -> output (alias-safe) */
-    return out;
+    blockmove(temp, out, 0x24);                                 /* 9 ints -> output (alias-safe) */
 }

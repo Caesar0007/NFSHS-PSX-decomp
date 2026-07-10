@@ -29,29 +29,48 @@ extern int  *iSPCH_EACseedrandom(unsigned int seed);/* @0x800EBAC4 */
 extern int   iSPCH_Rand(int n);                     /* @0x800EBB30 */
 extern int   iSPCH_BindData(unsigned short *dat);   /* @0x800EBB84 */
 
-/* iSPCH_EACrandom @0x800EB9C4 : step the additive generator (carry-propagated) and return the new seed. */
+/* iSPCH_EACrandom @0x800EB9C4 : step the additive generator (carry-propagated) and return the new seed.
+ *   MATCH: ONE in-place running `sum` (oracle keeps it in $a2 end-to-end, incl. the return) + rollover as
+ *   nested ifs incrementing the GLOBALS directly (oracle reloads each word: lw;addiu;bnez;sw-in-slot). */
 extern int iSPCH_EACrandom(void)
 {
-    unsigned int u1, u2, u3, u4;
-    int carry = 0;
-    u1 = DAT_80123608 + DAT_80123604;
-    if (u1 < DAT_80123608 || u1 < DAT_80123604)
+    unsigned int sum;
+    unsigned int carry;
+
+    sum = seedX[5] + seedX[4];
+    carry = 0;
+    if (sum < seedX[5] || sum < seedX[4])
         carry = 1;
-    u2 = u1 + DAT_80123600 + carry;
-    u3 = u2 + DAT_801235fc + (unsigned int)(u2 < DAT_80123600);
-    u4 = u3 + DAT_801235f8 + (unsigned int)(u3 < DAT_801235fc);
-    seedX[0] = u4 + seedX[0] + (unsigned int)(u4 < DAT_801235f8);
-    DAT_80123608 = DAT_80123608 + 1;
-    DAT_801235f8 = u4;
-    DAT_801235fc = u3;
-    DAT_80123600 = u2;
-    DAT_80123604 = u1;
-    if (DAT_80123608 == 0 && (DAT_80123604 = u1 + 1, DAT_80123604 == 0) &&
-        (DAT_80123600 = u2 + 1, DAT_80123600 == 0) &&
-        (DAT_801235fc = u3 + 1, DAT_801235fc == 0) &&
-        (DAT_801235f8 = u4 + 1, DAT_801235f8 == 0))
-        seedX[0] = seedX[0] + 1;
-    return (int)seedX[0];
+    seedX[4] = sum;
+    sum = sum + seedX[3] + carry;
+    carry = sum < seedX[3];
+    seedX[3] = sum;
+    sum = sum + seedX[2] + carry;
+    carry = sum < seedX[2];
+    seedX[2] = sum;
+    sum = sum + seedX[1] + carry;
+    carry = sum < seedX[1];
+    seedX[1] = sum;
+    sum = sum + seedX[0] + carry;
+    seedX[0] = sum;
+    seedX[5] = seedX[5] + 1;
+    if (seedX[5] == 0) {
+        seedX[4] = seedX[4] + 1;
+        if (seedX[4] == 0) {
+            seedX[3] = seedX[3] + 1;
+            if (seedX[3] == 0) {
+                seedX[2] = seedX[2] + 1;
+                if (seedX[2] == 0) {
+                    seedX[1] = seedX[1] + 1;
+                    if (seedX[1] == 0) {
+                        seedX[0] = sum + 1;   /* MATCH: temp v0 = sum+1 for the store ... */
+                        sum = sum + 1;        /* ... then CSE copies it back into sum ($a2) */
+                    }
+                }
+            }
+        }
+    }
+    return (int)sum;
 }
 
 /* iSPCH_EACseedrandom @0x800EBAC4 : seed all 6 state words from `seed` (each = seed + a fixed constant; the

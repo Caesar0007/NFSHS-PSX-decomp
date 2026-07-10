@@ -22,7 +22,7 @@ char textDefinitions[14][6] = {   /* @0x800515b8 (ARY ARY CHAR, SYM dims 14x6 ->
   {1,0,0,16,20,9},
   {3,2,0,9,9,9},
 };
-int  gSemiTransText = 0;            /* @0x8005160c */
+int  gSemiTransText __attribute__((section(".data"))) = 0;   /* @0x8005160c; oracle refs ALL absolute lui/%hi (0 gp_rel) -> out of .sdata; net -5 diffs across 3 fns (SetABR +1 = maspsx store-macro split, catalog F floor) */
 
 
 /* ---- FETextRender_SetFont  [FETEXTRENDER.CPP:72-88] SLD-VERIFIED ---- */

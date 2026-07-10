@@ -37,6 +37,12 @@ void padinit(void)
 /* ---- PAD_restore  (pad.cpp:83, code lines 83-89) ---- */
 void PAD_restore(void)
 {
+  /* RESIDUAL (10-diff, per-obj TOOLCHAIN-IDENTITY floor, methodology 3.25): the PAD.OBJ
+   * oracle has EVERY delay slot as a nop (beqz/jal/jr) + an unfused `la gPadinfo`
+   * (lui+addiu, loads at 0(s0)) -- reproduced exactly by cc1 -fno-delayed-branch, NOT
+   * by repo -O2/-O1 flags (both fill the slots; %lo stays fused even w/ a pointer
+   * local, w/ -fno-delayed-branch, and at -O1).  Not source-reachable under the fixed
+   * repo CC1 lane; needs a per-obj flag lane (build-config, out of worker scope). */
   if (gPadinfo.initialized != 0) {
     deltimer(PAD_update);
     PadStopCom();

@@ -11,23 +11,59 @@
 extern void *locateshape (void *shapefile, int *namekey);   /* @0x800EB110 */
 extern void *locateshapez(void *shapefile, int *namekey);   /* @0x800EB170 */
 
-static void *locate_shape(char *sf, int name)
-{
-    int count = *(int *)(sf + 8);
-    int i;
-    for (i = count - 1; i >= 0; i--) {                 /* reverse scan: highest index wins */
-        if (*(int *)(sf + i * 8 + 0x10) == name)        /* entry[i].name */
-            return sf + *(int *)(sf + i * 8 + 0x14);    /* base + entry[i].dataoffset */
-    }
-    return 0;
-}
+/* MATCH: NO shared static helper exists in the binary -- the oracle carries a full
+ * inline copy of the scan in EACH fn (24 insns each).  Loop shape: index-down scan
+ * `while (i != 0 && entry(i).name != name) i--;` -- gcc strength-reduces the
+ * sf+i*8+0x10 access into the walking $a2 giv (init base+count*8, -8/iter) and
+ * fills the bne slot with the i-- (the +1 on the match path is its compensation);
+ * the tail re-derives entry i by index (sll/addu) and checks entry[0] too. */
 
 extern void *locateshape(void *shapefile, int *namekey)   /* @0x800EB110 */
 {
-    return locate_shape((char *)shapefile, *namekey);
+    char *sf  = (char *)shapefile;
+    int  name = *namekey;
+    int  i    = *(int *)(sf + 8);                       /* directory count */
+    char *p;
+    if (i == 0)
+        return 0;
+    p = (char *)(i * 8 + (int)sf);                      /* walker init from PRE-decrement count */
+    i = i - 1;                                          /* split load/dec (lever #15b) */
+scan:                                                   /* label-goto loop (catalog B): top i-test,
+                                                         * bne-back on mismatch w/ i-- in the slot
+                                                         * (+1 compensation on the match path) */
+    if (i != 0) {
+        p = p - 8;                                      /* fills the top beqz slot */
+        if (*(int *)(p + 0x10) != name) {
+            i = i - 1;
+            goto scan;
+        }
+    }
+    if (*(int *)(sf + i * 8 + 0x10) == name)            /* tail re-derives entry i by index */
+        return sf + *(int *)(sf + i * 8 + 0x14);        /* base + entry[i].dataoffset */
+    return 0;
 }
 
 extern void *locateshapez(void *shapefile, int *namekey)  /* @0x800EB170 (identical to locateshape) */
 {
-    return locate_shape((char *)shapefile, *namekey);
+    char *sf  = (char *)shapefile;
+    int  name = *namekey;
+    int  i    = *(int *)(sf + 8);
+    char *p;
+    if (i == 0)
+        return 0;
+    p = (char *)(i * 8 + (int)sf);                      /* walker init from PRE-decrement count */
+    i = i - 1;                                          /* split load/dec (lever #15b) */
+scan:                                                   /* label-goto loop (catalog B): top i-test,
+                                                         * bne-back on mismatch w/ i-- in the slot
+                                                         * (+1 compensation on the match path) */
+    if (i != 0) {
+        p = p - 8;                                      /* fills the top beqz slot */
+        if (*(int *)(p + 0x10) != name) {
+            i = i - 1;
+            goto scan;
+        }
+    }
+    if (*(int *)(sf + i * 8 + 0x10) == name)            /* tail re-derives entry i by index */
+        return sf + *(int *)(sf + i * 8 + 0x14);        /* base + entry[i].dataoffset */
+    return 0;
 }

@@ -2694,7 +2694,7 @@ struct tListIterator {   /* 16 bytes */
     int Value(tPlayer player);
     int TextValue(tPlayer player);
     int Increment(tPlayer player);
-    int Decrement(tPlayer player);
+    void Decrement(tPlayer player);   /* SYM: FCN VOID */
 
 };
 
@@ -3457,7 +3457,7 @@ struct tListIteratorIndexed : public tListIterator {   /* 20 bytes */
     int Value(tPlayer player);
     int TextValue(tPlayer player);
     int Increment(tPlayer player);
-    int Decrement(tPlayer player);
+    void Decrement(tPlayer player);   /* SYM: FCN VOID */
 
 };
 
@@ -5098,7 +5098,7 @@ struct tListIteratorDoubleIndexed : public tListIterator {   /* 28 bytes */
     int Value(tPlayer player);
     int TextValue(tPlayer player);
     int Increment(tPlayer player);
-    int Decrement(tPlayer player);
+    void Decrement(tPlayer player);   /* SYM: FCN VOID */
 
 };
 

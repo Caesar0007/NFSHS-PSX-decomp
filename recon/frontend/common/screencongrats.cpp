@@ -864,8 +864,8 @@ void tScreenBeTheCopCongrats::DrawCongratsMessage()
   }
   fmt = TextSys_Word(wordnum);
   copWord = TextSys_Word((signed char)this->fCarInfo.fCarID + 0x121);
-  fmt = (char *)sprintf(buffer,fmt,copWord);
-  FETextRender_WordWrapText(fmt,r,fade,textType_PostGame);
+  sprintf(buffer,fmt,copWord);
+  FETextRender_WordWrapText(buffer,r,fade,textType_PostGame);   /* MATCH: pass buffer (addr held in s0 across sprintf, 3.12#16), NOT sprintf's return */
   return;
 }
 

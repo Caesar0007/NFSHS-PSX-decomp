@@ -23,7 +23,7 @@ extern "C" int            DAT_8014844c;        /* saved eventArgs[12] */
 extern "C" short          DAT_801484e8;        /* choice template field (IterateChoice) */
 extern "C" short          DAT_801484ea;        /* choice template field (IterateChoice) */
 
-extern "C" int  gVoxBanks;        /* spchbank */
+extern "C" int  gVoxBanks[];      /* spchbank (array decl -> separate-temp loads) */
 extern "C" int  gDataRate[];      /* spchinit */
 extern "C" int  gSampleRequest;   /* spchinit (callback) */
 extern "C" int  gSentenceRuleSet; /* spchinit (callback) */
@@ -134,17 +134,17 @@ extern "C" unsigned int iSPCH_GetPhraseBank(short *phraseTemplate, int paramTabl
     if (mode == 2)
         goto bySub;
     goto done;
+byFind:   /* MATCH: byFind block laid out FIRST (oracle .L8DC precedes byParam .L8EC) */
+    choice = iSPCH_FindBank((unsigned int)wanted);
+    *outChoice = (short)choice;
+    goto done;
 byParam:
     choice = *(int *)(param * 4 + paramTable);
     if (-1 < choice) {
-        int voxBase = gVoxBanks;
+        int voxBase = gVoxBanks[0];   /* MATCH: array decl -> separate-temp load (lui v0; lw v1) */
         if ((unsigned int)**(unsigned short **)(choice * 4 + voxBase) != (unsigned int)wanted)
             choice = -1;
     }
-    *outChoice = (short)choice;
-    goto done;
-byFind:
-    choice = iSPCH_FindBank((unsigned int)wanted);
     *outChoice = (short)choice;
     goto done;
 bySub:
@@ -152,10 +152,10 @@ bySub:
         int *pv;
         choice = iSPCH_FindBank((unsigned int)wanted);
         pv = (int *)(param * 4 + paramTable);
-        if (iSPCH_TestSubBankBounds(choice, *pv) == 0)
-            choice = -1;
-        else
+        if (iSPCH_TestSubBankBounds(choice, *pv) != 0)   /* MATCH: success = fall-through, -1 arm out-of-line */
             outChoice[1] = (short)*pv;
+        else
+            choice = -1;
         *outChoice = (short)choice;
     }
 done:
@@ -195,15 +195,10 @@ extern "C" unsigned char *iSPCH_ClearCycleBit(int bank, int cycle)
 /* iSPCH_CheckBankBit @0x80100A1C : test cycle bit `cycle` in `bank`'s bits array. */
 extern "C" unsigned int iSPCH_CheckBankBit(int bank, int cycle)
 {
-    int r = cycle;
-    unsigned int bit;
-    unsigned char *bits;
-    if (cycle < 0)
-        r = cycle + 7;
-    r = r >> 3;
-    bit = 1 << (cycle - (r << 3));
-    bits = (unsigned char *)iSPCH_GetBankBits(bank);
-    return (unsigned int)*(unsigned char *)(bits + r) & bit;
+    int byteIdx = cycle / 8;   /* MATCH: plain signed /8 -> gcc's bgez/+7/sra COPY form (cycle stays $a1) */
+    unsigned int bit = 1 << (cycle - (byteIdx << 3));
+    unsigned char *bits = (unsigned char *)iSPCH_GetBankBits(bank);
+    return (unsigned int)*(unsigned char *)(bits + byteIdx) & bit;
 }
 
 /* iSPCH_CheckTemplateSample @0x80100A70 : whether choice's template sample bit is set for this bank. */
@@ -237,7 +232,7 @@ extern "C" int iSPCH_ChooseSamples(short *choice, int maxToPick, int phraseTempl
 {
     unsigned int  sampleIdx = 0;
     short         bankIdx   = *choice;
-    int           bank      = *(int *)(bankIdx * 4 + gVoxBanks);
+    int           bank      = *(int *)(bankIdx * 4 + gVoxBanks[0]);
     unsigned char nSamples  = *(unsigned char *)(bank + 3);
     int           pickPos   = (int)choice[3];
     int           chosen    = 0;
@@ -266,8 +261,10 @@ extern "C" int iSPCH_ChooseSamples(short *choice, int maxToPick, int phraseTempl
 extern "C" int iSPCH_SampleLength(short *choice)
 {
     int tmp[4];
+    /* residual 10: ours colors the pick-byte chain base->a1/idx->v0 (la lands in the lbu-arg reg),
+     * oracle idx->a1/base->v0; fresh-sum/inline/anonymous-chain reshapes all score worse (14/16/22) */
     unsigned char *pickAddr = &ispch_gPickSamples;
-    int voxBase = gVoxBanks;
+    int voxBase = gVoxBanks[0];
     int len = 0;
     pickAddr = pickAddr + choice[4];
     int bank = *(int *)(*choice * 4 + voxBase);
@@ -522,7 +519,9 @@ extern "C" int iSPCH_SentenceMakeChoice(int sentence, int mode)
         if (ok < n) {
             short *choice = ispch_gChoice;
             ok = 1;
-            do {
+            do {   /* residual 9: gcc biv-eliminates `choice` into a +8-biased giv (2-insn init,
+                    * offsets -4/-2/0) where the oracle keeps the plain base (+4/+6/+8); index-form,
+                    * alias, and statement-order levers all leave the bias -- allocator floor */
                 int r = iSPCH_Rand((int)choice[2]);
                 i = i + 1;
                 choice[4] = choice[3] + (short)r;
@@ -551,7 +550,7 @@ extern "C" void iSPCH_ConstantRuleSet(short *sentence, int rule, int val)
                     if (ruleType != 0xf) {
                         unsigned int rid = iSPCH_GetRuleID((int)sentence, (int)ruleType);
                         int tmp[3];
-                        int r = iSPCH_UnPackSample(*(int *)(*choice * 4 + gVoxBanks),
+                        int r = iSPCH_UnPackSample(*(int *)(*choice * 4 + gVoxBanks[0]),
                                                    (unsigned int)PICK(choice[4]), tmp);
                         if (r != 0)
                             ((void (*)(int, int, int))gSentenceRuleSet)
@@ -576,7 +575,7 @@ extern "C" int iSPCH_MakeSampleRequests(int sentence, int paramTable)
     if (0 < n) {
         short *choice = ispch_gChoice;
         do {
-            int           bank = *(int *)(*choice * 4 + gVoxBanks);
+            int           bank = *(int *)(*choice * 4 + gVoxBanks[0]);
             unsigned char idx  = PICK(choice[4]);
             int           tmp[4];
             if ((*(unsigned char *)(bank + 2) & 0xf0) != 0)

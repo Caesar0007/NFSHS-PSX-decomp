@@ -3785,7 +3785,13 @@ void Hud_Reset(void)
   return;
 }
 
-/* ---- Hud_BTC_QuitOut__Fv  [HUD.CPP:4074-4086] SLD-VERIFIED ---- */
+/* ---- Hud_BTC_QuitOut__Fv  [HUD.CPP:4074-4086] SLD-VERIFIED ----
+ * NEAR-MISS 6 diffs (49/49, down from 8): SYM shows only block-scoped `i` -- the base ptr must be
+ * a loop-hoisted pseudo, so BTCPerpInfo[0] is referenced INLINE (no row_base local init before the
+ * loop; that low-numbered pseudo canonicalized the addu operand order the wrong way). name_tail
+ * grouped as (idx*0x10 + row_off) + base matches the stores' addu order. Residual 6 = the sprintf
+ * dest grouping: ours folds (row_off + base) into one temp, oracle keeps (idx*16+base) then
+ * row_off+that -- reassociation tie, permuter class. row_base decl retained (unused). */
 void Hud_BTC_QuitOut(void)
 
 {
@@ -3798,16 +3804,15 @@ void Hud_BTC_QuitOut(void)
 
   if (HudBustedOverlay == 0) {
     slot_i = 0;
-    row_base = BTCPerpInfo[0];
     row_off = 0;
     do {
       perp_idx = Hud_NextPerp + slot_i;
-      sprintf(row_base[*perp_idx].name + row_off,BTC_CurrentPerpName);
-      name_tail = row_base[*perp_idx].name + row_off + 0xc;
-      *(u_int *)name_tail = 0;
+      sprintf(row_off + (char *)BTCPerpInfo[0][*perp_idx].name,BTC_CurrentPerpName);
+      name_tail = (char *)BTCPerpInfo[0] + (*perp_idx * 0x10 + row_off);
+      *(u_int *)(name_tail + 0xc) = 0;
       slot_i = slot_i + 1;
-      name_tail = row_base[*perp_idx].name + row_off + 8;
-      *(u_int *)name_tail = 0;
+      name_tail = (char *)BTCPerpInfo[0] + (*perp_idx * 0x10 + row_off);
+      *(u_int *)(name_tail + 8) = 0;
       *perp_idx = *perp_idx + 1;
       row_off = row_off + 0xa0;
     } while (slot_i < 2);

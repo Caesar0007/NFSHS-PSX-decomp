@@ -80,29 +80,19 @@ int tListIterator::Increment(tPlayer arg1)
 
 /* ---- tListIterator::Decrement  [FEMENU.CPP:90-97] SLD-VERIFIED ---- */
 
-int tListIterator::Decrement(tPlayer arg1)
+void tListIterator::Decrement(tPlayer arg1)
 
 {
-  int iVar1;
-  u_char *pbVar2;
-
-  pbVar2 = (u_char *)this->fValue;
-  if (*pbVar2 == 0) {
-    iVar1 = (int)this->fSelectionList[(u_char)*pbVar2 + 1];
-    if (0 < iVar1) {
-      do {
-        *pbVar2 = *pbVar2 + 1;
-        pbVar2 = (u_char *)this->fValue;
-        iVar1 = (int)this->fSelectionList[(u_char)*pbVar2 + 1];
-      } while (0 < iVar1);
-      return iVar1;
+  /* MATCH: SYM = FCN VOID, no locals; plain while (jump.c duplicate_loop_exit_test)
+     gives the oracle's pre-loop guard copy with andi 0xFF re-mask (no ==0 const-fold) */
+  if (this->fValue[0] == '\0') {
+    while (0 < (int)this->fSelectionList[this->fValue[0] + 1]) {
+      this->fValue[0] = this->fValue[0] + 1;
     }
   }
   else {
-    iVar1 = *pbVar2 - 1;
-    *pbVar2 = (u_char)iVar1;
+    this->fValue[0] = this->fValue[0] - 1;
   }
-  return iVar1;
 }
 
 
@@ -181,34 +171,19 @@ int tListIteratorIndexed::Increment(tPlayer arg1)
 
 /* ---- tListIteratorIndexed::Decrement  [FEMENU.CPP:133-140] SLD-VERIFIED ---- */
 
-int tListIteratorIndexed::Decrement(tPlayer arg1)
+void tListIteratorIndexed::Decrement(tPlayer arg1)
 
 {
-  char cVar1;
-  int iVar2;
-  char *pcVar3;
-  u_char *pbVar4;
-
-  pbVar4 = (u_char *)this->fIndex;
-  pcVar3 = this->fValue;
-  cVar1 = pcVar3[*pbVar4];
-  if (cVar1 == '\0') {
-    iVar2 = (int)this->fSelectionList[(u_char)pcVar3[*pbVar4] + 1];
-    if (0 < iVar2) {
-      do {
-        pcVar3[*pbVar4] = pcVar3[*pbVar4] + '\x01';
-        pbVar4 = (u_char *)this->fIndex;
-        pcVar3 = this->fValue;
-        iVar2 = (int)this->fSelectionList[(u_char)pcVar3[*pbVar4] + 1];
-      } while (0 < iVar2);
-      return iVar2;
+  /* MATCH: SYM = FCN VOID, no locals; plain while (jump.c duplicate_loop_exit_test)
+     gives the oracle's pre-loop guard copy with andi 0xFF re-mask (no ==0 const-fold) */
+  if (this->fValue[*this->fIndex] == '\0') {
+    while (0 < (int)this->fSelectionList[this->fValue[*this->fIndex] + 1]) {
+      this->fValue[*this->fIndex] = this->fValue[*this->fIndex] + 1;
     }
   }
   else {
-    iVar2 = cVar1 - 1;
-    pcVar3[*pbVar4] = (u_char)iVar2;
+    this->fValue[*this->fIndex] = this->fValue[*this->fIndex] - 1;
   }
-  return iVar2;
 }
 
 
@@ -279,43 +254,22 @@ int tListIteratorDoubleIndexed::Increment(tPlayer arg1)
 
 /* ---- tListIteratorDoubleIndexed::Decrement  [FEMENU.CPP:179-186] SLD-VERIFIED ---- */
 
-int tListIteratorDoubleIndexed::Decrement(tPlayer arg1)
+void tListIteratorDoubleIndexed::Decrement(tPlayer arg1)
 
 {
-  char cVar7;
-  int iVar2;
-  char *pcVar3;
-  u_char *pbVar4;
-  int iVar5;
-  u_char *pbVar6;
-
-  pbVar6 = (u_char *)this->fIndex1;
-  iVar5 = this->index1multiplier;
-  pbVar4 = (u_char *)this->fIndex2;
-  pcVar3 = this->fValue;
-  cVar7 = pcVar3[(u_int)*pbVar6 * iVar5 + (u_int)*pbVar4];
-  if (cVar7 == '\0') {
-    iVar2 = (int)this->fSelectionList
-                 [(u_char)pcVar3[(u_int)*pbVar6 * iVar5 + (u_int)*pbVar4] + 1];
-    if (0 < iVar2) {
-      do {
-        pcVar3[(u_int)*pbVar6 * iVar5 + (u_int)*pbVar4] =
-             pcVar3[(u_int)*pbVar6 * iVar5 + (u_int)*pbVar4] + '\x01';
-        pbVar6 = (u_char *)this->fIndex1;
-        iVar5 = this->index1multiplier;
-        pbVar4 = (u_char *)this->fIndex2;
-        pcVar3 = this->fValue;
-        iVar2 = (int)this->fSelectionList
-                     [(u_char)pcVar3[(u_int)*pbVar6 * iVar5 + (u_int)*pbVar4] + 1];
-      } while (0 < iVar2);
-      return iVar2;
+  /* MATCH: SYM = FCN VOID, no locals; plain while (jump.c duplicate_loop_exit_test)
+     gives the oracle's pre-loop guard copy with andi 0xFF re-mask (no ==0 const-fold) */
+  if (this->fValue[(u_int)*this->fIndex1 * this->index1multiplier + (u_int)*this->fIndex2] == '\0') {
+    while (0 < (int)this->fSelectionList
+                    [this->fValue[(u_int)*this->fIndex1 * this->index1multiplier + (u_int)*this->fIndex2] + 1]) {
+      this->fValue[(u_int)*this->fIndex1 * this->index1multiplier + (u_int)*this->fIndex2] =
+           this->fValue[(u_int)*this->fIndex1 * this->index1multiplier + (u_int)*this->fIndex2] + 1;
     }
   }
   else {
-    iVar2 = cVar7 - 1;
-    pcVar3[(u_int)*pbVar6 * iVar5 + (u_int)*pbVar4] = (u_char)iVar2;
+    this->fValue[(u_int)*this->fIndex1 * this->index1multiplier + (u_int)*this->fIndex2] =
+         this->fValue[(u_int)*this->fIndex1 * this->index1multiplier + (u_int)*this->fIndex2] - 1;
   }
-  return iVar2;
 }
 
 

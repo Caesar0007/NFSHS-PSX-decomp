@@ -45,57 +45,106 @@ extern char *strrstr(char *s, char *set)
     return best;
 }
 
-/* wildcard @0x800E89BC : boolean+glob pattern match, 1 == match. */
+/* wildcard @0x800E89BC : boolean+glob pattern match, 1 == match.
+ * FAITHFUL QUIRK: the operator restore is a LITERAL per case -- '|' stores back '|', but '!' AND '~'
+ * both store back '!' (a '~' OR-operator is rewritten to '!' in the caller's pattern buffer); only
+ * the '&' and '^' cases restore the saved char.  The '#' digit test uses the libc _ctype_ table. */
+extern const unsigned char _ctype_[];      /* libc CTYPE0.obj @0x801371D0; isdigit bit = 4 */
+
 extern int wildcard(char *text, char *pat)
 {
     static const char kOps[] = "&|!~^";   /* @0x8013DC48 (wildcard.obj-local rodata) */
     char *op = strrstr(pat, (char *)kOps);
+    const unsigned char *ct;               /* s3 (reuses op's reg): _ctype_ + 1 in the leaf */
+    int r;                                 /* s0 */
 
     if (op) {                              /* split at the rightmost operator */
-        char ch = *op;
-        int  r;
-        *op = 0;                           /* NUL it so each half is a standalone pattern */
+        int ch = *op;                      /* s4, lbu (int local: no u_char re-mask, oracle bne s4) */
         if (ch == '&') {                   /* AND */
-            r = wildcard(text, pat) ? (wildcard(text, op + 1) > 0) : 0;
-        } else if (ch == '^') {            /* XOR */
-            int l = wildcard(text, pat);
-            r = l ^ wildcard(text, op + 1);
-        } else {                           /* '|','!','~' all == OR */
-            r = (wildcard(text, pat) != 0 || wildcard(text, op + 1) != 0) ? 1 : 0;
+            *op = 0;
+            r = 0;
+            if (wildcard(text, pat))
+                r = wildcard(text, op + 1) != 0;
+            *op = ch;
+            return r;
         }
-        *op = ch;                          /* restore the operator char */
-        return r;
+        if (ch == '|') {                   /* OR */
+            *op = 0;
+            r = 0;
+            if (wildcard(text, pat) || wildcard(text, op + 1))
+                r = 1;
+            *op = '|';                     /* literal restore */
+            return r;
+        }
+        if (ch == '!' || ch == '~') {      /* OR (both spellings) */
+            *op = 0;
+            r = 0;
+            if (wildcard(text, pat) || wildcard(text, op + 1))
+                r = 1;
+            *op = '!';                     /* literal restore -- '~' comes back as '!' */
+            return r;
+        }
+        if (ch == '^') {                   /* XOR */
+            *op = 0;
+            r = wildcard(text, pat) ^ wildcard(text, op + 1);
+            *op = ch;
+            return r;
+        }
+        /* ch not an operator (unreachable: strrstr only returns kOps hits) -> falls to the leaf */
     }
-
+    goto leaf;
+notleaf:                                   /* '~' leaf body -- emitted BEFORE the loop (oracle .LB04) */
+    return (unsigned int)wildcard(text, pat + 1) < 1;
+leaf:
     /* no operator -> leaf glob match, anchored at the start of `text` */
+    ct = _ctype_ + 1;
     for (;;) {
-        char pc = *pat;
+        int pc = *pat;                     /* v1 (int local: also tips the allocno
+                                            * priority so text gets $s1, pat $s2) */
+        int v;
         if (pc == '*') {                   /* glob: try the rest at each text position */
             pat++;
-            for (;;) {
+            do {
                 if (wildcard(text, pat))
                     return 1;
-                if (*text == 0)
-                    return 0;
+            } while (*text++ != 0);
+            return 0;
+        }
+        if (pc == '?') {                   /* any one non-NUL char */
+            v = *text;
+            pat++;
+            goto join;
+        }
+        if (pc == '#') {                   /* any one digit (ctype bit 4) */
+            v = *(const unsigned char *)((int)*text + (int)ct) & 4;  /* index+base addu order */
+            pat++;
+join:                                      /* MATCH: shared tail -- text++ lands in the beqz delay
+                                            * slot (oracle .LB90), '?' jumps in, '#' falls through */
+            text++;
+            if (v == 0)
+                goto ret0;
+            continue;
+        }
+        if (pc == '~')                     /* NOT the rest */
+            goto notleaf;
+        {                                  /* case-insensitive literal compare */
+            int t = tolower(*pat);         /* s0; tolower'd FIRST.  RESIDUAL (14 diffs): with the
+                                            * int `pc` this *pat re-read CSEs into a copy from pc,
+                                            * which gives pc an $a0 preference (oracle: fresh lbu,
+                                            * pc in $v1).  Blocking the CSE (u_char pc / volatile)
+                                            * restores the lbu but adds +2 weighted pat refs ->
+                                            * text/pat allocno order flips back (s1<->s2 swap, 70
+                                            * diffs).  The two fixes are ref-circular; int pc is
+                                            * the closer end state.  See session notes. */
+            if ((unsigned char)t != (unsigned char)tolower(*text))
+                return 0;
+            if (*pat++ != 0) {             /* pattern continues -> advance both, loop */
                 text++;
+                continue;
             }
-        } else if (pc == '?') {            /* any one non-NUL char */
-            if (*text == 0)
-                return 0;
-            text++; pat++;
-        } else if (pc == '#') {            /* any one digit (ctype &4) */
-            char tc = *text;
-            if (!(tc >= '0' && tc <= '9'))
-                return 0;
-            text++; pat++;
-        } else if (pc == '~') {            /* NOT the rest */
-            return wildcard(text, pat + 1) < 1;
-        } else {                           /* case-insensitive literal compare */
-            if ((tolower(pc) & 0xFF) != (tolower(*text) & 0xFF))
-                return 0;
-            if (*pat == 0)                 /* pattern exhausted -> match */
-                return 1;
-            pat++; text++;
+            return 1;
         }
     }
+ret0:
+    return 0;                              /* oracle .LBF0: shared v0=0 falling into the epilogue */
 }

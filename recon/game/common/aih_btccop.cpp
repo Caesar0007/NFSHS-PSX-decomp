@@ -1130,27 +1130,20 @@ void AIHigh_BTC_HumanCop::UpdateAndCheckTimeLeft()
 
   pAVar1 = this->perpTarget_;
 
+  /* MATCH: TWO calls in source — gcc tail-merges them into one jal + per-arm arg setup
+     (a0=carInfo+0x5C self-add in then-arm; a0=0/a1=a0-copy zeros in else; shared sltiu in the jal slot) */
   if (pAVar1 != (AIHigh_BTC_Perp *)0x0) {
 
-    timeleft = this->timeLeft_;
-
-    perpname = ((pAVar1)->carObj_)->carInfo->driver;
-
-    iVar4 = (this->carObj_)->RSControl;
+    Hud_BTC_Update(((pAVar1)->carObj_)->carInfo->driver,this->timeLeft_,
+                   (void *)(u_int)((this->carObj_)->RSControl == 0));
 
   }
 
   else {
 
-    iVar4 = (this->carObj_)->RSControl;
-
-    perpname = (char *)0x0;
-
-    timeleft = 0;
+    Hud_BTC_Update((char *)0x0,0,(void *)(u_int)((this->carObj_)->RSControl == 0));
 
   }
-
-  Hud_BTC_Update(perpname,timeleft,(void *)(u_int)(iVar4 == 0));
 
   if (this->timeLeft_ < 0) {
 
@@ -1168,9 +1161,9 @@ void AIHigh_BTC_HumanCop::UpdateAndCheckTimeLeft()
 
     if (this->timeLeft_ < -0xa0) {
 
-      simVar.endSimGame = 1;
+      AIH_BTCCop_freezeToggle_8013c564 = 1;  /* MATCH: gp-store first materializes the shared 1 (li v1,1) before the lui */
 
-      AIH_BTCCop_freezeToggle_8013c564 = 1;
+      simVar.endSimGame = 1;
 
       this->HudOn(this->perpTarget_,1,
 

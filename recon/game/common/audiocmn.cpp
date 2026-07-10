@@ -1645,7 +1645,6 @@ void AudioCmn_PlayerHornOn(int carIndex,int Distsq,int iFreqIn,int azimuth,int d
     else {
       iAmpIn = 0;
     }
-    iSFXnum = 3;
     if (GameSetup_gData.commMode == 1) {
       iSFXnum = 10;
       if (carIndex == 0) {
@@ -1656,6 +1655,7 @@ void AudioCmn_PlayerHornOn(int carIndex,int Distsq,int iFreqIn,int azimuth,int d
       }
     }
     else {
+      iSFXnum = 3;
       sndPlayer = 0x29;
     }
     if ((gaChannel[sndPlayer].Partial == 0xffffffff) ||

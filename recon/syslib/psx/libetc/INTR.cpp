@@ -42,8 +42,23 @@ typedef struct {
 } IntrState;
 extern "C" IntrState g_intr;               /* @0x80134AF8 */
 
-extern "C" IntrSetter       g_dma_setter   = 0;  /* @0x80135B64 (returned by startIntrDMA) */
-extern "C" IntrSetter       g_vsync_setter = 0;  /* @0x80135B74 (returned by startIntrVSync) */
+/* MATCH (structural): the libetc callback API dispatches through a HOOK TABLE --
+ * D_80135B60 = 8-slot struct {entry, dma_setter, set_cb, reset, stop, vsync_setter,
+ * restart, &g_intr}, D_80135B80 = POINTER to it; every public fn loads the pointer and
+ * jalr's the slot (lw v0,%lo(D_80135B80); lw v0,OFF(v0); jalr).  The former separate
+ * g_dma_setter/g_vsync_setter globals @0x80135B64/74 ARE the +0x04/+0x14 slots. */
+typedef struct {
+    int        (*entry)();                        /* +0x00 @0x80135B60 : 0x80056F4C (static init) */
+    IntrSetter   dma_setter;                      /* +0x04 : filled by _initIntr (startIntrDMA) */
+    void       (*set_cb)(unsigned int, int);      /* +0x08 : _set_intr_callback */
+    void       (*reset)(void);                    /* +0x0C : _initIntr */
+    long       (*stop)(void);                     /* +0x10 : StopCallback */
+    IntrSetter   vsync_setter;                    /* +0x14 : filled by _initIntr (startIntrVSync) */
+    void       (*restart)(void);                  /* +0x18 : RestartCallback */
+    IntrState   *state;                           /* +0x1C : &g_intr */
+} IntrHooks;
+extern "C" IntrHooks        g_hooks;             /* @0x80135B60 */
+extern "C" IntrHooks       *g_hooks_ptr;         /* @0x80135B80 : = &g_hooks */
 extern "C" unsigned short  *g_imask_ptr;         /* @0x80135B88 : runtime ptr to I_MASK register */
 extern "C" int              g_intr_timeout = 0;  /* @0x80135B90 */
 
@@ -65,8 +80,8 @@ extern "C" void _initIntr(void)            /* @0x800F2968 */
         g_intr.jmpbuf[1] = (long)g_intr.evcb;
         HookEntryInt(g_intr.jmpbuf);
         g_intr.inited = 1;
-        g_vsync_setter = (IntrSetter)startIntrVSync((int)g_intr.jmpbuf);
-        g_dma_setter   = (IntrSetter)startIntrDMA((int)g_intr.jmpbuf);
+        g_hooks_ptr->vsync_setter = (IntrSetter)startIntrVSync((int)g_intr.jmpbuf);
+        g_hooks_ptr->dma_setter   = (IntrSetter)startIntrDMA((int)g_intr.jmpbuf);
         _96_remove();
         ExitCriticalSection();
     }
@@ -74,27 +89,27 @@ extern "C" void _initIntr(void)            /* @0x800F2968 */
 
 extern "C" void ResetCallback(void)        /* @0x800F284C */
 {
-    _initIntr();
+    g_hooks_ptr->reset();
 }
 
 extern "C" void InterruptCallback(unsigned int idx, int handler)   /* @0x800F287C */
 {
-    _set_intr_callback(idx, handler);
+    g_hooks_ptr->set_cb(idx, handler);
 }
 
 extern "C" int DMACallback(int ch, int func)   /* @0x800F28AC */
 {
-    return g_dma_setter(ch, func);
+    return g_hooks_ptr->dma_setter(ch, func);
 }
 
 extern "C" int VSyncCallback(int func)     /* @0x800F28DC */
 {
-    return g_vsync_setter(4, func);
+    return g_hooks_ptr->vsync_setter(4, func);
 }
 
 extern "C" int VSyncCallbacks(int idx, int func)   /* @0x800F2910 */
 {
-    return g_vsync_setter(idx, func);
+    return g_hooks_ptr->vsync_setter(idx, func);
 }
 
 /* @0x800F2940 -- returns g_intr.in_handler (D_80134AFA); lhu = unsigned read */

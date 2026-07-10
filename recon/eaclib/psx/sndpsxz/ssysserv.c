@@ -9,7 +9,7 @@
 extern int sndgs[];
 
 extern short *iSNDserveraddclient(int cb);       /* @0x8010479C */
-extern int    iSNDserverremoveclient(int cb);    /* @0x801047CC */
+extern void   iSNDserverremoveclient(int cb);    /* @0x801047CC */
 extern void   SNDSYS_service(void);              /* @0x80104878 */
 
 #define NCLIENT (((char *)sndgs)[0x41])   /* sndgs[0x10]._1_1_ : service-client count */
@@ -30,29 +30,50 @@ extern short *iSNDserveraddclient(int cb)
     return (short *)sndgs;
 }
 
-/* iSNDserverremoveclient @0x801047CC : unregister `cb`, compacting the list.  (Ghidra's `while(iVar2=0,..)`
- *   zeroes the return on each check -> the found path returns 0; reconstructed faithfully.) */
-extern int iSNDserverremoveclient(int cb)
+/* iSNDserverremoveclient @0x801047CC : unregister `cb`, compacting the list.  void -- $v0 at every
+ *   exit is incidental (numclients / slt scratch / i<<2), matching the eaclib.h `void` prototype. */
+extern void iSNDserverremoveclient(int cb)
 {
-    int i = 0, off = 0;
-    int more;
-    if (0 < (int)NCLIENT) {
-        off = 0;
-        while (*(int *)((int)sndgs + off + 100) != cb) {     /* find slot (sndgs[0x19] == sndgs+100) */
+    int i;
+    int j;
+    char *base;
+    char *p;
+    p = (char *)sndgs;
+    /* MATCH: goto-formed loops (no gcc LOOP notes -> NO strength reduction; the oracle recomputes
+     * `sll i,2` EVERY iteration instead of walking a +4 offset giv); ONE char* base for every
+     * access (same lever as iSNDserveraddclient above) so +0x64/+0x41 fold into DISPLACEMENTS off
+     * a held base reg; the compaction saves the SCALED old offset before the increment
+     * (`j = i*4; i++; [j+0x64] = [i*4+0x64]`) so BOTH sides use displacement 0x64 and the sll
+     * lands in the entry/back-edge delay slots (an `[i]=[i+1]; i++` form emits 100/104 instead).
+     *
+     * NEAR-MISS residual (41 diffs, ours 42 / oracle 43): a pure 3-reg caller-saved ROTATION
+     * {i,base,cb} = ours {a1,a2,a0} vs oracle {a0,a1,a2} -- the oracle's allocation evicts the
+     * param from $a0 (entry copy `addu a2,a0,zero`, our 1 missing insn) and i takes $a0.
+     * Structure/count otherwise exact.  Tried + inert (all stayed 41): all 24 decl orders,
+     * `register` kw, explicit param-copy local (coalesced away), block-scope j, Yoda compare,
+     * i=0 before/after guard/p-init, decl-init i, guard `<1`, base-then-i order, unsigned char*
+     * bases, void* param.  Class: gcc-2.8.0 global-alloc assignment tie-break (methodology
+     * SS3.15); next step = permuter multi-basin (C lane). */
+    if (*(signed char *)(p + 0x41) <= 0)                      /* lb count (signed-char view of the byte) */
+        return;
+    i = 0;
+    base = p;
+findloop:
+    if (*(int *)(base + i * 4 + 0x64) == cb) {                /* client slots @+0x64 */
+        *(char *)(base + 0x41) = *(char *)(base + 0x41) - 1;  /* lbu/addiu/sb (plain char is unsigned) */
+        if (i < *(signed char *)(base + 0x41)) {
+shiftloop:                                                    /* compact the tail down one slot */
+            j = i * 4;                                        /* scale BEFORE the increment (sll in the entry/back-edge delay slot) */
             i++;
-            off = i * 4;
-            if (NCLIENT <= i)
-                return off;                                   /* not found */
+            *(int *)(base + j + 0x64) = *(int *)(base + i * 4 + 0x64);
+            if (i < *(signed char *)(base + 0x41))
+                goto shiftloop;
         }
-        NCLIENT = NCLIENT - 1;
-        more = (i < (int)NCLIENT);
-        while (off = 0, more) {                               /* compact the tail down one slot */
-            sndgs[i + 0x19] = sndgs[i + 0x1a];
-            more = (i + 1 < (int)NCLIENT);
-            i++;
-        }
+        return;
     }
-    return off;
+    i++;
+    if (i < *(signed char *)(base + 0x41))
+        goto findloop;
 }
 
 /* SNDSYS_service @0x80104878 : run every registered service-client callback (called once per game frame). */

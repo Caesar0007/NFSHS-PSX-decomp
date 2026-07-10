@@ -11,17 +11,26 @@ extern void   freemutex(void *mutex);      /* @0x800FE480 */
 /* allocmutex @0x800FE424 : claim the first free mutex slot (mark taken); returns its pointer. */
 extern short *allocmutex(void)
 {
+    /* MATCH + semantic fix: the retail fn returns NULL when all 32 slots are taken
+     * (i == 0x20) and recomputes the result from the INDEX (&mutexbuf + i*2, sll 2 +
+     * addu) -- the old `return p` handed back a past-the-end pointer on exhaustion. */
     int    i = 0;
     short *p = &mutexbuf;
-    do {
-        if (*p == 0) {
-            *p = 1;
-            break;
-        }
-        i = i + 1;
-        p = p + 2;
-    } while (i < 0x20);
-    return p;
+    short *q;
+loop:                               /* label-goto loop: no first-iteration peel */
+    q = p;                          /* explicit per-iter copy (a0 = a1) */
+    if (*q == 0) {
+        *p = 1;
+        goto done;
+    }
+    i = i + 1;
+    p = q + 2;
+    if (i < 0x20)
+        goto loop;
+done:
+    if (i == 0x20)
+        return 0;
+    return &mutexbuf + i * 2;
 }
 
 /* freemutex @0x800FE480 : release a mutex (clear its taken flag). */

@@ -16,13 +16,14 @@ extern int gGameNum;    /* shared game global : current game/race number (cycle-
 extern int DAT_80150000;/* @0x80150000  : SetCycleBits default-return placeholder */
 
 extern int  iSPCH_MemAlloc(int numBytes, const char *tag); /* spchinit; returns the allocated ptr (0 = failed) */
-extern void iSPCH_MemFree(void);           /* spchinit */
+extern void iSPCH_MemFree(int block);      /* spchinit; release body ignores the arg but call sites
+                                            * still pass the freed block (nullsub-takes-real-args) */
 extern int  iSPCH_GetBankBits(int bank);   /* spchpick (returns the bank's cycle-bits array) */
 extern void trap(unsigned int code);
 
 extern void  iSPCH_InitBanks(void);                         /* @0x800EB1E0 */
 extern void  iSPCH_DisposeBanks(void);                      /* @0x800EB1F4 */
-extern int   iSPCH_BankMemAlloc(unsigned int numBanks);     /* @0x800EB234 */
+extern int   iSPCH_BankMemAlloc(int numBanks);              /* @0x800EB234 */
 extern int   iSPCH_GetFreeBank(void);                       /* @0x800EB2B8 */
 extern int   iSPCH_FindBank(int key);                       /* @0x800EB310 */
 extern unsigned int iSPCH_TestSubBankBounds(int bankIdx, int subIdx); /* @0x800EB37C */
@@ -41,29 +42,29 @@ extern void iSPCH_DisposeBanks(void)
 {
     int *banks = gVoxBanks;   /* hold base across the MemFree call (oracle keeps &gVoxBanks in s0) */
     if (banks[0] != 0)
-        iSPCH_MemFree();
+        iSPCH_MemFree(banks[0]);   /* MATCH: arg load lands in $a0 (oracle lw a0,%lo(gVoxBanks)) */
     banks[0] = 0;
     gNumBanks[0] = 0;
 }
 
 /* iSPCH_BankMemAlloc @0x800EB234 : allocate gVoxBanks[numBanks] (once) and zero it.  Returns gVoxBanks. */
-extern int iSPCH_BankMemAlloc(unsigned int numBanks)
+extern int iSPCH_BankMemAlloc(int numBanks)
 {
     if (gVoxBanks[0] == 0) {
         int allocated;
         gNumBanks[0] = numBanks;
         allocated = iSPCH_MemAlloc(numBanks << 2, "spch banks");
+        gVoxBanks[0] = allocated;   /* MATCH: unconditional store -> beqz delay slot (runs both paths) */
         if (allocated != 0) {
-            gVoxBanks[0] = allocated;
-            if (0 < gNumBanks[0]) {
+            numBanks = gNumBanks[0];   /* MATCH: reload reuses the dead param reg ($a0) */
+            if (0 < numBanks) {
                 int i = 0;
                 int *p = (int *)allocated;
-                int n = gNumBanks[0];
                 do {
                     *p = 0;
                     i++;
                     p++;
-                } while (i < n);
+                } while (i < numBanks);
             }
         }
     }
@@ -74,9 +75,9 @@ extern int iSPCH_BankMemAlloc(unsigned int numBanks)
 extern int iSPCH_GetFreeBank(void)
 {
     int result = -1;
+    int i = 0;     /* MATCH: init above the if -> lands in the blez delay slot, keeping result=-1 first */
     if (0 < gNumBanks[0]) {
         int count = gNumBanks[0];
-        int  i = 0;
         int *p = (int *)gVoxBanks[0];
         do {
             if (*p == 0) {
@@ -116,13 +117,14 @@ extern unsigned int iSPCH_TestSubBankBounds(int bankIdx, int subIdx)
 {
     int          base = gVoxBanks[0];
     unsigned int result = 0;
-    unsigned int count;
+    int          count;
     if (base == 0)         goto ret;
     if (bankIdx < 0)       goto ret;
-    count = *(unsigned short *)(*(int *)(bankIdx * 4 + base) + 6);
-    if (count == 0xffff)   goto ret;
+    bankIdx = *(int *)(bankIdx * 4 + base);   /* MATCH: bank ptr reuses the dead index reg ($a0) */
+    if (*(unsigned short *)(bankIdx + 6) == 0xffff) goto ret;
     if (subIdx < 0)        goto ret;
-    result = (unsigned int)(subIdx < (int)count);
+    count = *(unsigned short *)(bankIdx + 6); /* MATCH: CSE reload = copy, fills the bltz delay slot */
+    result = (unsigned int)(subIdx < count);
 ret:
     return result;
 }

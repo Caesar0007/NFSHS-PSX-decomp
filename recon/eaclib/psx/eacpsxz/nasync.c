@@ -111,7 +111,7 @@ extern void cancelrequest(AsyncReq *r)
     if (r->buffer >= 2)                     /* real buffer (0/1 are "none"/sentinel) -> free it */
         purgememadr((void *)(size_t)(unsigned int)r->buffer);
     r->fileop = 0;
-    queueadd(&freequeue, r);
+    queueadd((AsyncQueue *)&freequeuehead, r);
     r->id = (unsigned char)r->id;           /* clear the counter bits -> slot is free */
 }
 
@@ -122,7 +122,7 @@ extern void finishrequest(AsyncReq *r)
     r->fileop = 0;                          /* unconditional (oracle: in the beqz delay slot) */
     if (cb == 0)                            /* poll-only request -> nothing to do */
         return;
-    queueadd(&callqueue, r);
+    queueadd((AsyncQueue *)&callqueuehead, r);
 }
 
 /* ---- the FILE completion callbacks (open -> size -> read* -> close -> finish) ---- */
@@ -252,17 +252,18 @@ extern int loadsegreadcallback(int id, int status, AsyncReq *req)
  *   up a cancelled one), then recycle the slot.  Registered as a periodic system task by initasync. */
 extern int asyncsystemtask(void)
 {
-    AsyncReq *req = queuefetch(&callqueue);
+    AsyncReq *req = queuefetch((AsyncQueue *)&callqueuehead);
     while (req != 0) {
         if (req->status != 0) {                    /* cancelled -> full cleanup */
             cancelrequest(req);
         } else {                                   /* normal completion -> fire the callback */
             void (*cb)(int) = (void (*)(int))(size_t)(unsigned int)req->callback;
             cb(req->id);
-            queueadd(&freequeue, req);
-            req->id = (unsigned char)req->id;      /* free the slot */
+            req->id = (unsigned char)req->id;      /* free the slot (MATCH: store BEFORE the call -> sw
+                                                    * lands in the queueadd jal delay slot, §3.21 family) */
+            queueadd((AsyncQueue *)&freequeuehead, req);
         }
-        req = queuefetch(&callqueue);
+        req = queuefetch((AsyncQueue *)&callqueuehead);
     }
     return 0;
 }
@@ -272,26 +273,28 @@ extern int asyncsystemtask(void)
 extern int initasync(int numreq, int blocksize, int memclass)
 {
     if (request == 0 && numreq < 0x101) {
+        int size;                                          /* numreq*0x2C, then mutated in place (-0x2C) */
         int i;
         readblocksize = blocksize;
         numrequests   = numreq;
-        request = (AsyncReq *)reservememadr((char *)"ASYNCREQ", numreq * 0x2C, memclass);
-        freequeue.head = request;
-        freequeue.tail = (AsyncReq *)((char *)request + (numreq * 0x2C - 0x2C));  /* &request[numreq-1] */
-        callqueue.head = 0;
-        callqueue.tail = 0;
+        size = numreq * 0x2C;
+        request = (AsyncReq *)reservememadr((char *)"ASYNCREQ", size, memclass);
+        size -= 0x2C;                                      /* MATCH: oracle mutates s0 in place (§3.12#14) */
+        freequeuehead = request;
+        freequeuetail = (AsyncReq *)((char *)request + size);   /* &request[numreq-1] */
+        callqueuehead = 0;
+        callqueuetail = 0;
         asyncfilehandle = 0;
         mutex = allocmutex();
         for (i = 0; i < numreq; i++) {                     /* link every slot onto the free list */
-            AsyncReq *r = (AsyncReq *)((char *)request + i * 0x2C);
-            r->id     = i;                                 /* id low byte == slot index */
-            r->next   = (AsyncReq *)((char *)r + 0x2C);
-            r->fileop = 0;
+            request[i].id     = i;                         /* id low byte == slot index */
+            request[i].next   = &request[i + 1];           /* MATCH: index form -> base+off giv (§3.12#1) */
+            request[i].fileop = 0;
         }
         request[numreq - 1].next = 0;                      /* terminate the free list */
         addsystemtask(asyncsystemtask, 1, 1);
     }
-    return 0;
+    /* MATCH: no `return 0` — oracle leaves $v0 = addsystemtask's return (int decl, value-less fall-off) */
 }
 
 /* ---- public load entry points ---- */
@@ -300,7 +303,7 @@ extern int initasync(int numreq, int blocksize, int memclass)
  *   getasyncreadadr, or `cb` fires on completion).  Returns the request id (0 if no free slot/open fail). */
 extern int asyncloadfilecallback(int name, int memclass, int cb)
 {
-    AsyncReq *req = queuefetch(&freequeue);
+    AsyncReq *req = queuefetch((AsyncQueue *)&freequeuehead);
     unsigned int op;
     if (req == 0)
         return 0;
@@ -328,7 +331,7 @@ extern int asyncloadfile(int name, int memclass)
 /* asyncloadfileatcallback @0x800F1388 : async load into a caller-provided destination (no allocation). */
 extern int asyncloadfileatcallback(int name, int dest, int cb)
 {
-    AsyncReq *req = queuefetch(&freequeue);
+    AsyncReq *req = queuefetch((AsyncQueue *)&freequeuehead);
     unsigned int op;
     if (req == 0)
         return 0;
@@ -370,7 +373,7 @@ extern void setasyncfile(int name)
  *   into `dest`.  If no file is open the request finishes immediately. */
 extern int asyncloadsegmentcallback(int offset, int dest, int size, int cb)
 {
-    AsyncReq *req = queuefetch(&freequeue);
+    AsyncReq *req = queuefetch((AsyncQueue *)&freequeuehead);
     int len;
     unsigned int op;
     if (req == 0)
@@ -436,7 +439,7 @@ extern int getasyncreadadr(int id)
     if (req->buffer == 0) return 0;    /* nothing allocated */
     if (req->callback != 0)            /* a callback owns the lifecycle */
         return adr;
-    queueadd(&freequeue, req);         /* poll-only -> recycle the slot now */
+    queueadd((AsyncQueue *)&freequeuehead, req);         /* poll-only -> recycle the slot now */
     req->id = (unsigned char)req->id;
     return adr;
 }
@@ -453,12 +456,15 @@ extern int getasyncreadstatus(int id)
     st = (req->bytesread != 0) ? req->bytesread : -1;
     if (req->buffer != 0)   return st;
     if (req->callback != 0) return st;
-    queueadd(&freequeue, req);                         /* harvested -> recycle the slot */
+    queueadd((AsyncQueue *)&freequeuehead, req);                         /* harvested -> recycle the slot */
     req->id = (unsigned char)req->id;
     return st;
 }
 
- AsyncQueue callqueue; AsyncQueue freequeue; int asyncfileoffset; int numrequests; int readblocksize;   /* owning-TU defs (BSS) */
+ AsyncReq *freequeuehead; AsyncReq *freequeuetail;   /* @0x8013DEA0/A4 : freequeue {head,tail} as 4B words -> .comm/.sbss -> gp-rel (see nasync.h) */
+ AsyncReq *callqueuehead; AsyncReq *callqueuetail;   /* @0x8013DEA8/AC : callqueue {head,tail} likewise */
+ AsyncReq *request;   /* @0x8013DE98 : request slot pool base; 4B -> .comm/.sbss -> gp-rel */
+ int asyncfileoffset; int numrequests; int readblocksize;   /* owning-TU defs (BSS) */
  void *mutex;    /* nasync.obj async-pool mutex handle (= allocmutex() result); BSS */
  int asyncfilehandle;    /* @0x8013DEB0 : open file handle for segment reads; 4B → .comm/.sbss → gp-rel */
  int requestidcounter;    /* @0x8013DEB8 : request-ID counter; 4B → .comm/.sbss → gp-rel */

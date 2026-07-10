@@ -808,31 +808,35 @@ extern unsigned int STREAM_queuemem(int s, int blocklist, void *ptr, int len)
     if (req == 0)
         return 0;
     if (ptr == 0) {                               /* resolve offset by walking the block chain */
-        int acc = 0;
         int *p = (int *)blocklist;
-        int v = *p;
-        while (v != len) {
+        while (*p != len) {                       /* MATCH: no `v` local -- the rotated loop's two
+                                                   * test loads are separate anonymous temps (v0/v1) */
             int blklen = p[1];
             p = (int *)((int)p + blklen);
-            acc += blklen;
-            v = *p;
+            ptr = (void *)((char *)ptr + blklen); /* MATCH: the ptr param IS the accumulator (0 here) */
         }
-        ptr = (void *)(acc + p[1]);
+        ptr = (void *)((char *)ptr + p[1]);
     }
-    req[4] = 1;                                   /* type = memory */
-    req[0x15] = blocklist;                        /* mem source base */
-    req[0x16] = (int)ptr;
-    req[0x17] = len;
-    queuerequest(out[0], (int)req);
     {
-        int wasidle, sr;
+        int r    = (int)req;                      /* MATCH: both call args precomputed BEFORE the field
+                                                   * stores (a1/a0 set first, last store in the jal slot) */
+        int sobj = out[0];
+        req[4] = 1;                               /* type = memory */
+        req[0x15] = blocklist;                    /* mem source base */
+        req[0x16] = (int)ptr;
+        req[0x17] = len;
+        queuerequest(sobj, r);
+    }
+    {
+        int flagv, sr;
         sr = STREAM_enterCS();
-        wasidle = (MI(out[0], 0x28) == 0);
-        if (wasidle)
+        flagv = MI(out[0], 0x28);                 /* MATCH: raw value tested ==0 twice (no bool) */
+        if (flagv == 0)
             MI(out[0], 0x28) = 1;
         STREAM_leaveCS(sr);
-        if (wasidle)
-            startnextrequest(out[0], 0, 0);
+        if (flagv == 0)
+            ((int (*)(int, unsigned int))startnextrequest)(out[0], 0);  /* MATCH: 2-arg site (oracle
+                                                   * never sets $a2 here; queuefile passes 3) */
     }
     return (unsigned int)req[0];
 }

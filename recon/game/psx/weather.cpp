@@ -63,47 +63,62 @@ int Weather_GetNumParticles(int player)
 }
 
 /* ---- Weather_SetMatrix__FP10matrixtdef  [WEATHER.CPP:112-123] SLD-VERIFIED ----
- * NEAR-MISS 6 diffs (49/49 insns): compute-all-3-then-store-all-3 grouping fixed 26->6 diffs.
- * Residual: oracle reuses the now-dead $a0(m) register for the LAST field read (m->m[8], the
- * final use of `m`) instead of continuing with $a1 -- a dead-arg-reuse register choice, no ABI
- * anchor found; same coloring-tiebreak family as TrsProj_TransformProjectVertex. */
+ * SEALED (49/49 PASS): SYM shows THREE nested block scopes each with fresh r0/r1/r2
+ * (third block's r2 = $4/a0 reuses the dead param reg). MATCH: SYM block scopes are
+ * load-bearing (catalog SS A DrawW_WorldSetUpMatrix row) -- one fn-scope decl set kept
+ * the block-1 coloring on the last row. */
 void Weather_SetMatrix(matrixtdef *m)
 {
-  int r0;
-  int r1;
-  int r2;
   MATRIX mpsx;
 
-  r0 = m->m[0];
-  r1 = m->m[3];
-  r2 = m->m[6];
-  r0 = r0 >> 4;
-  r1 = r1 >> 4;
-  r2 = r2 >> 4;
-  mpsx.m[0][0] = (short)r0;
-  mpsx.m[0][1] = (short)r1;
-  mpsx.m[0][2] = (short)r2;
-  r0 = m->m[1];
-  r1 = m->m[4];
-  r2 = m->m[7];
-  r0 = r0 >> 4;
-  r1 = r1 >> 4;
-  r2 = r2 >> 4;
-  mpsx.m[1][0] = (short)r0;
-  mpsx.m[1][1] = (short)r1;
-  mpsx.m[1][2] = (short)r2;
-  r0 = m->m[2];
-  r1 = m->m[5];
-  r2 = m->m[8];
-  mpsx.t[0] = 0;
-  mpsx.t[1] = 0;
-  mpsx.t[2] = 0;
-  r0 = r0 >> 4;
-  r1 = r1 >> 4;
-  r2 = r2 >> 4;
-  mpsx.m[2][0] = (short)r0;
-  mpsx.m[2][1] = (short)r1;
-  mpsx.m[2][2] = (short)r2;
+  {
+    int r0;
+    int r1;
+    int r2;
+
+    r0 = m->m[0];
+    r1 = m->m[3];
+    r2 = m->m[6];
+    r0 = r0 >> 4;
+    r1 = r1 >> 4;
+    r2 = r2 >> 4;
+    mpsx.m[0][0] = (short)r0;
+    mpsx.m[0][1] = (short)r1;
+    mpsx.m[0][2] = (short)r2;
+  }
+  {
+    int r0;
+    int r1;
+    int r2;
+
+    r0 = m->m[1];
+    r1 = m->m[4];
+    r2 = m->m[7];
+    r0 = r0 >> 4;
+    r1 = r1 >> 4;
+    r2 = r2 >> 4;
+    mpsx.m[1][0] = (short)r0;
+    mpsx.m[1][1] = (short)r1;
+    mpsx.m[1][2] = (short)r2;
+  }
+  {
+    int r0;
+    int r1;
+    int r2;
+
+    r0 = m->m[2];
+    r1 = m->m[5];
+    r2 = m->m[8];
+    mpsx.t[0] = 0;
+    mpsx.t[1] = 0;
+    mpsx.t[2] = 0;
+    r0 = r0 >> 4;
+    r1 = r1 >> 4;
+    r2 = r2 >> 4;
+    mpsx.m[2][0] = (short)r0;
+    mpsx.m[2][1] = (short)r1;
+    mpsx.m[2][2] = (short)r2;
+  }
   gte_SetRotMatrix(&mpsx);
   gte_SetTransMatrix(&mpsx);
 }
@@ -175,10 +190,11 @@ void Weather_InitRain(void)
  * the SYM types it VOID but the codegen returns the loop's final `i<19` in $v0 (same void-return
  * mistype class as Ghidra, methodology 3.2; the sole caller ignores the value so `int` is harmless).
  * Kept the plain `% 320`/`% y_max`/`% 300` (gcc-2.8 -O2 auto-emits the multu+mfhi magic-divide; a
- * 64-bit cast forced an unwanted mflo). Residual 7: the oracle keeps the loop UN-rotated (top-test
- * `slti;beqz->exit` + unconditional `j` back-edge) while gcc rotates ours to a bottom-test `slti;
- * bnez` -- gcc-2.8 rotates because 0<19 folds true; no for/while/infinite-for/live-out-result source
- * form defeats the rotation. Genuine loop-rotation codegen floor (permuter class). */
+ * 64-bit cast forced an unwanted mflo). SEALED (69/69 PASS): the no-rotation shape is the catalog
+ * B-row EXIT-IN-THE-MIDDLE form -- `while(true){ result = i<19; if (result==0) break; body; i++; }`
+ * (increment at body END, break tested via the result var, NOT a for(;;i++) head-increment) keeps
+ * the oracle's top-test `slti;beqz->exit` + unconditional `j` back-edge. MATCH: exit-in-the-middle
+ * no-rotation + result-var break. */
 int Weather_InitSplats(void)
 
 {
@@ -195,9 +211,9 @@ int Weather_InitSplats(void)
   splat_i = 0;
   gs = &GameSetup_gData;
   commModeNetwork = 1;
-  for ( ; ; splat_i = splat_i + 1) {
+  while (true) {
     result = splat_i < 0x13;
-    if (splat_i >= 0x13) break;
+    if (result == 0) break;
     y_max = 0xf0;
     if (gs->commMode == commModeNetwork) {
       y_max = 0x78;
@@ -210,6 +226,7 @@ int Weather_InitSplats(void)
     Weather_gSplatInfo[splat_i].pos.vy = (short)(uVar1 % y_max);
     uVar1 = random();
     Weather_gSplatInfo[splat_i].startTick = uVar1 % 300;
+    splat_i = splat_i + 1;
   }
   return result;
 }

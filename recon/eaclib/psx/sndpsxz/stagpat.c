@@ -32,7 +32,7 @@ extern void trap(unsigned int code);                                      /* com
 extern void iSNDresetpatch(int patch);                          /* @0x80101ABC */
 extern unsigned char *iSNDresettimbre(int *t, int buf);         /* @0x80101AC4 */
 extern int  iSNDresolveheader(int *hdr, int *out);              /* @0x80101B7C */
-extern void iSNDfindfreekey(void);                              /* @0x80101BFC */
+extern int  iSNDfindfreekey(void);                              /* @0x80101BFC */
 extern int  iSNDresolvetaggedpatch(int bank, int patch_idx, int scratch);  /* @0x801024EC */
 extern int  iSNDremovetaggedpatch(int bank, int *patch_idx);    /* @0x801025C0 */
 extern int  iSNDplaytaggedtimbre(int timbre, int tag, int vol, int header,
@@ -119,27 +119,38 @@ extern int iSNDresolveheader(int *hdr, int *out)
 }
 
 /* iSNDfindfreekey @0x80101BFC : advance the rolling key-group counter (DAT_801371cc) to a value not
- *   currently owned by any held channel. */
-extern void iSNDfindfreekey(void)
+ *   currently owned by any held channel; RETURNS the chosen key (oracle: `lbu v0,key; jr ra` --
+ *   iSNDplaytaggedpatch captures it in $fp and stamps it into every started voice's +0x37). */
+extern int iSNDfindfreekey(void)
 {
-    char key;
-    int  i, slot;
-    while (1) {
-        key = DAT_801371cc + 1;
-        if ((char)(DAT_801371cc + 1) == 0)        /* skip 0 (the "no group" sentinel) */
-            key = DAT_801371cc + 2;
-        DAT_801371cc = key;
-        i = 0;
-        slot = sndgs[0x25];
-        if (((unsigned char *)sndgs)[0x11] == 0)
-            break;
-        while (*(char *)(slot + 0xb) == 0 || *(char *)(slot + 0x37) != DAT_801371cc) {
-            i++;
-            slot += 100;
-            if ((int)(unsigned)((unsigned char *)sndgs)[0x11] <= i)
-                return;                           /* nobody owns this key -> it is free */
-        }
+    int   i, count;
+    unsigned char key;
+    unsigned char *kp;
+    char *gs;
+    char *slot;
+    kp = (unsigned char *)&DAT_801371cc;          /* one base reg for the 4 counter accesses */
+top:
+    *kp = *kp + 1;                                /* lbu/addiu/sb; the == 0 test reuses the CSE'd value */
+    if (*kp == 0)                                 /* skip 0 (the "no group" sentinel) */
+        *kp = *kp + 1;
+    i = 0;
+    gs = (char *)sndgs;                           /* one la base for the +0x11 / +0x94 displacements */
+    if (*(unsigned char *)(gs + 0x11) == 0)
+        goto done;
+    count = *(unsigned char *)(gs + 0x11);        /* CSE of the test's load -> the addu copy */
+    key   = *kp;
+    slot  = *(char **)(gs + 0x94);
+loop:                                             /* goto-formed: no LOOP notes -> no giv anchoring */
+    if (*(signed char *)(slot + 0xb) != 0) {
+        if (*(unsigned char *)(slot + 0x37) == key)
+            goto top;                             /* key owned by a held channel -> try the next one */
     }
+    i++;
+    slot += 0x64;
+    if (i < count)
+        goto loop;
+done:
+    return DAT_801371cc;
 }
 
 /* iSNDresolvetaggedpatch @0x801024EC : walk a bank's tag stream and resolve its SPU sample data (tag 0xfd
@@ -288,93 +299,104 @@ extern int iSNDplaytaggedtimbre(int timbre, int tag, int vol, int header,
  *   The started voices are collected and joined into a key group; on any failure all are SNDstop'd.
  *   Ghidra body + disasm: range fields are builtTimbre +4/+8 (vel min/max), +0xc/+0x10 (note min/max);
  *   the iSNDplaytaggedtimbre return (Ghidra lost it to void-typing) is the started voice tag.
- *     7-arg call: (timbreData, tag, &builtTimbre, &header, note, vel, pitchOff). pitchOff is best-effort 0
- *     (it is only used when the patch flag builtTimbre[0x90] is set, which iSNDresetpatch clears). */
+ *     7-arg call: (timbreData, tag, &builtTimbre, &header, note, vel, pitchOff). pitchOff ($s6) is the
+ *     CAPTURED randrange() result of the last 0x24 field tag (0 until one is seen); the group key ($fp)
+ *     is the CAPTURED iSNDfindfreekey() return.  BYTE-MATCHES the oracle (verify_asm PASS, 216 insns). */
 extern int iSNDplaytaggedpatch(int bank, int tag)
 {
-    int           note, vel;
-    int           cursor, timbreData, prevTimbre;
-    int           nStarted = 0, nAtFail = 0;
-    unsigned int  ret = 0xfffffff7;
-    unsigned int  gtag[3];                 /* {id, val1, val2} from iSNDgettag */
-    int           bt[0x26];                /* built timbre   (anStack_198) */
-    int           hdr[0x26];               /* override header (auStack_100) */
-    unsigned int  started[12];
-    int           i, slot, lastSlot = 0, r;
+    int           bt[0x26];                /* built timbre    @sp+0x20  */
+    int           hdr[0x26];               /* override header @sp+0xB8  */
+    int           started[12];             /* started voices  @sp+0x150 */
+    int           cursor;                  /* tag-stream cursor @sp+0x180 (&cursor -> gettag) */
+    unsigned int  g0;                      /* gettag out: tag id  @sp+0x184 (3 SCALARS, not an array */
+    int           g1;                      /*             value 1 @sp+0x188  -- an array would land   */
+    int           g2;                      /*             value 2 @sp+0x18C  BELOW cursor, +8 frame)  */
+    int           timbreData = 0;          /* s5: last 0xfd sample-data ptr */
+    int           ret        = -9;         /* s4: launch result / return value */
+    int           nStarted   = 0;          /* s2 */
+    int           slot       = 0;          /* s3: last written voice slot (shared single/multi) */
+    int           pitchOff   = 0;          /* s6: the CAPTURED randrange() of the last 0x24 tag */
+    int           vel, note;               /* s0 / s1 (lb: signed; vel FIRST -> vel=s0/note=s1) */
+    int           key;                     /* fp: the CAPTURED iSNDfindfreekey() return */
+    int           id, val;                 /* a1 / a2 one-shot copies of g0/g1 */
+    int           i, ch;                   /* ch: getchan result, BOTH branches (a0, never crosses a call) */
 
     if (bank == 0)
         return -8;
-    note = (int)*(char *)(tag + 5);
-    vel  = (int)*(char *)(tag + 6);
-    cursor = ((*(unsigned char *)(bank + 3) & 2) == 0) ? bank + 4 : bank + 8;
+    note = *(signed char *)(tag + 5);
+    vel  = *(signed char *)(tag + 6);
+    cursor = bank;                         /* stored (addressable) then overwritten -- both sw in oracle */
+    cursor = (*(unsigned char *)(bank + 3) & 2) ? bank + 8 : bank + 4;
 
     iSNDresetpatch((int)bt);
     iSNDresettimbre(bt, (int)hdr);
     iSNDenteraudio();
-    iSNDfindfreekey();
+    key = iSNDfindfreekey();
 
-    prevTimbre = 0;
     for (;;) {
-        timbreData = prevTimbre;
-        nAtFail = nStarted;                /* iVar10 = iVar9 captured at iteration start */
-        if (iSNDgettag(&cursor, &gtag[0], (int *)&gtag[1], (int *)&gtag[2]) == 0)
+        if (iSNDgettag(&cursor, &g0, &g1, &g2) == 0)
             break;
-        prevTimbre = cursor;               /* after a 0xfd tag the cursor IS the sample data */
-        if (gtag[0] == 0xfd)
+        id = g0;                           /* ONE lw; kept in a1 for all the tag tests */
+        if (id == 0xfd) {                  /* after a 0xfd tag the cursor IS the sample data */
+            timbreData = cursor;
             continue;
-        prevTimbre = timbreData;           /* non-0xfd: keep the last sample ptr */
-        if (gtag[0] == 0xfe) {             /* note-region complete -> launch if in range */
+        }
+        if (id == 0xfe) {                  /* note-region complete -> launch if in range */
             if (bt[1] <= vel && vel <= bt[2] && bt[3] <= note && note <= bt[4]) {
-                r = iSNDplaytaggedtimbre(timbreData, tag, (int)bt, (int)hdr, note, vel, 0);
-                if (r < 0)
+                ret = iSNDplaytaggedtimbre(timbreData, tag, (int)bt, (int)hdr, note, vel, pitchOff);
+                if (ret < 0)
                     goto fail;
-                started[nStarted++] = (unsigned int)r;
-                ret = (unsigned int)r;
+                started[nStarted] = ret;
+                nStarted++;
             }
             iSNDresettimbre(bt, (int)hdr);
-        } else if (gtag[0] < 0x26) {       /* field tag -> set timbre[idx] + parallel header[idx] */
-            bt[gtag[0]]  = (int)gtag[1];
-            hdr[gtag[0]] = (int)gtag[2];
-            if (gtag[0] == 0x24)
-                randrange((int)gtag[1]);
+            continue;
+        }
+        if (id < 0x26) {                   /* field tag -> set timbre[idx] + parallel header[idx] */
+            val = g1;
+            bt[id]  = val;
+            hdr[id] = g2;
+            if (id == 0x24)
+                pitchOff = randrange(val); /* s6: fed to every later launch as arg 7 */
         }
     }
     /* the final note-region (no trailing 0xfe) */
     if (bt[1] <= vel && vel <= bt[2] && bt[3] <= note && note <= bt[4]) {
-        r = iSNDplaytaggedtimbre(timbreData, tag, (int)bt, (int)hdr, note, vel, 0);
-        if (r < 0)
+        ret = iSNDplaytaggedtimbre(timbreData, tag, (int)bt, (int)hdr, note, vel, pitchOff);
+        if (ret < 0)
             goto fail;
-        started[nStarted++] = (unsigned int)r;
-        ret = (unsigned int)r;
+        started[nStarted] = ret;
+        nStarted++;
     }
 
-    nAtFail = 0;
-    if (nStarted != 0) {                   /* join the started voices into a key group */
-        if (nStarted == 1) {
-            i = iSNDgetchan(started[0]);
-            if (-1 < i) {
-                slot = sndgs[0x25] + i * 100;
-                *(unsigned char *)(slot + 0x37) = 0;
+    if (nStarted == 0)
+        goto fail;                         /* nothing started: leaveaudio + return ret (-9 or the fail) */
+    if (nStarted == 1) {                   /* single voice: no key group */
+        ch = iSNDgetchan(started[0]);
+        if (-1 < ch) {
+            slot = sndgs[0x25] + ch * 100;
+            *(unsigned char *)(slot + 0x37) = 0;
+            *(unsigned char *)(slot + 0x36) = 0;
+        }
+    } else {                               /* join the started voices into the key group */
+        for (i = 0; i < nStarted; i++) {
+            char *gs = (char *)sndgs;      /* in-body: loop-invariant-HOISTED after the entry blez,
+                                            * into a callee-saved reg (held ACROSS the getchan calls) */
+            ch = iSNDgetchan(started[i]);
+            if (-1 < ch) {
+                slot = *(int *)(gs + 0x94) + ch * 100;
+                *(unsigned char *)(slot + 0x37) = (unsigned char)key;
                 *(unsigned char *)(slot + 0x36) = 0;
             }
-        } else {
-            for (i = 0; i < nStarted; i++) {
-                int ch = iSNDgetchan(started[i]);
-                if (-1 < ch) {
-                    lastSlot = sndgs[0x25] + ch * 100;
-                    *(unsigned char *)(lastSlot + 0x37) = (unsigned char)DAT_801371cc;
-                    *(unsigned char *)(lastSlot + 0x36) = 0;
-                }
-            }
-            *(unsigned char *)(lastSlot + 0x36) = 1;     /* mark the last voice as the group end */
         }
-        iSNDleaveaudio();
-        return (int)ret;
+        *(unsigned char *)(slot + 0x36) = 1;   /* mark the last voice as the group end */
     }
+    iSNDleaveaudio();
+    return ret;
 
 fail:
     iSNDleaveaudio();
-    for (i = 0; i < nAtFail; i++)          /* roll back every voice started before the failure */
+    for (i = 0; i < nStarted; i++)         /* roll back every voice started before the failure */
         SNDstop(started[i]);
-    return (int)ret;
+    return ret;
 }

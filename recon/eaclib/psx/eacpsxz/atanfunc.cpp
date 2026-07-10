@@ -50,7 +50,7 @@ extern "C" int intatan(int y, int x)
 
     if (s0 < v1) {                          /* |x| < |y| : swap so denom is the larger */
         int t = v1; v1 = s0; s0 = t;        /* v1 = smaller, s0 = larger */
-        s1 += (s2 == 0) ? 0x100 : -0x100;
+        s1 += (s2 != 0) ? -0x100 : 0x100;   /* MATCH: beqz->+0x100 arm out-of-line */
         s2 = 1 - s2;
     }
 
@@ -62,11 +62,15 @@ extern "C" int intatan(int y, int x)
         if (num & 0xFF800000u) {            /* big numerator: EA make64 + divu64 (@0x800FE488/E4E0,
                                                the original's own 64-bit helpers -- NOT libgcc __udivdi3) */
             int buf[2];
-            make64(buf, (int)num, 32);                          /* buf = num << 32 (lo=buf[0], hi=buf[1]) */
-            unsigned ql = (unsigned)divu64(buf[1], buf[0], den);/* (num<<32)/den */
-            idx = (ql & 0x800000u) ? (ql >> 24) + 1 : (ql >> 24);
+            make64(buf, (int)num, 32);                          /* buf = num << 32 */
+            unsigned ql = (unsigned)divu64(buf[0], buf[1], den);/* (num<<32)/den -- args = buf[0],buf[1] */
+            /* MATCH: BRANCHED round (a ?: strength-reduces to the branchless bit-add) */
+            if (ql & 0x800000u)
+                idx = (ql >> 24) + 1;
+            else
+                idx = ql >> 24;
         } else {
-            idx = ((num << 8) + (den >> 1)) / den;   /* round(256 * num/den) */
+            idx = ((num << 8) + (unsigned)(s0 >> 1)) / den;   /* round(256*num/den); s0>>1 = SRA */
         }
         atanv = kAtanTable[idx];
     }

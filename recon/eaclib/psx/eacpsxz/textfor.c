@@ -4,8 +4,8 @@
  *   (Ghidra showed the count as the global DAT_80135c14; it is the 3rd parameter.)
  */
 extern unsigned int geti(void *p, char nbits);   /* getm */
-extern int DAT_80135c14;   /* font glyph-table entry count */
-extern int DAT_80135c24;   /* font glyph-table base (0xb bytes/entry) */
+extern unsigned char currentfont[];   /* @0x80135BA0 active-font state blob (textcrnt):
+                                       * +0x74 = glyph count, +0x84 = glyph-table base (0xb B/entry) */
 
 extern int          textbsearch(unsigned int key, int base, int count, int stride); /* @0x800F4470 */
 extern unsigned int getcharacter(unsigned int code);                                /* @0x800F4510 */
@@ -36,10 +36,17 @@ extern int textbsearch(unsigned int key, int base, int count, int stride)
 /* getcharacter @0x800F4510 : glyph record for `code` -- try the direct slot (code-0x20), else binary-search. */
 extern unsigned int getcharacter(unsigned int code)
 {
-    int          base  = DAT_80135c24;
-    int          entry = DAT_80135c24 + (int)(code - 0x20) * 0xb;
-    unsigned int v     = geti((void *)entry, 2);
-    if (v != code)
-        entry = textbsearch(code, base, DAT_80135c14, 0xb);
+    /* MATCH: the table base/count are CURRENTFONT fields -- &currentfont la'd once into a
+     * callee-saved reg (s3) and both fields read off it (0x84 base before geti, 0x74 count
+     * after -- the blob address lives ACROSS the calls, lever #16); the miss path DIRECT-
+     * returns textbsearch (lever #8) as the fall-through, hit-return out-of-line. */
+    unsigned char *cf   = currentfont;
+    int            base = *(int *)(cf + 0x84);
+    int            entry = base + (int)(code - 0x20) * 0xb;
+    unsigned int   v    = geti((void *)entry, 2);
+    if (v == code)
+        goto hit;                                       /* beq -> out-of-line hit return */
+    return (unsigned int)textbsearch(code, base, *(int *)(cf + 0x74), 0xb);
+hit:
     return (unsigned int)entry;
 }

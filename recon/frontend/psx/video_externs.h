@@ -8,7 +8,7 @@
 
 /* --- globals --- */
 extern char *Paths_Paths[];
-extern int   CF_DVLC;
+extern int   CF_DVLC[];   /* unsized array (3.12#5): address-of via base materialization */
 extern int   screenbpp;
 extern int   timerhz;
 extern int   ticks;

@@ -55,19 +55,22 @@ void AudioMus_RefreshStatus(void)
 /* ---- AudioMus_Threshold__Fv  [@0x80079f58] ---- */
 int AudioMus_Threshold(void)
 {
-  if (((AudioMus_g == (AudioMus_tMusicGlobals *)0x0) || (AudioMus_g->bigfileheader == (char *)0x0))
-     || (AudioMus_g->errorcode != 0)) {
+  if ((AudioMus_g == (AudioMus_tMusicGlobals *)0x0) || (AudioMus_g->bigfileheader == (char *)0x0)) {
+    return 0;  /* MATCH: guards 1-2 one || — B==0 falls INTO the shared ret0, bnez continues */
+  }
+  if (AudioMus_g->errorcode != 0) {
     return 0;
   }
-  if (AudioMus_g->switchsong != 2) {
-    if ((AudioMus_g->streamstatus).outstandingrequests == 0) {
-      return 0;
-    }
-    if ((AudioMus_g->requeststatus).timetoend <= (AudioMus_g->requeststatus).timebuffered) {
-      return 0;
-    }
+  if (AudioMus_g->switchsong == 2) {  /* NEAR-MISS 9: bigfileheader beqz-vs-bnez layout tie + un-merged threshold returns; goto forms regress (gp re-read) */
+    return AudioMus_g->threshold;
   }
-  return AudioMus_g->threshold;
+  if ((AudioMus_g->streamstatus).outstandingrequests == 0) {
+    return 0;
+  }
+  if ((AudioMus_g->requeststatus).timebuffered < (AudioMus_g->requeststatus).timetoend) {
+    return AudioMus_g->threshold;
+  }
+  return 0;
 }
 
 /* ---- AudioMus_Buffered__Fv  [@0x80079fdc] ---- */

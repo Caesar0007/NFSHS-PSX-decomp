@@ -446,7 +446,8 @@ void StatChk_ClearNewRecords(void)
   int i;
   
   i = 7;
-  pRec = NewRecords + 7;
+  pRec = NewRecords;
+  pRec = pRec + 7;   /* MATCH: split -> la NewRecords + separate addiu 0x1C (oracle unfused) */
   do {
     *pRec = 0;
     i = i + -1;

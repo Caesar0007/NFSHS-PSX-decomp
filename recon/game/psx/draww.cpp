@@ -6,6 +6,15 @@
 #include "../../nfs4_types.h"
 #include "draww_externs.h"
 
+/* file-local gte_rtps variant with a DEAD "r" input (no code emitted for it -- the value
+ * is already in a register): a ref-count nudge for the v4/v8 reload-eviction tie
+ * (see DrawW_SubdividFacet MATCH notes). PSX-only; host stub ignores it. */
+#if defined(__mips__)
+#define gte_rtps_u(u) __asm__ volatile ("nop\n\tnop\n\t.word 0x4A180001" : : "r"(u))
+#else
+#define gte_rtps_u(u) ((void)(u))
+#endif
+
 /* ---- DrawW.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero) ---- */
 char         offsets[8] = { 125, 125, 50, 15, -1, 125, 0, 0 };   /* @0x8013D828 */
@@ -184,66 +193,48 @@ int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache *sd,Draw_SVertex *v0,Draw_SV
   return 3;
 }
 
-/* ---- DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss  [DRAWW.CPP:425-590] SLD-VERIFIED ---- */
+/* ---- DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss  [DRAWW.CPP:425-590] SLD-VERIFIED ----
+ * MATCH (2026-07-10 SYM-structure rewrite, 3.8b): the SYM 8c block is the variable map --
+ *   r_div ($s0, fn-scope) = &gDiv held across the CalcSubdivision call; midpoints are REAL
+ *   Draw_SVertex* locals v4($s3) v5($s5) v6($s7) v7($s6) v8(AUTO 0x48) in the line-28 block;
+ *   FIVE nested { int flag; } blocks (AUTO 0x20..0x30, address taken by gte_stflg);
+ *   params l/v1/v2/v3/n/subDivide are class ARG (stack homes; v2 copied to $fp REG),
+ *   with local AUTO SHORT copies of n(0x38)/subDivide(0x40) = gcc's narrowing of the
+ *   short params under register pressure -- so the source REUSES n (`n = n + 5`) and
+ *   l (`l = l + 1`), no n_00/l_00 temps.  All other Ghidra temps (tp2-tp5, tu*, newVert_*,
+ *   subOtz_local, midX_01) were compiler temps -- NOT C variables (SYM has no record).
+ *   doublelayer block: { POLY_GT3 *prim($a0); int otz($s0); } + flat goto web (each failed
+ *   vertex test jumps PAST the edges that would re-test it); each GT3 emit = a nested
+ *   block { POLY_GT3 *prim; u_int *pal; } (inline-helper scope, invisible to the SYM --
+ *   gcc-2.8 sdb drops inlined scopes; the block-local prim gets the $a0 call-arg
+ *   suggestion in LOCAL-alloc, and pal keeps the palette slot single-eval across the
+ *   aliasing *prim store).  Leaf: { POLY_GT4 *prim($s3); } + { long bfct(AUTO 0x34); }
+ *   and the OT-link done by the EA DMPSX-analog FIXED-REG template ($t4-$t6 scratches,
+ *   lwl/swl 24-bit insert; operand 3 = &sd->otz).
+ *   gte_rtps_u(v4)/gte_rtps_u(sd) in flag-blocks 1/2 = DEAD asm inputs (fastmovf.c
+ *   dummy-input family, 0 insns emitted): +1 REG_N_REFS each on v4/sd -- breaks the
+ *   reload spill-reg eviction tie (s3-vs-s4) that otherwise spills v4 instead of v8,
+ *   and keeps sd above v4 in global-alloc priority (sd=s2, v4=s3, v8=AUTO 0x48 = the
+ *   SYM allocation).  840 -> 262 this pass; residual bands: pivot-chain addiu base
+ *   (n+k from n vs from a3=n+1, related-value CSE), GT3-emit t1/t2/t3 mask+addr
+ *   rotation + advance-addiu schedule, reload-reg naming cascades (t7/t8/t9/s4),
+ *   leaf prim a0-coalesce (oracle s3 + addu copy = placeholder-call artifact).
+ *   All operand/coloring class, count near-exact (586 vs 588) -- permuter targets. */
 void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Draw_SVertex *v1,
                Draw_SVertex *v2,Draw_SVertex *v3,short n,short subDivide)
 
 {
-  int midX_01;
-  int newVert_y0;
-  int newVert_y1;
-  u_int tu1;
-  int iVar1;
-  int v0_00;
-  int newVert_p;
-  int newVert_p2;
-  u_int *tp2;
-  int subFacet_p;
-  int otz;
-  int subOtz_local;
-  Draw_SVertex *v4;
-  int v0_01;
-  POLY_GT4 *prim;
-  int l_00;
-  Draw_SVertex *v5;
-  int v0_02;
-  Draw_SVertex *v7;
-  int v0_03;
-  Draw_SVertex *v6;
-  int v0_04;
-  short n_00;
-  int tD13;
-  int loc_68;
-  int loc_64;
-  int loc_60;
-  int loc_5c;
-  int flag;
-  int loc_54;
-  int loc_50;
-  int loc_4c;
-  int iStack_48;
-  long bfct;
-  short loc_40;
-  short loc_38;
-  Draw_SVertex *v8;
-  short ts1;
-  int tu2;
-  u_char *tp4;
-  short ts2;
-  int tu3;
-  u_char *tp5;
-  u_char *tp3;
-  u_char *prim_00;
-  
-  ts1 = (sd->head).clipW;
-  if ((((ts1 < v0->dvx) && (ts1 < v1->dvx)) && (ts1 < v2->dvx)) && (ts1 < v3->dvx)) {
+  Draw_SubdivStruct *r_div;   /* SYM: REG $s0, fn scope */
+
+  if ((((v0->dvx > (sd->head).clipW) && ((sd->head).clipW < v1->dvx)) && ((sd->head).clipW < v2->dvx)) &&
+      ((sd->head).clipW < v3->dvx)) {
     return;
   }
   if (((v0->dvx < 0) && (v1->dvx < 0)) && ((v2->dvx < 0 && (v3->dvx < 0)))) {
     return;
   }
-  ts2 = (sd->head).clipH;
-  if (((ts2 < v0->dvy) && (ts2 < v1->dvy)) && ((ts2 < v2->dvy && (ts2 < v3->dvy)))) {
+  if ((((v0->dvy > (sd->head).clipH) && ((sd->head).clipH < v1->dvy)) &&
+      (((sd->head).clipH < v2->dvy && ((sd->head).clipH < v3->dvy))))) {
     return;
   }
   if ((((v0->dvy < 0) && (v1->dvy < 0)) && (v2->dvy < 0)) && (v3->dvy < 0)) {
@@ -252,156 +243,177 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
   if (((v0->vz < 0) && (v1->vz < 0)) && ((v2->vz < 0 && (v3->vz < 0)))) {
     return;
   }
-  midX_01 = DrawW_CalcSubdivision(sd,v0,v1,v2,v3);
-  if (l < midX_01) {
-  n_00 = n + 5;
-  v0_01 = (int)&gDiv.v[0].vx + ((int)((u_int)(u_short)n << 0x10) >> 0xc);
-  v0_02 = (int)&gDiv.v[0].vx + ((int)((u_int)(u_short)(n + 1) << 0x10) >> 0xc);
-  v0_04 = (int)&gDiv.v[0].vx + ((int)((u_int)(u_short)(n + 2) << 0x10) >> 0xc);
-  v0_03 = (int)&gDiv.v[0].vx + ((int)((u_int)(u_short)(n + 3) << 0x10) >> 0xc);
-  v0_00 = (int)&gDiv.v[0].vx + ((int)((u_int)(u_short)(n + 4) << 0x10) >> 0xc);
-  DrawW_DivVertice((Draw_SVertex *)v0_01,v0,v1);
-gte_ldv0((int *)(v0_01));
-  gte_rtps();
-  DrawW_DivVertice((Draw_SVertex *)v0_02,v1,v2);
-gte_stflg(&flag);
-  if (flag < 0) {
-    ((Draw_SVertex *)v0_01)->a = '\x01';
-  }
-  else {
-    ((Draw_SVertex *)v0_01)->a = '\0';
-  }
-gte_swc2(0xe,((char *)&CF_DVLC + 0x1));
-gte_ldv0((int *)(v0_02));
-  gte_rtps();
-  DrawW_DivVertice((Draw_SVertex *)v0_04,v2,v3);
-gte_stflg(&loc_54);
-  if (loc_54 < 0) {
-    ((Draw_SVertex *)v0_02)->a = '\x01';
-  }
-  else {
-    ((Draw_SVertex *)v0_02)->a = '\0';
-  }
-gte_swc2(0xe,((char *)&CF_DVLC + 0x1));
-gte_ldv0((int *)(v0_04));
-  gte_rtps();
-  DrawW_DivVertice((Draw_SVertex *)v0_03,v3,v0);
-gte_stflg(&loc_50);
-  if (loc_50 < 0) {
-    ((Draw_SVertex *)v0_04)->a = '\x01';
-  }
-  else {
-    ((Draw_SVertex *)v0_04)->a = '\0';
-  }
-gte_swc2(0xe,((char *)&CF_DVLC + 0x1));
-gte_ldv0((int *)(v0_03));
-  gte_rtps();
-  DrawW_DivVertice((Draw_SVertex *)v0_00,v0,v2);
-gte_stflg(&loc_4c);
-  if (loc_4c < 0) {
-    ((Draw_SVertex *)v0_03)->a = '\x01';
-  }
-  else {
-    ((Draw_SVertex *)v0_03)->a = '\0';
-  }
-gte_swc2(0xe,((char *)&CF_DVLC + 0x1));
-  iVar1 = v0_00;
-gte_ldv0((int *)(iVar1));
-  gte_rtps();
-gte_stflg(&iStack_48);
-  if (iStack_48 < 0) {
-    *(u_char *)(iVar1 + 0xf) = 1;
-  }
-  else {
-    ((Draw_SVertex *)v0_00)->a = '\0';
-  }
-  if (sd->doublelayer == 0) goto DrawWSubdiv_recurse;
-  (sd->GT4Prim).code = (sd->GT4Prim).code & 0xf7;
-  tp3 = Render_gPacketPtr;
-  subOtz_local = sd->otz + 8;
-  if (v0->a == '\0') {
-    if (v1->a == '\0') {
-      if (((Draw_SVertex *)v0_01)->a == '\0') {
-        newVert_p = subOtz_local * 4 + (int)Render_gPalettePtr;
-        *(u_int *)Render_gPacketPtr =
-             *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)newVert_p & 0xffffff;
-        newVert_y0 = (u_int)Render_gPacketPtr & 0xffffff;
-        Render_gPacketPtr = Render_gPacketPtr + 0x28;
-        *(u_int *)newVert_p = *(u_int *)newVert_p & 0xff000000 | newVert_y0;
-        DrawW_AddSubdividPrimGT3((POLY_GT3 *)tp3,v0,v1,(Draw_SVertex *)v0_01,sd);
+  r_div = &gDiv;
+  if (l < DrawW_CalcSubdivision(sd,v0,v1,v2,v3)) {
+    Draw_SVertex *v8;   /* SYM: AUTO sp+0x48 */
+    Draw_SVertex *v4;   /* SYM: REG $s3 */
+    Draw_SVertex *v5;   /* SYM: REG $s5 */
+    Draw_SVertex *v6;   /* SYM: REG $s7 */
+    Draw_SVertex *v7;   /* SYM: REG $s6 */
+
+    v4 = &r_div->v[n];
+    v5 = &r_div->v[(short)(n + 1)];
+    v6 = &r_div->v[(short)(n + 2)];
+    v7 = &r_div->v[(short)(n + 3)];
+    v8 = &r_div->v[(short)(n + 4)];
+    n = n + 5;
+    DrawW_DivVertice(v4,v0,v1);
+    {
+      int flag;
+      gte_ldv0(v4);
+      gte_rtps_u(v4);
+      DrawW_DivVertice(v5,v1,v2);   /* CPU work in the GTE latency window */
+      gte_stflg(&flag);
+      if (flag < 0) {
+        v4->a = 1;
       }
-      goto DrawWSubdiv_testV1;
-    }
-DrawWSubdiv_testV2:
-    tp5 = Render_gPacketPtr;
-    if (v2->a != '\0') goto DrawWSubdiv_testV3;
-    if (v3->a == '\0') {
-      if (((Draw_SVertex *)v0_04)->a == '\0') {
-        tp2 = (u_int *)(Render_gPalettePtr + subOtz_local * 4);
-        *(u_int *)Render_gPacketPtr = *(u_int *)Render_gPacketPtr & 0xff000000 | *tp2 & 0xffffff;
-        tu1 = (u_int)Render_gPacketPtr & 0xffffff;
-        Render_gPacketPtr = Render_gPacketPtr + 0x28;
-        *tp2 = *tp2 & 0xff000000 | tu1;
-        DrawW_AddSubdividPrimGT3((POLY_GT3 *)tp5,v2,v3,(Draw_SVertex *)v0_04,sd);
+      else {
+        v4->a = 0;
       }
-      goto DrawWSubdiv_testV3;
     }
-  }
-  else {
-DrawWSubdiv_testV1:
-    tp4 = Render_gPacketPtr;
-    if (v1->a != '\0') goto DrawWSubdiv_testV2;
-    if (v2->a == '\0') {
-      if (((Draw_SVertex *)v0_02)->a == '\0') {
-        newVert_p2 = subOtz_local * 4 + (int)Render_gPalettePtr;
-        *(u_int *)Render_gPacketPtr =
-             *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)newVert_p2 & 0xffffff;
-        newVert_y1 = (u_int)Render_gPacketPtr & 0xffffff;
-        Render_gPacketPtr = Render_gPacketPtr + 0x28;
-        *(u_int *)newVert_p2 = *(u_int *)newVert_p2 & 0xff000000 | newVert_y1;
-        DrawW_AddSubdividPrimGT3((POLY_GT3 *)tp4,v1,v2,(Draw_SVertex *)v0_02,sd);
+    {
+      int flag;
+      gte_stsxy(&v4->dvx);
+      gte_ldv0(v5);
+      gte_rtps_u(sd);
+      DrawW_DivVertice(v6,v2,v3);
+      gte_stflg(&flag);
+      if (flag < 0) {
+        v5->a = 1;
       }
-      goto DrawWSubdiv_testV2;
+      else {
+        v5->a = 0;
+      }
     }
-DrawWSubdiv_testV3:
-    prim_00 = Render_gPacketPtr;
-    if (((v3->a == '\0') && (v0->a == '\0')) && (((Draw_SVertex *)v0_03)->a == '\0')) {
-      tp2 = (u_int *)(Render_gPalettePtr + subOtz_local * 4);
-      *(u_int *)Render_gPacketPtr = *(u_int *)Render_gPacketPtr & 0xff000000 | *tp2 & 0xffffff;
-      tu1 = (u_int)Render_gPacketPtr & 0xffffff;
-      Render_gPacketPtr = Render_gPacketPtr + 0x28;
-      *tp2 = *tp2 & 0xff000000 | tu1;
-      DrawW_AddSubdividPrimGT3((POLY_GT3 *)prim_00,v3,v0,(Draw_SVertex *)v0_03,sd);
+    {
+      int flag;
+      gte_stsxy(&v5->dvx);
+      gte_ldv0(v6);
+      gte_rtps();
+      DrawW_DivVertice(v7,v3,v0);
+      gte_stflg(&flag);
+      if (flag < 0) {
+        v6->a = 1;
+      }
+      else {
+        v6->a = 0;
+      }
     }
+    {
+      int flag;
+      gte_stsxy(&v6->dvx);
+      gte_ldv0(v7);
+      gte_rtps();
+      DrawW_DivVertice(v8,v0,v2);
+      gte_stflg(&flag);
+      if (flag < 0) {
+        v7->a = 1;
+      }
+      else {
+        v7->a = 0;
+      }
+    }
+    {
+      int flag;
+      gte_stsxy(&v7->dvx);
+      gte_ldv0(v8);
+      gte_rtps();
+      gte_stflg(&flag);
+      if (flag < 0) {
+        v8->a = 1;
+      }
+      else {
+        v8->a = 0;
+      }
+    }
+    if (sd->doublelayer != 0) {
+      POLY_GT3 *prim;   /* SYM: REG $a0 */
+      int otz;          /* SYM: REG $s0 (r_div dead by here) */
+
+      (sd->GT4Prim).code = (sd->GT4Prim).code & 0xf7;
+      otz = sd->otz + 8;
+      if (v0->a) goto DrawWSubdiv_edge1;
+      if (v1->a) goto DrawWSubdiv_edge2;
+      if (v4->a) goto DrawWSubdiv_edge1;
+      {
+        POLY_GT3 *prim;   /* block-local (inline-helper scope) */
+        u_int *pal;
+        prim = (POLY_GT3 *)Render_gPacketPtr;
+        pal = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
+        *(u_int *)prim = (*(u_int *)prim & 0xff000000) | (*pal & 0xffffff);
+        Render_gPacketPtr = (u_char *)prim + 0x28;
+        *pal = (*pal & 0xff000000) | ((u_int)prim & 0xffffff);
+        DrawW_AddSubdividPrimGT3(prim,v0,v1,v4,sd);
+      }
+DrawWSubdiv_edge1:
+      if (v1->a) goto DrawWSubdiv_edge2;
+      if (v2->a) goto DrawWSubdiv_edge3;
+      if (v5->a) goto DrawWSubdiv_edge2;
+      {
+        POLY_GT3 *prim;   /* block-local (inline-helper scope) */
+        u_int *pal;
+        prim = (POLY_GT3 *)Render_gPacketPtr;
+        pal = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
+        *(u_int *)prim = (*(u_int *)prim & 0xff000000) | (*pal & 0xffffff);
+        Render_gPacketPtr = (u_char *)prim + 0x28;
+        *pal = (*pal & 0xff000000) | ((u_int)prim & 0xffffff);
+        DrawW_AddSubdividPrimGT3(prim,v1,v2,v5,sd);
+      }
+DrawWSubdiv_edge2:
+      if (v2->a) goto DrawWSubdiv_edge3;
+      if (v3->a) goto DrawWSubdiv_edgedone;
+      if (v6->a) goto DrawWSubdiv_edge3;
+      {
+        POLY_GT3 *prim;   /* block-local (inline-helper scope) */
+        u_int *pal;
+        prim = (POLY_GT3 *)Render_gPacketPtr;
+        pal = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
+        *(u_int *)prim = (*(u_int *)prim & 0xff000000) | (*pal & 0xffffff);
+        Render_gPacketPtr = (u_char *)prim + 0x28;
+        *pal = (*pal & 0xff000000) | ((u_int)prim & 0xffffff);
+        DrawW_AddSubdividPrimGT3(prim,v2,v3,v6,sd);
+      }
+DrawWSubdiv_edge3:
+      if (v3->a) goto DrawWSubdiv_edgedone;
+      if (v0->a) goto DrawWSubdiv_edgedone;
+      if (v7->a) goto DrawWSubdiv_edgedone;
+      {
+        POLY_GT3 *prim;   /* block-local (inline-helper scope) */
+        u_int *pal;
+        prim = (POLY_GT3 *)Render_gPacketPtr;
+        pal = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
+        *(u_int *)prim = (*(u_int *)prim & 0xff000000) | (*pal & 0xffffff);
+        Render_gPacketPtr = (u_char *)prim + 0x28;
+        *pal = (*pal & 0xff000000) | ((u_int)prim & 0xffffff);
+        DrawW_AddSubdividPrimGT3(prim,v3,v0,v7,sd);
+      }
+DrawWSubdiv_edgedone:
+      (sd->GT4Prim).code = (sd->GT4Prim).code | 8;
+    }
+    l = l + 1;
+    gte_stsxy(&v8->dvx);
+    DrawW_SubdividFacet(sd,l,v0,v4,v8,v7,n,subDivide);
+    DrawW_SubdividFacet(sd,l,v4,v1,v5,v8,n,subDivide);
+    DrawW_SubdividFacet(sd,l,v8,v5,v2,v6,n,subDivide);
+    DrawW_SubdividFacet(sd,l,v7,v8,v6,v3,n,subDivide);
+    return;
   }
-  (sd->GT4Prim).code = (sd->GT4Prim).code | 8;
-DrawWSubdiv_recurse:
-  l_00 = l + 1;
-  tD13 = v0_00;
-gte_swc2(0xe,((char *)v2 + 0xc));
-  DrawW_SubdividFacet(sd,l_00,v0,(Draw_SVertex *)v0_01,(Draw_SVertex *)tD13,(Draw_SVertex *)v0_03,n_00,
-             subDivide);
-  DrawW_SubdividFacet(sd,l_00,(Draw_SVertex *)v0_01,v1,(Draw_SVertex *)v0_02,(Draw_SVertex *)v0_00,n_00,
-             subDivide);
-  DrawW_SubdividFacet(sd,l_00,(Draw_SVertex *)v0_00,(Draw_SVertex *)v0_02,v2,(Draw_SVertex *)v0_04,n_00,
-             subDivide);
-  DrawW_SubdividFacet(sd,l_00,(Draw_SVertex *)v0_03,(Draw_SVertex *)v0_00,(Draw_SVertex *)v0_04,v3,n_00,
-             subDivide);
-  return;
-  }
+  {
+    POLY_GT4 *prim;   /* SYM: REG $s3 */
+
     if (subDivide != 0) {
-      iVar1 = 1;
+      long bfct;   /* SYM: AUTO sp+0x34 */
       gte_ldsxy3(*(int *)&v0->dvx,*(int *)&v1->dvx,*(int *)&v2->dvx);
       gte_nclip();
-gte_swc2(0x18,&bfct);
-      if ((sd->head).mirror == iVar1) {
+      gte_swc2(0x18,&bfct);
+      if ((sd->head).mirror == 1) {
         bfct = -bfct;
       }
       if (bfct < 0) {
         gte_ldsxy3(*(int *)&v0->dvx,*(int *)&v2->dvx,*(int *)&v3->dvx);
         gte_nclip();
-gte_swc2(0x18,&bfct);
-        if ((sd->head).mirror == iVar1) {
+        gte_swc2(0x18,&bfct);
+        if ((sd->head).mirror == 1) {
           bfct = -bfct;
         }
         if (bfct < 0) {
@@ -410,20 +422,30 @@ gte_swc2(0x18,&bfct);
       }
     }
     prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;
-    subFacet_p = (int)(sd->head).cprim.LastPrim;
-    iVar1 = subFacet_p + sd->otz * 4;
-    (sd->head).cprim.PrimPtr = (char *)(prim + 1);
-    tu1 = iVar1 + 2;
-    tu2 = tu1 & 3;
-    prim->tag = (u_long *)
-                ((*(int *)(tu1 - tu2) << (3 - tu2) * 8 |
-                 (u_int)(prim + 1) & 0xffffffffU >> (tu2 + 1) * 8) >> 8 | 0xc000000);
-    tu1 = iVar1 + 2;
-    tu3 = tu1 & 3;
-    tp2 = (u_int *)(tu1 - tu3);
-    *tp2 = *tp2 & -1 << (tu3 + 1) * 8 | (u_int)((int)prim << 8) >> (3 - tu3) * 8;
+    /* OT-link, EA DMPSX-analog FIXED-REG TEMPLATE (fastmovf.c family; $t4/$t5/$t6
+     * scratches): slot = sd->head.cprim.LastPrim + sd->otz; sd->PrimPtr = prim+1 (0x34);
+     * prim->tag = slot->addr24 | (0x0C<<24); slot->addr24 = prim.  Operand %2 = &sd->otz
+     * (the expander read otz through a pointer arg -- the compiler materializes
+     * `addiu v0,s2,0x94`, reorg copies it into the joining branches' delay slots). */
+    __asm__ volatile(
+        "lw	$t4,0(%2)
+	lw	$t5,0(%1)
+	addiu	$t6,%0,52
+	sll	$t4,$t4,2
+	addu	$t5,$t5,$t4
+	sw	$t6,4(%1)
+	lwl	$t6,2($t5)
+	lui	$t4,0x0C00
+	srl	$t6,$t6,8
+	or	$t6,$t6,$t4
+	sll	$t4,%0,8
+	sw	$t6,0(%0)
+	swl	$t4,2($t5)"
+        : : "r"(prim), "r"(sd), "r"(&sd->otz)
+        : "$12", "$13", "$14", "memory");
     DrawW_AddSubdividPrimGT4(prim,v0,v1,v2,v3,sd);
     return;
+  }
 }
 
 /* ---- DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR  [DRAWW.CPP:593-606] SLD-VERIFIED ---- */
@@ -799,17 +821,29 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
       gte_stlvnl(&temp0);
       Night_NightCopCalc(&temp0, &vt3->light);
     }
-    /* NOTE (2026-07-08): the oracle BATCHES these four lh+sll+addu+lw chains through
-       four DISTINCT caller-saved regs (a2/a0/v1/v0, values then stored) -- a 3-named-
-       u_long-temp batch form reproduces the EXACT insn count (279==279, ours-serialized
-       is 286) but re-permutes the vt1/vt2/vt3 param s-reg assignment (45 -> 180 diffs;
-       decl position irrelevant). Serialized form kept: params right, tail block ~24 of
-       the 45 residual diffs. Crackable if the param-priority flip is ever solved. */
-    lt = Chunk_lightTable;
-    *(u_long *)&prim->r0 = *(u_long *)&lt[vt0->light];
-    *(u_long *)&prim->r1 = *(u_long *)&lt[vt1->light];
-    *(u_long *)&prim->r2 = *(u_long *)&lt[vt3->light];
-    CVar12 = *(u_long *)&lt[vt2->light];
+    /* NOTE (2026-07-10, 45 -> 2): the SYM 8c block (line-50 Block: `long a,b,c,d` =
+       REG $a1/$a0/$v1/$v0) is the answer the 2026-07-08 attempt missed -- BLOCK-scoped
+       LONG temps in SYM decl order (assignment order a=vt0, b=vt1, c=vt3, d=vt2 -- the
+       r2/r3 cross-feed) batch the four chains WITHOUT the param s-reg recolor that the
+       fn-scope u_long form caused. RESIDUAL 2: the last two value-loads (lw v1 / lw v0)
+       emit in swapped order -- a scheduler tie (store/decl-order probes are diff-neutral,
+       c/d assignment swap regresses to 154); permuter candidate. */
+    {
+      long a;   /* SYM block line 50: a,b,c,d = REG $a1/$a0/$v1/$v0 -- the 4 parallel
+                   table-lookup chains, load-batched then store-batched (catalog par.A
+                   N-named-value-temps; SYM-exact block scope + LONG type + decl order) */
+      long b;
+      long c;
+      long d;
+      a = *(long *)&Chunk_lightTable[vt0->light];
+      b = *(long *)&Chunk_lightTable[vt1->light];
+      c = *(long *)&Chunk_lightTable[vt3->light];
+      d = *(long *)&Chunk_lightTable[vt2->light];
+      *(u_long *)&prim->r0 = a;
+      *(u_long *)&prim->r1 = b;
+      *(u_long *)&prim->r2 = c;
+      CVar12 = d;
+    }
   }
   else {
     if ((sd->nightFlags & 1U) != 0) {
@@ -1583,67 +1617,54 @@ int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
 void DrawW_SetAnimationTime(Trk_AnimateInst *animInst,int *table,int time)
 
 {
-  /* MATCH (2026-07-06, was 97 diffs 71-vs-80 insns -> 57 diffs 75-vs-80 insns): three
-     combined fixes vs the previous shape (which read the SAME condition via `piVar2`
-     for the inner early-out check, letting gcc CSE it into ONE load): (1) the inner
-     `0 < *piVar2` re-reads `animation_timer[iVar3]` directly (a SECOND, non-CSE'd
-     array access) instead of through `*piVar2` -- the oracle reloads from memory
-     there (register $v0 was consumed by the outer `slti` and never saved), so the
-     source must independently re-express the same read to block the CSE; (2) the
-     if/else bodies are SWAPPED (test inverted to `0xf00 < animation_timer[iVar3]`)
-     to match the oracle's branch polarity -- oracle lays out the >=0xf01 (no-early-
-     return) arm as the FALL-THROUGH and the <0xf01 (early-return) arm as the branch
-     TARGET, opposite of the natural `if(<0xf01){...} else {...}` order; (3) each
-     `Cars_gNumHumanRaceCars` global load moved INTO its own if/else arm (the oracle
-     never hoists it before the branch -- both arms load it independently right
-     before their `for` loop). RESIDUAL (57 diffs): both `for` loops still emit
-     gcc's default duplicated-test loop shape (test at top AND bottom, conditional
-     `bnez` back-edge) where the oracle rotates to a SINGLE shared test with an
-     unconditional `j` back-edge -- tried converting each loop to the goto-skip-to-
-     test do-while idiom that cracked this shape elsewhere (DrawW_kCtrlWorld_High):
-     it DOES flip the rotation and reaches the oracle's EXACT 80-insn count, but
-     regresses the diff count (62, then 116 with both loops converted) via a
-     register cascade through the shared `iVar1`/`ppCVar5`/`table[iVar3*2]` loop-
-     invariant terms -- reverted, the un-rotated 57-diff form is strictly better.
-     Same loop-rotation-direction floor as DrawW_StripDraw_High/DrawW_kCtrlWorld_High;
-     not reachable here without a wider regression; permuter or accept. */
-  int objIndex;
-  int iVar1;
-  int *piVar2;
-  int iVar3;
-  int slice;
-  int iVar4;
-  Car_tObj **ppCVar5;
-  int i;
-  int iVar6;
-  
-  iVar3 = animInst->objectIndex - 1;
-  if (0xf00 < animation_timer[iVar3]) {
-    iVar1 = Cars_gNumHumanRaceCars;
-    ppCVar5 = Cars_gHumanRaceCarList;
-    for (iVar6 = 0; iVar6 < iVar1; iVar6 = iVar6 + 1) {
-      iVar4 = (int)((*ppCVar5)->N).simRoadInfo.slice;
-      if ((iVar4 < table[iVar3 * 2]) || ((table + iVar3 * 2)[1] < iVar4)) {
-        animation_timer[iVar3] = 0;
+  /* MATCH (2026-07-10 SYM-structure pass, 3.8b): the SYM 8c block has ONLY `objIndex`
+     (REG $a0 -- gcc reuses the dead animInst reg), per-arm block-scoped `i` (REG $a3)
+     and `slice` (REG $a0); piVar2/ppCVar5/iVar1 of the old draft were COMPILER TEMPS
+     (no SYM records).  The list access is the INDEX form Cars_gHumanRaceCarList[i]
+     (strength-reduced by gcc into the walking-pointer giv $a2, +4 in the j delay slot);
+     `(table + objIndex*2)[k]` stays an IN-LOOP expression so loop.c hoists it into the
+     preheader AFTER the Cars_gNumHumanRaceCars invariant load (a pre-loop `table +=`
+     statement lands BEFORE the hoist = 8 diffs) and the hoisted add coalesces in-place
+     into $a1 with the canonical scaled-term-first operand order (addu a1,v0,a1);
+     the loops are the EXIT-IN-THE-MIDDLE no-rotation shape (top test + unconditional
+     `j` back-edge, sect.3.12 #15a / catalog par.B).  *** PASS 80/80 (2026-07-10) *** */
+  int objIndex;   /* SYM: REG $a0 */
+
+  objIndex = animInst->objectIndex - 1;
+  if (0xf00 < animation_timer[objIndex]) {
+    int i;   /* SYM: REG $a3 (per-arm block scope) */
+    i = 0;
+    while (true) {
+      if (Cars_gNumHumanRaceCars <= i) break;
+      {
+        int slice;   /* SYM: REG $a0 */
+        slice = (int)(Cars_gHumanRaceCarList[i]->N).simRoadInfo.slice;
+        if ((slice < (table + objIndex * 2)[0]) || ((table + objIndex * 2)[1] < slice)) {
+          animation_timer[objIndex] = 0;
+        }
       }
-      ppCVar5 = ppCVar5 + 1;
+      i = i + 1;
     }
   }
   else {
-    piVar2 = animation_timer + iVar3;
-    iVar6 = 0;
-    if (0 < animation_timer[iVar3]) {
-      *piVar2 = *piVar2 + 1;
+    if (0 < animation_timer[objIndex]) {
+      animation_timer[objIndex] = animation_timer[objIndex] + 1;
       return;
     }
-    iVar1 = Cars_gNumHumanRaceCars;
-    ppCVar5 = Cars_gHumanRaceCarList;
-    for (; iVar6 < iVar1; iVar6 = iVar6 + 1) {
-      iVar4 = (int)((*ppCVar5)->N).simRoadInfo.slice;
-      if ((table[iVar3 * 2] <= iVar4) && (iVar4 <= (table + iVar3 * 2)[1])) {
-        *piVar2 = *piVar2 + 1;
+    {
+      int i;   /* SYM: REG $a3 */
+      i = 0;
+      while (true) {
+        if (Cars_gNumHumanRaceCars <= i) break;
+        {
+          int slice;   /* SYM: REG $a0 */
+          slice = (int)(Cars_gHumanRaceCarList[i]->N).simRoadInfo.slice;
+          if (((table + objIndex * 2)[0] <= slice) && (slice <= (table + objIndex * 2)[1])) {
+            animation_timer[objIndex] = animation_timer[objIndex] + 1;
+          }
+        }
+        i = i + 1;
       }
-      ppCVar5 = ppCVar5 + 1;
     }
   }
   return;

@@ -25,20 +25,25 @@ char gDctBuffer[64]; char *gDctXtraMem; char gEAMemPoolBase[64]; char gPlatformI
 
 
 /* ---- Platform_InitMemory__Fv  [PLATFORM.CPP:125-135] SLD-VERIFIED ---- */
-/* NEAR-MISS 7 diffs (11/12): oracle uses subu v0,v0,v1 + addu recovery for gHigh
- * (v0=gPlatformInitMem, v1=const). Our allocator: constant→v0, gPlatformInitMem→v1,
- * result→a0. Register allocator coloring floor (v0/v1/a0 assignment). ACCEPT best-form
- * below (7 diffs: early-stores form, closest to oracle structure). */
+/* SEALED (12/12 PASS): oracle's subu-then-addu = an IN-PLACE mutate of the compiler temp
+ * holding gPlatformInitMem (m -= tempLow -> sw gTotal; m += tempLow -> gHigh recovery).
+ * MATCH: in-place +=/-= two-step (SS 3.12 #14 family) -- the single-expression forms let cse
+ * reuse the still-live address pseudo and drop the addu. */
 void Platform_InitMemory(void)
 
 {
   u_int tempLow;
 
+  u_int m;
+
   tempLow = 0x80010080;   /* PSX prog base 0x80010000 + 0x80 EXE-header = low-mem bound; memory-map constant (no data symbol), not a VA to migrate */
+  m = (u_int)gPlatformInitMem;
+  m -= tempLow;
+  gTotalMemory = m;
+  m += tempLow;
   gLowMemory = tempLow;
+  gHighMemory = m;
   gCurrentMemory = tempLow;
-  gTotalMemory = (int)gPlatformInitMem - tempLow;
-  gHighMemory = (int)gPlatformInitMem;
   return;
 }
 

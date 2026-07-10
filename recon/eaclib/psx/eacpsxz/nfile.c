@@ -652,13 +652,14 @@ extern unsigned int FILE_delbig(int delHandle, unsigned int a2, unsigned int a3)
     FileOp *op   = reserveop();                      /* s2 */
     int    *h    = (int *)gFileMgr.handlearray;      /* a1 */
     int     closeHandle;                             /* s3 */
-    int    *prev = 0;                                /* s0 (also the initial handle-loop guard, == 0) */
+    int    *prev;                                    /* s0 (shares the dead a3-copy's reg) */
     int     i;
 
     op->param = (int)a3;                             /* +0x14 */
     op->prio  = (int)a2;                             /* +0x10 */
     op->id    = (op->id & 0xFF0FFFFFu) | 0xA00000u;  /* type nibble 0xA = del-big */
 
+    prev = 0;
     if (((int *)(size_t)(unsigned int)delHandle)[2] != 0)   /* delHandle+8 != 0 -> note busy */
         op->error = 1;
 
@@ -676,24 +677,21 @@ extern unsigned int FILE_delbig(int delHandle, unsigned int a2, unsigned int a3)
     }
 
     /* device-list scan for the node owning delHandle, then unlink it. */
-    closeHandle = node ? node[1] : 0;                /* s3 = head node+4 (asm loads it unconditionally) */
-    if (node != 0) {
-        for (;;) {
-            if (node[1] == delHandle)                /* node+4 == delHandle -> found */
-                break;
-            prev = node;
-            node = (int *)(size_t)(unsigned int)node[3];   /* node->next (+0xC) */
-            if (node == 0)
-                break;                               /* exhausted */
-        }
+    closeHandle = node[1];                           /* s3 = head node+4 -- UNCONDITIONAL load (oracle
+                                                      *      has no null guard; null head never happens) */
+    while (node != 0) {
+        if (node[1] == delHandle)                    /* node+4 == delHandle -> found */
+            break;
+        prev = node;
+        node = (int *)(size_t)(unsigned int)node[3]; /* node->next (+0xC) */
     }
     if (node == 0)
         op->error = 1;                               /* empty / not found */
 
-    if (prev == 0)
-        gFileMgr.devicelist = 0;                     /* head case: clears the list head (see NOTE) */
-    else
+    if (prev != 0)
         prev[3] = node[3];                           /* mid-list: prev->next = node->next */
+    else
+        gFileMgr.devicelist = 0;                     /* head case: clears the list head (see NOTE) */
 
     purgememadr((void *)(size_t)(unsigned int)node[0]);    /* free the header buffer */
     purgememadr(node);                                     /* free the node */

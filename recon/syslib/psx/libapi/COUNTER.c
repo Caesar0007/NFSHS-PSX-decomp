@@ -59,6 +59,10 @@ out:
 /* @0x800E9F0C : GetRCnt(spec) -- read a counter's current count (0 if spec>=3). */
 extern int GetRCnt(unsigned short spec)
 {
+    /* NEAR-MISS (7): tail andi 0xffff (volatile blocks the lhu/extend merge) + oracle's
+     * duplicated `j .END`/v0=0 exit with UNFILLED j slot (-fno-delayed-branch lane class).
+     * Tried+reverted: non-volatile read (kills the andi but flips the whole head coloring
+     * s: v1->a0, net 19); if/else funnel and explicit `& 0xffff` (same flip). Coupled. */
     int s = spec;                     /* signed index -> slti */
     return (s < 3) ? *(volatile unsigned short *)(RCnt_regs + s * 16) : 0;
 }

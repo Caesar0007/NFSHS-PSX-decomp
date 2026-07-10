@@ -4,18 +4,20 @@
  *   Every puti() writes 4 bytes (delay-slot a2=4 -- the RefPack "over-write 4, advance by the real count"
  *   trick; the cursor advances via the back-reference arithmetic).  refcpy/memcpyl live in unhuff.obj.
  */
-extern int  SQVd;       /* destination cursor (shared with unbtree) */
-extern int  SQVclue;    /* clue table base */
-extern int  SQVleft;    /* node left-child table base */
-extern int  SQVright;   /* node right-child table base */
+/* MATCH: chase's oracle reaches all four via %gp_rel -- tentative defs (mergeable
+ * .comm; unbtree.c tentative-defines the same set, the linker folds them). */
+int SQVd;       /* destination cursor (shared with unbtree) */
+int SQVclue;    /* clue table base */
+int SQVleft;    /* node left-child table base */
+int SQVright;   /* node right-child table base */
 
 extern unsigned int   geti(void *p, char nbits);               /* getm */
 extern void           puti(unsigned char *buf, unsigned int val, int n); /* textcrnt */
 extern unsigned char *refcpy(unsigned char *src, unsigned int count, int len); /* unhuff */
 extern void           memcpyl(char *dst, char *src, int len);  /* unhuff */
 
-extern int unrefpack(unsigned char *comp, unsigned char *out, unsigned char *dst); /* @0x800F52B8 */
-extern int chase(int code);                                                        /* @0x800F5530 */
+extern int  unrefpack(unsigned char *comp, unsigned char *out, unsigned char *dst); /* @0x800F52B8 */
+extern void chase(unsigned int code);                                               /* @0x800F5530 */
 
 /* unrefpack @0x800F52B8 : decompress RefPack stream `comp` into `out` (only if `dst` != 0, else size-query);
  *   returns the 24-bit uncompressed size. */
@@ -92,18 +94,18 @@ extern int unrefpack(unsigned char *comp, unsigned char *out, unsigned char *dst
 }
 
 /* chase @0x800F5530 : recursively expand unbtree node `code` -- emit a literal or descend left+right.
- *   Returns the (advanced) SQVd. */
-extern int chase(int code)
+ *   MATCH: VOID (unbtree.c's decl; the apparent $v0 result is incidental), descend =
+ *   fall-through (`beqz -> leaf` out-of-line), clue read SIGNED (`lb` -- plain char is
+ *   unsigned on this toolchain). */
+extern void chase(unsigned int code)
 {
-    int          ret;
-    unsigned int idx = (unsigned int)code & 0xff;
-    if (*(char *)(SQVclue + idx) == '\0') {
-        *(char *)SQVd = (char)code;
-        ret = SQVd + 1;
-        SQVd = ret;
+    unsigned int idx = code & 0xff;
+    if (*(signed char *)(SQVclue + idx) != 0) {
+        chase(*(unsigned char *)(SQVleft + idx));
+        chase(*(unsigned char *)(SQVright + idx));
     } else {
-        chase((int)(unsigned int)*(unsigned char *)(SQVleft + idx));
-        ret = chase((int)(unsigned int)*(unsigned char *)(SQVright + idx));
+        int d = SQVd;                   /* ONE load (the char* store would alias-block CSE) */
+        *(char *)d = (char)code;
+        SQVd = d + 1;
     }
-    return ret;
 }

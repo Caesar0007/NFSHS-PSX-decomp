@@ -93,6 +93,10 @@ extern unsigned _padIntRecvHdr(unsigned char *info)
         align = (info[0x36] == 0);
     tx = (unsigned)_padFuncGetTxd(info, align);
     r = _padSioRW2(info, tx & 0xff);
+    /* NEAR-MISS (4): oracle stages the `return r` copy in the FIRST branch's delay slot
+     * (beq slot=addu v0,v1; beqz slot=nop); our reorg fills the SECOND slot instead.
+     * Tried+reverted: flat early-return chain (folds return-0 on the ==0 path, worse),
+     * goto funnel (identical 4). reorg fill-order artifact. */
     if (r != 0x5a && r != 0) {
         if ((int)r >= 0)
             return 0xfffffff7;

@@ -68,13 +68,13 @@ void Flare_Tri(long *cp,long *p1,long *p2,int otz)
   otz = otz * 4 + (int)Render_gPalettePtr;
   prim = Render_gPacketPtr;
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
+  pkt_addr24 = *(u_int *)otz & 0xff000000;
   Render_gPacketPtr = prim + 0x1c;
-  pkt_addr24 = (u_int)prim & 0xffffff;
-  *(u_int *)otz = *(u_int *)otz & 0xff000000 | pkt_addr24;
+  *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
   *(u_int *)(prim + 4) = 0x32000000;
+  *(u_int *)(prim + 0xc) = *(u_int *)&gfrgb;
   *(u_int *)(prim + 0x14) = 0;
   prim[3] = 6;
-  *(u_int *)(prim + 0xc) = *(u_int *)&gfrgb;
   *(long *)(prim + 8) = *p2;
   *(long *)(prim + 0x10) = *cp;
   *(long *)(prim + 0x18) = *p1;
@@ -496,30 +496,25 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
 void Flare_QuadFlare(long *center,int otz)
 
 {
-  long *cp;
-  long *p2;
-  long ptA;
-  long ptB;
+  long pt [2];
   long save1;
 
-  cp = center;
 gte_ldv0(&Flare_gQuad);
   gte_rtps();
 gte_swc2(0xe,&save1);
 gte_ldv0(((char *)&Flare_gQuad + 0x8));
   gte_rtps();
-  p2 = &ptA;
-gte_swc2(0xe,&ptA);
-  Flare_Tri(cp,&save1,p2,otz);
+gte_swc2(0xe,&pt[1]);
+  Flare_Tri(center,&save1,&pt[1],otz);
 gte_ldv0(((char *)&Flare_gQuad + 0x10));
   gte_rtps();
-gte_swc2(0xe,&ptB);
-  Flare_Tri(center,p2,&ptB,otz);
+gte_swc2(0xe,&pt[0]);
+  Flare_Tri(center,&pt[1],&pt[0],otz);
 gte_ldv0(((char *)&Flare_gQuad + 0x18));
   gte_rtps();
-gte_swc2(0xe,&ptA);
-  Flare_Tri(center,&ptB,p2,otz);
-  Flare_Tri(center,p2,&save1,otz);
+gte_swc2(0xe,&pt[1]);
+  Flare_Tri(center,&pt[0],&pt[1],otz);
+  Flare_Tri(center,&pt[1],&save1,otz);
   return;
 }
 
@@ -1104,13 +1099,18 @@ void Flare_Halo(DRender_tView *Vi,int scale,int type,coorddef *fpt,Draw_FlareCac
   return;
 }
 
-/* ---- Flare_2DSpike__FPlT0i  [FLARE.CPP:1105-1120] SLD-VERIFIED ---- */
+/* ---- Flare_2DSpike__FPlT0i  [FLARE.CPP:1105-1120] SLD-VERIFIED ----
+ * NEAR-MISS 2 diffs (43/43, down from 7): MATCH: split-temp `rgb = gfrgb2word` read BEFORE the
+ * packet-bump store, consumed after (store must sink below the bump: may-alias order is
+ * preserved, so only a load/store SPLIT spans it). SYM has no rgb local (compiler-temp stand-in).
+ * Residual 2 = position of the `lw v1,0(gp)` across the bump addiu/sw pair -- a list-scheduler
+ * ready-tie (ours schedules the bump first); not source-reachable, permuter class. */
 void Flare_2DSpike(long *center,long *end,int otz)
 
 {
   long saved [2];
   u_char *prim;
-  void *tp1;
+  u_int rgb;
 
   saved[0] = *center;
   saved[1] = *end;
@@ -1118,11 +1118,11 @@ void Flare_2DSpike(long *center,long *end,int otz)
   prim = Render_gPacketPtr;
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
   *(u_int *)otz = *(u_int *)otz & 0xff000000 | (u_int)prim & 0xffffff;
-  tp1 = prim + 3;
+  rgb = *(u_int *)&gfrgb2;
   Render_gPacketPtr = prim + 0x14;
-  *(u_char *)tp1 = 4;
+  prim[3] = 4;
   *(u_int *)(prim + 0xc) = 0;
-  *(u_int *)(prim + 4) = *(u_int *)&gfrgb2;
+  *(u_int *)(prim + 4) = rgb;
   prim[7] = 0x52;
   *(long *)(prim + 8) = saved[0];
   *(long *)(prim + 0x10) = saved[1];
@@ -1292,9 +1292,9 @@ void Flare_Quad(long *pt,CVECTOR *color,int otz)
   otz = otz * 4 + (int)Render_gPalettePtr;
   prim = Render_gPacketPtr;
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
-  pkt_addr24 = (u_int)prim & 0xffffff;
-  *(u_int *)otz = *(u_int *)otz & 0xff000000 | pkt_addr24;
+  pkt_addr24 = *(u_int *)otz & 0xff000000;
   Render_gPacketPtr = prim + 0x18;
+  *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
   color_word = *(int *)color;
   prim[3] = 5;
   *(int *)(prim + 4) = color_word;
@@ -1317,9 +1317,9 @@ void Flare_QuadNotTransparent(long *pt,CVECTOR *color,int otz)
   otz = otz * 4 + (int)Render_gPalettePtr;
   prim = Render_gPacketPtr;
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
+  pkt_addr24 = *(u_int *)otz & 0xff000000;
   Render_gPacketPtr = prim + 0x18;
-  pkt_addr24 = (u_int)prim & 0xffffff;
-  *(u_int *)otz = *(u_int *)otz & 0xff000000 | pkt_addr24;
+  *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
   color_word = *(int *)color;
   prim[3] = 5;
   *(int *)(prim + 4) = color_word;
@@ -1376,9 +1376,9 @@ void Flare_TextureQuad(long *pt,CVECTOR *color,char type,int otz)
   otz = otz * 4 + (int)Render_gPalettePtr;
   prim = Render_gPacketPtr;
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
+  pkt_addr24 = *(u_int *)otz & 0xff000000;
   Render_gPacketPtr = prim + 0x28;
-  pkt_addr24 = (u_int)prim & 0xffffff;
-  *(u_int *)otz = *(u_int *)otz & 0xff000000 | pkt_addr24;
+  *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
   color_word = *(int *)color;
   prim[3] = 9;
   *(int *)(prim + 4) = color_word;
@@ -1430,11 +1430,7 @@ void Flare_SingleColorHex(DVECTOR *xy,CVECTOR *color,int width,int height,int ot
   int iVar4;
   DVECTOR pt [6];
 
-  iVar4 = width;
-  if (width < 0) {
-    iVar4 = width + 3;
-  }
-  sVar1 = (short)(iVar4 >> 2);
+  sVar1 = (short)(width / 4);
   pt[0].vx = xy->vx - sVar1;
   height = height / 2;
   sVar2 = (short)height;

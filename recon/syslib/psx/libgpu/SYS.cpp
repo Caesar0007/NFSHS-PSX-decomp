@@ -68,9 +68,16 @@ extern "C" int _get_gp1(int idx)
 /* @0x800EF280 : push n words straight to GP0 with DMA disabled (CPU->GP0 transfer). */
 extern "C" int _send_gp0(u_long *p, int n)
 {
-    *GPU_GP1 = 0x04000000;                  /* DMA direction = off */
+    /* MATCH: counter split from the param and computed up-front (oracle addiu a2,a1,-1
+     * FIRST insn); guard keeps n live so i gets a fresh reg; explicit -1 sentinel
+     * compare -> li a1,-1 reusing the dead param reg (catalog rows 47/48). */
+    int i = n - 1;
+    /* MATCH: volatile cast away on the two stores -- the oracle has BOTH in branch
+     * delay slots (GP1 store in the beqz slot, GP0 store in the loop bne slot); gcc
+     * refuses to slot-fill volatile MEMs, the original assembler filled them blind. */
+    *(u_long *)GPU_GP1 = 0x04000000;        /* DMA direction = off */
     if (n != 0) {
-        do { *GPU_GP0 = *p++; } while (--n);
+        do { *(u_long *)GPU_GP0 = *p++; i--; } while (i != -1);
     }
     return 0;
 }
@@ -81,7 +88,9 @@ extern "C" void _gpu_dma_chain(u_long *ot)
     *GPU_GP1 = 0x04000002;                   /* DMA direction = 2 (linked list) */
     *D2_MADR = (u_long)ot;
     *D2_BCR  = 0;
-    *D2_CHCR = 0x01000401;                   /* start, linked-list mode */
+    /* MATCH: volatile cast away -- oracle has this final sw in the jr delay slot;
+     * gcc won't slot-fill a volatile MEM (same lever as _send_gp0). */
+    *(u_long *)D2_CHCR = 0x01000401;         /* start, linked-list mode */
 }
 
 /* @0x800EF308 : issue a GP1 0x10 "get GPU info" query and return the 24-bit GPUREAD reply. */
@@ -94,8 +103,11 @@ extern "C" int _get_gpuinfo(u_long cmd)
 /* @0x800EFE34 : obj-local byte fill (libgpu's private memset). */
 extern "C" void _memset(char *p, int c, int n)
 {
+    /* MATCH: i=n-1 hoisted ABOVE the guard -- n stays live across the compare, so the
+     * counter can't coalesce into $a2: fresh $v0 counter + $v1 sentinel, and the init
+     * lands in the beqz delay slot (oracle: addiu v0,a2,-1). */
+    int i = n - 1;
     if (n != 0) {
-        int i = n - 1;
         do { *p++ = (char)c; } while (--i != -1);
     }
 }
@@ -112,6 +124,10 @@ extern "C" u_long _set_draw_offset(int x, int y)
  * delay-slot=andi v0,a2,9ff (lo base in delay slot).  Return or v0,v1,v0 = lo|hi. */
 extern "C" u_long _set_draw_mode(int dfe, int dtd, int tpage)
 {
+    /* NEAR-MISS (5): andi not in the dfe-beqz slot (+nop) + `or v0,v0,v1` operand order.
+     * Tried+reverted: hi-first statement order (right schedule, wrong coloring 8==8/10),
+     * decl-order swap (same), `return hi|lo` alone (recolors lo in-place into a2, 11).
+     * Coloring and or-operand order are coupled; this basin's 5 is the floor. */
     u_long lo = (u_long)(tpage & 0x9ff);
     u_long hi = (u_long)0xe1000000u;
     if (dtd) hi |= 0x200u;

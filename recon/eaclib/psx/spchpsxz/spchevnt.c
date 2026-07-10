@@ -16,8 +16,8 @@
 
 extern int            gVoxEvents[];      /* @0x80148060 : live event count + base of the 16-slot queue */
 extern int            DAT_80148064;   /* @0x80148064 : "kept a 'd' event" flag */
-extern int            gLastTick;      /* last insert tick */
-extern unsigned short gLastSubTick;   /* sub-tick counter for same-tick inserts */
+extern int            gLastTick[];    /* last insert tick (array decl -> explicit lui+%lo) */
+extern unsigned short gLastSubTick[]; /* sub-tick counter for same-tick inserts */
 extern int            gPreLoadTicks;  /* speech pre-load tick offset */
 extern int            gFilterSetting; /* active filter mode (1 = length/priority filter on) */
 extern int            gEventDats[];   /* @0x80148048 : int[4] bound event-data blobs (spchrand-owned) */
@@ -121,29 +121,32 @@ extern int GetFilterPriority(void)
 /* iSPCH_InitEventQueue @0x800E7014 : zero all 16 queue slots (header + 12 eventArgs each) and the ticks. */
 extern void iSPCH_InitEventQueue(void)
 {
-    unsigned char *base = (unsigned char *)gVoxEvents;
-    unsigned char *slot = base;
-    unsigned char *end  = base + 0x3c0;
+    /* residual 42 (count exact 29/29): gcc loop-opt divergence -- inner j gets loop-REVERSED
+     * (li 11/bgez vs oracle slti 0xC up-count) and the header stores get a +16-biased giv;
+     * for-loop/int-address/element-disp shapes verified count-exact but the reversal resists
+     * (same class as SPCH_ClearEventQueue / iSPCH_SentenceMakeChoice biv-elim family) */
     int argBase = 0;
+    int base = (int)gVoxEvents;
+    int slot = base;
+    int end  = slot + 0x3c0;
     gVoxEvents[0]   = 0;
-    DAT_80148064 = 0;
+    *(int *)(base + 4) = 0;   /* DAT_80148064: stored via base+4 (oracle sw 0,4(a3)) */
     do {
-        int j = 0;
+        int j;
         int off = argBase;
         *(short *)(slot + 8)  = 0;
         *(short *)(slot + 0xa) = 0;
         *(int *)(slot + 0xc)  = 0;
         *(int *)(slot + 0x10) = 0;
-        do {
-            *(int *)(base + off + 0x14) = 0;
-            j = j + 1;
+        for (j = 0; j < 0xc; j++) {
+            ((int *)(base + off))[5] = 0;   /* MATCH: +0x14 as element disp (addu; sw 20()) */
             off = off + 4;
-        } while (j < 0xc);
+        }
         slot = slot + 0x3c;
         argBase = argBase + 0x3c;
     } while (slot < end);
-    gLastTick    = 0;
-    gLastSubTick = 0;
+    gLastTick[0]    = 0;
+    gLastSubTick[0] = 0;
 }
 
 /* iSPCH_FindEventSlot @0x800E7088 : pick a slot for a new event of `priority` -- first a free slot, else the
@@ -208,12 +211,12 @@ extern int SPCH_AddEvent(unsigned int *table)
                 int            tick = gettick();
                 short          sub;
                 int            j;
-                if (tick == gLastTick)
-                    gLastSubTick = gLastSubTick + 1;
+                if (tick == gLastTick[0])
+                    gLastSubTick[0] = gLastSubTick[0] + 1;
                 else
-                    gLastSubTick = 0;
-                sub = (short)gLastSubTick;
-                gLastTick = tick;
+                    gLastSubTick[0] = 0;
+                sub = (short)gLastSubTick[0];
+                gLastTick[0] = tick;
                 *(int *)(s + 0x10)  = voxEvent;
                 *(int *)(s + 0xc)   = tick;
                 *(short *)(s + 0xa) = sub;
@@ -286,6 +289,9 @@ extern int iSPCH_ChooseEvent(void)
 /* SPCH_ClearEventQueue @0x800E74E0 : disable every active slot. */
 extern void SPCH_ClearEventQueue(void)
 {
+    /* residual 10: ours biv-eliminates `slot` into a +8-biased giv where the oracle keeps the plain
+     * base (+8 disps, %hi shared with the counter); short-walk (10), index form (13) and byte-walk
+     * shapes all fail to keep the un-biased biv -- same class as iSPCH_SentenceMakeChoice */
     int            i = 0;
     unsigned char *slot = (unsigned char *)gVoxEvents;
     do {

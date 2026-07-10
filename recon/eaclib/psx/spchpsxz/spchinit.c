@@ -5,23 +5,23 @@
  *
  *   Ghidra-ism note: SPCH_InitBankMem's params were mis-named by Ghidra (this/memAlloc/memFree) -- they are
  *   really (memAllocFn, memFreeFn, numBanks); SPCH_GetSampleDataRate's `this` is the sample count.
- *   gSPCH_Initialized's "live" sentinel is 0x1789a34.  spch state globals resolved by data-mat #75.
+ *   gSPCH_Initialized[0]'s "live" sentinel is 0x1789a34.  spch state globals resolved by data-mat #75.
  */
 
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
  int gRepeatCount; 
 
 extern int gMemAlloc[];        /* user alloc callback (fn ptr stored as int) */
-extern int gMemFree;           /* user free callback  */
-extern int gSPCH_Initialized;  /* 0x1789a34 when initialised */
-extern int gSampleRequest;     /* sample-request callback */
-extern int gSentenceRuleTest;  /* current sentence rule-test fn/state */
-extern int gSentenceRuleSet;   /* current sentence rule-set fn/state  */
+extern int gMemFree[];         /* user free callback (fn ptr stored as int; array decl -> explicit lui+%lo store like gMemAlloc) */
+extern int gSPCH_Initialized[];/* 0x1789a34 when initialised (array decl -> explicit lui+%lo, shared %hi) */
+extern int gSampleRequest[];   /* sample-request callback */
+extern int gSentenceRuleTest[];/* current sentence rule-test fn/state */
+extern int gSentenceRuleSet[]; /* current sentence rule-set fn/state  */
 extern int gVoxInGame[];       /* in-game speech enable (-1 = on); [1] aliases gRepeatCount@+4 */
 extern int gRepeatCount;       /* repeated-event counter */
-extern int gGameNum;           /* current game/race number (shared w/ spchbank cycle-bit hash) */
-extern int gDataRate;          /* sample data rate */
-extern int gFilterSetting;     /* active filter setting */
+extern int gGameNum[];         /* current game/race number (shared w/ spchbank cycle-bit hash) */
+extern int gDataRate[];        /* sample data rate */
+extern int gFilterSetting[];   /* active filter setting */
 
 extern void iSPCH_DisposeBanks(void);                      /* spchbank */
 extern void iSPCH_InitBanks(void);                         /* spchbank */
@@ -55,18 +55,18 @@ extern int iSPCH_MemAlloc(int numBytes, const char *tag)
 /* iSPCH_MemFree @0x800EB5D4 : invoke the user's free callback. */
 extern void iSPCH_MemFree(void)
 {
-    if (gMemFree != 0)
-        ((void (*)(void))gMemFree)();
+    if (gMemFree[0] != 0)
+        ((void (*)(void))gMemFree[0])();
 }
 
 /* SPCH_Deinit @0x800EB600 : tear down the speech system (only if it was initialised). */
 extern void SPCH_Deinit(void)
 {
-    if (gSPCH_Initialized == 0x1789a34) {
-        gSampleRequest    = 0;
-        gSentenceRuleTest = 0;
-        gSPCH_Initialized = 0;
-        gSentenceRuleSet  = 0;
+    if (gSPCH_Initialized[0] == 0x1789a34) {
+        gSampleRequest[0]    = 0;
+        gSentenceRuleTest[0] = 0;
+        gSPCH_Initialized[0] = 0;
+        gSentenceRuleSet[0]  = 0;
         iSPCH_DisposeBanks();
         iSPCH_InitEventDat();
     }
@@ -114,9 +114,9 @@ done:
 extern int SPCH_InitBankMem(int memAllocFn, int memFreeFn, int numBanks)
 {
     int result = 0;
-    if (gSPCH_Initialized == 0x1789a34 && memAllocFn != 0 && memFreeFn != 0) {
+    if (gSPCH_Initialized[0] == 0x1789a34 && memAllocFn != 0 && memFreeFn != 0) {
         gMemAlloc[0] = memAllocFn;
-        gMemFree  = memFreeFn;
+        gMemFree[0] = memFreeFn;
         result    = iSPCH_BankMemAlloc((unsigned int)numBanks);
     }
     return result;
@@ -126,21 +126,21 @@ extern int SPCH_InitBankMem(int memAllocFn, int memFreeFn, int numBanks)
  *   pick/event/bank state, and mark it live.  Returns 1. */
 extern int SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate)
 {
-    gSampleRequest    = sampleRequestCb;
-    gGameNum          = (int)gameNum;
-    gDataRate         = dataRate;
+    gSampleRequest[0]    = sampleRequestCb;
+    gGameNum[0]       = gameNum;
+    gDataRate[0]      = dataRate;
     gMemAlloc[0]      = 0;
-    gMemFree          = 0;
-    gSentenceRuleTest = 0;
-    gSentenceRuleSet  = 0;
+    gMemFree[0]       = 0;
+    gSentenceRuleTest[0] = 0;
+    gSentenceRuleSet[0]  = 0;
     iSPCH_EACseedrandom(gameNum);
     iSPCH_ClearChosen();
     SPCH_SetPreLoadTicks(0);
-    gFilterSetting = 0;
+    gFilterSetting[0] = 0;
     iSPCH_InitEventDat();
     iSPCH_InitInGame();
     iSPCH_InitBanks();
     iSPCH_InitEventQueue();
-    gSPCH_Initialized = 0x1789a34;
+    gSPCH_Initialized[0] = 0x1789a34;
     return 1;
 }

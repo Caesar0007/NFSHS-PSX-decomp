@@ -433,8 +433,8 @@ int iMCRD_DoFileDelete(int card)
   int ret_state;
   
   ret_state = 0x11;
-  del_res = MemCardDeleteFile
-                      (gMemCardInfo.channel,gMemCardInfo.fileinfo.name);
+  pMFI = &gMemCardInfo.fileinfo;   /* MATCH: SYM local; la(+0x260) anchor, name=+4, base=-0x260 */
+  del_res = MemCardDeleteFile(gMemCardInfo.channel,pMFI->name);
   switch (del_res) {
   case 0:
     gMemCardInfo.task = LOAD_CARD;

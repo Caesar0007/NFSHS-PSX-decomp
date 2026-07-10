@@ -397,7 +397,7 @@ void BworldSm_UpdateSimQuad(BWorldSm_Pos *slicePos)
     pGVar1 = Track_chunkList[slicePos->chunk].simQuadBuf;
     startsimquad = (Trk_NewSimQuad *)(pGVar1 + 1);
     slicePos->simQuad = startsimquad;
-    simIndex = (u_int)pTVar2->simquadIndex + iVar3;
+    simIndex = (u_int)slicePos->simSlice->simquadIndex + iVar3;  /* MATCH: re-read via slicePos (cse -> addu v0,a1 copy), not pTVar2 direct */
     slicePos->simQuad = (Trk_NewSimQuad *)((int)startsimquad + simIndex);
     return;
   }

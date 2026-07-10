@@ -82,7 +82,9 @@ void AIHigh_BasicCop::CheckSpikeBelt()
 
     timeNow -= AICop_spikeBelt.freshenTime_;
 
-    freshenElapsed = timeNow > 0x13f;
+    timeNow = timeNow < 0x140;
+
+    freshenElapsed = !timeNow;  /* MATCH: split bool + ! emits slti+sltiu (seq); `> 0x13f` emits slti+xori */
 
   }
 

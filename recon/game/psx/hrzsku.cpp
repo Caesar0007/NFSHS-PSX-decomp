@@ -698,7 +698,11 @@ void Hrz_SetLightingPosInSky(DRender_tView *Vi)
   return;
 }
 
-/* ---- Hrz_BuildForkLightning__FP11Draw_DCache  [HRZSKU.CPP:872-898] SLD-VERIFIED ---- */
+/* ---- Hrz_BuildForkLightning__FP11Draw_DCache  [HRZSKU.CPP:872-898] SLD-VERIFIED ----
+ * SEALED (71/71 PASS). MATCH: plain `for (i=0; i < (u_char)numForks; i++)` WITHOUT the outer
+ * numForks!=0 guard (the rotated for-test subsumes it; the guarded do-while made the reorg
+ * pass steal the loop-head `andi` into the back-edge slot instead of the oracle's
+ * `addiu a0,sp,0x10` &pos rematerialization). */
 void Hrz_BuildForkLightning(Draw_DCache *sd)
 
 {
@@ -715,15 +719,11 @@ void Hrz_BuildForkLightning(Draw_DCache *sd)
     gte_ldv0(&Hrz_gLightningPosInSky);
     gte_rtps();
     gte_stSXY2(&screenPos);
-    if (gHrz_Lightning.numForks != '\0') {
-      i = 0;
-      do {
-        fork = &gHrz_Lightning.forks[i];
-        pos.vx = fork->pos.vx + screenPos.vx;
-        pos.vy = fork->pos.vy + screenPos.vy;
-        i = i + 1;
-        Hrz_TextureQuad(&pos,fork->pmxIndex,(char)gHrz_Lightning.brightness,sd);
-      } while (i < (u_char)gHrz_Lightning.numForks);
+    for (i = 0; i < (u_char)gHrz_Lightning.numForks; i = i + 1) {
+      fork = &gHrz_Lightning.forks[i];
+      pos.vx = fork->pos.vx + screenPos.vx;
+      pos.vy = fork->pos.vy + screenPos.vy;
+      Hrz_TextureQuad(&pos,fork->pmxIndex,(char)gHrz_Lightning.brightness,sd);
     }
     gHrz_Lightning.brightness = gHrz_Lightning.brightness + -0x10;
   }

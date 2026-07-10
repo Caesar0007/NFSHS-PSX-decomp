@@ -12,38 +12,52 @@ extern int gSysTaskCount;     /* live task count */
 extern int gSysTaskLastTick;  /* last tick the task list ran */
 extern int systemtasksubs;    /* int[16*4] : 16 slots of {fn, period, deadline, busy} */
 
-extern int          addsystemtask(void *taskFn, void *period, void *delay);  /* @0x800E6AF4 */
+extern int          addsystemtask(int taskFn, int period, int delay);        /* @0x800E6AF4 */
 extern int          delsystemtask(int fn);                                   /* @0x800E6BA8 */
 extern unsigned int systemtask(int arg1);                                    /* @0x800E6C04 */
 
-/* addsystemtask @0x800E6AF4 : register a periodic task (or update its slot); returns the running count. */
-extern int addsystemtask(void *taskFn, void *period, void *delay)
+/* addsystemtask @0x800E6AF4 : register a periodic task (or update its slot); returns the running count.
+ *   Slot pick: an exact fn match always wins its slot; otherwise the first free slot — but when called
+ *   re-entrantly (count>0 at entry) the first `count` free slots are skipped (count is decremented per
+ *   skipped free slot, a plain register copy — only the +1/-1 bracket touches the global). */
+extern int addsystemtask(int taskFn, int period, int delay)
 {
-    int  tick  = libticks;
-    int  i     = 0;
-    int *slot  = &systemtasksubs;
-    int  count = gSysTaskCount + 1;
-    int  found = -1;
-    int  sel;
-    do {
-        sel = i;
-        if ((void *)*slot != taskFn &&
-            (sel = found, (void *)*slot == (void *)0) &&
-            found == -1 &&
-            (sel = i, gSysTaskCount != 0)) {
-            gSysTaskCount = gSysTaskCount - 1;
-            sel = found;
+    int  fn;
+    int  found;
+    int  count;
+    int *slot;
+
+    fn = taskFn;                               /* MATCH: param saved then RECYCLED as the loop index below --
+                                                * the reassignment keeps the copy un-coalesced (`addu t1,a0,zero`)
+                                                * and the index inherits $a0 (the retail allocation) */
+    count = gSysTaskCount;                     /* MATCH: old value kept in a reg (a3) across the scan */
+    gSysTaskCount = count + 1;                 /* re-entrancy bracket: ++ at entry, -- at exit */
+    found = -1;
+    slot  = &systemtasksubs;
+    for (taskFn = 0; taskFn < 0x10; taskFn++) {
+        if (*slot == fn) {
+            found = taskFn;                    /* exact match -> (re)use this slot */
+        } else if (*slot == 0 && found == -1) {
+            if (count != 0)                    /* MATCH: != polarity -> beqz to the shared found=i block */
+                count--;                       /* skip `count` free slots when re-entrant */
+            else
+                found = taskFn;                /* first non-skipped free slot */
         }
-        i = i + 1;
-        slot = slot + 4;
-        found = sel;
-    } while (i < 0x10);
-    gSysTaskCount = count;
-    if (sel != -1) {
-        (&systemtasksubs)[sel * 4]     = (int)taskFn;
-        (&systemtasksubs)[sel * 4 + 1] = (int)period;
-        (&systemtasksubs)[sel * 4 + 3] = 0;
-        (&systemtasksubs)[sel * 4 + 2] = tick + (int)delay;
+        slot += 4;
+    }
+    if (found != -1) {
+        /* MATCH (permuter find, 43->38 diffs + exact 45/45 count -- transcribed VERBATIM, both details
+         * are load-bearing pseudo/scheduling devices; every "clean" rewrite regresses to 48-50):
+         *   (1) `- (-(found * 4))` == `+ found * 4` (found is 0..15, no overflow) but the extra neg
+         *       RTL temp re-colors the head so the entry `addu t1,a0,zero` copy survives;
+         *   (2) the dead `count` is reused as the deadline temp (a NEW named temp would add a pseudo
+         *       and re-color the head -- the catalog "any-new-pseudo-recolors-head" trap). */
+        slot = (&systemtasksubs) - (-(found * 4));
+        count = libticks + delay;              /* MATCH: libticks read AT its use inside the if */
+        slot[0] = fn;
+        slot[1] = period;
+        slot[3] = 0;
+        slot[2] = count;
     }
     gSysTaskCount = gSysTaskCount - 1;
     return gSysTaskCount;

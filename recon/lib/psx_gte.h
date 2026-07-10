@@ -38,6 +38,15 @@
 #define gte_ldVXY2(p) __asm__ volatile ("lwc2 $4, 0(%0)" : : "r"(p))
 #define gte_ldVZ2(p)  __asm__ volatile ("lwc2 $5, 0(%0)" : : "r"(p))
 #define gte_ldIR0(p)  __asm__ volatile ("lwc2 $8, 0(%0)" : : "r"(p))
+/* "m"-form loads (2026-07-09b): input-memory-operand variants -- gcc emits the FULL
+ * base+displacement address (`lwc2 $0,0xD0(rN)`, rN = base+idx*stride CSE'd and
+ * REUSED by neighbouring byte-field reads), matching EA's member-array codegen. */
+#define gte_ldVXY0m(x) __asm__ volatile ("lwc2 $0, %0" : : "m"(x))
+#define gte_ldVZ0m(x)  __asm__ volatile ("lwc2 $1, %0" : : "m"(x))
+#define gte_ldVXY1m(x) __asm__ volatile ("lwc2 $2, %0" : : "m"(x))
+#define gte_ldVZ1m(x)  __asm__ volatile ("lwc2 $3, %0" : : "m"(x))
+#define gte_ldVXY2m(x) __asm__ volatile ("lwc2 $4, %0" : : "m"(x))
+#define gte_ldVZ2m(x)  __asm__ volatile ("lwc2 $5, %0" : : "m"(x))
 /* load CVECTOR -> RGB (reg 6). rgb3/rgb3c: load FIFO rgb0/1/2 (regs 20/21/22) from 3
  * pointers / one continuous base, also reloading RGB(6) from the last (PsyQ gte_ldrgb3*). */
 #define gte_ldrgb(p)   __asm__ volatile ("lwc2 $6, 0(%0)" : : "r"(p))
@@ -190,6 +199,12 @@
 #define gte_ldVXY2(p)          ((void)(p))
 #define gte_ldVZ2(p)           ((void)(p))
 #define gte_ldIR0(p)           ((void)(p))
+#define gte_ldVXY0m(x)         ((void)(x))
+#define gte_ldVZ0m(x)          ((void)(x))
+#define gte_ldVXY1m(x)         ((void)(x))
+#define gte_ldVZ1m(x)          ((void)(x))
+#define gte_ldVXY2m(x)         ((void)(x))
+#define gte_ldVZ2m(x)          ((void)(x))
 #define gte_ldrgb(p)           ((void)(p))
 #define gte_ldrgb3(a,b,c)      do { (void)(a); (void)(b); (void)(c); } while (0)
 #define gte_ldrgb3c(p)         ((void)(p))

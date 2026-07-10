@@ -68,6 +68,15 @@ NEW = '''    def p_parameter_type_list(self, p):
         if len(p) > 2:'''
 
 
+ASM_OP_OLD = """        \"\"\" asm_operand : asm_symbolic_name_opt unified_string_literal LPAREN unary_expression RPAREN
+        \"\"\""""
+ASM_OP_NEW = """        \"\"\" asm_operand : asm_symbolic_name_opt unified_string_literal LPAREN assignment_expression RPAREN
+        \"\"\"
+        # GCC accepts a FULL expression in an asm operand ("r"((char *)sd + 0xac),
+        # "m"(*(u_int *)(base + 0xD0))); the vendored unary_expression-only rule
+        # rejected every EA GTE/OT-link template operand (drawc 2026-07-10)."""
+
+
 def main():
     if not GRAMMAR.is_file():
         sys.exit(f"perm_pycparser grammar not found at {GRAMMAR} "
@@ -81,6 +90,15 @@ def main():
     else:
         sys.exit("could not find p_parameter_type_list to patch "
                  "(grammar changed upstream?)")
+
+    text = GRAMMAR.read_text()
+    if "LPAREN assignment_expression RPAREN" in text:
+        print("asm_operand already patched")
+    elif ASM_OP_OLD in text:
+        GRAMMAR.write_text(text.replace(ASM_OP_OLD, ASM_OP_NEW))
+        print("patched asm_operand -> assignment_expression")
+    else:
+        sys.exit("could not find p_asm_operand to patch (grammar changed upstream?)")
 
     # Rebuild the yacc/lex tables so the new production takes effect. Deleting
     # yacctab.py forces PLY to regenerate from the edited grammar.

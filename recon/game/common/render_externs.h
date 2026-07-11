@@ -10,7 +10,7 @@ typedef void fn_void(void);   /* Draw_SetDrawSyncCallback callback (void(*)(void
 // [owned->defined in render.cpp] extern int   Draw_gPlayer1View, Draw_gPlayer2View, Render_gPauseMenuView;
 // [owned->defined in render.cpp] extern int   Render_gBlurEffectMode, Render_gBlurEffectDepth1, Render_gBlurEffectDepth2;
 extern int   Render_gMenuRenderFlag;
-extern int   gScratchLastWord;
+// gScratchLastWord: fixed-address scratchpad macro, see nfs4_types.h
 // [owned->defined in render.cpp] extern int   gFlip, gPauseRender, gMPauseUpdate, gMPauseUpdateNextTime;
 extern int gFlip, gMPauseUpdate, gMPauseUpdateNextTime;
 // [owned->defined in render.cpp] extern RECT  gPauseMenuRect;

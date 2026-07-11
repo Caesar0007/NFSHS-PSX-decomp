@@ -56,11 +56,11 @@ extern "C" int iSPCH_SentenceUsesParm(int sentence, unsigned int paramIdx)
             if (((unsigned int)*(unsigned char *)(phrase + 2) & 0xf) == paramIdx)
                 return 1;
             do {
-                j = j + 1;
                 if (((unsigned int)*(unsigned char *)(p + 4) & 0xf) == paramIdx) {
                     found = 1;
                     break;
                 }
+                j = j + 1;
                 p = phrase + j;
             } while (j < 4);
             phraseIdx = phraseIdx + 1;
@@ -100,16 +100,24 @@ extern "C" void iSPCH_RuleSet(short *sentence, int rule, int val)
         int            offSent  = iSPCH_GetOffset16((int)sentence, (int)(sentence + 6), rule);
         if (0 < numRules) {
             do {
-                unsigned char ruleByte = *rd;
+                unsigned char ruleByte = rd[0];
                 unsigned int  paramIdx = (unsigned int)(rd[1] & 0xf);
-                unsigned int  ruleType = (unsigned int)(rd[1] >> 4);
-                if (ruleType == 0 || ruleType == 3) {
+                unsigned int  ruleType = (unsigned int)(unsigned char)rd[1] >> 4;
+                switch (ruleType) {
+                case 0:
+                case 3:
                     if (iSPCH_SentenceUsesParm(offSent, paramIdx) != 0) {
-                        ((void (*)(int, int, int, int, int, int, int))gSentenceRuleSet)
-                            ((int)*sentence, (int)(unsigned int)ruleByte,
-                             *(int *)((int)paramIdx * 4 + val), val,
-                             (int)(unsigned int)ruleByte, (int)paramIdx, (int)ruleType);
+                        ((void (*)(unsigned int, unsigned char, int, int))gSentenceRuleSet)
+                            ((unsigned short)*sentence, ruleByte,
+                             *(int *)((int)paramIdx * 4 + val), val);
                     }
+                    break;
+                case 1:
+                case 2:
+                case 4:
+                    break;
+                default:
+                    break;
                 }
                 i  = i + 1;
                 rd = rd + 2;

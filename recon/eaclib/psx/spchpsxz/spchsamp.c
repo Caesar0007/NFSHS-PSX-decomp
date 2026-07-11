@@ -71,7 +71,7 @@ extern int iSPCH_UnPackSample(int bank, unsigned int sampleIdx, int *out)
         sidx      = (int)sampleIdx + 1;
         startOff  = (unsigned int)*entry * 0x100 + (unsigned int)entry[1];
         out[1]    = startOff * 0x100;
-        do {                                         /* find the next real entry -> end offset */
+        while (!done) {                               /* find the next real entry -> end offset */
             if (sidx < (int)(unsigned int)*(unsigned char *)(bank + 3)) {
                 if ((*nextEntry & 0x80) == 0) {
                     done = true;
@@ -84,7 +84,7 @@ extern int iSPCH_UnPackSample(int bank, unsigned int sampleIdx, int *out)
                 done = true;
                 endOff = (int)((unsigned int)*(unsigned short *)(bank + 4) << 8);
             }
-        } while (!done);
+        }
         *out = endOff + startOff * -0x100;
         ret  = 1;
     }

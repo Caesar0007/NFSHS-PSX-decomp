@@ -133,30 +133,26 @@ extern "C" void FREE_add(MemClass *mb, MemBlock *node)   /* @0x800E4E70 */
     MemBlock *head  = (MemBlock *)((char *)mb + 0x10);
     int       span  = (int)((char *)node->physnext - (char *)node);   /* node end - node */
     int       payload = span - 0x10;
-    MemBlock *first = head->freenext;
     MemBlock *last  = head->freeprev;
+    MemBlock *first = head->freenext;
     /* midpoint = first + ((last-first) >> 1)  (unsigned shift, per srl) */
     MemBlock *mid = (MemBlock *)((char *)first
                     + (((unsigned)((char *)last - (char *)first)) >> 1));
-    MemBlock *before, *after;
+    MemBlock *q = head;
 
     if (mid < node) {                       /* scan backward from tail */
-        MemBlock *q = head;
         do { q = q->freeprev; } while (node < q);
-        before = q;
-        after  = q->freenext;
+        head = q->freenext;                 /* MATCH: reuse dead 'head' reg for 'after' */
     } else {                                /* scan forward from head  */
-        MemBlock *q = head;
-        do { q = q->freenext; } while (q < node);
-        after  = q;
-        before = q->freeprev;
+        do { head = head->freenext; } while (head < node);
+        q = head->freeprev;                 /* MATCH: reuse 'q' reg for 'before' */
     }
 
-    node->freenext = after;
-    node->freeprev = before;
+    node->freenext = head;                  /* head now holds 'after' */
+    node->freeprev = q;                     /* q now holds 'before' */
     node->size     = payload;
-    before->freenext = node;
-    after->freeprev  = node;
+    q->freenext = node;
+    head->freeprev  = node;
     node->magic = MAGIC_FREE;
     node->flags = (unsigned short)(node->flags | 0x4000);
 }
@@ -239,7 +235,7 @@ extern "C" int creatememclass(int id, char *name, char *membuf, int bufsize,
                               int lowguard, int reserved9, int highguard,
                               int usemutex, int field3c)   /* @0x800E5094 */
 {
-    char namebuf[128];                           /* sp+0x20 scratch */
+    char namebuf[256];                           /* sp+0x20 scratch */
     int  flags = id;                             /* s2 starts = id  */
     (void)reserved9;                             /* arg9 unreferenced by the asm */
 
@@ -266,26 +262,26 @@ extern "C" int creatememclass(int id, char *name, char *membuf, int bufsize,
     initmemblock((MemBlock *)high,    namebuf, 0,    infosize,
                  flags | 0x8010, (MemBlock *)low_end, 0);
 
+    gMemClassTable[id & 0xF] = cls;               /* MATCH: assigned before the call (lands in its delay slot) */
     blockclear(cls, 0x40);                        /* zero the 64-byte class */
-    gMemClassTable[id & 0xF] = cls;
     strcpy((char *)cls, name);                    /* class->name */
 
-    {   /* initialise the embedded free-ring sentinel + class fields */
+    {   /* initialise the embedded free-ring sentinel + class fields, in oracle store order */
         MemBlock *fh = (MemBlock *)((char *)cls + 0x10);
         fh->magic = MAGIC_HEAD;                                   /* +0x10 */
-        fh->size  = 0x7FFFFFFF;                                   /* +0x14 */
         cls->phys_first = (MemBlock *)membuf;                     /* +0x08 */
         cls->phys_last  = (MemBlock *)high;                       /* +0x0C */
         fh->freenext = (MemBlock *)((char *)membuf + 0x20);       /* +0x20 -> self (empty ring) */
         fh->freeprev = (MemBlock *)((char *)membuf + 0x20);       /* +0x24 */
-        cls->granularity = granularity;                          /* +0x28 */
+        fh->size  = 0x7FFFFFFF;                                   /* +0x14 */
         cls->alignment   = alignment;                            /* +0x2C */
         cls->infosize    = infosize;                             /* +0x30 */
         cls->flags       = flags;                                /* +0x34 */
         cls->mutex       = 0;                                    /* +0x38 */
-        cls->field3c     = field3c;                              /* +0x3C */
+        cls->granularity = granularity;                          /* +0x28 */
     }
 
+    cls->field3c     = field3c;                                  /* +0x3C, right at the FREE_add call */
     FREE_add(cls, (MemBlock *)low_end);           /* publish the big free block */
     if (usemutex)
         cls->mutex = allocmutex();                /* +0x38 */
@@ -333,37 +329,40 @@ extern "C" char *getblockname(void *p)   /* @0x800E52E0 */
  * ===================================================================== */
 extern "C" void *reservememadr(char *name, int size, int classid)   /* @0x800E533C */
 {
-    MemClass *cls = gMemClassTable[classid & 0xF];   /* s3 */
-    int       need;                                  /* s1 */
+    void     *result = 0;                              /* s5: single-exit funnel (MATCH: oracle
+                                                           inits s5=0 up front and `j END` on both
+                                                           failure paths without touching it) */
+    int       need;                                    /* s1 */
+    MemClass *cls   = gMemClassTable[classid & 0xF];   /* s3 */
 
     if (size < 8) {
-        if (size < 0) return 0;
-        need = 8;                                    /* clamp to minimum */
+        if (size < 0) goto end;
+        need = 8;                                      /* clamp to minimum */
     } else {
         need = size;
     }
 
     {
-        int  tail = MEM_tailsize(name, classid);     /* v0 */
-        int  gran = cls->granularity;                /* +0x28 */
-        int  mask = gran - 1;                        /* s4 */
+        int  tail = MEM_tailsize(name, classid);       /* v0 */
+        int  gran = cls->granularity;                  /* +0x28 */
+        int  mask = gran - 1;                          /* s4 */
         unsigned rounded = ((unsigned)(need + tail) + (unsigned)(gran + 0x0F))
                          & (unsigned)(~mask);
-        MemBlock *blk;                               /* s0 */
+        MemBlock *blk;                                 /* s0 */
         int  leftover;
 
-        need = (int)rounded - 0x10;                  /* s1 = aligned span - 16 */
+        need = (int)rounded - 0x10;                    /* s1 = aligned span - 16 */
 
         if (classid & 0x20)
             blk = FREE_findlargest(cls, need, classid & 0x10);
         else
             blk = FREE_find(cls, need, classid & 0x10);
-        if (blk == 0) return 0;
+        if (blk == 0) goto end;
 
         FREE_remove(cls, blk);
-        leftover = blk->size - need;                 /* v1 */
+        leftover = blk->size - need;                   /* v1 */
 
-        if (leftover >= 0x41) {                       /* enough to split off a block */
+        if (leftover >= 0x41) {                         /* enough to split off a block */
             if (classid & 0x10) {
                 /* HIGH split: keep front as free, carve the allocation from the top */
                 MemBlock *front = blk;                                       /* s1 */
@@ -376,7 +375,7 @@ extern "C" void *reservememadr(char *name, int size, int classid)   /* @0x800E53
                 blk = alloc;
             } else {
                 /* LOW split: allocation at the front, remainder freed */
-                MemBlock *rem = (MemBlock *)((char *)blk + need + 0x10);     /* s1 */
+                MemBlock *rem = (MemBlock *)((char *)blk + (need + 0x10));   /* s1 */
                 blk->physnext->physprev = rem;
                 initmemblock(rem, 0, 0, 0, 0, blk, blk->physnext);
                 FREE_add(cls, rem);
@@ -384,17 +383,20 @@ extern "C" void *reservememadr(char *name, int size, int classid)   /* @0x800E53
             }
         }
 
-        {   /* finalise the allocated block */
-            int flags = classid;                     /* s2 */
+        {   /* finalise the allocated block -- MATCH: mutate classid IN PLACE (no separate
+               'flags' copy), the oracle ORs/ANDs classid's own register then stores it
+               straight into the stack arg slot */
             if (name == 0) {
-                flags |= (cls->flags & 0x700);
-                flags &= ~0x100;
+                classid |= (cls->flags & 0x700);
+                classid &= ~0x100;
             }
-            initmemblock(blk, name, size, cls->infosize, flags,
+            initmemblock(blk, name, size, cls->infosize, classid,
                          blk->physprev, blk->physnext);
         }
-        return (char *)blk + 0x10;                    /* user pointer */
+        result = (char *)blk + 0x10;                    /* user pointer */
     }
+end:
+    return result;
 }
 
 /* ===================================================================== *

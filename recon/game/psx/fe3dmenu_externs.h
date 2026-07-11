@@ -9,7 +9,7 @@ extern COORD16  Fe3D_spotVertex[33];     /* 0x8005126c  ARY STRUCT COORD16 x33 *
 extern char     bigBuf[];
 extern int      gMenuRotate[2];
 extern int      R3DCar_Clock, R3DCar_ClockLast, R3DCar_InMenu;
-extern int      Render_gMenuRenderFlag, gScratchLastWord, generic128HzClock, stackSpeedUpEnbabledFlag, showRoomFlag;
+extern int      Render_gMenuRenderFlag, generic128HzClock, stackSpeedUpEnbabledFlag, showRoomFlag;
 extern u_long   gWSavePtr;
 
 /* PsyQ / EA fixed-point + matrix math */

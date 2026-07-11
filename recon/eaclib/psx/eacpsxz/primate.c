@@ -16,19 +16,21 @@ extern int   purgememadr (void *p);                             /* eacpsxz @0x80
 extern void  ClearOTagR(unsigned long *ot, int n);              /* PsyQ libgpu */
 extern int   DrawSync(int mode);                                /* PsyQ libgpu */
 
-/* ---- shared GPU draw-list globals (data-materialization pass owns the definitions) ---- */
-extern int   maxot;          /* ordering-table length (set to 16 here)        */
-extern int   maxprim;        /* primitive capacity                            */
-extern char *otbuf;          /* base of the "Draw Lists" allocation           */
-extern char *otbl;           /* active OT pointer (== otbuf)                   */
-extern char *otbl2;          /* @0x8013DE74 : 2nd OT buffer (otbuf + maxot*4)  */
-extern char *primbuf;        /* active primitive buffer (otbuf + maxot*8)      */
-extern char *primbase;       /* primitive buffer base                         */
-extern char *primbuf2;       /* @0x8013DE88 : 2nd prim buffer (primbuf+52*maxprim) */
-extern char *primptr;        /* current primitive write cursor                */
-extern char *nextprim;       /* next primitive link target (== otbl)          */
-extern int   oti;            /* OT index                                      */
-extern int   otp;            /* OT page/parity                                */
+/* ---- shared GPU draw-list globals -- this TU OWNS every one of them (nothing else defines
+ * them; the oracle reaches ALL of them via %gp_rel(sym) in initlinkmode, which is only possible
+ * if THIS module tentative-defines them -> .comm/.sbss -> gp-rel, §3.12 #6). */
+ int   maxot;          /* ordering-table length (set to 16 here)        */
+ int   maxprim;        /* primitive capacity                            */
+ char *otbuf;          /* base of the "Draw Lists" allocation           */
+ char *otbl;           /* active OT pointer (== otbuf)                   */
+ char *otbl2;          /* @0x8013DE74 : 2nd OT buffer (otbuf + maxot*4)  */
+ char *primbuf;        /* active primitive buffer (otbuf + maxot*8)      */
+ char *primbase;       /* primitive buffer base                         */
+ char *primbuf2;       /* @0x8013DE88 : 2nd prim buffer (primbuf+52*maxprim) */
+ char *primptr;        /* current primitive write cursor                */
+ char *nextprim;       /* next primitive link target (== otbl)          */
+ int   oti;            /* OT index                                      */
+ int   otp;            /* OT page/parity                                */
  int drawpending;   /* owning-TU tentative def → .comm/.sbss → gp-rel */
  int linkmodeflag;  /* owning-TU tentative def → .comm/.sbss → gp-rel */
  int semitrans;     /* owning-TU tentative def → .comm/.sbss → gp-rel */
@@ -42,14 +44,19 @@ extern void *initlinkmode(void *unused, int maxprimArg, int linkmode)   /* @0x80
         purgememadr(otbuf);                        /* free the previous draw-list buffer */
 
     {
+        /* MATCH: the SIZE math reloads `maxprim`/`maxot` fresh off the gp-rel globals (the
+         * oracle does too -- v0/v1 reloads, not the param registers), but primbuf2's 52*N
+         * term uses the PARAMETER `maxprimArg`, which stays live in the callee-saved $s0
+         * across the reservememadr() call (that cross-call liveness is what forces $s0 to be
+         * saved, matching the oracle's +8 frame). */
         int size = (13 * maxprim + maxot) << 3;    /* (13*maxprim + maxot) * 8 bytes */
         char *buf = (char *)reservememadr("Draw Lists", size, 0x10);
         otbuf = buf;
         otbl  = buf;
-        otbl2     = buf + maxot * 4;               /* @0x8013DE74 second OT (double-buffer) */
         primbuf   = buf + maxot * 8;
+        otbl2     = buf + maxot * 4;               /* @0x8013DE74 second OT (double-buffer) */
         primbase  = primbuf;
-        primbuf2  = primbuf + 52 * maxprim;        /* @0x8013DE88 second prim buffer        */
+        primbuf2  = primbuf + 52 * maxprimArg;     /* @0x8013DE88 second prim buffer        */
         ClearOTagR((unsigned long *)otbl, maxot);
         linkmodeflag = linkmode;
         oti = 0;
@@ -77,7 +84,4 @@ extern int settrans(int mode)   /* @0x800F070C */
     semitrans = 1;
 done:
     return semitrans >> 1;
-}
-
-/* owning-TU def (extern-declared, never defined; link-harness) */
- char *otbl2; char *primbuf2; 
+} 

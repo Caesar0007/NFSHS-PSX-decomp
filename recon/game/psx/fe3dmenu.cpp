@@ -68,9 +68,7 @@ void CameraLookAt(matrixtdef *mat,coorddef *camPoint)
   coorddef rightVec;
   coorddef upVec;
   
-  upVec.x = (*(u_int*)((char*)&bigBuf + 44));
-  upVec.y = (*(u_int*)((char*)&bigBuf + 48));
-  upVec.z = (*(u_int*)((char*)&bigBuf + 52));
+  upVec = *(coorddef*)((char*)bigBuf + 44);
   fwdVec.x = -camPoint->x;
   fwdVec.y = -camPoint->y;
   fwdVec.z = -camPoint->z;

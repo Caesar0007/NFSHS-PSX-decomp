@@ -13,8 +13,6 @@
 extern int gVoxBanks[]; /* @~0x801370B4 : base of the bank pointer array (int[gNumBanks]) */
 extern int gNumBanks[]; /* @0x801370B8  : number of bank slots */
 extern int gGameNum;    /* shared game global : current game/race number (cycle-bit hash key) */
-extern int DAT_80150000;/* @0x80150000  : SetCycleBits default-return placeholder */
-
 extern int  iSPCH_MemAlloc(int numBytes, const char *tag); /* spchinit; returns the allocated ptr (0 = failed) */
 extern void iSPCH_MemFree(int block);      /* spchinit; release body ignores the arg but call sites
                                             * still pass the freed block (nullsub-takes-real-args) */
@@ -135,42 +133,41 @@ ret:
 extern int *iSPCH_SetCycleBits(int *p)
 {
     unsigned char *bits;
-    int           *ret;
     unsigned int   nGroups;
     int            startBit, count, byteIdx, bitInByte;
-    int            t, i;
+    int            t1, t2, t3, i;
 
     bits    = (unsigned char *)iSPCH_GetBankBits((int)p);
     nGroups = (unsigned int)*bits;
-    ret     = (int *)&DAT_80150000;
-    if (nGroups != 0) {
-        t        = ((int)gGameNum % (int)nGroups) * (int)(unsigned int)*(unsigned char *)((int)p + 3);
-        startBit = t / (int)nGroups;
-        t = ((int)gGameNum % (int)nGroups + 1) * (int)(unsigned int)*(unsigned char *)((int)p + 3);
-        count   = t / (int)nGroups - startBit;
-        t       = startBit;
+    if (0 < (int)nGroups) {
+        t1       = ((int)gGameNum % (int)nGroups) * (int)(unsigned int)*(unsigned char *)((int)p + 3);
+        startBit = t1 / (int)nGroups;
+        t2      = ((int)gGameNum % (int)nGroups + 1) * (int)(unsigned int)*(unsigned char *)((int)p + 3);
+        count   = t2 / (int)nGroups - startBit;
+        t3       = startBit;
         if (startBit < 0)
-            t = startBit + 7;
-        t        = t >> 3;
-        byteIdx  = t + 1;
-        ret      = (int *)(t * 8);
-        bitInByte = startBit + t * -8;
+            t3 = startBit + 7;
+        {
+            int shifted = t3 >> 3;
+            byteIdx   = shifted + 1;
+            bitInByte = startBit + shifted * -8;
+        }
         i = 0;
         if (0 < count) {
             do {
-                unsigned int b = (unsigned int)bitInByte;
+                unsigned int mask = 1u << bitInByte;
                 bitInByte = bitInByte + 1;
-                bits[byteIdx] = bits[byteIdx] | (unsigned char)(1 << b);
+                bits[byteIdx] |= (unsigned char)mask;
                 if (bitInByte == 8) {
                     bitInByte = 0;
                     byteIdx = byteIdx + 1;
                 }
                 i = i + 1;
-                ret = (int *)0x0;
             } while (i < count);
         }
     }
-    return ret;
+    /* MATCH: oracle never materializes a return value here -- $v0 is whatever the last
+     * computation left it at (garbage); SPCH_AddBank's caller ignores the return. */
 }
 
 /* SPCH_AddBank @0x800EB520 : place bank `bank` into the first free slot (setting its cycle bits first if the

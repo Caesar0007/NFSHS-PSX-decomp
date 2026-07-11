@@ -37,7 +37,8 @@ matrixtdef Render_gCopMat;        /* cop-car matrix (scratchpad) */
 /* ownerless Ghidra-named scratchpad slots (shared draww/r3dcar; no module prefix) -- centralized
    here as render owns the un-prefixed PSX scratchpad (0x1F8000xx) region. */
 int     INT_1f800084, INT_1f800088, INT_1f80008c, INT_1f800090;   /* @0x1F800084  scratch matrix-t slot */
-int     gScratchLastWord;         /* @0x1F8000xx  scratch terminator word */
+/* gScratchLastWord: fixed-address scratchpad lvalue macro @0x1F8003FC, see nfs4_types.h
+   (matches oracle's literal lui/ori address materialization, not a %hi/%lo(sym) reloc). */
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Render_CreatePlayerViews(void);

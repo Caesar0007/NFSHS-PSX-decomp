@@ -400,19 +400,20 @@ void CarIO_CleanUpLicense(int player)
 void CarIO_LicenseCheck(int reload,int *license_vx,int *license_vy,Car_tObj *carObj,int plate)
 
 {
-  short sVar1;
-  short sVar2;
+  int sVar1;
+  int sVar2;
   int sfx_vy;
   int sfx_vx;
   
   if (((reload & 2U) != 0) && (CarIO_licenseSFX_Count < 0xc)) {
     sVar1 = CarIO_licenseSFX_Vram[CarIO_licenseSFX_Count][0];
     sVar2 = CarIO_licenseSFX_Vram[CarIO_licenseSFX_Count][1];
-    (carObj->render).licenseOffsetU[plate] = (((u_char)sVar1 & 0x3f) - ((u_char)*license_vx & 0x3f)) * '\x04'
+    sfx_vx = *license_vx;
+    (carObj->render).licenseOffsetU[plate] = (((u_char)sVar1 & 0x3f) - ((u_char)sfx_vx & 0x3f)) * '\x04'
     ;
     (carObj->render).licenseOffsetV[plate] = (char)sVar2 - (char)*license_vy;
-    *license_vx = (int)sVar1;
-    *license_vy = (int)sVar2;
+    *license_vx = sVar1;
+    *license_vy = sVar2;
     CarIO_licenseSFX_Count = CarIO_licenseSFX_Count + 1;
     return;
   }

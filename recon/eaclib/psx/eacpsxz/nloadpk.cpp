@@ -24,29 +24,46 @@ extern "C" void  blockmove    (void *src, void *dst, int n);/* eacpsxz @0x800E62
  * ===================================================================== */
 extern "C" void *loadpackadrz(char *name, int memclass)   /* @0x800E5C64 */
 {
+    /* MATCH (PASS, 46->0 diffs, 62/62 insns): a single result/accumulator (0-init BEFORE the
+     * load call, threaded through the whole function) funnels ALL exits -- the buf==0 early-out
+     * (a `goto end`) reads the pre-set 0 directly, no re-materialization (§5.0c flat-funnel).
+     * The usize!=0/==0 split is an if/else with the MAIN body nested under `if(usize!=0)` (NOT
+     * an early-return `if(usize==0){...}` followed by the main body) -- the early-return shape
+     * let gcc CROSS-JUMP/tail-merge the usize==0 exit into the main path's shared "v0=result"
+     * tail (2-insn-short near-miss); the oracle keeps them as two SEPARATE tail blocks, which
+     * only the if/else nesting reproduces (un-merged-tails class, §catalog "gcc cross-jumping"). */
+    void *result = 0;
     char *buf = (char *)loadfileadr(name, memclass);
     if (buf == 0)
-        return 0;                                  /* load failed */
+        goto end;                                  /* load failed -> result stays 0 */
 
-    int usize = unpacksize(buf);
-    if (usize == 0)
-        return buf;                                /* not packed -> return as loaded */
+    {
+        int usize = unpacksize(buf);
+        if (usize != 0) {
+            /* relocate the compressed bytes to a scratch block at the opposite heap end.
+             * MATCH: `buf` is DEAD after purgememadr(buf) below -- reuse its slot for the
+             * scratch ptr (in-place dead-variable reuse) instead of a fresh local; the oracle
+             * coalesces scratch into the just-freed buf register the same way. */
+            void *scratch = reservememadr(name, getblocksize(buf), memclass ^ 0x10);
+            blockmove(buf, scratch, getblocksize(buf));
+            purgememadr(buf);
+            buf = (char *)scratch;
 
-    /* relocate the compressed bytes to a scratch block at the opposite heap end */
-    void *scratch = reservememadr(name, getblocksize(buf), memclass ^ 0x10);
-    blockmove(buf, scratch, getblocksize(buf));
-    purgememadr(buf);
-
-    /* allocate the decompressed output and unpack into it */
-    void *out = reservememadr(name, usize, memclass);
-    if (out != 0) {
-        if (unpackz(scratch, out) == 0) {          /* unpack failed */
-            purgememadr(out);
-            out = 0;
+            /* allocate the decompressed output and unpack into it */
+            result = reservememadr(name, usize, memclass);
+            if (result != 0) {
+                if (unpackz(buf, result) == 0) {   /* unpack failed */
+                    purgememadr(result);
+                    result = 0;
+                }
+            }
+            purgememadr(buf);
+        } else {
+            result = buf;                          /* not packed -> return as loaded */
         }
     }
-    purgememadr(scratch);
-    return out;
+end:
+    return result;
 }
 
 /* ===================================================================== *

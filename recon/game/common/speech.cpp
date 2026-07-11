@@ -2380,6 +2380,10 @@ void Activate__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj 
   u_long uVar1;
   __vtbl_ptr_type (*pa_Var2) [31];
   int iVar3;
+  /* MATCH: residual 14-diff uVar1 a0-vs-v0 merge-point coloring (oracle keeps the shared
+     a->voice/8/Voice+9 temp in v0 through the branch; ours prefers a0). Tried: inline array
+     index (regressed to 32), decl-order swap, u_long->int retype — all identical or worse.
+     Genuine allocator-preferencing floor (same family as AudioCmn_UnPause), no pin. */
 
   pThis->fCarObj = carObj;
   Voice = GetVoice__6SpeechP8Car_tObj(carObj);

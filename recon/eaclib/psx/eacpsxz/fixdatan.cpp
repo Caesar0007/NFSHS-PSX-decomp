@@ -49,6 +49,14 @@ extern "C" int  divu64(int lo, int hi, unsigned int den);      /* @0x800FE4E0 ma
 
 extern "C" int fixedatan(int x, int y)   /* @0x800ED528 */
 {
+    /* RESIDUAL (110->78 diffs; insn count now EXACT 82==82 after two structural fixes below --
+     * see the a2= line and the frac/idx decl-order swap). The remaining 78 are a whole-function
+     * register-role swap: the oracle proactively copies x->$v1 / y->$s0 in the prologue (before
+     * any test), but our build's allocator proves it can reuse $a0/$a1 directly through the
+     * negate/compare/branch chain (2 fewer "addu v1,a0,zero"-style copies) and only promotes
+     * `oct` to a saved reg. Tried: swapping the y<0/x<0 test order, swapping the num/den
+     * assignment order inside the y<x branch -- neither moved the coloring. Count-exact,
+     * no missing/extra logic; accept as an allocator-efficiency near-miss (no pins). */
     int oct = 0;
     if (y < 0) { y = -y; oct |= 2; }      /* bit1: y negative */
     if (x < 0) { x = -x; oct |= 4; }      /* bit2: x negative */
@@ -63,10 +71,14 @@ extern "C" int fixedatan(int x, int y)   /* @0x800ED528 */
         int buf[2];                                       /* min/max ratio: EA make64 + divu64       */
         make64(buf, (int)num, 32);                        /* (@0x800FE488/E4E0; NOT libgcc __udivdi3) */
         unsigned r    = (unsigned)divu64(buf[0], buf[1], den);  /* (num<<32)/den as a 0.32 fraction; $a0=buf[0]=lo=0,$a1=buf[1]=hi=num per oracle 0x800ED594/598 (H01) */
-        unsigned idx  = r >> 24;
         unsigned frac = (r >> 8) & 0xFFFF;
+        unsigned idx  = r >> 24;
         int d = kAtanTbl[idx + 1] - kAtanTbl[idx];
-        a2 = kAtanTbl[idx] + (int)(((long long)d * (long long)frac) >> 16);
+        /* MATCH: plain 32-bit `mult;mflo;srl 16` -- d and frac both fit comfortably in 32 bits
+         * (d <= ~41, frac < 0x10000) so the oracle does NOT widen to a 64-bit multiply here
+         * (that's the "mult;mfhi" HIGH-part idiom for OVERFLOWING products, not this). Cast frac
+         * to (signed) int so the multiply is `mult` not `multu` (matches oracle's signed mult). */
+        a2 = kAtanTbl[idx] + ((d * (int)frac) >> 16);
     }
 
     switch (oct) {                         /* octant -> full circle; oracle jump table @0x80056CB8 (H02) */

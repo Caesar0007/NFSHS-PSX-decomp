@@ -48,6 +48,9 @@ void Platform_InitMemory(void)
 }
 
 /* ---- Platform_ReserveMemory__FiPc  [PLATFORM.CPP:139-156] SLD-VERIFIED ---- */
+/* NEAR-MISS 24 diffs (19/19): same round-up-to-4 v0/v1-vs-a1 allocator floor as the
+ * Platform_TempReserveMemory note above (the compiler back-substitutes `newmem+3` to
+ * `size+6` regardless of source form -- confirmed by testing both). Accepted near-miss. */
 char *Platform_ReserveMemory(int size,char *string)
 
 {
@@ -68,21 +71,27 @@ char *Platform_ReserveMemory(int size,char *string)
 }
 
 /* ---- Platform_TempReserveMemory__FiPc  [PLATFORM.CPP:161-178] SLD-VERIFIED ---- */
+/* NEAR-MISS 20 diffs (17/17, improved from 22 via direct-return): the round-up-to-4 divide
+ * (`newmem = (size+3); if(newmem<0) newmem = size+6; then >>2<<2`) oracle keeps LIVE IN a0
+ * (self-mutates the dead param register throughout, incl. reusing it later for the
+ * candidate-address subtraction: `sll a0,v0,2; addu a0,a2,a0; subu a0,a0,a1`); ours always
+ * allocates a fresh v0/v1 pseudo instead of reusing a0. Tried: mutating `size` in place,
+ * mutating `newmem` in place, direct-return vs cached-`mem`-var, both branch polarities --
+ * all land on the same v0/v1-vs-a0 tie-break (genuine allocator coloring floor, same family
+ * as the Night_SetWeatherColors v0-vs-dest note). Accepted near-miss. */
 char *Platform_TempReserveMemory(int size,char *string)
 
 {
   int newmem;
-  char *mem;
 
   newmem = size + 3;
   if (newmem < 0) {
     newmem = size + 6;
   }
-  mem = (char *)0x0;
   if ((gCurrentMemory + (newmem >> 2) * 4) - gLowMemory <= (int)gTotalMemory) {
-    mem = (char *)gCurrentMemory;
+    return (char *)gCurrentMemory;
   }
-  return mem;
+  return (char *)0x0;
 }
 
 /* ---- Platform_SysStartUp__Fv  [PLATFORM.CPP:207-305] SLD-VERIFIED ---- */

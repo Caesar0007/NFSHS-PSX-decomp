@@ -263,6 +263,13 @@ void Hud_BuildSprite2(SPRT *sprt,int shapeIdx,int x,int y)
 }
 
 /* ---- Hud_FBuildSprite__FiiiUli  [HUD.CPP:579-582] SLD-VERIFIED ---- */
+/* NEAR-MISS 24 diffs (37/37, count matches -- pure coloring): oracle loads the 5th stack
+ * arg `trans` LATE (register $t1, right before it's stored into the Hud_BuildSprite arg
+ * slot) and gives $t2 to the Render_gPacketPtr scratchpad-address scratch (loaded early);
+ * ours swaps the two ($t1=scratch-addr early, $t2=trans loaded early too) -- a v0/v1 swap
+ * on the tag-merge masks cascades from the same root. Tried: dropping the tu1/prev_hi
+ * locals (inlining the palette tag-merge) -- regressed to 37 diffs (worse). Genuine
+ * allocator/scheduling tie-break for a stack-passed trailing arg; accepted near-miss. */
 void Hud_FBuildSprite(int shapeIdx,int x,int y,u_long color,int trans)
 
 {

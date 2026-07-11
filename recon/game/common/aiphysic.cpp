@@ -2076,7 +2076,8 @@ void AIPhysic_CheckForGripReduction(Car_tObj *carObj)
     }
     else {
       iVar3 = carObj->personality->gripLossMinFactor;
-      iVar1 = 0x10000 - iVar3;
+      iVar1 = 0x10000;
+      iVar1 = iVar1 - iVar3;
       if (iVar1 < 0) {
         iVar1 = iVar1 + 3;
       }
@@ -2106,6 +2107,10 @@ void AIPhysic_CheckForGripReduction(Car_tObj *carObj)
     }
   }
   return;
+  /* MATCH: residual 3-diff xori/beqz vs bnez branch-sense floor (2000<iVar5 guard) —
+     tried &&/||, empty-if/else, goto-skip, >=2001, !(x<2001): all identical RTL, gcc
+     canonicalizes the comparison the same way regardless of source phrasing. Genuine
+     floor (§F scheduling class), not source-shapable without a forbidden pin. */
 }
 
 /* ---- AIPhysic_InitCar__FP8Car_tObj ---- */

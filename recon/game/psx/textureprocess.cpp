@@ -26,10 +26,12 @@ int TextureProcess_TransColorCheck(char *data,int numentry)
   int translucent_flag;
 
   translucent_flag = 0;
-  while (numentry = numentry + -1, numentry != -1) {
+  while (1) {
+    numentry = numentry - 1;
+    if (numentry == -1) break;
     uVar1 = *(u_short *)data;
     data = (char *)((int)data + 2);
-    translucent_flag = translucent_flag | (u_int)(0x8000 < uVar1);
+    translucent_flag = translucent_flag | (0x8000 < uVar1);
   }
   return translucent_flag;
 }
@@ -101,14 +103,14 @@ int TextureProcess_DepthColorCluts(char *data,int numentry)
 
   DrawSync(0);
   i = 0;
-  while (i < 0x10) {
+  while (1) {
+    if (!(i < 0x10)) break;
     Texture_GetClutId(0x10 < numentry,&cx,&cy);
     gClutDepth[TP_gZPaletteSystem.numdepthclut][i] = (short)((cy << 6) | ((cx >> 4) & 0x3f));
     TextureProcess_ColorClut(i,0x10,data,numentry,cx,cy);
     i = i + 1;
   }
-  ret = TP_gZPaletteSystem.numdepthclut;
-  TP_gZPaletteSystem.numdepthclut = ret + 1;
+  ret = TP_gZPaletteSystem.numdepthclut++;
   return ret;
 }
 

@@ -429,10 +429,7 @@ int Texture_GetTranslucencyMode(shapetbl *shp)
     }
     if (*(char *)shp == 'k') {
       abr = (u_short)shp->width >> 5 & 3;
-      if (abr != 3) {
-        return abr;
-      }
-      return 2;
+      return (abr != 3) ? abr : 2;
     }
     if ((*(u_int *)shp & 0xffffff00) != 0) {
       shp = (shapetbl *)((int)&(*(u_int *)((char *)shp + 0x0)) + ((int)*(u_int *)shp >> 8));

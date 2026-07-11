@@ -237,15 +237,16 @@ charactertbl * Font_Getcharacter(int targetindex)
   int probe_idx;
   charactertbl *ch;
   charactertbl *p;
-  char *base;
-  
-  base_00 = (*(int *)((u_char *)&(currentfont) + 132));
-  p = (charactertbl *)((*(int *)((u_char *)&(currentfont) + 132)) + (targetindex + -0x20) * 0xb);
+  u_char *base;
+
+  base = (u_char *)&(currentfont);
+  base_00 = (*(int *)(base + 132));
+  p = (charactertbl *)((*(int *)(base + 132)) + (targetindex + -0x20) * 0xb);
   probe_idx = geti(p,2);
-  if (probe_idx != targetindex) {
-    p = Font_textbsearch(targetindex,(char *)base_00,(*(int *)((u_char *)&(currentfont) + 116)),0xb);
+  if (probe_idx == targetindex) {
+    return p;
   }
-  return p;
+  return Font_textbsearch(targetindex,(char *)base_00,(*(int *)(base + 116)),0xb);
 }
 
 /* ---- Font_SetBlitter__FPFiiPviiP12charactertbli_v  [FONT.CPP:305-306] SLD-VERIFIED ---- */
@@ -269,24 +270,24 @@ void Font_SwitchFont(char *f1)
 
 {
   charactertbl *pcVar1;
-  
+  u_char *base;
+  u_char *pv1;
+  int c_val;
+  int abr_val;
+
   setfont(f1);
-  currentfont[0x94] = 0;
-  currentfont[0x95] = 0;
-  currentfont[0x96] = 0;
-  currentfont[0x97] = 0;
-  currentfont[0x98] = 0;
-  currentfont[0x99] = 0;
-  currentfont[0x9a] = 0;
-  currentfont[0x9b] = 0;
-  currentfont[0x9c] = 0;
-  currentfont[0x9d] = 0;
-  currentfont[0x9e] = 0;
-  currentfont[0x9f] = 0;
-  font_currentTPage =
-       GetTPage(*(u_char *)(*(int *)((u_char *)&(currentfont) + 136)) & 3,font_abr,
-                  (*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 0x14) >> 0x14,
-                  (*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 4) >> 0x14);
+  base = (u_char *)&(currentfont);
+  pv1 = *(u_char **)(base + 136);
+  abr_val = font_abr;
+  *(u_int *)(base + 0x94) = 0;
+  *(u_int *)(base + 0x98) = 0;
+  *(u_int *)(base + 0x9c) = 0;
+  c_val = *(int *)(pv1 + 0xc);
+  {
+    int arg3 = (c_val << 4) >> 0x14;
+    int arg2 = (c_val << 0x14) >> 0x14;
+    font_currentTPage = GetTPage(*(u_char *)pv1 & 3,abr_val,arg2,arg3);
+  }
   pcVar1 = Font_Getcharacter(0x20);
   gFontSpaceWidth = pcVar1->advance;
   return;

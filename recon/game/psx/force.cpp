@@ -289,22 +289,20 @@ ForceUpd_audioRevLoop:
 void Force_StartUp(void)
 
 {
-  u_char *actuator_walk;
   Force_tGlobal *force_walk;
-  Force_tGlobal *f;
-  
+
   force_walk = Force_g;
-  actuator_walk = Force_g[0].actuator + 1;
-  do {
-    force_walk->active = '\0';
-    actuator_walk[-6] = '\0';
-    actuator_walk[-5] = '\0';
-    actuator_walk[-3] = '\0';
-    actuator_walk[-1] = '\0';
-    *actuator_walk = '\0';
-    force_walk = force_walk + 1;
-    actuator_walk = actuator_walk + 8;
-  } while (force_walk < colourRGB);
+  if (force_walk < Force_g + 2) {
+    do {
+      force_walk->active = '\0';
+      force_walk->high = '\0';
+      force_walk->low = '\0';
+      force_walk->time = '\0';
+      force_walk->actuator[0] = '\0';
+      force_walk->actuator[1] = '\0';
+      force_walk = force_walk + 1;
+    } while (force_walk < Force_g + 2);
+  }
   VSyncCallback(Force_Vbl);
   Sched_AddFunction(simGlobal.schedule32Hz,Force_Update,Cars_gHumanRaceCarList[0],0x32);
   if (GameSetup_gData.commMode == 1) {
@@ -314,21 +312,30 @@ void Force_StartUp(void)
 }
 
 /* ---- Force_Disable__Fv  [FORCE.CPP:250-258] SLD-VERIFIED ---- */
+/* NEAR-MISS 17 diffs (30/29, improved from 25 baseline): FIXED the loop -- guarded
+ * do-while (`if(pFVar2<Force_g+2){do{...}while(...)}`, entry-tested like a real `while`)
+ * + direct struct-member stores (`pFVar2->actuator[0/1]=0`) instead of a raw negative-
+ * offset byte pointer + `colourRGB` sentinel -- the loop body/guard now byte-matches
+ * EXACTLY (indices 0-14 identical). Residual is entirely in the POST-loop tail: the two
+ * `PadSetActAlign(N,Force_gOffAlign)` calls -- oracle REMATERIALIZES `Force_gOffAlign`'s
+ * address at each call site (2x `lui a1;addiu a1`, no saved reg, smaller frame, no `sw
+ * s0`); our build's GCSE hoists the (identical) address computation into a callee-saved
+ * `s0` across the intervening `jal`. Tried: block-scoping each call in `{ }` (no change).
+ * A compiler-internal GCSE-across-calls profitability decision, not source-reachable via
+ * the standard levers; accepted near-miss. */
 void Force_Disable(void)
 
 {
-  u_char *puVar1;
   Force_tGlobal *pFVar2;
-  Force_tGlobal *f;
-  
+
   pFVar2 = Force_g;
-  puVar1 = Force_g[0].actuator + 1;
-  do {
-    puVar1[-1] = '\0';
-    *puVar1 = '\0';
-    pFVar2 = pFVar2 + 1;
-    puVar1 = puVar1 + 8;
-  } while (pFVar2 < colourRGB);
+  if (pFVar2 < Force_g + 2) {
+    do {
+      pFVar2->actuator[0] = '\0';
+      pFVar2->actuator[1] = '\0';
+      pFVar2 = pFVar2 + 1;
+    } while (pFVar2 < Force_g + 2);
+  }
   PadSetActAlign(0,Force_gOffAlign);
   PadSetActAlign(4,Force_gOffAlign);
   VSyncCallback((void *)0x0);
@@ -336,37 +343,43 @@ void Force_Disable(void)
 }
 
 /* ---- Force_IsForceOn__FP8Car_tObj  [FORCE.CPP:264-273] SLD-VERIFIED ---- */
+/* NEAR-MISS 14 diffs (23/23, count exact -- improved from 24 baseline): FIXED branch
+ * polarity -- rewrote the carIndex-range guard as an early-return `if(>=2) return 0;`
+ * (matches the oracle's fallthrough-is-the-real-body layout) instead of the inline-body
+ * `if(<2){...}return 0;` form, which had produced 3 EXTRA insns (dead early-guard delay
+ * slot + inverted bnez + a spurious `lui v0,0` return-0 dup). Residual = oracle reuses the
+ * dead `car` param register (a0, dead after reading carIndex) directly for BOTH the guard
+ * test AND the later `sll a0,3` array-index shift; ours always allocates a fresh v0/v1.
+ * Tried: hoisting carIndex into a local `int carIndex;` (no change -- same v1), inlining
+ * `car->carIndex` twice (no change). Genuine allocator coloring tie-break for a dead-param
+ * register reuse; accepted near-miss. */
 int Force_IsForceOn(Car_tObj *car)
 
 {
-  Force_tGlobal *f;
-  
   if (1 < Replay_ReplayMode) {
     return 0;
   }
-  if ((u_int)car->carIndex < 2) {
-    return (u_int)(Force_g[car->carIndex].active == '\x01');
+  if ((u_int)car->carIndex >= 2) {
+    return 0;
   }
-  return 0;
+  return (u_int)(Force_g[car->carIndex].active == '\x01');
 }
 
 /* ---- Force_Pause__Fv  [FORCE.CPP:279-285] SLD-VERIFIED ---- */
 void Force_Pause(void)
 
 {
-  u_char *puVar1;
   Force_tGlobal *pFVar2;
-  Force_tGlobal *f;
-  
+
   pFVar2 = Force_g;
-  puVar1 = &Force_g[0].time;
-  do {
-    puVar1[-3] = '\0';
-    puVar1[-2] = '\0';
-    *puVar1 = '\0';
-    pFVar2 = pFVar2 + 1;
-    puVar1 = puVar1 + 8;
-  } while (pFVar2 < colourRGB);
+  if (pFVar2 < Force_g + 2) {
+    do {
+      pFVar2->high = '\0';
+      pFVar2->low = '\0';
+      pFVar2->time = '\0';
+      pFVar2 = pFVar2 + 1;
+    } while (pFVar2 < Force_g + 2);
+  }
   return;
 }
 

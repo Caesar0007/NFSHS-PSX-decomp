@@ -41,6 +41,15 @@ void Loading_DrawLoadingScreen(void)
 }
 
 /* ---- Loading_UpdateLoadingScreen__Fi  [LOADING.CPP:60-92] SLD-VERIFIED ---- */
+/* NEAR-MISS 4 diffs (62/62, improved from 25 baseline): FIXED (a) `max=0x17` moved BEFORE
+ * the `if(checkpoint==1..)` block -- oracle materializes the constant once, very early,
+ * before any conditional, not after (matches the do-while's guard test too, added a
+ * `if(i<max)` entry guard around the do-while per the standard guarded-do-while shape,
+ * §3.12 #15a family). Residual 4 diffs = a commutative-add reassociation: oracle groups
+ * the DrawDirectScreen offset as `(i+0x8e) + s1invariant`, ours as `(s1invariant+i)+0x8e`
+ * -- same value, tried several explicit parenthesizations/operand orders, none reproduced
+ * the oracle's exact grouping without perturbing the loop-invariant hoist itself (worse).
+ * Accepted near-miss. */
 void Loading_UpdateLoadingScreen(int checkpoint)
 
 {
@@ -49,17 +58,19 @@ void Loading_UpdateLoadingScreen(int checkpoint)
   int max;
   char name [255];
 
+  max = 0x17;
   if ((checkpoint == 1) && (smallShapeFile == (char *)0x0)) {
     sprintf(name,"%sLoadb.psh",Paths_Paths[0x19]);
     smallShapeFile = (char *)loadshapeadr(name,(void *)0x10);
   }
-  max = 0x17;
   i = 0;
-  do {
-    tile = locateshapez(smallShapeFile,"back");
-    Draw_DrawDirectScreen(tile,(checkpoint + -1) * 0x17 + i + 0x8e,0xc0);
-    i = i + 1;
-  } while (i < max);
+  if (i < max) {
+    do {
+      tile = locateshapez(smallShapeFile,"back");
+      Draw_DrawDirectScreen(tile,(checkpoint + -1) * 0x17 + i + 0x8e,0xc0);
+      i = i + 1;
+    } while (i < max);
+  }
   if ((checkpoint == 10) && (smallShapeFile != (char *)0x0)) {
     purgememadr(smallShapeFile);
     smallShapeFile = (char *)0x0;

@@ -33,7 +33,7 @@ extern int               screenheight, ticks, gFlip, gLargestUnused, Draw_gPlaye
 extern int            Chunk_numLight;            /* 0x8013d4ec */
 extern int            Draw_gPlayer1View, Draw_gPlayer2View;
 extern int            gNumSlices;
-extern int    Skid_gCtrlScratch_94, Skid_gCtrlScratch_98, Skid_gScratchPos1, Skid_gScratchPos2, gScratchLastWord;
+extern int    Skid_gCtrlScratch_94, Skid_gCtrlScratch_98, Skid_gScratchPos1, Skid_gScratchPos2;
 extern CTrackSpec     TrackSpec_gSpec;           /* 0x8012327c */
 extern int   BWorldSm_FindClosestQuadRez(coorddef *c, BWorldSm_Pos *pos, int rez);
 extern int  *Track_gInViewCount;     /* = Alloc(...), indexed */

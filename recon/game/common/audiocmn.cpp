@@ -2096,6 +2096,10 @@ void AudioCmn_UnPause(void)
     iVar2 = ((iVar2 + -0x55) * 7) / 2 + 0x55;
     iVar1 = iVar2 << 3;
   }
+  /* MATCH: residual 14-diff iVar1 a0-vs-v0 coloring (oracle keeps iVar1 in v0 through the
+     merge; ours prefers a0, the AudioMus_Volume call-arg reg, back-propagated across iVar1's
+     whole live range). Tried: fresh call-arg temp, decl-order swap, pre-init, fresh if-body
+     temp — all identical. Genuine allocator-preferencing floor (§A/§F class), no pin. */
   AudioMus_Volume(((iVar1 + iVar2) * 4 - iVar2) * 2 >> 7);
   AudioEng_Resume();
   GameSetup_gData.userSetting.sfxLevel = gMasterSFXLevel;

@@ -2650,6 +2650,10 @@ void Cars_CleanUp(void)
   
   iVar4 = 0;
   if (0 < Cars_gNumCars) {
+    /* MATCH: residual 4-diff s0/s1 preheader-order swap (both loop-invariant addr
+       materializations for Cars_gList/simGlobal land in the right regs throughout the body;
+       only the ORDER the two independent lui/addiu pairs are emitted differs). Tried: dead
+       early simGlobal touch. Genuine LICM/scheduling tie-break floor (§E/§F class), no pin. */
     ppCVar3 = Cars_gList;
     do {
       Sched_DeleteFunction(simGlobal.schedule32Hz,(*ppCVar3)->funcUpdateRoadInfo,*ppCVar3);
@@ -2669,16 +2673,17 @@ void Cars_CleanUp(void)
         Sched_DeleteFunction(simGlobal.schedule32Hz,Force_Update,*ppCVar3);
       }
       pCVar2 = *ppCVar3;
-      schedule32Hz = simGlobal.schedule32Hz2;
       if ((pCVar2->carFlags & 4U) != 0) {
         schedule32Hz = simGlobal.schedule64Hz;
+      }
+      else {
+        schedule32Hz = simGlobal.schedule32Hz2;
       }
       iVar4 = iVar4 + 1;
       Sched_DeleteFunction(schedule32Hz,pCVar2->funcQDPhysicsUpdateRot,pCVar2);
       Cars_DeInitCar(*ppCVar3);
-      pCVar2 = *ppCVar3;
+      purgememadr(*ppCVar3);
       ppCVar3 = ppCVar3 + 1;
-      purgememadr(pCVar2);
     } while (iVar4 < Cars_gNumCars);
   }
   return;

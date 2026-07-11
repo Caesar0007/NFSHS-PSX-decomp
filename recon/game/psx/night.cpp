@@ -330,6 +330,16 @@ void Night_SetCopLightColors(int colorIndex,int brighten)
 }
 
 /* ---- Night_InitWeatherTables__Fv  [NIGHT.CPP:532-540] SLD-VERIFIED ---- */
+/* NEAR-MISS 20 diffs (35/33): (1) oracle materializes Night_gWeatherLightingTable's base
+ * DIRECTLY into s0 (`lui s0;addiu s0,s0,lo`); ours self-temps via v0 first (`lui v0;addiu
+ * s0,v0,lo`) -- same v0-vs-dest register-materialization tie-break already documented on
+ * the sibling Night_SetWeatherColors below (tried &arr[0], order swaps -- no change).
+ * (2) Night_gWeatherColor[0]/[1] stores: oracle uses SEPARATE per-element %gp_rel(sym)/
+ * %gp_rel(D_sym+4) symbols (a real 8-byte array > -G4 gp-elig threshold gets gp-rel'd
+ * per-element by the ORIGINAL aspsx toolchain); ours materializes the array base via lui
+ * and stores at fixed offsets. Catalog "gp-rel-INTO-an-array-ELEMENT" toolchain floor
+ * (reference_asm_pattern_catalog.md row E / Hud_Reset) -- confirmed NOT source-reachable.
+ * Both are genuine floors, not source-shapable; accepted near-miss. */
 void Night_InitWeatherTables(void)
 
 {
@@ -497,6 +507,17 @@ void Night_InitNightDriving(void)
 }
 
 /* ---- Night_KillNightDriving__Fv  [NIGHT.CPP:687-719] SLD-VERIFIED ---- */
+/* NEAR-MISS 26 diffs (44/40): first 4 purge-blocks (nightfile, Night_gPlayerLightingTable,
+ * Night_gCopLightingTableRed, Night_gCopLightingTableBlue -- all true SCALAR globals)
+ * byte-match via %gp_rel. The last 2 blocks (Night_gWeatherLightingTable[0]/[1], elements of
+ * a real 2-elem array also indexed with a RUNTIME variable in draww.cpp -- off-limits, can't
+ * split into two scalars) diverge: oracle addresses them via SEPARATE per-element
+ * %gp_rel(Night_gWeatherLightingTable)/%gp_rel(D_8013D9F4) symbols (the original aspsx
+ * toolchain gp-rel's each element of a small array individually); ours must materialize an
+ * absolute base (lui s0 / addiu s1,s0,0) since our array's total size (8B) exceeds GCC's
+ * -G4 per-OBJECT threshold. Confirmed toolchain floor, catalog "gp-rel-INTO-an-array-ELEMENT"
+ * row (reference_asm_pattern_catalog.md §E / Hud_Reset) -- not source-reachable without
+ * splitting the array (would break draww.cpp's variable index). Accepted near-miss. */
 void Night_KillNightDriving(void)
 
 {

@@ -28,7 +28,7 @@ extern char              *Paths_Paths[];
 extern int                Render_gMenuRenderFlag;
 extern int                Texture_CarColor, Texture_palNum;
 extern DRender_tView      gCView;
-extern int                gFlip, gNight_renderNight, gScratchLastWord;
+extern int                gFlip, gNight_renderNight;
 extern int                generic128HzClock, stackSpeedUpEnbabledFlag;
 extern u_long             gWSavePtr;
 

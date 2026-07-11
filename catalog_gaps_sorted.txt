@@ -1,0 +1,141 @@
+1	(multi)                            commit dd1bd0e             :: recon: tree-wide & 0x1f shift-mask Ghidra-ism sweep (-220 diffs, ~40 fns) + unhuff PC-beta		
+2	(multi)                            commit 7e4261e             :: match: (signed char) sweep -- fix lbu->lb where ccpsx char-unsigned diverges		
+3	(multi)                            commit 8521faf             :: match: SNDautovol PASS -- (signed char)sndgs[0xf] forces lb not lbu		
+4	(multi)                            commit 493fae2             :: match: SYM-driven near-miss sweep -- 2 PASS + diff reductions		
+5	(multi)                            commit 910045e             :: revert(verify_asm): drop call-target check â reloc-name leniency is intentional		
+6	(multi)                            commit 91c700f             :: match: libcard PATCH nops + anim/bworld/copspeak/nfs3 near-miss fixes		
+7	(multi)                            commit 969996d             :: match: 6 mid-diff game functions byte-matched (task #78)		
+8	(multi)                            commit 76e43b4             :: match: ~67 functions byte-matched across 6 regions (pattern-DB-triaged fan-out)		
+9	(multi)                            commit d051f1f             :: frontend: byte-match +55 near-misses via 8-way matching fan-out		
+10	Night_NightCopCalc                 commit 1a1ca01             :: draww: Night_NightCopCalc structural fix (gCopColor stride + sign-branch)		
+11	DoObjectAnimations                 commit a42c6a7             :: draww: seal DoObjectAnimations; LoadPrecVECTOR 16->2 (sched floor)		
+12	(multi)                            commit 8879e7f             :: match: libcd cdread/stcdint settle + libmath _comp_mant 19->16 (straggler improvements)		
+13	(multi)                            commit 617df4b             :: patch_permuter: make permuter score track objdiff (reloc-leniency + penalty rebalance)		
+14	LoadScriptData                     commit 40cef4f             :: aiperson: LoadScriptData + LoadGlue pin-free 100%; LoadPersonalityData 92.71->96.32		
+15	ProcessActions                     commit cfd31e8             :: aiscript: ProcessActions 100% pin-free â drop register-asm constraints		
+16	LoadGlue                           commit 6411e45             :: aiperson LoadGlue 88->100%: pin compare consts to v0 (no LICM hoist) â UNIT 8/8		
+17	ProcessActions                     commit 189c616             :: aiscript: ProcessActions 73.57 -> 85.92 (match oracle SYM local structure)		
+18	(multi)                            commit eb26097             :: docs: add silent-hill-decomp cross-reference (toolchain match, permuter passes)		
+19	AIInit_LoadConfigs                 commit 4482a45             :: aiinit: AIInit_LoadConfigs 100% match + permuter -j parallelism		
+20	AIInit_DeInitAICar                 commit 7d4def8             :: aiinit: AIInit_DeInitAICar 100% match (permuter-assisted)		
+21	(multi)                            commit e2f261a             :: decomp: auto-match gp_rel/lui global set/return fns (+3, 0.278%)		
+22	(?)	recon/eaclib/psx/eacpsxz/asinfunc.cpp:59	coarse region = the if-BODY (bnez -> out-of-line steep block); the round
+23	(?)	recon/eaclib/psx/eacpsxz/atanfunc.cpp:53	beqz->+0x100 arm out-of-line
+24	(?)	recon/eaclib/psx/eacpsxz/atanfunc.cpp:67	BRANCHED round (a ?: strength-reduces to the branchless bit-add)
+25	(?)	recon/eaclib/psx/eacpsxz/fsincos.cpp:12	the weight polynomial is INLINE (no helper call exists in the binary --
+26	(?)	recon/eaclib/psx/eacpsxz/locatbig.cpp:139	result-funnel var (s0=0 in the jal slot), conditional assign, one return.
+27	(?)	recon/eaclib/psx/eacpsxz/locatbig.cpp:37	result-FUNNEL var (s0, init 0 in the prologue) set per branch, ONE return --
+28	(?)	recon/eaclib/psx/eacpsxz/locatbig.cpp:52	result funnel + SWITCH dispatch (two forward beq's to out-of-line case
+29	(?)	recon/eaclib/psx/eacpsxz/locatbig.cpp:68	same funnel + switch-dispatch shape as sizeofbigfileheader.
+30	helpers	recon/eaclib/psx/eacpsxz/memstd.cpp:81	forward walk = the if-BODY (bnez a2 -> out-of-line reverse loop); walker
+31	(?)	recon/eaclib/psx/eacpsxz/nsync.cpp:146	post-call accesses go through a SEPARATE local pointer `p` -- splits the
+32	(?)	recon/eaclib/psx/eacpsxz/nsync.cpp:200	goto ERROR-TAIL idiom -- one shared `closefail` (close+return 0) block at
+33	(?)	recon/eaclib/psx/eacpsxz/trnspos.cpp:20	each swap written HIGH->LOW (t = d[hi]; d[hi] = d[lo]; d[lo] = t) --
+34	(?)	recon/eaclib/psx/sndpsxz/sdfx.cpp:98	near-miss floor (11 diffs): oracle's `lui v0,%hi(D_8014791c)` (computed early, before the
+35	(?)	recon/eaclib/psx/sndpsxz/spktplay.cpp:305	the +0xc pitch field is read TWICE (guard + multiply) and the +0 state word is re-set righ
+36	internal	recon/eaclib/psx/sndpsxz/sst.cpp:103	near-miss (3 insns): oracle keeps 2 un-merged `jr ra` tails (zero-return in the
+37	(?)	recon/eaclib/psx/sndpsxz/sst.cpp:158	near-miss floor (1 insn): oracle hoists `lui %hi(sndss)` into the `lw a1` load-delay
+38	(?)	recon/eaclib/psx/sndpsxz/sst.cpp:208	lock the current format -- near-miss residual (9 diffs): oracle copies JUST the rate word
+39	(?)	recon/eaclib/psx/sndpsxz/sst.cpp:231	parseIdx (+0x17) needs the LITERAL oracle shift-chain `((u8<<24)>>24)`, not the `MSB` macr
+40	(?)	recon/eaclib/psx/sndpsxz/sst.cpp:329	near-miss floor (1 insn, 9 diffs): oracle fuses the `avail<thresh` compare + STREAM_state(
+41	(?)	recon/eaclib/psx/sndpsxz/sst.cpp:349	near-miss residual (1 insn): oracle colors S->$s1 + the &sndss scratch via
+42	(?)	recon/eaclib/psx/sndpsxz/sst.cpp:404	(int *)(S + 0x1c) = *(int *)(S + 0x20); /* lock the new rate -- near-miss residual:
+43	(?)	recon/eaclib/psx/sndpsxz/sst.cpp:446	near-miss floor (4 diffs): oracle's &sndss address-materialization uses
+44	(?)	recon/eaclib/psx/sndpsxz/sst.cpp:547	near-miss residual: oracle leaves this bgez's
+45	(?)	recon/eaclib/psx/sndpsxz/svol.cpp:18	near-miss floor (3 diffs, was 5 -- 2 were a genuine `break`-vs-`return 0` bug, now fixed):
+46	(?)	recon/eaclib/psx/spchpsxz/spchpick.cpp:137	byFind block laid out FIRST (oracle .L8DC precedes byParam .L8EC)
+47	(?)	recon/eaclib/psx/spchpsxz/spchpick.cpp:144	array decl -> separate-temp load (lui v0; lw v1)
+48	(?)	recon/eaclib/psx/spchpsxz/spchpick.cpp:155	success = fall-through, -1 arm out-of-line
+49	(?)	recon/eaclib/psx/spchpsxz/spchpick.cpp:198	plain signed /8 -> gcc's bgez/+7/sra COPY form (cycle stays $a1)
+50	tDialogYesNo	recon/frontend/common/fedialog.cpp:800	oracle emits 3 separate `sw zero,0x78` (timeOutTicks); gcc folds the 2nd of two
+51	tListIteratorIndexed	recon/frontend/common/femenu.cpp:177	SYM = FCN VOID, no locals; plain while (jump.c duplicate_loop_exit_test)
+52	tListIteratorDoubleIndexed	recon/frontend/common/femenu.cpp:260	SYM = FCN VOID, no locals; plain while (jump.c duplicate_loop_exit_test)
+53	tListIterator	recon/frontend/common/femenu.cpp:86	SYM = FCN VOID, no locals; plain while (jump.c duplicate_loop_exit_test)
+54	MenuExtended_PurchaseUpgrade	recon/frontend/common/femenudefs.cpp:1401	NEAR-MISS 73 diffs (was 94): dropped the eager `ptVar1 = FEApp` cache -> FEApp now loaded
+55	GenericMenuLoadGame	recon/frontend/common/femenudefs.cpp:1550	NEAR-MISS 21 diffs (was 36): structure now matches the oracle exactly -- 32B frame,
+56	AskTheUserToSaveTheGame	recon/frontend/common/femenudefs.cpp:329	NEAR-MISS 25 diffs (was 29): xori;beqz cheater idiom now matches (via `(x^1)` test); call
+57	GenericMenuSaveGame	recon/frontend/common/femenudefs.cpp:658	NEAR-MISS 58 diffs (was 69): literal FEApp de-ref (dropped the value-cache) + `^1` fFullyO
+58	PinkSlipsPreSave	recon/frontend/common/femenudefs.cpp:709	NEAR-MISS 33 diffs (unchanged from baseline; cleaned locals). The return-funnel (ret=1
+59	tMenuItemSlidingActivated	recon/frontend/common/femenuoptions.cpp:1244	SYM = no locals; direct member exprs, fSlideOffset BEFORE fOpenHeight
+60	Fetools	recon/frontend/common/fetools.cpp:11	font ptrs live in regular .data (defined in asm/data/front_data.data.s), reached
+61	tScreenBeTheCopCongrats	recon/frontend/common/screencongrats.cpp:868	pass buffer (addr held in s0 across sprintf, 3.12#16), NOT sprintf's return
+62	StatChk_ClearNewRecords	recon/frontend/common/statchk.cpp:450	split -> la NewRecords + separate addiu 0x1C (oracle unfused)
+63	iMCRD_DoFileDelete	recon/frontend/psx/memcard.cpp:436	SYM local; la(+0x260) anchor, name=+4, base=-0x260
+64	FeDraw_SetABRMode	recon/frontend/psx/mmeffect.cpp:18	lost-dataflow `in_a0` read == the regparm abr). Non-SYM temps named to match PSXFRONT:
+65	CheckSpikeBelt__15AIHigh_BasicCop	recon/game/common/aih_basiccop.cpp:87	split bool + ! emits slti+sltiu (seq); `> 0x13f` emits slti+xori
+66	(?)	recon/game/common/aih_btccop.cpp:1164	gp-store first materializes the shared 1 (li v1,1) before the lui
+67	(?)	recon/game/common/aih_btcperp.cpp:342	materialized bool (slti+xori, 2 uses)
+68	AIPhysic_HitWallCheck__FP8Car_tObj	recon/game/common/aiphysic.cpp:131	near-miss (onRoadâ$v0/laneCountâ$a2 vs oracle $a2/$a3) survived 8 structural levers, B
+69	AIPhysic_CalculateGear__FP8Car_tObj	recon/game/common/aiphysic.cpp:283	(cross-ref Â§3.14 SH `@hack Needs to be int for ABS to match`; same class as the
+70	AIScript_ProcessActionsAndReactions__FP10AIScript_ti	recon/game/common/aiscript.cpp:112	lastReactionIndex = *lastReactionIndex + 1; } while (0);  /* block scope nudges gcc's stor
+71	AISpeeds_GetLegalSpeed__Fi	recon/game/common/aispeeds.cpp:920	it silently regresses this fn to a 3-diff near-miss.
+72	AudioCmn_GetTrackRecordLapTime__Fv	recon/game/common/audiocmn.cpp:147	2-diff near-miss: oracle fuses the +offset into %lo (maspsx splits it) â a toolchain rel
+73	AudioMus_Threshold__Fv	recon/game/common/audiomus.cpp:64	NEAR-MISS 9: bigfileheader beqz-vs-bnez layout tie + un-merged threshold returns; goto for
+74	BWorld_InitSpikeBelt__Fv	recon/game/common/bworld.cpp:158	NEAR-MISS 47 diffs (44/43 insns), reduced from a baseline of 52 diffs (45/43 insns).
+75	BWorld_InitSpikeBelt__Fv	recon/game/common/bworld.cpp:179	near-miss BWorld_OpenContext below (InitContexts, cited here previously, has
+76	SetupBuildMatrices__FP13DRender_tViewP11Draw_DCache	recon/game/common/bworld.cpp:239	NEAR-MISS 94 diffs (179/181 insns), reduced from a baseline of 147 diffs (170/181 insns).
+77	SetupBuildMatrices__FP13DRender_tViewP11Draw_DCache	recon/game/common/bworld.cpp:240	ð´ THREE REAL BUGS FIXED (not just byte-match issues):
+78	SetupBuildMatrices__FP13DRender_tViewP11Draw_DCache	recon/game/common/bworld.cpp:260	instructions. Fixed to `Cars_gCopCarList - 1` (added the extern) to match the
+79	BWorld_CheckChunkVisible__FP12BWorldSm_PosT0	recon/game/common/bworld.cpp:374	NEAR-MISS 106 diffs (74/80 insns), reduced from a baseline of 114 diffs (66/80 insns).
+80	BWorld_CheckChunkVisible__FP12BWorldSm_PosT0	recon/game/common/bworld.cpp:375	ð´ REAL BUG FIXED (not just a byte-match issue): the two `chunkIndex` lookups were
+81	BWorld_IsSliceInBuildList__Fi	recon/game/common/bworld.cpp:551	PASS (21/21 insns). Was a 5-diff near-miss: oracle loads BWorld_gChunkCount into $v0 for t
+82	BWorld_InitContexts__Fv	recon/game/common/bworld.cpp:689	PASS (14/14 insns). Was a 2-diff near-miss: oracle loads `li a3,-1` BEFORE `li a2,1`; a pl
+83	BWorld_InitContexts__Fv	recon/game/common/bworld.cpp:693	to match the oracle (`li a3,-1` first) without changing the loop trip count/shape, so the 
+84	BWorld_OpenContext__Fii	recon/game/common/bworld.cpp:732	NEAR-MISS 47 diffs (41/46 insns), reduced from a baseline of 88 diffs (50/46 insns).
+85	BWorld_OpenContext__Fii	recon/game/common/bworld.cpp:757	did not respond to the analogous levers and remains a near-miss). ACCEPT.
+86	BworldSm_UpdateSimQuad__FP12BWorldSm_Pos	recon/game/common/bworldSm.cpp:400	re-read via slicePos (cse -> addu v0,a1 copy), not pTVar2 direct
+87	CopSpeak_Request__FP17CopSpeak_tRequest	recon/game/common/copspeak.cpp:738	single top capture (a3) reused for guard 1 + copy index + return; guard 2 re-reads the glo
+88	(?)	recon/game/common/func_va_data.cpp:4	that have reached a 100% byte-match. Migrating this data into the project (per
+89	(?)	recon/game/common/gmesetup.cpp:4	100% byte-match on the repo's gcc-2.8.0 (225 insns, pin-free).  Three levers:
+90	Object_FindDefWithThisID	recon/game/common/object.cpp:673	NEAR-MISS 10: gcc lays beq-to-return + inline i++/j; oracle bne-around-return. if/else, co
+91	Paths_StartUp	recon/game/common/paths.cpp:20	unused frame filler â SYM shows scan as class AUTO @-8 (0x18 frame in the oracle); 20 de
+92	Device_PSXPadMulti__FUl	recon/game/psx/device.cpp:278	NEAR-MISS (was 46 diffs -> now 17, ours 56/oracle 55): outer if/else branch polarity
+93	Device_PSXPadMulti__FUl	recon/game/psx/device.cpp:279	inverted to match the oracle's beqz-pauseSim==0 fall-through (same class as Device_
+94	Device_PSXPadMulti__FUl	recon/game/psx/device.cpp:280	Update); the inner "port 0 found" if/else polarity flipped to match too; dropped a
+95	Device_PSXPadMulti__FUl	recon/game/psx/device.cpp:291	found. Parking as an honest near-miss; the call-result-caching habit repeats
+96	Device_Analog__FUl	recon/game/psx/device.cpp:339	NEAR-MISS (was 63 diffs -> now 57, ours 67/oracle 64): uVar2/uVar4/uVar5 retyped
+97	Device_VerifyType__Fi	recon/game/psx/device.cpp:49	NEAR-MISS (was 31 diffs -> now 11, ours 41/oracle 42): the two structural bugs are
+98	Device_VerifyType__Fi	recon/game/psx/device.cpp:66	near-miss; the remaining lever to try next session is a source form where isP2's
+99	Draw_DeInitViews__Fv	recon/game/psx/draw.cpp:167	SYM (nfs4-f-v3.txt @0x800BDCE0) names exactly ONE local (`i`); the oracle is a
+100	Draw_DeInitViewsInGame__Fv	recon/game/psx/draw.cpp:202	SYM (nfs4-f-v3.txt @0x800BDD68) names exactly ONE local (`i`) -- the pointer
+101	Draw_StartFrameRender__Fv	recon/game/psx/draw.cpp:450	SYM (nfs4-f-v3.txt @0x800BE2C0) names exactly ONE local (`i`, reg $s1); oracle
+102	Draw_StopFrameRender__Fv	recon/game/psx/draw.cpp:512	SYM (nfs4-f-v3.txt @0x800BE36C) names exactly ONE local (`i`), live range
+103	DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache	recon/game/psx/draww.cpp:112	field-fusion + load-3/store-3 -- the oracle copies each vertex's RGBA as one
+104	DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache	recon/game/psx/draww.cpp:1239	SYM (nfs4-f-v3.txt @0x800C6E38) names `numQuads` (reg $s0) and `pquad` (reg
+105	DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache	recon/game/psx/draww.cpp:1281	SYM (nfs4-f-v3.txt @0x800C6EB8) names `r0`,`r1` sharing ONE register ($v0) and
+106	DrawW_GetAnimationTime__FP15Trk_AnimateInst	recon/game/psx/draww.cpp:1589	early-return the gameTicks case (inverted condition) so gcc lays out
+107	DrawW_DoObjectAnimations__Fv	recon/game/psx/draww.cpp:1695	load deferred past the track test (oracle order)
+108	DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache	recon/game/psx/draww.cpp:88	field-fusion + load-4/store-4 (see GT3).  POLY_GT4 stores v2 in slot 3 (+0x28)
+109	Flare_2DSpike__FPlT0i	recon/game/psx/flare.cpp:1103	split-temp `rgb = gfrgb2word` read BEFORE the
+110	Hud_BTC_QuitOut__Fv	recon/game/psx/hud.cpp:3789	NEAR-MISS 6 diffs (49/49, down from 8): SYM shows only block-scoped `i` -- the base ptr mu
+111	Night_SetPlayerHeadLightColor__Fiii	recon/game/psx/night.cpp:287	NEAR-MISS 10 diffs (15/15): oracle computes the element address as
+112	Night_SetWeatherColors__Fi	recon/game/psx/night.cpp:356	NEAR-MISS 8 diffs (31/31): oracle loads Night_gWeatherColor â s1 via `lui s1; addiu s1,s
+113	Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache	recon/game/psx/sfx.cpp:122	NEAR-MISS 53 diffs (121/126 insns -- 5-insn STRUCTURAL gap, re-measured 2026-07-06; the
+114	Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache	recon/game/psx/sfx.cpp:133	call-site-fixable near-miss: tried (a) `(char*)prim+N` cast, (b) computing the address int
+115	Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache	recon/game/psx/sfx.cpp:141	ACCEPT as a genuine cross-file near-miss (matches Â§3.12's base+offset-fusion family, but 
+116	Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache	recon/game/psx/sfx.cpp:147	named scratch locals even though the VALUES are identical. Kept the byte-match-proven name
+117	Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle	recon/game/psx/sfx.cpp:213	NEAR-MISS 74 diffs (864/938 insns), was previously mis-classified + transcribed as a file-
+118	Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle	recon/game/psx/sfx.cpp:214	__asm__ blob. ð´ CORRECTED 2026-07-06 (GTE-heavy near-miss sweep): that classification w
+119	Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap	recon/game/psx/sfx.cpp:39	NEAR-MISS 3 diffs (114/115): oracle has `nop; lui v1,%hi(gSMokePixmap)` (nop in bnez delay
+120	Weather_InitSplats__Fv	recon/game/psx/weather.cpp:186	NEAR-MISS 7 diffs (68/69 insns, down from 11): moving `splat_i = 0` to be the FIRST statem
+121	Weather_InitSplats__Fv	recon/game/psx/weather.cpp:196	exit-in-the-middle
+122	(?)	recon/game/psx/weather.cpp:24	a1,s0,v0` with s0=player<<2) -- unresolved as its own near-miss, not attempted this pass -
+123	Weather_ChangeIntensityBasedOnTime__Fv	recon/game/psx/weather.cpp:328	NEAR-MISS 4 diffs (62/62 insns, down from 56 diffs): goto-based control-flow rewrite match
+124	Weather_Restart__Fv	recon/game/psx/weather.cpp:397	SEALED (was NEAR-MISS 18 diffs, ours 33/oracle 31): the two Weather_gLastProcessTime[N]=
+125	Weather_TransformVertex__FP10matrixtdefiP7SVECTOR	recon/game/psx/weather.cpp:571	NEAR-MISS 32 diffs (49/49 insns, down from 39): moved the loop's break-test BEFORE `next=s
+126	Weather_SetMatrix__FP10matrixtdef	recon/game/psx/weather.cpp:67	SYM block scopes are
+127	(?)	recon/stdarg.h:1	PsyQ 4.3 STDARG.H (byte-match-correct, cc1plus 2.7.2)
+128	(?)	recon/syslib/psx/libapi/FIRST.cpp:14	BYTE-MATCH STATUS: WALL (firstfile, 102/103 diffs).  This is a faithful BEHAVIORAL recon b
+129	(?)	recon/syslib/psx/libapi/FIRST.cpp:20	cast to match).
+130	(?)	recon/syslib/psx/libc/SPRINTF.cpp:12	VERIFY: behaviorally faithful but a large NEAR-MISS WALL (~436/558 insns; the recon is ~12
+131	(?)	recon/syslib/psx/libc/SPRINTF.cpp:13	short of the oracle).  This is the biggest libc fn (a 558-insn printf-family parser).  A b
+132	streaming	recon/syslib/psx/libcd/cdread2.cpp:22	void - oracle has no addu v0,zero,zero
+133	ISO9660	recon/syslib/psx/libcd/iso9660.cpp:76	sltiu (unsigned < 1) not slti
+134	(?)	recon/syslib/psx/libetc/INTR.cpp:123	oracle uses g_imask_ptr (D_80135B88) indirection â lw ptr; lhu *ptr; sh a0,*ptr in jr de
+135	(?)	recon/syslib/psx/libgpu/SYS.cpp:106	i=n-1 hoisted ABOVE the guard -- n stays live across the compare, so the
+136	(?)	recon/syslib/psx/libgpu/SYS.cpp:127	NEAR-MISS (5): andi not in the dfe-beqz slot (+nop) + `or v0,v0,v1` operand order.
+137	(?)	recon/syslib/psx/libgte/PATCHGTE.cpp:13	_gte_patch_text @0x80106500 holds both halves: words [0..5] are the buggy pattern to match
+138	(?)	recon/syslib/psx/libpad/PADCMD.cpp:304	r=1 hoisted before info[0x46]=1 â oracle emits addiu v0,0,1 (return) then addiu v1,0,1
+139	(?)	recon/syslib/psx/libpad/PADCMD.cpp:386	goto form â beq/beq/j pattern (not bne/bne fall-through).
+140	forward	recon/syslib/psx/libpad/PADCMD.cpp:75	same r=1 hoist as _padCmdParaMode.
+141	(?)	recon/syslib/psx/libpad/PADCMD.cpp:87	same r=1 hoist.

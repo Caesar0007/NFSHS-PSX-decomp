@@ -95,32 +95,29 @@ void Audio_FECleanUp(void)
 int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum)
 
 {
-  char cVar1;
   int iVar2;
-  char *p;
-  int check;
-  char *pool_name;
   char *ptemp;
   char *destBuf;
   int bhandle;
-  
+
+  ptemp = filename;
   bhandle = -1;
   destBuf = (char *)0x0;
-  pool_name = filename;
-  if (*filename != '\0') {
-    cVar1 = *filename;
-    do {
-      if (cVar1 == '\\') {
-        pool_name = filename + 1;
-      }
-      filename = filename + 1;
-      cVar1 = *filename;
-    } while (cVar1 != '\0');
+  /* MATCH: the original mutates the filename PARAM in place as the pool name (param home
+     reg s0) and walks a FRESH temp (ptemp, v1) -- not the inverse. WHILE loop (not
+     if+do-while: the rotated guard re-loads *ptemp in the preheader = the oracle's double
+     load). destBuf=0 BEFORE the loop so the loop join blocks cse reusing s1 as the zero
+     arg of reservememadr (oracle: addu a2,zero,zero). */
+  while (*ptemp != '\0') {
+    if (*ptemp == '\\') {
+      filename = ptemp + 1;
+    }
+    ptemp = ptemp + 1;
   }
   iVar2 = SNDbankadd(&bhandle,pdata);
   if (iVar2 == 7) {
     iVar2 = SNDbankheadersize(bhandle);
-    destBuf = reservememadr(pool_name,iVar2,0);
+    destBuf = reservememadr(filename,iVar2,0);
     SNDbankheadercopy(destBuf,bhandle);
     iVar2 = SNDbankheadersize(bhandle);
     size = size - iVar2;

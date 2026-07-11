@@ -34,9 +34,13 @@ extern "C" void  blockmove(void *src, void *dst, int n);       /* @0x800E62DC */
 extern "C" void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
 {
     char *hdr = (char *)userptr - 0x10;                         /* s3 = block header */
-    unsigned short flags = *(unsigned short *)(hdr + 2);        /* s1 */
+    unsigned flags = *(unsigned short *)(hdr + 2);              /* s1 (u_int: avoid a redundant andi 0xffff) */
     char *next = *(char **)(hdr + 8);                           /* s2 = hdr->physnext */
     MemClass *cls = gMemClassTable[flags & 0xF];                /* s5 */
+    int usable = newsize;                                       /* s4 (delay-slot fill of the merge-check branch).
+        register-coloring residual: gcc allocates hdr/next/usable to s4/s3/s2 here vs the oracle's
+        s3/s2/s4 -- a 3-way rotation, pure coalescing/priority tie-break, NOT source-reachable via
+        decl-order/type/statement-order tries so far (see the session report). */
 
     /* 1. coalesce forward if the next physical block is free */
     if (*(unsigned short *)(next + 2) & 0x4000) {
@@ -45,9 +49,8 @@ extern "C" void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
         *(char **)(hdr + 8) = next;                             /* hdr->physnext = next */
     }
 
-    /* 2. clamp requested size (s4 keeps the raw value used as the new tail offset) */
-    int usable = newsize;                                       /* s4 */
-    int sz     = newsize;                                       /* s0 */
+    /* 2. clamp requested size (s4/usable keeps the raw value used as the new tail offset) */
+    int sz = usable;                                            /* s0 */
     if (sz < 8) {
         if (sz == -1)      sz = 0x40000000;                     /* grow to max */
         else if (sz >= 0)  sz = 8;                              /* 0..7 -> 8 (negatives kept) */

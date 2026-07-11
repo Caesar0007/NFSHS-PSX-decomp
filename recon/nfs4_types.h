@@ -58,6 +58,12 @@ typedef unsigned char undefined;
  * (See render.cpp for the historical owned-global note.) */
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
+/* gScratchLastWord: same family -- a scratch-terminator INT whose storage lives at
+ * 0x1F8003FC. Oracle materializes &gScratchLastWord as the literal `lui a0,0x1F80;
+ * ori a0,a0,0x3FC` (Render_RenderWorld), not a %hi/%lo(sym) relocation. Fixed-address
+ * lvalue macro so `&gScratchLastWord` == 0x1F8003FC for every consumer (render.cpp,
+ * r3dcar.cpp, sim.cpp, draww.cpp, fe3dmenu.cpp). */
+#define gScratchLastWord (*(int *)0x1F8003FC)
 
 /* ---- forward declarations (pointer cycles) ---- */
 #ifndef NFS4_PSYQ_HEADERS

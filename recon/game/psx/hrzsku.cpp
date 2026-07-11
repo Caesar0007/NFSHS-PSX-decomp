@@ -632,7 +632,25 @@ void Hrz_CalculateLightning(void)
   return;
 }
 
-/* ---- Hrz_TextureQuad__FP7DVECTORccP11Draw_DCache  [HRZSKU.CPP:833-856] SLD-VERIFIED ---- */
+/* ---- Hrz_TextureQuad__FP7DVECTORccP11Draw_DCache  [HRZSKU.CPP:833-856] SLD-VERIFIED ----
+ * NEAR-MISS 14 diffs (76/76, count exact -- improved from 25 baseline via 3 fixes):
+ * (1) REAL BUG FIXED -- the OT tag's length byte (offset+3, part of the `tag` u_long,
+ * value 9 = 9 words following the tag for this 10-word POLY_FT4) was wrongly written via
+ * `prim->code=9` (struct offset+7); the real GPU command byte (0x2e, offset+7) was wrongly
+ * written via a nonexistent `prim->tpage` access (offset+0x16, never touched by the
+ * oracle). Fixed: raw byte poke `*((u_char*)prim+3)=9;` for the tag length + `prim->code=
+ * 0x2e;` for the real GPU code (POLY_FT4's `code` field IS offset+7 in nfs4_types.h --
+ * only the VALUES/targets were swapped, not the struct). (2) cached `Render_gPalettePtr`'s
+ * VALUE once into a local `pal` before both otz-relative accesses -- the fixed-address
+ * macro (§3.6b) re-dereferences 0x1F800000 on every textual reference; caching it let the
+ * 2nd tag-merge only reload `sd->otz` (unavoidable aliasing reload) not the palette
+ * pointer too, matching the oracle's single dereference + reuse. (3) moved the
+ * `Render_gPacketPtr=prim+0x28` store between the two tag-merge statements (matches where
+ * the oracle interleaves/schedules it) -- got instruction COUNT exact (76==76). Residual =
+ * oracle reuses the dead `sd` param register (a3) for the 2nd otz-relative address chain
+ * (sll/addu/lw) and defers that store one instruction later than ours; a coloring/
+ * scheduling tie-break, same family as the Force_IsForceOn dead-param-reuse near-miss.
+ * Accepted near-miss. */
 void Hrz_TextureQuad(DVECTOR *pt,char type,char bright,Draw_DCache *sd)
 
 {
@@ -642,14 +660,16 @@ void Hrz_TextureQuad(DVECTOR *pt,char type,char bright,Draw_DCache *sd)
   u_long l2;
   u_long l3;
   Draw_tPixMap *pmx;
+  u_char *pal;
 
+  pal = Render_gPalettePtr;
   prim = (POLY_FT4 *)Render_gPacketPtr;
-  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
-  *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
-       *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | (u_int)prim & 0xffffff;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)(pal + sd->otz * 4) & 0xffffff;
   Render_gPacketPtr = (u_char *)prim + 0x28;
-  prim->code = 9;
-  prim->tpage = 0x2e;
+  *(u_int *)(pal + sd->otz * 4) =
+       *(u_int *)(pal + sd->otz * 4) & 0xff000000 | (u_int)prim & 0xffffff;
+  *((u_char *)prim + 3) = 9;
+  prim->code = 0x2e;
   prim->b0 = bright;
   prim->g0 = bright;
   prim->r0 = bright;

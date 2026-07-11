@@ -1187,8 +1187,7 @@ void Physics_ResetCar(Car_tObj *carObj)
 
 {
   int i;
-  int iVar1;
-  
+
   if (carObj->carInfo->Transmission == 1) {
     (carObj->control).desiredGear = '\x02';
     (carObj->control).gear = '\x02';
@@ -1197,7 +1196,6 @@ void Physics_ResetCar(Car_tObj *carObj)
     (carObj->control).desiredGear = '\x01';
     (carObj->control).gear = '\x01';
   }
-  iVar1 = 0;
   (carObj->linearAcc).x = 0;
   (carObj->linearAcc).y = 0;
   (carObj->linearAcc).z = 0;
@@ -1217,12 +1215,10 @@ void Physics_ResetCar(Car_tObj *carObj)
   carObj->crash = 0;
   carObj->blowout = 0;
   (carObj->control).hanno = 0;
-  do {
-    carObj->wheel[0].wheelInAir = 0;
-    carObj->wheel[0].rebound = 0;
-    iVar1 = iVar1 + 1;
-    carObj = (Car_tObj *)&(carObj->N).simRoadInfo.quadPts[2].z;
-  } while (iVar1 < 4);
+  for (i = 0; i < 4; i++) {
+    carObj->wheel[i].wheelInAir = 0;
+    carObj->wheel[i].rebound = 0;
+  }
   return;
 }
 
@@ -2879,39 +2875,16 @@ PhyReal_iceBraking:
 void Physics_SimCar(Car_tObj *carObj)
 
 {
-  int currentRpm;
-  int tempSteer;
-  int diffRpm;
-  int roadGrip;
-  int optVar1;
-  int frontWheels;
-  int rearWheels;
-  int leftWheels;
-  int rightWheels;
-  int damp;
-  int roadPosition;
-  int rotationalAccCap;
-  int diffFlywheelRpm;
-  int driveAcc;
-  int ShiftPoint;
-  int drag;
-  int damage;
-  coorddef finalAngularAcc_ch;
-  coorddef carAccCap_ch;
-  coorddef carPos;
-  coorddef dirVector;
-  coorddef offset;
-  
   if ((carObj->N).orientationToGround.y < 0x1999) {
     carObj->wheelSpin = 0;
     carObj->slide = 0;
     carObj->frontSkid = 0;
     carObj->rearSkid = 0;
-    if (carObj->flywheelRpm < 0x1f5) {
-      carObj->flywheelRpm = 0;
+    if (carObj->flywheelRpm >= 0x1f5) {
+      carObj->flywheelRpm = carObj->flywheelRpm + -500;
     }
     else {
-      carObj->flywheelRpm = carObj->flywheelRpm + -500;
+      carObj->flywheelRpm = 0;
     }
     if ((carObj->N).objAltitude < 0x8000) {
       Physics_StopCar(carObj);

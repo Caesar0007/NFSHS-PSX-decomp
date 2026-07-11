@@ -95,35 +95,32 @@ void Draw_InitViews(void)
 void Draw_InitViewOT(void)
 
 {
-  /* FIXED (was 51-diff floor via a plain `for` loop -> the `blez`-guard shape; now
-     16-diff, ours 33==oracle 33 insns, via `goto TEST` do-while -- same family as
-     Draw_DeInitViews/Draw_DeInitViewsInGame): oracle is top-tested-while-no-guard
-     (falls straight from the prologue into the test, increment in the exit-beqz's
-     delay slot, unconditional back-`j`). Re-verified in the compiled disasm: `s0`
-     (pDVar2) is written in the prologue BEFORE the `goto TEST`'s forward jump, and the
-     loop body is reached only via the back-branch -- no read-before-write. Residual
-     16-diff is the same documented loop-rotation-direction floor (test-block-first-
-     with-fallthrough vs ours body-first-with-goto-skip) -- not reachable by a source
-     lever at this opt level (see Draw_DeInitViewsInGame's 12-shape survey); permuter
-     or accept. */
+  /* FIXED: oracle is top-tested-while-no-guard -- falls straight from the prologue
+     into the test label (NO entry jump), `beqz` skips to the shared epilogue, body
+     ends with an UNCONDITIONAL `j` back to the test label (increment is folded into
+     the body, not the branch's delay slot). A `goto TEST;do{}while(cond)` (entry-jump
+     to a bottom test, conditional `bnez` back-edge) is the OPPOSITE topology and was
+     the true residual cause (not a "loop-rotation floor"). Correct C shape = the
+     if-guarded backward-goto idiom (catalog §B row 56 / same family as the sibling
+     Draw_DeInitViews, which already sealed 100% with this exact form): a `TEST:` label
+     directly after init, `if(cond){body; goto TEST;}`, `return;` after. */
   u_long *puVar1;
   Draw_tView *pDVar2;
   int i;
   int iVar3;
 
-  pDVar2 = Draw_gView;
   iVar3 = 0;
-  goto TEST;
-  do {
+  pDVar2 = Draw_gView;
+ TEST:
+  if (iVar3 < Draw_gNumView) {
     puVar1 = reservememadr("ot0",pDVar2->otsize << 2,0x10);
     pDVar2->ot[0] = puVar1;
     puVar1 = reservememadr("ot1",pDVar2->otsize << 2,0x10);
     pDVar2->ot[1] = puVar1;
     pDVar2 = pDVar2 + 1;
     iVar3 = iVar3 + 1;
-    TEST:
-    ;
-  } while (iVar3 < Draw_gNumView);
+    goto TEST;
+  }
   return;
 }
 
@@ -131,28 +128,28 @@ void Draw_InitViewOT(void)
 void Draw_InitViewOTInGame(void)
 
 {
-  /* FIXED (was 51-diff floor via a plain `for` loop; now 16-diff, ours 31==oracle 31
-     insns, via `goto TEST` do-while) -- same fix/rationale as the sibling
-     Draw_InitViewOT (see its comment); re-verified in the compiled disasm, no
-     read-before-write. Residual 16-diff = the same documented loop-rotation floor. */
+  /* FIXED -- same fix/rationale as the sibling Draw_InitViewOT (see its comment): the
+     oracle is top-tested-while-no-guard (fallthrough into the test, unconditional `j`
+     back-edge, no entry jump); the if-guarded backward-goto idiom reproduces it
+     exactly, plus the s1(count)-before-s0(pointer) init order to match the prologue
+     save order. */
   u_long *puVar1;
   Draw_tView *pDVar2;
   int i;
   int iVar3;
 
-  pDVar2 = Draw_gView;
   iVar3 = 0;
-  goto TEST;
-  do {
+  pDVar2 = Draw_gView;
+ TEST:
+  if (iVar3 < Draw_gNumView) {
     puVar1 = (u_long *)Platform_ReserveMemory(pDVar2->otsize << 2,"ot0");
     pDVar2->ot[0] = puVar1;
     puVar1 = (u_long *)Platform_ReserveMemory(pDVar2->otsize << 2,"ot1");
     pDVar2->ot[1] = puVar1;
     pDVar2 = pDVar2 + 1;
     iVar3 = iVar3 + 1;
-    TEST:
-    ;
-  } while (iVar3 < Draw_gNumView);
+    goto TEST;
+  }
   return;
 }
 
@@ -268,18 +265,27 @@ void Draw_SetViewColor(int viewid,int r,int g,int b)
 void AllocatePrimitivesBuffer(void)
 
 {
-  /* SYM (nfs4-f-v3.txt @0x800BDE60) names exactly 3 locals, all `Draw_tView *`: view0,
-     view1, view -- NOT raw ints. Raw oracle re-trace: the commMode==1 branch computes
-     view0=&Draw_gView[Draw_gPlayer1View], stores the split budget into view0->membudget,
-     THEN separately computes view1=&Draw_gView[Draw_gPlayer2View] and falls into the
-     SAME merge-point store -- i.e. BOTH views get the split budget written (view=view1
-     at the merge). The commMode!=1 (single-view) branch only computes
-     view=&Draw_gView[Draw_gPlayer1View] and stores once. Rewritten as real Draw_tView*
-     locals per the SYM, matching the oracle's double-store shape exactly. */
+  /* SYM (nfs4-f-v3.txt @0x800BDE60) names exactly 3 locals, all `Draw_tView *`, in TWO
+     DISJOINT block scopes: view0+view1 in the if(commMode==1) block (lines 33-37), view
+     ALONE in the else block (lines 49-56) -- there is NO function-scope `membudget`
+     local anywhere (the outer line=1 block has zero named locals). The oracle's shared
+     tail `sw a0,4(vN)` reached from BOTH the if-block (via an explicit `j`) and the
+     else-block (via fallthrough) is gcc's CROSS-JUMP TAIL-MERGE of two INDEPENDENT,
+     textually-identical store statements (§D "gcc tail-merged duplicate ... KEEP the
+     duplicated-C" family) -- not a shared variable. Each branch computes+stores its OWN
+     membudget expression directly on each Draw_tView*; the if-block's two IDENTICAL
+     `(gTotalMem>>1)+-0x1a00` computations fold to one physical value via ordinary local
+     CSE (both stores are in the same straight-line block), matching the oracle's single
+     `sra/addiu` reused for the view0 AND view1 stores, while the tail-merge pass unifies
+     the if-block's 2nd store with the else-block's only store into the shared `sw`. This
+     also reproduces the oracle's exact scheduling: `&Draw_gView[Draw_gPlayer1View]`'s
+     multiply is computed BEFORE the `gTotalMem>>1` shift (no local ever occupies `$v0`
+     between the `commMode==1` compare and the multiply), so gcc reuses the still-live
+     compare constant register as the shift-amount operand (a variable-form `sllv`) --
+     an allocator artifact of NOT introducing an intervening `membudget` computation. */
   Draw_tView *view0;
   Draw_tView *view1;
   Draw_tView *view;
-  int membudget;
 
   if (GameSetup_gData.commMode == 1) {
     Draw_InitViewOT();
@@ -297,16 +303,14 @@ void AllocatePrimitivesBuffer(void)
   gEnviro[1].server = Platform_ReserveMemory(gTotalMem,"ps1");
   if (GameSetup_gData.commMode == 1) {
     view0 = &Draw_gView[Draw_gPlayer1View];
-    membudget = (gTotalMem >> 1) + -0x1a00;
-    view0->membudget = membudget;
+    view0->membudget = (gTotalMem >> 1) + -0x1a00;
     view1 = &Draw_gView[Draw_gPlayer2View];
-    view = view1;
+    view1->membudget = (gTotalMem >> 1) + -0x1a00;
   }
   else {
     view = &Draw_gView[Draw_gPlayer1View];
-    membudget = gTotalMem + -0x1a00;
+    view->membudget = gTotalMem + -0x1a00;
   }
-  view->membudget = membudget;
   return;
 }
 
@@ -347,27 +351,40 @@ void ClearPlatformPrimitivesBuffer(void)
 void Draw_StartRenderingView(int viewid)
 
 {
-  int iVar1;
-  Draw_tView *view;
+  /* FIXED: the oracle materializes ONE literal scratchpad base register (0x1F800000)
+     and addresses every field below it by DISPLACEMENT -- NOT via the normal
+     Render_gPacketLenLo/Hi, Render_gPacketEnd, Render_gMenuRenderFlag externs (which
+     compile to %hi/%lo(sym) 2-insn loads, the whole prior residual). The SYM already
+     names the real local `sd` (Draw_DCache*, reg $a3) for exactly this purpose -- it
+     was declared but unwired. Draw_DCache's head (Draw_tCacheHeader) field layout
+     supplies the real names for each scratch offset: cprim.LastPrim@+0=Render_gPalettePtr,
+     cprim.PrimPtr@+4=Render_gPacketPtr, cprim.MPrimPtr@+8=Render_gPacketEnd,
+     mirror@+0xC=Render_gMenuRenderFlag, clipW/clipH@+0x10/+0x12=Render_gPacketLenLo/Hi.
+     Header wish: promote Render_gPacketEnd/Render_gMenuRenderFlag/Render_gPacketLenLo/Hi
+     to `sd->head...`-style scratchpad accessors tree-wide (not done here -- function
+     bodies only per this pass's scope). */
   Draw_DCache *sd;
-  
+  Draw_tView *view;
+  int iVar1;
+
+  sd = (Draw_DCache *)0x1F800000;
   view = Draw_gView + viewid;
   iVar1 = view->otsize * 7;
   Draw_gViewOtSize = view->otsize;
   if (iVar1 < 0) {
     iVar1 = iVar1 + 7;
   }
-  Render_gPacketLenLo = Draw_gView[viewid].drawenv[0].clip.w;
-  Render_gPacketLenHi = Draw_gView[viewid].drawenv[0].clip.h;
+  sd->head.clipW = Draw_gView[viewid].drawenv[0].clip.w;
+  sd->head.clipH = Draw_gView[viewid].drawenv[0].clip.h;
   Draw_gMidGroundOtz = iVar1 >> 3;
-  Render_gPalettePtr = (u_char *)view->ot[gFlip];
+  sd->head.cprim.LastPrim = (u_long *)view->ot[gFlip];
   if ((viewid == Draw_gPlayer1View) || (viewid == Draw_gPlayer2View)) {
-    Render_gPacketEnd = Render_gPacketPtr + Draw_gView[viewid].membudget;
+    sd->head.cprim.MPrimPtr = sd->head.cprim.PrimPtr + Draw_gView[viewid].membudget;
   }
   else {
-    Render_gPacketEnd = Draw_gMaxPrim;
+    sd->head.cprim.MPrimPtr = (char *)Draw_gMaxPrim;
   }
-  Render_gMenuRenderFlag = 0;
+  sd->head.mirror = 0;
   return;
 }
 
@@ -375,58 +392,39 @@ void Draw_StartRenderingView(int viewid)
 void Draw_StopRenderingView(int viewid)
 
 {
-  int iVar1;
-  DRAWENV *pDVar2;
-  int drawEnv_offs;
-  int src_iter;
-  int src_next;
-  DR_ENV *pEnv;
+  /* FIXED: SYM (nfs4-f-v3.txt @0x800BE118) names exactly THREE locals -- LEnv (DRAWENV,
+     AUTO stack, sp+0x10, matches `addiu a3,sp,0x10`), pEnv (DR_ENV*, reg $a0), view
+     (Draw_tView*, reg $a1) -- NOT the ~15 raw byte-offset iterator temps the previous
+     manual copy-loop reconstruction invented. The oracle's "copy loop + 3-word tail"
+     (0x50 bytes in 5x16-byte chunks, then 0xC bytes = 12 more, totaling exactly 0x5C =
+     sizeof(DRAWENV)) is gcc's OWN `movstrsi` expansion of a PLAIN STRUCT ASSIGNMENT
+     (catalog §D "oracle expands a struct-sized region copy as an INLINE unrolled
+     sequence... write a plain C struct assignment" -- confirmed here: raw-traced the
+     exact byte range copied is [0,0x5C) of view->drawenv[gFlip], i.e. the WHOLE
+     struct, not a shifted/partial range as first appeared). `LEnv = view->drawenv[gFlip];`
+     lets gcc regenerate the identical unrolled sequence. Render_gPacketPtr/
+     Render_gPalettePtr are read LAZILY (right where first used, after the struct copy)
+     and held in registers for BOTH later re-uses -- the previous reconstruction's
+     eager `cur_pkt`/`prev_pkt` cache at function TOP (before the copy) forced the
+     scratchpad loads to the wrong position; removed, using the macros directly at
+     their oracle-verified use points instead (view->otsize read twice independently,
+     matching the oracle's two separate `lw` of the same field through separate register
+     copies of `view`, not a single cached local). */
   Draw_tView *view;
-  int viewSlot;
-  int pkt_addr24;
-  int lEnv_iter;
-  int src_w1;
-  u_int tu13;
-  int src_w2;
-  u_int tu14;
-  int src_w3;
+  DR_ENV *pEnv;
   DRAWENV LEnv;
-  u_char *prev_pkt;
-  u_char *cur_pkt;
 
-  cur_pkt = Render_gPacketPtr;
-  prev_pkt = Render_gPalettePtr;
-  viewSlot = (int)(Draw_gView + viewid);
-  drawEnv_offs = viewSlot + gFlip * 0x5c;
-  iVar1 = drawEnv_offs + 8;
-  pDVar2 = &LEnv;
-  do {
-    lEnv_iter = (int)pDVar2;
-    src_iter = iVar1;
-    src_w1 = *(int *)(src_iter + 4);
-    src_w2 = *(int *)(src_iter + 8);
-    src_w3 = *(int *)(src_iter + 0xc);
-    *(u_int *)lEnv_iter = *(u_int *)src_iter;
-    *(int *)(lEnv_iter + 4) = src_w1;
-    *(int *)(lEnv_iter + 8) = src_w2;
-    *(int *)(lEnv_iter + 0xc) = src_w3;
-    src_next = src_iter + 0x10;
-    iVar1 = src_next;
-    pDVar2 = (DRAWENV *)(lEnv_iter + 0x10);
-  } while (src_next != drawEnv_offs + 0x58);
-  tu13 = *(u_int *)(src_iter + 0x14);
-  tu14 = *(u_int *)(src_iter + 0x18);
-  *(u_int *)(lEnv_iter + 0x10) = *(u_int *)src_next;
-  *(u_int *)(lEnv_iter + 0x14) = tu13;
-  *(u_int *)(lEnv_iter + 0x18) = tu14;
+  view = Draw_gView + viewid;
+  LEnv = view->drawenv[gFlip];
+  pEnv = (DR_ENV *)Render_gPacketPtr;
   *(u_int *)Render_gPacketPtr =
        *(u_int *)Render_gPacketPtr & 0xff000000 |
-       *(u_int *)(Render_gPalettePtr + *(int *)viewSlot * 4 + -4) & 0xffffff;
-  pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x40;
-  *(u_int *)(prev_pkt + *(int *)viewSlot * 4 + -4) =
-       *(u_int *)(prev_pkt + *(int *)viewSlot * 4 + -4) & 0xff000000 | pkt_addr24;
-  SetDrawEnv((DR_ENV *)cur_pkt,&LEnv);
+       *(u_int *)(Render_gPalettePtr + view->otsize * 4 + -4) & 0xffffff;
+  Render_gPacketPtr = (char *)pEnv + 0x40;
+  *(u_int *)(Render_gPalettePtr + view->otsize * 4 + -4) =
+       *(u_int *)(Render_gPalettePtr + view->otsize * 4 + -4) & 0xff000000 |
+       (u_int)pEnv & 0xffffff;
+  SetDrawEnv(pEnv,&LEnv);
   return;
 }
 
@@ -477,16 +475,15 @@ void Draw_StartFrameRender(void)
 
   iVar5 = 0;
   pDVar4 = Draw_gView;
-  goto TEST;
-  do {
+ TEST:
+  if (iVar5 < Draw_gNumView) {
     piVar2 = &pDVar4->otsize;
     ppuVar3 = pDVar4->ot;
     ClearOTagR(ppuVar3[gFlip],*piVar2);
     pDVar4 = pDVar4 + 1;
     iVar5 = iVar5 + 1;
-    TEST:
-    ;
-  } while (iVar5 < Draw_gNumView);
+    goto TEST;
+  }
   Render_gPacketPtr = gEnviro[gFlip].server;
   Draw_gMaxPrim = gEnviro[gFlip].server + gTotalMem;
   return;

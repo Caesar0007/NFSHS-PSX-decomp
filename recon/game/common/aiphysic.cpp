@@ -483,7 +483,14 @@ action:
 /* ---- AIPhysic_StopCar__FP8Car_tObjii  (oracle STAGGERS each fixedmult store into the NEXT
  * field's clamp-check delay slot -- linearVel.x's store rides bgez(prodY), .y's rides the
  * fallthrough after prodZ's mult, .z's rides bgez(angularVel.y); reproduce the exact stagger,
- * not a per-field sequential store, or the branch/delay-slot shape won't match) ---- */
+ * not a per-field sequential store, or the branch/delay-slot shape won't match.
+ * MATCH: `angY >>= 8;` reordered BEFORE `if(rotScale<0)` (was after) lets gcc schedule the
+ * shift into bgez(rotScale)'s delay slot like the oracle, 31->28 diffs. Residual: velScale's
+ * adjusted copy colors into a1 (in-place, reused for scaleShifted too) where the oracle keeps
+ * velScale(a1) untouched and materializes the clamp + scaleShifted into fresh v1/t0 -- tried
+ * separate-local copy, plain `/256` idiom, both compile IDENTICAL (gcc coalesces the dead
+ * original back in); genuine allocator floor (§3.15 family), not source-reachable without a
+ * forbidden pin. ---- */
 void AIPhysic_StopCar(Car_tObj *carObj,int velScale,int rotScale)
 {
   int scaleShifted;
@@ -524,21 +531,28 @@ void AIPhysic_StopCar(Car_tObj *carObj,int velScale,int rotScale)
   if (angY < 0) {
     angY = angY + 0xff;
   }
+  angY = angY >> 8;
   if (rotScale < 0) {
     rotScale = rotScale + 0xff;
   }
-  angY = angY >> 8;
   (carObj->N).angularVel.y = angY * (rotScale >> 8);
   return;
 }
 
 /* ---- AIPhysic_RevEngine__FP8Car_tObj  (oracle reloads flywheelRpm 3x -- parity test, the add,
  * and the final clamp-check -- and shifts redLine>>16 IN PLACE inside the parity branch's delay
- * slot, not as a fresh expr in the final compare; carIndex%2 (NOT flywheelRpm) feeds `increase`) ---- */
+ * slot, not as a fresh expr in the final compare; carIndex%2 (NOT flywheelRpm) feeds `increase`.
+ * MATCH: SYM shows fsize=8/mask=0 with only 2 REG locals (no AUTO) -- a dead 8-byte filler
+ * `deadfrm[2]` reproduces the frame (35->32 diffs, count now EXACT 52/52). Residual: the last
+ * `*4` step of the `*0x8c` strength-reduction fuses into the odd-flywheelRpm branch's `>>1` in
+ * ours (a1) vs the oracle materializing it unconditionally beforehand (v1) -- a gcc constant-
+ * multiply/branch scheduling floor, not reachable by statement reordering alone (tried both
+ * positions of the redLine shift + several algebraic rewrites, all tie or regress). ---- */
 void AIPhysic_RevEngine(Car_tObj *carObj)
 {
   int redLine;
   int increase;
+  int deadfrm[2];   /* SYM fsize=8 mask=0 -- dead stack filler, no AUTO local recorded */
 
   redLine = carObj->redLine;
   if (redLine < 0) {

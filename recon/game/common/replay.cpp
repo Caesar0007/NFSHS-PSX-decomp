@@ -37,52 +37,49 @@ void Replay_ReplayFindClosestCamera(int player,int slice);
 char * Replay_Compress(char *uncompressed_data)
 
 {
-  char cVar1;
-  bool bVar2;
-  int i;
-  int iVar3;
-  int count;
-  int iVar4;
-  char *pcVar5;
-  int c_pointer;
+  /* SYM (nfs4-f-v3.txt) Function-start block for this VA lists exactly 5 REG locals:
+   * i, done, count, c_pointer, begin_byte -- no pointer-typed WRITE-side local (only the
+   * REGPARM uncompressed_data pointer is walked). The compressed_data write position is
+   * therefore a plain int array index (c_pointer), not a walked pointer, mirroring the
+   * Replay_Decompress__FPc fix (its c_pointer was the mirrored READ-side index). */
   char begin_byte;
+  int count;
+  int i;
+  int c_pointer;
   int done;
   char *pcVar6;
-  
-  bVar2 = false;
+
+  done = 0;
   c_pointer = 1;
-  pcVar5 = compressed_data + 1;
   pcVar6 = uncompressed_data + 0x20;
   do {
-    cVar1 = *uncompressed_data;
-    iVar4 = 0;
+    begin_byte = *uncompressed_data;
+    count = 0;
     do {
       uncompressed_data = uncompressed_data + 1;
-      iVar4 = iVar4 + 1;
-      if (*uncompressed_data != cVar1) break;
+      count = count + 1;
+      if (*uncompressed_data != begin_byte) break;
     } while ((int)uncompressed_data < (int)pcVar6);
-    if (iVar4 < 3) {
-      iVar3 = 0;
-      if (0 < iVar4) {
+    if (count < 3) {
+      i = 0;
+      if (0 < count) {
         do {
-          *pcVar5 = cVar1;
-          pcVar5 = pcVar5 + 1;
-          iVar3 = iVar3 + 1;
+          compressed_data[c_pointer] = begin_byte;
           c_pointer = c_pointer + 1;
-        } while (iVar3 < iVar4);
+          i = i + 1;
+        } while (i < count);
       }
     }
     else {
-      *pcVar5 = -1;
-      pcVar5 = pcVar5 + 3;
-      compressed_data[c_pointer + 1] = (char)iVar4;
-      compressed_data[c_pointer + 2] = cVar1;
+      compressed_data[c_pointer] = -1;
+      compressed_data[c_pointer + 1] = (char)count;
+      compressed_data[c_pointer + 2] = begin_byte;
       c_pointer = c_pointer + 3;
     }
     if ((int)pcVar6 <= (int)uncompressed_data) {
-      bVar2 = true;
+      done = 1;
     }
-    if (bVar2) {
+    if (done) {
       compressed_data[0] = (char)c_pointer;
       compressed_data[c_pointer] = '\0';
       return compressed_data;
@@ -94,43 +91,44 @@ char * Replay_Compress(char *uncompressed_data)
 char * Replay_Decompress(char *compressed_data)
 
 {
-  u_char bVar1;
-  char current_byte;
+  /* SYM (nfs4-f-v3.txt) Function-start block for this VA lists exactly 5 REG locals:
+   * i, data_size, count, c_pointer, current_byte -- no pointer-typed locals. The compressed-
+   * side read position is therefore a plain int ARRAY INDEX (c_pointer), not a walked pointer;
+   * only the uncompressed-side write cursor is a genuine anonymous pointer temp (no SYM entry). */
   int i;
-  int iVar2;
-  char *pcVar3;
-  char *pcVar4;
   int count;
+  char current_byte;
   int c_pointer;
-  int iVar5;
   int data_size;
-  
+  char *pcVar4;
+
   data_size = (int)(u_char)*compressed_data;
-  iVar5 = 1;
-  if (1 < (u_int)data_size) {
-    pcVar3 = compressed_data + 1;
+  c_pointer = 1;
+  if (c_pointer < data_size) {
     pcVar4 = uncompressed_data;
     do {
-      if (*pcVar3 == -1) {
-        bVar1 = pcVar3[1];
-        iVar2 = 0;
-        if (bVar1 != 0) {
+      current_byte = compressed_data[c_pointer];
+      /* char is UNSIGNED on this build (lbu even for plain char): the RLE marker byte is 0xFF,
+       * so test it as an UNSIGNED byte against 0xff (not a signed -1 cast, which needs a 2nd
+       * signed lb re-read of the same byte and diverges from the oracle's single lbu compare). */
+      if ((u_char)current_byte == 0xff) {
+        count = (int)(u_char)compressed_data[c_pointer + 1];
+        i = 0;
+        if (count != 0) {
           do {
-            iVar2 = iVar2 + 1;
-            *pcVar4 = pcVar3[2];
+            i = i + 1;
+            *pcVar4 = compressed_data[c_pointer + 2];
             pcVar4 = pcVar4 + 1;
-          } while (iVar2 < (int)(u_int)bVar1);
+          } while (i < count);
         }
-        pcVar3 = pcVar3 + 3;
-        iVar5 = iVar5 + 3;
+        c_pointer = c_pointer + 3;
       }
       else {
-        *pcVar4 = *pcVar3;
+        *pcVar4 = current_byte;
         pcVar4 = pcVar4 + 1;
-        pcVar3 = pcVar3 + 1;
-        iVar5 = iVar5 + 1;
+        c_pointer = c_pointer + 1;
       }
-    } while (iVar5 < data_size);
+    } while (c_pointer < data_size);
   }
   return uncompressed_data;
 }
@@ -244,26 +242,31 @@ void Replay_InitReplay(void)
 void Replay_ResetReplay(void)
 
 {
-  int p;
+  /* SYM (nfs4-f-v3.txt) lists exactly ONE local for this whole function: `i` (REG INT), one
+   * flat block spanning the entire body -- the true source reuses a SINGLE int counter across
+   * all three loops below (buffer clear / camera-mode init / ReplayCounter clear), not three
+   * separate Ghidra-named ints. The buffer-clear loop's address is a genuine anonymous pointer
+   * walk (oracle strength-reduces base+i into a decrementing pointer, §3.12 #1). */
+  int i;
+  char *pBuf;
   int iVar1;
   int *piVar2;
-  int i;
-  int cam_idx;
-  int iVar3;
   tReplayCameraModes *cam_walk;
   Car_tObj **car_walk;
-  
+
   if ((u_int)Replay_ReplayMode < 2) {
-    cam_idx = 0x5fff;
+    i = 0x5fff;
+    pBuf = Replay_ReplayBuffer.buffer + i;
     do {
-      Replay_ReplayBuffer.buffer[cam_idx] = 0;
-      cam_idx = cam_idx + -1;
-    } while (-1 < cam_idx);
+      *pBuf = 0;
+      pBuf = pBuf - 1;
+      i = i + -1;
+    } while (-1 < i);
     Replay_ReplayStorePtr = 0;
     Replay_ReplayGetPtr = 0;
   }
   else if (1 < Replay_ReplayMode) {
-    iVar3 = 0;
+    i = 0;
     cam_walk = Replay_ReplayCamera;
     car_walk = Cars_gHumanRaceCarList;
     Replay_ReplayInterface.pause = 0;
@@ -279,25 +282,25 @@ void Replay_ResetReplay(void)
         iVar1 = 4;
       }
       else {
-        if ((GameSetup_gData.commMode == 1) || (iVar3 == 0)) {
-          Replay_ReplayFindClosestCamera(iVar3,(int)((*car_walk)->N).simRoadInfo.slice);
+        if ((GameSetup_gData.commMode == 1) || (i == 0)) {
+          Replay_ReplayFindClosestCamera(i,(int)((*car_walk)->N).simRoadInfo.slice);
         }
         iVar1 = 0x13;
       }
       cam_walk->cameraMode = iVar1;
       cam_walk->cutToNextCamera = 0;
       cam_walk = cam_walk + 1;
-      iVar3 = iVar3 + 1;
+      i = i + 1;
       car_walk = car_walk + 1;
-    } while (iVar3 < 2);
+    } while (i < 2);
   }
-  iVar3 = 1;
+  i = 1;
   piVar2 = Replay_ReplayCounter + 1;
   do {
     *piVar2 = 0;
-    iVar3 = iVar3 + -1;
+    i = i + -1;
     piVar2 = piVar2 + -1;
-  } while (-1 < iVar3);
+  } while (-1 < i);
   StatsTimer[0] = 0;
   StatsTimer[1] = 0;
   return;
@@ -316,719 +319,65 @@ void Replay_StoringReplay(void)
 void Replay_StoringControllerData(tControllerData controllerdata)
 
 {
-  u_int *puVar1;
-  u_int *puVar2;
-  u_int *puVar3;
-  u_int *puVar4;
-  u_int cw_t0;
-  u_int uVar5;
-  u_int cw_t1;
-  u_int cw_t2;
-  u_int uVar6;
-  u_int cw_t3;
-  u_int uVar7;
+  /* struct-assignment (not the hand-written unaligned-copy bit-math below) reproduces the
+   * oracle's inline movstrsi expansion for an unknown-alignment 33-byte copy (aligned lw/sw
+   * fast path + lwl/lwr..swl/swr slow path + 1-byte tail). See catalog §D / sst.cpp precedent. */
+  struct PackedBuf33 { char b[33]; };
   char packeddata [33];
-  
-  if (Replay_ReplayStorePtr + 0x80 < 0x6000) {
-    puVar2 = (u_int *)Replay_Compress(controllerdata.steering);
-    puVar4 = (u_int *)packeddata;
-    if (((u_int)puVar2 & 3) == 0) {
-      puVar3 = puVar2 + 8;
-      do {
-        cw_t1 = puVar2[1];
-        cw_t2 = puVar2[2];
-        cw_t3 = puVar2[3];
-        *puVar4 = *puVar2;
-        puVar4[1] = cw_t1;
-        puVar4[2] = cw_t2;
-        puVar4[3] = cw_t3;
-        puVar2 = puVar2 + 4;
-        puVar4 = puVar4 + 4;
-      } while (puVar2 != puVar3);
-    }
-    else {
-      puVar3 = puVar2 + 8;
-      do {
-        uVar5 = (int)puVar2 + 3U & 3;
-        uVar6 = (u_int)puVar2 & 3;
-        cw_t0 = (*(int *)((char *)((int)puVar2 + 3U) + -uVar5) << (3 - uVar5) * 8 |
-                cw_t0 & 0xffffffffU >> (uVar5 + 1) * 8) & -1 << (4 - uVar6) * 8 |
-                *(u_int *)((int)puVar2 - uVar6) >> uVar6 * 8;
-        uVar5 = (int)puVar2 + 7U & 3;
-        uVar6 = (u_int)(puVar2 + 1) & 3;
-        cw_t1 = (*(int *)((char *)((int)puVar2 + 7U) + -uVar5) << (3 - uVar5) * 8 |
-                cw_t1 & 0xffffffffU >> (uVar5 + 1) * 8) & -1 << (4 - uVar6) * 8 |
-                *(u_int *)((int)(puVar2 + 1) - uVar6) >> uVar6 * 8;
-        uVar5 = (int)puVar2 + 0xbU & 3;
-        uVar6 = (u_int)(puVar2 + 2) & 3;
-        cw_t2 = (*(int *)((char *)((int)puVar2 + 0xbU) + -uVar5) << (3 - uVar5) * 8 |
-                cw_t2 & 0xffffffffU >> (uVar5 + 1) * 8) & -1 << (4 - uVar6) * 8 |
-                *(u_int *)((int)(puVar2 + 2) - uVar6) >> uVar6 * 8;
-        uVar5 = (int)puVar2 + 0xfU & 3;
-        uVar6 = (u_int)(puVar2 + 3) & 3;
-        cw_t3 = (*(int *)((char *)((int)puVar2 + 0xfU) + -uVar5) << (3 - uVar5) * 8 |
-                cw_t3 & 0xffffffffU >> (uVar5 + 1) * 8) & -1 << (4 - uVar6) * 8 |
-                *(u_int *)((int)(puVar2 + 3) - uVar6) >> uVar6 * 8;
-        uVar5 = (int)puVar4 + 3U & 3;
-        puVar1 = (u_int *)((char *)((int)puVar4 + 3U) + -uVar5);
-        *puVar1 = *puVar1 & -1 << (uVar5 + 1) * 8 | cw_t0 >> (3 - uVar5) * 8;
-        *puVar4 = cw_t0;
-        uVar5 = (int)puVar4 + 7U & 3;
-        puVar1 = (u_int *)((char *)((int)puVar4 + 7U) + -uVar5);
-        *puVar1 = *puVar1 & -1 << (uVar5 + 1) * 8 | cw_t1 >> (3 - uVar5) * 8;
-        puVar4[1] = cw_t1;
-        uVar5 = (int)puVar4 + 0xbU & 3;
-        puVar1 = (u_int *)((char *)((int)puVar4 + 0xbU) + -uVar5);
-        *puVar1 = *puVar1 & -1 << (uVar5 + 1) * 8 | cw_t2 >> (3 - uVar5) * 8;
-        puVar4[2] = cw_t2;
-        uVar5 = (int)puVar4 + 0xfU & 3;
-        puVar1 = (u_int *)((char *)((int)puVar4 + 0xfU) + -uVar5);
-        *puVar1 = *puVar1 & -1 << (uVar5 + 1) * 8 | cw_t3 >> (3 - uVar5) * 8;
-        puVar4[3] = cw_t3;
-        puVar2 = puVar2 + 4;
-        puVar4 = puVar4 + 4;
-      } while (puVar2 != puVar3);
-    }
-    puVar3 = (u_int *)packeddata;
-    uVar5 = (u_int)(char)*puVar2;
-    *(char *)puVar4 = (char)*puVar2;
-    memcpy(Replay_ReplayBuffer.buffer + Replay_ReplayStorePtr,puVar3,(u_int)(u_char)packeddata[0]);
-    Replay_ReplayStorePtr = Replay_ReplayStorePtr + (u_int)(u_char)packeddata[0];
-    puVar2 = (u_int *)Replay_Compress((char *)controllerdata.gas);
-    if (((u_int)puVar2 & 3) == 0) {
-      puVar4 = puVar2 + 8;
-      do {
-        cw_t1 = puVar2[1];
-        cw_t2 = puVar2[2];
-        cw_t3 = puVar2[3];
-        *puVar3 = *puVar2;
-        puVar3[1] = cw_t1;
-        puVar3[2] = cw_t2;
-        puVar3[3] = cw_t3;
-        puVar2 = puVar2 + 4;
-        puVar3 = puVar3 + 4;
-      } while (puVar2 != puVar4);
-    }
-    else {
-      puVar4 = puVar2 + 8;
-      do {
-        uVar6 = (int)puVar2 + 3U & 3;
-        uVar7 = (u_int)puVar2 & 3;
-        uVar5 = (*(int *)((char *)((int)puVar2 + 3U) + -uVar6) << (3 - uVar6) * 8 |
-                uVar5 & 0xffffffffU >> (uVar6 + 1) * 8) & -1 << (4 - uVar7) * 8 |
-                *(u_int *)((int)puVar2 - uVar7) >> uVar7 * 8;
-        uVar6 = (int)puVar2 + 7U & 3;
-        uVar7 = (u_int)(puVar2 + 1) & 3;
-        cw_t1 = (*(int *)((char *)((int)puVar2 + 7U) + -uVar6) << (3 - uVar6) * 8 |
-                cw_t1 & 0xffffffffU >> (uVar6 + 1) * 8) & -1 << (4 - uVar7) * 8 |
-                *(u_int *)((int)(puVar2 + 1) - uVar7) >> uVar7 * 8;
-        uVar6 = (int)puVar2 + 0xbU & 3;
-        uVar7 = (u_int)(puVar2 + 2) & 3;
-        cw_t2 = (*(int *)((char *)((int)puVar2 + 0xbU) + -uVar6) << (3 - uVar6) * 8 |
-                cw_t2 & 0xffffffffU >> (uVar6 + 1) * 8) & -1 << (4 - uVar7) * 8 |
-                *(u_int *)((int)(puVar2 + 2) - uVar7) >> uVar7 * 8;
-        uVar6 = (int)puVar2 + 0xfU & 3;
-        uVar7 = (u_int)(puVar2 + 3) & 3;
-        cw_t3 = (*(int *)((char *)((int)puVar2 + 0xfU) + -uVar6) << (3 - uVar6) * 8 |
-                cw_t3 & 0xffffffffU >> (uVar6 + 1) * 8) & -1 << (4 - uVar7) * 8 |
-                *(u_int *)((int)(puVar2 + 3) - uVar7) >> uVar7 * 8;
-        uVar6 = (int)puVar3 + 3U & 3;
-        puVar1 = (u_int *)((char *)((int)puVar3 + 3U) + -uVar6);
-        *puVar1 = *puVar1 & -1 << (uVar6 + 1) * 8 | uVar5 >> (3 - uVar6) * 8;
-        *puVar3 = uVar5;
-        uVar6 = (int)puVar3 + 7U & 3;
-        puVar1 = (u_int *)((char *)((int)puVar3 + 7U) + -uVar6);
-        *puVar1 = *puVar1 & -1 << (uVar6 + 1) * 8 | cw_t1 >> (3 - uVar6) * 8;
-        puVar3[1] = cw_t1;
-        uVar6 = (int)puVar3 + 0xbU & 3;
-        puVar1 = (u_int *)((char *)((int)puVar3 + 0xbU) + -uVar6);
-        *puVar1 = *puVar1 & -1 << (uVar6 + 1) * 8 | cw_t2 >> (3 - uVar6) * 8;
-        puVar3[2] = cw_t2;
-        uVar6 = (int)puVar3 + 0xfU & 3;
-        puVar1 = (u_int *)((char *)((int)puVar3 + 0xfU) + -uVar6);
-        *puVar1 = *puVar1 & -1 << (uVar6 + 1) * 8 | cw_t3 >> (3 - uVar6) * 8;
-        puVar3[3] = cw_t3;
-        puVar2 = puVar2 + 4;
-        puVar3 = puVar3 + 4;
-      } while (puVar2 != puVar4);
-    }
-    puVar4 = (u_int *)packeddata;
-    uVar5 = (u_int)(char)*puVar2;
-    *(char *)puVar3 = (char)*puVar2;
-    memcpy(Replay_ReplayBuffer.buffer + Replay_ReplayStorePtr,puVar4,(u_int)(u_char)packeddata[0]);
-    Replay_ReplayStorePtr = Replay_ReplayStorePtr + (u_int)(u_char)packeddata[0];
-    puVar2 = (u_int *)Replay_Compress((char *)controllerdata.brake);
-    if (((u_int)puVar2 & 3) == 0) {
-      puVar3 = puVar2 + 8;
-      do {
-        cw_t1 = puVar2[1];
-        cw_t2 = puVar2[2];
-        cw_t3 = puVar2[3];
-        *puVar4 = *puVar2;
-        puVar4[1] = cw_t1;
-        puVar4[2] = cw_t2;
-        puVar4[3] = cw_t3;
-        puVar2 = puVar2 + 4;
-        puVar4 = puVar4 + 4;
-      } while (puVar2 != puVar3);
-    }
-    else {
-      puVar3 = puVar2 + 8;
-      do {
-        uVar6 = (int)puVar2 + 3U & 3;
-        uVar7 = (u_int)puVar2 & 3;
-        uVar5 = (*(int *)((char *)((int)puVar2 + 3U) + -uVar6) << (3 - uVar6) * 8 |
-                uVar5 & 0xffffffffU >> (uVar6 + 1) * 8) & -1 << (4 - uVar7) * 8 |
-                *(u_int *)((int)puVar2 - uVar7) >> uVar7 * 8;
-        uVar6 = (int)puVar2 + 7U & 3;
-        uVar7 = (u_int)(puVar2 + 1) & 3;
-        cw_t1 = (*(int *)((char *)((int)puVar2 + 7U) + -uVar6) << (3 - uVar6) * 8 |
-                cw_t1 & 0xffffffffU >> (uVar6 + 1) * 8) & -1 << (4 - uVar7) * 8 |
-                *(u_int *)((int)(puVar2 + 1) - uVar7) >> uVar7 * 8;
-        uVar6 = (int)puVar2 + 0xbU & 3;
-        uVar7 = (u_int)(puVar2 + 2) & 3;
-        cw_t2 = (*(int *)((char *)((int)puVar2 + 0xbU) + -uVar6) << (3 - uVar6) * 8 |
-                cw_t2 & 0xffffffffU >> (uVar6 + 1) * 8) & -1 << (4 - uVar7) * 8 |
-                *(u_int *)((int)(puVar2 + 2) - uVar7) >> uVar7 * 8;
-        uVar6 = (int)puVar2 + 0xfU & 3;
-        uVar7 = (u_int)(puVar2 + 3) & 3;
-        cw_t3 = (*(int *)((char *)((int)puVar2 + 0xfU) + -uVar6) << (3 - uVar6) * 8 |
-                cw_t3 & 0xffffffffU >> (uVar6 + 1) * 8) & -1 << (4 - uVar7) * 8 |
-                *(u_int *)((int)(puVar2 + 3) - uVar7) >> uVar7 * 8;
-        uVar6 = (int)puVar4 + 3U & 3;
-        puVar1 = (u_int *)((char *)((int)puVar4 + 3U) + -uVar6);
-        *puVar1 = *puVar1 & -1 << (uVar6 + 1) * 8 | uVar5 >> (3 - uVar6) * 8;
-        *puVar4 = uVar5;
-        uVar6 = (int)puVar4 + 7U & 3;
-        puVar1 = (u_int *)((char *)((int)puVar4 + 7U) + -uVar6);
-        *puVar1 = *puVar1 & -1 << (uVar6 + 1) * 8 | cw_t1 >> (3 - uVar6) * 8;
-        puVar4[1] = cw_t1;
-        uVar6 = (int)puVar4 + 0xbU & 3;
-        puVar1 = (u_int *)((char *)((int)puVar4 + 0xbU) + -uVar6);
-        *puVar1 = *puVar1 & -1 << (uVar6 + 1) * 8 | cw_t2 >> (3 - uVar6) * 8;
-        puVar4[2] = cw_t2;
-        uVar6 = (int)puVar4 + 0xfU & 3;
-        puVar1 = (u_int *)((char *)((int)puVar4 + 0xfU) + -uVar6);
-        *puVar1 = *puVar1 & -1 << (uVar6 + 1) * 8 | cw_t3 >> (3 - uVar6) * 8;
-        puVar4[3] = cw_t3;
-        puVar2 = puVar2 + 4;
-        puVar4 = puVar4 + 4;
-      } while (puVar2 != puVar3);
-    }
-    puVar3 = (u_int *)packeddata;
-    uVar5 = (u_int)(char)*puVar2;
-    *(char *)puVar4 = (char)*puVar2;
-    memcpy(Replay_ReplayBuffer.buffer + Replay_ReplayStorePtr,puVar3,(u_int)(u_char)packeddata[0]);
-    Replay_ReplayStorePtr = Replay_ReplayStorePtr + (u_int)(u_char)packeddata[0];
-    puVar2 = (u_int *)Replay_Compress((char *)controllerdata.states);
-    puVar4 = puVar2 + 8;
-    if (((u_int)puVar2 & 3) == 0) {
-      do {
-        uVar5 = puVar2[1];
-        uVar6 = puVar2[2];
-        uVar7 = puVar2[3];
-        *puVar3 = *puVar2;
-        puVar3[1] = uVar5;
-        puVar3[2] = uVar6;
-        puVar3[3] = uVar7;
-        puVar2 = puVar2 + 4;
-        puVar3 = puVar3 + 4;
-      } while (puVar2 != puVar4);
-    }
-    else {
-      do {
-        uVar6 = (int)puVar2 + 3U & 3;
-        uVar7 = (u_int)puVar2 & 3;
-        uVar5 = (*(int *)((char *)((int)puVar2 + 3U) + -uVar6) << (3 - uVar6) * 8 |
-                uVar5 & 0xffffffffU >> (uVar6 + 1) * 8) & -1 << (4 - uVar7) * 8 |
-                *(u_int *)((int)puVar2 - uVar7) >> uVar7 * 8;
-        uVar6 = (int)puVar2 + 7U & 3;
-        uVar7 = (u_int)(puVar2 + 1) & 3;
-        cw_t1 = (*(int *)((char *)((int)puVar2 + 7U) + -uVar6) << (3 - uVar6) * 8 |
-                cw_t1 & 0xffffffffU >> (uVar6 + 1) * 8) & -1 << (4 - uVar7) * 8 |
-                *(u_int *)((int)(puVar2 + 1) - uVar7) >> uVar7 * 8;
-        uVar6 = (int)puVar2 + 0xbU & 3;
-        uVar7 = (u_int)(puVar2 + 2) & 3;
-        cw_t2 = (*(int *)((char *)((int)puVar2 + 0xbU) + -uVar6) << (3 - uVar6) * 8 |
-                cw_t2 & 0xffffffffU >> (uVar6 + 1) * 8) & -1 << (4 - uVar7) * 8 |
-                *(u_int *)((int)(puVar2 + 2) - uVar7) >> uVar7 * 8;
-        uVar6 = (int)puVar2 + 0xfU & 3;
-        uVar7 = (u_int)(puVar2 + 3) & 3;
-        cw_t3 = (*(int *)((char *)((int)puVar2 + 0xfU) + -uVar6) << (3 - uVar6) * 8 |
-                cw_t3 & 0xffffffffU >> (uVar6 + 1) * 8) & -1 << (4 - uVar7) * 8 |
-                *(u_int *)((int)(puVar2 + 3) - uVar7) >> uVar7 * 8;
-        uVar6 = (int)puVar3 + 3U & 3;
-        puVar1 = (u_int *)((char *)((int)puVar3 + 3U) + -uVar6);
-        *puVar1 = *puVar1 & -1 << (uVar6 + 1) * 8 | uVar5 >> (3 - uVar6) * 8;
-        *puVar3 = uVar5;
-        uVar6 = (int)puVar3 + 7U & 3;
-        puVar1 = (u_int *)((char *)((int)puVar3 + 7U) + -uVar6);
-        *puVar1 = *puVar1 & -1 << (uVar6 + 1) * 8 | cw_t1 >> (3 - uVar6) * 8;
-        puVar3[1] = cw_t1;
-        uVar6 = (int)puVar3 + 0xbU & 3;
-        puVar1 = (u_int *)((char *)((int)puVar3 + 0xbU) + -uVar6);
-        *puVar1 = *puVar1 & -1 << (uVar6 + 1) * 8 | cw_t2 >> (3 - uVar6) * 8;
-        puVar3[2] = cw_t2;
-        uVar6 = (int)puVar3 + 0xfU & 3;
-        puVar1 = (u_int *)((char *)((int)puVar3 + 0xfU) + -uVar6);
-        *puVar1 = *puVar1 & -1 << (uVar6 + 1) * 8 | cw_t3 >> (3 - uVar6) * 8;
-        puVar3[3] = cw_t3;
-        puVar2 = puVar2 + 4;
-        puVar3 = puVar3 + 4;
-      } while (puVar2 != puVar4);
-    }
-    *(char *)puVar3 = (char)*puVar2;
-    memcpy(Replay_ReplayBuffer.buffer + Replay_ReplayStorePtr,packeddata,
-               (u_int)(u_char)packeddata[0]);
-    Replay_ReplayStorePtr = Replay_ReplayStorePtr + (u_int)(u_char)packeddata[0];
-  }
-  else {
+
+  if (0x6000 <= Replay_ReplayStorePtr + 0x80) {
     Replay_ReplayMode = 1;
     Replay_Size = simGlobal.gameTicks;
+    return;
   }
+  *(struct PackedBuf33 *)packeddata = *(struct PackedBuf33 *)Replay_Compress(controllerdata.steering);
+  memcpy(Replay_ReplayBuffer.buffer + Replay_ReplayStorePtr,packeddata,(u_int)(u_char)packeddata[0]);
+  Replay_ReplayStorePtr = Replay_ReplayStorePtr + (u_int)(u_char)packeddata[0];
+
+  *(struct PackedBuf33 *)packeddata = *(struct PackedBuf33 *)Replay_Compress((char *)controllerdata.gas);
+  memcpy(Replay_ReplayBuffer.buffer + Replay_ReplayStorePtr,packeddata,(u_int)(u_char)packeddata[0]);
+  Replay_ReplayStorePtr = Replay_ReplayStorePtr + (u_int)(u_char)packeddata[0];
+
+  *(struct PackedBuf33 *)packeddata = *(struct PackedBuf33 *)Replay_Compress((char *)controllerdata.brake);
+  memcpy(Replay_ReplayBuffer.buffer + Replay_ReplayStorePtr,packeddata,(u_int)(u_char)packeddata[0]);
+  Replay_ReplayStorePtr = Replay_ReplayStorePtr + (u_int)(u_char)packeddata[0];
+
+  *(struct PackedBuf33 *)packeddata = *(struct PackedBuf33 *)Replay_Compress((char *)controllerdata.states);
+  memcpy(Replay_ReplayBuffer.buffer + Replay_ReplayStorePtr,packeddata,(u_int)(u_char)packeddata[0]);
+  Replay_ReplayStorePtr = Replay_ReplayStorePtr + (u_int)(u_char)packeddata[0];
   return;
 }
-
 /* ---- Replay_RetreivingControllerData__Fv  [REPLAY.CPP:314-335] SLD-VERIFIED ---- */
 tControllerData Replay_RetreivingControllerData(void)
 
 {
-  u_char *puVar1;
-  u_int uVar2;
-  u_int *puVar3;
-  char *pcVar4;
-  char *pcVar5;
-  tControllerData *ptVar6;
-  u_int cw_a3;
-  u_int uVar7;
-  u_int cw_t0;
-  u_int uVar8;
-  u_int uVar9;
-  u_int cw_t1;
-  u_int uVar10;
-  u_int uVar11;
-  u_int cw_t2;
-  u_int uVar12;
-  u_int uVar13;
-  u_int uVar14;
+  struct PackedBuf32 { char b[32]; };
   tControllerData controllerdata;
   char packeddata [33];
-  void *tp1;
-  
-  memcpy((tControllerData *)packeddata,Replay_ReplayBuffer.buffer + Replay_ReplayGetPtr,
+  char *pcVar4;
+
+  memcpy(packeddata,Replay_ReplayBuffer.buffer + Replay_ReplayGetPtr,
              (u_int)(u_char)Replay_ReplayBuffer.buffer[Replay_ReplayGetPtr]);
   pcVar4 = Replay_Decompress(packeddata);
-  uVar2 = (u_int)(pcVar4 + 3) & 3;
-  uVar13 = (u_int)pcVar4 & 3;
-  uVar7 = (*(int *)(pcVar4 + 3 + -uVar2) << (3 - uVar2) * 8 | cw_a3 & 0xffffffffU >> (uVar2 + 1) * 8
-          ) & -1 << (4 - uVar13) * 8 | *(u_int *)(pcVar4 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar4 + 7) & 3;
-  uVar13 = (u_int)(pcVar4 + 4) & 3;
-  uVar8 = (*(int *)(pcVar4 + 7 + -uVar2) << (3 - uVar2) * 8 | cw_t0 & 0xffffffffU >> (uVar2 + 1) * 8
-          ) & -1 << (4 - uVar13) * 8 | *(u_int *)(pcVar4 + 4 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar4 + 0xb) & 3;
-  uVar13 = (u_int)(pcVar4 + 8) & 3;
-  uVar10 = (*(int *)(pcVar4 + 0xb + -uVar2) << (3 - uVar2) * 8 |
-           cw_t1 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-           *(u_int *)(pcVar4 + 8 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar4 + 0xf) & 3;
-  uVar13 = (u_int)(pcVar4 + 0xc) & 3;
-  uVar12 = (*(int *)(pcVar4 + 0xf + -uVar2) << (3 - uVar2) * 8 |
-           cw_t2 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-           *(u_int *)(pcVar4 + 0xc + -uVar13) >> uVar13 * 8;
-  tp1 = controllerdata.steering + 3;
-  uVar2 = (u_int)tp1 & 3;
-  *(u_int *)((int)tp1 - uVar2) =
-       *(u_int *)((int)tp1 - uVar2) & -1 << (uVar2 + 1) * 8 | uVar7 >> (3 - uVar2) * 8;
-  controllerdata.steering[0] = (char)uVar7;
-  controllerdata.steering[1] = (char)(uVar7 >> 8);
-  controllerdata.steering[2] = (char)(uVar7 >> 0x10);
-  controllerdata.steering[3] = (char)(uVar7 >> 0x18);
-  pcVar5 = controllerdata.steering + 7;
-  uVar2 = (u_int)pcVar5 & 3;
-  *(u_int *)(pcVar5 + -uVar2) =
-       *(u_int *)(pcVar5 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar8 >> (3 - uVar2) * 8;
-  controllerdata.steering[4] = (char)uVar8;
-  controllerdata.steering[5] = (char)(uVar8 >> 8);
-  controllerdata.steering[6] = (char)(uVar8 >> 0x10);
-  controllerdata.steering[7] = (char)(uVar8 >> 0x18);
-  pcVar5 = controllerdata.steering + 0xb;
-  uVar2 = (u_int)pcVar5 & 3;
-  *(u_int *)(pcVar5 + -uVar2) =
-       *(u_int *)(pcVar5 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar10 >> (3 - uVar2) * 8;
-  controllerdata.steering[8] = (char)uVar10;
-  controllerdata.steering[9] = (char)(uVar10 >> 8);
-  controllerdata.steering[10] = (char)(uVar10 >> 0x10);
-  controllerdata.steering[0xb] = (char)(uVar10 >> 0x18);
-  pcVar5 = controllerdata.steering + 0xf;
-  uVar2 = (u_int)pcVar5 & 3;
-  *(u_int *)(pcVar5 + -uVar2) =
-       *(u_int *)(pcVar5 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar12 >> (3 - uVar2) * 8;
-  controllerdata.steering[0xc] = (char)uVar12;
-  controllerdata.steering[0xd] = (char)(uVar12 >> 8);
-  controllerdata.steering[0xe] = (char)(uVar12 >> 0x10);
-  controllerdata.steering[0xf] = (char)(uVar12 >> 0x18);
-  uVar2 = (u_int)(pcVar4 + 0x13) & 3;
-  uVar13 = (u_int)(pcVar4 + 0x10) & 3;
-  uVar7 = (*(int *)(pcVar4 + 0x13 + -uVar2) << (3 - uVar2) * 8 |
-          uVar7 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-          *(u_int *)(pcVar4 + 0x10 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar4 + 0x17) & 3;
-  uVar13 = (u_int)(pcVar4 + 0x14) & 3;
-  uVar8 = (*(int *)(pcVar4 + 0x17 + -uVar2) << (3 - uVar2) * 8 |
-          uVar8 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-          *(u_int *)(pcVar4 + 0x14 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar4 + 0x1b) & 3;
-  uVar13 = (u_int)(pcVar4 + 0x18) & 3;
-  uVar10 = (*(int *)(pcVar4 + 0x1b + -uVar2) << (3 - uVar2) * 8 |
-           uVar10 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-           *(u_int *)(pcVar4 + 0x18 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar4 + 0x1f) & 3;
-  uVar13 = (u_int)(pcVar4 + 0x1c) & 3;
-  uVar12 = (*(int *)(pcVar4 + 0x1f + -uVar2) << (3 - uVar2) * 8 |
-           uVar12 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-           *(u_int *)(pcVar4 + 0x1c + -uVar13) >> uVar13 * 8;
-  pcVar5 = controllerdata.steering + 0x13;
-  uVar2 = (u_int)pcVar5 & 3;
-  *(u_int *)(pcVar5 + -uVar2) =
-       *(u_int *)(pcVar5 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar7 >> (3 - uVar2) * 8;
-  controllerdata.steering[0x10] = (char)uVar7;
-  controllerdata.steering[0x11] = (char)(uVar7 >> 8);
-  controllerdata.steering[0x12] = (char)(uVar7 >> 0x10);
-  controllerdata.steering[0x13] = (char)(uVar7 >> 0x18);
-  pcVar5 = controllerdata.steering + 0x17;
-  uVar2 = (u_int)pcVar5 & 3;
-  *(u_int *)(pcVar5 + -uVar2) =
-       *(u_int *)(pcVar5 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar8 >> (3 - uVar2) * 8;
-  controllerdata.steering[0x14] = (char)uVar8;
-  controllerdata.steering[0x15] = (char)(uVar8 >> 8);
-  controllerdata.steering[0x16] = (char)(uVar8 >> 0x10);
-  controllerdata.steering[0x17] = (char)(uVar8 >> 0x18);
-  pcVar5 = controllerdata.steering + 0x1b;
-  uVar2 = (u_int)pcVar5 & 3;
-  *(u_int *)(pcVar5 + -uVar2) =
-       *(u_int *)(pcVar5 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar10 >> (3 - uVar2) * 8;
-  controllerdata.steering[0x18] = (char)uVar10;
-  controllerdata.steering[0x19] = (char)(uVar10 >> 8);
-  controllerdata.steering[0x1a] = (char)(uVar10 >> 0x10);
-  controllerdata.steering[0x1b] = (char)(uVar10 >> 0x18);
-  pcVar5 = controllerdata.steering + 0x1f;
-  uVar2 = (u_int)pcVar5 & 3;
-  *(u_int *)(pcVar5 + -uVar2) =
-       *(u_int *)(pcVar5 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar12 >> (3 - uVar2) * 8;
+  *(struct PackedBuf32 *)controllerdata.steering = *(struct PackedBuf32 *)pcVar4;
   Replay_ReplayGetPtr = Replay_ReplayGetPtr + (u_int)(u_char)packeddata[0];
-  (*(int *)((u_char *)&(controllerdata.steering) + 28)) = uVar12;
-  memcpy((tControllerData *)packeddata,Replay_ReplayBuffer.buffer + Replay_ReplayGetPtr,
+
+  memcpy(packeddata,Replay_ReplayBuffer.buffer + Replay_ReplayGetPtr,
              (u_int)(u_char)Replay_ReplayBuffer.buffer[Replay_ReplayGetPtr]);
-  pcVar5 = Replay_Decompress(packeddata);
-  uVar2 = (u_int)(pcVar5 + 3) & 3;
-  uVar13 = (u_int)pcVar5 & 3;
-  uVar7 = (*(int *)(pcVar5 + 3 + -uVar2) << (3 - uVar2) * 8 | uVar7 & 0xffffffffU >> (uVar2 + 1) * 8
-          ) & -1 << (4 - uVar13) * 8 | *(u_int *)(pcVar5 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar5 + 7) & 3;
-  uVar13 = (u_int)(pcVar5 + 4) & 3;
-  uVar8 = (*(int *)(pcVar5 + 7 + -uVar2) << (3 - uVar2) * 8 | uVar8 & 0xffffffffU >> (uVar2 + 1) * 8
-          ) & -1 << (4 - uVar13) * 8 | *(u_int *)(pcVar5 + 4 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar5 + 0xb) & 3;
-  uVar13 = (u_int)(pcVar5 + 8) & 3;
-  uVar10 = (*(int *)(pcVar5 + 0xb + -uVar2) << (3 - uVar2) * 8 |
-           uVar10 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-           *(u_int *)(pcVar5 + 8 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar5 + 0xf) & 3;
-  uVar13 = (u_int)(pcVar5 + 0xc) & 3;
-  uVar12 = (*(int *)(pcVar5 + 0xf + -uVar2) << (3 - uVar2) * 8 |
-           uVar12 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-           *(u_int *)(pcVar5 + 0xc + -uVar13) >> uVar13 * 8;
-  puVar1 = controllerdata.gas + 3;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar7 >> (3 - uVar2) * 8;
-  controllerdata.gas[0] = (char)uVar7;
-  controllerdata.gas[1] = (char)(uVar7 >> 8);
-  controllerdata.gas[2] = (char)(uVar7 >> 0x10);
-  controllerdata.gas[3] = (char)(uVar7 >> 0x18);
-  puVar1 = controllerdata.gas + 7;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar8 >> (3 - uVar2) * 8;
-  controllerdata.gas[4] = (char)uVar8;
-  controllerdata.gas[5] = (char)(uVar8 >> 8);
-  controllerdata.gas[6] = (char)(uVar8 >> 0x10);
-  controllerdata.gas[7] = (char)(uVar8 >> 0x18);
-  puVar1 = controllerdata.gas + 0xb;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar10 >> (3 - uVar2) * 8;
-  controllerdata.gas[8] = (char)uVar10;
-  controllerdata.gas[9] = (char)(uVar10 >> 8);
-  controllerdata.gas[10] = (char)(uVar10 >> 0x10);
-  controllerdata.gas[0xb] = (char)(uVar10 >> 0x18);
-  puVar1 = controllerdata.gas + 0xf;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar12 >> (3 - uVar2) * 8;
-  controllerdata.gas[0xc] = (char)uVar12;
-  controllerdata.gas[0xd] = (char)(uVar12 >> 8);
-  controllerdata.gas[0xe] = (char)(uVar12 >> 0x10);
-  controllerdata.gas[0xf] = (char)(uVar12 >> 0x18);
-  uVar2 = (u_int)(pcVar5 + 0x13) & 3;
-  uVar13 = (u_int)(pcVar5 + 0x10) & 3;
-  uVar7 = (*(int *)(pcVar5 + 0x13 + -uVar2) << (3 - uVar2) * 8 |
-          uVar7 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-          *(u_int *)(pcVar5 + 0x10 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar5 + 0x17) & 3;
-  uVar13 = (u_int)(pcVar5 + 0x14) & 3;
-  uVar8 = (*(int *)(pcVar5 + 0x17 + -uVar2) << (3 - uVar2) * 8 |
-          uVar8 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-          *(u_int *)(pcVar5 + 0x14 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar5 + 0x1b) & 3;
-  uVar13 = (u_int)(pcVar5 + 0x18) & 3;
-  uVar10 = (*(int *)(pcVar5 + 0x1b + -uVar2) << (3 - uVar2) * 8 |
-           uVar10 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-           *(u_int *)(pcVar5 + 0x18 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar5 + 0x1f) & 3;
-  uVar13 = (u_int)(pcVar5 + 0x1c) & 3;
-  uVar12 = (*(int *)(pcVar5 + 0x1f + -uVar2) << (3 - uVar2) * 8 |
-           uVar12 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-           *(u_int *)(pcVar5 + 0x1c + -uVar13) >> uVar13 * 8;
-  puVar1 = controllerdata.gas + 0x13;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar7 >> (3 - uVar2) * 8;
-  controllerdata.gas[0x10] = (char)uVar7;
-  controllerdata.gas[0x11] = (char)(uVar7 >> 8);
-  controllerdata.gas[0x12] = (char)(uVar7 >> 0x10);
-  controllerdata.gas[0x13] = (char)(uVar7 >> 0x18);
-  puVar1 = controllerdata.gas + 0x17;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar8 >> (3 - uVar2) * 8;
-  controllerdata.gas[0x14] = (char)uVar8;
-  controllerdata.gas[0x15] = (char)(uVar8 >> 8);
-  controllerdata.gas[0x16] = (char)(uVar8 >> 0x10);
-  controllerdata.gas[0x17] = (char)(uVar8 >> 0x18);
-  puVar1 = controllerdata.gas + 0x1b;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar10 >> (3 - uVar2) * 8;
-  controllerdata.gas[0x18] = (char)uVar10;
-  controllerdata.gas[0x19] = (char)(uVar10 >> 8);
-  controllerdata.gas[0x1a] = (char)(uVar10 >> 0x10);
-  controllerdata.gas[0x1b] = (char)(uVar10 >> 0x18);
-  puVar1 = controllerdata.gas + 0x1f;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar12 >> (3 - uVar2) * 8;
+  pcVar4 = Replay_Decompress(packeddata);
+  *(struct PackedBuf32 *)controllerdata.gas = *(struct PackedBuf32 *)pcVar4;
   Replay_ReplayGetPtr = Replay_ReplayGetPtr + (u_int)(u_char)packeddata[0];
-  (*(int *)((u_char *)&(controllerdata.gas) + 28)) = uVar12;
-  memcpy((tControllerData *)packeddata,Replay_ReplayBuffer.buffer + Replay_ReplayGetPtr,
+
+  memcpy(packeddata,Replay_ReplayBuffer.buffer + Replay_ReplayGetPtr,
              (u_int)(u_char)Replay_ReplayBuffer.buffer[Replay_ReplayGetPtr]);
-  pcVar5 = Replay_Decompress(packeddata);
-  uVar2 = (u_int)(pcVar5 + 3) & 3;
-  uVar13 = (u_int)pcVar5 & 3;
-  uVar7 = (*(int *)(pcVar5 + 3 + -uVar2) << (3 - uVar2) * 8 | uVar7 & 0xffffffffU >> (uVar2 + 1) * 8
-          ) & -1 << (4 - uVar13) * 8 | *(u_int *)(pcVar5 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar5 + 7) & 3;
-  uVar13 = (u_int)(pcVar5 + 4) & 3;
-  uVar8 = (*(int *)(pcVar5 + 7 + -uVar2) << (3 - uVar2) * 8 | uVar8 & 0xffffffffU >> (uVar2 + 1) * 8
-          ) & -1 << (4 - uVar13) * 8 | *(u_int *)(pcVar5 + 4 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar5 + 0xb) & 3;
-  uVar13 = (u_int)(pcVar5 + 8) & 3;
-  uVar10 = (*(int *)(pcVar5 + 0xb + -uVar2) << (3 - uVar2) * 8 |
-           uVar10 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-           *(u_int *)(pcVar5 + 8 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar5 + 0xf) & 3;
-  uVar13 = (u_int)(pcVar5 + 0xc) & 3;
-  uVar12 = (*(int *)(pcVar5 + 0xf + -uVar2) << (3 - uVar2) * 8 |
-           uVar12 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-           *(u_int *)(pcVar5 + 0xc + -uVar13) >> uVar13 * 8;
-  puVar1 = controllerdata.brake + 3;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar7 >> (3 - uVar2) * 8;
-  controllerdata.brake[0] = (char)uVar7;
-  controllerdata.brake[1] = (char)(uVar7 >> 8);
-  controllerdata.brake[2] = (char)(uVar7 >> 0x10);
-  controllerdata.brake[3] = (char)(uVar7 >> 0x18);
-  puVar1 = controllerdata.brake + 7;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar8 >> (3 - uVar2) * 8;
-  controllerdata.brake[4] = (char)uVar8;
-  controllerdata.brake[5] = (char)(uVar8 >> 8);
-  controllerdata.brake[6] = (char)(uVar8 >> 0x10);
-  controllerdata.brake[7] = (char)(uVar8 >> 0x18);
-  puVar1 = controllerdata.brake + 0xb;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar10 >> (3 - uVar2) * 8;
-  controllerdata.brake[8] = (char)uVar10;
-  controllerdata.brake[9] = (char)(uVar10 >> 8);
-  controllerdata.brake[10] = (char)(uVar10 >> 0x10);
-  controllerdata.brake[0xb] = (char)(uVar10 >> 0x18);
-  puVar1 = controllerdata.brake + 0xf;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar12 >> (3 - uVar2) * 8;
-  controllerdata.brake[0xc] = (char)uVar12;
-  controllerdata.brake[0xd] = (char)(uVar12 >> 8);
-  controllerdata.brake[0xe] = (char)(uVar12 >> 0x10);
-  controllerdata.brake[0xf] = (char)(uVar12 >> 0x18);
-  uVar2 = (u_int)(pcVar5 + 0x13) & 3;
-  uVar13 = (u_int)(pcVar5 + 0x10) & 3;
-  uVar7 = (*(int *)(pcVar5 + 0x13 + -uVar2) << (3 - uVar2) * 8 |
-          uVar7 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-          *(u_int *)(pcVar5 + 0x10 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar5 + 0x17) & 3;
-  uVar13 = (u_int)(pcVar5 + 0x14) & 3;
-  uVar8 = (*(int *)(pcVar5 + 0x17 + -uVar2) << (3 - uVar2) * 8 |
-          uVar8 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-          *(u_int *)(pcVar5 + 0x14 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar5 + 0x1b) & 3;
-  uVar13 = (u_int)(pcVar5 + 0x18) & 3;
-  uVar10 = (*(int *)(pcVar5 + 0x1b + -uVar2) << (3 - uVar2) * 8 |
-           uVar10 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-           *(u_int *)(pcVar5 + 0x18 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar5 + 0x1f) & 3;
-  uVar13 = (u_int)(pcVar5 + 0x1c) & 3;
-  uVar12 = (*(int *)(pcVar5 + 0x1f + -uVar2) << (3 - uVar2) * 8 |
-           uVar12 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-           *(u_int *)(pcVar5 + 0x1c + -uVar13) >> uVar13 * 8;
-  puVar1 = controllerdata.brake + 0x13;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar7 >> (3 - uVar2) * 8;
-  controllerdata.brake[0x10] = (char)uVar7;
-  controllerdata.brake[0x11] = (char)(uVar7 >> 8);
-  controllerdata.brake[0x12] = (char)(uVar7 >> 0x10);
-  controllerdata.brake[0x13] = (char)(uVar7 >> 0x18);
-  puVar1 = controllerdata.brake + 0x17;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar8 >> (3 - uVar2) * 8;
-  controllerdata.brake[0x14] = (char)uVar8;
-  controllerdata.brake[0x15] = (char)(uVar8 >> 8);
-  controllerdata.brake[0x16] = (char)(uVar8 >> 0x10);
-  controllerdata.brake[0x17] = (char)(uVar8 >> 0x18);
-  puVar1 = controllerdata.brake + 0x1b;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar10 >> (3 - uVar2) * 8;
-  controllerdata.brake[0x18] = (char)uVar10;
-  controllerdata.brake[0x19] = (char)(uVar10 >> 8);
-  controllerdata.brake[0x1a] = (char)(uVar10 >> 0x10);
-  controllerdata.brake[0x1b] = (char)(uVar10 >> 0x18);
-  puVar1 = controllerdata.brake + 0x1f;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar12 >> (3 - uVar2) * 8;
+  pcVar4 = Replay_Decompress(packeddata);
+  *(struct PackedBuf32 *)controllerdata.brake = *(struct PackedBuf32 *)pcVar4;
   Replay_ReplayGetPtr = Replay_ReplayGetPtr + (u_int)(u_char)packeddata[0];
-  (*(int *)((u_char *)&(controllerdata.brake) + 28)) = uVar12;
-  memcpy((tControllerData *)packeddata,Replay_ReplayBuffer.buffer + Replay_ReplayGetPtr,
+
+  memcpy(packeddata,Replay_ReplayBuffer.buffer + Replay_ReplayGetPtr,
              (u_int)(u_char)Replay_ReplayBuffer.buffer[Replay_ReplayGetPtr]);
-  pcVar5 = Replay_Decompress(packeddata);
-  uVar2 = (u_int)(pcVar5 + 3) & 3;
-  uVar13 = (u_int)pcVar5 & 3;
-  uVar7 = (*(int *)(pcVar5 + 3 + -uVar2) << (3 - uVar2) * 8 | uVar7 & 0xffffffffU >> (uVar2 + 1) * 8
-          ) & -1 << (4 - uVar13) * 8 | *(u_int *)(pcVar5 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar5 + 7) & 3;
-  uVar13 = (u_int)(pcVar5 + 4) & 3;
-  uVar8 = (*(int *)(pcVar5 + 7 + -uVar2) << (3 - uVar2) * 8 | uVar8 & 0xffffffffU >> (uVar2 + 1) * 8
-          ) & -1 << (4 - uVar13) * 8 | *(u_int *)(pcVar5 + 4 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar5 + 0xb) & 3;
-  uVar13 = (u_int)(pcVar5 + 8) & 3;
-  uVar10 = (*(int *)(pcVar5 + 0xb + -uVar2) << (3 - uVar2) * 8 |
-           uVar10 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-           *(u_int *)(pcVar5 + 8 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar5 + 0xf) & 3;
-  uVar13 = (u_int)(pcVar5 + 0xc) & 3;
-  uVar12 = (*(int *)(pcVar5 + 0xf + -uVar2) << (3 - uVar2) * 8 |
-           uVar12 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-           *(u_int *)(pcVar5 + 0xc + -uVar13) >> uVar13 * 8;
-  puVar1 = controllerdata.states + 3;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar7 >> (3 - uVar2) * 8;
-  controllerdata.states[0] = (char)uVar7;
-  controllerdata.states[1] = (char)(uVar7 >> 8);
-  controllerdata.states[2] = (char)(uVar7 >> 0x10);
-  controllerdata.states[3] = (char)(uVar7 >> 0x18);
-  puVar1 = controllerdata.states + 7;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar8 >> (3 - uVar2) * 8;
-  controllerdata.states[4] = (char)uVar8;
-  controllerdata.states[5] = (char)(uVar8 >> 8);
-  controllerdata.states[6] = (char)(uVar8 >> 0x10);
-  controllerdata.states[7] = (char)(uVar8 >> 0x18);
-  puVar1 = controllerdata.states + 0xb;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar10 >> (3 - uVar2) * 8;
-  controllerdata.states[8] = (char)uVar10;
-  controllerdata.states[9] = (char)(uVar10 >> 8);
-  controllerdata.states[10] = (char)(uVar10 >> 0x10);
-  controllerdata.states[0xb] = (char)(uVar10 >> 0x18);
-  puVar1 = controllerdata.states + 0xf;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar12 >> (3 - uVar2) * 8;
-  controllerdata.states[0xc] = (char)uVar12;
-  controllerdata.states[0xd] = (char)(uVar12 >> 8);
-  controllerdata.states[0xe] = (char)(uVar12 >> 0x10);
-  controllerdata.states[0xf] = (char)(uVar12 >> 0x18);
-  uVar2 = (u_int)(pcVar5 + 0x13) & 3;
-  uVar13 = (u_int)(pcVar5 + 0x10) & 3;
-  uVar7 = (*(int *)(pcVar5 + 0x13 + -uVar2) << (3 - uVar2) * 8 |
-          uVar7 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-          *(u_int *)(pcVar5 + 0x10 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar5 + 0x17) & 3;
-  uVar13 = (u_int)(pcVar5 + 0x14) & 3;
-  uVar8 = (*(int *)(pcVar5 + 0x17 + -uVar2) << (3 - uVar2) * 8 |
-          uVar8 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-          *(u_int *)(pcVar5 + 0x14 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar5 + 0x1b) & 3;
-  uVar13 = (u_int)(pcVar5 + 0x18) & 3;
-  uVar10 = (*(int *)(pcVar5 + 0x1b + -uVar2) << (3 - uVar2) * 8 |
-           uVar10 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-           *(u_int *)(pcVar5 + 0x18 + -uVar13) >> uVar13 * 8;
-  uVar2 = (u_int)(pcVar5 + 0x1f) & 3;
-  uVar13 = (u_int)(pcVar5 + 0x1c) & 3;
-  uVar13 = (*(int *)(pcVar5 + 0x1f + -uVar2) << (3 - uVar2) * 8 |
-           uVar12 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar13) * 8 |
-           *(u_int *)(pcVar5 + 0x1c + -uVar13) >> uVar13 * 8;
-  puVar1 = controllerdata.states + 0x13;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar7 >> (3 - uVar2) * 8;
-  controllerdata.states[0x10] = (char)uVar7;
-  controllerdata.states[0x11] = (char)(uVar7 >> 8);
-  controllerdata.states[0x12] = (char)(uVar7 >> 0x10);
-  controllerdata.states[0x13] = (char)(uVar7 >> 0x18);
-  puVar1 = controllerdata.states + 0x17;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar8 >> (3 - uVar2) * 8;
-  controllerdata.states[0x14] = (char)uVar8;
-  controllerdata.states[0x15] = (char)(uVar8 >> 8);
-  controllerdata.states[0x16] = (char)(uVar8 >> 0x10);
-  controllerdata.states[0x17] = (char)(uVar8 >> 0x18);
-  puVar1 = controllerdata.states + 0x1b;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar10 >> (3 - uVar2) * 8;
-  controllerdata.states[0x18] = (char)uVar10;
-  controllerdata.states[0x19] = (char)(uVar10 >> 8);
-  controllerdata.states[0x1a] = (char)(uVar10 >> 0x10);
-  controllerdata.states[0x1b] = (char)(uVar10 >> 0x18);
-  puVar1 = controllerdata.states + 0x1f;
-  uVar2 = (u_int)puVar1 & 3;
-  *(u_int *)(puVar1 + -uVar2) =
-       *(u_int *)(puVar1 + -uVar2) & -1 << (uVar2 + 1) * 8 | uVar13 >> (3 - uVar2) * 8;
-  controllerdata.states[0x1c] = (char)uVar13;
-  controllerdata.states[0x1d] = (char)(uVar13 >> 8);
-  controllerdata.states[0x1e] = (char)(uVar13 >> 0x10);
-  controllerdata.states[0x1f] = (char)(uVar13 >> 0x18);
+  pcVar4 = Replay_Decompress(packeddata);
+  *(struct PackedBuf32 *)controllerdata.states = *(struct PackedBuf32 *)pcVar4;
   Replay_ReplayGetPtr = Replay_ReplayGetPtr + (u_int)(u_char)packeddata[0];
   return controllerdata;
 }
@@ -1143,7 +492,7 @@ void Replay_SaveReplay(void)
   int iVar5;
   int iVar6;
   int iVar7;
-  
+
   if (Replay_ReplayMode == 0) {
     Replay_Size = simGlobal.gameTicks;
   }

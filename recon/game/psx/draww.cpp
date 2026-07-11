@@ -1945,6 +1945,22 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
               coorddef *pCp,int offset,short light)
 
 {
+  /* MATCH (2026-07-11, 125 -> 96 diffs; insns now EXACT 214==214): the pair
+     `sd[1].head.clipW = (u_short)offset; sd[1].head.clipH = *(u_short*)((u_char*)
+     &offset+2);` was a BOGUS byte-split reconstruction of a single 32-bit store --
+     clipW/clipH are adjacent `short` fields (nfs4_types.h +0x10/+0x12) spanning
+     exactly one aligned word, and `offset` is a plain `int` 5th (stack-passed)
+     arg. The split emitted TWO half-word loads from the stack slot instead of the
+     oracle's ONE word load into a callee-saved reg ($s5, kept live for the later
+     `if (offset==-1)` reuse) + one word store -- fixed to `*(int*)&sd[1].head.
+     clipW = offset;`. Same bug in the sibling DrawObjectSimple below (same
+     pattern). RESIDUAL 96 = further register-coloring cascade (untouched: the
+     Camera_gInfo target->position two-level pointer chase costs a scheduling nop
+     the oracle pays and ours doesn't -- tried splitting each axis into its own
+     `int posN=...; tmp.N=pCp->N-posN;` statement per the DrawW_DoLines lever, but
+     here it OVERSHOOTS the oracle's insn count (214->217) rather than landing
+     exact, so reverted; DoLines' fn-scope shape differs enough that the lever
+     isn't a straight port here). */
   int mat_local;
   matrixtdef mattemp;
   coorddef tmp;
@@ -1960,8 +1976,7 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
   isCullable = objDef->vertexCount;
   *(u_char *)((int)sd[1].matB.t + 2) = 0;
   drawResult = gNight_renderNight;
-  sd[1].head.clipW = (u_short)offset;
-  sd[1].head.clipH = (*(u_short *)((u_char *)&(offset) + 2));
+  *(int *)&sd[1].head.clipW = offset;
   sd[1].head.mirror = (int)(objDef + (u_int)isCullable * 2 + 1);
   *(Track_tMaterial **)sd[1].matB.m[0] = shapeDef_p;
   if (drawResult != 0) {
@@ -2021,6 +2036,16 @@ gte_SetTransMatrix(&tmp2);
 int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coorddef *pCp,int offset)
 
 {
+  /* MATCH (2026-07-11, 97 -> 76 diffs; insns now EXACT 189==189): same bogus
+     byte-split bug as the sibling DrawObjectTransform above -- `sd[1].head.clipW
+     = (u_short)offset; sd[1].head.clipH = *(u_short*)((u_char*)&offset+2);`
+     replaced a single aligned word store `*(int*)&sd[1].head.clipW = offset;`
+     (clipW/clipH are adjacent shorts spanning one word) with two half-word
+     stack reloads, and dropped `offset`'s register cache for the later
+     `if (offset==-1)` reuse (oracle: ONE `lw $s5,...` kept live in a callee-
+     saved reg). RESIDUAL 76 = further coloring cascade; the target->position
+     two-level pointer-chase split (DrawW_DoLines lever) overshoots the insn
+     count here too (189->193) -- reverted, same as DrawObjectTransform. */
   short facetIdx;
   coorddef tmp;
   coorddef tmp2;
@@ -2036,8 +2061,7 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
   isCullable = objDef->vertexCount;
   *(u_char *)((int)sd[1].matB.t + 2) = 0;
   drawResult = gNight_renderNight;
-  sd[1].head.clipW = (u_short)offset;
-  sd[1].head.clipH = (*(u_short *)((u_char *)&(offset) + 2));
+  *(int *)&sd[1].head.clipW = offset;
   sd[1].head.mirror = (int)(objDef + (u_int)isCullable * 2 + 1);
   if (drawResult != 0) {
     *(u_char *)((int)sd[1].matB.t + 2) = 4;
@@ -3157,6 +3181,28 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
 void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
 
 {
+  /* MATCH (2026-07-11, 79 -> 52 diffs; insns now EXACT 199==199): the tmp.x/y/z
+     computations `(Vi->cview).translation.N - ((Camera_gInfo[Vi->player].target)->
+     position).N` (and the BW_gCopCarObj sibling block) are a genuine TWO-LEVEL
+     POINTER CHASE (target ptr deref, then ->position.N) -- the oracle pays a real
+     load-delay `nop` there because it evaluates the chase BEFORE reading
+     Vi->cview.translation.N, but a single combined C expression let gcc interleave
+     the translation.N load into the chase's delay slot instead (3 fewer insns,
+     objectively better-scheduled but NOT byte-matching). Splitting each axis into
+     its own `int posN = target->position.N; tmp.N = translation.N - posN;`
+     statement pair forces the chase to be evaluated to completion FIRST (its own
+     full statement), reproducing the oracle's stall + insn count exactly, for both
+     the night-target and cop-car blocks (6 sites total).
+     RESIDUAL 52 = ONE uniform $s1<->$s2 register-pair swap across the WHOLE body:
+     oracle colors buildList(a1)->s1, sd(a2)->s2 (strict parameter order); ours
+     colors sd->s1, buildList->s2 (sd's earlier/heavier use wins the low reg under
+     gcc's usage-priority tie-break). Tried: index-form buildList[buildInd] instead
+     of pointer-walk (regressed to 54, worse), and a fresh `bl=buildList;` alias
+     declared before any sd touch (diff-neutral, gcc coalesces bl back to a1) --
+     both exhausted. No jal/call forces buildList or sd into a specific ABI reg at
+     the point of divergence (the prologue's own initial parameter->s-reg copy), so
+     this is a pure allocator usage-priority tie-break, not source-reachable by the
+     standard levers; permuter/accept candidate. */
   int chunkCount;
 
   chunkCount = BWorld_gChunkCount;
@@ -3185,15 +3231,33 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
             if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
               *(u_char *)((int)sd[1].matB.t + 2) = bVar1 | 5;
             }
-            tmp.x = (Vi->cview).translation.x - ((Camera_gInfo[Vi->player].target)->position).x;
-            tmp.y = (Vi->cview).translation.y - ((Camera_gInfo[Vi->player].target)->position).y;
-            tmp.z = (Vi->cview).translation.z - ((Camera_gInfo[Vi->player].target)->position).z;
+            {
+              int posX = ((Camera_gInfo[Vi->player].target)->position).x;
+              tmp.x = (Vi->cview).translation.x - posX;
+            }
+            {
+              int posY = ((Camera_gInfo[Vi->player].target)->position).y;
+              tmp.y = (Vi->cview).translation.y - posY;
+            }
+            {
+              int posZ = ((Camera_gInfo[Vi->player].target)->position).z;
+              tmp.z = (Vi->cview).translation.z - posZ;
+            }
             transform(&tmp.x,gNightMat.m,&tmp2.x);
             DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
             if (BW_gCopCarObj != (Car_tObj *)0x0) {
-              tmp.x = (Vi->cview).translation.x - (BW_gCopCarObj->N).position.x;
-              tmp.y = (Vi->cview).translation.y - (BW_gCopCarObj->N).position.y;
-              tmp.z = (Vi->cview).translation.z - (BW_gCopCarObj->N).position.z;
+              {
+                int posX = (BW_gCopCarObj->N).position.x;
+                tmp.x = (Vi->cview).translation.x - posX;
+              }
+              {
+                int posY = (BW_gCopCarObj->N).position.y;
+                tmp.y = (Vi->cview).translation.y - posY;
+              }
+              {
+                int posZ = (BW_gCopCarObj->N).position.z;
+                tmp.z = (Vi->cview).translation.z - posZ;
+              }
               transform(&tmp.x,gCopMat.m,&tmp2.x);
               DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop);
             }

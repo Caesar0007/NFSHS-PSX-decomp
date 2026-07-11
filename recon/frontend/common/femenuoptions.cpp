@@ -3,6 +3,7 @@
  *   menus, tUserNameMenuItem, tMemoryCardMenuItem) + 7 free helpers (flares, boxes, stick-range,
  *   cheat-check) + data. Member defs; deep tMenuItem/tMenu inheritance; manual _vf dispatch.
  */
+#include "../../lib/nfs4_new.h"
 #include "femenuoptions.h"
 
 /* EXT/STAT data owned by FeMenuOptions.obj (byte-exact from retail binary) */
@@ -266,15 +267,14 @@ void * tMenuItemLeftRightFade::TransitionIsFinished()
   if (sVar1 != 0) {
     if (sVar1 < 0) {
       if (this->fFadeVal < 1) goto LRFadeTrans_resetTrans;
-      sVar1 = this->fFadeDir;
-    }
-    if ((sVar1 < 1) || (this->fFadeVal < 0x80)) {
-      this->fInTransition = 1;
-      goto LRFadeTrans_returnInv;
-    }
+      if ((this->fFadeDir < 1) || (this->fFadeVal < 0x80)) goto LRFadeTrans_setTrans;
+    } else if ((sVar1 < 1) || (this->fFadeVal < 0x80)) goto LRFadeTrans_setTrans;
   }
 LRFadeTrans_resetTrans:
   this->fInTransition = 0;
+  goto LRFadeTrans_returnInv;
+LRFadeTrans_setTrans:
+  this->fInTransition = 1;
 LRFadeTrans_returnInv:
   return (void *)(this->fInTransition ^ 1);
 }
@@ -1196,11 +1196,11 @@ int tMenuItemSlidingActivated::UpdatefOpenHeight(bool arg1)
   u_int uVar3;
   int iVar4;
   
-  if (this->fActive == 0) {
-    sVar1 = this->fSlideOffset + 3;
+  if (this->fActive != 0) {
+    sVar1 = this->fSlideOffset + -3;
   }
   else {
-    sVar1 = this->fSlideOffset + -3;
+    sVar1 = this->fSlideOffset + 3;
   }
   this->fSlideOffset = sVar1;
   iVar4 = (int)this->fSlideOffset;
@@ -1603,18 +1603,19 @@ int tMenuItemLeftRightAudioSlider::Percentage()
   u_int uVar3;
   int iVar4;
   tListIterator *ptVar5;
+  tListIterator *ptVar6;
   int iVar6;
   int percent;
-  
+
   ptVar5 = this->fData;
   pa_Var2 = ptVar5->_vf;
   uVar3 = (*(*pa_Var2)[2].pfn)((char *)ptVar5 + (int)(*pa_Var2)[2].delta,0xffffffff);
-  ptVar5 = this->fData;
-  iVar6 = ((uVar3 & 0xff) - (u_int)(u_char)ptVar5->fMinValue) * 100;
-  iVar4 = (u_int)(u_char)ptVar5->fMaxValue - (u_int)(u_char)ptVar5->fMinValue;
+  ptVar6 = this->fData;
+  iVar6 = ((uVar3 & 0xff) - (u_int)(u_char)ptVar6->fMinValue) * 100;
+  iVar4 = (u_int)(u_char)ptVar6->fMaxValue - (u_int)(u_char)ptVar6->fMinValue;
   percent = iVar6 / iVar4;
-  cVar1 = (*(*ptVar5->_vf)[2].pfn)
-                    ((char *)ptVar5 + (int)(*ptVar5->_vf)[2].delta,0xffffffff);
+  cVar1 = (*(*ptVar6->_vf)[2].pfn)
+                    ((char *)ptVar6 + (int)(*ptVar6->_vf)[2].delta,0xffffffff);
   if ((cVar1 != '\0') && (percent < 100)) {
     percent = percent + 1;
   }
@@ -1690,20 +1691,16 @@ void tMenuItemLeftRightAudioSlider::UpdateTransition(bool selected)
 
 tInsideBoxSongMenu::tInsideBoxSongMenu(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
               tMenu *optionsMenu,void (*OnButtonPress)(tMenuCommand&),short title,tMenuItem *firstItem,...)
-  : tInsideBoxMenu()
 {
-  tInsideBoxSongMenu *ptVar1;
   int j;
-  
-  *(tMenu *)this = tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title);
+
+  new ((tMenu *)this) tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title);
   j = 0;
   *(void **)&(this->_vf) = (void *)tInsideBoxSongMenu_vtable;
-  ptVar1 = this;
   do {
-    ptVar1->fSelFade[0] = 0;
-    ptVar1->fOnOffFade[0] = 0;
+    this->fSelFade[j] = 0;
+    this->fOnOffFade[j] = 0;
     j = j + 1;
-    ptVar1 = (tInsideBoxSongMenu *)((int)&(ptVar1)->fFlags + 2);
   } while (j < 5);
   ((tMenu *)this)->tMenuConstructor(firstItem,(&firstItem + 1));
   this->fMoving = 0;
@@ -2104,7 +2101,7 @@ int tInsideBoxTwoWaySlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyva
     AudioCmn_PlayFESFX(0);
     this->fActive = 1;
     keyval = kInput_KeyType_AlreadyProcessed;
-    tVar1 = keyval;
+    tVar1 = *(volatile tInputKeyType *)&keyval;
   }
   if (tVar1 == kInput_KeyType_R1) {
     tVar1 = kInput_KeyType_R1;
@@ -2203,7 +2200,7 @@ char GetCurrentStickRange(int player)
   u_int uVar1;
   int range2;
   int range1;
-  
+
   uVar1 = (u_int)gPadinfo.buf[player * 4].data.negcon.twist;
   range1 = 0x80 - uVar1;
   if (range1 < 1) {
@@ -2406,18 +2403,20 @@ tUserNameMenuItem::tUserNameMenuItem(u_int textDescription)
 void * CheckForCheats(char *fData)
 
 {
+  void *result;
   u_int len;
-  void *pvVar2;
-  
+
+  result = (void *)0x0;
   for (len = strlen(fData); (int)len < 8; len = len + 1) {
     fData[len] = '\0';
   }
-  pvVar2 = FECheat_ActivateCheat(fData);
-  if ((pvVar2 == (void *)0x0) &&
-     (pvVar2 = FECheat_ActivateBonusByCode(fData), pvVar2 == (void *)0x0)) {
-    return (void *)0x0;
+  if (FECheat_ActivateCheat(fData) != 0) {
+    result = (void *)0x1;
   }
-  return (void *)0x1;
+  else if (FECheat_ActivateBonusByCode(fData) != 0) {
+    result = (void *)0x1;
+  }
+  return result;
 }
 
 

@@ -1193,6 +1193,10 @@ void AI_SubmitObstacle(Car_tObj *carObj,int importance,int leftLatPosition,int r
   return;
 }
 
+/* D_8011321C == GameSetup_gData.reverseTrack (GameSetup_gData+0x30) -- standalone-symbol
+ * form matches the reloc, same precedent as aiinit.cpp AIInit_RestartAICar / hud.cpp. */
+extern int D_8011321C;
+
 /* ---- AI_HandleTrafficHonking__FP8Car_tObj  [@0x80059b88] ---- */
 void AI_HandleTrafficHonking(Car_tObj *carObj)
 {
@@ -1202,15 +1206,15 @@ void AI_HandleTrafficHonking(Car_tObj *carObj)
   visibleCar = AILife_IsCarInAnyVisibleArea(carObj);
   if ((carObj->carFlags & 0x10U) != 0) {
     iVar2 = ~carObj->direction;
-    if (GameSetup_gData.reverseTrack == 0) {
+    if (D_8011321C == 0) {
       iVar2 = carObj->direction ^ 1;
     }
-    /* @0x80059BC8: signed slt -- honk only when 0 < iVar2 (iVar2 = ~direction / direction^1, which
-     * can be negative, e.g. -2). */
-    if (((0 < iVar2) && (visibleCar != (Car_tObj *)0x0)) && (-0x30000 < AI_Info.laneSpeeds[1])) {
+    /* @0x80059BC8: unsigned sltu zero,iVar2 -- honk unless iVar2 == 0 (iVar2 = ~direction /
+     * direction^1). */
+    if (((iVar2 != 0) && (visibleCar != (Car_tObj *)0x0)) && (-0x30000 < AI_Info.laneSpeeds[1])) {
       randtemp = fastRandom * randSeed;
       fastRandom = randtemp & 0xffff;
-      if (((GameSetup_gData.commMode != 1) && ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < 5)) &&
+      if ((((int)((randtemp >> 8 & 0xffff) * 1000 >> 0x10) < 5) && (GameSetup_gData.commMode != 1)) &&
          (carObj->currentSpeed != 0)) {
         AudioClc_HonkHorn(carObj,2,0x20,8);
       }
@@ -1228,9 +1232,11 @@ void AI_CheckForCarsOnSide(Car_tObj *carObj)
   int blockDistance;
   Car_tObj *carObj_00;
   Car_tObj **ppCVar4;
+  int demerit;
 
   ci = 0;
   if (((carObj->carFlags & 0x10U) == 0) && (blockDistance = (carObj->N).dimension.z, 0 < Cars_gNumCars)) {
+    demerit = -0x60000;
     ppCVar4 = Cars_gList;
     do {
       carObj_00 = *ppCVar4;
@@ -1241,15 +1247,15 @@ void AI_CheckForCarsOnSide(Car_tObj *carObj)
         }
         if ((absDistance < 0xa0001) && (absDistance < blockDistance * 2 + blockDistance / 2)) {
           if (carObj_00->laneIndex == carObj->laneIndex + -1) {
-            CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + -0x60000;
+            CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + demerit;
           }
           else if (carObj_00->laneIndex == carObj->laneIndex + 1) {
-            CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0x60000;
+            CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + demerit;
           }
         }
       }
-      ci = ci + 1;
       ppCVar4 = ppCVar4 + 1;
+      ci = ci + 1;
     } while (ci < Cars_gNumCars);
   }
   return;
@@ -1672,9 +1678,9 @@ void AI_MaybeChangeLaneSlack(Car_tObj *carObj)
   uVar2 = carObj->carFlags;
   if ((((uVar2 & 4) == 0) && (((uVar2 & 8) == 0 || ((adaptedSlice >> 4) << 4 == adaptedSlice)))) &&
      (((uVar2 & 0x10) == 0 || ((adaptedSlice >> 1) << 1 == adaptedSlice)))) {
+    range = *(int *)((char *)carObj->personality + 0x1c);
     randtemp = fastRandom * randSeed;
     fastRandom = randtemp & 0xffff;
-    range = *(int *)((char *)carObj->personality + 0x1c);
     if (range * (randtemp >> 8 & 0xffff) >> 0x10 == 1) {
       AI_ChooseNewLaneSlack(carObj);
     }
@@ -1685,8 +1691,9 @@ void AI_MaybeChangeLaneSlack(Car_tObj *carObj)
 /* ---- AI_ChooseNewLaneSlack__FP8Car_tObj  [@0x8005a9dc] ---- */
 void AI_ChooseNewLaneSlack(Car_tObj *carObj)
 {
-  randtemp = fastRandom * randSeed;
-  fastRandom = randtemp & 0xffff;
-  carObj->laneSlack = *(int *)((char *)carObj->personality + (randtemp >> 6 & 0xc) + 0xc);
+  u_int newRand = fastRandom * randSeed;
+  carObj->laneSlack = *(int *)((char *)carObj->personality + (newRand >> 6 & 0xc) + 0xc);
+  randtemp = newRand;
+  fastRandom = newRand & 0xffff;
   return;
 }

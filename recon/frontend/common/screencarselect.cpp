@@ -69,84 +69,40 @@ extern "C" void DrawCar__FR8tCarInfossffcbUl7tPlayer(tCarInfo *carInfo,short x,s
 
 
 /* ---- tScreenCarSelect::ctor  [SCREENCARSELECT.CPP:294-316] ---- */
+/* MATCH 2026-07-11: base ctor now the IMPLICIT call to tScreen::tScreen() (declared in
+   nfs4_types.h) -- deleted the manual tScreen_ctor(...) free-fn call (phantom-ctor pattern,
+   catalog wave-3 row 1); g++ auto-emits `jal __7tScreen` at entry, matching oracle exactly.
+   The fOverlays[i].location[0..1] init was Ghidra-decompiled as byte-packed bitfield-merge
+   arithmetic (gOverlayPositions mistyped char[1][112] in the header); the oracle disasm is
+   actually a plain UNALIGNED RECT[2] struct copy (lwl/lwr+swl/swr pairs, 2 words per RECT) --
+   RECT's natural alignment is 2 (all-short members) so gcc emits the unaligned-word copy
+   idiom for the struct assignment (catalog §D "plain C struct assignment" row). Reinterpret
+   gOverlayPositions locally as RECT(*)[2] (16-byte stride = 2 RECTs) to reproduce it. */
 tScreenCarSelect::tScreenCarSelect()
 
 {
-  int _i;
-  uint uVar1;
-  uint *pkt;
-  uint uVar3;
-  short ts9;
-  tOverlay *overlay;
-  int overlays;
   short i;
-  int iVar4;
-  int tp2;
-  int tu7;
-  int tps3;
-  int tu6;
-  uint tu4;
-  int tp8;
-  uint tu5;
-  void *tp1;
-  
-  tScreen_ctor((tScreen *)this);
-  _i = 0;
+  RECT (*srcPos)[2];
+  tOverlay *overlay;
+
   this->_vf = (__vtbl_ptr_type (*)[10])tScreenCarSelect_vtable;
   this->fPreviousCar = 0;
   this->fPreviousCarID = -1;
   this->fPreviousCountry = 0;
-  do {
-    ts9 = (short)_i;
-    overlays = (int)(this->fOverlays + ts9);
-    *(u_short*)&uVar1 = ((RECT *)((int)(gOverlayPositions + ts9) + 0))->x;
-    *(u_short*)((char*)&uVar1 + 2) = ((RECT *)((int)(gOverlayPositions + ts9) + 0))->y;
-    *(u_short*)&tu4 = ((RECT *)((int)(gOverlayPositions + ts9) + 0))->w;
-    *(u_short*)((char*)&tu4 + 2) = ((RECT *)((int)(gOverlayPositions + ts9) + 0))->h;
-    tp1 = (void *)(overlays + 3);
-    tu6 = (uint)tp1 & 3;
-    *(uint *)((int)tp1 - tu6) =
-         *(uint *)((int)tp1 - tu6) & -1 << (tu6 + 1) * 8 | uVar1 >> (3 - tu6) * 8;
-    uVar3 = overlays & 3;
-    *(uint *)(overlays - uVar3) =
-         *(uint *)(overlays - uVar3) & 0xffffffffU >> (4 - uVar3) * 8 | uVar1 << uVar3 * 8;
-    tp2 = overlays + 7;
-    uVar1 = tp2 & 3;
-    tp8 = tp2 - uVar1;
-    *(uint *)tp8 = *(uint *)tp8 & -1 << (uVar1 + 1) * 8 | tu4 >> (3 - uVar1) * 8;
-    tps3 = overlays + 4;
-    uVar1 = tps3 & 3;
-    *(uint *)(tps3 - uVar1) =
-         *(uint *)(tps3 - uVar1) & 0xffffffffU >> (4 - uVar1) * 8 | tu4 << uVar1 * 8;
-    *(u_short*)&uVar3 = ((RECT *)((int)(gOverlayPositions + ts9) + 8))->x;
-    *(u_short*)((char*)&uVar3 + 2) = ((RECT *)((int)(gOverlayPositions + ts9) + 8))->y;
-    *(u_short*)&tu5 = ((RECT *)((int)(gOverlayPositions + ts9) + 8))->w;
-    *(u_short*)((char*)&tu5 + 2) = ((RECT *)((int)(gOverlayPositions + ts9) + 8))->h;
-    uVar1 = overlays + 0xbU & 3;
-    pkt = (uint *)((overlays + 0xbU) - uVar1);
-    *pkt = *pkt & -1 << (uVar1 + 1) * 8 | uVar3 >> (3 - uVar1) * 8;
-    uVar1 = overlays + 8U & 3;
-    pkt = (uint *)((overlays + 8U) - uVar1);
-    *pkt = *pkt & 0xffffffffU >> (4 - uVar1) * 8 | uVar3 << uVar1 * 8;
-    uVar1 = overlays + 0xfU & 3;
-    pkt = (uint *)((overlays + 0xfU) - uVar1);
-    *pkt = *pkt & -1 << (uVar1 + 1) * 8 | tu5 >> (3 - uVar1) * 8;
-    uVar1 = overlays + 0xcU & 3;
-    pkt = (uint *)((overlays + 0xcU) - uVar1);
-    *pkt = *pkt & 0xffffffffU >> (4 - uVar1) * 8 | tu5 << uVar1 * 8;
-    _i = _i + 1;
-    *(short *)(overlays + 0x16) = ts9;
-    *(u_short *)(overlays + 0x14) = 0;
-    *(u_short *)(overlays + 0x10) = 0;
-    *(u_short *)(overlays + 0x12) = 6;
-  } while (_i * 0x10000 >> 0x10 < 7);
-  iVar4 = 0;
-  _i = 0;
-  do {
-    *(u_int *)((int)this->fCurrentOverlays + (_i >> 0xe)) = 0;
-    iVar4 = iVar4 + 1;
-    _i = iVar4 * 0x10000;
-  } while (iVar4 * 0x10000 >> 0x10 < 4);
+  i = 0;
+  srcPos = (RECT (*)[2])gOverlayPositions;
+  for (; i < 7; i = i + 1) {
+    overlay = this->fOverlays + i;
+    overlay->location[0] = srcPos[i][0];
+    overlay->location[1] = srcPos[i][1];
+    overlay->ID = i;
+    overlay->direction = 0;
+    overlay->transition = 0;
+    overlay->delta = 6;
+  }
+  for (i = 0; i < 4; i = i + 1) {
+    this->fCurrentOverlays[i] = 0;
+  }
   return;
 }
 
@@ -818,62 +774,80 @@ void tScreenCarSelect::DrawVideoWall(short y)
 
 
 /* ---- tScreenCarSelect::GetCar  [SCREENCARSELECT.CPP:887-938] ---- */
+/* MATCH 2026-07-11: jump-table CASE MAPPING was WRONG -- the raw oracle's dlabel jtbl_80011AF8
+   (asm/data/rdata_80010000.rodata.s:2607) gives the true per-state targets: state0,5->.L8003C270
+   (kept); state2,6->.L8003C2D4 (kept); state7->.L8003C310; state1,3,4 (+ state>=8 bounds-fail)
+   ->.L8003C3B8. The OLD recon had case7's body swapped with default's, AND both bodies read the
+   WRONG SOURCE (frontEnd.raceType/garageCar/sellerCar/carListType) where the oracle actually
+   reads FOUR SEPARATE small BSS globals owned by another TU (D_8011472A/D_80114604/D_80114723/
+   D_80114729, all zero-init .byte -- asm/data/data_8010CCD4.data.s:9710-9918); declared extern
+   locally below (can't touch any header per module-ownership rule). Also: GetStockCar/
+   GetNumOwnedCars/GetNumTourneyCars were called via the screencarselect_externs.h fallback
+   free-fn stubs -- real oracle calls are the tCarManager:: MEMBER fns (nfs4_types.h:2802/
+   2807/2808); switched to member-call syntax like the GetPinkSlipsCar fix. Return-value bug:
+   old code did `return 1;`/bare `return;`/fell off the end with bare `return;` in an `int` fn --
+   oracle explicitly zeroes $v0 before EVERY early-out (real `return 0;`) and materializes
+   `li v0,1` only at the shared success tail; rewritten with explicit 0/1 returns throughout. */
+extern byte D_8011472A, D_80114604, D_80114723, D_80114729;
+
 int tScreenCarSelect::GetCar(tCarInfo &carInfo)
 
 {
   uchar uVar1;
-  byte bVar2;
-  ushort uVar3;
-  
+  byte garageNum;
+  short count;
+
   switch(this->fState) {
   case 0:
   case 5:
-    GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[0],carInfo);
+    carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[0],carInfo);
     if ((int)(uint)(byte)frontEnd.playerCar[0] < (int)carManager.fNumCars) {
-      carInfo.fColor = frontEnd.carColors[0][carInfo.fCarID];
+      carInfo.fColor = frontEnd.carColors[0][(signed char)carInfo.fCarID];
     }
-    carInfo.fCountry = frontEnd.carCountry[0][carInfo.fCarID];
-    break;
-  default:
-    uVar3 = GetNumOwnedCars(&carManager, 0);
-    if (((int)((uint)uVar3 << 0x10) < 1) && (frontEnd.raceType != '\x01')) {
-      return 1;
-    }
-    if (((frontEnd.raceType == '\x02') && (this->fState != 3)) &&
-       (uVar3 = GetNumTourneyCars(&carManager, 0), (int)((uint)uVar3 << 0x10) < 1)) {
-      return;
-    }
-    bVar2 = frontEnd.garageCar[0];
-    if (this->fState == 3) {
-      bVar2 = frontEnd.sellerCar;
-    }
-    GetStockCar(&carManager, (ushort)bVar2,carInfo);
-    carInfo.fCountry = frontEnd.carCountry[0][carInfo.fCarID];
+    carInfo.fCountry = frontEnd.carCountry[0][(signed char)carInfo.fCarID];
     break;
   case 2:
   case 6:
-    GetStockCar(&carManager, (ushort)(byte)frontEnd.dealerCar,carInfo);
-    uVar1 = frontEnd.carColors[0][carInfo.fCarID];
+    carManager.GetStockCar((ushort)(byte)frontEnd.dealerCar,carInfo);
+    uVar1 = frontEnd.carColors[0][(signed char)carInfo.fCarID];
     carInfo.fAvailable = '\x01';
     carInfo.fColor = uVar1;
     break;
   case 7:
-    if ((frontEnd.carListType == '\x01') &&
-       (uVar3 = GetNumOwnedCars(&carManager, 0), (int)((uint)uVar3 << 0x10) < 1)) {
-      return;
+    if (D_8011472A == 1) {
+      count = carManager.GetNumOwnedCars(0);
+      if (count <= 0) {
+        return 0;
+      }
     }
-    bVar2 = frontEnd.garageCar[0];
-    if (frontEnd.carListType == '\0') {
-      bVar2 = frontEnd.playerCar[0];
+    if (frontEnd.carListType != 0) {
+      garageNum = frontEnd.garageCar[0];
+    } else {
+      garageNum = frontEnd.playerCar[0];
     }
-    GetStockCar(&carManager, (ushort)bVar2,carInfo);
-    if (frontEnd.carListType == '\0') {
-      carInfo.fColor = frontEnd.carColors[0][carInfo.fCarID];
+    carManager.GetStockCar((ushort)garageNum,carInfo);
+    if (frontEnd.carListType == 0) {
+      carInfo.fColor = frontEnd.carColors[0][(signed char)carInfo.fCarID];
     }
-    carInfo.fCountry = frontEnd.carCountry[0][carInfo.fCarID];
+    carInfo.fCountry = frontEnd.carCountry[0][(signed char)carInfo.fCarID];
+    break;
+  default:
+    count = carManager.GetNumOwnedCars(0);
+    if (count <= 0 && D_80114604 != 1) {
+      return 0;
+    }
+    if (D_80114604 == 2 && this->fState != 3) {
+      count = carManager.GetNumTourneyCars(0);
+      if (count <= 0) {
+        return 0;
+      }
+    }
+    garageNum = (this->fState == 3) ? D_80114729 : D_80114723;
+    carManager.GetStockCar((ushort)garageNum,carInfo);
+    carInfo.fCountry = frontEnd.carCountry[0][(signed char)carInfo.fCarID];
   }
   carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];
-  return;
+  return 1;
 }
 
 
@@ -896,13 +870,13 @@ void tScreenCarSelect::UpdateBrightness(short i)
   short brightness;
   short sVar3;
 
-  destBrightness = this->fDestBrightness[i];
   brightness = this->fBrightness[i];
-  sVar3 = brightness + 8;
+  destBrightness = this->fDestBrightness[i];
   if (brightness < destBrightness) {
+    sVar3 = this->fBrightness[i] + 8;
     this->fBrightness[i] = sVar3;
     if (destBrightness < sVar3) {
-      *(u_short *)&this->fBrightness[i] = *(u_short *)&this->fDestBrightness[i];
+      this->fBrightness[i] = this->fDestBrightness[i];
       return;
     }
   }
@@ -911,7 +885,7 @@ void tScreenCarSelect::UpdateBrightness(short i)
     if (destBrightness < brightness) {
       this->fBrightness[i] = brightness;
       if (brightness < this->fDestBrightness[i]) {
-        *(u_short *)&this->fBrightness[i] = *(u_short *)&this->fDestBrightness[i];
+        this->fBrightness[i] = this->fDestBrightness[i];
       }
     }
   }
@@ -1764,37 +1738,53 @@ void tScreenCarSelectDuel::DrawForeground()
 
 
 /* ---- tScreenCarSelectTwoPlayer::GetCar  [SCREENCARSELECT.CPP:1640-1664] ---- */
+/* MATCH 2026-07-11: same fix family as the other 2 GetCar overloads -- GetStockCar/
+   GetNumOwnedCars/GetGarageCar were called via the screencarselect_externs.h free-fn
+   fallback stubs; switched to the real tCarManager:: member calls (nfs4_types.h:2802-2803/
+   2807). `frontEnd.carColors[player * 0x18][...]`/`carCountry[... * 0x18][...]` used the
+   WRONG per-player stride (0x18=24) -- carColors/carCountry are declared `char[2][48]`
+   (nfs4_types.h:2833); the oracle's own scaling (sll 1;addu;sll 4 = *3*16 = *48) confirms
+   48, not 24 -- real 2-D indexing `frontEnd.carColors[player][...]` lets the compiler derive
+   the correct *48 scale AND matches the oracle's shift/add/shift sequence exactly. `fCarID`
+   is read `lb` (signed) in the oracle vs the default `lbu` this build gives plain `char`
+   reads -- cast at each use site (catalog "char IS UNSIGNED on this build" row). Also a
+   correctness bug: the `GetNumOwnedCars(otherPlayer)<=0` guard returned `1` (success) where
+   the oracle explicitly zeroes $v0 and returns 0 (failure) -- caller previously treated a
+   failed car lookup as success. The ORIGINAL `player` (FEApp->fPlayer) stays live for the
+   `garageCar[player]` index across the whole `else` arm even though a SEPARATE `otherPlayer`
+   (reset to 0 when the first GetNumOwnedCars(player) call returns <=0) is threaded through the
+   second GetNumOwnedCars call + GetGarageCar's 3rd (playerNum) arg -- oracle keeps them in two
+   distinct registers (s5 vs s0/s3), so keep them as two distinct C locals. */
 int tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
 
 {
-  byte bVar1;
-  ushort uVar2;
-  uint player;
-  int garageNumber;
-  uint uVar4;
-  int currentplayer;
-  
-  player = (uint)(byte)FEApp->fPlayer;
+  byte player;
+  byte color;
+  short count;
+  short otherPlayer;
+
+  player = (byte)FEApp->fPlayer;
   if (frontEnd.carListType == '\0') {
-    GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[player],carInfo);
-    bVar1 = frontEnd.carColors[player * 0x18][carInfo.fCarID];
+    carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[player],carInfo);
+    color = frontEnd.carColors[player][(signed char)carInfo.fCarID];
   }
   else {
-    uVar2 = GetNumOwnedCars(&carManager, (ushort)(byte)FEApp->fPlayer);
-    uVar4 = player;
-    if ((int)((uint)uVar2 << 0x10) < 1) {
-      uVar4 = 0;
+    count = carManager.GetNumOwnedCars((short)player);
+    otherPlayer = player;
+    if (count <= 0) {
+      otherPlayer = 0;
     }
-    uVar2 = GetNumOwnedCars(&carManager, (short)uVar4);
-    if ((int)((uint)uVar2 << 0x10) < 1) {
-      return 1;
+    count = carManager.GetNumOwnedCars(otherPlayer);
+    if (count <= 0) {
+      return 0;
     }
-    GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[player],carInfo,(short)uVar4);
-    bVar1 = carInfo.fColor;
+    carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[player],carInfo,otherPlayer);
+    color = carInfo.fColor;
   }
-  carInfo.fColor = carInfo.fColorOrder[bVar1];
-  carInfo.fCountry = frontEnd.carCountry[(uint)(byte)FEApp->fPlayer * 0x18][carInfo.fCarID];
-  return;
+  carInfo.fColor = carInfo.fColorOrder[color];
+  player = (byte)FEApp->fPlayer;
+  carInfo.fCountry = frontEnd.carCountry[player][(signed char)carInfo.fCarID];
+  return 1;
 }
 
 
@@ -2235,23 +2225,35 @@ void tScreenCarSelectTwoPlayer::Cleanup()
 
 
 /* ---- tScreenPinkSlipsCarSelect::GetCar  [SCREENCARSELECT.CPP:1935-1945] ---- */
+/* MATCH 2026-07-11: Ghidra typed this VOID-shaped (unconditional `return 1;`, dead `pv` local
+   holding the real return value) -- the raw oracle shows the fn actually returns 0 on EITHER
+   guard failing and 1 only on full success (flat descending early-return guard chain, catalog
+   §D "flat descending guard-chain" row). `pv` WAS the return value register; write it as a
+   real `int` return + early-returns instead of a dead void* local + unconditional `return 1`.
+   Correctness bug: caller previously always got `1` back even when no card was loaded.
+   Also: call site used the screencarselect_externs.h fallback `void *GetPinkSlipsCar(...)`
+   variadic free-fn stub (oracle mangled name is `GetPinkSlipsCar__11tCarManagersR8tCarInfos`
+   = the REAL member `tCarManager::GetPinkSlipsCar` declared nfs4_types.h:2804 / defined
+   fecars.cpp -- call it as a member so it resolves to the real mangled symbol + true
+   3-arg(short,tCarInfo&,short) signature instead of the bogus 4-arg free-fn shape (which was
+   materializing carInfo by VALUE into a huge stack frame -- also a correctness bug: `carInfo`
+   was being copied instead of passed by the caller's reference). */
 int tScreenPinkSlipsCarSelect::GetCar(tCarInfo &carInfo)
 
 {
-  void *pv;
-  
-  if (PinkSlipsScreenState[0] == CardLoadedFine) {
-    pv = (void *)0x0;
-    if (PinkSlipsScreenState[1] == CardLoadedFine) {
-      GetPinkSlipsCar(&carManager, (ushort)(byte)frontEnd.pinkSlipsCar[(byte)FEApp->fPlayer],carInfo,
-                 (ushort)(byte)FEApp->fPlayer);
-      pv = (void *)0x1;
-      carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];
-    }
+  ushort garageNumber;
+  byte player;
+
+  if (PinkSlipsScreenState[0] != CardLoadedFine) {
+    return 0;
   }
-  else {
-    pv = (void *)0x0;
+  if (PinkSlipsScreenState[1] != CardLoadedFine) {
+    return 0;
   }
+  player = (byte)FEApp->fPlayer;
+  garageNumber = (ushort)frontEnd.pinkSlipsCar[player];
+  carManager.GetPinkSlipsCar(garageNumber,carInfo,(ushort)player);
+  carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];
   return 1;
 }
 

@@ -337,16 +337,22 @@ void SetPads(void)
   int LookingFor;
   int iVar6;
   tfrontEnd *ptVar7;
-  
+  int *pTicks;
+
+  pTicks = &ticks;
   ptVar7 = &frontEnd;
-  for (iVar5 = 0; iVar4 = ticks, iVar6 = 4, iVar5 < 2; iVar5 = iVar5 + 1) {
+  iVar5 = 0;
+  while (true) {
+    iVar4 = *pTicks;
+    iVar6 = 4;
+    if (2 <= iVar5) break;
     port = iVar5 << 4;
     if (ptVar7->AnalogOn[0] != 0) {
       iVar6 = 7;
     }
     do {
       bVar1 = false;
-      if (ticks - iVar4 < 0x80) {
+      if (*pTicks - iVar4 < 0x80) {
         iVar2 = PadGetState(port);
         bVar1 = iVar2 != 6;
       }
@@ -368,6 +374,7 @@ void SetPads(void)
       }
     }
     ptVar7 = (tfrontEnd *)&ptVar7->raceType;
+    iVar5 = iVar5 + 1;
   }
   return;
 }
@@ -1881,8 +1888,8 @@ extern "C" int * Front_AppendPerpData__FPiR9tFEStream(int *stream,tFEStream *str
      i*8)` / `(&carColor)[i*8]` byte-offset casts are left as-is: tPerpModelList.carModel is
      declared `int` in nfs4_types.h (a header outside this pass's scope) but the oracle reads
      only its low 16 bits (`lh`) -- this cast already reproduces that and predates this pass. */
+  i = 0;
   if (0 < streamData->numPerpObjects) {
-    i = 0;
     do {
       iVar2 = (i << 0x10) >> 0xd;
       ptVar1 = GetCarFromID(&carManager, *(short *)((int)&streamData->perps[0].carModel + iVar2));
@@ -1947,8 +1954,8 @@ extern "C" int * Front_AppendTrafficData__FPiR9tFEStream(int *stream,tFEStream *
      instead of the decompiler's `int iVar2` + manual `(i<<0x10)>>0xf`/`*0x10000>>0x10`
      sign-extend-emulation byte-offset cast -- and pointer-increment stores (*stream++ = v;)
      matching the oracle's per-word `addiu`, same idiom as the sibling Append* fns. */
+  i = 0;
   if (0 < streamData->numTraffic) {
-    i = 0;
     do {
       ptVar1 = GetCarFromID(&carManager, streamData->trafficCars[i]);
       *stream++ = 0x104;
@@ -2861,15 +2868,24 @@ char * PlayerNameMixedCase(int player)
 tAllScreens::tAllScreens()
 
 {
-  
-  tScreen_ctor((tScreen *)this);
+
+  /* [2026-07-11] deleted 30 REDUNDANT tScreen_ctor/tScreenXxx_ctor(...) manual calls: all
+     are undefined phantom externs, and the real member/base sub-objects (tScreenMain,
+     tScreenCarSelect[+Duel/TwoPlayer/PinkSlips variants], tScreenTournSelect,
+     tScreenTournamentStandings, tScreenTrophyRoom, tScreenControllerConfig, tScreenAudio,
+     tScreenMemcard, and every plain tScreen/tDialog* CarDialog member) auto-construct via
+     C++'s own implicit member-initialization -- confirmed by objdump -r on the CURRENT
+     (unfixed) object: it already emits BOTH the real ctor calls (__7tScreen x16,
+     __16tScreenCarSelect x6, __18tScreenTournSelect, __26tScreenTournamentStandings x3,
+     __17tScreenTrophyRoom, __23tScreenControllerConfig, __12tScreenAudio, __14tScreenMemcard
+     = 30 calls, EXACT oracle sequence/counts) AND the 30 phantom calls -- textbook
+     double-construction. Deleting the manual calls leaves exactly the oracle's 30 real
+     jal targets, in the oracle's own order (gcc emits automatic member-init as one
+     contiguous block, then schedules the following vtable-store/field-init statements
+     into nearby delay slots -- that's why the oracle LOOKS interleaved). */
   *(void **)&((this->screenMain)._vf) = (void *)tScreenMain_vtable;
-  tScreenCarSelect_ctor(&this->screenCarSelect);
-  tScreenCarSelect_ctor((tScreenCarSelect *)&this->screenCarSelectDuel);
   *(void **)&((this->screenCarSelectDuel)._vf) = (void *)tScreenCarSelectDuel_vtable;
-  tScreenCarSelect_ctor((tScreenCarSelect *)&this->screenCarSelectTwoPlayer);
   *(void **)&((this->screenCarSelectTwoPlayer)._vf) = (void *)tScreenCarSelectTwoPlayer_vtable;
-  tScreen_ctor((tScreen *)&(this->screenCarSelectTwoPlayer).CarDialog);
   (this->screenCarSelectTwoPlayer).CarDialog.MaxW = 0x120;
   *(void **)&((this->screenCarSelectTwoPlayer).CarDialog._vf) = (void *)tDialogBase_vtable;
   (this->screenCarSelectTwoPlayer).CarDialog.currentlyOn = 0;
@@ -2890,9 +2906,7 @@ tAllScreens::tAllScreens()
   (this->screenCarSelectTwoPlayer).CarDialog.timeOutTicks = 0;
   (this->screenCarSelectTwoPlayer).CarDialog.fFadeText = 0x80;
   *(void **)&((this->screenCarSelectTwoPlayer).CarDialog._vf) = (void *)tDialogBackUpOnly_vtable;
-  tScreenCarSelect_ctor((tScreenCarSelect *)&this->screenCarSelectPlayerTwo);
   *(void **)&((this->screenCarSelectPlayerTwo)._vf) = (void *)tScreenCarSelectTwoPlayer_vtable;
-  tScreen_ctor((tScreen *)&(this->screenCarSelectPlayerTwo).CarDialog);
   (this->screenCarSelectPlayerTwo).CarDialog.MaxW = 0x120;
   *(void **)&((this->screenCarSelectPlayerTwo).CarDialog._vf) = (void *)tDialogBase_vtable;
   (this->screenCarSelectPlayerTwo).CarDialog.currentlyOn = 0;
@@ -2913,10 +2927,7 @@ tAllScreens::tAllScreens()
   (this->screenCarSelectPlayerTwo).CarDialog.timeOutTicks = 0;
   (this->screenCarSelectPlayerTwo).CarDialog.fFadeText = 0x80;
   *(void **)&((this->screenCarSelectPlayerTwo).CarDialog._vf) = (void *)tDialogBackUpOnly_vtable;
-  tScreenCarSelect_ctor((tScreenCarSelect *)&this->screenPinkSlipsCarSelectTwoPlayer);
   *(void **)&((this->screenPinkSlipsCarSelectTwoPlayer)._vf) = (void *)tScreenCarSelectTwoPlayer_vtable;
-  tScreen_ctor((tScreen *)
-                   &(this->screenPinkSlipsCarSelectTwoPlayer).CarDialog);
   (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.MaxW = 0x120;
   *(void **)&((this->screenPinkSlipsCarSelectTwoPlayer).CarDialog._vf) = (void *)tDialogBase_vtable;
   (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.currentlyOn = 0;
@@ -2938,10 +2949,7 @@ tAllScreens::tAllScreens()
   (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.fFadeText = 0x80;
   *(void **)&((this->screenPinkSlipsCarSelectTwoPlayer).CarDialog._vf) = (void *)tDialogBackUpOnly_vtable;
   *(void **)&((this->screenPinkSlipsCarSelectTwoPlayer)._vf) = (void *)tScreenPinkSlipsCarSelect_vtable;
-  tScreenCarSelect_ctor((tScreenCarSelect *)&this->screenPinkSlipsCarSelectPlayerTwo);
   *(void **)&((this->screenPinkSlipsCarSelectPlayerTwo)._vf) = (void *)tScreenCarSelectTwoPlayer_vtable;
-  tScreen_ctor((tScreen *)
-                   &(this->screenPinkSlipsCarSelectPlayerTwo).CarDialog);
   (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.MaxW = 0x120;
   *(void **)&((this->screenPinkSlipsCarSelectPlayerTwo).CarDialog._vf) = (void *)tDialogBase_vtable;
   (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.currentlyOn = 0;
@@ -2963,37 +2971,18 @@ tAllScreens::tAllScreens()
   (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.fFadeText = 0x80;
   *(void **)&((this->screenPinkSlipsCarSelectPlayerTwo).CarDialog._vf) = (void *)tDialogBackUpOnly_vtable;
   *(void **)&((this->screenPinkSlipsCarSelectPlayerTwo)._vf) = (void *)tScreenPinkSlipsCarSelect_vtable;
-  tScreen_ctor((tScreen *)&this->screenTrackRecords);
   *(void **)&((this->screenTrackRecords)._vf) = (void *)tScreenTrackRecords_vtable;
-  tScreen_ctor((tScreen *)&this->screenTrackInfo);
   *(void **)&((this->screenTrackInfo)._vf) = (void *)tScreenTrackInfo_vtable;
-  tScreen_ctor((tScreen *)&this->screenTrackSelect);
   *(void **)&((this->screenTrackSelect)._vf) = (void *)tScreenTrackSelect_vtable;
-  tScreenTournSelect_ctor(&this->screenTournSelect);
-  tScreenTournamentStandings_ctor(&this->screenTournamentStandings);
-  tScreen_ctor((tScreen *)&this->screenTournamentTrophy);
   *(void **)&((this->screenTournamentTrophy)._vf) = (void *)tScreenTournamentTrophy_vtable;
-  tScreenTrophyRoom_ctor(&this->screenTrophyRoom);
-  tScreen_ctor((tScreen *)&this->screenTrophyInfo);
   *(void **)&((this->screenTrophyInfo)._vf) = (void *)tScreenTrophyInfo_vtable;
-  tScreenControllerConfig_ctor(&this->screenControllerConfig);
-  tScreen_ctor((tScreen *)&this->screenDisplay);
   *(void **)&((this->screenDisplay)._vf) = (void *)tScreenDisplay_vtable;
-  tScreenAudio_ctor(&this->screenAudio);
-  tScreenMemcard_ctor(&this->screenMemcard);
-  tScreen_ctor((tScreen *)&this->screenUserName);
   *(void **)&((this->screenUserName)._vf) = (void *)tScreenUserName_vtable;
-  tScreen_ctor((tScreen *)&this->screenPinkSlipCongrats);
   *(void **)&((this->screenPinkSlipCongrats)._vf) = (void *)tScreenPinkSlipCongrats_vtable;
-  tScreenTournamentStandings_ctor((tScreenTournamentStandings *)&this->screenPinkSlipStandings);
   *(void **)&((this->screenPinkSlipStandings)._vf) = (void *)tScreenPinkSlipStandings_vtable;
-  tScreenTournamentStandings_ctor((tScreenTournamentStandings *)&this->screenTournamentStandings3item);
   *(void **)&((this->screenTournamentStandings3item)._vf) = (void *)tScreenTournamentStandings3item_vtable;
-  tScreen_ctor((tScreen *)&this->screenPinkSlips);
   *(void **)&((this->screenPinkSlips)._vf) = (void *)tScreenPinkSlips_vtable;
-  tScreen_ctor((tScreen *)&this->screenBeTheCopCongrats);
   *(void **)&((this->screenBeTheCopCongrats)._vf) = (void *)tScreenBeTheCopCongrats_vtable;
-  tScreen_ctor((tScreen *)&this->screenTournamentCongrats);
   *(void **)&((this->screenTournamentCongrats)._vf) = (void *)tScreenTournamentCongrats_vtable;
   return;
 }
@@ -3020,41 +3009,15 @@ tAllScreens::~tAllScreens()
   char carColor;
   short lapconv [2];
   
-  tScreen_dtor((tScreen *)&this->screenTournamentCongrats,2);
-  tScreen_dtor((tScreen *)&this->screenBeTheCopCongrats,2);
-  tScreen_dtor((tScreen *)&this->screenPinkSlips,2);
-  tScreen_dtor((tScreen *)&this->screenTournamentStandings3item,2);
-  tScreen_dtor((tScreen *)&this->screenPinkSlipStandings,2);
-  tScreen_dtor((tScreen *)&this->screenPinkSlipCongrats,2);
-  tScreen_dtor((tScreen *)&this->screenUserName,2);
-  tScreen_dtor((tScreen *)&this->screenMemcard,2);
-  tScreen_dtor((tScreen *)&this->screenAudio,2);
-  tScreen_dtor((tScreen *)&this->screenDisplay,2);
-  tScreen_dtor((tScreen *)&(this->screenControllerConfig).negconPopUp,2);
-  tScreen_dtor((tScreen *)&this->screenControllerConfig,2);
-  tScreen_dtor((tScreen *)&this->screenTrophyInfo,2);
-  tScreenTrophyRoom_dtor(&this->screenTrophyRoom,2);
-  tScreen_dtor((tScreen *)&this->screenTournamentTrophy,2);
-  tScreen_dtor((tScreen *)&this->screenTournamentStandings,2);
-  tScreenTournSelect_dtor(&this->screenTournSelect,2);
-  tScreen_dtor((tScreen *)&this->screenTrackSelect,2);
-  tScreen_dtor((tScreen *)&this->screenTrackInfo,2);
-  tScreen_dtor((tScreen *)&this->screenTrackRecords,2);
-  tScreen_dtor((tScreen *)
-                    &(this->screenPinkSlipsCarSelectPlayerTwo).CarDialog,2
-                   );
-  tScreenCarSelect_dtor((tScreenCarSelect *)&this->screenPinkSlipsCarSelectPlayerTwo,2);
-  tScreen_dtor((tScreen *)
-                    &(this->screenPinkSlipsCarSelectTwoPlayer).CarDialog,2
-                   );
-  tScreenCarSelect_dtor((tScreenCarSelect *)&this->screenPinkSlipsCarSelectTwoPlayer,2);
-  tScreen_dtor((tScreen *)&(this->screenCarSelectPlayerTwo).CarDialog,2);
-  tScreenCarSelect_dtor((tScreenCarSelect *)&this->screenCarSelectPlayerTwo,2);
-  tScreen_dtor((tScreen *)&(this->screenCarSelectTwoPlayer).CarDialog,2);
-  tScreenCarSelect_dtor((tScreenCarSelect *)&this->screenCarSelectTwoPlayer,2);
-  tScreenCarSelect_dtor((tScreenCarSelect *)&this->screenCarSelectDuel,2);
-  tScreenCarSelect_dtor(&this->screenCarSelect,2);
-  tScreen_dtor((tScreen *)this,2);
+  /* [2026-07-11] deleted 30 REDUNDANT tScreen_dtor/tScreenXxx_dtor(...,2) manual calls: all
+     are undefined phantom externs duplicating C++'s own automatic (reverse-declaration-order)
+     member/base destruction -- textbook double-destruction (confirmed by objdump -r on the
+     CURRENT/unfixed object: it emits BOTH the phantom calls AND the real ones, e.g.
+     tScreenCarSelect_dtor__Fe x6 duplicating __*tScreenCarSelect-family calls). Deleting them
+     lets the compiler's mandatory member/base teardown emit the real dtor calls in reverse
+     declaration order (screenTournamentCongrats first .. screenMain/base last), matching
+     the oracle's own X::~X(this,2) sequence for members whose OWN dtor is genuinely
+     non-trivial in THIS TU. */
   return;
 }
 

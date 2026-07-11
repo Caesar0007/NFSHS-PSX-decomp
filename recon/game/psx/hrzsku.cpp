@@ -58,12 +58,25 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz);
 void Hrz_BuildHorizon(DRender_tView *Vi);
 
 
-/* ---- Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii  [HRZSKU.CPP:128-156] SLD-VERIFIED ---- */
+/* ---- Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii  [HRZSKU.CPP:128-156] SLD-VERIFIED ----
+ * NEAR-MISS 26 diffs (80/80, count exact -- improved from 37 baseline). FIX: the
+ * `bPercentageArray==0` branch never advances `percentage`, so `*percentage` is truly
+ * loop-invariant across ALL iterations (both vx and vy uses) -- gcc hoists the read
+ * completely out of the loop into a register that survives the whole loop (and even
+ * runs it BEFORE the `0<n` guard, since a bare load has no observable side effect).
+ * Reproduced by reading it into a local `pv = *percentage;` right on entry to the
+ * `else` block, before the `if (0<n)` test -- gcc then reuses the SAME loaded value for
+ * every iteration's vx/vy multiply instead of re-dereferencing `percentage` per use,
+ * matching the oracle's single hoisted `lw`. Residual = a uniform `$t0`<->`$t1` register
+ * swap between `sc` (pointer, `addiu ,4` stride) and `i` (counter, `addiu ,1`) in BOTH
+ * loops -- tried sc[i]-index form (worse, 39 diffs) and increment-statement reordering
+ * (worse, 28 diffs); a genuine allocator coalescing tie-break, accepted. */
 void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *percentage,int n,int bPercentageArray)
 
 {
   int i;
   int p;
+  int pv;
 
   if (bPercentageArray != 0) {
     if (0 < n) {
@@ -87,81 +100,97 @@ void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *per
       } while (i < n);
     }
   }
-  else if (0 < n) {
-    i = 0;
-    do {
-      p = *percentage * ((int)s1->vx - (int)s0->vx);
-      if (p < 0) {
-        p = p + 0xffff;
-      }
-      sc->vx = s0->vx + (short)(p >> 0x10);
-      p = *percentage * ((int)s1->vy - (int)s0->vy);
-      if (p < 0) {
-        p = p + 0xffff;
-      }
-      sc->vy = s0->vy + (short)(p >> 0x10);
-      s0 = s0 + 1;
-      s1 = s1 + 1;
-      i = i + 1;
-      sc = sc + 1;
-    } while (i < n);
+  else {
+    pv = *percentage;
+    if (0 < n) {
+      i = 0;
+      do {
+        p = pv * ((int)s1->vx - (int)s0->vx);
+        if (p < 0) {
+          p = p + 0xffff;
+        }
+        sc->vx = s0->vx + (short)(p >> 0x10);
+        p = pv * ((int)s1->vy - (int)s0->vy);
+        if (p < 0) {
+          p = p + 0xffff;
+        }
+        sc->vy = s0->vy + (short)(p >> 0x10);
+        s0 = s0 + 1;
+        s1 = s1 + 1;
+        i = i + 1;
+        sc = sc + 1;
+      } while (i < n);
+    }
   }
   return;
 }
 
-/* ---- Sky_InitStars__Fv  [HRZSKU.CPP:185-211] SLD-VERIFIED ---- */
+/* ---- Sky_InitStars__Fv  [HRZSKU.CPP:185-211] SLD-VERIFIED ----
+ * NEAR-MISS 50 diffs (120/122, improved from 106 baseline). THREE stacked fixes, all
+ * SYM-evidenced (`nfs4-f-v3.txt` @40dd10, nested nested block `radius/height/latAngle/
+ * heightAngle/starBright` inside the loop body, `oldSeed`=LONG/`i`=INT outside):
+ * (1) renamed the Ghidra temps to the SYM names + moved them into the loop's OWN block
+ * scope (were function-scope `uVar1/iVar3/iVar4/iVar7/iVar8`) -- matches §HrzSetPsxMatrix's
+ * "SYM block scopes are load-bearing" lesson. (2) the masked `uVar1 & 0xffff` (renamed
+ * `latAngle`) is masked IMMEDIATELY after its `random()` call (own statement) instead of
+ * inline at first use -- gcc then schedules the `andi` into the delay slot of the NEXT
+ * `random()` call exactly like the oracle, instead of leaving it stranded at the point of
+ * use. (3) 🔴 REAL BUG: the two `if (range == 0) trap(0x1c00);` guards were WRONG -- the
+ * oracle's `divu;bnez;break 7;mfhi` sequence is the COMPILER'S OWN automatic ÷0 guard from
+ * a bare `%` operator (`--expand-div`, catalog row C), not a hand-written check; removed
+ * both explicit `if/trap` pairs and folded the range subtraction directly into the modulo
+ * expression -- this ALSO fixed a signed-vs-unsigned bug (starBright was `int`, giving a
+ * SIGNED `div` with an extra INT_MIN/-1 overflow guard the oracle doesn't have; corrected
+ * to `u_int` -- oracle's second range check is `divu`, not `div`). Residual: oracle uses
+ * ONE more callee-saved reg (`$s0-$s5`, 6 regs) than ours (`$s0-$s4`, 5 regs) -- `height`
+ * and `radius` are both simultaneously live across the same call span in both builds (SYM
+ * confirms height=$s2/radius=$s1 alongside heightAngle=$s0/latAngle=$s3/i=$s4/oldSeed=$s5)
+ * but our allocator finds a way to route one fewer live range through a save/restore;
+ * every remaining diff line is otherwise position-identical, just uniformly shifted by
+ * this one missing slot -- genuine allocator floor, not chased further. */
 void Sky_InitStars(void)
 
 {
   int seed;
-  u_int uVar1;
   u_int uVar2;
-  int iVar3;
-  int iVar4;
-  u_int uVar5;
   SVECTOR *pSVar6;
-  int starBright;
-  int heightAngle;
-  int iVar7;
-  int radius;
-  int height;
-  int latAngle;
   int i;
-  int iVar8;
   long oldSeed;
-  
+
   if (starPosInSky == (SVECTOR *)0x0) {
     seed = random();
     seedrandom(Sky_gTrackSpec->starRandomSeed);
     starPosInSky = (SVECTOR *)reservememadr("stars",Sky_gTrackSpec->numStars << 3,0);
     starColors = (CVECTOR *)reservememadr("starCols",Sky_gTrackSpec->numStars << 2,0);
-    for (iVar8 = 0; iVar8 < Sky_gTrackSpec->numStars; iVar8 = iVar8 + 1) {
-      uVar1 = random();
+    for (i = 0; i < Sky_gTrackSpec->numStars; i = i + 1) {
+      int latAngle;
+      int heightAngle;
+      int height;
+      int radius;
+      int vx;
+      u_int starBright;
+
+      latAngle = random();
+      latAngle = latAngle & 0xffff;
       uVar2 = random();
-      uVar5 = Sky_gTrackSpec->starAngleHigh - Sky_gTrackSpec->starAngleLow;
-      if (uVar5 == 0) {
-        trap(0x1c00);
-      }
-      iVar7 = Sky_gTrackSpec->starAngleLow + uVar2 % uVar5;
-      iVar3 = fixedsin(iVar7);
-      iVar3 = fixedmult(iVar3,1000);
-      iVar7 = fixedcos(iVar7);
-      iVar7 = fixedmult(iVar7,1000);
-      iVar4 = fixedsin(uVar1 & 0xffff);
-      iVar4 = fixedmult(iVar4,iVar7);
-      pSVar6 = starPosInSky + iVar8;
-      pSVar6->vx = (short)iVar4;
-      pSVar6->vy = (short)iVar3;
-      iVar3 = fixedcos(uVar1 & 0xffff);
-      iVar3 = fixedmult(iVar3,iVar7);
-      starPosInSky[iVar8].vz = (short)iVar3;
-      uVar1 = random();
-      uVar2 = Sky_gTrackSpec->starBrightMax - Sky_gTrackSpec->starBrightMin;
-      if (uVar2 == 0) {
-        trap(0x1c00);
-      }
-      uVar1 = Sky_gTrackSpec->starBrightMin + uVar1 % uVar2;
-      (*(u_long *)&starColors[iVar8]) = uVar1 * 0x10000 | uVar1 * 0x100 | uVar1;
+      heightAngle = Sky_gTrackSpec->starAngleLow +
+                    uVar2 % (Sky_gTrackSpec->starAngleHigh - Sky_gTrackSpec->starAngleLow);
+      height = fixedsin(heightAngle);
+      height = fixedmult(height,1000);
+      radius = fixedcos(heightAngle);
+      radius = fixedmult(radius,1000);
+      vx = fixedsin(latAngle);
+      vx = fixedmult(vx,radius);
+      pSVar6 = starPosInSky + i;
+      pSVar6->vx = (short)vx;
+      pSVar6->vy = (short)height;
+      height = fixedcos(latAngle);
+      height = fixedmult(height,radius);
+      starPosInSky[i].vz = (short)height;
+      starBright = random();
+      starBright = Sky_gTrackSpec->starBrightMin +
+                   starBright % (Sky_gTrackSpec->starBrightMax - Sky_gTrackSpec->starBrightMin);
+      (*(u_long *)&starColors[i]) = starBright * 0x10000 | starBright * 0x100 | starBright;
     }
     seedrandom(seed);
   }
@@ -183,7 +212,18 @@ void Sky_KillStars(void)
   return;
 }
 
-/* ---- Hrz_InitSkyColor__Fv  [HRZSKU.CPP:227-252] SLD-VERIFIED ---- */
+/* ---- Hrz_InitSkyColor__Fv  [HRZSKU.CPP:227-252] SLD-VERIFIED ----
+ * NEAR-MISS 102 diffs (85/87). Oracle's back-edges are BOTH unconditional `j T` (top-test,
+ * un-rotated topology for the outer AND inner loop) while the plain nested `for` here
+ * rotates to `bnez`-back (bottom-test). Tried the exit-in-the-middle `goto`/label form
+ * (`LOOP_I:/LOOP_L:` with `if(cond){...; goto LOOP_x;}`) -- DOES reproduce the oracle's
+ * double-`j T` topology exactly, but total diff count stayed 102 (register coloring
+ * throughout the body is a uniform swap either way -- SYM `nfs4-f-v3.txt` @40deaf shows
+ * `i`=REG7=$a3, `k`=REG6=$a2, but neither `i=0;k=0;` nor `k=0;i=0;` statement order landed
+ * the goto-form's registers on that assignment; a deeper allocator-priority effect, not
+ * source-order-driven). Reverted to the simpler plain-for form (identical diff count,
+ * less code) -- accepted floor; the goto form is available if a future coloring lever
+ * cracks the rest (see reverted variant in this session's notes). */
 void Hrz_InitSkyColor(void)
 {
   int i, j, k, l;
@@ -210,11 +250,27 @@ void Hrz_InitSkyColor(void)
   }
 }
 
-/* ---- Hrz_InitSky__Fv  [HRZSKU.CPP:257-332] SLD-VERIFIED ---- */
+/* ---- Hrz_InitSky__Fv  [HRZSKU.CPP:257-332] SLD-VERIFIED ----
+ * NEAR-MISS 211 diffs (212/209). Dropped a redundant `pCVar1 = Sky_gTrackSpec;` cache
+ * (used once as `pCVar1->yoffset`, replaced with a direct `Sky_gTrackSpec->yoffset` --
+ * codegen-neutral, cleaner). SYM `nfs4-f-v3.txt` @40dff5 shows the REAL function uses only
+ * 6 named locals in a SINGLE flat block (`i`=$s3, `j`=$s1, `k`=$s6, `angle`=$s0,
+ * `height`=$s4, `radius`=$s5) plus 2 unnamed compiler temps ($s2,$s7) -- 8 total callee-
+ * saved regs (mask=$80ff0000, s0-s7, NO `$fp`). Our reconstruction's ~13 Ghidra-style
+ * locals (iVar2/iVar3/iVar4/iVar5/iVar6/iVar8/angle_00/pSVar7) force gcc to ALSO allocate
+ * `$fp` as a 9th general-purpose slot (`sw fp,48(sp)` -- oracle never saves fp) -- excess
+ * register pressure from too many distinctly-live Ghidra temps where the true source
+ * reuses far fewer named variables across non-overlapping live ranges (e.g. `angle` is
+ * almost certainly the SAME physical var for both the per-ring raw angle AND the inner
+ * loop's per-vertex `angle_00`, since the first dies before the second is born; `height`/
+ * `radius` = the post-sin/cos*1000 ring constants held across the inner loop; `k` likely
+ * belongs to the second (pixmap-index) loop section). Attempted the `angle`/`angle_00`
+ * merge conceptually but ran out of session budget to fully trace+verify the consolidation
+ * before this function's diff count would move — recorded here for a future pass; the
+ * `pCVar1` cleanup is the only change kept (0 diff delta, harmless simplification). */
 void Hrz_InitSky(void)
 
 {
-  CSkySpec *pCVar1;
   int iVar2;
   int iVar3;
   int iVar4;
@@ -279,10 +335,9 @@ void Hrz_InitSky(void)
       angle_00 = (iVar5 - Sky_gTrackSpec->sunAngleInSky) + 0x4000;
       iVar5 = fixedsin(angle_00);
       iVar5 = fixedmult(iVar5,iVar4);
-      pCVar1 = Sky_gTrackSpec;
       iVar2 = iVar2 + 1;
       pSVar7->vx = (short)iVar5;
-      pSVar7->vy = (short)pCVar1->yoffset + (short)iVar3;
+      pSVar7->vy = (short)Sky_gTrackSpec->yoffset + (short)iVar3;
       iVar5 = fixedcos(angle_00);
       iVar5 = fixedmult(iVar5,iVar4);
       pSVar7->vz = (short)iVar5;
@@ -332,43 +387,28 @@ void Hrz_Init2DRing(void)
   int ringEntry_pp;
   int rowOff_p;
   int ti10;
-  int j;
   int ringByte_p;
   int rowBuf_p;
   int ring_step;
-  int nMaxPmxHeight_InPixels;
   int pnPmxHeight_InPixels [16];
   int iVar14_field;
   int row_array_p;
-  int level;
   int iVar1;
   int reg_t5;
   int u_idx;
   int u_idx2;
   int angle;
   int uVar18_pack;
-  int i;
   int ring_x;
   int ring_x2;
   int row_advance;
   int row_idx;
   CVECTOR cur_bk;
   CVECTOR cur_fr;
-  CVECTOR rounddiff;
-  int loc_10;
-  int loc_c;
-  int loc_8;
   CHorizonSpec *tC3;
   CVECTOR tu5;
-  int tp3;
-  int tu6;
-  void *tp1;
-  int tp2;
   int CVar1;
-  u_char *tp4;
-  u_int tu7;
-  u_int tu8;
-  
+
   iVar1 = 0;
   do {
     uVar18_pack = iVar1 * 0x1000 + Hrz_gTrackSpec->angle;
@@ -406,12 +446,6 @@ void Hrz_Init2DRing(void)
     ((u_char *)&(atan_in))[1] = ((CVECTOR *)rowOff_p)->g;
     ((u_char *)&(atan_in))[2] = ((CVECTOR *)rowOff_p)->b;
     ((u_char *)&(atan_in))[3] = ((CVECTOR *)rowOff_p)->cd;
-    if (ti12 == 0) {
-      trap(0x1c00);
-    }
-    if ((ti12 == -1) && (atan_in << 0x10 == -0x80000000)) {
-      trap(0x1800);
-    }
     rowOff_p = rowOff_p + 4;
     row_advance = row_advance + 1;
     *(int *)rowBuf_p = (atan_in << 0x10) / ti12;
@@ -420,33 +454,10 @@ void Hrz_Init2DRing(void)
   row_array_p = (int)gHrzRingColor;
   ti12 = 0;
   for (iVar1 = 0; row_idx = 0, iVar1 < 2; iVar1 = iVar1 + 1) {
-    tp3 = (int)&Hrz_gTrackSpec->backColor[iVar1].cd;
-    tu7 = tp3 & 3;
-    tu6 = (u_int)(Hrz_gTrackSpec->backColor + iVar1) & 3;
-    u_idx = (*(int *)(tp3 - tu7) << (3 - tu7) * 8 | reg_t5 & 0xffffffffU >> (tu7 + 1) * 8) &
-            -1 << (4 - tu6) * 8 |
-            *(u_int *)((int)(Hrz_gTrackSpec->backColor + iVar1) - tu6) >> tu6 * 8;
-    tp1 = &cur_bk.cd;
-    tu7 = (u_int)tp1 & 3;
-    *(u_int *)((int)tp1 - tu7) =
-         *(u_int *)((int)tp1 - tu7) & -1 << (tu7 + 1) * 8 | (u_int)u_idx >> (3 - tu7) * 8;
-    cur_bk.r = (char)u_idx;
-    cur_bk.g = (char)((u_int)u_idx >> 8);
-    cur_bk.b = (char)((u_int)u_idx >> 0x10);
-    cur_bk.cd = (char)((u_int)u_idx >> 0x18);
-    tp4 = &Hrz_gTrackSpec->frontColor[iVar1].cd;
-    tu7 = (u_int)tp4 & 3;
-    tu8 = (u_int)(Hrz_gTrackSpec->frontColor + iVar1) & 3;
-    u_idx2 = (*(int *)(tp4 + -tu7) << (3 - tu7) * 8 | u_idx & 0xffffffffU >> (tu7 + 1) * 8) &
-             -1 << (4 - tu8) * 8 |
-             *(u_int *)((int)(Hrz_gTrackSpec->frontColor + iVar1) - tu8) >> tu8 * 8;
-    tu7 = (u_int)&cur_fr.cd & 3;
-    tp4 = &cur_fr.cd + -tu7;
-    *(u_int *)tp4 = *(u_int *)tp4 & -1 << (tu7 + 1) * 8 | (u_int)u_idx2 >> (3 - tu7) * 8;
-    cur_fr.r = (char)u_idx2;
-    cur_fr.g = (char)((u_int)u_idx2 >> 8);
-    cur_fr.b = (char)((u_int)u_idx2 >> 0x10);
-    cur_fr.cd = (char)((u_int)u_idx2 >> 0x18);
+    cur_bk = Hrz_gTrackSpec->backColor[iVar1];
+    u_idx = *(u_int *)&cur_bk;
+    cur_fr = Hrz_gTrackSpec->frontColor[iVar1];
+    u_idx2 = *(u_int *)&cur_fr;
     tu5 = cur_fr;
     iVar14_field = ti12;
     reg_t5 = u_idx2;
@@ -477,9 +488,6 @@ void Hrz_Init2DRing(void)
       iVar14_field = iVar14_field + 4;
     }
     CVar1 = *(int *)row_array_p;
-    tu7 = row_array_p + 0x43U & 3;
-    tp2 = (row_array_p + 0x43U) - tu7;
-    *(u_int *)tp2 = *(u_int *)tp2 & -1 << (tu7 + 1) * 8 | (u_int)CVar1 >> (3 - tu7) * 8;
     *(int *)(row_array_p + 0x40) = CVar1;
     row_array_p = row_array_p + 0x44;
     ti12 = ti12 + 0x44;
@@ -698,7 +706,23 @@ void Hrz_TextureQuad(DVECTOR *pt,char type,char bright,Draw_DCache *sd)
   return;
 }
 
-/* ---- Hrz_SetLightingPosInSky__FP13DRender_tView  [HRZSKU.CPP:862-867] SLD-VERIFIED ---- */
+/* ---- Hrz_SetLightingPosInSky__FP13DRender_tView  [HRZSKU.CPP:862-867] SLD-VERIFIED ----
+ * NEAR-MISS 103 diffs (75/68, ours 7 insns LONGER; SYM `nfs4-f-v3.txt` @40e68f confirms
+ * fsize=40 (ONE saved reg, mask=$80010000=$s0 only) -- matches the ORACLE frame, not ours
+ * (we emit fsize=48, TWO saved regs $s0+$s1). ROOT CAUSE (verified, not fixable from this
+ * file): `Hrz_gLightningPosInSky` (SVECTOR, 8 bytes, defined THIS TU line ~28) is accessed
+ * by the oracle via bare `sh r,0(gp)`/`2(gp)`/`4(gp)` gp-relative field stores -- NO address
+ * register needed at all. Our build (`-G4`, confirmed in tools/build.py) never lands this
+ * 8-byte struct in `.sdata`/`.sbss` (`objdump -h` on the compiled .o: 0 bytes in `.bss`,
+ * global sits in `.data` as a 'D' symbol) so gcc must materialize its address into a
+ * callee-saved reg (`$s0`) instead -- that's the SECOND saved register, stealing the slot
+ * the oracle uses to cache the shared /8000 magic-multiply constant (`4194:19923`, reused
+ * for BOTH the vx and vz fields, which share the same divisor) across the `random()` calls.
+ * Freeing `$s0` would need the struct to be gp-eligible, which is a `-G` threshold /
+ * `-mgpOPT` field-splitting toolchain behavior outside this TU's control (no build-flag
+ * changes per the campaign's hard rules) -- NOT a header issue (the global and its SVECTOR
+ * type are both already correct/real). Accepted floor; recorded for a future cross-TU/
+ * build-flag investigation. */
 void Hrz_SetLightingPosInSky(DRender_tView *Vi)
 
 {
@@ -786,7 +810,22 @@ void Hrz_LightningFlicker(int on)
   return;
 }
 
-/* ---- HrzSetPsxMatrix__FP10matrixtdef  [HRZSKU.CPP:982-1017] SLD-VERIFIED ---- */
+/* ---- HrzSetPsxMatrix__FP10matrixtdef  [HRZSKU.CPP:982-1017] SLD-VERIFIED ----
+ * NEAR-MISS 72 diffs (52/56, ours 4 insns SHORTER). The tail gte_SetRotMatrix() macro
+ * expansion (last 12 insns) is byte-IDENTICAL once realigned -- all divergence is in the
+ * temp/mpsx field-fill. SYM (`nfs4-f-v3.txt` @40e91f) shows the source used per-row
+ * BLOCK-SCOPED locals (`{int t1,t2,t3;...}` then TWO more blocks named `r0,r1,r2` --
+ * fresh pseudos each block, same names reused rows 2/3); reproduced that block structure
+ * verbatim but it did NOT change gcc's allocation (74 diffs, worse) -- reverted. Oracle's
+ * extra 4 insns are RELOADS of temp.m[0]/temp.m[2]/temp.m[3]/temp.m[5] (the non-negated
+ * fields) from the just-stored stack slot instead of reusing the live load register,
+ * while the negated fields (temp.m[1]/[4]/[7]) and the LAST row (m[6..8], no next group
+ * to steal $t0-$t2) reuse the register directly with no reload -- register-pressure-driven
+ * allocator behavior (which fields get evicted to make room for the next row's raw loads),
+ * not reachable via any tried source reshape (flat block-of-9, interleaved-per-row, and
+ * block-scoped-per-row all tried; interleaved was worse at 76, block-scoped 74). Accepted
+ * floor; count differs by 4 (genuine structural gap in the gcc RA output vs any equivalent
+ * C, not a coloring coin-flip). */
 void HrzSetPsxMatrix(matrixtdef *m)
 {
   MATRIX mpsx;
@@ -1068,7 +1107,20 @@ HrzBuildSky_meshIterNext:
   } while( true );
 }
 
-/* ---- Sky_RenderStars__FP13Draw_SkyCachei  [HRZSKU.CPP:1284-1330] SLD-VERIFIED ---- */
+/* ---- Sky_RenderStars__FP13Draw_SkyCachei  [HRZSKU.CPP:1284-1330] SLD-VERIFIED ----
+ * NEAR-MISS 18 diffs (115/111, improved from 76 baseline). FIX (§3.12 #16
+ * HOLD-GLOBAL-ADDR-ACROSS-CALL): `pcnt = starPosInSky;` moved to an unconditional
+ * statement BEFORE the memset(&trans,...)/HrzSetPsxTranslation(&trans) calls (was
+ * inside the `if(0<numStars)` block, loaded fresh after the calls) -- `starPosInSky`
+ * is a loop-invariant global with no side effect reading it, so gcc hoists the load
+ * unconditionally above the calls into a callee-saved reg (`$s0`) that survives them,
+ * matching the oracle exactly (prologue/frame-size/call-setup all byte-identical after
+ * this fix). Residual: `Render_gPalettePtr`'s `%hi` (a pure, memory-less `lui`) is
+ * scheduled 2 loop-body positions earlier in ours than the oracle (which keeps the
+ * `lui`+`lw` pair together at the point of use) -- tried reordering the `puVar5=`
+ * statement earlier/relative to `puVar4=` (no effect, gcc's scheduler ignores C
+ * statement order for this pure op) -- a genuine gcc instruction-scheduling floor, not
+ * source-shapable without a pin. Accepted. */
 void Sky_RenderStars(Draw_SkyCache *sd,int otz)
 
 {
@@ -1095,12 +1147,12 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
   if (GameSetup_gData.commMode == 1) {
     iVar9 = 0x3c;
   }
+  pcnt = starPosInSky;
   memset(&trans,0,0xc);
   HrzSetPsxTranslation(&trans);
   iVar6 = 0;
   if (0 < Sky_gTrackSpec->numStars) {
     ppuVar8 = &Render_gPacketPtr;
-    pcnt = starPosInSky;
     uVar7 = 0xffffff;
     uVar8 = 0xff000000;
     do {

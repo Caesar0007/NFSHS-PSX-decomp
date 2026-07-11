@@ -270,15 +270,23 @@ void LoadShapesAndMakePmx_EnvMap(char *shapefile,Draw_tPixMap *pmxList,int x,int
   int idx;
   Draw_tPixMap *pPmx;
   int recolor_flag;
-  
-  for (idx = 0; pvVar1 = shapecount(shapefile), idx < (int)pvVar1;
-      idx = idx + 1) {
+  int negOne;
+  int flagBits;
+
+  idx = 0;
+  flagBits = 0;
+  negOne = -1;
+LoadEnvMap_loopTest:
+  pvVar1 = shapecount(shapefile);
+  if (idx < (int)pvVar1) {
     n = shapepointer(shapefile,idx);
     if (n != (char *)0x0) {
-      Texture_LoadPmx((char *)0x0,n,0x42,x,y,-1,-1,pmxList)
+      Texture_LoadPmx((char *)0x0,n,flagBits | 0x42,x,y,negOne,negOne,pmxList)
       ;
       pmxList = pmxList + 1;
     }
+    idx = idx + 1;
+    goto LoadEnvMap_loopTest;
   }
   return;
 }
@@ -287,119 +295,53 @@ void LoadShapesAndMakePmx_EnvMap(char *shapefile,Draw_tPixMap *pmxList,int x,int
 void TexturesLoadInitial(void)
 
 {
-  u_int *puVar1;
-  u_char *puVar2;
-  int success;
-  int shape_path;
+  char *shape_path;
   Draw_tPixMap *pDVar3;
   char *pcVar4;
-  int track_path;
-  int reg_t0;
-  u_int uVar5;
-  int reg_t1;
-  u_int uVar6;
-  int reg_t2;
-  u_int uVar7;
-  int reg_t3;
-  char *tmpShapes;
-  int tu3;
-  int tu4;
-  void *tp1;
-  void *tp3;
-  int tu5;
-  u_int tu6;
-  int tp2;
-  u_char *tp4;
-  u_int tu7;
-  u_int tu8;
-  
-  if (GameSetup_gData.Time == 0) {
-    if (GameSetup_gData.Weather == 0) {
-      track_path = (int)"0.psh";
+  char *track_path;
+
+  if (GameSetup_gData.Time != 0) {
+    if (GameSetup_gData.Weather != 0) {
+      track_path = (char *)&wordFile_psh_snow;
     }
     else {
-      track_path = (int)"W0.psh";
+      track_path = "N0.psh";
     }
   }
-  else if (GameSetup_gData.Weather == 0) {
-    track_path = (int)"N0.psh";
+  else if (GameSetup_gData.Weather != 0) {
+    track_path = "W0.psh";
   }
   else {
-    track_path = (int)wordFile_psh_snow;
+    track_path = "0.psh";
   }
-  shape_path = (int)Track_MakeTrackPathName((char *)track_path);
+  shape_path = Track_MakeTrackPathName(track_path);
   gInitialArt.shapeFile =
-       (char *)loadshapeadr((char *)shape_path,(void *)0x0);
+       (char *)loadshapeadr(shape_path,(void *)0x0);
   if (gInitialArt.shapeFile != (char *)0x0) {
     Texture_ResetPaletteSharing();
     gInitialArt.shapeCount = (int)shapecount(gInitialArt.shapeFile);
     LoadShapesAndMakePmx(gInitialArt.shapeFile,gInitialArt.pPmx,0x40,0x100,0);
     pDVar3 = gInitialArt.pPmx + gInitialArt.shapeCount;
-    tp1 = (void *)((int)&gSpikeBeltPixmap->clut + 1);
-    tu3 = (u_int)tp1 & 3;
-    tu4 = (u_int)gSpikeBeltPixmap & 3;
-    uVar5 = (*(int *)((int)tp1 - tu3) << (3 - tu3) * 8 | reg_t0 & 0xffffffffU >> (tu3 + 1) * 8) &
-            -1 << (4 - tu4) * 8 | *(u_int *)((int)&gSpikeBeltPixmap - tu4) >> tu4 * 8;
-    tp2 = (int)&gSpikeBeltPixmap->tpage + 1;
-    tu5 = tp2 & 3;
-    tu6 = (u_int)&gSpikeBeltPixmap->u1 & 3;
-    uVar6 = (*(int *)(tp2 - tu5) << (3 - tu5) * 8 | reg_t1 & 0xffffffffU >> (tu5 + 1) * 8) &
-            -1 << (4 - tu6) * 8 | *(u_int *)(&gSpikeBeltPixmap->u1 + -tu6) >> tu6 * 8;
-    tp3 = (void *)((int)&gSpikeBeltPixmap->pad2 + 1);
-    tu7 = (u_int)tp3 & 3;
-    tu8 = (u_int)&gSpikeBeltPixmap->u2 & 3;
-    uVar7 = (*(int *)((int)tp3 - tu7) << (3 - tu7) * 8 | reg_t2 & 0xffffffffU >> (tu7 + 1) * 8) &
-            -1 << (4 - tu8) * 8 | *(u_int *)(&gSpikeBeltPixmap->u2 + -tu8) >> tu8 * 8;
-    tp4 = (u_char *)((int)&gSpikeBeltPixmap->flag + 1);
-    tu7 = (u_int)tp4 & 3;
-    tu8 = (u_int)&gSpikeBeltPixmap->u3 & 3;
-    tu8 = (*(int *)(tp4 + -tu7) << (3 - tu7) * 8 | reg_t3 & 0xffffffffU >> (tu7 + 1) * 8) &
-          -1 << (4 - tu8) * 8 | *(u_int *)(&gSpikeBeltPixmap->u3 + -tu8) >> tu8 * 8;
-    tp4 = (u_char *)((int)&pDVar3->clut + 1);
-    tu7 = (u_int)tp4 & 3;
-    puVar1 = (u_int *)(tp4 + -tu7);
-    *puVar1 = *puVar1 & -1 << (tu7 + 1) * 8 | uVar5 >> (3 - tu7) * 8;
-    tu7 = (u_int)pDVar3 & 3;
-    *(u_int *)((int)pDVar3 - tu7) =
-         *(u_int *)((int)pDVar3 - tu7) & 0xffffffffU >> (4 - tu7) * 8 | uVar5 << tu7 * 8;
-    tp4 = (u_char *)((int)&pDVar3->tpage + 1);
-    tu7 = (u_int)tp4 & 3;
-    puVar1 = (u_int *)(tp4 + -tu7);
-    *puVar1 = *puVar1 & -1 << (tu7 + 1) * 8 | uVar6 >> (3 - tu7) * 8;
-    tu7 = (u_int)&pDVar3->u1 & 3;
-    puVar2 = &pDVar3->u1 + -tu7;
-    *(u_int *)puVar2 = *(u_int *)puVar2 & 0xffffffffU >> (4 - tu7) * 8 | uVar6 << tu7 * 8;
-    tp4 = (u_char *)((int)&pDVar3->pad2 + 1);
-    tu7 = (u_int)tp4 & 3;
-    puVar1 = (u_int *)(tp4 + -tu7);
-    *puVar1 = *puVar1 & -1 << (tu7 + 1) * 8 | uVar7 >> (3 - tu7) * 8;
-    tu7 = (u_int)&pDVar3->u2 & 3;
-    puVar2 = &pDVar3->u2 + -tu7;
-    *(u_int *)puVar2 = *(u_int *)puVar2 & 0xffffffffU >> (4 - tu7) * 8 | uVar7 << tu7 * 8;
-    tp4 = (u_char *)((int)&pDVar3->flag + 1);
-    tu7 = (u_int)tp4 & 3;
-    puVar1 = (u_int *)(tp4 + -tu7);
-    *puVar1 = *puVar1 & -1 << (tu7 + 1) * 8 | tu8 >> (3 - tu7) * 8;
-    tu7 = (u_int)&pDVar3->u3 & 3;
-    puVar2 = &pDVar3->u3 + -tu7;
-    *(u_int *)puVar2 = *(u_int *)puVar2 & 0xffffffffU >> (4 - tu7) * 8 | tu8 << tu7 * 8;
+    *pDVar3 = *gSpikeBeltPixmap;
     gInitialArt.shapeCount = gInitialArt.shapeCount + 1;
     gInitialArt.pmxCount = gInitialArt.shapeCount;
     gInitialArt.basePmxCount = gInitialArt.shapeCount;
     purgememadr(gInitialArt.shapeFile);
-    Hrz_GetHorizonPixMap(gInitialArt.pPmx);
-    pcVar4 = Track_MakeTrackPathName("r.psh");
-    pcVar4 = (char *)loadshapeadr(pcVar4,(void *)0x0);
-    if (pcVar4 != (char *)0x0) {
-      Texture_ResetPaletteSharing();
-      LoadShapesAndMakePmx_EnvMap(pcVar4,Track_gReflectionMaps,0x3e0,0);
-      purgememadr(pcVar4);
-    }
-    return;
   }
-  do {
+  else {
+    do {
                     /* WARNING: Do nothing block with infinite loop */
-  } while( true );
+    } while( true );
+  }
+  Hrz_GetHorizonPixMap(gInitialArt.pPmx);
+  pcVar4 = Track_MakeTrackPathName("r.psh");
+  pcVar4 = (char *)loadshapeadr(pcVar4,(void *)0x0);
+  if (pcVar4 != (char *)0x0) {
+    Texture_ResetPaletteSharing();
+    LoadShapesAndMakePmx_EnvMap(pcVar4,Track_gReflectionMaps,0x3e0,0);
+    purgememadr(pcVar4);
+  }
+  return;
 }
 
 /* ---- Track_AnimateTextures__Fv  [TRACK.CPP:491-517] SLD-VERIFIED ---- */
@@ -417,29 +359,41 @@ void Track_AnimateTextures(void)
   Track_tMaterialController *pTVar7;
   int controlCount;
   int iVar8;
-  
-  psVar6 = &Track_gMatController->pmxIndex;
+  Sim_tSimGlobalVar *simPtr;
+  Track_tArtresource *artPtr;
+  int negOne;
+  int typeEnvMap;
+
+  negOne = -1;
+  typeEnvMap = 0x80;
+  simPtr = &simGlobal;
+  artPtr = &gInitialArt;
   pTVar7 = Track_gMatController;
+  psVar6 = &pTVar7->pmxIndex;
   iVar8 = Track_gControllerCount;
-  while (pDVar3 = gInitialArt.pPmx, iVar8 = iVar8 + -1, iVar8 != -1) {
-    if (pTVar7->type == 0x80) {
+TrkAnimTex_loopTest:
+  iVar8 = iVar8 + -1;
+  if (iVar8 != negOne) {
+    if (pTVar7->type == typeEnvMap) {
       uVar4 = (u_int)*(u_char *)((int)psVar6 + -1);
       uVar5 = (u_int)*(u_char *)(psVar6 + -4);
       sVar1 = (*(Track_tMaterial **)(psVar6 + 1))->pmxIndex;
-      cVar2 = (char)((simGlobal.gameTicks / (int)uVar4) % (int)uVar5);
-      gInitialArt.pPmx[sVar1].v0 = *(u_char *)(psVar6 + -3) + cVar2;
-      pDVar3[sVar1].v1 = *(u_char *)((int)psVar6 + -5) + cVar2;
-      pDVar3[sVar1].v2 = *(u_char *)(psVar6 + -2) + cVar2;
-      pDVar3[sVar1].v3 = *(u_char *)((int)psVar6 + -3) + cVar2;
+      cVar2 = (char)((simPtr->gameTicks / (int)uVar4) % (int)uVar5);
+      pDVar3 = artPtr->pPmx + sVar1;
+      pDVar3->v0 = *(u_char *)(psVar6 + -3) + cVar2;
+      pDVar3->v1 = *(u_char *)((int)psVar6 + -5) + cVar2;
+      pDVar3->v2 = *(u_char *)(psVar6 + -2) + cVar2;
+      pDVar3->v3 = *(u_char *)((int)psVar6 + -3) + cVar2;
     }
     else if (pTVar7->type == 4) {
       uVar4 = (u_int)*(u_char *)((int)psVar6 + -1);
       uVar5 = (u_int)*(u_char *)(psVar6 + -1);
       (*(Track_tMaterial **)(psVar6 + 1))->pmxIndex =
-           *psVar6 + (short)((simGlobal.gameTicks / (int)uVar4) % (int)uVar5);
+           *psVar6 + (short)((simPtr->gameTicks / (int)uVar4) % (int)uVar5);
     }
     psVar6 = psVar6 + 8;
     pTVar7 = pTVar7 + 1;
+    goto TrkAnimTex_loopTest;
   }
   return;
 }
@@ -450,178 +404,57 @@ int Track_GetProperMultiPalShapeIndex(int shapeindex,int paletteindex)
 {
   Track_MultiPalette *pTVar1;
   int iVar2;
-  int t;
-  
+
   iVar2 = 0;
   pTVar1 = gTempMultiPalInfo;
-  while ((pTVar1->origshapeindex != shapeindex || (pTVar1->palnum != paletteindex))) {
-    iVar2 = iVar2 + 1;
-    pTVar1 = pTVar1 + 1;
-    if (0x7f < iVar2) {
-      return shapeindex;
+TrkGetPal_loopTest:
+  if (pTVar1->origshapeindex == shapeindex) {
+    if (pTVar1->palnum == paletteindex) {
+      return (int)pTVar1->actualshapeindex;
     }
   }
-  return (int)pTVar1->actualshapeindex;
+  iVar2 = iVar2 + 1;
+  pTVar1 = pTVar1 + 1;
+  if (0x7f < iVar2) {
+    return shapeindex;
+  }
+  goto TrkGetPal_loopTest;
 }
 
 /* ---- Track_ProcessFlipAndUVFlags__FiP12Draw_tPixMapT1  [TRACK.CPP:538-571] SLD-VERIFIED ---- */
 void Track_ProcessFlipAndUVFlags(int uvFlag,Draw_tPixMap *inputPmx,Draw_tPixMap *outputPmx)
 
 {
-  int pmxProcessCount;
-  Draw_tPixMap *pDVar1;
-  int rotMode;
-  int mode;
-  int reg_a3;
-  int u0_pack;
-  int reg_t0;
-  int u1_pack;
-  int reg_t1;
-  int v0_pack;
-  int reg_t2;
-  int v1_pack;
-  int pmxCount;
-  int result_pmx_p;
   Draw_tPixMap newPmx [4];
-  int pbVar3;
-  u_char bVar4;
-  int tp2;
-  int tp6;
-  int tp5;
-  int tp15;
-  int tp16;
-  int pbVar4;
-  int tu5;
-  void *tp3;
-  int tu8;
-  int tu14;
-  int tu6;
-  int tu7;
-  void *tp1;
-  u_char *pbVar5;
-  u_int *tp17;
-  u_char *tp19;
-  u_int tu15;
-  u_int tu16;
-  u_int tu18;
-  
-  tp2 = (int)&inputPmx->clut + 1;
-  tu5 = tp2 & 3;
-  tu6 = (u_int)inputPmx & 3;
-  u0_pack = (*(int *)(tp2 - tu5) << (3 - tu5) * 8 | reg_a3 & 0xffffffffU >> (tu5 + 1) * 8) &
-            -1 << (4 - tu6) * 8 | *(u_int *)((int)inputPmx - tu6) >> tu6 * 8;
-  tp3 = (void *)((int)&inputPmx->tpage + 1);
-  tu15 = (u_int)tp3 & 3;
-  tu16 = (u_int)&inputPmx->u1 & 3;
-  u1_pack = (*(int *)((int)tp3 - tu15) << (3 - tu15) * 8 | reg_t0 & 0xffffffffU >> (tu15 + 1) * 8) &
-            -1 << (4 - tu16) * 8 | *(u_int *)(&inputPmx->u1 + -tu16) >> tu16 * 8;
-  pbVar5 = (u_char *)((int)&inputPmx->pad2 + 1);
-  tu15 = (u_int)pbVar5 & 3;
-  tu16 = (u_int)&inputPmx->u2 & 3;
-  v0_pack = (*(int *)(pbVar5 + -tu15) << (3 - tu15) * 8 | reg_t1 & 0xffffffffU >> (tu15 + 1) * 8) &
-            -1 << (4 - tu16) * 8 | *(u_int *)(&inputPmx->u2 + -tu16) >> tu16 * 8;
-  pbVar5 = (u_char *)((int)&inputPmx->flag + 1);
-  tu15 = (u_int)pbVar5 & 3;
-  tu16 = (u_int)&inputPmx->u3 & 3;
-  v1_pack = (*(int *)(pbVar5 + -tu15) << (3 - tu15) * 8 | reg_t2 & 0xffffffffU >> (tu15 + 1) * 8) &
-            -1 << (4 - tu16) * 8 | *(u_int *)(&inputPmx->u3 + -tu16) >> tu16 * 8;
-  tp1 = (void *)((int)&newPmx[0].clut + 1);
-  tu15 = (u_int)tp1 & 3;
-  *(u_int *)((int)tp1 - tu15) =
-       *(u_int *)((int)tp1 - tu15) & -1 << (tu15 + 1) * 8 | (u_int)u0_pack >> (3 - tu15) * 8;
-  newPmx[0].u0 = (char)u0_pack;
-  newPmx[0].v0 = (char)((u_int)u0_pack >> 8);
-  newPmx[0].clut = (short)((u_int)u0_pack >> 0x10);
-  pbVar3 = (int)&newPmx[0].tpage + 1;
-  tu15 = pbVar3 & 3;
-  *(u_int *)(pbVar3 - tu15) =
-       *(u_int *)(pbVar3 - tu15) & -1 << (tu15 + 1) * 8 | (u_int)u1_pack >> (3 - tu15) * 8;
-  newPmx[0].u1 = (char)u1_pack;
-  newPmx[0].v1 = (char)((u_int)u1_pack >> 8);
-  newPmx[0].tpage = (short)((u_int)u1_pack >> 0x10);
-  pbVar4 = (int)&newPmx[0].pad2 + 1;
-  tu15 = pbVar4 & 3;
-  *(u_int *)(pbVar4 - tu15) =
-       *(u_int *)(pbVar4 - tu15) & -1 << (tu15 + 1) * 8 | (u_int)v0_pack >> (3 - tu15) * 8;
-  newPmx[0].u2 = (char)v0_pack;
-  newPmx[0].v2 = (char)((u_int)v0_pack >> 8);
-  newPmx[0].pad2 = (short)((u_int)v0_pack >> 0x10);
-  pbVar5 = (u_char *)((int)&newPmx[0].flag + 1);
-  tu15 = (u_int)pbVar5 & 3;
-  tp17 = (u_int *)(pbVar5 + -tu15);
-  *tp17 = *tp17 & -1 << (tu15 + 1) * 8 | (u_int)v1_pack >> (3 - tu15) * 8;
-  newPmx[0].u3 = (char)v1_pack;
-  newPmx[0].v3 = (char)((u_int)v1_pack >> 8);
-  newPmx[0].flag = (short)((u_int)v1_pack >> 0x10);
-  bVar4 = (uvFlag & 0x10U) != 0;
-  if ((bool)bVar4) {
+  int mode;
+  int result_pmx_p;
+
+  result_pmx_p = 0;
+  newPmx[0] = *inputPmx;
+  if ((uvFlag & 0x10U) != 0) {
     Texture_CloneUVPmx(newPmx,0,newPmx + 1);
+    result_pmx_p = 1;
   }
-  result_pmx_p = (int)bVar4;
   if ((uvFlag & 0x40U) != 0) {
     Texture_CloneUVPmx(newPmx + result_pmx_p,1,newPmx + result_pmx_p + 1);
     result_pmx_p = result_pmx_p + 1;
   }
-  if ((uvFlag & 0xeU) == 0) goto TrkProcessFlip_nextPmx;
-  if ((uvFlag & 2U) == 0) {
-    if ((uvFlag & 4U) != 0) {
-      mode = 3;
-      goto TrkProcessFlip_emitCloneUV;
+  if ((uvFlag & 0xeU) != 0) {
+    if ((uvFlag & 2U) != 0) {
+      mode = 2;
+      Texture_CloneUVPmx(newPmx + result_pmx_p,mode,newPmx + result_pmx_p + 1);
     }
-    mode = 4;
-    if ((uvFlag & 8U) != 0) goto TrkProcessFlip_emitCloneUV;
+    else if ((uvFlag & 4U) != 0) {
+      mode = 3;
+      Texture_CloneUVPmx(newPmx + result_pmx_p,mode,newPmx + result_pmx_p + 1);
+    }
+    else if ((uvFlag & 8U) != 0) {
+      mode = 4;
+      Texture_CloneUVPmx(newPmx + result_pmx_p,mode,newPmx + result_pmx_p + 1);
+    }
+    result_pmx_p = result_pmx_p + 1;
   }
-  else {
-    mode = 2;
-TrkProcessFlip_emitCloneUV:
-    Texture_CloneUVPmx(newPmx + result_pmx_p,mode,newPmx + result_pmx_p + 1);
-  }
-  result_pmx_p = result_pmx_p + 1;
-TrkProcessFlip_nextPmx:
-  pDVar1 = newPmx + result_pmx_p;
-  ((u_char *)&(tu15))[0] = pDVar1->u0;
-  ((u_char *)&(tu15))[1] = pDVar1->v0;
-  (*(u_short *)((u_char *)&(tu15) + 2)) = pDVar1->clut;
-  pDVar1 = newPmx + result_pmx_p;
-  ((u_char *)&(tu16))[0] = pDVar1->u1;
-  ((u_char *)&(tu16))[1] = pDVar1->v1;
-  (*(u_short *)((u_char *)&(tu16) + 2)) = pDVar1->tpage;
-  pDVar1 = newPmx + result_pmx_p;
-  ((u_char *)&(tu7))[0] = pDVar1->u2;
-  ((u_char *)&(tu7))[1] = pDVar1->v2;
-  (*(u_short *)((u_char *)&(tu7) + 2)) = pDVar1->pad2;
-  pDVar1 = newPmx + result_pmx_p;
-  ((u_char *)&(tu8))[0] = pDVar1->u3;
-  ((u_char *)&(tu8))[1] = pDVar1->v3;
-  (*(u_short *)((u_char *)&(tu8) + 2)) = pDVar1->flag;
-  pbVar5 = (u_char *)((int)&outputPmx->clut + 1);
-  tu14 = (u_int)pbVar5 & 3;
-  tp5 = (int)pbVar5 - tu14;
-  *(u_int *)tp5 = *(u_int *)tp5 & -1 << (tu14 + 1) * 8 | tu15 >> (3 - tu14) * 8;
-  tu18 = (u_int)outputPmx & 3;
-  *(u_int *)((int)outputPmx - tu18) =
-       *(u_int *)((int)outputPmx - tu18) & 0xffffffffU >> (4 - tu18) * 8 | tu15 << tu18 * 8;
-  pbVar5 = (u_char *)((int)&outputPmx->tpage + 1);
-  tu15 = (u_int)pbVar5 & 3;
-  tp15 = (int)pbVar5 - tu15;
-  *(u_int *)tp15 = *(u_int *)tp15 & -1 << (tu15 + 1) * 8 | tu16 >> (3 - tu15) * 8;
-  tu15 = (u_int)&outputPmx->u1 & 3;
-  tp6 = (int)&outputPmx->u1 - tu15;
-  *(u_int *)tp6 = *(u_int *)tp6 & 0xffffffffU >> (4 - tu15) * 8 | tu16 << tu15 * 8;
-  pbVar5 = (u_char *)((int)&outputPmx->pad2 + 1);
-  tu15 = (u_int)pbVar5 & 3;
-  tp17 = (u_int *)(pbVar5 + -tu15);
-  *tp17 = *tp17 & -1 << (tu15 + 1) * 8 | (u_int)tu7 >> (3 - tu15) * 8;
-  tu15 = (u_int)&outputPmx->u2 & 3;
-  tp16 = (int)&outputPmx->u2 - tu15;
-  *(u_int *)tp16 = *(u_int *)tp16 & 0xffffffffU >> (4 - tu15) * 8 | tu7 << tu15 * 8;
-  pbVar5 = (u_char *)((int)&outputPmx->flag + 1);
-  tu15 = (u_int)pbVar5 & 3;
-  tp17 = (u_int *)(pbVar5 + -tu15);
-  *tp17 = *tp17 & -1 << (tu15 + 1) * 8 | (u_int)tu8 >> (3 - tu15) * 8;
-  tu15 = (u_int)&outputPmx->u3 & 3;
-  tp19 = &outputPmx->u3 + -tu15;
-  *(u_int *)tp19 = *(u_int *)tp19 & 0xffffffffU >> (4 - tu15) * 8 | tu8 << tu15 * 8;
+  *outputPmx = newPmx[result_pmx_p];
   return;
 }
 
@@ -662,96 +495,40 @@ TrkProcessFlip_nextPmx:
 void Track_AssociateSingleMaterial(Trk_Material *inputMat,Track_tMaterial *outputMat,Track_tArtresource *art)
 
 {
-  u_char *puVar1;
-  u_int uVar2;
-  u_int uVar3;
-  u_int *puVar4;
-  short uvFlag;
-  int shapeData_p;
+  u_short uvFlag;
   int shapeIndex;
-  int pmxW0;
-  int pmxW1;
-  int pmxW2;
-  int pmxW3;
-  int animCount;
   int anim_iter;
   Draw_tPixMap originalPmx;
-  int tp2;
-  int tu3;
-  void *tp1;
-  int tu4;
-  int tp5;
   int iVar5;
-  
+
   outputMat->flag = inputMat->flag;
-  for (anim_iter = 0; (anim_iter < 1 || (anim_iter < (int)(u_int)(u_char)inputMat->textureCount));
-      anim_iter = anim_iter + 1) {
-    if ((inputMat->uvFlag & 0x5e) == 0) {
-      uvFlag = inputMat->shapeIndex;
-      if ((inputMat->flag & 2) != 0) {
-        iVar5 = Track_GetProperMultiPalShapeIndex((int)uvFlag,(u_int)inputMat->interval);
-        uvFlag = (short)iVar5;
-      }
-      if (anim_iter == 0) {
-        outputMat->pmxIndex = uvFlag;
-      }
-    }
-    else {
+  anim_iter = 0;
+TrkAssoc_loopTest:
+  if (anim_iter < 1 || (anim_iter < (int)(u_int)(u_char)inputMat->textureCount)) {
+    if ((inputMat->uvFlag & 0x5e) != 0) {
       shapeIndex = (int)inputMat->shapeIndex;
       if ((inputMat->flag & 2) != 0) {
         shapeIndex = Track_GetProperMultiPalShapeIndex(shapeIndex,(u_int)inputMat->interval);
       }
-      shapeData_p = (int)(art->pPmx + shapeIndex + anim_iter);
-      tp1 = (void *)(shapeData_p + 3);
-      tu3 = (u_int)tp1 & 3;
-      tu4 = shapeData_p & 3;
-      pmxW0 = (*(int *)((int)tp1 - tu3) << (3 - tu3) * 8 | pmxW0 & 0xffffffffU >> (tu3 + 1) * 8) &
-              -1 << (4 - tu4) * 8 | *(u_int *)(shapeData_p - tu4) >> tu4 * 8;
-      tp2 = shapeData_p + 7;
-      uVar2 = tp2 & 3;
-      uVar3 = shapeData_p + 4U & 3;
-      pmxW1 = (*(int *)(tp2 - uVar2) << (3 - uVar2) * 8 | pmxW1 & 0xffffffffU >> (uVar2 + 1) * 8) &
-              -1 << (4 - uVar3) * 8 | *(u_int *)((shapeData_p + 4U) - uVar3) >> uVar3 * 8;
-      uVar2 = shapeData_p + 0xbU & 3;
-      uVar3 = shapeData_p + 8U & 3;
-      pmxW2 = (*(int *)((shapeData_p + 0xbU) - uVar2) << (3 - uVar2) * 8 |
-              pmxW2 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar3) * 8 |
-              *(u_int *)((shapeData_p + 8U) - uVar3) >> uVar3 * 8;
-      uVar2 = shapeData_p + 0xfU & 3;
-      uVar3 = shapeData_p + 0xcU & 3;
-      pmxW3 = (*(int *)((shapeData_p + 0xfU) - uVar2) << (3 - uVar2) * 8 |
-              pmxW3 & 0xffffffffU >> (uVar2 + 1) * 8) & -1 << (4 - uVar3) * 8 |
-              *(u_int *)((shapeData_p + 0xcU) - uVar3) >> uVar3 * 8;
-      puVar1 = (u_char *)((int)&originalPmx.clut + 1);
-      uVar2 = (u_int)puVar1 & 3;
-      tp5 = (int)puVar1 - uVar2;
-      *(u_int *)tp5 = *(u_int *)tp5 & -1 << (uVar2 + 1) * 8 | (u_int)pmxW0 >> (3 - uVar2) * 8;
-      puVar1 = (u_char *)((int)&originalPmx.tpage + 1);
-      uVar2 = (u_int)puVar1 & 3;
-      puVar4 = (u_int *)(puVar1 + -uVar2);
-      *puVar4 = *puVar4 & -1 << (uVar2 + 1) * 8 | (u_int)pmxW1 >> (3 - uVar2) * 8;
-      originalPmx.u1 = (char)pmxW1;
-      originalPmx.v1 = (char)((u_int)pmxW1 >> 8);
-      originalPmx.tpage = (short)((u_int)pmxW1 >> 0x10);
-      puVar1 = (u_char *)((int)&originalPmx.pad2 + 1);
-      uVar2 = (u_int)puVar1 & 3;
-      puVar4 = (u_int *)(puVar1 + -uVar2);
-      *puVar4 = *puVar4 & -1 << (uVar2 + 1) * 8 | (u_int)pmxW2 >> (3 - uVar2) * 8;
-      originalPmx.u2 = (char)pmxW2;
-      originalPmx.v2 = (char)((u_int)pmxW2 >> 8);
-      originalPmx.pad2 = (short)((u_int)pmxW2 >> 0x10);
-      puVar1 = (u_char *)((int)&originalPmx.flag + 1);
-      uVar2 = (u_int)puVar1 & 3;
-      puVar4 = (u_int *)(puVar1 + -uVar2);
-      *puVar4 = *puVar4 & -1 << (uVar2 + 1) * 8 | (u_int)pmxW3 >> (3 - uVar2) * 8;
-      (*(int *)&(originalPmx)) = pmxW0;
-      (*(int *)((u_char *)&(originalPmx) + 12)) = pmxW3;
+      originalPmx = art->pPmx[shapeIndex + anim_iter];
       Track_ProcessFlipAndUVFlags((u_int)inputMat->uvFlag,&originalPmx,art->pPmx + art->pmxCount);
       if (anim_iter == 0) {
         outputMat->pmxIndex = (short)art->pmxCount;
       }
       art->pmxCount = art->pmxCount + 1;
     }
+    else {
+      uvFlag = (u_short)inputMat->shapeIndex;
+      if ((inputMat->flag & 2) != 0) {
+        iVar5 = Track_GetProperMultiPalShapeIndex((u_int)uvFlag,(u_int)inputMat->interval);
+        uvFlag = (u_short)iVar5;
+      }
+      if (anim_iter == 0) {
+        outputMat->pmxIndex = uvFlag;
+      }
+    }
+    anim_iter = anim_iter + 1;
+    goto TrkAssoc_loopTest;
   }
   return;
 }
@@ -794,7 +571,7 @@ void Track_LinkMaterials(SerializedGroup *group,int length,Track_tMaterial *matL
   int iVar20;
   Draw_tPixMap originalPmx;
   int matCount;
-  
+
   if (group != (SerializedGroup *)0x0) {
     iVar18 = 0;
     inputMat = group + 1;
@@ -823,7 +600,17 @@ void Track_LinkMaterials(SerializedGroup *group,int length,Track_tMaterial *matL
       uVar16 = uVar14;
       Track_AssociateSingleMaterial((Trk_Material *)inputMat,matList,&gInitialArt);
       bVar2 = *(u_char *)((int)&inputMat->m_type + 2);
-      if ((bVar2 & 4) == 0) {
+      if ((bVar2 & 4) != 0) {
+        pTVar7 = Track_gMatController + iVar18;
+        pTVar7->type = (u_short)bVar2;
+        pTVar7->interval = (u_char)inputMat->dummy;
+        Track_gMatController[iVar18].textureCount = *(char *)((int)&inputMat->m_length + 3);
+        pTVar7 = Track_gMatController;
+        Track_gMatController[iVar18].pmxIndex = matList->pmxIndex;
+        pTVar7[iVar18].matPtr = matList;
+        iVar20 = iVar18 + 1;
+      }
+      else {
         iVar20 = iVar18;
         if ((bVar2 & 0x80) != 0) {
           Track_gMatController[iVar18].type = (u_short)*(u_char *)((int)&inputMat->m_type + 2);
@@ -849,16 +636,6 @@ void Track_LinkMaterials(SerializedGroup *group,int length,Track_tMaterial *matL
           Track_gMatController[iVar18].textureMax = (char)iVar17 + '\x01';
         }
       }
-      else {
-        pTVar7 = Track_gMatController + iVar18;
-        pTVar7->type = (u_short)bVar2;
-        pTVar7->interval = (u_char)inputMat->dummy;
-        Track_gMatController[iVar18].textureCount = *(char *)((int)&inputMat->m_length + 3);
-        pTVar7 = Track_gMatController;
-        Track_gMatController[iVar18].pmxIndex = matList->pmxIndex;
-        pTVar7[iVar18].matPtr = matList;
-        iVar20 = iVar18 + 1;
-      }
       iVar18 = 0;
       if (TrackSpec_gSpec.fogstate != 0) {
         iVar17 = 0;
@@ -874,54 +651,7 @@ void Track_LinkMaterials(SerializedGroup *group,int length,Track_tMaterial *matL
             }
             else {
               pDVar8 = gInitialArt.pPmx + iVar12 + iVar10;
-              puVar1 = (u_char *)((int)&pDVar8->clut + 1);
-              uVar4 = (u_int)puVar1 & 3;
-              uVar5 = (u_int)pDVar8 & 3;
-              pmxLnkW0 = (*(int *)(puVar1 + -uVar4) << (3 - uVar4) * 8 |
-                      pmxLnkW0 & 0xffffffffU >> (uVar4 + 1) * 8) & -1 << (4 - uVar5) * 8 |
-                      *(u_int *)((int)pDVar8 - uVar5) >> uVar5 * 8;
-              puVar1 = (u_char *)((int)&pDVar8->tpage + 1);
-              uVar4 = (u_int)puVar1 & 3;
-              uVar5 = (u_int)&pDVar8->u1 & 3;
-              uVar15 = (*(int *)(puVar1 + -uVar4) << (3 - uVar4) * 8 |
-                       uVar15 & 0xffffffffU >> (uVar4 + 1) * 8) & -1 << (4 - uVar5) * 8 |
-                       *(u_int *)(&pDVar8->u1 + -uVar5) >> uVar5 * 8;
-              puVar1 = (u_char *)((int)&pDVar8->pad2 + 1);
-              uVar4 = (u_int)puVar1 & 3;
-              uVar5 = (u_int)&pDVar8->u2 & 3;
-              pmxLnkW2 = (*(int *)(puVar1 + -uVar4) << (3 - uVar4) * 8 |
-                      pmxLnkW2 & 0xffffffffU >> (uVar4 + 1) * 8) & -1 << (4 - uVar5) * 8 |
-                      *(u_int *)(&pDVar8->u2 + -uVar5) >> uVar5 * 8;
-              puVar1 = (u_char *)((int)&pDVar8->flag + 1);
-              uVar4 = (u_int)puVar1 & 3;
-              uVar5 = (u_int)&pDVar8->u3 & 3;
-              uVar16 = (*(int *)(puVar1 + -uVar4) << (3 - uVar4) * 8 |
-                       uVar16 & 0xffffffffU >> (uVar4 + 1) * 8) & -1 << (4 - uVar5) * 8 |
-                       *(u_int *)(&pDVar8->u3 + -uVar5) >> uVar5 * 8;
-              puVar1 = (u_char *)((int)&originalPmx.clut + 1);
-              uVar4 = (u_int)puVar1 & 3;
-              puVar6 = (u_int *)(puVar1 + -uVar4);
-              *puVar6 = *puVar6 & -1 << (uVar4 + 1) * 8 | pmxLnkW0 >> (3 - uVar4) * 8;
-              puVar1 = (u_char *)((int)&originalPmx.tpage + 1);
-              uVar4 = (u_int)puVar1 & 3;
-              puVar6 = (u_int *)(puVar1 + -uVar4);
-              *puVar6 = *puVar6 & -1 << (uVar4 + 1) * 8 | uVar15 >> (3 - uVar4) * 8;
-              originalPmx.u1 = (char)uVar15;
-              originalPmx.v1 = (char)(uVar15 >> 8);
-              originalPmx.tpage = (short)(uVar15 >> 0x10);
-              puVar1 = (u_char *)((int)&originalPmx.pad2 + 1);
-              uVar4 = (u_int)puVar1 & 3;
-              puVar6 = (u_int *)(puVar1 + -uVar4);
-              *puVar6 = *puVar6 & -1 << (uVar4 + 1) * 8 | pmxLnkW2 >> (3 - uVar4) * 8;
-              originalPmx.u2 = (char)pmxLnkW2;
-              originalPmx.v2 = (char)(pmxLnkW2 >> 8);
-              originalPmx.pad2 = (short)(pmxLnkW2 >> 0x10);
-              puVar1 = (u_char *)((int)&originalPmx.flag + 1);
-              uVar4 = (u_int)puVar1 & 3;
-              puVar6 = (u_int *)(puVar1 + -uVar4);
-              *puVar6 = *puVar6 & -1 << (uVar4 + 1) * 8 | uVar16 >> (3 - uVar4) * 8;
-              (*(int *)&(originalPmx)) = pmxLnkW0;
-              (*(int *)((u_char *)&(originalPmx) + 12)) = uVar16;
+              originalPmx = *pDVar8;
               Track_ProcessFlipAndUVFlags((u_int)*(u_char *)((int)&inputMat->m_type + 3),&originalPmx,
                          gInitialArt.pPmx + gInitialArt.pmxCount);
               gInitialArt.pmxCount = gInitialArt.pmxCount + 1;
@@ -949,49 +679,48 @@ void Track_LinkMaterials(SerializedGroup *group,int length,Track_tMaterial *matL
 void ReduceObjectPrecision(Group *instGroup,Group *defGroup,int bits)
 
 {
-  short sVar1;
-  short sVar2;
   Trk_ObjectDef **ppTVar3;
-  Trk_ObjectDef *objDef;
   Trk_ObjectDef *pTVar4;
-  short tu5;
-  Group *pThis;
-  Trk_ObjectDef *pTVar5;
-  CCOORD16 *pts;
-  Trk_ObjectDef *pTVar6;
+  short *p0;
   u_int uVar7;
   Trk_SimpleInst *inst;
   int count;
   int iVar8;
-  
-  ppTVar3 = Track_gObjDefs;
-  inst = (Trk_SimpleInst *)(instGroup + 1);
+  int negOne;
+  short t0v;
+  short t1v;
+  short t2v;
+
   if (instGroup != (Group *)0x0) {
+    inst = (Trk_SimpleInst *)(instGroup + 1);
+    negOne = -1;
     iVar8 = instGroup->m_num_elements;
-    while (iVar8 = iVar8 + -1, iVar8 != -1) {
+    ppTVar3 = Track_gObjDefs;
+ReduceObjPrec_outerTest:
+    iVar8 = iVar8 - 1;
+    if (iVar8 != negOne) {
       if (defGroup != (Group *)0x0) {
         pTVar4 = ppTVar3[inst->pad];
-        pTVar6 = pTVar4 + 1;
+        p0 = (short *)(pTVar4 + 1);
         uVar7 = (u_int)pTVar4->vertexCount;
-        while( true ) {
-          pTVar5 = pTVar4 + 2;
-          uVar7 = uVar7 - 1;
-          if (uVar7 == 0xffffffff) break;
-          ((u_char *)&(sVar1))[0] = pTVar4[1].vertexCount;
-          ((u_char *)&(sVar1))[1] = pTVar4[1].quadCount;
-          sVar2 = pTVar5->id;
-          pTVar6->id = (short)((int)pTVar6->id >> (bits));
-          tu5 = (short)((int)sVar1 >> (bits));
-          ((u_char *)&(tu5))[0] = (u_char)tu5;
-          ((u_char *)&(tu5))[1] = (u_char)((u_short)tu5 >> 8);
-          pTVar4[1].vertexCount = (u_char)tu5;
-          pTVar4[1].quadCount = ((u_char *)&(tu5))[1];
-          pTVar5->id = (short)((int)sVar2 >> (bits));
-          pTVar6 = pTVar6 + 2;
-          pTVar4 = pTVar5;
+ReduceObjPrec_innerTest:
+        uVar7 = uVar7 - 1;
+        if (uVar7 != (u_int)negOne) {
+          t0v = *p0;
+          t1v = *(short *)((char *)p0 + 2);
+          t2v = *(short *)((char *)p0 + 4);
+          t0v = (short)((int)t0v >> (bits));
+          t1v = (short)((int)t1v >> (bits));
+          t2v = (short)((int)t2v >> (bits));
+          *p0 = t0v;
+          *(short *)((char *)p0 + 2) = t1v;
+          *(short *)((char *)p0 + 4) = t2v;
+          p0 = (short *)((char *)p0 + 8);
+          goto ReduceObjPrec_innerTest;
         }
       }
       inst = (Trk_SimpleInst *)((int)&inst->size + (int)inst->size);
+      goto ReduceObjPrec_outerTest;
     }
   }
   return;
@@ -1053,7 +782,11 @@ void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
   int objCount;
   int iVar17;
   coorddef cp;
-  
+  int qx;
+  int qy;
+  int qz;
+
+
   pGVar16 = boundingSphereGroup + 1;
   tp15 = (void *)((int)&boundingSphereGroup[2].m_num_elements + 2);
   iVar17 = defGroup->m_num_elements;
@@ -1069,26 +802,25 @@ void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
       psVar3 = &pTVar12->id;
       pTVar12 = pTVar12 + 2;
       cp.x = cp.x + *psVar3;
-      ((u_char *)&(sVar1))[0] = pTVar13[1].vertexCount;
-      ((u_char *)&(sVar1))[1] = pTVar13[1].quadCount;
-      cp.y = cp.y + sVar1;
+      cp.y = cp.y + *(short *)&pTVar13[1].vertexCount;
       cp.z = cp.z + pTVar13[2].id;
       pTVar13 = pTVar13 + 2;
     }
     uVar10 = (u_int)pTVar9->vertexCount;
     uVar4 = (u_int)pTVar9->vertexCount;
     uVar5 = (u_int)pTVar9->vertexCount;
+    qx = cp.x / (int)uVar10;
+    qy = cp.y / (int)uVar4;
+    qz = cp.z / (int)uVar5;
     pTVar13 = pTVar9 + 1;
     iVar14 = 0;
     uVar11 = (u_int)pTVar9->vertexCount;
     while( true ) {
       uVar11 = uVar11 - 1;
       if (uVar11 == 0xffffffff) break;
-      iVar6 = cp.x / (int)uVar10 - (int)pTVar13->id >> 6;
-      ((u_char *)&(sVar2))[0] = pTVar9[1].vertexCount;
-      ((u_char *)&(sVar2))[1] = pTVar9[1].quadCount;
-      iVar7 = cp.y / (int)uVar4 - (int)sVar2 >> 6;
-      iVar8 = cp.z / (int)uVar5 - (int)pTVar9[2].id >> 6;
+      iVar6 = qx - (int)pTVar13->id >> 6;
+      iVar7 = qy - (int)(*(short *)&pTVar9[1].vertexCount) >> 6;
+      iVar8 = qz - (int)pTVar9[2].id >> 6;
       iVar6 = iVar6 * iVar6 + iVar7 * iVar7 + iVar8 * iVar8;
       if (iVar14 < iVar6) {
         iVar14 = iVar6;
@@ -1096,11 +828,11 @@ void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
       pTVar13 = pTVar13 + 2;
       pTVar9 = pTVar9 + 2;
     }
-    (*(u_short *)&(cp.x)) = (u_short)(cp.x / (int)uVar10);
+    (*(u_short *)&(cp.x)) = (u_short)qx;
     *(u_short *)&pGVar16->m_num_elements = (u_short)cp.x;
-    (*(u_short *)&(cp.y)) = (u_short)(cp.y / (int)uVar4);
+    (*(u_short *)&(cp.y)) = (u_short)qy;
     *(u_short *)((int)tp15 + -4) = (u_short)cp.y;
-    (*(u_short *)&(cp.z)) = (u_short)(cp.z / (int)uVar5);
+    (*(u_short *)&(cp.z)) = (u_short)qz;
     pGVar16 = pGVar16 + 2;
     *(u_short *)((int)tp15 + -2) = (u_short)cp.z;
     uVar10 = fixedsqrt(iVar14 << 10);
@@ -1125,10 +857,13 @@ void CalcObjDefPtrs(void)
   pGVar2 = gPersistObjDef;
   iVar4 = 1;
   pGVar3 = gObjDefOffsetsGroup + 2;
-  gObjDefOffsetsGroup[1].m_num_elements = (int)(gPersistObjDef + 1);
-  while (bVar1 = iVar4 < pGVar2->m_num_elements, iVar4 = iVar4 + 1, bVar1) {
+  gObjDefOffsetsGroup[1].m_num_elements = (int)(pGVar2 + 1);
+CalcObjDefPtrs_loopTest:
+  if (iVar4 < pGVar2->m_num_elements) {
+    iVar4 = iVar4 + 1;
     pGVar3->m_num_elements = pGVar3[-1].m_num_elements + pGVar3->m_num_elements;
     pGVar3 = pGVar3 + 1;
+    goto CalcObjDefPtrs_loopTest;
   }
   Track_gObjDefs = (Trk_ObjectDef **)(gObjDefOffsetsGroup + 1);
   return;
@@ -1153,7 +888,7 @@ void Track_InitPersistentData(SerializedGroup *perGroup)
   gObjDefOffsetsGroup = (Group *)0x0;
   tp3 = (char *)__builtin_alloca((((u_int)(perGroup->m_num_elements << 5) >> 3) + 7 & 0xfffffff8));
   tp4 = tp3;
-  if (0 < perGroup->m_num_elements) {
+  if (0 < *(volatile int *)&perGroup->m_num_elements) {
     do {
       pSVar1 = (perGroup)->LocateGroupNum(iVar2);
       *(SerializedGroup **)tp4 = pSVar1;
@@ -1164,13 +899,8 @@ void Track_InitPersistentData(SerializedGroup *perGroup)
   (perGroup)->LocateGroupType(8,0);
   iVar3 = perGroup->m_num_elements;
   iVar2 = 0;
-  do {
-    if (iVar3 <= iVar2) {
-      if (gObjDefOffsetsGroup != (Group *)0x0) {
-        CalcObjDefPtrs();
-      }
-      return;
-    }
+TrkInitPersist_loopTest:
+  if (iVar2 < iVar3) {
     switch(**(u_int **)tp3) {
     case 2:
       Track_LinkMaterials(*(SerializedGroup **)tp3,(*(SerializedGroup **)tp3)->m_length + -0x10,
@@ -1199,7 +929,12 @@ void Track_InitPersistentData(SerializedGroup *perGroup)
     }
     tp3 = (void *)((int)tp3 + 4);
     iVar2 = iVar2 + 1;
-  } while( true );
+    goto TrkInitPersist_loopTest;
+  }
+  if (gObjDefOffsetsGroup != (Group *)0x0) {
+    CalcObjDefPtrs();
+  }
+  return;
 }
 
 /* ---- Track_Init__FPc  [TRACK.CPP:1312-1475] SLD-VERIFIED ---- */
@@ -1315,31 +1050,10 @@ void Track_Init(char *tempName)
   pCVar5 = Chunk_lightTable;
   if ((((u_int)tp7 | (u_int)Chunk_lightTable) & 3) == 0) {
     do {
-      ((u_char *)&(tu9))[0] = ((CVECTOR *)((int)tp7 + 4))->r;
-      ((u_char *)&(tu9))[1] = ((CVECTOR *)((int)tp7 + 4))->g;
-      ((u_char *)&(tu9))[2] = ((CVECTOR *)((int)tp7 + 4))->b;
-      ((u_char *)&(tu9))[3] = ((CVECTOR *)((int)tp7 + 4))->cd;
-      ((u_char *)&(tu10))[0] = ((CVECTOR *)((int)tp7 + 8))->r;
-      ((u_char *)&(tu10))[1] = ((CVECTOR *)((int)tp7 + 8))->g;
-      ((u_char *)&(tu10))[2] = ((CVECTOR *)((int)tp7 + 8))->b;
-      ((u_char *)&(tu10))[3] = ((CVECTOR *)((int)tp7 + 8))->cd;
-      ((u_char *)&(tu11))[0] = ((CVECTOR *)((int)tp7 + 0xc))->r;
-      ((u_char *)&(tu11))[1] = ((CVECTOR *)((int)tp7 + 0xc))->g;
-      ((u_char *)&(tu11))[2] = ((CVECTOR *)((int)tp7 + 0xc))->b;
-      ((u_char *)&(tu11))[3] = ((CVECTOR *)((int)tp7 + 0xc))->cd;
-      *pCVar5 = *(CVECTOR *)tp7;
-      pCVar5[1].r = (u_char)tu9;
-      pCVar5[1].g = (char)((u_int)tu9 >> 8);
-      pCVar5[1].b = (char)((u_int)tu9 >> 0x10);
-      pCVar5[1].cd = (char)((u_int)tu9 >> 0x18);
-      pCVar5[2].r = (u_char)tu10;
-      pCVar5[2].g = (char)((u_int)tu10 >> 8);
-      pCVar5[2].b = (char)((u_int)tu10 >> 0x10);
-      pCVar5[2].cd = (char)((u_int)tu10 >> 0x18);
-      pCVar5[3].r = (u_char)tu11;
-      pCVar5[3].g = (char)((u_int)tu11 >> 8);
-      pCVar5[3].b = (char)((u_int)tu11 >> 0x10);
-      pCVar5[3].cd = (char)((u_int)tu11 >> 0x18);
+      ((u_int *)pCVar5)[0] = ((u_int *)tp7)[0];
+      ((u_int *)pCVar5)[1] = ((u_int *)tp7)[1];
+      ((u_int *)pCVar5)[2] = ((u_int *)tp7)[2];
+      ((u_int *)pCVar5)[3] = ((u_int *)tp7)[3];
       tp7 = (void *)((int)tp7 + 0x10);
       pCVar5 = pCVar5 + 4;
     } while (tp7 != (CVECTOR *)(geomSubGrp + 0x410));
@@ -1533,6 +1247,7 @@ void Track_LoadObjectKillData(void)
   Group * group;
   Group *simGroup;
   int *filePtr_00;
+  int entryInd;
   int iVar1;
   int index;
   int iVar2;
@@ -1547,17 +1262,18 @@ void Track_LoadObjectKillData(void)
   int numElements;
   int iVar5;
   int i;
-  int entryInd;
   char *filePtr;
   int chunkInd;
   int objInd;
-  
+
   filePtr_00 = (int *)KillFile_OpenRead();
   entryInd = 0;
   if (filePtr_00 != (int *)0x0) {
-    for (; entryInd < *filePtr_00; entryInd = entryInd + 1) {
+TrkKill_loopTest:
+    if (entryInd < *filePtr_00) {
       KillFile_ReadEntry((char *)filePtr_00,entryInd,chunkInd,objInd);
-      pGVar3 = Track_chunkList[chunkInd].objInstanceBuf;
+      chunkDat = Track_chunkList + chunkInd;
+      pGVar3 = chunkDat->objInstanceBuf;
       if ((pGVar3 != (Group *)0x0) && (pGVar4 = pGVar3 + 1, objInd < pGVar3->m_num_elements)) {
         iVar2 = 0;
         if (0 < objInd) {
@@ -1566,7 +1282,7 @@ void Track_LoadObjectKillData(void)
             pGVar4 = (Group *)((int)&pGVar4->m_num_elements + (int)(short)pGVar4->m_num_elements);
           } while (iVar2 < objInd);
         }
-        pGVar3 = Track_chunkList[chunkInd].simObjBuf;
+        pGVar3 = chunkDat->simObjBuf;
         iVar2 = 0;
         if (pGVar3 != (Group *)0x0) {
           iVar5 = pGVar3->m_num_elements;
@@ -1585,6 +1301,8 @@ void Track_LoadObjectKillData(void)
         *(u_char *)((int)&pGVar4->m_num_elements + 2) =
              *(u_char *)((int)&pGVar4->m_num_elements + 2) | 0x80;
       }
+      entryInd = entryInd + 1;
+      goto TrkKill_loopTest;
     }
     purgememadr(filePtr_00);
   }

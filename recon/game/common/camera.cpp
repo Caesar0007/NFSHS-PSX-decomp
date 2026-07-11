@@ -17,7 +17,11 @@ coorddef     gDriverCam[28] = { {-23592, 26869, -17039}, {-23592, 26869, -17039}
 int          camSpeedTable[7] = { 64225, 60948, 56360, 52428, 47841, 43253, 39321 };   /* @0x8010f7d0 */
 coorddef     feeler3[3] = { {0, 0, 137625}, {-117964, 0, -72089}, {117964, 0, -72089} };   /* @0x8010f7ec */
 int          Camera_gCopDist[6];   /* @0x8010f810  (bss(zero)) */
-long Camera_gGeomScreen[2] = {190, 0};  /* @0x8013c7dc SYM size0 degraded; [2] per next-sym frontLimit@+8 */   /* @0x8013c7dc */
+long Camera_gGeomScreen = 190;  /* @0x8013c7dc scalar -- confirmed by oracle: every SetCameraZoom/UpdateBTCopCam/Init/SetMode/
+   NextMode/ReplayUpdate site does exactly ONE %gp_rel word store, never a paired +4 store; every OTHER
+   TU's extern decl (cars_externs.h, hrzsku_externs.h, trsproj_externs.h) already declares it `long`
+   scalar, not an array. The stray "[2]"/"[1]=0" writes were a prior session's mis-guess from the SYM's
+   size-0 + the next-symbol (frontLimit@+8) gap; frontLimit is link-layout-adjacent, not Camera_gGeomScreen[1]. */
 coorddef     gCop1Target[2];   /* @0x8013dff0  (bss?) */
 
 
@@ -65,18 +69,14 @@ void Camera_ResetRelPos(int bitMask);
 /* ---- EulerToMat__FP10matrixtdefiii  [@0x8008060c] ---- */
 void EulerToMat(matrixtdef *m,int ax,int ay,int az)
 {
-  matrixtdef mx;
-  matrixtdef my;
-  matrixtdef mz;
-  matrixtdef mt;
-  int iVar1;
-  int iVar2;
-  int iVar3;
   matrixtdef mStack_b8;
   matrixtdef mStack_90;
   matrixtdef mStack_68;
   matrixtdef local_40;
-  
+  int iVar1;
+  int iVar2;
+  int iVar3;
+
   fixedxformx((int)&mStack_b8,(int *)ax);
   fixedxformy((int)&mStack_90,(int *)ay);
   fixedxformz((int)&mStack_68,(int *)az);
@@ -120,12 +120,6 @@ void Camera_LookBack(matrixtdef *src,matrixtdef *tgt)
 /* ---- Camera_TunnelLimit__FiPi  [@0x800807c4] ---- */
 void Camera_TunnelLimit(int player,int *armheight)
 {
-  BWorldSm_Pos*slicePos;
-  coorddef quadnormal;
-  coorddef underCam;
-  int roadheight;
-  int track;
-  int maxheight;
   bool bVar1;
   void *pvVar2;
   coorddef *pcVar3;
@@ -133,7 +127,7 @@ void Camera_TunnelLimit(int player,int *armheight)
   int iVar5;
   coorddef local_38;
   coorddef local_28;
-  
+
   bVar1 = false;
   pvVar2 = BWorldSm_TunnelFlagSm(&Camera_gInfo[player].slicePos);
   if ((pvVar2 != (void *)0x0) ||
@@ -142,12 +136,8 @@ void Camera_TunnelLimit(int player,int *armheight)
   }
   if (bVar1) {
     pcVar3 = BWorldSm_UNormal(&Camera_gInfo[player].slicePos);
-    local_38.x = pcVar3->x;
-    local_38.y = pcVar3->y;
-    local_38.z = pcVar3->z;
-    local_28.x = Camera_gInfo[player].position.x;
-    local_28.y = Camera_gInfo[player].position.y;
-    local_28.z = Camera_gInfo[player].position.z;
+    local_38 = *pcVar3;
+    local_28 = Camera_gInfo[player].position;
     iVar4 = Newton_FindGroundElevationGeneral(&local_28,&local_38,Camera_gInfo[player].slicePos.quadPts);
     iVar5 = GameSetup_gData.track;
     if (0xf < GameSetup_gData.track) {
@@ -221,25 +211,15 @@ void Camera_UpdateSimpleCam(int player)
   coorddef newarm;
   short sVar1;
   BO_tNewtonObj *pBVar2;
-  Camera_tInfo *pCVar3;
-  int local_38;
-  int local_34;
-  int local_30;
-  int local_28;
-  int local_24;
-  int local_20;
-  
-  pCVar3 = Camera_gInfo + player;
+
   sVar1 = Camera_gInfo[player].mode;
-  local_38 = Camera_gFlags[sVar1].arm.x;
-  local_34 = Camera_gFlags[sVar1].arm.y;
-  local_30 = Camera_gFlags[sVar1].arm.z;
-  transform(&local_38,(pCVar3->anchor->orientMat).m,&local_28);
-  Camera_TunnelLimit(player,&local_24);
-  pBVar2 = pCVar3->anchor;
-  Camera_gInfo[player].position.x = (pCVar3->anchor->position).x + local_28;
-  Camera_gInfo[player].position.y = (pBVar2->position).y + local_24;
-  Camera_gInfo[player].position.z = (pBVar2->position).z + local_20;
+  arm = Camera_gFlags[sVar1].arm;
+  transform((int *)&arm,Camera_gInfo[player].anchor->orientMat.m,(int *)&newarm);
+  Camera_TunnelLimit(player,&newarm.y);
+  pBVar2 = Camera_gInfo[player].anchor;
+  Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + newarm.x;
+  Camera_gInfo[player].position.y = pBVar2->position.y + newarm.y;
+  Camera_gInfo[player].position.z = pBVar2->position.z + newarm.z;
   Camera_LookBack(&pBVar2->orientMat,&Camera_gInfo[player].rotation);
   return;
 }
@@ -833,29 +813,28 @@ void Camera_UpdateCircleCam(int player)
 /* ---- SetCameraZoom__Fii  [@0x80081d38] ---- */
 void SetCameraZoom(int player,int targetDist)
 {
-  u_int uVar1;
-  
-  if (Camera_gInfo[player].splitscreen == 0) {
-    if (0x3000 < targetDist) {
-      uVar1 = Camera_gInfo[player].zooming;
-      if (uVar1 == 1) {
-        (*(int *)&(Camera_gGeomScreen)) = (targetDist * 0xbe) / 0x3000;
-      }
-      else if (((uVar1 == 2) &&
-               ((*(int *)&(Camera_gGeomScreen)) = (targetDist * 0xbe) / 0x3000,
-               0x4b0 < (int)(*(int *)&(Camera_gGeomScreen)))) &&
-              ((*(int *)&(Camera_gGeomScreen)) = 6000 - (*(int *)&(Camera_gGeomScreen)) >> 2,
-              (int)(*(int *)&(Camera_gGeomScreen)) < 0x2ee)) {
-        Camera_gGeomScreen[0] = 0x2ee;
-        Camera_gGeomScreen[1] = 0;
+  int gs;
+
+  if (Camera_gInfo[player].splitscreen != 0) {
+    Camera_gGeomScreen = 0xbe;
+  }
+  else if (0x3000 < targetDist) {
+    if (Camera_gInfo[player].zooming == 1) {
+      Camera_gGeomScreen = targetDist * 0xbe / 0x3000;
+    }
+    else if (Camera_gInfo[player].zooming == 2) {
+      gs = targetDist * 0xbe / 0x3000;
+      Camera_gGeomScreen = gs;
+      if (0x4b0 < gs) {
+        gs = (6000 - gs) >> 2;
+        if (gs < 0x2ee) {
+          gs = 0x2ee;
+        }
+        Camera_gGeomScreen = gs;
       }
     }
   }
-  else {
-    Camera_gGeomScreen[0] = 0xbe;
-    Camera_gGeomScreen[1] = 0;
-  }
-  SetGeomScreen((*(int *)&(Camera_gGeomScreen)));
+  SetGeomScreen(Camera_gGeomScreen);
   return;
 }
 
@@ -868,16 +847,17 @@ void Camera_UpdateTVCam(int player)
   int height;
   int iVar1;
   int iVar2;
-  coorddef *b;
+  int dist4;
 
-  b = &Camera_gInfo[player].position;
-  iVar1 = Math_Dist3D(&(Camera_gInfo[player].target)->position,b);
-  if (iVar1 < 1) {
-    iVar1 = Math_Dist3D(&(Camera_gInfo[player].target)->position,b);
-    iVar1 = -iVar1;
+  iVar1 = Math_Dist3D(&(Camera_gInfo[player].target)->position,&Camera_gInfo[player].position);
+  if (0 < iVar1) {
+    iVar1 = Math_Dist3D(&(Camera_gInfo[player].target)->position,&Camera_gInfo[player].position);
+    dist4 = iVar1 >> 4;
   }
   else {
-    iVar1 = Math_Dist3D(&(Camera_gInfo[player].target)->position,b);
+    iVar1 = Math_Dist3D(&(Camera_gInfo[player].target)->position,&Camera_gInfo[player].position);
+    iVar1 = -iVar1;
+    dist4 = iVar1 >> 4;
   }
   iVar2 = Camera_gInfo[player].position.x;
   /* @0x80081EC4-F14: TWO distinct fn-statics indexed by player*4 -- lastX[2]@0x8013DD88 and
@@ -887,7 +867,7 @@ void Camera_UpdateTVCam(int player)
     lastX[player] = iVar2;
     lastY[player] = Camera_gInfo[player].position.y;
   }
-  iVar2 = fixedmult(Camera_gInfo[player].TVHeight >> 2,(iVar1 >> 4) + -0x4000);
+  iVar2 = fixedmult(Camera_gInfo[player].TVHeight >> 2,dist4 + -0x4000);
   if (Camera_gInfo[player].TVHeight < iVar2) {
     iVar2 = Camera_gInfo[player].TVHeight;
   }
@@ -895,7 +875,7 @@ void Camera_UpdateTVCam(int player)
     iVar2 = 0;
   }
   Camera_gInfo[player].position.y = lastY[player] + iVar2;   /* @0x80081F64 read lastY[player] */
-  SetCameraZoom(player,iVar1 >> 4);
+  SetCameraZoom(player,dist4);
   return;
 }
 
@@ -985,34 +965,27 @@ void Camera_UpdateAnimCam(int player)
 /* ---- Camera_UpdateFinishCam__Fi  [@0x80082254] ---- */
 void Camera_UpdateFinishCam(int player)
 {
-  coorddef finishPos;
   coorddef newarm;
-  matrixtdef finishRot;
   int iVar1;
   AnimScript *pThis;
   BO_tNewtonObj *pBVar2;
-  Camera_tInfo *pCVar3;
   coorddef cStack_60;
-  int local_50;
-  int local_4c;
-  int local_48;
   matrixtdef mStack_40;
-  
-  pCVar3 = Camera_gInfo + player;
-  if (Camera_gInfo[player].animHandle == -1) {
+
+  if ((signed char)Camera_gInfo[player].animHandle == -1) {
     iVar1 = Anim_Handle(1);
     Camera_gInfo[player].animHandle = (char)iVar1;
   }
-  pThis = Anim_GetAnim((int)Camera_gInfo[player].animHandle);
+  pThis = Anim_GetAnim((int)(signed char)Camera_gInfo[player].animHandle);
   iVar1 = pThis->GetTimedAnimPosRot(&cStack_60,&mStack_40);
   if (iVar1 < 1) {
     Anim_GetLastAnimPosRot(1,6,&cStack_60,&mStack_40);
   }
-  transform(&cStack_60,(pCVar3->anchor->orientMat).m,&local_50);
-  pBVar2 = pCVar3->anchor;
-  Camera_gInfo[player].position.x = (pCVar3->anchor->position).x + local_50;
-  Camera_gInfo[player].position.y = (pBVar2->position).y + local_4c;
-  Camera_gInfo[player].position.z = (pBVar2->position).z + local_48;
+  transform((int *)&cStack_60,Camera_gInfo[player].anchor->orientMat.m,(int *)&newarm);
+  Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + newarm.x;
+  Camera_gInfo[player].position.y = Camera_gInfo[player].anchor->position.y + newarm.y;
+  pBVar2 = Camera_gInfo[player].anchor;
+  Camera_gInfo[player].position.z = pBVar2->position.z + newarm.z;
   Math_fasttransmult(&mStack_40,&pBVar2->orientMat,&Camera_gInfo[player].rotation);
   *(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) =
        *(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) & 0xfffffff1 | 0x70;
@@ -1023,35 +996,27 @@ void Camera_UpdateFinishCam(int player)
 void Camera_UpdateBlimpCam(int player)
 {
   coorddef arm;
-  coorddef oldarm;
+  coorddef delta;
   short sVar1;
   BO_tNewtonObj *pBVar2;
   int iVar3;
-  Camera_tInfo *pCVar4;
-  int local_24;
-  int local_20;
-  int local_18;
-  int local_14;
-  int local_10;
-  
-  pCVar4 = Camera_gInfo + player;
+
   sVar1 = Camera_gInfo[player].mode;
-  iVar3 = Camera_gFlags[sVar1].arm.x;
-  local_24 = Camera_gFlags[sVar1].arm.y;
-  local_20 = Camera_gFlags[sVar1].arm.z;
-  Camera_TunnelLimit(player,&local_24);
-  local_18 = Camera_gInfo[player].position.x - (pCVar4->anchor->position).x;
-  local_14 = Camera_gInfo[player].position.y - (pCVar4->anchor->position).y;
-  local_10 = Camera_gInfo[player].position.z - (pCVar4->anchor->position).z;
-  iVar3 = fixedmult(iVar3 - local_18,0x1999);
-  local_18 = local_18 + iVar3;
-  iVar3 = fixedmult(local_24 - local_14,0x1999);
-  local_14 = local_14 + iVar3;
-  iVar3 = fixedmult(local_20 - local_10,0x1999);
-  pBVar2 = pCVar4->anchor;
-  Camera_gInfo[player].position.x = (pCVar4->anchor->position).x + local_18;
-  Camera_gInfo[player].position.y = (pBVar2->position).y + local_14;
-  Camera_gInfo[player].position.z = (pBVar2->position).z + local_10 + iVar3;
+  arm = Camera_gFlags[sVar1].arm;
+  Camera_TunnelLimit(player,&arm.y);
+  delta.x = Camera_gInfo[player].position.x - Camera_gInfo[player].anchor->position.x;
+  delta.y = Camera_gInfo[player].position.y - Camera_gInfo[player].anchor->position.y;
+  delta.z = Camera_gInfo[player].position.z - Camera_gInfo[player].anchor->position.z;
+  iVar3 = fixedmult(arm.x - delta.x,0x1999);
+  delta.x = delta.x + iVar3;
+  iVar3 = fixedmult(arm.y - delta.y,0x1999);
+  delta.y = delta.y + iVar3;
+  iVar3 = fixedmult(arm.z - delta.z,0x1999);
+  delta.z = delta.z + iVar3;
+  Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + delta.x;
+  pBVar2 = Camera_gInfo[player].anchor;
+  Camera_gInfo[player].position.y = pBVar2->position.y + delta.y;
+  Camera_gInfo[player].position.z = pBVar2->position.z + delta.z;
   return;
 }
 
@@ -1272,10 +1237,9 @@ int Camera_IslandProfile(u_short before)
   u_int uVar3;
   u_int uVar4;
   
-  uVar4 = (u_int)before;
-  uVar2 = uVar4 & uVar4 - 1;
-  uVar4 = uVar4 - uVar2;
-  uVar3 = (u_int)before;
+  uVar3 = before;
+  uVar2 = before & (before - 1);
+  uVar4 = before - uVar2;
   if (before != 0) {
     do {
       if (uVar3 - uVar2 != (uVar4 & 0xffff)) {
@@ -1375,65 +1339,53 @@ void Camera_UpdateCopCam1(int player)
 {
   coorddef vec;
   int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
   BO_tNewtonObj *pBVar5;
-  Camera_tInfo *pCVar6;
-  coorddef local_18;
-  
-  pCVar6 = Camera_gInfo + player;
-  iVar1 = (pCVar6->anchor->position).y;
-  iVar3 = ((Camera_gInfo[player].target)->position).y;
-  iVar2 = (pCVar6->anchor->position).z;
-  iVar4 = ((Camera_gInfo[player].target)->position).z;
-  gCop1Target[player].x =
-       (pCVar6->anchor->position).x + ((Camera_gInfo[player].target)->position).x >> 1;
-  gCop1Target[player].y = iVar1 + iVar3 >> 1;
-  gCop1Target[player].z = iVar2 + iVar4 >> 1;
-  local_18.x = (pCVar6->anchor->position).x - ((Camera_gInfo[player].target)->position).x;
-  local_18.y = (pCVar6->anchor->position).y - ((Camera_gInfo[player].target)->position).y;
-  local_18.z = (pCVar6->anchor->position).z - ((Camera_gInfo[player].target)->position).z;
-  Math_NormalizeVector(&local_18);
-  local_18.x = fixedmult(0x40000,local_18.x);
-  local_18.y = fixedmult(0x40000,local_18.y);
-  iVar1 = fixedmult(0x40000,local_18.z);
-  pBVar5 = pCVar6->anchor;
-  Camera_gInfo[player].position.x = (pCVar6->anchor->position).x + local_18.x + iVar1;
-  Camera_gInfo[player].position.y = (pBVar5->position).y + 0x18000;
-  Camera_gInfo[player].position.z = ((pBVar5->position).z - local_18.x) + iVar1;
+
+  vec.x = Camera_gInfo[player].anchor->position.x + Camera_gInfo[player].target->position.x;
+  vec.y = Camera_gInfo[player].anchor->position.y + Camera_gInfo[player].target->position.y;
+  vec.z = Camera_gInfo[player].anchor->position.z + Camera_gInfo[player].target->position.z;
+  gCop1Target[player].x = vec.x >> 1;
+  gCop1Target[player].y = vec.y >> 1;
+  gCop1Target[player].z = vec.z >> 1;
+  vec.x = Camera_gInfo[player].anchor->position.x - Camera_gInfo[player].target->position.x;
+  vec.y = Camera_gInfo[player].anchor->position.y - Camera_gInfo[player].target->position.y;
+  vec.z = Camera_gInfo[player].anchor->position.z - Camera_gInfo[player].target->position.z;
+  Math_NormalizeVector(&vec);
+  vec.x = fixedmult(0x40000,vec.x);
+  vec.y = fixedmult(0x40000,vec.y);
+  iVar1 = fixedmult(0x40000,vec.z);
+  Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + vec.x + iVar1;
+  pBVar5 = Camera_gInfo[player].anchor;
+  Camera_gInfo[player].position.y = pBVar5->position.y + 0x18000;
+  Camera_gInfo[player].position.z = pBVar5->position.z - vec.x + iVar1;
   return;
 }
 
 /* ---- Camera_UpdateCopCam2__Fi  [@0x800831a8] ---- */
 void Camera_UpdateCopCam2(int player)
 {
-  coorddef dirVec;
-  BO_tNewtonObj *pBVar1;
-  Camera_tInfo *pCVar2;
   coorddef local_18;
-  
-  pCVar2 = Camera_gInfo + player;
-  local_18.x = ((Camera_gInfo[player].target)->position).x - (pCVar2->anchor->position).x;
-  if (local_18.x < 0) {
-    local_18.x = local_18.x + 3;
+  int tx, ty, tz;
+
+  tx = Camera_gInfo[player].target->position.x - Camera_gInfo[player].anchor->position.x;
+  if (tx < 0) {
+    tx = tx + 3;
   }
-  local_18.x = local_18.x >> 2;
-  local_18.y = ((Camera_gInfo[player].target)->position).y - (pCVar2->anchor->position).y;
-  if (local_18.y < 0) {
-    local_18.y = local_18.y + 3;
+  local_18.x = tx >> 2;
+  ty = Camera_gInfo[player].target->position.y - Camera_gInfo[player].anchor->position.y;
+  if (ty < 0) {
+    ty = ty + 3;
   }
-  local_18.y = local_18.y >> 2;
-  local_18.z = ((Camera_gInfo[player].target)->position).z - (pCVar2->anchor->position).z;
-  if (local_18.z < 0) {
-    local_18.z = local_18.z + 3;
+  local_18.y = ty >> 2;
+  tz = Camera_gInfo[player].target->position.z - Camera_gInfo[player].anchor->position.z;
+  if (tz < 0) {
+    tz = tz + 3;
   }
-  local_18.z = local_18.z >> 2;
+  local_18.z = tz >> 2;
   Math_NormalizeVector(&local_18);
-  pBVar1 = pCVar2->anchor;
-  Camera_gInfo[player].position.x = (pCVar2->anchor->position).x + local_18.x * -2;
-  Camera_gInfo[player].position.y = (pBVar1->position).y + 0x13333;
-  Camera_gInfo[player].position.z = (pBVar1->position).z + local_18.z * -2;
+  Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + local_18.x * -2;
+  Camera_gInfo[player].position.y = Camera_gInfo[player].anchor->position.y + 0x13333;
+  Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z + local_18.z * -2;
   return;
 }
 
@@ -1445,19 +1397,18 @@ void Camera_UpdateBTCopCam(int player)
   
   fVar2 = Camera_gInfo[player].forceFocus;
   if (fVar2 == 1) {
-    cVar1 = Camera_gInfo[player].focusOnAICar;
-    Camera_gInfo[player].anchor = &Cars_gList[Camera_gInfo[player].focusOnAICar]->N;
+    cVar1 = (signed char)Camera_gInfo[player].focusOnAICar;
+    Camera_gInfo[player].anchor = &Cars_gList[(signed char)Camera_gInfo[player].focusOnAICar]->N;
     Camera_gInfo[player].target = &Cars_gList[cVar1]->N;
     Camera_UpdateCircleCam(player);
   }
   else if ((1 < (int)fVar2) && (fVar2 == 2)) {
-    cVar1 = Camera_gInfo[player].focusOnAICar;
+    cVar1 = (signed char)Camera_gInfo[player].focusOnAICar;
     Camera_gInfo[player].anchor = &Cars_gList[player]->N;
     Camera_gInfo[player].target = &Cars_gList[cVar1]->N;
     Camera_UpdateCopCam2(player);
   }
-  Camera_gGeomScreen[0] = 0xbe;
-  Camera_gGeomScreen[1] = 0;
+  Camera_gGeomScreen = 0xbe;
   Camera_gInfo[player].POInhibitor = simGlobal.gameTicks + 0x140;
   *(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) =
        *(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) & 0xffffffb9 | 0x38;
@@ -1733,8 +1684,7 @@ void Camera_Init(void)
   } while (iVar7 <= (int)uVar8);
   Camera_ResetRelPos(3);
   iVar7 = *(*(int **)((char *)Cars_gHumanRaceCarList[0] + 0x288));
-  Camera_gGeomScreen[0] = 0xbe;
-  Camera_gGeomScreen[1] = 0;
+  Camera_gGeomScreen = 0xbe;
   if (((iVar7 < 0x1c) && ((GameSetup_gData.sgge & 0x100U) != 0)) && (uVar8 == 0)) {
     GameSetup_gData.carInfo[0].Camera[0] = 1;
     Camera_gFlags[1].arm.x = gDriverCam[iVar7].x;
@@ -1755,29 +1705,23 @@ void Camera_Kill(void)
   bool bVar1;
   Camera_tInfo *pCVar2;
   int iVar3;
-  
+
   iVar3 = 0;
   bVar1 = GameSetup_gData.commMode == 1;
   pCVar2 = Camera_gInfo;
-  do {
-    if (pCVar2->animHandle != -1) {
-      Anim_FreeHandle((int)pCVar2->animHandle);
+  for (; iVar3 <= (int)(u_int)bVar1; iVar3 = iVar3 + 1) {
+    if ((signed char)pCVar2->animHandle != -1) {
+      Anim_FreeHandle((int)(signed char)pCVar2->animHandle);
     }
-    pCVar2->animHandle = -1;
-    iVar3 = iVar3 + 1;
+    *(signed char *)&pCVar2->animHandle = -1;
     pCVar2 = pCVar2 + 1;
-  } while (iVar3 <= (int)(u_int)bVar1);
+  }
   return;
 }
 
 /* ---- Camera_PitchAndRoll__Fi  [@0x80083c74] ---- */
 void Camera_PitchAndRoll(int player)
 {
-  matrixtdef m1;
-  matrixtdef m2;
-  matrixtdef m3;
-  Car_tObj*anchor;
-  int pitch;
   int iVar1;
   matrixtdef mStack_90;
   matrixtdef mStack_68;
@@ -1795,44 +1739,33 @@ void Camera_PitchAndRoll(int player)
 /* ---- Camera_TooSteep__FiP12BWorldSm_Pos  [@0x80083d28] ---- */
 int Camera_TooSteep(int player,BWorldSm_Pos *slicePos)
 {
-  BWorldSm_Pos*slicePos2;
   coorddef normUnderCam;
   coorddef normUnderCar;
-  coorddef camToCar;
+  coorddef delta;
   coorddef *pcVar1;
   int iVar2;
   int iVar3;
-  int iVar4;
-  int a;
-  int a_00;
   int iVar5;
-  int a_01;
   int iVar6;
   BO_tNewtonObj *pBVar7;
-  Camera_tInfo *pCVar8;
-  
-  pCVar8 = Camera_gInfo + player;
-  pBVar7 = pCVar8->anchor;
+
+  pBVar7 = Camera_gInfo[player].anchor;
   pcVar1 = BWorldSm_UNormal(slicePos);
-  a = pcVar1->x;
-  a_00 = pcVar1->y;
-  a_01 = pcVar1->z;
+  normUnderCam = *pcVar1;
   pcVar1 = BWorldSm_UNormal(&pBVar7->simRoadInfo);
-  iVar5 = pcVar1->y;
-  iVar6 = pcVar1->z;
-  iVar2 = fixedmult(a,pcVar1->x);
-  iVar5 = fixedmult(a_00,iVar5);
-  iVar6 = fixedmult(a_01,iVar6);
+  normUnderCar = *pcVar1;
+  iVar2 = fixedmult(normUnderCam.x,normUnderCar.x);
+  iVar5 = fixedmult(normUnderCam.y,normUnderCar.y);
+  iVar6 = fixedmult(normUnderCam.z,normUnderCar.z);
   iVar3 = 0;
   if (iVar2 + iVar5 + iVar6 < 0xb4fd) {
-    iVar3 = Camera_gInfo[player].position.y;
-    iVar2 = (pCVar8->anchor->position).y;
-    iVar4 = Camera_gInfo[player].position.z;
-    iVar5 = (pCVar8->anchor->position).z;
-    iVar6 = fixedmult(a,(pCVar8->anchor->position).x - Camera_gInfo[player].position.x);
-    iVar2 = fixedmult(a_00,iVar2 - iVar3);
-    iVar5 = fixedmult(a_01,iVar5 - iVar4);
-    if ((iVar6 + iVar2 + iVar5 < 1) || (iVar3 = 1, pCVar8->anchor->flightTime != 0)) {
+    delta.x = Camera_gInfo[player].anchor->position.x - Camera_gInfo[player].position.x;
+    delta.y = Camera_gInfo[player].anchor->position.y - Camera_gInfo[player].position.y;
+    delta.z = Camera_gInfo[player].anchor->position.z - Camera_gInfo[player].position.z;
+    iVar6 = fixedmult(normUnderCam.x,delta.x);
+    iVar2 = fixedmult(normUnderCam.y,delta.y);
+    iVar5 = fixedmult(normUnderCam.z,delta.z);
+    if ((iVar6 + iVar2 + iVar5 < 1) || (iVar3 = 1, Camera_gInfo[player].anchor->flightTime != 0)) {
       iVar3 = 0;
     }
   }
@@ -2083,17 +2016,12 @@ LAB_800845d0:
 /* ---- Camera_SetAboveGround__FiP8coorddef  [@0x8008480c] ---- */
 void Camera_SetAboveGround(int player,coorddef *pos)
 {
-  BWorldSm_Pos*slicePos;
-  coorddef quadnormal;
-  int elevation;
   coorddef *pcVar1;
   int iVar2;
   coorddef local_20;
-  
+
   pcVar1 = BWorldSm_UNormal(&Camera_gInfo[player].slicePos);
-  local_20.x = pcVar1->x;
-  local_20.y = pcVar1->y;
-  local_20.z = pcVar1->z;
+  local_20 = *pcVar1;
   iVar2 = Newton_FindGroundElevationGeneral(pos,&local_20,Camera_gInfo[player].slicePos.quadPts);
   if (pos->y < iVar2 + 0x10000) {
     pos->y = iVar2 + 0x10000;
@@ -2498,13 +2426,15 @@ void Camera_GetAudioViewInfo(int cviewP,DRender_tCalcView *cview,coorddef **cvel
 /* ---- Camera_GetMode__Fi  [@0x80085568] ---- */
 int Camera_GetMode(int cviewP)
 {
-  if ((((Cars_gHumanRaceCarList[cviewP]->carFlags & 1U) == 0) ||
-      ((Cars_gHumanRaceCarList[cviewP]->stats).finishType != 2)) &&
-     ((Cars_gHumanRaceCarList[cviewP]->pullOver == 0 ||
-      ((Cars_gHumanRaceCarList[cviewP]->stats).finishType == 3)))) {
-    return (int)Camera_gInfo[cviewP].mode;
+  if (((Cars_gHumanRaceCarList[cviewP]->carFlags & 1U) != 0) &&
+      ((Cars_gHumanRaceCarList[cviewP]->stats).finishType == 2)) {
+    return 0x14;
   }
-  return 0x14;
+  if ((Cars_gHumanRaceCarList[cviewP]->pullOver != 0) &&
+      ((Cars_gHumanRaceCarList[cviewP]->stats).finishType != 3)) {
+    return 0x14;
+  }
+  return (int)Camera_gInfo[cviewP].mode;
 }
 
 /* ---- Camera_SetMode__Fii  [@0x80085608] ---- */
@@ -2523,8 +2453,7 @@ void Camera_SetMode(int cviewP,int mode)
   InBetween = 0;
   if ((((char *)&(Camera_gInfo[cviewP]))[0x74] & 1) == 0) {
     if ((u_short)Camera_gInfo[cviewP].mode - 0xb < 2) {
-      Camera_gGeomScreen[0] = 0xbe;
-      Camera_gGeomScreen[1] = 0;
+      Camera_gGeomScreen = 0xbe;
       TrsProj_SetProjection(0,0,0x140,0xf0);
     }
     if (5 < (u_short)Camera_gInfo[cviewP].mode - 2) {
@@ -2581,8 +2510,7 @@ void Camera_NextMode(int cviewP)
   
   if ((Camera_gInfo[cviewP].mode != 0xe) && ((((char *)&(Camera_gInfo[cviewP]))[0x74] & 1) == 0)) {
     if ((u_short)Camera_gInfo[cviewP].mode - 0xb < 2) {
-      Camera_gGeomScreen[0] = 0xbe;
-      Camera_gGeomScreen[1] = 0;
+      Camera_gGeomScreen = 0xbe;
       TrsProj_SetProjection(0,0,0x140,0xf0);
     }
     if (5 < (u_short)Camera_gInfo[cviewP].mode - 2) {
@@ -2669,7 +2597,7 @@ void Camera_ReplayUpdate(int cviewP,Camera_tCamSlot *ptr)
     ((u_char *)&(uVar3))[1] = ((char *)(ptr))[0x1];
     (*(u_short *)((u_char *)&(uVar3) + 2)) = ptr->fov;
     Camera_gInfo[cviewP].splineMode = (u_char)(uVar3 >> 0xb) & 7;
-    (*(int *)&(Camera_gGeomScreen)) = ptr->fov /* @0x75CAC disasm-v2: signed `lh` short load; short->int sign-extends natively (Ghidra SEXT24 spurious) */;
+    Camera_gGeomScreen = ptr->fov /* @0x75CAC disasm-v2: signed `lh` short load; short->int sign-extends natively (Ghidra SEXT24 spurious) */;
     iVar4 = (ptr->pos).y;
     iVar5 = (ptr->pos).z;
     Camera_gInfo[cviewP].position.x = (ptr->pos).x;

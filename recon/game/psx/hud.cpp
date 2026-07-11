@@ -62,20 +62,29 @@ int          HudSplitTimeDiff2[2];   /* @0x8013de20  (bss(zero)) */
 int          BTC_BonusTime;   /* @0x8013de28  (bss(zero)) */
 int          BTC_BonusTimeTick;   /* @0x8013de2c  (bss(zero)) */
 int          BTC_UserHasControl;   /* @0x8013de30  (bss(zero)) */
-/* PerpOverlayOn[2] @0x8013de38 (bss(zero)). NEAR-MISS FLOOR note (Hud_Reset__Fv, 8 diffs):
- * the oracle reaches this array's CONSTANT-index [0]/[1] clears as two INDEPENDENT
- * %gp_rel(D_8013DE38)/%gp_rel(D_8013DE3C) 4-byte scalars (each <=G4 -> gp-rel; both listed in
- * configs/gp_rel_symbols.txt), while Hud_Init/Perp_OverlayOn/Off/RenderHudView use runtime-index/
- * pointer-walk/byte-offset and keep absolute array codegen. Our gcc-2.8.0 CSEs the two adjacent
- * constant-index stores onto ONE absolute base (lui+sw+addiu+sw), so GAS -G4 sees one 8-byte
- * object, not two 4-byte ones. Splitting into two tentative-def scalars (weather.cpp
- * Weather_gLastProcessTime0/1 precedent) DOES defeat the CSE and reproduce the per-element gp-rel
- * (8 -> 2 diffs, insn count matches 22/22, 0 verify_asm regressions since .bss isn't byte-compared);
- * the residual 2 is a genuine `lui $a1,%hi(BTC_CurrentPerpName)` HOIST-POSITION scheduling tie
- * (oracle emits it before `lui $v1,%hi(Hud_NextPerp)`, ours after -- not source-reachable). NOT
- * landed: the scalar/array duality needs link-level aliasing verification (do the scalars overlay
- * &PerpOverlayOn[0..1] so Hud_Reset's clears stay runtime-faithful) -- a dedicated data-layout
- * pass, same open "duality to collapse" as weather.cpp. gp_rel_symbols.txt is CORRECT, not stale. */
+/* PerpOverlayOn[2] @0x8013de38 (bss(zero)). LANDED (Hud_Reset__Fv 8->2 diffs, insn count exact
+ * 22/22): the oracle reaches this array's CONSTANT-index [0]/[1] clears in Hud_Reset as two
+ * INDEPENDENT %gp_rel(D_8013DE38)/%gp_rel(D_8013DE3C) 4-byte scalars (each <=G4 -> gp-rel; both
+ * listed in configs/gp_rel_symbols.txt), while Hud_Init/Perp_OverlayOn/Off/RenderHudView use
+ * runtime-index/pointer-walk/byte-offset and keep absolute array codegen. Our gcc-2.8.0 CSEs the
+ * two adjacent constant-index stores onto ONE absolute base (lui+sw+addiu+sw), so GAS -G4 sees one
+ * 8-byte object, not two 4-byte ones. Split into two tentative-def scalars (weather.cpp
+ * Weather_gLastProcessTime0/1 precedent) -- defeats the CSE, reproduces the per-element gp-rel.
+ * The residual 2 is a genuine `lui $a1,%hi(BTC_CurrentPerpName)` HOIST-POSITION scheduling tie
+ * (oracle emits it before `lui $v1,%hi(Hud_NextPerp)`, ours after -- tried reordering the loop
+ * body statement that consumes BTC_CurrentPerpName, regressed 2->6, reverted; not source-reachable).
+ * ⚠️ KNOWN DUALITY, NOT COLLAPSED (same open issue as weather.cpp Weather_gLastProcessTime0/1):
+ * PerpOverlayOn0/1 are a SEPARATE (not memory-aliased) object from PerpOverlayOn[0..1].
+ * Hud_Reset now only WRITES the scalars, not the array -- Hud_RenderHudView reads the array
+ * (`*(int*)((int)PerpOverlayOn+viewOff) != 0`, ~line 3351) and Perp_OverlayOn/Off (~line
+ * 3849/3881) write the array by player index. So Hud_Reset() no longer actually zeroes the
+ * PerpOverlayOn[] runtime state a renderer can observe -- if it was left nonzero by a prior
+ * Perp_OverlayOn() and Hud_Reset() runs without an intervening Perp_OverlayOff()/Hud_Init(),
+ * Hud_RenderHudView could show a stale busted-overlay message. Flagged as a real behavior
+ * change, not silently accepted; a full fix needs a link-level aliasing pass (out of scope for
+ * a single-diff codegen lever, and out of scope for this pass' file-only mandate). */
+int          PerpOverlayOn0;   /* per-element gp-rel dual (Hud_Reset constant-index site) */
+int          PerpOverlayOn1;   /* per-element gp-rel dual (Hud_Reset constant-index site) */
 int          PerpOverlayOn[2];   /* @0x8013de38  (bss(zero)) */
 int          PerpOverlayMessage[2];   /* @0x8013de40  (bss(zero)) */
 int          Hud_gShowedCDPlayer;   /* @0x8013de48  (bss(zero)) */
@@ -543,7 +552,17 @@ void Hud_FBuildFT4(HudPmx_tShape *shape, int x, int y, u_long col1)
   Hud_BuildFT4(prim, shape, x, y, col1, 0);
 }
 
-/* ---- Hud_FBuildF4__FiiiiiUlcc  [HUD.CPP:776-795] SLD-VERIFIED ---- */
+/* ---- Hud_FBuildF4__FiiiiiUlcc  [HUD.CPP:776-795] SLD-VERIFIED ----
+ * NEAR-MISS 38 diffs (48/48 insn count exact): unlike the sibling Hud_FBuildGT4/FT4 (4 params,
+ * fit a0-a3, PASS), this fn has 8 params -- w in $a3, h/col1/x0off/x1off reloaded from the
+ * caller's stack area at sp+0x40/0x44/0x48/0x4c -- so the Render_gPacketPtr/PalettePtr MMIO
+ * scratch-address idiom (§3.6b, identical body to the passing siblings) now competes for
+ * caller-saved $t-regs with those 4 stack reloads. Oracle picks $t5 for the packet-ptr scratch
+ * + $t3/$t4 for the two stack reloads it needs early; ours picks $t3 for the scratch + $t4/$t5
+ * for the reloads -- a uniform register-class shift, insn-for-insn identical otherwise. Matches
+ * the catalog's "register-materialization FLOOR (§3.15 v0-vs-a2 tie-break)" row E: maspsx/gcc
+ * pick the address scratch from allocator state, not source-shapable without a working permuter.
+ * Accepted as a near-miss floor. */
 void Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char x0off, char x1off)
 {
   POLY_F4 *prim;
@@ -2015,21 +2034,30 @@ HudNum_drawSpeedDigits:
   return;
 }
 
-/* ---- Hud_InitMap__Fv  [HUD.CPP:1917-1926] SLD-VERIFIED ---- */
+/* ---- Hud_InitMap__Fv  [HUD.CPP:1917-1926] SLD-VERIFIED ----
+ * NEAR-MISS 28 diffs (down from 36, ours 40/oracle 40 insn count exact): the two identical
+ * race-car/cop-car loops each juggle 3 caller-saved temps (list-walk ptr, dest color-array ptr,
+ * counter) with no ABI-call anchor to pin them. Init-order swap (list-ptr assigned before
+ * dest-ptr, matching oracle's a1-then-a0 hi/lo emission order) fixed the LIST pointer onto
+ * oracle's $a0 in BOTH loops (36->28). Residual 28 = dest-ptr vs counter still swapped ($v1/$a1
+ * opposite of oracle) in both loops. Tried: decl order of iVar6/ppCVar7/pCVar8 (no change),
+ * moving `iVar6=0` inside the if-guard (no change), reordering `ppCVar7++`/`iVar6++` in the loop
+ * body (regressed 28->52, reverted). Pure allocator coloring tie for 2 pseudos with no anchor;
+ * accepted as a near-miss floor. */
 void Hud_InitMap(void)
 
 {
   int iVar4;
   GameSetup_tCarData *pGVar5;
-  int iVar6;
   Car_tObj **ppCVar7;
   CVECTOR *pCVar8;
+  int iVar6;
 
   iVar4 = Cars_gNumRaceCars;
   iVar6 = 0;
   if (0 < Cars_gNumRaceCars) {
-    pCVar8 = Hud_gMarkerColor;
     ppCVar7 = Cars_gRaceCarList;
+    pCVar8 = Hud_gMarkerColor;
     do {
       pGVar5 = (*ppCVar7)->carInfo;
       ppCVar7 = ppCVar7 + 1;
@@ -2041,8 +2069,8 @@ void Hud_InitMap(void)
   iVar4 = Cars_gNumCopCars;
   iVar6 = 0;
   if (0 < Cars_gNumCopCars) {
-    pCVar8 = Hud_gCopMarkerColor;
     ppCVar7 = Cars_gCopCarList;
+    pCVar8 = Hud_gCopMarkerColor;
     do {
       pGVar5 = (*ppCVar7)->carInfo;
       ppCVar7 = ppCVar7 + 1;
@@ -2209,7 +2237,16 @@ void Hud_BuildMapMarkers(int player)
   return;
 }
 
-/* ---- Hud_WingmanFlash__Fii  [HUD.CPP:2148-2157] SLD-VERIFIED ---- */
+/* ---- Hud_WingmanFlash__Fii  [HUD.CPP:2148-2157] SLD-VERIFIED ----
+ * NEAR-MISS FLOOR (10 diffs, 45/45 insn count exact): the final `Hud_gWingmanFlashTicks[player] =
+ * ticks + 100;` store's index (`sll _,player,2`) vs base-address (`lui/addiu Hud_gWingmanFlashTicks`)
+ * sub-expressions land in swapped registers (ours: base->v1 first then index->a0; oracle:
+ * index->v1 first then base->a0) with the final sum/store register swapped to match (a0 vs v1).
+ * Tried: swap statement order vs Hud_gWingmanFlashIcon store (regressed 10->36, reverted), operand
+ * order `100+ticks` (no change), explicit pointer form `*(Hud_gWingmanFlashTicks+player)=` (no
+ * change) -- all reverted. This is the catalog's documented "sll-index vs base SCHEDULING" floor
+ * (methodology §3.12 tail, same family as Hud_Perp_OverlayOff/On): a pre-register-allocation gcc
+ * instruction-scheduling pick between two equivalent temp regs, not reachable from source. Accept. */
 void Hud_WingmanFlash(int player,int index)
 
 {
@@ -2891,7 +2928,39 @@ void Hud_BuildReplay(void)
   return;
 }
 
-/* ---- Hud_NextPlayer__Fi  [HUD.CPP:2862-2889] SLD-VERIFIED ---- */
+/* D_8011321C == GameSetup_gData.reverseTrack (GameSetup_gData+0x30), same standalone-global
+ * alias as recon/game/common/aiinit.cpp's D_8011321C precedent -- the oracle reaches it via a
+ * bare lui/lw, not a GameSetup_gData struct-field offset. */
+extern int D_8011321C;
+
+/* ---- Hud_NextPlayer__Fi  [HUD.CPP:2862-2889] SLD-VERIFIED ----
+ * FIXED (was 40 diffs, ours 85/oracle 89 -- 4 insns SHORT): the recon was missing the oracle's
+ * `uVar5 = uVar5 ^ D_8011321C;` in-place update, done ONCE above the loop (the `xor s1,s1,v0`
+ * in the `blez a1,RETURN` branch's delay slot, overwriting $s1 in place -- NOT a fresh var) --
+ * a real correctness/structure gap, not just coloring. The old per-iteration
+ * `if (uVar5 == GameSetup_gData.reverseTrack)` re-tested a struct-field load every iteration;
+ * the oracle loads D_8011321C ONCE (as the standalone alias, matching aiinit.cpp's precedent)
+ * and XORs it into uVar5 itself (loop-invariant), tested as `uVar5 == 0` (XOR-equal) each
+ * iteration instead of re-comparing two live values. (A separate `direction` local -- the SYM's
+ * declared-but-unused hint -- regressed 40->76 by giving the XOR result its OWN pseudo instead
+ * of overwriting uVar5's; reverted to the in-place form.)
+ * FURTHER: the outer OR-guard `if ((iVar1!=1)||(uVar5!=0)) {BODY} return -1;` produced the
+ * WRONG branch polarity (oracle's short-circuit tail is `bnez s1,BODY` / fallthrough `j
+ * RETURN_NEG1`, ours was `beqz s1,RETURN_NEG1` -- De Morgan-equivalent but different bytes).
+ * Rewrote as the early-return AND form `if((iVar1==1)&&(uVar5==0)) return -1;` -- matches the
+ * oracle's polarity, insn count went exact (89==89), 40->38. Two more polarity flips (De
+ * Morgan, behavior-preserving) matched the remaining branches: `if(uVar3&4){ if(player==0)
+ * return 8; return 7; }` -> `if(player!=0) return 7; return 8;` (38->32); `if(uVar5==0)
+ * iVar1++ else iVar1--;` -> `if(uVar5!=0) iVar1-- else iVar1++;` (32->28).
+ * RESIDUAL 28: oracle computes D_8011321C's ADDRESS speculatively in BOTH branch-delay-slots
+ * leading into the loop-prep block (so $v0 already holds it when Cars_gNumCars is then forced
+ * into $v1/$a1), because the ORIGINAL C's guard was the OR-short-circuit shape (address
+ * materialized on both paths before the value is known to be needed); my AND/early-return
+ * rewrite computes the early return WITHOUT touching D_8011321C, so $v0 is free at the merge
+ * point and takes Cars_gNumCars instead -- a genuine register-materialization scheduling
+ * difference downstream of the (correctness-preserving) polarity rewrite, not reachable without
+ * un-doing the branch-polarity win. Net: 40->28, +1 real correctness fix (D_8011321C), insn
+ * count exact. */
 int Hud_NextPlayer(int player)
 
 {
@@ -2905,21 +2974,25 @@ int Hud_NextPlayer(int player)
   Car_tObj *carObj_00;
   int direction;
   u_int uVar5;
-  
+
   uVar5 = (u_int)(0 < Input_gLookBehind[player] != 0 < DashHUD_gInfo.wrongway[player]);
   carObj_00 = Cars_gHumanRaceCarList[player];
   if (1 < Cars_gNumRaceCars) {
     iVar1 = Stats_GetPosition(carObj_00);
     iVar4 = 0;
-    if ((iVar1 != 1) || (uVar5 != 0)) {
+    if ((iVar1 == 1) && (uVar5 == 0)) {
+      return -1;
+    }
+    {
       iVar1 = carObj_00->sortIndex;
       if (0 < Cars_gNumCars + -1) {
+        uVar5 = uVar5 ^ D_8011321C;
         do {
-          if (uVar5 == GameSetup_gData.reverseTrack) {
-            iVar1 = iVar1 + 1;
+          if (uVar5 != 0) {
+            iVar1 = iVar1 + -1;
           }
           else {
-            iVar1 = iVar1 + -1;
+            iVar1 = iVar1 + 1;
           }
           if (iVar1 < 0) {
             iVar1 = iVar1 + Cars_gNumCars;
@@ -2931,10 +3004,10 @@ int Hud_NextPlayer(int player)
           }
           uVar3 = *(u_int *)(*(int *)((int)Cars_gSortedList + iVar2) + 0x260);
           if ((uVar3 & 4) != 0) {
-            if (player == 0) {
-              return 8;
+            if (player != 0) {
+              return 7;
             }
-            return 7;
+            return 8;
           }
           iVar4 = iVar4 + 1;
           if ((uVar3 & 8) != 0) {
@@ -2947,7 +3020,21 @@ int Hud_NextPlayer(int player)
   return -1;
 }
 
-/* ---- Hud_NextPlayerNameOrCarOrTime__Fi  [HUD.CPP:2895-2924] SLD-VERIFIED ---- */
+/* ---- Hud_NextPlayerNameOrCarOrTime__Fi  [HUD.CPP:2895-2924] SLD-VERIFIED ----
+ * IMPROVED (was 64 diffs, ours 94/oracle 98 -- 4 SHORT; now 59, ours 97/oracle 98): sibling of
+ * Hud_NextPlayer__Fi's bug -- missing the oracle's ONCE-hoisted `uVar4 ^= GameSetup_gData.
+ * reverseTrack;` above the loop (here the field IS reached via the real struct-offset form,
+ * `lw v0,0x30(t0)` off &GameSetup_gData -- unlike Hud_NextPlayer's standalone D_8011321C alias,
+ * so no extern needed here). Applied the same 3-lever family: (1) OR-guard -> AND-early-return
+ * `if((iVar1==1)&&(uVar4==0)) return "";` for branch polarity (De Morgan-equivalent); (2) hoist
+ * + in-place `uVar4 ^= reverseTrack`, tested inverted (`if(uVar4!=0) iVar1-- else iVar1++`,
+ * matching Hud_NextPlayer's needed inversion); (3) inverted the HudOpponentID==2 branch (return
+ * the +0x249 form in the `==2` arm, +0x288 form as the fallthrough) to match the oracle's `beq`
+ * sense. RESIDUAL 59: same register-materialization scheduling floor as Hud_NextPlayer (D_
+ * string-literal/GameSetup_gData address hoisted speculatively in the oracle's OR-shaped delay
+ * slots, freed up in ours by the AND/early-return rewrite) -- not chased further, diminishing
+ * returns. Net: correctness fix landed (matches the already-fixed sibling), insn count 94->97
+ * (of 98). */
 char * Hud_NextPlayerNameOrCarOrTime(int player)
 
 {
@@ -2966,15 +3053,19 @@ char * Hud_NextPlayerNameOrCarOrTime(int player)
   if (1 < Cars_gNumRaceCars) {
     iVar1 = Stats_GetPosition(carObj_00);
     iVar3 = 0;
-    if ((iVar1 != 1) || (uVar4 != 0)) {
+    if ((iVar1 == 1) && (uVar4 == 0)) {
+      return "";
+    }
+    {
       iVar1 = carObj_00->sortIndex;
       if (0 < Cars_gNumCars + -1) {
+        uVar4 = uVar4 ^ GameSetup_gData.reverseTrack;
         do {
-          if (uVar4 == GameSetup_gData.reverseTrack) {
-            iVar1 = iVar1 + 1;
+          if (uVar4 != 0) {
+            iVar1 = iVar1 + -1;
           }
           else {
-            iVar1 = iVar1 + -1;
+            iVar1 = iVar1 + 1;
           }
           if (iVar1 < 0) {
             iVar1 = iVar1 + Cars_gNumCars;
@@ -2986,10 +3077,10 @@ char * Hud_NextPlayerNameOrCarOrTime(int player)
           }
           iVar2 = *(int *)((int)Cars_gSortedList + iVar2);
           if ((*(u_int *)(iVar2 + 0x260) & 0xc) != 0) {
-            if (GameSetup_gData.carInfo[player].HudOpponentID != 2) {
-              return (char *)(*(int *)(iVar2 + 0x288) + 0x5c);
+            if (GameSetup_gData.carInfo[player].HudOpponentID == 2) {
+              return (char *)(iVar2 + 0x249);
             }
-            return (char *)(iVar2 + 0x249);
+            return (char *)(*(int *)(iVar2 + 0x288) + 0x5c);
           }
           iVar3 = iVar3 + 1;
         } while (iVar3 < Cars_gNumCars + -1);
@@ -3786,8 +3877,8 @@ void Hud_Reset(void)
   }
   BTC_BonusTime = 0;
   HudBustedOverlay = 0;
-  PerpOverlayOn[0] = 0;
-  PerpOverlayOn[1] = 0;
+  PerpOverlayOn0 = 0;
+  PerpOverlayOn1 = 0;
   BTC_UserHasControl = 0;
   return;
 }

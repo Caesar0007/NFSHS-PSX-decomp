@@ -530,7 +530,7 @@ int CHECK_VERTEX_WITH_DIRS(int X_DIR,int Y_DIR,int Z_DIR)
 
   int iVar9;
 
-  
+
 
   pcVar3 = pP;
 
@@ -6245,7 +6245,11 @@ int Collide_CheckAccuratePointRadiusCollision(BO_tNewtonObj *newObj,coorddef *po
 
   iVar4 = fixedmult(d.z,(newObj->orientMat).m[2]);
 
-  if (iVar3 + iVar4 + iVar2 > 0) {
+  iVar2 = iVar2 + iVar3;
+
+  iVar2 = iVar2 + iVar4;
+
+  if (iVar2 > 0) {
 
     iVar2 = fixedmult(d.x,(newObj->orientMat).m[0]);
 
@@ -6253,7 +6257,9 @@ int Collide_CheckAccuratePointRadiusCollision(BO_tNewtonObj *newObj,coorddef *po
 
     iVar4 = fixedmult(d.z,(newObj->orientMat).m[2]);
 
-    iVar2 = iVar2 + iVar3 + iVar4;
+    iVar2 = iVar2 + iVar3;
+
+    iVar2 = iVar2 + iVar4;
 
   }
 
@@ -6265,7 +6271,11 @@ int Collide_CheckAccuratePointRadiusCollision(BO_tNewtonObj *newObj,coorddef *po
 
     iVar4 = fixedmult(d.z,(newObj->orientMat).m[2]);
 
-    iVar2 = -(iVar2 + iVar3 + iVar4);
+    iVar2 = iVar2 + iVar3;
+
+    iVar2 = iVar2 + iVar4;
+
+    iVar2 = -iVar2;
 
   }
 
@@ -6285,7 +6295,9 @@ int Collide_CheckAccuratePointRadiusCollision(BO_tNewtonObj *newObj,coorddef *po
 
       iVar4 = fixedmult(d.z,(newObj->orientMat).m[8]);
 
-      iVar2 = iVar2 + iVar3 + iVar4;
+      iVar2 = iVar2 + iVar3;
+
+      iVar2 = iVar2 + iVar4;
 
     }
 
@@ -6297,7 +6309,11 @@ int Collide_CheckAccuratePointRadiusCollision(BO_tNewtonObj *newObj,coorddef *po
 
       iVar4 = fixedmult(d.z,(newObj->orientMat).m[8]);
 
-      iVar2 = -(iVar2 + iVar3 + iVar4);
+      iVar2 = iVar2 + iVar3;
+
+      iVar2 = iVar2 + iVar4;
+
+      iVar2 = -iVar2;
 
     }
 

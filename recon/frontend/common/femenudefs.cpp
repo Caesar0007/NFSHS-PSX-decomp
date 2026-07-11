@@ -220,9 +220,8 @@ extern "C" void MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand(tMenuComm
   short sVar3;
   tDialogYesNoTri *dlgThis;
   tDialogYesNoTri YesNoDialog;
-  
-  tDialogYesNo_ctor((tDialogYesNo *)&YesNoDialog);
-  *(void **)&(YesNoDialog._vf) = (void *)tDialogYesNoTri_vtable;
+
+  *(void **)&(YesNoDialog._vf) = (void *)&tDialogYesNoTri_vtable;
   uVar2 = GetNumOwnedCars(&carManager, 0);
   if ((int)((uint)uVar2 << 0x10) < 1) {
     YesNoDialog.string =
@@ -324,24 +323,26 @@ int AskTheUserToSaveTheGame(void)
   int is_cheater;
   int answer;
   tDialogMessageString *dlgThis;
-  tDialogYesNo YesNoDialog;
 
-  /* NEAR-MISS 25 diffs (was 29): xori;beqz cheater idiom now matches (via `(x^1)` test); call
-     sequence/args/frame/1-saved-reg all match. Residual = answer-default-0 colored to s0 (ours)
-     vs v0-in-beqz-delay-slot (oracle); this cascades to sp-relative vs s0-relative field stores
-     because the oracle frees s0 to hold the dialog `this`. gcc-2.7.2 keeps the 0 default in a
-     callee-saved reg across the body (can't prove it dead post-Run); not source-reachable without
-     a pin (forbidden) -- early-return / goto-tail both SPLIT the shared epilogue (=> 39 diffs).
-     [2026-07-05 CONFIRMED] Tried block-scoping YesNoDialog into the if (the fix that cracked
-     MenuExtended_LoadGame's ctor-hoist bug) -- made it WORSE (25->29). This function's ctor
-     call is ALREADY correctly conditional even at function scope (FECheat_IsTheUserACryBabyCheater()
-     has no ctor-hoist concern since YesNoDialog's ctor call site itself is inside the `if` in
-     both scopings); the residual really is the answer-default coloring the prior note describes.
-     Reverted to function-scope locals. */
+  /* NEAR-MISS 22 diffs (2026-07-11, was 25): the manual `tDialogYesNo_ctor(&YesNoDialog)` call was
+     a REDUNDANT/dead second construction -- tDialogYesNo has a real declared ctor
+     (fedialog.cpp:776 `tDialogYesNo::tDialogYesNo()`), so simply declaring the local already
+     invokes it automatically; `tDialogYesNo_ctor` is an undefined phantom extern with no
+     definition anywhere in the tree (checked repo-wide). Dropped the manual call AND re-tried
+     block-scoping YesNoDialog into the `if` (the earlier 2026-07-05 attempt regressed 25->29
+     because it block-scoped the declaration but LEFT the redundant manual ctor call in, doubling
+     construction inside the block); with the manual call gone this combination is a real win
+     (25->22, insn 35->32 vs oracle 30). Residual = answer-default-0 colored to s0 (ours) vs
+     v0-in-beqz-delay-slot (oracle); cascades to sp-relative vs s0-relative field stores because
+     the oracle frees s0 to hold the dialog `this`. gcc-2.7.2 keeps the 0 default in a callee-saved
+     reg across the body (can't prove it dead post-Run); not source-reachable without a pin
+     (forbidden) -- early-return / goto-tail both SPLIT the shared epilogue (regressed further
+     when tried previously). Accept as floor. */
   is_cheater = (int)FECheat_IsTheUserACryBabyCheater();
   answer = 0;
   if ((is_cheater ^ 1) != 0) {
-    tDialogYesNo_ctor(&YesNoDialog);
+    tDialogYesNo YesNoDialog;
+
     YesNoDialog.string =
          TextSys_Word(0x331);
     YesNoDialog.yesnowords[0] = 0x321;
@@ -704,21 +705,24 @@ void * PinkSlipsPreSave(void)
   int is_cheater;
   void *ret;
   tDialogYesNoTri *dlgThis;
-  tDialogYesNoTri YesNoDialog;
 
-  /* NEAR-MISS 33 diffs (unchanged from baseline; cleaned locals). The return-funnel (ret=1
-     default in s1, reused as the ==1 compare literal AND the save-result holder) and the
-     == -1 / == 1 / dtor branch structure all match the oracle. Residual = gcc-2.7.2 HOISTS the
-     dialog `this` address (s0=&YesNoDialog) and the ret default ABOVE the FECheat call, whereas
-     the oracle computes them after the cheater branch (s0 set in the body). Pure pre-branch
-     scheduling; not source-reachable (the ctor-arg address is a constant sp+off gcc lifts;
-     forbidden to pin). `^1` cheater idiom made it WORSE here (34: gcc reused s1 for `xor v0,v0,s1`
-     vs oracle's `xori v0,v0,1`), so the plain `!= 1` int test is kept. */
+  /* NEAR-MISS 22 diffs (2026-07-11, was 33). Dropped the REDUNDANT `tDialogYesNo_ctor(&YesNoDialog)`
+     manual call (tDialogYesNo's real ctor is already auto-invoked by the local's declaration --
+     see AskTheUserToSaveTheGame's note) and block-scoped YesNoDialog into the `if`; also fixed
+     `tDialogYesNoTri_vtable` to `&tDialogYesNoTri_vtable` (it's declared `extern int`, so the
+     bare name was a LOAD of the vtable's first word, not its address -- a real correctness bug).
+     Re-tried the oracle-suggested `^1` cheater idiom (`(is_cheater^1)!=0`) since the diff now shows
+     `xori v0,v0,1;beqz` wanted -- regressed 22->23 (gcc reuses s1 for `xor v0,v0,s1` instead of
+     `xori`), same coloring trap as before; kept the plain `!= 1` int test. Residual = gcc-2.7.2
+     HOISTS the dialog `this` address (s0=&YesNoDialog) and the ret default ABOVE the FECheat call,
+     whereas the oracle computes them after the cheater branch (s0 set in the body). Pure
+     pre-branch scheduling; not source-reachable (forbidden to pin). */
   is_cheater = (int)FECheat_IsTheUserACryBabyCheater();
   ret = (void *)0x1;
   if (is_cheater != 1) {
-    tDialogYesNo_ctor((tDialogYesNo *)&YesNoDialog);
-    *(void **)&(YesNoDialog._vf) = (void *)tDialogYesNoTri_vtable;
+    tDialogYesNoTri YesNoDialog;
+
+    *(void **)&(YesNoDialog._vf) = (void *)&tDialogYesNoTri_vtable;
     YesNoDialog.string =
          TextSys_Word(0x273);
     YesNoDialog.yesnowords[0] = 0x321;
@@ -955,8 +959,12 @@ extern "C" void MenuExtended_GoToTournTrackInfo__FR12tMenuCommand(tMenuCommand *
   tDialogMessageString *dlgThis;
   tDialogMessageString *this_00;
   tTourneyInfo *tourn;
-  tDialogYesNo popUp;
-  
+
+  /* [2026-07-11] Dropped the REDUNDANT `tDialogYesNo_ctor(&popUp)` manual call (tDialogYesNo's
+     real ctor is already auto-invoked by the local's declaration -- see AskTheUserToSaveTheGame's
+     note) and block-scoped popUp to exactly where the oracle's `jal __12tDialogYesNo` sits: AFTER
+     the insufficient-funds early-return, not at the outer `if`'s top (oracle disasm confirms the
+     ctor call is inside the can-afford fallthrough, not before the money check). */
   ptVar3 = tournamentManager.fDefinition;
   ptVar1 = FEApp;
   frontEnd.tier = '\0';
@@ -971,20 +979,23 @@ extern "C" void MenuExtended_GoToTournTrackInfo__FR12tMenuCommand(tMenuCommand *
       Display((tDialogBase *)this_00);
       return;
     }
-    tDialogYesNo_ctor(&popUp);
-    popUp.string =
-         TextSys_Word(0xf7);
-    popUp.yesnowords[0] = 0x322;
-    popUp.yesnowords[1] = 0x321;
-    popUp.fDefault = 0;
-    sVar4 = Run((tDialogInteractive *)&popUp);
-    if (sVar4 == 0) {
+    {
+      tDialogYesNo popUp;
+
+      popUp.string =
+           TextSys_Word(0xf7);
+      popUp.yesnowords[0] = 0x322;
+      popUp.yesnowords[1] = 0x321;
+      popUp.fDefault = 0;
+      sVar4 = Run((tDialogInteractive *)&popUp);
+      if (sVar4 == 0) {
+        tScreen_dtor((tScreen *)&popUp,2);
+        return;
+      }
+      AudioCmn_PlayFESFX(0x1a);
+      tournamentManager.fMoney = tournamentManager.fMoney - ptVar3->fTournaments[iVar6].fEntranceFee;
       tScreen_dtor((tScreen *)&popUp,2);
-      return;
     }
-    AudioCmn_PlayFESFX(0x1a);
-    tournamentManager.fMoney = tournamentManager.fMoney - ptVar3->fTournaments[iVar6].fEntranceFee;
-    tScreen_dtor((tScreen *)&popUp,2);
   }
   StartNewTournament(&tournamentManager,0,frontEnd.tournament);
   ptVar2 = menuDefs[0];
@@ -1017,8 +1028,11 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
   tDialogMessageString *dlgThis;
   tDialogMessageString *this_00;
   tTourneyInfo *tourn;
-  tDialogYesNo popUp;
-  
+
+  /* [2026-07-11] Dropped the REDUNDANT `tDialogYesNo_ctor(&popUp)` manual call (tDialogYesNo's
+     real ctor is already auto-invoked by the local's declaration -- see AskTheUserToSaveTheGame's
+     note) and block-scoped popUp to exactly where the oracle's `jal __12tDialogYesNo` sits: AFTER
+     the insufficient-funds early-return (see twin fn GoToTournTrackInfo). */
   ptVar3 = tournamentManager.fDefinition;
   ptVar1 = FEApp;
   frontEnd.tier = '\x01';
@@ -1033,20 +1047,23 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
       Display((tDialogBase *)this_00);
       return;
     }
-    tDialogYesNo_ctor(&popUp);
-    popUp.string =
-         TextSys_Word(0xf7);
-    popUp.yesnowords[0] = 0x321;
-    popUp.yesnowords[1] = 0x322;
-    popUp.fDefault = 0;
-    sVar4 = Run((tDialogInteractive *)&popUp);
-    if (sVar4 == 0) {
+    {
+      tDialogYesNo popUp;
+
+      popUp.string =
+           TextSys_Word(0xf7);
+      popUp.yesnowords[0] = 0x321;
+      popUp.yesnowords[1] = 0x322;
+      popUp.fDefault = 0;
+      sVar4 = Run((tDialogInteractive *)&popUp);
+      if (sVar4 == 0) {
+        tScreen_dtor((tScreen *)&popUp,2);
+        return;
+      }
+      AudioCmn_PlayFESFX(0x1a);
+      tournamentManager.fMoney = tournamentManager.fMoney - ptVar3->fTournaments[iVar6].fEntranceFee;
       tScreen_dtor((tScreen *)&popUp,2);
-      return;
     }
-    AudioCmn_PlayFESFX(0x1a);
-    tournamentManager.fMoney = tournamentManager.fMoney - ptVar3->fTournaments[iVar6].fEntranceFee;
-    tScreen_dtor((tScreen *)&popUp,2);
   }
   StartNewTournament(&tournamentManager,1,frontEnd.specialevent);
   ptVar2 = menuDefs[0];
@@ -1275,8 +1292,9 @@ extern "C" void MenuExtended_SellCar__FR12tMenuCommand(tMenuCommand *command)
   long money;
   tDialogMessageString *this_00;
   tDialogMessageString *dlgThis;
-  tDialogYesNo popUp;
-  
+
+  /* [2026-07-11] Dropped the REDUNDANT `tDialogYesNo_ctor(&popUp)` manual call and block-scoped
+     popUp into the `if (bVar1)` (see AskTheUserToSaveTheGame's note for why). */
   lVar6 = tournamentManager.fMoney;
   bVar1 = false;
   lVar4 = CalcUsedPrice(&carManager, (ushort)(byte)frontEnd.garageCar[0]);
@@ -1287,7 +1305,8 @@ extern "C" void MenuExtended_SellCar__FR12tMenuCommand(tMenuCommand *command)
   }
   ptVar2 = FEApp;
   if (bVar1) {
-    tDialogYesNo_ctor(&popUp);
+    tDialogYesNo popUp;
+
     popUp.string =
          TextSys_Word(0xa5);
     popUp.yesnowords[0] = 0x321;
@@ -1339,15 +1358,17 @@ extern "C" void MenuExtended_BuyCar__FR12tMenuCommand(tMenuCommand *command)
   tDialogMessageString *this_00;
   tDialogMessageString *popUp;
   tCarInfo carInfo;
-  tDialogYesNo yesNo;
-  
+
+  /* [2026-07-11] Dropped the REDUNDANT `tDialogYesNo_ctor(&yesNo)` manual call and block-scoped
+     yesNo into the inner `if` (see AskTheUserToSaveTheGame's note for why). */
   ptVar1 = FEApp;
   this_00 = &FEApp->messagePopup;
   GetStockCar(&carManager, (ushort)(byte)frontEnd.dealerCar,&carInfo);
   sVar2 = GetNumOwnedCars(&carManager, 0);
   if (sVar2 < 0x20) {
     if (carInfo.fPrices[0] <= tournamentManager.fMoney) {
-      tDialogYesNo_ctor(&yesNo);
+      tDialogYesNo yesNo;
+
       yesNo.string =
            TextSys_Word(0xa4);
       yesNo.yesnowords[0] = 0x321;
@@ -1396,17 +1417,16 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
   int upgradeFlag;
   uint uVar5;
   tCarInfo carInfo;
-  tDialogYesNo popUp;
-  
-  /* NEAR-MISS 73 diffs (was 94): dropped the eager `ptVar1 = FEApp` cache -> FEApp now loaded
+
+  /* NEAR-MISS (2026-07-11): dropped the eager `ptVar1 = FEApp` cache -> FEApp now loaded
      lazily only in the not-enough-money branch (matches oracle's `lw s0,%lo(FEApp)(v0)` there),
-     freeing one saved reg. RESIDUAL = gcc-2.7.2 SPECULATIVELY HOISTS the `tDialogYesNo_ctor(&popUp)`
-     call to the top of the function (above GetGarageCar + the ownership/affordability tests),
-     pinning the dialog `this` (sp+0xE0) into s0 for the whole body. That forces the param into s3
-     (oracle keeps the param in s0 and only repurposes s0->dialog-this inside the can-afford branch)
-     and costs a 6th saved reg (s5) + a bigger frame. The hoist is a gcc code-motion choice not
-     reachable from C statement order (the ctor is already nested in the inner else). Forbidden to
-     pin. Param->s0 vs s3 cascades through the sllv/and/slt register coloring = the bulk of the 73. */
+     freeing one saved reg. Also dropped the REDUNDANT `tDialogYesNo_ctor(&popUp)` manual call
+     (tDialogYesNo's real ctor is already auto-invoked by the local's declaration) and
+     block-scoped popUp into the `else` -- the previous note blamed a "speculative hoist" of the
+     ctor call above GetGarageCar, but that hoisted call was actually the AUTOMATIC ctor for the
+     function-scope `popUp` firing at the top unconditionally, stacked with the (redundant) manual
+     call in the else; removing the manual call and shrinking popUp's scope to the else fixes
+     the hoist at the source. */
   uVar5 = 1 << (upgradeNumber);
   GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],&carInfo,0);
   if ((carInfo.fUpgrades & uVar5) == 0) {
@@ -1417,7 +1437,8 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
       Display((tDialogBase *)&(ptVar1->messagePopup));
     }
     else {
-      tDialogYesNo_ctor(&popUp);
+      tDialogYesNo popUp;
+
       popUp.string =
            TextSys_Word(0xa6);
       popUp.yesnowords[0] = 0x321;
@@ -1600,7 +1621,6 @@ extern "C" void MenuExtended_LoadGame__FR12tMenuCommand(tMenuCommand *command)
     short sVar1;
     tDialogYesNo *dlgThis;
     tDialogYesNo AreYouSure;
-    tDialogYesNo_ctor(&AreYouSure);
     dlgThis = &AreYouSure;
     dlgThis->yesnowords[0] = 0x321;
     dlgThis->yesnowords[1] = 0x322;
@@ -1904,7 +1924,9 @@ extern "C" void MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand(tMenuCommand *c
   tDialogYesNo RetryCancelDialog;
   tCarInfo carInfo;
   
-  tDialogYesNo_ctor(&RetryCancelDialog);
+  /* [2026-07-11 consolidation] dropped REDUNDANT tDialogYesNo_ctor(&RetryCancelDialog) manual
+     call (undefined phantom extern; tDialogYesNo's real declared ctor auto-fires -- oracle
+     shows a single jal __12tDialogYesNo). Same class as the ~11 sites fixed above. */
   RetryCancelDialog.yesnowords[0] = 0x291;
   RetryCancelDialog.yesnowords[1] = 0x292;
   RetryCancelDialog.fDefault = 1;
@@ -2128,8 +2150,7 @@ extern "C" void MenuExtended_ExitTourney__FR12tMenuCommand(tMenuCommand *command
   short sVar2;
   tDialogYesNo *dlgThis;
   tDialogYesNo AreYouSure;
-  
-  tDialogYesNo_ctor(&AreYouSure);
+
   AreYouSure.yesnowords[0] = 0x321;
   AreYouSure.yesnowords[1] = 0x322;
   AreYouSure.fDefault = 0;
@@ -2183,7 +2204,6 @@ extern "C" void MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand(tMenuCommand *
   tDialogYesNo AreYouSure;
   char string [80];
   
-  tDialogYesNo_ctor(&AreYouSure);
   dlgThis = &AreYouSure;
   dlgThis->yesnowords[0] = 0x321;
   dlgThis->yesnowords[1] = 0x322;
@@ -2469,28 +2489,28 @@ tGlobalMenuDefs::tGlobalMenuDefs()
                       &frontEnd.pinkSlipsTrackIndex);
   tListIterator_ctor((tListIterator *)ptVar5,SelectListOffOn,&frontEnd.localSpeech);
   tMenuItemLeftRightChoice_ctor((tMenuItemLeftRightChoice *)&this->itemLaps,0xca,(tListIterator *)&this->iteratorLaps);
-  *(void **)&((this->itemLaps)._vf) = (void *)tMenuItemOptionsLeftRightChoice_vtable;
+  *(void **)&((this->itemLaps)._vf) = (void *)&tMenuItemOptionsLeftRightChoice_vtable;
   tMenuItemLeftRightChoice_ctor((tMenuItemLeftRightChoice *)&this->itemTrackDirection,0xcc,
              (tListIterator *)&this->iteratorTrackDirection);
-  *(void **)&((this->itemTrackDirection)._vf) = (void *)tMenuItemOptionsLeftRightChoice_vtable;
+  *(void **)&((this->itemTrackDirection)._vf) = (void *)&tMenuItemOptionsLeftRightChoice_vtable;
   tMenuItemLeftRightChoice_ctor((tMenuItemLeftRightChoice *)&this->itemTrackMirrored,0xcd,
              (tListIterator *)&this->iteratorTrackMirrored);
-  *(void **)&((this->itemTrackMirrored)._vf) = (void *)tMenuItemOptionsTwoItemChoice_vtable;
+  *(void **)&((this->itemTrackMirrored)._vf) = (void *)&tMenuItemOptionsTwoItemChoice_vtable;
   (this->itemTrackMirrored).fOnOffFade = 0x80;
   tMenuItemLeftRightChoice_ctor((tMenuItemLeftRightChoice *)&this->itemTimeOfDay,0xce,
              (tListIterator *)&this->iteratorTimeOfDay);
-  *(void **)&((this->itemTimeOfDay)._vf) = (void *)tMenuItemOptionsTwoItemChoice_vtable;
+  *(void **)&((this->itemTimeOfDay)._vf) = (void *)&tMenuItemOptionsTwoItemChoice_vtable;
   (this->itemTimeOfDay).fOnOffFade = 0x80;
   tMenuItemLeftRightChoice_ctor((tMenuItemLeftRightChoice *)&this->itemWeather,0xcf,
              (tListIterator *)&this->iteratorWeather);
-  *(void **)&((this->itemWeather)._vf) = (void *)tMenuItemOptionsTwoItemChoice_vtable;
+  *(void **)&((this->itemWeather)._vf) = (void *)&tMenuItemOptionsTwoItemChoice_vtable;
   (this->itemWeather).fOnOffFade = 0x80;
   tMenuItemLeftRightChoice_ctor((tMenuItemLeftRightChoice *)&this->itemTraffic,0xd0,
              (tListIterator *)&this->iteratorTraffic);
-  *(void **)&((this->itemTraffic)._vf) = (void *)tMenuItemOptionsTwoItemChoice_vtable;
+  *(void **)&((this->itemTraffic)._vf) = (void *)&tMenuItemOptionsTwoItemChoice_vtable;
   (this->itemTraffic).fOnOffFade = 0x80;
   tMenuItemLeftRightChoice_ctor((tMenuItemLeftRightChoice *)&this->itemLocalSpeech,0xd2,&this->iteratorLocalSpeech);
-  *(void **)&((this->itemLocalSpeech)._vf) = (void *)tMenuItemOptionsTwoItemChoice_vtable;
+  *(void **)&((this->itemLocalSpeech)._vf) = (void *)&tMenuItemOptionsTwoItemChoice_vtable;
   (this->itemLocalSpeech).fOnOffFade = 0x80;
   tMenuOptions_ctor(ptVar12,0x1000,(tScreen *)0x0,(tMenu *)0x0,(tMenu *)0x0,(void *)0x0,0xb9,-1,
              (tMenuItem *)&this->itemLaps,&this->itemTrackDirection,&this->itemTrackMirrored,
@@ -2661,24 +2681,24 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   this_11 = &this->itemTransmission;
   tMenuItemLeftRightChoice_ctor((tMenuItemLeftRightChoice *)this_11,0x10a,(tListIterator *)this_03);
   this_04 = &this->itemABS;
-  *(void **)&((this->itemTransmission)._vf) = (void *)tMenuItemOptionsLeftRightChoice_vtable;
+  *(void **)&((this->itemTransmission)._vf) = (void *)&tMenuItemOptionsLeftRightChoice_vtable;
   tMenuItemLeftRightChoice_ctor((tMenuItemLeftRightChoice *)this_04,0x10b,(tListIterator *)this_13);
   this_05 = &this->itemDamage;
-  *(void **)&((this->itemABS)._vf) = (void *)tMenuItemOptionsLeftRightChoice_vtable;
+  *(void **)&((this->itemABS)._vf) = (void *)&tMenuItemOptionsLeftRightChoice_vtable;
   tMenuItemLeftRightChoice_ctor((tMenuItemLeftRightChoice *)this_05,0x111,&this->iteratorDamage);
   this_18 = &this->itemTransmission2;
-  *(void **)&((this->itemDamage)._vf) = (void *)tMenuItemOptionsLeftRightChoice_vtable;
+  *(void **)&((this->itemDamage)._vf) = (void *)&tMenuItemOptionsLeftRightChoice_vtable;
   tMenuItemLeftRightChoice_ctor((tMenuItemLeftRightChoice *)this_18,0x10a,(tListIterator *)this_03);
   this_06 = &this->itemABS2;
-  *(void **)&((this->itemTransmission2)._vf) = (void *)tMenuItemOptionsLeftRightChoice_vtable;
+  *(void **)&((this->itemTransmission2)._vf) = (void *)&tMenuItemOptionsLeftRightChoice_vtable;
   tMenuItemLeftRightChoice_ctor((tMenuItemLeftRightChoice *)this_06,0x10b,(tListIterator *)this_13);
   this_14 = &this->itemDamage2;
-  *(void **)&((this->itemABS2)._vf) = (void *)tMenuItemOptionsLeftRightChoice_vtable;
+  *(void **)&((this->itemABS2)._vf) = (void *)&tMenuItemOptionsLeftRightChoice_vtable;
   tMenuItemLeftRightChoice_ctor((tMenuItemLeftRightChoice *)this_14,0x111,&this->iteratorDamage);
-  *(void **)&((this->itemDamage2)._vf) = (void *)tMenuItemOptionsLeftRightChoice_vtable;
+  *(void **)&((this->itemDamage2)._vf) = (void *)&tMenuItemOptionsLeftRightChoice_vtable;
   tMenuItemLeftRightChoice_ctor((tMenuItemLeftRightChoice *)&this->itemOpponentUpgrades,0x10e,
              &this->iteratorOpponentUpgrades);
-  *(void **)&((this->itemOpponentUpgrades)._vf) = (void *)tMenuItemOptionsLeftRightChoice_vtable;
+  *(void **)&((this->itemOpponentUpgrades)._vf) = (void *)&tMenuItemOptionsLeftRightChoice_vtable;
   tMenuOptions_ctor(ptVar12,0x1000,(tScreen *)0x0,(tMenu *)0x0,(tMenu *)0x0,(void *)0x0,0xbb,-1,
              (tMenuItem *)this_11,this_04,this_05,&this->itemOpponentUpgrades,0);
   tMenuOptions_ctor(this_10,0x1008,(tScreen *)screenCarSelectTwoPlayer,(tMenu *)0x0,(tMenu *)0x0,
@@ -2719,9 +2739,9 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuItemLeftRightAudioSlider_ctor(&this->itemSpeechVolume,0x1d8,(tListIterator *)&this->iteratorSpeechVolume,3);
   tMenuItemLeftRightAudioSlider_ctor(&this->itemAmbientVolume,0x1d9,(tListIterator *)&this->iteratorAmbientVolume,4);
   tMenuItemLeftRightFade_ctor((tMenuItemLeftRightFade *)&this->itemAudioMode,0x1da,&this->iteratorAudioMode);
-  *(void **)&((this->itemAudioMode)._vf) = (void *)tMenuItemDisplayLeftRightChoice_vtable;
+  *(void **)&((this->itemAudioMode)._vf) = (void *)&tMenuItemDisplayLeftRightChoice_vtable;
   tMenuItemSlidingMenu_ctor((tMenuItemSlidingMenu *)&this->itemSlidingPlayList,0x1db,0x15e,0x2b,-0x66,0xd,false);
-  *(void **)&((this->itemSlidingPlayList)._vf) = (void *)tMenuItemSlidingActivated_vtable;
+  *(void **)&((this->itemSlidingPlayList)._vf) = (void *)&tMenuItemSlidingActivated_vtable;
   tInsideBoxSongMenu_ctor(&this->menuPlayListMenu,0x1000,(tScreen *)0x0,(tMenu *)0x0,(tMenu *)0x0,(void *)0x0,
              0,(tMenuItem *)0x0);
   tOptionsMenu_ctor(&this->menuAudio,0x1010,(tScreen *)screenAudio,(tMenu *)0x0,(tMenu *)0x0,(void *)0x0,
@@ -2744,29 +2764,29 @@ tGlobalMenuDefs::tGlobalMenuDefs()
              &FEApp->fInputPlayer);
   tMenuItemLeftRightFade_ctor((tMenuItemLeftRightFade *)&this->itemDisplaySpeedometer,0x1df,
              (tListIterator *)&this->iteratorDisplaySpeedometer);
-  *(void **)&((this->itemDisplaySpeedometer)._vf) = (void *)tMenuItemDisplayLeftRightChoice_vtable;
+  *(void **)&((this->itemDisplaySpeedometer)._vf) = (void *)&tMenuItemDisplayLeftRightChoice_vtable;
   tMenuItemLeftRightFade_ctor((tMenuItemLeftRightFade *)&this->itemDisplayMap,0x1e1,
              (tListIterator *)&this->iteratorDisplayMap);
-  *(void **)&((this->itemDisplayMap)._vf) = (void *)tMenuItemDisplayLeftRightChoice_vtable;
+  *(void **)&((this->itemDisplayMap)._vf) = (void *)&tMenuItemDisplayLeftRightChoice_vtable;
   tMenuItemLeftRightFade_ctor((tMenuItemLeftRightFade *)&this->itemDisplayOpponentID,0x1e2,
              (tListIterator *)&this->iteratorDisplayOpponentID);
-  *(void **)&((this->itemDisplayOpponentID)._vf) = (void *)tMenuItemDisplayLeftRightChoice_vtable;
+  *(void **)&((this->itemDisplayOpponentID)._vf) = (void *)&tMenuItemDisplayLeftRightChoice_vtable;
   tMenuItemLeftRightFade_ctor((tMenuItemLeftRightFade *)&this->itemDisplayTime,0x1e3,
              (tListIterator *)&this->iteratorDisplayTime);
-  *(void **)&((this->itemDisplayTime)._vf) = (void *)tMenuItemOnOffLeftRightChoice_vtable;
+  *(void **)&((this->itemDisplayTime)._vf) = (void *)&tMenuItemOnOffLeftRightChoice_vtable;
   tMenuItemLeftRightFade_ctor((tMenuItemLeftRightFade *)&this->itemDisplayPosition,0x1e6,
              (tListIterator *)&this->iteratorDisplayPosition);
-  *(void **)&((this->itemDisplayPosition)._vf) = (void *)tMenuItemOnOffLeftRightChoice_vtable;
+  *(void **)&((this->itemDisplayPosition)._vf) = (void *)&tMenuItemOnOffLeftRightChoice_vtable;
   tMenuItemLeftRightFade_ctor((tMenuItemLeftRightFade *)&this->itemDisplayLapNumber,0x1e7,
              (tListIterator *)&this->iteratorDisplayLapNumber);
-  *(void **)&((this->itemDisplayLapNumber)._vf) = (void *)tMenuItemOnOffLeftRightChoice_vtable;
+  *(void **)&((this->itemDisplayLapNumber)._vf) = (void *)&tMenuItemOnOffLeftRightChoice_vtable;
   tMenuItemLeftRightFade_ctor((tMenuItemLeftRightFade *)&this->itemDisplaySplitTime,0x1e4,
              &this->iteratorDisplaySplitTime);
-  *(void **)&((this->itemDisplaySplitTime)._vf) = (void *)tMenuItemDisplayLeftRightChoice_vtable;
+  *(void **)&((this->itemDisplaySplitTime)._vf) = (void *)&tMenuItemDisplayLeftRightChoice_vtable;
   tMenuItemLeftRightFade_ctor((tMenuItemLeftRightFade *)&this->itemDisplaySplitDisplay,0x1e5,
              (tListIterator *)&this->iteratorDisplaySplitDisplay);
   screenHandler_00 = screenDisplay;
-  *(void **)&((this->itemDisplaySplitDisplay)._vf) = (void *)tMenuItemDisplayLeftRightChoice_vtable;
+  *(void **)&((this->itemDisplaySplitDisplay)._vf) = (void *)&tMenuItemDisplayLeftRightChoice_vtable;
   tOptionsMenu_ctor(&this->menuDisplayOptions,0x1020,(tScreen *)screenHandler_00,(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,0x1dd,1,10,(tMenuItem *)&this->itemDisplaySpeedometer,
              &this->itemDisplayMap,&this->itemDisplayOpponentID,&this->itemDisplayTime,
@@ -2776,7 +2796,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
              frontEnd.controlConfig,&FEApp->fInputPlayer);
   tMenuItemLeftRightFade_ctor((tMenuItemLeftRightFade *)&this->itemControllerConfigSelected,0x209,
              (tListIterator *)&this->iteratorControllerConfigSelected);
-  *(void **)&((this->itemControllerConfigSelected)._vf) = (void *)tMenuItemControllerLeftRightChoice_vtable;
+  *(void **)&((this->itemControllerConfigSelected)._vf) = (void *)&tMenuItemControllerLeftRightChoice_vtable;
   tMenuItemSlidingMenu_ctor(&this->itemControllerSettings,0x20a,0xac,0x48,0,0xd,true);
   tOptionsMenu_ctor(&this->menuControllerConfig,0x1020,(tScreen *)screenControllerConfig,(tMenu *)0x0,
              (tMenu *)0x0,(void *)0x0,0x208,0,10,(tMenuItem *)&this->itemControllerConfigSelected
@@ -2787,14 +2807,14 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tInsideBoxLeftRightSlider_ctor(&firstItem->_base_tInsideBoxLeftRightSlider,0x20e,
              (tListIterator *)&this->iteratorControllerShockMode);
   ptVar1 = FEApp;
-  *(void **)&((this->itemControllerShockMode)._base_tInsideBoxLeftRightSlider._vf) = (void *)tInsideBoxControllerLeftRightSlider_vtable;
+  *(void **)&((this->itemControllerShockMode)._base_tInsideBoxLeftRightSlider._vf) = (void *)&tInsideBoxControllerLeftRightSlider_vtable;
   tListIteratorRangeIndexed_ctor(&this->iteratorControllerShockImpact,'\0','\x7f',frontEnd.shockImpact,
              &ptVar1->fInputPlayer);
   this_07 = &this->itemControllerShockImpact;
   tInsideBoxLeftRightSlider_ctor(&this_07->_base_tInsideBoxLeftRightSlider,0x20f,
              (tListIterator *)&this->iteratorControllerShockImpact);
   pcVar4 = &FEApp->fInputPlayer;
-  *(void **)&((this->itemControllerShockImpact)._base_tInsideBoxLeftRightSlider._vf) = (void *)tInsideBoxControllerLeftRightSlider_vtable;
+  *(void **)&((this->itemControllerShockImpact)._base_tInsideBoxLeftRightSlider._vf) = (void *)&tInsideBoxControllerLeftRightSlider_vtable;
   tListIteratorRangeIndexed_ctor(&this->iteratorControllerSteeringRange1,'\0','\x7f',frontEnd.J1MAX,pcVar4);
   tInsideBoxTwoWaySlider_ctor(&this->itemControllerSteeringRange1,0x211,
              (tListIterator *)&this->iteratorControllerSteeringRange1,0);
@@ -2834,11 +2854,11 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   this_19 = &this->itemSaveGame;
   tMenuItemGoToMenuButton_ctor((tMenuItemGoToMenuButton *)this_19,0x286,(tMenu *)0x0,
              MenuExtended_SaveGame__FR12tMenuCommand);
-  *(void **)&((this->itemSaveGame)._vf) = (void *)tMemoryCardMenuItem_vtable;
+  *(void **)&((this->itemSaveGame)._vf) = (void *)&tMemoryCardMenuItem_vtable;
   tMenuItemGoToMenuButton_ctor((tMenuItemGoToMenuButton *)&this->itemLoadGame,0x287,(tMenu *)0x0,
              MenuExtended_LoadGame__FR12tMenuCommand);
   ptVar3 = screenMemcard;
-  *(void **)&((this->itemLoadGame)._vf) = (void *)tMemoryCardMenuItem_vtable;
+  *(void **)&((this->itemLoadGame)._vf) = (void *)&tMemoryCardMenuItem_vtable;
   tOptionsMenu_ctor(&this->menuMemory,0x1020,(tScreen *)ptVar3,(tMenu *)0x0,(tMenu *)0x0,(void *)0x0,-1,
              0x2e,10,(tMenuItem *)&this->itemLoadGame,this_19,0);
   tUserNameMenuItem_ctor(&this->menuItemUserName,0x1f8);
@@ -2907,7 +2927,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   tMenuItemGoToMenuButton_ctor((tMenuItemGoToMenuButton *)&this->itemMemContinue,0x28a,(tMenu *)0x0,
              MenuExtended_TransitionFromPostGameToMainMenu__FR12tMenuCommand);
   ptVar3 = screenMemcard;
-  *(void **)&((this->itemMemContinue)._vf) = (void *)tMemoryCardMenuItem_vtable;
+  *(void **)&((this->itemMemContinue)._vf) = (void *)&tMemoryCardMenuItem_vtable;
   tOptionsMenu_ctor(&this->menuPostGameSave,0x1040,(tScreen *)ptVar3,(tMenu *)0x0,(tMenu *)0x0,
              (void *)0x0,-1,0x2e,10,(tMenuItem *)&this->itemMemContinue,this_19,0);
   (this->menuPlayerOneCarSelect).fChildMenu = (tMenu *)&this->menuPlayerTwoCarSelect
@@ -2944,257 +2964,18 @@ tGlobalMenuDefs::tGlobalMenuDefs()
 tGlobalMenuDefs::~tGlobalMenuDefs()
 
 {
-  
-  tOptionsMenu_dtor(&this->menuPostGameSave,2);
-  tMenuItemGoToMenuButton_dtor((tMenuItemGoToMenuButton *)&this->itemMemContinue,2);
-  tMenuBlank_dtor(&this->menuCredits,2);
-  tMenuBlank_dtor(&this->menuTierCompleteCongrats,2);
-  tMenuBlank_dtor(&this->menuBeTheCopCongrats,2);
-  tMenuBlank_dtor(&this->menuPinkSlipCongrats,2);
-  tOptionsMenu_dtor(&this->menuPostGameTrackRecords,2);
-  tMenuItemGoToMenuNFS4Button_dtor((tMenuItemGoToMenuNFS4Button *)&this->itemPostGameTrackRecordsContinue,2);
-  tOptionsMenu_dtor(&this->menuPostGamePlayer2Name,2);
-  tOptionsMenu_dtor(&this->menuPostGamePlayer1Name,2);
-  tMenuBlank_dtor(&this->menuTournamentTrophy,2);
-  tMenuNFS4_dtor(&this->menuTournamentFinished,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemTournamentFinishedHome,2);
-  tMenuNFS4_dtor(&this->menuTournamentStandings,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemTournStandingsExit,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemTournStandingsForward,2);
-  tMenuNFS4_dtor(&this->menuPinkSlipStandings,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemPinkSlipStandingsExit,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemPinkSlipStandingsForward,2);
-  tMenuNFS4Bottom_dtor(&this->menuTrophyRoom,2);
-  tMenuItemNFS4LeftRightChoice_dtor((tMenuItemNFS4LeftRightChoice *)&this->itemChangeTrophy,2);
-  tListIterator_dtor(&this->iteratorChangeTrophy,2);
-  tOptionsMenu_dtor(&this->menuUserName,2);
-  tMenuItem_dtor((tMenuItem *)&this->menuItemUserName2,2);
-  tMenuItem_dtor((tMenuItem *)&this->menuItemUserName1,2);
-  tMenuItem_dtor((tMenuItem *)&this->menuItemUserName,2);
-  tOptionsMenu_dtor(&this->menuMemory,2);
-  tMenuItemGoToMenuButton_dtor((tMenuItemGoToMenuButton *)&this->itemLoadGame,2);
-  tMenuItemGoToMenuButton_dtor((tMenuItemGoToMenuButton *)&this->itemSaveGame,2);
-  tInsideBoxMenu_dtor(&this->menuControllerNegcon,2);
-  tInsideBoxMenu_dtor(&this->menuControllerDualShockAnalog,2);
-  tInsideBoxMenu_dtor(&this->menuControllerAnalog,2);
-  tInsideBoxMenu_dtor(&this->menuControllerDualShock,2);
-  tInsideBoxTwoWaySlider_dtor(&this->itemControllerIIMax,2);
-  tListIteratorRangeIndexed_dtor(&this->iteratorControllerIIMax,2);
-  tInsideBoxTwoWaySlider_dtor(&this->itemControllerIMax,2);
-  tListIteratorRangeIndexed_dtor(&this->iteratorControllerIMax,2);
-  tInsideBoxTwoWaySlider_dtor(&this->itemControllerCenterPoint,2);
-  tListIteratorRangeIndexed_dtor(&this->iteratorControllerCenterPoint,2);
-  tInsideBoxTwoWaySlider_dtor(&this->itemControllerJoyRange,2);
-  tListIteratorRangeIndexed_dtor(&this->iteratorControllerJoyRange,2);
-  tInsideBoxTwoWaySlider_dtor(&this->itemControllerDeadSpot2,2);
-  tListIteratorRangeIndexed_dtor(&this->iteratorControllerDeadSpot2,2);
-  tInsideBoxTwoWaySlider_dtor(&this->itemControllerSteeringRange2,2);
-  tListIteratorRangeIndexed_dtor(&this->iteratorControllerSteeringRange2,2);
-  tInsideBoxTwoWaySlider_dtor(&this->itemControllerDeadSpot1,2);
-  tListIteratorRangeIndexed_dtor(&this->iteratorControllerDeadSpot1,2);
-  tInsideBoxTwoWaySlider_dtor(&this->itemControllerSteeringRange1,2);
-  tListIteratorRangeIndexed_dtor(&this->iteratorControllerSteeringRange1,2);
-  tInsideBoxLeftRightSlider_dtor(&(this->itemControllerShockImpact)._base_tInsideBoxLeftRightSlider,2);
-  tListIteratorRangeIndexed_dtor(&this->iteratorControllerShockImpact,2);
-  tInsideBoxLeftRightSlider_dtor(&(this->itemControllerShockMode)._base_tInsideBoxLeftRightSlider,2);
-  tListIteratorRangeIndexed_dtor(&this->iteratorControllerShockMode,2);
-  tOptionsMenu_dtor(&this->menuControllerConfig,2);
-  tMenuItemSlidingMenu_dtor(&this->itemControllerSettings,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemControllerConfigSelected,2);
-  tListIteratorIndexed_dtor(&this->iteratorControllerConfigSelected,2);
-  tOptionsMenu_dtor(&this->menuDisplayOptions,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemDisplaySplitDisplay,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemDisplaySplitTime,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemDisplayLapNumber,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemDisplayPosition,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemDisplayTime,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemDisplayOpponentID,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemDisplayMap,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemDisplaySpeedometer,2);
-  tListIteratorIndexed_dtor(&this->iteratorDisplaySplitDisplay,2);
-  tListIterator_dtor(&this->iteratorDisplaySplitTime,2);
-  tListIteratorIndexed_dtor(&this->iteratorDisplayLapNumber,2);
-  tListIteratorIndexed_dtor(&this->iteratorDisplayPosition,2);
-  tListIteratorIndexed_dtor(&this->iteratorDisplayTime,2);
-  tListIteratorIndexed_dtor(&this->iteratorDisplayOpponentID,2);
-  tListIteratorIndexed_dtor(&this->iteratorDisplayMap,2);
-  tListIteratorIndexed_dtor(&this->iteratorDisplaySpeedometer,2);
-  tOptionsMenu_dtor(&this->menuAudio,2);
-  tInsideBoxSongMenu_dtor(&this->menuPlayListMenu,2);
-  tMenuItemSlidingMenu_dtor((tMenuItemSlidingMenu *)&this->itemSlidingPlayList,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemAudioMode,2);
-  tMenuItemLeftRightAudioSlider_dtor(&this->itemAmbientVolume,2);
-  tMenuItemLeftRightAudioSlider_dtor(&this->itemSpeechVolume,2);
-  tMenuItemLeftRightAudioSlider_dtor(&this->itemEngineVolume,2);
-  tMenuItemLeftRightAudioSlider_dtor(&this->itemSoundEffectsVolume,2);
-  tMenuItemLeftRightAudioSlider_dtor(&this->itemMusicVolume,2);
-  tListIterator_dtor(&this->iteratorAudioMode,2);
-  tListIteratorRange_dtor(&this->iteratorAmbientVolume,2);
-  tListIteratorRange_dtor(&this->iteratorSpeechVolume,2);
-  tListIteratorRange_dtor(&this->iteratorEngineVolume,2);
-  tListIteratorRange_dtor(&this->iteratorSoundEffectsVolume,2);
-  tListIteratorRange_dtor(&this->iteratorMusicVolume,2);
-  tMenuNFS4_dtor(&this->menuOptions,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemOptionsCredits,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemOptionsUsername,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemOptionsMemoryCard,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemOptionsControllers,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemOptionsDisplay,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemOptionsAudio,2);
-  tMenuBlank_dtor(&this->menuShowroom,2);
-  tMenuOptions_dtor(&this->menuPinkSlipCarOptionsPlayerTwo,2);
-  tMenuOptions_dtor(&this->menuPinkSlipCarOptionsPlayerOne,2);
-  tMenuOptions_dtor(&this->menuCarOptionsPlayerTwo,2);
-  tMenuOptions_dtor(&this->menuCarOptionsPlayerOne,2);
-  tMenuOptions_dtor(&this->menuCarOptions,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemOpponentUpgrades,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemDamage2,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemABS2,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemTransmission2,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemDamage,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemABS,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemTransmission,2);
-  tListIterator_dtor(&this->iteratorOpponentUpgrades,2);
-  tListIterator_dtor(&this->iteratorDamage,2);
-  tListIteratorIndexed_dtor(&this->iteratorABS,2);
-  tListIteratorIndexed_dtor(&this->iteratorTransmission,2);
-  tMenuNFS4_dtor(&this->menuCarUpgrades,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemPurchaseUpgrade3,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemPurchaseUpgrade2,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemPurchaseUpgrade1,2);
-  tMenuNFS4_dtor(&this->menuCarSeller,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemSellCar,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemSellerCar,2);
-  tListIteratorCar_dtor(&this->iteratorSellerCar,2);
-  tMenuNFS4_dtor(&this->menuCarDealer,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemDealerShowroom,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemBuyCar,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemDealerColor,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemDealerCar,2);
-  tListIteratorCarColor_dtor(&this->iteratorDealerColor,2);
-  tListIteratorCar_dtor(&this->iteratorDealerCar,2);
-  tMenuNFS4_dtor(&this->menuGoToCarDealer,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemGoToSellCar,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemGoToBuyCar,2);
-  tMenuNFS4TwoPlayer_dtor(&this->menuPlayerTwoPinkSlipCarSelect,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemPinkSlipCarP2,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemPlayerTwoPinkSlipRace,2);
-  tMenuNFS4TwoPlayer_dtor(&this->menuPlayerOnePinkSlipCarSelect,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemPinkSlipCarP1,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemPlayerOnePinkSlipRace,2);
-  tListIteratorCar_dtor(&this->iteratorPinkSlipsCar,2);
-  tMenuNFS4TwoPlayer_dtor(&this->menuPlayerTwoGarage,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemGarageCarP2,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemPlayerTwoGarageRace,2);
-  tMenuNFS4TwoPlayer_dtor(&this->menuPlayerOneGarage,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemGarageCarP1,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemPlayerOneGarageRace,2);
-  tMenuNFS4TwoPlayer_dtor(&this->menuPlayerTwoCarSelect,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemColorP2,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemCarP2,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemPlayerTwoRace,2);
-  tMenuNFS4TwoPlayer_dtor(&this->menuPlayerOneCarSelect,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemColorP1,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemCarP1,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemPlayerOneRace,2);
-  tMenuNFS4_dtor(&this->menuHPDuelCarSelect,2);
-  tMenuNFS4_dtor(&this->menuDuelCarSelect,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemOpponentCar,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemGoToDuelBuyCar,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemColor2,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemCar2,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemDuelRace,2);
-  tListIteratorCar_dtor(&this->iteratorOpponentCar,2);
-  tMenuNFS4_dtor(&this->menuPostCarGarage,2);
-  tMenuNFS4_dtor(&this->menuCarGarage,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemUpgradeCar,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemCarDealer,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemGarageCar,2);
-  tListIteratorCar_dtor(&this->iteratorGarageCar,2);
-  tMenuNFS4_dtor(&this->menuSingleCarSelect,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemShowcase,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemColor,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemCar,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemCarSelectRace,2);
-  tListIteratorCarColor_dtor(&this->iteratorColor,2);
-  tListIteratorCar_dtor(&this->iteratorCar1,2);
-  tMenuNFS4_dtor(&this->menuTrackInfo,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemTrackInfoContinue,2);
-  tOptionsMenu_dtor(&this->menuTrackRecords,2);
-  tMenuItemGoToMenuNFS4Button_dtor((tMenuItemGoToMenuNFS4Button *)&this->menuTrackRecordsItem,2);
-  tMenuOptions_dtor(&this->menuTrackOptions,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemLocalSpeech,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemTraffic,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemWeather,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemTimeOfDay,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemTrackMirrored,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemTrackDirection,2);
-  tMenuItemLeftRightChoice_dtor((tMenuItemLeftRightChoice *)&this->itemLaps,2);
-  tListIterator_dtor(&this->iteratorLocalSpeech,2);
-  tListIteratorIndexed_dtor(&this->iteratorTraffic,2);
-  tListIteratorIndexed_dtor(&this->iteratorWeather,2);
-  tListIteratorIndexed_dtor(&this->iteratorTimeOfDay,2);
-  tListIteratorIndexed_dtor(&this->iteratorTrackMirrored,2);
-  tListIteratorIndexed_dtor(&this->iteratorTrackDirection,2);
-  tListIteratorIndexed_dtor(&this->iteratorLaps,2);
-  tMenuNFS4_dtor(&this->menuTestDriveTrackSelect,2);
-  tMenuNFS4_dtor(&this->menuSingleTrackSelect,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemTrackRecords,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemTrack,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemTrackContinue,2);
-  tListIteratorTrack_dtor(&this->iteratorTrack,2);
-  tMenuNFS4_dtor(&this->menuPinkSlipsBestOfFive,2);
-  tMenuNFS4_dtor(&this->menuPinkSlipsBestOfThree,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemTrack5,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemTrack4,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemTrack3,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemTrack2,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemTrack1,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemPinkSlipsContinue,2);
-  tMenuNFS4_dtor(&this->menuPinkSlipSelect,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemBestOfFive,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemBestOfThree,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemBestOfOne,2);
-  tMenuNFS4_dtor(&this->menuTwoPlayer,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemTwoPlayerPinkSlips,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemTwoPlayerHotPursuit,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemTwoPlayerDuel,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemTwoPlayerTestDrive,2);
-  tMenuNFS4_dtor(&this->menuSpecialEvent,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemSpecialEventSelect,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemSpecialEventContinue,2);
-  tListIteratorTournament_dtor(&this->iteratorSpecialEvent,2);
-  tMenuNFS4_dtor(&this->menuTournament,2);
-  tMenuItemNFS4LeftRightChoice_dtor(&this->itemTournamentSelect,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemTournamentContinue,2);
-  tListIteratorTournament_dtor(&this->iteratorTournament,2);
-  tMenuNFS4_dtor(&this->menuHotPursuit,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemHotPursuitDuel,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemHotPursuitSolo,2);
-  tMenuNFS4_dtor(&this->menuSingleRace,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemSingleRaceFullGrid,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemSingleRaceDuel,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemSingleRaceSolo,2);
-  tMenuNFS4_dtor(&this->menuOnePlayer,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemOnePlayerSpecialEvents,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemOnePlayerTournament,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemOnePlayerPursuit,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemOnePlayerSingleRace,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemOnePlayerTestDrive,2);
-  tMenuNFS4_dtor(&this->menuSkillLevel,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemSkillExpert,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemSkillIntermediate,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemSkillBeginner,2);
-  tMenuBlank_dtor(&this->menuTrophyInfo,2);
-  tMenuNFS4_dtor(&this->menuTrophyRoomSelect,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemSETrophyRoom,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemTournTrophyRoom,2);
-  tMenuNFS4_dtor(&this->menuMain,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemMainOptions,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemMainTrophyRoom,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemMainTwoPlayerRace,2);
-  tMenuItemGoToMenuNFS4Button_dtor(&this->itemMainOnePlayerRace,2);
-  return;
+  /* [2026-07-11] PASS (was 747 diffs / 1510 vs oracle 763 insns): the body previously made
+     ~249 EXPLICIT member-teardown calls (`Type_dtor(&this->member, 2)` for every real by-value
+     member of tGlobalMenuDefs, in reverse declaration order). Every one of those member types
+     (tMenuBlank, tOptionsMenu, tMenuNFS4, tMenuItemGoToMenuNFS4Button, ...) has a REAL declared
+     destructor in nfs4_types.h, so tGlobalMenuDefs being a struct of ~249 such members by value
+     means the COMPILER ALREADY emits the exact same per-member teardown sequence automatically
+     in this destructor's implicit epilogue -- the explicit calls were a pure duplicate (same
+     class of bug as the `tDialogYesNo_ctor` redundant-manual-ctor-call fix applied to ~10 other
+     fns in this file, just at 249x scale: `Type_dtor` free-function externs are undefined
+     phantoms with no definition anywhere in the tree, mirroring `tDialogYesNo_ctor`). Deleting
+     the whole explicit call list and letting the automatic member destruction run alone
+     byte-matches the oracle exactly (763/763). */
 }
 
 

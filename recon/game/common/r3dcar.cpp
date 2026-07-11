@@ -145,27 +145,23 @@ void R3DCar_StartUp(void)
 void R3DCar_PostStartUp(void)
 
 {
-  bool bVar1;
   int otSize;
-  int iVar2;
-  
+
   if (R3DCar_InMenu == 0) {
-    iVar2 = Cars_gNumCars * 0x1c0;
-    bVar1 = iVar2 < 0x400;
+    otSize = Cars_gNumCars * 0x1c0;
   }
   else {
-    iVar2 = 0x400;
-    bVar1 = false;
+    otSize = 0x400;
   }
-  if (bVar1) {
-    iVar2 = 0x400;
+  if (otSize < 0x400) {
+    otSize = 0x400;
   }
-  iVar2 = iVar2 << 2;
-  R3DCar_subOtStart[0][0] = reservememadr("sub_ot0",iVar2,0);
-  R3DCar_subOtStart[1][0] = reservememadr("sub_ot1",iVar2,0);
+  otSize = otSize << 2;
+  R3DCar_subOtStart[0][0] = reservememadr("sub_ot0",otSize,0);
+  R3DCar_subOtStart[1][0] = reservememadr("sub_ot1",otSize,0);
   if ((R3DCar_InMenu != 0) || (GameSetup_gData.commMode == 1)) {
-    R3DCar_subOtStart[0][1] = reservememadr("sub_ot0m",iVar2,0);
-    R3DCar_subOtStart[1][1] = reservememadr("sub_ot1m",iVar2,0);
+    R3DCar_subOtStart[0][1] = reservememadr("sub_ot0m",otSize,0);
+    R3DCar_subOtStart[1][1] = reservememadr("sub_ot1m",otSize,0);
   }
   return;
 }
@@ -1873,114 +1869,92 @@ void R3DCar_ReadInCarTextureMenu(Car_tObj *carObj,char *bigfile,int reload,int p
 
 {
   int carType;
-  int infilenames;
-  short sVar1;
-  char *shpfile;
-  char *pcVar2;
-  char *pcVar3;
-  Texture_pal8bit *palCopy;
-  int iVar4;
-  int i;
-  int iVar5;
-  char *bigfile_00;
-  char **ppcVar6;
-  int index;
   char filename [10];
-  char infilename [15];
-  char acStack_59 [33];
-  char *shpfiles [3];
-  
-  iVar5 = (int)(carObj->render).currentCarType;
-  iVar4 = carObj->carInfo->Country;
-  R3DCar_GetCarName(filename,iVar5,iVar4);
+
+  carType = (int)(carObj->render).currentCarType;
+  R3DCar_GetCarName(filename,carType,carObj->carInfo->Country);
   if (reload != 0) {
     CarIO_ReleaseCarCluts(carObj);
   }
   if ((carObj->render).palCopy == (char *)0x0) {
-    iVar4 = 0;
-    pcVar2 = reservememadr("palCopy",0x28a0,0);
-    (carObj->render).palCopy = pcVar2;
+    (carObj->render).palCopy = reservememadr("palCopy",0x28a0,0);
   }
   DrawSync(0);
   Texture_palNum = 0;
-  if (iVar5 < 0x1c) {
-    if (((carObj->render).inside & 1U) == 0) {
-      pcVar2 = "";
-    }
-    else {
-      pcVar2 = "h";
-    }
-    iVar4 = 1;
-    R3DCar_GetFileName(infilename,filename,pcVar2);
+  if (carType < 0x1c) {
+    int i;
+    char infilenames [3][15];
+    char *shpfiles [3];
+    int index;
+    char **sfBase;
+
+    index = 0;
     if (((carObj->render).inside & 1U) != 0) {
-      R3DCar_GetFileName(acStack_59,filename,"i");
-      iVar4 = 2;
-    }
-    if ((carObj->render).colorIndex < 8) {
-      pcVar2 = "l";
+      R3DCar_GetFileName(infilenames[index],filename,"h");
     }
     else {
-      pcVar2 = "d";
+      R3DCar_GetFileName(infilenames[index],filename,"");
     }
-    R3DCar_GetFileName(infilename + iVar4 * 0xf,filename,pcVar2);
-    iVar5 = 0;
-    if (iVar4 != -1) {
-      ppcVar6 = shpfiles;
-      bigfile_00 = infilename;
-      do {
-        pcVar3 = locatebig(bigfile,bigfile_00,(int)pcVar2);
-        *ppcVar6 = pcVar3;
-        ppcVar6 = ppcVar6 + 1;
-        iVar5 = iVar5 + 1;
-        bigfile_00 = bigfile_00 + 0xf;
-      } while (iVar5 < iVar4 + 1);
+    index = index + 1;
+    if (((carObj->render).inside & 1U) != 0) {
+      R3DCar_GetFileName(infilenames[index],filename,"i");
+      index = index + 1;
+    }
+    if ((carObj->render).colorIndex >= 8) {
+      R3DCar_GetFileName(infilenames[index],filename,"d");
+    }
+    else {
+      R3DCar_GetFileName(infilenames[index],filename,"l");
+    }
+    index = index + 1;
+    for (i = 0; i < index; i = i + 1) {
+      shpfiles[i] = locatebig(bigfile,infilenames[i]);
     }
     (carObj->render).textureOffsetV = 0;
     (carObj->render).textureOffsetU = 0;
-    iVar4 = 0;
     if (reload != 0) {
-      iVar4 = 0x11;
+      reload = 0x11;
     }
-    iVar5 = 1;
-    CarIO_ReadInCarTextureData(shpfiles[0],carObj,iVar4,player);
+    CarIO_ReadInCarTextureData(shpfiles[0],carObj,reload,player);
+    index = 1;
+    sfBase = shpfiles;
     if (((carObj->render).inside & 1U) != 0) {
-      iVar5 = 2;
       CarIO_ReadInCarTextureData(shpfiles[1],carObj,0x19,player);
+      index = 2;
     }
-    if (iVar4 == 0) {
-      iVar4 = 0x91;
+    if (reload == 0) {
+      reload = 0x91;
     }
-    CarIO_ReadInCarTextureData(shpfiles[iVar5],carObj,iVar4,player);
+    CarIO_ReadInCarTextureData(sfBase[index],carObj,reload,player);
     (carObj->render).palNum = (short)Texture_palNum;
     DrawSync(0);
     Texture_CarColor =
          ((u_short)(carObj->render).colorIndex & 7) + ((u_char)(carObj->render).upgradeFlags & 2) * 4;
     Texture_ProcessPaletteCopy((Texture_pal8bit *)(carObj->render).palCopy,0,1);
-    palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
-    sVar1 = (carObj->render).palNum;
     Texture_CarColor =
          ((u_short)(carObj->render).colorIndex & 7) + ((u_char)(carObj->render).upgradeFlags & 1) * 8;
-    Texture_ProcessPaletteCopy(palCopy,1,(int)sVar1);
+    Texture_ProcessPaletteCopy((Texture_pal8bit *)(carObj->render).palCopy,1,(carObj->render).palNum);
   }
   else {
+    char infilename [15];
+    char *shpfile;
+
     strcpy(infilename,filename);
     strcat(infilename,".psh");
-    pcVar2 = locatebig(bigfile,infilename,iVar4);
+    shpfile = locatebig(bigfile,infilename);
     (carObj->render).textureOffsetV = 0;
     (carObj->render).textureOffsetU = 0;
-    if (reload == 0) {
-      iVar4 = 0x80;
+    if (reload != 0) {
+      reload = 0x11;
     }
     else {
-      iVar4 = 0x11;
+      reload = 0x80;
     }
-    CarIO_ReadInCarTextureData(pcVar2,carObj,iVar4,0);
+    CarIO_ReadInCarTextureData(shpfile,carObj,reload,0);
     (carObj->render).palNum = (short)Texture_palNum;
     DrawSync(0);
-    palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
-    sVar1 = (carObj->render).palNum;
     Texture_CarColor = (u_short)(carObj->render).colorIndex & 7;
-    Texture_ProcessPaletteCopy(palCopy,0,(int)sVar1);
+    Texture_ProcessPaletteCopy((Texture_pal8bit *)(carObj->render).palCopy,0,(carObj->render).palNum);
   }
   purgememadr(bigfile);
   return;

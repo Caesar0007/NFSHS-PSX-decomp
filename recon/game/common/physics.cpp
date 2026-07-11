@@ -439,56 +439,43 @@ int Physics_GetTorque(Car_tObj *carObj,int index)
 void Physics_CorrectPostCollisionYaw(Car_tObj *carObj,int impactVel,coorddef barrierVec)
 
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
   int result;
   int diffX;
   int diffZ;
-  
+
   (carObj->N).collision.impulse = impactVel * 6;
-  iVar1 = currentWallType;
+  result = currentWallType;
   (carObj->N).collision.otherObj = (BO_tNewtonObj *)0x0;
-  (carObj->N).collision.sfxType = iVar1 | 0x40000;
+  (carObj->N).collision.sfxType = result | 0x40000;
   if ((impactVel < 0xf0000) || ((carObj->linearVel_ch).z < 0x140000)) {
-    iVar1 = fixedmult(barrierVec.x,(carObj->N).shadowMat.m[6]);
-    iVar2 = fixedmult(barrierVec.y,(carObj->N).shadowMat.m[7]);
-    iVar3 = fixedmult(barrierVec.z,(carObj->N).shadowMat.m[8]);
-    iVar3 = iVar1 + iVar2 + iVar3;
-    iVar1 = fixedmult(barrierVec.x,(carObj->N).shadowMat.m[0]);
-    iVar2 = fixedmult(barrierVec.y,(carObj->N).shadowMat.m[1]);
-    iVar4 = fixedmult(barrierVec.z,(carObj->N).shadowMat.m[2]);
-    iVar4 = iVar1 + iVar2 + iVar4;
-    iVar1 = iVar3;
-    if (iVar3 < 0) {
-      iVar1 = -iVar3;
+    diffZ = fixedmult(barrierVec.x,(carObj->N).shadowMat.m[6]) +
+            fixedmult(barrierVec.y,(carObj->N).shadowMat.m[7]) +
+            fixedmult(barrierVec.z,(carObj->N).shadowMat.m[8]);
+    diffX = fixedmult(barrierVec.x,(carObj->N).shadowMat.m[0]) +
+            fixedmult(barrierVec.y,(carObj->N).shadowMat.m[1]) +
+            fixedmult(barrierVec.z,(carObj->N).shadowMat.m[2]);
+    result = __builtin_abs(diffZ);
+    if (__builtin_abs(diffX) < result) {
+      result = __builtin_abs(diffX);
     }
-    iVar2 = iVar4;
-    if (iVar4 < 0) {
-      iVar2 = -iVar4;
-    }
-    if (iVar2 < iVar1) {
-      iVar1 = iVar2;
-    }
-    iVar1 = iVar1 >> 1;
-    if (iVar3 < 0) {
-      if (iVar4 < 0) {
-        iVar1 = -iVar1;
+    result = result >> 1;
+    if (diffZ < 0) {
+      if (diffX < 0) {
+        result = -result;
       }
     }
     else {
-      if (0 < iVar4) {
-        iVar1 = -iVar1;
+      if (0 < diffX) {
+        result = -result;
       }
-      iVar1 = iVar1 >> 1;
+      result = result >> 1;
     }
     if ((0xd6666 < (carObj->linearVel_ch).z) &&
-       (((0 < iVar1 && (0 < (carObj->control).steering)) ||
-        ((iVar1 < 0 && ((carObj->control).steering < 0)))))) {
-      iVar1 = iVar1 >> 2;
+       (((0 < result && (0 < (carObj->control).steering)) ||
+        ((result < 0 && ((carObj->control).steering < 0)))))) {
+      result = result >> 2;
     }
-    (carObj->N).angularVel.y = iVar1;
+    (carObj->N).angularVel.y = result;
   }
   return;
 }
@@ -531,8 +518,7 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
   coorddef right;
   coorddef normal;
   coorddef widthVector;
-  int in_stack_ffffff9c;
-  
+
   iVar18 = 0;
   sVar3 = (carObj->N).simRoadInfo.slice;
   pTVar5 = BWorldSm_slices + sVar3;
@@ -1111,66 +1097,33 @@ RampCtrl_earlyBrake:
 void Physics_FixEngineRpm(Car_tObj *carObj)
 
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
   int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  
-  iVar4 = (carObj->N).linearVel.x;
-  if (iVar4 < 0) {
-    iVar4 = iVar4 + 0xff;
-  }
-  iVar1 = (carObj->N).shadowMat.m[0];
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
-  }
-  iVar5 = (carObj->N).linearVel.y;
-  if (iVar5 < 0) {
-    iVar5 = iVar5 + 0xff;
-  }
-  iVar2 = (carObj->N).shadowMat.m[1];
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  iVar6 = (carObj->N).linearVel.z;
-  if (iVar6 < 0) {
-    iVar6 = iVar6 + 0xff;
-  }
-  iVar3 = (carObj->N).shadowMat.m[2];
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  iVar7 = (carObj->N).linearVel.x;
+
+  /* no SYM locals for this fn (fsize=0, mask=0) -- the decay-then->>8 idiom is applied
+   * INLINE at each field-read site (oracle interleaves decay/shift/mult/load per dot-product
+   * term, not "decay all 6 operands up front then multiply" -- confirms no named temps). */
   (carObj->linearVel_ch).x =
-       (iVar4 >> 8) * (iVar1 >> 8) + (iVar5 >> 8) * (iVar2 >> 8) + (iVar6 >> 8) * (iVar3 >> 8);
-  if (iVar7 < 0) {
-    iVar7 = iVar7 + 0xff;
-  }
-  iVar4 = (carObj->N).shadowMat.m[6];
-  if (iVar4 < 0) {
-    iVar4 = iVar4 + 0xff;
-  }
-  iVar1 = (carObj->N).linearVel.y;
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
-  }
-  iVar5 = (carObj->N).shadowMat.m[7];
-  if (iVar5 < 0) {
-    iVar5 = iVar5 + 0xff;
-  }
-  iVar2 = (carObj->N).linearVel.z;
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  iVar6 = (carObj->N).shadowMat.m[8];
-  if (iVar6 < 0) {
-    iVar6 = iVar6 + 0xff;
-  }
+       ((((carObj->N).linearVel.x < 0) ? (carObj->N).linearVel.x + 0xff : (carObj->N).linearVel.x) >> 8) *
+       ((((carObj->N).shadowMat.m[0] < 0) ? (carObj->N).shadowMat.m[0] + 0xff : (carObj->N).shadowMat.m[0]) >> 8);
+  (carObj->linearVel_ch).x =
+       (carObj->linearVel_ch).x +
+       ((((carObj->N).linearVel.y < 0) ? (carObj->N).linearVel.y + 0xff : (carObj->N).linearVel.y) >> 8) *
+       ((((carObj->N).shadowMat.m[1] < 0) ? (carObj->N).shadowMat.m[1] + 0xff : (carObj->N).shadowMat.m[1]) >> 8);
+  (carObj->linearVel_ch).x =
+       (carObj->linearVel_ch).x +
+       ((((carObj->N).linearVel.z < 0) ? (carObj->N).linearVel.z + 0xff : (carObj->N).linearVel.z) >> 8) *
+       ((((carObj->N).shadowMat.m[2] < 0) ? (carObj->N).shadowMat.m[2] + 0xff : (carObj->N).shadowMat.m[2]) >> 8);
   (carObj->linearVel_ch).z =
-       (iVar7 >> 8) * (iVar4 >> 8) + (iVar1 >> 8) * (iVar5 >> 8) + (iVar2 >> 8) * (iVar6 >> 8);
+       ((((carObj->N).linearVel.x < 0) ? (carObj->N).linearVel.x + 0xff : (carObj->N).linearVel.x) >> 8) *
+       ((((carObj->N).shadowMat.m[6] < 0) ? (carObj->N).shadowMat.m[6] + 0xff : (carObj->N).shadowMat.m[6]) >> 8);
+  (carObj->linearVel_ch).z =
+       (carObj->linearVel_ch).z +
+       ((((carObj->N).linearVel.y < 0) ? (carObj->N).linearVel.y + 0xff : (carObj->N).linearVel.y) >> 8) *
+       ((((carObj->N).shadowMat.m[7] < 0) ? (carObj->N).shadowMat.m[7] + 0xff : (carObj->N).shadowMat.m[7]) >> 8);
+  (carObj->linearVel_ch).z =
+       (carObj->linearVel_ch).z +
+       ((((carObj->N).linearVel.z < 0) ? (carObj->N).linearVel.z + 0xff : (carObj->N).linearVel.z) >> 8) *
+       ((((carObj->N).shadowMat.m[8] < 0) ? (carObj->N).shadowMat.m[8] + 0xff : (carObj->N).shadowMat.m[8]) >> 8);
   iVar4 = (carObj->N).collision.collided;
   carObj->wheelSpin = 0;
   carObj->slide = 0;
@@ -1274,60 +1227,59 @@ void Physics_TestForBarrierCollision(Car_tObj *carObj)
   return;
 }
 
+static inline int *Physics_gripAdvanceWheel(Car_tObj *pCVar3)
+{
+  return &(pCVar3->N).simRoadInfo.quadPts[2].z;
+}
+
 /* ---- Physics_CalculateRoadGripModifiers__FP8Car_tObj  [PHYSICS.CPP:1394-1439] SLD-VERIFIED ---- */
 void Physics_CalculateRoadGripModifiers(Car_tObj *carObj)
 
 {
-  int tempSurface;
-  int roadSurfaceType;
-  u_int uVar1;
-  int iVar2;
+  int frontWheels;
+  int rearWheels;
+  int leftWheels;
+  int rightWheels;
   int i;
   Car_tObj *pCVar3;
-  int frontWheels;
-  int iVar4;
-  int rearWheels;
-  int iVar5;
-  int leftWheels;
-  int iVar6;
-  int rightWheels;
-  int iVar7;
-  
-  iVar4 = 0;
-  iVar5 = 0;
-  iVar6 = 0;
-  iVar7 = 0;
+  int roadSurfaceType;
+  int tempSurface;
+
+  frontWheels = 0;
+  rearWheels = 0;
+  leftWheels = 0;
+  rightWheels = 0;
   pCVar3 = carObj;
-  for (iVar2 = 0; frontMult = iVar4 >> 1, iVar2 < 4; iVar2 = iVar2 + 1) {
-    uVar1 = (u_int)(u_char)roadSurfaceIndex[carObj->carInfo->TireType]
-                        [pCVar3->wheel[0].roadSurfaceType & 0xf];
+  for (i = 0; frontMult = frontWheels >> 1, i < 4; i = i + 1) {
+    roadSurfaceType = pCVar3->wheel[0].roadSurfaceType & 0xf;
+    tempSurface = (u_int)(u_char)roadSurfaceIndex[carObj->carInfo->TireType][roadSurfaceType];
     if (slippery != 0) {
-      uVar1 = uVar1 + 1;
+      tempSurface = tempSurface + 1;
     }
-    if (iVar2 < 2) {
-      iVar4 = iVar4 + roadSurfaceFrictionCoeff[uVar1];
-    }
-    else {
-      iVar5 = iVar5 + roadSurfaceFrictionCoeff[uVar1];
-    }
-    if ((iVar2 == 0) || (iVar2 == 2)) {
-      iVar6 = iVar6 + roadSurfaceFrictionCoeff[uVar1];
+    if (i < 2) {
+      frontWheels = frontWheels + roadSurfaceFrictionCoeff[tempSurface];
     }
     else {
-      iVar7 = iVar7 + roadSurfaceFrictionCoeff[uVar1];
+      rearWheels = rearWheels + roadSurfaceFrictionCoeff[tempSurface];
     }
-    pCVar3 = (Car_tObj *)&(pCVar3->N).simRoadInfo.quadPts[2].z;
+    if ((i == 0) || (i == 2)) {
+      leftWheels = leftWheels + roadSurfaceFrictionCoeff[tempSurface];
+    }
+    else {
+      rightWheels = rightWheels + roadSurfaceFrictionCoeff[tempSurface];
+    }
+    pCVar3 = (Car_tObj *)Physics_gripAdvanceWheel(pCVar3);
   }
-  rearMult = iVar5 >> 1;
-  leftMult = iVar6 >> 1;
-  rightMult = iVar7 >> 1;
-  iVar2 = (carObj->linearVel_ch).z;
+  rearMult = rearWheels >> 1;
+  leftMult = leftWheels >> 1;
+  rightMult = rightWheels >> 1;
+  i = (carObj->linearVel_ch).z;
   roadMult = (frontMult + rearMult >> 1) + (carObj->N).roadGravityModifier;
-  if (0x50000 < iVar2) {
-    iVar2 = fixedmult(iVar2,carObj->specs->frontAeroDownForce);
-    frontMult = frontMult + iVar2;
-    iVar2 = fixedmult((carObj->linearVel_ch).z,carObj->specs->rearAeroDownForce);
-    rearMult = rearMult + iVar2;
+  if (0x50000 < i) {
+    i = fixedmult(i,carObj->specs->frontAeroDownForce);
+    frontMult = frontMult + i;
+    i = fixedmult((carObj->linearVel_ch).z,carObj->specs->rearAeroDownForce);
+    rearMult = rearMult + i;
   }
   return;
 }
@@ -1714,18 +1666,18 @@ void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
   int iVar6;
   int optVar1;
   
-  if (wheel->frontTire == 0) {
+  if (wheel->frontTire != 0) {
     iVar3 = wheel->roadGrip;
-    wheel->skid = *(int *)((int)carObj + 0x488);
-    iVar1 = rearMult;
+    wheel->skid = *(int *)((int)carObj + 0x484);
+    iVar1 = frontMult;
     if (iVar3 < 0) {
       iVar3 = iVar3 + 0xff;
     }
   }
   else {
     iVar3 = wheel->roadGrip;
-    wheel->skid = *(int *)((int)carObj + 0x484);
-    iVar1 = frontMult;
+    wheel->skid = *(int *)((int)carObj + 0x488);
+    iVar1 = rearMult;
     if (iVar3 < 0) {
       iVar3 = iVar3 + 0xff;
     }
@@ -2900,3 +2852,16 @@ void Physics_SimCar(Car_tObj *carObj)
 
 /* owning-TU def (extern-declared, never defined; link-harness) */
 int currentWallType;
+
+/* owning-TU defs for the rest of physics.obj's scalar globals (SYM class EXT, contiguous
+ * 0x8013d2f0..0x8013d320 block right after currentWallType/exceedRedline) -- these were left
+ * pure `extern` in physics_externs.h (never defined anywhere in-tree), which denies the
+ * compiler the size info needed for -G4 .sbss gp-relative placement: every access oracle takes
+ * as a single `lw/sw r,off(gp)` compiled to a 2-insn lui/lw|sw absolute-address pair instead.
+ * Materializing the tentative defs here (physics.cpp is the true SYM owner) restores gp-rel
+ * codegen tree-wide for every fn touching them (CalculateRoadGripModifiers, CalculateCarAcceleration,
+ * AutoShift, DoBarrierCheck, RampCarControlValues, ...). */
+int gBrakeRatio, gGasRatio, gSteerRatio;
+int exceedRedline;
+int roadMult, frontMult, rearMult, leftMult, rightMult;
+int slippery, steeringControl, powerControl;

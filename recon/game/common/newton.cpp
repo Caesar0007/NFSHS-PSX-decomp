@@ -1356,20 +1356,14 @@ int Newton_CalcPerpenHeightOfCenterPointFromGround(BO_tNewtonObj *newtonObj,coor
 
 {
   int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
   int relativeDot;
   coorddef relativePos;
-  
-  iVar1 = (newtonObj->position).y;
-  iVar4 = samplePoint->y;
-  iVar2 = (newtonObj->position).z;
-  iVar5 = samplePoint->z;
-  iVar3 = fixedmult(normal->x,(newtonObj->position).x - samplePoint->x);
-  iVar4 = fixedmult(normal->y,iVar1 - iVar4);
-  iVar2 = fixedmult(normal->z,iVar2 - iVar5);
+
+  relativePos.x = (newtonObj->position).x - samplePoint->x;
+  relativePos.y = (newtonObj->position).y - samplePoint->y;
+  relativePos.z = (newtonObj->position).z - samplePoint->z;
+  relativeDot = fixedmult(normal->x,relativePos.x) + fixedmult(normal->y,relativePos.y) +
+                fixedmult(normal->z,relativePos.z);
   iVar1 = (newtonObj->orientationToGround).y;
   if (iVar1 < 0) {
     iVar1 = -iVar1;
@@ -1380,7 +1374,7 @@ int Newton_CalcPerpenHeightOfCenterPointFromGround(BO_tNewtonObj *newtonObj,coor
   else {
     iVar1 = (newtonObj->dimension).y;
   }
-  return (iVar3 + iVar4 + iVar2) - iVar1;
+  return relativeDot - iVar1;
 }
 
 /* ---- Newton_CalcDistToClosestPlayerCar__FP13BO_tNewtonObj  [NEWTON.CPP:1123-1215] SLD-VERIFIED ---- */
@@ -1538,20 +1532,9 @@ void Newton_CopyRoadMatrixToOrientMat(BO_tNewtonObj *n,int backwards)
   int iVar5;
   
   if (backwards == 0) {
-    pmVar2 = &n->orientMat;
-    pmVar1 = &n->roadMatrix;
-    do {
-      iVar3 = pmVar1->m[1];
-      iVar4 = pmVar1->m[2];
-      iVar5 = pmVar1->m[3];
-      pmVar2->m[0] = pmVar1->m[0];
-      pmVar2->m[1] = iVar3;
-      pmVar2->m[2] = iVar4;
-      pmVar2->m[3] = iVar5;
-      pmVar1 = (matrixtdef *)(pmVar1->m + 4);
-      pmVar2 = (matrixtdef *)(pmVar2->m + 4);
-    } while (pmVar1 != (matrixtdef *)((n->roadMatrix).m + 8));
-    pmVar2->m[0] = pmVar1->m[0];
+    ori = &n->orientMat;
+    road = &n->roadMatrix;
+    *ori = *road;
     return;
   }
   (n->orientMat).m[0] = -(n->roadMatrix).m[0];
@@ -1579,20 +1562,9 @@ void Newton_CopyRoadMatrixToShadowMat(BO_tNewtonObj *n,int backwards)
   int iVar5;
   
   if (backwards == 0) {
-    pmVar2 = &n->shadowMat;
-    pmVar1 = &n->roadMatrix;
-    do {
-      iVar3 = pmVar1->m[1];
-      iVar4 = pmVar1->m[2];
-      iVar5 = pmVar1->m[3];
-      pmVar2->m[0] = pmVar1->m[0];
-      pmVar2->m[1] = iVar3;
-      pmVar2->m[2] = iVar4;
-      pmVar2->m[3] = iVar5;
-      pmVar1 = (matrixtdef *)(pmVar1->m + 4);
-      pmVar2 = (matrixtdef *)(pmVar2->m + 4);
-    } while (pmVar1 != (matrixtdef *)((n->roadMatrix).m + 8));
-    pmVar2->m[0] = pmVar1->m[0];
+    shad = &n->shadowMat;
+    road = &n->roadMatrix;
+    *shad = *road;
     return;
   }
   (n->shadowMat).m[0] = -(n->roadMatrix).m[0];
@@ -1771,7 +1743,7 @@ extern "C" void Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii(u_int *newtonO
       newtonObj[0x2e] = newtonObj[0x2e] << 1;
     }
     else {
-      newtonObj[0x2e] = (newtonObj[0x2e] * 3) / 2;
+      newtonObj[0x2e] = (int)(newtonObj[0x2e] * 3) / 2;
     }
   }
   iVar1 = fixeddiv(0x10000,newtonObj[0x2e]);

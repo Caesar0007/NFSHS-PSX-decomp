@@ -113,9 +113,11 @@ int Confirm(int Text,int yesText)
   tDialogYesNoMem MyDialog;
   
   BringThatBeatBack();
-  tDialogYesNo_ctor((tDialogYesNo *)&MyDialog);
-  MyDialog._vf =
-       (__vtbl_ptr_type (*)[10])tDialogYesNoMem_vtable;
+  /* [2026-07-11 consolidation] dropped REDUNDANT tDialogYesNo_ctor((tDialogYesNo*)&MyDialog)
+     manual call + manual _vf poke: tDialogYesNoMem derives from tDialogYesNo (real declared
+     ctor), so the implicit ctor already emits jal __12tDialogYesNo + the tDialogYesNoMem
+     vtable store (oracle Confirm__Fii shows exactly ONE ctor jal). tDialogYesNo_ctor is an
+     undefined phantom extern (same class as the femenudefs.cpp sweep). */
   bVar1 = (FEApp[0]->NoInputMemCardDialog).currentlyOn != 0;
   if (bVar1) {
     Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
@@ -862,8 +864,11 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
   char string2 [500];
   tDialogNoInputMessage WarningDialog;
   
-  tDialogYesNo_ctor(&RetryCancelDialog);
-  tScreen_ctor((tScreen *)&WillLoseCarMessage);
+  /* [2026-07-11 consolidation] dropped REDUNDANT tDialogYesNo_ctor(&RetryCancelDialog) +
+     tScreen_ctor((tScreen*)&WillLoseCarMessage) manual calls: both are undefined phantom
+     externs; the real declared ctors (tDialogYesNo(), tScreen() via the ctor-less tDialog*
+     intermediate chain) auto-fire at declaration -- oracle shows exactly one
+     jal __12tDialogYesNo + one jal __7tScreen here. */
   sVar1 = 0;
   player_00 = (int)player;
   WillLoseCarMessage.currentlyOn = 0;

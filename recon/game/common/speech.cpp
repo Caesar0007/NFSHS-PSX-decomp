@@ -240,11 +240,13 @@ void SetCar__Q26Speech11CarBankNamei(u_int *param_1,int carIndex)
   char *game;
   Speech_tCarDescription *d;
   int iVar2;
+  char *name;
 
+  name = GameSetup_gCarNames[GameSetup_gData.carInfo[carIndex].carType];
   d = Speech_gCarDescription;
-  game = Speech_gCarDescription[0].game;
+  game = d->game;
   while ((game != (char *)0x0 &&
-         (iVar2 = strncmp(GameSetup_gCarNames[GameSetup_gData.carInfo[carIndex].carType],d->game,4), iVar2 != 0)
+         (iVar2 = strncmp(name,d->game,4), iVar2 != 0)
          )) {
     d = d + 1;
     game = d->game;
@@ -498,22 +500,23 @@ void * FindClosestLocationTo__6SpeechPQ26Speech12LocationBanki(Speech *pThis,Loc
   LocationBank *closestbank;
   LocationBank *pLVar4;
   
-  if (pThis->fLocationCount == 0) {
-    pLVar4 = (LocationBank *)0x0;
-  }
-  else {
+  if (pThis->fLocationCount != 0) {
     pLVar4 = (LocationBank *)0x0;
     iVar3 = 10000;
-    for (iVar2 = 0; iVar2 < pThis->fLocationCount; iVar2 = iVar2 + 1) {
+    iVar2 = 0;
+    while (1) {
+      if (pThis->fLocationCount <= iVar2) break;
       this_00 = bank + iVar2;
       if ((this_00->fBankId != -1) && (iVar1 = Distance__Q26Speech12LocationBanki(this_00,slice), iVar1 < iVar3)
          ) {
         iVar3 = iVar1;
         pLVar4 = this_00;
       }
+      iVar2 = iVar2 + 1;
     }
+    return pLVar4;
   }
-  return pLVar4;
+  return (LocationBank *)0x0;
 }
 
 /* ---- FindLocation__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:624-788] SLD-VERIFIED ---- */
@@ -1223,30 +1226,29 @@ int SubmitRequest__6Speechlll(int param_1,int localoffset,u_int size)
   long offset;
   u_int bank;
 
-  if (((int)Speech_fgSpeech) == 0) {
-    return 0;
-  }
-  *(u_int *)(*(int *)(((int)Speech_fgSpeech) + 0x3a0) + 0x54) = 0;
-  *(u_int *)(*(int *)(((int)Speech_fgSpeech) + 0x3a0) + 0x50) = 0x200;
-  bank = *(u_int *)(((int)Speech_fgSpeech) + 0x38c);
-  patch = BankPatch__6SpeechlP8Car_tObj(((int)Speech_fgSpeech),param_1,bank);
-  if ((param_1 >= 0) && (param_1 < *(int *)(((int)Speech_fgSpeech) + 0x370))) {
-    offset = *(int *)(param_1 * 4 + *(int *)(((int)Speech_fgSpeech) + 0x36c));
-  }
-  else {
-    offset = 0;
-  }
-  if (patch < 0) {
-    if (offset != 0) {
-      CopSpeak_DirectRequest(*(u_int *)(((int)Speech_fgSpeech) + 0x368),offset + localoffset,size,bank,0);
+  if (((int)Speech_fgSpeech) != 0) {
+    *(u_int *)(*(int *)(((int)Speech_fgSpeech) + 0x3a0) + 0x54) = 0;
+    *(u_int *)(*(int *)(((int)Speech_fgSpeech) + 0x3a0) + 0x50) = 0x200;
+    bank = *(u_int *)(((int)Speech_fgSpeech) + 0x38c);
+    patch = BankPatch__6SpeechlP8Car_tObj(((int)Speech_fgSpeech),param_1,bank);
+    if ((param_1 >= 0) && (param_1 < *(int *)(((int)Speech_fgSpeech) + 0x370))) {
+      offset = *(int *)(param_1 * 4 + *(int *)(((int)Speech_fgSpeech) + 0x36c));
     }
-    offset = offset + localoffset;
+    else {
+      offset = 0;
+    }
+    if (patch >= 0) {
+      CopSpeak_GenericBankRequest(patch,bank);
+      return offset + localoffset;
+    }
+    else {
+      if (offset != 0) {
+        CopSpeak_DirectRequest(*(u_int *)(((int)Speech_fgSpeech) + 0x368),offset + localoffset,size,bank,0);
+      }
+      return offset + localoffset;
+    }
   }
-  else {
-    CopSpeak_GenericBankRequest(patch,bank);
-    offset = offset + localoffset;
-  }
-  return offset;
+  return 0;
 }
 
 /* ---- Report__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:1352-1356] SLD-VERIFIED ---- */
@@ -1481,7 +1483,7 @@ void Roger__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
       if ((pSVar6->fUpdate).flags == 0) {
         pSVar7 = &(pThis->_base_Speaker).fConfirm;
         SPCHNFS_D_A_CONFIRM(pSVar7);
-        SPCH_PlaySpeech(pSVar7,(int)reg_a1,(int)reg_a2,(int)reg_a3);
+        SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
         pSVar6 = (pThis->_base_Speaker).fSub;
         pa_Var3 = pSVar6->_vf;
         pCVar5 = (Car_tObj *)
@@ -1539,7 +1541,7 @@ void Roger__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
       SPCHNFS_D_C_PERP_APPREHENSION_REPLY((int)pSVar7,reg_a1,reg_a2);
     }
   }
-  SPCH_PlaySpeech(pSVar7,(int)reg_a1,(int)reg_a2,(int)reg_a3);
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   return;
 }
 
@@ -1619,14 +1621,14 @@ void StatusReply__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
     CONFIRM = &(pThis->_base_Speaker).fConfirm;
     *(u_int *)(((int)Speech_fgSpeech) + 0x38c) = 0;
     SPCHNFS_D_A_CONFIRM(CONFIRM);
-    SPCH_PlaySpeech(CONFIRM,(int)reg_a1,reg_a2,reg_a3);
+    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     ctx = (void *)(pThis->_base_Speaker).fTo;
     iVar2 = (pThis->_base_Speaker).fFrom;
     pSVar10 = pSVar6;
   }
   REVINTRO = &(pThis->_base_Speaker).fReverse;
   SPCHNFS_D_C_INTRO_CALL((int)ctx,iVar2,REVINTRO);
-  SPCH_PlaySpeech(ctx,iVar2,(int)REVINTRO,reg_a3);
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   pSVar6 = (pThis->_base_Speaker).fSub;
   pa_Var3 = pSVar6->_vf;
   car = (Car_tObj *)
@@ -1661,7 +1663,7 @@ void StatusReply__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
         iVar2 = (pThis->_base_Speaker).fLocation;
         (pThis->_base_Speaker).fWing = iVar4;
         SPCHNFS_D_C_BKUP_REQUEST_GRANT_REPLY(pSVar9,(SPCHNFSType_POSITION *)pThis,iVar2,iVar4);
-        SPCH_PlaySpeech(pSVar9,(int)pDVar8,iVar2,iVar4);
+        SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
         pSVar6 = (pThis->_base_Speaker).fSub;
         pa_Var3 = pSVar6->_vf;
         (*(*pa_Var3)[0xe].pfn)((int)&(pSVar6->fPosition).flags + (int)(*pa_Var3)[0xe].delta);
@@ -1676,7 +1678,7 @@ void StatusReply__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
     pSVar9 = &(pThis->_base_Speaker).fDistance;
     SPCHNFS_D_C_RDBLK_CONFIRMED((SPCHNFSType_POSITION *)pThis,iVar2,pSVar9);
   }
-  SPCH_PlaySpeech(pDVar8,iVar2,(int)pSVar9,reg_a3);
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   pSVar6 = (pThis->_base_Speaker).fSub;
   if (pSVar10 != pSVar6) {
     (*(*pSVar6->_vf)[0xe].pfn)((int)&(pSVar6->fPosition).flags + (int)(*pSVar6->_vf)[0xe].delta);
@@ -1886,10 +1888,10 @@ DispStatus_fetchSpeechCtx:
   REVINTRO = &(pThis->_base_Speaker).fReverse;
   (pThis->_base_Speaker).fTo = (int)ctx;
   SPCHNFS_D_C_INTRO_CALL((int)ctx,iVar3,REVINTRO);
-  SPCH_PlaySpeech(ctx,iVar3,(int)REVINTRO,reg_a3);
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   PURS_UPDT = &((pThis->_base_Speaker).fSub)->fUpdate;
   SPCHNFS_D_C_IN_PURS_NEAR_PERP(PURS_UPDT);
-  SPCH_PlaySpeech(PURS_UPDT,iVar3,(int)REVINTRO,reg_a3);
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   pSVar8 = (pThis->_base_Speaker).fSub;
   pThis->fStatusCount = 0x60;
   pThis->fStatusSub = pSVar8;
@@ -1938,7 +1940,7 @@ void Status__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
     (pThis->_base_Speaker).fTo = iVar4;
     pSVar9 = pSVar10;
     SPCHNFS_C_A_INTRO(pSVar10,iVar4,(int)vs_KMH_MPH,(SPCHNFSType_REVINTRO *)pMVar12);
-    SPCH_PlaySpeech(pSVar9,iVar4,(int)vs_KMH_MPH,(int)pMVar12);
+    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     pCVar5 = (Car_tObj *)&(pThis->_base_Speaker).fPerpName;
     SPCHNFS_C_D_PERP_APPREHENSION(pSVar10,(SPCHNFSType_PERP_NAME *)pCVar5);
   }
@@ -1962,7 +1964,7 @@ void Status__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
       (pThis->_base_Speaker).fTo = iVar4;
       pSVar9 = pSVar10;
       SPCHNFS_C_A_INTRO(pSVar10,iVar4,iVar11,REVINTRO);
-      SPCH_PlaySpeech(pSVar9,iVar4,iVar11,(int)REVINTRO);
+      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
       pa_Var3 = (pThis->_base_Speaker)._vf;
       pCVar5 = (Car_tObj *)
                (*(*pa_Var3)[0x1b].pfn)
@@ -1974,7 +1976,7 @@ void Status__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
       pMVar12 = pThis;
       SPCHNFS_C_D_PERP_LOST(pSVar10,COLOUR,iVar4,(SPCHNFSType_POSITION *)pThis,(pThis->_base_Speaker).fLocation,
                  &(pThis->_base_Speaker).fDistance,&(pThis->_base_Speaker).fPerpName);
-      SPCH_PlaySpeech(pSVar10,(int)COLOUR,iVar4,(int)pMVar12);
+      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
       iVar4 = Dispatch__6Speech();
       uVar13 = *(u_int *)(iVar4 + 0x48);
       iVar4 = Dispatch__6Speech();
@@ -2007,7 +2009,7 @@ void Status__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
       (pThis->_base_Speaker).fTo = (int)pCVar5;
       pSVar9 = pSVar10;
       SPCHNFS_C_A_INTRO(pSVar10,(int)pCVar5,(int)vs_KMH_MPH,(SPCHNFSType_REVINTRO *)pMVar12);
-      SPCH_PlaySpeech(pSVar9,(int)pCVar5,(int)vs_KMH_MPH,(int)pMVar12);
+      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
       SPCHNFS_S_C_SUPER_COP_CRITICISM(pSVar10);
     }
     else {
@@ -2034,7 +2036,7 @@ void Status__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
       (pThis->_base_Speaker).fTo = iVar4;
       pSVar9 = pSVar10;
       SPCHNFS_C_A_INTRO(pSVar10,iVar4,(int)vs_KMH_MPH,(SPCHNFSType_REVINTRO *)pMVar12);
-      SPCH_PlaySpeech(pSVar9,iVar4,(int)vs_KMH_MPH,(int)pMVar12);
+      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
       pa_Var3 = (pThis->_base_Speaker)._vf;
       pCVar5 = (Car_tObj *)
                (*(*pa_Var3)[0x1b].pfn)
@@ -2123,7 +2125,7 @@ void Status__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
     }
   }
 DispStatus_playSpeechReturn:
-  SPCH_PlaySpeech(pSVar10,(int)pCVar5,(int)vs_KMH_MPH,(int)pMVar12);
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   return;
 }
 
@@ -2214,7 +2216,7 @@ void Report__Q26Speech15DispatchSpeakerP8Car_tObj(DispatchSpeaker *pThis,Car_tOb
       CONFIRM = &(pThis->_base_Speaker).fConfirm;
       (pThis->_base_Speaker).fTo = iVar3;
       SPCHNFS_D_C_PERP_SIGHTED_CONFIRM(CONFIRM,iVar3);
-      SPCH_PlaySpeech(CONFIRM,iVar3,reg_a2,reg_a3);
+      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     }
   }
   else {
@@ -2226,7 +2228,7 @@ void Report__Q26Speech15DispatchSpeakerP8Car_tObj(DispatchSpeaker *pThis,Car_tOb
       REVINTRO = &(pThis->_base_Speaker).fReverse;
       (pThis->_base_Speaker).fTo = (int)ctx;
       SPCHNFS_D_C_INTRO_CALL((int)ctx,iVar3,REVINTRO);
-      SPCH_PlaySpeech(ctx,iVar3,(int)REVINTRO,reg_a3);
+      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
       SetCar__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,perp);
       FindLocation__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,perp);
       COLOUR = &(pThis->_base_Speaker).fColour;
@@ -2234,7 +2236,7 @@ void Report__Q26Speech15DispatchSpeakerP8Car_tObj(DispatchSpeaker *pThis,Car_tOb
       iVar4 = (pThis->_base_Speaker).fLocation;
       param2 = pThis;
       SPCHNFS_D_C_BEGIN_PURS_REP_SPDR(COLOUR,iVar3,(SPCHNFSType_POSITION *)pThis,iVar4,&(pThis->_base_Speaker).fDistance);
-      SPCH_PlaySpeech(COLOUR,iVar3,(int)param2,iVar4);
+      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     }
     AddPerp__Q26Speech15DispatchSpeakerP8Car_tObj(pThis,perp);
     pThis->fStatusCount = 0x2a0;
@@ -2274,7 +2276,7 @@ void Deny__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
     REVINTRO = &(pThis->_base_Speaker).fReverse;
     (pThis->_base_Speaker).fTo = (int)ctx;
     SPCHNFS_D_C_INTRO_CALL((int)ctx,iVar2,REVINTRO);
-    SPCH_PlaySpeech(ctx,iVar2,(int)REVINTRO,reg_a3);
+    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     pSVar4 = (pThis->_base_Speaker).fSub;
     vs_RDBLK_SSTRP = &pSVar4->fBlockade;
     if ((pSVar4->fBlockade).flags == 0) {
@@ -2283,7 +2285,7 @@ void Deny__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
     else {
       SPCHNFS_D_C_RDBLK_SPBLT_DENIED_REPLY(vs_RDBLK_SSTRP);
     }
-    SPCH_PlaySpeech(vs_RDBLK_SSTRP,iVar2,(int)REVINTRO,reg_a3);
+    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     (((pThis->_base_Speaker).fSub)->fBlockade).flags = 0;
   }
   return;
@@ -2311,7 +2313,7 @@ void Grant__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
   }
   CONFIRM = &(pThis->_base_Speaker).fConfirm;
   SPCHNFS_D_C_RDBLK_SPBLT_GRANT_REPLY(&(pThis->_base_Speaker).fSub->fBlockade,CONFIRM);
-  SPCH_PlaySpeech();
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   return;
 }
 
@@ -2352,16 +2354,14 @@ int PickVoice__6SpeechP8Car_tObj(Speech *pThis,Car_tObj *carObj)
   int iVar1;
   
   if ((carObj->carFlags & 0x40U) != 0) {
-    iVar1 = pThis->fSuperCount;
-    pThis->fSuperCount = iVar1 + 1;
+    iVar1 = pThis->fSuperCount++;
     return iVar1 % 6;
   }
-  if ((carObj->carFlags & 0x80U) == 0) {
-    iVar1 = pThis->fCopCount;
-    pThis->fCopCount = iVar1 + 1;
-    return iVar1 % 9;
+  if ((carObj->carFlags & 0x80U) != 0) {
+    return 0;
   }
-  return 0;
+  iVar1 = pThis->fCopCount++;
+  return iVar1 % 9;
 }
 
 /* ---- GetVoice__6SpeechP8Car_tObj  [SPEECH.CPP:2156-2157] SLD-VERIFIED ---- */
@@ -2647,7 +2647,7 @@ void Report__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj *p
   (pThis->_base_Speaker).fTo = iVar2;
   ctx = VOICE;
   SPCHNFS_C_A_INTRO(VOICE,iVar2,ID_UNIT1,REVINTRO);
-  SPCH_PlaySpeech(ctx,iVar2,ID_UNIT1,(int)REVINTRO);
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   *(Car_tObj **)(((int)Speech_fgSpeech) + 0x38c) = pThis->fCarObj;
   SetCar__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,perp);
   FindLocation__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,perp);
@@ -2657,7 +2657,7 @@ void Report__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj *p
   iVar2 = (pThis->_base_Speaker).fCar;
   SPCHNFS_C_D_PERP_SIGHTED(VOICE,COLOUR,iVar2,DISTANCE,(SPCHNFSType_POSITION *)pThis,(pThis->_base_Speaker).fLocation,
              &(pThis->_base_Speaker).fPerpName);
-  SPCH_PlaySpeech(VOICE,(int)COLOUR,iVar2,(int)DISTANCE);
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   iVar2 = Dispatch__6Speech();
   *(MobileSpeaker **)(iVar2 + 0x48) = pThis;
   return;
@@ -2722,7 +2722,7 @@ void Engage__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj *p
     (pThis->_base_Speaker).fTo = iVar4;
     pSVar11 = pSVar12;
     SPCHNFS_C_A_INTRO(pSVar12,iVar4,iVar7,pSVar14);
-    SPCH_PlaySpeech(pSVar11,iVar4,iVar7,(int)pSVar14);
+    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     pa_Var10 = (pThis->_base_Speaker)._vf;
     pCVar3 = (Car_tObj *)
              (*(*pa_Var10)[0x1b].pfn)
@@ -2733,7 +2733,7 @@ void Engage__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj *p
     SPCHNFS_C_C_PERP_REAQUIRED(pSVar12,pSVar13,(int)COLOUR,(SPCHNFSType_POSITION *)pThis,(pThis->_base_Speaker).fLocation,
                &(pThis->_base_Speaker).fDistance);
 MSEngage_emitSpeech:
-    SPCH_PlaySpeech(pSVar12,(int)pSVar13,(int)COLOUR,(int)pThis);
+    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     return;
   }
   pa_Var10 = (pThis->_base_Speaker)._vf;
@@ -2819,7 +2819,7 @@ MSEngage_dispatchCheck:
     (pThis->_base_Speaker).fTo = (int)pSVar13;
     pSVar11 = pSVar12;
     SPCHNFS_C_A_INTRO(pSVar12,(int)pSVar13,(int)COLOUR,(SPCHNFSType_REVINTRO *)pMVar5);
-    SPCH_PlaySpeech(pSVar11,(int)pSVar13,(int)COLOUR,(int)pMVar5);
+    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     SPCHNFS_S_C_SUPER_COP_ARRIVAL(pSVar12);
     pThis = pMVar5;
     goto MSEngage_emitSpeech;
@@ -2884,7 +2884,7 @@ MSEngage_validateAndProceed:
   (pThis->_base_Speaker).fTo = iVar4;
   pSVar11 = pSVar12;
   SPCHNFS_C_A_INTRO(pSVar12,iVar4,iVar7,pSVar14);
-  SPCH_PlaySpeech(pSVar11,iVar4,iVar7,(int)pSVar14);
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   pa_Var10 = (pThis->_base_Speaker)._vf;
   pCVar3 = (Car_tObj *)
            (*(*pa_Var10)[0x1b].pfn)
@@ -2917,7 +2917,7 @@ MSEngage_validateAndProceed:
     SPCHNFS_C_D_PERP_SIGHTED(pSVar12,pSVar13,iVar4,(SPCHNFSType_DISTANCE *)pMVar5,(SPCHNFSType_POSITION *)pThis,
                (pThis->_base_Speaker).fLocation,&(pThis->_base_Speaker).fPerpName);
   }
-  SPCH_PlaySpeech(pSVar12,(int)pSVar13,iVar4,(int)pMVar5);
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   iVar4 = Dispatch__6Speech();
   uVar15 = *(u_int *)(iVar4 + 0x48);
   iVar4 = Dispatch__6Speech();
@@ -3000,7 +3000,7 @@ void Lose__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
     else {
       pSVar7 = &pThis->fVoice;
       SPCHNFS_C_P_FALSE_ARREST_BULLHORN(pSVar7);
-      SPCH_PlaySpeech(pSVar7,reg_a1,reg_a2,reg_a3);
+      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     }
     VOICE = &pThis->fVoice;
     iVar3 = (pThis->_base_Speaker).fTo;
@@ -3008,7 +3008,7 @@ void Lose__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
     REVINTRO = (MobileSpeaker *)&(pThis->_base_Speaker).fReverse;
     pSVar7 = VOICE;
     SPCHNFS_C_A_INTRO(VOICE,iVar3,iVar4,(SPCHNFSType_REVINTRO *)REVINTRO);
-    SPCH_PlaySpeech(pSVar7,iVar3,iVar4,(int)REVINTRO);
+    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     pa_Var2 = (pThis->_base_Speaker)._vf;
     pCVar5 = (Car_tObj *)
              (*(*pa_Var2)[0x1b].pfn)
@@ -3057,7 +3057,7 @@ void Lose__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
       pCVar5 = (Car_tObj *)&(pThis->_base_Speaker).fPerpName;
       SPCHNFS_C_D_DURING_FALSE_ARREST(VOICE,(SPCHNFSType_PERP_NAME *)pCVar5);
     }
-    SPCH_PlaySpeech(VOICE,(int)pCVar5,iVar4,(int)REVINTRO);
+    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     (pThis->_base_Speaker).fBlockade.flags = 0;
     (pThis->_base_Speaker).fArrest.flags = 0;
     (pThis->_base_Speaker).fUpdate.flags = 0;
@@ -3125,7 +3125,7 @@ void Catch__Q26Speech13MobileSpeakeri(MobileSpeaker *pThis,int ticket)
     (pThis->_base_Speaker).fTo = iVar2;
     pSVar6 = pSVar5;
     SPCHNFS_C_A_INTRO(pSVar5,iVar2,iVar8,pSVar9);
-    SPCH_PlaySpeech(pSVar6,iVar2,iVar8,(int)pSVar9);
+    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     pa_Var1 = (pThis->_base_Speaker)._vf;
     pCVar3 = (Car_tObj *)
              (*(*pa_Var1)[0x1b].pfn)
@@ -3135,7 +3135,7 @@ void Catch__Q26Speech13MobileSpeakeri(MobileSpeaker *pThis,int ticket)
     iVar2 = (pThis->_base_Speaker).fLocation;
     pMVar7 = pThis;
     SPCHNFS_C_D_PERP_CRASH_ROLL(pSVar5,(SPCHNFSType_POSITION *)pThis,iVar2,COLOUR,&(pThis->_base_Speaker).fPerpName);
-    SPCH_PlaySpeech(pSVar5,(int)pMVar7,iVar2,(int)COLOUR);
+    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     uVar4 = 4;
   }
   else {
@@ -3160,7 +3160,7 @@ void Catch__Q26Speech13MobileSpeakeri(MobileSpeaker *pThis,int ticket)
           SPCHNFS_C_P_TICKET(pSVar6,ARREST);
         }
       }
-      SPCH_PlaySpeech(pSVar6,(int)ARREST,reg_a2,reg_a3);
+      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
       if (ticket == 1) {
         SetDelayedStatus__6SpeechPQ26Speech7Speakeri((Speech *)((int)Speech_fgSpeech),&pThis->_base_Speaker,0x60);
       }
@@ -3176,7 +3176,7 @@ void Catch__Q26Speech13MobileSpeakeri(MobileSpeaker *pThis,int ticket)
     (pThis->_base_Speaker).fTo = iVar2;
     pSVar6 = pSVar5;
     SPCHNFS_C_A_INTRO(pSVar5,iVar2,iVar8,pSVar9);
-    SPCH_PlaySpeech(pSVar6,iVar2,iVar8,(int)pSVar9);
+    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     pa_Var1 = (pThis->_base_Speaker)._vf;
     pCVar3 = (Car_tObj *)
              (*(*pa_Var1)[0x1b].pfn)
@@ -3192,14 +3192,14 @@ void Catch__Q26Speech13MobileSpeakeri(MobileSpeaker *pThis,int ticket)
     pMVar7 = pThis;
     SPCHNFS_C_D_PERP_CRASH_GEN(pSVar5,(SPCHNFSType_POSITION *)pThis,iVar2,(SPCHNFSType_COLOUR *)COLOUR,
                (pThis->_base_Speaker).fCar,&(pThis->_base_Speaker).fDistance,&(pThis->_base_Speaker).fPerpName);
-    SPCH_PlaySpeech(pSVar5,(int)pMVar7,iVar2,(int)COLOUR);
+    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     uVar4 = 0x20;
   }
   pSVar6 = &pThis->fVoice;
   AMBULANCE = &(pThis->_base_Speaker).fAmbulance;
   (pThis->_base_Speaker).fAmbulance.flags = uVar4;
   SPCHNFS_C_D_REQUEST_EMS(pSVar6,AMBULANCE);
-  SPCH_PlaySpeech(pSVar6,(int)AMBULANCE,iVar2,(int)COLOUR);
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
 Catch_dispatchCallback:
   iVar2 = Dispatch__6Speech();
   (**(int (**)(...))(*(int *)(iVar2 + 0x4c) + 0x9c))
@@ -3245,9 +3245,9 @@ void RoadBlock__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
       (pThis->_base_Speaker).fTo = iVar2;
       ctx = VOICE;
       SPCHNFS_C_A_INTRO(VOICE,iVar2,iVar3,REVINTRO);
-      SPCH_PlaySpeech(ctx,iVar2,iVar3,(int)REVINTRO);
+      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
       SPCHNFS_C_D_REQ_RDBLK(VOICE);
-      SPCH_PlaySpeech(VOICE,iVar2,iVar3,(int)REVINTRO);
+      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     }
     (pThis->_base_Speaker).fBlockade.flags = 2;
   }
@@ -3292,9 +3292,9 @@ void SpikeBelt__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
       (pThis->_base_Speaker).fTo = iVar2;
       ctx = VOICE;
       SPCHNFS_C_A_INTRO(VOICE,iVar2,iVar3,REVINTRO);
-      SPCH_PlaySpeech(ctx,iVar2,iVar3,(int)REVINTRO);
+      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
       SPCHNFS_C_D_REQ_SPBLT(VOICE);
-      SPCH_PlaySpeech(VOICE,iVar2,iVar3,(int)REVINTRO);
+      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     }
     (pThis->_base_Speaker).fBlockade.flags = 1;
   }
@@ -3327,7 +3327,7 @@ void Backup__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
   (pThis->_base_Speaker).fTo = iVar2;
   ctx = VOICE;
   SPCHNFS_C_A_INTRO(VOICE,iVar2,ID_UNIT1,REVINTRO);
-  SPCH_PlaySpeech(ctx,iVar2,ID_UNIT1,(int)REVINTRO);
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   pa_Var1 = (pThis->_base_Speaker)._vf;
   pCVar3 = (Car_tObj *)
            (*(*pa_Var1)[0x1b].pfn)
@@ -3343,7 +3343,7 @@ void Backup__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
   flags = pThis;
   SPCHNFS_C_D_REQUEST_BKUP(VOICE,COLOUR,iVar2,(SPCHNFSType_POSITION *)pThis,(pThis->_base_Speaker).fLocation,
              &(pThis->_base_Speaker).fDistance);
-  SPCH_PlaySpeech(VOICE,(int)COLOUR,iVar2,(int)flags);
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   (pThis->_base_Speaker).fBlockade.flags = 0;
   return;
 }
@@ -3379,7 +3379,7 @@ void Roger__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
   }
   if (bVar1) {
     VOICE = &pThis->fVoice;
-    SPCH_PlaySpeech(ctx,reg_a1,reg_a2,reg_a3);
+    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     pa_Var4 = (pThis->_base_Speaker)._vf;
     iVar2 = (*(*pa_Var4)[0x1e].pfn)
                       ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var4)[0x1e].delta);
@@ -3391,7 +3391,7 @@ void Roger__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
     (pThis->_base_Speaker).fTo = iVar2;
     ctx_00 = VOICE;
     SPCHNFS_C_A_CONFIRM(VOICE,iVar2,pSVar6);
-    SPCH_PlaySpeech(ctx_00,iVar2,(int)pSVar6,reg_a3);
+    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     pa_Var4 = (pThis->_base_Speaker)._vf;
     car = (Car_tObj *)
           (*(*pa_Var4)[0x1b].pfn)
@@ -3411,7 +3411,7 @@ void Roger__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
     (pThis->_base_Speaker).fTo = (int)COLOUR;
     SPCHNFS_C_A_CONFIRM(VOICE,(int)COLOUR,pSVar6);
   }
-  SPCH_PlaySpeech(VOICE,(int)COLOUR,(int)pSVar6,reg_a3);
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   return;
 }
 
@@ -3421,7 +3421,7 @@ void Bullhorn__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
 {
   *(Car_tObj **)(((int)Speech_fgSpeech) + 0x38c) = pThis->fCarObj;
   SPCHNFS_C_P_BULLHORN_SPEECH(&pThis->fVoice);
-  SPCH_PlaySpeech();
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   return;
 }
 
@@ -3542,7 +3542,7 @@ void ReportBlockade__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
     REVINTRO = &(pThis->_base_Speaker).fReverse;
     ctx = VOICE;
     SPCHNFS_C_A_INTRO(VOICE,iVar2,ID_UNIT1,REVINTRO);
-    SPCH_PlaySpeech(ctx,iVar2,ID_UNIT1,(int)REVINTRO);
+    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     SPIKE_BELT_SIDE = (SPCHNFSType_SPIKE_BELT_SIDE *)(pThis->_base_Speaker).fLocation;
     DISTANCE = &(pThis->_base_Speaker).fDistance;
     SPCHNFS_W_D_RDBLK_PLC(VOICE,(SPCHNFSType_POSITION *)pThis,(int)SPIKE_BELT_SIDE,DISTANCE);
@@ -3553,7 +3553,7 @@ void ReportBlockade__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
     SPCHNFS_W_D_SPBLT_PLC(VOICE,(SPCHNFSType_POSITION *)pThis,SPIKE_BELT_SIDE,(int)DISTANCE,
                (pThis->_base_Speaker).fLocation,&(pThis->_base_Speaker).fDistance);
   }
-  SPCH_PlaySpeech(VOICE,(int)pThis,(int)SPIKE_BELT_SIDE,(int)DISTANCE);
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   return;
 }
 

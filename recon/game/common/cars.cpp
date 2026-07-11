@@ -138,28 +138,18 @@ void Cars_GetDashData(Car_tObj *carObj,int *rpm,int *gear,int *speed)
 /* ---- Cars_QDUpdateVelGlue__FP8Car_tObj  [@0x80085ee8] ---- */
 void Cars_QDUpdateVelGlue(Car_tObj *carObj)
 {
+  /* MATCH: SYM shows the fn is 8 source lines, ONE named local "glue" (REG $a2), spanning
+     the whole body -- so glue is the only real C variable; linearVel.x/z corrections are
+     plain `/256` divisions on ANONYMOUS temps (compiler mutates them in place), while
+     glue/256 is a plain division too but gcc keeps glue itself (a2) pristine + live for its
+     own sign test, materializing the /256 quotient into a FRESH reg -- and CSEs the shared
+     `glue/256` subexpression across both position.x and position.z updates (computed once). */
   int glue;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  
-  iVar1 = (carObj->N).linearVel.x;
-  iVar4 = carObj->glue;
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
-  }
-  if (iVar4 < 0) {
-    iVar4 = iVar4 + 0xff;
-  }
-  iVar3 = (carObj->N).linearVel.z;
-  iVar2 = (carObj->N).position.x;
+
+  glue = carObj->glue;
+  (carObj->N).position.x = (carObj->N).position.x + (((carObj->N).linearVel.x / 256) * (glue / 256) >> 6);
   (carObj->N).position.y = (carObj->N).position.y + ((carObj->N).linearVel.y >> 6);
-  (carObj->N).position.x = iVar2 + ((iVar1 >> 8) * (iVar4 >> 8) >> 6);
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  (carObj->N).position.z = (carObj->N).position.z + ((iVar3 >> 8) * (iVar4 >> 8) >> 6);
+  (carObj->N).position.z = (carObj->N).position.z + (((carObj->N).linearVel.z / 256) * (glue / 256) >> 6);
   return;
 }
 
@@ -201,34 +191,36 @@ void Cars_ResetCarCounters(void)
 /* ---- Cars_InitStats__FP8Car_tObj  [@0x8008607c] ---- */
 void Cars_InitStats(Car_tObj *carObj)
 {
-  Car_tStats*stats;
-  int lapLoop;
-  Car_tStats *pCVar1;
+  /* MATCH: EVERY field access shares ONE base pointer `stats = &carObj->stats` (oracle
+     materializes `a0 = carObj+0x34C` ONCE, reused for all offsets incl. the loop) --
+     the prior `(carObj->stats).xxx` form re-derived carObj+K per access (raw big
+     offsets, no shared base). The time[]/topSpeed[] loop is array-indexed (not a
+     pointer-walk pCVar1) -- a pointer-walk gave pCVar1 its own independent anchor. */
+  Car_tStats *stats;
   int iVar2;
-  
+
   iVar2 = 0;
-  pCVar1 = &carObj->stats;
-  (carObj->stats).sliceTotal = 0;
-  (carObj->stats).sliceTime = 0;
-  (carObj->stats).slice = 0;
-  (carObj->stats).lastSlice = 0;
-  (carObj->stats).lap = 0;
-  (carObj->stats).lapTime = 0x200;
+  stats = &carObj->stats;
+  stats->sliceTotal = 0;
+  stats->sliceTime = 0;
+  stats->slice = 0;
+  stats->lastSlice = 0;
+  stats->lap = 0;
+  stats->lapTime = 0x200;
   do {
-    pCVar1->time[0] = 0;
-    pCVar1->topSpeed[0] = 0;
+    stats->time[iVar2] = 0;
+    stats->topSpeed[iVar2] = 0;
     iVar2 = iVar2 + 1;
-    pCVar1 = (Car_tStats *)&pCVar1->sliceTotal;
   } while (iVar2 < 4);
-  (carObj->stats).position = 0;
-  (carObj->stats).fatalCrashes = 0;
-  (carObj->stats).finishType = 0;
-  (carObj->stats).checkpointUpdate = 0;
-  (carObj->stats).checkpointDifference = 0;
-  (carObj->stats).checkpointDisplay = 0;
-  (carObj->stats).numWarnings = 0;
-  (carObj->stats).numFines = 0;
-  (carObj->stats).numArrests = 0;
+  stats->position = 0;
+  stats->fatalCrashes = 0;
+  stats->finishType = 0;
+  stats->checkpointUpdate = 0;
+  stats->checkpointDifference = 0;
+  stats->checkpointDisplay = 0;
+  stats->numWarnings = 0;
+  stats->numFines = 0;
+  stats->numArrests = 0;
   return;
 }
 
@@ -1976,37 +1968,54 @@ LAB_80089674:
 /* ---- Cars_FindTotalSlice__FP8Car_tObj  [@0x80089760] ---- */
 void Cars_FindTotalSlice(Car_tObj *carObj)
 {
-  int lapSlices;
-  short sVar1;
-  short sVar2;
-  
+  /* MATCH: oracle loads lap (0x264) and gNumSlices via full-word lw + mult (never
+     truncated) -- the (short) casts previously forced spurious LHU narrow-loads.
+     simRoadInfo.slice is read unsigned in BOTH arms. */
+  /* MATCH: oracle loads lap (0x264) and gNumSlices via full-word lw + mult (never
+     truncated) -- prior (short) casts forced spurious LHU narrow-loads (a genuine
+     correctness bug: lap/gNumSlices are 32-bit ints, only simRoadInfo.slice is a real
+     short field). Count now EXACT (27/27); residual 28 diffs = reg-coloring/gNumSlices-
+     reload-vs-shared floor (tried: shared `slices` local -> 23/27 worse; per-branch
+     duplicated store -> 32/27 worse; both reverted). */
+  int lap;
+  u_int roadSlice;
+
   if (0 < carObj->unlap) {
     (carObj->N).totalSlice = 0;
     return;
   }
-  if (GameSetup_gData.reverseTrack == 0) {
-    sVar1 = (short)carObj->lap;
-    sVar2 = (carObj->N).simRoadInfo.slice;
+  if (GameSetup_gData.reverseTrack != 0) {
+    lap = carObj->lap;
+    roadSlice = (gNumSlices - (u_short)(carObj->N).simRoadInfo.slice) - 1;
   }
   else {
-    sVar1 = (short)carObj->lap;
-    sVar2 = ((short)gNumSlices - (carObj->N).simRoadInfo.slice) + -1;
+    lap = carObj->lap;
+    roadSlice = (u_short)(carObj->N).simRoadInfo.slice;
   }
-  (carObj->N).totalSlice = sVar2 + sVar1 * (short)gNumSlices;
+  (carObj->N).totalSlice = roadSlice + lap * gNumSlices;
   return;
 }
 
 /* ---- Car_DoSkiddingStuff__FP8Car_tObj  [@0x800897cc] ---- */
 void Car_DoSkiddingStuff(Car_tObj *carObj)
 {
-  int speed;
-  int audioSurface;
+  /* MATCH: oracle places the >=0x3334 (skid-check + Car_TireSkiddingStuff) block as the
+     FALLTHROUGH and jumps AWAY to the <0x3334 (altitude/speed) block -- negate the
+     guard + swap the branches to reproduce that layout (same lever as
+     Cars_CheckForAccidentScenes/Cars_FindTotalSlice). */
   u_int uVar1;
-  
-  if ((carObj->N).orientationToGround.y < 0x3334) {
+
+  if (0x3334 <= (carObj->N).orientationToGround.y) {
+    if ((carObj->oldAudioSkidState & 4U) != 0) {
+      Cars_SetAudioCalls(carObj,5,0x14,1,0,0,0);
+      carObj->oldAudioSkidState = carObj->oldAudioSkidState + -4;
+    }
+    Car_TireSkiddingStuff(carObj);
+  }
+  else {
+    int audioSurface = Cars_kAudioRoadSurfaceInterface[(carObj->N).driveSurfaceType];
     if (((carObj->N).objAltitude < 0x3333) && (0x20000 < (carObj->N).speedXZ)) {
-      Cars_SetAudioCalls(carObj,4,0x14,1,Cars_kAudioRoadSurfaceInterface[(carObj->N).driveSurfaceType],
-                 0xa0000,0);
+      Cars_SetAudioCalls(carObj,4,0x14,1,audioSurface,0xa0000,0);
       uVar1 = carObj->oldAudioSkidState | 4;
     }
     else {
@@ -2014,13 +2023,6 @@ void Car_DoSkiddingStuff(Car_tObj *carObj)
       uVar1 = carObj->oldAudioSkidState - 4;
     }
     carObj->oldAudioSkidState = uVar1;
-  }
-  else {
-    if ((carObj->oldAudioSkidState & 4U) != 0) {
-      Cars_SetAudioCalls(carObj,5,0x14,1,0,0,0);
-      carObj->oldAudioSkidState = carObj->oldAudioSkidState + -4;
-    }
-    Car_TireSkiddingStuff(carObj);
   }
   return;
 }
@@ -2469,18 +2471,27 @@ void Cars_DeInitCar(Car_tObj *carObj)
 /* ---- Cars_Restart__Fv  [@0x8008a4cc] ---- */
 void Cars_Restart(void)
 {
+  /* MATCH: the first do-while's gNumCars cache is a SEPARATE short-lived variable from
+     the second for-loop's counter -- reusing one "iVar7"/"ppCVar3" name for both
+     extended their live ranges across the whole fn, forcing callee-saved regs where
+     the oracle keeps loop-1 entirely in caller-saved regs (no calls in its body) and
+     freshly re-reads the global each iteration of loop 2 (no cache at all there).
+     63->41 diffs; residual = exact caller-saved reg PICK (a2/a1/a0 vs our t0/a3/a2) --
+     a coloring floor, not source-shapable further without a permuter. */
   int i;
   Object_tIMassObjInfo *pOVar1;
   Car_tObj *pCVar2;
   Car_tObj **ppCVar3;
   Car_tObj **ppCVar4;
   Car_tObj **ppCVar5;
+  Car_tObj **ppCVar6;
   int iVar6;
   int iVar7;
-  
-  iVar7 = Cars_gNumCars;
+  int numCars;
+
+  numCars = Cars_gNumCars;
   iVar6 = 0;
-  if (0 < Cars_gNumCars) {
+  if (0 < numCars) {
     ppCVar5 = Cars_gTotalSortedList;
     ppCVar3 = Cars_gList;
     ppCVar4 = Cars_gSortedList;
@@ -2492,12 +2503,12 @@ void Cars_Restart(void)
       ppCVar4 = ppCVar4 + 1;
       *ppCVar5 = pCVar2;
       ppCVar5 = ppCVar5 + 1;
-    } while (iVar6 < iVar7);
+    } while (iVar6 < numCars);
   }
-  ppCVar3 = Cars_gList;
+  ppCVar6 = Cars_gList;
   for (iVar7 = 0; iVar7 < Cars_gNumCars; iVar7 = iVar7 + 1) {
-    pCVar2 = *ppCVar3;
-    ppCVar3 = ppCVar3 + 1;
+    pCVar2 = *ppCVar6;
+    ppCVar6 = ppCVar6 + 1;
     Cars_IniCarObjects(pCVar2,iVar7);
   }
   iVar7 = 0;
@@ -2647,13 +2658,15 @@ void Cars_CleanUp(void)
   Car_tObj *pCVar2;
   Car_tObj **ppCVar3;
   int iVar4;
-  
+
   iVar4 = 0;
   if (0 < Cars_gNumCars) {
     /* MATCH: residual 4-diff s0/s1 preheader-order swap (both loop-invariant addr
        materializations for Cars_gList/simGlobal land in the right regs throughout the body;
        only the ORDER the two independent lui/addiu pairs are emitted differs). Tried: dead
-       early simGlobal touch. Genuine LICM/scheduling tie-break floor (§E/§F class), no pin. */
+       early simGlobal touch; array-index Cars_gList[i] form (99 insns, +1 reg, WORSE -- the
+       SYM's "i"-only local list does NOT mean array-index source; pointer-walk is correct).
+       Genuine LICM/scheduling tie-break floor (§E/§F class), no pin. */
     ppCVar3 = Cars_gList;
     do {
       Sched_DeleteFunction(simGlobal.schedule32Hz,(*ppCVar3)->funcUpdateRoadInfo,*ppCVar3);
@@ -2696,26 +2709,28 @@ void Cars_FindCurrentLap(Car_tObj *carObj)
   u_int uVar1;
   u_int uVar2;
   
-  if (GameSetup_gData.reverseTrack == 0) {
-    uVar2 = (u_int)(carObj->N).simRoadInfo.slice;
+  if (GameSetup_gData.reverseTrack != 0) {
+    uVar2 = (gNumSlices - (carObj->N).simRoadInfo.slice) - 1;
   }
   else {
-    uVar2 = (gNumSlices - (carObj->N).simRoadInfo.slice) - 1;
+    uVar2 = (u_int)(carObj->N).simRoadInfo.slice;
   }
   uVar1 = (u_int)(carObj->N).oldSlice;
   if (uVar1 != uVar2) {
-    if (((int)uVar2 < 0x1f5) || (uVar1 != 0)) {
-      if ((uVar2 < 0x33) && (500 < (carObj->N).oldSlice)) {
-        if (carObj->unlap < 1) {
-          carObj->lap = carObj->lap + 1;
-        }
-        else {
-          carObj->unlap = carObj->unlap + -1;
-        }
-      }
-    }
-    else {
+    /* MATCH: guard-clause (negated-early) form -- the oracle branches to a SHARED merge
+       point whether uVar2<0x1F5 is true OR uVar1!=0 is true, then falls into the inner
+       if; the original if/else duplicated the inner-if test as a separate branch
+       (+4/+5 insns short). DeMorgan the OR into the negated guard + else-if. */
+    if ((0x1f5 <= (int)uVar2) && (uVar1 == 0)) {
       carObj->unlap = carObj->unlap + 1;
+    }
+    else if ((uVar2 < 0x33) && (500 < (carObj->N).oldSlice)) {
+      if (1 <= carObj->unlap) {
+        carObj->unlap = carObj->unlap + -1;
+      }
+      else {
+        carObj->lap = carObj->lap + 1;
+      }
     }
     (carObj->N).oldSlice = (u_short)uVar2;
   }
@@ -2846,14 +2861,21 @@ int Cars_CalculateRoadPosition(Car_tObj *carObj)
 /* ---- Cars_CalcVelDownRoad__FP8Car_tObj  [@0x8008aee8] ---- */
 int Cars_CalcVelDownRoad(Car_tObj *carObj)
 {
-  int temp;
+  /* MATCH: oracle INTERLEAVES each (linearVel,roadMatrix) pair -- correct both terms,
+     multiply+mflo immediately, accumulate -- rather than computing all 6 corrections
+     up front then all 3 mults at the end. Residual 30-diff floor: oracle fills the
+     2nd branch's delay slot (per pair) with `sra $aN,$vN,8` (the just-corrected value's
+     shift, scheduled early); ours nops it for the 1st/3rd pair (only the 2nd/middle
+     pair's delay slot gets filled, apparently reg-pressure/ILP dependent on the
+     preceding pending mflo) -- genuine scheduling floor (§F class), not source-shapable. */
   int iVar1;
   int iVar2;
   int iVar3;
   int iVar4;
   int iVar5;
   int iVar6;
-  
+  int result;
+
   iVar4 = (carObj->N).linearVel.x;
   if (iVar4 < 0) {
     iVar4 = iVar4 + 0xff;
@@ -2862,6 +2884,8 @@ int Cars_CalcVelDownRoad(Car_tObj *carObj)
   if (iVar1 < 0) {
     iVar1 = iVar1 + 0xff;
   }
+  result = (iVar4 >> 8) * (iVar1 >> 8);
+
   iVar5 = (carObj->N).linearVel.y;
   if (iVar5 < 0) {
     iVar5 = iVar5 + 0xff;
@@ -2870,6 +2894,8 @@ int Cars_CalcVelDownRoad(Car_tObj *carObj)
   if (iVar2 < 0) {
     iVar2 = iVar2 + 0xff;
   }
+  result = result + (iVar5 >> 8) * (iVar2 >> 8);
+
   iVar6 = (carObj->N).linearVel.z;
   if (iVar6 < 0) {
     iVar6 = iVar6 + 0xff;
@@ -2878,7 +2904,7 @@ int Cars_CalcVelDownRoad(Car_tObj *carObj)
   if (iVar3 < 0) {
     iVar3 = iVar3 + 0xff;
   }
-  return (iVar4 >> 8) * (iVar1 >> 8) + (iVar5 >> 8) * (iVar2 >> 8) + (iVar6 >> 8) * (iVar3 >> 8);
+  return result + (iVar6 >> 8) * (iVar3 >> 8);
 }
 
 /* ---- Cars_Randomize__Fv  [@0x8008af84] ---- */
@@ -2908,16 +2934,16 @@ void Cars_CheckForAccidentScenes(void)
 {
   if (((GameSetup_gData.commMode != 1) && (GameSetup_gData.raceType != 1)) &&
      (GameSetup_gData.raceType != 5)) {
-    if (SceneLoaded == 0) {
-      if ((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x360)) == GameSetup_gData.SceneStartLap) {
-        accidentSlice = Scene_BuildCustomSceneList();
-        SceneLoaded = 1;
+    if (SceneLoaded != 0) {
+      if ((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x360)) == GameSetup_gData.SceneEndLap) {
+        Object_ClearCustomObjects();
+        SceneLoaded = 0;
+        accidentSlice = 0;
       }
     }
-    else if ((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x360)) == GameSetup_gData.SceneEndLap) {
-      Object_ClearCustomObjects();
-      SceneLoaded = 0;
-      accidentSlice = 0;
+    else if ((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x360)) == GameSetup_gData.SceneStartLap) {
+      accidentSlice = Scene_BuildCustomSceneList();
+      SceneLoaded = 1;
     }
   }
   return;

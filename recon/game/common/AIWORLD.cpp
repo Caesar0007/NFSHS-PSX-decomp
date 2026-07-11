@@ -254,7 +254,7 @@ int AIWorld_IsDriveableLane(int slice,int laneIndex)
   if (0xf < iVar1) {
     iVar1 = 0xf;
   }
-  return (int)*(short *)(slice * 0x20 + BWorldSm_slices + 0x16) & 1 << (0xfU - iVar1);
+  return (int)*(short *)(slice * 0x20 + (int)BWorldSm_slices + 0x16) & 1 << (0xfU - iVar1);
 }
 
 /* ---- AIWorld_GetProfileMask__Fi  [@0x800733fc] ---- */
@@ -294,7 +294,7 @@ int AIWorld_CheckForBarrierBetweenLanes(int slice,int lane0,int lane1)
   
   uVar3 = 0xe - lane0;
   uVar1 = 0xe - lane1;
-  uVar2 = (u_int)*(short *)(slice * 0x20 + BWorldSm_slices + 0x16);
+  uVar2 = (u_int)*(short *)(slice * 0x20 + (int)BWorldSm_slices + 0x16);
   if ((int)uVar3 <= (int)uVar1) {
     return (int)~uVar2 >> (uVar3) & ~(-1 << ((uVar1 - uVar3) + 1));
   }
@@ -311,11 +311,11 @@ int AIWorld_LaneIndex(int slice,int position)
   int iVar3;
   
   if (position < 0) {
-    bVar1 = *(u_char *)(slice * 0x20 + BWorldSm_slices + 0x1e);
+    bVar1 = *(u_char *)(slice * 0x20 + (int)BWorldSm_slices + 0x1e);
     iVar3 = 6;
   }
   else {
-    bVar1 = *(u_char *)(slice * 0x20 + BWorldSm_slices + 0x1f);
+    bVar1 = *(u_char *)(slice * 0x20 + (int)BWorldSm_slices + 0x1f);
     iVar3 = 7;
   }
   iVar2 = fixedmult(position,inverseLaneWidthTable[(int)((u_int)bVar1 * 0x8000) >> 0xe]);
@@ -413,12 +413,12 @@ int AIWorld_CalcRoadBend(Car_tObj *carObj,int lookAhead)
       iVar1 = iVar1 - gNumSlices;
     }
   }
-  iVar4 = iVar1 * 0x20 + BWorldSm_slices;
+  iVar4 = iVar1 * 0x20 + (int)BWorldSm_slices;
   iVar1 = *(char *)(iVar4 + 0xf) * 0x200;
   if (iVar1 < 0) {
     iVar1 = iVar1 + 0xff;
   }
-  iVar3 = iVar2 * 0x20 + BWorldSm_slices;
+  iVar3 = iVar2 * 0x20 + (int)BWorldSm_slices;
   iVar2 = *(char *)(iVar3 + 0x12) * 0x200;
   if (iVar2 < 0) {
     iVar2 = iVar2 + 0xff;
@@ -464,7 +464,7 @@ int AIWorld_CalcFutureLateralVel(Car_tObj *carObj,int slicesAhead)
   else if (gNumSlices <= iVar3) {
     iVar3 = iVar3 - gNumSlices;
   }
-  iVar3 = iVar3 * 0x20 + BWorldSm_slices;
+  iVar3 = iVar3 * 0x20 + (int)BWorldSm_slices;
   cVar1 = *(char *)(iVar3 + 0x13);
   cVar2 = *(char *)(iVar3 + 0x14);
   iVar3 = fixedmult((carObj->N).linearVel.x,(int)*(char *)(iVar3 + 0x12) << 9);
@@ -531,11 +531,11 @@ void AIWorld_FindBarrierLessLaneAndPosition(Car_tObj *carObj,int *goodLane,int *
   iVar4 = 0;
   if (iVar2 == 1) {
     *goodLane = 7;
-    bVar1 = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + BWorldSm_slices + 0x1f);
+    bVar1 = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x1f);
   }
   else {
     *goodLane = 6;
-    bVar1 = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + BWorldSm_slices + 0x1e);
+    bVar1 = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x1e);
   }
   do {
     iVar3 = AIWorld_IsDriveableLane((int)(carObj->N).simRoadInfo.slice,*goodLane);

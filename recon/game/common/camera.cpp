@@ -418,7 +418,8 @@ LAB_80081050:
       goto LAB_80081050;
     }
   }
-  iVar8 = (*(int *)(iVar8 * 0x20 + BWorldSm_slices + 4) - *(int *)(BWorldSm_slices + iVar4 + 4)) / 3
+  iVar8 = (*(int *)((char *)BWorldSm_slices + iVar8 * 0x20 + 4) -
+           *(int *)((char *)BWorldSm_slices + iVar4 + 4)) / 3
   ;
   iVar9 = iVar8;
   if (behavior == 1) {
@@ -658,7 +659,8 @@ LAB_80081724:
       goto LAB_80081724;
     }
   }
-  iVar9 = (*(int *)(iVar7 * 0x20 + BWorldSm_slices + 4) - *(int *)(BWorldSm_slices + iVar4 + 4)) / 2
+  iVar9 = (*(int *)((char *)BWorldSm_slices + iVar7 * 0x20 + 4) -
+           *(int *)((char *)BWorldSm_slices + iVar4 + 4)) / 2
   ;
   iVar7 = iVar9;
   if (behavior == 1) {
@@ -1069,7 +1071,7 @@ void Camera_SetSplineCam(int player)
       }
       Camera_gInfo[player].slicePos.slice = sVar6;
     }
-    piVar4 = (int *)(Camera_gInfo[player].slicePos.slice * 0x20 + BWorldSm_slices);
+    piVar4 = (int *)((char *)BWorldSm_slices + Camera_gInfo[player].slicePos.slice * 0x20);
     iVar7 = piVar4[1];
     iVar5 = piVar4[2];
     Camera_gInfo[player].position.x = *piVar4;
@@ -1178,7 +1180,7 @@ void Camera_UpdateSplineCam(int player)
       }
       Camera_gInfo[player].slicePos.slice = sVar8;
     }
-    piVar5 = (int *)(Camera_gInfo[player].slicePos.slice * 0x20 + BWorldSm_slices);
+    piVar5 = (int *)((char *)BWorldSm_slices + Camera_gInfo[player].slicePos.slice * 0x20);
     iVar3 = piVar5[1];
     iVar7 = piVar5[2];
     Camera_gInfo[player].position.x = *piVar5;
@@ -1186,11 +1188,11 @@ void Camera_UpdateSplineCam(int player)
     Camera_gInfo[player].position.z = iVar7;
   }
   BWorldSm_FindClosestQuadRez(&Camera_gInfo[player].position,&Camera_gInfo[player].slicePos,1);
-  piVar6 = (int *)(Camera_gInfo[player].slicePos.slice * 0x20 + BWorldSm_slices);
+  piVar6 = (int *)((char *)BWorldSm_slices + Camera_gInfo[player].slicePos.slice * 0x20);
   iVar3 = Camera_gInfo[player].slicePos.slice + 1;
   piVar5 = (int *)BWorldSm_slices;
   if (iVar3 < gNumSlices) {
-    piVar5 = (int *)(BWorldSm_slices + iVar3 * 0x20);
+    piVar5 = (int *)((char *)BWorldSm_slices + iVar3 * 0x20);
   }
   local_30 = *piVar5;
   local_2c = piVar5[1];
@@ -1289,24 +1291,24 @@ void Camera_UpdatePulloverCam(int player)
       Camera_UpdateCopCam2(player);
     }
     else {
-      piVar2 = (int *)((pCVar12->anchor->simRoadInfo).slice * 0x20 + BWorldSm_slices);
+      piVar2 = (int *)((char *)BWorldSm_slices + (pCVar12->anchor->simRoadInfo).slice * 0x20);
       iVar9 = *piVar2;
       iVar10 = piVar2[1];
       iVar11 = piVar2[2];
-      cVar1 = *(char *)((pCVar12->anchor->simRoadInfo).slice * 0x20 + BWorldSm_slices + 0x11);
+      cVar1 = *(char *)((char *)BWorldSm_slices + (pCVar12->anchor->simRoadInfo).slice * 0x20 + 0x11);
       iVar3 = (pCVar12->anchor->position).x;
-      iVar4 = (int)*(char *)((pCVar12->anchor->simRoadInfo).slice * 0x20 + BWorldSm_slices + 0x12);
+      iVar4 = (int)*(char *)((char *)BWorldSm_slices + (pCVar12->anchor->simRoadInfo).slice * 0x20 + 0x12);
       local_40 = iVar4 * 0x800;
-      iVar5 = (int)*(char *)((pCVar12->anchor->simRoadInfo).slice * 0x20 + BWorldSm_slices + 0x13);
+      iVar5 = (int)*(char *)((char *)BWorldSm_slices + (pCVar12->anchor->simRoadInfo).slice * 0x20 + 0x13);
       local_3c = iVar5 * 0x800;
-      iVar6 = (int)*(char *)((pCVar12->anchor->simRoadInfo).slice * 0x20 + BWorldSm_slices + 0x14);
+      iVar6 = (int)*(char *)((char *)BWorldSm_slices + (pCVar12->anchor->simRoadInfo).slice * 0x20 + 0x14);
       local_38 = iVar6 * 0x800;
       iVar7 = fixedmult((pCVar12->anchor->position).z - iVar11,
-                         (int)*(char *)((pCVar12->anchor->simRoadInfo).slice * 0x20 +
-                                        BWorldSm_slices + 0xf) << 9);
+                         (int)*(char *)((char *)BWorldSm_slices +
+                                        (pCVar12->anchor->simRoadInfo).slice * 0x20 + 0xf) << 9);
       iVar3 = fixedmult(iVar3 - iVar9,(int)cVar1 << 9);
       uVar8 = Camera_IslandProfile(*(u_short *)
-                          ((pCVar12->anchor->simRoadInfo).slice * 0x20 + BWorldSm_slices + 0x16));
+                          ((char *)BWorldSm_slices + (pCVar12->anchor->simRoadInfo).slice * 0x20 + 0x16));
       if (iVar7 - iVar3 < 0) {
         uVar8 = uVar8 ^ 1;
       }
@@ -1853,7 +1855,7 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
     local_40.z = pos->z + local_28;
     BWorldSm_FindClosestQuadMaxIterations(&local_40,&local_118,3);
     if (local_118.simQuad == (Trk_NewSimQuad *)0x0) {
-      piVar5 = (int *)(local_118.slice * 0x20 + BWorldSm_slices);
+      piVar5 = (int *)((char *)BWorldSm_slices + local_118.slice * 0x20);
       local_50 = *piVar5;
       local_4c = piVar5[1];
       local_48 = piVar5[2];
@@ -1891,7 +1893,7 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
     local_90.z = local_90.z - local_68;
     BWorldSm_FindClosestQuadMaxIterations(&local_90,&local_118,3);
     if (local_118.simQuad == (Trk_NewSimQuad *)0x0) {
-      piVar5 = (int *)(local_118.slice * 0x20 + BWorldSm_slices);
+      piVar5 = (int *)((char *)BWorldSm_slices + local_118.slice * 0x20);
       local_50 = *piVar5;
       local_4c = piVar5[1];
       local_48 = piVar5[2];
@@ -1937,7 +1939,7 @@ LAB_80084464:
       Camera_gInfo[player].wallLeft.z = local_60.z;
       break;
     }
-    piVar5 = (int *)(local_118.slice * 0x20 + BWorldSm_slices);
+    piVar5 = (int *)((char *)BWorldSm_slices + local_118.slice * 0x20);
     local_50 = *piVar5;
     local_4c = piVar5[1];
     local_48 = piVar5[2];
@@ -1973,7 +1975,7 @@ LAB_80084634:
       Camera_gInfo[player].wallRight.z = local_60.z;
       break;
     }
-    piVar5 = (int *)(local_118.slice * 0x20 + BWorldSm_slices);
+    piVar5 = (int *)((char *)BWorldSm_slices + local_118.slice * 0x20);
     local_50 = *piVar5;
     local_4c = piVar5[1];
     local_48 = piVar5[2];

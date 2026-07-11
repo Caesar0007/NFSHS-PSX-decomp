@@ -382,7 +382,7 @@ LAB_8005bd40:
 
         pCVar8 = this->carObj_;
 
-        bVar1 = *(u_char *)((pCVar8->N).simRoadInfo.slice * 0x20 + BWorldSm_slices + 0x1d);
+        bVar1 = *(u_char *)((pCVar8->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x1d);
 
         iVar10 = pCVar8->laneIndex;
 
@@ -392,7 +392,7 @@ LAB_8005bd40:
 
           iVar11 = (int)(pCVar9->N).simRoadInfo.slice;
 
-          bVar1 = *(u_char *)(iVar11 * 0x20 + BWorldSm_slices + 0x1d);
+          bVar1 = *(u_char *)(iVar11 * 0x20 + (int)BWorldSm_slices + 0x1d);
 
           iVar12 = pCVar9->laneIndex;
 

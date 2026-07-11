@@ -477,7 +477,11 @@ LAB_80086908:
     uVar6 = 1 - uVar6;
   }
   if (uVar6 == 0) {
-    iVar2 = iVar1 * 0x20 + BWorldSm_slices;
+    /* CORRECTNESS FIX: byte-base cast -- BWorldSm_slices is `Trk_NewSlice *`
+       (sizeof==0x20); without a cast gcc double-scales the already-byte-scaled
+       `iVar1*0x20` by sizeof(Trk_NewSlice) again (oracle proves `sll ...,5` ==
+       *0x20 only). Same bug/fix as Cars_CalculateStartingGridOffset. */
+    iVar2 = iVar1 * 0x20 + (int)BWorldSm_slices;
     iVar5 = (carObj->N).dimension.x;
     if (iVar5 < 0) {
       iVar5 = iVar5 + 0xff;
@@ -486,7 +490,11 @@ LAB_80086908:
                  (iVar5 >> 8) * -0x180;
   }
   else {
-    iVar2 = iVar1 * 0x20 + BWorldSm_slices;
+    /* CORRECTNESS FIX: byte-base cast -- BWorldSm_slices is `Trk_NewSlice *`
+       (sizeof==0x20); without a cast gcc double-scales the already-byte-scaled
+       `iVar1*0x20` by sizeof(Trk_NewSlice) again (oracle proves `sll ...,5` ==
+       *0x20 only). Same bug/fix as Cars_CalculateStartingGridOffset. */
+    iVar2 = iVar1 * 0x20 + (int)BWorldSm_slices;
     iVar5 = (carObj->N).dimension.x;
     if (iVar5 < 0) {
       iVar5 = iVar5 + 0xff;
@@ -2014,7 +2022,8 @@ void Car_DoSkiddingStuff(Car_tObj *carObj)
   }
   else {
     int audioSurface = Cars_kAudioRoadSurfaceInterface[(carObj->N).driveSurfaceType];
-    if (((carObj->N).objAltitude < 0x3333) && (0x20000 < (carObj->N).speedXZ)) {
+    int speedXZ = (carObj->N).speedXZ;
+    if (((carObj->N).objAltitude < 0x3333) && (0x20000 < speedXZ)) {
       Cars_SetAudioCalls(carObj,4,0x14,1,audioSurface,0xa0000,0);
       uVar1 = carObj->oldAudioSkidState | 4;
     }
@@ -2133,7 +2142,17 @@ void Cars_CalculateStartingGridOffset(Car_tObj *carObj,int *slice,coorddef *offs
     iVar2 = 1;
   }
   uVar5 = GameSetup_gData.carInfo[carObj->carIndex].StartingPos;
-  if (Cars_gNumRaceCars < 3) {
+  /* NOTE: oracle keeps TWO SEPARATE (non-cross-jumped) copies of the "-1<x { if
+     (gNumSlices<=x) x-=gNumSlices; *slice=x; goto } " block, one per branch below
+     (registers v1 for the >=3 path, a1 for the <3 path), sharing only the FINAL
+     "*slice=x+gNumSlices" store at the fallthrough tail. Writing it as a plain
+     if/else with the SAME variable in both arms lets gcc cross-jump/tail-merge the
+     two copies into one (9-13 insns short); using distinct locals per arm (tried:
+     startingPosition/negDir) changes WHICH insns get shared but doesn't reproduce
+     the oracle's exact non-merged layout -- residual structural floor, not fully
+     source-shapable without a permuter. Kept the simpler (fewer-diff) shared form. */
+  if (3 <= Cars_gNumRaceCars) {
+    iVar2 = iVar2 + iVar2 * 10 * uVar5;
     if (-1 < iVar2) {
       if (gNumSlices <= iVar2) {
         iVar2 = iVar2 - gNumSlices;
@@ -2143,7 +2162,6 @@ void Cars_CalculateStartingGridOffset(Car_tObj *carObj,int *slice,coorddef *offs
     }
   }
   else {
-    iVar2 = iVar2 + iVar2 * 10 * uVar5;
     if (-1 < iVar2) {
       if (gNumSlices <= iVar2) {
         iVar2 = iVar2 - gNumSlices;
@@ -2159,16 +2177,14 @@ LAB_80089c40:
     uVar5 = 1 - uVar5;
   }
   iVar2 = AITune_GetOneWay();
-  if (iVar2 == 0) {
-    if (uVar5 == 0) {
-      iVar2 = (int)((u_int)*(u_char *)(*slice * 0x20 + BWorldSm_slices + 0x1e) * -0x8000) / 2;
-    }
-    else {
-      iVar2 = (u_int)*(u_char *)(*slice * 0x20 + BWorldSm_slices + 0x1f) << 0xe;
-    }
-  }
-  else {
-    iVar2 = *slice * 0x20 + BWorldSm_slices;
+  if (iVar2 != 0) {
+    /* CORRECTNESS FIX: (int)BWorldSm_slices is `Trk_NewSlice *` (sizeof==0x20) -- adding
+       an already-byte-scaled `*slice * 0x20` to it without a byte-base cast makes
+       gcc apply ITS OWN pointer-arithmetic scale by sizeof(Trk_NewSlice) on top,
+       double-scaling to *slice*0x400 (oracle proves `sll v0,v0,5` == *0x20 only,
+       matching the `(int)BWorldSm_slices` cast form used elsewhere, e.g.
+       aiphysic.cpp/bworldSm.cpp). Cast to a byte base first. */
+    iVar2 = *slice * 0x20 + (int)BWorldSm_slices;
     uVar3 = (u_int)(*(u_char *)(iVar2 + 0x1d) >> 4);
     iVar1 = (u_int)*(u_char *)(iVar2 + 0x1e) * 0x8000 * uVar3;
     uVar4 = *(u_char *)(iVar2 + 0x1d) & 0xf;
@@ -2178,6 +2194,14 @@ LAB_80089c40:
     iVar2 = iVar1 + uVar4 / uVar3;
     if (uVar5 == 0) {
       iVar2 = iVar1 - uVar4 / uVar3;
+    }
+  }
+  else {
+    if (uVar5 == 0) {
+      iVar2 = (int)((u_int)*(u_char *)(*slice * 0x20 + (int)BWorldSm_slices + 0x1e) * -0x8000) / 2;
+    }
+    else {
+      iVar2 = (u_int)*(u_char *)(*slice * 0x20 + (int)BWorldSm_slices + 0x1f) << 0xe;
     }
   }
   offset->x = iVar2;
@@ -2471,13 +2495,18 @@ void Cars_DeInitCar(Car_tObj *carObj)
 /* ---- Cars_Restart__Fv  [@0x8008a4cc] ---- */
 void Cars_Restart(void)
 {
-  /* MATCH: the first do-while's gNumCars cache is a SEPARATE short-lived variable from
-     the second for-loop's counter -- reusing one "iVar7"/"ppCVar3" name for both
-     extended their live ranges across the whole fn, forcing callee-saved regs where
-     the oracle keeps loop-1 entirely in caller-saved regs (no calls in its body) and
-     freshly re-reads the global each iteration of loop 2 (no cache at all there).
-     63->41 diffs; residual = exact caller-saved reg PICK (a2/a1/a0 vs our t0/a3/a2) --
-     a coloring floor, not source-shapable further without a permuter. */
+  /* MATCH: the SAME loop-counter variable ("i") spans all three loops -- oracle keeps
+     ONE callee-saved reg ($s0) for the do-while, the for-loop, AND the while-loop
+     counters (reset to 0 between loops, never a fresh allocno), because part of its
+     live range crosses calls (IniCarObjects/GetNumIMassObjects) which forces
+     callee-saved allocation for the WHOLE variable, including the call-free do-while.
+     Splitting it into separate iVar6/iVar7 lets the do-while's copy take a lighter
+     caller-saved reg -- wrong shape (41->33 diffs after the merge). Residual 33 =
+     the numCars/pointer $a0-$a3 exact-register PICK (a3/a2/a1 vs oracle's a2/a1/a0) --
+     tried: gSortedList/gList/gTotalSortedList decl+assignment reorder (no effect,
+     kept the neutral order), `if(0<(numCars=Cars_gNumCars))` fold (no effect), decl
+     order numCars-before-i (no effect) -- a genuine allocator coloring floor, not
+     source-shapable further without a permuter. */
   int i;
   Object_tIMassObjInfo *pOVar1;
   Car_tObj *pCVar2;
@@ -2486,41 +2515,41 @@ void Cars_Restart(void)
   Car_tObj **ppCVar5;
   Car_tObj **ppCVar6;
   int iVar6;
-  int iVar7;
   int numCars;
 
   numCars = Cars_gNumCars;
-  iVar6 = 0;
+  i = 0;
   if (0 < numCars) {
-    ppCVar5 = Cars_gTotalSortedList;
-    ppCVar3 = Cars_gList;
     ppCVar4 = Cars_gSortedList;
+    ppCVar3 = Cars_gList;
+    ppCVar5 = Cars_gTotalSortedList;
     do {
-      iVar6 = iVar6 + 1;
+      i = i + 1;
       *ppCVar4 = *ppCVar3;
       pCVar2 = *ppCVar3;
       ppCVar3 = ppCVar3 + 1;
       ppCVar4 = ppCVar4 + 1;
       *ppCVar5 = pCVar2;
       ppCVar5 = ppCVar5 + 1;
-    } while (iVar6 < numCars);
+    } while (i < numCars);
   }
+  i = 0;
   ppCVar6 = Cars_gList;
-  for (iVar7 = 0; iVar7 < Cars_gNumCars; iVar7 = iVar7 + 1) {
+  for (; i < Cars_gNumCars; i = i + 1) {
     pCVar2 = *ppCVar6;
     ppCVar6 = ppCVar6 + 1;
-    Cars_IniCarObjects(pCVar2,iVar7);
+    Cars_IniCarObjects(pCVar2,i);
   }
-  iVar7 = 0;
+  i = 0;
   while( true ) {
     iVar6 = Object_GetNumIMassObjects();
     pOVar1 = Object_IMassObjInst;
-    if (iVar6 <= iVar7) break;
-    Object_IMassObjInst[iVar7].lastPos.x = 0;
-    pOVar1[iVar7].lastPos.y = 0;
-    pOVar1[iVar7].lastPos.z = 0;
-    pOVar1[iVar7].lastTick = 0;
-    iVar7 = iVar7 + 1;
+    if (iVar6 <= i) break;
+    Object_IMassObjInst[i].lastPos.x = 0;
+    pOVar1[i].lastPos.y = 0;
+    pOVar1[i].lastPos.z = 0;
+    pOVar1[i].lastTick = 0;
+    i = i + 1;
   }
   accidentSlice = 0;
   return;

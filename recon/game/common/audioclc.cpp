@@ -701,11 +701,11 @@ void AudioClc_SoundPlayersCar(int playerIndex)
   iVar7 = 0;
   if ((car->carFlags & 0x200U) == 0) {
     iVar10 = fixedmult((car->N).orientMat.m[6],
-                        (int)*(char *)((car->N).simRoadInfo.slice * 0x20 + BWorldSm_slices + 0xf));
+                        (int)*(char *)((car->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0xf));
     iVar2 = fixedmult((car->N).orientMat.m[7],
-                       (int)*(char *)((car->N).simRoadInfo.slice * 0x20 + BWorldSm_slices + 0x10));
+                       (int)*(char *)((car->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x10));
     iVar7 = fixedmult((car->N).orientMat.m[8],
-                       (int)*(char *)((car->N).simRoadInfo.slice * 0x20 + BWorldSm_slices + 0x11));
+                       (int)*(char *)((car->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x11));
     iVar7 = iVar10 + iVar2 + iVar7;
     if (GameSetup_gData.reverseTrack != 0) {
       iVar7 = -iVar7;

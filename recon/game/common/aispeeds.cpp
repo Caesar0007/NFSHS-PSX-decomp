@@ -347,7 +347,7 @@ int AISpeeds_CalcOpponentTopSpeed(Car_tObj *carObj,int *unFetteredDesiredSpeed)
       } while (iVar8 < Cars_gNumCars);
     }
     if (iVar8 * 0x280000 <= iVar1) {
-      iVar3 = (carObj->N).simRoadInfo.slice * 0x20 + BWorldSm_slices;
+      iVar3 = (carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices;
       iVar8 = -((u_int)*(u_char *)(iVar3 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar3 + 0x1d) >> 4));
       if (iVar8 <= iVar9) {
         iVar4 = (u_int)*(u_char *)(iVar3 + 0x1f) * 0x8000 * (*(u_char *)(iVar3 + 0x1d) & 0xf);

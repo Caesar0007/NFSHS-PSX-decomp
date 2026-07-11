@@ -744,13 +744,13 @@ void AIHigh_Cop::HighExecute()
 
           }
 
-          iVar9 = this->requestSpikeBeltAtSlice_ * 0x20 + BWorldSm_slices;
+          iVar9 = this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices;
 
           iVar9 = fixedmult((u_int)*(u_char *)(iVar9 + 0x1e) * 0x8000 *
 
                              (u_int)(*(u_char *)(iVar9 + 0x1d) >> 4),iVar12);
 
-          iVar20 = this->requestSpikeBeltAtSlice_ * 0x20 + BWorldSm_slices;
+          iVar20 = this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices;
 
           AICop_spikeBelt.rightLatPos_ =
 
@@ -1322,7 +1322,7 @@ LAB_80064778:
 
     pCVar21 = this->carObj_;
 
-    iVar12 = (pCVar21->N).simRoadInfo.slice * 0x20 + BWorldSm_slices;
+    iVar12 = (pCVar21->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices;
 
     if (((int)-((u_int)*(u_char *)(iVar12 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar12 + 0x1d) >> 4)) <=
 

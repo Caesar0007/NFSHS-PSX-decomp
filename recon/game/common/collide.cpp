@@ -56,23 +56,9 @@ int CHECK_CENTER_VERTEX_WITH_DIRS(int X_DIR,int Y_DIR,int Z_DIR)
 
   coorddef *pcVar3;
 
-  int iVar4;
-
-  int iVar5;
-
-  int iVar6;
-
-  int iVar7;
-
-  int iVar8;
-
   int iVar9;
 
-  
 
-  pcVar3 = pNormal;
-
-  pBVar1 = obj1;
 
   xRange = X_DIR * scaledBasisDots[0] + Y_DIR * scaledBasisDots[1] + Z_DIR * scaledBasisDots[2] +
 
@@ -94,6 +80,12 @@ int CHECK_CENTER_VERTEX_WITH_DIRS(int X_DIR,int Y_DIR,int Z_DIR)
 
          ))) {
 
+    /* MATCH: pNormal/obj1 loaded lazily HERE, not hoisted above the guard (oracle loads them
+       only on the taken path -- catalog "defer load to point of use inside if"). */
+    pcVar3 = pNormal;
+
+    pBVar1 = obj1;
+
     pNormal->x = X_DIR * (obj1->orientMat).m[0] + Y_DIR * (obj1->orientMat).m[3] +
 
                  Z_DIR * (obj1->orientMat).m[6];
@@ -108,163 +100,43 @@ int CHECK_CENTER_VERTEX_WITH_DIRS(int X_DIR,int Y_DIR,int Z_DIR)
 
     pcVar3 = pP;
 
-    iVar9 = (pBVar1->orientMat).m[0];
-
-    if (iVar9 < 0) {
-
-      iVar9 = iVar9 + 0xff;
-
+    /* MATCH: signed /256 idiom (bgez;addiu 0xFF;sra 8) written directly -- gcc emits its own
+       guard. Sequential partial-sum with 2 maximally-reused dead-variable temps (a,b) keeps
+       live-register count low so the leaf fn doesn't spill (SYM: fsize=0 mask=$0). */
+    {
+      int a, b, t;
+      a = (pBVar1->orientMat).m[0]; b = (pBVar1->dimension).x;
+      t = X_DIR * (a / 256) * (b / 256);
+      a = (pBVar1->orientMat).m[3]; b = (pBVar1->dimension).y;
+      t = t + Y_DIR * (a / 256) * (b / 256);
+      a = (pBVar1->orientMat).m[6]; b = (pBVar1->dimension).z;
+      t = t + Z_DIR * (a / 256) * (b / 256);
+      pP->x = (pBVar1->position).x + t;
     }
-
-    iVar4 = (pBVar1->dimension).x;
-
-    if (iVar4 < 0) {
-
-      iVar4 = iVar4 + 0xff;
-
-    }
-
-    iVar7 = (pBVar1->orientMat).m[3];
-
-    if (iVar7 < 0) {
-
-      iVar7 = iVar7 + 0xff;
-
-    }
-
-    iVar5 = (pBVar1->dimension).y;
-
-    if (iVar5 < 0) {
-
-      iVar5 = iVar5 + 0xff;
-
-    }
-
-    iVar8 = (pBVar1->orientMat).m[6];
-
-    if (iVar8 < 0) {
-
-      iVar8 = iVar8 + 0xff;
-
-    }
-
-    iVar6 = (pBVar1->dimension).z;
-
-    if (iVar6 < 0) {
-
-      iVar6 = iVar6 + 0xff;
-
-    }
-
-    pP->x = (pBVar1->position).x + X_DIR * (iVar9 >> 8) * (iVar4 >> 8) +
-
-            Y_DIR * (iVar7 >> 8) * (iVar5 >> 8) + Z_DIR * (iVar8 >> 8) * (iVar6 >> 8);
 
     pBVar2 = obj1;
 
-    iVar9 = (pBVar1->orientMat).m[1];
-
-    if (iVar9 < 0) {
-
-      iVar9 = iVar9 + 0xff;
-
+    {
+      int a, b, t;
+      a = (pBVar1->orientMat).m[1]; b = (pBVar1->dimension).x;
+      t = X_DIR * (a / 256) * (b / 256);
+      a = (pBVar1->orientMat).m[4]; b = (pBVar1->dimension).y;
+      t = t + Y_DIR * (a / 256) * (b / 256);
+      a = (obj1->orientMat).m[7]; b = (obj1->dimension).z;
+      t = t + Z_DIR * (a / 256) * (b / 256);
+      pcVar3->y = (pBVar1->position).y + t;
     }
 
-    iVar4 = (pBVar1->dimension).x;
-
-    if (iVar4 < 0) {
-
-      iVar4 = iVar4 + 0xff;
-
+    {
+      int a, b, t;
+      a = (pBVar2->orientMat).m[2]; b = (pBVar2->dimension).x;
+      t = X_DIR * (a / 256) * (b / 256);
+      a = (pBVar2->orientMat).m[5]; b = (pBVar2->dimension).y;
+      t = t + Y_DIR * (a / 256) * (b / 256);
+      a = (pBVar2->orientMat).m[8]; b = (pBVar2->dimension).z;
+      t = t + Z_DIR * (a / 256) * (b / 256);
+      pP->z = (pBVar2->position).z + t;
     }
-
-    iVar7 = (pBVar1->orientMat).m[4];
-
-    if (iVar7 < 0) {
-
-      iVar7 = iVar7 + 0xff;
-
-    }
-
-    iVar5 = (pBVar1->dimension).y;
-
-    if (iVar5 < 0) {
-
-      iVar5 = iVar5 + 0xff;
-
-    }
-
-    iVar8 = (obj1->orientMat).m[7];
-
-    if (iVar8 < 0) {
-
-      iVar8 = iVar8 + 0xff;
-
-    }
-
-    iVar6 = (obj1->dimension).z;
-
-    if (iVar6 < 0) {
-
-      iVar6 = iVar6 + 0xff;
-
-    }
-
-    pcVar3->y = (pBVar1->position).y + X_DIR * (iVar9 >> 8) * (iVar4 >> 8) +
-
-                Y_DIR * (iVar7 >> 8) * (iVar5 >> 8) + Z_DIR * (iVar8 >> 8) * (iVar6 >> 8);
-
-    iVar9 = (pBVar2->orientMat).m[2];
-
-    if (iVar9 < 0) {
-
-      iVar9 = iVar9 + 0xff;
-
-    }
-
-    iVar4 = (pBVar2->dimension).x;
-
-    if (iVar4 < 0) {
-
-      iVar4 = iVar4 + 0xff;
-
-    }
-
-    iVar7 = (pBVar2->orientMat).m[5];
-
-    if (iVar7 < 0) {
-
-      iVar7 = iVar7 + 0xff;
-
-    }
-
-    iVar5 = (pBVar2->dimension).y;
-
-    if (iVar5 < 0) {
-
-      iVar5 = iVar5 + 0xff;
-
-    }
-
-    iVar8 = (pBVar2->orientMat).m[8];
-
-    if (iVar8 < 0) {
-
-      iVar8 = iVar8 + 0xff;
-
-    }
-
-    iVar6 = (pBVar2->dimension).z;
-
-    if (iVar6 < 0) {
-
-      iVar6 = iVar6 + 0xff;
-
-    }
-
-    pP->z = (pBVar2->position).z + X_DIR * (iVar9 >> 8) * (iVar4 >> 8) +
-
-            Y_DIR * (iVar7 >> 8) * (iVar5 >> 8) + Z_DIR * (iVar8 >> 8) * (iVar6 >> 8);
 
     return 1;
 
@@ -6077,139 +5949,95 @@ void Collide_ClearCollisionRegistry(void)
   int i;
   int slice;
 
-  bool bVar1;
-
-  int iVar2;
-
-  int *piVar3;
-
-  int iVar4;
-
-  int iVar5;
-
-  int iVar6;
-
-  int iVar7;
-
-  int iVar8;
-
-  int iVar9;
-
-  coorddef *cpoint;
-
-  int objIndex;
-
-  BO_tNewtonObj **ppBVar10;
-
-  BWorldSm_Pos *slicePos;
-
-  
-
-  cpoint = &InfiniteMassNewton[0].position;
-
-  slicePos = &InfiniteMassNewton[0].simRoadInfo;
-
-  ppBVar10 = Collide_gRegistry;
+  /* MATCH: ALL-AT-ONCE rewrite of the ~15-site InfiniteMassNewton[0].field+iVar4+/-OFFSET
+     offset-hack pointer web (Ghidra's byte-arithmetic view of a plain array loop) into real
+     struct-indexed InfiniteMassNewton[i] access. Offsets verified against the BO_tNewtonObj /
+     BWorldSm_Pos / Trk_NewSlice layouts in nfs4_types.h (orientMat+1 coorddef == angularVel;
+     wheelRot-0x30/-0x2c/-0x28 == position.x/y/z; wheelRot-0xc == xRelRoadCenter;
+     simRoadInfo.quadPts-0x10 == the object itself; simRoadInfo.quadPts-8 == simRoadInfo.slice). */
+  Trk_NewSlice *pSlice;
+  int dx, dz, dy, nx, nz, ny;
 
   Collide_gNumRegistered = 0;
 
-  iVar4 = 0;
+  for (i = 0; i < Object_GetNumIMassObjects(); i = i + 1) {
 
-  for (objIndex = 0; iVar2 = Object_GetNumIMassObjects(),
+    Object_GetIMassObjectMotion(i,&InfiniteMassNewton[i].position,&InfiniteMassNewton[i].orientMat,
+                                 &InfiniteMassNewton[i].linearVel);
 
-      objIndex < iVar2; objIndex = objIndex + 1) {
+    InfiniteMassNewton[i].angularVel.x = 0;
 
-    Object_GetIMassObjectMotion(objIndex,cpoint,(matrixtdef *)((int)InfiniteMassNewton[0].orientMat.m + iVar4),
+    InfiniteMassNewton[i].angularVel.y = 0;
 
-               (coorddef *)((int)InfiniteMassNewton[0].wheelRot + iVar4 + -0x24));
+    InfiniteMassNewton[i].angularVel.z = 0;
 
-    *(u_int *)((int)&((coorddef *)(&InfiniteMassNewton[0].orientMat + 1))->x + iVar4) = 0;
-
-    *(u_int *)((int)&((coorddef *)(&InfiniteMassNewton[0].orientMat + 1))->y + iVar4) = 0;
-
-    *(u_int *)((int)InfiniteMassNewton[0].roadMatrix.m + iVar4 + -0x28) = 0;
-
-    *ppBVar10 = (BO_tNewtonObj *)((int)InfiniteMassNewton[0].simRoadInfo.quadPts + iVar4 + -0x10);
+    Collide_gRegistry[i] = &InfiniteMassNewton[i];
 
     Collide_gNumRegistered = Collide_gNumRegistered + 1;
 
-    BWorldSm_FindClosestSlice(cpoint,slicePos);
+    BWorldSm_FindClosestSlice(&InfiniteMassNewton[i].position,&InfiniteMassNewton[i].simRoadInfo);
 
-    piVar3 = (int *)(*(short *)((int)InfiniteMassNewton[0].simRoadInfo.quadPts + iVar4 + -8) * 0x20
+    slice = InfiniteMassNewton[i].simRoadInfo.slice;
 
-                    + BWorldSm_slices);
+    pSlice = &BWorldSm_slices[slice];
 
-    iVar5 = *(int *)((int)InfiniteMassNewton[0].wheelRot + iVar4 + -0x30) - *piVar3;
+    dx = InfiniteMassNewton[i].position.x - pSlice->center[0];
 
-    iVar7 = *(int *)((int)InfiniteMassNewton[0].wheelRot + iVar4 + -0x2c) - *piVar3;
+    nx = pSlice->right[0] * 0x200;
 
-    iVar9 = *(int *)((int)InfiniteMassNewton[0].wheelRot + iVar4 + -0x28) - *piVar3;
+    dz = InfiniteMassNewton[i].position.y - pSlice->center[0];
 
-    iVar2 = *(char *)((int)piVar3 + 0x12) * 0x200;
+    nz = pSlice->right[1] * 0x200;
 
-    iVar6 = *(char *)((int)piVar3 + 0x13) * 0x200;
+    dy = InfiniteMassNewton[i].position.z - pSlice->center[0];
 
-    iVar8 = (char)piVar3[5] * 0x200;
+    ny = pSlice->right[2] * 0x200;
 
-    if (iVar5 < 0) {
+    if (dx < 0) {
 
-      iVar5 = iVar5 + 0xff;
-
-    }
-
-    if (iVar2 < 0) {
-
-      iVar2 = iVar2 + 0xff;
+      dx = dx + 0xff;
 
     }
 
-    if (iVar7 < 0) {
+    if (nx < 0) {
 
-      iVar7 = iVar7 + 0xff;
-
-    }
-
-    if (iVar6 < 0) {
-
-      iVar6 = iVar6 + 0xff;
+      nx = nx + 0xff;
 
     }
 
-    if (iVar9 < 0) {
+    if (dz < 0) {
 
-      iVar9 = iVar9 + 0xff;
-
-    }
-
-    if (iVar8 < 0) {
-
-      iVar8 = iVar8 + 0xff;
+      dz = dz + 0xff;
 
     }
 
-    slicePos = (BWorldSm_Pos *)&slicePos[4].quadPts[3].y;
+    if (nz < 0) {
 
-    ppBVar10 = ppBVar10 + 1;
+      nz = nz + 0xff;
 
-    cpoint = cpoint + 0x30;
+    }
 
-    *(int *)((int)InfiniteMassNewton[0].wheelRot + iVar4 + -0xc) =
+    if (dy < 0) {
 
-         (iVar5 >> 8) * (iVar2 >> 8) + (iVar7 >> 8) * (iVar6 >> 8) + (iVar9 >> 8) * (iVar8 >> 8);
+      dy = dy + 0xff;
 
-    iVar4 = iVar4 + 0x240;
+    }
+
+    if (ny < 0) {
+
+      ny = ny + 0xff;
+
+    }
+
+    InfiniteMassNewton[i].xRelRoadCenter =
+
+         (dx >> 8) * (nx >> 8) + (dz >> 8) * (nz >> 8) + (dy >> 8) * (ny >> 8);
 
   }
 
-  iVar4 = 0;
+  for (carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
 
-  do {
-
-    bVar1 = iVar4 < Cars_gNumCars;
-
-    iVar4 = iVar4 + 1;
-
-  } while (bVar1);
+  }
 
   return;
 

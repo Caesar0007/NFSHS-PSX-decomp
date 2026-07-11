@@ -167,8 +167,13 @@ int fastintsin(...);   /* (int angle) */
 int filesize(...);   /* (char*) */
 int fixedatan(...);   /* (int y, int x) */
 int fixedcos(...);   /* (int angle) */
-int fixeddiv(...);   /* (int a, int b) */
-int rdiv(...);   /* (int a, int b) — reciprocal divide @0x800E4404 */
+/* fixeddiv and rdiv are the SAME function at VA 0x800E4404 (two SYM names / aliases).
+   Both are declared so a TU may use whichever name its oracle .s records; they link to the
+   identical address, so `jal fixeddiv` and `jal rdiv` produce byte-identical code (verify_asm's
+   reloc-name leniency treats them as equal). Keep BOTH declared to avoid unresolved-symbol
+   breakage in any TU that uses either spelling. */
+int fixeddiv(...);   /* (int a, int b) — alias of rdiv @0x800E4404 */
+int rdiv(...);   /* (int a, int b) — reciprocal divide @0x800E4404 (== fixeddiv) */
 int fixedmult(...);   /* (int, int) */
 int fixedsin(...);   /* (int angle) */
 void fixedsincos(...);   /* (int a, int *s, int *c) */

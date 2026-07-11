@@ -713,34 +713,22 @@ void Hud_InitMapFrame(int i,int mode)
 void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
 
 {
-  char *pcVar1;
   char cVar2;
-  u_char bVar3;
-  u_char bVar4;
-  u_char bVar5;
   charactertbl *pcVar6;
   int w;
   int c;
   u_int uVar7;
   char langSec;
   char langMin;
-  char minSep [6];
-  char secSep [6];
-  
-  pcVar1 = minSep + 3;
-  uVar7 = (u_int)pcVar1 & 3;
-  *(u_int *)(pcVar1 + -uVar7) =
-       *(u_int *)(pcVar1 + -uVar7) & -1 << (uVar7 + 1) * 8 | 0x27273a3aU /* @0x8013d8dc */ >> (3 - uVar7) * 8;
-  (*(int *)&(minSep)) = 0x27273a3aU /* @0x8013d8dc */;
-  minSep[4] = 0x27 /* @0x8013d8e0 */;
-  minSep[5] = 0x2e /* @0x8013d8e1 */;
-  pcVar1 = secSep + 3;
-  uVar7 = (u_int)pcVar1 & 3;
-  *(u_int *)(pcVar1 + -uVar7) =
-       *(u_int *)(pcVar1 + -uVar7) & -1 << (uVar7 + 1) * 8 | 0x22223a2eU /* @0x8013d8e4 */ >> (3 - uVar7) * 8;
-  (*(int *)&(secSep)) = 0x22223a2eU /* @0x8013d8e4 */;
-  secSep[4] = 0x22 /* @0x8013d8e8 */;
-  secSep[5] = 0x2c /* @0x8013d8e9 */;
+  u_char bVar3;
+  u_char bVar4;
+  u_char bVar5;
+  /* Ghidra hand-expanded these 2 as unaligned lwl/lwr bit-math on a stack
+     pointer; the oracle is a plain compiler-generated rodata->stack aggregate
+     copy (movstrsi shape, catalog wave-4 row) of a 6-char literal init. */
+  char minSep [6] = {':', ':', '\'', '\'', '\'', '.'} /* @0x8013d8dc */;
+  char secSep [6] = {'.', ':', '"',  '"',  '"',  ','} /* @0x8013d8e4 */;
+
   bVar4 = minSep[GameSetup_gData.userSetting.language];
   bVar5 = secSep[GameSetup_gData.userSetting.language];
   bVar3 = *str;

@@ -223,7 +223,7 @@ int AIHigh_Opponent::DoRearEnder()
 
         pCVar4 = *ppCVar7;
 
-        iVar1 = (pCVar4->N).simRoadInfo.slice * 0x20 + BWorldSm_slices;
+        iVar1 = (pCVar4->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices;
 
         if (((int)-((u_int)*(u_char *)(iVar1 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar1 + 0x1d) >> 4))
 

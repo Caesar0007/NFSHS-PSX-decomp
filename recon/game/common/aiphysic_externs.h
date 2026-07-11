@@ -55,6 +55,7 @@ void   AIPhysic_InitCar(Car_tObj *carObj);
 
 /* external callees */
 extern "C" int  fixeddiv(int, int);
+extern "C" int  rdiv(int, int);   /* same fn as fixeddiv @0x800E4404 (SYM alias) — declare both */
 extern "C" int  intatan(int, int);
 extern "C" void transpose(matrixtdef *src, matrixtdef *dst);
 int  Sched_ExecuteCheck(int a, int b, int dist, int objID, int *t, int *et, int *it, int forceNoSimOptz);

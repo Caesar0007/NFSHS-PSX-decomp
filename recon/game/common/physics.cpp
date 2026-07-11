@@ -130,110 +130,110 @@ void Physics_InitCarSpecs(Car_tObj *carObj,Udff_tInfo *handle)
 void Physics_CalculateDerivedCarSpecs(Car_tObj *carObj)
 
 {
-  int iVar1;
+  int i;
   int iVar2;
   Car_tSpecs *pCVar3;
   int iVar4;
   int accAtMaxSpeedInHighestGear;
-  int i;
   int iVar5;
   
+  i = 0;
   accAtMaxSpeedInHighestGear = (int)carObj->specs;
   *(int *)(accAtMaxSpeedInHighestGear + 0x15c) =
        0x10000 / *(int *)(accAtMaxSpeedInHighestGear + 0xf0);
   if (carObj->carInfo->WeightTransfer == 1) {
     carObj->specs->steeringRamp = carObj->specs->steeringRamp + 1;
-    iVar1 = fixedmult(carObj->specs->maxSteeringAcc,0x1147a);
-    carObj->specs->maxSteeringAcc = iVar1;
+    i = fixedmult(carObj->specs->maxSteeringAcc,0x1147a);
+    carObj->specs->maxSteeringAcc = i;
   }
   if (carObj->carInfo->GroundEffects == 1) {
     carObj->specs->steeringRamp = carObj->specs->steeringRamp + 1;
-    iVar1 = fixedmult(carObj->specs->frontAeroDownForce,0x13333);
-    carObj->specs->frontAeroDownForce = iVar1;
-    iVar1 = fixedmult(carObj->specs->rearAeroDownForce,0x13333);
-    carObj->specs->rearAeroDownForce = iVar1;
-    iVar1 = fixedmult(carObj->specs->mass,0xcccc);
-    carObj->specs->mass = iVar1;
-    iVar1 = fixedmult(carObj->specs->lateralGripMult,0x11999);
-    carObj->specs->lateralGripMult = iVar1;
+    i = fixedmult(carObj->specs->frontAeroDownForce,0x13333);
+    carObj->specs->frontAeroDownForce = i;
+    i = fixedmult(carObj->specs->rearAeroDownForce,0x13333);
+    carObj->specs->rearAeroDownForce = i;
+    i = fixedmult(carObj->specs->mass,0xcccc);
+    carObj->specs->mass = i;
+    i = fixedmult(carObj->specs->lateralGripMult,0x11999);
+    carObj->specs->lateralGripMult = i;
   }
   if (carObj->carInfo->EngineMods == 1) {
     carObj->specs->gearShiftDelay = carObj->specs->gearShiftDelay / 2;
-    iVar1 = fixedmult(carObj->specs->maxBrakeAcc,0x14000);
-    carObj->specs->maxBrakeAcc = iVar1;
-    iVar1 = 0;
+    i = fixedmult(carObj->specs->maxBrakeAcc,0x14000);
+    carObj->specs->maxBrakeAcc = i;
+    i = 0;
     do {
-      iVar2 = fixedmult(carObj->specs->torqueCurve[iVar1],0x12666);
-      iVar5 = iVar1 + 1;
-      carObj->specs->torqueCurve[iVar1] = iVar2;
-      iVar1 = iVar5;
+      iVar2 = fixedmult(carObj->specs->torqueCurve[i],0x12666);
+      iVar5 = i + 1;
+      carObj->specs->torqueCurve[i] = iVar2;
+      i = iVar5;
     } while (iVar5 < 0x29);
-    iVar1 = fixedmult(carObj->specs->maxSpeed,0x11999);
-    carObj->specs->maxSpeed = iVar1;
+    i = fixedmult(carObj->specs->maxSpeed,0x11999);
+    carObj->specs->maxSpeed = i;
   }
   pCVar3 = carObj->specs;
-  iVar1 = pCVar3->numGears;
+  i = pCVar3->numGears;
   iVar2 = 0;
-  if (0 < iVar1) {
-    iVar1 = 0;
+  if (0 < i) {
+    i = 0;
     do {
-      iVar4 = (int)pCVar3->velToRpmRatio + iVar1 + -0xc;
+      iVar4 = (int)pCVar3->velToRpmRatio + i + -0xc;
       iVar5 = 0x28f;
       if (*(int *)(iVar4 + 0xc) != 0) {
         iVar5 = fixeddiv(0x10000,*(int *)(iVar4 + 0xc));
-        iVar4 = (int)carObj->specs->velToRpmRatio + iVar1 + -0xc;
+        iVar4 = (int)carObj->specs->velToRpmRatio + i + -0xc;
       }
       *(int *)(iVar4 + 0x180) = iVar5;
       iVar2 = iVar2 + 1;
-      iVar5 = fixeddiv(*(int *)((int)carObj->specs->velToRpmRatio + iVar1),carObj->specs->mass);
-      *(int *)((int)carObj->specs->gearAccCoeff + iVar1) = iVar5;
-      iVar5 = fixeddiv(*(int *)((int)carObj->specs->gearAccCoeff + iVar1),0xa0000);
-      *(int *)((int)carObj->specs->gearAccCoeff + iVar1) = iVar5;
-      iVar5 = fixedmult(*(int *)((int)carObj->specs->gearAccCoeff + iVar1),
-                         *(int *)((int)carObj->specs->gearEfficiency + iVar1));
-      *(int *)((int)carObj->specs->gearAccCoeff + iVar1) = iVar5;
-      iVar5 = fixedmult(*(int *)((int)carObj->specs->velToRpmRatioInv + iVar1),
+      iVar5 = fixeddiv(*(int *)((int)carObj->specs->velToRpmRatio + i),carObj->specs->mass);
+      *(int *)((int)carObj->specs->gearAccCoeff + i) = iVar5;
+      iVar5 = fixeddiv(*(int *)((int)carObj->specs->gearAccCoeff + i),0xa0000);
+      *(int *)((int)carObj->specs->gearAccCoeff + i) = iVar5;
+      iVar5 = fixedmult(*(int *)((int)carObj->specs->gearAccCoeff + i),
+                         *(int *)((int)carObj->specs->gearEfficiency + i));
+      *(int *)((int)carObj->specs->gearAccCoeff + i) = iVar5;
+      iVar5 = fixedmult(*(int *)((int)carObj->specs->velToRpmRatioInv + i),
                          carObj->specs->redline << 0x10);
       iVar5 = fixeddiv(0x10000,iVar5);
-      *(int *)((int)carObj->specs->gearVelInv + iVar1) = iVar5;
+      *(int *)((int)carObj->specs->gearVelInv + i) = iVar5;
       pCVar3 = carObj->specs;
-      iVar1 = iVar1 + 4;
+      i = i + 4;
     } while (iVar2 < pCVar3->numGears);
     pCVar3 = carObj->specs;
-    iVar1 = pCVar3->numGears;
+    i = pCVar3->numGears;
   }
-  iVar1 = fixedmult(pCVar3->maxSpeed,pCVar3->velToRpmRatio[iVar1 + -1]);
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xffff;
+  i = fixedmult(pCVar3->maxSpeed,pCVar3->velToRpmRatio[i + -1]);
+  if (i < 0) {
+    i = i + 0xffff;
   }
-  iVar1 = iVar1 >> 0x10;
+  i = i >> 0x10;
   pCVar3 = carObj->specs;
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
+  if (i < 0) {
+    i = i + 0xff;
   }
-  iVar1 = fixedmult(pCVar3->torqueCurve[iVar1 >> 8],pCVar3->velToRpmRatioInv[pCVar3->numGears + 7])
+  i = fixedmult(pCVar3->torqueCurve[i >> 8],pCVar3->velToRpmRatioInv[pCVar3->numGears + 7])
   ;
   iVar2 = carObj->specs->maxSpeed;
   if (iVar2 < 0) {
     iVar2 = iVar2 + 0xffff;
   }
   iVar2 = iVar2 >> 0x10;
-  iVar1 = fixeddiv(iVar1,iVar2 * iVar2 * iVar2);
-  carObj->specs->dragCoeff = iVar1;
+  i = fixeddiv(i,iVar2 * iVar2 * iVar2);
+  carObj->specs->dragCoeff = i;
   if (7 < GameSetup_gData.track) {
     carObj->specs->gasOffFactor = carObj->specs->gasOffFactor + 0x2666;
     carObj->specs->frontBrakeRatio = carObj->specs->frontBrakeRatio + -0x2666;
     carObj->specs->frontGripBias = carObj->specs->frontGripBias + 0x147;
   }
-  iVar1 = fixedmult(0x10000,carObj->specs->wheelBase / 2);
-  carObj->specs->alphaToAccRotInertia = iVar1;
-  iVar1 = fixedmult(carObj->specs->alphaToAccRotInertia,0x648);
-  carObj->specs->alphaToAccRotInertia = iVar1;
+  i = fixedmult(0x10000,carObj->specs->wheelBase / 2);
+  carObj->specs->alphaToAccRotInertia = i;
+  i = fixedmult(carObj->specs->alphaToAccRotInertia,0x648);
+  carObj->specs->alphaToAccRotInertia = i;
   carObj->specs->alphaToAccRotInertia = carObj->specs->alphaToAccRotInertia << 8;
-  iVar1 = fixeddiv(0x10000,carObj->specs->alphaToAccRotInertia);
-  carObj->specs->accToAlphaRotInertia = iVar1;
-  iVar1 = fixeddiv(0x10000,carObj->specs->lateralGripMult);
-  carObj->specs->lateralGripMultInv = iVar1;
+  i = fixeddiv(0x10000,carObj->specs->alphaToAccRotInertia);
+  carObj->specs->accToAlphaRotInertia = i;
+  i = fixeddiv(0x10000,carObj->specs->lateralGripMult);
+  carObj->specs->lateralGripMultInv = i;
   return;
 }
 
@@ -690,13 +690,15 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
       Physics_CorrectPostCollisionYaw(carObj,iVar4,normal);
     }
     else {
-      normal.x = iVar10;
-      normal.y = iVar4;
-      normal.z = iVar8;
-      if (-1 < iVar17) {
-        normal.x = cVar1 * -0x200;
-        normal.y = cVar2 * -0x200;
-        normal.z = r3 * -0x200;
+      if (iVar17 < 0) {
+        normal.x = iVar10;
+        normal.y = iVar4;
+        normal.z = iVar8;
+      }
+      else {
+        normal.x = -iVar10;
+        normal.z = -iVar8;
+        normal.y = -iVar4;
       }
       Collide_TestWithPlane(&carObj->N,&normal,&(carObj->N).position);
       iVar4 = currentWallType;
@@ -1665,6 +1667,7 @@ void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
   int roadGrip;
   int iVar6;
   int optVar1;
+  int gripDiv;
   
   if (wheel->frontTire != 0) {
     iVar3 = wheel->roadGrip;
@@ -1709,6 +1712,7 @@ void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
     piVar5 = gripLossTableWet;
   }
   iVar4 = piVar5[iVar4];
+  gripDiv = iVar1 / iVar4;
   if (iVar1 < totalAcc) {
     wheel->skid = wheel->skid * 3 + (totalAcc - iVar1) >> 2;
   }
@@ -1728,7 +1732,7 @@ void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
   }
   wheel->skid = iVar6;
   if (0x100 < iVar2) {
-    iVar3 = fixeddiv(iVar1 - iVar1 / iVar4,totalAcc);
+    iVar3 = fixeddiv(iVar1 - gripDiv,totalAcc);
     iVar3 = iVar3 >> 8;
   }
   iVar1 = (wheel->velCap).z;
@@ -1801,7 +1805,7 @@ PhyTracCircle_divCheck:
       if (roadGrip / iVar3 <= iVar5 / iVar3) {
         iVar2 = roadGrip / iVar3;
       }
-      iVar3 = fixeddiv(roadGrip - iVar2,iVar1);
+      iVar3 = rdiv(roadGrip - iVar2,iVar1);
       if (carObj->carInfo->TireType == 2) {
         iVar5 = wheel->skid * 0xf + iVar5;
         if (iVar5 < 0) {
@@ -1827,7 +1831,7 @@ PhyTracCircle_divCheck:
         iVar2 = -iVar2;
       }
       if (0x2665 < iVar2) goto PhyTracCircle_divCheck;
-      iVar3 = fixeddiv(roadGrip,iVar1);
+      iVar3 = rdiv(roadGrip,iVar1);
       wheel->skid = 0;
       if (2 < (u_char)(carObj->control).gear) {
         iVar5 = fixedmult((wheel->finalAcc).x,iVar3);

@@ -373,8 +373,8 @@ void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
 /* ---- BWorld_CheckChunkVisible__FP12BWorldSm_PosT0  [@0x8007dc14] ---- */
 /* NEAR-MISS 106 diffs (74/80 insns), reduced from a baseline of 114 diffs (66/80 insns).
  * 🔴 REAL BUG FIXED (not just a byte-match issue): the two `chunkIndex` lookups were
- * written as `*(u_char*)(BWorldSm_slices + idx*0x20 + 0x1c)` with NO cast to a byte
- * pointer before the `idx*0x20` add. Since BWorldSm_slices is `Trk_NewSlice*` (32
+ * written as `*(u_char*)((int)BWorldSm_slices + idx*0x20 + 0x1c)` with NO cast to a byte
+ * pointer before the `idx*0x20` add. Since (int)BWorldSm_slices is `Trk_NewSlice*` (32
  * bytes/elem), that pointer-arithmetic add scales by sizeof(Trk_NewSlice) AGAIN, so
  * the real byte offset was idx*0x20*0x20 = idx*1024, not idx*32 as intended --
  * confirmed by the compiled `sll $,$,10` (x1024) where the oracle has `sll $,$,5`

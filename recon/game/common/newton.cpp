@@ -1368,13 +1368,10 @@ int Newton_CalcPerpenHeightOfCenterPointFromGround(BO_tNewtonObj *newtonObj,coor
   if (iVar1 < 0) {
     iVar1 = -iVar1;
   }
-  if (iVar1 < 0xb334) {
-    iVar1 = (newtonObj->dimension).x;
+  if (0xb334 <= iVar1) {
+    return relativeDot - (newtonObj->dimension).y; /* MATCH: direct return per-arm, not via a shared iVar1 temp -- verify_asm 2026-07-11 */
   }
-  else {
-    iVar1 = (newtonObj->dimension).y;
-  }
-  return relativeDot - iVar1;
+  return relativeDot - (newtonObj->dimension).x;
 }
 
 /* ---- Newton_CalcDistToClosestPlayerCar__FP13BO_tNewtonObj  [NEWTON.CPP:1123-1215] SLD-VERIFIED ---- */
@@ -1530,22 +1527,22 @@ void Newton_CopyRoadMatrixToOrientMat(BO_tNewtonObj *n,int backwards)
   int iVar3;
   int iVar4;
   int iVar5;
-  
+
+  ori = &n->orientMat;
+  road = &n->roadMatrix; /* MATCH: shared base ptrs materialized BEFORE the branch (oracle sets the source ptr in the branch's delay slot, used by BOTH arms) -- verify_asm 2026-07-11 */
   if (backwards == 0) {
-    ori = &n->orientMat;
-    road = &n->roadMatrix;
     *ori = *road;
     return;
   }
-  (n->orientMat).m[0] = -(n->roadMatrix).m[0];
-  (n->orientMat).m[1] = -(n->roadMatrix).m[1];
-  (n->orientMat).m[2] = -(n->roadMatrix).m[2];
-  (n->orientMat).m[3] = (n->roadMatrix).m[3];
-  (n->orientMat).m[4] = (n->roadMatrix).m[4];
-  (n->orientMat).m[5] = (n->roadMatrix).m[5];
-  (n->orientMat).m[6] = -(n->roadMatrix).m[6];
-  (n->orientMat).m[7] = -(n->roadMatrix).m[7];
-  (n->orientMat).m[8] = -(n->roadMatrix).m[8];
+  ori->m[0] = -road->m[0];
+  ori->m[1] = -road->m[1];
+  ori->m[2] = -road->m[2];
+  ori->m[3] = road->m[3];
+  ori->m[4] = road->m[4];
+  ori->m[5] = road->m[5];
+  ori->m[6] = -road->m[6];
+  ori->m[7] = -road->m[7];
+  ori->m[8] = -road->m[8];
   return;
 }
 
@@ -1561,21 +1558,21 @@ void Newton_CopyRoadMatrixToShadowMat(BO_tNewtonObj *n,int backwards)
   int iVar4;
   int iVar5;
   
+  shad = &n->shadowMat;
+  road = &n->roadMatrix; /* MATCH: shared base ptrs materialized BEFORE the branch (oracle sets the source ptr in the branch's delay slot, used by BOTH arms) -- verify_asm 2026-07-11 */
   if (backwards == 0) {
-    shad = &n->shadowMat;
-    road = &n->roadMatrix;
     *shad = *road;
     return;
   }
-  (n->shadowMat).m[0] = -(n->roadMatrix).m[0];
-  (n->shadowMat).m[1] = -(n->roadMatrix).m[1];
-  (n->shadowMat).m[2] = -(n->roadMatrix).m[2];
-  (n->shadowMat).m[3] = (n->roadMatrix).m[3];
-  (n->shadowMat).m[4] = (n->roadMatrix).m[4];
-  (n->shadowMat).m[5] = (n->roadMatrix).m[5];
-  (n->shadowMat).m[6] = -(n->roadMatrix).m[6];
-  (n->shadowMat).m[7] = -(n->roadMatrix).m[7];
-  (n->shadowMat).m[8] = -(n->roadMatrix).m[8];
+  shad->m[0] = -road->m[0];
+  shad->m[1] = -road->m[1];
+  shad->m[2] = -road->m[2];
+  shad->m[3] = road->m[3];
+  shad->m[4] = road->m[4];
+  shad->m[5] = road->m[5];
+  shad->m[6] = -road->m[6];
+  shad->m[7] = -road->m[7];
+  shad->m[8] = -road->m[8];
   return;
 }
 

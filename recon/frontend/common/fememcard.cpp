@@ -41,35 +41,34 @@ void ChecksumData(tMemCardData *memCardData)
 
 /* ---- VerifySuccessfulRead  [FEMEMCARD.CPP:75-86] ---- */
 
-void * VerifySuccessfulRead(tMemCardData *memCardData)
+bool VerifySuccessfulRead(tMemCardData *memCardData)
 
 {
+  bool result;
   u_long uVar1;
-  byte result;
-  void *pvVar2;
-  
+
   uVar1 = crc16(&memCardData->frontEnd,0x450);
-  pvVar2 = (void *)(uint)(memCardData->frontEndCRC == uVar1);
+  result = memCardData->frontEndCRC == uVar1;
   uVar1 = crc16(&memCardData->carInfo,0xe0);
   if (memCardData->carInfoCRC != uVar1) {
-    pvVar2 = (void *)0x0;
+    result = false;
   }
   uVar1 = crc16(&memCardData->trackInfo,0x10);
   if (memCardData->trackInfoCRC != uVar1) {
-    pvVar2 = (void *)0x0;
+    result = false;
   }
   uVar1 = crc16(&memCardData->tournament,0xb0);
   if (memCardData->tournamentCRC != uVar1) {
-    pvVar2 = (void *)0x0;
+    result = false;
   }
   uVar1 = crc16(memCardData->records,0xe9c);
   if (memCardData->recordsCRC != uVar1) {
-    pvVar2 = (void *)0x0;
+    result = false;
   }
   if (memCardData->fSize != 0x14ac) {
-    pvVar2 = (void *)0x0;
+    result = false;
   }
-  return pvVar2;
+  return result;
 }
 
 
@@ -110,28 +109,39 @@ int Confirm(int Text,int yesText)
   tDialogMessageString *dlgmsg;
   int ret;
   byte putbackon;
-  tDialogYesNoMem MyDialog;
-  
+
   BringThatBeatBack();
   /* [2026-07-11 consolidation] dropped REDUNDANT tDialogYesNo_ctor((tDialogYesNo*)&MyDialog)
      manual call + manual _vf poke: tDialogYesNoMem derives from tDialogYesNo (real declared
      ctor), so the implicit ctor already emits jal __12tDialogYesNo + the tDialogYesNoMem
      vtable store (oracle Confirm__Fii shows exactly ONE ctor jal). tDialogYesNo_ctor is an
      undefined phantom extern (same class as the femenudefs.cpp sweep). */
-  bVar1 = (FEApp[0]->NoInputMemCardDialog).currentlyOn != 0;
-  if (bVar1) {
+  /* [block-scope fix] MyDialog's decl moved AFTER BringThatBeatBack(): oracle's jal
+     BringThatBeatBack precedes the jal __12tDialogYesNo ctor -- the object's ctor fires at
+     its point of declaration (C++), so the real source declares it here, not at fn-top. */
+  tDialogYesNoMem MyDialog;
+  tDialogYesNoMem *dlg = &MyDialog;
+  /* [2026-07-11 RESTORE] the manual _vf poke was WRONGLY dropped in the wave-5 consolidation:
+     this hierarchy uses MANUAL _vf dispatch (not real C++ virtuals), so the implicit
+     tDialogYesNoMem ctor does NOT set the derived vtable -- gcc's synthesized ctor only calls
+     the base tDialogYesNo ctor. The oracle explicitly stores &_vt_15tDialogYesNoMem to _vf(0x60)
+     right after the ctor (`sw v0,0x60(s0)`). Restore it. */
+  dlg->_vf = (__vtbl_ptr_type (*)[10])tDialogYesNoMem_vtable;
+  bVar1 = false;
+  if ((FEApp[0]->NoInputMemCardDialog).currentlyOn != 0) {
     Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+    bVar1 = true;
   }
-  MyDialog.string =
+  dlg->string =
        TextSys_Word(Text);
-  MyDialog.yesnowords[1] = 0x292;
-  MyDialog.fDefault = 0;
+  dlg->yesnowords[1] = 0x292;
+  dlg->yesnowords[0] = yesText;
+  dlg->fDefault = 0;
   if (frontEnd.language == '\x03') {
-    MyDialog.OffsetX = 0;
-    MyDialog.OffsetY = 10;
+    dlg->OffsetX = 0;
+    dlg->OffsetY = 10;
   }
-  MyDialog.yesnowords[0] = yesText;
-  sVar4 = Run((tDialogInteractive *)&MyDialog);
+  sVar4 = Run((tDialogInteractive *)dlg);
   ptVar2 = FEApp[0];
   ret = (int)sVar4;
   if (ret == -1) {
@@ -157,7 +167,8 @@ int Confirm(int Text,int yesText)
 Confirm_redrawAndCleanup:
   Redraw(FEApp[0]);
   MakeWayForMemoryCard();
-  tScreen_dtor((tScreen *)&MyDialog,2);
+  /* [phantom-dtor drop] MyDialog is function-scoped (single return path below); implicit dtor
+     auto-fires here, matching oracle's ___7tScreen call right before the epilogue. */
   return ret;
 }
 
@@ -237,11 +248,17 @@ void Init_Memcard(bool redraw,bool pinkslips)
   int padrestorestarttick;
   MCRDOPTS_def mcrdopts;
 
-  if (MEMCARD_INITIALIZED != 0) {
+  /* [header wish] fememcard_externs.h declares MEMCARD_INITIALIZED as `char`, but its real SYM
+     type is a 4-byte BOOL (femenudefs_externs.h independently declares it `int`, and the oracle
+     accesses it with lw/sw word ops, not lbu/sb) -- cast to int* locally since the header can't
+     be edited here. */
+  if (*(int *)&MEMCARD_INITIALIZED != 0) {
     return;
   }
-  MEMCARD_INITIALIZED = 1;
-  if (MEMCARDFRONTENDISINITTED != 0) {
+  *(int *)&MEMCARD_INITIALIZED = 1;
+  /* [header wish] MEMCARDFRONTENDISINITTED is `char` here vs `int[]` in front_externs.h; the
+     oracle reads it with a plain word `lw`, not `lbu` -- cast locally, see MEMCARD_INITIALIZED. */
+  if (*(int *)&MEMCARDFRONTENDISINITTED != 0) {
     AudioMus_StopSong(0);
     timedwait(5);
   }
@@ -276,10 +293,11 @@ void DeInit_Memcard(void)
 {
   int padrestorestarttick;
 
-  if (MEMCARD_INITIALIZED == 0) {
+  /* [header wish] see Init_Memcard -- MEMCARD_INITIALIZED is a 4-byte BOOL, cast locally. */
+  if (*(int *)&MEMCARD_INITIALIZED == 0) {
     return;
   }
-  MEMCARD_INITIALIZED = 0;
+  *(int *)&MEMCARD_INITIALIZED = 0;
   deltimer(Clock_MasterInterruptHandler);
   MCRD_restore();
   addtimer(Clock_MasterInterruptHandler);
@@ -287,7 +305,8 @@ void DeInit_Memcard(void)
   padrestorestarttick = ticks;
   do { } while (ticks - padrestorestarttick < 0xc0);
   padinit();
-  if (MEMCARDFRONTENDISINITTED != 0) {
+  /* [header wish] see Init_Memcard -- MEMCARDFRONTENDISINITTED is a 4-byte value, cast locally. */
+  if (*(int *)&MEMCARDFRONTENDISINITTED != 0) {
     UpdateMusic(FEApp[0]);
   }
   return;
@@ -304,20 +323,23 @@ extern "C" void Init_MemcardFile__FR12MCRDFILE_defsb(MCRDFILE_def *memCardFile,s
   
   blockclear(memCardFile,0x2c);
   memCardFile->name = "NFS4";
-  if (notitle == 0) {
+  /* [branch-polarity fix] oracle's beqz skips the (rare) notitle==true case out-of-line and
+     falls straight through the common PlayerNameExist path -- arm order flipped to match
+     (catalog wave-3 "if/else ARM ORDER controls beqz/bnez polarity" row). */
+  if (notitle) {
+    TITLE[0] = '\0';
+  }
+  else {
     pvVar1 = PlayerNameExist((uint)(cardnum == 5));
-    if (pvVar1 == (void *)0x0) {
-      pcVar2 = TextSys_Word(0x279);
-      sprintf(TITLE,pcVar2);
-    }
-    else {
+    if (pvVar1 != (void *)0x0) {
       pcVar2 = TextSys_Word(0x278);
       pcVar3 = PlayerName((uint)(cardnum == 5));
       sprintf(TITLE,"%s%s",pcVar2,pcVar3);
     }
-  }
-  else {
-    TITLE[0] = '\0';
+    else {
+      pcVar2 = TextSys_Word(0x279);
+      sprintf(TITLE,pcVar2);
+    }
   }
   memCardFile->title = TITLE;
   memCardFile->size = 0x1500;
@@ -354,11 +376,10 @@ void * SaveGame(short player)
   char *shapeFile;
   tMemCardData memCardData;
   char memorycardbuffer [256];
-  tDialogNoInputMessage WarningDialog;
   MCRDFILE_def memCardFile;
   char shapeFileName [64];
   short cardNum;
-  
+
   iVar7 = 0;
   this_00 = &tournamentManager;
   ptVar6 = &frontEnd;
@@ -372,7 +393,10 @@ void * SaveGame(short player)
     iVar7 = iVar7 + 1;
     ptVar6 = (tfrontEnd *)&ptVar6->raceType;
   } while (iVar7 < 2);
-  tScreen_ctor((tScreen *)&WarningDialog);
+  /* [block-scope fix] WarningDialog's decl moved AFTER the AnalogOn do-while: oracle's
+     jal __7tScreen (implicit ctor) follows the loop, not fn-top -- same disease/fix as
+     Confirm/SavePinkSlipsCarsWithErrorDialogs (dropped phantom tScreen_ctor call). */
+  tDialogNoInputMessage WarningDialog;
   WarningDialog.currentlyOn = 0;
   WarningDialog.reservedheight = 0;
   WarningDialog.MaxH = 0;
@@ -477,7 +501,8 @@ void * SaveGame(short player)
   Hide((tDialogBase *)&WarningDialog);
   Redraw(FEApp[0]);
   CURRENTLYUSINGMEMCARD = 0;
-  tScreen_dtor((tScreen *)&WarningDialog,2);
+  /* [phantom-dtor drop] WarningDialog is function-scoped (single return path below); its
+     implicit dtor auto-fires here, matching oracle's ___7tScreen call right before epilogue. */
   return pvVar11;
 }
 
@@ -493,7 +518,7 @@ extern "C" short LoadGame__FsbT1(short player,bool PinkSlips,byte WithDialogs)
   tFEApplication *ptVar3;
   int iVar4;
   int iVar5;
-  void *pvVar6;
+  bool pvVar6;
   CARDINFO_def *pCI;
   int memCardResult;
   char *pcVar8;
@@ -513,9 +538,8 @@ extern "C" short LoadGame__FsbT1(short player,bool PinkSlips,byte WithDialogs)
   int count;
   tMemCardData memCardData;
   char memorycardbuffer [256];
-  tDialogNoInputMessage WarningDialog;
   MCRDFILE_def memCardFile;
-  
+
   iVar10 = WithDialogs;
   iVar9 = PinkSlips;
   this_00 = (tTournamentManager *)(int)player;
@@ -523,7 +547,10 @@ extern "C" short LoadGame__FsbT1(short player,bool PinkSlips,byte WithDialogs)
   cardnum = (ushort)(iVar11 << 2) | 1;
   CURRENTLYUSINGMEMCARD = 1;
   CURRENTPLAYER[0] = iVar11;
-  tScreen_ctor((tScreen *)&WarningDialog);
+  /* [block-scope fix] WarningDialog's decl moved here (matches oracle's jal __7tScreen
+     position, after the CURRENTPLAYER/CURRENTLYUSINGMEMCARD stores) -- dropped phantom
+     tScreen_ctor call, same disease/fix as Confirm/SaveGame/SavePinkSlipsCarsWithErrorDialogs. */
+  tDialogNoInputMessage WarningDialog;
   WarningDialog.currentlyOn = 0;
   WarningDialog.reservedheight = 0;
   WarningDialog.MaxH = 0;
@@ -610,7 +637,7 @@ switchD_80035054_caseD_4:
     goto switchD_80035054_caseD_4;
   case 0xf:
     pvVar6 = VerifySuccessfulRead(&memCardData);
-    if (pvVar6 != (void *)0x0) {
+    if (pvVar6) {
       sVar13 = 0;
       if (iVar9 == 0) {
         if (iVar4 == 0) {
@@ -691,7 +718,8 @@ LAB_80035238:
       Redraw(FEApp[0]);
     }
     CURRENTLYUSINGMEMCARD = 0;
-    tScreen_dtor((tScreen *)&WarningDialog,2);
+    /* [phantom-dtor drop] WarningDialog is function-scoped (single return path); implicit
+       dtor auto-fires here, matching oracle's ___7tScreen call before the epilogue. */
     return sVar13;
   }
   goto LoadGame_memcardInit;
@@ -710,7 +738,7 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
   int iVar4;
   void *addr;
   int iVar5;
-  void *pvVar6;
+  bool pvVar6;
   CARDINFO_def *pCVar7;
   int card, memCardResult;
   int event;
@@ -781,7 +809,7 @@ switchD_80035530_caseD_4:
     goto switchD_80035530_caseD_4;
   case 0xf:
     pvVar6 = VerifySuccessfulRead(&memCardData);
-    if (pvVar6 == (void *)0x0) {
+    if (!pvVar6) {
       PVar8 = PinkSlipsError_LoadFailed;
     }
     else {
@@ -862,13 +890,15 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
   tDialogNoInputMessage WillLoseCarMessage;
   char string [500];
   char string2 [500];
-  tDialogNoInputMessage WarningDialog;
-  
+
   /* [2026-07-11 consolidation] dropped REDUNDANT tDialogYesNo_ctor(&RetryCancelDialog) +
      tScreen_ctor((tScreen*)&WillLoseCarMessage) manual calls: both are undefined phantom
      externs; the real declared ctors (tDialogYesNo(), tScreen() via the ctor-less tDialog*
      intermediate chain) auto-fire at declaration -- oracle shows exactly one
-     jal __12tDialogYesNo + one jal __7tScreen here. */
+     jal __12tDialogYesNo + one jal __7tScreen here. RetryCancelDialog/WillLoseCarMessage are
+     function-scoped (constructed once, destructed once at the single `return PVar2;` below --
+     manual tScreen_dtor calls for them dropped too, oracle's two ___7tScreen calls right
+     before the epilogue are exactly the implicit auto-dtors at function scope exit). */
   sVar1 = 0;
   player_00 = (int)player;
   WillLoseCarMessage.currentlyOn = 0;
@@ -900,67 +930,73 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
     }
     iVar5 = 0;
     Redraw(FEApp[0]);
-    tScreen_ctor((tScreen *)&WarningDialog);
-    WarningDialog.currentlyOn = 0;
-    WarningDialog.reservedheight = 0;
-    WarningDialog.MaxH = 0;
-    WarningDialog.OffsetY = 0;
-    WarningDialog.OffsetX = 0;
-    WarningDialog.height = 0;
-    WarningDialog.width = 0;
-    WarningDialog.top = 0;
-    WarningDialog.left = 0;
-    WarningDialog.MaxW = 0x120;
-    WarningDialog.specificPlayer = -1;
-    WarningDialog.fDefault = 0;
-    WarningDialog.Centerit = 0;
-    WarningDialog.fFullyOpen = 0;
-    WarningDialog.timeOutTicks = 0;
-    WarningDialog.fFadeText = 0x80;
-    WarningDialog._vf =
-         (__vtbl_ptr_type (*)[10])tDialogNoInputMessage_vtable;
-    WarningDialog.string =
-         TextSys_Word(player_00 + 0x276);
-    WarningDialog.OffsetX = 0;
-    WarningDialog.OffsetY = 0x32;
-    Display((tDialogBase *)&WarningDialog);
-    while (WarningDialog.fFullyOpen != 1) {
-      Redraw(FEApp[0]);
-    }
-    Redraw(FEApp[0]);
-    do {
-      PVar2 = SavePinkSlipsCars(player,withoutCarInGarageNumber);
-      iVar5 = iVar5 + 1;
-      if (PVar2 == PinkSlipsNoError) break;
-      timedwait(5);
-    } while (iVar5 < 3);
-    Hide((tDialogBase *)&WarningDialog);
-    Redraw(FEApp[0]);
-    if (PVar2 != PinkSlipsNoError) {
-      Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
-      pcVar3 = TextSys_Word(textSysMemCardFail_Index[PVar2] + player_00);
-      sprintf(string,pcVar3);
-      if (WillLoseCar != 0) {
-        iVar5 = 0x298;
-        if (WillLoseCar == 2) {
-          iVar5 = 0x299;
-        }
-        pcVar3 = TextSys_Word(iVar5);
-        pcVar4 = PlayerName(player_00);
-        sprintf(string2,pcVar3,pcVar4);
-        WillLoseCarMessage.OffsetX = 0;
-        WillLoseCarMessage.OffsetY = -0x3c;
-        WillLoseCarMessage.string = string2;
-        Display((tDialogBase *)&WillLoseCarMessage);
+    /* [block-scope fix] WarningDialog constructed/destructed FRESH every retry iteration --
+       oracle's jal __7tScreen sits at the loop top (per-iteration ctor) and the matching
+       ___7tScreen dtor fires exactly once, right after the error-dialog block below, BEFORE
+       the loop-back/return decision -- i.e. WarningDialog is scoped to a nested block that
+       ends there, not to the whole do-loop body. Declaring it fn-scope (old code) or letting
+       an unscoped do-loop-body local live past that point does not reproduce the single,
+       fixed dtor call site. */
+    {
+      tDialogNoInputMessage WarningDialog;
+      WarningDialog.currentlyOn = 0;
+      WarningDialog.reservedheight = 0;
+      WarningDialog.MaxH = 0;
+      WarningDialog.OffsetY = 0;
+      WarningDialog.OffsetX = 0;
+      WarningDialog.height = 0;
+      WarningDialog.width = 0;
+      WarningDialog.top = 0;
+      WarningDialog.left = 0;
+      WarningDialog.MaxW = 0x120;
+      WarningDialog.specificPlayer = -1;
+      WarningDialog.fDefault = 0;
+      WarningDialog.Centerit = 0;
+      WarningDialog.fFullyOpen = 0;
+      WarningDialog.timeOutTicks = 0;
+      WarningDialog.fFadeText = 0x80;
+      WarningDialog._vf =
+           (__vtbl_ptr_type (*)[10])tDialogNoInputMessage_vtable;
+      WarningDialog.string =
+           TextSys_Word(player_00 + 0x276);
+      WarningDialog.OffsetX = 0;
+      WarningDialog.OffsetY = 0x32;
+      Display((tDialogBase *)&WarningDialog);
+      while (WarningDialog.fFullyOpen != 1) {
+        Redraw(FEApp[0]);
       }
-      RetryCancelDialog.string = string;
-      sVar1 = Run((tDialogInteractive *)&RetryCancelDialog);
-      Hide((tDialogBase *)&WillLoseCarMessage);
+      Redraw(FEApp[0]);
+      do {
+        PVar2 = SavePinkSlipsCars(player,withoutCarInGarageNumber);
+        iVar5 = iVar5 + 1;
+        if (PVar2 == PinkSlipsNoError) break;
+        timedwait(5);
+      } while (iVar5 < 3);
+      Hide((tDialogBase *)&WarningDialog);
+      Redraw(FEApp[0]);
+      if (PVar2 != PinkSlipsNoError) {
+        Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+        pcVar3 = TextSys_Word(textSysMemCardFail_Index[PVar2] + player_00);
+        sprintf(string,pcVar3);
+        if (WillLoseCar != 0) {
+          iVar5 = 0x298;
+          if (WillLoseCar == 2) {
+            iVar5 = 0x299;
+          }
+          pcVar3 = TextSys_Word(iVar5);
+          pcVar4 = PlayerName(player_00);
+          sprintf(string2,pcVar3,pcVar4);
+          WillLoseCarMessage.OffsetX = 0;
+          WillLoseCarMessage.OffsetY = -0x3c;
+          WillLoseCarMessage.string = string2;
+          Display((tDialogBase *)&WillLoseCarMessage);
+        }
+        RetryCancelDialog.string = string;
+        sVar1 = Run((tDialogInteractive *)&RetryCancelDialog);
+        Hide((tDialogBase *)&WillLoseCarMessage);
+      }
     }
-    tScreen_dtor((tScreen *)&WarningDialog,2);
     if ((PVar2 == PinkSlipsNoError) || (sVar1 == 0)) {
-      tScreen_dtor((tScreen *)&WillLoseCarMessage,2);
-      tScreen_dtor((tScreen *)&RetryCancelDialog,2);
       return PVar2;
     }
   } while( true );

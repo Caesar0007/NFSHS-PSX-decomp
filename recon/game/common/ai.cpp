@@ -378,7 +378,7 @@ void AI_OpponentBlockPlayer(Car_tObj *carObj,Car_tObj *otherCarObj)
       return;
     }
     iVar3 = otherCarObj->laneIndex;
-    bVar1 = *(u_char *)(sVar2 * 0x20 + BWorldSm_slices + 0x1d);
+    bVar1 = *(u_char *)(sVar2 * 0x20 + (int)BWorldSm_slices + 0x1d);
     if (iVar3 < (int)(7 - (u_int)(bVar1 >> 4))) {
       return;
     }
@@ -482,7 +482,7 @@ void AI_CheckForBarriers(Car_tObj *carObj)
   else if (gNumSlices <= iVar9) {
     iVar9 = iVar9 - gNumSlices;
   }
-  sVar1 = *(short *)(slice * 0x20 + BWorldSm_slices + 0x16);
+  sVar1 = *(short *)(slice * 0x20 + (int)BWorldSm_slices + 0x16);
   iVar5 = AIWorld_IsDriveableLane_UsingMask(slice,mask);
   if (iVar5 == 0) {
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + -0xa0000;
@@ -495,8 +495,8 @@ void AI_CheckForBarriers(Car_tObj *carObj)
   if (iVar5 == 0) {
     CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0xa0000;
   }
-  if ((sVar1 != *(short *)(iVar10 * 0x20 + BWorldSm_slices + 0x16)) ||
-     (sVar1 != *(short *)(iVar9 * 0x20 + BWorldSm_slices + 0x16))) {
+  if ((sVar1 != *(short *)(iVar10 * 0x20 + (int)BWorldSm_slices + 0x16)) ||
+     (sVar1 != *(short *)(iVar9 * 0x20 + (int)BWorldSm_slices + 0x16))) {
     carObj->barrierThinkHarder = 0x49;
   }
   if (0 < carObj->barrierThinkHarder) {
@@ -1445,7 +1445,7 @@ void AI_CalculateDesiredLatPosition(Car_tObj *carObj)
   if ((bVar1) && (iVar2 = AI_TryToShareLanes(carObj,carObj_00), iVar2 == 1)) {
     return;
   }
-  iVar2 = iVar4 * 0x20 + BWorldSm_slices;
+  iVar2 = iVar4 * 0x20 + (int)BWorldSm_slices;
   if ((AI_Info.desiredLane == 6 - (u_int)(*(u_char *)(iVar2 + 0x1d) >> 4)) ||
      (AI_Info.desiredLane == (*(u_char *)(iVar2 + 0x1d) & 0xf) + 7)) {
     if (AI_Info.desiredLane < 7) {

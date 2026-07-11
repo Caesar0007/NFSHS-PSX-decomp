@@ -3339,9 +3339,8 @@ void Backup__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x19].delta);
   FindLocation__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,pCVar3);
   COLOUR = &(pThis->_base_Speaker).fColour;
-  iVar2 = (pThis->_base_Speaker).fCar;
   flags = pThis;
-  SPCHNFS_C_D_REQUEST_BKUP(VOICE,COLOUR,iVar2,(SPCHNFSType_POSITION *)pThis,(pThis->_base_Speaker).fLocation,
+  SPCHNFS_C_D_REQUEST_BKUP(VOICE,COLOUR,(pThis->_base_Speaker).fCar,(SPCHNFSType_POSITION *)pThis,(pThis->_base_Speaker).fLocation,
              &(pThis->_base_Speaker).fDistance);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   (pThis->_base_Speaker).fBlockade.flags = 0;

@@ -1097,9 +1097,11 @@ void freeVoiceChannel(int sndPlayer)
 int AudioCmn_PlayDoppleredSound(int bhandle,int patchNum,int azimuth,int vol,int bend,int doppler)
 {
   SNDPLAYOPTS playopts;
+  int bnk2;
   int iVar1;
   int iVar2;
   u_int bank;
+  signed char sbh;
 
   SNDplaysetdef(&playopts);
   playopts.bhandle = (char)bhandle;
@@ -1111,70 +1113,108 @@ int AudioCmn_PlayDoppleredSound(int bhandle,int patchNum,int azimuth,int vol,int
     playopts.vol = (u_char)(gMasterFENarrationLevel * 0x81 >> 7);
     goto LAB_8007828c;
   }
-  iVar2 = gMasterAmbientLevel;
-  if (bhandle == gSndBnk[2].bnkID) {
+  /* MATCH: gSndBnk[2].bnkID read ONCE into bnk2 (oracle keeps it live in $v1 all the way
+     to the patchNum==3 recheck below); re-reading the field twice would reload it there. */
+  bnk2 = gSndBnk[2].bnkID;
+  if (bhandle == bnk2) {
     iVar1 = vol * 0x28;
-LAB_8007827c:
-    iVar1 = iVar1 - vol;
+    iVar2 = gMasterAmbientLevel;
+    goto LAB_8007827c;
   }
   else {
-    if (bhandle != gSndBnk[5].bnkID) {
-      if ((patchNum == 0x16) || (patchNum == 0x12)) {
-        playopts.vol = (u_char)(gMasterSFXLevel * vol >> 7);
-        goto LAB_8007828c;
-      }
-      iVar2 = gMasterSFXLevel;
-      if ((patchNum != 3) ||
-         ((iVar1 = vol << 7, bhandle != gSndBnk[0].bnkID && (bhandle != gSndBnk[2].bnkID)))) {
-        if (patchNum == 0) {
-          iVar1 = vol * 0xe;
-          iVar2 = gMasterEngineLevel;
-          goto LAB_80078280;
-        }
-        iVar1 = vol * 0x28;
-      }
-      goto LAB_8007827c;
+    /* MATCH: polarity flipped to '==' vs the Ghidra '!=' -- oracle keeps this short
+       vol*0x82 block ADJACENT (fallthrough) to the compare and pushes the long
+       0x16/0x12/patchNum==3 chain out via the branch, not the other way round. */
+    if (bhandle == gSndBnk[5].bnkID) {
+      iVar1 = vol * 0x82;
+      iVar2 = gMasterAmbientLevel;
+      goto LAB_80078280;
     }
-    iVar1 = vol * 0x82;
+    if ((patchNum == 0x16) || (patchNum == 0x12)) {
+      playopts.vol = (u_char)(gMasterSFXLevel * vol >> 7);
+      goto LAB_8007828c;
+    }
+    if ((patchNum != 3) ||
+       ((iVar1 = vol << 7, bhandle != gSndBnk[0].bnkID && (bhandle != bnk2)))) {
+      if (patchNum == 0) {
+        iVar1 = vol * 0xe;
+        iVar2 = gMasterEngineLevel;
+        goto LAB_80078280;
+      }
+      iVar1 = vol * 0x28;
+    }
+    /* MATCH: gMasterSFXLevel is loaded HERE (at the shared LAB_8007827c tail), not hoisted
+       before the patchNum==3 test -- oracle has no load until this merge point. */
+    iVar2 = gMasterSFXLevel;
   }
+  /* MATCH: the "iVar1 -= vol" merge is a genuinely SHARED instruction physically placed
+     next to the mult tail (LAB_80078280), reached via an explicit jump from the bnk2-match
+     arm above -- NOT inlined adjacent to that arm (oracle: .L8007827C sits right before
+     .L80078280, far from the bnk2 block). */
+LAB_8007827c:
+  iVar1 = iVar1 - vol;
 LAB_80078280:
   playopts.vol = (u_char)(iVar2 * iVar1 >> 0xe);
 LAB_8007828c:
-  playopts.patnum = patchNum;
+  /* MATCH: real if/else (not unconditional store + override) -- oracle stores patnum=1 on
+     the ==99 arm then jumps to the shared merge, patnum=patchNum only on the fallthrough. */
   if (patchNum == 99) {
     playopts.patnum = 1;
+  }
+  else {
+    playopts.patnum = patchNum;
   }
   playopts.bend = (char)bend;
   playopts.pitchmult = (u_short)(doppler >> 4);
   playopts.use3dpos = Audio_direct3davail != 0;
-  if (Audio_direct3davail == 0) {
-    if (gStereoMode == 0) {
-      playopts.pan = 0x40;
-    }
-    else if (azimuth - 0x4000U < 0x8000) {
-      playopts.pan = (u_char)((u_int)(0xbfff - azimuth) >> 8);
-    }
-    else {
-      playopts.pan = (u_char)((u_int)(azimuth + 0x4000) >> 8);
-    }
-  }
-  else {
+  /* MATCH: arm order swapped vs the Ghidra-style "==0" first -- oracle's fallthrough (common)
+     path is the != 0 azimuth store; the ==0 pan/stereo code is pushed out-of-line. */
+  if (Audio_direct3davail != 0) {
     playopts.azimuth = (u_short)azimuth;
   }
-  if (playopts.bhandle < -1) {
-    if (playopts.bhandle == -4) {
+  else {
+    /* MATCH: arm order swapped again (same lever as the outer Audio_direct3davail check) --
+       oracle's fallthrough is the != 0 azimuth-band compute; ==0 pan=0x40 is out-of-line. */
+    if (gStereoMode != 0) {
+      if (azimuth - 0x4000U < 0x8000) {
+        /* MATCH: oracle shifts this one ARITHMETICALLY (sra) -- no u_int cast (plain signed
+           int >> 8), unlike the sibling branch below which does want the unsigned srl. */
+        playopts.pan = (u_char)((0xbfff - azimuth) >> 8);
+      }
+      else {
+        playopts.pan = (u_char)((u_int)(azimuth + 0x4000) >> 8);
+      }
+    }
+    else {
+      playopts.pan = 0x40;
+    }
+  }
+  /* BUG FIX (round-2): playopts.bhandle is a plain `char` field, UNSIGNED on this build
+     (CC1PLPSX reads every char field with lbu) -- comparing the raw field against -1/-4/-3
+     is provably false/true for an unsigned promotion and gcc silently DELETES the whole
+     GetAsyncSfx block (a real behavior bug: async bank lookup never ran). Oracle reloads
+     the byte ONCE via a signed `lb` and reuses it for all three tests. */
+  sbh = (signed char)playopts.bhandle;
+  if (sbh < -1) {
+    if (sbh == -4) {
       bank = 2;
     }
     else {
-      bank = (u_int)(playopts.bhandle == -3);
+      bank = (u_int)(sbh == -3);
     }
     iVar2 = AudioCmn_GetAsyncSfx(bank,patchNum,(void *)0x0);
     playopts.bhandle = (char)iVar2;
     playopts.patnum = 0;
   }
   iVar2 = -1;
-  if (-1 < playopts.bhandle) {
-    SNDplay(&playopts);
+  /* BUG FIX (round-2): same unsigned-char issue -- "-1 < playopts.bhandle" on the raw
+     field folds to always-true (SNDplay called unconditionally, oracle has a real bltz
+     guard skipping playback for a failed/invalid handle). Cast to signed. */
+  if (-1 < (signed char)playopts.bhandle) {
+    /* MATCH: oracle does NOT re-materialize -1 after the call (single li v0,-1, in the
+       bltz delay slot, shared by both paths) -- the return value on this path is really
+       SNDplay's own $v0 result, so the C must assign it, not discard it. */
+    iVar2 = SNDplay(&playopts);
   }
   NumSFXOn = NumSFXOn + 1;
   return iVar2;

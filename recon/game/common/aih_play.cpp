@@ -493,7 +493,7 @@ LAB_80062130:
 
           pAVar10[2].stateType_ = (this->carObj_)->direction;
 
-          iVar7 = (int)pAVar10[2].state_ * 0x20 + BWorldSm_slices;
+          iVar7 = (int)pAVar10[2].state_ * 0x20 + (int)BWorldSm_slices;
 
           iVar15 = (u_int)*(u_char *)(iVar7 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar7 + 0x1d) >> 4);
 
@@ -515,7 +515,7 @@ LAB_80062130:
 
             if ((uVar13 & 1) == 0) {
 
-              iVar7 = (int)pAVar10[2].state_ * 0x20 + BWorldSm_slices;
+              iVar7 = (int)pAVar10[2].state_ * 0x20 + (int)BWorldSm_slices;
 
               pAVar10[2].schedulingOff_ =
 
@@ -529,7 +529,7 @@ LAB_80062130:
 
             else {
 
-              iVar7 = (int)pAVar10[2].state_ * 0x20 + BWorldSm_slices;
+              iVar7 = (int)pAVar10[2].state_ * 0x20 + (int)BWorldSm_slices;
 
               iVar4 = -0xbe;
 
@@ -671,7 +671,7 @@ LAB_80062130:
 
           }
 
-          iVar7 = (int)pAVar10[2].state_ * 0x20 + BWorldSm_slices;
+          iVar7 = (int)pAVar10[2].state_ * 0x20 + (int)BWorldSm_slices;
 
           iVar15 = (u_int)*(u_char *)(iVar7 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar7 + 0x1d) >> 4);
 
@@ -693,7 +693,7 @@ LAB_80062130:
 
             if ((uVar13 & 1) == 0) {
 
-              iVar7 = (int)pAVar10[2].state_ * 0x20 + BWorldSm_slices;
+              iVar7 = (int)pAVar10[2].state_ * 0x20 + (int)BWorldSm_slices;
 
               pAVar10[2].schedulingOff_ =
 
@@ -707,7 +707,7 @@ LAB_80062130:
 
             else {
 
-              iVar7 = (int)pAVar10[2].state_ * 0x20 + BWorldSm_slices;
+              iVar7 = (int)pAVar10[2].state_ * 0x20 + (int)BWorldSm_slices;
 
               iVar4 = -0xbe;
 

@@ -448,7 +448,7 @@ void PlacePointOnRoad(int slice,coorddef *offset)
 
   local_b0.slice = (short)slice;
 
-  piVar4 = (int *)(slice * 0x20 + BWorldSm_slices);
+  piVar4 = (int *)(slice * 0x20 + (int)BWorldSm_slices);
 
   iVar8 = *piVar4;
 
@@ -456,7 +456,7 @@ void PlacePointOnRoad(int slice,coorddef *offset)
 
   iVar12 = piVar4[2];
 
-  iVar11 = slice * 0x20 + BWorldSm_slices;
+  iVar11 = slice * 0x20 + (int)BWorldSm_slices;
 
   cVar1 = *(char *)(iVar11 + 0x14);
 
@@ -484,7 +484,7 @@ void PlacePointOnRoad(int slice,coorddef *offset)
 
   if (local_b0.simQuad == (Trk_NewSimQuad *)0x0) {
 
-    pointOnPlane = (coorddef *)(BWorldSm_slices + local_b0.slice * 0x20);
+    pointOnPlane = (coorddef *)((int)BWorldSm_slices + local_b0.slice * 0x20);
 
   }
 

@@ -966,7 +966,7 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
   }
 
-  iVar3 = copSlice * 0x20 + BWorldSm_slices;
+  iVar3 = copSlice * 0x20 + (int)BWorldSm_slices;
 
   iVar6 = (u_int)*(u_char *)(iVar3 + 0x1f) * 0x8000 * (*(u_char *)(iVar3 + 0x1d) & 0xf);
 
@@ -998,7 +998,7 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
   }
 
-  iVar5 = AIWorld_IsDriveableLane(copSlice,(*(u_char *)(copSlice * 0x20 + BWorldSm_slices + 0x1d) & 0xf) + 7);
+  iVar5 = AIWorld_IsDriveableLane(copSlice,(*(u_char *)(copSlice * 0x20 + (int)BWorldSm_slices + 0x1d) & 0xf) + 7);
 
   if (iVar5 == 0) {
 
@@ -3011,13 +3011,13 @@ LAB_8005f268:
 
     this->spikeBeltInterceptReleaseTime_ = ((randtemp >> 8 & 0xffff) * 0x14ccd >> 0x10) + 0xd999;
 
-    iVar9 = this->spikeBeltSlice_ * 0x20 + BWorldSm_slices;
+    iVar9 = this->spikeBeltSlice_ * 0x20 + (int)BWorldSm_slices;
 
     iVar9 = fixedmult((u_int)*(u_char *)(iVar9 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar9 + 0x1d) >> 4)
 
                        ,0xcccc);
 
-    iVar7 = this->spikeBeltSlice_ * 0x20 + BWorldSm_slices;
+    iVar7 = this->spikeBeltSlice_ * 0x20 + (int)BWorldSm_slices;
 
     AICop_spikeBelt.rightLatPos_ =
 

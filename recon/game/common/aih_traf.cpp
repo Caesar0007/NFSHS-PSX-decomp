@@ -463,7 +463,7 @@ void AIHigh_Traffic::HighExecute()
 
           if ((this->carObj_)->direction != 1) goto LAB_800664c4;
 
-          iVar4 = iVar4 * 0x20 + BWorldSm_slices;
+          iVar4 = iVar4 * 0x20 + (int)BWorldSm_slices;
 
           local_20 = (u_int)*(u_char *)(iVar4 + 0x1f) << 0xf;
 
@@ -497,7 +497,7 @@ void AIHigh_Traffic::HighExecute()
 
           if ((this->carObj_)->direction == 1) {
 
-            iVar4 = iVar4 * 0x20 + BWorldSm_slices;
+            iVar4 = iVar4 * 0x20 + (int)BWorldSm_slices;
 
             local_20 = (u_int)*(u_char *)(iVar4 + 0x1f) << 0xf;
 
@@ -509,7 +509,7 @@ void AIHigh_Traffic::HighExecute()
 
 LAB_800664c4:
 
-            iVar4 = iVar4 * 0x20 + BWorldSm_slices;
+            iVar4 = iVar4 * 0x20 + (int)BWorldSm_slices;
 
             local_20 = (u_int)*(u_char *)(iVar4 + 0x1e) << 0xf;
 

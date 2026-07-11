@@ -111,7 +111,7 @@ LAB_800678dc:
         iVar7 = iVar7 + iVar3;
       }
       bVar4 = false;
-      piVar5 = (int *)(iVar7 * 0x20 + BWorldSm_slices);
+      piVar5 = (int *)(iVar7 * 0x20 + (int)BWorldSm_slices);
       local_38.x = *piVar5;
       local_38.y = piVar5[1];
       local_38.z = piVar5[2];
@@ -179,13 +179,13 @@ void AILife_RCPickDesiredLatPosition(Car_tObj *carObj)
   
   iVar1 = (int)(carObj->N).simRoadInfo.slice;
   if (carObj->direction == AITune_driveSide) {
-    iVar1 = iVar1 * 0x20 + BWorldSm_slices;
+    iVar1 = iVar1 * 0x20 + (int)BWorldSm_slices;
     uVar2 = (u_int)*(u_char *)(iVar1 + 0x1f) * 0x8000;
     iVar1 = uVar2 * (((*(u_char *)(iVar1 + 0x1d) & 0xf) * (fastRandom * randSeed >> 8 & 0xffff) >>
                      0x10) + 1) - (uVar2 >> 1);
   }
   else {
-    iVar1 = iVar1 * 0x20 + BWorldSm_slices;
+    iVar1 = iVar1 * 0x20 + (int)BWorldSm_slices;
     uVar2 = (u_int)*(u_char *)(iVar1 + 0x1e);
     iVar1 = uVar2 * -0x8000 *
             (((u_int)(*(u_char *)(iVar1 + 0x1d) >> 4) * (fastRandom * randSeed >> 8 & 0xffff) >> 0x10)
@@ -428,12 +428,12 @@ void AILife_ReencarnateCopBySlice(Car_tObj *carObj,int slice,int travelDirection
   carObj->desiredDirection = travelDirection;
   if (moving == 0) {
     if (roadSide == -1) {
-      iVar1 = slice * 0x20 + BWorldSm_slices;
+      iVar1 = slice * 0x20 + (int)BWorldSm_slices;
       iVar1 = -0x20000 -
               (u_int)*(u_char *)(iVar1 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar1 + 0x1d) >> 4);
       goto LAB_800682dc;
     }
-    iVar1 = slice * 0x20 + BWorldSm_slices;
+    iVar1 = slice * 0x20 + (int)BWorldSm_slices;
     iVar1 = (u_int)*(u_char *)(iVar1 + 0x1f) * 0x8000 * (*(u_char *)(iVar1 + 0x1d) & 0xf);
     uVar2 = 0x20000;
 LAB_800682d4:
@@ -441,7 +441,7 @@ LAB_800682d4:
   }
   else {
     if (carObj->direction != 1) {
-      iVar1 = slice * 0x20 + BWorldSm_slices;
+      iVar1 = slice * 0x20 + (int)BWorldSm_slices;
       uVar2 = (u_int)(*(u_char *)(iVar1 + 0x1d) >> 4);
       if (uVar2 != 0) {
         uVar3 = (u_int)*(u_char *)(iVar1 + 0x1e);
@@ -450,7 +450,7 @@ LAB_800682d4:
         goto LAB_800682d4;
       }
     }
-    iVar1 = slice * 0x20 + BWorldSm_slices;
+    iVar1 = slice * 0x20 + (int)BWorldSm_slices;
     uVar2 = (u_int)*(u_char *)(iVar1 + 0x1f) * 0x8000;
     iVar1 = uVar2 * (*(u_char *)(iVar1 + 0x1d) & 0xf) - (uVar2 >> 1);
   }

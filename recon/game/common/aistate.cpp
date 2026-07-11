@@ -1244,7 +1244,7 @@ LAB_80070704:
 
       iVar8 = (this->delayCar_).roadPosition_ + iVar7 * iVar10;
 
-      iVar10 = ((this->carObj_)->N).simRoadInfo.slice * 0x20 + BWorldSm_slices;
+      iVar10 = ((this->carObj_)->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices;
 
       iVar7 = -((u_int)*(u_char *)(iVar10 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar10 + 0x1d) >> 4));
 
@@ -1548,7 +1548,7 @@ void AIState_Chase::CheckForBarriersAndTargetAroundThem()
 
     iVar4 = pCVar3->laneIndex;
 
-    bVar1 = *(u_char *)(slice * 0x20 + BWorldSm_slices + 0x1d);
+    bVar1 = *(u_char *)(slice * 0x20 + (int)BWorldSm_slices + 0x1d);
 
     iVar2 = (int)(this->targetCar_->N).simRoadInfo.slice;
 
@@ -1556,7 +1556,7 @@ void AIState_Chase::CheckForBarriersAndTargetAroundThem()
 
     if (((((int)(6 - (u_int)(bVar1 >> 4)) <= iVar4) && (iVar4 <= (int)((bVar1 & 0xf) + 7))) &&
 
-        (bVar1 = *(u_char *)(iVar2 * 0x20 + BWorldSm_slices + 0x1d),
+        (bVar1 = *(u_char *)(iVar2 * 0x20 + (int)BWorldSm_slices + 0x1d),
 
         (int)(6 - (u_int)(bVar1 >> 4)) <= lane0)) && (lane0 <= (int)((bVar1 & 0xf) + 7))) {
 
@@ -1744,7 +1744,7 @@ LAB_80070e34:
 
        ((((uVar2 & 4) == 0 ||
 
-         (bVar1 = *(u_char *)(slice * 0x20 + BWorldSm_slices + 0x1d),
+         (bVar1 = *(u_char *)(slice * 0x20 + (int)BWorldSm_slices + 0x1d),
 
          iVar9 < (int)(6 - (u_int)(bVar1 >> 4)))) ||
 
@@ -1754,7 +1754,7 @@ LAB_80070e34:
 
       if ((uVar2 & 1) == 0) break;
 
-      bVar1 = *(u_char *)(slice * 0x20 + BWorldSm_slices + 0x1d);
+      bVar1 = *(u_char *)(slice * 0x20 + (int)BWorldSm_slices + 0x1d);
 
       iVar6 = iVar8 + 1;
 
@@ -1800,7 +1800,7 @@ LAB_80070f54:
 
        ((((uVar2 & 4) == 0 ||
 
-         (bVar1 = *(u_char *)(iVar8 * 0x20 + BWorldSm_slices + 0x1d),
+         (bVar1 = *(u_char *)(iVar8 * 0x20 + (int)BWorldSm_slices + 0x1d),
 
          iVar10 < (int)(6 - (u_int)(bVar1 >> 4)))) ||
 
@@ -1810,7 +1810,7 @@ LAB_80070f54:
 
       if ((uVar2 & 1) == 0) break;
 
-      bVar1 = *(u_char *)(iVar8 * 0x20 + BWorldSm_slices + 0x1d);
+      bVar1 = *(u_char *)(iVar8 * 0x20 + (int)BWorldSm_slices + 0x1d);
 
       iVar9 = iVar4 + 1;
 
@@ -2755,7 +2755,7 @@ void AIState_RovingTraffic::Execute()
 
   (this->carObj_)->desiredSpeed = this->path_[this->pathIndex_].targetSpeed * 0x7247;
 
-  piVar2 = (int *)(((this->carObj_)->N).simRoadInfo.slice * 0x20 + BWorldSm_slices);
+  piVar2 = (int *)(((this->carObj_)->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices);
 
   iVar8 = ((this->carObj_)->targetPos).x - *piVar2;
 
@@ -3119,7 +3119,7 @@ void AIState_Donuts::Execute()
 
     }
 
-    piVar5 = (int *)(iVar4 * 0x20 + BWorldSm_slices);
+    piVar5 = (int *)(iVar4 * 0x20 + (int)BWorldSm_slices);
 
     local_20.x = *piVar5;
 
@@ -3201,7 +3201,7 @@ void AIState_Donuts::Execute()
 
     if (iVar7 < 0) {
 
-      iVar11 = iVar11 * 0x20 + BWorldSm_slices;
+      iVar11 = iVar11 * 0x20 + (int)BWorldSm_slices;
 
       if ((int)-((u_int)*(u_char *)(iVar11 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar11 + 0x1d) >> 4)) <=
 
@@ -3211,7 +3211,7 @@ void AIState_Donuts::Execute()
 
     else {
 
-      iVar11 = iVar11 * 0x20 + BWorldSm_slices;
+      iVar11 = iVar11 * 0x20 + (int)BWorldSm_slices;
 
       if (iVar7 + 0x20000 <=
 

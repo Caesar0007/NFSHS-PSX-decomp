@@ -273,8 +273,8 @@ void LoadShapesAndMakePmx_EnvMap(char *shapefile,Draw_tPixMap *pmxList,int x,int
   int negOne;
   int flagBits;
 
-  idx = 0;
   flagBits = 0;
+  idx = 0;
   negOne = -1;
 LoadEnvMap_loopTest:
   pvVar1 = shapecount(shapefile);
@@ -518,7 +518,7 @@ TrkAssoc_loopTest:
       art->pmxCount = art->pmxCount + 1;
     }
     else {
-      uvFlag = (u_short)inputMat->shapeIndex;
+      uvFlag = inputMat->shapeIndex;
       if ((inputMat->flag & 2) != 0) {
         iVar5 = Track_GetProperMultiPalShapeIndex((u_int)uvFlag,(u_int)inputMat->interval);
         uvFlag = (u_short)iVar5;
@@ -945,9 +945,6 @@ void Track_Init(char *tempName)
   SerializedGroup * chunkGroup;
   int trackFileSize;
   SerializedGroup * group;
-  u_int uVar1;
-  u_char *puVar2;
-  u_int *puVar3;
   Group *pThis;
   int loadResult;
   SimpleMem *this_00;
@@ -968,20 +965,12 @@ void Track_Init(char *tempName)
   int j;
   u_int uVar6;
   int elemIdx;
-  Group *size;
   int matCount;
   int elemPtr;
   int srcDataInd;
   int iVar43_field;
   int count;
   int iVar44_field;
-  int reg_t3;
-  int reg_t4;
-  int tu9;
-  int reg_t5;
-  int tu10;
-  int reg_t6;
-  int tu11;
   Chunk *chunkDat;
   int chunkCount;
   int i;
@@ -992,15 +981,10 @@ void Track_Init(char *tempName)
   int chunkIdx;
   SerializedGroup *persistentGroup;
   char trackName [128];
-  int tp5;
-  int tp6;
   int tR7;
-  int tp2;
   u_short tu3;
-  int tu4;
   int tp4;
   TrackHeader *tT33;
-  int tu1;
   int tu2;
   int tp3;
   u_char uVar7_00;
@@ -1018,8 +1002,7 @@ void Track_Init(char *tempName)
   u_char tu31;
   u_char tu32;
   u_char tu33;
-  void *tp1;
-  
+
   Track_gSaveSurface = (SaveSurface *)0x0;
   Track_gObjDefs = (Trk_ObjectDef **)0x0;
   sprintf(trackName,"%s",tempName);
@@ -1030,7 +1013,7 @@ void Track_Init(char *tempName)
   chunkCount = loadResult + 0x9080;
   InitArtResources();
   TexturesLoadInitial();
-  this_00 = __builtin_new(uVar6);
+  this_00 = __builtin_new(sizeof(SimpleMem));
   loadBuf = reservememadr("Track_mem",chunkCount,0);
   this_00->heap = loadBuf;
   this_00->freeMem = loadBuf;
@@ -1048,62 +1031,25 @@ void Track_Init(char *tempName)
   geomSubGrp = (int)((SerializedGroup *)rootSerGroup)->LocateGroupType(0x23,0);
   tp7 = (void *)(geomSubGrp + 0x10);
   pCVar5 = Chunk_lightTable;
-  if ((((u_int)tp7 | (u_int)Chunk_lightTable) & 3) == 0) {
+  if ((((u_int)tp7 | (u_int)Chunk_lightTable) & 3) != 0) {
+    struct Pack16 { char b[16]; };
     do {
-      ((u_int *)pCVar5)[0] = ((u_int *)tp7)[0];
-      ((u_int *)pCVar5)[1] = ((u_int *)tp7)[1];
-      ((u_int *)pCVar5)[2] = ((u_int *)tp7)[2];
-      ((u_int *)pCVar5)[3] = ((u_int *)tp7)[3];
+      *(struct Pack16 *)pCVar5 = *(struct Pack16 *)tp7;
       tp7 = (void *)((int)tp7 + 0x10);
       pCVar5 = pCVar5 + 4;
     } while (tp7 != (CVECTOR *)(geomSubGrp + 0x410));
   }
   else {
     do {
-      tp1 = &((CVECTOR *)tp7)->cd;
-      tu1 = (u_int)tp1 & 3;
-      tu4 = (u_int)tp7 & 3;
-      reg_t3 = (*(int *)((int)tp1 - tu1) << (3 - tu1) * 8 | reg_t3 & 0xffffffffU >> (tu1 + 1) * 8) &
-               -1 << (4 - tu4) * 8 | *(u_int *)((int)tp7 - tu4) >> tu4 * 8;
-      tp2 = (int)&((CVECTOR *)((int)tp7 + 4))->cd;
-      uVar6 = tp2 & 3;
-      tu2 = (u_int)((int)tp7 + 4) & 3;
-      reg_t4 = (*(int *)(tp2 - uVar6) << (3 - uVar6) * 8 | reg_t4 & 0xffffffffU >> (uVar6 + 1) * 8)
-               & -1 << (4 - tu2) * 8 | *(u_int *)((int)((int)tp7 + 4) - tu2) >> tu2 * 8;
-      uVar6 = (u_int)&((CVECTOR *)((int)tp7 + 8))->cd & 3;
-      uVar1 = (u_int)((int)tp7 + 8) & 3;
-      reg_t5 = (*(int *)(&((CVECTOR *)((int)tp7 + 8))->cd + -uVar6) << (3 - uVar6) * 8 |
-               reg_t5 & 0xffffffffU >> (uVar6 + 1) * 8) & -1 << (4 - uVar1) * 8 |
-               *(u_int *)((int)((int)tp7 + 8) - uVar1) >> uVar1 * 8;
-      uVar6 = (u_int)&((CVECTOR *)((int)tp7 + 0xc))->cd & 3;
-      uVar1 = (u_int)((int)tp7 + 0xc) & 3;
-      reg_t6 = (*(int *)(&((CVECTOR *)((int)tp7 + 0xc))->cd + -uVar6) << (3 - uVar6) * 8 |
-               reg_t6 & 0xffffffffU >> (uVar6 + 1) * 8) & -1 << (4 - uVar1) * 8 |
-               *(u_int *)((int)((int)tp7 + 0xc) - uVar1) >> uVar1 * 8;
-      uVar6 = (u_int)&pCVar5->cd & 3;
-      tp5 = (int)&pCVar5->cd - uVar6;
-      *(u_int *)tp5 = *(u_int *)tp5 & -1 << (uVar6 + 1) * 8 | (u_int)reg_t3 >> (3 - uVar6) * 8;
-      uVar6 = (u_int)pCVar5 & 3;
-      *(u_int *)((int)pCVar5 - uVar6) =
-           *(u_int *)((int)pCVar5 - uVar6) & 0xffffffffU >> (4 - uVar6) * 8 | reg_t3 << uVar6 * 8;
-      uVar6 = (u_int)&pCVar5[1].cd & 3;
-      tp3 = (int)&pCVar5[1].cd - uVar6;
-      *(u_int *)tp3 = *(u_int *)tp3 & -1 << (uVar6 + 1) * 8 | (u_int)reg_t4 >> (3 - uVar6) * 8;
-      uVar6 = (u_int)(pCVar5 + 1) & 3;
-      tp6 = (int)(pCVar5 + 1) - uVar6;
-      *(u_int *)tp6 = *(u_int *)tp6 & 0xffffffffU >> (4 - uVar6) * 8 | reg_t4 << uVar6 * 8;
-      uVar6 = (u_int)&pCVar5[2].cd & 3;
-      puVar2 = &pCVar5[2].cd + -uVar6;
-      *(u_int *)puVar2 = *(u_int *)puVar2 & -1 << (uVar6 + 1) * 8 | (u_int)reg_t5 >> (3 - uVar6) * 8;
-      uVar6 = (u_int)(pCVar5 + 2) & 3;
-      tp4 = (int)(pCVar5 + 2) - uVar6;
-      *(u_int *)tp4 = *(u_int *)tp4 & 0xffffffffU >> (4 - uVar6) * 8 | reg_t5 << uVar6 * 8;
-      uVar6 = (u_int)&pCVar5[3].cd & 3;
-      puVar2 = &pCVar5[3].cd + -uVar6;
-      *(u_int *)puVar2 = *(u_int *)puVar2 & -1 << (uVar6 + 1) * 8 | (u_int)reg_t6 >> (3 - uVar6) * 8;
-      uVar6 = (u_int)(pCVar5 + 3) & 3;
-      puVar3 = (u_int *)((int)(pCVar5 + 3) - uVar6);
-      *puVar3 = *puVar3 & 0xffffffffU >> (4 - uVar6) * 8 | reg_t6 << uVar6 * 8;
+      u_int c0,c1,c2,c3;
+      c0 = ((u_int *)tp7)[0];
+      c1 = ((u_int *)tp7)[1];
+      c2 = ((u_int *)tp7)[2];
+      c3 = ((u_int *)tp7)[3];
+      ((u_int *)pCVar5)[0] = c0;
+      ((u_int *)pCVar5)[1] = c1;
+      ((u_int *)pCVar5)[2] = c2;
+      ((u_int *)pCVar5)[3] = c3;
       tp7 = (void *)((int)tp7 + 0x10);
       pCVar5 = pCVar5 + 4;
     } while (tp7 != (CVECTOR *)(geomSubGrp + 0x410));
@@ -1167,9 +1113,8 @@ void Track_Init(char *tempName)
        reservememadr("bsphere",gPersistObjDef->m_num_elements << 3 | 4,0);
   CalcObjectBoundingSphere(gPersistObjDef,gPersistObjDefBoundingSpheres);
   ReduceObjectPrecision(gPersistMidgroundObjInst,gPersistObjDef,2);
-  size = gPersistObjDef;
   InvalidatePersistentCollideBoomObjects(gPersistObjInst,gPersistObjDef);
-  newChunk_p = (int)__builtin_new((u_int)size);
+  newChunk_p = (int)__builtin_new(sizeof(SaveSurface));
   Track_gSaveSurface = SaveSurface_ct((SaveSurface *)newChunk_p,0x30);
   Track_LoadObjectKillData();
   return;

@@ -1191,7 +1191,13 @@ void AIHigh_Player::MaintainAvailableCops()
 
   ppCVar7 = Cars_gCopCarList;
 
-  for (iVar8 = 0; iVar2 = Cars_gNumCopCars, iVar8 < iVar9; iVar8 = iVar8 + 1) {
+  iVar8 = 0;
+
+  while (true) {
+
+    iVar2 = Cars_gNumCopCars;
+
+    if (iVar9 <= iVar8) break;
 
     pCVar5 = *ppCVar7;
 
@@ -1227,11 +1233,17 @@ void AIHigh_Player::MaintainAvailableCops()
 
     ppCVar7 = ppCVar7 + 1;
 
+    iVar8 = iVar8 + 1;
+
   }
 
   ppCVar7 = Cars_gCopCarList;
 
-  for (iVar9 = 0; (0 < iVar10 && (iVar9 < iVar2)); iVar9 = iVar9 + 1) {
+  iVar9 = 0;
+
+  while (true) {
+
+    if (!(0 < iVar10 && (iVar9 < iVar2))) break;
 
     pCVar5 = *ppCVar7;
 
@@ -1254,6 +1266,8 @@ void AIHigh_Player::MaintainAvailableCops()
     }
 
     ppCVar7 = ppCVar7 + 1;
+
+    iVar9 = iVar9 + 1;
 
   }
 
@@ -1459,11 +1473,16 @@ void AIHigh_Player::HandleCops()
       Car_tObj *pCar = this->carObj_;
       int prodSlipYaw;
       int elapsed;
+      u_int prodSlipYawNeg;
 
       /* H26 setup: product computed UNCONDITIONALLY here (oracle 0x80062B30-60), the
          AI_elapsedTime load likewise (oracle 0x80062B54-58) -- both live across the
-         copsAssigned_ branch below and are reused in the engagementTime_ shift-select. */
+         copsAssigned_ branch below and are reused in the engagementTime_ shift-select.
+         prodSlipYawNeg extracted via the sign-bit shift (matches oracle's `srl a0,a3,31`
+         in the copsAssigned_ branch's delay slot -- a bare `<0` compare emits `slt` instead). */
       prodSlipYaw = *(int *)((char *)pCar + 1380) * *(int *)((char *)pCar + 1364);
+
+      prodSlipYawNeg = (u_int)prodSlipYaw >> 31;
 
       elapsed = AI_elapsedTime;
 
@@ -1488,7 +1507,7 @@ void AIHigh_Player::HandleCops()
         /* H26: decrement dropped (m2c self-assign fold). Oracle 0x80062BA4: engagementTime_ = iVar2 -
            (AI_elapsedTime << shift), shift = 0xF if carObj[1380]*carObj[1364] < 0 else 0x10 (the
            0x80062B9C <<0xF delay slot is used on the product<0 path; 0x80062BA0 <<0x10 otherwise). */
-        pInfo->engagementTime_ = iVar2 - (elapsed << (prodSlipYaw < 0 ? 0xF : 0x10));
+        pInfo->engagementTime_ = iVar2 - (elapsed << (prodSlipYawNeg ? 0xF : 0x10));
 
         iVar1 = pInfo->engagementTime_;
 
@@ -1572,9 +1591,13 @@ void AIHigh_Player::CleanupBlockaders(int forceClearAll)
 
   }
 
+  copLoop = 0;
+
   ppCVar4 = Cars_gCopCarList;
 
-  for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
+  while (true) {
+
+    if (Cars_gNumCopCars <= copLoop) break;
 
     thisCop = (AIHigh_Cop *)highLevelAIObjs[(*ppCVar4)->carIndex];
 
@@ -1593,6 +1616,8 @@ void AIHigh_Player::CleanupBlockaders(int forceClearAll)
     }
 
     ppCVar4++;
+
+    copLoop = copLoop + 1;
 
   }
 
@@ -1887,5 +1912,22 @@ LAB_80062f48:
 
 
 
+
+/* ---- ___13AIHigh_Player  AIHigh_Player::~AIHigh_Player  @0x80063248 ----
+ * Reconstructed 2026-07-11 (wave-5 consolidation): declared in aihigh.h + oracle .s existed but
+ * the fn was defined NOWHERE in the tree (rule-8 unreconstructed-fn class, found by the aih agent).
+ * Oracle: set vptr(+0x14) = _vt_16AIHigh_BasicPerp (the BASE class vtable -- gcc2.8 dtor of
+ * AIHigh_Player collapses the inlined ~AIHigh_BasicPerp body, which resets its own vptr), then
+ * jal ___11AIHigh_Base with the vptr store in the delay slot. Same extern-C free-fn recipe as
+ * ___10AIHigh_Cop (aih_cop.cpp:2090). */
+extern "C" {
+extern char _vt_16AIHigh_BasicPerp[];
+void ___11AIHigh_Base(void *);
+void ___13AIHigh_Player(void *thisp)
+{
+  *(char **)((char *)thisp + 0x14) = _vt_16AIHigh_BasicPerp;
+  ___11AIHigh_Base(thisp);
+}
+}
 
 /* end of aih_play.cpp */

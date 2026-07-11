@@ -283,6 +283,16 @@ void AIState_Idle::SetIdlePosition(int roadPosition)
 
 
 /* ---- __13AIState_ChaseP8Car_tObjT1P8coorddefiiiii  AIState_Chase::ctor  [AISTATE.CPP:180-201] SLD-VERIFIED ---- */
+/* WALL (register-coloring near-miss, insn count now EXACT 66/66; was 8 SHORT before the
+   reverseDirCheck fix below): two independent saved-reg swaps remain vs the oracle --
+   (carObj<->delayTime) and (relPosition<->nitrousTicks) -- both are short/long-lived params
+   that gcc-2.x's global allocator ties differently than the oracle build; every statement
+   placement/caching variant tried leaves the same two swaps. Pure §A coloring floor,
+   documented near-miss. */
+
+/* D_8011321C == GameSetup_gData.reverseTrack -- standalone-symbol form, same precedent as
+ * ai.cpp AI_HandleTrafficHonking / aiinit.cpp AIInit_RestartAICar / hud.cpp Hud_NextPlayer. */
+extern int D_8011321C;
 
 AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relPosition,
 
@@ -292,6 +302,7 @@ AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relP
   : AIState_Base(carObj), delayCar_(carObj,targetCar,delayTime)
 {
 
+  int reverseDirCheck;
 
   this->_vf = (__vtbl_ptr_type (*) [4])AIState_Chase_vtable;
 
@@ -313,7 +324,29 @@ AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relP
 
   this->slowDownEndTime_ = 0;
 
-  this->noTurnAroundEndTime_ = 0;
+  /* tail-merged identical arms (catalog SSD): oracle computes the honk-check idiom (exact same
+     shape as AI_HandleTrafficHonking, recon/game/common/ai.cpp:1208-1211) purely as a branch
+     CONDITION whose two arms both reset noTurnAroundEndTime_ to 0 -- gcc2.8's cross-jump pass
+     merges the byte-identical arm bodies into ONE shared store, but the branch test (and the
+     nor/xori computing it) survives because branch removal is a separate optimization gcc
+     doesn't perform here. */
+  reverseDirCheck = ~carObj->direction;
+
+  if (D_8011321C == 0) {
+
+    reverseDirCheck = carObj->direction ^ 1;
+
+  }
+
+  if (reverseDirCheck) {
+
+    this->noTurnAroundEndTime_ = 0;
+
+  } else {
+
+    this->noTurnAroundEndTime_ = 0;
+
+  }
 
   this->barrierTicks32_ = 0;
 
@@ -429,7 +462,7 @@ void AIState_Chase::SetTarget(Car_tObj *targetCar,coorddef *relPosition)
 
   iVar1 = (this->targetCar_->N).dimension.x;
 
-  iVar3 = (this->relPosition_).x;
+  iVar3 = *(volatile int *)&(this->relPosition_).x;
 
   iVar2 = -1;
 
@@ -441,7 +474,7 @@ void AIState_Chase::SetTarget(Car_tObj *targetCar,coorddef *relPosition)
 
   iVar1 = (this->targetCar_->N).dimension.z;
 
-  iVar3 = (this->relPosition_).z;
+  iVar3 = *(volatile int *)&(this->relPosition_).z;
 
   iVar2 = -1;
 
@@ -626,8 +659,6 @@ void AIState_Chase::DoNitrous(int checkForHumans)
 
   Car_tObj *pCVar2;
 
-  Car_tObj **ppCVar3;
-
 
 
   if ((0 < this->nitrousTicks_) && (simGlobal.gameTicks >= this->slowDownEndTime_)) {
@@ -636,13 +667,23 @@ void AIState_Chase::DoNitrous(int checkForHumans)
 
     (this->carObj_)->speedNitrous = 0x28000;
 
-    ppCVar3 = Cars_gHumanRaceCarList;
-
     humanLoop = 0;
 
-    while (checkForHumans != 0 && (humanLoop < Cars_gNumHumanRaceCars)) {
+    while (true) {
 
-      distanceMeters = AIWorld_ApxSplineDistance(this->carObj_,*ppCVar3);
+      if (checkForHumans == 0) {
+
+        break;
+
+      }
+
+      if (Cars_gNumHumanRaceCars <= humanLoop) {
+
+        break;
+
+      }
+
+      distanceMeters = AIWorld_ApxSplineDistance(this->carObj_,Cars_gHumanRaceCarList[humanLoop]);
 
       pCVar2 = this->carObj_;
 
@@ -663,8 +704,6 @@ void AIState_Chase::DoNitrous(int checkForHumans)
         (this->carObj_)->speedNitrous = 0x10000;
 
       }
-
-      ppCVar3 = ppCVar3 + 1;
 
       humanLoop = humanLoop + 1;
 
@@ -2006,13 +2045,13 @@ void AIState_Offroad::UnleashIfInRange(Car_tObj *car)
 
   iVar2 = AIWorld_SplineDistance(this->carObj_,car);
 
+  iVar3 = fixedmult((car->N).speedXZ,this->releaseTime_);
+
   if (iVar2 < 0) {
 
     iVar2 = -iVar2;
 
   }
-
-  iVar3 = fixedmult((car->N).speedXZ,this->releaseTime_);
 
   bVar1 = iVar2 < iVar3;
 

@@ -1376,11 +1376,53 @@ int tScreenControllerConfig::GetHelpText()
   return -1;
 }
 
-/* ---- tScreenControllerConfig::~tScreenControllerConfig  (screencontroller.cpp:177) ---- */
-tScreenControllerConfig::~tScreenControllerConfig()
-
-{
-  return;
-}
+/* ---- ___23tScreenControllerConfig  (screencontroller.cpp:177) ----
+ * MATCH 2026-07-11 (dtor-surgery): tScreenControllerConfig::~tScreenControllerConfig() is now
+ * declared INLINE-in-class (nfs4_types.h) with an empty body, so gcc fully expands/collapses it
+ * at every implicit member/base-teardown call site (e.g. tAllScreens::~tAllScreens(), which the
+ * oracle shows INLINING this class's own negconPopUp + base(tScreen) teardown directly rather
+ * than calling this symbol -- ___11tAllScreens FAIL 104->PASS via this surgery).
+ *
+ * The class's OWN standalone out-of-line destructor symbol (___23tScreenControllerConfig) STILL
+ * genuinely exists in the retail binary (used elsewhere, e.g. the manually-materialized vtable's
+ * dtor slot in vtables_tscreen2.cpp needs a real, addressable function at this exact VA/name) --
+ * gcc-2.8/CC1PLPSX has NO mechanism to emit both an inlined-everywhere copy AND a real named
+ * out-of-line copy from ONE C++ destructor declaration (empirically verified: an inline dtor
+ * NEVER produces a standalone symbol under this compiler, at any call site, in any TU -- see the
+ * dtor-surgery session notes). So the standalone symbol is TRANSCRIBED VERBATIM as a file-scope
+ * __asm__ (same technique as blockmove/_patch_gte): this is BYTE-IDENTICAL to what the old
+ * out-of-line C++ definition (`tScreenControllerConfig::~tScreenControllerConfig(){ return; }`)
+ * used to compile to -- confirmed PASS (17 insns) before AND after this transcription; only the
+ * MECHANISM producing those bytes changed (compiler-generated -> hand-transcribed), the bytes
+ * did not. Destructs the negconPopUp member (offset 0xB8, tDialogYesNo -> collapses to
+ * ___7tScreen) then forwards to the tScreen base (in_chrg propagated via $s1). */
+#if defined(__mips__)
+__asm__(
+    "\t.set push\n"
+    "\t.set noat\n"
+    "\t.set\tnoreorder\n"   /* tab form: turns maspsx's is_reorder OFF (no auto delay nop) */
+    "\t.set noreorder\n"    /* space form: passes through to gnu-as */
+    "\t.globl ___23tScreenControllerConfig\n"
+    "___23tScreenControllerConfig:\n"
+    "\taddiu $sp, $sp, -32\n"
+    "\tsw    $s0, 16($sp)\n"
+    "\taddu  $s0, $a0, $zero\n"
+    "\tsw    $s1, 20($sp)\n"
+    "\taddu  $s1, $a1, $zero\n"
+    "\taddiu $a0, $s0, 184\n"     /* &this->negconPopUp (+0xB8) */
+    "\tsw    $ra, 24($sp)\n"
+    "\tjal   ___7tScreen\n"
+    "\t addiu $a1, $zero, 2\n"     /* delay slot: member sub-object, not in charge */
+    "\taddu  $a0, $s0, $zero\n"
+    "\tjal   ___7tScreen\n"        /* base tScreen part */
+    "\t addu  $a1, $s1, $zero\n"   /* delay slot: forward the original in_chrg */
+    "\tlw    $ra, 24($sp)\n"
+    "\tlw    $s1, 20($sp)\n"
+    "\tlw    $s0, 16($sp)\n"
+    "\tjr    $ra\n"
+    "\t addiu $sp, $sp, 32\n"
+    "\t.set pop\n"
+    "\t.set\treorder\n"  /* maspsx tracks .set linearly (no push/pop): restore nop-insertion for the rest of the file (gcc2.8 HOISTS toplevel asm above all fns) */);
+#endif
 
 /* end of screencontroller.cpp */

@@ -48,9 +48,11 @@ char * Replay_Compress(char *uncompressed_data)
   int c_pointer;
   int done;
   char *pcVar6;
+  char marker;
 
   done = 0;
   c_pointer = 1;
+  marker = (char)0xff;
   pcVar6 = uncompressed_data + 0x20;
   do {
     begin_byte = *uncompressed_data;
@@ -71,7 +73,7 @@ char * Replay_Compress(char *uncompressed_data)
       }
     }
     else {
-      compressed_data[c_pointer] = -1;
+      compressed_data[c_pointer] = marker;
       compressed_data[c_pointer + 1] = (char)count;
       compressed_data[c_pointer + 2] = begin_byte;
       c_pointer = c_pointer + 3;
@@ -256,9 +258,9 @@ void Replay_ResetReplay(void)
 
   if ((u_int)Replay_ReplayMode < 2) {
     i = 0x5fff;
-    pBuf = Replay_ReplayBuffer.buffer + i;
+    pBuf = (char *)&Replay_ReplayBuffer + i;
     do {
-      *pBuf = 0;
+      ((tReplayBuffer *)pBuf)->buffer[0] = 0;
       pBuf = pBuf - 1;
       i = i + -1;
     } while (-1 < i);
@@ -278,14 +280,14 @@ void Replay_ResetReplay(void)
     Replay_ReplayInterface.depressed = 0;
     Replay_ReplayInterface.changeCamera = 0;
     do {
-      if (numValidCams == 0) {
-        iVar1 = 4;
-      }
-      else {
+      if (numValidCams != 0) {
         if ((GameSetup_gData.commMode == 1) || (i == 0)) {
           Replay_ReplayFindClosestCamera(i,(int)((*car_walk)->N).simRoadInfo.slice);
         }
         iVar1 = 0x13;
+      }
+      else {
+        iVar1 = 4;
       }
       cam_walk->cameraMode = iVar1;
       cam_walk->cutToNextCamera = 0;
@@ -390,10 +392,10 @@ void Replay_SaveInput(int car)
   int steer_q;
   int *ctr_ptr;
   Car_tObj **car_walk;
-  
+
   Input_Fetch(car);
   ctr_ptr = Replay_ReplayCounter + car;
-  steer_q = (int)Input_gSim.steering;
+  steer_q = (int)(signed char)Input_gSim.steering;
   if (steer_q < 0) {
     steer_q = steer_q + 3;
   }
@@ -437,7 +439,7 @@ void Replay_GetInput(int car)
     }
   }
   if (Replay_ReplayMode == 2) {
-    if (((int)controlData[car].steering[Replay_ReplayCounter[car]] & 0x80U) == 0) {
+    if (((int)(signed char)controlData[car].steering[Replay_ReplayCounter[car]] & 0x80U) == 0) {
       Cars_gHumanRaceCarList[car]->carInfo->RampSteering = 0;
     }
     else {
@@ -459,7 +461,7 @@ void Replay_GetInput(int car)
     controlData[car].steering[*piVar2] = controlData[car].steering[*piVar2] & 0x7f;
     controlData[car].gas[*piVar2] = controlData[car].gas[*piVar2] & 0x7f;
     controlData[car].brake[*piVar2] = controlData[car].brake[*piVar2] & 0x7f;
-    Input_gSim.steering = controlData[car].steering[*piVar2] * '\x04';
+    Input_gSim.steering = (char)(((signed char)controlData[car].steering[*piVar2] - '@') << 2);
     Input_gSim.gas = controlData[car].gas[*piVar2] << 3;
     Input_gSim.brake = controlData[car].brake[*piVar2] << 3;
     Input_gSim.flags = controlData[car].states[*piVar2];

@@ -1462,9 +1462,13 @@ int AIHigh_Cop::CheckForNeedyPlayers()
 
   needy = -1;
 
+  hLoop = 0;
+
   ppCVar3 = Cars_gHumanRaceCarList;
 
-  for (hLoop = 0; hLoop < Cars_gNumHumanRaceCars; hLoop = hLoop + 1) {
+  while (true) {
+
+    if (Cars_gNumHumanRaceCars <= hLoop) break;
 
     thisPlayerObj = *ppCVar3;
 
@@ -1487,6 +1491,8 @@ int AIHigh_Cop::CheckForNeedyPlayers()
     }
 
     ppCVar3 = ppCVar3 + 1;
+
+    hLoop = hLoop + 1;
 
   }
 
@@ -1526,21 +1532,25 @@ void AIHigh_Cop::CheckForWipeOut()
 
   bVar1 = false;
 
-  if (((pAVar3 != (AIHigh_Player *)0x0) &&
+  if (pAVar3 != (AIHigh_Player *)0x0) {
 
-      ((((pAVar3)->carObj_)->carFlags & 8U) != 0)) &&
+    if ((((pAVar3)->carObj_)->carFlags & 8U) != 0) {
 
-     ((this->carObj_)->wipeOutEndTick <= D_8011E0B0[0])) {
+      if ((this->carObj_)->wipeOutEndTick <= D_8011E0B0[0]) {
 
-    iVar2 = (pAVar3->perpChaseInfo_).engagementTime_;
+        iVar2 = (pAVar3->perpChaseInfo_).engagementTime_;
 
-    if (iVar2 < 0) {
+        if (iVar2 < 0) {
 
-      iVar2 = iVar2 + 0xffff;
+          iVar2 = iVar2 + 0xffff;
+
+        }
+
+        if (iVar2 >> 0x10 < 2) goto LAB_800654b8;
+
+      }
 
     }
-
-    if (iVar2 >> 0x10 < 2) goto LAB_800654b8;
 
   }
 
@@ -1552,6 +1562,8 @@ LAB_800654b8:
 
   if (!bVar1) {
     int perTickProb;
+
+    int perTickProbBase;
 
     int randVal;
 
@@ -1565,7 +1577,7 @@ LAB_800654b8:
 
     randtemp = fastRandom * randSeed;
 
-    perTickProb = AI_elapsedTime * 89;
+    perTickProbBase = AI_elapsedTime * 88;
 
     thisTargetLevel = (this->perpTarget_->perpChaseInfo_).chaseLevelIndex_;
 
@@ -1573,19 +1585,32 @@ LAB_800654b8:
 
     fastRandom = randtemp & 0xffff;
 
-    for (hLoop = 0; hLoop < Cars_gNumHumanRaceCars; hLoop = hLoop + 1) {
+    hLoop = 0;
+
+    while (true) {
+
+      if (Cars_gNumHumanRaceCars <= hLoop) break;
 
       thisPlayerObj = Cars_gHumanRaceCarList[hLoop];
 
       thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisPlayerObj->carIndex];
 
-      if (thisTargetLevel < (thisPlayer->perpChaseInfo_).chaseLevelIndex_ &&
+      if (thisTargetLevel < (thisPlayer->perpChaseInfo_).chaseLevelIndex_) {
 
-          randVal < perTickProb) {
+        /* perTickProb == AI_elapsedTime*89, split as (AI_elapsedTime*88)+AI_elapsedTime -- reproduces the
+           oracle's own strength-reduction: the *88 partial product is loop-invariant (hoisted once as
+           perTickProbBase), the final +1x add is redone fresh each iteration from the same cached value. */
+        perTickProb = perTickProbBase + AI_elapsedTime;
 
-        (this->carObj_)->wipeOutEndTick = simGlobal.gameTicks + 0x280;
+        if (randVal < perTickProb) {
+
+          (this->carObj_)->wipeOutEndTick = simGlobal.gameTicks + 0x280;
+
+        }
 
       }
+
+      hLoop = hLoop + 1;
 
     }
 
@@ -1651,7 +1676,11 @@ int AIHigh_Cop::CheckForNewTarget()
 
   }
 
-  for (iVar7 = 0; iVar7 < Cars_gNumRaceCars; iVar7 = iVar7 + 1) {
+  iVar7 = 0;
+
+  while (true) {
+
+    if (Cars_gNumRaceCars <= iVar7) break;
 
     pAVar5 = (AIHigh_Player *)highLevelAIObjs[Cars_gRaceCarList[iVar7]->carIndex];
 
@@ -1677,21 +1706,19 @@ int AIHigh_Cop::CheckForNewTarget()
 
                          (pAVar5)->carObj_);
 
-      if (iVar4 < 0) {
-
-        iVar4 = -iVar4;
-
-      }
+      iVar4 = __builtin_abs(iVar4);
 
       if (iVar4 < iVar8) {
 
-        target = pAVar5;
-
         iVar8 = iVar4;
+
+        target = pAVar5;
 
       }
 
     }
+
+    iVar7 = iVar7 + 1;
 
   }
 
@@ -1699,7 +1726,9 @@ int AIHigh_Cop::CheckForNewTarget()
 
   if (target == (AIHigh_Player *)0x0) {
 
-    for (; iVar7 < Cars_gNumRaceCars; iVar7 = iVar7 + 1) {
+    while (true) {
+
+      if (Cars_gNumRaceCars <= iVar7) break;
 
       pAVar5 = (AIHigh_Player *)highLevelAIObjs[Cars_gRaceCarList[iVar7]->carIndex];
 
@@ -1707,19 +1736,17 @@ int AIHigh_Cop::CheckForNewTarget()
 
                          (pAVar5)->carObj_);
 
-      if (iVar4 < 0) {
-
-        iVar4 = -iVar4;
-
-      }
+      iVar4 = __builtin_abs(iVar4);
 
       if ((iVar4 < iVar8) && ((pAVar5)->basicPerpInfo_.crime_ != 0)) {
 
-        target = pAVar5;
-
         iVar8 = iVar4;
 
+        target = pAVar5;
+
       }
+
+      iVar7 = iVar7 + 1;
 
     }
 
@@ -1816,12 +1843,6 @@ int AIHigh_Cop::GetCheckChasePosition(coorddef *pos)
 
   int newPosition;
 
-  int iVar3;
-
-  int iVar4;
-
-  int iVar5;
-
 
 
   changed = 0;
@@ -1832,23 +1853,15 @@ int AIHigh_Cop::GetCheckChasePosition(coorddef *pos)
 
   if (newPosition != this->chaseIndex_) {
 
-    this->chaseIndex_ = newPosition;
-
     changed = 1;
+
+    this->chaseIndex_ = newPosition;
 
   }
 
-  iVar3 = this->aggressionLevel_;
-
-  iVar4 = AIH_Cop_chasePositions[iVar3][this->chaseIndex_].y;   /* H23: per-aggression stride is 72B = one [6] row; the `*2` (->144B) read OOB for aggression 2 (oracle 0x800658F0 a1*72) */
-
-  iVar5 = AIH_Cop_chasePositions[iVar3][this->chaseIndex_].z;
-
-  pos->x = AIH_Cop_chasePositions[iVar3][this->chaseIndex_].x;
-
-  pos->y = iVar4;
-
-  pos->z = iVar5;
+  /* H23: per-aggression stride is 72B = one [6] row (oracle 0x800658F0 aggressionLevel_*72);
+     whole-struct copy (matches oracle's 3-word block load/store), NOT field-by-field. */
+  *pos = AIH_Cop_chasePositions[this->aggressionLevel_][this->chaseIndex_];
 
   return (u_int)changed;
 
@@ -1900,9 +1913,9 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
 
   
 
-  iVar12 = Cars_gNumCars;
-
   if (0x5bf < simGlobal.gameTicks) {
+
+    iVar12 = Cars_gNumCars;
 
     while (iVar12 = iVar12 + -1, -1 < iVar12) {
 

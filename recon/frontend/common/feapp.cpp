@@ -2,6 +2,7 @@
  *   14 fns: tFEApplication ctor/dtor + dialog setup, FE main loop, video/movie cycling.
  *   Member defs; base ctors via init-lists; manual _vf vtable init.
  */
+#include "../../lib/nfs4_new.h"
 #include "feapp.h"
 
 /* ---- FEApp.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; types match the
@@ -25,6 +26,13 @@ tFEApplication::tFEApplication()
   
   this_tDialogMessageString = &this->messagePopup;
   this_tDialogHelp = &this->helpPopup;
+  /* MATCH: each tDialog* member is a REAL tScreen-derived subobject; the flattened field-init
+   * below (Ghidra-decompiled from the fully-inlined tDialogBase/tDialogMessageString/etc ctors)
+   * is missing the ONE non-inlined base call every level shares: tScreen::tScreen() (sets
+   * fPermShapes/fSwapShapes/fScreenFadeVal + an initial _vf=tScreen_vtable that every
+   * subsequent store here overwrites). Oracle calls `jal __7tScreen` once per subobject before
+   * touching any of its fields -- reproduce via placement-new onto the tScreen slice. */
+  new ((tScreen *)&this->messagePopup) tScreen();
   *(void **)&((this->messagePopup)._vf) = (void *)tDialogBase_vtable;
   (this->messagePopup).currentlyOn = 0;
   (this->messagePopup).reservedheight = 0;
@@ -45,6 +53,7 @@ tFEApplication::tFEApplication()
   (this->messagePopup).timeOutTicks = 0;
   (this->messagePopup).fFadeText = 0x80;
   this_tDialogMessageStringWithTimeout = &this->MemCardDialog;
+  new ((tScreen *)&this->helpPopup) tScreen();
   *(void **)&((this->helpPopup)._vf) = (void *)tDialogBase_vtable;
   *(void **)&((this->helpPopup)._vf) = (void *)tDialogHelp_vtable;
   (this->helpPopup).currentlyOn = 0;
@@ -68,6 +77,7 @@ tFEApplication::tFEApplication()
    * VA 0x80010098 (0x80010000+0x98) as a runtime `bigBuf + 0x98` pointer, leaving _vf pointing at garbage
    * (wrong virtual dispatch). Adversarially verified: the 0x80010550 the audit suggested was helpPopup's
    * tDialogHelp vtable, mis-attributed (M10). */
+  new ((tScreen *)&this->MemCardDialog) tScreen();
   *(void **)&((this->MemCardDialog)._vf) = (void *)tDialogBase_vtable;
   *(void **)&((this->MemCardDialog)._vf) = (void *)tDialogMessageString_vtable;
   *(void **)&((this->MemCardDialog)._vf) = (void *)tDialogMessageStringWithTimeout_vtable;
@@ -90,6 +100,7 @@ tFEApplication::tFEApplication()
   (this->MemCardDialog).fFadeText = 0x80;
   (this->MemCardDialog).timeOutTicks = 0x480;
   i = 0;
+  new ((tScreen *)&this->NoInputMemCardDialog) tScreen();
   *(void **)&((this->NoInputMemCardDialog)._vf) = (void *)tDialogBase_vtable;
   (this->NoInputMemCardDialog).currentlyOn = 0;
   (this->NoInputMemCardDialog).reservedheight = 0;
@@ -140,11 +151,12 @@ void tFEApplication::PerformMenuInitialization()
 
 {
   tDialogBase *this_00;
-  
+  extern void InitializeClass_noarg() asm("InitializeClass__11tDialogBase");
+
   this->fCurrentMusic = 0;
   this_00 = (tDialogBase *)((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
   AudioMus_Volume((int)this_00);
-  (this_00)->InitializeClass();
+  InitializeClass_noarg();
   Clock_SystemStartUp();
   Draw_gDoVSync = 1;
   FETextRender_SetABR(0,false);
@@ -160,8 +172,8 @@ void tFEApplication::PerformMenuDestruction()
 {
   int off;
   int screen;
-  int i;
-  
+  short i;
+
   Clock_SystemCleanUp();
   i = 0;
   do {
@@ -173,7 +185,7 @@ void tFEApplication::PerformMenuDestruction()
     }
     i = i + 1;
     *(u_int *)((int)this->fCurrentScreen + off) = 0;
-  } while (i * 0x10000 >> 0x10 < 2);
+  } while (i < 2);
   AudioMus_StopSong(1000);
   Draw_gDoVSync = 0;
   FETextRender_SetABR(0,false);
@@ -454,27 +466,20 @@ void tFEApplication::UpdateMusic()
   
   AudioMus_Volume((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
   uVar1 = this->fCurrentMusic;
-  if ((uVar1 & 0x1000) == 0) {
-    if ((uVar1 & 0x2000) == 0) {
-      if ((uVar1 & 0x4000) == 0) {
-        if ((uVar1 & 0x8000) == 0) {
-          AudioMus_StopSong(1000);
-        }
-        else {
-          AudioMus_PlaySong((char *)(bigBuf + 0x6c))
-          ;
-        }
-      }
-      else {
-        AudioMus_PlaySong((char *)(bigBuf + 0x60));
-      }
-    }
-    else {
-      AudioMus_PlaySong((char *)(bigBuf + 0x58));
-    }
+  if ((uVar1 & 0x1000) != 0) {
+    AudioMus_PlaySong((char *)(bigBuf + 0x50));
+  }
+  else if ((uVar1 & 0x2000) != 0) {
+    AudioMus_PlaySong((char *)(bigBuf + 0x58));
+  }
+  else if ((uVar1 & 0x4000) != 0) {
+    AudioMus_PlaySong((char *)(bigBuf + 0x60));
+  }
+  else if ((uVar1 & 0x8000) != 0) {
+    AudioMus_PlaySong((char *)(bigBuf + 0x6c));
   }
   else {
-    AudioMus_PlaySong((char *)(bigBuf + 0x50));
+    AudioMus_StopSong(1000);
   }
   return;
 }
@@ -488,26 +493,22 @@ void tFEApplication::SetMenu(short i,tMenu *menu)
 {
   u_int uVar1;
   int iVar2;
-  int iVar3;
-  tMenu *this_tMenu_l7;
-  
+
   if (menu != this->fCurrentMenu[i]) {
     if ((i == 0) && (uVar1 = menu->fFlags & 0xf000, uVar1 != this->fCurrentMusic)) {
       this->fCurrentMusic = uVar1;
       this->UpdateMusic();
     }
-    iVar2 = (*(*menu->_vf)[8].pfn)((int)menu->fItemList + (*menu->_vf)[8].delta + -0x10);
-    iVar3 = (int)((u_int)(u_short)i << 0x10) >> 0xe;
-    if (iVar2 == 1) {
-      *(tMenu **)((int)this->fTransitionToMenu + iVar3) = menu;
-    }
-    else {
-      iVar2 = *(int *)((int)this->fCurrentMenu + iVar3);
-      *(tMenu **)((int)this->fTransitionToMenu + iVar3) = menu;
+    if (((*(*menu->_vf)[8].pfn)((int)menu + (*menu->_vf)[8].delta) ^ 1) != 0) {
+      iVar2 = (int)this->fCurrentMenu[i];
+      this->fTransitionToMenu[i] = menu;
       if ((iVar2 != 0) && (menu != (tMenu *)0x0)) {
         (**(int (**)(...))(*(int *)(iVar2 + 0x68) + 0x2c))
                   (iVar2 + *(short *)(*(int *)(iVar2 + 0x68) + 0x28));
       }
+    }
+    else {
+      this->fTransitionToMenu[i] = menu;
     }
     this->SetScreen(i,menu->fScreen);
   }
@@ -573,7 +574,7 @@ void tFEApplication::RunDemoVideo()
   __vtbl_ptr_type (*pa_Var4) [10];
   tScreen *this_00;
   char buffer [40];
-  
+
   if ((tMenuNFS4 *)this->fCurrentMenu[0] == &menuDefs[0]->menuMain) {
     AudioMus_StopSong(0x78);
     FeAudio_systemtask(0);

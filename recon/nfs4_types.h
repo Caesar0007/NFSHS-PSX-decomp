@@ -5068,7 +5068,18 @@ struct tScreenControllerConfig : public tScreen {   /* 380 bytes */
     void  Cleanup();
     int   GetHelpText();
     tScreenControllerConfig();
-    ~tScreenControllerConfig();
+    /* MATCH 2026-07-11 (dtor-surgery): INLINE-in-class, empty body -- NOT an out-of-line
+     * declaration. gcc-2.8/CC1PLPSX fully expands (recursively collapses) an implicit/inline
+     * destructor at EVERY auto-member-teardown call site (proven empirically: a class with an
+     * inline dtor NEVER gets a standalone out-of-line copy from ordinary pseudo-destructor-call
+     * or auto member/base teardown, regardless of TU or call count). This reproduces the oracle
+     * tAllScreens::~tAllScreens() shape, which INLINES negconPopUp's + this class's own base
+     * (___7tScreen) calls directly rather than calling ___23tScreenControllerConfig. The real,
+     * standalone ___23tScreenControllerConfig symbol (needed elsewhere, e.g. the manually
+     * materialized vtable's dtor slot) is hand-transcribed verbatim as a file-scope __asm__ in
+     * screencontroller.cpp (byte-identical to what this inline body used to compile to
+     * out-of-line, before the surgery -- see that file for the proof/detail). */
+    ~tScreenControllerConfig() { }
 };
 
 struct tCheat {   /* 12 bytes */
@@ -5251,7 +5262,10 @@ struct tScreenCarSelectDuel : public tScreenCarSelect {   /* 976 bytes */
 struct tScreenCarSelectTwoPlayer : public tScreenCarSelect {   /* 1080 bytes */
     tDialogBackUpOnly  CarDialog;   /* +0x3A0 */
     /* --- reconstructed member fns (TwoPlayer) --- */
-    ~tScreenCarSelectTwoPlayer();
+    /* MATCH 2026-07-11 (dtor-surgery): INLINE-in-class, empty body -- see the
+     * tScreenControllerConfig dtor comment above for the full rationale. Standalone
+     * ___25tScreenCarSelectTwoPlayer hand-transcribed verbatim in screencarselect.cpp. */
+    ~tScreenCarSelectTwoPlayer() { }
     int GetCar(tCarInfo &car);
     void DrawVideoWall(short s);
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
@@ -5272,7 +5286,10 @@ struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {   /* 1100 
     int                fStartCheckTick;   /* +0x440 */
     BOOL               fCardFailed, fExitingScreen;   /* +0x444 */
     /* --- reconstructed member fns (PinkSlips) --- */
-    ~tScreenPinkSlipsCarSelect();
+    /* MATCH 2026-07-11 (dtor-surgery): INLINE-in-class, empty body -- see the
+     * tScreenControllerConfig dtor comment above for the full rationale. Standalone
+     * ___25tScreenPinkSlipsCarSelect hand-transcribed verbatim in screencarselect.cpp. */
+    ~tScreenPinkSlipsCarSelect() { }
     int GetCar(tCarInfo &car);
     void DrawBackground();
     void DoMemCardStuff();

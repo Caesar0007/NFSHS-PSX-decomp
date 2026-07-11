@@ -2994,21 +2994,6 @@ tAllScreens::tAllScreens()
 tAllScreens::~tAllScreens()
 
 {
-  short trackraced;
-  int colourLoop;
-  short maxTraffic;
-  char oldMission;
-  int theanalogoffset;
-  int j;
-  int LookingFor;
-  short numOpponents;
-  tCarModels copModel;
-  char copColor;
-  tMenuCommand tempCommand;
-  tCarModels carModel;
-  char carColor;
-  short lapconv [2];
-  
   /* [2026-07-11] deleted 30 REDUNDANT tScreen_dtor/tScreenXxx_dtor(...,2) manual calls: all
      are undefined phantom externs duplicating C++'s own automatic (reverse-declaration-order)
      member/base destruction -- textbook double-destruction (confirmed by objdump -r on the

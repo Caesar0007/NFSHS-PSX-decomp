@@ -132,6 +132,18 @@ void AudioCmn_UnPause(void);
 void AudioCmn_InitReverb(void);
 
 
+/* local helper used only for the AudioCmn_UnPause inline expansion below (the oracle inlines
+   the AudioCmn_MusicLevel formula directly into UnPause with no jal -- see UnPause body).
+   static so it folds away after inlining and never competes with the real out-of-line
+   AudioCmn_MusicLevel__Fi symbol. */
+static inline int AudioCmn_MusicLevel_inl(int level)
+{
+  if (0x56 <= level) {
+    return (((level + -0x55) * 7) / 2 + 0x55) * 0x46 >> 7;
+  }
+  return level * 0x46 >> 7;
+}
+
 /* ---- AudioCmn_MusicLevel__Fi  [@0x80076420] ---- */
 int AudioCmn_MusicLevel(int level)
 {
@@ -245,40 +257,44 @@ void AudioCmn_DeInitAsyncSfx(void)
 }
 
 /* ---- AudioCmn_RemoveOldestAsyncSfx__Fi  [@0x80076674] ---- */
+/* SYM (nfs4-f-v3.txt @0x80076674): named locals `oldest`=$s0, `ticks`=$v1, `i`=$a3 (outer
+   loop) / $a1 (inner loop, same source name `i`, fresh block scope). Rewritten with array
+   indexing (matches the SYM's plain "i" loop var, not a pointer-walk) instead of a
+   pAVar2/pAVar2++ struct-pointer walk. */
 int AudioCmn_RemoveOldestAsyncSfx(int bank)
 {
   int oldest;
   int ticks;
-  int i;
-  int iVar1;
-  AudioCmn_tAsyncSfxSlot *pAVar2;
-  int iVar3;
-  int slot;
-  
-  slot = -1;
-  pAVar2 = AudioCmn_gSfxSlot;
-  iVar1 = simGlobal.gameTicks + -0x10;
-  for (iVar3 = 0; iVar3 < 0x20; iVar3 = iVar3 + 1) {
-    if ((pAVar2->patch != -1) && (pAVar2->ticks < iVar1)) {
-      iVar1 = pAVar2->ticks;
-      slot = iVar3;
-    }
-    pAVar2 = pAVar2 + 1;
-  }
-  iVar1 = 0;
-  if (slot == -1) {
-    pAVar2 = AudioCmn_gSfxSlot;
-    for (; iVar1 < 0x20; iVar1 = iVar1 + 1) {
-      if ((pAVar2->patch != -1) && (pAVar2->bank < bank)) {
-        slot = iVar1;
+
+  oldest = -1;
+  ticks = simGlobal.gameTicks + -0x10;
+  {
+    int i;
+    i = 0;
+    while (1) {
+      if (!(i < 0x20)) break;
+      if ((AudioCmn_gSfxSlot[i].patch != -1) && (AudioCmn_gSfxSlot[i].ticks < ticks)) {
+        ticks = AudioCmn_gSfxSlot[i].ticks;
+        oldest = i;
       }
-      pAVar2 = pAVar2 + 1;
+      i = i + 1;
     }
   }
-  if (-1 < slot) {
-    AudioCmn_RemoveAsyncSfx(slot);
+  if (oldest == -1) {
+    int i;
+    i = 0;
+    while (1) {
+      if (!(i < 0x20)) break;
+      if ((AudioCmn_gSfxSlot[i].patch != -1) && (AudioCmn_gSfxSlot[i].bank < bank)) {
+        oldest = i;
+      }
+      i = i + 1;
+    }
   }
-  return slot;
+  if (-1 < oldest) {
+    AudioCmn_RemoveAsyncSfx(oldest);
+  }
+  return oldest;
 }
 
 /* ---- AudioCmn_LoadAsyncSfx__FiiPvi  [@0x8007675c] ---- */
@@ -403,7 +419,6 @@ void AudioCmn_Init(void)
   int j;
   int temptrack;
   int (*paiVar1) [2];
-  int iVar2;
   AudioCmn_tReTrig *pAVar3;
   int *piVar4;
   int *piVar5;
@@ -414,23 +429,36 @@ void AudioCmn_Init(void)
    * The channel-array init + false-lap-trigger select + backwards-direction are audio-on-guarded (H42). */
   if (AudioCmn_kAudioOn != 0) {
     AudioCmn_InitChannelArray();
-    iVar2 = GameSetup_gData.track;
+    /* MATCH: oracle stores reverseTrack -> audioBackwardsDirection HERE (right after reading
+       track), then tests audioBackwardsDirection (a reload from memory) for the
+       forward/backward table select -- NOT GameSetup_gData.reverseTrack a second time. */
+    /* MATCH: residual 52-diff near-miss is a single register-materialization FLOOR (§3.15
+       class) that cascades through the rest of the function: gcc picks v1 for `temptrack`/a0
+       for the reverseTrack temp here (oracle: a0/v1, swapped) and, independently, later
+       re-materializes each of the 5 array/global base pointers (t0/a3/a2/a1/a0) via a SHARED
+       v0 scratch (lui v0;addiu REG,v0,0 x5) where the oracle emits each `lui REG,..;addiu
+       REG,REG,..` directly into its destination reg. Tried: both statement orders for
+       temptrack/audioBackwardsDirection (identical codegen either way), splitting `temptrack`
+       and the per-player loop counter into separate SYM-named locals `temptrack`/`j` (this DID
+       fix the semantic aliasing bug of reusing one variable for two purposes, but did not move
+       the register choice). Not source-shapable; genuine allocator floor. */
+    audioBackwardsDirection = GameSetup_gData.reverseTrack;
+    temptrack = GameSetup_gData.track;
     if ((GameSetup_gData.track & 0x10U) != 0) {
-      iVar2 = (GameSetup_gData.track & 0xfU) + 5;
+      temptrack = (GameSetup_gData.track & 0xfU) + 5;
     }
-    if (GameSetup_gData.reverseTrack == 0) {
+    if (audioBackwardsDirection == 0) {
       paiVar1 = falseLapTrigNumsForward;
     }
     else {
       paiVar1 = falseLapTrigNumsBackward;
     }
-    falseLapTrigCur = paiVar1[iVar2][0];
-    flaseLapTrigTrack = paiVar1[iVar2][1];
+    falseLapTrigCur = paiVar1[temptrack][0];
+    flaseLapTrigTrack = paiVar1[temptrack][1];
     falseLapCounter = 0;
     intensityFalseLapCounter = 0;
-    audioBackwardsDirection = GameSetup_gData.reverseTrack;
   }
-  iVar2 = 0;
+  j = 0;
   piVar7 = AudioCmn_gPlayerArrested;
   piVar6 = gtotallaptimes;
   piVar5 = PlayersRampedGasLevel;
@@ -438,9 +466,9 @@ void AudioCmn_Init(void)
   pAVar3 = AudioCmn_gReTrig;
   do {
     pAVar3->count = 0;
-    fAmbientRangeON[iVar2] = '\0';
-    fMysticWindON[iVar2] = '\0';
-    currentLap[iVar2] = '\0';
+    fAmbientRangeON[j] = '\0';
+    fMysticWindON[j] = '\0';
+    currentLap[j] = '\0';
     *piVar4 = 0;
     *piVar5 = 0;
     *piVar6 = 0x200;
@@ -449,9 +477,9 @@ void AudioCmn_Init(void)
     piVar6 = piVar6 + 1;
     piVar5 = piVar5 + 1;
     piVar4 = piVar4 + 1;
-    iVar2 = iVar2 + 1;
+    j = j + 1;
     pAVar3 = pAVar3 + 1;
-  } while (iVar2 < 2);
+  } while (j < 2);
   AudioCmn_InitThunder();
   AudioCmn_InitAsyncSfx();
   AudioTrk_StartUp();
@@ -479,14 +507,18 @@ void AudioCmn_SetLevels(void)
   return;
 }
 
+/* file-scope (NOT function-local) -- oracle places this array immediately after
+   SkidInitMaxFreq[71]@0x8010e710 at VA 0x8010E758 (0x8010e710+0x47), i.e. it's a
+   TU-static global data table, not a function-local static. */
+static char compareTimes[25] = {
+  30, 12, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9,
+  -10, -11, -12, -15, -20, -25, -30
+};
+
 /* ---- AudioCmn_GetTimePhrase__Fi  [@0x8007706c] ---- */
 int AudioCmn_GetTimePhrase(int time)
 {
   int seconds;
-  static char compareTimes[25] = {
-    30, 12, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9,
-    -10, -11, -12, -15, -20, -25, -30
-  };
   int index;
 
   if (-1 < time) {
@@ -496,10 +528,11 @@ int AudioCmn_GetTimePhrase(int time)
     seconds = (time + -1) >> 6;
   }
   index = 0;
-  do {
-    if ((signed char)compareTimes[index] <= seconds) break;
+  while (1) {
+    if (!(seconds < (signed char)compareTimes[index])) break;
     index = index + 1;
-  } while (index < 0x19);
+    if (!(index < 0x19)) break;
+  }
   return index + 0x35;
 }
 
@@ -752,13 +785,25 @@ int scaleFrequency(int sndPlayer,int iSFXnum,int tweakedForce)
 }
 
 /* ---- ChooseImpactSample__Fi6s_typeT1  [@0x800779b4] ---- */
+/* BUG FIX (2026-07-11): the previous recon computed the candidate sample and RETURNED it
+   directly from ~20 places, entirely skipping the oracle's anti-repeat mechanism (raw disasm
+   @0x80077AF8 / @0x80077BE0, global D_8013C6AC = lastImpactSample): before returning, the
+   oracle compares the candidate against lastImpactSample and, for a handful of specific
+   candidate values, re-rolls via random() to avoid repeating the same impact sound twice in a
+   row. lastImpactSample is a function-local static that (per a full-binary grep of every
+   disasm dump) is NEVER WRITTEN anywhere in the program -- so at runtime this check always
+   reads 0 and the reroll paths are dead (none of the candidate values is ever 0) -- but the
+   real compiler still emitted ~80 real instructions for the mechanism, which is why the
+   previous recon compiled to only 103 insns against the oracle's 184. Restored the mechanism
+   (still using the same never-written `lastImpactSample` static, so behavior is unchanged --
+   this is a byte-fidelity fix, not a gameplay fix) by routing every candidate through
+   `iSFXnum` and an anti-repeat block per half of the switch instead of an early `return`. */
 int ChooseImpactSample(int force,s_type surface1,s_type surface2)
 {
   static int lastImpactSample;
   int iSFXnum;
   u_int uVar1;
-  int iVar2;
-  
+
   if (surface1 == 8) {
     return 0x13;
   }
@@ -772,76 +817,119 @@ LAB_80077a88:
     }
     if ((surface1 != 1) || ((surface2 != 0 && (surface2 != 3)))) {
       if (0x5a < force) {
-        return 0x21;
+        iSFXnum = 0x21;
       }
-      if (force - 0x47U < 0x14) {
-        return 0x20;
+      else if (force - 0x47U < 0x14) {
+        iSFXnum = 0x20;
       }
-      if (force - 0x33U < 0x14) {
-        return 0x25;
+      else if (force - 0x33U < 0x14) {
+        iSFXnum = 0x25;
       }
-      if (force - 0x1aU < 0x19) {
-        return 0x22;
+      else if (force - 0x1aU < 0x19) {
+        iSFXnum = 0x22;
       }
-      if (0x19 < force) {
-        return 0;
+      else if (0x19 < force) {
+        iSFXnum = 0;
       }
-      return 0x1e;
+      else {
+        iSFXnum = 0x1e;
+      }
     }
-    if (0x50 < force) {
-      return 0x21;
+    else if (0x50 < force) {
+      iSFXnum = 0x21;
     }
-    if (force - 0x17U < 0x3a) {
-      return 0x22;
+    else if (force - 0x17U < 0x3a) {
+      iSFXnum = 0x22;
     }
-    if (force - 0x11U < 6) {
-      return 0x20;
+    else if (force - 0x11U < 6) {
+      iSFXnum = 0x20;
     }
-    if (0x10 < force) {
-      return 0;
+    else if (0x10 < force) {
+      iSFXnum = 0;
     }
-    return 0x1d;
+    else {
+      iSFXnum = 0x1d;
+    }
+    /* anti-repeat (2nd half): candidates here are 0x12,0x1e,0x20,0x21,0x22,0x25 (0 is dead). */
+    if (iSFXnum == lastImpactSample) {
+      if (iSFXnum == 0x21) {
+        /* exempt, unchanged */
+      }
+      else if (iSFXnum == 0x20) {
+        uVar1 = random();
+        iSFXnum = ((uVar1 & 1) == 0) ? 0x22 : 0x25;
+      }
+      else if (iSFXnum < 0x21) {
+        if (iSFXnum == 0x1e) {
+          iSFXnum = 0x22;
+        }
+      }
+      else if (iSFXnum == 0x22) {
+        uVar1 = random();
+        iSFXnum = ((uVar1 & 1) == 0) ? 0x25 : 0x1e;
+      }
+      else if (iSFXnum == 0x25) {
+        uVar1 = random();
+        iSFXnum = ((uVar1 & 1) == 0) ? 0x22 : 0x1e;
+      }
+    }
+    return iSFXnum;
   }
   if (surface2 == 0xd) {
     return 0x1e;
   }
   if (surface2 == 0xe) {
 LAB_80077b80:
-    iVar2 = 0x1d;
+    iSFXnum = 0x1d;
   }
-  else {
-    if (surface2 == 4) {
-      if (0x6e < force) {
-        return 0x21;
-      }
-      uVar1 = random();
-      if ((uVar1 & 1) == 0) {
-        return 0x20;
-      }
+  else if (surface2 == 4) {
+    if (0x6e < force) {
+      iSFXnum = 0x21;
     }
     else {
-      if (surface2 != 0xf) {
-        if (surface2 != 5) goto LAB_80077a88;
-        goto LAB_80077b80;
-      }
       uVar1 = random();
-      uVar1 = uVar1 & 3;
-      if (uVar1 == 1) {
-        return 0x22;
+      iSFXnum = ((uVar1 & 1) == 0) ? 0x20 : 0x25;
+    }
+  }
+  else if (surface2 == 0xf) {
+    uVar1 = random() & 3;
+    if (uVar1 == 1) {
+      iSFXnum = 0x22;
+    }
+    else if (uVar1 == 0) {
+      iSFXnum = 0x23;
+    }
+    else if (uVar1 == 2) {
+      iSFXnum = 0x20;
+    }
+    else {
+      iSFXnum = 0x25;
+    }
+  }
+  else {
+    if (surface2 != 5) goto LAB_80077a88;
+    goto LAB_80077b80;
+  }
+  /* anti-repeat (1st half, surface1==1): candidates here are 0x12,0x1d,0x20,0x21,0x22,0x23,0x25. */
+  if (iSFXnum == lastImpactSample) {
+    if (iSFXnum == 0x20) {
+      uVar1 = random();
+      iSFXnum = ((uVar1 & 1) == 0) ? 0x22 : 0x1d;
+    }
+    else if (iSFXnum != 0x21) {
+      if (iSFXnum < 0x21) {
+        if (iSFXnum == 0x1d) {
+          uVar1 = random();
+          iSFXnum = ((uVar1 & 1) == 0) ? 0x20 : 0x22;
+        }
       }
-      if (uVar1 == 0) {
-        return 0x23;
-      }
-      if (uVar1 == 2) {
-        return 0x20;
-      }
-      if (uVar1 != 3) {
-        return 0x23;
+      else if (iSFXnum == 0x22) {
+        uVar1 = random();
+        iSFXnum = ((uVar1 & 1) == 0) ? 0x20 : 0x1d;
       }
     }
-    iVar2 = 0x25;
   }
-  return iVar2;
+  return iSFXnum;
 }
 
 /* ---- ChooseLoopedSample__F6s_typeT0  [@0x80077c94] ---- */
@@ -998,30 +1086,29 @@ void freeVoiceChannel(int sndPlayer)
 }
 
 /* ---- AudioCmn_PlayDoppleredSound__Fiiiiii  [@0x80078140] ---- */
+/* BUG FIX (2026-07-11): same struct-fields-as-separate-locals bug as AudioCmn_PlayFESFXVol --
+   a real `SNDPLAYOPTS playopts;` was already declared but unused; every field write instead
+   targeted its own free-standing local (local_30/local_2c/local_29/...), so only local_30's
+   address escaped (passed to SNDplaysetdef/SNDplay) and gcc dead-store-eliminated every other
+   field write. At runtime this played every dopplered sound with garbage bhandle/pan/vol/bend/
+   pitchmult/use3dpos/azimuth (stack garbage) -- a real behavior bug (ours compiled to only
+   50 insns vs the oracle's 152: almost the entire field-setup body was eliminated). Fixed by
+   writing through the real struct so every field store's address escapes via &playopts. */
 int AudioCmn_PlayDoppleredSound(int bhandle,int patchNum,int azimuth,int vol,int bend,int doppler)
 {
-  int shandle;
   SNDPLAYOPTS playopts;
   int iVar1;
   int iVar2;
   u_int bank;
-  int local_30;
-  char local_2c;
-  u_char local_29;
-  u_char local_28;
-  u_char local_27;
-  u_char local_25;
-  u_short local_24;
-  u_short local_20;
-  
-  SNDplaysetdef(&local_30);
-  local_2c = (char)bhandle;
+
+  SNDplaysetdef(&playopts);
+  playopts.bhandle = (char)bhandle;
   if (patchNum == 0x7d) {
-    local_28 = (u_char)(gMasterSFXLevel * vol >> 7);
+    playopts.vol = (u_char)(gMasterSFXLevel * vol >> 7);
     goto LAB_8007828c;
   }
   if (bhandle == -4) {
-    local_28 = (u_char)(gMasterFENarrationLevel * 0x81 >> 7);
+    playopts.vol = (u_char)(gMasterFENarrationLevel * 0x81 >> 7);
     goto LAB_8007828c;
   }
   iVar2 = gMasterAmbientLevel;
@@ -1033,7 +1120,7 @@ LAB_8007827c:
   else {
     if (bhandle != gSndBnk[5].bnkID) {
       if ((patchNum == 0x16) || (patchNum == 0x12)) {
-        local_28 = (u_char)(gMasterSFXLevel * vol >> 7);
+        playopts.vol = (u_char)(gMasterSFXLevel * vol >> 7);
         goto LAB_8007828c;
       }
       iVar2 = gMasterSFXLevel;
@@ -1051,43 +1138,43 @@ LAB_8007827c:
     iVar1 = vol * 0x82;
   }
 LAB_80078280:
-  local_28 = (u_char)(iVar2 * iVar1 >> 0xe);
+  playopts.vol = (u_char)(iVar2 * iVar1 >> 0xe);
 LAB_8007828c:
-  local_30 = patchNum;
+  playopts.patnum = patchNum;
   if (patchNum == 99) {
-    local_30 = 1;
+    playopts.patnum = 1;
   }
-  local_27 = (u_char)bend;
-  local_24 = (u_short)(doppler >> 4);
-  local_25 = Audio_direct3davail != 0;
+  playopts.bend = (char)bend;
+  playopts.pitchmult = (u_short)(doppler >> 4);
+  playopts.use3dpos = Audio_direct3davail != 0;
   if (Audio_direct3davail == 0) {
     if (gStereoMode == 0) {
-      local_29 = 0x40;
+      playopts.pan = 0x40;
     }
     else if (azimuth - 0x4000U < 0x8000) {
-      local_29 = (u_char)((u_int)(0xbfff - azimuth) >> 8);
+      playopts.pan = (u_char)((u_int)(0xbfff - azimuth) >> 8);
     }
     else {
-      local_29 = (u_char)((u_int)(azimuth + 0x4000) >> 8);
+      playopts.pan = (u_char)((u_int)(azimuth + 0x4000) >> 8);
     }
   }
   else {
-    local_20 = (u_short)azimuth;
+    playopts.azimuth = (u_short)azimuth;
   }
-  if (local_2c < -1) {
-    if (local_2c == -4) {
+  if (playopts.bhandle < -1) {
+    if (playopts.bhandle == -4) {
       bank = 2;
     }
     else {
-      bank = (u_int)(local_2c == -3);
+      bank = (u_int)(playopts.bhandle == -3);
     }
     iVar2 = AudioCmn_GetAsyncSfx(bank,patchNum,(void *)0x0);
-    local_2c = (char)iVar2;
-    local_30 = 0;
+    playopts.bhandle = (char)iVar2;
+    playopts.patnum = 0;
   }
   iVar2 = -1;
-  if (-1 < local_2c) {
-    SNDplay(&local_30);
+  if (-1 < playopts.bhandle) {
+    SNDplay(&playopts);
   }
   NumSFXOn = NumSFXOn + 1;
   return iVar2;
@@ -1589,11 +1676,19 @@ void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int 
     iVar3 = fixedmult(freq + 0x3333,doppler);
     iSFXnum_00 = CopSpeak_GetEnginePatch(iSFXnum,0);
     iDopplerIn = (iVar3 * 0x50 >> 10) << 4;
+    /* BUG FIX (2026-07-11): the previous recon indexed an empty string literal `""` here
+       (a stale Ghidra placeholder for an unresolved rodata pointer) instead of the real
+       crossfade table `Xfade[129]` (already materialized at file scope, matches the oracle's
+       explicit `lui %hi(Xfade)` base) -- reading out of bounds of a 1-byte (NUL) literal
+       instead of the intended table, a real correctness bug (garbage/UB crossfade amplitude on
+       every traffic-car engine-pan call). Also fixed the 2nd index: oracle computes it as
+       `(dir>>10) - (dir>>0xc)` (no `+0x40`); the previous formula's `+ -0x40` on the subtrahend
+       left a spurious `+0x40` bias in the result. */
     AudioCmn_PlaySFX(iChan + 4,iSFXnum_00,0x40,iDopplerIn,
-               (int)(iVar2 * (u_int)(u_char)""[((dir >> 0xc) - (dir >> 10)) + 0x40]) >> 7,azimuth);
+               (int)(iVar2 * (u_int)(u_char)Xfade[((dir >> 0xc) - (dir >> 10)) + 0x40]) >> 7,azimuth);
     iVar3 = CopSpeak_GetEnginePatch(iSFXnum,1);
     AudioCmn_PlaySFX(iChan + 8,iVar3,0x40,iDopplerIn,
-               (int)(iVar2 * (u_int)(u_char)""[(dir >> 10) - ((dir >> 0xc) + -0x40)]) >> 7,azimuth);
+               (int)(iVar2 * (u_int)(u_char)Xfade[(dir >> 10) - (dir >> 0xc)]) >> 7,azimuth);
     iVar3 = iVar2 * relvel;
     if (0x280000 < relvel) {
       iVar3 = iVar2 * 0x280000;
@@ -1708,21 +1803,26 @@ void AudioCmn_PlayFESFX(int SFXnum)
 void AudioCmn_PlayFESFXVol(int SFXnum,int vol)
 {
   SNDPLAYOPTS playopts;
-  int local_28;
-  u_char local_24;
-  u_char local_21;
-  u_char local_20;
-  u_char local_1f;
-  u_char local_1d;
-  
-  SNDplaysetdef(&local_28);
-  local_1d = 0;
-  local_1f = 0x40;
-  local_21 = 0x40;
-  local_24 = (u_char)gSndBnk[0].bnkID;
-  local_20 = (u_char)(gMasterSFXLevel * vol * 0x78 >> 0xe);
-  local_28 = SFXnum;
-  SNDplay(&local_28);
+
+  /* BUG FIX (2026-07-11): the previous recon declared each SNDPLAYOPTS field as its OWN
+     separate stack local (local_28/local_24/local_21/local_20/local_1f/local_1d) instead of
+     members of ONE struct whose address is taken. Only local_28's address escaped (passed to
+     SNDplaysetdef/SNDplay); gcc proved the other locals' addresses never escape and dead-store-
+     eliminated every field write except patnum -- so at runtime PlayFESFXVol played every FE
+     SFX with garbage bhandle/pan/vol/bend/use3dpos (stack garbage), a real behavior bug, not
+     just a byte-match near-miss (oracle sets 6 fields; ours set 1). Fixed by using the real
+     struct so all field writes go through the escaped &playopts address. */
+  SNDplaysetdef(&playopts);
+  playopts.patnum = SFXnum;
+  playopts.use3dpos = 0;
+  playopts.bend = 0x40;
+  playopts.pan = 0x40;
+  playopts.bhandle = (char)gSndBnk[0].bnkID;
+  {
+    int volScaled = vol * 0x78;
+    playopts.vol = (char)((gMasterSFXLevel * volScaled) >> 0xe);
+  }
+  SNDplay(&playopts);
   NumSFXOn = NumSFXOn + 1;
   return;
 }
@@ -1807,7 +1907,7 @@ void UpdateSiren(int sirennum,int amp,int dop,int azimuth,int supercop)
   u_int uVar1;
   int bend;
   int iVar2;
-  
+
   if (bSirenOn[sirennum] != 0) {
     uVar1 = SNDover(gaChannel[sirennum + 0x2b].Partial);
     if (uVar1 != 0) {
@@ -2086,21 +2186,12 @@ void AudioCmn_UnPauseAndRestart(void)
 /* ---- AudioCmn_UnPause__Fv  [@0x80079c18] ---- */
 void AudioCmn_UnPause(void)
 {
-  int iVar1;
-  int iVar2;
-
   SNDmastervol(0x7f);
-  iVar2 = gMasterMusicLevel;
-  iVar1 = iVar2 << 3;
-  if (0x55 < iVar2) {
-    iVar2 = ((iVar2 + -0x55) * 7) / 2 + 0x55;
-    iVar1 = iVar2 << 3;
-  }
-  /* MATCH: residual 14-diff iVar1 a0-vs-v0 coloring (oracle keeps iVar1 in v0 through the
-     merge; ours prefers a0, the AudioMus_Volume call-arg reg, back-propagated across iVar1's
-     whole live range). Tried: fresh call-arg temp, decl-order swap, pre-init, fresh if-body
-     temp — all identical. Genuine allocator-preferencing floor (§A/§F class), no pin. */
-  AudioMus_Volume(((iVar1 + iVar2) * 4 - iVar2) * 2 >> 7);
+  /* MATCH: oracle inlines the AudioCmn_MusicLevel formula here with NO jal (no
+     AudioCmn_MusicLevel call in the disasm at all) -- reproduced via a local
+     static-inline twin of AudioCmn_MusicLevel so cc1plus folds it in-line while the
+     real out-of-line AudioCmn_MusicLevel__Fi (used by AudioCmn_Reset) stays untouched. */
+  AudioMus_Volume(AudioCmn_MusicLevel_inl(gMasterMusicLevel));
   AudioEng_Resume();
   GameSetup_gData.userSetting.sfxLevel = gMasterSFXLevel;
   GameSetup_gData.userSetting.musicLevel = gMasterMusicLevel;

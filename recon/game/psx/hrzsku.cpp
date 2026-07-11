@@ -26,8 +26,8 @@ CHorizonSpec *Hrz_gTrackSpec;   /* @0x8013d888  (bss(zero)) */
 CSkySpec     *Sky_gTrackSpec;   /* @0x8013d88c  (bss(zero)) */
 SVECTOR      *gRngCoordTop;   /* @0x8013d890  (bss(zero)) */
 SVECTOR      Hrz_gLightningPosInSky;   /* @0x8013d894  (bss(zero)) */
-SVECTOR      sunPosInSky;   /* @0x8013ddf0  (bss(zero)) */
-SVECTOR      moonPosInSky;   /* @0x8013ddf8  (bss(zero)) */
+static SVECTOR sunPosInSky;   /* @0x8013ddf0  (bss(zero)) SYM: class STAT */
+static SVECTOR moonPosInSky;   /* @0x8013ddf8  (bss(zero)) SYM: class STAT */
 CVECTOR      Hrz_gSaveCol[4];   /* @0x8013e380  (bss?) */
 /* hrzsku-internal lost-symbol globals (NOT in SYM Globals; 4 contiguous ints, sky double-buffer
    vertex counts, accessed via (&A0)[i]). DEFINED here for self-containment (was extern-only). */
@@ -251,41 +251,52 @@ void Hrz_InitSkyColor(void)
 }
 
 /* ---- Hrz_InitSky__Fv  [HRZSKU.CPP:257-332] SLD-VERIFIED ----
- * NEAR-MISS 211 diffs (212/209). Dropped a redundant `pCVar1 = Sky_gTrackSpec;` cache
- * (used once as `pCVar1->yoffset`, replaced with a direct `Sky_gTrackSpec->yoffset` --
- * codegen-neutral, cleaner). SYM `nfs4-f-v3.txt` @40dff5 shows the REAL function uses only
- * 6 named locals in a SINGLE flat block (`i`=$s3, `j`=$s1, `k`=$s6, `angle`=$s0,
- * `height`=$s4, `radius`=$s5) plus 2 unnamed compiler temps ($s2,$s7) -- 8 total callee-
- * saved regs (mask=$80ff0000, s0-s7, NO `$fp`). Our reconstruction's ~13 Ghidra-style
- * locals (iVar2/iVar3/iVar4/iVar5/iVar6/iVar8/angle_00/pSVar7) force gcc to ALSO allocate
- * `$fp` as a 9th general-purpose slot (`sw fp,48(sp)` -- oracle never saves fp) -- excess
- * register pressure from too many distinctly-live Ghidra temps where the true source
- * reuses far fewer named variables across non-overlapping live ranges (e.g. `angle` is
- * almost certainly the SAME physical var for both the per-ring raw angle AND the inner
- * loop's per-vertex `angle_00`, since the first dies before the second is born; `height`/
- * `radius` = the post-sin/cos*1000 ring constants held across the inner loop; `k` likely
- * belongs to the second (pixmap-index) loop section). Attempted the `angle`/`angle_00`
- * merge conceptually but ran out of session budget to fully trace+verify the consolidation
- * before this function's diff count would move — recorded here for a future pass; the
- * `pCVar1` cleanup is the only change kept (0 diff delta, harmless simplification). */
+ * SYM `nfs4-f-v3.txt` @40dff5 shows the REAL function uses only 6 named locals in a SINGLE
+ * flat block (`i`=$s3, `j`=$s1, `k`=$s6, `angle`=$s0, `height`=$s4, `radius`=$s5) plus 2
+ * unnamed compiler temps ($s2,$s7) -- 8 total callee-saved regs (mask=$80ff0000, s0-s7, NO
+ * `$fp`). ROUND 2: executed the merge diagnosed in round 1. `i`/`j`/`k`/`angle`/`height`/
+ * `radius` were DECLARED but never referenced by the old ~13-local Ghidra reconstruction --
+ * dead placeholders. Renamed the ACTUALLY-live temps onto them by lifetime: `i`=ring/outer
+ * counter (loop1 0..5, reused loop2 0..4 -- dead between), `j`=inner vertex counter (loop1
+ * 0..0x11, reused loop2 0..0x10), `k`=running mesh index (loop1, reused as the loop2 pixmap-
+ * index -- both are "index into an array bumped every inner iter"), `angle`=the per-ring raw
+ * angle (dies once height/radius are derived) reused for the inner loop's per-vertex angle
+ * (was `angle_00` -- same physical var, disjoint lifetimes exactly as diagnosed), `height`/
+ * `radius`=the two post-sin/cos*1000 ring constants held live across the inner loop. Dropped
+ * the `pSVar7` pointer-walk for direct `gSkyMesh[k]` indexing (§3.12 #1) -- removes the 9th
+ * live temp that forced the `$fp` spill. Kept 2 genuine compiler scratch temps (`iVar2` for
+ * the straight-line sun/moon calc + view select, `iVar5` for the reused per-iteration
+ * sin/cos/modulo scratch) matching the SYM's 2 unnamed s2/s7 slots. Pure semantic-preserving
+ * rename + array-index conversion, same dataflow. 211->189 (no `$fp` spill anymore, verified
+ * ($fp save/restore gone from our prologue/epilogue) -- the merge worked as diagnosed).
+ * RESIDUAL 189 = a SEPARATE, PRE-EXISTING class (not touched by the merge): every
+ * `sunPosInSky.vx/vy/vz` / `moonPosInSky.vx/vy/vz` store. SYM @40f76a/40f78d: BOTH are
+ * `class STAT type STRUCT size 8 tag SVECTOR` (genuinely file-static, matched here by adding
+ * `static`, 0 diff delta but now SYM-faithful). Oracle addresses EACH 2-byte field
+ * independently gp-relative (`sh v0,%gp_rel(D_8013DDF0)($gp)` etc, one insn/field, 6 distinct
+ * splat-synthesized sub-symbols spanning the two 8-byte structs incl. the `pad` gap) with NO
+ * base-pointer materialization; ours (cc1plus, this build's `-G4`) computes ONE absolute
+ * base (`lui s0,%hi; addiu s0,%lo`) and stores through 3 displacements, because a 8-byte
+ * SVECTOR exceeds the 4-byte small-data threshold at the DECLARATION (cc1's sdata-eligibility
+ * check is by the SYMBOL's total declared size, not the field's access size). Tried + failed:
+ * `static` linkage (no codegen change, size check unaffected), `__attribute__((section(
+ * ".sbss")))` (cc1's %hi/%lo-vs-gp_rel choice is made before/independent of section
+ * placement; maspsx's own `.lcomm sym,N<=4` sbss-promotion pass also requires N<=4, confirmed
+ * via the raw `hrzsku.cpp.s`: `.lcomm sunPosInSky,8` stays absolute either way). GENUINE
+ * `-G4`-threshold FLOOR for an 8-byte aggregate -- not reachable without a build-flag change
+ * (out of scope; no flag changes per mission rules). Accept. */
 void Hrz_InitSky(void)
 
 {
   int iVar2;
-  int iVar3;
-  int iVar4;
   int angle;
-  int iVar5;
-  int angle_00;
-  int j;
-  int iVar6;
-  SVECTOR *pSVar7;
-  int i;
-  int iVar8;
-  int height;
   int radius;
+  int iVar5;
+  int j;
+  int i;
+  int height;
   int k;
-  
+
   iVar2 = fixedcos(Sky_gTrackSpec->sunAngleInSky);
   iVar2 = fixedmult(iVar2,1000);
   sunPosInSky.vx = (short)iVar2;
@@ -308,60 +319,58 @@ void Hrz_InitSky(void)
                (u_int)(Sky_gTrackSpec->clearcolor).g,(u_int)(Sky_gTrackSpec->clearcolor).b);
     iVar2 = Draw_gPlayer2View;
   }
-  iVar8 = 0;
+  i = 0;
   Draw_SetViewColor(iVar2,(u_int)(Sky_gTrackSpec->clearcolor).r,(u_int)(Sky_gTrackSpec->clearcolor).g,
              (u_int)(Sky_gTrackSpec->clearcolor).b);
-  iVar2 = 0;
+  k = 0;
   do {
     if ((Sky_gTrackSpec->flags & 0x80U) == 0) {
-      if (((Sky_gTrackSpec->flags & 2U) == 0) || (iVar3 = iVar8 << 0xb, 3 < iVar8)) {
-        iVar3 = iVar8 << 0xc;
+      if (((Sky_gTrackSpec->flags & 2U) == 0) || (angle = i << 0xb, 3 < i)) {
+        angle = i << 0xc;
       }
-      iVar4 = fixedcos(iVar3);
-      iVar4 = fixedmult(iVar4,1000);
+      height = fixedcos(angle);
+      height = fixedmult(height,1000);
     }
     else {
-      iVar3 = fixedcos(Sky_gTrackSpec->ringAngles[iVar8]);
-      iVar4 = fixedmult(iVar3,1000);
-      iVar3 = Sky_gTrackSpec->ringAngles[iVar8];
+      angle = fixedcos(Sky_gTrackSpec->ringAngles[i]);
+      height = fixedmult(angle,1000);
+      angle = Sky_gTrackSpec->ringAngles[i];
     }
-    iVar6 = 0;
-    iVar3 = fixedsin(iVar3);
-    iVar3 = fixedmult(iVar3,1000);
-    pSVar7 = gSkyMesh + iVar2;
+    j = 0;
+    angle = fixedsin(angle);
+    radius = fixedmult(angle,1000);
     do {
-      iVar5 = iVar6 * 0x1000;
-      iVar6 = iVar6 + 1;
-      angle_00 = (iVar5 - Sky_gTrackSpec->sunAngleInSky) + 0x4000;
-      iVar5 = fixedsin(angle_00);
-      iVar5 = fixedmult(iVar5,iVar4);
-      iVar2 = iVar2 + 1;
-      pSVar7->vx = (short)iVar5;
-      pSVar7->vy = (short)Sky_gTrackSpec->yoffset + (short)iVar3;
-      iVar5 = fixedcos(angle_00);
-      iVar5 = fixedmult(iVar5,iVar4);
-      pSVar7->vz = (short)iVar5;
-      pSVar7 = pSVar7 + 1;
-    } while (iVar6 < 0x11);
-    iVar8 = iVar8 + 1;
-  } while (iVar8 < 5);
-  iVar2 = 0;
+      iVar5 = j * 0x1000;
+      j = j + 1;
+      angle = (iVar5 - Sky_gTrackSpec->sunAngleInSky) + 0x4000;
+      iVar5 = fixedsin(angle);
+      iVar5 = fixedmult(iVar5,height);
+      gSkyMesh[k].vx = (short)iVar5;
+      gSkyMesh[k].vy = (short)Sky_gTrackSpec->yoffset + (short)radius;
+      iVar5 = fixedcos(angle);
+      iVar5 = fixedmult(iVar5,height);
+      gSkyMesh[k].vz = (short)iVar5;
+      k = k + 1;
+    } while (j < 0x11);
+    i = i + 1;
+  } while (i < 5);
+  i = 0;
   if (Sky_gTrackSpec->type == 1) {
-    iVar8 = 0;
+    k = 0;
     do {
-      iVar3 = 0;
+      j = 0;
       do {
-        iVar4 = iVar3;
-        if (iVar3 < 0) {
-          iVar4 = iVar3 + 3;
+        iVar5 = j;
+        if (j < 0) {
+          iVar5 = j + 3;
         }
-        iVar4 = iVar3 + (iVar4 >> 2) * -4;
-        iVar3 = iVar3 + 1;
-        gSkyPixmapIndex[iVar8] = *(char *)((int)Sky_gTrackSpec + iVar4 + iVar2 * 4 + 0x6c) + '\b';
-        iVar8 = iVar8 + 1;
-      } while (iVar3 < 0x10);
-      iVar2 = iVar2 + 1;
-    } while (iVar2 < 4);
+        iVar5 = j + (iVar5 >> 2) * -4;
+        j = j + 1;
+        gSkyPixmapIndex[k] = *(char *)((int)Sky_gTrackSpec + iVar5 + i * 4 + 0x6c) + '\b';
+        k = k + 1;
+      } while (j < 0x10);
+      i = i + 1;
+    } while (i < 4);
     if ((Sky_gTrackSpec->type == 1) && ((Sky_gTrackSpec->flags & 0x20U) == 0))
     goto HrzInitSky_initLensFlare;
   }
@@ -371,7 +380,31 @@ HrzInitSky_initLensFlare:
   return;
 }
 
-/* ---- Hrz_Init2DRing__Fv  [HRZSKU.CPP:337-414] SLD-VERIFIED ---- */
+/* ---- Hrz_Init2DRing__Fv  [HRZSKU.CPP:337-414] SLD-VERIFIED ----
+ * NEAR-MISS 280 diffs (221/185), NOT YET SYM-merged (round-2 diagnosis only, not applied --
+ * ran out of session budget to trace+verify safely, same disease as Hrz_InitSky pre-fix).
+ * SYM `nfs4-f-v3.txt` @40e105 (`awk '/name = Hrz_Init2DRing__Fv/,/8e Function end/'`) shows
+ * only 9 real locals total across nested block scopes: outer `i`=$s1,`angle`=$s0; a
+ * pnPmxHeight_InPixels-block `nMaxPmxHeight_InPixels`=REG + `pnPmxHeight_InPixels[16]`=AUTO
+ * (block lines 17-39, i.e. spans the ring-build + pixmap-height loops); a separate
+ * `level`=REG block (lines 44-73) containing `cur_bk`/`cur_fr`/`rounddiff` (CVECTOR AUTOs)
+ * + an innermost `j`=REG (lines 51-59, the color-row loop). The CURRENT reconstruction below
+ * has 33 declared locals (ringCount/shapeWidth/ti12/pmx_p/atan_in/iVar6_b/rowMaxX/shape_p/
+ * shapeStride/ringEntry_pp/rowOff_p/ti10/ringByte_p/rowBuf_p/ring_step/iVar14_field/
+ * row_array_p/iVar1/reg_t5/u_idx/u_idx2/uVar18_pack/ring_x/ring_x2/row_advance/row_idx/tC3/
+ * tu5/CVar1 on top of the 9 SYM-real ones) -- same "too many distinctly-live Ghidra temps"
+ * class that forced Hrz_InitSky's extra `$fp` spill (see that function's fix comment for the
+ * full playbook). Suspicious reused-role candidate: `ti12` starts as a constant `1` (ring
+ * loop, line ~434), becomes a running MAX accumulator (pixmap-height loop), then a DIVISOR
+ * (row-percentage loop), then gets reset to `0` for a completely unrelated accumulator role
+ * in the color loop -- likely maps to `nMaxPmxHeight_InPixels` for its first three lives and
+ * a throwaway temp for the fourth, but the SYM block-scope boundaries (block 17-39 closing
+ * before the row-percentage loop, if that loop is truly outside it) need to be reconciled
+ * against the RAW oracle instruction-by-instruction before any rename is safe to attempt --
+ * NOT done this session (BuildHorizon's regional-fix attempt this session taught that an
+ * unverified partial merge on a multi-phase function can move the diff count the WRONG way;
+ * a full merge needs the SAME rigor as Hrz_InitSky's, done in one pass, not a partial rename).
+ * Left untouched pending that follow-up. */
 void Hrz_Init2DRing(void)
 
 {
@@ -1289,6 +1322,32 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
   } while (rowDelta < 0x10);
   pSVar12 = gRngCoordTop + farI;
   shape_short = (short)Hrz_gTrackSpec->yoffset + (short)Hrz_gTrackSpec->height;
+  /* NEAR-MISS DIAGNOSIS (round 2, not applied -- tried + reverted, see below): SYM @40f3a6/
+   * 40f406 (block line=30/115 rel. to fn start) proves `updown[2]` (SVECTOR[2]) and
+   * `temp2d[2]` (DVECTOR[2]) are the REAL declared locals for this section -- the CONCAT22/
+   * manual-byte-merge code below is Ghidra's rendering of a plain `p_ = updown[N];`
+   * whole-struct assignment between two differently-aligned stack slots (the lwl/lwr/swl/swr
+   * the raw oracle .s shows is genuine gcc unaligned-struct-copy codegen, per catalog
+   * wave-4's "movstrsi struct-copy" row), and `right`/`DVar7` below has a real correctness
+   * bug: BOTH loops (shape_visible/shape_idx) reuse the SAME single `right` value (from the
+   * LAST gte_stSXY2 call, since both write into the SAME `DStack_38`) where the oracle
+   * computes TWO SEPARATE deltas -- loop1 from temp2d[0] (updown[0]="up", shape_short =
+   * yoffset+height), loop2 from temp2d[1] (updown[1]="down", yoffset alone) -- each
+   * subtracted from Render_gCopMat.m[farI+1] ONCE before its own loop (oracle has no
+   * per-iteration resubtraction; ours redoes `right.vx-iVar17` every iteration = extra
+   * insns too). VERIFIED against the raw oracle instruction-by-instruction (sp+0x28..0x2D
+   * = updown[0], sp+0x30..0x35 = updown[1], sp+0x38 = temp2d[0] result, sp+0x3C = temp2d[1]
+   * result, matching AUTO stack offsets exactly). Full rewrite ATTEMPTED using updown[]/
+   * temp2d[]/two-delta `right`: ours 628->605 insns (real bloat removed) but the unified
+   * diff count went 805->808 (WORSE) because this whole giant function's stack frame is
+   * STILL 200 bytes vs oracle's 128 -- the other ~140 (untouched) lines of this function
+   * carry the rest of the excess register/frame pressure, so a regional fix here just
+   * shifts everything to different (still-wrong) offsets without net convergence.
+   * VERIFY-OR-REVERT: reverted per the gate (count must improve, not just insn-count).
+   * The diagnosis above is correct and ready to reapply IN THE SAME PASS as a full
+   * SYM-driven rewrite of the rest of the function (mpts/right/prim/pmx/trans2's SECOND,
+   * legitimate late usage near line ~1535) -- a future session should redo this together
+   * with the SUB42 block further down, not in isolation. */
   trans2.x = CONCAT22(shape_short,pSVar12->vx);
   trans2.y = CONCAT22((*(u_short *)((u_char *)&(trans2.y) + 2)),pSVar12->vz);
   p_.vx = pSVar12->vx;

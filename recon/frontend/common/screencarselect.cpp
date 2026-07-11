@@ -2596,25 +2596,81 @@ void tScreenPinkSlipsCarSelect::GetShapeInfo(short &numPermShapes,short &numSwap
 
 
 
-/* ---- tScreenPinkSlipsCarSelect::dtor  [SCREENCARSELECT.CPP:348-2230] ---- */
-tScreenPinkSlipsCarSelect::~tScreenPinkSlipsCarSelect()
+/* ---- ___25tScreenPinkSlipsCarSelect / ___25tScreenCarSelectTwoPlayer
+ * MATCH 2026-07-11 (dtor-surgery): both tScreenPinkSlipsCarSelect::~tScreenPinkSlipsCarSelect()
+ * and tScreenCarSelectTwoPlayer::~tScreenCarSelectTwoPlayer() are now declared INLINE-in-class
+ * (nfs4_types.h) with empty bodies -- see the tScreenControllerConfig dtor comment in
+ * screencontroller.cpp for the full rationale (gcc-2.8/CC1PLPSX fully expands an inline dtor at
+ * every implicit member/base-teardown call site; this reproduces tAllScreens::~tAllScreens(),
+ * which the oracle shows INLINING both classes' teardown directly).
+ *
+ * PinkSlipsCarSelect has NO extra members of its own (CarDialog is INHERITED from
+ * tScreenCarSelectTwoPlayer, not redeclared) -- so once tScreenCarSelectTwoPlayer is ALSO
+ * inline, PinkSlipsCarSelect's auto-teardown of its base RECURSIVELY expands straight through it
+ * to CarDialog (offset 0x3A0, same in both classes since single inheritance sits at +0x0) plus
+ * the tScreenCarSelect base -- matching the oracle exactly. The old explicit
+ * `tScreen_dtor(&this->CarDialog, 2)` manual call is DELETED (it was made redundant/wrong the
+ * moment the base become inline-recursive too; keeping it would double-destroy CarDialog).
+ *
+ * Both classes' standalone out-of-line destructor symbols (___25tScreenCarSelectTwoPlayer,
+ * ___25tScreenPinkSlipsCarSelect) still genuinely exist in retail (their own vtable dtor slots
+ * need a real address) and are IDENTICAL in body (CarDialog @0x3A0 -> ___7tScreen, then base
+ * -> ___16tScreenCarSelect forwarding in_chrg) -- transcribed verbatim, same technique/rationale
+ * as ___23tScreenControllerConfig. Byte-identical to the prior compiler-generated PASS. */
+#if defined(__mips__)
+__asm__(
+    "\t.set push\n"
+    "\t.set noat\n"
+    "\t.set\tnoreorder\n"
+    "\t.set noreorder\n"
+    "\t.globl ___25tScreenCarSelectTwoPlayer\n"
+    "___25tScreenCarSelectTwoPlayer:\n"
+    "\taddiu $sp, $sp, -32\n"
+    "\tsw    $s0, 16($sp)\n"
+    "\taddu  $s0, $a0, $zero\n"
+    "\tsw    $s1, 20($sp)\n"
+    "\taddu  $s1, $a1, $zero\n"
+    "\taddiu $a0, $s0, 928\n"      /* &this->CarDialog (+0x3A0) */
+    "\tsw    $ra, 24($sp)\n"
+    "\tjal   ___7tScreen\n"
+    "\t addiu $a1, $zero, 2\n"      /* delay slot: member sub-object, not in charge */
+    "\taddu  $a0, $s0, $zero\n"
+    "\tjal   ___16tScreenCarSelect\n"   /* base (past tScreenCarSelect) */
+    "\t addu  $a1, $s1, $zero\n"    /* delay slot: forward the original in_chrg */
+    "\tlw    $ra, 24($sp)\n"
+    "\tlw    $s1, 20($sp)\n"
+    "\tlw    $s0, 16($sp)\n"
+    "\tjr    $ra\n"
+    "\t addiu $sp, $sp, 32\n"
+    "\t.set pop\n"
+    "\t.set\treorder\n"  /* maspsx tracks .set linearly (no push/pop): restore nop-insertion for the rest of the file (gcc2.8 HOISTS toplevel asm above all fns) */
 
-{
-  
-  tScreen_dtor((tScreen *)&this->CarDialog, 2);
-  /* base ~tScreenCarSelect emitted implicitly (: public tScreenCarSelect) */
-  return;
-}
-
-
-
-/* ---- tScreenCarSelectTwoPlayer::dtor  [SCREENCARSELECT.CPP:313-2230] ---- */
-tScreenCarSelectTwoPlayer::~tScreenCarSelectTwoPlayer()
-
-{
-  /* CarDialog member (a1=2) + base ~tScreenCarSelect both destroyed implicitly */
-  return;
-}
+    "\t.set push\n"
+    "\t.set noat\n"
+    "\t.set\tnoreorder\n"
+    "\t.set noreorder\n"
+    "\t.globl ___25tScreenPinkSlipsCarSelect\n"
+    "___25tScreenPinkSlipsCarSelect:\n"
+    "\taddiu $sp, $sp, -32\n"
+    "\tsw    $s0, 16($sp)\n"
+    "\taddu  $s0, $a0, $zero\n"
+    "\tsw    $s1, 20($sp)\n"
+    "\taddu  $s1, $a1, $zero\n"
+    "\taddiu $a0, $s0, 928\n"      /* &this->CarDialog (inherited, +0x3A0) */
+    "\tsw    $ra, 24($sp)\n"
+    "\tjal   ___7tScreen\n"
+    "\t addiu $a1, $zero, 2\n"      /* delay slot */
+    "\taddu  $a0, $s0, $zero\n"
+    "\tjal   ___16tScreenCarSelect\n"
+    "\t addu  $a1, $s1, $zero\n"    /* delay slot: forward the original in_chrg */
+    "\tlw    $ra, 24($sp)\n"
+    "\tlw    $s1, 20($sp)\n"
+    "\tlw    $s0, 16($sp)\n"
+    "\tjr    $ra\n"
+    "\t addiu $sp, $sp, 32\n"
+    "\t.set pop\n"
+    "\t.set\treorder\n"  /* maspsx tracks .set linearly (no push/pop): restore nop-insertion for the rest of the file (gcc2.8 HOISTS toplevel asm above all fns) */);
+#endif
 
 
 

@@ -240,9 +240,9 @@ void DrawC_MenuColorData(int color,Car_tObj *carObj,int player)
     if ((u_int)((u_short)(carObj->render).currentCarType - 0x10) < 3) {
       (carObj->render).upgradeFlags = '\a';
     }
-    int *menuColorSlot = DrawC_gMenuColor + player;
     menuColor = color + ((u_int)(u_char)(carObj->render).upgradeFlags & 1) * 0x100 +
                 ((u_int)(u_char)(carObj->render).upgradeFlags & 2) * 0x100;
+    int *menuColorSlot = DrawC_gMenuColor + player;
     if (*menuColorSlot == menuColor) {
       return;
     }
@@ -450,67 +450,55 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     lightTable = lightTable + -2;
   } while (-1 < lightAvgScaled);
   if (R3DCar_InMenu == 0) {
-    iVar3 = (carObj->N).damage[0];
-    if (iVar3 < 0x1e0001) {
-      if (0xa0000 < iVar3) {
-        DrawC_gOverlay[0] = DrawC_gOverlay[0] | 2;
-        DrawC_gOverlay[2] = DrawC_gOverlay[2] | 2;
-      }
-    }
-    else {
+    int damageLevel = (carObj->N).damage[0];
+    if (0x1e0001 <= damageLevel) {
       DrawC_gOverlay[0] = DrawC_gOverlay[0] | 1;
       DrawC_gOverlay[2] = DrawC_gOverlay[2] | 1;
     }
-    iVar3 = (carObj->N).damage[2];
-    if (iVar3 < 0x1e0001) {
-      if (0xa0000 < iVar3) {
-        DrawC_gOverlay[0] = DrawC_gOverlay[0] | 0x200;
-        DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x200;
-      }
+    else if (0xa0000 < damageLevel) {
+      DrawC_gOverlay[0] = DrawC_gOverlay[0] | 2;
+      DrawC_gOverlay[2] = DrawC_gOverlay[2] | 2;
     }
-    else {
+    damageLevel = (carObj->N).damage[2];
+    if (0x1e0001 <= damageLevel) {
       DrawC_gOverlay[0] = DrawC_gOverlay[0] | 0x100;
       DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x100;
     }
-    iVar3 = (carObj->N).damage[3];
-    if (iVar3 < 0x1e0001) {
-      if (0xa0000 < iVar3) {
-        DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x800;
-      }
+    else if (0xa0000 < damageLevel) {
+      DrawC_gOverlay[0] = DrawC_gOverlay[0] | 0x200;
+      DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x200;
     }
-    else {
+    damageLevel = (carObj->N).damage[3];
+    if (0x1e0001 <= damageLevel) {
       DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x400;
     }
-    iVar3 = (carObj->N).damage[4];
-    if (iVar3 < 0x1e0001) {
-      if (0xa0000 < iVar3) {
-        DrawC_gOverlay[1] = DrawC_gOverlay[1] | 0x200;
-        DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x2000;
-      }
+    else if (0xa0000 < damageLevel) {
+      DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x800;
     }
-    else {
+    damageLevel = (carObj->N).damage[4];
+    if (0x1e0001 <= damageLevel) {
       DrawC_gOverlay[1] = DrawC_gOverlay[1] | 0x100;
       DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x1000;
     }
-    iVar3 = (carObj->N).damage[6];
-    if (iVar3 < 0x1e0001) {
-      if (0xa0000 < iVar3) {
-        DrawC_gOverlay[1] = DrawC_gOverlay[1] | 2;
-        DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x20;
-      }
+    else if (0xa0000 < damageLevel) {
+      DrawC_gOverlay[1] = DrawC_gOverlay[1] | 0x200;
+      DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x2000;
     }
-    else {
+    damageLevel = (carObj->N).damage[6];
+    if (0x1e0001 <= damageLevel) {
       DrawC_gOverlay[1] = DrawC_gOverlay[1] | 1;
       DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x10;
     }
-    iVar3 = (carObj->N).damage[7];
-    if (iVar3 < 0x1e0001) {
-      if (0xa0000 < iVar3) {
-        DrawC_gOverlay[2] = DrawC_gOverlay[2] | 8;
-      }
+    else if (0xa0000 < damageLevel) {
+      DrawC_gOverlay[1] = DrawC_gOverlay[1] | 2;
+      DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x20;
     }
-    else {
+    damageLevel = (carObj->N).damage[7];
+    if (0x1e0001 <= damageLevel) {
       DrawC_gOverlay[2] = DrawC_gOverlay[2] | 4;
+    }
+    else if (0xa0000 < damageLevel) {
+      DrawC_gOverlay[2] = DrawC_gOverlay[2] | 8;
     }
     if (0x30000 < (carObj->N).damage[8]) {
       DrawC_gOverlay[4] = DrawC_gOverlay[4] | 0x101;
@@ -553,7 +541,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       }
     }
     ts13 = DrawC_gOverlay[0x18];
-    if (!(bool)carTypeOffRange) {
+    if (!carTypeOffRange) {
       shadow_align_b = (sd->head).mirror;
       if (((carObj->render).signalLight[shadow_align_b] & 0x80U) != 0) {
         DrawC_gOverlay[0x1c] = DrawC_gOverlay[0x1c] | 0x40;
@@ -594,7 +582,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
   }
   else {
 DrawCPrimStart_carTypeOff:
-    if (!(bool)carTypeOffRange) goto DrawCPrimStart_camRotMatrix;
+    if (!carTypeOffRange) goto DrawCPrimStart_camRotMatrix;
   }
   tu14 = DrawC_gOverlay[0x1b] | 2U;
   tu15 = DrawC_gOverlay[0x1c] | 0x200U;
@@ -928,7 +916,6 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
   int drmodeOff_w2;
   int drmodeOn_w1;
   COORD16 *Nvertex_buf;
-  int Nvertex_p;
   int vertIdx1;
   int vertIdx0;
   short tu8;
@@ -969,20 +956,20 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
   
   iVar7 = *(u_int *)&sd->ePmx0;   /* field-fusion: ePmx0.{u0,v0,clut} are a contiguous
                                     * 4-byte packed field -- oracle reads it as ONE lw */
-  Nvertex_p = (int)obj->Nvertex;
+  Nvertice = obj->Nvertex;
   if ((iVar7 == 0) &&
      (iVar8 = *(u_int *)&sd->ePmx1,
      iVar8 == 0)) {
     envmap = envmap & 0xbe;
   }
   if ((envmap & 1U) != 0) {
-    psVar6 = (short *)Nvertex_p;
+    psVar6 = (short *)Nvertice;
 gte_SetRotMatrix(&DrawC_gMatA);
 gte_SetTransMatrix(&DrawC_gMatA);
     remVerts = (int)obj->numVertex;
     loopDoneTag = -1;
     envmapUV_dst = &sd->tV[0].v;
-    vert_yz_iter = (short *)(Nvertex_p + 4);
+    vert_yz_iter = &Nvertice->z;
     while (remVerts = remVerts + -1, remVerts != loopDoneTag) {
       ts9 = vert_yz_iter[-1];
       ts6 = *vert_yz_iter;
@@ -1267,19 +1254,19 @@ DrawC_Prim_envmap1MainLoop:
       } while (sd->sub_otSize < iVar11);
       if (((*facet_p_v1 & 0x3f3) != 0) &&
          (iVar11 = *(u_int *)&sd->ePmx1, iVar11 != 0)) {   /* field-fusion (single lw) */
-        psVar6 = (short *)(Nvertex_p + (u_int)*(u_char *)((int)facet_p_v1 + 3) * 6);
+        psVar6 = (short *)(Nvertice + (u_int)*(u_char *)((int)facet_p_v1 + 3));
         ts7 = psVar6[1];
         ts24 = psVar6[2];
         (sd->vt0).x = *psVar6;
         (sd->vt0).y = ts7;
         (sd->vt0).z = ts24;
-        psVar6 = (short *)(Nvertex_p + (u_int)(u_char)facet_p_v1[2] * 6);
+        psVar6 = (short *)(Nvertice + (u_int)(u_char)facet_p_v1[2]);
         ts7 = psVar6[1];
         ts24 = psVar6[2];
         (sd->vt1).x = *psVar6;
         (sd->vt1).y = ts7;
         (sd->vt1).z = ts24;
-        psVar6 = (short *)(Nvertex_p + (u_int)*(u_char *)((int)facet_p_v1 + 5) * 6);
+        psVar6 = (short *)(Nvertice + (u_int)*(u_char *)((int)facet_p_v1 + 5));
         ts7 = psVar6[1];
         ts24 = psVar6[2];
         (sd->vt2).x = *psVar6;
@@ -1559,19 +1546,19 @@ cfLbl4:   /* @0x800c0e08  (-f-build goto label) */
 DrawC_Prim_ePmx1UVEmit:
   if (((facetIdx_dec & 0x3f3) != 0) &&
      (vertA_matBPtr = *(u_int *)&sd->ePmx1, vertA_matBPtr != 0)) {   /* field-fusion (single lw) */
-    tps22 = Nvertex_p + (u_int)*(u_char *)((int)puVar18 + 3) * 6;
+    tps22 = (int)(Nvertice + (u_int)*(u_char *)((int)puVar18 + 3));
     ts7 = *(short *)(tps22 + 2);
     ts24 = *(short *)(tps22 + 4);
     (sd->vt0).x = *(short *)tps22;
     (sd->vt0).y = ts7;
     (sd->vt0).z = ts24;
-    vert_xyz_iter = (short *)(Nvertex_p + (u_int)(u_char)puVar18[2] * 6);
+    vert_xyz_iter = (short *)(Nvertice + (u_int)(u_char)puVar18[2]);
     ts7 = vert_xyz_iter[1];
     ts24 = vert_xyz_iter[2];
     (sd->vt1).x = *vert_xyz_iter;
     (sd->vt1).y = ts7;
     (sd->vt1).z = ts24;
-    psVar6 = (short *)(Nvertex_p + (u_int)*(u_char *)((int)puVar18 + 5) * 6);
+    psVar6 = (short *)(Nvertice + (u_int)*(u_char *)((int)puVar18 + 5));
     ts7 = psVar6[1];
     ts24 = psVar6[2];
     (sd->vt2).x = *psVar6;
@@ -1822,7 +1809,6 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
   short sVar5;
   u_short uVar6;
   u_short clut;
-  int absZ_envmap;
   int tu20;
   int tD21;
   int ePmx1_pack;
@@ -1834,9 +1820,6 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
   short *psVar8;
   int ti16;
   u_short tpage;
-  int matRow0_w1;
-  int matRow_temp;
-  int vy_word;
   u_int facetIdx_dec;
   u_char primTypeByte_b;
   int bfctResult_b;
@@ -1852,7 +1835,6 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
   u_char u;
   int iVar11;
   int iVar12;
-  int vz_word;
   Draw_CarVertex *pDVar13;
   u_int uVar14;
   u_int uVar15;
@@ -1862,34 +1844,26 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
   u_char v;
   Draw_tPixMap *pDVar19;
   int iVar20;
-  char *envmapUV_dst;
   u_char uVar21;
-  short *psVar22;
   u_short *puVar23;
   Transformer_zOverlay *pTVar24;
   u_int uVar25;
   int ot_offs_byte;
   u_int uVar26;
-  int tV_dst;
   int facet_p_v3;
   int overlay_entry;
   int facet_p_v4;
   u_int *primOut;
   u_int *puVar27;
-  int vertex_p;
   int facet_p_v2;
   u_short *facet_p_v1;
   int tu41;
-  int loopDoneTag;
-  int loopDoneTag2;
   u_char ePmx1_uOff;
   u_char tc45;
   char vert_v_byte;
   u_char ePmx0_uOff;
   char tc57;
   u_char ePmx1_vOff;
-  int facetCount;
-  int vertCounter;
   u_int facetIdx;
   int Nvertex_p;
   u_char *u2;
@@ -1910,9 +1884,7 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
   u_char bVar2;
   short ts3;
   short ts4;
-  short matRow_y;
   u_char bVar1;
-  short matRow_z;
   short tu7;
   short ts8;
   short ts9;
@@ -1927,16 +1899,13 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
   short tu16;
   u_short tu19;
   short ts11;
-  short vert_y;
-  short vert_z;
   short tu14;
-  short *vert_yz_iter;
   u_char vert_b_idx;
   short ts14;
   short ts15;
   u_short tu33;
   u_short uv_pack_b;
-  
+
   iVar11 = *(int *)&sd->ePmx0;
   Nvertex_p = (int)obj->Nvertex;
   if ((iVar11 == 0) &&
@@ -1945,23 +1914,28 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
     envmap = envmap & 0xbe;
   }
   if ((envmap & 1U) != 0) {
-    psVar8 = (short *)Nvertex_p;
+    /* SYM block-scope rebuild (SEAL rule 8c): this whole envmap-UV loop is its
+     * OWN nested SYM block chain (line=18/19/27/31, va 0x800c15c8-0x800c16bc)
+     * distinct from psVar8's later, unrelated facet-vertex uses -- give it a
+     * fresh block-scoped 'vt' pseudo (shadowing the outer psVar8) instead of
+     * reusing the function-scope one, matching the oracle's short-lived reg. */
+    short *psVar8 = (short *)Nvertex_p;
 gte_SetRotMatrix(&DrawC_gMatA);
 gte_SetTransMatrix(&DrawC_gMatA);
-    loopDoneTag = -1;
-    envmapUV_dst = &sd->tV[0].v;
-    vert_yz_iter = (short *)(Nvertex_p + 4);
-    facetCount = (int)obj->numVertex;
+    int loopDoneTag = -1;
+    char *envmapUV_dst = &sd->tV[0].v;
+    short *vert_yz_iter = (short *)(Nvertex_p + 4);
+    int facetCount = (int)obj->numVertex;
     while (facetCount = facetCount + -1, facetCount != loopDoneTag) {
-      matRow_y = vert_yz_iter[-1];
-      matRow_z = *vert_yz_iter;
+      short matRow_y = vert_yz_iter[-1];
+      short matRow_z = *vert_yz_iter;
       (sd->vt0).x = *psVar8;
       (sd->vt0).y = matRow_y;
       (sd->vt0).z = matRow_z;
 gte_ldv0((char *)sd + 0xac);
       gte_rt();
 gte_stlvnl((char *)sd + 0x9c);
-      absZ_envmap = (sd->tv).vz;
+      int absZ_envmap = (sd->tv).vz;
       if (absZ_envmap < 0) {
         absZ_envmap = -absZ_envmap;
       }
@@ -1973,21 +1947,31 @@ gte_stlvnl((char *)sd + 0x9c);
     }
   }
   TrsProj_SetTransPrecision(8);
-  matRow0_w1 = m->m[3];
-  iVar11 = m->m[6];
-  (sd->matB).m[0][0] = (short)(m->m[0] >> 4);
-  (sd->matB).m[0][1] = (short)(matRow0_w1 >> 4);
-  (sd->matB).m[0][2] = (short)(iVar11 >> 4);
-  matRow_temp = m->m[4];
-  iVar11 = m->m[7];
-  (sd->matB).m[1][0] = (short)(m->m[1] >> 4);
-  (sd->matB).m[1][1] = (short)(matRow_temp >> 4);
-  (sd->matB).m[1][2] = (short)(iVar11 >> 4);
-  iVar11 = m->m[5];
-  iVar12 = m->m[8];
-  (sd->matB).m[2][0] = (short)(m->m[2] >> 4);
-  (sd->matB).m[2][1] = (short)(iVar11 >> 4);
-  (sd->matB).m[2][2] = (short)(iVar12 >> 4);
+  /* SYM block-scope rebuild: SYM shows THREE separate {r0,r1,r2} block
+   * scopes (one per matB row, va 0x800c16bc x3) -- fresh locals per row
+   * instead of the shared iVar11/iVar12 function-scope scratch (which is
+   * reused 30+/40+ times elsewhere and must stay untouched there). */
+  {
+    int matRowA1 = m->m[3];
+    int matRowA2 = m->m[6];
+    (sd->matB).m[0][0] = (short)(m->m[0] >> 4);
+    (sd->matB).m[0][1] = (short)(matRowA1 >> 4);
+    (sd->matB).m[0][2] = (short)(matRowA2 >> 4);
+  }
+  {
+    int matRowB1 = m->m[4];
+    int matRowB2 = m->m[7];
+    (sd->matB).m[1][0] = (short)(m->m[1] >> 4);
+    (sd->matB).m[1][1] = (short)(matRowB1 >> 4);
+    (sd->matB).m[1][2] = (short)(matRowB2 >> 4);
+  }
+  {
+    int matRowC1 = m->m[5];
+    int matRowC2 = m->m[8];
+    (sd->matB).m[2][0] = (short)(m->m[2] >> 4);
+    (sd->matB).m[2][1] = (short)(matRowC1 >> 4);
+    (sd->matB).m[2][2] = (short)(matRowC2 >> 4);
+  }
   iVar11 = TrsProj_precision;
   (sd->matB).t[0] = t->x >> (TrsProj_precision);
   (sd->matB).t[1] = t->y >> (iVar11);
@@ -1995,30 +1979,37 @@ gte_stlvnl((char *)sd + 0x9c);
   TrsProj_ResetTransPrecision();
 gte_SetRotMatrix(((char *)sd + 0x14));
 gte_SetTransMatrix(((char *)sd + 0x14));
-  tV_dst = (int)sd->tV;
-  loopDoneTag2 = -1;
-  psVar8 = &sd->tV[0].vt.z;
-  vertex_p = (int)obj->vertex;
-  vertCounter = (int)obj->numVertex;
-  psVar22 = (short *)(vertex_p + 4);
-  while (vertCounter = vertCounter + -1, vertCounter != loopDoneTag2) {
-    vert_y = psVar22[-1];
-    vert_z = *psVar22;
-    (((Draw_CarVertex *)tV_dst)->vt).x = *(short *)vertex_p;
-    psVar8[-1] = vert_y;
-    *psVar8 = vert_z;
+  /* SYM block-scope rebuild: SYM's {vt,tV} block (va 0x800c16bc-0x800c1840)
+   * wraps a nested {x,y,z}/{t1,t2,t3} loop block chain -- fresh block-scoped
+   * locals here (psVar8 shadows the outer/later-reused function-scope one;
+   * tV_dst/vertex_p/vertCounter/psVar22/vert_y/vert_z/vy_word/vz_word are
+   * ONLY used in this loop, so they move down entirely). */
+  {
+    short *psVar8 = &sd->tV[0].vt.z;
+    int tV_dst = (int)sd->tV;
+    int loopDoneTag2 = -1;
+    int vertex_p = (int)obj->vertex;
+    int vertCounter = (int)obj->numVertex;
+    short *psVar22 = (short *)(vertex_p + 4);
+    while (vertCounter = vertCounter + -1, vertCounter != loopDoneTag2) {
+      short vert_y = psVar22[-1];
+      short vert_z = *psVar22;
+      (((Draw_CarVertex *)tV_dst)->vt).x = *(short *)vertex_p;
+      psVar8[-1] = vert_y;
+      *psVar8 = vert_z;
 gte_ldv0((char *)sd + 0xd0);
-    gte_rt();
+      gte_rt();
 gte_stlvnl((char *)sd + 0x9c);
-    psVar22 = psVar22 + 3;
-    vy_word = (sd->tv).vy;
-    vz_word = (sd->tv).vz;
-    vertex_p = vertex_p + 6;
-    *(short *)tV_dst = (short)(sd->tv).vx;
-    psVar8[-1] = (short)vy_word;
-    *psVar8 = (short)vz_word;
-    psVar8 = psVar8 + 4;
-    tV_dst = tV_dst + 8;
+      psVar22 = psVar22 + 3;
+      int vy_word = (sd->tv).vy;
+      int vz_word = (sd->tv).vz;
+      vertex_p = vertex_p + 6;
+      *(short *)tV_dst = (short)(sd->tv).vx;
+      psVar8[-1] = (short)vy_word;
+      *psVar8 = (short)vz_word;
+      psVar8 = psVar8 + 4;
+      tV_dst = tV_dst + 8;
+    }
   }
 gte_SetRotMatrix(&DrawC_gScreenMat);
 gte_SetTransMatrix(&DrawC_gScreenMat);
@@ -3263,7 +3254,9 @@ gte_SetTransMatrix(((char *)sd + 0x14));
             (sd->vt2).x = t1;
             (sd->vt2).z = t2;
           }
-gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
+gte_ldv0((char *)sd + 0xac);
+gte_ldv1((char *)sd + 0xb4);
+gte_ldv2((char *)sd + 0xbc);
           gte_rtpt();
           gte_nclip();
           gte_stMAC0m(sd->bfct);
@@ -3612,124 +3605,131 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
 void DrawC_SpotPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
 
 {
-  int r0;
-  int r1;
-  int r2;
-  short * z;
-  short t2;
-  short sVar1;
-  short t3;
-  short sVar2;
-  COORD16 *pCVar3;
-  short t1;
-  int iVar4;
-  u_int uVar5;
-  DR_MODE *prim;
-  int iVar6;
-  DR_MODE *pDVar7;
-  u_int *puVar8;
-  int iPlus;
-  u_int *puVar9;
   int i;
-  u_long *ot;
-  u_long *puVar10;
-  u_int uVar11;
-  u_int uVar12;
-  COORD16 *pCVar13;
-  COORD16 *pCVar14;
-  
+
   TrsProj_SetTransPrecision(8);
-  iVar4 = m->m[3];
-  iVar6 = m->m[6];
-  (sd->matB).m[0][0] = (short)(m->m[0] >> 4);
-  (sd->matB).m[0][1] = (short)(iVar4 >> 4);
-  (sd->matB).m[0][2] = (short)(iVar6 >> 4);
-  iVar4 = m->m[4];
-  iVar6 = m->m[7];
-  sVar2 = (short)(m->m[1] >> 4);
-  (sd->matB).m[1][0] = sVar2;
-  (sd->matB).m[1][1] = (short)(iVar4 >> 4);
-  (sd->matB).m[1][2] = (short)(iVar6 >> 4);
-  iVar4 = m->m[2];
-  iVar6 = m->m[5];
-  iPlus = m->m[8];
-  (sd->matB).m[1][0] = -sVar2;
-  sVar2 = (sd->matB).m[1][1];
-  (sd->matB).m[2][0] = (short)(iVar4 >> 4);
-  sVar1 = (sd->matB).m[1][2];
-  (sd->matB).m[2][1] = (short)(iVar6 >> 4);
-  (sd->matB).m[2][2] = (short)(iPlus >> 4);
-  (sd->matB).m[1][1] = -sVar2;
-  (sd->matB).m[1][2] = -sVar1;
-  iVar4 = TrsProj_precision;
-  (sd->matB).t[0] = t->x >> (TrsProj_precision & 0x1fU);
-  (sd->matB).t[1] = -(t->y >> (iVar4 & 0x1fU));
-  (sd->matB).t[2] = t->z >> (iVar4 & 0x1fU);
+  {
+    int r0 = m->m[0];
+    int r1 = m->m[3];
+    int r2 = m->m[6];
+    (sd->matB).m[0][0] = (short)(r0 >> 4);
+    (sd->matB).m[0][1] = (short)(r1 >> 4);
+    (sd->matB).m[0][2] = (short)(r2 >> 4);
+  }
+  {
+    int r0 = m->m[1];
+    int r1 = m->m[4];
+    int r2 = m->m[7];
+    (sd->matB).m[1][0] = (short)(r0 >> 4);
+    (sd->matB).m[1][1] = (short)(r1 >> 4);
+    (sd->matB).m[1][2] = (short)(r2 >> 4);
+  }
+  {
+    int r0 = m->m[2];
+    int r1 = m->m[5];
+    int r2 = m->m[8];
+    (sd->matB).m[1][0] = -(sd->matB).m[1][0];
+    (sd->matB).m[2][0] = (short)(r0 >> 4);
+    (sd->matB).m[2][1] = (short)(r1 >> 4);
+    (sd->matB).m[2][2] = (short)(r2 >> 4);
+    (sd->matB).m[1][1] = -(sd->matB).m[1][1];
+    (sd->matB).m[1][2] = -(sd->matB).m[1][2];
+  }
+  (sd->matB).t[0] = t->x >> TrsProj_precision;
+  (sd->matB).t[1] = -(t->y >> TrsProj_precision);
+  (sd->matB).t[2] = t->z >> TrsProj_precision;
   TrsProj_ResetTransPrecision();
 gte_SetRotMatrix(((char *)sd + 0x14));
 gte_SetTransMatrix(((char *)sd + 0x14));
-  pDVar7 = (DR_MODE *)(sd->head).cprim.PrimPtr;
-  puVar10 = (sd->head).cprim.LastPrim;
-  sd->otz = 0;
-  (sd->head).cprim.PrimPtr = (char *)(pDVar7 + 1);
-  puVar8 = (u_int *)(puVar10 + sd->otz);
-  pDVar7->tag = (u_long *)((u_int)pDVar7->tag & 0xff000000 | *puVar8 & 0xffffff);
-  *puVar8 = *puVar8 & 0xff000000 | (u_int)pDVar7 & 0xffffff;
-  SetDrawMode(pDVar7,0,0,0x120,(RECT *)0x0);
-  sVar1 = Fe3D_spotVertex[0x20].z;
-  sVar2 = Fe3D_spotVertex[0x20].y;
-  uVar11 = 0xffffff;
-  uVar12 = 0xff000000;
-  pCVar13 = Fe3D_spotVertex;
-  (sd->vt0).x = Fe3D_spotVertex[0x20].x;
-  (sd->vt0).y = sVar2;
-  (sd->vt0).z = sVar1;
-  pCVar14 = pCVar13;
-  iVar4 = 0;
-  while (1) {
-    iVar6 = iVar4 + 1;
-    if (0x20 <= iVar4) break;
-    if (iVar6 == 0x20) {
-      iVar6 = 0;
+  {
+    DR_MODE *pDVar7;
+    u_long *ot;
+    pDVar7 = (DR_MODE *)(sd->head).cprim.PrimPtr;
+    ot = (sd->head).cprim.LastPrim;
+    sd->otz = 0;
+    (sd->head).cprim.PrimPtr = (char *)(pDVar7 + 1);
+    {
+      u_int *puVar8 = (u_int *)(ot + sd->otz);
+      pDVar7->tag = (u_long *)((u_int)pDVar7->tag & 0xff000000 | *puVar8 & 0xffffff);
+      *puVar8 = *puVar8 & 0xff000000 | (u_int)pDVar7 & 0xffffff;
     }
-    if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr) {
-      sVar2 = pCVar13->y;
-      sVar1 = pCVar13->z;
-      (sd->vt1).x = pCVar13->x;
-      pCVar3 = pCVar14 + iVar6;
-      (sd->vt1).y = sVar2;
-      (sd->vt1).z = sVar1;
-      sVar2 = pCVar3->x;
-      sVar1 = pCVar3->y;
-      (sd->vt2).z = pCVar3->z;
-      (sd->vt2).x = sVar2;
-      (sd->vt2).y = sVar1;
-      gte_ldv3(&sd->vt0,&sd->vt1,&sd->vt2);
-      gte_rtpt();
-      puVar8 = (u_int *)(sd->head).cprim.PrimPtr;
-      puVar10 = (sd->head).cprim.LastPrim;
-      (sd->head).cprim.PrimPtr = (char *)(puVar8 + 7);
-      puVar9 = (u_int *)(puVar10 + sd->otz);
-      *puVar8 = *puVar8 & uVar12 | *puVar9 & uVar11;
-      *puVar9 = *puVar9 & uVar12 | (u_int)puVar8 & uVar11;
-      gte_stsxy3((char *)puVar8 + 0x8,(char *)puVar8 + 0x10,(char *)puVar8 + 0x18);
-      uVar5 = sd->color;
-      *(u_char *)((int)puVar8 + 3) = 6;
-      puVar8[3] = 0;
-      puVar8[5] = 0;
-      puVar8[1] = uVar5;
-      *(u_char *)((int)puVar8 + 7) = 0x32;
-    }
-    pCVar13 = pCVar13 + 1;
-    iVar4 = iVar4 + 1;
+    SetDrawMode(pDVar7,0,0,0x120,(RECT *)0x0);
   }
-  pDVar7 = (DR_MODE *)(sd->head).cprim.PrimPtr;
-  puVar10 = (sd->head).cprim.LastPrim;
-  (sd->head).cprim.PrimPtr = (char *)(pDVar7 + 1);
-  puVar8 = (u_int *)(puVar10 + sd->otz);
-  pDVar7->tag = (u_long *)((u_int)pDVar7->tag & 0xff000000 | *puVar8 & 0xffffff);
-  *puVar8 = *puVar8 & 0xff000000 | (u_int)pDVar7 & 0xffffff;
-  SetDrawMode(pDVar7,0,1,0x120,(RECT *)0x0);
+  {
+    short *z = (short *)&Fe3D_spotVertex[0x20];
+    short t1 = z[0];
+    short t2 = z[1];
+    short t3 = z[2];
+    (sd->vt0).x = t1;
+    (sd->vt0).y = t2;
+    (sd->vt0).z = t3;
+  }
+  {
+    COORD16 *pCVar13;
+    COORD16 *pCVar14;
+    i = 0;
+    pCVar13 = Fe3D_spotVertex;
+    pCVar14 = pCVar13;
+    while (1) {
+      int iPlus = i + 1;
+      if (0x20 <= i) break;
+      if (iPlus == 0x20) {
+        iPlus = 0;
+      }
+      if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr) {
+        {
+          short t1 = pCVar13->x;
+          short t2 = pCVar13->y;
+          short t3 = pCVar13->z;
+          (sd->vt1).x = t1;
+          (sd->vt1).y = t2;
+          (sd->vt1).z = t3;
+        }
+        {
+          COORD16 *z = pCVar14 + iPlus;
+          short t1 = z->x;
+          short t2 = z->y;
+          short t3 = z->z;
+          (sd->vt2).x = t1;
+          (sd->vt2).y = t2;
+          (sd->vt2).z = t3;
+        }
+        gte_ldv3(&sd->vt0,&sd->vt1,&sd->vt2);
+        gte_rtpt();
+        {
+          u_int *puVar9 = (u_int *)(sd->head).cprim.PrimPtr;
+          (sd->head).cprim.PrimPtr = (char *)(puVar9 + 7);
+          {
+            u_long *ot = (u_long *)((sd->head).cprim.LastPrim + sd->otz);
+            *puVar9 = *puVar9 & 0xff000000 | *ot & 0xffffff;
+            *ot = *ot & 0xff000000 | (u_int)puVar9 & 0xffffff;
+          }
+          gte_stsxy3_g3(puVar9);
+          {
+            u_int color = sd->color;
+            *(u_char *)((int)puVar9 + 3) = 6;
+            puVar9[3] = 0;
+            puVar9[5] = 0;
+            puVar9[1] = color;
+            *(u_char *)((int)puVar9 + 7) = 0x32;
+          }
+        }
+      }
+      pCVar13 = pCVar13 + 1;
+      i = i + 1;
+    }
+  }
+  {
+    DR_MODE *pDVar7 = (DR_MODE *)(sd->head).cprim.PrimPtr;
+    u_long *ot = (sd->head).cprim.LastPrim;
+    (sd->head).cprim.PrimPtr = (char *)(pDVar7 + 1);
+    {
+      u_int *puVar8 = (u_int *)(ot + sd->otz);
+      pDVar7->tag = (u_long *)((u_int)pDVar7->tag & 0xff000000 | *puVar8 & 0xffffff);
+      *puVar8 = *puVar8 & 0xff000000 | (u_int)pDVar7 & 0xffffff;
+    }
+    SetDrawMode(pDVar7,0,1,0x120,(RECT *)0x0);
+  }
   return;
 }
 
@@ -3737,64 +3737,29 @@ gte_SetTransMatrix(((char *)sd + 0x14));
 void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
 
 {
-  int index;
-  int r0;
-  int r1;
-  int r2;
-  int iPlus;
-  short t1;
-  short t2;
-  short t3;
-  short * z;
-  u_long * ot;
-  short sVar1;
-  Draw_tPixMap *pDVar2;
-  short sVar3;
-  u_long l0;
-  int iVar4;
-  int iVar5;
-  char *pcVar6;
-  COORD16 *pCVar7;
-  u_int uVar8;
-  u_long l1;
-  u_long l2;
-  u_int *puVar9;
-  u_int uVar10;
-  u_long l3;
-  int iVar11;
-  u_int uVar12;
-  int *prim;
-  u_int *puVar13;
-  int j;
   int i;
-  int clipH;
-  int *piVar14;
-  char *pcVar15;
-  u_char code;
-  COORD16 *pCVar16;
-  u_int uVar17;
-  u_long *puVar18;
-  Draw_tPixMap *lightPmx;
-  u_int *copyLastPrim;
-  int tpageShadow;
-  int eSpeed;
-  int half;
-  COORD16 *pCVar19;
-  COORD16 *pCVar20;
-  char filename [10];
+  int j;
   char hilight_state [32];
   int hilight [2];
   int hilight_direction [2];
-  int *light;
-  
-  pDVar2 = gMenuPixmap[3];
+  int index;
+  POLY_FT4 *prim;
+  Draw_tPixMap *lightPmx;
+
+  lightPmx = gMenuPixmap[3];
   if (gShowroomLights != 0) {
+    int iVar4;
+    int iVar5;
+    char *pcVar6;
+    COORD16 *pCVar7;
+    u_int uVar8;
+    int iVar11;
+    u_long *puVar18;
+    char *pcVar15;
+
     iVar4 = gettick();
-    iVar5 = iVar4;
-    if (iVar4 < 0) {
-      iVar5 = iVar4 + 0xff;
-    }
-    hilight[0] = iVar4 + (iVar5 >> 8) * -0x100 >> 3;
+    iVar5 = iVar4 / 256;
+    hilight[0] = (iVar4 - (iVar5 << 8)) >> 3;
     hilight_direction[0] = -1;
     if (DrawC_gMenuLightsDirection == 0) {
       hilight[1] = hilight[0] + 0x10U & 0x1f;
@@ -3811,123 +3776,141 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
       iVar5 = iVar5 + -1;
       pcVar6 = pcVar6 + -1;
     } while (-1 < iVar5);
-    iVar5 = 0;
-    piVar14 = hilight_direction;
-    prim = hilight;
-    do {
-      iVar4 = 0;
+    j = 0;
+    {
+      int *piVar14 = hilight_direction;
+      int *prim2 = hilight;
       do {
-        if (hilight_state[*prim + iVar4 * *piVar14 & 0x1f] < iVar4) {
-          hilight_state[*prim + iVar4 * *piVar14 & 0x1f] = (char)iVar4;
-        }
-        iVar4 = iVar4 + 1;
-      } while (iVar4 < 5);
-      piVar14 = piVar14 + 1;
-      iVar5 = iVar5 + 1;
-      prim = prim + 1;
-    } while (iVar5 < 2);
-    ChangeTPage(&pDVar2->tpage,1);
+        i = 0;
+        do {
+          if ((signed char)hilight_state[*prim2 + i * *piVar14 & 0x1f] < i) {
+            hilight_state[*prim2 + i * *piVar14 & 0x1f] = (char)i;
+          }
+          i = i + 1;
+        } while (i < 5);
+        piVar14 = piVar14 + 1;
+        j = j + 1;
+        prim2 = prim2 + 1;
+      } while (j < 2);
+    }
+    ChangeTPage(&lightPmx->tpage,1);
     TrsProj_SetTransPrecision(8);
-    iVar5 = m->m[3];
-    iVar4 = m->m[6];
-    (sd->matB).m[0][0] = (short)(m->m[0] >> 4);
-    (sd->matB).m[0][1] = (short)(iVar5 >> 4);
-    (sd->matB).m[0][2] = (short)(iVar4 >> 4);
-    iVar5 = m->m[4];
-    iVar4 = m->m[7];
-    sVar3 = (short)(m->m[1] >> 4);
-    (sd->matB).m[1][0] = sVar3;
-    (sd->matB).m[1][1] = (short)(iVar5 >> 4);
-    (sd->matB).m[1][2] = (short)(iVar4 >> 4);
-    iVar5 = m->m[2];
-    iVar4 = m->m[5];
-    iVar11 = m->m[8];
-    (sd->matB).m[1][0] = -sVar3;
-    sVar3 = (sd->matB).m[1][1];
-    (sd->matB).m[2][0] = (short)(iVar5 >> 4);
-    sVar1 = (sd->matB).m[1][2];
-    (sd->matB).m[2][1] = (short)(iVar4 >> 4);
-    (sd->matB).m[2][2] = (short)(iVar11 >> 4);
-    (sd->matB).m[1][1] = -sVar3;
-    (sd->matB).m[1][2] = -sVar1;
-    iVar5 = TrsProj_precision;
-    (sd->matB).t[0] = t->x >> (TrsProj_precision & 0x1fU);
-    (sd->matB).t[1] = -(t->y >> (iVar5 & 0x1fU));
-    (sd->matB).t[2] = t->z >> (iVar5 & 0x1fU);
+    {
+      int r0 = m->m[0];
+      int r1 = m->m[3];
+      int r2 = m->m[6];
+      (sd->matB).m[0][0] = (short)(r0 >> 4);
+      (sd->matB).m[0][1] = (short)(r1 >> 4);
+      (sd->matB).m[0][2] = (short)(r2 >> 4);
+    }
+    {
+      int r0 = m->m[1];
+      int r1 = m->m[4];
+      int r2 = m->m[7];
+      (sd->matB).m[1][0] = (short)(r0 >> 4);
+      (sd->matB).m[1][1] = (short)(r1 >> 4);
+      (sd->matB).m[1][2] = (short)(r2 >> 4);
+    }
+    {
+      int r0 = m->m[2];
+      int r1 = m->m[5];
+      int r2 = m->m[8];
+      (sd->matB).m[1][0] = -(sd->matB).m[1][0];
+      (sd->matB).m[2][0] = (short)(r0 >> 4);
+      (sd->matB).m[2][1] = (short)(r1 >> 4);
+      (sd->matB).m[2][2] = (short)(r2 >> 4);
+      (sd->matB).m[1][1] = -(sd->matB).m[1][1];
+      (sd->matB).m[1][2] = -(sd->matB).m[1][2];
+    }
+    (sd->matB).t[0] = t->x >> TrsProj_precision;
+    (sd->matB).t[1] = -(t->y >> TrsProj_precision);
+    (sd->matB).t[2] = t->z >> TrsProj_precision;
     TrsProj_ResetTransPrecision();
 gte_SetRotMatrix(((char *)sd + 0x14));
 gte_SetTransMatrix(((char *)sd + 0x14));
     pcVar6 = hilight_state;
-    uVar17 = 0xffffff;
-    pCVar19 = Fe3D_lightsVertex;
-    pCVar16 = Fe3D_lightsVertex + 1;
     sd->otz = 0;
-    pCVar20 = pCVar19;
-    for (iVar5 = 0; iVar5 < 0x20; iVar5 = iVar5 + 1) {
-      iVar4 = iVar5 * 2 + 2;
-      if (iVar4 == 0x40) {
-        iVar4 = 0;
+    for (index = 0; index < 0x20; index = index + 1) {
+      int iPlus = index * 2 + 2;
+      if (iPlus == 0x40) {
+        iPlus = 0;
       }
       iVar11 = 0;
       if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) {
         return;
       }
-      sVar3 = pCVar19->x;
-      sVar1 = pCVar19->z;
-      (sd->vt0).y = pCVar19->y;
-      (sd->vt0).x = sVar3;
-      pCVar7 = pCVar20 + iVar4;
-      (sd->vt0).z = sVar1;
-      sVar3 = pCVar7->y;
-      sVar1 = pCVar7->z;
-      pcVar15 = pcVar6 + iVar5;
-      (sd->vt1).x = pCVar7->x;
-      (sd->vt1).y = sVar3;
-      (sd->vt1).z = sVar1;
-      sVar3 = pCVar16->y;
-      sVar1 = pCVar16->z;
-      (sd->vt2).x = pCVar16->x;
-      (sd->vt2).y = sVar3;
-      (sd->vt2).z = sVar1;
-      sVar3 = Fe3D_lightsVertex[iVar4 + 1].y;
-      sVar1 = Fe3D_lightsVertex[iVar4 + 1].z;
+      {
+        short t1 = Fe3D_lightsVertex[index * 2].x;
+        short t2 = Fe3D_lightsVertex[index * 2].y;
+        short t3 = Fe3D_lightsVertex[index * 2].z;
+        (sd->vt0).x = t1;
+        (sd->vt0).y = t2;
+        (sd->vt0).z = t3;
+      }
+      pCVar7 = Fe3D_lightsVertex + iPlus;
+      {
+        short t1 = pCVar7->x;
+        short t2 = pCVar7->y;
+        short t3 = pCVar7->z;
+        (sd->vt1).x = t1;
+        (sd->vt1).y = t2;
+        (sd->vt1).z = t3;
+      }
+      pcVar15 = pcVar6 + index;
+      {
+        short t2 = Fe3D_lightsVertex[index * 2 + 1].y;
+        short t3 = Fe3D_lightsVertex[index * 2 + 1].z;
+        short t1 = Fe3D_lightsVertex[index * 2 + 1].x;
+        (sd->vt2).x = t1;
+        (sd->vt2).y = t2;
+        (sd->vt2).z = t3;
+      }
+      {
+        COORD16 *z = &Fe3D_lightsVertex[iPlus + 1];
+        short t1 = z->x;
+        short t2 = z->y;
+        short t3 = z->z;
+        (sd->vt3).x = t1;
+        (sd->vt3).y = t2;
+        (sd->vt3).z = t3;
+      }
       puVar18 = hilight_colors;
-      (sd->vt3).x = Fe3D_lightsVertex[iVar4 + 1].x;
-      (sd->vt3).y = sVar3;
-      (sd->vt3).z = sVar1;
       for (; iVar11 < 2; iVar11 = iVar11 + 1) {
-        if ((iVar11 == 0) || (-1 < *pcVar15)) {
+        if ((iVar11 == 0) || (-1 < (signed char)*pcVar15)) {
 gte_ldv0((char *)sd + 0xac);
           gte_rtps();
-          puVar13 = (u_int *)(sd->head).cprim.PrimPtr;
-          (sd->head).cprim.PrimPtr = (char *)(puVar13 + 10);
-          puVar9 = (u_int *)((sd->head).cprim.LastPrim + sd->otz);
-          *puVar13 = *puVar13 & 0xff000000 | *puVar9 & uVar17;
-          *puVar9 = *puVar9 & 0xff000000 | (u_int)puVar13 & uVar17;
-gte_swc2(0xe,((char *)&hilight_direction + 0x4));
+          prim = (POLY_FT4 *)(sd->head).cprim.PrimPtr;
+          (sd->head).cprim.PrimPtr = (char *)(prim + 1);
+          {
+            u_long *ot = (u_long *)((sd->head).cprim.LastPrim + sd->otz);
+            prim->tag = prim->tag & 0xff000000 | *ot & 0xffffff;
+            *ot = *ot & 0xff000000 | (u_int)prim & 0xffffff;
+          }
+gte_swc2(0xe,(char *)prim + 0x8);
 gte_ldv3((char *)sd + 0xb4,(char *)sd + 0x3d0,(char *)sd + 0xbc);
           gte_rtpt();
-gte_stsxy3(SP + 68,SP + 84,SP + 76);
+gte_stsxy3((char *)prim + 0x10,(char *)prim + 0x20,(char *)prim + 0x18);
           if (iVar11 == 0) {
             uVar8 = 0x300a00;
           }
           else {
-            uVar8 = puVar18[*pcVar15];
+            uVar8 = puVar18[(signed char)*pcVar15];
           }
-          puVar13[1] = uVar8;
-          *(u_char *)((int)puVar13 + 7) = 0x2e;
-          *(u_char *)((int)puVar13 + 3) = 9;
-          uVar8 = *(u_int *)&pDVar2->u1;
-          uVar10 = *(u_int *)&pDVar2->u2;
-          uVar12 = *(u_int *)&pDVar2->u3;
-          puVar13[3] = *(u_int *)pDVar2;
-          puVar13[5] = uVar8;
-          puVar13[7] = uVar10;
-          puVar13[9] = uVar12;
+          *(u_int *)&prim->r0 = uVar8;
+          prim->code = 0x2e;
+          *(u_char *)((int)prim + 3) = 9;
+          {
+            u_long l0 = *(u_int *)lightPmx;
+            u_long l1 = *(u_int *)&lightPmx->u1;
+            u_long l2 = *(u_int *)&lightPmx->u2;
+            u_long l3 = *(u_int *)&lightPmx->u3;
+            *(u_int *)&prim->u0 = l0;
+            *(u_int *)&prim->u1 = l1;
+            *(u_int *)&prim->u2 = l2;
+            *(u_int *)&prim->u3 = l3;
+          }
         }
       }
-      pCVar16 = pCVar16 + 2;
-      pCVar19 = pCVar19 + 2;
     }
   }
   return;

@@ -917,6 +917,8 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   int vert_y_pack;
   u_char c;
   int vert_x_pack;
+  int vertProj_idx;
+  int vert1_idx;
   CCOORD16 *geomVertices;
   int geomVerts_p;
   short vert0_proj_y;
@@ -968,13 +970,20 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   u_int tu2;
   u_int tu18;
   
+  /* MATCH (2026-07-11 b): oracle reads the header in THIS interleaved order --
+   * quad byte@3 (vt0 idx) FIRST, then sd's vertices/trans.x/trans.y, then
+   * quad byte@2 (vt1 idx), byte@4 (vt3 idx), byte@5 (vt2 idx), then
+   * sd->trans.z LAST -- not the previous grouped sd-then-quad-then-sd order
+   * (which read byte@2 lazily at tp2's site, well after gte_ldv0(vt0)). */
+  vertProj_idx = (int)*(u_char *)((char *)inQuad + 3);
   geomVerts_p = (int)sd->vertices;
   ts31 = (sd->trans).x;
   ts27 = (sd->trans).y;
-  vert_x_pack = (int)*(u_char *)(((short *)inQuad) + 2);
-  vert_y_pack = (int)*(u_char *)((int)((short *)inQuad) + 5);
+  vert1_idx = (int)*(u_char *)((char *)inQuad + 2);
+  vert_x_pack = (int)*(u_char *)((char *)inQuad + 4);
+  vert_y_pack = (int)*(u_char *)((char *)inQuad + 5);
   sVar1 = (sd->trans).z;
-  vertProj_p = geomVerts_p + (u_int)*(u_char *)((int)((short *)inQuad) + 3) * 8;
+  vertProj_p = geomVerts_p + (u_int)vertProj_idx * 8;
   /* MATCH (2026-07-11): read each vertex's xy/zl word ONCE into the SAME
    * tu18/tu2 temps DrawW_DrawQuad already uses for vt2/vt3 below (not a
    * fresh local -- oracle's asm shows a SINGLE lw per word, sra-extracted
@@ -990,7 +999,7 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   vt0.light = (short)((int)tu2 >> 0x10);
   vt0.z = (short)tu2 + sVar1;
 gte_ldv0((int *)(&vt0));
-  tp2 = (void *)(geomVerts_p + (*(u_char *)((int)((short *)inQuad) + 2) & 0xffU) * 8);
+  tp2 = (void *)(geomVerts_p + ((u_int)vert1_idx & 0xffU) * 8);
   gte_rtps_b();
   tu18 = *(u_int *)tp2;
   tu2 = *(u_int *)((int)tp2 + 4);
@@ -1404,10 +1413,10 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
      -- the 27-bit value can't fit `slti`) -- rewritten as `dist <= 0x47DFFFF`
      to match the oracle's exact comparison direction/constant. */
   Draw_tGiveShelbyMoreCache *sd;
+  int chunkCount;
+  int buildInd;
   Chunk *chunkDat;
   coorddef *pChunkCp;
-  int buildInd;
-  int chunkCount;
   coorddef tmp;
   coorddef tmp2;
 
@@ -1899,8 +1908,6 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
 
 {
   Trk_CollideBoomInst * objCollideBoomInstance;
-  u_int uVar1;
-  u_int uVar2;
   int objDef_p;
   int buildResult;
   int instData_p;
@@ -1911,8 +1918,6 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
   Group *pThis;
   int iVar6;
   int objMat_p;
-  int objPos_p;
-  int z_check;
   int sx;
   int blend_x;
   int sy;
@@ -1940,12 +1945,9 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
   int loc_20;
   int tu6;
   u_char bVar7;
-  int tp2;
-  int pbVar3;
   u_char tc4;
   u_char tc5;
-  void *tp1;
-  
+
   groupBase_p = (int)(group + 1);
   totalCount = 0;
   iVar6 = group->m_num_elements;
@@ -1953,11 +1955,16 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
     totalCount = 0;
   }
   else {
+    /* MATCH (2026-07-11, correctness bug): gte_SetTransMatrix was reading a
+       fabricated/wrong global (CF_DVLC -- a video-buffer symbol, completely
+       unrelated) instead of the just-zeroed sd->matB the oracle loads (`lw
+       t0,132(sp); addiu v0,t0,20` = &sd->matB, ctc2 t4/t5/t6,5/6/7). This would
+       have fed garbage into the GTE's rotation-matrix control regs for every
+       custom-object draw. */
     (sd->matB).t[2] = 0;
     (sd->matB).t[1] = 0;
     (sd->matB).t[0] = 0;
-    objMat_p = (int)sd;
-gte_SetTransMatrix(&CF_DVLC);
+gte_SetTransMatrix((MATRIX *)&sd->matB);
     for (facetCount = 0; facetCount < iVar6; facetCount = facetCount + 1) {
       tc5 = *(u_char *)(groupBase_p + 2);
       tc4 = offsets[*(u_char *)(groupBase_p + 4)];
@@ -1966,7 +1973,6 @@ gte_SetTransMatrix(&CF_DVLC);
         if ((tc5 == 2) ||
            (objMat_p = (int)simObjs,
            objDef_p = (int)Object_GetAnim(simObjs + *(u_char *)(groupBase_p + 0x22)), objDef_p == 0)) {
-          objPos_p = (int)Vi;
           buildResult = xzsquaredist32((coorddef *)(groupBase_p + 8),&(Vi->cview).translation);
           bVar7 = 0;
           if ((zClipSq <= buildResult) ||
@@ -1977,28 +1983,21 @@ gte_SetTransMatrix(&CF_DVLC);
             bVar7 = 1;
           }
           if (!(bool)bVar7) {
-            tp2 = groupBase_p + 0x17;
-            uVar1 = tp2 & 3;
-            uVar2 = groupBase_p + 0x14U & 3;
-            (*(int *)&(quat)) = (*(int *)(tp2 - uVar1) << (3 - uVar1) * 8 |
-                         objMat_p & 0xffffffffU >> (uVar1 + 1) * 8) & -1 << (4 - uVar2) * 8 |
-                         *(u_int *)((groupBase_p + 0x14U) - uVar2) >> uVar2 * 8;
-            uVar1 = groupBase_p + 0x1bU & 3;
-            uVar2 = groupBase_p + 0x18U & 3;
-            z_check = (*(int *)((groupBase_p + 0x1bU) - uVar1) << (3 - uVar1) * 8 |
-                      objPos_p & 0xffffffffU >> (uVar1 + 1) * 8) & -1 << (4 - uVar2) * 8 |
-                      *(u_int *)((groupBase_p + 0x18U) - uVar2) >> uVar2 * 8;
-            tp1 = (void *)((int)&quat.y + 1);
-            uVar1 = (u_int)tp1 & 3;
-            *(u_int *)((int)tp1 - uVar1) =
-                 *(u_int *)((int)tp1 - uVar1) & -1 << (uVar1 + 1) * 8 |
-                 (u_int)(*(int *)&(quat)) >> (3 - uVar1) * 8;
-            pbVar3 = (int)&quat.w + 1;
-            uVar1 = pbVar3 & 3;
-            *(u_int *)(pbVar3 - uVar1) =
-                 *(u_int *)(pbVar3 - uVar1) & -1 << (uVar1 + 1) * 8 |
-                 (u_int)z_check >> (3 - uVar1) * 8;
-            (*(int *)((u_char *)&(quat) + 4)) = z_check;
+            /* MATCH (2026-07-11, rule-8/movstrsi): the oracle disasm shows a genuine
+               UNALIGNED 8-byte struct copy here (`lwl/lwr` from $s2+0x14 into a temp,
+               `swl/swr` into the stack `quat` local) -- groupBase_p is a variable-
+               length-record walking pointer (Trk_SimpleInst 20B / Trk_CollideBoomInst
+               36B per element), so gcc can never PROVE the runtime address is
+               4-aligned and must emit the byte-safe movstrsi copy even though quat
+               (tQuat, {qx,qy,qz,qw} at CollideBoomInst+0x14) is a plain aligned type.
+               Ghidra hand-expanded that single compiler-generated lwl/lwr/swl/swr
+               block move into ~20 lines of shift/mask bit math (the classic
+               "movstrsi disease", methodology 3d/§catalog-row-303) -- a byte-array
+               PACK8 cast reproduces the exact unaligned copy the oracle performs. */
+            {
+              struct Pack8 { char b[8]; };
+              *(struct Pack8 *)&quat = *(struct Pack8 *)(groupBase_p + 0x14);
+            }
             Quatern_QuatToMat(&quat,&matrix);
             blend_x = (int)*(short *)(groupBase_p + 0x1c) << 8;
             blend_y = (int)*(short *)(groupBase_p + 0x1e) << 8;
@@ -2286,7 +2285,38 @@ gte_SetTransMatrix((void *)0x1f800014);
       goto DrawWChunkFacets_groupNext;
       DrawW_gObjScratch_148 = 0x400;
       light = -1;
-      if ((objInstance->flags & 1) == 0) {
+      if ((objInstance->flags & 1) != 0) {
+        iVar4 = fixedatan(objInstance->x - (Vi->cview).translation.x,
+                           objInstance->z - (Vi->cview).translation.z);
+        fixedxformy(&matrix,iVar4);
+        if (bVar1 == 9) {
+          iVar9 = (int)objInstance->qz << 8;
+          iVar10 = (int)objInstance->qy << 8;
+          iVar4 = fixedmult(matrix.m[0],iVar9);
+          iVar5 = fixedmult(matrix.m[3],iVar9);
+          matrix.m[6] = fixedmult(matrix.m[6],iVar9);
+          matrix.m[0] = iVar4;
+          matrix.m[3] = iVar5;
+          iVar4 = fixedmult(matrix.m[1],iVar10);
+          iVar5 = fixedmult(matrix.m[4],iVar10);
+          matrix.m[7] = fixedmult(matrix.m[7],iVar10);
+          matrix.m[1] = iVar4;
+          matrix.m[4] = iVar5;
+          iVar4 = fixedmult(matrix.m[2],iVar9);
+          iVar5 = fixedmult(matrix.m[5],iVar9);
+          matrix.m[8] = fixedmult(matrix.m[8],iVar9);
+          light = objInstance->qw;
+          DrawW_gObjScratch_148 = 0;
+          matrix.m[2] = iVar4;
+          matrix.m[5] = iVar5;
+        }
+        objDef_00 = Track_gObjDefs[objInstance->pad];
+DrawWChunkFacets_emitObj:
+        iVar14 = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef_00,
+                            (coorddef *)&objInstance->x,iVar14,light);
+        totalCount = totalCount + iVar14;
+      }
+      else {
         if (bVar1 == 2) {
           Quatern_QuatToMat((tQuat *)&objInstance->qx,&matrix);
           iVar9 = (int)objInstance->sx << 8;
@@ -2373,37 +2403,6 @@ gte_SetTransMatrix((void *)0x1f800014);
           matrix.m[5] = iVar5;
           goto DrawWChunkFacets_emitObj;
         }
-      }
-      else {
-        iVar4 = fixedatan(objInstance->x - (Vi->cview).translation.x,
-                           objInstance->z - (Vi->cview).translation.z);
-        fixedxformy(&matrix,iVar4);
-        if (bVar1 == 9) {
-          iVar9 = (int)objInstance->qz << 8;
-          iVar10 = (int)objInstance->qy << 8;
-          iVar4 = fixedmult(matrix.m[0],iVar9);
-          iVar5 = fixedmult(matrix.m[3],iVar9);
-          matrix.m[6] = fixedmult(matrix.m[6],iVar9);
-          matrix.m[0] = iVar4;
-          matrix.m[3] = iVar5;
-          iVar4 = fixedmult(matrix.m[1],iVar10);
-          iVar5 = fixedmult(matrix.m[4],iVar10);
-          matrix.m[7] = fixedmult(matrix.m[7],iVar10);
-          matrix.m[1] = iVar4;
-          matrix.m[4] = iVar5;
-          iVar4 = fixedmult(matrix.m[2],iVar9);
-          iVar5 = fixedmult(matrix.m[5],iVar9);
-          matrix.m[8] = fixedmult(matrix.m[8],iVar9);
-          light = objInstance->qw;
-          DrawW_gObjScratch_148 = 0;
-          matrix.m[2] = iVar4;
-          matrix.m[5] = iVar5;
-        }
-        objDef_00 = Track_gObjDefs[objInstance->pad];
-DrawWChunkFacets_emitObj:
-        iVar14 = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef_00,
-                            (coorddef *)&objInstance->x,iVar14,light);
-        totalCount = totalCount + iVar14;
       }
 DrawWChunkFacets_groupNext:
       objInstance = (Trk_CollideBoomInst *)((char *)objInstance + objInstance->size);
@@ -2605,6 +2604,23 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
        with a 64-byte-per-chunk row stride, not an array of row pointers. Can't
        fix the extern's declared type here (decl-only change, out of scope for
        this pass) -- reproduce the true addressing via a body-local cast instead. */
+    /* NEAR-MISS FLOOR (76 diffs, w9-a10 2026-07-11): traced the raw oracle prologue
+       instruction-by-instruction -- it's a WHOLESALE callee-saved-register ROLE SHIFT,
+       not a structural gap: oracle allocates {s2:buildList, s4:buildInd, s6:sd-scratchpad-
+       base, s7:hi(gChunkObjInfo)-reused-for-fused-%lo(sym+off)-stores, s1:&gChunkObjInfo,
+       fp:&GameSetup_gData, s5:thisChunkInd, t0(spilled@sp+0x18):chunkCount}; ours lands
+       {s4:buildList, s6:buildInd, s7:sd, ...} -- every one of those roles is shifted DOWN
+       one slot from where the oracle puts it. Root cause isolated to gChunkObjInfo's
+       address materialization: oracle uses TWO registers for it (s1=full pointer for
+       small-offset field stores, s7=bare hi-part reused via fused `%lo(sym+off)($s7)` for
+       at least one field store `sw s3,%lo(gChunkObjInfo)($s7)`) -- a dual-materialization
+       scheduling choice that consumes one extra callee-saved slot and pushes every
+       lower-priority local (buildList/buildInd/sd) up by one register number. Our
+       reconstruction's plain `gChunkObjInfo.field = val;` member-store syntax is
+       source-identical to what SHOULD trigger this (nothing to rewrite at the C level);
+       whether gcc dual-materializes is an allocator/scheduler heuristic decision (which
+       field stores get batched under the same hi-part) not controlled by source shape.
+       Not source-reachable within this pass's scope; accept as a genuine allocator floor. */
     gChunkObjInfo.visList = (short *)((char *)Track_gInViewList + thisChunkInd * 0x40);
     gWSavePtr = (u_long)SetSp(&gScratchLastWord);
     stackSpeedUpEnbabledFlag = 1;
@@ -2651,9 +2667,6 @@ int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r)
 void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
 
 {
-  int r0;
-  int r1;
-  int r2;
   u_long l1;
   u_long l0;
   int skidChunk_p;
@@ -2742,7 +2755,10 @@ gte_ldv0((int *)(depth_index));
         gte_rtps();
 gte_stlvnl((void *)0x1f800098);
         primPtr = Render_gPacketPtr;
-gte_swc2(0xe,(void *)0x1f800008);
+        /* CORRECTNESS FIX (2026-07-12, oracle @0x800C92E0): SXY goes to the
+         * CURRENT packet cursor (Render_gPacketPtr + 8), not the fixed
+         * scratchpad literal 0x1F800008 (= Render_gPacketEnd's slot). */
+gte_swc2(0xe,(void *)(primPtr + 8));
 gte_ldv0((int *)(depth_index));
         gte_rtps();
 gte_stlvnl((void *)0x1f8000a8);
@@ -3069,8 +3085,15 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
 gte_ldv0((int *)(&vt0));
       gte_rtps();
 gte_stlvnl(((char *)sd + 0x98));
+      /* CORRECTNESS FIX (2026-07-12, oracle-adjudicated @0x800C99C8): the SXY
+       * write targets the CURRENT packet cursor -- `lw s0,0x1F800004; addiu
+       * v0,s0,8; swc2 $14,0(v0)` = Render_gPacketPtr + 8 -- NOT the fixed
+       * scratchpad literal 0x1F800008 (which holds Render_gPacketEnd; writing
+       * a screen coord there would clobber the end-of-buffer pointer). Kept
+       * despite a small diff-rise (register-allocation cascade) per the
+       * correctness-forward keep-rise policy. */
       tp17 = Render_gPacketPtr;
-gte_swc2(0xe,(void *)0x1f800008);
+gte_swc2(0xe,(void *)(tp17 + 8));
 gte_ldv0((int *)(&vt1));
       gte_rtps();
 gte_stlvnl(((char *)sd + 0xa8));
@@ -3275,74 +3298,75 @@ gte_SetTransMatrix(((char *)sd + 0x14));
 void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShelbyMoreCache *sd,COORD16 *trans)
 
 {
-  short sVar3;
-  short sVar4;
-  short sVar5;
-  short sVar6;
-  u_char *pbVar11;
-  /* MATCH (2026-07-11, 144 -> exact-count): chunkDat->vertexBuf is a placeholder
-     `Group *` (4-byte int-count struct); the REAL on-disk data at vertexBuf+4 is an
-     8-byte-stride CCOORD16 array {x,y,z,light} (proven by the oracle's `sll a2,3;
-     addu a2,s0,a2` index scale of 8 + `lhu` at displacements 0/2/4/6 off ONE base).
-     The old reconstruction modeled it as `Group*` + `pGVar18[1].m_num_elements`
-     (4-byte-stride int field), which forced gcc to materialize a SECOND base
-     register (v1+4) for the offset-4/+6 reads instead of using bare displacements
-     off the single coord pointer -- reinterpret-casting vertexBuf+1 (Group units,
-     i.e. +4 bytes) to CCOORD16* and indexing by pts collapses back to the oracle's
-     one-pointer/four-displacement access. */
-  CCOORD16 *coordArr;
-  short *psVar19;
-  CCOORD16 *pCVar20;
-  int iVar21;
+  /* MATCH (2026-07-11, rule-8 SYM rewrite, 88==88 insn-exact -> coloring pass): SYM
+     VA 800ca0a4 names this exact local set at fn scope (i, pts3d, lineQuad, slice,
+     tx, ty, tz, wpts) -- pts3d/wpts replace the old pCVar20+psVar19 TWO-pointer
+     scheme with array-indexed CCOORD16 struct-field stores off ONE base (pts3d[0].f
+     / pts3d[1].f), matching the oracle's single `lhu/sh` displacement pattern (the
+     2nd base the oracle DOES use, t2 = pts3d+6, is the compiler's own strength
+     reduction of pts3d[N].light -- not a source-level variable). The walking
+     Trk_Line* (curLine, oracle $t4) reads firstPoint/slice as named struct fields
+     instead of raw u_char[0]/[1] casts (Trk_Line = {firstPoint,slice,type,quadIndex}
+     matches the byte layout 1:1); lineQuad is materialized FRESH at the call site
+     (matching oracle recomputing group+1 via $t9 there) rather than reusing the
+     now-advanced walking pointer. chunkDat->firstSimSliceInd has NO separate SYM
+     name -- it's a loop-invariant load the compiler CSEs into $s2 on its own; giving
+     it an explicit local (the old sVar3) is unnecessary and is dropped. */
+  int i;
+  Trk_Line *curLine;
+  CCOORD16 *pts3d;
+  Trk_Line *lineQuad;
+  int slice;
+  short tx;
+  short ty;
+  short tz;
+  CCOORD16 *wpts;
 
-  pCVar20 = gVertex3d;
-  pbVar11 = (u_char *)group + 4;
-  iVar21 = 0;
-  psVar19 = &gVertex3d[0].light;
-  sVar3 = chunkDat->firstSimSliceInd;
-  sVar4 = trans->x;
-  sVar5 = trans->y;
-  sVar6 = trans->z;
-  coordArr = (CCOORD16 *)(chunkDat->vertexBuf + 1);
+  pts3d = gVertex3d;
+  curLine = (Trk_Line *)(group + 1);
+  i = 0;
+  slice = chunkDat->firstSimSliceInd;
+  tx = trans->x;
+  ty = trans->y;
+  tz = trans->z;
+  wpts = (CCOORD16 *)(chunkDat->vertexBuf + 1);
   while( true ) {
-    bool bVar10 = group->m_num_elements << 1 <= iVar21;
-    iVar21 = iVar21 + 2;
-    if (bVar10) break;
-    /* MATCH (SYM VA 800ca0f8 Block start line=15): pts/x/y/z/wx/wy/wz are a NESTED
-       per-iteration block scope in the SYM, not function-scope locals -- declaring
-       them here (vs the old flat function-scope decl set) is what frees $t9/$s3 for
-       group/sd instead of spilling a 5th callee-saved reg (s4). */
+    bool bVar10 = i < group->m_num_elements << 1;
+    i = i + 2;
+    if (!bVar10) break;
     CCOORD16 *pCoord;
     int pts;
-    int iVar17;
+    int idx;
+    char *rightN;
     short sVar7;
     short sVar8;
     short sVar9;
     short sVar12;
     short sVar13;
     short sVar14;
-    pts = (u_int)pbVar11[0];
-    iVar17 = (int)sVar3 + (u_int)pbVar11[1];
-    pCoord = coordArr + pts;
+    pts = (u_int)curLine->firstPoint;
+    idx = slice + (u_int)curLine->slice;
+    pCoord = wpts + pts;
     sVar7 = pCoord->x;
     sVar8 = pCoord->y;
     sVar9 = pCoord->z;
-    sVar12 = (short)((int)((u_int)(u_char)BWorldSm_slices[iVar17].right[0] << 0x18) >> 0x1b);
-    pCVar20->x = sVar4 + (sVar7 - sVar12);
-    sVar13 = (short)((int)((u_int)(u_char)BWorldSm_slices[iVar17].right[1] << 0x18) >> 0x1b);
-    psVar19[-2] = sVar5 + (sVar8 - sVar13);
-    sVar14 = (short)((int)((u_int)(u_char)BWorldSm_slices[iVar17].right[2] << 0x18) >> 0x1b);
-    psVar19[-1] = sVar6 + (sVar9 - sVar14);
-    *psVar19 = pCoord->light;
-    pCVar20[1].x = sVar4 + sVar7 + sVar12;
-    psVar19[2] = sVar5 + sVar8 + sVar13;
-    psVar19[3] = sVar6 + sVar9 + sVar14;
-    pCVar20 = pCVar20 + 2;
-    psVar19[4] = pCoord->light;
-    psVar19 = psVar19 + 8;
-    pbVar11 = pbVar11 + 4;
+    rightN = BWorldSm_slices[idx].right;
+    sVar12 = (short)((int)((u_int)(u_char)rightN[0] << 0x18) >> 0x1b);
+    pts3d[0].x = tx + (sVar7 - sVar12);
+    sVar13 = (short)((int)((u_int)(u_char)rightN[1] << 0x18) >> 0x1b);
+    pts3d[0].y = ty + (sVar8 - sVar13);
+    sVar14 = (short)((int)((u_int)(u_char)rightN[2] << 0x18) >> 0x1b);
+    pts3d[0].z = tz + (sVar9 - sVar14);
+    pts3d[0].light = pCoord->light;
+    pts3d[1].x = tx + sVar7 + sVar12;
+    pts3d[1].y = ty + sVar8 + sVar13;
+    pts3d[1].z = tz + sVar9 + sVar14;
+    pts3d[1].light = pCoord->light;
+    pts3d = pts3d + 2;
+    curLine = curLine + 1;
   }
-  DrawW_OnyxLinePrim(gVertex3d,(Trk_Line *)(group + 1),group->m_num_elements,sd);
+  lineQuad = (Trk_Line *)(group + 1);
+  DrawW_OnyxLinePrim(gVertex3d,lineQuad,group->m_num_elements,sd);
   return;
 }
 
@@ -3485,8 +3509,6 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
   CCOORD16 vertex3d [27];
   Trk_Quad quads [16];
   Track_tMaterial material;
-  coorddef tmp;
-  coorddef tmp2;
   short fx;
   short fy;
   short fz;
@@ -3607,6 +3629,11 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
   {
     Draw_tGiveShelbyMoreCache *sdG = (Draw_tGiveShelbyMoreCache *)sd;
     sdG->nightFlags = 0;
+    /* MATCH (SYM @0x800CA520, Block start line=84): tmp/tmp2 are a NESTED
+     * block-scope pair (not function-scope) -- §A row 36 "SYM BLOCK SCOPES
+     * ARE LOAD-BEARING". */
+    coorddef tmp;
+    coorddef tmp2;
     tmp.x = pTVar10->center[0] - (Vi->cview).translation.x;
     tmp.y = pTVar10->center[1] - (Vi->cview).translation.y;
     tmp.z = pTVar10->center[2] - (Vi->cview).translation.z;

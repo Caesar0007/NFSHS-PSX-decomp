@@ -362,7 +362,21 @@ void Draw_StartRenderingView(int viewid)
      mirror@+0xC=Render_gMenuRenderFlag, clipW/clipH@+0x10/+0x12=Render_gPacketLenLo/Hi.
      Header wish: promote Render_gPacketEnd/Render_gMenuRenderFlag/Render_gPacketLenLo/Hi
      to `sd->head...`-style scratchpad accessors tree-wide (not done here -- function
-     bodies only per this pass's scope). */
+     bodies only per this pass's scope).
+     NEAR-MISS FLOOR (9 diffs, w9-a10 2026-07-11): the tail if/else (MPrimPtr = PrimPtr+
+     membudget vs Draw_gMaxPrim) is logically/structurally right (m2c-confirmed) but the
+     ORACLE places the Draw_gMaxPrim (else) block at the FALLTHROUGH position with the
+     membudget (then) block reached by a forward jump -- i.e. BOTH `viewid==Player1View`
+     and `viewid==Player2View` jump-if-true to the SAME target, fallthrough is the else.
+     Ours (`if(A||B) X; else Y;`) treats the LAST OR-term specially (`if(!B) goto ELSE`,
+     fallthrough is THEN) -- a different, also-standard cc1plus OR-codegen; tried operand
+     swap (P2||P1) = no change, De Morgan `&&`-negated form, and an explicit label/goto
+     transliteration of the oracle's exact branch topology -- ALL THREE cause a FULL-
+     FUNCTION register-recolor regression (viewid's home reg flips a2<->t0 from the very
+     first instruction, 9->45 diffs) because reshaping the tail changes viewid's live-range
+     length and re-tips the whole-function allocator priority (§A row-41 family, in
+     reverse). Reverted every attempt; the clean 9-diff form is kept. GENUINE FLOOR --
+     accept, do not pin. */
   Draw_DCache *sd;
   Draw_tView *view;
   int iVar1;
@@ -409,7 +423,19 @@ void Draw_StopRenderingView(int viewid)
      scratchpad loads to the wrong position; removed, using the macros directly at
      their oracle-verified use points instead (view->otsize read twice independently,
      matching the oracle's two separate `lw` of the same field through separate register
-     copies of `view`, not a single cached local). */
+     copies of `view`, not a single cached local).
+     NEAR-MISS FLOOR (63 diffs, insn count 71 vs 70, w9-a10 2026-07-11): structure/insn-
+     count is essentially right (off by 1) and every diff line is a REGISTER-COLORING swap
+     (a1<->t1 for `view`, a2/a3<->a3/a1 for the LEnv-copy-dest, a1/a2/t1 rotate for the two
+     RMW statements' scratch regs) -- confirmed by side-by-side trace, no structural gap.
+     Tried: (1) the sd-scratchpad-pointer template from the sibling Draw_StartRenderingView
+     (`Draw_DCache *sd=(Draw_DCache*)0x1F800000; sd->head.cprim.PrimPtr/LastPrim` instead of
+     the Render_gPacketPtr/Render_gPalettePtr macros) -- REGRESSED 63->81 (the macros'
+     literal-address form is what the oracle actually uses here, sd-cast is wrong for this
+     fn); (2) reordering the `Render_gPacketPtr = pEnv+0x40;` statement to after the 2nd RMW
+     (oracle interleaves its store late, inside the 2nd statement's instruction stream) --
+     REGRESSED 63->69. Both reverted. GENUINE FLOOR (fine-grained allocator tie-break over
+     4 short-lived scratch temps, not source-shapable without a pin) -- accept. */
   Draw_tView *view;
   DR_ENV *pEnv;
   DRAWENV LEnv;

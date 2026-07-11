@@ -68,6 +68,24 @@ def norm_ins(t):
     t = re.sub(r'\bc0_(\w+)\b', lambda mm: _COP0.get(mm.group(1), mm.group(0)), t)  # objdump cop0 reg-names -> $N numbers (oracle uses $12 etc.)
     t = re.sub(r'\((\d+) ?>> ?(\d+)\)', lambda m: str(int(m.group(1))>>int(m.group(2))), t)  # eval (N>>M)
     t = re.sub(r'\((\d+) ?& ?(\d+)\)', lambda m: str(int(m.group(1))&int(m.group(2))), t)     # eval (N&M)
+    # SCRATCHPAD LITERAL-ADDRESS PSEUDO-LABELS: spimdisasm sometimes auto-names a hardcoded
+    # PSX scratchpad address (0x1F80xxxx -- never a real relocatable symbol; scratchpad RAM
+    # isn't part of the linked image) as a synthetic `D_1F80xxxx` data label, rendering the
+    # displacement as `%lo(D_1F80xxxx)`. Unlike a REAL external symbol (whose %lo IS a
+    # link-time relocation we must zero for a fair unlinked-vs-linked compare), this is a
+    # compile-time-fixed literal on BOTH sides -- our compiled `addiu r,base,N` emits the
+    # real decimal displacement, not a relocation. Resolve these to their true low-16 value
+    # BEFORE the blanket %hi/%lo->0 zeroing below (else the oracle's real offset gets zeroed
+    # while ours keeps its literal -> false diff). Restricted to the 0x1F80xxxx range so any
+    # OTHER `D_...` label (a real linked data symbol) still falls through to generic zeroing.
+    def _dlabel_lo(m):
+        addr = int(m.group(1), 16)
+        return str(addr & 0xFFFF) if (addr >> 16) == 0x1F80 else '0'
+    def _dlabel_hi(m):
+        addr = int(m.group(1), 16)
+        return str(addr >> 16) if (addr >> 16) == 0x1F80 else '0'
+    t = re.sub(r'%lo\(D_([0-9A-Fa-f]{8})\)', _dlabel_lo, t)
+    t = re.sub(r'%hi\(D_([0-9A-Fa-f]{8})\)', _dlabel_hi, t)
     t = re.sub(r'%hi\([^)]*\)', '0', t)            # %hi(SYM) -> 0 (objdump shows lui r,0)
     t = re.sub(r'%lo\([^)]*\)', '0', t)            # %lo(SYM) -> 0
     t = re.sub(r'%gp_rel\([^)]*\)', '0', t)        # %gp_rel(SYM) -> 0

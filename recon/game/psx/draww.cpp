@@ -769,8 +769,8 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
 
   if (sd->light == -1) {
     if ((sd->nightFlags & 1U) != 0) {
-      gte_SetRotMatrix((char *)sd + 0x34);
-      gte_SetTransMatrix((char *)sd + 0x34);
+      gte_SetRotMatrix(&sd->matNight);
+      gte_SetTransMatrix(&sd->matNight);
       gte_ldv0(vt0);
       gte_rt();
       gte_stlvnl(&temp0);
@@ -789,8 +789,8 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
       Night_NightCalc(&temp0, &vt3->light, sd);
     }
     if ((sd->nightFlags & 2U) != 0) {
-      gte_SetRotMatrix((char *)sd + 0x54);
-      gte_SetTransMatrix((char *)sd + 0x54);
+      gte_SetRotMatrix(&sd->matCop);
+      gte_SetTransMatrix(&sd->matCop);
       gte_ldv0(vt0);
       gte_rt();
       gte_stlvnl(&temp0);
@@ -827,23 +827,27 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
       c = *(long *)&Chunk_lightTable[vt3->light];
       d = *(long *)&Chunk_lightTable[vt2->light];
       *(u_long *)&prim->r0 = a;
-      *(u_long *)&prim->r1 = b;
-      *(u_long *)&prim->r2 = c;
-      CVar12 = d;
+      /* matching aid (permuter): do{}while(0) around the b/c/d stores forces gcc to
+         schedule the two dependent light-table loads in the oracle's order */
+      do {
+        *(u_long *)&prim->r1 = b;
+        *(u_long *)&prim->r2 = c;
+        CVar12 = d;
+      } while (0);
     }
   }
   else {
     if ((sd->nightFlags & 1U) != 0) {
-      gte_SetRotMatrix((char *)sd + 0x34);
-      gte_SetTransMatrix((char *)sd + 0x34);
+      gte_SetRotMatrix(&sd->matNight);
+      gte_SetTransMatrix(&sd->matNight);
       gte_ldv0(vt0);
       gte_rt();
       gte_stlvnl(&temp0);
       Night_NightCalc(&temp0, &sd->light, sd);
     }
     if ((sd->nightFlags & 2U) != 0) {
-      gte_SetRotMatrix((char *)sd + 0x54);
-      gte_SetTransMatrix((char *)sd + 0x54);
+      gte_SetRotMatrix(&sd->matCop);
+      gte_SetTransMatrix(&sd->matCop);
       gte_ldv0(vt0);
       gte_rt();
       gte_stlvnl(&temp0);
@@ -855,8 +859,8 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
     *(u_long *)&prim->r2 = CVar12;
   }
   *(u_long *)&prim->r3 = CVar12;
-  gte_SetRotMatrix((char *)sd + 0x14);
-  gte_SetTransMatrix((char *)sd + 0x14);
+  gte_SetRotMatrix(&sd->matB);
+  gte_SetTransMatrix(&sd->matB);
   return;
 }
 

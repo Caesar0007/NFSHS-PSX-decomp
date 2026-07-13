@@ -187,9 +187,19 @@ def reduce_to_fn(text: str, target: str) -> str:
     # module API). The `(?:word[\s*]+)+word(` prefix REQUIRES a return type before
     # the fn name, so it can't match a call `foo(&bar);` (no rettype), an
     # expression `a & b` (no `(...);`), or a definition `... ) {` (ends `{` not `;`).
+    def _lower_ref(m):
+        # GNU inline-asm statements (`__asm__ volatile ( ... : : "r"(&x) ... );`)
+        # superficially match the `<rettype> <name>( ... );` prototype shape, but
+        # their `&operand`s are ADDRESS-OF, not reference params -- lowering `&`->`*`
+        # corrupts a GTE macro's address operand (`(char*)&m` -> `(char*)*m`,
+        # dereferencing the MATRIX/VECTOR struct -> `no match for '*MATRIX &'`).
+        # Leave asm lines untouched.
+        if '__asm__' in m.group(0) or re.search(r'\basm\b', m.group(0)):
+            return m.group(0)
+        return m.group(1) + m.group(2).replace('&', '*') + m.group(3)
     result = re.sub(
         r'^(\s*(?:[A-Za-z_]\w*[\s\*]+)+[A-Za-z_]\w*\s*\()([^;{}=]*&[^;{}=]*)(\)\s*;)\s*$',
-        lambda m: m.group(1) + m.group(2).replace('&', '*') + m.group(3),
+        _lower_ref,
         result, flags=re.MULTILINE)
     return result
 

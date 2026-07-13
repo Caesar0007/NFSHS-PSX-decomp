@@ -1360,7 +1360,8 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
         r2 = pTVar4->botVert;
         r0 = r0 + iquad;
         newQuad.aPoints[1] = (u_char)r0;
-        r1 = r0 + 1;
+        r0 = r0 + 1;   /* in-place increment (r0 dead after); r1 takes the result */
+        r1 = r0;
         r2 = r2 + iquad;
         newQuad.aPoints[2] = (u_char)r2;
         r3 = r2 + 1;

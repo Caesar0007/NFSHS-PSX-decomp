@@ -9,6 +9,7 @@
 
 extern int  sndgs[];
 extern int  DAT_80134a68;                  /* output-caps init-once flag */
+int DAT_80134a68;                          /* def (owning TU; @0x80134a68 image-verified zero) */
 
 extern void iSNDplatformoutputcaps(void);  /* slib    */
 extern void iSNDplatformoutputset(void);   /* slib    */

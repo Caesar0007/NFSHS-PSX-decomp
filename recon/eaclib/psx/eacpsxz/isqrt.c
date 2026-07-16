@@ -1,61 +1,86 @@
 /* eaclib/psx/eacpsxz/isqrt.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 1/1 ***
  *   obj nfs4\eaclib\psx\isqrt.obj ; EACPSXZ.LIB.  1 fn @0x800F32CC.  isqrt -- 32-bit integer square root.
- *   Ghidra nfs4-f.exe.c (isqrt) + IDA sig.  Seeds low/high bounds from two per-byte tables (isqrttbl = a
- *   sqrt-estimate u16[256], DAT_8013be0f = its companion u8[256], both rodata / data-mat #75) scaled by the
- *   magnitude of `a`, then binary-searches to the exact floor-sqrt.
+ *   Ghidra nfs4-f.exe.c (isqrt) + IDA sig.  Seeds low/high bounds from ONE u8[256] estimate ramp
+ *   (isqrttbl below; the old u16-isqrttbl + DAT_8013be0f pair was a Ghidra two-view artifact of this
+ *   single table) scaled by the magnitude of `a`, then binary-searches to the exact floor-sqrt.
+ *   Gate 2026-07-12: 209 -> 83 diffs (110/113, structure aligned; residual = a1/v1 coloring rotation,
+ *   permuter candidate now that permuter_sanitize is fixed).
  */
-extern unsigned short isqrttbl;      /* @rodata : u16[256] sqrt low-bound estimate per top byte */
-extern unsigned char  DAT_8013be0f;  /* @0x8013BE0F : u8[256] companion estimate */
+/* ONE u8[256] estimate ramp @0x8013BE10: isqrttbl[i] = round(16*sqrt(i+1)) (0x10..0xff, monotonic,
+ * byte-exact from image; model verified 255/255 within +-2). The oracle brackets sqrt with TWO byte
+ * loads off the SAME base: `lbu 0(base+i)` = isqrttbl[i] and `lbu -1(base+i)` = isqrttbl[i-1] (every
+ * reachable index is >=1). The old recon mis-declared this as `u16 isqrttbl` (scaled the index by 2 —
+ * out-of-bounds garbage reads) + a phantom never-defined scalar `DAT_8013be0f` (= base-1 view; the
+ * 0x81 byte at 0x8013BE0F belongs to the PREVIOUS symbol). */
+extern unsigned char isqrttbl[];     /* @0x8013BE10 */
+unsigned char isqrttbl[256] = {
+    0x10, 0x16, 0x1b, 0x20, 0x23, 0x27, 0x2a, 0x2d, 0x30, 0x32, 0x35, 0x37, 0x39, 0x3b, 0x3d, 0x40,
+    0x41, 0x43, 0x45, 0x47, 0x49, 0x4b, 0x4c, 0x4e, 0x50, 0x51, 0x53, 0x54, 0x56, 0x57, 0x59, 0x5a,
+    0x5b, 0x5d, 0x5e, 0x60, 0x61, 0x62, 0x63, 0x65, 0x66, 0x67, 0x68, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e,
+    0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x80,
+    0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f,
+    0x90, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9b, 0x9c,
+    0x9d, 0x9e, 0x9f, 0xa0, 0xa0, 0xa1, 0xa2, 0xa3, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa7, 0xa8, 0xa9,
+    0xaa, 0xaa, 0xab, 0xac, 0xad, 0xad, 0xae, 0xaf, 0xb0, 0xb0, 0xb1, 0xb2, 0xb2, 0xb3, 0xb4, 0xb5,
+    0xb5, 0xb6, 0xb7, 0xb7, 0xb8, 0xb9, 0xb9, 0xba, 0xbb, 0xbb, 0xbc, 0xbd, 0xbd, 0xbe, 0xbf, 0xc0,
+    0xc0, 0xc1, 0xc1, 0xc2, 0xc3, 0xc3, 0xc4, 0xc5, 0xc5, 0xc6, 0xc7, 0xc7, 0xc8, 0xc9, 0xc9, 0xca,
+    0xcb, 0xcb, 0xcc, 0xcc, 0xcd, 0xce, 0xce, 0xcf, 0xd0, 0xd0, 0xd1, 0xd1, 0xd2, 0xd3, 0xd3, 0xd4,
+    0xd4, 0xd5, 0xd6, 0xd6, 0xd7, 0xd7, 0xd8, 0xd9, 0xd9, 0xda, 0xda, 0xdb, 0xdb, 0xdc, 0xdd, 0xdd,
+    0xde, 0xde, 0xdf, 0xe0, 0xe0, 0xe1, 0xe1, 0xe2, 0xe2, 0xe3, 0xe3, 0xe4, 0xe5, 0xe5, 0xe6, 0xe6,
+    0xe7, 0xe7, 0xe8, 0xe8, 0xe9, 0xea, 0xea, 0xeb, 0xeb, 0xec, 0xec, 0xed, 0xed, 0xee, 0xee, 0xef,
+    0xf0, 0xf0, 0xf1, 0xf1, 0xf2, 0xf2, 0xf3, 0xf3, 0xf4, 0xf4, 0xf5, 0xf5, 0xf6, 0xf6, 0xf7, 0xf7,
+    0xf8, 0xf8, 0xf9, 0xf9, 0xfa, 0xfa, 0xfb, 0xfb, 0xfc, 0xfc, 0xfd, 0xfd, 0xfe, 0xfe, 0xff, 0xff
+};
 
 extern unsigned int isqrt(unsigned int a);   /* @0x800F32CC */
 
-/* isqrt @0x800F32CC : floor(sqrt(a)). */
+/* isqrt @0x800F32CC : floor(sqrt(a)).  lo/hi = bracketing estimates isqrttbl[i-1]/isqrttbl[i]
+ * scaled by the operand magnitude; big half binary-searches, small half does one midpoint probe. */
 extern unsigned int isqrt(unsigned int a)
 {
-    unsigned int lo, hi, mid, cur;
+    unsigned int lo, hi, mid;
     if ((a & 0xffff0000) != 0) {
-        if ((a & 0xff000000) == 0) {
-            hi = ((unsigned int)(&isqrttbl)[a >> 0x10] + 1) * 0x10;
-            lo = (unsigned int)(unsigned char)(&DAT_8013be0f)[a >> 0x10] << 4;
+        if ((a & 0xff000000) != 0) {   /* oracle: beqz skips -> 24-bit path is the fall-through */
+            lo = (unsigned int)isqrttbl[(a >> 0x18) - 1] << 8;
+            hi = ((unsigned int)isqrttbl[a >> 0x18] + 1) << 8;
         } else {
-            lo = (unsigned int)(unsigned char)(&DAT_8013be0f)[a >> 0x18] << 8;
-            hi = ((unsigned int)(&isqrttbl)[a >> 0x18] + 1) * 0x100;
+            lo = (unsigned int)isqrttbl[(a >> 0x10) - 1] << 4;
+            hi = ((unsigned int)isqrttbl[a >> 0x10] + 1) << 4;
         }
-        while (cur = lo, 1 < hi - cur) {
-            mid = (cur + hi) >> 1;
-            lo = mid;
-            if (a < mid * mid) {
-                lo = cur;
+        while (2 <= hi - lo) {
+            mid = (lo + hi) >> 1;
+            if (a < mid * mid)
                 hi = mid;
-            }
+            else
+                lo = mid;
         }
-        return cur;
+        return lo;
     }
-    if ((a & 0xff00) == 0) {
-        if (a == 0)
-            return 0;
-        lo = (unsigned int)((unsigned char)(&DAT_8013be0f)[a] >> 4);
-    } else {
-        if ((a & 0xf000) == 0) {
-            if ((a & 0xc00) == 0) {
-                hi = (unsigned int)((unsigned char)(&DAT_8013be0f)[a >> 2] >> 3);
-                lo = (unsigned int)((&isqrttbl)[a >> 2] >> 3);
+    if ((a & 0xff00) != 0) {           /* oracle: beqz skips -> the a<0x100 tail is out-of-line last */
+        if ((a & 0xf000) != 0) {
+            if ((a & 0xc000) != 0) {
+                lo = (unsigned int)isqrttbl[(a >> 8) - 1];
+                hi = (unsigned int)isqrttbl[a >> 8];
             } else {
-                hi = (unsigned int)((unsigned char)(&DAT_8013be0f)[a >> 4] >> 2);
-                lo = (unsigned int)((&isqrttbl)[a >> 4] >> 2);
+                lo = (unsigned int)(isqrttbl[(a >> 6) - 1] >> 1);
+                hi = (unsigned int)(isqrttbl[a >> 6] >> 1);
             }
-        } else if ((a & 0xc000) == 0) {
-            hi = (unsigned int)((unsigned char)(&DAT_8013be0f)[a >> 6] >> 1);
-            lo = (unsigned int)((&isqrttbl)[a >> 6] >> 1);
+        } else if ((a & 0xc00) != 0) {
+            lo = (unsigned int)(isqrttbl[(a >> 4) - 1] >> 2);
+            hi = (unsigned int)(isqrttbl[a >> 4] >> 2);
         } else {
-            lo = (unsigned int)(&isqrttbl)[a >> 8];
-            hi = (unsigned int)(unsigned char)(&DAT_8013be0f)[a >> 8];
+            lo = (unsigned int)(isqrttbl[(a >> 2) - 1] >> 3);
+            hi = (unsigned int)(isqrttbl[a >> 2] >> 3);
         }
-        if ((lo + 1) - hi < 2)
-            return hi;
-        lo = (hi + lo + 1) >> 1;
-        if (a < lo * lo)
-            return hi;
+        hi = hi + 1;
+        if (hi - lo < 2)
+            return lo;
+        mid = (lo + hi) >> 1;
+        if (a < mid * mid)
+            return lo;
+        return mid;
     }
-    return lo;
+    if (a == 0)
+        return 0;
+    return (unsigned int)(isqrttbl[a - 1] >> 4);
 }

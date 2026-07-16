@@ -32,13 +32,37 @@ extern int DrawC_gMenuLights, DrawC_gMenuLightsDirection;
 
 /* ===== statics owned by ScreenCarSelect.obj ===== */
 extern PinkSlipsCarSelectState PinkSlipsScreenState[2];
-static int  gKnots[8][5];                 /* STAT @0x80051e78 spline knots */
-static int  gCatmullRom[4][4];            /* STAT @0x80051f18 */
-static tCarStatType remap[5];                     /* STAT @0x80051f58 */
+static int  gKnots[8][5] = {              /* STAT @0x80051e78 spline knots (byte-exact from image) */
+    {491520, -524288, 17039360, 131072, 0},
+    {491520, -524288, 17039360, 131072, 0},
+    {196608, -524288, 17039360, 6684672, 11206656},
+    {196608, -524288, 17039360, 6684672, 22347776},
+    {688128, -524288, 17039360, -4718592, 33554432},
+    {196608, -524288, 17039360, 6684672, 44761088},
+    {196608, -524288, 17039360, 6684672, 55902208},
+    {196608, -524288, 17039360, 6684672, 55902208}
+};
+static int  gCatmullRom[4][4] = {         /* STAT @0x80051f18 Catmull-Rom basis (16.16) */
+    {-65536, 196608, -196608, 65536},
+    {131072, -327680, 262144, -65536},
+    {-65536, 0, 65536, 0},
+    {0, 131072, 0, 0}
+};
+static tCarStatType remap[5] = { (tCarStatType)0, (tCarStatType)2, (tCarStatType)1, (tCarStatType)3, (tCarStatType)4 };  /* STAT @0x80051f58 */
 static short textVals[5], text2PVals[5];  /* STAT @0x80051f6c/f78 */
 static short tvOrder[10], tvSplitOrder[5];/* STAT @0x80051f84/f98 */
-static char gStateOverlays[1][32];        /* STAT @0x80051fa4 */
-static char gOverlayPositions[1][112];    /* STAT @0x80051fc4 */
+static char gStateOverlays[1][32] = {     /* STAT @0x80051fa4 (byte-exact) */
+    {-1, 6, 0, -1, 4, 6, 0, -1, -1, 6, 2, -1, 4, 6, 1, -1, -1, 6, 3, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
+};
+static char gOverlayPositions[1][112] = { /* STAT @0x80051fc4 (byte-exact) */
+    {34, 1, 0, 1, -56, 0, 12, 0, 34, 1, -56, 0, -56, 0, 12, 0,
+     -43, 0, 0, 1, 32, 1, 41, 0, -43, 0, -71, 0, 32, 1, 41, 0,
+     -43, 0, 0, 1, 32, 1, 41, 0, -43, 0, -71, 0, 32, 1, 41, 0,
+     -43, 0, 0, 1, 32, 1, 41, 0, -43, 0, -71, 0, 32, 1, 41, 0,
+     69, 1, 5, 0, -94, 0, 24, 0, 69, 1, 29, 0, -94, 0, 24, 0,
+     -17, 1, 21, 0, 3, 0, 3, 0, -43, 0, 21, 0, 29, 1, 105, 0,
+     -120, -1, -120, 0, -126, 0, 77, 0, 0, 0, -120, 0, -126, 0, 77, 0}
+};
 static int  gRotateOffset[4];             /* STAT @0x80052c18 */
 static char gSwapFileName[2][40];         /* STAT @0x80052c28 */
 static char WaitingString[50];            /* STAT @0x80052c58 */

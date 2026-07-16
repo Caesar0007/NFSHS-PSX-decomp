@@ -45,7 +45,7 @@ int            _padTotalCurr = 0;   /* @0x80137CC0 : actuator current draw */
 int            _padModeMtap  = 0;   /* @0x80137CC4 : multitap mode */
 int            _padChanStart = 0;   /* @0x80137CC8 : first active channel */
 int            _padChanStop  = 0;   /* @0x80137CCC : last active channel */
-int            _padFixResult[2] = { 0, 0 };  /* @0x80137CD0 : per-channel auto-fix count */
+int            _padFixResult[2] = { -1, -1 };  /* @0x80137CD0 : per-channel auto-fix count (real .data, byte-exact from image; was zero-stubbed) */
 
 /* ---- cached HW register-block base pointers (point at the I/O page) --------------------------- */
 unsigned char *_padIntRegs = (unsigned char *)0x1F801070;  /* @0x80137CD8 : I_STAT/I_MASK */

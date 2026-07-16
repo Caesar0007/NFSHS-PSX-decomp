@@ -11,6 +11,7 @@
 extern int           sndgs[];
 extern unsigned char  sndchanreserved[];       /* scratch list of chosen channel indices */
 extern int           DAT_80136dec;             /* rolling allocation id counter (+=0x20)  */
+int DAT_80136dec;                              /* def (owning TU; @0x80136dec image-verified zero) */
 extern int  SNDstop(unsigned int tag);                          /* sstop  */
 extern int  SNDover(unsigned int tag);                          /* sover  */
 

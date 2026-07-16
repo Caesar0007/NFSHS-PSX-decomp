@@ -7,18 +7,80 @@
 #include "../../nfs4_types.h"
 #include "speech_externs.h"
 
-/* ---- speech.obj OWNED globals (EXT; SYM Globals.jsonl tu=Speech.obj, @0x80111a44+) ---- */
-Speech_tCarDescription      Speech_gCarDescription[15];
-Speech_tLocationDescription Speech_gLocationDescription00[13];
-Speech_tLocationDescription Speech_gLocationDescription02[14];
-Speech_tLocationDescription Speech_gLocationDescription03[13];
-Speech_tLocationDescription Speech_gLocationDescription04[9];
-Speech_tLocationDescription Speech_gLocationDescription05[14];
-Speech_tLocationDescription Speech_gLocationDescription06[11];
-Speech_tLocationDescription Speech_gLocationDescription07[11];
-Speech_tLocationDescription *Speech_gLocationDescription[11];
-Speech_tCallSignDescription Speech_gCallSignDescription[1];
-Speech_tMobileVoiceAttr     Speech_gCopAttr[9];
+/* ---- speech.obj OWNED globals (EXT; SYM Globals.jsonl tu=Speech.obj, @0x80111a44+) ----
+ * Byte-exact from image 2026-07-12 (were bare zero-init defs — real .data: car speech-bank
+ * names + per-track location records + dispatch/mobile callsigns). String pointers restored
+ * as literals (gcc pooling reproduces the shared-address layout). */
+Speech_tCarDescription      Speech_gCarDescription[15] = {   /* @0x80111a44 */
+    { "BMWZ", "bmwz3.", "bmw.", "z3." },
+    { "HSVT", "sedan.", "sedan.", "sedan." },
+    { "FORD", "sedan.", "sedan.", "sedan." },
+    { "CMRO", "chvcam.", "chevro.", "cam." },
+    { "TRAM", "pont.", "pont.", "pont." },
+    { "ADB7", "aston.", "aston.", "aston." },
+    { "JXKR", "jag.", "jag.", "jag." },
+    { "BMWM", "bmwm5.", "bmw.", "m5." },
+    { "CORV", "chvcor.", "chevro.", "corv." },
+    { "P993", "por911.", "porsc.", "porsc." },
+    { "DIAB", "lamdia.", "lamb.", "dia." },
+    { "MCF1", "mclar.", "mclar.", "mclar." },
+    { "X993", "por911.", "porsc.", "porsc." },
+    { "XCF1", "chvcor.", "chevro.", "corv." },
+    { 0, "sport.", "sport.", "sport." }
+};
+Speech_tLocationDescription Speech_gLocationDescription00[13] = {   /* @0x80111b34 */
+    { "cab.", 45, 56 }, { "cab.", 70, 76 }, { "baov.", 188, 191 }, { "tun.", 250, 260 },
+    { "scrv.", 304, 340 }, { "twr.", 480, 483 }, { "brg.", 588, 600 }, { "frm.", 660, 666 },
+    { "tun.", 690, 699 }, { "pike.", 794, 847 }, { "ltun.", 855, 910 }, { "icec.", 911, 950 },
+    { 0, 0, 0 }
+};
+Speech_tLocationDescription Speech_gLocationDescription02[14] = {   /* @0x80111b9c */
+    { "mar.", 1061, 20 }, { "bay.", 110, 130 }, { "rarc.", 185, 188 }, { "scrv.", 236, 260 },
+    { "lth.", 305, 318 }, { "ruin.", 456, 470 }, { "spfl.", 616, 618 }, { "brg.", 632, 638 },
+    { "tbrg.", 639, 656 }, { "brg.", 657, 662 }, { "ltun.", 806, 839 }, { "tun.", 959, 975 },
+    { "bgdr.", 990, 1025 }, { 0, 0, 0 }
+};
+Speech_tLocationDescription Speech_gLocationDescription03[13] = {   /* @0x80111c0c */
+    { "over.", 57, 59 }, { "over.", 96, 99 }, { "over.", 139, 142 }, { "tun.", 156, 165 },
+    { "fld.", 222, 260 }, { "brg.", 264, 274 }, { "stun.", 365, 416 }, { "htou.", 545, 551 },
+    { "rarc.", 661, 662 }, { "ruin.", 679, 705 }, { "tun.", 869, 877 }, { "ogt.", 914, 929 },
+    { 0, 0, 0 }
+};
+Speech_tLocationDescription Speech_gLocationDescription04[9] = {   /* @0x80111c74 */
+    { "trnx.", 1, 2 }, { "lsp.", 94, 96 }, { "cab.", 162, 163 }, { "hsv.", 170, 300 },
+    { "pent.", 305, 309 }, { "tun.", 465, 474 }, { "brg.", 575, 593 }, { "ltun.", 693, 709 },
+    { 0, 0, 0 }
+};
+Speech_tLocationDescription Speech_gLocationDescription05[14] = {   /* @0x80111cbc */
+    { "ogt.", 4, 8 }, { "wfrm.", 35, 109 }, { "tun.", 240, 250 }, { "ruin.", 251, 325 },
+    { "tun.", 326, 338 }, { "fld.", 366, 452 }, { "owel.", 569, 572 }, { "over.", 681, 682 },
+    { "toll.", 711, 713 }, { "toll.", 741, 743 }, { "obwm.", 875, 889 }, { "vill.", 890, 925 },
+    { "over.", 1066, 1069 }, { 0, 0, 0 }
+};
+Speech_tLocationDescription Speech_gLocationDescription06[11] = {   /* @0x80111d2c */
+    { "fld.", 17, 45 }, { "omus.", 118, 120 }, { "kngm.", 265, 275 }, { "vill.", 330, 398 },
+    { "scrv.", 570, 627 }, { "stun.", 637, 657 }, { "hpin.", 705, 742 }, { "over.", 760, 765 },
+    { "arch.", 818, 821 }, { "ltun.", 940, 1017 }, { 0, 0, 0 }
+};
+Speech_tLocationDescription Speech_gLocationDescription07[11] = {   /* @0x80111d84 */
+    { "scrv.", 32, 74 }, { "over.", 116, 158 }, { "ltun.", 249, 301 }, { "over.", 330, 334 },
+    { "medi.", 348, 426 }, { "frm.", 515, 536 }, { "farm.", 537, 538 }, { "frm.", 540, 577 },
+    { "vill.", 627, 720 }, { "tun.", 767, 785 }, { 0, 0, 0 }
+};
+Speech_tLocationDescription *Speech_gLocationDescription[11] = {   /* @0x80111ddc */
+    Speech_gLocationDescription00, Speech_gLocationDescription02, Speech_gLocationDescription02,
+    Speech_gLocationDescription03, Speech_gLocationDescription04, Speech_gLocationDescription05,
+    Speech_gLocationDescription06, Speech_gLocationDescription07, Speech_gLocationDescription02,
+    Speech_gLocationDescription02, Speech_gLocationDescription02
+};
+Speech_tCallSignDescription Speech_gCallSignDescription[1] = {{   /* @0x80111e08 */
+    "all.",
+    { "dis.", "cen.", "cont.", "hq.", "cou." },
+    { "20.", "25.", "31.", "37.", "38.", "43.", "45.", "46.", "52.", "217.", "223.", "316.", "332.", "355.", "371." }
+}};
+Speech_tMobileVoiceAttr     Speech_gCopAttr[9] = {   /* @0x80111e5c : {voice, pitch} */
+    { 1, 0 }, { 2, 0 }, { 4, 0 }, { 1, 5 }, { 2, 5 }, { 4, 5 }, { 1, -5 }, { 2, -5 }, { 4, -5 }
+};
 /* Speech::fgSpeech static-member singleton (active engine instance; $gp+0x838=0x8013cd84) */
 Speech            *Speech_fgSpeech;
 /* Speech::fgUndefined static-member (cfront fn-local static _6Speech.fgUndefined; SYM-confirmed

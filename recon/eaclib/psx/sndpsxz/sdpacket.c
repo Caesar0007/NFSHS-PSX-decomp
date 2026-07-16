@@ -28,6 +28,7 @@ extern int           sndpp;                 /* current-player IRQ cursor        
 extern int           DAT_80147e10;          /* per-player ctx ptr array  @0x80147e10     */
 extern int           DAT_80147e2c;          /* SPU control reg base (address) @0x80147e2c */
 extern int           DAT_801234e4;          /* SPU ctx malloc size        @0x801234e4    */
+int DAT_801234e4 = 8192;                    /* def (owning TU; image-verified 0x2000) */
 extern unsigned char DAT_80147919;          /* setirq re-entry guard byte @0x80147919    */
 
 /* packet-voice state table fields (byte base; cast for int/short views) */

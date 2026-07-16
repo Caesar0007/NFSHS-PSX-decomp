@@ -13,6 +13,7 @@ extern int   memclass[];    /* @0x8013E900 memstd class id; [1] = the cached cop
                              * (UNSIZED array shape: oracle shares ONE %hi -- lw %lo(memclass)(v1);
                              *  addiu v1,%lo; sw a0,4(v1)) */
 extern int   DAT_8013dd48;  /* creatememclass name/template @0x8013DD48 */
+int DAT_8013dd48 = 0x004D4152;  /* def (owning TU; image bytes 52 41 4d 00 = the string "RAM" — the memclass NAME passed as (char*)& ) */
 extern unsigned int MEM_defaultevent(void);   /* meminit.obj default event handler */
 extern int   tmrsub[];      /* int[8] : per-tick handler list (UNSIZED array shape, lever #5) */
 extern volatile int ticks;    /* raw tick counter -- volatile (IRQ counter): keeps the oracle's

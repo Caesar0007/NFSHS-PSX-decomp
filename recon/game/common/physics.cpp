@@ -5,8 +5,9 @@
 #include "../../nfs4_types.h"
 #include "physics_externs.h"
 
-/* ---- link-harness owned-global definition (extern-declared, never defined) ---- */
-int physics_blipInit[8]; int physics_bblipInit[8];  /* physics.obj-owned blip-init tables (BSS) */
+/* ---- physics.obj-owned blip-init tables (real .data, byte-exact from image; were mislabeled BSS/zero) ---- */
+int physics_blipInit[8]  = { 0, 0, 250, 200, 175, 150, 125, 0 };  /* @0x80056370 headlight/radar blip decay curve */
+int physics_bblipInit[8] = { 0, 0, 200, 175, 150, 125, 100, 0 };  /* @0x80056390 */
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Physics_InitCarSpecs(Car_tObj *carObj,Udff_tInfo *handle);

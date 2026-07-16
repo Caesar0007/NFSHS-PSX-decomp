@@ -5,7 +5,10 @@
 #include "../../nfs4_types.h"
 #include "copspeak_externs.h"
 
-/* ---- copspeak.obj OWNED globals (EXT; SYM Globals.jsonl; $gp state @0x8013d07c..0x8013d0f8) ---- */
+/* ---- copspeak.obj OWNED globals (EXT; SYM Globals.jsonl; $gp state @0x8013d07c..0x8013d0f8) ----
+ * SYM v3 VAs (2026-07-12): gBank @0x80111ea4, gRequest @0x80111ee4, gCurrent @0x80111f04,
+ * gQueue @0x80111f24 (64*32B, ends exactly at gMusicStat @0x80112724). ALL image-verified
+ * genuinely zero at load -> the zero-init defs below are byte-correct, NOT a data-mat gap. */
 CopSpeak_tBank     Copspeak_gBank[4];
 CopSpeak_tRequest  CopSpeak_gRequest;
 CopSpeak_tRequest  CopSpeak_gCurrent;

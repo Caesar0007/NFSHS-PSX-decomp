@@ -15,6 +15,10 @@ extern int D_8011E0B0[];   /* == &simGlobal.gameTicks (distinct alias symbol the
                               nearby simGlobal.gameTicks store -- see aih_basiccop.cpp/aiphysic.cpp) */
 
 /* ---- aistate.obj-owned globals (.bss zero) ---- */
+/* @0x8005516c : COMPILER-GENERATED switch jump table for AIHigh_Cop::HighExecute — the 11 image
+ * words are CASE-LABEL code addresses INSIDE HighExecute (0x80063d38..0x8006536c, SYM SLD lines
+ * 161..807), NOT data. Do NOT materialize; a proper `switch` in HighExecute (currently FAIL, see
+ * gate) makes gcc emit its own table and this placeholder def disappears with it. */
 int          *AIHigh_Cop_HighExecute_jt[11];   /* @0x8005516c */
 tCopMurderThresholds AIHigh_Cop_AggressionData[3] = { {10, 655360, 851968, 512, 512}, {8, 917504, 983040, 768, 512}, {4, 1179648, 1179648, 1152, 1024} };   /* @0x8010cea4 */
 int          AICop_skillDelay[3] = { 3276, 6553, 65536 };   /* @0x8010cee0 */

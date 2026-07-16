@@ -19,6 +19,7 @@ unsigned char snd_old_chan_mode;  /* def (owning TU; BSS) */
 extern unsigned char  DAT_80147919;         /* pre-load guard           */
 extern int            DAT_8014791c;         /* current fx mode          */
 extern unsigned char  DAT_80136df0;         /* DMA scratch RAM (zeroed) */
+unsigned char DAT_80136df0;                 /* def (owning TU; @0x80136df0 image-verified zero; head byte of the 0x10-byte DMA-clear source region) */
 extern void          *snd_user_serve_hook;  /* @0x80148038              */
 
 /* voice-table fields (0x2c stride) */

@@ -6,6 +6,7 @@
 extern void SNDSYS_service(void);                               /* ssysserv */
 extern void addsystemtask(void *fn, void *a, void *b);          /* eacpsxz systask.obj */
 extern int  DAT_80134a6c;   /* @0x80134A6C : "real-time task installed" flag */
+int DAT_80134a6c;           /* def (owning TU; image-verified zero) */
 
 extern int  iSNDsystemtaskreal(void);   /* @0x800F2130 */
 extern void SNDSYS_vectortoreal(void);  /* @0x800F2150 */

@@ -18,7 +18,11 @@ speedData_t  Track3Speeds[3] = { {7u, 5688u}, {236u, 3555u}, {10000u, 5688u} }; 
 speedData_t  Track5Speeds[3] = { {369u, 7964u}, {674u, 5688u}, {10000u, 7964u} };   /* @0x8010dd40 */
 speedData_t  Track6Speeds[5] = { {26u, 3555u}, {327u, 7111u}, {393u, 3555u}, {627u, 7111u}, {10000u, 3555u} };   /* @0x8010dd4c */
 speedData_t  Track7Speeds[6] = { {29u, 5688u}, {429u, 7964u}, {617u, 7964u}, {655u, 5688u}, {823u, 7964u}, {10000u, 5688u} };   /* @0x8010dd60 */
-speedData_t  *AISpeeds_TrackSpeeds[11];   /* @0x8010dd78 */
+extern speedData_t Track0Speeds[1], Track1Speeds[1], Track4Speeds[1], Track8Speeds[1], Track9Speeds[1], Track10Speeds[1];  /* defined below (sdata @0x8013c5b8+) */
+speedData_t  *AISpeeds_TrackSpeeds[11] = {   /* @0x8010dd78 : image ptrs 0x8013c5b8/bc, 0x8010dd10/34, 0x8013c5c0, 0x8010dd40/4c/60, 0x8013c5c4/c8/cc — all resolve to the Track*Speeds symbols in order */
+    Track0Speeds, Track1Speeds, Track2Speeds, Track3Speeds, Track4Speeds,
+    Track5Speeds, Track6Speeds, Track7Speeds, Track8Speeds, Track9Speeds, Track10Speeds
+};
 AISpeeds_tLeaderBoard leaderBoard;   /* @0x8010dda4  (bss(zero)) */
 AISpeeds_tSlotInfo CaravanInfo[6];   /* @0x8010ddb4  (bss(zero)) */
 int          *AISpeeds_WeatherMultFactors;   /* @0x8013c5b0  (bss(zero)) */

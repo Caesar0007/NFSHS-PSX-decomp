@@ -16,6 +16,7 @@
 extern int          sndgs[];
 extern signed char  snddefaultenvelope;          /* default envelope table (sclcptch/data-mat) */
 extern char         DAT_801371cc;                /* rolling key-group counter */
+char DAT_801371cc;                               /* def (owning TU; @0x801371cc image-verified zero) */
 
 extern int  iSNDgettag(int *cursor, unsigned int *outId, int *outVal, int *outPtr);  /* sgettag (4-arg) */
 extern int  iSNDplatformresolve(int resolv, int patch_idx, int scratch);  /* sdresolv */

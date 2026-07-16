@@ -30,18 +30,14 @@ extern tCarManager carManager;
 void DrawC_MenuColorData(...);
 extern int DrawC_gMenuLights, DrawC_gMenuLightsDirection;
 
-/* ===== statics owned by ScreenCarSelect.obj ===== */
+/* ===== ScreenCarSelect.obj ===== */
 extern PinkSlipsCarSelectState PinkSlipsScreenState[2];
-static int  gKnots[8][5];                 /* STAT @0x80051e78 spline knots */
-static int  gCatmullRom[4][4];            /* STAT @0x80051f18 */
-static tCarStatType remap[5];                     /* STAT @0x80051f58 */
-static short textVals[5], text2PVals[5];  /* STAT @0x80051f6c/f78 */
-static short tvOrder[10], tvSplitOrder[5];/* STAT @0x80051f84/f98 */
-static char gStateOverlays[1][32];        /* STAT @0x80051fa4 */
-static char gOverlayPositions[1][112];    /* STAT @0x80051fc4 */
-static int  gRotateOffset[4];             /* STAT @0x80052c18 */
-static char gSwapFileName[2][40];         /* STAT @0x80052c28 */
-static char WaitingString[50];            /* STAT @0x80052c58 */
+/* NOTE: the ScreenCarSelect.obj file-statics (gKnots/gCatmullRom/remap/textVals/tvOrder/
+ * gStateOverlays/gOverlayPositions/gRotateOffset/gSwapFileName/WaitingString @0x80051e78..0x80052c58)
+ * were duplicated here as zero-init `static` decls -- DEAD in this TU (screenpost.cpp never
+ * references them) and a per-TU shadow copy of data owned+materialized byte-exact in
+ * screencarselect_externs.h. Removed 2026-07-16 (w10-a4 data-audit); they were Category-A
+ * scanner noise, not real externs of this TU. */
 /* vtable data refs (Ghidra _DAT_) + per-class vtables */
 extern __vtbl_ptr_type tScreenCarSelect_vtable[], tScreenCarSelectDuel_vtable[], tScreenCarSelectTwoPlayer_vtable[], tScreenPinkSlipStandings_vtable[];
 /* singletons (EXT) */

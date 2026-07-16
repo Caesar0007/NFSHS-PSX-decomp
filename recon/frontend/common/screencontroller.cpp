@@ -47,7 +47,7 @@ void tScreenControllerConfig::SetActuators(int max)
   }
   (this->fShaker).time = newtime;
   if ((this->fShaker).time != '\0') {
-    pulse = ""[ticks >> 2 & 0xff];
+    pulse = Force_rand_256[ticks >> 2 & 0xff];   /* @0x80043180 lbu Force_rand_256((ticks>>2)&0xff) */
     (this->fShaker).actuator[1] = (uchar)max;
     (this->fShaker).actuator[0] = (int)(uint)pulse < max;
     return;

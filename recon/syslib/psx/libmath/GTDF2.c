@@ -3,7 +3,7 @@
  *   `int __gtdf2(double a, double b)`; soft-float ABI passes a=$a0:$a1, b=$a2:$a3 (lo:hi word pairs).
  *   Returns >0 iff a>b (sign-of-difference convention).  IDA Hex-Rays (fresh NFS4.EXE.i64), verbatim.
  */
-extern "C" int __gtdf2(unsigned int a_lo, int a_hi, unsigned int b_lo, int b_hi)   /* @0x800F0514 */
+int __gtdf2(unsigned int a_lo, int a_hi, unsigned int b_lo, int b_hi)   /* @0x800F0514 */
 {
     int          result;
     unsigned int v6;
@@ -18,11 +18,12 @@ extern "C" int __gtdf2(unsigned int a_lo, int a_hi, unsigned int b_lo, int b_hi)
         if (v6 == (unsigned int)(b_hi & 0x80000000)) {
             int v7 = (a_hi >> 20) & 0x7ff;
             int v8 = (b_hi >> 20) & 0x7ff;
+            int v9, v10;
             if (v8 < v7) return a_hi >= 0;
             result = a_hi < 0;
             if (v7 != v8) return result;
-            int v9  = a_hi & 0xfffff | 0x100000;
-            int v10 = b_hi & 0xfffff | 0x100000;
+            v9  = a_hi & 0xfffff | 0x100000;
+            v10 = b_hi & 0xfffff | 0x100000;
             if (v10 < v9) return a_hi >= 0;
             result = a_hi < 0;
             if (v9 != v10) return result;

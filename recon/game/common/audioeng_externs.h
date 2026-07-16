@@ -11,4 +11,5 @@ extern SndBnk_t gSndBnk[7];
 extern int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum);
 
 extern char           *Paths_Paths[];   /* 0x80116468 (paths.obj) */
+extern char Xfade[129];                  /* @0x8010e68c crossfade LUT (owned by audiocmn.cpp; oracle hoists %hi(Xfade) into $fp) */
 #endif /* _GAME_COMMON_AUDIOENG_EXTERNS_H_ */

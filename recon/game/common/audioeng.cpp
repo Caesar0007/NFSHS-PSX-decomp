@@ -179,16 +179,16 @@ void AudioEng_Update(void)
               if (pAVar10->chan[0].patchnum < '@') {
                 uVar5 = (u_int)pAVar12->exh;
 code_r_8007b9f4:
-                uVar5 = (u_int)(u_char)""[uVar5];
+                uVar5 = (u_int)(u_char)Xfade[uVar5];   /* @0x8007b9f4 lbu Xfade(exh) [fp-hoisted base] */
               }
               else {
                 if (pAVar12->sep == 0) {
                   uVar5 = 0x80 - pAVar12->exh;
                   goto code_r_8007b9f4;
                 }
-                uVar5 = (int)((u_int)(u_char)""[0x80 - (u_int)pAVar12->exh] * 0x2f) >> 6;
+                uVar5 = (int)((u_int)(u_char)Xfade[0x80 - (u_int)pAVar12->exh] * 0x2f) >> 6;   /* Xfade LUT */
               }
-              iVar9 = iVar8 * (u_int)(u_char)""[uVar7] * uVar5;
+              iVar9 = iVar8 * (u_int)(u_char)Xfade[uVar7] * uVar5;   /* Xfade LUT */
             }
             uVar7 = iVar9 * (u_int)pAVar12->vol >> 0x15;
             if (0x7f < uVar7) {

@@ -2309,7 +2309,8 @@ void Hud_BuildWingmanInterface(int player)
     color_pack = (u_int)Render_gPacketPtr & 0xffffff;
     Render_gPacketPtr = Render_gPacketPtr + 0x18;
     *(u_int *)tp1 = *(u_int *)tp1 & 0xff000000 | color_pack;
-    Hud_BuildF4((POLY_F4 *)tp2,0,wingman_glyph + -0x10,y_00 + ((u_char)""[player] + 1) * 9 + 2,0x3f,8,
+    Hud_BuildF4((POLY_F4 *)tp2,0,wingman_glyph + -0x10,
+               y_00 + ((u_char)Hud_gWingmanFlashIcon[player] + 1) * 9 + 2,0x3f,8,   /* @0x800D6228 lbu Hud_gWingmanFlashIcon(player) */
                (wingman_state % 0x14) * 10);
   }
   request_type = 0;

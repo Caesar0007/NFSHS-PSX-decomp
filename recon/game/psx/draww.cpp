@@ -267,11 +267,12 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
        already-running permuter jobs on the smaller Night_* fns for the
        time-budget tradeoff). */
     v4 = &r_div->v[n];
-    v5 = &r_div->v[(short)(n + 1)];
-    v6 = &r_div->v[(short)(n + 2)];
-    v7 = &r_div->v[(short)(n + 3)];
-    v8 = &r_div->v[(short)(n + 4)];
-    n = n + 5;
+    n = n + 1;
+    v5 = &r_div->v[n];
+    v6 = &r_div->v[(short)(n + 1)];
+    v7 = &r_div->v[(short)(n + 2)];
+    v8 = &r_div->v[(short)(n + 3)];
+    n = n + 4;
     DrawW_DivVertice(v4,v0,v1);
     {
       int flag;
@@ -356,8 +357,11 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
         prim = (POLY_GT3 *)Render_gPacketPtr;
         pal = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
         *(u_int *)prim = (*(u_int *)prim & 0xff000000) | (*pal & 0xffffff);
-        Render_gPacketPtr = (u_char *)prim + 0x28;
-        *pal = (*pal & 0xff000000) | ((u_int)prim & 0xffffff);
+        {
+          u_int t = *pal;   /* MATCH: bump store sits between pal load and pal store (oracle) */
+          Render_gPacketPtr = (u_char *)prim + 0x28;
+          *pal = ((u_int)prim & 0xffffff) | (t & 0xff000000);
+        }
         DrawW_AddSubdividPrimGT3(prim,v0,v1,v4,sd);
       }
 DrawWSubdiv_edge1:
@@ -370,8 +374,11 @@ DrawWSubdiv_edge1:
         prim = (POLY_GT3 *)Render_gPacketPtr;
         pal = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
         *(u_int *)prim = (*(u_int *)prim & 0xff000000) | (*pal & 0xffffff);
-        Render_gPacketPtr = (u_char *)prim + 0x28;
-        *pal = (*pal & 0xff000000) | ((u_int)prim & 0xffffff);
+        {
+          u_int t = *pal;   /* MATCH: bump store sits between pal load and pal store (oracle) */
+          Render_gPacketPtr = (u_char *)prim + 0x28;
+          *pal = ((u_int)prim & 0xffffff) | (t & 0xff000000);
+        }
         DrawW_AddSubdividPrimGT3(prim,v1,v2,v5,sd);
       }
 DrawWSubdiv_edge2:
@@ -384,8 +391,11 @@ DrawWSubdiv_edge2:
         prim = (POLY_GT3 *)Render_gPacketPtr;
         pal = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
         *(u_int *)prim = (*(u_int *)prim & 0xff000000) | (*pal & 0xffffff);
-        Render_gPacketPtr = (u_char *)prim + 0x28;
-        *pal = (*pal & 0xff000000) | ((u_int)prim & 0xffffff);
+        {
+          u_int t = *pal;   /* MATCH: bump store sits between pal load and pal store (oracle) */
+          Render_gPacketPtr = (u_char *)prim + 0x28;
+          *pal = ((u_int)prim & 0xffffff) | (t & 0xff000000);
+        }
         DrawW_AddSubdividPrimGT3(prim,v2,v3,v6,sd);
       }
 DrawWSubdiv_edge3:
@@ -398,8 +408,11 @@ DrawWSubdiv_edge3:
         prim = (POLY_GT3 *)Render_gPacketPtr;
         pal = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
         *(u_int *)prim = (*(u_int *)prim & 0xff000000) | (*pal & 0xffffff);
-        Render_gPacketPtr = (u_char *)prim + 0x28;
-        *pal = (*pal & 0xff000000) | ((u_int)prim & 0xffffff);
+        {
+          u_int t = *pal;   /* MATCH: bump store sits between pal load and pal store (oracle) */
+          Render_gPacketPtr = (u_char *)prim + 0x28;
+          *pal = ((u_int)prim & 0xffffff) | (t & 0xff000000);
+        }
         DrawW_AddSubdividPrimGT3(prim,v3,v0,v7,sd);
       }
 DrawWSubdiv_edgedone:
@@ -647,17 +660,13 @@ void Night_NightCopCalc(VECTOR *v,short *idx)
      $3/$5/$2 = v1/a1/v0) are similarly nested one level deeper (inside `if(z<0)`'s
      scope, VA 0x800C5F48) -- kept as inline expressions here since no further
      register-class issue surfaced from them specifically.
-     2026-07-08 (40 -> 32 diffs, insns EXACT 40==40): restored the SYM's deeper-nested
-     named locals (`coplookuptbl` = &Night_gNightTbl[(z<<6)+x] pointer, table byte >>1,
-     `neg` moved into the innermost block) + the oracle's SELF-MUTATING `z >>= 5;` /
-     `x = (x+0x400) >> 5;` statements (sra v1,v1 / addiu-sra a2,a2 in place).
-     RESIDUAL 32 = ONE allocno decision cascading uniformly: oracle gives `neg` $a1,
-     which CONFLICTS with idx (live to the end) -> idx gets an entry copy `addu a3,a1`
-     + lives in $a3, and `x` takes a FRESH $a2; ours gives neg $a2, idx stays $a1
-     (no copy), x reuses dead $a0 (v's reg). Tried: neg decl position (fn-scope/
-     inner-first/inner-last), lookup-as-*idx-value reinterpretation, short lookup --
-     all identical 32. Pure register permutation, exact insn count -> permuter
-     multi-basin candidate (no cast on the hot path). */
+     2026-07-16 (32 -> PASS 40/40): the earlier `neg`/char*-coplookuptbl mapping was
+     WRONG vs the SYM -- true locals (SYM block @0x800C5F48, decl order) are
+     `coplookuptbl` = u_char(*)[256][8] = the LOADED VALUE Night_gCopColor[index]
+     (REG $3=v1), `index` = the 0/1 sign flag (REG $5=a1, explains idx's REGPARM
+     $a3 entry copy), `lookup` = the FINAL color byte (REG $2=v0). Plus split
+     `x = x + 0x400; x = x >> 5;` (in-place addiu/sra) and the permuter-found
+     index-reuse for the table byte (see MATCH note below). */
   int z;
 
   z = v->vz;
@@ -665,20 +674,26 @@ void Night_NightCopCalc(VECTOR *v,short *idx)
     int x = v->vx;
 
     if ((u_int)(x + 0x3ff) < 0x7ff) {
-      int neg;
-      char *coplookuptbl;
+      u_char (*coplookuptbl)[256][8];
+      int index;
       int lookup;
 
-      neg = 0;
+      index = 0;
       if (z < 0) {
         z = -z;
-        neg = 1;
+        index = 1;
       }
       z = z >> 5;
-      x = (x + 0x400) >> 5;
-      coplookuptbl = &Night_gNightTbl[(z << 6) + x];
-      lookup = (u_char)*coplookuptbl >> 1;
-      *idx = (u_short)(*Night_gCopColor[neg])[(short)*idx][lookup];
+      x = x + 0x400;
+      x = x >> 5;
+      coplookuptbl = Night_gCopColor[index];
+      /* MATCH (permuter output-0, 2026-07-16): the night-table byte REUSES `index`
+         (dead after the Night_gCopColor[] load) -- the oracle's in-place
+         `lbu a1; sra a1,a1,1` is index's pseudo morphing into the byte. Do NOT
+         "clean up" into an anonymous subexpression (re-colors to srl v1 + 18 diffs). */
+      index = (u_char)Night_gNightTbl[(z << 6) + x];
+      lookup = (*coplookuptbl)[(short)*idx][index >> 1];
+      *idx = (u_short)lookup;
     }
   }
   return;
@@ -742,8 +757,14 @@ void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd)
         if (x < xdist) {
           int lookup;
 
-          lookup = ((z - znear) >> sd->night_ZDistShift) * 0x40 +
-                   ((x + xdist) >> sd->night_XDistShift);
+          /* MATCH: oracle SELF-MUTATES z/x in place (subu a3,a3,t0 in the beqz delay
+             slot / addu a0,a0,v1 / srav in place) and derefs Night_gCurrentNightColor
+             ONCE (u_char (*)[256][16]: base + *idx*16 + byte). */
+          z = z - znear;
+          x = x + xdist;
+          x = x >> sd->night_XDistShift;
+          z = z >> sd->night_ZDistShift;
+          lookup = (z << 6) + x;
           *idx = (u_short)(*Night_gCurrentNightColor)[*idx][(u_char)Night_gNightTbl[lookup]];
         }
       }

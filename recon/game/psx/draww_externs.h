@@ -50,7 +50,7 @@ extern int Draw_gMidGroundOtz;
 extern int Draw_gViewOtSize;
 extern GameSetup_tData GameSetup_gData;
 extern u_char (* Night_gCopColor[2])[256][8];
-extern u_char *** Night_gCurrentNightColor;
+extern u_char (* Night_gCurrentNightColor)[256][16];   /* matches owner def night.cpp @0x8013da48 (was stale u_char***) */
 extern char * Night_gNightTbl;
 extern u_char (* Night_gWeatherLightingTable[2])[256];
 extern Group * Object_customObjInst;

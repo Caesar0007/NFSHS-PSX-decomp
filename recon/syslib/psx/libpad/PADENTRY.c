@@ -5,11 +5,11 @@
  *   PADMAIN / PADCMD engines.  PadStartCom/PadStopCom just kick the SIO main loop. */
 
 /* ---- per-port controller descriptor (libpad internal; only the touched fields are named) ------ */
-struct _PadDev {
+typedef struct _PadDev {
     unsigned short *mode_tbl;     /* +0x00 : mode-id table (PadInfoMode term 4) */
     unsigned char  *act_tbl;      /* +0x04 : actuator table, 5 bytes/entry (PadInfoAct) */
     char            _pad08[0x08]; /* +0x08 */
-    _PadDev        *self;         /* +0x10 : loopback ptr (connected test) */
+    struct _PadDev *self;         /* +0x10 : loopback ptr (connected test) */
     char            _pad14[0x1c]; /* +0x14 */
     char           *flag_ptr;     /* +0x30 : ptr to a live status-flag byte */
     unsigned int    status;       /* +0x34 : status word (hi 16 bits = error/connect) */
@@ -26,24 +26,24 @@ struct _PadDev {
     unsigned short  modeword;     /* +0xe6 : PadInfoMode term 2 */
     unsigned char   mode1;        /* +0xe8 : PadInfoMode term 1 */
     unsigned char   nact;         /* +0xe9 : actuator count */
-};                                /* the touched fields land at their @-offsets above */
+} _PadDev;                        /* the touched fields land at their @-offsets above */
 
 /* ---- dispatch pointer + engine entry points (defined by PAD.OBJ / PADMAIN / PADCMD) ----------- */
-extern "C" _PadDev *(*_padFuncPort2Info)(int port);              /* @0x80137C8C dispatch slot */
-extern "C" void _padStartCom(void);                             /* PADMAIN @0x80104C1C */
-extern "C" void _padStopCom(void);                              /* PADMAIN @0x80104CE8 */
-extern "C" int  _padSetActAlign(_PadDev *info, char *data);     /* PADCMD  @0x80105BF4 */
-extern "C" int  _padSetMainMode(_PadDev *info, int offs, int lock); /* PADCMD @0x80105D40 */
-extern "C" void _padSetAct(_PadDev *info, unsigned char *data, int len); /* PADCMD @0x801055F0 */
+extern _PadDev *(*_padFuncPort2Info)(int port);       /* @0x80137C8C dispatch slot */
+void _padStartCom(void);                             /* PADMAIN @0x80104C1C */
+void _padStopCom(void);                              /* PADMAIN @0x80104CE8 */
+int  _padSetActAlign(_PadDev *info, char *data);     /* PADCMD  @0x80105BF4 */
+int  _padSetMainMode(_PadDev *info, int offs, int lock); /* PADCMD @0x80105D40 */
+void _padSetAct(_PadDev *info, unsigned char *data, int len); /* PADCMD @0x801055F0 */
 
 /* @0x800EFE60 : PadStartCom */
-extern "C" void PadStartCom(void) { _padStartCom(); }
+void PadStartCom(void) { _padStartCom(); }
 
 /* @0x800EFE80 : PadStopCom */
-extern "C" void PadStopCom(void) { _padStopCom(); }
+void PadStopCom(void) { _padStopCom(); }
 
 /* @0x800EFEA0 : PadGetState -- map the raw controller state to the public PadState* code. */
-extern "C" int PadGetState(int port)
+int PadGetState(int port)
 {
     _PadDev *d = _padFuncPort2Info(port);
     if ((d->status & 0xffff0000) != 0 ||
@@ -63,7 +63,7 @@ extern "C" int PadGetState(int port)
 }
 
 /* @0x800EFF60 : PadInfoMode -- query a controller mode property. */
-extern "C" int PadInfoMode(int port, int term, int offs)
+int PadInfoMode(int port, int term, int offs)
 {
     _PadDev *d = _padFuncPort2Info(port);
     unsigned int r;
@@ -93,7 +93,7 @@ extern "C" int PadInfoMode(int port, int term, int offs)
 }
 
 /* @0x800F0058 : PadInfoAct -- query an actuator property (5-byte records). */
-extern "C" int PadInfoAct(int port, int actno, int term)
+int PadInfoAct(int port, int actno, int term)
 {
     _PadDev *d = _padFuncPort2Info(port);
     if (actno < 0)
@@ -112,21 +112,21 @@ extern "C" int PadInfoAct(int port, int actno, int term)
 }
 
 /* @0x800F012C : PadSetActAlign */
-extern "C" int PadSetActAlign(int port, char *data)
+int PadSetActAlign(int port, char *data)
 {
     _PadDev *d = _padFuncPort2Info(port);
     return _padSetActAlign(d, data);
 }
 
 /* @0x800F0164 : PadSetMainMode */
-extern "C" int PadSetMainMode(int port, int offs, int lock)
+int PadSetMainMode(int port, int offs, int lock)
 {
     _PadDev *d = _padFuncPort2Info(port);
     return _padSetMainMode(d, offs & 0xff, lock & 0xff);
 }
 
 /* @0x800F01AC : PadSetAct */
-extern "C" void PadSetAct(int port, unsigned char *data, int len)
+void PadSetAct(int port, unsigned char *data, int len)
 {
     _PadDev *d = _padFuncPort2Info(port);
     _padSetAct(d, data, len);

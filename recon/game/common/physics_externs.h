@@ -1,7 +1,7 @@
 #include "../../lib/libfns.h"
 /* physics_externs.h -- extern decls for game/common/physics.cpp (NFS4 car physics engine).
  *   Types live in nfs4_types.h. This declares cross-TU globals/functions + this TU's own
- *   physics.obj state (extern for syntax-check). Data tables left extern (link-time / task #75).
+ *   physics.obj state (extern for syntax-check). Data tables are materialized in physics.cpp.
  */
 #ifndef PHYSICS_EXTERNS_H
 #define PHYSICS_EXTERNS_H
@@ -42,7 +42,7 @@ extern int      gBrakeRatio, gGasRatio, gSteerRatio;
 extern int      currentWallType, exceedRedline;
 extern int      roadMult, frontMult, rearMult, leftMult, rightMult;
 extern int      slippery, steeringControl, powerControl;
-/* blip/bblip init source tables @ 0x80056370 (was _DAT_; values pending task #75) */
+/* blip/bblip init source tables @ 0x80056370/0x80056390 (materialized in physics.cpp; image-verified) */
 extern int      physics_blipInit[8];
 extern int      physics_bblipInit[8];
 

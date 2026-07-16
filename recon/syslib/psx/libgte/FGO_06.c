@@ -5,14 +5,15 @@
 extern const int _rsincos[];   /* @0x80137D20 : 4096 x {short sin; short cos} */
 
 /* @0x800F312C : RotMatrixZ(long r, MATRIX *m) -> m */
-extern "C" void *RotMatrixZ(int r, void *m)
+void *RotMatrixZ(int r, void *m)
 {
     short *ms = (short *)m;
     int s, c;
+    int m00, m10, m01, m11, m02, m12;
     if (r < 0) { c = _rsincos[(-r & 0xfff)]; s = -(int)(short)c; }
     else       { c = _rsincos[( r & 0xfff)]; s =  (int)(short)c; }
     c = c >> 0x10;                                   /* cos ; s = sin */
-    int m00 = ms[0], m10 = ms[3], m01 = ms[1], m11 = ms[4], m02 = ms[2], m12 = ms[5];
+    m00 = ms[0]; m10 = ms[3]; m01 = ms[1]; m11 = ms[4]; m02 = ms[2]; m12 = ms[5];
     ms[0] = (short)((c * m00 - s * m10) >> 0xc);
     ms[1] = (short)((c * m01 - s * m11) >> 0xc);
     ms[2] = (short)((c * m02 - s * m12) >> 0xc);

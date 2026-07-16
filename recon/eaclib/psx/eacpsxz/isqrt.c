@@ -80,7 +80,7 @@ extern unsigned int isqrt(unsigned int a)
             return lo;
         return mid;
     }
-    if (a == 0)
-        return 0;
-    return (unsigned int)(isqrttbl[a - 1] >> 4);
+    if (a != 0)   /* MATCH: table path = bnez branch target, return-0 = fall-through (oracle) */
+        return (unsigned int)(isqrttbl[a - 1] >> 4);
+    return 0;
 }

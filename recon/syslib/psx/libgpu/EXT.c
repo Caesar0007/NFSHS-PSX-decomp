@@ -3,11 +3,11 @@
 
 typedef unsigned char u_char;
 
-extern "C" int GetVideoMode(void);   /* libetc VMODE.obj */
+extern int GetVideoMode(void);   /* libetc VMODE.obj */
 
 /* @0x800F222C : fill a DRAWENV with a sensible default (clip rect x,y,w,h; dither on; draw-to-
  *   display chosen by mode-dependent height threshold; default tpage = 10; no background fill). */
-struct DRAWENV {                      /* PsyQ DRAWENV (relevant fields) */
+typedef struct DRAWENV {              /* PsyQ DRAWENV (relevant fields) */
     short clipx, clipy, clipw, cliph; /* +0x00 clip RECT */
     short ofsx, ofsy;                 /* +0x08 ofs[0],ofs[1] */
     short twx, twy, tww, twh;         /* +0x0C tw RECT */
@@ -16,9 +16,9 @@ struct DRAWENV {                      /* PsyQ DRAWENV (relevant fields) */
     u_char dfe;                       /* +0x17 */
     u_char isbg;                      /* +0x18 */
     u_char bg0, bg1, bg2;             /* +0x19 r0,g0,b0 */
-};
+} DRAWENV;
 
-extern "C" void *SetDefDrawEnv(void *env, int x, int y, int w, int h)
+void *SetDefDrawEnv(void *env, int x, int y, int w, int h)
 {
     DRAWENV *e = (DRAWENV *)env;
     int vm = GetVideoMode();
@@ -43,7 +43,7 @@ extern "C" void *SetDefDrawEnv(void *env, int x, int y, int w, int h)
 }
 
 /* @0x800F22E0 : fill a DISPENV with a default display area (x,y,w,h) and zeroed screen offset. */
-extern "C" void *SetDefDispEnv(void *env, int x, int y, int w, int h)
+void *SetDefDispEnv(void *env, int x, int y, int w, int h)
 {
     short *es = (short *)env;
     u_char *eb = (u_char *)env;

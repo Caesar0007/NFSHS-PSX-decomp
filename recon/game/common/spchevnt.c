@@ -1,10 +1,28 @@
-/* game/common/spchevnt.cpp -- RECONSTRUCTED (NFS4 cop speech-event table; C++ TU, extern "C").
+/* game/common/spchevnt.c -- RECONSTRUCTED (NFS4 cop speech-event table).
+ *   C TU: SLD source = C:\nfs4\GAME\COMMON\SPCHEVNT.C -> CC1PSX lane (methodology 3.25;
+ *   migrated from spchevnt.cpp, task #90). Self-contained per C-lane convention.
  *   53 SPCHNFS_<dir>_<dir>_<event> builders: each zero-inits long parms[12], writes the event
  *   code + SPCHNFSType_* field args, enqueues via SPCH_AddEvent. Unmangled C-linkage symbols.
  */
-#include "../../nfs4_types.h"
 
-extern "C" {
+/* ---- local mirrors of the SPCHNFSType_* arg wrappers (nfs4_types.h is C++-only);
+ *      all are 4-byte { u_long flags; } records ---- */
+typedef unsigned long u_long;
+typedef struct SPCHNFSType_POSITION        { u_long flags; } SPCHNFSType_POSITION;
+typedef struct SPCHNFSType_DISTANCE        { u_long flags; } SPCHNFSType_DISTANCE;
+typedef struct SPCHNFSType_COLOUR          { u_long flags; } SPCHNFSType_COLOUR;
+typedef struct SPCHNFSType_ACCIDENT        { u_long flags; } SPCHNFSType_ACCIDENT;
+typedef struct SPCHNFSType_AMBULANCE       { u_long flags; } SPCHNFSType_AMBULANCE;
+typedef struct SPCHNFSType_PURS_UPDT       { u_long flags; } SPCHNFSType_PURS_UPDT;
+typedef struct SPCHNFSType_ARREST          { u_long flags; } SPCHNFSType_ARREST;
+typedef struct SPCHNFSType_vs_RDBLK_SSTRP  { u_long flags; } SPCHNFSType_vs_RDBLK_SSTRP;
+typedef struct SPCHNFSType_PERP_NAME       { u_long flags; } SPCHNFSType_PERP_NAME;
+typedef struct SPCHNFSType_CONFIRM         { u_long flags; } SPCHNFSType_CONFIRM;
+typedef struct SPCHNFSType_SPIKE_BELT_SIDE { u_long flags; } SPCHNFSType_SPIKE_BELT_SIDE;
+typedef struct SPCHNFSType_REVINTRO        { u_long flags; } SPCHNFSType_REVINTRO;
+typedef struct SPCHNFSType_vs_KMH_MPH      { u_long flags; } SPCHNFSType_vs_KMH_MPH;
+typedef struct SPCHNFSType_VOICE           { u_long flags; } SPCHNFSType_VOICE;
+
 /* ---- the one true cross-TU extern (eaclib SPCHPSXZ speech-event queue) ---- */
 extern long SPCH_AddEvent(long *parms);
 
@@ -1205,5 +1223,4 @@ long SPCHNFS_C_D_ENDGAME(SPCHNFSType_VOICE *VOICE)
   return SPCH_AddEvent(parms);
 }
 
-}  /* extern "C" */
-/* end of spchevnt.cpp */
+/* end of spchevnt.c */

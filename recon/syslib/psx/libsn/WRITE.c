@@ -8,16 +8,17 @@
  *   gcc-2.7.2 callee-saved COLORING ROTATION (irreducible allocation tie-break, invariant under
  *   every structural reframe).  Per HARD RULE: no register pins; faithful coloring near-miss.
  */
-extern "C" int _SN_write(int chan, int fd, int len, int buff);   /* SNWRITE (break 0x106) */
+int _SN_write(int chan, int fd, int len, int buff);   /* SNWRITE (break 0x106) */
 
-extern "C" int PCwrite(int fd, int buff, unsigned len)   /* @0x80106D50 */
+int PCwrite(int fd, int buff, unsigned len)   /* @0x80106D50 */
 {
     int total = 0;
     if (len != 0) {
         do {
             unsigned chunk = len;
+            int n;
             if (len > 0x8000) chunk = 0x8000;
-            int n = _SN_write(0, fd, (int)chunk, buff);
+            n = _SN_write(0, fd, (int)chunk, buff);
             total += n;
             if (n == -1) return -1;
             buff += n;

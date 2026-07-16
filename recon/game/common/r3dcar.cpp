@@ -1600,7 +1600,7 @@ R_ICFt_brakeLightCheck:
           goto switchD_800b03ec_caseD_f;
         }
         if ((*(u_int *)(carObj->render).signalLight & 0x800080) != 0) break;
-        if (""[iVar19] == '\0') goto switchD_800b03ec_caseD_f;
+        if (R3DCar_SignalBrakeFlare[iVar19] == '\0') goto switchD_800b03ec_caseD_f;   /* @0x800B055C lbu SignalBrakeFlare(carType) */
         bVar2 = iVar16 - 6U < 6;
         if ((carObj->render).brakeLight == 0) {
           cVar15 = '\0';
@@ -1624,9 +1624,9 @@ R_ICFt_postSwitchVis:
           break;
         case 8: case 9:
           if (((carObj->render).damageParts & 4U) != 0) {
-            bVar14 = ""[iVar19] & 1;
+            bVar14 = R3DCar_DamageSpoiler[iVar19] & 1;   /* @0x800B0620 lbu DamageSpoiler(carType) */
             if (((carObj->render).upgradeFlags & 4U) == 0) {
-              bVar14 = ""[iVar19] & 0x80;
+              bVar14 = R3DCar_DamageSpoiler[iVar19] & 0x80;
             }
             cVar15 = '\0';
             if (bVar14 != 0) {

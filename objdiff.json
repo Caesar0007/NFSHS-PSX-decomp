@@ -562,9 +562,9 @@
     {
       "name": "eaclib/psx/pad",
       "target_path": "expected/src/eaclib/psx/pad.c.o",
-      "base_path": "build/recon/eaclib/psx/pad.cpp.o",
+      "base_path": "build/recon/eaclib/psx/pad.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/pad.cpp"
+        "source_path": "recon/eaclib/psx/pad.c"
       }
     },
     {
@@ -1594,9 +1594,9 @@
     {
       "name": "frontend/psx/memcard",
       "target_path": "expected/src/frontend/psx/memcard.c.o",
-      "base_path": "build/recon/frontend/psx/memcard.cpp.o",
+      "base_path": "build/recon/frontend/psx/memcard.c.o",
       "metadata": {
-        "source_path": "recon/frontend/psx/memcard.cpp"
+        "source_path": "recon/frontend/psx/memcard.c"
       }
     },
     {
@@ -2178,9 +2178,9 @@
     {
       "name": "game/common/spchevnt",
       "target_path": "expected/src/game/common/spchevnt.c.o",
-      "base_path": "build/recon/game/common/spchevnt.cpp.o",
+      "base_path": "build/recon/game/common/spchevnt.c.o",
       "metadata": {
-        "source_path": "recon/game/common/spchevnt.cpp"
+        "source_path": "recon/game/common/spchevnt.c"
       }
     },
     {
@@ -2394,17 +2394,17 @@
     {
       "name": "game/psx/textpix",
       "target_path": "expected/src/game/psx/textpix.c.o",
-      "base_path": "build/recon/game/psx/textpix.cpp.o",
+      "base_path": "build/recon/game/psx/textpix.c.o",
       "metadata": {
-        "source_path": "recon/game/psx/textpix.cpp"
+        "source_path": "recon/game/psx/textpix.c"
       }
     },
     {
       "name": "game/psx/textpsx",
       "target_path": "expected/src/game/psx/textpsx.c.o",
-      "base_path": "build/recon/game/psx/textpsx.cpp.o",
+      "base_path": "build/recon/game/psx/textpsx.c.o",
       "metadata": {
-        "source_path": "recon/game/psx/textpsx.cpp"
+        "source_path": "recon/game/psx/textpsx.c"
       }
     },
     {
@@ -2442,9 +2442,9 @@
     {
       "name": "game/psx/unpack",
       "target_path": "expected/src/game/psx/unpack.c.o",
-      "base_path": "build/recon/game/psx/unpack.cpp.o",
+      "base_path": "build/recon/game/psx/unpack.c.o",
       "metadata": {
-        "source_path": "recon/game/psx/unpack.cpp"
+        "source_path": "recon/game/psx/unpack.c"
       }
     },
     {
@@ -3162,9 +3162,9 @@
     {
       "name": "syslib/psx/libgpu/EXT",
       "target_path": "expected/src/syslib/psx/libgpu/EXT.c.o",
-      "base_path": "build/recon/syslib/psx/libgpu/EXT.cpp.o",
+      "base_path": "build/recon/syslib/psx/libgpu/EXT.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libgpu/EXT.cpp"
+        "source_path": "recon/syslib/psx/libgpu/EXT.c"
       }
     },
     {
@@ -3314,9 +3314,9 @@
     {
       "name": "syslib/psx/libgte/FGO_06",
       "target_path": "expected/src/syslib/psx/libgte/FGO_06.c.o",
-      "base_path": "build/recon/syslib/psx/libgte/FGO_06.cpp.o",
+      "base_path": "build/recon/syslib/psx/libgte/FGO_06.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libgte/FGO_06.cpp"
+        "source_path": "recon/syslib/psx/libgte/FGO_06.c"
       }
     },
     {
@@ -3378,9 +3378,9 @@
     {
       "name": "syslib/psx/libmath/ADDDF3",
       "target_path": "expected/src/syslib/psx/libmath/ADDDF3.c.o",
-      "base_path": "build/recon/syslib/psx/libmath/ADDDF3.cpp.o",
+      "base_path": "build/recon/syslib/psx/libmath/ADDDF3.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libmath/ADDDF3.cpp"
+        "source_path": "recon/syslib/psx/libmath/ADDDF3.c"
       }
     },
     {
@@ -3410,25 +3410,25 @@
     {
       "name": "syslib/psx/libmath/DIVDF3",
       "target_path": "expected/src/syslib/psx/libmath/DIVDF3.c.o",
-      "base_path": "build/recon/syslib/psx/libmath/DIVDF3.cpp.o",
+      "base_path": "build/recon/syslib/psx/libmath/DIVDF3.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libmath/DIVDF3.cpp"
+        "source_path": "recon/syslib/psx/libmath/DIVDF3.c"
       }
     },
     {
       "name": "syslib/psx/libmath/DIVSF3",
       "target_path": "expected/src/syslib/psx/libmath/DIVSF3.c.o",
-      "base_path": "build/recon/syslib/psx/libmath/DIVSF3.cpp.o",
+      "base_path": "build/recon/syslib/psx/libmath/DIVSF3.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libmath/DIVSF3.cpp"
+        "source_path": "recon/syslib/psx/libmath/DIVSF3.c"
       }
     },
     {
       "name": "syslib/psx/libmath/EXTSFDF2",
       "target_path": "expected/src/syslib/psx/libmath/EXTSFDF2.c.o",
-      "base_path": "build/recon/syslib/psx/libmath/EXTSFDF2.cpp.o",
+      "base_path": "build/recon/syslib/psx/libmath/EXTSFDF2.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libmath/EXTSFDF2.cpp"
+        "source_path": "recon/syslib/psx/libmath/EXTSFDF2.c"
       }
     },
     {
@@ -3442,9 +3442,9 @@
     {
       "name": "syslib/psx/libmath/FIXDFSI",
       "target_path": "expected/src/syslib/psx/libmath/FIXDFSI.c.o",
-      "base_path": "build/recon/syslib/psx/libmath/FIXDFSI.cpp.o",
+      "base_path": "build/recon/syslib/psx/libmath/FIXDFSI.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libmath/FIXDFSI.cpp"
+        "source_path": "recon/syslib/psx/libmath/FIXDFSI.c"
       }
     },
     {
@@ -3458,9 +3458,9 @@
     {
       "name": "syslib/psx/libmath/FLTSIDF",
       "target_path": "expected/src/syslib/psx/libmath/FLTSIDF.c.o",
-      "base_path": "build/recon/syslib/psx/libmath/FLTSIDF.cpp.o",
+      "base_path": "build/recon/syslib/psx/libmath/FLTSIDF.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libmath/FLTSIDF.cpp"
+        "source_path": "recon/syslib/psx/libmath/FLTSIDF.c"
       }
     },
     {
@@ -3474,17 +3474,17 @@
     {
       "name": "syslib/psx/libmath/GTDF2",
       "target_path": "expected/src/syslib/psx/libmath/GTDF2.c.o",
-      "base_path": "build/recon/syslib/psx/libmath/GTDF2.cpp.o",
+      "base_path": "build/recon/syslib/psx/libmath/GTDF2.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libmath/GTDF2.cpp"
+        "source_path": "recon/syslib/psx/libmath/GTDF2.c"
       }
     },
     {
       "name": "syslib/psx/libmath/LTDF2",
       "target_path": "expected/src/syslib/psx/libmath/LTDF2.c.o",
-      "base_path": "build/recon/syslib/psx/libmath/LTDF2.cpp.o",
+      "base_path": "build/recon/syslib/psx/libmath/LTDF2.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libmath/LTDF2.cpp"
+        "source_path": "recon/syslib/psx/libmath/LTDF2.c"
       }
     },
     {
@@ -3498,25 +3498,25 @@
     {
       "name": "syslib/psx/libmath/MULDF3",
       "target_path": "expected/src/syslib/psx/libmath/MULDF3.c.o",
-      "base_path": "build/recon/syslib/psx/libmath/MULDF3.cpp.o",
+      "base_path": "build/recon/syslib/psx/libmath/MULDF3.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libmath/MULDF3.cpp"
+        "source_path": "recon/syslib/psx/libmath/MULDF3.c"
       }
     },
     {
       "name": "syslib/psx/libmath/MULSF3",
       "target_path": "expected/src/syslib/psx/libmath/MULSF3.c.o",
-      "base_path": "build/recon/syslib/psx/libmath/MULSF3.cpp.o",
+      "base_path": "build/recon/syslib/psx/libmath/MULSF3.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libmath/MULSF3.cpp"
+        "source_path": "recon/syslib/psx/libmath/MULSF3.c"
       }
     },
     {
       "name": "syslib/psx/libmath/TRUDFSF2",
       "target_path": "expected/src/syslib/psx/libmath/TRUDFSF2.c.o",
-      "base_path": "build/recon/syslib/psx/libmath/TRUDFSF2.cpp.o",
+      "base_path": "build/recon/syslib/psx/libmath/TRUDFSF2.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libmath/TRUDFSF2.cpp"
+        "source_path": "recon/syslib/psx/libmath/TRUDFSF2.c"
       }
     },
     {
@@ -3570,9 +3570,9 @@
     {
       "name": "syslib/psx/libpad/PADENTRY",
       "target_path": "expected/src/syslib/psx/libpad/PADENTRY.c.o",
-      "base_path": "build/recon/syslib/psx/libpad/PADENTRY.cpp.o",
+      "base_path": "build/recon/syslib/psx/libpad/PADENTRY.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libpad/PADENTRY.cpp"
+        "source_path": "recon/syslib/psx/libpad/PADENTRY.c"
       }
     },
     {
@@ -3674,9 +3674,9 @@
     {
       "name": "syslib/psx/libsn/READ",
       "target_path": "expected/src/syslib/psx/libsn/READ.c.o",
-      "base_path": "build/recon/syslib/psx/libsn/READ.cpp.o",
+      "base_path": "build/recon/syslib/psx/libsn/READ.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libsn/READ.cpp"
+        "source_path": "recon/syslib/psx/libsn/READ.c"
       }
     },
     {
@@ -3698,9 +3698,9 @@
     {
       "name": "syslib/psx/libsn/WRITE",
       "target_path": "expected/src/syslib/psx/libsn/WRITE.c.o",
-      "base_path": "build/recon/syslib/psx/libsn/WRITE.cpp.o",
+      "base_path": "build/recon/syslib/psx/libsn/WRITE.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libsn/WRITE.cpp"
+        "source_path": "recon/syslib/psx/libsn/WRITE.c"
       }
     }
   ]

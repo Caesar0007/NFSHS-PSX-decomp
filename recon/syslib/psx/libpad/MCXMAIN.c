@@ -31,8 +31,10 @@ extern unsigned char     *_padSioRegs;                              /* @0x80137C
 #define JOY_DATA8 (*(volatile unsigned char *)(_padSioRegs))
 
 /* @0x8013C308 : 12-byte block (3 words) forces out of .sdata → absolute lui/sw addressing.
- *  [0]=_padMtapCount @0x8013C308, [1]=padding @0x8013C30C, [2]=_padMtapFlag @0x8013C310. */
-static int _padMtapData[3];
+ *  [0]=_padMtapCount @0x8013C308, [1]=SIO data-reg ptr @0x8013C30C (image word = 0x1F801040,
+ *  read by _padIntRecvData's oracle @0x8010C640 `lw %lo(D_8013C30C)` then `lbu 0(v0)` -- NOT
+ *  padding; data-audit w10-a4 image-verified), [2]=_padMtapFlag @0x8013C310. */
+static int _padMtapData[3] = { 0, 0x1F801040, 0 };   /* [1] = JOY_DATA mmio base (real image bytes) */
 #define _padMtapCount (_padMtapData[0])
 #define _padMtapFlag  (_padMtapData[2])
 

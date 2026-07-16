@@ -4,12 +4,12 @@
  *   round-to-nearest.  IDA verbatim; 64-bit working values held as int[2] pairs ([0]=lo,[1]=hi); helper
  *   out-pointers write both words.  Overflow -> _err_math(34,13).
  */
-extern "C" unsigned int *_dbl_shift_us(unsigned int *out, int dir, unsigned int w0, int w1, int count);
-extern "C" int          *_add_mant_d(int *out, unsigned int a2, int a3, unsigned int a4, int a5);
-extern "C" int           _err_math(int errnum, int code);
+unsigned int *_dbl_shift_us(unsigned int *out, int dir, unsigned int w0, int w1, int count);
+int          *_add_mant_d(int *out, unsigned int a2, int a3, unsigned int a4, int a5);
+int           _err_math(int errnum, int code);
 
 /* _mul_mant_d @0x800F65F8 : 32x32->64 unsigned multiply of (a2,a3) via 16-bit lanes -> out[0:1]. */
-extern "C" int *_mul_mant_d(int *out, unsigned int a2, unsigned int a3)
+int *_mul_mant_d(int *out, unsigned int a2, unsigned int a3)
 {
     int          v3 = (unsigned short)a2;
     unsigned int v4 = (a2 >> 16) & 0xffff;
@@ -28,7 +28,7 @@ extern "C" int *_mul_mant_d(int *out, unsigned int a2, unsigned int a3)
     return out;
 }
 
-extern "C" double __muldf3(int a1, int a2, int a3, int a4)   /* @0x800F62E4 */
+double __muldf3(int a1, int a2, int a3, int a4)   /* @0x800F62E4 */
 {
     union { double d; unsigned int w[2]; } u;
     unsigned int v4 = a2 & 0x80000000 ^ a4 & 0x80000000;
@@ -40,16 +40,19 @@ extern "C" double __muldf3(int a1, int a2, int a3, int a4)   /* @0x800F62E4 */
         v5 = (a2 >> 20) & 0x7FF;
         if (!a3) { u.w[1] = a2 & 0x80000000 ^ a4 & 0x80000000; u.w[0] = 0; return u.d; }
     }
+    {
     int v6  = v5 + ((a4 >> 20) & 0x7FF);
     int v7  = v6 - 1022;
     int v28 = v6;
     int v20 = a2 & 0xFFFFF | 0x100000, v19 = a1;
     int v22 = a4 & 0xFFFFF | 0x100000, v21 = a3;
     int t1[2], t2[2], acc[2];
-    _dbl_shift_us((unsigned int *)t1, 1, a1, v20, 21);  int v8 = t1[0];
-    _dbl_shift_us((unsigned int *)t1, 1, v21, v22, 21); int v9 = t1[0];
-    int v10 = v19 & 0x1FFFFF;
-    int v11 = v21 & 0x1FFFFF;
+    int v8, v9, v10, v11;
+    unsigned int v12;
+    _dbl_shift_us((unsigned int *)t1, 1, a1, v20, 21);  v8 = t1[0];
+    _dbl_shift_us((unsigned int *)t1, 1, v21, v22, 21); v9 = t1[0];
+    v10 = v19 & 0x1FFFFF;
+    v11 = v21 & 0x1FFFFF;
     _mul_mant_d(acc, v8, v9);
     _mul_mant_d(t2, v10, v9);
     _dbl_shift_us((unsigned int *)t1, 1, t2[0], t2[1], 21);
@@ -65,8 +68,9 @@ extern "C" double __muldf3(int a1, int a2, int a3, int a4)   /* @0x800F62E4 */
         _add_mant_d(acc, acc[0], acc[1], 1024, 0);
         _dbl_shift_us((unsigned int *)acc, 1, acc[0], acc[1], 11);
     }
-    unsigned int v12 = acc[1] & 0xFFEFFFFF;
+    v12 = acc[1] & 0xFFEFFFFF;
     if (v7 < 2047) { u.w[1] = v4 | (v7 << 20) | v12; u.w[0] = acc[0]; }
-    else { _err_math(34, 13); int v13 = 2146435072; if (v4) v13 = -1048576; u.w[1] = v13; u.w[0] = 0; }
+    else { int v13; _err_math(34, 13); v13 = 2146435072; if (v4) v13 = -1048576; u.w[1] = v13; u.w[0] = 0; }
+    }
     return u.d;
 }

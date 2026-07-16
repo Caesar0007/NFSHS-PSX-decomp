@@ -13,16 +13,17 @@
  *   exit, single/split return) -- an irreducible allocation tie-break.  Per HARD RULE: no register
  *   pins; faithful coloring near-miss, NOT a logic/transcription error.
  */
-extern "C" int _SN_read(int chan, int fd, int len, int buff);   /* SNREAD (break 0x105) */
+int _SN_read(int chan, int fd, int len, int buff);   /* SNREAD (break 0x105) */
 
-extern "C" int PCread(int fd, int buff, unsigned len)   /* @0x80106BE4 */
+int PCread(int fd, int buff, unsigned len)   /* @0x80106BE4 */
 {
     int total = 0;
     if (len != 0) {
         do {
             unsigned chunk = len;
+            int n;
             if (len > 0x8000) chunk = 0x8000;
-            int n = _SN_read(0, fd, (int)chunk, buff);
+            n = _SN_read(0, fd, (int)chunk, buff);
             total += n;
             if (n == -1) return -1;
             buff += n;

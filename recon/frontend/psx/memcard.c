@@ -1,20 +1,181 @@
 /* frontend/psx/memcard.c  --  RECONSTRUCTED  (PSX memory-card I/O; MEMCARD.C, C source)
  *   Bodies      : Ghidra decompiler (nfs4-f.exe MIPS), full re-decompile.
  *   Line numbers: PsyQ SLD per-instruction stream (8c-start, SLD-max end).
- *   Linkage     : C file -> extern "C" (unmangled SYM names). 3 statics: iMCRD_timersub,
- *                 ascii2sjis, sjis2ascii (SYM class STAT). Drives the typed global
- *                 gMemCardInfo (fMemCardInfo_def) - fields already named by the decompiler.
+ *   C TU: SLD source = C:\nfs4\FRONTEND\PSX\MEMCARD.C -> CC1PSX lane (methodology 3.25;
+ *   migrated from memcard.cpp, task #90). Self-contained per C-lane convention (local
+ *   type mirrors; nfs4_types.h is C++-only). Unmangled C symbols match the SYM.
+ *   3 helpers iMCRD_timersub/ascii2sjis/sjis2ascii are SYM class STAT (kept as plain
+ *   globals here, same as the .cpp shape - names pair with the front oracle .s).
+ *   Drives the typed global gMemCardInfo (fMemCardInfo_def) - fields decompiler-named.
  *   NOTE: a few bodies carry decompiler mis-renderings (e.g. MCRD_getopts' 8-byte RECT
  *   copy was byte-unaligned -> rewritten as a struct assignment). Local temp names are
  *   the project's type-hinted bulk names (tu/tp/...), not original source identifiers.
  */
-#include "memcard.h"
-#include "memcard_externs.h"
 
-/* forward decls for the file-local statics (called before their definitions) */
-extern "C" void  iMCRD_timersub(void);
-extern "C" short ascii2sjis(u_char ascii_code);
-extern "C" u_char sjis2ascii(short sjis_code);   /* @0x80050810 (memcard.c); extern "C" so the symbol is `sjis2ascii` not the C++-mangled local (pairs with the front oracle) */
+/* ---- base scalar typedefs (self-contained C lane) ---- */
+typedef unsigned char  u_char;
+typedef unsigned char  uchar;
+typedef unsigned char  byte;
+typedef unsigned short u_short;
+typedef unsigned short ushort;
+typedef unsigned int   u_int;
+typedef unsigned int   uint;
+typedef unsigned long  u_long;
+
+/* ---- local mirrors of the shared memcard types (nfs4_types.h) ---- */
+typedef struct RECT {                 /* 8 bytes (PsyQ) */
+    short x, y, w, h;
+} RECT;
+
+typedef enum {                        /* 4 bytes */
+    N_AMERICA = 0,
+    JAPAN = 1,
+    EUROPE = 2
+} PRODUCTLOC;
+
+typedef enum {                        /* 4 bytes */
+    NONE = 0,
+    LOAD_CARD = 1,
+    WRITE_FILE = 2,
+    LOAD_FILE = 3,
+    DELETE_FILE = 4
+} MANAGERTASK;
+
+typedef struct shapetbl {             /* 20 bytes (EA shape) */
+    unsigned int type : 8;            /* +0x0 */
+    int          next : 24;           /* +0x1 */
+    short        width, height, centerx, centery;   /* +0x4 */
+    int          shapex : 12;         /* +0xC */
+    unsigned int reserved : 1;
+    unsigned int twiddled : 1;
+    unsigned int transposed : 1;
+    unsigned int rotated : 1;
+    int          shapey : 12;         /* +0xE */
+    unsigned int mipmaps : 4;
+    char         data;                /* +0x10 */
+} shapetbl;
+
+typedef struct DIRENTRY {             /* 40 bytes (PsyQ kernel) */
+    char             name[20];        /* +0x0 */
+    long             attr, size;      /* +0x14 */
+    struct DIRENTRY *next;            /* +0x1C */
+    long             head;            /* +0x20 */
+    char             system[4];       /* +0x24 */
+} DIRENTRY;
+
+typedef struct CARDINFO_def {         /* 616 bytes */
+    int      status, lasterror, numfiles, freeblocks;   /* +0x0 */
+    DIRENTRY dir[15];                 /* +0x10 */
+} CARDINFO_def;
+
+typedef struct MCRDFILEHEADER_def {   /* 512 bytes */
+    u_char  magicnumber[2];           /* +0x0 */
+    u_char  type, nslots;             /* +0x2 */
+    u_short title[32];                /* +0x4 */
+    u_char  unused[28];               /* +0x44 */
+    u_char  iconclut[32];             /* +0x60 */
+    u_char  icon1[128], icon2[128], icon3[128];   /* +0x80 */
+} MCRDFILEHEADER_def;
+
+typedef struct MCRDFILEINFO_def {     /* 572 bytes */
+    int                cardnum;       /* +0x0 */
+    char               name[24];      /* +0x4 */
+    char               *title;        /* +0x1C */
+    int                size, offset;  /* +0x20 */
+    unsigned int       flags;         /* +0x28 */
+    MCRDFILEHEADER_def header;        /* +0x2C */
+    void               *pData;        /* +0x22C */
+    shapetbl           *icon[3];      /* +0x230 */
+} MCRDFILEINFO_def;
+
+typedef struct MCRDFILE_def {         /* 44 bytes */
+    char         *name, *title;       /* +0x0 */
+    int          size, offset;        /* +0x8 */
+    unsigned int flags;               /* +0x10 */
+    void         *pData;              /* +0x14 */
+    shapetbl     *icon[3];            /* +0x18 */
+    u_char       *numicons, *numblocks;   /* +0x24 */
+} MCRDFILE_def;
+
+typedef struct MCRDOPTS_def {         /* 36 bytes */
+    PRODUCTLOC productLocation;       /* +0x0 */
+    char       *productCode;          /* +0x4 */
+    int        bMoveIconsToVram;      /* +0x8 */
+    RECT       VramIconArea;          /* +0xC */
+    void       *ConfirmFormatProc, *ConfirmOverwriteProc, *LoadingDataProc, *SavingDataProc;   /* +0x14 */
+} MCRDOPTS_def;
+
+typedef struct fMemCardInfo_def {     /* 6108 bytes */
+    PRODUCTLOC         productLocation;   /* +0x0 */
+    char               productCode[16];   /* +0x4 */
+    int                bMoveIconsToVram;  /* +0x14 */
+    RECT               VramIconArea;      /* +0x18 */
+    void               *ConfirmFormatProc, *ConfirmOverwriteProc, *LoadingDataProc, *SavingDataProc;   /* +0x20 */
+    MANAGERTASK        task;              /* +0x30 */
+    int                bReady, fMultitap; /* +0x34 */
+    long               channel;           /* +0x3C */
+    int                existencecheckticks[8];   /* +0x40 */
+    MCRDFILEHEADER_def header;            /* +0x60 */
+    MCRDFILEINFO_def   fileinfo;          /* +0x260 */
+    CARDINFO_def       card[8];           /* +0x49C */
+} fMemCardInfo_def;
+
+/* ---- memcard.obj data global ---- */
+extern fMemCardInfo_def gMemCardInfo;    /* 0x80052d68  (6108 B) */
+extern int timerhz;
+
+/* ---- externs (libmcrd/libgs/eaclib/libetc/libc/sibling) ---- */
+extern unsigned int shapetype(int v);    /* EA shape helpers */
+extern unsigned int cluttype(int v);
+extern long MemCardInit(long val);       /* PsyQ libmcrd */
+extern long MemCardStart(void);
+extern long MemCardStop(void);
+extern void MemCardEnd(void);
+extern long MemCardSync(long mode, long *result, long *result2);
+extern long MemCardExist(long chan);
+extern long MemCardAccept(long chan);
+extern long MemCardReadFile(long chan, char *name, void *buf, long offset, long len);
+extern long MemCardWriteFile(long chan, char *name, void *buf, long offset, long len);
+extern long MemCardCreateFile(long chan, char *name, long nslots);
+extern long MemCardDeleteFile(long chan, char *name);
+extern long MemCardFormat(long chan);
+extern long MemCardGetDirentry(long chan, char *pat, DIRENTRY *dir, int *count, long a, long b);
+extern u_char *getshapeclut(shapetbl *shape, int src);   /* libgs shape CLUT */
+extern void blockclear(void *dst, int size);             /* eaclib */
+extern void blockmove(void *src, void *dst, int size);
+extern int  addtimer(void (*proc)(void));
+extern int  deltimer(void (*proc)(void));
+extern void timedwait(int n);
+extern void asyncidle();
+extern int  VSync(int mode);                             /* libetc */
+extern char *strcpy(char *dst, char *src);               /* libc */
+extern char *strcat(char *dst, char *src);
+extern char *strncpy(char *dst, char *src, int n);
+extern unsigned int strlen(char *s);
+extern int  strcmp(char *a, char *b);
+extern CARDINFO_def *MCRD_getcard(int card);             /* sibling memcard TU */
+
+/* ---- this TU's fns (fwd decls; intra-TU calls before definitions) ---- */
+void MCRD_init(int fMultitap);
+int  iMCRD_InitCard(int card);
+void MCRD_restore(void);
+void MCRD_getopts(MCRDOPTS_def *pOPT);
+void MCRD_setopts(MCRDOPTS_def *pOPT);
+void MCRD_loadfile(int card, MCRDFILE_def *pFILE, int bNameHasProductCode);
+int  iMCRD_DoFileLoad(int card);
+int  MCRD_savefile(int card, MCRDFILE_def *pFILE);
+int  iMCRD_DoFileWrite(int card);
+int  iMCRD_DoFileDelete(int card);
+int  MCRD_handlecardevents(int card);
+int  MCRD_fileexists(int card, char *name);
+int  garyMemCardGrabBlocks(int card, int filenum);
+int  iMCRD_LoadCard(int card);
+int  iMCRD_FormatCard(int card);
+int  iMCRD_HandleError(int func, int opResult, int card);
+int  iMCRD_DefaultCBProc1(void);
+void  iMCRD_timersub(void);              /* SYM class STAT (see header note) */
+short ascii2sjis(u_char ascii_code);
+u_char sjis2ascii(short sjis_code);      /* @0x80050810 */
 
 /* file-local SJIS<->ASCII lookup tables (SYM class STAT; byte-exact from image). */
 static u_short ascii_table[3][2] = {   /* 0x80052a78 : ASCII range base -> SJIS base (digit/upper/lower) */
@@ -220,7 +381,7 @@ int iMCRD_DoFileLoad(int card)
     }
     i = 0;
     if (gMemCardInfo.fileinfo.title != (char *)0x0) {
-      while( true ) {
+      while (1) {
         ch = sjis2ascii(*(short *)(ret + 0x30));
         gMemCardInfo.fileinfo.title[i] = ch;
         ret = ret + 2;
@@ -623,7 +784,7 @@ int MCRD_fileexists(int card,char *name)
 /* lines 1378-1535: (static data / macros / comments - no emitted code) */
 
 /* ---- iMCRD_timersub  (memcard.c:1536, code lines 1536-1541) [static] ---- */
-extern "C" void iMCRD_timersub(void)
+void iMCRD_timersub(void)
 
 {
   int i;
@@ -858,7 +1019,7 @@ int iMCRD_DefaultCBProc1(void)
 /* lines 1900-2062: (static data / macros / comments - no emitted code) */
 
 /* ---- ascii2sjis  (memcard.c:2063, code lines 2063-2096) [static] ---- */
-extern "C" short ascii2sjis(u_char ascii_code)
+short ascii2sjis(u_char ascii_code)
 
 {
   ushort sjis_code;
@@ -906,7 +1067,7 @@ extern "C" short ascii2sjis(u_char ascii_code)
 /* lines 2097-2101: (static data / macros / comments - no emitted code) */
 
 /* ---- sjis2ascii  (memcard.c:2102, code lines 2102-2122) [static] ---- */
-extern "C" u_char sjis2ascii(short sjis_code)
+u_char sjis2ascii(short sjis_code)
 
 {
   uint hi;

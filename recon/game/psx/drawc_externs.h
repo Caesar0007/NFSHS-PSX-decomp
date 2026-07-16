@@ -50,6 +50,7 @@ extern char          *Paths_Paths[];           /* 0x80116468 */
 extern void R3DCar_GetCarName(char *, int, int);
 extern int      R3DCar_Clock, R3DCar_ClockLast, R3DCar_InMenu;
 extern CVECTOR R3DCar_eMapColour;
+extern char R3DCar_SignalBrakeFlare[28];   /* @0x8011680c -- per-carType signal/brake flare class (owned by r3dcar.cpp) */
 extern short R3DCar_yawCam;
 extern void R3DCcar_ReadTrackShadow(void);
 extern void R3DCcar_ReadeMapData(void);

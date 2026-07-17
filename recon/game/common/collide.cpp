@@ -2082,951 +2082,387 @@ int Collide_DoActualObjectCollisionCheck(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coo
 
 
 {
-  int maxv;
-  int vx;
-  int vy;
-  int vz;
-  coorddef normalx;
-  coorddef normaly;
-  coorddef normalz;
-  int dotx;
-  int doty;
-  int dotz;
-  coorddef vel;
-  int xDiff;
-  int yDiff;
-  int zDiff;
-
-  int iVar1;
-
-  int iVar2;
-
-  int iVar3;
-
-  int iVar4;
-
-  int iVar5;
-
-  int iVar6;
-
-  int iVar7;
-
-  int iVar8;
-
-  int iVar9;
-
-  int iVar10;
-
-  int local_60;
-
-  int local_5c;
-
-  int local_58;
-
-  int local_50;
-
-  int local_4c;
-
-  int local_48;
-
-  int local_40;
-
-  int local_3c;
-
-  int local_38;
-
-  
-
+  /* MATCH: SYM 8c read-off — outer block has only 2 goto-LABELs (cross-jump artifacts);
+     two DUPLICATED symmetric halves (lines 56-155 o1-matrix / 162-262 o0-matrix), each with
+     re-declared block scopes {maxv,vx,vy,vz} / {normalx,normaly,normalz,dotx,doty,dotz,vel} /
+     {xDiff,yDiff,zDiff}. Tails written INLINE per arm — gcc cross-jump merges them into the
+     oracle's single physical copies (labels/funnels in source would PREVENT the match). */
   obj0 = o0;
-
   obj1 = o1;
-
-  pNormal = normal;
-
   pP = p;
-
-  iVar1 = CHECK_CENTER_VERTEX_WITH_DIRS(1,0,0);
-
-  if (iVar1 != 0) {
-
+  pNormal = normal;
+  if (CHECK_CENTER_VERTEX_WITH_DIRS(1,0,0) != 0) {
     return 1;
-
   }
-
-  iVar1 = CHECK_CENTER_VERTEX_WITH_DIRS(0,1,0);
-
-  if (iVar1 != 0) {
-
+  if (CHECK_CENTER_VERTEX_WITH_DIRS(0,1,0) != 0) {
     return 1;
-
   }
-
-  iVar1 = CHECK_CENTER_VERTEX_WITH_DIRS(0,0,1);
-
-  if (iVar1 != 0) {
-
+  if (CHECK_CENTER_VERTEX_WITH_DIRS(0,0,1) != 0) {
     return 1;
-
   }
-
-  iVar1 = CHECK_CENTER_VERTEX_WITH_DIRS(-1,0,0);
-
-  if (iVar1 != 0) {
-
+  if (CHECK_CENTER_VERTEX_WITH_DIRS(-1,0,0) != 0) {
     return 1;
-
   }
-
-  iVar1 = CHECK_CENTER_VERTEX_WITH_DIRS(0,-1,0);
-
-  if (iVar1 != 0) {
-
+  if (CHECK_CENTER_VERTEX_WITH_DIRS(0,-1,0) != 0) {
     return 1;
-
   }
-
-  iVar1 = CHECK_CENTER_VERTEX_WITH_DIRS(0,0,-1);
-
-  if (iVar1 != 0) {
-
+  if (CHECK_CENTER_VERTEX_WITH_DIRS(0,0,-1) != 0) {
     return 1;
-
   }
-
-  iVar1 = CHECK_CENTER_VERTEX_WITH_DIRS_OTHER(1,0,0);
-
-  if (iVar1 != 0) {
-
+  if (CHECK_CENTER_VERTEX_WITH_DIRS_OTHER(1,0,0) != 0) {
     return 1;
-
   }
-
-  iVar1 = CHECK_CENTER_VERTEX_WITH_DIRS_OTHER(0,1,0);
-
-  if (iVar1 != 0) {
-
+  if (CHECK_CENTER_VERTEX_WITH_DIRS_OTHER(0,1,0) != 0) {
     return 1;
-
   }
-
-  iVar1 = CHECK_CENTER_VERTEX_WITH_DIRS_OTHER(0,0,1);
-
-  if (iVar1 != 0) {
-
+  if (CHECK_CENTER_VERTEX_WITH_DIRS_OTHER(0,0,1) != 0) {
     return 1;
-
   }
-
-  iVar1 = CHECK_CENTER_VERTEX_WITH_DIRS_OTHER(-1,0,0);
-
-  if (iVar1 != 0) {
-
+  if (CHECK_CENTER_VERTEX_WITH_DIRS_OTHER(-1,0,0) != 0) {
     return 1;
-
   }
-
-  iVar1 = CHECK_CENTER_VERTEX_WITH_DIRS_OTHER(0,-1,0);
-
-  if (iVar1 != 0) {
-
+  if (CHECK_CENTER_VERTEX_WITH_DIRS_OTHER(0,-1,0) != 0) {
     return 1;
-
   }
-
-  iVar1 = CHECK_CENTER_VERTEX_WITH_DIRS_OTHER(0,0,-1);
-
-  if (iVar1 != 0) {
-
+  if (CHECK_CENTER_VERTEX_WITH_DIRS_OTHER(0,0,-1) != 0) {
     return 1;
-
   }
+  /* Oracle dispatch in VA ORDER: each VERTEX!=0 -> vhalf (o0 matrix, .L8008F7EC,
+     physically FIRST); each OTHER!=0 -> ohalf (o1 matrix, .L8008FC50); both all-zero
+     -> return 0. goto = the genuine per-operand bnez-to-forward-block dispatch. */
+  if (CHECK_VERTEX_WITH_DIRS(1,1,1) != 0) goto vhalf;
+  if (CHECK_VERTEX_WITH_DIRS(1,1,-1) != 0) goto vhalf;
+  if (CHECK_VERTEX_WITH_DIRS(1,-1,1) != 0) goto vhalf;
+  if (CHECK_VERTEX_WITH_DIRS(1,-1,-1) != 0) goto vhalf;
+  if (CHECK_VERTEX_WITH_DIRS(-1,1,1) != 0) goto vhalf;
+  if (CHECK_VERTEX_WITH_DIRS(-1,1,-1) != 0) goto vhalf;
+  if (CHECK_VERTEX_WITH_DIRS(-1,-1,1) != 0) goto vhalf;
+  if (CHECK_VERTEX_WITH_DIRS(-1,-1,-1) != 0) goto vhalf;
+  if (CHECK_VERTEX_WITH_DIRS_OTHER(1,1,1) != 0) goto ohalf;
+  if (CHECK_VERTEX_WITH_DIRS_OTHER(1,1,-1) != 0) goto ohalf;
+  if (CHECK_VERTEX_WITH_DIRS_OTHER(1,-1,1) != 0) goto ohalf;
+  if (CHECK_VERTEX_WITH_DIRS_OTHER(1,-1,-1) != 0) goto ohalf;
+  if (CHECK_VERTEX_WITH_DIRS_OTHER(-1,1,1) != 0) goto ohalf;
+  if (CHECK_VERTEX_WITH_DIRS_OTHER(-1,1,-1) != 0) goto ohalf;
+  if (CHECK_VERTEX_WITH_DIRS_OTHER(-1,-1,1) != 0) goto ohalf;
+  if (CHECK_VERTEX_WITH_DIRS_OTHER(-1,-1,-1) != 0) goto ohalf;
+  return 0;
+vhalf:   /* VERTEX!=0 : o0 orientMat, if(0<xRange) negation */
+  {
+    {
+      int maxv;
+      int vx;
+      int vy;
+      int vz;
 
-  iVar1 = CHECK_VERTEX_WITH_DIRS(1,1,1);
-
-  if (((((iVar1 == 0) && (iVar1 = CHECK_VERTEX_WITH_DIRS(1,1,-1), iVar1 == 0)) &&
-
-       (iVar1 = CHECK_VERTEX_WITH_DIRS(1,-1,1), iVar1 == 0)) &&
-
-      ((iVar1 = CHECK_VERTEX_WITH_DIRS(1,-1,-1), iVar1 == 0 &&
-
-       (iVar1 = CHECK_VERTEX_WITH_DIRS(-1,1,1), iVar1 == 0)))) &&
-
-     ((iVar1 = CHECK_VERTEX_WITH_DIRS(-1,1,-1), iVar1 == 0 &&
-
-      ((iVar1 = CHECK_VERTEX_WITH_DIRS(-1,-1,1), iVar1 == 0 &&
-
-       (iVar1 = CHECK_VERTEX_WITH_DIRS(-1,-1,-1), iVar1 == 0)))))) {
-
-    iVar1 = CHECK_VERTEX_WITH_DIRS_OTHER(1,1,1);
-
-    if ((((iVar1 == 0) && (iVar1 = CHECK_VERTEX_WITH_DIRS_OTHER(1,1,-1), iVar1 == 0)) &&
-
-        (iVar1 = CHECK_VERTEX_WITH_DIRS_OTHER(1,-1,1), iVar1 == 0)) &&
-
-       (((iVar1 = CHECK_VERTEX_WITH_DIRS_OTHER(1,-1,-1), iVar1 == 0 &&
-
-         (iVar1 = CHECK_VERTEX_WITH_DIRS_OTHER(-1,1,1), iVar1 == 0)) &&
-
-        ((iVar1 = CHECK_VERTEX_WITH_DIRS_OTHER(-1,1,-1), iVar1 == 0 &&
-
-         ((iVar1 = CHECK_VERTEX_WITH_DIRS_OTHER(-1,-1,1), iVar1 == 0 &&
-
-          (iVar1 = CHECK_VERTEX_WITH_DIRS_OTHER(-1,-1,-1), iVar1 == 0)))))))) {
-
-      return 0;
-
+      findClosestSideDave = 0;
+      vx = (o1->linearVel).x - (o0->linearVel).x;
+      if (vx <= 0) {
+        vx = (o0->linearVel).x - (o1->linearVel).x;
+      }
+      vy = (o1->linearVel).y - (o0->linearVel).y;
+      if (vy <= 0) {
+        vy = (o0->linearVel).y - (o1->linearVel).y;
+      }
+      vz = (o1->linearVel).z - (o0->linearVel).z;
+      if (vz <= 0) {
+        vz = (o0->linearVel).z - (o1->linearVel).z;
+      }
+      maxv = vx;
+      if (maxv < vy) {
+        maxv = vy;
+      }
+      if (maxv < vz) {
+        maxv = vz;
+      }
+      if (0xF0000 < maxv) {
+        findClosestSideDave = 1;
+      }
     }
-
-    iVar10 = zRange;
-
-    iVar9 = yRange;
-
-    iVar1 = xRange;
-
-    iVar6 = (o1->linearVel).x;
-
-    iVar3 = (o0->linearVel).x;
-
-    iVar2 = iVar6 - iVar3;
-
-    if (iVar2 < 1) {
-
-      iVar2 = iVar3 - iVar6;
-
-    }
-
-    iVar6 = (o1->linearVel).y;
-
-    iVar3 = (o0->linearVel).y;
-
-    iVar7 = iVar6 - iVar3;
-
-    if (iVar7 < 1) {
-
-      iVar7 = iVar3 - iVar6;
-
-    }
-
-    iVar8 = (o1->linearVel).z;
-
-    iVar3 = (o0->linearVel).z;
-
-    iVar6 = iVar8 - iVar3;
-
-    if (iVar6 < 1) {
-
-      iVar6 = iVar3 - iVar8;
-
-    }
-
-    if (iVar2 < iVar7) {
-
-      iVar2 = iVar7;
-
-    }
-
-    if (iVar2 < iVar6) {
-
-      iVar2 = iVar6;
-
-    }
-
-    findClosestSideDave = (int)(0xf0000 < iVar2);
-
-    if (findClosestSideDave != 0) {
-
-      iVar1 = (o0->linearVel).x;
-
-      iVar9 = (o0->linearVel).y;
-
-      iVar10 = (o0->linearVel).z;
-
-      local_60 = (o1->orientMat).m[0];
-
-      local_5c = (o1->orientMat).m[1];
-
-      local_58 = (o1->orientMat).m[2];
-
-      local_50 = (o1->orientMat).m[3];
-
-      local_4c = (o1->orientMat).m[4];
-
-      local_48 = (o1->orientMat).m[5];
-
-      local_40 = (o1->orientMat).m[6];
-
-      local_3c = (o1->orientMat).m[7];
-
-      local_38 = (o1->orientMat).m[8];
-
-      if (xRange < 0) {
-
-        local_60 = -local_60;
-
-        local_58 = -local_58;
-
-        local_5c = -local_5c;
-
-      }
-
-      if (yRange < 0) {
-
-        local_50 = -local_50;
-
-        local_48 = -local_48;
-
-        local_4c = -local_4c;
-
-      }
-
-      if (zRange < 0) {
-
-        local_40 = -local_40;
-
-        local_38 = -local_38;
-
-        local_3c = -local_3c;
-
-      }
-
-      iVar2 = local_60;
-
-      if (local_60 < 0) {
-
-        iVar2 = local_60 + 0xff;
-
-      }
-
-      iVar3 = iVar1;
-
-      if (iVar1 < 0) {
-
-        iVar3 = iVar1 + 0xff;
-
-      }
-
-      iVar6 = local_5c;
-
-      if (local_5c < 0) {
-
-        iVar6 = local_5c + 0xff;
-
-      }
-
-      iVar7 = iVar9;
-
-      if (iVar9 < 0) {
-
-        iVar7 = iVar9 + 0xff;
-
-      }
-
-      iVar8 = local_58;
-
-      if (local_58 < 0) {
-
-        iVar8 = local_58 + 0xff;
-
-      }
-
-      iVar4 = iVar10;
-
-      if (iVar10 < 0) {
-
-        iVar4 = iVar10 + 0xff;
-
-      }
-
-      iVar2 = (iVar2 >> 8) * (iVar3 >> 8) + (iVar6 >> 8) * (iVar7 >> 8) +
-
-              (iVar8 >> 8) * (iVar4 >> 8);
-
-      iVar6 = local_50;
-
-      if (local_50 < 0) {
-
-        iVar6 = local_50 + 0xff;
-
-      }
-
-      iVar8 = local_4c;
-
-      if (local_4c < 0) {
-
-        iVar8 = local_4c + 0xff;
-
-      }
-
-      iVar5 = local_48;
-
-      if (local_48 < 0) {
-
-        iVar5 = local_48 + 0xff;
-
-      }
-
-      iVar3 = (iVar6 >> 8) * (iVar3 >> 8) + (iVar8 >> 8) * (iVar7 >> 8) +
-
-              (iVar5 >> 8) * (iVar4 >> 8);
-
-      iVar6 = local_40;
-
-      if (local_40 < 0) {
-
-        iVar6 = local_40 + 0xff;
-
-      }
-
-      if (iVar1 < 0) {
-
-        iVar1 = iVar1 + 0xff;
-
-      }
-
-      iVar7 = local_3c;
-
-      if (local_3c < 0) {
-
-        iVar7 = local_3c + 0xff;
-
-      }
-
-      if (iVar9 < 0) {
-
-        iVar9 = iVar9 + 0xff;
-
-      }
-
-      iVar8 = local_38;
-
-      if (local_38 < 0) {
-
-        iVar8 = local_38 + 0xff;
-
-      }
-
-      if (iVar10 < 0) {
-
-        iVar10 = iVar10 + 0xff;
-
-      }
-
-      if (iVar2 < 0) {
-
-        iVar2 = -iVar2;
-
-      }
-
-      if (iVar3 < 0) {
-
-        iVar3 = -iVar3;
-
-      }
-
-      iVar1 = (iVar6 >> 8) * (iVar1 >> 8) + (iVar7 >> 8) * (iVar9 >> 8) +
-
-              (iVar8 >> 8) * (iVar10 >> 8);
-
-      if (iVar1 < 0) {
-
-        iVar1 = -iVar1;
-
-      }
-
-      if ((iVar3 < iVar2) && (iVar1 < iVar2)) {
-
-LAB_8008ff94:
-
-        normal->x = local_60;
-
-        normal->y = local_5c;
-
-        normal->z = local_58;
-
+    {
+      if (findClosestSideDave != 0) {
+        coorddef normalx;
+        coorddef normaly;
+        coorddef normalz;
+        int dotx;
+        int doty;
+        int dotz;
+        coorddef vel;
+
+        vel.x = (o1->linearVel).x;
+        vel.y = (o1->linearVel).y;
+        vel.z = (o1->linearVel).z;
+        normalx.x = (o0->orientMat).m[0];
+        normalx.y = (o0->orientMat).m[1];
+        normalx.z = (o0->orientMat).m[2];
+        normaly.x = (o0->orientMat).m[3];
+        normaly.y = (o0->orientMat).m[4];
+        normaly.z = (o0->orientMat).m[5];
+        normalz.x = (o0->orientMat).m[6];
+        normalz.y = (o0->orientMat).m[7];
+        normalz.z = (o0->orientMat).m[8];
+        if (0 < xRange) {
+          normalx.x = -normalx.x;
+          normalx.z = -normalx.z;
+          normalx.y = -normalx.y;
+        }
+        if (0 < yRange) {
+          normaly.x = -normaly.x;
+          normaly.z = -normaly.z;
+          normaly.y = -normaly.y;
+        }
+        if (0 < zRange) {
+          normalz.x = -normalz.x;
+          normalz.z = -normalz.z;
+          normalz.y = -normalz.y;
+        }
+        dotx = normalx.x / 256 * (vel.x / 256) + normalx.y / 256 * (vel.y / 256) +
+               normalx.z / 256 * (vel.z / 256);
+        doty = normaly.x / 256 * (vel.x / 256) + normaly.y / 256 * (vel.y / 256) +
+               normaly.z / 256 * (vel.z / 256);
+        dotz = normalz.x / 256 * (vel.x / 256) + normalz.y / 256 * (vel.y / 256) +
+               normalz.z / 256 * (vel.z / 256);
+        if (dotx < 0) {
+          dotx = -dotx;
+        }
+        if (doty < 0) {
+          doty = -doty;
+        }
+        if (dotz < 0) {
+          dotz = -dotz;
+        }
+        if (doty < dotx && dotz < dotx) {
+          normal->x = normalx.x;
+          normal->y = normalx.y;
+          normal->z = normalx.z;
+          return 1;
+        }
+        if (dotz < doty) {
+          normal->x = normaly.x;
+          normal->y = normaly.y;
+          normal->z = normaly.z;
+          return 1;
+        }
+        normal->x = normalz.x;
+        normal->y = normalz.y;
+        normal->z = normalz.z;
         return 1;
-
       }
+      {
+        int xDiff;
+        int yDiff;
+        int zDiff;
 
-      if (iVar3 <= iVar1) {
+        if (xRange < 0) {
+          xDiff = (o0->dimension).x + xRange;
+        }
+        else {
+          xDiff = (o0->dimension).x - xRange;
+        }
+        if (yRange < 0) {
+          yDiff = (o0->dimension).y + yRange;
+        }
+        else {
+          yDiff = (o0->dimension).y - yRange;
+        }
+        if (zRange < 0) {
+          zDiff = (o0->dimension).z + zRange;
+        }
+        else {
+          zDiff = (o0->dimension).z - zRange;
+        }
+        if (xDiff < yDiff && xDiff < zDiff) {
+          normal->x = (o0->orientMat).m[0];
+          normal->y = (o0->orientMat).m[1];
+          normal->z = (o0->orientMat).m[2];
+          if (0 < xRange) {
+            normal->x = -normal->x;
+            normal->z = -normal->z;
+            normal->y = -normal->y;
+          }
+          return 1;
+        }
+        if (yDiff < zDiff) {
+          normal->x = (o0->orientMat).m[3];
+          normal->y = (o0->orientMat).m[4];
+          normal->z = (o0->orientMat).m[5];
+          if (0 < yRange) {
+            normal->x = -normal->x;
+            normal->z = -normal->z;
+            normal->y = -normal->y;
+          }
+          return 1;
+        }
+        normal->x = (o0->orientMat).m[6];
+        normal->y = (o0->orientMat).m[7];
+        normal->z = (o0->orientMat).m[8];
+        if (0 < zRange) {
+          normal->x = -normal->x;
+          normal->z = -normal->z;
+          normal->y = -normal->y;
+        }
+ohalf:   /* OTHER!=0 : o1 orientMat, if(xRange<0) negation */
+  {
+    {
+      int maxv;
+      int vx;
+      int vy;
+      int vz;
 
-LAB_8008ffe0:
+      findClosestSideDave = 0;
+      vx = (o1->linearVel).x - (o0->linearVel).x;
+      if (vx <= 0) {
+        vx = (o0->linearVel).x - (o1->linearVel).x;
+      }
+      vy = (o1->linearVel).y - (o0->linearVel).y;
+      if (vy <= 0) {
+        vy = (o0->linearVel).y - (o1->linearVel).y;
+      }
+      vz = (o1->linearVel).z - (o0->linearVel).z;
+      if (vz <= 0) {
+        vz = (o0->linearVel).z - (o1->linearVel).z;
+      }
+      maxv = vx;
+      if (maxv < vy) {
+        maxv = vy;
+      }
+      if (maxv < vz) {
+        maxv = vz;
+      }
+      if (0xF0000 < maxv) {
+        findClosestSideDave = 1;
+      }
+    }
+    {
+      if (findClosestSideDave != 0) {
+        coorddef normalx;
+        coorddef normaly;
+        coorddef normalz;
+        int dotx;
+        int doty;
+        int dotz;
+        coorddef vel;
 
-        normal->x = local_40;
-
-        normal->y = local_3c;
-
-        normal->z = local_38;
-
+        vel.x = (o0->linearVel).x;
+        vel.y = (o0->linearVel).y;
+        vel.z = (o0->linearVel).z;
+        normalx.x = (o1->orientMat).m[0];
+        normalx.y = (o1->orientMat).m[1];
+        normalx.z = (o1->orientMat).m[2];
+        normaly.x = (o1->orientMat).m[3];
+        normaly.y = (o1->orientMat).m[4];
+        normaly.z = (o1->orientMat).m[5];
+        normalz.x = (o1->orientMat).m[6];
+        normalz.y = (o1->orientMat).m[7];
+        normalz.z = (o1->orientMat).m[8];
+        if (xRange < 0) {
+          normalx.x = -normalx.x;
+          normalx.z = -normalx.z;
+          normalx.y = -normalx.y;
+        }
+        if (yRange < 0) {
+          normaly.x = -normaly.x;
+          normaly.z = -normaly.z;
+          normaly.y = -normaly.y;
+        }
+        if (zRange < 0) {
+          normalz.x = -normalz.x;
+          normalz.z = -normalz.z;
+          normalz.y = -normalz.y;
+        }
+        dotx = normalx.x / 256 * (vel.x / 256) + normalx.y / 256 * (vel.y / 256) +
+               normalx.z / 256 * (vel.z / 256);
+        doty = normaly.x / 256 * (vel.x / 256) + normaly.y / 256 * (vel.y / 256) +
+               normaly.z / 256 * (vel.z / 256);
+        dotz = normalz.x / 256 * (vel.x / 256) + normalz.y / 256 * (vel.y / 256) +
+               normalz.z / 256 * (vel.z / 256);
+        if (dotx < 0) {
+          dotx = -dotx;
+        }
+        if (doty < 0) {
+          doty = -doty;
+        }
+        if (dotz < 0) {
+          dotz = -dotz;
+        }
+        if (doty < dotx && dotz < dotx) {
+          normal->x = normalx.x;
+          normal->y = normalx.y;
+          normal->z = normalx.z;
+          return 1;
+        }
+        if (dotz < doty) {
+          normal->x = normaly.x;
+          normal->y = normaly.y;
+          normal->z = normaly.z;
+          return 1;
+        }
+        normal->x = normalz.x;
+        normal->y = normalz.y;
+        normal->z = normalz.z;
         return 1;
-
       }
+      {
+        int xDiff;
+        int yDiff;
+        int zDiff;
 
-LAB_8008ffc0:
-
-      normal->x = local_50;
-
-      normal->y = local_4c;
-
-      normal->z = local_48;
-
-      return 1;
-
+        if (xRange < 0) {
+          xDiff = (o1->dimension).x + xRange;
+        }
+        else {
+          xDiff = (o1->dimension).x - xRange;
+        }
+        if (yRange < 0) {
+          yDiff = (o1->dimension).y + yRange;
+        }
+        else {
+          yDiff = (o1->dimension).y - yRange;
+        }
+        if (zRange < 0) {
+          zDiff = (o1->dimension).z + zRange;
+        }
+        else {
+          zDiff = (o1->dimension).z - zRange;
+        }
+        if (xDiff < yDiff && xDiff < zDiff) {
+          normal->x = (o1->orientMat).m[0];
+          normal->y = (o1->orientMat).m[1];
+          normal->z = (o1->orientMat).m[2];
+          if (xRange < 0) {
+            normal->x = -normal->x;
+            normal->z = -normal->z;
+            normal->y = -normal->y;
+          }
+          return 1;
+        }
+        if (yDiff < zDiff) {
+          normal->x = (o1->orientMat).m[3];
+          normal->y = (o1->orientMat).m[4];
+          normal->z = (o1->orientMat).m[5];
+          if (yRange < 0) {
+            normal->x = -normal->x;
+            normal->z = -normal->z;
+            normal->y = -normal->y;
+          }
+          return 1;
+        }
+        normal->x = (o1->orientMat).m[6];
+        normal->y = (o1->orientMat).m[7];
+        normal->z = (o1->orientMat).m[8];
+        if (zRange < 0) {
+          normal->x = -normal->x;
+          normal->z = -normal->z;
+          normal->y = -normal->y;
+        }
+        return 1;
+      }
     }
-
-    if (xRange < 0) {
-
-      iVar2 = (o1->dimension).x + xRange;
-
-    }
-
-    else {
-
-      iVar2 = (o1->dimension).x - xRange;
-
-    }
-
-    if (yRange < 0) {
-
-      iVar3 = (o1->dimension).y + yRange;
-
-    }
-
-    else {
-
-      iVar3 = (o1->dimension).y - yRange;
-
-    }
-
-    if (zRange < 0) {
-
-      iVar6 = (o1->dimension).z + zRange;
-
-    }
-
-    else {
-
-      iVar6 = (o1->dimension).z - zRange;
-
-    }
-
-    if ((iVar2 < iVar3) && (iVar2 < iVar6)) {
-
-      iVar9 = (o1->orientMat).m[1];
-
-      iVar10 = (o1->orientMat).m[2];
-
-      normal->x = (o1->orientMat).m[0];
-
-      normal->y = iVar9;
-
-      normal->z = iVar10;
-
-      iVar10 = iVar1;
-
-    }
-
-    else if (iVar3 < iVar6) {
-
-      iVar1 = (o1->orientMat).m[4];
-
-      iVar10 = (o1->orientMat).m[5];
-
-      normal->x = (o1->orientMat).m[3];
-
-      normal->y = iVar1;
-
-      normal->z = iVar10;
-
-      iVar10 = iVar9;
-
-    }
-
-    else {
-
-      iVar1 = (o1->orientMat).m[7];
-
-      iVar9 = (o1->orientMat).m[8];
-
-      normal->x = (o1->orientMat).m[6];
-
-      normal->y = iVar1;
-
-      normal->z = iVar9;
-
-    }
-
-    if (-1 < iVar10) {
-
-      return 1;
-
-    }
-
   }
-
-  else {
-
-    iVar10 = zRange;
-
-    iVar9 = yRange;
-
-    iVar1 = xRange;
-
-    iVar6 = (o1->linearVel).x;
-
-    iVar3 = (o0->linearVel).x;
-
-    iVar2 = iVar6 - iVar3;
-
-    if (iVar2 < 1) {
-
-      iVar2 = iVar3 - iVar6;
-
+        return 1;
+      }
     }
-
-    iVar6 = (o1->linearVel).y;
-
-    iVar3 = (o0->linearVel).y;
-
-    iVar7 = iVar6 - iVar3;
-
-    if (iVar7 < 1) {
-
-      iVar7 = iVar3 - iVar6;
-
-    }
-
-    iVar8 = (o1->linearVel).z;
-
-    iVar3 = (o0->linearVel).z;
-
-    iVar6 = iVar8 - iVar3;
-
-    if (iVar6 < 1) {
-
-      iVar6 = iVar3 - iVar8;
-
-    }
-
-    if (iVar2 < iVar7) {
-
-      iVar2 = iVar7;
-
-    }
-
-    if (iVar2 < iVar6) {
-
-      iVar2 = iVar6;
-
-    }
-
-    findClosestSideDave = (int)(0xf0000 < iVar2);
-
-    if (findClosestSideDave != 0) {
-
-      iVar1 = (o1->linearVel).x;
-
-      iVar9 = (o1->linearVel).y;
-
-      iVar10 = (o1->linearVel).z;
-
-      local_60 = (o0->orientMat).m[0];
-
-      local_5c = (o0->orientMat).m[1];
-
-      local_58 = (o0->orientMat).m[2];
-
-      local_50 = (o0->orientMat).m[3];
-
-      local_4c = (o0->orientMat).m[4];
-
-      local_48 = (o0->orientMat).m[5];
-
-      local_40 = (o0->orientMat).m[6];
-
-      local_3c = (o0->orientMat).m[7];
-
-      local_38 = (o0->orientMat).m[8];
-
-      if (0 < xRange) {
-
-        local_60 = -local_60;
-
-        local_58 = -local_58;
-
-        local_5c = -local_5c;
-
-      }
-
-      if (0 < yRange) {
-
-        local_50 = -local_50;
-
-        local_48 = -local_48;
-
-        local_4c = -local_4c;
-
-      }
-
-      if (0 < zRange) {
-
-        local_40 = -local_40;
-
-        local_38 = -local_38;
-
-        local_3c = -local_3c;
-
-      }
-
-      iVar2 = local_60;
-
-      if (local_60 < 0) {
-
-        iVar2 = local_60 + 0xff;
-
-      }
-
-      iVar3 = iVar1;
-
-      if (iVar1 < 0) {
-
-        iVar3 = iVar1 + 0xff;
-
-      }
-
-      iVar6 = local_5c;
-
-      if (local_5c < 0) {
-
-        iVar6 = local_5c + 0xff;
-
-      }
-
-      iVar7 = iVar9;
-
-      if (iVar9 < 0) {
-
-        iVar7 = iVar9 + 0xff;
-
-      }
-
-      iVar8 = local_58;
-
-      if (local_58 < 0) {
-
-        iVar8 = local_58 + 0xff;
-
-      }
-
-      iVar4 = iVar10;
-
-      if (iVar10 < 0) {
-
-        iVar4 = iVar10 + 0xff;
-
-      }
-
-      iVar2 = (iVar2 >> 8) * (iVar3 >> 8) + (iVar6 >> 8) * (iVar7 >> 8) +
-
-              (iVar8 >> 8) * (iVar4 >> 8);
-
-      iVar6 = local_50;
-
-      if (local_50 < 0) {
-
-        iVar6 = local_50 + 0xff;
-
-      }
-
-      iVar8 = local_4c;
-
-      if (local_4c < 0) {
-
-        iVar8 = local_4c + 0xff;
-
-      }
-
-      iVar5 = local_48;
-
-      if (local_48 < 0) {
-
-        iVar5 = local_48 + 0xff;
-
-      }
-
-      iVar3 = (iVar6 >> 8) * (iVar3 >> 8) + (iVar8 >> 8) * (iVar7 >> 8) +
-
-              (iVar5 >> 8) * (iVar4 >> 8);
-
-      iVar6 = local_40;
-
-      if (local_40 < 0) {
-
-        iVar6 = local_40 + 0xff;
-
-      }
-
-      if (iVar1 < 0) {
-
-        iVar1 = iVar1 + 0xff;
-
-      }
-
-      iVar7 = local_3c;
-
-      if (local_3c < 0) {
-
-        iVar7 = local_3c + 0xff;
-
-      }
-
-      if (iVar9 < 0) {
-
-        iVar9 = iVar9 + 0xff;
-
-      }
-
-      iVar8 = local_38;
-
-      if (local_38 < 0) {
-
-        iVar8 = local_38 + 0xff;
-
-      }
-
-      if (iVar10 < 0) {
-
-        iVar10 = iVar10 + 0xff;
-
-      }
-
-      if (iVar2 < 0) {
-
-        iVar2 = -iVar2;
-
-      }
-
-      if (iVar3 < 0) {
-
-        iVar3 = -iVar3;
-
-      }
-
-      iVar1 = (iVar6 >> 8) * (iVar1 >> 8) + (iVar7 >> 8) * (iVar9 >> 8) +
-
-              (iVar8 >> 8) * (iVar10 >> 8);
-
-      if (iVar1 < 0) {
-
-        iVar1 = -iVar1;
-
-      }
-
-      if ((iVar3 < iVar2) && (iVar1 < iVar2)) goto LAB_8008ff94;
-
-      if (iVar3 <= iVar1) goto LAB_8008ffe0;
-
-      goto LAB_8008ffc0;
-
-    }
-
-    if (xRange < 0) {
-
-      iVar2 = (o0->dimension).x + xRange;
-
-    }
-
-    else {
-
-      iVar2 = (o0->dimension).x - xRange;
-
-    }
-
-    if (yRange < 0) {
-
-      iVar3 = (o0->dimension).y + yRange;
-
-    }
-
-    else {
-
-      iVar3 = (o0->dimension).y - yRange;
-
-    }
-
-    if (zRange < 0) {
-
-      iVar6 = (o0->dimension).z + zRange;
-
-    }
-
-    else {
-
-      iVar6 = (o0->dimension).z - zRange;
-
-    }
-
-    if ((iVar2 < iVar3) && (iVar2 < iVar6)) {
-
-      iVar9 = (o0->orientMat).m[1];
-
-      iVar10 = (o0->orientMat).m[2];
-
-      normal->x = (o0->orientMat).m[0];
-
-      normal->y = iVar9;
-
-      normal->z = iVar10;
-
-      iVar10 = iVar1;
-
-    }
-
-    else if (iVar3 < iVar6) {
-
-      iVar1 = (o0->orientMat).m[4];
-
-      iVar10 = (o0->orientMat).m[5];
-
-      normal->x = (o0->orientMat).m[3];
-
-      normal->y = iVar1;
-
-      normal->z = iVar10;
-
-      iVar10 = iVar9;
-
-    }
-
-    else {
-
-      iVar1 = (o0->orientMat).m[7];
-
-      iVar9 = (o0->orientMat).m[8];
-
-      normal->x = (o0->orientMat).m[6];
-
-      normal->y = iVar1;
-
-      normal->z = iVar9;
-
-    }
-
-    if (iVar10 < 1) {
-
-      return 1;
-
-    }
-
   }
-
-  normal->x = -normal->x;
-
-  normal->z = -normal->z;
-
-  normal->y = -normal->y;
-
-  return 1;
-
 }
 
 /* ---- Collide_TestObjectVertices__FP13BO_tNewtonObjT0P8coorddefT2  [@0x80090144] ---- */

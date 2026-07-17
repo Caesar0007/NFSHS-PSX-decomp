@@ -1161,105 +1161,98 @@ void Flare_2DSpike(long *center,long *end,int otz)
 void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
 
 {
-  int flare_type;
-  int drawResult;
-  int haloShape_p;
-  int pkt_addr24;
-  int spritePrim_p;
-  short ts9;
-  int pkt_addr24_b;
-  DR_MODE *aprim;
-  DVECTOR *pDVar1;
-  int i;
-  int iVar2;
-  Draw_FlareCache *sd;
+  /* MATCH: SYM rule-8 shape (block 0x800cdf70): pt(s3)=&pt2, otz(s4)=0 (cse zero
+   * source for the first SetDrawMode's 0,0 args + a3 of all 16 Tri/Spike calls),
+   * sd(t0)=scratchpad cache base — guard reads sd->head.cprim.{PrimPtr,MPrimPtr}
+   * as displacements off the shared lui 0x1F80 base; no ts9/ts10 short temps
+   * (x/y live in s5/s6); gfrgb = word copy (CVECTOR struct-assign emits align-1
+   * movstrsi lwl/lwr — oracle has plain lw/sw 0(gp)); loop = index form arr[i]
+   * (walkers are compiler givs, SYM has only i) with plain /0x10000 signed
+   * division (bgez/addu 0xFFFF/sra guards regenerate; 0xFFFF hoists to a2 by
+   * loop.c); packet allocs per the proven TU idiom: aprim = PacketPtr FIRST,
+   * two-set slot (+ otz*4 in the tail block only). */
+  DVECTOR pt2;
   DVECTOR *pt;
   int otz;
-  short ts10;
-  int loc_60;
-  DVECTOR pt2;
-  DVECTOR npt [2];
-  DVECTOR save1;
-  DVECTOR octring [8];
-  u_char *p;
-  u_char *tp3;
-  u_char *tp2;
-  u_char *tp1;
-  
-  tp2 = Render_gPacketPtr;
-  tp1 = Render_gPalettePtr;
-  ts9 = (short)x;
-  ts10 = (short)y;
-  if (Render_gPacketPtr < Render_gPacketEnd + -0x1000) {
-    gfrgb = (*(CVECTOR *)&(Flare_gType[type & 0xffU].chalo));
-    gfrgb2 = (*(CVECTOR *)&(Flare_gType[type & 0xffU].cbeam));
-    *(u_int *)Render_gPacketPtr =
-         *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0xc;
-    *(u_int *)tp1 = *(u_int *)tp1 & 0xff000000 | pkt_addr24;
-    pt2.vx = ts9;
-    pt2.vy = ts10;
-    SetDrawMode((DR_MODE *)tp2,0,0,0x120,(RECT *)0x0);
-    iVar2 = 0;
-    pDVar1 = octring;
-    spritePrim_p = (int)Flare_gOct;
-    do {
-      drawResult = *(short *)spritePrim_p * scalex;
-      if (drawResult < 0) {
-        drawResult = drawResult + 0xffff;
+  Draw_FlareCache *sd;
+
+  sd = (Draw_FlareCache *)&Render_gPalettePtr;
+  pt2.vx = (short)x;
+  pt2.vy = (short)y;
+  if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr + -0x1000) {
+    int flare_type;
+
+    pt = &pt2;
+    otz = 0;
+    flare_type = type & 0xffU;
+    *(u_long *)&gfrgb = Flare_gType[flare_type].chalo;
+    *(u_long *)&gfrgb2 = Flare_gType[flare_type].cbeam;
+    {
+      DR_MODE *aprim;
+      u_int *slot;
+
+      aprim = (DR_MODE *)Render_gPacketPtr;
+      slot = (u_int *)Render_gPalettePtr;
+      *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
+      Render_gPacketPtr = (u_char *)aprim + 0xc;
+      *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
+      SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
+    }
+    {
+      DVECTOR npt [2];
+      DVECTOR save1;
+      DVECTOR octring [8];
+      int i;
+
+      for (i = 0; i < 8; i++) {
+        octring[i].vx = (short)(Flare_gOct[i].vx * scalex / 0x10000);
+        octring[i].vy = (short)(Flare_gOct[i].vy * scaley / 0x10000);
       }
-      pDVar1->vx = (short)((u_int)drawResult >> 0x10);
-      haloShape_p = *(short *)(spritePrim_p + 2) * scaley;
-      if (haloShape_p < 0) {
-        haloShape_p = haloShape_p + 0xffff;
-      }
-      pDVar1->vy = (short)((u_int)haloShape_p >> 0x10);
-      pDVar1 = pDVar1 + 1;
-      iVar2 = iVar2 + 1;
-      spritePrim_p = spritePrim_p + 8;
-    } while (iVar2 < 8);
-    pDVar1 = npt + 1;
-    save1.vx = octring[0].vx + ts9;
-    save1.vy = octring[0].vy + ts10;
-    npt[1].vx = octring[1].vx + ts9;
-    npt[1].vy = octring[1].vy + ts10;
-    Flare_Tri((long *)&pt2,(long *)&save1,(long *)pDVar1,0);
-    Flare_2DSpike((long *)&pt2,(long *)pDVar1,0);
-    npt[0].vx = octring[2].vx + ts9;
-    npt[0].vy = octring[2].vy + ts10;
-    Flare_Tri((long *)&pt2,(long *)pDVar1,(long *)npt,0);
-    Flare_2DSpike((long *)&pt2,(long *)npt,0);
-    npt[1].vx = octring[3].vx + ts9;
-    npt[1].vy = octring[3].vy + ts10;
-    Flare_Tri((long *)&pt2,(long *)npt,(long *)pDVar1,0);
-    Flare_2DSpike((long *)&pt2,(long *)pDVar1,0);
-    npt[0].vx = octring[4].vx + ts9;
-    npt[0].vy = octring[4].vy + ts10;
-    Flare_Tri((long *)&pt2,(long *)pDVar1,(long *)npt,0);
-    Flare_2DSpike((long *)&pt2,(long *)npt,0);
-    npt[1].vx = octring[5].vx + ts9;
-    npt[1].vy = octring[5].vy + ts10;
-    Flare_Tri((long *)&pt2,(long *)npt,(long *)pDVar1,0);
-    Flare_2DSpike((long *)&pt2,(long *)pDVar1,0);
-    npt[0].vx = octring[6].vx + ts9;
-    npt[0].vy = octring[6].vy + ts10;
-    Flare_Tri((long *)&pt2,(long *)pDVar1,(long *)npt,0);
-    Flare_2DSpike((long *)&pt2,(long *)npt,0);
-    npt[1].vx = octring[7].vx + ts9;
-    npt[1].vy = octring[7].vy + ts10;
-    Flare_Tri((long *)&pt2,(long *)npt,(long *)pDVar1,0);
-    Flare_2DSpike((long *)&pt2,(long *)pDVar1,0);
-    Flare_Tri((long *)&pt2,(long *)pDVar1,(long *)&save1,0);
-    Flare_2DSpike((long *)&pt2,(long *)&save1,0);
-    p = Render_gPacketPtr;
-    tp3 = Render_gPalettePtr;
-    *(u_int *)Render_gPacketPtr =
-         *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    pkt_addr24_b = (u_int)Render_gPacketPtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0xc;
-    *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | pkt_addr24_b;
-    SetDrawMode((DR_MODE *)p,0,1,0x120,(RECT *)0x0);
+      save1.vx = octring[0].vx + x;
+      save1.vy = octring[0].vy + y;
+      npt[1].vx = octring[1].vx + x;
+      npt[1].vy = octring[1].vy + y;
+      Flare_Tri((long *)pt,(long *)&save1,(long *)&npt[1],otz);
+      Flare_2DSpike((long *)pt,(long *)&npt[1],otz);
+      npt[0].vx = octring[2].vx + x;
+      npt[0].vy = octring[2].vy + y;
+      Flare_Tri((long *)pt,(long *)&npt[1],(long *)npt,otz);
+      Flare_2DSpike((long *)pt,(long *)npt,otz);
+      npt[1].vx = octring[3].vx + x;
+      npt[1].vy = octring[3].vy + y;
+      Flare_Tri((long *)pt,(long *)npt,(long *)&npt[1],otz);
+      Flare_2DSpike((long *)pt,(long *)&npt[1],otz);
+      npt[0].vx = octring[4].vx + x;
+      npt[0].vy = octring[4].vy + y;
+      Flare_Tri((long *)pt,(long *)&npt[1],(long *)npt,otz);
+      Flare_2DSpike((long *)pt,(long *)npt,otz);
+      npt[1].vx = octring[5].vx + x;
+      npt[1].vy = octring[5].vy + y;
+      Flare_Tri((long *)pt,(long *)npt,(long *)&npt[1],otz);
+      Flare_2DSpike((long *)pt,(long *)&npt[1],otz);
+      npt[0].vx = octring[6].vx + x;
+      npt[0].vy = octring[6].vy + y;
+      Flare_Tri((long *)pt,(long *)&npt[1],(long *)npt,otz);
+      Flare_2DSpike((long *)pt,(long *)npt,otz);
+      npt[1].vx = octring[7].vx + x;
+      npt[1].vy = octring[7].vy + y;
+      Flare_Tri((long *)pt,(long *)npt,(long *)&npt[1],otz);
+      Flare_2DSpike((long *)pt,(long *)&npt[1],otz);
+      Flare_Tri((long *)pt,(long *)&npt[1],(long *)&save1,otz);
+      Flare_2DSpike((long *)pt,(long *)&save1,otz);
+    }
+    {
+      DR_MODE *aprim;
+      u_int *slot;
+
+      aprim = (DR_MODE *)Render_gPacketPtr;
+      slot = (u_int *)Render_gPalettePtr;
+      slot = (u_int *)((int)slot + otz * 4);
+      *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
+      Render_gPacketPtr = (u_char *)aprim + 0xc;
+      *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
+      SetDrawMode(aprim,0,1,0x120,(RECT *)0x0);
+    }
   }
   return;
 }
@@ -1557,85 +1550,77 @@ void Flare_InitLensFlare(void)
 void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
 
 {
-  int screen_y_pos;
+  /* MATCH: SYM rule-8 (block 0x800ceb6c). CONCAT11/switchD Ghidra-isms REMOVED
+   * and re-derived from raw (BF820-BF89C): piece color is a SEPARATE inner
+   * `col` CVECTOR (oracle sp20, distinct from pxy sp18) whose r/g/b bytes are
+   * SIGNED col.field = piece->color.field * piece_color / 25 -- oracle emits
+   * `mult; mfhi; sra 3` with NO sign-fix because gcc proves the product >=0
+   * (u_char * masked-int); the prior `(u_int)`-cast form was an unsigned-divide
+   * CORRECTNESS/codegen bug. dx/dy(0x140-sx,0xf0-sy) + angleZ/angleZ2((sx+sy)*8,
+   * *6) precomputed post-quad AUTO spills; col(white)= one word store 0x00ffffff;
+   * switch case-4 falls through to default (both reach the shared piece_idx++,
+   * = the oracle jtbl_80056894 shared tail). */
+  int sx;
+  int sy;
+  int dx;
+  int dy;
+  long angleZ;
+  long angleZ2;
+  int flareVis;
+  int piece_color;
+  int piece_idx;
+  int pieceCount;
+  int piece_iter_a;
+  int ti7;
   int piece_y;
   int piece_x;
-  long result;
-  int screen_x_pos;
-  int piece_iter_a;
   u_int tu1;
   DR_MODE *aprim;
-  int width;
-  int height;
-  int ti7;
-  FLARE_PIECE_DEF *piece;
-  int piece_iter_b;
-  int i;
-  int pieceCount;
-  int piece_idx;
-  long angleZ;
-  char flareVis;
-  int flareVis_long;
-  int piece_color;
-  int sy;
-  int sx;
-  int loc_a8;
-  int loc_a4;
   DVECTOR pxy;
   DVECTOR pt [4];
   CVECTOR col;
   MATRIX scalemat;
   MATRIX mtx;
-  int dx;
-  int dy;
-  long angleZ2;
-  int loc_28;
-  int loc_24;
-  int loc_20;
-  int tF1;
-  short ts1;
-  short ts2;
   u_char *p;
   u_char *tp3;
-  
+
   if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr + -0x400) {
-    pieceCount = 0;
-    ts1 = screenPos->vx;
-    screen_y_pos = (int)ts1;
-    ts2 = screenPos->vy;
-    screen_x_pos = (int)ts2;
-    col.r = 0xff;
-    col.g = 0xff;
-    col.b = 0xff;
-    col.cd = '\0';
-    pt[0].vx = ts1 + -2;
-    pt[0].vy = ts2 + -2;
-    pt[1].vx = ts1 + 3;
-    pt[2].vy = ts2 + 3;
+    sx = screenPos->vx;
+    sy = screenPos->vy;
+    *(u_long *)&col = 0xffffff;
+    pt[0].vx = (short)(sx + -2);
+    pt[0].vy = (short)(sy + -2);
+    pt[1].vx = (short)(sx + 3);
+    pt[2].vy = (short)(sy + 3);
     pt[1].vy = pt[0].vy;
     pt[2].vx = pt[0].vx;
     pt[3].vx = pt[1].vx;
     pt[3].vy = pt[2].vy;
     Flare_QuadNotTransparent((long *)pt,&col,Draw_gViewOtSize + -2);
-    flareVis_long = 0;
+    angleZ = (sx + sy) * 8;
+    angleZ2 = (sx + sy) * 6;
+    dx = 0x140 - sx;
+    dy = 0xf0 - sy;
+    flareVis = 0;
     piece_iter_a = (int)&gFlare_LensFlare;
     gFlare_LensFlare.isDrawn[0] = '\x01';
     gFlare_LensFlare.oldpos[0].vx = gFlare_LensFlare.pos[0].vx;
     gFlare_LensFlare.oldpos[0].vy = gFlare_LensFlare.pos[0].vy;
+    pieceCount = 0;
     do {
       if ((*(u_short *)(piece_iter_a + 0x10) & 0x7fff) == 0x7fff) {
-        flareVis_long = flareVis_long + 1;
+        flareVis = flareVis + 1;
       }
       pieceCount = pieceCount + 1;
       piece_iter_a = piece_iter_a + 2;
     } while (pieceCount < 0x19);
-    piece_color = flareVis_long & 0xff;
-    gFlare_LensFlare.pos[0].vx = ts1;
-    gFlare_LensFlare.pos[0].vy = ts2;
+    piece_color = flareVis & 0xff;
+    gFlare_LensFlare.pos[0].vx = (short)sx;
+    gFlare_LensFlare.pos[0].vy = (short)sy;
     if (piece_color != 0) {
       gfrgb2 = TrackSpec_gSpec.skyspec.sunBeamColor;
       Flare_IdentMatrix(&mtx);
-      RotMatrixZ((screen_y_pos + screen_x_pos) * 8,&mtx);
+      RotMatrixZ(angleZ,&mtx);
 gte_SetRotMatrix(&scalemat);
 gte_ldsv(&mtx);
       gte_rtir();
@@ -1649,7 +1634,7 @@ gte_stsv(((char *)&mtx + 0x4));
 gte_SetRotMatrix(&mtx);
       Flare_Spikes((long *)screenPos,0);
       Flare_IdentMatrix(&mtx);
-      RotMatrixZ((screen_y_pos + screen_x_pos) * 6,&mtx);
+      RotMatrixZ(angleZ2,&mtx);
 gte_SetRotMatrix(&scalemat);
 gte_ldsv(&mtx);
       gte_rtir();
@@ -1665,49 +1650,37 @@ gte_SetRotMatrix(&mtx);
       piece_idx = 0;
       (gFlare_LensFlare.piece)->color = TrackSpec_gSpec.skyspec.sunHaloColor;
       while (p = Render_gPacketPtr, tp3 = Render_gPalettePtr, piece_idx < 9) {
-        piece_iter_b = (int)(gFlare_LensFlare.piece + piece_idx);
-        piece_y = (0x10000 - *(int *)piece_iter_b) * screen_y_pos +
-                  *(int *)piece_iter_b * (0x140 - screen_y_pos);
-        if (piece_y < 0) {
-          piece_y = piece_y + 0xffff;
+        FLARE_PIECE_DEF *piece;
+
+        piece = gFlare_LensFlare.piece + piece_idx;
+        piece_y = (0x10000 - piece->distance) * sx + piece->distance * dx;
+        pxy.vx = (short)(piece_y / 0x10000);
+        piece_x = (0x10000 - piece->distance) * sy + piece->distance * dy;
+        pxy.vy = (short)(piece_x / 0x10000);
+        ti7 = gFlare_LensFlare.size * piece->size / 0x10000;
+        if (3 < ti7) {
+          col.r = piece->color.r * piece_color / 0x19;
+          col.g = piece->color.g * piece_color / 0x19;
+          col.b = piece->color.b * piece_color / 0x19;
+          switch(piece->type) {
+          case 0:
+          case 1:
+            Flare_SingleColorTex(&pxy,&col,ti7,ti7,piece->type,0);
+            break;
+          case 2:
+            Flare_SingleColorHex((DVECTOR *)piece,&col,ti7,ti7,0);
+            break;
+          case 3:
+            Flare_SingleColorOct(&pxy,&col,ti7,ti7,0);
+            break;
+          case 4:
+            Flare_SingleColorOctRing(&pxy,&col,ti7,ti7,0);
+            /* fall through to default -> shared piece_idx++ */
+          default:
+            ;
+          }
         }
-        pxy.vx = (short)((u_int)piece_y >> 0x10);
-        piece_x = (0x10000 - *(int *)piece_iter_b) * screen_x_pos +
-                  *(int *)piece_iter_b * (0xf0 - screen_x_pos);
-        if (piece_x < 0) {
-          piece_x = piece_x + 0xffff;
-        }
-        pxy.vy = (short)((u_int)piece_x >> 0x10);
-        ti7 = gFlare_LensFlare.size * *(int *)(piece_iter_b + 4);
-        if (ti7 < 0) {
-          ti7 = ti7 + 0xffff;
-        }
-        ti7 = ti7 >> 0x10;
-        if (ti7 < 4) goto switchD_800cf0c0_default;
-        pt[0].vx = CONCAT11((char)(((u_int)*(u_char *)(piece_iter_b + 9) * piece_color) / 0x19),
-                            (char)(((u_int)*(u_char *)(piece_iter_b + 8) * piece_color) / 0x19));
-        pt[0].vy = CONCAT11(((u_char *)&(pt[0].vy))[1],
-                            (char)(((u_int)*(u_char *)(piece_iter_b + 10) * piece_color) / 0x19));
-        switch(*(u_char *)(piece_iter_b + 0xc)) {
-        case 0:
-        case 1:
-          Flare_SingleColorTex(&pxy,(CVECTOR *)pt,ti7,ti7,*(char *)(piece_iter_b + 0xc),0);
-          piece_idx = piece_idx + 1;
-          break;
-        case 2:
-          Flare_SingleColorHex((DVECTOR *)piece_iter_b,(CVECTOR *)pt,ti7,ti7,0);
-          piece_idx = piece_idx + 1;
-          break;
-        case 3:
-          Flare_SingleColorOct(&pxy,(CVECTOR *)pt,ti7,ti7,0);
-          piece_idx = piece_idx + 1;
-          break;
-        case 4:
-          Flare_SingleColorOctRing(&pxy,(CVECTOR *)pt,ti7,ti7,0);
-        default:
-switchD_800cf0c0_default:
-          piece_idx = piece_idx + 1;
-        }
+        piece_idx = piece_idx + 1;
       }
       *(u_int *)Render_gPacketPtr =
            *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;

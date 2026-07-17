@@ -634,73 +634,67 @@ void Hud_Init0(void)
 void Hud_InitMapFrame(int i,int mode)
 
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  long splitY;
-  int iVar4;
   SPRT *gSprt1;
-  int lx;
-  int x;
-  POLY_FT4 *HudFT4;
-  int h1;
-  int iVar6;
-  int w1;
-  int iVar7;
-  int h2;
-  int iVar8;
   POLY_F4 *HudF4;
+  POLY_FT4 *HudFT4;
+  long splitY;
+  int lx;
+  int h1;
+  int h2;
   int h3;
+  int w1;
   int w2;
   int w3;
-  
-  gSprt1 = gSprite0;
+
   if (i != 0) {
     gSprt1 = gSprite1;
   }
+  else {
+    gSprt1 = gSprite0;
+  }
   HudF4 = gHudF4;
   if (i != 0) {
-    HudF4 = (POLY_F4 *)(short *)((char *)&gHudF4 + 0xa8) /* @0x8013e4f8 */;
+    HudF4 = gHudF4 + 7;
   }
   HudFT4 = gHudFT4;
   if (i != 0) {
     HudFT4 = gHudFT4 + 5;
   }
-  iVar4 = 0;
+  splitY = 0;
   if (i != 0) {
-    iVar4 = -0xd;
+    splitY = -0xd;
   }
-  iVar6 = (int)HudPmx_gShapes[0xe].height;
-  iVar7 = (int)HudPmx_gShapes[0xe].width;
-  iVar1 = (int)HudPmx_gShapes[0x14].height;
-  iVar2 = (int)HudPmx_gShapes[0x18].width;
-  x = (int)g1Player[0xe].x;
-  iVar8 = (int)HudPmx_gShapes[0x18].height;
-  iVar3 = (int)HudPmx_gShapes[0x14].width;
+  h1 = (int)HudPmx_gShapes[0xe].height;
+  w1 = (int)HudPmx_gShapes[0xe].width;
+  lx = (int)g1Player[0xe].x;
+  h3 = h1 - (int)HudPmx_gShapes[0x14].height;
+  w3 = w1 - (int)HudPmx_gShapes[0x18].width;
+  h2 = (int)HudPmx_gShapes[0x18].height;
+  w2 = (int)HudPmx_gShapes[0x14].width;
   if (mode == 1) {
-    x = x + -0x1e;
+    lx = lx + -0x1e;
   }
   currentSpriteColor = 0xff5721;
   currentSpriteTransparent = '\0';
-  Hud_BuildSprite2(gSprt1 + 0x3f,0xe,x,g1Player[0xe].y + HudMapOffsetY + iVar4);
-  Hud_BuildSprite2(gSprt1 + 0x40,0xf,g1Player[0xe].x + iVar7 + iVar3,
-             g1Player[0xe].y + HudMapOffsetY + iVar4);
-  Hud_BuildSprite2(gSprt1 + 0x41,0x10,x,g1Player[0xe].y + HudMapOffsetY + iVar6 + iVar8 + iVar4);
-  Hud_BuildSprite2(gSprt1 + 0x42,0x11,g1Player[0xe].x + iVar7 + iVar3,
-             g1Player[0xe].y + HudMapOffsetY + iVar6 + iVar8 + iVar4);
-  Hud_BuildSprite2(gSprt1 + 0x43,mode + 0x14,x + iVar7,g1Player[0xe].y + HudMapOffsetY + iVar4);
-  Hud_BuildSprite2(gSprt1 + 0x44,mode + 0x14,x + iVar7,
-             ((g1Player[0xe].y + HudMapOffsetY + iVar6 * 2 + iVar8) - iVar1) + iVar4);
-  Hud_BuildSprite2(gSprt1 + 0x45,0x18,x,g1Player[0xe].y + HudMapOffsetY + iVar6 + iVar4)
+  Hud_BuildSprite2(gSprt1 + 0x3f,0xe,lx,g1Player[0xe].y + HudMapOffsetY + splitY);
+  Hud_BuildSprite2(gSprt1 + 0x40,0xf,g1Player[0xe].x + w1 + w2,
+             g1Player[0xe].y + HudMapOffsetY + splitY);
+  Hud_BuildSprite2(gSprt1 + 0x41,0x10,lx,g1Player[0xe].y + HudMapOffsetY + h1 + h2 + splitY);
+  Hud_BuildSprite2(gSprt1 + 0x42,0x11,g1Player[0xe].x + w1 + w2,
+             g1Player[0xe].y + HudMapOffsetY + h1 + h2 + splitY);
+  Hud_BuildSprite2(gSprt1 + 0x43,mode + 0x14,lx + w1,g1Player[0xe].y + HudMapOffsetY + splitY);
+  Hud_BuildSprite2(gSprt1 + 0x44,mode + 0x14,lx + w1,
+             g1Player[0xe].y + HudMapOffsetY + h1 + h2 + h3 + splitY);
+  Hud_BuildSprite2(gSprt1 + 0x45,0x18,lx,g1Player[0xe].y + HudMapOffsetY + h1 + splitY)
   ;
-  Hud_BuildSprite2(gSprt1 + 0x46,0x18,((int)g1Player[0xe].x + iVar7 * 2 + iVar3) - iVar2,
-             g1Player[0xe].y + HudMapOffsetY + iVar6 + iVar4);
+  Hud_BuildSprite2(gSprt1 + 0x46,0x18,g1Player[0xe].x + w1 + w2 + w3,
+             g1Player[0xe].y + HudMapOffsetY + h1 + splitY);
   Hud_BuildF4(HudF4 + 4,1,0,0,0x2d,0x30,0);
-  if (GameSetup_gData.mirrorTrack == 0) {
-    Hud_BuildFT4(HudFT4,HudPmx_gShapes + 0x78,0,0,0x808080,1);
+  if (GameSetup_gData.mirrorTrack != 0) {
+    Hud_BuildMapMirrorFT4(HudFT4,HudPmx_gShapes + 0x78,0,0,0x808080,1);
   }
   else {
-    Hud_BuildMapMirrorFT4(HudFT4,HudPmx_gShapes + 0x78,0,0,0x808080,1);
+    Hud_BuildFT4(HudFT4,HudPmx_gShapes + 0x78,0,0,0x808080,1);
   }
   Hud_BuildFT4(HudFT4 + 1,HudPmx_gShapes + 0x70,0,0,0x808080,1);
   Hud_BuildMirrorFT4(HudFT4 + 2,HudPmx_gShapes + 0x70,(int)HudPmx_gShapes[0x70].width,0,0x808080,1);
@@ -753,222 +747,201 @@ void Hud_Init(void)
 
 {
   int x;
-  short sVar1;
-  tSmallCoordXY *ptVar2;
-  u_int uVar3;
-  int *piVar4;
-  int *piVar5;
-  char *str;
-  int baseY;
-  DR_MODE *pDVar6;
   int y;
-  DR_MODE *pDVar7;
-  int iVar8;
-  int iVar9;
-  int baseX;
-  int j;
-  int iVar11;
-  int w2;
-  int iVar12;
-  int w1;
-  int iVar13;
-  SPRT *gSprt1;
-  POLY_G4 *HudG4;
-  int iVar15;
-  long splitY;
   int i;
-  int iVar16;
+  int j;
+  int w1;
+  int w2;
   u_long textcolour;
+  SPRT *gSprt1;
   POLY_F4 *HudF4;
-  int iStack_30;
-  GameSetup_tData *pGStack_2c;
-  
-  iVar16 = 0;
-  iVar13 = 0;
+  POLY_G4 *HudG4;
+  long splitY;
+  int timelapshift;
+  SPRT *spriteReplay;
+  int baseX;
+  int baseY;
+
+  textcolour = 0xa0a0a0;
+  i = 0;
   do {
     j = 0;
-    pDVar6 = gTPage0[0];
-    pDVar7 = gTPage1[0];
     do {
-      SetDrawMode((DR_MODE *)((int)pDVar6->code + iVar13 + -4),0,0,2,(RECT *)0x0);
-      SetDrawMode((DR_MODE *)((int)pDVar7->code + iVar13 + -4),0,0,3,(RECT *)0x0);
-      pDVar7 = pDVar7 + 1;
+      SetDrawMode(&gTPage0[i][j],0,0,2,(RECT *)0x0);
+      SetDrawMode(&gTPage1[i][j],0,0,3,(RECT *)0x0);
       j = j + 1;
-      pDVar6 = pDVar6 + 1;
     } while (j < 4);
-    iVar16 = iVar16 + 1;
-    iVar13 = iVar13 + 0x30;
-  } while (iVar16 < 2);
-  iStack_30 = 0;
-  pGStack_2c = &GameSetup_gData;
-  SPRT *spriteReplay;
-  int timelapshift;
-  for (iVar13 = 0; gSprt1 = gSprite0, iVar13 <= DashHUD_gInfo.splitscreen; iVar13 = iVar13 + 1) {
-    if (iVar13 != 0) {
+    i = i + 1;
+  } while (i < 2);
+  i = 0;
+  while (true) {
+    if (DashHUD_gInfo.splitscreen < i) break;
+    if (i != 0) {
       gSprt1 = gSprite1;
     }
+    else {
+      gSprt1 = gSprite0;
+    }
     HudF4 = gHudF4;
-    if (iVar13 != 0) {
+    if (i != 0) {
       HudF4 = gHudF4 + 7;
     }
     HudG4 = gHudG4;
-    if (iVar13 != 0) {
+    if (i != 0) {
       HudG4 = gHudG4 + 4;
     }
-    iVar16 = 0;
-    if (iVar13 != 0) {
-      iVar16 = -0xf;
+    splitY = 0;
+    if (i != 0) {
+      splitY = -0xf;
     }
-    j = (u_int)(pGStack_2c->carInfo[0].HudTime == 0) * 0x10;
-    if (pGStack_2c->carInfo[0].HudLapnum == 0) {
-      j = j + 0x10;
+    timelapshift = (GameSetup_gData.carInfo[i].HudTime == 0) * 0x10;
+    if (GameSetup_gData.carInfo[i].HudLapnum == 0) {
+      timelapshift = timelapshift + 0x10;
     }
-    Hud_BuildSprite(gSprt1,0x68,(int)g1Player->x,(g1Player->y + iVar16) - timelapshift,0xbebe,0);
+    Hud_BuildSprite(gSprt1,0x68,g1Player->x,(g1Player->y + splitY) - timelapshift,0xbebe,0);
     currentSpriteColor = 0x808080;
-    Hud_BuildSprite2(gSprt1 + 1,0x80,(int)g1Player[1].x,g1Player[1].y + iVar16);
+    Hud_BuildSprite2(gSprt1 + 1,0x80,g1Player[1].x,g1Player[1].y + splitY);
     j = 0x81;
-    if (iVar13 != 0) {
+    if (i != 0) {
       j = 0x83;
     }
     Hud_BuildSprite2(gSprt1 + 2,j,0,0);
-    gSprt1[2].w = 0x1c;
-    gSprt1[2].h = 0x1c;
-    j = (int)HudPmx_gShapes[0x6b].width;
-    iVar12 = 0x46;
+    *(int *)&gSprt1[2].w = 0x1c001c;
+    w1 = HudPmx_gShapes[0x6b].width;
+    w2 = 0x46;
     if (Hud_BeTheCop != 0) {
-      iVar12 = 0x2e;
+      w2 = 0x2e;
     }
-    sVar1 = g1Player[2].x;
-    iVar8 = g1Player[2].y + iVar16;
-    Hud_BuildSprite2(gSprt1 + 4,0x69,(int)sVar1,iVar8);
-    j = sVar1 + j;
-    Hud_BuildG4(HudG4,1,j,iVar8,iVar12,10,0,0x707070,0,0x707070);
-    j = j + iVar12;
-    Hud_BuildSprite2(gSprt1 + 5,0x7d,timelapshift,iVar8);
-    Hud_BuildF4(HudF4,1,j,iVar8 + 7,7,3,0x707070);
-    j = (int)HudPmx_gShapes[0x6b].width;
-    sVar1 = g1Player[3].x;
-    uVar3 = (u_int)(pGStack_2c->carInfo[0].HudTime == 0);
-    iVar12 = g1Player[3].y + iVar16 + uVar3 * -0x10;
-    Hud_BuildSprite2(gSprt1 + 6,0x6b,(int)sVar1,iVar12);
-    j = sVar1 + j;
-    Hud_BuildG4(HudG4 + 1,1,j,iVar12,0x1d,10,0,0x707070,0,0x707070);
-    j = j + 0x1d;
-    Hud_BuildF4(HudF4 + 1,1,j,iVar12 + 7,7,3,0x707070);
-    Hud_BuildSprite2(gSprt1 + 7,0x7d,timelapshift,iVar12);
-    j = (int)HudPmx_gShapes[0x6b].width;
-    sVar1 = g1Player[4].x;
-    iVar12 = g1Player[4].y + iVar16;
-    Hud_BuildSprite2(gSprt1 + 8,0x69,(int)sVar1,iVar12);
-    j = sVar1 + j;
-    Hud_BuildG4(HudG4 + 3,1,j,iVar12,0x3c,10,0,0x707070,0,0x707070);
-    j = j + 0x3c;
-    Hud_BuildF4(HudF4 + 2,1,j,iVar12 + 7,7,3,0x707070);
-    Hud_BuildSprite2(gSprt1 + 9,0x7d,timelapshift,iVar12);
-    iVar12 = (int)HudPmx_gShapes[0x76].width;
-    j = 0x26;
-    if ((Hud_BeTheCop == 0) &&
-       (j = 0x32, *(int *)((int)GameSetup_gData.checkpointHUD + iStack_30) == 0)) {
-      j = 0x3d;
-    }
+    x = g1Player[2].x;
+    y = g1Player[2].y + splitY;
+    Hud_BuildSprite2(gSprt1 + 4,0x69,x,y);
+    x = x + w1;
+    Hud_BuildG4(HudG4,1,x,y,w2,10,0,0x707070,0,0x707070);
+    x = x + w2;
+    Hud_BuildSprite2(gSprt1 + 5,0x7d,x,y);
+    Hud_BuildF4(HudF4,1,x,y + 7,7,3,0x707070);
+    w1 = HudPmx_gShapes[0x6b].width;
+    x = g1Player[3].x;
+    timelapshift = (GameSetup_gData.carInfo[i].HudTime == 0) * 0x10;
+    y = (g1Player[3].y + splitY) - timelapshift;
+    Hud_BuildSprite2(gSprt1 + 6,0x6b,x,y);
+    x = x + w1;
+    Hud_BuildG4(HudG4 + 1,1,x,y,0x1d,10,0,0x707070,0,0x707070);
+    x = x + 0x1d;
+    Hud_BuildF4(HudF4 + 1,1,x,y + 7,7,3,0x707070);
+    Hud_BuildSprite2(gSprt1 + 7,0x7d,x,y);
+    w1 = HudPmx_gShapes[0x6b].width;
+    x = g1Player[4].x;
+    y = g1Player[4].y + splitY;
+    Hud_BuildSprite2(gSprt1 + 8,0x69,x,y);
+    x = x + w1;
+    Hud_BuildG4(HudG4 + 3,1,x,y,0x3c,10,0,0x707070,0,0x707070);
+    x = x + 0x3c;
+    Hud_BuildF4(HudF4 + 2,1,x,y + 7,7,3,0x707070);
+    Hud_BuildSprite2(gSprt1 + 9,0x7d,x,y);
+    w1 = HudPmx_gShapes[0x76].width;
+    w2 = 0x26;
     if (Hud_BeTheCop == 0) {
-      iVar8 = (int)g1Player[5].x;
-      iVar9 = g1Player[5].y + iVar16;
+      w2 = 0x32;
+      if (GameSetup_gData.checkpointHUD[i] == 0) {
+        w2 = 0x3d;
+      }
+    }
+    if (Hud_BeTheCop != 0) {
+      x = g1Player[2].x + 0xe;
     }
     else {
-      iVar8 = g1Player[2].x + 0xe;
-      iVar9 = (int)g1Player[2].y + iVar16 + 0xe;
+      x = g1Player[5].x;
     }
-    Hud_BuildSprite2(gSprt1 + 10,0x76,iVar8,iVar9);
-    Hud_BuildG4(HudG4 + 2,1,iVar8 + iVar12,iVar9,j,10,0,0x707070,0,0x707070);
-    j = iVar8 + iVar12 + j;
-    Hud_BuildF4(HudF4 + 3,1,j,iVar9 + 7,7,3,0x707070);
-    Hud_BuildSprite(gSprt1 + 0xb,0x7d,timelapshift,iVar9,0x808080,0);
+    if (Hud_BeTheCop != 0) {
+      y = g1Player[2].y + (splitY + 0xe);
+    }
+    else {
+      y = g1Player[5].y + splitY;
+    }
+    Hud_BuildSprite2(gSprt1 + 10,0x76,x,y);
+    x = x + w1;
+    Hud_BuildG4(HudG4 + 2,1,x,y,w2,10,0,0x707070,0,0x707070);
+    x = x + w2;
+    Hud_BuildF4(HudF4 + 3,1,x,y + 7,7,3,0x707070);
+    Hud_BuildSprite(gSprt1 + 0xb,0x7d,x,y,0x808080,0);
+    currentSpriteColor = textcolour;
+    Hud_BuildTimeSprites(gSprt1 + 0xc,"00M00S00",g1Player[2].x + g1Player[6].x,
+               g1Player[2].y + splitY + g1Player[6].y);
+    Hud_BuildTimeSprites(gSprt1 + 0x14,"0/0",g1Player[3].x + g1Player[7].x,
+               (g1Player[3].y + g1Player[7].y + splitY) - timelapshift);
     currentSpriteColor = 0xa0a0a0;
-    Hud_BuildTimeSprites(gSprt1 + 0xc,"00M00S00",(int)g1Player[2].x + (int)g1Player[6].x,
-               g1Player[2].y + iVar16 + (int)g1Player[6].y);
-    Hud_BuildTimeSprites(gSprt1 + 0x14,"0/0",(int)g1Player[3].x + (int)g1Player[7].x,
-               (int)g1Player[3].y + (int)g1Player[7].y + iVar16 + uVar3 * -0x10);
-    currentSpriteColor = 0xa0a0a0;
-    Hud_BuildTimeSprites(gSprt1 + 0x17,"0M00S00",(int)g1Player[4].x + (int)g1Player[8].x,
-               (int)g1Player[4].y + (int)g1Player[8].y + iVar16 + 1);
-    if (Hud_BeTheCop == 0) {
-      j = (int)g1Player[5].x + (int)g1Player[9].x;
-      iVar12 = g1Player[5].y + iVar16 + 1;
+    Hud_BuildTimeSprites(gSprt1 + 0x17,"0M00S00",g1Player[4].x + g1Player[8].x,
+               g1Player[4].y + g1Player[8].y + splitY + 1);
+    if (Hud_BeTheCop != 0) {
+      x = g1Player[2].x + 0x10;
     }
     else {
-      j = g1Player[2].x + 0x10;
-      iVar12 = (int)g1Player[2].y + iVar16 + 0xc;
+      x = g1Player[5].x + g1Player[9].x;
     }
-    if (*(int *)((int)GameSetup_gData.checkpointHUD + iStack_30) == 0) {
-      str = "0M00S00";
+    if (Hud_BeTheCop != 0) {
+      y = g1Player[2].y + (splitY + 0xc);
     }
     else {
-      str = "0.000";
+      y = g1Player[5].y + splitY + 1;
     }
     spriteReplay = gSprt1 + 0x1e;
-    Hud_BuildTimeSprites(spriteReplay,str,j + HudPmx_gShapes[0x76].width,iVar12)
-    ;
-    *(int *)((int)HudSplitTimeDiff1 + iStack_30) = (int)gSprt1[0x1f].y0 - (int)gSprt1[0x1e].y0;
-    ptVar2 = g1Player;
-    currentSpriteColor = 0xa0a0a0;
-    *(int *)((int)HudSplitTimeDiff2 + iStack_30) = (int)gSprt1[0x22].y0 - (int)gSprt1[0x1e].y0;
-    iVar9 = (int)HudPmx_gShapes[0x2c].width;
-    iVar8 = (int)HudPmx_gShapes[0x47].width;
-    j = (int)ptVar2[0xe].x + (int)ptVar2[10].x;
-    iVar12 = ptVar2[0xe].y + HudMapOffsetY + (int)ptVar2[10].y + iVar16;
-    if ((iVar13 == 0) && (DashHUD_gInfo.splitscreen != 0)) {
-      iVar12 = iVar12 + -2;
+    Hud_BuildTimeSprites(spriteReplay,
+               (GameSetup_gData.checkpointHUD[i] == 0) ? "0M00S00" : "0.000",
+               x + HudPmx_gShapes[0x76].width,y);
+    HudSplitTimeDiff1[i] = spriteReplay[1].y0 - spriteReplay[0].y0;
+    currentSpriteColor = textcolour;
+    HudSplitTimeDiff2[i] = spriteReplay[4].y0 - spriteReplay[0].y0;
+    w1 = HudPmx_gShapes[0x2c].width;
+    w2 = HudPmx_gShapes[0x47].width;
+    x = g1Player[0xe].x + g1Player[10].x;
+    y = g1Player[0xe].y + HudMapOffsetY + g1Player[10].y + splitY;
+    if ((i == 0) && (DashHUD_gInfo.splitscreen != 0)) {
+      y = y + -2;
     }
-    iVar11 = 0;
-    iVar15 = 0x334;
-    Hud_BuildSprite(gSprt1 + 0x28,0x3e,g1Player[0xe].x + 0x13,iVar12 + -1,0x808080,0);
-    Hud_BuildSprite2(gSprt1 + 0x25,0x2c,j,iVar12);
-    j = j + iVar9;
-    Hud_BuildSprite2(gSprt1 + 0x26,0x47,j,iVar12);
-    Hud_BuildSprite2(gSprt1 + 0x27,0x36,j + iVar8,iVar12);
+    j = 0;
+    Hud_BuildSprite(gSprt1 + 0x28,0x3e,g1Player[0xe].x + 0x13,y + -1,0x808080,0);
+    Hud_BuildSprite2(gSprt1 + 0x25,0x2c,x,y);
+    x = x + w1;
+    Hud_BuildSprite2(gSprt1 + 0x26,0x47,x,y);
+    Hud_BuildSprite2(gSprt1 + 0x27,0x36,x + w2,y);
     currentSpriteColor = 0x808080;
-    j = (int)g1Player[1].x + (int)g1Player[0xb].x;
-    iVar16 = (int)g1Player[1].y + (int)g1Player[0xb].y + iVar16;
-    Hud_BuildSprite2(gSprt1 + 0x31,0x1a,j + -1,iVar16);
-    Hud_BuildSprite2(gSprt1 + 0x32,0x1b,j + -2,iVar16 + -1);
+    x = g1Player[1].x + g1Player[0xb].x;
+    y = g1Player[1].y + g1Player[0xb].y + splitY;
+    Hud_BuildSprite2(gSprt1 + 0x31,0x1a,x + -1,y);
+    Hud_BuildSprite2(gSprt1 + 0x32,0x1b,x + -2,y + -1);
     do {
-      Hud_BuildSprite2((SPRT *)((int)&gSprt1->tag + iVar15),iVar11 + 0x1c,j + 2,iVar16 + 6);
-      iVar11 = iVar11 + 1;
-      iVar15 = iVar15 + 0x14;
-    } while (iVar11 < 8);
-    Hud_InitMapFrame(iVar13,0);
-    iStack_30 = iStack_30 + 4;
-    pGStack_2c = (GameSetup_tData *)((pGStack_2c->controllerData).shockImpact + 1);
+      Hud_BuildSprite2(gSprt1 + 0x29 + j,j + 0x1c,x + 2,y + 6);
+      j = j + 1;
+    } while (j < 8);
+    Hud_InitMapFrame(i,0);
+    i = i + 1;
   }
+  gSprt1 = gSprite0;
   j = 0;
   currentSpriteColor = 0x808080;
-  currentSpriteTransparent = '\x01';
-  iVar16 = (int)g1Player[0xd].x;
-  iVar13 = (int)g1Player[0xd].y;
-  Hud_BuildSprite2(gSprite0 + 0x37,0x6f,iVar16,iVar13);
-  Hud_BuildSprite2(gSprt1 + 0x33,0x6c,iVar16 + 0x12,iVar13);
-  Hud_BuildSprite2(gSprt1 + 0x34,0x6e,iVar16 + 0x25,iVar13);
-  Hud_BuildSprite2(gSprt1 + 0x35,0x3f,iVar16 + 0x3a,iVar13);
-  Hud_BuildSprite2(gSprt1 + 0x38,0x72,iVar16 + 0x4a,iVar13);
-  Hud_BuildSprite2(gSprt1 + 0x36,0,iVar16 + 0x6d,iVar13 + -7);
-  Hud_BuildSprite2(gSprt1 + 0x39,3,0,iVar13 + 4);
-  currentSpriteTransparent = '\0';
+  currentSpriteTransparent = 1;
+  baseX = g1Player[0xd].x;
+  baseY = g1Player[0xd].y;
+  Hud_BuildSprite2(gSprt1 + 0x37,0x6f,baseX,baseY);
+  Hud_BuildSprite2(gSprt1 + 0x33,0x6c,baseX + 0x12,baseY);
+  Hud_BuildSprite2(gSprt1 + 0x34,0x6e,baseX + 0x25,baseY);
+  Hud_BuildSprite2(gSprt1 + 0x35,0x3f,baseX + 0x3a,baseY);
+  Hud_BuildSprite2(gSprt1 + 0x38,0x72,baseX + 0x4a,baseY);
+  Hud_BuildSprite2(gSprt1 + 0x36,0,baseX + 0x6d,baseY + -7);
+  Hud_BuildSprite2(gSprt1 + 0x39,3,0,baseY + 4);
+  currentSpriteTransparent = 0;
   Hud_InitCdPlayer();
   Hud_Reset();
-  piVar5 = PerpOverlayMessage;
-  piVar4 = PerpOverlayOn;
   BTC_BonusTime = 0;
   BTC_Countdown = 0;
   FinalBTC_Countdown = 0;
   BTC_UserHasControl = 0;
   HudBustedOverlay = 0;
   do {
-    *piVar4 = 0;
-    *piVar5 = 0;
-    piVar5 = piVar5 + 1;
+    PerpOverlayOn[j] = 0;
+    PerpOverlayMessage[j] = 0;
     j = j + 1;
-    piVar4 = piVar4 + 1;
   } while (j < 2);
   Hud_kTurnSongOffNext = 0;
   return;
@@ -1027,54 +1000,25 @@ void Hud_BuildETimeString(SPRT *sprt,int time)
 void * Hud_BuildDistanceString(SPRT *sprt,int player)
 
 {
-  u_char uVar1;
-  u_short uVar2;
-  int dist_alt;
-  int uv_thou;
-  int uv_hund;
-  int uv_tens;
   int slices;
-  int raw_cp;
-  int uv_ones;
-  HudPmx_tUV *pHVar3;
   int dist;
-  
-  raw_cp = (Cars_gHumanRaceCarList[player]->stats).checkpointUpdate;
-  dist_alt = raw_cp * 6;
-  if (dist_alt < 0) {
-    dist_alt = raw_cp * -6;
-  }
+
+  dist = (Cars_gHumanRaceCarList[player]->stats).checkpointUpdate * 6;
+  slices = __builtin_abs(dist);
   if (GameSetup_gData.checkpointHUD[player] == 2) {
-    dist_alt = (dist_alt * 1000) / 0x647;
+    slices = (slices * 1000) / 0x647;
   }
-  if (dist_alt < 10000) {
-    pHVar3 = HudPmx_gHudNumberUV + dist_alt / 1000;
-    uVar1 = pHVar3->v0;
-    uVar2 = pHVar3->clut;
-    sprt->u0 = pHVar3->u0;
-    sprt->v0 = uVar1;
-    sprt->clut = uVar2;
-    pHVar3 = HudPmx_gHudNumberUV + (dist_alt % 1000) / 100;
-    uVar1 = pHVar3->v0;
-    uVar2 = pHVar3->clut;
-    sprt[2].u0 = pHVar3->u0;
-    sprt[2].v0 = uVar1;
-    sprt[2].clut = uVar2;
-    pHVar3 = HudPmx_gHudNumberUV + (dist_alt % 100) / 10;
-    uVar1 = pHVar3->v0;
-    uVar2 = pHVar3->clut;
-    sprt[3].u0 = pHVar3->u0;
-    sprt[3].v0 = uVar1;
-    sprt[3].clut = uVar2;
-    pHVar3 = HudPmx_gHudNumberUV + dist_alt % 10;
-    uVar1 = pHVar3->v0;
-    uVar2 = pHVar3->clut;
-    sprt[4].u0 = pHVar3->u0;
-    sprt[4].v0 = uVar1;
-    sprt[4].clut = uVar2;
-    return (void *)0x1;
+  if (9999 < slices) {
+    return (void *)0x0;
   }
-  return (void *)0x0;
+  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[slices / 1000];
+  sprt = sprt + 2;
+  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[(slices % 1000) / 100];
+  sprt = sprt + 1;
+  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[(slices % 100) / 10];
+  sprt = sprt + 1;
+  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[slices % 10];
+  return (void *)0x1;
 }
 
 /* ---- Hud_BuildTimeString__FP4SPRTi  [HUD.CPP:1273-1288] SLD-VERIFIED ---- */
@@ -1087,9 +1031,7 @@ void Hud_BuildTimeString(SPRT *sprt,int time)
   int temp1;
   int temp2;
 
-  if (time < 0) {
-    time = -time;
-  }
+  time = __builtin_abs(time);
   temp1 = time / 0x40;
   temp2 = time - temp1 * 0x40;
   min = temp1 / 0x3c;
@@ -1263,24 +1205,22 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
 {
   char cVar1;
   short sVar2;
-  u_int uVar3;
-  int iVar4;
   int offy;
   char alphShape;
-  u_char bVar5;
   int ix;
   int i;
   int ox;
   int numch;
-  
+
   Hud_GoTpage(1);
-  uVar3 = strlen(str);
+  ox = x;
+  numch = strlen(str);
   i = 0;
   ix = x;
   do {
-    if ((int)uVar3 <= i) {
+    if (numch <= i) {
       Hud_GoTpage(0);
-      return ix - x;
+      return ix - ox;
     }
     cVar1 = *str;
     if (cVar1 == ' ') {
@@ -1310,14 +1250,14 @@ HudBuildStr_hashMarker:
               if (justwidth == 0) {
                 Hud_FBuildSprite(0xad,ix,y,color,0);
               }
-              iVar4 = (int)HudPmx_gShapes[0xad].width;
+              offy = (int)HudPmx_gShapes[0xad].width;
               ix = ix + 3;
             }
             else {
               if (justwidth == 0) {
                 Hud_FBuildSprite(0xaa,ix,y,color,0);
               }
-              iVar4 = (int)HudPmx_gShapes[0xaa].width;
+              offy = (int)HudPmx_gShapes[0xaa].width;
               ix = ix + 3;
             }
             goto HudBuildStr_accumWidth;
@@ -1327,59 +1267,59 @@ HudBuildStr_hashMarker:
       }
     }
     else {
-      iVar4 = 0;
+      offy = 0;
       if (cVar1 == '^') {
-        bVar5 = 0xaa;
+        alphShape = 0xaa;
         if (gPadinfo.buf[player * 4].ID == '#') {
-          bVar5 = 0xad;
+          alphShape = 0xad;
         }
       }
       else if (cVar1 == '(') {
-        bVar5 = 0xa9;
+        alphShape = 0xa9;
         if (gPadinfo.buf[player * 4].ID == '#') {
-          bVar5 = 0xab;
+          alphShape = 0xab;
         }
       }
       else if (cVar1 == ')') {
-        bVar5 = 0xa8;
+        alphShape = 0xa8;
         if (gPadinfo.buf[player * 4].ID == '#') {
-          bVar5 = 0xac;
+          alphShape = 0xac;
         }
       }
       else if (cVar1 == '&') {
-        bVar5 = 0xae;
+        alphShape = 0xae;
       }
       else {
-        bVar5 = cVar1 + 0x6e;
+        alphShape = cVar1 + 0x6e;
         if (9 < (u_char)(cVar1 - 0x30U)) {
           if (cVar1 == '-') {
-            bVar5 = 0x48;
+            alphShape = 0x48;
           }
           else if (cVar1 == ':') {
-            bVar5 = 0x49;
+            alphShape = 0x49;
           }
           else {
-            bVar5 = cVar1 + 0x8a;
+            alphShape = cVar1 + 0x8a;
             if ((u_char)(cVar1 + 0x40U) < 0x1d) {
-              iVar4 = -1;
+              offy = -1;
             }
             else {
-              bVar5 = *str + 0x43;
+              alphShape = *str + 0x43;
               if (*str == -0x1b) {
-                bVar5 = 0x67;
-                iVar4 = -1;
+                alphShape = 0x67;
+                offy = -1;
               }
             }
           }
         }
       }
       if (justwidth == 0) {
-        Hud_FBuildSprite((u_int)bVar5,ix,y + iVar4,color,0);
+        Hud_FBuildSprite((u_int)alphShape,ix,y + offy,color,0);
       }
-      iVar4 = (int)HudPmx_gShapes[bVar5].width;
+      offy = (int)HudPmx_gShapes[alphShape].width;
       ix = ix + 1;
 HudBuildStr_accumWidth:
-      ix = ix + iVar4;
+      ix = ix + offy;
     }
     str = str + 1;
     i = i + 1;
@@ -3487,21 +3427,12 @@ void Hud_RenderPauseBox(int x, int y, int w, int h)
 void Hud_Render(void)
 
 {
-  short player_00;
-  int *piVar1;
-  u_int mode;
-  int countamount;
-  int rate;
-  int type;
   short player;
-  int delta;
+  int countamount;
+  int count;
   int wingmode;
   int i;
-  char *pcVar3;
-  int *piVar4;
-  short busted_player;
-  
-  player_00 = HudBustedOverlayPlayer;
+
   if (Replay_ReplayInterface.statsScreen != 0) {
     if (simGlobal.gameTicks < 0x240) {
       DashHUD_gInfo.showhud[0] = 0;
@@ -3514,57 +3445,84 @@ void Hud_Render(void)
     Draw_StopRenderingView(Hud_gStatsView);
     return;
   }
-  if (((HudBustedOverlay != 0) || (BTC_BonusTime == 0)) || (ticks - BTC_BonusTimeTick < 0xfb))
-  goto HudRender_btcBonusClamp;
-  if (DashHUD_gInfo.splitscreen == 0) {
+  if (((HudBustedOverlay == 0) && (BTC_BonusTime != 0)) && (0xfa < ticks - BTC_BonusTimeTick)) {
+    if (DashHUD_gInfo.splitscreen != 0) {
+      if ((Cars_gRaceCarList[0]->carFlags & 0x200U) != 0) {
+        countamount = 0xfa;
+        if ((Cars_gRaceCarList[1]->carFlags & 0x200U) != 0) goto HudRender_setRateFast;
+      }
+      else {
+        countamount = 0xfa;
+      }
+    }
+    else {
 HudRender_setRateFast:
-    rate = 0x32;
+      countamount = 0x32;
+    }
+    count = countamount;
+    if (BTC_BonusTime < countamount) {
+      count = BTC_BonusTime;
+    }
+    BTC_Countdown = BTC_Countdown + count;
+    BTC_BonusTime = BTC_BonusTime - countamount;
+    if (BTC_BonusTime < 0) {
+      BTC_BonusTime = 0;
+    }
   }
-  else if ((Cars_gRaceCarList[0]->carFlags & 0x200U) == 0) {
-    rate = 0xfa;
+  if ((Hud_BeTheCop != 0) && (BTC_UserHasControl == 0)) {
+    i = 0;
+    if (-1 < DashHUD_gInfo.splitscreen) {
+      do {
+        Draw_StartRenderingView(Hud_gHudView[i]);
+        Hud_GoTpage(1);
+        if (((i == 0) && (1 < Replay_ReplayMode)) && (Replay_ReplayInterface.statsScreen == 0)) {
+          Hud_BuildReplay();
+        }
+        if (i == DashHUD_gInfo.splitscreen) {
+          countamount = 1;
+          if ((simGlobal.gameTicks < 0x240) && (countdown == '\0')) {
+            countamount = 0;
+          }
+          Hud_BuildCdPlayer(countamount,i);
+        }
+        if (DashHUD_gInfo.showhud[i] != 0) {
+          Hud_DebugInfo();
+          Hud_BuildNumbers0(i);
+        }
+        Hud_GoTpage(0);
+        Draw_StopRenderingView(Hud_gHudView[i]);
+        i = i + 1;
+      } while (i <= DashHUD_gInfo.splitscreen);
+    }
   }
   else {
-    rate = 0xfa;
-    if ((Cars_gRaceCarList[1]->carFlags & 0x200U) != 0) goto HudRender_setRateFast;
-  }
-  int count;
-  count = rate;
-  if (BTC_BonusTime < rate) {
-    count = BTC_BonusTime;
-  }
-  BTC_BonusTime = BTC_BonusTime - rate;
-  BTC_Countdown = BTC_Countdown + count;
-  if (BTC_BonusTime < 0) {
-    BTC_BonusTime = 0;
-  }
-HudRender_btcBonusClamp:
-  if ((Hud_BeTheCop == 0) || (BTC_UserHasControl != 0)) {
     if ((HudBustedOverlay != 0) && (Replay_ReplayMode < 2)) {
+      player = HudBustedOverlayPlayer;
       gCView.id = Hud_gStatsView;
       Draw_StartRenderingView(Hud_gStatsView);
-      StatsTimer[player_00] = StatsTimer[player_00] + 1;
-      Hud_BTCStats(player_00,false);
+      StatsTimer[player] = StatsTimer[player] + 1;
+      Hud_BTCStats(player,false);
       Draw_StopRenderingView(Hud_gStatsView);
     }
-    pcVar3 = Hud_gWingmanInterface;
-    for (i = 0; i < 2; i = i + 1) {
-      mode = Input_WingCommandMode(i);
-      if (((u_char)*pcVar3 == mode) && (HudBustedOverlay != 0)) {
+    i = 0;
+    while (i < 2) {
+      wingmode = Input_WingCommandMode(i);
+      if (((u_char)Hud_gWingmanInterface[i] == wingmode) && (HudBustedOverlay != 0)) {
 HudRender_initMapFrame:
-        *pcVar3 = 0;
+        Hud_gWingmanInterface[i] = 0;
         Hud_InitMapFrame(i,0);
       }
       else if (Hud_gWingmanFlashTicks[i] < ticks) {
-        if ((u_char)*pcVar3 != mode) {
+        if ((u_char)Hud_gWingmanInterface[i] != wingmode) {
           if (1 < Replay_ReplayMode) goto HudRender_initMapFrame;
           if (HudBustedOverlay == 0) {
-            Hud_InitMapFrame(i,mode);
-            *pcVar3 = (u_char)mode;
+            Hud_InitMapFrame(i,wingmode);
+            Hud_gWingmanInterface[i] = (char)wingmode;
           }
         }
         if (1 < Replay_ReplayMode) goto HudRender_initMapFrame;
       }
-      pcVar3 = pcVar3 + 1;
+      i = i + 1;
     }
     Hud_gShowedCDPlayer = 0;
     if (((simGlobal.gameTicks < 0x240) && (countdown != '\0')) && (Hud_BeTheCop == 0)) {
@@ -3573,38 +3531,6 @@ HudRender_initMapFrame:
     Hud_RenderHudView();
     Hud_RenderMapView();
     Hud_RenderTacView();
-  }
-  else {
-    delta = 0;
-    if (-1 < DashHUD_gInfo.splitscreen) {
-      i = 0;
-      piVar4 = Hud_gHudView;
-      do {
-        Draw_StartRenderingView(*piVar4);
-        Hud_GoTpage(1);
-        if (((delta == 0) && (1 < Replay_ReplayMode)) && (Replay_ReplayInterface.statsScreen == 0))
-        {
-          Hud_BuildReplay();
-        }
-        if (delta == DashHUD_gInfo.splitscreen) {
-          type = 1;
-          if ((simGlobal.gameTicks < 0x240) && (countdown == '\0')) {
-            type = 0;
-          }
-          Hud_BuildCdPlayer(type,delta);
-        }
-        if (*(int *)((int)DashHUD_gInfo.showhud + i) != 0) {
-          Hud_DebugInfo();
-          Hud_BuildNumbers0(delta);
-        }
-        Hud_GoTpage(0);
-        piVar1 = (int *)((int)Hud_gHudView + i);
-        i = i + 4;
-        piVar4 = piVar4 + 1;
-        Draw_StopRenderingView(*piVar1);
-        delta = delta + 1;
-      } while (delta <= DashHUD_gInfo.splitscreen);
-    }
   }
   return;
 }

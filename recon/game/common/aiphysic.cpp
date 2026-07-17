@@ -694,7 +694,7 @@ void AIPhysic_Main(Car_tObj *carObj)
   if ((carObj->AIFlags & 4U) != 0) {
     return;
   }
-  if ((carObj->N).active == ' ') {
+  if ((carObj->N).active == '\0') {
     return;
   }
   if (simGlobal[0] != 1) {
@@ -1224,11 +1224,7 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
   if (-AIPhysicConfig.OOCModel.max_dav < iVar6) {
     iVar5 = iVar6;
   }
-  iVar6 = iVar5;
-  if (iVar5 < 0) {
-    iVar6 = iVar5 + 0xff;
-  }
-  iVar8 = (iVar6 >> 8) * 0xa00;
+  iVar8 = (iVar5 / 256) * 0xa00;
   iVar6 = AIPhysicConfig.OOCModel.max_dlvel;
   if (iVar8 < AIPhysicConfig.OOCModel.max_dlvel) {
     iVar6 = iVar8;
@@ -1248,17 +1244,8 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
   }
   if ((-AIPhysicConfig.OOCModel.vel_limit_range < carObj->currentSpeed) &&
      (carObj->currentSpeed < AIPhysicConfig.OOCModel.vel_limit_range)) {
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    iVar6 = AIPhysicConfig.OOCModel.lat_vel_limit_factor;
-    if (AIPhysicConfig.OOCModel.lat_vel_limit_factor < 0) {
-      iVar6 = AIPhysicConfig.OOCModel.lat_vel_limit_factor + 0xff;
-    }
-    iVar6 = (iVar9 >> 8) * (iVar6 >> 8);
-    if (iVar6 < 0) {
-      iVar6 = -iVar6;
-    }
+    iVar9 = iVar9 / 256;
+    iVar6 = __builtin_abs(iVar9 * (AIPhysicConfig.OOCModel.lat_vel_limit_factor / 256));
     iVar7 = iVar6;
     if (iVar8 < iVar6) {
       iVar7 = iVar8;
@@ -1267,14 +1254,7 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
     if (-iVar6 < iVar7) {
       iVar8 = iVar7;
     }
-    iVar6 = AIPhysicConfig.OOCModel.ang_vel_limit_factor;
-    if (AIPhysicConfig.OOCModel.ang_vel_limit_factor < 0) {
-      iVar6 = AIPhysicConfig.OOCModel.ang_vel_limit_factor + 0xff;
-    }
-    iVar6 = (iVar9 >> 8) * (iVar6 >> 8);
-    if (iVar6 < 0) {
-      iVar6 = -iVar6;
-    }
+    iVar6 = __builtin_abs(iVar9 * (AIPhysicConfig.OOCModel.ang_vel_limit_factor / 256));
     iVar9 = iVar6;
     if (iVar5 < iVar6) {
       iVar9 = iVar5;
@@ -1288,19 +1268,8 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
     iVar5 = iVar5 * 5;
   }
   iVar5 = (carObj->angularVel_ch).y - iVar5;
-  if (iVar5 < 0) {
-    iVar5 = iVar5 + 0xff;
-  }
-  iVar6 = AIPhysicConfig.OOCModel.dav_to_aa;
-  if (AIPhysicConfig.OOCModel.dav_to_aa < 0) {
-    iVar6 = AIPhysicConfig.OOCModel.dav_to_aa + 0xff;
-  }
-  iVar9 = carObj->currentSpeed;
-  if (iVar9 < 0) {
-    iVar9 = -iVar9;
-  }
-  iVar5 = -((iVar5 >> 8) * (iVar6 >> 8));
-  if (0x120000 < iVar9) {
+  iVar5 = -((iVar5 / 256) * (AIPhysicConfig.OOCModel.dav_to_aa / 256));
+  if (0x120000 < __builtin_abs(carObj->currentSpeed)) {
     iVar5 = iVar5 / 2;
   }
   iVar6 = carObj->max_aa;
@@ -1312,14 +1281,7 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
     iVar5 = iVar6;
   }
   iVar8 = (carObj->linearVel_ch).x - iVar8;
-  if (iVar8 < 0) {
-    iVar8 = iVar8 + 0xff;
-  }
-  iVar6 = AIPhysicConfig.OOCModel.dlvel_to_clacc;
-  if (AIPhysicConfig.OOCModel.dlvel_to_clacc < 0) {
-    iVar6 = AIPhysicConfig.OOCModel.dlvel_to_clacc + 0xff;
-  }
-  iVar6 = -((iVar8 >> 8) * (iVar6 >> 8));
+  iVar6 = -((iVar8 / 256) * (AIPhysicConfig.OOCModel.dlvel_to_clacc / 256));
   iVar8 = carObj->max_clacc;
   if (iVar6 < carObj->max_clacc) {
     iVar8 = iVar6;
@@ -1359,10 +1321,7 @@ LAB_8006b814:
       }
     }
   }
-  iVar9 = (carObj->linearVel_ch).z;
-  if (iVar9 < 0) {
-    iVar9 = -iVar9;
-  }
+  iVar9 = __builtin_abs((carObj->linearVel_ch).z);
   iVar8 = 0;
   if (0 < iVar9) {
     iVar9 = AIPhysic_CalcDeceleration(carObj);
@@ -1384,36 +1343,17 @@ LAB_8006b814:
 LAB_8006b908:
   if (bVar3) {
     if (carObj->speed - 0x140001U < 0x1dffff) {
-      if (iVar5 < 0) {
-        iVar5 = iVar5 + 3;
-      }
-      iVar5 = iVar5 >> 2;
-      if (iVar8 < 0) {
-        iVar8 = iVar8 + 3;
-      }
-      iVar8 = iVar8 >> 2;
+      iVar5 = iVar5 / 4;
+      iVar8 = iVar8 / 4;
     }
     else {
       iVar5 = fixedmult(iVar5,0xc000);
       iVar9 = iVar8 / 2;
-      if (iVar8 < 0) {
-        iVar8 = iVar8 + 3;
-      }
-      iVar8 = iVar9 + (iVar8 >> 2);
+      iVar8 = iVar9 + iVar8 / 4;
     }
-    iVar9 = iVar6;
-    if (iVar6 < 0) {
-      iVar9 = iVar6 + 3;
-    }
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 7;
-    }
-    iVar6 = (iVar9 >> 2) + (iVar6 >> 3);
+    iVar6 = iVar6 / 4 + iVar6 / 8;
   }
-  if (iVar4 < 0) {
-    iVar4 = -iVar4;
-  }
-  iVar4 = iVar4 - AIPhysicConfig.skid_value;
+  iVar4 = __builtin_abs(iVar4) - AIPhysicConfig.skid_value;
   if (((carObj->direction * carObj->currentSpeed < 0) && (0x38e38 < carObj->speed)) ||
      (carObj->donutMode != 0)) {
     carObj->frontSkid = 0xa0000;
@@ -1513,10 +1453,7 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
   iVar3 = fixedmult((carObj->linearVel_ch).z,0x62);
   iVar3 = fixedmult(iVar3 + 0x10000,carObj->gripFactor);
   if (((carObj->carFlags & 8U) != 0) && (carObj->wipeOutStartTick < simGlobal[1])) {
-    iVar5 = (carObj->N).angularVel.y;
-    if (iVar5 < 0) {
-      iVar5 = -iVar5;
-    }
+    iVar5 = __builtin_abs((carObj->N).angularVel.y);
     if ((1000 < iVar5) && (0x1638e3 < carObj->speed)) {
       carObj->wipeOutEndTick = simGlobal[1] + 0x180;
     }
@@ -1528,12 +1465,8 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
     if (simGlobal[1] - (carObj->N).collision.lastTime < 0x40) {
       carObj->wipeOutEndTick = simGlobal[1];
     }
-    iVar11 = (carObj->N).angularVel.y;
     iVar3 = 0;
-    if (iVar11 < 0) {
-      iVar11 = -iVar11;
-    }
-    iVar11 = iVar11 + 0x1ca;
+    iVar11 = __builtin_abs((carObj->N).angularVel.y) + 0x1ca;
     if (0x3333 < iVar11) {
       iVar11 = 0x3333;
     }
@@ -1603,10 +1536,7 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
     }
   }
   else {
-    iVar9 = iVar7;
-    if (iVar7 < 0) {
-      iVar9 = -iVar7;
-    }
+    iVar9 = __builtin_abs(iVar7);
     if (((*(int *)((char *)carObj->personality + 0x2c) < iVar9) && (0 < iVar7 * (carObj->angularAcc).y)) &&
        (iVar8 = AIPhysic_GetRearEndDamageFactor(carObj),
        (0x10000 - iVar8) * 0x14 + (*(int *)((char *)carObj->personality + 0x2c) + -0x14) * 0x10000 <
@@ -1626,17 +1556,7 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
   iVar9 = carObj->speed;
   if ((-AIPhysicConfig.ICModel.vel_limit_range < carObj->currentSpeed) &&
      (carObj->currentSpeed < AIPhysicConfig.ICModel.vel_limit_range)) {
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    iVar8 = AIPhysicConfig.ICModel.ang_vel_limit_factor;
-    if (AIPhysicConfig.ICModel.ang_vel_limit_factor < 0) {
-      iVar8 = AIPhysicConfig.ICModel.ang_vel_limit_factor + 0xff;
-    }
-    iVar9 = (iVar9 >> 8) * (iVar8 >> 8);
-    if (iVar9 < 0) {
-      iVar9 = -iVar9;
-    }
+    iVar9 = __builtin_abs((iVar9 / 256) * (AIPhysicConfig.ICModel.ang_vel_limit_factor / 256));
     iVar8 = iVar9;
     if (iVar7 < iVar9) {
       iVar8 = iVar7;
@@ -1699,10 +1619,7 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
     iVar10 = -*(int *)(AIPerson_ScriptData[0x41].reaction + iVar5 * 4);
   }
   if (iVar11 == 0) {
-    if (local_40 < 0) {
-      local_40 = -local_40;
-    }
-    iVar11 = local_40 - AIPhysicConfig.skid_value;
+    iVar11 = __builtin_abs(local_40) - AIPhysicConfig.skid_value;
   }
   if (iVar11 < 1) {
     carObj->rearSkid = 0;

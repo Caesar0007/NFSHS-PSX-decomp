@@ -1187,14 +1187,9 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
 {
   Transformer_zObj*obj;
-  coorddef car;
-  coorddef pos;
-  matrixtdef bodyIMat;
-  matrixtdef matP;
   int vel;
   int spin;
   int rear;
-  matrixtdef matR;
   int pitch;
   bool bVar2;
   u_short uVar3;
@@ -1228,18 +1223,11 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
   int detailIndex;
   int iVar20;
   int angle;
-  coorddef parent;
   matrixtdef bodyMat;
   matrixtdef orientMat;
   matrixtdef insideMat;
   matrixtdef orientIMat;
   matrixtdef steerMat;
-  matrixtdef tmpMat;
-  coorddef translation;
-  coorddef tmp;
-  matrixtdef matX;
-  matrixtdef matY;
-  matrixtdef mStack_60;
   int rideHeight;
   int countryFlag;
   int rightHandDrive;
@@ -1329,6 +1317,9 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
   if (((carObj->render).detail == 2) && (iVar19 == 0x1c)) {
     (carObj->render).detail = 1;
   }
+  {
+  matrixtdef tmpMat;   /* SYM car/pos @ff08 + matP @ff08/ff50 (sibling of loop block) */
+  matrixtdef matX;     /* SYM matP @ff50 */
   tmpMat.m[0] = (carObj->N).position.x - *(int *)((int)Vi + 8);
   iVar20 = (carObj->render).detail + 2;
   tmpMat.m[1] = (carObj->N).position.y - *(int *)((int)Vi + 0xc);
@@ -1413,6 +1404,7 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
     pmVar13 = &orientMat;
   }
   Math_fasttransmult(pmVar12,(matrixtdef *)((int)Vi + 0x44),pmVar13);
+  }
   iVar16 = Replay_ReplayMode;
   if ((simVar.pauseSim == 0) && (simVar.quickPauseSim == 0)) {
     iVar5 = 0;
@@ -1658,6 +1650,13 @@ R_ICFt_brakeLightVis:
   iVar20 = (pTVar17->translation).y;
   iVar5 = (pTVar17->translation).z;
   iVar6 = 0;
+  {
+  matrixtdef tmpMat;   /* SYM blk 428 @ff08 (sibling of region2/3 block -> slot merges) */
+  coorddef translation;/* SYM blk 428 @ff30 */
+  coorddef tmp;        /* SYM blk 428 @ff40 */
+  matrixtdef matX;     /* SYM blk 576 @ff50 */
+  matrixtdef matY;     /* SYM blk 576 @ff78 */
+  matrixtdef mStack_60;/* SYM blk 558 @ffa0 */
   for (iVar11 = 0; iVar11 < 0x39; iVar11 = iVar11 + 1) {
     pTVar17 = R3DCar_LoadedScenePointer[countryFlag][iVar19]->obj[iVar11];
     if ((pTVar17->numFacet == 0) || (R3DCar_ObjectVisible[iVar11] == '\0'))
@@ -1797,6 +1796,7 @@ switchD_800b0a34_caseD_29:
     R3DCar_MATRIX3DT_Copy(pmVar13->m,(int *)((int)R3DCar_orientMat + iVar6));
 R_ICFt_matrixCopyDone:
     iVar6 = iVar6 + 0x24;
+  }
   }
   TrsProj_TransformProjectVertex((matrixtdef *)((int)Vi + 0x44),(coorddef *)((int)Vi + 0x38),1,&(carObj->N).position,
              &R3DCar_center);

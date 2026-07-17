@@ -8,7 +8,7 @@
 AnimScript *Anim_GetAnim(int handle);
 CARDINFO_def *MCRD_getcard(...);
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
-extern Car_tObj **Cars_gList;
+extern Car_tObj *Cars_gList[];   /* real ARRAY @0x8010F9DC (asm/data), NOT ptr-to-ptr - la form */
 extern GameSetup_tData   GameSetup_gData;
 extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
 extern Sim_tSimSystemVar simVar;

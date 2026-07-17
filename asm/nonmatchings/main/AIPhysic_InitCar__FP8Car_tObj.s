@@ -18,7 +18,7 @@ glabel AIPhysic_InitCar__FP8Car_tObj
     /* 5D48C 8006CC8C 49004010 */  beqz       $v0, .L8006CDB4
     /* 5D490 8006CC90 28008230 */   andi      $v0, $a0, 0x28
     /* 5D494 8006CC94 02004010 */  beqz       $v0, .L8006CCA0
-    /* 5D498 8006CC98 0C00103C */   lui       $s0, %hi(D_C00FF)
+    /* 5D498 8006CC98 0C00103C */   lui       $s0, (0xC0000 >> 16)
     /* 5D49C 8006CC9C 0B00103C */  lui        $s0, (0xB0000 >> 16)
   .L8006CCA0:
     /* 5D4A0 8006CCA0 F004828E */  lw         $v0, 0x4F0($s4)
@@ -31,7 +31,7 @@ glabel AIPhysic_InitCar__FP8Car_tObj
   .L8006CCBC:
     /* 5D4BC 8006CCBC 02000106 */  bgez       $s0, .L8006CCC8
     /* 5D4C0 8006CCC0 031A0300 */   sra       $v1, $v1, 8
-    /* 5D4C4 8006CCC4 FF000226 */  addiu      $v0, $s0, %lo(D_C00FF)
+    /* 5D4C4 8006CCC4 FF000226 */  addiu     $v0, $s0, 0xFF
   .L8006CCC8:
     /* 5D4C8 8006CCC8 03120200 */  sra        $v0, $v0, 8
     /* 5D4CC 8006CCCC 18006200 */  mult       $v1, $v0

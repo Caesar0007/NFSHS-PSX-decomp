@@ -2099,11 +2099,10 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
   matrixtdef mattemp;
   coorddef tmp;
   coorddef tmp2;
-  u_char isCullable;
+  int isCullable;  /* MATCH: int not u_char -- u_char local emitted bogus andi 255 */
   Track_tMaterial *shapeDef_p;
-  u_short objFlags;
   int drawResult;
-  
+
   sd[1].head.cprim.PrimPtr = (char *)(objDef + 1);
   *(u_char *)((int)&sd[1].head.cprim.MPrimPtr + 3) = objDef->quadCount;
   shapeDef_p = Track_materials;
@@ -2111,7 +2110,7 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
   *(u_char *)((int)sd[1].matB.t + 2) = 0;
   drawResult = gNight_renderNight;
   *(int *)&sd[1].head.clipW = offset;
-  sd[1].head.mirror = (int)(objDef + (u_int)isCullable * 2 + 1);
+  sd[1].head.mirror = (int)(objDef + ((u_int)isCullable * 2 + 1));
   *(Track_tMaterial **)sd[1].matB.m[0] = shapeDef_p;
   if (drawResult != 0) {
     *(u_char *)((int)sd[1].matB.t + 2) = 4;
@@ -2196,14 +2195,16 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
      the insn count (189->193 before this fix, 187->191 after) rather than
      landing exact -- reverted both times, same as DrawObjectTransform.
      RESIDUAL 68 = the pointer-chase deficit + sra/srl tie + coloring cascade. */
-  short facetIdx;
   coorddef tmp;
   coorddef tmp2;
-  u_short objFlags;
-  u_char isCullable;
+  int isCullable;
   Track_tMaterial *shapeDef_p;
   int drawResult;
-  
+
+  /* MATCH: SYM 0x800c8214 shows ONLY tmp/tmp2 (+REG offset) as locals; u_char
+     isCullable had emitted a bogus `andi 255` (retyped int), and the mirror
+     expression now groups (cnt*2+1) before the base add per the oracle
+     `sll;addiu 4;addu`. */
   shapeDef_p = Track_materials;
   sd[1].head.cprim.PrimPtr = (char *)(objDef + 1);
   *(Track_tMaterial **)sd[1].matB.m[0] = shapeDef_p;
@@ -2212,7 +2213,7 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
   *(u_char *)((int)sd[1].matB.t + 2) = 0;
   drawResult = gNight_renderNight;
   *(int *)&sd[1].head.clipW = offset;
-  sd[1].head.mirror = (int)(objDef + (u_int)isCullable * 2 + 1);
+  sd[1].head.mirror = (int)(objDef + ((u_int)isCullable * 2 + 1));
   if (drawResult != 0) {
     *(u_char *)((int)sd[1].matB.t + 2) = 4;
     if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
@@ -2240,14 +2241,13 @@ gte_SetTransMatrix((MATRIX *)&(sd->matB));
     *(int *)&sd[1].head.clipW = Draw_gMidGroundOtz;
     sd[1].matB.m[0][2] = (short)(pCp->x - (Vi->cview).translation.x >> 0xc);
     sd[1].matB.m[1][0] = (short)(pCp->y - (Vi->cview).translation.y >> 0xc);
-    facetIdx = (short)(pCp->z - (Vi->cview).translation.z >> 0xc);
+    sd[1].matB.m[1][1] = (short)(pCp->z - (Vi->cview).translation.z >> 0xc);
   }
   else {
     sd[1].matB.m[0][2] = (short)(pCp->x - (Vi->cview).translation.x >> 10);
     sd[1].matB.m[1][0] = (short)(pCp->y - (Vi->cview).translation.y >> 10);
-    facetIdx = (short)(pCp->z - (Vi->cview).translation.z >> 10);
+    sd[1].matB.m[1][1] = (short)(pCp->z - (Vi->cview).translation.z >> 10);
   }
-  sd[1].matB.m[1][1] = facetIdx;
   *(u_char *)((int)sd[1].matB.t + 3) = 1;
   sd->light = -1;
   DrawW_kCtrlWorld_High((Draw_tGiveShelbyMoreCache *)sd);
@@ -2539,18 +2539,17 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
   Draw_DCache *sd;
   int thisChunkInd;
   int chunkCount;
-
+  gVi = Vi;
   sd = (Draw_DCache *)&Render_gPalettePtr;
   chunkCount = BWorld_gChunkCount;
   thisChunkInd = gCurrContext->currentChunk;
   *(Track_tArtresource **)((char *)sd + 0xfc) = &gInitialArt;
-  gVi = Vi;
   {
   int buildInd;
   buildInd = 0;
   while (1) {
     if (chunkCount <= buildInd) break;
-    if ((buildList->enableBits & 2U) != 0) {
+    if ((*(volatile u_char *)&buildList->enableBits & 2U) != 0) {
       Chunk *chunkDat;
       Trk_SimObject *simObjs;
       int chunkInd;
@@ -2558,7 +2557,7 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
       chunkInd = buildList->chunkInd;
       chunkDat = Track_chunkList + chunkInd;
       simObjs = (Trk_SimObject *)(chunkDat->simObjBuf + 1);
-      geomRez = (int)buildList->geomRez;
+      geomRez = (int)*(volatile signed char *)&buildList->geomRez;  /* MATCH: volatile kills the buildList+2 giv; residual = lbu+sll/sra vs oracle lb (volatile blocks the fold) */
       if (chunkDat->objInstanceBuf != (Group *)0x0) {
         *(short *)((char *)sd + 0xda) = 1;
         gChunkObjInfo.simObjs = simObjs;
@@ -3370,18 +3369,22 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
     short sVar12;
     short sVar13;
     short sVar14;
+    /* MATCH: parallel named-temp chains (catalog SA row 38 / GT3 load-3
+       pattern) -- batch the three rightN loads + three pCoord lhu's + three
+       5-bit extends BEFORE any store; the old serialized per-axis form cost
+       ~14 interleave diffs. */
     pts = (u_int)curLine->firstPoint;
     idx = slice + (u_int)curLine->slice;
+    rightN = ((Trk_NewSlice *)((idx << 5) + (int)BWorldSm_slices))->right;
     pCoord = wpts + pts;
+    sVar12 = (short)((int)((u_int)(u_char)rightN[0] << 0x18) >> 0x1b);
+    sVar13 = (short)((int)((u_int)(u_char)rightN[1] << 0x18) >> 0x1b);
+    sVar14 = (short)((int)((u_int)(u_char)rightN[2] << 0x18) >> 0x1b);
     sVar7 = pCoord->x;
     sVar8 = pCoord->y;
     sVar9 = pCoord->z;
-    rightN = BWorldSm_slices[idx].right;
-    sVar12 = (short)((int)((u_int)(u_char)rightN[0] << 0x18) >> 0x1b);
     pts3d[0].x = tx + (sVar7 - sVar12);
-    sVar13 = (short)((int)((u_int)(u_char)rightN[1] << 0x18) >> 0x1b);
     pts3d[0].y = ty + (sVar8 - sVar13);
-    sVar14 = (short)((int)((u_int)(u_char)rightN[2] << 0x18) >> 0x1b);
     pts3d[0].z = tz + (sVar9 - sVar14);
     pts3d[0].light = pCoord->light;
     pts3d[1].x = tx + sVar7 + sVar12;
@@ -3423,17 +3426,36 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
      No jal/call forces buildList or sd into a specific ABI reg at
      the point of divergence (the prologue's own initial parameter->s-reg copy), so
      this is a pure allocator usage-priority tie-break, not source-reachable by the
-     standard levers; permuter/accept candidate. */
+     standard levers; permuter/accept candidate.
+     UPDATE (w11-a9, 52 -> 14): CRACKED by TWO catalog levers --
+     (1) matB t[]-zero REBASING: the oracle stores t[2]/t[1] THROUGH the same
+     materialized `&sd->matB` reg the gte_SetTransMatrix "r" operand uses, but
+     t[0] via the sd base (`sw zero,40(sd)`) -- reproduced with a block-local
+     `MATRIX *m = (MATRIX *)&sd->matB; m->t[2]=0; m->t[1]=0; (sd->matB).t[0]=0;
+     gte_SetTransMatrix(m);` (MIXED lvalues are load-bearing; all-m or all-direct
+     both miss). Same idiom at the in-loop site (m2). -4 diffs.
+     (2) the s1<->s2 swap: NET-ZERO POINTER INC/DEC PAIRS (catalog SA
+     BworldSm_UpdateSimQuad lever) -- `buildList++; buildList--;` alone
+     over-rotated (buildList past Vi, s0/s1 flip); adding `Vi++; Vi--;` restores
+     Vi > buildList > sd = oracle's s0/s1/s2. -28 diffs. RESIDUAL 14 = prologue
+     param-copy schedule (ours copies a1->s1 at top, oracle sinks it to the loop
+     head) + a translation.x-vs-pChunkCp->x load-order sched tie in trans.x/y/z;
+     both pure sched2 tie-breaks; permuter candidates. */
   int chunkCount;
 
+  Vi++; Vi--;  /* MATCH: net-zero pair -- lifts Vi's allocno priority above buildList (see above) */
   chunkCount = BWorld_gChunkCount;
   sd->doublelayer = 0;
-  (sd->matB).t[2] = 0;
-  (sd->matB).t[1] = 0;
-  (sd->matB).t[0] = 0;
-  gte_SetTransMatrix(&sd->matB);
+  {
+    MATRIX *m = (MATRIX *)&sd->matB;  /* MATCH: mixed-lvalue matB rebasing (see above) */
+    m->t[2] = 0;
+    m->t[1] = 0;
+    (sd->matB).t[0] = 0;
+    gte_SetTransMatrix(m);
+  }
   {
     int buildInd;
+    buildList++; buildList--;  /* MATCH: net-zero pair -- buildList wins s1 over sd (see above) */
     for (buildInd = 0; buildInd < chunkCount; buildInd = buildInd + 1) {
       Chunk *chunkDat;
       int geomRez;
@@ -3482,10 +3504,13 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
               transform(&tmp.x,gCopMat.m,&tmp2.x);
               DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop);
             }
-            (sd->matB).t[2] = 0;
-            (sd->matB).t[1] = 0;
-            (sd->matB).t[0] = 0;
-            gte_SetTransMatrix(&sd->matB);
+            {
+              MATRIX *m2 = (MATRIX *)&sd->matB;
+              m2->t[2] = 0;
+              m2->t[1] = 0;
+              (sd->matB).t[0] = 0;
+              gte_SetTransMatrix(m2);
+            }
           }
           {
             coorddef *pChunkCp;
@@ -3507,162 +3532,123 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
 void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
 
 {
+  /* MATCH (w11-a9): full rule-8 SYM rewrite (SYM @0x800CA520) -- REAL local set
+     {i,j,vertex3d,wx,wy,wz,fx,fy,fz,sx,sy,sz,slice,cp,quads,material,tmp,tmp2};
+     the prior draft used ~15 Ghidra temps (uVar6-8/sVar13-18/iVar9-14/pTVar10/
+     pCVar11) with no SYM counterpart. Ground truth read off the raw oracle:
+     frame 0x1C8 with decl-order slots vertex3d@0x10 quads@0xE8 material@0x148
+     tmp@0x150 tmp2@0x160 fx/fy/fz/sx/sy@0x170..0x190 (AUTO, 8-byte aligned)
+     cp@0x198; scale = scale/8 (signed-div idiom, in-place); wx/wy/wz = srl-10 of
+     fixedmult held in fp/s7/s6 across all three copy loops; fx/fy/fz = lb+sra 1
+     (SIGNED char reads) spilled to their AUTO homes; sx/sy spilled, sz stays in
+     $t1 (REG class, no calls intervene); belt rows built by three 8-iter copy
+     loops (lhu reads = u_short element reads); quads built in j/j+8 pairs with
+     material as ONE sh store (the old aPoints[-2] byte-pair was a mis-model);
+     pmxIndex/vertex reads via *(u_short*) where the oracle uses lhu. */
   int i;
-  short sVar1;
-  short sVar2;
-  short sVar3;
-  short sVar4;
-  u_char uVar5;
-  int slice;
-  u_int uVar6;
-  u_int uVar7;
-  u_int uVar8;
-  int iVar9;
-  Trk_NewSlice *pTVar10;
-  CCOORD16 *pCVar11;
   int j;
-  int iVar12;
-  short sz;
-  short sVar13;
-  int iVar14;
-  short sVar15;
-  short sVar16;
-  short sVar17;
-  short sVar18;
-  short wz;
-  short wy;
-  short wx;
+  int k;
   CCOORD16 vertex3d [27];
   Trk_Quad quads [16];
   Track_tMaterial material;
-  short fx;
-  short fy;
-  short fz;
-  short sx;
-  short sy;
+  coorddef tmp;
+  coorddef tmp2;
+  u_short fx;
+  u_short fy;
+  u_short fz;
+  u_short sx;
+  u_short sy;
+  short sz;
+  short wx, wy, wz;
+  int slice;
   coorddef *cp;
-  
-  iVar9 = gSpikeBeltSlice;
-  pTVar10 = BWorldSm_slices + iVar9;
-  if (scale < 0) {
-    scale = scale + 7;
+
+  slice = gSpikeBeltSlice;
+  cp = (coorddef *)(BWorldSm_slices + slice);
+  scale = scale / 8;
+  wx = (short)((u_int)fixedmult((int)(signed char)((Trk_NewSlice *)cp)->right[0] << 9,scale) >> 10);
+  wy = (short)((u_int)fixedmult((int)(signed char)BWorldSm_slices[slice].right[1] << 9,scale) >> 10);
+  wz = (short)((u_int)fixedmult((int)(signed char)BWorldSm_slices[slice].right[2] << 9,scale) >> 10);
+  /* MATCH: `lb;sra 1` -- a bare `(signed char)f >> 1` gets combine-merged into
+     lbu+sll24+sra25 on cc1plus 2.8.0 (proven invariant across 8 source shapes,
+     scratchpad/lbtest*.cpp); an int temp with a net-zero ++/-- pair blocks the
+     merge and folds away completely (0 extra insns). */
+  { int t0, t1, t2;
+    t0 = (signed char)BWorldSm_slices[slice].forward[0]; t0++; t0--; fx = (u_short)(t0 >> 1);
+    t1 = (signed char)BWorldSm_slices[slice].forward[1]; t1++; t1--; fy = (u_short)(t1 >> 1);
+    t2 = (signed char)BWorldSm_slices[slice].forward[2]; t2++; t2--; fz = (u_short)(t2 >> 1);
   }
-  iVar14 = scale >> 3;
-  /* MATCH (2026-07-11): Trk_NewSlice.right[]/forward[] are declared plain `char`,
-     which is UNSIGNED on this build (lbu on any bare read) -- but the oracle uses
-     SIGNED byte loads (`lb`) for these full-range +-127 slope/width values (unlike
-     the 5-bit-packed forms in BuildChunkCenterLineFacets). Cast to `signed char` at
-     each use site to force `lb` and reproduce the sign-extension. */
-  uVar6 = fixedmult((int)(signed char)pTVar10->right[0] << 9,iVar14);
-  uVar7 = fixedmult((int)(signed char)BWorldSm_slices[iVar9].right[1] << 9,iVar14);
-  uVar8 = fixedmult((int)(signed char)BWorldSm_slices[iVar9].right[2] << 9,iVar14);
-  sVar18 = (short)((int)(signed char)BWorldSm_slices[iVar9].forward[0] >> 1);
-  sVar17 = (short)((int)(signed char)BWorldSm_slices[iVar9].forward[1] >> 1);
-  sVar16 = (short)((int)(signed char)BWorldSm_slices[iVar9].forward[2] >> 1);
-  iVar14 = fixedmult(gSpikeBeltX,(int)(signed char)BWorldSm_slices[iVar9].right[0] << 9);
-  sVar15 = (short)(iVar14 >> 10);
-  iVar14 = fixedmult(gSpikeBeltX,(int)(signed char)BWorldSm_slices[iVar9].right[1] << 9);
-  sVar13 = (short)(iVar14 >> 10);
-  iVar9 = fixedmult(gSpikeBeltX,(int)(signed char)BWorldSm_slices[iVar9].right[2] << 9);
-  iVar14 = 1;
-  pCVar11 = vertex3d;
-  vertex3d[9].z = (short)(iVar9 >> 10);
-  vertex3d[0].x = sVar15 - sVar18;
-  vertex3d[0].y = sVar13 - sVar17;
-  vertex3d[0].z = vertex3d[9].z - sVar16;
+  sx = (u_short)(fixedmult(gSpikeBeltX,(int)(signed char)BWorldSm_slices[slice].right[0] << 9) >> 10);
+  sy = (u_short)(fixedmult(gSpikeBeltX,(int)(signed char)BWorldSm_slices[slice].right[1] << 9) >> 10);
+  sz = (short)(fixedmult(gSpikeBeltX,(int)(signed char)BWorldSm_slices[slice].right[2] << 9) >> 10);
+  vertex3d[0].x = sx - fx;
+  vertex3d[0].y = sy - fy;
+  vertex3d[0].z = sz - fz;
   vertex3d[0].light = 0;
-  iVar9 = 0;
+  k = 0;
+  i = 1;
   do {
-    pCVar11 = pCVar11 + 1;
-    sVar2 = (short)(uVar6 >> 10);
-    pCVar11->x = *(short *)((int)&vertex3d[0].x + iVar9) + sVar2;
-    sVar3 = (short)(uVar7 >> 10);
-    pCVar11->y = *(short *)((int)&vertex3d[0].y + iVar9) + sVar3;
-    sVar1 = *(short *)((int)&vertex3d[0].z + iVar9);
-    iVar14 = iVar14 + 1;
-    pCVar11->light = 0;
-    sVar4 = (short)(uVar8 >> 10);
-    pCVar11->z = sVar1 + sVar4;
-    iVar9 = iVar9 + 8;
-  } while (iVar14 < 9);
-  iVar14 = 1;
-  iVar12 = 0x50;
+    CCOORD16 *p = (CCOORD16 *)((int)vertex3d + k);
+    vertex3d[i].x = *(u_short *)&p->x + wx;
+    vertex3d[i].y = *(u_short *)&p->y + wy;
+    vertex3d[i].z = *(u_short *)&p->z + wz;
+    vertex3d[i].light = 0;
+    k += 8;
+    i++;
+  } while (i < 9);
+  vertex3d[9].x = sx;
+  vertex3d[9].y = sy + 0x19;
+  vertex3d[9].z = sz;
   vertex3d[9].light = 0;
-  vertex3d[9].x = sVar15;
-  vertex3d[9].y = sVar13 + 0x19;
-  iVar9 = 0x48;
+  k = 0x48;
+  i = 1;
   do {
-    *(short *)((int)&vertex3d[0].x + iVar12) = *(short *)((int)&vertex3d[0].x + iVar9) + sVar2;
-    *(short *)((int)&vertex3d[0].y + iVar12) = *(short *)((int)&vertex3d[0].y + iVar9) + sVar3;
-    sVar1 = *(short *)((int)&vertex3d[0].z + iVar9);
-    iVar14 = iVar14 + 1;
-    *(u_short *)((int)&vertex3d[0].light + iVar12) = 0;
-    *(short *)((int)&vertex3d[0].z + iVar12) = sVar1 + sVar4;
-    iVar12 = iVar12 + 8;
-    iVar9 = iVar9 + 8;
-  } while (iVar14 < 9);
-  iVar14 = 1;
-  vertex3d[0x12].x = sVar15 + sVar18;
-  iVar12 = 0x98;
-  vertex3d[0x12].light = 0;
-  vertex3d[0x12].y = sVar13 + sVar17;
-  vertex3d[0x12].z = vertex3d[9].z + sVar16;
-  iVar9 = 0x90;
+    CCOORD16 *p = (CCOORD16 *)((int)vertex3d + k);
+    vertex3d[i+9].x = *(u_short *)&p->x + wx;
+    vertex3d[i+9].y = *(u_short *)&p->y + wy;
+    vertex3d[i+9].z = *(u_short *)&p->z + wz;
+    vertex3d[i+9].light = 0;
+    k += 8;
+    i++;
+  } while (i < 9);
+  vertex3d[18].x = sx + fx;
+  vertex3d[18].y = sy + fy;
+  vertex3d[18].z = sz + fz;
+  vertex3d[18].light = 0;
+  k = 0x90;
+  i = 1;
   do {
-    *(short *)((int)&vertex3d[0].x + iVar12) = *(short *)((int)&vertex3d[0].x + iVar9) + sVar2;
-    *(short *)((int)&vertex3d[0].y + iVar12) = *(short *)((int)&vertex3d[0].y + iVar9) + sVar3;
-    sVar13 = *(short *)((int)&vertex3d[0].z + iVar9);
-    iVar14 = iVar14 + 1;
-    *(u_short *)((int)&vertex3d[0].light + iVar12) = 0;
-    *(short *)((int)&vertex3d[0].z + iVar12) = sVar13 + sVar4;
-    iVar12 = iVar12 + 8;
-    iVar9 = iVar9 + 8;
-  } while (iVar14 < 9);
-  iVar14 = 0;
-  iVar9 = 0;
+    CCOORD16 *p = (CCOORD16 *)((int)vertex3d + k);
+    vertex3d[i+18].x = *(u_short *)&p->x + wx;
+    vertex3d[i+18].y = *(u_short *)&p->y + wy;
+    vertex3d[i+18].z = *(u_short *)&p->z + wz;
+    vertex3d[i+18].light = 0;
+    k += 8;
+    i++;
+  } while (i < 9);
+  j = 0;
   do {
-    iVar14 = (iVar14 + iVar9) * 2;
-    iVar12 = iVar9 + 1;
-    uVar5 = (u_char)iVar9;
-    iVar9 = iVar9 + 8;
-    quads[0].aPoints[iVar14 + 3] = uVar5;
-    (quads[0].aPoints + iVar14 + -2)[0] = '\0';
-    (quads[0].aPoints + iVar14 + -2)[1] = '\0';
-    quads[0].aPoints[iVar14] = (u_char)iVar12;
-    quads[0].aPoints[iVar14 + 1] = uVar5 + '\n';
-    quads[0].aPoints[iVar14 + 2] = uVar5 + '\t';
-    quads[iVar9].material = 0;
-    quads[iVar9].aPoints[1] = uVar5 + '\t';
-    quads[iVar9].aPoints[2] = uVar5 + '\n';
-    quads[iVar9].aPoints[3] = uVar5 + '\x13';
-    quads[iVar9].aPoints[0] = uVar5 + '\x12';
-    iVar14 = iVar12 * 2;
-    iVar9 = iVar12;
-  } while (iVar12 < 8);
-  material.flag = '\0';
-  material.mipmap_offset = '\0';
-  material.pmxIndex = (short)gInitialArt.shapeCount + -1;
-  /* MATCH (2026-07-11): the `sd[1].head.xxx`/`sd[1].matB.t+N` byte-pun idiom used
-     elsewhere in this TU (DoLines etc) computes sd+220+suboffset -- a numeric
-     coincidence that happens to alias the REAL Draw_tGiveShelbyMoreCache fields
-     (vertices@0xE0, quadCount@0xE7, quads@0xE8, offset@0xEC, materials@0xF0,
-     trans@0xF4, nightFlags@0x106, zeroGTETransFlag@0x107) at sd+0 directly (the
-     oracle's a0 IS sd, never sd+sizeof(Draw_DCache) -- confirmed against the final
-     `DrawW_kCtrlWorld_High((Draw_tGiveShelbyMoreCache*)sd)` call, which already
-     used the direct, unshifted cast). Writing through the real field names both
-     fixes the address model and lets clipW+clipH (2 shorts) collapse into the
-     oracle's single `offset` word store. */
+    quads[j].aPoints[3] = (u_char)j;
+    quads[j].material = 0;
+    quads[j].aPoints[0] = (u_char)(j + 1);
+    quads[j].aPoints[1] = (u_char)(j + 10);
+    quads[j].aPoints[2] = (u_char)(j + 9);
+    quads[j+8].material = 0;
+    quads[j+8].aPoints[1] = (u_char)(j + 9);
+    quads[j+8].aPoints[2] = (u_char)(j + 10);
+    quads[j+8].aPoints[3] = (u_char)(j + 0x13);
+    quads[j+8].aPoints[0] = (u_char)(j + 0x12);
+    j = j + 1;
+  } while (j < 8);
+  material.flag = 0;
+  material.mipmap_offset = 0;
+  material.pmxIndex = *(u_short *)&gInitialArt.shapeCount - 1;
   {
     Draw_tGiveShelbyMoreCache *sdG = (Draw_tGiveShelbyMoreCache *)sd;
     sdG->nightFlags = 0;
-    /* MATCH (SYM @0x800CA520, Block start line=84): tmp/tmp2 are a NESTED
-     * block-scope pair (not function-scope) -- §A row 36 "SYM BLOCK SCOPES
-     * ARE LOAD-BEARING". */
-    coorddef tmp;
-    coorddef tmp2;
-    tmp.x = pTVar10->center[0] - (Vi->cview).translation.x;
-    tmp.y = pTVar10->center[1] - (Vi->cview).translation.y;
-    tmp.z = pTVar10->center[2] - (Vi->cview).translation.z;
+    tmp.x = cp->x - (Vi->cview).translation.x;
+    tmp.y = cp->y - (Vi->cview).translation.y;
+    tmp.z = cp->z - (Vi->cview).translation.z;
     transform(&tmp.x,gWorldMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&sd->matB);
     sdG->vertices = vertex3d;

@@ -377,7 +377,6 @@ void Cars_ResetCollidedCars(Car_tObj *carObj,int forceReset,int forceParkAtSide)
 {
   int y;
   int newSlice;
-  coorddef offset;
   int resetCounter;
   int side;
   int iVar1;
@@ -388,134 +387,115 @@ void Cars_ResetCollidedCars(Car_tObj *carObj,int forceReset,int forceParkAtSide)
   u_int uVar6;
   int iVar7;
   int direction;
-  coorddef local_28;
+  coorddef offset;
   
-  memset((u_char *)&local_28,'\0',0xc);
-  iVar1 = carObj->blowout;
+  memset((u_char *)&offset,'\0',0xc);
   direction = carObj->desiredDirection;
   (carObj->collision).smoking = 0;
-  if (iVar1 != 0) {
-LAB_800867d0:
-    (carObj->collision).smoking = 0;
+  if (carObj->blowout != 0) {
     return;
   }
   if (forceReset == 0) {
-    iVar1 = (carObj->N).roadMatrix.m[3];
-    if (iVar1 < 0) {
-      iVar1 = iVar1 + 0xff;
-    }
-    iVar2 = (carObj->N).orientMat.m[3];
-    if (iVar2 < 0) {
-      iVar2 = iVar2 + 0xff;
-    }
-    iVar5 = (carObj->N).roadMatrix.m[4];
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
-    }
-    iVar3 = (carObj->N).orientMat.m[4];
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0xff;
-    }
-    iVar7 = (carObj->N).roadMatrix.m[5];
-    if (iVar7 < 0) {
-      iVar7 = iVar7 + 0xff;
-    }
-    iVar4 = (carObj->N).orientMat.m[5];
-    if (iVar4 < 0) {
-      iVar4 = iVar4 + 0xff;
-    }
-    if ((((0xc000 < (iVar1 >> 8) * (iVar2 >> 8) + (iVar5 >> 8) * (iVar3 >> 8) +
-                    (iVar7 >> 8) * (iVar4 >> 8)) && ((carObj->N).angularVel.x < 0x10000)) &&
-        ((carObj->N).angularVel.z < 0x10000)) &&
-       (((iVar1 = (carObj->N).driveSurfaceType, iVar1 != 0xe && (iVar1 != 0)) &&
-        (((carObj->N).simRoadInfo.simQuad != (Trk_NewSimQuad *)0x0 &&
-         (((carObj->N).flightTime < 6 && ((carObj->N).objAltitude < 0x10000))))))))
-    goto LAB_800867d0;
-  }
-  iVar1 = (int)(carObj->N).simRoadInfo.slice + direction * 4;
-  if (direction * 4 < 0) {
-    if (iVar1 < 0) {
-      iVar1 = iVar1 + gNumSlices;
+    if (((0xc000 < (carObj->N).roadMatrix.m[3] / 256 * ((carObj->N).orientMat.m[3] / 256) +
+                   (carObj->N).roadMatrix.m[4] / 256 * ((carObj->N).orientMat.m[4] / 256) +
+                   (carObj->N).roadMatrix.m[5] / 256 * ((carObj->N).orientMat.m[5] / 256)) &&
+         ((carObj->N).angularVel.x < 0x10000)) &&
+        ((carObj->N).angularVel.z < 0x10000) &&
+        (((iVar1 = (carObj->N).driveSurfaceType, iVar1 != 0xe && (iVar1 != 0)) &&
+         (((carObj->N).simRoadInfo.simQuad != (Trk_NewSimQuad *)0x0 &&
+          (((carObj->N).flightTime < 6 && ((carObj->N).objAltitude < 0x10000)))))))) {
+      (carObj->collision).smoking = 0;
+      return;
     }
   }
-  else if (gNumSlices <= iVar1) {
-    iVar1 = iVar1 - gNumSlices;
+  iVar1 = (carObj->N).simRoadInfo.slice;
+  y = iVar1 + direction * 4;
+  if (0 <= direction * 4) {
+    if (gNumSlices <= y) {
+      y = y - gNumSlices;
+    }
   }
+  else if (y < 0) {
+    y = y + gNumSlices;
+  }
+  iVar1 = y;
   if (forceReset == 2) {
     iVar1 = (int)(carObj->N).simRoadInfo.slice;
   }
-  iVar2 = accidentSlice + 5;
   if (0 < accidentSlice) {
-    if (gNumSlices <= iVar2) {
-      iVar2 = accidentSlice - (gNumSlices + -5);
+    if (accidentSlice + 5 < gNumSlices) {
+      iVar2 = accidentSlice - 5;
+      if (!(iVar1 < accidentSlice + 5)) goto LAB_80086908;
     }
-    if (iVar1 < iVar2) {
-      iVar2 = accidentSlice + -5;
-      if (iVar2 < 0) {
-        iVar2 = accidentSlice + gNumSlices + -5;
+    else {
+      if (!(iVar1 < accidentSlice - (gNumSlices - 5))) goto LAB_80086908;
+      iVar2 = accidentSlice - 5;
+    }
+    if (0 <= iVar2) {
+      if (!(iVar2 < iVar1)) goto LAB_80086908;
+    }
+    else if (!(accidentSlice + (gNumSlices - 5) < iVar1)) goto LAB_80086908;
+    y = iVar1 + direction * 5;
+    if (0 <= direction * 5) {
+      iVar1 = y;
+      if (gNumSlices <= y) {
+        y = y - gNumSlices;
+        iVar1 = y;
       }
-      if (iVar2 < iVar1) {
-        iVar1 = iVar1 + direction * 5;
-        if (direction * 5 < 0) {
-          iVar2 = gNumSlices;
-          if (-1 < iVar1) goto LAB_80086908;
-        }
-        else {
-          if (iVar1 < gNumSlices) goto LAB_80086908;
-          iVar2 = -gNumSlices;
-        }
-        iVar1 = iVar1 + iVar2;
+    }
+    else {
+      iVar1 = y;
+      if (y < 0) {
+        y = y + gNumSlices;
+        iVar1 = y;
       }
     }
   }
 LAB_80086908:
-  uVar6 = (u_int)(carObj->carIndex / 2 << 1 != carObj->carIndex);
-  if (direction == -1) {
-    uVar6 = 1 - uVar6;
-  }
-  if (AITune_driveSide == -1) {
-    uVar6 = 1 - uVar6;
-  }
-  if (uVar6 == 0) {
-    /* CORRECTNESS FIX: byte-base cast -- BWorldSm_slices is `Trk_NewSlice *`
-       (sizeof==0x20); without a cast gcc double-scales the already-byte-scaled
-       `iVar1*0x20` by sizeof(Trk_NewSlice) again (oracle proves `sll ...,5` ==
-       *0x20 only). Same bug/fix as Cars_CalculateStartingGridOffset. */
-    iVar2 = iVar1 * 0x20 + (int)BWorldSm_slices;
-    iVar5 = (carObj->N).dimension.x;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
+  {
+    int side;   /* SYM block-62 side (s4): stays 0 -- the loop's `offset.x += side << 14`
+                   nudge is a REAL EA BUG (inner block-63 `side` SHADOWS this one, so the
+                   computed side never reaches the loop; oracle sll $s4,14 with s4==0). */
+    side = 0;
+    {
+      int side;   /* SYM block-63 side (v1) -- shadows the outer one */
+      side = 0 < (u_int)(carObj->carIndex / 2 * 2 ^ carObj->carIndex);
+      if (direction == -1) {
+        side = 1 - side;
+      }
+      if (AITune_driveSide == -1) {
+        side = 1 - side;
+      }
+      if (side != 0) {
+        /* CORRECTNESS FIX kept: byte-base cast -- BWorldSm_slices is `Trk_NewSlice *`
+           (sizeof==0x20); without the cast gcc double-scales iVar1*0x20 by the struct
+           size again (oracle: single `sll ...,5`). */
+        iVar2 = iVar1 * 0x20 + (int)BWorldSm_slices;
+        offset.x = -(int)((u_int)*(u_char *)(iVar2 + 0x1e) * 0x8000 *
+                          (u_int)(*(u_char *)(iVar2 + 0x1d) >> 4)) +
+                   (carObj->N).dimension.x / 256 * 0x180;
+      }
+      else {
+        iVar2 = iVar1 * 0x20 + (int)BWorldSm_slices;
+        offset.x = (u_int)*(u_char *)(iVar2 + 0x1f) * 0x8000 *
+                   (*(u_char *)(iVar2 + 0x1d) & 0xf) -
+                   (carObj->N).dimension.x / 256 * 0x180;
+      }
     }
-    local_28.x = (u_int)*(u_char *)(iVar2 + 0x1f) * 0x8000 * (*(u_char *)(iVar2 + 0x1d) & 0xf) +
-                 (iVar5 >> 8) * -0x180;
-  }
-  else {
-    /* CORRECTNESS FIX: byte-base cast -- BWorldSm_slices is `Trk_NewSlice *`
-       (sizeof==0x20); without a cast gcc double-scales the already-byte-scaled
-       `iVar1*0x20` by sizeof(Trk_NewSlice) again (oracle proves `sll ...,5` ==
-       *0x20 only). Same bug/fix as Cars_CalculateStartingGridOffset. */
-    iVar2 = iVar1 * 0x20 + (int)BWorldSm_slices;
-    iVar5 = (carObj->N).dimension.x;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
+    Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,iVar1,&offset,direction);
+    resetCounter = 0;
+    while (((carObj->N).driveSurfaceType == 0 || ((carObj->N).driveSurfaceType == 0xe)) ||
+           ((carObj->N).simRoadInfo.simQuad == (Trk_NewSimQuad *)0x0)) {
+      resetCounter = resetCounter + 1;
+      offset.x = offset.x + (side << 14);
+      Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,iVar1,&offset,direction);
+      if (0x28 < resetCounter) {
+        offset.x = 0;
+        Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,iVar1,&offset,direction);
+        break;
+      }
     }
-    local_28.x = (iVar5 >> 8) * 0x180 -
-                 (u_int)*(u_char *)(iVar2 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar2 + 0x1d) >> 4);
   }
-  Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,iVar1,&local_28,direction);
-  iVar2 = (carObj->N).driveSurfaceType;
-  iVar5 = 0;
-  while( true ) {
-    if (((iVar2 != 0) && (iVar2 != 0xe)) &&
-       ((carObj->N).simRoadInfo.simQuad != (Trk_NewSimQuad *)0x0)) goto LAB_80086a94;
-    iVar5 = iVar5 + 1;
-    Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,iVar1,&local_28,direction);
-    if (0x28 < iVar5) break;
-    iVar2 = (carObj->N).driveSurfaceType;
-  }
-  local_28.x = 0;
-  Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,iVar1,&local_28,direction);
-LAB_80086a94:
   (carObj->N).linearVel.z = 0;
   (carObj->N).linearVel.y = 0;
   (carObj->N).linearVel.x = 0;
@@ -984,12 +964,16 @@ LAB_80087888:
 /* ---- Car_TireSkiddingStuff__FP8Car_tObj  [@0x800878cc] ---- */
 void Car_TireSkiddingStuff(Car_tObj *carObj)
 {
+  /* SYM 8c @0x800878cc: fsize=168 mask=$c0ff0000; REGs: visible=s5 front=s3 rear=s4
+     skidFront=s6 roadSurface=a1 roadSurfaceWheel=s2 surfaceType=s1 speed=fp wetRoad=s7;
+     AUTOs: position@-136 point@-120 audioSurface@-56 originalFront@-52 originalRear@-48;
+     12 wheel blocks each redeclare block-local coorddef wheelFrontX/Z (or Back). */
   coorddef position;
   coorddef point;
   int visible;
   int audioSurface;
-  int front;
   int rear;
+  int front;
   int skidFront;
   int originalFront;
   int originalRear;
@@ -998,979 +982,418 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
   int surfaceType;
   int speed;
   int wetRoad;
-  coorddef wheelFrontX;
-  coorddef wheelFrontZ;
-  int rndOffset;
-  coorddef wheelBackX;
-  coorddef wheelBackZ;
-  short sVar1;
-  bool bVar2;
-  bool bVar3;
-  void *pvVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  int iVar9;
-  u_int uVar10;
-  int local_88;
-  int local_84;
-  int local_80;
-  coorddef local_78;
-  int local_68;
-  int local_64;
-  int local_60;
-  int local_58;
-  int local_54;
-  int local_50;
-  int local_48;
-  int local_44;
-  int local_40;
-  int local_38;
-  int local_34;
-  int local_30;
-  
-  bVar3 = false;
-  sVar1 = *(short *)((int)&(carObj->N).speedXZ + 2);
-  bVar2 = false;
+
+  visible = 0;
+  speed = *(short *)((int)&(carObj->N).speedXZ + 2);
+  wetRoad = 0;
   if (GameSetup_gData.Weather != 0) {
-    pvVar4 = BWorldSm_TunnelFlagSm(&(carObj->N).simRoadInfo);
-    bVar2 = pvVar4 != (void *)0x1;
+    wetRoad = BWorldSm_TunnelFlagSm(&(carObj->N).simRoadInfo) != (void *)0x1;
   }
-  iVar9 = (carObj->N).driveSurfaceType;
+  roadSurface = (carObj->N).driveSurfaceType;
   if (((carObj->N).distToPlayer < 0x3c0000) && ((carObj->N).objAltitude < 0x6666)) {
-    bVar3 = true;
+    visible = 1;
   }
-  if (bVar3) {
-    local_88 = (carObj->N).position.x;
-    local_80 = (carObj->N).position.z;
-    local_84 = (carObj->N).groundElevation;
-    iVar6 = carObj->frontSkid;
-    if (iVar6 < 1) {
-      local_34 = 0;
-      iVar6 = local_34;
+  front = 0;
+  if (visible != 0) {
+    position.x = (carObj->N).position.x;
+    position.y = (carObj->N).position.y;
+    position.z = (carObj->N).position.z;
+    position.y = (carObj->N).groundElevation;
+    if (carObj->frontSkid > 0) {
+      front = 0xa0000;
+      if (carObj->frontSkid <= 0xa0000) {
+        front = carObj->frontSkid;
+      }
+      originalFront = front;
+      carObj->frontSkid = front;
+      if (__builtin_abs((carObj->linearVel_ch).z) > 0x140000) {
+        skidFront = front - __builtin_abs((carObj->linearVel_ch).z / 8);
+      }
+      else {
+        skidFront = front;
+      }
     }
     else {
-      local_34 = 0xa0000;
-      if (iVar6 < 0xa0001) {
-        local_34 = iVar6;
-      }
-      iVar8 = (carObj->linearVel_ch).z;
-      iVar7 = iVar8;
-      if (iVar8 < 0) {
-        iVar7 = -iVar8;
-      }
-      carObj->frontSkid = local_34;
-      iVar6 = local_34;
-      if (0x140000 < iVar7) {
-        if (iVar8 < 0) {
-          iVar8 = iVar8 + 7;
-        }
-        iVar8 = iVar8 >> 3;
-        if (iVar8 < 0) {
-          iVar8 = -iVar8;
-        }
-        iVar6 = local_34 - iVar8;
-      }
+      originalFront = 0;
+      skidFront = front;
     }
-    iVar7 = carObj->rearSkid;
-    if (iVar7 < 1) goto LAB_80087a54;
-    local_30 = 0xa0000;
-    if (iVar7 < 0xa0001) {
-      local_30 = iVar7;
+    if (carObj->rearSkid > 0) {
+      rear = 0xa0000;
+      if (carObj->rearSkid <= 0xa0000) {
+        rear = carObj->rearSkid;
+      }
+      carObj->rearSkid = rear;
+      originalRear = rear;
     }
-    carObj->rearSkid = local_30;
+    else {
+      rear = 0;
+      originalRear = 0;
+    }
   }
   else {
-    iVar6 = 0;
-    local_34 = 0;
-LAB_80087a54:
-    local_30 = 0;
+    skidFront = front;
+    rear = front;
+    originalFront = 0;
+    originalRear = 0;
   }
-  iVar8 = local_30;
-  iVar7 = local_34;
-  local_38 = Cars_kAudioRoadSurfaceInterface[iVar9];
-  if (GameSetup_gData.Weather < 1) {
-    if (local_38 == 0) {
-      iVar9 = carObj->carInfo->TireType;
-      if (iVar9 == 0) {
-        local_38 = 0x12;
-      }
-      else if (iVar9 == 2) {
-        local_38 = 0x11;
+  audioSurface = Cars_kAudioRoadSurfaceInterface[roadSurface];
+  if (0 < GameSetup_gData.Weather) {
+    if (audioSurface == 0) {
+      if (((int)BWorldSm_TunnelFlagSm(&(carObj->N).simRoadInfo) ^ 1) != 0) {
+        audioSurface = 0x10;
       }
     }
   }
-  else if ((local_38 == 0) &&
-          (pvVar4 = BWorldSm_TunnelFlagSm(&(carObj->N).simRoadInfo), pvVar4 != (void *)0x1)) {
-    local_38 = 0x10;
+  else if (audioSurface == 0) {
+    if (carObj->carInfo->TireType == 0) {
+      audioSurface = 0x12;
+    }
+    else if (carObj->carInfo->TireType == 2) {
+      audioSurface = 0x11;
+    }
   }
-  uVar10 = carObj->wheel[0].roadSurfaceType;
-  iVar9 = Cars_kSkidMarkSurface[uVar10 & 0xf];
+  /* ---- wheel 0 (front) ---- */
+  roadSurfaceWheel = carObj->wheel[0].roadSurfaceType;
+  surfaceType = Cars_kSkidMarkSurface[roadSurfaceWheel & 0xf];
   if (carObj->wheel[0].wheelInAir != 0) {
-    iVar9 = 0;
+    surfaceType = 0;
   }
-  if ((((iVar7 == 0) || (bVar2)) && ((iVar9 < 2 || (sVar1 == 0)))) || (!bVar3)) {
-    if ((carObj->oldSkidState & 1U) != 0) {
-      carObj->oldSkidState = carObj->oldSkidState - 1;
-      TrgSfx_AddSkidmark((carObj->N).objID,0,carObj->oldSkidPoint,1,carObj->frontSkid,carObj,0);
+  if (((front != 0 && wetRoad == 0) || (surfaceType >= 2 && speed != 0)) && visible != 0) {
+    {
+      coorddef wheelFrontX;
+      coorddef wheelFrontZ;
+      
+      wheelFrontX.x = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[0] / 256;
+      wheelFrontX.y = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[1] / 256;
+      wheelFrontX.z = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[2] / 256;
+      wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256;
+      wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256;
+      wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256;
+      point.x = position.x - wheelFrontX.x + wheelFrontZ.x;
+      point.z = position.z - wheelFrontX.z + wheelFrontZ.z;
+      point.y = position.y - wheelFrontX.y + wheelFrontZ.y;
     }
-  }
-  else {
-    iVar5 = (carObj->N).wheelFrontX;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
+    if (surfaceType >= 2 && frontLimit < skidFront) {
+      surfaceType = 3;
     }
-    local_68 = (iVar5 >> 8) * (carObj->N).orientMat.m[0];
-    if (local_68 < 0) {
-      local_68 = local_68 + 0xff;
-    }
-    local_68 = local_68 >> 8;
-    iVar5 = (carObj->N).wheelFrontX;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
-    }
-    local_64 = (iVar5 >> 8) * (carObj->N).orientMat.m[1];
-    if (local_64 < 0) {
-      local_64 = local_64 + 0xff;
-    }
-    local_64 = local_64 >> 8;
-    iVar5 = (carObj->N).wheelFrontX;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
-    }
-    local_60 = (iVar5 >> 8) * (carObj->N).orientMat.m[2];
-    if (local_60 < 0) {
-      local_60 = local_60 + 0xff;
-    }
-    local_60 = local_60 >> 8;
-    iVar5 = (carObj->N).wheelFrontZ;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
-    }
-    local_58 = (iVar5 >> 8) * (carObj->N).orientMat.m[6];
-    if (local_58 < 0) {
-      local_58 = local_58 + 0xff;
-    }
-    local_58 = local_58 >> 8;
-    iVar5 = (carObj->N).wheelFrontZ;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
-    }
-    local_54 = (iVar5 >> 8) * (carObj->N).orientMat.m[7];
-    if (local_54 < 0) {
-      local_54 = local_54 + 0xff;
-    }
-    local_54 = local_54 >> 8;
-    iVar5 = (carObj->N).wheelFrontZ;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
-    }
-    local_50 = (iVar5 >> 8) * (carObj->N).orientMat.m[8];
-    if (local_50 < 0) {
-      local_50 = local_50 + 0xff;
-    }
-    local_50 = local_50 >> 8;
-    local_78.x = (local_88 - local_68) + local_58;
-    local_78.z = (local_80 - local_60) + local_50;
-    local_78.y = (local_84 - local_64) + local_54;
-    if ((1 < iVar9) && (0x8000 < iVar6)) {
-      iVar9 = 3;
-    }
-    if (iVar9 == 0) {
-      Cars_AddCarSfx(carObj,0,&local_78,uVar10,0,0);
+    if (surfaceType != 0) {
+      Cars_AddCarSfx(carObj,0,&point,roadSurfaceWheel,surfaceType,1);
     }
     else {
-      Cars_AddCarSfx(carObj,0,&local_78,uVar10,iVar9,1);
+      Cars_AddCarSfx(carObj,0,&point,roadSurfaceWheel,0,0);
     }
   }
-  if ((((bVar2) && (iVar9 == 1)) && (sVar1 != 0)) && (bVar3)) {
-    iVar9 = (carObj->N).wheelFrontX;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_68 = (iVar9 >> 8) * (carObj->N).orientMat.m[0];
-    if (local_68 < 0) {
-      local_68 = local_68 + 0xff;
-    }
-    local_68 = local_68 >> 8;
-    iVar9 = (carObj->N).wheelFrontX;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_64 = (iVar9 >> 8) * (carObj->N).orientMat.m[1];
-    if (local_64 < 0) {
-      local_64 = local_64 + 0xff;
-    }
-    local_64 = local_64 >> 8;
-    iVar9 = (carObj->N).wheelFrontX;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_60 = (iVar9 >> 8) * (carObj->N).orientMat.m[2];
-    if (local_60 < 0) {
-      local_60 = local_60 + 0xff;
-    }
-    local_60 = local_60 >> 8;
-    iVar9 = (carObj->N).wheelFrontZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_48 = (iVar9 >> 8) * (carObj->N).orientMat.m[6];
-    if (local_48 < 0) {
-      local_48 = local_48 + 0xff;
-    }
-    local_48 = local_48 >> 8;
-    iVar9 = (carObj->N).wheelFrontZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_44 = (iVar9 >> 8) * (carObj->N).orientMat.m[7];
-    if (local_44 < 0) {
-      local_44 = local_44 + 0xff;
-    }
-    local_44 = local_44 >> 8;
-    iVar9 = (carObj->N).wheelFrontZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_40 = (iVar9 >> 8) * (carObj->N).orientMat.m[8];
-    if (local_40 < 0) {
-      local_40 = local_40 + 0xff;
-    }
-    local_40 = local_40 >> 8;
-    local_78.x = (local_88 - local_68) + local_48;
-    local_78.z = (local_80 - local_60) + local_40;
-    local_78.y = (local_84 - local_64) + local_44;
-    TrgSfx_AddCarSplash((carObj->N).objID,0,&local_78,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
-    if (iVar7 < 1) {
-      iVar7 = 1;
+  else if ((carObj->oldSkidState & 1) != 0) {
+    carObj->oldSkidState = carObj->oldSkidState - 1;
+    TrgSfx_AddSkidmark((carObj->N).objID,0,carObj->oldSkidPoint,1,carObj->frontSkid,carObj,0);
+  }
+  if (wetRoad != 0) {
+    if (surfaceType == 1 && speed != 0 && visible != 0) {
+      {
+        coorddef wheelFrontX;
+        coorddef wheelBackX;  /* unused: SYM shows wheelFrontZ @ sp+96 (dead 16-byte slot between X and Z) */
+        coorddef wheelFrontZ;
+        
+        wheelFrontX.x = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[0] / 256;
+        wheelFrontX.y = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[1] / 256;
+        wheelFrontX.z = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[2] / 256;
+        wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256;
+        wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256;
+        wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256;
+        point.x = position.x - wheelFrontX.x + wheelFrontZ.x;
+        point.z = position.z - wheelFrontX.z + wheelFrontZ.z;
+        point.y = position.y - wheelFrontX.y + wheelFrontZ.y;
+      }
+      TrgSfx_AddCarSplash((carObj->N).objID,0,&point,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
+      front = (0 < front) ? front : 1;
     }
   }
-  if ((((uVar10 & 0x20) != 0) && (gLeafPixmap != (Draw_tPixMap *)0x0)) &&
-     ((0xa0000 < (carObj->N).speedXZ &&
-      (pvVar4 = TrgSfx_AddCarExtraCheck((carObj->N).objID,0),
-      pvVar4 != (void *)0x0)))) {
-    uVar10 = random();
-    iVar9 = ((uVar10 & 7) - 4) * 0x3333;
-    iVar5 = (carObj->N).wheelFrontX + iVar9;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
+  if ((roadSurfaceWheel & 0x20) != 0 && gLeafPixmap != (Draw_tPixMap *)0x0 &&
+      0xA0000 < (carObj->N).speedXZ && TrgSfx_AddCarExtraCheck((carObj->N).objID,0) != 0) {
+    {
+      int rndOffset;
+      rndOffset = ((random() & 7) - 4) * 0x3333;
+      {
+        coorddef wheelFrontX;
+        coorddef wheelFrontZ;
+        
+        wheelFrontX.x = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[0] / 256;
+        wheelFrontX.y = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[1] / 256;
+        wheelFrontX.z = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[2] / 256;
+        wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256;
+        wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256;
+        wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256;
+        point.x = position.x - wheelFrontX.x + wheelFrontZ.x;
+        point.z = position.z - wheelFrontX.z + wheelFrontZ.z;
+        point.y = position.y - wheelFrontX.y + wheelFrontZ.y;
+      }
+      TrgSfx_AddCarExtraSfx((carObj->N).objID,0,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
+                 point.y,(carObj->render).light);
     }
-    local_68 = (iVar5 >> 8) * (carObj->N).orientMat.m[0];
-    if (local_68 < 0) {
-      local_68 = local_68 + 0xff;
-    }
-    local_68 = local_68 >> 8;
-    iVar5 = (carObj->N).wheelFrontX + iVar9;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
-    }
-    local_64 = (iVar5 >> 8) * (carObj->N).orientMat.m[1];
-    if (local_64 < 0) {
-      local_64 = local_64 + 0xff;
-    }
-    local_64 = local_64 >> 8;
-    iVar9 = (carObj->N).wheelFrontX + iVar9;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_60 = (iVar9 >> 8) * (carObj->N).orientMat.m[2];
-    if (local_60 < 0) {
-      local_60 = local_60 + 0xff;
-    }
-    local_60 = local_60 >> 8;
-    iVar9 = (carObj->N).wheelFrontZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_58 = (iVar9 >> 8) * (carObj->N).orientMat.m[6];
-    if (local_58 < 0) {
-      local_58 = local_58 + 0xff;
-    }
-    local_58 = local_58 >> 8;
-    iVar9 = (carObj->N).wheelFrontZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_54 = (iVar9 >> 8) * (carObj->N).orientMat.m[7];
-    if (local_54 < 0) {
-      local_54 = local_54 + 0xff;
-    }
-    local_54 = local_54 >> 8;
-    iVar9 = (carObj->N).wheelFrontZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_50 = (iVar9 >> 8) * (carObj->N).orientMat.m[8];
-    if (local_50 < 0) {
-      local_50 = local_50 + 0xff;
-    }
-    local_50 = local_50 >> 8;
-    local_78.x = (local_88 - local_68) + local_58;
-    local_78.z = (local_80 - local_60) + local_50;
-    local_78.y = (local_84 - local_64) + local_54;
-    TrgSfx_AddCarExtraSfx((carObj->N).objID,0,&local_78,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
-               local_78.y,(carObj->render).light);
   }
-  uVar10 = carObj->wheel[1].roadSurfaceType;
-  iVar9 = Cars_kSkidMarkSurface[uVar10 & 0xf];
+
+  /* ---- wheel 1 (front) ---- */
+  roadSurfaceWheel = carObj->wheel[1].roadSurfaceType;
+  surfaceType = Cars_kSkidMarkSurface[roadSurfaceWheel & 0xf];
   if (carObj->wheel[1].wheelInAir != 0) {
-    iVar9 = 0;
+    surfaceType = 0;
   }
-  if ((((iVar7 == 0) || (bVar2)) && ((iVar9 < 2 || (sVar1 == 0)))) || (!bVar3)) {
-    if ((carObj->oldSkidState & 2U) != 0) {
-      carObj->oldSkidState = carObj->oldSkidState - 2;
-      TrgSfx_AddSkidmark((carObj->N).objID,1,carObj->oldSkidPoint + 1,1,carObj->frontSkid,carObj,0);
+  if (((front != 0 && wetRoad == 0) || (surfaceType >= 2 && speed != 0)) && visible != 0) {
+    {
+      coorddef wheelFrontX;
+      coorddef wheelFrontZ;
+      
+      wheelFrontX.x = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[0] / 256;
+      wheelFrontX.y = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[1] / 256;
+      wheelFrontX.z = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[2] / 256;
+      wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256;
+      wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256;
+      wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256;
+      point.x = position.x + wheelFrontX.x + wheelFrontZ.x;
+      point.z = position.z + wheelFrontX.z + wheelFrontZ.z;
+      point.y = position.y + wheelFrontX.y + wheelFrontZ.y;
     }
-  }
-  else {
-    iVar5 = (carObj->N).wheelFrontX;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
+    if (surfaceType >= 2 && frontLimit < skidFront) {
+      surfaceType = 3;
     }
-    local_68 = (iVar5 >> 8) * (carObj->N).orientMat.m[0];
-    if (local_68 < 0) {
-      local_68 = local_68 + 0xff;
-    }
-    local_68 = local_68 >> 8;
-    iVar5 = (carObj->N).wheelFrontX;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
-    }
-    local_64 = (iVar5 >> 8) * (carObj->N).orientMat.m[1];
-    if (local_64 < 0) {
-      local_64 = local_64 + 0xff;
-    }
-    local_64 = local_64 >> 8;
-    iVar5 = (carObj->N).wheelFrontX;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
-    }
-    local_60 = (iVar5 >> 8) * (carObj->N).orientMat.m[2];
-    if (local_60 < 0) {
-      local_60 = local_60 + 0xff;
-    }
-    local_60 = local_60 >> 8;
-    iVar5 = (carObj->N).wheelFrontZ;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
-    }
-    local_58 = (iVar5 >> 8) * (carObj->N).orientMat.m[6];
-    if (local_58 < 0) {
-      local_58 = local_58 + 0xff;
-    }
-    local_58 = local_58 >> 8;
-    iVar5 = (carObj->N).wheelFrontZ;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
-    }
-    local_54 = (iVar5 >> 8) * (carObj->N).orientMat.m[7];
-    if (local_54 < 0) {
-      local_54 = local_54 + 0xff;
-    }
-    local_54 = local_54 >> 8;
-    iVar5 = (carObj->N).wheelFrontZ;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
-    }
-    local_50 = (iVar5 >> 8) * (carObj->N).orientMat.m[8];
-    if (local_50 < 0) {
-      local_50 = local_50 + 0xff;
-    }
-    local_50 = local_50 >> 8;
-    local_78.x = local_88 + local_68 + local_58;
-    local_78.z = local_80 + local_60 + local_50;
-    local_78.y = local_84 + local_64 + local_54;
-    if ((1 < iVar9) && (0x8000 < iVar6)) {
-      iVar9 = 3;
-    }
-    if (iVar9 == 0) {
-      Cars_AddCarSfx(carObj,1,&local_78,uVar10,0,0);
+    if (surfaceType != 0) {
+      Cars_AddCarSfx(carObj,1,&point,roadSurfaceWheel,surfaceType,1);
     }
     else {
-      Cars_AddCarSfx(carObj,1,&local_78,uVar10,iVar9,1);
+      Cars_AddCarSfx(carObj,1,&point,roadSurfaceWheel,0,0);
     }
   }
-  if ((((bVar2) && (iVar9 == 1)) && (sVar1 != 0)) && (bVar3)) {
-    iVar9 = (carObj->N).wheelFrontX;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_68 = (iVar9 >> 8) * (carObj->N).orientMat.m[0];
-    if (local_68 < 0) {
-      local_68 = local_68 + 0xff;
-    }
-    local_68 = local_68 >> 8;
-    iVar9 = (carObj->N).wheelFrontX;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_64 = (iVar9 >> 8) * (carObj->N).orientMat.m[1];
-    if (local_64 < 0) {
-      local_64 = local_64 + 0xff;
-    }
-    local_64 = local_64 >> 8;
-    iVar9 = (carObj->N).wheelFrontX;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_60 = (iVar9 >> 8) * (carObj->N).orientMat.m[2];
-    if (local_60 < 0) {
-      local_60 = local_60 + 0xff;
-    }
-    local_60 = local_60 >> 8;
-    iVar9 = (carObj->N).wheelFrontZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_58 = (iVar9 >> 8) * (carObj->N).orientMat.m[6];
-    if (local_58 < 0) {
-      local_58 = local_58 + 0xff;
-    }
-    local_58 = local_58 >> 8;
-    iVar9 = (carObj->N).wheelFrontZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_54 = (iVar9 >> 8) * (carObj->N).orientMat.m[7];
-    if (local_54 < 0) {
-      local_54 = local_54 + 0xff;
-    }
-    local_54 = local_54 >> 8;
-    iVar9 = (carObj->N).wheelFrontZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_50 = (iVar9 >> 8) * (carObj->N).orientMat.m[8];
-    if (local_50 < 0) {
-      local_50 = local_50 + 0xff;
-    }
-    local_50 = local_50 >> 8;
-    local_78.x = local_88 + local_68 + local_58;
-    local_78.z = local_80 + local_60 + local_50;
-    local_78.y = local_84 + local_64 + local_54;
-    TrgSfx_AddCarSplash((carObj->N).objID,1,&local_78,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
-    if (iVar7 < 1) {
-      iVar7 = 1;
+  else if ((carObj->oldSkidState & 2) != 0) {
+    carObj->oldSkidState = carObj->oldSkidState - 2;
+    TrgSfx_AddSkidmark((carObj->N).objID,1,carObj->oldSkidPoint + 1,1,carObj->frontSkid,carObj,0);
+  }
+  if (wetRoad != 0) {
+    if (surfaceType == 1 && speed != 0 && visible != 0) {
+      {
+        coorddef wheelFrontX;
+        coorddef wheelFrontZ;
+        
+        wheelFrontX.x = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[0] / 256;
+        wheelFrontX.y = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[1] / 256;
+        wheelFrontX.z = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[2] / 256;
+        wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256;
+        wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256;
+        wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256;
+        point.x = position.x + wheelFrontX.x + wheelFrontZ.x;
+        point.z = position.z + wheelFrontX.z + wheelFrontZ.z;
+        point.y = position.y + wheelFrontX.y + wheelFrontZ.y;
+      }
+      TrgSfx_AddCarSplash((carObj->N).objID,1,&point,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
+      front = (0 < front) ? front : 1;
     }
   }
-  if ((((uVar10 & 0x20) != 0) && (gLeafPixmap != (Draw_tPixMap *)0x0)) &&
-     ((0xa0000 < (carObj->N).speedXZ &&
-      (pvVar4 = TrgSfx_AddCarExtraCheck((carObj->N).objID,1),
-      pvVar4 != (void *)0x0)))) {
-    uVar10 = random();
-    iVar9 = ((uVar10 & 7) - 4) * 0x3333;
-    iVar6 = (carObj->N).wheelFrontX + iVar9;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
+  if ((roadSurfaceWheel & 0x20) != 0 && gLeafPixmap != (Draw_tPixMap *)0x0 &&
+      0xA0000 < (carObj->N).speedXZ && TrgSfx_AddCarExtraCheck((carObj->N).objID,1) != 0) {
+    {
+      int rndOffset;
+      rndOffset = ((random() & 7) - 4) * 0x3333;
+      {
+        coorddef wheelFrontX;
+        coorddef wheelFrontZ;
+        
+        wheelFrontX.x = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[0] / 256;
+        wheelFrontX.y = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[1] / 256;
+        wheelFrontX.z = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[2] / 256;
+        wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256;
+        wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256;
+        wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256;
+        point.x = position.x + wheelFrontX.x + wheelFrontZ.x;
+        point.z = position.z + wheelFrontX.z + wheelFrontZ.z;
+        point.y = position.y + wheelFrontX.y + wheelFrontZ.y;
+      }
+      TrgSfx_AddCarExtraSfx((carObj->N).objID,1,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
+                 point.y,(carObj->render).light);
     }
-    local_68 = (iVar6 >> 8) * (carObj->N).orientMat.m[0];
-    if (local_68 < 0) {
-      local_68 = local_68 + 0xff;
-    }
-    local_68 = local_68 >> 8;
-    iVar6 = (carObj->N).wheelFrontX + iVar9;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
-    }
-    local_64 = (iVar6 >> 8) * (carObj->N).orientMat.m[1];
-    if (local_64 < 0) {
-      local_64 = local_64 + 0xff;
-    }
-    local_64 = local_64 >> 8;
-    iVar9 = (carObj->N).wheelFrontX + iVar9;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_60 = (iVar9 >> 8) * (carObj->N).orientMat.m[2];
-    if (local_60 < 0) {
-      local_60 = local_60 + 0xff;
-    }
-    local_60 = local_60 >> 8;
-    iVar9 = (carObj->N).wheelFrontZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_58 = (iVar9 >> 8) * (carObj->N).orientMat.m[6];
-    if (local_58 < 0) {
-      local_58 = local_58 + 0xff;
-    }
-    local_58 = local_58 >> 8;
-    iVar9 = (carObj->N).wheelFrontZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_54 = (iVar9 >> 8) * (carObj->N).orientMat.m[7];
-    if (local_54 < 0) {
-      local_54 = local_54 + 0xff;
-    }
-    local_54 = local_54 >> 8;
-    iVar9 = (carObj->N).wheelFrontZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_50 = (iVar9 >> 8) * (carObj->N).orientMat.m[8];
-    if (local_50 < 0) {
-      local_50 = local_50 + 0xff;
-    }
-    local_50 = local_50 >> 8;
-    local_78.x = local_88 + local_68 + local_58;
-    local_78.z = local_80 + local_60 + local_50;
-    local_78.y = local_84 + local_64 + local_54;
-    TrgSfx_AddCarExtraSfx((carObj->N).objID,1,&local_78,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
-               local_78.y,(carObj->render).light);
   }
-  uVar10 = carObj->wheel[2].roadSurfaceType;
-  iVar9 = Cars_kSkidMarkSurface[uVar10 & 0xf];
+
+  /* ---- wheel 2 (back) ---- */
+  roadSurfaceWheel = carObj->wheel[2].roadSurfaceType;
+  surfaceType = Cars_kSkidMarkSurface[roadSurfaceWheel & 0xf];
   if (carObj->wheel[2].wheelInAir != 0) {
-    iVar9 = 0;
+    surfaceType = 0;
   }
-  if ((((iVar8 == 0) || (bVar2)) && ((iVar9 < 2 || (sVar1 == 0)))) || (!bVar3)) {
-    if ((carObj->oldSkidState & 4U) != 0) {
-      TrgSfx_AddSkidmark((carObj->N).objID,2,carObj->oldSkidPoint + 2,1,carObj->rearSkid,carObj,0);
-      carObj->oldSkidState = carObj->oldSkidState + -4;
+  if (((rear != 0 && wetRoad == 0) || (surfaceType >= 2 && speed != 0)) && visible != 0) {
+    {
+      coorddef wheelBackX;
+      coorddef wheelBackZ;
+      
+      wheelBackX.x = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[0] / 256;
+      wheelBackX.y = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[1] / 256;
+      wheelBackX.z = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[2] / 256;
+      wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256;
+      wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256;
+      wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256;
+      point.x = position.x - wheelBackX.x - wheelBackZ.x;
+      point.z = position.z - wheelBackX.z - wheelBackZ.z;
+      point.y = position.y - wheelBackX.y - wheelBackZ.y;
     }
-  }
-  else {
-    iVar6 = (carObj->N).wheelBackX;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
+    if (surfaceType >= 2 && rearLimit < rear) {
+      surfaceType = 3;
     }
-    local_68 = (iVar6 >> 8) * (carObj->N).orientMat.m[0];
-    if (local_68 < 0) {
-      local_68 = local_68 + 0xff;
-    }
-    local_68 = local_68 >> 8;
-    iVar6 = (carObj->N).wheelBackX;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
-    }
-    local_64 = (iVar6 >> 8) * (carObj->N).orientMat.m[1];
-    if (local_64 < 0) {
-      local_64 = local_64 + 0xff;
-    }
-    local_64 = local_64 >> 8;
-    iVar6 = (carObj->N).wheelBackX;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
-    }
-    local_60 = (iVar6 >> 8) * (carObj->N).orientMat.m[2];
-    if (local_60 < 0) {
-      local_60 = local_60 + 0xff;
-    }
-    local_60 = local_60 >> 8;
-    iVar6 = (carObj->N).wheelBackZ;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
-    }
-    local_58 = (iVar6 >> 8) * (carObj->N).orientMat.m[6];
-    if (local_58 < 0) {
-      local_58 = local_58 + 0xff;
-    }
-    local_58 = local_58 >> 8;
-    iVar6 = (carObj->N).wheelBackZ;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
-    }
-    local_54 = (iVar6 >> 8) * (carObj->N).orientMat.m[7];
-    if (local_54 < 0) {
-      local_54 = local_54 + 0xff;
-    }
-    local_54 = local_54 >> 8;
-    iVar6 = (carObj->N).wheelBackZ;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
-    }
-    local_50 = (iVar6 >> 8) * (carObj->N).orientMat.m[8];
-    if (local_50 < 0) {
-      local_50 = local_50 + 0xff;
-    }
-    local_50 = local_50 >> 8;
-    local_78.x = (local_88 - local_68) - local_58;
-    local_78.z = (local_80 - local_60) - local_50;
-    local_78.y = (local_84 - local_64) - local_54;
-    if ((1 < iVar9) && (0x10000 < iVar8)) {
-      iVar9 = 3;
-    }
-    if (iVar9 == 0) {
-      Cars_AddCarSfx(carObj,2,&local_78,uVar10,0,0);
+    if (surfaceType != 0) {
+      Cars_AddCarSfx(carObj,2,&point,roadSurfaceWheel,surfaceType,1);
     }
     else {
-      Cars_AddCarSfx(carObj,2,&local_78,uVar10,iVar9,1);
+      Cars_AddCarSfx(carObj,2,&point,roadSurfaceWheel,0,0);
     }
   }
-  if ((((bVar2) && (iVar9 == 1)) && (sVar1 != 0)) && (bVar3)) {
-    iVar9 = (carObj->N).wheelBackX;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_68 = (iVar9 >> 8) * (carObj->N).orientMat.m[0];
-    if (local_68 < 0) {
-      local_68 = local_68 + 0xff;
-    }
-    local_68 = local_68 >> 8;
-    iVar9 = (carObj->N).wheelBackX;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_64 = (iVar9 >> 8) * (carObj->N).orientMat.m[1];
-    if (local_64 < 0) {
-      local_64 = local_64 + 0xff;
-    }
-    local_64 = local_64 >> 8;
-    iVar9 = (carObj->N).wheelBackX;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_60 = (iVar9 >> 8) * (carObj->N).orientMat.m[2];
-    if (local_60 < 0) {
-      local_60 = local_60 + 0xff;
-    }
-    local_60 = local_60 >> 8;
-    iVar9 = (carObj->N).wheelBackZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_58 = (iVar9 >> 8) * (carObj->N).orientMat.m[6];
-    if (local_58 < 0) {
-      local_58 = local_58 + 0xff;
-    }
-    local_58 = local_58 >> 8;
-    iVar9 = (carObj->N).wheelBackZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_54 = (iVar9 >> 8) * (carObj->N).orientMat.m[7];
-    if (local_54 < 0) {
-      local_54 = local_54 + 0xff;
-    }
-    local_54 = local_54 >> 8;
-    iVar9 = (carObj->N).wheelBackZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_50 = (iVar9 >> 8) * (carObj->N).orientMat.m[8];
-    if (local_50 < 0) {
-      local_50 = local_50 + 0xff;
-    }
-    local_50 = local_50 >> 8;
-    local_78.x = (local_88 - local_68) - local_58;
-    local_78.z = (local_80 - local_60) - local_50;
-    local_78.y = (local_84 - local_64) - local_54;
-    TrgSfx_AddCarSplash((carObj->N).objID,2,&local_78,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
-    if (iVar8 < 1) {
-      iVar8 = 1;
+  else if ((carObj->oldSkidState & 4) != 0) {
+    TrgSfx_AddSkidmark((carObj->N).objID,2,carObj->oldSkidPoint + 2,1,carObj->rearSkid,carObj,0);
+    carObj->oldSkidState = carObj->oldSkidState - 4;
+  }
+  if (wetRoad != 0) {
+    if (surfaceType == 1 && speed != 0 && visible != 0) {
+      {
+        coorddef wheelBackX;
+        coorddef wheelBackZ;
+        
+        wheelBackX.x = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[0] / 256;
+        wheelBackX.y = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[1] / 256;
+        wheelBackX.z = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[2] / 256;
+        wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256;
+        wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256;
+        wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256;
+        point.x = position.x - wheelBackX.x - wheelBackZ.x;
+        point.z = position.z - wheelBackX.z - wheelBackZ.z;
+        point.y = position.y - wheelBackX.y - wheelBackZ.y;
+      }
+      TrgSfx_AddCarSplash((carObj->N).objID,2,&point,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
+      rear = (0 < rear) ? rear : 1;
     }
   }
-  if ((((uVar10 & 0x20) != 0) && (gLeafPixmap != (Draw_tPixMap *)0x0)) &&
-     ((0xa0000 < (carObj->N).speedXZ &&
-      (pvVar4 = TrgSfx_AddCarExtraCheck((carObj->N).objID,2),
-      pvVar4 != (void *)0x0)))) {
-    uVar10 = random();
-    iVar9 = ((uVar10 & 7) - 4) * 0x3333;
-    iVar6 = (carObj->N).wheelBackX + iVar9;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
+  if ((roadSurfaceWheel & 0x20) != 0 && gLeafPixmap != (Draw_tPixMap *)0x0 &&
+      0xA0000 < (carObj->N).speedXZ && TrgSfx_AddCarExtraCheck((carObj->N).objID,2) != 0) {
+    {
+      int rndOffset;
+      rndOffset = ((random() & 7) - 4) * 0x3333;
+      {
+        coorddef wheelBackX;
+        coorddef wheelBackZ;
+        
+        wheelBackX.x = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[0] / 256;
+        wheelBackX.y = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[1] / 256;
+        wheelBackX.z = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[2] / 256;
+        wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256;
+        wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256;
+        wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256;
+        point.x = position.x - wheelBackX.x - wheelBackZ.x;
+        point.z = position.z - wheelBackX.z - wheelBackZ.z;
+        point.y = position.y - wheelBackX.y - wheelBackZ.y;
+      }
+      TrgSfx_AddCarExtraSfx((carObj->N).objID,2,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
+                 point.y,(carObj->render).light);
     }
-    local_68 = (iVar6 >> 8) * (carObj->N).orientMat.m[0];
-    if (local_68 < 0) {
-      local_68 = local_68 + 0xff;
-    }
-    local_68 = local_68 >> 8;
-    iVar6 = (carObj->N).wheelBackX + iVar9;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
-    }
-    local_64 = (iVar6 >> 8) * (carObj->N).orientMat.m[1];
-    if (local_64 < 0) {
-      local_64 = local_64 + 0xff;
-    }
-    local_64 = local_64 >> 8;
-    iVar9 = (carObj->N).wheelBackX + iVar9;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_60 = (iVar9 >> 8) * (carObj->N).orientMat.m[2];
-    if (local_60 < 0) {
-      local_60 = local_60 + 0xff;
-    }
-    local_60 = local_60 >> 8;
-    iVar9 = (carObj->N).wheelBackZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_58 = (iVar9 >> 8) * (carObj->N).orientMat.m[6];
-    if (local_58 < 0) {
-      local_58 = local_58 + 0xff;
-    }
-    local_58 = local_58 >> 8;
-    iVar9 = (carObj->N).wheelBackZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_54 = (iVar9 >> 8) * (carObj->N).orientMat.m[7];
-    if (local_54 < 0) {
-      local_54 = local_54 + 0xff;
-    }
-    local_54 = local_54 >> 8;
-    iVar9 = (carObj->N).wheelBackZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_50 = (iVar9 >> 8) * (carObj->N).orientMat.m[8];
-    if (local_50 < 0) {
-      local_50 = local_50 + 0xff;
-    }
-    local_50 = local_50 >> 8;
-    local_78.x = (local_88 - local_68) - local_58;
-    local_78.z = (local_80 - local_60) - local_50;
-    local_78.y = (local_84 - local_64) - local_54;
-    TrgSfx_AddCarExtraSfx((carObj->N).objID,2,&local_78,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
-               local_78.y,(carObj->render).light);
   }
-  uVar10 = carObj->wheel[3].roadSurfaceType;
-  iVar9 = Cars_kSkidMarkSurface[uVar10 & 0xf];
+
+  /* ---- wheel 3 (back) ---- */
+  roadSurfaceWheel = carObj->wheel[3].roadSurfaceType;
+  surfaceType = Cars_kSkidMarkSurface[roadSurfaceWheel & 0xf];
   if (carObj->wheel[3].wheelInAir != 0) {
-    iVar9 = 0;
+    surfaceType = 0;
   }
-  if ((((iVar8 == 0) || (bVar2)) && ((iVar9 < 2 || (sVar1 == 0)))) || (!bVar3)) {
-    if ((carObj->oldSkidState & 8U) != 0) {
-      TrgSfx_AddSkidmark((carObj->N).objID,3,carObj->oldSkidPoint + 3,1,carObj->rearSkid,carObj,0);
-      carObj->oldSkidState = carObj->oldSkidState + -8;
+  if (((rear != 0 && wetRoad == 0) || (surfaceType >= 2 && speed != 0)) && visible != 0) {
+    {
+      coorddef wheelBackX;
+      coorddef wheelBackZ;
+      
+      wheelBackX.x = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[0] / 256;
+      wheelBackX.y = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[1] / 256;
+      wheelBackX.z = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[2] / 256;
+      wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256;
+      wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256;
+      wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256;
+      point.x = position.x + wheelBackX.x - wheelBackZ.x;
+      point.z = position.z + wheelBackX.z - wheelBackZ.z;
+      point.y = position.y + wheelBackX.y - wheelBackZ.y;
     }
-  }
-  else {
-    iVar6 = (carObj->N).wheelBackX;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
+    if (surfaceType >= 2 && rearLimit < rear) {
+      surfaceType = 3;
     }
-    local_68 = (iVar6 >> 8) * (carObj->N).orientMat.m[0];
-    if (local_68 < 0) {
-      local_68 = local_68 + 0xff;
-    }
-    local_68 = local_68 >> 8;
-    iVar6 = (carObj->N).wheelBackX;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
-    }
-    local_64 = (iVar6 >> 8) * (carObj->N).orientMat.m[1];
-    if (local_64 < 0) {
-      local_64 = local_64 + 0xff;
-    }
-    local_64 = local_64 >> 8;
-    iVar6 = (carObj->N).wheelBackX;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
-    }
-    local_60 = (iVar6 >> 8) * (carObj->N).orientMat.m[2];
-    if (local_60 < 0) {
-      local_60 = local_60 + 0xff;
-    }
-    local_60 = local_60 >> 8;
-    iVar6 = (carObj->N).wheelBackZ;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
-    }
-    local_58 = (iVar6 >> 8) * (carObj->N).orientMat.m[6];
-    if (local_58 < 0) {
-      local_58 = local_58 + 0xff;
-    }
-    local_58 = local_58 >> 8;
-    iVar6 = (carObj->N).wheelBackZ;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
-    }
-    local_54 = (iVar6 >> 8) * (carObj->N).orientMat.m[7];
-    if (local_54 < 0) {
-      local_54 = local_54 + 0xff;
-    }
-    local_54 = local_54 >> 8;
-    iVar6 = (carObj->N).wheelBackZ;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
-    }
-    local_50 = (iVar6 >> 8) * (carObj->N).orientMat.m[8];
-    if (local_50 < 0) {
-      local_50 = local_50 + 0xff;
-    }
-    local_50 = local_50 >> 8;
-    local_78.x = (local_88 + local_68) - local_58;
-    local_78.z = (local_80 + local_60) - local_50;
-    local_78.y = (local_84 + local_64) - local_54;
-    if ((1 < iVar9) && (0x10000 < iVar8)) {
-      iVar9 = 3;
-    }
-    if (iVar9 == 0) {
-      Cars_AddCarSfx(carObj,3,&local_78,uVar10,0,0);
+    if (surfaceType != 0) {
+      Cars_AddCarSfx(carObj,3,&point,roadSurfaceWheel,surfaceType,1);
     }
     else {
-      Cars_AddCarSfx(carObj,3,&local_78,uVar10,iVar9,1);
+      Cars_AddCarSfx(carObj,3,&point,roadSurfaceWheel,0,0);
     }
   }
-  if ((((bVar2) && (iVar9 == 1)) && (sVar1 != 0)) && (bVar3)) {
-    iVar9 = (carObj->N).wheelBackX;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_68 = (iVar9 >> 8) * (carObj->N).orientMat.m[0];
-    if (local_68 < 0) {
-      local_68 = local_68 + 0xff;
-    }
-    local_68 = local_68 >> 8;
-    iVar9 = (carObj->N).wheelBackX;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_64 = (iVar9 >> 8) * (carObj->N).orientMat.m[1];
-    if (local_64 < 0) {
-      local_64 = local_64 + 0xff;
-    }
-    local_64 = local_64 >> 8;
-    iVar9 = (carObj->N).wheelBackX;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_60 = (iVar9 >> 8) * (carObj->N).orientMat.m[2];
-    if (local_60 < 0) {
-      local_60 = local_60 + 0xff;
-    }
-    local_60 = local_60 >> 8;
-    iVar9 = (carObj->N).wheelBackZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_58 = (iVar9 >> 8) * (carObj->N).orientMat.m[6];
-    if (local_58 < 0) {
-      local_58 = local_58 + 0xff;
-    }
-    local_58 = local_58 >> 8;
-    iVar9 = (carObj->N).wheelBackZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_54 = (iVar9 >> 8) * (carObj->N).orientMat.m[7];
-    if (local_54 < 0) {
-      local_54 = local_54 + 0xff;
-    }
-    local_54 = local_54 >> 8;
-    iVar9 = (carObj->N).wheelBackZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_50 = (iVar9 >> 8) * (carObj->N).orientMat.m[8];
-    if (local_50 < 0) {
-      local_50 = local_50 + 0xff;
-    }
-    local_50 = local_50 >> 8;
-    local_78.x = (local_88 + local_68) - local_58;
-    local_78.z = (local_80 + local_60) - local_50;
-    local_78.y = (local_84 + local_64) - local_54;
-    TrgSfx_AddCarSplash((carObj->N).objID,3,&local_78,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
-    if (iVar8 < 1) {
-      iVar8 = 1;
+  else if ((carObj->oldSkidState & 8) != 0) {
+    TrgSfx_AddSkidmark((carObj->N).objID,3,carObj->oldSkidPoint + 3,1,carObj->rearSkid,carObj,0);
+    carObj->oldSkidState = carObj->oldSkidState - 8;
+  }
+  if (wetRoad != 0) {
+    if (surfaceType == 1 && speed != 0 && visible != 0) {
+      {
+        coorddef wheelBackX;
+        coorddef wheelBackZ;
+        
+        wheelBackX.x = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[0] / 256;
+        wheelBackX.y = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[1] / 256;
+        wheelBackX.z = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[2] / 256;
+        wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256;
+        wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256;
+        wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256;
+        point.x = position.x + wheelBackX.x - wheelBackZ.x;
+        point.z = position.z + wheelBackX.z - wheelBackZ.z;
+        point.y = position.y + wheelBackX.y - wheelBackZ.y;
+      }
+      TrgSfx_AddCarSplash((carObj->N).objID,3,&point,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
+      rear = (0 < rear) ? rear : 1;
     }
   }
-  if ((((uVar10 & 0x20) != 0) && (gLeafPixmap != (Draw_tPixMap *)0x0)) &&
-     ((0xa0000 < (carObj->N).speedXZ &&
-      (pvVar4 = TrgSfx_AddCarExtraCheck((carObj->N).objID,3),
-      pvVar4 != (void *)0x0)))) {
-    uVar10 = random();
-    iVar9 = ((uVar10 & 7) - 4) * 0x3333;
-    iVar6 = (carObj->N).wheelBackX + iVar9;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
+  if ((roadSurfaceWheel & 0x20) != 0 && gLeafPixmap != (Draw_tPixMap *)0x0 &&
+      0xA0000 < (carObj->N).speedXZ && TrgSfx_AddCarExtraCheck((carObj->N).objID,3) != 0) {
+    {
+      int rndOffset;
+      rndOffset = ((random() & 7) - 4) * 0x3333;
+      {
+        coorddef wheelBackX;
+        coorddef wheelBackZ;
+        
+        wheelBackX.x = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[0] / 256;
+        wheelBackX.y = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[1] / 256;
+        wheelBackX.z = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[2] / 256;
+        wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256;
+        wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256;
+        wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256;
+        point.x = position.x + wheelBackX.x - wheelBackZ.x;
+        point.z = position.z + wheelBackX.z - wheelBackZ.z;
+        point.y = position.y + wheelBackX.y - wheelBackZ.y;
+      }
+      TrgSfx_AddCarExtraSfx((carObj->N).objID,3,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
+                 point.y,(carObj->render).light);
     }
-    local_68 = (iVar6 >> 8) * (carObj->N).orientMat.m[0];
-    if (local_68 < 0) {
-      local_68 = local_68 + 0xff;
-    }
-    local_68 = local_68 >> 8;
-    iVar6 = (carObj->N).wheelBackX + iVar9;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
-    }
-    local_64 = (iVar6 >> 8) * (carObj->N).orientMat.m[1];
-    if (local_64 < 0) {
-      local_64 = local_64 + 0xff;
-    }
-    local_64 = local_64 >> 8;
-    iVar9 = (carObj->N).wheelBackX + iVar9;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_60 = (iVar9 >> 8) * (carObj->N).orientMat.m[2];
-    if (local_60 < 0) {
-      local_60 = local_60 + 0xff;
-    }
-    local_60 = local_60 >> 8;
-    iVar9 = (carObj->N).wheelBackZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_58 = (iVar9 >> 8) * (carObj->N).orientMat.m[6];
-    if (local_58 < 0) {
-      local_58 = local_58 + 0xff;
-    }
-    local_58 = local_58 >> 8;
-    iVar9 = (carObj->N).wheelBackZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_54 = (iVar9 >> 8) * (carObj->N).orientMat.m[7];
-    if (local_54 < 0) {
-      local_54 = local_54 + 0xff;
-    }
-    local_54 = local_54 >> 8;
-    iVar9 = (carObj->N).wheelBackZ;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xff;
-    }
-    local_50 = (iVar9 >> 8) * (carObj->N).orientMat.m[8];
-    if (local_50 < 0) {
-      local_50 = local_50 + 0xff;
-    }
-    local_50 = local_50 >> 8;
-    local_78.x = (local_88 + local_68) - local_58;
-    local_78.z = (local_80 + local_60) - local_50;
-    local_78.y = (local_84 + local_64) - local_54;
-    TrgSfx_AddCarExtraSfx((carObj->N).objID,3,&local_78,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
-               local_78.y,(carObj->render).light);
   }
-  if (iVar7 == 0) {
-    if ((carObj->oldAudioSkidState & 1U) == 0) goto LAB_80089674;
-    Cars_SetAudioCalls(carObj,3,0x12,2,local_38,0,0);
-    uVar10 = carObj->oldAudioSkidState - 1;
-  }
-  else {
-    if (local_34 < 0) {
-      local_34 = 0;
+  if (front != 0) {
+    if (originalFront < 0) {
+      originalFront = 0;
     }
-    if ((local_34 == 0) && ((carObj->carFlags & 4U) == 0)) goto LAB_80089674;
-    Cars_SetAudioCalls(carObj,2,0x12,2,local_38,iVar7,0);
-    uVar10 = carObj->oldAudioSkidState | 1;
-  }
-  carObj->oldAudioSkidState = uVar10;
-LAB_80089674:
-  if (iVar8 == 0) {
-    if ((carObj->oldAudioSkidState & 2U) == 0) {
-      return;
+    if (originalFront != 0 || (carObj->carFlags & 4) != 0) {
+      Cars_SetAudioCalls(carObj,2,0x12,2,audioSurface,front,0);
+      carObj->oldAudioSkidState = carObj->oldAudioSkidState | 1;
     }
-    Cars_SetAudioCalls(carObj,5,0x14,2,local_38,0,0);
-    uVar10 = carObj->oldAudioSkidState - 2;
   }
-  else {
-    if (local_30 < 0) {
-      local_30 = 0;
-    }
-    if ((local_30 == 0) && ((carObj->carFlags & 4U) == 0)) {
-      return;
-    }
-    Cars_SetAudioCalls(carObj,4,0x14,2,local_38,iVar8 / 2,0);
-    uVar10 = carObj->oldAudioSkidState | 2;
+  else if ((carObj->oldAudioSkidState & 1) != 0) {
+    Cars_SetAudioCalls(carObj,3,0x12,2,audioSurface,0,0);
+    carObj->oldAudioSkidState = carObj->oldAudioSkidState - 1;
   }
-  carObj->oldAudioSkidState = uVar10;
-  return;
+  if (rear != 0) {
+    if (originalRear < 0) {
+      originalRear = 0;
+    }
+    if (originalRear != 0 || (carObj->carFlags & 4) != 0) {
+      Cars_SetAudioCalls(carObj,4,0x14,2,audioSurface,rear / 2,0);
+      carObj->oldAudioSkidState = carObj->oldAudioSkidState | 2;
+    }
+  }
+  else if ((carObj->oldAudioSkidState & 2) != 0) {
+    Cars_SetAudioCalls(carObj,5,0x14,2,audioSurface,0,0);
+    carObj->oldAudioSkidState = carObj->oldAudioSkidState - 2;
+  }
 }
 
 /* ---- Cars_FindTotalSlice__FP8Car_tObj  [@0x80089760] ---- */

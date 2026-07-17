@@ -49,4 +49,5 @@ extern Draw_tPixMap    *gFlarePixmap[3];          /* 0x80112b88 */
 
 /* ---- PsyQ libgpu / libgte + eaclib + helpers ---- */
 
+extern long           Camera_gGeomScreen;    /* 0x8013c7dc (owner: camera) */
 #endif

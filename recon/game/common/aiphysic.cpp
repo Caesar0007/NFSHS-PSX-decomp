@@ -493,12 +493,6 @@ action:
  * forbidden pin. ---- */
 void AIPhysic_StopCar(Car_tObj *carObj,int velScale,int rotScale)
 {
-  int scaleShifted;
-  int prodX;
-  int prodY;
-  int prodZ;
-  int angY;
-
   (carObj->angularAcc).z = 0;
   (carObj->angularAcc).y = 0;
   (carObj->angularAcc).x = 0;
@@ -508,34 +502,10 @@ void AIPhysic_StopCar(Car_tObj *carObj,int velScale,int rotScale)
   (carObj->linearAcc_rh).z = 0;
   (carObj->linearAcc_rh).y = 0;
   (carObj->linearAcc_rh).x = 0;
-  if (velScale < 0) {
-    velScale = velScale + 0xff;
-  }
-  scaleShifted = velScale >> 8;
-  prodX = scaleShifted * (carObj->N).linearVel.x;
-  if (prodX < 0) {
-    prodX = prodX + 0xff;
-  }
-  prodY = scaleShifted * (carObj->N).linearVel.y;
-  (carObj->N).linearVel.x = prodX >> 8;
-  if (prodY < 0) {
-    prodY = prodY + 0xff;
-  }
-  prodZ = scaleShifted * (carObj->N).linearVel.z;
-  (carObj->N).linearVel.y = prodY >> 8;
-  if (prodZ < 0) {
-    prodZ = prodZ + 0xff;
-  }
-  angY = (carObj->N).angularVel.y;
-  (carObj->N).linearVel.z = prodZ >> 8;
-  if (angY < 0) {
-    angY = angY + 0xff;
-  }
-  angY = angY >> 8;
-  if (rotScale < 0) {
-    rotScale = rotScale + 0xff;
-  }
-  (carObj->N).angularVel.y = angY * (rotScale >> 8);
+  (carObj->N).linearVel.x = velScale / 256 * (carObj->N).linearVel.x / 256;
+  (carObj->N).linearVel.y = velScale / 256 * (carObj->N).linearVel.y / 256;
+  (carObj->N).linearVel.z = velScale / 256 * (carObj->N).linearVel.z / 256;
+  (carObj->N).angularVel.y = (carObj->N).angularVel.y / 256 * (rotScale / 256);
   return;
 }
 
@@ -550,23 +520,19 @@ void AIPhysic_StopCar(Car_tObj *carObj,int velScale,int rotScale)
  * positions of the redLine shift + several algebraic rewrites, all tie or regress). ---- */
 void AIPhysic_RevEngine(Car_tObj *carObj)
 {
-  int redLine;
   int increase;
+  int redLine;
   int deadfrm[2];   /* SYM fsize=8 mask=0 -- dead stack filler, no AUTO local recorded */
 
-  redLine = carObj->redLine;
-  if (redLine < 0) {
-    redLine = redLine + 0xffff;
-  }
+  redLine = carObj->redLine / 0x10000;
   increase = ((carObj->carIndex % 2 + 1) * AIPhysic_elapsedTime) * 0x8c;
-  redLine = redLine >> 0x10;
   if ((carObj->flywheelRpm & 1) != 0) {
     increase = -(increase >> 1);
     if ((increase & 1) != 0) increase = increase - 1;
   }
   carObj->flywheelRpm = carObj->flywheelRpm + increase;
   if (redLine < carObj->flywheelRpm) {
-    carObj->flywheelRpm = (redLine - (redLine >> 0x1f) >> 1) | 1;
+    carObj->flywheelRpm = redLine / 2 | 1;
   }
   if (carObj->flywheelRpm < 0x1f5) {
     carObj->flywheelRpm = 500;
@@ -578,72 +544,41 @@ void AIPhysic_RevEngine(Car_tObj *carObj)
 void AIPhysic_HandleShifting(Car_tObj *carObj)
 {
   int desiredRPM;
-  int speed;
-  int speedDiff;
-  int baseRPM;
-  int invGearSpeedRange;
-  Gear_t gear;
-  int iVar1;
-  int iVar2;
-  int iVar3;
 
-  iVar3 = 3000;
-  if (carObj->aiShiftTimer < 1) {
-    gear = AIPhysic_CalculateGear(carObj);
-    iVar1 = carObj->currentSpeed;
-    if (iVar1 < 0) {
-      iVar1 = -iVar1;
-    }
-    iVar3 = 0;
-    iVar2 = AIPhysic_GearBottomSpeed(carObj,gear);
-    iVar1 = iVar1 - iVar2;
-    if (2 < (int)gear) {
-      iVar3 = 0xfa00000;
-    }
-    iVar2 = AIPhysic_GearInvSpeedRange(carObj,gear);
-    if (iVar1 < 0) {
-      iVar1 = iVar1 + 0xff;
-    }
-    if (iVar2 < 0) {
-      iVar2 = iVar2 + 0xff;
-    }
-    iVar1 = (iVar1 >> 8) * (iVar2 >> 8);
-    if (iVar1 < 0) {
-      iVar1 = iVar1 + 0xff;
-    }
-    iVar2 = carObj->redLine - iVar3;
-    if (iVar2 < 0) {
-      iVar2 = iVar2 + 0xff;
-    }
-    iVar3 = iVar3 + (iVar1 >> 8) * (iVar2 >> 8);
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0xffff;
-    }
-    iVar3 = iVar3 >> 0x10;
-    (carObj->control).gear = (char)gear;
-  }
-  else {
+  desiredRPM = 3000;
+  if (carObj->aiShiftTimer > 0) {
     carObj->aiShiftTimer = carObj->aiShiftTimer - AIPhysic_elapsedTime;
   }
-  iVar2 = carObj->flywheelRpm;
-  iVar1 = iVar3 - iVar2;
-  if (iVar2 < iVar3) {
-    if (iVar1 < 0) {
-      iVar1 = iVar1 + 7;
-    }
-    iVar1 = iVar1 >> 3;
-  }
   else {
-    iVar1 = iVar2 - iVar3;
-    if (iVar2 <= iVar3) {
-      return;
+    Gear_t gear;
+    int speed;
+    int speedDiff;
+    int baseRPM;
+    int invGearSpeedRange;
+
+    gear = AIPhysic_CalculateGear(carObj);
+    speed = __builtin_abs(carObj->currentSpeed);
+    speedDiff = speed - AIPhysic_GearBottomSpeed(carObj,gear);
+    baseRPM = 0;
+    if (2 < (int)gear) {
+      baseRPM = 0xfa00000;
     }
-    if (iVar1 < 0) {
-      iVar1 = iVar1 + 7;
-    }
-    iVar1 = -(iVar1 >> 3);
+    invGearSpeedRange = AIPhysic_GearInvSpeedRange(carObj,gear);
+    if (speedDiff < 0) speedDiff += 0xff;
+    speedDiff >>= 8;
+    speedDiff *= invGearSpeedRange / 256;
+    if (speedDiff < 0) speedDiff += 0xff;
+    speedDiff >>= 8;
+    desiredRPM = baseRPM + speedDiff * ((carObj->redLine - baseRPM) / 256);
+    desiredRPM = desiredRPM / 0x10000;
+    (carObj->control).gear = (char)gear;
   }
-  carObj->flywheelRpm = iVar2 + iVar1;
+  if (carObj->flywheelRpm < desiredRPM) {
+    carObj->flywheelRpm += (desiredRPM - carObj->flywheelRpm) / 8;
+  }
+  else if (desiredRPM < carObj->flywheelRpm) {
+    carObj->flywheelRpm -= (carObj->flywheelRpm - desiredRPM) / 8;
+  }
   return;
 }
 
@@ -654,97 +589,65 @@ int AIPhysic_CalcAcceleration(Car_tObj *carObj,int speed)
   int acceleration;
   int absSpeed;
   int speedUpAcc;
-  int normalTopCap;
-  int upgradeTopCap;
-  int iVar1;
-  int iVar2;
-  int a;
 
-  if (speed < 0) {
-    speed = -speed;
+  absSpeed = __builtin_abs(speed);
+  if (0 < carObj->aiShiftTimer) {
+    return 0;
   }
-  iVar1 = 0;
-  if (carObj->aiShiftTimer < 1) {
-    iVar1 = carObj->carInfo->carType;
-    if (iVar1 < 0x16) {
-      a = Cars_topSpeedCap[iVar1];
-      iVar1 = fixedmult(a,carObj->topSpeedUpgradeMult);
-      iVar2 = fixedmult(iVar1,carObj->aiGlue);
-      if (iVar2 < speed) {
-        return 0;
+  {
+    if (carObj->carInfo->carType < 0x16) {
+      int normalTopCap;
+      int upgradeTopCap;
+
+      normalTopCap = Cars_topSpeedCap[carObj->carInfo->carType];
+      upgradeTopCap = fixedmult(normalTopCap,carObj->topSpeedUpgradeMult);
+      if (fixedmult(upgradeTopCap,carObj->aiGlue) < absSpeed) {
+        goto ret0;
       }
-      if (iVar1 < speed) {
-        return 0;
+      if (upgradeTopCap < absSpeed) {
+        goto ret0;
       }
-      if (a < speed) {
-        speed = a + -0x238e3;
+      if (normalTopCap < absSpeed) {
+        absSpeed = normalTopCap + -0x238e3;
       }
     }
-    if (speed < 0) {
-      speed = speed + 0xffff;
+    accelEntry = absSpeed / 0x10000;
+    if (0x6f < accelEntry) {
+      accelEntry = 0x6f;
     }
-    iVar1 = speed >> 0x10;
-    if (0x6f < iVar1) {
-      iVar1 = 0x6f;
+    if (accelEntry < 0) {
+      accelEntry = 0;
     }
-    if (iVar1 < 0) {
-      iVar1 = 0;
+    acceleration = (carObj->accelerationRecord)->Get(accelEntry);
+    if (carObj->accNitrous != 0x10000) {
+      acceleration = acceleration / 256 * (carObj->accNitrous / 256);
     }
-    iVar1 = (carObj->accelerationRecord)->Get(iVar1);
-    iVar2 = carObj->accNitrous;
-    if (iVar2 != 0x10000) {
-      if (iVar1 < 0) {
-        iVar1 = iVar1 + 0xff;
-      }
-      if (iVar2 < 0) {
-        iVar2 = iVar2 + 0xff;
-      }
-      iVar1 = (iVar1 >> 8) * (iVar2 >> 8);
-    }
-    if (iVar1 < 0) {
-      iVar1 = iVar1 + 0xff;
-    }
-    iVar2 = carObj->accUpgradeMult;
-    if (iVar2 < 0) {
-      iVar2 = iVar2 + 0xff;
-    }
-    iVar1 = (iVar1 >> 8) * (iVar2 >> 8);
+    acceleration = acceleration / 256 * (carObj->accUpgradeMult / 256);
     if (0 < GameSetup_gData.Weather) {
-      if (iVar1 < 0) {
-        iVar1 = iVar1 + 0xff;
-      }
-      iVar1 = (iVar1 >> 8) * 0xe6;
+      acceleration = acceleration / 256 * 0xe6;
     }
     if ((carObj->carFlags & 0x20U) != 0) {
-      if (iVar1 < 0) {
-        iVar1 = iVar1 + 0xff;
-      }
-      iVar2 = carObj->copAccMult;
-      if (iVar2 < 0) {
-        iVar2 = iVar2 + 0xff;
-      }
-      iVar1 = (iVar1 >> 8) * (iVar2 >> 8);
+      acceleration = acceleration / 256 * (carObj->copAccMult / 256);
     }
     if ((((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
         ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
          ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) &&
        ((carObj->carFlags & 8U) != 0)) {
-      if (iVar1 < 0) {
-        iVar1 = iVar1 + 0xff;
-      }
-      iVar2 = AITune_BTCPerpAccMults[GameSetup_gData.skill];
-      if (iVar2 < 0) {
-        iVar2 = iVar2 + 0xff;
-      }
-      iVar1 = (iVar1 >> 8) * (iVar2 >> 8);
+      acceleration = acceleration / 256 * (AITune_BTCPerpAccMults[GameSetup_gData.skill] / 256);
     }
-    iVar1 = AIPhysic_ModifyAccelerationAccordingToScript(carObj,iVar1);
-    iVar2 = AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars(carObj);
-    if (iVar2 != 0x10000) {
-      iVar1 = fixedmult(iVar1,iVar2);
+    acceleration = AIPhysic_ModifyAccelerationAccordingToScript(carObj,acceleration);
+    speedUpAcc = AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars(carObj);
+    if (speedUpAcc != 0x10000) {
+      acceleration = fixedmult(acceleration,speedUpAcc);
     }
   }
-  return iVar1;
+  return acceleration;
+  /* NEAR-MISS 2 diffs, count-exact 184/184 (w11-a8, was 123): the final beqz's delay
+     slot -- aspsx-2.77 fills it with the merge target's `addu v0,s0` (redundant-copy
+     fill), maspsx unconditionally nops a reorder-mode branch slot. Catalog F
+     maspsx-reorder-branch-slot FLOOR (TurnOff/TurnOn class); not source-reachable. */
+ret0:
+  return 0;
 }
 
 /* ---- AIPhysic_CheckDesiredDirection__FP8Car_tObj  (oracle keeps a dead carFlags&0x20-gated
@@ -754,25 +657,29 @@ void AIPhysic_CheckDesiredDirection(Car_tObj *carObj)
 {
   int turnAroundSpeed = 0x8e38e;
   if (carObj->carFlags & 0x20) {
-    int deadRaceType = ((volatile GameSetup_tData *)&GameSetup_gData)->raceType;
-    (void)deadRaceType;
+    *(volatile int *)&GameSetup_gData.raceType;
   }
   if (carObj->speed < turnAroundSpeed) {
     carObj->direction = carObj->desiredDirection;
   }
   return;
+  /* NEAR-MISS 8 diffs, count-exact 18/18 (w11-a8): oracle colors the dead raceType
+     load dest v1 (separate from its v0 addr scratch) pushing turnAroundSpeed (SYM
+     REG $5=a1) to a1; ours coalesces dead value into the addr reg (v0 self-temp),
+     freeing v1 for turnAroundSpeed. Tried: bare volatile stmt, named local, pointer
+     local, unsized-array read, volatile object, init-reorder, same-value folded
+     store, cross-jump dup-tail (gcc deleted the whole block) — all self-temp. The
+     retail separate-dest implies a value USE deleted post-regalloc (cross-jump/dbr)
+     unreachable from source statement forms. Permuter candidate. */
 }
 
 /* ---- AIPhysic_Main__FP8Car_tObj ---- */
 void AIPhysic_Main(Car_tObj *carObj)
 {
   char useCoolPhysics;
-  int iVar1;
-  u_int uVar2;
 
-  iVar1 = Sched_ExecuteCheck(1,1,(carObj->N).distToPlayer,(carObj->N).objID,&AIPhysic_time,
-                     &AIPhysic_elapsedTime,&AIPhysic_iTime,carObj->forceNoSimOptz);
-  if (iVar1 == 0) {
+  if (Sched_ExecuteCheck(1,1,(carObj->N).distToPlayer,(carObj->N).objID,&AIPhysic_time,
+                     &AIPhysic_elapsedTime,&AIPhysic_iTime,carObj->forceNoSimOptz) == 0) {
     return;
   }
   if ((carObj->carFlags & 2U) != 0) {
@@ -781,14 +688,13 @@ void AIPhysic_Main(Car_tObj *carObj)
   AIPhysic_CheckDesiredDirection(carObj);
   AIPhysic_CheckForGripReduction(carObj);
   AIPhysic_HandleSignalling(carObj);
-  iVar1 = AIWorld_CalcLateralVelocity(carObj);
-  carObj->lateralVelocity = iVar1;
-  uVar2 = AIPhysics_UseCoolPhysics(carObj);
-  AIPhysic_CalculateRampedDesiredLatPos(carObj,(eRampType)((uVar2 & 0xff) != 0));
+  carObj->lateralVelocity = AIWorld_CalcLateralVelocity(carObj);
+  useCoolPhysics = AIPhysics_UseCoolPhysics(carObj);
+  AIPhysic_CalculateRampedDesiredLatPos(carObj,(eRampType)(useCoolPhysics != 0));
   if ((carObj->AIFlags & 4U) != 0) {
     return;
   }
-  if ((carObj->N).active == '\0') {
+  if ((carObj->N).active == ' ') {
     return;
   }
   if (simGlobal[0] != 1) {
@@ -797,55 +703,50 @@ void AIPhysic_Main(Car_tObj *carObj)
   }
   AIPhysic_HandleShifting(carObj);
   if ((carObj->N).flightTime != 0) {
-    iVar1 = 0xfae1;
     if ((carObj->carFlags & 0x400U) == 0) {
       return;
     }
-    goto LAB_80069dc0;
+    AIPhysic_StopCar(carObj,0xfae1,0xfae1);
+    return;
   }
   if (carObj->speed < 0x40000) {
     (carObj->linearVel_ch).z = 0;
     carObj->rearSkid = 0;
     carObj->frontSkid = 0;
   }
-  if (((carObj->N).flightTime != 0) || (0x4ccb < (carObj->N).orientMat.m[4])) {
-    if (carObj->blowout != 0) {
-      iVar1 = 0xfd70;
-      goto LAB_80069dc0;
+  if (((carObj->N).flightTime == 0) && ((carObj->N).orientMat.m[4] < 0x4ccc)) {
+    goto stopSlow;
+  }
+  if (carObj->blowout != 0) {
+    AIPhysic_StopCar(carObj,0xfd70,0xfae1);
+    return;
+  }
+  if (carObj->pullOver != 0) {
+    if (carObj->speed < 0x238e3) {
+      AIPhysic_StopCar(carObj,0xe666,0xe666);
+      return;
     }
-    if (carObj->pullOver != 0) {
-      if (carObj->speed < 0x238e3) {
-        AIPhysic_StopCar(carObj,0xe666,0xe666);
-        return;
-      }
-      if (carObj->speed < 0x8e38e) {
-        iVar1 = 0xf5c2;
-        goto LAB_80069dc0;
-      }
-    }
-    if (((carObj->carFlags & 1U) != 0) && ((carObj->stats).finishType == 2)) {
-      iVar1 = carObj->currentSpeed;
-      if (iVar1 < 0) {
-        iVar1 = -iVar1;
-      }
-      if (iVar1 < 0x20000) goto LAB_80069dbc;
-    }
-    if (carObj->desiredSpeed != 0) {
-      if ((uVar2 & 0xff) == 0) {
-        AIPhysic_SimplePhysics(carObj);
-      }
-      else {
-        AIPhysic_CoolPhysics(carObj);
-      }
-      AIPhysic_CheckForBadPosition(carObj);
-      AIPhysic_HandleWipeoutTimer(carObj);
+    if (carObj->speed < 0x8e38e) {
+      AIPhysic_StopCar(carObj,0xf5c2,0xfae1);
       return;
     }
   }
-LAB_80069dbc:
-  iVar1 = 0xf0a3;
-LAB_80069dc0:
-  AIPhysic_StopCar(carObj,iVar1,0xfae1);
+  if (((carObj->carFlags & 1U) != 0) && ((carObj->stats).finishType == 2)) {
+    if (__builtin_abs(carObj->currentSpeed) < 0x20000) goto stopSlow;
+  }
+  if (carObj->desiredSpeed == 0) {
+stopSlow:
+    AIPhysic_StopCar(carObj,0xf0a3,0xfae1);
+    return;
+  }
+  if (useCoolPhysics != 0) {
+    AIPhysic_CoolPhysics(carObj);
+  }
+  else {
+    AIPhysic_SimplePhysics(carObj);
+  }
+  AIPhysic_CheckForBadPosition(carObj);
+  AIPhysic_HandleWipeoutTimer(carObj);
   return;
 }
 
@@ -856,91 +757,76 @@ void AIPhysic_SimplePhysics(Car_tObj *carObj)
   coorddef right;
   int speed;
   int sliceLookAhead;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
 
   if ((carObj->AIFlags & 0x10U) != 0) {
     carObj->rampDesiredLatPos = carObj->roadPosition;
     carObj->AIFlags = carObj->AIFlags & 0xffffffef;
   }
-  if (((((carObj->carFlags & 8U) != 0) && (carObj->wipeOutStartTick < simGlobal[1])) &&
-      (iVar1 = AIDataRecord_TrackCurve->Get((int)(carObj->N).simRoadInfo.slice), 0x1e < iVar1)
+  if (((((carObj->carFlags & 8U) != 0) && (simGlobal[1] > carObj->wipeOutStartTick)) &&
+      (0x1e < AIDataRecord_TrackCurve->Get((int)(carObj->N).simRoadInfo.slice))
       ) && (0x1638e3 < carObj->speed)) {
     carObj->wipeOutEndTick = simGlobal[1] + 0x180;
   }
   AIPhysic_SimplePhysics_LongVel(carObj);
   AIPhysic_SimplePhysics_LatVel(carObj);
-  iVar1 = (carObj->N).orientMat.m[6];
-  iVar4 = (carObj->N).orientMat.m[7];
-  iVar6 = (carObj->N).orientMat.m[8];
-  iVar5 = (carObj->N).roadMatrix.m[1];
-  iVar7 = (carObj->N).roadMatrix.m[2];
-  iVar2 = fixedmult(carObj->laneChangeSpeed,(carObj->N).roadMatrix.m[0]);
-  iVar5 = fixedmult(carObj->laneChangeSpeed,iVar5);
-  iVar7 = fixedmult(carObj->laneChangeSpeed,iVar7);
-  iVar3 = fixedmult(carObj->currentSpeed * carObj->direction,iVar1);
-  iVar4 = fixedmult(carObj->currentSpeed * carObj->direction,iVar4);
-  iVar6 = fixedmult(carObj->currentSpeed * carObj->direction,iVar6);
-  iVar1 = carObj->laneChangeSpeed * carObj->direction;
-  (carObj->N).linearVel.x = iVar3 + iVar2;
-  iVar2 = carObj->speed;
-  (carObj->N).linearVel.y = iVar4 + iVar5;
-  (carObj->linearVel_ch).z = iVar2;
-  (carObj->N).linearVel.z = iVar6 + iVar7;
-  iVar2 = iVar1;
-  if (iVar1 < 0) {
-    iVar2 = -iVar1;
+  forward = *(coorddef *)&(carObj->N).orientMat.m[6];
+  right = *(coorddef *)&(carObj->N).roadMatrix.m[0];
+  right.x = fixedmult(carObj->laneChangeSpeed,right.x);
+  right.y = fixedmult(carObj->laneChangeSpeed,right.y);
+  right.z = fixedmult(carObj->laneChangeSpeed,right.z);
+  forward.x = fixedmult(carObj->currentSpeed * carObj->direction,forward.x);
+  forward.y = fixedmult(carObj->currentSpeed * carObj->direction,forward.y);
+  forward.z = fixedmult(carObj->currentSpeed * carObj->direction,forward.z);
+  (carObj->N).linearVel.x = forward.x + right.x;
+  (carObj->N).linearVel.y = forward.y + right.y;
+  (carObj->N).linearVel.z = forward.z + right.z;
+  (carObj->linearVel_ch).z = carObj->speed;
+  {
+    int lat = carObj->laneChangeSpeed * carObj->direction;
+    (carObj->linearVel_ch).x = lat;
+    {
+      int a = __builtin_abs(lat);
+      if (a / 256 * 0x19 < a) {
+        carObj->slide = 0x8000;
+      }
+      else {
+        carObj->slide = 0;
+      }
+    }
   }
-  (carObj->linearVel_ch).x = iVar1;
-  iVar1 = iVar2;
-  if (iVar2 < 0) {
-    iVar1 = iVar2 + 0xff;
-  }
-  if ((iVar1 >> 8) * 0x19 < iVar2) {
-    carObj->slide = 0x8000;
-  }
-  else {
-    carObj->slide = 0;
-  }
-  iVar1 = carObj->speed;
+  speed = carObj->speed;
   (carObj->N).angularVel.x = 0;
   (carObj->N).angularVel.y = 0;
   (carObj->N).angularVel.z = 0;
-  if (0x30000 < iVar1) {
+  if (0x30000 < speed) {
     Newton_CopyRoadMatrixToOrientMat(&carObj->N,(u_int)(carObj->direction == -1));
   }
-  iVar1 = carObj->currentSpeed;
-  if (iVar1 < 0) {
-    iVar1 = -iVar1;
-  }
-  iVar2 = iVar1 / 0x60000;
-  if (-1 < iVar2) {
-    if ((iVar2 < AIPhysicConfig.min_lookahead / 6) && (-1 < iVar1)) {
-      iVar2 = AIPhysicConfig.min_lookahead / 6;
+  {
+    int cs = __builtin_abs(carObj->currentSpeed);
+    sliceLookAhead = cs / 0x60000;
+    if (-1 < sliceLookAhead) {
+      if ((sliceLookAhead < AIPhysicConfig.min_lookahead / 6) && (-1 < cs)) {
+        sliceLookAhead = AIPhysicConfig.min_lookahead / 6;
+      }
+    }
+    if (AIPhysicConfig.max_lookahead / 6 < sliceLookAhead) {
+      sliceLookAhead = AIPhysicConfig.max_lookahead / 6;
     }
   }
-  if (AIPhysicConfig.max_lookahead / 6 < iVar2) {
-    iVar2 = AIPhysicConfig.max_lookahead / 6;
-  }
-  iVar2 = iVar2 * carObj->direction;
-  if (iVar2 < 0) {
-    iVar2 = (carObj->N).simRoadInfo.slice + iVar2;
-    if (iVar2 < 0) {
-      iVar2 = iVar2 + gNumSlices;
+  if (!(sliceLookAhead * carObj->direction < 0)) {
+    int v = (carObj->N).simRoadInfo.slice + sliceLookAhead * carObj->direction;
+    if (!(v < gNumSlices)) {
+      v = v - gNumSlices;
     }
+    carObj->lookAheadSlice = v;
   }
   else {
-    iVar2 = (carObj->N).simRoadInfo.slice + iVar2;
-    if (gNumSlices <= iVar2) {
-      iVar2 = iVar2 - gNumSlices;
+    int v = (carObj->N).simRoadInfo.slice + sliceLookAhead * carObj->direction;
+    if (v < 0) {
+      v = v + gNumSlices;
     }
+    carObj->lookAheadSlice = v;
   }
-  carObj->lookAheadSlice = iVar2;
   return;
 }
 
@@ -949,111 +835,107 @@ void AIPhysic_SimplePhysics_LongVel(Car_tObj *carObj)
 {
   int acceleration;
   int deceleration;
-  u_char bVar1;
-  char cVar2;
-  bool bVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
+  int t;
 
-  iVar4 = AIPhysic_CalcAcceleration(carObj,carObj->currentSpeed);
-  iVar5 = AIPhysic_CalcDeceleration(carObj);
+  acceleration = AIPhysic_CalcAcceleration(carObj,carObj->currentSpeed);
+  deceleration = AIPhysic_CalcDeceleration(carObj);
   if (carObj->pullOver != 0) {
     carObj->desiredSpeed = 0;
   }
   if (simGlobal[1] < carObj->wipeOutEndTick) {
-    iVar6 = carObj->desiredSpeed;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 3;
-    }
-    carObj->desiredSpeed = iVar6 >> 2;
+    carObj->desiredSpeed = carObj->desiredSpeed / 4;
   }
   if (carObj->direction == -1) {
-    if ((carObj->currentSpeed < carObj->desiredSpeed) || (carObj->desiredDirection != -1)) {
-      bVar1 = (carObj->control).brakeLevel;
-      (carObj->linearAcc_ch).z = iVar5;
-      if (bVar1 < 0xff) {
-        (carObj->control).brakeLevel = bVar1;
+    if ((carObj->desiredSpeed > carObj->currentSpeed) || (carObj->desiredDirection != -1)) {
+      (carObj->linearAcc_ch).z = deceleration;
+      {
+        int level = (carObj->control).brakeLevel + AIPhysic_elapsedTime * 4;
+        if (level < 0xff) {
+          (carObj->control).brakeLevel = level;
+        }
+        else {
+          (carObj->control).brakeLevel = 0xff;
+        }
       }
-      else {
-        (carObj->control).brakeLevel = -1;
+      if (3U < (u_char)(carObj->control).brakeLevel) {
+        (carObj->control).desiredBrakeLevel = 1;
       }
-      if (3 < (u_char)(carObj->control).brakeLevel) {
-        (carObj->control).desiredBrakeLevel = '\x01';
+      {
+        int newSpeed = carObj->currentSpeed + deceleration / 256 * (AIPhysic_iTime / 256);
+        carObj->currentSpeed = newSpeed;
+        if (carObj->direction != carObj->desiredDirection) {
+          return;
+        }
+        t = carObj->desiredSpeed;
+        if (!(t < newSpeed)) t = newSpeed;
+        carObj->currentSpeed = t;
+        /* NEAR-MISS 5 diffs 213/214 (w11-a8, was 231): oracle loads desiredSpeed into
+           v0 then copies to t=v1 (uncoalesced); ours coalesces the load into t. Tried
+           two-local init, ternary, both-assign if/else, fn-scope t - all coalesce or
+           regress. 1-insn copy class. Correctness fixed: brakeLevel +=elapsed*4
+           saturate & -=elapsed release were MISSING in the old recon (Ghidra fold). */
       }
-      iVar4 = carObj->currentSpeed;
-      carObj->currentSpeed = iVar4;
-      if (carObj->direction != carObj->desiredDirection) {
-        return;
-      }
-      iVar5 = carObj->desiredSpeed;
-      if (iVar4 <= carObj->desiredSpeed) {
-        iVar5 = iVar4;
-      }
-      goto LAB_8006a5dc;
-    }
-    cVar2 = (carObj->control).brakeLevel;
-    carObj->currentSpeed = carObj->currentSpeed;
-    if (cVar2 == '\0') {
-      (carObj->control).brakeLevel = '\0';
     }
     else {
-      (carObj->control).brakeLevel = cVar2;
+      carObj->currentSpeed -= acceleration / 256 * (AIPhysic_iTime / 256);
+      if (AIPhysic_elapsedTime < (carObj->control).brakeLevel) {
+        (carObj->control).brakeLevel = (carObj->control).brakeLevel - AIPhysic_elapsedTime;
+      }
+      else {
+        (carObj->control).brakeLevel = 0;
+      }
+      if ((carObj->control).brakeLevel == 0) {
+        (carObj->control).desiredBrakeLevel = 0;
+      }
+      (carObj->linearAcc_ch).z = acceleration;
+      if (carObj->currentSpeed < carObj->desiredSpeed) {
+        carObj->currentSpeed = carObj->desiredSpeed;
+      }
     }
-    if ((carObj->control).brakeLevel == '\0') {
-      (carObj->control).desiredBrakeLevel = '\0';
-    }
-    iVar6 = carObj->currentSpeed;
-    iVar5 = carObj->desiredSpeed;
-    (carObj->linearAcc_ch).z = iVar4;
-    bVar3 = iVar6 < iVar5;
   }
   else {
-    if ((carObj->desiredSpeed < carObj->currentSpeed) ||
-       (carObj->direction != carObj->desiredDirection)) {
-      bVar1 = (carObj->control).brakeLevel;
-      (carObj->linearAcc_ch).z = iVar5;
-      if (bVar1 < 0xff) {
-        (carObj->control).brakeLevel = bVar1;
+    if ((carObj->desiredSpeed < carObj->currentSpeed) || (carObj->direction != carObj->desiredDirection)) {
+      (carObj->linearAcc_ch).z = deceleration;
+      {
+        int level = (carObj->control).brakeLevel + AIPhysic_elapsedTime * 4;
+        if (level < 0xff) {
+          (carObj->control).brakeLevel = level;
+        }
+        else {
+          (carObj->control).brakeLevel = 0xff;
+        }
       }
-      else {
-        (carObj->control).brakeLevel = -1;
+      if (3U < (u_char)(carObj->control).brakeLevel) {
+        (carObj->control).desiredBrakeLevel = 1;
       }
-      if (3 < (u_char)(carObj->control).brakeLevel) {
-        (carObj->control).desiredBrakeLevel = '\x01';
+      {
+        int newSpeed = carObj->currentSpeed - deceleration / 256 * (AIPhysic_iTime / 256);
+        carObj->currentSpeed = newSpeed;
+        if (carObj->direction != carObj->desiredDirection) {
+          return;
+        }
+        t = carObj->desiredSpeed;
+        if (t < newSpeed) t = newSpeed;
+        carObj->currentSpeed = t;
       }
-      iVar4 = carObj->currentSpeed;
-      carObj->currentSpeed = iVar4;
-      if (carObj->direction != carObj->desiredDirection) {
-        return;
-      }
-      iVar5 = carObj->desiredSpeed;
-      if (carObj->desiredSpeed < iVar4) {
-        iVar5 = iVar4;
-      }
-      goto LAB_8006a5dc;
-    }
-    cVar2 = (carObj->control).brakeLevel;
-    carObj->currentSpeed = carObj->currentSpeed;
-    if (cVar2 == '\0') {
-      (carObj->control).brakeLevel = '\0';
     }
     else {
-      (carObj->control).brakeLevel = cVar2;
+      carObj->currentSpeed += acceleration / 256 * (AIPhysic_iTime / 256);
+      if (AIPhysic_elapsedTime < (carObj->control).brakeLevel) {
+        (carObj->control).brakeLevel = (carObj->control).brakeLevel - AIPhysic_elapsedTime;
+      }
+      else {
+        (carObj->control).brakeLevel = 0;
+      }
+      if ((carObj->control).brakeLevel == 0) {
+        (carObj->control).desiredBrakeLevel = 0;
+      }
+      (carObj->linearAcc_ch).z = acceleration;
+      if (carObj->currentSpeed > carObj->desiredSpeed) {
+        carObj->currentSpeed = carObj->desiredSpeed;
+      }
     }
-    if ((carObj->control).brakeLevel == '\0') {
-      (carObj->control).desiredBrakeLevel = '\0';
-    }
-    iVar6 = carObj->currentSpeed;
-    iVar5 = carObj->desiredSpeed;
-    (carObj->linearAcc_ch).z = iVar4;
-    bVar3 = iVar5 < iVar6;
   }
-  if (!bVar3) {
-    return;
-  }
-LAB_8006a5dc:
-  carObj->currentSpeed = iVar5;
   return;
 }
 
@@ -1064,80 +946,55 @@ void AIPhysic_Preperation(Car_tObj *carObj)
   int aCar;
   int aCarWRTDesired;
   int aDesired;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
 
-  iVar1 = fixedmult((carObj->N).linearVel.x,(carObj->N).orientMat.m[0]);
-  iVar2 = fixedmult((carObj->N).linearVel.y,(carObj->N).orientMat.m[1]);
-  iVar3 = fixedmult((carObj->N).linearVel.z,(carObj->N).orientMat.m[2]);
-  iVar4 = (carObj->N).linearVel.x;
-  iVar5 = (carObj->N).orientMat.m[3];
-  (carObj->linearVel_ch).x = iVar1 + iVar2 + iVar3;
-  iVar1 = fixedmult(iVar4,iVar5);
-  iVar2 = fixedmult((carObj->N).linearVel.y,(carObj->N).orientMat.m[4]);
-  iVar3 = fixedmult((carObj->N).linearVel.z,(carObj->N).orientMat.m[5]);
-  iVar4 = (carObj->N).linearVel.x;
-  iVar5 = (carObj->N).orientMat.m[6];
-  (carObj->linearVel_ch).y = iVar1 + iVar2 + iVar3;
-  iVar1 = fixedmult(iVar4,iVar5);
-  iVar2 = fixedmult((carObj->N).linearVel.y,(carObj->N).orientMat.m[7]);
-  iVar3 = fixedmult((carObj->N).linearVel.z,(carObj->N).orientMat.m[8]);
-  iVar4 = (carObj->N).angularVel.x;
-  iVar5 = (carObj->N).orientMat.m[0];
-  (carObj->linearVel_ch).z = iVar1 + iVar2 + iVar3;
-  iVar1 = fixedmult(iVar4,iVar5);
-  iVar2 = fixedmult((carObj->N).angularVel.y,(carObj->N).orientMat.m[1]);
-  iVar3 = fixedmult((carObj->N).angularVel.z,(carObj->N).orientMat.m[2]);
-  iVar4 = (carObj->N).angularVel.x;
-  iVar5 = (carObj->N).orientMat.m[3];
-  (carObj->angularVel_ch).x = iVar1 + iVar2 + iVar3;
-  iVar1 = fixedmult(iVar4,iVar5);
-  iVar2 = fixedmult((carObj->N).angularVel.y,(carObj->N).orientMat.m[4]);
-  iVar3 = fixedmult((carObj->N).angularVel.z,(carObj->N).orientMat.m[5]);
-  iVar4 = (carObj->N).angularVel.x;
-  iVar5 = (carObj->N).orientMat.m[6];
-  (carObj->angularVel_ch).y = iVar1 + iVar2 + iVar3;
-  iVar2 = fixedmult(iVar4,iVar5);
-  iVar3 = fixedmult((carObj->N).angularVel.y,(carObj->N).orientMat.m[7]);
-  iVar4 = fixedmult((carObj->N).angularVel.z,(carObj->N).orientMat.m[8]);
-  iVar1 = (carObj->linearVel_ch).x;
-  (carObj->angularVel_ch).z = iVar2 + iVar3 + iVar4;
-  if (iVar1 < 0) {
-    iVar1 = -iVar1;
+  (carObj->linearVel_ch).x = fixedmult((carObj->N).linearVel.x,(carObj->N).orientMat.m[0]) +
+      fixedmult((carObj->N).linearVel.y,(carObj->N).orientMat.m[1]) +
+      fixedmult((carObj->N).linearVel.z,(carObj->N).orientMat.m[2]);
+  (carObj->linearVel_ch).y = fixedmult((carObj->N).linearVel.x,(carObj->N).orientMat.m[3]) +
+      fixedmult((carObj->N).linearVel.y,(carObj->N).orientMat.m[4]) +
+      fixedmult((carObj->N).linearVel.z,(carObj->N).orientMat.m[5]);
+  (carObj->linearVel_ch).z = fixedmult((carObj->N).linearVel.x,(carObj->N).orientMat.m[6]) +
+      fixedmult((carObj->N).linearVel.y,(carObj->N).orientMat.m[7]) +
+      fixedmult((carObj->N).linearVel.z,(carObj->N).orientMat.m[8]);
+  (carObj->angularVel_ch).x = fixedmult((carObj->N).angularVel.x,(carObj->N).orientMat.m[0]) +
+      fixedmult((carObj->N).angularVel.y,(carObj->N).orientMat.m[1]) +
+      fixedmult((carObj->N).angularVel.z,(carObj->N).orientMat.m[2]);
+  (carObj->angularVel_ch).y = fixedmult((carObj->N).angularVel.x,(carObj->N).orientMat.m[3]) +
+      fixedmult((carObj->N).angularVel.y,(carObj->N).orientMat.m[4]) +
+      fixedmult((carObj->N).angularVel.z,(carObj->N).orientMat.m[5]);
+  (carObj->angularVel_ch).z = fixedmult((carObj->N).angularVel.x,(carObj->N).orientMat.m[6]) +
+      fixedmult((carObj->N).angularVel.y,(carObj->N).orientMat.m[7]) +
+      fixedmult((carObj->N).angularVel.z,(carObj->N).orientMat.m[8]);
+  {
+    int lat = __builtin_abs((carObj->linearVel_ch).x);
+    if (lat / 256 * 0x19 < lat) {
+      carObj->slide = 0x8000;
+    }
+    else {
+      carObj->slide = 0;
+    }
   }
-  iVar2 = iVar1;
-  if (iVar1 < 0) {
-    iVar2 = iVar1 + 0xff;
-  }
-  if ((iVar2 >> 8) * 0x19 < iVar1) {
-    carObj->slide = 0x8000;
+  forward = *(coorddef *)&(carObj->N).orientMat.m[6];
+  if (carObj->driveDirection == 1) {
+    aCar = intatan(forward.x,forward.z);
   }
   else {
-    carObj->slide = 0;
+    aCar = intatan(-forward.x,-forward.z);
   }
-  iVar1 = (carObj->N).orientMat.m[6];
-  iVar2 = (carObj->N).orientMat.m[8];
-  if (carObj->driveDirection != 1) {
-    iVar1 = -iVar1;
-    iVar2 = -iVar2;
-  }
-  iVar1 = intatan(iVar1,iVar2);
-  carObj->aCar = iVar1;
+  carObj->aCar = aCar;
   AIPhysic_GetDesiredVector(carObj);
-  iVar2 = intatan((carObj->desiredVector).x,(carObj->desiredVector).z);
-  iVar1 = iVar1 - iVar2;
-  iVar3 = iVar1 + 0x400;
-  if (-0x201 < iVar1) {
-    carObj->aCarWRTDesired = iVar1;
-    if (iVar1 < 0x201) goto LAB_8006ab00;
-    iVar3 = iVar1 + -0x400;
+  aDesired = intatan((carObj->desiredVector).x,(carObj->desiredVector).z);
+  aCarWRTDesired = aCar - aDesired;
+  if (aCarWRTDesired < -0x200) {
+    carObj->aCarWRTDesired = aCarWRTDesired + 0x400;
   }
-  carObj->aCarWRTDesired = iVar3;
-LAB_8006ab00:
-  carObj->aDesired = iVar2;
+  else {
+    carObj->aCarWRTDesired = aCarWRTDesired;
+    if (!(aCarWRTDesired < 0x201)) {
+      carObj->aCarWRTDesired = aCarWRTDesired + -0x400;
+    }
+  }
+  carObj->aDesired = aDesired;
   return;
 }
 
@@ -1157,146 +1014,117 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
   int goodVector;
   int thisSlice;
   int checkSide;
-  bool bVar1;
-  int iVar2;
-  int iVar3;
-  int *piVar4;
-  int iVar5;
-  int iVar6;
-  int slice;
-  int iVar7;
-  coorddef local_38;
-  int local_28;
-  int local_24;
-  int local_20;
 
-  slice = (int)(carObj->N).simRoadInfo.slice;
-  iVar7 = 0;
+  thisSlice = (int)(carObj->N).simRoadInfo.slice;
+  numReductions = 0;
   if ((((carObj->targetPos).x != 0) || ((carObj->targetPos).y != 0)) || ((carObj->targetPos).z != 0)
      ) {
     AIPhysic_TargetedGetDesiredVector(carObj);
     return;
   }
-  iVar2 = carObj->currentSpeed;
-  if (iVar2 < 0) {
-    iVar2 = -iVar2;
+  speed = __builtin_abs(carObj->currentSpeed);
+  sliceLookAhead = (fixedmult(speed,0xb333) + 0x30000) / 0x60000;
+  if (((-1 < sliceLookAhead) && (sliceLookAhead < AIPhysicConfig.min_lookahead / 6)) && (-1 < speed)) {
+    sliceLookAhead = AIPhysicConfig.min_lookahead / 6;
   }
-  iVar3 = fixedmult(iVar2,0xb333);
-  iVar3 = (iVar3 + 0x30000) / 0x60000;
-  if (((-1 < iVar3) && (iVar3 < AIPhysicConfig.min_lookahead / 6)) && (-1 < iVar2)) {
-    iVar3 = AIPhysicConfig.min_lookahead / 6;
+  if (AIPhysicConfig.max_lookahead / 6 < sliceLookAhead) {
+    sliceLookAhead = AIPhysicConfig.max_lookahead / 6;
   }
-  if (AIPhysicConfig.max_lookahead / 6 < iVar3) {
-    iVar3 = AIPhysicConfig.max_lookahead / 6;
+  dirCorrectedSliceLookAhead = sliceLookAhead * carObj->driveDirection * carObj->direction;
+  if (!(dirCorrectedSliceLookAhead < 0)) {
+    int v = thisSlice + dirCorrectedSliceLookAhead;
+    if (!(v < gNumSlices)) {
+      v = v - gNumSlices;
+    }
+    carObj->lookAheadSlice = v;
   }
-  iVar2 = iVar3 * carObj->driveDirection * carObj->direction;
-  iVar5 = slice + iVar2;
-  if (iVar2 < 0) {
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + gNumSlices;
+  else {
+    int v = thisSlice + dirCorrectedSliceLookAhead;
+    if (v < 0) {
+      v = v + gNumSlices;
+    }
+    carObj->lookAheadSlice = v;
+  }
+  futureBend = __builtin_abs(AIWorld_CalcRoadBend(carObj,dirCorrectedSliceLookAhead));
+  {
+    int sl = carObj->lookAheadSlice * 0x20 + (int)BWorldSm_slices;
+    roadWidth = (u_int)(*(u_char *)(sl + 0x1e) << 15) * (u_int)(*(u_char *)(sl + 0x1d) >> 4) +
+                (u_int)(*(u_char *)(sl + 0x1f) << 15) * (*(u_char *)(sl + 0x1d) & 0xf);
+  }
+  if (roadWidth < 0x120000) {
+    if (0xf333 < futureBend) {
+      sliceLookAhead = sliceLookAhead * 0xca3d / 0x10000;
+    }
+    if (0xe666 < futureBend) {
+      sliceLookAhead = sliceLookAhead * 0xd70a / 0x10000;
+    }
+    else if (0xcccc < futureBend) {
+      sliceLookAhead = sliceLookAhead * 0xe666 / 0x10000;
+    }
+    else if (0xc000 < futureBend) {
+      sliceLookAhead = sliceLookAhead * 0xf333 / 0x10000;
     }
   }
-  else if (gNumSlices <= iVar5) {
-    iVar5 = iVar5 - gNumSlices;
-  }
-  carObj->lookAheadSlice = iVar5;
-  iVar2 = AIWorld_CalcRoadBend(carObj,iVar2);
-  iVar5 = carObj->lookAheadSlice * 0x20 + (int)BWorldSm_slices;
-  if (iVar2 < 0) {
-    iVar2 = -iVar2;
-  }
-  if ((u_int)*(u_char *)(iVar5 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar5 + 0x1d) >> 4) +
-      (u_int)*(u_char *)(iVar5 + 0x1f) * 0x8000 * (*(u_char *)(iVar5 + 0x1d) & 0xf) < 0x120000) {
-    if (0xf333 < iVar2) {
-      iVar5 = iVar3 * 0xca3d;
-      iVar3 = iVar5 >> 0x10;
-      if (iVar5 < 0) {
-        iVar3 = iVar5 + 0xffff >> 0x10;
-      }
-    }
-    if (iVar2 < 0xe667) {
-      if (iVar2 < 0xcccd) {
-        if (iVar2 < 0xc001) goto LAB_8006af18;
-        iVar2 = iVar3 * 0xf333;
-      }
-      else {
-        iVar2 = iVar3 * 0xe666;
-      }
-    }
-    else {
-      iVar2 = iVar3 * 0xd70a;
-    }
-    iVar3 = iVar2 >> 0x10;
-    if (iVar2 < 0) {
-      iVar3 = iVar2 + 0xffff >> 0x10;
-    }
-  }
-LAB_8006af18:
   do {
-    iVar2 = iVar3 * carObj->driveDirection * carObj->direction;
-    if (iVar2 < 0) {
-      iVar2 = slice + iVar2;
-      if (iVar2 < 0) {
-        iVar2 = iVar2 + gNumSlices;
+    dirCorrectedSliceLookAhead = sliceLookAhead * carObj->driveDirection * carObj->direction;
+    if (!(dirCorrectedSliceLookAhead < 0)) {
+      int v = thisSlice + dirCorrectedSliceLookAhead;
+      if (!(v < gNumSlices)) {
+        v = v - gNumSlices;
       }
+      carObj->lookAheadSlice = v;
     }
     else {
-      iVar2 = slice + iVar2;
-      if (gNumSlices <= iVar2) {
-        iVar2 = iVar2 - gNumSlices;
+      int v = thisSlice + dirCorrectedSliceLookAhead;
+      if (v < 0) {
+        v = v + gNumSlices;
       }
+      carObj->lookAheadSlice = v;
     }
-    carObj->lookAheadSlice = iVar2;
-    piVar4 = (int *)(carObj->lookAheadSlice * 0x20 + (int)BWorldSm_slices);
-    iVar2 = *piVar4;
-    iVar5 = piVar4[1];
-    iVar6 = piVar4[2];
-    local_28 = (int)*(char *)(carObj->lookAheadSlice * 0x20 + (int)BWorldSm_slices + 0x12) << 9;
-    local_24 = (int)*(char *)(carObj->lookAheadSlice * 0x20 + (int)BWorldSm_slices + 0x13) << 9;
-    local_20 = (int)*(char *)(carObj->lookAheadSlice * 0x20 + (int)BWorldSm_slices + 0x14) << 9;
-    local_38.x = fixedmult(carObj->rampDesiredLatPos,local_28);
-    local_38.y = fixedmult(carObj->rampDesiredLatPos,local_24);
-    local_38.z = fixedmult(carObj->rampDesiredLatPos,local_20);
-    local_38.x = local_38.x + iVar2;
-    local_38.z = local_38.z + iVar6;
-    local_38.y = local_38.y + iVar5;
-    iVar2 = AIPhysic_CalculateRoadPosition(&local_38,slice);
-    iVar5 = slice * 0x20 + (int)BWorldSm_slices;
-    if ((((int)((u_int)*(u_char *)(iVar5 + 0x1f) * 0x8000 * (*(u_char *)(iVar5 + 0x1d) & 0xf)) < iVar2)
-        && (carObj->roadPosition < iVar2)) ||
-       ((iVar2 < (int)-((u_int)*(u_char *)(iVar5 + 0x1e) * 0x8000 *
-                       (u_int)(*(u_char *)(iVar5 + 0x1d) >> 4)) && (iVar2 < carObj->roadPosition)))) {
-      iVar5 = 1;
-      if (iVar2 < carObj->roadPosition) {
-        iVar5 = -1;
-      }
-      iVar2 = AIWorld_LaneIndex(slice,carObj->roadPosition + iVar5 * 0x80000);
-      iVar2 = AIWorld_IsDriveableLane(slice,iVar2);
-      if (iVar2 == 0) {
-        bVar1 = false;
+    fCPoint = *(coorddef *)(carObj->lookAheadSlice * 0x20 + (int)BWorldSm_slices);
+    right.x = (int)*(signed char *)(carObj->lookAheadSlice * 0x20 + (int)BWorldSm_slices + 0x12) << 9;
+    right.y = (int)*(signed char *)(carObj->lookAheadSlice * 0x20 + (int)BWorldSm_slices + 0x13) << 9;
+    right.z = (int)*(signed char *)(carObj->lookAheadSlice * 0x20 + (int)BWorldSm_slices + 0x14) << 9;
+    fPoint.x = fixedmult(carObj->rampDesiredLatPos,right.x);
+    fPoint.y = fixedmult(carObj->rampDesiredLatPos,right.y);
+    fPoint.z = fixedmult(carObj->rampDesiredLatPos,right.z);
+    fPoint.x = fPoint.x + fCPoint.x;
+    fPoint.y = fPoint.y + fCPoint.y;
+    fPoint.z = fPoint.z + fCPoint.z;
+    futureRoadPosition = AIPhysic_CalculateRoadPosition(&fPoint,thisSlice);
+    {
+      int sl = thisSlice * 0x20 + (int)BWorldSm_slices;
+      if ((((int)((u_int)(*(u_char *)(sl + 0x1f) << 15) * (*(u_char *)(sl + 0x1d) & 0xf)) < futureRoadPosition)
+          && (carObj->roadPosition < futureRoadPosition)) ||
+         ((futureRoadPosition < (int)-((u_int)(*(u_char *)(sl + 0x1e) << 15) *
+                         (u_int)(*(u_char *)(sl + 0x1d) >> 4))) && (futureRoadPosition < carObj->roadPosition))) {
+        checkSide = 1;
+        if (futureRoadPosition < carObj->roadPosition) {
+          checkSide = -1;
+        }
+        if (AIWorld_IsDriveableLane(thisSlice,AIWorld_LaneIndex(thisSlice,carObj->roadPosition + checkSide * 0x80000)) != 0) {
+          goodVector = AIWorld_IsDriveableLane(thisSlice,AIWorld_LaneIndex(thisSlice,carObj->roadPosition + checkSide * 0x40000)) != 0;
+        }
+        else {
+          goodVector = 0;
+        }
       }
       else {
-        iVar2 = AIWorld_LaneIndex(slice,carObj->roadPosition + iVar5 * 0x40000);
-        iVar2 = AIWorld_IsDriveableLane(slice,iVar2);
-        bVar1 = iVar2 != 0;
+        goodVector = 1;
       }
     }
-    else {
-      bVar1 = true;
+    numReductions = numReductions + 1;
+    sliceLookAhead = sliceLookAhead * 0xcccc;
+    sliceLookAhead = sliceLookAhead / 0x10000;
+    {
+      int t = 4;
+      if (!(sliceLookAhead < 4)) t = sliceLookAhead;
+      sliceLookAhead = t;
     }
-    iVar7 = iVar7 + 1;
-    iVar2 = iVar3 * 0xcccc;
-    if (iVar2 < 0) {
-      iVar2 = iVar2 + 0xffff;
-    }
-    iVar3 = 4;
-    if (3 < iVar2 >> 0x10) {
-      iVar3 = iVar2 >> 0x10;
-    }
-  } while ((iVar7 < 5) && (!bVar1));
-  (carObj->desiredVector).x = local_38.x - (carObj->N).position.x;
-  (carObj->desiredVector).y = local_38.y - (carObj->N).position.y;
-  (carObj->desiredVector).z = local_38.z - (carObj->N).position.z;
+  } while ((numReductions < 5) && (goodVector == 0));
+  (carObj->desiredVector).x = fPoint.x - (carObj->N).position.x;
+  (carObj->desiredVector).y = fPoint.y - (carObj->N).position.y;
+  (carObj->desiredVector).z = fPoint.z - (carObj->N).position.z;
   return;
 }
 
@@ -1304,61 +1132,52 @@ LAB_8006af18:
 int AIPhysic_CheckIfOutOfControl(Car_tObj *carObj)
 {
   int futureBend;
-  int iVar1;
-  int iVar2;
-  int iVar3;
 
-  iVar1 = AIWorld_CalcRoadBend(carObj,carObj->direction << 3);
-  if (iVar1 < 0) {
-    iVar1 = -iVar1;
-  }
+  /* MATCH: every abs here is __builtin_abs -- gcc emits the single-insn assembler
+     `abs' macro (bgez/negu with move in the slot), so loads schedule around it;
+     branchy if(x<0)x=-x forms split the block and mis-schedule (w11-a8) */
+  futureBend = __builtin_abs(AIWorld_CalcRoadBend(carObj,carObj->direction << 3));
   if (simGlobal[1] < carObj->wipeOutEndTick) {
-    iVar1 = carObj->currentSpeed;
-    if (iVar1 < 0) {
-      iVar1 = -iVar1;
-    }
-    return 0x2ffff < iVar1 ^ 1;
+    return (0x2ffff < __builtin_abs(carObj->currentSpeed)) ^ 1;
   }
-  iVar2 = carObj->aCarWRTDesired;
-  if (iVar2 < 0) {
-    iVar2 = -iVar2;
-  }
-  if ((iVar2 < 0x74) && (carObj->driveDirection != -1)) {
-    iVar2 = carObj->currentSpeed;
-    if (iVar2 < 0) {
-      iVar2 = -iVar2;
-    }
-    if (iVar2 < AIPhysicConfig.OOCModel.vel_limit_range + -0x30000) {
+  if ((__builtin_abs(carObj->aCarWRTDesired) < 0x74) && (carObj->driveDirection != -1)) {
+    int iVar3;
+
+    if (__builtin_abs(carObj->currentSpeed) < AIPhysicConfig.OOCModel.vel_limit_range + -0x30000) {
       return 1;
     }
     iVar3 = (carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices;
     if (carObj->roadPosition <
-        (int)-((u_int)*(u_char *)(iVar3 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar3 + 0x1d) >> 4))) {
+        (int)-((u_int)(*(u_char *)(iVar3 + 0x1e) << 15) * (u_int)(*(u_char *)(iVar3 + 0x1d) >> 4))) {
       return 1;
     }
-    if ((int)((u_int)*(u_char *)(iVar3 + 0x1f) * 0x8000 * (*(u_char *)(iVar3 + 0x1d) & 0xf)) <
+    if ((int)((u_int)(*(u_char *)(iVar3 + 0x1f) << 15) * (u_int)(*(u_char *)(iVar3 + 0x1d) & 0xf)) <
         carObj->roadPosition) {
       return 1;
     }
-    if (0xcccc < iVar1) {
+    if (0xcccc < futureBend) {
       return 1;
     }
-    iVar1 = (carObj->linearVel_ch).x;
-    iVar3 = carObj->speed;
-    if (iVar1 < 0) {
-      iVar1 = -iVar1;
-    }
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0xff;
-    }
-    if (iVar1 <= (iVar3 >> 8) * 0x66) {
-      return 0;
-    }
-    if (0xeffff < iVar2) {
+    {
+      int lat = (carObj->linearVel_ch).x;
+      int spd = carObj->speed;
+      if (__builtin_abs(lat) > spd / 256 * 0x66) {
+        if (0xeffff < __builtin_abs(carObj->currentSpeed)) {
+          goto ret0;
+        }
+        goto ret1;
+      }
+ret0:
       return 0;
     }
   }
+ret1:
   return 1;
+  /* NEAR-MISS 20 diffs, count-exact 104/104 (w11-a8, was 96): residuals = (a) a3/t0
+     allocation-order swap between futureBend (SYM $7=a3) and the CSE'd
+     abs(currentSpeed) temp -- priority tie the source can't flip without breaking
+     the CSE the oracle keeps; (b) EFFFF-test bnez-vs-beqz jump-around-jump
+     canonicalization + ret0/ret1 block placement. Permuter candidate. */
 }
 
 /* ---- AIPhysic_OutOfControlPhysics__FP8Car_tObj ---- */
@@ -1912,161 +1731,97 @@ void AIPhysic_FinishUp(Car_tObj *carObj)
   matrixtdef transOrientMat;
   matrixtdef transRoadMat;
   int tickLoop;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  int iVar9;
-  int local_60;
-  int local_5c;
-  int local_58;
-  int local_54;
-  int local_50;
-  int local_4c;
-  int local_48;
-  int local_44;
-  int local_40;
-  int local_38;
-  int local_34;
-  int local_30;
-  int local_2c;
-  int local_28;
-  int local_24;
-  int local_20;
-  int local_1c;
-  int local_18;
 
   (carObj->linearAcc_ch).z = (carObj->linearAcc_ch).z + (carObj->linearAcc_rh).z;
   Cars_DoGravityEffectsOnAcc(carObj,0);
   (carObj->linearAcc_ch).z = (carObj->linearAcc_ch).z - (carObj->linearAcc_rh).z;
-  transpose(&(carObj->N).orientMat,(matrixtdef *)&local_60);
-  transpose(&(carObj->N).roadMatrix,(matrixtdef *)&local_38);
-  iVar1 = fixedmult((carObj->linearAcc_ch).x,local_60);
-  iVar2 = fixedmult((carObj->linearAcc_ch).y,local_5c);
-  iVar3 = fixedmult((carObj->linearAcc_ch).z,local_58);
-  (carObj->linearAcc).x = iVar1 + iVar2 + iVar3;
-  iVar1 = fixedmult((carObj->linearAcc_ch).x,local_54);
-  iVar2 = fixedmult((carObj->linearAcc_ch).y,local_50);
-  iVar3 = fixedmult((carObj->linearAcc_ch).z,local_4c);
-  iVar9 = (carObj->linearAcc_ch).x;
-  (carObj->linearAcc).y = iVar1 + iVar2 + iVar3;
-  iVar1 = fixedmult(iVar9,local_48);
-  iVar2 = fixedmult((carObj->linearAcc_ch).y,local_44);
-  iVar3 = fixedmult((carObj->linearAcc_ch).z,local_40);
-  iVar9 = (carObj->linearAcc_rh).x;
-  (carObj->linearAcc).z = iVar1 + iVar2 + iVar3;
-  iVar1 = fixedmult(iVar9,local_38);
-  iVar2 = fixedmult((carObj->linearAcc_rh).y,local_34);
-  iVar3 = fixedmult((carObj->linearAcc_rh).z,local_30);
-  (carObj->linearAcc).x = (carObj->linearAcc).x + iVar1 + iVar2 + iVar3;
-  iVar1 = fixedmult((carObj->linearAcc_rh).x,local_2c);
-  iVar2 = fixedmult((carObj->linearAcc_rh).y,local_28);
-  iVar3 = fixedmult((carObj->linearAcc_rh).z,local_24);
-  iVar9 = (carObj->linearAcc_rh).x;
-  (carObj->linearAcc).y = (carObj->linearAcc).y + iVar1 + iVar2 + iVar3;
-  iVar1 = fixedmult(iVar9,local_20);
-  iVar2 = fixedmult((carObj->linearAcc_rh).y,local_1c);
-  iVar3 = fixedmult((carObj->linearAcc_rh).z,local_18);
-  iVar9 = (carObj->angularAcc).x;
-  (carObj->linearAcc).z = (carObj->linearAcc).z + iVar1 + iVar2 + iVar3;
-  iVar1 = fixedmult(iVar9,local_60);
-  iVar2 = fixedmult((carObj->angularAcc).y,local_5c);
-  iVar3 = fixedmult((carObj->angularAcc).z,local_58);
-  iVar9 = fixedmult((carObj->angularAcc).x,local_54);
-  iVar4 = fixedmult((carObj->angularAcc).y,local_50);
-  iVar5 = fixedmult((carObj->angularAcc).z,local_4c);
-  iVar6 = fixedmult((carObj->angularAcc).x,local_48);
-  iVar7 = fixedmult((carObj->angularAcc).y,local_44);
-  iVar8 = fixedmult((carObj->angularAcc).z,local_40);
-  (carObj->angularAcc).x = iVar1 + iVar2 + iVar3;
-  (carObj->angularAcc).y = iVar9 + iVar4 + iVar5;
-  (carObj->angularAcc).z = iVar6 + iVar7 + iVar8;
-  iVar1 = fixedmult((carObj->linearAcc).x,AIPhysic_iTime);
-  iVar2 = (carObj->linearAcc).y;
-  (carObj->N).linearVel.x = (carObj->N).linearVel.x + iVar1;
-  iVar1 = fixedmult(iVar2,AIPhysic_iTime);
-  iVar2 = (carObj->linearAcc).z;
-  (carObj->N).linearVel.y = (carObj->N).linearVel.y + iVar1;
-  iVar1 = fixedmult(iVar2,AIPhysic_iTime);
-  iVar2 = carObj->drag;
-  (carObj->N).linearVel.z = (carObj->N).linearVel.z + iVar1;
-  for (iVar1 = 0; (iVar2 != 0 && (iVar1 < AIPhysic_elapsedTime)); iVar1 = iVar1 + 1) {
-    iVar2 = fixedmult((carObj->N).linearVel.x,carObj->drag);
-    iVar3 = (carObj->N).linearVel.y;
-    iVar9 = carObj->drag;
-    (carObj->N).linearVel.x = iVar2;
-    iVar2 = fixedmult(iVar3,iVar9);
-    iVar3 = (carObj->N).linearVel.z;
-    iVar9 = carObj->drag;
-    (carObj->N).linearVel.y = iVar2;
-    iVar3 = fixedmult(iVar3,iVar9);
-    iVar2 = carObj->drag;
-    (carObj->N).linearVel.z = iVar3;
+  transpose(&(carObj->N).orientMat,&transOrientMat);
+  transpose(&(carObj->N).roadMatrix,&transRoadMat);
+  (carObj->linearAcc).x = fixedmult((carObj->linearAcc_ch).x,transOrientMat.m[0]) +
+      fixedmult((carObj->linearAcc_ch).y,transOrientMat.m[1]) +
+      fixedmult((carObj->linearAcc_ch).z,transOrientMat.m[2]);
+  (carObj->linearAcc).y = fixedmult((carObj->linearAcc_ch).x,transOrientMat.m[3]) +
+      fixedmult((carObj->linearAcc_ch).y,transOrientMat.m[4]) +
+      fixedmult((carObj->linearAcc_ch).z,transOrientMat.m[5]);
+  (carObj->linearAcc).z = fixedmult((carObj->linearAcc_ch).x,transOrientMat.m[6]) +
+      fixedmult((carObj->linearAcc_ch).y,transOrientMat.m[7]) +
+      fixedmult((carObj->linearAcc_ch).z,transOrientMat.m[8]);
+  (carObj->linearAcc).x = (carObj->linearAcc).x +
+      (fixedmult((carObj->linearAcc_rh).x,transRoadMat.m[0]) +
+       fixedmult((carObj->linearAcc_rh).y,transRoadMat.m[1]) +
+       fixedmult((carObj->linearAcc_rh).z,transRoadMat.m[2]));
+  (carObj->linearAcc).y = (carObj->linearAcc).y +
+      (fixedmult((carObj->linearAcc_rh).x,transRoadMat.m[3]) +
+       fixedmult((carObj->linearAcc_rh).y,transRoadMat.m[4]) +
+       fixedmult((carObj->linearAcc_rh).z,transRoadMat.m[5]));
+  (carObj->linearAcc).z = (carObj->linearAcc).z +
+      (fixedmult((carObj->linearAcc_rh).x,transRoadMat.m[6]) +
+       fixedmult((carObj->linearAcc_rh).y,transRoadMat.m[7]) +
+       fixedmult((carObj->linearAcc_rh).z,transRoadMat.m[8]));
+  angAcc.x = fixedmult((carObj->angularAcc).x,transOrientMat.m[0]) +
+      fixedmult((carObj->angularAcc).y,transOrientMat.m[1]) +
+      fixedmult((carObj->angularAcc).z,transOrientMat.m[2]);
+  angAcc.y = fixedmult((carObj->angularAcc).x,transOrientMat.m[3]) +
+      fixedmult((carObj->angularAcc).y,transOrientMat.m[4]) +
+      fixedmult((carObj->angularAcc).z,transOrientMat.m[5]);
+  angAcc.z = fixedmult((carObj->angularAcc).x,transOrientMat.m[6]) +
+      fixedmult((carObj->angularAcc).y,transOrientMat.m[7]) +
+      fixedmult((carObj->angularAcc).z,transOrientMat.m[8]);
+  carObj->angularAcc = angAcc;
+  tickLoop = 0;
+  (carObj->N).linearVel.x = (carObj->N).linearVel.x + fixedmult((carObj->linearAcc).x,AIPhysic_iTime);
+  (carObj->N).linearVel.y = (carObj->N).linearVel.y + fixedmult((carObj->linearAcc).y,AIPhysic_iTime);
+  (carObj->N).linearVel.z = (carObj->N).linearVel.z + fixedmult((carObj->linearAcc).z,AIPhysic_iTime);
+  for (; (carObj->drag != 0) && (tickLoop < AIPhysic_elapsedTime); tickLoop = tickLoop + 1) {
+    (carObj->N).linearVel.x = fixedmult((carObj->N).linearVel.x,carObj->drag);
+    (carObj->N).linearVel.y = fixedmult((carObj->N).linearVel.y,carObj->drag);
+    (carObj->N).linearVel.z = fixedmult((carObj->N).linearVel.z,carObj->drag);
   }
-  (carObj->N).angularVel.x = (carObj->N).angularVel.x + fixedmult((carObj->angularAcc).x,AIPhysic_iTime);
-  (carObj->N).angularVel.y = (carObj->N).angularVel.y + fixedmult((carObj->angularAcc).y,AIPhysic_iTime);
-  (carObj->N).angularVel.z = (carObj->N).angularVel.z + fixedmult((carObj->angularAcc).z,AIPhysic_iTime);
+  (carObj->N).angularVel.x = (carObj->N).angularVel.x + (carObj->angularAcc).x / 256 * (AIPhysic_iTime / 256);
+  (carObj->N).angularVel.y = (carObj->N).angularVel.y + (carObj->angularAcc).y / 256 * (AIPhysic_iTime / 256);
+  (carObj->N).angularVel.z = (carObj->N).angularVel.z + (carObj->angularAcc).z / 256 * (AIPhysic_iTime / 256);
   return;
 }
 
-/* ---- AIPhysic_CalculateRampedDesiredLatPos__FP8Car_tObj9eRampType  (oracle computes a per-tick
- * ramp STEP = elapsedTime*51 + (elapsedTime*51)<<8 = elapsedTime*13107 (via 3<<4+3 shift-add, not
- * a plain multiply) and clamps rampDesiredLatPos toward desiredLatPos by at most that step; my
- * earlier recon dropped the whole step-ramp tail entirely -- SYM/oracle-driven full rewrite) ---- */
+/* ---- AIPhysic_CalculateRampedDesiredLatPos__FP8Car_tObj9eRampType  (PASS 66/66 w11-a8:
+ * SYM has ONE local rampSpeed (REG $6=a2); plain `elapsedTime * 13107` — gcc synth_mult
+ * emits the oracle's *3,*17,<<8 shift-add chain; clamp pair = if(A&&B) X; else if(C&&D) X;
+ * with DIRECT field expressions (no cached locals — cse-region reloads fall out); ramp
+ * tail = field-direct `+=`/`-=` so the new value takes a fresh temp, MATCH: do not
+ * introduce locals here) ---- */
 void AIPhysic_CalculateRampedDesiredLatPos(Car_tObj *carObj,eRampType rampType)
 {
-  int rampStepLo;
-  int rampStepHi;
-  int rampStep;
-  int roadPos;
-  int rampPos;
-  int desiredPos;
+  int rampSpeed;
 
   if (rampType == 1) {
     carObj->rampDesiredLatPos = carObj->desiredLatPos;
     return;
   }
   AIWorld_CalculateDeltaRoadYaw(carObj);
-  roadPos = carObj->roadPosition;
-  rampStepLo = AIPhysic_elapsedTime * 3;
-  rampStepLo = rampStepLo + rampStepLo * 16;
-  rampStepHi = rampStepLo << 8;
-  rampStep = rampStepLo + rampStepHi;
-  if (carObj->desiredLatPos < roadPos) {
-    if (roadPos < carObj->rampDesiredLatPos + -0x10000) {
-      carObj->rampDesiredLatPos = roadPos;
-      goto tail;
-    }
-  } else {
-    rampStep = rampStepLo + rampStepHi;
+  rampSpeed = AIPhysic_elapsedTime * 13107;
+  if ((carObj->desiredLatPos < carObj->roadPosition) &&
+      (carObj->roadPosition < carObj->rampDesiredLatPos - 0x10000)) {
+    carObj->rampDesiredLatPos = carObj->roadPosition;
   }
-  roadPos = carObj->roadPosition;
-  if ((carObj->rampDesiredLatPos + 0x10000 < roadPos) && (roadPos < carObj->desiredLatPos)) {
-    carObj->rampDesiredLatPos = roadPos;
+  else if ((carObj->rampDesiredLatPos + 0x10000 < carObj->roadPosition) &&
+           (carObj->roadPosition < carObj->desiredLatPos)) {
+    carObj->rampDesiredLatPos = carObj->roadPosition;
   }
-tail:
-  rampPos = carObj->rampDesiredLatPos;
-  desiredPos = carObj->desiredLatPos;
-  if (rampPos < desiredPos) {
-    rampPos = rampPos + rampStep;
-    carObj->rampDesiredLatPos = rampPos;
-    if (desiredPos < rampPos) {
-      carObj->rampDesiredLatPos = desiredPos;
+  if (carObj->rampDesiredLatPos < carObj->desiredLatPos) {
+    carObj->rampDesiredLatPos += rampSpeed;
+    if (carObj->desiredLatPos < carObj->rampDesiredLatPos) {
+      carObj->rampDesiredLatPos = carObj->desiredLatPos;
     }
-  } else if (desiredPos < rampPos) {
-    rampPos = rampPos - rampStep;
-    desiredPos = carObj->desiredLatPos;
-    carObj->rampDesiredLatPos = rampPos;
-    if (rampPos < desiredPos) {
-      carObj->rampDesiredLatPos = desiredPos;
+  }
+  else if (carObj->desiredLatPos < carObj->rampDesiredLatPos) {
+    carObj->rampDesiredLatPos -= rampSpeed;
+    if (carObj->rampDesiredLatPos < carObj->desiredLatPos) {
+      carObj->rampDesiredLatPos = carObj->desiredLatPos;
     }
   }
   return;
 }
+
 
 /* ---- AIPhysic_CheckForGripReduction__FP8Car_tObj ---- */
 void AIPhysic_CheckForGripReduction(Car_tObj *carObj)
@@ -2109,7 +1864,8 @@ void AIPhysic_CheckForGripReduction(Car_tObj *carObj)
       iVar5 = AIWorld_CalcRoadBend(carObj,1);
       iVar5 = -iVar5;
     }
-    if (2000 < iVar5) {
+    iVar1 = 2000 < iVar5;
+    if (iVar1) {
       AIPerson_t *pers = carObj->personality;
       perTickProb = AIPhysic_elapsedTime * pers->gripLossProbPerSecond;
       randtemp = fastRandom * randSeed;
@@ -2121,74 +1877,60 @@ void AIPhysic_CheckForGripReduction(Car_tObj *carObj)
     }
   }
   return;
-  /* MATCH: residual 3-diff xori/beqz vs bnez branch-sense floor (2000<iVar5 guard) —
-     tried &&/||, empty-if/else, goto-skip, >=2001, !(x<2001): all identical RTL, gcc
-     canonicalizes the comparison the same way regardless of source phrasing. Genuine
-     floor (§F scheduling class), not source-shapable without a forbidden pin. */
+  /* MATCH: iVar1 = 2000 < iVar5; if (iVar1) — the STORED-BOOL phrasing keeps the
+     oracle's slti;xori;beqz (materialized truth value blocks gcc's branch-inversion
+     to slti;bnez). Direct if(2000<iVar5) folds the xori away. 3->0 PASS (w11-a8). */
 }
 
-/* ---- AIPhysic_InitCar__FP8Car_tObj ---- */
+/* ---- AIPhysic_InitCar__FP8Car_tObj  (SYM: inlined AIPhysic_BrakeInfo ctor -- block-scoped
+ * d/deceleration/sIndex share $16 via SYM Block scopes; plain /256,/0x10000,/2,/0x20000
+ * divisions (gcc emits the bias idioms; distance=i<<16 turns the /0x10000 bias into ori)) ---- */
 void AIPhysic_InitCar(Car_tObj *carObj)
 {
-  int d;
-  int deceleration;
-  int invDeceleration;
-  int brakeTableLoop;
-  int brakeDistanceMeters;
-  int distance;
-  int sIndex;
-  AIPhysic_BrakeInfo *pAVar1;
-  int iVar2;
-  int iVar3;
   u_int carFlags;
-  u_int uVar4;
-  int iVar5;
-  int iVar6;
 
   carFlags = carObj->carFlags;
   if ((carFlags & 2) != 0) {
-    iVar5 = 0xc0000;
-    if ((carFlags & 0x28) != 0) {
-      iVar5 = 0xb0000;
+    /* SYM: 'd' (block @cc94) and 'deceleration' (ctor block) share REG $16=s0 via
+       block scoping -- modeled as ONE variable (repurposed, codegen-identical) */
+    {
+      AIPhysic_BrakeInfo *this_;
+      int deceleration;
+      int invDeceleration;
+      int brakeTableLoop;
+
+      deceleration = 0xc0000;
+      if ((carFlags & 0x28) != 0) {
+        deceleration = 0xb0000;
+      }
+      deceleration = *(int *)((char *)carObj->personality + 0x20) / 256 * (deceleration / 256);
+      if ((carFlags & 8) != 0) {
+        deceleration = deceleration / 256 * (AISpeeds_GetUpgradeBrakeMult(carObj->carIndex) / 256);
+      }
+      this_ = (AIPhysic_BrakeInfo *)__builtin_new(0x84);
+      this_->deceleration_ = deceleration;
+      invDeceleration = fixeddiv(0x10000,deceleration);
+      brakeTableLoop = 0;
+      while (true) {
+        if (!(brakeTableLoop < 0x80)) break;
+        {
+          int distance = brakeTableLoop << 0x10;
+          int brakeDistanceMeters = fixedmult(fixedmult(distance,invDeceleration),distance) / 2;
+          {
+            int sIndex = distance / 0x10000;
+            if (sIndex < 0) {
+              sIndex = -sIndex;
+            }
+            if (!(sIndex < 0x80)) {
+              sIndex = 0x80;
+            }
+            this_->brakeTable_[sIndex] = (u_char)(brakeDistanceMeters / 0x20000);
+          }
+        }
+        brakeTableLoop = brakeTableLoop + 1;
+      }
+      carObj->brakeInfo = this_;
     }
-    iVar3 = *(int *)((char *)carObj->personality + 0x20);
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0xff;
-    }
-    iVar5 = (iVar3 >> 8) * (iVar5 >> 8);
-    if ((carFlags & 8) != 0) {
-      iVar3 = AISpeeds_GetUpgradeBrakeMult(carObj->carIndex);
-      if (iVar5 < 0) {
-        iVar5 = iVar5 + 0xff;
-      }
-      if (iVar3 < 0) {
-        iVar3 = iVar3 + 0xff;
-      }
-      iVar5 = (iVar5 >> 8) * (iVar3 >> 8);
-    }
-    pAVar1 = (AIPhysic_BrakeInfo *)__builtin_new(0x84);
-    pAVar1->deceleration_ = iVar5;
-    iVar5 = fixeddiv(0x10000,iVar5);
-    for (iVar3 = 0; uVar4 = iVar3 << 0x10, iVar3 < 0x80; iVar3 = iVar3 + 1) {
-      iVar2 = fixedmult(uVar4,iVar5);
-      iVar2 = fixedmult(iVar2,uVar4);
-      iVar2 = iVar2 / 2;
-      if ((int)uVar4 < 0) {
-        uVar4 = uVar4 | 0xffff;
-      }
-      iVar6 = (int)uVar4 >> 0x10;
-      if (iVar6 < 0) {
-        iVar6 = -iVar6;
-      }
-      if (0x7f < iVar6) {
-        iVar6 = 0x80;
-      }
-      if (iVar2 < 0) {
-        iVar2 = iVar2 + 0x1ffff;
-      }
-      pAVar1->brakeTable_[iVar6] = (u_char)(iVar2 >> 0x11);
-    }
-    carObj->brakeInfo = pAVar1;
   }
   return;
 }

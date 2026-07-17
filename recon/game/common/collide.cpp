@@ -45,771 +45,155 @@ void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj);
 
 /* ---- CHECK_CENTER_VERTEX_WITH_DIRS__Fiii  [@0x8008ba70] ---- */
 int CHECK_CENTER_VERTEX_WITH_DIRS(int X_DIR,int Y_DIR,int Z_DIR)
-
-
-
 {
-
-  BO_tNewtonObj *pBVar1;
-
-  BO_tNewtonObj *pBVar2;
-
-  coorddef *pcVar3;
-
-  int iVar9;
-
-
-
+  /* MATCH: SYM shows ZERO locals (leaf, fsize=0 mask=0) - direct global derefs everywhere,
+     flat early-return guards (oracle bnez -> shared return-0 tail), no pointer caches. */
   xRange = X_DIR * scaledBasisDots[0] + Y_DIR * scaledBasisDots[1] + Z_DIR * scaledBasisDots[2] +
-
            basisDotRelative[0];
-
   yRange = X_DIR * scaledBasisDots[3] + Y_DIR * scaledBasisDots[4] + Z_DIR * scaledBasisDots[5] +
-
            basisDotRelative[1];
-
-  iVar9 = (obj0->dimension).z;
-
   zRange = X_DIR * scaledBasisDots[6] + Y_DIR * scaledBasisDots[7] + Z_DIR * scaledBasisDots[8] +
-
            basisDotRelative[2];
-
-  if ((((zRange <= iVar9) && (-iVar9 <= zRange)) && (iVar9 = (obj0->dimension).x, xRange <= iVar9))
-
-     && (((-iVar9 <= xRange && (iVar9 = (obj0->dimension).y, yRange <= iVar9)) && (-iVar9 <= yRange)
-
-         ))) {
-
-    /* MATCH: pNormal/obj1 loaded lazily HERE, not hoisted above the guard (oracle loads them
-       only on the taken path -- catalog "defer load to point of use inside if"). */
-    pcVar3 = pNormal;
-
-    pBVar1 = obj1;
-
-    pNormal->x = X_DIR * (obj1->orientMat).m[0] + Y_DIR * (obj1->orientMat).m[3] +
-
-                 Z_DIR * (obj1->orientMat).m[6];
-
-    pcVar3->y = X_DIR * (pBVar1->orientMat).m[1] + Y_DIR * (pBVar1->orientMat).m[4] +
-
-                Z_DIR * (pBVar1->orientMat).m[7];
-
-    pcVar3->z = X_DIR * (pBVar1->orientMat).m[2] + Y_DIR * (pBVar1->orientMat).m[5] +
-
-                Z_DIR * (pBVar1->orientMat).m[8];
-
-    pcVar3 = pP;
-
-    /* MATCH: signed /256 idiom (bgez;addiu 0xFF;sra 8) written directly -- gcc emits its own
-       guard. Sequential partial-sum with 2 maximally-reused dead-variable temps (a,b) keeps
-       live-register count low so the leaf fn doesn't spill (SYM: fsize=0 mask=$0). */
-    {
-      int a, b, t;
-      a = (pBVar1->orientMat).m[0]; b = (pBVar1->dimension).x;
-      t = X_DIR * (a / 256) * (b / 256);
-      a = (pBVar1->orientMat).m[3]; b = (pBVar1->dimension).y;
-      t = t + Y_DIR * (a / 256) * (b / 256);
-      a = (pBVar1->orientMat).m[6]; b = (pBVar1->dimension).z;
-      t = t + Z_DIR * (a / 256) * (b / 256);
-      pP->x = (pBVar1->position).x + t;
-    }
-
-    pBVar2 = obj1;
-
-    {
-      int a, b, t;
-      a = (pBVar1->orientMat).m[1]; b = (pBVar1->dimension).x;
-      t = X_DIR * (a / 256) * (b / 256);
-      a = (pBVar1->orientMat).m[4]; b = (pBVar1->dimension).y;
-      t = t + Y_DIR * (a / 256) * (b / 256);
-      a = (obj1->orientMat).m[7]; b = (obj1->dimension).z;
-      t = t + Z_DIR * (a / 256) * (b / 256);
-      pcVar3->y = (pBVar1->position).y + t;
-    }
-
-    {
-      int a, b, t;
-      a = (pBVar2->orientMat).m[2]; b = (pBVar2->dimension).x;
-      t = X_DIR * (a / 256) * (b / 256);
-      a = (pBVar2->orientMat).m[5]; b = (pBVar2->dimension).y;
-      t = t + Y_DIR * (a / 256) * (b / 256);
-      a = (pBVar2->orientMat).m[8]; b = (pBVar2->dimension).z;
-      t = t + Z_DIR * (a / 256) * (b / 256);
-      pP->z = (pBVar2->position).z + t;
-    }
-
-    return 1;
-
-  }
-
+  /* MATCH: goto shared return-0 tail (physically AFTER return 1) keeps all six guards bnez-forward */
+  if ((obj0->dimension).z < zRange) goto ret0;
+  if (zRange < -(obj0->dimension).z) goto ret0;
+  if ((obj0->dimension).x < xRange) goto ret0;
+  if (xRange < -(obj0->dimension).x) goto ret0;
+  if ((obj0->dimension).y < yRange) goto ret0;
+  if (yRange < -(obj0->dimension).y) goto ret0;
+  pNormal->x = X_DIR * (obj1->orientMat).m[0] + Y_DIR * (obj1->orientMat).m[3] +
+               Z_DIR * (obj1->orientMat).m[6];
+  pNormal->y = X_DIR * (obj1->orientMat).m[1] + Y_DIR * (obj1->orientMat).m[4] +
+               Z_DIR * (obj1->orientMat).m[7];
+  pNormal->z = X_DIR * (obj1->orientMat).m[2] + Y_DIR * (obj1->orientMat).m[5] +
+               Z_DIR * (obj1->orientMat).m[8];
+  /* MATCH: signed /256 idiom; association is X_DIR*((m/256)*(dim/256)) - inner product first */
+  pP->x = (obj1->position).x +
+          X_DIR * (((obj1->orientMat).m[0] / 256) * ((obj1->dimension).x / 256)) +
+          Y_DIR * (((obj1->orientMat).m[3] / 256) * ((obj1->dimension).y / 256)) +
+          Z_DIR * (((obj1->orientMat).m[6] / 256) * ((obj1->dimension).z / 256));
+  pP->y = (obj1->position).y +
+          X_DIR * (((obj1->orientMat).m[1] / 256) * ((obj1->dimension).x / 256)) +
+          Y_DIR * (((obj1->orientMat).m[4] / 256) * ((obj1->dimension).y / 256)) +
+          Z_DIR * (((obj1->orientMat).m[7] / 256) * ((obj1->dimension).z / 256));
+  pP->z = (obj1->position).z +
+          X_DIR * (((obj1->orientMat).m[2] / 256) * ((obj1->dimension).x / 256)) +
+          Y_DIR * (((obj1->orientMat).m[5] / 256) * ((obj1->dimension).y / 256)) +
+          Z_DIR * (((obj1->orientMat).m[8] / 256) * ((obj1->dimension).z / 256));
+  return 1;
+ret0:
   return 0;
-
 }
+
 
 /* ---- CHECK_CENTER_VERTEX_WITH_DIRS_OTHER__Fiii  [@0x8008bef0] ---- */
 int CHECK_CENTER_VERTEX_WITH_DIRS_OTHER(int X_DIR,int Y_DIR,int Z_DIR)
-
-
-
 {
-
-  BO_tNewtonObj *pBVar1;
-
-  BO_tNewtonObj *pBVar2;
-
-  coorddef *pcVar3;
-
-  int iVar4;
-
-  int iVar5;
-
-  int iVar6;
-
-  int iVar7;
-
-  int iVar8;
-
-  int iVar9;
-
-  
-
-  pcVar3 = pNormal;
-
-  pBVar1 = obj0;
-
+  /* MATCH: same template as CHECK_CENTER_VERTEX_WITH_DIRS - zero locals, flat goto-ret0
+     guards, direct global derefs, X_DIR*((m/256)*(dim/256)) association */
   xRange = (X_DIR * scaledBasisDotsOther[0] + Y_DIR * scaledBasisDotsOther[3] +
-
-           Z_DIR * scaledBasisDotsOther[6]) - basisDotRelative[3];
-
+            Z_DIR * scaledBasisDotsOther[6]) - basisDotRelative[3];
   yRange = (X_DIR * scaledBasisDotsOther[1] + Y_DIR * scaledBasisDotsOther[4] +
-
-           Z_DIR * scaledBasisDotsOther[7]) - basisDotRelative[4];
-
-  iVar9 = (obj1->dimension).z;
-
+            Z_DIR * scaledBasisDotsOther[7]) - basisDotRelative[4];
   zRange = (X_DIR * scaledBasisDotsOther[2] + Y_DIR * scaledBasisDotsOther[5] +
-
-           Z_DIR * scaledBasisDotsOther[8]) - basisDotRelative[5];
-
-  if ((((zRange <= iVar9) && (-iVar9 <= zRange)) && (iVar9 = (obj1->dimension).x, xRange <= iVar9))
-
-     && (((-iVar9 <= xRange && (iVar9 = (obj1->dimension).y, yRange <= iVar9)) && (-iVar9 <= yRange)
-
-         ))) {
-
-    pNormal->x = -(X_DIR * (obj0->orientMat).m[0] + Y_DIR * (obj0->orientMat).m[3] +
-
-                  Z_DIR * (obj0->orientMat).m[6]);
-
-    pcVar3->y = -(X_DIR * (pBVar1->orientMat).m[1] + Y_DIR * (pBVar1->orientMat).m[4] +
-
-                 Z_DIR * (pBVar1->orientMat).m[7]);
-
-    pcVar3->z = -(X_DIR * (pBVar1->orientMat).m[2] + Y_DIR * (pBVar1->orientMat).m[5] +
-
-                 Z_DIR * (pBVar1->orientMat).m[8]);
-
-    pcVar3 = pP;
-
-    iVar9 = (pBVar1->orientMat).m[0];
-
-    if (iVar9 < 0) {
-
-      iVar9 = iVar9 + 0xff;
-
-    }
-
-    iVar4 = (pBVar1->dimension).x;
-
-    if (iVar4 < 0) {
-
-      iVar4 = iVar4 + 0xff;
-
-    }
-
-    iVar7 = (pBVar1->orientMat).m[3];
-
-    if (iVar7 < 0) {
-
-      iVar7 = iVar7 + 0xff;
-
-    }
-
-    iVar5 = (pBVar1->dimension).y;
-
-    if (iVar5 < 0) {
-
-      iVar5 = iVar5 + 0xff;
-
-    }
-
-    iVar8 = (pBVar1->orientMat).m[6];
-
-    if (iVar8 < 0) {
-
-      iVar8 = iVar8 + 0xff;
-
-    }
-
-    iVar6 = (pBVar1->dimension).z;
-
-    if (iVar6 < 0) {
-
-      iVar6 = iVar6 + 0xff;
-
-    }
-
-    pP->x = (pBVar1->position).x + X_DIR * (iVar9 >> 8) * (iVar4 >> 8) +
-
-            Y_DIR * (iVar7 >> 8) * (iVar5 >> 8) + Z_DIR * (iVar8 >> 8) * (iVar6 >> 8);
-
-    pBVar2 = obj0;
-
-    iVar9 = (pBVar1->orientMat).m[1];
-
-    if (iVar9 < 0) {
-
-      iVar9 = iVar9 + 0xff;
-
-    }
-
-    iVar4 = (pBVar1->dimension).x;
-
-    if (iVar4 < 0) {
-
-      iVar4 = iVar4 + 0xff;
-
-    }
-
-    iVar7 = (pBVar1->orientMat).m[4];
-
-    if (iVar7 < 0) {
-
-      iVar7 = iVar7 + 0xff;
-
-    }
-
-    iVar5 = (pBVar1->dimension).y;
-
-    if (iVar5 < 0) {
-
-      iVar5 = iVar5 + 0xff;
-
-    }
-
-    iVar8 = (obj0->orientMat).m[7];
-
-    if (iVar8 < 0) {
-
-      iVar8 = iVar8 + 0xff;
-
-    }
-
-    iVar6 = (obj0->dimension).z;
-
-    if (iVar6 < 0) {
-
-      iVar6 = iVar6 + 0xff;
-
-    }
-
-    pcVar3->y = (pBVar1->position).y + X_DIR * (iVar9 >> 8) * (iVar4 >> 8) +
-
-                Y_DIR * (iVar7 >> 8) * (iVar5 >> 8) + Z_DIR * (iVar8 >> 8) * (iVar6 >> 8);
-
-    iVar9 = (pBVar2->orientMat).m[2];
-
-    if (iVar9 < 0) {
-
-      iVar9 = iVar9 + 0xff;
-
-    }
-
-    iVar4 = (pBVar2->dimension).x;
-
-    if (iVar4 < 0) {
-
-      iVar4 = iVar4 + 0xff;
-
-    }
-
-    iVar7 = (pBVar2->orientMat).m[5];
-
-    if (iVar7 < 0) {
-
-      iVar7 = iVar7 + 0xff;
-
-    }
-
-    iVar5 = (pBVar2->dimension).y;
-
-    if (iVar5 < 0) {
-
-      iVar5 = iVar5 + 0xff;
-
-    }
-
-    iVar8 = (pBVar2->orientMat).m[8];
-
-    if (iVar8 < 0) {
-
-      iVar8 = iVar8 + 0xff;
-
-    }
-
-    iVar6 = (pBVar2->dimension).z;
-
-    if (iVar6 < 0) {
-
-      iVar6 = iVar6 + 0xff;
-
-    }
-
-    pP->z = (pBVar2->position).z + X_DIR * (iVar9 >> 8) * (iVar4 >> 8) +
-
-            Y_DIR * (iVar7 >> 8) * (iVar5 >> 8) + Z_DIR * (iVar8 >> 8) * (iVar6 >> 8);
-
-    return 1;
-
-  }
-
+            Z_DIR * scaledBasisDotsOther[8]) - basisDotRelative[5];
+  if ((obj1->dimension).z < zRange) goto ret0;
+  if (zRange < -(obj1->dimension).z) goto ret0;
+  if ((obj1->dimension).x < xRange) goto ret0;
+  if (xRange < -(obj1->dimension).x) goto ret0;
+  if ((obj1->dimension).y < yRange) goto ret0;
+  if (yRange < -(obj1->dimension).y) goto ret0;
+  pNormal->x = -(X_DIR * (obj0->orientMat).m[0] + Y_DIR * (obj0->orientMat).m[3] +
+                 Z_DIR * (obj0->orientMat).m[6]);
+  pNormal->y = -(X_DIR * (obj0->orientMat).m[1] + Y_DIR * (obj0->orientMat).m[4] +
+                 Z_DIR * (obj0->orientMat).m[7]);
+  pNormal->z = -(X_DIR * (obj0->orientMat).m[2] + Y_DIR * (obj0->orientMat).m[5] +
+                 Z_DIR * (obj0->orientMat).m[8]);
+  pP->x = (obj0->position).x +
+          X_DIR * (((obj0->orientMat).m[0] / 256) * ((obj0->dimension).x / 256)) +
+          Y_DIR * (((obj0->orientMat).m[3] / 256) * ((obj0->dimension).y / 256)) +
+          Z_DIR * (((obj0->orientMat).m[6] / 256) * ((obj0->dimension).z / 256));
+  pP->y = (obj0->position).y +
+          X_DIR * (((obj0->orientMat).m[1] / 256) * ((obj0->dimension).x / 256)) +
+          Y_DIR * (((obj0->orientMat).m[4] / 256) * ((obj0->dimension).y / 256)) +
+          Z_DIR * (((obj0->orientMat).m[7] / 256) * ((obj0->dimension).z / 256));
+  pP->z = (obj0->position).z +
+          X_DIR * (((obj0->orientMat).m[2] / 256) * ((obj0->dimension).x / 256)) +
+          Y_DIR * (((obj0->orientMat).m[5] / 256) * ((obj0->dimension).y / 256)) +
+          Z_DIR * (((obj0->orientMat).m[8] / 256) * ((obj0->dimension).z / 256));
+  return 1;
+ret0:
   return 0;
-
 }
+
 
 /* ---- CHECK_VERTEX_WITH_DIRS__Fiii  [@0x8008c37c] ---- */
 int CHECK_VERTEX_WITH_DIRS(int X_DIR,int Y_DIR,int Z_DIR)
-
-
-
 {
-
-  BO_tNewtonObj *pBVar1;
-
-  BO_tNewtonObj *pBVar2;
-
-  coorddef *pcVar3;
-
-  int iVar4;
-
-  int iVar5;
-
-  int iVar6;
-
-  int iVar7;
-
-  int iVar8;
-
-  int iVar9;
-
-
-
-  pcVar3 = pP;
-
-  pBVar1 = obj1;
-
+  /* MATCH: CHECK_CENTER_VERTEX_WITH_DIRS template minus the pNormal writes */
   xRange = X_DIR * scaledBasisDots[0] + Y_DIR * scaledBasisDots[1] + Z_DIR * scaledBasisDots[2] +
-
            basisDotRelative[0];
-
   yRange = X_DIR * scaledBasisDots[3] + Y_DIR * scaledBasisDots[4] + Z_DIR * scaledBasisDots[5] +
-
            basisDotRelative[1];
-
-  iVar9 = (obj0->dimension).z;
-
   zRange = X_DIR * scaledBasisDots[6] + Y_DIR * scaledBasisDots[7] + Z_DIR * scaledBasisDots[8] +
-
            basisDotRelative[2];
-
-  if ((((zRange <= iVar9) && (-iVar9 <= zRange)) && (iVar9 = (obj0->dimension).x, xRange <= iVar9))
-
-     && (((-iVar9 <= xRange && (iVar9 = (obj0->dimension).y, yRange <= iVar9)) && (-iVar9 <= yRange)
-
-         ))) {
-
-    iVar9 = (obj1->orientMat).m[0];
-
-    if (iVar9 < 0) {
-
-      iVar9 = iVar9 + 0xff;
-
-    }
-
-    iVar4 = (obj1->dimension).x;
-
-    if (iVar4 < 0) {
-
-      iVar4 = iVar4 + 0xff;
-
-    }
-
-    iVar7 = (obj1->orientMat).m[3];
-
-    if (iVar7 < 0) {
-
-      iVar7 = iVar7 + 0xff;
-
-    }
-
-    iVar5 = (obj1->dimension).y;
-
-    if (iVar5 < 0) {
-
-      iVar5 = iVar5 + 0xff;
-
-    }
-
-    iVar8 = (obj1->orientMat).m[6];
-
-    if (iVar8 < 0) {
-
-      iVar8 = iVar8 + 0xff;
-
-    }
-
-    iVar6 = (obj1->dimension).z;
-
-    if (iVar6 < 0) {
-
-      iVar6 = iVar6 + 0xff;
-
-    }
-
-    pP->x = (obj1->position).x + X_DIR * (iVar9 >> 8) * (iVar4 >> 8) +
-
-            Y_DIR * (iVar7 >> 8) * (iVar5 >> 8) + Z_DIR * (iVar8 >> 8) * (iVar6 >> 8);
-
-    pBVar2 = obj1;
-
-    iVar9 = (pBVar1->orientMat).m[1];
-
-    if (iVar9 < 0) {
-
-      iVar9 = iVar9 + 0xff;
-
-    }
-
-    iVar4 = (pBVar1->dimension).x;
-
-    if (iVar4 < 0) {
-
-      iVar4 = iVar4 + 0xff;
-
-    }
-
-    iVar7 = (pBVar1->orientMat).m[4];
-
-    if (iVar7 < 0) {
-
-      iVar7 = iVar7 + 0xff;
-
-    }
-
-    iVar5 = (pBVar1->dimension).y;
-
-    if (iVar5 < 0) {
-
-      iVar5 = iVar5 + 0xff;
-
-    }
-
-    iVar8 = (obj1->orientMat).m[7];
-
-    if (iVar8 < 0) {
-
-      iVar8 = iVar8 + 0xff;
-
-    }
-
-    iVar6 = (obj1->dimension).z;
-
-    if (iVar6 < 0) {
-
-      iVar6 = iVar6 + 0xff;
-
-    }
-
-    pcVar3->y = (pBVar1->position).y + X_DIR * (iVar9 >> 8) * (iVar4 >> 8) +
-
-                Y_DIR * (iVar7 >> 8) * (iVar5 >> 8) + Z_DIR * (iVar8 >> 8) * (iVar6 >> 8);
-
-    iVar9 = (pBVar2->orientMat).m[2];
-
-    if (iVar9 < 0) {
-
-      iVar9 = iVar9 + 0xff;
-
-    }
-
-    iVar4 = (pBVar2->dimension).x;
-
-    if (iVar4 < 0) {
-
-      iVar4 = iVar4 + 0xff;
-
-    }
-
-    iVar7 = (pBVar2->orientMat).m[5];
-
-    if (iVar7 < 0) {
-
-      iVar7 = iVar7 + 0xff;
-
-    }
-
-    iVar5 = (pBVar2->dimension).y;
-
-    if (iVar5 < 0) {
-
-      iVar5 = iVar5 + 0xff;
-
-    }
-
-    iVar8 = (pBVar2->orientMat).m[8];
-
-    if (iVar8 < 0) {
-
-      iVar8 = iVar8 + 0xff;
-
-    }
-
-    iVar6 = (pBVar2->dimension).z;
-
-    if (iVar6 < 0) {
-
-      iVar6 = iVar6 + 0xff;
-
-    }
-
-    pP->z = (pBVar2->position).z + X_DIR * (iVar9 >> 8) * (iVar4 >> 8) +
-
-            Y_DIR * (iVar7 >> 8) * (iVar5 >> 8) + Z_DIR * (iVar8 >> 8) * (iVar6 >> 8);
-
-    return 1;
-
-  }
-
+  if ((obj0->dimension).z < zRange) goto ret0;
+  if (zRange < -(obj0->dimension).z) goto ret0;
+  if ((obj0->dimension).x < xRange) goto ret0;
+  if (xRange < -(obj0->dimension).x) goto ret0;
+  if ((obj0->dimension).y < yRange) goto ret0;
+  if (yRange < -(obj0->dimension).y) goto ret0;
+  pP->x = (obj1->position).x +
+          X_DIR * (((obj1->orientMat).m[0] / 256) * ((obj1->dimension).x / 256)) +
+          Y_DIR * (((obj1->orientMat).m[3] / 256) * ((obj1->dimension).y / 256)) +
+          Z_DIR * (((obj1->orientMat).m[6] / 256) * ((obj1->dimension).z / 256));
+  pP->y = (obj1->position).y +
+          X_DIR * (((obj1->orientMat).m[1] / 256) * ((obj1->dimension).x / 256)) +
+          Y_DIR * (((obj1->orientMat).m[4] / 256) * ((obj1->dimension).y / 256)) +
+          Z_DIR * (((obj1->orientMat).m[7] / 256) * ((obj1->dimension).z / 256));
+  pP->z = (obj1->position).z +
+          X_DIR * (((obj1->orientMat).m[2] / 256) * ((obj1->dimension).x / 256)) +
+          Y_DIR * (((obj1->orientMat).m[5] / 256) * ((obj1->dimension).y / 256)) +
+          Z_DIR * (((obj1->orientMat).m[8] / 256) * ((obj1->dimension).z / 256));
+  return 1;
+ret0:
   return 0;
-
 }
+
 
 /* ---- CHECK_VERTEX_WITH_DIRS_OTHER__Fiii  [@0x8008c744] ---- */
 int CHECK_VERTEX_WITH_DIRS_OTHER(int X_DIR,int Y_DIR,int Z_DIR)
-
-
-
 {
-
-  BO_tNewtonObj *pBVar1;
-
-  BO_tNewtonObj *pBVar2;
-
-  coorddef *pcVar3;
-
-  int iVar4;
-
-  int iVar5;
-
-  int iVar6;
-
-  int iVar7;
-
-  int iVar8;
-
-  int iVar9;
-
-  
-
-  pcVar3 = pP;
-
-  pBVar1 = obj0;
-
+  /* MATCH: CHECK_CENTER_VERTEX_WITH_DIRS_OTHER template minus the pNormal writes */
   xRange = (X_DIR * scaledBasisDotsOther[0] + Y_DIR * scaledBasisDotsOther[3] +
-
-           Z_DIR * scaledBasisDotsOther[6]) - basisDotRelative[3];
-
+            Z_DIR * scaledBasisDotsOther[6]) - basisDotRelative[3];
   yRange = (X_DIR * scaledBasisDotsOther[1] + Y_DIR * scaledBasisDotsOther[4] +
-
-           Z_DIR * scaledBasisDotsOther[7]) - basisDotRelative[4];
-
-  iVar9 = (obj1->dimension).z;
-
+            Z_DIR * scaledBasisDotsOther[7]) - basisDotRelative[4];
   zRange = (X_DIR * scaledBasisDotsOther[2] + Y_DIR * scaledBasisDotsOther[5] +
-
-           Z_DIR * scaledBasisDotsOther[8]) - basisDotRelative[5];
-
-  if ((((zRange <= iVar9) && (-iVar9 <= zRange)) && (iVar9 = (obj1->dimension).x, xRange <= iVar9))
-
-     && (((-iVar9 <= xRange && (iVar9 = (obj1->dimension).y, yRange <= iVar9)) && (-iVar9 <= yRange)
-
-         ))) {
-
-    iVar9 = (obj0->orientMat).m[0];
-
-    if (iVar9 < 0) {
-
-      iVar9 = iVar9 + 0xff;
-
-    }
-
-    iVar4 = (obj0->dimension).x;
-
-    if (iVar4 < 0) {
-
-      iVar4 = iVar4 + 0xff;
-
-    }
-
-    iVar7 = (obj0->orientMat).m[3];
-
-    if (iVar7 < 0) {
-
-      iVar7 = iVar7 + 0xff;
-
-    }
-
-    iVar5 = (obj0->dimension).y;
-
-    if (iVar5 < 0) {
-
-      iVar5 = iVar5 + 0xff;
-
-    }
-
-    iVar8 = (obj0->orientMat).m[6];
-
-    if (iVar8 < 0) {
-
-      iVar8 = iVar8 + 0xff;
-
-    }
-
-    iVar6 = (obj0->dimension).z;
-
-    if (iVar6 < 0) {
-
-      iVar6 = iVar6 + 0xff;
-
-    }
-
-    pP->x = (obj0->position).x + X_DIR * (iVar9 >> 8) * (iVar4 >> 8) +
-
-            Y_DIR * (iVar7 >> 8) * (iVar5 >> 8) + Z_DIR * (iVar8 >> 8) * (iVar6 >> 8);
-
-    pBVar2 = obj0;
-
-    iVar9 = (pBVar1->orientMat).m[1];
-
-    if (iVar9 < 0) {
-
-      iVar9 = iVar9 + 0xff;
-
-    }
-
-    iVar4 = (pBVar1->dimension).x;
-
-    if (iVar4 < 0) {
-
-      iVar4 = iVar4 + 0xff;
-
-    }
-
-    iVar7 = (pBVar1->orientMat).m[4];
-
-    if (iVar7 < 0) {
-
-      iVar7 = iVar7 + 0xff;
-
-    }
-
-    iVar5 = (pBVar1->dimension).y;
-
-    if (iVar5 < 0) {
-
-      iVar5 = iVar5 + 0xff;
-
-    }
-
-    iVar8 = (obj0->orientMat).m[7];
-
-    if (iVar8 < 0) {
-
-      iVar8 = iVar8 + 0xff;
-
-    }
-
-    iVar6 = (obj0->dimension).z;
-
-    if (iVar6 < 0) {
-
-      iVar6 = iVar6 + 0xff;
-
-    }
-
-    pcVar3->y = (pBVar1->position).y + X_DIR * (iVar9 >> 8) * (iVar4 >> 8) +
-
-                Y_DIR * (iVar7 >> 8) * (iVar5 >> 8) + Z_DIR * (iVar8 >> 8) * (iVar6 >> 8);
-
-    iVar9 = (pBVar2->orientMat).m[2];
-
-    if (iVar9 < 0) {
-
-      iVar9 = iVar9 + 0xff;
-
-    }
-
-    iVar4 = (pBVar2->dimension).x;
-
-    if (iVar4 < 0) {
-
-      iVar4 = iVar4 + 0xff;
-
-    }
-
-    iVar7 = (pBVar2->orientMat).m[5];
-
-    if (iVar7 < 0) {
-
-      iVar7 = iVar7 + 0xff;
-
-    }
-
-    iVar5 = (pBVar2->dimension).y;
-
-    if (iVar5 < 0) {
-
-      iVar5 = iVar5 + 0xff;
-
-    }
-
-    iVar8 = (pBVar2->orientMat).m[8];
-
-    if (iVar8 < 0) {
-
-      iVar8 = iVar8 + 0xff;
-
-    }
-
-    iVar6 = (pBVar2->dimension).z;
-
-    if (iVar6 < 0) {
-
-      iVar6 = iVar6 + 0xff;
-
-    }
-
-    pP->z = (pBVar2->position).z + X_DIR * (iVar9 >> 8) * (iVar4 >> 8) +
-
-            Y_DIR * (iVar7 >> 8) * (iVar5 >> 8) + Z_DIR * (iVar8 >> 8) * (iVar6 >> 8);
-
-    return 1;
-
-  }
-
+            Z_DIR * scaledBasisDotsOther[8]) - basisDotRelative[5];
+  if ((obj1->dimension).z < zRange) goto ret0;
+  if (zRange < -(obj1->dimension).z) goto ret0;
+  if ((obj1->dimension).x < xRange) goto ret0;
+  if (xRange < -(obj1->dimension).x) goto ret0;
+  if ((obj1->dimension).y < yRange) goto ret0;
+  if (yRange < -(obj1->dimension).y) goto ret0;
+  pP->x = (obj0->position).x +
+          X_DIR * (((obj0->orientMat).m[0] / 256) * ((obj0->dimension).x / 256)) +
+          Y_DIR * (((obj0->orientMat).m[3] / 256) * ((obj0->dimension).y / 256)) +
+          Z_DIR * (((obj0->orientMat).m[6] / 256) * ((obj0->dimension).z / 256));
+  pP->y = (obj0->position).y +
+          X_DIR * (((obj0->orientMat).m[1] / 256) * ((obj0->dimension).x / 256)) +
+          Y_DIR * (((obj0->orientMat).m[4] / 256) * ((obj0->dimension).y / 256)) +
+          Z_DIR * (((obj0->orientMat).m[7] / 256) * ((obj0->dimension).z / 256));
+  pP->z = (obj0->position).z +
+          X_DIR * (((obj0->orientMat).m[2] / 256) * ((obj0->dimension).x / 256)) +
+          Y_DIR * (((obj0->orientMat).m[5] / 256) * ((obj0->dimension).y / 256)) +
+          Z_DIR * (((obj0->orientMat).m[8] / 256) * ((obj0->dimension).z / 256));
+  return 1;
+ret0:
   return 0;
-
 }
+
 
 /* ---- Collide_DoObjectFixedObjectCollision__FP13BO_tNewtonObjP8coorddefN21  [@0x8008cb0c] ---- */
 void Collide_DoObjectFixedObjectCollision(BO_tNewtonObj *o,coorddef *p,coorddef *v,coorddef *n)
@@ -1698,9 +1082,6 @@ void Collide_LimitAngularVel(BO_tNewtonObj *o)
 
 /* ---- Collide_TestWithPlane__FP13BO_tNewtonObjP8coorddefT1  [@0x8008d9a8] ---- */
 void Collide_TestWithPlane(BO_tNewtonObj *o,coorddef *normal,coorddef *samplePoint)
-
-
-
 {
   int raiseUp;
   int basisDots[3];
@@ -1709,863 +1090,186 @@ void Collide_TestWithPlane(BO_tNewtonObj *o,coorddef *normal,coorddef *samplePoi
   int xDir;
   int Y_DIR;
   int zDir;
-  int height;
-  coorddef Raise;
-  coorddef vertexVelocity;
-  coorddef r;
-  coorddef spot;
-  int correction;
-  int v2;
-  int impulse;
-  int right;
-  int top;
-  int front;
+  int relDotFull;
 
-  bool bVar1;
-
-  int iVar2;
-
-  int iVar3;
-
-  int iVar4;
-
-  int iVar5;
-
-  int iVar6;
-
-  int iVar7;
-
-  int iVar8;
-
-  int iVar9;
-
-  int iVar10;
-
-  int iVar11;
-
-  int iVar12;
-
-  int iVar13;
-
-  u_int zone;
-
-  int local_5c;
-
-  coorddef local_50;
-
-  int local_40;
-
-  int local_3c;
-
-  int local_38;
-
-  coorddef local_30;
-
-  
-
-  iVar2 = fixedmult(0x6487e,(o->angularVel).x);
-
-  (o->angularVel).x = iVar2;
-
-  iVar2 = fixedmult(0x6487e,(o->angularVel).y);
-
-  (o->angularVel).y = iVar2;
-
-  iVar2 = fixedmult(0x6487e,(o->angularVel).z);
-
-  (o->angularVel).z = iVar2;
-
+  /* MATCH: SYM rule-8 rebuild - names/blocks from the SYM 8c block; inline /256 idiom
+     (no hoisted temps); X_DIR*((m/256)*(dim/256)) association.
+     CORRECTNESS fix (oracle-evidenced): the Collide_gRaiseUp gp-rel GATE around both the
+     raise-position block AND the bounce block was folded out by Ghidra (section 3.2c class)
+     - restored at both sites. */
+  (o->angularVel).x = fixedmult(0x6487e,(o->angularVel).x);
+  (o->angularVel).y = fixedmult(0x6487e,(o->angularVel).y);
+  (o->angularVel).z = fixedmult(0x6487e,(o->angularVel).z);
+  raiseUp = 0;
   if (((normal->x == 0) && (normal->y == 0)) && (normal->z == 0)) {
-
     normal->y = 0x10000;
-
   }
-
-  iVar2 = normal->x;
-
-  if (iVar2 < 0) {
-
-    iVar2 = iVar2 + 0xff;
-
+  basisDots[0] = ((normal->x / 256) * ((o->orientMat).m[0] / 256) +
+                  (normal->y / 256) * ((o->orientMat).m[1] / 256) +
+                  (normal->z / 256) * ((o->orientMat).m[2] / 256)) / 256 *
+                 ((o->dimension).x / 256);
+  basisDots[1] = ((normal->x / 256) * ((o->orientMat).m[3] / 256) +
+                  (normal->y / 256) * ((o->orientMat).m[4] / 256) +
+                  (normal->z / 256) * ((o->orientMat).m[5] / 256)) / 256 *
+                 ((o->dimension).y / 256);
+  basisDots[2] = ((normal->x / 256) * ((o->orientMat).m[6] / 256) +
+                  (normal->y / 256) * ((o->orientMat).m[7] / 256) +
+                  (normal->z / 256) * ((o->orientMat).m[8] / 256)) / 256 *
+                 ((o->dimension).z / 256);
+  xDir = -1;
+  if (basisDots[0] < 0) {
+    xDir = 1;
   }
-
-  iVar3 = (o->orientMat).m[0];
-
-  if (iVar3 < 0) {
-
-    iVar3 = iVar3 + 0xff;
-
+  Y_DIR = -1;
+  if (basisDots[1] < 0) {
+    Y_DIR = 1;
   }
-
-  iVar8 = normal->y;
-
-  if (iVar8 < 0) {
-
-    iVar8 = iVar8 + 0xff;
-
+  zDir = -1;
+  if (basisDots[2] < 0) {
+    zDir = 1;
   }
-
-  iVar4 = (o->orientMat).m[1];
-
-  if (iVar4 < 0) {
-
-    iVar4 = iVar4 + 0xff;
-
-  }
-
-  iVar9 = normal->z;
-
-  if (iVar9 < 0) {
-
-    iVar9 = iVar9 + 0xff;
-
-  }
-
-  iVar5 = (o->orientMat).m[2];
-
-  if (iVar5 < 0) {
-
-    iVar5 = iVar5 + 0xff;
-
-  }
-
-  iVar2 = (iVar2 >> 8) * (iVar3 >> 8) + (iVar8 >> 8) * (iVar4 >> 8) + (iVar9 >> 8) * (iVar5 >> 8);
-
-  if (iVar2 < 0) {
-
-    iVar2 = iVar2 + 0xff;
-
-  }
-
-  iVar3 = (o->dimension).x;
-
-  if (iVar3 < 0) {
-
-    iVar3 = iVar3 + 0xff;
-
-  }
-
-  iVar2 = (iVar2 >> 8) * (iVar3 >> 8);
-
-  iVar3 = normal->x;
-
-  if (iVar3 < 0) {
-
-    iVar3 = iVar3 + 0xff;
-
-  }
-
-  iVar8 = (o->orientMat).m[3];
-
-  if (iVar8 < 0) {
-
-    iVar8 = iVar8 + 0xff;
-
-  }
-
-  iVar4 = normal->y;
-
-  if (iVar4 < 0) {
-
-    iVar4 = iVar4 + 0xff;
-
-  }
-
-  iVar9 = (o->orientMat).m[4];
-
-  if (iVar9 < 0) {
-
-    iVar9 = iVar9 + 0xff;
-
-  }
-
-  iVar5 = normal->z;
-
-  if (iVar5 < 0) {
-
-    iVar5 = iVar5 + 0xff;
-
-  }
-
-  iVar6 = (o->orientMat).m[5];
-
-  if (iVar6 < 0) {
-
-    iVar6 = iVar6 + 0xff;
-
-  }
-
-  iVar3 = (iVar3 >> 8) * (iVar8 >> 8) + (iVar4 >> 8) * (iVar9 >> 8) + (iVar5 >> 8) * (iVar6 >> 8);
-
-  if (iVar3 < 0) {
-
-    iVar3 = iVar3 + 0xff;
-
-  }
-
-  iVar8 = (o->dimension).y;
-
-  if (iVar8 < 0) {
-
-    iVar8 = iVar8 + 0xff;
-
-  }
-
-  iVar3 = (iVar3 >> 8) * (iVar8 >> 8);
-
-  iVar8 = normal->x;
-
-  if (iVar8 < 0) {
-
-    iVar8 = iVar8 + 0xff;
-
-  }
-
-  iVar4 = (o->orientMat).m[6];
-
-  if (iVar4 < 0) {
-
-    iVar4 = iVar4 + 0xff;
-
-  }
-
-  iVar9 = normal->y;
-
-  if (iVar9 < 0) {
-
-    iVar9 = iVar9 + 0xff;
-
-  }
-
-  iVar5 = (o->orientMat).m[7];
-
-  if (iVar5 < 0) {
-
-    iVar5 = iVar5 + 0xff;
-
-  }
-
-  iVar6 = normal->z;
-
-  if (iVar6 < 0) {
-
-    iVar6 = iVar6 + 0xff;
-
-  }
-
-  iVar7 = (o->orientMat).m[8];
-
-  if (iVar7 < 0) {
-
-    iVar7 = iVar7 + 0xff;
-
-  }
-
-  iVar8 = (iVar8 >> 8) * (iVar4 >> 8) + (iVar9 >> 8) * (iVar5 >> 8) + (iVar6 >> 8) * (iVar7 >> 8);
-
-  if (iVar8 < 0) {
-
-    iVar8 = iVar8 + 0xff;
-
-  }
-
-  iVar4 = (o->dimension).z;
-
-  if (iVar4 < 0) {
-
-    iVar4 = iVar4 + 0xff;
-
-  }
-
-  iVar8 = (iVar8 >> 8) * (iVar4 >> 8);
-
-  iVar4 = -1;
-
-  if (iVar2 < 0) {
-
-    iVar4 = 1;
-
-  }
-
-  iVar9 = -1;
-
-  if (iVar3 < 0) {
-
-    iVar9 = 1;
-
-  }
-
-  iVar5 = -1;
-
-  if (iVar8 < 0) {
-
-    iVar5 = 1;
-
-  }
-
-  iVar6 = (o->position).x - samplePoint->x;
-
-  iVar7 = (o->position).y - samplePoint->y;
-
-  iVar13 = (o->position).z - samplePoint->z;
-
-  iVar10 = normal->x;
-
-  if (iVar10 < 0) {
-
-    iVar10 = iVar10 + 0xff;
-
-  }
-
-  if (iVar6 < 0) {
-
-    iVar6 = iVar6 + 0xff;
-
-  }
-
-  iVar11 = normal->y;
-
-  if (iVar11 < 0) {
-
-    iVar11 = iVar11 + 0xff;
-
-  }
-
-  if (iVar7 < 0) {
-
-    iVar7 = iVar7 + 0xff;
-
-  }
-
-  iVar12 = normal->z;
-
-  if (iVar12 < 0) {
-
-    iVar12 = iVar12 + 0xff;
-
-  }
-
-  if (iVar13 < 0) {
-
-    iVar13 = iVar13 + 0xff;
-
-  }
-
-  iVar2 = iVar4 * iVar2 + iVar9 * iVar3 + iVar5 * iVar8 +
-
-          (iVar10 >> 8) * (iVar6 >> 8) + (iVar11 >> 8) * (iVar7 >> 8) +
-
-          (iVar12 >> 8) * (iVar13 >> 8);
-
-  if (iVar2 < 0) {
-
-    iVar3 = (o->orientMat).m[0];
-
-    if (iVar3 < 0) {
-
-      iVar3 = iVar3 + 0xff;
-
+  relativePos.x = (o->position).x - samplePoint->x;
+  relativePos.y = (o->position).y - samplePoint->y;
+  relativePos.z = (o->position).z - samplePoint->z;
+  /* MATCH: two statements - rel-group lands in relativeDot ($v1 per SYM) first */
+  relativeDot = (normal->x / 256) * (relativePos.x / 256) +
+                (normal->y / 256) * (relativePos.y / 256) +
+                (normal->z / 256) * (relativePos.z / 256);
+  /* MATCH: fresh (anonymous) result var - oracle keeps the full sum in a scratch ($a1),
+     Asum as LEFT addu operand; accumulating into relativeDot itself flips the operands */
+  relDotFull = (xDir * basisDots[0] + Y_DIR * basisDots[1] + zDir * basisDots[2]) + relativeDot;
+  if (relDotFull < 0) {
+    int height;
+    coorddef Raise;
+    coorddef vertexVelocity;
+    coorddef r;
+    coorddef spot;
+
+    spot.x = (o->position).x +
+             xDir * (((o->orientMat).m[0] / 256) * ((o->dimension).x / 256)) +
+             Y_DIR * (((o->orientMat).m[3] / 256) * ((o->dimension).y / 256)) +
+             zDir * (((o->orientMat).m[6] / 256) * ((o->dimension).z / 256));
+    spot.y = (o->position).y +
+             xDir * (((o->orientMat).m[1] / 256) * ((o->dimension).x / 256)) +
+             Y_DIR * (((o->orientMat).m[4] / 256) * ((o->dimension).y / 256)) +
+             zDir * (((o->orientMat).m[7] / 256) * ((o->dimension).z / 256));
+    spot.z = (o->position).z +
+             xDir * (((o->orientMat).m[2] / 256) * ((o->dimension).x / 256)) +
+             Y_DIR * (((o->orientMat).m[5] / 256) * ((o->dimension).y / 256)) +
+             zDir * (((o->orientMat).m[8] / 256) * ((o->dimension).z / 256));
+    if (raiseUp < -relDotFull) {
+      raiseUp = -relDotFull;
     }
-
-    iVar8 = (o->dimension).x;
-
-    if (iVar8 < 0) {
-
-      iVar8 = iVar8 + 0xff;
-
-    }
-
-    iVar6 = (o->orientMat).m[3];
-
-    if (iVar6 < 0) {
-
-      iVar6 = iVar6 + 0xff;
-
-    }
-
-    iVar7 = (o->dimension).y;
-
-    if (iVar7 < 0) {
-
-      iVar7 = iVar7 + 0xff;
-
-    }
-
-    iVar13 = (o->orientMat).m[6];
-
-    if (iVar13 < 0) {
-
-      iVar13 = iVar13 + 0xff;
-
-    }
-
-    iVar10 = (o->dimension).z;
-
-    if (iVar10 < 0) {
-
-      iVar10 = iVar10 + 0xff;
-
-    }
-
-    local_30.x = (o->position).x + iVar4 * (iVar3 >> 8) * (iVar8 >> 8) +
-
-                 iVar9 * (iVar6 >> 8) * (iVar7 >> 8) + iVar5 * (iVar13 >> 8) * (iVar10 >> 8);
-
-    iVar3 = (o->orientMat).m[1];
-
-    if (iVar3 < 0) {
-
-      iVar3 = iVar3 + 0xff;
-
-    }
-
-    iVar8 = (o->dimension).x;
-
-    if (iVar8 < 0) {
-
-      iVar8 = iVar8 + 0xff;
-
-    }
-
-    iVar6 = (o->orientMat).m[4];
-
-    if (iVar6 < 0) {
-
-      iVar6 = iVar6 + 0xff;
-
-    }
-
-    iVar7 = (o->dimension).y;
-
-    if (iVar7 < 0) {
-
-      iVar7 = iVar7 + 0xff;
-
-    }
-
-    iVar13 = (o->orientMat).m[7];
-
-    if (iVar13 < 0) {
-
-      iVar13 = iVar13 + 0xff;
-
-    }
-
-    iVar10 = (o->dimension).z;
-
-    if (iVar10 < 0) {
-
-      iVar10 = iVar10 + 0xff;
-
-    }
-
-    local_30.y = (o->position).y + iVar4 * (iVar3 >> 8) * (iVar8 >> 8) +
-
-                 iVar9 * (iVar6 >> 8) * (iVar7 >> 8) + iVar5 * (iVar13 >> 8) * (iVar10 >> 8);
-
-    iVar3 = (o->orientMat).m[2];
-
-    if (iVar3 < 0) {
-
-      iVar3 = iVar3 + 0xff;
-
-    }
-
-    iVar8 = (o->dimension).x;
-
-    if (iVar8 < 0) {
-
-      iVar8 = iVar8 + 0xff;
-
-    }
-
-    iVar6 = (o->orientMat).m[5];
-
-    if (iVar6 < 0) {
-
-      iVar6 = iVar6 + 0xff;
-
-    }
-
-    iVar7 = (o->dimension).y;
-
-    if (iVar7 < 0) {
-
-      iVar7 = iVar7 + 0xff;
-
-    }
-
-    iVar13 = (o->orientMat).m[8];
-
-    if (iVar13 < 0) {
-
-      iVar13 = iVar13 + 0xff;
-
-    }
-
-    iVar10 = (o->dimension).z;
-
-    if (iVar10 < 0) {
-
-      iVar10 = iVar10 + 0xff;
-
-    }
-
-    iVar2 = -iVar2;
-
-    local_30.z = (o->position).z + iVar4 * (iVar3 >> 8) * (iVar8 >> 8) +
-
-                 iVar9 * (iVar6 >> 8) * (iVar7 >> 8) + iVar5 * (iVar13 >> 8) * (iVar10 >> 8);
-
-    iVar3 = 0;
-
-    if (0 < iVar2) {
-
-      iVar3 = iVar2;
-
-    }
-
-    if (iVar3 != 0) {
-
-      iVar8 = iVar3 / 2;
-
-      iVar2 = fixedmult(iVar8,normal->x);
-
-      local_5c = fixedmult(iVar8,normal->y);
-
-      iVar8 = fixedmult(iVar8,normal->z);
-
-      (o->position).x = (o->position).x + iVar2;
-
-      (o->position).y = (o->position).y + local_5c;
-
-      (o->position).z = (o->position).z + iVar8;
-
-    }
-
-    local_40 = local_30.x - (o->position).x;
-
-    local_3c = local_30.y - (o->position).y;
-
-    local_38 = local_30.z - (o->position).z;
-
-    iVar2 = (o->angularVel).y;
-
-    if (iVar2 < 0) {
-
-      iVar2 = iVar2 + 0xff;
-
-    }
-
-    iVar8 = local_38;
-
-    if (local_38 < 0) {
-
-      iVar8 = local_38 + 0xff;
-
-    }
-
-    iVar4 = (o->angularVel).z;
-
-    if (iVar4 < 0) {
-
-      iVar4 = iVar4 + 0xff;
-
-    }
-
-    iVar9 = local_3c;
-
-    if (local_3c < 0) {
-
-      iVar9 = local_3c + 0xff;
-
-    }
-
-    iVar5 = (o->angularVel).z;
-
-    if (iVar5 < 0) {
-
-      iVar5 = iVar5 + 0xff;
-
-    }
-
-    iVar6 = local_40;
-
-    if (local_40 < 0) {
-
-      iVar6 = local_40 + 0xff;
-
-    }
-
-    iVar7 = (o->angularVel).x;
-
-    if (iVar7 < 0) {
-
-      iVar7 = iVar7 + 0xff;
-
-    }
-
-    iVar13 = (o->angularVel).x;
-
-    if (iVar13 < 0) {
-
-      iVar13 = iVar13 + 0xff;
-
-    }
-
-    iVar10 = (o->angularVel).y;
-
-    if (iVar10 < 0) {
-
-      iVar10 = iVar10 + 0xff;
-
-    }
-
-    iVar11 = local_40;
-
-    if (local_40 < 0) {
-
-      iVar11 = local_40 + 0xff;
-
-    }
-
-    local_50.x = ((iVar2 >> 8) * (iVar8 >> 8) - (iVar4 >> 8) * (iVar9 >> 8)) + (o->linearVel).x;
-
-    local_50.y = ((iVar5 >> 8) * (iVar6 >> 8) - (iVar7 >> 8) * (iVar8 >> 8)) + (o->linearVel).y;
-
-    local_50.z = ((iVar13 >> 8) * (iVar9 >> 8) - (iVar10 >> 8) * (iVar11 >> 8)) + (o->linearVel).z;
-
-    iVar2 = normal->x;
-
-    if (iVar2 < 0) {
-
-      iVar2 = iVar2 + 0xff;
-
-    }
-
-    iVar8 = local_50.x;
-
-    if (local_50.x < 0) {
-
-      iVar8 = local_50.x + 0xff;
-
-    }
-
-    iVar4 = normal->y;
-
-    if (iVar4 < 0) {
-
-      iVar4 = iVar4 + 0xff;
-
-    }
-
-    iVar9 = local_50.y;
-
-    if (local_50.y < 0) {
-
-      iVar9 = local_50.y + 0xff;
-
-    }
-
-    iVar5 = normal->z;
-
-    if (iVar5 < 0) {
-
-      iVar5 = iVar5 + 0xff;
-
-    }
-
-    iVar6 = local_50.z;
-
-    if (local_50.z < 0) {
-
-      iVar6 = local_50.z + 0xff;
-
-    }
-
-    if ((iVar2 >> 8) * (iVar8 >> 8) + (iVar4 >> 8) * (iVar9 >> 8) + (iVar5 >> 8) * (iVar6 >> 8) < 0)
-
-    {
-
-      Collide_DoObjectFixedObjectCollision(o,&local_30,&local_50,normal);
-
-    }
-
-    if ((iVar3 != 0) && (0 < local_5c)) {
-
-      iVar2 = fixedmult(0x9cccc,local_5c);
-
-      iVar3 = (o->linearVel).y;
-
-      iVar3 = fixedmult(iVar3,iVar3);
-
-      if (iVar3 < iVar2 * 2) {
-
-        (o->linearVel).y = 0;
-
+    if (Collide_gRaiseUp != 0) {
+      if (raiseUp != 0) {
+        height = raiseUp / 2;
+        Raise.x = fixedmult(height,normal->x);
+        Raise.y = fixedmult(height,normal->y);
+        Raise.z = fixedmult(height,normal->z);
+        (o->position).x = (o->position).x + Raise.x;
+        (o->position).y = (o->position).y + Raise.y;
+        (o->position).z = (o->position).z + Raise.z;
       }
-
-      else if ((o->linearVel).y < 1) {
-
-        iVar2 = fixedsqrt(iVar3 + iVar2 * -2);
-
-        (o->linearVel).y = -iVar2;
-
-      }
-
-      else {
-
-        iVar2 = fixedsqrt(iVar3 + iVar2 * -2);
-
-        (o->linearVel).y = iVar2;
-
-      }
-
     }
+    r.x = spot.x - (o->position).x;
+    r.y = spot.y - (o->position).y;
+    r.z = spot.z - (o->position).z;
+    vertexVelocity.x = ((o->angularVel).y / 256) * (r.z / 256) -
+                       ((o->angularVel).z / 256) * (r.y / 256);
+    vertexVelocity.y = ((o->angularVel).z / 256) * (r.x / 256) -
+                       ((o->angularVel).x / 256) * (r.z / 256);
+    vertexVelocity.z = ((o->angularVel).x / 256) * (r.y / 256) -
+                       ((o->angularVel).y / 256) * (r.x / 256);
+    vertexVelocity.x = vertexVelocity.x + (o->linearVel).x;
+    vertexVelocity.y = vertexVelocity.y + (o->linearVel).y;
+    vertexVelocity.z = vertexVelocity.z + (o->linearVel).z;
+    if ((normal->x / 256) * (vertexVelocity.x / 256) +
+        (normal->y / 256) * (vertexVelocity.y / 256) +
+        (normal->z / 256) * (vertexVelocity.z / 256) < 0) {
+      Collide_DoObjectFixedObjectCollision(o,&spot,&vertexVelocity,normal);
+    }
+    if (Collide_gRaiseUp != 0) {
+      if (raiseUp != 0) {
+        if (0 < Raise.y) {
+          int correction;
+          int v2;
 
+          correction = fixedmult(0x9cccc,Raise.y) * 2;
+          v2 = fixedmult((o->linearVel).y,(o->linearVel).y);
+          if (v2 < correction) {
+            (o->linearVel).y = 0;
+          }
+          else if (0 < (o->linearVel).y) {
+            (o->linearVel).y = fixedsqrt(v2 - correction);
+          }
+          else {
+            (o->linearVel).y = -fixedsqrt(v2 - correction);
+          }
+        }
+      }
+    }
   }
-
-  iVar2 = fixedmult(0x28be,(o->angularVel).x);
-
-  (o->angularVel).x = iVar2;
-
-  iVar2 = fixedmult(0x28be,(o->angularVel).y);
-
-  (o->angularVel).y = iVar2;
-
-  iVar2 = fixedmult(0x28be,(o->angularVel).z);
-
-  (o->angularVel).z = iVar2;
-
+  (o->angularVel).x = fixedmult(0x28be,(o->angularVel).x);
+  (o->angularVel).y = fixedmult(0x28be,(o->angularVel).y);
+  (o->angularVel).z = fixedmult(0x28be,(o->angularVel).z);
   Collide_LimitAngularVel(o);
+  {
+    int dot;
+    int zone;
+    int impulse;
 
-  zone = 9;
-
-  iVar2 = fixedmult(normal->x,(o->linearVel).x);
-
-  iVar3 = fixedmult(normal->y,(o->linearVel).y);
-
-  iVar8 = fixedmult(normal->z,(o->linearVel).z);
-
-  if (iVar2 + iVar3 + iVar8 < 1) {
-
-    iVar2 = fixedmult(normal->x,(o->linearVel).x);
-
-    iVar3 = fixedmult(normal->y,(o->linearVel).y);
-
-    iVar8 = fixedmult(normal->z,(o->linearVel).z);
-
-    iVar2 = -(iVar2 + iVar3 + iVar8);
-
-  }
-
-  else {
-
-    iVar3 = fixedmult(normal->x,(o->linearVel).x);
-
-    iVar8 = fixedmult(normal->y,(o->linearVel).y);
-
-    iVar2 = fixedmult(normal->z,(o->linearVel).z);
-
-    iVar2 = iVar3 + iVar8 + iVar2;
-
-  }
-
-  iVar2 = iVar2 << 2;
-
-  if (iVar2 < 0xa0001) {
-
-    return;
-
-  }
-
-  iVar3 = fixedmult(normal->x,(o->orientMat).m[0]);
-
-  iVar8 = fixedmult(normal->y,(o->orientMat).m[1]);
-
-  iVar4 = fixedmult(normal->z,(o->orientMat).m[2]);
-
-  iVar4 = iVar3 + iVar8 + iVar4;
-
-  iVar3 = fixedmult(normal->x,(o->orientMat).m[3]);
-
-  iVar8 = fixedmult(normal->y,(o->orientMat).m[4]);
-
-  iVar9 = fixedmult(normal->z,(o->orientMat).m[5]);
-
-  iVar5 = fixedmult(normal->x,(o->orientMat).m[6]);
-
-  iVar6 = fixedmult(normal->y,(o->orientMat).m[7]);
-
-  iVar7 = fixedmult(normal->z,(o->orientMat).m[8]);
-
-  iVar7 = iVar5 + iVar6 + iVar7;
-
-  if (iVar3 + iVar8 + iVar9 < -0x8000) {
-
-    zone = 8;
-
-    Newton_AddDamageZone(o,iVar2,8,0);
-
-  }
-
-  if (iVar7 < -0x1999) {
-
-    if (iVar4 < 0x199a) {
-
-      if (-0x199a < iVar4) goto LAB_8008e568;
-
-      zone = 2;
-
+    zone = 9;
+    /* MATCH: anonymous dot-sum web (s0) separate from impulse (s6) - the <<2 lands in impulse */
+    dot = fixedmult(normal->x,(o->linearVel).x) + fixedmult(normal->y,(o->linearVel).y) +
+          fixedmult(normal->z,(o->linearVel).z);
+    if (0 < dot) {
+      dot = fixedmult(normal->x,(o->linearVel).x) + fixedmult(normal->y,(o->linearVel).y) +
+            fixedmult(normal->z,(o->linearVel).z);
     }
-
     else {
-
-      zone = 0;
-
+      dot = -(fixedmult(normal->x,(o->linearVel).x) + fixedmult(normal->y,(o->linearVel).y) +
+              fixedmult(normal->z,(o->linearVel).z));
     }
+    impulse = dot << 2;
+    if (0xA0000 < impulse) {
+      int right;
+      int top;
+      int front;
 
-  }
-
-  else {
-
-LAB_8008e568:
-
-    bVar1 = zone < 8;
-
-    if (iVar7 < 0x199a) goto LAB_8008e594;
-
-    if (iVar4 < 0x199a) {
-
-      bVar1 = zone < 8;
-
-      if (-0x199a < iVar4) goto LAB_8008e594;
-
-      zone = 6;
-
+      right = fixedmult(normal->x,(o->orientMat).m[0]) + fixedmult(normal->y,(o->orientMat).m[1]) +
+              fixedmult(normal->z,(o->orientMat).m[2]);
+      top = fixedmult(normal->x,(o->orientMat).m[3]) + fixedmult(normal->y,(o->orientMat).m[4]) +
+            fixedmult(normal->z,(o->orientMat).m[5]);
+      front = fixedmult(normal->x,(o->orientMat).m[6]) + fixedmult(normal->y,(o->orientMat).m[7]) +
+              fixedmult(normal->z,(o->orientMat).m[8]);
+      if (top < -0x8000) {
+        zone = 8;
+        Newton_AddDamageZone(o,impulse,zone,0);
+      }
+      if (front < -0x1999) {
+        if (!(right < 0x199A)) {
+          zone = 0;
+        }
+        else if (right < -0x1999) {
+          zone = 2;
+        }
+      }
+      if (!(front < 0x199A)) { /* MATCH: independent if - oracle re-tests front (no else-if) */
+        if (!(right < 0x199A)) {
+          zone = 4;
+        }
+        else if (right < -0x1999) {
+          zone = 6;
+        }
+      }
+      if (zone < 8) {
+        Newton_AddDamageZone(o,impulse,zone,0);
+      }
     }
-
-    else {
-
-      zone = 4;
-
-    }
-
   }
-
-  bVar1 = zone < 8;
-
-LAB_8008e594:
-
-  if (bVar1) {
-
-    Newton_AddDamageZone(o,iVar2,zone,0);
-
-  }
-
   return;
-
 }
+
 
 /* ---- Collide_DoObjectObjectCollision__FP13BO_tNewtonObjT0P8coorddefT2  [@0x8008e5d4] ---- */
 int Collide_DoObjectObjectCollision(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,coorddef *normal)
@@ -5939,9 +4643,6 @@ int Collide_CheckForCollisionBetween(BO_tNewtonObj *o0,BO_tNewtonObj *o1)
 
 /* ---- Collide_ClearCollisionRegistry__Fv  [@0x800914d4] ---- */
 void Collide_ClearCollisionRegistry(void)
-
-
-
 {
   int carLoop;
   coorddef relVec;
@@ -5949,664 +4650,273 @@ void Collide_ClearCollisionRegistry(void)
   int i;
   int slice;
 
-  /* MATCH: ALL-AT-ONCE rewrite of the ~15-site InfiniteMassNewton[0].field+iVar4+/-OFFSET
-     offset-hack pointer web (Ghidra's byte-arithmetic view of a plain array loop) into real
-     struct-indexed InfiniteMassNewton[i] access. Offsets verified against the BO_tNewtonObj /
-     BWorldSm_Pos / Trk_NewSlice layouts in nfs4_types.h (orientMat+1 coorddef == angularVel;
-     wheelRot-0x30/-0x2c/-0x28 == position.x/y/z; wheelRot-0xc == xRelRoadCenter;
-     simRoadInfo.quadPts-0x10 == the object itself; simRoadInfo.quadPts-8 == simRoadInfo.slice). */
-  Trk_NewSlice *pSlice;
-  int dx, dz, dy, nx, nz, ny;
-
+  /* MATCH: SYM rule-8 - locals are exactly {carLoop REG, relVec AUTO, rightVec AUTO, i REG,
+     slice REG}; plain InfiniteMassNewton[i].field indexing lets gcc strength-reduce the
+     walking s-reg givs itself (no hand pointer locals). relVec/rightVec are REAL stack
+     structs (oracle spills all six words to 0x10-0x28(sp)). NOTE: all three relVec
+     components subtract center[0] - faithful to retail (looks like an original bug). */
   Collide_gNumRegistered = 0;
-
   for (i = 0; i < Object_GetNumIMassObjects(); i = i + 1) {
-
     Object_GetIMassObjectMotion(i,&InfiniteMassNewton[i].position,&InfiniteMassNewton[i].orientMat,
                                  &InfiniteMassNewton[i].linearVel);
-
     InfiniteMassNewton[i].angularVel.x = 0;
-
     InfiniteMassNewton[i].angularVel.y = 0;
-
     InfiniteMassNewton[i].angularVel.z = 0;
-
     Collide_gRegistry[i] = &InfiniteMassNewton[i];
-
     Collide_gNumRegistered = Collide_gNumRegistered + 1;
-
     BWorldSm_FindClosestSlice(&InfiniteMassNewton[i].position,&InfiniteMassNewton[i].simRoadInfo);
-
     slice = InfiniteMassNewton[i].simRoadInfo.slice;
-
-    pSlice = &BWorldSm_slices[slice];
-
-    dx = InfiniteMassNewton[i].position.x - pSlice->center[0];
-
-    nx = pSlice->right[0] * 0x200;
-
-    dz = InfiniteMassNewton[i].position.y - pSlice->center[0];
-
-    nz = pSlice->right[1] * 0x200;
-
-    dy = InfiniteMassNewton[i].position.z - pSlice->center[0];
-
-    ny = pSlice->right[2] * 0x200;
-
-    if (dx < 0) {
-
-      dx = dx + 0xff;
-
-    }
-
-    if (nx < 0) {
-
-      nx = nx + 0xff;
-
-    }
-
-    if (dz < 0) {
-
-      dz = dz + 0xff;
-
-    }
-
-    if (nz < 0) {
-
-      nz = nz + 0xff;
-
-    }
-
-    if (dy < 0) {
-
-      dy = dy + 0xff;
-
-    }
-
-    if (ny < 0) {
-
-      ny = ny + 0xff;
-
-    }
-
+    relVec.x = InfiniteMassNewton[i].position.x - BWorldSm_slices[slice].center[0];
+    relVec.y = InfiniteMassNewton[i].position.y - BWorldSm_slices[slice].center[0];
+    relVec.z = InfiniteMassNewton[i].position.z - BWorldSm_slices[slice].center[0];
+    rightVec.x = (signed char)BWorldSm_slices[slice].right[0] * 0x200;
+    rightVec.y = (signed char)BWorldSm_slices[slice].right[1] * 0x200;
+    rightVec.z = (signed char)BWorldSm_slices[slice].right[2] * 0x200;
     InfiniteMassNewton[i].xRelRoadCenter =
-
-         (dx >> 8) * (nx >> 8) + (dz >> 8) * (nz >> 8) + (dy >> 8) * (ny >> 8);
-
+        (relVec.x / 256) * (rightVec.x / 256) + (relVec.y / 256) * (rightVec.y / 256) +
+        (relVec.z / 256) * (rightVec.z / 256);
   }
-
-  for (carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
-
+  carLoop = 0;
+  {
+    int n = Cars_gNumCars;
+carloop_top:
+    if (carLoop < n) {
+      carLoop = carLoop + 1;
+      goto carloop_top;
+    }
   }
-
   return;
-
 }
+
 
 /* ---- Collide_CheckAccuratePointRadiusCollision__FP13BO_tNewtonObjP8coorddefi  [@0x800916d4] ---- */
 int Collide_CheckAccuratePointRadiusCollision(BO_tNewtonObj *newObj,coorddef *point,int radius)
-
-
-
 {
   coorddef d;
-
-  int iVar2;
-
-  int iVar3;
-
-  int iVar4;
-
-  u_int uVar5;
-
-
+  int temp;
 
   d.x = point->x - (newObj->position).x;
-
   d.z = point->z - (newObj->position).z;
-
   d.y = 0;
-
-  iVar2 = fixedmult(d.x,(newObj->orientMat).m[0]);
-
-  iVar3 = fixedmult(d.y,(newObj->orientMat).m[1]);
-
-  iVar4 = fixedmult(d.z,(newObj->orientMat).m[2]);
-
-  iVar2 = iVar2 + iVar3;
-
-  iVar2 = iVar2 + iVar4;
-
-  if (iVar2 > 0) {
-
-    iVar2 = fixedmult(d.x,(newObj->orientMat).m[0]);
-
-    iVar3 = fixedmult(d.y,(newObj->orientMat).m[1]);
-
-    iVar4 = fixedmult(d.z,(newObj->orientMat).m[2]);
-
-    iVar2 = iVar2 + iVar3;
-
-    iVar2 = iVar2 + iVar4;
-
+  /* MATCH: SYM rule-8 - single named 'temp' accumulator; one-expression sums let gcc
+     capture each fixedmult result in the NEXT jal's delay slot (3-var form scheduled early) */
+  temp = fixedmult(d.x,(newObj->orientMat).m[0]) + fixedmult(d.y,(newObj->orientMat).m[1]) +
+         fixedmult(d.z,(newObj->orientMat).m[2]);
+  if (temp > 0) {
+    temp = fixedmult(d.x,(newObj->orientMat).m[0]) + fixedmult(d.y,(newObj->orientMat).m[1]) +
+           fixedmult(d.z,(newObj->orientMat).m[2]);
   }
-
   else {
-
-    iVar2 = fixedmult(d.x,(newObj->orientMat).m[0]);
-
-    iVar3 = fixedmult(d.y,(newObj->orientMat).m[1]);
-
-    iVar4 = fixedmult(d.z,(newObj->orientMat).m[2]);
-
-    iVar2 = iVar2 + iVar3;
-
-    iVar2 = iVar2 + iVar4;
-
-    iVar2 = -iVar2;
-
+    temp = -(fixedmult(d.x,(newObj->orientMat).m[0]) + fixedmult(d.y,(newObj->orientMat).m[1]) +
+             fixedmult(d.z,(newObj->orientMat).m[2]));
   }
-
-  uVar5 = 0;
-
-  if (iVar2 <= (newObj->dimension).x + radius) {
-
-    iVar3 = fixedmult(d.y,(newObj->orientMat).m[7]);
-
-    iVar4 = fixedmult(d.z,(newObj->orientMat).m[8]);
-
-    if (fixedmult(d.x,(newObj->orientMat).m[6]) + iVar3 + iVar4 > 0) {
-
-      iVar2 = fixedmult(d.x,(newObj->orientMat).m[6]);
-
-      iVar3 = fixedmult(d.y,(newObj->orientMat).m[7]);
-
-      iVar4 = fixedmult(d.z,(newObj->orientMat).m[8]);
-
-      iVar2 = iVar2 + iVar3;
-
-      iVar2 = iVar2 + iVar4;
-
-    }
-
-    else {
-
-      iVar2 = fixedmult(d.x,(newObj->orientMat).m[6]);
-
-      iVar3 = fixedmult(d.y,(newObj->orientMat).m[7]);
-
-      iVar4 = fixedmult(d.z,(newObj->orientMat).m[8]);
-
-      iVar2 = iVar2 + iVar3;
-
-      iVar2 = iVar2 + iVar4;
-
-      iVar2 = -iVar2;
-
-    }
-
-    uVar5 = (newObj->dimension).z + radius < iVar2 ^ 1;
-
+  /* MATCH: direct returns stage 0 / xori result straight into $v0 (funnel var was v1+move) */
+  if ((newObj->dimension).x + radius < temp) return 0;
+  temp = fixedmult(d.x,(newObj->orientMat).m[6]) + fixedmult(d.y,(newObj->orientMat).m[7]) +
+         fixedmult(d.z,(newObj->orientMat).m[8]);
+  if (temp > 0) {
+    temp = fixedmult(d.x,(newObj->orientMat).m[6]) + fixedmult(d.y,(newObj->orientMat).m[7]) +
+           fixedmult(d.z,(newObj->orientMat).m[8]);
   }
-
-  return uVar5;
-
+  else {
+    temp = -(fixedmult(d.x,(newObj->orientMat).m[6]) + fixedmult(d.y,(newObj->orientMat).m[7]) +
+             fixedmult(d.z,(newObj->orientMat).m[8]));
+  }
+  return ((newObj->dimension).z + radius < temp) ^ 1;
 }
+
 
 /* ---- Collide_CheckMeForCollisions__FP13BO_tNewtonObj  [@0x800918cc] ---- */
 void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj)
-
-
-
 {
   int i;
-  BO_tNewtonObj*otherObj;
-  coorddef normal;
-  coorddef samplePoint;
-  int impulse;
-
-  bool bVar1;
-
-  int maxrp;
-
-  int iVar2;
-
-  int iVar3;
-
-  int slice;
-
-  int r0;
-
-  BO_tNewtonObj **ppBVar4;
-
-  int dist;
-
-  int dotx;
-
-  int xDir;
-
-  int zDir;
-
-  int j;
-
-  int iVar5;
-
-  BO_tNewtonObj *o1;
-
-  int signCase;
-
-  coorddef *a;
-
-  int numerator;
-
-  int closestPoint;
-
-  int iVar6;
-
-  int closestDist;
-
-  int iVar7;
-
-  int ctr;
-
-  Object_tSimObjList objList;
-
-  coorddef pos;
-
-  coorddef pointList [3];
-
-  u_char auStack_58 [8];
-
-  coorddef velocityUnit;
-
-  int numObjs;
-
-  int fixedRadius;
-
-  int numPoints;
-
-  coorddef d;
-
-  
-
-  if (newObj->active != '\0') {
-
-    if (newObj->simOptz == '\0') {
-
-      iVar2 = (newObj->collision).disableCollisionTimer;
-
-      if (0 < iVar2) {
-
-        (newObj->collision).disableCollisionTimer = iVar2 + -1;
-
-      }
-
-      if (((newObj->collision).disableCollisionTimer == 0) &&
-
-         ((newObj->groundSurfaceType & 0x40U) != 0)) {
-
-        Object_InitCollisionCheckLoop(&newObj->simRoadInfo,(Object_tSimObjList *)&objList,&numObjs);
-
-        iVar2 = 0;
-
-        while (iVar7 = 0xa0000, iVar2 < numObjs) {
-
-          iVar6 = -1;
-
-          numPoints = 1;
-
-          Object_GetRadiusCollisionData((Object_tSimObjList *)&objList,iVar2,(coorddef *)&pos,&fixedRadius);
-
-          Object_GetPointsCollisionData((Object_tSimObjList *)&objList,iVar2,&numPoints,(coorddef *)pointList);
-
-          iVar5 = 0;
-
-          a = (coorddef *)pointList;
-
-          if (0 < numPoints) {
-
-            do {
-
-              iVar3 = Math_DistXZ(a,&newObj->position);
-
-              if ((iVar3 < fixedRadius + newObj->dimensionRadius) && (iVar3 < iVar7)) {
-
-                iVar6 = iVar5;
-
-                iVar7 = iVar3;
-
-              }
-
-              iVar5 = iVar5 + 1;
-
-              a = a + 1;
-
-            } while (iVar5 < numPoints);
-
-          }
-
-          if (iVar6 < 0) {
-
-LAB_80091c7c:
-
-            iVar2 = iVar2 + 1;
-
-          }
-
-          else {
-
-            iVar7 = Collide_CheckAccuratePointRadiusCollision(newObj,(coorddef *)pointList + iVar6,fixedRadius);
-
-            if (iVar7 == 0) goto LAB_80091c7c;
-
-            iVar7 = Object_CheckCollisionResults((Object_tSimObjList *)&objList,iVar2,newObj);
-
-            if (iVar7 == 0) goto LAB_80091c7c;
-
-            Object_GetRadiusCollisionData((Object_tSimObjList *)&objList,iVar2,(coorddef *)&pos,&fixedRadius);
-
-            if (iVar7 != 1) {
-
-              if (iVar7 == 2) {
-
-                if (0x20000 < newObj->speedXZ) {
-
-                  iVar7 = 0x60006;
-
-LAB_80091c3c:
-
-                  (newObj->collision).impulse = 0xf0000;
-
-                  (newObj->collision).sfxType = iVar7;
-
-                  (newObj->collision).otherObj = (BO_tNewtonObj *)0x0;
-
-                  iVar7 = (newObj->position).y;
-
-                  iVar6 = (newObj->position).z;
-
-                  (newObj->collision).collisionPoint.x = (newObj->position).x;
-
-                  (newObj->collision).collisionPoint.y = iVar7;
-
-                  (newObj->collision).collisionPoint.z = iVar6;
-
-                  iVar7 = Force_IsForceOn((Car_tObj *)newObj);
-
-                  if (iVar7 != 0) {
-
-                    Force_HitSign((Car_tObj *)newObj);
-
-                  }
-
-                }
-
-              }
-
-              else if (iVar7 == -1) {
-
-                iVar7 = 0x60005;
-
-                goto LAB_80091c3c;
-
-              }
-
-              goto LAB_80091c7c;
-
-            }
-
-            (*(int *)((u_char *)&(auStack_58) + 4)) = 0;
-
-            (*(int *)&(auStack_58)) = (newObj->position).x - pos.x;
-
-            velocityUnit.x = (newObj->position).z - pos.z;
-
-            Math_NormalizeShortVector((coorddef *)auStack_58)
-
-            ;
-
-            iVar6 = 0;
-
-            iVar7 = fixedRadius;
-
-            if (fixedRadius < 0) {
-
-              iVar7 = fixedRadius + 0xff;
-
-            }
-
-            iVar7 = (iVar7 >> 8) * (*(int *)&(auStack_58));
-
-            if (iVar7 < 0) {
-
-              iVar7 = iVar7 + 0xff;
-
-            }
-
-            velocityUnit.z = (iVar7 >> 8) + pos.x;
-
-            iVar7 = newObj->speedXZ;
-
-            if (iVar7 < 0x280001) {
-
-              if (iVar7 < 0x190001) {
-
-                frictionLess = 1;
-
-              }
-
-              else {
-
-                iVar6 = iVar7;
-
-                if (iVar7 < 0x1e0000) {
-
-                  iVar6 = 0x1e0000;
-
-                }
-
-              }
-
-            }
-
-            else {
-
-              iVar6 = iVar7 << 1;
-
-              if (0x960000 < iVar7 << 1) {
-
-                iVar6 = 0x960000;
-
-              }
-
-            }
-
-            Collide_TestWithPlane(newObj,(coorddef *)auStack_58,(coorddef *)&velocityUnit.z);
-
-            frictionLess = 0;
-
-            Newton_DoPostBarrierCollisionHandling(newObj,(coorddef)(*(coorddef *)&(objList)));
-
-            (newObj->collision).impulse = iVar6;
-
-            (newObj->collision).collided = 1;
-
-            (newObj->collision).otherObj = (BO_tNewtonObj *)0x0;
-
-            if (iVar6 == 0) goto LAB_80091c7c;
-
-            (newObj->collision).sfxType = 0x50001;
-
-            iVar7 = (newObj->position).y;
-
-            iVar6 = (newObj->position).z;
-
-            (newObj->collision).collisionPoint.x = (newObj->position).x;
-
-            (newObj->collision).collisionPoint.y = iVar7;
-
-            (newObj->collision).collisionPoint.z = iVar6;
-
-            iVar2 = iVar2 + 1;
-
-          }
-
-        }
-
-      }
-
-      if ((newObj->groundSurfaceType & 0x80U) != 0) {
-
-        Newton_TestForUndrivableSurfaces(newObj);
-
-      }
-
-      if (newObj->flightTime != 0) {
-
-        Physics_TestForBarrierCollision((Car_tObj *)newObj);
-
-      }
-
-      iVar2 = 0;
-
-      if ((newObj->collision).disableCollisionTimer == 0) {
-
-        ppBVar4 = Collide_gRegistry;
-
-        bVar1 = 0 < Collide_gNumRegistered;
-
-        Collide_gRegistry[Collide_gNumRegistered] = newObj;
-
-        if (bVar1) {
-
-          do {
-
-            o1 = *ppBVar4;
-
-            iVar5 = (newObj->position).z;
-
-            iVar6 = (o1->position).z;
-
-            iVar7 = iVar5 - iVar6;
-
-            if (iVar7 < 1) {
-
-              iVar7 = iVar6 - iVar5;
-
-            }
-
-            if (iVar7 < newObj->dimensionRadius + o1->dimensionRadius) {
-
-              iVar5 = (newObj->position).x;
-
-              iVar6 = (o1->position).x;
-
-              iVar7 = iVar5 - iVar6;
-
-              if (iVar7 < 1) {
-
-                iVar7 = iVar6 - iVar5;
-
-              }
-
-              if (iVar7 < newObj->dimensionRadius + o1->dimensionRadius) {
-
-                iVar5 = (newObj->position).y;
-
-                iVar6 = (o1->position).y;
-
-                iVar7 = iVar5 - iVar6;
-
-                if (iVar7 < 1) {
-
-                  iVar7 = iVar6 - iVar5;
-
-                }
-
-                if (iVar7 < newObj->dimensionRadius + o1->dimensionRadius) {
-
-                  iVar7 = fixedmult(0x6487e,(newObj->angularVel).x);
-
-                  (newObj->angularVel).x = iVar7;
-
-                  iVar7 = fixedmult(0x6487e,(newObj->angularVel).y);
-
-                  (newObj->angularVel).y = iVar7;
-
-                  iVar7 = fixedmult(0x6487e,(newObj->angularVel).z);
-
-                  (newObj->angularVel).z = iVar7;
-
-                  iVar7 = fixedmult(0x6487e,(o1->angularVel).x);
-
-                  (o1->angularVel).x = iVar7;
-
-                  iVar7 = fixedmult(0x6487e,(o1->angularVel).y);
-
-                  (o1->angularVel).y = iVar7;
-
-                  iVar7 = fixedmult(0x6487e,(o1->angularVel).z);
-
-                  (o1->angularVel).z = iVar7;
-
-                  Collide_CheckForCollisionBetween(newObj,o1);
-
-                  iVar7 = fixedmult(0x28be,(newObj->angularVel).x);
-
-                  (newObj->angularVel).x = iVar7;
-
-                  iVar7 = fixedmult(0x28be,(newObj->angularVel).y);
-
-                  (newObj->angularVel).y = iVar7;
-
-                  iVar7 = fixedmult(0x28be,(newObj->angularVel).z);
-
-                  (newObj->angularVel).z = iVar7;
-
-                  iVar7 = fixedmult(0x28be,(o1->angularVel).x);
-
-                  (o1->angularVel).x = iVar7;
-
-                  iVar7 = fixedmult(0x28be,(o1->angularVel).y);
-
-                  (o1->angularVel).y = iVar7;
-
-                  iVar7 = fixedmult(0x28be,(o1->angularVel).z);
-
-                  (o1->angularVel).z = iVar7;
-
-                  Collide_LimitAngularVel(newObj);
-
-                  Collide_LimitAngularVel(o1);
-
-                }
-
-              }
-
-            }
-
-            iVar2 = iVar2 + 1;
-
-            ppBVar4 = ppBVar4 + 1;
-
-          } while (iVar2 < Collide_gNumRegistered);
-
-        }
-
-        Collide_gNumRegistered = Collide_gNumRegistered + 1;
-
-      }
-
-    }
-
-    else {
-
+  BO_tNewtonObj *otherObj;
+
+  /* MATCH: full SYM rule-8 rebuild - block scopes + names straight from the SYM 8c block
+     (outer {i s1, otherObj s0}; collision-loop block {i s5, numObjs, fixedRadius, objList,
+     pos, dist}; per-object block {pointList, closestDist s4, closestPoint s3, numPoints};
+     {j s0}; {signCase s1}; {normal, samplePoint, impulse s0}).
+     CORRECTNESS fixes vs old recon (both oracle-evidenced):
+     (1) samplePoint: ALL THREE components = pos + normal*(fixedRadius/256)/256 - old code
+         computed only .x (Ghidra-split auStack_58/velocityUnit stack aliasing);
+     (2) Newton_DoPostBarrierCollisionHandling is passed NORMAL by value - old code passed
+         the first 12 bytes of objList (wrong struct entirely). */
+  if (newObj->active != 0) {
+    if (newObj->simOptz != 0) {
       Physics_TestForBarrierCollision((Car_tObj *)newObj);
-
     }
+    else {
+      if (0 < (newObj->collision).disableCollisionTimer) {
+        (newObj->collision).disableCollisionTimer = (newObj->collision).disableCollisionTimer - 1;
+      }
+      if (((newObj->collision).disableCollisionTimer == 0) &&
+          ((newObj->groundSurfaceType & 0x40) != 0)) {
+        int i;
+        int numObjs;
+        int fixedRadius;
+        Object_tSimObjList objList;
+        coorddef pos;
+        int dist;
 
+        Object_InitCollisionCheckLoop(&newObj->simRoadInfo,&objList,&numObjs);
+        i = 0;
+        while (i < numObjs) {
+          coorddef pointList[3];
+          int closestDist;
+          int closestPoint;
+          int numPoints;
+
+          closestPoint = -1;
+          closestDist = 0xA0000;
+          /* MATCH: SYM opens the j block BEFORE the two Get*CollisionData calls (block note =
+             scheduling barrier; keeps closestPoint=-1 at loop top, s2/s3 assignment correct) */
+          {
+            int j;
+            numPoints = 1;
+            Object_GetRadiusCollisionData(&objList,i,&pos,&fixedRadius);
+            Object_GetPointsCollisionData(&objList,i,&numPoints,pointList);
+            if (0 < numPoints) {
+              j = 0;
+              do {
+                dist = Math_DistXZ(&pointList[j],&newObj->position);
+                if ((dist < fixedRadius + newObj->dimensionRadius) && (dist < closestDist)) {
+                  closestDist = dist;
+                  closestPoint = j;
+                }
+                j = j + 1;
+              } while (j < numPoints);
+            }
+          }
+          if (closestPoint < 0) goto nextObj;
+          if (Collide_CheckAccuratePointRadiusCollision(newObj,&pointList[closestPoint],fixedRadius) == 0)
+            goto nextObj;
+          {
+            int signCase;
+            signCase = Object_CheckCollisionResults(&objList,i,newObj);
+            if (signCase == 0) goto nextObj;
+            Object_GetRadiusCollisionData(&objList,i,&pos,&fixedRadius);
+            if (signCase == 1) {
+              coorddef normal;
+              coorddef samplePoint;
+              int impulse;
+
+              normal.y = 0;
+              normal.x = (newObj->position).x - pos.x;
+              normal.z = (newObj->position).z - pos.z;
+              Math_NormalizeShortVector(&normal);
+              impulse = 0;
+              samplePoint.x = ((fixedRadius / 256) * normal.x) / 256;
+              samplePoint.y = ((fixedRadius / 256) * normal.y) / 256;
+              samplePoint.z = ((fixedRadius / 256) * normal.z) / 256;
+              samplePoint.x = samplePoint.x + pos.x;
+              samplePoint.z = samplePoint.z + pos.z;
+              samplePoint.y = samplePoint.y + pos.y;
+              if (0x280000 < newObj->speedXZ) {
+                /* MATCH: double-compute CSE keeps the sll in a temp + copy (oracle shape) */
+                if (0x960000 < newObj->speedXZ << 1) {
+                  impulse = 0x960000;
+                }
+                else {
+                  impulse = newObj->speedXZ << 1;
+                }
+              }
+              else if (0x190000 < newObj->speedXZ) {
+                impulse = newObj->speedXZ;
+                if (impulse < 0x1E0000) {
+                  impulse = 0x1E0000;
+                }
+              }
+              else {
+                /* MATCH: oracle stores the signCase register (sw s1) - value is 1 on this path */
+                frictionLess = signCase;
+              }
+              Collide_TestWithPlane(newObj,&normal,&samplePoint);
+              frictionLess = 0;
+              Newton_DoPostBarrierCollisionHandling(newObj,normal);
+              (newObj->collision).impulse = impulse;
+              (newObj->collision).collided = 1;
+              (newObj->collision).otherObj = (BO_tNewtonObj *)0x0;
+              if ((newObj->collision).impulse == 0) goto nextObj; /* MATCH: read-back CSEs to reg copy */
+              (newObj->collision).sfxType = 0x50001;
+              (newObj->collision).collisionPoint = newObj->position;
+              i = i + 1;
+              continue;
+            }
+            if (signCase == 2) {
+              if (0x20000 < newObj->speedXZ) {
+                (newObj->collision).impulse = 0xF0000;
+                (newObj->collision).sfxType = 0x60006;
+                (newObj->collision).otherObj = (BO_tNewtonObj *)0x0;
+                (newObj->collision).collisionPoint = newObj->position;
+                if (Force_IsForceOn((Car_tObj *)newObj) != 0) {
+                  Force_HitSign((Car_tObj *)newObj);
+                }
+              }
+            }
+            else if (signCase == -1) {
+              (newObj->collision).impulse = 0xF0000;
+              (newObj->collision).sfxType = 0x60005;
+              (newObj->collision).otherObj = (BO_tNewtonObj *)0x0;
+              (newObj->collision).collisionPoint = newObj->position;
+              if (Force_IsForceOn((Car_tObj *)newObj) != 0) {
+                Force_HitSign((Car_tObj *)newObj);
+              }
+            }
+          }
+nextObj:
+          i = i + 1;
+        }
+      }
+      if ((newObj->groundSurfaceType & 0x80) != 0) {
+        Newton_TestForUndrivableSurfaces(newObj);
+      }
+      if (newObj->flightTime != 0) {
+        Physics_TestForBarrierCollision((Car_tObj *)newObj);
+      }
+      if ((newObj->collision).disableCollisionTimer == 0) {
+        i = 0;
+        Collide_gRegistry[Collide_gNumRegistered] = newObj;
+        if (0 < Collide_gNumRegistered) {
+          do {
+            otherObj = Collide_gRegistry[i];
+            /* MATCH: ABS-macro-in-compare (no diff local, per SYM): sum > ((d>0)?d:-d);
+               fold turns -(a-b) into b-a giving the oracle's reversed subu */
+            if (newObj->dimensionRadius + otherObj->dimensionRadius >
+                (((newObj->position).z - (otherObj->position).z > 0) ?
+                 (newObj->position).z - (otherObj->position).z :
+                 -((newObj->position).z - (otherObj->position).z))) {
+              if (newObj->dimensionRadius + otherObj->dimensionRadius >
+                  (((newObj->position).x - (otherObj->position).x > 0) ?
+                   (newObj->position).x - (otherObj->position).x :
+                   -((newObj->position).x - (otherObj->position).x))) {
+                if (newObj->dimensionRadius + otherObj->dimensionRadius >
+                    (((newObj->position).y - (otherObj->position).y > 0) ?
+                     (newObj->position).y - (otherObj->position).y :
+                     -((newObj->position).y - (otherObj->position).y))) {
+                  (newObj->angularVel).x = fixedmult(0x6487e,(newObj->angularVel).x);
+                  (newObj->angularVel).y = fixedmult(0x6487e,(newObj->angularVel).y);
+                  (newObj->angularVel).z = fixedmult(0x6487e,(newObj->angularVel).z);
+                  (otherObj->angularVel).x = fixedmult(0x6487e,(otherObj->angularVel).x);
+                  (otherObj->angularVel).y = fixedmult(0x6487e,(otherObj->angularVel).y);
+                  (otherObj->angularVel).z = fixedmult(0x6487e,(otherObj->angularVel).z);
+                  Collide_CheckForCollisionBetween(newObj,otherObj);
+                  (newObj->angularVel).x = fixedmult(0x28be,(newObj->angularVel).x);
+                  (newObj->angularVel).y = fixedmult(0x28be,(newObj->angularVel).y);
+                  (newObj->angularVel).z = fixedmult(0x28be,(newObj->angularVel).z);
+                  (otherObj->angularVel).x = fixedmult(0x28be,(otherObj->angularVel).x);
+                  (otherObj->angularVel).y = fixedmult(0x28be,(otherObj->angularVel).y);
+                  (otherObj->angularVel).z = fixedmult(0x28be,(otherObj->angularVel).z);
+                  Collide_LimitAngularVel(newObj);
+                  Collide_LimitAngularVel(otherObj);
+                }
+              }
+            }
+            i = i + 1;
+          } while (i < Collide_gNumRegistered);
+        }
+        Collide_gNumRegistered = Collide_gNumRegistered + 1;
+      }
+    }
   }
-
   return;
-
 }

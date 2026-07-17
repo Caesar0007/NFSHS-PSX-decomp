@@ -1,0 +1,756 @@
+    344c:	27bdffb0 	addiu	sp,sp,-80
+    3450:	afb20030 	sw	s2,48(sp)
+    3454:	afa40050 	sw	a0,80(sp)
+    3458:	00809021 	move	s2,a0
+    345c:	afbf004c 	sw	ra,76(sp)
+    3460:	afbe0048 	sw	s8,72(sp)
+    3464:	afb70044 	sw	s7,68(sp)
+    3468:	afb60040 	sw	s6,64(sp)
+    346c:	afb5003c 	sw	s5,60(sp)
+    3470:	afb40038 	sw	s4,56(sp)
+    3474:	afb30034 	sw	s3,52(sp)
+    3478:	afb1002c 	sw	s1,44(sp)
+    347c:	12400004 	beqz	s2,3490 <Hud_BuildNumbers__Fi+0x44>
+    3480:	afb00028 	sw	s0,40(sp)
+    3484:	8f940000 	lw	s4,0(gp)
+    3488:	08000d26 	j	3498 <Hud_BuildNumbers__Fi+0x4c>
+    348c:	3c020000 	lui	v0,0x0
+    3490:	8f940000 	lw	s4,0(gp)
+    3494:	3c020000 	lui	v0,0x0
+    3498:	12400002 	beqz	s2,34a4 <Hud_BuildNumbers__Fi+0x58>
+    349c:	24510000 	addiu	s1,v0,0
+    34a0:	263100a8 	addiu	s1,s1,168
+    34a4:	3c020000 	lui	v0,0x0
+    34a8:	12400002 	beqz	s2,34b4 <Hud_BuildNumbers__Fi+0x68>
+    34ac:	24500000 	addiu	s0,v0,0
+    34b0:	26100090 	addiu	s0,s0,144
+    34b4:	12400002 	beqz	s2,34c0 <Hud_BuildNumbers__Fi+0x74>
+    34b8:	0000b021 	move	s6,zero
+    34bc:	2416fff1 	li	s6,-15
+    34c0:	3c040000 	lui	a0,0x0
+    34c4:	8fb90050 	lw	t9,80(sp)
+    34c8:	24840000 	addiu	a0,a0,0
+    34cc:	00191840 	sll	v1,t9,0x1
+    34d0:	00791821 	addu	v1,v1,t9
+    34d4:	00031100 	sll	v0,v1,0x4
+    34d8:	00431023 	subu	v0,v0,v1
+    34dc:	00021080 	sll	v0,v0,0x2
+    34e0:	00441021 	addu	v0,v0,a0
+    34e4:	8c42045c 	lw	v0,1116(v0)
+    34e8:	00000000 	nop
+    34ec:	10400062 	beqz	v0,3678 <Hud_BuildNumbers__Fi+0x22c>
+    34f0:	3c040000 	lui	a0,0x0
+    34f4:	8f820000 	lw	v0,0(gp)
+    34f8:	00000000 	nop
+    34fc:	1440005f 	bnez	v0,367c <Hud_BuildNumbers__Fi+0x230>
+    3500:	24840000 	addiu	a0,a0,0
+    3504:	3c020000 	lui	v0,0x0
+    3508:	24440000 	addiu	a0,v0,0
+    350c:	8c83003c 	lw	v1,60(a0)
+    3510:	24020001 	li	v0,1
+    3514:	10620056 	beq	v1,v0,3670 <Hud_BuildNumbers__Fi+0x224>
+    3518:	24050014 	li	a1,20
+    351c:	3c08ff00 	lui	t0,0xff00
+    3520:	3c030000 	lui	v1,0x0
+    3524:	8c820038 	lw	v0,56(a0)
+    3528:	24630000 	addiu	v1,v1,0
+    352c:	00021080 	sll	v0,v0,0x2
+    3530:	00431021 	addu	v0,v0,v1
+    3534:	8c420000 	lw	v0,0(v0)
+    3538:	3c0700ff 	lui	a3,0xff
+    353c:	ae82019c 	sw	v0,412(s4)
+    3540:	8c82003c 	lw	v0,60(a0)
+    3544:	34e7ffff 	ori	a3,a3,0xffff
+    3548:	00021080 	sll	v0,v0,0x2
+    354c:	00431021 	addu	v0,v0,v1
+    3550:	8c420000 	lw	v0,0(v0)
+    3554:	26840190 	addiu	a0,s4,400
+    3558:	ae8201c4 	sw	v0,452(s4)
+    355c:	3c061f80 	lui	a2,0x1f80
+    3560:	8cc60000 	lw	a2,0(a2)
+    3564:	24a50001 	addiu	a1,a1,1
+    3568:	8c830000 	lw	v1,0(a0)
+    356c:	8cc20000 	lw	v0,0(a2)
+    3570:	00681824 	and	v1,v1,t0
+    3574:	00471024 	and	v0,v0,a3
+    3578:	00621825 	or	v1,v1,v0
+    357c:	ac830000 	sw	v1,0(a0)
+    3580:	00871824 	and	v1,a0,a3
+    3584:	8cc20000 	lw	v0,0(a2)
+    3588:	00000000 	nop
+    358c:	00481024 	and	v0,v0,t0
+    3590:	00431025 	or	v0,v0,v1
+    3594:	acc20000 	sw	v0,0(a2)
+    3598:	28a20017 	slti	v0,a1,23
+    359c:	1440fff1 	bnez	v0,3564 <Hud_BuildNumbers__Fi+0x118>
+    35a0:	24840014 	addiu	a0,a0,20
+    35a4:	24050006 	li	a1,6
+    35a8:	3c061f80 	lui	a2,0x1f80
+    35ac:	8cc60000 	lw	a2,0(a2)
+    35b0:	3c08ff00 	lui	t0,0xff00
+    35b4:	3c0700ff 	lui	a3,0xff
+    35b8:	34e7ffff 	ori	a3,a3,0xffff
+    35bc:	26840078 	addiu	a0,s4,120
+    35c0:	24a50001 	addiu	a1,a1,1
+    35c4:	8c830000 	lw	v1,0(a0)
+    35c8:	8cc20000 	lw	v0,0(a2)
+    35cc:	00681824 	and	v1,v1,t0
+    35d0:	00471024 	and	v0,v0,a3
+    35d4:	00621825 	or	v1,v1,v0
+    35d8:	ac830000 	sw	v1,0(a0)
+    35dc:	00871824 	and	v1,a0,a3
+    35e0:	8cc20000 	lw	v0,0(a2)
+    35e4:	00000000 	nop
+    35e8:	00481024 	and	v0,v0,t0
+    35ec:	00431025 	or	v0,v0,v1
+    35f0:	acc20000 	sw	v0,0(a2)
+    35f4:	28a20008 	slti	v0,a1,8
+    35f8:	1440fff1 	bnez	v0,35c0 <Hud_BuildNumbers__Fi+0x174>
+    35fc:	24840014 	addiu	a0,a0,20
+    3600:	3c0500ff 	lui	a1,0xff
+    3604:	34a5ffff 	ori	a1,a1,0xffff
+    3608:	3c04ff00 	lui	a0,0xff00
+    360c:	3c061f80 	lui	a2,0x1f80
+    3610:	8cc60000 	lw	a2,0(a2)
+    3614:	8e030024 	lw	v1,36(s0)
+    3618:	8cc20000 	lw	v0,0(a2)
+    361c:	00641824 	and	v1,v1,a0
+    3620:	00451024 	and	v0,v0,a1
+    3624:	00621825 	or	v1,v1,v0
+    3628:	26020024 	addiu	v0,s0,36
+    362c:	ae030024 	sw	v1,36(s0)
+    3630:	8cc30000 	lw	v1,0(a2)
+    3634:	00451024 	and	v0,v0,a1
+    3638:	00641824 	and	v1,v1,a0
+    363c:	00621825 	or	v1,v1,v0
+    3640:	acc30000 	sw	v1,0(a2)
+    3644:	8e220018 	lw	v0,24(s1)
+    3648:	00651824 	and	v1,v1,a1
+    364c:	00441024 	and	v0,v0,a0
+    3650:	00431025 	or	v0,v0,v1
+    3654:	ae220018 	sw	v0,24(s1)
+    3658:	26220018 	addiu	v0,s1,24
+    365c:	8cc30000 	lw	v1,0(a2)
+    3660:	00451024 	and	v0,v0,a1
+    3664:	00641824 	and	v1,v1,a0
+    3668:	00621825 	or	v1,v1,v0
+    366c:	acc30000 	sw	v1,0(a2)
+    3670:	3c040000 	lui	a0,0x0
+    3674:	8fb90050 	lw	t9,80(sp)
+    3678:	24840000 	addiu	a0,a0,0
+    367c:	00191840 	sll	v1,t9,0x1
+    3680:	00791821 	addu	v1,v1,t9
+    3684:	00031100 	sll	v0,v1,0x4
+    3688:	00431023 	subu	v0,v0,v1
+    368c:	00021080 	sll	v0,v0,0x2
+    3690:	00441021 	addu	v0,v0,a0
+    3694:	8c420458 	lw	v0,1112(v0)
+    3698:	00000000 	nop
+    369c:	1040006a 	beqz	v0,3848 <Hud_BuildNumbers__Fi+0x3fc>
+    36a0:	3c020000 	lui	v0,0x0
+    36a4:	24440000 	addiu	a0,v0,0
+    36a8:	8c85005c 	lw	a1,92(a0)
+    36ac:	00000000 	nop
+    36b0:	10a00065 	beqz	a1,3848 <Hud_BuildNumbers__Fi+0x3fc>
+    36b4:	340295ff 	li	v0,0x95ff
+    36b8:	0045102a 	slt	v0,v0,a1
+    36bc:	14400062 	bnez	v0,3848 <Hud_BuildNumbers__Fi+0x3fc>
+    36c0:	00000000 	nop
+    36c4:	8f820000 	lw	v0,0(gp)
+    36c8:	00000000 	nop
+    36cc:	1440005e 	bnez	v0,3848 <Hud_BuildNumbers__Fi+0x3fc>
+    36d0:	00000000 	nop
+    36d4:	8f820000 	lw	v0,0(gp)
+    36d8:	00000000 	nop
+    36dc:	1440005a 	bnez	v0,3848 <Hud_BuildNumbers__Fi+0x3fc>
+    36e0:	24020001 	li	v0,1
+    36e4:	8c83003c 	lw	v1,60(a0)
+    36e8:	00000000 	nop
+    36ec:	10620056 	beq	v1,v0,3848 <Hud_BuildNumbers__Fi+0x3fc>
+    36f0:	00000000 	nop
+    36f4:	8c820014 	lw	v0,20(a0)
+    36f8:	00000000 	nop
+    36fc:	10400006 	beqz	v0,3718 <Hud_BuildNumbers__Fi+0x2cc>
+    3700:	3c020000 	lui	v0,0x0
+    3704:	8c420004 	lw	v0,4(v0)
+    3708:	00000000 	nop
+    370c:	30420010 	andi	v0,v0,0x10
+    3710:	14400003 	bnez	v0,3720 <Hud_BuildNumbers__Fi+0x2d4>
+    3714:	00000000 	nop
+    3718:	0c000000 	jal	0 <Hud_CreateHudViews__Fv>
+    371c:	268401cc 	addiu	a0,s4,460
+    3720:	24050017 	li	a1,23
+    3724:	3c061f80 	lui	a2,0x1f80
+    3728:	8cc60000 	lw	a2,0(a2)
+    372c:	3c08ff00 	lui	t0,0xff00
+    3730:	3c0700ff 	lui	a3,0xff
+    3734:	34e7ffff 	ori	a3,a3,0xffff
+    3738:	268401cc 	addiu	a0,s4,460
+    373c:	24a50001 	addiu	a1,a1,1
+    3740:	8c830000 	lw	v1,0(a0)
+    3744:	8cc20000 	lw	v0,0(a2)
+    3748:	00681824 	and	v1,v1,t0
+    374c:	00471024 	and	v0,v0,a3
+    3750:	00621825 	or	v1,v1,v0
+    3754:	ac830000 	sw	v1,0(a0)
+    3758:	00871824 	and	v1,a0,a3
+    375c:	8cc20000 	lw	v0,0(a2)
+    3760:	00000000 	nop
+    3764:	00481024 	and	v0,v0,t0
+    3768:	00431025 	or	v0,v0,v1
+    376c:	acc20000 	sw	v0,0(a2)
+    3770:	28a2001e 	slti	v0,a1,30
+    3774:	1440fff1 	bnez	v0,373c <Hud_BuildNumbers__Fi+0x2f0>
+    3778:	24840014 	addiu	a0,a0,20
+    377c:	24050008 	li	a1,8
+    3780:	3c061f80 	lui	a2,0x1f80
+    3784:	8cc60000 	lw	a2,0(a2)
+    3788:	3c08ff00 	lui	t0,0xff00
+    378c:	3c0700ff 	lui	a3,0xff
+    3790:	34e7ffff 	ori	a3,a3,0xffff
+    3794:	268400a0 	addiu	a0,s4,160
+    3798:	24a50001 	addiu	a1,a1,1
+    379c:	8c830000 	lw	v1,0(a0)
+    37a0:	8cc20000 	lw	v0,0(a2)
+    37a4:	00681824 	and	v1,v1,t0
+    37a8:	00471024 	and	v0,v0,a3
+    37ac:	00621825 	or	v1,v1,v0
+    37b0:	ac830000 	sw	v1,0(a0)
+    37b4:	00871824 	and	v1,a0,a3
+    37b8:	8cc20000 	lw	v0,0(a2)
+    37bc:	00000000 	nop
+    37c0:	00481024 	and	v0,v0,t0
+    37c4:	00431025 	or	v0,v0,v1
+    37c8:	acc20000 	sw	v0,0(a2)
+    37cc:	28a2000a 	slti	v0,a1,10
+    37d0:	1440fff1 	bnez	v0,3798 <Hud_BuildNumbers__Fi+0x34c>
+    37d4:	24840014 	addiu	a0,a0,20
+    37d8:	3c0500ff 	lui	a1,0xff
+    37dc:	34a5ffff 	ori	a1,a1,0xffff
+    37e0:	3c04ff00 	lui	a0,0xff00
+    37e4:	3c061f80 	lui	a2,0x1f80
+    37e8:	8cc60000 	lw	a2,0(a2)
+    37ec:	8e03006c 	lw	v1,108(s0)
+    37f0:	8cc20000 	lw	v0,0(a2)
+    37f4:	00641824 	and	v1,v1,a0
+    37f8:	00451024 	and	v0,v0,a1
+    37fc:	00621825 	or	v1,v1,v0
+    3800:	2602006c 	addiu	v0,s0,108
+    3804:	ae03006c 	sw	v1,108(s0)
+    3808:	8cc30000 	lw	v1,0(a2)
+    380c:	00451024 	and	v0,v0,a1
+    3810:	00641824 	and	v1,v1,a0
+    3814:	00621825 	or	v1,v1,v0
+    3818:	acc30000 	sw	v1,0(a2)
+    381c:	8e220030 	lw	v0,48(s1)
+    3820:	00651824 	and	v1,v1,a1
+    3824:	00441024 	and	v0,v0,a0
+    3828:	00431025 	or	v0,v0,v1
+    382c:	ae220030 	sw	v0,48(s1)
+    3830:	26220030 	addiu	v0,s1,48
+    3834:	8cc30000 	lw	v1,0(a2)
+    3838:	00451024 	and	v0,v0,a1
+    383c:	00641824 	and	v1,v1,a0
+    3840:	00621825 	or	v1,v1,v0
+    3844:	acc30000 	sw	v1,0(a2)
+    3848:	3c040000 	lui	a0,0x0
+    384c:	8fb90050 	lw	t9,80(sp)
+    3850:	24840000 	addiu	a0,a0,0
+    3854:	00191840 	sll	v1,t9,0x1
+    3858:	00791821 	addu	v1,v1,t9
+    385c:	00031100 	sll	v0,v1,0x4
+    3860:	00431023 	subu	v0,v0,v1
+    3864:	00021080 	sll	v0,v0,0x2
+    3868:	00441021 	addu	v0,v0,a0
+    386c:	8c420460 	lw	v0,1120(v0)
+    3870:	00000000 	nop
+    3874:	10400074 	beqz	v0,3a48 <Hud_BuildNumbers__Fi+0x5fc>
+    3878:	00000000 	nop
+    387c:	8f820000 	lw	v0,0(gp)
+    3880:	00000000 	nop
+    3884:	14400070 	bnez	v0,3a48 <Hud_BuildNumbers__Fi+0x5fc>
+    3888:	3c020000 	lui	v0,0x0
+    388c:	24460000 	addiu	a2,v0,0
+    3890:	8cc20058 	lw	v0,88(a2)
+    3894:	00000000 	nop
+    3898:	28420002 	slti	v0,v0,2
+    389c:	1440006a 	bnez	v0,3a48 <Hud_BuildNumbers__Fi+0x5fc>
+    38a0:	3c050000 	lui	a1,0x0
+    38a4:	24a50000 	addiu	a1,a1,0
+    38a8:	8f820000 	lw	v0,0(gp)
+    38ac:	8cc30054 	lw	v1,84(a2)
+    38b0:	94440038 	lhu	a0,56(v0)
+    38b4:	94420028 	lhu	v0,40(v0)
+    38b8:	2463002c 	addiu	v1,v1,44
+    38bc:	00822021 	addu	a0,a0,v0
+    38c0:	00031080 	sll	v0,v1,0x2
+    38c4:	00431021 	addu	v0,v0,v1
+    38c8:	00021080 	sll	v0,v0,0x2
+    38cc:	00451021 	addu	v0,v0,a1
+    38d0:	94a30380 	lhu	v1,896(a1)
+    38d4:	94420010 	lhu	v0,16(v0)
+    38d8:	00641821 	addu	v1,v1,a0
+    38dc:	24420002 	addiu	v0,v0,2
+    38e0:	00621823 	subu	v1,v1,v0
+    38e4:	a68302ec 	sh	v1,748(s4)
+    38e8:	8cc30054 	lw	v1,84(a2)
+    38ec:	00000000 	nop
+    38f0:	00031080 	sll	v0,v1,0x2
+    38f4:	00431021 	addu	v0,v0,v1
+    38f8:	00021080 	sll	v0,v0,0x2
+    38fc:	00a21021 	addu	v0,a1,v0
+    3900:	8c420370 	lw	v0,880(v0)
+    3904:	00000000 	nop
+    3908:	ae8202f0 	sw	v0,752(s4)
+    390c:	8cc30054 	lw	v1,84(a2)
+    3910:	24070025 	li	a3,37
+    3914:	2463002c 	addiu	v1,v1,44
+    3918:	00031080 	sll	v0,v1,0x2
+    391c:	00431021 	addu	v0,v0,v1
+    3920:	00021080 	sll	v0,v0,0x2
+    3924:	00451021 	addu	v0,v0,a1
+    3928:	94420010 	lhu	v0,16(v0)
+    392c:	3c09ff00 	lui	t1,0xff00
+    3930:	a68202f4 	sh	v0,756(s4)
+    3934:	8cc30058 	lw	v1,88(a2)
+    3938:	3c0800ff 	lui	t0,0xff
+    393c:	00031080 	sll	v0,v1,0x2
+    3940:	00431021 	addu	v0,v0,v1
+    3944:	00021080 	sll	v0,v0,0x2
+    3948:	00a21021 	addu	v0,a1,v0
+    394c:	8c420424 	lw	v0,1060(v0)
+    3950:	3508ffff 	ori	t0,t0,0xffff
+    3954:	ae820318 	sw	v0,792(s4)
+    3958:	8cc30058 	lw	v1,88(a2)
+    395c:	3c061f80 	lui	a2,0x1f80
+    3960:	8cc60000 	lw	a2,0(a2)
+    3964:	24630035 	addiu	v1,v1,53
+    3968:	00031080 	sll	v0,v1,0x2
+    396c:	00431021 	addu	v0,v0,v1
+    3970:	00021080 	sll	v0,v0,0x2
+    3974:	00451021 	addu	v0,v0,a1
+    3978:	94420010 	lhu	v0,16(v0)
+    397c:	268402e4 	addiu	a0,s4,740
+    3980:	a682031c 	sh	v0,796(s4)
+    3984:	24e70001 	addiu	a3,a3,1
+    3988:	8c830000 	lw	v1,0(a0)
+    398c:	8cc20000 	lw	v0,0(a2)
+    3990:	00691824 	and	v1,v1,t1
+    3994:	00481024 	and	v0,v0,t0
+    3998:	00621825 	or	v1,v1,v0
+    399c:	ac830000 	sw	v1,0(a0)
+    39a0:	00881824 	and	v1,a0,t0
+    39a4:	8cc20000 	lw	v0,0(a2)
+    39a8:	00000000 	nop
+    39ac:	00491024 	and	v0,v0,t1
+    39b0:	00431025 	or	v0,v0,v1
+    39b4:	acc20000 	sw	v0,0(a2)
+    39b8:	28e20028 	slti	v0,a3,40
+    39bc:	1440fff1 	bnez	v0,3984 <Hud_BuildNumbers__Fi+0x538>
+    39c0:	24840014 	addiu	a0,a0,20
+    39c4:	3c040000 	lui	a0,0x0
+    39c8:	24840000 	addiu	a0,a0,0
+    39cc:	00071840 	sll	v1,a3,0x1
+    39d0:	00671821 	addu	v1,v1,a3
+    39d4:	00031100 	sll	v0,v1,0x4
+    39d8:	00431023 	subu	v0,v0,v1
+    39dc:	00021080 	sll	v0,v0,0x2
+    39e0:	00441021 	addu	v0,v0,a0
+    39e4:	8c420450 	lw	v0,1104(v0)
+    39e8:	00000000 	nop
+    39ec:	10400016 	beqz	v0,3a48 <Hud_BuildNumbers__Fi+0x5fc>
+    39f0:	00000000 	nop
+    39f4:	0c000000 	jal	0 <Hud_CreateHudViews__Fv>
+    39f8:	00002021 	move	a0,zero
+    39fc:	3c0700ff 	lui	a3,0xff
+    3a00:	34e7ffff 	ori	a3,a3,0xffff
+    3a04:	3c06ff00 	lui	a2,0xff00
+    3a08:	24040001 	li	a0,1
+    3a0c:	3c051f80 	lui	a1,0x1f80
+    3a10:	8ca50000 	lw	a1,0(a1)
+    3a14:	8e830320 	lw	v1,800(s4)
+    3a18:	8ca20000 	lw	v0,0(a1)
+    3a1c:	00661824 	and	v1,v1,a2
+    3a20:	00471024 	and	v0,v0,a3
+    3a24:	00621825 	or	v1,v1,v0
+    3a28:	26820320 	addiu	v0,s4,800
+    3a2c:	ae830320 	sw	v1,800(s4)
+    3a30:	8ca30000 	lw	v1,0(a1)
+    3a34:	00471024 	and	v0,v0,a3
+    3a38:	00661824 	and	v1,v1,a2
+    3a3c:	00621825 	or	v1,v1,v0
+    3a40:	0c000000 	jal	0 <Hud_CreateHudViews__Fv>
+    3a44:	aca30000 	sw	v1,0(a1)
+    3a48:	0c000000 	jal	0 <Hud_CreateHudViews__Fv>
+    3a4c:	00002021 	move	a0,zero
+    3a50:	3c040000 	lui	a0,0x0
+    3a54:	8fb90050 	lw	t9,80(sp)
+    3a58:	24840000 	addiu	a0,a0,0
+    3a5c:	00191840 	sll	v1,t9,0x1
+    3a60:	00791821 	addu	v1,v1,t9
+    3a64:	00031100 	sll	v0,v1,0x4
+    3a68:	00431023 	subu	v0,v0,v1
+    3a6c:	00021080 	sll	v0,v0,0x2
+    3a70:	00441021 	addu	v0,v0,a0
+    3a74:	8c42044c 	lw	v0,1100(v0)
+    3a78:	00000000 	nop
+    3a7c:	10400069 	beqz	v0,3c24 <Hud_BuildNumbers__Fi+0x7d8>
+    3a80:	3c020000 	lui	v0,0x0
+    3a84:	24480000 	addiu	t0,v0,0
+    3a88:	8d040048 	lw	a0,72(t0)
+    3a8c:	00000000 	nop
+    3a90:	1480000e 	bnez	a0,3acc <Hud_BuildNumbers__Fi+0x680>
+    3a94:	24020001 	li	v0,1
+    3a98:	3c0600ff 	lui	a2,0xff
+    3a9c:	34c6ffff 	ori	a2,a2,0xffff
+    3aa0:	3c05ff00 	lui	a1,0xff00
+    3aa4:	3c041f80 	lui	a0,0x1f80
+    3aa8:	8c840000 	lw	a0,0(a0)
+    3aac:	8e8303c0 	lw	v1,960(s4)
+    3ab0:	8c820000 	lw	v0,0(a0)
+    3ab4:	00651824 	and	v1,v1,a1
+    3ab8:	00461024 	and	v0,v0,a2
+    3abc:	00621825 	or	v1,v1,v0
+    3ac0:	268203c0 	addiu	v0,s4,960
+    3ac4:	08000ec1 	j	3b04 <Hud_BuildNumbers__Fi+0x6b8>
+    3ac8:	ae8303c0 	sw	v1,960(s4)
+    3acc:	14820013 	bne	a0,v0,3b1c <Hud_BuildNumbers__Fi+0x6d0>
+    3ad0:	3c0700ff 	lui	a3,0xff
+    3ad4:	3c0600ff 	lui	a2,0xff
+    3ad8:	34c6ffff 	ori	a2,a2,0xffff
+    3adc:	3c05ff00 	lui	a1,0xff00
+    3ae0:	3c041f80 	lui	a0,0x1f80
+    3ae4:	8c840000 	lw	a0,0(a0)
+    3ae8:	8e8303ac 	lw	v1,940(s4)
+    3aec:	8c820000 	lw	v0,0(a0)
+    3af0:	00651824 	and	v1,v1,a1
+    3af4:	00461024 	and	v0,v0,a2
+    3af8:	00621825 	or	v1,v1,v0
+    3afc:	268203ac 	addiu	v0,s4,940
+    3b00:	ae8303ac 	sw	v1,940(s4)
+    3b04:	8c830000 	lw	v1,0(a0)
+    3b08:	00461024 	and	v0,v0,a2
+    3b0c:	00651824 	and	v1,v1,a1
+    3b10:	00621825 	or	v1,v1,v0
+    3b14:	08000ee0 	j	3b80 <Hud_BuildNumbers__Fi+0x734>
+    3b18:	ac830000 	sw	v1,0(a0)
+    3b1c:	34e7ffff 	ori	a3,a3,0xffff
+    3b20:	00041880 	sll	v1,a0,0x2
+    3b24:	00641821 	addu	v1,v1,a0
+    3b28:	00031880 	sll	v1,v1,0x2
+    3b2c:	00741821 	addu	v1,v1,s4
+    3b30:	3c06ff00 	lui	a2,0xff00
+    3b34:	3c051f80 	lui	a1,0x1f80
+    3b38:	8ca50000 	lw	a1,0(a1)
+    3b3c:	8c64030c 	lw	a0,780(v1)
+    3b40:	8ca20000 	lw	v0,0(a1)
+    3b44:	00862024 	and	a0,a0,a2
+    3b48:	00471024 	and	v0,v0,a3
+    3b4c:	00822025 	or	a0,a0,v0
+    3b50:	ac64030c 	sw	a0,780(v1)
+    3b54:	8ca30000 	lw	v1,0(a1)
+    3b58:	8d040048 	lw	a0,72(t0)
+    3b5c:	00661824 	and	v1,v1,a2
+    3b60:	00041080 	sll	v0,a0,0x2
+    3b64:	00441021 	addu	v0,v0,a0
+    3b68:	00021080 	sll	v0,v0,0x2
+    3b6c:	2442030c 	addiu	v0,v0,780
+    3b70:	02821021 	addu	v0,s4,v0
+    3b74:	00471024 	and	v0,v0,a3
+    3b78:	00621825 	or	v1,v1,v0
+    3b7c:	aca30000 	sw	v1,0(a1)
+    3b80:	3c040000 	lui	a0,0x0
+    3b84:	8fb90050 	lw	t9,80(sp)
+    3b88:	24840000 	addiu	a0,a0,0
+    3b8c:	00191840 	sll	v1,t9,0x1
+    3b90:	00791821 	addu	v1,v1,t9
+    3b94:	00031100 	sll	v0,v1,0x4
+    3b98:	00431023 	subu	v0,v0,v1
+    3b9c:	00021080 	sll	v0,v0,0x2
+    3ba0:	00441021 	addu	v0,v0,a0
+    3ba4:	8c420444 	lw	v0,1092(v0)
+    3ba8:	00000000 	nop
+    3bac:	1440000d 	bnez	v0,3be4 <Hud_BuildNumbers__Fi+0x798>
+    3bb0:	3c0600ff 	lui	a2,0xff
+    3bb4:	34c6ffff 	ori	a2,a2,0xffff
+    3bb8:	3c05ff00 	lui	a1,0xff00
+    3bbc:	3c041f80 	lui	a0,0x1f80
+    3bc0:	8c840000 	lw	a0,0(a0)
+    3bc4:	8e8303e8 	lw	v1,1000(s4)
+    3bc8:	8c820000 	lw	v0,0(a0)
+    3bcc:	00651824 	and	v1,v1,a1
+    3bd0:	00461024 	and	v0,v0,a2
+    3bd4:	00621825 	or	v1,v1,v0
+    3bd8:	268203e8 	addiu	v0,s4,1000
+    3bdc:	08000f04 	j	3c10 <Hud_BuildNumbers__Fi+0x7c4>
+    3be0:	ae8303e8 	sw	v1,1000(s4)
+    3be4:	34c6ffff 	ori	a2,a2,0xffff
+    3be8:	3c05ff00 	lui	a1,0xff00
+    3bec:	3c041f80 	lui	a0,0x1f80
+    3bf0:	8c840000 	lw	a0,0(a0)
+    3bf4:	8e8303d4 	lw	v1,980(s4)
+    3bf8:	8c820000 	lw	v0,0(a0)
+    3bfc:	00651824 	and	v1,v1,a1
+    3c00:	00461024 	and	v0,v0,a2
+    3c04:	00621825 	or	v1,v1,v0
+    3c08:	268203d4 	addiu	v0,s4,980
+    3c0c:	ae8303d4 	sw	v1,980(s4)
+    3c10:	8c830000 	lw	v1,0(a0)
+    3c14:	00461024 	and	v0,v0,a2
+    3c18:	00651824 	and	v1,v1,a1
+    3c1c:	00621825 	or	v1,v1,v0
+    3c20:	ac830000 	sw	v1,0(a0)
+    3c24:	0c000000 	jal	0 <Hud_CreateHudViews__Fv>
+    3c28:	24040001 	li	a0,1
+    3c2c:	3c020000 	lui	v0,0x0
+    3c30:	24440000 	addiu	a0,v0,0
+    3c34:	00121840 	sll	v1,s2,0x1
+    3c38:	00721821 	addu	v1,v1,s2
+    3c3c:	00031100 	sll	v0,v1,0x4
+    3c40:	00431023 	subu	v0,v0,v1
+    3c44:	00021080 	sll	v0,v0,0x2
+    3c48:	00441021 	addu	v0,v0,a0
+    3c4c:	8c42044c 	lw	v0,1100(v0)
+    3c50:	00000000 	nop
+    3c54:	104000c8 	beqz	v0,3f78 <Hud_BuildNumbers__Fi+0xb2c>
+    3c58:	3c020000 	lui	v0,0x0
+    3c5c:	8fb90050 	lw	t9,80(sp)
+    3c60:	00000000 	nop
+    3c64:	00191040 	sll	v0,t9,0x1
+    3c68:	00591021 	addu	v0,v0,t9
+    3c6c:	00021900 	sll	v1,v0,0x4
+    3c70:	00621823 	subu	v1,v1,v0
+    3c74:	00031880 	sll	v1,v1,0x2
+    3c78:	00641821 	addu	v1,v1,a0
+    3c7c:	3c020000 	lui	v0,0x0
+    3c80:	8c640448 	lw	a0,1096(v1)
+    3c84:	8c45004c 	lw	a1,76(v0)
+    3c88:	0c000000 	jal	0 <Hud_CreateHudViews__Fv>
+    3c8c:	00000000 	nop
+    3c90:	0040c021 	move	t8,v0
+    3c94:	07010003 	bgez	t8,3ca4 <Hud_BuildNumbers__Fi+0x858>
+    3c98:	3c1900c8 	lui	t9,0xc8
+    3c9c:	3402ffff 	li	v0,0xffff
+    3ca0:	0302c021 	addu	t8,t8,v0
+    3ca4:	3739c8c8 	ori	t9,t9,0xc8c8
+    3ca8:	3c1e0050 	lui	s8,0x50
+    3cac:	37de5050 	ori	s8,s8,0x5050
+    3cb0:	0018c403 	sra	t8,t8,0x10
+    3cb4:	3c051f80 	lui	a1,0x1f80
+    3cb8:	34a50004 	ori	a1,a1,0x4
+    3cbc:	3c0c00ff 	lui	t4,0xff
+    3cc0:	358cffff 	ori	t4,t4,0xffff
+    3cc4:	3c0f51eb 	lui	t7,0x51eb
+    3cc8:	35ef851f 	ori	t7,t7,0x851f
+    3ccc:	3c0e6666 	lui	t6,0x6666
+    3cd0:	35ce6667 	ori	t6,t6,0x6667
+    3cd4:	3c080000 	lui	t0,0x0
+    3cd8:	25080000 	addiu	t0,t0,0
+    3cdc:	3c0dff00 	lui	t5,0xff00
+    3ce0:	030e0018 	mult	t8,t6
+    3ce4:	afb90020 	sw	t9,32(sp)
+    3ce8:	8cb00000 	lw	s0,0(a1)
+    3cec:	85030380 	lh	v1,896(t0)
+    3cf0:	02002021 	move	a0,s0
+    3cf4:	26020034 	addiu	v0,s0,52
+    3cf8:	24750001 	addiu	s5,v1,1
+    3cfc:	00151840 	sll	v1,s5,0x1
+    3d00:	24630004 	addiu	v1,v1,4
+    3d04:	aca20000 	sw	v0,0(a1)
+    3d08:	850a0394 	lh	t2,916(t0)
+    3d0c:	850b040c 	lh	t3,1036(t0)
+    3d10:	25080370 	addiu	t0,t0,880
+    3d14:	8f870000 	lw	a3,0(gp)
+    3d18:	3c091f80 	lui	t1,0x1f80
+    3d1c:	8d290000 	lw	t1,0(t1)
+    3d20:	02aa5021 	addu	t2,s5,t2
+    3d24:	02ab5821 	addu	t3,s5,t3
+    3d28:	84e20004 	lh	v0,4(a3)
+    3d2c:	84e50030 	lh	a1,48(a3)
+    3d30:	000bb843 	sra	s7,t3,0x1
+    3d34:	00451021 	addu	v0,v0,a1
+    3d38:	00629821 	addu	s3,v1,v0
+    3d3c:	8e030000 	lw	v1,0(s0)
+    3d40:	8d220000 	lw	v0,0(t1)
+    3d44:	84e50032 	lh	a1,50(a3)
+    3d48:	006d1824 	and	v1,v1,t5
+    3d4c:	004c1024 	and	v0,v0,t4
+    3d50:	00621825 	or	v1,v1,v0
+    3d54:	84e20006 	lh	v0,6(a3)
+    3d58:	020c6024 	and	t4,s0,t4
+    3d5c:	ae030000 	sw	v1,0(s0)
+    3d60:	00451021 	addu	v0,v0,a1
+    3d64:	00561021 	addu	v0,v0,s6
+    3d68:	afa20018 	sw	v0,24(sp)
+    3d6c:	8d220000 	lw	v0,0(t1)
+    3d70:	8fa70018 	lw	a3,24(sp)
+    3d74:	004d1024 	and	v0,v0,t5
+    3d78:	004c1025 	or	v0,v0,t4
+    3d7c:	ad220000 	sw	v0,0(t1)
+    3d80:	afb90010 	sw	t9,16(sp)
+    3d84:	0000c810 	mfhi	t9
+    3d88:	02603021 	move	a2,s3
+    3d8c:	00191883 	sra	v1,t9,0x2
+    3d90:	030f0018 	mult	t8,t7
+    3d94:	000ab043 	sra	s6,t2,0x1
+    3d98:	00184fc3 	sra	t1,t8,0x1f
+    3d9c:	00691823 	subu	v1,v1,t1
+    3da0:	00031080 	sll	v0,v1,0x2
+    3da4:	00431021 	addu	v0,v0,v1
+    3da8:	00021040 	sll	v0,v0,0x1
+    3dac:	03021023 	subu	v0,t8,v0
+    3db0:	00022880 	sll	a1,v0,0x2
+    3db4:	00a22821 	addu	a1,a1,v0
+    3db8:	00052880 	sll	a1,a1,0x2
+    3dbc:	00a82821 	addu	a1,a1,t0
+    3dc0:	0000c810 	mfhi	t9
+    3dc4:	00191143 	sra	v0,t9,0x5
+    3dc8:	00498823 	subu	s1,v0,t1
+    3dcc:	00111080 	sll	v0,s1,0x2
+    3dd0:	00511021 	addu	v0,v0,s1
+    3dd4:	00021040 	sll	v0,v0,0x1
+    3dd8:	0c000000 	jal	0 <Hud_CreateHudViews__Fv>
+    3ddc:	00629023 	subu	s2,v1,v0
+    3de0:	02b6c823 	subu	t9,s5,s6
+    3de4:	24020001 	li	v0,1
+    3de8:	ae1e0028 	sw	s8,40(s0)
+    3dec:	ae1e001c 	sw	s8,28(s0)
+    3df0:	16420003 	bne	s2,v0,3e00 <Hud_BuildNumbers__Fi+0x9b4>
+    3df4:	afb9001c 	sw	t9,28(sp)
+    3df8:	08000f86 	j	3e18 <Hud_BuildNumbers__Fi+0x9cc>
+    3dfc:	02769823 	subu	s3,s3,s6
+    3e00:	24020007 	li	v0,7
+    3e04:	16420003 	bne	s2,v0,3e14 <Hud_BuildNumbers__Fi+0x9c8>
+    3e08:	00000000 	nop
+    3e0c:	08000f86 	j	3e18 <Hud_BuildNumbers__Fi+0x9cc>
+    3e10:	02779823 	subu	s3,s3,s7
+    3e14:	02759823 	subu	s3,s3,s5
+    3e18:	16200003 	bnez	s1,3e28 <Hud_BuildNumbers__Fi+0x9dc>
+    3e1c:	3c031f80 	lui	v1,0x1f80
+    3e20:	12400024 	beqz	s2,3eb4 <Hud_BuildNumbers__Fi+0xa68>
+    3e24:	24020001 	li	v0,1
+    3e28:	34630004 	ori	v1,v1,0x4
+    3e2c:	3c0900ff 	lui	t1,0xff
+    3e30:	3529ffff 	ori	t1,t1,0xffff
+    3e34:	00121080 	sll	v0,s2,0x2
+    3e38:	00521021 	addu	v0,v0,s2
+    3e3c:	00021080 	sll	v0,v0,0x2
+    3e40:	3c050000 	lui	a1,0x0
+    3e44:	24a50370 	addiu	a1,a1,880
+    3e48:	00452821 	addu	a1,v0,a1
+    3e4c:	02603021 	move	a2,s3
+    3e50:	3c0aff00 	lui	t2,0xff00
+    3e54:	8c700000 	lw	s0,0(v1)
+    3e58:	8fa70018 	lw	a3,24(sp)
+    3e5c:	26020034 	addiu	v0,s0,52
+    3e60:	ac620000 	sw	v0,0(v1)
+    3e64:	3c081f80 	lui	t0,0x1f80
+    3e68:	8d080000 	lw	t0,0(t0)
+    3e6c:	8e030000 	lw	v1,0(s0)
+    3e70:	8d020000 	lw	v0,0(t0)
+    3e74:	006a1824 	and	v1,v1,t2
+    3e78:	00491024 	and	v0,v0,t1
+    3e7c:	00621825 	or	v1,v1,v0
+    3e80:	ae030000 	sw	v1,0(s0)
+    3e84:	8d020000 	lw	v0,0(t0)
+    3e88:	02094824 	and	t1,s0,t1
+    3e8c:	004a1024 	and	v0,v0,t2
+    3e90:	00491025 	or	v0,v0,t1
+    3e94:	ad020000 	sw	v0,0(t0)
+    3e98:	8fb90020 	lw	t9,32(sp)
+    3e9c:	02002021 	move	a0,s0
+    3ea0:	0c000000 	jal	0 <Hud_CreateHudViews__Fv>
+    3ea4:	afb90010 	sw	t9,16(sp)
+    3ea8:	ae1e0028 	sw	s8,40(s0)
+    3eac:	ae1e001c 	sw	s8,28(s0)
+    3eb0:	24020001 	li	v0,1
+    3eb4:	16420004 	bne	s2,v0,3ec8 <Hud_BuildNumbers__Fi+0xa7c>
+    3eb8:	00000000 	nop
+    3ebc:	8fb9001c 	lw	t9,28(sp)
+    3ec0:	00000000 	nop
+    3ec4:	02799823 	subu	s3,s3,t9
+    3ec8:	1220002a 	beqz	s1,3f74 <Hud_BuildNumbers__Fi+0xb28>
+    3ecc:	3c031f80 	lui	v1,0x1f80
+    3ed0:	34630004 	ori	v1,v1,0x4
+    3ed4:	3c0800ff 	lui	t0,0xff
+    3ed8:	3508ffff 	ori	t0,t0,0xffff
+    3edc:	00112880 	sll	a1,s1,0x2
+    3ee0:	00b12821 	addu	a1,a1,s1
+    3ee4:	00052880 	sll	a1,a1,0x2
+    3ee8:	3c060000 	lui	a2,0x0
+    3eec:	24c60370 	addiu	a2,a2,880
+    3ef0:	00a62821 	addu	a1,a1,a2
+    3ef4:	8c700000 	lw	s0,0(v1)
+    3ef8:	3c09ff00 	lui	t1,0xff00
+    3efc:	26020034 	addiu	v0,s0,52
+    3f00:	ac620000 	sw	v0,0(v1)
+    3f04:	3c041f80 	lui	a0,0x1f80
+    3f08:	8c840000 	lw	a0,0(a0)
+    3f0c:	8e030000 	lw	v1,0(s0)
+    3f10:	8c820000 	lw	v0,0(a0)
+    3f14:	00691824 	and	v1,v1,t1
+    3f18:	00481024 	and	v0,v0,t0
+    3f1c:	00621825 	or	v1,v1,v0
+    3f20:	02084024 	and	t0,s0,t0
+    3f24:	ae030000 	sw	v1,0(s0)
+    3f28:	2623002c 	addiu	v1,s1,44
+    3f2c:	8c820000 	lw	v0,0(a0)
+    3f30:	8fa70018 	lw	a3,24(sp)
+    3f34:	00491024 	and	v0,v0,t1
+    3f38:	00481025 	or	v0,v0,t0
+    3f3c:	ac820000 	sw	v0,0(a0)
+    3f40:	00031080 	sll	v0,v1,0x2
+    3f44:	00431021 	addu	v0,v0,v1
+    3f48:	00021080 	sll	v0,v0,0x2
+    3f4c:	00c23021 	addu	a2,a2,v0
+    3f50:	02002021 	move	a0,s0
+    3f54:	84c6fca0 	lh	a2,-864(a2)
+    3f58:	8fb90020 	lw	t9,32(sp)
+    3f5c:	24c60001 	addiu	a2,a2,1
+    3f60:	02663023 	subu	a2,s3,a2
+    3f64:	0c000000 	jal	0 <Hud_CreateHudViews__Fv>
+    3f68:	afb90010 	sw	t9,16(sp)
+    3f6c:	ae1e0028 	sw	s8,40(s0)
+    3f70:	ae1e001c 	sw	s8,28(s0)
+    3f74:	3c020000 	lui	v0,0x0
+    3f78:	8fb90050 	lw	t9,80(sp)
+    3f7c:	24420000 	addiu	v0,v0,0
+    3f80:	00191880 	sll	v1,t9,0x2
+    3f84:	00621821 	addu	v1,v1,v0
+    3f88:	8c62002c 	lw	v0,44(v1)
+    3f8c:	00000000 	nop
+    3f90:	10400016 	beqz	v0,3fec <Hud_BuildNumbers__Fi+0xba0>
+    3f94:	3c020000 	lui	v0,0x0
+    3f98:	8c420004 	lw	v0,4(v0)
+    3f9c:	00000000 	nop
+    3fa0:	00021143 	sra	v0,v0,0x5
+    3fa4:	30420001 	andi	v0,v0,0x1
+    3fa8:	10400010 	beqz	v0,3fec <Hud_BuildNumbers__Fi+0xba0>
+    3fac:	3c0400ff 	lui	a0,0xff
+    3fb0:	3484ffff 	ori	a0,a0,0xffff
+    3fb4:	3c06ff00 	lui	a2,0xff00
+    3fb8:	3c051f80 	lui	a1,0x1f80
+    3fbc:	8ca50000 	lw	a1,0(a1)
+    3fc0:	8e830000 	lw	v1,0(s4)
+    3fc4:	8ca20000 	lw	v0,0(a1)
+    3fc8:	00661824 	and	v1,v1,a2
+    3fcc:	00441024 	and	v0,v0,a0
+    3fd0:	00621825 	or	v1,v1,v0
+    3fd4:	ae830000 	sw	v1,0(s4)
+    3fd8:	8ca20000 	lw	v0,0(a1)
+    3fdc:	02842024 	and	a0,s4,a0
+    3fe0:	00461024 	and	v0,v0,a2
+    3fe4:	00441025 	or	v0,v0,a0
+    3fe8:	aca20000 	sw	v0,0(a1)
+    3fec:	8fbf004c 	lw	ra,76(sp)
+    3ff0:	8fbe0048 	lw	s8,72(sp)
+    3ff4:	8fb70044 	lw	s7,68(sp)
+    3ff8:	8fb60040 	lw	s6,64(sp)
+    3ffc:	8fb5003c 	lw	s5,60(sp)
+    4000:	8fb40038 	lw	s4,56(sp)
+    4004:	8fb30034 	lw	s3,52(sp)
+    4008:	8fb20030 	lw	s2,48(sp)
+    400c:	8fb1002c 	lw	s1,44(sp)
+    4010:	8fb00028 	lw	s0,40(sp)
+    4014:	03e00008 	jr	ra
+    4018:	27bd0050 	addiu	sp,sp,80

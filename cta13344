@@ -1,0 +1,3451 @@
+	.text
+	.ent	AIPhysic_StartUp__Fv
+AIPhysic_StartUp__Fv:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	j	$31
+	.end	AIPhysic_StartUp__Fv
+	.text
+	.ent	AIPhysic_Reset__Fv
+AIPhysic_Reset__Fv:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	j	$31
+	.end	AIPhysic_Reset__Fv
+	.text
+	.ent	AIPhysic_CleanUp__Fv
+AIPhysic_CleanUp__Fv:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	j	$31
+	.end	AIPhysic_CleanUp__Fv
+	.text
+	.ent	AIPhysic_ResetCar__FP8Car_tObj
+AIPhysic_ResetCar__FP8Car_tObj:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	sw	$0,632($4)
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	sw	$0,628($4)
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_ResetCar__FP8Car_tObj
+	.text
+	.ent	AIPhysic_GearTopSpeed__FP8Car_tObj6Gear_t
+AIPhysic_GearTopSpeed__FP8Car_tObj6Gear_t:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+$L365:
+	slt	$2,$5,2
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L364
+	addu	$2,$5,-2
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L365
+	li	$5,2			# 0x00000002
+	.set	macro
+	.set	reorder
+
+$L364:
+	sll	$2,$2,2
+	addu	$2,$4,$2
+	lw	$2,1432($2)
+	j	$31
+	.end	AIPhysic_GearTopSpeed__FP8Car_tObj6Gear_t
+	.text
+	.ent	AIPhysic_GearBottomSpeed__FP8Car_tObj6Gear_t
+AIPhysic_GearBottomSpeed__FP8Car_tObj6Gear_t:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	slt	$2,$5,3
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L367
+	addu	$2,$5,-3
+	.set	macro
+	.set	reorder
+
+	sll	$2,$2,2
+	addu	$2,$4,$2
+	lw	$2,1432($2)
+	j	$31
+$L367:
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	move	$2,$0
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_GearBottomSpeed__FP8Car_tObj6Gear_t
+	.text
+	.ent	AIPhysic_GearInvSpeedRange__FP8Car_tObj6Gear_t
+AIPhysic_GearInvSpeedRange__FP8Car_tObj6Gear_t:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+$L371:
+	slt	$2,$5,2
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L370
+	addu	$2,$5,-2
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L371
+	li	$5,2			# 0x00000002
+	.set	macro
+	.set	reorder
+
+$L370:
+	sll	$2,$2,2
+	addu	$2,$4,$2
+	lw	$2,1460($2)
+	j	$31
+	.end	AIPhysic_GearInvSpeedRange__FP8Car_tObj6Gear_t
+	.text
+	.ent	AIPhysic_TargetedGetDesiredVector__FP8Car_tObj
+AIPhysic_TargetedGetDesiredVector__FP8Car_tObj:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	lw	$2,1800($4)
+	lw	$5,160($4)
+	lw	$3,1804($4)
+	lw	$6,164($4)
+	subu	$2,$2,$5
+	sw	$2,1744($4)
+	lw	$2,1808($4)
+	subu	$3,$3,$6
+	sw	$3,1748($4)
+	lw	$3,168($4)
+	lw	$5,1812($4)
+	subu	$2,$2,$3
+	sw	$2,1752($4)
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	sw	$5,1816($4)
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_TargetedGetDesiredVector__FP8Car_tObj
+	.text
+	.ent	AIPhysic_DeInitCar__FP8Car_tObj
+AIPhysic_DeInitCar__FP8Car_tObj:
+	.frame	$sp,24,$31		# vars= 0, regs= 2/0, args= 16, extra= 0
+	.mask	0x80010000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,24
+	sw	$16,16($sp)
+	move	$16,$4
+	sw	$31,20($sp)
+	lw	$2,608($16)
+	#nop
+	andi	$2,$2,0x0002
+	beq	$2,$0,$L374
+	lw	$4,1720($16)
+	#nop
+	beq	$4,$0,$L374
+	jal	__builtin_delete
+	sw	$0,1720($16)
+$L374:
+	lw	$31,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_DeInitCar__FP8Car_tObj
+	.text
+	.ent	AIPhysic_GetRearEndDamageFactor__FP8Car_tObj
+AIPhysic_GetRearEndDamageFactor__FP8Car_tObj:
+	.frame	$sp,24,$31		# vars= 0, regs= 1/0, args= 16, extra= 0
+	.mask	0x80000000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,24
+	sw	$31,16($sp)
+	lw	$3,552($4)
+	lw	$2,556($4)
+	li	$5,327			# 0x00000147
+	addu	$3,$3,$2
+	lw	$2,560($4)
+	lw	$4,572($4)
+	addu	$3,$3,$2
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	addu	$4,$3,$4
+	.set	macro
+	.set	reorder
+
+	move	$3,$2
+	li	$4,65536			# 0x00010000
+	move	$2,$4
+	slt	$2,$2,$3
+	bne	$2,$0,$L377
+	move	$4,$3
+$L377:
+	lw	$31,16($sp)
+	move	$2,$4
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_GetRearEndDamageFactor__FP8Car_tObj
+	.text
+	.ent	AIPhysic_CalcDeceleration__FP8Car_tObj
+AIPhysic_CalcDeceleration__FP8Car_tObj:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	lw	$2,1720($4)
+	lw	$5,1840($4)
+	lw	$3,128($2)
+	li	$2,65536			# 0x00010000
+	slt	$2,$2,$5
+	beq	$2,$0,$L380
+	.set	noreorder
+	.set	nomacro
+	bgez	$3,$L381
+	move	$4,$3
+	.set	macro
+	.set	reorder
+
+	addu	$4,$3,255
+$L381:
+	move	$2,$5
+	.set	noreorder
+	.set	nomacro
+	bgez	$2,$L382
+	sra	$3,$4,8
+	.set	macro
+	.set	reorder
+
+	addu	$2,$2,255
+$L382:
+	sra	$2,$2,8
+	mult	$3,$2
+	mflo	$3
+$L380:
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	move	$2,$3
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_CalcDeceleration__FP8Car_tObj
+	.text
+	.ent	AIPhysic_ProcessBarrierCollision__FP8Car_tObj
+AIPhysic_ProcessBarrierCollision__FP8Car_tObj:
+	.frame	$sp,24,$31		# vars= 0, regs= 1/0, args= 16, extra= 0
+	.mask	0x80000000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,24
+	sw	$31,16($sp)
+	lw	$2,608($4)
+	#nop
+	andi	$2,$2,0x0004
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L383
+	li	$3,589824			# 0x00090000
+	.set	macro
+	.set	reorder
+
+	lw	$2,1380($4)
+	ori	$3,$3,0xffff
+	bgez	$2,1f
+	subu	$2,$0,$2
+1:
+	slt	$3,$3,$2
+	bne	$3,$0,$L383
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_ChangeDirection__FP8Car_tObji
+	li	$5,96			# 0x00000060
+	.set	macro
+	.set	reorder
+
+$L383:
+	lw	$31,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_ProcessBarrierCollision__FP8Car_tObj
+	.text
+	.ent	AIPhysic_HitWallCheck__FP8Car_tObj
+AIPhysic_HitWallCheck__FP8Car_tObj:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	lh	$2,8($4)
+	lw	$3,BWorldSm_slices
+	lw	$5,1732($4)
+	sll	$2,$2,5
+	addu	$2,$2,$3
+	lbu	$7,29($2)
+	li	$2,7			# 0x00000007
+	srl	$3,$7,4
+	subu	$2,$2,$3
+	slt	$2,$5,$2
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L387
+	move	$6,$0
+	.set	macro
+	.set	reorder
+
+	andi	$2,$7,0x000f
+	addu	$2,$2,6
+	slt	$2,$2,$5
+	xori	$6,$2,0x0001
+$L387:
+	.set	noreorder
+	.set	nomacro
+	beq	$6,$0,$L388
+	li	$2,-1			# 0xffffffff
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	move	$2,$0
+	.set	macro
+	.set	reorder
+
+$L388:
+	lw	$3,1776($4)
+	#nop
+	bne	$3,$2,$L389
+	lw	$2,1828($4)
+	lw	$3,AIPhysic_elapsedTime
+	#nop
+	addu	$2,$2,$3
+	.set	noreorder
+	.set	nomacro
+	j	$L390
+	sw	$2,1828($4)
+	.set	macro
+	.set	reorder
+
+$L389:
+	sw	$0,1828($4)
+$L390:
+	lw	$2,1828($4)
+	#nop
+	slt	$2,$2,9
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L391
+	li	$2,55705			# 0x0000d999
+	.set	macro
+	.set	reorder
+
+	lw	$3,340($4)
+	#nop
+	slt	$2,$2,$3
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	xori	$2,$2,0x0001
+	.set	macro
+	.set	reorder
+
+$L391:
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	li	$2,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_HitWallCheck__FP8Car_tObj
+	.text
+	.ent	AIPhysic_CoolPhysics__FP8Car_tObj
+AIPhysic_CoolPhysics__FP8Car_tObj:
+	.frame	$sp,24,$31		# vars= 0, regs= 2/0, args= 16, extra= 0
+	.mask	0x80010000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,24
+	sw	$16,16($sp)
+	move	$16,$4
+	sw	$31,20($sp)
+	lw	$2,1392($16)
+	#nop
+	ori	$2,$2,0x0010
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_HandleDirection__FP8Car_tObj
+	sw	$2,1392($16)
+	.set	macro
+	.set	reorder
+
+	lw	$3,1364($16)
+	lw	$2,1380($16)
+	#nop
+	mult	$3,$2
+	mflo	$6
+	#nop
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bgez	$6,$L394
+	li	$2,-1			# 0xffffffff
+	.set	macro
+	.set	reorder
+
+	lw	$3,1776($16)
+	#nop
+	beq	$3,$2,$L394
+	sw	$0,1816($16)
+$L394:
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_HitWallCheck__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L396
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_ChangeDirection__FP8Car_tObji
+	li	$5,64			# 0x00000040
+	.set	macro
+	.set	reorder
+
+$L396:
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_Preperation__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_CheckIfOutOfControl__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	beq	$2,$0,$L397
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_OutOfControlPhysics__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	j	$L398
+$L397:
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_InControlPhysics__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+$L398:
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_FinishUp__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	lw	$31,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_CoolPhysics__FP8Car_tObj
+	.text
+	.ent	AIPhysic_ProcessCollision__FP8Car_tObj
+AIPhysic_ProcessCollision__FP8Car_tObj:
+	.frame	$sp,24,$31		# vars= 0, regs= 1/0, args= 16, extra= 0
+	.mask	0x80000000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,24
+	sw	$31,16($sp)
+	lw	$3,400($4)
+	li	$2,55705			# 0x0000d999
+	slt	$2,$2,$3
+	beq	$2,$0,$L400
+	lw	$2,404($4)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L400
+	li	$3,589824			# 0x00090000
+	.set	macro
+	.set	reorder
+
+	lw	$2,1380($4)
+	ori	$3,$3,0xffff
+	bgez	$2,1f
+	subu	$2,$0,$2
+1:
+	slt	$3,$3,$2
+	bne	$3,$0,$L400
+	lw	$2,608($4)
+	#nop
+	andi	$2,$2,0x0010
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L403
+	li	$5,96			# 0x00000060
+	.set	macro
+	.set	reorder
+
+	li	$5,160			# 0x000000a0
+$L403:
+	jal	AIPhysic_ChangeDirection__FP8Car_tObji
+$L400:
+	lw	$31,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_ProcessCollision__FP8Car_tObj
+	.text
+	.ent	AIPhysic_HandleSignalling__FP8Car_tObj
+AIPhysic_HandleSignalling__FP8Car_tObj:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	lw	$2,608($4)
+	#nop
+	andi	$2,$2,0x0010
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L411
+	li	$2,-262144			# 0xfffc0000
+	.set	macro
+	.set	reorder
+
+	lw	$5,1396($4)
+	lw	$3,1368($4)
+	addu	$2,$5,$2
+	slt	$2,$3,$2
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L407
+	li	$2,262144			# 0x00040000
+	.set	macro
+	.set	reorder
+
+	lhu	$2,2232($4)
+	sh	$0,2234($4)
+	ori	$2,$2,0x0080
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	sh	$2,2232($4)
+	.set	macro
+	.set	reorder
+
+$L407:
+	addu	$2,$5,$2
+	slt	$2,$2,$3
+	beq	$2,$0,$L409
+	lhu	$2,2234($4)
+	sh	$0,2232($4)
+	ori	$2,$2,0x0080
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	sh	$2,2234($4)
+	.set	macro
+	.set	reorder
+
+$L409:
+	sh	$0,2232($4)
+	sh	$0,2234($4)
+$L411:
+	j	$31
+	.end	AIPhysic_HandleSignalling__FP8Car_tObj
+	.text
+	.ent	AIPhysic_ModifyAccelerationAccordingToScript__FP8Car_tObji
+AIPhysic_ModifyAccelerationAccordingToScript__FP8Car_tObji:
+	.frame	$sp,24,$31		# vars= 0, regs= 2/0, args= 16, extra= 0
+	.mask	0x80010000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,24
+	sw	$16,16($sp)
+	move	$16,$5
+	addu	$4,$4,1268
+	sw	$31,20($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	AIScript_DoReAction__FP10AIScript_t20AIScript_tAIReaction
+	li	$5,4			# 0x00000004
+	.set	macro
+	.set	reorder
+
+	li	$3,-1			# 0xffffffff
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$3,$L415
+	move	$2,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bgez	$16,$L414
+	move	$3,$16
+	.set	macro
+	.set	reorder
+
+	addu	$3,$16,255
+$L414:
+	sra	$3,$3,8
+	sll	$2,$3,1
+	addu	$2,$2,$3
+	sll	$16,$2,7
+	move	$2,$16
+$L415:
+	lw	$31,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_ModifyAccelerationAccordingToScript__FP8Car_tObji
+	.text
+	.ent	AIPhysics_UseCoolPhysics__FP8Car_tObj
+AIPhysics_UseCoolPhysics__FP8Car_tObj:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	lw	$3,608($4)
+	#nop
+	andi	$2,$3,0x0800
+	bne	$2,$0,$L418
+	lbu	$4,144($4)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$4,$0,$L418
+	andi	$2,$3,0x0020
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L421
+	sltu	$2,$4,2
+	.set	macro
+	.set	reorder
+
+	beq	$2,$0,$L421
+$L418:
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	li	$2,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+$L421:
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	move	$2,$0
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysics_UseCoolPhysics__FP8Car_tObj
+	.text
+	.ent	AIPhysic_CheckForBadPosition__FP8Car_tObj
+AIPhysic_CheckForBadPosition__FP8Car_tObj:
+	.frame	$sp,24,$31		# vars= 0, regs= 1/0, args= 16, extra= 0
+	.mask	0x80000000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,24
+	move	$7,$0
+	sw	$31,16($sp)
+	lw	$2,180($4)
+	li	$3,7536640			# 0x00730000
+	slt	$2,$3,$2
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L427
+	move	$8,$7
+	.set	macro
+	.set	reorder
+
+	lw	$2,172($4)
+	#nop
+	slt	$2,$3,$2
+	bne	$2,$0,$L427
+	lw	$2,192($4)
+	#nop
+	slt	$2,$3,$2
+	beq	$2,$0,$L426
+	lbu	$2,144($4)
+	#nop
+	bne	$2,$0,$L426
+$L427:
+	li	$7,1			# 0x00000001
+$L426:
+	lh	$2,8($4)
+	lw	$3,BWorldSm_slices
+	lw	$6,1396($4)
+	sll	$2,$2,5
+	addu	$5,$2,$3
+	lh	$3,24($5)
+	li	$2,-2293760			# 0xffdd0000
+	sll	$3,$3,8
+	subu	$2,$2,$3
+	slt	$2,$6,$2
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L429
+	li	$3,2293760			# 0x00230000
+	.set	macro
+	.set	reorder
+
+	lh	$2,26($5)
+	#nop
+	sll	$2,$2,8
+	addu	$2,$2,$3
+	slt	$2,$2,$6
+	beq	$2,$0,$L428
+$L429:
+	li	$8,1			# 0x00000001
+$L428:
+	.set	noreorder
+	.set	nomacro
+	bne	$7,$0,$L433
+	li	$5,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	beq	$8,$0,$L432
+$L433:
+	.set	noreorder
+	.set	nomacro
+	jal	Cars_ResetCollidedCars__FP8Car_tObjii
+	move	$6,$0
+	.set	macro
+	.set	reorder
+
+$L432:
+	lw	$31,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_CheckForBadPosition__FP8Car_tObj
+	.text
+	.ent	AIPhysic_CalculateGear__FP8Car_tObj
+AIPhysic_CalculateGear__FP8Car_tObj:
+	.frame	$sp,40,$31		# vars= 0, regs= 6/0, args= 16, extra= 0
+	.mask	0x801f0000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,40
+	sw	$18,24($sp)
+	move	$18,$4
+	li	$2,65536			# 0x00010000
+	ori	$2,$2,0xffff
+	sw	$31,36($sp)
+	sw	$20,32($sp)
+	sw	$19,28($sp)
+	sw	$17,20($sp)
+	sw	$16,16($sp)
+	lw	$3,1380($18)
+	lbu	$17,1090($18)
+	.set	noreorder
+	bgez	$3,1f
+	move	$20,$3
+	subu	$20,$0,$20
+1:
+	.set	reorder
+	slt	$2,$2,$20
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L435
+	li	$2,-1			# 0xffffffff
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L436
+	li	$17,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+$L435:
+	lw	$3,1776($18)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L450
+	move	$19,$0
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L436
+	move	$17,$0
+	.set	macro
+	.set	reorder
+
+$L438:
+	move	$19,$0
+$L450:
+	move	$4,$18
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_GearTopSpeed__FP8Car_tObj6Gear_t
+	move	$5,$17
+	.set	macro
+	.set	reorder
+
+	slt	$16,$2,$20
+	.set	noreorder
+	.set	nomacro
+	bne	$16,$0,$L442
+	move	$4,$18
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_GearBottomSpeed__FP8Car_tObj6Gear_t
+	move	$5,$17
+	.set	macro
+	.set	reorder
+
+	slt	$2,$20,$2
+	beq	$2,$0,$L441
+$L442:
+	li	$19,1			# 0x00000001
+$L441:
+	.set	noreorder
+	.set	nomacro
+	beq	$19,$0,$L451
+	move	$2,$17
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$16,$0,$L444
+	move	$4,$18
+	.set	macro
+	.set	reorder
+
+	addu	$16,$17,1
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_GearTopSpeed__FP8Car_tObj6Gear_t
+	move	$5,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L451
+	move	$2,$17
+	.set	macro
+	.set	reorder
+
+	lw	$2,1404($18)
+	move	$17,$16
+	.set	noreorder
+	.set	nomacro
+	j	$L438
+	sw	$2,1408($18)
+	.set	macro
+	.set	reorder
+
+$L444:
+	lw	$2,1404($18)
+	addu	$17,$17,-1
+	.set	noreorder
+	.set	nomacro
+	j	$L438
+	sw	$2,1408($18)
+	.set	macro
+	.set	reorder
+
+$L436:
+	move	$2,$17
+$L451:
+	lw	$31,36($sp)
+	lw	$20,32($sp)
+	lw	$19,28($sp)
+	lw	$18,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,40
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_CalculateGear__FP8Car_tObj
+	.text
+	.ent	AIPhysic_HandleDirection__FP8Car_tObj
+AIPhysic_HandleDirection__FP8Car_tObj:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	move	$5,$4
+	lw	$3,1776($5)
+	li	$2,-1			# 0xffffffff
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L465
+	li	$2,-655360			# 0xfff60000
+	.set	macro
+	.set	reorder
+
+	lw	$3,1816($5)
+	lw	$4,1396($5)
+	addu	$2,$3,$2
+	slt	$2,$4,$2
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L462
+	li	$2,655360			# 0x000a0000
+	.set	macro
+	.set	reorder
+
+	lw	$2,1796($5)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bgtz	$2,$L463
+	lui	$2,%hi(D_8011E0B0) # high
+	.set	macro
+	.set	reorder
+
+	li	$2,655360			# 0x000a0000
+$L462:
+	addu	$2,$3,$2
+	slt	$2,$2,$4
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L464
+	lui	$2,%hi(simGlobal) # high
+	.set	macro
+	.set	reorder
+
+	lw	$2,1796($5)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bgez	$2,$L464
+	lui	$2,%hi(simGlobal) # high
+	.set	macro
+	.set	reorder
+
+	lui	$2,%hi(D_8011E0B0) # high
+$L463:
+	lw	$2,%lo(D_8011E0B0)($2)
+	#nop
+	addu	$2,$2,-24
+	sw	$2,1780($5)
+	lui	$2,%hi(simGlobal) # high
+$L464:
+	addiu	$6,$2,%lo(simGlobal) # low
+	lw	$3,4($6)
+	lw	$4,1780($5)
+	lw	$2,1772($5)
+	subu	$3,$3,$4
+	slt	$2,$2,$3
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L458
+	li	$2,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	sw	$2,1776($5)
+	lw	$2,4($6)
+	#nop
+	sw	$2,1780($5)
+$L458:
+	lw	$2,1372($5)
+	li	$3,1310720			# 0x00140000
+	slt	$2,$3,$2
+	beq	$2,$0,$L459
+	sw	$3,1372($5)
+$L459:
+	lw	$2,1372($5)
+	#nop
+	subu	$2,$0,$2
+	slt	$2,$3,$2
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L460
+	li	$2,-1310720			# 0xffec0000
+	.set	macro
+	.set	reorder
+
+	sw	$2,1372($5)
+$L460:
+	sw	$0,1816($5)
+$L465:
+	j	$31
+	.end	AIPhysic_HandleDirection__FP8Car_tObj
+	.text
+	.ent	AIPhysic_CalculateRoadPosition__FP8coorddefi
+AIPhysic_CalculateRoadPosition__FP8coorddefi:
+	.frame	$sp,48,$31		# vars= 48, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	subu	$sp,$sp,48
+	lw	$2,BWorldSm_slices
+	sll	$5,$5,5
+	addu	$2,$5,$2
+	lw	$10,0($2)
+	lw	$11,4($2)
+	lw	$12,8($2)
+	sw	$10,0($sp)
+	sw	$11,4($sp)
+	sw	$12,8($sp)
+	lw	$3,0($4)
+	lw	$2,0($sp)
+	#nop
+	subu	$7,$3,$2
+	sw	$7,16($sp)
+	lw	$3,4($4)
+	lw	$2,4($sp)
+	#nop
+	subu	$8,$3,$2
+	sw	$8,20($sp)
+	lw	$3,8($4)
+	lw	$2,8($sp)
+	lw	$4,BWorldSm_slices
+	subu	$9,$3,$2
+	addu	$5,$5,$4
+	sw	$9,24($sp)
+	lb	$3,18($5)
+	#nop
+	sll	$3,$3,9
+	sw	$3,32($sp)
+	lb	$2,19($5)
+	#nop
+	sll	$4,$2,9
+	sw	$4,36($sp)
+	lb	$2,20($5)
+	#nop
+	sll	$6,$2,9
+	.set	noreorder
+	.set	nomacro
+	bgez	$3,$L467
+	sw	$6,40($sp)
+	.set	macro
+	.set	reorder
+
+	addu	$3,$3,255
+$L467:
+	move	$2,$7
+	.set	noreorder
+	.set	nomacro
+	bgez	$2,$L468
+	sra	$3,$3,8
+	.set	macro
+	.set	reorder
+
+	addu	$2,$2,255
+$L468:
+	sra	$2,$2,8
+	mult	$3,$2
+	mflo	$5
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bgez	$4,$L474
+	move	$2,$8
+	.set	macro
+	.set	reorder
+
+	addu	$4,$4,255
+$L474:
+	.set	noreorder
+	.set	nomacro
+	bgez	$2,$L470
+	sra	$3,$4,8
+	.set	macro
+	.set	reorder
+
+	addu	$2,$2,255
+$L470:
+	sra	$2,$2,8
+	mult	$3,$2
+	move	$4,$6
+	mflo	$10
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bgez	$4,$L471
+	addu	$3,$5,$10
+	.set	macro
+	.set	reorder
+
+	addu	$4,$4,255
+$L471:
+	move	$2,$9
+	.set	noreorder
+	.set	nomacro
+	bgez	$2,$L472
+	sra	$4,$4,8
+	.set	macro
+	.set	reorder
+
+	addu	$2,$2,255
+$L472:
+	sra	$2,$2,8
+	mult	$4,$2
+	mflo	$10
+	#nop
+	#nop
+	addu	$2,$3,$10
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,48
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_CalculateRoadPosition__FP8coorddefi
+	.text
+	.ent	AIPhysic_SimplePhysics_LatVel__FP8Car_tObj
+AIPhysic_SimplePhysics_LatVel__FP8Car_tObj:
+	.frame	$sp,48,$31		# vars= 16, regs= 3/0, args= 16, extra= 0
+	.mask	0x80030000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,48
+	sw	$17,36($sp)
+	move	$17,$4
+	sw	$31,40($sp)
+	sw	$16,32($sp)
+	lw	$3,1384($17)
+	li	$2,196608			# 0x00030000
+	slt	$2,$2,$3
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L484
+	move	$16,$0
+	.set	macro
+	.set	reorder
+
+	lw	$3,1816($17)
+	lw	$2,1396($17)
+	#nop
+	subu	$16,$3,$2
+	lw	$3,1384($17)
+$L484:
+	li	$2,1638400			# 0x00190000
+	slt	$2,$2,$3
+	beq	$2,$0,$L478
+	lw	$6,324($17)
+	lw	$7,328($17)
+	lw	$8,332($17)
+	sw	$6,16($sp)
+	sw	$7,20($sp)
+	sw	$8,24($sp)
+	lw	$5,16($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	lw	$5,20($sp)
+	move	$4,$16
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sw	$2,16($sp)
+	.set	macro
+	.set	reorder
+
+	lw	$5,24($sp)
+	move	$4,$16
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sw	$2,20($sp)
+	.set	macro
+	.set	reorder
+
+	sw	$2,24($sp)
+	lw	$2,160($17)
+	lw	$3,16($sp)
+	#nop
+	addu	$2,$2,$3
+	sw	$2,160($17)
+	lw	$2,164($17)
+	lw	$3,20($sp)
+	#nop
+	addu	$2,$2,$3
+	sw	$2,164($17)
+	lw	$2,168($17)
+	lw	$3,24($sp)
+	sw	$0,1428($17)
+	addu	$2,$2,$3
+	.set	noreorder
+	.set	nomacro
+	j	$L483
+	sw	$2,168($17)
+	.set	macro
+	.set	reorder
+
+$L478:
+	lw	$2,1380($17)
+	#nop
+	.set	noreorder
+	bgez	$2,1f
+	move	$3,$2
+	subu	$3,$0,$3
+1:
+	.set	reorder
+	subu	$4,$0,$3
+	slt	$2,$16,$4
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L480
+	sw	$16,1428($17)
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L483
+	sw	$4,1428($17)
+	.set	macro
+	.set	reorder
+
+$L480:
+	slt	$2,$3,$16
+	beq	$2,$0,$L483
+	sw	$3,1428($17)
+$L483:
+	lw	$31,40($sp)
+	lw	$17,36($sp)
+	lw	$16,32($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,48
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_SimplePhysics_LatVel__FP8Car_tObj
+	.text
+	.ent	AIPhysic_HandleWipeoutTimer__FP8Car_tObj
+AIPhysic_HandleWipeoutTimer__FP8Car_tObj:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	move	$7,$4
+	lw	$2,608($7)
+	#nop
+	andi	$2,$2,0x0008
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L489
+	lui	$2,%hi(D_8011E0B0) # high
+	.set	macro
+	.set	reorder
+
+	lw	$6,%lo(D_8011E0B0)($2)
+	lw	$2,1860($7)
+	#nop
+	slt	$2,$2,$6
+	beq	$2,$0,$L489
+	lw	$2,fastRandom
+	lw	$3,randSeed
+	#nop
+	mult	$2,$3
+	lw	$5,1264($7)
+	#nop
+	lw	$4,48($5)
+	#nop
+	addu	$4,$6,$4
+	mflo	$2
+	#nop
+	#nop
+	andi	$3,$2,0xffff
+	sw	$2,randtemp
+	srl	$2,$2,8
+	sw	$3,fastRandom
+	lw	$3,52($5)
+	andi	$2,$2,0xffff
+	and	$2,$2,$3
+	addu	$4,$4,$2
+	sw	$4,1860($7)
+$L489:
+	j	$31
+	.end	AIPhysic_HandleWipeoutTimer__FP8Car_tObj
+	.text
+	.ent	AIPhysic_ChangeDirection__FP8Car_tObji
+AIPhysic_ChangeDirection__FP8Car_tObji:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	move	$6,$4
+	lw	$3,1776($6)
+	li	$2,-1			# 0xffffffff
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L498
+	li	$2,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	lui	$2,%hi(simGlobal) # high
+	addiu	$7,$2,%lo(simGlobal) # low
+	lw	$4,4($7)
+	lw	$3,1780($6)
+	lw	$2,1772($6)
+	subu	$4,$4,$3
+	srl	$3,$2,31
+	addu	$2,$2,$3
+	sra	$2,$2,1
+	slt	$2,$2,$4
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L493
+	li	$2,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	lw	$3,1776($6)
+$L498:
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L499
+	lui	$2,%hi(simGlobal) # high
+	.set	macro
+	.set	reorder
+
+	addiu	$7,$2,%lo(simGlobal) # low
+	lw	$4,4($7)
+	lw	$3,1780($6)
+	lw	$2,1772($6)
+	subu	$4,$4,$3
+	srl	$3,$2,31
+	addu	$2,$2,$3
+	sra	$2,$2,1
+	slt	$2,$2,$4
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L499
+	li	$3,1245184			# 0x00130000
+	.set	macro
+	.set	reorder
+
+	lw	$2,1380($6)
+	ori	$3,$3,0xffff
+	bgez	$2,1f
+	subu	$2,$0,$2
+1:
+	slt	$3,$3,$2
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$0,$L499
+	li	$2,-1			# 0xffffffff
+	.set	macro
+	.set	reorder
+
+$L493:
+	sw	$2,1776($6)
+	lw	$2,4($7)
+	sw	$5,1772($6)
+	sw	$2,1780($6)
+$L499:
+	j	$31
+	.end	AIPhysic_ChangeDirection__FP8Car_tObji
+	.text
+	.ent	AIPhysic_StopCar__FP8Car_tObjii
+AIPhysic_StopCar__FP8Car_tObjii:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	move	$3,$5
+	sw	$0,1020($4)
+	sw	$0,1016($4)
+	sw	$0,1012($4)
+	sw	$0,1044($4)
+	sw	$0,1040($4)
+	sw	$0,1036($4)
+	sw	$0,1080($4)
+	sw	$0,1076($4)
+	.set	noreorder
+	.set	nomacro
+	bgez	$5,$L501
+	sw	$0,1072($4)
+	.set	macro
+	.set	reorder
+
+	addu	$3,$5,255
+$L501:
+	lw	$2,172($4)
+	sra	$8,$3,8
+	mult	$8,$2
+	mflo	$3
+	#nop
+	#nop
+	bgez	$3,$L502
+	addu	$3,$3,255
+$L502:
+	lw	$2,176($4)
+	#nop
+	mult	$8,$2
+	sra	$2,$3,8
+	mflo	$7
+	#nop
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bgez	$7,$L504
+	sw	$2,172($4)
+	.set	macro
+	.set	reorder
+
+	addu	$7,$7,255
+$L504:
+	sra	$2,$7,8
+	sw	$2,176($4)
+	lw	$2,180($4)
+	#nop
+	mult	$8,$2
+	mflo	$2
+	#nop
+	#nop
+	bgez	$2,$L506
+	addu	$2,$2,255
+$L506:
+	lw	$3,280($4)
+	sra	$2,$2,8
+	.set	noreorder
+	.set	nomacro
+	bgez	$3,$L507
+	sw	$2,180($4)
+	.set	macro
+	.set	reorder
+
+	addu	$3,$3,255
+$L507:
+	.set	noreorder
+	.set	nomacro
+	bgez	$6,$L508
+	sra	$3,$3,8
+	.set	macro
+	.set	reorder
+
+	addu	$6,$6,255
+$L508:
+	sra	$2,$6,8
+	mult	$3,$2
+	mflo	$9
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	sw	$9,280($4)
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_StopCar__FP8Car_tObjii
+	.text
+	.ent	AIPhysic_RevEngine__FP8Car_tObj
+AIPhysic_RevEngine__FP8Car_tObj:
+	.frame	$sp,8,$31		# vars= 8, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	lw	$5,1412($4)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bgez	$5,$L511
+	subu	$sp,$sp,8
+	.set	macro
+	.set	reorder
+
+	li	$2,65535			# 0x0000ffff
+	addu	$5,$5,$2
+$L511:
+	lw	$3,596($4)
+	#nop
+	srl	$2,$3,31
+	addu	$2,$3,$2
+	sra	$2,$2,1
+	sll	$2,$2,1
+	subu	$3,$3,$2
+	lw	$2,AIPhysic_elapsedTime
+	addu	$3,$3,1
+	mult	$3,$2
+	mflo	$3
+	#nop
+	#nop
+	sll	$2,$3,3
+	addu	$2,$2,$3
+	sll	$2,$2,2
+	subu	$2,$2,$3
+	sll	$3,$2,2
+	lw	$2,1128($4)
+	#nop
+	andi	$2,$2,0x0001
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L512
+	sra	$5,$5,16
+	.set	macro
+	.set	reorder
+
+	sra	$2,$3,1
+	subu	$3,$0,$2
+	andi	$2,$3,0x0001
+	beq	$2,$0,$L512
+	addu	$3,$3,-1
+$L512:
+	lw	$2,1128($4)
+	#nop
+	addu	$2,$2,$3
+	sw	$2,1128($4)
+	slt	$2,$5,$2
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L514
+	srl	$2,$5,31
+	.set	macro
+	.set	reorder
+
+	addu	$2,$5,$2
+	sra	$2,$2,1
+	ori	$2,$2,0x0001
+	sw	$2,1128($4)
+$L514:
+	lw	$2,1128($4)
+	#nop
+	slt	$2,$2,501
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L510
+	li	$2,500			# 0x000001f4
+	.set	macro
+	.set	reorder
+
+	sw	$2,1128($4)
+$L510:
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,8
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_RevEngine__FP8Car_tObj
+	.text
+	.ent	AIPhysic_HandleShifting__FP8Car_tObj
+AIPhysic_HandleShifting__FP8Car_tObj:
+	.frame	$sp,40,$31		# vars= 0, regs= 5/0, args= 16, extra= 0
+	.mask	0x800f0000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,40
+	sw	$17,20($sp)
+	move	$17,$4
+	sw	$31,32($sp)
+	sw	$19,28($sp)
+	sw	$18,24($sp)
+	sw	$16,16($sp)
+	lw	$3,1408($17)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	blez	$3,$L518
+	li	$16,3000			# 0x00000bb8
+	.set	macro
+	.set	reorder
+
+	lw	$2,AIPhysic_elapsedTime
+	#nop
+	subu	$2,$3,$2
+	.set	noreorder
+	.set	nomacro
+	j	$L519
+	sw	$2,1408($17)
+	.set	macro
+	.set	reorder
+
+$L518:
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_CalculateGear__FP8Car_tObj
+	move	$4,$17
+	.set	macro
+	.set	reorder
+
+	move	$4,$17
+	move	$19,$2
+	move	$5,$19
+	lw	$16,1380($17)
+	#nop
+	bgez	$16,1f
+	subu	$16,$0,$16
+1:
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_GearBottomSpeed__FP8Car_tObj6Gear_t
+	move	$18,$0
+	.set	macro
+	.set	reorder
+
+	subu	$16,$16,$2
+	slt	$2,$19,3
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L533
+	move	$4,$17
+	.set	macro
+	.set	reorder
+
+	li	$18,262144000			# 0x0fa00000
+$L533:
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_GearInvSpeedRange__FP8Car_tObj6Gear_t
+	move	$5,$19
+	.set	macro
+	.set	reorder
+
+	bgez	$16,$L521
+	addu	$16,$16,255
+$L521:
+	.set	noreorder
+	.set	nomacro
+	bgez	$2,$L522
+	sra	$16,$16,8
+	.set	macro
+	.set	reorder
+
+	addu	$2,$2,255
+$L522:
+	sra	$2,$2,8
+	mult	$16,$2
+	mflo	$16
+	#nop
+	#nop
+	bgez	$16,$L523
+	addu	$16,$16,255
+$L523:
+	lw	$2,1412($17)
+	#nop
+	subu	$2,$2,$18
+	.set	noreorder
+	.set	nomacro
+	bgez	$2,$L524
+	sra	$16,$16,8
+	.set	macro
+	.set	reorder
+
+	addu	$2,$2,255
+$L524:
+	sra	$2,$2,8
+	mult	$16,$2
+	mflo	$6
+	#nop
+	#nop
+	addu	$16,$18,$6
+	.set	noreorder
+	.set	nomacro
+	bgez	$16,$L525
+	move	$2,$16
+	.set	macro
+	.set	reorder
+
+	li	$2,65535			# 0x0000ffff
+	addu	$2,$16,$2
+$L525:
+	sra	$16,$2,16
+	sb	$19,1090($17)
+$L519:
+	lw	$3,1128($17)
+	#nop
+	slt	$2,$3,$16
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L526
+	subu	$2,$16,$3
+	.set	macro
+	.set	reorder
+
+	bgez	$2,$L527
+	addu	$2,$2,7
+$L527:
+	sra	$2,$2,3
+	.set	noreorder
+	.set	nomacro
+	j	$L532
+	addu	$2,$3,$2
+	.set	macro
+	.set	reorder
+
+$L526:
+	slt	$2,$16,$3
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L517
+	subu	$2,$3,$16
+	.set	macro
+	.set	reorder
+
+	bgez	$2,$L530
+	addu	$2,$2,7
+$L530:
+	sra	$2,$2,3
+	subu	$2,$3,$2
+$L532:
+	sw	$2,1128($17)
+$L517:
+	lw	$31,32($sp)
+	lw	$19,28($sp)
+	lw	$18,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,40
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_HandleShifting__FP8Car_tObj
+	.text
+	.ent	AIPhysic_CalcAcceleration__FP8Car_tObji
+AIPhysic_CalcAcceleration__FP8Car_tObji:
+	.frame	$sp,40,$31		# vars= 0, regs= 5/0, args= 16, extra= 0
+	.mask	0x800f0000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,40
+	sw	$19,28($sp)
+	move	$19,$4
+	sw	$31,32($sp)
+	sw	$18,24($sp)
+	sw	$17,20($sp)
+	sw	$16,16($sp)
+	lw	$2,1408($19)
+	.set	noreorder
+	bgez	$5,1f
+	move	$18,$5
+	subu	$18,$0,$18
+1:
+	.set	reorder
+	.set	noreorder
+	.set	nomacro
+	bgtz	$2,$L561
+	move	$2,$0
+	.set	macro
+	.set	reorder
+
+	lw	$2,648($19)
+	#nop
+	lw	$3,0($2)
+	#nop
+	slt	$2,$3,22
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L536
+	lui	$2,%hi(Cars_topSpeedCap) # high
+	.set	macro
+	.set	reorder
+
+	addiu	$2,$2,%lo(Cars_topSpeedCap) # low
+	sll	$3,$3,2
+	addu	$3,$3,$2
+	lw	$17,0($3)
+	lw	$5,1916($19)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$4,$17
+	.set	macro
+	.set	reorder
+
+	move	$16,$2
+	lw	$5,1840($19)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	slt	$2,$2,$18
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L561
+	move	$2,$0
+	.set	macro
+	.set	reorder
+
+	slt	$2,$16,$18
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L538
+	move	$2,$0
+	.set	macro
+	.set	reorder
+
+	slt	$2,$17,$18
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L536
+	li	$2,-196608			# 0xfffd0000
+	.set	macro
+	.set	reorder
+
+	ori	$2,$2,0xc71d
+	addu	$18,$17,$2
+$L536:
+	move	$5,$18
+	.set	noreorder
+	.set	nomacro
+	bgez	$5,$L541
+	li	$2,65535			# 0x0000ffff
+	.set	macro
+	.set	reorder
+
+	addu	$5,$5,$2
+$L541:
+	sra	$5,$5,16
+	slt	$2,$5,112
+	bne	$2,$0,$L542
+	li	$5,111			# 0x0000006f
+$L542:
+	bgez	$5,$L543
+	move	$5,$0
+$L543:
+	lw	$4,1712($19)
+	jal	Get__23AIDataRecord_AccTable_ti
+	move	$16,$2
+	lw	$4,1852($19)
+	li	$2,65536			# 0x00010000
+	beq	$4,$2,$L544
+	.set	noreorder
+	.set	nomacro
+	bgez	$16,$L545
+	move	$3,$16
+	.set	macro
+	.set	reorder
+
+	addu	$3,$16,255
+$L545:
+	move	$2,$4
+	.set	noreorder
+	.set	nomacro
+	bgez	$2,$L546
+	sra	$4,$3,8
+	.set	macro
+	.set	reorder
+
+	addu	$2,$2,255
+$L546:
+	sra	$2,$2,8
+	mult	$4,$2
+	mflo	$16
+$L544:
+	.set	noreorder
+	.set	nomacro
+	bgez	$16,$L547
+	move	$2,$16
+	.set	macro
+	.set	reorder
+
+	addu	$2,$16,255
+$L547:
+	lw	$3,1920($19)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bgez	$3,$L548
+	sra	$4,$2,8
+	.set	macro
+	.set	reorder
+
+	addu	$3,$3,255
+$L548:
+	sra	$3,$3,8
+	mult	$4,$3
+	lui	$2,%hi(GameSetup_gData+72) # high
+	lw	$2,%lo(GameSetup_gData+72)($2)
+	mflo	$16
+	#nop
+	blez	$2,$L549
+	.set	noreorder
+	.set	nomacro
+	bgez	$16,$L550
+	move	$3,$16
+	.set	macro
+	.set	reorder
+
+	addu	$3,$16,255
+$L550:
+	sra	$3,$3,8
+	sll	$2,$3,3
+	subu	$2,$2,$3
+	sll	$2,$2,2
+	addu	$2,$2,$3
+	sll	$2,$2,2
+	subu	$2,$2,$3
+	sll	$16,$2,1
+$L549:
+	lw	$2,608($19)
+	#nop
+	andi	$2,$2,0x0020
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L562
+	lui	$2,%hi(GameSetup_gData) # high
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bgez	$16,$L552
+	move	$3,$16
+	.set	macro
+	.set	reorder
+
+	addu	$3,$16,255
+$L552:
+	lw	$2,1740($19)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bgez	$2,$L553
+	sra	$4,$3,8
+	.set	macro
+	.set	reorder
+
+	addu	$2,$2,255
+$L553:
+	sra	$2,$2,8
+	mult	$4,$2
+	mflo	$16
+	#nop
+	lui	$2,%hi(GameSetup_gData) # high
+$L562:
+	addiu	$5,$2,%lo(GameSetup_gData) # low
+	lw	$3,%lo(GameSetup_gData)($2)
+	li	$2,1			# 0x00000001
+	.set	noreorder
+	.set	nomacro
+	beq	$3,$2,$L555
+	li	$2,5			# 0x00000005
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L563
+	move	$4,$19
+	.set	macro
+	.set	reorder
+
+$L555:
+	lui	$3,%hi(Cars_gHumanRaceCarList) # high
+	lw	$2,%lo(Cars_gHumanRaceCarList)($3)
+	#nop
+	lw	$2,608($2)
+	#nop
+	andi	$2,$2,0x0200
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L556
+	addiu	$4,$3,%lo(Cars_gHumanRaceCarList) # low
+	.set	macro
+	.set	reorder
+
+	lw	$3,Cars_gNumHumanRaceCars
+	li	$2,2			# 0x00000002
+	bne	$3,$2,$L554
+	lw	$2,4($4)
+	#nop
+	lw	$2,608($2)
+	#nop
+	andi	$2,$2,0x0200
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L563
+	move	$4,$19
+	.set	macro
+	.set	reorder
+
+$L556:
+	lw	$2,608($19)
+	#nop
+	andi	$2,$2,0x0008
+	beq	$2,$0,$L554
+	.set	noreorder
+	.set	nomacro
+	bgez	$16,$L557
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	addu	$4,$16,255
+$L557:
+	lui	$3,%hi(AITune_BTCPerpAccMults) # high
+	lw	$2,8($5)
+	addiu	$3,$3,%lo(AITune_BTCPerpAccMults) # low
+	sll	$2,$2,2
+	addu	$2,$2,$3
+	lw	$2,0($2)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bgez	$2,$L558
+	sra	$4,$4,8
+	.set	macro
+	.set	reorder
+
+	addu	$2,$2,255
+$L558:
+	sra	$2,$2,8
+	mult	$4,$2
+	mflo	$16
+$L554:
+	move	$4,$19
+$L563:
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_ModifyAccelerationAccordingToScript__FP8Car_tObji
+	move	$5,$16
+	.set	macro
+	.set	reorder
+
+	move	$16,$2
+	.set	noreorder
+	.set	nomacro
+	jal	AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars__FP8Car_tObj
+	move	$4,$19
+	.set	macro
+	.set	reorder
+
+	move	$5,$2
+	li	$2,65536			# 0x00010000
+	beq	$5,$2,$L559
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	move	$16,$2
+$L559:
+	move	$2,$16
+$L538:
+$L561:
+	lw	$31,32($sp)
+	lw	$19,28($sp)
+	lw	$18,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,40
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_CalcAcceleration__FP8Car_tObji
+	.text
+	.ent	AIPhysic_CheckDesiredDirection__FP8Car_tObj
+AIPhysic_CheckDesiredDirection__FP8Car_tObj:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	li	$3,524288			# 0x00080000
+	lw	$2,608($4)
+	#nop
+	andi	$2,$2,0x0020
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L565
+	ori	$3,$3,0xe38e
+	.set	macro
+	.set	reorder
+
+	lui	$2,%hi(GameSetup_gData) # high
+	#.set	volatile
+	lw	$2,%lo(GameSetup_gData)($2)
+	#.set	novolatile
+$L565:
+	lw	$2,1384($4)
+	#nop
+	slt	$2,$2,$3
+	beq	$2,$0,$L568
+	lw	$2,1360($4)
+	#nop
+	sw	$2,1364($4)
+$L568:
+	j	$31
+	.end	AIPhysic_CheckDesiredDirection__FP8Car_tObj
+	.text
+	.ent	AIPhysic_Main__FP8Car_tObj
+AIPhysic_Main__FP8Car_tObj:
+	.frame	$sp,48,$31		# vars= 0, regs= 3/0, args= 32, extra= 0
+	.mask	0x80030000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,48
+	sw	$16,32($sp)
+	move	$16,$4
+	la	$2,AIPhysic_time
+	sw	$2,16($sp)
+	la	$2,AIPhysic_elapsedTime
+	sw	$2,20($sp)
+	la	$2,AIPhysic_iTime
+	sw	$31,40($sp)
+	sw	$17,36($sp)
+	sw	$2,24($sp)
+	lw	$2,1884($16)
+	li	$4,1			# 0x00000001
+	sw	$2,28($sp)
+	lw	$6,140($16)
+	lw	$7,0($16)
+	.set	noreorder
+	.set	nomacro
+	jal	Sched_ExecuteCheck__FiiiiPiN24i
+	move	$5,$4
+	.set	macro
+	.set	reorder
+
+	beq	$2,$0,$L569
+	lw	$2,608($16)
+	#nop
+	andi	$2,$2,0x0002
+	beq	$2,$0,$L571
+	.set	noreorder
+	.set	nomacro
+	jal	AIWorld_CalcSpeed__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+$L571:
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_CheckDesiredDirection__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_CheckForGripReduction__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_HandleSignalling__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	AIWorld_CalcLateralVelocity__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	move	$4,$16
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysics_UseCoolPhysics__FP8Car_tObj
+	sw	$2,1796($16)
+	.set	macro
+	.set	reorder
+
+	move	$4,$16
+	move	$17,$2
+	andi	$5,$17,0x00ff
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_CalculateRampedDesiredLatPos__FP8Car_tObj9eRampType
+	sltu	$5,$0,$5
+	.set	macro
+	.set	reorder
+
+	lw	$2,1392($16)
+	#nop
+	andi	$2,$2,0x0004
+	bne	$2,$0,$L569
+	lbu	$2,145($16)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L569
+	lui	$2,%hi(simGlobal) # high
+	.set	macro
+	.set	reorder
+
+	lw	$3,%lo(simGlobal)($2)
+	li	$2,1			# 0x00000001
+	beq	$3,$2,$L574
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_RevEngine__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	j	$L569
+$L574:
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_HandleShifting__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	lhu	$2,380($16)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L575
+	li	$2,196608			# 0x00030000
+	.set	macro
+	.set	reorder
+
+	lw	$2,608($16)
+	#nop
+	andi	$2,$2,0x0400
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L569
+	li	$5,64225			# 0x0000fae1
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L590
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+$L575:
+	lw	$3,1384($16)
+	ori	$2,$2,0xffff
+	slt	$2,$2,$3
+	bne	$2,$0,$L577
+	sw	$0,1056($16)
+	sw	$0,1160($16)
+	sw	$0,1156($16)
+$L577:
+	lhu	$2,380($16)
+	#nop
+	bne	$2,$0,$L578
+	lw	$2,256($16)
+	#nop
+	slt	$2,$2,19660
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L591
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+$L578:
+	lw	$2,628($16)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L580
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L590
+	li	$5,64880			# 0x0000fd70
+	.set	macro
+	.set	reorder
+
+$L580:
+	lw	$2,632($16)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L581
+	li	$2,131072			# 0x00020000
+	.set	macro
+	.set	reorder
+
+	lw	$3,1384($16)
+	ori	$2,$2,0x38e2
+	slt	$2,$2,$3
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L582
+	li	$2,524288			# 0x00080000
+	.set	macro
+	.set	reorder
+
+	move	$4,$16
+	li	$5,58982			# 0x0000e666
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_StopCar__FP8Car_tObjii
+	move	$6,$5
+	.set	macro
+	.set	reorder
+
+	j	$L569
+$L582:
+	ori	$2,$2,0xe38d
+	slt	$2,$2,$3
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L581
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L590
+	li	$5,62914			# 0x0000f5c2
+	.set	macro
+	.set	reorder
+
+$L581:
+	lw	$2,608($16)
+	#nop
+	andi	$2,$2,0x0001
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L584
+	li	$2,2			# 0x00000002
+	.set	macro
+	.set	reorder
+
+	lw	$3,912($16)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L584
+	li	$3,65536			# 0x00010000
+	.set	macro
+	.set	reorder
+
+	lw	$2,1380($16)
+	ori	$3,$3,0xffff
+	bgez	$2,1f
+	subu	$2,$0,$2
+1:
+	slt	$3,$3,$2
+	.set	noreorder
+	.set	nomacro
+	beq	$3,$0,$L591
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+$L584:
+	lw	$2,1372($16)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L586
+	andi	$2,$17,0x00ff
+	.set	macro
+	.set	reorder
+
+	move	$4,$16
+$L591:
+	li	$5,61603			# 0x0000f0a3
+$L590:
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_StopCar__FP8Car_tObjii
+	li	$6,64225			# 0x0000fae1
+	.set	macro
+	.set	reorder
+
+	j	$L569
+$L586:
+	beq	$2,$0,$L587
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_CoolPhysics__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	j	$L588
+$L587:
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_SimplePhysics__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+$L588:
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_CheckForBadPosition__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_HandleWipeoutTimer__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+$L569:
+	lw	$31,40($sp)
+	lw	$17,36($sp)
+	lw	$16,32($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,48
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_Main__FP8Car_tObj
+	.text
+	.ent	AIPhysic_SimplePhysics__FP8Car_tObj
+AIPhysic_SimplePhysics__FP8Car_tObj:
+	.frame	$sp,64,$31		# vars= 32, regs= 3/0, args= 16, extra= 0
+	.mask	0x80030000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,64
+	sw	$16,48($sp)
+	move	$16,$4
+	sw	$31,56($sp)
+	sw	$17,52($sp)
+	lw	$2,1392($16)
+	#nop
+	andi	$2,$2,0x0010
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L593
+	li	$3,-17			# 0xffffffef
+	.set	macro
+	.set	reorder
+
+	lw	$2,1396($16)
+	#nop
+	sw	$2,1816($16)
+	lw	$2,1392($16)
+	#nop
+	and	$2,$2,$3
+	sw	$2,1392($16)
+$L593:
+	lw	$2,608($16)
+	#nop
+	andi	$2,$2,0x0008
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L594
+	lui	$2,%hi(simGlobal) # high
+	.set	macro
+	.set	reorder
+
+	addiu	$17,$2,%lo(simGlobal) # low
+	lw	$3,4($17)
+	lw	$2,1860($16)
+	#nop
+	slt	$2,$2,$3
+	beq	$2,$0,$L594
+	lw	$4,AIDataRecord_TrackCurve
+	lh	$5,8($16)
+	jal	Get__25AIDataRecord_TrackCurve_ti
+	slt	$2,$2,31
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L594
+	li	$2,1441792			# 0x00160000
+	.set	macro
+	.set	reorder
+
+	lw	$3,1384($16)
+	ori	$2,$2,0x38e3
+	slt	$2,$2,$3
+	beq	$2,$0,$L594
+	lw	$2,4($17)
+	#nop
+	addu	$2,$2,384
+	sw	$2,1864($16)
+$L594:
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_SimplePhysics_LongVel__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_SimplePhysics_LatVel__FP8Car_tObj
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	lw	$7,264($16)
+	lw	$8,268($16)
+	lw	$9,272($16)
+	sw	$7,16($sp)
+	sw	$8,20($sp)
+	sw	$9,24($sp)
+	lw	$7,324($16)
+	lw	$8,328($16)
+	lw	$9,332($16)
+	sw	$7,32($sp)
+	sw	$8,36($sp)
+	sw	$9,40($sp)
+	lw	$4,1428($16)
+	lw	$5,32($sp)
+	jal	fixedmult
+	sw	$2,32($sp)
+	lw	$4,1428($16)
+	lw	$5,36($sp)
+	jal	fixedmult
+	sw	$2,36($sp)
+	lw	$4,1428($16)
+	lw	$5,40($sp)
+	jal	fixedmult
+	sw	$2,40($sp)
+	lw	$2,1380($16)
+	lw	$4,1364($16)
+	#nop
+	mult	$2,$4
+	lw	$5,16($sp)
+	mflo	$4
+	#nop
+	jal	fixedmult
+	sw	$2,16($sp)
+	lw	$2,1380($16)
+	lw	$4,1364($16)
+	#nop
+	mult	$2,$4
+	lw	$5,20($sp)
+	mflo	$4
+	#nop
+	jal	fixedmult
+	sw	$2,20($sp)
+	lw	$2,1380($16)
+	lw	$4,1364($16)
+	#nop
+	mult	$2,$4
+	lw	$5,24($sp)
+	mflo	$4
+	#nop
+	jal	fixedmult
+	sw	$2,24($sp)
+	lw	$2,16($sp)
+	lw	$3,32($sp)
+	lw	$5,1428($16)
+	lw	$4,1364($16)
+	addu	$2,$2,$3
+	mult	$5,$4
+	sw	$2,172($16)
+	lw	$2,20($sp)
+	lw	$3,36($sp)
+	lw	$4,1384($16)
+	addu	$2,$2,$3
+	sw	$2,176($16)
+	lw	$2,24($sp)
+	lw	$3,40($sp)
+	sw	$4,1056($16)
+	addu	$2,$2,$3
+	sw	$2,180($16)
+	mflo	$5
+	#nop
+	#nop
+	.set	noreorder
+	bgez	$5,1f
+	move	$4,$5
+	subu	$4,$0,$4
+1:
+	.set	reorder
+	move	$3,$4
+	.set	noreorder
+	.set	nomacro
+	bgez	$4,$L596
+	sw	$5,1048($16)
+	.set	macro
+	.set	reorder
+
+	addu	$3,$4,255
+$L596:
+	sra	$3,$3,8
+	sll	$2,$3,1
+	addu	$2,$2,$3
+	sll	$2,$2,3
+	addu	$2,$2,$3
+	slt	$2,$2,$4
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L595
+	li	$2,32768			# 0x00008000
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L597
+	sw	$2,1144($16)
+	.set	macro
+	.set	reorder
+
+$L595:
+	sw	$0,1144($16)
+$L597:
+	lw	$3,1384($16)
+	li	$2,196608			# 0x00030000
+	sw	$0,276($16)
+	sw	$0,280($16)
+	slt	$2,$2,$3
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L598
+	sw	$0,284($16)
+	.set	macro
+	.set	reorder
+
+	lw	$5,1364($16)
+	move	$4,$16
+	nor	$5,$0,$5
+	.set	noreorder
+	.set	nomacro
+	jal	Newton_CopyRoadMatrixToOrientMat__FP13BO_tNewtonObji
+	sltu	$5,$5,1
+	.set	macro
+	.set	reorder
+
+$L598:
+	li	$6,715784192			# 0x2aaa0000
+	lw	$2,1380($16)
+	ori	$6,$6,0xaaab
+	.set	noreorder
+	bgez	$2,1f
+	move	$5,$2
+	subu	$5,$0,$5
+1:
+	.set	reorder
+	mult	$5,$6
+	sra	$2,$5,31
+	mfhi	$7
+	#nop
+	#nop
+	sra	$3,$7,16
+	subu	$4,$3,$2
+	.set	noreorder
+	.set	nomacro
+	bltz	$4,$L599
+	lui	$2,%hi(AIPhysicConfig+4) # high
+	.set	macro
+	.set	reorder
+
+	lw	$2,%lo(AIPhysicConfig+4)($2)
+	#nop
+	mult	$2,$6
+	sra	$2,$2,31
+	mfhi	$7
+	#nop
+	#nop
+	subu	$3,$7,$2
+	slt	$2,$4,$3
+	beq	$2,$0,$L599
+	bltz	$5,$L599
+	move	$4,$3
+$L599:
+	li	$3,715784192			# 0x2aaa0000
+	lui	$2,%hi(AIPhysicConfig+8) # high
+	lw	$2,%lo(AIPhysicConfig+8)($2)
+	ori	$3,$3,0xaaab
+	mult	$2,$3
+	sra	$2,$2,31
+	mfhi	$7
+	#nop
+	#nop
+	subu	$3,$7,$2
+	slt	$2,$3,$4
+	beq	$2,$0,$L601
+	move	$4,$3
+$L601:
+	lw	$2,1364($16)
+	#nop
+	mult	$4,$2
+	mflo	$3
+	#nop
+	#nop
+	bltz	$3,$L602
+	lh	$2,8($16)
+	lw	$4,gNumSlices
+	addu	$3,$2,$3
+	slt	$2,$3,$4
+	bne	$2,$0,$L605
+	.set	noreorder
+	.set	nomacro
+	j	$L605
+	subu	$3,$3,$4
+	.set	macro
+	.set	reorder
+
+$L602:
+	lh	$2,8($16)
+	#nop
+	addu	$3,$2,$3
+	bgez	$3,$L605
+	lw	$2,gNumSlices
+	#nop
+	addu	$3,$3,$2
+$L605:
+	sw	$3,1880($16)
+	lw	$31,56($sp)
+	lw	$17,52($sp)
+	lw	$16,48($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,64
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_SimplePhysics__FP8Car_tObj
+	.text
+	.ent	AIPhysic_SimplePhysics_LongVel__FP8Car_tObj
+AIPhysic_SimplePhysics_LongVel__FP8Car_tObj:
+	.frame	$sp,32,$31		# vars= 0, regs= 3/0, args= 16, extra= 0
+	.mask	0x80030000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,32
+	sw	$16,16($sp)
+	move	$16,$4
+	sw	$31,24($sp)
+	sw	$17,20($sp)
+	lw	$5,1380($16)
+	jal	AIPhysic_CalcAcceleration__FP8Car_tObji
+	move	$4,$16
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_CalcDeceleration__FP8Car_tObj
+	move	$17,$2
+	.set	macro
+	.set	reorder
+
+	lw	$3,632($16)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$3,$0,$L608
+	move	$5,$2
+	.set	macro
+	.set	reorder
+
+	sw	$0,1372($16)
+$L608:
+	lui	$2,%hi(simGlobal+4) # high
+	lw	$2,%lo(simGlobal+4)($2)
+	lw	$3,1864($16)
+	#nop
+	slt	$2,$2,$3
+	beq	$2,$0,$L609
+	lw	$2,1372($16)
+	#nop
+	bgez	$2,$L610
+	addu	$2,$2,3
+$L610:
+	sra	$2,$2,2
+	sw	$2,1372($16)
+$L609:
+	lw	$4,1364($16)
+	li	$2,-1			# 0xffffffff
+	bne	$4,$2,$L611
+	lw	$2,1372($16)
+	lw	$3,1380($16)
+	#nop
+	slt	$2,$3,$2
+	bne	$2,$0,$L613
+	lw	$2,1360($16)
+	#nop
+	beq	$2,$4,$L612
+$L613:
+	lw	$2,AIPhysic_elapsedTime
+	lbu	$3,1088($16)
+	sll	$2,$2,2
+	addu	$3,$3,$2
+	slt	$2,$3,255
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L614
+	sw	$5,1044($16)
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L615
+	sb	$3,1088($16)
+	.set	macro
+	.set	reorder
+
+$L614:
+	li	$2,255			# 0x000000ff
+	sb	$2,1088($16)
+$L615:
+	lbu	$2,1088($16)
+	#nop
+	sltu	$2,$2,4
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L616
+	li	$2,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	sb	$2,1085($16)
+$L616:
+	.set	noreorder
+	.set	nomacro
+	bgez	$5,$L617
+	move	$3,$5
+	.set	macro
+	.set	reorder
+
+	addu	$3,$5,255
+$L617:
+	lw	$2,AIPhysic_iTime
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bgez	$2,$L618
+	sra	$3,$3,8
+	.set	macro
+	.set	reorder
+
+	addu	$2,$2,255
+$L618:
+	sra	$2,$2,8
+	mult	$3,$2
+	lw	$2,1380($16)
+	lw	$4,1364($16)
+	lw	$3,1360($16)
+	mflo	$6
+	#nop
+	#nop
+	addu	$5,$2,$6
+	.set	noreorder
+	.set	nomacro
+	bne	$4,$3,$L607
+	sw	$5,1380($16)
+	.set	macro
+	.set	reorder
+
+	lw	$3,1372($16)
+	#nop
+	slt	$2,$3,$5
+	bne	$2,$0,$L646
+	.set	noreorder
+	.set	nomacro
+	j	$L646
+	move	$3,$5
+	.set	macro
+	.set	reorder
+
+$L612:
+	.set	noreorder
+	.set	nomacro
+	bgez	$17,$L622
+	move	$4,$17
+	.set	macro
+	.set	reorder
+
+	addu	$4,$17,255
+$L622:
+	lw	$2,AIPhysic_iTime
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bgez	$2,$L623
+	sra	$4,$4,8
+	.set	macro
+	.set	reorder
+
+	addu	$2,$2,255
+$L623:
+	sra	$2,$2,8
+	mult	$4,$2
+	lbu	$4,1088($16)
+	lw	$2,AIPhysic_elapsedTime
+	#nop
+	slt	$2,$2,$4
+	mflo	$6
+	#nop
+	#nop
+	subu	$3,$3,$6
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L624
+	sw	$3,1380($16)
+	.set	macro
+	.set	reorder
+
+	lbu	$2,AIPhysic_elapsedTime
+	#nop
+	subu	$2,$4,$2
+	.set	noreorder
+	.set	nomacro
+	j	$L625
+	sb	$2,1088($16)
+	.set	macro
+	.set	reorder
+
+$L624:
+	sb	$0,1088($16)
+$L625:
+	lbu	$2,1088($16)
+	#nop
+	bne	$2,$0,$L626
+	sb	$0,1085($16)
+$L626:
+	lw	$2,1380($16)
+	lw	$3,1372($16)
+	sw	$17,1044($16)
+	.set	noreorder
+	.set	nomacro
+	j	$L647
+	slt	$2,$2,$3
+	.set	macro
+	.set	reorder
+
+$L611:
+	lw	$2,1372($16)
+	lw	$3,1380($16)
+	#nop
+	slt	$2,$2,$3
+	bne	$2,$0,$L630
+	lw	$2,1360($16)
+	#nop
+	beq	$4,$2,$L629
+$L630:
+	lw	$2,AIPhysic_elapsedTime
+	lbu	$3,1088($16)
+	sll	$2,$2,2
+	addu	$3,$3,$2
+	slt	$2,$3,255
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L631
+	sw	$5,1044($16)
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L632
+	sb	$3,1088($16)
+	.set	macro
+	.set	reorder
+
+$L631:
+	li	$2,255			# 0x000000ff
+	sb	$2,1088($16)
+$L632:
+	lbu	$2,1088($16)
+	#nop
+	sltu	$2,$2,4
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L648
+	move	$2,$5
+	.set	macro
+	.set	reorder
+
+	li	$2,1			# 0x00000001
+	sb	$2,1085($16)
+	move	$2,$5
+$L648:
+	bgez	$2,$L634
+	addu	$2,$2,255
+$L634:
+	lw	$3,AIPhysic_iTime
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bgez	$3,$L635
+	sra	$4,$2,8
+	.set	macro
+	.set	reorder
+
+	addu	$3,$3,255
+$L635:
+	sra	$2,$3,8
+	mult	$4,$2
+	lw	$2,1380($16)
+	lw	$4,1364($16)
+	lw	$3,1360($16)
+	mflo	$6
+	#nop
+	#nop
+	subu	$5,$2,$6
+	.set	noreorder
+	.set	nomacro
+	bne	$4,$3,$L607
+	sw	$5,1380($16)
+	.set	macro
+	.set	reorder
+
+	lw	$3,1372($16)
+	#nop
+	slt	$2,$3,$5
+	beq	$2,$0,$L646
+	.set	noreorder
+	.set	nomacro
+	j	$L646
+	move	$3,$5
+	.set	macro
+	.set	reorder
+
+$L629:
+	.set	noreorder
+	.set	nomacro
+	bgez	$17,$L639
+	move	$4,$17
+	.set	macro
+	.set	reorder
+
+	addu	$4,$17,255
+$L639:
+	lw	$2,AIPhysic_iTime
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bgez	$2,$L640
+	sra	$4,$4,8
+	.set	macro
+	.set	reorder
+
+	addu	$2,$2,255
+$L640:
+	sra	$2,$2,8
+	mult	$4,$2
+	lbu	$4,1088($16)
+	lw	$2,AIPhysic_elapsedTime
+	#nop
+	slt	$2,$2,$4
+	mflo	$6
+	#nop
+	#nop
+	addu	$3,$3,$6
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L641
+	sw	$3,1380($16)
+	.set	macro
+	.set	reorder
+
+	lbu	$2,AIPhysic_elapsedTime
+	#nop
+	subu	$2,$4,$2
+	.set	noreorder
+	.set	nomacro
+	j	$L642
+	sb	$2,1088($16)
+	.set	macro
+	.set	reorder
+
+$L641:
+	sb	$0,1088($16)
+$L642:
+	lbu	$2,1088($16)
+	#nop
+	bne	$2,$0,$L643
+	sb	$0,1085($16)
+$L643:
+	lw	$2,1380($16)
+	lw	$3,1372($16)
+	sw	$17,1044($16)
+	slt	$2,$3,$2
+$L647:
+	beq	$2,$0,$L607
+$L646:
+	sw	$3,1380($16)
+$L607:
+	lw	$31,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,32
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_SimplePhysics_LongVel__FP8Car_tObj
+	.text
+	.ent	AIPhysic_Preperation__FP8Car_tObj
+AIPhysic_Preperation__FP8Car_tObj:
+	.frame	$sp,48,$31		# vars= 16, regs= 4/0, args= 16, extra= 0
+	.mask	0x80070000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,48
+	sw	$18,40($sp)
+	move	$18,$4
+	sw	$31,44($sp)
+	sw	$17,36($sp)
+	sw	$16,32($sp)
+	lw	$4,172($18)
+	lw	$5,240($18)
+	jal	fixedmult
+	lw	$4,176($18)
+	lw	$5,244($18)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$16,$2
+	.set	macro
+	.set	reorder
+
+	lw	$4,180($18)
+	lw	$5,248($18)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$17,$2
+	.set	macro
+	.set	reorder
+
+	addu	$16,$16,$17
+	lw	$4,172($18)
+	lw	$5,252($18)
+	addu	$16,$16,$2
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sw	$16,1048($18)
+	.set	macro
+	.set	reorder
+
+	lw	$4,176($18)
+	lw	$5,256($18)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$16,$2
+	.set	macro
+	.set	reorder
+
+	lw	$4,180($18)
+	lw	$5,260($18)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$17,$2
+	.set	macro
+	.set	reorder
+
+	addu	$16,$16,$17
+	lw	$4,172($18)
+	lw	$5,264($18)
+	addu	$16,$16,$2
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sw	$16,1052($18)
+	.set	macro
+	.set	reorder
+
+	lw	$4,176($18)
+	lw	$5,268($18)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$16,$2
+	.set	macro
+	.set	reorder
+
+	lw	$4,180($18)
+	lw	$5,272($18)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$17,$2
+	.set	macro
+	.set	reorder
+
+	addu	$16,$16,$17
+	lw	$4,276($18)
+	lw	$5,240($18)
+	addu	$16,$16,$2
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sw	$16,1056($18)
+	.set	macro
+	.set	reorder
+
+	lw	$4,280($18)
+	lw	$5,244($18)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$16,$2
+	.set	macro
+	.set	reorder
+
+	lw	$4,284($18)
+	lw	$5,248($18)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$17,$2
+	.set	macro
+	.set	reorder
+
+	addu	$16,$16,$17
+	lw	$4,276($18)
+	lw	$5,252($18)
+	addu	$16,$16,$2
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sw	$16,1060($18)
+	.set	macro
+	.set	reorder
+
+	lw	$4,280($18)
+	lw	$5,256($18)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$16,$2
+	.set	macro
+	.set	reorder
+
+	lw	$4,284($18)
+	lw	$5,260($18)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$17,$2
+	.set	macro
+	.set	reorder
+
+	addu	$16,$16,$17
+	lw	$4,276($18)
+	lw	$5,264($18)
+	addu	$16,$16,$2
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sw	$16,1064($18)
+	.set	macro
+	.set	reorder
+
+	lw	$4,280($18)
+	lw	$5,268($18)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$16,$2
+	.set	macro
+	.set	reorder
+
+	lw	$4,284($18)
+	lw	$5,272($18)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$17,$2
+	.set	macro
+	.set	reorder
+
+	addu	$16,$16,$17
+	lw	$3,1048($18)
+	addu	$16,$16,$2
+	sw	$16,1068($18)
+	.set	noreorder
+	bgez	$3,1f
+	move	$4,$3
+	subu	$4,$0,$4
+1:
+	.set	reorder
+	.set	noreorder
+	.set	nomacro
+	bgez	$4,$L651
+	move	$3,$4
+	.set	macro
+	.set	reorder
+
+	addu	$3,$4,255
+$L651:
+	sra	$3,$3,8
+	sll	$2,$3,1
+	addu	$2,$2,$3
+	sll	$2,$2,3
+	addu	$2,$2,$3
+	slt	$2,$2,$4
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L650
+	li	$2,32768			# 0x00008000
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L652
+	sw	$2,1144($18)
+	.set	macro
+	.set	reorder
+
+$L650:
+	sw	$0,1144($18)
+$L652:
+	lw	$6,264($18)
+	lw	$7,268($18)
+	lw	$8,272($18)
+	sw	$6,16($sp)
+	sw	$7,20($sp)
+	sw	$8,24($sp)
+	lw	$3,1776($18)
+	li	$2,1			# 0x00000001
+	bne	$3,$2,$L653
+	lw	$4,16($sp)
+	lw	$5,24($sp)
+	j	$L659
+$L653:
+	lw	$4,16($sp)
+	lw	$5,24($sp)
+	subu	$4,$0,$4
+	subu	$5,$0,$5
+$L659:
+	jal	intatan
+	move	$16,$2
+	move	$4,$18
+	.set	noreorder
+	.set	nomacro
+	jal	AIPhysic_GetDesiredVector__FP8Car_tObj
+	sw	$16,1784($18)
+	.set	macro
+	.set	reorder
+
+	lw	$4,1744($18)
+	lw	$5,1752($18)
+	jal	intatan
+	move	$4,$2
+	subu	$3,$16,$4
+	slt	$2,$3,-512
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L660
+	addu	$2,$3,1024
+	.set	macro
+	.set	reorder
+
+	slt	$2,$3,513
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L656
+	sw	$3,1756($18)
+	.set	macro
+	.set	reorder
+
+	addu	$2,$3,-1024
+$L660:
+	sw	$2,1756($18)
+$L656:
+	sw	$4,1788($18)
+	lw	$31,44($sp)
+	lw	$18,40($sp)
+	lw	$17,36($sp)
+	lw	$16,32($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,48
+	.set	macro
+	.set	reorder
+
+	.end	AIPhysic_Preperation__FP8Car_tObj

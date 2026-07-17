@@ -122,11 +122,12 @@ void Camera_TunnelLimit(int player,int *armheight)
 {
   bool bVar1;
   void *pvVar2;
-  coorddef *pcVar3;
-  int iVar4;
-  int iVar5;
-  coorddef local_38;
-  coorddef local_28;
+  BWorldSm_Pos *slicePos;   /* SYM: REG slicePos PTR BWorldSm_Pos */
+  coorddef quadnormal;      /* SYM: AUTO */
+  coorddef underCam;        /* SYM: AUTO */
+  int roadheight;           /* SYM: REG */
+  int track;                /* SYM: REG */
+  int maxheight;            /* SYM: REG */
 
   bVar1 = false;
   pvVar2 = BWorldSm_TunnelFlagSm(&Camera_gInfo[player].slicePos);
@@ -135,17 +136,19 @@ void Camera_TunnelLimit(int player,int *armheight)
     bVar1 = true;
   }
   if (bVar1) {
-    pcVar3 = BWorldSm_UNormal(&Camera_gInfo[player].slicePos);
-    local_38 = *pcVar3;
-    local_28 = Camera_gInfo[player].position;
-    iVar4 = Newton_FindGroundElevationGeneral(&local_28,&local_38,Camera_gInfo[player].slicePos.quadPts);
-    iVar5 = GameSetup_gData.track;
+    /* MATCH: slicePos ptr local (s0) assigned inside the guard; other gInfo fields
+     * rematerialize per access at negative displacements off &slicePos (no composite ptr) */
+    slicePos = &Camera_gInfo[player].slicePos;
+    quadnormal = *(coorddef *)BWorldSm_UNormal(slicePos);
+    underCam = Camera_gInfo[player].position;
+    roadheight = Newton_FindGroundElevationGeneral(&underCam,&quadnormal,slicePos->quadPts);
+    track = GameSetup_gData.track;
     if (0xf < GameSetup_gData.track) {
-      iVar5 = GameSetup_gData.track + -7;
+      track = GameSetup_gData.track + -7;
     }
-    iVar4 = (gTunnelCamHeight[iVar5] - ((Camera_gInfo[player].anchor)->position).y) + iVar4;
-    if (iVar4 < *armheight) {
-      *armheight = iVar4;
+    maxheight = (gTunnelCamHeight[track] - ((Camera_gInfo[player].anchor)->position).y) + roadheight;
+    if (maxheight < *armheight) {
+      *armheight = maxheight;
     }
   }
   return;
@@ -154,52 +157,37 @@ void Camera_TunnelLimit(int player,int *armheight)
 /* ---- Camera_UpdateCollisionCam__Fi  [@0x8008090c] ---- */
 void Camera_UpdateCollisionCam(int player)
 {
-  coorddef arm;
-  coorddef newarm;
-  coorddef oldarm;
-  char cVar1;
-  int iVar2;
+  coorddef arm = {0, 0x30000, -0xa0000};   /* SYM: AUTO; braced init -> rodata template D_800558A4 copy */
+  coorddef newarm;   /* SYM: AUTO */
+  coorddef oldarm;   /* SYM: AUTO */
   BO_tNewtonObj *pBVar3;
-  u_int local_40;
-  u_int local_3c;
-  u_int local_38;
-  int local_30;
-  int local_2c;
-  int local_28;
-  int local_20;
-  int local_1c;
-  int local_18;
-  
-  local_40 = 0;
-  local_3c = 0x30000;
-  local_38 = 0xfff60000;
+
   if (((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) &&
      (InBetween == 0)) {
-    if ((((char *)&(Camera_gInfo[player]))[0x77] & 1) != 0) {
-      local_38 = 0xa0000;
+    if (Camera_gInfo[player].direction != 0) {
+      arm.z = -arm.z;   /* MATCH: negate, not a 0xA0000 re-store */
     }
-    transform(&local_40,((Camera_gInfo[player].anchor)->roadMatrix).m,
-               &local_30);
-    Camera_TunnelLimit(player,&local_2c);
-    local_20 = Camera_gInfo[player].relpos.x;
-    local_1c = Camera_gInfo[player].relpos.y;
-    local_18 = Camera_gInfo[player].relpos.z;
-    iVar2 = fixedmult(local_30 - local_20,0x51e);
-    Camera_gInfo[player].relpos.x = local_20 + iVar2;
-    iVar2 = fixedmult(local_2c - local_1c,0x51e);
-    Camera_gInfo[player].relpos.y = local_1c + iVar2;
-    iVar2 = fixedmult(local_28 - local_18,0x51e);
+    transform(&arm,((Camera_gInfo[player].anchor)->roadMatrix).m,&newarm);
+    Camera_TunnelLimit(player,&newarm.y);
+    oldarm = Camera_gInfo[player].relpos;   /* MATCH: struct copy -> grouped t0-t2 load/store */
+    Camera_gInfo[player].relpos.x = oldarm.x + fixedmult(newarm.x - oldarm.x,0x51e);
+    Camera_gInfo[player].relpos.y = oldarm.y + fixedmult(newarm.y - oldarm.y,0x51e);
+    Camera_gInfo[player].relpos.z = oldarm.z + fixedmult(newarm.z - oldarm.z,0x51e);
+    /* here the oracle keeps ONE cached anchor for all three lines (no re-load) */
     pBVar3 = Camera_gInfo[player].anchor;
-    Camera_gInfo[player].relpos.z = local_18 + iVar2;
     Camera_gInfo[player].position.x = (pBVar3->position).x + Camera_gInfo[player].relpos.x;
     Camera_gInfo[player].position.y = (pBVar3->position).y + Camera_gInfo[player].relpos.y;
-    cVar1 = Camera_gInfo[player].tumbling;
     Camera_gInfo[player].position.z = (pBVar3->position).z + Camera_gInfo[player].relpos.z;
-    if (cVar1 == '\0') {
-      Camera_gInfo[player].intransition = '2';
+    if (Camera_gInfo[player].tumbling == 0) {
+      Camera_gInfo[player].intransition = 0x32;
     }
-    *(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) =
-         *(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) & 0xfffffffb | 0x7a;
+    /* MATCH: real bitfield assignments; pitch=1 FIRST (ori 2 precedes the and -5) */
+    Camera_gInfo[player].pitch = 1;
+    Camera_gInfo[player].jostling = 0;
+    Camera_gInfo[player].tracking = 1;
+    Camera_gInfo[player].checkwalls = 1;
+    Camera_gInfo[player].noLookBack = 1;
+    Camera_gInfo[player].checkcollisions = 1;
   }
   return;
 }
@@ -216,8 +204,9 @@ void Camera_UpdateSimpleCam(int player)
   arm = Camera_gFlags[sVar1].arm;
   transform((int *)&arm,Camera_gInfo[player].anchor->orientMat.m,(int *)&newarm);
   Camera_TunnelLimit(player,&newarm.y);
-  pBVar2 = Camera_gInfo[player].anchor;
   Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + newarm.x;
+  /* MATCH: oracle re-loads anchor (lw a0,0(s0)) for the y/z pair - volatile re-deref blocks CSE */
+  pBVar2 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
   Camera_gInfo[player].position.y = pBVar2->position.y + newarm.y;
   Camera_gInfo[player].position.z = pBVar2->position.z + newarm.z;
   Camera_LookBack(&pBVar2->orientMat,&Camera_gInfo[player].rotation);
@@ -227,66 +216,38 @@ void Camera_UpdateSimpleCam(int player)
 /* ---- Camera_UpdateBumperCam__Fi  [@0x80080bac] ---- */
 void Camera_UpdateBumperCam(int player)
 {
-  coorddef arm;
-  coorddef newarm;
-  int lookingBehind;
-  short sVar1;
-  bool bVar2;
-  matrixtdef *pmVar3;
+  coorddef arm;        /* SYM: AUTO @0x10 */
+  coorddef newarm;     /* SYM: AUTO @0x20 */
+  int lookingBehind;   /* SYM: REG ($s1) */
   BO_tNewtonObj *pBVar4;
-  matrixtdef *pmVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  Camera_tInfo *pCVar9;
-  int local_38;
-  int local_34;
-  int local_30;
-  int local_28;
-  int local_24;
-  int local_20;
-  
-  bVar2 = false;
-  pCVar9 = Camera_gInfo + player;
-  sVar1 = Camera_gInfo[player].mode;
-  local_38 = Camera_gFlags[sVar1].arm.x;
-  local_34 = Camera_gFlags[sVar1].arm.y;
-  local_30 = Camera_gFlags[sVar1].arm.z;
+
+  lookingBehind = 0;
+  arm = Camera_gFlags[Camera_gInfo[player].mode].arm;
   if (Camera_gInfo[player].noLookBack == 0) {
-    bVar2 = Input_gLookBehind[player] != 0;
+    lookingBehind = Input_gLookBehind[player] != 0;
   }
-  if (bVar2) {
-    transform(&local_38,(pCVar9->anchor->orientMat).m,&local_28);
-    pBVar4 = pCVar9->anchor;
-    Camera_gInfo[player].audioPos.x = (pCVar9->anchor->position).x + local_28;
-    Camera_gInfo[player].audioPos.y = (pBVar4->position).y + local_24;
-    Camera_gInfo[player].audioPos.z = (pBVar4->position).z + local_20;
-    local_30 = -local_30;
+  if (lookingBehind) {
+    transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+    Camera_gInfo[player].audioPos.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
+    /* MATCH: oracle re-loads anchor for the y/z pair */
+    pBVar4 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
+    Camera_gInfo[player].audioPos.y = (pBVar4->position).y + newarm.y;
+    Camera_gInfo[player].audioPos.z = (pBVar4->position).z + newarm.z;
+    arm.z = -arm.z;
   }
-  transform(&local_38,(pCVar9->anchor->orientMat).m,&local_28);
-  pBVar4 = pCVar9->anchor;
-  Camera_gInfo[player].position.x = (pCVar9->anchor->position).x + local_28;
-  Camera_gInfo[player].position.y = (pBVar4->position).y + local_24;
-  Camera_gInfo[player].position.z = (pBVar4->position).z + local_20;
-  if (bVar2) {
+  transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+  Camera_gInfo[player].position.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
+  pBVar4 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
+  Camera_gInfo[player].position.y = (pBVar4->position).y + newarm.y;
+  Camera_gInfo[player].position.z = (pBVar4->position).z + newarm.z;
+  if (lookingBehind) {
     Camera_LookBack(&pBVar4->orientMat,&Camera_gInfo[player].rotation);
   }
   else {
-    pBVar4 = pCVar9->anchor;
-    pmVar5 = &Camera_gInfo[player].rotation;
-    pmVar3 = &pBVar4->orientMat;
-    do {
-      iVar6 = pmVar3->m[1];
-      iVar7 = pmVar3->m[2];
-      iVar8 = pmVar3->m[3];
-      pmVar5->m[0] = pmVar3->m[0];
-      pmVar5->m[1] = iVar6;
-      pmVar5->m[2] = iVar7;
-      pmVar5->m[3] = iVar8;
-      pmVar3 = (matrixtdef *)(pmVar3->m + 4);
-      pmVar5 = (matrixtdef *)(pmVar5->m + 4);
-    } while (pmVar3 != (matrixtdef *)((pBVar4->orientMat).m + 8));
-    pmVar5->m[0] = pmVar3->m[0];
+    /* MATCH: FRESH anchor re-load here (kills the anchor+240 CSE with the if-arm);
+     * plain struct assignment -> gcc movstrsi unrolled copy (9 words) */
+    Camera_gInfo[player].rotation =
+         (*(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor)->orientMat;
   }
   return;
 }
@@ -294,56 +255,43 @@ void Camera_UpdateBumperCam(int player)
 /* ---- Camera_UpdateTailCam__Fii  [@0x80080d84] ---- */
 void Camera_UpdateTailCam(int player,int behavior)
 {
-  coorddef arm;
-  coorddef newarm;
-  coorddef oldarm;
-  Car_tObj*anchor;
-  int maxrate;
-  int rate;
-  int rateY;
-  int vertigo;
-  int slice;
-  int lookahead;
-  int len;
-  int scale;
-  char cVar1;
-  short sVar2;
-  bool bVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
+  coorddef arm;      /* SYM: AUTO @0x10 */
+  coorddef newarm;   /* SYM: AUTO @0x20 */
+  coorddef oldarm;   /* SYM: AUTO @0x30 */
+  Car_tObj *anchor;  /* SYM: REG */
+  int maxrate;       /* SYM: REG ($a2) */
+  int rate;          /* SYM: REG ($s2) */
+  int rateY;         /* SYM: REG ($s5) */
+  int vertigo;       /* SYM: REG */
+  int slice;         /* SYM: REG */
+  int lookahead;     /* SYM: REG ($s0) */
+  int len;           /* SYM: REG ($v0) */
   BO_tNewtonObj *pBVar7;
-  int iVar8;
-  int iVar9;
-  Camera_tInfo *pCVar10;
-  int iVar11;
-  int local_50;
-  int local_4c;
-  int local_48;
-  int local_40;
-  int local_3c;
-  int local_38;
-  int local_30;
-  int local_2c;
-  int local_28;
-  
-  iVar8 = 0x1999;
-  sVar2 = Camera_gInfo[player].mode;
-  local_50 = Camera_gFlags[sVar2].arm.x;
-  local_4c = Camera_gFlags[sVar2].arm.y;
-  local_48 = Camera_gFlags[sVar2].arm.z;
-  pBVar7 = Camera_gInfo[player].anchor;
-  iVar11 = 0xccc;
-  if ((int)pBVar7[1].collision.lastOtherObj < 1) {
-    iVar9 = 3;
-    if (GameSetup_gData.reverseTrack == 0) {
-      iVar9 = -3;
-    }
+
+  maxrate = 0x1999;
+  rate = maxrate;
+  {
+    short mode = Camera_gInfo[player].mode;   /* MATCH: inner gInfo eval first (base lui v0) */
+    arm = Camera_gFlags[mode].arm;
   }
-  else {
-    iVar9 = 3;
-    if (GameSetup_gData.reverseTrack == 1) {
-      iVar9 = -3;
+  anchor = (Car_tObj *)Camera_gInfo[player].anchor;
+  rateY = 0xCCC;
+  {
+    /* MATCH: reverseTrack read ONCE before the if (single lw, shared by both arms) */
+    int rev = GameSetup_gData.reverseTrack;
+    if (0 < anchor->wrongway) {
+      if ((rev ^ 1) == 0) {
+        lookahead = -3;
+      } else {
+        lookahead = 3;
+      }
+    }
+    else {
+      if (rev == 0) {
+        lookahead = -3;
+      } else {
+        lookahead = 3;
+      }
     }
   }
   if ((simVar.quickPauseSim != 0) && (Replay_ReplayInterface.changeCamera == 0)) {
@@ -352,217 +300,180 @@ void Camera_UpdateTailCam(int player,int behavior)
   if (InBetween != 0) {
     return;
   }
-  if (behavior == 1) {
-    iVar8 = 0x1999;
+  /* MATCH: real switch (oracle binary-tree dispatch), not if-chain */
+  switch (behavior) {
+  case 0:
+    rate = 0x1999;
+    break;
+  case 1:
+    maxrate = 0x1999;
+    break;
+  case 2:
+    maxrate = 0xCCC;
+    break;
   }
-  else if ((1 < behavior) && (behavior == 2)) {
-    iVar8 = 0xccc;
-  }
-  iVar6 = 0x1999;
   if (behavior != 0) {
-    iVar4 = pBVar7[1].shadowMat.m[5];
-    iVar6 = pBVar7[1].shadowMat.m[7];
-    if (iVar4 < 0) {
-      iVar4 = -iVar4;
+    int x = anchor->linearVel_ch.x;
+    int z = anchor->linearVel_ch.z;
+    int ax = (x < 0) ? -x : x;   /* MATCH: ABS ternary - else-arm copy stolen into bgez slot */
+    if (z < 0) {
+      z = -z;
     }
-    if (iVar6 < 0) {
-      iVar6 = -iVar6;
-    }
-    if (iVar6 < iVar4) {
-      iVar4 = iVar4 + (iVar6 >> 2);
+    /* MATCH: speed sum accumulates IN rate (s2, dead here); vertigo = /900 result */
+    if (z < ax) {
+      rate = ax + (z >> 2);
     }
     else {
-      iVar4 = iVar6 + (iVar4 >> 2);
+      rate = z + (ax >> 2);
     }
-    iVar4 = iVar4 / 900;
-    iVar5 = iVar4;
-    if (iVar8 < iVar4) {
-      iVar5 = iVar8;
-    }
-    iVar6 = 0x51e;
-    if ((0x51d < iVar5) && (iVar6 = iVar4, iVar8 < iVar4)) {
-      iVar6 = iVar8;
-    }
+    rate = rate / 900;
+    /* MATCH: MAX(0x51E, MIN(rate,maxrate)) funnels into vertigo (a1), then rate = vertigo (s2) */
+    vertigo = ((maxrate < rate ? maxrate : rate) < 0x51E) ? 0x51E
+            : (maxrate < rate ? maxrate : rate);
+    rate = vertigo;
   }
   if (Input_gLookBehind[player] != 0) {
-    transform(&local_50,((Camera_gInfo[player].anchor)->orientMat).m,
-               &Camera_gInfo[player].relpos.x);
+    transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&Camera_gInfo[player].relpos.x);
   }
-  iVar8 = (int)((Camera_gInfo[player].anchor)->simRoadInfo).slice;
-  if (iVar9 < 0) {
-    iVar8 = iVar8 + iVar9;
-    if (iVar8 < 0) {
-      iVar8 = iVar8 + gNumSlices;
+  slice = (int)((Camera_gInfo[player].anchor)->simRoadInfo).slice;
+  if (0 <= lookahead) {
+    slice = slice + lookahead;
+    if (gNumSlices <= slice) {
+      slice = slice - gNumSlices;
     }
   }
   else {
-    iVar8 = iVar8 + iVar9;
-    if (gNumSlices <= iVar8) {
-      iVar8 = iVar8 - gNumSlices;
+    slice = slice + lookahead;
+    if (slice < 0) {
+      slice = slice + gNumSlices;
     }
   }
-  if (iVar9 < 1) {
-    iVar9 = iVar8 - iVar9;
-    iVar4 = iVar9 * 0x20;
-    if (gNumSlices <= iVar9) {
-      iVar9 = iVar9 - gNumSlices;
-LAB_80081050:
-      iVar4 = iVar9 << 5;
-    }
-  }
-  else {
-    iVar9 = iVar8 - iVar9;
-    iVar4 = iVar9 * 0x20;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + gNumSlices;
-      goto LAB_80081050;
-    }
-  }
-  iVar8 = (*(int *)((char *)BWorldSm_slices + iVar8 * 0x20 + 4) -
-           *(int *)((char *)BWorldSm_slices + iVar4 + 4)) / 3
-  ;
-  iVar9 = iVar8;
-  if (behavior == 1) {
-    bVar3 = 0x10000 < iVar8;
-    iVar4 = iVar8;
-    if (bVar3) {
-      iVar4 = 0x10000;
-    }
-    iVar9 = 0x4000;
-    if (iVar4 < 0x4000) goto LAB_8008110c;
-    iVar9 = 0x10000;
-  }
-  else {
-    if (behavior < 2) {
-      if (behavior == 0) {
-        iVar9 = 0;
+  {
+    /* MATCH: BWorldSm_slices cached ONCE in a caller-saved reg (a2) across both wrap arms;
+     * wrap-adjust goes through an unshifted index FUNNEL (v0) - slice itself is NOT re-mutated;
+     * dbr duplicates the join's sll into both branch slots */
+    char *slices = (char *)BWorldSm_slices;
+    int idx;
+    int tail = *(int *)((slice << 5) + slices + 4);   /* loaded BEFORE the wrap arms */
+    if (lookahead < 1) {
+      slice = slice - lookahead;
+      if (gNumSlices <= slice) {
+        idx = slice - gNumSlices;
+      } else {
+        idx = slice;
       }
-      goto LAB_8008110c;
     }
-    if (behavior != 2) goto LAB_8008110c;
-    bVar3 = 0x20000 < iVar8;
-    iVar4 = iVar8;
-    if (bVar3) {
-      iVar4 = 0x20000;
+    else {
+      slice = slice - lookahead;
+      if (slice < 0) {
+        idx = slice + gNumSlices;
+      } else {
+        idx = slice;
+      }
     }
-    iVar9 = -0x4000;
-    if (iVar4 < -0x4000) goto LAB_8008110c;
-    iVar9 = 0x20000;
+    len = (tail - *(int *)((idx << 5) + slices + 4)) / 3;
   }
-  if (!bVar3) {
-    iVar9 = iVar8;
+  switch (behavior) {
+  case 0:
+    len = 0;
+    break;
+  case 1:
+    /* MATCH: MAX(0x4000, MIN(len,0x10000)) nested macros */
+    len = ((0x10000 < len ? 0x10000 : len) < 0x4000) ? 0x4000
+        : (0x10000 < len ? 0x10000 : len);
+    break;
+  case 2:
+    len = ((0x20000 < len ? 0x20000 : len) < -0x4000) ? -0x4000
+        : (0x20000 < len ? 0x20000 : len);
+    break;
   }
-LAB_8008110c:
-  local_4c = local_4c + iVar9;
-  if (Input_gLookBehind[player] == 0) {
-    transform(&local_50,((Camera_gInfo[player].anchor)->orientMat).m,
-               &local_40);
-    Camera_TunnelLimit(player,&local_3c);
-    local_30 = Camera_gInfo[player].relpos.x;
-    local_2c = Camera_gInfo[player].relpos.y;
-    local_28 = Camera_gInfo[player].relpos.z;
-    if (Camera_gInfo[player].intransition != '\0') {
-      Camera_gInfo[player].intransition = Camera_gInfo[player].intransition + -1;
-      iVar11 = 0x1999;
-      iVar6 = 0x1999;
+  arm.y = arm.y + len;
+  if (Input_gLookBehind[player] != 0) {
+    /* audio (look-behind) arm FIRST in VA order */
+    transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+    Camera_gInfo[player].audioPos.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
+    /* MATCH: oracle re-loads anchor for the y/z pair - volatile re-deref blocks CSE */
+    pBVar7 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
+    Camera_gInfo[player].audioPos.y = (pBVar7->position).y + newarm.y;
+    Camera_gInfo[player].audioPos.z = (pBVar7->position).z + newarm.z;
+    arm.z = -arm.z;
+    transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+    Camera_TunnelLimit(player,&newarm.y);
+    Camera_gInfo[player].position.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
+    pBVar7 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
+    Camera_gInfo[player].position.y = (pBVar7->position).y + newarm.y;
+    Camera_gInfo[player].position.z = (pBVar7->position).z + newarm.z;
+    return;
+  }
+  transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+  Camera_TunnelLimit(player,&newarm.y);
+  oldarm = Camera_gInfo[player].relpos;   /* MATCH: struct copy -> grouped t0-t2 load/store */
+  if (Camera_gInfo[player].intransition != 0) {
+    Camera_gInfo[player].intransition = Camera_gInfo[player].intransition - 1;
+    rateY = 0x1999;
+    rate = 0x1999;
+  }
+  Camera_gInfo[player].relpos.x = oldarm.x + fixedmult(newarm.x - oldarm.x,rate);
+  Camera_gInfo[player].relpos.y = oldarm.y + fixedmult(newarm.y - oldarm.y,rateY);
+  Camera_gInfo[player].relpos.z = oldarm.z + fixedmult(newarm.z - oldarm.z,rate);
+  if (Camera_gInfo[player].intransition == 0) {
+    len = Math_VectorLength(&Camera_gInfo[player].relpos);
+    if (len < 0x4f0a3) {
+      int scale = fixeddiv(0x4f0a3,len);   /* SYM: REG scale in NESTED block scope ($s0) */
+      Camera_gInfo[player].relpos.x = fixedmult(scale,Camera_gInfo[player].relpos.x);
+      Camera_gInfo[player].relpos.y = fixedmult(scale,Camera_gInfo[player].relpos.y);
+      Camera_gInfo[player].relpos.z = fixedmult(scale,Camera_gInfo[player].relpos.z);
     }
-    iVar8 = fixedmult(local_40 - local_30,iVar6);
-    Camera_gInfo[player].relpos.x = local_30 + iVar8;
-    iVar8 = fixedmult(local_3c - local_2c,iVar11);
-    Camera_gInfo[player].relpos.y = local_2c + iVar8;
-    iVar8 = fixedmult(local_38 - local_28,iVar6);
-    cVar1 = Camera_gInfo[player].intransition;
-    Camera_gInfo[player].relpos.z = local_28 + iVar8;
-    if ((cVar1 == '\0') &&
-       (iVar8 = Math_VectorLength(&Camera_gInfo[player].relpos), iVar8 < 0x4f0a3)) {
-      iVar8 = fixeddiv(0x4f0a3,iVar8);
-      iVar11 = fixedmult(iVar8,Camera_gInfo[player].relpos.x);
-      iVar9 = Camera_gInfo[player].relpos.y;
-      Camera_gInfo[player].relpos.x = iVar11;
-      iVar11 = fixedmult(iVar8,iVar9);
-      iVar9 = Camera_gInfo[player].relpos.z;
-      Camera_gInfo[player].relpos.y = iVar11;
-      iVar8 = fixedmult(iVar8,iVar9);
-      Camera_gInfo[player].relpos.z = iVar8;
-    }
-    pBVar7 = Camera_gInfo[player].anchor;
-    Camera_gInfo[player].position.x =
-         ((Camera_gInfo[player].anchor)->position).x + Camera_gInfo[player].relpos.x;
-    Camera_gInfo[player].position.y = (pBVar7->position).y + Camera_gInfo[player].relpos.y;
-    Camera_gInfo[player].position.z = (pBVar7->position).z + Camera_gInfo[player].relpos.z;
   }
-  else {
-    pCVar10 = Camera_gInfo + player;
-    transform(&local_50,(pCVar10->anchor->orientMat).m,&local_40);
-    pBVar7 = pCVar10->anchor;
-    Camera_gInfo[player].audioPos.x = (pCVar10->anchor->position).x + local_40;
-    Camera_gInfo[player].audioPos.y = (pBVar7->position).y + local_3c;
-    Camera_gInfo[player].audioPos.z = (pBVar7->position).z + local_38;
-    local_48 = -local_48;
-    transform(&local_50,(pCVar10->anchor->orientMat).m,&local_40);
-    Camera_TunnelLimit(player,&local_3c);
-    pBVar7 = pCVar10->anchor;
-    Camera_gInfo[player].position.x = (pCVar10->anchor->position).x + local_40;
-    Camera_gInfo[player].position.y = (pBVar7->position).y + local_3c;
-    Camera_gInfo[player].position.z = (pBVar7->position).z + local_38;
-  }
+  Camera_gInfo[player].position.x =
+       ((Camera_gInfo[player].anchor)->position).x + Camera_gInfo[player].relpos.x;
+  pBVar7 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
+  Camera_gInfo[player].position.y = (pBVar7->position).y + Camera_gInfo[player].relpos.y;
+  Camera_gInfo[player].position.z = (pBVar7->position).z + Camera_gInfo[player].relpos.z;
   return;
 }
 
 /* ---- Camera_UpdateHeliCam__Fii  [@0x800813cc] ---- */
 void Camera_UpdateHeliCam(int player,int behavior)
 {
-  coorddef arm;
-  coorddef newarm;
-  coorddef oldarm;
-  Car_tObj*anchor;
-  int fallback;
-  int maxrate;
-  int rate;
-  int rateY;
-  int vertigo;
-  int slice;
-  int lookahead;
-  int len;
-  int scale;
-  char cVar1;
-  short sVar2;
-  bool bVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  Camera_tInfo *pCVar8;
-  int iVar9;
-  BO_tNewtonObj *pBVar10;
-  int iVar11;
-  int local_50;
-  int local_4c;
-  int local_48;
-  int local_40;
-  int local_3c;
-  int local_38;
-  int local_30;
-  int local_2c;
-  int local_28;
-  
-  iVar7 = 0x1999;
-  sVar2 = Camera_gInfo[player].mode;
-  local_50 = Camera_gFlags[sVar2].arm.x;
-  local_4c = Camera_gFlags[sVar2].arm.y;
-  local_48 = Camera_gFlags[sVar2].arm.z;
-  pBVar10 = Camera_gInfo[player].anchor;
-  iVar11 = 0xccc;
-  if ((int)pBVar10[1].collision.lastOtherObj < 1) {
-    iVar9 = 3;
-    if (GameSetup_gData.reverseTrack == 0) {
-      iVar9 = -3;
-    }
+  coorddef arm;      /* SYM: AUTO @0x10 */
+  coorddef newarm;   /* SYM: AUTO @0x20 */
+  coorddef oldarm;   /* SYM: AUTO @0x30 */
+  Car_tObj *anchor;  /* SYM: REG ($s2 - live across calls) */
+  int fallback;      /* SYM: REG ($a0) */
+  int maxrate;       /* SYM: REG ($a2) */
+  int rate;          /* SYM: REG ($s0) */
+  int rateY;         /* SYM: REG ($s5) */
+  int vertigo;       /* SYM: REG */
+  int slice;         /* SYM: REG ($v1) */
+  int lookahead;     /* SYM: REG ($s1) */
+  int len;           /* SYM: REG ($v0) */
+  BO_tNewtonObj *pBVar7;
+
+  maxrate = 0x1999;
+  rate = maxrate;
+  {
+    short mode = Camera_gInfo[player].mode;   /* MATCH: inner gInfo eval first (base lui v0) */
+    arm = Camera_gFlags[mode].arm;
   }
-  else {
-    iVar9 = 3;
-    if (GameSetup_gData.reverseTrack == 1) {
-      iVar9 = -3;
+  anchor = (Car_tObj *)Camera_gInfo[player].anchor;
+  rateY = 0xCCC;
+  {
+    /* MATCH: reverseTrack read ONCE before the if (single lw, shared by both arms) */
+    int rev = GameSetup_gData.reverseTrack;
+    if (0 < anchor->wrongway) {
+      if ((rev ^ 1) == 0) {
+        lookahead = -3;
+      } else {
+        lookahead = 3;
+      }
+    }
+    else {
+      if (rev == 0) {
+        lookahead = -3;
+      } else {
+        lookahead = 3;
+      }
     }
   }
   if ((simVar.quickPauseSim != 0) && (Replay_ReplayInterface.changeCamera == 0)) {
@@ -571,184 +482,161 @@ void Camera_UpdateHeliCam(int player,int behavior)
   if (InBetween != 0) {
     return;
   }
-  if (behavior == 1) {
-    iVar7 = 0x1999;
+  /* MATCH: real switch (oracle binary-tree dispatch), not if-chain */
+  switch (behavior) {
+  case 0:
+    rate = 0x1999;
+    break;
+  case 1:
+    maxrate = 0x1999;
+    break;
+  case 2:
+    maxrate = 0xCCC;
+    break;
   }
-  else if ((1 < behavior) && (behavior == 2)) {
-    iVar7 = 0xccc;
-  }
-  iVar6 = 0x1999;
   if (behavior != 0) {
-    iVar4 = pBVar10[1].shadowMat.m[5];
-    iVar6 = pBVar10[1].shadowMat.m[7];
-    if (iVar4 < 0) {
-      iVar4 = -iVar4;
+    int x = anchor->linearVel_ch.x;
+    int z = anchor->linearVel_ch.z;
+    int ax = (x < 0) ? -x : x;   /* MATCH: ABS ternary - else-arm copy stolen into bgez slot */
+    if (z < 0) {
+      z = -z;
     }
-    if (iVar6 < 0) {
-      iVar6 = -iVar6;
-    }
-    if (iVar6 < iVar4) {
-      iVar4 = iVar4 + (iVar6 >> 2);
+    /* MATCH: speed sum accumulates IN rate (dead here); vertigo = /900 result */
+    if (z < ax) {
+      rate = ax + (z >> 2);
     }
     else {
-      iVar4 = iVar6 + (iVar4 >> 2);
+      rate = z + (ax >> 2);
     }
-    iVar4 = iVar4 / 900;
-    iVar5 = iVar4;
-    if (iVar7 < iVar4) {
-      iVar5 = iVar7;
-    }
-    iVar6 = 0x51e;
-    if ((0x51d < iVar5) && (iVar6 = iVar4, iVar7 < iVar4)) {
-      iVar6 = iVar7;
-    }
+    rate = rate / 900;
+    /* MATCH: MAX(0x51E, MIN(rate,maxrate)) funnels into vertigo, then rate = vertigo */
+    vertigo = ((maxrate < rate ? maxrate : rate) < 0x51E) ? 0x51E
+            : (maxrate < rate ? maxrate : rate);
+    rate = vertigo;
   }
   if (1 < Replay_ReplayMode) {
-    iVar6 = 0x28f;
+    rate = 0x28F;
   }
   if (Input_gLookBehind[player] != 0) {
-    transform(&local_50,((Camera_gInfo[player].anchor)->orientMat).m,
-               &Camera_gInfo[player].relpos.x);
+    transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&Camera_gInfo[player].relpos.x);
   }
-  iVar7 = pBVar10[1].shadowMat.m[5];
-  iVar4 = pBVar10[1].shadowMat.m[7];
-  if (iVar7 < 0) {
-    iVar7 = -iVar7;
+  {
+    /* heli fallback: pull the camera back by |velocity|/20, clamped to 0x20000 */
+    int x = anchor->linearVel_ch.x;
+    int z = anchor->linearVel_ch.z;
+    if (x < 0) {
+      x = -x;
+    }
+    if (z < 0) {
+      z = -z;
+    }
+    if (z < x) {
+      fallback = x + (z >> 2);
+    }
+    else {
+      fallback = z + (x >> 2);
+    }
+    fallback = fallback / 20;
+    if (0x20000 < fallback) {
+      fallback = 0x20000;
+    }
+    arm.z = arm.z - fallback;
   }
-  if (iVar4 < 0) {
-    iVar4 = -iVar4;
-  }
-  if (iVar4 < iVar7) {
-    iVar7 = iVar7 + (iVar4 >> 2);
-  }
-  else {
-    iVar7 = iVar4 + (iVar7 >> 2);
-  }
-  iVar7 = iVar7 / 0x14;
-  if (0x20000 < iVar7) {
-    iVar7 = 0x20000;
-  }
-  local_48 = local_48 - iVar7;
-  iVar7 = (int)((Camera_gInfo[player].anchor)->simRoadInfo).slice;
-  if (iVar9 < 0) {
-    iVar7 = iVar7 + iVar9;
-    if (iVar7 < 0) {
-      iVar7 = iVar7 + gNumSlices;
+  slice = (int)((Camera_gInfo[player].anchor)->simRoadInfo).slice;
+  if (0 <= lookahead) {
+    slice = slice + lookahead;
+    if (gNumSlices <= slice) {
+      slice = slice - gNumSlices;
     }
   }
   else {
-    iVar7 = iVar7 + iVar9;
-    if (gNumSlices <= iVar7) {
-      iVar7 = iVar7 - gNumSlices;
+    slice = slice + lookahead;
+    if (slice < 0) {
+      slice = slice + gNumSlices;
     }
   }
-  if (iVar9 < 1) {
-    iVar9 = iVar7 - iVar9;
-    iVar4 = iVar9 * 0x20;
-    if (gNumSlices <= iVar9) {
-      iVar9 = iVar9 - gNumSlices;
-LAB_80081724:
-      iVar4 = iVar9 << 5;
-    }
-  }
-  else {
-    iVar9 = iVar7 - iVar9;
-    iVar4 = iVar9 * 0x20;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + gNumSlices;
-      goto LAB_80081724;
-    }
-  }
-  iVar9 = (*(int *)((char *)BWorldSm_slices + iVar7 * 0x20 + 4) -
-           *(int *)((char *)BWorldSm_slices + iVar4 + 4)) / 2
-  ;
-  iVar7 = iVar9;
-  if (behavior == 1) {
-    bVar3 = 0x14000 < iVar9;
-    if (bVar3) {
-      iVar7 = 0x14000;
-    }
-    if (iVar7 < 0x4000) {
-      iVar7 = 0x4000;
-      goto LAB_800817f8;
-    }
-    iVar7 = 0x14000;
-  }
-  else {
-    if (behavior < 2) {
-      if (behavior == 0) {
-        iVar7 = 0;
+  {
+    /* MATCH: BWorldSm_slices cached ONCE in a caller-saved reg (a2) across both wrap arms;
+     * wrap-adjust goes through an unshifted index FUNNEL (v0) - slice itself is NOT re-mutated;
+     * dbr duplicates the join's sll into both branch slots */
+    char *slices = (char *)BWorldSm_slices;
+    int idx;
+    int tail = *(int *)((slice << 5) + slices + 4);   /* loaded BEFORE the wrap arms */
+    if (lookahead < 1) {
+      slice = slice - lookahead;
+      if (gNumSlices <= slice) {
+        idx = slice - gNumSlices;
+      } else {
+        idx = slice;
       }
-      goto LAB_800817f8;
     }
-    if (behavior != 2) goto LAB_800817f8;
-    bVar3 = 0x30000 < iVar9;
-    if (bVar3) {
-      iVar7 = 0x30000;
+    else {
+      slice = slice - lookahead;
+      if (slice < 0) {
+        idx = slice + gNumSlices;
+      } else {
+        idx = slice;
+      }
     }
-    if (iVar7 < -0xc000) {
-      iVar7 = -0xc000;
-      goto LAB_800817f8;
-    }
-    iVar7 = 0x30000;
+    len = (tail - *(int *)((idx << 5) + slices + 4)) / 2;
   }
-  if (!bVar3) {
-    iVar7 = iVar9;
+  switch (behavior) {
+  case 0:
+    len = 0;
+    break;
+  case 1:
+    /* MATCH: MAX(0x4000, MIN(len,0x14000)) nested macros */
+    len = ((0x14000 < len ? 0x14000 : len) < 0x4000) ? 0x4000
+        : (0x14000 < len ? 0x14000 : len);
+    break;
+  case 2:
+    len = ((0x30000 < len ? 0x30000 : len) < -0xc000) ? -0xc000
+        : (0x30000 < len ? 0x30000 : len);
+    break;
   }
-LAB_800817f8:
-  local_4c = local_4c + iVar7;
-  if (Input_gLookBehind[player] == 0) {
-    transform(&local_50,((Camera_gInfo[player].anchor)->orientMat).m,
-               &local_40);
-    Camera_TunnelLimit(player,&local_3c);
-    local_30 = Camera_gInfo[player].relpos.x;
-    local_2c = Camera_gInfo[player].relpos.y;
-    local_28 = Camera_gInfo[player].relpos.z;
-    if (Camera_gInfo[player].intransition != '\0') {
-      Camera_gInfo[player].intransition = Camera_gInfo[player].intransition + -1;
-      iVar11 = 0x1999;
-      iVar6 = 0x1999;
+  arm.y = arm.y + len;
+  if (Input_gLookBehind[player] != 0) {
+    /* audio (look-behind) arm FIRST in VA order */
+    transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+    Camera_gInfo[player].audioPos.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
+    /* MATCH: oracle re-loads anchor for the y/z pair - volatile re-deref blocks CSE */
+    pBVar7 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
+    Camera_gInfo[player].audioPos.y = (pBVar7->position).y + newarm.y;
+    Camera_gInfo[player].audioPos.z = (pBVar7->position).z + newarm.z;
+    arm.z = -arm.z;
+    transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+    Camera_TunnelLimit(player,&newarm.y);
+    Camera_gInfo[player].position.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
+    pBVar7 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
+    Camera_gInfo[player].position.y = (pBVar7->position).y + newarm.y;
+    Camera_gInfo[player].position.z = (pBVar7->position).z + newarm.z;
+    return;
+  }
+  transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+  Camera_TunnelLimit(player,&newarm.y);
+  oldarm = Camera_gInfo[player].relpos;   /* MATCH: struct copy -> grouped t0-t2 load/store */
+  if (Camera_gInfo[player].intransition != 0) {
+    Camera_gInfo[player].intransition = Camera_gInfo[player].intransition - 1;
+    rateY = 0x1999;
+    rate = 0x1999;
+  }
+  Camera_gInfo[player].relpos.x = oldarm.x + fixedmult(newarm.x - oldarm.x,rate);
+  Camera_gInfo[player].relpos.y = oldarm.y + fixedmult(newarm.y - oldarm.y,rateY);
+  Camera_gInfo[player].relpos.z = oldarm.z + fixedmult(newarm.z - oldarm.z,rate);
+  if (Camera_gInfo[player].intransition == 0) {
+    len = Math_VectorLength(&Camera_gInfo[player].relpos);
+    if (len < 0x651eb) {
+      int scale = fixeddiv(0x651eb,len);   /* SYM: REG scale in NESTED block scope ($s0) */
+      Camera_gInfo[player].relpos.x = fixedmult(scale,Camera_gInfo[player].relpos.x);
+      Camera_gInfo[player].relpos.y = fixedmult(scale,Camera_gInfo[player].relpos.y);
+      Camera_gInfo[player].relpos.z = fixedmult(scale,Camera_gInfo[player].relpos.z);
     }
-    iVar7 = fixedmult(local_40 - local_30,iVar6);
-    Camera_gInfo[player].relpos.x = local_30 + iVar7;
-    iVar7 = fixedmult(local_3c - local_2c,iVar11);
-    Camera_gInfo[player].relpos.y = local_2c + iVar7;
-    iVar7 = fixedmult(local_38 - local_28,iVar6);
-    cVar1 = Camera_gInfo[player].intransition;
-    Camera_gInfo[player].relpos.z = local_28 + iVar7;
-    if ((cVar1 == '\0') &&
-       (iVar7 = Math_VectorLength(&Camera_gInfo[player].relpos), iVar7 < 0x651eb)) {
-      iVar7 = fixeddiv(0x651eb,iVar7);
-      iVar11 = fixedmult(iVar7,Camera_gInfo[player].relpos.x);
-      iVar9 = Camera_gInfo[player].relpos.y;
-      Camera_gInfo[player].relpos.x = iVar11;
-      iVar11 = fixedmult(iVar7,iVar9);
-      iVar9 = Camera_gInfo[player].relpos.z;
-      Camera_gInfo[player].relpos.y = iVar11;
-      iVar7 = fixedmult(iVar7,iVar9);
-      Camera_gInfo[player].relpos.z = iVar7;
-    }
-    pBVar10 = Camera_gInfo[player].anchor;
-    Camera_gInfo[player].position.x =
-         ((Camera_gInfo[player].anchor)->position).x + Camera_gInfo[player].relpos.x;
-    Camera_gInfo[player].position.y = (pBVar10->position).y + Camera_gInfo[player].relpos.y;
-    Camera_gInfo[player].position.z = (pBVar10->position).z + Camera_gInfo[player].relpos.z;
   }
-  else {
-    pCVar8 = Camera_gInfo + player;
-    transform(&local_50,(pCVar8->anchor->orientMat).m,&local_40);
-    pBVar10 = pCVar8->anchor;
-    Camera_gInfo[player].audioPos.x = (pCVar8->anchor->position).x + local_40;
-    Camera_gInfo[player].audioPos.y = (pBVar10->position).y + local_3c;
-    Camera_gInfo[player].audioPos.z = (pBVar10->position).z + local_38;
-    local_48 = -local_48;
-    transform(&local_50,(pCVar8->anchor->orientMat).m,&local_40);
-    Camera_TunnelLimit(player,&local_3c);
-    pBVar10 = pCVar8->anchor;
-    Camera_gInfo[player].position.x = (pCVar8->anchor->position).x + local_40;
-    Camera_gInfo[player].position.y = (pBVar10->position).y + local_3c;
-    Camera_gInfo[player].position.z = (pBVar10->position).z + local_38;
-  }
+  Camera_gInfo[player].position.x =
+       ((Camera_gInfo[player].anchor)->position).x + Camera_gInfo[player].relpos.x;
+  pBVar7 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
+  Camera_gInfo[player].position.y = (pBVar7->position).y + Camera_gInfo[player].relpos.y;
+  Camera_gInfo[player].position.z = (pBVar7->position).z + Camera_gInfo[player].relpos.z;
   return;
 }
 
@@ -861,22 +749,29 @@ void Camera_UpdateTVCam(int player)
     iVar1 = -iVar1;
     dist4 = iVar1 >> 4;
   }
-  iVar2 = Camera_gInfo[player].position.x;
   /* @0x80081EC4-F14: TWO distinct fn-statics indexed by player*4 -- lastX[2]@0x8013DD88 and
    * lastY[2]@0x8013DD90 (8 bytes apart). The reconstruction routed every access through one
    * Ghidra-ism `*(int*)("" + iVar3)` placeholder, collapsing lastY into lastX (H43). */
-  if (lastX[player] != iVar2) {
-    lastX[player] = iVar2;
+  /* MATCH: compare lastX[player] (LHS first -> its address materializes before Camera_gInfo's)
+   * against the field directly; the taken-branch store reuses the loaded position.x */
+  if (lastX[player] != Camera_gInfo[player].position.x) {
+    lastX[player] = Camera_gInfo[player].position.x;
     lastY[player] = Camera_gInfo[player].position.y;
   }
-  iVar2 = fixedmult(Camera_gInfo[player].TVHeight >> 2,dist4 + -0x4000);
-  if (Camera_gInfo[player].TVHeight < iVar2) {
-    iVar2 = Camera_gInfo[player].TVHeight;
+  targetDist = fixedmult(Camera_gInfo[player].TVHeight >> 2,dist4 + -0x4000);
+  /* MATCH: if/else (dbr steals the else-arm copy into the beqz slot) + plain if, one CSE'd slt */
+  if (Camera_gInfo[player].TVHeight < targetDist) {
+    height = Camera_gInfo[player].TVHeight;
+  } else {
+    height = targetDist;
   }
-  if (iVar2 < 0) {
-    iVar2 = 0;
+  if (Camera_gInfo[player].TVHeight < targetDist) {
+    targetDist = Camera_gInfo[player].TVHeight;
   }
-  Camera_gInfo[player].position.y = lastY[player] + iVar2;   /* @0x80081F64 read lastY[player] */
+  if (targetDist < 0) {
+    height = 0;
+  }
+  Camera_gInfo[player].position.y = lastY[player] + height;   /* @0x80081F64 read lastY[player] */
   SetCameraZoom(player,dist4);
   return;
 }
@@ -884,82 +779,63 @@ void Camera_UpdateTVCam(int player)
 /* ---- Camera_UpdateAnimCam__Fi  [@0x80081f94] ---- */
 void Camera_UpdateAnimCam(int player)
 {
-  coorddef animPos;
-  coorddef newarm;
-  matrixtdef animRot;
-  char cVar1;
+  coorddef animPos;    /* SYM: AUTO */
+  coorddef newarm;     /* SYM: AUTO */
+  matrixtdef animRot;  /* SYM: AUTO */
+  signed char cVar1;   /* signed: decrement emits addiu -1 (not +255) */
   int iVar2;
   AnimScript *pAVar3;
-  matrixtdef *pmVar4;
-  int *piVar5;
   BO_tNewtonObj *pBVar6;
-  int iVar7;
-  int iVar8;
-  Camera_tInfo *pCVar9;
-  coorddef local_58;
-  int local_48;
-  int local_44;
-  int local_40;
-  matrixtdef local_38;
-  
-  if (Camera_gInfo[player].animHandle == -1) {
-    cVar1 = Camera_gInfo[player].animNum;
-    Camera_gInfo[player].animNum = cVar1 + -1;
-    iVar2 = Anim_Handle((u_int)(u_char)gAnimCams[GameSetup_gData.track][cVar1]);
+
+  /* BUGFIX (H-class): animHandle is plain char (unsigned on this build) - the == -1 compare
+   * was provably-false and gcc DELETED the whole re-acquire branch; (signed char) restores it */
+  if ((signed char)Camera_gInfo[player].animHandle == -1) {
+    /* MATCH: post-decrement in the index expr (lbu clobbers the compare's -1 reg) */
+    iVar2 = Anim_Handle((u_int)(u_char)gAnimCams[GameSetup_gData.track]
+                                               [(signed char)Camera_gInfo[player].animNum--]);
     Camera_gInfo[player].animHandle = (char)iVar2;
   }
-  pAVar3 = Anim_GetAnim((int)Camera_gInfo[player].animHandle);
-  iVar2 = pAVar3->GetTimedAnimPosRot(&local_58,&local_38);
+  pAVar3 = Anim_GetAnim((int)(signed char)Camera_gInfo[player].animHandle);
+  iVar2 = pAVar3->GetTimedAnimPosRot(&animPos,&animRot);
   if (iVar2 < 1) {
-    if (Camera_gInfo[player].animNum < '\x01') {
-      if (Replay_ReplayMode != 2) {
-        Camera_SetMode(player,GameSetup_gData.carInfo[player].Camera[0]);
+    /* MATCH: re-acquire arm FIRST in VA order (blez jumps away to the <1 arm) */
+    if (0 < (signed char)Camera_gInfo[player].animNum) {
+      Anim_FreeHandle((int)(signed char)Camera_gInfo[player].animHandle);
+      iVar2 = Anim_Handle((u_int)(u_char)gAnimCams[GameSetup_gData.track]
+                                                 [(signed char)Camera_gInfo[player].animNum--]);
+      Camera_gInfo[player].animHandle = (char)iVar2;
+      pAVar3 = Anim_GetAnim((int)(signed char)(char)iVar2);
+      pAVar3->GetTimedAnimPosRot(&animPos,&animRot);
+    }
+    else {
+      if (Replay_ReplayMode == 2) {
+        if (numValidCams != 0) {
+          Replay_ReplayFindClosestCamera(player,(int)((Camera_gInfo[player].anchor)->simRoadInfo).slice);
+          return;
+        }
+        Camera_SetMode(player,0xb);
+        Camera_gInfo[player].splineMode = '';
         return;
       }
-      if (numValidCams != 0) {
-        Replay_ReplayFindClosestCamera(player,(int)((Camera_gInfo[player].anchor)->simRoadInfo).slice);
-        return;
-      }
-      Camera_SetMode(player,0xb);
-      Camera_gInfo[player].splineMode = '\x03';
+      Camera_SetMode(player,GameSetup_gData.carInfo[player].Camera[0]);
       return;
     }
-    Anim_FreeHandle((int)Camera_gInfo[player].animHandle);
-    cVar1 = Camera_gInfo[player].animNum;
-    Camera_gInfo[player].animNum = cVar1 + -1;
-    iVar2 = Anim_Handle((u_int)(u_char)gAnimCams[GameSetup_gData.track][cVar1]);
-    Camera_gInfo[player].animHandle = (char)iVar2;
-    pAVar3 = Anim_GetAnim((int)(char)iVar2);
-    pAVar3->GetTimedAnimPosRot(&local_58,&local_38);
   }
-  pCVar9 = Camera_gInfo + player;
-  pmVar4 = &Camera_gInfo[player].rotation;
-  if (((int)(u_int)(u_char)"\x02"[GameSetup_gData.track] >> ((int)Camera_gInfo[player].animNum & 0x1fU)
-      & 1U) == 0) {
-    transform(&local_58,(pCVar9->anchor->orientMat).m,&local_48);
-    pBVar6 = pCVar9->anchor;
-    Camera_gInfo[player].position.x = (pCVar9->anchor->position).x + local_48;
-    Camera_gInfo[player].position.y = (pBVar6->position).y + local_44;
-    Camera_gInfo[player].position.z = (pBVar6->position).z + local_40;
-    Math_fasttransmult(&local_38,&pBVar6->orientMat,&Camera_gInfo[player].rotation);
+  /* BUGFIX (H-class): Ghidra rendered gAnimMode[track] as the string "" (mis-render trap);
+   * also dropped the Ghidra-ism & 0x1f shift-count mask */
+  /* MATCH: direct-copy arm FIRST in VA order (beqz jumps to the transform arm) */
+  if ((gAnimMode[GameSetup_gData.track] >> (signed char)Camera_gInfo[player].animNum & 1U) != 0) {
+    Camera_gInfo[player].position = animPos;   /* struct copies -> grouped/movstrsi */
+    Camera_gInfo[player].rotation = animRot;
   }
   else {
-    Camera_gInfo[player].position.x = local_58.x;
-    Camera_gInfo[player].position.y = local_58.y;
-    Camera_gInfo[player].position.z = local_58.z;
-    piVar5 = local_38.m;
-    do {
-      iVar2 = piVar5[1];
-      iVar7 = piVar5[2];
-      iVar8 = piVar5[3];
-      pmVar4->m[0] = *piVar5;
-      pmVar4->m[1] = iVar2;
-      pmVar4->m[2] = iVar7;
-      pmVar4->m[3] = iVar8;
-      piVar5 = piVar5 + 4;
-      pmVar4 = (matrixtdef *)(pmVar4->m + 4);
-    } while (piVar5 != local_38.m + 8);
-    pmVar4->m[0] = *piVar5;
+    transform(&animPos,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+    Camera_gInfo[player].position.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
+    /* MATCH: oracle re-loads anchor for the y/z pair */
+    pBVar6 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
+    Camera_gInfo[player].position.y = (pBVar6->position).y + newarm.y;
+    Camera_gInfo[player].position.z = (pBVar6->position).z + newarm.z;
+    Math_fasttransmult(&animRot,&pBVar6->orientMat,&Camera_gInfo[player].rotation);
   }
   return;
 }
@@ -967,30 +843,37 @@ void Camera_UpdateAnimCam(int player)
 /* ---- Camera_UpdateFinishCam__Fi  [@0x80082254] ---- */
 void Camera_UpdateFinishCam(int player)
 {
-  coorddef newarm;
+  coorddef finishPos;    /* SYM: AUTO @0x10 */
+  coorddef newarm;       /* SYM: AUTO @0x20 */
+  matrixtdef finishRot;  /* SYM: AUTO @0x30 */
   int iVar1;
   AnimScript *pThis;
   BO_tNewtonObj *pBVar2;
-  coorddef cStack_60;
-  matrixtdef mStack_40;
 
   if ((signed char)Camera_gInfo[player].animHandle == -1) {
     iVar1 = Anim_Handle(1);
     Camera_gInfo[player].animHandle = (char)iVar1;
   }
   pThis = Anim_GetAnim((int)(signed char)Camera_gInfo[player].animHandle);
-  iVar1 = pThis->GetTimedAnimPosRot(&cStack_60,&mStack_40);
+  iVar1 = pThis->GetTimedAnimPosRot(&finishPos,&finishRot);
   if (iVar1 < 1) {
-    Anim_GetLastAnimPosRot(1,6,&cStack_60,&mStack_40);
+    Anim_GetLastAnimPosRot(1,6,&finishPos,&finishRot);
   }
-  transform((int *)&cStack_60,Camera_gInfo[player].anchor->orientMat.m,(int *)&newarm);
+  transform((int *)&finishPos,Camera_gInfo[player].anchor->orientMat.m,(int *)&newarm);
   Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + newarm.x;
-  Camera_gInfo[player].position.y = Camera_gInfo[player].anchor->position.y + newarm.y;
-  pBVar2 = Camera_gInfo[player].anchor;
+  /* MATCH: oracle re-loads anchor (lw a1,0(s0)) for the y/z pair - volatile re-deref blocks CSE */
+  pBVar2 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
+  Camera_gInfo[player].position.y = pBVar2->position.y + newarm.y;
   Camera_gInfo[player].position.z = pBVar2->position.z + newarm.z;
-  Math_fasttransmult(&mStack_40,&pBVar2->orientMat,&Camera_gInfo[player].rotation);
-  *(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) =
-       *(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) & 0xfffffff1 | 0x70;
+  Math_fasttransmult(&finishRot,&pBVar2->orientMat,&Camera_gInfo[player].rotation);
+  /* MATCH: six real bitfield assignments - 3 clears stay separate ands (-3/-5/-9),
+   * 3 sets combine-fold into one ori 0x70; single lw/sw RMW via CSE */
+  Camera_gInfo[player].pitch = 0;
+  Camera_gInfo[player].jostling = 0;
+  Camera_gInfo[player].tracking = 0;
+  Camera_gInfo[player].checkwalls = 1;
+  Camera_gInfo[player].noLookBack = 1;
+  Camera_gInfo[player].checkcollisions = 1;
   return;
 }
 
@@ -1232,26 +1115,20 @@ void Camera_UpdateSplineCam(int player)
 /* ---- Camera_IslandProfile__FUs  [@0x80082c3c] ---- */
 int Camera_IslandProfile(u_short before)
 {
-  u_short after;
-  u_short diff;
-  bool bVar1;
-  u_int uVar2;
-  u_int uVar3;
-  u_int uVar4;
-  
-  uVar3 = before;
-  uVar2 = before & (before - 1);
-  uVar4 = before - uVar2;
-  if (before != 0) {
-    do {
-      if (uVar3 - uVar2 != (uVar4 & 0xffff)) {
-        return 1;
-      }
-      bVar1 = uVar2 != 0;
-      uVar4 = uVar4 << 1;
-      uVar3 = uVar2;
-      uVar2 = uVar2 & uVar2 - 1;
-    } while (bVar1);
+  u_short after;   /* SYM: REG after USHORT */
+  u_short diff;    /* SYM: REG diff USHORT */
+
+  /* MATCH: u_short locals + mutated param; masks (andi 0xFFFF) appear lazily at the compares
+   * only; plain while -> gcc duplicate_loop_exit_test gives the top+bottom test pair */
+  after = before & (before - 1);
+  diff = before - after;
+  while (before != 0) {
+    if (before - after != diff) {
+      return 1;
+    }
+    before = after;
+    after = before & (before - 1);
+    diff = diff << 1;
   }
   return 0;
 }
@@ -1259,79 +1136,60 @@ int Camera_IslandProfile(u_short before)
 /* ---- Camera_UpdatePulloverCam__Fi  [@0x80082c94] ---- */
 void Camera_UpdatePulloverCam(int player)
 {
-  coorddef sCenter;
-  coorddef sForward;
-  coorddef sRight;
-  coorddef sccVec;
-  coorddef newarm;
-  int ySign;
-  char cVar1;
-  int *piVar2;
+  coorddef sCenter;   /* SYM: AUTO @0x10 */
+  coorddef sForward;  /* SYM: AUTO @0x20 */
+  coorddef sRight;    /* SYM: AUTO @0x30 */
+  coorddef sccVec;    /* SYM: AUTO @0x40 */
+  coorddef newarm;    /* SYM: AUTO @0x50 */
+  int ySign;          /* SYM: REG */
   int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  u_int uVar8;
-  int iVar9;
-  int iVar10;
-  int iVar11;
-  Camera_tInfo *pCVar12;
-  int local_40;
-  int local_3c;
-  int local_38;
-  int local_1c;
-  int local_18;
-  
+
   if (((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) &&
      (InBetween == 0)) {
     SetGeomScreen(0xbe);
-    pCVar12 = Camera_gInfo + player;
     if (simGlobal.gameTicks < Camera_gInfo[player].POInhibitor) {
       Camera_UpdateCopCam2(player);
+      return;
     }
-    else {
-      piVar2 = (int *)((char *)BWorldSm_slices + (pCVar12->anchor->simRoadInfo).slice * 0x20);
-      iVar9 = *piVar2;
-      iVar10 = piVar2[1];
-      iVar11 = piVar2[2];
-      cVar1 = *(char *)((char *)BWorldSm_slices + (pCVar12->anchor->simRoadInfo).slice * 0x20 + 0x11);
-      iVar3 = (pCVar12->anchor->position).x;
-      iVar4 = (int)*(char *)((char *)BWorldSm_slices + (pCVar12->anchor->simRoadInfo).slice * 0x20 + 0x12);
-      local_40 = iVar4 * 0x800;
-      iVar5 = (int)*(char *)((char *)BWorldSm_slices + (pCVar12->anchor->simRoadInfo).slice * 0x20 + 0x13);
-      local_3c = iVar5 * 0x800;
-      iVar6 = (int)*(char *)((char *)BWorldSm_slices + (pCVar12->anchor->simRoadInfo).slice * 0x20 + 0x14);
-      local_38 = iVar6 * 0x800;
-      iVar7 = fixedmult((pCVar12->anchor->position).z - iVar11,
-                         (int)*(char *)((char *)BWorldSm_slices +
-                                        (pCVar12->anchor->simRoadInfo).slice * 0x20 + 0xf) << 9);
-      iVar3 = fixedmult(iVar3 - iVar9,(int)cVar1 << 9);
-      uVar8 = Camera_IslandProfile(*(u_short *)
-                          ((char *)BWorldSm_slices + (pCVar12->anchor->simRoadInfo).slice * 0x20 + 0x16));
-      if (iVar7 - iVar3 < 0) {
-        uVar8 = uVar8 ^ 1;
-      }
-      if (uVar8 != 0) {
-        local_40 = iVar4 * -0x800;
-        local_38 = iVar6 * -0x800;
-        local_3c = iVar5 * -0x800;
-      }
-      local_1c = 0x60000;
-      Camera_TunnelLimit(player,&local_1c);
-      local_1c = local_1c + iVar10 + local_3c;
-      local_18 = iVar11 + local_38;
-      iVar3 = fixedmult((iVar9 + local_40) - Camera_gInfo[player].position.x,0x7ae);
-      iVar4 = Camera_gInfo[player].position.y;
-      Camera_gInfo[player].position.x = Camera_gInfo[player].position.x + iVar3;
-      iVar3 = fixedmult(local_1c - iVar4,0x7ae);
-      iVar4 = Camera_gInfo[player].position.z;
-      Camera_gInfo[player].position.y = Camera_gInfo[player].position.y + iVar3;
-      iVar3 = fixedmult(local_18 - iVar4,0x7ae);
-      uVar8 = *(u_int *)((char *)&(Camera_gInfo[player]) + 0x74);
-      Camera_gInfo[player].position.z = Camera_gInfo[player].position.z + iVar3;
-      *(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) = uVar8 & 0xfffffff9 | 0x78;
+    /* MATCH: full slice expression REMATERIALIZED per access (no cached slice ptr) */
+    sCenter = *(coorddef *)BWorldSm_slices[(Camera_gInfo[player].anchor)->simRoadInfo.slice].center;
+    sForward.x = (signed char)BWorldSm_slices[(Camera_gInfo[player].anchor)->simRoadInfo.slice].forward[0] << 9;
+    sForward.y = (signed char)BWorldSm_slices[(Camera_gInfo[player].anchor)->simRoadInfo.slice].forward[1] << 9;
+    sForward.z = (signed char)BWorldSm_slices[(Camera_gInfo[player].anchor)->simRoadInfo.slice].forward[2] << 9;
+    sccVec.x = (Camera_gInfo[player].anchor)->position.x - sCenter.x;
+    sccVec.y = (Camera_gInfo[player].anchor)->position.y - sCenter.y;
+    sccVec.z = (Camera_gInfo[player].anchor)->position.z - sCenter.z;
+    sRight.x = (signed char)BWorldSm_slices[(Camera_gInfo[player].anchor)->simRoadInfo.slice].right[0] << 0xb;
+    sRight.y = (signed char)BWorldSm_slices[(Camera_gInfo[player].anchor)->simRoadInfo.slice].right[1] << 0xb;
+    sRight.z = (signed char)BWorldSm_slices[(Camera_gInfo[player].anchor)->simRoadInfo.slice].right[2] << 0xb;
+    iVar3 = fixedmult(sccVec.z,sForward.x) - fixedmult(sccVec.x,sForward.z);
+    ySign = Camera_IslandProfile(BWorldSm_slices[(Camera_gInfo[player].anchor)->simRoadInfo.slice].pavedProfile);
+    if (iVar3 < 0) {
+      ySign = ySign != 1;   /* MATCH: != 1 canonicalizes to xori + sltu (0/1 renormalize) */
     }
+    if (ySign != 0) {
+      sRight.x = -sRight.x;
+      sRight.y = -sRight.y;
+      sRight.z = -sRight.z;
+    }
+    newarm.y = 0x60000;
+    Camera_TunnelLimit(player,&newarm.y);
+    newarm.x = sCenter.x + sRight.x;
+    newarm.y = newarm.y + (sCenter.y + sRight.y);
+    newarm.z = sCenter.z + sRight.z;
+    Camera_gInfo[player].position.x =
+         Camera_gInfo[player].position.x + fixedmult(newarm.x - Camera_gInfo[player].position.x,0x7ae);
+    Camera_gInfo[player].position.y =
+         Camera_gInfo[player].position.y + fixedmult(newarm.y - Camera_gInfo[player].position.y,0x7ae);
+    Camera_gInfo[player].position.z =
+         Camera_gInfo[player].position.z + fixedmult(newarm.z - Camera_gInfo[player].position.z,0x7ae);
+    /* MATCH: real bitfield assignments (m2c: (x & ~2 & ~4) | 0x78) */
+    Camera_gInfo[player].pitch = 0;
+    Camera_gInfo[player].jostling = 0;
+    Camera_gInfo[player].tracking = 1;
+    Camera_gInfo[player].checkwalls = 1;
+    Camera_gInfo[player].noLookBack = 1;
+    Camera_gInfo[player].checkcollisions = 1;
   }
   return;
 }
@@ -1355,11 +1213,10 @@ void Camera_UpdateCopCam1(int player)
   Math_NormalizeVector(&vec);
   vec.x = fixedmult(0x40000,vec.x);
   vec.y = fixedmult(0x40000,vec.y);
-  iVar1 = fixedmult(0x40000,vec.z);
-  Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + vec.x + iVar1;
-  pBVar5 = Camera_gInfo[player].anchor;
-  Camera_gInfo[player].position.y = pBVar5->position.y + 0x18000;
-  Camera_gInfo[player].position.z = pBVar5->position.z - vec.x + iVar1;
+  vec.z = fixedmult(0x40000,vec.z);   /* MATCH: result lives in vec.z (sw/lw 24(sp)), not a reg temp */
+  Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + vec.x + vec.z;
+  Camera_gInfo[player].position.y = Camera_gInfo[player].anchor->position.y + 0x18000;
+  Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z - vec.x + vec.z;
   return;
 }
 
@@ -1394,26 +1251,30 @@ void Camera_UpdateCopCam2(int player)
 /* ---- Camera_UpdateBTCopCam__Fi  [@0x800832b0] ---- */
 void Camera_UpdateBTCopCam(int player)
 {
-  char cVar1;
-  forceFocus_t fVar2;
-  
-  fVar2 = Camera_gInfo[player].forceFocus;
-  if (fVar2 == 1) {
-    cVar1 = (signed char)Camera_gInfo[player].focusOnAICar;
-    Camera_gInfo[player].anchor = &Cars_gList[(signed char)Camera_gInfo[player].focusOnAICar]->N;
-    Camera_gInfo[player].target = &Cars_gList[cVar1]->N;
-    Camera_UpdateCircleCam(player);
-  }
-  else if ((1 < (int)fVar2) && (fVar2 == 2)) {
-    cVar1 = (signed char)Camera_gInfo[player].focusOnAICar;
+  /* MATCH: real switch (binary-tree dispatch); focusOnAICar RE-READ per line (lb x2, no cache) */
+  switch (Camera_gInfo[player].forceFocus) {
+  case 0:
+    break;   /* MATCH: empty case 0 shapes the slti-2 binary dispatch tree */
+  case 2:   /* MATCH: case 2 body FIRST in VA order (bne falls through into it) */
     Camera_gInfo[player].anchor = &Cars_gList[player]->N;
-    Camera_gInfo[player].target = &Cars_gList[cVar1]->N;
+    Camera_gInfo[player].target = &Cars_gList[(signed char)Camera_gInfo[player].focusOnAICar]->N;
     Camera_UpdateCopCam2(player);
+    break;
+  case 1:
+    Camera_gInfo[player].anchor = &Cars_gList[(signed char)Camera_gInfo[player].focusOnAICar]->N;
+    Camera_gInfo[player].target = &Cars_gList[(signed char)Camera_gInfo[player].focusOnAICar]->N;
+    Camera_UpdateCircleCam(player);
+    break;
   }
   Camera_gGeomScreen = 0xbe;
   Camera_gInfo[player].POInhibitor = simGlobal.gameTicks + 0x140;
-  *(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) =
-       *(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) & 0xffffffb9 | 0x38;
+  /* MATCH: real bitfield assignments; checkcollisions=0 LAST (m2c: (x&~2&~4|0x38)&~0x40) */
+  Camera_gInfo[player].pitch = 0;
+  Camera_gInfo[player].jostling = 0;
+  Camera_gInfo[player].tracking = 1;
+  Camera_gInfo[player].checkwalls = 1;
+  Camera_gInfo[player].noLookBack = 1;
+  Camera_gInfo[player].checkcollisions = 0;
   return;
 }
 
@@ -1702,21 +1563,19 @@ void Camera_Init(void)
 /* ---- Camera_Kill__Fv  [@0x80083bec] ---- */
 void Camera_Kill(void)
 {
-  int i;
-  int splitScreen;
-  bool bVar1;
-  Camera_tInfo *pCVar2;
-  int iVar3;
+  int i;            /* SYM: REG i INT */
+  int splitScreen;  /* SYM: REG splitScreen INT */
+  signed char none; /* compiler pseudo: shared -1 for compare + sb (li s3,-1 in preheader) */
 
-  iVar3 = 0;
-  bVar1 = GameSetup_gData.commMode == 1;
-  pCVar2 = Camera_gInfo;
-  for (; iVar3 <= (int)(u_int)bVar1; iVar3 = iVar3 + 1) {
-    if ((signed char)pCVar2->animHandle != -1) {
-      Anim_FreeHandle((int)(signed char)pCVar2->animHandle);
+  splitScreen = GameSetup_gData.commMode == 1;
+  /* MATCH: index form (SYM has NO pointer local) — gcc strength-reduces to the s0+=0x110 walk
+   * keeping animHandle's 0x7D displacement; a hand pointer-walk folds base+125 into the biv */
+  for (i = 0; i <= splitScreen; i = i + 1) {
+    none = -1;   /* MATCH: invariant -> hoisted to preheader; shared -1 reg for compare + sb */
+    if ((signed char)Camera_gInfo[i].animHandle != none) {
+      Anim_FreeHandle((int)(signed char)Camera_gInfo[i].animHandle);
     }
-    *(signed char *)&pCVar2->animHandle = -1;
-    pCVar2 = pCVar2 + 1;
+    Camera_gInfo[i].animHandle = none;
   }
   return;
 }
@@ -1730,9 +1589,10 @@ void Camera_PitchAndRoll(int player)
   matrixtdef mStack_40;
   
   iVar1 = Camera_gInfo[player].anchor[3].objAltitude;
+  iVar1 = iVar1 << 1;   /* MATCH: separate stmt -> sll lands in fixedxformz's jal delay slot */
   fixedxformz((int)&mStack_90,(int *)Camera_gInfo[player].anchor[3].collision.collided);
   fixedxformx((int)&mStack_68,
-             (int *)(iVar1 << 1 | Camera_gInfo[player].pitch));
+             (int *)(iVar1 | Camera_gInfo[player].pitch));
   Math_fasttransmult(&mStack_90,&mStack_68,&mStack_40);
   Math_fasttransmult(&mStack_40,&Camera_gInfo[player].rotation,&Camera_gInfo[player].rotation);
   return;
@@ -1741,136 +1601,98 @@ void Camera_PitchAndRoll(int player)
 /* ---- Camera_TooSteep__FiP12BWorldSm_Pos  [@0x80083d28] ---- */
 int Camera_TooSteep(int player,BWorldSm_Pos *slicePos)
 {
-  coorddef normUnderCam;
-  coorddef normUnderCar;
-  coorddef delta;
-  coorddef *pcVar1;
-  int iVar2;
-  int iVar3;
-  int iVar5;
-  int iVar6;
-  BO_tNewtonObj *pBVar7;
+  coorddef normUnderCam;    /* SYM: AUTO */
+  coorddef normUnderCar;    /* SYM: AUTO */
+  coorddef camToCar;        /* SYM: AUTO */
+  BWorldSm_Pos *slicePos2;  /* SYM: REG (anchor+8, addiu s0,s0,8 in the 1st jal slot) */
+  int d0;
+  int d1;
+  int d2;
 
-  pBVar7 = Camera_gInfo[player].anchor;
-  pcVar1 = BWorldSm_UNormal(slicePos);
-  normUnderCam = *pcVar1;
-  pcVar1 = BWorldSm_UNormal(&pBVar7->simRoadInfo);
-  normUnderCar = *pcVar1;
-  iVar2 = fixedmult(normUnderCam.x,normUnderCar.x);
-  iVar5 = fixedmult(normUnderCam.y,normUnderCar.y);
-  iVar6 = fixedmult(normUnderCam.z,normUnderCar.z);
-  iVar3 = 0;
-  if (iVar2 + iVar5 + iVar6 < 0xb4fd) {
-    delta.x = Camera_gInfo[player].anchor->position.x - Camera_gInfo[player].position.x;
-    delta.y = Camera_gInfo[player].anchor->position.y - Camera_gInfo[player].position.y;
-    delta.z = Camera_gInfo[player].anchor->position.z - Camera_gInfo[player].position.z;
-    iVar6 = fixedmult(normUnderCam.x,delta.x);
-    iVar2 = fixedmult(normUnderCam.y,delta.y);
-    iVar5 = fixedmult(normUnderCam.z,delta.z);
-    if ((iVar6 + iVar2 + iVar5 < 1) || (iVar3 = 1, Camera_gInfo[player].anchor->flightTime != 0)) {
-      iVar3 = 0;
+  slicePos2 = &(Camera_gInfo[player].anchor)->simRoadInfo;
+  normUnderCam = *(coorddef *)BWorldSm_UNormal(slicePos);
+  normUnderCar = *(coorddef *)BWorldSm_UNormal(slicePos2);
+  d0 = fixedmult(normUnderCam.x,normUnderCar.x);
+  d1 = fixedmult(normUnderCam.y,normUnderCar.y);
+  d2 = fixedmult(normUnderCam.z,normUnderCar.z);
+  /* MATCH: dot accumulates IN-PLACE into the FIRST temp (s0), two separate += stmts */
+  d0 = d0 + d1;
+  d0 = d0 + d2;
+  if (0xb4fc < d0) {
+    return 0;   /* MATCH: direct returns - v0=0/1 staged in branch delay slots, no result var */
+  }
+  camToCar.x = Camera_gInfo[player].anchor->position.x - Camera_gInfo[player].position.x;
+  camToCar.y = Camera_gInfo[player].anchor->position.y - Camera_gInfo[player].position.y;
+  camToCar.z = Camera_gInfo[player].anchor->position.z - Camera_gInfo[player].position.z;
+  d0 = fixedmult(normUnderCam.x,camToCar.x);
+  d1 = fixedmult(normUnderCam.y,camToCar.y);
+  d2 = fixedmult(normUnderCam.z,camToCar.z);
+  d0 = d0 + d1;
+  d0 = d0 + d2;
+  if (0 < d0) {
+    if ((Camera_gInfo[player].anchor)->flightTime == 0) {
+      return 1;
     }
   }
-  return iVar3;
+  return 0;
 }
 
 /* ---- Camera_CheckWallCollisions__FiP8coorddef  [@0x80083e98] ---- */
 void Camera_CheckWallCollisions(int player,coorddef *pos)
 {
-  BWorldSm_Pos slicePos;
-  coorddef edge;
-  coorddef normal;
-  coorddef step;
-  coorddef temp;
-  coorddef quadUnderCamera;
-  coorddef triPnt;
-  coorddef triVec;
-  int camAngle;
-  int sin;
-  int cos;
+  BWorldSm_Pos slicePos;    /* SYM: AUTO @-0x118 */
+  coorddef edge;            /* SYM: AUTO @-0x90 */
+  coorddef normal;          /* SYM: AUTO @-0x80 (3 ints) */
+  coorddef step;            /* SYM: AUTO @-0x70 */
+  coorddef temp;            /* SYM: AUTO @-0x60 */
+  coorddef quadUnderCamera; /* SYM: AUTO @-0x50 */
+  coorddef triPnt;          /* SYM: AUTO @-0x40 */
+  coorddef triVec;          /* SYM: AUTO @-0x30 */
+  int sin;                  /* SYM: AUTO @-0x20 */
+  int cos;                  /* SYM: AUTO @-0x1c */
+  int camAngle;             /* SYM: REG */
   int camDotNorm;
   int edgeDotNorm;
   int count;
   int i;
-  short sVar1;
-  short sVar2;
-  u_short uVar3;
   BO_tNewtonObj *pBVar4;
   int *piVar5;
   int iVar6;
   int iVar7;
   int iVar8;
   int iVar9;
-  BWorldSm_Pos *pBVar10;
-  BWorldSm_Pos *pBVar11;
   Camera_tInfo *pCVar12;
   int iVar13;
   int iVar14;
   coorddef *pThis;
-  u_int uVar15;
-  BWorldSm_Pos local_118;
-  coorddef local_90;
-  int local_80;
-  int local_7c;
-  int local_78;
-  int local_70;
-  int local_6c;
-  int local_68;
-  coorddef local_60;
-  int local_50;
-  int local_4c;
-  int local_48;
-  coorddef local_40;
-  int local_30;
-  int local_2c;
-  int local_28;
-  int local_20;
-  int local_1c;
   
-  pBVar11 = &local_118;
-  pBVar10 = &Camera_gInfo[player].slicePos;
-  do {
-    sVar1 = pBVar10->stripQuadInd;
-    sVar2 = pBVar10->simRotFlag;
-    uVar3 = *(u_short *)((char *)(pBVar10) + 0x6);
-    iVar13 = pBVar10->quadPts[0].x;
-    iVar14 = pBVar10->quadPts[0].y;
-    pBVar11->slice = pBVar10->slice;
-    pBVar11->stripQuadInd = sVar1;
-    pBVar11->simRotFlag = sVar2;
-    *(u_short *)((char *)(pBVar11) + 0x6) = uVar3;
-    pBVar11->quadPts[0].x = iVar13;
-    pBVar11->quadPts[0].y = iVar14;
-    pBVar10 = (BWorldSm_Pos *)&pBVar10->quadPts[0].z;
-    pBVar11 = (BWorldSm_Pos *)&pBVar11->quadPts[0].z;
-  } while (pBVar10 != (BWorldSm_Pos *)&Camera_gInfo[player].slicePos.simSlice);
-  *(int *)pBVar11 = *(int *)pBVar10;
+  /* MATCH: plain struct assignment -> gcc movstrsi copy (Ghidra hand-expanded it as a loop) */
+  slicePos = Camera_gInfo[player].slicePos;
   iVar13 = 0;
+  pCVar12 = Camera_gInfo + player;   /* MATCH: gInfo sum materialized BEFORE feeler3 base */
   pThis = feeler3;
   do {
-    transform(pThis,((Camera_gInfo[player].anchor)->orientMat).m,
-               &local_30);
-    local_40.x = pos->x + local_30;
-    local_40.y = pos->y + local_2c;
-    local_40.z = pos->z + local_28;
-    BWorldSm_FindClosestQuadMaxIterations(&local_40,&local_118,3);
-    if (local_118.simQuad == (Trk_NewSimQuad *)0x0) {
-      piVar5 = (int *)((char *)BWorldSm_slices + local_118.slice * 0x20);
-      local_50 = *piVar5;
-      local_4c = piVar5[1];
-      local_48 = piVar5[2];
+    transform(pThis,(pCVar12->anchor->orientMat).m,
+               &triVec.x);
+    triPnt.x = pos->x + triVec.x;
+    triPnt.y = pos->y + triVec.y;
+    triPnt.z = pos->z + triVec.z;
+    BWorldSm_FindClosestQuadMaxIterations(&triPnt,&slicePos,3);
+    /* MATCH: simQuad!=0 arm FIRST (struct copies), surface check as a SEPARATE re-test if */
+    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
+      quadUnderCamera = slicePos.quadPts[0];
     }
     else {
-      local_50 = local_118.quadPts[0].x;
-      local_4c = local_118.quadPts[0].y;
-      local_48 = local_118.quadPts[0].z;
-      if (((local_118.simQuad)->surface & 0xf) == 0) break;
+      quadUnderCamera = *(coorddef *)BWorldSm_slices[slicePos.slice].center;
     }
-    if (((local_118.offEdge != '\0') ||
-        (iVar14 = Camera_TooSteep(player,&local_118), iVar14 != 0)) ||
-       ((local_118.simQuad != (Trk_NewSimQuad *)0x0 &&
-        ((((local_118.simQuad)->surface & 0x80) != 0 &&
-         (0x38000 < local_4c - ((Camera_gInfo[player].anchor)->position).y)))))) break;
+    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
+      if (((slicePos.simQuad)->surface & 0xf) == 0) break;
+    }
+    if ((((signed char)slicePos.offEdge != 0) ||
+        (iVar14 = Camera_TooSteep(player,&slicePos), iVar14 != 0)) ||
+       ((slicePos.simQuad != (Trk_NewSimQuad *)0x0 &&
+        ((((slicePos.simQuad)->surface & 0x80) != 0 &&
+         (0x38000 < quadUnderCamera.y - (pCVar12->anchor->position).y)))))) break;
     iVar13 = iVar13 + 1;
     pThis = pThis + 1;
     if (2 < iVar13) break;
@@ -1878,138 +1700,126 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
   if (iVar13 == 3) {
     return;
   }
-  pCVar12 = Camera_gInfo + player;
   iVar13 = 0;
-  pBVar4 = pCVar12->anchor;
-  local_90.x = (pBVar4->position).x;
-  local_90.y = (pBVar4->position).y;
-  local_90.z = (pBVar4->position).z;
-  local_70 = (pCVar12->anchor->position).x - local_40.x >> 7;
-  local_68 = (pCVar12->anchor->position).z - local_40.z >> 7;
-  local_6c = (pCVar12->anchor->position).y - local_40.y >> 7;
+  edge = pCVar12->anchor->position;   /* MATCH: struct copy */
+  step.x = (pCVar12->anchor->position).x - triPnt.x >> 7;
+  step.z = (pCVar12->anchor->position).z - triPnt.z >> 7;
+  step.y = (pCVar12->anchor->position).y - triPnt.y >> 7;
   do {
-    local_90.x = local_90.x - local_70;
-    local_90.y = local_90.y - local_6c;
-    local_90.z = local_90.z - local_68;
-    BWorldSm_FindClosestQuadMaxIterations(&local_90,&local_118,3);
-    if (local_118.simQuad == (Trk_NewSimQuad *)0x0) {
-      piVar5 = (int *)((char *)BWorldSm_slices + local_118.slice * 0x20);
-      local_50 = *piVar5;
-      local_4c = piVar5[1];
-      local_48 = piVar5[2];
+    edge.x = edge.x - step.x;
+    edge.y = edge.y - step.y;
+    edge.z = edge.z - step.z;
+    BWorldSm_FindClosestQuadMaxIterations(&edge,&slicePos,3);
+    /* MATCH: simQuad!=0 arm FIRST (struct copies), surface check as a SEPARATE re-test if */
+    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
+      quadUnderCamera = slicePos.quadPts[0];
     }
     else {
-      local_50 = local_118.quadPts[0].x;
-      local_4c = local_118.quadPts[0].y;
-      local_48 = local_118.quadPts[0].z;
-      if (((local_118.simQuad)->surface & 0xf) == 0) break;
+      quadUnderCamera = *(coorddef *)BWorldSm_slices[slicePos.slice].center;
     }
-    if (((local_118.offEdge != '\0') ||
-        (iVar14 = Camera_TooSteep(player,&local_118), iVar14 != 0)) ||
-       (((local_118.simQuad != (Trk_NewSimQuad *)0x0 &&
-         ((((local_118.simQuad)->surface & 0x80) != 0 &&
-          (0x38000 < local_4c - (pCVar12->anchor->position).y)))) ||
+    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
+      if (((slicePos.simQuad)->surface & 0xf) == 0) break;
+    }
+    if ((((signed char)slicePos.offEdge != 0) ||
+        (iVar14 = Camera_TooSteep(player,&slicePos), iVar14 != 0)) ||
+       (((slicePos.simQuad != (Trk_NewSimQuad *)0x0 &&
+         ((((slicePos.simQuad)->surface & 0x80) != 0 &&
+          (0x38000 < quadUnderCamera.y - (pCVar12->anchor->position).y)))) ||
         (iVar13 = iVar13 + 1, 0x7f < iVar13)))) break;
   } while( true );
   pCVar12 = Camera_gInfo + player;
-  uVar15 = 1;
-  local_70 = (pCVar12->anchor->position).x - local_90.x >> 1;
-  local_6c = (pCVar12->anchor->position).y - local_90.y >> 1;
-  local_68 = (pCVar12->anchor->position).z - local_90.z >> 1;
+  camAngle = 1;
+  step.x = (pCVar12->anchor->position).x - edge.x >> 1;
+  step.y = (pCVar12->anchor->position).y - edge.y >> 1;
+  step.z = (pCVar12->anchor->position).z - edge.z >> 1;
   do {
-    intsincos(uVar15,&local_20,&local_1c);
-    iVar13 = fixedmult(local_1c,local_70);
-    local_60.x = fixedmult(local_20,local_68);
-    local_60.x = iVar13 - local_60.x;
-    local_60.y = local_6c;
-    iVar13 = fixedmult(local_20,local_70);
-    iVar14 = fixedmult(local_1c,local_68);
-    local_60.x = local_90.x + local_60.x;
-    local_60.y = local_90.y + local_60.y;
-    local_60.z = local_90.z + iVar13 + iVar14;
-    BWorldSm_FindClosestQuadMaxIterations(&local_60,&local_118,3);
-    if (local_118.simQuad != (Trk_NewSimQuad *)0x0) {
-      local_50 = local_118.quadPts[0].x;
-      local_4c = local_118.quadPts[0].y;
-      local_48 = local_118.quadPts[0].z;
-      if (((local_118.simQuad)->surface & 0xf) != 0) goto LAB_80084400;
+    intsincos(camAngle,&sin,&cos);
+    iVar13 = fixedmult(cos,step.x);
+    temp.x = fixedmult(sin,step.z);
+    temp.x = iVar13 - temp.x;
+    temp.y = step.y;
+    iVar13 = fixedmult(sin,step.x);
+    iVar14 = fixedmult(cos,step.z);
+    temp.x = edge.x + temp.x;
+    temp.y = edge.y + temp.y;
+    temp.z = edge.z + iVar13 + iVar14;
+    BWorldSm_FindClosestQuadMaxIterations(&temp,&slicePos,3);
+    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
+      quadUnderCamera = slicePos.quadPts[0];
+    }
+    else {
+      quadUnderCamera = *(coorddef *)BWorldSm_slices[slicePos.slice].center;
+    }
+    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
+      if (((slicePos.simQuad)->surface & 0xf) == 0) {
 LAB_80084464:
-      Camera_gInfo[player].wallLeft.x = local_60.x;
-      Camera_gInfo[player].wallLeft.y = local_60.y;
-      Camera_gInfo[player].wallLeft.z = local_60.z;
-      break;
+        Camera_gInfo[player].wallLeft = temp;
+        break;
+      }
     }
-    piVar5 = (int *)((char *)BWorldSm_slices + local_118.slice * 0x20);
-    local_50 = *piVar5;
-    local_4c = piVar5[1];
-    local_48 = piVar5[2];
-LAB_80084400:
-    if (((local_118.offEdge != '\0') ||
-        (iVar13 = Camera_TooSteep(player,&local_118), iVar13 != 0)) ||
-       ((local_118.simQuad != (Trk_NewSimQuad *)0x0 &&
-        ((((local_118.simQuad)->surface & 0x80) != 0 &&
-         (0x38000 < local_4c - (pCVar12->anchor->position).y)))))) goto LAB_80084464;
-    uVar15 = uVar15 + 4;
-  } while ((int)uVar15 < 0x400);
-  uVar15 = 0xffffffff;
+    if ((((signed char)slicePos.offEdge != 0) ||
+        (iVar13 = Camera_TooSteep(player,&slicePos), iVar13 != 0)) ||
+       ((slicePos.simQuad != (Trk_NewSimQuad *)0x0 &&
+        ((((slicePos.simQuad)->surface & 0x80) != 0 &&
+         (0x38000 < quadUnderCamera.y - (pCVar12->anchor->position).y)))))) goto LAB_80084464;
+    camAngle = camAngle + 4;
+  } while ((int)camAngle < 0x400);
+  camAngle = 0xffffffff;
   do {
-    intsincos(uVar15,&local_20,&local_1c);
-    iVar13 = fixedmult(local_1c,local_70);
-    local_60.x = fixedmult(local_20,local_68);
-    local_60.x = iVar13 - local_60.x;
-    local_60.y = local_6c;
-    iVar13 = fixedmult(local_20,local_70);
-    iVar14 = fixedmult(local_1c,local_68);
-    local_60.x = local_90.x + local_60.x;
-    local_60.y = local_90.y + local_60.y;
-    local_60.z = local_90.z + iVar13 + iVar14;
-    BWorldSm_FindClosestQuadMaxIterations(&local_60,&local_118,3);
-    if (local_118.simQuad != (Trk_NewSimQuad *)0x0) {
-      local_50 = local_118.quadPts[0].x;
-      local_4c = local_118.quadPts[0].y;
-      local_48 = local_118.quadPts[0].z;
-      if (((local_118.simQuad)->surface & 0xf) != 0) goto LAB_800845d0;
-LAB_80084634:
-      Camera_gInfo[player].wallRight.x = local_60.x;
-      Camera_gInfo[player].wallRight.y = local_60.y;
-      Camera_gInfo[player].wallRight.z = local_60.z;
-      break;
+    intsincos(camAngle,&sin,&cos);
+    iVar13 = fixedmult(cos,step.x);
+    temp.x = fixedmult(sin,step.z);
+    temp.x = iVar13 - temp.x;
+    temp.y = step.y;
+    iVar13 = fixedmult(sin,step.x);
+    iVar14 = fixedmult(cos,step.z);
+    temp.x = edge.x + temp.x;
+    temp.y = edge.y + temp.y;
+    temp.z = edge.z + iVar13 + iVar14;
+    BWorldSm_FindClosestQuadMaxIterations(&temp,&slicePos,3);
+    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
+      quadUnderCamera = slicePos.quadPts[0];
     }
-    piVar5 = (int *)((char *)BWorldSm_slices + local_118.slice * 0x20);
-    local_50 = *piVar5;
-    local_4c = piVar5[1];
-    local_48 = piVar5[2];
-LAB_800845d0:
-    if (((local_118.offEdge != '\0') ||
-        (iVar13 = Camera_TooSteep(player,&local_118), iVar13 != 0)) ||
-       ((local_118.simQuad != (Trk_NewSimQuad *)0x0 &&
-        ((((local_118.simQuad)->surface & 0x80) != 0 &&
-         (0x38000 < local_4c - ((Camera_gInfo[player].anchor)->position).y)))))) goto LAB_80084634;
-    uVar15 = uVar15 - 4;
-  } while (-0x400 < (int)uVar15);
-  local_60.x = Camera_gInfo[player].wallRight.x - Camera_gInfo[player].wallLeft.x;
-  local_60.y = (Camera_gInfo[player].wallRight.y - Camera_gInfo[player].wallLeft.y) + 0x8000;
-  local_60.z = Camera_gInfo[player].wallRight.z - Camera_gInfo[player].wallLeft.z;
-  Math_NormalizeVector(&local_60);
-  local_90.x = local_90.x - local_40.x;
-  local_78 = local_60.x;
-  local_80 = -local_60.z;
-  local_7c = local_60.y;
-  local_90.z = local_90.z - local_40.z;
-  local_90.y = local_90.y - local_40.y;
-  iVar13 = fixedmult(local_90.x,local_80);
-  iVar14 = fixedmult(local_90.y,local_7c);
-  iVar6 = fixedmult(local_90.z,local_78);
-  iVar7 = fixedmult(local_30,local_80);
-  iVar8 = fixedmult(local_2c,local_7c);
-  iVar9 = fixedmult(local_28,local_78);
+    else {
+      quadUnderCamera = *(coorddef *)BWorldSm_slices[slicePos.slice].center;
+    }
+    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
+      if (((slicePos.simQuad)->surface & 0xf) == 0) {
+LAB_80084634:
+        Camera_gInfo[player].wallRight = temp;
+        break;
+      }
+    }
+    if ((((signed char)slicePos.offEdge != 0) ||
+        (iVar13 = Camera_TooSteep(player,&slicePos), iVar13 != 0)) ||
+       ((slicePos.simQuad != (Trk_NewSimQuad *)0x0 &&
+        ((((slicePos.simQuad)->surface & 0x80) != 0 &&
+         (0x38000 < quadUnderCamera.y - ((Camera_gInfo[player].anchor)->position).y)))))) goto LAB_80084634;
+    camAngle = camAngle - 4;
+  } while (-0x400 < (int)camAngle);
+  temp.x = Camera_gInfo[player].wallRight.x - Camera_gInfo[player].wallLeft.x;
+  temp.y = (Camera_gInfo[player].wallRight.y - Camera_gInfo[player].wallLeft.y) + 0x8000;
+  temp.z = Camera_gInfo[player].wallRight.z - Camera_gInfo[player].wallLeft.z;
+  Math_NormalizeVector(&temp);
+  edge.x = edge.x - triPnt.x;
+  normal.z = temp.x;
+  normal.x = -temp.z;
+  normal.y = temp.y;
+  edge.z = edge.z - triPnt.z;
+  edge.y = edge.y - triPnt.y;
+  iVar13 = fixedmult(edge.x,normal.x);
+  iVar14 = fixedmult(edge.y,normal.y);
+  iVar6 = fixedmult(edge.z,normal.z);
+  iVar7 = fixedmult(triVec.x,normal.x);
+  iVar8 = fixedmult(triVec.y,normal.y);
+  iVar9 = fixedmult(triVec.z,normal.z);
   iVar13 = iVar13 + iVar14 + iVar6 + iVar7 + iVar8 + iVar9 + 0x10000;
   if (0 < iVar13) {
-    local_60.x = fixedmult(iVar13,local_80);
-    local_60.y = fixedmult(iVar13,local_7c);
-    iVar13 = fixedmult(iVar13,local_78);
-    pos->x = pos->x + local_60.x;
-    pos->y = pos->y + local_60.y;
+    temp.x = fixedmult(iVar13,normal.x);
+    temp.y = fixedmult(iVar13,normal.y);
+    iVar13 = fixedmult(iVar13,normal.z);
+    pos->x = pos->x + temp.x;
+    pos->y = pos->y + temp.y;
     pos->z = pos->z + iVar13;
   }
   return;

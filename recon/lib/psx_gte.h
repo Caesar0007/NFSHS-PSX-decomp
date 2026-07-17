@@ -158,6 +158,12 @@
     "lw   $12, 20(%0)\n\tlw   $13, 24(%0)\n\tctc2 $12, $5\n\t"                  \
     "lw   $14, 28(%0)\n\tctc2 $13, $6\n\tctc2 $14, $7"                         \
     : : "r"(m) : "$12", "$13", "$14")
+/* translation vector from a VECTOR (+0/+4/+8) -> ctrl 5/6/7; oracle groups the
+ * three lw THEN the three ctc2 (Flare_Sun @0x800CF2D0). */
+#define gte_SetTransVector(p) __asm__ volatile (                               \
+    "lw   $12, 0(%0)\n\tlw   $13, 4(%0)\n\tlw   $14, 8(%0)\n\t"                 \
+    "ctc2 $12, $5\n\tctc2 $13, $6\n\tctc2 $14, $7"                             \
+    : : "r"(p) : "$12", "$13", "$14")
 /* move a CPU value into GTE control reg r (literal) */
 #define gte_ctc2(v,r) __asm__ volatile ("ctc2 %0, $%1" : : "r"(v), "i"(r))
 /* set the projection screen offset (OFX/OFY, ctrl 24/25), pre-shifted <<16 */
@@ -250,6 +256,7 @@
 #define gte_swc2(reg,p)        do { (void)(reg); (void)(p); } while (0)
 #define gte_SetRotMatrix(m)    ((void)(m))
 #define gte_SetTransMatrix(m)  ((void)(m))
+#define gte_SetTransVector(p)  ((void)(p))
 #define gte_ctc2(v,r)          do { (void)(v); (void)(r); } while (0)
 #define gte_SetGeomOffset(x,y) do { (void)(x); (void)(y); } while (0)
 #define gte_rt()               ((void)0)

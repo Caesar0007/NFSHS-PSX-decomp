@@ -6,6 +6,24 @@
 #include "../../nfs4_types.h"
 #include "flare_externs.h"
 
+/* PsyQ gte_ldclmv/gte_stclmv (matrix-COLUMN short vector, stride 6) -- the
+ * CarShapedHalo/Halo2 column transforms: lhu 0/6/12 -> IR1-3 and IR1-3 -> sh 0/6/12
+ * (oracle @0x800CD0B0.., 3 lhu then 3 mtc2 / 3 mfc2 then 3 sh, scratch $12-$14).
+ * TU-local (w13-a3): psx_gte.h only carries the 0/2/4 SVECTOR forms. */
+#if defined(__mips__)
+#define gte_ldclmv(p) __asm__ volatile (                                       \
+    "lhu $12, 0(%0)\n\tlhu $13, 6(%0)\n\tlhu $14, 12(%0)\n\t"                   \
+    "mtc2 $12, $9\n\tmtc2 $13, $10\n\tmtc2 $14, $11"                           \
+    : : "r"(p) : "$12", "$13", "$14")
+#define gte_stclmv(p) __asm__ volatile (                                       \
+    "mfc2 $12, $9\n\tmfc2 $13, $10\n\tmfc2 $14, $11\n\t"                        \
+    "sh $12, 0(%0)\n\tsh $13, 6(%0)\n\tsh $14, 12(%0)"                         \
+    : : "r"(p) : "$12", "$13", "$14", "memory")
+#else
+#define gte_ldclmv(p)  ((void)(p))
+#define gte_stclmv(p)  ((void)(p))
+#endif
+
 /* ---- Flare.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero) ---- */
 short        gfSpikePt0[8] = { 3, 3, 0, 0, 1, 1, 2, 2 };   /* @0x8011fde0 */
@@ -546,242 +564,202 @@ gte_swc2(0xe,&pt[1]);
   return;
 }
 
-/* ---- Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache  [FLARE.CPP:591-842] SLD-VERIFIED ---- */
-short * Flare_CarShapedHalo(int type,COORD16 *ptCenter,COORD16 *pt1,COORD16 *pt2,short flag,int otz,
+/* ---- Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache  [FLARE.CPP:591-842] SLD-VERIFIED
+ * w13-a3 FULL SYM rule-8 rewrite: every local = a SYM-named var in its SYM block scope,
+ * blocks in oracle VA order, align-1 movstrsi struct-assigns kept (gfrgb = color[N], save).
+ * SYM reg map: type=s7 ptCenter=t1 pt1=t5 pt2=t6 otz=fp sd=v0(guard only) flag=AUTO short;
+ *   angleZ=s6 angleOuter=s5 sizeOuter=s2 scale=s3 flags=s4 ptEdge=a2 result=v0 difx=s0
+ *   dify=s1 z=v1 aprim=a0.  Return: SYM FCN VOID (no $v0 setup at any exit).
+ * MATCH: scale/flags REUSED (flags = gType index before the field loads; scale = shifted
+ * gscale after `scale = gscale << scale`); branch A (reflect) keeps the STALE pre-(flags&1)
+ * scale value while branch B reloads gscale into z -- faithful to the original. */
+void Flare_CarShapedHalo(int type,COORD16 *ptCenter,COORD16 *pt1,COORD16 *pt2,short flag,int otz,
                   Draw_FlareCache *sd)
 
 {
-  VECTOR diff2;
-  DVECTOR sp2;
-  VECTOR tvec1;
-  short sVar1;
-  short sVar2;
-  short sVar3;
-  short sVar4;
-  short sVar5;
-  short sVar6;
-  short sVar7;
-  short sVar8;
-  short sVar9;
-  short sVar10;
-  bool bVar11;
-  short sVar12;
-  long result;
-  int CVar3;
-  int CVar4;
-  DVECTOR *pDVar13;
-  int ti13;
-  int pkt_addr24;
-  int iVar14;
-  int haloShape_p;
-  int z;
-  int iVar12_alt;
-  int iVar6_emit;
-  int tu14;
-  DR_MODE *aprim;
-  VECTOR *v0;
-  int haloColor;
-  COORD16 *ptEdge;
-  int primPtr;
-  long difx;
-  int diff_x;
-  MATRIX *mtx;
-  long dify;
-  int diff_y;
-  long sizeOuter;
-  int innerRadius;
-  int scale;
-  int scaledFactor;
-  int flags;
-  int flagsMasked;
-  long angleOuter;
-  int outerRadius;
-  long angleZ;
-  int haloRadius;
-  int lerp_q16;
-  int loc_d8;
-  VECTOR diff;
-  CVECTOR color [2];
-  DVECTOR sp;
-  COORD16 vec1;
-  COORD16 vec2;
-  COORD16 crossprod;
-  u_char auStack_98 [32];
-  CVECTOR save;
-  MATRIX mtx2;
-  VECTOR tvec2;
-  MATRIX scalemat;
-  short loc_30;
-  int loc_28;
-  int loc_24;
-  int loc_20;
-  int loc_1c;
-  int loc_18;
-  int loc_14;
-  int loc_10;
-  int loc_c;
-  int loc_8;
-  int loc_4;
-  int pbVar1;
-  u_char tu2;
-  u_char *p;
-  CVECTOR CVar5;
-  u_char bVar1;
-  u_char bVar2;
-  u_char bVar3;
-  u_int tu1;
-  
-  sVar12 = flag;
-  u_int _flag = (u_int)(u_short)flag;
-  pDVar13 = (DVECTOR *)0x0;
-  if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr + -0x400) {
-    sVar1 = pt1->x;
-    sVar2 = ptCenter->x;
-    sVar3 = pt1->y;
-    sVar4 = ptCenter->y;
-    sVar5 = pt1->z;
-    sVar6 = ptCenter->z;
-    haloColor = (u_int)(u_short)pt2->x - (u_int)(u_short)ptCenter->x;
-    sVar7 = pt2->y;
-    sVar8 = ptCenter->y;
-    sVar9 = pt2->z;
-    sVar10 = ptCenter->z;
-    if (-1 < (int)(_flag << 0x10)) {
-      pt1 = pt2;
+  VECTOR diff;                  /* @sp+0x18 */
+  long angleZ;                  /* s6 */
+  long angleOuter;              /* s5 */
+  long sizeOuter;               /* s2 */
+  CVECTOR color [2];            /* @sp+0x28 */
+  DVECTOR sp;                   /* @sp+0x30 */
+  int scale;                    /* s3 */
+  int flags;                    /* s4 */
+  COORD16 *ptEdge;              /* a2 */
+  COORD16 vec1;                 /* @sp+0x38 */
+  COORD16 vec2;                 /* @sp+0x40 */
+  COORD16 crossprod;            /* @sp+0x48 */
+
+  if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr + -0x400) {
+    vec1.x = pt1->x - ptCenter->x;
+    vec1.y = pt1->y - ptCenter->y;
+    vec1.z = pt1->z - ptCenter->z;
+    vec2.x = pt2->x - ptCenter->x;
+    vec2.y = pt2->y - ptCenter->y;
+    vec2.z = pt2->z - ptCenter->z;
+    crossprod.x = vec2.y * vec1.z - vec2.z * vec1.y;
+    crossprod.y = vec2.z * vec1.x - vec2.x * vec1.z;
+    crossprod.z = vec2.x * vec1.y - vec2.y * vec1.x;
+    ptEdge = pt1;
+    if (-1 < (int)((u_int)flag << 0x10)) {
+      ptEdge = pt2;
     }
-    if (R3DCar_InMenu == 0) {
-      ti13 = (type & 0x7fU) + 0xb;
-    }
-    else {
-      ti13 = (type & 0x7fU) + 1;
-    }
-    if ((type & 0x100U) != 0) {
-      ptCenter->y = -ptCenter->y - DrawC_gReflectOffset;
-    }
+    {
+      int i;                    /* gType index temp (a0; anonymous -- no SYM record) */
+      u_long c;                 /* serial copy temp (v0; anti-dependence keeps the two
+                                   color word-copies lw/nop/sw serial like the oracle) */
+      if (R3DCar_InMenu != 0) {
+        i = (type & 0x7fU) + 1;
+      }
+      else {
+        i = (type & 0x7fU) + 0xb;
+      }
+      if ((type & 0x100U) != 0) {
+        ptCenter->y = -DrawC_gReflectOffset - ptCenter->y;
+      }
 gte_ldv0(ptCenter);
-    gte_rtps();
-    CVar3 = Flare_gType[ti13].chalo;
-    CVar4 = Flare_gType[ti13].cbeam;
-    scaledFactor = Flare_gType[ti13].scale;
-    flagsMasked = Flare_gType[ti13].flags;
-    color[0] = (*(CVECTOR *)&(CVar3));
-    color[1] = (*(CVECTOR *)&(CVar4));
+      gte_rtps();
+      c = Flare_gType[i].chalo;
+      *(u_long *)&color[0] = c;
+      c = Flare_gType[i].cbeam;
+      *(u_long *)&color[1] = c;
+      scale = Flare_gType[i].scale;
+      flags = Flare_gType[i].flags;
+    }
     if ((type & 0x80U) != 0) {
-      bVar1 = (u_char)CVar3;
-      bVar2 = (u_char)((u_int)CVar3 >> 8);
-      bVar1 = bVar1 >> 1;
-      bVar3 = (u_char)((u_int)CVar3 >> 0x10);
-      bVar2 = bVar2 >> 1;
-      color[1].r = (u_char)CVar4;
-      bVar3 = bVar3 >> 1;
-      color[0].cd = (u_char)((u_int)CVar3 >> 0x18);
-      color[1].g = (u_char)((u_int)CVar4 >> 8);
-      color[1].b = (u_char)((u_int)CVar4 >> 0x10);
-      color[1].g = color[1].g >> 1;
+      color[0].r = color[0].r >> 1;
+      color[0].g = color[0].g >> 1;
+      color[0].b = color[0].b >> 1;
       color[1].r = color[1].r >> 1;
-      color[1].cd = (u_char)((u_int)CVar4 >> 0x18);
+      color[1].g = color[1].g >> 1;
       color[1].b = color[1].b >> 1;
     }
 gte_stlvnl(&diff);
-    pDVar13 = (DVECTOR *)-diff.vx;
-    if (((diff.vx <= diff.vz) &&
-        (bVar11 = (int)pDVar13 <= diff.vz, pDVar13 = (DVECTOR *)(u_int)(diff.vz < 0x80), bVar11)) &&
-       (bVar11 = pDVar13 == (DVECTOR *)0x0, pDVar13 = &sp, bVar11)) {
-gte_swc2(0xe,&sp);
-      haloRadius = 0;
-      if ((flagsMasked & 8U) != 0) {
-        haloRadius = ((int)sp.vx + (int)sp.vy) * 4;
+    if ((diff.vx <= diff.vz) && (-diff.vx <= diff.vz) && (!(diff.vz < 0x80))) {
+gte_stsxy(&sp);
+      angleZ = 0;
+      if ((flags & 8U) != 0) {
+        long result;
+        result = sp.vx + sp.vy;
+        angleZ = result * 4;
       }
-      outerRadius = 0;
-      if ((flagsMasked & 4U) == 0) {
-        innerRadius = 0;
-      }
-      else {
-gte_ldv0(pt2);
+      if ((flags & 4U) != 0) {
+        VECTOR diff2;           /* @sp+0x50 */
+        DVECTOR sp2;            /* @sp+0x60 */
+        long difx;              /* s0 */
+        long dify;              /* s1 */
+gte_ldv0(ptEdge);
         gte_rtps();
 gte_stlvnl(&diff2);
-gte_swc2(0xe,&sp2);
-        diff_y = (int)(short)(*(u_short *)((u_char *)&(auStack_98) + 18)) - (int)sp.vy;
-        diff_x = (int)(short)(*(u_short *)((u_char *)&(auStack_98) + 16)) - (int)sp.vx;
-        ti13 = fixedatan(diff_y,diff_x);
-        outerRadius = ti13 >> 4;
-        pkt_addr24 = isqrt(diff_x * diff_x + diff_y * diff_y);
-        innerRadius = pkt_addr24 * diff.vz;
+gte_stsxy(&sp2);
+        dify = sp2.vy - sp.vy;
+        difx = sp2.vx - sp.vx;
+        angleOuter = fixedatan(dify,difx) >> 4;
+        sizeOuter = isqrt(difx * difx + dify * dify) * diff.vz;
+      }
+      else {
+        /* else-LOCAL zero-init: reorg hoists `angleOuter = 0` into the beqz
+         * delay slot (harmless on the taken path), and same-BB cse turns
+         * `sizeOuter = angleOuter` into the oracle's addu s2,s5,zero copy. */
+        angleOuter = 0;
+        sizeOuter = angleOuter;
       }
       gfrgb = color[0];
       gfrgb2 = color[1];
-      if ((int)((u_int)(u_short)sVar12 << 0x10) < 0) {
-        ti13 = (int)(short)haloColor * (int)(short)haloColor;
-        iVar14 = (int)(short)(sVar7 - sVar8);
-        iVar12_alt = iVar14 * iVar14;
-        iVar14 = (int)(short)(sVar9 - sVar10);
-        lerp_q16 = iVar14 * iVar14;
+      if (-1 < (int)((u_int)(u_short)flag << 0x10)) {
+        gscale = (vec1.x * vec1.x + vec1.y * vec1.y + vec1.z * vec1.z) >> 1;
       }
       else {
-        ti13 = (int)(short)(sVar1 - sVar2);
-        ti13 = ti13 * ti13;
-        iVar14 = (int)(short)(sVar3 - sVar4);
-        iVar12_alt = iVar14 * iVar14;
-        iVar14 = (int)(short)(sVar5 - sVar6);
-        lerp_q16 = iVar14 * iVar14;
+        gscale = (vec2.x * vec2.x + vec2.y * vec2.y + vec2.z * vec2.z) >> 1;
       }
-      haloShape_p = (ti13 + iVar12_alt + lerp_q16 >> 1) << (scaledFactor);
-      gscale = haloShape_p;
-      if ((flagsMasked & 1U) != 0) {
+      scale = gscale << scale;
+      gscale = scale;
+      if ((flags & 1U) != 0) {
+        VECTOR tvec1;           /* @sp+0x50 */
+        VECTOR tvec2;           /* @sp+0x68 */
+        long result;            /* v1 (the -600 clamp temp) */
         gte_ldtr0();
 gte_ldv0(&crossprod);
         gte_rtps();
-        v0 = (VECTOR *)&tvec1;
 gte_stlvnl(&tvec1);
-        VectorNormal(v0,&tvec2);
-        if ((flagsMasked & 2U) != 0) {
+        VectorNormal((VECTOR *)&tvec1,(VECTOR *)&tvec2);
+        if ((flags & 2U) != 0) {
           tvec2.vz = (tvec2.vz + -0xf33) * 0x14;
         }
-        iVar6_emit = tvec2.vz + -600;
-        if (iVar6_emit < 0) {
-          iVar6_emit = 0;
+        result = tvec2.vz + -0x258;
+        if (result < 0) {
+          result = 0;
         }
-        tvec2.vz = iVar6_emit;
-        gscale = gscale * iVar6_emit >> 0xb;
+        tvec2.vz = result;
+        gscale = gscale * result >> 0xb;
       }
-      CVar5 = gfrgb;
-      mtx = (MATRIX *)(scalemat.m[1] + 1);
-      if ((type & 0x100U) == 0) {
-        scalemat.m[2][2] = 0;
-        (*(u_short *)((u_char *)&(scalemat) + 18)) = 0;
-        scalemat.m[0][2] = 0;
-        scalemat.m[1][0] = 0;
-        scalemat.m[2][0] = 0;
-        scalemat.m[2][1] = 0;
-        (*(int *)&(scalemat.m[0])) = gscale + (innerRadius >> 5);
-        scalemat.m[1][1] = (u_short)gscale;
-        scalemat.m[1][2] = (*(u_short *)((u_char *)&(gscale) + 2));
-        Flare_IdentMatrix((MATRIX *)auStack_98);
+      if ((type & 0x100U) != 0) {
+        CVECTOR save;           /* @sp+0x50 */
+        MATRIX scalemat;        /* @sp+0x78 */
+        MATRIX mtx;             /* @sp+0x98 */
+        save = gfrgb;
+        *(int *)&scalemat.m[0][0] = scale + (sizeOuter >> 7);
+        *(int *)&scalemat.m[1][1] = scale + (sizeOuter >> 7);
+        *(int *)&scalemat.m[2][2] = 0;
+        *(int *)&scalemat.m[0][2] = 0;
+        *(int *)&scalemat.m[2][0] = 0;
+        gfrgb.r = gfrgb.r >> 1;
+        gfrgb.g = gfrgb.g >> 1;
+        gfrgb.b = gfrgb.b >> 1;
+        Flare_IdentMatrix(&mtx);
+gte_SetTransVector(&diff);
+        RotMatrixZ(0x800,&mtx);
+gte_SetRotMatrix(&mtx);
+gte_ldclmv(&scalemat);
+        gte_rtir();
+gte_stclmv(&mtx);
+gte_ldclmv(((char *)&scalemat + 0x2));
+        gte_rtir();
+gte_stclmv(((char *)&mtx + 0x2));
+gte_ldclmv(((char *)&scalemat + 0x4));
+        gte_rtir();
+gte_stclmv(((char *)&mtx + 0x4));
+gte_SetRotMatrix(&mtx);
+        Flare_ReflectHexFlare((long *)&sp,otz);
+        gfrgb = save;
+      }
+      else {
+        MATRIX mtx;             /* @sp+0x50 */
+        MATRIX mtx2;            /* @sp+0x70 */
+        MATRIX scalemat;        /* @sp+0x90 */
+        int z;                  /* v1 */
+        z = gscale;
+        *(int *)&scalemat.m[2][2] = 0;
+        *(int *)&scalemat.m[0][2] = 0;
+        *(int *)&scalemat.m[2][0] = 0;
+        *(int *)&scalemat.m[0][0] = z + (sizeOuter >> 5);
+        *(int *)&scalemat.m[1][1] = z;
+        Flare_IdentMatrix(&mtx);
         Flare_IdentMatrix(&mtx2);
-gte_SetTransMatrix(&diff);
-        RotMatrixZ(haloRadius,(MATRIX *)auStack_98);
-        RotMatrixZ(outerRadius,&mtx2);
-gte_SetRotMatrix(&mtx);
-gte_ldsv(&scalemat);
-        gte_rtir();
-gte_stsv(&mtx);
-gte_ldsv(((char *)&scalemat + 0x2));
-        gte_rtir();
-gte_stsv(((char *)&mtx + 0x2));
-gte_ldsv(((char *)&scalemat + 0x4));
-        gte_rtir();
-gte_stsv(((char *)&mtx + 0x4));
-gte_SetRotMatrix(&mtx);
-gte_ldsv(&scalemat);
-        gte_rtir();
-gte_stsv(&scalemat);
-gte_ldsv(((char *)&scalemat + 0x2));
-        gte_rtir();
-gte_stsv(((char *)&scalemat + 0x2));
-gte_ldsv(((char *)&scalemat + 0x4));
-        gte_rtir();
-gte_stsv(((char *)&scalemat + 0x4));
+gte_SetTransVector(&diff);
+        RotMatrixZ(angleZ,&mtx);
+        RotMatrixZ(angleOuter,&mtx2);
 gte_SetRotMatrix(&mtx2);
+gte_ldclmv(&scalemat);
+        gte_rtir();
+gte_stclmv(&scalemat);
+gte_ldclmv(((char *)&scalemat + 0x2));
+        gte_rtir();
+gte_stclmv(((char *)&scalemat + 0x2));
+gte_ldclmv(((char *)&scalemat + 0x4));
+        gte_rtir();
+gte_stclmv(((char *)&scalemat + 0x4));
+gte_SetRotMatrix(&scalemat);
+gte_ldclmv(&mtx);
+        gte_rtir();
+gte_stclmv(&mtx);
+gte_ldclmv(((char *)&mtx + 0x2));
+        gte_rtir();
+gte_stclmv(((char *)&mtx + 0x2));
+gte_ldclmv(((char *)&mtx + 0x4));
+        gte_rtir();
+gte_stclmv(((char *)&mtx + 0x4));
+gte_SetRotMatrix(&mtx);
         if (diff.vz < 0xc80) {
           Flare_OctFlareSpikes((long *)&sp,otz);
         }
@@ -793,330 +771,277 @@ gte_SetRotMatrix(&mtx2);
           Flare_QuadFlare((long *)&sp,otz);
         }
       }
-      else {
-        tu2 = gfrgb.r;
-        ti13 = haloShape_p + (innerRadius >> 7);
-        pbVar1 = (int)&save + 3;
-        tu1 = pbVar1 & 3;
-        *(u_int *)(pbVar1 - tu1) =
-             *(u_int *)(pbVar1 - tu1) & -1 << (tu1 + 1) * 8 | (*(int *)&gfrgb) >> (3 - tu1) * 8;
-        save.r = gfrgb.r;
-        save.g = gfrgb.g;
-        save.b = gfrgb.b;
-        save.cd = gfrgb.cd;
-        mtx2.t[1] = 0;
-        mtx2.m[2][0] = 0;
-        mtx2.m[2][1] = 0;
-        mtx2.t[0] = 0;
-        gfrgb.g = gfrgb.g >> 1;
-        gfrgb.r = tu2 >> 1;
-        gfrgb.cd = CVar5.cd;
-        gfrgb.b = gfrgb.b >> 1;
-        (*(int *)((u_char *)&(mtx2.m[1]) + 2)) = ti13;
-        (*(int *)((u_char *)&(mtx2) + 16)) = ti13;
-        Flare_IdentMatrix(mtx);
-gte_SetTransMatrix(&diff);
-        RotMatrixZ(0x800,mtx);
-gte_SetRotMatrix(&scalemat);
-gte_ldsv(&mtx);
-        gte_rtir();
-gte_stsv(&mtx);
-gte_ldsv(((char *)&mtx + 0x2));
-        gte_rtir();
-gte_stsv(((char *)&mtx + 0x2));
-gte_ldsv(((char *)&mtx + 0x4));
-        gte_rtir();
-gte_stsv(((char *)&mtx + 0x4));
-gte_SetRotMatrix(&mtx);
-        Flare_ReflectHexFlare((long *)&sp,otz);
-        gfrgb.r = save.r;
-        gfrgb.g = save.g;
-        gfrgb.b = save.b;
-        gfrgb.cd = save.cd;
+      {
+        DR_MODE *aprim;         /* a0 */
+        u_int *slot;            /* a2 (anonymous -- no SYM record) */
+        aprim = (DR_MODE *)Render_gPacketPtr;
+        slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
+        *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
+        Render_gPacketPtr = (u_char *)aprim + 0xc;
+        *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
+        SetDrawMode(aprim,0,(u_int)((flags & 0x40U) != 0),0x120,(RECT *)0x0);
       }
-      p = Render_gPacketPtr;
-      primPtr = otz * 4 + (int)Render_gPalettePtr;
-      *(u_int *)Render_gPacketPtr =
-           *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)primPtr & 0xffffff;
-      tu14 = (u_int)Render_gPacketPtr & 0xffffff;
-      pDVar13 = (DVECTOR *)(*(u_int *)primPtr & 0xff000000 | tu14);
-      Render_gPacketPtr = Render_gPacketPtr + 0xc;
-      *(DVECTOR **)primPtr = pDVar13;
-      SetDrawMode((DR_MODE *)p,0,(u_int)((flagsMasked & 0x40U) != 0),0x120,(RECT *)0x0);
     }
   }
-  return &pDVar13->vx;
+  return;
 }
 
-/* ---- Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache  [FLARE.CPP:845-1094] SLD-VERIFIED ---- */
-int Flare_Halo2(DRender_tView *Vi,int scale,int type,coorddef *fpt,coorddef *fpt2,
-              Draw_FlareCache *arg5)
+/* PsyQ gte_stszotz (SZ3>>2 depth-sort key) -- oracle Halo2 @0x800CD6E4:
+ * mfc2 $12,$19; nop; sra $12,2; sw.  TU-local (w13-a3). */
+#if defined(__mips__)
+#define gte_stszotz(p) __asm__ volatile (                                      \
+    "mfc2 $12, $19\n\tnop\n\tsra $12, $12, 2\n\tsw $12, 0(%0)"                  \
+    : : "r"(p) : "$12", "memory")
+#else
+#define gte_stszotz(p) ((void)(p))
+#endif
+
+/* ---- Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache  [FLARE.CPP:845-1094] SLD-VERIFIED
+ * w13-a3 FULL SYM rule-8 rewrite (see CarShapedHalo notes; same recipe).
+ * SYM reg map: Vi=a0 scale=s0 type=s2 fpt=a3 fpt2=a2(from stack) flare_type=s1
+ *   flags=s3 angleZ=s5 angleOuter=s2(reuses type) sizeOuter=t0 z=s4 otz=AUTO@0xC0
+ *   t=v0 tx=t1 ty=a0 tz=t0 dx=v1 dy=a1 dz=a3 r=a0 result=v0 difx=s0 dify=s1 aprim=a0.
+ * &diff CSE'd into s6 by gcc (2 cross-call uses). Return: SYM FCN VOID.
+ * sd param unused (not in SYM, present in the mangling). */
+void Flare_Halo2(DRender_tView *Vi,int scale,int type,coorddef *fpt,coorddef *fpt2,
+              Draw_FlareCache *sd)
 
 {
-  u_char u0_byte;
-  long result;
-  int pkt_addr24;
-  int CVar3;
-  int CVar4;
-  u_char u1_byte;
-  DVECTOR *pDVar1;
-  int tpage_word;
-  int angleOuter;
-  u_char v0_byte;
-  int dx;
-  int otz_00;
-  u_int color_pack;
-  int iVar2;
-  DR_MODE *aprim;
-  int dy;
-  int dz;
-  int tz;
-  int ty;
-  int primPtr;
-  int tp7;
-  int tx;
-  int difx;
-  long dify;
-  int flare_type;
-  int y;
-  int flags;
-  int halfHeight;
-  int z;
-  long angleZ;
-  long r;
-  int loc_e0;
-  VECTOR diff;
-  SVECTOR sdiff;
-  VECTOR tvec;
-  VECTOR tvec2;
-  SVECTOR sdiff2;
-  CVECTOR color [2];
-  DVECTOR sp;
-  VECTOR diff2;
-  DVECTOR sp2;
-  MATRIX mtx;
-  MATRIX mtx2;
-  MATRIX scalemat;
-  int otz;
-  int loc_28;
-  int loc_24;
-  int loc_20;
-  int loc_1c;
-  int loc_18;
-  int loc_14;
-  int loc_10;
-  int loc_c;
-  int loc_8;
-  u_char tc1;
-  u_char *p;
-  u_char *tp2;
-  
+  VECTOR diff;                  /* @sp+0x18 */
+  SVECTOR sdiff;                /* @sp+0x28 */
+  SVECTOR sdiff2;               /* @sp+0x30 */
+  long angleZ;                  /* s5 */
+  long angleOuter;              /* s2 */
+  long sizeOuter;               /* t0 */
+  CVECTOR color [2];            /* @sp+0x38 */
+  DVECTOR sp;                   /* @sp+0x40 */
+  int flare_type;               /* s1 */
+  int flags;                    /* s3 */
+  int otz;                      /* AUTO @sp+0xC0 (address taken -> late slot) */
+  int z;                        /* s4 */
+  VECTOR diff2;                 /* @sp+0x48 */
+  DVECTOR sp2;                  /* @sp+0x58 */
+
   flare_type = type & 0xff;
-  halfHeight = Flare_gType[flare_type].flags;
-  r = 0;
+  flags = Flare_gType[flare_type].flags;
+  angleZ = 0;
   if (fpt2 == (coorddef *)0x0) {
-    halfHeight = halfHeight & 0xfffffffa;
+    flags = flags & -6;
   }
   {
-    coorddef *t;
-    t = (coorddef *)((char *)Vi + 8);
-    tx = *(int *)t;
-    ty = *(int *)((char *)t + 4);
-    tz = *(int *)((char *)t + 8);
-    dx = *(int *)fpt - tx;
-    dy = *(int *)((char *)fpt + 4) - ty;
-    dz = *(int *)((char *)fpt + 8) - tz;
+    coorddef *t;                /* v0 */
+    int tx;                     /* t1 */
+    int ty;                     /* a0 */
+    int tz;                     /* t0 */
+    int dx;                     /* v1 */
+    int dy;                     /* a1 */
+    int dz;                     /* a3 */
+    t = (coorddef *)&Vi->cview;
+    tx = t->x;
+    dx = fpt->x - tx;
+    ty = t->y;
+    dy = fpt->y - ty;
+    tz = t->z;
+    dz = fpt->z - tz;
     sdiff.vx = (short)(dx >> 10);
     sdiff.vy = (short)(dy >> 10);
     sdiff.vz = (short)(dz >> 10);
-    if ((halfHeight & 5U) != 0) {
-      dx = *(int *)fpt2 - tx;
-      dy = *(int *)((char *)fpt2 + 4) - ty;
-      dz = *(int *)((char *)fpt2 + 8) - tz;
+    if ((flags & 5U) != 0) {
+      dx = fpt2->x - tx;
+      dy = fpt2->y - ty;
+      dz = fpt2->z - tz;
       sdiff2.vx = (short)(dx >> 10);
       sdiff2.vy = (short)(dy >> 10);
       sdiff2.vz = (short)(dz >> 10);
     }
   }
-  if ((halfHeight & 0x10U) == 0) {
-    if ((halfHeight & 0x20U) == 0) goto FlareHalo2_rtpsEmit;
-    pkt_addr24 = simGlobal.gameTicks + 0x1b >> 5;
+  if ((flags & 0x10U) != 0) {
+    if (((simGlobal.gameTicks >> 6) & 1U) != 0) {
+      return;
+    }
   }
-  else {
-    pkt_addr24 = simGlobal.gameTicks >> 6;
+  else if ((flags & 0x20U) != 0) {
+    if (((simGlobal.gameTicks + 0x1b >> 5) & 1U) != 0) {
+      return;
+    }
   }
-  if ((pkt_addr24 & 1U) != 0) {
-    return pkt_addr24 & 1U;
-  }
-FlareHalo2_rtpsEmit:
   Flare_SetMatrix(&gWorldMat);
 gte_ldv0(&sdiff);
   gte_rtps();
-  CVar3 = Flare_gType[flare_type].chalo;
-  CVar4 = Flare_gType[flare_type].cbeam;
+  {
+    u_long c;                   /* serial copy temp (v0) -- see CarShapedHalo */
+    c = Flare_gType[flare_type].chalo;
+    *(u_long *)&color[0] = c;
+    c = Flare_gType[flare_type].cbeam;
+    *(u_long *)&color[1] = c;
+  }
   if (scale == -1) {
     scale = Flare_gType[flare_type].scale;
   }
 gte_stlvnl(&diff);
-  pDVar1 = (DVECTOR *)-diff.vx;
-  if (((diff.vx <= diff.vz) &&
-      (pDVar1 = (DVECTOR *)(u_int)(diff.vz < 0x80), (int)-diff.vx <= diff.vz)) &&
-     (pDVar1 = &sp, (DVECTOR *)(u_int)(diff.vz < 0x80) == (DVECTOR *)0x0)) {
-gte_swc2(0xe,&sp);
-gte_stsz(&otz);
-    otz_00 = otz >> 1;
-    pDVar1 = (DVECTOR *)otz;
-    if ((-1 < otz_00) && (pDVar1 = (DVECTOR *)(halfHeight & 0x80), otz_00 <= Draw_gViewOtSize + -3))
-    {
-      color[0] = (*(CVECTOR *)&(CVar3));
-      color[1] = (*(CVECTOR *)&(CVar4));
-      if (pDVar1 != (DVECTOR *)0x0) {
-        tpage_word = random();
-        scale = scale + ((u_int)tpage_word % 0x14) * 4;
-        color[0].r = (u_char)CVar3;
-        color[0].g = (u_char)((u_int)CVar3 >> 8);
-        tc1 = (u_char)((u_int)tpage_word % 0x14);
-        u0_byte = color[0].r + tc1;
-        color[0].b = (u_char)((u_int)CVar3 >> 0x10);
-        v0_byte = color[0].g + tc1;
-        color[0].g = v0_byte;
-        color[0].r = u0_byte;
-        color[1].r = (u_char)CVar4;
-        u1_byte = color[0].b + tc1;
-        color[0].cd = (u_char)((u_int)CVar3 >> 0x18);
-        color[0].b = u1_byte;
-        color[1].g = (u_char)((u_int)CVar4 >> 8);
-        color[1].b = (u_char)((u_int)CVar4 >> 0x10);
-        color[1].g = color[1].g + tc1;
-        color[1].r = color[1].r + tc1;
-        color[1].cd = (u_char)((u_int)CVar4 >> 0x18);
-        color[1].b = color[1].b + tc1;
-      }
-      tp2 = Render_gPacketPtr;
-      if ((halfHeight & 8U) != 0) {
-        r = ((int)sp.vx + (int)sp.vy) * 4;
-      }
-      gfrgb = color[0];
-      gfrgb2 = color[1];
-      gscale = scale;
-      if ((halfHeight & 0x40U) != 0) {
-        primPtr = otz_00 * 4 + (int)Render_gPalettePtr;
-        *(u_int *)Render_gPacketPtr =
-             *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)primPtr & 0xffffff;
-        color_pack = (u_int)Render_gPacketPtr & 0xffffff;
-        Render_gPacketPtr = Render_gPacketPtr + 0xc;
-        *(u_int *)primPtr = *(u_int *)primPtr & 0xff000000 | color_pack;
-        SetDrawMode((DR_MODE *)tp2,0,0,0x120,(RECT *)0x0);
-      }
-      if ((halfHeight & 5U) != 0) {
+  if ((diff.vx <= diff.vz) && (-diff.vx <= diff.vz) && (!(diff.vz < 0x80))) {
+gte_stsxy(&sp);
+gte_stszotz(&otz);
+    otz = otz >> 1;
+    if (otz < 0) {
+      return;
+    }
+    if (Draw_gViewOtSize + -3 < otz) {
+      return;
+    }
+    if ((flags & 0x80U) != 0) {
+      int r;                    /* a0 */
+      r = (u_int)random() % 0x14;
+      scale = scale + r * 4;
+      color[0].r = color[0].r + r;
+      color[0].g = color[0].g + r;
+      color[0].b = color[0].b + r;
+      color[1].r = color[1].r + r;
+      color[1].g = color[1].g + r;
+      color[1].b = color[1].b + r;
+    }
+    if ((flags & 8U) != 0) {
+      long result;              /* v0 */
+      result = sp.vx + sp.vy;
+      angleZ = result * 4;
+    }
+    gfrgb = color[0];
+    gfrgb2 = color[1];
+    gscale = scale;
+    if ((flags & 0x40U) != 0) {
+      DR_MODE *aprim;           /* a0 */
+      u_int *slot;              /* t0 */
+      aprim = (DR_MODE *)Render_gPacketPtr;
+      slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
+      *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
+      Render_gPacketPtr = (u_char *)aprim + 0xc;
+      *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
+      SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
+    }
+    z = diff.vz;
+    if ((flags & 5U) != 0) {
 gte_ldv0(&sdiff2);
-        gte_rtps();
+      gte_rtps();
 gte_stlvnl(&diff2);
-gte_swc2(0xe,&sp2);
+gte_stsxy(&sp2);
+    }
+    if ((flags & 4U) != 0) {
+      {
+        long difx;              /* s0 (reuses scale) */
+        long dify;              /* s1 (reuses flare_type) */
+        dify = sp2.vy - sp.vy;
+        difx = sp2.vx - sp.vx;
+        angleOuter = fixedatan(dify,difx) >> 4;
+        sizeOuter = isqrt(difx * difx + dify * dify) * diff.vz;
       }
-      if ((halfHeight & 4U) == 0) {
-        if ((halfHeight & 1U) != 0) {
-          tvec.vx = diff.vx - diff2.vx;
-          tvec.vy = diff.vy - diff2.vy;
-          tvec.vz = diff.vz - diff2.vz;
-          VectorNormal(&tvec,&tvec2);
-          if ((halfHeight & 2U) != 0) {
-            tvec2.vz = (tvec2.vz + -0xf33) * 0x14;
-          }
-          iVar2 = tvec2.vz + -600;
-          if (iVar2 < 0) {
-            iVar2 = 0;
-          }
-          if (iVar2 == 0) {
-            return tvec2.vz;
-          }
-          gscale = gscale * iVar2 >> 0xb;
-          tvec2.vz = iVar2;
-          if (type == 0x1e) {
-            if (diff.vz < 0) {
-              diff.vz = diff.vz + 3;
-            }
-            diff.vz = diff.vz >> 2;
-          }
-        }
-        mtx2.m[2][2] = 0;
-        (*(u_short *)((u_char *)&(mtx2) + 18)) = 0;
-        mtx2.m[0][2] = 0;
-        mtx2.m[1][0] = 0;
-        mtx2.m[2][0] = 0;
-        mtx2.m[2][1] = 0;
-        mtx2.m[0][0] = (u_short)gscale;
-        mtx2.m[0][1] = (*(u_short *)((u_char *)&(gscale) + 2));
-        mtx2.m[1][1] = (u_short)gscale;
-        mtx2.m[1][2] = (*(u_short *)((u_char *)&(gscale) + 2));
-        Flare_IdentMatrix(&mtx);
-gte_SetTransMatrix(&diff);
-        RotMatrixZ(r,&mtx);
-gte_SetRotMatrix(&mtx2);
-gte_ldsv(&scalemat);
-        gte_rtir();
-gte_stsv(&scalemat);
-gte_ldsv(((char *)&scalemat + 0x2));
-        gte_rtir();
-gte_stsv(((char *)&scalemat + 0x2));
-gte_ldsv(((char *)&scalemat + 0x4));
-        gte_rtir();
-gte_stsv(((char *)&scalemat + 0x4));
-gte_SetRotMatrix(&scalemat);
-      }
-      else {
-        y = (int)sp2.vy - (int)sp.vy;
-        difx = (int)sp2.vx - (int)sp.vx;
-        angleOuter = fixedatan(y,difx);
-        int sizeOuter = isqrt(difx * difx + y * y);
+      {
+        MATRIX mtx;             /* @sp+0x60 */
+        MATRIX mtx2;            /* @sp+0x80 */
+        MATRIX scalemat;        /* @sp+0xA0 */
+        *(int *)&scalemat.m[2][2] = 0;
+        *(int *)&scalemat.m[0][2] = 0;
+        *(int *)&scalemat.m[2][0] = 0;
+        *(int *)&scalemat.m[1][1] = gscale;
+        *(int *)&scalemat.m[0][0] = gscale + (sizeOuter >> 4);
         Flare_IdentMatrix(&mtx);
         Flare_IdentMatrix(&mtx2);
-gte_SetTransMatrix(&diff);
-        RotMatrixZ(r,&mtx);
-        RotMatrixZ(angleOuter >> 4,&mtx2);
+gte_SetTransVector(&diff);
+        RotMatrixZ(angleZ,&mtx);
+        RotMatrixZ(angleOuter,&mtx2);
+gte_SetRotMatrix(&mtx2);
+gte_ldclmv(&scalemat);
+        gte_rtir();
+gte_stclmv(&scalemat);
+gte_ldclmv(((char *)&scalemat + 0x2));
+        gte_rtir();
+gte_stclmv(((char *)&scalemat + 0x2));
+gte_ldclmv(((char *)&scalemat + 0x4));
+        gte_rtir();
+gte_stclmv(((char *)&scalemat + 0x4));
+gte_SetRotMatrix(&scalemat);
+gte_ldclmv(&mtx);
+        gte_rtir();
+gte_stclmv(&mtx);
+gte_ldclmv(((char *)&mtx + 0x2));
+        gte_rtir();
+gte_stclmv(((char *)&mtx + 0x2));
+gte_ldclmv(((char *)&mtx + 0x4));
+        gte_rtir();
+gte_stclmv(((char *)&mtx + 0x4));
 gte_SetRotMatrix(&mtx);
-gte_ldsv(&mtx);
-        gte_rtir();
-gte_stsv(&mtx);
-gte_ldsv(((char *)&mtx + 0x2));
-        gte_rtir();
-gte_stsv(((char *)&mtx + 0x2));
-gte_ldsv(((char *)&mtx + 0x4));
-        gte_rtir();
-gte_stsv(((char *)&mtx + 0x4));
+      }
+    }
+    else {
+      if ((flags & 1U) != 0) {
+        VECTOR tvec;            /* @sp+0x60 */
+        VECTOR tvec2;           /* @sp+0x70 */
+        long result;            /* v1 (the -600 clamp temp) */
+        tvec.vx = diff.vx - diff2.vx;
+        tvec.vy = diff.vy - diff2.vy;
+        tvec.vz = diff.vz - diff2.vz;
+        VectorNormal((VECTOR *)&tvec,(VECTOR *)&tvec2);
+        if ((flags & 2U) != 0) {
+          tvec2.vz = (tvec2.vz + -0xf33) * 0x14;
+        }
+        result = tvec2.vz + -0x258;
+        if (result < 0) {
+          result = 0;
+        }
+        tvec2.vz = result;
+        if (result == 0) {
+          return;
+        }
+        gscale = gscale * result >> 0xb;
+        if (type == 0x1e) {
+          z = z / 4;
+        }
+      }
+      {
+        MATRIX mtx;             /* @sp+0x60 */
+        MATRIX scalemat;        /* @sp+0x80 */
+        *(int *)&scalemat.m[2][2] = 0;
+        *(int *)&scalemat.m[0][2] = 0;
+        *(int *)&scalemat.m[2][0] = 0;
+        *(int *)&scalemat.m[0][0] = gscale;
+        *(int *)&scalemat.m[1][1] = gscale;
+        Flare_IdentMatrix(&mtx);
+gte_SetTransVector(&diff);
+        RotMatrixZ(angleZ,&mtx);
 gte_SetRotMatrix(&mtx);
-gte_ldsv(&scalemat);
+gte_ldclmv(&scalemat);
         gte_rtir();
-gte_stsv(&mtx);
-gte_ldsv(((char *)&scalemat + 0x2));
+gte_stclmv(&mtx);
+gte_ldclmv(((char *)&scalemat + 0x2));
         gte_rtir();
-gte_stsv(((char *)&mtx + 0x2));
-gte_ldsv(((char *)&scalemat + 0x4));
+gte_stclmv(((char *)&mtx + 0x2));
+gte_ldclmv(((char *)&scalemat + 0x4));
         gte_rtir();
-gte_stsv(((char *)&mtx + 0x4));
+gte_stclmv(((char *)&mtx + 0x4));
 gte_SetRotMatrix(&mtx);
       }
-      if (diff.vz < 0xc80) {
-        Flare_OctFlareSpikes((long *)&sp,otz_00);
-      }
-      else if (diff.vz < 0x1b80) {
-        Flare_HexFlare((long *)&sp,otz_00);
-        Flare_PreCalcHexLightBeam((long *)&sp,otz_00);
-      }
-      else {
-        Flare_QuadFlare((long *)&sp,otz_00);
-      }
-      p = Render_gPacketPtr;
-      tp7 = otz_00 * 4 + (int)Render_gPalettePtr;
-      *(u_int *)Render_gPacketPtr = *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)tp7 & 0xffffff
-      ;
-      pDVar1 = (DVECTOR *)(*(u_int *)tp7 & 0xff000000 | (u_int)Render_gPacketPtr & 0xffffff);
-      Render_gPacketPtr = Render_gPacketPtr + 0xc;
-      *(DVECTOR **)tp7 = pDVar1;
-      SetDrawMode((DR_MODE *)p,0,(u_int)((halfHeight & 0x40U) != 0),0x120,(RECT *)0x0);
+    }
+    if (z < 0xc80) {
+      Flare_OctFlareSpikes((long *)&sp,otz);
+    }
+    else if (z < 0x1b80) {
+      Flare_HexFlare((long *)&sp,otz);
+      Flare_PreCalcHexLightBeam((long *)&sp,otz);
+    }
+    else {
+      Flare_QuadFlare((long *)&sp,otz);
+    }
+    {
+      DR_MODE *aprim;           /* a0 */
+      u_int *slot;              /* t0 */
+      aprim = (DR_MODE *)Render_gPacketPtr;
+      slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
+      *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
+      Render_gPacketPtr = (u_char *)aprim + 0xc;
+      *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
+      SetDrawMode(aprim,0,(u_int)((flags & 0x40U) != 0),0x120,(RECT *)0x0);
     }
   }
-  return (int)pDVar1;
+  return;
 }
 
 /* ---- Flare_Halo__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache  [FLARE.CPP:1097-1098] SLD-VERIFIED ---- */

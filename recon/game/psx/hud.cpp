@@ -10,7 +10,6 @@
    .data = real NFS4.EXE bytes, .bss = zero; extern-vs-SYM disagreements resolved to SYM) ---- */
 int          BigBTCTime_state1 = 50;   /* @0x8013d920 */
 int          BigBTCTime_state2;   /* @0x8013d924  (bss(zero)) */
-int          keepup;   /* @0x8013D900  (bss(zero)) */
 signed char  oldCountdown = -1;   /* @0x8013D91D */
 tSmallCoordXY Hud_gElementPositions[2][19] = { { {22, 54}, {159, 19}, {8, 19}, {18, 35}, {8, 204}, {221, 24}, {23, -2}, {21, -2}, {23, -3}, {2, -4}, {7, 50}, {4, 18}, {-41, 0}, {90, 212}, {253, 162}, {8, 196}, {218, 20}, {160, 97}, {160, 97} }, { {22, 56}, {252, 17}, {8, 17}, {26, 30}, {8, 101}, {128, 18}, {23, -2}, {21, -2}, {23, -3}, {2, -1}, {7, 52}, {4, 18}, {-42, 0}, {90, 105}, {259, 60}, {8, 72}, {215, 22}, {160, 99}, {160, 42} } };   /* @0x80120924 */
 u_long       day_needle[30] = { 657850u, 16053492u, 657850u, 657850u, 657850u, 236260u, 657850u, 657850u, 657850u, 657850u, 526344u, 657850u, 16053492u, 43184u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 43184u, 657850u, 0, 0, 0 };   /* @0x801209bc */
@@ -1099,22 +1098,22 @@ void Hud_BuildTach(int player)
   u_char *tp3;
   u_char *tp1;
   
-  if (player == 0) {
-    gSprt1 = gSprite0;
+  if (player != 0) {
+    gSprt1 = gSprite1;
   }
   else {
-    gSprt1 = gSprite1;
+    gSprt1 = gSprite0;
   }
   rpm_norm = GameSetup_gData.carInfo[player].carType;
   carType = 0x1d;
   if (rpm_norm < 0x1e) {
     carType = rpm_norm;
   }
-  if (GameSetup_gData.Time == 0) {
-    tachShape_p = (int)day_needle;
+  if (GameSetup_gData.Time != 0) {
+    tachShape_p = (int)night_needle;
   }
   else {
-    tachShape_p = (int)night_needle;
+    tachShape_p = (int)day_needle;
   }
   color = *(u_long *)(tachShape_p + carType * 4);
   arg1_00 = (DashHUD_gInfo.rpm * 0x10000) / 0x2a30 + 0x5999;
@@ -1125,74 +1124,71 @@ void Hud_BuildTach(int player)
     arg1_00 = 0x13334;
   }
   fixedsincos(arg1_00,&sin,&cos);
-  if (player == 0) {
-    tachNeedle_p = -0x7feee954;
+  /* needle glyph shapes: player0 = &HudPmx_gShapes[0x81] (0x801116AC), player1 =
+   * &HudPmx_gShapes[0x83] (0x801116D4) -- were disguised bare VAs -0x7feee954/-0x7feee92c */
+  if (player != 0) {
+    tachNeedle_p = (int)&HudPmx_gShapes[0x83];
   }
   else {
-    tachNeedle_p = -0x7feee92c;
+    tachNeedle_p = (int)&HudPmx_gShapes[0x81];
   }
-  needle_idx = *(int *)tachNeedle_p;
+  clut = *(u_long *)tachNeedle_p;
+  clut = clut & 0xffff0000;   /* in-place mutate: load lands in clut's reg directly */
   needle_y = fixedmult(cos,0x1d);
   needle_x = fixedmult(sin,0x1d);
-  color_pack = needle_y + 0x1d;
   if (player != 0) {
-    color_pack = needle_y + 0x75;
+    uVar1 = (clut | (needle_x + 0x9d) << 8) | (needle_y + 0x75);
   }
-  uVar1 = needle_idx & 0xffff0000U | (needle_x + 0x9d) * 0x100 | color_pack;
-  gSprt1[2].u0 = (char)uVar1;
-  gSprt1[2].v0 = (char)(uVar1 >> 8);
-  gSprt1[2].clut = (short)(uVar1 >> 0x10);
-  lookupResult = fixedmult(cos,10);
-  cos1 = lookupResult + 0xe;
-  fangle_norm = fixedmult(sin,10);
-  prim = Render_gPacketPtr;
-  tp1 = Render_gPalettePtr;
-  ti2 = fangle_norm + 0xe;
-  tp9 = Render_gPacketPtr + 0x14;
-  *(u_int *)Render_gPacketPtr =
-       *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  *(u_int *)tp1 = *(u_int *)tp1 & 0xff000000 | (u_int)Render_gPacketPtr & 0xffffff;
-  *(u_int *)(Render_gPacketPtr + 0x14) =
-       *(u_int *)(Render_gPacketPtr + 0x14) & 0xff000000 | (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x24;
-  *(u_int *)tp1 = *(u_int *)tp1 & 0xff000000 | (u_int)tp9 & 0xffffff;
-  prim[0x17] = 3;
-  *(short *)(prim + 0x1c) = 0xe - (short)needle_y;
-  *(u_long *)(prim + 0x18) = color + 0x484848 | 0x42000000;
-  *(short *)(prim + 0x1e) = 0xe - (short)needle_x;
-  *(short *)(prim + 0x22) = (short)ti2;
-  *(u_short *)(prim + 0x20) = (u_short)cos1;
-  prim2 = Render_gPacketPtr;
-  tp2 = Render_gPalettePtr;
-  *(u_int *)Render_gPacketPtr =
-       *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  needle_idx2 = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x14;
-  *(u_int *)tp2 = *(u_int *)tp2 & 0xff000000 | needle_idx2;
+  else {
+    uVar1 = (clut | (needle_x + 0x9d) << 8) | (needle_y + 0x1d);
+  }
+  *(u_int *)&gSprt1[2].u0 = uVar1;   /* word-fused u0/v0/clut store */
+  cos1 = fixedmult(cos,10) + 0xe;
+  ti2 = fixedmult(sin,10) + 0xe;   /* sin1 (SYM: $s6) */
+  {
+    u_char *pal;
+
+    prim = Render_gPacketPtr;
+    pal = Render_gPalettePtr;
+    tp9 = (void *)(prim + 0x14);
+    *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)pal & 0xffffff;
+    Render_gPacketPtr = prim + 0x14;
+    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)prim & 0xffffff;
+    *(u_int *)tp9 = *(u_int *)tp9 & 0xff000000 | *(u_int *)pal & 0xffffff;
+    Render_gPacketPtr = prim + 0x24;
+    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tp9 & 0xffffff;
+    ((u_char *)tp9)[3] = 3;
+    *(short *)((u_char *)tp9 + 8) = 0xe - (short)needle_y;
+    *(u_long *)((u_char *)tp9 + 4) = color + 0x484848 | 0x42000000;
+    *(short *)((u_char *)tp9 + 10) = 0xe - (short)needle_x;
+    *(short *)((u_char *)tp9 + 0xe) = (short)ti2;
+    *(u_short *)((u_char *)tp9 + 0xc) = (u_short)cos1;
+    prim2 = Render_gPacketPtr;
+    pal = Render_gPalettePtr;
+    *(u_int *)prim2 = *(u_int *)prim2 & 0xff000000 | *(u_int *)pal & 0xffffff;
+    Render_gPacketPtr = prim2 + 0x14;
+    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)prim2 & 0xffffff;
+  }
   Hud_BuildF3((POLY_F3 *)prim,HudPmx_gShapes + 0x82,cos1,ti2,color);
   Hud_BuildF3((POLY_F3 *)prim2,HudPmx_gShapes + 0x82,cos1,ti2,0);
   prim[7] = prim[7] & 0xfd;
   fixedsincos(arg1_00 + -0x200,&sin,&cos);
-  ti2 = fixedmult(cos,0x20);
-  ts3 = 0xe - (short)ti2;
+  ts3 = 0xe - (short)fixedmult(cos,0x20);
   *(short *)(prim + 0xc) = ts3;
   *(short *)(prim2 + 0xc) = ts3;
-  ti2 = fixedmult(sin,0x20);
-  ts4 = 0xe - (short)ti2;
+  ts4 = 0xe - (short)fixedmult(sin,0x20);
   *(short *)(prim + 0xe) = ts4;
   *(short *)(prim2 + 0xe) = ts4;
   fixedsincos(arg1_00 + 0x200,&sin,&cos);
-  ti2 = fixedmult(cos,0x20);
-  ts1 = 0xe - (short)ti2;
+  ts1 = 0xe - (short)fixedmult(cos,0x20);
   *(short *)(prim + 0x10) = ts1;
   *(short *)(prim2 + 0x10) = ts1;
-  ti2 = fixedmult(sin,0x20);
-  ts1 = -(short)ti2 + 0xe;
+  ts1 = 0xe - (short)fixedmult(sin,0x20);
   *(short *)(prim + 0x12) = ts1;
   *(short *)(prim2 + 0x12) = ts1;
   tp3 = Render_gPalettePtr;
   *(short *)(prim2 + 10) = *(short *)(prim2 + 10) + 2;
-  *(short *)(prim2 + 0x12) = -(short)ti2 + 0x10;
+  *(short *)(prim2 + 0x12) = ts1 + 2;
   *(short *)(prim2 + 0xe) = *(short *)(prim2 + 0xe) + 2;
   gSprt1[2].tag = (u_long *)((u_int)gSprt1[2].tag & 0xff000000 | *(u_int *)tp3 & 0xffffff);
   *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | (u_int)(gSprt1 + 2) & 0xffffff;
@@ -1856,155 +1852,100 @@ void Hud_InitMap(void)
 void Hud_BuildMapMarkers(int player)
 
 {
-  u_char *sprt;
-  int screen_x;
-  int screen_y;
-  int marker_type;
-  int blip_glyph;
-  int blip_color;
-  int ti7;
-  int ti8;
-  int ti10;
-  int color;
-  int slice;
-  int carRegion_p;
-  int carRegion_alt;
-  int tu8;
-  int shapeIdx;
-  int tu9;
-  int z;
-  int rz;
-  int rx;
-  int x;
-  int world_x_off;
-  int carInfo_iter;
-  int marker_table;
+  /* SYM-exact locals: i=$s5, rx=$s2, rz=$s1, x=$s3, z=$s0, cenX/cenZ AUTO (stack),
+   * mapy=$fp; per-loop blocks: sprt(=$a2/$a3) + slice(=$v1). mapx (0x16) is fully
+   * const-propagated (li t0,0x16 rematerialized at each call site) so it has no SYM
+   * record; player is unused (REGPARM stays in $a0). Slice stride = 0x20 bytes. */
   int i;
-  int marker_idx;
-  int carInfo_alt;
-  int mapy;
-  int rotated_x;
-  int rotated_z;
-  int rotated_z_b;
-  int rotated_x_b;
-  int loc_38;
-  int loc_34;
+  int rx;
+  int rz;
+  int x;
+  int z;
   int cenX;
   int cenZ;
-  int loc_28;
-  int loc_24;
-  int loc_20;
-  int loc_1c;
-  int loc_18;
-  int loc_14;
-  int loc_10;
-  int loc_c;
-  int loc_8;
-  int loc_4;
-  u_char *tp1;
-  u_char *tp2;
-  u_char *tp3;
-  int ti4;
-  
-  ti4 = gMapOffX;
-  carInfo_iter = (int)Cars_gCopCarList;
-  screen_x = gMapOffY + 2;
-  for (marker_idx = 0; marker_idx < Cars_gNumCopCars; marker_idx = marker_idx + 1) {
-    if (*(char *)(*(int *)carInfo_iter + 0x91) != '\0') {
-      carRegion_p = (int)(BWorldSm_slices + *(short *)(*(int *)carInfo_iter + 8));
-      rotated_x = *(int *)carRegion_p / gMapScaleX;
-      rotated_z = *(int *)(carRegion_p + 8) / gMapScaleY;
-      screen_y = fixedmult(mapMarkerMCos,rotated_x);
-      marker_type = fixedmult(mapMarkerMSin,rotated_z);
-      world_x_off = (ti4 + screen_y) - marker_type;
-      blip_glyph = fixedmult(mapMarkerMSin,rotated_x);
-      blip_color = fixedmult(mapMarkerMCos,rotated_z);
-      tp2 = Render_gPacketPtr;
-      tp1 = Render_gPalettePtr;
+  int mapy;
+  int mapx;
+
+  cenX = gMapOffX;
+  cenZ = gMapOffY + 2;
+  mapx = 0x16;
+  mapy = 0x18;
+  i = 0;
+  while (true) {
+    if (Cars_gNumCopCars <= i) break;
+    if (Cars_gCopCarList[i]->N.active != '\0') {
+      SPRT *sprt;
+      int slice;
+      u_char *pal;
+      u_char **pktcell;
+
+      slice = Cars_gCopCarList[i]->N.simRoadInfo.slice;
+      rx = BWorldSm_slices[slice].center[0] / gMapScaleX;
+      rz = BWorldSm_slices[slice].center[2] / gMapScaleY;
+      x = (cenX + fixedmult(mapMarkerMCos,rx)) - fixedmult(mapMarkerMSin,rz);
+      z = cenZ + fixedmult(mapMarkerMSin,rx) + fixedmult(mapMarkerMCos,rz);
       if (GameSetup_gData.mirrorTrack != 0) {
-        world_x_off = -world_x_off;
+        x = -x;
       }
-      *(u_int *)Render_gPacketPtr =
-           *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)tp1 = *(u_int *)tp1 & 0xff000000 | (u_int)Render_gPacketPtr & 0xffffff;
-      Render_gPacketPtr = Render_gPacketPtr + 0x14;
-      if ((*(u_int *)(*(int *)carInfo_iter + 0x570) & 2) == 0) {
-        currentSpriteColor = *(long *)(Hud_gCopMarkerColor + marker_idx);
+      pktcell = (u_char **)0x1F800004;   /* one addr materialization per iter (shared by read+bump) -- keeps the 0x1F800004 constant un-hoisted like retail */
+      sprt = (SPRT *)*pktcell;
+      pal = Render_gPalettePtr;
+      *(u_int *)sprt = *(u_int *)sprt & 0xff000000 | *(u_int *)pal & 0xffffff;
+      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)sprt & 0xffffff;
+      *pktcell = (u_char *)sprt + 0x14;
+      if ((*(u_int *)((char *)Cars_gCopCarList[i] + 0x570) & 2) != 0) {
+        currentSpriteColor = ((gFlip == 0) && (simVar.quickPauseSim == 0)) ? 0xff0000 : 0xff;
       }
       else {
-        ((u_char *)&(currentSpriteColor))[0] = 0xff;
-        ((u_char *)&(currentSpriteColor))[1] = '\0';
-        ((u_char *)&(currentSpriteColor))[2] = '\0';
-        ((u_char *)&(currentSpriteColor))[3] = '\0';
-        if ((gFlip == 0) &&
-           (((u_char *)&(currentSpriteColor))[0] = 0xff, ((u_char *)&(currentSpriteColor))[1] = '\0',
-           ((u_char *)&(currentSpriteColor))[2] = '\0', ((u_char *)&(currentSpriteColor))[3] = '\0',
-           simVar.quickPauseSim == 0)) {
-          ((u_char *)&(currentSpriteColor))[0] = '\0';
-          ((u_char *)&(currentSpriteColor))[1] = '\0';
-          ((u_char *)&(currentSpriteColor))[2] = 0xff;
-          ((u_char *)&(currentSpriteColor))[3] = '\0';
-        }
+        currentSpriteColor = *(u_long *)&Hud_gCopMarkerColor[i];
       }
-      Hud_BuildSprite((SPRT *)tp2,0x7a,world_x_off + 0x14U & 0xffff,
-                 0x18U - (screen_x + blip_glyph + blip_color) & 0xffff,currentSpriteColor,0);
+      Hud_BuildSprite(sprt,0x7a,mapx + x + -2 & 0xffff,mapy - z & 0xffff,currentSpriteColor,0);
     }
-    carInfo_iter = carInfo_iter + 4;
+    i = i + 1;
   }
-  marker_table = (int)Hud_gMarkerColor;
-  carInfo_alt = (int)Cars_gRaceCarList;
-  for (world_x_off = 0; world_x_off < Cars_gNumRaceCars; world_x_off = world_x_off + 1) {
-    if (*(char *)(*(int *)carInfo_alt + 0x91) != '\0') {
-      carRegion_alt = (int)(BWorldSm_slices + *(short *)(*(int *)carInfo_alt + 8));
-      rotated_z_b = *(int *)carRegion_alt / gMapScaleX;
-      rotated_x_b = *(int *)(carRegion_alt + 8) / gMapScaleY;
-      ti7 = fixedmult(mapMarkerMCos,rotated_z_b);
-      ti8 = fixedmult(mapMarkerMSin,rotated_x_b);
-      ti8 = (ti4 + ti7) - ti8;
-      rotated_z_b = fixedmult(mapMarkerMSin,rotated_z_b);
-      ti10 = fixedmult(mapMarkerMCos,rotated_x_b);
-      sprt = Render_gPacketPtr;
-      tp3 = Render_gPalettePtr;
+  i = 0;
+  while (true) {
+    if (Cars_gNumRaceCars <= i) break;
+    if (Cars_gRaceCarList[i]->N.active != '\0') {
+      SPRT *sprt;
+      int slice;
+      u_char *pal;
+      u_char **pktcell;
+
+      slice = Cars_gRaceCarList[i]->N.simRoadInfo.slice;
+      rx = BWorldSm_slices[slice].center[0] / gMapScaleX;
+      rz = BWorldSm_slices[slice].center[2] / gMapScaleY;
+      x = (cenX + fixedmult(mapMarkerMCos,rx)) - fixedmult(mapMarkerMSin,rz);
+      z = cenZ + fixedmult(mapMarkerMSin,rx) + fixedmult(mapMarkerMCos,rz);
       if (GameSetup_gData.mirrorTrack != 0) {
-        ti8 = -ti8;
+        x = -x;
       }
-      *(u_int *)Render_gPacketPtr =
-           *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | (u_int)Render_gPacketPtr & 0xffffff;
-      tu8 = *(int *)(*(int *)carInfo_alt + 0x260);
-      Render_gPacketPtr = Render_gPacketPtr + 0x14;
-      if ((tu8 & 0x200U) == 0) {
-        if ((tu8 & 4U) == 0) {
-          shapeIdx = 0x7a;
-          tu9 = ti8 + 0x14;
+      pktcell = (u_char **)0x1F800004;   /* see cop loop */
+      sprt = (SPRT *)*pktcell;
+      pal = Render_gPalettePtr;
+      *(u_int *)sprt = *(u_int *)sprt & 0xff000000 | *(u_int *)pal & 0xffffff;
+      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)sprt & 0xffffff;
+      *pktcell = (u_char *)sprt + 0x14;
+      if ((Cars_gRaceCarList[i]->carFlags & 0x200U) != 0) {
+        if ((*(u_int *)((char *)Cars_gRaceCarList[i] + 0x570) & 2) != 0) {
+          currentSpriteColor = ((gFlip == 0) && (simVar.quickPauseSim == 0)) ? 0xff0000 : 0xff;
         }
         else {
-          shapeIdx = 0x79;
-          tu9 = ti8 + 0x13;
+          currentSpriteColor = *(u_long *)&Hud_gMarkerColor[i];
         }
-        color = *(int *)marker_table;
+        Hud_BuildSprite(sprt,0x79,mapx + x + -3 & 0xffff,mapy - z & 0xffff,currentSpriteColor,0);
+      }
+      else if ((Cars_gRaceCarList[i]->carFlags & 4U) != 0) {
+        Hud_BuildSprite(sprt,0x79,mapx + x + -3 & 0xffff,mapy - z & 0xffff,
+                   *(u_long *)&Hud_gMarkerColor[i],0);
       }
       else {
-        if ((*(u_int *)(*(int *)carInfo_alt + 0x570) & 2) == 0) {
-          color = *(int *)marker_table;
-        }
-        else {
-          color = 0xff;
-          if ((gFlip == 0) && (color = 0xff, simVar.quickPauseSim == 0)) {
-            color = 0xff0000;
-          }
-        }
-        shapeIdx = 0x79;
-        tu9 = ti8 + 0x13;
-        currentSpriteColor = color;
+        Hud_BuildSprite(sprt,0x7a,mapx + x + -2 & 0xffff,mapy - z & 0xffff,
+                   *(u_long *)&Hud_gMarkerColor[i],0);
       }
-      Hud_BuildSprite((SPRT *)sprt,shapeIdx,tu9 & 0xffff,0x18U - (screen_x + rotated_z_b + ti10) & 0xffff
-                 ,color,0);
     }
-    marker_table = marker_table + 4;
-    carInfo_alt = carInfo_alt + 4;
+    i = i + 1;
   }
-  return;
 }
 
 /* ---- Hud_WingmanFlash__Fii  [HUD.CPP:2148-2157] SLD-VERIFIED ----
@@ -2036,88 +1977,55 @@ void Hud_WingmanFlash(int player,int index)
 void Hud_BuildWingmanInterface(int player)
 
 {
-  int wingmanText_p;
-  int wingmanText_p2;
-  char *pcVar1;
-  int uv_pack;
-  int color_pack;
-  u_int uVar2;
-  int y_01;
+  /* SYM locals: splitY=$t0, flashTicks=$s3, poly=$a0 (POLY_F4*), x=$s7, y=$s4; block i=$s2.
+   * g1Player[0xe].x read once (s1), the -0x1b string-x CSEs into s0. */
   int splitY;
-  int screen_x_w;
-  int y_temp;
-  int i;
-  int wingman_glyph;
-  int request_type;
   int flashTicks;
-  int wingman_state;
-  int y;
-  int y_00;
+  POLY_F4 *poly;
   int x;
-  int loc_38;
-  int loc_34;
-  int loc_30;
-  int loc_28;
-  u_char *tp1;
-  u_char *tp2;
-  u_char *tp5;
-  u_char *poly;
-  u_char *tp3;
-  u_char *tp4;
-  
-  screen_x_w = 0;
+  int y;
+
+  splitY = 0;
   if (player != 0) {
-    screen_x_w = -0xf;
+    splitY = -0xf;
   }
-  wingman_state = Hud_gWingmanFlashTicks[player] - ticks;
-  wingman_glyph = (int)g1Player[0xe].x;
-  y_00 = g1Player[0xe].y + HudMapOffsetY + screen_x_w + 2;
-  wingmanText_p = (int)TextSys_Word(0x29);
-  y_temp = wingman_glyph + -0x1b;
-  Hud_BuildString((char *)wingmanText_p,y_temp,y_00 + 3,0x808080,0,false);
-  wingmanText_p2 = (int)TextSys_Word(0x2a);
-  Hud_BuildString((char *)wingmanText_p2,y_temp,y_00 + 0xc,0x808080,player,false);
-  pcVar1 = TextSys_Word(0x2b);
-  Hud_BuildString(pcVar1,y_temp,y_00 + 0x15,0x808080,player,false);
-  pcVar1 = TextSys_Word(0x2c);
-  Hud_BuildString(pcVar1,y_temp,y_00 + 0x1e,0x808080,player,false);
-  pcVar1 = TextSys_Word(0x2d);
-  Hud_BuildString(pcVar1,y_temp,y_00 + 0x27,0x808080,player,false);
-  tp2 = Render_gPacketPtr;
-  tp1 = Render_gPalettePtr;
-  if (0 < wingman_state) {
-    *(u_int *)Render_gPacketPtr =
-         *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    color_pack = (u_int)Render_gPacketPtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0x18;
-    *(u_int *)tp1 = *(u_int *)tp1 & 0xff000000 | color_pack;
-    Hud_BuildF4((POLY_F4 *)tp2,0,wingman_glyph + -0x10,
-               y_00 + ((u_char)Hud_gWingmanFlashIcon[player] + 1) * 9 + 2,0x3f,8,   /* @0x800D6228 lbu Hud_gWingmanFlashIcon(player) */
-               (wingman_state % 0x14) * 10);
+  flashTicks = Hud_gWingmanFlashTicks[player] - ticks;
+  x = (int)g1Player[0xe].x;
+  y = g1Player[0xe].y + HudMapOffsetY + splitY + 2;
+  Hud_BuildString(TextSys_Word(0x29),x - 0x1b,y + 3,0x808080,0,false);
+  Hud_BuildString(TextSys_Word(0x2a),x - 0x1b,y + 0xc,0x808080,player,false);
+  Hud_BuildString(TextSys_Word(0x2b),x - 0x1b,y + 0x15,0x808080,player,false);
+  Hud_BuildString(TextSys_Word(0x2c),x - 0x1b,y + 0x1e,0x808080,player,false);
+  Hud_BuildString(TextSys_Word(0x2d),x - 0x1b,y + 0x27,0x808080,player,false);
+  if (0 < flashTicks) {
+    poly = (POLY_F4 *)Render_gPacketPtr;
+    *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+    Render_gPacketPtr = (u_char *)poly + 0x18;
+    *(u_int *)Render_gPalettePtr =
+         *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)poly & 0xffffff;
+    Hud_BuildF4(poly,0,x - 0x10,y + ((u_char)Hud_gWingmanFlashIcon[player] + 1) * 9 + 2,0x3f,8,
+               (flashTicks % 0x14) * 10);
   }
-  request_type = 0;
-  i = 2;
-  do {
-    tp4 = Render_gPacketPtr;
-    tp3 = Render_gPalettePtr;
-    y_01 = y_00 + i;
-    i = i + 9;
-    request_type = request_type + 1;
-    *(u_int *)Render_gPacketPtr =
-         *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    uv_pack = (u_int)Render_gPacketPtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0x18;
-    *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | uv_pack;
-    Hud_BuildF4((POLY_F4 *)tp4,0,wingman_glyph + -0x1c,y_01,0x4b,7,0);
-    poly = Render_gPacketPtr;
-    tp5 = Render_gPalettePtr;
-  } while (request_type < 5);
-  *(u_int *)Render_gPacketPtr =
-       *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  uVar2 = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x18;
-  *(u_int *)tp5 = *(u_int *)tp5 & 0xff000000 | uVar2;
-  Hud_BuildF4((POLY_F4 *)poly,1,wingman_glyph + -0x1c,y_00,0x4b,0x30,0);
+  {
+    int i;
+
+    i = 0;
+    do {
+      poly = (POLY_F4 *)Render_gPacketPtr;
+      *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+      Render_gPacketPtr = (u_char *)poly + 0x18;
+      *(u_int *)Render_gPalettePtr =
+           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)poly & 0xffffff;
+      Hud_BuildF4(poly,0,x - 0x1c,y + i * 9 + 2,0x4b,7,0);
+      i = i + 1;
+    } while (i < 5);
+  }
+  poly = (POLY_F4 *)Render_gPacketPtr;
+  *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+  Render_gPacketPtr = (u_char *)poly + 0x18;
+  *(u_int *)Render_gPalettePtr =
+       *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)poly & 0xffffff;
+  Hud_BuildF4(poly,1,x - 0x1c,y,0x4b,0x30,0);
   return;
 }
 
@@ -2171,9 +2079,10 @@ int Hud_BuildCdPlayer(int type,int arg1)
   char strtitle [30];
   char strtime [10];
   char strtest [2];
+  static bool keepup;   /* SYM: fn-local STAT BOOL @0x8013D900 (was wrongly a file-scope int) */
   
   sVar1 = g1Player[0xf].x;
-  iVar3 = (int)g1Player[0xf].y;
+  iVar3 = g1Player[0xf].y + 2;   /* y (SYM $fp) */
   iVar13 = sVar1 + 2;
   if (type == 0) {
     keepup = 1;
@@ -2322,10 +2231,10 @@ HudCdPlay_buildOutString:
       return 1;
     }
     Hud_gShowedCDPlayer = 1;
-    Hud_BuildString(strscrolltitle,(iVar13 + iVar10 + 10) - (Hud_gCdScrollTitle + -0x4c),iVar3 + 0xc,
+    Hud_BuildString(strscrolltitle,(iVar13 + iVar10 + 10) - (Hud_gCdScrollTitle + -0x4c),iVar3 + 0xa,
                0xbebe,0,false);
     if (s_01 != (char *)0x0) {
-      Hud_BuildString(s_01,sVar1 + 0xc,iVar3 + 0x15,0x808080,0,false);
+      Hud_BuildString(s_01,sVar1 + 0xc,iVar3 + 0x13,0x808080,0,false);
     }
     Hud_GoTpage(0);
     Hud_BlackThinBox(g1Player[0xf].x + 10,g1Player[0xf].y + 10,0x50,0x12);
@@ -2373,329 +2282,213 @@ HudCdPlay_buildOutString:
 int Hud_BuildRadar(int player)
 
 {
-  u_char *sprt;
-  int z;
-  int car;
-  int ti6;
-  int ti1;
-  int ti2;
-  int tu7;
-  int color;
-  int iVar1;
-  int tC8;
-  int iVar2;
-  int m11;
-  int m11_val;
-  int iVar3;
-  int x;
-  int ti10;
-  int pbVar3;
-  int ti4;
-  coorddef *pcVar4;
-  int tpi11;
-  int iVar5;
-  Car_tObj **ppCVar6;
-  int tu5;
-  int carInfo_iter_r;
-  int ti7;
-  int track_dist;
-  int ppCVar8;
-  int cenZ;
-  int cenZ_val;
-  int cenX;
-  int cenX_val;
-  int m10;
-  int m10_val;
-  int m01;
-  int m01_val;
-  int m00;
-  int m00_val;
+  /* SYM-exact locals (8c block @0x800d6b48): car=$v0, i=$s0, x=$a1, z=$v0, cenX=$t3,
+   * cenZ=$t2, mapx=$fp, mapz=$s7(constants 22/24 held callee-saved), m00=$t6, m01=$t5,
+   * m10=$t4, m11=$a0, scr AUTO -0xE0, visible=$s6; sprt block-local per draw loop.
+   * player is ARG class (stack-spilled, reloaded 0xF8(sp) at each use). */
+  BO_tNewtonObj *car;
   int i;
-  int radar_blip_count;
-  int ti11;
-  int tp20;
-  int visible;
-  int alpha_val;
-  int mapz;
+  int x;
+  int z;
+  int cenX;
+  int cenZ;
   int mapx;
-  int loc_e8;
-  int loc_e4;
+  int mapz;
+  int m00;
+  int m01;
+  int m10;
+  int m11;
   coorddef scr [15];
-  int loc_28;
-  int loc_24;
-  int loc_20;
-  int loc_1c;
-  int loc_18;
-  int loc_14;
-  int loc_10;
-  int loc_c;
-  int loc_8;
-  int loc_4;
-  u_char *tp3;
-  u_char *tp2;
-  u_char *tp4;
-  u_char bVar1;
-  
-  radar_blip_count = 0;
-  alpha_val = 0;
-  car = (int)Camera_gInfo[player].anchor;
-  m00_val = *(int *)(car + 0xf0) >> 8;
-  m01_val = *(int *)(car + 0x108) >> 8;
-  m10_val = *(int *)(car + 0xf8) >> 8;
-  m11_val = *(int *)(car + 0x110) >> 8;
-  cenX_val = *(int *)(car + 0xa0) >> 8;
-  cenZ_val = -*(int *)(car + 0xa8) >> 8;
-  if (0 < Cars_gNumRaceCars) {
-    carInfo_iter_r = (int)Cars_gRaceCarList;
-    track_dist = 0;
-    do {
-      ti10 = (*(int *)(*(int *)carInfo_iter_r + 0xa0) >> 8) - cenX_val;
-      ti6 = (-*(int *)(*(int *)carInfo_iter_r + 0xa8) >> 8) - cenZ_val;
-      pbVar3 = (int)&scr[0].x + track_dist;
-      *(int *)pbVar3 = m00_val * ti10 + m01_val * ti6 >> 0x10;
-      *(int *)((int)&scr[0].z + track_dist) = m10_val * ti10 + m11_val * ti6 >> 0x11;
+  int visible;
+
+  car = Camera_gInfo[player].anchor;
+  visible = 0;
+  mapx = 0x16;
+  mapz = 0x18;
+  m00 = car->orientMat.m[0] >> 8;   /* +0xF0 */
+  m01 = car->orientMat.m[6] >> 8;   /* +0x108 */
+  m10 = car->orientMat.m[2] >> 8;   /* +0xF8 */
+  m11 = car->orientMat.m[8] >> 8;   /* +0x110 */
+  cenX = car->position.x >> 8;
+  cenZ = -car->position.z >> 8;
+  for (i = 0; i < Cars_gNumRaceCars; i++) {
+    x = (Cars_gRaceCarList[i]->N.position.x >> 8) - cenX;
+    z = (-Cars_gRaceCarList[i]->N.position.z >> 8) - cenZ;
+    scr[i].x = m00 * x + m01 * z >> 0x10;
+    scr[i].z = m10 * x + m11 * z >> 0x11;
+    if (GameSetup_gData.mirrorTrack != 0) {
+      scr[i].x = -scr[i].x;
+    }
+    if ((Cars_gRaceCarList[i]->N.active != '\0') && (Cars_gRaceCarList[i]->carIndex != player)) {
+      if ((-mapx < scr[i].x) && (scr[i].x < mapx)) {
+        if ((-mapz < scr[i].z) && (scr[i].z < mapz)) {
+          visible = 1;
+        }
+      }
+    }
+  }
+  for (i = 0; i < Cars_gNumCopCars; i++) {
+    if (Cars_gCopCarList[i]->N.active != '\0') {
+      x = (Cars_gCopCarList[i]->N.position.x >> 8) - cenX;
+      z = (-Cars_gCopCarList[i]->N.position.z >> 8) - cenZ;
+      scr[Cars_gNumRaceCars + i].x = m00 * x + m01 * z >> 0x10;
+      scr[Cars_gNumRaceCars + i].z = m10 * x + m11 * z >> 0x11;
       if (GameSetup_gData.mirrorTrack != 0) {
-        *(int *)pbVar3 = -*(int *)pbVar3;
+        scr[Cars_gNumRaceCars + i].x = -scr[Cars_gNumRaceCars + i].x;
       }
-      if (((((*(char *)(*(int *)carInfo_iter_r + 0x91) != '\0') &&
-            (*(int *)(*(int *)carInfo_iter_r + 0x254) != player)) && (-0x16 < *(int *)pbVar3)) &&
-          ((*(int *)pbVar3 < 0x16 && (iVar1 = *(int *)((int)&scr[0].z + track_dist), -0x18 < iVar1))
-          )) && (iVar1 < 0x18)) {
-        alpha_val = 1;
-      }
-      carInfo_iter_r = carInfo_iter_r + 4;
-      radar_blip_count = radar_blip_count + 1;
-      track_dist = track_dist + 0xc;
-    } while (radar_blip_count < Cars_gNumRaceCars);
-  }
-  ti11 = 0;
-  if (0 < Cars_gNumCopCars) {
-    ppCVar8 = (int)Cars_gCopCarList;
-    ti7 = Cars_gNumRaceCars;
-    do {
-      tC8 = *(int *)ppCVar8;
-      if (*(char *)(tC8 + 0x91) != '\0') {
-        ti4 = (*(int *)(tC8 + 0xa0) >> 8) - cenX_val;
-        ti1 = (-*(int *)(tC8 + 0xa8) >> 8) - cenZ_val;
-        pcVar4 = scr + ti7;
-        pcVar4->x = m00_val * ti4 + m01_val * ti1 >> 0x10;
-        scr[ti7].z = m10_val * ti4 + m11_val * ti1 >> 0x11;
-        if (GameSetup_gData.mirrorTrack != 0) {
-          pcVar4->x = -pcVar4->x;
-        }
-        if (((-0x16 < pcVar4->x) && (pcVar4->x < 0x16)) &&
-           ((-0x18 < scr[ti7].z && (scr[ti7].z < 0x18)))) {
-          alpha_val = 1;
+      if ((-mapx < scr[Cars_gNumRaceCars + i].x) && (scr[Cars_gNumRaceCars + i].x < mapx)) {
+        if ((-mapz < scr[Cars_gNumRaceCars + i].z) && (scr[Cars_gNumRaceCars + i].z < mapz)) {
+          visible = 1;
         }
       }
-      ti7 = ti7 + 1;
-      ti11 = ti11 + 1;
-      ppCVar8 = ppCVar8 + 4;
-    } while (ti11 < Cars_gNumCopCars);
+    }
   }
-  if (alpha_val == 0) {
-    iVar1 = 0;
-    if (0 < Cars_gNumRaceCars) {
-      tpi11 = (int)scr;
-      ppCVar6 = Cars_gRaceCarList;
-      do {
-        if (((*ppCVar6)->N).active != '\0') {
-          iVar2 = *(int *)(tpi11 + 8) >> 2;
-          *(int *)tpi11 = *(int *)tpi11 >> 2;
-          *(int *)(tpi11 + 8) = iVar2;
-          if (((((*ppCVar6)->carIndex != player) && (-0x16 < *(int *)tpi11)) &&
-              (*(int *)tpi11 < 0x16)) && ((-0x18 < iVar2 && (iVar2 < 0x18)))) {
-            alpha_val = 2;
+  if (visible == 0) {
+    for (i = 0; i < Cars_gNumRaceCars; i++) {
+      if (Cars_gRaceCarList[i]->N.active != '\0') {
+        scr[i].x = scr[i].x >> 2;
+        scr[i].z = scr[i].z >> 2;
+        if (Cars_gRaceCarList[i]->carIndex != player) {
+          if ((-mapx < scr[i].x) && (scr[i].x < mapx) && (-mapz < scr[i].z) && (scr[i].z < mapz)) {
+            visible = 2;
           }
         }
-        tpi11 = tpi11 + 0xc;
-        iVar1 = iVar1 + 1;
-        ppCVar6 = ppCVar6 + 1;
-      } while (iVar1 < Cars_gNumRaceCars);
-    }
-    iVar2 = 0;
-    iVar1 = Cars_gNumRaceCars;
-    if (0 < Cars_gNumCopCars) {
-      do {
-        pcVar4 = scr + iVar1;
-        pcVar4->x = pcVar4->x >> 2;
-        iVar5 = pcVar4->x;
-        iVar3 = scr[iVar1].z >> 2;
-        scr[iVar1].z = iVar3;
-        if (((-0x16 < iVar5) && (iVar5 < 0x16)) && ((-0x18 < iVar3 && (iVar3 < 0x18)))) {
-          alpha_val = 2;
-        }
-        iVar2 = iVar2 + 1;
-        iVar1 = iVar2 + Cars_gNumRaceCars;
-      } while (iVar2 < Cars_gNumCopCars);
-    }
-  }
-  ppCVar6 = Cars_gCopCarList;
-  for (iVar1 = 0; tp3 = Render_gPacketPtr, tp2 = Render_gPalettePtr, iVar1 < Cars_gNumCopCars;
-      iVar1 = iVar1 + 1) {
-    if (((*ppCVar6)->N).active != '\0') {
-      *(u_int *)Render_gPacketPtr =
-           *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      tu7 = (u_int)Render_gPacketPtr & 0xffffff;
-      bVar1 = gFlip != 0;
-      Render_gPacketPtr = Render_gPacketPtr + 0x14;
-      *(u_int *)tp2 = *(u_int *)tp2 & 0xff000000 | tu7;
-      if (((bool)bVar1) || (currentSpriteColor = 0xff0000, simVar.quickPauseSim != 0)) {
-        currentSpriteColor = 0xff;
       }
-      Hud_BuildSprite((SPRT *)tp3,0x7a,scr[iVar1 + Cars_gNumRaceCars].x + 0x14U & 0xffff,
-                 scr[iVar1 + Cars_gNumRaceCars].z + 0x18U & 0xffff,currentSpriteColor,0);
     }
-    ppCVar6 = ppCVar6 + 1;
+    for (i = 0; i < Cars_gNumCopCars; i++) {
+      scr[i + Cars_gNumRaceCars].x = scr[i + Cars_gNumRaceCars].x >> 2;
+      scr[i + Cars_gNumRaceCars].z = scr[i + Cars_gNumRaceCars].z >> 2;
+      if ((-mapx < scr[i + Cars_gNumRaceCars].x) && (scr[i + Cars_gNumRaceCars].x < mapx) &&
+          (-mapz < scr[i + Cars_gNumRaceCars].z) && (scr[i + Cars_gNumRaceCars].z < mapz)) {
+        visible = 2;
+      }
+    }
   }
-  iVar2 = 0;
-  tp20 = (int)Hud_gMarkerColor;
-  ppCVar6 = Cars_gRaceCarList;
-  for (iVar1 = 0; sprt = Render_gPacketPtr, tp4 = Render_gPalettePtr, iVar1 < Cars_gNumRaceCars;
-      iVar1 = iVar1 + 1) {
-    if ((iVar1 != player) && (((*ppCVar6)->N).active != '\0')) {
-      *(u_int *)Render_gPacketPtr =
-           *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)tp4 = *(u_int *)tp4 & 0xff000000 | (u_int)Render_gPacketPtr & 0xffffff;
-      Render_gPacketPtr = Render_gPacketPtr + 0x14;
-      if (((*ppCVar6)->carFlags & 4U) == 0) {
-        iVar5 = *(int *)((int)&scr[0].z + iVar2);
-        color = *(int *)(Hud_gMarkerColor + iVar1);
-        iVar3 = 0x7a;
-        tu5 = *(int *)((int)&scr[0].x + iVar2) + 0x14;
+  i = 0;
+  while (true) {
+    if (Cars_gNumCopCars <= i) break;
+    if (Cars_gCopCarList[i]->N.active != '\0') {
+      SPRT *sprt;
+      u_char *pal;
+      u_int tag;
+
+      sprt = (SPRT *)Render_gPacketPtr;
+      pal = Render_gPalettePtr;
+      *(u_int *)sprt = *(u_int *)sprt & 0xff000000 | *(u_int *)pal & 0xffffff;
+      tag = *(u_int *)pal;
+      Render_gPacketPtr = (u_char *)sprt + 0x14;
+      *(u_int *)pal = tag & 0xff000000 | (u_int)sprt & 0xffffff;
+      if ((gFlip == 0) && (simVar.quickPauseSim == 0)) {
+        currentSpriteColor = 0xff0000;
       }
       else {
-        iVar5 = *(int *)((int)&scr[0].z + iVar2);
-        color = *(int *)tp20;
-        iVar3 = 0x79;
-        tu5 = *(int *)((int)&scr[0].x + iVar2) + 0x13;
+        currentSpriteColor = 0xff;
       }
-      Hud_BuildSprite((SPRT *)sprt,iVar3,tu5 & 0xffff,iVar5 + 0x18U & 0xffff,color,0)
-      ;
+      Hud_BuildSprite(sprt,0x7a,scr[i + Cars_gNumRaceCars].x + mapx + -2 & 0xffff,
+                 scr[i + Cars_gNumRaceCars].z + mapz & 0xffff,currentSpriteColor,0);
     }
-    iVar2 = iVar2 + 0xc;
-    tp20 = tp20 + 4;
-    ppCVar6 = ppCVar6 + 1;
+    i = i + 1;
   }
-  return alpha_val;
+  i = 0;
+  while (true) {
+    if (Cars_gNumRaceCars <= i) break;
+    if ((i != player) && (Cars_gRaceCarList[i]->N.active != '\0')) {
+      SPRT *sprt;
+      u_char *pal;
+
+      sprt = (SPRT *)Render_gPacketPtr;
+      pal = Render_gPalettePtr;
+      *(u_int *)sprt = *(u_int *)sprt & 0xff000000 | *(u_int *)pal & 0xffffff;
+      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)sprt & 0xffffff;
+      Render_gPacketPtr = (u_char *)sprt + 0x14;
+      if ((Cars_gRaceCarList[i]->carFlags & 4U) != 0) {
+        Hud_BuildSprite(sprt,0x79,scr[i].x + mapx + -3 & 0xffff,scr[i].z + mapz & 0xffff,
+                   *(u_long *)&Hud_gMarkerColor[i],0);
+      }
+      else {
+        Hud_BuildSprite(sprt,0x7a,scr[i].x + mapx + -2 & 0xffff,scr[i].z + mapz & 0xffff,
+                   *(u_long *)&Hud_gMarkerColor[i],0);
+      }
+    }
+    i = i + 1;
+  }
+  return visible;
 }
 
 /* ---- Hud_BuildReplay__Fv  [HUD.CPP:2752-2849] SLD-VERIFIED ---- */
 void Hud_BuildReplay(void)
 
 {
-  u_char uVar1;
-  u_short uVar2;
-  SPRT *pSVar3;
-  HudPmx_tShape *pHVar4;
-  int uv_byte_pack;
-  int color_pack;
-  int tpage_pack;
-  int spr;
-  int char_glyph;
-  int char_w;
-  int sprt_iter;
+  /* SYM locals: i=$t1, hilite AUTO char[5] (template @0x8013d914 = {4,0,1,2,3}),
+   * spr=$v1 (byte-offset walker in loop 1, then reused as the speed-glyph index). */
   int i;
-  int char_idx;
-  int iVar5;
-  char hilite [5];
-  int tu1;
-  SPRT *tSs3;
-  u_char *tp5;
-  u_char *tp4;
-  SPRT *tSs2;
+  char hilite [5] = {4,0,1,2,3};
+  int spr;
   SPRT *tSs1;
-  int tp2;
-  
-  tu1 = (u_int)(hilite + 3) & 3;
-  tp2 = (int)(hilite + 3) - tu1;
-  *(u_int *)tp2 = *(u_int *)tp2 & -1 << (tu1 + 1) * 8 | 0x02010004U /* @0x8013d914 */ >> (3 - tu1) * 8;
-  (*(int *)&(hilite)) = 0x02010004U /* @0x8013d914 */;
-  hilite[4] = 0x03 /* @0x8013d918 */;
-  char_idx = 0x33;
-  char_glyph = 0x3fc;
+  u_char *pal;
+
+  i = 0x33;
   do {
     tSs1 = gSprite0;
-    char_idx = char_idx + 1;
-    *(u_int *)(&gSprite0->r0 + char_glyph) = 0x66808080;
-    char_glyph = char_glyph + 0x14;
-  } while (char_idx < 0x3f);
-  tSs3 = tSs1 + (u_char)hilite[Replay_ReplayInterface.selection] + 0x33;
-  tSs3->r0 = 0xbe;
-  tSs3->g0 = 0xbe;
-  tSs3->b0 = '\0';
-  tSs3->code = 'f';
+    *(u_int *)&tSs1[i].r0 = 0x66808080;
+    i = i + 1;
+  } while (i < 0x3f);
+  *(u_int *)&tSs1[(u_char)hilite[Replay_ReplayInterface.selection] + 0x33].r0 = 0x6600bebe;
   if (Replay_ReplayInterface.selection == 3) {
-    tSs1[0x38].r0 = 0xbe;
-    tSs1[0x38].g0 = 0xbe;
-    tSs1[0x38].b0 = '\0';
-    tSs1[0x38].code = 'f';
+    *(u_int *)&tSs1[0x38].r0 = 0x6600bebe;
   }
-  pHVar4 = HudPmx_gShapes + (0x6e - Replay_ReplayInterface.pause);
-  uVar1 = (pHVar4->pixmap).v0;
-  uVar2 = (pHVar4->pixmap).clut;
-  pSVar3 = gSprite0;
-  pSVar3[0x34].u0 = (pHVar4->pixmap).u0;
-  pSVar3[0x34].v0 = uVar1;
-  pSVar3[0x34].clut = uVar2;
-  if (Replay_ReplayInterface.speed == 1) {
-    char_w = 0x73;
-  }
-  else if (Replay_ReplayInterface.speed < 2) {
-    char_w = 0x74;
-    if (Replay_ReplayInterface.speed == 0) {
-      char_w = 0x72;
+  *(u_int *)&gSprite0[0x34].u0 =
+       *(u_int *)&(HudPmx_gShapes + 0x6e - Replay_ReplayInterface.pause)->pixmap.u0;
+  if (Replay_ReplayInterface.speed != 1) {
+    if (Replay_ReplayInterface.speed < 2) {
+      spr = 0x74;
+      if (Replay_ReplayInterface.speed == 0) {
+        spr = 0x72;
+      }
+    }
+    else {
+      spr = 0x74;
+      if (Replay_ReplayInterface.speed == 2) {
+        spr = 0x75;
+      }
     }
   }
   else {
-    char_w = 0x74;
-    if (Replay_ReplayInterface.speed == 2) {
-      char_w = 0x75;
-    }
+    spr = 0x73;
   }
-  gSprite0[0x38].u0 = HudPmx_gShapes[char_w].pixmap.u0;
-  gSprite0[0x38].v0 = HudPmx_gShapes[char_w].pixmap.v0;
-  pSVar3 = gSprite0;
-  pHVar4 = HudPmx_gShapes + Replay_ReplayInterface.camera + 2;
-  uVar1 = (pHVar4->pixmap).v0;
-  uVar2 = (pHVar4->pixmap).clut;
-  pSVar3[0x39].u0 = (pHVar4->pixmap).u0;
-  pSVar3[0x39].v0 = uVar1;
-  pSVar3[0x39].clut = uVar2;
-  pSVar3[0x39].x0 = g1Player[0xd].x + 0x75;
+  gSprite0[0x38].u0 = HudPmx_gShapes[spr].pixmap.u0;
+  gSprite0[0x38].v0 = HudPmx_gShapes[spr].pixmap.v0;
+  *(u_int *)&gSprite0[0x39].u0 =
+       *(u_int *)&HudPmx_gShapes[Replay_ReplayInterface.camera + 2].pixmap.u0;
+  gSprite0[0x39].x0 = g1Player[0xd].x + 0x75;
   if (Replay_ReplayInterface.selection == 4) {
-    tpage_pack = 0x6600bebe;
+    *(u_int *)&gSprite0[0x39].r0 = 0x6600bebe;
   }
   else {
-    tpage_pack = 0x66808080;
+    *(u_int *)&gSprite0[0x39].r0 = 0x66808080;
   }
-  pSVar3[0x39].r0 = (char)tpage_pack;
-  tSs2 = gSprite0;
-  tp4 = Render_gPalettePtr;
-  pSVar3[0x39].g0 = (char)((u_int)tpage_pack >> 8);
-  pSVar3[0x39].b0 = (char)((u_int)tpage_pack >> 0x10);
-  pSVar3[0x39].code = (char)((u_int)tpage_pack >> 0x18);
-  iVar5 = 0x33;
-  sprt_iter = (int)(gSprite0 + 0x33);
-  gSprite0[0x39].tag =
-       (u_long *)((u_int)gSprite0[0x39].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff);
-  *(u_int *)tp4 = *(u_int *)tp4 & 0xff000000 | (u_int)(tSs2 + 0x39) & 0xffffff;
+  i = 0x33;
+  pal = Render_gPalettePtr;
+  tSs1 = gSprite0;
+  tSs1[0x39].tag =
+       (u_long *)((u_int)tSs1[0x39].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
+  *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&tSs1[0x39] & 0xffffff;
   do {
-    iVar5 = iVar5 + 1;
-    *(u_int *)sprt_iter = *(u_int *)sprt_iter & 0xff000000 | *(u_int *)tp4 & 0xffffff;
-    *(u_int *)tp4 = *(u_int *)tp4 & 0xff000000 | sprt_iter & 0xffffffU;
-    pSVar3 = gSprite0;
-    tp5 = Render_gPalettePtr;
-    sprt_iter = sprt_iter + 0x14;
-  } while (iVar5 < 0x38);
-  gSprite0[0x38].tag =
-       (u_long *)((u_int)gSprite0[0x38].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff);
-  *(u_int *)tp5 = *(u_int *)tp5 & 0xff000000 | (u_int)(pSVar3 + 0x38) & 0xffffff;
+    tSs1[i].tag = (u_long *)((u_int)tSs1[i].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
+    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&tSs1[i] & 0xffffff;
+    i = i + 1;
+  } while (i < 0x38);
+  tSs1 = gSprite0;
+  pal = Render_gPalettePtr;
+  tSs1[0x38].tag =
+       (u_long *)((u_int)tSs1[0x38].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
+  *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&tSs1[0x38] & 0xffffff;
   gTPage1[0][3].tag =
-       (u_long *)((u_int)gTPage1[0][3].tag & 0xff000000 | (u_int)(pSVar3 + 0x38) & 0xffffff);
-  *(u_int *)tp5 = *(u_int *)tp5 & 0xff000000 | 0x13e414;
-  gTPage0[0][3].tag = (u_long *)((u_int)gTPage0[0][3].tag & 0xff000000 | 0x13e414);
-  *(u_int *)tp5 = *(u_int *)tp5 & 0xff000000 | 0x13e3b4;
+       (u_long *)((u_int)gTPage1[0][3].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
+  *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&gTPage1[0][3] & 0xffffff;
+  gTPage0[0][3].tag =
+       (u_long *)((u_int)gTPage0[0][3].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
+  *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&gTPage0[0][3] & 0xffffff;
   return;
 }
 
@@ -2868,7 +2661,6 @@ void Hud_RenderMapView(void)
   int j;
   int player;
   int tile_count;
-  int track_geom_p;
   int current_tile_idx;
   u_char *tp2;
   u_char *tp1;
@@ -2876,17 +2668,22 @@ void Hud_RenderMapView(void)
   
   tile_count = 0;
   current_tile_idx = 0;
-  track_geom_p = (int)&GameSetup_gData;
-  for (player = 0; player <= DashHUD_gInfo.splitscreen; player = player + 1) {
-    if (((*(int *)(track_geom_p + 0x450) != 0) &&
-        (*(int *)((int)DashHUD_gInfo.showhud + tile_count) != 0)) &&
+  player = 0;
+  while (true) {
+    if (DashHUD_gInfo.splitscreen < player) break;
+    /* was `*(int *)(track_geom_p + 0x450)` off &GameSetup_gData -- that read gData+0x450
+     * (inside userSetting), NOT carInfo[player].HudMap at gData+0x89C+player*0xB4 as the
+     * oracle does (LO16-blind verify hid it). Real field access re-creates the oracle's
+     * 0xB4-stride anchored giv. */
+    if (((GameSetup_gData.carInfo[player].HudMap != 0) &&
+        (((dashhud_info *)((int)&DashHUD_gInfo + tile_count))->showhud[0] != 0)) &&
        (Hud_gWingmanInterface[player] == '\0')) {
       HudFT4 = (int)gHudFT4;
       if (player != 0) {
         HudFT4 = (int)(gHudFT4 + 5);
       }
       Draw_StartRenderingView(*(int *)((int)Hud_gMapView + tile_count));
-      if (*(int *)(track_geom_p + 0x450) == 1) {
+      if (GameSetup_gData.carInfo[player].HudMap == 1) {
         Hud_BuildMapMarkers(player);
         tp1 = Render_gPalettePtr;
         ((POLY_FT4 *)HudFT4)->tag =
@@ -2925,7 +2722,9 @@ void Hud_RenderMapView(void)
         *(u_int *)tp2 = *(u_int *)tp2 & 0xff000000 | ft4_iter_b & 0xffffffU;
       }
       tp3 = Render_gPalettePtr;
-      tile_dest_p = current_tile_idx + -0x7fec1c04;
+      /* &gTPage1[player][1] via the 0x30-stride walker (was the disguised bare VA
+       * 0x8013E3FC = gTPage1 + 0xC) */
+      tile_dest_p = (int)gTPage1 + current_tile_idx + 0xc;
       *(u_int *)tile_dest_p =
            *(u_int *)tile_dest_p & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
       *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | tile_dest_p & 0xffffffU;
@@ -2933,7 +2732,7 @@ void Hud_RenderMapView(void)
     }
     tile_count = tile_count + 4;
     current_tile_idx = current_tile_idx + 0x30;
-    track_geom_p = track_geom_p + 0xb4;
+    player = player + 1;
   }
   return;
 }
@@ -3177,150 +2976,187 @@ void BigBTCTime(int secs)
 /* ---- Hud_RenderHudView__Fv  [HUD.CPP:3426-3736] SLD-VERIFIED ---- */
 void Hud_RenderHudView(void)
 {
-  u_long x;
-  u_long y;
-  u_char *puVar1;
-  char   *pcVar2;
-  u_int   uVar3, uVar4, uVar12;
-  int     iVar8, iVar9, iVar11, iVar13;
-  int     y_00, splitY, j;
-  u_long  uVar10, color, ww, ww2;
-  int     flare_intensity, flare_type;
-  SPRT   *gSprt1;
-  u_int  *puVar5;
-  int    *piVar7;
-  int     viewOff, tpageOff;
-  char    sBuildOutput[64];
+  /* SYM-exact shape (8c @0x800d82d0): fn-scope sBuildOutput[64] AUTO -0x80, j REG $fp;
+   * splitY AUTO -0x40 (loop-body block); perp block: flare_intensity/x/y/ww/ww2/color/
+   * flare_type (ww AUTO -0x3C = full text width, ww2 = half); showhud block: gSprt1=$s4,
+   * nextplayer=$v0; inner: w1=$s2 w2=$s3 totalwidth=$s0 h=$v1; sprt-link block: i=$a2.
+   * viewOff/tpageOff walkers of the old recon are compiler givs -> index-form [j]. */
+  char sBuildOutput[64];
+  int j;
+  int viewOff;
+  int tpageOff;
 
   viewOff = 0;
   tpageOff = 0;
-  for (j = 0; j <= DashHUD_gInfo.splitscreen; j++) {
+  j = 0;
+  while (true) {
+    int splitY;
+
+    if (DashHUD_gInfo.splitscreen < j) break;
     splitY = 0;
     if (j != 0) splitY = -0xf;
     Draw_StartRenderingView(*(int *)((int)Hud_gHudView + viewOff));
     Hud_DebugInfo();
     Hud_DebugCrap();
     if ((GameSetup_gData.raceType == 1) && (*(int *)((int)PerpOverlayOn + viewOff) != 0)) {
-      pcVar2 = TextSys_Word(*(int *)((int)PerpOverlayMessage + viewOff) + 0x41);
-      uVar3 = textpixels(pcVar2);
-      iVar13 = g1Player[0x12].y + splitY;
+      int flare_intensity;
+      u_long x;
+      u_long y;
+      u_long ww;
+      u_long ww2;
+      u_long color;
+      int flare_type;
+
+      ww = textpixels(TextSys_Word(*(int *)((int)PerpOverlayMessage + viewOff) + 0x41));
+      y = g1Player[0x12].y + splitY;
       Font_TextColor(4);
-      pcVar2 = TextSys_Word(*(int *)((int)PerpOverlayMessage + viewOff) + 0x41);
-      uVar12 = uVar3 >> 1;
-      Font_TextXY(pcVar2, 0xa0 - (uVar12 + 1), iVar13);
-      uVar4 = simGlobal.gameTicks >> 4 & 1;
-      color = 0x800000;  if (uVar4 != 0) color = 0x80;
-      ww = color;
-      flare_type = 10;    if (uVar4 != 0) flare_type = 8;
-      iVar11 = -(int)uVar12;
-      y_00 = iVar13 + 8;
-      flare_intensity = (simGlobal.gameTicks % 0xf) * -0xfa + 4000;
-      Flare_2DHalo(iVar11 + 0x7d, y_00, flare_intensity, flare_intensity, flare_type);
-      Flare_2DHalo(iVar11 + 0x73, y_00, flare_intensity, flare_intensity, flare_type);
-      Hud_FBuildGT4(&HudPmx_gShapes[0x3d], iVar11 + 0x7a, iVar13 + 5, color);
-      Hud_FBuildGT4(&HudPmx_gShapes[0x3d], iVar11 + 0x70, iVar13 + 5, ww);
-      uVar4 = simGlobal.gameTicks >> 4 & 1;
-      ww2 = 0x800000;     if (uVar4 == 0) ww2 = 0x80;
-      flare_type = 10;    if (uVar4 == 0) flare_type = 8;
-      Flare_2DHalo(uVar12 + 0xc0, y_00, flare_intensity, flare_intensity, flare_type);
-      Flare_2DHalo(uVar12 + 0xca, y_00, flare_intensity, flare_intensity, flare_type);
-      Hud_FBuildGT4(&HudPmx_gShapes[0x3d], uVar12 + 0xbd, iVar13 + 5, ww2);
-      Hud_FBuildGT4(&HudPmx_gShapes[0x3d], uVar12 + 0xc7, iVar13 + 5, ww2);
-      Hud_BlackThinBox(iVar11 + 0x6f, iVar13, uVar3 + 0x62, 0x11);
-      Hud_FBuildF4(0, iVar11 + 0x6f, iVar13, 0x17, 0x11, 0, '\0', '\0');
-      Hud_FBuildF4(0, uVar12 + 0xba, iVar13, 0x15, 0x11, 0, '\0', '\0');
-      Hud_FBuildF4(0, uVar12 + 0xba, iVar13 + 3, 0x16, 0xb, 0, '\0', '\0');
-      Hud_FBuildF4(1, iVar11 + 0x86, iVar13, uVar3 + 0x36, 0x11, 0x461414, '\0', '\0');
+      ww2 = ww >> 1;
+      Font_TextXY(TextSys_Word(*(int *)((int)PerpOverlayMessage + viewOff) + 0x41),
+                  0xa0 - (ww2 + 1), y);
+      color = 0x800000;
+      if ((simGlobal.gameTicks >> 4 & 1) != 0) color = 0x80;
+      flare_type = 10;
+      if ((simGlobal.gameTicks >> 4 & 1) != 0) flare_type = 8;
+      x = 0xa0 - ww2;
+      flare_intensity = 4000 - (simGlobal.gameTicks % 0xf) * 0xfa;
+      Flare_2DHalo(x - 0x23, y + 8, flare_intensity, flare_intensity, flare_type);
+      Flare_2DHalo(x - 0x2d, y + 8, flare_intensity, flare_intensity, flare_type);
+      Hud_FBuildGT4(&HudPmx_gShapes[0x3d], x - 0x26, y + 5, color);
+      Hud_FBuildGT4(&HudPmx_gShapes[0x3d], x - 0x30, y + 5, color);
+      color = 0x800000;
+      if ((simGlobal.gameTicks >> 4 & 1) == 0) color = 0x80;
+      flare_type = 10;
+      if ((simGlobal.gameTicks >> 4 & 1) == 0) flare_type = 8;
+      Flare_2DHalo(ww2 + 0xc0, y + 8, flare_intensity, flare_intensity, flare_type);
+      Flare_2DHalo(ww2 + 0xca, y + 8, flare_intensity, flare_intensity, flare_type);
+      Hud_FBuildGT4(&HudPmx_gShapes[0x3d], ww2 + 0xbd, y + 5, color);
+      Hud_FBuildGT4(&HudPmx_gShapes[0x3d], ww2 + 0xc7, y + 5, color);
+      Hud_BlackThinBox(x - 0x31, y, ww + 0x62, 0x11);
+      Hud_FBuildF4(0, x - 0x31, y, 0x17, 0x11, 0, '\0', '\0');
+      Hud_FBuildF4(0, ww2 + 0xba, y, 0x15, 0x11, 0, '\0', '\0');
+      Hud_FBuildF4(0, ww2 + 0xba, y + 3, 0x16, 0xb, 0, '\0', '\0');
+      Hud_FBuildF4(1, x - 0x1a, y, ww + 0x36, 0x11, 0x461414, '\0', '\0');
     }
     if (j == DashHUD_gInfo.splitscreen) {
       if ((u_int)((BTC_Countdown >> 6) - 1U) < 0x1e) {
         BigBTCTime(BTC_Countdown >> 6);
       } else {
-        iVar13 = 0;
-        if (((0x23f < simGlobal.gameTicks) && (iVar13 = 1, (u_char)countdown < 4)) &&
-            (Hud_BeTheCop == 0)) {
-          iVar13 = 0;
-        }
-        Hud_BuildCdPlayer(iVar13, j);
+        Hud_BuildCdPlayer((0x23f < simGlobal.gameTicks) &&
+                          ((3 < (u_char)countdown) || (Hud_BeTheCop != 0)), j);
       }
     }
-    if (*(int *)((int)DashHUD_gInfo.showhud + viewOff) != 0) {
-      int nextplayer, w1, w2, totalwidth, h, i;
-      SPRT *gSprt1 = gSprite0;
-      if (j != 0) gSprt1 = gSprite1;
+    if (((dashhud_info *)((int)&DashHUD_gInfo + viewOff))->showhud[0] != 0) {
+      SPRT *gSprt1;
+      int nextplayer;
+
+      if (j != 0) {
+        gSprt1 = gSprite1;
+      } else {
+        gSprt1 = gSprite0;
+      }
       DashHUD_CheckWrongWay(j);
       DashHUD_HUDCalc(j);
       Hud_BuildNumbers0(j);
       Hud_BuildNumbers(j);
-      puVar1 = Render_gPalettePtr;
-      puVar5 = (u_int *)((int)gTPage0[0][0].code + tpageOff + -4);
-      *puVar5 = *puVar5 & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)puVar1 = *(u_int *)puVar1 & 0xff000000 | (u_int)puVar5 & 0xffffff;
-      if (GameSetup_gData.carInfo[j].HudTach != 0) {
-        gSprt1[1].tag = (u_long *)((u_int)gSprt1[1].tag & 0xff000000 | (u_int)puVar5 & 0xffffff);
-        *(u_int *)puVar1 = *(u_int *)puVar1 & 0xff000000 | (u_int)(gSprt1 + 1) & 0xffffff;
+      {
+        u_char *pal;
+        u_int *tagp;
+
+        pal = Render_gPalettePtr;
+        tagp = (u_int *)((int)gTPage0 + tpageOff);
+        *tagp = *tagp & 0xff000000 | *(u_int *)pal & 0xffffff;
+        *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tagp & 0xffffff;
+        if (GameSetup_gData.carInfo[j].HudTach != 0) {
+          gSprt1[1].tag = (u_long *)((u_int)gSprt1[1].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
+          *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)(gSprt1 + 1) & 0xffffff;
+        }
       }
       if (GameSetup_gData.carInfo[j].HudMap != 0) {
         if (((GameSetup_gData.carInfo[j].HudOpponentID != 0) && (Hud_BeTheCop == 0)) &&
             (GameSetup_gData.commMode != 1)) {
           nextplayer = Hud_NextPlayer(j);
-          if (((-1 < nextplayer) && (nextplayer < 9)) && (Hud_BeTheCop == 0)) {
-            totalwidth = (int)HudPmx_gShapes[0x78].width;
-            w1 = (int)HudPmx_gShapes[0xe].width;
-            w2 = (int)HudPmx_gShapes[0x14].width;
-            pcVar2 = Hud_NextPlayerNameOrCarOrTime(j);
-            sprintf(sBuildOutput, "%s", pcVar2);
-            Hud_GoTpage(1);
-            uppercase(sBuildOutput);
-            nextplayer = Hud_BuildString(sBuildOutput, 0, 0, 0, 0, true);
-            Hud_BuildString(sBuildOutput, (int)g1Player[0xe].x + ((totalwidth + 2) - nextplayer >> 1),
-                            ((g1Player[0xe].y + HudMapOffsetY + splitY) - (int)HudPmx_gShapes[0xe].height) + 1,
-                            0x808080, 0, false);
-            Hud_GoTpage(0);
-            Hud_FBuildGT4(&HudPmx_gShapes[0x1f], (int)g1Player[0xe].x,
-                          (g1Player[0xe].y + HudMapOffsetY + splitY) - (int)HudPmx_gShapes[0xe].height, 0x808080);
-            Hud_FBuildGT4(&HudPmx_gShapes[0x20], (int)g1Player[0xe].x + w1 + w2,
-                          (g1Player[0xe].y + HudMapOffsetY + splitY) - (int)HudPmx_gShapes[0xf].height, 0x808080);
-            Hud_FBuildF4(0, (int)g1Player[0xe].x + 2,
-                         (g1Player[0xe].y + HudMapOffsetY + splitY) - (int)HudPmx_gShapes[0xe].height,
-                         w1 + w2 + 3, (int)HudPmx_gShapes[0xe].height, 0, '\0', '\0');
-            iVar13 = 2;
-            if (Hud_gWingmanInterface[j] == '\0') iVar13 = 3;
-            Hud_FBuildF4(0, (int)g1Player[0xe].x, g1Player[0xe].y + HudMapOffsetY + splitY, 3, iVar13, 0, '\0', '\0');
-            Hud_FBuildF4(0, ((int)g1Player[0xe].x + w1 + w2 + (int)HudPmx_gShapes[0xf].width) - 3,
-                         g1Player[0xe].y + HudMapOffsetY + splitY, 3, 3, 0, '\0', '\0');
+          if (-1 < nextplayer) {
+            if ((nextplayer < 9) && (Hud_BeTheCop == 0)) {
+              int w1;
+              int w2;
+              int totalwidth;
+              int h;
+
+              w1 = (int)HudPmx_gShapes[0xe].width;
+              w2 = (int)HudPmx_gShapes[0x14].width;
+              totalwidth = (int)HudPmx_gShapes[0x78].width + 2;
+              sprintf(sBuildOutput, "%s", Hud_NextPlayerNameOrCarOrTime(j));
+              Hud_GoTpage(1);
+              uppercase(sBuildOutput);
+              Hud_BuildString(sBuildOutput,
+                              (int)g1Player[0xe].x +
+                              (totalwidth - Hud_BuildString(sBuildOutput, 0, 0, 0, 0, true) >> 1),
+                              ((g1Player[0xe].y + HudMapOffsetY + splitY) -
+                               (int)HudPmx_gShapes[0xe].height) + 1, 0x808080, 0, false);
+              Hud_GoTpage(0);
+              Hud_FBuildGT4(&HudPmx_gShapes[0xe], (int)g1Player[0xe].x,
+                            (g1Player[0xe].y + HudMapOffsetY + splitY) - (int)HudPmx_gShapes[0xe].height,
+                            0x808080);
+              Hud_FBuildGT4(&HudPmx_gShapes[0xf], (int)g1Player[0xe].x + w1 + w2,
+                            (g1Player[0xe].y + HudMapOffsetY + splitY) - (int)HudPmx_gShapes[0xf].height,
+                            0x808080);
+              Hud_FBuildF4(0, (int)g1Player[0xe].x + 2,
+                           (g1Player[0xe].y + HudMapOffsetY + splitY) - (int)HudPmx_gShapes[0xe].height,
+                           w1 + w2 + 3, (int)HudPmx_gShapes[0xe].height, 0, '\0', '\0');
+              h = 2;
+              if (Hud_gWingmanInterface[j] == '\0') h = 3;
+              Hud_FBuildF4(0, (int)g1Player[0xe].x, g1Player[0xe].y + HudMapOffsetY + splitY, 3, h,
+                           0, '\0', '\0');
+              Hud_FBuildF4(0, ((int)g1Player[0xe].x + w1 + w2 + (int)HudPmx_gShapes[0xf].width) - 3,
+                           g1Player[0xe].y + HudMapOffsetY + splitY, 3, 3, 0, '\0', '\0');
+            }
           }
         }
-        puVar1 = Render_gPalettePtr;
-        i = 0x3f;
-        gSprt1 = gSprt1 + 0x3f;
-        do {
-          i = i + 1;
-          gSprt1->tag = (u_long *)((u_int)gSprt1->tag & 0xff000000 | *(u_int *)puVar1 & 0xffffff);
-          *(u_int *)puVar1 = *(u_int *)puVar1 & 0xff000000 | (u_int)gSprt1 & 0xffffff;
-          gSprt1 = gSprt1 + 1;
-        } while (i < 0x47);
+        {
+          int i;
+          u_char *pal;
+
+          i = 0x3f;
+          pal = Render_gPalettePtr;
+          do {
+            gSprt1[i].tag = (u_long *)((u_int)gSprt1[i].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
+            *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&gSprt1[i] & 0xffffff;
+            i = i + 1;
+          } while (i < 0x47);
+        }
       }
     }
     if (((j == 0) && (1 < Replay_ReplayMode)) && (Replay_ReplayInterface.statsScreen == 0)) {
       Hud_BuildReplay();
     }
-    puVar1 = Render_gPalettePtr;
-    puVar5 = (u_int *)((int)gTPage1[0][0].code + tpageOff + -4);
-    *puVar5 = *puVar5 & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    *(u_int *)puVar1 = *(u_int *)puVar1 & 0xff000000 | (u_int)puVar5 & 0xffffff;
-    if (((*(int *)((int)DashHUD_gInfo.showhud + viewOff) != 0) &&
+    {
+      u_char *pal;
+      u_int *tagp;
+
+      pal = Render_gPalettePtr;
+      tagp = (u_int *)((int)gTPage1 + tpageOff);
+      *tagp = *tagp & 0xff000000 | *(u_int *)pal & 0xffffff;
+      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tagp & 0xffffff;
+    }
+    if (((((dashhud_info *)((int)&DashHUD_gInfo + viewOff))->showhud[0] != 0) &&
          (Hud_gWingmanInterface[j] != '\0')) && (Replay_ReplayMode < 2)) {
       Hud_BuildWingmanInterface(j);
     }
-    puVar1 = Render_gPalettePtr;
-    piVar7 = (int *)((int)Hud_gHudView + viewOff);
-    viewOff = viewOff + 4;
-    puVar5 = (u_int *)((int)gTPage0[0][1].code + tpageOff + -4);
-    tpageOff = tpageOff + 0x30;
-    *puVar5 = *puVar5 & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    *(u_int *)puVar1 = *(u_int *)puVar1 & 0xff000000 | (u_int)puVar5 & 0xffffff;
-    Draw_StopRenderingView(*piVar7);
+    {
+      u_char *pal;
+      u_int *tagp;
+      int *viewp;
+
+      pal = Render_gPalettePtr;
+      viewp = (int *)((int)Hud_gHudView + viewOff);
+      tagp = (u_int *)((int)gTPage0 + tpageOff + 0xc);
+      viewOff = viewOff + 4;
+      tpageOff = tpageOff + 0x30;
+      *tagp = *tagp & 0xff000000 | *(u_int *)pal & 0xffffff;
+      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tagp & 0xffffff;
+      Draw_StopRenderingView(*viewp);
+    }
+    j = j + 1;
   }
 }
 

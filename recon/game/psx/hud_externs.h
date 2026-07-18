@@ -117,9 +117,7 @@ extern void  Hud_BTCStats(short player, char flag);   /* defined in overlays.cpp
 
 /* ---- module-scope statics / cross-module globals (Ghidra-recovered names) ---- */
 extern int            ticks;                 /* global frame tick */
-// [owned->defined in hud.cpp] extern int            keepup, trap_unused;
 extern int trap_unused;
-// [owned->defined in hud.cpp] extern int keepup, trap_unused;
 extern int trap_unused;
 extern void           trap(int code);        /* HW/debug trap */
 // [owned->defined in hud.cpp] extern int            HudBustedOverlay, HudBustedOverlayPlayer;
@@ -143,7 +141,7 @@ extern tReplayInterface Replay_ReplayInterface;
 // [owned->defined in hud.cpp] extern int mapMarkerMSin, mapMarkerMCos;
 // [owned->defined in hud.cpp] extern void          *day_needle, *night_needle;
 // [owned->defined in hud.cpp] extern void *day_needle, *night_needle;
-extern coorddef       BWorldSm_slices[];
+extern Trk_NewSlice  *BWorldSm_slices;   /* POINTER (as every other TU declares it) -- the old coorddef[] array decl was a wrong-shape bug (address-of vs load, wrong stride) */
 extern Sim_tSimSystemVar simVar;
 /* BTC state */
 // [owned->defined in hud.cpp] extern int            BTC_BonusTime, BTC_BonusTimeTick, BTC_Countdown;

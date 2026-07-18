@@ -2000,8 +2000,14 @@ struct AIState_Normal : public AIState_Base {   /* 8 bytes */
     void Execute();
 };
 
+extern __vtbl_ptr_type AIState_NonActive_vtable[];
 struct AIState_NonActive : public AIState_Base {   /* 8 bytes */
     AIState_NonActive() {}
+    /* inline ctor (SYM: inlined this/carObj REG block at every derived-ctor site, e.g.
+       __17AIState_PurgatoryP8Car_tObj @0x8007148c: jal __12AIState_Base + sw NonActive vt). */
+    AIState_NonActive(Car_tObj *carObj) : AIState_Base(carObj) {
+        _vf = (__vtbl_ptr_type (*)[4])((char *)AIState_NonActive_vtable + 8);
+    }
     /* ~AIState_NonActive(): see AIState_Normal comment -- extern "C" ___17AIState_NonActive free fn. */
     void Execute();
 };

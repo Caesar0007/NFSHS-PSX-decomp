@@ -25,9 +25,31 @@ CVECTOR      *starColors;   /* @0x8013d87c  (bss(zero)) */
 CHorizonSpec *Hrz_gTrackSpec;   /* @0x8013d888  (bss(zero)) */
 CSkySpec     *Sky_gTrackSpec;   /* @0x8013d88c  (bss(zero)) */
 SVECTOR      *gRngCoordTop;   /* @0x8013d890  (bss(zero)) */
-SVECTOR      Hrz_gLightningPosInSky;   /* @0x8013d894  (bss(zero)) */
-static SVECTOR sunPosInSky;   /* @0x8013ddf0  (bss(zero)) SYM: class STAT */
-static SVECTOR moonPosInSky;   /* @0x8013ddf8  (bss(zero)) SYM: class STAT */
+/* PER-FIELD SPLIT (wave-13, catalog per-element gp-rel lever): the oracle stores each
+   16-bit field of these three 8-byte SVECTORs via its OWN %gp_rel sub-symbol
+   (D_8013D894/96/98, D_8013DDF0/F2/F4, D_8013DDF8/FA/FC) -- an 8-byte struct under OUR
+   -G4 can never be gp-addressed (the old "genuine -G4 floor"), but four 2-byte SHORT
+   scalars each qualify individually, reproducing every `sh r,%gp_rel(...)($gp)` store;
+   address-takes (&sun/&moon/&lightning as SVECTOR*) still emit la %hi/%lo of the _vx
+   symbol exactly like the oracle's lui/addiu. DUALITY HAZARD (documented): the SVECTOR*
+   casts assume vx/vy/vz/pad stay contiguous+ordered in .sbss (true for gcc emission order;
+   original was a real SVECTOR under a bigger per-obj -G). Only this TU references them. */
+short Hrz_gLightningPosInSky_vx, Hrz_gLightningPosInSky_vy, Hrz_gLightningPosInSky_vz, Hrz_gLightningPosInSky_pad;   /* @0x8013d894 */
+static short sunPosInSky_vx, sunPosInSky_vy, sunPosInSky_vz, sunPosInSky_pad;    /* @0x8013ddf0 SYM: STAT SVECTOR */
+static short moonPosInSky_vx, moonPosInSky_vy, moonPosInSky_vz, moonPosInSky_pad; /* @0x8013ddf8 SYM: STAT SVECTOR */
+/* struct-typed views over the split fields: keeps the 1-insn %gp_rel stores AND restores
+   MEM_IN_STRUCT_P on each store (a scalar-symbol store is considered no-alias vs any
+   pointer deref by gcc-2.8, letting the next statement's gts->angle loads hoist ABOVE the
+   store -- the oracle's struct-field stores block that hoist). Offset-0 puns only (an
+   offset pun kills the bare-symbol gp macro). */
+#define SUNPOS  ((SVECTOR *)&sunPosInSky_vx)
+#define MOONPOS ((SVECTOR *)&moonPosInSky_vx)
+#define SUNPOS_VX  (((SVECTOR *)&sunPosInSky_vx)->vx)
+#define SUNPOS_VY  (((SVECTOR *)&sunPosInSky_vy)->vx)
+#define SUNPOS_VZ  (((SVECTOR *)&sunPosInSky_vz)->vx)
+#define MOONPOS_VX (((SVECTOR *)&moonPosInSky_vx)->vx)
+#define MOONPOS_VY (((SVECTOR *)&moonPosInSky_vy)->vx)
+#define MOONPOS_VZ (((SVECTOR *)&moonPosInSky_vz)->vx)
 CVECTOR      Hrz_gSaveCol[4];   /* @0x8013e380  (bss?) */
 /* hrzsku-internal lost-symbol globals (NOT in SYM Globals; 4 contiguous ints, sky double-buffer
    vertex counts, accessed via (&A0)[i]). DEFINED here for self-containment (was extern-only). */
@@ -213,160 +235,149 @@ void Sky_KillStars(void)
 }
 
 /* ---- Hrz_InitSkyColor__Fv  [HRZSKU.CPP:227-252] SLD-VERIFIED ----
- * NEAR-MISS 102 diffs (85/87). Oracle's back-edges are BOTH unconditional `j T` (top-test,
- * un-rotated topology for the outer AND inner loop) while the plain nested `for` here
- * rotates to `bnez`-back (bottom-test). Tried the exit-in-the-middle `goto`/label form
- * (`LOOP_I:/LOOP_L:` with `if(cond){...; goto LOOP_x;}`) -- DOES reproduce the oracle's
- * double-`j T` topology exactly, but total diff count stayed 102 (register coloring
- * throughout the body is a uniform swap either way -- SYM `nfs4-f-v3.txt` @40deaf shows
- * `i`=REG7=$a3, `k`=REG6=$a2, but neither `i=0;k=0;` nor `k=0;i=0;` statement order landed
- * the goto-form's registers on that assignment; a deeper allocator-priority effect, not
- * source-order-driven). Reverted to the simpler plain-for form (identical diff count,
- * less code) -- accepted floor; the goto form is available if a future coloring lever
- * cracks the rest (see reverted variant in this session's notes). */
+ * SEALED 87/87 PASS (wave-13; was a 102-diff "accepted floor"). FOUR stacked levers, all
+ * SYM/oracle-driven (SYM @40def9: i=$7, j=$3, k=$6 fn-scope + rounddiff AUTO; cur_bk/cur_fr
+ * in a NESTED block line=5; l=$4 in its OWN innermost block line=17):
+ * (1) BOTH loops are exit-in-the-middle `while(true){ if(!(cond)) break; ... }` (catalog
+ * B): keeps the top test + unconditional `j` back-edge topology AND stays a natural loop,
+ * so loop opt still hoists the invariants (`li t0,16`, `&gSkyColor` base t1) and
+ * strength-reduces `gSkyColor[k]` into the oracle's a1 walker (a plain `for` rotates to
+ * bnez-back; a goto-label loop keeps topology but loses the hoists/giv -- both wrong).
+ * (2) the old Ghidra `j = bk-fr; if(j<0)j+=7; (j>>3)` chains are gcc's OWN signed /8:
+ * write `rounddiff.r = (u_char)((cur_bk.r-cur_fr.r)/8)` -- the div temp is ANONYMOUS ($v0,
+ * no SYM record), which also forces the oracle's `bgez;nop` (a named var freed the sb into
+ * the slot = ours 2-shorter before). (3) the inner counter is `j` (SYM $3) with the select
+ * var `l` block-scoped (SYM line=17) -- roles were swapped in the old recon. (4) init order
+ * `i=0; k=0;` (i first wins $a3 per SYM REG7) + increment order `j++; k++;` at the body
+ * tail. No pointer local exists in the SYM -- the a1 walker is pure strength reduction. */
 void Hrz_InitSkyColor(void)
 {
-  int i, j, k, l;
-  CVECTOR rounddiff, cur_bk, cur_fr;
-  CVECTOR *pCVar9;
+  int i, j, k;
+  CVECTOR rounddiff;
 
+  i = 0;
   k = 0;
-  for (i = 0; i < 5; i++) {
-    cur_bk = Sky_gTrackSpec->backcolors[i];
-    cur_fr = Sky_gTrackSpec->frontcolors[i];
-    j = cur_bk.r - cur_fr.r;  if (j < 0) j = j + 7;  rounddiff.r = (u_char)(j >> 3);
-    j = cur_bk.g - cur_fr.g;  if (j < 0) j = j + 7;  rounddiff.g = (u_char)(j >> 3);
-    j = cur_bk.b - cur_fr.b;  if (j < 0) j = j + 7;  rounddiff.b = (u_char)(j >> 3);
-    pCVar9 = gSkyColor + k;
-    for (l = 0; l < 0x11; l++) {
-      j = l;
-      if (8 < l) j = 0x10 - l;
-      pCVar9->r = cur_fr.r + (char)rounddiff.r * (char)j;
-      pCVar9->g = cur_fr.g + (char)rounddiff.g * (char)j;
-      pCVar9->b = cur_fr.b + (char)rounddiff.b * (char)j;
-      pCVar9 = pCVar9 + 1;
-      k = k + 1;
+  while (true) {
+    if (!(i < 5)) break;
+    {
+      CVECTOR cur_bk, cur_fr;
+      cur_bk = Sky_gTrackSpec->backcolors[i];
+      cur_fr = Sky_gTrackSpec->frontcolors[i];
+      rounddiff.r = (u_char)((cur_bk.r - cur_fr.r) / 8);
+      rounddiff.g = (u_char)((cur_bk.g - cur_fr.g) / 8);
+      rounddiff.b = (u_char)((cur_bk.b - cur_fr.b) / 8);
+      j = 0;
+      while (true) {
+        if (!(j < 0x11)) break;
+        {
+          int l;
+          l = j;
+          if (8 < j) l = 0x10 - j;
+          gSkyColor[k].r = cur_fr.r + rounddiff.r * l;
+          gSkyColor[k].g = cur_fr.g + rounddiff.g * l;
+          gSkyColor[k].b = cur_fr.b + rounddiff.b * l;
+        }
+        j = j + 1;
+        k = k + 1;
+      }
     }
+    i = i + 1;
   }
 }
 
 /* ---- Hrz_InitSky__Fv  [HRZSKU.CPP:257-332] SLD-VERIFIED ----
- * SYM `nfs4-f-v3.txt` @40dff5 shows the REAL function uses only 6 named locals in a SINGLE
- * flat block (`i`=$s3, `j`=$s1, `k`=$s6, `angle`=$s0, `height`=$s4, `radius`=$s5) plus 2
- * unnamed compiler temps ($s2,$s7) -- 8 total callee-saved regs (mask=$80ff0000, s0-s7, NO
- * `$fp`). ROUND 2: executed the merge diagnosed in round 1. `i`/`j`/`k`/`angle`/`height`/
- * `radius` were DECLARED but never referenced by the old ~13-local Ghidra reconstruction --
- * dead placeholders. Renamed the ACTUALLY-live temps onto them by lifetime: `i`=ring/outer
- * counter (loop1 0..5, reused loop2 0..4 -- dead between), `j`=inner vertex counter (loop1
- * 0..0x11, reused loop2 0..0x10), `k`=running mesh index (loop1, reused as the loop2 pixmap-
- * index -- both are "index into an array bumped every inner iter"), `angle`=the per-ring raw
- * angle (dies once height/radius are derived) reused for the inner loop's per-vertex angle
- * (was `angle_00` -- same physical var, disjoint lifetimes exactly as diagnosed), `height`/
- * `radius`=the two post-sin/cos*1000 ring constants held live across the inner loop. Dropped
- * the `pSVar7` pointer-walk for direct `gSkyMesh[k]` indexing (§3.12 #1) -- removes the 9th
- * live temp that forced the `$fp` spill. Kept 2 genuine compiler scratch temps (`iVar2` for
- * the straight-line sun/moon calc + view select, `iVar5` for the reused per-iteration
- * sin/cos/modulo scratch) matching the SYM's 2 unnamed s2/s7 slots. Pure semantic-preserving
- * rename + array-index conversion, same dataflow. 211->189 (no `$fp` spill anymore, verified
- * ($fp save/restore gone from our prologue/epilogue) -- the merge worked as diagnosed).
- * RESIDUAL 189 = a SEPARATE, PRE-EXISTING class (not touched by the merge): every
- * `sunPosInSky.vx/vy/vz` / `moonPosInSky.vx/vy/vz` store. SYM @40f76a/40f78d: BOTH are
- * `class STAT type STRUCT size 8 tag SVECTOR` (genuinely file-static, matched here by adding
- * `static`, 0 diff delta but now SYM-faithful). Oracle addresses EACH 2-byte field
- * independently gp-relative (`sh v0,%gp_rel(D_8013DDF0)($gp)` etc, one insn/field, 6 distinct
- * splat-synthesized sub-symbols spanning the two 8-byte structs incl. the `pad` gap) with NO
- * base-pointer materialization; ours (cc1plus, this build's `-G4`) computes ONE absolute
- * base (`lui s0,%hi; addiu s0,%lo`) and stores through 3 displacements, because a 8-byte
- * SVECTOR exceeds the 4-byte small-data threshold at the DECLARATION (cc1's sdata-eligibility
- * check is by the SYMBOL's total declared size, not the field's access size). Tried + failed:
- * `static` linkage (no codegen change, size check unaffected), `__attribute__((section(
- * ".sbss")))` (cc1's %hi/%lo-vs-gp_rel choice is made before/independent of section
- * placement; maspsx's own `.lcomm sym,N<=4` sbss-promotion pass also requires N<=4, confirmed
- * via the raw `hrzsku.cpp.s`: `.lcomm sunPosInSky,8` stays absolute either way). GENUINE
- * `-G4`-threshold FLOOR for an 8-byte aggregate -- not reachable without a build-flag change
- * (out of scope; no flag changes per mission rules). Accept. */
+ * NEAR-MISS 16 diffs, COUNT-EXACT 209/209 (wave-13; was 189). Levers that landed:
+ * (1) per-field SVECTOR split (defs banner above) turned every sun/moon field store into
+ * the oracle's 1-insn %gp_rel sh; (2) KEY: struct-typed per-field PUNS (SUNPOS_VX etc.,
+ * `((SVECTOR*)&sym)->vx`): a plain scalar-symbol store is treated as no-alias vs any
+ * pointer deref by gcc-2.8 (!MEM_IN_STRUCT_P), letting the NEXT statement's
+ * gts->angle loads hoist ABOVE the store (+2 nops, wrong interleave); the pun restores
+ * MEM_IN_STRUCT_P => the oracle's store-then-load interleave, at offset 0 of each split
+ * symbol so the bare-symbol gp macro survives (an offset pun `base->vz` kills gp-rel);
+ * (3) fully-inline anonymous trig chains (SYM @40e03a: exactly i,j,k,angle,height,radius
+ * -- NO iVar temps); (4) duplicated SetViewColor (comm: P1+P2, else: P1) cross-jump
+ * merged; (5) flags&0x80 arm-swap (ringPMX arm = fall-through) + `(flags&2)&&(i<4)`
+ * if/else select; (6) in-place angle mutation chain (j*0x1000; -sunAngle; +0x4000) keeps
+ * the whole chain in $s0; (7) duplicated height/radius= mult tails in both ring arms
+ * (per-arm $a0 setup, shared jal tails); (8) real `cloudIndices[i][j%4]` field access +
+ * plain signed `j % 4` idiom, do-while with explicit j++;k++ order. RESIDUAL 16 = ONE
+ * allocno tie: k<->sin-value swap $s4/$s6 (ours k=s4; oracle k=s6). -dg dump: ours
+ * k pri=4*19/100=0.76 vs sin 2*7/32=0.44, height 3*10/43=0.70 -- k allocates 5th, oracle
+ * wants it LAST. Tried+failed: decl order, k=i copy, init hoist (41, reverted), k-before-i
+ * (18), dummy pre-inits, role-name swap (all no-op or worse). Permuter candidate. */
 void Hrz_InitSky(void)
 
 {
-  int iVar2;
-  int angle;
-  int radius;
-  int iVar5;
-  int j;
   int i;
-  int height;
+  int j;
   int k;
+  int angle;
+  int height;
+  int radius;
 
-  iVar2 = fixedcos(Sky_gTrackSpec->sunAngleInSky);
-  iVar2 = fixedmult(iVar2,1000);
-  sunPosInSky.vx = (short)iVar2;
-  iVar2 = fixedsin(Sky_gTrackSpec->sunAngleInSky);
-  iVar2 = fixedmult(iVar2,1000);
-  sunPosInSky.vz = (short)iVar2;
-  sunPosInSky.vy =
+  SUNPOS_VX = (short)fixedmult(fixedcos(Sky_gTrackSpec->sunAngleInSky),1000);
+  SUNPOS_VZ = (short)fixedmult(fixedsin(Sky_gTrackSpec->sunAngleInSky),1000);
+  SUNPOS_VY =
        (short)TrackSpec_gSpec.skyspec.sunHeightInSky + (short)TrackSpec_gSpec.skyspec.yoffset;
-  iVar2 = fixedcos(Sky_gTrackSpec->moonAngleInSky);
-  iVar2 = fixedmult(iVar2,1000);
-  moonPosInSky.vx = (short)iVar2;
-  iVar2 = fixedsin(Sky_gTrackSpec->moonAngleInSky);
-  iVar2 = fixedmult(iVar2,1000);
-  moonPosInSky.vz = (short)iVar2;
-  moonPosInSky.vy =
+  MOONPOS_VX = (short)fixedmult(fixedcos(Sky_gTrackSpec->moonAngleInSky),1000);
+  MOONPOS_VZ = (short)fixedmult(fixedsin(Sky_gTrackSpec->moonAngleInSky),1000);
+  MOONPOS_VY =
        (short)TrackSpec_gSpec.skyspec.moonHeightInSky + (short)TrackSpec_gSpec.skyspec.yoffset;
-  iVar2 = Draw_gPlayer1View;
+  /* MATCH: duplicated SetViewColor calls (comm arm calls P1 then P2; else arm P1 only) --
+     gcc cross-jump merges the two P1-tails into the oracle's shared lbu/jal block; a
+     select-variable form (`v = P1; if(comm) {call; v = P2;} call(v)`) caches the view in
+     a temp the oracle doesn't have. */
   if (GameSetup_gData.commMode == 1) {
     Draw_SetViewColor(Draw_gPlayer1View,(u_int)(Sky_gTrackSpec->clearcolor).r,
                (u_int)(Sky_gTrackSpec->clearcolor).g,(u_int)(Sky_gTrackSpec->clearcolor).b);
-    iVar2 = Draw_gPlayer2View;
+    Draw_SetViewColor(Draw_gPlayer2View,(u_int)(Sky_gTrackSpec->clearcolor).r,
+               (u_int)(Sky_gTrackSpec->clearcolor).g,(u_int)(Sky_gTrackSpec->clearcolor).b);
+  }
+  else {
+    Draw_SetViewColor(Draw_gPlayer1View,(u_int)(Sky_gTrackSpec->clearcolor).r,
+               (u_int)(Sky_gTrackSpec->clearcolor).g,(u_int)(Sky_gTrackSpec->clearcolor).b);
   }
   i = 0;
-  Draw_SetViewColor(iVar2,(u_int)(Sky_gTrackSpec->clearcolor).r,(u_int)(Sky_gTrackSpec->clearcolor).g,
-             (u_int)(Sky_gTrackSpec->clearcolor).b);
   k = 0;
   do {
-    if ((Sky_gTrackSpec->flags & 0x80U) == 0) {
-      if (((Sky_gTrackSpec->flags & 2U) == 0) || (angle = i << 0xb, 3 < i)) {
-        angle = i << 0xc;
-      }
-      height = fixedcos(angle);
-      height = fixedmult(height,1000);
+    if ((Sky_gTrackSpec->flags & 0x80U) != 0) {
+      /* MATCH: radius= duplicated in BOTH arms; gcc cross-jumps the common
+         fixedsin/fixedmult tails, leaving the per-arm a0 setup (ringAngles[i]
+         re-read straight into $a0 here vs addu a0,s0 in the else arm). */
+      height = fixedmult(fixedcos(Sky_gTrackSpec->ringAngles[i]),1000);
+      radius = fixedmult(fixedsin(Sky_gTrackSpec->ringAngles[i]),1000);
     }
     else {
-      angle = fixedcos(Sky_gTrackSpec->ringAngles[i]);
-      height = fixedmult(angle,1000);
-      angle = Sky_gTrackSpec->ringAngles[i];
+      if (((Sky_gTrackSpec->flags & 2U) != 0) && (i < 4)) {
+        angle = i << 0xb;
+      }
+      else {
+        angle = i << 0xc;
+      }
+      height = fixedmult(fixedcos(angle),1000);
+      radius = fixedmult(fixedsin(angle),1000);
     }
     j = 0;
-    angle = fixedsin(angle);
-    radius = fixedmult(angle,1000);
     do {
-      iVar5 = j * 0x1000;
+      angle = j * 0x1000;
       j = j + 1;
-      angle = (iVar5 - Sky_gTrackSpec->sunAngleInSky) + 0x4000;
-      iVar5 = fixedsin(angle);
-      iVar5 = fixedmult(iVar5,height);
-      gSkyMesh[k].vx = (short)iVar5;
+      angle = angle - Sky_gTrackSpec->sunAngleInSky;
+      angle = angle + 0x4000;
+      gSkyMesh[k].vx = (short)fixedmult(fixedsin(angle),height);
       gSkyMesh[k].vy = (short)Sky_gTrackSpec->yoffset + (short)radius;
-      iVar5 = fixedcos(angle);
-      iVar5 = fixedmult(iVar5,height);
-      gSkyMesh[k].vz = (short)iVar5;
+      gSkyMesh[k].vz = (short)fixedmult(fixedcos(angle),height);
       k = k + 1;
     } while (j < 0x11);
     i = i + 1;
   } while (i < 5);
-  i = 0;
   if (Sky_gTrackSpec->type == 1) {
+    i = 0;
     k = 0;
     do {
       j = 0;
       do {
-        iVar5 = j;
-        if (j < 0) {
-          iVar5 = j + 3;
-        }
-        iVar5 = j + (iVar5 >> 2) * -4;
+        gSkyPixmapIndex[k] = Sky_gTrackSpec->cloudIndices[i][j % 4] + '';
         j = j + 1;
-        gSkyPixmapIndex[k] = *(char *)((int)Sky_gTrackSpec + iVar5 + i * 4 + 0x6c) + '\b';
         k = k + 1;
       } while (j < 0x10);
       i = i + 1;
@@ -381,153 +392,90 @@ HrzInitSky_initLensFlare:
 }
 
 /* ---- Hrz_Init2DRing__Fv  [HRZSKU.CPP:337-414] SLD-VERIFIED ----
- * NEAR-MISS 280 diffs (221/185), NOT YET SYM-merged (round-2 diagnosis only, not applied --
- * ran out of session budget to trace+verify safely, same disease as Hrz_InitSky pre-fix).
- * SYM `nfs4-f-v3.txt` @40e105 (`awk '/name = Hrz_Init2DRing__Fv/,/8e Function end/'`) shows
- * only 9 real locals total across nested block scopes: outer `i`=$s1,`angle`=$s0; a
- * pnPmxHeight_InPixels-block `nMaxPmxHeight_InPixels`=REG + `pnPmxHeight_InPixels[16]`=AUTO
- * (block lines 17-39, i.e. spans the ring-build + pixmap-height loops); a separate
- * `level`=REG block (lines 44-73) containing `cur_bk`/`cur_fr`/`rounddiff` (CVECTOR AUTOs)
- * + an innermost `j`=REG (lines 51-59, the color-row loop). The CURRENT reconstruction below
- * has 33 declared locals (ringCount/shapeWidth/ti12/pmx_p/atan_in/iVar6_b/rowMaxX/shape_p/
- * shapeStride/ringEntry_pp/rowOff_p/ti10/ringByte_p/rowBuf_p/ring_step/iVar14_field/
- * row_array_p/iVar1/reg_t5/u_idx/u_idx2/uVar18_pack/ring_x/ring_x2/row_advance/row_idx/tC3/
- * tu5/CVar1 on top of the 9 SYM-real ones) -- same "too many distinctly-live Ghidra temps"
- * class that forced Hrz_InitSky's extra `$fp` spill (see that function's fix comment for the
- * full playbook). Suspicious reused-role candidate: `ti12` starts as a constant `1` (ring
- * loop, line ~434), becomes a running MAX accumulator (pixmap-height loop), then a DIVISOR
- * (row-percentage loop), then gets reset to `0` for a completely unrelated accumulator role
- * in the color loop -- likely maps to `nMaxPmxHeight_InPixels` for its first three lives and
- * a throwaway temp for the fourth, but the SYM block-scope boundaries (block 17-39 closing
- * before the row-percentage loop, if that loop is truly outside it) need to be reconciled
- * against the RAW oracle instruction-by-instruction before any rename is safe to attempt --
- * NOT done this session (BuildHorizon's regional-fix attempt this session taught that an
- * unverified partial merge on a multi-phase function can move the diff count the WRONG way;
- * a full merge needs the SAME rigor as Hrz_InitSky's, done in one pass, not a partial rename).
- * Left untouched pending that follow-up. */
+ * wave-13 FULL rule-8 rewrite from SYM @40e105 + oracle trace. SYM truth: fn-scope
+ * i=$17(s1) -- ONE counter REUSED by all four loops -- + angle=$16(s0); block(17-39):
+ * nMaxPmxHeight_InPixels REG + pnPmxHeight_InPixels[16] AUTO @-0x50; block(44-73):
+ * level=$9(t1) + cur_bk/-0x50 cur_fr/-0x48 rounddiff/-0x40 (frame slots REUSED across
+ * the two disjoint blocks -> block scoping mandatory); innermost block(51-59): j=$5(a1)
+ * = the SELECT variable (j = i or 16-i), NOT a counter. rounddiff = the signed /8 idiom
+ * recomputed EVERY inner iteration (matches oracle); ring-color dest = index form
+ * gHrzRingColor[level][i] (givs t2/a3/t0 are loop-opt products); loops 2/4 =
+ * exit-in-the-middle while(true) (top test + j back-edge, invariants 16/&gHrzRingColor
+ * hoisted); loops 1/3 = plain do-while (rotated bottom-test). Level-end [16]=[0]
+ * wrap copy = plain CVECTOR assign (char-aligned -> lwl/lwr). Tail Hrz_gSaveCol[1]
+ * copy = u_long pun (oracle uses ALIGNED lw/sw, a CVECTOR assign would emit lwl/lwr). */
 void Hrz_Init2DRing(void)
 
 {
-  int ringCount;
-  int shapeWidth;
-  int ti12;
-  int pmx_p;
-  int atan_in;
-  int iVar6_b;
-  int rowMaxX;
-  int shape_p;
-  int shapeStride;
-  int ringEntry_pp;
-  int rowOff_p;
-  int ti10;
-  int ringByte_p;
-  int rowBuf_p;
-  int ring_step;
-  int pnPmxHeight_InPixels [16];
-  int iVar14_field;
-  int row_array_p;
-  int iVar1;
-  int reg_t5;
-  int u_idx;
-  int u_idx2;
+  int i;
   int angle;
-  int uVar18_pack;
-  int ring_x;
-  int ring_x2;
-  int row_advance;
-  int row_idx;
-  CVECTOR cur_bk;
-  CVECTOR cur_fr;
-  CHorizonSpec *tC3;
-  CVECTOR tu5;
-  int CVar1;
 
-  iVar1 = 0;
+  i = 0;
   do {
-    uVar18_pack = iVar1 * 0x1000 + Hrz_gTrackSpec->angle;
-    ringCount = fixedsin(uVar18_pack);
-    shapeWidth = fixedmult(ringCount,32000);
-    shape_p = (int)(gRngCoordTop + iVar1);
-    *(short *)shape_p = (short)shapeWidth;
-    *(u_short *)(shape_p + 2) = 0;
-    ti12 = fixedcos(uVar18_pack);
-    ti12 = fixedmult(ti12,32000);
-    ring_x = iVar1 + 1;
-    gRngCoordTop[iVar1].vz = (short)ti12;
-    tC3 = Hrz_gTrackSpec;
-    ti12 = 1;
-    iVar1 = ring_x;
-  } while (ring_x < 0x11);
-  ringByte_p = (int)pnPmxHeight_InPixels;
-  ringEntry_pp = (int)gpPmx;
-  for (ring_x2 = 0; ring_x2 < 0x10; ring_x2 = ring_x2 + 1) {
-    pmx_p = (int)gHorizonPixmap[(u_char)tC3->ringPMX[ring_x2] & 7];
-    *(int *)ringEntry_pp = pmx_p;
-    shapeStride = (u_int)*(u_char *)(pmx_p + 9) - (u_int)*(u_char *)(pmx_p + 5);
-    *(int *)ringByte_p = shapeStride;
-    if (ti12 < shapeStride) {
-      ti12 = shapeStride;
+    angle = i * 0x1000 + Hrz_gTrackSpec->angle;
+    gRngCoordTop[i].vx = (short)fixedmult(fixedsin(angle),32000);
+    gRngCoordTop[i].vy = 0;
+    gRngCoordTop[i].vz = (short)fixedmult(fixedcos(angle),32000);
+    i = i + 1;
+  } while (i < 0x11);
+  {
+    int nMaxPmxHeight_InPixels;
+    int pnPmxHeight_InPixels [16];
+
+    nMaxPmxHeight_InPixels = 1;
+    i = 0;
+    while (true) {
+      if (!(i < 0x10)) break;
+      gpPmx[i] = gHorizonPixmap[(u_char)Hrz_gTrackSpec->ringPMX[i] & 7];
+      pnPmxHeight_InPixels[i] = gpPmx[i]->v2 - gpPmx[i]->v1;
+      if (nMaxPmxHeight_InPixels < pnPmxHeight_InPixels[i]) {
+        nMaxPmxHeight_InPixels = pnPmxHeight_InPixels[i];
+      }
+      i = i + 1;
     }
-    ringByte_p = ringByte_p + 4;
-    ringEntry_pp = ringEntry_pp + 4;
+    i = 0;
+    do {
+      gfxPmxHeightPercentage[i] = (pnPmxHeight_InPixels[i] << 0x10) / nMaxPmxHeight_InPixels;
+      i = i + 1;
+    } while (i < 0x10);
   }
-  row_advance = 0;
-  rowBuf_p = (int)gfxPmxHeightPercentage;
-  rowOff_p = (int)&cur_bk;
-  do {
-    ((u_char *)&(atan_in))[0] = ((CVECTOR *)rowOff_p)->r;
-    ((u_char *)&(atan_in))[1] = ((CVECTOR *)rowOff_p)->g;
-    ((u_char *)&(atan_in))[2] = ((CVECTOR *)rowOff_p)->b;
-    ((u_char *)&(atan_in))[3] = ((CVECTOR *)rowOff_p)->cd;
-    rowOff_p = rowOff_p + 4;
-    row_advance = row_advance + 1;
-    *(int *)rowBuf_p = (atan_in << 0x10) / ti12;
-    rowBuf_p = rowBuf_p + 4;
-  } while (row_advance < 0x10);
-  row_array_p = (int)gHrzRingColor;
-  ti12 = 0;
-  for (iVar1 = 0; row_idx = 0, iVar1 < 2; iVar1 = iVar1 + 1) {
-    cur_bk = Hrz_gTrackSpec->backColor[iVar1];
-    u_idx = *(u_int *)&cur_bk;
-    cur_fr = Hrz_gTrackSpec->frontColor[iVar1];
-    u_idx2 = *(u_int *)&cur_fr;
-    tu5 = cur_fr;
-    iVar14_field = ti12;
-    reg_t5 = u_idx2;
-    for (; row_idx < 0x10; row_idx = row_idx + 1) {
-      ring_step = row_idx;
-      if (8 < row_idx) {
-        ring_step = 0x10 - row_idx;
+  {
+    int level;
+
+    level = 0;
+    while (true) {
+      if (!(level < 2)) break;
+      {
+        CVECTOR cur_bk;
+        CVECTOR cur_fr;
+        CVECTOR rounddiff;
+
+        cur_bk = Hrz_gTrackSpec->backColor[level];
+        cur_fr = Hrz_gTrackSpec->frontColor[level];
+        i = 0;
+        while (true) {
+          if (!(i < 0x10)) break;
+          {
+            int j;
+
+            j = i;
+            if (8 < i) j = 0x10 - i;
+            rounddiff.r = (u_char)((cur_bk.r - cur_fr.r) / 8);
+            rounddiff.g = (u_char)((cur_bk.g - cur_fr.g) / 8);
+            rounddiff.b = (u_char)((cur_bk.b - cur_fr.b) / 8);
+            gHrzRingColor[level][i].r = cur_fr.r + rounddiff.r * j;
+            gHrzRingColor[level][i].g = cur_fr.g + rounddiff.g * j;
+            gHrzRingColor[level][i].b = cur_fr.b + rounddiff.b * j;
+          }
+          i = i + 1;
+        }
+        gHrzRingColor[level][16] = gHrzRingColor[level][0];
       }
-      cur_fr.r = (u_char)u_idx2;
-      iVar6_b = (u_idx & 0xffU) - (u_idx2 & 0xffU);
-      if (iVar6_b < 0) {
-        iVar6_b = iVar6_b + 7;
-      }
-      cur_fr.g = (u_char)((u_int)u_idx2 >> 8);
-      rowMaxX = ((u_int)u_idx >> 8 & 0xff) - (u_int)cur_fr.g;
-      if (rowMaxX < 0) {
-        rowMaxX = rowMaxX + 7;
-      }
-      cur_fr.b = (u_char)((u_int)u_idx2 >> 0x10);
-      ti10 = ((u_int)u_idx >> 0x10 & 0xff) - (u_int)cur_fr.b;
-      if (ti10 < 0) {
-        ti10 = ti10 + 7;
-      }
-      (&gHrzRingColor[0][0].r)[iVar14_field] = cur_fr.r + (char)(iVar6_b >> 3) * (char)ring_step;
-      (&gHrzRingColor[0][0].g)[iVar14_field] = cur_fr.g + (char)(rowMaxX >> 3) * (char)ring_step;
-      reg_t5 = (ti10 >> 3 & 0xffU) * ring_step;
-      (&gHrzRingColor[0][0].b)[iVar14_field] = cur_fr.b + (char)reg_t5;
-      iVar14_field = iVar14_field + 4;
+      level = level + 1;
     }
-    CVar1 = *(int *)row_array_p;
-    *(int *)(row_array_p + 0x40) = CVar1;
-    row_array_p = row_array_p + 0x44;
-    ti12 = ti12 + 0x44;
-    cur_fr = tu5;
   }
   Hrz_InitSky();
-  Hrz_gSaveCol[1] = Sky_gTrackSpec->frontcolors[0];
+  *(u_long *)&Hrz_gSaveCol[1] = *(u_long *)&Sky_gTrackSpec->frontcolors[0];
   return;
 }
 
@@ -597,68 +545,58 @@ void Hrz_KillHorizon(void)
   return;
 }
 
-/* ---- Hrz_LightningAddFork__FScScSc  [HRZSKU.CPP:783-822] SLD-VERIFIED ---- */
+/* ---- Hrz_LightningAddFork__FScScSc  [HRZSKU.CPP:783-822] SLD-VERIFIED ----
+ * wave-13 rewrite from SYM @40e44b + oracle: only TWO locals (type=char @$5, fork=ptr
+ * @$17) -- the old uVar3/4/5/6 soup was Ghidra. Key shapes: post-increment slot index
+ * `fork = forks + numForks; numForks += 1;` (postinc emitted a char re-mask andi;
+ * the pointer-add two-statement form gives the oracle's lbu/incr/sb/*6 with no mask);
+ * params MUTATED in place (row+=1 before the type==1 pair of recursive calls; direction
+ * reassigned in the type==3 arm and the FINAL dir<0 test reads the mutated value);
+ * `1 - (random()&1)*2` keeps the s3=1 shared constant (CSE with the type==1 beq);
+ * dispatch = a REAL `switch(type)` (gcc balanced tree beq1/slti2/beqz0/beq2/beq3 with
+ * arms out-of-line in ASCENDING case order + cross-jumped pmxIndex sb tail); the earlier
+ * if/else-if chain inlined the ==1 arm + flipped polarities (57 diffs). SEALED 134/134. */
 void Hrz_LightningAddFork(signed char direction,signed char column,signed char row)
 
 {
-  u_char bVar1;
-  int iVar2;
-  u_int uVar3;
-  u_int uVar4;
   char type;
-  u_int uVar5;
   tHrz_LightningFork *fork;
-  u_int uVar6;
-  
-  uVar5 = (u_int)(u_char)column;
-  uVar3 = (u_int)(u_char)direction;
-  if (row == '\0') {
-    uVar6 = 3;
+
+  if (row == 0) {
+    type = 3;
+  }
+  else if (row < 3) {
+    type = (u_int)random() % 3;
   }
   else {
-    uVar6 = 2;
-    if (row < '\x03') {
-      uVar6 = random();
-      uVar6 = uVar6 % 3;
-    }
+    type = 2;
   }
-  uVar4 = (u_int)(u_char)gHrz_Lightning.numForks;
-  gHrz_Lightning.numForks = gHrz_Lightning.numForks + '\x01';
-  gHrz_Lightning.forks[uVar4].pos.vx = column * 0xf;
-  gHrz_Lightning.forks[uVar4].pos.vy = row * 0xf;
-  if (uVar6 == 1) {
-    Hrz_LightningAddFork((char)-1,(char)((uVar5 - 1) * 0x1000000 >> 0x18),row + '\x01');
-    Hrz_LightningAddFork('\x01',(char)((uVar5 + 1) * 0x1000000 >> 0x18),row + '\x01');
-    bVar1 = 6;
+  fork = gHrz_Lightning.forks + gHrz_Lightning.numForks;
+  gHrz_Lightning.numForks = gHrz_Lightning.numForks + 1;
+  fork->pos.vx = column * 0xf;
+  fork->pos.vy = row * 0xf;
+  switch (type) {
+  case 0:
+    Hrz_LightningAddFork(direction,column + direction,row + 1);
+    fork->pmxIndex = (random() & 1) + 2;
+    break;
+  case 1:
+    row = row + 1;
+    Hrz_LightningAddFork(-1,column + -1,row);
+    Hrz_LightningAddFork(1,column + 1,row);
+    fork->pmxIndex = 6;
+    break;
+  case 2:
+    fork->pmxIndex = (random() & 1) + 4;
+    break;
+  case 3:
+    direction = 1 - (random() & 1) * 2;
+    Hrz_LightningAddFork(direction,column + direction,row + 1);
+    fork->pmxIndex = random() & 1;
+    break;
   }
-  else if (uVar6 < 2) {
-    if (uVar6 != 0) {
-      iVar2 = uVar3 << 0x18;
-      goto HrzLightFork_setPmxIdx;
-    }
-    Hrz_LightningAddFork(direction,(char)((uVar5 + uVar3) * 0x1000000 >> 0x18),row + '\x01');
-    iVar2 = random();
-    bVar1 = ((u_char)iVar2 & 1) + 2;
-  }
-  else if (uVar6 == 2) {
-    iVar2 = random();
-    bVar1 = ((u_char)iVar2 & 1) + 4;
-  }
-  else {
-    iVar2 = uVar3 << 0x18;
-    if (uVar6 != 3) goto HrzLightFork_setPmxIdx;
-    uVar3 = random();
-    uVar3 = (uVar3 & 1) * -2 + 1;
-    Hrz_LightningAddFork((char)(uVar3 * 0x1000000 >> 0x18),(char)((uVar5 + uVar3) * 0x1000000 >> 0x18),
-               row + '\x01');
-    iVar2 = random();
-    bVar1 = (u_char)iVar2 & 1;
-  }
-  gHrz_Lightning.forks[uVar4].pmxIndex = bVar1;
-  iVar2 = uVar3 << 0x18;
-HrzLightFork_setPmxIdx:
-  if (iVar2 < 0) {
-    gHrz_Lightning.forks[uVar4].pmxIndex = gHrz_Lightning.forks[uVar4].pmxIndex + '\b';
+  if (direction < 0) {
+    fork->pmxIndex = fork->pmxIndex + 8;
   }
   return;
 }
@@ -685,13 +623,18 @@ void Hrz_CalculateLightning(void)
  * VALUE once into a local `pal` before both otz-relative accesses -- the fixed-address
  * macro (§3.6b) re-dereferences 0x1F800000 on every textual reference; caching it let the
  * 2nd tag-merge only reload `sd->otz` (unavoidable aliasing reload) not the palette
- * pointer too, matching the oracle's single dereference + reuse. (3) moved the
- * `Render_gPacketPtr=prim+0x28` store between the two tag-merge statements (matches where
- * the oracle interleaves/schedules it) -- got instruction COUNT exact (76==76). Residual =
- * oracle reuses the dead `sd` param register (a3) for the 2nd otz-relative address chain
- * (sll/addu/lw) and defers that store one instruction later than ours; a coloring/
- * scheduling tie-break, same family as the Force_IsForceOn dead-param-reuse near-miss.
- * Accepted near-miss. */
+ * pointer too, matching the oracle's single dereference + reuse. (3) SEALED 76/76
+ * PASS (wave-13; was a 14-diff "accepted near-miss"). The crack was the 2nd tag-merge's
+ * SHAPE: a cached slot POINTER + tag read, with the Render_gPacketPtr store BETWEEN the
+ * RMW's load and store (`slot=...; tag=*slot; Render_gPacketPtr=prim+0x28; *slot=tag&...`)
+ * -- the oracle's `sw v1,0(t4)` sits between `lw v0,0(a3)` and `sw v0,0(a3)`, unreachable
+ * from any single-statement RMW (may-alias anti-dependence pins the order) -- PLUS the
+ * index-first addu `slot=(u_int*)(sd->otz*4+(int)pal)` (catalog commutative-addu lever):
+ * scaled-index-first makes the address chain mutate IN PLACE in the dead `sd` param's $a3
+ * (`lw a3,148(a3); sll a3; addu a3,a3,t2`) and lets `pal` die at the addu, which also
+ * flips the t1/t2 mask/pal allocation to the oracle's. Base-first `pal + otz*4` coalesced
+ * the chain onto pal's $t1 instead (26 diffs); a naive `sd = ...` in-place param mutate
+ * recolored the whole head (83 diffs, defensive-param-copy trap). */
 void Hrz_TextureQuad(DVECTOR *pt,char type,char bright,Draw_DCache *sd)
 
 {
@@ -702,13 +645,16 @@ void Hrz_TextureQuad(DVECTOR *pt,char type,char bright,Draw_DCache *sd)
   u_long l3;
   Draw_tPixMap *pmx;
   u_char *pal;
+  u_int *slot;
+  u_int tag;
 
-  pal = Render_gPalettePtr;
   prim = (POLY_FT4 *)Render_gPacketPtr;
+  pal = Render_gPalettePtr;
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)(pal + sd->otz * 4) & 0xffffff;
+  slot = (u_int *)(sd->otz * 4 + (int)pal);  /* MATCH: index-first addu -- chain lives in dead $a3, pal dies at the addu */
+  tag = *slot;
   Render_gPacketPtr = (u_char *)prim + 0x28;
-  *(u_int *)(pal + sd->otz * 4) =
-       *(u_int *)(pal + sd->otz * 4) & 0xff000000 | (u_int)prim & 0xffffff;
+  *slot = tag & 0xff000000 | (u_int)prim & 0xffffff;
   *((u_char *)prim + 3) = 9;
   prim->code = 0x2e;
   prim->b0 = bright;
@@ -740,38 +686,29 @@ void Hrz_TextureQuad(DVECTOR *pt,char type,char bright,Draw_DCache *sd)
 }
 
 /* ---- Hrz_SetLightingPosInSky__FP13DRender_tView  [HRZSKU.CPP:862-867] SLD-VERIFIED ----
- * NEAR-MISS 103 diffs (75/68, ours 7 insns LONGER; SYM `nfs4-f-v3.txt` @40e68f confirms
- * fsize=40 (ONE saved reg, mask=$80010000=$s0 only) -- matches the ORACLE frame, not ours
- * (we emit fsize=48, TWO saved regs $s0+$s1). ROOT CAUSE (verified, not fixable from this
- * file): `Hrz_gLightningPosInSky` (SVECTOR, 8 bytes, defined THIS TU line ~28) is accessed
- * by the oracle via bare `sh r,0(gp)`/`2(gp)`/`4(gp)` gp-relative field stores -- NO address
- * register needed at all. Our build (`-G4`, confirmed in tools/build.py) never lands this
- * 8-byte struct in `.sdata`/`.sbss` (`objdump -h` on the compiled .o: 0 bytes in `.bss`,
- * global sits in `.data` as a 'D' symbol) so gcc must materialize its address into a
- * callee-saved reg (`$s0`) instead -- that's the SECOND saved register, stealing the slot
- * the oracle uses to cache the shared /8000 magic-multiply constant (`4194:19923`, reused
- * for BOTH the vx and vz fields, which share the same divisor) across the `random()` calls.
- * Freeing `$s0` would need the struct to be gp-eligible, which is a `-G` threshold /
- * `-mgpOPT` field-splitting toolchain behavior outside this TU's control (no build-flag
- * changes per the campaign's hard rules) -- NOT a header issue (the global and its SVECTOR
- * type are both already correct/real). Accepted floor; recorded for a future cross-TU/
- * build-flag investigation. */
+ * SEALED 68/68 PASS (wave-13; was a 103-diff "accepted floor"). THREE stacked levers:
+ * (1) the "-G4 floor" on the 8-byte Hrz_gLightningPosInSky SVECTOR fell to the PER-FIELD
+ * SPLIT (see the definitions banner at the top of this file): each 2-byte short is
+ * individually gp-eligible, reproducing the oracle's `sh r,%gp_rel(...)($gp)` one-insn
+ * stores and freeing $s0 for the shared /8000 magic constant (frame 48->40, 1 saved reg).
+ * (2) the Ghidra `(short)uVar1 + (short)(uVar1/8000)*-8000` soup is a plain UNSIGNED
+ * modulo written INLINE with the call -- `(int)((u_int)random() % 8000)` -- SYM @40e6ef
+ * shows NO named local (Vi + forwardVec only), so the random value is an anonymous temp:
+ * an inline call keeps it in $v0 (multu v0,s0; subu v0,v0,v1 in place, no `addu a1,v0`
+ * copy) and the field load takes the dead Vi param's $a0. A named uVar1 (any variant)
+ * costs the copy + a reg. (3) vy's `+8000` must bind to (fy>>2); see the in-body MATCH
+ * comment (association barrier). */
 void Hrz_SetLightingPosInSky(DRender_tView *Vi)
 
 {
   coorddef forwardVec;
-  u_int uVar1;
 
   forwardVec = *(coorddef *)&(Vi->cview).mrotation.m[6];
-  uVar1 = random();
-  Hrz_gLightningPosInSky.vx =
-       (short)(forwardVec.x >> 2) + (short)uVar1 + (short)(uVar1 / 8000) * -8000 + -4000;
-  uVar1 = random();
-  Hrz_gLightningPosInSky.vy =
-       (short)(forwardVec.y >> 2) + 8000 + (short)uVar1 + (short)(uVar1 / 3000) * -3000;
-  uVar1 = random();
-  Hrz_gLightningPosInSky.vz =
-       (short)(forwardVec.z >> 2) + (short)uVar1 + (short)(uVar1 / 8000) * -8000 + -4000;
+  Hrz_gLightningPosInSky_vx = (forwardVec.x >> 2) + (int)((u_int)random() % 8000) + -4000;
+  /* MATCH: (u_int) cast on (fy>>2)+8000 = association barrier (fold otherwise re-attaches
+     the constant to the mod term); value-identical, the sh store truncates to 16 bits */
+  Hrz_gLightningPosInSky_vy = (int)((u_int)((forwardVec.y >> 2) + 8000) + (u_int)random() % 3000);
+  Hrz_gLightningPosInSky_vz = (forwardVec.z >> 2) + (int)((u_int)random() % 8000) + -4000;
   return;
 }
 
@@ -793,7 +730,7 @@ void Hrz_BuildForkLightning(Draw_DCache *sd)
     sd->otz = Draw_gViewOtSize + -2;
     memset(&trans,0,0xc);
     HrzSetPsxTranslation(&trans);
-    gte_ldv0(&Hrz_gLightningPosInSky);
+    gte_ldv0((SVECTOR *)&Hrz_gLightningPosInSky_vx);
     gte_rtps();
     gte_stSXY2(&screenPos);
     for (i = 0; i < (u_char)gHrz_Lightning.numForks; i = i + 1) {
@@ -931,34 +868,46 @@ void Hrz_SetDitheringPrim(int dither,int otz)
   return;
 }
 
-/* ---- Hrz_BuildSky__Fv  [HRZSKU.CPP:1060-1277] SLD-VERIFIED ---- */
+/* ---- Hrz_BuildSky__Fv  [HRZSKU.CPP:1060-1277] SLD-VERIFIED ----
+ * wave-13 FULL rewrite from SYM @40ed4b + oracle. SYM fn-scope: pSkyMesh=$s1, pSkyZ=$s4,
+ * i=$t4 (CALLER-saved -- the mesh loop has NO calls once the exit-dither moves AFTER the
+ * loop), otz_old=$s0, pshift=$s0 (SAME reg, disjoint -- pshift is the sd->otz SAVE var
+ * around Flare_Sun), sd=$s2 = (Draw_DCache*)0x1F800000 scratchpad base (BODY-LOCAL
+ * template): Flare arg = (Draw_FlareCache*)sd copy, save/restore = sd->otz (+0x94), and
+ * every literal 0x1F80xxxx materialization CSEs onto s2's lui (addu+ori / disp forms).
+ * Loop = exit-in-the-middle while(true) (invariant masks/&PacketPtr/color-bases hoisted);
+ * temp = i*0x11/0x10 (plain signed divide); pixmap index = gSkyPixmapIndex[i] (t5 walker
+ * is a GIV, not a source pointer); packet copies = u_long puns (aligned lw/sw, serialized
+ * with load-delay nops -- NOT lwl/lwr CVECTOR assigns, NOT load-3 grouping); block-local
+ * POLY_GT4/POLY_FT4/POLY_G4 prim + pmx per SYM blocks 141/169/195; FT4+G4 share the
+ * cross-jumped 4-word mesh tail; slot-var + slot[-2] displacement = ONE palette-address
+ * evaluation per block (a repeated full expression re-loads pal/ViewOtSize after the
+ * may-alias *prim store = +16 insns); FT4 uses the TextureQuad tag-split bump.
+ * STATE wave-13: 615 -> 393 diffs, count 459 vs 458 (was 513/458). The residual is a
+ * near-uniform ALLOCNO RENAME cascade over ~12 loop pseudos (i t2 vs t4, temp a3 vs t1,
+ * pmx a2 vs a3, pSkyZ s3 vs s4, palette-hi t4 vs s0, color bases shifted): body content,
+ * frame (72), and every access shape match line-for-line under the renames. Root = the
+ * allocation ORDER of the hoisted invariants vs temp/pmx (oracle allocates pmx before
+ * temp); fn-scope temp tried (no-op, reverted to SYM block scope). Permuter / -dg
+ * comparison territory; single remaining +1 insn not yet localized. */
 void Hrz_BuildSky(void)
 {
-  Draw_DCache *sd;
   DVECTOR *pSkyMesh;
   int *pSkyZ;
-  int otz_old, pshift, i, temp;
-  POLY_GT4 *prim;
-  Draw_tPixMap *pmx;
-  int ti1, ti2, tu7, CVar8, CVar4, skyTexPmx_p, tD8;
-  int tC2, tC1, skyMesh_iter;
-  u_char *tp2, *tp3;
-  CSkySpec *tC4;
-  CVECTOR CVar3;
+  int i;
+  int otz_old;
+  int pshift;
+  Draw_DCache *sd;
 
-  sd = (Draw_DCache *)0x1f800000;        /* PSX scratchpad base */
-  pSkyMesh = (DVECTOR *)0x1f800014;      /* projected screen-XY buffer */
-  pSkyZ = (int *)0x1f800168;             /* projected screen-Z buffer  */
   otz_old = 0x78;
   if (GameSetup_gData.commMode == 1) {
     otz_old = 0x3c;
   }
-  pshift = otz_old;
+  sd = (Draw_DCache *)0x1f800000;        /* PSX scratchpad base (held in $s2) */
+  pSkyMesh = (DVECTOR *)0x1f800014;
+  pSkyZ = (int *)0x1f800168;
   if ((Sky_gTrackSpec->flags & 1U) != 0) {
-    /* RTPT fast path: 3 vertices per pass (0x55 total) + RTPS tail.
-       SYM block line=14/21: trans/scnt/pcnt/zcnt/n are THIS branch's OWN nested
-       locals (a SEPARATE set exists in the RTPS branch below) -- NOT shared
-       function-scope storage; nesting collapses the stack frame to match. */
+    /* RTPT fast path: 3 vertices per pass (0x55 total) + RTPS tail. */
     coorddef trans;
     DVECTOR *scnt;
     SVECTOR *pcnt;
@@ -969,8 +918,8 @@ void Hrz_BuildSky(void)
     HrzSetPsxTranslation(&trans);
     pcnt = (SVECTOR *)&gSkyMesh /* @0x80120378 */;
     n = 0x55;
-    scnt = (DVECTOR *)((char *)sd + 8);
-    zcnt = (int *)((char *)sd + 0x15c);
+    scnt = (DVECTOR *)0x1f800008;
+    zcnt = (int *)0x1f80015c;
     do {
       gte_ldv3(pcnt, pcnt + 1, pcnt + 2);
       gte_rtpt();
@@ -979,8 +928,8 @@ void Hrz_BuildSky(void)
       scnt = scnt + 3;
       zcnt = zcnt + 3;
       gte_stsxy3(&scnt[0],&scnt[1],&scnt[2]);
-      gte_swc2(0x11,&zcnt[0]);   /* SZ1 -> no canonical macro */
-      gte_swc2(0x12,&zcnt[1]);   /* SZ2 -> no canonical macro */
+      gte_swc2(0x11,&zcnt[0]);   /* SZ1 */
+      gte_swc2(0x12,&zcnt[1]);   /* SZ2 */
       gte_swc2(0x13,&zcnt[2]);   /* SZ3 */
     } while (2 < n);
     scnt = &scnt[2];
@@ -1000,8 +949,7 @@ void Hrz_BuildSky(void)
     }
   }
   else {
-    /* RTPS path: 1 vertex per pass (0x54 total), screen row pinned at otz_old.
-       SYM block line=66: its OWN trans/scnt/pcnt/zcnt/n/transformed. */
+    /* RTPS path: 1 vertex per pass (0x54 total), screen row pinned at otz_old. */
     coorddef trans;
     VECTOR transformed;
     DVECTOR *scnt;
@@ -1031,172 +979,152 @@ void Hrz_BuildSky(void)
   if ((Sky_gTrackSpec->flags & 0x40U) != 0) {
     Hrz_SetDitheringPrim(0,Draw_gViewOtSize + -2);
   }
-  ti1 = Skid_gCtrlScratch_94;
   if ((TrackSpec_gSpec.skyspec.flags & 4U) != 0) {
-    Flare_Sun(&sunPosInSky,(Draw_FlareCache *)&Render_gPalettePtr);
+    pshift = sd->otz;                       /* save (scratchpad +0x94) around the flare */
+    Flare_Sun(SUNPOS,(Draw_FlareCache *)sd);
+    sd->otz = pshift;
   }
   i = 0;
-  skyMesh_iter = (int)&gSkyPixmapIndex;
-  Skid_gCtrlScratch_94 = ti1;
-  do {
-    tC4 = Sky_gTrackSpec;
-    ti1 = Draw_gViewOtSize;
-    tp2 = (u_char *)Render_gPacketPtr;
-    tp3 = (u_char *)Render_gPalettePtr;
-    prim = (POLY_GT4 *)tp2;
-    if (0x3f < i) {
-      if ((Sky_gTrackSpec->flags & 0x40U) != 0) {
-        Hrz_SetDitheringPrim(1,Draw_gViewOtSize + -2);
-      }
-      return;
-    }
-    ti2 = i * 0x11;
-    if (ti2 < 0) {
-      ti2 = ti2 + 0xf;
-    }
-    temp = ti2 >> 4;
-    /* Hrz_gSkyVtx_A0/A1/B0/B1 and "Render_gCopMat"/"Render_gWorldMat" below were Ghidra
-       mis-attributions -- both are really the SAME pSkyMesh/pSkyZ scratchpad buffers this
-       fn already declares (0x1F800014/0x1F800168), read at the 4 corners of a 17-wide sky
-       quad: temp, temp+1, temp+17, temp+18 (17 = the mesh row stride, matching gSkyColor's
-       own temp+0x11/temp+0x12 indexing a few lines below). None of the old names occur in
-       the SYM; the oracle re-derives `temp*4` fresh at every access (no cached pointer). */
-    if ((pSkyZ[temp + 17] != 0 || pSkyZ[temp + 18] != 0) ||
-        (pSkyZ[temp + 1] != 0 || pSkyZ[temp] != 0)) {
-      if ((pSkyMesh[temp + 17].vx <= (short)Render_gPacketLenLo ||
-           pSkyMesh[temp + 18].vx <= (short)Render_gPacketLenLo) ||
-          (pSkyMesh[temp + 1].vx <= (short)Render_gPacketLenLo ||
-           pSkyMesh[temp].vx <= (short)Render_gPacketLenLo)) {
-        if (((-1 < pSkyMesh[temp + 17].vx) || (-1 < pSkyMesh[temp + 18].vx) ||
-             (-1 < pSkyMesh[temp + 1].vx)  || (-1 < pSkyMesh[temp].vx)) &&
-            (((pSkyMesh[temp + 17].vy <= (short)Render_gPacketLenHi) ||
-              (pSkyMesh[temp + 18].vy <= (short)Render_gPacketLenHi) ||
-              (pSkyMesh[temp + 1].vy  <= (short)Render_gPacketLenHi) ||
-              (pSkyMesh[temp].vy      <= (short)Render_gPacketLenHi)) &&
-             ((-1 < pSkyMesh[temp + 17].vy) || (-1 < pSkyMesh[temp + 18].vy) ||
-              (-1 < pSkyMesh[temp + 1].vy)  || (-1 < pSkyMesh[temp].vy)))) {
-          if (Sky_gTrackSpec->type == 1) {
-            if ((Sky_gTrackSpec->flags & 0x20U) != 0) {
-              pmx = gHorizonPixmap[*(u_char *)skyMesh_iter];
-              skyTexPmx_p = (int)pmx;
-              *(u_int *)Render_gPacketPtr =
-                   *(u_int *)Render_gPacketPtr & 0xff000000 |
-                   *(u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4 + -8) & 0xffffff;
-              *(u_int *)(tp3 + ti1 * 4 + -8) =
-                   *(u_int *)(tp3 + ti1 * 4 + -8) & 0xff000000 | (u_int)Render_gPacketPtr & 0xffffff;
-              tC2 = (int)Render_gPacketPtr + 4;
-              Render_gPacketPtr = Render_gPacketPtr + 0x34;
-              *(CVECTOR *)tC2 = gSkyColor[temp + 0x11];
-              *(CVECTOR *)(tp2 + 0x10) = gSkyColor[temp + 0x12];
-              *(CVECTOR *)(tp2 + 0x1c) = gSkyColor[temp];
-              CVar8 = *(int *)(gSkyColor + temp + 1);
-              tp2[3] = 0xc;
-              tp2[7] = 0x3c;
-              *(int *)(tp2 + 0x28) = CVar8;
-              *(u_int *)(tp2 + 0xc) = *(u_int *)skyTexPmx_p;
-              *(u_int *)(tp2 + 0x18) = *(u_int *)(skyTexPmx_p + 4);
-              *(u_int *)(tp2 + 0x24) = *(u_int *)(skyTexPmx_p + 8);
-              *(u_int *)(tp2 + 0x30) = *(u_int *)(skyTexPmx_p + 0xc);
-              *(int *)(tp2 + 8) = *(int *)&pSkyMesh[temp + 17];
-              *(int *)(tp2 + 0x14) = *(int *)&pSkyMesh[temp + 18];
-              *(u_int *)(tp2 + 0x20) = *(u_int *)&pSkyMesh[temp];
-              *(long *)(tp2 + 0x2c) = *(long *)&pSkyMesh[temp + 1];
-              goto HrzBuildSky_meshIterNext;
+  while (true) {
+    if (!(i < 0x40)) break;
+    {
+      int temp;
+
+      temp = i * 0x11 / 0x10;
+      if ((pSkyZ[temp + 17] != 0 || pSkyZ[temp + 18] != 0) ||
+          (pSkyZ[temp + 1] != 0 || pSkyZ[temp] != 0)) {
+        if ((pSkyMesh[temp + 17].vx <= (short)*(u_short *)((char *)sd + 0x10) ||
+             pSkyMesh[temp + 18].vx <= (short)*(u_short *)((char *)sd + 0x10)) ||
+            (pSkyMesh[temp + 1].vx <= (short)*(u_short *)((char *)sd + 0x10) ||
+             pSkyMesh[temp].vx <= (short)*(u_short *)((char *)sd + 0x10))) {
+          if (((-1 < pSkyMesh[temp + 17].vx) || (-1 < pSkyMesh[temp + 18].vx) ||
+               (-1 < pSkyMesh[temp + 1].vx)  || (-1 < pSkyMesh[temp].vx)) &&
+              (((pSkyMesh[temp + 17].vy <= (short)*(u_short *)((char *)sd + 0x12)) ||
+                (pSkyMesh[temp + 18].vy <= (short)*(u_short *)((char *)sd + 0x12)) ||
+                (pSkyMesh[temp + 1].vy  <= (short)*(u_short *)((char *)sd + 0x12)) ||
+                (pSkyMesh[temp].vy      <= (short)*(u_short *)((char *)sd + 0x12))) &&
+               ((-1 < pSkyMesh[temp + 17].vy) || (-1 < pSkyMesh[temp + 18].vy) ||
+                (-1 < pSkyMesh[temp + 1].vy)  || (-1 < pSkyMesh[temp].vy)))) {
+            if (Sky_gTrackSpec->type == 1) {
+              if ((Sky_gTrackSpec->flags & 0x20U) != 0) {
+                POLY_GT4 *prim;
+                Draw_tPixMap *pmx;
+
+                u_int *slot;
+                prim = (POLY_GT4 *)Render_gPacketPtr;
+                pmx = gHorizonPixmap[gSkyPixmapIndex[i]];
+                slot = (u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4);
+                *(u_int *)prim = *(u_int *)prim & 0xff000000 | slot[-2] & 0xffffff;
+                slot[-2] = slot[-2] & 0xff000000 | (u_int)prim & 0xffffff;
+                *(u_long *)&prim->r0 = *(u_long *)&gSkyColor[temp + 0x11];
+                Render_gPacketPtr = (u_char *)prim + 0x34;
+                *(u_long *)&prim->r1 = *(u_long *)&gSkyColor[temp + 0x12];
+                *(u_long *)&prim->r2 = *(u_long *)&gSkyColor[temp];
+                *(u_long *)&prim->r3 = *(u_long *)&gSkyColor[temp + 1];
+                *((u_char *)prim + 3) = 0xc;
+                prim->code = 0x3c;
+                *(u_long *)&prim->u0 = *(u_long *)pmx;
+                *(u_long *)&prim->u1 = *(u_long *)((char *)pmx + 4);
+                *(u_long *)&prim->u2 = *(u_long *)((char *)pmx + 8);
+                *(u_long *)&prim->u3 = *(u_long *)((char *)pmx + 0xc);
+                *(u_long *)&prim->x0 = *(u_long *)&pSkyMesh[temp + 17];
+                *(u_long *)&prim->x1 = *(u_long *)&pSkyMesh[temp + 18];
+                *(u_long *)&prim->x2 = *(u_long *)&pSkyMesh[temp];
+                *(u_long *)&prim->x3 = *(u_long *)&pSkyMesh[temp + 1];
+              }
+              else {
+                POLY_FT4 *prim;
+                Draw_tPixMap *pmx;
+
+                u_int *slot;
+                u_int tag;
+                prim = (POLY_FT4 *)Render_gPacketPtr;
+                pmx = gHorizonPixmap[gSkyPixmapIndex[i]];
+                slot = (u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4);
+                *(u_int *)prim = *(u_int *)prim & 0xff000000 | slot[-2] & 0xffffff;
+                tag = slot[-2];
+                Render_gPacketPtr = (u_char *)prim + 0x28;
+                slot[-2] = tag & 0xff000000 | (u_int)prim & 0xffffff;
+                *(u_long *)&prim->r0 = *(u_long *)&Sky_gTrackSpec->frontcolors[0];
+                *((u_char *)prim + 3) = 9;
+                prim->code = 0x2c;
+                *(u_long *)&prim->u0 = *(u_long *)pmx;
+                *(u_long *)&prim->u1 = *(u_long *)((char *)pmx + 4);
+                *(u_long *)&prim->u2 = *(u_long *)((char *)pmx + 8);
+                *(u_long *)&prim->u3 = *(u_long *)((char *)pmx + 0xc);
+                *(u_long *)&prim->x0 = *(u_long *)&pSkyMesh[temp + 17];
+                *(u_long *)&prim->x1 = *(u_long *)&pSkyMesh[temp + 18];
+                *(u_long *)&prim->x2 = *(u_long *)&pSkyMesh[temp];
+                *(u_long *)&prim->x3 = *(u_long *)&pSkyMesh[temp + 1];
+              }
             }
-            pmx = gHorizonPixmap[*(u_char *)skyMesh_iter];
-            tD8 = (int)pmx;
-            *(u_int *)Render_gPacketPtr =
-                 *(u_int *)Render_gPacketPtr & 0xff000000 |
-                 *(u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4 + -8) & 0xffffff;
-            tu7 = (u_int)Render_gPacketPtr & 0xffffff;
-            Render_gPacketPtr = Render_gPacketPtr + 0x28;
-            *(u_int *)(tp3 + ti1 * 4 + -8) = *(u_int *)(tp3 + ti1 * 4 + -8) & 0xff000000 | tu7;
-            CVar4 = *(int *)tC4->frontcolors;
-            tp2[3] = 9;
-            *(int *)(tp2 + 4) = CVar4;
-            tp2[7] = 0x2c;
-            *(u_int *)(tp2 + 0xc) = *(u_int *)tD8;
-            *(u_int *)(tp2 + 0x14) = *(u_int *)(tD8 + 4);
-            *(u_int *)(tp2 + 0x1c) = *(u_int *)(tD8 + 8);
-            *(u_int *)(tp2 + 0x24) = *(u_int *)(tD8 + 0xc);
+            else {
+              POLY_G4 *prim;
+
+              u_int *slot;
+              prim = (POLY_G4 *)Render_gPacketPtr;
+              slot = (u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4);
+              *(u_int *)prim = *(u_int *)prim & 0xff000000 | slot[-2] & 0xffffff;
+              slot[-2] = slot[-2] & 0xff000000 | (u_int)prim & 0xffffff;
+              *(u_long *)&prim->r0 = *(u_long *)&gSkyColor[temp + 0x11];
+              Render_gPacketPtr = (u_char *)prim + 0x24;
+              *(u_long *)&prim->r1 = *(u_long *)&gSkyColor[temp + 0x12];
+              *(u_long *)&prim->r2 = *(u_long *)&gSkyColor[temp];
+              *(u_long *)&prim->r3 = *(u_long *)&gSkyColor[temp + 1];
+              *((u_char *)prim + 3) = 8;
+              prim->code = 0x38;
+              *(u_long *)&prim->x0 = *(u_long *)&pSkyMesh[temp + 17];
+              *(u_long *)&prim->x1 = *(u_long *)&pSkyMesh[temp + 18];
+              *(u_long *)&prim->x2 = *(u_long *)&pSkyMesh[temp];
+              *(u_long *)&prim->x3 = *(u_long *)&pSkyMesh[temp + 1];
+            }
           }
-          else {
-            *(u_int *)Render_gPacketPtr =
-                 *(u_int *)Render_gPacketPtr & 0xff000000 |
-                 *(u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4 + -8) & 0xffffff;
-            *(u_int *)(tp3 + ti1 * 4 + -8) =
-                 *(u_int *)(tp3 + ti1 * 4 + -8) & 0xff000000 | (u_int)Render_gPacketPtr & 0xffffff;
-            tC1 = (int)Render_gPacketPtr + 4;
-            Render_gPacketPtr = Render_gPacketPtr + 0x24;
-            *(CVECTOR *)tC1 = gSkyColor[temp + 0x11];
-            *(CVECTOR *)(tp2 + 0xc) = gSkyColor[temp + 0x12];
-            *(CVECTOR *)(tp2 + 0x14) = gSkyColor[temp];
-            CVar3 = gSkyColor[temp + 1];
-            tp2[3] = 8;
-            tp2[7] = 0x38;
-            *(CVECTOR *)(tp2 + 0x1c) = CVar3;
-          }
-          *(int *)(tp2 + 8) = *(int *)&pSkyMesh[temp + 17];
-          *(int *)(tp2 + 0x10) = *(int *)&pSkyMesh[temp + 18];
-          *(u_int *)(tp2 + 0x18) = *(u_int *)&pSkyMesh[temp];
-          *(long *)(tp2 + 0x20) = *(long *)&pSkyMesh[temp + 1];
         }
       }
     }
-HrzBuildSky_meshIterNext:
-    skyMesh_iter = skyMesh_iter + 1;
     i = i + 1;
-  } while( true );
+  }
+  if ((Sky_gTrackSpec->flags & 0x40U) != 0) {
+    Hrz_SetDitheringPrim(1,Draw_gViewOtSize + -2);
+  }
+  return;
 }
 
 /* ---- Sky_RenderStars__FP13Draw_SkyCachei  [HRZSKU.CPP:1284-1330] SLD-VERIFIED ----
- * NEAR-MISS 18 diffs (115/111, improved from 76 baseline). FIX (§3.12 #16
- * HOLD-GLOBAL-ADDR-ACROSS-CALL): `pcnt = starPosInSky;` moved to an unconditional
- * statement BEFORE the memset(&trans,...)/HrzSetPsxTranslation(&trans) calls (was
- * inside the `if(0<numStars)` block, loaded fresh after the calls) -- `starPosInSky`
- * is a loop-invariant global with no side effect reading it, so gcc hoists the load
- * unconditionally above the calls into a callee-saved reg (`$s0`) that survives them,
- * matching the oracle exactly (prologue/frame-size/call-setup all byte-identical after
- * this fix). Residual: `Render_gPalettePtr`'s `%hi` (a pure, memory-less `lui`) is
- * scheduled 2 loop-body positions earlier in ours than the oracle (which keeps the
- * `lui`+`lw` pair together at the point of use) -- tried reordering the `puVar5=`
- * statement earlier/relative to `puVar4=` (no effect, gcc's scheduler ignores C
- * statement order for this pure op) -- a genuine gcc instruction-scheduling floor, not
- * source-shapable without a pin. Accepted. */
+ * wave-13 rewrite from SYM @40f0c6 (locals: pcnt=$s0, n=$a2, prim=TILE_1*$a0, pshift=$s1
+ * + trans/scnt/transformed/zcnt AUTOs -- NO puVar/uVar soup). Shapes: TextureQuad-style
+ * slot/tag OT-link (packet-ptr store between the RMW's load and store; index-first addu
+ * `otz*4 + (int)pal`); the vy value is an ANONYMOUS common subexpr (written twice, CSE
+ * unifies; (short) casts at the tests, no reload of scnt.vy); visibility = a clean
+ * &&-chain in oracle test order (clipW, vx<0, clipH, v<0 -- the old comma-assignment
+ * form emitted a stored-bool xori); scnt copied into the prim as a u_long pun (aligned
+ * lw/sw; a DVECTOR struct assign emits lwl/lwr). RESIDUAL 11 (was 18): ours hoists the
+ * invariant `sll otz*4` to the loop preheader (life>=5 -> loop.c moves it; oracle keeps
+ * it in the bltz delay slot) -- tried single-expr both operand orders, in-place slot
+ * chain, block-scoped locals, pal-preload: -dL shows it moved regardless (likely
+ * cse_around_loop, not movables). Downstream a1/v0 pair swap rides on it. Floor-ish;
+ * permuter candidate. */
 void Sky_RenderStars(Draw_SkyCache *sd,int otz)
 
 {
-  int iVar1;
-  u_int uVar2;
-  u_long uVar3;
-  u_int *puVar4;
-  void *prim;
-  u_int *puVar5;
-  int n;
-  int iVar6;
-  u_int uVar7;
-  void *ppuVar8;
-  u_int uVar8;
   SVECTOR *pcnt;
+  int n;
+  TILE_1 *prim;
   int pshift;
-  int iVar9;
   coorddef trans;
   DVECTOR scnt;
   VECTOR transformed;
   int zcnt;
-  
-  iVar9 = 0x78;
+
+  pshift = 0x78;
   if (GameSetup_gData.commMode == 1) {
-    iVar9 = 0x3c;
+    pshift = 0x3c;
   }
   pcnt = starPosInSky;
   memset(&trans,0,0xc);
   HrzSetPsxTranslation(&trans);
-  iVar6 = 0;
+  n = 0;
   if (0 < Sky_gTrackSpec->numStars) {
-    ppuVar8 = &Render_gPacketPtr;
-    uVar7 = 0xffffff;
-    uVar8 = 0xff000000;
     do {
       gte_ldv0(pcnt);
       gte_rtps();
@@ -1205,26 +1133,32 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
       if (0 < zcnt) {
         gte_stSXY2(&scnt);
         gte_stlvnl(&transformed.vx);
-        iVar1 = (transformed.vy >> 2) + iVar9;
-        scnt.vy = (short)iVar1;
-        if ((((scnt.vx <= (sd->head).clipW) && (-1 < scnt.vx)) &&
-            (iVar1 = iVar1 * 0x10000 >> 0x10, iVar1 <= (sd->head).clipH)) && (-1 < iVar1)) {
-          puVar4 = *(u_int **)ppuVar8;
-          prim = puVar4;
-          puVar5 = (u_int *)(Render_gPalettePtr + otz * 4);
-          *puVar4 = *puVar4 & uVar8 | *puVar5 & uVar7;
-          uVar2 = *puVar5;
-          *(u_int **)ppuVar8 = puVar4 + 3;
-          *puVar5 = uVar2 & uVar8 | (u_int)puVar4 & uVar7;
-          uVar3 = (*(u_long *)&starColors[iVar6]);
-          *(u_char *)((int)puVar4 + 3) = 2;
-          puVar4[1] = uVar3;
-          *(u_char *)((int)puVar4 + 7) = 0x68;
-          *(DVECTOR *)(puVar4 + 2) = scnt;
+        scnt.vy = (short)((transformed.vy >> 2) + pshift);
+        if ((scnt.vx <= (sd->head).clipW) && (-1 < scnt.vx) &&
+            ((short)((transformed.vy >> 2) + pshift) <= (sd->head).clipH) &&
+            (-1 < (short)((transformed.vy >> 2) + pshift))) {
+          /* MATCH: in-place slot chain (sll then add in the SAME pseudo) -- a single
+             `otz*4 + pal` expression lets LICM hoist the invariant sll to the preheader
+             (oracle keeps it in the bltz delay slot; a twice-set reg is not movable) */
+          u_int *slot;
+          u_int tag;
+          u_char *pal;
+          pal = Render_gPalettePtr;
+          slot = (u_int *)(otz * 4);
+          slot = (u_int *)((int)slot + (int)pal);
+          prim = (TILE_1 *)Render_gPacketPtr;
+          *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
+          tag = *slot;
+          Render_gPacketPtr = (u_char *)prim + 0xc;
+          *slot = tag & 0xff000000 | (u_int)prim & 0xffffff;
+          *(u_long *)((u_char *)prim + 4) = (*(u_long *)&starColors[n]);
+          *((u_char *)prim + 3) = 2;
+          *((u_char *)prim + 7) = 0x68;
+          *(u_long *)((u_char *)prim + 8) = *(u_long *)&scnt;
         }
       }
-      iVar6 = iVar6 + 1;
-    } while (iVar6 < Sky_gTrackSpec->numStars);
+      n = n + 1;
+    } while (n < Sky_gTrackSpec->numStars);
   }
   return;
 }
@@ -1467,7 +1401,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
     coorddef trans2;
     memset(&trans2,0,0xc);
     HrzSetPsxTranslation(&trans2);
-    Flare_Moon(&moonPosInSky,(Draw_FlareCache *)&Render_gPalettePtr);
+    Flare_Moon(MOONPOS,(Draw_FlareCache *)&Render_gPalettePtr);
   }
   if ((TrackSpec_gSpec.skyspec.flags & 0x10U) != 0) {
     Sky_RenderStars((Draw_SkyCache *)&Render_gPalettePtr,Draw_gViewOtSize + -2);

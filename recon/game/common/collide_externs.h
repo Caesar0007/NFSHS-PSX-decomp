@@ -8,6 +8,7 @@
 extern int            Cars_gNumCars;
 extern Trk_NewSlice  *BWorldSm_slices;
 extern BO_tNewtonObj  InfiniteMassNewton[5];   /* @0x801100e4 EXT BO_tNewtonObj[5] */
+extern coorddef       D_80055A00;   /* @0x80055A00 rodata up-vector {0,0x10000,0} (DoObjectFixedObjectCollision upVec source; Ghidra const-folded it) */
 
 /* ---- PsyQ / eaclib math ---- */
 

@@ -947,9 +947,6 @@ int AIState_Chase::CalculateCloseTargettingAheadSlowDownFactor()
 /* ---- CloseTargeting__13AIState_Chase  AIState_Chase::CloseTargeting  [AISTATE.CPP:462-632] SLD-VERIFIED ---- */
 
 void AIState_Chase::CloseTargeting()
-
-
-
 {
   int latPos;
   int longPos;
@@ -961,310 +958,183 @@ void AIState_Chase::CloseTargeting()
   int desiredSpeed;
   int latTarget;
   int longTarget;
-  int superSlowDown;
-  int targettingStrength;
-  int targetLanePosition;
-
-  bool bVar1;
-
-  Car_tObj *pCVar2;
-
-  int iVar3;
-
-  int iVar4;
-
-  int iVar5;
-
-  int iVar6;
-
-  int iVar7;
-
-  int iVar8;
-
-  int iVar9;
-
-  int iVar10;
-
-  
-
-  iVar7 = 0;
-
-  iVar8 = 0;
-
-  iVar10 = (this->carObj_)->direction;
+  latPos = 0;
+  longPos = 0;
+  dir = (this->carObj_)->direction;
 
   this->DoNitrous(1);
 
-  iVar4 = 0;
-
+  bigLongPos = 0;
   if (this->murderMode_ != 0) {
-
-    iVar5 = 0;
-
-    iVar6 = 0;
-
+    longTarget = 0;
+    latTarget = 0;
     this->DoNitrous(0);
-
   }
-
   else {
-
-    iVar6 = this->latTargetRegion_;
-
-    iVar5 = this->longTargetRegion_;
-
+    latTarget = this->latTargetRegion_;
+    longTarget = this->longTargetRegion_;
   }
 
-  iVar9 = this->latMetersBetween_ * iVar10;
-
-  iVar3 = (this->targetCar_->N).dimension.x;
-
-  if (iVar9 < -iVar3) {
-
-    iVar7 = -1;
-
+  {
+    int t = this->latMetersBetween_ * dir;
+    int x = (this->targetCar_->N).dimension.x;
+    if (t < -x) {
+      latPos = -1;
+    }
+    else if (x < t) {
+      latPos = 1;
+    }
   }
 
-  else if (iVar3 < iVar9) {
-
-    iVar7 = 1;
-
+  {
+    int t = this->longMetersBetween_ * dir;
+    int z = (this->targetCar_->N).dimension.z;
+    if (t < 0x20000 - z) {
+      longPos = -1;
+    }
+    else if (z + 0x20000 < t) {
+      longPos = 1;
+    }
   }
 
-  iVar9 = this->longMetersBetween_ * iVar10;
-
-  iVar3 = (this->targetCar_->N).dimension.z;
-
-  if (iVar9 < 0x20000 - iVar3) {
-
-    iVar8 = -1;
-
+  {
+    int t = this->longMetersBetween_ * dir;
+    int z = (this->targetCar_->N).dimension.z + 0x20000;
+    if (t < -z) {
+      bigLongPos = -1;
+    }
+    else if (z < t) {
+      bigLongPos = 1;
+    }
   }
 
-  else if (iVar3 + 0x20000 < iVar9) {
-
-    iVar8 = 1;
-
-  }
-
-  iVar9 = this->longMetersBetween_ * iVar10;
-
-  iVar3 = (this->targetCar_->N).dimension.z + 0x20000;
-
-  if (iVar9 < -iVar3) {
-
-    iVar4 = -1;
-
-  }
-
-  else if (iVar3 < iVar9) {
-
-    iVar4 = 1;
-
-  }
-
-  if ((iVar7 == iVar6) && (iVar8 == iVar5)) {
-
+  if ((latPos == latTarget) && (longPos == longTarget)) {
     this->inTargetRegion_ = this->inTargetRegion_ + AI_elapsedTime;
-
   }
-
   else {
-
     this->inTargetRegion_ = 0;
-
   }
 
-  iVar3 = 0;
+  forceLongAction = 0;
+  forceLatAction = 0;
+  doLatAction = 1;
 
-  iVar9 = 0;
-
-  bVar1 = true;
-
-  if (iVar4 * iVar5 == -1) {
-
-    iVar9 = iVar6;
-
-    if (iVar6 == 0) {
-
-      iVar9 = -1;
-
+  if (bigLongPos * longTarget == -1) {
+    forceLatAction = latTarget;
+    if (latTarget == 0) {
+      forceLatAction = -1;
     }
-
   }
-
-  else if ((iVar7 * iVar6 == -1) && (iVar4 == 0)) {
-
-    iVar3 = -1;
-
-    bVar1 = false;
-
+  else if ((latPos * latTarget == -1) && (bigLongPos == 0)) {
+    forceLongAction = -1;
+    doLatAction = 0;
   }
-
-  else if ((iVar6 == 0) && ((iVar4 == 0 && (this->murderMode_ == 0)))) {
-
-    bVar1 = false;
-
+  else if ((latTarget == 0) && ((bigLongPos == 0 && (this->murderMode_ == 0)))) {
+    doLatAction = 0;
   }
-
-  else if ((iVar5 == 1) && (((iVar4 == 1 && (iVar7 == 0)) && (this->longMetersBetween_ < 0x140000)))
-
+  else if ((longTarget == 1) && (((bigLongPos == 1 && (latPos == 0)) && (this->longMetersBetween_ < 0x140000)))
           ) {
-
-    iVar3 = -2;
-
+    forceLongAction = -2;
   }
 
-  iVar4 = (this->delayCar_).currentSpeed_;
-
-  if (iVar4 < 1) {
-
-    iVar4 = -iVar4;
-
+  desiredSpeed = (this->delayCar_).currentSpeed_;
+  if (desiredSpeed < 1) {
+    desiredSpeed = -desiredSpeed;
   }
 
-  if ((iVar8 < iVar5) || (iVar3 == 1)) {
-
-    iVar7 = 0x16666;
-
+  if ((longPos < longTarget) || (forceLongAction == 1)) {
+    desiredSpeed = fixedmult(desiredSpeed,0x16666);
   }
-
-  else if (((iVar5 < iVar8) || (iVar3 == -1)) ||
-
+  else if (((longTarget < longPos) || (forceLongAction == -1)) ||
           ((0x140000 < this->longMetersBetween_ &&
-
-           (((0x9ffff < this->longMetersBetween_ || (iVar7 != 0)) || (iVar6 == 0)))))) {
-
-    iVar7 = this->CalculateCloseTargettingAheadSlowDownFactor();
-
+           (((0x9ffff < this->longMetersBetween_ || (latPos != 0)) || (latTarget == 0)))))) {
+    desiredSpeed = fixedmult(desiredSpeed,this->CalculateCloseTargettingAheadSlowDownFactor());
   }
-
   else {
-
-    if (iVar3 != -2) goto LAB_80070704;
-
-    if (this->aggressionLevel_ == 0) {
-
-      iVar7 = 0xca3d;
-
-    }
-
-    else {
-
-      iVar7 = 0xa666;
-
-      if (this->aggressionLevel_ == 1) {
-
-        iVar7 = 0xbae1;
-
+    if (forceLongAction != -2) goto LAB_80070704;
+    {
+      int f;
+      if (this->aggressionLevel_ != 0) {
+        f = 0xa666;
+        if (this->aggressionLevel_ == 1) {
+          f = 0xbae1;
+        }
       }
-
+      else {
+        f = 0xca3d;
+      }
+      desiredSpeed = fixedmult(desiredSpeed,f);
     }
-
   }
-
-  iVar4 = fixedmult(iVar4,iVar7);
 
 LAB_80070704:
-
   AISpeeds_CalcDesiredSpeed(this->carObj_);
 
-  pCVar2 = this->carObj_;
-
-  iVar7 = pCVar2->desiredSpeed;
-
-  if (iVar7 < 0) {
-
-    iVar7 = -iVar7;
-
+  {
+    int t = (this->carObj_)->desiredSpeed;
+    if (t < 0) {
+      t = -t;
+    }
+    (this->carObj_)->desiredSpeed = t;
   }
 
-  pCVar2->desiredSpeed = iVar7;
-
-  pCVar2 = this->carObj_;
-
-  iVar7 = pCVar2->desiredSpeed;
-
-  if (iVar4 < iVar7) {
-
-    iVar7 = iVar4;
-
+  {
+    int t = (this->carObj_)->desiredSpeed;
+    if (desiredSpeed < t) {
+      t = desiredSpeed;
+    }
+    desiredSpeed = t;
+    t = 0x50000;
+    if (0x4ffff < desiredSpeed) {
+      t = desiredSpeed;
+    }
+    desiredSpeed = t * dir;
+    (this->carObj_)->desiredSpeed = desiredSpeed;
   }
-
-  iVar4 = 0x50000;
-
-  if (0x4ffff < iVar7) {
-
-    iVar4 = iVar7;
-
-  }
-
-  pCVar2->desiredSpeed = iVar4 * iVar10;
 
   AI_GenericBeginCycle(this->carObj_);
 
-  if (bVar1) {
+  if (doLatAction) {
+    int targettingStrength;
+    int targetLanePosition;
 
-    iVar4 = 0xf0000;
-
-    if (this->murderMode_ == 0) {
-
-      if (iVar9 == 0) {
-
-        iVar7 = (this->relPosition_).x;
-
-      }
-
-      else {
-
-        iVar7 = (this->targetCar_->N).dimension.x + 0x60000;
-
-      }
-
-      iVar8 = (this->delayCar_).roadPosition_ + iVar7 * iVar10;
-
-      iVar10 = ((this->carObj_)->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices;
-
-      iVar7 = -((u_int)*(u_char *)(iVar10 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar10 + 0x1d) >> 4));
-
-      if (iVar7 < iVar8) {
-
-        iVar7 = iVar8;
-
-      }
-
-      iVar8 = (u_int)*(u_char *)(iVar10 + 0x1f) * 0x8000 * (*(u_char *)(iVar10 + 0x1d) & 0xf);
-
-      if (iVar7 < iVar8) {
-
-        iVar8 = iVar7;
-
-      }
-
+    targettingStrength = 0xf0000;
+    if (this->murderMode_ != 0) {
+      targettingStrength = 0x1e0000;
+      targetLanePosition = (this->delayCar_).roadPosition_;
     }
-
     else {
+      int latOffset;
+      int slicePtr;
 
-      iVar4 = 0x1e0000;
+      if (forceLatAction != 0) {
+        latOffset = (this->targetCar_->N).dimension.x + 0x60000;
+      }
+      else {
+        latOffset = (this->relPosition_).x;
+      }
+      targetLanePosition = (this->delayCar_).roadPosition_ + latOffset * dir;
 
-      iVar8 = (this->delayCar_).roadPosition_;
+      slicePtr = ((this->carObj_)->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices;
 
+      latOffset = -((u_int)*(u_char *)(slicePtr + 0x1e) * 0x8000 * (u_int)(*(u_char *)(slicePtr + 0x1d) >> 4));
+      if (latOffset < targetLanePosition) {
+        latOffset = targetLanePosition;
+      }
+
+      targetLanePosition = (u_int)*(u_char *)(slicePtr + 0x1f) * 0x8000 * (*(u_char *)(slicePtr + 0x1d) & 0xf);
+      if (latOffset < targetLanePosition) {
+        targetLanePosition = latOffset;
+      }
     }
 
-    (this->carObj_)->preferredLateralPosition = iVar8;
-
-    (this->carObj_)->preferredLateralPositionPower = iVar4;
-
+    (this->carObj_)->preferredLateralPosition = targetLanePosition;
+    (this->carObj_)->preferredLateralPositionPower = targettingStrength;
   }
 
   this->CheckForBarriersAndTargetAroundThem();
-
   AI_GenericCycle(this->carObj_);
-
   AI_GenericEndCycle(this->carObj_);
-
-  return;
-
 }
 
 

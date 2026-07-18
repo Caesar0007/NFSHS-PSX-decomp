@@ -17,6 +17,17 @@ int          Render_gBlurEffectMode;   /* @0x8013d3c8  (bss(zero)) */
 int          Draw_gPlayer1View;   /* @0x8013d3cc  (bss(zero)) */
 int          Draw_gPlayer2View;   /* @0x8013d3d0  (bss(zero)) */
 RECT         gPauseMenuRect;   /* @0x8013d3d4  (bss(zero)) */
+/* HEADER WISH: Render_Render__Fi's oracle addresses gPauseMenuRect's 4 short fields
+   (x/y/w/h @0x8013d3d4/d6/d8/da) via INDIVIDUAL %gp_rel(sym) relocs -- i.e. each field
+   is its own gp-eligible 2-byte scalar symbol (Ghidra names: gPauseMenuRect=x,
+   D_8013D3D6=y, D_8013D3D8=w, D_8013D3DA=h), NOT offsets into one 8-byte RECT struct.
+   RPause_CopyBackToFrontBuffer's oracle (rpause.cpp, separate TU) ALSO addresses them
+   as 4 separate symbols (same names) but via ABSOLUTE lui/lhu there, not gp-rel -- so
+   both TUs treat this as 4 scalars, just with different addressing-mode outcomes.
+   Splitting the RECT decl into 4 separate `short` globals would let render.cpp's field
+   stores go gp-relative (fixes ~40 of Render_Render's diffs) but touches the shared
+   extern (render_externs.h / rpause_externs.h) and rpause.cpp's `.x/.y/.w/.h` accesses
+   -- out of render.cpp-only scope for this pass; left as a residual. */
 int          gPauseRender;   /* @0x8013d3dc  (bss(zero)) */
 int          Draw_gRearView;   /* @0x8013d3e0  (bss(zero)) */
 int          Render_gDebugView;   /* @0x8013d3e4  (bss(zero)) */
@@ -229,29 +240,8 @@ void Render_Render(int pause)
 {
   bool bVar1;
   int ViewID;
-  
-  if (pause == 0) {
-    if (gPauseRender == 0) {
-      bVar1 = GameSetup_gData.commMode != 1;
-      if (bVar1) {
-        Render_StartFrameRender();
-        ViewID = Draw_gPlayer1View;
-      }
-      else {
-        Render_StartFrameRender();
-        Render_RenderPlayerView(Draw_gPlayer1View,0);
-        ViewID = Draw_gPlayer2View;
-      }
-      Render_RenderPlayerView(ViewID,(u_int)!bVar1);
-      Hud_Render();
-      Render_RenderDebugView();
-      Render_StopFrameRender();
-    }
-    else {
-      gPauseRender = 0;
-    }
-  }
-  else {
+
+  if (pause != 0) {
     if (gPauseRender == 0) {
       gPauseMenuRect.w = 0x140;
       gPauseRender = 1;
@@ -272,6 +262,27 @@ void Render_Render(int pause)
       RPause_StartPauseMenu();
       Render_RenderPauseMenuView();
       RPause_StopPauseMenu();
+    }
+  }
+  else {
+    if (gPauseRender != 0) {
+      gPauseRender = 0;
+    }
+    else {
+      bVar1 = GameSetup_gData.commMode != 1;
+      if (bVar1) {
+        Render_StartFrameRender();
+        ViewID = Draw_gPlayer1View;
+      }
+      else {
+        Render_StartFrameRender();
+        Render_RenderPlayerView(Draw_gPlayer1View,0);
+        ViewID = Draw_gPlayer2View;
+      }
+      Render_RenderPlayerView(ViewID,(u_int)!bVar1);
+      Hud_Render();
+      Render_RenderDebugView();
+      Render_StopFrameRender();
     }
   }
   return;
@@ -383,67 +394,58 @@ void Render_InitLibRender(void)
 void StampImage(int xo,int depth)
 
 {
-  POLY_FT4 * ft4_p;
-  int addr_24;
-  int tu1;
+  POLY_FT4 *ft4_p;
   u_int *pal_link;
-  int i;
-  int x_pos;
-  int x_remain;
   int frame;
-  int buf_idx;
-  u_char *ft4_packet;
-  short ts1;
-  
-  buf_idx = gFlip;
-  if ((Render_gBlurEffectMode & 2U) == 0) {
-    buf_idx = 1 - gFlip;
+  int i;
+  int x_remain;
+
+  if ((Render_gBlurEffectMode & 2U) != 0) {
+    frame = gFlip;
   }
-  x_pos = 0;
+  else {
+    frame = 1 - gFlip;
+  }
   if ((Render_gBlurEffectMode & 4U) == 0) {
     xo = 0;
   }
   x_remain = 0x140;
-  do {
-    ft4_packet = Render_gPacketPtr;
+  for (i = 0; i < 5; i = i + 1) {
+    ft4_p = (POLY_FT4 *)Render_gPacketPtr;
     pal_link = (u_int *)(Render_gPalettePtr + depth * 4);
-    *(u_int *)Render_gPacketPtr = *(u_int *)Render_gPacketPtr & 0xff000000 | *pal_link & 0xffffff;
-    addr_24 = (u_int)Render_gPacketPtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0x28;
-    *pal_link = *pal_link & 0xff000000 | addr_24;
-    ft4_packet[3] = 9;
-    ft4_packet[7] = 0x2e;
-    ts1 = (short)xo;
-    *(short *)(ft4_packet + 0x10) = ts1 + 0x40;
-    *(short *)(ft4_packet + 0x20) = ts1 + 0x40;
-    ft4_packet[0xc] = 0;
-    ft4_packet[0xd] = 0;
-    ft4_packet[0x14] = 0x40;
-    ft4_packet[0x15] = 0;
-    ft4_packet[0x1c] = 0;
-    ft4_packet[0x1d] = 0xf0;
-    ft4_packet[0x24] = 0x40;
-    ft4_packet[0x25] = 0xf0;
-    *(short *)(ft4_packet + 8) = ts1;
-    *(u_short *)(ft4_packet + 10) = 0;
-    *(u_short *)(ft4_packet + 0x12) = 0;
-    *(short *)(ft4_packet + 0x18) = ts1;
-    *(u_short *)(ft4_packet + 0x1a) = 0xf0;
-    *(u_short *)(ft4_packet + 0x22) = 0xf0;
-    ft4_packet[4] = 0x80;
-    ft4_packet[5] = 0x80;
-    ft4_packet[6] = 0x80;
-    if (buf_idx == 0) {
-      tu1 = x_remain & 0x3ff;
+    *(u_int *)ft4_p = *(u_int *)ft4_p & 0xff000000 | *pal_link & 0xffffff;
+    Render_gPacketPtr = (u_char *)ft4_p + 0x28;
+    *pal_link = *pal_link & 0xff000000 | (u_int)ft4_p & 0xffffff;
+    ((u_char *)ft4_p)[3] = 9;
+    ft4_p->code = 0x2e;
+    ft4_p->x1 = xo + 0x40;
+    ft4_p->x3 = xo + 0x40;
+    ft4_p->u0 = 0;
+    ft4_p->v0 = 0;
+    ft4_p->u1 = 0x40;
+    ft4_p->v1 = 0;
+    ft4_p->u2 = 0;
+    ft4_p->v2 = 0xf0;
+    ft4_p->u3 = 0x40;
+    ft4_p->v3 = 0xf0;
+    ft4_p->x0 = xo;
+    ft4_p->y0 = 0;
+    ft4_p->y1 = 0;
+    ft4_p->x2 = xo;
+    ft4_p->y2 = 0xf0;
+    ft4_p->y3 = 0xf0;
+    ft4_p->r0 = 0x80;
+    ft4_p->g0 = 0x80;
+    ft4_p->b0 = 0x80;
+    if (frame != 0) {
+      ft4_p->tpage = (u_short)((i << 6) & 0x3ff) >> 6 | 0x110;
     }
     else {
-      tu1 = (x_pos & 0xfU) << 6;
+      ft4_p->tpage = (u_short)(x_remain & 0x3ff) >> 6 | 0x110;
     }
-    *(u_short *)(ft4_packet + 0x16) = (u_short)(tu1 >> 6) | 0x110;
     x_remain = x_remain + 0x40;
-    x_pos = x_pos + 1;
     xo = xo + 0x40;
-  } while (x_pos < 5);
+  }
   return;
 }
 
@@ -451,21 +453,17 @@ void StampImage(int xo,int depth)
 void Render_InitBlurMode(void)
 
 {
-  if (GameSetup_gData.sgge == 0x20) {
-    Render_gBlurEffectMode = 0x1b;
-    return;
-  }
-  if (GameSetup_gData.sgge < 0x21) {
-    if (GameSetup_gData.sgge != 0x10) {
-      return;
-    }
+  switch (GameSetup_gData.sgge) {
+  case 0x10:
     Render_gBlurEffectMode = 0xb;
-    return;
+    break;
+  case 0x20:
+    Render_gBlurEffectMode = 0x1b;
+    break;
+  case 0x40:
+    Render_gBlurEffectMode = 0x1f;
+    break;
   }
-  if (GameSetup_gData.sgge != 0x40) {
-    return;
-  }
-  Render_gBlurEffectMode = 0x1f;
   return;
 }
 
@@ -473,25 +471,12 @@ void Render_InitBlurMode(void)
 void Render_InsertDepthOfField(void)
 
 {
-  POLY_F4 * prim;
-  DR_STP * stp_prim;
-  short tpage;
-  int pkt_addr24_a;
-  int pkt_addr24_b;
-  u_int *puVar1;
-  int frame;
+  POLY_F4 *prim;
+  DR_STP *stp_prim;
   DR_MODE *dr_mode;
-  int i;
-  int pkt_addr24_c;
-  int players;
-  RECT rec;
-  void *prev_pkt_drm2;
-  void *prev_pkt_drm;
-  u_char *cur_pkt_poly;
-  u_char *cur_pkt_stp;
-  void *prev_pkt_stp;
-  u_char *cur_pkt_drm;
-  
+  u_int *pal_link;
+  short tpage;
+
   if ((Render_gBlurEffectMode & 1U) != 0) {
     if ((Render_gBlurEffectMode & 8U) != 0) {
       StampImage(1,Render_gBlurEffectDepth1);
@@ -499,40 +484,39 @@ void Render_InsertDepthOfField(void)
     if ((Render_gBlurEffectMode & 0x10U) != 0) {
       StampImage(2,Render_gBlurEffectDepth2);
     }
-    cur_pkt_poly = Render_gPacketPtr;
-    puVar1 = (u_int *)(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4);
-    *(u_int *)Render_gPacketPtr = *(u_int *)Render_gPacketPtr & 0xff000000 | *puVar1 & 0xffffff;
-    pkt_addr24_a = (u_int)Render_gPacketPtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0x18;
-    *puVar1 = *puVar1 & 0xff000000 | pkt_addr24_a;
-    cur_pkt_poly[3] = 5;
-    cur_pkt_poly[7] = 0x2a;
-    *(u_short *)(cur_pkt_poly + 8) = 0;
-    *(u_short *)(cur_pkt_poly + 10) = 0;
-    *(u_short *)(cur_pkt_poly + 0xc) = 0x140;
-    *(u_short *)(cur_pkt_poly + 0xe) = 0;
-    *(u_short *)(cur_pkt_poly + 0x10) = 0;
-    cur_pkt_poly[4] = 0;
-    cur_pkt_poly[5] = 0;
-    cur_pkt_poly[6] = 0;
-    cur_pkt_stp = Render_gPacketPtr;
-    *(u_short *)(cur_pkt_poly + 0x12) = 0xf0;
-    *(u_short *)(cur_pkt_poly + 0x14) = 0x140;
-    *(u_short *)(cur_pkt_poly + 0x16) = 0xf0;
-    puVar1 = (u_int *)(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4);
-    *(u_int *)Render_gPacketPtr = *(u_int *)Render_gPacketPtr & 0xff000000 | *puVar1 & 0xffffff;
-    pkt_addr24_b = (u_int)Render_gPacketPtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0xc;
-    *puVar1 = *puVar1 & 0xff000000 | pkt_addr24_b;
-    SetDrawStp((DR_STP *)cur_pkt_stp,1);
-    cur_pkt_drm = Render_gPacketPtr;
-    puVar1 = (u_int *)(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4);
-    *(u_int *)Render_gPacketPtr = *(u_int *)Render_gPacketPtr & 0xff000000 | *puVar1 & 0xffffff;
-    pkt_addr24_c = (u_int)Render_gPacketPtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0xc;
-    *puVar1 = *puVar1 & 0xff000000 | pkt_addr24_c;
+    prim = (POLY_F4 *)Render_gPacketPtr;
+    pal_link = (u_int *)(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4);
+    *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal_link & 0xffffff;
+    Render_gPacketPtr = (u_char *)prim + 0x18;
+    *pal_link = *pal_link & 0xff000000 | (u_int)prim & 0xffffff;
+    ((u_char *)prim)[3] = 5;
+    prim->code = 0x2a;
+    prim->x0 = 0;
+    prim->y0 = 0;
+    prim->x1 = 0x140;
+    prim->y1 = 0;
+    prim->x2 = 0;
+    prim->r0 = 0;
+    prim->g0 = 0;
+    prim->b0 = 0;
+    prim->y2 = 0xf0;
+    prim->x3 = 0x140;
+    prim->y3 = 0xf0;
+
+    stp_prim = (DR_STP *)Render_gPacketPtr;
+    pal_link = (u_int *)(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4);
+    *(u_int *)stp_prim = *(u_int *)stp_prim & 0xff000000 | *pal_link & 0xffffff;
+    Render_gPacketPtr = (u_char *)stp_prim + 0xc;
+    *pal_link = *pal_link & 0xff000000 | (u_int)stp_prim & 0xffffff;
+    SetDrawStp(stp_prim,1);
+
+    dr_mode = (DR_MODE *)Render_gPacketPtr;
+    pal_link = (u_int *)(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4);
+    *(u_int *)dr_mode = *(u_int *)dr_mode & 0xff000000 | *pal_link & 0xffffff;
+    Render_gPacketPtr = (u_char *)dr_mode + 0xc;
+    *pal_link = *pal_link & 0xff000000 | (u_int)dr_mode & 0xffffff;
     tpage = GetTPage(2,1,0,0x100);
-    SetDrawMode((DR_MODE *)cur_pkt_drm,0,0,(u_int)(u_short)tpage,(RECT *)0x0);
+    SetDrawMode(dr_mode,0,0,(u_int)(u_short)tpage,(RECT *)0x0);
   }
   return;
 }

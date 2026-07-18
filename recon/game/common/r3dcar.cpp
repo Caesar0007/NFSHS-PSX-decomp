@@ -1291,48 +1291,47 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
     (carObj->render).detail = 1;
   }
   {
-  matrixtdef tmpMat;   /* SYM car/pos @ff08 + matP @ff08/ff50 (sibling of loop block) */
-  matrixtdef matX;     /* SYM matP @ff50 */
-  matrixtdef *pmVar12; /* block-local: head-region funnel (fn-scope pseudo spanned into the
-                          matrix loop and stole a saved reg -> carType spilled) */
-  matrixtdef *pmVar13;
-  int *m1;
+  /* SYM blk 123 (line 123-134): car/pos coorddef scratch -- SYM-VERIFIED against nfs4-f-v3.txt
+     ($800afbd0 block @ line=123): car@sp+0xf0 (12B), pos@sp+0x100 (12B). pos.y (sp+0x104) is
+     genuinely never written by the oracle -- only pos.x/pos.z hold the two dot-product sums. */
+  coorddef car;
+  coorddef pos;
   int iVar5;
   int iVar6;
   int iVar7;
   int iVar9;
   int iVar11;
-  tmpMat.m[0] = (carObj->N).position.x - *(int *)((int)Vi + 8);
+  car.x = (carObj->N).position.x - *(int *)((int)Vi + 8);
   detailIndex = (carObj->render).detail + 2;
-  tmpMat.m[1] = (carObj->N).position.y - *(int *)((int)Vi + 0xc);
-  tmpMat.m[2] = (carObj->N).position.z - *(int *)((int)Vi + 0x10);
-  iVar16 = tmpMat.m[0];
-  if (tmpMat.m[0] < 0) {
-    iVar16 = tmpMat.m[0] + 0xff;
+  car.y = (carObj->N).position.y - *(int *)((int)Vi + 0xc);
+  car.z = (carObj->N).position.z - *(int *)((int)Vi + 0x10);
+  iVar16 = car.x;
+  if (car.x < 0) {
+    iVar16 = car.x + 0xff;
   }
   iVar5 = (carObj->N).orientMat.m[0];
   if (iVar5 < 0) {
     iVar5 = iVar5 + 0xff;
   }
-  iVar11 = tmpMat.m[1];
-  if (tmpMat.m[1] < 0) {
-    iVar11 = tmpMat.m[1] + 0xff;
+  iVar11 = car.y;
+  if (car.y < 0) {
+    iVar11 = car.y + 0xff;
   }
   iVar6 = (carObj->N).orientMat.m[1];
   if (iVar6 < 0) {
     iVar6 = iVar6 + 0xff;
   }
-  iVar9 = tmpMat.m[2];
-  if (tmpMat.m[2] < 0) {
-    iVar9 = tmpMat.m[2] + 0xff;
+  iVar9 = car.z;
+  if (car.z < 0) {
+    iVar9 = car.z + 0xff;
   }
   iVar7 = (carObj->N).orientMat.m[2];
   if (iVar7 < 0) {
     iVar7 = iVar7 + 0xff;
   }
-  tmpMat.m[4] = (iVar16 >> 8) * (iVar5 >> 8);
-  tmpMat.m[4] = tmpMat.m[4] + (iVar11 >> 8) * (iVar6 >> 8);
-  tmpMat.m[4] = tmpMat.m[4] + (iVar9 >> 8) * (iVar7 >> 8);
+  pos.x = (iVar16 >> 8) * (iVar5 >> 8);
+  pos.x = pos.x + (iVar11 >> 8) * (iVar6 >> 8);
+  pos.x = pos.x + (iVar9 >> 8) * (iVar7 >> 8);
   iVar5 = (carObj->N).orientMat.m[6];
   if (iVar5 < 0) {
     iVar5 = iVar5 + 0xff;
@@ -1341,23 +1340,29 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
   if (iVar6 < 0) {
     iVar6 = iVar6 + 0xff;
   }
-  iVar9 = tmpMat.m[2];
-  if (tmpMat.m[2] < 0) {
-    iVar9 = tmpMat.m[2] + 0xff;
+  iVar9 = car.z;
+  if (car.z < 0) {
+    iVar9 = car.z + 0xff;
   }
   iVar7 = (carObj->N).orientMat.m[8];
   if (iVar7 < 0) {
     iVar7 = iVar7 + 0xff;
   }
-  tmpMat.m[6] = (iVar16 >> 8) * (iVar5 >> 8);
-  tmpMat.m[6] = tmpMat.m[6] + (iVar11 >> 8) * (iVar6 >> 8);
-  tmpMat.m[6] = tmpMat.m[6] + (iVar9 >> 8) * (iVar7 >> 8);
-  iVar16 = fixedatan(tmpMat.m[4],tmpMat.m[6]);
+  pos.z = (iVar16 >> 8) * (iVar5 >> 8);
+  pos.z = pos.z + (iVar11 >> 8) * (iVar6 >> 8);
+  pos.z = pos.z + (iVar9 >> 8) * (iVar7 >> 8);
+  iVar16 = fixedatan(pos.x,pos.z);
   R3DCar_yawCam = 0x1000 - (iVar16 >> 4);
-  /* MATCH: per-arm INLINE tail calls (oracle keeps both fasttransmult tails un-merged;
-     the pmVar12/pmVar13 funnel pseudos were extra saved-reg contenders -> detailIndex spill) */
+  }
+  /* SYM blk 134/142/152 (if-arm) vs blk 174 (else-arm): bodyIMat/matP are BLOCK-SCOPED to the
+     if-arm only (sp+0x110/sp+0x138); the else-arm's matP is a SEPARATE local reusing the
+     car/pos slot (sp+0xf0) -- SYM-VERIFIED, replaces the earlier tmpMat.m+8 pointer-math bug
+     (m1 aliased into the 36-byte car/pos region, which the oracle never does: it uses a real
+     36-byte bodyIMat local at sp+0x110). */
   if (carType < 0x1c) {
-    int roll;   /* SYM blk 152 REG s3 -- live across the bodyMat calls */
+    matrixtdef bodyIMat; /* SYM blk 152 @sp+0x110 */
+    matrixtdef matP;     /* SYM blk 152 @sp+0x138 */
+    int roll;            /* SYM blk 152 REG s3 -- live across the bodyMat calls */
     R3DCar_MATRIX3DT_Copy((carObj->N).orientMat.m,insideMat.m);
     if (rightHandDrive != 0) {
       insideMat.m[0] = -insideMat.m[0];
@@ -1369,24 +1374,22 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
       roll = -roll;
     }
     fixedxformz(&bodyMat,(carObj->render).bodyRoll);
-    fixedxformx(&matX,(carObj->render).bodyPitch + 100);
-    Math_fasttransmult(&bodyMat,&matX,&bodyMat);
+    fixedxformx(&matP,(carObj->render).bodyPitch + 100);
+    Math_fasttransmult(&bodyMat,&matP,&bodyMat);
     Math_fasttransmult(&bodyMat,&(carObj->N).orientMat,&bodyMat);
-    m1 = tmpMat.m + 8;
-    fixedxformz(m1,roll);
-    Math_fasttransmult((matrixtdef *)m1,&matX,(matrixtdef *)m1);
-    Math_fasttransmult((matrixtdef *)m1,&insideMat,&insideMat);
-    Math_fasttransmult(&bodyMat,(matrixtdef *)((int)Vi + 0x44),&orientMat)
-    ;
+    fixedxformz(&bodyIMat,roll);
+    Math_fasttransmult(&bodyIMat,&matP,&bodyIMat);
+    Math_fasttransmult(&bodyIMat,&insideMat,&insideMat);
+    Math_fasttransmult(&bodyMat,(matrixtdef *)((int)Vi + 0x44),&orientMat);
     Math_fasttransmult(&insideMat,(matrixtdef *)((int)Vi + 0x44),&orientIMat);
   }
   else {
+    matrixtdef matP; /* SYM blk 174 @sp+0xf0 (reuses car/pos slot -- dead by this point) */
     fixedxformz(&bodyMat,(carObj->render).bodyRoll);
-    fixedxformx(&tmpMat,(carObj->render).bodyPitch);
-    Math_fasttransmult(&bodyMat,&tmpMat,&bodyMat);
+    fixedxformx(&matP,(carObj->render).bodyPitch);
+    Math_fasttransmult(&bodyMat,&matP,&bodyMat);
     Math_fasttransmult(&bodyMat,&(carObj->N).orientMat,&bodyMat);
     Math_fasttransmult(&bodyMat,(matrixtdef *)((int)Vi + 0x44),&orientMat);
-  }
   }
   if ((simVar.pauseSim == 0) && (simVar.quickPauseSim == 0)) {
     if (carType == 0x1c) {
@@ -1638,9 +1641,6 @@ R_ICFt_loop2Post:
   matrixtdef tmpMat;   /* SYM blk 428 @ff08 (sibling of region2/3 block -> slot merges) */
   coorddef translation;/* SYM blk 428 @ff30 */
   coorddef tmp;        /* SYM blk 428 @ff40 */
-  matrixtdef matX;     /* SYM blk 576 @ff50 */
-  matrixtdef matY;     /* SYM blk 576 @ff78 */
-  matrixtdef mStack_60;/* SYM blk 558 @ffa0 */
   for (i = 0; i < 0x39; i = i + 1) {
     int suspensionOffset;   /* SYM blk 428 REG a0 */
     matrixtdef *pmVar12;    /* sibling redecl -- fresh pseudos per region */
@@ -1740,6 +1740,9 @@ R_ICFt_loop2Post:
       goto R_ICFt_setInsideMat;
     }
     case 0x26: {
+      matrixtdef matR;         /* SYM blk 558 @ff60 -- block-scoped to THIS case only (sibling
+                                   of blk 576's matX/matY; oracle reuses these stack slots) */
+      matrixtdef matP;         /* SYM blk 558 @ff88 */
       int roll;               /* SYM blk 558 REG a1 */
       int pitch;              /* SYM blk 558 REG s1 */
       roll = (carObj->render).bodyRoll * 3 >> 1;
@@ -1747,14 +1750,16 @@ R_ICFt_loop2Post:
       if (rightHandDrive != 0) {
         roll = -roll;
       }
-      fixedxformz(&matY,roll);
-      pmVar12 = &mStack_60;
+      fixedxformz(&matR,roll);
+      pmVar12 = &matP;
       fixedxformx(pmVar12,pitch);
-      pmVar13 = &matY;
+      pmVar13 = &matR;
       goto R_ICFt_matrixPrepY;
     }
     case 0x27:
     case 0x28: {
+      matrixtdef matX;         /* SYM blk 576 @ff50 -- block-scoped to THIS case only */
+      matrixtdef matY;         /* SYM blk 576 @ff78 */
       int maxAngleFactor;     /* SYM blk 576 REG s1 */
       int steeringAngle;      /* SYM blk 576 REG s0 */
       steeringAngle = (carObj->control).steering;

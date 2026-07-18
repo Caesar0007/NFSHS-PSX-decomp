@@ -3960,7 +3960,7 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
 {
   int i;
   int j;
-  char hilight_state [32];
+  signed char hilight_state [32];
   int hilight [2];
   int hilight_direction [2];
   int index;
@@ -3971,12 +3971,12 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
   if (gShowroomLights != 0) {
     int iVar4;
     int iVar5;
-    char *pcVar6;
+    signed char *pcVar6;
     COORD16 *pCVar7;
     u_int uVar8;
     int iVar11;
     u_long *puVar18;
-    char *pcVar15;
+    signed char *pcVar15;
 
     iVar4 = gettick();
     iVar5 = iVar4 / 256;

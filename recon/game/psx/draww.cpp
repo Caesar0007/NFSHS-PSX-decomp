@@ -26,7 +26,7 @@ int          animation_timer[12];   /* @0x8011f718  (bss(zero)) */
 ChunkObjectInfo gChunkObjInfo;   /* @0x8011f748  (bss(zero)) */
 CCOORD16     gVertex3d[160];   /* @0x8011f760  (bss(zero)) */
 int          stackSpeedUpEnbabledFlag;   /* @0x8013d81c  (bss(zero)) */
-char         goffsets[8] = { 125, 125, 50, 15, -1, 125, 0, 0 };   /* @0x8013d820 */
+signed char  goffsets[8] = { 125, 125, 50, 15, -1, 125, 0, 0 };   /* @0x8013d820 -- MATCH: oracle `lb` (signed byte) at the goffsets[] lookup site; -1 must sign-extend, not zero-extend */
 u_long       gWSavePtr;   /* @0x8013d830  (bss(zero)) */
 int          gSD_gt4counter;   /* @0x8013d834  (bss(zero)) */
 int          gSD_gt3counter;   /* @0x8013d838  (bss(zero)) */
@@ -2292,15 +2292,11 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      structure (SYM names this pointer `objInstance`). */
   u_char bVar1;
   void *pvVar3;
-  int iVar4;
-  int iVar5;
+  int heading;
   ObjectAnim *pOVar6;
   int doFrustumClip;
   Trk_SimObject *simObjs;
-  int iVar9;
   short light;
-  int iVar10;
-  int iVar11;
   Trk_CollideBoomInst *objInstance;
   Trk_ObjectDef *objDef_00;
   int totalCount;
@@ -2323,41 +2319,54 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
     Render_gWorldMat.t[0] = 0;
 gte_SetTransMatrix((void *)0x1f800014);
     for (objectIndex = 0; objectIndex < groupNumElements; objectIndex = objectIndex + 1) {
-      bVar1 = objInstance->type;
       iVar14 = (int)goffsets[objInstance->zoffset];
-      if (((bVar1 & 0x80) != 0) ||
-         ((((bVar1 != 5 && (doFrustumClip != 0)) &&
-           (pvVar3 = ObjectClipped(Vi,(int)objInstance->pad,
-                                (coorddef *)&objInstance->x,
-                                (Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr),
-           pvVar3 != (void *)0x0)) && ((char)bVar1 != '\x02'))))
-      goto DrawWChunkFacets_groupNext;
+      bVar1 = objInstance->type;
+      /* MATCH: oracle is a CASCADE of separate ifs, not one fused ||/&& expression --
+         type==5 short-circuits straight to emit (skipping the clip test entirely), and
+         the final type!=2 check is a FRESH re-read of objInstance->type from memory
+         (`lbu` after the ObjectClipped() call), not a reuse of the cached bVar1. */
+      if ((bVar1 & 0x80) != 0) {
+        goto DrawWChunkFacets_groupNext;
+      }
+      if (bVar1 != 5) {
+        if (doFrustumClip != 0) {
+          pvVar3 = ObjectClipped(Vi,(int)objInstance->pad,
+                               (coorddef *)&objInstance->x,
+                               (Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr);
+          if ((pvVar3 != (void *)0x0) && (objInstance->type != 2)) {
+            goto DrawWChunkFacets_groupNext;
+          }
+        }
+      }
       DrawW_gObjScratch_148 = 0x400;
       light = -1;
       if ((objInstance->flags & 1) != 0) {
-        iVar4 = fixedatan(objInstance->x - (Vi->cview).translation.x,
+        heading = fixedatan(objInstance->x - (Vi->cview).translation.x,
                            objInstance->z - (Vi->cview).translation.z);
-        fixedxformy(&matrix,iVar4);
+        fixedxformy(&matrix,heading);
         if (bVar1 == 9) {
-          iVar9 = (int)objInstance->qz << 8;
-          iVar10 = (int)objInstance->qy << 8;
-          iVar4 = fixedmult(matrix.m[0],iVar9);
-          iVar5 = fixedmult(matrix.m[3],iVar9);
-          matrix.m[6] = fixedmult(matrix.m[6],iVar9);
-          matrix.m[0] = iVar4;
-          matrix.m[3] = iVar5;
-          iVar4 = fixedmult(matrix.m[1],iVar10);
-          iVar5 = fixedmult(matrix.m[4],iVar10);
-          matrix.m[7] = fixedmult(matrix.m[7],iVar10);
-          matrix.m[1] = iVar4;
-          matrix.m[4] = iVar5;
-          iVar4 = fixedmult(matrix.m[2],iVar9);
-          iVar5 = fixedmult(matrix.m[5],iVar9);
-          matrix.m[8] = fixedmult(matrix.m[8],iVar9);
+          /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
+          int t1, t2, sx, sy;
+
+          sx = (int)objInstance->qz << 8;
+          sy = (int)objInstance->qy << 8;
+          t1 = fixedmult(matrix.m[0],sx);
+          t2 = fixedmult(matrix.m[3],sx);
+          matrix.m[6] = fixedmult(matrix.m[6],sx);
+          matrix.m[0] = t1;
+          matrix.m[3] = t2;
+          t1 = fixedmult(matrix.m[1],sy);
+          t2 = fixedmult(matrix.m[4],sy);
+          matrix.m[7] = fixedmult(matrix.m[7],sy);
+          matrix.m[1] = t1;
+          matrix.m[4] = t2;
+          t1 = fixedmult(matrix.m[2],sx);
+          t2 = fixedmult(matrix.m[5],sx);
+          matrix.m[8] = fixedmult(matrix.m[8],sx);
           light = objInstance->qw;
           DrawW_gObjScratch_148 = 0;
-          matrix.m[2] = iVar4;
-          matrix.m[5] = iVar5;
+          matrix.m[2] = t1;
+          matrix.m[5] = t2;
         }
         objDef_00 = Track_gObjDefs[objInstance->pad];
 DrawWChunkFacets_emitObj:
@@ -2367,27 +2376,30 @@ DrawWChunkFacets_emitObj:
       }
       else {
         if (bVar1 == 2) {
+          /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
+          int t1, t2, sx, sy, sz;
+
           Quatern_QuatToMat((tQuat *)&objInstance->qx,&matrix);
-          iVar9 = (int)objInstance->sx << 8;
-          iVar10 = (int)objInstance->sy << 8;
-          iVar11 = (int)objInstance->sz << 8;
-          iVar4 = fixedmult(matrix.m[0],iVar9);
-          iVar5 = fixedmult(matrix.m[3],iVar9);
-          matrix.m[6] = fixedmult(matrix.m[6],iVar9);
-          matrix.m[0] = iVar4;
-          matrix.m[3] = iVar5;
-          iVar4 = fixedmult(matrix.m[1],iVar10);
-          iVar5 = fixedmult(matrix.m[4],iVar10);
-          matrix.m[7] = fixedmult(matrix.m[7],iVar10);
-          matrix.m[1] = iVar4;
-          matrix.m[4] = iVar5;
-          iVar4 = fixedmult(matrix.m[2],iVar11);
-          iVar5 = fixedmult(matrix.m[5],iVar11);
-          matrix.m[8] = fixedmult(matrix.m[8],iVar11);
+          sx = (int)objInstance->sx << 8;
+          sy = (int)objInstance->sy << 8;
+          sz = (int)objInstance->sz << 8;
+          t1 = fixedmult(matrix.m[0],sx);
+          t2 = fixedmult(matrix.m[3],sx);
+          matrix.m[6] = fixedmult(matrix.m[6],sx);
+          matrix.m[0] = t1;
+          matrix.m[3] = t2;
+          t1 = fixedmult(matrix.m[1],sy);
+          t2 = fixedmult(matrix.m[4],sy);
+          matrix.m[7] = fixedmult(matrix.m[7],sy);
+          matrix.m[1] = t1;
+          matrix.m[4] = t2;
+          t1 = fixedmult(matrix.m[2],sz);
+          t2 = fixedmult(matrix.m[5],sz);
+          matrix.m[8] = fixedmult(matrix.m[8],sz);
           objDef_00 = Track_gObjDefs[objInstance->pad];
           light = *(short *)&objInstance->simIndex;
-          matrix.m[2] = iVar4;
-          matrix.m[5] = iVar5;
+          matrix.m[2] = t1;
+          matrix.m[5] = t2;
           goto DrawWChunkFacets_emitObj;
         }
         if (bVar1 < 3) {
@@ -2402,26 +2414,29 @@ DrawWChunkFacets_emitObj:
           objDef_00 = Track_gObjDefs[objInstance->pad];
           pOVar6 = Object_GetAnim(simObjs + objInstance->simIndex);
           if (pOVar6 == (ObjectAnim *)0x0) {
+            /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
+            int t1, t2, sx, sy, sz;
+
             Quatern_QuatToMat((tQuat *)&objInstance->qx,&matrix);
-            iVar9 = (int)objInstance->sx << 8;
-            iVar10 = (int)objInstance->sy << 8;
-            iVar11 = (int)objInstance->sz << 8;
-            iVar4 = fixedmult(matrix.m[0],iVar9);
-            iVar5 = fixedmult(matrix.m[3],iVar9);
-            matrix.m[6] = fixedmult(matrix.m[6],iVar9);
-            matrix.m[0] = iVar4;
-            matrix.m[3] = iVar5;
-            iVar4 = fixedmult(matrix.m[1],iVar10);
-            iVar5 = fixedmult(matrix.m[4],iVar10);
-            matrix.m[7] = fixedmult(matrix.m[7],iVar10);
-            matrix.m[1] = iVar4;
-            matrix.m[4] = iVar5;
-            iVar4 = fixedmult(matrix.m[2],iVar11);
-            iVar5 = fixedmult(matrix.m[5],iVar11);
-            matrix.m[8] = fixedmult(matrix.m[8],iVar11);
+            sx = (int)objInstance->sx << 8;
+            sy = (int)objInstance->sy << 8;
+            sz = (int)objInstance->sz << 8;
+            t1 = fixedmult(matrix.m[0],sx);
+            t2 = fixedmult(matrix.m[3],sx);
+            matrix.m[6] = fixedmult(matrix.m[6],sx);
+            matrix.m[0] = t1;
+            matrix.m[3] = t2;
+            t1 = fixedmult(matrix.m[1],sy);
+            t2 = fixedmult(matrix.m[4],sy);
+            matrix.m[7] = fixedmult(matrix.m[7],sy);
+            matrix.m[1] = t1;
+            matrix.m[4] = t2;
+            t1 = fixedmult(matrix.m[2],sz);
+            t2 = fixedmult(matrix.m[5],sz);
+            matrix.m[8] = fixedmult(matrix.m[8],sz);
             light = -1;
-            matrix.m[2] = iVar4;
-            matrix.m[5] = iVar5;
+            matrix.m[2] = t1;
+            matrix.m[5] = t2;
             goto DrawWChunkFacets_emitObj;
           }
           pOVar6 = Object_GetAnim(simObjs + objInstance->simIndex);
@@ -2429,27 +2444,30 @@ DrawWChunkFacets_emitObj:
                     ((int)&pOVar6->_vf + (int)(*pOVar6->_vf)[2].delta,Vi,0x1f800000,iVar14);
         }
         else if (bVar1 == 9) {
+          /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
+          int t1, t2, sx, sy;
+
           xformy(&matrix,(int)objInstance->qx);
-          iVar9 = (int)objInstance->qz << 8;
-          iVar10 = (int)objInstance->qy << 8;
-          iVar4 = fixedmult(matrix.m[0],iVar9);
-          iVar5 = fixedmult(matrix.m[3],iVar9);
-          matrix.m[6] = fixedmult(matrix.m[6],iVar9);
-          matrix.m[0] = iVar4;
-          matrix.m[3] = iVar5;
-          iVar4 = fixedmult(matrix.m[1],iVar10);
-          iVar5 = fixedmult(matrix.m[4],iVar10);
-          matrix.m[7] = fixedmult(matrix.m[7],iVar10);
-          matrix.m[1] = iVar4;
-          matrix.m[4] = iVar5;
-          iVar4 = fixedmult(matrix.m[2],iVar9);
-          iVar5 = fixedmult(matrix.m[5],iVar9);
-          matrix.m[8] = fixedmult(matrix.m[8],iVar9);
+          sx = (int)objInstance->qz << 8;
+          sy = (int)objInstance->qy << 8;
+          t1 = fixedmult(matrix.m[0],sx);
+          t2 = fixedmult(matrix.m[3],sx);
+          matrix.m[6] = fixedmult(matrix.m[6],sx);
+          matrix.m[0] = t1;
+          matrix.m[3] = t2;
+          t1 = fixedmult(matrix.m[1],sy);
+          t2 = fixedmult(matrix.m[4],sy);
+          matrix.m[7] = fixedmult(matrix.m[7],sy);
+          matrix.m[1] = t1;
+          matrix.m[4] = t2;
+          t1 = fixedmult(matrix.m[2],sx);
+          t2 = fixedmult(matrix.m[5],sx);
+          matrix.m[8] = fixedmult(matrix.m[8],sx);
           DrawW_gObjScratch_148 = 0;
           objDef_00 = Track_gObjDefs[objInstance->pad];
           light = objInstance->qw;
-          matrix.m[2] = iVar4;
-          matrix.m[5] = iVar5;
+          matrix.m[2] = t1;
+          matrix.m[5] = t2;
           goto DrawWChunkFacets_emitObj;
         }
       }

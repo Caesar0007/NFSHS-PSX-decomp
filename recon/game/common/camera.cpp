@@ -781,8 +781,9 @@ void Camera_UpdateAnimCam(int player)
    * was provably-false and gcc DELETED the whole re-acquire branch; (signed char) restores it */
   if ((signed char)Camera_gInfo[player].animHandle == -1) {
     /* MATCH: post-decrement in the index expr (lbu clobbers the compare's -1 reg) */
-    iVar2 = Anim_Handle((u_int)(u_char)gAnimCams[GameSetup_gData.track]
-                                               [(signed char)Camera_gInfo[player].animNum--]);
+    cVar1 = (signed char)Camera_gInfo[player].animNum;
+    Camera_gInfo[player].animNum = cVar1 - 1;
+    iVar2 = Anim_Handle((u_int)(u_char)gAnimCams[GameSetup_gData.track][cVar1]);
     Camera_gInfo[player].animHandle = (char)iVar2;
   }
   pAVar3 = Anim_GetAnim((int)(signed char)Camera_gInfo[player].animHandle);

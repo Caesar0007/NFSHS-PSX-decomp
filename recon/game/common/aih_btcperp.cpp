@@ -91,13 +91,6 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 
 
 {
-  int randNum1000;
-  int carLoop;
-  Car_tObj*cop;
-  int xDot;
-  int zDot;
-  coorddef carCopVector;
-
   int iVar1;
 
   int iVar2;
@@ -108,7 +101,7 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 
   int iVar5;
 
-  int a;
+  int delta[3];   /* MATCH: forces stack spill of the 3 position-delta temps (oracle sp+0x10/0x14/0x18), not saved regs */
 
   Car_tObj *pCVar6;
 
@@ -124,7 +117,7 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 
   if ((((this->carObj_)->carFlags & 4U) == 0) &&
 
-     (0x3d3 < (randtemp >> 8 & 0xffff) * 1000 >> 0x10)) {
+     (0x3d3 < (int)((randtemp >> 8 & 0xffff) * 1000 >> 0x10))) {
 
     iVar8 = 0;
     ppCVar7 = Cars_gList;
@@ -138,35 +131,35 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 
       if ((pCVar6->carFlags & 0x200U) != 0) {
 
-        a = (pCVar6->N).position.x - ((this->carObj_)->N).position.x;
+        delta[0] = (pCVar6->N).position.x - ((this->carObj_)->N).position.x;
 
-        iVar1 = (pCVar6->N).position.y -
+        delta[1] = (pCVar6->N).position.y -
 
                 ((this->carObj_)->N).position.y;
 
-        iVar2 = (pCVar6->N).position.z -
+        delta[2] = (pCVar6->N).position.z -
 
                 ((this->carObj_)->N).position.z;
 
-        iVar3 = fixedmult(a,((this->carObj_)->N).orientMat.m[0]);
+        iVar3 = fixedmult(delta[0],((this->carObj_)->N).orientMat.m[0]);
 
-        iVar4 = fixedmult(iVar1,((this->carObj_)->N).orientMat.m[1])
+        iVar4 = fixedmult(delta[1],((this->carObj_)->N).orientMat.m[1])
 
         ;
 
-        iVar5 = fixedmult(iVar2,((this->carObj_)->N).orientMat.m[2])
+        iVar5 = fixedmult(delta[2],((this->carObj_)->N).orientMat.m[2])
 
         ;
 
         iVar5 = iVar3 + iVar4 + iVar5;
 
-        iVar3 = fixedmult(a,((this->carObj_)->N).orientMat.m[6]);
+        iVar3 = fixedmult(delta[0],((this->carObj_)->N).orientMat.m[6]);
 
-        iVar1 = fixedmult(iVar1,((this->carObj_)->N).orientMat.m[7])
+        iVar1 = fixedmult(delta[1],((this->carObj_)->N).orientMat.m[7])
 
         ;
 
-        iVar2 = fixedmult(iVar2,((this->carObj_)->N).orientMat.m[8])
+        iVar2 = fixedmult(delta[2],((this->carObj_)->N).orientMat.m[8])
 
         ;
 
@@ -735,6 +728,8 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   randtemp = fastRandom * randSeed;
 
+  placementDirection = 1;   /* MATCH: oracle materializes a constant-1 "direction multiplier" here (0x800600C4), reused after the slice-wrap for the desiredDirection mult+degenerate-negate idiom shared with AIPerp::NewStage */
+
   pCVar6 = this->carObj_;
 
   iVar5 = iVar7 * 0x10;
@@ -747,17 +742,15 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     pCVar3 = (chaserCop)->carObj_;
 
-    sVar2 = (pCVar3->N).simRoadInfo.slice;
-
     if ((pCVar3->N).simRoadInfo.slice + iVar5 < 0) {
 
-      sVar2 = (short)gNumSlices + sVar2 + sVar1;
+      sVar2 = (short)gNumSlices + ((u_short)(pCVar3->N).simRoadInfo.slice + sVar1);
 
     }
 
     else {
 
-      sVar2 = sVar2 + sVar1;
+      sVar2 = (u_short)(pCVar3->N).simRoadInfo.slice + sVar1;
 
     }
 
@@ -769,17 +762,15 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     pCVar3 = (chaserCop)->carObj_;
 
-    sVar2 = (pCVar3->N).simRoadInfo.slice;
-
     if ((pCVar3->N).simRoadInfo.slice + iVar5 < gNumSlices) {
 
-      sVar2 = sVar2 + sVar1;
+      sVar2 = (u_short)(pCVar3->N).simRoadInfo.slice + sVar1;
 
     }
 
     else {
 
-      sVar2 = (sVar2 + sVar1) - (short)gNumSlices;
+      sVar2 = ((u_short)(pCVar3->N).simRoadInfo.slice + sVar1) - (short)gNumSlices;
 
     }
 
@@ -787,7 +778,15 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   }
 
-  (this->carObj_)->desiredDirection = iVar7;
+  if (placementDirection == 1) {
+
+    (this->carObj_)->desiredDirection = placementDirection * iVar7;
+
+  } else {
+
+    (this->carObj_)->desiredDirection = -(placementDirection * iVar7);
+
+  }
 
   pCVar6 = this->carObj_;
 
@@ -1124,6 +1123,43 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
           fastRandom = randtemp & 0xffff;
 
+          /* H-AVOID2: u-turn probability roll (was a stub -- oracle 0x80060600-0x800606EC does a
+             full skill/elapsed-time-scaled random roll + dual speed-threshold check + direction flip) */
+          if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 <
+              (u_int)(AIHigh_BTC_uTurnProb1000Skills[GameSetup_gData.skill] * AI_elapsedTime)) {
+
+            iVar6 = this->closestCopCarObj_->currentSpeed;
+
+            if (iVar6 < 0) {
+
+              iVar6 = -iVar6;
+
+            }
+
+            if (0x11c71c < iVar6) {
+
+              iVar6 = (this->carObj_)->currentSpeed;
+
+              if (iVar6 < 0) {
+
+                iVar6 = -iVar6;
+
+              }
+
+              if (0x11c71c < iVar6) {
+
+                if ((this->carObj_)->direction == (this->carObj_)->desiredDirection) {
+
+                  (this->carObj_)->desiredDirection = -(this->carObj_)->direction;
+
+                }
+
+              }
+
+            }
+
+          }
+
         }
 
       }
@@ -1173,11 +1209,11 @@ void AIHigh_BTC_AIPerp::CalculateTimeTillContact()
 
         this->closestCopCarObj_->currentSpeed;
 
-    distance = 0x3e80000;
+    int copDistance = this->closestCopCarDistanceMeters_;   /* MATCH: hoisted above the if (oracle loads it unconditionally, before the sltu range check) */
 
     if (0xfffe < relVel + 0x7fffU) {
 
-      distance = fixeddiv(this->closestCopCarDistanceMeters_,relVel);
+      distance = fixeddiv(copDistance,relVel);
 
       if (distance < 0) {
 
@@ -1185,11 +1221,13 @@ void AIHigh_BTC_AIPerp::CalculateTimeTillContact()
 
       }
 
-      distance = -(distance >> 10);
+      this->timeUntilContact_ = -(distance >> 10);
+
+    } else {
+
+      this->timeUntilContact_ = 0x3e80000;
 
     }
-
-    this->timeUntilContact_ = distance;
 
     if (-1 < this->timeUntilContact_) {
 
@@ -1238,9 +1276,15 @@ void AIHigh_BTC_AIPerp::FindClosestCop()
 
   closestCarIndex = -1;
 
+  copLoop = 0;
+
   ppCVar4 = Cars_gHumanRaceCarList;
 
-  for (copLoop = 0; copLoop < Cars_gNumHumanRaceCars; copLoop = copLoop + 1) {
+  while (true) {
+
+    if (Cars_gNumHumanRaceCars <= copLoop) {
+      break;
+    }
 
     if (((*ppCVar4)->carFlags & 0x200U) != 0) {
 
@@ -1267,6 +1311,8 @@ void AIHigh_BTC_AIPerp::FindClosestCop()
     }
 
     ppCVar4 = ppCVar4 + 1;
+
+    copLoop = copLoop + 1;
 
   }
 
@@ -1339,6 +1385,8 @@ void AIHigh_BTC_AIPerp::HighExecute()
   }
 
   switch(this->stateType_) {
+
+  case 1:   /* MATCH: oracle's compare-chain routes stateType_==1 into the SAME body as case 2 */
 
   case 2:
 

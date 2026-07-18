@@ -43,6 +43,20 @@ int          Hud_gHudView[2];   /* @0x8013d950  (bss(zero)) */
 int          Hud_gMapView[2];   /* @0x8013d958  (bss(zero)) */
 int          Hud_gTacView[2];   /* @0x8013d960  (bss(zero)) */
 int          Hud_gStatsView;   /* @0x8013d968  (bss(zero)) */
+
+/* Hud_g{Hud,Map,Tac}View[2] (declared above as ONE 8-byte array each) are reached by
+ * Hud_CreateHudViews via CONSTANT index ([0]/[1]) as TWO INDEPENDENT %gp_rel(SYM)/
+ * %gp_rel(D_...) 4-byte scalars in the oracle -- no address materialization at all (8 bytes
+ * is over this build's -G4 small-data threshold as ONE object, but each 4-byte element alone
+ * qualifies). Same lever as Weather_gLastProcessTime0/1 (weather.cpp) / device.cpp's split:
+ * model the true per-element storage as real tentative-def scalars for CreateHudViews' six
+ * constant-index write sites. Other consumers (Draw_StartRenderingView etc.) genuinely need
+ * base+offset/variable-index array codegen in their own oracles and keep referencing the
+ * array form above -- a known duality (same accepted tradeoff as weather.cpp's precedent;
+ * not attempted to unify this pass). */
+int          Hud_gHudView0, Hud_gHudView1;
+int          Hud_gMapView0, Hud_gMapView1;
+int          Hud_gTacView0, Hud_gTacView1;
 int          HudMapOffsetY;   /* @0x8013d96c  (bss(zero)) */
 long         gMapRotate;   /* @0x8013d970  (bss(zero)) */
 long         gMapScaleX;   /* @0x8013d974  (bss(zero)) */
@@ -177,16 +191,16 @@ void Hud_CreateHudViews(void)
     HudMapOffsetY = 0;
   }
   if (GameSetup_gData.commMode == 1) {
-    Hud_gMapView[0] = Draw_SetView(0x105, HudMapOffsetY + 0x13e, 0x245, HudMapOffsetY + 0x13e, 0x2d, 0x30, 0, 0, 1);
-    Hud_gMapView[1] = Draw_SetView(0x105, HudMapOffsetY + 0x1a9, 0x245, HudMapOffsetY + 0x1a9, 0x2d, 0x30, 0, 0, 1);
-    Hud_gHudView[0] = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0x78, 0, 0, 1);
-    Hud_gHudView[1] = Draw_SetView(0,     0x178, 0x140, 0x178, 0x140, 0x78, 0, 0, 1);
-    Hud_gTacView[0] = Draw_SetView(0x115, 0x113, 0x255, 0x113, 0x1c, 0x1c, 0, 0, 1);
-    Hud_gTacView[1] = Draw_SetView(0x115, 0x17c, 0x255, 0x17c, 0x1c, 0x1c, 0, 0, 1);
+    Hud_gMapView0 = Draw_SetView(0x105, HudMapOffsetY + 0x13e, 0x245, HudMapOffsetY + 0x13e, 0x2d, 0x30, 0, 0, 1);
+    Hud_gMapView1 = Draw_SetView(0x105, HudMapOffsetY + 0x1a9, 0x245, HudMapOffsetY + 0x1a9, 0x2d, 0x30, 0, 0, 1);
+    Hud_gHudView0 = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0x78, 0, 0, 1);
+    Hud_gHudView1 = Draw_SetView(0,     0x178, 0x140, 0x178, 0x140, 0x78, 0, 0, 1);
+    Hud_gTacView0 = Draw_SetView(0x115, 0x113, 0x255, 0x113, 0x1c, 0x1c, 0, 0, 1);
+    Hud_gTacView1 = Draw_SetView(0x115, 0x17c, 0x255, 0x17c, 0x1c, 0x1c, 0, 0, 1);
   } else {
-    Hud_gMapView[0] = Draw_SetView(0xff,  HudMapOffsetY + 0x1a4, 0x23f, HudMapOffsetY + 0x1a4, 0x2d, 0x30, 0, 0, 1);
-    Hud_gHudView[0] = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0xf0, 0, 0, 1);
-    Hud_gTacView[0] = Draw_SetView(0xb8,  0x115, 0x1f8, 0x115, 0x1c, 0x1c, 0, 0, 1);
+    Hud_gMapView0 = Draw_SetView(0xff,  HudMapOffsetY + 0x1a4, 0x23f, HudMapOffsetY + 0x1a4, 0x2d, 0x30, 0, 0, 1);
+    Hud_gHudView0 = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0xf0, 0, 0, 1);
+    Hud_gTacView0 = Draw_SetView(0xb8,  0x115, 0x1f8, 0x115, 0x1c, 0x1c, 0, 0, 1);
   }
   Hud_gStatsView = Draw_SetView(0, 0x100, 0x140, 0x100, 0x140, 0xf0, 0, 0, 1);
 }
@@ -3414,34 +3428,28 @@ void Hud_BustedOverlayOn(int time,char *name,bool caught,short player)
     psVar3 = Hud_NextPerp + player;
     FinalBTC_Countdown = BTC_Countdown;
     sprintf(BTCPerpInfo[player][*psVar3].name,name);
-    if (caught == 0) {
+    if (caught != 0) {
+      BTCPerpInfo[player][*psVar3].caught = 1;
+      BTCPerpInfo[player][*psVar3].time = time;
+      *psVar3 = *psVar3 + 1;
+    }
+    else {
       i = 0;
       iVar4 = 0;
       do {
         psVar3 = Hud_NextPerp + i;
         iVar2 = (int)*psVar3;
-        if ((iVar2 == 0) || (*(int *)(BTCPerpInfo[-1][iVar2 + 9].name + iVar4 + 0xc) != 0)) {
+        if ((iVar2 == 0) || (*(int *)(BTCPerpInfo[0][iVar2 - 1].name + iVar4 + 0xc) != 0)) {
           pcVar1 = BTCPerpInfo[0][iVar2].name + iVar4 + 0xc;
-          pcVar1[0] = '\0';
-          pcVar1[1] = '\0';
-          pcVar1[2] = '\0';
-          pcVar1[3] = '\0';
+          *(u_int *)pcVar1 = 0;
           pcVar1 = BTCPerpInfo[0][*psVar3].name + iVar4 + 8;
-          pcVar1[0] = '\0';
-          pcVar1[1] = '\0';
-          pcVar1[2] = '\0';
-          pcVar1[3] = '\0';
+          *(u_int *)pcVar1 = 0;
           sprintf(BTCPerpInfo[0][*psVar3].name + iVar4,BTC_CurrentPerpName);
           *psVar3 = *psVar3 + 1;
         }
         i = i + 1;
         iVar4 = iVar4 + 0xa0;
       } while (i < 2);
-    }
-    else {
-      BTCPerpInfo[player][*psVar3].caught = 1;
-      BTCPerpInfo[player][*psVar3].time = time;
-      *psVar3 = *psVar3 + 1;
     }
     HudBustedOverlay = 1;
     HudBustedOverlayPlayer = player;

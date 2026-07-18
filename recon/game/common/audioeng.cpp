@@ -671,7 +671,10 @@ void AudioEng_CleanUp(void)
   
   ppAVar4 = AudioEng_g;
   while( true ) {
-    if (-0x7fec38c5 < (int)ppAVar4) {
+    /* DISGUISED BARE-VA FIX (w14-a2): -0x7fec38c5 == 0x8013C73B, one byte SHORT of the true
+     * array end &AudioEng_g[2]==0x8013C73C -- raw @0x8007c564 confirms `$v0=$s5+8; $v0=$s3<$v0;
+     * if($v0==0) goto exit` i.e. the real bound is AudioEng_g+2 (s5=AudioEng_g held live). */
+    if (ppAVar4 >= AudioEng_g + 2) {
       return;
     }
     ptr = *ppAVar4;

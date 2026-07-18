@@ -432,7 +432,12 @@ void InitFrontEndStructure(void)
     ptVar1->situations[0] = '\0';
     ptVar1->checkPointDisplay[0] = '\0';
     ptVar1->playerCar[0] = '\0';
-    ptVar1 = (tfrontEnd *)(iVar7 + -0x7feeb9ff);
+    /* DISGUISED BARE-VA FIX (w14-a2): `iVar7 + -0x7feeb9ff` was a frozen literal that only
+     * happened to equal &frontEnd+1 for the first iteration (-0x7feeb9ff == 0x80114601 ==
+     * frontEnd+1); raw @0x800276b4 shows this is really recomputed EVERY iteration as
+     * `$v0 = $s3 + $a0` (a0=&frontEnd held constant, s3=the loop counter) -- i.e. a fresh
+     * &frontEnd+i, not an accumulated offset. */
+    ptVar1 = (tfrontEnd *)((char *)&frontEnd + iVar6);
     iVar7 = iVar6;
   } while (iVar6 < 5);
   iVar7 = 0;

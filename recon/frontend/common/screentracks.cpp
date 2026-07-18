@@ -346,6 +346,9 @@ int tScreenTrackSelect::ProcessInput(tPlayer player,tInputKeyType &keyval,
   
   if (keyval != kInput_KeyType_Square) {
     if (keyval != kInput_KeyType_Triangle) {
+      /* BARE-VA SWEEP (w14-a2): same magic-sentinel family as
+       * tInsideBoxSongMenu::ProcessInput (femenuoptions.cpp) -- oracle itself emits the bare
+       * `lui v0,0x8005` with no further resolution. Not a disguised address; left as-is. */
       return -0x7ffb0000;
     }
     menuVtbl = FEApp->fCurrentMenu[0]->_vf;

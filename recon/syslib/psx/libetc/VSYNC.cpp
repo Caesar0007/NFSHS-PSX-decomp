@@ -16,6 +16,12 @@ extern "C" int  Vcount;                            /* INTR_VB @0x80137D10 */
 extern "C" int Hcount = 0;            /* @0x80134A90 */
 extern "C" int vsync_lastcount = 0;   /* @0x80134A94 : Vcount at the previous VSync */
 
+/* HIDDEN-PHANTOM FIX (w14-a2): oracle name is the bare "_VSync_wait" (no __F mangling suffix --
+ * every other fn in this file is already `extern "C"`), but this `static` C++ fn got C++-mangled
+ * to _VSync_wait__Fii, a NAME MISMATCH invisible to the gate ("NOT IN OBJECT" forever). `static`
+ * and `extern "C"` can't combine as adjacent storage-class specifiers on this compiler --
+ * wrap in an `extern "C" { }` block instead (keeps internal/static linkage, drops the mangling). */
+extern "C" {
 static int _VSync_wait(int target, int mult)   /* @0x800F2494 */
 {
     int cnt = mult << 0xf;
@@ -28,6 +34,7 @@ static int _VSync_wait(int target, int mult)   /* @0x800F2494 */
     ChangeClearRCnt(3, 0);
     return cnt;
 }
+}   /* extern "C" */
 
 extern "C" int VSync(int mode)   /* @0x800F231C */
 {

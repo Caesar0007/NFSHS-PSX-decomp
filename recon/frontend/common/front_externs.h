@@ -84,7 +84,11 @@ tScreenTrophyRoom *tScreenTrophyRoom_ctor(...);
 tScreenTrophyRoom *tScreenTrophyRoom_dtor(...);
 tScreen *tScreen_ctor(...);
 tScreen *tScreen_dtor(...);
-extern Car_tStats *Cars_gNewCarStatsList;
+extern Car_tStats Cars_gNewCarStatsList[];   /* was stale pointer; owner cars.cpp
+                                     Car_tStats Cars_gNewCarStatsList[9] (array of value structs) --
+                                     front.cpp indexes Cars_gNewCarStatsList[0].finalPosition; the
+                                     pointer decl would load the array's own first bytes (real struct
+                                     data) as a bogus pointer VALUE and dereference it */
 extern int CountryMeasurement[16];
 extern int CreditManager;
 extern GameSetup_tData GameSetup_gData;
@@ -94,7 +98,9 @@ extern int _7tScreen_fSuppressLoadingText;
 extern int _i;
 extern int _usePlayerUpgrades;
 extern int colourChosen[8];
-extern int gCalculateVictory;
+extern char gCalculateVictory;   /* was stale int (4B); owner nfs3.cpp defines it char (1B) packed
+                                     tightly before gPlayerEnteredNameAlready[2] -- a wrong 4B `sw`
+                                     here would clobber 3 adjacent bytes incl. that neighbor global */
 extern int gFEBigHandle[];
 extern int gLargestUnused;
 extern int gMasterAmbientLevel;
@@ -136,24 +142,30 @@ extern tScreenTrophyInfo *screenTrophyInfo;
 extern tScreenTrophyRoom *screenTrophyRoom;
 extern tScreenUserName *screenUserName;
 extern tCarModels superCopModels[7][5];
-extern int tDialogBackUpOnly_vtable;
-extern int tDialogBase_vtable;
-extern int tDialogMessageString_vtable;
-extern int tScreenBeTheCopCongrats_vtable;
-extern int tScreenCarSelectDuel_vtable;
-extern int tScreenCarSelectTwoPlayer_vtable;
-extern int tScreenDisplay_vtable;
-extern int tScreenMain_vtable;
-extern int tScreenPinkSlipCongrats_vtable;
-extern int tScreenPinkSlipStandings_vtable;
-extern int tScreenPinkSlipsCarSelect_vtable;
-extern int tScreenPinkSlips_vtable;
-extern int tScreenTournamentCongrats_vtable;
-extern int tScreenTournamentStandings3item_vtable;
-extern int tScreenTournamentTrophy_vtable;
-extern int tScreenTrackInfo_vtable;
-extern int tScreenTrackRecords_vtable;
-extern int tScreenTrackSelect_vtable;
-extern int tScreenTrophyInfo_vtable;
-extern int tScreenUserName_vtable;
+/* SEVERE BUG FIXED (extern-audit): these 20 were `extern int X_vtable;` (SCALAR) vs the real
+   owner def `__vtbl_ptr_type X_vtable[N]` (ARRAY, vtables_t*.cpp). front.cpp does
+   `*(void**)&obj->_vf = (void*)X_vtable;` -- under the scalar decl this compiled to
+   `lw v0,0(v0)` (LOAD the value stored at the vtable's FIRST ENTRY, i.e. garbage bits of a
+   __nfs4_vtbl_ptr_t struct) instead of materializing the array's own address (the real vtable
+   pointer). Every tAllScreens::tAllScreens()/tDialog* vptr-init through these was corrupted. */
+extern __vtbl_ptr_type tDialogBackUpOnly_vtable[];
+extern __vtbl_ptr_type tDialogBase_vtable[];
+extern __vtbl_ptr_type tDialogMessageString_vtable[];
+extern __vtbl_ptr_type tScreenBeTheCopCongrats_vtable[];
+extern __vtbl_ptr_type tScreenCarSelectDuel_vtable[];
+extern __vtbl_ptr_type tScreenCarSelectTwoPlayer_vtable[];
+extern __vtbl_ptr_type tScreenDisplay_vtable[];
+extern __vtbl_ptr_type tScreenMain_vtable[];
+extern __vtbl_ptr_type tScreenPinkSlipCongrats_vtable[];
+extern __vtbl_ptr_type tScreenPinkSlipStandings_vtable[];
+extern __vtbl_ptr_type tScreenPinkSlipsCarSelect_vtable[];
+extern __vtbl_ptr_type tScreenPinkSlips_vtable[];
+extern __vtbl_ptr_type tScreenTournamentCongrats_vtable[];
+extern __vtbl_ptr_type tScreenTournamentStandings3item_vtable[];
+extern __vtbl_ptr_type tScreenTournamentTrophy_vtable[];
+extern __vtbl_ptr_type tScreenTrackInfo_vtable[];
+extern __vtbl_ptr_type tScreenTrackRecords_vtable[];
+extern __vtbl_ptr_type tScreenTrackSelect_vtable[];
+extern __vtbl_ptr_type tScreenTrophyInfo_vtable[];
+extern __vtbl_ptr_type tScreenUserName_vtable[];
 #endif

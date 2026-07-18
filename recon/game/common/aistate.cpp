@@ -997,21 +997,21 @@ void AIState_Chase::CloseTargeting()
 
   iVar4 = 0;
 
-  if (this->murderMode_ == 0) {
-
-    iVar6 = this->latTargetRegion_;
-
-    iVar5 = this->longTargetRegion_;
-
-  }
-
-  else {
+  if (this->murderMode_ != 0) {
 
     iVar5 = 0;
 
     iVar6 = 0;
 
     this->DoNitrous(0);
+
+  }
+
+  else {
+
+    iVar6 = this->latTargetRegion_;
+
+    iVar5 = this->longTargetRegion_;
 
   }
 
@@ -1065,7 +1065,7 @@ void AIState_Chase::CloseTargeting()
 
   if ((iVar7 == iVar6) && (iVar8 == iVar5)) {
 
-    this->inTargetRegion_ = this->inTargetRegion_;
+    this->inTargetRegion_ = this->inTargetRegion_ + AI_elapsedTime;
 
   }
 
@@ -2556,9 +2556,6 @@ LAB_STATUS0:
 /* ---- Execute__21AIState_RovingTraffic  AIState_RovingTraffic::Execute  [AISTATE.CPP:1172-1224] SLD-VERIFIED ---- */
 
 void AIState_RovingTraffic::Execute()
-
-
-
 {
   int search;
   int status;
@@ -2568,11 +2565,9 @@ void AIState_RovingTraffic::Execute()
 
   trigger_pathPosition_t *ptVar1;
 
-  int *piVar2;
+  Car_tObj *pCVar4;
 
   int iVar3;
-
-  Car_tObj *pCVar4;
 
   int iVar5;
 
@@ -2586,89 +2581,98 @@ void AIState_RovingTraffic::Execute()
 
   Car_tObj **ppCVar10;
 
-  int local_20 [2];
-
-  
-
-  pCVar4 = this->carObj_;
+  /* pCVar2 rule: this->carObj_ is re-read fresh at nearly every use in the oracle
+     (13 separate reloads of *(int*)this over the function) rather than cached once --
+     each block below re-derives pCVar4 to reproduce that liveness shape. */
 
   ptVar1 = this->path_ + this->pathIndex_;
 
-  iVar8 = (ptVar1->position).y;
+  pCVar4 = this->carObj_;
 
-  iVar9 = (ptVar1->position).z;
+  /* load-3/store-3 grouped temps (catalog §A row 38/§54): oracle batches the 3 loads through
+     t0/t1/t2 THEN the 3 stores, not per-field load+store -- avoids a load-delay nop per field. */
 
-  (pCVar4->targetPos).x = (ptVar1->position).x;
+  iVar5 = (ptVar1->position).x;
 
-  (pCVar4->targetPos).y = iVar8;
+  iVar6 = (ptVar1->position).y;
 
-  (pCVar4->targetPos).z = iVar9;
+  iVar7 = (ptVar1->position).z;
+
+  (pCVar4->targetPos).x = iVar5;
+
+  (pCVar4->targetPos).y = iVar6;
+
+  (pCVar4->targetPos).z = iVar7;
 
   (this->carObj_)->desiredSpeed = this->path_[this->pathIndex_].targetSpeed * 0x7247;
 
-  piVar2 = (int *)(((this->carObj_)->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices);
+  iVar3 = (int)BWorldSm_slices + ((this->carObj_)->N).simRoadInfo.slice * 0x20;
 
-  iVar8 = ((this->carObj_)->targetPos).x - *piVar2;
+  iVar5 = ((Trk_NewSlice *)iVar3)->center[0];
 
-  iVar9 = ((this->carObj_)->targetPos).y - piVar2[1];
+  iVar6 = ((Trk_NewSlice *)iVar3)->center[1];
 
-  iVar3 = ((this->carObj_)->targetPos).z - piVar2[2];
+  iVar7 = ((Trk_NewSlice *)iVar3)->center[2];
 
-  pCVar4 = this->carObj_;
+  centerBack.x = iVar5;
 
-  iVar5 = (pCVar4->N).roadMatrix.m[0];
+  centerBack.y = iVar6;
 
-  if (iVar5 < 0) {
-
-    iVar5 = iVar5 + 0xff;
-
-  }
-
-  if (iVar8 < 0) {
-
-    iVar8 = iVar8 + 0xff;
-
-  }
-
-  iVar6 = (pCVar4->N).roadMatrix.m[1];
-
-  if (iVar6 < 0) {
-
-    iVar6 = iVar6 + 0xff;
-
-  }
-
-  if (iVar9 < 0) {
-
-    iVar9 = iVar9 + 0xff;
-
-  }
-
-  iVar7 = (pCVar4->N).roadMatrix.m[2];
-
-  if (iVar7 < 0) {
-
-    iVar7 = iVar7 + 0xff;
-
-  }
-
-  if (iVar3 < 0) {
-
-    iVar3 = iVar3 + 0xff;
-
-  }
-
-  pCVar4->targetLatPos =
-
-       (iVar5 >> 8) * (iVar8 >> 8) + (iVar6 >> 8) * (iVar9 >> 8) + (iVar7 >> 8) * (iVar3 >> 8);
+  centerBack.z = iVar7;
 
   pCVar4 = this->carObj_;
 
-  iVar9 = (pCVar4->targetPos).x - (pCVar4->N).position.x >> 0xc;
+  carRelativeForLatPos.x = (pCVar4->targetPos).x - centerBack.x;
 
   pCVar4 = this->carObj_;
 
-  iVar8 = (pCVar4->targetPos).z - (pCVar4->N).position.z >> 0xc;
+  carRelativeForLatPos.y = (pCVar4->targetPos).y - centerBack.y;
+
+  pCVar4 = this->carObj_;
+
+  carRelativeForLatPos.z = (pCVar4->targetPos).z - centerBack.z;
+
+  pCVar4 = this->carObj_;
+
+  /* gcc-2.x signed /256 idiom (bgez;addiu 0xFF;sra 8) -- write the plain division,
+     not a hand-rolled if(x<0)x+=0xff;x>>=8 -- reference_mips_isa_asm.md MULT/DIV section.
+     Statement order matches the oracle's interleave: div-pair, mult, div-pair, mult, ... */
+
+  iVar5 = (pCVar4->N).roadMatrix.m[0] / 256;
+
+  iVar8 = carRelativeForLatPos.x / 256;
+
+  iVar6 = (pCVar4->N).roadMatrix.m[1] / 256;
+
+  iVar3 = iVar5 * iVar8;
+
+  iVar9 = carRelativeForLatPos.y / 256;
+
+  iVar7 = (pCVar4->N).roadMatrix.m[2] / 256;
+
+  iVar3 = iVar3 + iVar6 * iVar9;
+
+  iVar8 = carRelativeForLatPos.z / 256;
+
+  iVar3 = iVar3 + iVar7 * iVar8;
+
+  pCVar4->targetLatPos = iVar3;
+
+  pCVar4 = this->carObj_;
+
+  carRelativeForDistance.x = (pCVar4->targetPos).x - (pCVar4->N).position.x;
+
+  iVar9 = carRelativeForDistance.x >> 0xc;
+
+  pCVar4 = this->carObj_;
+
+  carRelativeForDistance.y = (pCVar4->targetPos).y - (pCVar4->N).position.y;
+
+  pCVar4 = this->carObj_;
+
+  carRelativeForDistance.z = (pCVar4->targetPos).z - (pCVar4->N).position.z;
+
+  iVar8 = carRelativeForDistance.z >> 0xc;
 
   if (iVar9 * iVar9 + iVar8 * iVar8 < 10000) {
 
@@ -2694,41 +2698,41 @@ void AIState_RovingTraffic::Execute()
 
   }
 
-  local_20[0] = 2;
+  status = 2;
 
-  iVar8 = (this->carObj_)->sortIndex + 1;
+  search = (this->carObj_)->sortIndex + 1;
 
-  ppCVar10 = Cars_gSortedList + iVar8;
+  ppCVar10 = Cars_gSortedList + search;
 
-  while ((iVar8 < Cars_gNumCars && (local_20[0] == 2))) {
+  while ((search < Cars_gNumCars && (status == 2))) {
 
     pCVar4 = *ppCVar10;
 
     ppCVar10 = ppCVar10 + 1;
 
-    iVar8 = iVar8 + 1;
+    search = search + 1;
 
-    this->CheckIfCarIsNearbyAndStop(pCVar4,*local_20);
+    this->CheckIfCarIsNearbyAndStop(pCVar4,status);
 
   }
 
-  if (local_20[0] != 1) {
+  if (status != 1) {
 
-    local_20[0] = 2;
+    status = 2;
 
-    iVar8 = (this->carObj_)->sortIndex + -1;
+    search = (this->carObj_)->sortIndex + -1;
 
-    ppCVar10 = Cars_gSortedList + iVar8;
+    ppCVar10 = Cars_gSortedList + search;
 
-    while ((-1 < iVar8 && (local_20[0] == 2))) {
+    while ((-1 < search && (status == 2))) {
 
       pCVar4 = *ppCVar10;
 
       ppCVar10 = ppCVar10 + -1;
 
-      iVar8 = iVar8 + -1;
+      search = search + -1;
 
-      this->CheckIfCarIsNearbyAndStop(pCVar4,*local_20);
+      this->CheckIfCarIsNearbyAndStop(pCVar4,status);
 
     }
 
@@ -2828,65 +2832,32 @@ void AIState_Donuts::Execute()
 
   int iVar11;
 
-  coorddef local_20;
+  u_int uVar12;
 
-  
+
 
   pCVar10 = this->carObj_;
 
-  iVar7 = (pCVar10->N).orientMat.m[6];
-
   iVar11 = (int)(pCVar10->N).simRoadInfo.slice;
 
-  if (iVar7 < 0) {
+  /* gcc-2.x signed /256 idiom -- plain division, not a hand-rolled correction+shift
+     (reference_mips_isa_asm.md; catalog §C). */
 
-    iVar7 = iVar7 + 0xff;
+  iVar7 = (pCVar10->N).orientMat.m[6] / 256;
 
-  }
+  iVar1 = (pCVar10->N).roadMatrix.m[6] / 256;
 
-  iVar1 = (pCVar10->N).roadMatrix.m[6];
+  iVar8 = (pCVar10->N).orientMat.m[7] / 256;
 
-  if (iVar1 < 0) {
+  iVar2 = (pCVar10->N).roadMatrix.m[7] / 256;
 
-    iVar1 = iVar1 + 0xff;
+  iVar9 = (pCVar10->N).orientMat.m[8] / 256;
 
-  }
-
-  iVar8 = (pCVar10->N).orientMat.m[7];
-
-  if (iVar8 < 0) {
-
-    iVar8 = iVar8 + 0xff;
-
-  }
-
-  iVar2 = (pCVar10->N).roadMatrix.m[7];
-
-  if (iVar2 < 0) {
-
-    iVar2 = iVar2 + 0xff;
-
-  }
-
-  iVar9 = (pCVar10->N).orientMat.m[8];
-
-  if (iVar9 < 0) {
-
-    iVar9 = iVar9 + 0xff;
-
-  }
-
-  iVar3 = (pCVar10->N).roadMatrix.m[8];
-
-  if (iVar3 < 0) {
-
-    iVar3 = iVar3 + 0xff;
-
-  }
+  iVar3 = (pCVar10->N).roadMatrix.m[8] / 256;
 
   iVar4 = 1;
 
-  if ((iVar7 >> 8) * (iVar1 >> 8) + (iVar8 >> 8) * (iVar2 >> 8) + (iVar9 >> 8) * (iVar3 >> 8) < 1) {
+  if (iVar7 * iVar1 + iVar8 * iVar2 + iVar9 * iVar3 < 1) {
 
     iVar4 = -1;
 
@@ -2900,59 +2871,33 @@ void AIState_Donuts::Execute()
 
     pCVar10 = this->carObj_;
 
-    iVar7 = (pCVar10->N).orientMat.m[6];
+    iVar7 = (pCVar10->N).orientMat.m[6] / 256;
 
-    if (iVar7 < 0) {
+    iVar1 = (pCVar10->N).roadMatrix.m[6] / 256;
 
-      iVar7 = iVar7 + 0xff;
+    iVar8 = (pCVar10->N).orientMat.m[7] / 256;
 
-    }
+    iVar2 = (pCVar10->N).roadMatrix.m[7] / 256;
 
-    iVar1 = (pCVar10->N).roadMatrix.m[6];
+    iVar9 = (pCVar10->N).orientMat.m[8] / 256;
 
-    if (iVar1 < 0) {
-
-      iVar1 = iVar1 + 0xff;
-
-    }
-
-    iVar8 = (pCVar10->N).orientMat.m[7];
-
-    if (iVar8 < 0) {
-
-      iVar8 = iVar8 + 0xff;
-
-    }
-
-    iVar2 = (pCVar10->N).roadMatrix.m[7];
-
-    if (iVar2 < 0) {
-
-      iVar2 = iVar2 + 0xff;
-
-    }
-
-    iVar9 = (pCVar10->N).orientMat.m[8];
-
-    if (iVar9 < 0) {
-
-      iVar9 = iVar9 + 0xff;
-
-    }
-
-    iVar3 = (pCVar10->N).roadMatrix.m[8];
-
-    if (iVar3 < 0) {
-
-      iVar3 = iVar3 + 0xff;
-
-    }
+    iVar3 = (pCVar10->N).roadMatrix.m[8] / 256;
 
     iVar4 = iVar11 + 3;
 
-    if ((iVar7 >> 8) * (iVar1 >> 8) + (iVar8 >> 8) * (iVar2 >> 8) + (iVar9 >> 8) * (iVar3 >> 8) < 0)
+    if (0 <= iVar7 * iVar1 + iVar8 * iVar2 + iVar9 * iVar3)
 
     {
+
+      if (gNumSlices <= iVar4) {
+
+        iVar4 = iVar11 - (gNumSlices + -3);
+
+      }
+
+    }
+
+    else {
 
       iVar4 = iVar11 + -3;
 
@@ -2964,19 +2909,21 @@ void AIState_Donuts::Execute()
 
     }
 
-    else if (gNumSlices <= iVar4) {
-
-      iVar4 = iVar11 - (gNumSlices + -3);
-
-    }
-
     piVar5 = (int *)(iVar4 * 0x20 + (int)BWorldSm_slices);
 
-    local_20.x = *piVar5;
+    /* load-3/store-3 grouped temps (catalog §A/38,54) */
 
-    local_20.y = piVar5[1];
+    iVar7 = *piVar5;
 
-    local_20.z = piVar5[2];
+    iVar1 = piVar5[1];
+
+    iVar8 = piVar5[2];
+
+    targetPos.x = iVar7;
+
+    targetPos.y = iVar1;
+
+    targetPos.z = iVar8;
 
     iVar7 = (this->carObj_)->roadPosition;
 
@@ -2986,7 +2933,7 @@ void AIState_Donuts::Execute()
 
     }
 
-    iVar1 = 0;
+    latPos = 0;
 
     if ((this->donutMode_ == 1) && (iVar7 < 0x28000)) {
 
@@ -3004,49 +2951,63 @@ void AIState_Donuts::Execute()
 
     if (iVar7 < 0x8000) {
 
-      randtemp = fastRandom * randSeed;
+      uVar12 = fastRandom * randSeed;
 
-      fastRandom = randtemp & 0xffff;
+      randtemp = uVar12;
 
-      this->donutLookForward_ = ((randtemp >> 8 & 0xffff) * 5 >> 0xe) * 0x10000 + 0x140000;
+      fastRandom = uVar12 & 0xffff;
+
+      this->donutLookForward_ = ((uVar12 >> 8 & 0xffff) * 5 >> 0xe) * 0x10000 + 0x140000;
 
     }
 
     pCVar10 = this->carObj_;
 
-    iVar1 = (pCVar10->N).orientMat.m[1];
+    /* SYM: right/forward/targetPos are real coorddef locals -- right = scaled local
+       right-axis (orientMat row0), forward = scaled local forward-axis (orientMat row2
+       via donutLookForward_), targetPos = position + right + forward. */
 
-    iVar8 = (pCVar10->N).orientMat.m[2];
+    right.x = (pCVar10->N).orientMat.m[0];
+
+    right.y = (pCVar10->N).orientMat.m[1];
+
+    right.z = (pCVar10->N).orientMat.m[2];
 
     pCVar6 = this->carObj_;
 
-    iVar2 = (pCVar6->N).orientMat.m[6];
+    forward.x = (pCVar6->N).orientMat.m[6];
 
-    iVar9 = (pCVar6->N).orientMat.m[7];
+    forward.y = (pCVar6->N).orientMat.m[7];
 
-    iVar3 = (pCVar6->N).orientMat.m[8];
+    forward.z = (pCVar6->N).orientMat.m[8];
 
-    iVar7 = fixedmult(0x60000,(pCVar10->N).orientMat.m[0]);
+    right.x = fixedmult(0x60000,right.x);
 
-    iVar1 = fixedmult(0x60000,iVar1);
+    right.y = fixedmult(0x60000,right.y);
 
-    iVar8 = fixedmult(0x60000,iVar8);
+    right.z = fixedmult(0x60000,right.z);
 
-    iVar2 = fixedmult(this->donutLookForward_,iVar2);
+    forward.x = fixedmult(this->donutLookForward_,forward.x);
 
-    iVar9 = fixedmult(this->donutLookForward_,iVar9);
+    forward.y = fixedmult(this->donutLookForward_,forward.y);
 
-    local_20.z = fixedmult(this->donutLookForward_,iVar3);
+    forward.z = fixedmult(this->donutLookForward_,forward.z);
 
-    local_20.x = ((this->carObj_)->N).position.x + iVar7 + iVar2;
+    targetPos.x = ((this->carObj_)->N).position.x + right.x;
 
-    local_20.y = ((this->carObj_)->N).position.y + iVar1 + iVar9;
+    targetPos.y = ((this->carObj_)->N).position.y + right.y;
 
-    local_20.z = ((this->carObj_)->N).position.z + iVar8 + local_20.z;
+    targetPos.x = targetPos.x + forward.x;
+
+    targetPos.z = ((this->carObj_)->N).position.z + right.z;
+
+    targetPos.y = targetPos.y + forward.y;
+
+    targetPos.z = targetPos.z + forward.z;
 
     pCVar10 = this->carObj_;
 
-    iVar1 = Newton_CalculateRoadPositionFromSliceAndPosition((int)(pCVar10->N).simRoadInfo.slice,&local_20,&(pCVar10->N).roadMatrix);
+    latPos = Newton_CalculateRoadPositionFromSliceAndPosition((int)(pCVar10->N).simRoadInfo.slice,&targetPos,&(pCVar10->N).roadMatrix);
 
     iVar7 = (this->carObj_)->roadPosition;
 
@@ -3088,13 +3049,19 @@ LAB_800722ec:
 
   pCVar10 = this->carObj_;
 
-  (pCVar10->targetPos).x = local_20.x;
+  iVar7 = targetPos.x;
 
-  (pCVar10->targetPos).y = local_20.y;
+  iVar1 = targetPos.y;
 
-  (pCVar10->targetPos).z = local_20.z;
+  iVar8 = targetPos.z;
 
-  (this->carObj_)->targetLatPos = iVar1;
+  (pCVar10->targetPos).x = iVar7;
+
+  (pCVar10->targetPos).y = iVar1;
+
+  (pCVar10->targetPos).z = iVar8;
+
+  (this->carObj_)->targetLatPos = latPos;
 
   (this->carObj_)->desiredSpeed = 0x471c7;
 

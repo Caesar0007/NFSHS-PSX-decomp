@@ -262,7 +262,10 @@ void AITrigger_TriggerManager::DescribeTrigger(trigger_t *trigger)
 }
 
 /* ---- AITrigger_Compare  [@0x80072e18] ---- */
-int AITrigger_Compare(void *op1,void *op2)
+/* HIDDEN-PHANTOM FIX (w14-a2): oracle mangles __FPCvT0 (const void*, const void* [T0 = same
+ * type as param 0]) -- was __FPvT0 (non-const void*), a NAME MISMATCH invisible to the gate.
+ * qsort comparator signature; both params really are const (never written). */
+int AITrigger_Compare(const void *op1, const void *op2)
 {
   trigger_t *ta;
   trigger_t *tb;

@@ -2044,35 +2044,22 @@ void Hud_InitCdPlayer(void)
 int Hud_BuildCdPlayer(int type,int arg1)
 
 {
-  short sVar1;
   bool bVar2;
   int sec;
-  int iVar3;
-  AudioMus_tCurrentSong *pAVar4;
   u_int uVar5;
-  u_char *s_00;
   int w;
-  int iVar6;
-  u_char *pbVar7;
+  u_char *p;
   int tx;
-  int iVar8;
   char *s;
-  u_char *pbVar9;
   int box_transp;
   int box_x;
+  int box_y;
+  int box_w;
+  int box_h;
   char *artist;
-  char *s_01;
   char *title;
-  AudioMus_tCurrentSong *currentSong;
-  int dx;
-  int iVar10;
   int index;
-  int iVar11;
   int time;
-  int iVar12;
-  int x;
-  int iVar13;
-  int y;
   char strindex [4];
   char strscrolltitle [30];
   char strartist [30];
@@ -2080,16 +2067,19 @@ int Hud_BuildCdPlayer(int type,int arg1)
   char strtime [10];
   char strtest [2];
   static bool keepup;   /* SYM: fn-local STAT BOOL @0x8013D900 (was wrongly a file-scope int) */
-  
-  sVar1 = g1Player[0xf].x;
-  iVar3 = g1Player[0xf].y + 2;   /* y (SYM $fp) */
-  iVar13 = sVar1 + 2;
+
+  /* SYM-exact locals (8c block @0x800d63dc): x=$s7=g1Player[0xf].x+2, y=$fp=g1Player[0xf].y+2
+   * (fused with the +2 directly -- SYM has NO separate raw-x local), index=$s4, time=$s5,
+   * title=$s1, artist=$s0, dx=$s3, tx=$a1, w=$v1, min=$a2, sec=$v0, s=$a2 (scroll-copy cursor). */
+  int x = g1Player[0xf].x + 2;
+  int y = g1Player[0xf].y + 2;
   if (type == 0) {
     keepup = 1;
   }
-  iVar10 = 0;
-  pAVar4 = AudioMus_GetCurrentSong();
-  if (pAVar4 == (AudioMus_tCurrentSong *)0x0) {
+  int dx = 0;
+  strtest[1] = 0;
+  AudioMus_tCurrentSong *currentSong = AudioMus_GetCurrentSong();
+  if (currentSong == (AudioMus_tCurrentSong *)0x0) {
     return 0;
   }
   if (Hud_gCdActive == 0) {
@@ -2101,11 +2091,22 @@ int Hud_BuildCdPlayer(int type,int arg1)
         ((Hud_BeTheCop == 0 || (DashHUD_gInfo.splitscreen != 0)))))) {
       bVar2 = true;
     }
-    if ((bVar2) ||
-       ((((gPadinfo.buf[0].ID == '#' && (0xbf < gPadinfo.buf[0].data.negcon.leftshift)) &&
-         ((Hud_BeTheCop == 0 || (DashHUD_gInfo.splitscreen != 0)))) ||
-        (((gPadinfo.buf[4].ID == '#' && (0xbf < gPadinfo.buf[4].data.negcon.leftshift)) &&
-         (DashHUD_gInfo.splitscreen != 0)))))) {
+    /* oracle shape: nested if/goto (NOT a flattened || chain) -- gPadinfo.buf[0] gate
+     * falls through to the buf[4] gate on failure, and a Hud_BeTheCop!=0 && splitscreen==0
+     * combo also falls through instead of short-circuiting. §asm_pattern_catalog funnel class. */
+    if (!bVar2) {
+      if ((gPadinfo.buf[0].ID == '#') && (0xbf < gPadinfo.buf[0].data.negcon.leftshift)) {
+        if ((Hud_BeTheCop != 0) && (DashHUD_gInfo.splitscreen == 0)) goto HudCdPlay_checkBuf4;
+        goto HudCdPlay_activateGate;
+      }
+HudCdPlay_checkBuf4:
+      if ((gPadinfo.buf[4].ID == '#') && (0xbf < gPadinfo.buf[4].data.negcon.leftshift) &&
+          (DashHUD_gInfo.splitscreen != 0)) {
+        goto HudCdPlay_activateGate;
+      }
+    }
+    else {
+HudCdPlay_activateGate:
       Hud_gCdActive = 1;
       Hud_ActivateCDPlayer = 1;
     }
@@ -2127,64 +2128,63 @@ int Hud_BuildCdPlayer(int type,int arg1)
   if (keepup != 0) {
     type = 0;
   }
-  iVar12 = pAVar4->remaining;
-  iVar11 = pAVar4->index;
-  s_00 = (u_char *)strtitle;
-  if ((pAVar4->info).title == (char *)0x0) {
-    s_00 = (u_char *)0x0;
+  time = currentSong->remaining;
+  index = currentSong->index;
+  if ((currentSong->info).title == (char *)0x0) {
+    title = (char *)0x0;
   }
   else {
-    sprintf((char *)s_00,"%s",(pAVar4->info).title);
+    title = strtitle;
+    sprintf(title,"%s",(currentSong->info).title);
   }
-  s_01 = strartist;
-  if ((pAVar4->info).artist == (char *)0x0) {
-    s_01 = (char *)0x0;
+  if ((currentSong->info).artist == (char *)0x0) {
+    artist = (char *)0x0;
   }
   else {
-    sprintf(s_01,"%s",(pAVar4->info).artist);
+    artist = strartist;
+    sprintf(artist,"%s",(currentSong->info).artist);
   }
-  uppercase((char *)s_00);
-  if ((type == 0) && (s_01 != (char *)0x0)) {
-    uppercase(s_01);
+  uppercase(title);
+  if ((type == 0) && (artist != (char *)0x0)) {
+    uppercase(artist);
   }
   if (Hud_gCdActive == 0) {
     Hud_kTurnSongOffNext = 1;
     return 1;
   }
-  if (iVar11 < 1) {
-    if (iVar11 == 0) {
+  if (index < 1) {
+    if (index == 0) {
       sprintf(strindex,"- -");
-      iVar8 = 0x44;
+      tx = 0x44;
     }
-    else if (iVar11 == -2) {
+    else if (index == -2) {
       sprintf(strindex,"- -");
-      iVar8 = 0x45;
+      tx = 0x45;
     }
     else {
       sprintf(strindex,"- -");
-      s_01 = (char *)0x0;
-      if (s_00 != (u_char *)0x0) goto HudCdPlay_nullStringFallback;
-      iVar8 = 0x46;
+      artist = (char *)0x0;
+      if (title != (char *)0x0) goto HudCdPlay_nullStringFallback;
+      tx = 0x46;
     }
-    s_01 = (char *)0x0;
-    s_00 = (u_char *)TextSys_Word(iVar8);
+    artist = (char *)0x0;
+    title = TextSys_Word(tx);
 HudCdPlay_nullStringFallback:
-    if (s_00 == (u_char *)0x0) {
+    if (title == (char *)0x0) {
       keepup = 0;
       Hud_gCdLastTick = ticks;
       goto HudCdPlay_buildOutString;
     }
   }
   else {
-    sprintf(strindex,"%02d",iVar11);
-    if (s_00 == (u_char *)0x0) {
+    sprintf(strindex,"%02d",index);
+    if (title == (char *)0x0) {
       Hud_gCdScrollTitle = 1;
       Hud_gCdLastTick = ticks;
       goto HudCdPlay_nullStringFallback;
     }
   }
-  iVar10 = Hud_BuildString((char *)s_00,0,0,0,0,true);
-  if (Hud_gCdScrollTitle < iVar10 + 0x4c) {
+  if (Hud_gCdScrollTitle < Hud_BuildString(title,0,0,0,0,true) + 0x4c) {
     while (Hud_gCdLastTick < ticks) {
       Hud_gCdScrollTitle = Hud_gCdScrollTitle + 1;
       Hud_gCdLastTick = Hud_gCdLastTick + 4;
@@ -2193,89 +2193,87 @@ HudCdPlay_nullStringFallback:
   else if (Hud_gCdLastTick + 0x80 < ticks) {
     Hud_gCdActive = 0;
   }
-  iVar10 = 0;
-  pbVar9 = (u_char *)strscrolltitle;
-  iVar8 = 0x4c - Hud_gCdScrollTitle;
-  if (*s_00 != 0) {
-    pbVar7 = s_00;
+  dx = 0;
+  s = strscrolltitle;
+  tx = 0x4c - Hud_gCdScrollTitle;
+  if (*title != 0) {
+    p = (u_char *)title;
     do {
-      if ((int)(s_00 + 0x3f) <= (int)pbVar7) break;
-      if (*pbVar7 == 0x20) {
-        iVar6 = 3;
+      if ((int)((u_char *)title + 0x3f) <= (int)p) break;
+      if (*p == 0x20) {
+        w = 3;
       }
       else {
-        if (*pbVar7 - 0x30 < 10) {
-          iVar6 = *pbVar7 + 0x6e;
+        if (*p - 0x30 < 10) {
+          w = *p + 0x6e;
         }
         else {
-          iVar6 = *pbVar7 + 0x43;
+          w = *p + 0x43;
         }
-        iVar6 = HudPmx_gShapes[iVar6].width + 1;
+        w = HudPmx_gShapes[w].width + 1;
       }
-      if (0x4b < iVar8 + iVar6) break;
-      if (iVar8 < 0) {
-        iVar10 = iVar10 + iVar6;
+      if (0x4b < tx + w) break;
+      if (tx < 0) {
+        dx = dx + w;
       }
       else {
-        *pbVar9 = *pbVar7;
-        pbVar9 = pbVar9 + 1;
+        *s = *p;
+        s = s + 1;
       }
-      pbVar7 = pbVar7 + 1;
-      iVar8 = iVar8 + iVar6;
-    } while (*pbVar7 != 0);
+      p = p + 1;
+      tx = tx + w;
+    } while (*p != 0);
   }
-  *pbVar9 = 0;
+  *s = 0;
 HudCdPlay_buildOutString:
   if (type == 0) {
-    if (s_00 == (u_char *)0x0) {
+    if (title == (char *)0x0) {
       return 1;
     }
     Hud_gShowedCDPlayer = 1;
-    Hud_BuildString(strscrolltitle,(iVar13 + iVar10 + 10) - (Hud_gCdScrollTitle + -0x4c),iVar3 + 0xa,
+    Hud_BuildString(strscrolltitle,(x + dx + 10) - (Hud_gCdScrollTitle - 0x4c),y + 0xa,
                0xbebe,0,false);
-    if (s_01 != (char *)0x0) {
-      Hud_BuildString(s_01,sVar1 + 0xc,iVar3 + 0x13,0x808080,0,false);
+    if (artist != (char *)0x0) {
+      Hud_BuildString(artist,x + 0xa,y + 0x13,0x808080,0,false);
     }
     Hud_GoTpage(0);
     Hud_BlackThinBox(g1Player[0xf].x + 10,g1Player[0xf].y + 10,0x50,0x12);
-    iVar10 = 0x50;
-    iVar3 = 0x12;
-    iVar11 = 0x12;
-    iVar13 = g1Player[0xf].y + 10;
+    box_w = 0x50;
+    box_h = 0x12;
+    box_y = g1Player[0xf].y + 10;
     box_transp = 0;
     box_x = g1Player[0xf].x + 10;
   }
   else {
     Hud_gShowedCDPlayer = 1;
     Font_TextColor(4);
-    Font_TextXY(strindex,iVar13,iVar3);
-    if (s_00 != (u_char *)0x0) {
+    Font_TextXY(strindex,x,y - 2);
+    if (title != (char *)0x0) {
       Font_TextColor(3);
-      Hud_BuildString(strscrolltitle,(iVar13 + iVar10 + 0x16) - (Hud_gCdScrollTitle + -0x4c),iVar3 + 5,
+      Hud_BuildString(strscrolltitle,(x + dx + 0x16) - (Hud_gCdScrollTitle - 0x4c),y + 3,
                  0xbebe,0,false);
       Hud_GoTpage(0);
-      if (iVar11 != 0) {
-        int min = iVar12 / 60000;
+      if (index != 0) {
+        int min = time / 60000;
+        sec = (time % 60000) / 1000;
         sprintf(strtime,"%1d%c%02d",min,
                    (u_int)(u_char)"::\'\'\'."[GameSetup_gData.userSetting.language],
-                   (iVar12 % 60000) / 1000);
+                   sec);
         Font_TextColor(4);
-        iVar10 = textpixels(strtime);
-        Font_TextXY(strtime,(iVar13 - iVar10) + 0x5c,iVar3 + 0xe);
+        Font_TextXY(strtime,(x - textpixels(strtime)) + 0x5c,y + 0xc);
       }
     }
     Hud_BlackThinBox((int)g1Player[0xf].x,(int)g1Player[0xf].y,0x66,0x1c);
     Hud_FBuildF4(0,(int)g1Player[0xf].x,(int)g1Player[0xf].y,0x66,0xe,0,'\0','\0');
     Hud_FBuildF4(0,(int)g1Player[0xf].x,g1Player[0xf].y + 0x1b,0x66,1,0,'\0','\0');
-    iVar10 = 0x66;
-    iVar13 = (int)g1Player[0xf].y;
+    box_w = 0x66;
+    box_y = (int)g1Player[0xf].y;
     box_transp = 1;
     box_x = (int)g1Player[0xf].x;
-    iVar3 = 0x1c;
-    iVar11 = 0x1c;
+    box_h = 0x1c;
   }
-  Hud_FBuildF4(box_transp,box_x,iVar13,iVar10,iVar11,0,'\0','\0');
-  return iVar3;
+  Hud_FBuildF4(box_transp,box_x,box_y,box_w,box_h,0,'\0','\0');
+  return box_h;
 }
 
 /* ---- Hud_BuildRadar__Fi  [HUD.CPP:2497-2614] SLD-VERIFIED ---- */

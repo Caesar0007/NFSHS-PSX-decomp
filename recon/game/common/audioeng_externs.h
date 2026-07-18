@@ -5,7 +5,7 @@
 #include "../../nfs4_types.h"
 #include "../../lib/libfns.h"
 
-extern Car_tObj **Cars_gList;
+extern Car_tObj *Cars_gList[];   /* was stale Car_tObj** (extra indirection); real def cars.cpp Car_tObj *Cars_gList[9] */
 extern GameSetup_tData   GameSetup_gData;
 extern SndBnk_t gSndBnk[7];
 extern int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum);

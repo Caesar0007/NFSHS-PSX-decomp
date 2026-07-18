@@ -1,0 +1,31 @@
+=== CLASS (a): negative-literal disguised VAs -- 14 hits ===
+recon\frontend\common\feinput.cpp:11  -2147483648 == 0x80000000
+    tPSXToFEMapping getKeyMappings[16] = { {16, 512}, {128, 2048}, {32, 4096}, {64, 1024}, {1024, 32}, {256, 64}, {2048, 128}, {512, 256}, {1048576, 512}, {8388608, 2048}, {2097152, 4096}, {4194304, 1024}, {268435456, 512}, {-2147483648, 2048}, {536870912, 4096}, {1073741824, 1024} };   /* @0x8005173c */
+recon\frontend\common\femenuoptions.cpp:1920  -0x7ffb0000 == 0x80050000
+    return -0x7ffb0000;
+recon\frontend\common\fetracks.cpp:9  -2147336244 == 0x80023FCC
+    tTrackInformation gTrackInfo_FETrackList = {102, 101u, 116u, 114u, 107u, 46u, 116u, 114u, 107, 107, 0, 0, 0, 0, 0, 0, 7596, -32766, 0, 0, 0, -2147336244};   /* @0x80010fd0 */
+recon\frontend\common\front.cpp:269  -0x80000000 == 0x80000000
+    if (value != -0x80000000) goto front_badPadValue;
+recon\frontend\common\screencarselect.cpp:722  -0x7fef0000 == 0x80110000
+    return -0x7fef0000;
+recon\frontend\common\screentracks.cpp:349  -0x7ffb0000 == 0x80050000
+    return -0x7ffb0000;
+recon\game\common\audiocmn.cpp:1601  -0x80000000 == 0x80000000
+    if ((doppler == -1) && (iVar8 == -0x80000000)) {
+recon\game\common\audiocmn.cpp:1640  -0x80000000 == 0x80000000
+    if ((iVar8 == -1) && (iVar12 * uVar7 == -0x80000000)) {
+recon\game\common\audiocmn.cpp:1661  -0x80000000 == 0x80000000
+    if ((iVar10 == -1) && (iVar9 == -0x80000000)) {
+recon\game\common\r3dcar.cpp:1115  -0x80000000 == 0x80000000
+    return -0x80000000;
+recon\game\common\r3dcar.cpp:2903  -0x80000000 == 0x80000000
+    if (*piVar16 != -0x80000000) {
+recon\game\common\r3dcar.cpp:2941  -0x80000000 == 0x80000000
+    if (*piVar9 != -0x80000000) {
+recon\game\psx\device.cpp:388  -0x80000000 == 0x80000000
+    if ((int)uVar2 * 0xff == -0x80000000) {
+recon\game\psx\psxcontroller.cpp:158  -0x80000000 == 0x80000000
+    if (value != -0x80000000) goto cfLbl1;
+
+=== CLASS (b): masked-address literals adjacent to '+' -- 0 hits ===

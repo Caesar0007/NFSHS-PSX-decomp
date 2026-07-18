@@ -889,7 +889,7 @@ void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj)
       }
       paiVar3 = paiVar3 + 1;
       pAVar4 = (AI_tInfo *)(pAVar4->blockingCars + 1);
-    } while ((int)paiVar3 < -0x7fef3310);
+    } while ((int)paiVar3 < (int)&AI_Info);   /* DISGUISED BARE-VA FIX (w14-a2): -0x7fef3310 == 0x8010CCF0 == &AI_Info (the array-end sentinel: AI_Info sits directly after CarLogic_gObs in the data segment) */
   }
   else {
     paiVar3 = CarLogic_gObs;
@@ -921,7 +921,7 @@ void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj)
       }
       paiVar3 = paiVar3 + 1;
       pAVar4 = (AI_tInfo *)(pAVar4->blockingCars + 1);
-    } while ((int)paiVar3 < -0x7fef3310);
+    } while ((int)paiVar3 < (int)&AI_Info);   /* DISGUISED BARE-VA FIX (w14-a2): -0x7fef3310 == 0x8010CCF0 == &AI_Info (the array-end sentinel: AI_Info sits directly after CarLogic_gObs in the data segment) */
   }
   return;
 }

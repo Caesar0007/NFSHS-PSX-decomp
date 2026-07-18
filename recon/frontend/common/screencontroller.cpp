@@ -493,7 +493,10 @@ void tScreenControllerConfig::ActualDrawController(int frame,int fadelevelmain,i
               (shapeIdx,shapeFlags,shapeX,shapeY,0,1,&drawFlags2);
     DrawShapeExtended
               (shapeIdx,shapeFlags,shapeX,shapeY,0,1,&drawFlags2);
-    shakeOff = -0x7ffadcbc;
+    /* DISGUISED BARE-VA FIX (w14-a2): -0x7ffadcbc == 0x80052344 == &ArrowLocations[48][0]
+     * (576 == 48*sizeof(short[6])) -- shakeOff is reused here as a byte-address pointer walk
+     * (pX/pY read at +4/+6, +=0xc per iter == sizeof(short[6])). */
+    shakeOff = (int)&ArrowLocations[48][0];
     do {
       pX = (short *)(shakeOff + 4);
       pY = (short *)(shakeOff + 6);

@@ -1445,6 +1445,29 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
   coorddef *pChunkCp;
   coorddef tmp;
   coorddef tmp2;
+  /* MATCH (wave-14, 157->127): CONSTANTS-IN-REGS lever. The oracle prologue
+     materializes -1/1 ONCE (`addiu $s6,$zero,-1` / `addiu $s7,$zero,1`) and
+     reuses those TWO callee-saved regs at every one of the 5/4 sd->light /
+     sd->zeroGTETransFlag stores across the whole function (spanning many
+     intervening jal calls) -- a literal `-1`/`1` repeated at each site (the
+     prior form) does NOT get GCSE'd into a persistent pseudo across this
+     many basic blocks/calls; it re-materializes fresh via `li` at every site
+     and starves buildInd of its oracle register (fp), landing it on s7
+     instead. Naming the constants as real fn-scope locals gives gcc a
+     value with a full-function live range that DOES win a callee-saved reg,
+     which also frees buildInd to land on `fp` (SYM REG 0x1e) as the oracle
+     has it. Residual 127: the ONE remaining prologue floor is buildList
+     (a1->s4)'s SAVE POSITION -- oracle schedules it LAST (after fp/s6/s5/s7)
+     via allocno-priority ordering; a liveness-fence (`__asm__("":: "r"
+     (buildList))`) tried to nudge it and REGRESSED (127->137, reverted) --
+     genuine scheduling floor, not source-reachable. Remaining diffs beyond
+     the prologue are instruction-SCHEDULING interleaving of independent
+     load/store chains (vertexBuf ptr, chunkInd*12 ptr, nightFlags/materials/
+     light stores) that gcc's scheduler reorders across statement boundaries
+     -- a §A row-38 "N named value-temps" class floor, untried further this
+     session. */
+  int negOne = -1;
+  int gteFlag = 1;
 
   sd = (Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr;
   chunkCount = BWorld_gChunkCount;
@@ -1473,7 +1496,7 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
       sd->nightFlags = 0;
       sd->vertices = (CCOORD16 *)(chunkDat->vertexBuf + 1);
       sd->materials = Track_materials;
-      sd->light = -1;
+      sd->light = negOne;
       pChunkCp = Chunk_chunkCenters + sd->chunkInd;
       if (gNight_renderNight != 0) {
         int cx;
@@ -1571,8 +1594,8 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
         if (sd->quadCount != 0) {
           sd->quads = chunkDat->renderQuads[0];
           sd->offset = 0x7d;
-          sd->zeroGTETransFlag = 1;
-          sd->light = -1;
+          sd->zeroGTETransFlag = gteFlag;
+          sd->light = negOne;
           DrawW_kCtrlWorld_High(sd);
         }
         sd->quadCount = chunkDat->quadCounts[1];
@@ -1580,8 +1603,8 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
           sd->quads = chunkDat->renderQuads[1];
 DrawWTrough_setStateCallHigh:
           sd->offset = 0x1e;
-          sd->zeroGTETransFlag = 1;
-          sd->light = -1;
+          sd->zeroGTETransFlag = gteFlag;
+          sd->light = negOne;
           DrawW_kCtrlWorld_High(sd);
         }
       }
@@ -1589,16 +1612,16 @@ DrawWTrough_setStateCallHigh:
       sd->quadCount = chunkDat->quadCounts[2];
       if (sd->quadCount != 0) {
         sd->offset = 0x7d;
-        sd->zeroGTETransFlag = 1;
-        sd->light = -1;
+        sd->zeroGTETransFlag = gteFlag;
+        sd->light = negOne;
         sd->quads = chunkDat->objQuadBuf + 1;
         DrawW_kCtrlWorld_High(sd);
       }
       sd->quadCount = chunkDat->quadCounts[3];
       if (sd->quadCount != 0) {
         sd->offset = 0x32;
-        sd->zeroGTETransFlag = 1;
-        sd->light = -1;
+        sd->zeroGTETransFlag = gteFlag;
+        sd->light = negOne;
         sd->quads = chunkDat->objQuadInstanceBuf + 1;
         DrawW_kCtrlWorld_High(sd);
       }
@@ -2728,18 +2751,32 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
   int ti2;
   u_char bVar2;
 
+  /* MATCH (wave-14): `sd` (SYM REG Draw_DCache*, the scratchpad cache cursor
+     -- same idiom as DrawW_BuildObjectFacets/DoTrough) was DECLARED but never
+     ASSIGNED/used -- the body instead wrote a plain linked global
+     `Render_gWorldMat` and literal-cast the matrix work-area as bare
+     `(void*)0x1f800014` at the gte_Set{Rot,Trans}Matrix call sites. The oracle
+     never materializes %hi/%lo(Render_gWorldMat) at all (confirmed: raw .s
+     loads a LITERAL 0x1F800000-range constant, `lui s1,(0x1F800000>>16)` with
+     NO relocation) -- Render_gWorldMat here is really `sd->matB`
+     (Draw_DCache.matB @+0x14, matches the 0x1f800014 literal exactly), the
+     SAME single shared scratchpad struct DoTrough/BuildObjectFacets already
+     use via `sd=(Draw_DCache*)&Render_gPalettePtr`. This explains the
+     whole-function register/frame divergence from insn 1 -- our recon spent
+     an extra reg + a real relocation on a global that was never linked here. */
+  sd = (Draw_DCache *)&Render_gPalettePtr;
   ccount_local = fskid->count;
   l2 = (fskid->m).m[3];
   skidIdx = ccount_local * 0x2b0;
-  Render_gWorldMat.m[0][0] = (short)((fskid->m).m[0] >> 4);
-  Render_gWorldMat.m[0][1] = (short)((int)l2 >> 4);
-  Render_gWorldMat.m[0][2] = (short)((fskid->m).m[6] >> 4);
-  Render_gWorldMat.m[1][0] = (short)((fskid->m).m[1] >> 4);
-  Render_gWorldMat.m[1][1] = (short)((fskid->m).m[4] >> 4);
-  Render_gWorldMat.m[1][2] = (short)((fskid->m).m[7] >> 4);
-  Render_gWorldMat.m[2][0] = (short)((fskid->m).m[2] >> 4);
-  Render_gWorldMat.m[2][1] = (short)((fskid->m).m[5] >> 4);
-  Render_gWorldMat.m[2][2] = (short)((fskid->m).m[8] >> 4);
+  (sd->matB).m[0][0] = (short)((fskid->m).m[0] >> 4);
+  (sd->matB).m[0][1] = (short)((int)l2 >> 4);
+  (sd->matB).m[0][2] = (short)((fskid->m).m[6] >> 4);
+  (sd->matB).m[1][0] = (short)((fskid->m).m[1] >> 4);
+  (sd->matB).m[1][1] = (short)((fskid->m).m[4] >> 4);
+  (sd->matB).m[1][2] = (short)((fskid->m).m[7] >> 4);
+  (sd->matB).m[2][0] = (short)((fskid->m).m[2] >> 4);
+  (sd->matB).m[2][1] = (short)((fskid->m).m[5] >> 4);
+  (sd->matB).m[2][2] = (short)((fskid->m).m[8] >> 4);
   do {
     do {
       ccount_local = ccount_local + -1;
@@ -2760,11 +2797,11 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
     ts.y = ((coorddef *)pt1_index)->y - (fskid->t).y;
     ts.z = ((coorddef *)pt1_index)->z - (fskid->t).z;
     transform(&ts.x,(int *)fskid,&td.x);
-    Render_gWorldMat.t[0] = td.x >> 6;
-    Render_gWorldMat.t[1] = td.y >> 6;
-    Render_gWorldMat.t[2] = td.z >> 6;
-gte_SetRotMatrix((void *)0x1f800014);
-gte_SetTransMatrix((void *)0x1f800014);
+    (sd->matB).t[0] = td.x >> 6;
+    (sd->matB).t[1] = td.y >> 6;
+    (sd->matB).t[2] = td.z >> 6;
+gte_SetRotMatrix(&sd->matB);
+gte_SetTransMatrix(&sd->matB);
     ti2 = ((coorddef *)(pt1_index + 0xc))->x;
     for (depth_skid = 0; depth_skid < (short)ti2; depth_skid = depth_skid + 1) {
       /* MATCH (2026-07-11): oracle re-reads Render_gPacketEnd's TRUE storage

@@ -1196,12 +1196,10 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
 void Hrz_BuildHorizon(DRender_tView *Vi)
 
 {
-  int hrzBase;
   coorddef trans;
   int fxOverlapPercentage;
   long hrz_projchange;
   Draw_HorizonCache *hsd;
-  (void)hsd;
 
   /* PSX scratchpad base (0x1F800000). Held in ONE local for the WHOLE function (not a
      literal at each site) because the oracle keeps this address live in a single
@@ -1209,8 +1207,15 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
      Horizon_InterpolateLineSCoords x N, SetGeomScreen) -- matches catalog §3.12 #16
      HOLD-GLOBAL-ADDR-ACROSS-CALL: a value referenced both before and after a `jal` is
      forced into a callee-saved reg + frame slot, which is exactly what materializing a
-     fresh literal at every site (a per-call REMATERIALIZE) fails to reproduce. */
-  hrzBase = 0x1F800000;
+     fresh literal at every site (a per-call REMATERIALIZE) fails to reproduce.
+     MATCH: this is the SYM's real "hsd" (Draw_HorizonCache*) local, not a synthetic int
+     -- reusing the SAME nfs4_types.h struct (head.clipW/clipH @0x10/0x12, scptTop[17]
+     @0x14, scptMidBot[17] @0x58, scptPmxLeft[17] @0x9c, scptPmxRight[17] @0xe0,
+     vertexTop[18] @0x124 -- byte-for-byte the "posD/posA/posB/posC/cnt" arrays this fn's
+     banner already documents). An extra invented int local not backed by the SYM (the
+     prior "(int)hsd") shifts pseudo-numbering/register-coloring for the WHOLE function
+     (rule 8's "adding any new pseudo can re-color the head" converse trap) -- eliminated. */
+  hsd = (Draw_HorizonCache *)0x1f800000;
   fxOverlapPercentage = 0x107ae;
   memset(&trans,0,0xc);
   hrz_projchange = 0;
@@ -1240,15 +1245,16 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
     int *zval;
     SVECTOR updown [2];
     DVECTOR temp2d [2];
+    int rowDelta;               /* SYM: nested "i" -- the farI/Zmax search counter */
+    int farI, Zmax, dx, dy;
     SVECTOR *pSVar12;
     short shape_short;
-    int farI, Zmax, dx, dy;
-    int shape_visible, shape_idx, rowDelta, shape_overlap, shape_w_idx;
+    int shape_visible, shape_idx, shape_overlap, shape_w_idx;
 
-    Hrz_RotProj16(0x11,gRngCoordTop,(int *)(hrzBase + 0x124),(DVECTOR *)(hrzBase + 0x58));
+    Hrz_RotProj16(0x11,gRngCoordTop,(int *)((int)hsd + 0x124),(DVECTOR *)((int)hsd + 0x58));
     farI = 0;
     Zmax = 0;
-    zval = (int *)(hrzBase + 0x124);
+    zval = (int *)((int)hsd + 0x124);
     rowDelta = 0;
     do {
       if (Zmax < *zval) {
@@ -1259,8 +1265,8 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       zval = zval + 1;
     } while (rowDelta < 0x10);
     pSVar12 = gRngCoordTop + farI;
-    shape_short = (short)Hrz_gTrackSpec->yoffset + (short)Hrz_gTrackSpec->height;
     updown[0].vx = pSVar12->vx;
+    shape_short = (short)Hrz_gTrackSpec->yoffset + (short)Hrz_gTrackSpec->height;
     updown[0].vy = shape_short;
     updown[0].vz = pSVar12->vz;
     updown[1].vx = pSVar12->vx;
@@ -1286,10 +1292,10 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
     /* BUG FIX (round 2 diagnosis, now applied): each loop computes its OWN dx/dy delta ONCE
        from its own temp2d[] entry against a freshly-read posA[farI] baseline -- not a shared
        `right` value recomputed every iteration. */
-    dx = temp2d[0].vx - *(short *)((hrzBase + 0x58) + farI * 4);
-    dy = temp2d[0].vy - *(short *)((hrzBase + 0x5a) + farI * 4);
+    dx = temp2d[0].vx - *(short *)(((int)hsd + 0x58) + farI * 4);
+    dy = temp2d[0].vy - *(short *)(((int)hsd + 0x5a) + farI * 4);
     shape_overlap = 0;
-    shape_visible = hrzBase;
+    shape_visible = (int)hsd;
     do {
       if (0 < *(int *)(shape_visible + 0x124)) {
         *(short *)(shape_visible + 0x14) = *(short *)(shape_visible + 0x58) + dx;
@@ -1298,10 +1304,10 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       shape_overlap = shape_overlap + 1;
       shape_visible = shape_visible + 4;
     } while (shape_overlap < 0x11);
-    dx = temp2d[1].vx - *(short *)((hrzBase + 0x58) + farI * 4);
-    dy = temp2d[1].vy - *(short *)((hrzBase + 0x5a) + farI * 4);
+    dx = temp2d[1].vx - *(short *)(((int)hsd + 0x58) + farI * 4);
+    dy = temp2d[1].vy - *(short *)(((int)hsd + 0x5a) + farI * 4);
     shape_w_idx = 0;
-    shape_idx = hrzBase;
+    shape_idx = (int)hsd;
     do {
       if (0 < *(int *)(shape_idx + 0x124)) {
         *(short *)(shape_idx + 0x58) = *(short *)(shape_idx + 0x58) + dx;
@@ -1311,9 +1317,9 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       shape_idx = shape_idx + 4;
     } while (shape_w_idx < 0x11);
   }
-  Horizon_InterpolateLineSCoords((DVECTOR *)(hrzBase + 0x9c),(DVECTOR *)(hrzBase + 0x58),(DVECTOR *)(hrzBase + 0x14),
+  Horizon_InterpolateLineSCoords((DVECTOR *)((int)hsd + 0x9c),(DVECTOR *)((int)hsd + 0x58),(DVECTOR *)((int)hsd + 0x14),
              gfxPmxHeightPercentage,0x10,1);
-  Horizon_InterpolateLineSCoords((DVECTOR *)(hrzBase + 0xe0),(DVECTOR *)(hrzBase + 0x5c),(DVECTOR *)(hrzBase + 0x18),
+  Horizon_InterpolateLineSCoords((DVECTOR *)((int)hsd + 0xe0),(DVECTOR *)((int)hsd + 0x5c),(DVECTOR *)((int)hsd + 0x18),
              gfxPmxHeightPercentage,0x10,1);
   {
     /* SYM block line=107/114/115: mpts[4] -- reuses the stack space freed by updown/temp2d
@@ -1332,24 +1338,31 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       int iVar18, iVar16, iVar15, iVar6;
       (void)pmx;
 
-      iVar16 = hrzBase;
+      iVar16 = (int)hsd;
       iVar15 = 0;
       iVar18 = 4;
       for (; iVar17 < 0x10; iVar17 = iVar17 + 1) {
-        if ((15999 < *(int *)(iVar16 + 0x124)) || (15999 < *(int *)((hrzBase + 0x124) + iVar18))) {
+        if ((15999 < *(int *)(iVar16 + 0x124)) || (15999 < *(int *)(((int)hsd + 0x124) + iVar18))) {
           mpts[0] = *(DVECTOR *)(iVar16 + 0x9c);          /* posB[k] */
           mpts[1] = *(DVECTOR *)(iVar16 + 0xe0);          /* posC[k] */
-          mpts[2] = *(DVECTOR *)((hrzBase + 0x58) + iVar18);    /* posA[k+1] */
+          mpts[2] = *(DVECTOR *)(((int)hsd + 0x58) + iVar18);    /* posA[k+1] */
           mpts[3] = *(DVECTOR *)(iVar16 + 0x58);          /* posA[k] */
           {
-            int lo = *(short *)(hrzBase + 0x10);
-            int hi = *(short *)(hrzBase + 0x12);
-            if (!((mpts[0].vx < 0 && mpts[1].vx < 0 && mpts[2].vx < 0 && mpts[3].vx < 0) ||
-                  (lo < mpts[0].vx && lo < mpts[1].vx && lo < mpts[2].vx && lo < mpts[3].vx) ||
-                  (mpts[0].vy < 0 && mpts[1].vy < 0 && mpts[2].vy < 0 && mpts[3].vy < 0) ||
-                  (hi < mpts[0].vy && hi < mpts[1].vy && hi < mpts[2].vy && hi < mpts[3].vy))) {
-              Horizon_InterpolateLineSCoords(&right,(DVECTOR *)((hrzBase + 0x9c) + iVar15),
-                         (DVECTOR *)((hrzBase + 0xe0) + iVar15),&fxOverlapPercentage,1,0);
+            /* MATCH: De Morgan direct form -- m2c shows this as an AND-of-4-ORs (each OR is
+               the negation of "all 4 <0"/"all 4 lo<vx" etc), NOT the mathematically-equivalent
+               negated-OR-of-ANDs. Same truth table, but the compiled short-circuit branch
+               chain differs completely; write the form m2c actually shows.
+               lo/hi read AT POINT OF USE (not pre-declared before the clause1 chain) -- the
+               oracle defers the 0x1F800010/12 read until clause2 is actually reached (only
+               after clause1's OR falls all the way through); a pre-if local hoists it early. */
+            if ((mpts[0].vx >= 0 || mpts[1].vx >= 0 || mpts[2].vx >= 0 || mpts[3].vx >= 0) &&
+                (*(short *)((int)hsd + 0x10) >= mpts[0].vx || *(short *)((int)hsd + 0x10) >= mpts[1].vx ||
+                 *(short *)((int)hsd + 0x10) >= mpts[2].vx || *(short *)((int)hsd + 0x10) >= mpts[3].vx) &&
+                (mpts[0].vy >= 0 || mpts[1].vy >= 0 || mpts[2].vy >= 0 || mpts[3].vy >= 0) &&
+                (*(short *)((int)hsd + 0x12) >= mpts[0].vy || *(short *)((int)hsd + 0x12) >= mpts[1].vy ||
+                 *(short *)((int)hsd + 0x12) >= mpts[2].vy || *(short *)((int)hsd + 0x12) >= mpts[3].vy)) {
+              Horizon_InterpolateLineSCoords(&right,(DVECTOR *)(((int)hsd + 0x9c) + iVar15),
+                         (DVECTOR *)(((int)hsd + 0xe0) + iVar15),&fxOverlapPercentage,1,0);
               iVar6 = Draw_gViewOtSize;
               p = (u_char *)Render_gPacketPtr;
               prim = (POLY_GT4 *)p;
@@ -1372,17 +1385,20 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                 *(u_int *)(p + 0x18) = puVar14[1];
                 *(u_int *)(p + 0x24) = puVar14[2];
                 *(u_int *)(p + 0x30) = puVar14[3];
-                if ((u_char)Hrz_gTrackSpec->ringPMX[iVar17] < 8) {
-                  *(u_int *)(p + 8) = *(u_int *)((hrzBase + 0x9c) + iVar15);
-                  *(DVECTOR *)(p + 0x14) = right;
-                  *(u_int *)(p + 0x20) = *(u_int *)((hrzBase + 0x58) + iVar15);
-                  *(u_int *)(p + 0x2c) = *(u_int *)((hrzBase + 0x5c) + iVar15);
-                }
-                else {
+                /* MATCH: arm-swap (catalog §A) -- m2c shows the branch condition as the
+                   DIRECT ">=8" form (fall-through arm is >=8, not <8); the inverted-and-swap
+                   compiles with the SAME polarity/inline-arm layout the oracle uses. */
+                if (8 <= (u_char)Hrz_gTrackSpec->ringPMX[iVar17]) {
                   *(DVECTOR *)(p + 8) = right;
                   *(u_int *)(p + 0x14) = *(u_int *)(iVar16 + 0x9c);
                   *(u_int *)(p + 0x20) = *(u_int *)(iVar16 + 0x5c);
                   *(u_int *)(p + 0x2c) = *(u_int *)(iVar16 + 0x58);
+                }
+                else {
+                  *(u_int *)(p + 8) = *(u_int *)(((int)hsd + 0x9c) + iVar15);
+                  *(DVECTOR *)(p + 0x14) = right;
+                  *(u_int *)(p + 0x20) = *(u_int *)(((int)hsd + 0x58) + iVar15);
+                  *(u_int *)(p + 0x2c) = *(u_int *)(((int)hsd + 0x5c) + iVar15);
                 }
               }
             }

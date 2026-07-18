@@ -14,9 +14,10 @@ extern char *Paths_Paths[];
 extern GameSetup_tData GameSetup_gData;
 // [owned->defined in nfs3.cpp] extern tfrontEnd frontEnd;
 extern Sim_tSimSystemVar simVar;
-extern Car_tObj **Cars_gList;
+extern Car_tObj *Cars_gList[];   /* was stale Car_tObj** (extra indirection); real def cars.cpp Car_tObj *Cars_gList[9] */
 extern Car_tObj *Cars_gHumanRaceCarList[];
-extern Car_tStats *Cars_gNewCarStatsList;
+extern Car_tStats Cars_gNewCarStatsList[];   /* was stale pointer; owner cars.cpp
+                                     Car_tStats Cars_gNewCarStatsList[9] (array of value structs) */
 // [owned->defined in nfs3.cpp] extern int Cars_gNumHumanRaceCars, gUseFrontend, quitType;
 extern int Cars_gNumHumanRaceCars, quitType;
 extern int *gFileMem, *gFileHandleTable;

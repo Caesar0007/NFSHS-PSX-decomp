@@ -1917,6 +1917,10 @@ InBoxSong_playSfx:
       goto InBoxSong_finishReturn;
     }
     if (tVar2 != kInput_KeyType_Up) {
+      /* BARE-VA SWEEP (w14-a2): -0x7ffb0000==0x80050000 LOOKS like a disguised VA but raw
+       * @0x8001ee7c/0x8001eeec/0x8001ef0c (this same ProcessInput) shows the ORACLE emits the
+       * identical bare `lui v0,0x8005` with nothing further -- a genuine magic sentinel
+       * return value in the original source, not a materialized symbol address. Left as-is. */
       return -0x7ffb0000;
     }
     if ((screenAudio->fSelectedSong < 1) || (this->fMoving != 0))

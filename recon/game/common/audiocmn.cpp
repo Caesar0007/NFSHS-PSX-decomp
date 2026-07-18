@@ -540,18 +540,8 @@ void AudioCmn_CheckState(Car_tObj *car)
 {
   char carnum;
   int carspeed;
-  int opponents;
-  int position;
-  CopSpeak_tRequest r;
-  bool saidplayer;
-  int phrase;
-  bool bVar1;
-  int iVar2;
-  int iVar3;
-  u_int uVar4;
-  CopSpeak_tRequest CStack_38;
-  
-  uVar4 = (u_int)(u_char)car->carIndex;
+
+  carnum = (char)car->carIndex;
   if ((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) {
     if (((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0) {
       return;
@@ -563,134 +553,145 @@ void AudioCmn_CheckState(Car_tObj *car)
   if (GameSetup_gData.numLaps == 1) {
     return;
   }
-  iVar3 = car->currentSpeed;
+  carspeed = car->currentSpeed;
   if (GameSetup_gData.reverseTrack != 0) {
-    iVar3 = -iVar3;
+    carspeed = -carspeed;
   }
   if (((car->stats).lap < GameSetup_gData.numLaps) &&
-     (iVar3 = fixedmult(iVar3,0x50000),
-     ((car->stats).lap + 1) * gNumSlices < (car->stats).sliceTotal + iVar3 / 0x60000)) {
-    if ((recordLapTime == 0) || (simGlobal.gameTicks - gtotallaptimes[uVar4] < recordLapTime)) {
+     (carspeed = fixedmult(carspeed,0x50000),
+     ((car->stats).lap + 1) * gNumSlices < (car->stats).sliceTotal + carspeed / 0x60000)) {
+    if ((recordLapTime == 0) || (simGlobal.gameTicks - gtotallaptimes[(u_char)carnum] < recordLapTime)) {
       AudioCmn_GetAsyncSfx(2,1,false);
     }
     if (((car->stats).lap != 0) &&
-       (simGlobal.gameTicks - gtotallaptimes[uVar4] < bestLapTime[uVar4])) {
+       (simGlobal.gameTicks - gtotallaptimes[(u_char)carnum] < bestLapTime[(u_char)carnum])) {
       AudioCmn_GetAsyncSfx(2,0,false);
     }
-    iVar3 = Stats_GetNumOpponents();
-    if (1 < iVar3) {
-      if ((iVar3 < 3) && ((car->stats).checkpointDisplay != 0)) {
-        iVar2 = AudioCmn_GetTimePhrase(-(car->stats).checkpointDifference);
-      }
-      else {
-        iVar2 = Stats_GetPosition(car);
-        if (iVar2 == iVar3) {
-          iVar2 = 8;
+    {
+      int opponents;
+      opponents = Stats_GetNumOpponents();
+      if (1 < opponents) {
+        int position;
+        if (!((opponents < 3) && ((car->stats).checkpointDisplay != 0))) {
+          position = Stats_GetPosition(car);
+          if (position == opponents) {
+            position = 8;
+          }
+          position = position + 0x4f;
         }
-        iVar2 = iVar2 + 0x4f;
+        else {
+          position = AudioCmn_GetTimePhrase(-(car->stats).checkpointDifference);
+        }
+        if (GameSetup_gData.commMode == 1) {
+          AudioCmn_GetAsyncSfx(2,(u_char)carnum + 0x33,false);
+          position = position + ((u_char)carnum + 1) * 0x23;
+        }
+        AudioCmn_GetAsyncSfx(2,position,false);
       }
-      if (GameSetup_gData.commMode == 1) {
-        AudioCmn_GetAsyncSfx(2,uVar4 + 0x33,false);
-        iVar2 = iVar2 + (uVar4 + 1) * 0x23;
-      }
-      AudioCmn_GetAsyncSfx(2,iVar2,false);
     }
-    iVar3 = (car->stats).lap;
-    if (iVar3 < GameSetup_gData.numLaps + -1) {
-      if (iVar3 < GameSetup_gData.numLaps + -2) {
-        iVar3 = iVar3 + 5;
+    carspeed = (car->stats).lap;
+    if (carspeed < GameSetup_gData.numLaps + -1) {
+      if (carspeed < GameSetup_gData.numLaps + -2) {
+        carspeed = carspeed + 5;
       }
       else {
-        iVar3 = 2;
+        carspeed = 2;
       }
-      AudioCmn_GetAsyncSfx(2,iVar3,false);
+      AudioCmn_GetAsyncSfx(2,carspeed,false);
     }
   }
-  if (car->lap == (u_int)(u_char)currentLap[uVar4]) {
+  if (car->lap == (u_int)(u_char)currentLap[(u_char)carnum]) {
     return;
   }
-  if (AudioCmn_gPlayerArrested[uVar4] != 0) {
+  if (AudioCmn_gPlayerArrested[(u_char)carnum] != 0) {
     return;
   }
-  CopSpeak_InitRequest(&CStack_38);
-  bVar1 = false;
-  if ((GameSetup_gData.commMode == 1) &&
-     ((car->stats).time[(car->stats).lap + -1] < bestLapTime[car->carIndex])) {
-    CStack_38.phrase = uVar4 + 0x33;
-    CopSpeak_Request(&CStack_38);
-    bVar1 = true;
-  }
-  if ((recordLapTime == 0) ||
-     (iVar3 = (car->stats).time[(car->stats).lap + -1], iVar3 < recordLapTime)) {
-    CStack_38.phrase = 1;
-    recordLapTime = (car->stats).time[(car->stats).lap + -1];
-    bestLapTime[car->carIndex] = recordLapTime;
-  }
-  else {
-    if (bestLapTime[car->carIndex] <= iVar3) goto LAB_800774e0;
-    CStack_38.phrase = 0;
-    bestLapTime[car->carIndex] = (car->stats).time[(car->stats).lap + -1];
-  }
-  CopSpeak_Request(&CStack_38);
-LAB_800774e0:
-  iVar3 = Stats_GetNumOpponents();
-  if (1 < iVar3) {
-    iVar2 = Stats_GetPosition(car);
-    if (car->lap < GameSetup_gData.numLaps) {
-      if ((iVar3 < 3) && ((car->stats).checkpointDisplay != 0)) {
-        iVar3 = AudioCmn_GetTimePhrase(-(car->stats).checkpointDifference);
-        CStack_38.phrase = iVar3;
-        if (((GameSetup_gData.commMode == 1) && (!bVar1)) &&
-           ((iVar3 - 0x3bU < 3 || (iVar3 - 0x3fU < 0xf)))) {
-          CStack_38.phrase = uVar4 + 0x33;
-          CopSpeak_Request(&CStack_38);
-          bVar1 = true;
-          CStack_38.phrase = iVar3;
-        }
-      }
-      else {
-        CStack_38.phrase = iVar2 + 0x4e;
-        if (iVar2 == iVar3) {
-          CStack_38.phrase = 0x57;
-        }
-      }
-      if ((GameSetup_gData.commMode == 1) && (!bVar1)) {
-        CStack_38.phrase = CStack_38.phrase + (uVar4 + 1) * 0x23;
-      }
+  {
+    CopSpeak_tRequest r;
+    bool saidplayer;
+
+    CopSpeak_InitRequest(&r);
+    saidplayer = false;
+    if ((GameSetup_gData.commMode == 1) &&
+       ((car->stats).time[(car->stats).lap + -1] < bestLapTime[car->carIndex])) {
+      r.phrase = (u_char)carnum + 0x33;
+      CopSpeak_Request(&r);
+      saidplayer = true;
     }
-    else if ((GameSetup_gData.commMode != 1) || (bVar1)) {
-      CStack_38.phrase = iVar2 + 10;
-      if ((iVar2 == iVar3) && (CStack_38.phrase = iVar2 + 10, 2 < iVar2)) {
-        CStack_38.phrase = 0x12;
-      }
-    }
-    else if ((iVar2 == iVar3) && (2 < iVar2)) {
-      CStack_38.phrase = 0x22;
-      if (uVar4 == 0) {
-        CStack_38.phrase = 0x1a;
-      }
+    if ((recordLapTime == 0) ||
+       (carspeed = (car->stats).time[(car->stats).lap + -1], carspeed < recordLapTime)) {
+      r.phrase = 1;
+      recordLapTime = (car->stats).time[(car->stats).lap + -1];
+      bestLapTime[car->carIndex] = recordLapTime;
     }
     else {
-      CStack_38.phrase = iVar2 + 0x1a;
-      if (uVar4 == 0) {
-        CStack_38.phrase = iVar2 + 0x12;
+      if (bestLapTime[car->carIndex] <= carspeed) goto LAB_800774e0;
+      r.phrase = 0;
+      bestLapTime[car->carIndex] = (car->stats).time[(car->stats).lap + -1];
+    }
+    CopSpeak_Request(&r);
+LAB_800774e0:
+    carspeed = Stats_GetNumOpponents();
+    if (1 < carspeed) {
+      int position;
+      position = Stats_GetPosition(car);
+      if (car->lap < GameSetup_gData.numLaps) {
+        int phrase;
+        if ((carspeed < 3) && ((car->stats).checkpointDisplay != 0)) {
+          phrase = AudioCmn_GetTimePhrase(-(car->stats).checkpointDifference);
+          r.phrase = phrase;
+          if (((GameSetup_gData.commMode == 1) && (!saidplayer)) &&
+             ((phrase - 0x3bU < 3 || (phrase - 0x3fU < 0xf)))) {
+            r.phrase = (u_char)carnum + 0x33;
+            CopSpeak_Request(&r);
+            saidplayer = true;
+            r.phrase = phrase;
+          }
+        }
+        else {
+          r.phrase = position + 0x4e;
+          if (position == carspeed) {
+            r.phrase = 0x57;
+          }
+        }
+        if ((GameSetup_gData.commMode == 1) && (!saidplayer)) {
+          r.phrase = r.phrase + ((u_char)carnum + 1) * 0x23;
+        }
       }
+      else if ((GameSetup_gData.commMode != 1) || (saidplayer)) {
+        r.phrase = position + 10;
+        if ((position == carspeed) && (r.phrase = position + 10, 2 < position)) {
+          r.phrase = 0x12;
+        }
+      }
+      else if ((position == carspeed) && (2 < position)) {
+        r.phrase = 0x22;
+        if ((u_char)carnum == 0) {
+          r.phrase = 0x1a;
+        }
+      }
+      else {
+        r.phrase = position + 0x1a;
+        if ((u_char)carnum == 0) {
+          r.phrase = position + 0x12;
+        }
+      }
+      CopSpeak_Request(&r);
     }
-    CopSpeak_Request(&CStack_38);
-  }
-  iVar3 = (car->stats).lap;
-  if (iVar3 < GameSetup_gData.numLaps) {
-    CStack_38.phrase = iVar3 + 4;
-    if (GameSetup_gData.numLaps + -1 <= iVar3) {
-      CStack_38.phrase = 2;
+    carspeed = (car->stats).lap;
+    if (carspeed < GameSetup_gData.numLaps) {
+      r.phrase = carspeed + 4;
+      if (GameSetup_gData.numLaps + -1 <= carspeed) {
+        r.phrase = 2;
+      }
+      CopSpeak_Request(&r);
     }
-    CopSpeak_Request(&CStack_38);
   }
-  if (currentLap[uVar4] == '\0') {
-    bestLapTime[uVar4] = simGlobal.gameTicks - gtotallaptimes[uVar4];
+  if (currentLap[(u_char)carnum] == '\0') {
+    bestLapTime[(u_char)carnum] = simGlobal.gameTicks - gtotallaptimes[(u_char)carnum];
   }
-  currentLap[uVar4] = (char)car->lap;
-  gtotallaptimes[uVar4] = (car->stats).lapTime;
+  currentLap[(u_char)carnum] = (char)car->lap;
+  gtotallaptimes[(u_char)carnum] = (car->stats).lapTime;
   falseLapCounter = car->lap;
   intensityFalseLapCounter = car->lap;
   return;
@@ -1402,6 +1403,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   int local_38;
   
   AudioCmn_CheckState(car);
+  if (AudioCmn_kAudioOn) {
   iVar8 = 0x8000000;
   if (Camera_gInfo[car->carIndex].mode == 0xc) {
     iVar8 = 0x10000000;
@@ -1443,9 +1445,21 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
     iFreqIn = 0;
   }
   iVar12 = (car->N).driveSurfaceType;
-  pvVar5 = BWorldSm_TunnelFlagSm(&(car->N).simRoadInfo)
-  ;
-  if (pvVar5 == (void *)0x0) {
+  pvVar5 = BWorldSm_TunnelFlagSm(&(car->N).simRoadInfo);
+  if (pvVar5 != (void *)0x0) {
+    if ((GameSetup_gData.commMode != 1) && ((u_char)fReverbLevel < 100)) {
+      uVar7 = 100;
+      if ((u_char)fReverbLevel + 10 < 0x65) {
+        uVar7 = (u_char)fReverbLevel + 10;
+      }
+      fReverbLevel = (char)uVar7;
+      SNDfxmasterlevel(0x0,uVar7 & 0xff);
+      fReverbOn = '\x01';
+    }
+    iVar10 = iVar10 + 0x14;
+    local_38 = 0x5e;
+  }
+  else {
     if ((u_char)fReverbLevel < 0x20) {
       fReverbLevel = ' ';
       SNDfxmasterlevel(0x0,0x20);
@@ -1459,19 +1473,6 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
       fReverbLevel = (char)uVar7;
       SNDfxmasterlevel(0x0,uVar7 & 0xff);
     }
-  }
-  else {
-    if ((GameSetup_gData.commMode != 1) && ((u_char)fReverbLevel < 100)) {
-      uVar7 = 100;
-      if ((u_char)fReverbLevel + 10 < 0x65) {
-        uVar7 = (u_char)fReverbLevel + 10;
-      }
-      fReverbLevel = (char)uVar7;
-      SNDfxmasterlevel(0x0,uVar7 & 0xff);
-      fReverbOn = '\x01';
-    }
-    iVar10 = iVar10 + 0x14;
-    local_38 = 0x5e;
   }
   bVar3 = false;
   if (GameSetup_gData.commMode == 1) {
@@ -1667,7 +1668,7 @@ LAB_80078d54:
   }
   AudioEng_Set(car->carIndex,gMasterEngineLevel * iVar12 * 0xe >> 0xe,iVar9 / iVar10,iVar11,iVar4,
              doppler,azimuth,cardir);
-                    
+  }
   return;
 }
 
@@ -1998,34 +1999,34 @@ void UpdateSiren(int sirennum,int amp,int dop,int azimuth,int supercop)
   return;
 }
 
-/* ===================================================================================
- *  RECONSTRUCTED 2026-06-12 from nfs4-f.exe (disasm-v3 MIPS) — the audiocmn.obj tail
- *  SKIPPED from the original 42-fn pass. Full reconstructions, NOT stubs.
- *  Helper VAs resolved via disasm-v3 offset markers. 0x801131EC = &GameSetup_gData;
- *  +240/+244 = userSetting.musicLevel/.sfxLevel; gaChannel[71] (Channels_t {Partial,SFXnum}).
- * =================================================================================== */
-/* sibling externs not already in audiocmn.cpp scope (defined in audioeng/audio/copspeak/spch) */
-void AudioEng_StopServer(void);
-void AudioEng_CleanUp(void);
-void AudioEng_Pause(void);
-void AudioTrk_CleanUp(void);
-void Audio_CleanUp(void);
-void CopSpeak_Stop(void);
-void CopSpeak_Cancel(void);
-void CopSpeak_SilenceCop(Car_tObj *car, int playerIndex);
-void AudioMus_StopSong(int fadeticks);
-void systemtask(int taskFlag);
-extern "C" int  SNDstopall(void);             /* @0x800E81A8 */
-extern "C" void SPCH_ClearEventQueue(void);   /* @0x800E74E0 */
-/* additional helpers for AudioCmn_Reset (gettick/SNDSTRM_setpriority/SNDmemlargestunused
- * come from lib/libfns.h already included via audiocmn_externs.h) */
-void CopSpeak_Server(void);
-int  AudioTrk_PreLoad(void);
-int  AudioMus_Buffered(void);
-int  AudioMus_Threshold(void);
-extern int gMusicHandle;
-
-
+/* ===================================================================================
+ *  RECONSTRUCTED 2026-06-12 from nfs4-f.exe (disasm-v3 MIPS) — the audiocmn.obj tail
+ *  SKIPPED from the original 42-fn pass. Full reconstructions, NOT stubs.
+ *  Helper VAs resolved via disasm-v3 offset markers. 0x801131EC = &GameSetup_gData;
+ *  +240/+244 = userSetting.musicLevel/.sfxLevel; gaChannel[71] (Channels_t {Partial,SFXnum}).
+ * =================================================================================== */
+/* sibling externs not already in audiocmn.cpp scope (defined in audioeng/audio/copspeak/spch) */
+void AudioEng_StopServer(void);
+void AudioEng_CleanUp(void);
+void AudioEng_Pause(void);
+void AudioTrk_CleanUp(void);
+void Audio_CleanUp(void);
+void CopSpeak_Stop(void);
+void CopSpeak_Cancel(void);
+void CopSpeak_SilenceCop(Car_tObj *car, int playerIndex);
+void AudioMus_StopSong(int fadeticks);
+void systemtask(int taskFlag);
+extern "C" int  SNDstopall(void);             /* @0x800E81A8 */
+extern "C" void SPCH_ClearEventQueue(void);   /* @0x800E74E0 */
+/* additional helpers for AudioCmn_Reset (gettick/SNDSTRM_setpriority/SNDmemlargestunused
+ * come from lib/libfns.h already included via audiocmn_externs.h) */
+void CopSpeak_Server(void);
+int  AudioTrk_PreLoad(void);
+int  AudioMus_Buffered(void);
+int  AudioMus_Threshold(void);
+extern int gMusicHandle;
+
+
 /* ---- AudioCmn_ReverbOff__Fv  [@0x80079ecc] ---- */
 
 void AudioCmn_ReverbOff(void)

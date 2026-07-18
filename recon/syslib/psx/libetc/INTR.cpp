@@ -62,11 +62,17 @@ extern "C" IntrHooks       *g_hooks_ptr;         /* @0x80135B80 : = &g_hooks */
 extern "C" unsigned short  *g_imask_ptr;         /* @0x80135B88 : runtime ptr to I_MASK register */
 extern "C" int              g_intr_timeout = 0;  /* @0x80135B90 */
 
+/* HIDDEN-PHANTOM FIX (w14-a2): oracle name is the bare "_bzero_w" (no __F mangling suffix), but
+ * this `static` C++ fn got C++-mangled to _bzero_w__FPii, a NAME MISMATCH invisible to the gate
+ * ("NOT IN OBJECT" forever). `static`+`extern "C"` can't combine as adjacent storage-class
+ * specifiers on this compiler -- wrap in an `extern "C" { }` block instead. */
+extern "C" {
 static void _bzero_w(int *p, int n)        /* @0x800F2E70 */
 {
     int i = n - 1;
     if (n != 0) { do { *p = 0; i = i - 1; p = p + 1; } while (i != -1); }
 }
+}   /* extern "C" */
 
 extern "C" void _initIntr(void)            /* @0x800F2968 */
 {

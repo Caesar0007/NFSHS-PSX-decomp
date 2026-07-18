@@ -33,6 +33,6 @@ extern void  Hud_ParseTime(int t, char *out);
 /* ---- this module (forward decls for intra-TU calls) ---- */
 extern void  RaceSummary(void);
 extern void  RaceStatistics(void);
-extern void  Hud_BTCStats(short player, int flag);
+extern void  Hud_BTCStats(short player, bool flag);   /* HIDDEN-PHANTOM FIX (w14-a2): was `int` (mangles __Fsi, LINK MISMATCH vs the real __Fsb def) */
 
 #endif

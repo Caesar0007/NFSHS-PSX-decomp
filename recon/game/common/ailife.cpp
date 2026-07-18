@@ -25,7 +25,7 @@ Car_tObj * AILife_IsCarInAnyVisibleArea(Car_tObj *carObj);
 Car_tObj * AILife_IsSliceInAnyVisibleArea(int slice);
 Car_tObj * AILife_IsSliceCloseToAnyCopCar(int slice);
 Car_tObj * AILife_IsPositionInAnyVisibleArea(coorddef *pos);
-void AILife_Debug(char *format);
+void AILife_Debug(char *format, ...);
 
 
 /* ---- AILife_EvaluateLife__FP8Car_tObj  [@0x80067650] ---- */
@@ -164,7 +164,12 @@ LAB_800678dc:
     }
     (carObj->N).simRoadInfo.slice = sVar10;
   }
-  AILife_Debug(" psad checked group, basis now %d(s=%d) new slice=%d\n");
+  /* RAW @0x80067ad4-e8: a1=basisCar->carIndex(+0x254), a2=(basisCar->N).simRoadInfo.slice(+8),
+   * a3=(carObj->N).simRoadInfo.slice(+8) -- the 3 dropped varargs, restored from the oracle. */
+  AILife_Debug(" psad checked group, basis now %d(s=%d) new slice=%d\n",
+               carObj->basisCar->carIndex,
+               (carObj->basisCar->N).simRoadInfo.slice,
+               (carObj->N).simRoadInfo.slice);
   return;
 }
 
@@ -771,20 +776,14 @@ Car_tObj * AILife_IsPositionInAnyVisibleArea(coorddef *pos)
 }
 
 /* ---- AILife_Debug__FPce  [@0x800689d0] ---- */
-void AILife_Debug(char *format)
+/* HIDDEN-PHANTOM FIX (w14-a2): oracle mangles __FPce (char*,...) -- was __FPc (char*) with no
+ * varargs, a NAME MISMATCH invisible to the gate ("NOT IN OBJECT" forever). Raw demangle
+ * @0x800689d0 confirms "AILife_Debug(char *, ...)". Nullsub body (§3.2 compiled-out debug fn)
+ * but callers still set up the real varargs (§3.2 nullsub-still-takes-its-real-args). */
+void AILife_Debug(char *format, ...)
 {
-  int sliceDist;
-  int dist;
-  int newSlice;
-  int width;
-  int zD;
-  int speed;
-  int copLoop;
-  int count;
-  int approachSide;
-  int search;
-  coorddef zero;
-  matrixtdef rotMatrix;
-  
+  /* SYM fsize=0, no locals besides REGPARM format -- the Ghidra-decompiled dead locals this
+   * used to carry (sliceDist/dist/newSlice/... /rotMatrix) were leftover decompiler noise from
+   * a larger un-optimized debug body; dropped per SYM (w14-a2, matches oracle's zero-size frame). */
   return;
 }

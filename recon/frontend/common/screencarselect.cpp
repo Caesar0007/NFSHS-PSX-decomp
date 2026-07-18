@@ -719,6 +719,10 @@ int tScreenCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_input,tMenu
   }
   else if (state2 < 6) {
     if (state2 < 2) {
+      /* BARE-VA SWEEP (w14-a2): -0x7fef0000==0x80110000 looks like a disguised VA; raw
+       * @0x8003c0b4 (this same ProcessInput) shows the oracle emits the identical bare
+       * `lui v0,0x8011` with no further resolution -- same magic-sentinel family as
+       * tInsideBoxSongMenu/tScreenTrackSelect::ProcessInput. Left as-is. */
       return -0x7fef0000;
     }
     if (frontEnd.gameMode == '\x01') {

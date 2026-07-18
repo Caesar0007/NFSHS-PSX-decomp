@@ -13,7 +13,10 @@ copLevel_t   twoLapCopGameSplit[4] = { {0, 0, 0, 0, 2, 16, 32768, 512, 128, 2}, 
 copLevel_t   fourLapCopGameSplit[4] = { {0, 0, 0, 0, 2, 16, 45875, 512, 128, 2}, {0, 1, 0, 0, 2, 16, 45875, 512, 192, 0}, {0, 0, 0, 0, 2, 32, 45875, 256, 192, 0}, {0, 1, 0, 1, 2, 32, 45875, 0, 256, 0} };   /* @0x8010d278 */
 copLevel_t   twoLapCopGame1H1AI[4] = { {2, 0, 0, 0, 0, 16, 19660, 512, 128, 2}, {0, 2, 2, 0, 0, 32, 19660, 0, 192, 0}, {2, 0, 0, 0, 1, 32, 19660, 0, 192, 0}, {0, 2, 2, 1, 1, 32, 19660, 0, 192, 0} };   /* @0x8010d348 */
 copLevel_t   fourLapCopGame1H1AI[5] = { {1, 0, 0, 0, 0, 16, 45875, 512, 128, 2}, {0, 2, 2, 0, 0, 16, 45875, 512, 192, 0}, {2, 0, 0, 0, 0, 32, 45875, 256, 192, 0}, {2, 0, 0, 0, 1, 32, 45875, 0, 224, 0}, {0, 2, 2, 1, 1, 32, 45875, 0, 256, 0} };   /* @0x8010d418 */
-copGame_t    copGame[6] = { {4, -2146381868}, {5, -2146381660}, {4, -2146381400}, {4, -2146381192}, {4, -2146380984}, {5, -2146380776} };   /* @0x8010d51c */
+/* DISGUISED BARE-VA FIX (w14-a2): the 6 `.levels` pointers were fabricated negative-int literals
+ * (e.g. -2146381868 == 0x8010CFD4) instead of real symbol refs -- they decode EXACTLY to the 6
+ * sibling arrays declared just above (offset 0 each), so this is a plain array-of-pointers table. */
+copGame_t    copGame[6] = { {4, twoLapCopGame}, {5, fourLapCopGame}, {4, twoLapCopGameSplit}, {4, fourLapCopGameSplit}, {4, twoLapCopGame1H1AI}, {5, fourLapCopGame1H1AI} };   /* @0x8010d51c */
 AICop_spikeBelt_t AICop_spikeBelt;   /* @0x8010d54c  (bss(zero)) */
 void         *AICop_rawTriggers;   /* @0x8013c570  (bss(zero)) */
 int          AICop_gRoadBlockState;   /* @0x8013c574  (bss(zero)) */

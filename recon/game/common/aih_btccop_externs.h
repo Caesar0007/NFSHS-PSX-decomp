@@ -12,7 +12,12 @@ CARDINFO_def *MCRD_getcard(...);
 int Speech_Dispatch(void);             /* speech.obj flat (was Dispatch__6Speech; cast result to Speaker*) */
 int Speech_Mobile(Car_tObj *carObj);   /* speech.obj flat (was Mobile__6SpeechP8Car_tObj; cast result to Speaker*) */
 extern AICop_spikeBelt_t AICop_spikeBelt;
-extern AIDataRecord_TrackCurve_t AIDataRecord_TrackCurve[];
+extern AIDataRecord_TrackCurve_t *AIDataRecord_TrackCurve;   /* was stale array-of-value shape; owner
+                                                     (aidatarecord.cpp) defines it as a POINTER --
+                                                     consumers call AIDataRecord_TrackCurve->Get(...),
+                                                     which under the array shape decays to &storage
+                                                     (this global's own address) instead of the real
+                                                     stored pointer value -- wrong `this` bug */
 extern AIHigh_Base *highLevelAIObjs[];
 extern AIHigh_CopGameType_t AIHigh_CopGameType;   /* @0x8013c55c */
 extern AITune_BTC_t AITune_BTC[];

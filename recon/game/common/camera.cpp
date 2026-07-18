@@ -69,19 +69,19 @@ void Camera_ResetRelPos(int bitMask);
 /* ---- EulerToMat__FP10matrixtdefiii  [@0x8008060c] ---- */
 void EulerToMat(matrixtdef *m,int ax,int ay,int az)
 {
-  matrixtdef mStack_b8;
-  matrixtdef mStack_90;
-  matrixtdef mStack_68;
-  matrixtdef local_40;
+  matrixtdef mx;
+  matrixtdef my;
+  matrixtdef mz;
+  matrixtdef mt;
   int iVar1;
   int iVar2;
   int iVar3;
 
-  fixedxformx((int)&mStack_b8,(int *)ax);
-  fixedxformy((int)&mStack_90,(int *)ay);
-  fixedxformz((int)&mStack_68,(int *)az);
-  Math_fasttransmult(&mStack_68,&mStack_90,&local_40);
-  Math_fasttransmult(&local_40,&mStack_b8,m);
+  fixedxformx(&mx,ax);
+  fixedxformy(&my,ay);
+  fixedxformz(&mz,az);
+  Math_fasttransmult(&mz,&my,&mt);
+  Math_fasttransmult(&mt,&mx,m);
   iVar1 = m->m[3];
   iVar2 = m->m[4];
   iVar3 = m->m[5];
@@ -647,55 +647,45 @@ void Camera_UpdateCircleCam(int player)
   coorddef des;
   int sin;
   int cos;
-  int circle_height[3];
+  int circle_height[3] = { 0x10000, 0x20000, 0x30000 };
   int h0;
   int h1;
   int ang;
+  int hval;
   short sVar1;
   BO_tNewtonObj *pBVar2;
-  u_int uVar3;
+  int uVar3;
   Camera_tInfo *pCVar4;
-  int local_48;
-  int local_44;
-  int local_40;
-  int local_38;
-  int local_34;
-  int local_30;
-  int local_28 [4];
-  int local_18;
-  int local_14;
-  
-  local_28[0] = 0x10000;
-  local_28[1] = 0x20000;
-  local_28[2] = 0x30000;
+
   if ((((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) &&
       (InBetween == 0)) && (simVar.pauseSim == 0)) {
     sVar1 = Camera_gInfo[player].circleAngle + 1;
     Camera_gInfo[player].circleAngle = sVar1;
-    intsincos((int)sVar1,&local_18,&local_14);
-    local_48 = fixedmult(0x48000,local_14);
-    local_40 = fixedmult(0x60000,local_18);
+    intsincos((int)sVar1,&sin,&cos);
+    src.x = fixedmult(0x48000,cos);
+    src.z = fixedmult(0x60000,sin);
     if (((int)Camera_gInfo[player].circleAngle + 0x100U & 0x1ff) == 0) {
       Camera_gInfo[player].circleCounter = Camera_gInfo[player].circleCounter + 1;
     }
     uVar3 = (int)Camera_gInfo[player].circleAngle - 0x80;
     if ((uVar3 & 0x1ff) < 0x80) {
-      local_44 = *(int *)((int)local_28 +
-                         (((int)Camera_gInfo[player].circleCounter % 3) * 0x10000 >> 0xe));
-      local_44 = ((int)((local_28[(Camera_gInfo[player].circleCounter + 1) % 3] - local_44) *
-                       (uVar3 & 0x7f)) >> 7) + local_44;
+      h0 = circle_height[Camera_gInfo[player].circleCounter % 3];
+      h1 = circle_height[(Camera_gInfo[player].circleCounter + 1) % 3];
+      ang = uVar3 & 0x7f;
+      hval = ((h1 - h0) * ang >> 7) + h0;
     }
     else {
-      local_44 = *(int *)((int)local_28 +
-                         (((int)Camera_gInfo[player].circleCounter % 3) * 0x10000 >> 0xe));
+      h0 = circle_height[Camera_gInfo[player].circleCounter % 3];
+      hval = h0;
     }
+    src.y = hval;
     pCVar4 = Camera_gInfo + player;
-    transform(&local_48,(pCVar4->anchor->orientMat).m,&local_38);
-    Camera_TunnelLimit(player,&local_34);
+    transform(&src,(pCVar4->anchor->orientMat).m,&des);
+    Camera_TunnelLimit(player,&des.y);
     pBVar2 = pCVar4->anchor;
-    Camera_gInfo[player].position.x = (pCVar4->anchor->position).x + local_38;
-    Camera_gInfo[player].position.y = (pBVar2->position).y + local_34;
-    Camera_gInfo[player].position.z = (pBVar2->position).z + local_30;
+    Camera_gInfo[player].position.x = (pCVar4->anchor->position).x + des.x;
+    Camera_gInfo[player].position.y = (pBVar2->position).y + des.y;
+    Camera_gInfo[player].position.z = (pBVar2->position).z + des.z;
   }
   return;
 }
@@ -938,15 +928,7 @@ void Camera_SetSplineCam(int player)
     if (pBVar8[1].shadowMat.m[7] < 0) {
       iVar7 = -iVar7;
     }
-    if (iVar7 < 0) {
-      sVar1 = (pBVar8->simRoadInfo).slice;
-      sVar6 = sVar1 + (short)iVar7;
-      if (sVar1 + iVar7 < 0) {
-        sVar6 = (short)gNumSlices + sVar6;
-      }
-      Camera_gInfo[player].slicePos.slice = sVar6;
-    }
-    else {
+    if (iVar7 >= 0) {
       sVar1 = (pBVar8->simRoadInfo).slice;
       sVar6 = sVar1 + (short)iVar7;
       if (gNumSlices <= sVar1 + iVar7) {
@@ -954,12 +936,16 @@ void Camera_SetSplineCam(int player)
       }
       Camera_gInfo[player].slicePos.slice = sVar6;
     }
-    piVar4 = (int *)((char *)BWorldSm_slices + Camera_gInfo[player].slicePos.slice * 0x20);
-    iVar7 = piVar4[1];
-    iVar5 = piVar4[2];
-    Camera_gInfo[player].position.x = *piVar4;
-    Camera_gInfo[player].position.y = iVar7;
-    Camera_gInfo[player].position.z = iVar5;
+    else {
+      sVar1 = (pBVar8->simRoadInfo).slice;
+      sVar6 = sVar1 + (short)iVar7;
+      if (sVar1 + iVar7 < 0) {
+        sVar6 = (short)gNumSlices + sVar6;
+      }
+      Camera_gInfo[player].slicePos.slice = sVar6;
+    }
+    Camera_gInfo[player].position =
+         *(coorddef *)BWorldSm_slices[Camera_gInfo[player].slicePos.slice].center;
     BWorldSm_FindClosestQuadRez(&Camera_gInfo[player].position,&Camera_gInfo[player].slicePos,1);
   }
   return;
@@ -989,11 +975,7 @@ void Camera_UpdateSplineCam(int player)
   coorddef *b;
   Camera_tInfo *pCVar10;
   BO_tNewtonObj *pBVar11;
-  coorddef local_40;
-  int local_30;
-  int local_2c;
-  int local_28;
-  
+
   pBVar11 = Camera_gInfo[player].anchor;
   bVar2 = false;
   if ((simVar.quickPauseSim != 0) && (Replay_ReplayInterface.changeCamera == 0)) {
@@ -1047,15 +1029,7 @@ void Camera_UpdateSplineCam(int player)
     if (pBVar11[1].shadowMat.m[7] < 0) {
       iVar7 = -iVar7;
     }
-    if (iVar7 < 0) {
-      sVar1 = (pBVar11->simRoadInfo).slice;
-      sVar8 = sVar1 + (short)iVar7;
-      if (sVar1 + iVar7 < 0) {
-        sVar8 = (short)gNumSlices + sVar8;
-      }
-      Camera_gInfo[player].slicePos.slice = sVar8;
-    }
-    else {
+    if (iVar7 >= 0) {
       sVar1 = (pBVar11->simRoadInfo).slice;
       sVar8 = sVar1 + (short)iVar7;
       if (gNumSlices <= sVar1 + iVar7) {
@@ -1063,43 +1037,47 @@ void Camera_UpdateSplineCam(int player)
       }
       Camera_gInfo[player].slicePos.slice = sVar8;
     }
-    piVar5 = (int *)((char *)BWorldSm_slices + Camera_gInfo[player].slicePos.slice * 0x20);
-    iVar3 = piVar5[1];
-    iVar7 = piVar5[2];
-    Camera_gInfo[player].position.x = *piVar5;
-    Camera_gInfo[player].position.y = iVar3;
-    Camera_gInfo[player].position.z = iVar7;
+    else {
+      sVar1 = (pBVar11->simRoadInfo).slice;
+      sVar8 = sVar1 + (short)iVar7;
+      if (sVar1 + iVar7 < 0) {
+        sVar8 = (short)gNumSlices + sVar8;
+      }
+      Camera_gInfo[player].slicePos.slice = sVar8;
+    }
+    Camera_gInfo[player].position =
+         *(coorddef *)BWorldSm_slices[Camera_gInfo[player].slicePos.slice].center;
   }
   BWorldSm_FindClosestQuadRez(&Camera_gInfo[player].position,&Camera_gInfo[player].slicePos,1);
   piVar6 = (int *)((char *)BWorldSm_slices + Camera_gInfo[player].slicePos.slice * 0x20);
-  iVar3 = Camera_gInfo[player].slicePos.slice + 1;
+  numSlice = Camera_gInfo[player].slicePos.slice + 1;
   piVar5 = (int *)BWorldSm_slices;
-  if (iVar3 < gNumSlices) {
-    piVar5 = (int *)((char *)BWorldSm_slices + iVar3 * 0x20);
+  if (numSlice < gNumSlices) {
+    piVar5 = (int *)((char *)BWorldSm_slices + numSlice * 0x20);
   }
-  local_30 = *piVar5;
-  local_2c = piVar5[1];
-  local_28 = piVar5[2];
-  local_40.x = local_30 - *piVar6;
-  local_40.y = local_2c - piVar6[1];
-  local_40.z = local_28 - piVar6[2];
-  Math_NormalizeVector(&local_40);
-  iVar3 = fixedmult((pBVar11->linearVel).x,local_40.x);
-  iVar7 = fixedmult((pBVar11->linearVel).y,local_40.y);
-  iVar9 = fixedmult((pBVar11->linearVel).z,local_40.z);
-  iVar9 = iVar3 + iVar7 + iVar9;
+  nextVel.x = *piVar5;
+  nextVel.y = piVar5[1];
+  nextVel.z = piVar5[2];
+  splineVel.x = nextVel.x - *piVar6;
+  splineVel.y = nextVel.y - piVar6[1];
+  splineVel.z = nextVel.z - piVar6[2];
+  Math_NormalizeVector(&splineVel);
+  iVar3 = fixedmult((pBVar11->linearVel).x,splineVel.x);
+  iVar7 = fixedmult((pBVar11->linearVel).y,splineVel.y);
+  iVar9 = fixedmult((pBVar11->linearVel).z,splineVel.z);
+  relativeVel = iVar3 + iVar7 + iVar9;
   if ((GameSetup_gData.sgge & 4U) != 0) {
-    iVar9 = fixedmult(iVar9,0xcccc);
+    relativeVel = fixedmult(relativeVel,0xcccc);
   }
-  iVar3 = fixedmult(iVar9,camSpeedTable[(u_char)Camera_gInfo[player].splineMode]);
-  iVar7 = fixedmult(iVar3,local_40.x);
-  iVar9 = fixedmult(iVar3,local_40.y);
-  iVar3 = fixedmult(iVar3,local_40.z);
+  change = fixedmult(relativeVel,camSpeedTable[(u_char)Camera_gInfo[player].splineMode]);
+  cameraVel.x = fixedmult(change,splineVel.x);
+  cameraVel.y = fixedmult(change,splineVel.y);
+  cameraVel.z = fixedmult(change,splineVel.z);
   b = &Camera_gInfo[player].position;
   pBVar11 = Camera_gInfo[player].target;
-  Camera_gInfo[player].position.x = Camera_gInfo[player].position.x + (iVar7 >> 6);
-  Camera_gInfo[player].position.y = Camera_gInfo[player].position.y + (iVar9 >> 6);
-  Camera_gInfo[player].position.z = Camera_gInfo[player].position.z + (iVar3 >> 6);
+  Camera_gInfo[player].position.x = Camera_gInfo[player].position.x + (cameraVel.x >> 6);
+  Camera_gInfo[player].position.y = Camera_gInfo[player].position.y + (cameraVel.y >> 6);
+  Camera_gInfo[player].position.z = Camera_gInfo[player].position.z + (cameraVel.z >> 6);
   iVar3 = Math_Dist3D(&pBVar11->position,b);
   if (iVar3 < 1) {
     iVar3 = Math_Dist3D(&(Camera_gInfo[player].target)->position,b);
@@ -1844,7 +1822,7 @@ void Camera_SetAboveGround(int player,coorddef *pos)
 /* ---- Camera_AcquireTarget__FiP8coorddefT1P10matrixtdefi  [@0x80084898] ---- */
 void Camera_AcquireTarget(int player,coorddef *point,coorddef *pos,matrixtdef *rot,int hirez)
 {
-  coorddef upvector;
+  coorddef upvector = {0, 0x10000, 0};
   coorddef tgtPos;
   coorddef*rotx;
   coorddef*roty;
@@ -1853,97 +1831,84 @@ void Camera_AcquireTarget(int player,coorddef *point,coorddef *pos,matrixtdef *r
   int iVar2;
   int iVar3;
   int iVar4;
-  coorddef *v;
-  coorddef *v_00;
-  int local_38;
-  int local_34;
-  int local_30;
-  int local_28;
-  int local_24;
-  int local_20;
-  
-  v_00 = (coorddef *)(rot->m + 3);
-  local_38 = 0;
-  local_34 = 0x10000;
-  local_30 = 0;
-  v = (coorddef *)(rot->m + 6);
-  if (point == (coorddef *)0x0) {
-    pBVar1 = Camera_gInfo[player].target;
-    local_28 = (pBVar1->position).x;
-    local_24 = (pBVar1->position).y;
-    local_20 = (pBVar1->position).z;
+  int adj;
+  int pitchAdj;
+  int dot;
+
+  rotx = (coorddef *)rot;
+  roty = (coorddef *)(rot->m + 3);
+  rotz = (coorddef *)(rot->m + 6);
+  if (point != (coorddef *)0x0) {
+    tgtPos = *point;
   }
   else {
-    local_28 = point->x;
-    local_24 = point->y;
-    local_20 = point->z;
+    pBVar1 = Camera_gInfo[player].target;
+    tgtPos = pBVar1->position;
   }
-  local_28 = local_28 - pos->x;
-  if (local_28 < 0) {
-    local_28 = local_28 + 3;
+  adj = tgtPos.x - pos->x;
+  if (adj < 0) {
+    adj = adj + 3;
   }
-  v->x = local_28 >> 2;
-  local_24 = local_24 - pos->y;
-  if (local_24 < 0) {
-    local_24 = local_24 + 3;
+  rotz->x = adj >> 2;
+  adj = tgtPos.y - pos->y;
+  if (adj < 0) {
+    adj = adj + 3;
   }
-  rot->m[7] = local_24 >> 2;
-  local_20 = local_20 - pos->z;
-  if (local_20 < 0) {
-    local_20 = local_20 + 3;
+  rotz->y = adj >> 2;
+  adj = tgtPos.z - pos->z;
+  if (adj < 0) {
+    adj = adj + 3;
   }
-  rot->m[8] = local_20 >> 2;
+  rotz->z = adj >> 2;
   if (Camera_gInfo[player].pitch != 0) {
-    iVar2 = rot->m[7] + 0x5333;
-    if (2 < (u_short)Camera_gInfo[player].mode - 2) {
-      iVar2 = rot->m[7] + 0x6666;
+    pitchAdj = rotz->y + 0x5333;
+    if (2 < (u_int)((u_short)Camera_gInfo[player].mode - 2)) {
+      pitchAdj = rotz->y + 0x6666;
     }
-    rot->m[7] = iVar2;
+    rotz->y = pitchAdj;
   }
   if (Replay_ReplayMode == 2) {
-    local_38 = Camera_gInfo[player].twist;
+    upvector.x = Camera_gInfo[player].twist;
   }
-  Math_NormalizeVector(v);
-  iVar2 = fixedmult(local_38,v->x);
-  iVar3 = fixedmult(0x10000,rot->m[7]);
-  iVar4 = fixedmult(0,rot->m[8]);
-  if (iVar2 + iVar3 + iVar4 < 1) {
-    iVar2 = fixedmult(local_38,v->x);
-    iVar3 = fixedmult(0x10000,rot->m[7]);
-    iVar4 = fixedmult(0,rot->m[8]);
-    iVar2 = -(iVar2 + iVar3 + iVar4);
+  Math_NormalizeVector(rotz);
+  iVar2 = fixedmult(upvector.x,rotz->x);
+  iVar3 = fixedmult(upvector.y,rotz->y);
+  iVar4 = fixedmult(upvector.z,rotz->z);
+  if (1 <= iVar2 + iVar3 + iVar4) {
+    iVar3 = fixedmult(upvector.x,rotz->x);
+    iVar4 = fixedmult(upvector.y,rotz->y);
+    iVar2 = fixedmult(upvector.z,rotz->z);
+    dot = iVar3 + iVar4 + iVar2;
   }
   else {
-    iVar3 = fixedmult(local_38,v->x);
-    iVar4 = fixedmult(0x10000,rot->m[7]);
-    iVar2 = fixedmult(0,rot->m[8]);
-    iVar2 = iVar3 + iVar4 + iVar2;
+    iVar2 = fixedmult(upvector.x,rotz->x);
+    iVar3 = fixedmult(upvector.y,rotz->y);
+    iVar4 = fixedmult(upvector.z,rotz->z);
+    dot = -(iVar2 + iVar3 + iVar4);
   }
-  if (0xfd70 < iVar2) {
-    local_38 = v_00->x;
-    local_34 = rot->m[4];
-    local_30 = rot->m[5];
+  if (0xfd70 < dot) {
+    upvector = *roty;
   }
-  iVar2 = fixedmult(local_34,rot->m[8]);
-  iVar3 = fixedmult(local_30,rot->m[7]);
-  rot->m[0] = iVar2 - iVar3;
-  iVar2 = fixedmult(local_30,v->x);
-  iVar3 = fixedmult(local_38,rot->m[8]);
-  rot->m[1] = iVar2 - iVar3;
-  iVar2 = fixedmult(local_38,rot->m[7]);
-  iVar3 = fixedmult(local_34,v->x);
-  rot->m[2] = iVar2 - iVar3;
-  Math_NormalizeVector((coorddef *)rot);
-  iVar2 = fixedmult(rot->m[7],rot->m[2]);
-  iVar3 = fixedmult(rot->m[8],rot->m[1]);
-  v_00->x = iVar2 - iVar3;
-  iVar2 = fixedmult(rot->m[8],rot->m[0]);
-  iVar3 = fixedmult(v->x,rot->m[2]);
-  rot->m[4] = iVar2 - iVar3;
-  iVar2 = fixedmult(v->x,rot->m[1]);
-  iVar3 = fixedmult(rot->m[7],rot->m[0]);
-  rot->m[5] = iVar2 - iVar3;
-  Math_NormalizeVector(v_00);
+  iVar2 = fixedmult(upvector.y,rotz->z);
+  iVar3 = fixedmult(upvector.z,rotz->y);
+  rotx->x = iVar2 - iVar3;
+  iVar2 = fixedmult(upvector.z,rotz->x);
+  iVar3 = fixedmult(upvector.x,rotz->z);
+  rotx->y = iVar2 - iVar3;
+  iVar2 = fixedmult(upvector.x,rotz->y);
+  iVar3 = fixedmult(upvector.y,rotz->x);
+  rotx->z = iVar2 - iVar3;
+  Math_NormalizeVector(rotx);
+  iVar2 = fixedmult(rotz->y,rotx->z);
+  iVar3 = fixedmult(rotz->z,rotx->y);
+  roty->x = iVar2 - iVar3;
+  iVar2 = fixedmult(rotz->z,rotx->x);
+  iVar3 = fixedmult(rotz->x,rotx->z);
+  roty->y = iVar2 - iVar3;
+  iVar2 = fixedmult(rotz->x,rotx->y);
+  iVar3 = fixedmult(rotz->y,rotx->x);
+  roty->z = iVar2 - iVar3;
+  Math_NormalizeVector(roty);
   return;
 }
 
@@ -2074,10 +2039,7 @@ void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)
   int iVar3;
   int iVar4;
   int iVar5;
-  int local_28;
-  int local_24;
-  int local_20;
-  
+
   if (Camera_gInfo[cviewP].jostling != 0) {
     Camera_PitchAndRoll(cviewP);
   }
@@ -2145,11 +2107,10 @@ void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)
   (cview->mrotation).m[4] = iVar4;
   (cview->mrotation).m[5] = iVar5;
   transpose(&cview->mrotation,&cview->mrotationInv);
-  local_28 = -(cview->translation).x;
-  local_24 = -(cview->translation).y;
-  local_20 = -(cview->translation).z;
-  transform(&local_28,(cview->mrotationInv).m,&(cview->translationInv).x
-            );
+  tmp.x = -(cview->translation).x;
+  tmp.y = -(cview->translation).y;
+  tmp.z = -(cview->translation).z;
+  transform(&tmp,(cview->mrotationInv).m,&cview->translationInv);
   return;
 }
 
@@ -2254,25 +2215,18 @@ void Camera_SetMode(int cviewP,int mode)
 {
   camera_flags*flagMode;
   short sVar1;
-  u_int uVar2;
-  u_int uVar3;
-  u_int uVar4;
-  u_int uVar5;
-  u_int uVar6;
-  u_int uVar7;
-  u_int uVar8;
-  
+
   InBetween = 0;
-  if ((((char *)&(Camera_gInfo[cviewP]))[0x74] & 1) == 0) {
-    if ((u_short)Camera_gInfo[cviewP].mode - 0xb < 2) {
+  if (Camera_gInfo[cviewP].modechange == 0) {
+    if ((u_int)((u_short)Camera_gInfo[cviewP].mode - 0xb) < 2) {
       Camera_gGeomScreen = 0xbe;
       TrsProj_SetProjection(0,0,0x140,0xf0);
     }
-    if (5 < (u_short)Camera_gInfo[cviewP].mode - 2) {
+    if (5 < (u_int)((u_short)Camera_gInfo[cviewP].mode - 2)) {
       Camera_ResetRelPos(cviewP + 1);
     }
-    if (-1 < Camera_gInfo[cviewP].animHandle) {
-      Anim_FreeHandle((int)Camera_gInfo[cviewP].animHandle);
+    if (-1 < (signed char)Camera_gInfo[cviewP].animHandle) {
+      Anim_FreeHandle((signed char)Camera_gInfo[cviewP].animHandle);
       Camera_gInfo[cviewP].animHandle = -1;
     }
     Camera_gInfo[cviewP].mode = (short)mode;
@@ -2284,25 +2238,15 @@ void Camera_SetMode(int cviewP,int mode)
     }
     Camera_gInfo[cviewP].intransition = '2';
     sVar1 = Camera_gInfo[cviewP].mode;
-    uVar2 = *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74);
-    uVar3 = (*(u_int *)((char *)&(Camera_gFlags[sVar1]) + 0xc) & 1) << 1;
-    *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) = uVar2 & 0xfffffffd | uVar3;
-    uVar4 = (*(u_int *)((char *)&(Camera_gFlags[sVar1]) + 0xc) & 2) << 1;
-    *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) = uVar2 & 0xfffffff9 | uVar3 | uVar4;
-    uVar5 = (*(u_int *)((char *)&(Camera_gFlags[sVar1]) + 0xc) & 4) << 1;
-    *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) = uVar2 & 0xfffffff1 | uVar3 | uVar4 | uVar5;
-    uVar6 = (*(u_int *)((char *)&(Camera_gFlags[sVar1]) + 0xc) & 8) << 1;
-    *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) = uVar2 & 0xffffffe1 | uVar3 | uVar4 | uVar5 | uVar6;
-    uVar7 = (*(u_int *)((char *)&(Camera_gFlags[sVar1]) + 0xc) & 0x10) << 1;
-    *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) =
-         uVar2 & 0xffffffc1 | uVar3 | uVar4 | uVar5 | uVar6 | uVar7;
-    uVar8 = (*(u_int *)((char *)&(Camera_gFlags[sVar1]) + 0xc) & 0x20) << 1;
+    flagMode = &Camera_gFlags[sVar1];
+    Camera_gInfo[cviewP].pitch = flagMode->pitch;
+    Camera_gInfo[cviewP].jostling = flagMode->jostling;
+    Camera_gInfo[cviewP].tracking = flagMode->tracking;
+    Camera_gInfo[cviewP].checkwalls = flagMode->checkwalls;
+    Camera_gInfo[cviewP].noLookBack = flagMode->noLookBack;
+    Camera_gInfo[cviewP].checkcollisions = flagMode->checkcollisions;
     sVar1 = Camera_gInfo[cviewP].mode;
-    *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) =
-         uVar2 & 0xffffff81 | uVar3 | uVar4 | uVar5 | uVar6 | uVar7 | uVar8;
-    *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) =
-         uVar2 & 0xf7ffff81 | uVar3 | uVar4 | uVar5 | uVar6 | uVar7 | uVar8 |
-         (u_int)(sVar1 < 2) << 0x1b;
+    Camera_gInfo[cviewP].inCar = sVar1 < 2;
   }
   return;
 }
@@ -2313,26 +2257,20 @@ void Camera_NextMode(int cviewP)
   camera_flags*flagMode;
   short sVar1;
   u_int uVar2;
-  u_int uVar3;
-  u_int uVar4;
-  u_int uVar5;
-  u_int uVar6;
-  u_int uVar7;
-  u_int uVar8;
-  
-  if ((Camera_gInfo[cviewP].mode != 0xe) && ((((char *)&(Camera_gInfo[cviewP]))[0x74] & 1) == 0)) {
-    if ((u_short)Camera_gInfo[cviewP].mode - 0xb < 2) {
+
+  if ((Camera_gInfo[cviewP].mode != 0xe) && (Camera_gInfo[cviewP].modechange == 0)) {
+    if ((u_int)((u_short)Camera_gInfo[cviewP].mode - 0xb) < 2) {
       Camera_gGeomScreen = 0xbe;
       TrsProj_SetProjection(0,0,0x140,0xf0);
     }
-    if (5 < (u_short)Camera_gInfo[cviewP].mode - 2) {
+    if (5 < (u_int)((u_short)Camera_gInfo[cviewP].mode - 2)) {
       Camera_ResetRelPos(cviewP + 1);
     }
-    if (-1 < Camera_gInfo[cviewP].animHandle) {
-      Anim_FreeHandle((int)Camera_gInfo[cviewP].animHandle);
+    if (-1 < (signed char)Camera_gInfo[cviewP].animHandle) {
+      Anim_FreeHandle((signed char)Camera_gInfo[cviewP].animHandle);
       Camera_gInfo[cviewP].animHandle = -1;
     }
-    if ((signed char)((char *)&(Camera_gInfo[cviewP]))[0x74] < '\0') {
+    if (Camera_gInfo[cviewP].splitscreen != 0) {
       sVar1 = Camera_gInfo[cviewP].camNum + 1;
       Camera_gInfo[cviewP].camNum = sVar1;
       Camera_gInfo[cviewP].mode =
@@ -2360,25 +2298,15 @@ void Camera_NextMode(int cviewP)
     }
     Camera_gInfo[cviewP].intransition = '2';
     sVar1 = Camera_gInfo[cviewP].mode;
-    uVar2 = *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74);
-    uVar3 = (*(u_int *)((char *)&(Camera_gFlags[sVar1]) + 0xc) & 1) << 1;
-    *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) = uVar2 & 0xfffffffd | uVar3;
-    uVar4 = (*(u_int *)((char *)&(Camera_gFlags[sVar1]) + 0xc) & 2) << 1;
-    *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) = uVar2 & 0xfffffff9 | uVar3 | uVar4;
-    uVar5 = (*(u_int *)((char *)&(Camera_gFlags[sVar1]) + 0xc) & 4) << 1;
-    *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) = uVar2 & 0xfffffff1 | uVar3 | uVar4 | uVar5;
-    uVar6 = (*(u_int *)((char *)&(Camera_gFlags[sVar1]) + 0xc) & 8) << 1;
-    *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) = uVar2 & 0xffffffe1 | uVar3 | uVar4 | uVar5 | uVar6;
-    uVar7 = (*(u_int *)((char *)&(Camera_gFlags[sVar1]) + 0xc) & 0x10) << 1;
-    *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) =
-         uVar2 & 0xffffffc1 | uVar3 | uVar4 | uVar5 | uVar6 | uVar7;
-    uVar8 = (*(u_int *)((char *)&(Camera_gFlags[sVar1]) + 0xc) & 0x20) << 1;
+    flagMode = &Camera_gFlags[sVar1];
+    Camera_gInfo[cviewP].pitch = flagMode->pitch;
+    Camera_gInfo[cviewP].jostling = flagMode->jostling;
+    Camera_gInfo[cviewP].tracking = flagMode->tracking;
+    Camera_gInfo[cviewP].checkwalls = flagMode->checkwalls;
+    Camera_gInfo[cviewP].noLookBack = flagMode->noLookBack;
+    Camera_gInfo[cviewP].checkcollisions = flagMode->checkcollisions;
     sVar1 = Camera_gInfo[cviewP].mode;
-    *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) =
-         uVar2 & 0xffffff81 | uVar3 | uVar4 | uVar5 | uVar6 | uVar7 | uVar8;
-    *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) =
-         uVar2 & 0xf7ffff81 | uVar3 | uVar4 | uVar5 | uVar6 | uVar7 | uVar8 |
-         (u_int)(sVar1 < 2) << 0x1b;
+    Camera_gInfo[cviewP].inCar = sVar1 < 2;
   }
   return;
 }
@@ -2386,35 +2314,13 @@ void Camera_NextMode(int cviewP)
 /* ---- Camera_ReplayUpdate__FiP15Camera_tCamSlot  [@0x80085bd0] ---- */
 void Camera_ReplayUpdate(int cviewP,Camera_tCamSlot *ptr)
 {
-  u_int uVar1;
-  u_int uVar2;
-  u_int uVar3;
-  int iVar4;
-  int iVar5;
-  
-  if ((((char *)&(Camera_gInfo[cviewP]))[0x74] & 1) == 0) {
+  if (Camera_gInfo[cviewP].modechange == 0) {
     Camera_SetMode(cviewP,(u_int)(u_char)ptr->mode);
-    uVar3 = *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74);
-    ((u_char *)&(uVar1))[0] = ptr->mode;
-    ((u_char *)&(uVar1))[1] = ((char *)(ptr))[0x1];
-    (*(u_short *)((u_char *)&(uVar1) + 2)) = ptr->fov;
-    uVar1 = uVar1 >> 5 & 8;
-    *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) = uVar3 & 0xfffffff7 | uVar1;
-    ((u_char *)&(uVar2))[0] = ptr->mode;
-    ((u_char *)&(uVar2))[1] = ((char *)(ptr))[0x1];
-    (*(u_short *)((u_char *)&(uVar2) + 2)) = ptr->fov;
-    *(u_int *)((char *)&(Camera_gInfo[cviewP]) + 0x74) =
-         uVar3 & 0xf9fffff7 | uVar1 | (uVar2 >> 9 & 3) << 0x19;
-    ((u_char *)&(uVar3))[0] = ptr->mode;
-    ((u_char *)&(uVar3))[1] = ((char *)(ptr))[0x1];
-    (*(u_short *)((u_char *)&(uVar3) + 2)) = ptr->fov;
-    Camera_gInfo[cviewP].splineMode = (u_char)(uVar3 >> 0xb) & 7;
+    Camera_gInfo[cviewP].tracking = ptr->track;
+    Camera_gInfo[cviewP].zooming = ptr->zoom;
+    Camera_gInfo[cviewP].splineMode = ptr->splineMode;
     Camera_gGeomScreen = ptr->fov /* @0x75CAC disasm-v2: signed `lh` short load; short->int sign-extends natively (Ghidra SEXT24 spurious) */;
-    iVar4 = (ptr->pos).y;
-    iVar5 = (ptr->pos).z;
-    Camera_gInfo[cviewP].position.x = (ptr->pos).x;
-    Camera_gInfo[cviewP].position.y = iVar4;
-    Camera_gInfo[cviewP].position.z = iVar5;
+    Camera_gInfo[cviewP].position = ptr->pos;
     Camera_gInfo[cviewP].TVHeight = ptr->height;
     EulerToMat(&Camera_gInfo[cviewP].rotation,(int)(ptr->euler).x,(int)(ptr->euler).y,
                (int)(ptr->euler).z);

@@ -545,7 +545,7 @@ void CopSpeak_StartUp(void)
     }
     purgememadr(pvVar2);
     Copspeak_gBank[1].FileOpen =
-         FILE_opensync(acStack_b8,1,100,-0x7feee14c);
+         FILE_opensync(acStack_b8,1,100,&Copspeak_gBank[1]);   /* DISGUISED BARE-VA FIX (w14-a2): -0x7feee14c == 0x80111EB4 == &Copspeak_gBank[1] */
   }
   CopSpeak_gNumTrackSfx = 0;
   sprintf(acStack_b8,"%szzzw%s.viv",Paths_Paths[0x1c],
@@ -570,7 +570,7 @@ void CopSpeak_StartUp(void)
   }
   purgememadr(pvVar2);
   Copspeak_gBank[0].FileOpen =
-       FILE_opensync(acStack_b8,1,100,-0x7feee15c);
+       FILE_opensync(acStack_b8,1,100,&Copspeak_gBank[0]);   /* DISGUISED BARE-VA FIX (w14-a2): -0x7feee15c == 0x80111EA4 == &Copspeak_gBank[0] */
 CopSpeakStart_langSwitch:
   if (GameSetup_gData.userSetting.language == 1) {
     pcVar5 = "ger";
@@ -588,7 +588,7 @@ CopSpeakStart_langSwitch:
     if ((pvVar4 != (void *)0x0) && (local_30[0] != 0)) {
       addr = reservememadr("copspeak temp",local_30[0],0x10);
       Copspeak_gBank[2].FileOpen =
-           FILE_opensync(acStack_b8,1,100,-0x7feee13c);
+           FILE_opensync(acStack_b8,1,100,&Copspeak_gBank[2]);   /* DISGUISED BARE-VA FIX (w14-a2): -0x7feee13c == 0x80111EC4 == &Copspeak_gBank[2] */
       FILE_readsync(Copspeak_gBank[2].FileHandle,local_34,(int)addr,local_30[0],100);   /* oracle 0x8a160: +size(local_30[0]) +prio(0x64) */
       bVar1 = false;
       Copspeak_gBank[2].Count = 0;

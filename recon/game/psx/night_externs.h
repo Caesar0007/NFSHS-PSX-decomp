@@ -44,7 +44,9 @@ extern Sim_tSimGlobalVar simGlobal;              /* 0x8011e0ac */
 extern CTrackSpec     TrackSpec_gSpec;           /* 0x8012327c */
 extern camera_info    Camera_gInfo[];            /* 0x8010f2ac */
 extern char          *Paths_Paths[];             /* 0x80116468 */
-extern tCompRGB      *Chunk_lightTable;          /* 0x8013c818 */
+extern CVECTOR       *Chunk_lightTable;          /* 0x8013c818  (was stale tCompRGB* -- 3-byte stride vs
+                                                     the real 4-byte CVECTOR* owner def in chunk.cpp;
+                                                     wrong-stride bug, this fn indexes Chunk_lightTable[i]) */
 extern int            Chunk_numLight;            /* 0x8013d4ec */
 extern int             Weather_gType;            /* 0x8013dbec  enum Weather_tState */
 extern int             D_80113228[];             /* @0x80113228 == &GameSetup_gData.track; distinct

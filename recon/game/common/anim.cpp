@@ -20,7 +20,11 @@ void Anim_Restart(void)
   AnimScript *deleteMe;
   AnimScript **ppAVar1;
   
-  for (ppAVar1 = animSlots; (int)ppAVar1 < -0x7fef1e34; ppAVar1 = ppAVar1 + 1) {
+  /* DISGUISED BARE-VA FIX (w14-a2): -0x7fef1e34 == 0x8010E1CC == &Anim_gInstanceFromIndex[0],
+   * which sits directly after animSlots[32] in the data segment -- the real bound is
+   * animSlots+32 (sizeof(animSlots)/sizeof(animSlots[0])), materialized as the next symbol's
+   * address; verify_asm normalizes %hi/%lo so either symbol name diffs identically. */
+  for (ppAVar1 = animSlots; ppAVar1 < animSlots + 32; ppAVar1 = ppAVar1 + 1) {
     deleteMe = *ppAVar1;
     if (deleteMe != (AnimScript *)0x0) {
       if (deleteMe->inst != (Trk_AnimateInst **)0x0) {

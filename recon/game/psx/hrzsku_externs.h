@@ -59,7 +59,14 @@ extern int            gSkyPixmapIndex_dummy;
 /* ---- pixmaps ---- */
 // [owned->defined in hrzsku.cpp] extern Draw_tPixMap   gHorizonPixmap[8];
 // [owned->defined in hrzsku.cpp] extern Draw_tPixMap   gHorizonExtraSkyPixmaps;
-extern Draw_tPixMap   gLightningPixmap[];
+extern Draw_tPixMap  *gLightningPixmap[];        /* was stale array-of-VALUE shape (missing the pointer
+                                                     level); owner (genericpmx.cpp) defines it as
+                                                     Draw_tPixMap *gLightningPixmap[16] (array of
+                                                     POINTERS). The one live consumer in hrzsku.cpp
+                                                     already worked around this via an explicit
+                                                     (Draw_tPixMap**) cast -- fixing the decl removes
+                                                     the need for that workaround but the cast is left
+                                                     in place (byte-matched fn, don't disturb its form) */
 
 /* ---- lightning ---- */
 extern int            Night_gLightning;

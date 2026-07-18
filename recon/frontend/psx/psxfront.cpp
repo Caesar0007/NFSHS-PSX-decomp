@@ -246,15 +246,18 @@ void PSX_AllocShapes(void)
 void Init_RenderingEnvironment(void)
 
 {
-  int stackv;
-  
   SetDefDispEnv(&gEnviro[0].disp,0,0x100,0x200,0xf0);
   SetDefDispEnv(&gEnviro[1].disp,0,0,0x200,0xf0);
   Draw_InitViews();
   Draw_gRearView = -1;
+  /* DISGUISED BARE-VA FIX (w14-a2): raw @0x8004dd64-98 shows the true args are
+   * (x0=0,y0=0,x1=0,y1=0x100,w=0x200,h=0xf0,dtd=0,isbg=1,otsize=10) -- y0 was a bogus fabricated
+   * literal -0x7fec0000==0x80140000 (not a real symbol; just wrong) and y1 read an UNINITIALIZED
+   * `stackv` local where the oracle passes the plain constant 0x100 ($a3, set once and never
+   * touched again before the call). */
   Draw_gPlayer1View =
        Draw_SetView
-                 (0,-0x7fec0000,0,stackv,0x200,0xf0,0,1,10);
+                 (0,0,0,0x100,0x200,0xf0,0,1,10);
   blockclear(&gCView,0x8c);
   gCView.id = Draw_gPlayer1View;
   PSXFront_AllocateDrawMemory();

@@ -280,7 +280,10 @@ void RaceStatistics(void)
 }
 
 /* ---- Hud_BTCStats__Fsb  [OVERLAYS.CPP:326-441] SLD-VERIFIED ---- */
-void Hud_BTCStats(short player,int postgame)
+/* HIDDEN-PHANTOM FIX (w14-a2): oracle mangles __Fsb (short,bool) -- 2nd param was `int`, mangling
+ * __Fsi, a NAME MISMATCH invisible to the gate (same class as the AudioCmn_GetAsyncSfx precedent).
+ * SYM confirms `class ARG type BOOL name postgame`. */
+void Hud_BTCStats(short player,bool postgame)
 
 {
   short i;
@@ -485,7 +488,7 @@ HudStats_finalize:
       return;
     }
   }
-  Hud_BTCStats(player,1);
+  Hud_BTCStats(player,true);
   return;
 }
 

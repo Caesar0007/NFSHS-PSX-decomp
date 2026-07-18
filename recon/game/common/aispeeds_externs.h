@@ -6,7 +6,12 @@
 #include "../../lib/libfns.h"
 
 CARDINFO_def *MCRD_getcard(...);
-extern AIDataRecord_TrackCurve_t AIDataRecord_TrackCurve[];
+extern AIDataRecord_TrackCurve_t *AIDataRecord_TrackCurve;   /* was stale array-of-value shape; owner
+                                                     (aidatarecord.cpp) defines it as a POINTER --
+                                                     consumers call AIDataRecord_TrackCurve->Get(...),
+                                                     which under the array shape decays to &storage
+                                                     (this global's own address) instead of the real
+                                                     stored pointer value -- wrong `this` bug */
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj *Cars_gList[];
 extern Car_tObj *Cars_gAIRaceCarList[9];

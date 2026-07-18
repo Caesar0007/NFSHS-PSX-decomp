@@ -10,7 +10,8 @@ extern tCarManager       carManager;
 extern tGlobalMenuDefs  *menuDefs[];
 extern tScreenUserName  *screenUserName;
 extern GameSetup_tData   GameSetup_gData;
-extern int               Cars_gNewCarStatsList;
+extern Car_tStats         Cars_gNewCarStatsList[];   /* was stale scalar int; owner cars.cpp
+                                     Car_tStats Cars_gNewCarStatsList[9] (array of value structs) */
 extern tPadModuleState   gPadinfo;
 extern char              bigBuf[];
 extern int               Cars_gNumRaceCars;

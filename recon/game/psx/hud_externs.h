@@ -113,7 +113,7 @@ extern int   AudioMus_Threshold(void);
 extern void  AudioCmn_PlayWrongWaySFX(void);
 extern void  HudPmx_Kill(void);
 extern void  Hud_RenderStatsView(void);   /* defined in overlays.cpp */
-extern void  Hud_BTCStats(short player, char flag);   /* defined in overlays.cpp */
+extern void  Hud_BTCStats(short player, bool flag);   /* defined in overlays.cpp -- HIDDEN-PHANTOM FIX (w14-a2): was `char` (mangles __Fsc, LINK MISMATCH vs the real __Fsb def) */
 
 /* ---- module-scope statics / cross-module globals (Ghidra-recovered names) ---- */
 extern int            ticks;                 /* global frame tick */
@@ -155,9 +155,15 @@ extern Sim_tSimSystemVar simVar;
 // [owned->defined in hud.cpp] extern int            PerpOverlayOn[], PerpOverlayMessage[];
 // [owned->defined in hud.cpp] extern int PerpOverlayOn[], PerpOverlayMessage[];
 // [owned->defined in hud.cpp] extern int            countdown, oldCountdown, countdownTick_216;
-extern int countdown, countdownTick_216;
+extern char countdown; extern int countdownTick_216;   /* countdown was stale int (4B); owner
+                                     audiocmn.cpp defines it char (1B), packed before FadingMusic --
+                                     hud.cpp's unguarded `countdown == '\0'`/`!= '\0'` compares (no
+                                     (u_char) cast) would pull in 3 garbage neighbor bytes as an int */
 // [owned->defined in hud.cpp] extern int countdown, oldCountdown, countdownTick_216;
-extern int countdown, countdownTick_216;
+extern char countdown; extern int countdownTick_216;   /* countdown was stale int (4B); owner
+                                     audiocmn.cpp defines it char (1B), packed before FadingMusic --
+                                     hud.cpp's unguarded `countdown == '\0'`/`!= '\0'` compares (no
+                                     (u_char) cast) would pull in 3 garbage neighbor bytes as an int */
 // [owned->defined in hud.cpp] extern int            Hud_ActivateCDPlayer;
 // [owned->defined in hud.cpp] extern int Hud_ActivateCDPlayer;
 

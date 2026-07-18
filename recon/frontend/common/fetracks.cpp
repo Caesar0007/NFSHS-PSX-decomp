@@ -6,6 +6,12 @@
 #include "fetracks.h"
 
 /* FETracks.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes) */
+/* BARE-VA SWEEP (w14-a2): the trailing -2147336244==0x80023FCC LOOKS like a disguised code
+ * address (nearest symbol: Value__20tListIteratorIndexed7tPlayer, offset 0), but a direct
+ * byte read of rom/nfs4-f.exe @ fRotate's true file offset (VA 0x80010ffc) returns the exact
+ * bytes cc 3f 02 80 == 0x80023fcc -- this is genuinely, byte-for-byte, what's on disk for
+ * this dummy/placeholder track entry's `long fRotate` field (not a pointer-typed field; no
+ * symbolic resolution applies). Confirmed correct as a literal; left as-is. */
 tTrackInformation gTrackInfo_FETrackList = {102, 101u, 116u, 114u, 107u, 46u, 116u, 114u, 107, 107, 0, 0, 0, 0, 0, 0, 7596, -32766, 0, 0, 0, -2147336244};   /* @0x80010fd0 */
 tTrackInformation gTrackInfo_Tourney = {116, 111u, 117u, 114u, 110u, 46u, 116u, 114u, 110, 110, 30, 5, 0, 0, 30, 0, 1310, 0, 1310, 0, 0, 1310};   /* @0x8001159c */
 short        CountryMeasurement[8] = { 0, 1, 0, 1, 1, 0, 1, 1 };   /* @0x80051610 */

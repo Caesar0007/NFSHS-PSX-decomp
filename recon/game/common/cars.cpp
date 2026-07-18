@@ -27,6 +27,10 @@ Car_tObj     *Cars_gSortedList[9];   /* @0x8010fafc  (bss(zero)) */
 Car_tObj     *Cars_gTotalSortedList[9];   /* @0x8010fb20  (bss(zero)) */
 Car_tStats   Cars_gNewCarStatsList[9];   /* @0x8010fb44  (bss(zero)) */
 BO_tNewtonObj InfiniteMassNewton[5];   /* @0x801100e4  (bss(zero)) */
+char         D_8013C7E0[4] = {0,0,0,0};   /* @0x8013c7e0 -- empty NUL string; the carType>=0x1D
+   fallback in Cars_InitializeCarTablesFlagsAndCounters passes its ADDRESS (no load) as an
+   empty-format sprintf arg. Sits in the gap between Camera_gGeomScreen (0x8013c7dc) and
+   frontLimit (0x8013c7e4) confirmed by the oracle's bare lui/addiu (no lw) address materialization. */
 int          frontLimit = 32768;   /* @0x8013c7e4 */
 int          rearLimit = 65536;   /* @0x8013c7e8 */
 int          Cars_gNumCars;   /* @0x8013c7f4  (bss(zero)) */
@@ -229,14 +233,13 @@ void Cars_InitializeCarTablesFlagsAndCounters(Car_tObj *carObj)
 {
   int carClass;
   int personality;
+  int carType;
   char *pcVar1;
   void *pvVar2;
-  Car_tObj **ppCVar3;
   u_int uVar4;
-  int iVar5;
   GameSetup_tCarData *pGVar6;
   u_int uVar7;
-  
+
   uVar7 = carObj->carInfo->carClass;
   Cars_gList[Cars_gNumCars] = carObj;
   Cars_gSortedList[Cars_gNumCars] = carObj;
@@ -247,38 +250,37 @@ void Cars_InitializeCarTablesFlagsAndCounters(Car_tObj *carObj)
   carObj->humanIndex = -1;
   strcpy(carObj->carName,GameSetup_gCarNames[0] + carObj->carInfo->carType * 5)
   ;
-  iVar5 = carObj->carInfo->carType;
-  if (iVar5 < 0x1d) {
-    pcVar1 = TextSys_Word(iVar5 + 0x4e);
+  carType = carObj->carInfo->carType;
+  if (carType < 0x1d) {
+    pcVar1 = TextSys_Word(carType + 0x4e);
     strcpy(carObj->carNameLocalized,pcVar1);
   }
   else {
-    sprintf(carObj->carNameLocalized,(char *)(Camera_gGeomScreen + 2));
+    sprintf(carObj->carNameLocalized,D_8013C7E0);
   }
   if ((uVar7 & 1) == 0) goto LAB_80086300;
   pvVar2 = PlayerNameExist(Cars_gNumHumanRaceCars);
   if (pvVar2 == (void *)0x0) {
-    if (frontEnd.gameMode != '\x01') {
-      pcVar1 = TextSys_Word(0x2e);
-      goto LAB_80086234;
+    if (frontEnd.gameMode == '\x01') {
+      pcVar1 = TextSys_Word(0x2f);
+      sprintf(carObj->carInfo->driver,pcVar1,Cars_gNumHumanRaceCars + 1);
+      goto LAB_80086248;
     }
-    pcVar1 = TextSys_Word(0x2f);
-    sprintf(carObj->carInfo->driver,pcVar1);
+    pcVar1 = TextSys_Word(0x2e);
   }
   else {
     pcVar1 = PlayerNameMixedCase(Cars_gNumHumanRaceCars);
-LAB_80086234:
-    sprintf(carObj->carInfo->driver,pcVar1);
   }
-  strcpy(carObj->carInfo->license,frontEnd.licensePlate[Cars_gNumHumanRaceCars * 4]);
-  ppCVar3 = Cars_gHumanRaceCarList + Cars_gNumHumanRaceCars;
+LAB_80086234:
+  sprintf(carObj->carInfo->driver,pcVar1);
+LAB_80086248:
+  strcpy(carObj->carInfo->license,frontEnd.licensePlate[Cars_gNumHumanRaceCars]);
   carObj->humanIndex = Cars_gNumHumanRaceCars;
+  Cars_gHumanRaceCarList[Cars_gNumHumanRaceCars] = carObj;
   Cars_gNumHumanRaceCars = Cars_gNumHumanRaceCars + 1;
-  *ppCVar3 = carObj;
   carObj->carFlags = carObj->carFlags | 4;
-  ppCVar3 = Cars_gRaceCarList + Cars_gNumRaceCars;
+  Cars_gRaceCarList[Cars_gNumRaceCars] = carObj;
   Cars_gNumRaceCars = Cars_gNumRaceCars + 1;
-  *ppCVar3 = carObj;
   carObj->carFlags = carObj->carFlags | 1;
   Cars_gLifeBasisCarList[Cars_gNumLifeBasisCars] = carObj;
   uVar4 = carObj->carFlags;
@@ -289,17 +291,17 @@ LAB_80086234:
   }
 LAB_80086300:
   if ((uVar7 & 2) != 0) {
-    iVar5 = GameSetup_gData.carInfo[carObj->carIndex].Personality;
-    strcpy(carObj->carInfo->driver,GameSetup_gPersonalityNames[0] + iVar5 * 8);
+    personality = GameSetup_gData.carInfo[carObj->carIndex].Personality;
+    strcpy(carObj->carInfo->driver,GameSetup_gPersonalityNames[0] + personality * 8);
     if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
-       ((((*(int *)((char *)carObj + 0x260)) & 0x200) != 0 ||
-        ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)carObj + 0x260)) & 0x200) != 0)))))) {
+       (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0) ||
+        ((Cars_gNumHumanRaceCars == 2) && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))) {
       pcVar1 = TextSys_Word(0x32);
       pGVar6 = carObj->carInfo;
     }
     else {
       pGVar6 = carObj->carInfo;
-      pcVar1 = GameSetup_gPersonalityNames[0] + iVar5 * 8;
+      pcVar1 = GameSetup_gPersonalityNames[0] + personality * 8;
     }
     strcpy(pGVar6->license,pcVar1);
     s_lower(carObj->carInfo->license);
@@ -314,26 +316,24 @@ LAB_80086300:
     Cars_gNumRaceCars = Cars_gNumRaceCars + 1;
     if ((GameSetup_gData.cops != 0) &&
        (((GameSetup_gData.raceType != 1 && (GameSetup_gData.raceType != 5)) ||
-        ((((*(int *)((char *)carObj + 0x260)) & 0x200) == 0 &&
-         ((Cars_gNumHumanRaceCars != 2 || (((*(int *)((char *)carObj + 0x260)) & 0x200) == 0)))))))) {
+        (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) == 0) &&
+         ((Cars_gNumHumanRaceCars != 2) || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) == 0)))))) {
       Cars_gLifeBasisCarList[Cars_gNumLifeBasisCars] = carObj;
       Cars_gNumLifeBasisCars = Cars_gNumLifeBasisCars + 1;
       carObj->carFlags = carObj->carFlags | 0x100;
     }
   }
   if ((uVar7 & 4) != 0) {
-    ppCVar3 = Cars_gAICarList + Cars_gNumAICars;
+    Cars_gAICarList[Cars_gNumAICars] = carObj;
     Cars_gNumAICars = Cars_gNumAICars + 1;
-    *ppCVar3 = carObj;
     carObj->carFlags = carObj->carFlags | 2;
     Cars_gTrafficCarList[Cars_gNumTrafficCars] = carObj;
     Cars_gNumTrafficCars = Cars_gNumTrafficCars + 1;
     carObj->carFlags = carObj->carFlags | 0x10;
   }
   if ((uVar7 & 0x18) != 0) {
-    ppCVar3 = Cars_gAICarList + Cars_gNumAICars;
+    Cars_gAICarList[Cars_gNumAICars] = carObj;
     Cars_gNumAICars = Cars_gNumAICars + 1;
-    *ppCVar3 = carObj;
     carObj->carFlags = carObj->carFlags | 2;
     Cars_gCopCarList[Cars_gNumCopCars] = carObj;
     uVar4 = carObj->carFlags;
@@ -1462,83 +1462,84 @@ void Car_DoPostCollisionStuff(Car_tObj *carObj)
   int Yoffset;
   int iVar1;
   Car_tSpecs *pCVar2;
-  int iVar3;
   BO_tNewtonObj *pBVar4;
-  GameSetup_tCarData *pGVar5;
-  int a;
-  int iVar6;
-  
+
   iVar1 = (carObj->N).collision.impulse;
   carObj->audioCount = 0;
   if (iVar1 != 0) {
     (carObj->N).collision.lastImpulse = iVar1;
-    pBVar4 = (carObj->N).collision.otherObj;
     (carObj->N).collision.lastTime = simGlobal.gameTicks;
-    if (pBVar4 == (BO_tNewtonObj *)0x0) {
-      (carObj->N).collision.lastOtherObj = (BO_tNewtonObj *)0x0;
-    }
-    else {
+    pBVar4 = (carObj->N).collision.otherObj;
+    if (pBVar4 != (BO_tNewtonObj *)0x0) {
       (carObj->N).collision.lastOtherObj = pBVar4;
     }
+    else {
+      (carObj->N).collision.lastOtherObj = (BO_tNewtonObj *)0x0;
+    }
   }
-  if (((carObj->N).simOptz == '\0') && ((carObj->N).active != '\0')) {
+  if ((carObj->N).simOptz != '\0') goto SHORT;
+  if ((carObj->N).active != '\0') goto LONG;
+SHORT:
+  pCVar2 = carObj->specs;
+  (carObj->render).bodyPitch = 0;
+  (carObj->render).bodyRoll = 0;
+  (carObj->render).currentHeight = -pCVar2->rideOffset;
+  Cars_DoExtraCarCollisionProcessing(carObj);
+  return;
+LONG:
+  {
+    int negGroundVel, roundedGV, gvClamp, clampCond, negGroundVel2, gvClamp2;
+    int absRoll, currentRollVal, rideOffsetVal, negPitch, bodyPitchVal;
+
     AIPhysic_ProcessCollision(carObj);
     Cars_DoExtraCarCollisionProcessing(carObj);
     Car_DoSkiddingStuff(carObj);
     if (((carObj->carFlags & 4U) == 0) || ((carObj->N).flightTime != 0)) {
-      iVar1 = (carObj->linearAcc_ch).x;
       (carObj->render).currentPitch =
            (carObj->render).currentPitch * 0xf + (carObj->linearAcc_ch).z >> 4;
-      iVar1 = (carObj->render).currentRoll * 0xf + iVar1 >> 4;
+      (carObj->render).currentRoll =
+           (carObj->render).currentRoll * 0xf + (carObj->linearAcc_ch).x >> 4;
     }
     else {
-      iVar1 = (carObj->linearAcc_ch).x;
       (carObj->render).currentPitch =
            (carObj->render).currentPitch * 7 + (carObj->linearAcc_ch).z >> 3;
-      iVar1 = (carObj->render).currentRoll * 7 + iVar1 >> 3;
+      (carObj->render).currentRoll =
+           (carObj->render).currentRoll * 7 + (carObj->linearAcc_ch).x >> 3;
     }
-    (carObj->render).currentRoll = iVar1;
-    iVar1 = -(carObj->N).groundVel;
-    iVar3 = iVar1;
-    if (iVar1 < 0) {
-      iVar3 = iVar1 + 0x1f;
+    negGroundVel = -(carObj->N).groundVel;
+    roundedGV = negGroundVel;
+    if (negGroundVel < 0) {
+      roundedGV = negGroundVel + 0x1f;
     }
-    iVar6 = -0xa3d;
-    if (-0xa3d < iVar3 >> 5) {
-      if (iVar1 < 0) {
-        iVar1 = iVar1 + 0x1f;
+    Yoffset = -0xa3d;
+    if (-0xa3d < roundedGV >> 5) {
+      negGroundVel2 = negGroundVel;
+      if (negGroundVel2 < 0) {
+        negGroundVel2 = negGroundVel2 + 0x1f;
       }
-      iVar6 = 0x51e;
-      if (iVar1 >> 5 < 0x51f) {
-        iVar6 = iVar1 >> 5;
+      gvClamp2 = negGroundVel2 >> 5;
+      Yoffset = 0x51e;
+      if (gvClamp2 < 0x51f) {
+        Yoffset = gvClamp2;
       }
     }
-    iVar1 = fixedmult(((carObj->render).currentRoll * 3) / 2,carObj->specs->bodyRollFactor);
-    if (iVar1 < 0) {
-      iVar1 = -iVar1;
+    absRoll = fixedmult(((carObj->render).currentRoll * 3) / 2,carObj->specs->bodyRollFactor);
+    if (absRoll < 0) {
+      absRoll = -absRoll;
     }
-    a = (carObj->render).currentRoll;
-    iVar3 = carObj->specs->rideOffset;
-    (carObj->render).bodyRoll = a;
-    (carObj->render).currentHeight = (iVar6 - iVar1) - iVar3;
-    iVar1 = fixedmult(a,(carObj->render).rollFactor);
-    (carObj->render).bodyRoll = iVar1;
-    iVar1 = -(carObj->render).currentPitch;
-    (carObj->render).bodyPitch = iVar1;
-    iVar1 = fixedmult(iVar1,(carObj->render).pitchFactor);
-    pGVar5 = carObj->carInfo;
-    (carObj->render).bodyPitch = iVar1;
-    if ((pGVar5->WeightTransfer == 1) || ((carObj->carFlags & 4U) == 0)) {
-      (carObj->render).bodyPitch = iVar1 / 2;
+    currentRollVal = (carObj->render).currentRoll;
+    rideOffsetVal = carObj->specs->rideOffset;
+    (carObj->render).bodyRoll = currentRollVal;
+    (carObj->render).currentHeight = (Yoffset - absRoll) - rideOffsetVal;
+    (carObj->render).bodyRoll = fixedmult(currentRollVal,(carObj->render).rollFactor);
+    negPitch = -(carObj->render).currentPitch;
+    (carObj->render).bodyPitch = negPitch;
+    bodyPitchVal = fixedmult(negPitch,(carObj->render).pitchFactor);
+    (carObj->render).bodyPitch = bodyPitchVal;
+    if ((carObj->carInfo->WeightTransfer == 1) || ((carObj->carFlags & 4U) == 0)) {
+      (carObj->render).bodyPitch = bodyPitchVal / 2;
       (carObj->render).bodyRoll = (carObj->render).bodyRoll / 2;
     }
-  }
-  else {
-    pCVar2 = carObj->specs;
-    (carObj->render).bodyPitch = 0;
-    (carObj->render).bodyRoll = 0;
-    (carObj->render).currentHeight = -pCVar2->rideOffset;
-    Cars_DoExtraCarCollisionProcessing(carObj);
   }
   return;
 }
@@ -1633,39 +1634,48 @@ LAB_80089c40:
 /* ---- Cars_IniCarObjects__FP8Car_tObji  [@0x80089d88] ---- */
 void Cars_IniCarObjects(Car_tObj *carObj,int index)
 {
-  int startSlice;
-  coorddef offset;
-  int carMass;
-  int k;
   u_short uVar1;
   GameSetup_tCarData *pGVar2;
   int iVar3;
+  int carType;
+  int carMass;
   Car_tObj *pCVar4;
   Car_tSpecs *pCVar5;
   coorddef cStack_28;
   int local_18 [2];
-  
+
   Cars_InitStats(carObj);
   carObj->swapCar = (Car_tObj *)0x0;
   carObj->swapTime = 0;
   if (index < GameSetup_gData.numCars) {
-    iVar3 = carObj->carInfo->carType;
-    if (((((iVar3 == 0x21) || (iVar3 == 0x24)) || (iVar3 == 0x26)) ||
-        ((iVar3 == 0x27 || (iVar3 == 0x2f)))) || ((iVar3 == 0x30 || (iVar3 == 0x31)))) {
-      iVar3 = 0x190000;
+    carType = carObj->carInfo->carType;
+    if (carType == 0x21) goto MASS_HEAVY;
+    if (carType == 0x24) goto MASS_HEAVY;
+    if (carType == 0x26) goto MASS_HEAVY;
+    if (carType == 0x27) goto MASS_HEAVY;
+    if (carType == 0x2f) goto MASS_HEAVY;
+    if (carType == 0x30) goto MASS_HEAVY;
+    if (carType != 0x31) goto MASS_CHECK2;
+MASS_HEAVY:
+    carMass = 0x190000;
+    goto MASS_DONE;
+MASS_CHECK2:
+    if (carType == 0x22) goto MASS_LIGHT;
+    if (carType == 0x25) goto MASS_LIGHT;
+    if (carType == 0x29) goto MASS_LIGHT;
+    if (carType == 0x2b) goto MASS_LIGHT;
+    if (carType != 0x2c) goto MASS_CALC;
+MASS_LIGHT:
+    carMass = 0x110000;
+    goto MASS_DONE;
+MASS_CALC:
+    carMass = carObj->specs->mass;
+    if (carMass < 0) {
+      carMass = carMass + 0x7f;
     }
-    else if ((((iVar3 == 0x22) || (iVar3 == 0x25)) || (iVar3 == 0x29)) ||
-            ((iVar3 == 0x2b || (iVar3 == 0x2c)))) {
-      iVar3 = 0x110000;
-    }
-    else {
-      iVar3 = carObj->specs->mass;
-      if (iVar3 < 0) {
-        iVar3 = iVar3 + 0x7f;
-      }
-      iVar3 = iVar3 >> 7;
-    }
-    Newton_InitBaseNewtonObj((u_int *)&carObj->N,index | 0x100,iVar3,iVar3,(carObj->N).dimension.x,(carObj->N).dimension.y,
+    carMass = carMass >> 7;
+MASS_DONE:
+    Newton_InitBaseNewtonObj((u_int *)&carObj->N,index | 0x100,carMass,carMass,(carObj->N).dimension.x,(carObj->N).dimension.y,
                (carObj->N).dimension.z);
   }
   Cars_CalculateStartingGridOffset(carObj,local_18,&cStack_28);
@@ -2241,100 +2251,46 @@ int Cars_CalculateRoadSpan(Car_tObj *carObj)
   int iVar9;
   int iVar10;
   
-  iVar10 = (carObj->N).roadMatrix.m[0];
-  if (iVar10 < 0) {
-    iVar10 = iVar10 + 0xff;
-  }
-  iVar1 = (carObj->N).orientMat.m[0];
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
-  }
-  iVar9 = (carObj->N).roadMatrix.m[1];
-  if (iVar9 < 0) {
-    iVar9 = iVar9 + 0xff;
-  }
-  iVar2 = (carObj->N).orientMat.m[1];
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  iVar8 = (carObj->N).roadMatrix.m[2];
-  if (iVar8 < 0) {
-    iVar8 = iVar8 + 0xff;
-  }
-  iVar3 = (carObj->N).orientMat.m[2];
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  iVar1 = (iVar10 >> 8) * (iVar1 >> 8) + (iVar9 >> 8) * (iVar2 >> 8) + (iVar8 >> 8) * (iVar3 >> 8);
+  iVar10 = (carObj->N).roadMatrix.m[0] / 256;
+  iVar1 = (carObj->N).orientMat.m[0] / 256;
+  iVar1 = iVar10 * iVar1;
+  iVar9 = (carObj->N).roadMatrix.m[1] / 256;
+  iVar2 = (carObj->N).orientMat.m[1] / 256;
+  iVar1 = iVar1 + iVar9 * iVar2;
+  iVar8 = (carObj->N).roadMatrix.m[2] / 256;
+  iVar3 = (carObj->N).orientMat.m[2] / 256;
+  iVar1 = iVar1 + iVar8 * iVar3;
   if (iVar1 < 0) {
     iVar1 = -iVar1;
   }
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
-  }
-  iVar2 = (carObj->N).dimension.x;
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  iVar3 = (carObj->N).orientMat.m[3];
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  iVar4 = (carObj->N).orientMat.m[4];
-  if (iVar4 < 0) {
-    iVar4 = iVar4 + 0xff;
-  }
-  iVar5 = (carObj->N).orientMat.m[5];
-  if (iVar5 < 0) {
-    iVar5 = iVar5 + 0xff;
-  }
-  iVar10 = (iVar10 >> 8) * (iVar3 >> 8) + (iVar9 >> 8) * (iVar4 >> 8) + (iVar8 >> 8) * (iVar5 >> 8);
+  iVar1 = iVar1 / 256;
+  iVar2 = (carObj->N).dimension.x / 256;
+  iVar3 = (carObj->N).orientMat.m[3] / 256;
+  iVar10 = iVar10 * iVar3;
+  iVar4 = (carObj->N).orientMat.m[4] / 256;
+  iVar10 = iVar10 + iVar9 * iVar4;
+  iVar5 = (carObj->N).orientMat.m[5] / 256;
+  iVar10 = iVar10 + iVar8 * iVar5;
   if (iVar10 < 0) {
     iVar10 = -iVar10;
   }
-  if (iVar10 < 0) {
-    iVar10 = iVar10 + 0xff;
-  }
-  iVar9 = (carObj->N).dimension.y;
-  if (iVar9 < 0) {
-    iVar9 = iVar9 + 0xff;
-  }
-  iVar8 = (carObj->N).roadMatrix.m[0];
-  if (iVar8 < 0) {
-    iVar8 = iVar8 + 0xff;
-  }
-  iVar3 = (carObj->N).orientMat.m[6];
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  iVar4 = (carObj->N).roadMatrix.m[1];
-  if (iVar4 < 0) {
-    iVar4 = iVar4 + 0xff;
-  }
-  iVar5 = (carObj->N).orientMat.m[7];
-  if (iVar5 < 0) {
-    iVar5 = iVar5 + 0xff;
-  }
-  iVar7 = (carObj->N).roadMatrix.m[2];
-  if (iVar7 < 0) {
-    iVar7 = iVar7 + 0xff;
-  }
-  iVar6 = (carObj->N).orientMat.m[8];
-  if (iVar6 < 0) {
-    iVar6 = iVar6 + 0xff;
-  }
-  iVar8 = (iVar8 >> 8) * (iVar3 >> 8) + (iVar4 >> 8) * (iVar5 >> 8) + (iVar7 >> 8) * (iVar6 >> 8);
+  iVar10 = iVar10 / 256;
+  iVar9 = (carObj->N).dimension.y / 256;
+  iVar8 = (carObj->N).roadMatrix.m[0] / 256;
+  iVar3 = (carObj->N).orientMat.m[6] / 256;
+  iVar8 = iVar8 * iVar3;
+  iVar4 = (carObj->N).roadMatrix.m[1] / 256;
+  iVar5 = (carObj->N).orientMat.m[7] / 256;
+  iVar8 = iVar8 + iVar4 * iVar5;
+  iVar7 = (carObj->N).roadMatrix.m[2] / 256;
+  iVar6 = (carObj->N).orientMat.m[8] / 256;
+  iVar8 = iVar8 + iVar7 * iVar6;
   if (iVar8 < 0) {
     iVar8 = -iVar8;
   }
-  if (iVar8 < 0) {
-    iVar8 = iVar8 + 0xff;
-  }
-  iVar3 = (carObj->N).dimension.z;
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  return (iVar1 >> 8) * (iVar2 >> 8) + (iVar10 >> 8) * (iVar9 >> 8) + (iVar8 >> 8) * (iVar3 >> 8);
+  iVar8 = iVar8 / 256;
+  iVar3 = (carObj->N).dimension.z / 256;
+  return iVar1 * iVar2 + iVar10 * iVar9 + iVar8 * iVar3;
 }
 
 /* ---- Cars_CalculateRoadPosition__FP8Car_tObj  [@0x8008aec8] ---- */

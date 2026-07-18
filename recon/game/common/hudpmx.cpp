@@ -17,24 +17,28 @@ HudPmx_tUV     HudPmx_gHudNumberUV[10];   /* 0x80110c70 */
 HudPmx_tShape  HudPmx_gShapes[175];        /* 0x80110c98 */
 
 /* ---- intra-TU forward declarations ---- */
-void HudPmx_LoadShape(char *n,Draw_tPixMap *s);
+void HudPmx_LoadShape(char *n,HudPmx_tShape *s);
 void HudPmx_InitTextures(void);
 void HudPmx_Kill(void);
 
 
 /* ---- HudPmx_LoadShape__FPcP13HudPmx_tShape  [HUDPMX.CPP:24-36] SLD-VERIFIED ---- */
-void HudPmx_LoadShape(char *n,Draw_tPixMap *s)
+/* HIDDEN-PHANTOM FIX (w14-a2): oracle mangles __FPcP13HudPmx_tShape (2nd param HudPmx_tShape*)
+ * -- was P12Draw_tPixMap, a NAME MISMATCH invisible to the gate. Raw @0x80092464 also shows the
+ * body was wrong regardless of the type name: it stored to a bogus s[1] (stride-16, the WRONG
+ * struct's size) instead of s->width/s->height (offsets +0x10/+0x12 of the real 20-byte
+ * HudPmx_tShape, matching `*((short*)(16+$s0))`/`*((short*)(18+$s0))`) and fabricated a `clut`
+ * store the oracle never makes. Texture_LoadPmx's last arg is literally $s0 (s itself, cast --
+ * HudPmx_tShape::pixmap is the struct's first member so the address is identical). */
+void HudPmx_LoadShape(char *n,HudPmx_tShape *s)
 
 {
-  u_short uVar1;
-  void *shp;
-  
+  shapetbl *shp;
+
   shp = locateshape(gShpfile,n);
-  uVar1 = *(u_short *)((int)shp + 4);
-  s[1].u0 = (char)uVar1;
-  s[1].v0 = (char)((u_short)uVar1 >> 8);
-  s[1].clut = *(u_short *)((int)shp + 6);
-  Texture_LoadPmx(gShpfile,n,0x41,loadShapeXOff + 0x80,0x80,-1,-1,s);
+  s->width  = shp->width;
+  s->height = shp->height;
+  Texture_LoadPmx(gShpfile,n,0x41,loadShapeXOff + 0x80,0x80,-1,-1,(Draw_tPixMap *)s);
   return;
 }
 
@@ -310,47 +314,55 @@ HudPmxInit_shapeLoadLoop:
     uVar5 = *puVar3;
     puVar3 = puVar3 + 1;
     iVar14 = iVar14 + 1;
-    HudPmx_LoadShape(uVar5,(Draw_tPixMap *)pHVar13);
+    HudPmx_LoadShape((char *)uVar5,pHVar13);
     pHVar13 = pHVar13 + 1;
   } while (iVar14 < 0x83);
-  iVar14 = -0x7feee918;
+  /* DISGUISED BARE-VA (w14-a2, found while fixing the HudPmx_LoadShape phantom): iVar14 was
+   * reused here as an `int` holding -0x7feee918 == 0x801116e8 == &HudPmx_gShapes[132], walked
+   * +0x14/iter (sizeof(HudPmx_tShape)) -- really the SAME pHVar13 pointer walk continuing from
+   * the loop above (which left pHVar13 at &HudPmx_gShapes[0x83]==[131]). Restored as a real
+   * HudPmx_tShape* so HudPmx_LoadShape's 2nd-arg type matches (no more int/pointer mismatch). */
+  pHVar13 = HudPmx_gShapes + 132;   /* &HudPmx_gShapes[132] == 0x801116e8 */
   for (iVar15 = 0x84; iVar15 < 0x9e; iVar15 = iVar15 + 1) {
     { static char alph [5] = "alpX";  /* @0x8013cd34, runtime-patched at [3] */
       alph[3] = (char)iVar15 + -0x43;
-      HudPmx_LoadShape(alph,iVar14); }
-    iVar14 = iVar14 + 0x14;
+      HudPmx_LoadShape(alph,pHVar13); }
+    pHVar13 = pHVar13 + 1;
   }
-  iVar14 = -0x7feee710;
+  pHVar13 = HudPmx_gShapes + 158;   /* &HudPmx_gShapes[158] == 0x801118f0 */
   for (iVar15 = 0x9e; iVar15 < 0xa8; iVar15 = iVar15 + 1) {
     { static char alph [5] = "alpX";  /* @0x8013cd3c, runtime-patched at [3] */
       alph[3] = (char)iVar15 + -0x6e;
-      HudPmx_LoadShape(alph,iVar14); }
-    iVar14 = iVar14 + 0x14;
+      HudPmx_LoadShape(alph,pHVar13); }
+    pHVar13 = pHVar13 + 1;
   }
-  HudPmx_LoadShape("alTR",(Draw_tPixMap *)&HudPmx_gShapes[168] /* @0x801119b8 */);
-  HudPmx_LoadShape("alCI",(Draw_tPixMap *)&HudPmx_gShapes[169] /* @0x801119cc */);
-  HudPmx_LoadShape("alSQ",(Draw_tPixMap *)&HudPmx_gShapes[170] /* @0x801119e0 */);
-  HudPmx_LoadShape("negA",(Draw_tPixMap *)&HudPmx_gShapes[171] /* @0x801119f4 */);
-  HudPmx_LoadShape("negB",(Draw_tPixMap *)&HudPmx_gShapes[172] /* @0x80111a08 */);
-  HudPmx_LoadShape("neg2",(Draw_tPixMap *)&HudPmx_gShapes[173] /* @0x80111a1c */);
-  HudPmx_LoadShape("alUP",(Draw_tPixMap *)&HudPmx_gShapes[174] /* @0x80111a30 */);
+  HudPmx_LoadShape("alTR",&HudPmx_gShapes[168] /* @0x801119b8 */);
+  HudPmx_LoadShape("alCI",&HudPmx_gShapes[169] /* @0x801119cc */);
+  HudPmx_LoadShape("alSQ",&HudPmx_gShapes[170] /* @0x801119e0 */);
+  HudPmx_LoadShape("negA",&HudPmx_gShapes[171] /* @0x801119f4 */);
+  HudPmx_LoadShape("negB",&HudPmx_gShapes[172] /* @0x80111a08 */);
+  HudPmx_LoadShape("neg2",&HudPmx_gShapes[173] /* @0x80111a1c */);
+  HudPmx_LoadShape("alUP",&HudPmx_gShapes[174] /* @0x80111a30 */);
   iVar16 = 0;
   puVar3 = local_328;
   iVar14 = 0x128;
-  iVar15 = -0x7feeeda0;
+  /* DISGUISED BARE-VA (w14-a2): iVar15 held -0x7feeeda0 == 0x80111260 == &HudPmx_gShapes[74],
+   * walked +0x14/iter -- same pHVar13 pointer-walk pattern as above, restored to a real
+   * HudPmx_tShape* (iVar14/puVar3 are a genuinely separate byte-offset walk into local_450). */
+  pHVar13 = HudPmx_gShapes + 74;   /* &HudPmx_gShapes[74] == 0x80111260 */
   do {
     iVar16 = iVar16 + 1;
-    HudPmx_LoadShape(*puVar3,iVar15);
+    HudPmx_LoadShape((char *)*puVar3,pHVar13);
     puVar3 = (u_int *)((int)local_450 + iVar14 + 4);
     iVar14 = iVar14 + 4;
-    iVar15 = iVar15 + 0x14;
+    pHVar13 = pHVar13 + 1;
   } while (iVar16 < 0x1c);
-  HudPmx_LoadShape("a229",(Draw_tPixMap *)&HudPmx_gShapes[103] /* @0x801114a4 */);
-  HudPmx_LoadShape("ahyp",(Draw_tPixMap *)&HudPmx_gShapes[72] /* @0x80111238 */);
-  HudPmx_LoadShape("acol",(Draw_tPixMap *)&HudPmx_gShapes[73] /* @0x8011124c */);
+  HudPmx_LoadShape("a229",&HudPmx_gShapes[103] /* @0x801114a4 */);
+  HudPmx_LoadShape("ahyp",&HudPmx_gShapes[72] /* @0x80111238 */);
+  HudPmx_LoadShape("acol",&HudPmx_gShapes[73] /* @0x8011124c */);
   if (DashHUD_gInfo.splitscreen != 0) {
     loadShapeXOff = 0x16;
-    HudPmx_LoadShape(local_244,(Draw_tPixMap *)&HudPmx_gShapes[131] /* @0x801116d4 */);
+    HudPmx_LoadShape(local_244,&HudPmx_gShapes[131] /* @0x801116d4 */);
   }
   purgememadr(gShpfile);
   return;

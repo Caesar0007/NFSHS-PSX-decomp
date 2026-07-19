@@ -308,7 +308,7 @@ R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
   pVStack_38 = &vt;
   pSStack_34 = &nm;
   iStack_30 = 0x7e07e07f;
-  src = locatebig(R3DCar_BigFile,infilename,in_a2);
+  src = locatebig(R3DCar_BigFile,infilename);   /* locatebig is 2-arg (locatbig.cpp:178); in_a2 was a bogus Ghidra incoming-reg artifact */
   locatebigentry(R3DCar_BigFile,infilename,0,(int *)0x0,(int)&filesize);
   dst = reservememadr(infilename,filesize,0);
   scene = dst;
@@ -974,7 +974,7 @@ R3DInst_readSceneData:
       bigfile = infilename;
       do {
         iVar10 = iVar10 + 1;
-        pcVar5 = locatebig(R3DCar_BigFile,bigfile,(int)pcVar7);
+        pcVar5 = locatebig(R3DCar_BigFile,bigfile);   /* locatebig is 2-arg (locatbig.cpp:178) */
         *ppcVar11 = pcVar5;
         ppcVar11 = ppcVar11 + 1;
         bigfile = bigfile + 0xf;
@@ -1004,7 +1004,7 @@ R3DInst_readSceneData:
   else {
     strcpy(infilename,workFile);
     strcat(infilename,".psh");
-    pcVar7 = locatebig(R3DCar_BigFile,infilename,iVar9);
+    pcVar7 = locatebig(R3DCar_BigFile,infilename);   /* locatebig is 2-arg (locatbig.cpp:178) */
     Texture_CarColor = (u_short)(carObj->render).colorIndex & 7;
     CarIO_ReadInCarTextureData(pcVar7,carObj,uVar12 | 0x88,0);
     (carObj->render).palNum = (short)Texture_palNum;

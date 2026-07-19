@@ -208,7 +208,9 @@ void inbetween(void * arg0);   /* stream */
 void decbufferusage(void * arg0);   /* stream */
 void getfreerequest(void * arg0);   /* stream */
 void queuerequest(void * arg0);   /* stream */
-// dup: void locaterequest(void * arg0);   /* stream */
+// stream.c's slot-lookup helper @0x800FC4E4 is static (renamed from "locaterequest" to
+// func_800FC4E4 to avoid a verify_asm gate name-collision with nasync.c's real locaterequest
+// @0x800F0BF4, line 124 above) — not externally declared, so it carries no extern entry here.
 void freerequest(void * arg0);   /* stream */
 void filterchunk(void * arg0);   /* stream */
 void parsechunks(void * arg0);   /* stream */

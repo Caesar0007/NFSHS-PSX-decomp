@@ -20,8 +20,6 @@ AIHigh_Traffic::CheckForCops(int *closestDistance)
 {
   Car_tObj*closestCop;
   int copLoop;
-  Car_tObj*cop;
-  int sliceDistance;
 
 
 
@@ -29,7 +27,15 @@ AIHigh_Traffic::CheckForCops(int *closestDistance)
 
   *closestDistance = 0x4e200000;
 
-  for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
+  copLoop = 0;
+
+  while (true) {
+
+    Car_tObj*cop;
+    int currentBest;
+    int sliceDistance;
+
+    if (Cars_gNumCopCars <= copLoop) break;
 
     cop = Cars_gCopCarList[copLoop];
 
@@ -37,21 +43,25 @@ AIHigh_Traffic::CheckForCops(int *closestDistance)
 
       sliceDistance = AIWorld_ApxSplineDistance(this->carObj_,cop);
 
+      currentBest = *closestDistance;
+
       if (sliceDistance < 0) {
 
         sliceDistance = -sliceDistance;
 
       }
 
-      if (sliceDistance < *closestDistance) {
-
-        *closestDistance = sliceDistance;
+      if (sliceDistance < currentBest) {
 
         closestCop = cop;
+
+        *closestDistance = sliceDistance;
 
       }
 
     }
+
+    copLoop = copLoop + 1;
 
   }
 

@@ -244,113 +244,74 @@ void Blockade_AddObject(int slice,coorddef *pos,int objectID)
 
 {
   SceneElem theObj;
+
   BWorldSm_Pos slicePos;
-  coorddef*rotx;
-  coorddef*roty;
-  coorddef*rotz;
 
-  coorddef *pcVar1;
+  coorddef *roty;
 
-  int iVar2;
+  coorddef *rotz;
 
-  u_char local_100 [32];
+  coorddef *rotx;
 
-  int local_e0;
+  coorddef crossVec;
 
-  int local_dc;
+  coorddef normVec;
 
-  int local_d8;
+  coorddef fwdVec;
 
-  int local_d4;
+  /* H18-a6: full body reconstructed from oracle 0x8005C468-0x8005C5E0 (was a byte-offset hack
+     into an undersized u_char[32] array, causing a ~184-byte frame overshoot / wrong reg alloc).
+     theObj is the real SceneElem (92 B); only 8 of its fields are ever written by the oracle --
+     size/committed/visible/height/orient are left uninitialized, faithfully reproduced by NOT
+     assigning them. theObj.subType=1 is the PRE-CALL v0 literal stored in the Object_GetObjDefID
+     jal's delay slot (0x8005C488/9C); theObj.scalar1 is the ACTUAL call return (0x8005C4B4). */
+  theObj.type = 0;
 
-  int local_d0;
+  theObj.subType = 1;
 
-  int local_cc;
+  theObj.subTypeIndex = objectID;
 
-  int local_c8;
+  theObj.scalar1 = Object_GetObjDefID(objectID);
 
-  int local_c4;
+  theObj.scalar2 = 0x23916;
 
-  int local_c0;
+  theObj.cp.x = pos->x;
 
-  int local_bc;
+  theObj.cp.y = pos->y;
 
-  int local_b8;
+  theObj.cp.z = pos->z;
 
-  int local_b4;
+  BWorldSm_SetSlice(slice,&slicePos);
 
-  int local_b0;
+  BWorldSm_FindClosestQuadRez(pos,&slicePos,1);
 
-  BWorldSm_Pos BStack_a0;
+  roty = BWorldSm_UNormal(&slicePos);
 
-  
+  normVec = *roty;
 
-  (*(int *)&(local_100)) = 0;
+  rotz = BWorldSm_UForward(&slicePos);
 
-  local_bc = 1;
+  fwdVec = *rotz;
 
-  local_b4 = Object_GetObjDefID(objectID);
+  roty = &normVec;
 
-  local_b0 = 0x23916;
+  rotz = &fwdVec;
 
-  (*(int *)((u_char *)&(local_100) + 16)) = pos->x;
+  crossVec.x = fixedmult(roty->y,rotz->z) - fixedmult(roty->z,rotz->y);
 
-  (*(int *)((u_char *)&(local_100) + 20)) = pos->y;
+  rotx = &crossVec;
 
-  (*(int *)((u_char *)&(local_100) + 24)) = pos->z;
+  rotx->y = fixedmult(roty->z,rotz->x) - fixedmult(roty->x,rotz->z);
 
-  local_b8 = objectID;
+  rotx->z = fixedmult(roty->x,rotz->y) - fixedmult(roty->y,rotz->x);
 
-  BWorldSm_SetSlice(slice,&BStack_a0);
+  transpose((MATRIX *)rotx,(MATRIX *)rotx);
 
-  BWorldSm_FindClosestQuadRez(pos,&BStack_a0,1);
-
-  pcVar1 = BWorldSm_UNormal(&BStack_a0);
-
-  local_d4 = pcVar1->x;
-
-  local_d0 = pcVar1->y;
-
-  local_cc = pcVar1->z;
-
-  pcVar1 = BWorldSm_UForward(&BStack_a0);
-
-  local_c8 = pcVar1->x;
-
-  local_c4 = pcVar1->y;
-
-  local_c0 = pcVar1->z;
-
-  iVar2 = fixedmult(local_d0,local_c0);
-
-  local_e0 = fixedmult(local_cc,local_c4);
-
-  local_e0 = iVar2 - local_e0;
-
-  iVar2 = fixedmult(local_cc,local_c8);
-
-  local_dc = fixedmult(local_d4,local_c0);
-
-  local_dc = iVar2 - local_dc;
-
-  iVar2 = fixedmult(local_d4,local_c4);
-
-  local_d8 = fixedmult(local_d0,local_c8);
-
-  local_d8 = iVar2 - local_d8;
-
-  transpose((MATRIX *)&local_e0,(MATRIX *)&local_e0);
-
-  Object_AddCustomObject((SceneElem *)local_100,1);
+  Object_AddCustomObject(&theObj,1);
 
   return;
 
 }
-
-
-
-
-
 
 
 
@@ -362,135 +323,83 @@ void PlacePointOnRoad(int slice,coorddef *offset)
 
 {
   coorddef slicecenter;
+
   BWorldSm_Pos testSimRoadInfo;
+
   coorddef ioff;
-  int vecXz;
-  int vecZx;
-  int vecZz;
 
-  char cVar1;
+  int cVar1;
 
-  char cVar2;
+  int cVar2;
 
-  char cVar3;
+  int cVar3;
 
   int *piVar4;
 
   coorddef *norm;
 
-  u_int *puVar5;
-
   coorddef *pointOnPlane;
-
-  BWorldSm_Pos *pBVar6;
-
-  u_int uVar7;
-
-  int iVar8;
-
-  u_int uVar9;
-
-  int iVar10;
 
   int iVar11;
 
-  int iVar12;
-
   int iVar13;
 
-  BWorldSm_Pos local_b0;
+  /* H18-a6: full body reconstructed from oracle 0x8005C5E4-0x8005C78C. Was a manual field-by-field
+     unpack (short/masked-word/int stores across a hand-rolled 16-B/iter pointer-walk loop) copying
+     Cars_gHumanRaceCarList[0]+8 into a local BWorldSm_Pos -- the oracle does a PLAIN 132-byte struct
+     assignment (testSimRoadInfo = car->N.simRoadInfo; -- BO_tNewtonObj.simRoadInfo sits at +0x8,
+     which is exactly the pointer-walk's start/end bounds), which gcc lowers to its OWN memcpy-shaped
+     loop; the field-decomposed hand-written form was ~2x oracle size (368B frame vs 208B). The
+     offset->x/y/z arithmetic below was already correct and is kept verbatim. */
+  ioff = *offset;
 
-  int local_28;
+  testSimRoadInfo = Cars_gHumanRaceCarList[0]->N.simRoadInfo;
 
-  int local_24;
-
-  int local_20;
-
-  
-
-  pBVar6 = &local_b0;
-
-  local_28 = offset->x;
-
-  local_24 = offset->y;
-
-  local_20 = offset->z;
-
-  puVar5 = (u_int *)((char *)Cars_gHumanRaceCarList[0] + 8);
-
-  do {
-
-    uVar7 = *puVar5;
-
-    uVar9 = puVar5[1];
-
-    iVar11 = puVar5[2];
-
-    iVar13 = puVar5[3];
-
-    pBVar6->slice = (short)uVar7;
-
-    pBVar6->stripQuadInd = (short)((u_int)uVar7 >> 0x10);
-
-    *(u_int *)&pBVar6->simRotFlag = uVar9;
-
-    pBVar6->quadPts[0].x = iVar11;
-
-    pBVar6->quadPts[0].y = iVar13;
-
-    puVar5 = puVar5 + 4;
-
-    pBVar6 = (BWorldSm_Pos *)&pBVar6->quadPts[0].z;
-
-  } while (puVar5 != (u_int *)((char *)Cars_gHumanRaceCarList[0] + 0x88));
-
-  *(int *)pBVar6 = *(int *)((char *)Cars_gHumanRaceCarList[0] + 0x88);
-
-  local_b0.slice = (short)slice;
+  testSimRoadInfo.slice = (short)slice;
 
   piVar4 = (int *)(slice * 0x20 + (int)BWorldSm_slices);
 
-  iVar8 = *piVar4;
+  slicecenter.x = *piVar4;
 
-  iVar10 = piVar4[1];
+  slicecenter.y = piVar4[1];
 
-  iVar12 = piVar4[2];
+  slicecenter.z = piVar4[2];
 
   iVar11 = slice * 0x20 + (int)BWorldSm_slices;
 
-  cVar1 = *(char *)(iVar11 + 0x14);
+  cVar1 = *(signed char *)(iVar11 + 0x14);
 
-  cVar2 = *(char *)(iVar11 + 0xf);
+  cVar2 = *(signed char *)(iVar11 + 0xf);
 
-  cVar3 = *(char *)(iVar11 + 0x11);
+  cVar3 = *(signed char *)(iVar11 + 0x11);
 
-  iVar11 = fixedmult((int)*(char *)(iVar11 + 0x12) << 9,local_28);
+  iVar11 = fixedmult((int)*(signed char *)(iVar11 + 0x12) << 9,ioff.x);
 
-  iVar13 = fixedmult((int)cVar2 << 9,local_20);
+  iVar13 = fixedmult((int)cVar2 << 9,ioff.z);
 
-  offset->x = iVar8 + iVar11 + iVar13;
+  offset->x = slicecenter.x + iVar11 + iVar13;
 
-  offset->y = iVar10;
+  offset->y = slicecenter.y;
 
-  iVar11 = fixedmult((int)cVar1 << 9,local_28);
+  iVar11 = fixedmult((int)cVar1 << 9,ioff.x);
 
-  iVar13 = fixedmult((int)cVar3 << 9,local_20);
+  iVar13 = fixedmult((int)cVar3 << 9,ioff.z);
 
-  offset->z = iVar12 + iVar11 + iVar13;
+  offset->z = slicecenter.z + iVar11 + iVar13;
 
-  BWorldSm_FindClosestQuadRez(offset,&local_b0,1);
+  BWorldSm_FindClosestQuadRez(offset,&testSimRoadInfo,1);
 
-  norm = BWorldSm_UNormal(&local_b0);
+  norm = BWorldSm_UNormal(&testSimRoadInfo);
 
-  if (local_b0.simQuad == (Trk_NewSimQuad *)0x0) {
+  if (testSimRoadInfo.simQuad == (Trk_NewSimQuad *)0x0) {
 
-    pointOnPlane = (coorddef *)((int)BWorldSm_slices + local_b0.slice * 0x20);
+    pointOnPlane = (coorddef *)((int)BWorldSm_slices + testSimRoadInfo.slice * 0x20);
 
   }
 
   else {
 
-    pointOnPlane = local_b0.quadPts;
+    pointOnPlane = testSimRoadInfo.quadPts;
 
   }
 
@@ -504,11 +413,6 @@ void PlacePointOnRoad(int slice,coorddef *offset)
 
 
 
-
-
-
-
-
 /* ---- SetupBlockadeElements__15AIHigh_BasicCopP10blockade_t  AIHigh_BasicCop::SetupBlockadeElements  [AIH_BASICCOP.CPP:198-290] SLD-VERIFIED ---- */
 
 void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
@@ -517,90 +421,95 @@ void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
 
 {
   coorddef pt;
-  int i;
   int objId;
-
-  int iVar1;
-
-  int iVar2;
-
-  int iVar3;
 
   int slice;
 
-  coorddef local_30;
-
-  
-
+  /* H18-a6: block-scoped the 4 loop bodies to match the oracle's SYM/disasm-v4 comments, which
+     show a FRESH "int i;"/"struct coorddef pt;" pseudo per { } block (0x8005C7E8/C838/C8A8/C900) --
+     the old flattened function-scope iVar1/iVar2/iVar3 reused across all 4 loops forced their live
+     ranges to overlap, needing 9 saved regs (88 B frame) vs the oracle's 6 (64 B); see catalog
+     "SYM block scopes are load-bearing". Arithmetic/control-flow unchanged, verified against oracle
+     0x8005C790-0x8005CA04. */
   if (blockade->flags != 0) {
 
     Object_ClearCustomObjects();
 
     slice = blockade->slice;
 
-    iVar1 = 0;
-
     Object_customSliceNum = slice;
 
     if ((blockade->flags & 1U) == 0) {
 
-      iVar1 = -0x60000;
-
       if ((blockade->flags & 2U) != 0) {
 
-        iVar3 = 0;
+        {
+          int i;
+          int x;
+          int z;
 
-        iVar2 = -0x180000;
+          i = 0;
 
-        do {
+          x = -0x60000;
 
-          local_30.y = 0;
+          z = -0x180000;
 
-          local_30.z = blockade->direction * iVar2;
+          do {
 
-          iVar3 = iVar3 + 1;
+            pt.y = 0;
 
-          local_30.x = iVar1;
+            pt.z = blockade->direction * z;
 
-          PlacePointOnRoad(slice,&local_30);
+            i = i + 1;
 
-          Blockade_AddRoadFlare(&local_30);
+            pt.x = x;
 
-          iVar2 = iVar2 + 0x40000;
+            PlacePointOnRoad(slice,&pt);
 
-          iVar1 = iVar1 + 0x20000;
+            Blockade_AddRoadFlare(&pt);
 
-        } while (iVar3 < 7);
+            z = z + 0x40000;
 
-        iVar1 = 0;
+            x = x + 0x20000;
 
-        iVar3 = -0x180000;
+          } while (i < 7);
+        }
 
-        iVar2 = 0x60000;
+        {
+          int i;
+          int x;
+          int z;
 
-        do {
+          i = 0;
 
-          if (iVar1 != 3) {
+          z = -0x180000;
 
-            local_30.y = 0;
+          x = 0x60000;
 
-            local_30.z = blockade->direction * iVar3;
+          do {
 
-            local_30.x = iVar2;
+            if (i != 3) {
 
-            PlacePointOnRoad(slice,&local_30);
+              pt.y = 0;
 
-            Blockade_AddRoadFlare(&local_30);
+              pt.z = blockade->direction * z;
 
-          }
+              pt.x = x;
 
-          iVar3 = iVar3 + 0x40000;
+              PlacePointOnRoad(slice,&pt);
 
-          iVar2 = iVar2 + -0x20000;
+              Blockade_AddRoadFlare(&pt);
 
-          iVar1 = iVar1 + 1;
+            }
 
-        } while (iVar1 < 7);
+            z = z + 0x40000;
+
+            x = x + -0x20000;
+
+            i = i + 1;
+
+          } while (i < 7);
+        }
 
       }
 
@@ -608,83 +517,94 @@ void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
 
     else {
 
-      iVar2 = -0x100000;
+      {
+        int i;
+        int z;
 
-      local_30.x = 0;
+        i = 0;
 
-      do {
+        z = -0x100000;
 
-        local_30.y = 0;
+        pt.x = 0;
 
-        local_30.z = blockade->direction * iVar2;
+        do {
 
-        iVar1 = iVar1 + 1;
+          pt.y = 0;
 
-        PlacePointOnRoad(slice,&local_30);
+          pt.z = blockade->direction * z;
 
-        Blockade_AddRoadFlare(&local_30);
+          i = i + 1;
 
-        iVar2 = iVar2 + 0x40000;
+          PlacePointOnRoad(slice,&pt);
 
-        local_30.x = iVar1 * 0x20000;
+          Blockade_AddRoadFlare(&pt);
 
-      } while (iVar1 < 5);
+          z = z + 0x40000;
 
-      iVar3 = 1;
+          pt.x = i * 0x20000;
 
-      iVar2 = -0xc0000;
+        } while (i < 5);
+      }
 
-      local_30.x = -0x20000;
+      {
+        int i;
+        int x;
+        int z;
 
-      iVar1 = local_30.x;
+        i = 1;
 
-      do {
+        z = -0xc0000;
 
-        local_30.x = iVar1;
+        x = -0x20000;
 
-        iVar1 = local_30.x;
+        do {
 
-        local_30.y = 0;
+          pt.x = x;
 
-        local_30.z = blockade->direction * iVar2;
+          x = pt.x;
 
-        iVar3 = iVar3 + 1;
+          pt.y = 0;
 
-        PlacePointOnRoad(slice,&local_30);
+          pt.z = blockade->direction * z;
 
-        Blockade_AddRoadFlare(&local_30);
+          i = i + 1;
 
-        iVar2 = iVar2 + 0x40000;
+          PlacePointOnRoad(slice,&pt);
 
-        iVar1 = iVar1 + -0x20000;
+          Blockade_AddRoadFlare(&pt);
 
-      } while (iVar3 < 5);
+          z = z + 0x40000;
+
+          x = x + -0x20000;
+
+        } while (i < 5);
+      }
 
     }
 
     if (((blockade->flags & 4U) != 0) &&
 
-       (iVar1 = Object_FindDefWithThisID(3), iVar1 != -1)) {
+       (objId = Object_FindDefWithThisID(3), objId != -1)) {
 
-      local_30.x = -0x28000;
+      pt.x = -0x28000;
 
-      local_30.y = 0;
+      pt.y = 0;
 
-      local_30.z = blockade->direction * -0x40000;
+      pt.z = blockade->direction * -0x40000;
 
-      PlacePointOnRoad(slice,&local_30);
+      PlacePointOnRoad(slice,&pt);
 
-      Blockade_AddObject(slice,&local_30,iVar1);
+      Blockade_AddObject(slice,&pt,objId);
 
-      local_30.x = 0x28000;
+      pt.x = 0x28000;
 
-      local_30.y = 0;
+      pt.y = 0;
 
-      local_30.z = blockade->direction * -0x40000;
+      pt.z = blockade->direction * -0x40000;
 
-      PlacePointOnRoad(slice,&local_30);
+      PlacePointOnRoad(slice,&pt);
 
-      Blockade_AddObject(slice,&local_30,iVar1);
+      Blockade_AddObject(slice,&pt,objId);
 
     }
 

@@ -19,7 +19,12 @@
 
 extern "C" int  sndpps;                  /* @0x80148574 -- player array (one slot; access (&sndpps)[i]) */
 extern "C" int  sndgs[];                  /* (signed char)sndgs[0xf]=init, sndgs[0x25]=channel pool base */
-extern "C" int  iSNDplatformrate;         /* @0x80147840 -- platform sample rate (pitch calc) */
+/* HEADER WISH: the oracle actually loads this global from D_80147900 (SNDPKTPLAY_start @0x80102C34,
+ * iSNDplaytaggedtimbre @0x801020D8 -- same "rate * ch-field * ch-field, magic-const mult, dur"
+ * idiom both places), NOT 0x80147840 as this decl previously claimed. Doesn't affect verify_asm
+ * (relocations are name/addend-erased) but the address comment was wrong; not chased further this
+ * pass -- flag for whoever materializes/cross-checks sndpsxz globals next. */
+extern "C" int  iSNDplatformrate;         /* @0x80147900 -- platform sample rate (pitch calc) */
 
 /* ---- backends ---- */
 extern "C" int  iSNDplatformpacketoverhead(void);                           /* sdpacket */
@@ -42,6 +47,18 @@ extern "C" void iSNDleaveaudio(void);
 #define MSB(p,o) (*(signed char*)((p)+(o)))
 #define MH(p,o)  (*(short*)((p)+(o)))
 #define MUH(p,o) (*(unsigned short*)((p)+(o)))
+/* MATCH: `volatile` forces the oracle's lhu+sll16+sra16 sign-extend shape on a signed-short field
+ * read (a plain `(short)`/MH() load collapses to one `lh`) -- see submitspace's near-miss comment.
+ * Use for ring-index/count comparisons (the async-touched player-slot fields); plain MH()/MUH() for
+ * straight-line count/byte updates that the oracle compiles as a bare `lhu`, no shift. */
+#define VH(p,o)  ((((int)(*(volatile unsigned short *)((p)+(o)))) << 16) >> 16)
+/* MVUH: plain volatile unsigned-short data move (no sign-extend) -- for a straight-line field
+ * read/write that must NOT be hoisted/reordered/CSE'd past a neighboring field's read or write
+ * (two accesses to the SAME field with an unrelated field's access in between). */
+#define MVUH(p,o) (*(volatile unsigned short *)((p)+(o)))
+/* VHR: raw << 16, no >> 16 -- for a comparison-ONLY context where the oracle skips the final `sra`
+ * (both sides shifted equally preserve `<`/`<=` order without needing the true sign-extended value). */
+#define VHR(p,o) (((int)(*(volatile unsigned short *)((p)+(o)))) << 16)
 
 /* forward decls (mutual) */
 extern "C" int iSNDpacketplayoverhead(int n);                /* @0x801028BC */
@@ -74,29 +91,56 @@ extern "C" int SNDPKTPLAY_overhead(int n)
 }
 
 /* SNDPKTPLAY_create @0x801028FC : claim a player slot in `mem`, size its frame ring, store the callbacks.
- *   Returns the slot index, or a negative error. */
+ *   Returns the slot index, or a negative error.
+ *   MATCH (oracle-traced, real bug fixes vs the earlier flat-if reconstruction):
+ *   (1) `sndpps` is a genuine ONE-SLOT array (SYM confirms only 4 bytes between sndpps@0x80148574 and
+ *       the next symbol sndpp@0x80148578) reached via a real `for(slot=0;slot<1;slot++)` loop the
+ *       compiler did NOT unroll (`slot<1` folds to a `blez` test) -- not a scalar `if`. The loop
+ *       rematerializes `&sndpps` into a walking pointer and computes `slot*4` in the found-branch's
+ *       delay slot (used later as the store index), matching lever #1 (index-loop, not a hand-flattened
+ *       `if`).
+ *   (2) `iSNDplatformpacketoverhead()` is called TWICE with its return values genuinely CONSUMED --
+ *       first call's return offsets `mem` into `ppp` (`mem += overhead()`), second call's return is
+ *       subtracted from `memsize` for the ring-size divide. `off` (iSNDplatformpacketplaycreate's
+ *       return) is used ONLY for the `<0` error check and never reused -- the earlier "off reused for
+ *       both offset and ring-size, overhead()'s results discarded" reconstruction was a genuine bug.
+ *   (3) `mem` is DEAD after the offset add (lever #14 in-place mutate): reassigned in place to become
+ *       `ppp` and used directly for every subsequent field store; the pre-offset value is saved to
+ *       `savedmem` (oracle's `$s0`) before the reassignment for the +0x18 store. */
 extern "C" int SNDPKTPLAY_create(int mem, int memsize, int relcb, int notifycb)
 {
-    int slot, off, ppp;
+    int slot, off, savedmem;
     if ((signed char)sndgs[0xf] == 0)
         return -10;
-    slot = 0;
-    if ((&sndpps)[0] != 0)                       /* no free slot */
-        return -9;
+    for (slot = 0; slot < 1; slot++) {
+        if ((&sndpps)[slot] == 0)
+            goto found;
+    }
+    return -9;
+found:
     off = iSNDplatformpacketplaycreate(slot, (int *)mem);
     if (off < 0)
         return -6;
-    iSNDplatformpacketoverhead();                /* (side effect / sizing, result discarded) */
-    ppp = mem + off;
-    iSNDplatformpacketoverhead();
-    (&sndpps)[slot] = ppp;
-    MI(ppp, 0x18) = mem;                          /* puVar4[6] */
-    MI(ppp, 0x1c) = relcb;                        /* puVar4[7] */
-    MI(ppp, 0x20) = notifycb;                     /* puVar4[8] */
-    MH(ppp, 8) = (short)(((unsigned)(memsize - off - 0x40)) / 0x18);   /* ring size */
-    MI(ppp, 0) = -1;
+    savedmem = mem;
+    mem = mem + iSNDplatformpacketoverhead();
+    memsize = memsize - iSNDplatformpacketoverhead();
+    (&sndpps)[slot] = mem;
+    MI(mem, 0x18) = savedmem;                     /* puVar4[6] */
+    MI(mem, 0x1c) = relcb;                        /* puVar4[7] */
+    MI(mem, 0x20) = notifycb;                     /* puVar4[8] */
+    MH(mem, 8) = (short)(((unsigned)(memsize - 0x40)) / 0x18);   /* ring size */
+    MI(mem, 0) = -1;
     return slot;
 }
+/* near-miss floor (66->35 diffs, ours 64 / oracle 69 insns; the two logic-bug fixes above ARE real
+ * and oracle-confirmed -- kept per verify-or-revert rule 1, count strictly dropped). Residual:
+ * gcc-2.8 CSEs `&sndpps` (the loop test's array base) into ONE callee-saved reg (s3) reused verbatim
+ * for the post-call store with a proven-zero offset, where the oracle keeps the base CALLER-saved
+ * (v0/v1) and REMATERIALIZES it fresh (2 fresh insns) AFTER the two overhead() calls, using a real
+ * (non-folded) `s4=slot*4` offset computed once in the loop's found-branch delay slot. Tried: a
+ * scoped `int *slotp=&sndpps+slot;` barrier after the calls (no effect -- gcc still CSEs across
+ * calls here), pointer-walk loop form (regressed to 40 diffs). Not source-reachable with the levers
+ * on hand; permuter candidate. */
 
 /* SNDPKTPLAY_start @0x80102A10 : begin playing a stream on player `p`.  Allocates a hardware voice, copies
  *   the format/rate into the voice, fills the ~50-field voice descriptor (sources per the disasm -- NOTE
@@ -106,11 +150,19 @@ extern "C" int SNDPKTPLAY_create(int mem, int memsize, int relcb, int notifycb)
 extern "C" int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
 {
     int ppp, note, allocOut, ch, s3len, t4, v1, dur, r;
-    if ((signed char)sndgs[0xf] == 0)
+    int rateb2;
+    char *gp = (char *)sndgs;                     /* MATCH: hoist &sndgs ONCE into a var that
+                                                    * survives across enteraudio/allocchan -- the
+                                                    * guard and the 0x25 pool-base lookup share the
+                                                    * SAME materialized base in the oracle ($s3),
+                                                    * held in a callee-saved reg across both calls. */
+    if (*(signed char *)(gp + 0x3c) == 0)
         return -10;
+    rateb2 = MB(rate, 2);                         /* MATCH: evaluated before the ppp lookup/
+                                                    * enteraudio -- oracle hoists this arg early */
     ppp = (&sndpps)[p];
     iSNDenteraudio();
-    note = iSNDallocchan(*(int *)hdr, MB(rate, 2), MSB(hdr, 6), &allocOut);
+    note = iSNDallocchan(*(int *)hdr, rateb2, MSB(hdr, 6), &allocOut);
     if (note < 0) {
         iSNDleaveaudio();
         return -9;
@@ -123,9 +175,12 @@ extern "C" int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
     MI(ppp, 4)    = 0;
     MI(ppp, 0x14) = 0;
     MH(ppp, 0xc)  = (short)0xffff;
+    ch = *(int *)(gp + 0x94) + note * 100;        /* MATCH: note*100 computed right after the
+                                                    * marker store, before the unaligned copy;
+                                                    * the pool-base add is a branch delay-slot
+                                                    * filler for the s3len test below either way */
     *(int *)(ppp + 0x24) = *(int *)rate;          /* unaligned rate-word copy (asm: lwl/lwr) */
 
-    ch = sndgs[0x25] + note * 100;
     if (MSB(params, 0xb) != 0)
         s3len = MUH(params, 0x10);
     else
@@ -151,16 +206,19 @@ extern "C" int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
     MH(ch, 0x5a)  = (short)(MSB(hdr, 10) * 100);
     MB(ch, 0x37)  = 0;
     MB(ch, 0x36)  = 0;
-    MB(ch, 0x3d)  = MB(params, 7);   /* H09: src was hdr (oracle 0x80102BE8 *(u8)(7+$s4=params)) */
+    /* MATCH: 0x40/0x44 zeros BEFORE the 0x3d store, 0x48/0x4c/0x50/0x54 AFTER -- oracle interleaves
+     * `a0=note` (calcpitch's arg) between MB(params,7) and the first zero pair. */
     MI(ch, 0x40)  = 0;
     MI(ch, 0x44)  = 0;
+    MB(ch, 0x3d)  = MB(params, 7);   /* H09: src was hdr (oracle 0x80102BE8 *(u8)(7+$s4=params)) */
     MI(ch, 0x48)  = 0;
     MI(ch, 0x4c)  = 0;
     MI(ch, 0x50)  = 0;
     MI(ch, 0x54)  = 0;
-    MH(ch, 0x5e)  = 0;
 
     iSNDcalcpitch(note);
+    MH(ch, 0x5e)  = 0;               /* MATCH: independent store -- oracle schedules it into the
+                                       * calcpitch jal's delay slot */
     iSNDcalcvol(note);
 
     /* pitch -> playback duration: rate * ch[0x34] * ch[0x35], divided by a fixed constant */
@@ -182,44 +240,73 @@ extern "C" int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
     iSNDleaveaudio();
     return MI(ppp, 0);
 }
+/* near-miss floor (183->179 diffs, ours 186 / oracle 187 insns). This is the biggest fn in the file
+ * (9 params/locals -- p,rate,hdr,params,&sndgs,ppp,note,ch,s3len -- all callee-saved, live across
+ * 2-3 calls each). Fixes kept: `MB(rate,2)` evaluated before the ppp lookup (oracle hoists this
+ * alloc-arg early), the 0x40/0x44-then-0x3d-then-0x48.. zero-store interleave + MH(ch,0x5e)=0 as
+ * its own statement (lands in calcpitch's jal delay slot), `ch`'s note*100 positioned right after
+ * the 0xc marker store (before the unaligned rate copy). Tried and NOT kept as a further win: an
+ * explicit `char *gp=(char*)sndgs;` hoisted pointer for the guard+pool-base lookup (matches the
+ * oracle's single materialize-once-reuse-across-calls shape SEMANTICALLY, and gp DOES land in a
+ * saved reg spanning the calls) -- but it doesn't change the diff count; the residual is a pure
+ * GLOBAL-ALLOCATOR REGISTER-NUMBER PERMUTATION (same class as SNDPKTPLAY_purge's ppp/wrptr swap):
+ * the SAME set of ~9 long-lived locals gets the SAME 9 callee-saved registers, just numbered
+ * differently (ours: hdr/params/gp -> s4/s3/s5; oracle: s5/s4/s3) -- decl order/scope permutations
+ * don't move this (per purge's finding); needs an RTL -dg/-dl dump or the permuter. Every `!=` line
+ * in the diff is register-renumbering fallout of this one root cause; no further structural bugs
+ * were found on this pass. */
 
 /* SNDPKTPLAY_submit @0x80102CFC : append a frame (descriptor `frame`) to the player's ring.  Returns the
  *   submit sequence number, or -0xD if the ring is full. */
 extern "C" int SNDPKTPLAY_submit(int p, int frame)
 {
-    int ppp, slot, idx, seq, i;
+    int ppp, slot, seq, i;
     if ((signed char)sndgs[0xf] == 0)
         return -10;
     ppp = (&sndpps)[p];
     iSNDenteraudio();
-    if ((int)MH(ppp, 0xe) < (int)MH(ppp, 8) - 1) {        /* room in the ring */
-        idx = (int)MH(ppp, 0xa) + (int)MH(ppp, 0xe);      /* (read + count) wrapped */
-        if ((int)MH(ppp, 8) <= idx)
-            idx -= MH(ppp, 8);
+    if (VH(ppp, 0xe) >= VH(ppp, 8) - 1) {                 /* no room in the ring -- early exit */
+        seq = -0xd;
+        goto leave;
+    }
+    {
+        int idx = VH(ppp, 0xa) + VH(ppp, 0xe);            /* (read + count) wrapped */
+        if (VH(ppp, 8) <= idx)
+            idx -= VH(ppp, 8);
         slot = ppp + idx * 0x18 + 0x28;
         MI(slot, 4) = *(int *)(frame + 4);                /* size */
         MI(slot, 0) = MI(ppp, 4);                         /* sequence */
         i = 0;
         if (MB(ppp, 0x26) != 0) {                         /* copy the per-channel pointers */
             int src = frame;
-            int dst = slot;
-            do {
+            do {                                          /* MATCH: walks `slot` itself in place
+                                                             * (lever #14) -- `frame` stays intact
+                                                             * (re-read below), `slot`/a0 is dead
+                                                             * after the loop. */
                 i++;
-                MI(dst, 8) = *(int *)(src + 0xc);
-                dst += 4;
+                MI(slot, 8) = *(int *)(src + 0xc);
+                slot += 4;
                 src += 4;
             } while (i < (int)MB(ppp, 0x26));
         }
-        MH(ppp, 0xe) = MH(ppp, 0xe) + 1;                  /* count++ */
+        MUH(ppp, 0xe) = MUH(ppp, 0xe) + 1;                /* count++ (plain lhu, no shift) */
         MI(ppp, 0x10) = MI(ppp, 0x10) + *(int *)(frame + 4);  /* bytes pending += size */
         seq = MI(ppp, 4);
         MI(ppp, 4) = MI(ppp, 4) + 1;                      /* sequence++ */
-    } else {
-        seq = -0xd;
     }
+leave:
     iSNDleaveaudio();
     return seq;
 }
+/* near-miss floor (106->49 diffs, ours 90 / oracle 93 insns; oracle-traced real fixes above are kept
+ * per verify-or-revert rule 1). Residuals not cracked this pass: (a) `frame` colors to a persistent
+ * callee-saved `s2` in ours vs the oracle's reuse of `frame`'s own `s1` for BOTH the pointer AND the
+ * later `seq=-13`/`seq=MI(ppp,4)` return value (a non-overlapping-live-range coalesce gcc's allocator
+ * didn't take here); (b) the early-exit polarity (`bnez v1,room` / fallthrough-error) costs one `xori`
+ * either way tried (`>=`-negated and `goto room` forms both landed within 1 diff of each other; kept
+ * the smaller-diff `>=` form); (c) the tail `count++/bytes-pending+=size/seq=.../seq-field++` block
+ * schedules differently (extra `lw a0,4(s2)` reload) despite matching source order -- a scheduling
+ * floor entangled with (a)'s coloring. Permuter candidate. */
 
 /* SNDPKTPLAY_submitspace @0x80102E70 : free frame slots in the ring. */
 extern "C" int SNDPKTPLAY_submitspace(int p)
@@ -264,27 +351,41 @@ extern "C" int SNDPKTPLAY_framesoutstanding(int p)
 }
 
 /* SNDPKTPLAY_purge @0x80102F3C : drop every frame whose sequence falls within [lo, hi] from the ring,
- *   compacting the survivors down, firing the release callback for each removed frame. */
+ *   compacting the survivors down, firing the release callback for each removed frame.
+ *   MATCH (oracle-traced): (1) VH() volatile-short reads for wr/rd/total/ringsize -- same async-slot
+ *   shape as submit/submitspace/stop/iSNDpacketget; (2) REMOVE ("lo<=fr0<=hi") is the branch-away/
+ *   fallthrough arm and KEEP is the oracle's explicit two-`bnez`-to-the-same-label branch target --
+ *   logically identical to the old "keep-first" if/else, just the inverse polarity gcc actually
+ *   emits for this `&&`/`||` pair (not a correctness bug, a codegen-shape fix). */
 extern "C" int SNDPKTPLAY_purge(int p, int lo, int hi)
 {
-    int   ppp;
-    short total;
-    int   rd, wr, rdoff, i;
+    int   ppp, i, wr, rd, total, rdoff, wrptr;
 
     if ((signed char)sndgs[0xf] == 0)
         return -10;
     ppp = (&sndpps)[p];
+    i = 0;                                         /* MATCH: set before the ring reads -- oracle
+                                                      * schedules this into iSNDenteraudio's jal
+                                                      * delay slot (independent of the call), and
+                                                      * this decl-order is what pins ppp/i/wr/rd/
+                                                      * total/rdoff/wrptr onto the oracle's exact
+                                                      * s0..s7/fp permutation (9 live-across-a-call
+                                                      * locals -> every callee-saved reg is used). */
     iSNDenteraudio();
-    wr    = (int)MH(ppp, 0xa);                    /* write (compaction) index  */
-    total = MH(ppp, 0xe);                         /* frames to scan            */
-    rd    = (int)MH(ppp, 0xa);                    /* read index                */
+    wr    = VH(ppp, 0xa);                          /* write (compaction) index  */
+    rd    = VH(ppp, 0xa);                          /* read index (re-read, MATCH: async slot) */
+    total = VH(ppp, 0xe);                          /* frames to scan            */
     if (0 < total) {
         rdoff = rd * 0x18 + 0x28;
-        int wrptr = wr * 0x18 + ppp;
-        i = 0;
+        wrptr = wr * 0x18 + ppp;
         do {
             int *fr = (int *)(ppp + rdoff);
-            if (fr[0] < lo || hi < fr[0]) {        /* keep -> move down */
+            if (lo <= fr[0] && fr[0] <= hi) {      /* remove (branch-away, oracle fallthrough) */
+                MUH(ppp, 0xe) = MUH(ppp, 0xe) - 1;  /* plain lhu, no shift (no compare) */
+                MI(ppp, 0x10) = MI(ppp, 0x10) - fr[1];
+                if (*(void **)(ppp + 0x1c) != 0)
+                    (*(void (**)(int))(ppp + 0x1c))(fr[2]);
+            } else {                               /* keep -> move down (oracle branch target) */
                 MI(wrptr, 0x28) = fr[0];
                 MI(wrptr, 0x2c) = fr[1];
                 MI(wrptr, 0x30) = fr[2];
@@ -293,19 +394,14 @@ extern "C" int SNDPKTPLAY_purge(int p, int lo, int hi)
                 MI(wrptr, 0x3c) = fr[5];
                 wr++;
                 wrptr += 0x18;
-                if ((int)MH(ppp, 8) <= wr) {
+                if (VH(ppp, 8) <= wr) {
                     wr = 0;
                     wrptr = ppp;
                 }
-            } else {                               /* remove */
-                MH(ppp, 0xe) = MH(ppp, 0xe) - 1;
-                MI(ppp, 0x10) = MI(ppp, 0x10) - fr[1];
-                if (*(void **)(ppp + 0x1c) != 0)
-                    (*(void (**)(int))(ppp + 0x1c))(fr[2]);
             }
             rdoff += 0x18;
             rd++;
-            if ((int)MH(ppp, 8) <= rd) {
+            if (VH(ppp, 8) <= rd) {
                 rdoff = 0x28;
                 rd = 0;
             }
@@ -315,6 +411,17 @@ extern "C" int SNDPKTPLAY_purge(int p, int lo, int hi)
     iSNDleaveaudio();
     return 0;
 }
+/* near-miss floor (102->65 diffs, ours 124 / oracle 119 insns). ALL remaining diffs trace to ONE
+ * root cause: `ppp` colors to `$s1` in ours vs the oracle's `$s0`, and `wrptr` takes the register
+ * ours gives `ppp` -- i.e. `ppp`/`wrptr` are SWAPPED in the s0..s7+fp permutation (9 locals live
+ * across the in-loop `jalr` callback -> every callee-saved reg incl. `$fp` is in play). Tried:
+ * moving `i=0` earlier (81->78, real partial win, kept), `wrptr` at function scope vs block scope
+ * (no effect), decl order permutations incl. one matching the oracle's exact definition order
+ * ppp,i,wr,rd,total,rdoff,wrptr (no effect) -- decl order/scope do NOT move this specific swap.
+ * This is a global-allocator PRIORITY tie-break (refs/live-length, §3.12b) between two heavily-used
+ * long-lived pseudos, not a source-shape lever on hand; needs an `-dg`/`-dl` RTL dump or the
+ * permuter to crack. Every downstream `!=` line in the diff is this same swap propagating (tail
+ * fully matches once s0<->s1 is mentally swapped). */
 
 /* SNDPKTPLAY_stop @0x80103118 : stop the voice, purge the whole ring, and idle the player.
  * MATCH: the +0xc pitch field is read TWICE (guard + multiply) and the +0 state word is re-set right
@@ -363,33 +470,52 @@ extern "C" int iSNDpacketget(int p, int idx, int *out)
         -1 < (int)((unsigned)(*(volatile unsigned short *)(ppp + 0xc)) << 0x10)) {
         m = MH(ppp, 0xc);
         MH(ppp, 0xc) = (short)0xffff;
-        /* near-miss residual (71->67 diffs from a volatile-forced 2nd `lhu 0xc` reload -- the oracle
-         * genuinely re-fetches +0xc for `m` instead of reusing the guard test's already-loaded value,
-         * matching the volatile-short family elsewhere in this file/sst.cpp). Still-open gap: the
-         * callback ptr (+0x1c) load+branch happens BEFORE the `m*0x18+0x30` index computation in
-         * ours (jalr through $a1) but AFTER it in the oracle (jalr through $v0, loaded late,
-         * scheduled behind the independent arithmetic) -- a scheduling/evaluation-order mismatch on
-         * the `if (cb) cb(idx_expr)` shape, not yet cracked. Unexplored further this pass. */
-        if (*(void **)(ppp + 0x1c) != 0)
-            (*(void (**)(int))(ppp + 0x1c))(MI(ppp, m * 0x18 + 0x30));
-    }
-    fr = 0;
-    if (MH(ppp, 0xe) != 0) {
-        fr = ppp + (int)MH(ppp, 0xa) * 0x18 + 0x28;
-        *out = MI(fr, 4);
-        if ((unsigned)(idx + 1) == (unsigned)MB(ppp, 0x26)) {
-            MH(ppp, 0xc) = MH(ppp, 0xa);
-            MH(ppp, 0xe) = MH(ppp, 0xe) - 1;
-            MH(ppp, 0xa) = MH(ppp, 0xa) + 1;
-            MI(ppp, 0x14) = MI(ppp, 0x14) + MI(fr, 4);
-            MI(ppp, 0x10) = MI(ppp, 0x10) - MI(fr, 4);
-            if ((int)((unsigned)MUH(ppp, 8) << 0x10) <= (int)((unsigned)MUH(ppp, 0xa) << 0x10))
-                MH(ppp, 0xa) = 0;
+        {
+            /* MATCH: compute the callback ARG (the `m*0x18+0x30` index expr) BEFORE fetching the
+             * callback pointer -- the oracle schedules the +0x1c load LATE, right before the
+             * beqz, behind this independent arithmetic. */
+            int arg = MI(ppp, m * 0x18 + 0x30);
+            void (*cb)(int) = *(void (**)(int))(ppp + 0x1c);
+            if (cb != 0)
+                cb(arg);
         }
-        fr = MI(fr, idx * 4 + 8);
     }
-    return fr;
+    if (MUH(ppp, 0xe) == 0)                           /* MATCH: direct `return 0` (oracle's v0=0
+                                                        * lands in the beqz's delay slot -- the
+                                                        * epilogue label IS the return), not a
+                                                        * fall-through `fr=0`. */
+        return 0;
+    fr = VH(ppp, 0xa) * 0x18 + 0x28 + ppp;            /* MATCH: (idx*0x18+0x28) first, +ppp last */
+    *out = MI(fr, 4);
+    if ((unsigned)(idx + 1) == (unsigned)MB(ppp, 0x26)) {
+        MVUH(ppp, 0xc) = MVUH(ppp, 0xa);              /* MATCH: volatile -- two 0xa reads separated
+                                                        * by the 0xe store must NOT be hoisted/CSE'd
+                                                        * together (oracle keeps them apart). */
+        MUH(ppp, 0xe) = MUH(ppp, 0xe) - 1;
+        MVUH(ppp, 0xa) = MVUH(ppp, 0xa) + 1;
+        MI(ppp, 0x14) = MI(ppp, 0x14) + MI(fr, 4);
+        MI(ppp, 0x10) = MI(ppp, 0x10) - MI(fr, 4);
+        if (VHR(ppp, 0xa) < VHR(ppp, 8))              /* MATCH: raw <<16, no sra (compare-only);
+                                                        * goto-skip form (not `>=`) avoids an xori */
+            goto rd_ok;
+        MUH(ppp, 0xa) = 0;
+    rd_ok:
+        ;
+    }
+    return MI(fr, idx * 4 + 8);
 }
+/* near-miss floor (67->39 diffs, ours 90 / oracle 95 insns; the direct-return/volatile/split-arg
+ * fixes above are kept per verify-or-revert rule 1). Residuals not cracked this pass: (a) the
+ * marker-load `m=MH(ppp,0xc)` schedules 1 insn later in ours vs the oracle's fill of the preceding
+ * `bltz`'s delay-slot region -- a scheduling tie-break; (b) the callback-arg `m*0x18+0x30` folds to
+ * ONE constant in ours (`lw a0,48(v1)`) but the oracle keeps `+0x28`/`+8` SPLIT into a pointer-add
+ * + a separate load displacement (tried `MI(m*0x18+0x28+ppp,8)` -- gcc's constant folding flattens
+ * it right back, no effect); (c) the `rd++`/marker=rd block: `MVUH` keeps the READ+WRITE pair
+ * atomic per-statement but the SECOND `0xa` read (for `rd++`) still floats 1-2 insns earlier than
+ * its oracle position despite being volatile -- a scheduler placement, not an ordering violation
+ * (both volatile accesses still execute in source order, just at a different point in the
+ * instruction stream); (d) final index `idx*4+fr` vs oracle's `fr+idx*4` operand-order tie-break.
+ * Permuter candidate for (a)/(d); (b)/(c) look like genuine scheduling floors. */
 
 /* iSNDpacketfreeframes @0x801033C4 : platform notify -- once the last channel of a frame is consumed,
  *   credit `bytes` back and call the notify callback. */

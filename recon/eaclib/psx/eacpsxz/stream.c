@@ -113,7 +113,7 @@ extern void opencallback(int a0, int a1, int s);                           /* @0
 extern void closecallback(int a0, int a1, int s);                          /* @0x800FC850 */
 extern int  readcallback(int a0, int a1, int s);                           /* @0x800FC8A8 */
 extern int  startnextrequest(int s, unsigned int prio, unsigned int x);    /* @0x800FC9B4 */
-extern int  restartstream(int s);                                          /* @0x800FCB44 */
+extern int  restartstream(int s, unsigned int prio);                       /* @0x800FCB44 */
 extern int  STREAM_get(int consumer, void *buf, int len);                  /* @0x800FD9AC */
 extern void STREAM_release(int s, int consumer);                           /* @0x800FDAD0 */
 extern void STREAM_kill(int s);                                            /* @0x800FD808 */
@@ -204,9 +204,11 @@ extern int *getfreerequest(int s)
     req = *(int **)(s + 0x58);
     ret = 0;
     if (req != 0) {
+        int newid;
         ret = req;
-        requestidcounter += 0x100;
+        newid = requestidcounter + 0x100;
         MI(s, 0x58) = req[3];                  /* freelist head = req->next (+0xC) */
+        requestidcounter = newid;
         if (requestidcounter == 0)
             requestidcounter = 0x100;
         req[0] = (int)((unsigned char)req[0] | requestidcounter);  /* id = slot | counter */
@@ -381,7 +383,7 @@ extern void opencallback(int a0, int a1, int s)
     h = FILE_completeop(MU(s, 0xa4));
     MU(s, 0x9c) = h;
     if (h != 0)
-        ((int (*)(int, int))restartstream)(s, MU(s, 0x30));  /* oracle passes a1=s->0x30; restartstream ignores it (dead 2nd param) but the caller still loads it */
+        restartstream(s, MU(s, 0x30));
 }
 
 /* closecallback @0x800FC850 : nfile close-op completion -> immediately open the next file (its name was
@@ -421,8 +423,7 @@ extern int readcallback(int a0, int a1, int s)
     iVar2 = parsechunks(s);
     if (MI(reqcur, 4) != 4) {                   /* not cancelled */
         if (!bvar1 && iVar2 == 0)
-            return ((int (*)(int, unsigned int))restartstream)(s, MU(s, 0x30));  /* dead 2nd arg,
-                same family as opencallback/STREAM_release's restartstream calls */
+            return restartstream(s, MU(s, 0x30));
         {
             int sr = STREAM_enterCS();
             MI(reqcur, 4) = 3;                  /* request done */
@@ -495,11 +496,10 @@ extern int startnextrequest(int s, unsigned int prio, unsigned int x)
                 }
             }
         }
-        /* MATCH: oracle passes a DEAD 2nd arg = this fn's OWN `prio` parameter, still cached in a
-         * callee-saved reg across every intervening call (strcmp/strcpy/FILE_open/FILE_callbackop/
-         * FILE_close) -- same restartstream dead-2nd-param family as opencallback/readcallback/
-         * STREAM_release, but here the arg is the caller's incoming value, not a fresh MU() load. */
-        ret = ((int (*)(int, unsigned int))restartstream)(s, prio);
+        /* MATCH: oracle keeps this fn's OWN `prio` parameter cached in a callee-saved reg across every
+         * intervening call (strcmp/strcpy/FILE_open/FILE_callbackop/FILE_close) to hand to restartstream
+         * as its real 2nd arg (forwarded to FILE_read's a5, see restartstream). */
+        ret = restartstream(s, prio);
     }
     return ret;
 }
@@ -507,38 +507,81 @@ extern int startnextrequest(int s, unsigned int prio, unsigned int x)
 /* restartstream @0x800FCB44 : the buffer fill engine.  Reclaims free space at the read head, releases
  *   spent requests, wraps the ring when needed, computes the next contiguous fill region, and issues the
  *   next chunk read -- from the memory image (memcpy + readcallback) or via FILE_read + readcallback.
- *   Stalls (state 2) if there is not at least one sector of room. */
-extern int restartstream(int s)
+ *   Stalls (state 2) if there is not at least one sector of room.
+ * w18-a9: two REAL findings, one applied + one PROVEN-but-BLOCKED:
+ *   (1) APPLIED, gate-verified 155->149: the two internal loops (skip-wrap-markers @+0x40..+0x44, and
+ *       free-finished-requests off the queue head @+0x4C) are EXIT-IN-THE-MIDDLE guard+do-while shapes
+ *       (oracle caches the loop-invariant bound in a caller-saved reg BEFORE the loop, tests fresh inside
+ *       -- see reference_asm_pattern_catalog.md §B), not `while(cond){...; cond=reload;}` -- rewritten
+ *       to match; also fixed the (leftover, unused-since-refactor) callers' func-ptr-cast noise.
+ *   (2) PROVEN CORRECTNESS BUG, NOT YET APPLIED (blocked -- see below): `prio` is NOT a dead 2nd param
+ *       (every prior wave's comment calling it "dead" was wrong) -- the oracle forwards it, together with
+ *       `s` itself, as FILE_read's 5th/6th STACK args (a5=prio, a6=s; oracle
+ *       `sw $s4,0x10($sp); sw $s1,0x14($sp)` right before the FILE_read jal, both loaded from a
+ *       CALLEE-SAVED reg that survives the whole function). Every call site (opencallback/readcallback/
+ *       startnextrequest/STREAM_release) already loads+passes the real prio value through a func-ptr-cast
+ *       hack "because restartstream ignores it" -- that belief is the actual bug in the retail-behavior
+ *       sense. BLOCKED: forwarding `prio` into the FILE_read call (`FILE_read(...,prio,(unsigned)s)`
+ *       instead of `FILE_read(...,0,0)`) is semantically correct per the oracle but keeps `prio` live
+ *       across the WHOLE function (every intervening call), which our gcc allocates a 6th callee-saved
+ *       register for (s0-s5, frame -0x38) where the oracle manages with 5 (s0-s4, frame -0x30) --
+ *       verified 149->160 diffs, insn count 170->173 (worse, not "moving decisively toward oracle" per
+ *       the iron rule) purely from the extra sw/lw pair + frame growth.
+ *   FOLLOW-UP SESSION (2026-07-19, dedicated): ROOT CAUSE now isolated, still a genuine floor.
+ *       Oracle's exact 5-reg map (asm/nonmatchings/main/restartstream.s, frame -0x30, saves s0-s4):
+ *         s1 = `s` (whole fn; also FILE_read a6 via `sw $s1,0x14($sp)`)
+ *         s4 = `prio` (whole fn; FILE_read a5 via `sw $s4,0x10($sp)`)
+ *         s0 = TIME-SHARED: queue-head `iVar1` in the free-requests loop (`lw $s0,0x4C($s1)` @ED3F0/ED448)
+ *              THEN current-request `iVar2` in have_room (`lw $s0,0x50($s1)` @ED50C) -- non-overlapping uses.
+ *       Our build CANNOT reuse s0 that way because our `iVar1` (queue-head) mutates into the ROOM-SIZE and
+ *       stays live THROUGH have_room (read at `MI(iVar2,0x58) < MI(s,0xa0)+iVar1`), so its register can't be
+ *       recycled for the current-request the way the oracle's s0 is -> with `prio` also demanding a
+ *       callee-saved slot, gcc-2.8.0 needs a 6th (s5). The oracle computes room-size in a *different* reg so
+ *       s0 frees up. Tried to reproduce: (a) split reused `iVar1` (w18-a9, 160->162 worse); (b) the PERMUTER
+ *       (now unblocked -- both sanitizer fixes landed this session) on the correct-args (160-diff) version,
+ *       6 min / 97 iters / -j4: base score 1090 -> best 855, NO byte-match basin found (unguided
+ *       randomization couldn't hit the s0-time-share coloring). Genuine gcc-2.8.0 allocator floor. KEPT the
+ *       gate-optimal form (`prio` declared+unused -> dropped from save set, frame matches oracle's 5-reg
+ *       count @149). NEXT: a source shape that computes room-size WITHOUT keeping queue-head's register live
+ *       into have_room (freeing s0 for the current-request reuse), or a longer/@PERM-guided permuter run.
+ *       DO NOT re-flag "prio is dead" as settled fact -- it demonstrably is not. */
+extern int restartstream(int s, unsigned int prio)
 {
     int  iVar1, iVar2;
     unsigned int uVar3, uVar5;
     int *p;
     int *q;
     int  sr;
+    (void)prio;  /* KNOWN-BLOCKED FIX: real oracle behavior forwards this to FILE_read's a5 (see above) */
 
     /* skip wrap/free markers at the read head (+0x40) up to the writeptr (+0x44) */
-    iVar1 = MI(s, 0x40);
-    while (iVar1 != MI(s, 0x44)) {
-        p = *(int **)(s + 0x40);
-        if (p[0] == -1) {                        /* wrap marker -> jump to bufBase (+0x20) */
-            MI(s, 0x40) = MI(s, 0x20);
-        } else {
-            if (p[0] != -2)                      /* a live chunk -> stop */
-                break;
-            MI(s, 0x40) = (int)p + p[1];         /* free marker -> skip its length */
-        }
-        iVar1 = MI(s, 0x40);
+    if (MI(s, 0x40) != MI(s, 0x44)) {
+        unsigned int wr = MU(s, 0x44);           /* cache writeptr for the whole loop */
+        do {
+            p = *(int **)(s + 0x40);
+            if (p[0] == -1) {                    /* wrap marker -> jump to bufBase (+0x20) */
+                MI(s, 0x40) = MI(s, 0x20);
+            } else {
+                if (p[0] != -2)                  /* a live chunk -> stop */
+                    break;
+                MI(s, 0x40) = (int)p + p[1];     /* free marker -> skip its length */
+            }
+        } while (MU(s, 0x40) != wr);
     }
 
     /* free finished requests whose data has been fully consumed */
     sr = STREAM_enterCS();
     iVar1 = MI(s, 0x4c);                         /* queue head */
-    iVar2 = MI(iVar1, 0xc);
-    while (iVar2 != 0 && MI(MI(iVar1, 0xc) + 4, 0) != 1 &&
-           inbetween(MU(s, 0x40), MU(s, 0x48), MI(MI(iVar1, 0xc) + 0x60, 0) - 1) == 0) {
-        freerequest(s, iVar1);
-        iVar1 = MI(s, 0x4c);
-        iVar2 = MI(iVar1, 0xc);
+    if (MI(iVar1, 0xc) != 0) {
+        do {
+            iVar2 = MI(iVar1, 0xc);              /* req = head->next */
+            if (MI(iVar2, 4) == 1)               /* state==queued -> stop */
+                break;
+            if (inbetween(MU(s, 0x40), MU(s, 0x48), MI(iVar2, 0x60) - 1) != 0)
+                break;
+            freerequest(s, iVar1);
+            iVar1 = MI(s, 0x4c);
+        } while (MI(iVar1, 0xc) != 0);
     }
     STREAM_leaveCS(sr);
 
@@ -584,7 +627,7 @@ have_room:
     MI(s, 0xa8) = 0x2000;
     {
         unsigned int op = FILE_read((void *)MU(s, 0x9c), MU(s, 0xa0), MU(s, 0x48),
-                                    MI(s, 0xa8), 0, 0);   /* asm sets a0..a3 only */
+                                    MI(s, 0xa8), 0, 0);   /* real args = prio,(uint)s -- see BLOCKED note above */
         MU(s, 0xa4) = op;
         if (op == 0)
             return 0;
@@ -608,7 +651,20 @@ extern int STREAM_overhead(int numReq, int numFilters, int numConsumers)
 /* STREAM_create @0x800FCE14 : lay a stream object + its sub-arrays into `objbuf` (size `bufsize`) and
  *   initialise the request freelist, filter table and consumer table.  Validates counts and that at
  *   least 0x6000 bytes remain for the ring.  Returns the consumer-array handle (obj+0x18 value), 0 on
- *   failure. */
+ *   failure.
+ * w18-a9: 77->68 diffs via SEPARATE-CHECK lever -- oracle emits TWO distinct `slti` compares
+ *   (numReq<2, then numReq<0x101) that cross-jump-merge to a shared "return 0" block; gcc's OR-of-two-
+ *   bounds optimizer folds a combined `numReq<2 || numReq>=0x101` into ONE unsigned range check
+ *   (`addiu;sltiu`), which the oracle does NOT do -- so the two checks must be written as SEPARATE
+ *   `if` statements to suppress the fold.
+ * RESIDUAL FLOOR (68 diffs, not source-reachable so far): the `MI(objbuf,0x30)=0x32` (prio2) store --
+ *   oracle schedules it LATE, interleaved with the bufBase->readptr/writeptr/fillptr triple-copy
+ *   (a3/t0/t1) right before the freelist-reqArray reload; our gcc's list scheduler HOISTS the
+ *   independent (no-dependency) store all the way up next to the prio1(0x96) store regardless of its
+ *   textual position in the source (tried: original placement, block-scoped named temps for
+ *   rdp/wrp/flp -- both compile to the IDENTICAL hoisted schedule). Genuine SCHEDULING floor: gcc's DAG
+ *   scheduler treats the two non-aliasing constant stores as freely reorderable and always wins the
+ *   hoist; no C-level statement reordering blocks it without a fabricated fake dependency. */
 extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbuf, int bufsize)
 {
     int over, base, i, off;
@@ -616,7 +672,9 @@ extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbu
     over = STREAM_overhead(numReq, numFilters, numConsumers);
     if (bufsize - over < 0x6000)
         return 0;
-    if (numReq < 2 || numReq >= 0x101)
+    if (numReq < 2)
+        return 0;
+    if (numReq >= 0x101)
         return 0;
     if ((unsigned int)(numFilters - 1) > 0xf)
         return 0;
@@ -881,7 +939,21 @@ extern unsigned int STREAM_queuemem(int s, int blocklist, void *ptr, int len)
 
 /* STREAM_cancelrequest @0x800FD554 : cancel an in-flight or queued request and reclaim any of its data
  *   already sitting in the ring buffer (returning consumed chunks via STREAM_get/release, freeing
- *   un-consumed ones).  Returns 0 on success, 1 if it could not be cancelled. */
+ *   un-consumed ones).  Returns 0 on success, 1 if it could not be cancelled.
+ * w18-a9: 225->144 diffs, two levers:
+ *   (1) BIG WIN (225->148): same out[0]-fresh-reload lever as STREAM_kill -- dropped `s = out[0];` and
+ *       used `out[0]` directly everywhere post-validation (the oracle never caches the validated object
+ *       pointer in a register; every use reloads fresh from the `out[2]` stack slot since its address
+ *       escaped to validatehandle()).
+ *   (2) if/else polarity (148->144): oracle's queued-vs-active branch falls THROUGH into the
+ *       freerequest() call (branch-if-active jumps AWAY to the reclaim block) -- our original
+ *       `if (state != 1) { ...active...; goto reclaim; } freerequest(...);` shape (if-without-else,
+ *       negated guard) compiles the opposite layout (branch-if-queued jumps away to freerequest,
+ *       active code falls through). Restructured to `if (state == 1) freerequest(...); else
+ *       { ...active...; goto reclaim; }` to match the oracle's block order.
+ * RESIDUAL FLOOR (144 diffs): the reclaim-region register coloring (`s7`/`fp` vs oracle's naming, the
+ *   consumer-sweep temps) is a deep multi-variable allocator tie-break across ~8 saved registers: not
+ *   pursued further this wave (see follow-up flag / future session). */
 extern int STREAM_cancelrequest(int s, int reqid)
 {
     int out[2];
@@ -892,21 +964,22 @@ extern int STREAM_cancelrequest(int s, int reqid)
 
     if (validatehandle(s, &out[0], &out[1]) != 0)
         return 1;
-    s = out[0];                                   /* stream object */
 
     sr = STREAM_enterCS();
-    req = func_800FC4E4(s, reqid);
+    req = func_800FC4E4(out[0], reqid);
     if (req != 0 && MI(req, 4) != 4) {
-        if (MI(req, 4) != 1) {                     /* active (not merely queued) */
+        if (MI(req, 4) == 1) {                      /* queued -> just drop it */
+            freerequest(out[0], req);
+        } else {                                     /* active (not merely queued) */
             MI(req, 4) = 4;                         /* mark cancelled */
-            s7 = *(int **)(s + 0x40);               /* readptr */
+            s7 = *(int **)(out[0] + 0x40);          /* readptr */
             s4 = s7;
-            if (req != MI(s, 0x4c))
+            if (req != MI(out[0], 0x4c))
                 s4 = *(int **)(req + 0x60);          /* this request's start fill */
             {
                 int nx = MI(req, 0xc);
                 if (nx == 0 || MI(nx, 4) == 1) {
-                    s6 = *(int **)(s + 0x44);        /* writeptr */
+                    s6 = *(int **)(out[0] + 0x44);   /* writeptr */
                     ret = 0;
                 } else {
                     s6 = *(int **)(nx + 0x60);
@@ -915,7 +988,6 @@ extern int STREAM_cancelrequest(int s, int reqid)
             }
             goto reclaim;
         }
-        freerequest(s, req);                         /* queued -> just drop it */
     }
     ret = 1;
 reclaim:
@@ -925,11 +997,10 @@ reclaim:
 
     /* sweep every consumer, returning or freeing the cancelled request's chunks */
     {
-        int nC = MI(s, 0x1c);
         int ci = 0;
-        if (nC > 0) {
+        if (MI(out[0], 0x1c) > 0) {
             do {
-                int cons = MI(s, 0x18) + ci * 0x10;
+                int cons = MI(out[0], 0x18) + ci * 0x10;
                 if (MI(cons, 8) > 0) {
                     unsigned int u2 = inbetween((unsigned int)s7, (unsigned int)s4, MU(cons, 0xc));
                     if (u2 == 0) {                   /* consumer head is before this request -> drain it */
@@ -947,14 +1018,14 @@ reclaim:
                         int *p = s4;
                         while (p != s6) {
                             if (p[0] == -1) {
-                                p = *(int **)(s + 0x20);   /* wrap */
+                                p = *(int **)(out[0] + 0x20);   /* wrap */
                             } else {
                                 unsigned int len = p[1] & 0xffffff;
                                 if ((unsigned int)(p[1] & 0xff000000) == (unsigned int)(rstate << 0x18)) {
                                     int sr2 = STREAM_enterCS();
                                     MI(cons, 8) -= len;
                                     STREAM_leaveCS(sr2);
-                                    decbufferusage(s, len);
+                                    decbufferusage(out[0], len);
                                     p[0] = -2;
                                     p[1] = len;
                                 }
@@ -965,59 +1036,75 @@ reclaim:
                 }
                 ci++;
                 ret = 0;
-            } while (ci < MI(s, 0x1c));
+            } while (ci < MI(out[0], 0x1c));
         }
     }
     return ret;
 }
 
 /* STREAM_kill @0x800FD808 : cancel every request, free the queue, reset the ring to empty and the state
- *   to idle. */
+ *   to idle.
+ * w18-a9: 88->63 diffs, two real fixes:
+ *   (1) never cache `out[0]` into a local -- the oracle keeps `out[2]` address-taken (passed to
+ *       validatehandle by reference) and reloads `out[0]` FRESH from the stack at every single use for
+ *       the rest of the function (no persistent register at all), same family as STREAM_release/
+ *       STREAM_get's documented out[]-reload floor. Reassigning `s = out[0]` let gcc promote it into a
+ *       plain scalar and cache it in a callee-saved reg -- wrong shape. Fixed by using `out[0]` directly
+ *       everywhere instead of `s`.
+ *   (2) REAL BUG: `STREAM_cancelrequest(s, q[0])` must pass the RAW incoming handle `s`, not the
+ *       validated `out[0]` -- oracle caches the ORIGINAL `$a0` parameter in `$s0` across the
+ *       validatehandle() call SOLELY to feed this one call (STREAM_cancelrequest presumably
+ *       re-validates internally); every other access in the function uses out[0].
+ * RESIDUAL FLOOR (63 diffs): the free-mark-the-whole-ring do-while (mirrors restartstream's wrap-marker
+ *   loop, already in the matching guard+do-while shape) has a pure register-coloring tie-break on which
+ *   temp gets a0/a1/a2/a3/v0/v1 for the 3 hoisted loop-invariant constants (-1/-2/0xFFFFFF mask) --
+ *   same allocator tie-break family as STREAM_overhead/decbufferusage. Not pursued further this wave. */
 extern void STREAM_kill(int s)
 {
     int out[2];
     int *q;
     if (validatehandle(s, &out[0], &out[1]) != 0)
         return;
-    s = out[0];
-    q = *(int **)(s + 0x54);                       /* tail */
+    q = *(int **)(out[0] + 0x54);                  /* tail */
     if (q == 0)
         return;
 
     while ((unsigned int)(q[1] - 1) < 2) {          /* cancel active/done requests */
-        STREAM_cancelrequest(s, q[0]);
-        q = *(int **)(s + 0x54);
+        STREAM_cancelrequest(s, q[0]);               /* MATCH: raw handle, not out[0] -- oracle
+                                                        * caches the ORIGINAL param in $s0 across
+                                                        * validatehandle solely for this call */
+        q = *(int **)(out[0] + 0x54);
     }
-    while (MI(s, 0x4c) != MI(s, 0x50))              /* free the rest of the queue */
-        freerequest(s, MI(s, 0x4c));
-    MI(MI(s, 0x50) + 4, 0) = 4;                     /* mark last cancelled */
+    while (MI(out[0], 0x4c) != MI(out[0], 0x50))    /* free the rest of the queue */
+        freerequest(out[0], MI(out[0], 0x4c));
+    MI(MI(out[0], 0x50) + 4, 0) = 4;                /* mark last cancelled */
 
     {
         int i = 0;
-        if (MI(s, 0x1c) > 0) {                       /* zero all consumer counts */
+        if (MI(out[0], 0x1c) > 0) {                  /* zero all consumer counts */
             do {
-                MI(i * 0x10 + MI(s, 0x18) + 8, 0) = 0;
+                MI(i * 0x10 + MI(out[0], 0x18) + 8, 0) = 0;
                 i++;
-            } while (i < MI(s, 0x1c));
+            } while (i < MI(out[0], 0x1c));
         }
     }
-    decbufferusage(s, MI(s, 0x3c));                  /* zero the buffer usage */
+    decbufferusage(out[0], MI(out[0], 0x3c));        /* zero the buffer usage */
 
-    q = *(int **)(s + 0x40);                          /* free-mark the whole ring */
-    if (q != *(int **)(s + 0x44)) {
+    q = *(int **)(out[0] + 0x40);                     /* free-mark the whole ring */
+    if (q != *(int **)(out[0] + 0x44)) {
         do {
             if (q[0] == -1) {
-                q = *(int **)(s + 0x20);
+                q = *(int **)(out[0] + 0x20);
             } else {
                 unsigned int len = q[1];
                 q[0] = -2;
                 q[1] = len & 0xffffff;
                 q = (int *)((int)q + (len & 0xffffff));
             }
-        } while (q != *(int **)(s + 0x44));
+        } while (q != *(int **)(out[0] + 0x44));
     }
-    if (MI(s, 0x28) == 2)
-        MI(s, 0x28) = 0;                             /* clear the stall */
+    if (MI(out[0], 0x28) == 2)
+        MI(out[0], 0x28) = 0;                        /* clear the stall */
 }
 
 /* STREAM_get @0x800FD9AC : pop the next available chunk for a consumer, returning a pointer to its data

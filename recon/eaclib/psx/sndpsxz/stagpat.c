@@ -93,6 +93,13 @@ extern unsigned char *iSNDresettimbre(int *t, int buf)
     *(int *)((int)t + 0x94) = 1;
     *(unsigned char **)((int)t + 100) = (unsigned char *)&snddefaultenvelope;
     return (unsigned char *)&snddefaultenvelope;
+    /* near-miss (69 diffs, ours 45 / oracle 46 insns): oracle reuses ONE register per repeated
+     * constant (0x7f x4, -1 x2, 1 x3) across the whole field-init block AND moves `t` from its
+     * incoming $a0 to $a2 (freeing $a0 for the 0x7f temp). Tried named temp vars for each repeated
+     * constant (cm1/c7f/c1, matching the field-write ORDER exactly) -- ZERO effect on the compiled
+     * output (byte-identical to the plain-literal form); this cc1psx (C, not C++) build's constant/
+     * register allocator apparently doesn't respond to this lever the way cc1plpsx does elsewhere
+     * in this project. Not chased further; permuter/RTL-dump candidate. */
 }
 
 /* iSNDresolveheader @0x80101B7C : fold an override header `out` into the running timbre header `hdr`

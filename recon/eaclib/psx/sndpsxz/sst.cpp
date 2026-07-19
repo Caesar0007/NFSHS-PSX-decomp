@@ -81,6 +81,9 @@ extern "C" int  iSNDstreamnumcreated(void);                       /* @0x800E96F8
 #define MB(p,o)  (*(unsigned char*)((p)+(o)))
 #define MSB(p,o) (*(signed char*)((p)+(o)))
 #define MH(p,o)  (*(short*)((p)+(o)))
+/* MVI: volatile int field -- for a request/stream struct field the platform-callback layer touches
+ * asynchronously; forces the oracle's repeated fresh re-reads (no CSE across statements). */
+#define MVI(p,o) (*(volatile int*)((p)+(o)))
 
 /* ====================================================================================== */
 
@@ -167,20 +170,40 @@ extern "C" void iSNDstreamreleasecallback(int sample)
 extern "C" void iSNDstreamnotifycallback(int handle, unsigned int bytes)
 {
     int S = (&sndss)[(signed char)sndStreamMap[handle]];   /* oracle lb @0x800e8df0 sign-extends */
-    do {
-        int          req  = MI(S, 0);                   /* head request */
-        unsigned int over = 0;
-        if ((unsigned int)MI(req, 0x1c) < bytes) {      /* more than remains in this request */
-            over  = bytes - MI(req, 0x1c);
+    unsigned int over = 0;                              /* MATCH: initialized ONCE before the loop
+                                                          * (oracle sets $s0=0 right after the byte
+                                                          * load, before the array-index scaling) */
+    for (;;) {
+        int req  = MI(S, 0);                            /* head request */
+        over = 0;
+        if ((unsigned int)MVI(req, 0x1c) < bytes) {     /* more than remains in this request */
+            over  = bytes - MVI(req, 0x1c);              /* MATCH: fresh re-read (volatile) */
             bytes = bytes - over;
         }
-        MI(req, 0x14) = MI(req, 0x14) + bytes;          /* consumed += */
-        MI(req, 0x1c) = MI(req, 0x1c) - bytes;          /* remaining -= */
-        if ((unsigned int)MI(req, 0x18) <= (unsigned int)MI(req, 0x14))   /* totalSize <= consumed */
-            iSNDstreamremoverequest(MI(req, 4));
+        MVI(req, 0x14) = MVI(req, 0x14) + bytes;         /* consumed += */
+        MVI(req, 0x1c) = MVI(req, 0x1c) - bytes;         /* remaining -= */
+        if ((unsigned int)MVI(req, 0x14) < (unsigned int)MVI(req, 0x18))   /* consumed < totalSize ->
+                                                          * skip the remove (goto-skip avoids an
+                                                          * xori vs the `<=`-negated form); MATCH:
+                                                          * fresh re-read of consumed, not the value
+                                                          * just stored above */
+            goto notdone;
+        iSNDstreamremoverequest(MVI(req, 4));
+    notdone:
         bytes = over;
-    } while (bytes != 0);
+        if (bytes == 0)                                 /* MATCH: exit-in-the-middle -- prevents
+                                                          * the do-while bottom-test rotation */
+            break;
+    }
 }
+/* near-miss floor (50->20 diffs, ours 50 / oracle 50 insns -- exact instruction count). Residual:
+ * `sndStreamMap[handle]` materializes its OWN `%hi/%lo(sndStreamMap)` address (a separate extern
+ * symbol) where the oracle reaches the same byte via `&sndss`'s relocation + a literal `+4` load
+ * displacement (the two symbols are adjacent in memory but are DIFFERENT relocation targets to the
+ * unlinked object). Tried: `MSB((int)&sndss+handle,4)` (worse, 23 diffs -- re-materializes &sndss
+ * a 2nd time instead of reusing it) and mutating `handle` in place per lever #14 (worse, 25 diffs).
+ * Reverted to the `sndStreamMap[]` form (best result). Not source-reachable without breaking the
+ * `sndStreamMap` array's own identity (used again at iSNDstreamqueue); permuter/RTL-dump candidate. */
 
 /* iSNDstreamparseheader @0x800E8E9C : 'SChl' chunk -- decode the audio header (rate/format) via
  *   iSNDpatchtohdr, compute the data rate, and lock the format on first sight (a mid-stream change errors
@@ -370,7 +393,12 @@ extern "C" void iSNDstreamhotroddatachunks(void)
                 if (0 < n) {
                     do {
                         n--;
-                        int chunk = STREAM_get(MI(S, 4), 0, 0);
+                        /* MATCH: oracle sets ONLY $a0 for this call -- $a1/$a2 are stale, never
+                         * loaded (`jal STREAM_get` with no arg-2/3 setup at either call site in
+                         * this file). Cast the fn-ptr to a 1-arg signature at THIS call site only
+                         * (§3.11/D "dropped call arg"); the 3-arg extern decl stays for any other
+                         * caller in the codebase that DOES pass buf/len. */
+                        int chunk = ((int (*)(int))STREAM_get)(MI(S, 4));
                         if (chunk != 0) {
                             total += *(int *)(chunk + 4);
                             iSNDstreamparsedata(S, chunk);
@@ -383,6 +411,13 @@ extern "C" void iSNDstreamhotroddatachunks(void)
         slot++; p++;
     } while (slot < 1);
 }
+/* near-miss (67->60 diffs after the STREAM_get dropped-arg fix above, ours 84 / oracle 86 insns).
+ * NOT fully investigated this pass: a real structural mismatch remains around the
+ * `avail = MI(req,0x24)-MI(req,0x20)` / `space = SNDPKTPLAY_submitspace(...)` / `n=min(avail,space)`
+ * block -- oracle computes the byte-field*0x2c struct-index and the two field loads in a visibly
+ * DIFFERENT arithmetic shape (extra shifts/subtracts ours doesn't reproduce) than what's in this
+ * TU right now; needs a full raw-disasm re-trace of 0x800E9438..0x800E9590 (not done this pass --
+ * ran out of budget after spktplay.cpp + the rest of sst.cpp). Flag for next wave. */
 
 /* iSNDstreamservice @0x800E9590 : per-tick service.  For each active stream: restart the player if it
  *   flagged a format change (state 2), then, unless held, drain chunks from the ring through
@@ -410,17 +445,20 @@ extern "C" void iSNDstreamservice(void)
                 MB(S, 0x14) = 1;
             }
             if (iSNDstreamisheld(S) == 0) {
-                int n, r = 0;
+                int n = 10, r = 0;             /* MATCH: n=10 is the DEFAULT, set unconditionally
+                                                 * (oracle's `li s1,10` lands in the state==1 test's
+                                                 * branch delay slot, i.e. BEFORE the branch even
+                                                 * resolves) -- state==1 then OVERWRITES it below,
+                                                 * it is not an if/else. */
                 if ((((int)(*(volatile unsigned char *)(S + 0x14)) << 24) >> 24) == 1) {
                     n = SNDPKTPLAY_submitspace(MI(S, 0xc));
                     if (n == 0)
                         goto next;
-                } else {
-                    n = 10;
                 }
                 do {
                     n--;
-                    int chunk = STREAM_get(MI(S, 4), 0, 0);
+                    /* MATCH: only $a0 set at this call site too (§3.11/D dropped call arg). */
+                    int chunk = ((int (*)(int))STREAM_get)(MI(S, 4));
                     if (chunk != 0)
                         r = iSNDstreamparsechunk(S, chunk);
                     if (r == 0)
@@ -433,6 +471,15 @@ extern "C" void iSNDstreamservice(void)
     } while (slot < 1);
     iSNDleaveaudio();
 }
+/* near-miss floor (37->26 diffs, ours 84 / oracle 90 insns; real fixes kept per verify-or-revert
+ * rule 1: `n=10` is unconditional -- not an if/else -- and BOTH `STREAM_get` call sites in this
+ * file pass only $a0, the other 2 params are stale (dropped-arg fn-ptr cast, §3.11/D). This also
+ * fixed a genuine BUG: our old if/else form left a duplicate/cancelling `n--`/`n++` pair at the
+ * loop tail vs the oracle's clean `bgtz s1,LOOP`.) Residual = the lwl/lwr unaligned rate-copy
+ * floor shared with iSNDstreamparseheader/iSNDstreamhotroddatachunks (already documented there;
+ * tried real memcpy() and struct-copy, no source-level fix found) -- the diff tool's fuzzy
+ * alignment makes this ONE 4-vs-2-insn desync LOOK like it duplicates a later block; it doesn't,
+ * confirmed against the raw oracle disasm (single clean state==1 check at 0x800E9658). */
 
 /* iSNDstreamnumcreated @0x800E96F8 : count the live streams. */
 extern "C" int iSNDstreamnumcreated(void)

@@ -1159,8 +1159,6 @@ void AIHigh_Player::MaintainAvailableCops()
 
   memset((u_char *)(local_18 + 2),'\0',8);
 
-  iVar9 = Cars_gNumCopCars;
-
   iVar10 = 3;
 
   if ((Cars_gNumRaceCars != 1) && (iVar10 = 4, Cars_gNumHumanRaceCars == 2)) {
@@ -1192,6 +1190,10 @@ void AIHigh_Player::MaintainAvailableCops()
   ppCVar7 = Cars_gCopCarList;
 
   iVar8 = 0;
+
+  /* MATCH: oracle DEFERS Cars_gNumCopCars's load to right before this loop (0x80062740),
+     not up-front after the memsets -- iVar9's single use is this loop's exit test. */
+  iVar9 = Cars_gNumCopCars;
 
   while (true) {
 
@@ -1356,25 +1358,32 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
 
   }
 
+  {
+    /* MATCH: SYM shows pInfo's live range ENDS after the copGameInfo_/chaseLevel_ init above;
+       a FRESH "this"-named AICop_PerpChaseInfo* is re-declared at block scope 0x800629a0
+       (reg $a1, later copied to the callee-saved $s0 to survive the fixedmult() jal) rather
+       than keeping the first pInfo alive across the whole ctor. Re-derive it here. */
+    AICop_PerpChaseInfo *pInfo2 = &this->perpChaseInfo_;
+
   pCVar2 = this->carObj_;
 
   this->newTriggerProb_ =
 
-       triggerManagerCops->invNumTriggers_ * (pInfo->chaseLevel_)->copsPerLap;
+       triggerManagerCops->invNumTriggers_ * (pInfo2->chaseLevel_)->copsPerLap;
 
   this->lastTriggerCheckSlice_ = (int)(pCVar2->N).simRoadInfo.slice;
 
-  pInfo->chaseLevelIndex_ = 0;
+  pInfo2->chaseLevelIndex_ = 0;
 
-  if (pInfo->bestChaseLevelIndex_ < 0) {
+  if (pInfo2->bestChaseLevelIndex_ < 0) {
 
-    pInfo->bestChaseLevelIndex_ = 0;
+    pInfo2->bestChaseLevelIndex_ = 0;
 
   }
 
-  pcVar3 = (pInfo->copGameInfo_)->levels + pInfo->chaseLevelIndex_;
+  pcVar3 = (pInfo2->copGameInfo_)->levels + pInfo2->chaseLevelIndex_;
 
-  pInfo->chaseLevel_ = pcVar3;
+  pInfo2->chaseLevel_ = pcVar3;
 
   iVar1 = pcVar3->engagementLapFraction * AITune_gRoughLapTime;
 
@@ -1389,9 +1398,9 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
   a = 0x10000 / iVar4;
 
 
-  pInfo->engagementTime_ = (iVar1 >> 0x10) << 0x15;
+  pInfo2->engagementTime_ = (iVar1 >> 0x10) << 0x15;
 
-  pInfo->engagementPercentIncreasePerTick_ = a;
+  pInfo2->engagementPercentIncreasePerTick_ = a;
 
   if (GameSetup_gData.numLaps == 2) {
 
@@ -1409,13 +1418,14 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
 
   iVar1 = fixedmult(a,iVar1);
 
-  pInfo->engagementPercentIncreasePerTick_ = iVar1;
+  pInfo2->engagementPercentIncreasePerTick_ = iVar1;
 
 LAB_80062aa8:
 
-  pInfo->blockadeDone_ = 0;
+  pInfo2->blockadeDone_ = 0;
 
   return;
+  }
 
 }
 
@@ -1570,7 +1580,6 @@ void AIHigh_Player::CleanupBlockaders(int forceClearAll)
 
 {
   int clearWaitingBlockaders;
-  Car_tObj **ppCVar4;
   int copLoop;
   AIHigh_Cop*thisCop;
   blockade_t*blockade;
@@ -1593,13 +1602,15 @@ void AIHigh_Player::CleanupBlockaders(int forceClearAll)
 
   copLoop = 0;
 
-  ppCVar4 = Cars_gCopCarList;
-
   while (true) {
 
     if (Cars_gNumCopCars <= copLoop) break;
 
-    thisCop = (AIHigh_Cop *)highLevelAIObjs[(*ppCVar4)->carIndex];
+    /* MATCH: SYM shows no walking-pointer local in this fn's block scopes (only
+       copLoop/thisCop/blockade) -- oracle indexes Cars_gCopCarList[copLoop] directly
+       (gcc strength-reduces to the same pointer-walk body, but the LICM preheader then
+       hoists highLevelAIObjs's base BEFORE Cars_gCopCarList's, matching the oracle order). */
+    thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
 
     blockade = &thisCop->blockade_;
 
@@ -1614,8 +1625,6 @@ void AIHigh_Player::CleanupBlockaders(int forceClearAll)
       thisCop->AssignToPlayer((AIHigh_Player *)0x0);
 
     }
-
-    ppCVar4++;
 
     copLoop = copLoop + 1;
 

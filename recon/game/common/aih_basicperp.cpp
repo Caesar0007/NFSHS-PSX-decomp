@@ -513,17 +513,19 @@ void AIHigh_BasicPerp::RemoveCloseCops()
 
   Car_tObj *carObj;
 
-  Car_tObj **ppCVar5;
-
   int iVar6;
 
-  
+  Car_tObj **ppCVar5;
 
-  ppCVar5 = Cars_gCopCarList;
+
 
   iVar6 = 0;
 
-  while (iVar6 < Cars_gNumCopCars) {
+  ppCVar5 = Cars_gCopCarList;
+
+  while( true ) {
+
+    if (Cars_gNumCopCars <= iVar6) break;
 
     carObj = *ppCVar5;
 
@@ -695,65 +697,64 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
   int nextCopIndex;
   int nextCarIndex;
 
-  short sVar1;
-
-  int iVar2;
-
-  int iVar3;
-
-  int iVar4;
 
 
+  thisCopSlice = (highLevelAIObjs[carIndex]->carObj_->N).simRoadInfo.slice;
 
-  sVar1 = (highLevelAIObjs[carIndex]->carObj_->N).simRoadInfo.slice;
-
-  iVar2 = this->copVSPositionList_[copIndex];
+  pos = this->copVSPositionList_[copIndex];
 
   while( true ) {
 
-    if (iVar2 < 1) {
+    if (pos < 1) {
 
-      return iVar2;
+      return pos;
 
     }
 
-    iVar4 = this->positionVSCopList_[iVar2 + -1].copIndex;
+    nextCopIndex = this->positionVSCopList_[pos + -1].copIndex;
 
-    iVar3 = this->positionVSCopList_[iVar2 + -1].carIndex;
+    nextCarIndex = this->positionVSCopList_[pos + -1].carIndex;
 
-    if (iVar2 < 1) break;
+    if (pos < 1) break;
 
-    if (iVar4 != -1) {
+    if (nextCopIndex != -1) {
 
-      if ((iVar3 != -1) &&
+      if ((nextCarIndex != -1) &&
 
-         (iVar3 = AIWorld_ApxSplineDistance(highLevelAIObjs[iVar3]->carObj_,(int)sVar1),
+         (nextCarIndex = AIWorld_ApxSplineDistance(highLevelAIObjs[nextCarIndex]->carObj_,thisCopSlice),
 
-         -0xc0001 < iVar3 * (this->carObj_)->direction)) {
+         nextCarIndex * (this->carObj_)->direction >= -0xc0000)) {
 
-        return iVar2;
+        /* oracle: the found/matched path returns 0, not pos -- the raw
+           delay-slot "$v0 = $s0" that would set the return to pos is
+           reached ONLY on the not-matched fallthrough (which continues
+           into the shift/adjust block, so it's dead there); the matched
+           branch jumps DIRECTLY to the epilogue restore with $v0 still
+           holding the slt-comparison result (0). CORRECTNESS FIX vs
+           prior recon (which wrongly returned pos here). */
+        return 0;
 
       }
 
-      this->copVSPositionList_[iVar4] = iVar2;
+      this->copVSPositionList_[nextCopIndex] = pos;
 
     }
 
-    this->copVSPositionList_[copIndex] = iVar2 + -1;
+    this->copVSPositionList_[copIndex] = pos + -1;
 
-    this->positionVSCopList_[iVar2].copIndex = this->positionVSCopList_[iVar2 + -1].copIndex;
+    this->positionVSCopList_[pos].copIndex = this->positionVSCopList_[pos + -1].copIndex;
 
-    this->positionVSCopList_[iVar2].carIndex = this->positionVSCopList_[iVar2 + -1].carIndex;
+    this->positionVSCopList_[pos].carIndex = this->positionVSCopList_[pos + -1].carIndex;
 
-    this->positionVSCopList_[iVar2 + -1].copIndex = copIndex;
+    this->positionVSCopList_[pos + -1].copIndex = copIndex;
 
-    this->positionVSCopList_[iVar2 + -1].carIndex = carIndex;
+    this->positionVSCopList_[pos + -1].carIndex = carIndex;
 
-    iVar2 = iVar2 + -1;
+    pos = pos + -1;
 
   }
 
-  return iVar2;
+  return pos;
 
 }
 

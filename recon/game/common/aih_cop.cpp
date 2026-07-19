@@ -9,7 +9,11 @@
 #include "../../nfs4_types.h"
 #include "aih_cop_externs.h"
 
-extern int AI_elapsedTime;   /* H22: ai.cpp @0x8013C554 (not in this TU's externs) */
+extern volatile int AI_elapsedTime;   /* H22: ai.cpp @0x8013C554 (not in this TU's externs).
+                              volatile: defeats gcc's over-aggressive LICM hoist of
+                              "randVal < perTickProb+AI_elapsedTime" fully out of the
+                              CheckForWipeOut loop -- oracle recomputes it every iter
+                              (permuter-discovered device, catalog EA-DMPSX family). */
 extern int D_8011E0B0[];   /* == &simGlobal.gameTicks (distinct alias symbol the oracle addresses
                               directly for a gameTicks re-read the compiler can't CSE against the
                               nearby simGlobal.gameTicks store -- see aih_basiccop.cpp/aiphysic.cpp) */
@@ -2081,7 +2085,10 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
 
         local_2c = perpInfo[cVar1];
 
-        if (pAVar9[5].carObj_ == (Car_tObj *)0x0) {
+        if (((AIHigh_Player *)pAVar9)->newTriggerProb_ == 0) {   /* @0x84: was mis-offset
+                     as pAVar9[5].carObj_ (0x78=basicPerpInfo_.crime_) -- oracle loads 0x84
+                     (AIHigh_Player::newTriggerProb_); pAVar9[5]-stride breaks past AIHigh_Base's
+                     repeat region once into AIHigh_Player's own field extension. */
 
           iVar10 = iVar10 << 1;
 

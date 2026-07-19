@@ -125,13 +125,13 @@ void AIDataRecord_t::CleanUp1(void)
   __vtbl_ptr_type (*pa_Var1) [3];
 
   if (AIDataRecord_BestLine != (AIDataRecord_BestLine_t *)0x0) {
-    pa_Var1 = (AIDataRecord_BestLine->_base_AIDataRecord_t)._vf;
-    (*(*pa_Var1)[1].pfn)((char *)&AIDataRecord_BestLine->_base_AIDataRecord_t + (*pa_Var1)[1].delta,3);
+    pa_Var1 = AIDataRecord_BestLine->_vf;
+    (*(*pa_Var1)[1].pfn)((char *)AIDataRecord_BestLine + (*pa_Var1)[1].delta,3);
     AIDataRecord_BestLine = (AIDataRecord_BestLine_t *)0x0;
   }
   if (AIDataRecord_TrackCurve != (AIDataRecord_TrackCurve_t *)0x0) {
-    pa_Var1 = (AIDataRecord_TrackCurve->_base_AIDataRecord_t)._vf;
-    (*(*pa_Var1)[1].pfn)((char *)&AIDataRecord_TrackCurve->_base_AIDataRecord_t + (*pa_Var1)[1].delta,3);
+    pa_Var1 = AIDataRecord_TrackCurve->_vf;
+    (*(*pa_Var1)[1].pfn)((char *)AIDataRecord_TrackCurve + (*pa_Var1)[1].delta,3);
     AIDataRecord_TrackCurve = (AIDataRecord_TrackCurve_t *)0x0;
   }
   return;
@@ -240,38 +240,47 @@ AIDataRecord_AccTable_t::~AIDataRecord_AccTable_t()
 
 /* ---- __23AIDataRecord_BestLine_t26AIDataRecord_WhichRecord_t  BestLine::ctor ---- */
 AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whichIsThis)
-  : _base_AIDataRecord_t(whichIsThis,(char *)0x0)
+  : AIDataRecord_t(whichIsThis,(char *)0x0)
 {
   int iVar1;
 
   iVar1 = gNumSlices;
-  (this->_base_AIDataRecord_t)._vf = (__vtbl_ptr_type (*) [3])AIDataRecord_BestLine_t_vtable;
-  (this->_base_AIDataRecord_t).numElements_ = iVar1;
-  (this->_base_AIDataRecord_t).bSize_ = iVar1;
-  if ((this->_base_AIDataRecord_t).recordMethod_ == 0) {
-    sprintf((this->_base_AIDataRecord_t).name_,D_800553C4,D_80116498[0],D_80113228[0]);
+  this->_vf = (__vtbl_ptr_type (*) [3])AIDataRecord_BestLine_t_vtable;
+  this->numElements_ = iVar1;
+  this->bSize_ = iVar1;
+  if (this->recordMethod_ == 0) {
+    sprintf(this->name_,D_800553C4,D_80116498[0],D_80113228[0]);
   }
   else {
-    sprintf((this->_base_AIDataRecord_t).name_,D_800553D4,D_8011649C[0],D_80113228[0]);
+    sprintf(this->name_,D_800553D4,D_8011649C[0],D_80113228[0]);
   }
   return;
 }
 
+/* ---- ___23AIDataRecord_BestLine_t  BestLine::dtor  [@0x8006d574] ---- */
+/* Compiler-synthesized: empty body -> implicit cleanup of the AIDataRecord_t
+ * base subobject calls its dtor (jal ___14AIDataRecord_t). Real inheritance
+ * (not composition) is required for gcc to emit this bare form -- composition
+ * synthesized a DELETING dtor variant the oracle lacks (see nfs4_types.h). */
+AIDataRecord_BestLine_t::~AIDataRecord_BestLine_t()
+{
+}
+
 /* ---- __25AIDataRecord_TrackCurve_t26AIDataRecord_WhichRecord_t  TrackCurve::ctor ---- */
 AIDataRecord_TrackCurve_t::AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t whichIsThis)
-  : _base_AIDataRecord_t(whichIsThis,(char *)0x0)
+  : AIDataRecord_t(whichIsThis,(char *)0x0)
 {
   int iVar1;
 
   iVar1 = gNumSlices;
-  (this->_base_AIDataRecord_t)._vf = (__vtbl_ptr_type (*) [3])AIDataRecord_TrackCurve_t_vtable;
-  (this->_base_AIDataRecord_t).numElements_ = iVar1;
-  (this->_base_AIDataRecord_t).bSize_ = iVar1 + 1;
-  if ((this->_base_AIDataRecord_t).recordMethod_ == 0) {
-    sprintf((this->_base_AIDataRecord_t).name_,D_800553E4,D_80116490[0],D_80113228[0]);
+  this->_vf = (__vtbl_ptr_type (*) [3])AIDataRecord_TrackCurve_t_vtable;
+  this->numElements_ = iVar1;
+  this->bSize_ = iVar1 + 1;
+  if (this->recordMethod_ == 0) {
+    sprintf(this->name_,D_800553E4,D_80116490[0],D_80113228[0]);
   }
   else {
-    sprintf((this->_base_AIDataRecord_t).name_,D_800553F4,D_80116494[0],D_80113228[0]);
+    sprintf(this->name_,D_800553F4,D_80116494[0],D_80113228[0]);
   }
   return;
 }
@@ -279,22 +288,31 @@ AIDataRecord_TrackCurve_t::AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t 
 /* ---- Get__25AIDataRecord_TrackCurve_ti ---- */
 int AIDataRecord_TrackCurve_t::Get(int slice)
 {
-  return (u_int)(u_char)(this->_base_AIDataRecord_t).dataBuffer_[slice];
+  return (u_int)(u_char)this->dataBuffer_[slice];
+}
+
+/* ---- ___25AIDataRecord_TrackCurve_t  TrackCurve::dtor  [@0x8006d554] ---- */
+/* Compiler-synthesized: empty body -> implicit cleanup of the AIDataRecord_t
+ * base subobject calls its dtor (jal ___14AIDataRecord_t). Real inheritance
+ * (not composition) is required for gcc to emit this bare form -- composition
+ * synthesized a DELETING dtor variant the oracle lacks (see nfs4_types.h). */
+AIDataRecord_TrackCurve_t::~AIDataRecord_TrackCurve_t()
+{
 }
 
 /* ---- __30AIDataRecord_CurveSpeedTable_tPc26AIDataRecord_WhichRecord_t  CurveSpeedTable::ctor ---- */
 AIDataRecord_CurveSpeedTable_t::AIDataRecord_CurveSpeedTable_t(char *carName,
           AIDataRecord_WhichRecord_t whichIsThis)
-  : _base_AIDataRecord_t(whichIsThis,(char *)0x0)
+  : AIDataRecord_t(whichIsThis,(char *)0x0)
 {
-  (this->_base_AIDataRecord_t)._vf = (__vtbl_ptr_type (*) [3])AIDataRecord_CurveSpeedTable_t_vtable;
-  (this->_base_AIDataRecord_t).numElements_ = 0x100;
-  (this->_base_AIDataRecord_t).bSize_ = 0x100;
-  if ((this->_base_AIDataRecord_t).recordMethod_ == 0) {
-    sprintf((this->_base_AIDataRecord_t).name_,D_80055404,D_80116478[0],carName);
+  this->_vf = (__vtbl_ptr_type (*) [3])AIDataRecord_CurveSpeedTable_t_vtable;
+  this->numElements_ = 0x100;
+  this->bSize_ = 0x100;
+  if (this->recordMethod_ == 0) {
+    sprintf(this->name_,D_80055404,D_80116478[0],carName);
   }
   else {
-    sprintf((this->_base_AIDataRecord_t).name_,D_80055410,D_8011647C[0],carName);
+    sprintf(this->name_,D_80055410,D_8011647C[0],carName);
   }
   return;
 }
@@ -308,7 +326,7 @@ int AIDataRecord_CurveSpeedTable_t::Get(int curve)
   if (0xff < curve) {
     curve = 0xff;
   }
-  return (u_int)(u_char)(this->_base_AIDataRecord_t).dataBuffer_[curve] << 0x10;
+  return (u_int)(u_char)this->dataBuffer_[curve] << 0x10;
 }
 
 /* ---- Upgrade__30AIDataRecord_CurveSpeedTable_ti ---- */
@@ -322,10 +340,10 @@ void AIDataRecord_CurveSpeedTable_t::Upgrade(int handlingUpgrade)
   curve = 0;
   round = 0xffff;
  loopTop:
-  if (curve < (this->_base_AIDataRecord_t).numElements_) {
+  if (curve < this->numElements_) {
     iVar1 = this->Get(curve);
     iVar1 = fixedmult(iVar1,handlingUpgrade);
-    pcVar1 = (this->_base_AIDataRecord_t).dataBuffer_ + curve;
+    pcVar1 = this->dataBuffer_ + curve;
     if (iVar1 < 0) {
       iVar1 = iVar1 + round;
     }
@@ -334,6 +352,31 @@ void AIDataRecord_CurveSpeedTable_t::Upgrade(int handlingUpgrade)
     goto loopTop;
   }
   return;
+}
+
+/* ---- ___30AIDataRecord_CurveSpeedTable_t  CurveSpeedTable::dtor  [@0x8006d534] ---- */
+/* Compiler-synthesized: empty body -> implicit cleanup of the AIDataRecord_t
+ * base subobject calls its dtor (jal ___14AIDataRecord_t). Real inheritance
+ * (not composition) is required for gcc to emit this bare form -- composition
+ * synthesized a DELETING dtor variant the oracle lacks (see nfs4_types.h). */
+AIDataRecord_CurveSpeedTable_t::~AIDataRecord_CurveSpeedTable_t()
+{
+}
+
+/* ---- Get__26AIDataRecord_CarTracking_ti  [@0x8006d50c] ---- */
+/* Trivial stub: always returns 0 (record-method not implemented/used). */
+int AIDataRecord_CarTracking_t::Get(int i)
+{
+  return 0;
+}
+
+/* ---- ___26AIDataRecord_CarTracking_t  CarTracking::dtor  [@0x8006d514] ---- */
+/* Compiler-synthesized: empty body -> implicit cleanup of the AIDataRecord_t
+ * base subobject calls its dtor (jal ___14AIDataRecord_t). Real inheritance
+ * (not composition) is required for gcc to emit this bare form -- composition
+ * synthesized a DELETING dtor variant the oracle lacks (see nfs4_types.h). */
+AIDataRecord_CarTracking_t::~AIDataRecord_CarTracking_t()
+{
 }
 
 /* end of aidatarecord.cpp */

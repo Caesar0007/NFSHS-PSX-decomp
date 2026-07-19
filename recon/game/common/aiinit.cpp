@@ -459,8 +459,8 @@ void AIInit_DeInitAICar(Car_tObj *carObj)
 
   pAVar2 = carObj->curveSpeedTable;
   if (pAVar2 != (AIDataRecord_CurveSpeedTable_t *)0x0) {
-    nm = (pAVar2->_base_AIDataRecord_t).name_;
-    pa_Var1 = (char (*)[3])(pAVar2->_base_AIDataRecord_t)._vf;
+    nm = pAVar2->name_;
+    pa_Var1 = (char (*)[3])pAVar2->_vf;
     (**(int (**)(...))(pa_Var1 + 4))(nm + *(short *)(pa_Var1[2] + 2) + -8,3);
     carObj->curveSpeedTable = (AIDataRecord_CurveSpeedTable_t *)0x0;
   }

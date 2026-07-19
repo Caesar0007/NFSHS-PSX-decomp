@@ -41,11 +41,7 @@ void AIDelayCar::SetNewTargetCar(Car_tObj *targetCar)
 
   int iVar1;
 
-  Car_tObj *pCVar2;
 
-  int iVar3;
-
-  
 
   this->targetCar_ = targetCar;
 
@@ -59,29 +55,17 @@ void AIDelayCar::SetNewTargetCar(Car_tObj *targetCar)
 
   (this->deltaPosition_).y = (this->basisCar_->N).position.y - (this->targetCar_->N).position.y;
 
-  pCVar2 = this->targetCar_;
-
   (this->deltaPosition_).z = (this->basisCar_->N).position.z - (this->targetCar_->N).position.z;
 
-  iVar1 = (pCVar2->N).position.y;
-
-  iVar3 = (pCVar2->N).position.z;
-
-  (this->position_).x = (pCVar2->N).position.x;
-
-  (this->position_).y = iVar1;
-
-  (this->position_).z = iVar3;
-
-  pCVar2 = this->targetCar_;
+  this->position_ = (this->targetCar_->N).position;
 
   this->deltaRoadPosition_ = this->basisCar_->roadPosition - this->targetCar_->roadPosition;
 
-  this->roadPosition_ = pCVar2->roadPosition;
+  this->roadPosition_ = this->targetCar_->roadPosition;
 
-  this->laneIndex_ = pCVar2->laneIndex;
+  this->laneIndex_ = this->targetCar_->laneIndex;
 
-  this->currentSpeed_ = pCVar2->currentSpeed;
+  this->currentSpeed_ = this->targetCar_->currentSpeed;
 
   return;
 
@@ -104,53 +88,29 @@ void AIDelayCar::Update()
 
   int iVar1;
 
-  int iVar2;
-
-  int iVar3;
-
-  int iVar4;
-
-  int iVar5;
-
-  int iVar6;
+  int newDeltaMeters;
 
   int currentDeltaRoadPosition;
-
-  Car_tObj *pCVar7;
-
-  int iVar8;
 
   coorddef currentDeltaPosition;
 
   coorddef changeDeltaPosition;
 
-  
+
 
   iVar1 = AIWorld_ApxSplineDistance(this->targetCar_,this->basisCar_);
 
   iVar1 = fixedmult(iVar1 - this->deltaMeters_,this->delayFactor_);
 
-  iVar1 = this->deltaMeters_ + iVar1;
+  newDeltaMeters = this->deltaMeters_ + iVar1;
 
-  this->deltaMeters_ = iVar1;
+  this->deltaMeters_ = newDeltaMeters;
 
-  iVar1 = iVar1 / 0x60000;
+  iVar1 = newDeltaMeters / 0x60000;
 
-  if (iVar1 < 0) {
+  if (0 <= iVar1) {
 
-    iVar1 = (this->basisCar_->N).simRoadInfo.slice + iVar1;
-
-    if (iVar1 < 0) {
-
-      iVar1 = iVar1 + gNumSlices;
-
-    }
-
-  }
-
-  else {
-
-    iVar1 = (this->basisCar_->N).simRoadInfo.slice + iVar1;
+    iVar1 = iVar1 + (this->basisCar_->N).simRoadInfo.slice;
 
     if (gNumSlices <= iVar1) {
 
@@ -160,65 +120,55 @@ void AIDelayCar::Update()
 
   }
 
+  else {
+
+    iVar1 = iVar1 + (this->basisCar_->N).simRoadInfo.slice;
+
+    if (iVar1 < 0) {
+
+      iVar1 = iVar1 + gNumSlices;
+
+    }
+
+  }
+
   this->slice_ = iVar1;
 
-  iVar8 = (this->targetCar_->N).position.y;
+  currentDeltaPosition.x = (this->targetCar_->N).position.x - (this->basisCar_->N).position.x;
 
-  iVar1 = (this->basisCar_->N).position.y;
+  currentDeltaPosition.y = (this->targetCar_->N).position.y - (this->basisCar_->N).position.y;
 
-  iVar6 = (this->targetCar_->N).position.z;
+  currentDeltaPosition.z = (this->targetCar_->N).position.z - (this->basisCar_->N).position.z;
 
-  iVar2 = (this->basisCar_->N).position.z;
+  changeDeltaPosition.x = currentDeltaPosition.x - (this->deltaPosition_).x;
 
-  iVar3 = (this->deltaPosition_).y;
+  changeDeltaPosition.y = currentDeltaPosition.y - (this->deltaPosition_).y;
 
-  iVar4 = (this->deltaPosition_).z;
+  changeDeltaPosition.z = currentDeltaPosition.z - (this->deltaPosition_).z;
 
-  iVar5 = fixedmult(((this->targetCar_->N).position.x - (this->basisCar_->N).position.x) -
+  (this->deltaPosition_).x = (this->deltaPosition_).x + fixedmult(changeDeltaPosition.x,this->delayFactor_);
 
-                     (this->deltaPosition_).x,this->delayFactor_);
+  (this->deltaPosition_).y = (this->deltaPosition_).y + fixedmult(changeDeltaPosition.y,this->delayFactor_);
 
-  (this->deltaPosition_).x = (this->deltaPosition_).x + iVar5;
+  (this->deltaPosition_).z = (this->deltaPosition_).z + fixedmult(changeDeltaPosition.z,this->delayFactor_);
 
-  iVar1 = fixedmult((iVar8 - iVar1) - iVar3,this->delayFactor_);
+  (this->position_).x = (this->basisCar_->N).position.x + (this->deltaPosition_).x;
 
-  iVar3 = this->delayFactor_;
+  (this->position_).y = (this->basisCar_->N).position.y + (this->deltaPosition_).y;
 
-  (this->deltaPosition_).y = (this->deltaPosition_).y + iVar1;
+  (this->position_).z = (this->basisCar_->N).position.z + (this->deltaPosition_).z;
 
-  iVar1 = fixedmult((iVar6 - iVar2) - iVar4,iVar3);
+  currentDeltaRoadPosition = (this->targetCar_->roadPosition - this->basisCar_->roadPosition) -
 
-  pCVar7 = this->basisCar_;
+                             this->deltaRoadPosition_;
 
-  (this->deltaPosition_).z = (this->deltaPosition_).z + iVar1;
+  this->deltaRoadPosition_ = this->deltaRoadPosition_ + fixedmult(currentDeltaRoadPosition,this->delayFactor_);
 
-  (this->position_).x = (pCVar7->N).position.x + (this->deltaPosition_).x;
+  this->roadPosition_ = this->basisCar_->roadPosition + this->deltaRoadPosition_;
 
-  (this->position_).y = (pCVar7->N).position.y + (this->deltaPosition_).y;
+  this->laneIndex_ = AIWorld_LaneIndex(this->slice_,this->roadPosition_);
 
-  iVar1 = this->delayFactor_;
-
-  (this->position_).z = (pCVar7->N).position.z + (this->deltaPosition_).z;
-
-  iVar1 = fixedmult((this->targetCar_->roadPosition - pCVar7->roadPosition) -
-
-                     this->deltaRoadPosition_,iVar1);
-
-  iVar1 = this->deltaRoadPosition_ + iVar1;
-
-  this->deltaRoadPosition_ = iVar1;
-
-  iVar1 = this->basisCar_->roadPosition + iVar1;
-
-  this->roadPosition_ = iVar1;
-
-  iVar1 = AIWorld_LaneIndex(this->slice_,iVar1);
-
-  this->laneIndex_ = iVar1;
-
-  iVar1 = fixedmult(this->targetCar_->currentSpeed - this->currentSpeed_,this->delayFactor_);
-
-  this->currentSpeed_ = this->currentSpeed_ + iVar1;
+  this->currentSpeed_ = this->currentSpeed_ + fixedmult(this->targetCar_->currentSpeed - this->currentSpeed_,this->delayFactor_);
 
   return;
 

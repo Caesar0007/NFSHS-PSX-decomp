@@ -1070,13 +1070,7 @@ void AIState_Chase::CloseTargeting()
 LAB_80070704:
   AISpeeds_CalcDesiredSpeed(this->carObj_);
 
-  {
-    int t = (this->carObj_)->desiredSpeed;
-    if (t < 0) {
-      t = -t;
-    }
-    (this->carObj_)->desiredSpeed = t;
-  }
+  (this->carObj_)->desiredSpeed = __builtin_abs((this->carObj_)->desiredSpeed);
 
   {
     int t = (this->carObj_)->desiredSpeed;
@@ -2516,15 +2510,15 @@ void AIState_RovingTraffic::Execute()
 
   iVar8 = carRelativeForLatPos.x / 256;
 
-  iVar6 = (pCVar4->N).roadMatrix.m[1] / 256;
-
   iVar3 = iVar5 * iVar8;
+
+  iVar6 = (pCVar4->N).roadMatrix.m[1] / 256;
 
   iVar9 = carRelativeForLatPos.y / 256;
 
-  iVar7 = (pCVar4->N).roadMatrix.m[2] / 256;
-
   iVar3 = iVar3 + iVar6 * iVar9;
+
+  iVar7 = (pCVar4->N).roadMatrix.m[2] / 256;
 
   iVar8 = carRelativeForLatPos.z / 256;
 
@@ -2578,15 +2572,21 @@ void AIState_RovingTraffic::Execute()
 
   ppCVar10 = Cars_gSortedList + search;
 
-  while ((search < Cars_gNumCars && (status == 2))) {
+  /* EXIT-IN-THE-MIDDLE (catalog §B row 51/56) -- oracle keeps a single TOP-test
+     block reached both by fallthrough and by an unconditional j back-edge; a
+     natural while(cond){...} gets ROTATED by gcc to a bottom bnez-test. */
+
+  while (true) {
+
+    if (!(search < Cars_gNumCars && (status == 2))) break;
 
     pCVar4 = *ppCVar10;
+
+    this->CheckIfCarIsNearbyAndStop(pCVar4,status);
 
     ppCVar10 = ppCVar10 + 1;
 
     search = search + 1;
-
-    this->CheckIfCarIsNearbyAndStop(pCVar4,status);
 
   }
 
@@ -2598,15 +2598,17 @@ void AIState_RovingTraffic::Execute()
 
     ppCVar10 = Cars_gSortedList + search;
 
-    while ((-1 < search && (status == 2))) {
+    while (true) {
+
+      if (!(-1 < search && (status == 2))) break;
 
       pCVar4 = *ppCVar10;
+
+      this->CheckIfCarIsNearbyAndStop(pCVar4,status);
 
       ppCVar10 = ppCVar10 + -1;
 
       search = search + -1;
-
-      this->CheckIfCarIsNearbyAndStop(pCVar4,status);
 
     }
 
@@ -2708,30 +2710,50 @@ void AIState_Donuts::Execute()
 
   u_int uVar12;
 
+  int iVar13;
+
+  int iVar14;
+
+  int iVar15;
+
+  int iVar16;
+
+  int iVar17;
+
+  int iVar18;
+
 
 
   pCVar10 = this->carObj_;
 
   iVar11 = (int)(pCVar10->N).simRoadInfo.slice;
 
-  /* gcc-2.x signed /256 idiom -- plain division, not a hand-rolled correction+shift
-     (reference_mips_isa_asm.md; catalog §C). */
+  /* gcc-2.x signed /256 idiom -- plain division. Dot product built as THREE
+     separate accumulating statements (oracle interleaves load/div/mult/add
+     PER AXIS -- mflo immediately folded into a running sum -- not one
+     combined tri-term expression; matches disasm 80071E88-80071F34). */
 
   iVar7 = (pCVar10->N).orientMat.m[6] / 256;
 
   iVar1 = (pCVar10->N).roadMatrix.m[6] / 256;
 
+  iVar7 = iVar7 * iVar1;
+
   iVar8 = (pCVar10->N).orientMat.m[7] / 256;
 
   iVar2 = (pCVar10->N).roadMatrix.m[7] / 256;
+
+  iVar7 = iVar7 + iVar8 * iVar2;
 
   iVar9 = (pCVar10->N).orientMat.m[8] / 256;
 
   iVar3 = (pCVar10->N).roadMatrix.m[8] / 256;
 
+  iVar7 = iVar7 + iVar9 * iVar3;
+
   iVar4 = 1;
 
-  if (iVar7 * iVar1 + iVar8 * iVar2 + iVar9 * iVar3 < 1) {
+  if (iVar7 < 1) {
 
     iVar4 = -1;
 
@@ -2745,21 +2767,15 @@ void AIState_Donuts::Execute()
 
     pCVar10 = this->carObj_;
 
-    iVar7 = (pCVar10->N).orientMat.m[6] / 256;
+    iVar7 = ((pCVar10->N).orientMat.m[6] / 256) * ((pCVar10->N).roadMatrix.m[6] / 256);
 
-    iVar1 = (pCVar10->N).roadMatrix.m[6] / 256;
+    iVar7 = iVar7 + ((pCVar10->N).orientMat.m[7] / 256) * ((pCVar10->N).roadMatrix.m[7] / 256);
 
-    iVar8 = (pCVar10->N).orientMat.m[7] / 256;
-
-    iVar2 = (pCVar10->N).roadMatrix.m[7] / 256;
-
-    iVar9 = (pCVar10->N).orientMat.m[8] / 256;
-
-    iVar3 = (pCVar10->N).roadMatrix.m[8] / 256;
+    iVar7 = iVar7 + ((pCVar10->N).orientMat.m[8] / 256) * ((pCVar10->N).roadMatrix.m[8] / 256);
 
     iVar4 = iVar11 + 3;
 
-    if (0 <= iVar7 * iVar1 + iVar8 * iVar2 + iVar9 * iVar3)
+    if (0 <= iVar7)
 
     {
 
@@ -2841,19 +2857,31 @@ void AIState_Donuts::Execute()
        right-axis (orientMat row0), forward = scaled local forward-axis (orientMat row2
        via donutLookForward_), targetPos = position + right + forward. */
 
-    right.x = (pCVar10->N).orientMat.m[0];
+    iVar13 = (pCVar10->N).orientMat.m[0];
 
-    right.y = (pCVar10->N).orientMat.m[1];
+    iVar14 = (pCVar10->N).orientMat.m[1];
 
-    right.z = (pCVar10->N).orientMat.m[2];
+    iVar15 = (pCVar10->N).orientMat.m[2];
+
+    right.x = iVar13;
+
+    right.y = iVar14;
+
+    right.z = iVar15;
 
     pCVar6 = this->carObj_;
 
-    forward.x = (pCVar6->N).orientMat.m[6];
+    iVar16 = (pCVar6->N).orientMat.m[6];
 
-    forward.y = (pCVar6->N).orientMat.m[7];
+    iVar17 = (pCVar6->N).orientMat.m[7];
 
-    forward.z = (pCVar6->N).orientMat.m[8];
+    iVar18 = (pCVar6->N).orientMat.m[8];
+
+    forward.x = iVar16;
+
+    forward.y = iVar17;
+
+    forward.z = iVar18;
 
     right.x = fixedmult(0x60000,right.x);
 

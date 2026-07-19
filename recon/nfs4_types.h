@@ -1846,8 +1846,9 @@ struct AIDataRecord_AccTable_t : public AIDataRecord_t {   /* 92 bytes */
     void Setup();
 };
 
-struct AIDataRecord_CurveSpeedTable_t {   /* 88 bytes */
-    AIDataRecord_t     _base_AIDataRecord_t;   /* +0x0 */
+struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {   /* 88 bytes; real (non-virtual) inheritance -- composition
+        emitted a gcc DELETING-dtor variant (__in_chrg+andi/beqz/jal __builtin_delete) the oracle lacks; catalog fix
+        (see AIDataRecord_AccTable_t sibling) is real inheritance -> bare dtor. */
     AIDataRecord_CurveSpeedTable_t() {}
     AIDataRecord_CurveSpeedTable_t(char *name, AIDataRecord_WhichRecord_t which);
     ~AIDataRecord_CurveSpeedTable_t();
@@ -1870,8 +1871,8 @@ struct AIPhysic_ModelConfig_t {   /* 44 bytes */
     int                dlpos_to_dlvel, max_dlvel, dlvel_to_clacc, max_clacc, dangle_to_dav, max_dav, dav_to_aa, max_aa, vel_limit_range, lat_vel_limit_factor, ang_vel_limit_factor;   /* +0x0 */
 };
 
-struct AIDataRecord_BestLine_t {   /* 88 bytes */
-    AIDataRecord_t     _base_AIDataRecord_t;   /* +0x0 */
+struct AIDataRecord_BestLine_t : public AIDataRecord_t {   /* 88 bytes; real (non-virtual) inheritance -- see
+        AIDataRecord_CurveSpeedTable_t comment (composition -> gcc deleting-dtor mismatch). */
     AIDataRecord_BestLine_t() {}
     AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t which);
     ~AIDataRecord_BestLine_t();
@@ -2478,16 +2479,16 @@ struct kernpair {   /* 8 bytes */
     char               pad[3];   /* +0x5 */
 };
 
-struct AIDataRecord_TrackCurve_t {   /* 88 bytes */
-    AIDataRecord_t     _base_AIDataRecord_t;   /* +0x0 */
+struct AIDataRecord_TrackCurve_t : public AIDataRecord_t {   /* 88 bytes; real (non-virtual) inheritance -- see
+        AIDataRecord_CurveSpeedTable_t comment (composition -> gcc deleting-dtor mismatch). */
     AIDataRecord_TrackCurve_t() {}
     AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t which);
     ~AIDataRecord_TrackCurve_t();
     int Get(int i);
 };
 
-struct AIDataRecord_CarTracking_t {   /* 88 bytes */
-    AIDataRecord_t     _base_AIDataRecord_t;   /* +0x0 */
+struct AIDataRecord_CarTracking_t : public AIDataRecord_t {   /* 88 bytes; real (non-virtual) inheritance -- see
+        AIDataRecord_CurveSpeedTable_t comment (composition -> gcc deleting-dtor mismatch). */
     AIDataRecord_CarTracking_t() {}
     ~AIDataRecord_CarTracking_t();
     int Get(int i);

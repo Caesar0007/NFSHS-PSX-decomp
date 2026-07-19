@@ -32,8 +32,16 @@ extern unsigned char sndpd[];               /* EA sound-driver state base @0x801
                                               * separately-materialized symbol -- see spatkey.c SNDPD_*) */
 #define DAT_80147e10 (((int *)sndpd)[0x4F8/4])   /* per-player ctx ptr array @0x80147e10 == sndpd+0x4F8 */
 extern int           DAT_80147e2c;          /* SPU control reg base (address) @0x80147e2c */
-extern int           DAT_801234e4;          /* SPU ctx malloc size        @0x801234e4    */
-int DAT_801234e4 __attribute__((section(".data"))) = 8192;  /* def (owning TU; image-verified 0x2000) */
+/* 🔴 BUG FIX + HEADER WISH: DAT_801234e4 was double-defined here AND in snddata.c (real dup-symbol
+ * bug) as its own scalar -- but the oracle (iSNDplatformpacketplaycreate: `lui s0,%hi(sndpsxlimits);
+ * lw a0,0x10(s0)`) proves it's really `sndpsxlimits[4]`, the 5th int of the sndpsxlimits block
+ * (sndpsxlimits @0x801234D4, DAT_801234e4 @0x801234D4+0x10). A standalone 4-byte scalar is
+ * `-G4` gp-relative-eligible (`sw v0,0(gp)`); the array-element form forces the oracle's absolute
+ * lui/addiu(sndpsxlimits)+displacement addressing. Removed the owning def (kept in snddata.c);
+ * slimits.c/snddata.c model sndpsxlimits+the 4 DAT_ words as 5 separate scalars -- unifying them
+ * into one real array is out of THIS file's scope (memstd.cpp/sdpacket.c only). */
+extern int            sndpsxlimits;         /* base @0x801234D4 (5-int block; +0x10 = DAT_801234e4) */
+#define DAT_801234e4 (*(int *)((char *)&sndpsxlimits + 0x10))
 #define DAT_80147919 (sndpd[1])              /* setirq re-entry guard byte @0x80147919 == sndpd+1 */
 
 /* packet-voice state table fields (byte base; cast for int/short views).  The table lives INSIDE the
@@ -56,12 +64,24 @@ int DAT_801234e4 __attribute__((section(".data"))) = 8192;  /* def (owning TU; i
 #define DAT_80147a13 (sndpd[0xFB])           /* +0x23 fx level  */
 #define DAT_80147a17 (sndpd[0xFF])           /* +0x27 voice-done flag */
 
-/* host/IRQ hooks (function-pointer globals installed by play/stop) */
+/* host/IRQ hooks (function-pointer globals installed by play/stop).
+ * 🔴 HEADER WISH / correctness note: these three are NOT independent globals -- the oracle
+ * (iSNDplatformpacketplaycreate: `sw v0,0x724(s2)` with s2=&sndpd) proves they are FIELDS
+ * embedded in the sndpd block itself (sndpd+0x720/+0x724/+0x728, same relationship as
+ * DAT_80147e10/DAT_80147919/the packet-voice table above), NOT separately-materialized
+ * %hi/%lo(DAT_...) symbols. The standalone-global defs below are KEPT (unused by this TU
+ * from here on) only because sdma.c/sdriver.c/slib.c/spchevnt.c/spchpick.cpp elsewhere in
+ * the tree still declare/reference them as independent externs -- out of THIS file's scope
+ * to retarget; a follow-up should migrate all 6 sites to sndpd-relative macros + delete
+ * these standalone defs. Function bodies in THIS file use the HOOK_* macros below instead. */
 extern void (*snd_voice_done_hook)(void *voice);   /* @0x8014803c */
  void (*snd_voice_done_hook)(void *voice) = 0;  /* def @0x8014803c */
              void  *snd_user_serve_hook = 0;               /* def @0x80148038 */
 extern void  *snd_user_serve_hook;                 /* @0x80148038 */
 extern void  *gPreLoadTicks;                       /* @0x80148040 (fn-ptr) */
+#define HOOK_user_serve  (*(void **)(sndpd + 0x720))          /* @0x80148038, sndpd-relative */
+#define HOOK_voice_done  (*(void (**)(void *))(sndpd + 0x724)) /* @0x8014803c, sndpd-relative */
+#define HOOK_preload     (*(void **)(sndpd + 0x728))          /* @0x80148040, sndpd-relative */
 
 /* sibling-obj dependencies */
 extern int  iSNDpsxmalloc(int size);                       /* sdmemman */
@@ -92,12 +112,25 @@ extern void iSNDpsxzerospu(int *addr, int len);
 #define VUH(base,idx) (*(unsigned short *)(&(base) + (idx)))
 
 /* cop0-Status critical section wrapping the SPU-IRQ re-arm (target-only; host calls through). */
-static void sdpacket_setirq_cs(void)
+static inline void sdpacket_setirq_cs(void)
 {
 #if defined(__mips__)
+    /* MATCH: transcribed as ONE asm block reproducing the oracle's exact register choice
+     * ($at for the mask literal, $8/t0 for the masked result) + its 3 trailing nops (the
+     * mtc0-IEc-bit-change hazard window, per the ISA ref: up to 3 insns after a Status-reg
+     * mtc0 see the OLD state). A plain `sr & 0xfffffbfe` in C left the mask/and register
+     * choice to the allocator (picked v0, no explicit $at) and dropped the nops. */
     unsigned int sr;
-    __asm__ volatile("mfc0 %0,$12" : "=r"(sr));
-    __asm__ volatile("mtc0 %0,$12" : : "r"(sr & 0xfffffbfe));   /* mask IEc */
+    __asm__ volatile(
+        "mfc0 %0,$12\n\t"
+        "nop\n\t"
+        "li $1,-0x402\n\t"
+        "and $8,%0,$1\n\t"
+        "mtc0 $8,$12\n\t"
+        "nop\n\t"
+        "nop\n\t"
+        "nop"
+        : "=r"(sr) : : "$1", "$8");
     iSNDpacketsetirq();
     __asm__ volatile("mtc0 %0,$12" : : "r"(sr));
 #else
@@ -149,18 +182,32 @@ extern void iSNDpacketsetirq(void)
     iSNDpsxdisablespuirq();
     base = sndpd;                        /* materialize the sndpd address AFTER the call (oracle: post-call $v0/$v1) */
     if (base[1] == 0) {                  /* DAT_80147919 == sndpd+1 */
+        /* MATCH: &sndpp materialized ONCE right before the loop (oracle: `lui a0,%hi(sndpp)` here,
+         * shared via %lo(sndpp)(a0) displacement addressing across every read/write below) -- a
+         * bare `sndpp` global reference at each site instead makes GNU-as re-materialize a fresh
+         * full address per access (self-temp read / $at-store), ~2x the instruction count. */
+        int *psndpp = &sndpp;
         do {
             unsigned char *slot;
-            sndpp = sndpp + 1;
-            if (0 < sndpp)
-                sndpp = 0;                              /* single player -> wrap to 0 */
-            slot = base + sndpp * 4;                     /* runtime index first, fixed OFFSET as displacement */
+            *psndpp = *psndpp + 1;
+            if (0 < *psndpp)
+                *psndpp = 0;                              /* single player -> wrap to 0 */
+            slot = base + *psndpp * 4;                     /* runtime index first, fixed OFFSET as displacement */
             pp = *(int *)(slot + 0x4F8);                 /* DAT_80147e10[sndpp] */
-            if (pp != 0 && -1 < *(char *)(pp + 0x42)) {
-                *(short *)(DAT_80147e2c + 0x1a4) = (short)(*(int *)pp + 8 >> 3);
-                InterruptCallback();
-                iSNDpsxenablespuirq();
-                return;
+            /* BUG FIX: plain `char` is UNSIGNED on this build (lbu) -- `-1 < (unsigned char)x` is a
+             * gcc-provable TAUTOLOGY, so the compiler silently deleted this whole note-idle check as
+             * dead code (the compiled fn never even loaded the byte). The oracle uses `lb`/`bgez`
+             * (SIGNED byte, real check) -- same note field iSNDpacketgetirq already reads `signed char`.
+             * MATCH: nested ifs (not `&&`) -- oracle branches `bgez` STRAIGHT to the success block on
+             * the positive test, falling through to the loop increment only on failure; a merged `&&`
+             * inverts to a single `bltz`-skip test instead. */
+            if (pp != 0) {
+                if (*(signed char *)(pp + 0x42) >= 0) {
+                    *(short *)(DAT_80147e2c + 0x1a4) = (short)(*(int *)pp + 8 >> 3);
+                    InterruptCallback();
+                    iSNDpsxenablespuirq();
+                    return;
+                }
             }
             i++;
         } while (i < 2);
@@ -375,10 +422,14 @@ extern void iSNDpacketserve(void)
     int p;
     iSNDstreamhotroddatachunks();
     for (p = 0; p < 1; p++) {
+        /* NOTE: tried index-first `sndpd+p*4+0x4F8` to match the oracle's `sll;addu;lw,1272`
+         * shape (vs the macro's pre-combined-base form) -- gcc constant-propagates p=0 (just
+         * set by the loop init) through EITHER form identically, so it made no difference;
+         * reverted to the macro for clarity. Accept as a floor (single-iteration-loop CSE). */
         int pp = (&DAT_80147e10)[p];
-        if (pp != 0 && -1 < *(char *)(pp + 0x42)) {
+        if (pp != 0 && *(signed char *)(pp + 0x42) >= 0) {
             int servePos = *(int *)(pp + 0x1c);
-            int newPos = (int)(*(unsigned int *)(&DAT_801479fc + *(char *)(pp + 0x42) * 0x2c) / 0x1c000) * 0x1c;
+            int newPos = (int)(*(int *)(&DAT_801479fc + *(signed char *)(pp + 0x42) * 0x2c) / 0x1c000) * 0x1c;
             unsigned int adv = (newPos < servePos) ? (unsigned)((newPos + *(int *)(pp + 0xc)) - servePos)
                                                    : (unsigned)(newPos - servePos);
             if (0x70ffffff < *(int *)(pp + 0x18)) {     /* keep the 64-bit-ish byte counters from overflowing */
@@ -427,8 +478,8 @@ extern int iSNDplatformcalcdatarate(unsigned short *sample_rate)
 extern int iSNDplatformpacketplaycreate(int p, int *mem)
 {
     int r;
-    snd_voice_done_hook = (void (*)(void *))iSNDpsxpacketstop;
-    *(unsigned char *)((int)mem + 0x42) = 0xff;
+    HOOK_voice_done = (void (*)(void *))iSNDpsxpacketstop;
+    *(signed char *)((int)mem + 0x42) = -1;   /* MATCH: li v0,-1 vs li v0,255 (unsigned-char lvalue folds to +255) */
     mem[0xb] = (int)(mem + 0x414);
     mem[0] = iSNDpsxmalloc(DAT_801234e4);
     mem[1] = DAT_801234e4;
@@ -512,8 +563,8 @@ extern int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, unsi
         i++;
     } while (i < 2);
 
-    snd_user_serve_hook = (void *)iSNDpacketserve;
-    gPreLoadTicks = (void *)iSNDpacketsetirq;
+    HOOK_user_serve = (void *)iSNDpacketserve;
+    HOOK_preload = (void *)iSNDpacketsetirq;
     VI(DAT_801479fc, vt) = 0;
     VI(DAT_80147a00, vt) = 0;   /* was note*0xb -- stride-scaling bug (see iSNDpacketgetirq); DAT_80147a00 is the SAME 0x2c-stride struct's +0x10 field */
     VI(DAT_80147a04, vt) = pp[3] << 0xc;
@@ -535,18 +586,29 @@ extern int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, unsi
  *   voices remain active, drop the serve hook and point the pre-load tick back at the bare IRQ re-arm. */
 extern int iSNDpsxpacketstop(int p)
 {
-    int pp = (&DAT_80147e10)[(int)(signed char)*(unsigned char *)(p + 0x27)];
+    unsigned char *base = sndpd;
+    /* MATCH: the oracle reads the note byte UNSIGNED (`lbu`) then sign-extends+scales-by-4 with the
+     * `sll 24 / sra 22` idiom (net +2 shift, arithmetic) in ONE fused expression -- our previous
+     * "cast to (signed char) THEN index a DAT_ array" form let gcc collapse this to a direct signed
+     * `lb` + separate `sll 2`, which is semantically identical but a different instruction sequence. */
+    int vt4 = (int)((int)(*(unsigned char *)(p + 0x27)) << 24) >> 22;
+    int pp = *(int *)(base + vt4 + 0x4F8);
     int i, active = 0;
-    *(char *)(pp + 0x42) = (char)0xff;
-    *(char *)(p + 0x27)  = (char)0xff;
+    *(signed char *)(pp + 0x42) = -1;
+    *(signed char *)(p + 0x27)  = -1;
     if (((unsigned char *)sndgs)[0x11] != 0) {           /* sndgs[4]._1_1_ = channel count */
-        for (i = 0; i < (int)(unsigned)((unsigned char *)sndgs)[0x11]; i++)
-            if (-1 < (int)((unsigned)VB(DAT_80147a17, i * 0x2c) << 0x18))   /* bit7 clear == still active */
+        /* MATCH: POINTER WALK (oracle: v1=base+0xFF, `addiu v1,v1,0x2C` in the loop-back branch's
+         * delay slot every iter) not an index-multiply `i*0x2c` -- §3.12 #1 array-index-vs-pointer-
+         * walk flip. */
+        unsigned char *q;
+        int count = (int)(unsigned)((unsigned char *)sndgs)[0x11];
+        for (i = 0, q = base + 0xFF; i < count; i++, q += 0x2c)
+            if ((signed char)*q >= 0)   /* bit7 clear == still active */
                 active++;
     }
     if (active == 0) {
-        snd_user_serve_hook = 0;
-        gPreLoadTicks = (void *)iSNDpacketsetirq;
+        HOOK_user_serve = 0;
+        HOOK_preload = (void *)iSNDpacketsetirq;
     }
     sdpacket_setirq_cs();
     return pp;

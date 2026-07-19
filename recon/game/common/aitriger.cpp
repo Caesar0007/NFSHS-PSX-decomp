@@ -16,44 +16,40 @@ AITrigger_TriggerManager *triggerManagerTraffic;   /* @0x8013c5ec  (bss(zero)) *
 /* ---- AITrigger_TriggerManager::Init  [@0x8007286c] ---- */
 void AITrigger_TriggerManager::Init(char *rawTriggers)
 {
-  int*numTriggers;
-  char*currentTrigger;
+  int *numTriggers;
+  char *currentTrigger;
   int tLoop;
-  int iVar1;
   trigger_t **pptVar2;
-  int iVar3;
-  trigger_t *trigger;
-  
-  iVar3 = 99;
+
+  tLoop = 99;
   pptVar2 = this->triggers_ + 0x61;
   this->numTriggers_ = 0;
   this->invNumTriggers_ = 0;
   do {
     pptVar2[0x66] = (trigger_t *)0xfffff600;
-    iVar3 = iVar3 + -1;
+    tLoop = tLoop + -1;
     pptVar2 = pptVar2 + -1;
-  } while (-1 < iVar3);
-  iVar3 = 8;
+  } while (-1 < tLoop);
+  tLoop = 8;
   pptVar2 = this->triggers_ + 6;
   do {
     pptVar2[0xca] = (trigger_t *)0x0;
-    iVar3 = iVar3 + -1;
+    tLoop = tLoop + -1;
     pptVar2 = pptVar2 + -1;
-  } while (-1 < iVar3);
+  } while (-1 < tLoop);
   if (rawTriggers != (char *)0x0) {
-    trigger = (trigger_t *)(rawTriggers + 4);
-    iVar3 = 0;
-    if (0 < *(int *)rawTriggers) {
+    numTriggers = (int *)rawTriggers;   /* SYM: numTriggers is a REG PTR INT, aliases rawTriggers's count header */
+    currentTrigger = rawTriggers + 4;   /* SYM: currentTrigger is a REG PTR CHAR (byte cursor, NOT trigger_t* -- must NOT scale by sizeof(trigger_t)=72) */
+    if (0 < *numTriggers) {
+      tLoop = 0;
       do {
-        iVar1 = this->InsertTrigger(trigger,(void *)0x1);
-        trigger = trigger + iVar1;
-        iVar3 = iVar3 + 1;
-      } while (iVar3 < *(int *)rawTriggers);
+        currentTrigger = currentTrigger + this->InsertTrigger((trigger_t *)currentTrigger,true);
+        tLoop = tLoop + 1;
+      } while (tLoop < *numTriggers);
     }
     this->Sort();
     if (this->numTriggers_ != 0) {
-      iVar3 = fixeddiv(0x10000,this->numTriggers_ << 0x10);
-      this->invNumTriggers_ = iVar3;
+      this->invNumTriggers_ = fixeddiv(0x10000,this->numTriggers_ << 0x10);
     }
   }
   return;
@@ -62,35 +58,39 @@ void AITrigger_TriggerManager::Init(char *rawTriggers)
 /* ---- AITrigger_TriggerManager::InsertTrigger  [@0x80072948] ---- */
 int AITrigger_TriggerManager::InsertTrigger(trigger_t *trigger,bool fromFile)
 {
-  int size;
   int iVar1;
-  int iVar2;
-  
-  iVar2 = 0;
+  int size;
+
+  size = 0;
   this->DescribeTrigger(trigger);
   iVar1 = *(int *)trigger;
   if (iVar1 == 5) {
     if (fromFile) {   /* @0x80072984: if(fromFile) bool test (disasm-v3) */
-      *(trigger_t **)(trigger + 0x3c) = trigger + 0x40;
+      /* SYM/type fix (w19-a4): trigger is trigger_t* (72-byte union) -- raw `trigger+0x3c`
+       * pointer arithmetic SCALED by sizeof(trigger_t)=72 (bogus offsets 4320/4608 vs the
+       * oracle's plain +0x3C/+0x40 byte displacements). +0x3C/+0x40 are the real
+       * trigger_trafficPath_t::path field (a trigger_pathPosition_t* right after the header). */
+      trigger->trafficPath.path = (trigger_pathPosition_t *)((char *)trigger + 0x40);
     }
     this->triggers_[this->numTriggers_] = trigger;
-    iVar2 = *(int *)(trigger + 0x38) * 0x14 + 0x40;
+    size = trigger->trafficPath.numPoints * sizeof(trigger_pathPosition_t) + 0x40;
     goto LAB_80072a14;
   }
   if (iVar1 == 2) {
-LAB_800729f4:
-    iVar2 = 0x14;
+    size = 0x14;
   }
   else if (iVar1 < 3) {
-    if (iVar1 == 1) goto LAB_800729f4;
+    if (iVar1 == 1) {
+      size = 0x14;
+    }
   }
   else if (iVar1 == 3) {
-    iVar2 = 0x48;
+    size = 0x48;
   }
   this->triggers_[this->numTriggers_] = trigger;
 LAB_80072a14:
   this->numTriggers_ = this->numTriggers_ + 1;
-  return iVar2;
+  return size;
 }
 
 /* ---- AITrigger_TriggerManager::GetNextTrigger  [@0x80072a44] ---- */
@@ -136,37 +136,35 @@ AITrigger_TriggerManager::GetPrevTrigger(int car)
 /* ---- AITrigger_TriggerManager::CheckForTriggerAtSlice  [@0x80072b24] ---- */
 int AITrigger_TriggerManager::CheckForTriggerAtSlice(int car,int slice)
 {
-  int*lastTrigger;
+  int *lastTrigger;
   int iVar1;
-  int iVar2;
-  int *piVar3;
-  
-  iVar1 = -1;
-  if (this->numTriggers_ != 0) {
-    piVar3 = this->lastTriggerChecked_ + car;
-    if ((*(int *)(this->triggers_[*piVar3] + 4) < slice) && (1 < this->numTriggers_)) {
-      do {
-        if (*piVar3 == this->numTriggers_ + -1) break;
-        this->GetNextTrigger(car);
-      } while (*(int *)(this->triggers_[*piVar3] + 4) < slice);
+
+  if (this->numTriggers_ == 0) {
+    return -1;
+  }
+  /* SYM/type fix (w19-a4): lastTrigger is the SYM-named REG PTR INT local; triggers_[idx] is
+   * trigger_t* (72-byte union) -- raw `+4` pointer arithmetic on it SCALED by 72 (bogus +288
+   * vs the oracle's plain +4). ->any.slice/->any.type are the real common-header fields. */
+  lastTrigger = &this->lastTriggerChecked_[car];
+  if ((this->triggers_[*lastTrigger]->any.slice < slice) && (1 < this->numTriggers_)) {
+    while (this->triggers_[*lastTrigger]->any.slice < slice) {
+      if (*lastTrigger == this->numTriggers_ + -1) break;
+      this->GetNextTrigger(car);
     }
-    else {
-      iVar1 = *piVar3;
-      if ((slice < *(int *)(this->triggers_[iVar1] + 4)) && (1 < this->numTriggers_)) {
-        do {
-          if (iVar1 == 0) break;
-          this->GetPrevTrigger(car);
-          iVar1 = *piVar3;
-        } while (slice < *(int *)(this->triggers_[iVar1] + 4));
+  }
+  else {
+    if ((slice < this->triggers_[*lastTrigger]->any.slice) && (1 < this->numTriggers_)) {
+      while (slice < this->triggers_[*lastTrigger]->any.slice) {
+        if (*lastTrigger == 0) break;
+        this->GetPrevTrigger(car);
       }
     }
-    iVar2 = *piVar3;
-    iVar1 = -1;
-    if (((*(int *)(this->triggers_[iVar2] + 4) == slice) &&
-        (0xa00 < simGlobal.gameTicks - this->checkTime_[iVar2])) &&
-       (*(int *)this->triggers_[iVar2] != 2)) {
-      iVar1 = iVar2;
-    }
+  }
+  iVar1 = -1;
+  if (((this->triggers_[*lastTrigger]->any.slice == slice) &&
+      (0xa00 < simGlobal.gameTicks - this->checkTime_[*lastTrigger])) &&
+     (this->triggers_[*lastTrigger]->any.type != 2)) {
+    iVar1 = *lastTrigger;
   }
   return iVar1;
 }
@@ -201,58 +199,57 @@ int AITrigger_TriggerManager::CheckForClosestTriggerOfType(int slice,triggerType
   int prevTriggerIndex;
   int firstTriggerIndex;
   trigger_t *thisTrigger;
-  int *piVar1;
-  int iVar2;
-  trigger_t *ptVar3;
-  int iVar4;
-  trigger_t *ptVar5;
-  trigger_t *ptVar6;
-  trigger_t *ptVar7;
-  int iVar8;
-  int iVar9;
-  
-  ptVar7 = (trigger_t *)0x0;
-  piVar1 = &this->numTriggers_;
-  iVar9 = -1;
-  if (*piVar1 == 0) {
-    return -1;
+  int numTriggers;
+
+  /* SYM-driven rewrite (w19-a4): SYM shows `fsize=0 mask=$00000000` -- a TRUE LEAF (no saved
+   * regs, no stack frame at all). The Ghidra "shadow ptVar6/iVar8 provisional update, commit
+   * at loop bottom" pattern was a decompiler SSA artifact -- the real source updates
+   * prevTrigger/prevTriggerIndex directly (unconditionally, once per matching-type iteration)
+   * right after the direction-based early-return checks. Also fixes the 72-byte trigger_t*
+   * pointer-scaling bug (`ptVar3+4` -> ->any.slice). `this` (a0) is dead after the initial
+   * count check (numTriggers_ cached AFTER the zero-test, not before) -- gcc strength-reduces
+   * the `triggers_[tLoop]` index into a0 itself incrementing by 4/iter with a fixed +8 load
+   * displacement (triggers_'s field offset), matching the oracle exactly. */
+  prevTrigger = (trigger_t *)0x0;
+  firstTrigger = prevTrigger;
+  prevTriggerIndex = -1;
+  firstTriggerIndex = -1;
+  if (this->numTriggers_ == 0) {
+    return prevTriggerIndex;
   }
-  iVar4 = 0;
-  ptVar5 = (trigger_t *)0x0;
-  iVar2 = -1;
-  do {
-    if (*piVar1 <= iVar4) {
-      if (((ptVar5 == (trigger_t *)0x0) || (-1 < direction)) && (iVar2 = iVar9, direction < 1)) {
-        iVar2 = -1;
+  tLoop = 0;
+  numTriggers = this->numTriggers_;
+  while (true) {
+    if (numTriggers <= tLoop) break;
+    thisTrigger = this->triggers_[tLoop];
+    if (thisTrigger->any.type == type) {
+      if (firstTrigger == (trigger_t *)0x0) {
+        firstTrigger = thisTrigger;
+        firstTriggerIndex = tLoop;
       }
-      return iVar2;
-    }
-    ptVar3 = this->triggers_[iVar4];
-    ptVar6 = ptVar5;
-    iVar8 = iVar2;
-    if (*(triggerType *)ptVar3 == type) {
-      if (ptVar7 == (trigger_t *)0x0) {
-        ptVar7 = ptVar3;
-        iVar9 = iVar4;
+      if (thisTrigger->any.slice == slice) {
+        return tLoop;
       }
-      if (*(int *)(ptVar3 + 4) == slice) {
-        return iVar4;
-      }
-      ptVar6 = ptVar3;
-      iVar8 = iVar4;
-      if (slice < *(int *)(ptVar3 + 4)) {
+      if (slice < thisTrigger->any.slice) {
         if (0 < direction) {
-          return iVar4;
+          return tLoop;
         }
-        if ((direction < 0) && (ptVar5 != (trigger_t *)0x0)) {
-          return iVar2;
+        if ((direction < 0) && (prevTrigger != (trigger_t *)0x0)) {
+          return prevTriggerIndex;
         }
       }
+      prevTrigger = thisTrigger;
+      prevTriggerIndex = tLoop;
     }
-    iVar4 = iVar4 + 1;
-    ptVar5 = ptVar6;
-    iVar2 = iVar8;
-  } while( true );
+    tLoop = tLoop + 1;
+  }
+  if ((prevTrigger != (trigger_t *)0x0) && (direction < 0)) {
+    return prevTriggerIndex;
+  }
+  if (0 < direction) {
+    return firstTriggerIndex;
+  }
+  return -1;
 }
 
 /* ---- AITrigger_TriggerManager::DescribeTrigger  [@0x80072e10] ---- */

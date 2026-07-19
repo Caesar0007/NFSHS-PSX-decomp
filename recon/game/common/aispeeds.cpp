@@ -184,10 +184,11 @@ int AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRend
 {
   int leadIndex;
   int f_crappyFrameRateCompensatingSpeedup;
+  leadIndex = Cars_gNumAIRaceCars - carObj->AISlot;   /* H41: compute EARLY (oracle: subu right after loading Cars_gNumAIRaceCars, before the guard) */
   if ((((1 < Cars_gNumAIRaceCars) && (GameSetup_gData.raceType != 1)) &&
       (simGlobal.gameTicks < 0x780)) &&
      ((Cars_gNumHumanRaceCars == 1 && ((*(u_short *)((char *)Cars_gHumanRaceCarList[0] + 6)) < (carObj->N).totalSlice)))) {
-    return (Cars_gNumAIRaceCars - carObj->AISlot) * 0x3333 + 0x10000;
+    return leadIndex * 0x3333 + 0x10000;
   }
   return 0x10000;
 }
@@ -546,29 +547,36 @@ Car_tObj * AISpeeds_GetNextAICar(Car_tObj *carObj)
 /* ---- AISpeeds_GetPrevAICar__FP8Car_tObj  [@0x8006e264] ---- */
 Car_tObj * AISpeeds_GetPrevAICar(Car_tObj *carObj)
 {
-  Car_tObj*prevCar;
-  Car_tObj*testCar;
+  /* H43: SYM-wired locals (prevCar $a3, testCar $v1, carLoop $a1 -- confirmed via
+   * dumpsym_src/nfs4-f-v3.txt @0x8006e264 Block-start REG entries). The recon previously ran
+   * through anonymous pCVar1/iVar2/ppCVar3/pCVar4 temps with a HAND-ROLLED pointer-walk
+   * (ppCVar3++), which forced the walk pointer into $a1 and the real named counter into $a2 --
+   * backwards vs the oracle. Real source used plain ARRAY INDEXING
+   * (`Cars_gTotalSortedList[carLoop]`); gcc's own strength-reduction turns that into the
+   * pointer-increment codegen the oracle shows, leaving the SYNTHETIC stride pointer to soak up
+   * $a2 and the real named `carLoop` to keep $a1 (§3.12 #1 index-form vs pointer-walk). */
+  Car_tObj *prevCar;
+  Car_tObj *testCar;
+  int zeroTrip;   /* H43b (PERMUTER, score 0 @iter353): a SEPARATE fresh-zero temp feeds the
+                   * entry guard test AND initializes carLoop -- reusing carLoop directly for
+                   * both the guard and the loop counter colors the a1/a2 pair backwards vs the
+                   * oracle. Transcribed verbatim (decl scope/order load-bearing, §3.12 #15). */
   int carLoop;
-  Car_tObj *pCVar1;
-  int iVar2;
-  Car_tObj **ppCVar3;
-  Car_tObj *pCVar4;
-  
-  pCVar4 = (Car_tObj *)0x0;
-  iVar2 = 0;
-  if (0 < Cars_gNumCars) {
-    ppCVar3 = Cars_gTotalSortedList;
+
+  zeroTrip = 0;
+  prevCar = (Car_tObj *)0x0;
+  carLoop = zeroTrip;
+  if (zeroTrip < Cars_gNumCars) {
     do {
-      pCVar1 = *ppCVar3;
-      if (carObj == pCVar1) {
-        return pCVar4;
+      testCar = Cars_gTotalSortedList[carLoop];
+      if (carObj == testCar) {
+        return prevCar;
       }
-      if ((pCVar1->carFlags & 8U) != 0) {
-        pCVar4 = pCVar1;
+      if ((testCar->carFlags & 8U) != 0) {
+        prevCar = testCar;
       }
-      iVar2 = iVar2 + 1;
-      ppCVar3 = ppCVar3 + 1;
-    } while (iVar2 < Cars_gNumCars);
+      carLoop = carLoop + 1;
+    } while (carLoop < Cars_gNumCars);
   }
   return (Car_tObj *)0x0;
 }
@@ -757,12 +765,12 @@ int AISpeeds_GetDamageFactor(Car_tObj *carObj)
   int iVar3;
   int iVar4;
   
-  iVar1 = (carObj->N).damage[0];
-  iVar2 = (carObj->N).damage[1];
-  iVar4 = (carObj->N).damage[3];
-  iVar3 = (carObj->N).damage[2];
-  carObj->damageMult = 0;
-  iVar1 = iVar1 + iVar2 + iVar3 + iVar4 + (carObj->N).damage[4] + (carObj->N).damage[5] +
+  carObj->damageMult = 0;   /* H45: plain sequential sum, no pre-loaded temps -- the oracle's
+                             * odd dmg0,dmg1,dmg3-early,dmg2 load order + interleaved
+                             * damageMult=0 store is pure DELAY-SLOT SCHEDULING of a single
+                             * straight-line `d0+d1+d2+...+d7` expression, not a source hint. */
+  iVar1 = (carObj->N).damage[0] + (carObj->N).damage[1] + (carObj->N).damage[2] +
+          (carObj->N).damage[3] + (carObj->N).damage[4] + (carObj->N).damage[5] +
           (carObj->N).damage[6] + (carObj->N).damage[7];
   carObj->damageMult = iVar1;
   if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
@@ -776,11 +784,14 @@ int AISpeeds_GetDamageFactor(Car_tObj *carObj)
   }
   iVar1 = fixedmult(iVar1,iVar2);
   carObj->damageMult = iVar1;
-  iVar2 = 0x10000 - carObj->damageMult;
-  carObj->damageMult = iVar2;
+  /* H45b: `volatile` CODEGEN DEVICE (cf. H40) -- oracle genuinely reloads damageMult from memory
+   * here (`sw`, then a fresh `lw`) instead of reusing the just-stored fixedmult result register;
+   * a plain field re-read gets CSE'd back to iVar1 with no intervening call/aliasing hazard. */
+  iVar4 = 0x10000 - *(volatile int *)&carObj->damageMult;
+  carObj->damageMult = iVar4;
   iVar1 = 0x8000;
-  if (0x7fff < iVar2) {
-    iVar1 = iVar2;
+  if (0x7fff < iVar4) {
+    iVar1 = iVar4;
   }
   carObj->damageMult = iVar1;
   return iVar1;
@@ -966,29 +977,30 @@ void AISpeeds_CalcDesiredSpeed(Car_tObj *carObj)
   
   uVar2 = carObj->carFlags;
   carObj->desiredSpeed = 0;
-  if ((uVar2 & 8) == 0) {
-    if ((uVar2 & 0x20) == 0) {
-      if ((uVar2 & 0x10) != 0) {
-        iVar1 = AISpeeds_CalcTrafficTopSpeed(carObj);
-        carObj->desiredSpeed = iVar1;
-        carObj->originalDesiredSpeed = iVar1;
-      }
-    }
-    else {
-      if ((carObj->AIFlags & 2U) == 0) {
-        iVar1 = AISpeeds_CalcTrafficTopSpeed(carObj);
-        carObj->desiredSpeed = iVar1;
-      }
-      else {
-        iVar1 = AISpeeds_CalcCopTopSpeed(carObj);
-        carObj->desiredSpeed = iVar1;
-      }
-      carObj->originalDesiredSpeed = carObj->desiredSpeed;
-    }
-  }
-  else {
+  if ((uVar2 & 8) != 0) {   /* H44: if/else ARM ORDER controls beqz/bnez polarity -- oracle's
+                             * `beqz` skips straight to the Opponent-case block (this is the
+                             * FALL-THROUGH/true arm, not the else); the previous `==0`-first
+                             * form emitted the inverted `bnez`. */
     iVar1 = AISpeeds_CalcOpponentTopSpeed(carObj,&carObj->originalDesiredSpeed);
     carObj->desiredSpeed = iVar1;
+  }
+  else if ((uVar2 & 0x20) != 0) {   /* H44 (cont.): same arm-order/polarity fix at the 2nd level */
+    if ((carObj->AIFlags & 2U) != 0) {   /* Cop is the fall-through arm (oracle beqz-skips-to-Traffic) */
+      iVar1 = AISpeeds_CalcCopTopSpeed(carObj);
+      carObj->desiredSpeed = iVar1;
+    }
+    else {
+      iVar1 = AISpeeds_CalcTrafficTopSpeed(carObj);
+      carObj->desiredSpeed = iVar1;
+    }
+    carObj->originalDesiredSpeed = carObj->desiredSpeed;
+  }
+  else {
+    if ((uVar2 & 0x10) != 0) {
+      iVar1 = AISpeeds_CalcTrafficTopSpeed(carObj);
+      carObj->desiredSpeed = iVar1;
+      carObj->originalDesiredSpeed = iVar1;
+    }
   }
   return;
 }
@@ -1089,21 +1101,21 @@ void AISpeeds_MaintainLeaderBoard(void)
 /* ---- AISpeeds_GetScriptFactor__FP8Car_tObj  [@0x8006f0a4] ---- */
 int AISpeeds_GetScriptFactor(Car_tObj *carObj)
 {
+  AIScript_t *scriptPtr;   /* H42: explicit &carObj->script local (was inlined at both call sites) --
+                             * pins the base pointer to $s0 ahead of iVar1's call-result cache in $s1,
+                             * matching the oracle's saved-reg roles. */
   int iVar1;
   int iVar2;
-  
-  iVar1 = AIScript_DoReAction(&carObj->script,4);
-  if (iVar1 == -1) {
-    iVar2 = AIScript_DoReAction(&carObj->script,0x10);
-    iVar1 = 0x8000;
-    if (iVar2 == -1) {
-      iVar1 = 0x10000;
-    }
+  scriptPtr = &carObj->script;
+  iVar1 = AIScript_DoReAction(scriptPtr,4);
+  if (iVar1 != -1) {
+    return 0x18000;
   }
-  else {
-    iVar1 = 0x18000;
+  iVar2 = AIScript_DoReAction(scriptPtr,0x10);
+  if (iVar2 != iVar1) {
+    return 0x8000;
   }
-  return iVar1;
+  return 0x10000;
 }
 
 /* ---- AISpeeds_GetUpgradeAccMult__Fi  [@0x8006f10c] ---- */

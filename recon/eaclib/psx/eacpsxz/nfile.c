@@ -79,7 +79,16 @@ extern void freehandle(FileHandle *h)
 /* reservehandle @0x800ED240 : find a free (inuse==0) handle slot, mark it used, return it (0 if none).
  * asm: walks a pointer (not an indexed array) to find the slot but, after leaving the CS, RECOMPUTES
  * the found slot's address from the loop COUNTER alone (handlearray + i*0x4C) rather than carrying the
- * walking pointer out -- so the C tracks only the index `i`, never a separate result pointer. */
+ * walking pointer out -- so the C tracks only the index `i`, never a separate result pointer.
+ * 🔴 RESIDUAL FLOOR (32 diffs, investigated this wave): count matches (44=44). Oracle's scan loop
+ * is UNROTATED (enters the body directly after the blez guard, tests h->inuse first, increments +
+ * re-tests i<handlecount at the BOTTOM, no entry jump-to-condition); ours compiles the identical
+ * for(;;){break;break;} shape ROTATED (an unconditional `j` to a mid-loop test before the first
+ * real iteration, classic for-loop rotation). Tried an explicit `do{}while(1)` instead of `for(;;)`
+ * -- byte-identical codegen (gcc treats them the same at this opt level; not an AST-level lever
+ * here). Also a wide $a1/$a3/$v0/$v1 register-coloring divergence throughout, likely downstream of
+ * the same rotation decision. reserveop (below) is the same shape/family, same floor. Not cracked
+ * by source reshaping so far; permuter candidate (not run this wave). */
 extern FileHandle *reservehandle(void)
 {
     int i, sr;
@@ -152,7 +161,12 @@ extern int FILE_overhead(int handlecount, int memsize, int opcount)
 extern int FILE_opstatus(unsigned int id)
 {
     /* MATCH: positive-branch form (lever #7) -- the match test jumps FORWARD to the success
-     * return; the -3 "stale/invalid id" return is the shared fallthrough/jump target. */
+     * return; the -3 "stale/invalid id" return is the shared fallthrough/jump target.
+     * 🔴 RESIDUAL FLOOR (7 diffs, investigated this wave): same unexplained 16-byte stack-frame
+     * family as FILE_operror -- oracle reserves addiu sp,-0x10/+0x10 (in the entry beqz's own
+     * delay slot / the shared-tail epilogue) that ours never allocates, plus an
+     * addu a0,v1,v0 vs addu a0,v0,v1 operand-order swap on the index-to-pointer add. No source
+     * lever tried on the sibling FILE_operror moved it; accept as the same toolchain floor. */
     FileOp *op;
     if (id != 0) {
         op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
@@ -167,6 +181,15 @@ success:
 /* FILE_operror @0x800EBE1C : raw error code of the op named by `id` (index=id>>24; no validation). */
 extern int FILE_operror(unsigned int id)
 {
+    /* 🔴 RESIDUAL FLOOR (18 diffs, investigated this wave): oracle reserves an unexplained
+     * 16-byte stack frame (addiu sp,-0x10 / +0x10) on this LEAF accessor with NO calls and NO
+     * apparent spill need, plus copies `id` into a fresh reg BEFORE computing %hi(oparray) --
+     * ours keeps id in $a0 and never allocates a frame (10 insns vs 12). Tried: array-index
+     * form (`gFileMgr.oparray[id>>24]`), a separate `idx` temp before the pointer add, and a
+     * K&R-style (non-ANSI-prototype) function definition to force an arg-save area -- ALL
+     * three produced byte-IDENTICAL codegen to the current form (no effect). FILE_opstatus has
+     * the exact same unexplained frame (confirmed same family). Not source-shapable found;
+     * accept as a genuine toolchain/allocator floor. */
     FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
     return op->error;
 }
@@ -513,7 +536,15 @@ extern int iFILE_CommandCompleteCallback(int result)
     /* @0x800ED040-50: a flat chain of early-out tests, EACH jumping (with its value already loaded in
      * the branch's delay slot) straight to the shared store -- not an if/else-if/else (that nests the
      * tests instead of chaining independent early-outs to one target). cancelreq!=0 -> -1, result==0 ->
-     * -2, else 1 (fall-through default). */
+     * -2, else 1 (fall-through default).
+     * 🔴 RESIDUAL FLOOR (23 diffs, investigated this wave): oracle reads the OLD cmd->status
+     * into a register BEFORE this chain (immediately overwritten on every path -- genuinely
+     * dead) and keeps the whole status computation in ONE register ($v0) shared with the
+     * branch-test values; ours uses a SEPARATE `status` local ($v1) and never emits the dead
+     * pre-read (gcc DCEs `status=cmd->status;` when immediately overwritten -- tried it, no
+     * codegen change). Oracle also RE-LOADS cmd->callback right before the `jalr` instead of
+     * reusing the value from the earlier null-test (a fresh load vs a cached test value). Pure
+     * v0-vs-v1 coloring + a reload-vs-reuse tie-break; not source-shapable so far. */
     status = -1;
     if (cmd->cancelreq != 0) goto store_status;         /* cancel in flight -> cancelled */
     status = -2;
@@ -649,7 +680,15 @@ extern unsigned int FILE_addbig(char *name, unsigned int a1, unsigned int dataty
  *   NOTE (faithful quirks): the close handle is captured from the device-LIST HEAD before the search, and
  *   the head-removal case zeroes gFileMgr.devicelist rather than relinking node->next -- i.e. the routine
  *   effectively assumes the target archive is the head of the device list (BIG archives are torn down
- *   LIFO).  A not-found device dereferences null (matches the asm; never happens in practice). */
+ *   LIFO).  A not-found device dereferences null (matches the asm; never happens in practice).
+ * 🔴 RESIDUAL FLOOR (14 diffs, investigated this wave): count matches (101=101) -- pure register
+ * coloring. Oracle keeps `prev` in a callee-saved $s0 (materialized =0 early, in the same delay
+ * slot as the busy-check branch, then reused as-is through the device-list walk) and `closeHandle`
+ * in $s3 (recycled once the gFileDevice base pointer that lived there goes dead); ours colors
+ * `prev`->the physical reg backing the unused 3rd param and `closeHandle`->$s0 instead. Tried
+ * reordering the two locals' declarations (no effect, gcc's allocno priority is live-range-based
+ * not decl-order for this pair). Not cracked by source reshaping; a permuter target (C-lane
+ * eaclib module, needs the CC1PSX not CC1PLPSX compile path -- not run this wave). */
 extern unsigned int FILE_delbig(int delHandle, unsigned int a2, unsigned int a3)
 {
     int    *node = (int *)gFileMgr.devicelist;      /* s1 */

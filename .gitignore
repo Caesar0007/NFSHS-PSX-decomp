@@ -30,3 +30,4 @@ build/decompme_claims.jsonl
 catalog_gaps.txt
 .catalog_gaps.tmp
 tools/pattern_db.json
+scratchpad_dump.py

@@ -82,16 +82,24 @@ extern void queueadd(AsyncQueue *q, AsyncReq *n)
 /* queuefetch @0x800F0B74 : pop the head of FIFO `q` (returns 0 if empty). */
 extern AsyncReq *queuefetch(AsyncQueue *q)
 {
-    /* 🔴 FLOOR (§3.15 v0-vs-v1 tie-break): oracle loads head into $v0 for the test, then
-     * copies it into $v1 (materializing a phi at the join point) because $v0 gets reused for
-     * the `r->next` load on the taken path; ours allocates the head-load straight into $v1
-     * and never needs the copy (1 insn shorter, functionally identical). Tried an explicit
-     * `next` temp (no effect) -- pure allocator tie-break, not source-shapable. Accept. */
+    /* MATCH (was a documented v0-vs-v1 "floor" -- cracked): oracle loads head into $v0 for the
+     * test, defaults the return value $v1=0 in the beqz's OWN delay slot (dead-code-motion of
+     * the zero-init down to its latest legal point), and only INSIDE the taken branch copies
+     * v0->v1 before dereferencing ->next THROUGH v1 (not v0). Reproduce with a SEPARATE `head`
+     * pointer for the queue-head load/test, `r=0` initialized as its OWN statement placed right
+     * AFTER the head load (not with the other decls up top -- that hoists the zero-init before
+     * the critical section instead of into the branch slot), and `r=head;` + `r->next` (not
+     * `head->next`) inside the if-body so the dereference goes through the copy. */
+    AsyncReq *head;
     AsyncReq *r;
     int sr;
     ASYNC_enterCS(sr);
-    r = q->head;                            /* 0 if empty */
-    if (r != 0) q->head = r->next;
+    head = q->head;                         /* 0 if empty */
+    r = 0;
+    if (head != 0) {
+        r = head;
+        q->head = r->next;
+    }
     ASYNC_leaveCS(sr);
     return r;
 }
@@ -451,9 +459,11 @@ extern int asyncloadsegmentcallback(int offset, int dest, int size, int cb)
     req->bytesread = 0;
     req->status    = 0;
     req->buffer    = 0;
-    req->arg24     = size;             /* remaining bytes */
+    /* MATCH: oracle store order is callback,offset,arg24(size),dest(delay) -- NOT struct-field
+     * order -- reproduce the literal statement order to match the codegen. */
     req->callback  = cb;
     req->offset    = offset;
+    req->arg24     = size;             /* remaining bytes */
     req->dest      = dest;             /* asm: delay slot */
     if (asyncfilehandle == 0) {        /* no file open -> finish now */
         finishrequest(req);

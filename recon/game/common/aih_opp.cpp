@@ -35,16 +35,14 @@ void AIHigh_Opponent::CheckForWipeOut()
 
   bool bVar1;
 
-  int iVar2;
-
   oppLevel = *(int *)((char *)this + 148);                    /* $t7, unconditional prologue load */
   oppFines = *(int *)((char *)this->carObj_ + 932);           /* $t6, unconditional prologue load (via carObj_ = $v1) */
 
   if ((Cars_gNumCopCars != 0) &&
 
-     ((this->carObj_)->wipeOutEndTick <=
+     (simGlobal.gameTicks >=
 
-      simGlobal.gameTicks)) {
+      (this->carObj_)->wipeOutEndTick)) {
 
     bVar1 = false;
 
@@ -60,7 +58,9 @@ void AIHigh_Opponent::CheckForWipeOut()
 
     if ((!bVar1) &&
 
-       (0x27f < simGlobal.gameTicks -
+       (perTickProb = 0x27f < simGlobal.gameTicks -   /* permuter: early perTickProb-reg reservation
+                                            (525 vs 740 score) -- dead store, immediately overwritten
+                                            below, but reserves perTickProb's home register early */
 
                 (this->carObj_)->wipeOutEndTick)) {
 
@@ -77,17 +77,17 @@ void AIHigh_Opponent::CheckForWipeOut()
       if (randVal < perTickProb) {                                /* 0x800633DC-E8 */
         this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;      /* 0x800633EC-F8 */
       }
-      iVar2 = 0;
       pInfo = &this->perpChaseInfo_;
       if (pInfo->bestChaseLevelIndex_ != (pInfo->copGameInfo_)->numLevels + -1) {
         for (hLoop = 0; hLoop < Cars_gNumHumanRaceCars; hLoop = hLoop + 1) {   /* 0x80063450 */
           Car_tObj    *carObj_h     = Cars_gHumanRaceCarList[hLoop];           /* 0x8006345C */
           int          field1380    = *(int *)((char *)carObj_h + 1380);       /* 0x80063468 */
-          int          absField1380 = (field1380 < 0) ? -field1380 : field1380;/* 0x80063474-7C */
           AIHigh_Base *tableEntry   = highLevelAIObjs[*(int *)((char *)carObj_h + 596)]; /* carIndex, 0x80063464-84 */
           int          oppFines_v1  = *(int *)((char *)carObj_h + 932);        /* 0x80063488 */
           int          state        = *(int *)((char *)tableEntry + 148);      /* 0x8006348C */
-          if (0xd5554 < absField1380) {                                        /* 0x80063480/90 */
+          if (0xd5554 < ((field1380 < 0) ? -field1380 : field1380)) {          /* 0x80063480/90: permuter-found
+                                            double-roll -- oracle RE-DERIVES the ternary at the compare site
+                                            instead of reusing absField1380 (740 vs 1015 base permuter score) */
             if (state < 2 && !(oppLevel < 3)) {                                /* 0x80063494-A0: skips the fines check */
               /* branch 0x800634A0's DELAY SLOT (0x800634A4 $a0=$t2<<2=116*ae) runs before reaching RANDGATE.
                  oracle recomputes `AI_elapsedTime*116` FRESH at EACH branch's delay slot (byte-identical
@@ -141,39 +141,39 @@ int AIHigh_Opponent::DoRearEnder()
 
   Car_tObj *pCVar4;
 
-  int iVar5;
-
   Car_tObj *pCVar6;
 
   Car_tObj **ppCVar7;
 
-  int *tickPtr;
+  Sim_tSimGlobalVar *tickPtr;
 
 
 
-  iVar1 = AIScript_DoReAction(&(this->carObj_)->script,0x100);
+  attackIndex = AIScript_DoReAction(&(this->carObj_)->script,0x100);   /* SYM: attackIndex is REG $s1,
+                                            held live across the AIWorld_SplineDistance call below --
+                                            rewired from anonymous iVar1 per the SYM ground truth. */
 
-  if (iVar1 != -1) {
+  if (attackIndex != -1) {
 
-    pCVar6 = Cars_gList[iVar1];
+    otherCarObj = Cars_gList[attackIndex];
 
-    longDistance = AIWorld_SplineDistance(pCVar6,this->carObj_);
+    longDistance = AIWorld_SplineDistance(otherCarObj,this->carObj_);
 
     pCVar4 = this->carObj_;
 
     longDistance = longDistance * pCVar4->direction;
 
-    iVar5 = pCVar4->roadPosition - pCVar6->roadPosition;
+    latDistance = pCVar4->roadPosition - otherCarObj->roadPosition;
 
-    if (iVar5 < 0) {
+    if (latDistance < 0) {
 
-      iVar5 = -iVar5;
+      latDistance = -latDistance;
 
     }
 
-    if ((longDistance - 0x10001U < 0x26ffff) && (iVar5 < longDistance * 2)) {
+    if ((longDistance - 0x10001U < 0x26ffff) && (latDistance < longDistance * 2)) {
 
-      longDistance = pCVar6->currentSpeed;
+      longDistance = otherCarObj->currentSpeed;
 
       if (longDistance < 0) {
 
@@ -183,7 +183,7 @@ int AIHigh_Opponent::DoRearEnder()
 
       if (0xb1c71 < longDistance) {
 
-        return iVar1;
+        return attackIndex;
 
       }
 
@@ -209,10 +209,13 @@ int AIHigh_Opponent::DoRearEnder()
 
       ppCVar7 = Cars_gHumanRaceCarList;
 
-      tickPtr = &simGlobal.gameTicks;   /* §3.12 lever #16: hold the address across the AIWorld_SplineDistance
-                                            call (oracle keeps &simGlobal in a callee-saved $s4, re-reading
-                                            gameTicks via 4($s4) at BOTH mask-check sites, instead of
-                                            rematerializing %hi/%lo(simGlobal) fresh each time) */
+      tickPtr = &simGlobal;   /* §3.12 lever #16: hold the &simGlobal BASE in a callee-saved $s4 across
+                                            the AIWorld_SplineDistance call (H26 FIX: oracle keeps the
+                                            STRUCT BASE, not a pre-offset &simGlobal.gameTicks -- it
+                                            re-applies the +4 gameTicks field offset as the LOAD
+                                            DISPLACEMENT at both mask-check sites: `lw v1,4(s4)`, not
+                                            `lw v1,0(s4)`. Confirmed via Sim_tSimGlobalVar layout
+                                            (gameTicks @+4). Rewired *tickPtr -> tickPtr->gameTicks). */
 
       for (; racerLoop < Cars_gNumHumanRaceCars; racerLoop = racerLoop + 1) {   /* SYM: racerLoop is a
                                             SEPARATE local from the pre-loop longDistance check (2nd SYM
@@ -221,47 +224,56 @@ int AIHigh_Opponent::DoRearEnder()
                                             var, conflating it with the pre-loop longDistance temp forces
                                             them into ONE callee-saved reg for the whole function). */
 
-        pCVar4 = *ppCVar7;
+        otherCarObj = *ppCVar7;   /* SYM: otherCarObj is REG $s0, RE-DECLARED (fresh block-scope
+                                     pseudo) inside this loop -- same physical slot as section 1's
+                                     otherCarObj, rewired from anonymous pCVar4. */
 
-        iVar1 = (pCVar4->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices;
+        iVar1 = (otherCarObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices;
 
         if (((int)-((u_int)*(u_char *)(iVar1 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar1 + 0x1d) >> 4))
 
-             <= pCVar4->roadPosition) &&
+             <= otherCarObj->roadPosition) &&
 
-           (pCVar4->roadPosition <=
+           (otherCarObj->roadPosition <=
 
             (int)((u_int)*(u_char *)(iVar1 + 0x1f) * 0x8000 * (*(u_char *)(iVar1 + 0x1d) & 0xf)))) {
 
-          iVar1 = AIWorld_SplineDistance(pCVar4,this->carObj_);
+          iVar1 = AIWorld_SplineDistance(otherCarObj,this->carObj_);
 
           pCVar6 = this->carObj_;
 
           iVar1 = iVar1 * pCVar6->direction;
 
-          iVar5 = pCVar6->roadPosition - pCVar4->roadPosition;
+          latDistance = pCVar6->roadPosition - otherCarObj->roadPosition;   /* SYM: latDistance REG $a1,
+                                     re-declared fresh in this block (same reg as section 1's). */
 
-          if (iVar5 < 0) {
+          if (latDistance < 0) {
 
-            iVar5 = -iVar5;
+            latDistance = -latDistance;
 
           }
 
-          if ((((iVar1 - 0x10001U < 0x26ffff) && (iVar5 < iVar1 * 2)) &&
+          if ((((iVar1 - 0x10001U < 0x26ffff) && (latDistance < iVar1 * 2)) &&
 
-              (uVar3 = *(u_int *)(pCVar6->personality + 0x48),
+              /* H26: BUG FIX -- personality is a REAL typed AIPerson_t* (sizeof 84); the old
+                 `*(u_int*)(personality + 0x48)` did POINTER ARITHMETIC scaled by 84 (0x48*84=6048,
+                 matched the oracle's huge bogus-looking `lw a1,6048(v0)` diff literally, confirming
+                 this WAS the reconstruction bug, not a real 6048-byte-offset access). Oracle's true
+                 codegen is a single fused `lw a0,0x48(personality)` -- the real struct field
+                 AIPerson_t::rearBumpProbMask @+0x48 (u_int) via real member access. */
+              (uVar3 = pCVar6->personality->rearBumpProbMask,
 
-              (*tickPtr + pCVar6->carIndex * 0x7b & uVar3) == uVar3)) ||
+              (tickPtr->gameTicks + pCVar6->carIndex * 0x7b & uVar3) == uVar3)) ||
 
              ((iVar1 + 0x3ffffU < 0x7ffff &&
 
               (pCVar6 = this->carObj_,
 
-              uVar3 = *(u_int *)(pCVar6->personality + 0x4c),
+              uVar3 = pCVar6->personality->smackProbMask,   /* AIPerson_t::smackProbMask @+0x4C */
 
-              (*tickPtr + pCVar6->carIndex * 0x7b & uVar3) == uVar3)))) {
+              (tickPtr->gameTicks + pCVar6->carIndex * 0x7b & uVar3) == uVar3)))) {
 
-            return pCVar4->carIndex;
+            return otherCarObj->carIndex;
 
           }
 
@@ -301,8 +313,6 @@ void AIHigh_Opponent::HighExecute()
   AIState_Normal *pAVar1;
 
   AIState_Base *pAVar2;
-
-  int aggressionLevel;
 
   AIHigh_tAttackMode AVar3;
 
@@ -360,13 +370,15 @@ void AIHigh_Opponent::HighExecute()
 
     this->CheckForWipeOut();
 
-    iVar5 = AIScript_DoReAction(&(this->carObj_)->script,0x40);
+    attackIndex = AIScript_DoReAction(&(this->carObj_)->script,0x40);   /* SYM: attackIndex is REG $s1,
+                                            rewired from anonymous iVar5 per the SYM ground truth (Block
+                                            start line=13 spans the whole case-2 body). */
 
-    if (iVar5 == -1) {
+    if (attackIndex == -1) {
 
-      iVar5 = this->DoRearEnder();
+      attackIndex = this->DoRearEnder();
 
-      if (iVar5 != -1) {
+      if (attackIndex != -1) {
 
         AVar3 = 1;
 
@@ -374,11 +386,11 @@ void AIHigh_Opponent::HighExecute()
 
       }
 
-      iVar5 = this->DoProvokedAttack();
+      attackIndex = this->DoProvokedAttack();
 
       AVar3 = 3;
 
-      if (iVar5 != -1) goto LAB_800638c0;
+      if (attackIndex != -1) goto LAB_800638c0;
 
     }
 
@@ -398,11 +410,11 @@ LAB_800638c0:
 
       iVar6 = this->attackMode_ - 1;
 
-      aggressionLevel = 2;
+      aggression = 2;   /* SYM: aggression is REG $s0 (Block start line=33), rewired from aggressionLevel */
 
       if (1 < iVar6) {
 
-        aggressionLevel = iVar6;
+        aggression = iVar6;
 
       }
 
@@ -410,7 +422,7 @@ LAB_800638c0:
 
       pAVar7 = (new(pAVar7) AIState_Chase(this->carObj_,
 
-                          Cars_gList[iVar5],&cStack_28,0x20,0x960000,0x960000,aggressionLevel,
+                          Cars_gList[attackIndex],&cStack_28,0x20,0x960000,0x960000,aggression,
 
                           0x10000));
 

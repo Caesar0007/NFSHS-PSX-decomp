@@ -39,38 +39,35 @@ void AIWorld_FindBarrierLessLaneAndPosition(Car_tObj *carObj,int *goodLane,int *
 /* ---- AIWorld_ZSplineDistance__FP8Car_tObjT0  [@0x80072f90] ---- */
 int AIWorld_ZSplineDistance(Car_tObj *carObj,Car_tObj *otherCarObj)
 {
-  coorddef relPos;
-  coorddef forward;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int b;
-  
-  iVar1 = (carObj->N).position.z;
-  iVar3 = (otherCarObj->N).position.z;
-  b = (carObj->N).roadMatrix.m[8];
-  iVar2 = fixedmult((carObj->N).position.x - (otherCarObj->N).position.x,
-                     (carObj->N).roadMatrix.m[6]);
-  iVar1 = fixedmult(iVar1 - iVar3,b);
-  return iVar2 + iVar1;
+  coorddef relPos;    /* SYM AUTO struct @-0x28 -- H27 FIX: the oracle fully materializes ALL 3
+                          components of relPos/forward on the stack (incl. the UNUSED .y) before
+                          the two fixedmult calls; recon had inlined only the .x/.z terms actually
+                          consumed, dropping 2 subu+2 lw (11 insns short). */
+  coorddef forward;   /* SYM AUTO struct @-0x18 */
+
+  relPos.x = (carObj->N).position.x - (otherCarObj->N).position.x;
+  relPos.y = (carObj->N).position.y - (otherCarObj->N).position.y;
+  relPos.z = (carObj->N).position.z - (otherCarObj->N).position.z;
+  forward.x = (carObj->N).roadMatrix.m[6];
+  forward.y = (carObj->N).roadMatrix.m[7];
+  forward.z = (carObj->N).roadMatrix.m[8];
+  return fixedmult(relPos.x,forward.x) + fixedmult(relPos.z,forward.z);
 }
 
 /* ---- AIWorld_ZSplineDistance__FP8coorddefT0P10matrixtdef  [@0x80073024] ---- */
 int AIWorld_ZSplineDistance(coorddef *pos1,coorddef *pos2,matrixtdef *roadMatrix)
 {
-  coorddef relPos;
-  coorddef forward;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int b;
-  
-  iVar1 = pos1->z;
-  iVar3 = pos2->z;
-  b = roadMatrix->m[8];
-  iVar2 = fixedmult(pos1->x - pos2->x,roadMatrix->m[6]);
-  iVar1 = fixedmult(iVar1 - iVar3,b);
-  return iVar2 + iVar1;
+  coorddef relPos;    /* SYM AUTO struct @-0x28 -- H27 FIX (see the FP8Car_tObjT0 overload above):
+                          fully materialize relPos/forward incl. the unused .y component. */
+  coorddef forward;   /* SYM AUTO struct @-0x18 */
+
+  relPos.x = pos1->x - pos2->x;
+  relPos.y = pos1->y - pos2->y;
+  relPos.z = pos1->z - pos2->z;
+  forward.x = roadMatrix->m[6];
+  forward.y = roadMatrix->m[7];
+  forward.z = roadMatrix->m[8];
+  return fixedmult(relPos.x,forward.x) + fixedmult(relPos.z,forward.z);
 }
 
 /* ---- AIWorld_ApxSplineDistance__FP8Car_tObjT0  [@0x800730b8] ---- */
@@ -83,20 +80,22 @@ int AIWorld_ApxSplineDistance(Car_tObj *carObj,Car_tObj *otherCarObj)
   int iVar1;
   int iVar2;
   
-  iVar2 = (int)(carObj->N).simRoadInfo.slice - (int)(otherCarObj->N).simRoadInfo.slice;
-  if ((iVar2 < 1) || (iVar2 <= gNumSlices / 2)) {
-    iVar1 = iVar2 * 2;
-    if (-1 < iVar2) goto LAB_8007311c;
-    if (iVar2 < -(gNumSlices / 2)) {
-      iVar2 = iVar2 + gNumSlices;
-    }
+  diff = (int)(carObj->N).simRoadInfo.slice - (int)(otherCarObj->N).simRoadInfo.slice;   /* SYM: diff REG $a0 */
+  halfTrack = gNumSlices / 2;   /* SYM: halfTrack REG $a1 -- computed ONCE, reused below
+                                    (recon had `gNumSlices/2` inlined twice, a double-roll bug) */
+  if (!(diff < 1) && !(diff <= halfTrack)) {
+    diff = diff - gNumSlices;
   }
   else {
-    iVar2 = iVar2 - gNumSlices;
+    iVar1 = diff * 2;
+    if (-1 < diff) goto LAB_8007311c;
+    if (diff < -halfTrack) {
+      diff = diff + gNumSlices;
+    }
   }
-  iVar1 = iVar2 << 1;
+  iVar1 = diff << 1;
 LAB_8007311c:
-  return (iVar1 + iVar2) * 0x20000;
+  return (iVar1 + diff) * 0x20000;
 }
 
 /* ---- AIWorld_ApxSplineDistance__FP8Car_tObji  [@0x80073128] ---- */
@@ -108,20 +107,21 @@ int AIWorld_ApxSplineDistance(Car_tObj *carObj,int location)
   int iVar1;
   int iVar2;
   
-  iVar2 = (carObj->N).simRoadInfo.slice - location;
-  if ((iVar2 < 1) || (iVar2 <= gNumSlices / 2)) {
-    iVar1 = iVar2 * 2;
-    if (-1 < iVar2) goto LAB_80073188;
-    if (iVar2 < -(gNumSlices / 2)) {
-      iVar2 = iVar2 + gNumSlices;
-    }
+  diff = (carObj->N).simRoadInfo.slice - location;   /* SYM: diff REG $a0 */
+  halfTrack = gNumSlices / 2;   /* SYM: halfTrack REG $a1 -- computed ONCE (double-roll bug) */
+  if (!(diff < 1) && !(diff <= halfTrack)) {
+    diff = diff - gNumSlices;
   }
   else {
-    iVar2 = iVar2 - gNumSlices;
+    iVar1 = diff * 2;
+    if (-1 < diff) goto LAB_80073188;
+    if (diff < -halfTrack) {
+      diff = diff + gNumSlices;
+    }
   }
-  iVar1 = iVar2 << 1;
+  iVar1 = diff << 1;
 LAB_80073188:
-  return (iVar1 + iVar2) * 0x20000;
+  return (iVar1 + diff) * 0x20000;
 }
 
 /* ---- AIWorld_ApxSplineDistance__FiP8Car_tObj  [@0x80073194] ---- */
@@ -141,20 +141,21 @@ int AIWorld_ApxSplineDistance(int locationA,int locationB)
   int iVar1;
   int iVar2;
   
-  iVar2 = locationA - locationB;
-  if ((iVar2 < 1) || (iVar2 <= gNumSlices / 2)) {
-    iVar1 = iVar2 * 2;
-    if (-1 < iVar2) goto LAB_80073218;
-    if (iVar2 < -(gNumSlices / 2)) {
-      iVar2 = iVar2 + gNumSlices;
-    }
+  diff = locationA - locationB;   /* SYM: diff REG $a0 */
+  halfTrack = gNumSlices / 2;   /* SYM: halfTrack REG $a1 -- computed ONCE (double-roll bug) */
+  if (!(diff < 1) && !(diff <= halfTrack)) {
+    diff = diff - gNumSlices;
   }
   else {
-    iVar2 = iVar2 - gNumSlices;
+    iVar1 = diff * 2;
+    if (-1 < diff) goto LAB_80073218;
+    if (diff < -halfTrack) {
+      diff = diff + gNumSlices;
+    }
   }
-  iVar1 = iVar2 << 1;
+  iVar1 = diff << 1;
 LAB_80073218:
-  return (iVar1 + iVar2) * 0x20000;
+  return (iVar1 + diff) * 0x20000;
 }
 
 /* ---- AIWorld_SplineDistance__FP8Car_tObjT0  [@0x80073224] ---- */
@@ -260,20 +261,20 @@ int AIWorld_IsDriveableLane(int slice,int laneIndex)
 /* ---- AIWorld_GetProfileMask__Fi  [@0x800733fc] ---- */
 int AIWorld_GetProfileMask(int laneIndex)
 {
-  int profileIndex;
-  int laneOffset;
-  int iVar1;
-  int iVar2;
-  
-  iVar1 = 8 - (7 - laneIndex);
-  iVar2 = iVar1;
-  if (iVar1 < 0) {
-    iVar2 = 0;
+  int profileIndex;   /* SYM: REG $v1 -- rewired from anonymous iVar1/iVar2 */
+  int laneOffset;      /* SYM: REG $v0 */
+
+  laneOffset = 7 - laneIndex;      /* split into 2 statements matching the oracle's literal
+                                       two subu ops -- a single `8 - (7 - laneIndex)` expression
+                                       gets constant-folded to laneIndex+1 by cc1plus, 3 insns short */
+  profileIndex = 8 - laneOffset;
+  if (profileIndex < 0) {
+    profileIndex = 0;
   }
-  if (0xf < iVar1) {
-    iVar2 = 0xf;
+  if (0xf < profileIndex) {
+    profileIndex = 0xf;
   }
-  return 1 << (0xfU - iVar2);
+  return 1 << (0xfU - profileIndex);
 }
 
 /* ---- AIWorld_IsDriveableLane_UsingMask__Fii  [@0x8007343c] ---- */
@@ -285,20 +286,17 @@ int AIWorld_IsDriveableLane_UsingMask(int slice,int mask)
 /* ---- AIWorld_CheckForBarrierBetweenLanes__Fiii  [@0x80073458] ---- */
 int AIWorld_CheckForBarrierBetweenLanes(int slice,int lane0,int lane1)
 {
-  int profileLane0;
-  int profileLane1;
-  int profile;
-  u_int uVar1;
-  u_int uVar2;
-  u_int uVar3;
-  
-  uVar3 = 0xe - lane0;
-  uVar1 = 0xe - lane1;
-  uVar2 = (u_int)*(short *)(slice * 0x20 + (int)BWorldSm_slices + 0x16);
-  if ((int)uVar3 <= (int)uVar1) {
-    return (int)~uVar2 >> (uVar3) & ~(-1 << ((uVar1 - uVar3) + 1));
+  int profileLane0;   /* SYM: REG $a1 -- rewired from anonymous uVar3 */
+  int profileLane1;   /* SYM: REG $v1 -- rewired from anonymous uVar1 */
+  int profile;        /* SYM: REG $a0 -- rewired from anonymous uVar2 */
+
+  profile = (int)*(short *)(slice * 0x20 + (int)BWorldSm_slices + 0x16);
+  profileLane0 = 0xe - lane0;
+  profileLane1 = 0xe - lane1;
+  if (profileLane0 <= profileLane1) {
+    return ~profile >> (profileLane0) & ~(-1 << ((profileLane1 - profileLane0) + 1));
   }
-  return (int)~uVar2 >> (uVar1) & ~(-1 << ((uVar3 - uVar1) + 1));
+  return ~profile >> (profileLane1) & ~(-1 << ((profileLane0 - profileLane1) + 1));
 }
 
 /* ---- AIWorld_LaneIndex__Fii  [@0x800734cc] ---- */
@@ -364,30 +362,28 @@ void AIWorld_CalculateLaneInfo(Car_tObj *carObj)
 /* ---- AIWorld_CalculateDeltaRoadYaw__FP8Car_tObj  [@0x80073658] ---- */
 int AIWorld_CalculateDeltaRoadYaw(Car_tObj *carObj)
 {
-  int delta;
-  int yaw0;
-  int iVar1;
+  int delta;     /* SYM: REG $a0, whole-function scope -- rewired from anonymous iVar1 */
+  int yaw0;      /* SYM: REG $s0, block-scoped inside the if -- rewired from anonymous iVar3 */
   int iVar2;
-  int iVar3;
-  
-  iVar1 = 0;
+
+  delta = 0;
   if ((carObj->carFlags & 8U) != 0) {
     iVar2 = (int)(carObj->N).simRoadInfo.slice;
-    iVar3 = (carObj->N).roadYaw;
-    iVar1 = iVar2 + 1;
-    if (gNumSlices <= iVar1) {
-      iVar1 = iVar2 - (gNumSlices + -1);
+    yaw0 = (carObj->N).roadYaw;
+    delta = iVar2 + 1;
+    if (gNumSlices <= delta) {
+      delta = iVar2 - (gNumSlices + -1);
     }
-    iVar1 = Newton_CalculateSliceYaw(iVar1);
-    iVar1 = iVar1 - iVar3;
-    if (0x200 < iVar1) {
-      iVar1 = iVar1 + -0x400;
+    delta = Newton_CalculateSliceYaw(delta);
+    delta = delta - yaw0;
+    if (0x200 < delta) {
+      delta = delta + -0x400;
     }
-    if (iVar1 < -0x200) {
-      iVar1 = iVar1 + 0x400;
+    if (delta < -0x200) {
+      delta = delta + 0x400;
     }
   }
-  return iVar1;
+  return delta;
 }
 
 /* ---- AIWorld_CalcRoadBend__FP8Car_tObji  [@0x800736e0] ---- */
@@ -497,14 +493,13 @@ void AIWorld_CalcSpeed(Car_tObj *carObj)
 int AIWorld_CalcLateralVelocity(Car_tObj *carObj)
 {
   int temp;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  
-  iVar1 = fixedmult((carObj->N).linearVel.x,(carObj->N).roadMatrix.m[0]);
-  iVar2 = fixedmult((carObj->N).linearVel.y,(carObj->N).roadMatrix.m[1]);
-  iVar3 = fixedmult((carObj->N).linearVel.z,(carObj->N).roadMatrix.m[2]);
-  return iVar1 + iVar2 + iVar3;
+
+  temp = fixedmult((carObj->N).linearVel.x,(carObj->N).roadMatrix.m[0]);   /* running accumulator,
+                                    matches the oracle's immediate addu-after-each-call shape --
+                                    NOT 3 separate iVar1/2/3 results summed at the end */
+  temp = temp + fixedmult((carObj->N).linearVel.y,(carObj->N).roadMatrix.m[1]);
+  temp = temp + fixedmult((carObj->N).linearVel.z,(carObj->N).roadMatrix.m[2]);
+  return temp;
 }
 
 /* ---- AIWorld_FindBarrierLessLaneAndPosition__FP8Car_tObjPiT1  [@0x80073978] ---- */

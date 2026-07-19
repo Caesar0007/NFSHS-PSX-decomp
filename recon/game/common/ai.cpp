@@ -1009,7 +1009,7 @@ void AI_CalcBestLineMerits(Car_tObj *carObj)
   slice = carObj->lookAheadSlice;
   if ((carObj->carFlags & 8U) != 0) {
     iVar1 = fixedmult(*(int *)((char *)carObj->personality + 0x44),
-                       (int)(signed char)(AIDataRecord_BestLine->_base_AIDataRecord_t).dataBuffer_
+                       (int)(signed char)AIDataRecord_BestLine->dataBuffer_
                             [slice] << 0xe);
     carObj->preferredLateralPosition = iVar1;
     carObj->preferredLateralPositionPower = 0x50000;
@@ -1679,24 +1679,22 @@ void AI_MaybeChangeLaneSlack(Car_tObj *carObj)
 {
   int adaptedSlice;
   int range;
-  u_int uVar2;
-  int doubled;
 
-  if (0 <= (doubled = carObj->carIndex * 2)) {
-    adaptedSlice = (carObj->N).simRoadInfo.slice + doubled;
+  if (0 <= carObj->carIndex * 2) {
+    adaptedSlice = (carObj->N).simRoadInfo.slice + carObj->carIndex * 2;
     if (gNumSlices <= adaptedSlice) {
       adaptedSlice = adaptedSlice - gNumSlices;
     }
   }
   else {
-    adaptedSlice = (carObj->N).simRoadInfo.slice + doubled;
+    adaptedSlice = (carObj->N).simRoadInfo.slice + carObj->carIndex * 2;
     if (adaptedSlice < 0) {
       adaptedSlice = adaptedSlice + gNumSlices;
     }
   }
-  uVar2 = carObj->carFlags;
-  if ((((uVar2 & 4) == 0) && (((uVar2 & 8) == 0 || ((adaptedSlice >> 4) << 4 == adaptedSlice)))) &&
-     (((uVar2 & 0x10) == 0 || ((adaptedSlice >> 1) << 1 == adaptedSlice)))) {
+  if ((((carObj->carFlags & 4) == 0) &&
+      (((carObj->carFlags & 8) == 0 || ((adaptedSlice >> 4) << 4 == adaptedSlice)))) &&
+     (((carObj->carFlags & 0x10) == 0 || ((adaptedSlice >> 1) << 1 == adaptedSlice)))) {
     range = *(int *)((char *)carObj->personality + 0x1c);
     randtemp = fastRandom * randSeed;
     fastRandom = randtemp & 0xffff;

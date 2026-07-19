@@ -8,25 +8,48 @@
  *   1-based index into CD_handleTable[]; each slot holds a pointer to the file's ISO9660 directory entry
  *   (0x14 bytes: name[0xC], start sector @+0xC, size @+0x10).
  *
- *   PROGRESS (`python tools/verify_asm.py cdfs.cpp <fn>`, w16-a3 2026-07-19 sweep):
+ *   PROGRESS (`python tools/verify_asm.py cdfs.cpp <fn>`, w19-a8 2026-07-19 sweep):
  *     [PASS]  CD_Close, CD_Stopread, CD_Getinfo, readsectorB, dircompare, CD_Restore, CD_Init,
  *             CD_timerfunc                                                            -- 8/14
- *     [near]  CD_Open (11 diffs), CD_Restart (4 diffs), CD_systaskfunc (71 diffs) -- pure register-
- *             coloring/scheduling residuals; structural forms tried + a permuter pass run on each,
- *             no clean source lever found yet (no asm pins per HARD RULE -- see report)
- *     [FAIL]  CD_Read (198->64), loaddirinfo (133->115), CdReadyHandler (325->321) -- w16-a3 found
- *             and fixed the SAME real bug in CD_Read/CdReadyHandler: the "advance next
- *             chunk"/"complete now" if/else had INVERTED block order vs the oracle (oracle
- *             fall-throughs into the advance-block first, branches away to the complete-block
- *             second -- source must test `CD_remLen > 0` first, not `< 1` first). CD_Read also
- *             needed the read-state ctx sub-pointer hoisted right after the busy-check (matching
- *             the oracle's delay-slot materialization) instead of lazily at first field use.
- *             loaddirinfo: the CD_dirEntryArray+count*0x14 slot address must NOT be cached in a
- *             local -- the oracle recomputes it independently at each of its 4 uses; also
- *             converted the entry-count loop from `while` to `do-while` (oracle has no top-of-loop
- *             count test, unconditional first entry). CdReadyHandler's residual (300 oracle insns,
- *             9-ish extra saved regs/ring-retry logic) needs a much deeper pass than this wave's
- *             budget allowed -- not yet attempted beyond the block-order fix.
+ *     [near]  CD_Open (11 diffs, unchanged), CD_Restart (4 diffs, unchanged) -- pure register-
+ *             coloring/scheduling residuals; every structural source-shape variant tried (loop
+ *             rotation, guard/bound-copy split, local-pointer holds) reproduces the SAME diff shape
+ *             or regresses; a permuter grind (300+ iters, -j4) plateaued without reaching score 0.
+ *             Treat as a genuine allocator/scheduling floor for this wave; no asm pins (HARD RULE).
+ *     [near]  CD_systaskfunc (71->58 diffs) -- REAL BUG FIXED: the CdlDiskError watchdog branch
+ *             delay-slot analysis was wrong (see below); after the fix, insn count now matches the
+ *             oracle EXACTLY (87=87) and the residual is a pure ctx-base register-coloring swap
+ *             (s1<->s2) in the "done" resume block, plus a switch-dispatch test-order/bounds-check
+ *             shape gcc won't reproduce from either case-order permutation tried. Permuter running
+ *             (plateaued ~380 after 100+ iters).
+ *     [near]  CdReadyHandler (325->279->223 diffs) -- MAJOR STRUCTURAL FIX: the oracle hoists ONE
+ *             base pointer to ctx+0x20 (Ghidra's `D_80146CE4`, the same read-state sub-struct
+ *             CD_Read already models) ONCE at function entry, holds it in a callee-saved reg for
+ *             the WHOLE function, and reaches Cdinfo itself via a NEGATIVE -0x20 byte offset off
+ *             that SAME base in the early flag-tests (case2's ringIdx==-1 arm, intr==1's 3 flag
+ *             checks, case5's 2 arms) -- but switches to a freshly-materialized &Cdinfo for
+ *             everything past the CdGetSector cluster (match/no-match + "done" + advance:).
+ *             Modelled via a local `rs` struct pointer + an `RS_Cdinfo` macro for the negative
+ *             offset (321->223, insn count 279 oracle-vs-273 ours, much closer topology -- register
+ *             ROLES now match almost 1:1, e.g. our s0/s1/s2/s3 = oracle's s0/s1/s2/s3). Residual:
+ *             an 8-byte frame-size gap (360 vs 352, likely com/param/madr/rs spill-vs-register
+ *             pressure) that cascades into most of the remaining offset-shifted diff lines, plus
+ *             the switch-dispatch `andi a0,s1,0xFF` byte-mask (tried explicitly -- caused a BAD
+ *             recoloring cascade, 223->356, reverted). Needs a deeper register-pressure pass;
+ *             flagged for the next wave.
+ *     [FAIL]  CD_Read (198->64, unchanged this wave), loaddirinfo (133->115, unchanged this wave) --
+ *             out of this wave's scope (w16-a3 already fixed the real block-order bug here; see
+ *             prior-wave notes below).
+ *
+ *   w16-a3 2026-07-19 notes (kept for history): fixed the SAME real bug in CD_Read/CdReadyHandler
+ *     -- the "advance next chunk"/"complete now" if/else had INVERTED block order vs the oracle
+ *     (oracle fall-throughs into the advance-block first, branches away to the complete-block
+ *     second -- source must test `CD_remLen > 0` first, not `< 1` first). CD_Read also needed the
+ *     read-state ctx sub-pointer hoisted right after the busy-check (matching the oracle's
+ *     delay-slot materialization) instead of lazily at first field use. loaddirinfo: the
+ *     CD_dirEntryArray+count*0x14 slot address must NOT be cached in a local -- the oracle
+ *     recomputes it independently at each of its 4 uses; also converted the entry-count loop from
+ *     `while` to `do-while` (oracle has no top-of-loop count test, unconditional first entry).
  *
  *   ISO9660 directory record (loaddirinfo/CD_Init):  [0]=reclen [1]=ext_attr_len  extent(LE)@+0x02
  *     data_len(LE)@+0x0A  flags@+0x19(bit1=directory)  name_len@+0x20  name@+0x21 (";1" stripped).
@@ -464,8 +487,12 @@ extern "C" int CD_Restart(int startSector)
     CdSync(0, 0);
     if (startSector == 0)
         startSector = 0x10;
-    CD_cachedSector = startSector;        /* ctx+0x0C read-head */
+    /* oracle stores curSector (ctx+0x14) BEFORE cachedSector (ctx+0xC) -- store order matters
+     * here: it lets gcc schedule the CdReadyHandler address's final `addiu %lo` into the
+     * `jal CdReadyCallback`'s delay slot (methodology-§3.1 delay-slot-as-arg) instead of
+     * completing the address materialization early. */
     CD_curSector    = startSector;        /* ctx+0x14 target  */
+    CD_cachedSector = startSector;        /* ctx+0x0C read-head */
     CdReadyCallback(CdReadyHandler);
     CdIntToPos(CD_curSector, pos);
     return CdControl(0x1B, pos, 0);       /* CdlReadN */
@@ -485,17 +512,24 @@ extern "C" void CD_systaskfunc(void)
     ready = CdDiskReady(1);
     switch (ready) {                       /* oracle: beq==5 first, THEN a slti<6+bne!=2 guard for
                                                case 2 -- a genuine switch (not if/else-if), the case-2
-                                               arm gets a redundant bounds pre-check gcc emits for it */
+                                               arm gets a redundant bounds pre-check gcc emits for it.
+                                               (case-order swap tried 2026-07-19/w19-a8: case2-first
+                                               source LOSES the bounds check entirely + adds a stray
+                                               `j` default-fallthrough, 87->89 insns -- worse; case5
+                                               first is the closer/equal-count form, keep it.) */
     case 5:                                /* CdlDiskError -> run down the watchdog */
-        /* @0x800F9B48-B74: the watchdog only writes back at the boundaries -- CD_timeout==0 re-arms to
-         * timerhz*5; CD_timeout==1 stores 0 + done=1; for CD_timeout>=2 the branch at 0x800F9B6C exits
-         * WITHOUT storing, so the timeout is left UNCHANGED here (decremented elsewhere). The recon
-         * decremented unconditionally, persisting timeout-1 for >=2 (M01). */
+        /* @0x800F9B48-B74: BUG FIX (was M01) -- re-traced the delay slots: the `sw $v0,0x18($a0)`
+         * at .L800F9B6C sits in the INNER `bnez $v0,.L800F9B78`'s delay slot, which (like every
+         * branch delay slot) executes on BOTH paths.  So CD_timeout IS stored back unconditionally
+         * whenever it was nonzero on entry -- for old_timeout==1 the store lands 0 (+ done=1 falls
+         * through); for old_timeout>=2 the store lands old_timeout-1 (silently, done stays 0).  Only
+         * old_timeout==0 skips this whole branch and re-arms to timerhz*5 instead. */
         if (CD_timeout == 0)
             CD_timeout = timerhz * 5;     /* re-arm */
-        else if (CD_timeout == 1) {
-            CD_timeout = 0;
-            done = 1;
+        else {
+            CD_timeout = CD_timeout - 1;
+            if (CD_timeout == 0)
+                done = 1;
         }
         break;
     case 2: {                              /* CdlComplete -> a disc settled */
@@ -506,6 +540,13 @@ extern "C" void CD_systaskfunc(void)
     }
 
     if (done) {
+        CD_ctx_t *ctx;                    /* CD_ctx base held ACROSS the CdIntToPos/CdControl/
+                                              CdReadyCallback calls (methodology-lever #16
+                                              hold-global-addr-across-call) -- oracle materializes
+                                              &Cdinfo ONCE (into $s1, right before the CdIntToPos
+                                              call) and reuses it for cachedSector/remLen/ringIdx/
+                                              timeout below, instead of re-deriving the address
+                                              per field access. */
         delsystemtask((void *)CD_systaskfunc);   /* remove ourselves */
         CdReset(0);
         mode[0] = 0xA0;
@@ -513,12 +554,13 @@ extern "C" void CD_systaskfunc(void)
         VSync(3);
         CdFlush();
         CdSync(0, 0);
-        CdIntToPos(CD_cachedSector, pos);
+        ctx = &CD_ctx;
+        CdIntToPos(ctx->cachedSector, pos);
         CdControl(0x1B, pos, result);
         CdReadyCallback(CdReadyHandler);
-        if (CD_remLen > 0) {              /* a transfer was in progress -> resume it */
-            CD_ringIdx = 0;
-            CD_timeout = timerhz * 6;
+        if (ctx->remLen > 0) {            /* a transfer was in progress -> resume it */
+            ctx->ringIdx = 0;
+            ctx->timeout = timerhz * 6;
             addtimer((void *)CD_timerfunc, pos);
         }
     }
@@ -553,9 +595,23 @@ extern "C" void CdReadyHandler(int intr, unsigned char *result)
     unsigned char com;
     unsigned char *param;
     void          *madr;
-    int           done = 0;
+    int           done;
+    /* oracle hoists ONE base pointer to ctx+0x20 (the Ghidra-named `D_80146CE4` -- the read-state
+     * sub-struct curLen/remLen/curOff/curDst, same fields CD_Read models via an identical local)
+     * ONCE at function entry and holds it in a callee-saved reg ($s0) for the WHOLE function --
+     * used both for curLen/remLen/curOff/curDst (positive offsets) AND, in several spots that
+     * precede the CdGetSector/CdPosToInt calls, to reach Cdinfo itself via a NEGATIVE -0x20 byte
+     * offset off that SAME base (RS_Cdinfo below) instead of re-deriving &Cdinfo.  Once the fn
+     * passes the CdGetSector cluster, the oracle switches to a FRESH, separately-materialized
+     * &Cdinfo (the plain `Cdinfo` macro already models this) for the match/no-match + "done" +
+     * advance: logic -- so only the EARLY Cdinfo touches (case2's ringIdx==-1 arm, the intr==1
+     * flag tests, and case5's two arms) route through RS_Cdinfo; everything past CdGetSector stays
+     * on the flat macro. */
+    struct { int curLen, remLen, curOff; void *curDst; } *rs = (void *)&CD_ctx.curLen;
+#define RS_Cdinfo (*(volatile int *)((char *)rs - 0x20))
 
     CdReadyCallback(0);                   /* disarm while we run */
+    done = 0;
 
     if ((*result & 0x10) != 0) {          /* shell open / hard error -> hand off to the recovery task */
         deltimer((void *)CD_timerfunc);
@@ -566,7 +622,7 @@ extern "C" void CdReadyHandler(int intr, unsigned char *result)
     if (intr == 2) {                      /* CdlComplete */
         if (CD_ringIdx == -1) {
             CD_ringIdx = 0;
-            Cdinfo |= 2;
+            RS_Cdinfo |= 2;
         }
         goto advance;
     }
@@ -576,16 +632,16 @@ extern "C" void CdReadyHandler(int intr, unsigned char *result)
             goto advance;
 
         /* intr == 1 : CdlDataReady -- a sector is in the drive buffer */
-        if ((Cdinfo & 1) == 0) {
+        if ((RS_Cdinfo & 1) == 0) {
             CdFlush();
             CdSync(0, 0);
-        } else if ((Cdinfo & 4) != 0) {   /* stop requested (CD_Stopread) */
+        } else if ((RS_Cdinfo & 4) != 0) {   /* stop requested (CD_Stopread) */
             done = 1;
-            Cdinfo &= ~4;
+            RS_Cdinfo &= ~4;
             CdFlush();
             CdSync(0, 0);
         } else {
-            madr = (Cdinfo & 8) ? (void *)CD_sectorCache : CD_curDst;
+            madr = (RS_Cdinfo & 8) ? (void *)CD_sectorCache : rs->curDst;
             CdGetSector(hdr, 3);          /* 12-byte sector address header */
             CdGetSector(madr, 0x200);     /* 0x800 bytes of user data */
             CdGetSector(sub, 0x46);       /* trailing bytes */
@@ -594,15 +650,15 @@ extern "C" void CdReadyHandler(int intr, unsigned char *result)
                 CD_timeout = timerhz * 6;
                 if ((Cdinfo & 8) != 0) {  /* partial -> copy the wanted slice out of the cache */
                     Cdinfo = (Cdinfo & ~8) | 0x10;
-                    blockmove(&CD_sectorCache[CD_curOff], CD_curDst, CD_curLen);
-                    CD_curOff = 0;
+                    blockmove(&CD_sectorCache[rs->curOff], rs->curDst, rs->curLen);
+                    rs->curOff = 0;
                 }
-                if (CD_remLen > 0) {      /* advance to the next chunk/sector (oracle: fall-through,
+                if (rs->remLen > 0) {     /* advance to the next chunk/sector (oracle: fall-through,
                                               same block-order-inverted shape as CD_Read) */
-                    CD_curDst = (char *)CD_curDst + CD_curLen;
-                    if (CD_remLen < 0x800) { CD_curLen = CD_remLen; Cdinfo |= 8; }
-                    else                   { CD_curLen = 0x800; }
-                    CD_remLen -= CD_curLen;
+                    rs->curDst = (char *)rs->curDst + rs->curLen;
+                    if (rs->remLen < 0x800) { rs->curLen = rs->remLen; Cdinfo |= 8; }
+                    else                    { rs->curLen = 0x800; }
+                    rs->remLen -= rs->curLen;
                 } else {
                     done = 1;
                 }
@@ -637,13 +693,13 @@ extern "C" void CdReadyHandler(int intr, unsigned char *result)
     }
 
     /* intr >= 3 */
-    if (intr != 5 || (Cdinfo & 1) == 0)   /* only CdlDiskError while actively reading is interesting */
+    if (intr != 5 || (RS_Cdinfo & 1) == 0)   /* only CdlDiskError while actively reading is interesting */
         goto advance;
     CdControl(0x01, 0, &hdr[0].minute);   /* CdlNop -- read the drive status */
     CD_ringIdx++;
     CD_curSector = CD_cachedSector;
     if (CD_ringIdx < 4) {
-        Cdinfo |= 2;
+        RS_Cdinfo |= 2;
         goto advance;
     }
     CD_ringIdx = -1;
@@ -677,3 +733,4 @@ issue:
     CdControl(com, param, result);
     CdReadyCallback(CdReadyHandler);       /* re-install ourselves */
 }
+#undef RS_Cdinfo

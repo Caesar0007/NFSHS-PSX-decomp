@@ -248,9 +248,12 @@ extern "C" int creatememclass(int id, char *name, char *membuf, int bufsize,
     /* s3 = (membuf + (infosize+0x50) + (alignment+0x1F)) & -alignment, then -0x10
      * MATCH: grouped as TWO separate constant-adds materialized in SEPARATE statements
      * (infosize+0x50, alignment+0x1F) so gcc's constant folder can't merge them into one
-     * 0x6F literal -- reproduces the oracle's addiu/addiu pair. */
-    unsigned hi = (unsigned)alignment + 0x1Fu;
+     * 0x6F literal -- reproduces the oracle's addiu/addiu pair. MATCH: `lo` declared BEFORE
+     * `hi` -- the oracle combines membuf+lo first (v0), then computes+adds hi (v1) LAST,
+     * right before the &-alignment; declaring hi first (as before) materialized it too
+     * early, landing in the wrong delay slot. */
     unsigned lo = (unsigned)infosize + 0x50u;
+    unsigned hi = (unsigned)alignment + 0x1Fu;
     unsigned a = ((unsigned)membuf + lo) + hi;
     a &= (unsigned)(-alignment);
     char *low_end = (char *)a - 0x10;            /* s3 */
@@ -260,6 +263,14 @@ extern "C" int creatememclass(int id, char *name, char *membuf, int bufsize,
 
     MemClass *cls = (MemClass *)(membuf + 0x10); /* s1 = membuf+0x10 */
 
+    /* RESIDUAL (16 diffs, count-exact 124/124): the oracle materializes namebuf's address
+     * (a0=sp+0x20) INTO the highguard branch's delay slot (always-executes) and delays the
+     * `hi` (alignment+0x1F) add until right before the &-alignment combine; ours schedules
+     * `lo` (infosize+0x50) into that delay slot instead and `hi` right after the branch
+     * merge. Tried: hoisting the sprintf() call itself before this block (regresses to 33
+     * diffs -- moving the actual `jal` also moves the bufsize/a3 caller-saved-clobber
+     * point, forcing an extra cache store). A pure scheduling tie-break within one basic
+     * block; not further source-reachable without pinning. Accept as floor. */
     sprintf(namebuf, "%s LOW", name);            /* @0x8013DC20 */
     initmemblock((MemBlock *)membuf,  namebuf, 0x40, infosize,
                  flags | 0x8000, 0,                 (MemBlock *)low_end);
@@ -273,19 +284,28 @@ extern "C" int creatememclass(int id, char *name, char *membuf, int bufsize,
     blockclear(cls, 0x40);                        /* zero the 64-byte class */
     strcpy((char *)cls, name);                    /* class->name */
 
-    {   /* initialise the embedded free-ring sentinel + class fields, in oracle store order */
-        MemBlock *fh = (MemBlock *)((char *)cls + 0x10);
-        fh->magic = MAGIC_HEAD;                                   /* +0x10 */
-        cls->phys_first = (MemBlock *)membuf;                     /* +0x08 */
-        cls->phys_last  = (MemBlock *)high;                       /* +0x0C */
-        fh->freenext = (MemBlock *)((char *)membuf + 0x20);       /* +0x20 -> self (empty ring) */
-        fh->freeprev = (MemBlock *)((char *)membuf + 0x20);       /* +0x24 */
-        fh->size  = 0x7FFFFFFF;                                   /* +0x14 */
-        cls->alignment   = alignment;                            /* +0x2C */
-        cls->infosize    = infosize;                             /* +0x30 */
-        cls->flags       = flags;                                /* +0x34 */
-        cls->mutex       = 0;                                    /* +0x38 */
-        cls->granularity = granularity;                          /* +0x28 */
+    {   /* initialise the embedded free-ring sentinel + class fields, in oracle store order.
+         * MATCH: no separate `fh` pointer -- the oracle addresses every one of these fields
+         * via cls(s1)+FIXED-DISPLACEMENT (sh/sw …,0x10/0x14/0x20/0x24(s1)); materializing a
+         * distinct `fh=cls+0x10` C pointer lets gcc fold it back through cls's own known
+         * membuf+0x10 origin into a membuf-relative base (sh v0,0x20(s4) et al) instead. */
+        *(unsigned short *)((char *)cls + 0x10) = MAGIC_HEAD;      /* fh->magic  +0x10 */
+        cls->phys_first = (MemBlock *)membuf;                      /* +0x08 */
+        cls->phys_last  = (MemBlock *)high;                        /* +0x0C */
+        *(MemBlock **)((char *)cls + 0x20) = (MemBlock *)((char *)membuf + 0x20); /* fh->freenext +0x20 -> self */
+        *(MemBlock **)((char *)cls + 0x24) = (MemBlock *)((char *)membuf + 0x20); /* fh->freeprev +0x24 */
+        *(int *)((char *)cls + 0x14) = 0x7FFFFFFF;                 /* fh->size   +0x14 */
+        /* MATCH: `granularity` (a stack-passed param, never register-resident) is READ
+         * EARLY into a named temp -- the oracle reloads it (lw v0,sp+..) right up front,
+         * before the alignment/infosize/flags/mutex stores, and only USES it (the store to
+         * +0x28) at the end of the block; a bare `cls->granularity = granularity;` placed
+         * last reads-and-stores in one step, one instruction too late. */
+        int gran = granularity;
+        cls->alignment   = alignment;                             /* +0x2C */
+        cls->infosize    = infosize;                              /* +0x30 */
+        cls->flags       = flags;                                 /* +0x34 */
+        cls->mutex       = 0;                                     /* +0x38 */
+        cls->granularity = gran;                                  /* +0x28 */
     }
 
     cls->field3c     = field3c;                                  /* +0x3C, right at the FREE_add call */

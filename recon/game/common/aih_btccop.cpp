@@ -100,10 +100,6 @@ int AIHigh_BTC_Cop::GetCheckChasePosition(coorddef *pos)
 
   int iVar2;
 
-  int iVar3;
-
-  int iVar4;
-
 
 
   changed = 0;
@@ -122,15 +118,7 @@ int AIHigh_BTC_Cop::GetCheckChasePosition(coorddef *pos)
 
   newPosition = this->chaseIndex_;
 
-  iVar3 = AIH_BTCCop_chasePositions[0][newPosition].y;
-
-  iVar4 = AIH_BTCCop_chasePositions[0][newPosition].z;
-
-  pos->x = AIH_BTCCop_chasePositions[0][newPosition].x;
-
-  pos->y = iVar3;
-
-  pos->z = iVar4;
+  *pos = AIH_BTCCop_chasePositions[0][newPosition];
 
   return changed;
 
@@ -179,19 +167,13 @@ int AIHigh_BTC_Cop::CheckForNewTarget()
 
       int copToTargetDistanceMeters;
 
-      copToTargetDistanceMeters = AIWorld_ApxSplineDistance(this->carObj_,testPerpCarObj);
-
-      if (copToTargetDistanceMeters < 0) {
-
-        copToTargetDistanceMeters = -copToTargetDistanceMeters;
-
-      }
+      copToTargetDistanceMeters = __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_,testPerpCarObj));
 
       if (copToTargetDistanceMeters < newTargetDistance) {
 
-        newTarget = thisPerpHigh;
-
         newTargetDistance = copToTargetDistanceMeters;
+
+        newTarget = thisPerpHigh;
 
       }
 
@@ -199,29 +181,25 @@ int AIHigh_BTC_Cop::CheckForNewTarget()
 
   }
 
-  if ((newTarget == (AIHigh_BTC_Perp *)0x0) || (newTarget == old)) {
+  if ((newTarget != (AIHigh_BTC_Perp *)0x0) && (newTarget != old)) {
 
-    newTargetDistance = 0;
+    this->AssignToPlayer(newTarget);
 
-    if ((old != (AIHigh_BTC_Perp *)0x0) && (newTarget == (AIHigh_BTC_Perp *)0x0)) {
-
-      this->AssignToPlayer((AIHigh_BTC_Perp *)0x0);
-
-      newTargetDistance = 0;
-
-    }
+    return 1;
 
   }
 
   else {
 
-    this->AssignToPlayer(newTarget);
+    if ((old != (AIHigh_BTC_Perp *)0x0) && (newTarget == (AIHigh_BTC_Perp *)0x0)) {
 
-    newTargetDistance = 1;
+      this->AssignToPlayer((AIHigh_BTC_Perp *)0x0);
+
+    }
+
+    return 0;
 
   }
-
-  return newTargetDistance;
 
 }
 
@@ -504,33 +482,26 @@ int AIHigh_BTC_HumanCop::FindRandomBarrierFreeArea(int startSlice,int safetyZone
   int newOffset;
   int newSlice;
   int maxRuns;
-  int startCheckSlice;
-  int leftLaneFree;
-  int rightLaneFree;
-
-  int iVar1;
 
   int iVar2;
 
   int iVar3;
 
-  int iVar4;
 
-  
 
   randtemp = fastRandom * randSeed;
 
   fastRandom = randtemp & 0xffff;
 
-  iVar1 = (randomDistance * (randtemp >> 8 & 0xffff) * 2 >> 0x10) - randomDistance;
+  newOffset = (randomDistance * (randtemp >> 8 & 0xffff) * 2 >> 0x10) - randomDistance;
 
-  if (iVar1 < 0) {
+  if (newOffset < 0) {
 
-    iVar1 = startSlice + iVar1;
+    newSlice = startSlice + newOffset;
 
-    if (iVar1 < 0) {
+    if (newSlice < 0) {
 
-      iVar1 = iVar1 + gNumSlices;
+      newSlice = newSlice + gNumSlices;
 
     }
 
@@ -538,27 +509,27 @@ int AIHigh_BTC_HumanCop::FindRandomBarrierFreeArea(int startSlice,int safetyZone
 
   else {
 
-    iVar1 = startSlice + iVar1;
+    newSlice = startSlice + newOffset;
 
-    if (gNumSlices <= iVar1) {
+    if (gNumSlices <= newSlice) {
 
-      iVar1 = iVar1 - gNumSlices;
+      newSlice = newSlice - gNumSlices;
 
     }
 
   }
 
-  iVar4 = 0;
+  maxRuns = 0;
 
   do {
 
-    if (0x1d < iVar4) {
+    if (0x1d < maxRuns) {
 
-      return iVar1;
+      return newSlice;
 
     }
 
-    iVar3 = iVar1 - safetyZone;
+    iVar3 = newSlice - safetyZone;
 
     if (-safetyZone < 0) {
 
@@ -584,31 +555,31 @@ LAB_8005d270:
 
     if ((iVar2 != 0) && (iVar3 != 0)) {
 
-      return iVar1;
+      return newSlice;
 
     }
 
-    iVar1 = iVar1 + safetyZone / 5;
+    newSlice = newSlice + safetyZone / 5;
 
     if (safetyZone / 5 < 0) {
 
       iVar3 = gNumSlices;
 
-      if (iVar1 < 0) goto LAB_8005d2ec;
+      if (newSlice < 0) goto LAB_8005d2ec;
 
     }
 
-    else if (gNumSlices <= iVar1) {
+    else if (gNumSlices <= newSlice) {
 
       iVar3 = -gNumSlices;
 
 LAB_8005d2ec:
 
-      iVar1 = iVar1 + iVar3;
+      newSlice = newSlice + iVar3;
 
     }
 
-    iVar4 = iVar4 + 1;
+    maxRuns = maxRuns + 1;
 
   } while( true );
 
@@ -1360,10 +1331,6 @@ void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
 
   Speaker *pSVar5;
 
-  int iVar2;
-
-  int iVar3;
-
 
 
   if (1 < (u_int)(this->freezeMode_ - 3)) {
@@ -1376,9 +1343,9 @@ void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
 
                 ((int)&(pSVar1->fPosition).flags + (int)*(short *)((int)*pSVar1->_vf + 0x58));
 
-      iVar3 = GameSetup_gData.perpInfo[this->currentStage_].SpikeBeltTime;
+      availableTime = GameSetup_gData.perpInfo[this->currentStage_].SpikeBeltTime * 0x40 +
 
-      iVar2 = AITune_BTC[GameSetup_gData.skill].spikeBeltTime;
+                      AITune_BTC[GameSetup_gData.skill].spikeBeltTime;
 
     }
 
@@ -1390,19 +1357,17 @@ void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
 
                 ((int)&(pSVar2->fPosition).flags + (int)*(short *)((int)*pSVar2->_vf + 0x50));
 
-      iVar3 = GameSetup_gData.perpInfo[this->currentStage_].BlockadeCopTime;
+      availableTime = GameSetup_gData.perpInfo[this->currentStage_].BlockadeCopTime * 0x40 +
 
-      iVar2 = AITune_BTC[GameSetup_gData.skill].blockaderTime;
+                      AITune_BTC[GameSetup_gData.skill].blockaderTime;
 
     }
 
-    iVar2 = iVar3 * 0x40 + iVar2;
-
     if (this->chaseStartTime_ == 0) goto LAB_dispatch;
 
-    if (iVar2 < 1) goto LAB_dispatch;
+    if (availableTime < 1) goto LAB_dispatch;
 
-    if (simGlobal.gameTicks - this->chaseStartTime_ <= iVar2) goto LAB_dispatch;
+    if (simGlobal.gameTicks - this->chaseStartTime_ <= availableTime) goto LAB_dispatch;
 
     if (this->wingmanStatus_ != 5) {
 
@@ -1412,15 +1377,15 @@ void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
 
                 ((int)&(pSVar4->fPosition).flags + (int)*(short *)((int)*pSVar4->_vf + 0x20));
 
-      if (spikeBeltRequest == 0) {
+      if (spikeBeltRequest != 0) {
 
-        this->wingmanStatus_ = 2;
+        this->wingmanStatus_ = 3;
 
       }
 
       else {
 
-        this->wingmanStatus_ = 3;
+        this->wingmanStatus_ = 2;
 
       }
 
@@ -1682,15 +1647,13 @@ void AIHigh_BTC_HumanCop::HighExecute()
 
 
 {
-  coorddef notUsed;
-
   Car_tObj *pCVar1;
 
   AIHigh_BTC_Perp *pAVar2;
 
-  coorddef cStack_20;
+  coorddef notUsed;
 
-  
+
 
   if ((this->copIndex_ == 0) &&
 
@@ -1722,25 +1685,13 @@ void AIHigh_BTC_HumanCop::HighExecute()
 
   if (this->perpTarget_ != (AIHigh_BTC_Perp *)0x0) {
 
-    this->GetCheckChasePosition(&cStack_20);
+    this->GetCheckChasePosition(&notUsed);
 
   }
 
   if (AIHigh_CopGameType == 2) {
 
-    if (simGlobal.gameTicks - _19AIHigh_BTC_HumanCop_lastInputRequestTick_ < 0x281) {
-
-      pCVar1 = this->carObj_;
-
-      if ((u_char)(pCVar1->control).queuedEvent - 4 < 3) {
-
-        (pCVar1->control).queuedEvent = '\0';
-
-      }
-
-    }
-
-    else {
+    if (0x281 <= simGlobal.gameTicks - _19AIHigh_BTC_HumanCop_lastInputRequestTick_) {
 
       if (((this->carObj_)->control).queuedEvent ==
 
@@ -1775,6 +1726,18 @@ void AIHigh_BTC_HumanCop::HighExecute()
         ((this->carObj_)->control).queuedEvent = '\0';
 
         _19AIHigh_BTC_HumanCop_lastInputRequestTick_ = simGlobal.gameTicks;
+
+      }
+
+    }
+
+    else {
+
+      pCVar1 = this->carObj_;
+
+      if ((u_int)(u_char)(pCVar1->control).queuedEvent - 4 < 3) {
+
+        (pCVar1->control).queuedEvent = '\0';
 
       }
 
@@ -2500,11 +2463,15 @@ int AIHigh_BTC_Wingman::CheckForActivation()
 
   Car_tObj **ppCVar4;
 
+  AIHigh_Base **copTable;
+
 
 
   carLoop = 0;
 
   spikeBeltRequest = 0;
+
+  copTable = highLevelAIObjs;
 
   ppCVar4 = Cars_gList;
 
@@ -2516,7 +2483,7 @@ int AIHigh_BTC_Wingman::CheckForActivation()
 
     if (((otherCarObj->carFlags & 0x200U) != 0) && ((otherCarObj->N).active != '\0')) {
 
-      copHigh = (AIHigh_BTC_HumanCop *)highLevelAIObjs[otherCarObj->carIndex];
+      copHigh = (AIHigh_BTC_HumanCop *)copTable[otherCarObj->carIndex];
 
       iVar1 = (copHigh)->CheckForWingmanRequest();
 
@@ -2615,27 +2582,23 @@ void AIHigh_BTC_Wingman::SetupWingman(AIHigh_BTC_HumanCop *humanCop)
 
 
 {
-  Car_tObj*otherCarObj;
+  Car_tObj *otherCarObj;
+
   int side;
+
   int perpSide;
 
   Speaker *pSVar1;
 
-  Car_tObj *pCVar2;
 
-  int iVar3;
 
-  int direction;
+  otherCarObj = (humanCop)->carObj_;
 
-  
+  side = -1;
 
-  pCVar2 = (humanCop)->carObj_;
+  if (-1 < otherCarObj->currentSpeed) {
 
-  direction = -1;
-
-  if (-1 < pCVar2->currentSpeed) {
-
-    direction = 1;
+    side = 1;
 
   }
 
@@ -2643,23 +2606,23 @@ void AIHigh_BTC_Wingman::SetupWingman(AIHigh_BTC_HumanCop *humanCop)
 
   fastRandom = randtemp & 0xffff;
 
-  iVar3 = -1;
+  perpSide = -1;
 
   if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < 500) {
 
-    iVar3 = 1;
+    perpSide = 1;
 
   }
 
-  iVar3 = iVar3 * direction * 0x1c;
+  perpSide = perpSide * side * 0x1c;
 
-  if (iVar3 < 0) {
+  if (perpSide >= 0) {
 
-    iVar3 = (pCVar2->N).simRoadInfo.slice + iVar3;
+    perpSide = (otherCarObj->N).simRoadInfo.slice + perpSide;
 
-    if (iVar3 < 0) {
+    if (gNumSlices <= perpSide) {
 
-      iVar3 = iVar3 + gNumSlices;
+      perpSide = perpSide - gNumSlices;
 
     }
 
@@ -2667,25 +2630,25 @@ void AIHigh_BTC_Wingman::SetupWingman(AIHigh_BTC_HumanCop *humanCop)
 
   else {
 
-    iVar3 = (pCVar2->N).simRoadInfo.slice + iVar3;
+    perpSide = (otherCarObj->N).simRoadInfo.slice + perpSide;
 
-    if (gNumSlices <= iVar3) {
+    if (perpSide < 0) {
 
-      iVar3 = iVar3 - gNumSlices;
+      perpSide = perpSide + gNumSlices;
 
     }
 
   }
 
-  AILife_PlaceCarAtLocation(this->carObj_,iVar3,0,direction,
+  AILife_PlaceCarAtLocation(this->carObj_,perpSide,0,side,
 
-             pCVar2->currentSpeed,0);
+             otherCarObj->currentSpeed,0);
 
   pSVar1 = (Speaker *)Speech_Dispatch();
 
-  (**(int (**)(...))(pSVar1->_vf[1] + 0xd))
+  (**(int (**)(...))((int)*pSVar1->_vf + 0x2c))
 
-            ((int)&(pSVar1->fPosition).flags + (int)*(short *)(pSVar1->_vf[1] + 9),
+            ((int)&(pSVar1->fPosition).flags + (int)*(short *)((int)*pSVar1->_vf + 0x28),
 
              this->carObj_);
 

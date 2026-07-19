@@ -705,7 +705,7 @@ CENTER_DEMERIT:
 /* ---- AI_CalculateLaneSpeeds__FP8Car_tObj  [@0x80058d20] ---- */
 void AI_CalculateLaneSpeeds(Car_tObj *carObj)
 {
-  Car_tObj*otherCarObj;
+  Car_tObj *otherCarObj;
   int ci;
   int carObjIndexInSortedList;
   int carsFound;
@@ -715,124 +715,121 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
   int distanceFixedMetersSignChecked;
   int inverseCollisionTime;
   int inverseAheadCollisionTime;
-  int carObjLeftLaneBits;
-  int carObjThisLaneBits;
-  int carObjRightLaneBits;
+  int currentSpeedAbs;
+  u_int carObjLaneShift;
+  u_int carObjLeftLaneBits;
+  u_int carObjThisLaneBits;
+  u_int carObjRightLaneBits;
   int maxDistanceToCheck;
   int collisionSpeed;
   int aheadCollisionSpeed;
-  int iVar1;
   int iVar2;
-  int iVar3;
-  u_int uVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  Car_tObj *carObj_00;
-  u_int uVar8;
-  int iVar9;
-  int iVar10;
-  u_int uVar11;
-  u_int uVar12;
-  
-  uVar8 = 0;
-  iVar10 = 0;
-  iVar9 = 0;
-  iVar1 = *(int *)(carObj->personality + 8);
-  AI_Info.laneSpeeds[0] = carObj->desiredSpeed;
-  AI_Info.laneSpeeds[1] = carObj->desiredSpeed;
-  AI_Info.laneSpeeds[2] = carObj->desiredSpeed;
-  uVar4 = carObj->laneIndex;
-  iVar7 = carObj->sortIndex;
-  uVar12 = 1 << (uVar4 - 1);
-  uVar11 = 1 << (uVar4);
-  uVar4 = 1 << (uVar4 + 1);
-  AI_Info.laneSpeedsAhead[0] = AI_Info.laneSpeeds[0];
-  AI_Info.laneSpeedsAhead[1] = AI_Info.laneSpeeds[1];
-  AI_Info.laneSpeedsAhead[2] = AI_Info.laneSpeeds[2];
+  int desiredSpeedTmp;
+
+  lanesFilled = 0;
+  ci = 0;
+  carsFound = 0;
+  maxDistanceToCheck = *(int *)(carObj->personality + 8);
+  desiredSpeedTmp = carObj->desiredSpeed;
+  AI_Info.laneSpeedsAhead[0] = desiredSpeedTmp;
+  AI_Info.laneSpeeds[0] = desiredSpeedTmp;
+  desiredSpeedTmp = carObj->desiredSpeed;
+  AI_Info.laneSpeedsAhead[1] = desiredSpeedTmp;
+  AI_Info.laneSpeeds[1] = desiredSpeedTmp;
+  desiredSpeedTmp = carObj->desiredSpeed;
+  AI_Info.laneSpeedsAhead[2] = desiredSpeedTmp;
+  AI_Info.laneSpeeds[2] = desiredSpeedTmp;
+  carObjLaneShift = carObj->laneIndex;
+  carObjIndexInSortedList = carObj->sortIndex;
+  carObjLeftLaneBits = 1 << (carObjLaneShift - 1);
+  carObjThisLaneBits = 1 << (carObjLaneShift);
+  carObjRightLaneBits = 1 << (carObjLaneShift + 1);
   do {
-    if ((iVar9 == 3) || (Cars_gNumCars <= iVar10)) {
+    if ((carsFound == 3) || (Cars_gNumCars <= ci)) {
       return;
     }
-    iVar2 = iVar7 + iVar10 * carObj->direction + Cars_gNumCars;
-    carObj_00 = Cars_gSortedList[iVar2 % Cars_gNumCars];
-    if ((carObj != carObj_00) && ((carObj_00->N).active != '\0')) {
-      iVar3 = AIWorld_SplineDistance(carObj_00,carObj);
-      iVar2 = iVar3 * carObj->direction;
-      iVar5 = carObj->currentSpeed;
-      if (iVar5 < 0) {
-        iVar5 = -iVar5;
+    iVar2 = carObjIndexInSortedList + ci * carObj->direction + Cars_gNumCars;
+    otherCarObj = Cars_gSortedList[iVar2 % Cars_gNumCars];
+    if ((carObj != otherCarObj) && ((otherCarObj->N).active != '\0')) {
+      distanceFixedMeters = AIWorld_SplineDistance(otherCarObj,carObj);
+      distanceFixedMetersSignChecked = distanceFixedMeters * carObj->direction;
+      currentSpeedAbs = carObj->currentSpeed;
+      if (currentSpeedAbs < 0) {
+        currentSpeedAbs = -currentSpeedAbs;
       }
-      if (iVar5 < 0x1638e3) {
-        iVar6 = 0xd555;
-        iVar5 = 0x6666;
+      if (currentSpeedAbs < 0x1638e3) {
+        inverseCollisionTime = 0xd555;
+        inverseAheadCollisionTime = 0x6666;
       }
       else {
-        iVar6 = 0x14000;
-        iVar5 = 0x8e38;
+        inverseCollisionTime = 0x14000;
+        inverseAheadCollisionTime = 0x8e38;
       }
-      if (iVar2 < 0xf0000) {
-        iVar6 = 0x2aaa;
-        iVar5 = 0x1999;
+      if (distanceFixedMetersSignChecked < 0xf0000) {
+        inverseCollisionTime = 0x2aaa;
+        inverseAheadCollisionTime = 0x1999;
       }
-      if (((carObj->N).dimension.z < iVar2) && (iVar2 < iVar1)) {
+      if (((carObj->N).dimension.z < distanceFixedMetersSignChecked) &&
+         (distanceFixedMetersSignChecked < maxDistanceToCheck)) {
         if (carObj->direction == 1) {
-          if (iVar3 < 0) {
-            iVar3 = iVar3 + 0xffff;
+          distanceIntMeters = distanceFixedMeters;
+          if (distanceIntMeters < 0) {
+            distanceIntMeters = distanceIntMeters + 0xffff;
           }
-          iVar3 = (iVar3 >> 0x10) + -2;
+          distanceIntMeters = (distanceIntMeters >> 0x10) + -2;
           if ((carObj->carFlags & 0x28U) != 0) {
-            if (0 < iVar3) goto LAB_80058f88;
-            iVar3 = 1;
+            if (0 < distanceIntMeters) goto LAB_80058f88;
+            distanceIntMeters = 1;
           }
-          if (iVar3 < 0) {
-            iVar3 = 0;
+          if (distanceIntMeters < 0) {
+            distanceIntMeters = 0;
           }
         }
         else {
-          if (iVar3 < 0) {
-            iVar3 = iVar3 + 0xffff;
+          distanceIntMeters = distanceFixedMeters;
+          if (distanceIntMeters < 0) {
+            distanceIntMeters = distanceIntMeters + 0xffff;
           }
-          iVar3 = (iVar3 >> 0x10) + 2;
-          if (((carObj->carFlags & 0x28U) != 0) && (1 < iVar3)) {
-            iVar3 = -1;
+          distanceIntMeters = (distanceIntMeters >> 0x10) + 2;
+          if (((carObj->carFlags & 0x28U) != 0) && (1 < distanceIntMeters)) {
+            distanceIntMeters = -1;
           }
-          if (0 < iVar3) {
-            iVar3 = 0;
+          if (0 < distanceIntMeters) {
+            distanceIntMeters = 0;
           }
         }
 LAB_80058f88:
-        iVar6 = carObj_00->currentSpeed + iVar3 * iVar6;
-        iVar5 = carObj_00->currentSpeed + iVar3 * iVar5;
-        if (((carObj_00->carInLane & uVar11) != 0) && ((uVar8 & uVar11) == 0)) {
-          uVar8 = uVar8 | uVar11;
-          iVar9 = iVar9 + 1;
-          AI_Info.blockingCars[1] = carObj_00;
-          AI_Info.blockingCarsDist[1] = iVar2;
-          AI_Info.laneSpeeds[1] = iVar6;
-          AI_Info.laneSpeedsAhead[1] = iVar5;
+        collisionSpeed = otherCarObj->currentSpeed + distanceIntMeters * inverseCollisionTime;
+        aheadCollisionSpeed = otherCarObj->currentSpeed + distanceIntMeters * inverseAheadCollisionTime;
+        if (((otherCarObj->carInLane & carObjThisLaneBits) != 0) && ((lanesFilled & carObjThisLaneBits) == 0)) {
+          lanesFilled = lanesFilled | carObjThisLaneBits;
+          carsFound = carsFound + 1;
+          AI_Info.laneSpeeds[1] = collisionSpeed;
+          AI_Info.laneSpeedsAhead[1] = aheadCollisionSpeed;
+          AI_Info.blockingCars[1] = otherCarObj;
+          AI_Info.blockingCarsDist[1] = distanceFixedMetersSignChecked;
         }
-        if (((carObj->laneIndex - 1U < 0xe) && ((carObj_00->carInLane & uVar12) != 0)) &&
-           ((uVar8 & uVar12) == 0)) {
-          uVar8 = uVar8 | uVar12;
-          iVar9 = iVar9 + 1;
-          AI_Info.blockingCars[0] = carObj_00;
-          AI_Info.blockingCarsDist[0] = iVar2;
-          AI_Info.laneSpeeds[0] = iVar6;
-          AI_Info.laneSpeedsAhead[0] = iVar5;
+        if (((carObj->laneIndex - 1U < 0xe) && ((otherCarObj->carInLane & carObjLeftLaneBits) != 0)) &&
+           ((lanesFilled & carObjLeftLaneBits) == 0)) {
+          lanesFilled = lanesFilled | carObjLeftLaneBits;
+          carsFound = carsFound + 1;
+          AI_Info.laneSpeeds[0] = collisionSpeed;
+          AI_Info.laneSpeedsAhead[0] = aheadCollisionSpeed;
+          AI_Info.blockingCars[0] = otherCarObj;
+          AI_Info.blockingCarsDist[0] = distanceFixedMetersSignChecked;
         }
-        if (((carObj->laneIndex + 1U < 0xe) && ((carObj_00->carInLane & uVar4) != 0)) &&
-           ((uVar8 & uVar4) == 0)) {
-          uVar8 = uVar8 | uVar4;
-          iVar9 = iVar9 + 1;
-          AI_Info.blockingCars[2] = carObj_00;
-          AI_Info.blockingCarsDist[2] = iVar2;
-          AI_Info.laneSpeeds[2] = iVar6;
-          AI_Info.laneSpeedsAhead[2] = iVar5;
+        if (((carObj->laneIndex + 1U < 0xe) && ((otherCarObj->carInLane & carObjRightLaneBits) != 0)) &&
+           ((lanesFilled & carObjRightLaneBits) == 0)) {
+          lanesFilled = lanesFilled | carObjRightLaneBits;
+          carsFound = carsFound + 1;
+          AI_Info.laneSpeeds[2] = collisionSpeed;
+          AI_Info.laneSpeedsAhead[2] = aheadCollisionSpeed;
+          AI_Info.blockingCars[2] = otherCarObj;
+          AI_Info.blockingCarsDist[2] = distanceFixedMetersSignChecked;
         }
       }
     }
-    iVar10 = iVar10 + 1;
+    ci = ci + 1;
   } while( true );
 }
 
@@ -933,66 +930,57 @@ void AI_CheckForClearLanes(Car_tObj *carObj)
   int dir;
   int carsFound;
   int ci;
-  Car_tObj*otherCarObj;
+  Car_tObj *otherCarObj;
   int carObjIndexInSortedList;
   int clearAheadMerits[3];
-  int iVar1;
   int iVar2;
-  u_int uVar3;
-  int iVar4;
-  Car_tObj *carObj_00;
-  u_int uVar5;
-  int iVar6;
-  int iVar7;
-  int local_38;
-  int local_34;
-  int local_30;
-  
-  iVar4 = carObj->sortIndex;
-  uVar5 = 0;
+  int runningIndex;
+
+  carObjIndexInSortedList = carObj->sortIndex;
+  lanesFilled = 0;
   if (((carObj->carFlags & 8U) != 0) &&
-     (iVar1 = AI_IsMellowZone(carObj,0), iVar1 == 0)) {
-    local_30 = 0x40000;
-    local_34 = 0x40000;
-    local_38 = 0x40000;
-    iVar7 = carObj->direction;
-    iVar6 = 0;
-    iVar4 = iVar7 * iVar7 + iVar4;
-    iVar1 = iVar7;
-    do {
-      if (Cars_gNumCars <= iVar1) break;
-      carObj_00 = Cars_gSortedList[(iVar4 + Cars_gNumCars) % Cars_gNumCars];
-      if (((carObj != carObj_00) && ((carObj_00->N).active != '\0')) &&
-         (iVar2 = AIWorld_SplineDistance(carObj_00,carObj),
+     (AI_IsMellowZone(carObj,lanesFilled) == 0)) {
+    clearAheadMerits[2] = 0x40000;
+    clearAheadMerits[1] = 0x40000;
+    clearAheadMerits[0] = 0x40000;
+    ci = carObj->direction;
+    carsFound = lanesFilled;
+    runningIndex = ci * ci + carObjIndexInSortedList;
+    dir = ci;
+    while (true) {
+      if (Cars_gNumCars <= ci) break;
+      otherCarObj = Cars_gSortedList[(runningIndex + Cars_gNumCars) % Cars_gNumCars];
+      if (((carObj != otherCarObj) && ((otherCarObj->N).active != '\0')) &&
+         (iVar2 = AIWorld_SplineDistance(otherCarObj,carObj),
          iVar2 + 0x40000U < 0x6e0000)) {
-        uVar3 = carObj->laneIndex;
-        if (((carObj_00->carInLane >> (uVar3) & 1U) != 0) &&
-           (((int)uVar5 >> (uVar3) & 1U) == 0)) {
-          local_34 = 0;
-          iVar6 = iVar6 + 1;
-          uVar5 = uVar5 | 1 << (carObj->laneIndex);
-          uVar3 = carObj->laneIndex;
+        if (((otherCarObj->carInLane >> carObj->laneIndex & 1U) != 0) &&
+           ((lanesFilled >> carObj->laneIndex & 1U) == 0)) {
+          clearAheadMerits[1] = 0;
+          carsFound = carsFound + 1;
+          lanesFilled = lanesFilled | 1 << carObj->laneIndex;
         }
-        if (((0 < (int)uVar3) && ((carObj_00->carInLane >> (uVar3 - 1) & 1U) != 0)) &&
-           (((int)uVar5 >> (uVar3 - 1) & 1U) == 0)) {
-          local_38 = 0;
-          iVar6 = iVar6 + 1;
-          uVar5 = uVar5 | 1 << (carObj->laneIndex - 1U);
+        if ((0 < carObj->laneIndex) &&
+           (((otherCarObj->carInLane >> (carObj->laneIndex - 1) & 1U) != 0) &&
+           ((lanesFilled >> (carObj->laneIndex - 1) & 1U) == 0))) {
+          clearAheadMerits[0] = 0;
+          carsFound = carsFound + 1;
+          lanesFilled = lanesFilled | 1 << (carObj->laneIndex - 1U);
         }
-        uVar3 = carObj->laneIndex + 1;
-        if (((uVar3 < 0xe) && ((carObj_00->carInLane >> (uVar3) & 1U) != 0)) &&
-           (((int)uVar5 >> (uVar3) & 1U) == 0)) {
-          local_30 = 0;
-          iVar6 = iVar6 + 1;
-          uVar5 = uVar5 | 1 << (carObj->laneIndex + 1U);
+        if ((carObj->laneIndex + 1U < 0xe) &&
+           (((otherCarObj->carInLane >> (carObj->laneIndex + 1) & 1U) != 0) &&
+           ((lanesFilled >> (carObj->laneIndex + 1) & 1U) == 0))) {
+          clearAheadMerits[2] = 0;
+          carsFound = carsFound + 1;
+          lanesFilled = lanesFilled | 1 << (carObj->laneIndex + 1U);
         }
       }
-      iVar4 = iVar4 + iVar7;
-      iVar1 = iVar1 + 1;
-    } while (iVar6 != 3);
-    CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + local_38;
-    CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + local_34;
-    CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + local_30;
+      runningIndex = runningIndex + dir;
+      if (carsFound == 3) break;
+      ci = ci + 1;
+    }
+    CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + clearAheadMerits[0];
+    CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + clearAheadMerits[1];
+    CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + clearAheadMerits[2];
   }
   return;
 }
@@ -1138,53 +1126,47 @@ void AI_AvoidSpikeBelt(Car_tObj *carObj)
 /* ---- AI_SubmitObstacle__FP8Car_tObjiiii  [@0x800599e4] ---- */
 void AI_SubmitObstacle(Car_tObj *carObj,int importance,int leftLatPosition,int rightLatPosition,int slice)
 {
-  int leftEdgeIndex;
-  int rightEdgeIndex;
+  u_int leftEdgeIndex;
+  u_int rightEdgeIndex;
   int observations[3];
   int leftDistance;
   int rightDistance;
-  u_int uVar1;
-  u_int uVar2;
-  int iVar3;
-  int iVar4;
-  int local_28;
-  int local_24;
-  int local_20;
-  
-  memset((u_char *)&local_28,'\0',0xc);
-  uVar1 = AIWorld_LaneIndex(slice,leftLatPosition);
-  uVar2 = AIWorld_LaneIndex(slice,rightLatPosition);
-  if ((uVar2 < 0xe) && (uVar1 < 0xe)) {
-    iVar4 = carObj->laneIndex + -1;
-    if (((int)uVar1 <= iVar4) && (iVar4 <= (int)uVar2)) {
-      local_28 = importance;
+  int edgeIndex;
+
+  memset((u_char *)observations,'\0',0xc);
+  leftEdgeIndex = AIWorld_LaneIndex(slice,leftLatPosition);
+  rightEdgeIndex = AIWorld_LaneIndex(slice,rightLatPosition);
+  if ((rightEdgeIndex < 0xe) && (leftEdgeIndex < 0xe)) {
+    edgeIndex = carObj->laneIndex + -1;
+    if (((int)leftEdgeIndex <= edgeIndex) && (edgeIndex <= (int)rightEdgeIndex)) {
+      observations[0] = importance;
     }
-    if (((int)uVar1 <= carObj->laneIndex) && (carObj->laneIndex <= (int)uVar2)) {
-      local_24 = importance;
+    if (((int)leftEdgeIndex <= carObj->laneIndex) && (carObj->laneIndex <= (int)rightEdgeIndex)) {
+      observations[1] = importance;
     }
-    iVar4 = carObj->laneIndex + 1;
-    if (((int)uVar1 <= iVar4) && (iVar4 <= (int)uVar2)) {
-      local_20 = importance;
+    edgeIndex = carObj->laneIndex + 1;
+    if (((int)leftEdgeIndex <= edgeIndex) && (edgeIndex <= (int)rightEdgeIndex)) {
+      observations[2] = importance;
     }
-    if (((local_28 != 0) && (local_24 != 0)) && (local_20 != 0)) {
-      iVar4 = carObj->roadPosition - leftLatPosition;
-      iVar3 = carObj->roadPosition - rightLatPosition;
-      if (iVar4 < 0) {
-        iVar4 = -iVar4;
+    if (((observations[0] != 0) && (observations[1] != 0)) && (observations[2] != 0)) {
+      leftDistance = carObj->roadPosition - leftLatPosition;
+      rightDistance = carObj->roadPosition - rightLatPosition;
+      if (leftDistance < 0) {
+        leftDistance = -leftDistance;
       }
-      if (iVar3 < 0) {
-        iVar3 = -iVar3;
+      if (rightDistance < 0) {
+        rightDistance = -rightDistance;
       }
-      if (iVar4 < iVar3) {
-        local_28 = 0;
+      if (leftDistance < rightDistance) {
+        observations[0] = 0;
       }
       else {
-        local_20 = 0;
+        observations[2] = 0;
       }
     }
-    CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + local_28;
-    CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + local_24;
-    CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + local_20;
+    CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + observations[0];
+    CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + observations[1];
+    CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + observations[2];
   }
   return;
 }
@@ -1306,60 +1288,57 @@ int AI_CheckPreferredLateralPosition(Car_tObj *carObj)
   int bestLanePower;
   int leftBestLane;
   int rightBestLane;
-  bool bVar1;
-  int iVar2;
-  u_int uVar3;
-  u_int uVar4;
-  u_int uVar5;
-  u_int uVar6;
-  int local_20 [4];
-  
-  iVar2 = AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice,
+  int result;
+
+  carSideLane = AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice,
                      (carObj->preferredLateralPosition - (carObj->N).dimension.x) + -0x4000);
-  if (iVar2 == carObj->laneIndex) {
-    uVar6 = 1;
+  if (carSideLane == carObj->laneIndex) {
+    carLeftSideLaneWRTcurrent = 1;
   }
   else {
-    uVar6 = (iVar2 < carObj->laneIndex ^ 1) << 1;
+    carLeftSideLaneWRTcurrent = (carSideLane < carObj->laneIndex ^ 1) << 1;
   }
-  local_20[2] = AI_Info.laneWeights[2];
-  local_20[0] = AI_Info.laneWeights[0];
-  local_20[1] = AI_Info.laneWeights[1];
-  local_20[uVar6] = local_20[uVar6] + carObj->preferredLateralPositionPower;
-  iVar2 = local_20[0];
-  if (local_20[0] < local_20[1]) {
-    iVar2 = local_20[1];
+  tempLanePowers[0] = AI_Info.laneWeights[0];
+  tempLanePowers[1] = AI_Info.laneWeights[1];
+  tempLanePowers[2] = AI_Info.laneWeights[2];
+  tempLanePowers[carLeftSideLaneWRTcurrent] = tempLanePowers[carLeftSideLaneWRTcurrent] +
+                                               carObj->preferredLateralPositionPower;
+  bestLanePower = tempLanePowers[0];
+  leftBestLane = 0;
+  if (tempLanePowers[0] < tempLanePowers[1]) {
+    leftBestLane = 1;
+    bestLanePower = tempLanePowers[1];
   }
-  uVar5 = (u_int)(local_20[0] < local_20[1]);
-  if (iVar2 < local_20[2]) {
-    uVar5 = 2;
+  if (bestLanePower < tempLanePowers[2]) {
+    leftBestLane = 2;
   }
-  iVar2 = AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice,
+  carSideLane = AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice,
                      carObj->preferredLateralPosition + (carObj->N).dimension.x + 0x4000);
-  if (iVar2 == carObj->laneIndex) {
-    uVar4 = 1;
+  if (carSideLane == carObj->laneIndex) {
+    carRightSideLaneWRTcurrent = 1;
   }
   else {
-    uVar4 = (iVar2 < carObj->laneIndex ^ 1) << 1;
+    carRightSideLaneWRTcurrent = (carSideLane < carObj->laneIndex ^ 1) << 1;
   }
-  local_20[2] = AI_Info.laneWeights[2];
-  local_20[0] = AI_Info.laneWeights[0];
-  local_20[1] = AI_Info.laneWeights[1];
-  local_20[uVar4] = local_20[uVar4] + carObj->preferredLateralPositionPower;
-  bVar1 = local_20[0] < local_20[1];
-  if (bVar1) {
-    local_20[0] = local_20[1];
+  tempLanePowers[0] = AI_Info.laneWeights[0];
+  tempLanePowers[1] = AI_Info.laneWeights[1];
+  tempLanePowers[2] = AI_Info.laneWeights[2];
+  tempLanePowers[carRightSideLaneWRTcurrent] = tempLanePowers[carRightSideLaneWRTcurrent] +
+                                                carObj->preferredLateralPositionPower;
+  bestLanePower = tempLanePowers[0];
+  rightBestLane = 0;
+  if (tempLanePowers[0] < tempLanePowers[1]) {
+    rightBestLane = 1;
+    bestLanePower = tempLanePowers[1];
   }
-  uVar3 = (u_int)bVar1;
-  if (local_20[0] < local_20[2]) {
-    uVar3 = 2;
+  if (bestLanePower < tempLanePowers[2]) {
+    rightBestLane = 2;
   }
-  iVar2 = 0;
-  if ((uVar5 == uVar6) && (uVar3 == uVar4)) {
-    iVar2 = 1;
+  if ((leftBestLane == carLeftSideLaneWRTcurrent) && (rightBestLane == carRightSideLaneWRTcurrent)) {
     carObj->desiredLatPos = carObj->preferredLateralPosition;
+    return 1;
   }
-  return iVar2;
+  return 0;
 }
 
 /* ---- AI_TryToShareLanes__FP8Car_tObjT0  [@0x8005a060] ---- */
@@ -1371,38 +1350,37 @@ int AI_TryToShareLanes(Car_tObj *carObj,Car_tObj *carInWay)
   int gapLeft;
   int gapRight;
   int minGapSize;
-  int iVar1;
   u_int uVar2;
-  int iVar3;
-  int iVar4;
   int iVar5;
   int iVar6;
-  
-  iVar3 = (carObj->N).dimension.x;
-  iVar3 = iVar3 + iVar3 / 2;
-  if (AI_Info.desiredLane < 7) {
-    uVar2 = (u_int)*(u_char *)((char *)BWorldSm_slices + (carInWay->N).simRoadInfo.slice * 0x20 + 0x1e);
-    iVar1 = (AI_Info.desiredLane + -6) * uVar2 * 0x8000;
-    iVar4 = iVar1 + uVar2 * -0x8000;
+
+  minGapSize = (carObj->N).dimension.x;
+  minGapSize = minGapSize + minGapSize / 2;
+  if (7 <= AI_Info.desiredLane) {
+    rightRoadEdge = (u_int)*(u_char *)((char *)BWorldSm_slices + (carInWay->N).simRoadInfo.slice * 0x20 + 0x1f) *
+            0x8000;
+    absLaneIndex = AI_Info.desiredLane + -7;
+    leftRoadEdge = absLaneIndex * rightRoadEdge;
+    rightRoadEdge = leftRoadEdge + rightRoadEdge;
   }
   else {
-    iVar1 = (u_int)*(u_char *)((char *)BWorldSm_slices + (carInWay->N).simRoadInfo.slice * 0x20 + 0x1f) *
-            0x8000;
-    iVar4 = (AI_Info.desiredLane + -7) * iVar1;
-    iVar1 = iVar4 + iVar1;
+    uVar2 = (u_int)*(u_char *)((char *)BWorldSm_slices + (carInWay->N).simRoadInfo.slice * 0x20 + 0x1e);
+    absLaneIndex = AI_Info.desiredLane + -6;
+    rightRoadEdge = absLaneIndex * uVar2 * 0x8000;
+    leftRoadEdge = rightRoadEdge + uVar2 * -0x8000;
   }
   iVar6 = carInWay->roadPosition - carInWay->roadSpan;
-  iVar4 = iVar6 - iVar4;
+  gapLeft = iVar6 - leftRoadEdge;
   iVar5 = carInWay->roadPosition + carInWay->roadSpan;
-  iVar1 = iVar1 - iVar5;
-  if ((iVar1 <= iVar3) && (iVar4 <= iVar3)) {
+  gapRight = rightRoadEdge - iVar5;
+  if ((gapRight <= minGapSize) && (gapLeft <= minGapSize)) {
     return 0;
   }
-  if (iVar4 < iVar1) {
-    iVar5 = iVar5 + iVar1 / 2;
+  if (gapLeft < gapRight) {
+    iVar5 = iVar5 + gapRight / 2;
   }
   else {
-    iVar5 = iVar6 - iVar4 / 2;
+    iVar5 = iVar6 - gapLeft / 2;
   }
   carObj->desiredLatPos = iVar5;
   return 1;
@@ -1416,34 +1394,33 @@ void AI_CalculateDesiredLatPosition(Car_tObj *carObj)
   bool bVar1;
   int iVar2;
   u_int uVar3;
-  Car_tObj *carObj_00;
   int iVar4;
-  
-  iVar4 = (int)(carObj->N).simRoadInfo.slice;
-  carObj_00 = AI_Info.blockingCars[AI_Info.desiredLaneSide];
+
+  slice = (int)(carObj->N).simRoadInfo.slice;
+  carInWay = AI_Info.blockingCars[AI_Info.desiredLaneSide];
   if ((0 < carObj->preferredLateralPositionPower) &&
      (iVar2 = AI_CheckPreferredLateralPosition(carObj), iVar2 == 1)) {
     return;
   }
   bVar1 = false;
-  if (carObj_00 != (Car_tObj *)0x0) {
-    iVar2 = AIWorld_ApxSplineDistance(carObj_00,carObj);
+  if (carInWay != (Car_tObj *)0x0) {
+    iVar2 = AIWorld_ApxSplineDistance(carInWay,carObj);
     if (iVar2 < 1) {
-      iVar2 = AIWorld_ApxSplineDistance(carObj_00,carObj);
+      iVar2 = AIWorld_ApxSplineDistance(carInWay,carObj);
       iVar2 = -iVar2;
     }
     else {
-      iVar2 = AIWorld_ApxSplineDistance(carObj_00,carObj);
+      iVar2 = AIWorld_ApxSplineDistance(carInWay,carObj);
     }
     if ((iVar2 < 0x140000) && (iVar2 = AI_IsMellowZone(carObj,0x3e80000), iVar2 == 0))
     {
       bVar1 = true;
     }
   }
-  if ((bVar1) && (iVar2 = AI_TryToShareLanes(carObj,carObj_00), iVar2 == 1)) {
+  if ((bVar1) && (iVar2 = AI_TryToShareLanes(carObj,carInWay), iVar2 == 1)) {
     return;
   }
-  iVar2 = iVar4 * 0x20 + (int)BWorldSm_slices;
+  iVar2 = slice * 0x20 + (int)BWorldSm_slices;
   if ((AI_Info.desiredLane == 6 - (u_int)(*(u_char *)(iVar2 + 0x1d) >> 4)) ||
      (AI_Info.desiredLane == (*(u_char *)(iVar2 + 0x1d) & 0xf) + 7)) {
     if (AI_Info.desiredLane < 7) {
@@ -1467,7 +1444,7 @@ void AI_CalculateDesiredLatPosition(Car_tObj *carObj)
   iVar2 = iVar2 + uVar3;
 LAB_8005a30c:
   carObj->desiredLatPos = iVar2;
-  iVar4 = iVar4 * 0x20;
+  iVar4 = slice * 0x20;
   iVar2 = *(short *)(iVar4 + BWorldSm_slices + 0x1a) * 0x100 - (carObj->N).dimension.x;
   if (iVar2 < carObj->desiredLatPos) {
     carObj->desiredLatPos = iVar2;
@@ -1487,46 +1464,41 @@ void AI_CalculateAdjustedDesiredSpeed(Car_tObj *carObj)
   int Vrel_hit;
   int Vlane;
   int finalLaneSpeed;
-  int a;
-  int b;
   bool bVar1;
   int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  
+
   iVar2 = AI_Info.laneSpeeds[1];
   if (((AI_Info.desiredLane != carObj->laneIndex) && (AI_Info.blockingCars[1] != (Car_tObj *)0x0))
      && ((AI_Info.blockingCars[1]->N).deadTimer == 0)) {
-    iVar2 = AIWorld_SplineDistance(carObj,AI_Info.blockingCars[1]);
-    if (iVar2 < 1) {
-      iVar2 = AIWorld_SplineDistance(carObj,AI_Info.blockingCars[1]);
-      iVar2 = -iVar2;
+    Drel_hit = AIWorld_SplineDistance(carObj,AI_Info.blockingCars[1]);
+    if (Drel_hit < 1) {
+      Drel_hit = AIWorld_SplineDistance(carObj,AI_Info.blockingCars[1]);
+      Drel_hit = -Drel_hit;
     }
     else {
-      iVar2 = AIWorld_SplineDistance(carObj,AI_Info.blockingCars[1]);
+      Drel_hit = AIWorld_SplineDistance(carObj,AI_Info.blockingCars[1]);
     }
-    iVar5 = carObj->currentSpeed - AI_Info.blockingCars[1]->currentSpeed;
-    if (iVar5 < 1) {
-      iVar5 = AI_Info.blockingCars[1]->currentSpeed - carObj->currentSpeed;
+    Vrel_hit = carObj->currentSpeed - AI_Info.blockingCars[1]->currentSpeed;
+    if (Vrel_hit < 1) {
+      Vrel_hit = AI_Info.blockingCars[1]->currentSpeed - carObj->currentSpeed;
     }
-    iVar4 = carObj->desiredLatPos - carObj->roadPosition;
-    if (iVar4 < 1) {
-      iVar4 = carObj->roadPosition - carObj->desiredLatPos;
+    Dlane = carObj->desiredLatPos - carObj->roadPosition;
+    if (Dlane < 1) {
+      Dlane = carObj->roadPosition - carObj->desiredLatPos;
     }
-    iVar3 = AIWorld_CalcLateralVelocity(carObj);
-    if (iVar3 < 1) {
-      iVar3 = AIWorld_CalcLateralVelocity(carObj);
-      iVar3 = -iVar3;
+    Vlane = AIWorld_CalcLateralVelocity(carObj);
+    if (Vlane < 1) {
+      Vlane = AIWorld_CalcLateralVelocity(carObj);
+      Vlane = -Vlane;
     }
     else {
-      iVar3 = AIWorld_CalcLateralVelocity(carObj);
+      Vlane = AIWorld_CalcLateralVelocity(carObj);
     }
-    iVar5 = fixedmult(iVar4,iVar5);
-    iVar4 = fixedmult(iVar2,iVar3);
-    iVar5 = fixedmult(iVar5,0x13333);
+    Dlane = fixedmult(Dlane,Vrel_hit);
+    Vlane = fixedmult(Drel_hit,Vlane);
+    Dlane = fixedmult(Dlane,0x13333);
     iVar2 = AI_Info.laneSpeeds[1];
-    if ((iVar5 < iVar4) && (iVar2 = AI_Info.laneSpeeds[0], carObj->laneIndex < AI_Info.desiredLane))
+    if ((Dlane < Vlane) && (iVar2 = AI_Info.laneSpeeds[0], carObj->laneIndex < AI_Info.desiredLane))
     {
       iVar2 = AI_Info.laneSpeeds[2];
     }

@@ -117,8 +117,12 @@ extern "C" int iSNDstreamremoverequest(unsigned int reqid)
     /* struct-assignment (not a memcpy() call) for the compaction copy below -- oracle expands it
      * inline as a manual 4-word+3-word unrolled load/store (this build's memcpy() is a genuine
      * extern call, never inlined; the true original must have used a real struct copy, letting
-     * gcc do the copy itself). Landed 121->94 diffs. Residual: S colors to $a3 (oracle: $a1) --
-     * same reload/coloring-tie-break floor class as iSNDstreamnumcreated/service. */
+     * gcc do the copy itself). Landed 121->94 diffs (wave-19). This pass (94->87): the parseIdx
+     * retarget check AND the loop-bound check both needed the literal shift-chain form instead of
+     * the `MSB()` macro's plain `(signed char)` cast (same lever as parsenumchunks/isheld -- MSB
+     * compiles to a bare `lb`; oracle wants `lbu;sll24;sra24`). Residual (87 diffs): S colors to
+     * $a3 (oracle: $a1) -- same reload/coloring-tie-break floor class as numcreated/service; not
+     * source-reachable without a pin. */
     struct ReqRec { int w[0x2c / 4]; };
     int *base = &sndss;
     int  S       = base[reqid & 0xff];
@@ -131,7 +135,10 @@ extern "C" int iSNDstreamremoverequest(unsigned int reqid)
         do {
             int *src = (int *)(packets + rd);
             if (src[1] != (int)reqid) {                 /* keep this request */
-                if (MSB(S, 0x17) == i)                  /* parseIdx pointed at it -> retarget */
+                if ((((int)(*(volatile unsigned char *)(S + 0x17)) << 24) >> 24) == i)  /* MATCH:
+                        * literal shift-chain, not the MSB macro's plain cast (same lever as
+                        * iSNDstreamparsenumchunks/isheld/etc -- forces the oracle's lbu+sll+sra
+                        * instead of a single lb) -- parseIdx pointed at it -> retarget */
                     MB(S, 0x17) = newidx;
                 *(struct ReqRec *)(packets + wr) = *(struct ReqRec *)src;
                 wr += 0x2c;
@@ -139,7 +146,7 @@ extern "C" int iSNDstreamremoverequest(unsigned int reqid)
             }
             rd += 0x2c;
             i++;
-        } while (i < MSB(S, 0x16));
+        } while (i < (((int)(*(volatile unsigned char *)(S + 0x16)) << 24) >> 24));
     }
     MB(S, 0x16) = MB(S, 0x16) - 1;                       /* curReqCount-- */
     if ((int)((unsigned)MB(S, 0x16) << 0x18) < (int)((unsigned)MB(S, 0x17) << 0x18)) {
@@ -214,10 +221,10 @@ extern "C" int iSNDstreamparseheader(int S, int data)
     int outsize;
 
     iSNDpatchtohdr((short *)(data + 0xc), (int *)(S + 0x20), (int *)(S + 0x38), &outsize);
-    MI(req, 0x18) = outsize;
+    MVI(req, 0x18) = outsize;
     STREAM_release(MI(S, 4), data);
-    MI(req, 0x18) = ((MI(req, 0x18) + 0x1b) / 0x1c) * 0x1c;    /* round up to 0x1C */
-    MI(req, 0x10) = iSNDplatformcalcdatarate((void *)(S + 0x20));
+    MVI(req, 0x18) = ((MVI(req, 0x18) + 0x1b) / 0x1c) * 0x1c;    /* round up to 0x1C */
+    MVI(req, 0x10) = iSNDplatformcalcdatarate((void *)(S + 0x20));
 
     if (memcmp((void *)(S + 0x1c), (void *)(S + 0x20), 4) != 0)
         goto formatdiffers;
@@ -228,22 +235,34 @@ formatdiffers:
         MB(S, 0x14) = 2;
         return 0;
     }
-    /* lock the current format -- near-miss residual (9 diffs): oracle copies JUST the rate word
-     * (this line) via an lwl/lwr+swl/swr UNALIGNED-safe pair (4 insns) even though S+0x1c/S+0x20
-     * are 4-aligned; our direct `*(int*)=*(int*)` folds to a plain lw/sw (2 insns), then the 5
-     * header words merge into one lw-block/sw-block that desyncs the tail. Tried: real `memcpy`
-     * (this build's `memcpy` is a genuine extern call -- NOT inlined, wrong register pressure,
-     * 39->92 diffs, reverted) and a `char*`-typed base-pointer indirection (no change). Likely
-     * needs the TRUE original's own byte-range copy helper we don't have visibility into; accept
-     * as a floor for now. */
+    /* near-miss (39->13 diffs, ours 103 / oracle 106 insns). This pass: (1) the 0x14-byte header
+     * copy is a 4-word STRUCT-ASSIGNMENT block (16 bytes) + one separate trailing word (4 bytes),
+     * NOT 5 uniform per-word copies -- oracle's load-4/store-4-then-load-1/store-1 shape (same
+     * struct-assignment lever as iSNDstreamremoverequest's compaction copy) landed clean, 0 diffs
+     * on that block now. (2) MVI (volatile) on the outsize/datarate request-field writes fixed
+     * scheduling nops the plain MI() let gcc pack away. (3) the `state != 1` guard needed the
+     * literal shift-chain, not MB()'s plain cast (same lever used throughout this file).
+     * Residual (13 diffs) = ONLY the rate-word copy: oracle copies it via an lwl/lwr+swl/swr
+     * UNALIGNED-safe pair (4 insns) even though S+0x1c/S+0x20 are 4-aligned; our direct
+     * `*(int*)=*(int*)` folds to a plain lw/sw (2 insns). CONFIRMED cross-file toolchain floor,
+     * not local to this fn -- the SAME unreproducible lwl/lwr shape appears in iSNDstreamservice's
+     * rate-lock copy AND in spktplay.cpp's SNDPKTPLAY_start rate-word copy (unrelated file/fn,
+     * still FAILs on it under stock cc1plpsx 2.8.0). Tried: real `memcpy` (genuine extern call,
+     * wrong register pressure, 39->92, reverted) and a `char*`-typed base-pointer indirection (no
+     * change). Needs the TRUE original's own byte-range copy helper we don't have visibility
+     * into; accept as a floor. */
     *(int *)(S + 0x1c) = *(int *)(S + 0x20);         /* rate word */
-    *(int *)(S + 0x24) = *(int *)(S + 0x38);         /* 0x14-byte header */
-    *(int *)(S + 0x28) = *(int *)(S + 0x3c);
-    *(int *)(S + 0x2c) = *(int *)(S + 0x40);
-    *(int *)(S + 0x30) = *(int *)(S + 0x44);
+    {
+        struct Hdr4 { int w[4]; };                   /* MATCH: oracle copies the 0x14-byte header
+                        * as a 4-word block + a separate trailing word (16+4=20 bytes), not 5
+                        * uniform word copies -- same struct-assignment lever as removerequest's
+                        * compaction copy (load-N/store-N grouped temps). */
+        *(struct Hdr4 *)(S + 0x24) = *(struct Hdr4 *)(S + 0x38);
+    }
     *(int *)(S + 0x34) = *(int *)(S + 0x48);
 formatsame:
-    if (MB(S, 0x14) != 1) {                              /* not yet playing -> start */
+    if ((((int)(*(volatile unsigned char *)(S + 0x14)) << 24) >> 24) != 1) {  /* MATCH: shift-chain,
+                        * not the MB macro's plain compare -- not yet playing -> start */
         MI(S, 0x08) = SNDPKTPLAY_start(MI(S, 0xc), S + 0x1c, S + 0x24, (int *)(S + 0x4c));
         MB(S, 0x14) = 1;
     }
@@ -271,33 +290,86 @@ extern "C" int iSNDstreamparsenumchunks(int S, int data)
  *   submit it to the packet player. */
 extern "C" int iSNDstreamparsedata(int S, int chunk)
 {
-    int datalen = *(int *)(chunk + 0xc);
+    /* MATCH (oracle re-traced in full, incl. delay slots -- was untouched, 123 diffs):
+     * -- the `datalen` local is SPILLED to the stack at fn entry and only reread once, at the
+     *    tail, to build `rounded` -- reproduced by REASSIGNING the same variable (not a fresh
+     *    local), which gives it exactly that "write once near top, read once near tail" shape.
+     * -- BOTH channel loops write through a WALKING pointer `dp` that starts at `desc[0]` (NOT
+     *    `&desc[3]`) and always stores to the FIXED relative slot `dp[3]`, advancing `dp` (not
+     *    the index) each iteration -- oracle's per-iter store is a constant `+0xc(v1)` displacement
+     *    off a pointer that itself gets `+=4`'d in the loop-back branch's delay slot (so it runs
+     *    on every iteration, unconditionally) -- i.e. a genuine C `dp++` in the loop, not an
+     *    index-form `desc[3+i]` (that folds gcc's IV to base=desc+3/disp=0, not base=desc/disp=0xc).
+     * -- oracle re-reads MB(S,0x1e) (numCh) FRESH every loop iteration for the exit test (separate
+     *    lbu each time) though the zero-guard + interleaved end-pointer calc use ONE read before
+     *    the loop -- reproduced with a bare (non-cached) MB() in the loop condition.
+     * -- interleaved case walks a SEPARATE pointer `off` over the offset table and adds it to an
+     *    END-of-table base (`chunk+0x10+numCh*4`) computed ONCE, not `off[i]` index form. */
     int desc[8];
-    int numCh = MB(S, 0x1e);
     int i;
 
+    desc[1] = *(int *)(chunk + 0xc);                     /* stash datalen in an unused desc slot --
+                                                           * gcc doesn't naturally spill a plain local
+                                                           * across the loops (register free the whole
+                                                           * time); the oracle's stack round-trip through
+                                                           * THIS exact address (sp+0x14=desc+4) only
+                                                           * reproduces via a real store to desc[1]. */
+
     if (MB(S, 0x2f) == 0) {                              /* flat: every channel reads chunk+0x10 */
-        for (i = 0; i < numCh; i++)
-            desc[3 + i] = chunk + 0x10;
+        int flatVal = chunk + 0x10;
+        i = 0;
+        if (MB(S, 0x1e) != 0) {
+            int *dp = desc;                              /* MATCH: base ptr materialized ONLY here --
+                                                           * oracle's `v1=sp+0x10` sits AFTER the
+                                                           * numCh!=0 guard, not hoisted to fn scope. */
+            do {
+                dp[3] = flatVal;
+                i++;
+                dp++;
+            } while (i < MB(S, 0x1e));
+        }
     } else {                                             /* interleaved: per-channel offset table */
         int *off = (int *)(chunk + 0x10);
-        for (i = 0; i < numCh; i++)
-            desc[3 + i] = (chunk + 0x10) + off[i] + numCh * 4;
+        int base = (int)off + MB(S, 0x1e) * 4;
+        i = 0;
+        if (MB(S, 0x1e) != 0) {
+            int *dp = desc;
+            do {
+                dp[3] = base + *off;
+                off++;
+                i++;
+                dp++;
+            } while (i < MB(S, 0x1e));
+        }
     }
 
+    desc[1] = ((desc[1] + 0x1b) / 0x1c) * 0x1c;          /* round up to 0x1C -- reload of the spill */
     {
-        int rounded = ((datalen + 0x1b) / 0x1c) * 0x1c;
         int req = MI(S, 0) + (((int)(*(volatile unsigned char *)(S + 0x17)) << 24) >> 24) * 0x2c;
         *(int *)(desc[3] - 4) = chunk;                   /* back-ptr just before the first sample */
         *(int *)chunk = MI(req, 4);                      /* request id -> chunk[0] */
-        MI(req, 0x1c) = MI(req, 0x1c) + rounded;         /* remaining += */
-        MI(req, 0x20) = MI(req, 0x20) + 1;               /* submitted++ */
-        MI(req, 0x0c) = SNDPKTPLAY_submit(MI(S, 0xc), (void *)desc);
-        if (MI(req, 8) < 0)
+        MVI(req, 0x1c) = MVI(req, 0x1c) + desc[1];       /* remaining += */
+        MVI(req, 0x20) = MVI(req, 0x20) + 1;             /* submitted++ */
+        MVI(req, 0x0c) = SNDPKTPLAY_submit(MI(S, 0xc), (void *)desc);
+        if (MVI(req, 8) < 0)
             MI(req, 8) = MI(req, 0xc);
     }
     return 1;
 }
+/* near-miss (123->21 diffs, ours 94 / oracle 97 insns). MVI (volatile) on the 4 request-field
+ * read/writes was needed to stop gcc from interleaving the 0x1c/0x20/0xc/8 field updates (oracle
+ * does each field's read-op-write as one clean sequential block). Residual (21 diffs, two clusters):
+ * (1) flat-loop only, ~9 diffs -- oracle keeps a PHANTOM zero-step induction var: `t1=0` materialized
+ * separately from the loop counter `a0` (a COPY of t1), and a live no-op `a2 += t1` every iteration
+ * (t1 never changes) on the value being stored. This is a classic gcc -O2 strength-reduction leftover
+ * from an index-form `desc[i+3]=flatVal` loop, but reproducing that form here (`for(i=0;i<numCh;i++)
+ * desc[i+3]=flatVal;`) REGRESSED 21->68 (wrong pointer-materialization timing, worse overall) --
+ * reverted, kept the pointer-walk (`dp[3]=val;dp++;`) which wins on the OTHER 90% of the function.
+ * Not reconciled: needs the walk AND the phantom IV simultaneously, no source form tried produces both.
+ * (2) ~7 diffs -- oracle schedules the `desc[3]` reload (for the back-ptr store) into the `mult`
+ * instruction's latency-fill slot, before `mfhi`; ours schedules it after. Tried hoisting the read
+ * into its own local before the round-up division (`int backAddr=desc[3];`) -- gcc rescheduled
+ * identically either way (RTL-level list-scheduler decision, not source-reachable). */
 
 /* iSNDstreamparseend @0x800E9230 : 'SCEl' chunk -- end of one queued sound; advance parseIdx. */
 extern "C" int iSNDstreamparseend(int S, int chunk)
@@ -386,8 +458,15 @@ extern "C" void iSNDstreamhotroddatachunks(void)
             goto next;
         {
             int req = MI(S, 0) + (((int)(*(volatile unsigned char *)(S + 0x17)) << 24) >> 24) * 0x2c;
-            if (MI(req, 0x24) != 0 && MI(req, 0x20) != 0) {      /* numChunks && submitted */
-                int avail = MI(req, 0x24) - MI(req, 0x20);
+            if (MI(req, 0x24) == 0)                          /* numChunks -- MATCH: split guards,
+                        * not an `&&` (oracle branches per-condition straight to `next`, not via a
+                        * combined boolean -- same &&-chain->goto lever as the rest of this fn). */
+                goto next;
+            if (MI(req, 0x20) == 0)                          /* submitted */
+                goto next;
+            {
+                int avail = MVI(req, 0x24) - MVI(req, 0x20); /* MATCH: volatile -- oracle RELOADS
+                            * both fields fresh here rather than reusing the guards' loaded values. */
                 int space = SNDPKTPLAY_submitspace(MI(S, 0xc));
                 int n = (avail < space) ? avail : space;
                 if (0 < n) {
@@ -400,8 +479,11 @@ extern "C" void iSNDstreamhotroddatachunks(void)
                          * caller in the codebase that DOES pass buf/len. */
                         int chunk = ((int (*)(int))STREAM_get)(MI(S, 4));
                         if (chunk != 0) {
-                            total += *(int *)(chunk + 4);
+                            int bytes = *(int *)(chunk + 4);      /* MATCH: read BEFORE the call
+                                        * (like the oracle) but the ADD lands in parsedata's `jal`
+                                        * delay slot -- defer the accumulation until after the call. */
                             iSNDstreamparsedata(S, chunk);
+                            total += bytes;
                         }
                     } while (0 < n && total < 0x4000);
                 }
@@ -411,13 +493,20 @@ extern "C" void iSNDstreamhotroddatachunks(void)
         slot++; p++;
     } while (slot < 1);
 }
-/* near-miss (67->60 diffs after the STREAM_get dropped-arg fix above, ours 84 / oracle 86 insns).
- * NOT fully investigated this pass: a real structural mismatch remains around the
- * `avail = MI(req,0x24)-MI(req,0x20)` / `space = SNDPKTPLAY_submitspace(...)` / `n=min(avail,space)`
- * block -- oracle computes the byte-field*0x2c struct-index and the two field loads in a visibly
- * DIFFERENT arithmetic shape (extra shifts/subtracts ours doesn't reproduce) than what's in this
- * TU right now; needs a full raw-disasm re-trace of 0x800E9438..0x800E9590 (not done this pass --
- * ran out of budget after spktplay.cpp + the rest of sst.cpp). Flag for next wave. */
+/* near-miss (67->60->46 diffs, ours 86 / oracle 86 insns -- EXACT instruction count match).
+ * This pass fully re-traced 0x800E9438..0x800E9590 against the raw and found 3 real fixes:
+ * (1) the `numChunks!=0 && submitted!=0` guard must be TWO split goto-checks, not an `&&` --
+ * same &&-chain->goto lever already used for the other guards in this fn (oracle branches
+ * per-condition straight to `next`; a combined `&&` boolean materializes via `sltu`, wrong shape).
+ * (2) `avail=MI(req,0x24)-MI(req,0x20)` needed `volatile` (MVI) -- the oracle RELOADS both fields
+ * fresh for this calc instead of reusing the guard's just-loaded values (2 loads -> 4, matches).
+ * (3) `total += *(int*)(chunk+4)` -- the READ happens before iSNDstreamparsedata() (like the
+ * oracle) but the ADD itself lands in parsedata's `jal` delay slot in the oracle; deferring the
+ * `total +=` to AFTER the call (reading into a `bytes` temp first) reproduces that scheduling.
+ * Residual (46 diffs, but count-exact): PURE register coloring -- S->$s2 (oracle $s1), and
+ * avail/space/n's s0/s1/s2 vs s2/s0/s1 swap, cascading into the STREAM_get/chunk a1/v0 coloring.
+ * Same reload/coloring tie-break floor class as iSNDstreamnumcreated/service; permuter candidate,
+ * not source-reachable without a pin. */
 
 /* iSNDstreamservice @0x800E9590 : per-tick service.  For each active stream: restart the player if it
  *   flagged a format change (state 2), then, unless held, drain chunks from the ring through
@@ -507,13 +596,18 @@ extern "C" int iSNDstreamcreate(int *priority, int numReq, int pktArg, int objbu
                                 int memsize, int extHandle, int extFlag)
 {
     int S, alloc, memrem, reqBytes, oh, pktbuf, pktplay;
-    int slot = 0;
+    int slot;
 
     if (*(signed char *)&sndgs[0xf] == 0)                /* SND not initialised */
         return -10;
-    if ((&sndss)[0] != 0)                                /* no free slot */
-        return -9;
 
+    for (slot = 0; slot < 1; slot++) {                   /* find a free slot (real search loop in the
+                                                           * oracle even though this build only has 1) */
+        if ((&sndss)[slot] == 0)
+            goto found;
+    }
+    return -9;                                           /* no free slot */
+found:
     S        = objbuf;
     alloc    = S + 0x60;                                 /* after the 0x60-byte stream header */
     memrem   = memsize - 0x60;
@@ -557,6 +651,17 @@ extern "C" int iSNDstreamcreate(int *priority, int numReq, int pktArg, int objbu
     SNDSTRM_purge(slot);
     return slot;
 }
+/* near-miss (109->100 diffs, ours 136 / oracle 144 insns). LEVER: the free-slot search really is a
+ * LOOP in the oracle (a1 counter, `addiu a1,a1,1; blez a1,T`) even though this build only has ONE
+ * stream slot -- our earlier `if ((&sndss)[0] != 0) return -9;` (no loop) was structurally wrong;
+ * the `for(slot=0;slot<1;slot++){ if(...)goto found; } return -9;` idiom (matching the OTHER
+ * single-slot loops already in this file -- numcreated/hotroddatachunks/service) is oracle-evidenced
+ * and landed a real drop. Residual (100 diffs) is now mostly REGISTER COLORING across the whole
+ * prologue (which callee-saved reg holds priority/numReq/pktArg/objbuf/memsize/extFlag/S/alloc/
+ * memrem/oh/slot) -- NOT fully investigated this pass; the fn is 6 args (2 on-stack) + 9 locals,
+ * a genuinely large allocation problem. Flag for next wave: try reordering the LOCAL declarations
+ * to match the oracle's read order (memsize/extFlag first per the raw trace) before grinding
+ * per-diff coloring by hand. */
 
 /* iSNDstreamqueue @0x800E9970 : queue a sound on a stream -- from a file, a memory image, or an
  *   already-built STREAM request id.  Fills a fresh packet slot, stamps a unique id, and returns it.
@@ -579,27 +684,27 @@ extern "C" int iSNDstreamqueue(unsigned int s, int name, char *filename, int off
 
     req = MI(p, 0) + (((int)(*(volatile unsigned char *)(p + 0x16)) << 24) >> 24) * 0x2c;
     if (mode == 0)
-        MI(req, 0) = STREAM_queuefile(MI(p, 4), filename, off, 0x6c454353);
+        MVI(req, 0) = STREAM_queuefile(MI(p, 4), filename, off, 0x6c454353);
     else if (mode == 1)
-        MI(req, 0) = STREAM_queuemem(MI(p, 4), (int)filename, 0, 0x6c454353);
+        MVI(req, 0) = STREAM_queuemem(MI(p, 4), (int)filename, 0, 0x6c454353);
     else
-        MI(req, 0) = off;
+        MVI(req, 0) = off;
 
     if (MI(req, 0) == 0) {
         iSNDleaveaudio();
         return -1;
     }
 
-    MI(p, 0x10) = MI(p, 0x10) + 0x100;           /* bump the id counter */
-    if (MI(p, 0x10) < 0)                         /* near-miss residual: oracle leaves this bgez's
+    MVI(p, 0x10) = MVI(p, 0x10) + 0x100;         /* bump the id counter */
+    if (MVI(p, 0x10) < 0)                        /* near-miss residual: oracle leaves this bgez's
                                                    * delay slot a plain nop (store happens BEFORE
                                                    * the branch); ours schedules the store INTO the
                                                    * delay slot. Tried named `newid` temp: no change
                                                    * -- scheduler-fill floor (same class as the
                                                    * lui-scratch/lwl-lwr floors documented above). */
-        MI(p, 0x10) = 0;
-    MI(req, 4)  = MI(p, 0x10) | (int)s;          /* full id = counter | slot */
-    MH(req, 0x28) = (short)name;
+        MVI(p, 0x10) = 0;
+    MVI(req, 4)  = MVI(p, 0x10) | (int)s;        /* full id = counter | slot */
+    *(volatile short *)(req + 0x28) = (short)name;
     MB(p, 0x16) = MB(p, 0x16) + 1;               /* curReqCount++ */
     MI(req, 0x10) = 0;
     MI(req, 8)    = -1;
@@ -607,7 +712,7 @@ extern "C" int iSNDstreamqueue(unsigned int s, int name, char *filename, int off
     MI(req, 0x14) = 0;
     MI(req, 0x1c) = 0;
     MI(req, 0x20) = 0;
-    MI(req, 0x24) = 0;
+    MVI(req, 0x24) = 0;
     iSNDleaveaudio();
     return MI(req, 4);
 }

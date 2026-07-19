@@ -1,4 +1,7 @@
-/* eaclib/psx/sndpsxz/sdpacket.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 13/13 ***
+/* eaclib/psx/sndpsxz/sdpacket.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 6/13 PASS
+ *   (w20-a8 2026-07-19/20: getirq 76->39, setirq 31->10, purgeframes 85->15, serve 75->60,
+ *   platformpacketplaycreate 55->0 PASS, psxpacketstop 42->18; residual = fillspuwithpackets 480,
+ *   platformpacketplay 271, plus the above near-misses -- see commit log for per-fn detail) ***
  *   Source obj : nfs4\eaclib\psx\sdpacket.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   13 fns @[0x80103784 .. 0x801046C8].  THE SPU/DMA HARDWARE FLOOR of the EA packet player -- the
  *   platform layer iSNDstream/spktplay call to actually stream ADPCM packets into the PSX SPU voice
@@ -88,9 +91,11 @@ extern int  iSNDpsxmalloc(int size);                       /* sdmemman */
 extern void iSNDpsxfree(void *p);                          /* sdmemman */
 extern void iSNDpsxdisablespuirq(void);                    /* sdspuirq */
 extern void iSNDpsxenablespuirq(void);                     /* sdspuirq */
-extern void InterruptCallback(void);                       /* syslib INTR */
+extern void InterruptCallback(int idx, void (*handler)(void));  /* syslib INTR (real 2-arg sig -- see INTR_DMA.cpp/INTR_VB.c/drv.cpp) */
 extern int  iSNDpacketget(int p, int chanIdx, int *frameSizeOut);   /* spktplay */
-extern void iSNDpacketfreeframes(int p);                   /* spktplay */
+extern unsigned int iSNDpacketfreeframes(int p, int idx, int bytes);   /* spktplay @0x801033C4, real 3-arg sig
+                                                                          * (see spktplay.cpp) -- the oracle call
+                                                                          * site sets up a0=p/a1=i/a2=taken. */
 extern void iSNDstreamhotroddatachunks(void);              /* sst */
 extern int  iSNDdmqueue(int spuBuf);                       /* sdma */
 extern int  iSNDdmcomplete(int dmaHandle);                 /* sdma */
@@ -101,9 +106,10 @@ extern void trap(unsigned int code);                       /* compiler div-by-ze
 /* forward decls (mutually referential within this obj) */
 extern void iSNDpacketgetirq(void);
 extern void iSNDpacketsetirq(void);
+extern void iSNDpacketirqcallback(void);
 extern int  iSNDfillspuwithpackets(int p, int chunk);
 extern unsigned int iSNDpacketpurgeframes(int p, unsigned int byteoff, int count);
-extern int  iSNDpsxpacketstop(int p);
+extern void iSNDpsxpacketstop(void *p);
 extern void iSNDpsxzerospu(int *addr, int len);
 
 #define VB(base,idx)  ((&(base))[idx])                 /* byte at base+idx        */
@@ -150,23 +156,47 @@ extern void iSNDpacketgetirq(void)
     if (note < 0)
         return;
     vt = note * 0x2c;
-    if ((*(unsigned int *)(base + vt + 0xE4) >> 0xc <= (unsigned)*(unsigned short *)(pp + 0x40)) ||     /* DAT_801479fc[vt] */
-        ((unsigned)(*(int *)(pp + 0xc) - (unsigned)*(unsigned short *)(pp + 0x40)) <=
-         *(unsigned int *)(base + vt + 0xE4) >> 0xc)) {
-        if (*(unsigned int *)(base + vt + 0xE4) >> 0xb < (unsigned)*(int *)(pp + 0xc)) {
-            /* DAT_80147a00 is the SAME 0x2c-stride struct's +0x10 field (0xE8-0xD8=0x10) -- index
-             * by vt/link*0x2c (BYTES), NOT *0xb (a stale int-array-index unit mismatch bug: 0xb*4==0x2c
-             * only if scaled by sizeof(int), but VI/raw-pointer here adds bytes directly). */
-            *(int *)(base + vt + 0xE8) = *(int *)(base + vt + 0xE4);
-            if (-1 < (int)((unsigned)base[vt + 0xF8] << 0x18)) {                        /* DAT_80147a10[vt] */
-                link = (signed char)base[vt + 0xF8];
-                *(int *)(base + link * 0x2c + 0xE8) = *(int *)(base + vt + 0xE4);
-            }
-        } else {
-            *(int *)(base + vt + 0xE4) = 0;
-            if (-1 < (int)((unsigned)base[vt + 0xF8] << 0x18)) {
-                link = (signed char)base[vt + 0xF8];
-                *(int *)(base + link * 0x2c + 0xE4) = 0;
+    /* MATCH: materialize `voice = &table[vt]` (base+0xD8+vt) ONCE and access its fields via SMALL
+     * fixed displacements (+0xC=DAT_801479fc, +0x10=DAT_80147a00, +0x20=DAT_80147a10 link byte) --
+     * oracle computes this ONE address (`a0`) and reuses it for every field ref (`lw v0,0xC(a0)`
+     * appears FOUR times). The prior `base+vt+CONST` form recomputed the whole vt*0x2c multiply
+     * chain at EVERY occurrence instead of once. */
+    {
+        unsigned char *tablebase = base + 0xD8;    /* MATCH: fold +0xD8 into base FIRST (oracle:
+                                                     * `addiu v1,a3,0xD8` before `addu a0,v0,v1`) --
+                                                     * left-to-right `base+0xD8+vt` associativity alone
+                                                     * didn't stop gcc from folding +0xD8 into vt's chain
+                                                     * instead; a separate statement pins the add order. */
+        unsigned char *voice = tablebase + vt;     /* &DAT_801479f0[vt] (table-element base) */
+        /* MATCH: the oracle RE-LOADS this field fresh at every occurrence (`lw v0,0xC(a0)` appears
+         * FOUR times) rather than caching the value across the branches -- an ordinary (non-volatile)
+         * repeated dereference lets gcc's local CSE reuse the FIRST load's register at every later
+         * occurrence (address is proven unchanged, no intervening store), one load too few vs oracle.
+         * `volatile` forces the re-reads while still sharing the ONE address computation. */
+        if ((*(volatile unsigned int *)(voice + 0xC) >> 0xc <= (unsigned)*(unsigned short *)(pp + 0x40)) ||     /* DAT_801479fc[vt] */
+            (*(volatile unsigned int *)(voice + 0xC) >> 0xc >=          /* MATCH: voice-side operand FIRST
+                                                                          * (oracle loads+shifts voice+0xC
+                                                                          * before pp+0xc in this clause) */
+             (unsigned)(*(int *)(pp + 0xc) - (unsigned)*(unsigned short *)(pp + 0x40)))) {
+            if (*(volatile unsigned int *)(voice + 0xC) >> 0xb < (unsigned)*(int *)(pp + 0xc)) {
+                /* DAT_80147a00 is the SAME 0x2c-stride struct's +0x10 field (0xE8-0xD8=0x10) -- index
+                 * by vt/link*0x2c (BYTES), NOT *0xb (a stale int-array-index unit mismatch bug: 0xb*4==0x2c
+                 * only if scaled by sizeof(int), but VI/raw-pointer here adds bytes directly). */
+                *(int *)(voice + 0x10) = *(volatile int *)(voice + 0xC);
+                /* FLOOR (confirmed): oracle re-reads the link byte (+0x20) a SECOND time after the
+                 * bltz test instead of reusing the tested value -- but marking EITHER occurrence
+                 * `volatile` defeats gcc's `sll 24;bltz` sign-test pattern match for the FIRST
+                 * (regresses to `srl 7;bnez`, a net loss); accept the single cached read here. */
+                if (-1 < (int)((unsigned)voice[0x20] << 0x18)) {                        /* DAT_80147a10[vt] */
+                    link = (signed char)voice[0x20];
+                    *(int *)(base + link * 0x2c + 0xE8) = *(int *)(voice + 0xC);
+                }
+            } else {
+                *(int *)(voice + 0xC) = 0;
+                if (-1 < (int)((unsigned)voice[0x20] << 0x18)) {
+                    link = (signed char)voice[0x20];
+                    *(int *)(base + link * 0x2c + 0xE4) = 0;
+                }
             }
         }
     }
@@ -187,30 +217,31 @@ extern void iSNDpacketsetirq(void)
          * bare `sndpp` global reference at each site instead makes GNU-as re-materialize a fresh
          * full address per access (self-temp read / $at-store), ~2x the instruction count. */
         int *psndpp = &sndpp;
+        unsigned char *pbase = base;   /* MATCH: oracle copies the checked base into a SECOND reg
+                                         * (`addu a1,v1,zero`) right before the loop -- base is v1
+                                         * for the early sndpd[1] check, pbase/a1 for the loop body. */
         do {
             unsigned char *slot;
             *psndpp = *psndpp + 1;
-            if (0 < *psndpp)
+            if (0 < *(volatile int *)psndpp)
                 *psndpp = 0;                              /* single player -> wrap to 0 */
-            slot = base + *psndpp * 4;                     /* runtime index first, fixed OFFSET as displacement */
+            slot = pbase + *(volatile int *)psndpp * 4;     /* runtime index first, fixed OFFSET as displacement */
             pp = *(int *)(slot + 0x4F8);                 /* DAT_80147e10[sndpp] */
-            /* BUG FIX: plain `char` is UNSIGNED on this build (lbu) -- `-1 < (unsigned char)x` is a
-             * gcc-provable TAUTOLOGY, so the compiler silently deleted this whole note-idle check as
-             * dead code (the compiled fn never even loaded the byte). The oracle uses `lb`/`bgez`
-             * (SIGNED byte, real check) -- same note field iSNDpacketgetirq already reads `signed char`.
-             * MATCH: nested ifs (not `&&`) -- oracle branches `bgez` STRAIGHT to the success block on
-             * the positive test, falling through to the loop increment only on failure; a merged `&&`
-             * inverts to a single `bltz`-skip test instead. */
-            if (pp != 0) {
-                if (*(signed char *)(pp + 0x42) >= 0) {
-                    *(short *)(DAT_80147e2c + 0x1a4) = (short)(*(int *)pp + 8 >> 3);
-                    InterruptCallback();
-                    iSNDpsxenablespuirq();
-                    return;
-                }
-            }
+            /* MATCH: single merged guard `pp!=0 && note>=0` with a `goto success` to a block placed
+             * AFTER the loop (oracle: `beqz v1,.increment; lb; bgez v0,.success` -- the success code
+             * sits past the loop's back-edge `j`, reached only by this forward branch). BUG FIX: plain
+             * `char` is UNSIGNED on this build (lbu) -- `-1 < (unsigned char)x` is a gcc-provable
+             * TAUTOLOGY, so a `(char)` cast here silently deletes the whole note-idle check as dead
+             * code. Must be `signed char` (oracle: `lb`/`bgez`), same field iSNDpacketgetirq reads. */
+            if (pp != 0 && *(signed char *)(pp + 0x42) >= 0)
+                goto success;
             i++;
         } while (i < 2);
+        return;
+success:
+        *(short *)(DAT_80147e2c + 0x1a4) = (short)(*(int *)pp + 8 >> 3);
+        InterruptCallback(9, iSNDpacketirqcallback);   /* re-arm: 9 == SPU IRQ index, handler = self */
+        iSNDpsxenablespuirq();
     }
 }
 
@@ -244,11 +275,15 @@ extern void iSNDpsxzerospu(int *addr, int len)
  *   (Ghidra rendered as __thiscall(this,p,arg2): this=player, p=byteoff, arg2=count.) */
 extern unsigned int iSNDpacketpurgeframes(int p, unsigned int byteoff, int count)
 {
+    /* FLOOR (confirmed): tried the bare-base + LOAD-displacement form (`*(int*)(sndpd+p*4+0x4F8)`,
+     * matching iSNDpacketgetirq's style) hoping to reproduce the oracle's `lw s5,0x4F8(v0)` -- gcc
+     * folds the +0x4F8 into the base pointer's own materialization EITHER way (0 real diff), so this
+     * is the SAME address-fold floor already documented for the p=0-constant call sites in this file. */
     int          pp = (&DAT_80147e10)[p];
-    int          vt = *(char *)(pp + 0x42) * 0x2c;
+    int          vt = *(signed char *)(pp + 0x42) * 0x2c;  /* BUG FIX: plain char is UNSIGNED on this
+                                                             * build (lbu) -- oracle uses `lb` (signed). */
     unsigned int blk, span, taken, wrapped;
     unsigned short *fcnt;
-    unsigned short n;
     int          i;
 
     do {
@@ -257,15 +292,18 @@ extern unsigned int iSNDpacketpurgeframes(int p, unsigned int byteoff, int count
         if (count < (int)span)
             span = count;
         fcnt = (unsigned short *)((byteoff / blk) * 2 + *(int *)(pp + 0x2c));
-        n = *fcnt;
         taken = span;
-        if ((int)(unsigned)n < (int)span)
-            taken = (unsigned)n;
-        *fcnt = n - (unsigned short)taken;
+        /* MATCH: read `*fcnt` directly at each use (no separately-named `n` local) -- oracle keeps
+         * the raw `lhu` value in ONE register across both the compare and the later subtraction with
+         * no re-mask; a named `unsigned short n` local re-loaded/re-masked into a SECOND register for
+         * the promoted-int compare (gcc-2.8 conservatism), an extra `andi 0xffff` the oracle lacks. */
+        if (*fcnt < (int)span)
+            taken = *fcnt;
+        *fcnt = *fcnt - (unsigned short)taken;
         if (taken != 0 && VB(DAT_80147a0f, vt) != 0) {
             i = 0;
             do {
-                iSNDpacketfreeframes(p);
+                iSNDpacketfreeframes(p, i, (int)taken);
                 i++;
             } while (i < (int)(unsigned)(unsigned char)VB(DAT_80147a0f, vt));
         }
@@ -429,7 +467,14 @@ extern void iSNDpacketserve(void)
         int pp = (&DAT_80147e10)[p];
         if (pp != 0 && *(signed char *)(pp + 0x42) >= 0) {
             int servePos = *(int *)(pp + 0x1c);
-            int newPos = (int)(*(int *)(&DAT_801479fc + *(signed char *)(pp + 0x42) * 0x2c) / 0x1c000) * 0x1c;
+            /* MATCH: 0x1c000 == 4096*0x1c (28) -- mathematically `x/0x1c000` == `(x>>0xc)/0x1c` for the
+             * non-negative values here, but the ORACLE keeps the >>0xc as an EXPLICIT separate step
+             * (`srl s1,v0,12` then a real `/0x1c` with its OWN shift-4 magic-mult) instead of letting gcc
+             * fold the /4096 into one combined post-mult shift (`sra v0,v0,0x10` -- what a single `/0x1c000`
+             * emits). Empirically verified (isolated probe): the divisor after removing the power-of-2
+             * factor is 28 (magic 0x92492493, shift 4), NOT 7 (same magic constant, but shift 2) -- the
+             * `(unsigned)` cast on the shift is required to get `srl` (else `sra`, wrong opcode). */
+            int newPos = ((int)((unsigned)*(int *)(&DAT_801479fc + *(signed char *)(pp + 0x42) * 0x2c) >> 0xc) / 0x1c) * 0x1c;
             unsigned int adv = (newPos < servePos) ? (unsigned)((newPos + *(int *)(pp + 0xc)) - servePos)
                                                    : (unsigned)(newPos - servePos);
             if (0x70ffffff < *(int *)(pp + 0x18)) {     /* keep the 64-bit-ish byte counters from overflowing */
@@ -477,19 +522,25 @@ extern int iSNDplatformcalcdatarate(unsigned short *sample_rate)
  *   register the ctx in DAT_80147e10[p].  Returns 0 / -9 on malloc failure. */
 extern int iSNDplatformpacketplaycreate(int p, int *mem)
 {
-    int r;
-    HOOK_voice_done = (void (*)(void *))iSNDpsxpacketstop;
+    /* MATCH: materialize the BARE &sndpd once and keep it live ACROSS the malloc call (oracle: `s2`,
+     * a callee-saved reg) -- both the HOOK_voice_done store (before the call) and the
+     * DAT_80147e10[p]=mem store (after) are sndpd-relative; the HOOK_/DAT_ macros each independently
+     * fold their OWN offset into a freshly-materialized address instead of sharing one base. */
+    unsigned char *base = sndpd;
+    int *limitsBase = &sndpsxlimits;   /* MATCH: same lever for DAT_801234e4 -- oracle materializes
+                                         * &sndpsxlimits ONCE (its own callee-saved reg, ALSO kept
+                                         * live across the call) and reads +0x10 by displacement
+                                         * TWICE; the macro form re-materialized the full address
+                                         * from scratch at each of its two uses. */
+    *(void (**)(void *))(base + 0x724) = (void (*)(void *))iSNDpsxpacketstop;   /* HOOK_voice_done */
     *(signed char *)((int)mem + 0x42) = -1;   /* MATCH: li v0,-1 vs li v0,255 (unsigned-char lvalue folds to +255) */
     mem[0xb] = (int)(mem + 0x414);
-    mem[0] = iSNDpsxmalloc(DAT_801234e4);
-    mem[1] = DAT_801234e4;
-    if (mem[0] == 0) {
-        r = -9;
-    } else {
-        (&DAT_80147e10)[p] = (int)mem;
-        r = 0;
-    }
-    return r;
+    mem[0] = iSNDpsxmalloc(limitsBase[4]);   /* DAT_801234e4 == sndpsxlimits[4] (+0x10/4) */
+    mem[1] = limitsBase[4];
+    if (mem[0] == 0)
+        return -9;
+    *(int *)(base + p * 4 + 0x4F8) = (int)mem;   /* DAT_80147e10[p] = mem */
+    return 0;
 }
 
 /* iSNDplatformpacketplaydestroy @0x801042C0 : free a player's SPU context and clear its slot.
@@ -584,8 +635,13 @@ extern int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, unsi
 
 /* iSNDpsxpacketstop @0x801046C8 : tear down a finished voice -- mark its player + voice slot idle, and if no
  *   voices remain active, drop the serve hook and point the pre-load tick back at the bare IRQ re-arm. */
-extern int iSNDpsxpacketstop(int p)
+extern void iSNDpsxpacketstop(void *parg)
 {
+    unsigned char *p = (unsigned char *)parg;   /* MATCH: real sig is void(void*) -- eaclib.h/HOOK_voice_done;
+                                                  * the oracle NEVER sets up $v0 at any epilogue (§3.2 void). Our
+                                                  * previous `int p ... return pp;` forced pp into a CALLEE-SAVED
+                                                  * reg to survive the trailing sdpacket_setirq_cs() call -> an
+                                                  * extra $s1 save/restore + 8-byte-bigger frame the oracle lacks. */
     unsigned char *base = sndpd;
     /* MATCH: the oracle reads the note byte UNSIGNED (`lbu`) then sign-extends+scales-by-4 with the
      * `sll 24 / sra 22` idiom (net +2 shift, arithmetic) in ONE fused expression -- our previous
@@ -602,8 +658,12 @@ extern int iSNDpsxpacketstop(int p)
          * walk flip. */
         unsigned char *q;
         int count = (int)(unsigned)((unsigned char *)sndgs)[0x11];
-        for (i = 0, q = base + 0xFF; i < count; i++, q += 0x2c)
-            if ((signed char)*q >= 0)   /* bit7 clear == still active */
+        /* MATCH: q walks from `base` (not base+0xFF) and reads the byte at the FIXED +0xFF
+         * displacement each iter (oracle: `lbu v0,0xFF(v1)` -- offset stays in the load, base
+         * is bare); and the sign test is the raw `(byte<<24)>=0` shift-idiom (oracle: unsigned
+         * `lbu` + `sll 24` + `bltz`), not a `(signed char)` cast (that folds to a direct `lb`). */
+        for (i = 0, q = base; i < count; i++, q += 0x2c)
+            if ((int)(q[0xFF]) << 24 >= 0)   /* bit7 clear == still active */
                 active++;
     }
     if (active == 0) {
@@ -611,5 +671,4 @@ extern int iSNDpsxpacketstop(int p)
         HOOK_preload = (void *)iSNDpacketsetirq;
     }
     sdpacket_setirq_cs();
-    return pp;
 }

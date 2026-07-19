@@ -45,11 +45,7 @@ AIHigh_Traffic::CheckForCops(int *closestDistance)
 
       currentBest = *closestDistance;
 
-      if (sliceDistance < 0) {
-
-        sliceDistance = -sliceDistance;
-
-      }
+      sliceDistance = __builtin_abs(sliceDistance);
 
       if (sliceDistance < currentBest) {
 
@@ -807,6 +803,8 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 
     if ((pCVar6->carFlags & 0x204U) != 0) {
 
+      fRandomChance = 0x320000;
+
       if (-1 < pCVar6->currentSpeed) {
 
         iVar4 = 1;
@@ -857,6 +855,10 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 
       iVar4 = iVar5 - slice;
 
+      iRandomChance = fRandomChance * 0x19;
+
+      randomValue = (iRandomChance << 2) / 0x10000;
+
       while ((slice < iVar5 && (iVar4 < 0x32))) {
 
         trigger = triggerManagerTraffic->CheckForTriggerAtSlice(pCVar6->carIndex, slice);
@@ -871,7 +873,7 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 
           pCVar1 = AILife_IsSliceInAnyVisibleArea(slice);
 
-          if ((pCVar1 == (Car_tObj *)0x0) && ((uVar3 & 0xffff) * 0x19 >> 0xe < 5000)) {
+          if ((pCVar1 == (Car_tObj *)0x0) && ((uVar3 & 0xffff) * 0x19 >> 0xe < randomValue)) {
 
             ptVar2 = triggerManagerTraffic->GetTrigger(trigger, &iStack_30);
 

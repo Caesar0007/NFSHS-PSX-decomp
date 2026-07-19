@@ -2056,9 +2056,11 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
 
   int local_2c;
 
-  
+  Sim_tSimGlobalVar *pSimGlobal;
 
-  if (0x5bf < simGlobal.gameTicks) {
+  pSimGlobal = &simGlobal;
+
+  if (0x5bf < pSimGlobal->gameTicks) {
 
     for (iVar12 = Cars_gNumCars - 1; -1 < iVar12; iVar12 = iVar12 - 1) {
 
@@ -2121,7 +2123,7 @@ LAB_80065a54:
 
         }
 
-        if ((0x1bf < (int)(simGlobal.gameTicks - pAVar9[4].stateType_)) && (local_2c < iVar6)) {
+        if ((0x1bf < (int)(pSimGlobal->gameTicks - pAVar9[4].stateType_)) && (local_2c < iVar6)) {
 
           int dir;
 

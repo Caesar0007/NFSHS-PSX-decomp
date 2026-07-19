@@ -47,6 +47,8 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
   cVar6 = (this->basicPerpInfo_).crime_;
 
+  cVar7 = cVar6;
+
   iVar1 = AISpeeds_GetLegalSpeed((int)((this->carObj_)->N).simRoadInfo.slice);
 
   if (simGlobal.gameTicks - this->lastPullOverTime_ < 0x280) {
@@ -62,8 +64,6 @@ void AIHigh_BasicPerp::CheckForCrimes()
     return;
 
   }
-
-  cVar7 = cVar6;
 
   if (((simGlobal.gameTicks - (pCVar3->N).collision.lastTime < 0xf) &&
 
@@ -515,29 +515,21 @@ void AIHigh_BasicPerp::RemoveCloseCops()
 
   int iVar6;
 
-  Car_tObj **ppCVar5;
-
 
 
   iVar6 = 0;
-
-  ppCVar5 = Cars_gCopCarList;
 
   while( true ) {
 
     if (Cars_gNumCopCars <= iVar6) break;
 
-    carObj = *ppCVar5;
+    carObj = Cars_gCopCarList[iVar6];
 
     if ((carObj->AIFlags & 4U) == 0) {
 
       iVar1 = AIWorld_ApxSplineDistance(carObj,this->carObj_);
 
-      if (iVar1 < 0) {
-
-        iVar1 = -iVar1;
-
-      }
+      iVar1 = __builtin_abs(iVar1);
 
       if (iVar1 < 0x960000) {
 
@@ -581,8 +573,6 @@ void AIHigh_BasicPerp::RemoveCloseCops()
       }
 
     }
-
-    ppCVar5 = ppCVar5 + 1;
 
     iVar6 = iVar6 + 1;
 
@@ -699,9 +689,9 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
 
 
 
-  thisCopSlice = (highLevelAIObjs[carIndex]->carObj_->N).simRoadInfo.slice;
-
   pos = this->copVSPositionList_[copIndex];
+
+  thisCopSlice = (highLevelAIObjs[carIndex]->carObj_->N).simRoadInfo.slice;
 
   while( true ) {
 

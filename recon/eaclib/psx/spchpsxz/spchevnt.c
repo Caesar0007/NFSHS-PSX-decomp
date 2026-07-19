@@ -1,4 +1,9 @@
-/* eaclib/psx/spchpsxz/spchevnt.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 16/16 ***
+/* eaclib/psx/spchpsxz/spchevnt.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 10/16 PASS ***
+ *   (w20-a10: iSPCH_FindEventSlot 24->0 PASS; SPCH_AddEvent 56->49; iSPCH_ChooseEvent 100->62 diffs.
+ *    Remaining FAILs: iSPCH_InitEventQueue(42)/SPCH_ClearEventQueue(10) = documented biv-elim floor;
+ *    iSPCH_ClearOldEvents(2)/SPCH_ChooseSpeech(7) = pure scheduling/reg-materialization floor (re-tried,
+ *    reverted per verify-or-revert); SPCH_AddEvent(49)/iSPCH_ChooseEvent(62) = residual reg-coloring
+ *    rotation after the structural fixes, count nearly matches oracle -- see per-fn comments.)
  *   Source obj : nfs4\eaclib\psx\spchevnt.obj ; archive C:\nfs4\EACLIB\PSX\SPCHPSXZ.LIB (xlsx col12 / SYM v3)
  *   16 fns @[0x800E6E88 .. 0x800E7684].  The speech EVENT QUEUE -- 16 slots (gVoxEvents, base 0x80148060,
  *   stride 0x3c) selected by priority/age/subtick; events are looked up in the bound gEventDats[] blobs.
@@ -168,20 +173,20 @@ extern int iSPCH_FindEventSlot(unsigned int priority)
     }
     {
         int tick = gettick();
-        int idx  = 0;
+        i = 0;
         do {
-            unsigned char *slot     = (unsigned char *)gVoxEvents + idx * 0x3c;
+            unsigned char *slot     = (unsigned char *)gVoxEvents + i * 0x3c;
             int            voxEvent = *(int *)(slot + 0x10);
             unsigned short maxAge   = *(unsigned short *)(voxEvent + 2);
             if (maxAge != 0 &&
                 maxAge < (unsigned int)(tick - *(int *)(slot + 0xc))) {
                 *(short *)(slot + 8) = 0;
-                result = idx;
+                result = i;
                 gVoxEvents[0] = gVoxEvents[0] - 1;
                 goto done;
             }
-            idx  = idx + 1;
-        } while (idx < 0x10);
+            i  = i + 1;
+        } while (i < 0x10);
     }
     i = 0;
     do {
@@ -206,20 +211,21 @@ extern int SPCH_AddEvent(unsigned int *table)
 {
     int voxEvent = iSPCH_FindEvent(*table);
     if (voxEvent != 0) {
-        signed char acceptProb = *(signed char *)(voxEvent + 9);
-        if (iSPCH_Rand(100) <= (int)acceptProb) {
+        int acceptProb = *(signed char *)(voxEvent + 9);
+        if (iSPCH_Rand(100) <= acceptProb) {
             int slot = iSPCH_FindEventSlot((unsigned int)*(unsigned short *)(voxEvent + 4));
             if (-1 < slot) {
-                unsigned char *s = SLOT(slot);
                 int            tick = gettick();
                 short          sub;
                 int            j;
+                unsigned char *s;
                 if (tick == gLastTick[0])
                     gLastSubTick[0] = gLastSubTick[0] + 1;
                 else
                     gLastSubTick[0] = 0;
                 sub = (short)gLastSubTick[0];
                 gLastTick[0] = tick;
+                s = SLOT(slot);
                 *(int *)(s + 0x10)  = voxEvent;
                 *(int *)(s + 0xc)   = tick;
                 *(short *)(s + 0xa) = sub;
@@ -241,16 +247,23 @@ extern int SPCH_AddEvent(unsigned int *table)
 extern int iSPCH_ChooseEvent(void)
 {
     int            winner  = -1;
-    int            bestAge = -1;
-    int            bestPri = 0;
-    unsigned short bestSub = 0;
-    int            now     = gettick() + gPreLoadTicks;
-    int            slotIdx = 0;
+    /* MATCH: now/bestPri/bestSub genuinely stack-resident in the oracle (sp+0x10/0x14/0x18,
+     * contiguous, reloaded every use -- NOT register-promoted) -- reproduce as an on-stack
+     * aggregate so gcc doesn't SRA/register-allocate the fields (2 ints + 1 short == the exact
+     * 0x10/0x14/0x18 layout). winner/bestAge/slotIdx stay plain locals (oracle keeps them s4/fp/s7). */
+    struct { int now; int bestPri; unsigned short bestSub; } L;
+    int            bestAge;
+    int            slotIdx;
+    L.now     = gettick() + gPreLoadTicks;
+    bestAge   = winner;
+    L.bestPri = 0;
+    L.bestSub = 0;
+    slotIdx = 0;
     do {
         unsigned char *slot = (unsigned char *)gVoxEvents + slotIdx * 0x3c;
         if (*(unsigned short *)(slot + 8) != 0) {
             int            voxEvent   = *(int *)(slot + 0x10);
-            int            age        = now - *(int *)(slot + 0xc);
+            int            age        = L.now - *(int *)(slot + 0xc);
             int            expired    = 0;
             int            filtered   = 0;
             unsigned short maxAge     = *(unsigned short *)(voxEvent + 2);
@@ -268,17 +281,21 @@ extern int iSPCH_ChooseEvent(void)
                 gVoxEvents[0] = gVoxEvents[0] - 1;
             } else {
                 unsigned short pri = *(unsigned short *)(voxEvent + 4);
-                if (bestPri < (int)(unsigned int)pri) {
+                if (L.bestPri < (int)(unsigned int)pri) {
+                    unsigned char *winSlot;
                     winner  = slotIdx;
-                    bestSub = *(unsigned short *)(slot + 0xa);
+                    winSlot = SLOT(slotIdx);
+                    L.bestSub = *(unsigned short *)(winSlot + 0xa);
                     bestAge = age;
-                    bestPri = (int)(unsigned int)pri;
-                } else if ((int)(unsigned int)pri == bestPri) {
+                    L.bestPri = (int)(unsigned int)pri;
+                } else if ((int)(unsigned int)pri == L.bestPri) {
                     if ((unsigned int)age < (unsigned int)bestAge ||
-                        (age == bestAge && (int)(unsigned int)bestSub < (int)(unsigned int)*(unsigned short *)(slot + 0xa))) {
+                        (age == bestAge && (int)(unsigned int)L.bestSub < (int)(unsigned int)*(unsigned short *)(slot + 0xa))) {
+                        unsigned char *winSlot;
                         winner  = slotIdx;
                         bestAge = age;
-                        bestSub = *(unsigned short *)(slot + 0xa);
+                        winSlot = SLOT(slotIdx);
+                        L.bestSub = *(unsigned short *)(winSlot + 0xa);
                     }
                 }
             }

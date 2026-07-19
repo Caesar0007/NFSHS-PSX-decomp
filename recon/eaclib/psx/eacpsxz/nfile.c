@@ -234,6 +234,13 @@ extern int FILE_completeop(unsigned int id)
 /* FILE_callbackop @0x800EBE4C : if the op has a (non-zero) status, store the callback and fire it
  *   immediately with (status, param), bracketed by the manager's pending-callback counter.  A status
  *   of 0 (op not started/no result yet) does nothing. */
+/* 🔴 RESIDUAL FLOOR (28 diffs, investigated this wave): same unexplained 16-byte extra stack
+ * frame as FILE_opstatus/FILE_operror/FILE_completeop/FILE_priorityop (24 vs oracle's 40 bytes,
+ * the extra 16 bytes are never written to) -- see those functions' comments; not source-shapable
+ * so far. Plus a genuine coloring tie-break: oracle moves `callback` into $a3 as literally its
+ * FIRST instruction (before computing op's address) and keeps it there through the `jalr`; tried
+ * capturing it into an early local first -- byte-identical codegen (no effect), reverted. Count
+ * matches (32=32); pure allocator/toolchain floor. */
 extern void FILE_callbackop(unsigned int id, void (*callback)(int status, int param))
 {
     FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
@@ -357,14 +364,19 @@ extern void iFILE_perror(FileOp *op)
  *   gets recycled out from under us during the wait. */
 extern int FILE_waitop(unsigned int id)
 {
-    FileOp *op;
+    /* asm: op's address is computed UNCONDITIONALLY first (no side effects), THEN id==0 is
+     * tested -- and the whole "recompute op + validate id" sequence (incl. the id==0 test,
+     * vestigial though it is once inside the loop -- id is a local param that can't change) is
+     * duplicated verbatim after each systemtask() pump, not hoisted into a shared helper. */
+    FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
     if (id == 0)
         return -3;
-    op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
     if ((id & 0xFFFFF) != (op->id & 0xFFFFF))         /* stale id */
         return -3;
     while (op->status == 0) {                          /* not finished yet -> pump the system */
         systemtask(0);
+        if (id == 0)
+            return -3;
         op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
         if ((id & 0xFFFFF) != (op->id & 0xFFFFF))      /* slot recycled -> give up */
             return -3;
@@ -405,16 +417,20 @@ extern void FILE_priorityop(unsigned int id, int priority)
     op->prio = priority;
     if (gFileMgr.state >= 2 && op != gFileMgr.curop && op->status == 0 && oldprio != priority) {
         prev = 0; node = gFileMgr.queuehead;
-        while (node && node != op) {                 /* find op in the queue */
+        while (node != 0) {                          /* find op in the queue */
+            if (node == op)
+                break;
             prev = node;
             node = node->qnext;
         }
-        if (prev == 0) gFileMgr.queuehead = op->qnext;   /* unlink (op was head) */
-        else           prev->qnext        = op->qnext;
+        if (prev != 0) prev->qnext        = op->qnext;
+        else            gFileMgr.queuehead = op->qnext; /* unlink (op was head) */
 
         prev = 0;
         node = gFileMgr.queuehead;
-        while (node && node->prio <= priority) {     /* sorted reinsert (ascending) */
+        while (node != 0) {                          /* sorted reinsert (ascending) */
+            if (priority < node->prio)
+                break;
             prev = node;
             node = node->qnext;
         }
@@ -445,13 +461,18 @@ extern int FILE_initwithmem(int handlecount, int memsize, int opcount, void *mem
     gFileMgr.handlecount = handlecount;
     gFileMgr.idmask      = 0xFF;
     size = FILE_overhead(handlecount, memsize, opcount);
-    gFileMgr.oparray     = (FileOp *)membuf;                       /* op array at the pool base */
-    blockclear(membuf, size);                                     /* zero the whole pool */
-    gFileMgr.handlearray = (FileHandle *)((char *)membuf + opcount * 0x30);  /* handles after ops */
+    gFileMgr.oparray     = (FileOp *)membuf;                       /* op array at the pool base
+                                                                     * (asm: stored in the call's delay slot) */
+    /* asm re-reads gFileMgr.oparray/.opcount/.handlecount from memory for everything below
+     * (rather than keeping the membuf/opcount/handlecount params alive across the intervening
+     * FILE_overhead/blockclear/CD_Init calls) -- same not-cached-across-calls pattern as
+     * HANDLE()/NAME() in iFILE_ExecCommand. */
+    blockclear(gFileMgr.oparray, size);                           /* zero the whole pool */
+    gFileMgr.handlearray = (FileHandle *)((char *)gFileMgr.oparray + gFileMgr.opcount * 0x30);  /* handles after ops */
     if (disablecd == 0) {                                          /* CD backend enabled */
-        char *iomem = (char *)gFileMgr.handlearray + handlecount * 0x4C;     /* io mem after handles */
-        int r = CD_Init(handlecount, memsize, iomem,
-                        (void (*)(void))iFILE_CommandCompleteCallback);
+        char *iomem = (char *)gFileMgr.handlearray + gFileMgr.handlecount * 0x4C;     /* io mem after handles */
+        unsigned int r = CD_Init(gFileMgr.handlecount, memsize, iomem,
+                        (void (*)(void))iFILE_CommandCompleteCallback);  /* asm: sltiu (unsigned compare) */
         disablecd = (r < 1) ? 1 : 0;                              /* disable CD if init failed */
     }
     initfileio();
@@ -486,10 +507,15 @@ extern void FILE_cancelop(unsigned int id)
     } else {                                     /* still queued -> remove it */
         FileOp *prev = 0, *node = gFileMgr.queuehead;
         if (node == 0) goto cleanup;
-        while (node && node != op) { prev = node; node = node->qnext; }
+        while (node != 0) {
+            if (node == op)
+                break;
+            prev = node;
+            node = node->qnext;
+        }
         if (node == 0) goto cleanup;              /* not in queue */
-        if (prev == 0) gFileMgr.queuehead = op->qnext;
-        else           prev->qnext        = op->qnext;
+        if (prev != 0) prev->qnext        = op->qnext;
+        else            gFileMgr.queuehead = op->qnext;
         gFileMgr.state--;                        /* one fewer queued op */
         op->status = -1;                         /* mark cancelled */
         action = 2;
@@ -584,13 +610,15 @@ extern void iFILE_addbigreadcallback(unsigned int id, int status, int *node)
     FileOp *op    = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
     int     handle = op->result24;        /* FILE_read stashed the handle in result24 (+0x24) */
     int     prio   = op->prio;            /* +0x10 */
-    FileOp *cmdop  = (FileOp *)(size_t)(unsigned int)node[2];
     int     hdrsize, blksize;
     (void)status;
+    /* cmdop (node[2]) is NOT cached in a local -- the oracle re-reads it fresh at each of its two
+     * uses (the delay-slot store here, and the final iFILE_ExecCommand call far below), same
+     * not-cached-across-a-call pattern as HANDLE()/NAME() in iFILE_ExecCommand. */
 
     node[1] = handle;                     /* node->handle */
     FILE_completeop(id);                  /* finalize this read op (frees the slot) */
-    cmdop->result24 = handle;             /* propagate the handle to the command op (asm: delay slot) */
+    ((FileOp *)(size_t)(unsigned int)node[2])->result24 = handle;  /* propagate the handle (asm: delay slot) */
 
     if (typeofbigfile((void *)(size_t)(unsigned int)node[0]) == 0)
         purgememadr((void *)(size_t)(unsigned int)node[0]);   /* invalid type -> drop the buffer */
@@ -610,7 +638,7 @@ extern void iFILE_addbigreadcallback(unsigned int id, int status, int *node)
     } else {                             /* header complete -> publish the device */
         node[3] = (int)(size_t)gFileMgr.devicelist;   /* node->next = old head */
         gFileMgr.devicelist = node;
-        iFILE_ExecCommand(cmdop);
+        iFILE_ExecCommand((void *)(size_t)(unsigned int)node[2]);
     }
 }
 
@@ -623,10 +651,11 @@ extern void iFILE_addbigopencallback(unsigned int id, int status, int *node)
     int     prio = op->prio;               /* +0x10 */
     int     handle = FILE_completeop(id);  /* open op result24 == the opened handle */
 
-    if (status != 1) {                     /* open failed */
-        FileOp *cmdop = (FileOp *)(size_t)(unsigned int)node[2];
-        cmdop->error = 4;
-        iFILE_ExecCommand(cmdop);
+    if (status != 1) {                     /* open failed: don't cache cmdop -- the oracle stores
+                                             * error=4 via one reload of node[2], then reloads
+                                             * node[2] AGAIN fresh for the iFILE_ExecCommand arg */
+        ((FileOp *)(size_t)(unsigned int)node[2])->error = 4;
+        iFILE_ExecCommand((void *)(size_t)(unsigned int)node[2]);
     } else {                               /* open ok -> read the first header block */
         unsigned int rid = FILE_read((void *)(size_t)handle, 0,
                                      (unsigned int)node[0], 0x800,
@@ -759,6 +788,8 @@ extern int   strcmp(const char *a, const char *b);          /* @0x800E5D7C */
 extern void  freehandle(FileHandle *h);                     /* @0x800ED2F0 (above) */
 
 #define OPI(op, off)  (*(int *)((char *)(op) + (off)))          /* multipurpose op field at byte offset */
+#define HANDLE(cmd)   ((int *)(size_t)(unsigned int)OPI(cmd, 0x24))  /* not cached -- see below */
+#define NAME(cmd)     ((char *)HANDLE(cmd) + 0x0C)
 
 /* iFILE_ExecCommand @0x800ECB98 : the FILE-system command pump (the heart of the subsystem).  Runs inside
  *   an IRQ-disabled critical section.  (1) If `cmd` is non-null, inserts it into the priority-sorted
@@ -792,11 +823,9 @@ extern int iFILE_ExecCommand(void *cmdp)
                 if (cmd->prio < node->prio)      /* insert before the first higher-prio op */
                     break;
                 prev = node;
-                if (node->qnext == 0) {          /* tail */
-                    cmd->qnext = 0;
+                cmd->qnext = node->qnext;        /* advance cursor (naturally becomes 0 at the tail) */
+                if (cmd->qnext == 0)
                     break;
-                }
-                cmd->qnext = node->qnext;        /* advance cursor */
             }
         }
         if (prev == 0) gFileMgr.queuehead = cmd;
@@ -830,41 +859,43 @@ extern int iFILE_ExecCommand(void *cmdp)
         return 0;
 
     {
-        int  *handle = (int *)(size_t)(unsigned int)cmd->result24;   /* the open-file handle */
+        /* the open-file handle: NOT cached in a local -- the oracle re-reads cmd->result24 fresh
+         * at every use site (only CSE-merged by the compiler across a call-free span), so a
+         * cached local here would artificially extend its live range across the whole switch and
+         * force extra callee-saved registers the oracle never allocates. */
         ccc = 0;
 
         switch (type) {
         case 2:                                  /* open */
         case 8: {                                /* exists-probe */
-            char *name = (char *)handle + 0x0C;  /* the filename (handle+0xC) */
-            char *bar  = strchr(name, '|');      /* "volume|entry" separator? */
+            char *bar  = strchr(NAME(cmd), '|'); /* "volume|entry" separator? */
             char  volbuf[0x40], entrybuf[0x40];
             int   s2 = 0, s3;
 
             entrybuf[0] = 0;
             if (bar != 0) {
                 s3 = 2;
-                if (name[0] != '|') {            /* "volume|entry" -> split out the volume name */
-                    int vollen = (int)(strchr(name, '|') - name);
+                if (NAME(cmd)[0] != '|') {       /* "volume|entry" -> split out the volume name */
+                    int vollen = (int)(strchr(NAME(cmd), '|') - NAME(cmd));
                     s3 = 4;
                     volbuf[0] = 0;
-                    strncpy(volbuf, name, vollen);
+                    strncpy(volbuf, NAME(cmd), vollen);
                     volbuf[vollen] = 0;
                 }
-                strcpy(entrybuf, strchr(name, '|') + 1);   /* entry = text after '|' */
+                strcpy(entrybuf, strchr(NAME(cmd), '|') + 1);   /* entry = text after '|' */
             } else {
                 s3 = 1;
                 if (OPI(cmd, 0x18) & 1) {        /* flag bit 0 -> also search BIG archives */
                     s3 = 3;
-                    strcpy(entrybuf, name);
+                    strcpy(entrybuf, NAME(cmd));
                 }
             }
 
             if (s3 & 1) {                        /* odd modes (1,3): open the plain file */
-                if (openfile(name, OPI(cmd, 0x18), handle) != 0) {
+                if (openfile(NAME(cmd), OPI(cmd, 0x18), HANDLE(cmd)) != 0) {
                     s2 = 1;                      /* opened OK (asm: delay slot -> set for BOTH types) */
-                    if (type == 8) closefile(handle[0]);         /* probe: open+close */
-                    else           handle[1] = getfilesize(handle[0]); /* handle->size */
+                    if (type == 8) closefile(HANDLE(cmd)[0]);         /* probe: open+close */
+                    else           HANDLE(cmd)[1] = getfilesize(HANDLE(cmd)[0]); /* handle->size */
                 }
             }
 
@@ -881,9 +912,9 @@ extern int iFILE_ExecCommand(void *cmdp)
                         int off, sz;
                         if (locatebigentryz((void *)(size_t)(unsigned int)dev[0],
                                             entrybuf, 0, &off, &sz) != 0) {
-                            handle[0] = (int)(size_t)dev;           /* handle->dev = this device node */
-                            handle[1] = sz;                         /* handle->size  */
-                            handle[2] = off;                        /* handle->flags = entry base offset */
+                            HANDLE(cmd)[0] = (int)(size_t)dev;      /* handle->dev = this device node */
+                            HANDLE(cmd)[1] = sz;                    /* handle->size  */
+                            HANDLE(cmd)[2] = off;                   /* handle->flags = entry base offset */
                             s2 = 1;
                         }
                     }
@@ -894,7 +925,7 @@ extern int iFILE_ExecCommand(void *cmdp)
             }
 
             if (type == 8) {                     /* exists-probe: drop the handle, report found flag */
-                freehandle((FileHandle *)handle);
+                freehandle((FileHandle *)HANDLE(cmd));
                 OPI(cmd, 0x18) = s2;
             }
             ccc = s2;
@@ -903,10 +934,10 @@ extern int iFILE_ExecCommand(void *cmdp)
 
         case 3:                                  /* close */
             cmd->error = 0;                      /* asm: delay slot -> cleared on BOTH paths */
-            if (handle != 0) {
-                if (handle[2] == 0)              /* real file (not a BIG entry) -> close the device */
-                    cmd->error = closefile(handle[0]);
-                freehandle((FileHandle *)handle);
+            if (HANDLE(cmd) != 0) {
+                if (HANDLE(cmd)[2] == 0)         /* real file (not a BIG entry) -> close the device */
+                    cmd->error = closefile(HANDLE(cmd)[0]);
+                freehandle((FileHandle *)HANDLE(cmd));
                 cmd->result24 = 0;
             }
             ccc = (cmd->error < 1);              /* falls through to the 7/9/10 completion in the asm */
@@ -915,22 +946,22 @@ extern int iFILE_ExecCommand(void *cmdp)
         case 4: {                                /* read */
             int len = OPI(cmd, 0x1C);
             if (len <= 0) { ccc = 1; break; }    /* nothing to read -> complete now */
-            if (handle[2] != 0) {                /* BIG entry: add the entry's base offset */
-                int *dev   = (int *)(size_t)(unsigned int)handle[0];
+            if (HANDLE(cmd)[2] != 0) {           /* BIG entry: add the entry's base offset */
+                int *dev   = (int *)(size_t)(unsigned int)HANDLE(cmd)[0];
                 int *devfh = (int *)(size_t)(unsigned int)dev[1];   /* dev->handle (+4) */
-                readfile(devfh[0], OPI(cmd, 0x20), handle[2] + OPI(cmd, 0x18), len);
+                readfile(devfh[0], OPI(cmd, 0x20), HANDLE(cmd)[2] + OPI(cmd, 0x18), len);
             } else {                             /* real file */
-                readfile(handle[0], OPI(cmd, 0x20), OPI(cmd, 0x18), len);
+                readfile(HANDLE(cmd)[0], OPI(cmd, 0x20), OPI(cmd, 0x18), len);
             }
             return 0;                            /* async: completes via the CD callback */
         }
 
         case 5:                                  /* write (async) */
-            writefile(handle[0], OPI(cmd, 0x20), OPI(cmd, 0x18), OPI(cmd, 0x1C));
+            writefile(HANDLE(cmd)[0], OPI(cmd, 0x20), OPI(cmd, 0x18), OPI(cmd, 0x1C));
             return 0;
 
         case 6:                                  /* size */
-            OPI(cmd, 0x18) = handle[1];          /* publish handle->size as the result (+0x18) */
+            OPI(cmd, 0x18) = HANDLE(cmd)[1];     /* publish handle->size as the result (+0x18) */
             ccc = 1;
             break;
 

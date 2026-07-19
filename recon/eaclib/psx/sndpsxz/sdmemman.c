@@ -9,33 +9,44 @@
  *   -- disasm shows ONE unaligned word copy, so the bit-twiddle is dropped and the plain copy kept.
  */
 
-extern unsigned short snd_spu_engine_ver;     /* min SPU block (reserved low area) */
-unsigned short snd_spu_engine_ver;  /* def (owning TU; BSS) */
-extern unsigned short snd_spu_block_total;    /* top of the SPU sample area        */
-extern unsigned short snd_spu_reverb_mode;    /* reverb-work-area boundary         */
-extern unsigned short snd_spu_alloc_count;    /* live allocation count (<= 128)    */
-extern int            DAT_80147e38;           /* {block:u16, size:u16}[] alloc table */
+/* MATCH: engine_ver/block_total/reverb_mode/alloc_count are NOT separate linked globals -- the oracle
+ * (iSNDpsxmemconstrain, byte-exact) materializes ONE `sndpd` base (lui/addiu) and reads them all as
+ * fixed displacements off it (0x518/0x51A/0x51C/0x51E). Modeled as sndpd+offset macros, same lever as
+ * sdma.c. The alloc table (DAT_80147e38, right after reverb_mode @ sndpd+0x520) is left as its own
+ * symbol -- iSNDpsxmalloc's oracle addresses IT separately (D_80147E38) at the array-indexed sites,
+ * only using the sndpd-relative form for the scalar header fields. */
+extern unsigned char sndpd[];                 /* voice/queue state base @0x80147918 (shared, sdma.c) */
+#define SNDPD_ENGINEVER   (*(unsigned short *)(sndpd + 0x51A))  /* min SPU block (reserved low area) */
+#define SNDPD_BLOCKTOTAL  (*(unsigned short *)(sndpd + 0x51C))  /* top of the SPU sample area */
+#define SNDPD_REVERBMODE  (*(unsigned short *)(sndpd + 0x51E))  /* reverb-work-area boundary */
+/* iSNDpsxmalloc/iSNDpsxfree address these same fields (block_total/reverb_mode/alloc_count) via their
+ * OWN separate symbols (D_80147E34 etc) at the array-indexed sites -- left as independent externs here,
+ * unconverted this pass (only iSNDpsxmemconstrain's scalar-field shape was re-derived from the oracle). */
+extern unsigned short snd_spu_block_total;
+extern unsigned short snd_spu_reverb_mode;
+extern unsigned short snd_spu_alloc_count;
+extern int            DAT_80147e38;           /* {block:u16, size:u16}[] alloc table @ sndpd+0x520 */
 
 extern int iSNDpsxmemconstrain(unsigned int *size, int *avail);   /* @0x8010A550 */
 extern int iSNDpsxmalloc(int size);                               /* @0x8010A5CC */
 
 /* iSNDpsxmemconstrain @0x8010A550 : clamp a candidate [block, avail] window to the SPU sample area limits
- *   (floor at snd_spu_engine_ver, ceil at snd_spu_block_total, and at snd_spu_reverb_mode).  Returns the
- *   reverb-bounded available size. */
+ *   (floor at engine_ver, ceil at block_total, and at reverb_mode).  Returns the reverb-bounded
+ *   available size. */
 extern int iSNDpsxmemconstrain(unsigned int *size, int *avail)
 {
     int          r;
-    unsigned int lo = (unsigned int)snd_spu_engine_ver;
+    unsigned int lo = (unsigned int)SNDPD_ENGINEVER;
     unsigned int s  = *size;
     if ((int)s < (int)lo) {
         *size = lo;
         *avail = *avail - (lo - s);
         s = *size;
     }
-    if ((int)(unsigned int)snd_spu_block_total < (int)(s + *avail))
-        *avail = (int)snd_spu_block_total - s;
-    r = (int)(unsigned int)snd_spu_reverb_mode - (int)*size;
-    if ((int)(unsigned int)snd_spu_reverb_mode < (int)(*size + *avail))
+    if ((int)(unsigned int)SNDPD_BLOCKTOTAL < (int)(s + *avail))
+        *avail = (int)SNDPD_BLOCKTOTAL - s;
+    r = (int)(unsigned int)SNDPD_REVERBMODE - (int)*size;
+    if ((int)(unsigned int)SNDPD_REVERBMODE < (int)(*size + *avail))
         *avail = r;
     return r;
 }
@@ -54,13 +65,13 @@ extern int iSNDpsxmalloc(int size)
     if (snd_spu_alloc_count < 0x80) {
         need = size + 0x3f >> 6;
         if (snd_spu_alloc_count == 0) {
-            local_block = (unsigned int)snd_spu_engine_ver;
+            local_block = (unsigned int)SNDPD_ENGINEVER;
             local_avail = (int)snd_spu_block_total - (int)local_block;
         } else {
             int e = 0;
             do {
                 if (idx == 0) {
-                    local_block = (unsigned int)snd_spu_engine_ver;
+                    local_block = (unsigned int)SNDPD_ENGINEVER;
                     local_avail = *(unsigned short *)((int)&DAT_80147e38 + e) - (int)local_block;
                 } else {
                     local_block = (unsigned int)*(unsigned short *)((int)&snd_spu_block_total + e) +

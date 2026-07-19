@@ -82,29 +82,70 @@ extern "C" int bigcount(void *buf)
  * ===================================================================== */
 extern "C" char *locatebigentryz(void *buf, char *name, int index, int *offset, int *size)
 {
+    /* MATCH: the oracle does NOT parameterize width/hdr/nameoff into a single loop -- it
+     * emits TWO literal, fully-duplicated scan loops (one per type), dispatched by a
+     * beq/beq cascade on typeofbigfile()'s result, both funneling into ONE shared "found"
+     * exit (v0=ename) and ONE shared "not found" tail (null offset/size, return 0). A
+     * parameterized single loop compiles ~18 insns SHORTER (93 vs 111) -- structural, not
+     * a coloring residual. */
+    /* MATCH: counter=0 is materialized EARLY, before either setup call (prologue-adjacent),
+     * not after -- oracle order is s1=counter=0 then the sizeofbigfileheader/typeofbigfile
+     * calls. */
+    int   counter = 0;
     char *end  = (char *)buf + sizeofbigfileheader(buf);   /* delay slot before typeofbigfile */
     int   type = typeofbigfile(buf);
 
-    int width, hdr;
-    if (type == 1)      { width = 3; hdr = 6;    }
-    else if (type == 2) { width = 4; hdr = 0x10; }
-    else                { width = 0; hdr = 0;    }   /* falls through to not-found */
-
-    char *p = (char *)buf + hdr;
-    int   counter = 0;
-    int   nameoff = width * 2;                          /* {off, size} then name */
-
-    while (type != 0 && p < end) {
-        char *ename = p + nameoff;
-        int   matched = (name == 0) ? (counter == index)
-                                    : (stricmp(ename, name) == 0);
-        if (matched) {
-            if (offset) *offset = (int)getm(p, width);
-            if (size)   *size   = (int)getm(p + width, width);
-            return ename;
+    /* MATCH: dispatch is a real `switch` (li 1/beq, li 2/beq, j default) -- same shape as
+     * the sibling sizeofbigfileheader/bigcount switch dispatch in this file -- NOT an
+     * if/else-if chain (which condenses to a single bne/fallthrough). */
+    switch (type) {
+    case 1: {
+        char *p = (char *)buf + 6;
+        if (p < end) {
+            do {
+                /* MATCH: `ename` (p+6) is NOT cached -- it's re-derived fresh at EACH use
+                 * site (stricmp arg, strlen arg, the return) exactly as the oracle's
+                 * `addiu _,s0,6` appears three separate times; caching it costs an extra
+                 * saved register (8 s-regs vs oracle's 7). Also: direct branch cascade
+                 * (bnez name / beq counter,index / stricmp), not a materialized ternary. */
+                if (name == 0) {
+                    if (counter != index)
+                        goto next1;
+                } else {
+                    if (stricmp(p + 6, name) != 0)
+                        goto next1;
+                }
+                if (offset) *offset = (int)getm(p, 3);
+                if (size)   *size   = (int)getm(p + 3, 3);
+                return p + 6;
+            next1:
+                { int len = (int)strlen(p + 6); p = p + len + 7; }  /* next entry */
+                counter++;                                  /* loop-back delay slot */
+            } while (p < end);
         }
-        p = ename + (int)strlen(ename) + 1;             /* next entry */
-        counter++;                                      /* loop-back delay slot */
+        break;
+    }
+    case 2: {
+        char *p = (char *)buf + 0x10;
+        if (p < end) {
+            do {
+                if (name == 0) {
+                    if (counter != index)
+                        goto next2;
+                } else {
+                    if (stricmp(p + 8, name) != 0)
+                        goto next2;
+                }
+                if (offset) *offset = (int)getm(p, 4);
+                if (size)   *size   = (int)getm(p + 4, 4);
+                return p + 8;
+            next2:
+                { int len = (int)strlen(p + 8); p = p + len + 9; }  /* next entry */
+                counter++;                                  /* loop-back delay slot */
+            } while (p < end);
+        }
+        break;
+    }
     }
 
     if (offset) *offset = 0;

@@ -203,10 +203,11 @@ extern int iSNDfreechan(int chan)
  *   still held by that exact tag.  Returns the channel, or a negative error. */
 extern int iSNDgetchan(unsigned int tag)
 {
-    unsigned int ch;
-    if (-1 < (int)tag && (ch = tag & 0x1f) < (unsigned)SNDNUMCHAN) {
-        int *slot = (int *)(sndgs[0x25] + ch * 100);
-        if (*(char *)((int)slot + 0xb) == 0 || *(unsigned int *)slot != tag)
+    unsigned char *base = (unsigned char *)sndgs;   /* materialize bare &sndgs first (no offset folded into %lo) */
+    int ch;   /* signed -- oracle compares via slt (both operands non-negative so behavior is unchanged) */
+    if (-1 < (int)tag && (ch = tag & 0x1f) < base[0x11]) {
+        int *slot = (int *)(*(int *)(base + 0x94) + ch * 100);
+        if (*(signed char *)((int)slot + 0xb) == 0 || *(unsigned int *)slot != tag)
             ch = 0xfffffff8;
         return ch;
     }

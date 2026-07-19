@@ -13,19 +13,30 @@
  */
 
 extern int            sndgs[];
-extern unsigned char  sndpd;                /* voice/queue base @0x80147918 (shared) */
-extern unsigned char  DAT_80147919;         /* pre-load guard */
-extern int            DAT_80147920;         /* rolling DMA handle id */
-extern signed char    DAT_80147924;         /* in-flight transfer count */
-extern char           DAT_80147925;         /* active queue slot index  */
-extern char           DAT_80147926;         /* DMA-busy flag            */
-extern int            DAT_80147928;         /* DMA queue table base (int[]) */
-extern int            DAT_8014792c;         /* entry +0x04 dst_spu      */
-extern unsigned short DAT_80147930;         /* entry +0x08 src>>3 (SPU xfer addr) */
-extern unsigned char  DAT_80147932;         /* entry +0x0a len/64 (DMA BCR) */
-extern unsigned char  DAT_80147934;         /* entry +0x0c flag         */
-extern int            DAT_80147938;         /* entry +0x10 deadline     */
-extern int            DAT_80147e2c;         /* SPU control reg base (address) */
+extern unsigned char  sndpd[];              /* voice/queue state base @0x80147918 (shared) -- UNSIZED
+                                              * array: forces the oracle's `lui;addiu &sndpd; op N(base)`
+                                              * base+offset shape instead of folding each field into its
+                                              * own absolute symbol (same lever as spatkey.c). ALL the
+                                              * DMA-queue state below is really `sndpd+offset`, confirmed
+                                              * byte-for-byte from the raw oracle (e.g. iSNDdmcallback's
+                                              * `lbu v1,0xD(a0)` where a0=sndpd -- NOT a separately
+                                              * materialized DAT_80147925 symbol). */
+#define SNDPD_PRELOAD    (*(unsigned char *)(sndpd + 0x1))    /* pre-load guard (shared w/ sdpacket) */
+#define SNDPD_HANDLEID   (*(int *)(sndpd + 0x8))              /* rolling DMA handle id */
+#define SNDPD_INFLIGHT   (*(signed char *)(sndpd + 0xC))      /* in-flight transfer count */
+#define SNDPD_ACTIVESLOT (*(signed char *)(sndpd + 0xD))      /* active queue slot index (SIGNED) */
+#define SNDPD_BUSY       (*(unsigned char *)(sndpd + 0xE))    /* DMA-busy flag */
+/* DMA QUEUE entry (sndpd+0x10, 0x14 stride, 10 slots):
+ *   +0x00 handle(int,0==free) +0x04 dst_spu(int) +0x08 src_ram>>3(u16) +0x0a len/64(u8)
+ *   +0x0b priority(u8) +0x0c flag(u8) +0x10 deadline(int) */
+#define SNDPD_Q_HANDLE(off)   (*(int *)(sndpd + 0x10 + (off)))
+#define SNDPD_Q_DSTSPU(off)   (*(int *)(sndpd + 0x14 + (off)))
+#define SNDPD_Q_SRCHI(off)    (*(unsigned short *)(sndpd + 0x18 + (off)))
+#define SNDPD_Q_LEN64(off)    (*(unsigned char *)(sndpd + 0x1A + (off)))
+#define SNDPD_Q_PRIO(off)     (*(unsigned char *)(sndpd + 0x1B + (off)))
+#define SNDPD_Q_FLAG(off)     (*(unsigned char *)(sndpd + 0x1C + (off)))
+#define SNDPD_Q_DEADLINE(off) (*(int *)(sndpd + 0x20 + (off)))
+#define SNDPD_CTRLREG    (*(int *)(sndpd + 0x514))            /* SPU control reg base (address) */
 extern unsigned int  *DAT_80147e14;         /* DMA4 ctrl reg ptr  */
 extern unsigned int  *DAT_80147e18;         /* DMA4 MADR reg ptr  */
 extern unsigned int  *DAT_80147e1c;         /* DMA4 BCR  reg ptr  */
@@ -53,47 +64,45 @@ static inline void wr_sr(unsigned int s) { g_sr = s; }
 extern void iSNDdmtransfer(void)
 {
     unsigned int sr = rd_sr();
-    int  *e;
     int   i, slot, so;
     unsigned char bestPrio;
     unsigned int  bestHandle;
 
     wr_sr(rd_sr() & 0xfffffbfe);
     bestHandle = 0xffffffff;
-    if ((int)((unsigned)DAT_80147924 << 0x18) < 1) {     /* nothing queued */
+    if ((int)((unsigned)SNDPD_INFLIGHT << 0x18) < 1) {     /* nothing queued */
         wr_sr(rd_sr());
         return;
     }
     bestPrio = 0;
-    DAT_80147926 = 1;
+    SNDPD_BUSY = 1;
     i = 0;
-    e = &DAT_80147928;
     do {
-        if (*e != 0) {                                   /* active entry */
-            if (bestPrio < *(unsigned char *)((int)e + 0xb)) {
-                bestHandle = *e;
-                bestPrio = *(unsigned char *)((int)e + 0xb);
-                DAT_80147925 = (char)i;
-            } else if (*(unsigned char *)((int)e + 0xb) == bestPrio && (unsigned)*e < bestHandle) {
-                bestHandle = *e;
-                DAT_80147925 = (char)i;
+        so = i * 0x14;
+        if (SNDPD_Q_HANDLE(so) != 0) {                    /* active entry */
+            if (bestPrio < SNDPD_Q_PRIO(so)) {
+                bestHandle = SNDPD_Q_HANDLE(so);
+                bestPrio = SNDPD_Q_PRIO(so);
+                SNDPD_ACTIVESLOT = (signed char)i;
+            } else if (SNDPD_Q_PRIO(so) == bestPrio && (unsigned)SNDPD_Q_HANDLE(so) < bestHandle) {
+                bestHandle = SNDPD_Q_HANDLE(so);
+                SNDPD_ACTIVESLOT = (signed char)i;
             }
         }
         i++;
-        e += 5;
     } while (i < 10);
 
-    slot = (int)DAT_80147925;
+    slot = (int)SNDPD_ACTIVESLOT;
     so = slot * 0x14;
-    if ((&DAT_80147934)[so] != 0 && (DAT_80147919 = 1, gPreLoadTicks != 0))
+    if (SNDPD_Q_FLAG(so) != 0 && (SNDPD_PRELOAD = 1, gPreLoadTicks != 0))
         (*gPreLoadTicks)();
-    *(int *)(&DAT_80147938 + so) = sndgs[0x11] + 0xf;                       /* deadline */
-    *(unsigned short *)(DAT_80147e2c + 0x1a6) = (&DAT_80147930)[slot * 10]; /* SPU transfer addr */
-    *(unsigned short *)(DAT_80147e2c + 0x1aa) =
-        *(unsigned short *)(DAT_80147e2c + 0x1aa) & 0xffcf | 0x20;          /* SPUCNT: DMA write */
+    SNDPD_Q_DEADLINE(so) = sndgs[0x11] + 0xf;                                /* deadline */
+    *(unsigned short *)(SNDPD_CTRLREG + 0x1a6) = SNDPD_Q_SRCHI(so);          /* SPU transfer addr */
+    *(unsigned short *)(SNDPD_CTRLREG + 0x1aa) =
+        *(unsigned short *)(SNDPD_CTRLREG + 0x1aa) & 0xffcf | 0x20;         /* SPUCNT: DMA write */
     *DAT_80147e14 = *DAT_80147e14 & 0xf0ffffff | 0x20000000;                /* DPCR */
-    *DAT_80147e18 = (&DAT_8014792c)[slot * 5];                              /* MADR */
-    *DAT_80147e1c = (unsigned int)(unsigned char)(&DAT_80147932)[so] << 0x10 | 0x10;  /* BCR */
+    *DAT_80147e18 = SNDPD_Q_DSTSPU(so);                                     /* MADR */
+    *DAT_80147e1c = (unsigned int)SNDPD_Q_LEN64(so) << 0x10 | 0x10;         /* BCR */
     *DAT_80147e20 = 0x1000201;                                             /* CHCR: start */
     wr_sr(sr);
 }
@@ -101,27 +110,38 @@ extern void iSNDdmtransfer(void)
 /* iSNDdmcallback @0x8010AA64 : DMA-done handler -- settle SPUCNT, retire the active entry, fire the next. */
 extern void iSNDdmcallback(void)
 {
-    unsigned int sr = rd_sr();
-    int i, spin = 0;
+    unsigned int sr;
+    volatile int i;
+    volatile int mult = 13;
+    int active;
 
-    do { spin++; } while (spin < 0x2ee);                 /* settle delay */
-    *(unsigned short *)(DAT_80147e2c + 0x1aa) = *(unsigned short *)(DAT_80147e2c + 0x1aa) & 0xffcf;
-    if ((*(unsigned short *)(DAT_80147e2c + 0x1aa) & 0x30) != 0) {
+    /* MATCH: this is NOT a plain counter -- gcc round-trips a dummy multiply AND the counter through
+     * the stack every iteration (a real busy-wait/settle delay technique), not a simple spin++. Both
+     * `mult` and `i` must be volatile to force the store/reload each pass. */
+    for (i = 0; i < 0x2ee; i++)
+        mult = mult * 13;
+    *(unsigned short *)(SNDPD_CTRLREG + 0x1aa) = *(unsigned short *)(SNDPD_CTRLREG + 0x1aa) & 0xffcf;
+    if ((*(unsigned short *)(SNDPD_CTRLREG + 0x1aa) & 0x30) != 0) {
         i = 1;
         do {
             if (4000 < i) break;
             i++;
-        } while ((*(unsigned short *)(DAT_80147e2c + 0x1aa) & 0x30) != 0);
+        } while ((*(unsigned short *)(SNDPD_CTRLREG + 0x1aa) & 0x30) != 0);
     }
-    wr_sr(rd_sr() & 0xfffffbfe);
-    if ((&DAT_80147928)[DAT_80147925 * 5] != 0) {        /* active entry present */
-        if (DAT_80147919 != 0 && (DAT_80147919 = 0, gPreLoadTicks != 0))
+    /* MATCH: the active-entry VALUE is loaded BEFORE the critical section is entered (mfc0 -- the
+     * oracle's ONLY SR-save mfc0 in this function sits here, not at function entry); sr is captured
+     * at this exact point, not earlier. */
+    active = SNDPD_Q_HANDLE(SNDPD_ACTIVESLOT * 0x14);
+    sr = rd_sr();
+    wr_sr(sr & 0xfffffbfe);
+    if (active != 0) {        /* active entry present */
+        if (SNDPD_PRELOAD != 0 && (SNDPD_PRELOAD = 0, gPreLoadTicks != 0))
             (*gPreLoadTicks)();
-        (&DAT_80147928)[DAT_80147925 * 5] = 0;           /* free the slot */
-        DAT_80147924 = DAT_80147924 - 1;
-        if ((int)((unsigned)DAT_80147924 << 0x18) < 1) { /* queue now empty */
+        SNDPD_Q_HANDLE(SNDPD_ACTIVESLOT * 0x14) = 0;      /* free the slot */
+        SNDPD_INFLIGHT = SNDPD_INFLIGHT - 1;
+        if ((int)((unsigned)SNDPD_INFLIGHT << 0x18) < 1) { /* queue now empty */
             wr_sr(sr);
-            DAT_80147926 = 0;
+            SNDPD_BUSY = 0;
             return;
         }
     }
@@ -132,9 +152,9 @@ extern void iSNDdmcallback(void)
 /* iSNDdmservice @0x8010AC20 : per-tick pump -- start a transfer if idle, or complete one past its deadline. */
 extern void iSNDdmservice(void)
 {
-    if (DAT_80147926 == 0)
+    if (SNDPD_BUSY == 0)
         iSNDdmtransfer();
-    else if (*(unsigned int *)(&DAT_80147938 + DAT_80147925 * 0x14) <= (unsigned int)sndgs[0x11])
+    else if ((unsigned int)SNDPD_Q_DEADLINE(SNDPD_ACTIVESLOT * 0x14) <= (unsigned int)sndgs[0x11])
         iSNDdmcallback();
 }
 
@@ -142,31 +162,29 @@ extern void iSNDdmservice(void)
  *   0 if the 10-slot queue is full).  5-arg (Ghidra dropped src_ram/len/prio/flag). */
 extern int iSNDdmqueue(int dst_spu, unsigned int src_ram, int len, unsigned char prio, unsigned char flag)
 {
-    int *e;
-    int  id, i = 0;
+    int  id, i = 0, so;
     if ((len & 0x3f) != 0)
         len = len + 0x40;
-    DAT_80147920 = DAT_80147920 + 1;
+    SNDPD_HANDLEID = SNDPD_HANDLEID + 1;
     wr_sr(rd_sr() & 0xfffffbfe);
-    if (DAT_80147920 == 0)
-        DAT_80147920 = 1;
-    id = DAT_80147920;
-    e = &DAT_80147928;
+    if (SNDPD_HANDLEID == 0)
+        SNDPD_HANDLEID = 1;
+    id = SNDPD_HANDLEID;
     do {
+        so = i * 0x14;
         i++;
-        if (*e == 0) {
-            DAT_80147924 = DAT_80147924 + 1;
-            e[1] = dst_spu;
-            *e = id;
-            *(short *)(e + 2) = (short)(src_ram >> 3);
-            *(char *)((int)e + 10) = (char)(len >> 6);
-            *(unsigned char *)((int)e + 0xb) = prio;
-            *(unsigned char *)(e + 3) = flag;
+        if (SNDPD_Q_HANDLE(so) == 0) {
+            SNDPD_INFLIGHT = SNDPD_INFLIGHT + 1;
+            SNDPD_Q_DSTSPU(so) = dst_spu;
+            SNDPD_Q_HANDLE(so) = id;
+            SNDPD_Q_SRCHI(so) = (unsigned short)(src_ram >> 3);
+            SNDPD_Q_LEN64(so) = (unsigned char)(len >> 6);
+            SNDPD_Q_PRIO(so) = prio;
+            SNDPD_Q_FLAG(so) = flag;
             wr_sr(rd_sr());
             iSNDdmservice();
-            return DAT_80147920;
+            return SNDPD_HANDLEID;
         }
-        e += 5;
     } while (i < 10);
     wr_sr(rd_sr());
     return 0;
@@ -179,7 +197,7 @@ extern int iSNDdmqueuesplit(int dst_spu, unsigned int src_ram, int len, unsigned
     int r = 0, chunk;
     while (0 < len) {
         chunk = (len < 0x1000) ? len : 0x1000;
-        while (10 - (int)DAT_80147924 < 7)
+        while (10 - (int)SNDPD_INFLIGHT < 7)
             iSNDdmservice();
         r = iSNDdmqueue(dst_spu, src_ram, chunk, prio, 0);
         dst_spu += chunk;
@@ -193,16 +211,14 @@ extern int iSNDdmqueuesplit(int dst_spu, unsigned int src_ram, int len, unsigned
  *   scans for the handle -- returns 0 if still pending, 1 if done/absent. */
 extern int iSNDdmcomplete(int handle)
 {
-    unsigned char *p;
-    int i = 0;
+    int i = 0, so;
     iSNDdmservice();
-    p = &sndpd;
-    if (0 < (int)((unsigned)DAT_80147924 << 0x18)) {
+    if (0 < (int)((unsigned)SNDPD_INFLIGHT << 0x18)) {
         do {
+            so = i * 0x14;
             i++;
-            if (*(int *)(p + 0x10) == handle)
+            if (SNDPD_Q_HANDLE(so) == handle)
                 return 0;
-            p += 0x14;
         } while (i < 10);
     }
     return 1;

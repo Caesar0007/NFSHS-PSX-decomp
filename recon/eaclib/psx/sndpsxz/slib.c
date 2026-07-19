@@ -13,31 +13,37 @@
  */
 
 extern int            sndgs[];
-extern unsigned char  sndpd;                /* voice/queue state base @0x80147918 */
+extern unsigned char  sndpd[];              /* voice/queue state base @0x80147918 (unsized array: forces
+                                              * base+offset addressing instead of folding &sndpd+const into
+                                              * one absolute %lo load -- see sdpacket.c/spatkey.c precedent) */
 extern unsigned char  snd_old_chan_mode;    /* last applied channel-mode byte     */
 unsigned char snd_old_chan_mode;  /* def (owning TU; BSS) */
-extern unsigned char  DAT_80147919;         /* pre-load guard           */
-extern int            DAT_8014791c;         /* current fx mode          */
+#define DAT_80147919 (sndpd[1])              /* pre-load guard == sndpd+1 */
+#define DAT_8014791c (*(int *)(sndpd + 4))   /* current fx mode == sndpd+4 */
 extern unsigned char  DAT_80136df0;         /* DMA scratch RAM (zeroed) */
 unsigned char DAT_80136df0;                 /* def (owning TU; @0x80136df0 image-verified zero; head byte of the 0x10-byte DMA-clear source region) */
 extern void          *snd_user_serve_hook;  /* @0x80148038              */
 
-/* voice-table fields (0x2c stride) */
-extern unsigned char  DAT_801479f0;         /* +0x00 voice base (int fields via &+off) */
-extern unsigned char  DAT_80147a0c;         /* +0x1c playstate */
-extern unsigned char  DAT_80147a0d;         /* +0x1d substate  */
-extern unsigned char  DAT_80147a0f;         /* +0x1f channels  */
-extern unsigned char  DAT_80147a10;         /* +0x20 link      */
-extern unsigned char  DAT_80147a11;         /* +0x21 link flag */
-extern unsigned char  DAT_80147a14;         /* +0x24 L cache   */
-extern unsigned char  DAT_80147a15;         /* +0x25 R cache   */
-extern unsigned char  DAT_80147a16;         /* +0x26 flag      */
-extern unsigned char  DAT_80147a17;         /* +0x27 voice-done */
+/* voice-table fields (0x2c stride) -- all live INSIDE the sndpd block (same struct as sdpacket.c) */
+#define DAT_801479f0 (sndpd[0xD8])           /* +0x00 voice base (int fields via &+off) */
+#define DAT_80147a0c (sndpd[0xF4])           /* +0x1c playstate */
+#define DAT_80147a0d (sndpd[0xF5])           /* +0x1d substate  */
+#define DAT_80147a0f (sndpd[0xF7])           /* +0x1f channels  */
+#define DAT_80147a10 (sndpd[0xF8])           /* +0x20 link      */
+#define DAT_80147a11 (sndpd[0xF9])           /* +0x21 link flag */
+#define DAT_80147a14 (sndpd[0xFC])           /* +0x24 L cache   */
+#define DAT_80147a15 (sndpd[0xFD])           /* +0x25 R cache   */
+#define DAT_80147a16 (sndpd[0xFE])           /* +0x26 flag      */
+#define DAT_80147a17 (sndpd[0xFF])           /* +0x27 voice-done */
 
-/* SPU/DMA register pointers latched by iSNDinit (consumed by sdma/spatkey) */
-extern unsigned int  *DAT_80147e14, *DAT_80147e18, *DAT_80147e1c, *DAT_80147e20, *DAT_80147e24;
-extern int            DAT_80147e28;         /* SPU voice reg base (address) */
-extern int            DAT_80147e2c;         /* SPU control reg base (address) */
+/* SPU/DMA register pointers latched by iSNDinit (consumed by sdma/spatkey) -- also inside sndpd block */
+#define DAT_80147e14 (*(unsigned int **)(sndpd + 0x4FC))
+#define DAT_80147e18 (*(unsigned int **)(sndpd + 0x500))
+#define DAT_80147e1c (*(unsigned int **)(sndpd + 0x504))
+#define DAT_80147e20 (*(unsigned int **)(sndpd + 0x508))
+#define DAT_80147e24 (*(unsigned int **)(sndpd + 0x50C))
+#define DAT_80147e28 (*(int *)(sndpd + 0x510))        /* SPU voice reg base (address) */
+#define DAT_80147e2c (*(int *)(sndpd + 0x514))        /* SPU control reg base (address) */
 
 /* libspu hardware registers (memory-mapped) */
 extern volatile unsigned int   DPCR;
@@ -65,7 +71,7 @@ extern int          addexit(int handler);                    /* exit     */
 extern void         SNDSYS_service(void);                    /* ssysserv */
 extern void         SNDSYS_restore(void);                    /* ssysinit (exit handler) */
 
-extern void iSNDplatformoutputcaps(void);   /* @0x800FF5A8 */
+extern int  iSNDplatformoutputcaps(void);   /* @0x800FF5A8 -- oracle explicitly zeroes $v0 before return */
 extern void iSNDplatformoutputset(void);    /* @0x800FF600 */
 extern void iSNDinit(void);                 /* @0x800FF700 */
 extern void iSNDrestore(void);              /* @0x800FF9A0 */
@@ -74,6 +80,7 @@ extern void iSNDserve(void);                /* @0x800FFAF4 */
 #define SCB(i) (((char *)sndgs)[i])
 #define SUB(i) (((unsigned char *)sndgs)[i])
 #define SSH(i) (((short *)sndgs)[i])
+#define SUSH(i) (((unsigned short *)sndgs)[i])
 
 /* cop0 Status read/write (interrupts masked around the hardware-register pokes; host: plain). */
 #if defined(__mips__)
@@ -87,12 +94,14 @@ static inline void wr_sr(unsigned int s) { g_sr = s; }
 
 /* iSNDplatformoutputcaps @0x800FF5A8 : publish this platform's output capabilities into sndgs (44.1 kHz,
  *   24 SPU voices, stereo). */
-extern void iSNDplatformoutputcaps(void)
+extern int iSNDplatformoutputcaps(void)
 {
-    SCB(7) = 0;  SCB(8) = 0;  SCB(9) = 0;  SCB(6) = 0x18;
-    SSH(0) = (short)0xac44;  SCB(4) = 1;  SSH(1) = (short)0xac44;  SCB(5) = 2;
-    SCB(0x13) = 0;  SCB(0x14) = 0;  SCB(0x12) = 0;  SCB(0x11) = 0x18;
-    SSH(7) = (short)0xac44;  SCB(0x10) = 2;
+    unsigned char *base = (unsigned char *)sndgs;   /* materialize bare &sndgs first (oracle: no offset folded into %lo) */
+    base[7] = 0;  base[8] = 0;  base[9] = 0;  base[6] = 0x18;
+    *(unsigned short *)(base + 0) = 0xac44;  base[4] = 1;  *(unsigned short *)(base + 2) = 0xac44;  base[5] = 2;
+    base[0x13] = 0;  base[0x14] = 0;  base[0x12] = 0;  base[0x11] = 0x18;
+    *(unsigned short *)(base + 0xE) = 0xac44;  base[0x10] = 2;
+    return 0;
 }
 
 /* iSNDplatformoutputset @0x800FF600 : apply the requested output channel count (clamped to caps), and if the
@@ -162,7 +171,7 @@ extern void iSNDinit(void)
             *(short *)(vr + 0xe) = 0x200;
             *(short *)(vr + 8) = 0;
             *(short *)(vr + 0xa) = 0;
-            (&sndpd)[i * 0x2c + 0xff] = 0xff;                /* mark voice done */
+            sndpd[i * 0x2c + 0xff] = 0xff;                /* mark voice done */
             i++;
         } while (i < (int)(unsigned)SUB(0x11));
     }
@@ -174,9 +183,9 @@ extern void iSNDinit(void)
     iSNDpsxfxinit(DAT_8014791c);
     DAT_80147919 = 0;
     addtimer((int)iSNDserver);
-    if (sndpd == 0) {
+    if (sndpd[0] == 0) {
         addexit((int)SNDSYS_restore);
-        sndpd = 1;
+        sndpd[0] = 1;
     }
 }
 
@@ -198,11 +207,11 @@ extern void iSNDrestore(void)
         chan = 0;
         if (SUB(0x11) != 0) {
             do {
-                if ((&sndpd)[chan * 0x2c + 0xf5] != 0) {     /* voice still active */
+                if (sndpd[chan * 0x2c + 0xf5] != 0) {     /* voice still active */
                     quiet = 0;
                     if (deadline < (unsigned int)sndgs[0x11]) {
                         iSNDpsxkeyoff(0xffffff);
-                        (&sndpd)[chan * 0x2c + 0xf5] = 0;
+                        sndpd[chan * 0x2c + 0xf5] = 0;
                         iSNDfreechan(chan);
                     }
                 }

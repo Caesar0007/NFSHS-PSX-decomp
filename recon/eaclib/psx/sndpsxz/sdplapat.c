@@ -38,10 +38,8 @@ extern int iSNDplatformplay(int chan, int voice, int level, int pitch, int a5, i
     unsigned char nch = 1;                 /* 0x82 tag */
     unsigned int  id;
     int           val, ptr, r, v, p;
-    int           cur[4];
     (void)a5;
 
-    cur[0] = chan;
     (&DAT_80147a11)[vt] = 0;
     (&DAT_80147a10)[vt] = 0xff;
     (&DAT_80147a0e)[vt] = 0;
@@ -52,7 +50,7 @@ extern int iSNDplatformplay(int chan, int voice, int level, int pitch, int a5, i
         for (;;) {                                      /* inner: breaks on 0x82 */
             for (;;) {                                  /* innermost: loops on 0x8a / 0x85 */
                 sampleData = p; loopVal = v; rate = r;
-                if (iSNDgettag(cur, &id, &val, &ptr) == 0 || id == 0xfe)
+                if (iSNDgettag(&chan, &id, &val, &ptr) == 0 || id == 0xfe)
                     goto finalize;
                 r = rate; v = loopVal; p = ptr;
                 if (id == 0x8a) continue;               /* p = sample-data ptr */

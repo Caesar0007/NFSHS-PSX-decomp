@@ -86,13 +86,16 @@ extern int syncblockio(int fd, int buf, int offset, int len, int cbarg, SyncIoFn
     c.buf    = buf;
     c.remain = len;
     c.done   = 0;
+    c.chunk  = len;
     c.offset = offset;
-    if (len <= 0x2000) {
-        c.chunk = len;
-    } else {
-        c.iofn  = iofn;                             /* only needed when re-issuing (matches the binary) */
+    /* MATCH: `c.iofn = iofn;` is stored UNCONDITIONALLY -- it sits in the branch delay slot of
+     * the `chunk>0x2000` test, so it always executes on the real hardware regardless of which
+     * side is taken (even though it's only logically needed on the re-issue/>0x2000 path). And
+     * the test itself re-reads the just-stored `c.chunk` field (a stack reload), not the raw
+     * `len` param -- SyncCtrl is address-taken (passed to iofn), so gcc keeps it stack-resident. */
+    c.iofn = iofn;
+    if (c.chunk > 0x2000)
         c.chunk = 0x2000;
-    }
     c.op = iofn(fd, buf, offset, c.chunk, cbarg, &c);
     if (c.op != 0) {
         FILE_callbackop((unsigned int)c.op, (void *)synccallback);
@@ -123,24 +126,30 @@ extern void FILE_readsync(int fd, int buf, int offset, int len, int cbarg)
     syncblockio(fd, buf, offset, len, cbarg, FILE_read);
 }
 
-/* FILE_closesync @0x800EA950 : blocking close. */
-extern void FILE_closesync(int fd, int a2)
+/* FILE_closesync @0x800EA950 : blocking close.
+ * MATCH: SHARED-CONSTANT-RETURN (catalog §A) -- `result` is materialized ONCE as the literal 0,
+ * doubling as the FILE_close third-arg AND (post-call) the return value; oracle keeps both in $s1. */
+extern int FILE_closesync(int fd, int a2)
 {
-    unsigned int op = FILE_close(fd, a2, 0);
+    int result = 0;
+    unsigned int op = FILE_close(fd, a2, result);
     if (op != 0) {
         FILE_waitop(op);
-        FILE_completeop(op);
+        result = (int)FILE_completeop(op);
     }
+    return result;
 }
 
-/* FILE_sizesync @0x800EA9A4 : blocking size query. */
-extern void FILE_sizesync(int fd, int a2)
+/* FILE_sizesync @0x800EA9A4 : blocking size query.  MATCH: same shared-constant-return shape. */
+extern int FILE_sizesync(int fd, int a2)
 {
-    unsigned int op = FILE_size(fd, a2, 0);
+    int result = 0;
+    unsigned int op = FILE_size(fd, a2, result);
     if (op != 0) {
         FILE_waitop(op);
-        FILE_completeop(op);
+        result = (int)FILE_completeop(op);
     }
+    return result;
 }
 
 /* FILE_addbigsync @0x800EA9F8 : blocking add-to-BIG; *out = handle.  Returns 1 if the op succeeded. */
@@ -158,12 +167,14 @@ extern int FILE_addbigsync(char *name, int a2, int a3, int *out)
     return ok;
 }
 
-/* FILE_delbigsync @0x800EAA70 : blocking remove-from-BIG. */
-extern void FILE_delbigsync(int a0, int a1)
+/* FILE_delbigsync @0x800EAA70 : blocking remove-from-BIG.  MATCH: same shared-constant-return shape. */
+extern int FILE_delbigsync(int a0, int a1)
 {
-    unsigned int op = FILE_delbig(a0, a1, 0);
+    int result = 0;
+    unsigned int op = FILE_delbig(a0, a1, result);
     if (op != 0) {
         FILE_waitop(op);
-        FILE_completeop(op);
+        result = (int)FILE_completeop(op);
     }
+    return result;
 }

@@ -9,9 +9,16 @@
 
 extern int  sndgs[];
 extern int  DAT_80134a68;                  /* output-caps init-once flag */
-int DAT_80134a68;                          /* def (owning TU; @0x80134a68 image-verified zero) */
+int DAT_80134a68;                          /* def (owning TU; @0x80134a68 image-verified zero);
+                                             * NOTE: oracle addresses this absolute (lui;lw) not gp-rel,
+                                             * but it's read+write in BOTH callers -- the section(".bss")
+                                             * lever (methodology I-addendum) flips ours to absolute too
+                                             * yet nets WORSE (58->60 diffs, tried+reverted): a genuine
+                                             * read+write aspsx-shared-base assembler floor, not a
+                                             * single-access win. Left as tentative .comm/gp-rel. */
 
-extern void iSNDplatformoutputcaps(void);  /* slib    */
+extern int  iSNDplatformoutputcaps(void);  /* slib -- MATCH: non-void, $v0 threads through as
+                                             * SNDSYS_getopts's own return value (see below) */
 extern void iSNDplatformoutputset(void);   /* slib    */
 extern void iSNDinit(void);                /* slib    */
 extern void iSNDrestore(void);             /* slib    */
@@ -24,33 +31,48 @@ extern void SNDI_mutexfree(void);          /* sdfx    */
 extern void SNDstopall(void);              /* sstopall */
 extern void *memset(void *dst, int c, int n);        /* C43 (BIOS thunk) */
 
-extern void SNDSYS_getopts(int *opts);     /* @0x800F1D58 */
+extern int  SNDSYS_getopts(int *opts);     /* @0x800F1D58 */
 extern int  SNDSYS_setopts(int opts);      /* @0x800F1E14 */
 extern void SNDSYS_init(int membase, int memsize);   /* @0x800F1F10 */
 extern int  SNDSYS_restore(void);          /* @0x800F204C */
 
+struct SndOptsBlock15 { int w[15]; };   /* naturally aligned (both sndgs and opts are real int* here --
+                                          * no runtime alignment check, unlike SNDSYS_setopts below) */
+
 /* SNDSYS_getopts @0x800F1D58 : copy the live option block sndgs[0..0xe] into the caller's struct (lazily
- *   publishing the platform output caps first, defaulting the reverb-channel count to 0x10). */
-extern void SNDSYS_getopts(int *opts)
+ *   publishing the platform output caps first, defaulting the reverb-channel count to 0x10).
+ *   MATCH: non-void -- $v0 at exit is iSNDplatformoutputcaps()'s return (or 0 if that path wasn't
+ *   taken), threaded through a local exactly like the §3.2 Ghidra void-return-bug class; the header's
+ *   `void` prototype is the same incidental-vs-real-return question, resolved here from the oracle
+ *   (`addu a1,zero,zero` init -> `addu a1,v0,zero` on the call path -> `addu v0,a1,zero` at exit). */
+extern int SNDSYS_getopts(int *opts)
 {
-    int i;
+    int r = 0;
     if (DAT_80134a68 == 0) {
-        iSNDplatformoutputcaps();
+        r = iSNDplatformoutputcaps();
         DAT_80134a68 = 1;
     }
     if (((short *)sndgs)[6] == 0)               /* sndgs[3]._0_2_ : reverb channels */
         ((short *)sndgs)[6] = 0x10;
-    for (i = 0; i < 0xf; i++)                    /* sndgs[0..0xe] -> opts[0..0xe] */
-        opts[i] = sndgs[i];
+    *(struct SndOptsBlock15 *)opts = *(struct SndOptsBlock15 *)sndgs;   /* sndgs[0..0xe] -> opts[0..0xe] */
+    return r;
 }
 
-/* SNDSYS_setopts @0x800F1E14 : apply the writable option fields opts[3..0xe] into sndgs (source may be
- *   unaligned), then re-derive the output configuration. */
+extern int D_80147898;   /* a separate (non-sndgs) global; opts[14]'s destination */
+
+/* SNDSYS_setopts @0x800F1E14 : apply the writable option fields opts[3..13] into sndgs (source may be
+ *   unaligned -- gcc emits its inline lwl/lwr-vs-lw/sw runtime-alignment-checked block-copy), opts[14]
+ *   goes to the separate D_80147898 global (NOT sndgs[14]), then re-derive the output configuration.
+ *   MATCH: an 11-int (0x2C byte) struct-copy through a PACKED (alignment-1) type -- gcc only emits the
+ *   oracle's runtime (v1|a1)&3 alignment test when the source's DECLARED alignment is uncertain; a plain
+ *   `int[11]` struct has known 4-byte alignment and gcc skips the check (tried, 32 insns/no check). A
+ *   real memcpy() call (BIOS thunk) is also wrong -- the oracle has no `jal` at all. */
+struct SndOptsBlock { int w[11]; } __attribute__((packed));
+
 extern int SNDSYS_setopts(int opts)
 {
-    int i;
-    for (i = 3; i <= 0xe; i++)                   /* opts[3..0xe] -> sndgs[3..0xe] (unaligned-safe source) */
-        sndgs[i] = *(int *)(opts + i * 4);
+    *(struct SndOptsBlock *)&sndgs[3] = *(struct SndOptsBlock *)(opts + 0xC);
+    D_80147898 = *(int *)(opts + 0x38);
     iSNDplatformoutputset();
     return 0;
 }

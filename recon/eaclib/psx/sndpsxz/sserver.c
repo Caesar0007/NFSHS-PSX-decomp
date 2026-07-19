@@ -15,8 +15,11 @@
 
 extern int           sndgs[];
 extern int           timerhz;            /* hardware tick rate            */
-extern short         DAT_80147910;       /* last-seen timerhz             */
-extern int           DAT_80147912;       /* deferred-server request count */
+/* sndgs = 0x80147860 (configs/symbol_addrs.txt); DAT_80147910/DAT_80147912 are FIELDS of sndgs itself
+ * (+0xB0 / +0xB2), not separate globals -- confirmed by oracle's lhu/sh %B2(s0) off the SAME &sndgs base
+ * used for GB()/GUB() field accesses (iSNDleaveaudio). Both are SHORT (16-bit lhu/sh), not int. */
+#define DAT_80147910 (*(short *)((char *)sndgs + 0xB0))   /* last-seen timerhz             */
+#define DAT_80147912 (*(short *)((char *)sndgs + 0xB2))   /* deferred-server request count */
 
 extern void SNDI_mutexlock(void);        /* sdfx     */
 extern void SNDI_mutexunlock(void);      /* sdfx     */
@@ -166,11 +169,12 @@ extern void iSNDenteraudio(void)
 /* iSNDleaveaudio @0x800EA56C : release the audio lock; at depth 0, flush any servers deferred while held. */
 extern void iSNDleaveaudio(void)
 {
-    GB(0x3f) = GB(0x3f) - 1;
+    char *g = (char *)sndgs;      /* held across the call (oracle: callee-saved $s0) */
+    g[0x3f] = g[0x3f] - 1;
     SNDI_mutexunlock();
-    if (GB(0x3f) == 0) {
-        while (DAT_80147912 != 0) {
-            DAT_80147912 = DAT_80147912 - 1;
+    if (g[0x3f] == 0) {
+        while (*(short *)(g + 0xB2) != 0) {
+            *(short *)(g + 0xB2) = *(short *)(g + 0xB2) - 1;
             iSNDserver();
         }
     }

@@ -99,7 +99,13 @@ extern unsigned int inbetween(unsigned int a, unsigned int b, unsigned int c); /
 extern int  decbufferusage(int s, int amount);                             /* @0x800FC374 */
 extern int *getfreerequest(int s);                                         /* @0x800FC400 */
 extern int  queuerequest(int s, int req);                                  /* @0x800FC478 */
-static int  locaterequest(int s, unsigned int reqid);                          /* @0x800FC4E4 */
+static int  func_800FC4E4(int s, unsigned int reqid);                          /* @0x800FC4E4; NOTE:
+    the trusted SYM (nfs4-f-v3.txt) names this locaterequest -- the SAME real name as the unrelated
+    file-static locaterequest() in nasync.c @0x800F0BF4 (two distinct EA statics that genuinely share
+    the descriptive name across TUs). verify_asm resolves an oracle .s purely by C identifier
+    (<identifier>.s), so both cannot be spelled `locaterequest` or this fn would silently gate against
+    nasync's oracle. The repo's disasm already disambiguated this VA's oracle to func_800FC4E4.s, so we
+    keep the C identifier func_800FC4E4 to track that .s filename; its true/SYM name is locaterequest. */
 extern int  freerequest(int s, int req);                                   /* @0x800FC548 */
 extern unsigned int filterchunk(int s, int chunk);                         /* @0x800FC5E4 */
 extern int  parsechunks(int s);                                            /* @0x800FC634 */
@@ -127,15 +133,15 @@ extern int validatehandle(int handle, int *outObj, int *outHandle)
      * handle==0 case FALLING THROUGH to its own `jr ra; li v0,1`, and the mismatch
      * `bne`-ing to a distinct `return 1`.  Nesting the check inside `if(handle)` and
      * returning 0 in the middle reproduces the block order + branch polarity. */
-    if (handle != 0) {
-        int sobj = *(int *)handle;
-        if (*(int *)sobj == STRM_MAGIC) {
-            *outHandle = handle;    /* asm: *a2 = a0 (the handle)                 */
-            *outObj = sobj;         /* asm: *a1 = a3 (the stream object), delay slot */
-            return 0;
-        }
-    }
-    return 1;
+    int sobj;
+    if (handle == 0)
+        return 1;
+    sobj = *(int *)handle;
+    if (*(int *)sobj != STRM_MAGIC)
+        return 1;
+    *outHandle = handle;    /* asm: *a2 = a0 (the handle)                 */
+    *outObj = sobj;         /* asm: *a1 = a3 (the stream object), delay slot */
+    return 0;
 }
 
 /* inbetween @0x800FC334 : is offset `c` inside the (possibly wrapped) ring interval [a, b)? */
@@ -161,24 +167,32 @@ extern unsigned int inbetween(unsigned int a, unsigned int b, unsigned int c)
  *   (state==1), drop the in-flight read's priority via FILE_priorityop.  NOTE: the oracle's epilogue does
  *   NOT reload/preserve the return value across the FILE_priorityop call on the greedy-on path -- it
  *   falls through with whatever $v0 holds post-call (the call's own return, clobbering the earlier `1`).
- *   A faithful transcription must NOT hold `ret` live across that call either. */
+ *   A faithful transcription must NOT hold `ret` live across that call either.
+ * MATCH: dropping the `ret` local (compute `neu<lvl` inline at each use) fixed the a0/v0-vs-a1/v1
+ *   register-coloring cascade AND let the `lvl<=old` skip-branch return its own slt result directly
+ *   (25->3 diffs). RESIDUAL FLOOR (3 diffs, not source-reachable): on the OTHER skip path (neu>=lvl,
+ *   `beqz`), the branch's slt result already equals the desired return value, but gcc-2.8.0 does not
+ *   prove that and instead emits a separate 2-insn block that reloads/recomputes `neu<lvl` then falls
+ *   through -- a genuine cross-jump/value-numbering miss (the `bnez` skip path DOES get the direct-reuse
+ *   optimization; only the `beqz` path doesn't). Tried: explicit `return 0;` on that path (same 3-diff
+ *   count, different dead tail), goto-labeled shared return (no better). Accept as floor. */
 extern int decbufferusage(int s, int amount)
 {
-    int sr, old, neu, ret;
+    int sr, old, neu, lvl;
     sr = STREAM_enterCS();
     old = MI(s, 0x3c);
     neu = old - amount;
     MI(s, 0x3c) = neu;
     STREAM_leaveCS(sr);
-    ret = (neu < MI(s, 0x34));
-    if (MI(s, 0x34) <= old && ret != 0) {
+    lvl = MI(s, 0x34);
+    if (lvl <= old && neu < lvl) {
         MI(s, 0x38) = 1;                       /* greedy state on */
         if (MI(s, 0x28) != 1)
             return 1;
         FILE_priorityop(MI(s, 0xa4), MI(s, 0x30));
         return 1;
     }
-    return ret;
+    return neu < lvl;
 }
 
 /* getfreerequest @0x800FC400 : pop a request slot off the freelist (+0x58), stamp it with a fresh id
@@ -224,9 +238,17 @@ extern int queuerequest(int s, int req)
     return ret;
 }
 
-/* locaterequest @0x800FC4E4 : map a request id back to its slot, validating the slot index (low byte),
- *   the full id, and that the slot is in use.  Returns the request pointer or 0. */
-static int locaterequest(int s, unsigned int reqid)
+/* func_800FC4E4 : map a request id back to its slot, validating the slot index (low byte),
+ *   the full id, and that the slot is in use.  Returns the request pointer or 0.
+ * RESIDUAL FLOOR (5 diffs, not source-reachable so far): the range-check exit and the two body-tail
+ *   `return 0`s (mismatch / slot-inactive) cross-jump-merge correctly (oracle 0.L800FC540 shared by
+ *   both), but the LAST check's branch polarity flips: oracle emits `beqz req[1],SHARED_EXIT` with the
+ *   success case (`return req`) as an extra, UNSHARED `jr ra` pair after the fallthrough; ours emits
+ *   the logically-equivalent `bnez req[1],SHARED_EXIT` with the success value materialized into the
+ *   branch's own delay slot (no separate `jr ra`) -- 1 insn shorter, same semantics. Tried: nested-if
+ *   guard clauses, explicit goto-to-shared-label, `&&`-combined (all converge to this identical 5-diff
+ *   signature). Accept as a genuine cross-jump/tail-duplication tie-break floor. */
+static int func_800FC4E4(int s, unsigned int reqid)
 {
     unsigned int *req;
     if (MI(s, 0xc) <= (int)(reqid & 0xff))     /* slot index out of range */
@@ -399,7 +421,8 @@ extern int readcallback(int a0, int a1, int s)
     iVar2 = parsechunks(s);
     if (MI(reqcur, 4) != 4) {                   /* not cancelled */
         if (!bvar1 && iVar2 == 0)
-            return restartstream(s);            /* more to read, no EOS -> keep going */
+            return ((int (*)(int, unsigned int))restartstream)(s, MU(s, 0x30));  /* dead 2nd arg,
+                same family as opencallback/STREAM_release's restartstream calls */
         {
             int sr = STREAM_enterCS();
             MI(reqcur, 4) = 3;                  /* request done */
@@ -472,7 +495,11 @@ extern int startnextrequest(int s, unsigned int prio, unsigned int x)
                 }
             }
         }
-        ret = restartstream(s);
+        /* MATCH: oracle passes a DEAD 2nd arg = this fn's OWN `prio` parameter, still cached in a
+         * callee-saved reg across every intervening call (strcmp/strcpy/FILE_open/FILE_callbackop/
+         * FILE_close) -- same restartstream dead-2nd-param family as opencallback/readcallback/
+         * STREAM_release, but here the arg is the caller's incoming value, not a fresh MU() load. */
+        ret = ((int (*)(int, unsigned int))restartstream)(s, prio);
     }
     return ret;
 }
@@ -765,7 +792,17 @@ extern void STREAM_setgreedystate(int s, int state)
 }
 
 /* STREAM_queuefile @0x800FD314 : queue a read of `len` bytes at `off` from file `name`.  Allocates a
- *   request, fills it, queues it, and -- if the stream was idle -- starts it.  Returns the request id. */
+ *   request, fills it, queues it, and -- if the stream was idle -- starts it.  Returns the request id.
+ * RESIDUAL FLOOR (19 diffs, down from 40): fixed two real bugs first -- (1) `strncpy` len was 0x40,
+ *   oracle uses 0x3F (off-by-one on the name-field width); (2) `wasidle` was wrongly materialized as a
+ *   0/1 bool tested twice, oracle caches the RAW state and re-tests `==0` against it twice (same idiom
+ *   as decbufferusage/STREAM_release/STREAM_get). REMAINING: (a) the `req[0x16]=off; req[0x17]=len;`
+ *   store pair vs the queuerequest() call -- oracle interleaves the call's arg setup BETWEEN the two
+ *   stores (2nd store lands in the jal delay slot), ours emits both stores THEN the call; (b) the
+ *   prio-ternary's `out[0]` reload right before the greedystate test picks a0 in oracle (letting it
+ *   flow straight into the startnextrequest call's own a0 arg, no reload needed) vs a1 in ours (forcing
+ *   an extra reload before the call) -- the SAME a0-vs-a1 tie-break documented as a floor in
+ *   STREAM_release's identical prio-ternary block. Accept both as floors. */
 extern unsigned int STREAM_queuefile(int s, char *name, int off, int len)
 {
     int out[2];
@@ -777,18 +814,19 @@ extern unsigned int STREAM_queuefile(int s, char *name, int off, int len)
     if (req == 0)
         return 0;
     req[4] = 0;                                   /* type = file */
-    strncpy((char *)(req + 5), name, 0x40);       /* req name @ +0x14 */
+    strncpy((char *)(req + 5), name, 0x3f);       /* req name @ +0x14 (oracle: len=0x3F, not 0x40) */
     req[0x16] = off;
     req[0x17] = len;
     queuerequest(out[0], (int)req);
     {
-        int wasidle, sr;
+        int state, sr;
         sr = STREAM_enterCS();
-        wasidle = (MI(out[0], 0x28) == 0);
-        if (wasidle)
+        state = MI(out[0], 0x28);              /* MATCH: cache the RAW state, test ==0 twice
+                                                 * (same idiom as decbufferusage/STREAM_release) */
+        if (state == 0)
             MI(out[0], 0x28) = 1;
         STREAM_leaveCS(sr);
-        if (wasidle) {
+        if (state == 0) {
             unsigned int prio = (MI(out[0], 0x38) == 0) ? MU(out[0], 0x2c) : MU(out[0], 0x30);
             startnextrequest(out[0], prio, id);
         }
@@ -857,7 +895,7 @@ extern int STREAM_cancelrequest(int s, int reqid)
     s = out[0];                                   /* stream object */
 
     sr = STREAM_enterCS();
-    req = locaterequest(s, reqid);
+    req = func_800FC4E4(s, reqid);
     if (req != 0 && MI(req, 4) != 4) {
         if (MI(req, 4) != 1) {                     /* active (not merely queued) */
             MI(req, 4) = 4;                         /* mark cancelled */
@@ -983,7 +1021,14 @@ extern void STREAM_kill(int s)
 }
 
 /* STREAM_get @0x800FD9AC : pop the next available chunk for a consumer, returning a pointer to its data
- *   (or 0 if none).  Advances the consumer's read cursor to the following same-tagged chunk. */
+ *   (or 0 if none).  Advances the consumer's read cursor to the following same-tagged chunk.
+ * RESIDUAL FLOOR (37 diffs, down from 51): fixed the final `MI(cons,0xc)=p` store to dereference
+ *   `out[1]` directly instead of the cached `cons` local -- oracle reloads out[1] FRESH from the stack
+ *   at that one site (its `cons`-holding register got reused for the loop's `p` walk and wasn't kept
+ *   live across it), matching this shape exactly (14 insns recovered). REMAINING: the very first
+ *   `cons=out[1]` materialization picks a2 in ours vs a1 in oracle -- a pure allocator tie-break for
+ *   the first fresh pseudo after the validatehandle() call (both regs equally dead/available); this
+ *   ONE swap cascades through the whole function. Tried decl-order reshuffle (no effect). Accept. */
 extern int STREAM_get(int consumer, void *buf, int len)
 {
     int out[2];
@@ -1016,14 +1061,26 @@ extern int STREAM_get(int consumer, void *buf, int len)
                     p = (int *)((int)p + (p[1] & 0xffffff));
                 hdr = p[1];
             }
-            MI(cons, 0xc) = (int)p;
+            MI(out[1], 0xc) = (int)p;
         }
     }
     return chunk;
 }
 
 /* STREAM_release @0x800FDAD0 : release a chunk previously obtained from STREAM_get, freeing its ring
- *   space and, if the stream had stalled (state 2) on a full buffer, re-arming the fill engine. */
+ *   space and, if the stream had stalled (state 2) on a full buffer, re-arming the fill engine.
+ * RESIDUAL FLOOR (21 diffs, down from a mismeasured 39; two real bugs fixed along the way -- see
+ *   below): register-coloring tie-break -- the early bounds-check reload of `out[0]` (used 3x before
+ *   any store) picks v1 in ours vs a0 in oracle, and the final greedystate-vs-restartstream block's
+ *   `out[0]` reload similarly picks a1 vs oracle's a0. Tried a named `sobj=out[0]` local (regressed
+ *   hard, 21->63: the local itself got promoted to a callee-saved reg and reshuffled the whole frame).
+ *   Accept as floor.
+ * TWO REAL BUGS FOUND+FIXED here (2026-07, wave-16 a1): (1) the restartstream() call was missing a
+ *   DEAD 2nd arg (`prio`, same ternary shape as STREAM_queuefile's startnextrequest call) that the
+ *   oracle still loads+passes despite restartstream ignoring it -- same family as opencallback's
+ *   documented dead-2nd-param call. (2) the `state==2` wasstall test was wrongly materialized as a 0/1
+ *   C bool tested twice; the oracle caches the RAW state word and re-tests `state==2` against the SAME
+ *   li-2 constant twice (never forms a boolean) -- same idiom as decbufferusage's greedy-state test. */
 extern void STREAM_release(int s, int chunk)
 {
     int out[2];
@@ -1035,17 +1092,24 @@ extern void STREAM_release(int s, int chunk)
         return;
     if (MI(chunk, 0) == -2)                          /* already free */
         return;
-    decbufferusage(out[0], MI(chunk, 4));            /* account the chunk's bytes back */
     MI(chunk, 0) = -2;                              /* mark free */
+    decbufferusage(out[0], MI(chunk, 4));            /* account the chunk's bytes back */
     {
-        int wasstall, sr;
+        int state, sr;
         sr = STREAM_enterCS();
-        wasstall = (MI(out[0], 0x28) == 2);
-        if (wasstall)
+        state = MI(out[0], 0x28);              /* MATCH: cache the RAW state (not a 0/1 bool) --
+                                                 * oracle tests `state==2` TWICE against the same
+                                                 * cached load, never materializes a boolean */
+        if (state == 2)
             MI(out[0], 0x28) = 1;
         STREAM_leaveCS(sr);
-        if (wasstall)
-            restartstream(out[0]);
+        if (state == 2) {
+            /* MATCH: oracle passes a DEAD 2nd arg (prio, same ternary as STREAM_queuefile's
+             * wasidle-startnextrequest call) -- restartstream ignores it but the caller still
+             * loads+passes it (same dead-2nd-param family as opencallback's restartstream call). */
+            unsigned int prio = (MI(out[0], 0x38) == 0) ? MU(out[0], 0x2c) : MU(out[0], 0x30);
+            ((int (*)(int, unsigned int))restartstream)(out[0], prio);
+        }
     }
 }
 

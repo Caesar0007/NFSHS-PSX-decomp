@@ -14,6 +14,7 @@ extern "C" int gSentenceRuleSet;    /* sentence rule-set callback (spchinit-owne
 extern "C" int gSentenceRuleTest;   /* sentence rule-test callback */
 
 /* ---- per-TU static copies of the shared Vox accessors (canonical versions in spchdata.obj) ---- */
+extern "C" {
 static int VoxSentence_GetNumPhrases(int sentence)   /* @0x8010B100 */
 {
     return (int)((unsigned int)*(unsigned char *)(sentence + 3) >> 2);
@@ -25,6 +26,7 @@ static int iSPCH_GetOffset8(int base, int tableBase, int index)   /* @0x8010B10C
 static int iSPCH_GetOffset16(int base, int tableBase, int index)  /* @0x8010B124 */
 {
     return base + ((int)*(unsigned short *)(tableBase + index * 2) << 2);
+}
 }
 
 extern "C" int  iSPCH_GetRuleDataAddr(int sentence);                       /* @0x8010B140 */

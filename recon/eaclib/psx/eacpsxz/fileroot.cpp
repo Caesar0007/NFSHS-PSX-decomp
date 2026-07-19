@@ -74,13 +74,19 @@ struct ReadCmd {
 };
 ReadCmd readcmd;   /* definition (BSS zero) */
 
-/* cop0 IRQ-disabled critical section guarding the readcmd slot (host no-op). */
+/* cop0 IRQ-disabled critical section guarding the readcmd slot (host no-op on x86).
+ * MATCH: the oracle INLINES the raw cop0 mfc0/mask(-0x402)/mtc0 sequence at each call site
+ * (readfile/readfile_systask) -- identical mask to nfile.c's FILE_CS_ENTER/LEAVE and nasync.c's
+ * ASYNC_enterCS/leaveCS. A real function call forces extra callee-saved regs across the jal (the
+ * a0-a3 setup can't survive a real call without spilling to s-regs); the inline form needs none. */
 #if defined(__mips__)
-void FROOT_enterCS(void);
-void FROOT_leaveCS(void);
+#define FROOT_enterCS(saved) \
+    __asm__ volatile("mfc0 %0,$12\n\t nop\n\t addiu $at,$zero,-0x402\n\t and $8,%0,$at\n\t mtc0 $8,$12\n\t nop\n\t nop\n\t nop" \
+                      : "=r"(saved) : : "at", "t0")
+#define FROOT_leaveCS(saved) __asm__ volatile("mtc0 %0,$12" : : "r"(saved))
 #else
-static inline void FROOT_enterCS(void) {}
-static inline void FROOT_leaveCS(void) {}
+#define FROOT_enterCS(saved) ((void)(saved = 0))
+#define FROOT_leaveCS(saved) ((void)(saved))
 #endif
 
 /* initfileio @0x800F3A34 : advertise the CD (unless disabled), and -- if the PC dev link is present --
@@ -215,7 +221,8 @@ extern "C" int readfile(int handle, int dest, int offset, int len)
     if (fs == 1) {
         r = CD_Read(dev, dest, offset, len);
     } else if (fs == 2) {
-        FROOT_enterCS();
+        int sr;
+        FROOT_enterCS(sr);
         if (readcmd.pending == 0) {                 /* one PC read in flight at a time */
             readcmd.pending = 1;
             readcmd.handle  = dev;
@@ -224,7 +231,7 @@ extern "C" int readfile(int handle, int dest, int offset, int len)
             readcmd.len     = len;
             r = 1;
         }
-        FROOT_leaveCS();
+        FROOT_leaveCS(sr);
     }
     return r;
 }
@@ -233,15 +240,16 @@ extern "C" int readfile(int handle, int dest, int offset, int len)
  *   (success when the full length was read).  Registered as a periodic task by initfileio. */
 extern "C" int readfile_systask(void)
 {
-    FROOT_enterCS();
+    int sr;
+    FROOT_enterCS(sr);
     if (readcmd.pending != 0) {
         int n;
         PClseek(readcmd.handle, readcmd.offset, 0);
         n = PCread(readcmd.handle, readcmd.dest, readcmd.len);
         readcmd.pending = 0;
-        iFILE_CommandCompleteCallback(((n ^ readcmd.len) < 1) ? 1 : 0);   /* n==len -> success */
+        iFILE_CommandCompleteCallback(((unsigned)(n ^ readcmd.len) < 1) ? 1 : 0);   /* asm: sltiu (unsigned) */
     }
-    FROOT_leaveCS();
+    FROOT_leaveCS(sr);
     return 0;
 }
 

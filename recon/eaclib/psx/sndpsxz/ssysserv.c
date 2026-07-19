@@ -76,17 +76,30 @@ shiftloop:                                                    /* compact the tai
         goto findloop;
 }
 
-/* SNDSYS_service @0x80104878 : run every registered service-client callback (called once per game frame). */
+/* SNDSYS_service @0x80104878 : run every registered service-client callback (called once per game frame).
+ *   MATCH: oracle reads the count as SIGNED (`lb`, not the macro's unsigned `lbu`) and branches `blez`
+ *   (signed <=0), matching the signed-char convention iSNDserverremoveclient already uses for this same
+ *   byte. Walking pointer `p` starts at `base` (raw sndgs, not sndgs+0x19) and steps +4 bytes/iter with
+ *   the client-array's +0x64 folded into the load DISPLACEMENT (not a separately materialized `cb`
+ *   pointer var -- computing the fn-ptr via one deref expression lets the +0x64 fuse into `lw`).
+ *   NEAR-MISS residual (9 diffs, ours 27/oracle 28): `base` materializes into a caller-saved temp (v1)
+ *   for the initial `lb`/`blez` test and is copied into its callee-saved home (s2) only after the branch
+ *   is taken; our compile promotes it to s2 one instruction earlier. Coloring floor (§A lazy-promotion
+ *   tie-break), not source-shapable via decl/assignment-order tried so far. */
 extern void SNDSYS_service(void)
 {
-    int *clientp = sndgs;
-    int  i = 0;
-    if (0 < NCLIENT) {
+    char *base;
+    char *p;
+    int   i;
+    base = (char *)sndgs;
+    if (0 < *(signed char *)(base + 0x41)) {
+        p = base;
+        i = 0;
         do {
-            int *cb = clientp + 0x19;
-            clientp = clientp + 1;
-            (*(void (*)(void))*cb)();
+            void (*cb)(void) = *(void (**)(void))(p + 0x64);
+            p = p + 4;
+            (*cb)();
             i++;
-        } while (i < (int)NCLIENT);
+        } while (i < *(signed char *)(base + 0x41));
     }
 }

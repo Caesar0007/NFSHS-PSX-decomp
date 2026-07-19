@@ -47,25 +47,34 @@ extern int iSNDsetslot(int chan, int addr, int pitch);   /* @0x800FF394 */
 extern int iSNDpatchkey(int chan, int tag)
 {
     char grp = *(char *)(sndgs[0x25] + chan * 100 + 0x37);
-    if (grp == 0) {
-        if (*(int *)tag < 0) {
-            *(int *)tag = chan;
-            return 1;
-        }
-    } else {
+    if (grp != 0) {
         int i = *(int *)tag;
         *(int *)tag = i + 1;
         if (i + 1 < (int)(unsigned)((unsigned char *)sndgs)[0x11]) {
             do {
                 int *p = (int *)(sndgs[0x25] + *(int *)tag * 100);
-                if (*(char *)((int)p + 0x37) == grp && *(char *)((int)p + 0xb) == 1 && -1 < *p)
+                if (*(char *)((int)p + 0x37) == grp && *(signed char *)((int)p + 0xb) == 1 && -1 < *p)
                     return 1;
                 i = *(int *)tag;
                 *(int *)tag = i + 1;
             } while (i + 1 < (int)(unsigned)((unsigned char *)sndgs)[0x11]);
         }
+        return 0;
+    }
+    if (*(int *)tag < 0) {
+        *(int *)tag = chan;
+        return 1;
     }
     return 0;
+    /* near-miss floor (31 diffs, was 43 -- landed 2 real bugs: block-order INVERSION [grp!=0 is the
+     * oracle's fall-through main path, grp==0 branches away to code at the function's END -- the
+     * source had them swapped] and a signed-char bug [*(char*)(p+0xb)==1 must be `signed char`, not
+     * the platform's unsigned `char`]. Residual = an extra `&sndgs` re-materialization (`lui a2,0` +
+     * a spurious reg-reg move) for the byte-indexed count check `((unsigned char*)sndgs)[0x11]`
+     * alongside the int-indexed `sndgs[0x25]` base -- tried unifying both through one shared
+     * `unsigned char *g = (unsigned char*)sndgs;` base pointer, which REGRESSED 31->33 (worse
+     * coloring elsewhere), reverted. Allocator floor across the two typed views; permuter
+     * candidate. */
 }
 
 /* iSNDcalcvol @0x800FF050 : compute a channel's effective 0..0x7F volume from its patch volume (+0x2C),
@@ -74,20 +83,30 @@ extern int iSNDpatchkey(int chan, int tag)
 extern unsigned int iSNDcalcvol(int chan)
 {
     int          v = sndgs[0x25] + chan * 100;
-    int          n = (int)*(char *)(v + 0x2c) * (int)*(short *)(v + 0x1e) *
+    int          n = (int)*(signed char *)(v + 0x2c) * (int)*(short *)(v + 0x1e) *
                      (int)*(short *)(v + 0x26) * (int)((signed char *)sndgs)[0x3d];
     unsigned int vol = n >> 0x1f;
     n = n / 0x1f417f;
     *(char *)(v + 0x2d) = (char)n;
     if (*(int *)(v + 0x50) != 0) {                  /* velocity curve */
         vol = ((n * 0x1000000 >> 0x18) *
-               (int)*(char *)(*(int *)(v + 0x50) + (unsigned)*(unsigned char *)(v + 0x3a))) / 0x7f;
+               (int)*(signed char *)(*(int *)(v + 0x50) + (unsigned)*(unsigned char *)(v + 0x3a))) / 0x7f;
         *(char *)(v + 0x2d) = (char)vol;
     }
     if (*(int *)(v + 0x44) != 0) {                  /* final volume curve */
-        unsigned char b = *(unsigned char *)(*(int *)(v + 0x44) + (int)*(char *)(v + 0x2d));
+        unsigned char b = *(unsigned char *)(*(int *)(v + 0x44) + (int)*(signed char *)(v + 0x2d));
         vol = (unsigned int)b;
         *(unsigned char *)(v + 0x2d) = b;
+        /* near-miss floor (49 diffs, 61==60 insns +1): oracle's magic-const division for the velocity
+         * curve leaves the divided `n` in $v1 (not $v0) and hoists `lw a1,0x50(a0)` into the mult
+         * latency gap, then keeps that v0/v1/a1 coloring through the whole velocity-curve block;
+         * our gcc-2.8.0 picks the opposite v0/v1/a1 assignment (n stays in v0, +0x50 load stays late
+         * in a1). Tried: pre-loading `*(int*)(v+0x50)` as a named local before the division (no
+         * change), giving the divided value its own fresh local instead of reusing `n` (no change).
+         * Pure allocator/scheduler tie-break across the whole block, not source-reachable; permuter
+         * multi-basin candidate. (2 real signed-char bugs fixed separately: +0x2c patch-volume byte
+         * and the v+0x50 table lookup both need `signed char`, not the platform's unsigned `char` --
+         * landed 53->49 diffs.) */
     }
     return vol;
 }

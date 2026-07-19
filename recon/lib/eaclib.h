@@ -208,9 +208,11 @@ void inbetween(void * arg0);   /* stream */
 void decbufferusage(void * arg0);   /* stream */
 void getfreerequest(void * arg0);   /* stream */
 void queuerequest(void * arg0);   /* stream */
-// stream.c's slot-lookup helper @0x800FC4E4 is static (renamed from "locaterequest" to
-// func_800FC4E4 to avoid a verify_asm gate name-collision with nasync.c's real locaterequest
-// @0x800F0BF4, line 124 above) — not externally declared, so it carries no extern entry here.
+// stream.c's slot-lookup helper @0x800FC4E4 is a file-static whose true SYM name is locaterequest
+// (nfs4-f-v3.txt) — the SAME real name as nasync.c's unrelated static locaterequest @0x800F0BF4
+// (line 124 above); two distinct EA statics sharing the name across TUs. Its C identifier is kept as
+// func_800FC4E4 only so verify_asm resolves it to the disambiguated func_800FC4E4.s oracle (the gate
+// keys identifier->.s, so both can't be "locaterequest"). Being static, it has no extern entry here.
 void freerequest(void * arg0);   /* stream */
 void filterchunk(void * arg0);   /* stream */
 void parsechunks(void * arg0);   /* stream */

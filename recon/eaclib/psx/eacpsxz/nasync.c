@@ -21,6 +21,24 @@
 #include "../../../lib/nasync.h"
 typedef unsigned int size_t;   /* was <stddef.h>; C TU is self-contained */
 
+/* nasync's cop0 IRQ-disabled critical section: nasync.h declares ASYNC_enterCS/leaveCS as real
+ * void->void functions, but the oracle INLINES the exact raw cop0 mfc0/mask/mtc0 sequence at every
+ * call site (mask -0x402 clears SR bits 0x400+0x2, same constant nfile.c's FILE_CS_ENTER/LEAVE use) --
+ * confirmed byte-identical across queueadd/queuefetch/cancelrequest oracles. A real `jal` to a
+ * ASYNC_enterCS/leaveCS function can't express that; bypass the header decls with a local macro pair
+ * threading the saved SR through a real C local (same technique as nfile.c). */
+#undef ASYNC_enterCS
+#undef ASYNC_leaveCS
+#if defined(__mips__)
+#define ASYNC_enterCS(saved) \
+    __asm__ volatile("mfc0 %0,$12\n\t nop\n\t addiu $at,$zero,-0x402\n\t and $8,%0,$at\n\t mtc0 $8,$12\n\t nop\n\t nop\n\t nop" \
+                      : "=r"(saved) : : "at", "t0")
+#define ASYNC_leaveCS(saved) __asm__ volatile("mtc0 %0,$12" : : "r"(saved))
+#else
+#define ASYNC_enterCS(saved) ((void)(saved = 0))
+#define ASYNC_leaveCS(saved) ((void)(saved))
+#endif
+
 /* ---- nfile FILE_* API (eacpsxz) + memory/system helpers this loader drives ---- */
 extern unsigned int FILE_open(char *name, unsigned int a1, unsigned int a2, unsigned int a3); /* @0x800EC36C */
 extern unsigned int FILE_close(void *handle, unsigned int a1, unsigned int a2);               /* @0x800EC42C */
@@ -52,22 +70,29 @@ extern int asyncsystemtask(void);
 /* queueadd @0x800F0B1C : append `n` to FIFO `q` ({head,tail}). */
 extern void queueadd(AsyncQueue *q, AsyncReq *n)
 {
-    ASYNC_enterCS();
+    int sr;
+    ASYNC_enterCS(sr);
     if (q->head == 0) q->head = n;          /* empty -> head = n */
     else              q->tail->next = n;    /* else link onto the tail */
     q->tail = n;
     n->next = 0;
-    ASYNC_leaveCS();
+    ASYNC_leaveCS(sr);
 }
 
 /* queuefetch @0x800F0B74 : pop the head of FIFO `q` (returns 0 if empty). */
 extern AsyncReq *queuefetch(AsyncQueue *q)
 {
+    /* 🔴 FLOOR (§3.15 v0-vs-v1 tie-break): oracle loads head into $v0 for the test, then
+     * copies it into $v1 (materializing a phi at the join point) because $v0 gets reused for
+     * the `r->next` load on the taken path; ours allocates the head-load straight into $v1
+     * and never needs the copy (1 insn shorter, functionally identical). Tried an explicit
+     * `next` temp (no effect) -- pure allocator tie-break, not source-shapable. Accept. */
     AsyncReq *r;
-    ASYNC_enterCS();
+    int sr;
+    ASYNC_enterCS(sr);
     r = q->head;                            /* 0 if empty */
     if (r != 0) q->head = r->next;
-    ASYNC_leaveCS();
+    ASYNC_leaveCS(sr);
     return r;
 }
 
@@ -85,34 +110,46 @@ extern int newrequestid(AsyncReq *r)
  *   slot = id & 0xFF; valid only if id >= 0x100, slot < numrequests and request[slot].id == id. */
 static AsyncReq *locaterequest(int id)
 {
-    int slot;
+    /* MATCH: oracle uses SIGNED compares throughout (`slti`/`slt`, not `sltiu`/`sltu`) and
+     * computes `slot = id & 0xFF` UNCONDITIONALLY (it's the first branch's delay slot, so it
+     * always executes before the id<0x100 test's result is even known) -- both id and
+     * numrequests fit comfortably in the signed range so the unsigned casts were behavior-
+     * neutral but wrong codegen; and slot must be materialized before the first return. */
+    int slot = id & 0xFF;
     AsyncReq *r;
-    if ((unsigned int)id < 0x100)
+    if (id < 0x100)
         return 0;
-    slot = id & 0xFF;
-    if ((unsigned int)slot >= (unsigned int)numrequests)
-        return 0;
-    r = (AsyncReq *)((char *)request + slot * 0x2C);
-    if (r->id != id)                        /* slot recycled -> stale */
-        return 0;
-    return r;
+    if (slot < numrequests) {               /* MATCH: positive-branch form (lever #7) --
+                                              * continue is a jump TARGET, not a fallthrough */
+        r = (AsyncReq *)((char *)request + slot * 0x2C);
+        if (r->id != id)                    /* slot recycled -> stale */
+            return 0;
+        return r;
+    }
+    return 0;
 }
 
 /* cancelrequest @0x800F0C50 : if pending, mark cancelled, free its buffer, return the slot to freequeue. */
 extern void cancelrequest(AsyncReq *r)
 {
-    int wasPending;
-    ASYNC_enterCS();
-    wasPending = (r->status == 1);
-    if (wasPending) r->status = 2;
-    ASYNC_leaveCS();
-    if (!wasPending)
+    /* MATCH: keep the RAW status value cached (not pre-folded into a 0/1 bool) -- the oracle
+     * loads r->status ONCE and re-compares it against the literal 1 TWICE (bne v1,a1 both
+     * times); a `wasPending = (status==1)` bool forces a materialized xori/sltiu 0/1 value
+     * (extra 2 insns) that ours reused for both tests instead. */
+    int status;
+    int sr;
+    ASYNC_enterCS(sr);
+    status = r->status;
+    if (status == 1) r->status = 2;
+    ASYNC_leaveCS(sr);
+    if (status != 1)
         return;
-    if (r->buffer >= 2)                     /* real buffer (0/1 are "none"/sentinel) -> free it */
+    if ((unsigned int)r->buffer >= 2)       /* real buffer (0/1 are "none"/sentinel) -> free it; asm: sltiu (unsigned) */
         purgememadr((void *)(size_t)(unsigned int)r->buffer);
+    r->id = (unsigned char)r->id;           /* clear the counter bits -> slot is free (asm: lbu scheduled
+                                              * early, but the sw itself lands in queueadd's jal delay slot) */
     r->fileop = 0;
     queueadd((AsyncQueue *)&freequeuehead, r);
-    r->id = (unsigned char)r->id;           /* clear the counter bits -> slot is free */
 }
 
 /* finishrequest @0x800F0CE8 : queue `r` for its user callback (only if it has one). */
@@ -130,11 +167,17 @@ extern void finishrequest(AsyncReq *r)
 /* loadfileclosecallback @0x800F0D24 : harvest the close op, then finish or cancel the request. */
 extern int loadfileclosecallback(int id, int status, AsyncReq *req)
 {
+    /* MATCH: a FRESH pointer pseudo (`req2`) is materialized unconditionally right after entry
+     * (oracle: `addu s1,s0,zero` in the FILE_completeop jal's delay slot) and used ONLY by the
+     * finishrequest branch; the cancelrequest branch keeps using the original `req` (s0)
+     * directly. Same family as synccallback's s1/s2 split, but here scoped to ONE branch only. */
+    AsyncReq *req2 = req;
     (void)id; (void)status;
     FILE_completeop(req->fileop);
-    if (req->status != 0) cancelrequest(req);   /* cancelled mid-flight -> cleanup */
-    else                  finishrequest(req);   /* done -> hand back to the user */
-    return 0;
+    if (req->status != 0) cancelrequest(req);    /* cancelled mid-flight -> cleanup */
+    else                  finishrequest(req2);   /* done -> hand back to the user */
+    /* MATCH: no `return 0` -- oracle falls straight off both (void) calls into the epilogue,
+     * $v0 left incidental/unused (same value-less-fall-off idiom as initasync). */
 }
 
 /* loadfilereadcallback @0x800F0D80 : one chunk read; loop until EOF/cancel, then close. */
@@ -169,6 +212,17 @@ extern int loadfilereadcallback(int id, int status, AsyncReq *req)
 /* loadfilesizecallback @0x800F0E54 : got the size -> allocate the buffer and start reading. */
 extern int loadfilesizecallback(int id, int status, AsyncReq *req)
 {
+    /* MATCH: a FRESH pointer pseudo (`req2`) is materialized unconditionally right after entry
+     * (oracle: `addu s0,s1,zero` in the FILE_completeop jal's delay slot) and used ONLY by the
+     * allocate/read (else) branch; the cancelled/close branch keeps using the original `req`
+     * (s1) directly. Same family as loadfileclosecallback's req2 split. */
+    /* MATCH: a FRESH pointer pseudo (`req2`) is materialized unconditionally right after entry
+     * (oracle: `addu s0,s1,zero` in the FILE_completeop jal's delay slot) and used ONLY by the
+     * allocate/read (else) branch; the cancelled/close branch keeps using the original `req`
+     * (s1) directly. Same family as loadfileclosecallback's req2 split.
+     * 🔴 RESIDUAL (21 diffs): reproduces the split but the two s-registers still land swapped
+     * vs the oracle (s0/s1 tie-break) -- allocator floor, not cracked further. */
+    AsyncReq *req2 = req;
     int filesize = FILE_completeop(req->fileop);
     unsigned int nextop;
     (void)id; (void)status;
@@ -178,14 +232,14 @@ extern int loadfilesizecallback(int id, int status, AsyncReq *req)
         req->fileop = (int)nextop;
         FILE_callbackop(nextop, (void (*)(int, int))loadfileclosecallback);
     } else {                                                 /* allocate "ASYNCBUF" of the file size */
-        void *buf = reservememadr((char *)"ASYNCBUF", filesize, req->arg24);
-        req->buffer = (int)(size_t)buf;
-        req->dest   = (int)(size_t)buf;
-        nextop = FILE_read((void *)(size_t)(unsigned int)req->handle,
-                           (unsigned int)req->offset, (unsigned int)req->dest,
-                           readblocksize, 0x63, RQ(req));
+        void *buf = reservememadr((char *)"ASYNCBUF", filesize, req2->arg24);
+        req2->buffer = (int)(size_t)buf;
+        req2->dest   = (int)(size_t)buf;
+        nextop = FILE_read((void *)(size_t)(unsigned int)req2->handle,
+                           (unsigned int)req2->offset, (unsigned int)req2->dest,
+                           readblocksize, 0x63, RQ(req2));
         if (nextop == 0) return 0;
-        req->fileop = (int)nextop;
+        req2->fileop = (int)nextop;
         FILE_callbackop(nextop, (void (*)(int, int))loadfilereadcallback);
     }
     return 0;
@@ -194,6 +248,11 @@ extern int loadfilesizecallback(int id, int status, AsyncReq *req)
 /* loadfileopencallback @0x800F0F18 : open done -> read directly, size-then-read, or close on cancel. */
 extern int loadfileopencallback(int id, int status, AsyncReq *req)
 {
+    /* 🔴 RESIDUAL FLOOR (31 diffs, unchanged from before this wave): oracle materializes a
+     * second req-copy (s1=s0) in the FILE_completeop jal's delay slot for the FILE_size branch
+     * only; reproducing it as an explicit `req2` local coalesced badly (s1 got merged with the
+     * incoming `status` param instead), and removing the "value-less" returns didn't help
+     * either -- tried both independently and combined, no net improvement. Accept for now. */
     int handle = FILE_completeop(req->fileop);
     unsigned int nextop;
     (void)id;
@@ -227,6 +286,11 @@ extern int loadfileopencallback(int id, int status, AsyncReq *req)
 /* loadsegreadcallback @0x800F1024 : segment read from asyncfilehandle, chunked with a clamped tail. */
 extern int loadsegreadcallback(int id, int status, AsyncReq *req)
 {
+    /* MATCH: a FRESH pointer pseudo (`req2`) is materialized unconditionally right after entry
+     * (oracle: `addu s1,s0,zero` in the FILE_completeop jal's delay slot), used ONLY by the
+     * final FILE_read call's offset/dest reloads and its RQ() arg; every other access keeps
+     * using the original `req` (s0). Same family as loadfilesizecallback's req2 split. */
+    AsyncReq *req2 = req;
     int n = FILE_completeop(req->fileop);
     int remaining, len;
     unsigned int nextop;
@@ -234,18 +298,24 @@ extern int loadsegreadcallback(int id, int status, AsyncReq *req)
     req->bytesread += n;
     req->offset    += n;
     asyncfileoffset = req->offset;
-    if (req->status != 0) { cancelrequest(req); return 0; }     /* cancelled */
-    if (n < readblocksize) { finishrequest(req); return 0; }    /* short read -> done */
+    /* MATCH: the cancelrequest/finishrequest exits are value-less fall-offs (goto the shared
+     * end with no explicit return -- $v0 left incidental, oracle's delay slot after each jal is
+     * a bare nop not a fresh `li v0,0`); the FILE_read fileop store is unconditional (§3.21,
+     * schedules into the beqz's delay slot even on the nextop==0/failure path). */
+    if (req->status != 0) { cancelrequest(req); goto done; }     /* cancelled */
+    if (n < readblocksize) { finishrequest(req); goto done; }    /* short read -> done */
     req->arg24 -= n;                                            /* remaining bytes */
     req->dest  += n;
     remaining = req->arg24;
     len = (readblocksize < remaining) ? readblocksize : remaining;   /* clamp to a block */
     nextop = FILE_read((void *)(size_t)(unsigned int)asyncfilehandle,
-                       (unsigned int)req->offset, (unsigned int)req->dest, len, 0x63, RQ(req));
-    if (nextop == 0) return 0;
-    req->fileop = (int)nextop;
-    FILE_callbackop(nextop, (void (*)(int, int))loadsegreadcallback);
-    return 0;
+                       (unsigned int)req2->offset, (unsigned int)req2->dest, len, 0x63, RQ(req2));
+    req2->fileop = (int)nextop;
+    if (nextop != 0) {
+        FILE_callbackop(nextop, (void (*)(int, int))loadsegreadcallback);
+    }
+done:
+    ;
 }
 
 /* asyncsystemtask @0x800F1120 : drain callqueue -- fire each finished request's user callback (or clean
@@ -374,7 +444,6 @@ extern void setasyncfile(int name)
 extern int asyncloadsegmentcallback(int offset, int dest, int size, int cb)
 {
     AsyncReq *req = queuefetch((AsyncQueue *)&freequeuehead);
-    int len;
     unsigned int op;
     if (req == 0)
         return 0;
@@ -382,22 +451,26 @@ extern int asyncloadsegmentcallback(int offset, int dest, int size, int cb)
     req->bytesread = 0;
     req->status    = 0;
     req->buffer    = 0;
+    req->arg24     = size;             /* remaining bytes */
     req->callback  = cb;
     req->offset    = offset;
-    req->arg24     = size;             /* remaining bytes */
     req->dest      = dest;             /* asm: delay slot */
     if (asyncfilehandle == 0) {        /* no file open -> finish now */
         finishrequest(req);
         return req->id;
     }
-    len = (readblocksize < size) ? readblocksize : size;   /* clamp the first chunk */
+    /* MATCH: clamp `size` IN PLACE (§3.12 #14) instead of a fresh named `len` temp -- oracle
+     * mutates the size pseudo directly and reuses it as the FILE_read arg. */
+    if (readblocksize < size)
+        size = readblocksize;
     op = FILE_read((void *)(size_t)(unsigned int)asyncfilehandle,
-                   (unsigned int)req->offset, (unsigned int)req->dest, len, 0x64, RQ(req));
+                   (unsigned int)req->offset, (unsigned int)req->dest, size, 0x64, RQ(req));
     req->fileop = (int)op;            /* asm: set on both branches */
-    if (op == 0)
-        return 0;
-    FILE_callbackop(op, (void (*)(int, int))loadsegreadcallback);
-    return req->id;
+    if (op != 0) {                    /* MATCH: positive-branch form (lever #7) */
+        FILE_callbackop(op, (void (*)(int, int))loadsegreadcallback);
+        return req->id;
+    }
+    return 0;
 }
 
 /* asyncloadsegment @0x800F15B0 : as above, poll-only. */
@@ -410,19 +483,32 @@ extern int asyncloadsegment(int offset, int dest, int size)
  *   in flight and there is no callback pending, releases the request immediately. */
 extern int cancelasyncload(int id)
 {
+    /* MATCH (oracle-verified, corrects an earlier "always return 0" wrong guess): only the
+     * req==0 and status!=0 exits return a deliberate constant (0 -- already 0 for free, since
+     * v0==req there -- and the literal 1); the fileop!=0 and callback!=0 exits instead leave
+     * whatever was just loaded into $v0 (the fileop id / callback pointer) as an incidental
+     * return value, and the final cancelrequest() fall-off leaves $v0 = cancelrequest's own
+     * (garbage, since it's void) incidental value -- no explicit return at all. */
     AsyncReq *req = locaterequest(id);
     if (req == 0)
         return 0;
     if (req->status != 0)              /* already cancelling/cancelled */
-        return 0;
+        return 1;
+    /* 🔴 RESIDUAL FLOOR (12 diffs): oracle reuses the SAME $v0=1 from this branch's own delay
+     * slot (still valid through the fall-through path, since a branch delay slot always runs)
+     * for the `req->status=1` store, scheduling that store INTO the FILE_cancelop jal's own
+     * delay slot (last safe point before the call clobbers $v0 with its return). Our compiler
+     * doesn't perform that specific cross-block CSE/reuse from a mutually-exclusive branch's
+     * delay slot into the following call's delay slot; it re-materializes `li v0,1` later and
+     * schedules the store into a different (also-correct, but differently-placed) delay slot.
+     * Functionally identical, byte-different; not cracked by source reshaping so far. */
     FILE_cancelop(req->fileop);
     req->status = 1;                   /* request cancel (asm: delay slot) */
     if (req->fileop != 0)              /* still in flight -> let the callback finish it */
-        return 0;
+        return req->fileop;
     if (req->callback != 0)            /* has a callback -> it will run */
-        return 0;
+        return req->callback;
     cancelrequest(req);
-    return 0;
 }
 
 /* getasyncreadadr @0x800F1640 : the loaded buffer address, or 0 if not ready.  For a poll-only request
@@ -436,28 +522,39 @@ extern int getasyncreadadr(int id)
     if (req->fileop != 0) return 0;    /* still loading */
     adr = req->buffer;
     if (adr == 1) adr = 0;             /* alloc sentinel, not a real address */
-    if (req->buffer == 0) return 0;    /* nothing allocated */
+    if (req->buffer == 0) return adr;  /* MATCH: reuses the just-computed $s0 (adr==0 here already
+                                         * since adr was set from buffer, which is 0) instead of a
+                                         * fresh literal-0 materialization -- oracle: addu v0,s0,zero */
     if (req->callback != 0)            /* a callback owns the lifecycle */
         return adr;
-    queueadd((AsyncQueue *)&freequeuehead, req);         /* poll-only -> recycle the slot now */
+    /* MATCH: id-clear BEFORE the call (§3.21 -- the store schedules into queueadd's jal delay
+     * slot); `req` is never needed again after, so it stays in a caller-saved reg the whole
+     * function (never promoted to callee-saved) -- only `adr` (the return value) survives the
+     * call and needs an s-register. */
     req->id = (unsigned char)req->id;
+    queueadd((AsyncQueue *)&freequeuehead, req);         /* poll-only -> recycle the slot now */
     return adr;
 }
 
-/* getasyncreadstatus @0x800F16D8 : -2 invalid id, 1/2 cancel state, the in-flight op id while loading,
- *   -1 not started, else the bytes read.  Recycles the slot when fully done with no buffer/callback. */
+/* getasyncreadstatus @0x800F16D8 : -2 invalid id OR cancelling/cancelled, 0 while a read is still
+ *   in flight, -1 not started, else the bytes read.  Recycles the slot when fully done with no
+ *   buffer/callback.  MATCH (oracle-verified, corrects an earlier wrong-guess doc comment): the
+ *   status!=0 and fileop!=0 exits return the LITERAL constants -2/0, not the field's own value --
+ *   confirmed by the oracle explicitly re-materializing `li v0,-2` / `addu v0,zero,zero` in each
+ *   branch's delay slot (a "return the field" shape would leave the just-loaded v0 untouched, a
+ *   bare nop, which is what an incorrect recon here compiles to). */
 extern int getasyncreadstatus(int id)
 {
     AsyncReq *req = locaterequest(id);
     int st;
     if (req == 0)        return -2;
-    if (req->status != 0) return req->status;
-    if (req->fileop != 0) return req->fileop;          /* still loading (nonzero op id) */
+    if (req->status != 0) return -2;                   /* cancelling/cancelled -> reported as invalid */
+    if (req->fileop != 0) return 0;                     /* still loading */
     st = (req->bytesread != 0) ? req->bytesread : -1;
     if (req->buffer != 0)   return st;
     if (req->callback != 0) return st;
+    req->id = (unsigned char)req->id;    /* MATCH: id-clear BEFORE the call, see getasyncreadadr */
     queueadd((AsyncQueue *)&freequeuehead, req);                         /* harvested -> recycle the slot */
-    req->id = (unsigned char)req->id;
     return st;
 }
 

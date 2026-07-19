@@ -58,7 +58,19 @@ extern "C" int intarcsin(int x)   /* @0x800EACD8 */
     int result;
     /* MATCH: coarse region = the if-BODY (bnez -> out-of-line steep block); the round
      * select is a BRANCHED if/else (a ?: strength-reduces to the branchless
-     * (x>>6&1)+(x>>7)); the steep t0/t1 pair reads through ONE element pointer. */
+     * (x>>6&1)+(x>>7)); the steep t0/t1 pair reads through ONE element pointer.
+     * RESIDUAL (2 diffs, count-exact 48==48, w16-a6): the steep-region table-address
+     * materialization. Oracle computes v1=a1+tablebase ONCE then COPIES it into v0
+     * (`addu v0,v1,zero`) before the two `lbu`s (v1<-*v1, v0<-*(v0+1)); our cc1plus
+     * independently RE-EMITS the identical `addu ?,a1,tablebase` add a 2nd time into v0
+     * instead of copying v1 -- both source operands (a1, tablebase) are unchanged between
+     * the two adds, a missed-CSE the compiler happens to take differently than the oracle.
+     * Tried: pointer-temp `p=&kArcsinTable[idx]; t0=p[0]; t1=p[1];` (48->47 insns but
+     * cascaded a 3-var recolor, 25 diffs, worse); t1-before-t0 assignment order (18 diffs,
+     * worse). decomp-permuter (base score 35, 700+ iters, no perm macros) PLATEAUS at the
+     * base score -- confirms §asm_pattern_catalog Row E "register-materialization FLOOR
+     * (v0-vs-a2 tie-break)": the address-scratch choice is allocator-internal, not
+     * source-shapable. Accept as a floor. */
     int idx;                                     /* ONE fn-scope index shared by BOTH regions (a1) */
     if (x <= 0xFA00) {                           /* coarse region: round-to-nearest lookup */
         if (x & 0x40)

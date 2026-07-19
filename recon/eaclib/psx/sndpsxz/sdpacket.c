@@ -25,28 +25,36 @@
 
 extern int           sndgs[];
 extern int           sndpp;                 /* current-player IRQ cursor                 */
-extern int           DAT_80147e10;          /* per-player ctx ptr array  @0x80147e10     */
+extern unsigned char sndpd[];               /* EA sound-driver state base @0x80147918 (unsized array:
+                                              * forces the oracle's `lui;addiu &sndpd; lw/sw r,0x4F8(base)`
+                                              * base+offset shape for the per-player ctx ptr array, which
+                                              * lives INSIDE the sndpd block at +0x4F8, not as its own
+                                              * separately-materialized symbol -- see spatkey.c SNDPD_*) */
+#define DAT_80147e10 (((int *)sndpd)[0x4F8/4])   /* per-player ctx ptr array @0x80147e10 == sndpd+0x4F8 */
 extern int           DAT_80147e2c;          /* SPU control reg base (address) @0x80147e2c */
 extern int           DAT_801234e4;          /* SPU ctx malloc size        @0x801234e4    */
-int DAT_801234e4 = 8192;                    /* def (owning TU; image-verified 0x2000) */
-extern unsigned char DAT_80147919;          /* setirq re-entry guard byte @0x80147919    */
+int DAT_801234e4 __attribute__((section(".data"))) = 8192;  /* def (owning TU; image-verified 0x2000) */
+#define DAT_80147919 (sndpd[1])              /* setirq re-entry guard byte @0x80147919 == sndpd+1 */
 
-/* packet-voice state table fields (byte base; cast for int/short views) */
-extern unsigned char DAT_801479f0;          /* +0x00 */
-extern unsigned char DAT_801479f4;          /* +0x04 */
-extern unsigned char DAT_801479fc;          /* +0x0c */
-extern unsigned char DAT_80147a00;          /* +0x10 */
-extern unsigned char DAT_80147a04;          /* +0x14 */
-extern unsigned char DAT_80147a08;          /* +0x18 */
-extern unsigned char DAT_80147a0a;          /* +0x1a */
-extern unsigned char DAT_80147a0c;          /* +0x1c playstate */
-extern unsigned char DAT_80147a0e;          /* +0x1e route     */
-extern unsigned char DAT_80147a0f;          /* +0x1f channels  */
-extern unsigned char DAT_80147a10;          /* +0x20 link      */
-extern unsigned char DAT_80147a11;          /* +0x21 link flag */
-extern unsigned char DAT_80147a12;          /* +0x22 level     */
-extern unsigned char DAT_80147a13;          /* +0x23 fx level  */
-extern unsigned char DAT_80147a17;          /* +0x27 voice-done flag */
+/* packet-voice state table fields (byte base; cast for int/short views).  The table lives INSIDE the
+ * sndpd block at +0xD8 (0x801479f0 - 0x80147918 = 0xD8) -- same relationship as DAT_80147e10/DAT_80147919
+ * above (oracle materializes ONE `$a3 = &sndpd` and reaches every field via a3+OFFSET displacement, never
+ * a separately-materialized %hi/%lo(DAT_...) symbol -- see iSNDpacketgetirq/iSNDpacketsetirq oracle). */
+#define DAT_801479f0 (sndpd[0xD8])           /* +0x00 */
+#define DAT_801479f4 (sndpd[0xDC])           /* +0x04 */
+#define DAT_801479fc (sndpd[0xE4])           /* +0x0c */
+#define DAT_80147a00 (sndpd[0xE8])           /* +0x10 */
+#define DAT_80147a04 (sndpd[0xEC])           /* +0x14 */
+#define DAT_80147a08 (sndpd[0xF0])           /* +0x18 */
+#define DAT_80147a0a (sndpd[0xF2])           /* +0x1a */
+#define DAT_80147a0c (sndpd[0xF4])           /* +0x1c playstate */
+#define DAT_80147a0e (sndpd[0xF6])           /* +0x1e route     */
+#define DAT_80147a0f (sndpd[0xF7])           /* +0x1f channels  */
+#define DAT_80147a10 (sndpd[0xF8])           /* +0x20 link      */
+#define DAT_80147a11 (sndpd[0xF9])           /* +0x21 link flag */
+#define DAT_80147a12 (sndpd[0xFA])           /* +0x22 level     */
+#define DAT_80147a13 (sndpd[0xFB])           /* +0x23 fx level  */
+#define DAT_80147a17 (sndpd[0xFF])           /* +0x27 voice-done flag */
 
 /* host/IRQ hooks (function-pointer globals installed by play/stop) */
 extern void (*snd_voice_done_hook)(void *voice);   /* @0x8014803c */
@@ -101,26 +109,31 @@ static void sdpacket_setirq_cs(void)
  *   active voice (and its linked partner) into the served-position slot, clamping at loop bounds. */
 extern void iSNDpacketgetirq(void)
 {
-    int pp = (&DAT_80147e10)[sndpp];
-    int note = (int)*(char *)(pp + 0x42);
+    unsigned char *base = sndpd;                    /* materialize the bare sndpd address ONCE (oracle $a3) */
+    unsigned char *slot = base + sndpp * 4;          /* runtime index first, fixed OFFSET as load displacement */
+    int pp = *(int *)(slot + 0x4F8);                 /* DAT_80147e10[sndpp] */
+    int note = (int)*(signed char *)(pp + 0x42);   /* plain char is UNSIGNED on this build -- lbu vs oracle lb */
     int vt, link;
     if (note < 0)
         return;
     vt = note * 0x2c;
-    if ((VI(DAT_801479fc, vt) >> 0xc <= (unsigned)*(unsigned short *)(pp + 0x40)) ||
+    if ((*(unsigned int *)(base + vt + 0xE4) >> 0xc <= (unsigned)*(unsigned short *)(pp + 0x40)) ||     /* DAT_801479fc[vt] */
         ((unsigned)(*(int *)(pp + 0xc) - (unsigned)*(unsigned short *)(pp + 0x40)) <=
-         VI(DAT_801479fc, vt) >> 0xc)) {
-        if ((unsigned)(VI(DAT_801479fc, vt) >> 0xb) < (unsigned)*(int *)(pp + 0xc)) {
-            VI(DAT_80147a00, note * 0xb) = VI(DAT_801479fc, vt);
-            if (-1 < (int)((unsigned)VB(DAT_80147a10, vt) << 0x18)) {
-                link = (signed char)VB(DAT_80147a10, vt);
-                VI(DAT_80147a00, link * 0xb) = VI(DAT_801479fc, vt);
+         *(unsigned int *)(base + vt + 0xE4) >> 0xc)) {
+        if (*(unsigned int *)(base + vt + 0xE4) >> 0xb < (unsigned)*(int *)(pp + 0xc)) {
+            /* DAT_80147a00 is the SAME 0x2c-stride struct's +0x10 field (0xE8-0xD8=0x10) -- index
+             * by vt/link*0x2c (BYTES), NOT *0xb (a stale int-array-index unit mismatch bug: 0xb*4==0x2c
+             * only if scaled by sizeof(int), but VI/raw-pointer here adds bytes directly). */
+            *(int *)(base + vt + 0xE8) = *(int *)(base + vt + 0xE4);
+            if (-1 < (int)((unsigned)base[vt + 0xF8] << 0x18)) {                        /* DAT_80147a10[vt] */
+                link = (signed char)base[vt + 0xF8];
+                *(int *)(base + link * 0x2c + 0xE8) = *(int *)(base + vt + 0xE4);
             }
         } else {
-            VI(DAT_801479fc, vt) = 0;
-            if (-1 < (int)((unsigned)VB(DAT_80147a10, vt) << 0x18)) {
-                link = (signed char)VB(DAT_80147a10, vt);
-                VI(DAT_801479fc, link * 0x2c) = 0;
+            *(int *)(base + vt + 0xE4) = 0;
+            if (-1 < (int)((unsigned)base[vt + 0xF8] << 0x18)) {
+                link = (signed char)base[vt + 0xF8];
+                *(int *)(base + link * 0x2c + 0xE4) = 0;
             }
         }
     }
@@ -132,13 +145,17 @@ extern void iSNDpacketsetirq(void)
 {
     int i = 0;
     int pp;
+    unsigned char *base;
     iSNDpsxdisablespuirq();
-    if (DAT_80147919 == 0) {
+    base = sndpd;                        /* materialize the sndpd address AFTER the call (oracle: post-call $v0/$v1) */
+    if (base[1] == 0) {                  /* DAT_80147919 == sndpd+1 */
         do {
+            unsigned char *slot;
             sndpp = sndpp + 1;
             if (0 < sndpp)
                 sndpp = 0;                              /* single player -> wrap to 0 */
-            pp = (&DAT_80147e10)[sndpp];
+            slot = base + sndpp * 4;                     /* runtime index first, fixed OFFSET as displacement */
+            pp = *(int *)(slot + 0x4F8);                 /* DAT_80147e10[sndpp] */
             if (pp != 0 && -1 < *(char *)(pp + 0x42)) {
                 *(short *)(DAT_80147e2c + 0x1a4) = (short)(*(int *)pp + 8 >> 3);
                 InterruptCallback();
@@ -162,15 +179,15 @@ extern void iSNDpacketirqcallback(void)
 extern void iSNDpsxzerospu(int *addr, int len)
 {
     int i = 0;
-    if (0 < len >> 2) {
+    len = len >> 2;                     /* mutate param in place -- reused as the loop bound (oracle: $a1) */
+    if (0 < len) {
         do {
-            addr[0] = 0x200;
-            addr[1] = 0;
-            addr[2] = 0;
-            addr[3] = 0;
+            addr[i] = 0x200;
+            addr[i + 1] = 0;
+            addr[i + 2] = 0;
+            addr[i + 3] = 0;
             i += 4;
-            addr += 4;
-        } while (i < len >> 2);
+        } while (i < len);
     }
 }
 
@@ -424,13 +441,16 @@ extern int iSNDplatformpacketplaycreate(int p, int *mem)
     return r;
 }
 
-/* iSNDplatformpacketplaydestroy @0x801042C0 : free a player's SPU context and clear its slot. */
-extern int iSNDplatformpacketplaydestroy(int p)
+/* iSNDplatformpacketplaydestroy @0x801042C0 : free a player's SPU context and clear its slot.
+ * (true return is void -- spktplay.cpp/eaclib.h already declare `void`; $v0 after the tail-call
+ * to iSNDpsxfree is incidental/unused, per §3.2.) */
+extern void iSNDplatformpacketplaydestroy(int p)
 {
-    int *pp = (int *)(&DAT_80147e10)[p];
-    iSNDpsxfree((void *)*pp);
-    (&DAT_80147e10)[p] = 0;
-    return (int)pp;
+    unsigned char *sndpdbase = sndpd;              /* force the sndpd address materialization first */
+    unsigned char *base = sndpdbase + p * 4;       /* base = sndpd + p*4 (runtime index) */
+    int *pp = *(int **)(base + 0x4F8);             /* deref at base+0x4F8 (fixed field OFFSET, not folded) */
+    iSNDpsxfree((void *)*pp);                      /* pp dies here -- caller-saved, no s-reg needed */
+    *(int *)(base + 0x4F8) = 0;
 }
 
 /* iSNDplatformpacketplay @0x80104304 : start a voice playing a packet stream -- program the voice state
@@ -495,14 +515,14 @@ extern int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, unsi
     snd_user_serve_hook = (void *)iSNDpacketserve;
     gPreLoadTicks = (void *)iSNDpacketsetirq;
     VI(DAT_801479fc, vt) = 0;
-    VI(DAT_80147a00, note * 0xb) = 0;
+    VI(DAT_80147a00, vt) = 0;   /* was note*0xb -- stride-scaling bug (see iSNDpacketgetirq); DAT_80147a00 is the SAME 0x2c-stride struct's +0x10 field */
     VI(DAT_80147a04, vt) = pp[3] << 0xc;
     VH(DAT_80147a0a, vt) = (short)((unsigned)*hdr * 0x17c7 >> 0x10);
     if (1 < (unsigned char)VB(DAT_80147a0f, vt)) {       /* arm the linked partner voice */
         VB(DAT_80147a10, vt) = *(unsigned char *)(note * 100 + sndgs[0x25] + 4);
         VB(DAT_80147a11, (char)VB(DAT_80147a10, vt) * 0x2c) = 1;
         VI(DAT_801479fc, (char)VB(DAT_80147a10, vt) * 0x2c) = 0;
-        VI(DAT_80147a00, (char)VB(DAT_80147a10, vt) * 0xb) = 0;
+        VI(DAT_80147a00, (char)VB(DAT_80147a10, vt) * 0x2c) = 0;   /* was *0xb -- same stride bug */
         VI(DAT_80147a04, (char)VB(DAT_80147a10, vt) * 0x2c) = VI(DAT_80147a04, vt);
     }
     iSNDplatformpitch(note, pitch);

@@ -48,21 +48,24 @@ extern void iSPCH_DisposeBanks(void)
 /* iSPCH_BankMemAlloc @0x800EB234 : allocate gVoxBanks[numBanks] (once) and zero it.  Returns gVoxBanks. */
 extern int iSPCH_BankMemAlloc(int numBanks)
 {
-    if (gVoxBanks[0] == 0) {
+    int *vb = gVoxBanks;
+    int *nb = gNumBanks;
+    if (*vb == 0) {
         int allocated;
-        gNumBanks[0] = numBanks;
+        *nb = numBanks;
         allocated = iSPCH_MemAlloc(numBanks << 2, "spch banks");
-        gVoxBanks[0] = allocated;   /* MATCH: unconditional store -> beqz delay slot (runs both paths) */
+        *vb = allocated;   /* MATCH: unconditional store -> beqz delay slot (runs both paths) */
         if (allocated != 0) {
-            numBanks = gNumBanks[0];   /* MATCH: reload reuses the dead param reg ($a0) */
+            numBanks = *nb;   /* MATCH: reload reuses the dead param reg ($a0) */
             if (0 < numBanks) {
+                int bound = numBanks;
                 int i = 0;
-                int *p = (int *)allocated;
+                numBanks = allocated;   /* reuse the dead numBanks/$a0 reg as the walking pointer */
                 do {
-                    *p = 0;
+                    *(int *)numBanks = 0;
                     i++;
-                    p++;
-                } while (i < numBanks);
+                    numBanks += 4;
+                } while (i < bound);
             }
         }
     }

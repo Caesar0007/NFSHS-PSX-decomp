@@ -224,9 +224,24 @@ extern "C" int SNDPKTPLAY_submit(int p, int frame)
 /* SNDPKTPLAY_submitspace @0x80102E70 : free frame slots in the ring. */
 extern "C" int SNDPKTPLAY_submitspace(int p)
 {
-    if ((signed char)sndgs[0xf] != 0)
-        return ((int)MH((&sndpps)[p], 8) - (int)MH((&sndpps)[p], 0xe)) - 1;
-    return -10;
+    if ((signed char)sndgs[0xf] == 0)
+        return -10;
+    {
+        int base = (&sndpps)[p];
+        /* MATCH: volatile forces the oracle's lhu+sll16+sra16 shape -- a plain `(short)` load
+         * collapses to a single `lh` (still correct, but byte-mismatched). */
+        int a = ((int)(*(volatile unsigned short *)(base + 8)) << 16) >> 16;
+        int b = ((int)(*(volatile unsigned short *)(base + 0xe)) << 16) >> 16;
+        return a - b - 1;
+        /* near-miss floor (2 diffs, 21==21 insns): the guard beqz's delay slot is filled with
+         * `sll v0,a0,2` (p*4) by our gcc, but the oracle fills it with `lui v1,%hi(sndpps)` instead
+         * (the same p*4 shows up 1 insn later). Both are independent, branch-safe fillers; pure
+         * list-scheduler tie-break. Tried: hoisting `&sndpps` into a named pointer local before the
+         * guard (no change). Not source-reachable; landed 17->2 from 2 real bugs: guard-clause
+         * inversion (oracle's -10 return is the FAR/fallthrough-avoided path, not an inline early
+         * return) and the two `MH()` reads needing the oracle's forced `lhu+sll16+sra16` shape via
+         * `volatile unsigned short` (a plain `(short)`/`MH()` read collapses to a single `lh`). */
+    }
 }
 
 /* SNDPKTPLAY_unsafeframesoutstanding @0x80102EC4 : bytes still to be played (no critical section). */
@@ -345,9 +360,16 @@ extern "C" int iSNDpacketget(int p, int idx, int *out)
     int   fr;
 
     if ((unsigned)(idx + 1) == (unsigned)MB(ppp, 0x26) &&
-        -1 < (int)((unsigned)MUH(ppp, 0xc) << 0x10)) {
+        -1 < (int)((unsigned)(*(volatile unsigned short *)(ppp + 0xc)) << 0x10)) {
         m = MH(ppp, 0xc);
         MH(ppp, 0xc) = (short)0xffff;
+        /* near-miss residual (71->67 diffs from a volatile-forced 2nd `lhu 0xc` reload -- the oracle
+         * genuinely re-fetches +0xc for `m` instead of reusing the guard test's already-loaded value,
+         * matching the volatile-short family elsewhere in this file/sst.cpp). Still-open gap: the
+         * callback ptr (+0x1c) load+branch happens BEFORE the `m*0x18+0x30` index computation in
+         * ours (jalr through $a1) but AFTER it in the oracle (jalr through $v0, loaded late,
+         * scheduled behind the independent arithmetic) -- a scheduling/evaluation-order mismatch on
+         * the `if (cb) cb(idx_expr)` shape, not yet cracked. Unexplored further this pass. */
         if (*(void **)(ppp + 0x1c) != 0)
             (*(void (**)(int))(ppp + 0x1c))(MI(ppp, m * 0x18 + 0x30));
     }
@@ -379,7 +401,15 @@ extern "C" unsigned int iSNDpacketfreeframes(int p, int idx, int bytes)
         v = MI(ppp, 0x14) - bytes;
         MI(ppp, 0x14) = (int)v;
         if (*(void **)(ppp + 0x20) != 0)
-            v = (*(unsigned int (**)(void))(ppp + 0x20))();
+            v = (*(unsigned int (**)(int, unsigned int))(ppp + 0x20))(p, (unsigned int)bytes);
+            /* near-miss floor (13 diffs, was 23 -- landed a real 2-arg-callback bug: oracle NEVER
+             * clobbers $a0 across the whole function -- it keeps `ppp` in $v1, not $a0, specifically
+             * so the ORIGINAL param `p` survives unchanged in $a0 for this final call, which passes
+             * (p, bytes) not just (bytes). Residual = a v0/v1 scratch-register tie-break on the
+             * `&sndpps + p*4` address materialization (§3.15 family) + the `sw v0,0x14(v1)` store
+             * scheduled into the `beqz` guard's delay slot by the oracle but not by ours. Tried:
+             * splitting `&sndpps` into a named pointer local before indexing (no change). Allocator/
+             * scheduler floor, not source-reachable; permuter candidate. */
     }
     return v;
 }

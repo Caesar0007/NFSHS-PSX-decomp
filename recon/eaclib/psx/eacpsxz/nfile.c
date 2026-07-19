@@ -141,23 +141,27 @@ extern int FILE_overhead(int handlecount, int memsize, int opcount)
     if (handlecount == 0) handlecount = 0x18;     /* 24 handles  */
     if (memsize == 0)     memsize     = 0x800;    /* 2 KB io mem */
     if (opcount == 0)     opcount     = 0xA;      /* 10 ops      */
+    /* 🔴 RESIDUAL FLOOR (12 diffs): oracle computes the SAME v0/v1 accumulation with the two
+     * halves swapped into the opposite registers (v1 gets the shift-part accumulator, v0 the
+     * memsize term) -- tried 2 reorderings (handlecount/opcount swap, outer-add operand swap),
+     * both regressed further (20 diffs). Count matches (20=20); pure allocator tie-break. */
     return ((3 * opcount + 5 * handlecount) << 4) + 20 * memsize;  /* 80*h + 48*op + 20*mem */
 }
 
 /* FILE_opstatus @0x800EBDC4 : status of the op named by `id` (index=id>>24); -3 if id is 0 or stale. */
 extern int FILE_opstatus(unsigned int id)
 {
+    /* MATCH: positive-branch form (lever #7) -- the match test jumps FORWARD to the success
+     * return; the -3 "stale/invalid id" return is the shared fallthrough/jump target. */
     FileOp *op;
-    int result;
     if (id != 0) {
         op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
-        if ((id & 0xFFFFF) == (op->id & 0xFFFFF)) {   /* request id still matches -> not stale */
-            result = op->status;
-            return result;
-        }
+        if ((id & 0xFFFFF) == (op->id & 0xFFFFF))   /* request id still matches -> not stale */
+            goto success;
     }
-    result = -3;
-    return result;
+    return -3;
+success:
+    return op->status;
 }
 
 /* FILE_operror @0x800EBE1C : raw error code of the op named by `id` (index=id>>24; no validation). */

@@ -21,7 +21,6 @@ extern int iSNDplatformremove(int cursor, int *patch);               /* @0x8010B
  *   the SPU address in the 0x8a field and the resolve table.  Returns 7 / -6 (out of SPU memory). */
 extern int iSNDplatformresolve(int cursor, int bank, int patch)
 {
-    int           tagCursor[4];
     unsigned int  id;
     int           val, ptr;
     int           offset = 0, count = 1, size = 0;
@@ -29,15 +28,15 @@ extern int iSNDplatformresolve(int cursor, int bank, int patch)
     int           idx = 0, blocks, need, buf, dma;
     int          *e;
 
-    tagCursor[0] = cursor;
-    while ((id = 0, iSNDgettag(tagCursor, &id, &val, &ptr) != 0) && id != 0xfe) {
-        if (id == 0x88)      offset   = val;
+    while (iSNDgettag(&cursor, &id, &val, &ptr) != 0 && id != 0xfe) {
+        if (id == 0x80)      { /* no-op tag */ }
+        else if (id == 0x88) offset   = val;
+        else if (id == 0x8a) spuField = (int *)ptr;
         else if (id == 0x82) count    = val;
         else if (id == 0x85) size     = val;
-        else if (id == 0x8a) spuField = (int *)ptr;
     }
     if (bank != 0) {
-        e = (int *)patch;                          /* find an existing resolve for this offset */
+        e = (int *)(idx * 8 + patch);               /* find an existing resolve for this offset */
         while (*e != -1) {
             if (*e == offset) { *spuField = e[1]; break; }
             idx++;
@@ -66,26 +65,29 @@ extern int iSNDplatformresolve(int cursor, int bank, int patch)
  *   free the SPU block. */
 extern int iSNDplatformremove(int cursor, int *patch)
 {
-    int           tagCursor[4];
     unsigned int  id;
     int           val, ptr;
     int          *spuField = 0;
-    int           i = 0;
+    int           i;
     int          *e;
+    int           sf, v;
 
-    tagCursor[0] = cursor;
-    while ((id = 0, iSNDgettag(tagCursor, &id, &val, &ptr) != 0) && id != 0xfe) {
+    while (iSNDgettag(&cursor, &id, &val, &ptr) != 0 && id != 0xfe) {
         if (id == 0x8a)
             spuField = (int *)ptr;
     }
+    i = 0;
     if (*patch != -1) {
         e = patch;
+        v = *e;
+        sf = *spuField;
         do {
-            e = e + 2;
-            if (*spuField == patch[i * 2])     /* already removed */
+            if (v == sf)                      /* already removed */
                 return 0;
+            e = e + 2;
+            v = *e;
             i++;
-        } while (*e != -1);
+        } while (v != -1);
     }
     patch[i * 2] = *spuField;
     if (*spuField != 0)

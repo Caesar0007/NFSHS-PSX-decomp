@@ -180,7 +180,7 @@ extern "C" void FREE_remove(MemClass *mb, MemBlock *node)   /* @0x800E4F04 */
 extern "C" int initmemblock(MemBlock *blk, char *name, int size, int tailextra,
                             int flags, MemBlock *physprev, MemBlock *physnext)   /* @0x800E4F2C */
 {
-    char *end = (char *)blk + size + 0x10;       /* s0 = blk + size + 16 */
+    char *end = (char *)blk + (size + 0x10);     /* s0 = blk + (size + 16) */
 
     blk->magic    = MAGIC_USED;                  /* +0x00 'MB' */
     blk->size     = size;                        /* +0x04 */
@@ -193,11 +193,14 @@ extern "C" int initmemblock(MemBlock *blk, char *name, int size, int tailextra,
     if (flags & 0x800)
         puti(end + 0xC, 0, 4);
 
+    /* MATCH: `end += tailextra` is the DELAY SLOT of the `name!=0` test below -- it runs
+     * UNCONDITIONALLY (both taken/not-taken), not gated by name!=0 (real bug fix vs the
+     * prior gated form: `beqz s3,.L800E4FE4 / [delay] addu s0,s0,s4`). */
+    end += tailextra;                             /* s0 += a3 (always) */
     if (name != 0) {
-        end += tailextra;                        /* s0 += a3 */
         if (flags & 0x100) {                     /* named block */
             strcpy(end, name);
-            end += (int)strlen(name) + 1;
+            end += (int)strlen(end) + 1;         /* MATCH: strlen(end), the just-copied dest, not name */
         }
     }
     return (int)(end - (char *)blk);
@@ -242,9 +245,13 @@ extern "C" int creatememclass(int id, char *name, char *membuf, int bufsize,
     if (lowguard)  flags |= 0x200;
     if (highguard) flags |= 0x100;
 
-    /* s3 = (membuf + infosize + 0x50 + alignment + 0x1F) & -alignment, then -0x10 */
-    unsigned a = (unsigned)membuf + (unsigned)infosize + 0x50u
-               + (unsigned)alignment + 0x1Fu;
+    /* s3 = (membuf + (infosize+0x50) + (alignment+0x1F)) & -alignment, then -0x10
+     * MATCH: grouped as TWO separate constant-adds materialized in SEPARATE statements
+     * (infosize+0x50, alignment+0x1F) so gcc's constant folder can't merge them into one
+     * 0x6F literal -- reproduces the oracle's addiu/addiu pair. */
+    unsigned hi = (unsigned)alignment + 0x1Fu;
+    unsigned lo = (unsigned)infosize + 0x50u;
+    unsigned a = ((unsigned)membuf + lo) + hi;
     a &= (unsigned)(-alignment);
     char *low_end = (char *)a - 0x10;            /* s3 */
 
@@ -329,17 +336,25 @@ extern "C" char *getblockname(void *p)   /* @0x800E52E0 */
  * ===================================================================== */
 extern "C" void *reservememadr(char *name, int size, int classid)   /* @0x800E533C */
 {
+    /* RESIDUAL (65 diffs, count-exact 128/129 off-by-1 frame slot): a systemic s0<->s1
+     * register-coloring swap between `need` and `blk` runs through the WHOLE body (every
+     * site that touches either). Tried: decl-order swap (need declared before/after blk,
+     * both scopes) -- no change. Same allocator-priority-tie-break class as resize.cpp's
+     * documented 3-way s2/s3/s4 rotation floor; not source-reachable via decl/order/type
+     * tries so far. Accept as floor. */
     void     *result = 0;                              /* s5: single-exit funnel (MATCH: oracle
                                                            inits s5=0 up front and `j END` on both
                                                            failure paths without touching it) */
     int       need;                                    /* s1 */
     MemClass *cls   = gMemClassTable[classid & 0xF];   /* s3 */
 
+    /* MATCH: `need = size` is the DELAY SLOT of the `size<8` branch -- it runs
+     * UNCONDITIONALLY before the clamp-to-8 override (real bug fix vs the prior
+     * else-only assignment). */
+    need = size;
     if (size < 8) {
         if (size < 0) goto end;
         need = 8;                                      /* clamp to minimum */
-    } else {
-        need = size;
     }
 
     {

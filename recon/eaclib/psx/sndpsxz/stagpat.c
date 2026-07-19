@@ -152,6 +152,17 @@ loop:                                             /* goto-formed: no LOOP notes 
         goto loop;
 done:
     return DAT_801371cc;
+    /* near-miss floor (20 diffs, 36==36 insns): oracle addresses DAT_801371cc DIRECTLY at each access
+     * (`lbu/sb r,%lo(sym)(base)` -- the %lo offset IS the displacement, no separate `la`), while our
+     * `kp` pointer-variable materializes the FULL address first (`lui;addiu`) then dereferences at
+     * offset 0 -- one extra insn per access, cascading a v0/v1/a1/a2 register-coloring swap through
+     * the whole function. Tried: dropping `kp` and accessing `DAT_801371cc` as a bare global at each
+     * site -- this makes it eligible for `-G4` gp-relative BSS placement (a 1-byte `.lcomm`), which
+     * REGRESSED to a `0(gp)` load the oracle doesn't have (20->22); adding
+     * `__attribute__((section(".bss")))` to force it out of `.sbss` had NO effect (confirming the
+     * known READ+WRITE gp-rel assembler floor -- the section lever only fixes SINGLE-ACCESS globals,
+     * see reference_asm_pattern_catalog.md Row G/I-addendum). Reverted both; kp-pointer form is the
+     * best available (20 diffs). Permuter multi-basin candidate. */
 }
 
 /* iSNDresolvetaggedpatch @0x801024EC : walk a bank's tag stream and resolve its SPU sample data (tag 0xfd

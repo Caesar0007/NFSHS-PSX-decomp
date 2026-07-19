@@ -80,22 +80,35 @@ void Cars_CheckForAccidentScenes(void);
 /* ---- Cars_DoGravityEffectsOnAcc__FP8Car_tObji  [@0x80085d84] ---- */
 void Cars_DoGravityEffectsOnAcc(Car_tObj *carObj,int arcade)
 {
+  /* MATCH: was 86 diffs w/ dead-code gravity_ch local (iVar1/2/3 scalars only,
+     forced s1/s2 callee-saves + 48-byte frame). Real fix: the declared-but-unused
+     gravity_ch coorddef IS the SYM's true storage for the 3 fixedmult results in
+     the if-branch (oracle spills each to sp+0x10/0x14/0x18, no callee-saves beyond
+     s0=carObj, 40-byte frame) -> 86->38. Operand-order swap on the z-sum
+     (gravity_ch.z + linearAcc.z, matches oracle's z-loaded-into-v0 first) -> 36.
+     RESIDUAL 36 = genuine gcc-2.8 allocator floor: the else-branch's dead
+     `sw v0,0x18(sp)` after the 1st fixedmult call (iVar1, immediately reused from
+     v0 as the 2nd call's a0, never reloaded) is a spill the allocator emits because
+     "iVar1"/"iVar3" are reused source-level names spanning the whole function
+     (top-of-fn iVar1 + else-branch iVar1/iVar3 reuse forces one whole-fn pseudo).
+     Tried: fresh distinctly-named locals per branch (no change, same 36) -- not
+     source-shapable, accept. */
   coorddef gravity_ch;
   int iVar1;
   int iVar2;
   int iVar3;
-  
+
   if ((carObj->carFlags & 0x10U) != 0) {
     return;
   }
   iVar1 = fixedmult(0x10000,(carObj->N).orientMat.m[4]);
   if (iVar1 < 0xb5c2) {
-    iVar1 = fixedmult(-0xa0000,(carObj->N).orientMat.m[1]);
-    iVar2 = fixedmult(-0xa0000,(carObj->N).orientMat.m[4]);
-    iVar3 = fixedmult(-0xa0000,(carObj->N).orientMat.m[7]);
-    (carObj->linearAcc_ch).x = (carObj->linearAcc_ch).x + iVar1;
-    (carObj->linearAcc_ch).y = (carObj->linearAcc_ch).y + iVar2;
-    iVar3 = (carObj->linearAcc_ch).z + iVar3;
+    gravity_ch.x = fixedmult(-0xa0000,(carObj->N).orientMat.m[1]);
+    gravity_ch.y = fixedmult(-0xa0000,(carObj->N).orientMat.m[4]);
+    gravity_ch.z = fixedmult(-0xa0000,(carObj->N).orientMat.m[7]);
+    (carObj->linearAcc_ch).x = (carObj->linearAcc_ch).x + gravity_ch.x;
+    (carObj->linearAcc_ch).y = (carObj->linearAcc_ch).y + gravity_ch.y;
+    iVar3 = gravity_ch.z + (carObj->linearAcc_ch).z;
   }
   else {
     if (0x3f < (u_char)(carObj->control).brakeLevel) {
@@ -1397,16 +1410,21 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
 void Cars_FindTotalSlice(Car_tObj *carObj)
 {
   /* MATCH: oracle loads lap (0x264) and gNumSlices via full-word lw + mult (never
-     truncated) -- the (short) casts previously forced spurious LHU narrow-loads.
-     simRoadInfo.slice is read unsigned in BOTH arms. */
-  /* MATCH: oracle loads lap (0x264) and gNumSlices via full-word lw + mult (never
      truncated) -- prior (short) casts forced spurious LHU narrow-loads (a genuine
      correctness bug: lap/gNumSlices are 32-bit ints, only simRoadInfo.slice is a real
-     short field). Count now EXACT (27/27); residual 28 diffs = reg-coloring/gNumSlices-
-     reload-vs-shared floor (tried: shared `slices` local -> 23/27 worse; per-branch
-     duplicated store -> 32/27 worse; both reverted). */
+     short field). 28->26: named `prod = lap*gNumSlices;` temp per-arm (matches oracle's
+     mult-issued-per-branch, mflo-deferred-to-merge shape) instead of the single
+     post-if `lap*gNumSlices` in the final expression. RESIDUAL 26 = gcc-2.8 list-
+     scheduler places the gNumSlices load + mult LATE (after roadSlice's lhu) where
+     oracle schedules them EARLY (right after lap, before roadSlice) + hoists the
+     gNumSlices load 1 insn earlier (before the reverseTrack beqz test) -- a pure
+     latency-hiding scheduling tie-break, not source-reachable. Tried & WORSE (reverted):
+     hoisting `numSlices=gNumSlices;` before the if (23/27, drops a redundant mult --
+     the merge-block cross-jump only fires when BOTH mults literally reload gNumSlices
+     inside each arm); swapping prod-vs-roadSlice statement order (no change, still 26). */
   int lap;
   u_int roadSlice;
+  int prod;
 
   if (0 < carObj->unlap) {
     (carObj->N).totalSlice = 0;
@@ -1414,13 +1432,15 @@ void Cars_FindTotalSlice(Car_tObj *carObj)
   }
   if (GameSetup_gData.reverseTrack != 0) {
     lap = carObj->lap;
+    prod = lap * gNumSlices;
     roadSlice = (gNumSlices - (u_short)(carObj->N).simRoadInfo.slice) - 1;
   }
   else {
     lap = carObj->lap;
+    prod = lap * gNumSlices;
     roadSlice = (u_short)(carObj->N).simRoadInfo.slice;
   }
-  (carObj->N).totalSlice = roadSlice + lap * gNumSlices;
+  (carObj->N).totalSlice = roadSlice + prod;
   return;
 }
 
@@ -1459,6 +1479,18 @@ void Car_DoSkiddingStuff(Car_tObj *carObj)
 /* ---- Car_DoPostCollisionStuff__FP8Car_tObj  [@0x800898dc] ---- */
 void Car_DoPostCollisionStuff(Car_tObj *carObj)
 {
+  /* MATCH: 34->16 via restoring the already-SYM-declared-but-dead `gvClamp`/`clampCond`
+     locals to their real shape: the oracle computes `clampCond = MIN(roundedGV>>5, 1310)`
+     FIRST (a real 2-branch min-clamp, `slti v0,v1,1311; ... li v1,1310;`), THEN tests
+     `clampCond < -2620` -- NOT the single `-2621 < roundedGV>>5` test the prior recon had.
+     Both are logically equivalent when roundedGV>>5 < -2620 (since -2620<1310 the MIN never
+     fires there) but the oracle's ACTUAL codegen needs the min-clamp-first shape to byte-match
+     (a<1311 && a<-2620 folds to a<-2620 logically, but NOT in codegen). RESIDUAL 16 = the
+     `negGroundVel2=negGroundVel;if(negGroundVel<0)...` recompute (2nd occurrence of the exact
+     roundedGV pattern) copies negGroundVel into a fresh v0 before the bgez test, where oracle
+     reuses a0(negGroundVel) directly for the branch -- tried restructuring as if/else instead
+     of default-then-override (no change); genuine scheduling floor, 2nd-occurrence-of-same-
+     pattern non-determinism, not further source-shapable. */
   int Yoffset;
   int iVar1;
   Car_tSpecs *pCVar2;
@@ -1511,11 +1543,18 @@ LONG:
     if (negGroundVel < 0) {
       roundedGV = negGroundVel + 0x1f;
     }
-    Yoffset = -0xa3d;
-    if (-0xa3d < roundedGV >> 5) {
+    gvClamp = roundedGV >> 5;
+    clampCond = gvClamp;
+    if (0x51e < gvClamp) {
+      clampCond = 0x51e;
+    }
+    if (clampCond < -0xa3c) {
+      Yoffset = -0xa3d;
+    }
+    else {
       negGroundVel2 = negGroundVel;
-      if (negGroundVel2 < 0) {
-        negGroundVel2 = negGroundVel2 + 0x1f;
+      if (negGroundVel < 0) {
+        negGroundVel2 = negGroundVel + 0x1f;
       }
       gvClamp2 = negGroundVel2 >> 5;
       Yoffset = 0x51e;
@@ -1821,6 +1860,14 @@ MASS_DONE:
 /* ---- Cars_InitCar__FP8Car_tObji  [@0x8008a174] ---- */
 void Cars_InitCar(Car_tObj *carObj,int index)
 {
+  /* MATCH: 19->16 via a real correctness bug: locatebig() genuinely takes only 2 args
+     (locatbig.cpp:178 `char *locatebig(void*,char*)`; oracle 0x8008A2AC sets up ONLY a0/a1
+     before the jal, no a2) -- dropped the bogus 3rd "0" arg (was a stale/wrong "$a2 dropped
+     by Ghidra" comment; the SAME bug exists in anim.cpp:81's locatebig call, out of scope
+     here). RESIDUAL 16 = handle_00/handle get s3/s4 swapped vs oracle (both Udff_Opena()
+     results, held live across the loadfileadrz/locatebig/2nd-Udff_Opena call chain to their
+     later use as AIInit_InitAICar/Physics_InitCarSpecs args) -- tried swapping their
+     declaration order (handle_00 before handle), no change; genuine allocator floor. */
   int iVar1;
   char *mem;
   Car_tSpecs *pCVar2;
@@ -1854,7 +1901,11 @@ void Cars_InitCar(Car_tObj *carObj,int index)
     }
     sprintf(acStack_a0,"%sdusty.viv",Paths_Paths[3]);
     pThis = loadfileadrz(acStack_a0,(void *)0x10);
-    mem = (char *)locatebig(pThis, acStack_38, 0) /* @0x7Axxx: $a2 dropped by Ghidra; 0=locate-from-start, verify #148 */;
+    /* BUG FIX: locatebig is the REAL 2-arg fn (locatbig.cpp:178, char *locatebig(void*,char*));
+       oracle 0x8008A2AC `jal locatebig` sets up ONLY a0/a1 (no a2) -- the old 3rd "0" arg + its
+       "$a2 dropped by Ghidra" comment was wrong (Ghidra didn't drop anything; there IS no 3rd
+       arg). Confirmed by other correctly-2-arg call sites (r3dcar.cpp locatebig(bigfile,name)). */
+    mem = (char *)locatebig(pThis, acStack_38);
     handle = Udff_Opena((char *)0x0,mem,0);
     if (index < GameSetup_gData.numCars) {
       AIInit_InitAICar(carObj,handle_00);
@@ -2449,12 +2500,18 @@ void Cars_SortCars(void)
  *  forward vector, (sliceChanged) lap/total-slice; then sort, randomize, leaderboard, anims. */
 void Cars_ManageBureaucracy(void)
 {
+  /* MATCH: 34->20 via `i=0;` BEFORE `ppCar=Cars_gList;` (was reversed) -- oracle colors the
+     simple zero-init counter i->s4 and the address-computed ppCar->s3; our prior decl/assign
+     order got them swapped (s4=ppCar,s3=i). RESIDUAL 20 = the carFlags&4 block's d0/d1 (both
+     fixedmult results summed into `dir`'s guard) get s0/s1 swapped vs oracle (d0->s1,d1->s0,
+     reverse of computation order) + the final `dir` store materializes in v1 not v0 -- tried
+     swapping d0/d1 DECLARATION order (int i,dir,d1,d0,d2), no effect; genuine allocator floor. */
   Car_tObj **ppCar;
   Car_tObj *carObj;
   int i, dir, d0, d1, d2;
 
-  ppCar = Cars_gList;
   i = 0;
+  ppCar = Cars_gList;
 LAB_mb:
   if (i < Cars_gNumCars) {
     carObj = *ppCar;

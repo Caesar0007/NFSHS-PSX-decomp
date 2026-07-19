@@ -9,7 +9,7 @@
 extern Draw_tView Draw_gView[];          /* 0x8011ec54 */
 extern dflip      gEnviro[2];            /* 0x8011f424 */
 extern int        Draw_gPlayer1View;     /* 0x8013d3cc */
-extern RECT       gPauseMenuRect;        /* 0x8013d3d4 */
+extern short      gPauseMenuRect, D_8013D3D6, D_8013D3D8, D_8013D3DA;  /* 0x8013d3d4/d6/d8/da -- was RECT gPauseMenuRect (x/y/w/h), split (render.cpp-owned; see render.cpp) */
 extern int        Render_gPauseMenuView; /* 0x8013d3e8 */
 extern int        gFlip;                 /* 0x8013d7b4 */
 

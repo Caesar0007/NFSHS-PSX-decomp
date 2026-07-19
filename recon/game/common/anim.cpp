@@ -78,7 +78,7 @@ int Anim_InitSystem(char *trackName)
     ppTVar3 = animScripts;
     do {
       sprintf(acStack_68,"tr00a%02d.can",iVar2);
-      pTVar1 = (Trk_AnimateInst *)locatebig(pThis, acStack_68, 0) /* $a2 dropped by Ghidra; 0=from-start, verify #148 */;
+      pTVar1 = (Trk_AnimateInst *)locatebig(pThis, acStack_68);   /* locatebig is genuinely 2-arg (locatbig.cpp:178); oracle sets up only a0/a1 before the jal */
       *ppTVar3 = pTVar1;
       iVar2 = iVar2 + 1;
       ppTVar3 = ppTVar3 + 1;

@@ -16,18 +16,20 @@ int          Render_gBlurEffectDepth2;   /* @0x8013d3c4  (bss(zero)) */
 int          Render_gBlurEffectMode;   /* @0x8013d3c8  (bss(zero)) */
 int          Draw_gPlayer1View;   /* @0x8013d3cc  (bss(zero)) */
 int          Draw_gPlayer2View;   /* @0x8013d3d0  (bss(zero)) */
-RECT         gPauseMenuRect;   /* @0x8013d3d4  (bss(zero)) */
-/* HEADER WISH: Render_Render__Fi's oracle addresses gPauseMenuRect's 4 short fields
-   (x/y/w/h @0x8013d3d4/d6/d8/da) via INDIVIDUAL %gp_rel(sym) relocs -- i.e. each field
-   is its own gp-eligible 2-byte scalar symbol (Ghidra names: gPauseMenuRect=x,
-   D_8013D3D6=y, D_8013D3D8=w, D_8013D3DA=h), NOT offsets into one 8-byte RECT struct.
-   RPause_CopyBackToFrontBuffer's oracle (rpause.cpp, separate TU) ALSO addresses them
-   as 4 separate symbols (same names) but via ABSOLUTE lui/lhu there, not gp-rel -- so
-   both TUs treat this as 4 scalars, just with different addressing-mode outcomes.
-   Splitting the RECT decl into 4 separate `short` globals would let render.cpp's field
-   stores go gp-relative (fixes ~40 of Render_Render's diffs) but touches the shared
-   extern (render_externs.h / rpause_externs.h) and rpause.cpp's `.x/.y/.w/.h` accesses
-   -- out of render.cpp-only scope for this pass; left as a residual. */
+/* gPauseMenuRect: SPLIT (was one `RECT` struct) -- both this TU's Render_Render oracle
+   AND rpause.cpp's RPause_CopyBackToFrontBuffer oracle address the 4 fields as INDIVIDUAL
+   2-byte scalar symbols (x/y/w/h @0x8013d3d4/d6/d8/da), not offsets into one 8-byte RECT
+   (Ghidra names: gPauseMenuRect=x, D_8013D3D6=y, D_8013D3D8=w, D_8013D3DA=h). A single
+   8-byte RECT exceeds the -G4 gp-relative threshold (forces lui/%hi+%lo addressing of a
+   struct base held in a saved reg, needing a stack frame); 4 separate <=4-byte scalars
+   are each individually gp-eligible in render.cpp (%gp_rel) and match rpause.cpp's
+   per-field absolute lui/lhu addressing too (verified: RPause_CopyBackToFrontBuffer
+   40-byte/s0+s1-frame -> 32-byte/leaf-ish, oracle-shaped). Declaration order preserves
+   the original struct's byte layout (x,y,w,h @ d4,d6,d8,da consecutive). */
+short        gPauseMenuRect;   /* @0x8013d3d4  (bss(zero)) -- RECT.x */
+short        D_8013D3D6;       /* @0x8013d3d6  (bss(zero)) -- RECT.y */
+short        D_8013D3D8;       /* @0x8013d3d8  (bss(zero)) -- RECT.w */
+short        D_8013D3DA;       /* @0x8013d3da  (bss(zero)) -- RECT.h */
 int          gPauseRender;   /* @0x8013d3dc  (bss(zero)) */
 int          Draw_gRearView;   /* @0x8013d3e0  (bss(zero)) */
 int          Render_gDebugView;   /* @0x8013d3e4  (bss(zero)) */
@@ -238,26 +240,26 @@ void Render_KillPauseMenu(void)
 void Render_Render(int pause)
 
 {
-  bool bVar1;
   int ViewID;
+  int Player;
 
   if (pause != 0) {
     if (gPauseRender == 0) {
-      gPauseMenuRect.w = 0x140;
       gPauseRender = 1;
-      gPauseMenuRect.x = 0;
-      gPauseMenuRect.y = 0;
-      gPauseMenuRect.h = 0xf0;
+      D_8013D3D8 = 0x140;
+      gPauseMenuRect = 0;
+      D_8013D3D6 = 0;
+      D_8013D3DA = 0xf0;
       DrawSync(0);
       RPause_CopyBackToFrontBuffer();
       MPause_StartPauseMenu();
       gMPauseUpdate = 1;
       gMPauseUpdateNextTime = 0;
     }
-    gPauseMenuRect.x = 0x4e;
-    gPauseMenuRect.y = 0x62;
-    gPauseMenuRect.w = 0xa4;
-    gPauseMenuRect.h = 0x8b;
+    gPauseMenuRect = 0x4e;
+    D_8013D3D6 = 0x62;
+    D_8013D3D8 = 0xa4;
+    D_8013D3DA = 0x8b;
     if (gMPauseUpdate != 0) {
       RPause_StartPauseMenu();
       Render_RenderPauseMenuView();
@@ -269,17 +271,18 @@ void Render_Render(int pause)
       gPauseRender = 0;
     }
     else {
-      bVar1 = GameSetup_gData.commMode != 1;
-      if (bVar1) {
-        Render_StartFrameRender();
-        ViewID = Draw_gPlayer1View;
-      }
-      else {
+      if (GameSetup_gData.commMode == 1) {
         Render_StartFrameRender();
         Render_RenderPlayerView(Draw_gPlayer1View,0);
         ViewID = Draw_gPlayer2View;
+        Player = 1;
       }
-      Render_RenderPlayerView(ViewID,(u_int)!bVar1);
+      else {
+        Render_StartFrameRender();
+        ViewID = Draw_gPlayer1View;
+        Player = 0;
+      }
+      Render_RenderPlayerView(ViewID,Player);
       Hud_Render();
       Render_RenderDebugView();
       Render_StopFrameRender();
@@ -306,7 +309,9 @@ void FlareThing(void)
   }
   flare_walk = &gFlare_LensFlare;
   screen_walk = (u_short *)gFlare_LensFlare.screenData;
-  for (i_2 = 0; i_2 < n_players; i_2 = i_2 + 1) {
+  i_2 = 0;
+  while (1) {
+    if (n_players <= i_2) break;
     if (gFlare_LensFlare.isDrawn[i_2] != '\0') {
       rec.x = gEnviro[gFlip].disp.disp.x + flare_walk->oldpos[0].vx + -2;
       rec.w = 5;
@@ -317,6 +322,7 @@ void FlareThing(void)
     }
     screen_walk = screen_walk + 0x19;
     flare_walk = (FLARE_DEF *)(flare_walk->pos + 1);
+    i_2 = i_2 + 1;
   }
   return;
 }

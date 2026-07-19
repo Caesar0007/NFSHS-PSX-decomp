@@ -1362,6 +1362,20 @@ LAB_8006b908:
   (carObj->angularAcc).y = currentAngAcc;
   (carObj->angularAcc).z = 0;
   return;
+  /* NEAR-MISS 9 diffs, count-exact 413/412 (w17-a7): the `AIWorld_CalcFutureLateralVel`
+     jal's delay slot is a scheduling tie between two independent, far-future-use
+     materializations: `uTurn = 0;` (dead until the beqz ~140 insns later) and the
+     &AIPhysicConfig base-address CSE (needed again ~10 insns later for the OOCModel
+     field cluster). Oracle's scheduler fills the jal slot with `uTurn=0` and DEFERS
+     the &AIPhysicConfig full-pointer materialize (lui-then-addiu) to just before its
+     next real use; ours fills the slot with the pointer materialize and defers
+     `uTurn=0` instead -- a straight swap, net insn count off by 1 (412 vs 413).
+     Tried: introducing an explicit `AIPhysic_Config_t *cfg = &AIPhysicConfig;` local
+     scoped to just the OOCModel cluster (hoping to defer the CSE) -- IDENTICAL
+     codegen (gcc's address-CSE operates at the IR level regardless of whether the C
+     expresses it via a pointer local or repeated `AIPhysicConfig.field`). GENUINE
+     compiler scheduling-priority FLOOR (Catalog §F, same family as InControlPhysics
+     below); not source-reachable, no pin. */
 }
 
 /* ---- AIPhysic_InControlPhysics__FP8Car_tObj ---- */
@@ -1609,6 +1623,15 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
   (carObj->angularAcc).y = currentAngAcc;
   (carObj->angularAcc).z = 0;
   return;
+  /* NEAR-MISS 4 diffs, count-exact 557/557 (w17-a7, was 4 from w13-a4): oracle defers
+     the `gripMultiplier = 0;` materialization into $s0 by COPYING the already-zero $s7
+     (from the immediately-preceding `maxAngularAcceleration = 0;`) into the __builtin_abs()
+     bgez delay slot; ours materializes a fresh literal directly into $s0 but the gcc
+     scheduler instead places it one branch later (the vely-clamp bnez slot) -- same net
+     effect, different delay-slot choice. Tried: `gripMultiplier = maxAngularAcceleration;`
+     (explicit copy instead of literal 0) and reordering the statement relative to the
+     `vely = angularVel.y` read -- neither moved the scheduler's slot choice. GENUINE
+     scheduling-priority FLOOR (Catalog §F); not source-reachable, no pin. */
 }
 
 /* ---- AIPhysic_FinishUp__FP8Car_tObj ---- */

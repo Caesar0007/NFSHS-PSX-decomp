@@ -1536,6 +1536,8 @@ int AIState_Chase::FindBarrierEndSlice()
 
   }
 
+  barrierLane = iVar4;
+
   iVar5 = slice_00 + 0x53;
 
   local_2c = 0x53;
@@ -1556,7 +1558,7 @@ int AIState_Chase::FindBarrierEndSlice()
 
   }
 
-  iVar8 = iVar4;
+  currentBarrierLane = barrierLane;
 
   for (iVar10 = 0; slice = iVar5, iVar9 = local_30, iVar10 < 0x53; iVar10 = iVar10 + 4) {
 
@@ -1580,11 +1582,11 @@ LAB_80070e34:
 
     }
 
-    iVar9 = iVar8 + -1;
+    iVar9 = currentBarrierLane + -1;
 
-    uVar2 = AIWorld_CheckForBarrierBetweenLanes(slice,iVar8 + 1,iVar9);
+    uVar2 = AIWorld_CheckForBarrierBetweenLanes(slice,currentBarrierLane + 1,iVar9);
 
-    iVar6 = iVar8;
+    iVar6 = currentBarrierLane;
 
     if (((uVar2 & 2) == 0) &&
 
@@ -1602,17 +1604,19 @@ LAB_80070e34:
 
       bVar1 = *(u_char *)(slice * 0x20 + (int)BWorldSm_slices + 0x1d);
 
-      iVar6 = iVar8 + 1;
+      iVar6 = currentBarrierLane + 1;
 
       if ((iVar6 < (int)(6 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 7) < iVar6)) break;
 
     }
 
-    iVar8 = iVar6;
+    currentBarrierLane = iVar6;
 
   }
 
   local_30 = iVar9;
+
+  currentBarrierLane = barrierLane;
 
   for (iVar5 = 0; iVar8 = iVar7, iVar10 = local_2c, iVar5 < 0x53; iVar5 = iVar5 + 4) {
 
@@ -1636,11 +1640,11 @@ LAB_80070f54:
 
     }
 
-    iVar10 = iVar4 + -1;
+    iVar10 = currentBarrierLane + -1;
 
-    uVar2 = AIWorld_CheckForBarrierBetweenLanes(iVar8,iVar4 + 1,iVar10);
+    uVar2 = AIWorld_CheckForBarrierBetweenLanes(iVar8,currentBarrierLane + 1,iVar10);
 
-    iVar9 = iVar4;
+    iVar9 = currentBarrierLane;
 
     if (((uVar2 & 2) == 0) &&
 
@@ -1658,13 +1662,13 @@ LAB_80070f54:
 
       bVar1 = *(u_char *)(iVar8 * 0x20 + (int)BWorldSm_slices + 0x1d);
 
-      iVar9 = iVar4 + 1;
+      iVar9 = currentBarrierLane + 1;
 
       if ((iVar9 < (int)(6 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 7) < iVar9)) break;
 
     }
 
-    iVar4 = iVar9;
+    currentBarrierLane = iVar9;
 
   }
 

@@ -73,24 +73,23 @@ void EulerToMat(matrixtdef *m,int ax,int ay,int az)
   matrixtdef my;
   matrixtdef mz;
   matrixtdef mt;
-  int iVar1;
-  int iVar2;
-  int iVar3;
 
   fixedxformx(&mx,ax);
   fixedxformy(&my,ay);
   fixedxformz(&mz,az);
   Math_fasttransmult(&mz,&my,&mt);
   Math_fasttransmult(&mt,&mx,m);
-  iVar1 = m->m[3];
-  iVar2 = m->m[4];
-  iVar3 = m->m[5];
+  /* MATCH: mt is DEAD after the 2nd fasttransmult - oracle stages the old row1 (m[3..5])
+     through mt's now-free stack slots, not fresh registers. */
+  mt.m[0] = m->m[3];
+  mt.m[1] = m->m[4];
+  mt.m[2] = m->m[5];
   m->m[3] = -m->m[6];
-  m->m[5] = -m->m[8];
   m->m[4] = -m->m[7];
-  m->m[6] = iVar1;
-  m->m[7] = iVar2;
-  m->m[8] = iVar3;
+  m->m[5] = -m->m[8];
+  m->m[6] = mt.m[0];
+  m->m[7] = mt.m[1];
+  m->m[8] = mt.m[2];
   return;
 }
 

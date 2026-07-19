@@ -15,12 +15,12 @@ void RPause_CopyBackToFrontBuffer(void)
 
   drawenv = Draw_GetDRAWENV(Draw_gPlayer1View,1);
   rscreen = drawenv->clip;
-  rscreen.h = gPauseMenuRect.h;
-  rscreen.w = gPauseMenuRect.w;
-  rscreen.y = rscreen.y + gPauseMenuRect.y;
-  rscreen.x = rscreen.x + gPauseMenuRect.x;
+  rscreen.x = rscreen.x + gPauseMenuRect;
+  rscreen.y = rscreen.y + D_8013D3D6;
+  rscreen.w = D_8013D3D8;
+  rscreen.h = D_8013D3DA;
   drawenv = Draw_GetDRAWENV(Draw_gPlayer1View,0);
-  MoveImage(&rscreen,drawenv->clip.x + gPauseMenuRect.x,drawenv->clip.y + gPauseMenuRect.y);
+  MoveImage(&rscreen,drawenv->clip.x + gPauseMenuRect,drawenv->clip.y + D_8013D3D6);
   return;
 }
 

@@ -1023,18 +1023,24 @@ vhalf:   /* VERTEX!=0 : o0 orientMat, if(0<xRange) negation */
         int dotz;
         coorddef vel;
 
-        vel.x = (o1->linearVel).x;
-        vel.y = (o1->linearVel).y;
-        vel.z = (o1->linearVel).z;
-        normalx.x = (o0->orientMat).m[0];
-        normalx.y = (o0->orientMat).m[1];
-        normalx.z = (o0->orientMat).m[2];
-        normaly.x = (o0->orientMat).m[3];
-        normaly.y = (o0->orientMat).m[4];
-        normaly.z = (o0->orientMat).m[5];
-        normalz.x = (o0->orientMat).m[6];
-        normalz.y = (o0->orientMat).m[7];
-        normalz.z = (o0->orientMat).m[8];
+        {
+          int lvx = (o1->linearVel).x, lvy = (o1->linearVel).y, lvz = (o1->linearVel).z;
+          int m0 = (o0->orientMat).m[0], m1 = (o0->orientMat).m[1], m2 = (o0->orientMat).m[2];
+          int m3 = (o0->orientMat).m[3], m4 = (o0->orientMat).m[4], m5 = (o0->orientMat).m[5];
+          int m6 = (o0->orientMat).m[6], m7 = (o0->orientMat).m[7], m8 = (o0->orientMat).m[8];
+          vel.x = lvx;
+          vel.y = lvy;
+          vel.z = lvz;
+          normalx.x = m0;
+          normalx.y = m1;
+          normalx.z = m2;
+          normaly.x = m3;
+          normaly.y = m4;
+          normaly.z = m5;
+          normalz.x = m6;
+          normalz.y = m7;
+          normalz.z = m8;
+        }
         if (0 < xRange) {
           normalx.x = -normalx.x;
           normalx.z = -normalx.z;
@@ -1177,18 +1183,24 @@ ohalf:   /* OTHER!=0 : o1 orientMat, if(xRange<0) negation */
         int dotz;
         coorddef vel;
 
-        vel.x = (o0->linearVel).x;
-        vel.y = (o0->linearVel).y;
-        vel.z = (o0->linearVel).z;
-        normalx.x = (o1->orientMat).m[0];
-        normalx.y = (o1->orientMat).m[1];
-        normalx.z = (o1->orientMat).m[2];
-        normaly.x = (o1->orientMat).m[3];
-        normaly.y = (o1->orientMat).m[4];
-        normaly.z = (o1->orientMat).m[5];
-        normalz.x = (o1->orientMat).m[6];
-        normalz.y = (o1->orientMat).m[7];
-        normalz.z = (o1->orientMat).m[8];
+        {
+          int lvx = (o0->linearVel).x, lvy = (o0->linearVel).y, lvz = (o0->linearVel).z;
+          int m0 = (o1->orientMat).m[0], m1 = (o1->orientMat).m[1], m2 = (o1->orientMat).m[2];
+          int m3 = (o1->orientMat).m[3], m4 = (o1->orientMat).m[4], m5 = (o1->orientMat).m[5];
+          int m6 = (o1->orientMat).m[6], m7 = (o1->orientMat).m[7], m8 = (o1->orientMat).m[8];
+          vel.x = lvx;
+          vel.y = lvy;
+          vel.z = lvz;
+          normalx.x = m0;
+          normalx.y = m1;
+          normalx.z = m2;
+          normaly.x = m3;
+          normaly.y = m4;
+          normaly.z = m5;
+          normalz.x = m6;
+          normalz.y = m7;
+          normalz.z = m8;
+        }
         if (xRange < 0) {
           normalx.x = -normalx.x;
           normalx.z = -normalx.z;

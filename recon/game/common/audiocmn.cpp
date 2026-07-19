@@ -1421,30 +1421,47 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   if (iVar9 < 0) {
     iVar9 = -iVar9;
   }
-  iVar10 = 0;
+  /* SYM: roadNoiseAmp is REG $s1, live from here through the camera-mode selector
+     block below -- split from iVar10 which is reused (2 more disjoint lives) for the
+     PlayersRampedGasLevel ramp scratch and cobblestoneAmp later. */
+  roadNoiseAmp = 0;
   if (-1 < iVar9 + -0xd8000) {
-    iVar10 = iVar9 + -0xd8000 >> 0xf;
+    roadNoiseAmp = iVar9 + -0xd8000 >> 0xf;
   }
-  iVar9 = iVar9 >> 0xf;
-  if (0x7f < iVar9) {
-    iVar9 = 0x7f;
+  /* SYM: CurCarGasLevel is REG $s0, live from here through the fixedmult-based
+     self-referencing scale below (blowout doubles it in place) -- split from iVar9
+     which is reused afterward for unrelated values (switch-case temp, particle count). */
+  CurCarGasLevel = iVar9 >> 0xf;
+  if (0x7f < CurCarGasLevel) {
+    CurCarGasLevel = 0x7f;
   }
-  iVar4 = iVar9;
-  if (iVar9 < 0) {
-    iVar4 = iVar9 + 0xf;
+  /* SYM: cobbleMod is a distinct REG local ($s3) spanning from this clamp through the
+     switch-case modulo below -- split out of the Ghidra iVar4 temp (which is reused later
+     for unrelated short-lived values) so its live range doesn't force one register to
+     cover the whole function. */
+  cobbleMod = CurCarGasLevel;
+  if (CurCarGasLevel < 0) {
+    cobbleMod = CurCarGasLevel + 0xf;
   }
-  iVar4 = 8 - (iVar4 >> 4);
-  if (iVar4 < 3) {
-    iVar4 = 3;
+  cobbleMod = 8 - (cobbleMod >> 4);
+  if (cobbleMod < 3) {
+    cobbleMod = 3;
   }
   local_38 = 0x40;
-  if (0x96 < iFreqIn) {
-    iFreqIn = 0x96;
+  /* @0x800789CC: oracle copies the clamped value into a FRESH reg ($s6) --
+     iFreqIn's own reg ($s2) is dead after this and gets reused later
+     (PlayerPan). Model as a genuinely separate local, not an in-place clamp. */
+  freq = iFreqIn;
+  if (0x96 < freq) {
+    freq = 0x96;
   }
-  if (iFreqIn < 0) {
-    iFreqIn = 0;
+  if (freq < 0) {
+    freq = 0;
   }
-  iVar12 = (car->N).driveSurfaceType;
+  /* SYM: roadSurface is REG $s5, spans from here through the switch dispatch below
+     (blowout override + case-7 check) -- split from iVar12 which is reused for 3
+     unrelated short-lived values later in the function. */
+  roadSurface = (car->N).driveSurfaceType;
   pvVar5 = BWorldSm_TunnelFlagSm(&(car->N).simRoadInfo);
   if (pvVar5 != (void *)0x0) {
     if ((GameSetup_gData.commMode != 1) && ((u_char)fReverbLevel < 100)) {
@@ -1456,7 +1473,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
       SNDfxmasterlevel(0x0,uVar7 & 0xff);
       fReverbOn = '\x01';
     }
-    iVar10 = iVar10 + 0x14;
+    roadNoiseAmp = roadNoiseAmp + 0x14;
     local_38 = 0x5e;
   }
   else {
@@ -1486,61 +1503,79 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
     iVar11 = 0;
   }
   if (car->blowout != 0) {
-    iVar12 = 4;
-    iVar9 = iVar9 << 1;
+    roadSurface = 4;
+    CurCarGasLevel = CurCarGasLevel << 1;
   }
   if (dst < 0x460000) {
+    /* @0x80078B7C: the final >>16 (with negative-rounding fixup) writes BACK into
+       CurCarGasLevel itself ($s0) -- not a separate "iVar6". iVar6 here is only the
+       transient fixedmult() result. */
     iVar6 = fixedmult(dst,dst);
-    iVar9 = ((0x13240000 - iVar6) / 0x1324) * iVar9;
-    iVar6 = iVar9 >> 0x10;
-    if (iVar9 < 0) {
-      iVar6 = iVar9 + 0xffff >> 0x10;
+    iVar6 = ((0x13240000 - iVar6) / 0x1324) * CurCarGasLevel;
+    CurCarGasLevel = iVar6 >> 0x10;
+    if (iVar6 < 0) {
+      CurCarGasLevel = iVar6 + 0xffff >> 0x10;
     }
   }
   else {
-    iVar6 = 0;
+    CurCarGasLevel = 0;
   }
-  switch(iVar12) {
+  switch(roadSurface) {
   case 2:
   case 10:
   case 0xb:
   case 0xd:
-    iVar9 = iVar10;
-    if (iVar10 < 0) {
-      iVar9 = iVar10 + 3;
+    iVar9 = roadNoiseAmp;
+    if (roadNoiseAmp < 0) {
+      iVar9 = roadNoiseAmp + 3;
     }
-    iVar10 = iVar10 + (iVar9 >> 2);
+    roadNoiseAmp = roadNoiseAmp + (iVar9 >> 2);
     local_38 = 0x18;
     break;
   case 4:
   case 7:
   case 0xc:
-                    
-    if (iVar4 == 0) {
-      trap(0x1c00);
-    }
-                    
-    Audio_gFESFXTable.audioCounter = (u_char)(1 % iVar4);
-    if ((((1 % iVar4 & 0xffU) == 0) && ((car->N).objAltitude < 0x3333)) && (0 < gMasterSFXLevel)) {
+    /* @0x80078BCC: real static counter is cobbleCount (D_8013C6B0, gp-rel byte),
+       NOT Audio_gFESFXTable.audioCounter -- oracle: cobbleCount+=1 (stored), then
+       cobbleCount%=iVar4 (stored again); the div-by-zero guard is the automatic
+       --expand-div guard on the '%' below, not a manual trap(). */
+    cobbleCount = cobbleCount + 1;
+    cobbleCount = cobbleCount % cobbleMod;
+    if ((cobbleCount == 0) && ((car->N).objAltitude < 0x3333) && (0 < gMasterSFXLevel)) {
       iVar9 = 0;
       if (bVar3) {
         iVar9 = iVar11;
       }
       iVar4 = 0x40;
-      if (iVar12 == 7) {
+      if (roadSurface == 7) {
         iVar4 = 0x28;
       }
-      AudioCmn_PlaySound(gSndBnk[3].bnkID,0x1d,iVar9,iVar6 / 2,iVar4);
+      AudioCmn_PlaySound(gSndBnk[3].bnkID,0x1d,iVar9,CurCarGasLevel / 2,iVar4);
     }
   }
   if (gMasterEngineLevel == 0) {
     return;
   }
+  /* @0x80078CB4: real oracle shape is a flat descending guard-chain (bltz; slti<2; slti<5;
+     else), NOT the Ghidra comma-expression -- that convoluted form emits a spurious xor.
+     Also note the (2<=sVar2<5) case shifts by the VARIABLE iVar4 (srav), not a literal 1
+     (sra) -- iVar4 happens to equal 1 there, but the register form must be reproduced. */
   sVar2 = Camera_gInfo[car->carIndex].mode;
-  if ((sVar2 < 0) ||
-     ((iVar4 = 0, iVar9 = iVar10, 1 < sVar2 && (iVar4 = 1, iVar9 = iVar10 >> 1, 4 < sVar2)))) {
+  if (sVar2 < 0) {
     iVar4 = 2;
-    iVar9 = iVar10 >> 1;
+    iVar9 = roadNoiseAmp >> 1;
+  }
+  else if (sVar2 < 2) {
+    iVar4 = 0;
+    iVar9 = roadNoiseAmp;
+  }
+  else if (sVar2 < 5) {
+    iVar4 = 1;
+    iVar9 = roadNoiseAmp >> iVar4;
+  }
+  else {
+    iVar4 = 2;
+    iVar9 = roadNoiseAmp >> 1;
   }
   uVar7 = (u_int)(u_char)(car->control).gasLevel;
   iVar10 = PlayersRampedGasLevel[car->carIndex];
@@ -1564,11 +1599,14 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   }
   PlayersRampedGasLevel[car->carIndex] = iVar11;
 LAB_80078d54:
-  iVar10 = PlayersRampedGasLevel[car->carIndex];
-  if (0xff < iVar10) {
-    iVar10 = 0xff;
+  /* SYM: cobblestoneAmp is REG $s0 (shares the register with CurCarGasLevel, whose
+     live range ends earlier) -- the re-read of the just-updated ramped gas level,
+     clamped and carried into the gear-shift block below. */
+  cobblestoneAmp = PlayersRampedGasLevel[car->carIndex];
+  if (0xff < cobblestoneAmp) {
+    cobblestoneAmp = 0xff;
   }
-  iVar12 = iVar8 * (iFreqIn + 0x28);
+  iVar12 = iVar8 * (freq + 0x28);
   if (iVar12 < 0) {
     iVar12 = iVar12 + 0x7f;
   }
@@ -1594,14 +1632,11 @@ LAB_80078d54:
     iVar6 = iVar8;
   }
   if ((relvel != 0) || (Camera_gInfo[car->carIndex].mode == 0xb)) {
+    /* @0x80078E50: the div-by-zero / INT_MIN-by(-1) guard is the automatic
+       --expand-div guard on the '/' below (matches the oracle's single
+       div;break7;break6 sequence) -- no manual trap() in source. */
     iVar8 = iVar12 << 0x10;
     iVar12 = iVar8 / doppler;
-    if (doppler == 0) {
-      trap(0x1c00);
-    }
-    if ((doppler == -1) && (iVar8 == -0x80000000)) {
-      trap(0x1800);
-    }
   }
   iVar8 = 0xe;
   if ((iVar4 == 0) && (iVar8 = 0, GameSetup_gData.commMode == 1)) {
@@ -1629,39 +1664,29 @@ LAB_80078d54:
       freeVoiceChannel(0x1a);
     }
   }
-  iVar8 = iVar10;
+  iVar8 = cobblestoneAmp;
   if (((((car->control).gearShiftTimer != '\0') &&
        (bVar1 = (car->control).lastGear, bVar1 < (u_char)(car->control).gear)) && (bVar1 != 1)) &&
-     (iVar10 != 0)) {
+     (cobblestoneAmp != 0)) {
     uVar7 = (u_int)(u_char)(car->control).gearShiftTimer;
     iVar8 = car->specs->gearShiftDelay;
-    if (iVar8 == 0) {
-      trap(0x1c00);
-    }
-    if ((iVar8 == -1) && (iVar12 * uVar7 == -0x80000000)) {
-      trap(0x1800);
-    }
+    /* @0x8007902C-ish gearShiftDelay division: automatic --expand-div guard on '/'. */
     iVar12 = iVar12 + (int)(iVar12 * uVar7) / iVar8 >> 1;
-    iVar8 = iVar10 >> 2;
+    iVar8 = cobblestoneAmp >> 2;
     if (uVar7 == 5) {
-      iVar8 = iVar10 - iVar8;
+      iVar8 = cobblestoneAmp - iVar8;
     }
     else if (uVar7 == 4) {
-      iVar8 = iVar10 >> 1;
+      iVar8 = cobblestoneAmp >> 1;
     }
-    else if ((uVar7 != 3) && (iVar8 = iVar10, uVar7 < 3)) {
+    else if ((uVar7 != 3) && (iVar8 = cobblestoneAmp, uVar7 < 3)) {
       iVar8 = 0;
     }
     PlayersRampedGasLevel[car->carIndex] = iVar8;
   }
   iVar10 = car->specs->redline;
   iVar9 = car->flywheelRpm << 0x10;
-  if (iVar10 == 0) {
-    trap(0x1c00);
-  }
-  if ((iVar10 == -1) && (iVar9 == -0x80000000)) {
-    trap(0x1800);
-  }
+  /* @0x80079044 redline division (mflo a2): automatic --expand-div guard, no manual trap(). */
   iVar11 = 0x7f;
   if (car->revLimit == 0) {
     iVar11 = iVar8 >> 1;

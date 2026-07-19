@@ -19,7 +19,9 @@ them, so no lossy rewrite is required.
 
 Transforms (all layout-neutral):
   1. drop `extern "C" {` / matching `}` linkage wrappers (keep their contents),
-  2. strip struct-scope method/ctor/dtor declarations (data members kept),
+  2. strip struct-scope method/ctor/dtor declarations AND inline definitions
+     (single-line via _is_method_line; multi-line bodies via _is_method_header +
+     skip -- data members kept),
   3. `Class::method` scoped calls -> `Class__method` (only in sibling bodies).
 
 Usage:  python tools/permuter_sanitize.py <in_preprocessed.c> <out_clean.c>
@@ -49,6 +51,33 @@ def _is_method_line(l: str) -> bool:
     return k >= 0 and (l[k].isalnum() or l[k] == "_")  # name( -> method
 
 
+def _is_method_header(l: str) -> bool:
+    """Inside a struct body: True if l STARTS an inline C++ method/ctor/dtor
+    DEFINITION whose body opens on this line (line ends with `{`), e.g.
+    `Name(args) : Base(args) {` or `rettype method(args) {`. Same `name(` (vs
+    `(*name)` data member) discriminator as _is_method_line, but keyed on the
+    trailing `{` instead of `;`/`}` — _is_method_line only catches single-line
+    declarations/bodies; an inline ctor with a member-init-list + multi-line body
+    ends in `{` and would otherwise leak its `: Base(args)` + body into pycparser
+    (broke every permuter job on any TU pulling in such a header, e.g.
+    AIState_NonActive)."""
+    s = l.strip()
+    if not s.endswith("{"):
+        return False
+    i = l.find("(")
+    if i < 0:
+        return False
+    j = i + 1
+    while j < len(l) and l[j] == " ":
+        j += 1
+    if j < len(l) and l[j] == "*":
+        return False  # (*name) -> function-pointer data member
+    k = i - 1
+    while k >= 0 and l[k] == " ":
+        k -= 1
+    return k >= 0 and (l[k].isalnum() or l[k] == "_")  # name( ... { -> method def
+
+
 STRUCT_OPEN = re.compile(r"^\s*(typedef\s+)?(struct|union)\b.*\{\s*$")
 
 
@@ -58,7 +87,14 @@ def sanitize(text: str) -> str:
     depth = 0
     externc_depths = set()      # brace depths opened by `extern "C" {`
     struct_depths = []          # stack of depths that are struct/union bodies
+    skip_until = None           # while dropping an inline method body: depth to return to
     for l in lines:
+        # --- dropping the body of an inline struct-scope method/ctor/dtor ---
+        if skip_until is not None:
+            depth += l.count("{") - l.count("}")
+            if depth <= skip_until:
+                skip_until = None
+            continue
         s = l.strip()
         # --- entering bodies (decide before counting this line's braces) ---
         if 'extern "C"' in s and "{" in s:
@@ -83,6 +119,13 @@ def sanitize(text: str) -> str:
         # --- inside a struct: strip method/ctor/dtor declarations ---
         if struct_depths and depth == struct_depths[-1] + 1 and _is_method_line(l):
             depth += l.count("{") - l.count("}")
+            continue
+        # --- inside a struct: strip inline method/ctor/dtor DEFINITIONS (body) ---
+        if struct_depths and depth == struct_depths[-1] + 1 and _is_method_header(l):
+            start = depth
+            depth += l.count("{") - l.count("}")
+            if depth > start:           # a body opened -> skip lines until it closes
+                skip_until = start
             continue
         if opening_struct:
             struct_depths.append(depth)

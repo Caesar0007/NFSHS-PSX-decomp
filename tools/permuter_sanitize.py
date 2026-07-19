@@ -244,6 +244,28 @@ def reduce_to_fn(text: str, target: str) -> str:
         r'^(\s*(?:[A-Za-z_]\w*[\s\*]+)+[A-Za-z_]\w*\s*\()([^;{}=]*&[^;{}=]*)(\)\s*;)\s*$',
         _lower_ref,
         result, flags=re.MULTILINE)
+    # C++ bare-struct-tag-as-type: a struct/union defined as a BARE TAG
+    # (`struct Tag {...};`, no typedef) and later used as a bare `Tag var;` is
+    # valid C++ (the tag doubles as a type name) but not C99 -- pycparser needs
+    # the `struct` keyword or a typedef, and one bare use breaks setup for the
+    # whole TU (e.g. audiocmn's `Audio_tFESFXTable Audio_gFESFXTable;`). For every
+    # such bare tag with no existing typedef of that name, inject a forward
+    # `typedef struct Tag Tag;` alias so bare uses parse. Parse-only &
+    # codegen-neutral: the alias names the same struct; CC1PLPSX (real C++) already
+    # accepts the bare form and diffs only the target fn.
+    typedef_names = set(re.findall(r'\btypedef\b[^;{}]*?\b(\w+)\s*;', result))   # `typedef ... N;`
+    typedef_names |= set(re.findall(r'\}\s*(\w+)\s*;', result))                  # `typedef struct{...} N;`
+    aliases, seen = [], set()
+    for m in re.finditer(r'\b(struct|union)\s+(\w+)\s*\{', result):
+        pre = result[max(0, m.start() - 9):m.start()]
+        if 'typedef' in pre:              # part of `typedef struct Tag {...} Name;`
+            continue
+        kw, tag = m.group(1), m.group(2)
+        if tag not in typedef_names and tag not in seen:
+            aliases.append(f'typedef {kw} {tag} {tag};')
+            seen.add(tag)
+    if aliases:
+        result = '\n'.join(aliases) + '\n' + result
     return result
 
 

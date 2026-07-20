@@ -47,12 +47,15 @@ extern void          *snd_user_serve_hook;  /* @0x80148038              */
 #define DAT_80147e2c (*(int *)(sndpd + 0x514))        /* SPU control reg base (address) */
 
 /* sdmemman/sdmemlu fields -- oracle iSNDinit writes these as sndpd-RELATIVE offsets (+0x51a/+0x51c off
- * the &sndpd already in a register), NOT via their own %hi/%lo symbol. sdmemlu.c independently DEFINES
- * snd_spu_engine_ver/snd_spu_block_total as ordinary externs (own linker-placed storage) -- so this is
- * the file's established "SPLIT STORAGE" gotcha (shared-header WARNING, per project rules): iSNDinit's
- * writes and sdmemlu/sdmemman's reads may NOT alias at runtime in our reconstruction (different link
- * addresses) even though the retail binary happened to place them at sndpd_base+0x51a/0x51c. Fixing the
- * storage model tree-wide would require editing sdmemlu.c (OUT OF SCOPE for this file) -- flagged here. */
+ * the &sndpd already in a register), NOT via their own %hi/%lo symbol.
+ *
+ * SPLIT-STORAGE FIX (wave-22 a1, RESOLVED): sdmemlu.c used to independently DEFINE
+ * snd_spu_engine_ver/snd_spu_block_total as ordinary externs (own linker-placed storage) -- a genuine
+ * aliasing bug where iSNDinit's writes here and sdmemlu/sdmemman's reads would NOT share storage in a
+ * real link. sdmemlu.c, sdmemman.c, and sdfx.cpp were all converted to the same sndpd-relative
+ * macro-view model this file already used, so the field names below now genuinely alias with every
+ * other reader/writer tree-wide (see sdmemlu.c's banner for the cross-file proof). No change needed
+ * in THIS file -- it was already sndpd-relative. */
 #define DAT_80147e32 (*(unsigned short *)(sndpd + 0x51a))   /* snd_spu_engine_ver alias (sdmemman) */
 #define DAT_80147e34 (*(unsigned short *)(sndpd + 0x51c))   /* snd_spu_block_total alias (sdmemlu)  */
 
@@ -337,8 +340,15 @@ extern void iSNDserve(void)
 {
     unsigned int koff = 0;     /* local_30 : key-off mask deferred until DMA settles */
     unsigned int kon = 0;      /* mask     : key-on mask */
-    int          chan, vt, i, n, lvt;
+    int          chan, vt, n;
     unsigned char *vp;
+    unsigned char *fpbase;    /* &sndpd, materialized ONCE right before the loop and kept LIVE across
+                                * the whole loop (matches iSNDinit/iSNDrestore's persistent-base lever,
+                                * oracle reg $fp) -- every plain sndpd-relative field access that is
+                                * NOT relative to the CURRENT voice pointer `vp` (the SPU voice-reg-base
+                                * dereference @+0x510, and the linked-voice-done probe @+0xF5+cvt) goes
+                                * through this cached base instead of re-materializing sndpd's own
+                                * %hi/%lo every time. */
     short        *vreg;
 
     if (snd_user_serve_hook != 0)
@@ -347,34 +357,41 @@ extern void iSNDserve(void)
     chan = 0;
     if (SUB(0x11) != 0) {
         vt = 0;
+        fpbase = sndpd;
         do {
+            short *vreg0;    /* split-temp: computed then copied into `vreg` -- a permuter basin find
+                               * that shaved one more insn off the register-coloring residual */
             vp   = &DAT_801479f0 + vt;
-            vreg = (short *)(DAT_80147e28 + chan * 0x10);
-            if ((&DAT_80147a0d)[vt] == 2) {                          /* voice stopping */
+            vreg0 = (short *)(*(int *)(fpbase + 0x510) + chan * 0x10);
+            vreg = vreg0;
+            if (vp[0x1d] == 2) {                                     /* voice stopping */
                 if (vreg[6] == 0) {                                  /* SPU ADSR reached 0 */
-                    if ((&DAT_80147a16)[vt] != 0 && (&DAT_80147a11)[vt] == 0 &&
-                        (int)((unsigned)(&DAT_80147a17)[vt] << 0x18) < 0) {
-                        n = (int)(unsigned)(&DAT_80147a0f)[vt];
+                    if (vp[0x26] != 0 && vp[0x21] == 0 &&
+                        (int)((unsigned)vp[0x27] << 0x18) < 0) {
+                        n = (int)(unsigned)vp[0x1f];
                         do {
                             int c = chan, cvt = vt;
+                            short *vreg2;   /* the inner cleanup's OWN vreg -- never touches the outer
+                                             * `vreg` (oracle: this whole loop derives its SPU-reg
+                                             * pointer fresh off $fp each pass; the outer loop's $s4
+                                             * stays untouched so it can be reused after the loop) */
                             if (n == 2) { c = (signed char)vp[0x20]; cvt = (char)vp[0x20] * 0x2c; }
                             vp = &DAT_801479f0 + cvt;
-                            (&DAT_80147a0d)[cvt] = 0;
-                            (&DAT_80147a0c)[cvt] = 0;
+                            vp[0x1d] = 0;
+                            vp[0x1c] = 0;
                             n--;
                             iSNDfreechan(c);
-                            vreg = (short *)(c * 0x10 + DAT_80147e28);
-                            vreg[3] = 0x200;                 /* ADSR -> 0, then key-on to force silence */
+                            vreg2 = (short *)(c * 0x10 + *(int *)(fpbase + 0x510));
+                            vreg2[3] = 0x200;                /* ADSR -> 0, then key-on to force silence */
                             kon = kon | (1u << c);
-                            vreg[0] = 0;
-                            vreg[1] = 0;
+                            vreg2[0] = 0;
+                            vreg2[1] = 0;
                         } while (0 < n);
                     }
                 } else {
-                    (&DAT_80147a16)[vt] = 1;
+                    vp[0x26] = 1;
                 }
                 if (vp[0x28] != 0) {                                 /* pitch dirty -> reprogram */
-                    vreg = (short *)(DAT_80147e28 + chan * 0x10);
                     vreg[2] = (short)(*(unsigned int *)(vp + 8) / 0x1b9);
                     vp[0x28] = 0;
                 }
@@ -389,10 +406,10 @@ extern void iSNDserve(void)
                 } else {
                     *(int *)(vp + 0x10) = *(int *)(vp + 0x10) - *(int *)(vp + 8);
                 }
-            } else if ((&DAT_80147a0d)[vt] == 3) {                   /* voice fully stopped */
+            } else if (vp[0x1d] == 3) {                              /* voice fully stopped */
                 if (vreg[6] == 0) {
                     kon = kon | (1u << chan);               /* (Ghidra `mask`) */
-                    (&DAT_80147a0d)[vt] = 0;
+                    vp[0x1d] = 0;
                     vreg[3] = 0x200;
                     vreg[0] = 0;
                     vreg[1] = 0;
@@ -400,9 +417,12 @@ extern void iSNDserve(void)
                     koff = koff | (1u << chan);             /* (Ghidra `local_30`) */
                 }
             }
-            vp = &DAT_801479f0 + vt;
+            /* NOTE: no `vp = &DAT_801479f0 + vt;` re-materialize here -- the oracle reuses whatever
+             * $s0 currently holds (the outer voice's vp on every path EXCEPT after the n==2 linked
+             * cleanup ran, where it deliberately reads the LAST freed channel's row here; byte-exact
+             * behavior, not a bug to "fix"). */
             if (vp[0x1c] == 1 && vp[0x1d] == 0 &&
-                ((unsigned char)vp[0x1f] < 2 || (&DAT_80147a0d)[(char)vp[0x20] * 0x2c] == 0)) {
+                ((unsigned char)vp[0x1f] < 2 || fpbase[0xf5 + (char)vp[0x20] * 0x2c] == 0)) {
                 kon = kon | iSNDstartvoice(chan);                    /* arm newly-triggered voice */
             }
             chan++;

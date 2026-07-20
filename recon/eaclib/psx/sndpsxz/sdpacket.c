@@ -19,7 +19,54 @@
  *   `(signed char)voice[N]` cast compiling to lbu+sll24+sra24 on its first occurrence but a
  *   plain `lb` on repeats -- context-dependent CSE, not source-shapable in the time available).
  *   Other 5 near-misses in this file untouched this pass (getirq/setirq/purgeframes/serve/
- *   psxpacketstop) -- same DAT_ macro re-expansion pattern likely applies there too.) ***
+ *   psxpacketstop) -- same DAT_ macro re-expansion pattern likely applies there too.)
+ *   (w22-a10 2026-07-20: dedicated structural pass on fillspuwithpackets 167->74 (ours/oracle
+ *   INSTRUCTION COUNT NOW MATCHES 308=308 -- residual is 100% coloring/scheduling, 0 missing/
+ *   extra ops). Key levers (all NEW beyond the w21-a3 set, each independently verified against
+ *   the gate): (1) eliminate ALL persistent `rem`/initial-`take` locals in favor of DIRECT
+ *   `*(unsigned short*)(pp+off)` re-reads at every test site -- a `short rem = *(unsigned
+ *   short*)p;` forces gcc to fold the load to a SIGN-EXTENDING `lh` (since the value flows into
+ *   a signed-short lvalue later read in int context), where the oracle never materializes the
+ *   var at all and stays strictly `lhu`. (2) a NAMED temp for a divide-by-constant result
+ *   (`int chunkSize = (frameSize*4)/7;` before storing) beat inlining the expression directly
+ *   into the store -- single biggest jump this pass (164->142). (3) `volatile` on a re-read
+ *   defeats not just VALUE-cse (established w21-a3) but also ADDRESS-cse: `*(volatile
+ *   int*)(ch+0x48)` referenced twice in one iteration stops gcc from hoisting `ch+0x48` into its
+ *   own register (`addiu v0,base,72`) and reusing it 0-displacement -- oracle re-issues the
+ *   `+0x48` as the LOAD's own immediate at each site. Same volatile-on-reread lever also fixed
+ *   two do-while back-edge tests that were reusing an already-in-register just-stored value
+ *   instead of reloading (the loop-bottom `rem`-equivalent test, and BOTH arms of the
+ *   take-vs-rem clamp -- this last one alone was 112->98 and made ours/oracle instruction counts
+ *   converge exactly). (4) SEPARATE per-loop walk-pointer locals (`fch`/`lch`/`ech`, not the
+ *   one function-wide `ch`) for loops AFTER the `queue_dma:` label -- the oracle picks a FRESH
+ *   register (often `a0`) per loop there instead of gcc's natural single-register reuse of one
+ *   persistent `ch`/s1 across all ~9 count-loops in the fn; combined with keeping the `ch+0x48`
+ *   dereference INLINE (not through a separately-assigned pointer var) to keep +0x48 as a load
+ *   displacement rather than folded into the base. (5) the established i=0-in-delay-slot /
+ *   ch=pp-inside-guard split (w20-a8) needed re-applying at TWO more sites this function's
+ *   later half didn't have it yet (before the blockmove loop, before the final DMA-kick loop) --
+ *   worth -20 and -20 diffs respectively, the two single biggest wins after the chunkSize temp.
+ *   CONFIRMED FLOORS (tried >=2 source variants, no gate improvement, reverted): the
+ *   iSNDpacketget i-loop's a0=p refresh sits in the BACK-BRANCH's delay slot in the oracle vs as
+ *   this fn's OWN loop-rotated branch-target in ours -- same total instr count (10 either way),
+ *   pure scheduling, `ch+=4` statement-order swaps (`i++;ch+=4;` vs `ch+=4;i++;`) both tested,
+ *   neither reproduces it; the `avail = pp[0x14]-pp[0x18]` return-value computation colors into
+ *   a0/v1 in ours vs oracle's v0/v1 (an extra `addu v0,a0,zero` move ours needs that oracle
+ *   doesn't, since oracle's avail is ALREADY in v0 for the return) -- local-scope decl, a
+ *   pp+0x40-first eval order, and an intermediate `lim` var were all tried, 0 effect, likely tied
+ *   to how the SHARED magic-constant delay-slot preload (reused by the sibling `frameSize*4/7`
+ *   branch) colors; the post-blockmove position-update block's pp+0x32/+0x3c LOAD ORDER (oracle:
+ *   0x3e,0x32(load),v0=0x3c(reload),v1+=,store 0x32,v0-=,store 0x3c -- ours loads 0x3c earlier
+ *   than 0x32) is a load-scheduling reorder for latency-hiding that source-level statement order
+ *   didn't influence; the loop-start-flag loop's do-while-vs-for/break SHAPE (oracle uniquely
+ *   emits `beqz exit;nop;j top;nop` here, not a single back-branch) was reproduced structurally
+ *   via `for(;;){body;if(!c)break;}` but cost an extra instr net-ZERO elsewhere in the fn, so
+ *   reverted to do-while (see inline FLOOR comment at that loop). ~40 diffs remain scattered
+ *   across these + a handful of single-instruction reg-swaps (`slti+addu`-vs-`sltiu`,
+ *   `lhu a2`-position, `andi a2,s3,65535`-vs-plain-move for an already-clean unsigned-short arg)
+ *   that a `(unsigned)`-cast/no-cast and named-temp/inline experiments (each tested) didn't move
+ *   -- register-coloring floors per the w21-a3 classification, not source-shapable further in
+ *   this pass.) ***
  *   Source obj : nfs4\eaclib\psx\sdpacket.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   13 fns @[0x80103784 .. 0x801046C8].  THE SPU/DMA HARDWARE FLOOR of the EA packet player -- the
  *   platform layer iSNDstream/spktplay call to actually stream ADPCM packets into the PSX SPU voice
@@ -371,14 +418,12 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
                                                    * uses for its tablebase/voice split. */
     unsigned char *voice = tablebase0 + vt;
     int  i, ch, dma;
-    short rem;
     unsigned short take;
     int  *cbuf;
     short *ringp;
     int  frameSize;      /* MATCH: genuinely uninitialized (Ghidra local_30) -- iSNDpacketget always
                            * writes it before any read; a `=0` initializer emits a dead `sw zero,..(sp)`
                            * the oracle lacks. */
-    int  avail;
 
     if (*(unsigned short *)(pp + 0x3c) == 0) {   /* MATCH: oracle reads this SPECIFIC occurrence via
                                                    * `lhu` (unsigned); other pp+0x3c reads elsewhere in
@@ -405,16 +450,20 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
         *(unsigned short *)(pp + 0x3e) = *(short *)(pp + 0x3e) + 0x10;
         *(unsigned short *)(pp + 0x3c) = *(short *)(pp + 0x3c) - 0x10;
     }
-    rem = *(unsigned short *)(pp + 0x3c);
-    /* MATCH: oracle tests rem!=0 ONCE before the loop (`beqz v0,.queue_dma`) then BOTTOM-tests the
-     * back-edge (`bnez rem,.top`) -- a down-stream do-while, not a top-test `for(;;){if(rem==0)break;}`
-     * (§B loop-rotation: exit-test appears both before the loop AND at the back-edge). */
-    if (rem != 0) {
+    /* MATCH: oracle tests pp+0x3c!=0 ONCE before the loop (`beqz v0,.queue_dma`) then BOTTOM-tests
+     * the back-edge (`bnez v1,.top`) via a FRESH re-read each time -- NO persistent `rem` variable
+     * at all (a stored `short rem = *(unsigned short*)...;` forces gcc to pick a SIGN-EXTENDING
+     * `lh` for the load, since the value flows into a signed-short-typed lvalue later read in an
+     * int context -- oracle keeps it strictly `lhu` by never materializing the intermediate var). */
+    if (*(unsigned short *)(pp + 0x3c) != 0) {
         int endFlag = 2;       /* MATCH: oracle materializes `li s6,2` ONCE here, reused at both
                                  * flag-byte stores below instead of two separate `li v,2` literals. */
         do {
-            take = *(unsigned short *)(pp + 0x34);
-            if (take == 0) {                                /* need a new packet frame */
+            if (*(unsigned short *)(pp + 0x34) == 0) {      /* need a new packet frame -- MATCH:
+                                                               * tested directly (no `take=...;
+                                                               * if(take==0)` -- see rem note above,
+                                                               * plus this lets the clamp below CSE
+                                                               * the SAME v0 across both join paths). */
                 i = 0;
                 if (voice[0x1F] != 0) {
                     ch = pp;
@@ -424,7 +473,7 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
                     } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
                 }
                 if (*(int *)(pp + 0x24) == 0) {             /* no frame available -> finish/flush */
-                    avail = *(int *)(pp + 0x14) - *(int *)(pp + 0x18);
+                    int avail = *(int *)(pp + 0x14) - *(int *)(pp + 0x18);
                     if ((int)(unsigned)*(unsigned short *)(pp + 0x40) < avail)
                         return avail;
                     if (*(unsigned short *)(pp + 0x38) < *(unsigned short *)(pp + 0x36))
@@ -447,13 +496,18 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
                             } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
                         }
                     } else {                                      /* mark SPU end (flag byte = 2) */
-                        i = 0; ch = pp;
+                        i = 0;
                         if (voice[0x1F] != 0) {
+                            int ech = pp;   /* MATCH: a SEPARATE block-scoped walk pointer (oracle
+                                              * picks `a0`, not the function-wide `ch`/s1, for this
+                                              * loop) -- reusing the persistent `ch` name here forces
+                                              * gcc's allocator to keep it in the SAME physical reg
+                                              * as every other loop in the fn. */
                             do {
-                                *(char *)(*(int *)(ch + 0x48) + 1) = (char)endFlag;
+                                *(char *)(*(volatile int *)(ech + 0x48) + 1) = (char)endFlag;
                                 i++;
-                                *(char *)((unsigned)*(unsigned short *)(pp + 0x44) + *(int *)(ch + 0x48) - 0xf) = (char)endFlag;
-                                ch += 4;
+                                *(char *)((unsigned)*(unsigned short *)(pp + 0x44) + *(volatile int *)(ech + 0x48) - 0xf) = (char)endFlag;
+                                ech += 4;
                             } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
                         }
                     }
@@ -462,24 +516,29 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
                     *(short *)(pp + 0x3c) = 0;
                     goto queue_dma;
                 }
-                *(short *)(pp + 0x36) = 0;
-                *(short *)(pp + 0x32) = 0;
-                *(short *)(pp + 0x34) = (short)((frameSize * 4) / 7);   /* ADPCM bytes per chunk */
-                *(short *)(pp + 0x30) = *(short *)(pp + 0x34);
-                take = *(unsigned short *)(pp + 0x34);
+                {
+                    int chunkSize = (frameSize * 4) / 7;   /* ADPCM bytes per chunk */
+                    *(short *)(pp + 0x36) = 0;
+                    *(short *)(pp + 0x32) = 0;
+                    *(short *)(pp + 0x34) = (short)chunkSize;
+                    *(short *)(pp + 0x30) = *(short *)(pp + 0x34);
+                }
             }
-            /* MATCH: oracle RE-READS from memory on BOTH sides of the clamp (`lhu s3,0x34(s2)` /
-             * `lhu s3,0x3C(s2)`) rather than reusing the just-loaded `take` register -- write both
-             * branches as explicit reads (defeats the CSE that a plain `if(take>=rem)take=rem;`
-             * would let gcc apply to the true-branch). */
-            if (take < *(unsigned short *)(pp + 0x3c))
-                take = *(unsigned short *)(pp + 0x34);
+            /* MATCH: oracle RE-READS from memory on ALL THREE sides of the clamp (`lhu v0,0x34(s2)`
+             * for the LHS test AND the true-branch value, `lhu v1,0x3C(s2)` for the RHS/false-branch)
+             * -- no `take` variable feeds the compare; both incoming paths to this point (the
+             * take==0 branch's LAST store above, and the take!=0 skip's test above) leave
+             * pp+0x34's value fresh in the SAME register, so gcc's own CSE across the join point
+             * supplies the LHS for free -- an explicit `take` read here would break that reuse. */
+            if (*(unsigned short *)(pp + 0x34) < *(unsigned short *)(pp + 0x3c))
+                take = *(volatile unsigned short *)(pp + 0x34);
             else
-                take = *(unsigned short *)(pp + 0x3c);
+                take = *(volatile unsigned short *)(pp + 0x3c);
             ringp = (short *)(chunk * 2 + *(int *)(pp + 0x2c));
             *ringp = *ringp + (short)((int)((unsigned)take * 7) >> 2);
-            i = 0; ch = pp;
+            i = 0;
             if (voice[0x1F] != 0) {
+                ch = pp;
                 do {
                     blockmove((int *)(*(int *)(pp + 0x24) + (unsigned)*(unsigned short *)(pp + 0x32) +
                                       (unsigned)*(unsigned short *)(pp + 0x30) * i),
@@ -491,9 +550,8 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
             *(unsigned short *)(pp + 0x3e) = *(short *)(pp + 0x3e) + take;
             *(unsigned short *)(pp + 0x32) = *(short *)(pp + 0x32) + take;
             *(unsigned short *)(pp + 0x3c) = *(short *)(pp + 0x3c) - take;
-            rem = *(short *)(pp + 0x3c);
             *(unsigned short *)(pp + 0x34) = *(short *)(pp + 0x34) - take;
-        } while (rem != 0);
+        } while (*(volatile unsigned short *)(pp + 0x3c) != 0);
     }
 queue_dma:
     if (chunk == 0) {                            /* first chunk -> set SPU loop-start flag (|4) */
@@ -501,25 +559,50 @@ queue_dma:
          * provably 0 here (just tested), and oracle's guard `slt v0,s5,v0` reuses THAT register
          * (chunk==s5) rather than materializing a fresh `!=0`/`beqz` compare against zero. */
         if (chunk < (int)(unsigned char)voice[0x1F]) {
-            i = 0; ch = pp;
+            int fch = pp;   /* MATCH: a SEPARATE walk pointer (oracle: `a0`), not the function-wide
+                              * `ch`/s1. */
+            i = 0;
+            /* FLOOR (confirmed): oracle shapes this ONE loop (uniquely among this fn's ~9
+             * count-loops) as a trailing conditional-EXIT + unconditional jump-back
+             * (`beqz v0,exit;nop; j top;nop`) instead of a single conditional back-branch --
+             * tried the `for(;;){body;if(!c)break;}` loop-rotation form (matches the SHAPE) but
+             * it costs an extra instruction elsewhere in the fn net-negative vs the do-while;
+             * reverted, keeping the do-while (0 net diff difference either way here). */
             do {
-                cbuf = (int *)(ch + 0x48); ch += 4;
-                *(unsigned char *)(*cbuf + 1) |= 4;
+                /* MATCH: read *(int*)(fch+0x48) via LOAD DISPLACEMENT off the bare `fch` (oracle:
+                 * `lw v0,72(a0)`) -- a separately-assigned `cbuf` pointer var forces gcc to
+                 * materialize the +0x48 addend into its OWN register (`addiu v0,a0,72`) before the
+                 * 0-displacement load; an inline dereference keeps the offset as the load's
+                 * immediate instead (same lever as the earlier `chval`/`ech` sites in this fn).
+                 * MATCH: oracle fills the flag-byte load's OWN delay slot with `fch+=4` (`lbu
+                 * v1,1(v0); addiu a0,a0,4; ori v1,v1,4`) -- split the read-modify-write so the
+                 * increment sits BETWEEN the load and the or/store, not after the whole stmt. */
+                {
+                    unsigned char *fb = (unsigned char *)(*(int *)(fch + 0x48) + 1);
+                    unsigned char fv = *fb;
+                    fch += 4;
+                    *fb = fv | 4;
+                }
                 i++;
             } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
         }
     } else if (chunk == *(unsigned short *)(pp + 0x38) - 1) {   /* last chunk -> loop-end (|1) */
-        i = 0; ch = pp;
+        /* MATCH: `i=0` in the count-check branch's delay slot; `ch=pp` only on the taken path,
+         * via a SEPARATE walk pointer (oracle: `a0`) -- same levers as the loop-start-flag loop
+         * above and the earlier zerospu warm-up loop. */
+        i = 0;
         if (voice[0x1F] != 0) {
+            int lch = pp;
             do {
-                int e = (unsigned)*(unsigned short *)(pp + 0x44) + *(int *)(ch + 0x48);
+                int e = (unsigned)*(unsigned short *)(pp + 0x44) + *(int *)(lch + 0x48);
                 *(unsigned char *)(e - 0xf) |= 1;
-                i++; ch += 4;
+                i++; lch += 4;
             } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
         }
     }
-    i = 0; ch = pp;                          /* kick the SPU DMA for each channel */
+    i = 0;                                   /* kick the SPU DMA for each channel */
     if (voice[0x1F] != 0) {
+        ch = pp;
         do {
             /* MATCH: oracle evaluates pp->0x08*i (mult/mflo) BEFORE the shift/add chain, and the
              * per-first-channel flag as an unconditional a0=0 overwritten to (i<1) only when
@@ -663,22 +746,45 @@ extern int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, unsi
                                                   * from its OWN symbol, defeating the CSE the oracle
                                                   * achieves by materializing ONE base). */
     unsigned int chunkBytes, frames, perCh;
+    /* NOTE (tried, reverted): oracle's frames/perCh divide emits the FULL signed div-guard
+     * (li at,-1;bne;lui 0x8000;bne;break 6), not a plain `divu` (zero-check only) -- changing
+     * frames/perCh to signed `int` DOES reproduce that guard's shape at its own site, but ripples
+     * register allocation earlier in the fn (the `ch`/blockSamps block) and nets MORE total diffs
+     * (128->134). Left unsigned; the correct fix likely needs the `ch`/blockSamps block's own
+     * near-miss resolved FIRST so the later ripple doesn't cost more than it gains. */
     int  blockSamps;
     int  i;
     (void)a6;
 
     voice[0x21] = 0;                              /* DAT_80147a11 = linkflag */
-    voice[0x20] = 0xff;                           /* DAT_80147a10 = link (-1 idle) */
+    *(signed char *)(voice + 0x20) = -1;          /* DAT_80147a10 = link (-1 idle) -- MATCH: `li
+                                                    * v0,-1` (oracle) vs `li v0,255` -- assigning
+                                                    * -1 through an UNSIGNED lvalue (`voice[N]`,
+                                                    * `unsigned char*`) still constant-folds to 255
+                                                    * at compile time (gcc evaluates the conversion
+                                                    * before codegen, same either way for `-1` or
+                                                    * `0xff`); a SIGNED-char pointer cast is required
+                                                    * to keep the fold negative -- same lever as
+                                                    * iSNDplatformpacketplaycreate's `*(signed
+                                                    * char*)(mem+0x42) = -1`. */
     voice[0x1e] = 0;                              /* DAT_80147a0e = route */
-    voice[0x1f] = (unsigned char)hdr[1];          /* DAT_80147a0f = channel count */
-    *(int *)(voice + 0x04) = 0;                   /* DAT_801479f4 */
-    *(unsigned short *)(voice + 0x18) = volAngle; /* DAT_80147a08 */
-    voice[0x22] = level;                          /* DAT_80147a12 */
-    voice[0x23] = fxlevel;                        /* DAT_80147a13 */
-    *(int *)(voice + 0x00) = pp[0];                /* DAT_801479f0 */
-    voice[0x27] = (unsigned char)p;               /* DAT_80147a17 */
+    *(volatile unsigned char *)(voice + 0x1f) = (unsigned char)hdr[1]; /* DAT_80147a0f = channel
+                                                    * count -- volatile keeps this store pinned
+                                                    * right after its own load, ahead of the OTHER
+                                                    * (also-volatile) field stores below. */
+    *(volatile int *)(voice + 0x04) = 0;          /* DAT_801479f4 -- MATCH: this whole field-store
+                                                    * run must complete BEFORE the chunkBytes
+                                                    * division below (oracle keeps them in program
+                                                    * order); plain (non-volatile) stores through an
+                                                    * unaliased pointer let gcc's scheduler hoist the
+                                                    * independent division block ahead of them. */
+    *(volatile unsigned short *)(voice + 0x18) = volAngle; /* DAT_80147a08 */
+    *(volatile unsigned char *)(voice + 0x22) = level;      /* DAT_80147a12 */
+    *(volatile unsigned char *)(voice + 0x23) = fxlevel;    /* DAT_80147a13 */
+    *(volatile int *)(voice + 0x00) = pp[0];       /* DAT_801479f0 */
+    *(volatile unsigned char *)(voice + 0x27) = (unsigned char)p; /* DAT_80147a17 */
 
-    chunkBytes = 0x1000 / (unsigned char)voice[0x1f];
+    chunkBytes = 0x1000 / (unsigned char)*(volatile unsigned char *)(voice + 0x1f);
     *(short *)(pp + 0x11) = (short)chunkBytes;
     *(short *)((int)pp + 0x46) = (short)((int)(chunkBytes * 0x1c) >> 4);
     {

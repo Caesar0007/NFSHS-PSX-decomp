@@ -253,23 +253,15 @@ void Blockade_AddObject(int slice,coorddef *pos,int objectID)
 
   coorddef *rotx;
 
-  coorddef crossVec;
-
-  coorddef normVec;
-
-  coorddef fwdVec;
-
-  /* H18-a6: full body reconstructed from oracle 0x8005C468-0x8005C5E0 (was a byte-offset hack
-     into an undersized u_char[32] array, causing a ~184-byte frame overshoot / wrong reg alloc).
-     theObj is the real SceneElem (92 B); only 8 of its fields are ever written by the oracle --
-     size/committed/visible/height/orient are left uninitialized, faithfully reproduced by NOT
-     assigning them. theObj.subType=1 is the PRE-CALL v0 literal stored in the Object_GetObjDefID
-     jal's delay slot (0x8005C488/9C); theObj.scalar1 is the ACTUAL call return (0x8005C4B4). */
+  /* H22-a12: rotx/roty/rotz are NOT separate stack locals -- they're pointers straight into
+     theObj.orient's 3 rows (matrixtdef.m[0..2]/[3..5]/[6..8], each a coorddef-shaped row). The
+     oracle builds the object's rotation matrix IN PLACE inside theObj (orient sits at SceneElem
+     +0x20, right after cp; the address arithmetic 0x30/0x3C/0x48 in the raw is exactly
+     &theObj+0x20/0x2C/0x38) -- so orient is NOT left uninitialized (prior comment was wrong): it's
+     row1=UNormal, row2=UForward, row0=row1 x row2 (cross product), then transposed in place. */
   theObj.type = 0;
 
   theObj.subType = 1;
-
-  theObj.subTypeIndex = objectID;
 
   theObj.scalar1 = Object_GetObjDefID(objectID);
 
@@ -281,25 +273,27 @@ void Blockade_AddObject(int slice,coorddef *pos,int objectID)
 
   theObj.cp.z = pos->z;
 
+  theObj.subTypeIndex = objectID;
+
   BWorldSm_SetSlice(slice,&slicePos);
 
   BWorldSm_FindClosestQuadRez(pos,&slicePos,1);
 
   roty = BWorldSm_UNormal(&slicePos);
 
-  normVec = *roty;
+  *(coorddef *)&theObj.orient.m[3] = *roty;
 
   rotz = BWorldSm_UForward(&slicePos);
 
-  fwdVec = *rotz;
+  *(coorddef *)&theObj.orient.m[6] = *rotz;
 
-  roty = &normVec;
+  roty = (coorddef *)&theObj.orient.m[3];
 
-  rotz = &fwdVec;
+  rotz = (coorddef *)&theObj.orient.m[6];
 
-  crossVec.x = fixedmult(roty->y,rotz->z) - fixedmult(roty->z,rotz->y);
+  rotx = (coorddef *)&theObj.orient.m[0];
 
-  rotx = &crossVec;
+  rotx->x = fixedmult(roty->y,rotz->z) - fixedmult(roty->z,rotz->y);
 
   rotx->y = fixedmult(roty->z,rotz->x) - fixedmult(roty->x,rotz->z);
 
@@ -328,13 +322,15 @@ void PlacePointOnRoad(int slice,coorddef *offset)
 
   coorddef ioff;
 
-  int cVar1;
+  int cVar3;
 
   int cVar2;
 
-  int cVar3;
+  int cVar1;
 
-  int *piVar4;
+  int cVar4;
+
+  Trk_NewSlice *piVar4;
 
   coorddef *norm;
 
@@ -357,23 +353,23 @@ void PlacePointOnRoad(int slice,coorddef *offset)
 
   testSimRoadInfo.slice = (short)slice;
 
-  piVar4 = (int *)(slice * 0x20 + (int)BWorldSm_slices);
+  piVar4 = BWorldSm_slices + slice;
 
-  slicecenter.x = *piVar4;
+  slicecenter.x = piVar4->center[0];
 
-  slicecenter.y = piVar4[1];
+  slicecenter.y = piVar4->center[1];
 
-  slicecenter.z = piVar4[2];
+  slicecenter.z = piVar4->center[2];
 
-  iVar11 = slice * 0x20 + (int)BWorldSm_slices;
+  cVar4 = ((signed char *)piVar4->right)[0];
 
-  cVar1 = *(signed char *)(iVar11 + 0x14);
+  cVar1 = ((signed char *)piVar4->right)[2];
 
-  cVar2 = *(signed char *)(iVar11 + 0xf);
+  cVar2 = ((signed char *)piVar4->forward)[0];
 
-  cVar3 = *(signed char *)(iVar11 + 0x11);
+  cVar3 = ((signed char *)piVar4->forward)[2];
 
-  iVar11 = fixedmult((int)*(signed char *)(iVar11 + 0x12) << 9,ioff.x);
+  iVar11 = fixedmult((int)cVar4 << 9,ioff.x);
 
   iVar13 = fixedmult((int)cVar2 << 9,ioff.z);
 
@@ -416,22 +412,17 @@ void PlacePointOnRoad(int slice,coorddef *offset)
 /* ---- SetupBlockadeElements__15AIHigh_BasicCopP10blockade_t  AIHigh_BasicCop::SetupBlockadeElements  [AIH_BASICCOP.CPP:198-290] SLD-VERIFIED ---- */
 
 void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
-
-
-
 {
-  coorddef pt;
-  int objId;
-
-  int slice;
-
-  /* H18-a6: block-scoped the 4 loop bodies to match the oracle's SYM/disasm-v4 comments, which
-     show a FRESH "int i;"/"struct coorddef pt;" pseudo per { } block (0x8005C7E8/C838/C8A8/C900) --
-     the old flattened function-scope iVar1/iVar2/iVar3 reused across all 4 loops forced their live
-     ranges to overlap, needing 9 saved regs (88 B frame) vs the oracle's 6 (64 B); see catalog
-     "SYM block scopes are load-bearing". Arithmetic/control-flow unchanged, verified against oracle
-     0x8005C790-0x8005CA04. */
+  /* H22-a12: full SYM-block-scope rewrite (nfs4-f-v3.txt @0x8005C790). SYM declares a FRESH
+     "coorddef pt" AUTO (same -0x30(fp) slot) per branch and a FRESH "int i" REG per loop --
+     each branch's own pt/i, not one function-scope pt shared across all 4 loops -- so this
+     mirrors that exactly: 1 & 2's flags-branches each get their own pt, and every do-while
+     gets its own block-scoped i (SYM regs $s0/$s2 alternate per loop within a branch). The
+     "skip when i==3" compare constant is loop-invariant-hoisted to match the oracle's
+     `li s5,3` outside the loop. */
   if (blockade->flags != 0) {
+
+    int slice;
 
     Object_ClearCustomObjects();
 
@@ -439,83 +430,9 @@ void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
 
     Object_customSliceNum = slice;
 
-    if ((blockade->flags & 1U) == 0) {
+    if ((blockade->flags & 1U) != 0) {
 
-      if ((blockade->flags & 2U) != 0) {
-
-        {
-          int i;
-          int x;
-          int z;
-
-          i = 0;
-
-          x = -0x60000;
-
-          z = -0x180000;
-
-          do {
-
-            pt.y = 0;
-
-            pt.z = blockade->direction * z;
-
-            i = i + 1;
-
-            pt.x = x;
-
-            PlacePointOnRoad(slice,&pt);
-
-            Blockade_AddRoadFlare(&pt);
-
-            z = z + 0x40000;
-
-            x = x + 0x20000;
-
-          } while (i < 7);
-        }
-
-        {
-          int i;
-          int x;
-          int z;
-
-          i = 0;
-
-          z = -0x180000;
-
-          x = 0x60000;
-
-          do {
-
-            if (i != 3) {
-
-              pt.y = 0;
-
-              pt.z = blockade->direction * z;
-
-              pt.x = x;
-
-              PlacePointOnRoad(slice,&pt);
-
-              Blockade_AddRoadFlare(&pt);
-
-            }
-
-            z = z + 0x40000;
-
-            x = x + -0x20000;
-
-            i = i + 1;
-
-          } while (i < 7);
-        }
-
-      }
-
-    }
-
-    else {
+      coorddef pt;
 
       {
         int i;
@@ -561,8 +478,6 @@ void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
 
           pt.x = x;
 
-          x = pt.x;
-
           pt.y = 0;
 
           pt.z = blockade->direction * z;
@@ -582,29 +497,114 @@ void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
 
     }
 
-    if (((blockade->flags & 4U) != 0) &&
+    else if ((blockade->flags & 2U) != 0) {
 
-       (objId = Object_FindDefWithThisID(3), objId != -1)) {
+      coorddef pt;
 
-      pt.x = -0x28000;
+      {
+        int i;
+        int x;
+        int z;
 
-      pt.y = 0;
+        i = 0;
 
-      pt.z = blockade->direction * -0x40000;
+        x = -0x60000;
 
-      PlacePointOnRoad(slice,&pt);
+        z = -0x180000;
 
-      Blockade_AddObject(slice,&pt,objId);
+        do {
 
-      pt.x = 0x28000;
+          pt.y = 0;
 
-      pt.y = 0;
+          pt.z = blockade->direction * z;
 
-      pt.z = blockade->direction * -0x40000;
+          i = i + 1;
 
-      PlacePointOnRoad(slice,&pt);
+          pt.x = x;
 
-      Blockade_AddObject(slice,&pt,objId);
+          PlacePointOnRoad(slice,&pt);
+
+          Blockade_AddRoadFlare(&pt);
+
+          z = z + 0x40000;
+
+          x = x + 0x20000;
+
+        } while (i < 7);
+      }
+
+      {
+        int i;
+        int x;
+        int z;
+        int skip;
+
+        i = 0;
+
+        z = -0x180000;
+
+        x = 0x60000;
+
+        skip = 3;
+
+        do {
+
+          if (i != skip) {
+
+            pt.y = 0;
+
+            pt.z = blockade->direction * z;
+
+            pt.x = x;
+
+            PlacePointOnRoad(slice,&pt);
+
+            Blockade_AddRoadFlare(&pt);
+
+          }
+
+          z = z + 0x40000;
+
+          x = x + -0x20000;
+
+          i = i + 1;
+
+        } while (i < 7);
+      }
+
+    }
+
+    if ((blockade->flags & 4U) != 0) {
+
+      int objId;
+
+      objId = Object_FindDefWithThisID(3);
+
+      if (objId != -1) {
+
+        coorddef pt;
+
+        pt.x = -0x28000;
+
+        pt.y = 0;
+
+        pt.z = blockade->direction * -0x40000;
+
+        PlacePointOnRoad(slice,&pt);
+
+        Blockade_AddObject(slice,&pt,objId);
+
+        pt.x = 0x28000;
+
+        pt.y = 0;
+
+        pt.z = blockade->direction * -0x40000;
+
+        PlacePointOnRoad(slice,&pt);
+
+        Blockade_AddObject(slice,&pt,objId);
+
+      }
 
     }
 

@@ -91,87 +91,79 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 
 
 {
-  int iVar1;
+  /* SYM whole-function rewrite (w22-a13): SYM @0x8005f798 names ONLY randNum1000(REG v0),
+   * carLoop(REG s5), cop(REG a1), xDot(REG s2), zDot(REG s1), and carCopVector (AUTO
+   * coorddef, sp+0x10/14/18) -- NO iVar1..iVar5/delta[3] temps exist in the real source.
+   * xDot/zDot are each the SUM of 3 fixedmult() calls written as ONE expression (oracle
+   * accumulates directly into s2/s1 across all 3 calls); the earlier per-term iVarN temps
+   * forced a spurious combine-afterward shape that didn't match the oracle's accumulation. */
+  int randNum1000;
 
-  int iVar2;
+  int carLoop;
 
-  int iVar3;
-
-  int iVar4;
-
-  int iVar5;
-
-  int delta[3];   /* MATCH: forces stack spill of the 3 position-delta temps (oracle sp+0x10/0x14/0x18), not saved regs */
-
-  Car_tObj *pCVar6;
+  Car_tObj *cop;
 
   Car_tObj **ppCVar7;
 
-  int iVar8;
+  int xDot;
 
-  
+  int zDot;
+
+  coorddef carCopVector;
+
+
 
   randtemp = fastRandom * randSeed;
 
   fastRandom = randtemp & 0xffff;
 
+  randNum1000 = (randtemp >> 8 & 0xffff) * 1000 >> 0x10;
+
   if ((((this->carObj_)->carFlags & 4U) == 0) &&
 
-     (0x3d3 < (int)((randtemp >> 8 & 0xffff) * 1000 >> 0x10))) {
+     (0x3d3 < randNum1000)) {
 
-    iVar8 = 0;
+    carLoop = 0;
     ppCVar7 = Cars_gList;
     while (true) {
 
-      if (Cars_gNumCars <= iVar8) {
+      if (Cars_gNumCars <= carLoop) {
         break;
       }
 
-      pCVar6 = *ppCVar7;
+      cop = *ppCVar7;
 
-      if ((pCVar6->carFlags & 0x200U) != 0) {
+      if ((cop->carFlags & 0x200U) != 0) {
 
-        delta[0] = (pCVar6->N).position.x - ((this->carObj_)->N).position.x;
+        carCopVector.x = (cop->N).position.x - ((this->carObj_)->N).position.x;
 
-        delta[1] = (pCVar6->N).position.y -
+        carCopVector.y = (cop->N).position.y -
 
                 ((this->carObj_)->N).position.y;
 
-        delta[2] = (pCVar6->N).position.z -
+        carCopVector.z = (cop->N).position.z -
 
                 ((this->carObj_)->N).position.z;
 
-        iVar3 = fixedmult(delta[0],((this->carObj_)->N).orientMat.m[0]);
+        xDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[0]) +
 
-        iVar4 = fixedmult(delta[1],((this->carObj_)->N).orientMat.m[1])
+               fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[1]) +
 
-        ;
+               fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[2]);
 
-        iVar5 = fixedmult(delta[2],((this->carObj_)->N).orientMat.m[2])
+        zDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[6]) +
 
-        ;
+               fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[7]) +
 
-        iVar5 = iVar3 + iVar4 + iVar5;
+               fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[8]);
 
-        iVar3 = fixedmult(delta[0],((this->carObj_)->N).orientMat.m[6]);
+        if (xDot < 0) {
 
-        iVar1 = fixedmult(delta[1],((this->carObj_)->N).orientMat.m[7])
-
-        ;
-
-        iVar2 = fixedmult(delta[2],((this->carObj_)->N).orientMat.m[8])
-
-        ;
-
-        iVar2 = iVar3 + iVar1 + iVar2;
-
-        if (iVar5 < 0) {
-
-          iVar5 = -iVar5;
+          xDot = -xDot;
 
         }
 
-        if (((0x30000 < iVar5) || (0x80000 < iVar2)) || (iVar2 < 0)) {
+        if (((0x30000 < xDot) || (0x80000 < zDot)) || (zDot < 0)) {
 
           AudioClc_HonkHorn(this->carObj_,2,0x80,0x20);
 
@@ -183,7 +175,7 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 
       ppCVar7 = ppCVar7 + 1;
 
-      iVar8 = iVar8 + 1;
+      carLoop = carLoop + 1;
 
     }
 
@@ -738,27 +730,7 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   sVar1 = (short)iVar5;
 
-  if (iVar5 < 0) {
-
-    pCVar3 = (chaserCop)->carObj_;
-
-    if ((pCVar3->N).simRoadInfo.slice + iVar5 < 0) {
-
-      sVar2 = (short)gNumSlices + ((u_short)(pCVar3->N).simRoadInfo.slice + sVar1);
-
-    }
-
-    else {
-
-      sVar2 = (u_short)(pCVar3->N).simRoadInfo.slice + sVar1;
-
-    }
-
-    (pCVar6->N).simRoadInfo.slice = sVar2;
-
-  }
-
-  else {
+  if (0 <= iVar5) {   /* MATCH: branch-polarity flip -- oracle's fallthrough (non-branch-taken) path is the iVar5>=0 case; the iVar5<0 case is the branch target */
 
     pCVar3 = (chaserCop)->carObj_;
 
@@ -771,6 +743,26 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
     else {
 
       sVar2 = ((u_short)(pCVar3->N).simRoadInfo.slice + sVar1) - (short)gNumSlices;
+
+    }
+
+    (pCVar6->N).simRoadInfo.slice = sVar2;
+
+  }
+
+  else {
+
+    pCVar3 = (chaserCop)->carObj_;
+
+    if ((pCVar3->N).simRoadInfo.slice + iVar5 < 0) {
+
+      sVar2 = (short)gNumSlices + ((u_short)(pCVar3->N).simRoadInfo.slice + sVar1);
+
+    }
+
+    else {
+
+      sVar2 = (u_short)(pCVar3->N).simRoadInfo.slice + sVar1;
 
     }
 

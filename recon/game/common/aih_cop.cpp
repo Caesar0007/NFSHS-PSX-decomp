@@ -2195,33 +2195,27 @@ LAB_80065a54:
 
           sliceLoop = startSlice;
 
+          {
+
+          int chanceBase;
+
+          chanceBase = iVar10 * 25;
+
           while ((sliceLoop < endSlice) && (endSlice - startSlice < 6)) {
 
             int triggerHere;
 
             triggerHere = triggerManagerCops->CheckForTriggerAtSlice(pCVar11->carIndex, sliceLoop);
 
-            if (triggerHere == -1) {
-
-LAB_80065c28:
-
-              sliceLoop = sliceLoop + 1;
-
-            }
-
-            else {
+            if (triggerHere != -1) {
 
               int iRandomChance;
 
               u_int randomValue;
 
-              iRandomChance = iVar10 * 100;
+              int scaledRand;
 
-              if (iRandomChance < 0) {
-
-                iRandomChance = iRandomChance + 0xffff;
-
-              }
+              iRandomChance = (chanceBase << 2) / 0x10000;
 
               randtemp = fastRandom * randSeed;
 
@@ -2229,17 +2223,37 @@ LAB_80065c28:
 
               randomValue = randtemp >> 8;
 
-              if (AILife_IsSliceInAnyVisibleArea(sliceLoop) != (Car_tObj *)0x0) goto LAB_80065c28;
+              scaledRand = (int)((randomValue & 0xffff) * 0x19 >> 0xe);
 
-              if ((local_2c != 0) ||
+              if (AILife_IsSliceInAnyVisibleArea(sliceLoop) == (Car_tObj *)0x0) {
 
-                 (sliceLoop = sliceLoop + 1, (int)((randomValue & 0xffff) * 0x19 >> 0xe) < iRandomChance >> 0x10)) {
+                if ((local_2c != 0) ||
 
-                return triggerManagerCops->GetTrigger(triggerHere, &iStack_30);
+                   (sliceLoop = sliceLoop + 1, scaledRand < iRandomChance)) {
+
+                  return triggerManagerCops->GetTrigger(triggerHere, &iStack_30);
+
+                }
+
+              }
+
+              else {
+
+LAB_80065c28:
+
+                sliceLoop = sliceLoop + 1;
 
               }
 
             }
+
+            else {
+
+              goto LAB_80065c28;
+
+            }
+
+          }
 
           }
 

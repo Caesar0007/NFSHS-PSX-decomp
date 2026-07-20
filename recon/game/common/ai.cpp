@@ -228,11 +228,11 @@ LAB_80057cc0:
       if (seconds < 0) {
         seconds = seconds + 0x1f;
       }
-      if ((seconds >> 5 & 1U) == 0) {
-        CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + 0x1e0000;
+      if ((seconds >> 5 & 1U) != 0) {
+        CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + 0x1e0000;
       }
       else {
-        CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + 0x1e0000;
+        CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + 0x1e0000;
       }
     }
   }
@@ -361,15 +361,18 @@ void AI_OpponentBlockPlayer(Car_tObj *carObj,Car_tObj *otherCarObj)
   if (iVar3 < 0) goto LAB_blockcheck;
   if (0x31ffff < iVar3) goto LAB_blockcheck;
   if (carObj->laneIndex <= otherCarObj->laneIndex) {
+    int *pCarLogicObs = &CarLogic_gObs[0][0];
     if (otherCarObj->laneIndex != carObj->laneIndex) {
       iVar3 = -0x40000;
 LAB_800582b0:
-      CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + iVar3;
+      pCarLogicObs = &CarLogic_gObs[0][0];
+      pCarLogicObs[2] = pCarLogicObs[2] + iVar3;
       return;
     }
     iVar3 = -0x40000;
 LAB_8005829c:
-    CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + iVar3;
+    pCarLogicObs = &CarLogic_gObs[0][0];
+    pCarLogicObs[1] = pCarLogicObs[1] + iVar3;
     return;
   }
   iVar3 = -0x40000;
@@ -833,12 +836,12 @@ void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj)
 {
   int dSpeed;
   int cSpeed;
-  int *paiVar3Row0;
   int considerDesired;
   int iVar1;
   int new_var;
   int iVar2;
   int *paiVar3;
+  int *paiVar3Row0;
   AI_tInfo *pAVar4;
 
   dSpeed = carObj->desiredSpeed;
@@ -861,9 +864,11 @@ void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj)
     pAVar4 = &AI_Info;
     do {
       iVar2 = pAVar4->laneSpeeds[new_var];
-      if ((iVar2 <= cSpeed) && (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0)) {
-        iVar2 = fixedmult(cSpeed - iVar2,-0x14ccc);
-        *paiVar3 = *paiVar3 + iVar2;
+      if (iVar2 <= cSpeed) {
+        if (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0) {
+          iVar2 = fixedmult(cSpeed - iVar2,-0x14ccc);
+          *paiVar3 = *paiVar3 + iVar2;
+        }
         iVar2 = pAVar4->laneSpeeds[new_var];
       }
       if (((iVar2 <= dSpeed) && (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0)) && considerDesired)
@@ -872,9 +877,11 @@ void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj)
         *paiVar3 = *paiVar3 + iVar2;
       }
       iVar2 = pAVar4->laneSpeedsAhead[new_var];
-      if ((iVar2 <= cSpeed) && (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0)) {
-        iVar2 = fixedmult(cSpeed - iVar2,-0x8000);
-        *paiVar3 = *paiVar3 + iVar2;
+      if (iVar2 <= cSpeed) {
+        if (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0) {
+          iVar2 = fixedmult(cSpeed - iVar2,-0x8000);
+          *paiVar3 = *paiVar3 + iVar2;
+        }
         iVar2 = pAVar4->laneSpeedsAhead[new_var];
       }
       if (((iVar2 <= dSpeed) && (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0)) && considerDesired)
@@ -1027,17 +1034,16 @@ void AI_AddCollidableObjects(Car_tObj *carObj,Group *groupSimObjs)
   int iVar6;
   int iVar7;
   int importance;
-  Group *pGVar8;
 
-  pGVar8 = groupSimObjs + 1;
+  simObjs = (Trk_SimObject *)(groupSimObjs + 1);
   if (firstTime != '\0') {
     firstTime = '\0';
     BWorldSm_SetSlice(0,(BWorldSm_Pos *)&spos);
   }
   for (objectIndex = 0; objectIndex < groupSimObjs->m_num_elements; objectIndex = objectIndex + 1) {
-    pt.x = pGVar8->m_num_elements;
-    pt.y = pGVar8[1].m_num_elements;
-    pt.z = pGVar8[2].m_num_elements;
+    pt.x = simObjs->point[0];
+    pt.y = simObjs->point[1];
+    pt.z = simObjs->point[2];
     BWorldSm_FindClosestSlice(&pt,(BWorldSm_Pos *)&spos);
     iVar1 = AIWorld_ApxSplineDistance(spos.slice,carObj);   /* H17: arg0 was 0; oracle 0x800597B4 $a0=*(short*)spos=spos.slice */
     if (iVar1 * carObj->direction - 1U < 0x63ffff) {
@@ -1056,6 +1062,7 @@ void AI_AddCollidableObjects(Car_tObj *carObj,Group *groupSimObjs)
       if (centerToPt.x < 0) {
         iVar3 = centerToPt.x + 0xff;
       }
+      latPos = (iVar1 >> 8) * (iVar3 >> 8);
       iVar6 = (carObj->N).roadMatrix.m[1];
       if (iVar6 < 0) {
         iVar6 = iVar6 + 0xff;
@@ -1064,6 +1071,7 @@ void AI_AddCollidableObjects(Car_tObj *carObj,Group *groupSimObjs)
       if (centerToPt.y < 0) {
         iVar4 = centerToPt.y + 0xff;
       }
+      latPos = latPos + (iVar6 >> 8) * (iVar4 >> 8);
       iVar7 = (carObj->N).roadMatrix.m[2];
       if (iVar7 < 0) {
         iVar7 = iVar7 + 0xff;
@@ -1072,16 +1080,15 @@ void AI_AddCollidableObjects(Car_tObj *carObj,Group *groupSimObjs)
       if (centerToPt.z < 0) {
         iVar5 = centerToPt.z + 0xff;
       }
-      importance = -0xd0000;
-      avoidance = (iVar1 >> 8) * (iVar3 >> 8) + (iVar6 >> 8) * (iVar4 >> 8) +
-              (iVar7 >> 8) * (iVar5 >> 8);
-      if (*((char *)pGVar8 + 0x13) == '\x01') {
-        importance = -0x280000;
+      avoidance = -0xd0000;
+      if (simObjs->type == 1) {
+        avoidance = -0x280000;
       }
-      radius = *(short *)((char *)pGVar8 + 0xc);
-      AI_SubmitObstacle(carObj,importance,avoidance + radius * -0x200,avoidance + radius * 0x200,spos.slice);   /* H17: 5th arg (slice) was 0; oracle 0x800598E4 reload spos.slice -> feeds AIWorld_LaneIndex */
+      radius = simObjs->radius;
+      latPos = latPos + (iVar7 >> 8) * (iVar5 >> 8);
+      AI_SubmitObstacle(carObj,avoidance,latPos + radius * -0x200,latPos + radius * 0x200,spos.slice);   /* H17: 5th arg (slice) was 0; oracle 0x800598E4 reload spos.slice -> feeds AIWorld_LaneIndex */
     }
-    pGVar8 = pGVar8 + 5;
+    simObjs = simObjs + 1;
   }
   return;
 }

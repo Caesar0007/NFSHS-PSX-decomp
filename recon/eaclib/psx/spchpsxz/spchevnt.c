@@ -218,24 +218,30 @@ extern int SPCH_AddEvent(unsigned int *table)
                 int            tick = gettick();
                 short          sub;
                 int            j;
-                unsigned char *s;
+                unsigned char *base;
+                int            off;
+                unsigned int  *p;
                 if (tick == gLastTick[0])
                     gLastSubTick[0] = gLastSubTick[0] + 1;
                 else
                     gLastSubTick[0] = 0;
-                sub = (short)gLastSubTick[0];
+                sub  = (short)gLastSubTick[0];
+                j    = 0;
+                base = (unsigned char *)gVoxEvents;
+                p    = table;
+                off  = slot * 0x3c;
                 gLastTick[0] = tick;
-                s = SLOT(slot);
-                *(int *)(s + 0x10)  = voxEvent;
-                *(int *)(s + 0xc)   = tick;
-                *(short *)(s + 0xa) = sub;
-                j = 0;
+                *(int *)(base + off + 0x10)  = voxEvent;
+                *(int *)(base + off + 0xc)   = tick;
+                *(short *)(base + off + 0xa) = sub;
                 do {
-                    *(unsigned int *)(s + 0x14 + j * 4) = table[j];
-                    j = j + 1;
+                    *(unsigned int *)(base + off + 0x14) = *p;
+                    p   = p + 1;
+                    off = off + 4;
+                    j   = j + 1;
                 } while (j < 0xc);
                 gVoxEvents[0] = gVoxEvents[0] + 1;
-                *(short *)(s + 8) = 1;
+                *(short *)((unsigned char *)gVoxEvents + slot * 0x3c + 8) = 1;
             }
         }
     }

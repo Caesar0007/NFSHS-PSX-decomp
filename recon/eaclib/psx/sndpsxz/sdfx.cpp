@@ -10,8 +10,19 @@
 
 extern "C" int            sndgs[];
 extern "C" int            DAT_8014791c;          /* current fx mode    */
-extern "C" int            DAT_80147e2c;          /* SPU control reg base (address) */
-extern "C" short          snd_spu_reverb_mode;   /* reverb work-area boundary (sdmemman) */
+extern "C" unsigned char  sndpd[];               /* EA sound-driver state base @0x80147918 (shared,
+                                                   * sdma.c/sdpacket.c/slib.c/sdmemlu.c/sdmemman.c) */
+/* SPLIT-STORAGE FIX (wave-22 a1): snd_spu_reverb_mode was a standalone extern "own storage" global
+ * (sdmemlu.c's old comment credited it to "sdmemman", but it's really the same sndpd+0x51E field
+ * sdmemlu.c/sdmemman.c now read via SNDPD_REVERBMODE). Converted to the same sndpd-relative macro so
+ * this write is actually observed by SNDmemlargestunused/iSNDpsxmemconstrain/iSNDpsxmalloc's reads
+ * instead of landing in disconnected storage -- see sdmemlu.c's banner for the full cross-file proof. */
+#define snd_spu_reverb_mode (*(unsigned short *)(sndpd + 0x51E))
+/* Same class, same fix: DAT_80147e2c ("SPU control reg base") was ALSO a standalone `extern "C" int`
+ * here even though slib.c's iSNDinit (the actual writer, `#define DAT_80147e2c (*(int*)(sndpd+0x514))`)
+ * already models it sndpd-relative -- this file's reads were the disconnected half of that same pair.
+ * (Other consumers -- spatkey.c/sdspuirq.c/sdpacket.c/sdcdvol.c -- were left untouched; out of scope.) */
+#define DAT_80147e2c (*(int *)(sndpd + 0x514))
 extern "C" unsigned char  snd_reverb_table[];    /* reverb preset coefficient table */
 /* @0x80136E00 byte-exact from image: 10 blocks (modes 0..9) x 0x42 bytes = 660.
  * block[+0] u16 = SPU reverb work-area size, [+2..0x41] = the 0x20 reverb coefficient regs.
@@ -92,6 +103,12 @@ extern "C" unsigned int iSNDpsxfxinit(int mode)
     unsigned char *src;
     int           i, work;
     unsigned int  ctl;
+    /* MATCH: oracle materializes `s2 = &sndgs[0x27]` (D_801478FC == sndgs+0x9C) unconditionally in the
+     * PROLOGUE, before even the mode==0 check -- a callee-saved value the scheduler slots in early
+     * alongside the other prologue register spills, reused later (via +8/+0xC) for all 7 reverb-depth
+     * taps. Declaring it here (matching that early C-source position) instead of inside the `if` block
+     * it's actually used in reproduces that hoist. */
+    int *sg = &sndgs[0x27];
 
     if (mode != 0) {
         if      (mode == 5)    mode = 1;
@@ -104,20 +121,24 @@ extern "C" unsigned int iSNDpsxfxinit(int mode)
         else if (mode == 0x6e) mode = 8;
         else if (mode == 0x78) mode = 7;
     }
+    /* MATCH: oracle materializes `s3 = &sndpd` right here (after the mode-switch resolves, before the
+     * preset-table src pointer), reused later for the reverb-depth write below AND the DMA-clear loop
+     * further down -- same early-hoist lever as `sg` above. */
+    unsigned char *pd = sndpd;
     src = &snd_reverb_table[mode * 0x42];
-    snd_spu_reverb_mode = (short)((int)(0x10000 - (unsigned int)*(unsigned short *)src) >> 3);
+    *(unsigned short *)(pd + 0x51E) = (short)((int)(0x10000 - (unsigned int)*(unsigned short *)src) >> 3);
     iSNDpsxeffectoff(0xffffff);
     iSNDpsxeffectvol(0, 0);
     blockmove((int *)src, (int *)rv, 0x42);
 
     if ((unsigned int)(mode - 7U) < 2) {                  /* presets 7/8: scale taps by reverb depth */
-        rv[0xb] = (short)((sndgs[0x29] * 0x2000) / 0x7f) - rv[1];
-        rv[0xc] = (short)((sndgs[0x29] * 0x1000) / 0x7f) - rv[2];
-        rv[0xd] = rv[0xe] + (short)((sndgs[0x29] * 0x1000) / 0x7f);
-        rv[0x11] = rv[0x12] + (short)((sndgs[0x29] * 0x1000) / 0x7f);
-        rv[0x1b] = rv[0x1d] + (short)((sndgs[0x29] * 0x1000) / 0x7f);
-        rv[0x1c] = rv[0x1e] + (short)((sndgs[0x29] * 0x1000) / 0x7f);
-        rv[8] = (short)((sndgs[0x2a] * 0x8100) / 0x7f);
+        rv[0xb] = (short)((sg[2] * 0x2000) / 0x7f) - rv[1];
+        rv[0xc] = (short)((sg[2] * 0x1000) / 0x7f) - rv[2];
+        rv[0xd] = rv[0xe] + (short)((sg[2] * 0x1000) / 0x7f);
+        rv[0x11] = rv[0x12] + (short)((sg[2] * 0x1000) / 0x7f);
+        rv[0x1b] = rv[0x1d] + (short)((sg[2] * 0x1000) / 0x7f);
+        rv[0x1c] = rv[0x1e] + (short)((sg[2] * 0x1000) / 0x7f);
+        rv[8] = (short)((sg[3] * 0x8100) / 0x7f);
     }
 
     *(unsigned short *)(DAT_80147e2c + 0x1aa) = *(unsigned short *)(DAT_80147e2c + 0x1aa) & 0xff7f;  /* reverb off while loading */

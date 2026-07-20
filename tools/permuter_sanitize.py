@@ -23,11 +23,195 @@ Transforms (all layout-neutral):
      (single-line via _is_method_line; multi-line bodies via _is_method_header +
      skip -- data members kept),
   3. `Class::method` scoped calls -> `Class__method` (only in sibling bodies).
+  4. wrap every `sizeof(...)` in a redundant outer paren pair (see
+     _wrap_sizeof_parens) -- works around a real ambiguity in the vendored
+     pycparser grammar, not a C++-ism; applies equally to the C and C++ lanes.
+  5. rewrite `operator new/delete(...)` and placement `new(P) T(args)` into
+     plain-looking function calls (see _wrap_new_expressions) -- pycparser
+     has NO grammar for `new` at all; permute.py::do_compile's cpp invocation
+     (cpp lane) defines the inverse macros so CC1PLPSX only ever compiles the
+     unmodified original text -- byte-identical by construction, not merely
+     hoped-for (verified against a real CC1PLPSX compile, see the docstring).
 
 Usage:  python tools/permuter_sanitize.py <in_preprocessed.c> <out_clean.c>
 """
 import re
 import sys
+
+
+_SIZEOF_OPEN = re.compile(r"\bsizeof\s*\(")
+
+
+def _wrap_sizeof_parens(text: str) -> str:
+    """Wrap every `sizeof(...)` call in an extra pair of parens: `(sizeof(...))`.
+
+    2026-07-20 diagnosis (InsertTrigger__24AITrigger_TriggerManagerP9trigger_tb
+    setup failure, reported via a13): the vendored decomp-permuter pycparser
+    (perm_pycparser) folds `cast_expression` INTO `unary_expression`
+    (`p_cast_expression_2`: `unary_expression : LPAREN type_name RPAREN
+    unary_expression`), unlike the real ISO C grammar, which keeps
+    cast_expression a separate nonterminal reachable only FROM
+    unary_expression, never the other way. Combined with `SIZEOF
+    unary_expression` (which can now transitively reach a cast_expression),
+    this reintroduces the classic sizeof/cast shift-reduce ambiguity that the
+    real grammar's split avoids, and PLY's default shift-preferred resolution
+    picks the wrong side: `sizeof(T) + N` parses as `sizeof((T)(+N))` --
+    `+N` gets swallowed as a cast target of `(T)`, so the sizeof's operand
+    becomes the whole cast expression and any trailing precedence is lost too
+    (`sizeof(T) + 4 * 2` -> `(sizeof((T)(+4))) * 2`, not `sizeof(T) + (4*2)`).
+    For a POD type this is silently harmless (the VALUE is coincidentally
+    unaffected: sizeof of any int-typed expression == sizeof(int)), so it
+    went unnoticed; for a class/struct type with no viable single-arg
+    constructor matching N's type, CC1PLPSX hard-errors ("no matching
+    function for call to `T::T(int)`") -- exactly the InsertTrigger symptom.
+    IMPORTANT: this is NOT the reducer/sanitizer including constructor code
+    it can't compile -- neither ever touches `trigger_pathPosition_t`'s ctor;
+    the corruption happens entirely inside decomp-permuter's own
+    parse-then-regenerate step, downstream of everything in this file.
+
+    Fix: an extra redundant paren pair around the whole `sizeof(...)` span.
+    Always a semantic no-op in C/C++ (parens around a complete expression
+    never change type/value/codegen -- verified directly against the
+    vendored parser: `sizeof(T) + 4*2` -> `sizeof(T) + (4*2)`, correct
+    precedence restored, once wrapped), and it sidesteps the ambiguity
+    because the token immediately after the wrapped span becomes `)`, which
+    cannot start a cast target -- the parser's only grammatically valid move
+    at that point is to reduce, no conflict to resolve either way."""
+    out = []
+    i, n = 0, len(text)
+    while True:
+        m = _SIZEOF_OPEN.search(text, i)
+        if not m:
+            out.append(text[i:])
+            break
+        out.append(text[i:m.start()])
+        depth, j = 1, m.end()          # m.end() is just past the '(' sizeof opened
+        while j < n and depth:
+            if text[j] == "(":
+                depth += 1
+            elif text[j] == ")":
+                depth -= 1
+            j += 1
+        out.append("(" + text[m.start():j] + ")")
+        i = j
+    return "".join(out)
+
+
+_OP_NEW_RE = re.compile(r"\boperator\s+new\s*\(")
+_OP_DELETE_RE = re.compile(r"\boperator\s+delete\s*\(")
+_PLACEMENT_NEW_RE = re.compile(r"\bnew\s*\(")
+
+
+def _match_paren(text: str, open_idx: int) -> int:
+    """Index of the `)` closing the `(` at text[open_idx] (paren-depth counted,
+    so it handles nested parens like a cast inside a placement-new arg)."""
+    depth, i, n = 0, open_idx, len(text)
+    while i < n:
+        if text[i] == "(":
+            depth += 1
+        elif text[i] == ")":
+            depth -= 1
+            if depth == 0:
+                return i
+        i += 1
+    return -1
+
+
+def _wrap_new_expressions(text: str) -> str:
+    """pycparser has ZERO grammar support for C++ `new` at all -- NEW isn't
+    even a token, so any function using it can't reach `setup`: a hard parse
+    error, unlike the ambiguous-but-parseable sizeof/cast case above. This
+    project's recon convention (verified against every call site in
+    aih_btccop.cpp/aihigh.cpp/aih_cop.cpp/aih_btcperp.cpp/aih_opp.cpp/
+    aih_traf.cpp, ~90 sites) never uses bare heap `new T(args)` -- always
+    either an explicit `operator new(N)` allocation call, or an explicit
+    placement `new(PTR) TYPE(ARGS)` construct-at-address. Both are rewritten
+    here into ordinary-looking C function calls so pycparser can parse them;
+    `tools/permute.py::do_setup` scans the reduced base.c for every distinct
+    `__nfs4_new_<TYPE>` this produced and writes them to permuter_work/<sym>/
+    new_types; `tools/run_permuter.py` reads that file and bakes one INVERSE
+    macro per type into NFS4_COMPILE_DRIVER/compile.sh, so `do_compile`'s cpp
+    invocation (cpp lane only) expands e.g.
+    `-D'__nfs4_new_Foo(P,args...)=new(P) Foo(args)'` back to the literal,
+    unmodified original text before CC1PLPSX ever sees it (verified directly
+    against the real mipsel-none-elf-cpp.exe, including the zero-ctor-arg
+    case, which needs GNU's named-ellipsis `args...` extension -- ISO
+    `__VA_ARGS__` requires >=1 variadic argument). TYPE is folded into the
+    macro's own NAME rather than passed as its first argument -- a bare type
+    name (no `struct` keyword, no trailing identifier) is not a valid C
+    *expression*, so pycparser correctly rejects `__nfs4_placement_new(Foo,
+    ptr, v)` as a call argument even though it is one to the preprocessor.
+    Verified against the real vendored pycparser directly (see the
+    diagnosis) before landing this design -- the naive argument-based version
+    failed exactly this way. This is provably a no-op on real codegen
+    by construction (CC1PLPSX's input is byte-identical either way), unlike a
+    semantic rewrite (e.g. substituting `__builtin_new` calls) -- confirmed
+    empirically 2026-07-20 by compiling a placement-new test through the real
+    CC1PLPSX and disassembling: `new(ptr) Foo(v)` (Foo a simple 2-int-field
+    ctor) compiles to the constructor's body INLINED directly at `ptr` (no
+    separate placement-operator-new call at all -- this codebase's own
+    `nfs4_new.h` placement operator is `inline ... { return p; }`, trivially
+    optimized away), and `operator new(N)` compiles to a call to
+    `__builtin_new` (CC1PLPSX's own GCC-2.x-era built-in runtime hook name for
+    the allocation operator, regardless of the user's own `operator new`
+    declaration) -- neither goes through any symbol this rewrite's macro
+    names could plausibly collide with.
+
+    Sites this function does NOT handle (left as literal, un-rewritten `new`
+    text -- same as before this fix: still a hard parse error, no regression,
+    just not newly unblocked): bare heap-allocating `new TYPE(args)` with no
+    placement parens, and `new TYPE[N]` array-new. Not observed anywhere in
+    this project's recon/ as of this diagnosis; add a case here if one turns
+    up (the ARGS/array-size paren-balanced scan the same as PLACEMENT below)."""
+    # 1. explicit operator new/delete calls -- rename FIRST so the placement-new
+    #    scan below (keyed on bare `new(`) can't also match inside them.
+    text = _OP_NEW_RE.sub("__nfs4_op_new(", text)
+    text = _OP_DELETE_RE.sub("__nfs4_op_delete(", text)
+
+    # 2. placement-new `new(PLACEMENT) TYPE(ARGS)` -> `__nfs4_placement_new(
+    #    TYPE, PLACEMENT, ARGS)`. Paren-balanced (not a single regex) because
+    #    PLACEMENT commonly contains its own parens, e.g. a cast:
+    #    `new((AIHigh_BTC_Cop *)this) AIHigh_BTC_Cop(carObj,copIndex)`.
+    out, i, n = [], 0, len(text)
+    while True:
+        m = _PLACEMENT_NEW_RE.search(text, i)
+        if not m:
+            out.append(text[i:])
+            break
+        popen = m.end() - 1
+        pclose = _match_paren(text, popen)
+        if pclose < 0:                                  # unbalanced -- bail out safely
+            out.append(text[i:m.end()]); i = m.end(); continue
+        placement = text[popen + 1:pclose]
+        j = pclose + 1
+        while j < n and text[j] in " \t\r\n":
+            j += 1
+        tm = re.match(r"\w+", text[j:])
+        if not tm:                       # not `new(...) TYPE(...)` -- leave as-is
+            out.append(text[i:pclose + 1]); i = pclose + 1; continue
+        type_name = tm.group(0)
+        k = j + tm.end()
+        while k < n and text[k] in " \t\r\n":
+            k += 1
+        if k >= n or text[k] != "(":     # no ctor-arg parens -- leave as-is
+            out.append(text[i:pclose + 1]); i = pclose + 1; continue
+        aclose = _match_paren(text, k)
+        if aclose < 0:                                  # unbalanced -- bail out safely
+            out.append(text[i:pclose + 1]); i = pclose + 1; continue
+        args = text[k + 1:aclose].strip()
+        out.append(text[i:m.start()])
+        macro = "__nfs4_new_" + type_name    # TYPE folded into the macro NAME
+        # a trailing `, )` (empty last arg) is NOT valid C call syntax --
+        # pycparser correctly rejects `f(a, )` -- so a zero-ctor-arg
+        # placement-new (`new(p) T()`) must omit the argument entirely
+        # rather than pass an empty one; the inverse macro's `args...`
+        # already tolerates being called with only 1 (P) argument (verified).
+        if args:
+            out.append("%s(%s, %s)" % (macro, placement, args))
+        else:
+            out.append("%s(%s)" % (macro, placement))
+        i = aclose + 1
+    return "".join(out)
 
 
 def _is_method_line(l: str) -> bool:
@@ -82,7 +266,12 @@ STRUCT_OPEN = re.compile(r"^\s*(typedef\s+)?(struct|union)\b.*\{\s*$")
 
 
 def sanitize(text: str) -> str:
-    lines = text.splitlines()
+    text = _wrap_sizeof_parens(text)      # transform 4 (see docstring)
+    text = _wrap_new_expressions(text)    # transform 5 (see docstring) -- do
+    lines = text.splitlines()             # these first; neither ever inserts
+                                           # or removes a newline, so neither
+                                           # can disturb the line-oriented
+                                           # brace-depth tracking below
     out = []
     depth = 0
     externc_depths = set()      # brace depths opened by `extern "C" {`

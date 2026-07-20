@@ -753,15 +753,13 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
   int startSlice;
   int endSlice;
   int fRandomChance;
-  int newSlice;
+  int chanceBase;
   int temp;
   int sliceLoop;
   int triggerHere;
   int iRandomChance;
   int randomValue;
-  int unused;
-
-  int trigger;
+  int loopOk;
 
   Car_tObj *pCVar1;
 
@@ -769,57 +767,49 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 
   u_int uVar3;
 
-  int iVar4;
-
-  int iVar5;
-
-  int slice;
-
-  Car_tObj *pCVar6;
-
-  int iVar7;
-
   int iStack_30;
 
   Car_tObj **local_2c;
 
-  
 
-  iVar7 = Cars_gNumCars + -1;
 
-  local_2c = Cars_gTotalSortedList + iVar7;
+  sortedLoop = Cars_gNumCars + -1;
+
+  local_2c = Cars_gTotalSortedList + sortedLoop;
 
   do {
 
-    if (iVar7 < 0) {
+    if (sortedLoop < 0) {
 
       return (trigger_t *)0x0;
 
     }
 
-    pCVar6 = *local_2c;
+    testCar = *local_2c;
 
-    iVar4 = -1;
+    dir = -1;
 
-    if ((pCVar6->carFlags & 0x204U) != 0) {
+    if ((testCar->carFlags & 0x204U) != 0) {
+
+      thisPlayer = (AIHigh_Base *)highLevelAIObjs[testCar->carIndex];
 
       fRandomChance = 0x320000;
 
-      if (-1 < pCVar6->currentSpeed) {
+      if (-1 < testCar->currentSpeed) {
 
-        iVar4 = 1;
+        dir = 1;
 
       }
 
-      iVar4 = iVar4 * 0x2d;
+      thisSlice = dir * 0x2d;
 
-      if (iVar4 < 0) {
+      if (thisSlice >= 0) {
 
-        iVar4 = (pCVar6->N).simRoadInfo.slice + iVar4;
+        thisSlice = (testCar->N).simRoadInfo.slice + thisSlice;
 
-        if (iVar4 < 0) {
+        if (gNumSlices <= thisSlice) {
 
-          iVar4 = iVar4 + gNumSlices;
+          thisSlice = thisSlice - gNumSlices;
 
         }
 
@@ -827,43 +817,51 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 
       else {
 
-        iVar4 = (pCVar6->N).simRoadInfo.slice + iVar4;
+        thisSlice = (testCar->N).simRoadInfo.slice + thisSlice;
 
-        if (gNumSlices <= iVar4) {
+        if (thisSlice < 0) {
 
-          iVar4 = iVar4 - gNumSlices;
+          thisSlice = thisSlice + gNumSlices;
 
         }
 
       }
 
-      thisPlayer = (AIHigh_Base *)highLevelAIObjs[pCVar6->carIndex];
+      temp = thisPlayer->lastTrafficTriggerCheckSlice_;
 
-      iVar5 = thisPlayer->lastTrafficTriggerCheckSlice_;
+      thisPlayer->lastTrafficTriggerCheckSlice_ = thisSlice;
 
-      thisPlayer->lastTrafficTriggerCheckSlice_ = iVar4;
+      if (temp < thisSlice) {
 
-      slice = iVar4;
+        startSlice = temp;
 
-      if (iVar5 < iVar4) {
-
-        slice = iVar5;
-
-        iVar5 = iVar4;
+        endSlice = thisSlice;
 
       }
 
-      iVar4 = iVar5 - slice;
+      else {
 
-      iRandomChance = fRandomChance * 0x19;
+        startSlice = thisSlice;
 
-      randomValue = (iRandomChance << 2) / 0x10000;
+        endSlice = temp;
 
-      while ((slice < iVar5 && (iVar4 < 0x32))) {
+      }
 
-        trigger = triggerManagerTraffic->CheckForTriggerAtSlice(pCVar6->carIndex, slice);
+      sliceLoop = startSlice;
 
-        if (trigger != -1) {
+      loopOk = (endSlice - sliceLoop) < 0x32;
+
+      chanceBase = fRandomChance * 0x19;
+
+      while (sliceLoop < endSlice) {
+
+        if (!loopOk) break;
+
+        triggerHere = triggerManagerTraffic->CheckForTriggerAtSlice(testCar->carIndex, sliceLoop);
+
+        if (triggerHere != -1) {
+
+          iRandomChance = (chanceBase << 2) / 0x10000;
 
           randtemp = fastRandom * randSeed;
 
@@ -871,11 +869,13 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 
           uVar3 = randtemp >> 8;
 
-          pCVar1 = AILife_IsSliceInAnyVisibleArea(slice);
+          randomValue = (uVar3 & 0xffff) * 0x19 >> 0xe;
 
-          if ((pCVar1 == (Car_tObj *)0x0) && ((uVar3 & 0xffff) * 0x19 >> 0xe < randomValue)) {
+          pCVar1 = AILife_IsSliceInAnyVisibleArea(sliceLoop);
 
-            ptVar2 = triggerManagerTraffic->GetTrigger(trigger, &iStack_30);
+          if ((pCVar1 == (Car_tObj *)0x0) && (randomValue < iRandomChance)) {
+
+            ptVar2 = triggerManagerTraffic->GetTrigger(triggerHere, &iStack_30);
 
             return ptVar2;
 
@@ -883,13 +883,13 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 
         }
 
-        slice = slice + 1;
+        sliceLoop = sliceLoop + 1;
 
       }
 
     }
 
-    iVar7 = iVar7 + -1;
+    sortedLoop = sortedLoop + -1;
 
     local_2c = local_2c + -1;
 

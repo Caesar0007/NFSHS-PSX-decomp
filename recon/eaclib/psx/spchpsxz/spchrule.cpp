@@ -44,7 +44,15 @@ extern "C" int iSPCH_GetRuleDataAddr(int sentence)
     return sentence + off;
 }
 
-/* iSPCH_SentenceUsesParm @0x8010B158 : 1 if any phrase of `sentence` references parameter `paramIdx`. */
+/* iSPCH_SentenceUsesParm @0x8010B158 : 1 if any phrase of `sentence` references parameter `paramIdx`.
+ * MATCH: a phrase[2] match jumps straight to the shared exit (no more phrases scanned); a phrase[4+j]
+ * match only breaks the inner j-loop and keeps scanning later phrases -- both paths funnel `found`
+ * through the SAME tail (`v0=s1` in the oracle), so the phrase[2] case must NOT be an early `return`.
+ * The inner loop's byte address is a genuine named pointer `p = phrase + j` (dereferenced at +4) --
+ * an earlier draft reused one `p` declared *before* the loop (dead-store bug, 44 diffs) and a later
+ * draft papered over it with an `spchAdd2()`/no-op-statement scheduling trick (also reached 0, but was
+ * scaffolding no EA programmer would write); this per-iteration-local `p` is the honest source form
+ * that reaches the same byte-exact match without either. */
 extern "C" int iSPCH_SentenceUsesParm(int sentence, unsigned int paramIdx)
 {
     int numPhrases = VoxSentence_GetNumPhrases(sentence);
@@ -53,21 +61,25 @@ extern "C" int iSPCH_SentenceUsesParm(int sentence, unsigned int paramIdx)
     if (0 < numPhrases) {
         do {
             int phrase = iSPCH_GetOffset8(sentence, sentence + 4, phraseIdx);
-            int j      = 0;
-            int p      = phrase;
-            if (((unsigned int)*(unsigned char *)(phrase + 2) & 0xf) == paramIdx)
-                return 1;
-            do {
-                if (((unsigned int)*(unsigned char *)(p + 4) & 0xf) == paramIdx) {
-                    found = 1;
-                    break;
-                }
-                j = j + 1;
-                p = phrase + j;
-            } while (j < 4);
+            if (((unsigned int)*(unsigned char *)(phrase + 2) & 0xf) == paramIdx) {
+                found = 1;
+                goto done;
+            }
+            {
+                int j = 0;
+                do {
+                    unsigned char *p = (unsigned char *)(phrase + j);
+                    if (((unsigned int)*(p + 4) & 0xf) == paramIdx) {
+                        found = 1;
+                        break;
+                    }
+                    j = j + 1;
+                } while (j < 4);
+            }
             phraseIdx = phraseIdx + 1;
         } while (phraseIdx < numPhrases);
     }
+done:
     return found;
 }
 
@@ -129,13 +141,24 @@ extern "C" void iSPCH_RuleSet(short *sentence, int rule, int val)
 }
 
 /* iSPCH_GetRuleSettings @0x8010B3CC : evaluate rule types 1..12 of `sentence` against the gSentenceRuleTest
- *   callback (using values[] for the typed ones) and pack the pass/fail bits into *out. */
+ *   callback (using values[] for the typed ones) and pack the pass/fail bits into *out.
+ *   MATCH notes vs raw oracle (structural bugs found on first-ever pass over this fn):
+ *   (1) `values` advances once per outer (ruleType) iteration for the normal v=*values path, but
+ *   rule-type-4 (typeNib==4) indexes the ORIGINAL incoming values[] (valuesBase) by paramIdx directly --
+ *   two distinct base pointers, and the whole typeNib==4 arm was MISSING from the prior reconstruction.
+ *   (2) the real gSentenceRuleTest call is 4-arg (*sentence,ruleId,v,sentence) -- the prior draft passed
+ *   6 args (2 extra: a stray *p, paramIdx) that the oracle's call site never sets up.
+ *   (3) `result` is a SECOND accumulator (typeNib==4-hit + r>0 hit) that the oracle computes to the very
+ *   end (`andi v0,s6,0xff`) but never stores -- dead but must be reproduced; only `flags` (r<0 hits) is
+ *   written to *out. */
 extern "C" void iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
 {
-    char           numRules = *(char *)((int)sentence + 7);
-    unsigned int   result   = 0;
-    unsigned char *ruleData = (unsigned char *)iSPCH_GetRuleDataAddr((int)sentence);
-    unsigned int   ruleType = 1;
+    char           numRules   = *(char *)((int)sentence + 7);
+    int           *valuesBase = values;
+    unsigned int   result     = 0;
+    unsigned int   flags      = 0;
+    unsigned char *ruleData   = (unsigned char *)iSPCH_GetRuleDataAddr((int)sentence);
+    unsigned int   ruleType   = 1;
     do {
         int            i = 0;
         unsigned char *p = ruleData;
@@ -159,15 +182,20 @@ extern "C" void iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
                     v      = *values;
                     doTest = 1;
                 }
-                if (doTest && (typeNib != 4)) {
-                    int r;
-                    if (gSentenceRuleTest == 0)
-                        r = -1;
-                    else
-                        r = ((int (*)(int, int, int, int, int, int))gSentenceRuleTest)
-                                ((int)*sentence, (int)*p, v, (int)sentence, (int)*p, (int)paramIdx);
-                    if (r != 0 && r < 1)
-                        result = result | (1 << (7 - i));
+                if (doTest) {
+                    if (typeNib == 4) {
+                        if (valuesBase[paramIdx] != 0)
+                            result = result | (1 << (7 - i));
+                    } else {
+                        int r;
+                        if (gSentenceRuleTest == 0)
+                            r = -1;
+                        else
+                            r = ((int (*)(int, int, int, int))gSentenceRuleTest)
+                                    ((int)*sentence, (int)ruleId0, v, (int)sentence);
+                        if (r != 0 && r < 1)
+                            flags = flags | (1 << (7 - i));
+                    }
                 }
                 i = i + 1;
                 p = p + 2;
@@ -175,7 +203,9 @@ extern "C" void iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
         }
         ruleType = ruleType + 1;
         if (0xc < (int)ruleType) {
-            *out = (char)result;
+            volatile unsigned char resultByte = (unsigned char)result;
+            (void)resultByte;
+            *out = (char)flags;
             return;
         }
     } while (true);

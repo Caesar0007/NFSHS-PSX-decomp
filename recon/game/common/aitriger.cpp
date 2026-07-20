@@ -20,13 +20,15 @@ void AITrigger_TriggerManager::Init(char *rawTriggers)
   char *currentTrigger;
   int tLoop;
   trigger_t **pptVar2;
+  trigger_t *deletedMarker;
 
+  deletedMarker = (trigger_t *)0xfffff600;
   tLoop = 99;
   pptVar2 = this->triggers_ + 0x61;
   this->numTriggers_ = 0;
   this->invNumTriggers_ = 0;
   do {
-    pptVar2[0x66] = (trigger_t *)0xfffff600;
+    pptVar2[0x66] = deletedMarker;
     tLoop = tLoop + -1;
     pptVar2 = pptVar2 + -1;
   } while (-1 < tLoop);

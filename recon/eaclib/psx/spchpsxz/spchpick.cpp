@@ -1,4 +1,10 @@
-/* eaclib/psx/spchpsxz/spchpick.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 27/27 ***
+/* eaclib/psx/spchpsxz/spchpick.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 16/27 PASS ***
+ *   (w22-a3, 2026-07-20: header was stale at "27/27" -- corrected after a verify_asm_full survey found
+ *    11 real FAILs. Current FAILs by diff size: iSPCH_OrderSentences(64,85/83) iSPCH_ChooseSentence(58,104=104)
+ *    iSPCH_SentenceGetChoices(54,84/80) iSPCH_MakeSampleRequests(51,85/82) iSPCH_MatchSample(34,67/65)
+ *    iSPCH_IterateChoice(43,45/44) iSPCH_ConstantRuleSet(20,83=83) iSPCH_SampleLength(16,26=26)
+ *    iSPCH_SentenceMakeChoice(9,44/43,documented biv-elim floor) iSPCH_RandomizeSentencePicks(7,57/56)
+ *    iSPCH_ChooseShortSentence(7,46/45) iSPCH_PlayChosen(7,41/40). See per-fn comments for what's been tried.)
  *   Source obj : nfs4\eaclib\psx\spchpick.obj ; archive C:\nfs4\EACLIB\PSX\SPCHPSXZ.LIB (xlsx col12 / SYM v3)
  *   27 fns @[0x8010077C .. 0x801018F4].  The sentence/sample PICKER -- the top of the speech pipeline: takes
  *   a chosen event, picks a sentence template that passes its rules, chooses matching samples per phrase,
@@ -104,9 +110,9 @@ extern "C" int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, in
             int i = 0;
             do {
                 unsigned int cycleByte = *(unsigned char *)(sample + i + 0xc);
+                result = 0;
                 if (0x1f < cycleByte)
                     break;
-                result = 0;
                 {
                     unsigned int bit      = 1u << (cycleByte);
                     int          lowNib   = (int)*(unsigned char *)(phraseTemplate + i + 4) & 0xf;

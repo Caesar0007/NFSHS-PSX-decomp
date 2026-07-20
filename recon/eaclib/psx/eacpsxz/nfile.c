@@ -116,18 +116,28 @@ extern FileHandle *reservehandle(void)
 /* reserveop @0x800ED0DC : claim a free op slot, stamp it with op index + a fresh 20-bit request id.
  * asm: same shape as reservehandle -- walks a pointer to find the slot but, after leaving the CS,
  * RECOMPUTES the slot's address from the loop COUNTER alone (oparray + i*0x30); the C tracks only `i`. */
+/* the oracle re-derives the slot address FRESH from gFileMgr.oparray (a real memory reload, not a
+ * cached pointer) at each of the id-field mutation sites below -- only the VERY FIRST combine
+ * (the type-nibble set) reuses the address+value already computed for the free-check condition;
+ * the byte3 store and the seq-combine store each redo `oparray + off` from scratch (2 extra
+ * lui/lw/addu-shaped reloads the oracle has that a single persistent `op` local doesn't produce).
+ * OPARR_AT is that fresh-recompute accessor; `off` (a byte offset, not a walked pointer) is the
+ * oracle's own loop induction variable (its bnez back-edge delay slot is `addiu a1,a1,0x30`). */
+#define OPARR_AT(o) ((FileOp *)((char *)gFileMgr.oparray + (o)))
+
 extern FileOp *reserveop(void)
 {
-    int i, sr;
+    int i, sr, off;
     FILE_CS_ENTER(sr);
     i = 0;
     if (gFileMgr.opcount > 0) {
-        FileOp *op = gFileMgr.oparray;
+        off = 0;
         for (;;) {
+            FileOp *op = OPARR_AT(off);
             if (((op->id >> 0x14) & 0xF) == 0) {             /* type nibble (bits 20-23) == 0 -> free */
                 op->id = (op->id & 0xFF0FFFFFu) | 0x100000u; /* set type nibble = 1 */
-                ((unsigned char *)&op->id)[3] = (unsigned char)i;  /* byte3 = op index */
-                op->id = (op->id & 0xFFF00000u) | (gFileOpSeq & 0xFFFFF);  /* bits 0-19 = request seq */
+                ((unsigned char *)&OPARR_AT(off)->id)[3] = (unsigned char)i;  /* byte3 = op index */
+                OPARR_AT(off)->id = (OPARR_AT(off)->id & 0xFFF00000u) | (gFileOpSeq & 0xFFFFF); /* bits 0-19 = request seq */
                 if (++gFileOpSeq > 0xFFFFF)                  /* 20-bit wrap */
                     gFileOpSeq = 0;
                 break;
@@ -135,7 +145,7 @@ extern FileOp *reserveop(void)
             i++;
             if (i >= gFileMgr.opcount)
                 break;
-            op = (FileOp *)((char *)op + 0x30);
+            off += 0x30;
         }
     }
     FILE_CS_LEAVE(sr);
@@ -190,17 +200,26 @@ success:
 /* FILE_operror @0x800EBE1C : raw error code of the op named by `id` (index=id>>24; no validation). */
 extern int FILE_operror(unsigned int id)
 {
-    /* 🔴 RESIDUAL FLOOR (18 diffs, investigated this wave): oracle reserves an unexplained
-     * 16-byte stack frame (addiu sp,-0x10 / +0x10) on this LEAF accessor with NO calls and NO
-     * apparent spill need, plus copies `id` into a fresh reg BEFORE computing %hi(oparray) --
-     * ours keeps id in $a0 and never allocates a frame (10 insns vs 12). Tried: array-index
-     * form (`gFileMgr.oparray[id>>24]`), a separate `idx` temp before the pointer add, and a
-     * K&R-style (non-ANSI-prototype) function definition to force an arg-save area -- ALL
-     * three produced byte-IDENTICAL codegen to the current form (no effect). FILE_opstatus has
-     * the exact same unexplained frame (confirmed same family). Not source-shapable found;
-     * accept as a genuine toolchain/allocator floor. */
-    FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
-    return op->error;
+    /* wave-22 permuter (FILE_operror, score 100->80): direct-return the field, don't cache the
+     * pointer in `op` first -- matches the general "oracle re-reads fresh, don't cache" lever.
+     * 🔴 RESIDUAL FLOOR (still present after the direct-return win): oracle reserves an
+     * unexplained 16-byte stack frame (addiu sp,-0x10 / +0x10) on this LEAF accessor with NO
+     * calls and NO apparent spill need, plus copies `id` into a fresh reg BEFORE computing
+     * %hi(oparray) -- ours keeps id in $a0 and never allocates a frame. Tried: array-index form
+     * (`gFileMgr.oparray[id>>24]`), a separate `idx` temp before the pointer add, and a K&R-style
+     * (non-ANSI-prototype) function definition to force an arg-save area -- ALL produced
+     * byte-IDENTICAL codegen (no effect). 🔴🔴 wave-22 PERMUTER EXPERIMENT (this fn = the fleet's
+     * chosen representative for the whole 6-fn phantom-frame family, run on the ALREADY-FOLDED
+     * (score-80) base): ~780 total iterations across 3 runs (10, 321, and a final 429-iteration
+     * run bounded to 5 min wall-clock, C-lane/CC1PSX, -j2), best score found = 80 in EVERY run,
+     * NEVER below 80, never 0 -- i.e. randomized mutation never once produced the oracle's extra
+     * `addiu sp,sp,-0x10`/`+0x10` pair (which brackets a function that touches NO stack slot at
+     * all -- 4 dead words, allocated and immediately deallocated, on a leaf with no spills). This
+     * is strong evidence for a genuine cc1/allocator floor, not a source-shape gap; do not re-grind
+     * this specific family with more agent-hours without a new hypothesis. FILE_opstatus has the exact same unexplained frame (same
+     * family; also see FILE_completeop/FILE_callbackop/FILE_priorityop/iFILE_addbigopencallback
+     * -- 6 nfile.c functions total). */
+    return ((FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30))->error;
 }
 
 /* the FILE system backend (allocator + device init) */
@@ -843,20 +862,14 @@ extern int iFILE_ExecCommand(void *cmdp)
 
     FILE_CS_ENTER(sr);                           /* cop0: disable IRQs */
 
-    /* 🆕 wave-21 LEAD (not applied, see the `type` comment below for why): the oracle stores
-     * `cmd->qnext = queuehead` UNCONDITIONALLY (the entry beqz's own delay slot, before testing
-     * queuehead!=0) rather than special-casing the qh==0 branch the way this C does -- i.e. the
-     * true shape is `cmd->qnext = qh; if (qh != 0) { for(;;){...} }` with no separate `qnext=0`
-     * arm. Independently verified correct (matches the oracle's delay-slot store) but, like the
-     * `type` lead above, doesn't net a diff-count drop this wave because of the same unrelated
-     * $a2-vs-$a3 SR cascade. Re-apply alongside the `type` fix once that root cause is found. */
+    /* the oracle stores `cmd->qnext = queuehead` UNCONDITIONALLY (the entry beqz's own delay slot,
+     * before testing queuehead!=0) rather than special-casing the qh==0 branch -- i.e. the true
+     * shape is `cmd->qnext = qh; if (qh != 0) { for(;;){...} }` with no separate `qnext=0` arm. */
     if (cmd != 0) {                              /* insert into the priority-sorted pending queue */
         FileOp *prev = 0;
         FileOp *qh   = gFileMgr.queuehead;
-        if (qh == 0) {
-            cmd->qnext = 0;
-        } else {
-            cmd->qnext = qh;
+        cmd->qnext = qh;
+        if (qh != 0) {
             for (;;) {
                 FileOp *node = cmd->qnext;       /* cursor (cmd->qnext is reused as the walk pointer) */
                 if (cmd->prio < node->prio)      /* insert before the first higher-prio op */
@@ -867,50 +880,42 @@ extern int iFILE_ExecCommand(void *cmdp)
                     break;
             }
         }
-        if (prev == 0) gFileMgr.queuehead = cmd;
-        else           prev->qnext        = cmd;
+        if (prev != 0) prev->qnext        = cmd;  /* oracle: fallthrough=prev!=0, branch-target=prev==0 */
+        else           gFileMgr.queuehead = cmd;
         gFileMgr.state++;                        /* one more queued op */
     }
 
     if (gFileMgr.curop != 0) {                   /* an op is already being dispatched */
         FILE_CS_LEAVE(sr);
-        return 0;
+        return;                                  /* oracle: no v0 zeroing on ANY exit of this fn (see below) */
     }
 
-    {                                            /* dequeue the head (if its prio fits under idmask) */
-        FileOp *head = gFileMgr.queuehead;
-        FileOp *pick = 0;
-        if (head != 0 && !(gFileMgr.idmask < head->prio)) {
-            gFileMgr.queuehead = head->qnext;
-            gFileMgr.state--;
-            pick = head;
-        }
-        gFileMgr.curop = pick;
-        cmd = pick;
+    /* dequeue the head (if its prio fits under idmask). oracle reuses cmd's own dead register
+     * (cmd is unused at this point -- it was already stored into the queue in the block above)
+     * directly for the dequeued head/pick value, rather than a separate `head`/`pick` local. */
+    cmd = gFileMgr.queuehead;
+    if (cmd != 0 && !(gFileMgr.idmask < cmd->prio)) {
+        gFileMgr.queuehead = cmd->qnext;
+        gFileMgr.state--;
+    } else {
+        cmd = 0;
     }
+    gFileMgr.curop = cmd;
     FILE_CS_LEAVE(sr);                           /* cop0: re-enable IRQs */
 
     if (cmd == 0)
-        return 0;                                /* nothing to dispatch */
+        return;                                  /* nothing to dispatch */
 
-    /* 🆕 wave-21 LEAD (not applied -- see below): the oracle RE-DERIVES this nibble fresh from
-     * cmd->id at 3 separate sites (srl 20;andi 0xF at 0x800ECCD0 for dispatch, again at
-     * 0x800ECDE8 and 0x800ECEE0 for the two `type==8` checks deep in the case-2/8 body, AFTER
-     * openfile/strchr/strncpy/strcpy calls) rather than keeping ONE cached `type` alive across
-     * those calls (proven lever #1). Rewriting the two post-call `type==8` checks in the case-2/8
-     * body as `((cmd->id>>0x14)&0xF)==8` DOES eliminate the extra callee-saved $s4 our current
-     * `type` local forces (confirmed: the 5-register save set then matches the oracle's
-     * s0/s1/s2/s3/ra exactly, byte-for-byte, at the same stack offsets) -- a real, oracle-verified
-     * correctness fix. But taken alone (or combined with the qnext fix below) it does NOT lower
-     * this wave's diff count (153->155/162) because of an UNRELATED, pre-existing coloring
-     * cascade already present in the 153-diff baseline (oracle picks $a2 for the CS-saved SR;
-     * ours picks $a3) that swamps the whole function with downstream reg-swap diffs regardless.
-     * Left un-applied this wave (insn count didn't move decisively per the iron rule); a future
-     * wave that cracks the $a2-vs-$a3 SR-register pick first should re-apply this lever -- it is
-     * independently correct and should net a real drop once that root cause is found. */
+    /* the oracle RE-DERIVES this nibble fresh from cmd->id at 3 separate sites (srl 20;andi 0xF
+     * at 0x800ECCD0 for dispatch, again at 0x800ECDE8 and 0x800ECEE0 for the two `type==8` checks
+     * deep in the case-2/8 body, AFTER openfile/strchr/strncpy/strcpy calls) rather than keeping
+     * ONE cached `type` alive across those calls. The two post-call `type==8` checks in the
+     * case-2/8 body are re-derived as `((cmd->id>>0x14)&0xF)==8` below -- this eliminates the
+     * extra callee-saved $s4 a cached `type` would force across those calls (the 5-register save
+     * set would otherwise be s0/s1/s2/s3/s4/ra vs the oracle's s0/s1/s2/s3/ra). */
     type = (cmd->id >> 0x14) & 0xF;
     if (type < 2 || type > 10)                   /* op-type nibble must be 2..10 */
-        return 0;
+        return;
 
     {
         /* the open-file handle: NOT cached in a local -- the oracle re-reads cmd->result24 fresh
@@ -924,8 +929,12 @@ extern int iFILE_ExecCommand(void *cmdp)
         case 8: {                                /* exists-probe */
             char *bar  = strchr(NAME(cmd), '|'); /* "volume|entry" separator? */
             char  volbuf[0x40], entrybuf[0x40];
-            int   s2 = 0, s3;
+            int   s3;
 
+            /* NOTE: no separate found-flag local -- the oracle reuses `ccc` itself (already
+             * zeroed once, before the dispatch switch) as the found-flag accumulator across this
+             * whole case body; it never re-zeroes it here. A fresh `int s2=0;` local would get its
+             * own materialize-to-zero right at block entry, which the oracle doesn't have. */
             entrybuf[0] = 0;
             if (bar != 0) {
                 s3 = 2;
@@ -947,13 +956,13 @@ extern int iFILE_ExecCommand(void *cmdp)
 
             if (s3 & 1) {                        /* odd modes (1,3): open the plain file */
                 if (openfile(NAME(cmd), OPI(cmd, 0x18), HANDLE(cmd)) != 0) {
-                    s2 = 1;                      /* opened OK (asm: delay slot -> set for BOTH types) */
-                    if (type == 8) closefile(HANDLE(cmd)[0]);         /* probe: open+close */
+                    ccc = 1;                     /* opened OK (asm: delay slot -> set for BOTH types) */
+                    if (((cmd->id >> 0x14) & 0xF) == 8) closefile(HANDLE(cmd)[0]);         /* probe: open+close */
                     else           HANDLE(cmd)[1] = getfilesize(HANDLE(cmd)[0]); /* handle->size */
                 }
             }
 
-            if (s2 == 0 && (s3 & 6)) {           /* modes 2,3,4,6: search the mounted BIG archives */
+            if (ccc == 0 && (s3 & 6)) {          /* modes 2,3,4,6: search the mounted BIG archives */
                 int *dev = (int *)gFileMgr.devicelist;
                 while (dev != 0) {
                     int doLookup = 1;
@@ -969,20 +978,19 @@ extern int iFILE_ExecCommand(void *cmdp)
                             HANDLE(cmd)[0] = (int)(size_t)dev;      /* handle->dev = this device node */
                             HANDLE(cmd)[1] = sz;                    /* handle->size  */
                             HANDLE(cmd)[2] = off;                   /* handle->flags = entry base offset */
-                            s2 = 1;
+                            ccc = 1;
                         }
                     }
                     dev = (int *)(size_t)(unsigned int)dev[3];      /* next device (+0xC) */
-                    if (s2 != 0)
+                    if (ccc != 0)
                         break;
                 }
             }
 
-            if (type == 8) {                     /* exists-probe: drop the handle, report found flag */
+            if (((cmd->id >> 0x14) & 0xF) == 8) { /* exists-probe: drop the handle, report found flag */
                 freehandle((FileHandle *)HANDLE(cmd));
-                OPI(cmd, 0x18) = s2;
+                OPI(cmd, 0x18) = ccc;
             }
-            ccc = s2;
             break;
         }
 
@@ -994,7 +1002,7 @@ extern int iFILE_ExecCommand(void *cmdp)
                 freehandle((FileHandle *)HANDLE(cmd));
                 cmd->result24 = 0;
             }
-            ccc = (cmd->error < 1);              /* falls through to the 7/9/10 completion in the asm */
+            ccc = (cmd->error == 0);              /* falls through to the 7/9/10 completion in the asm */
             break;
 
         case 4: {                                /* read */
@@ -1007,12 +1015,12 @@ extern int iFILE_ExecCommand(void *cmdp)
             } else {                             /* real file */
                 readfile(HANDLE(cmd)[0], OPI(cmd, 0x20), OPI(cmd, 0x18), len);
             }
-            return 0;                            /* async: completes via the CD callback */
+            return;                              /* async: completes via the CD callback */
         }
 
         case 5:                                  /* write (async) */
             writefile(HANDLE(cmd)[0], OPI(cmd, 0x20), OPI(cmd, 0x18), OPI(cmd, 0x1C));
-            return 0;
+            return;
 
         case 6:                                  /* size */
             OPI(cmd, 0x18) = HANDLE(cmd)[1];     /* publish handle->size as the result (+0x18) */
@@ -1022,13 +1030,20 @@ extern int iFILE_ExecCommand(void *cmdp)
         case 7:                                  /* status-only completions */
         case 9:
         case 10:
-            ccc = (cmd->error < 1);
+            ccc = (cmd->error == 0);
             break;
         }
     }
 
     iFILE_CommandCompleteCallback(ccc);          /* finalize the current (synchronous) op */
-    return 0;
+    /* NOTE: the oracle never zeroes $v0 on ANY exit of this function (every early exit's branch
+     * delay slot is a plain `nop` or an unrelated computation, and even THIS final exit falls
+     * straight from the CommandCompleteCallback call into the epilogue with whatever CALLBACK
+     * returned still sitting in $v0) -- the `int` return type is decorative; no caller depends on
+     * a real value (iFILE_delbigclosecallback's `return iFILE_ExecCommand(cmd);` is itself a bare
+     * tail-jal in the oracle, and every other call site discards the result). A value-less
+     * `return;` here (GNU C accepts it in a non-void fn with a warning, emitting no v0 store)
+     * reproduces this exactly. */
 }
 
 #undef OPI

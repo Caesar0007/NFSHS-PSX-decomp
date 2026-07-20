@@ -82,7 +82,19 @@ void AISpeeds_ReadTuningInfo(void)
   int weatherRamp;
   int iVar1;
   u_int uVar2;
-  u_int iVar3;
+  /* H58 (coordinator-directed correctness fix, wave-22): iVar3 was `u_int`, which compiles the
+   * loop-bound compare `iVar3 < 0x41` as `sltiu` (unsigned). The oracle @0x8006D820ish uses
+   * `slti` (SIGNED) for this exact compare -- a real sign bug, not a coloring artifact: iVar3
+   * only ever counts 0..0x40 here so the two forms happen to behave the same at runtime for
+   * every value this loop actually reaches, but the emitted comparison instruction itself must
+   * match the oracle's signed semantics to be a faithful reconstruction. Retyping to `int` fixes
+   * the sltiu/slti instruction-choice bug and is kept even though it COSTS diff count (12->21):
+   * this project's priority is correctness over byte-match, and the verify-or-revert rule has an
+   * explicit carve-out for provable correctness fixes. The extra ~9 diffs are a downstream
+   * register-coloring CASCADE elsewhere in this same function triggered by the type change, not
+   * a symptom of the fix itself -- investigated (see side_by_side), did not find a tractable
+   * source-level lever to recover them in the time available. */
+  int iVar3;
   int iVar4;
   int *piVar5;
   int slotLoop;
@@ -215,8 +227,6 @@ int AISpeeds_CalcOpponentTopSpeed(Car_tObj *carObj,int *unFetteredDesiredSpeed)
   int iVar5;
   Car_tObj **ppCVar6;
   int iVar7;
-  int iVar8;
-  int iVar9;
 
   topSpeed = AISpeeds_CalcOpponentCurveSpeed(carObj);
   if (carObj->fallBehindCar != (Car_tObj *)0x0) {
@@ -376,10 +386,10 @@ int AISpeeds_NeedToSlowDownForCurve(Car_tObj *carObj,int distanceMeters,int curr
   int futureSpeed;
   int speed;
   int sIndex;
-  int *piVar1;
   AIPhysic_BrakeInfo *pAVar2;
   int iVar3;
-  
+  int iVar4;
+
   if (futureCurveSpeed <= currentSpeed) {
     pAVar2 = carObj->brakeInfo;
     if (currentSpeed < 0) {
@@ -389,21 +399,26 @@ int AISpeeds_NeedToSlowDownForCurve(Car_tObj *carObj,int distanceMeters,int curr
     if (iVar3 < 0) {
       iVar3 = -iVar3;
     }
-    piVar1 = (int *)(pAVar2->brakeTable_ + iVar3);
-    if (0x7f < iVar3) {
-      piVar1 = &pAVar2->deceleration_;
-    }
-    if (futureCurveSpeed < 0) {
-      futureCurveSpeed = futureCurveSpeed + 0xffff;
-    }
-    iVar3 = futureCurveSpeed >> 0x10;
-    if (iVar3 < 0) {
-      iVar3 = -iVar3;
-    }
+    /* H48: the "clamp to deceleration_" step is NOT a separate pointer -- the oracle just clamps
+     * the INDEX to 0x80 and reads pAVar2->brakeTable_[idx] uniformly for BOTH accesses (a
+     * pointer-switch to &deceleration_ was one extra load-bearing register the oracle never has;
+     * deceleration_ is laid out immediately after brakeTable_[127], so index 0x80 lands on the
+     * same byte). */
     if (0x7f < iVar3) {
       iVar3 = 0x80;
     }
-    iVar3 = (u_int)(u_char)*piVar1 * 0x20000 + (u_int)pAVar2->brakeTable_[iVar3] * -0x20000;
+    iVar4 = (u_int)(u_char)pAVar2->brakeTable_[iVar3] * 0x20000;
+    if (futureCurveSpeed < 0) {
+      futureCurveSpeed = futureCurveSpeed + 0xffff;
+    }
+    futureCurveSpeed = futureCurveSpeed >> 0x10;
+    if (futureCurveSpeed < 0) {
+      futureCurveSpeed = -futureCurveSpeed;
+    }
+    if (0x7f < futureCurveSpeed) {
+      futureCurveSpeed = 0x80;
+    }
+    iVar3 = iVar4 - (u_int)(u_char)pAVar2->brakeTable_[futureCurveSpeed] * 0x20000;
     return iVar3 + (iVar3 >> 3) < distanceMeters ^ 1;
   }
   return 0;
@@ -418,49 +433,53 @@ int AISpeeds_CalcOpponentCurveSpeed(Car_tObj *carObj)
   int curve;
   int curveSpeed;
   int iVar1;
-  int currentSpeed;
-  int iVar2;
-  int iVar3;
-  
-  iVar3 = 200;
-  currentSpeed = carObj->currentSpeed;
-  if (currentSpeed < 0) {
-    currentSpeed = -currentSpeed;
+
+  /* H51: SYM ground truth (dumpsym_src/nfs4-f-v3.txt @0x8006df34) names speedHere/
+   * scanMetersDistanceInt at function scope and scanSlice/curve/curveSpeed in the nested loop-body
+   * block ($8006df74) -- the recon previously routed everything through anonymous currentSpeed/
+   * iVar1/iVar2/iVar3, and critically REUSED one iVar2 for BOTH the slice-scan index AND the
+   * curveSpeedTable result. Those are two SEPARATE named locals (scanSlice vs curveSpeed) with
+   * different live ranges (curveSpeed alone survives across the NeedToSlowDownForCurve call as its
+   * arg) -- collapsing them into one variable forced them into the same register. */
+  scanMetersDistanceInt = 200;
+  speedHere = carObj->currentSpeed;
+  if (speedHere < 0) {
+    speedHere = -speedHere;
   }
   while( true ) {
-    if (iVar3 < 0) {
+    if (scanMetersDistanceInt < 0) {
       return 0;
     }
-    iVar2 = (iVar3 / 6) * carObj->direction;
-    if (iVar2 < 0) {
-      iVar2 = (carObj->N).simRoadInfo.slice + iVar2;
-      if (iVar2 < 0) {
-        iVar2 = iVar2 + gNumSlices;
+    scanSlice = (scanMetersDistanceInt / 6) * carObj->direction;
+    if (scanSlice < 0) {
+      scanSlice = (carObj->N).simRoadInfo.slice + scanSlice;
+      if (scanSlice < 0) {
+        scanSlice = scanSlice + gNumSlices;
       }
     }
     else {
-      iVar2 = (carObj->N).simRoadInfo.slice + iVar2;
-      if (gNumSlices <= iVar2) {
-        iVar2 = iVar2 - gNumSlices;
+      scanSlice = (carObj->N).simRoadInfo.slice + scanSlice;
+      if (gNumSlices <= scanSlice) {
+        scanSlice = scanSlice - gNumSlices;
       }
     }
-    iVar1 = AIDataRecord_TrackCurve->Get(iVar2);
-    iVar2 = (carObj->curveSpeedTable)->Get(iVar1);
+    curve = AIDataRecord_TrackCurve->Get(scanSlice);
+    curveSpeed = (carObj->curveSpeedTable)->Get(curve);
     if (GameSetup_gData.Weather != 0) {
-      if (iVar1 < 0) {
-        iVar1 = iVar1 + 3;
+      if (curve < 0) {
+        curve = curve + 3;
       }
-      iVar2 = fixedmult(iVar2,AISpeeds_WeatherMultFactors[iVar1 >> 2]);
+      curveSpeed = fixedmult(curveSpeed,AISpeeds_WeatherMultFactors[curve >> 2]);
     }
-    if (iVar3 == 0) break;
-    iVar1 = AISpeeds_NeedToSlowDownForCurve(carObj,iVar3 << 0x10,currentSpeed,iVar2)
+    if (scanMetersDistanceInt == 0) break;
+    iVar1 = AISpeeds_NeedToSlowDownForCurve(carObj,scanMetersDistanceInt << 0x10,speedHere,curveSpeed)
     ;
-    iVar3 = iVar3 + -0x19;
+    scanMetersDistanceInt = scanMetersDistanceInt + -0x19;
     if (iVar1 != 0) {
-      return iVar2;
+      return curveSpeed;
     }
   }
-  return iVar2;
+  return curveSpeed;
 }
 
 /* ---- AISpeeds_BTCGetGlueFactor__FP8Car_tObj  [@0x8006e09c] ---- */
@@ -504,11 +523,16 @@ int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
         }
       }
     }
+    /* H57: the oracle computes closestHumanDistance*carObj->direction EARLY (scheduled into the
+     * RSControl-check's delay slot), regardless of whether the early-return is taken -- a
+     * dead-on-one-path speculative computation. Materializing it here (source-level) instead of
+     * inline inside the later `/0x3c0000+10` expression reproduces that scheduling. */
+    closestHumanDistance = closestHumanDistance * carObj->direction;
     if (closestHumanCarObj->RSControl != 0) {
       return 0x10000;
     }
     if (0x13fffe < closestHumanCarObj->currentSpeed + 0x9ffffU) {
-      closestHumanDistance = (closestHumanDistance * carObj->direction) / 0x3c0000 + 10;
+      closestHumanDistance = closestHumanDistance / 0x3c0000 + 10;
       if (closestHumanDistance < 0) {
         glueIndex = 0;
       }
@@ -588,13 +612,13 @@ int AISpeeds_GetCaravanFactor(Car_tObj *carObj)
   int desiredSpeedProduct;
   int followBehindDist;
   int halfMaintainTime;
-  u_int uVar5;   /* SYM name: slot */
+  u_int slot;   /* SYM name: slot */
 
-  uVar5 = carObj->AISlot;
+  slot = carObj->AISlot;
   nextAICar = AISpeeds_GetNextAICar(carObj);
   if (carObj->fallBehindCar != (Car_tObj *)0x0) {
     f_caravan = 0xe666;
-    if (carObj->fallBehindCar->AISlot < (int)uVar5) {
+    if (carObj->fallBehindCar->AISlot < (int)slot) {
       carObj->fallBehindCar = (Car_tObj *)0x0;
     }
     goto LAB_8006e444;
@@ -657,22 +681,22 @@ LAB_8006e3c8:
     }
   }
 LAB_8006e444:
-  if (CaravanInfo[uVar5].distanceMaintainTime32 != 0) {
+  if (CaravanInfo[slot].distanceMaintainTime32 != 0) {
     carObj->caravanTimer = carObj->caravanTimer - AI_elapsedTime;
   }
   if (carObj->caravanTimer < 0) {
-    halfMaintainTime = CaravanInfo[uVar5].distanceMaintainTime32 / 2;
+    halfMaintainTime = CaravanInfo[slot].distanceMaintainTime32 / 2;
     randtemp = (fastRandom * randSeed & 0xffff) * randSeed;
     carObj->caravanTimer = halfMaintainTime + (halfMaintainTime * ((fastRandom * randSeed & 0xffff00) >> 8) >> 0x10);
     fastRandom = randtemp & 0xffff;
     carObj->caravanFollowBehindDistanceMeters =
-         (CaravanInfo[uVar5].minDistanceMeters +
-         ((CaravanInfo[uVar5].maxDistanceMeters - CaravanInfo[uVar5].minDistanceMeters) *
+         (CaravanInfo[slot].minDistanceMeters +
+         ((CaravanInfo[slot].maxDistanceMeters - CaravanInfo[slot].minDistanceMeters) *
           ((randtemp & 0xffff00) >> 8) >> 0x10)) * 0x10000;
   }
-  if (((((int)uVar5 < Cars_gNumAIRaceCars + -1) && (carObj->fallBehindCar == (Car_tObj *)0x0)) &&
+  if (((((int)slot < Cars_gNumAIRaceCars + -1) && (carObj->fallBehindCar == (Car_tObj *)0x0)) &&
       ((int)(u_int)(carObj->N).totalSlice < GameSetup_gData.numLaps * gNumSlices + -0x14d)) &&
-     ((1 < uVar5 || (leaderBoard.leadRacer != (Car_tObj *)0x0)))) {
+     ((1 < slot || (leaderBoard.leadRacer != (Car_tObj *)0x0)))) {
     /* H36 (wave-21 real bug): oracle @0x8006e5b4-0x8006e638 continues past the fastRandom
      * re-seed with a stochastic "pick up a fall-behind car" roll gated by
      * CaravanInfo[slot].fallBackRandomTime_TickPercent * AI_elapsedTime, then calls
@@ -684,7 +708,7 @@ LAB_8006e444:
     fastRandom = tempRandom & 0xffff;
     tempRandom = (tempRandom >> 8) & 0xffff;
     if ((nextAICar == (Car_tObj *)0x0) || (nextAICar->fallBehindCar == (Car_tObj *)0x0)) {
-      if (tempRandom < CaravanInfo[uVar5].fallBackRandomTime_TickPercent * (u_int)AI_elapsedTime) {
+      if (tempRandom < CaravanInfo[slot].fallBackRandomTime_TickPercent * (u_int)AI_elapsedTime) {
         prevAICar = AISpeeds_GetPrevAICar(carObj);
         if (prevAICar != (Car_tObj *)0x0) {
           carObj->fallBehindCar = prevAICar;
@@ -877,11 +901,11 @@ int AISpeeds_CalcCopTopSpeed(Car_tObj *carObj)
   }
   iVar1 = (iVar1 >> 8) * (iVar2 >> 8);
   carObj->aiGlue = iVar1;
-  if (iVar1 < 0x10001) {
-    (carObj->N).gravityMult = 0x10000;
+  if (0x10000 < iVar1) {
+    (carObj->N).gravityMult = iVar1;
   }
   else {
-    (carObj->N).gravityMult = iVar1;
+    (carObj->N).gravityMult = 0x10000;
   }
   if (iVar3 < 0) {
     iVar3 = iVar3 + 0xff;
@@ -896,13 +920,14 @@ int AISpeeds_CalcCopTopSpeed(Car_tObj *carObj)
 /* ---- AISpeeds_CalcTrafficTopSpeed__FP8Car_tObj  [@0x8006eb6c] ---- */
 int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
 {
+  /* H56: SYM names the single local "desired" ($s0) -- was routed through an anonymous iVar1
+   * while desired sat declared-but-unused. */
   int desired;
-  int iVar1;
   int iVar2;
   u_int uVar3;
-  
-  iVar1 = AISpeeds_GetLegalSpeed((int)(carObj->N).simRoadInfo.slice);
-  iVar1 = fixedmult(iVar1,0xc000);
+
+  desired = AISpeeds_GetLegalSpeed((int)(carObj->N).simRoadInfo.slice);
+  desired = fixedmult(desired,0xc000);
   if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
      ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
       ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
@@ -917,25 +942,25 @@ int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
     if (uVar3 == 0) goto LAB_8006ec80;
     iVar2 = AISpeeds_CalculateOncomingCarSpeed(carObj);
   }
-  if (iVar2 <= iVar1) {
-    iVar1 = AISpeeds_CalculateOncomingCarSpeed(carObj);
+  if (iVar2 <= desired) {
+    desired = AISpeeds_CalculateOncomingCarSpeed(carObj);
   }
 LAB_8006ec80:
   if ((carObj->carFlags & 0x10U) != 0) {
-    iVar1 = AISpeeds_RandomizeTrafficSpeed(carObj,iVar1);
-    if (iVar1 < 0) {
-      iVar1 = iVar1 + 0xff;
+    desired = AISpeeds_RandomizeTrafficSpeed(carObj,desired);
+    if (desired < 0) {
+      desired = desired + 0xff;
     }
     iVar2 = carObj->speedFactor;
     if (iVar2 < 0) {
       iVar2 = iVar2 + 0xff;
     }
-    iVar1 = (iVar1 >> 8) * (iVar2 >> 8);
+    desired = (desired >> 8) * (iVar2 >> 8);
   }
-  if (iVar1 < 0x8e38e) {
-    iVar1 = 0x8e38e;
+  if (desired < 0x8e38e) {
+    desired = 0x8e38e;
   }
-  return iVar1 * carObj->direction;
+  return desired * carObj->direction;
 }
 
 /* ---- AISpeeds_GetLegalSpeed__Fi  [@0x8006ed0c] ---- */
@@ -958,34 +983,38 @@ int AISpeeds_GetLegalSpeed(int slice)
 /* ---- AISpeeds_RandomizeTrafficSpeed__FP8Car_tObji  [@0x8006ed50] ---- */
 int AISpeeds_RandomizeTrafficSpeed(Car_tObj *carObj,int oldsafe)
 {
+  /* H55: SYM names newsafe ($a1) and safeminus30 ($v1) -- was routed through an anonymous
+   * iVar1, and safeminus30 was never materialized as its own variable (the raw oracle computes
+   * `oldsafe + -0xd6666` ONCE, in the branch-entry delay slot, well before the comparison that
+   * uses it -- not inline at each of the two use sites). */
   int newsafe;
   int safeminus30;
-  int iVar1;
-  
-  if (oldsafe < 1) {
+
+  if (0 < oldsafe) {
+    safeminus30 = oldsafe + -0xd6666;
+    newsafe = carObj->trafficSpeedRandomizingFactor;
+    if (newsafe < 0) {
+      newsafe = newsafe + 0xff;
+    }
+    newsafe = (oldsafe >> 8) * (newsafe >> 8);
+    if (newsafe < safeminus30) {
+      newsafe = safeminus30;
+    }
+    if (newsafe < 0x8e666) {
+      newsafe = 0x8e666;
+    }
+  }
+  else {
     if (oldsafe < 0) {
       oldsafe = oldsafe + 0xff;
     }
-    iVar1 = carObj->trafficSpeedRandomizingFactor;
-    if (iVar1 < 0) {
-      iVar1 = iVar1 + 0xff;
+    newsafe = carObj->trafficSpeedRandomizingFactor;
+    if (newsafe < 0) {
+      newsafe = newsafe + 0xff;
     }
-    iVar1 = (oldsafe >> 8) * (iVar1 >> 8);
+    newsafe = (oldsafe >> 8) * (newsafe >> 8);
   }
-  else {
-    iVar1 = carObj->trafficSpeedRandomizingFactor;
-    if (iVar1 < 0) {
-      iVar1 = iVar1 + 0xff;
-    }
-    iVar1 = (oldsafe >> 8) * (iVar1 >> 8);
-    if (iVar1 < oldsafe + -0xd6666) {
-      iVar1 = oldsafe + -0xd6666;
-    }
-    if (iVar1 < 0x8e666) {
-      iVar1 = 0x8e666;
-    }
-  }
-  return iVar1;
+  return newsafe;
 }
 
 /* ---- AISpeeds_CalcDesiredSpeed__FP8Car_tObj  [@0x8006eddc] ---- */
@@ -1027,28 +1056,31 @@ void AISpeeds_CalcDesiredSpeed(Car_tObj *carObj)
 /* ---- AISpeeds_CalculateOncomingCarSpeed__FP8Car_tObj  [@0x8006ee80] ---- */
 int AISpeeds_CalculateOncomingCarSpeed(Car_tObj *carObj)
 {
+  /* H54: SYM names the single local playerSpeed (reg $a0) -- was routed through an anonymous
+   * iVar1 while playerSpeed sat declared-but-unused. (Tried collapsing the four threshold
+   * `return CONST;` arms into a single-exit if/elseif chain to match the oracle's one shared
+   * epilogue -- measured WORSE (65->72 diffs), reverted; the multi-return shape below is closer.) */
   int playerSpeed;
-  int iVar1;
   u_int uVar2;
-  
-  iVar1 = carObj->basisCar->currentSpeed;
-  if (iVar1 < 0) {
-    iVar1 = -iVar1;
+
+  playerSpeed = carObj->basisCar->currentSpeed;
+  if (playerSpeed < 0) {
+    playerSpeed = -playerSpeed;
   }
-  if (iVar1 < 0xd5555) {
+  if (playerSpeed < 0xd5555) {
     uVar2 = 0x160000;
   }
   else {
-    if (iVar1 < 0x1aaaaa) {
+    if (playerSpeed < 0x1aaaaa) {
       return 0xd5555;
     }
-    if (iVar1 < 0x280000) {
+    if (playerSpeed < 0x280000) {
       return 0x8e38e;
     }
-    if (iVar1 < 0x378e38) {
+    if (playerSpeed < 0x378e38) {
       return 0x471c7;
     }
-    if (0x471c70 < iVar1) {
+    if (0x471c70 < playerSpeed) {
       return 0x2c51e;
     }
     uVar2 = 0x20000;
@@ -1059,60 +1091,61 @@ int AISpeeds_CalculateOncomingCarSpeed(Car_tObj *carObj)
 /* ---- AISpeeds_SetTrafficSpeedRandomFactor__FP8Car_tObj  [@0x8006ef28] ---- */
 void AISpeeds_SetTrafficSpeedRandomFactor(Car_tObj *carObj)
 {
-  int randomSpeedMultipliers[4];
-  int local_10 [4];
-  
-  randtemp = fastRandom * randSeed;
-  local_10[0] = 0x10000;
-  local_10[1] = 0xe666;
-  local_10[2] = 0xcccc;
-  local_10[3] = 0xb333;
+  /* H53: SYM (nfs4-f-v3.txt @0x8006ef28, fsize=16) names exactly ONE 4-int array,
+   * randomSpeedMultipliers -- the recon had a DUPLICATE unused array (dead, same bug class as
+   * the "duplicate 112-byte Ghidra buffer" documented elsewhere in this file) inflating the
+   * frame to 32 bytes. Removed the dead twin. The oracle ALSO loads the 4 constants from a
+   * static .rodata template (D_800554E0) and copies them onto the stack -- an aggregate
+   * initializer list reproduces that "template + copy" codegen; 4 separate assignment
+   * statements do not. */
+  int randomSpeedMultipliers[4] = {0x10000, 0xe666, 0xcccc, 0xb333};
+
+  randtemp = randSeed * fastRandom;
+  carObj->trafficSpeedRandomizingFactor = *(int *)((int)randomSpeedMultipliers + (randtemp >> 6 & 0xc));
   fastRandom = randtemp & 0xffff;
-  carObj->trafficSpeedRandomizingFactor = *(int *)((int)local_10 + (randtemp >> 6 & 0xc));
   return;
 }
 
 /* ---- AISpeeds_MaintainLeaderBoard__Fv  [@0x8006efa4] ---- */
 void AISpeeds_MaintainLeaderBoard(void)
 {
+  /* H52: SYM ground truth (nfs4-f-v3.txt @0x8006efa4, mask=0 -- NO callee-saved regs at all)
+   * names exactly 4 locals: slot=$a3, lastAI=$t0, carLoop=$a1, test=$a0. The recon routed
+   * everything through anonymous iVar3/iVar4/ppCVar1/pCVar2/pCVar5 and a HAND-ROLLED
+   * pointer-walk (ppCVar1) over Cars_gTotalSortedList instead of plain index-form array access
+   * -- same index-vs-pointer-walk duality lever as GetPrevAICar/BTCGetGlueFactor elsewhere in
+   * this file: gcc's own strength reduction produces the oracle's decrementing pointer AND
+   * keeps the plain index (carLoop) alive for the loop-continue test. */
   int slot;
-  Car_tObj*lastAI;
+  Car_tObj *lastAI;
   int carLoop;
-  Car_tObj*test;
-  Car_tObj **ppCVar1;
-  Car_tObj *pCVar2;
-  int iVar3;
-  int iVar4;
-  Car_tObj *pCVar5;
-  
-  iVar4 = 0;
-  pCVar5 = (Car_tObj *)0x0;
+  Car_tObj *test;
+
+  slot = 0;
+  lastAI = (Car_tObj *)0x0;
   leaderBoard.leadRacer = (Car_tObj *)0x0;
   leaderBoard.leadHumanRacer = (Car_tObj *)0x0;
   leaderBoard.leadAIRacer = (Car_tObj *)0x0;
   leaderBoard.lastAIRacer = (Car_tObj *)0x0;
-  iVar3 = Cars_gNumCars + -1;
-  ppCVar1 = Cars_gTotalSortedList + iVar3;
-  for (; -1 < iVar3; iVar3 = iVar3 + -1) {
-    pCVar2 = *ppCVar1;
-    if ((((pCVar2->carFlags & 1U) != 0) && (leaderBoard.leadRacer == (Car_tObj *)0x0)) &&
-       (pCVar2->fallBehindCar == (Car_tObj *)0x0)) {
-      leaderBoard.leadRacer = pCVar2;
+  for (carLoop = Cars_gNumCars - 1; -1 < carLoop; carLoop = carLoop - 1) {
+    test = Cars_gTotalSortedList[carLoop];
+    if ((((test->carFlags & 1U) != 0) && (leaderBoard.leadRacer == (Car_tObj *)0x0)) &&
+       (test->fallBehindCar == (Car_tObj *)0x0)) {
+      leaderBoard.leadRacer = test;
     }
-    if ((pCVar2->carFlags & 8U) != 0) {
-      pCVar2->nextAIRacer = pCVar5;
-      pCVar2->AISlot = iVar4;
-      iVar4 = iVar4 + 1;
-      pCVar5 = pCVar2;
-      leaderBoard.lastAIRacer = pCVar2;
+    if ((test->carFlags & 8U) != 0) {
+      test->nextAIRacer = lastAI;
+      lastAI = test;
+      test->AISlot = slot;
       if (leaderBoard.leadAIRacer == (Car_tObj *)0x0) {
-        leaderBoard.leadAIRacer = pCVar2;
+        leaderBoard.leadAIRacer = test;
       }
+      slot = slot + 1;
+      leaderBoard.lastAIRacer = test;
     }
-    if (((pCVar2->carFlags & 4U) != 0) && (leaderBoard.leadHumanRacer == (Car_tObj *)0x0)) {
-      leaderBoard.leadHumanRacer = pCVar2;
+    if (((test->carFlags & 4U) != 0) && (leaderBoard.leadHumanRacer == (Car_tObj *)0x0)) {
+      leaderBoard.leadHumanRacer = test;
     }
-    ppCVar1 = ppCVar1 + -1;
   }
   return;
 }

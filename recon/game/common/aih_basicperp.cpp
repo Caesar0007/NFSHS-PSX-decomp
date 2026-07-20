@@ -39,9 +39,11 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
   crime = (this->basicPerpInfo_).crime_;
 
+  pCVar3 = this->carObj_;
+
   originalCrime = crime;
 
-  legal = AISpeeds_GetLegalSpeed((int)((this->carObj_)->N).simRoadInfo.slice);
+  legal = AISpeeds_GetLegalSpeed((int)(pCVar3->N).simRoadInfo.slice);
 
   if (simGlobal.gameTicks - this->lastPullOverTime_ < 0x280) {
 

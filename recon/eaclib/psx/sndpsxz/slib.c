@@ -20,8 +20,9 @@ extern unsigned char  snd_old_chan_mode;    /* last applied channel-mode byte   
 unsigned char snd_old_chan_mode;  /* def (owning TU; BSS) */
 #define DAT_80147919 (sndpd[1])              /* pre-load guard == sndpd+1 */
 #define DAT_8014791c (*(int *)(sndpd + 4))   /* current fx mode == sndpd+4 */
-extern unsigned char  DAT_80136df0;         /* DMA scratch RAM (zeroed) */
-unsigned char DAT_80136df0;                 /* def (owning TU; @0x80136df0 image-verified zero; head byte of the 0x10-byte DMA-clear source region) */
+extern unsigned char  sndpdsafeloop;        /* DMA scratch RAM (zeroed) @0x80136DF0, per configs/symbol_addrs.txt
+                                              * (oracle references this real symbol name directly, not a bare VA) */
+unsigned char sndpdsafeloop;                /* def (owning TU; @0x80136df0 image-verified zero; head byte of the 0x10-byte DMA-clear source region) */
 extern void          *snd_user_serve_hook;  /* @0x80148038              */
 
 /* voice-table fields (0x2c stride) -- all live INSIDE the sndpd block (same struct as sdpacket.c) */
@@ -45,14 +46,53 @@ extern void          *snd_user_serve_hook;  /* @0x80148038              */
 #define DAT_80147e28 (*(int *)(sndpd + 0x510))        /* SPU voice reg base (address) */
 #define DAT_80147e2c (*(int *)(sndpd + 0x514))        /* SPU control reg base (address) */
 
-/* libspu hardware registers (memory-mapped) */
-extern volatile unsigned int   DPCR;
-extern volatile unsigned short SPUSTAT;
-extern volatile short          SPU_MAIN_VOL_L, SPU_MAIN_VOL_R;
-extern volatile short          SOUND_RAM_DATA_TRANSTER_CTRL;
-extern volatile unsigned int   SPU_VOICE_CHN_FM_MODE, SPU_VOICE_CHN_NOISE_MODE;
-extern volatile short          CD_VOL_L, CD_VOL_R, EXT_VOL_L, EXT_VOL_R;
-extern volatile unsigned int   SPU_ADDR, SPU_DELAY, D4_MADR, D4_BCR, D4_CHCR, VOICE_00_LEFT_RIGHT;
+/* sdmemman/sdmemlu fields -- oracle iSNDinit writes these as sndpd-RELATIVE offsets (+0x51a/+0x51c off
+ * the &sndpd already in a register), NOT via their own %hi/%lo symbol. sdmemlu.c independently DEFINES
+ * snd_spu_engine_ver/snd_spu_block_total as ordinary externs (own linker-placed storage) -- so this is
+ * the file's established "SPLIT STORAGE" gotcha (shared-header WARNING, per project rules): iSNDinit's
+ * writes and sdmemlu/sdmemman's reads may NOT alias at runtime in our reconstruction (different link
+ * addresses) even though the retail binary happened to place them at sndpd_base+0x51a/0x51c. Fixing the
+ * storage model tree-wide would require editing sdmemlu.c (OUT OF SCOPE for this file) -- flagged here. */
+#define DAT_80147e32 (*(unsigned short *)(sndpd + 0x51a))   /* snd_spu_engine_ver alias (sdmemman) */
+#define DAT_80147e34 (*(unsigned short *)(sndpd + 0x51c))   /* snd_spu_block_total alias (sdmemlu)  */
+
+/* libspu hardware registers (memory-mapped, PSX SPU @0x1F801C00 + DMA4/DPCR).  These are REAL literal
+ * addresses (not relocatable program symbols) -- the oracle loads them via lui+ori 32-bit immediates,
+ * NOT lui+addiu %hi/%lo(SYM) relocations.  Modeling them as `extern` variables (previous form) is a
+ * real codegen bug: gcc then emits a symbol relocation instead of the literal constant, and the two
+ * forms are NOT byte-identical (this cost iSNDinit ~20 instructions of near-miss).  #define as literal
+ * MMIO pointers instead, matching the established convention elsewhere in the tree (libetc/INTR.cpp,
+ * libpress/LIBPRESS.c DPCR). */
+#define DPCR                       (*(volatile unsigned int   *)0x1F8010F0)
+#define SPU_DELAY                  (*(volatile unsigned int   *)0x1F801014)
+#define D4_MADR                    (*(volatile unsigned int   *)0x1F8010C0)
+#define D4_BCR                     (*(volatile unsigned int   *)0x1F8010C4)
+#define D4_CHCR                    (*(volatile unsigned int   *)0x1F8010C8)
+#define VOICE_00_LEFT_RIGHT        (*(volatile unsigned int   *)0x1F801C00)
+/* The pre-latch SPU_MAIN_VOL_L/R + SPUCNT/SPUSTAT accesses go through a RUNTIME POINTER VARIABLE
+ * (below, `spu`) rather than their own independent literal macro: gcc-2.8 -O2 does NOT constant-fold
+ * "(T*)LITERAL + LITERAL_OFFSET" back into one fresh absolute address the way it would for two
+ * separately-named #define'd constants -- it keeps the pointer VALUE in a register and reuses it via
+ * a load/store DISPLACEMENT (same class of lever as the sndpd/DAT_80147e2c base-sharing elsewhere in
+ * this file). An independently #define'd 0x1F801D80 etc. re-materializes its OWN lui+ori every access. */
+#define SPU_MAIN_VOL_L_AT(b)       (*(volatile short          *)((char *)(b) + 0x180))
+#define SPU_MAIN_VOL_R_AT(b)       (*(volatile short          *)((char *)(b) + 0x182))
+#define SPUCNT_AT(b)               (*(volatile unsigned short *)((char *)(b) + 0x1aa))
+#define SPUSTAT_AT(b)              (*(volatile unsigned short *)((char *)(b) + 0x1ae))
+
+/* SPU control-cluster fields (0x180..0x1B6 off the SPU base) -- oracle accesses ALL of these through
+ * the LATCHED pointer DAT_80147e2c (sndpd+0x514), reloading it fresh at each access, not via their own
+ * symbol -- same "base already in a register" convention as the reverb/master-vol writes below. */
+#define SPUCNT_F                   (*(volatile unsigned short *)(DAT_80147e2c + 0x1aa))
+#define SOUND_RAM_XFER_CTRL_F      (*(volatile unsigned short *)(DAT_80147e2c + 0x1ac))
+#define SPU_VOICE_CHN_FM_MODE_L_F  (*(volatile unsigned short *)(DAT_80147e2c + 0x190))
+#define SPU_VOICE_CHN_FM_MODE_H_F  (*(volatile unsigned short *)(DAT_80147e2c + 0x192))
+#define SPU_VOICE_CHN_NOISE_MODE_L_F (*(volatile unsigned short *)(DAT_80147e2c + 0x194))
+#define SPU_VOICE_CHN_NOISE_MODE_H_F (*(volatile unsigned short *)(DAT_80147e2c + 0x196))
+#define CD_VOL_L_F                 (*(volatile unsigned short *)(DAT_80147e2c + 0x1b0))
+#define CD_VOL_R_F                 (*(volatile unsigned short *)(DAT_80147e2c + 0x1b2))
+#define EXT_VOL_L_F                (*(volatile unsigned short *)(DAT_80147e2c + 0x1b4))
+#define EXT_VOL_R_F                (*(volatile unsigned short *)(DAT_80147e2c + 0x1b6))
 
 /* dependencies */
 extern unsigned int iSNDpsxkeyon(int mask);                   /* spatkey */
@@ -64,7 +104,11 @@ extern unsigned int iSNDpsxfxinit(int mode);                 /* sdfx    */
 extern void         iSNDserver(void);                        /* sserver */
 extern void         iSNDleaveaudio(void);                    /* sserver */
 extern int          iSNDdmqueue(int ram, unsigned int spu, int len, unsigned char prio, unsigned char flag); /* sdma */
-extern void         DMACallback(void);                       /* syslib INTR  */
+extern int          DMACallback(int ch, int func);            /* libetc INTR.obj @0x800F28AC -- Ghidra/our
+                                                                * previous decl dropped BOTH real args (channel,
+                                                                * new-callback-fn); see cdcont.cpp/SYS.cpp for
+                                                                * the true signature used tree-wide */
+extern void         iSNDdmcallback(void);                    /* sdma -- installed as the DMA4 callback */
 extern int          addtimer(int callback);                  /* addtimer */
 extern int          deltimer(int callback);                  /* addtimer */
 extern int          addexit(int handler);                    /* exit     */
@@ -108,20 +152,49 @@ extern int iSNDplatformoutputcaps(void)
  *   mode changed while audio is up, re-push every playing voice's L/R volume. */
 extern void iSNDplatformoutputset(void)
 {
+    unsigned char *base;    /* &sndgs, CALLER-saved live range (pre-loop field checks only) --
+                              * matches iSNDplatformoutputcaps' PASSing lever; SCB(0x11)=0x18 as
+                              * the FIRST textual access anchors the compiler's base pointer AT
+                              * offset 0x11 (all other accesses become NEGATIVE displacements from
+                              * a shifted base), so the reads are ordered BEFORE the 0x11 write to
+                              * anchor at offset 0 instead (POSITIVE displacements) -- see
+                              * wave-20/wave-21 notes */
+    unsigned char *vbase;    /* a SEPARATE copy of base, used only inside the loop (its only job
+                               * is the 0x11 re-read for the loop bound) -- forces THIS copy into a
+                               * callee-saved reg to survive the iSNDsetvol call, while `base` above
+                               * dies before the loop and can stay caller-saved (matches the
+                               * oracle's a0-then-s2 two-register split) */
+    unsigned char *vp;       /* WALKING &sndpd+0xd8 pointer (voice-table row base), +=0x2c per
+                               * iter -- matches iSNDserve's established `vp = &DAT_801479f0 + vt`
+                               * lever: keeps the 4 field accesses (0x1c/0x21/0x24/0x25) as load
+                               * DISPLACEMENTS off ONE walking base instead of 4 separately-folded
+                               * &DAT_80147a0x constant bases */
     int chan;
-    SCB(0x11) = 0x18;
-    if (SUB(0x10) < SUB(4))   SCB(0x10) = SCB(4);
-    if (SUB(5) < SUB(0x10))   SCB(0x10) = SCB(5);
-    if (SCB(0xf) != 0 && snd_old_chan_mode != SUB(0x10)) {
+    base = (unsigned char *)sndgs;
+    if (base[0x10] < base[4])   base[0x10] = base[4];
+    base[0x11] = 0x18;
+    if (base[5] < base[0x10])   base[0x10] = base[5];
+    if (*(signed char *)(base + 0x3c) != 0 && snd_old_chan_mode != base[0x10]) {  /* oracle: lb v0,0x3C(a0)
+                                                                                    * -- offset 0xf was wrong;
+                                                                                    * needs a genuinely SIGNED
+                                                                                    * load (`char` reads as
+                                                                                    * unsigned on this build,
+                                                                                    * a cast-after-load doesn't
+                                                                                    * change the lbu->lb) */
+        vbase = base;
         chan = 0;
+        vp = &DAT_801479f0;
         do {
-            int vt = chan * 0x2c;
-            if ((&DAT_80147a0c)[vt] == 2 && (&DAT_80147a11)[vt] == 0)
-                iSNDsetvol(chan, (int)(signed char)(&DAT_80147a14)[vt], (int)(signed char)(&DAT_80147a15)[vt]);
+            if (vp[0x1c] == 2 && vp[0x21] == 0)
+                iSNDsetvol(chan, (int)(signed char)vp[0x24], (int)(signed char)vp[0x25]);
             chan++;
-        } while (chan < (int)(unsigned)SUB(0x11));
+            vp += 0x2c;
+        } while (chan < (int)(unsigned)vbase[0x11]);
     }
-    snd_old_chan_mode = SUB(0x10);
+    snd_old_chan_mode = SUB(0x10);   /* FRESH re-read, not through `base` -- oracle re-materializes
+                                       * this via its own %hi/%lo AFTER the epilogue register
+                                       * restores, so `base`'s live range must END at the if-check
+                                       * above, not extend across the loop/call to here */
 }
 
 /* iSNDinit @0x800FF700 : bring up the SPU -- enable DMA4, zero the SPU voice/main/CD/ext volumes, latch the
@@ -131,37 +204,49 @@ extern void iSNDinit(void)
 {
     unsigned int sr = rd_sr();
     int i;
+    int          ch;      /* DMACallback channel arg (4), materialized early like the oracle */
+    unsigned int *spu;    /* runtime copy of &VOICE_00_LEFT_RIGHT (0x1F801C00) -- see the _AT() macro
+                            * comment above; shared for MAIN_VOL_L/R + SPUCNT + SPUSTAT pre-latch */
+    unsigned char *vp;    /* walking &sndpd copy for the "mark voice done" byte (0xff stride) --
+                            * matches the iSNDrestore lever: keeps the +0xff field a load DISPLACEMENT
+                            * off a persistent WALKING base instead of a folded per-iter address */
 
-    extern unsigned short snd_spu_engine_ver;   /* sdmemman */
-    extern unsigned short snd_spu_block_total;
-    snd_spu_engine_ver = 0x41;
+    spu = (unsigned int *)&VOICE_00_LEFT_RIGHT;
+    DAT_80147e32 = 0x41;                    /* snd_spu_engine_ver (sdmemman split-storage, see macro) */
     DPCR = DPCR | 0xb0000;
-    SPU_MAIN_VOL_L = 0;
-    SPU_MAIN_VOL_R = 0;
-    snd_spu_block_total = 0x2000;
+    SPU_MAIN_VOL_L_AT(spu) = 0;
+    SPU_MAIN_VOL_R_AT(spu) = 0;
+    SPUCNT_AT(spu) = 0;                      /* early clear (pre-latch) */
+    SPU_MAIN_VOL_L_AT(spu) = 0;              /* oracle writes both master-vol halves TWICE */
+    SPU_MAIN_VOL_R_AT(spu) = 0;
+    DAT_80147e34 = 0x2000;                   /* snd_spu_block_total (sdmemlu split-storage) */
     DAT_80147e14 = (unsigned int *)&SPU_DELAY;
     DAT_80147e18 = (unsigned int *)&D4_MADR;
     DAT_80147e1c = (unsigned int *)&D4_BCR;
     DAT_80147e20 = (unsigned int *)&D4_CHCR;
     DAT_80147e24 = (unsigned int *)&DPCR;
-    DAT_80147e28 = (int)&VOICE_00_LEFT_RIGHT;
-    DAT_80147e2c = (int)&VOICE_00_LEFT_RIGHT;
-    while ((SPUSTAT & 0x7ff) != 0) { }
-    SOUND_RAM_DATA_TRANSTER_CTRL = 4;
-    SPU_VOICE_CHN_FM_MODE = 0;
-    SPU_VOICE_CHN_NOISE_MODE = 0;
-    CD_VOL_L = 0;
-    CD_VOL_R = 0;
-    EXT_VOL_L = 0;
+    DAT_80147e28 = (int)spu;
+    DAT_80147e2c = (int)spu;
+    while ((SPUSTAT_AT(spu) & 0x7ff) != 0) { }
+    SOUND_RAM_XFER_CTRL_F = 4;
+    SPU_VOICE_CHN_FM_MODE_L_F = 0;
+    SPU_VOICE_CHN_FM_MODE_H_F = 0;
+    SPU_VOICE_CHN_NOISE_MODE_L_F = 0;
+    SPU_VOICE_CHN_NOISE_MODE_H_F = 0;
+    ch = 4;   /* DMACallback channel arg, materialized early (matches oracle's early a0=4) */
+    CD_VOL_L_F = 0;
+    CD_VOL_R_F = 0;
     wr_sr(rd_sr() & 0xfffffbfe);
-    EXT_VOL_R = 0;
-    *((unsigned short *)&SPU_ADDR + 1) = 0xc000;
-    DMACallback();
+    EXT_VOL_L_F = 0;
+    EXT_VOL_R_F = 0;
+    SPUCNT_F = 0xc000;                       /* enable + unmute SPU */
+    DMACallback(ch, (int)iSNDdmcallback);    /* install the real DMA4 (SPU) callback */
     wr_sr(sr);
-    iSNDdmqueue((int)&DAT_80136df0, 0x1000, 0x10, 1, 0);     /* clear first SPU page */
+    iSNDdmqueue((int)&sndpdsafeloop, 0x1000, 0x10, 1, 0);     /* clear first SPU page */
 
     i = 0;
     if (SUB(0x11) != 0) {
+        vp = sndpd;
         do {
             int vr = DAT_80147e28 + i * 0x10;                /* zero SPU voice regs */
             *(short *)(vr + 0) = 0;
@@ -171,8 +256,9 @@ extern void iSNDinit(void)
             *(short *)(vr + 0xe) = 0x200;
             *(short *)(vr + 8) = 0;
             *(short *)(vr + 0xa) = 0;
-            sndpd[i * 0x2c + 0xff] = 0xff;                /* mark voice done */
             i++;
+            vp[0xff] = 0xff;                /* mark voice done */
+            vp += 0x2c;
         } while (i < (int)(unsigned)SUB(0x11));
     }
     iSNDpsxkeyon(0xffffff);
@@ -193,6 +279,18 @@ extern void iSNDinit(void)
  *   release, drop the audio timer, clear the fx, and re-arm the DMA callback. */
 extern void iSNDrestore(void)
 {
+    unsigned char *gp;       /* &sndgs, INDEPENDENTLY re-materialized for the rest of the fn --
+                               * shared for BOTH the 0x11 channel-count byte AND the 0x44 ticks
+                               * int (oracle keeps ONE base reg (s3) for both instead of
+                               * re-deriving per access), but is a SEPARATE live range from `p`
+                               * above (oracle re-does the lui/addiu a second time here) */
+    unsigned char *base;     /* &sndpd, materialized ONCE (function scope, before the outer
+                               * do-while) -- the oracle keeps this INVARIANT copy in its own
+                               * persistent reg (s5) separate from the per-iter walker, so the
+                               * walker resets from a plain base + the 0xf5 field stays a load
+                               * DISPLACEMENT instead of folding &sndpd+0xf5 into one constant */
+    unsigned char *vp;       /* WALKING sndpd pointer (reset from base each outer pass, +=0x2c
+                               * per inner iter) */
     int          quiet;
     int          chan;
     unsigned int deadline;
@@ -200,31 +298,35 @@ extern void iSNDrestore(void)
 
     while (SCB(0x3f) != 0)
         iSNDleaveaudio();
-    deadline = sndgs[0x11] + 100;
-    SCB(0x3f) = 0;
+    gp = (unsigned char *)sndgs;
+    deadline = *(unsigned int *)(gp + 0x44) + 100;
+    base = sndpd;
     do {
         quiet = 1;
         chan = 0;
-        if (SUB(0x11) != 0) {
+        if (gp[0x11] != 0) {
+            vp = base;
             do {
-                if (sndpd[chan * 0x2c + 0xf5] != 0) {     /* voice still active */
+                if (vp[0xf5] != 0) {     /* voice still active */
                     quiet = 0;
-                    if (deadline < (unsigned int)sndgs[0x11]) {
+                    if (deadline < *(unsigned int *)(gp + 0x44)) {
                         iSNDpsxkeyoff(0xffffff);
-                        sndpd[chan * 0x2c + 0xf5] = 0;
+                        vp[0xf5] = 0;
                         iSNDfreechan(chan);
                     }
                 }
                 chan++;
-            } while (chan < (int)(unsigned)SUB(0x11));
+                vp += 0x2c;
+            } while (chan < (int)(unsigned)gp[0x11]);
         }
         SNDSYS_service();
     } while (!quiet);
     deltimer((int)iSNDserver);
     iSNDpsxfxinit(0);
     sr = rd_sr();
-    wr_sr(rd_sr() & 0xfffffbfe);
-    DMACallback();
+    wr_sr(sr & 0xfffffbfe);   /* oracle reads SR ONCE (mfc0 s0) and reuses it for both the mask
+                                * and the later restore -- rd_sr() called twice emits a 2nd mfc0 */
+    DMACallback(4, 0);        /* detach the DMA4 callback (teardown) */
     wr_sr(sr);
 }
 
@@ -312,6 +414,3 @@ extern void iSNDserve(void)
     if (kon != 0)
         iSNDpsxkeyon((int)kon);
 }
-
-/* owning-TU def (extern-declared, never defined; link-harness) */
- volatile unsigned int VOICE_00_LEFT_RIGHT; 

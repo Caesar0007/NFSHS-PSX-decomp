@@ -192,70 +192,70 @@ int AIWorld_GameOdometer(Car_tObj *carObj)
 /* ---- AIWorld_IsDriveableLaneInSliceRange__Fiiii  [@0x800732f0] ---- */
 int AIWorld_IsDriveableLaneInSliceRange(int startSlice,int numSlicesToCheck,int direction,int laneIndex)
 {
-  int profileIndex;
-  int laneOffset;
-  int mask;
-  int checkSliceOffset;
-  int checkSlice;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  
-  iVar3 = 8 - (7 - laneIndex);
-  iVar4 = iVar3;
-  if (iVar3 < 0) {
-    iVar4 = 0;
+  int profileIndex;   /* SYM: REG -- clamp shape matches GetProfileMask/IsDriveableLane */
+  int laneOffset;      /* SYM: REG */
+  int mask;             /* SYM: REG -- computed ONCE before the loop */
+  int checkSliceOffset;  /* SYM: REG */
+  int checkSlice;         /* SYM: REG */
+  int sliceDelta;
+  int i;
+
+  laneOffset = 7 - laneIndex;
+  profileIndex = 8 - laneOffset;
+  if (profileIndex < 0) {
+    profileIndex = 0;
   }
-  if (0xf < iVar3) {
-    iVar4 = 0xf;
+  if (0xf < profileIndex) {
+    profileIndex = 0xf;
   }
-  iVar6 = 0;
-  iVar3 = 0;
-  do {
-    if (numSlicesToCheck <= iVar6) {
+  mask = 1 << (0xfU - profileIndex);
+  i = 0;
+  sliceDelta = 0;
+  while (true) {
+    if (numSlicesToCheck <= i) {
       return 1;
     }
-    iVar5 = startSlice + iVar3;
-    if (iVar3 < 0) {
-      iVar2 = iVar5 * 0x20;
-      iVar1 = gNumSlices;
-      if (iVar5 < 0) goto LAB_80073374;
-    }
-    else {
-      iVar2 = iVar5 * 0x20;
-      if (gNumSlices <= iVar5) {
-        iVar1 = -gNumSlices;
-LAB_80073374:
-        iVar2 = (iVar5 + iVar1) * 0x20;
+    checkSlice = startSlice + sliceDelta;
+    if (sliceDelta >= 0) {    /* De Morgan complement -- oracle's sliceDelta<0 case is the
+                                  branch-TAKEN target, sliceDelta>=0 is the fall-through */
+      if (gNumSlices <= checkSlice) {
+        checkSlice = checkSlice - gNumSlices;
       }
     }
-    iVar3 = iVar3 + direction;
-    if (((int)*(short *)(iVar2 + BWorldSm_slices + 0x16) & 1 << (0xfU - iVar4 & 0x1f)) == 0) {
-      return 0;
+    else if (checkSlice < 0) {
+      checkSlice = checkSlice + gNumSlices;
     }
-    iVar6 = iVar6 + 1;
-  } while( true );
+    checkSliceOffset = checkSlice * 0x20;
+    sliceDelta = sliceDelta + direction;
+    if ((*(short *)(checkSliceOffset + (int)BWorldSm_slices + 0x16) & mask) == 0) {
+      return 0;   /* NOTE: cc1plus normalizes an equivalent `!=0{i++;continue;}return 0;` form to
+                     the SAME asm as this -- the oracle's bnez/fallthrough-return-0 layout is a
+                     genuine scheduling floor here, not a reachable De Morgan source-shape lever
+                     (both forms tried, byte-identical output; remaining 10-diff residual is this
+                     + a single-exit `li v0,1` delay-slot-fill scheduling choice, §F class). */
+    }
+    i = i + 1;
+  }
 }
 
 /* ---- AIWorld_IsDriveableLane__Fii  [@0x800733a8] ---- */
 int AIWorld_IsDriveableLane(int slice,int laneIndex)
 {
-  int profileIndex;
-  int laneOffset;
-  int mask;
-  int iVar1;
-  
-  iVar1 = 8 - (7 - laneIndex);
-  if (iVar1 < 0) {
-    iVar1 = 0;
+  int profileIndex;   /* SYM: REG -- rewired from anonymous iVar1, matching the already-fixed
+                          AIWorld_GetProfileMask's split-statement clamp shape below */
+  int laneOffset;      /* SYM: REG */
+  int mask;             /* SYM: REG */
+
+  laneOffset = 7 - laneIndex;
+  profileIndex = 8 - laneOffset;
+  if (profileIndex < 0) {
+    profileIndex = 0;
   }
-  if (0xf < iVar1) {
-    iVar1 = 0xf;
+  if (0xf < profileIndex) {
+    profileIndex = 0xf;
   }
-  return (int)*(short *)(slice * 0x20 + (int)BWorldSm_slices + 0x16) & 1 << (0xfU - iVar1);
+  mask = 1 << (0xfU - profileIndex);
+  return (int)*(short *)(slice * 0x20 + (int)BWorldSm_slices + 0x16) & mask;
 }
 
 /* ---- AIWorld_GetProfileMask__Fi  [@0x800733fc] ---- */
@@ -293,13 +293,27 @@ int AIWorld_CheckForBarrierBetweenLanes(int slice,int lane0,int lane1)
   profile = (int)*(short *)(slice * 0x20 + (int)BWorldSm_slices + 0x16);
   profileLane0 = 0xe - lane0;
   profileLane1 = 0xe - lane1;
-  if (profileLane0 <= profileLane1) {
-    return ~profile >> (profileLane0) & ~(-1 << ((profileLane1 - profileLane0) + 1));
+  if (profileLane1 < profileLane0) {   /* De Morgan complement of !(lane0<=lane1); the oracle's
+                                           ELSE-branch (lane0<=lane1 case) is the FALL-THROUGH,
+                                           this complement is the taken-branch target. */
+    return ~profile >> (profileLane1) & ~(-1 << ((profileLane0 - profileLane1) + 1));
   }
-  return ~profile >> (profileLane1) & ~(-1 << ((profileLane0 - profileLane1) + 1));
+  return ~profile >> (profileLane0) & ~(-1 << ((profileLane1 - profileLane0) + 1));
 }
 
 /* ---- AIWorld_LaneIndex__Fii  [@0x800734cc] ---- */
+/* NEAR-MISS (40 diffs, ours 44 / oracle 50 -- 6 insns SHORT): the oracle's
+ * `inverseLaneWidthTable[(bVar1<<15)>>14]` index expression keeps gcc's full signed-
+ * divide-by-0x4000 codegen (`bgez;addiu 0x3fff;sra 14`, the standard gcc-2.x signed->>N
+ * bias-adjust from reference_mips_isa_asm.md), but OUR compile PROVES the shifted byte is
+ * always non-negative (max 255<<15 = 0x7F8000, well under 2^31) and folds the whole thing to a
+ * bare `sra`/`sll`. Tried: widen bVar1 from u_char->int before use (no effect -- GCC tracks the
+ * value's range from the ORIGINATING BYTE LOAD, not the destination variable's declared type);
+ * real `BWorldSm_slices[slice].avgPavedWidthLf/Rt` struct-field access instead of raw
+ * `*(u_char*)(base+off)` cast (no effect either, same range-proof triggers through field access
+ * too). Migrated to the real struct fields for fidelity (avgPavedWidthLf/Rt are genuinely
+ * u_char per nfs4_types.h:3092) since it's SYM/type-correct regardless. GENUINE GCC
+ * value-range-provable-shift floor; accept, no source-shape lever found. */
 int AIWorld_LaneIndex(int slice,int position)
 {
   int laneWidth;
@@ -307,13 +321,13 @@ int AIWorld_LaneIndex(int slice,int position)
   u_char bVar1;
   int iVar2;
   int iVar3;
-  
+
   if (position < 0) {
-    bVar1 = *(u_char *)(slice * 0x20 + (int)BWorldSm_slices + 0x1e);
+    bVar1 = BWorldSm_slices[slice].avgPavedWidthLf;
     iVar3 = 6;
   }
   else {
-    bVar1 = *(u_char *)(slice * 0x20 + (int)BWorldSm_slices + 0x1f);
+    bVar1 = BWorldSm_slices[slice].avgPavedWidthRt;
     iVar3 = 7;
   }
   iVar2 = fixedmult(position,inverseLaneWidthTable[(int)((u_int)bVar1 * 0x8000) >> 0xe]);
@@ -334,25 +348,30 @@ int AIWorld_LaneIndex(int slice,int position)
 /* ---- AIWorld_CalculateLaneInfo__FP8Car_tObj  [@0x80073594] ---- */
 void AIWorld_CalculateLaneInfo(Car_tObj *carObj)
 {
-  int rightEdgeIndex;
-  int leftEdgeIndex;
-  int laneLoop;
-  short sVar1;
+  u_int rightEdgeIndex;   /* SYM: REG -- u_int: the <0xe clamp test is UNSIGNED (sltiu) */
+  u_int leftEdgeIndex;     /* SYM: REG */
+  u_int laneLoop;            /* SYM: REG -- loop induction var, separate from leftEdgeIndex.
+                                 The LOOP compare itself is SIGNED (oracle `slt`, not `sltu`) --
+                                 explicit (int) casts on both sides reproduce that mixed
+                                 unsigned-clamp/signed-loop idiom. */
   int iVar2;
-  u_int uVar3;
-  u_int uVar4;
-  
+
   carObj->carInLane = 0;
   if ((carObj->AIFlags & 4U) == 0) {
+    /* the oracle RE-READS (carObj->N).simRoadInfo.slice fresh for EACH of the 3 calls (lh @+8,
+       three times) instead of caching it into a local -- caching it (as the old `sVar1` did)
+       forces an EXTRA value to survive across a call, needing a 3rd callee-saved reg (ours
+       saved s0/s1/s2, oracle only s0/s1). Eager-cache-drop, same class as the femenu
+       ptVar=FEApp finding in the catalog. */
     iVar2 = AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice,carObj->roadPosition);
-    sVar1 = (carObj->N).simRoadInfo.slice;
     carObj->laneIndex = iVar2;
-    uVar3 = AIWorld_LaneIndex((int)sVar1,(carObj->roadPosition - carObj->roadSpan) + 0x8000);
-    uVar4 = AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice,
+    leftEdgeIndex = AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice,
+                       (carObj->roadPosition - carObj->roadSpan) + 0x8000);
+    rightEdgeIndex = AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice,
                        carObj->roadPosition + carObj->roadSpan + -0x8000);
-    if ((uVar4 < 0xe) && (uVar3 < 0xe)) {
-      for (; (int)uVar3 <= (int)uVar4; uVar3 = uVar3 + 1) {
-        carObj->carInLane = carObj->carInLane | 1 << (uVar3);
+    if ((rightEdgeIndex < 0xe) && (leftEdgeIndex < 0xe)) {
+      for (laneLoop = leftEdgeIndex; (int)laneLoop <= (int)rightEdgeIndex; laneLoop = laneLoop + 1) {
+        carObj->carInLane = carObj->carInLane | 1 << laneLoop;
       }
     }
   }
@@ -365,16 +384,26 @@ int AIWorld_CalculateDeltaRoadYaw(Car_tObj *carObj)
   int delta;     /* SYM: REG $a0, whole-function scope -- rewired from anonymous iVar1 */
   int yaw0;      /* SYM: REG $s0, block-scoped inside the if -- rewired from anonymous iVar3 */
   int iVar2;
+  int nextSlice;  /* fresh compiler temp (unnamed in SYM) -- keeps the wraparound value OUT of
+                      'delta' until the call, so cc1plus can't algebraically reassociate
+                      `iVar2 - (gNumSlices-1)` into `delta - gNumSlices` (it did when both
+                      branches wrote directly into 'delta': same value, wrong reg/operand shape
+                      -- oracle keeps iVar2 alive in its own reg and subtracts gNumSlices-1 from
+                      IT, not from delta+1). SPLIT gNumSlices-1 into its own temp `gnLess1` too
+                      -- collapsing it to `iVar2 - (gNumSlices + -1)` let cc1plus re-fold back to
+                      the same reassociated form; the explicit intermediate keeps it apart. */
+  int gnLess1;
 
   delta = 0;
   if ((carObj->carFlags & 8U) != 0) {
     iVar2 = (int)(carObj->N).simRoadInfo.slice;
     yaw0 = (carObj->N).roadYaw;
-    delta = iVar2 + 1;
-    if (gNumSlices <= delta) {
-      delta = iVar2 - (gNumSlices + -1);
+    nextSlice = iVar2 + 1;
+    if (gNumSlices <= nextSlice) {
+      gnLess1 = gNumSlices - 1;
+      nextSlice = iVar2 - gnLess1;
     }
-    delta = Newton_CalculateSliceYaw(delta);
+    delta = Newton_CalculateSliceYaw(nextSlice);
     delta = delta - yaw0;
     if (0x200 < delta) {
       delta = delta + -0x400;
@@ -387,6 +416,23 @@ int AIWorld_CalculateDeltaRoadYaw(Car_tObj *carObj)
 }
 
 /* ---- AIWorld_CalcRoadBend__FP8Car_tObji  [@0x800736e0] ---- */
+/* REMAINING NEAR-MISS (74 diffs, insn-count-exact 55/55): the front-half `iVar2+lookAhead`
+ * clamp is written identically in both the `lookAhead<0` and `lookAhead>=0` arms (matches the
+ * SYM's single `nextSlice` REG local across the whole function). cc1plus recognizes the two
+ * copies as the SAME redundant computation and hoists ONE shared `addu` into the very first
+ * branch's delay slot, reused by BOTH arms (verified in objdump: the taken-path block has no
+ * own addu, it reads the delay-slot value). The oracle does NOT share it -- each arm computes
+ * `thisSlice+lookAhead` separately (own reg, own insn). Tried: fresh-named temp per arm (no
+ * effect -- gcc's RTL-level value numbering isn't source-name-sensitive), if/else branch-order
+ * swap (flips branch polarity to bltz matching oracle, but breaks insn-count-exact 55->56,
+ * net worse), negation-based rewrite (56->58, worse). GENUINE GCC GCSE-across-branches floor;
+ * accept. The road-angle fields ARE real `Trk_NewSlice.forward[3]`/`.right[3]` (plain `char`
+ * arrays, nfs4_types.h:3089) -- migrated from raw `*(char*)(base+off)` casts to real
+ * `BWorldSm_slices[idx].forward[0]`/`.right[0]` etc. field access, WITH an explicit
+ * `(signed char)` cast at each use (oracle emits `lb`; a bare `char` read on this build emits
+ * `lbu` -- verified empirically, matches the catalog's char-field rule). Diff count unchanged
+ * (still 74, the GCSE floor above dominates) but this is the byte-faithful, SYM/type-correct
+ * reconstruction. */
 int AIWorld_CalcRoadBend(Car_tObj *carObj,int lookAhead)
 {
   int thisSlice;
@@ -395,7 +441,7 @@ int AIWorld_CalcRoadBend(Car_tObj *carObj,int lookAhead)
   int iVar2;
   int iVar3;
   int iVar4;
-  
+
   iVar2 = (int)(carObj->N).simRoadInfo.slice;
   if (lookAhead < 0) {
     iVar1 = iVar2 + lookAhead;
@@ -410,20 +456,20 @@ int AIWorld_CalcRoadBend(Car_tObj *carObj,int lookAhead)
     }
   }
   iVar4 = iVar1 * 0x20 + (int)BWorldSm_slices;
-  iVar1 = *(char *)(iVar4 + 0xf) * 0x200;
+  iVar1 = (int)(signed char)BWorldSm_slices[iVar1].forward[0] * 0x200;
   if (iVar1 < 0) {
     iVar1 = iVar1 + 0xff;
   }
   iVar3 = iVar2 * 0x20 + (int)BWorldSm_slices;
-  iVar2 = *(char *)(iVar3 + 0x12) * 0x200;
+  iVar2 = (int)(signed char)BWorldSm_slices[iVar2].right[0] * 0x200;
   if (iVar2 < 0) {
     iVar2 = iVar2 + 0xff;
   }
-  iVar4 = *(char *)(iVar4 + 0x11) * 0x200;
+  iVar4 = (int)(signed char)((Trk_NewSlice *)iVar4)->forward[2] * 0x200;
   if (iVar4 < 0) {
     iVar4 = iVar4 + 0xff;
   }
-  iVar3 = *(char *)(iVar3 + 0x14) * 0x200;
+  iVar3 = (int)(signed char)((Trk_NewSlice *)iVar3)->right[2] * 0x200;
   if (iVar3 < 0) {
     iVar3 = iVar3 + 0xff;
   }
@@ -433,15 +479,22 @@ int AIWorld_CalcRoadBend(Car_tObj *carObj,int lookAhead)
 /* ---- AIWorld_CalcFutureLateralVel__FP8Car_tObji  [@0x800737bc] ---- */
 int AIWorld_CalcFutureLateralVel(Car_tObj *carObj,int slicesAhead)
 {
-  coorddef right;
-  int futureSlice;
-  int currentSlice;
-  char cVar1;
-  char cVar2;
+  coorddef right;   /* SYM AUTO struct -- the oracle fully MATERIALIZES right.x/y/z (shifted
+                        bytes) to the stack BEFORE any fixedmult call (sw 0x10/0x14/0x18(sp)),
+                        then reloads right.y/right.z per call -- matches a real named-struct
+                        write, not the old cVar1/cVar2 scalar-cache shortcut. */
+  int futureSlice;   /* SYM: REG -- rewired from anonymous iVar3's slice-wrap result */
+  int currentSlice;   /* SYM: REG -- (carObj->N).simRoadInfo.slice, cached once */
   int iVar3;
   int iVar4;
   int iVar5;
-  
+  /* REMAINING residual (52 diffs, insn-count-exact 70/70): carObj lands in s0 here vs oracle's
+     s1 (a uniform s0<->s1 swap cascading through the accumulator regs too) -- the same
+     "carObj cached across multiple calls, physical reg is a coin-flip" class as
+     AIWorld_CalculateDeltaRoadYaw/ZSplineDistance. Tried: decl-order swap (no effect, reverted).
+     Accepted as a coloring floor; the 2 real bugs (signed-char BWorldSm_slices reads via real
+     Trk_NewSlice.right[] fields, right.x/y/z struct materialization order) are fixed+verified. */
+
   if ((carObj->carFlags & 0x10U) != 0) {
     iVar3 = carObj->currentSpeed;
     if (iVar3 < 0) {
@@ -451,21 +504,22 @@ int AIWorld_CalcFutureLateralVel(Car_tObj *carObj,int slicesAhead)
       slicesAhead = 0;
     }
   }
-  iVar3 = (carObj->N).simRoadInfo.slice + slicesAhead;
+  currentSlice = (carObj->N).simRoadInfo.slice;
+  futureSlice = currentSlice + slicesAhead;
   if (slicesAhead < 0) {
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + gNumSlices;
+    if (futureSlice < 0) {
+      futureSlice = futureSlice + gNumSlices;
     }
   }
-  else if (gNumSlices <= iVar3) {
-    iVar3 = iVar3 - gNumSlices;
+  else if (gNumSlices <= futureSlice) {
+    futureSlice = futureSlice - gNumSlices;
   }
-  iVar3 = iVar3 * 0x20 + (int)BWorldSm_slices;
-  cVar1 = *(char *)(iVar3 + 0x13);
-  cVar2 = *(char *)(iVar3 + 0x14);
-  iVar3 = fixedmult((carObj->N).linearVel.x,(int)*(char *)(iVar3 + 0x12) << 9);
-  iVar4 = fixedmult((carObj->N).linearVel.y,(int)cVar1 << 9);
-  iVar5 = fixedmult((carObj->N).linearVel.z,(int)cVar2 << 9);
+  right.x = (int)(signed char)BWorldSm_slices[futureSlice].right[0] << 9;
+  right.y = (int)(signed char)BWorldSm_slices[futureSlice].right[1] << 9;
+  right.z = (int)(signed char)BWorldSm_slices[futureSlice].right[2] << 9;
+  iVar3 = fixedmult((carObj->N).linearVel.x,right.x);
+  iVar4 = fixedmult((carObj->N).linearVel.y,right.y);
+  iVar5 = fixedmult((carObj->N).linearVel.z,right.z);
   return iVar3 + iVar4 + iVar5;
 }
 
@@ -505,39 +559,29 @@ int AIWorld_CalcLateralVelocity(Car_tObj *carObj)
 /* ---- AIWorld_FindBarrierLessLaneAndPosition__FP8Car_tObjPiT1  [@0x80073978] ---- */
 void AIWorld_FindBarrierLessLaneAndPosition(Car_tObj *carObj,int *goodLane,int *goodPosition)
 {
-  int laneWidth;
-  int laneLoop;
-  u_char bVar1;
-  int iVar2;
-  int currentSlice;
+  int roadSide;    /* SYM: REG -- direction*driveSide, rewired from anonymous iVar2 */
+  u_int laneWidth;   /* SYM: REG -- materialized PRE-SHIFTED (byte<<15) right where the byte is
+                         read (oracle: `sll s1,v0,15` right after each branch's `lbu`), not kept
+                         raw and multiplied later -- lets the shifted value be reused directly
+                         by the loop-trailing multiply/shift below without re-deriving it. */
+  int laneLoop;      /* SYM: REG -- rewired from anonymous iVar4 */
   int iVar3;
-  int optVar2;
-  int delta;
-  int optVar1;
-  int thisSlice;
-  int checkSlice;
-  int checkSliceOffset;
-  int temp;
-  int iVar4;
-  int roadSide;
-  coorddef right;
-  
-  iVar2 = carObj->direction * AITune_driveSide;
-  iVar4 = 0;
-  if (iVar2 == 1) {
+
+  roadSide = carObj->direction * AITune_driveSide;
+  laneLoop = 0;
+  if (roadSide == 1) {
     *goodLane = 7;
-    bVar1 = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x1f);
+    laneWidth = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x1f) << 15;
   }
   else {
     *goodLane = 6;
-    bVar1 = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x1e);
+    laneWidth = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x1e) << 15;
   }
-  do {
+  for (; laneLoop < 3; laneLoop = laneLoop + 1) {
     iVar3 = AIWorld_IsDriveableLane((int)(carObj->N).simRoadInfo.slice,*goodLane);
     if (iVar3 != 0) break;
-    iVar4 = iVar4 + 1;
-    *goodLane = *goodLane + iVar2;
-  } while (iVar4 < 3);
-  *goodPosition = iVar2 * ((u_int)bVar1 * 0x8000 * iVar4 + ((u_int)bVar1 * 0x8000 >> 1));
+    *goodLane = *goodLane + roadSide;
+  }
+  *goodPosition = roadSide * (laneWidth * laneLoop + (laneWidth >> 1));
   return;
 }

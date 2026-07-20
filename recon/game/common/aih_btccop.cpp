@@ -483,9 +483,13 @@ int AIHigh_BTC_HumanCop::FindRandomBarrierFreeArea(int startSlice,int safetyZone
   int newSlice;
   int maxRuns;
 
-  int iVar2;
+  int slideAmount;
 
-  int iVar3;
+  int startCheckSlice;
+  int leftLaneFree;
+  int rightLaneFree;
+
+  int tailAdjust;
 
 
 
@@ -493,21 +497,13 @@ int AIHigh_BTC_HumanCop::FindRandomBarrierFreeArea(int startSlice,int safetyZone
 
   fastRandom = randtemp & 0xffff;
 
-  newOffset = (randomDistance * (randtemp >> 8 & 0xffff) * 2 >> 0x10) - randomDistance;
+  int doubledFraction;
 
-  if (newOffset < 0) {
+  doubledFraction = (randtemp >> 8 & 0xffff) * 2;
 
-    newSlice = startSlice + newOffset;
+  newOffset = (int)((u_int)(randomDistance * doubledFraction) >> 0x10) - randomDistance;
 
-    if (newSlice < 0) {
-
-      newSlice = newSlice + gNumSlices;
-
-    }
-
-  }
-
-  else {
+  if (0 <= newOffset) {
 
     newSlice = startSlice + newOffset;
 
@@ -519,6 +515,20 @@ int AIHigh_BTC_HumanCop::FindRandomBarrierFreeArea(int startSlice,int safetyZone
 
   }
 
+  else {
+
+    newSlice = startSlice + newOffset;
+
+    if (newSlice < 0) {
+
+      newSlice = newSlice + gNumSlices;
+
+    }
+
+  }
+
+  slideAmount = safetyZone / 5;
+
   maxRuns = 0;
 
   do {
@@ -529,41 +539,41 @@ int AIHigh_BTC_HumanCop::FindRandomBarrierFreeArea(int startSlice,int safetyZone
 
     }
 
-    iVar3 = newSlice - safetyZone;
+    startCheckSlice = newSlice - safetyZone;
 
     if (-safetyZone < 0) {
 
-      iVar2 = gNumSlices;
+      tailAdjust = gNumSlices;
 
-      if (iVar3 < 0) goto LAB_8005d270;
+      if (startCheckSlice < 0) goto LAB_8005d270;
 
     }
 
-    else if (gNumSlices <= iVar3) {
+    else if (gNumSlices <= startCheckSlice) {
 
-      iVar2 = -gNumSlices;
+      tailAdjust = -gNumSlices;
 
 LAB_8005d270:
 
-      iVar3 = iVar3 + iVar2;
+      startCheckSlice = startCheckSlice + tailAdjust;
 
     }
 
-    iVar2 = AIWorld_IsDriveableLaneInSliceRange(iVar3,safetyZone << 1,1,6);
+    leftLaneFree = AIWorld_IsDriveableLaneInSliceRange(startCheckSlice,safetyZone << 1,1,6);
 
-    iVar3 = AIWorld_IsDriveableLaneInSliceRange(iVar3,safetyZone << 1,1,7);
+    rightLaneFree = AIWorld_IsDriveableLaneInSliceRange(startCheckSlice,safetyZone << 1,1,7);
 
-    if ((iVar2 != 0) && (iVar3 != 0)) {
+    if ((leftLaneFree != 0) && (rightLaneFree != 0)) {
 
       return newSlice;
 
     }
 
-    newSlice = newSlice + safetyZone / 5;
+    newSlice = newSlice + slideAmount;
 
-    if (safetyZone / 5 < 0) {
+    if (slideAmount < 0) {
 
-      iVar3 = gNumSlices;
+      tailAdjust = gNumSlices;
 
       if (newSlice < 0) goto LAB_8005d2ec;
 
@@ -571,11 +581,11 @@ LAB_8005d270:
 
     else if (gNumSlices <= newSlice) {
 
-      iVar3 = -gNumSlices;
+      tailAdjust = -gNumSlices;
 
 LAB_8005d2ec:
 
-      newSlice = newSlice + iVar3;
+      newSlice = newSlice + tailAdjust;
 
     }
 
@@ -846,8 +856,6 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
 {
   int nextStageTime;
-  int newLatPos;
-  int throwAway;
   int initialDirection;
   int initialMovement;
   int rightPos;
@@ -865,11 +873,11 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
   int iVar6;
 
-  int local_28;
+  int newLatPos;
 
-  int local_24;
+  int throwAway;
 
-  
+
 
   this->currentStage_ = this->currentStage_ + 1;
 
@@ -903,13 +911,13 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
   AICop_gRoadBlockState = 0;
 
-  local_24 = 0;
+  throwAway = 0;
 
-  local_28 = 0;
+  newLatPos = 0;
 
-  AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&local_28,&local_24);
+  AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&newLatPos,&throwAway);
 
-  iVar2 = local_24;
+  iVar2 = throwAway;
 
   if (AIHigh_CopGameType == 4) {
 
@@ -1157,19 +1165,11 @@ void AIHigh_BTC_HumanCop::UpdateFreezeModeAndPullOverMode()
 
 {
 
-  Car_tObj *pCVar1;
-
-  int _Var2;
-
-
-
   if (this->timeLeft_ < 0) {
-
-    pCVar1 = this->carObj_;
 
     AIInit_forceHumanHandBrake = 1;
 
-    pCVar1->RSControl = pCVar1->direction;
+    this->carObj_->RSControl = this->carObj_->direction;
 
     this->requestedDesiredSpeed_ = 0;
 
@@ -1177,9 +1177,7 @@ void AIHigh_BTC_HumanCop::UpdateFreezeModeAndPullOverMode()
 
   }
 
-  _Var2 = this->freezeMode_;
-
-  if (_Var2 == 3) {
+  if (this->freezeMode_ == 3) {
 
     (this->carObj_)->RSControl = 0;
 
@@ -1191,15 +1189,13 @@ void AIHigh_BTC_HumanCop::UpdateFreezeModeAndPullOverMode()
 
   }
 
-  if (_Var2 == 1) {
+  if (this->freezeMode_ == 1) {
 
-    pCVar1 = this->carObj_;
+    this->carObj_->AIFlags = this->carObj_->AIFlags & 0xfffffffd;
 
-    pCVar1->AIFlags = pCVar1->AIFlags & 0xfffffffd;
+    int startingDirection = this->initialDirection_;
 
-    (this->carObj_)->RSControl =
-
-         this->initialDirection_;
+    (this->carObj_)->RSControl = startingDirection;
 
     (this->carObj_)->pullOver =
 
@@ -1217,21 +1213,17 @@ void AIHigh_BTC_HumanCop::UpdateFreezeModeAndPullOverMode()
 
   else {
 
-    pCVar1 = this->carObj_;
+    if ((this->carObj_->pullOver == 1) || (this->carObj_->RSControl != 0)) {
 
-    if ((pCVar1->pullOver == 1) || (pCVar1->RSControl != 0)) {
-
-      pCVar1->AIFlags = pCVar1->AIFlags | 2;
+      this->carObj_->AIFlags = this->carObj_->AIFlags | 2;
 
     }
-
-    pCVar1 = this->carObj_;
 
     this->requestedDesiredSpeed_ = 0;
 
     this->freezeMode_ = 0;
 
-    pCVar1->RSControl = 0;
+    this->carObj_->RSControl = 0;
 
     (this->carObj_)->pullOver = 0;
 
@@ -2614,7 +2606,11 @@ void AIHigh_BTC_Wingman::SetupWingman(AIHigh_BTC_HumanCop *humanCop)
 
   }
 
-  perpSide = perpSide * side * 0x1c;
+  int sideTimes28;
+
+  sideTimes28 = side * 0x1c;
+
+  perpSide = perpSide * sideTimes28;
 
   if (perpSide >= 0) {
 

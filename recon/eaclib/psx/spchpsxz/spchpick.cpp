@@ -103,7 +103,7 @@ extern "C" int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, in
         if (0 < count) {
             int i = 0;
             do {
-                int cycleByte = (int)*(unsigned char *)(sample + i + 0xc);
+                unsigned int cycleByte = *(unsigned char *)(sample + i + 0xc);
                 if (0x1f < cycleByte)
                     break;
                 result = 0;
@@ -331,15 +331,16 @@ extern "C" unsigned char *iSPCH_OrderSentences(int event, int outOrder)
         do {
             int            r = iSPCH_Rand(total);
             int            j = 0;
-            unsigned char *p = weights;
             if (n != 0) {
-                do {
+                for (;;) {
+                    unsigned char *p = weights + j;
                     r = r - (int)(unsigned int)*p;
                     if (r < 0)
                         break;
                     j = j + 1;
-                    p = weights + j;
-                } while (j < (int)n);
+                    if ((int)n <= j)
+                        break;
+                }
             }
             *(char *)(outOrder + i) = (char)j;
             last = weights + j;
@@ -407,13 +408,13 @@ extern "C" int iSPCH_SentenceGetChoices(int sentence, int paramTable, unsigned i
     int n = VoxSentence_GetNumPhrases(sentence);
     int result = 1;
     if (n < 0xd) {
-        if (iSPCH_ShortRuleStatus(sentence, filterMode) == 0 ||
-            iSPCH_CheckSentenceRules((int)(ruleByte1 & 0xff), (int)(ruleByte2 & 0xff), sentence) == 0) {
+        if (iSPCH_ShortRuleStatus(sentence, filterMode) == 0) {
+            result = 0;
+        } else if (iSPCH_CheckSentenceRules((int)(ruleByte1 & 0xff), (int)(ruleByte2 & 0xff), sentence) == 0) {
             result = 0;
         } else {
             int    table = 0;
             short *outChoice = ispch_gChoice;
-            result = 1;
             if (0 < n) {
                 do {
                     int    r;
@@ -677,12 +678,17 @@ extern "C" void iSPCH_PlayChosen(void)
         iSPCH_RuleSet((short *)gSentenceChoice[0], gSentenceChoice[2], (int)&gSentenceChoice[4]);
         ((void (*)(short *, int))iSPCH_ConstantRuleSet)((short *)gSentenceChoice[0], gSentenceChoice[1]);
         iSPCH_MakeSampleRequests(gSentenceChoice[1], eventId);
-        if (eventId == gVoxInGame[0]) {
-            gVoxInGame[1] = gVoxInGame[1] + 1;   /* MATCH: gVoxInGame[1] == gRepeatCount; both branches'
-                                                   * stores tail-merge into ONE sw when read via the array */
-        } else {
-            gVoxInGame[1] = 1;
-            gVoxInGame[0] = eventId;
+        {
+            int newRepeatCount;   /* MATCH: gVoxInGame[1] == gRepeatCount; a SHARED store after the
+                                    * if/else (not one store per branch) is what tail-merges into the
+                                    * oracle's single `sw v0,4(a0)` at the branches' join point. */
+            if (eventId == gVoxInGame[0]) {
+                newRepeatCount = gVoxInGame[1] + 1;
+            } else {
+                gVoxInGame[0] = eventId;
+                newRepeatCount = 1;
+            }
+            gVoxInGame[1] = newRepeatCount;
         }
     }
     iSPCH_ClearChosen();
@@ -724,19 +730,21 @@ extern "C" int iSPCH_ChooseSentence(unsigned int *eventArgs)
                     if (0 < (int)n) {
                         result = 0;
                         do {
-                            int table;   /* MATCH: local_order[] was WRITTEN as (char) (signed) by
-                                          * OrderSentences; read back signed here too -- the oracle
-                                          * has a SEPARATE `bltz table` guard before the `table>=n`
-                                          * range check (2 compares), which only appears if this read
-                                          * is signed (a plain unsigned read folds to one compare). */
+                            int table;   /* MATCH: read UNSIGNED (oracle: lbu) -- local_order[] holds
+                                          * 0..n-1 always, so `table < 0` below is dead/vestigial code
+                                          * (never true at runtime) but the oracle still emits the bltz
+                                          * guard for it (a `(signed char)` cast would wrongly emit `lb`
+                                          * here; this compiler only emits `lb` for an EXPLICIT signed
+                                          * cast, never implicitly -- see reference_asm_pattern_catalog
+                                          * §C "char IS UNSIGNED on this build"). */
                             int          sentence;
                             int          r;
                             if ((int)n <= idx)
                                 return result;
-                            table = (int)(signed char)local_order[idx];
+                            table = (int)local_order[idx];
                             if (table < 0)
                                 return result;
-                            if (n <= (unsigned int)table)
+                            if ((int)n <= table)
                                 return result;
                             sentence = iSPCH_GetOffset16(event, event + 0xc, (int)table);
                             r = iSPCH_SentenceGetChoices(sentence, (int)eventArgs, useLen & 0xff,

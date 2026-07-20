@@ -1,7 +1,25 @@
 /* eaclib/psx/sndpsxz/sdpacket.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 6/13 PASS
  *   (w20-a8 2026-07-19/20: getirq 76->39, setirq 31->10, purgeframes 85->15, serve 75->60,
  *   platformpacketplaycreate 55->0 PASS, psxpacketstop 42->18; residual = fillspuwithpackets 480,
- *   platformpacketplay 271, plus the above near-misses -- see commit log for per-fn detail) ***
+ *   platformpacketplay 271, plus the above near-misses -- see commit log for per-fn detail)
+ *   (w21-a3 2026-07-20: dedicated instruction-trace pass on the two file monsters --
+ *   fillspuwithpackets 480->167, platformpacketplay 271->148. Real bugs fixed: vt sign
+ *   (char->signed char, lbu tautology), iSNDpsxzerospu called with hardcoded len=0 at both
+ *   sites in fillspuwithpackets (real correctness bug -- oracle passes 16 / rem), iSNDdmqueue
+ *   called 1-arg where its real sig (sdma.c) is 5-arg (dst_spu,src_ram,len,prio,flag) --
+ *   dropped-args, a *hdr*0x17c7>>0x10 pitch-scale shift had a stray (unsigned) cast forcing
+ *   srl vs oracle's sra. Levers: materialize `voice`=&sndpd[0xD8+vt] ONCE and access ALL small
+ *   (0x00-0x27) fields via FIXED displacement off it instead of re-expanding the
+ *   VB/VI/VUH/VH(DAT_xxx,vt) macros fresh at each site (oracle: one shared s2/s4); the
+ *   DAT_80147e10[p] macro folds +0x4F8 into the base before the p*4 index -- materialize
+ *   base+p*4 first and let +0x4F8 be the LOAD DISPLACEMENT instead (matches iSNDpacketgetirq's
+ *   established lever); loop-rotation top-test->do-while; i=0/ch=pp split across a branch's
+ *   delay slot vs the guard body. Residual 167+148 = mostly register-coloring/scheduling
+ *   floors (a `take` value kept in v0 vs s3 across a large intervening block; a
+ *   `(signed char)voice[N]` cast compiling to lbu+sll24+sra24 on its first occurrence but a
+ *   plain `lb` on repeats -- context-dependent CSE, not source-shapable in the time available).
+ *   Other 5 near-misses in this file untouched this pass (getirq/setirq/purgeframes/serve/
+ *   psxpacketstop) -- same DAT_ macro re-expansion pattern likely applies there too.) ***
  *   Source obj : nfs4\eaclib\psx\sdpacket.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   13 fns @[0x80103784 .. 0x801046C8].  THE SPU/DMA HARDWARE FLOOR of the EA packet player -- the
  *   platform layer iSNDstream/spktplay call to actually stream ADPCM packets into the PSX SPU voice
@@ -97,7 +115,13 @@ extern unsigned int iSNDpacketfreeframes(int p, int idx, int bytes);   /* spktpl
                                                                           * (see spktplay.cpp) -- the oracle call
                                                                           * site sets up a0=p/a1=i/a2=taken. */
 extern void iSNDstreamhotroddatachunks(void);              /* sst */
-extern int  iSNDdmqueue(int spuBuf);                       /* sdma */
+extern int  iSNDdmqueue(int dst_spu, unsigned int src_ram, int len, unsigned char prio, unsigned char flag);  /* sdma
+                                                             * -- real 5-arg sig (see sdma.c): the fillspu
+                                                             * DMA-kick call was a DROPPED-ARGS bug (1-arg
+                                                             * called as if void(spuBuf)); oracle sets up
+                                                             * all 5: a0=chBuf, a1=pp->0+chunk<<pp->0x43+
+                                                             * pp->8*i, a2=pp->0x44(blockBytes), a3=2,
+                                                             * stack=flag(chunk==0&&i==0). */
 extern int  iSNDdmcomplete(int dmaHandle);                 /* sdma */
 extern void blockmove(int *dst, int *src, unsigned int len);  /* blkmov */
 extern int  iSNDplatformpitch(int chan, int pitch);        /* sdriver */
@@ -326,131 +350,194 @@ extern unsigned int iSNDpacketpurgeframes(int p, unsigned int byteoff, int count
  *   uninit local_30 is iSNDpacketget's frameSize out-param.) */
 extern int iSNDfillspuwithpackets(int p, int chunk)
 {
-    int  pp = (&DAT_80147e10)[p];
-    int  vt = *(char *)(pp + 0x42) * 0x2c;
+    /* MATCH: materialize the bare &sndpd ONCE (oracle: a0) and reach BOTH DAT_80147e10[p] (via
+     * base+p*4, +0x4F8 as the LOAD DISPLACEMENT -- the `(&DAT_80147e10)[p]` macro instead folds
+     * 0x4F8 into the pointer chain before the index, forcing displacement-0) and the voice-table
+     * base (a0 += 0xD8, the SAME register reused after the load) off this one pointer. */
+    unsigned char *base0 = sndpd;
+    unsigned char *slot0 = base0 + p * 4;
+    int  pp = *(int *)(slot0 + 0x4F8);
+    int  vt = (int)*(signed char *)(pp + 0x42) * 0x2c;   /* BUG FIX: plain char is UNSIGNED on this
+                                                           * build (lbu) -- oracle uses `lb` (signed),
+                                                           * same field iSNDpacketgetirq/setirq read. */
+    /* MATCH: materialize `voice = &table[vt]` (sndpd+0xD8+vt) ONCE at entry (oracle: `s4`, a
+     * callee-saved reg computed from the SAME vt multiply chain that feeds it) and read the
+     * per-voice CHANNEL COUNT (+0x1F == DAT_80147a0f[vt]) via this ONE fixed displacement at
+     * every one of the ~9 loop guards below (oracle: `lbu v0,0x1F(s4)`, reused verbatim). The
+     * VB(DAT_80147a0f,vt) macro form instead re-materializes base+0xF7+vt fresh at each site. */
+    unsigned char *tablebase0 = base0 + 0xD8;    /* MATCH: fold +0xD8 into base0 FIRST (oracle:
+                                                   * `addiu a0,a0,0xD8` right after the pp load,
+                                                   * reusing $a0) -- same lever iSNDpacketgetirq
+                                                   * uses for its tablebase/voice split. */
+    unsigned char *voice = tablebase0 + vt;
     int  i, ch, dma;
     short rem;
     unsigned short take;
     int  *cbuf;
     short *ringp;
-    int  frameSize = 0;
+    int  frameSize;      /* MATCH: genuinely uninitialized (Ghidra local_30) -- iSNDpacketget always
+                           * writes it before any read; a `=0` initializer emits a dead `sw zero,..(sp)`
+                           * the oracle lacks. */
     int  avail;
 
-    if (*(short *)(pp + 0x3c) == 0) {
+    if (*(unsigned short *)(pp + 0x3c) == 0) {   /* MATCH: oracle reads this SPECIFIC occurrence via
+                                                   * `lhu` (unsigned); other pp+0x3c reads elsewhere in
+                                                   * this fn use `lh`/`lhu` per their own oracle site. */
         *(short *)(pp + 0x3e) = 0;
         *(short *)(pp + 0x3c) = *(short *)(pp + 0x44);
         *(short *)(chunk * 2 + *(int *)(pp + 0x2c)) = 0;
     }
     if (*(int *)(pp + 0x14) == 0) {                     /* fresh start -> silence all SPU channels */
-        i = 0; ch = pp;
-        if (VB(DAT_80147a0f, vt) != 0) {
-            do { iSNDpsxzerospu(*(int **)(ch + 0x48), 0); i++; ch += 4; }
-            while (i < (int)(unsigned)(unsigned char)VB(DAT_80147a0f, vt));
+        /* MATCH: oracle materializes `i=0` in the count-check BRANCH'S DELAY SLOT (`beqz
+         * count,skip / addu s0,zero,zero`); `ch=pp` is set only on the taken (nonzero) path,
+         * inside the guard -- split the two inits instead of setting both before the `if`. */
+        i = 0;
+        if (voice[0x1F] != 0) {
+            ch = pp;
+            /* BUG FIX: len=0x10 (16) -- oracle loads `li a1,16` before the loop and re-materializes
+             * it in the branch-back delay slot every iter (a1 is caller-saved, clobbered by the
+             * jal); the previous recon passed a constant 0, silencing nothing (correctness bug). */
+            /* MATCH: oracle increments `ch` in the JAL's OWN delay slot (right after the call),
+             * `i` afterward -- swap the statement order from the natural i++/ch+=4. */
+            do { iSNDpsxzerospu(*(int **)(ch + 0x48), 16); ch += 4; i++; }
+            while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
         }
-        *(short *)(pp + 0x3e) = *(short *)(pp + 0x3e) + 0x10;
-        *(short *)(pp + 0x3c) = *(short *)(pp + 0x3c) - 0x10;
+        *(unsigned short *)(pp + 0x3e) = *(short *)(pp + 0x3e) + 0x10;
+        *(unsigned short *)(pp + 0x3c) = *(short *)(pp + 0x3c) - 0x10;
     }
-    rem = *(short *)(pp + 0x3c);
-    for (;;) {
-        if (rem == 0)
-            goto queue_dma;
-        take = *(unsigned short *)(pp + 0x34);
-        if (take == 0) {                                /* need a new packet frame */
-            i = 0; ch = pp;
-            if (VB(DAT_80147a0f, vt) != 0) {
-                do {
-                    *(int *)(ch + 0x24) = iSNDpacketget(p, i, &frameSize);
-                    i++; ch += 4;
-                } while (i < (int)(unsigned)(unsigned char)VB(DAT_80147a0f, vt));
-            }
-            if (*(int *)(pp + 0x24) == 0) {             /* no frame available -> finish/flush */
-                avail = *(int *)(pp + 0x14) - *(int *)(pp + 0x18);
-                if ((int)(unsigned)*(unsigned short *)(pp + 0x40) < avail)
-                    return avail;
-                if (*(unsigned short *)(pp + 0x38) < *(unsigned short *)(pp + 0x36))
-                    goto advance;
-                if (*(unsigned short *)(pp + 0x36) < 2) {     /* mark SPU loop-back */
-                    i = 0; ch = pp;
-                    if (VB(DAT_80147a0f, vt) != 0) {
-                        do {
-                            cbuf = (int *)(ch + 0x48); ch += 4;
-                            iSNDpsxzerospu((int *)(*cbuf + (unsigned)*(unsigned short *)(pp + 0x3e)), 0);
-                            i++;
-                        } while (i < (int)(unsigned)(unsigned char)VB(DAT_80147a0f, vt));
-                    }
-                } else {                                      /* mark SPU end (flag byte = 2) */
-                    i = 0; ch = pp;
-                    if (VB(DAT_80147a0f, vt) != 0) {
-                        do {
-                            *(char *)(*(int *)(ch + 0x48) + 1) = 2;
-                            i++;
-                            *(char *)((unsigned)*(unsigned short *)(pp + 0x44) + *(int *)(ch + 0x48) - 0xf) = 2;
-                            ch += 4;
-                        } while (i < (int)(unsigned)(unsigned char)VB(DAT_80147a0f, vt));
-                    }
-                }
-                if (*(short *)(pp + 0x3e) == 0)
-                    *(short *)(pp + 0x36) = *(short *)(pp + 0x36) + 1;
-                *(short *)(pp + 0x3c) = 0;
-queue_dma:
-                if (chunk == 0) {                        /* first chunk -> set SPU loop-start flag (|4) */
-                    i = 0; ch = pp;
-                    if (VB(DAT_80147a0f, vt) != 0) {
-                        do {
-                            cbuf = (int *)(ch + 0x48); ch += 4;
-                            *(unsigned char *)(*cbuf + 1) |= 4;
-                            i++;
-                        } while (i < (int)(unsigned)(unsigned char)VB(DAT_80147a0f, vt));
-                    }
-                } else if (chunk == *(unsigned short *)(pp + 0x38) - 1) {   /* last chunk -> loop-end (|1) */
-                    i = 0; ch = pp;
-                    if (VB(DAT_80147a0f, vt) != 0) {
-                        do {
-                            int e = (unsigned)*(unsigned short *)(pp + 0x44) + *(int *)(ch + 0x48);
-                            *(unsigned char *)(e - 0xf) |= 1;
-                            i++; ch += 4;
-                        } while (i < (int)(unsigned)(unsigned char)VB(DAT_80147a0f, vt));
-                    }
-                }
-                i = 0; ch = pp;                          /* kick the SPU DMA for each channel */
-                if (VB(DAT_80147a0f, vt) != 0) {
-                    do {
-                        dma = iSNDdmqueue(*(int *)(ch + 0x48));
-                        *(int *)(pp + 0x20) = dma;
-                        i++; ch += 4;
-                    } while (i < (int)(unsigned)(unsigned char)VB(DAT_80147a0f, vt));
-                }
-advance:
-                *(short *)(pp + 0x3a) = (short)chunk;
-                *(int *)(pp + 0x14) = *(int *)(pp + 0x14) + (unsigned)*(unsigned short *)(pp + 0x46);
-                return *(int *)(pp + 0x14);
-            }
-            *(short *)(pp + 0x36) = 0;
-            *(short *)(pp + 0x32) = 0;
-            *(short *)(pp + 0x34) = (short)((frameSize * 4) / 7);   /* ADPCM bytes per chunk */
-            *(short *)(pp + 0x30) = *(short *)(pp + 0x34);
+    rem = *(unsigned short *)(pp + 0x3c);
+    /* MATCH: oracle tests rem!=0 ONCE before the loop (`beqz v0,.queue_dma`) then BOTTOM-tests the
+     * back-edge (`bnez rem,.top`) -- a down-stream do-while, not a top-test `for(;;){if(rem==0)break;}`
+     * (§B loop-rotation: exit-test appears both before the loop AND at the back-edge). */
+    if (rem != 0) {
+        int endFlag = 2;       /* MATCH: oracle materializes `li s6,2` ONCE here, reused at both
+                                 * flag-byte stores below instead of two separate `li v,2` literals. */
+        do {
             take = *(unsigned short *)(pp + 0x34);
-        }
-        if (take >= *(unsigned short *)(pp + 0x3c))
-            take = *(unsigned short *)(pp + 0x3c);
-        ringp = (short *)(chunk * 2 + *(int *)(pp + 0x2c));
-        *ringp = *ringp + (short)((int)((unsigned)take * 7) >> 2);
-        i = 0; ch = pp;
-        if (VB(DAT_80147a0f, vt) != 0) {
-            do {
-                blockmove((int *)(*(int *)(pp + 0x24) + (unsigned)*(unsigned short *)(pp + 0x32) +
-                                  (unsigned)*(unsigned short *)(pp + 0x30) * i),
-                          (int *)(*(int *)(ch + 0x48) + (unsigned)*(unsigned short *)(pp + 0x3e)),
-                          (unsigned)take);
-                i++; ch += 4;
-            } while (i < (int)(unsigned)(unsigned char)VB(DAT_80147a0f, vt));
-        }
-        *(unsigned short *)(pp + 0x3e) = *(short *)(pp + 0x3e) + take;
-        *(unsigned short *)(pp + 0x32) = *(short *)(pp + 0x32) + take;
-        *(unsigned short *)(pp + 0x3c) = *(short *)(pp + 0x3c) - take;
-        rem = *(short *)(pp + 0x3c);
-        *(unsigned short *)(pp + 0x34) = *(short *)(pp + 0x34) - take;
+            if (take == 0) {                                /* need a new packet frame */
+                i = 0;
+                if (voice[0x1F] != 0) {
+                    ch = pp;
+                    do {
+                        *(int *)(ch + 0x24) = iSNDpacketget(p, i, &frameSize);
+                        ch += 4; i++;
+                    } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
+                }
+                if (*(int *)(pp + 0x24) == 0) {             /* no frame available -> finish/flush */
+                    avail = *(int *)(pp + 0x14) - *(int *)(pp + 0x18);
+                    if ((int)(unsigned)*(unsigned short *)(pp + 0x40) < avail)
+                        return avail;
+                    if (*(unsigned short *)(pp + 0x38) < *(unsigned short *)(pp + 0x36))
+                        goto advance;
+                    if (*(unsigned short *)(pp + 0x36) < 2) {     /* mark SPU loop-back */
+                        i = 0;
+                        if (voice[0x1F] != 0) {
+                            ch = pp;
+                            do {
+                                /* MATCH: read *(int*)(ch+0x48) via LOAD DISPLACEMENT off the bare
+                                 * `ch` (oracle: `lw v0,72(s1)`) -- a separate `cbuf` pointer var
+                                 * folds the +0x48 into the address before the load (0-displacement). */
+                                int chval = *(int *)(ch + 0x48);
+                                ch += 4;
+                                /* BUG FIX: len=rem (pp+0x3c), not 0 -- oracle loads `lhu a1,0x3C(s2)`
+                                 * as the 2nd arg right before this call. */
+                                iSNDpsxzerospu((int *)(chval + (unsigned)*(unsigned short *)(pp + 0x3e)),
+                                               *(unsigned short *)(pp + 0x3c));
+                                i++;
+                            } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
+                        }
+                    } else {                                      /* mark SPU end (flag byte = 2) */
+                        i = 0; ch = pp;
+                        if (voice[0x1F] != 0) {
+                            do {
+                                *(char *)(*(int *)(ch + 0x48) + 1) = (char)endFlag;
+                                i++;
+                                *(char *)((unsigned)*(unsigned short *)(pp + 0x44) + *(int *)(ch + 0x48) - 0xf) = (char)endFlag;
+                                ch += 4;
+                            } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
+                        }
+                    }
+                    if (*(unsigned short *)(pp + 0x3e) == 0)
+                        *(short *)(pp + 0x36) = *(short *)(pp + 0x36) + 1;
+                    *(short *)(pp + 0x3c) = 0;
+                    goto queue_dma;
+                }
+                *(short *)(pp + 0x36) = 0;
+                *(short *)(pp + 0x32) = 0;
+                *(short *)(pp + 0x34) = (short)((frameSize * 4) / 7);   /* ADPCM bytes per chunk */
+                *(short *)(pp + 0x30) = *(short *)(pp + 0x34);
+                take = *(unsigned short *)(pp + 0x34);
+            }
+            /* MATCH: oracle RE-READS from memory on BOTH sides of the clamp (`lhu s3,0x34(s2)` /
+             * `lhu s3,0x3C(s2)`) rather than reusing the just-loaded `take` register -- write both
+             * branches as explicit reads (defeats the CSE that a plain `if(take>=rem)take=rem;`
+             * would let gcc apply to the true-branch). */
+            if (take < *(unsigned short *)(pp + 0x3c))
+                take = *(unsigned short *)(pp + 0x34);
+            else
+                take = *(unsigned short *)(pp + 0x3c);
+            ringp = (short *)(chunk * 2 + *(int *)(pp + 0x2c));
+            *ringp = *ringp + (short)((int)((unsigned)take * 7) >> 2);
+            i = 0; ch = pp;
+            if (voice[0x1F] != 0) {
+                do {
+                    blockmove((int *)(*(int *)(pp + 0x24) + (unsigned)*(unsigned short *)(pp + 0x32) +
+                                      (unsigned)*(unsigned short *)(pp + 0x30) * i),
+                              (int *)(*(int *)(ch + 0x48) + (unsigned)*(unsigned short *)(pp + 0x3e)),
+                              (unsigned)take);
+                    i++; ch += 4;
+                } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
+            }
+            *(unsigned short *)(pp + 0x3e) = *(short *)(pp + 0x3e) + take;
+            *(unsigned short *)(pp + 0x32) = *(short *)(pp + 0x32) + take;
+            *(unsigned short *)(pp + 0x3c) = *(short *)(pp + 0x3c) - take;
+            rem = *(short *)(pp + 0x3c);
+            *(unsigned short *)(pp + 0x34) = *(short *)(pp + 0x34) - take;
+        } while (rem != 0);
     }
+queue_dma:
+    if (chunk == 0) {                            /* first chunk -> set SPU loop-start flag (|4) */
+        /* MATCH: loop guard is `chunk < channelcount`, not `channelcount != 0` -- chunk is
+         * provably 0 here (just tested), and oracle's guard `slt v0,s5,v0` reuses THAT register
+         * (chunk==s5) rather than materializing a fresh `!=0`/`beqz` compare against zero. */
+        if (chunk < (int)(unsigned char)voice[0x1F]) {
+            i = 0; ch = pp;
+            do {
+                cbuf = (int *)(ch + 0x48); ch += 4;
+                *(unsigned char *)(*cbuf + 1) |= 4;
+                i++;
+            } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
+        }
+    } else if (chunk == *(unsigned short *)(pp + 0x38) - 1) {   /* last chunk -> loop-end (|1) */
+        i = 0; ch = pp;
+        if (voice[0x1F] != 0) {
+            do {
+                int e = (unsigned)*(unsigned short *)(pp + 0x44) + *(int *)(ch + 0x48);
+                *(unsigned char *)(e - 0xf) |= 1;
+                i++; ch += 4;
+            } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
+        }
+    }
+    i = 0; ch = pp;                          /* kick the SPU DMA for each channel */
+    if (voice[0x1F] != 0) {
+        do {
+            /* MATCH: oracle evaluates pp->0x08*i (mult/mflo) BEFORE the shift/add chain, and the
+             * per-first-channel flag as an unconditional a0=0 overwritten to (i<1) only when
+             * chunk==0 (the bnez-delay-slot idiom -- both paths always compute src the same). */
+            int  stride = *(int *)(pp + 0x8) * i;
+            unsigned int src = (unsigned int)*(int *)(pp + 0x0) +
+                                (unsigned int)(chunk << *(unsigned char *)(pp + 0x43)) +
+                                (unsigned int)stride;
+            unsigned char flag = (chunk == 0 && i < 1) ? 1 : 0;
+            dma = iSNDdmqueue(*(int *)(ch + 0x48), src, *(unsigned short *)(pp + 0x44), 2, flag);
+            *(int *)(pp + 0x20) = dma;
+            i++; ch += 4;
+        } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
+    }
+advance:
+    *(short *)(pp + 0x3a) = (short)chunk;
+    *(int *)(pp + 0x14) = *(int *)(pp + 0x14) + (unsigned)*(unsigned short *)(pp + 0x46);
+    return *(int *)(pp + 0x14);
 }
 
 /* iSNDpacketserve @0x80104024 : per-tick service -- pull fresh stream chunks, advance each player's served
@@ -561,29 +648,41 @@ extern void iSNDplatformpacketplaydestroy(int p)
 extern int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, unsigned char level,
                                       int pitch, int a6, unsigned char fxlevel, unsigned short *hdr)
 {
+    /* MATCH: same base-sharing lever as iSNDfillspuwithpackets/iSNDpacketgetirq -- ONE bare &sndpd
+     * (oracle: v1) feeds BOTH the DAT_80147e10[p] load (base+p*4, +0x4F8 as the LOAD DISPLACEMENT,
+     * not folded into the pointer) and, after +=0xD8, the `voice` table pointer (+vt). */
+    unsigned char *base = sndpd;
+    unsigned char *slot = base + p * 4;
+    int *pp = *(int **)(slot + 0x4F8);
     int  vt = note * 0x2c;
-    int *pp = (int *)(&DAT_80147e10)[p];
+    unsigned char *tablebase = base + 0xD8;
+    unsigned char *voice = tablebase + vt;      /* &DAT_801479f0[vt] -- ALL small (0x00-0x27) field
+                                                  * accesses below go through this ONE fixed-displacement
+                                                  * pointer (oracle: `s2`), not the VB/VI(DAT_xxx,vt)
+                                                  * macro (each of which re-derives base+OFFSET+vt fresh
+                                                  * from its OWN symbol, defeating the CSE the oracle
+                                                  * achieves by materializing ONE base). */
     unsigned int chunkBytes, frames, perCh;
     int  blockSamps;
     int  i;
     (void)a6;
 
-    VB(DAT_80147a11, vt) = 0;
-    VB(DAT_80147a10, vt) = 0xff;
-    VB(DAT_80147a0e, vt) = 0;
-    VB(DAT_80147a0f, vt) = (unsigned char)hdr[1];        /* channel count */
-    VI(DAT_801479f4, vt) = 0;
-    VUH(DAT_80147a08, vt) = volAngle;
-    VB(DAT_80147a12, vt) = level;
-    VB(DAT_80147a13, vt) = fxlevel;
-    VI(DAT_801479f0, vt) = pp[0];
-    VB(DAT_80147a17, vt) = (unsigned char)p;
+    voice[0x21] = 0;                              /* DAT_80147a11 = linkflag */
+    voice[0x20] = 0xff;                           /* DAT_80147a10 = link (-1 idle) */
+    voice[0x1e] = 0;                              /* DAT_80147a0e = route */
+    voice[0x1f] = (unsigned char)hdr[1];          /* DAT_80147a0f = channel count */
+    *(int *)(voice + 0x04) = 0;                   /* DAT_801479f4 */
+    *(unsigned short *)(voice + 0x18) = volAngle; /* DAT_80147a08 */
+    voice[0x22] = level;                          /* DAT_80147a12 */
+    voice[0x23] = fxlevel;                        /* DAT_80147a13 */
+    *(int *)(voice + 0x00) = pp[0];                /* DAT_801479f0 */
+    voice[0x27] = (unsigned char)p;               /* DAT_80147a17 */
 
-    chunkBytes = 0x1000 / (unsigned char)VB(DAT_80147a0f, vt);
+    chunkBytes = 0x1000 / (unsigned char)voice[0x1f];
     *(short *)(pp + 0x11) = (short)chunkBytes;
     *(short *)((int)pp + 0x46) = (short)((int)(chunkBytes * 0x1c) >> 4);
     {
-        unsigned char ch = (unsigned char)VB(DAT_80147a0f, vt);
+        unsigned char ch = (unsigned char)voice[0x1f];
         pp[0x12] = (int)(pp + 0x14);
         *(char *)((int)pp + 0x43) = (char)(0xd - ch);
         pp[0x13] = (int)pp + *(unsigned short *)(pp + 0x11) + 0x50;
@@ -591,7 +690,7 @@ extern int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, unsi
     }
     *(short *)(pp + 0xe) = (short)blockSamps;
     frames = (unsigned)(blockSamps & 0xffff);
-    perCh = (unsigned char)VB(DAT_80147a0f, vt);
+    perCh = (unsigned char)voice[0x1f];
     *(short *)(pp + 0xe) = (short)(frames / perCh);
     {
         int total = (int)(frames / perCh) * *(unsigned short *)((int)pp + 0x46);
@@ -614,22 +713,33 @@ extern int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, unsi
         i++;
     } while (i < 2);
 
-    HOOK_user_serve = (void *)iSNDpacketserve;
-    HOOK_preload = (void *)iSNDpacketsetirq;
-    VI(DAT_801479fc, vt) = 0;
-    VI(DAT_80147a00, vt) = 0;   /* was note*0xb -- stride-scaling bug (see iSNDpacketgetirq); DAT_80147a00 is the SAME 0x2c-stride struct's +0x10 field */
-    VI(DAT_80147a04, vt) = pp[3] << 0xc;
-    VH(DAT_80147a0a, vt) = (short)((unsigned)*hdr * 0x17c7 >> 0x10);
-    if (1 < (unsigned char)VB(DAT_80147a0f, vt)) {       /* arm the linked partner voice */
-        VB(DAT_80147a10, vt) = *(unsigned char *)(note * 100 + sndgs[0x25] + 4);
-        VB(DAT_80147a11, (char)VB(DAT_80147a10, vt) * 0x2c) = 1;
-        VI(DAT_801479fc, (char)VB(DAT_80147a10, vt) * 0x2c) = 0;
-        VI(DAT_80147a00, (char)VB(DAT_80147a10, vt) * 0x2c) = 0;   /* was *0xb -- same stride bug */
-        VI(DAT_80147a04, (char)VB(DAT_80147a10, vt) * 0x2c) = VI(DAT_80147a04, vt);
+    {
+        /* MATCH: oracle re-materializes a FRESH bare &sndpd here (a0), shared between the HOOK_
+         * stores and the linked-partner writes below -- both anchor off it with large absolute-style
+         * displacements (0x720/0x728/0xE4/0xE8/0xEC/0xF9), unlike the small-offset `voice` accesses
+         * above. Using the HOOK_/DAT_ macros here would each re-derive their own address. */
+        unsigned char *base2 = sndpd;
+        *(void **)(base2 + 0x720) = (void *)iSNDpacketserve;    /* HOOK_user_serve */
+        *(void **)(base2 + 0x728) = (void *)iSNDpacketsetirq;   /* HOOK_preload */
+        *(int *)(voice + 0xc) = 0;    /* DAT_801479fc, vt */
+        *(int *)(voice + 0x10) = 0;   /* DAT_80147a00, vt -- was note*0xb, stride-scaling bug (see
+                                        * iSNDpacketgetirq); this is the SAME 0x2c-stride struct's
+                                        * +0x10 field, indexed in BYTES not sizeof(int) units */
+        *(int *)(voice + 0x14) = pp[3] << 0xc;    /* DAT_80147a04, vt */
+        /* MATCH: no `(unsigned)` cast -- the oracle's final scale is a SIGNED `sra` (the magic-mult
+         * chain for *0x17c7 stays in a signed int; forcing unsigned emits `srl` instead). */
+        *(short *)(voice + 0x1a) = (short)(*hdr * 0x17c7 >> 0x10);   /* DAT_80147a0a, vt */
+        if (1 < (unsigned char)voice[0x1f]) {       /* arm the linked partner voice */
+            voice[0x20] = *(unsigned char *)(note * 100 + sndgs[0x25] + 4);
+            base2[0xf9 + (signed char)voice[0x20] * 0x2c] = 1;                          /* DAT_80147a11 */
+            *(int *)(base2 + 0xe4 + (signed char)voice[0x20] * 0x2c) = 0;               /* DAT_801479fc */
+            *(int *)(base2 + 0xe8 + (signed char)voice[0x20] * 0x2c) = 0;               /* DAT_80147a00 */
+            *(int *)(base2 + 0xec + (signed char)voice[0x20] * 0x2c) = *(int *)(voice + 0x14);  /* DAT_80147a04 */
+        }
     }
     iSNDplatformpitch(note, pitch);
     sdpacket_setirq_cs();
-    VB(DAT_80147a0c, vt) = 1;                             /* playstate = playing */
+    voice[0x1c] = 1;                             /* DAT_80147a0c = playstate = playing */
     return 0;
 }
 

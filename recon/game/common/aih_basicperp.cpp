@@ -26,10 +26,6 @@ void AIHigh_BasicPerp::CheckForCrimes()
   int crime;
   int originalCrime;
   int legal;
-  int carLoop;
-  Car_tObj*carObj;
-
-  int iVar1;
 
   BO_tNewtonObj *pBVar2;
 
@@ -37,19 +33,15 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
   int iVar4;
 
-  Car_tObj **ppCVar5;
+  int iVar1;
 
-  crimeType cVar6;
 
-  crimeType cVar7;
 
-  
+  crime = (this->basicPerpInfo_).crime_;
 
-  cVar6 = (this->basicPerpInfo_).crime_;
+  originalCrime = crime;
 
-  cVar7 = cVar6;
-
-  iVar1 = AISpeeds_GetLegalSpeed((int)((this->carObj_)->N).simRoadInfo.slice);
+  legal = AISpeeds_GetLegalSpeed((int)((this->carObj_)->N).simRoadInfo.slice);
 
   if (simGlobal.gameTicks - this->lastPullOverTime_ < 0x280) {
 
@@ -73,9 +65,9 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
     if ((pCVar3->N).collision.lastImpulse < 0x140001) {
 
-      if (cVar6 == 0) {
+      if (crime == 0) {
 
-        cVar7 = 3;
+        originalCrime = 3;
 
       }
 
@@ -83,13 +75,13 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
     else {
 
-      cVar7 = 4;
+      originalCrime = 4;
 
     }
 
   }
 
-  if ((cVar6 != 0) && (cVar7 != 4)) {
+  if ((crime != 0) && (originalCrime != 4)) {
 
     return;
 
@@ -97,9 +89,9 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
   iVar4 = (this->carObj_)->currentSpeed;
 
-  if (iVar1 < 0) {
+  if (legal < 0) {
 
-    iVar1 = -iVar1;
+    legal = -legal;
 
   }
 
@@ -109,9 +101,9 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
   }
 
-  if ((iVar1 < iVar4) && (cVar7 == 0)) {
+  if ((legal < iVar4) && (originalCrime == 0)) {
 
-    cVar7 = 1;
+    originalCrime = 1;
 
   }
 
@@ -121,13 +113,13 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
     iVar1 = pCVar3->currentSpeed;
 
-    if (iVar1 * AITune_driveSide < 0) {
+    if (iVar1 * AITune_driveSide >= 0) {
 
-      if (pCVar3->laneIndex < 7) goto LAB_8005b700;
+      if (6 < pCVar3->laneIndex) goto LAB_8005b700;
 
     }
 
-    else if (6 < pCVar3->laneIndex) goto LAB_8005b700;
+    else if (pCVar3->laneIndex < 7) goto LAB_8005b700;
 
     if (iVar1 < 0) {
 
@@ -159,9 +151,9 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
   }
 
-  if ((0x40000 < iVar1) && (cVar7 == 0)) {
+  if ((0x40000 < iVar1) && (originalCrime == 0)) {
 
-    cVar7 = 2;
+    originalCrime = 2;
 
   }
 
@@ -169,21 +161,28 @@ LAB_8005b700:
 
   if (simGlobal.gameTicks < 0x200) {
 
-    cVar7 = 0;
+    originalCrime = 0;
 
   }
 
-  iVar1 = 0;
+  if (originalCrime != 0) {
 
-  if (cVar7 != 0) {
+    int carLoop;
+    Car_tObj **ppCVar5;
+
+    carLoop = 0;
 
     ppCVar5 = Cars_gList;
 
-    for (; iVar1 < Cars_gNumCars; iVar1 = iVar1 + 1) {
+    for (; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
 
-      if ((((*ppCVar5)->carFlags & 0x220U) != 0) && (((*ppCVar5)->N).active != '\0')) {
+      Car_tObj *carObj;
 
-        (this->basicPerpInfo_).crime_ = cVar7;
+      carObj = *ppCVar5;
+
+      if (((carObj->carFlags & 0x220U) != 0) && ((carObj->N).active != '\0')) {
+
+        (this->basicPerpInfo_).crime_ = originalCrime;
 
         return;
 
@@ -213,72 +212,26 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
 
 {
-  int absSpeed;
-  int perpUpright;
   int skill;
-  int carLoop;
-  Car_tObj*cop;
-  int diffSpeed;
-  int validCar;
-  int distanceAbsMeters;
-  int barrierInWay;
-  int xDot;
-  int zDot;
-  coorddef carCopVector;
+  int absSpeed;
 
-  u_char bVar1;
+  skill = GameSetup_gData.skill;
 
-  bool bVar2;
+  if ((this->carObj_->carFlags & 2U) != 0) {
 
-  int iVar3;
-
-  int iVar4;
-
-  int iVar5;
-
-  int iVar6;
-
-  int iVar7;
-
-  Car_tObj *pCVar8;
-
-  Car_tObj *pCVar9;
-
-  int iVar10;
-
-  int a;
-
-  int iVar11;
-
-  int iVar12;
-
-  
-
-  iVar3 = GameSetup_gData.skill;
-
-  pCVar9 = this->carObj_;
-
-  if ((pCVar9->carFlags & 2U) == 0) {
-
-    iVar4 = (pCVar9->N).speedXZ;
+    absSpeed = __builtin_abs(this->carObj_->currentSpeed);
 
   }
 
   else {
 
-    iVar4 = pCVar9->currentSpeed;
-
-    if (iVar4 < 0) {
-
-      iVar4 = -iVar4;
-
-    }
+    absSpeed = this->carObj_->N.speedXZ;
 
   }
 
   if ((this->basicPerpInfo_).crime_ != 0) {
 
-    if (AIHigh_BasicPerp_PlayerCaughtSpeed[GameSetup_gData.skill] < iVar4) {
+    if (AIHigh_BasicPerp_PlayerCaughtSpeed[skill] < absSpeed) {
 
       return 0;
 
@@ -290,191 +243,229 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
     }
 
-    pCVar9 = this->carObj_;
+    if ((this->carObj_->stats).finishType < 2) {
 
-    iVar4 = 0;
+      int perpUpright;
+      int carLoop;
 
-    if ((pCVar9->stats).finishType < 2) {
+      perpUpright = 0x9999 < this->carObj_->N.orientMat.m[4];
 
-      iVar6 = (pCVar9->N).orientMat.m[4];
+      for (carLoop = 0; ; carLoop = carLoop + 1) {
 
-      do {
+        Car_tObj *cop;
+        int validCar;
+        int diffSpeed;
+        int xDot;
 
-        while( true ) {
+        if (Cars_gNumCars <= carLoop) {
 
-          if (Cars_gNumCars <= iVar4) {
+          return 0;
 
-            return 0;
+        }
+
+        cop = Cars_gList[carLoop];
+
+        xDot = 0;
+
+        diffSpeed = this->carObj_->currentSpeed - cop->currentSpeed;
+
+        validCar = 0;
+
+        if (((((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
+
+             ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
+
+              ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) &&
+
+            ((cop->carFlags & 0x200U) != 0)) ||
+
+           ((((GameSetup_gData.raceType != 1 && (GameSetup_gData.raceType != 5)) ||
+
+             ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0 &&
+
+              ((Cars_gNumHumanRaceCars != 2 || (((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0)))))) &&
+
+            ((cop->carFlags & 0x20U) != 0)))) {
+
+          validCar = 1;
+
+        }
+
+        if (validCar == 0) continue;
+
+        if (((((cop->AIFlags & 2U) != 0) && ((cop->N).flightTime == 0)) &&
+
+            (((cop->N).active != '\0' && ((cop->AIFlags & 4U) == 0)))) &&
+
+           ((0x9999 < (cop->N).orientMat.m[4] &&
+
+            (diffSpeed < AIHigh_BasicPerp_MinDeltaSpeed[skill])))) {
+
+          int distanceAbsMeters;
+          int barrierInWay;
+
+          {
+            int iVar7;
+
+            iVar7 = cop->currentSpeed;
+
+            if (iVar7 < 0) {
+
+              iVar7 = -iVar7;
+
+            }
+
+            if (AIHigh_BasicPerp_CopCaughtSpeed[skill] <= iVar7) continue;
+          }
+
+          {
+            int iVar10;
+            int iVar11;
+            int iVar7;
+            int threshY;
+
+            threshY = AIHigh_BasicPerp_PlayerCaughtDeltaY[skill];
+
+            iVar11 = (cop->N).position.y;
+
+            iVar10 = ((this->carObj_)->N).position.y;
+
+            iVar7 = iVar11 - iVar10;
+
+            if (iVar7 < 1) {
+
+              iVar7 = iVar10 - iVar11;
+
+            }
+
+            if (threshY <= iVar7) continue;
+          }
+
+          distanceAbsMeters = __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_,cop));
+
+          {
+            u_char bVar1;
+            int iVar10;
+
+            bVar1 = *(u_char *)((this->carObj_->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x1d);
+
+            iVar10 = this->carObj_->laneIndex;
+
+            barrierInWay = 0;
+
+            if (((int)(7 - (u_int)(bVar1 >> 4)) <= iVar10) && (iVar10 <= (int)((bVar1 & 0xf) + 6))) {
+
+              int iVar11;
+              int iVar12;
+
+              iVar11 = (int)(cop->N).simRoadInfo.slice;
+
+              bVar1 = *(u_char *)(iVar11 * 0x20 + (int)BWorldSm_slices + 0x1d);
+
+              iVar12 = cop->laneIndex;
+
+              if (((int)(7 - (u_int)(bVar1 >> 4)) <= iVar12) &&
+
+                 ((iVar12 <= (int)((bVar1 & 0xf) + 6) &&
+
+                  (iVar10 = AIWorld_CheckForBarrierBetweenLanes(iVar11,iVar12,iVar10), iVar10 != 0)))) {
+
+                iVar10 = AIWorld_CheckForBarrierBetweenLanes((int)(this->carObj_->N).simRoadInfo.slice,cop->laneIndex,
+
+                                    this->carObj_->laneIndex);
+
+                barrierInWay = iVar10 != 0;
+
+              }
+
+            }
+          }
+
+          if (AIHigh_BasicPerp_CaughtDistance[skill] <= distanceAbsMeters) continue;
+
+          if (barrierInWay) continue;
+
+          {
+          int zDot;
+
+          zDot = 0x10000;
+
+          if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
+
+             ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
+
+              ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
+
+            coorddef carCopVector;
+            int iVar12;
+            int iVar5;
+
+            carCopVector.x = (cop->N).position.x - ((this->carObj_)->N).position.x;
+
+            carCopVector.y = (cop->N).position.y - ((this->carObj_)->N).position.y;
+
+            carCopVector.z = (cop->N).position.z - ((this->carObj_)->N).position.z;
+
+            iVar12 = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[0]);
+
+            iVar5 = fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[1]);
+
+            xDot = fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[2]);
+
+            xDot = iVar12 + iVar5 + xDot;
+
+            iVar12 = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[6]);
+
+            iVar5 = fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[7]);
+
+            zDot = fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[8]);
+
+            zDot = iVar12 + iVar5 + zDot;
 
           }
 
-          pCVar9 = Cars_gList[iVar4];
+          if ((!perpUpright) ||
 
-          bVar2 = false;
+             ((cop->speed < 0x471c7 && ((this->carObj_)->speed < 0x471c7)))) {
 
-          if (((((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
+            if (this->lastArrestingCop_ == (Car_tObj *)0x0) {
 
-               ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
+              this->lastArrestingCop_ = cop;
 
-                ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) &&
+              return 1;
 
-              ((pCVar9->carFlags & 0x200U) != 0)) ||
+            }
 
-             ((((GameSetup_gData.raceType != 1 && (GameSetup_gData.raceType != 5)) ||
-
-               ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0 &&
-
-                ((Cars_gNumHumanRaceCars != 2 || (((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0)))))) &&
-
-              ((pCVar9->carFlags & 0x20U) != 0)))) {
-
-            bVar2 = true;
+            return 1;
 
           }
 
-          if (((((bVar2) && ((pCVar9->AIFlags & 2U) != 0)) && ((pCVar9->N).flightTime == 0)) &&
+          if (xDot < 0) {
 
-              (((pCVar9->N).active != '\0' && ((pCVar9->AIFlags & 4U) == 0)))) &&
-
-             ((0x9999 < (pCVar9->N).orientMat.m[4] &&
-
-              ((this->carObj_)->currentSpeed - pCVar9->currentSpeed <
-
-               AIHigh_BasicPerp_MinDeltaSpeed[iVar3])))) break;
-
-LAB_8005bd40:
-
-          iVar4 = iVar4 + 1;
-
-        }
-
-        iVar7 = pCVar9->currentSpeed;
-
-        if (iVar7 < 0) {
-
-          iVar7 = -iVar7;
-
-        }
-
-        if (AIHigh_BasicPerp_CopCaughtSpeed[iVar3] <= iVar7) goto LAB_8005bd40;
-
-        iVar11 = (pCVar9->N).position.y;
-
-        iVar10 = ((this->carObj_)->N).position.y;
-
-        iVar7 = iVar11 - iVar10;
-
-        if (iVar7 < 1) {
-
-          iVar7 = iVar10 - iVar11;
-
-        }
-
-        if (AIHigh_BasicPerp_PlayerCaughtDeltaY[iVar3] <= iVar7) goto LAB_8005bd40;
-
-        iVar7 = AIWorld_ApxSplineDistance(this->carObj_,pCVar9);
-
-        if (iVar7 < 0) {
-
-          iVar7 = -iVar7;
-
-        }
-
-        pCVar8 = this->carObj_;
-
-        bVar1 = *(u_char *)((pCVar8->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x1d);
-
-        iVar10 = pCVar8->laneIndex;
-
-        bVar2 = false;
-
-        if (((int)(7 - (u_int)(bVar1 >> 4)) <= iVar10) && (iVar10 <= (int)((bVar1 & 0xf) + 6))) {
-
-          iVar11 = (int)(pCVar9->N).simRoadInfo.slice;
-
-          bVar1 = *(u_char *)(iVar11 * 0x20 + (int)BWorldSm_slices + 0x1d);
-
-          iVar12 = pCVar9->laneIndex;
-
-          if (((int)(7 - (u_int)(bVar1 >> 4)) <= iVar12) &&
-
-             ((iVar12 <= (int)((bVar1 & 0xf) + 6) &&
-
-              (iVar10 = AIWorld_CheckForBarrierBetweenLanes(iVar11,iVar12,iVar10), iVar10 != 0)))) {
-
-            pCVar8 = this->carObj_;
-
-            iVar10 = AIWorld_CheckForBarrierBetweenLanes((int)(pCVar8->N).simRoadInfo.slice,pCVar9->laneIndex,
-
-                                pCVar8->laneIndex);
-
-            bVar2 = iVar10 != 0;
+            xDot = -xDot;
 
           }
 
-        }
+          if (0x8ffff < xDot) continue;
 
-        if ((AIHigh_BasicPerp_CaughtDistance[iVar3] <= iVar7) || (iVar7 = 0, bVar2))
+          if (zDot < 0) continue;
 
-        goto LAB_8005bd40;
+          if (0x8ffff < zDot) continue;
+          }
 
-        iVar10 = 0x10000;
+          if (this->lastArrestingCop_ == (Car_tObj *)0x0) {
 
-        if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
+            this->lastArrestingCop_ = cop;
 
-           ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
+            return 1;
 
-            ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
+          }
 
-          a = (pCVar9->N).position.x - ((this->carObj_)->N).position.x;
-
-          iVar10 = (pCVar9->N).position.y - ((this->carObj_)->N).position.y;
-
-          iVar11 = (pCVar9->N).position.z - ((this->carObj_)->N).position.z;
-
-          iVar12 = fixedmult(a,((this->carObj_)->N).orientMat.m[0]);
-
-          iVar5 = fixedmult(iVar10,((this->carObj_)->N).orientMat.m[1]);
-
-          iVar7 = fixedmult(iVar11,((this->carObj_)->N).orientMat.m[2]);
-
-          iVar7 = iVar12 + iVar5 + iVar7;
-
-          iVar12 = fixedmult(a,((this->carObj_)->N).orientMat.m[6]);
-
-          iVar5 = fixedmult(iVar10,((this->carObj_)->N).orientMat.m[7]);
-
-          iVar10 = fixedmult(iVar11,((this->carObj_)->N).orientMat.m[8]);
-
-          iVar10 = iVar12 + iVar5 + iVar10;
+          return 1;
 
         }
-
-        if ((iVar6 < 0x999a) ||
-
-           ((pCVar9->speed < 0x471c7 && ((this->carObj_)->speed < 0x471c7)))) break;
-
-        if (iVar7 < 0) {
-
-          iVar7 = -iVar7;
-
-        }
-
-        if ((0x8ffff < iVar7) || (iVar10 < 0)) goto LAB_8005bd40;
-
-        iVar4 = iVar4 + 1;
-
-      } while (0x8ffff < iVar10);
-
-      if (this->lastArrestingCop_ == (Car_tObj *)0x0) {
-
-        this->lastArrestingCop_ = pCVar9;
-
-        return 1;
 
       }
-
-      return 1;
 
     }
 

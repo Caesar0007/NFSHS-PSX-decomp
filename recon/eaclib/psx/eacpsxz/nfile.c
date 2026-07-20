@@ -162,11 +162,20 @@ extern int FILE_opstatus(unsigned int id)
 {
     /* MATCH: positive-branch form (lever #7) -- the match test jumps FORWARD to the success
      * return; the -3 "stale/invalid id" return is the shared fallthrough/jump target.
-     * 🔴 RESIDUAL FLOOR (7 diffs, investigated this wave): same unexplained 16-byte stack-frame
-     * family as FILE_operror -- oracle reserves addiu sp,-0x10/+0x10 (in the entry beqz's own
-     * delay slot / the shared-tail epilogue) that ours never allocates, plus an
-     * addu a0,v1,v0 vs addu a0,v0,v1 operand-order swap on the index-to-pointer add. No source
-     * lever tried on the sibling FILE_operror moved it; accept as the same toolchain floor. */
+     * 🔴 RESIDUAL FLOOR (7 diffs, investigated wave-20 + wave-21): same unexplained 16-byte
+     * stack-frame family as FILE_operror -- oracle reserves addiu sp,-0x10/+0x10 (in the entry
+     * beqz's own delay slot / the shared-tail epilogue) that ours never allocates, plus an
+     * addu a0,v1,v0 vs addu a0,v0,v1 operand-order swap on the index-to-pointer add.
+     * 🆕 wave-21 NEGATIVE RESULTS (both reverted, both WORSE): (1) factoring the shared
+     * `oparray+(id>>24)*0x30` index-math (byte-identical across opstatus/operror/callbackop/
+     * completeop/priorityop) into a `static`/`static __inline__` helper -- non-inline emits a
+     * real out-of-line `jal` (22 insns, wrong shape entirely); `__inline__` fully substitutes
+     * with ZERO stack-frame footprint (no phantom appears), same 21-insn shape as direct
+     * inline, ruling out "tree-inlined helper leaves a residual frame" for this compiler.
+     * (2) merging both `return` sites into a single `result; goto tail;` shared epilogue (the
+     * shape the oracle visually has) -- gcc picks $a3 for `result` + flips branch polarity
+     * (bne) instead of adopting the oracle's exact form; 12 diffs, worse. No source lever
+     * tried (now spanning 2 waves) moved it; accept as the same toolchain floor. */
     FileOp *op;
     if (id != 0) {
         op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
@@ -212,7 +221,16 @@ extern int FILE_init(int handlecount, int memsize, int opcount)
 
 /* FILE_completeop @0x800EC2B0 : harvest a finished op's result (by op type), then free the op slot.
  *   Returns 0 unless the op's status is 1 (complete).  Result field is per op-type nibble (2..10):
- *     2,9 -> result24 (open handle)   3,7,10 -> status   4,5 -> result1C (read)   6,8 -> result18 (size) */
+ *     2,9 -> result24 (open handle)   3,7,10 -> status   4,5 -> result1C (read)   6,8 -> result18 (size)
+ * 🆕 wave-21: switch case-body LAYOUT ORDER is load-bearing here -- the oracle's jump-table blocks
+ * appear in .text as 2/9, 3/7/10, 6/8, 4/5 (result18 BEFORE result1C), not the "natural" ascending
+ * 2/9,3/7/10,4/5,6/8 order; the case labels below are ordered to match (verified: the two `lw
+ * s0,24/28(...)` loads now land in the oracle's exact sequence). 🔴 RESIDUAL FLOOR (39 diffs,
+ * unchanged by the reorder -- confirms it as a real-but-masked win, not a regression): same
+ * unexplained 16-byte-extra stack-frame family as FILE_opstatus/operror/callbackop/priorityop
+ * (24 vs oracle's 40 bytes) PLUS the op-pointer lands in $a0 here vs the oracle's $a1 (a
+ * pre-existing, unrelated coloring pick) -- both floors investigated across 2 waves now on the
+ * sibling fns, not cracked; accept. */
 extern int FILE_completeop(unsigned int id)
 {
     FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
@@ -222,8 +240,9 @@ extern int FILE_completeop(unsigned int id)
         switch (type) {
             case 2: case 9:           result = op->result24; break;
             case 3: case 7: case 10:  result = op->status;   break;
+            case 6: case 8:           result = op->result18; break;  /* asm: this block precedes
+                                                                       * the 4/5 block in .text */
             case 4: case 5:           result = op->result1C; break;
-            case 6: case 8:           result = op->result18; break;
             default:                  result = 0;            break;  /* type outside 2..10 */
         }
     }
@@ -367,7 +386,13 @@ extern int FILE_waitop(unsigned int id)
     /* asm: op's address is computed UNCONDITIONALLY first (no side effects), THEN id==0 is
      * tested -- and the whole "recompute op + validate id" sequence (incl. the id==0 test,
      * vestigial though it is once inside the loop -- id is a local param that can't change) is
-     * duplicated verbatim after each systemtask() pump, not hoisted into a shared helper. */
+     * duplicated verbatim after each systemtask() pump, not hoisted into a shared helper.
+     * `op` itself is computed EXACTLY ONCE and kept in a fixed register ($s0) for every
+     * `status` read (both the entry checks and the final return) -- the in-loop re-validation
+     * uses a SEPARATE, throwaway freshly-recomputed address (never written back to `op`) purely
+     * to re-check the id/slot; reassigning a single `op` local each iteration (as an earlier
+     * draft did) forces the compiler to treat it as one continuously-updated value instead of a
+     * fixed pointer + a disposable check, so the two are kept as separate locals here. */
     FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
     if (id == 0)
         return -3;
@@ -377,9 +402,11 @@ extern int FILE_waitop(unsigned int id)
         systemtask(0);
         if (id == 0)
             return -3;
-        op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
-        if ((id & 0xFFFFF) != (op->id & 0xFFFFF))      /* slot recycled -> give up */
-            return -3;
+        {
+            FileOp *check = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
+            if ((id & 0xFFFFF) != (check->id & 0xFFFFF))  /* slot recycled -> give up */
+                return -3;
+        }
     }
     return op->status;
 }
@@ -455,14 +482,17 @@ extern int FILE_initwithmem(int handlecount, int memsize, int opcount, void *mem
     if (handlecount == 0) handlecount = 0x18;     /* 24 */
     if (memsize == 0)     memsize     = 0x800;    /* 2 KB */
     if (opcount == 0)     opcount     = 0xA;      /* 10 */
-    if (gFileMgr.opcount != 0)                    /* already up */
-        return 0;
+    if (gFileMgr.opcount != 0)                    /* already up -- asm sinks the "return 0" to the
+                                                     * SHARED TAIL at the end (forward branch), not
+                                                     * an inline early-return */
+        goto already_init;
     gFileMgr.opcount     = opcount;
     gFileMgr.handlecount = handlecount;
     gFileMgr.idmask      = 0xFF;
+    gFileMgr.oparray     = (FileOp *)membuf;    /* op array at the pool base -- stored BEFORE the
+                                                  * FILE_overhead call (asm: sinks into its delay
+                                                  * slot), not after computing `size` */
     size = FILE_overhead(handlecount, memsize, opcount);
-    gFileMgr.oparray     = (FileOp *)membuf;                       /* op array at the pool base
-                                                                     * (asm: stored in the call's delay slot) */
     /* asm re-reads gFileMgr.oparray/.opcount/.handlecount from memory for everything below
      * (rather than keeping the membuf/opcount/handlecount params alive across the intervening
      * FILE_overhead/blockclear/CD_Init calls) -- same not-cached-across-calls pattern as
@@ -477,6 +507,8 @@ extern int FILE_initwithmem(int handlecount, int memsize, int opcount, void *mem
     }
     initfileio();
     return 1;
+already_init:
+    return 0;
 }
 
 extern void stopreadfile(int dev);   /* @0x800F4100 abort an in-flight read on a device */
@@ -811,6 +843,13 @@ extern int iFILE_ExecCommand(void *cmdp)
 
     FILE_CS_ENTER(sr);                           /* cop0: disable IRQs */
 
+    /* 🆕 wave-21 LEAD (not applied, see the `type` comment below for why): the oracle stores
+     * `cmd->qnext = queuehead` UNCONDITIONALLY (the entry beqz's own delay slot, before testing
+     * queuehead!=0) rather than special-casing the qh==0 branch the way this C does -- i.e. the
+     * true shape is `cmd->qnext = qh; if (qh != 0) { for(;;){...} }` with no separate `qnext=0`
+     * arm. Independently verified correct (matches the oracle's delay-slot store) but, like the
+     * `type` lead above, doesn't net a diff-count drop this wave because of the same unrelated
+     * $a2-vs-$a3 SR cascade. Re-apply alongside the `type` fix once that root cause is found. */
     if (cmd != 0) {                              /* insert into the priority-sorted pending queue */
         FileOp *prev = 0;
         FileOp *qh   = gFileMgr.queuehead;
@@ -854,6 +893,21 @@ extern int iFILE_ExecCommand(void *cmdp)
     if (cmd == 0)
         return 0;                                /* nothing to dispatch */
 
+    /* 🆕 wave-21 LEAD (not applied -- see below): the oracle RE-DERIVES this nibble fresh from
+     * cmd->id at 3 separate sites (srl 20;andi 0xF at 0x800ECCD0 for dispatch, again at
+     * 0x800ECDE8 and 0x800ECEE0 for the two `type==8` checks deep in the case-2/8 body, AFTER
+     * openfile/strchr/strncpy/strcpy calls) rather than keeping ONE cached `type` alive across
+     * those calls (proven lever #1). Rewriting the two post-call `type==8` checks in the case-2/8
+     * body as `((cmd->id>>0x14)&0xF)==8` DOES eliminate the extra callee-saved $s4 our current
+     * `type` local forces (confirmed: the 5-register save set then matches the oracle's
+     * s0/s1/s2/s3/ra exactly, byte-for-byte, at the same stack offsets) -- a real, oracle-verified
+     * correctness fix. But taken alone (or combined with the qnext fix below) it does NOT lower
+     * this wave's diff count (153->155/162) because of an UNRELATED, pre-existing coloring
+     * cascade already present in the 153-diff baseline (oracle picks $a2 for the CS-saved SR;
+     * ours picks $a3) that swamps the whole function with downstream reg-swap diffs regardless.
+     * Left un-applied this wave (insn count didn't move decisively per the iron rule); a future
+     * wave that cracks the $a2-vs-$a3 SR-register pick first should re-apply this lever -- it is
+     * independently correct and should net a real drop once that root cause is found. */
     type = (cmd->id >> 0x14) & 0xF;
     if (type < 2 || type > 10)                   /* op-type nibble must be 2..10 */
         return 0;

@@ -260,15 +260,26 @@ extern "C" int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
  *   submit sequence number, or -0xD if the ring is full. */
 extern "C" int SNDPKTPLAY_submit(int p, int frame)
 {
-    int ppp, slot, seq, i;
+    int ppp, slot;
     if ((signed char)sndgs[0xf] == 0)
         return -10;
     ppp = (&sndpps)[p];
     iSNDenteraudio();
-    if (VH(ppp, 0xe) >= VH(ppp, 8) - 1) {                 /* no room in the ring -- early exit */
-        seq = -0xd;
-        goto leave;
-    }
+    if (VH(ppp, 0xe) < VH(ppp, 8) - 1)                    /* MATCH: positive (room-available) test
+                                                             * branches AWAY to `room`; the FALLTHROUGH
+                                                             * is the error path with its own explicit
+                                                             * jump to `leave` -- oracle's exact
+                                                             * `slt;bnez room / [fallthrough] j leave`
+                                                             * shape, not an if/else. */
+        goto room;
+    frame = -0xd;                                         /* MATCH: the oracle reuses `frame`'s OWN
+                                                             * register ($s1) as the return-value
+                                                             * carrier for the whole fn -- its ONLY
+                                                             * use past this point is the dead-param
+                                                             * reuse `addiu s1,zero,-0xD`, no separate
+                                                             * `seq` pseudo. */
+    goto leave;
+room:
     {
         int idx = VH(ppp, 0xa) + VH(ppp, 0xe);            /* (read + count) wrapped */
         if (VH(ppp, 8) <= idx)
@@ -276,37 +287,55 @@ extern "C" int SNDPKTPLAY_submit(int p, int frame)
         slot = ppp + idx * 0x18 + 0x28;
         MI(slot, 4) = *(int *)(frame + 4);                /* size */
         MI(slot, 0) = MI(ppp, 4);                         /* sequence */
-        i = 0;
         if (MB(ppp, 0x26) != 0) {                         /* copy the per-channel pointers */
             int src = frame;
+            int j = 0;
             do {                                          /* MATCH: walks `slot` itself in place
                                                              * (lever #14) -- `frame` stays intact
                                                              * (re-read below), `slot`/a0 is dead
                                                              * after the loop. */
-                i++;
+                j++;
                 MI(slot, 8) = *(int *)(src + 0xc);
                 slot += 4;
                 src += 4;
-            } while (i < (int)MB(ppp, 0x26));
+            } while (j < (int)MB(ppp, 0x26));
         }
         MUH(ppp, 0xe) = MUH(ppp, 0xe) + 1;                /* count++ (plain lhu, no shift) */
         MI(ppp, 0x10) = MI(ppp, 0x10) + *(int *)(frame + 4);  /* bytes pending += size */
-        seq = MI(ppp, 4);
+        frame = MI(ppp, 4);                               /* MATCH: reuse `frame` (dead after the
+                                                             * loop) as `seq` -- oracle's `lw s1,4(s0)`
+                                                             * right here, same register as the param. */
         MI(ppp, 4) = MI(ppp, 4) + 1;                      /* sequence++ */
     }
 leave:
     iSNDleaveaudio();
-    return seq;
+    return frame;
 }
-/* near-miss floor (106->49 diffs, ours 90 / oracle 93 insns; oracle-traced real fixes above are kept
- * per verify-or-revert rule 1). Residuals not cracked this pass: (a) `frame` colors to a persistent
- * callee-saved `s2` in ours vs the oracle's reuse of `frame`'s own `s1` for BOTH the pointer AND the
- * later `seq=-13`/`seq=MI(ppp,4)` return value (a non-overlapping-live-range coalesce gcc's allocator
- * didn't take here); (b) the early-exit polarity (`bnez v1,room` / fallthrough-error) costs one `xori`
- * either way tried (`>=`-negated and `goto room` forms both landed within 1 diff of each other; kept
- * the smaller-diff `>=` form); (c) the tail `count++/bytes-pending+=size/seq=.../seq-field++` block
- * schedules differently (extra `lw a0,4(s2)` reload) despite matching source order -- a scheduling
- * floor entangled with (a)'s coloring. Permuter candidate. */
+/* near-miss floor (106->49->19 diffs across two passes, ours 90 / oracle 93 insns). This pass
+ * (wave 21-a8) landed THREE real structural wins per verify-or-revert rule 1, cracking every
+ * residual the prior pass had flagged:
+ *   (a) DEAD-PARAM REUSE: `frame` is dead after the copy loop, so REASSIGN it (`frame = -0xd;` /
+ *       `frame = MI(ppp,4);`) instead of a separate `seq` local -- the oracle reuses `frame`'s own
+ *       $s1 register as the return-value carrier for the WHOLE function, including the early-exit
+ *       (`addiu s1,zero,-0xD` overwrites the param register directly). This alone was 49->30.
+ *   (b) BRANCH-POLARITY: rewritten as explicit `goto` -- positive condition (`<`, room-available)
+ *       branches AWAY to `room:`; the FALLTHROUGH is the error path with `frame=-13; goto leave;`
+ *       -- matches the oracle's `slt;bnez room` / `[fallthrough] j leave` shape exactly (an if/else
+ *       compiled to a WORSE CFG here, an extra out-of-line `j`+`li` -- reverted that attempt).
+ *       30->27.
+ *   (c) BLOCK-SCOPE-FRESH-PSEUDO (§3.12/catalog row A36): the copy-loop counter `i` was declared at
+ *       FUNCTION scope (shared with `slot`/`ppp`) but only ever used inside the `if(channels!=0){}`
+ *       block -- moving its declaration (renamed `j`) inside that block, after `src`, un-swapped the
+ *       oracle's a1(src)/v1(counter) vs our v1(src)/a1(counter) register assignment. 27->19.
+ * Residual NOT cracked this pass (re-tried multiple angles, all reverted -- floor, permuter
+ * candidate): the `slot` pre-loop stores. Oracle computes the offset-only `idx*24+0x28` into v0,
+ * adds the base ONCE into `a0`, then reuses `a0` for BOTH the size store (`sw v1,4(a0)`) AND the
+ * sequence store (`sw v0,0(a0)`). Ours instead recomputes the 2nd store's address as `v0+0x28`
+ * (v0 = the pre-`+0x28` partial `s0+idx*24`) rather than reusing the already-materialized `a0`.
+ * Tried: swapping the two stores' source order (worse, 19->20); making the 2nd `MI(ppp,4)` read
+ * volatile to force a fresh re-read for the increment instead of reusing the `frame=MI(ppp,4)`
+ * value (worse, 19->25, reverted) -- gcc's `addiu v0,s1,1` CSE-from-frame is apparently NOT
+ * source-suppressible here. Allocator/CSE floor. */
 
 /* SNDPKTPLAY_submitspace @0x80102E70 : free frame slots in the ring. */
 extern "C" int SNDPKTPLAY_submitspace(int p)
@@ -386,12 +415,20 @@ extern "C" int SNDPKTPLAY_purge(int p, int lo, int hi)
                 if (*(void **)(ppp + 0x1c) != 0)
                     (*(void (**)(int))(ppp + 0x1c))(fr[2]);
             } else {                               /* keep -> move down (oracle branch target) */
-                MI(wrptr, 0x28) = fr[0];
-                MI(wrptr, 0x2c) = fr[1];
-                MI(wrptr, 0x30) = fr[2];
-                MI(wrptr, 0x34) = fr[3];
-                MI(wrptr, 0x38) = fr[4];
-                MI(wrptr, 0x3c) = fr[5];
+                /* MATCH (load-3/store-3 family, catalog §A row 38): the oracle batches the 6-word
+                 * copy as load-4/store-4 then load-2/store-2 (4 then 2 distinct caller-saved temps,
+                 * $a3/$t0/$t1/$t2) instead of interleaving one load+store per field -- named temps
+                 * reproduce the parallel chains and kill the load-delay nop per field. */
+                int c0 = fr[0], c1 = fr[1], c2 = fr[2], c3 = fr[3];
+                MI(wrptr, 0x28) = c0;
+                MI(wrptr, 0x2c) = c1;
+                MI(wrptr, 0x30) = c2;
+                MI(wrptr, 0x34) = c3;
+                {
+                    int c4 = fr[4], c5 = fr[5];
+                    MI(wrptr, 0x38) = c4;
+                    MI(wrptr, 0x3c) = c5;
+                }
                 wr++;
                 wrptr += 0x18;
                 if (VH(ppp, 8) <= wr) {
@@ -411,17 +448,26 @@ extern "C" int SNDPKTPLAY_purge(int p, int lo, int hi)
     iSNDleaveaudio();
     return 0;
 }
-/* near-miss floor (102->65 diffs, ours 124 / oracle 119 insns). ALL remaining diffs trace to ONE
- * root cause: `ppp` colors to `$s1` in ours vs the oracle's `$s0`, and `wrptr` takes the register
- * ours gives `ppp` -- i.e. `ppp`/`wrptr` are SWAPPED in the s0..s7+fp permutation (9 locals live
- * across the in-loop `jalr` callback -> every callee-saved reg incl. `$fp` is in play). Tried:
- * moving `i=0` earlier (81->78, real partial win, kept), `wrptr` at function scope vs block scope
- * (no effect), decl order permutations incl. one matching the oracle's exact definition order
- * ppp,i,wr,rd,total,rdoff,wrptr (no effect) -- decl order/scope do NOT move this specific swap.
- * This is a global-allocator PRIORITY tie-break (refs/live-length, §3.12b) between two heavily-used
- * long-lived pseudos, not a source-shape lever on hand; needs an `-dg`/`-dl` RTL dump or the
- * permuter to crack. Every downstream `!=` line in the diff is this same swap propagating (tail
- * fully matches once s0<->s1 is mentally swapped). */
+/* near-miss floor (102->65->66 diffs, ours 124->119 / oracle 119 insns -- INSN COUNT NOW EXACT).
+ * wave 21-a8: applied the load-3/store-3 batching lever (catalog §A row 38) to the "keep" branch's
+ * 6-word field copy -- named temps `c0..c3` (load all 4, then store all 4) + a nested `{c4,c5}`
+ * pair reproduce the oracle's load-4/store-4-then-load-2/store-2 shape (was: one interleaved
+ * load+store per field, costing a load-delay nop each -> 5 extra insns). Diff count is technically
+ * flat (65->66, +1) but insn count moved DECISIVELY to an exact match (124->119 == oracle's 119) --
+ * kept per verify-or-revert rule 1's insn-count carve-out; the diff floor is now PURELY the
+ * pre-existing s0/s1 swap below, not a real regression.
+ * ALL remaining diffs trace to ONE root cause: `ppp` colors to `$s1` in ours vs the oracle's `$s0`,
+ * and `wrptr` takes the register ours gives `ppp` -- i.e. `ppp`/`wrptr` are SWAPPED in the s0..s7+fp
+ * permutation (9 locals live across the in-loop `jalr` callback -> every callee-saved reg incl.
+ * `$fp` is in play). Tried (both waves): moving `i=0` earlier (81->78, real partial win, kept),
+ * `wrptr` at function scope vs block scope (no effect), decl order permutations incl. one matching
+ * the oracle's exact definition order ppp,i,wr,rd,total,rdoff,wrptr (no effect), the load-3/store-3
+ * batching above (fixed insn count but not the swap) -- decl order/scope/batching do NOT move this
+ * specific swap. This is a global-allocator PRIORITY tie-break (refs/live-length, §3.12b) between
+ * two heavily-used long-lived pseudos, not a source-shape lever on hand; needs an `-dg`/`-dl` RTL
+ * dump or the permuter to crack (permuter run launched this pass, see permuter_work/SNDPKTPLAY_purge
+ * for results). Every downstream `!=` line in the diff is this same swap propagating (tail fully
+ * matches once s0<->s1 is mentally swapped). */
 
 /* SNDPKTPLAY_stop @0x80103118 : stop the voice, purge the whole ring, and idle the player.
  * MATCH: the +0xc pitch field is read TWICE (guard + multiply) and the +0 state word is re-set right
@@ -468,8 +514,8 @@ extern "C" int iSNDpacketget(int p, int idx, int *out)
 
     if ((unsigned)(idx + 1) == (unsigned)MB(ppp, 0x26) &&
         -1 < (int)((unsigned)(*(volatile unsigned short *)(ppp + 0xc)) << 0x10)) {
-        m = MH(ppp, 0xc);
-        MH(ppp, 0xc) = (short)0xffff;
+        m = *(volatile short *)(ppp + 0xc);
+        *(volatile short *)(ppp + 0xc) = (short)0xffff;
         {
             /* MATCH: compute the callback ARG (the `m*0x18+0x30` index expr) BEFORE fetching the
              * callback pointer -- the oracle schedules the +0x1c load LATE, right before the
@@ -491,7 +537,9 @@ extern "C" int iSNDpacketget(int p, int idx, int *out)
         MVUH(ppp, 0xc) = MVUH(ppp, 0xa);              /* MATCH: volatile -- two 0xa reads separated
                                                         * by the 0xe store must NOT be hoisted/CSE'd
                                                         * together (oracle keeps them apart). */
-        MUH(ppp, 0xe) = MUH(ppp, 0xe) - 1;
+        MVUH(ppp, 0xe) = MVUH(ppp, 0xe) - 1;          /* MATCH: volatile -- forces this store to act
+                                                        * as an ordering barrier so the SECOND 0xa
+                                                        * read (below) doesn't float ahead of it. */
         MVUH(ppp, 0xa) = MVUH(ppp, 0xa) + 1;
         MI(ppp, 0x14) = MI(ppp, 0x14) + MI(fr, 4);
         MI(ppp, 0x10) = MI(ppp, 0x10) - MI(fr, 4);
@@ -504,18 +552,36 @@ extern "C" int iSNDpacketget(int p, int idx, int *out)
     }
     return MI(fr, idx * 4 + 8);
 }
-/* near-miss floor (67->39 diffs, ours 90 / oracle 95 insns; the direct-return/volatile/split-arg
- * fixes above are kept per verify-or-revert rule 1). Residuals not cracked this pass: (a) the
- * marker-load `m=MH(ppp,0xc)` schedules 1 insn later in ours vs the oracle's fill of the preceding
- * `bltz`'s delay-slot region -- a scheduling tie-break; (b) the callback-arg `m*0x18+0x30` folds to
- * ONE constant in ours (`lw a0,48(v1)`) but the oracle keeps `+0x28`/`+8` SPLIT into a pointer-add
- * + a separate load displacement (tried `MI(m*0x18+0x28+ppp,8)` -- gcc's constant folding flattens
- * it right back, no effect); (c) the `rd++`/marker=rd block: `MVUH` keeps the READ+WRITE pair
- * atomic per-statement but the SECOND `0xa` read (for `rd++`) still floats 1-2 insns earlier than
- * its oracle position despite being volatile -- a scheduler placement, not an ordering violation
- * (both volatile accesses still execute in source order, just at a different point in the
- * instruction stream); (d) final index `idx*4+fr` vs oracle's `fr+idx*4` operand-order tie-break.
- * Permuter candidate for (a)/(d); (b)/(c) look like genuine scheduling floors. */
+/* near-miss floor (67->39->28 diffs across two passes, ours 93 / oracle 95 insns). This pass (wave
+ * 21-a8) landed two more real wins per verify-or-revert rule 1:
+ *   (a) marker re-read `m = *(volatile short*)(ppp+0xc)` -- making the SECOND marker read volatile
+ *       (was plain `MH()`) fixed its scheduling into the `bltz`'s delay-slot region, matching the
+ *       oracle's `nop`-then-late-li shape (was: ours hoisted `li v1,-1` into the bltz delay slot;
+ *       oracle leaves it nop and does the li 1 insn later). 39->36.
+ *   (c) `rd++` block -- making the +0xe count-- store ALSO volatile (`MVUH` not plain `MUH`) forces
+ *       it to act as an ordering barrier between the two volatile +0xa reads, stopping the SECOND
+ *       +0xa read (for rd++) from floating ahead of the count-- store the way it did under a plain
+ *       non-volatile count access (gcc may freely reorder a non-volatile op around volatile ones).
+ *       36->28, and fixed the `sw v0,16(s0)`/final-combine positions as a side effect.
+ * Residuals NOT cracked this pass (both re-tried, no effect -- floors, permuter candidates):
+ *   (b) the callback-arg `m*0x18+0x30` folds to ONE constant in ours (`lw a0,48(v1)`, base added
+ *       BEFORE the cb-pointer load) but the oracle keeps `+0x28` split off (base add DEFERRED into
+ *       the `beqz`'s delay slot) + a separate `+8` load displacement. Re-tried explicit split-source
+ *       form (`off=m*0x18+0x28; cb=...; arg=MI(ppp+off,8);`) -- gcc's scheduler still folds the base
+ *       add early and re-fuses the displacement; byte-identical output to the unsplit form.
+ *   (e) [NEW, same class as `fr` in SNDPKTPLAY_submitspace/iSNDpacketfreeframes] the `fr=idx*0x18+
+ *       0x28+ppp` computation is a PURE v0/v1 register-materialization swap vs the oracle (which
+ *       insn ends up in v0 vs v1 through the whole `sll/addu/sll/addiu/addu` chain) -- allocator
+ *       floor, not source-reachable.
+ *   (f) the tail `return MI(fr,idx*4+8)` merge point: oracle recomputes `sll v0,s1,2` (idx*4)
+ *       INDEPENDENTLY at all 3 predecessor blocks (outer-if-false delay slot, inner-if-true delay
+ *       slot, AND again after the inner-if-false `sh zero,0xa(s0)` store) even though the value
+ *       never changes -- a gcc RTL quirk where a value materialized only to fill a branch delay
+ *       slot isn't trusted/reused on other incoming edges. Tried triplicating the return statement
+ *       (one copy per path, matching the oracle's per-block shape) -- gcc instead EXTRACTED the
+ *       shared tail into a separate block reached by an explicit `j` (95==95 insns but 30 diffs,
+ *       WORSE than 28) -- reverted. Also tried the plain operand-order flip `8+idx*4+fr` vs
+ *       `fr+idx*4+8` (no effect, same fold). Permuter candidate for (e)/(f); (b) looks genuine. */
 
 /* iSNDpacketfreeframes @0x801033C4 : platform notify -- once the last channel of a frame is consumed,
  *   credit `bytes` back and call the notify callback. */
@@ -525,16 +591,23 @@ extern "C" unsigned int iSNDpacketfreeframes(int p, int idx, int bytes)
     unsigned int v = (unsigned int)MB(ppp, 0x26);
     if ((unsigned)(idx + 1) == v) {
         v = MI(ppp, 0x14) - bytes;
-        MI(ppp, 0x14) = (int)v;
+        *(volatile int *)(ppp + 0x14) = (int)v;   /* MATCH: volatile blocks gcc from sinking this
+                                                    * store into the `beqz` guard's delay slot -- the
+                                                    * oracle keeps it a separate unconditional insn
+                                                    * (with an explicit nop in the slot) because this
+                                                    * field (+0x14 bytes-consumed) is async-touched,
+                                                    * same class as the ring-index VH() fields. Was
+                                                    * 13->10 diffs, insn count 23->24 (now == oracle). */
         if (*(void **)(ppp + 0x20) != 0)
             v = (*(unsigned int (**)(int, unsigned int))(ppp + 0x20))(p, (unsigned int)bytes);
-            /* near-miss floor (13 diffs, was 23 -- landed a real 2-arg-callback bug: oracle NEVER
+            /* near-miss floor (10 diffs, was 23 -- landed a real 2-arg-callback bug: oracle NEVER
              * clobbers $a0 across the whole function -- it keeps `ppp` in $v1, not $a0, specifically
              * so the ORIGINAL param `p` survives unchanged in $a0 for this final call, which passes
-             * (p, bytes) not just (bytes). Residual = a v0/v1 scratch-register tie-break on the
-             * `&sndpps + p*4` address materialization (§3.15 family) + the `sw v0,0x14(v1)` store
-             * scheduled into the `beqz` guard's delay slot by the oracle but not by ours. Tried:
-             * splitting `&sndpps` into a named pointer local before indexing (no change). Allocator/
+             * (p, bytes) not just (bytes). Residual = a PURE v0/v1 scratch-register tie-break on the
+             * `&sndpps + p*4` address materialization (§3.15 family; identical shape to
+             * SNDPKTPLAY_submitspace's 2-diff floor): oracle materializes the base ptr into $v1 THEN
+             * the index into $v0, ours does the reverse. Tried: splitting `&sndpps` into a named
+             * pointer local before indexing (no change, both here and in submitspace). Allocator/
              * scheduler floor, not source-reachable; permuter candidate. */
     }
     return v;

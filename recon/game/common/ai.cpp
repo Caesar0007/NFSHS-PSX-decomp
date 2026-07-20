@@ -181,63 +181,54 @@ void AI_DoReactions(Car_tObj *carObj)
   int seconds;
   int metersDistance;
   int iVar1;
-  u_int uVar2;
-  int ticksOn;
-  int ticksOff;
+  int uVar2;
   Car_tObj *otherCarObj;
   
   iVar1 = AIScript_DoReAction(&carObj->script,8);
-  if ((iVar1 == -1) || (GameSetup_gData.raceType == 1)) {
-    if ((carObj->control).horn != '\0') {
-      iVar1 = 0;
-      goto LAB_80057bec;
-    }
+  if (iVar1 == -1) goto LAB_horncheck;
+  if (GameSetup_gData.raceType == 1) goto LAB_horncheck;
+  AudioClc_SetHorn(carObj,1);
+  goto LAB_afterhorn;
+LAB_horncheck:
+  if ((carObj->control).horn != '\0') {
+    AudioClc_SetHorn(carObj,0);
   }
-  else {
-    iVar1 = 1;
-LAB_80057bec:
-    AudioClc_SetHorn(carObj,iVar1);
-  }
+LAB_afterhorn:
   iVar1 = AIScript_DoReAction(&carObj->script,0x1000);
-  if ((iVar1 != -1) && (GameSetup_gData.raceType != 1)) {
+  if (iVar1 == -1) goto LAB_80057cc0;
+  if (GameSetup_gData.raceType == 1) goto LAB_80057cc0;
+  {
     uVar2 = (int)(simGlobal.gameTicks & 0x18U) >> 3;
-    if (uVar2 == 1) {
-      iVar1 = 2;
-      ticksOn = 0x20;
-      ticksOff = 0xc;
+    switch (uVar2) {
+    case 0:
+      AudioClc_HonkHorn(carObj,4,0x10,8);
+      break;
+    case 1:
+      AudioClc_HonkHorn(carObj,2,0x20,0xc);
+      break;
+    case 2:
+      AudioClc_HonkHorn(carObj,7,0x28,0x10);
+      break;
+    case 3:
+      AudioClc_HonkHorn(carObj,1,0x20,0);
+      break;
+    default:
+      goto LAB_80057cc0;
     }
-    else if (uVar2 < 2) {
-      if (uVar2 != 0) goto LAB_80057cc0;
-      iVar1 = 4;
-      ticksOn = 0x10;
-      ticksOff = 8;
-    }
-    else if (uVar2 == 2) {
-      iVar1 = 7;
-      ticksOn = 0x28;
-      ticksOff = 0x10;
-    }
-    else {
-      if (uVar2 != 3) goto LAB_80057cc0;
-      iVar1 = 1;
-      ticksOn = 0x20;
-      ticksOff = 0;
-    }
-    AudioClc_HonkHorn(carObj,iVar1,ticksOn,ticksOff);
   }
 LAB_80057cc0:
-  iVar1 = AIScript_DoReAction(&carObj->script,0x200);
-  if (iVar1 != -1) {
-    iVar1 = AIWorld_ApxSplineDistance(carObj,Cars_gList[iVar1]);
-    if (iVar1 < 0) {
-      iVar1 = -iVar1;
+  target = AIScript_DoReAction(&carObj->script,0x200);
+  if (target != -1) {
+    absDistance = AIWorld_ApxSplineDistance(carObj,Cars_gList[target]);
+    if (absDistance < 0) {
+      absDistance = -absDistance;
     }
-    if (0xc0000 < iVar1) {
-      iVar1 = AIScript_GetReactionTicksLeft(&carObj->script);
-      if (iVar1 < 0) {
-        iVar1 = iVar1 + 0x1f;
+    if (0xc0000 < absDistance) {
+      seconds = AIScript_GetReactionTicksLeft(&carObj->script);
+      if (seconds < 0) {
+        seconds = seconds + 0x1f;
       }
-      if ((iVar1 >> 5 & 1U) == 0) {
+      if ((seconds >> 5 & 1U) == 0) {
         CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + 0x1e0000;
       }
       else {
@@ -248,8 +239,8 @@ LAB_80057cc0:
   iVar1 = AIScript_DoReAction(&carObj->script,0x20);
   if (iVar1 != -1) {
     otherCarObj = Cars_gList[iVar1];
-    iVar1 = AIWorld_SplineDistance(carObj,otherCarObj);
-    if (iVar1 * carObj->direction < 0x40000) {
+    metersDistance = AIWorld_SplineDistance(carObj,otherCarObj);
+    if (metersDistance * carObj->direction < 0x40000) {
       AI_TargetLane(carObj,otherCarObj->laneIndex);
     }
   }
@@ -352,7 +343,6 @@ void AI_OpponentBlockPlayer(Car_tObj *carObj,Car_tObj *otherCarObj)
   int otherCarObjSlice;
   int distance;
   u_char bVar1;
-  short sVar2;
   int iVar3;
   int iVar4;
   
@@ -360,59 +350,64 @@ void AI_OpponentBlockPlayer(Car_tObj *carObj,Car_tObj *otherCarObj)
   if (iVar3 != 0) {
     return;
   }
-  if (0xe < AI_Info.deltaYaw) {
+  if (!(AI_Info.deltaYaw < curveynessLevelStarts[2])) {
     return;
   }
-  sVar2 = (otherCarObj->N).simRoadInfo.slice;
+  otherCarObjSlice = (otherCarObj->N).simRoadInfo.slice;
   iVar3 = AIWorld_SplineDistance(carObj,otherCarObj);
   iVar3 = iVar3 * carObj->direction;
   iVar4 = AIScript_DoReAction(&carObj->script,0x400);
-  if (((iVar4 == -1) || (iVar3 < 0)) || (0x31ffff < iVar3)) {
-    if (iVar3 < -0x60000) {
-      return;
-    }
-    if (*(int *)carObj->personality <= iVar3) {
-      return;
-    }
-    if (iVar3 < ((int *)carObj->personality)[1]) {
-      return;
-    }
-    iVar3 = otherCarObj->laneIndex;
-    bVar1 = *(u_char *)(sVar2 * 0x20 + (int)BWorldSm_slices + 0x1d);
-    if (iVar3 < (int)(7 - (u_int)(bVar1 >> 4))) {
-      return;
-    }
-    if ((int)((bVar1 & 0xf) + 6) < iVar3) {
-      return;
-    }
-    if (otherCarObj->currentSpeed * otherCarObj->direction < 0x140001) {
-      return;
-    }
-    if (carObj->laneIndex <= iVar3) {
-      if (iVar3 != carObj->laneIndex) {
-        iVar3 = 0x40000;
-        goto LAB_800582b0;
-      }
-      iVar3 = 0x40000;
-      goto LAB_8005829c;
-    }
-    iVar3 = 0x40000;
-  }
-  else {
-    if (carObj->laneIndex <= otherCarObj->laneIndex) {
-      if (otherCarObj->laneIndex != carObj->laneIndex) {
-        iVar3 = -0x40000;
-LAB_800582b0:
-        CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + iVar3;
-        return;
-      }
+  if (iVar4 == -1) goto LAB_blockcheck;
+  if (iVar3 < 0) goto LAB_blockcheck;
+  if (0x31ffff < iVar3) goto LAB_blockcheck;
+  if (carObj->laneIndex <= otherCarObj->laneIndex) {
+    if (otherCarObj->laneIndex != carObj->laneIndex) {
       iVar3 = -0x40000;
-LAB_8005829c:
-      CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + iVar3;
+LAB_800582b0:
+      CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + iVar3;
       return;
     }
     iVar3 = -0x40000;
+LAB_8005829c:
+    CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + iVar3;
+    return;
   }
+  iVar3 = -0x40000;
+  goto LAB_blockcommon;
+LAB_blockcheck:
+  if (iVar3 < -0x60000) {
+    return;
+  }
+  {
+    int *personality = (int *)carObj->personality;
+    if (personality[0] <= iVar3) {
+      return;
+    }
+    if (iVar3 < personality[1]) {
+      return;
+    }
+  }
+  iVar3 = otherCarObj->laneIndex;
+  bVar1 = *(u_char *)(otherCarObjSlice * 0x20 + (int)BWorldSm_slices + 0x1d);
+  if (iVar3 < (int)(7 - (u_int)(bVar1 >> 4))) {
+    return;
+  }
+  if ((int)((bVar1 & 0xf) + 6) < iVar3) {
+    return;
+  }
+  if (otherCarObj->currentSpeed * otherCarObj->direction < 0x140001) {
+    return;
+  }
+  if (carObj->laneIndex <= iVar3) {
+    if (iVar3 != carObj->laneIndex) {
+      iVar3 = 0x40000;
+      goto LAB_800582b0;
+    }
+    iVar3 = 0x40000;
+    goto LAB_8005829c;
+  }
+  iVar3 = 0x40000;
+LAB_blockcommon:
   CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + iVar3;
   return;
 }
@@ -838,17 +833,18 @@ void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj)
 {
   int dSpeed;
   int cSpeed;
+  int *paiVar3Row0;
   int considerDesired;
   int iVar1;
+  int new_var;
   int iVar2;
-  int (*paiVar3) [3];
+  int *paiVar3;
   AI_tInfo *pAVar4;
-  int iVar5;
-  int iVar6;
-  
-  iVar6 = carObj->desiredSpeed;
-  iVar5 = carObj->currentSpeed;
+
+  dSpeed = carObj->desiredSpeed;
+  cSpeed = carObj->currentSpeed;
   iVar1 = AIWorld_GameOdometer(carObj);
+  considerDesired = 0x257ffff < iVar1;
   if ((AI_Info.blockingCars[0] != (Car_tObj *)0x0) && (AI_Info.blockingCarsDist[0] < 0x1e0000)) {
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + -0xe0000;
   }
@@ -859,66 +855,70 @@ void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj)
     CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0xe0000;
   }
   if (carObj->direction == 1) {
-    paiVar3 = CarLogic_gObs;
+    new_var = 0;
+    paiVar3 = &CarLogic_gObs[new_var][new_var];
+    paiVar3Row0 = paiVar3;
     pAVar4 = &AI_Info;
     do {
-      iVar2 = pAVar4->laneSpeeds[0];
-      if ((iVar2 <= iVar5) && (pAVar4->blockingCars[0] != (Car_tObj *)0x0)) {
-        iVar2 = fixedmult(iVar5 - iVar2,-0x14ccc);
-        (*paiVar3)[0] = (*paiVar3)[0] + iVar2;
-        iVar2 = pAVar4->laneSpeeds[0];
+      iVar2 = pAVar4->laneSpeeds[new_var];
+      if ((iVar2 <= cSpeed) && (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0)) {
+        iVar2 = fixedmult(cSpeed - iVar2,-0x14ccc);
+        *paiVar3 = *paiVar3 + iVar2;
+        iVar2 = pAVar4->laneSpeeds[new_var];
       }
-      if (((iVar2 <= iVar6) && (pAVar4->blockingCars[0] != (Car_tObj *)0x0)) && (0x257ffff < iVar1))
+      if (((iVar2 <= dSpeed) && (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0)) && considerDesired)
       {
-        iVar2 = fixedmult(iVar6 - iVar2,-0x8000);
-        (*paiVar3)[0] = (*paiVar3)[0] + iVar2;
+        iVar2 = fixedmult(dSpeed - iVar2,-0x8000);
+        *paiVar3 = *paiVar3 + iVar2;
       }
-      iVar2 = pAVar4->laneSpeedsAhead[0];
-      if ((iVar2 <= iVar5) && (pAVar4->blockingCars[0] != (Car_tObj *)0x0)) {
-        iVar2 = fixedmult(iVar5 - iVar2,-0x8000);
-        (*paiVar3)[0] = (*paiVar3)[0] + iVar2;
-        iVar2 = pAVar4->laneSpeedsAhead[0];
+      iVar2 = pAVar4->laneSpeedsAhead[new_var];
+      if ((iVar2 <= cSpeed) && (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0)) {
+        iVar2 = fixedmult(cSpeed - iVar2,-0x8000);
+        *paiVar3 = *paiVar3 + iVar2;
+        iVar2 = pAVar4->laneSpeedsAhead[new_var];
       }
-      if (((iVar2 <= iVar6) && (pAVar4->blockingCars[0] != (Car_tObj *)0x0)) && (0x257ffff < iVar1))
+      if (((iVar2 <= dSpeed) && (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0)) && considerDesired)
       {
-        iVar2 = fixedmult(iVar6 - iVar2,-0x1999);
-        (*paiVar3)[0] = (*paiVar3)[0] + iVar2;
+        iVar2 = fixedmult(dSpeed - iVar2,-0x1999);
+        *paiVar3 = *paiVar3 + iVar2;
       }
       paiVar3 = paiVar3 + 1;
       pAVar4 = (AI_tInfo *)(pAVar4->blockingCars + 1);
-    } while ((int)paiVar3 < (int)&AI_Info);   /* DISGUISED BARE-VA FIX (w14-a2): -0x7fef3310 == 0x8010CCF0 == &AI_Info (the array-end sentinel: AI_Info sits directly after CarLogic_gObs in the data segment) */
+    } while (paiVar3 < paiVar3Row0 + 3);   /* row0+3 == &AI_Info (AI_Info sits directly after CarLogic_gObs in the data segment; the oracle recomputes this bound off the ROW-0 base pointer every iteration, not off the AI_Info symbol) */
   }
   else {
-    paiVar3 = CarLogic_gObs;
+    new_var = 0;
+    paiVar3 = &CarLogic_gObs[new_var][new_var];
+    paiVar3Row0 = paiVar3;
     pAVar4 = &AI_Info;
     do {
-      iVar1 = pAVar4->laneSpeeds[0];
-      if (iVar5 <= iVar1) {
-        if (pAVar4->blockingCars[0] != (Car_tObj *)0x0) {
-          iVar1 = fixedmult(iVar1 - iVar5,-0x14ccc);
-          (*paiVar3)[0] = (*paiVar3)[0] + iVar1;
+      iVar2 = pAVar4->laneSpeeds[new_var];
+      if (cSpeed <= iVar2) {
+        if (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0) {
+          iVar2 = fixedmult(iVar2 - cSpeed,-0x14ccc);
+          *paiVar3 = *paiVar3 + iVar2;
         }
-        iVar1 = pAVar4->laneSpeeds[0];
+        iVar2 = pAVar4->laneSpeeds[new_var];
       }
-      if ((iVar6 <= iVar1) && (pAVar4->blockingCars[0] != (Car_tObj *)0x0)) {
-        iVar1 = fixedmult(iVar1 - iVar6,-0x8000);
-        (*paiVar3)[0] = (*paiVar3)[0] + iVar1;
+      if ((dSpeed <= iVar2) && (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0)) {
+        iVar2 = fixedmult(iVar2 - dSpeed,-0x8000);
+        *paiVar3 = *paiVar3 + iVar2;
       }
-      iVar1 = pAVar4->laneSpeedsAhead[0];
-      if (iVar5 <= iVar1) {
-        if (pAVar4->blockingCars[0] != (Car_tObj *)0x0) {
-          iVar1 = fixedmult(iVar1 - iVar5,-0x8000);
-          (*paiVar3)[0] = (*paiVar3)[0] + iVar1;
+      iVar2 = pAVar4->laneSpeedsAhead[new_var];
+      if (cSpeed <= iVar2) {
+        if (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0) {
+          iVar2 = fixedmult(iVar2 - cSpeed,-0x8000);
+          *paiVar3 = *paiVar3 + iVar2;
         }
-        iVar1 = pAVar4->laneSpeedsAhead[0];
+        iVar2 = pAVar4->laneSpeedsAhead[new_var];
       }
-      if ((iVar6 <= iVar1) && (pAVar4->blockingCars[0] != (Car_tObj *)0x0)) {
-        iVar1 = fixedmult(iVar1 - iVar6,-0x1999);
-        (*paiVar3)[0] = (*paiVar3)[0] + iVar1;
+      if ((dSpeed <= iVar2) && (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0)) {
+        iVar2 = fixedmult(iVar2 - dSpeed,-0x1999);
+        *paiVar3 = *paiVar3 + iVar2;
       }
       paiVar3 = paiVar3 + 1;
       pAVar4 = (AI_tInfo *)(pAVar4->blockingCars + 1);
-    } while ((int)paiVar3 < (int)&AI_Info);   /* DISGUISED BARE-VA FIX (w14-a2): -0x7fef3310 == 0x8010CCF0 == &AI_Info (the array-end sentinel: AI_Info sits directly after CarLogic_gObs in the data segment) */
+    } while (paiVar3 < paiVar3Row0 + 3);   /* row0+3 == &AI_Info (AI_Info sits directly after CarLogic_gObs in the data segment; the oracle recomputes this bound off the ROW-0 base pointer every iteration, not off the AI_Info symbol) */
   }
   return;
 }
@@ -1028,66 +1028,58 @@ void AI_AddCollidableObjects(Car_tObj *carObj,Group *groupSimObjs)
   int iVar7;
   int importance;
   Group *pGVar8;
-  int iVar9;
-  coorddef local_48;
-  int local_38;
-  int local_34;
-  int local_30;
-  int local_28;
-  int local_24;
-  int local_20;
-  
+
   pGVar8 = groupSimObjs + 1;
   if (firstTime != '\0') {
     firstTime = '\0';
     BWorldSm_SetSlice(0,(BWorldSm_Pos *)&spos);
   }
-  for (iVar9 = 0; iVar9 < groupSimObjs->m_num_elements; iVar9 = iVar9 + 1) {
-    local_48.x = pGVar8->m_num_elements;
-    local_48.y = pGVar8[1].m_num_elements;
-    local_48.z = pGVar8[2].m_num_elements;
-    BWorldSm_FindClosestSlice(&local_48,(BWorldSm_Pos *)&spos);
+  for (objectIndex = 0; objectIndex < groupSimObjs->m_num_elements; objectIndex = objectIndex + 1) {
+    pt.x = pGVar8->m_num_elements;
+    pt.y = pGVar8[1].m_num_elements;
+    pt.z = pGVar8[2].m_num_elements;
+    BWorldSm_FindClosestSlice(&pt,(BWorldSm_Pos *)&spos);
     iVar1 = AIWorld_ApxSplineDistance(spos.slice,carObj);   /* H17: arg0 was 0; oracle 0x800597B4 $a0=*(short*)spos=spos.slice */
     if (iVar1 * carObj->direction - 1U < 0x63ffff) {
       piVar2 = (int *)((char *)BWorldSm_slices + (carObj->N).simRoadInfo.slice * 0x20);
-      local_38 = *piVar2;
-      local_34 = piVar2[1];
-      local_30 = piVar2[2];
-      local_28 = local_48.x - local_38;
-      local_24 = local_48.y - local_34;
-      local_20 = local_48.z - local_30;
+      centerSlice.x = *piVar2;
+      centerSlice.y = piVar2[1];
+      centerSlice.z = piVar2[2];
+      centerToPt.x = pt.x - centerSlice.x;
+      centerToPt.y = pt.y - centerSlice.y;
+      centerToPt.z = pt.z - centerSlice.z;
       iVar1 = (carObj->N).roadMatrix.m[0];
       if (iVar1 < 0) {
         iVar1 = iVar1 + 0xff;
       }
-      iVar3 = local_28;
-      if (local_28 < 0) {
-        iVar3 = local_28 + 0xff;
+      iVar3 = centerToPt.x;
+      if (centerToPt.x < 0) {
+        iVar3 = centerToPt.x + 0xff;
       }
       iVar6 = (carObj->N).roadMatrix.m[1];
       if (iVar6 < 0) {
         iVar6 = iVar6 + 0xff;
       }
-      iVar4 = local_24;
-      if (local_24 < 0) {
-        iVar4 = local_24 + 0xff;
+      iVar4 = centerToPt.y;
+      if (centerToPt.y < 0) {
+        iVar4 = centerToPt.y + 0xff;
       }
       iVar7 = (carObj->N).roadMatrix.m[2];
       if (iVar7 < 0) {
         iVar7 = iVar7 + 0xff;
       }
-      iVar5 = local_20;
-      if (local_20 < 0) {
-        iVar5 = local_20 + 0xff;
+      iVar5 = centerToPt.z;
+      if (centerToPt.z < 0) {
+        iVar5 = centerToPt.z + 0xff;
       }
       importance = -0xd0000;
-      iVar1 = (iVar1 >> 8) * (iVar3 >> 8) + (iVar6 >> 8) * (iVar4 >> 8) +
+      avoidance = (iVar1 >> 8) * (iVar3 >> 8) + (iVar6 >> 8) * (iVar4 >> 8) +
               (iVar7 >> 8) * (iVar5 >> 8);
-      if (*(char *)((int)&pGVar8[4].m_num_elements + 3) == '\x01') {
+      if (*((char *)pGVar8 + 0x13) == '\x01') {
         importance = -0x280000;
       }
-      iVar3 = (int)(short)pGVar8[3].m_num_elements;
-      AI_SubmitObstacle(carObj,importance,iVar1 + iVar3 * -0x200,iVar1 + iVar3 * 0x200,spos.slice);   /* H17: 5th arg (slice) was 0; oracle 0x800598E4 reload spos.slice -> feeds AIWorld_LaneIndex */
+      radius = *(short *)((char *)pGVar8 + 0xc);
+      AI_SubmitObstacle(carObj,importance,avoidance + radius * -0x200,avoidance + radius * 0x200,spos.slice);   /* H17: 5th arg (slice) was 0; oracle 0x800598E4 reload spos.slice -> feeds AIWorld_LaneIndex */
     }
     pGVar8 = pGVar8 + 5;
   }

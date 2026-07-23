@@ -1,4 +1,4 @@
-/* eaclib/psx/eacpsxz/cdfs.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 8/14 PASS ***
+/* eaclib/psx/eacpsxz/cdfs.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 10/14 PASS ***
  *   Source obj : nfs4\eaclib\psx\cdfs.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col11)
  *   14 fns @[0x800F9AE8 .. 0x800FA920].  EA CD-ROM filesystem (fs 1): the CD_* backend fileroot calls.
  *   Dual-source reconstruction: Ghidra `C:\Temp\claud\nfs4-f.exe.c` (primary) verified vs disasm-v3.
@@ -10,11 +10,10 @@
  *
  *   PROGRESS (`python tools/verify_asm.py cdfs.cpp <fn>`, w19-a8 2026-07-19 sweep):
  *     [PASS]  CD_Close, CD_Stopread, CD_Getinfo, readsectorB, dircompare, CD_Restore, CD_Init,
- *             CD_timerfunc                                                            -- 8/14
- *     [PASS]  CD_Restart -- a volatile cached-sector view pins the second store before the callback.
- *     [near]  CD_Open (11->7 diffs): delaying the handle-table load until the positive-count block
- *             recovers the oracle's prologue/save schedule; the residual is the max-count precheck
- *             register/copy plus one redundant while precheck. No asm pins (HARD RULE).
+ *             CD_timerfunc, CD_Restart, CD_Open                                  -- 10/14
+ *             CD_Restart: a volatile cached-sector view pins the second store before the callback.
+ *             CD_Open: a guarded do/while removes the redundant bound precheck; a distinct copied
+ *             bound preserves the oracle's post-guard register move. No asm pins (HARD RULE).
  *     [near]  CD_systaskfunc (71->58 diffs) -- REAL BUG FIXED: the CdlDiskError watchdog branch
  *             delay-slot analysis was wrong (see below); after the fix, insn count now matches the
  *             oracle EXACTLY (87=87) and the residual is a pure ctx-base register-coloring swap
@@ -216,13 +215,16 @@ extern "C" int CD_Open(char *name, int flags, int *outp)
     (void)flags;
 
     if (limit > 0) {
+        int bound = limit;
         h = CD_handleTable;
-        while (slot < limit) {                          /* find the first free slot */
-            if (*h == 0) break;
+        do {                                            /* find the first free slot */
+            if (*h == 0)
+                goto slot_done;
             slot++;
             h++;
-        }
+        } while (slot < bound);
     }
+slot_done:
     do {                                        /* upper-case the name into a scratch buffer */
         c = toupper((unsigned char)*name++);
         *p++ = (char)c;

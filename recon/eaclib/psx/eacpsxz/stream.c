@@ -858,21 +858,14 @@ extern void STREAM_setgreedystate(int s, int state)
 
 /* STREAM_queuefile @0x800FD314 : queue a read of `len` bytes at `off` from file `name`.  Allocates a
  *   request, fills it, queues it, and -- if the stream was idle -- starts it.  Returns the request id.
- * RESIDUAL FLOOR (19 diffs, down from 40): fixed two real bugs first -- (1) `strncpy` len was 0x40,
- *   oracle uses 0x3F (off-by-one on the name-field width); (2) `wasidle` was wrongly materialized as a
- *   0/1 bool tested twice, oracle caches the RAW state and re-tests `==0` against it twice (same idiom
- *   as decbufferusage/STREAM_release/STREAM_get). REMAINING: (a) the `req[0x16]=off; req[0x17]=len;`
- *   store pair vs the queuerequest() call -- oracle interleaves the call's arg setup BETWEEN the two
- *   stores (2nd store lands in the jal delay slot), ours emits both stores THEN the call; (b) the
- *   prio-ternary's `out[0]` reload right before the greedystate test picks a0 in oracle (letting it
- *   flow straight into the startnextrequest call's own a0 arg, no reload needed) vs a1 in ours (forcing
- *   an extra reload before the call) -- the SAME a0-vs-a1 tie-break documented as a floor in
- *   STREAM_release's identical prio-ternary block. Accept both as floors. */
+ * MATCH (40->0): `strncpy` uses the real 0x3F-byte name width; the raw stream state is tested twice;
+ * queue-call args are materialized before the request-field stores so the final store fills the jal
+ * slot; and the reversed priority ternary keeps the validated object in a0 through the legacy
+ * two-argument startnextrequest call. */
 extern unsigned int STREAM_queuefile(int s, char *name, int off, int len)
 {
     int out[2];
     int *req;
-    unsigned int id = 0;
     if (validatehandle(s, &out[0], &out[1]) != 0)
         return 0;
     req = getfreerequest(out[0]);
@@ -880,9 +873,13 @@ extern unsigned int STREAM_queuefile(int s, char *name, int off, int len)
         return 0;
     req[4] = 0;                                   /* type = file */
     strncpy((char *)(req + 5), name, 0x3f);       /* req name @ +0x14 (oracle: len=0x3F, not 0x40) */
-    req[0x16] = off;
-    req[0x17] = len;
-    queuerequest(out[0], (int)req);
+    {
+        int r = (int)req;
+        int sobj = out[0];
+        req[0x16] = off;
+        req[0x17] = len;
+        queuerequest(sobj, r);
+    }
     {
         int state, sr;
         sr = STREAM_enterCS();
@@ -892,8 +889,9 @@ extern unsigned int STREAM_queuefile(int s, char *name, int off, int len)
             MI(out[0], 0x28) = 1;
         STREAM_leaveCS(sr);
         if (state == 0) {
-            unsigned int prio = (MI(out[0], 0x38) == 0) ? MU(out[0], 0x2c) : MU(out[0], 0x30);
-            startnextrequest(out[0], prio, id);
+            int sobj = out[0];
+            unsigned int prio = (MI(sobj, 0x38) != 0) ? MU(sobj, 0x30) : MU(sobj, 0x2c);
+            ((int (*)(int, unsigned int))startnextrequest)(sobj, prio);
         }
     }
     return (unsigned int)req[0];
@@ -939,7 +937,7 @@ extern unsigned int STREAM_queuemem(int s, int blocklist, void *ptr, int len)
         STREAM_leaveCS(sr);
         if (flagv == 0)
             ((int (*)(int, unsigned int))startnextrequest)(out[0], 0);  /* MATCH: 2-arg site (oracle
-                                                   * never sets $a2 here; queuefile passes 3) */
+                                                   * never sets $a2 here, as in queuefile) */
     }
     return (unsigned int)req[0];
 }

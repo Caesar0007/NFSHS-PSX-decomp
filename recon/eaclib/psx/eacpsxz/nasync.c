@@ -216,25 +216,20 @@ extern void loadfilereadcallback(int id, int status, AsyncReq *req)
 /* loadfilesizecallback @0x800F0E54 : got the size -> allocate the buffer and start reading. */
 extern int loadfilesizecallback(int id, int status, AsyncReq *req)
 {
-    /* MATCH: a FRESH pointer pseudo (`req2`) is materialized unconditionally right after entry
+    /* MATCH (21->0): a FRESH pointer pseudo (`req2`) is materialized unconditionally right after entry
      * (oracle: `addu s0,s1,zero` in the FILE_completeop jal's delay slot) and used ONLY by the
      * allocate/read (else) branch; the cancelled/close branch keeps using the original `req`
-     * (s1) directly. Same family as loadfileclosecallback's req2 split. */
-    /* MATCH: a FRESH pointer pseudo (`req2`) is materialized unconditionally right after entry
-     * (oracle: `addu s0,s1,zero` in the FILE_completeop jal's delay slot) and used ONLY by the
-     * allocate/read (else) branch; the cancelled/close branch keeps using the original `req`
-     * (s1) directly. Same family as loadfileclosecallback's req2 split.
-     * 🔴 RESIDUAL (21 diffs): reproduces the split but the two s-registers still land swapped
-     * vs the oracle (s0/s1 tie-break) -- allocator floor, not cracked further. */
+     * (s1) directly.  Storing each new fileop before its zero test makes the stores unconditional
+     * delay-slot work, and positive callback guards tail-merge into the oracle's shared call block. */
     AsyncReq *req2 = req;
     int filesize = FILE_completeop(req->fileop);
     unsigned int nextop;
     (void)id; (void)status;
     if (req->status != 0) {                                  /* cancelled -> close */
         nextop = FILE_close((void *)(size_t)(unsigned int)req->handle, 0x63, RQ(req));
-        if (nextop == 0) return 0;
         req->fileop = (int)nextop;
-        FILE_callbackop(nextop, (void (*)(int, int))loadfileclosecallback);
+        if (nextop != 0)
+            FILE_callbackop(nextop, (void (*)(int, int))loadfileclosecallback);
     } else {                                                 /* allocate "ASYNCBUF" of the file size */
         void *buf = reservememadr((char *)"ASYNCBUF", filesize, req2->arg24);
         req2->buffer = (int)(size_t)buf;
@@ -242,11 +237,11 @@ extern int loadfilesizecallback(int id, int status, AsyncReq *req)
         nextop = FILE_read((void *)(size_t)(unsigned int)req2->handle,
                            (unsigned int)req2->offset, (unsigned int)req2->dest,
                            readblocksize, 0x63, RQ(req2));
-        if (nextop == 0) return 0;
         req2->fileop = (int)nextop;
-        FILE_callbackop(nextop, (void (*)(int, int))loadfilereadcallback);
+        if (nextop != 0)
+            FILE_callbackop(nextop, (void (*)(int, int))loadfilereadcallback);
     }
-    return 0;
+    return;
 }
 
 /* loadfileopencallback @0x800F0F18 : open done -> read directly, size-then-read, or close on cancel. */

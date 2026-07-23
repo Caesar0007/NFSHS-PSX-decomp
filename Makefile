@@ -3,9 +3,12 @@
 PY ?= py -3.12
 SPLAT ?= C:/Temp/splat-main/split.py
 
-.PHONY: all skipasm split symbols clean
+.PHONY: all audit skipasm split symbols clean
 all:
 	$(PY) tools/build.py
+
+audit:
+	$(PY) tools/audit_vtable_indexing.py
 
 skipasm:
 	$(PY) tools/build.py --skip-asm

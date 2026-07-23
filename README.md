@@ -59,6 +59,7 @@ rom/nfs4-f.exe              the target (NOT committed — sha1 b48ea3452e64...)
 tools/build.py              cpp->cc1->maspsx->as->ld->objcopy + byte-diff report
 tools/gen_symbols.py        NFS4.MAP -> symbol_addrs.txt (sanitizes . and case clashes)
 tools/fix_gte.py            rewrite GTE compute ops (rtps/mvmva/...) to .word
+tools/audit_vtable_indexing.py  reject _vf indexing that scales by a whole vtable row
 ```
 
 ## Build
@@ -68,6 +69,7 @@ tools/fix_gte.py            rewrite GTE compute ops (rtps/mvmva/...) to .word
 py -3.12 tools/gen_symbols.py
 py -3.12 C:/Temp/splat-main/split.py configs/nfs4.yaml
 py -3.12 tools/fix_gte.py            # GTE compute ops GNU as can't assemble
+py -3.12 tools/audit_vtable_indexing.py  # static vtable OOB regression audit
 
 # 2. build + verify against rom/nfs4-f.exe
 py -3.12 tools/build.py              # full asm build + link + diff report

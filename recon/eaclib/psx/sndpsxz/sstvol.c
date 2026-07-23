@@ -4,8 +4,8 @@ extern int iSNDstreamgetstreamptr(int tag);   /* sst  */
 extern int SNDvol(unsigned int tag, int vol); /* svol */
 extern int SNDSTRM_vol(int tag, int vol);     /* @0x800EA0D8 */
 /* SNDSTRM_vol : set a stream's volume (cached at +0x54) and apply it.
- * FLOOR (3 diffs): gcc-2.8.0 hoists `lw a0,8(v0)` into the `beqz v0` delay slot; oracle (ccpsx
- * 4.0.0) leaves nop there + emits lw after. GCC delay-slot scheduling difference, not source. */
+ * MATCH: the play-handle read is volatile, so an invalid stream cannot speculate a null-based load
+ * into the `beqz` delay slot; this also reproduces the oracle's protective nop. */
 extern int SNDSTRM_vol(int tag, int vol)
 {
     int sp;
@@ -13,6 +13,6 @@ extern int SNDSTRM_vol(int tag, int vol)
     sp = iSNDstreamgetstreamptr(tag);
     if (sp == 0) return -8;
     *(char *)(sp + 0x54) = (char)vol;
-    SNDvol(*(unsigned int *)(sp + 8), vol);
+    SNDvol(*(volatile unsigned int *)(sp + 8), vol);
     return 0;
 }

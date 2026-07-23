@@ -4,8 +4,8 @@
  *   Ghidra nfs4-f.exe.c (sdspuirq).
  */
 
-extern int DAT_80147e2c[];      /* SPU control register base (address); unsized array forces the oracle's
-                                     * separate-%hi-scratch load `lui v0; lw v1,%lo(v0)` (vs dest-self-temp) */
+extern unsigned char sndpd[];   /* EA sound-driver state base @0x80147918 */
+#define SNDPD_CTRLREG (*(int *)(sndpd + 0x514))
 
 extern int iSNDpsxenablespuirq(void);    /* @0x8010BF80 */
 
@@ -14,15 +14,15 @@ extern int iSNDpsxenablespuirq(void);    /* @0x8010BF80 */
  *   base ptr in $v1 and the value in $v0). */
 extern int iSNDpsxenablespuirq(void)
 {
-    unsigned short v = *(unsigned short *)(DAT_80147e2c[0] + 0x1aa) | 0x40;
-    *(volatile unsigned short *)(DAT_80147e2c[0] + 0x1aa) = v;
+    unsigned short v = *(unsigned short *)(SNDPD_CTRLREG + 0x1aa) | 0x40;
+    *(volatile unsigned short *)(SNDPD_CTRLREG + 0x1aa) = v;
     return v;
 }
 
 /* iSNDpsxdisablespuirq @0x8010BFA4 : clear the SPU IRQ-enable bit in SPUCNT. */
 extern int iSNDpsxdisablespuirq(void)
 {
-    unsigned short v = *(unsigned short *)(DAT_80147e2c[0] + 0x1aa) & 0xffbf;
-    *(volatile unsigned short *)(DAT_80147e2c[0] + 0x1aa) = v;
+    unsigned short v = *(unsigned short *)(SNDPD_CTRLREG + 0x1aa) & 0xffbf;
+    *(volatile unsigned short *)(SNDPD_CTRLREG + 0x1aa) = v;
     return v;
 }

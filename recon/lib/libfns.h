@@ -99,7 +99,7 @@ int SNDSTRM_create(...);   /* (int *priority,int numReq,int pktArg,int objbuf,in
 int SNDSTRM_destroy(...);   /* (int handle) */
 int SNDSTRM_getvol(...);   /* (int handle) */
 int SNDSTRM_overhead(...);   /* (int a, int b) */
-void SNDSTRM_purge(...);   /* (int handle) */
+int SNDSTRM_purge(...);   /* (int handle) */
 void SNDSTRM_queuefile(...);   /* (int arg0) */
 int SNDSTRM_requeststatus(...);   /* (int req, u_int statusptr) */
 void SNDSTRM_setgreedylevel(...);   /* (int handle, int level) */
@@ -111,7 +111,7 @@ int SNDSYS_getopts(...);   /* (void * outOpts) */
 void SNDSYS_init(...);   /* (void *, int, int) */
 void SNDSYS_restore(...);   /* (int arg0) */
 int SNDSYS_setopts(...);   /* (void * newOpts) */
-void SNDSYS_vectortoreal(...);   /* (void) */
+int SNDSYS_vectortoreal(...);   /* (void) */
 void SNDautovol(...);   /* (void *, int, int) */
 int SNDbankadd(...);   /* (void *, void *) */
 void SNDbankheadercopy(...);   /* (void *, int) */

@@ -1,4 +1,4 @@
-/* eaclib/psx/sndpsxz/sdmemman.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 3/3 ***
+/* eaclib/psx/sndpsxz/sdmemman.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 0/3 PASS ***
  *   Source obj : nfs4\eaclib\psx\sdmemman.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   3 fns @[0x8010A550 .. 0x8010A7C8].  SPU local-RAM block allocator -- a sorted free-list of up to 128
  *   {block,size} entries (DAT_80147e38, 4-byte stride) carving the SPU's 512 KB sample area into 64-byte
@@ -38,28 +38,29 @@ extern unsigned char sndpd[];                 /* voice/queue state base @0x80147
 #define snd_spu_alloc_count  SNDPD_ALLOCCOUNT
 #define DAT_80147e38          (*(int *)(sndpd + 0x520))          /* {block:u16, size:u16}[] alloc table */
 
-extern int iSNDpsxmemconstrain(unsigned int *size, int *avail);   /* @0x8010A550 */
+extern void iSNDpsxmemconstrain(unsigned int *size, int *avail);  /* @0x8010A550 */
 extern int iSNDpsxmalloc(int size);                               /* @0x8010A5CC */
 
 /* iSNDpsxmemconstrain @0x8010A550 : clamp a candidate [block, avail] window to the SPU sample area limits
  *   (floor at engine_ver, ceil at block_total, and at reverb_mode).  Returns the reverb-bounded
  *   available size. */
-extern int iSNDpsxmemconstrain(unsigned int *size, int *avail)
+extern void iSNDpsxmemconstrain(unsigned int *size, int *avail)
 {
-    int          r;
-    unsigned int lo = (unsigned int)SNDPD_ENGINEVER;
-    unsigned int s  = *size;
+    unsigned char *pd = sndpd;
+    unsigned short lo;
+    unsigned int s, diff;
+    lo = *(unsigned short *)(pd + 0x51a);
+    s = *size;
+    diff = (unsigned int)lo - s;
     if ((int)s < (int)lo) {
         *size = lo;
-        *avail = *avail - (lo - s);
+        *avail = *avail - diff;
         s = *size;
     }
-    if ((int)(unsigned int)SNDPD_BLOCKTOTAL < (int)(s + *avail))
-        *avail = (int)SNDPD_BLOCKTOTAL - s;
-    r = (int)(unsigned int)SNDPD_REVERBMODE - (int)*size;
-    if ((int)(unsigned int)SNDPD_REVERBMODE < (int)(*size + *avail))
-        *avail = r;
-    return r;
+    if ((int)(unsigned int)*(unsigned short *)(pd + 0x51c) < (int)(s + *avail))
+        *avail = (int)*(unsigned short *)(pd + 0x51c) - s;
+    if ((int)(unsigned int)*(unsigned short *)(pd + 0x51e) < (int)(*size + *avail))
+        *avail = (int)*(unsigned short *)(pd + 0x51e) - (int)*size;
 }
 
 /* iSNDpsxmalloc @0x8010A5CC : allocate `size` bytes (rounded to 64-byte blocks) of SPU local RAM, first-fit
@@ -140,22 +141,34 @@ commit:
 extern int iSNDpsxfree(int ptr)
 {
     /* MATCH: same early &sndpd materialization lever as iSNDpsxmalloc/SNDmemlargestunused/iSNDpsxfxinit. */
-    unsigned char *pd = sndpd;
     int idx = 0;
-    int src;
+    unsigned char *pd = sndpd;
+    ptr >>= 6;
     if (*(unsigned short *)(pd + 0x518) != 0) {
+        unsigned char *table = pd + 0x520;
+        unsigned char *base = pd;
         do {
-            if ((unsigned int)*(unsigned short *)(pd + 0x520 + idx * 4) == (unsigned int)(ptr >> 6)) {
-                *(unsigned short *)(pd + 0x518) = *(unsigned short *)(pd + 0x518) - 1;
-                while (idx < (int)(unsigned int)*(unsigned short *)(pd + 0x518)) {   /* compact entries down */
-                    src = idx + 1;
-                    ((int *)(pd + 0x520))[idx] = ((int *)(pd + 0x520))[src];
-                    idx = src;
+            if ((unsigned int)*(unsigned short *)(table + idx * 4) == (unsigned int)ptr) {
+                unsigned short remaining =
+                    *(unsigned short *)(base + 0x518) - 1;
+                *(unsigned short *)(base + 0x518) = remaining;
+                if (idx < (int)(unsigned int)remaining) {
+                  do {
+                    struct PackedAllocSlot {
+                        unsigned char pad[0x520];
+                        int word;
+                    } __attribute__((packed));
+                    volatile struct PackedAllocSlot *dst =
+                        (struct PackedAllocSlot *)(base + idx * 4);
+                    int next = idx + 1;
+                    dst->word = ((struct PackedAllocSlot *)(base + next * 4))->word;
+                    idx = next;
+                  } while (idx < (int)(unsigned int)*(volatile unsigned short *)(base + 0x518));
                 }
                 return 0;
             }
             idx++;
-        } while (idx < (int)(unsigned int)*(unsigned short *)(pd + 0x518));
+        } while (idx < (int)(unsigned int)*(unsigned short *)(base + 0x518));
     }
     return -8;
 }

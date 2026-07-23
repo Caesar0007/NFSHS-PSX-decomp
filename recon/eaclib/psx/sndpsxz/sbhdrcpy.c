@@ -4,40 +4,69 @@
  *   pointers to the new buffer, repointing the bank table at the copy.  Ghidra nfs4-f.exe.c (sbhdrcpy).
  */
 
-extern int sndgs[];
+struct SNDGlobals {
+    char pad0[0x3c];
+    signed char initialized;
+    char pad3d[0x5b];
+    int bank_table;
+};
+extern struct SNDGlobals sndgs;
 extern int SNDbankheadersize(int bankId);          /* sbhdrsze */
 extern void *memcpy(void *dst, const void *src, int n);   /* C42 (BIOS thunk) */
 
-extern int SNDbankheadercopy(unsigned char *dst, int bankId);   /* @0x800E7BA8 */
+extern int SNDbankheadercopy(void *dst, int bankId);   /* @0x800E7BA8 */
 
 /* SNDbankheadercopy @0x800E7BA8 : memcpy the bank header to `dst`, relocate each patch pointer (+0x14 for
  *   bank type 4, else +0xc) relative to `dst`, then point the bank table entry at `dst`. */
-extern int SNDbankheadercopy(unsigned char *dst, int bankId)
+extern int SNDbankheadercopy(void *dst, int bankId)
 {
-    int size, bankData, i;
+    unsigned char *dest = (unsigned char *)dst;
+    struct SNDGlobals *base = &sndgs;
+    int size;
+    unsigned char *bankData;
 
-    if ((char)sndgs[0xf] == 0)
+    if (base->initialized == 0)
         return -10;
     size = SNDbankheadersize(bankId);
     if (size < 0)
         return size;
-    bankData = *(int *)(bankId * 0xc + sndgs[0x26]);
-    memcpy(dst, (unsigned char *)bankData, size);
-    if (*(short *)(bankData + 6) != 0) {
-        i = 0;
+    memcpy(dest, *(unsigned char **)(bankId * 0xc + base->bank_table), size);
+    bankData = *(unsigned char **)(bankId * 0xc + base->bank_table);
+    {
+        unsigned char *origin;
+        int type4;
+        unsigned char *dst12;
+        unsigned char *src12;
+        unsigned char *dst20;
+        unsigned char *src20;
+        int i;
+
+        if (*(unsigned short *)(bankData + 6) != 0) {
+            origin = bankData;
+            type4 = 4;
+            dst12 = dest;
+            src12 = bankData;
+            dst20 = dest;
+            src20 = bankData;
+            i = 0;
         do {
-            if (*(char *)(bankData + 4) == 4) {
-                int sp = *(int *)(bankData + i * 4 + 0x14);
+            if (*(unsigned char *)(bankData + 4) == type4) {
+                int sp = *(int *)(src20 + 0x14);
                 if (sp != 0)
-                    *(int *)((int)dst + i * 4 + 0x14) = (int)dst + (sp - bankData);
+                    *(int *)(dst20 + 0x14) = (int)dest + (sp - (int)origin);
             } else {
-                int sp = *(int *)(bankData + i * 4 + 0xc);
+                int sp = *(int *)(src12 + 0xc);
                 if (sp != 0)
-                    *(int *)((int)dst + i * 4 + 0xc) = (int)dst + (sp - bankData);
+                    *(int *)(dst12 + 0xc) = (int)dest + (sp - (int)bankData);
             }
+            dst12 += 4;
+            src12 += 4;
+            dst20 += 4;
+            src20 += 4;
             i++;
         } while (i < (int)(unsigned)*(unsigned short *)(bankData + 6));
+        }
     }
-    *(int *)(bankId * 0xc + sndgs[0x26]) = (int)dst;
+    *(int *)(bankId * 0xc + sndgs.bank_table) = (int)dest;
     return 0;
 }

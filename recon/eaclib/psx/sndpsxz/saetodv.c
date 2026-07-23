@@ -8,7 +8,7 @@
 extern void iSNDlibatodlrv(int angle, int level, int *out_l, int *out_r);   /* saelib */
 
 extern int iSNDabs(int a);                                                   /* @0x8010AEDC */
-extern int iSNDatodlrv(int angle, int level, int *out_l, int *out_r, int prevL, int prevR); /* @0x8010AEF4 */
+extern void iSNDatodlrv(int angle, int level, int *out_l, int *out_r, int prevL, int prevR); /* @0x8010AEF4 */
 
 /* iSNDabs @0x8010AEDC : integer absolute value. */
 extern int iSNDabs(int a)
@@ -20,14 +20,13 @@ extern int iSNDabs(int a)
 
 /* iSNDatodlrv @0x8010AEF4 : pan `level` at `angle` (via saelib), then resolve the new L/R against the prior
  *   (prevL,prevR) quadrant so playback pans smoothly -- one channel is negated to encode the move direction. */
-extern int iSNDatodlrv(int angle, int level, int *out_l, int *out_r, int prevL, int prevR)
+extern void iSNDatodlrv(int angle, int level, int *out_l, int *out_r, int prevL, int prevR)
 {
-    int          quad;       /* prior-direction quadrant (1..4) */
+    iSNDlibatodlrv(angle, level, out_l, out_r);
+    {
+    int          quad;
     int          which;      /* which channel to negate (0 none / 1 L / 2 R) */
     int          newdir;
-    unsigned int ret;
-
-    iSNDlibatodlrv(angle, level, out_l, out_r);
 
     if (prevL < 0) {
         if (prevR < 0) {
@@ -40,17 +39,24 @@ extern int iSNDatodlrv(int angle, int level, int *out_l, int *out_r, int prevL, 
         if (prevL < prevR) quad = 2;
         goto have_quad;
     }
-    quad = 3;
-    if (iSNDabs(prevR) < iSNDabs(prevL)) quad = 4;
+    {
+        int absL = iSNDabs(prevL);
+        int absR = iSNDabs(prevR);
+        if (absR < absL)
+            quad = 4;
+        else
+            quad = 3;
+    }
 
 have_quad:
     which = 0;
     if ((unsigned int)(angle - 0x4000U) < 0x8000) {
         newdir = 4;
         if (*out_l < *out_r) newdir = 3;
-        if ((unsigned int)quad < 3 && newdir == 3) {   /* H05: which=2 only AFTER newdir==3 (oracle 0x8010AFC8 follows the newdir!=3 branch; asymmetric vs 2nd branch) */
+        if (quad < 3) {
             which = 2;
-            if (quad == 2) which = 1;
+            if (newdir == 3 && quad == 2)
+                which = 1;
         }
     } else {
         newdir = 1;
@@ -59,13 +65,10 @@ have_quad:
     }
     if (prevL < 0) *out_l = -*out_l;
     if (prevR < 0) *out_r = -*out_r;
-    ret = 2;
     if (which == 1) {
-        ret = (unsigned int)(-*out_l);
-        *out_l = (int)ret;
+        *out_l = -*out_l;
     } else if (which == 2) {
-        ret = (unsigned int)(-*out_r);
-        *out_r = (int)ret;
+        *out_r = -*out_r;
     }
-    return (int)ret;
+    }
 }

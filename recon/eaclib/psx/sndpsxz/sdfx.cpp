@@ -9,9 +9,9 @@
  */
 
 extern "C" int            sndgs[];
-extern "C" int            DAT_8014791c;          /* current fx mode    */
 extern "C" unsigned char  sndpd[];               /* EA sound-driver state base @0x80147918 (shared,
                                                    * sdma.c/sdpacket.c/slib.c/sdmemlu.c/sdmemman.c) */
+#define DAT_8014791c (*(int *)(sndpd + 4))         /* current fx mode */
 /* SPLIT-STORAGE FIX (wave-22 a1): snd_spu_reverb_mode was a standalone extern "own storage" global
  * (sdmemlu.c's old comment credited it to "sdmemman", but it's really the same sndpd+0x51E field
  * sdmemlu.c/sdmemman.c now read via SNDPD_REVERBMODE). Converted to the same sndpd-relative macro so
@@ -77,7 +77,7 @@ extern "C" unsigned int iSNDpsxeffectoff(int mask);            /* spatkey */
 extern "C" int          iSNDpsxeffectvol(int left, int right); /* spatkey */
 extern "C" void blockmove(int *src, int *dst, int n);         /* blkmov  */
 extern "C" int  blockclear(int buf, int len);                 /* blkfill (2-arg per IDA; Ghidra dropped both) */
-extern "C" int  iSNDdmqueue(int ram, unsigned int spu, int len, unsigned char prio, unsigned char flag); /* sdma */
+extern "C" int  iSNDdmqueue(int ram, unsigned int spu, int len, int prio, int flag); /* sdma */
 extern "C" int  iSNDdmcomplete(int handle);                   /* sdma */
 
 extern "C" void SNDI_mutexalloc(void);                         /* @0x801001EC */
@@ -85,7 +85,7 @@ extern "C" void SNDI_mutexfree(void);                          /* @0x801001F4 */
 extern "C" void SNDI_mutexlock(void);                          /* @0x801001FC */
 extern "C" void SNDI_mutexunlock(void);                        /* @0x80100204 */
 extern "C" unsigned int iSNDpsxfxinit(int mode);               /* @0x8010020C */
-extern "C" int          iSNDplatformfxinit(int reserved, int mode); /* @0x80100584 */
+extern "C" int          iSNDplatformfxinit(int reserved, int mode, int depthL, int depthR); /* @0x80100584 */
 
 /* --- audio mutex: the PSX is single-threaded, so these are no-ops --- */
 extern "C" void SNDI_mutexalloc(void)  { }
@@ -163,17 +163,13 @@ extern "C" unsigned int iSNDpsxfxinit(int mode)
 }
 
 /* iSNDplatformfxinit @0x80100584 : record the requested fx `mode` and, if audio is up, apply it now. */
-/* near-miss floor (11 diffs): oracle's `lui v0,%hi(D_8014791c)` (computed early, before the
- * `sndgs[0xf]` branch) is REUSED as the store's base in the branch's delay slot (`sw a0,%lo(...)(v0)`);
- * our gcc materializes a FRESH `$at` scratch for the store instead of reusing an already-live v0, and
- * reads the guard byte into v0 (ours) vs v1 (oracle). Tried: store-in-branch+early-return (regressed,
- * duplicated the store, 17 diffs), an explicit `int *slot=&DAT_...` local (no change), pre-reading the
- * guard into a named `signed char` (regressed, +1 insn re-extension), reordering the `(void)reserved;`
- * no-op (no change, as expected). Pure gcc-2.8.0 scratch-register/scheduling tie-break across the
- * branch; not source-reachable. Permuter multi-basin candidate. */
-extern "C" int iSNDplatformfxinit(int reserved, int mode)
+/* MATCH: DAT_8014791c is sndpd+4, not independent scalar storage. The shared-state field form makes
+ * gcc retain its explicit v0 base and sink the mode store into the guard branch's delay slot. */
+extern "C" int iSNDplatformfxinit(int reserved, int mode, int depthL, int depthR)
 {
     (void)reserved;
+    (void)depthL;
+    (void)depthR;
     DAT_8014791c = mode;
     if ((signed char)sndgs[0xf] != 0)
         iSNDpsxfxinit(mode);

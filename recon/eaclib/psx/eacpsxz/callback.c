@@ -11,23 +11,24 @@ extern void   freemutex(void *mutex);      /* @0x800FE480 */
 /* allocmutex @0x800FE424 : claim the first free mutex slot (mark taken); returns its pointer. */
 extern short *allocmutex(void)
 {
-    /* MATCH + semantic fix: the retail fn returns NULL when all 32 slots are taken
+    /* Semantic fix: the retail fn returns NULL when all 32 slots are taken
      * (i == 0x20) and recomputes the result from the INDEX (&mutexbuf + i*2, sll 2 +
-     * addu) -- the old `return p` handed back a past-the-end pointer on exhaustion. */
+     * addu) -- the old `return p` handed back a past-the-end pointer on exhaustion.
+     * Keeping separate current/next pointers in the structured loop improves the remaining
+     * allocation mismatch 12->7.  The retail schedule copies next->current at the loop head;
+     * this compiler instead places that copy in the back-edge delay slot. */
     int    i = 0;
     short *p = &mutexbuf;
-    short *q;
-loop:                               /* label-goto loop: no first-iteration peel */
-    q = p;                          /* explicit per-iter copy (a0 = a1) */
-    if (*q == 0) {
-        *p = 1;
-        goto done;
+    short *q = p;
+    while (i < 0x20) {
+        if (*q == 0) {
+            *p = 1;
+            break;
+        }
+        i = i + 1;
+        p = q + 2;
+        q = p;
     }
-    i = i + 1;
-    p = q + 2;
-    if (i < 0x20)
-        goto loop;
-done:
     if (i == 0x20)
         return 0;
     return &mutexbuf + i * 2;

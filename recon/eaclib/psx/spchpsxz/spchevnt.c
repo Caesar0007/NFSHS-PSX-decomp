@@ -1,9 +1,7 @@
-/* eaclib/psx/spchpsxz/spchevnt.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 10/16 PASS ***
- *   (w20-a10: iSPCH_FindEventSlot 24->0 PASS; SPCH_AddEvent 56->49; iSPCH_ChooseEvent 100->62 diffs.
- *    Remaining FAILs: iSPCH_InitEventQueue(42)/SPCH_ClearEventQueue(10) = documented biv-elim floor;
- *    iSPCH_ClearOldEvents(2)/SPCH_ChooseSpeech(7) = pure scheduling/reg-materialization floor (re-tried,
- *    reverted per verify-or-revert); SPCH_AddEvent(49)/iSPCH_ChooseEvent(62) = residual reg-coloring
- *    rotation after the structural fixes, count nearly matches oracle -- see per-fn comments.)
+/* eaclib/psx/spchpsxz/spchevnt.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 13/16 PASS ***
+ *   Indexed queue walks now match SPCH_ClearEventQueue exactly and cut iSPCH_InitEventQueue from 42 to
+ *   17 diffs; reconstructing gReparm as one-word callback storage made SPCH_ChooseSpeech PASS.
+ *   Remaining FAILs are iSPCH_InitEventQueue(17), SPCH_AddEvent(18), and iSPCH_ChooseEvent(58).
  *   Source obj : nfs4\eaclib\psx\spchevnt.obj ; archive C:\nfs4\EACLIB\PSX\SPCHPSXZ.LIB (xlsx col12 / SYM v3)
  *   16 fns @[0x800E6E88 .. 0x800E7684].  The speech EVENT QUEUE -- 16 slots (gVoxEvents, base 0x80148060,
  *   stride 0x3c) selected by priority/age/subtick; events are looked up in the bound gEventDats[] blobs.
@@ -24,7 +22,7 @@ extern int            DAT_80148064;   /* @0x80148064 : "kept a 'd' event" flag *
 extern int            gLastTick[];    /* last insert tick (array decl -> explicit lui+%lo) */
 extern unsigned short gLastSubTick[]; /* sub-tick counter for same-tick inserts */
 extern int            gPreLoadTicks;  /* speech pre-load tick offset */
-extern int            gFilterSetting; /* active filter mode (1 = length/priority filter on) */
+extern int            gFilterSetting[]; /* active filter mode (1 = length/priority filter on) */
 extern int            gEventDats[];   /* @0x80148048 : int[4] bound event-data blobs (spchrand-owned) */
 
 extern int  gettick(void);                                  /* eaclib timer.obj */
@@ -35,7 +33,7 @@ extern int  iSPCH_ChooseSentence(unsigned int *eventArgs);  /* spchpick (returns
 
 /* gReparm @0x801370A0 : optional "re-parameterize" hook -- if set, retried per index until a sentence
  *   is chosen or the hook returns <=0.  Signature from SPCH_ChooseSpeech's jalr call site. */
-extern int (*gReparm)(int index, unsigned int *eventArgs);
+extern int gReparm[];  /* one-word callback storage; cast to its callable signature at use */
 
 /* ---- per-TU static copies of shared helpers (canon in spchdata.obj) ---- */
 static int VoxEvent_GetFilterLengthFlag(int e)   /* @0x800E6E88 */
@@ -45,6 +43,11 @@ static int VoxEvent_GetFilterLengthFlag(int e)   /* @0x800E6E88 */
 static int iSPCH_GetOffset16(int base, int tableBase, int index)  /* @0x800E6EA8 */
 {
     return base + ((int)*(unsigned short *)(tableBase + index * 2) << 2);
+}
+static inline int *iSPCH_EventBase(int *base)
+{
+    /* Identity keeps the winner lookup's base materialization ahead of its index arithmetic. */
+    return base;
 }
 
 extern unsigned int VoxEvent_GetKeepTillExpiresFlag(int e);            /* @0x800E6E94 */
@@ -126,30 +129,25 @@ extern int GetFilterPriority(void)
 /* iSPCH_InitEventQueue @0x800E7014 : zero all 16 queue slots (header + 12 eventArgs each) and the ticks. */
 extern void iSPCH_InitEventQueue(void)
 {
-    /* residual 42 (count exact 29/29): gcc loop-opt divergence -- inner j gets loop-REVERSED
-     * (li 11/bgez vs oracle slti 0xC up-count) and the header stores get a +16-biased giv;
-     * for-loop/int-address/element-disp shapes verified count-exact but the reversal resists
-     * (same class as SPCH_ClearEventQueue / iSPCH_SentenceMakeChoice biv-elim family) */
+    /* Residual 17: the indexed outer walk and volatile ascending argument clear recover the oracle's
+     * offsets/up-count loop; gcc still folds the separate base, slot, and end induction values together. */
     int argBase = 0;
     int base = (int)gVoxEvents;
-    int slot = base;
-    int end  = slot + 0x3c0;
     gVoxEvents[0]   = 0;
     *(int *)(base + 4) = 0;   /* DAT_80148064: stored via base+4 (oracle sw 0,4(a3)) */
     do {
-        int j;
-        int off = argBase;
+        int slot = base + argBase;
+        int j = 0;
         *(short *)(slot + 8)  = 0;
         *(short *)(slot + 0xa) = 0;
         *(int *)(slot + 0xc)  = 0;
         *(int *)(slot + 0x10) = 0;
-        for (j = 0; j < 0xc; j++) {
-            ((int *)(base + off))[5] = 0;   /* MATCH: +0x14 as element disp (addu; sw 20()) */
-            off = off + 4;
-        }
-        slot = slot + 0x3c;
+        do {
+            ((volatile int *)(base + argBase))[j + 5] = 0;
+            j = j + 1;
+        } while (j < 0xc);
         argBase = argBase + 0x3c;
-    } while (slot < end);
+    } while (argBase < 0x3c0);
     gLastTick[0]    = 0;
     gLastSubTick[0] = 0;
 }
@@ -275,7 +273,7 @@ extern int iSPCH_ChooseEvent(void)
             unsigned short maxAge     = *(unsigned short *)(voxEvent + 2);
             if (maxAge != 0)
                 expired = ((unsigned int)maxAge < (unsigned int)age);
-            if (gFilterSetting == 1) {
+            if (gFilterSetting[0] == 1) {
                 if ((VoxEvent_GetFilterLengthFlag(voxEvent) & 0xff) != 0) {
                     unsigned short pri = *(unsigned short *)(voxEvent + 4);
                     if ((int)(unsigned int)pri < GetFilterPriority())
@@ -314,18 +312,15 @@ extern int iSPCH_ChooseEvent(void)
 /* SPCH_ClearEventQueue @0x800E74E0 : disable every active slot. */
 extern void SPCH_ClearEventQueue(void)
 {
-    /* residual 10: ours biv-eliminates `slot` into a +8-biased giv where the oracle keeps the plain
-     * base (+8 disps, %hi shared with the counter); short-walk (10), index form (13) and byte-walk
-     * shapes all fail to keep the un-biased biv -- same class as iSPCH_SentenceMakeChoice */
+    /* MATCH: indexing by i before strength reduction keeps the walking pointer at the slot base. */
     int            i = 0;
-    unsigned char *slot = (unsigned char *)gVoxEvents;
     do {
+        unsigned char *slot = (unsigned char *)gVoxEvents + i * 0x3c;
         if (*(unsigned short *)(slot + 8) != 0) {
             *(short *)(slot + 8) = 0;
             gVoxEvents[0] = gVoxEvents[0] - 1;
         }
         i = i + 1;
-        slot = slot + 0x3c;
     } while (i < 0x10);
 }
 
@@ -333,7 +328,8 @@ extern void SPCH_ClearEventQueue(void)
  *   surviving 'd'-tagged event in DAT_80148064.  Returns 0. */
 extern void iSPCH_ClearOldEvents(int winnerSlot)
 {
-    unsigned char *win     = (unsigned char *)gVoxEvents + winnerSlot * 0x3c;
+    /* MATCH: the inlined identity above moves the base copy into the oracle's early schedule. */
+    unsigned char *win     = (unsigned char *)iSPCH_EventBase(gVoxEvents) + winnerSlot * 0x3c;
     unsigned int   winTick = (unsigned int)*(int *)(win + 0xc);
     unsigned int   winSub  = (unsigned int)*(unsigned short *)(win + 0xa);
     unsigned char *base    = (unsigned char *)gVoxEvents;
@@ -394,12 +390,11 @@ extern int SPCH_ChooseSpeech(void)
             eventArgs = (unsigned int *)(SLOT(winner) + 0x14);
             result = iSPCH_ChooseSentence(eventArgs);
             if (result == 0) {
-                int (**preparm)(int, unsigned int *) = &gReparm;
-                if (*preparm != 0) {
-                    int i  = 0;
+                if (gReparm[0] != 0) {
+                    int i = 0;
                     int rc;
                     do {
-                        rc = (*preparm)(i, eventArgs);
+                        rc = ((int (*)(int, unsigned int *))gReparm[0])(i, eventArgs);
                         if (-1 < rc)
                             result = iSPCH_ChooseSentence(eventArgs);
                         i = i + 1;

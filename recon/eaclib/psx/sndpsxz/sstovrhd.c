@@ -14,5 +14,10 @@ extern int SNDSTRM_overheadtap(int numConsumers, int numReq)
 /* SNDSTRM_overhead : total stream-object byte overhead. */
 extern int SNDSTRM_overhead(int numConsumers, int numReq)
 {
-    return SNDSTRM_overheadtap(numConsumers, numReq) + STREAM_overhead(numConsumers + 1, 1, 1);
+    /* MATCH (NFS4 sound overhead map + disasm-v4 trace, 18->0 diffs): accumulate into `oh`
+     * before returning.  This keeps `oh` and numConsumers simultaneously live across the second
+     * call, recovering the oracle's s0/s1 pair and 32-byte frame. */
+    int oh = SNDSTRM_overheadtap(numConsumers, numReq);
+    oh += STREAM_overhead(numConsumers + 1, 1, 1);
+    return oh;
 }

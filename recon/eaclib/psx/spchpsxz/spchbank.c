@@ -12,7 +12,7 @@
 
 extern int gVoxBanks[]; /* @~0x801370B4 : base of the bank pointer array (int[gNumBanks]) */
 extern int gNumBanks[]; /* @0x801370B8  : number of bank slots */
-extern int gGameNum;    /* shared game global : current game/race number (cycle-bit hash key) */
+extern int gGameNum[];  /* shared game global : current game/race number (cycle-bit hash key) */
 extern int  iSPCH_MemAlloc(int numBytes, const char *tag); /* spchinit; returns the allocated ptr (0 = failed) */
 extern void iSPCH_MemFree(int block);      /* spchinit; release body ignores the arg but call sites
                                             * still pass the freed block (nullsub-takes-real-args) */
@@ -25,7 +25,7 @@ extern int   iSPCH_BankMemAlloc(int numBanks);              /* @0x800EB234 */
 extern int   iSPCH_GetFreeBank(void);                       /* @0x800EB2B8 */
 extern int   iSPCH_FindBank(int key);                       /* @0x800EB310 */
 extern unsigned int iSPCH_TestSubBankBounds(int bankIdx, int subIdx); /* @0x800EB37C */
-extern int  *iSPCH_SetCycleBits(int *p);                    /* @0x800EB3C8 */
+extern void  iSPCH_SetCycleBits(int *p);                    /* @0x800EB3C8 */
 extern int   SPCH_AddBank(int bank);                        /* @0x800EB520 */
 
 /* iSPCH_InitBanks @0x800EB1E0 : clear the bank table (no allocation yet). */
@@ -56,10 +56,10 @@ extern int iSPCH_BankMemAlloc(int numBanks)
         allocated = iSPCH_MemAlloc(numBanks << 2, "spch banks");
         *vb = allocated;   /* MATCH: unconditional store -> beqz delay slot (runs both paths) */
         if (allocated != 0) {
+            int i = 0;
             numBanks = *nb;   /* MATCH: reload reuses the dead param reg ($a0) */
             if (0 < numBanks) {
                 int bound = numBanks;
-                int i = 0;
                 numBanks = allocated;   /* reuse the dead numBanks/$a0 reg as the walking pointer */
                 do {
                     *(int *)numBanks = 0;
@@ -132,8 +132,10 @@ ret:
 
 /* iSPCH_SetCycleBits @0x800EB3C8 : for bank `p`, set the run of cycle bits that this game number (gGameNum)
  *   maps to within the bank's GetBankBits() array.  The (n==0)/(n==-1 && dividend==INT_MIN) checks are the
- *   compiler's signed-division traps.  Return value is a leftover pointer (callers ignore it). */
-extern int *iSPCH_SetCycleBits(int *p)
+ *   compiler's signed-division traps.  True contract is void (matching eaclib.h and all callers).
+ *   MATCH (86/86): declaring the one-word gGameNum storage as an array makes gcc split its address so
+ *   the `lui` fills the initial `blez` delay slot instead of emitting an extra nop. */
+extern void iSPCH_SetCycleBits(int *p)
 {
     unsigned char *bits;
     unsigned int   nGroups;
@@ -143,9 +145,9 @@ extern int *iSPCH_SetCycleBits(int *p)
     bits    = (unsigned char *)iSPCH_GetBankBits((int)p);
     nGroups = (unsigned int)*bits;
     if (0 < (int)nGroups) {
-        t1       = ((int)gGameNum % (int)nGroups) * (int)(unsigned int)*(unsigned char *)((int)p + 3);
+        t1       = (gGameNum[0] % (int)nGroups) * (int)(unsigned int)*(unsigned char *)((int)p + 3);
         startBit = t1 / (int)nGroups;
-        t2      = ((int)gGameNum % (int)nGroups + 1) * (int)(unsigned int)*(unsigned char *)((int)p + 3);
+        t2      = (gGameNum[0] % (int)nGroups + 1) * (int)(unsigned int)*(unsigned char *)((int)p + 3);
         count   = t2 / (int)nGroups - startBit;
         t3       = startBit;
         if (startBit < 0)
@@ -169,8 +171,7 @@ extern int *iSPCH_SetCycleBits(int *p)
             } while (i < count);
         }
     }
-    /* MATCH: oracle never materializes a return value here -- $v0 is whatever the last
-     * computation left it at (garbage); SPCH_AddBank's caller ignores the return. */
+    /* Oracle never materializes a return value; SPCH_AddBank ignores the void result. */
 }
 
 /* SPCH_AddBank @0x800EB520 : place bank `bank` into the first free slot (setting its cycle bits first if the

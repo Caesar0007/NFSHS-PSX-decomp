@@ -24,22 +24,23 @@ extern int SNDSTRM_requeststatus(unsigned int reqTag, int s)
     if (sp == 0) return -8;
     iSNDenteraudio();
     rp = (int *)iSNDstreamgetrequestptr(reqTag);
-    if (rp == 0) {
-        *(int *)s = 3;
-    } else if (rp[2] < 0) {
+    if (rp == 0)
+        goto no_request;
+    if (rp[2] < 0) {
         *(int *)s = 0;
     } else {
-        unsigned short u;
-        if (*sp == (int)rp) { *(int *)s = 2; u = *(unsigned short *)(sp + 7); }
-        else                { *(int *)s = 1; u = *(unsigned short *)(sp + 8); }
-        div = (unsigned int)u;
+        if (*sp == (int)rp) { *(int *)s = 2; div = *(unsigned short *)(sp + 7); }
+        else                { *(int *)s = 1; div = *(unsigned short *)(sp + 8); }
         iSNDmulu64(q, (unsigned int)rp[5], 1000);
         *(int *)(s + 4) = iSNDdivu64(q[0], q[1], div);
         iSNDmulu64(q, (unsigned int)(rp[6] - rp[5]), 1000);
         *(int *)(s + 8) = iSNDdivu64(q[0], q[1], div);
-        if (div == 0) trap(0x1c00);
         *(unsigned int *)(s + 0xc) = (unsigned int)(rp[7] * 1000) / div;
     }
+    goto status_done;
+no_request:
+    *(int *)s = 3;
+status_done:
     iSNDleaveaudio();
     return 0;
 }

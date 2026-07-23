@@ -58,21 +58,23 @@ extern "C" int intatan(int y, int x)
     if (v1 == s0) {                         /* ratio 1.0 (incl. 0,0) -> 45deg */
         atanv = 0x80;
     } else {
-        unsigned num = (unsigned)v1, den = (unsigned)s0, idx;
+        unsigned num = (unsigned)v1, den = (unsigned)s0;
         if (num & 0xFF800000u) {            /* big numerator: EA make64 + divu64 (@0x800FE488/E4E0,
                                                the original's own 64-bit helpers -- NOT libgcc __udivdi3) */
             int buf[2];
             make64(buf, (int)num, 32);                          /* buf = num << 32 */
-            unsigned ql = (unsigned)divu64(buf[0], buf[1], den);/* (num<<32)/den -- args = buf[0],buf[1] */
+            v1 = divu64(buf[0], buf[1], den);             /* (num<<32)/den -- args = buf[0],buf[1] */
             /* MATCH: BRANCHED round (a ?: strength-reduces to the branchless bit-add) */
-            if (ql & 0x800000u)
-                idx = (ql >> 24) + 1;
+            if ((unsigned)v1 & 0x800000u)
+                v1 = ((unsigned)v1 >> 24) + 1;
             else
-                idx = ql >> 24;
+                v1 = (unsigned)v1 >> 24;
         } else {
-            idx = ((num << 8) + (unsigned)(s0 >> 1)) / den;   /* round(256*num/den); s0>>1 = SRA */
+            v1 <<= 8;
+            v1 += s0 >> 1;
+            v1 = (unsigned)v1 / den;                  /* round(256*num/den); s0>>1 = SRA */
         }
-        atanv = kAtanTable[idx];
+        atanv = kAtanTable[(unsigned)v1];
     }
 
     return (s2 == 0) ? (s1 + atanv) : (s1 - atanv);

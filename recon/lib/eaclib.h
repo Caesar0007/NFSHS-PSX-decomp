@@ -323,7 +323,7 @@ void iSNDleaveaudio();   /* sserver */
    /* ssysinit */
 void iSNDsystemtaskreal();   /* ssysreal */
    /* ssysreal */
-void SNDcdvol(int arg0);   /* scdvol */
+int SNDcdvol(int arg0);   /* scdvol */
 void iSNDplatformfree(void * arg0);   /* sdata */
 void iSNDsync_func(int arg0);   /* sbirmpat */
 void iSNDvalidbank(int arg0);   /* sbvalid */
@@ -407,7 +407,7 @@ void iSNDserveraddclient(void * arg0);   /* ssysserv */
 void iSNDserverremoveclient(void * arg0);   /* ssysserv */
 void SNDSYS_service();   /* ssysserv */
 void iSNDtimeremaining(int arg0);   /* sdtimrem */
-void iSNDmemconstrain(int * arg0);   /* smemman */
+void iSNDmemconstrain(int *block, int *size);   /* smemman */
 void iSNDmeminit(void * arg0);   /* smemman */
 void iSNDmemrestore();   /* smemman */
 void iSNDmalloc(int arg0);   /* smemman */

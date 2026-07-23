@@ -57,7 +57,7 @@ extern void *allocmutex(void);                                                  
 
 /* forward decls for the FILE completion callbacks (referenced by FILE_callbackop and each other) */
 extern int loadfileclosecallback(int id, int status, AsyncReq *req);
-extern int loadfilereadcallback (int id, int status, AsyncReq *req);
+extern void loadfilereadcallback(int id, int status, AsyncReq *req);
 extern int loadfilesizecallback (int id, int status, AsyncReq *req);
 extern int loadfileopencallback (int id, int status, AsyncReq *req);
 extern int loadsegreadcallback  (int id, int status, AsyncReq *req);
@@ -189,7 +189,7 @@ extern int loadfileclosecallback(int id, int status, AsyncReq *req)
 }
 
 /* loadfilereadcallback @0x800F0D80 : one chunk read; loop until EOF/cancel, then close. */
-extern int loadfilereadcallback(int id, int status, AsyncReq *req)
+extern void loadfilereadcallback(int id, int status, AsyncReq *req)
 {
     int n = FILE_completeop(req->fileop);       /* bytes read this chunk */
     unsigned int nextop;
@@ -198,7 +198,7 @@ extern int loadfilereadcallback(int id, int status, AsyncReq *req)
     if (n < readblocksize || req->status != 0) {            /* short read (EOF) or cancel -> close */
         nextop = FILE_close((void *)(size_t)(unsigned int)req->handle, 0x63, RQ(req));
         req->fileop = (int)nextop;             /* §3.21: stored in the beqz delay slot (even if 0) */
-        if (nextop == 0) return 0;
+        if (nextop == 0) return;
         FILE_callbackop(nextop, (void (*)(int, int))loadfileclosecallback);
     } else {                                                 /* full chunk -> read the next one */
         req->offset += n;
@@ -207,14 +207,10 @@ extern int loadfilereadcallback(int id, int status, AsyncReq *req)
                            (unsigned int)req->offset, (unsigned int)req->dest,
                            readblocksize, 0x63, RQ(req));
         req->fileop = (int)nextop;             /* §3.21: stored in the beqz delay slot (even if 0) */
-        if (nextop == 0) return 0;
+        if (nextop == 0) return;
         FILE_callbackop(nextop, (void (*)(int, int))loadfilereadcallback);
     }
-    /* Residual 1-diff: oracle falls through the shared (tail-merged) FILE_callbackop call
-     * to the epilogue returning v0 (no move-v0-zero); a plain return 0 here emits the extra
-     * move-v0-zero.  Returning the tail call value un-merges the two calls (+7 diffs), so
-     * this 1-insn move-v0-zero is the clean floor. */
-    return 0;
+    /* MATCH: callback return is unused; the value-less fall-through preserves FILE_callbackop's v0. */
 }
 
 /* loadfilesizecallback @0x800F0E54 : got the size -> allocate the buffer and start reading. */
@@ -500,25 +496,16 @@ extern int cancelasyncload(int id)
      * return value, and the final cancelrequest() fall-off leaves $v0 = cancelrequest's own
      * (garbage, since it's void) incidental value -- no explicit return at all. */
     AsyncReq *req = locaterequest(id);
-    if (req == 0)
-        return 0;
-    if (req->status != 0)              /* already cancelling/cancelled */
-        return 1;
-    /* 🔴 RESIDUAL FLOOR (12 diffs): oracle reuses the SAME $v0=1 from this branch's own delay
-     * slot (still valid through the fall-through path, since a branch delay slot always runs)
-     * for the `req->status=1` store, scheduling that store INTO the FILE_cancelop jal's own
-     * delay slot (last safe point before the call clobbers $v0 with its return). Our compiler
-     * doesn't perform that specific cross-block CSE/reuse from a mutually-exclusive branch's
-     * delay slot into the following call's delay slot; it re-materializes `li v0,1` later and
-     * schedules the store into a different (also-correct, but differently-placed) delay slot.
-     * Functionally identical, byte-different; not cracked by source reshaping so far. */
-    FILE_cancelop(req->fileop);
-    req->status = 1;                   /* request cancel (asm: delay slot) */
-    if (req->fileop != 0)              /* still in flight -> let the callback finish it */
-        return req->fileop;
-    if (req->callback != 0)            /* has a callback -> it will run */
-        return req->callback;
-    cancelrequest(req);
+    if (req != 0) {
+        if (req->status != 0)          /* already cancelling/cancelled */
+            return 1;
+        req->status = 1;               /* schedules into FILE_cancelop's delay slot */
+        FILE_cancelop(req->fileop);
+        if (req->fileop == 0) {        /* no in-flight FILE op */
+            if (req->callback == 0)
+                cancelrequest(req);
+        }
+    }
 }
 
 /* getasyncreadadr @0x800F1640 : the loaded buffer address, or 0 if not ready.  For a poll-only request

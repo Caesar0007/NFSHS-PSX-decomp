@@ -81,18 +81,24 @@ shiftloop:                                                    /* compact the tai
  *   (signed <=0), matching the signed-char convention iSNDserverremoveclient already uses for this same
  *   byte. Walking pointer `p` starts at `base` (raw sndgs, not sndgs+0x19) and steps +4 bytes/iter with
  *   the client-array's +0x64 folded into the load DISPLACEMENT (not a separately materialized `cb`
- *   pointer var -- computing the fn-ptr via one deref expression lets the +0x64 fuse into `lw`).
- *   NEAR-MISS residual (9 diffs, ours 27/oracle 28): `base` materializes into a caller-saved temp (v1)
+ *   pointer var -- computing the fn-ptr via one deref expression lets the +0x64 fuse into `lw`). */
+/* Historical 9-diff form: `base` materialized into a caller-saved temp (v1)
  *   for the initial `lb`/`blez` test and is copied into its callee-saved home (s2) only after the branch
  *   is taken; our compile promotes it to s2 one instruction earlier. Coloring floor (§A lazy-promotion
  *   tie-break), not source-shapable via decl/assignment-order tried so far. */
+/* MATCH: a separate `guard` pointer fixes that lazy promotion.  Initializing `i` before the
+ * signed-count test puts `i = 0` in the oracle's `blez` delay slot; repeating the initialization
+ * when entering the loop preserves the expected loop setup and is harmless. */
 extern void SNDSYS_service(void)
 {
     char *base;
+    char *guard;
     char *p;
     int   i;
-    base = (char *)sndgs;
-    if (0 < *(signed char *)(base + 0x41)) {
+    guard = (char *)sndgs;
+    i = 0;
+    if (i < *(signed char *)(guard + 0x41)) {
+        base = guard;
         p = base;
         i = 0;
         do {

@@ -36,6 +36,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Audit vtable indexing
+        run: python tools/audit_vtable_indexing.py
+
       - name: Fetch toolchain (PsyQ cc1 + mipsel binutils + maspsx)
         shell: pwsh
         run: |

@@ -35,14 +35,12 @@ extern const unsigned short snd_sine_table[0x101] = {   /* @0x8013C348 */
     0xfec4, 0xfeea, 0xff0e, 0xff2f, 0xff4e, 0xff6a, 0xff84, 0xff9c, 0xffb1, 0xffc3, 0xffd3, 0xffe1,
     0xffec, 0xfff4, 0xfffb, 0xfffe, 0xffff,};
 
-/* ---- additive PRNG state (srandom.cpp).  sndseed is the accumulator; the 5 lagged words follow.
- *      Mutable: iSNDrandom rewrites all six every call.  Real seed constants from NFS4.EXE. */
-extern unsigned int sndseed      = 0xf22d0e56u;   /* @0x8013C2F0 */
-extern unsigned int DAT_8013c2f4 = 0x883126e9u;   /* @0x8013C2F4 */
-extern unsigned int DAT_8013c2f8 = 0xc624dd2fu;   /* @0x8013C2F8 */
-extern unsigned int DAT_8013c2fc = 0x0702c49cu;   /* @0x8013C2FC */
-extern unsigned int DAT_8013c300 = 0x9e353f7du;   /* @0x8013C300 */
-extern unsigned int DAT_8013c304 = 0x6fdf3b64u;   /* @0x8013C304 */
+/* ---- additive PRNG state (srandom.c).  One real six-word object: the oracle materializes
+ *      &sndseed once and reaches the five lagged words at fixed +4..+20 displacements. */
+extern unsigned int sndseed[6] = {
+    0xf22d0e56u, 0x883126e9u, 0xc624dd2fu,
+    0x0702c49cu, 0x9e353f7du, 0x6fdf3b64u
+};
 
 /* ---- SPU memory/voice limit block (slimits.cpp).  Mutable: SNDsetlimits overwrites.
  *      sndpsxlimits, then the 4 DAT_ words; only DAT_801234e4 (SPU ctx size) is non-zero (0x2000). */

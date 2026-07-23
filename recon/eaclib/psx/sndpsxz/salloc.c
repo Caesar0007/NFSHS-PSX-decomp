@@ -1,4 +1,4 @@
-/* eaclib/psx/sndpsxz/salloc.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 4/4 ***
+/* eaclib/psx/sndpsxz/salloc.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 2/4 PASS ***
  *   Source obj : nfs4\eaclib\psx\salloc.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   4 fns @[0x800FE724 .. 0x800FEDC4].  Sound-channel allocation/arbitration (no SPU pokes -- pure
  *   priority logic over the channel pool sndgs[0x25]).  Ghidra nfs4-f.exe.c L163749..164019.
@@ -14,6 +14,7 @@ extern int           DAT_80136dec;             /* rolling allocation id counter 
 int DAT_80136dec;                              /* def (owning TU; @0x80136dec image-verified zero) */
 extern int  SNDstop(unsigned int tag);                          /* sstop  */
 extern int  SNDover(unsigned int tag);                          /* sover  */
+extern int  DAT_801478f4;                                      /* channel-pool pointer (sndgs + 0x94) */
 
 extern int iSNDischanreserved(int chan, int count);             /* @0x800FE724 */
 
@@ -149,67 +150,98 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
     return result;
 }
 
-/* iSNDfreechan @0x800FEC0C : release channel `chan`.  Honours linked-channel groups (a stereo/multi voice
- *   only frees when its partners are also done).  Returns the freed channel / 2 (still linked) / timestamp. */
-extern int iSNDfreechan(int chan)
+/* iSNDfreechan @0x800FEC0C : release channel `chan`. Honours linked-channel groups (a stereo/multi voice
+ *   only frees when its partners are also done). NFS3/NFS4 confirm the void ABI and primary-state 1->2
+ *   protocol; NFS2/NFS2B use only the simpler ungrouped release. The recovered three-release-block CFG
+ *   and storage model improve the authoritative residual from 177 to 107 diffs (109/110 instructions). */
+extern void iSNDfreechan(int chan)
 {
-    int *p;
-    int  base = sndgs[0x25] + chan * 100;
-    int  group = 0;
-    int  partner = -1;
-    int  idx;
+    unsigned int group;
+    int count = 0;
+    unsigned char *base = (unsigned char *)sndgs;
+    int pool = *(int *)(base + 0x94);
+    int partner = -1;
+    unsigned char *initialSlot = (unsigned char *)(pool + chan * 100);
+    group = initialSlot[0x37];
 
-    if (*(char *)(base + 0x37) == 0) {              /* not part of a link group */
-        *(char *)(base + 0xb) = 0;
-        *(int *)(base + 0x10) = sndgs[0x11];
-        return sndgs[0x11];
+    if (group != 0) {
+        int idx = count;
+        int limit;
+        unsigned char *scan;
+
+        limit = base[0x11];
+        if (idx < limit) {
+            scan = (unsigned char *)pool;
+            do {
+                if (*(volatile unsigned char *)(scan + 0x37) == group &&
+                    0 <= *(volatile int *)scan &&
+                    *(volatile signed char *)(scan + 0xb) != 0 &&
+                    (count++, *(volatile unsigned char *)(scan + 0x36) != 0))
+                    partner = idx;
+                idx++;
+                scan += 100;
+            } while (idx < limit);
+        }
+
+        {
+            int slot = sndgs[0x25] + chan * 100;
+
+            if (count == 1) {
+                *(unsigned char *)(slot + 0xb) = 0;
+                *(int *)(slot + 0x10) = sndgs[0x11];
+                return;
+            }
+
+            {
+                int partnerOffset = partner * 100;
+
+                if (*(signed char *)(sndgs[0x25] + partnerOffset + 0xb) == 2 &&
+                    chan != partner && count == 2) {
+                    *(unsigned char *)(slot + 0xb) = 0;
+                    *(int *)(slot + 0x10) = sndgs[0x11];
+                    *(unsigned char *)(sndgs[0x25] + partnerOffset + 0xb) = 0;
+                    *(int *)(sndgs[0x25] + partnerOffset + 0x10) = sndgs[0x11];
+                    return;
+                }
+
+                {
+                    int partnerSlot = DAT_801478f4 + partner * 100;
+                    if (*(signed char *)(partnerSlot + 0xb) == 1 && chan == partner) {
+                        *(unsigned char *)(partnerSlot + 0xb) = 2;
+                        return;
+                    }
+                }
+
+                *(unsigned char *)(slot + 0xb) = 0;
+                *(int *)(slot + 0x10) = sndgs[0x11];
+                return;
+            }
+        }
     }
 
-    idx = 0;
-    p = (int *)sndgs[0x25];
-    if (SNDNUMCHAN != 0) {
-        do {
-            if (*(char *)((int)p + 0x37) == *(char *)(base + 0x37) && -1 < *p &&
-                *(char *)((int)p + 0xb) != 0 &&
-                (group = group + 1, *(char *)((int)p + 0x36) != 0))
-                partner = idx;
-            idx++;
-            p += 0x19;                              /* 100-byte stride */
-        } while (idx < (int)(unsigned)SNDNUMCHAN);
-    }
-    base = sndgs[0x25] + chan * 100;
-    if (group != 1) {
-        int pbase = partner * 100;
-        if (*(char *)(pbase + sndgs[0x25] + 0xb) == 2 && chan != partner && group == 2) {
-            *(char *)(base + 0xb) = 0;
-            *(int *)(base + 0x10) = sndgs[0x11];
-            *(char *)(pbase + sndgs[0x25] + 0xb) = 0;
-            pbase += sndgs[0x25];
-            *(int *)(pbase + 0x10) = sndgs[0x11];
-            return pbase;
-        }
-        idx = partner * 100 + sndgs[0x25];
-        if (*(char *)(idx + 0xb) == 1 && chan == partner) {
-            *(char *)(idx + 0xb) = 2;
-            return 2;
-        }
-    }
-    *(char *)(base + 0xb) = 0;
-    *(int *)(base + 0x10) = sndgs[0x11];
-    return sndgs[0x11];
+    initialSlot[0xb] = 0;
+    *(int *)(initialSlot + 0x10) = sndgs[0x11];
 }
 
 /* iSNDgetchan @0x800FEDC4 : resolve a sound tag back to its channel index, validating that the channel is
  *   still held by that exact tag.  Returns the channel, or a negative error. */
 extern int iSNDgetchan(unsigned int tag)
 {
-    unsigned char *base = (unsigned char *)sndgs;   /* materialize bare &sndgs first (no offset folded into %lo) */
+    unsigned char *base;
     int ch;   /* signed -- oracle compares via slt (both operands non-negative so behavior is unchanged) */
-    if (-1 < (int)tag && (ch = tag & 0x1f) < base[0x11]) {
+    if ((int)tag < 0)
+        goto invalid;
+    base = (unsigned char *)sndgs;   /* materialize bare &sndgs first (no offset folded into %lo) */
+    ch = tag & 0x1f;
+    if (ch < base[0x11])
+        goto valid_range;
+invalid:
+    return -8;
+valid_range:
+    {
         int *slot = (int *)(*(int *)(base + 0x94) + ch * 100);
         if (*(signed char *)((int)slot + 0xb) == 0 || *(unsigned int *)slot != tag)
             ch = 0xfffffff8;
         return ch;
     }
-    return -8;
 }

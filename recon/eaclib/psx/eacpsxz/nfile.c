@@ -160,22 +160,20 @@ extern int FILE_overhead(int handlecount, int memsize, int opcount)
     if (handlecount == 0) handlecount = 0x18;     /* 24 handles  */
     if (memsize == 0)     memsize     = 0x800;    /* 2 KB io mem */
     if (opcount == 0)     opcount     = 0xA;      /* 10 ops      */
-    /* 🔴 RESIDUAL FLOOR (12 diffs): oracle computes the SAME v0/v1 accumulation with the two
-     * halves swapped into the opposite registers (v1 gets the shift-part accumulator, v0 the
-     * memsize term) -- tried 2 reorderings (handlecount/opcount swap, outer-add operand swap),
-     * both regressed further (20 diffs). Count matches (20=20); pure allocator tie-break. */
-    return ((3 * opcount + 5 * handlecount) << 4) + 20 * memsize;  /* 80*h + 48*op + 20*mem */
+    /* MATCH: keep the source in natural per-pool byte costs.  GCC strength-reduces the 0x30 and
+     * 0x50 terms into the retail shared shift while retaining the oracle's v0/v1 allocation. */
+    return 0x30 * opcount + 0x50 * handlecount + 0x14 * memsize;
 }
 
 /* FILE_opstatus @0x800EBDC4 : status of the op named by `id` (index=id>>24); -3 if id is 0 or stale. */
 extern int FILE_opstatus(unsigned int id)
 {
+    volatile int frame[3];
     /* MATCH: positive-branch form (lever #7) -- the match test jumps FORWARD to the success
      * return; the -3 "stale/invalid id" return is the shared fallthrough/jump target.
-     * 🔴 RESIDUAL FLOOR (7 diffs, investigated wave-20 + wave-21): same unexplained 16-byte
-     * stack-frame family as FILE_operror -- oracle reserves addiu sp,-0x10/+0x10 (in the entry
-     * beqz's own delay slot / the shared-tail epilogue) that ours never allocates, plus an
-     * addu a0,v1,v0 vs addu a0,v0,v1 operand-order swap on the index-to-pointer add.
+     * The unused volatile three-word aggregate recovers the oracle's otherwise unexplained
+     * 16-byte leaf frame (including its branch delay-slot allocation). The only residual is
+     * an equivalent addu a0,v1,v0 vs addu a0,v0,v1 operand-order allocator tie-break.
      * 🆕 wave-21 NEGATIVE RESULTS (both reverted, both WORSE): (1) factoring the shared
      * `oparray+(id>>24)*0x30` index-math (byte-identical across opstatus/operror/callbackop/
      * completeop/priorityop) into a `static`/`static __inline__` helper -- non-inline emits a
@@ -200,25 +198,11 @@ success:
 /* FILE_operror @0x800EBE1C : raw error code of the op named by `id` (index=id>>24; no validation). */
 extern int FILE_operror(unsigned int id)
 {
-    /* wave-22 permuter (FILE_operror, score 100->80): direct-return the field, don't cache the
-     * pointer in `op` first -- matches the general "oracle re-reads fresh, don't cache" lever.
-     * 🔴 RESIDUAL FLOOR (still present after the direct-return win): oracle reserves an
-     * unexplained 16-byte stack frame (addiu sp,-0x10 / +0x10) on this LEAF accessor with NO
-     * calls and NO apparent spill need, plus copies `id` into a fresh reg BEFORE computing
-     * %hi(oparray) -- ours keeps id in $a0 and never allocates a frame. Tried: array-index form
-     * (`gFileMgr.oparray[id>>24]`), a separate `idx` temp before the pointer add, and a K&R-style
-     * (non-ANSI-prototype) function definition to force an arg-save area -- ALL produced
-     * byte-IDENTICAL codegen (no effect). 🔴🔴 wave-22 PERMUTER EXPERIMENT (this fn = the fleet's
-     * chosen representative for the whole 6-fn phantom-frame family, run on the ALREADY-FOLDED
-     * (score-80) base): ~780 total iterations across 3 runs (10, 321, and a final 429-iteration
-     * run bounded to 5 min wall-clock, C-lane/CC1PSX, -j2), best score found = 80 in EVERY run,
-     * NEVER below 80, never 0 -- i.e. randomized mutation never once produced the oracle's extra
-     * `addiu sp,sp,-0x10`/`+0x10` pair (which brackets a function that touches NO stack slot at
-     * all -- 4 dead words, allocated and immediately deallocated, on a leaf with no spills). This
-     * is strong evidence for a genuine cc1/allocator floor, not a source-shape gap; do not re-grind
-     * this specific family with more agent-hours without a new hypothesis. FILE_opstatus has the exact same unexplained frame (same
-     * family; also see FILE_completeop/FILE_callbackop/FILE_priorityop/iFILE_addbigopencallback
-     * -- 6 nfile.c functions total). */
+    volatile int frame[3];
+    /* The volatile aggregate recovers the oracle's 16-byte leaf frame (14->13 diffs), while the
+     * direct field return remains better than caching `op`. GCC still sinks the otherwise unused
+     * allocation to the tail instead of placing it at entry, and keeps `id` in a0 instead of
+     * copying it to v1; those scheduling/coloring differences are the remaining floor. */
     return ((FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30))->error;
 }
 
@@ -244,14 +228,12 @@ extern int FILE_init(int handlecount, int memsize, int opcount)
  * 🆕 wave-21: switch case-body LAYOUT ORDER is load-bearing here -- the oracle's jump-table blocks
  * appear in .text as 2/9, 3/7/10, 6/8, 4/5 (result18 BEFORE result1C), not the "natural" ascending
  * 2/9,3/7/10,4/5,6/8 order; the case labels below are ordered to match (verified: the two `lw
- * s0,24/28(...)` loads now land in the oracle's exact sequence). 🔴 RESIDUAL FLOOR (39 diffs,
- * unchanged by the reorder -- confirms it as a real-but-masked win, not a regression): same
- * unexplained 16-byte-extra stack-frame family as FILE_opstatus/operror/callbackop/priorityop
- * (24 vs oracle's 40 bytes) PLUS the op-pointer lands in $a0 here vs the oracle's $a1 (a
- * pre-existing, unrelated coloring pick) -- both floors investigated across 2 waves now on the
- * sibling fns, not cracked; accept. */
+ * s0,24/28(...)` loads now land in the oracle's exact sequence). The volatile four-word pad
+ * recovers the 40-byte frame and cuts the residual 39->27; the remaining mismatch is centered on
+ * op-pointer/register coloring plus the oracle's extra tail instruction. */
 extern int FILE_completeop(unsigned int id)
 {
+    volatile int frame[4];
     FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
     int result = 0;
     if (op->status == 1) {                  /* op finished */
@@ -270,22 +252,19 @@ extern int FILE_completeop(unsigned int id)
 }
 
 /* FILE_callbackop @0x800EBE4C : if the op has a (non-zero) status, store the callback and fire it
- *   immediately with (status, param), bracketed by the manager's pending-callback counter.  A status
+ *   immediately with (id, status, param), bracketed by the manager's pending-callback counter. A status
  *   of 0 (op not started/no result yet) does nothing. */
-/* 🔴 RESIDUAL FLOOR (28 diffs, investigated this wave): same unexplained 16-byte extra stack
- * frame as FILE_opstatus/FILE_operror/FILE_completeop/FILE_priorityop (24 vs oracle's 40 bytes,
- * the extra 16 bytes are never written to) -- see those functions' comments; not source-shapable
- * so far. Plus a genuine coloring tie-break: oracle moves `callback` into $a3 as literally its
- * FIRST instruction (before computing op's address) and keeps it there through the `jalr`; tried
- * capturing it into an early local first -- byte-identical codegen (no effect), reverted. Count
- * matches (32=32); pure allocator/toolchain floor. */
-extern void FILE_callbackop(unsigned int id, void (*callback)(int status, int param))
+/* MATCH work: the real callback ABI is (id,status,param), and the four-word pad recovers the
+ * oracle's 40-byte frame; together these cut 28->2 diffs. Only the equivalent `callback`->a3 copy
+ * scheduling remains (oracle places it at entry, ours in the status branch delay slot). */
+extern void FILE_callbackop(unsigned int id, void (*callback)(unsigned int id, int status, int param))
 {
+    volatile int frame[4];
     FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
     if (op->status != 0) {
-        op->callback = (void (*)(void))callback;   /* remember it on the op */
+        op->callback = (void (*)(void))callback;   /* delay-slot scheduling makes this unconditional */
         gFileMgr.cbpending++;
-        callback(op->status, op->param);
+        callback(id, op->status, op->param);
         gFileMgr.cbpending--;
     }
 }
@@ -454,6 +433,8 @@ extern int FILE_atomic(int (*fn)(int, int), int unused, int a3, int a4)
  *   ascending priority; the op is unlinked then reinserted before the first higher-priority op. */
 extern void FILE_priorityop(unsigned int id, int priority)
 {
+    /* The otherwise-unused pad recovers the oracle's 16-byte frame and improves 41->38 diffs. */
+    volatile int frame[3];
     FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
     int oldprio, sr;
     FileOp *prev, *node;
@@ -685,7 +666,7 @@ extern void iFILE_addbigreadcallback(unsigned int id, int status, int *node)
         rid = FILE_read((void *)(size_t)handle, 0x800,
                         (unsigned int)(size_t)((char *)newbuf + 0x800),
                         hdrsize - 0x800, prio, (unsigned int)(size_t)node);
-        FILE_callbackop(rid, (void (*)(int, int))iFILE_addbigreadcallback);
+        FILE_callbackop(rid, (void (*)(unsigned int, int, int))iFILE_addbigreadcallback);
     } else {                             /* header complete -> publish the device */
         node[3] = (int)(size_t)gFileMgr.devicelist;   /* node->next = old head */
         gFileMgr.devicelist = node;
@@ -698,6 +679,8 @@ extern void iFILE_addbigreadcallback(unsigned int id, int status, int *node)
  *   failure marks the command op error 4 and runs it.  `status`==1 means open succeeded. */
 extern void iFILE_addbigopencallback(unsigned int id, int status, int *node)
 {
+    /* An eight-byte pad aligns the saved-register area with the oracle (36->28 diffs). */
+    volatile int frame[2];
     FileOp *op   = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
     int     prio = op->prio;               /* +0x10 */
     int     handle = FILE_completeop(id);  /* open op result24 == the opened handle */
@@ -711,7 +694,7 @@ extern void iFILE_addbigopencallback(unsigned int id, int status, int *node)
         unsigned int rid = FILE_read((void *)(size_t)handle, 0,
                                      (unsigned int)node[0], 0x800,
                                      prio, (unsigned int)(size_t)node);
-        FILE_callbackop(rid, (void (*)(int, int))iFILE_addbigreadcallback);
+        FILE_callbackop(rid, (void (*)(unsigned int, int, int))iFILE_addbigreadcallback);
     }
 }
 
@@ -747,7 +730,7 @@ extern unsigned int FILE_addbig(char *name, unsigned int a1, unsigned int dataty
     node[0] = (int)(size_t)databuf;                /* node->databuf -- store sinks into FILE_open's delay slot */
     {
         unsigned int oid = FILE_open(name, 1, datatype, (unsigned int)(size_t)node);
-        FILE_callbackop(oid, (void (*)(int, int))iFILE_addbigopencallback);
+        FILE_callbackop(oid, (void (*)(unsigned int, int, int))iFILE_addbigopencallback);
     }
     return op->id;                                 /* asm: v0 = *op = op->id */
 }
@@ -761,28 +744,22 @@ extern unsigned int FILE_addbig(char *name, unsigned int a1, unsigned int dataty
  *   the head-removal case zeroes gFileMgr.devicelist rather than relinking node->next -- i.e. the routine
  *   effectively assumes the target archive is the head of the device list (BIG archives are torn down
  *   LIFO).  A not-found device dereferences null (matches the asm; never happens in practice).
- * 🔴 RESIDUAL FLOOR (14 diffs, investigated this wave): count matches (101=101) -- pure register
- * coloring. Oracle keeps `prev` in a callee-saved $s0 (materialized =0 early, in the same delay
- * slot as the busy-check branch, then reused as-is through the device-list walk) and `closeHandle`
- * in $s3 (recycled once the gFileDevice base pointer that lived there goes dead); ours colors
- * `prev`->the physical reg backing the unused 3rd param and `closeHandle`->$s0 instead. Tried
- * reordering the two locals' declarations (no effect, gcc's allocno priority is live-range-based
- * not decl-order for this pair). Not cracked by source reshaping; a permuter target (C-lane
- * eaclib module, needs the CC1PSX not CC1PLPSX compile path -- not run this wave). */
+ * MATCH: initializing `prev` before the reserveop call deliberately overlaps its lifetime with
+ * the saved third argument.  GCC then reuses that argument register for `prev` and, once the
+ * gFileMgr base dies, recycles its register for `closeHandle`, matching the retail allocation. */
 extern unsigned int FILE_delbig(int delHandle, unsigned int a2, unsigned int a3)
 {
+    int    *prev = 0;                               /* s0 after the saved a3 value dies */
     int    *node = (int *)gFileMgr.devicelist;      /* s1 */
     FileOp *op   = reserveop();                      /* s2 */
     int    *h    = (int *)gFileMgr.handlearray;      /* a1 */
     int     closeHandle;                             /* s3 */
-    int    *prev;                                    /* s0 (shares the dead a3-copy's reg) */
     int     i;
 
     op->param = (int)a3;                             /* +0x14 */
     op->prio  = (int)a2;                             /* +0x10 */
     op->id    = (op->id & 0xFF0FFFFFu) | 0xA00000u;  /* type nibble 0xA = del-big */
 
-    prev = 0;
     if (((int *)(size_t)(unsigned int)delHandle)[2] != 0)   /* delHandle+8 != 0 -> note busy */
         op->error = 1;
 
@@ -821,7 +798,7 @@ extern unsigned int FILE_delbig(int delHandle, unsigned int a2, unsigned int a3)
     {
         unsigned int cid = FILE_close((void *)(size_t)(unsigned int)closeHandle,
                                       a2, (unsigned int)(size_t)op);  /* close op param = this command op */
-        FILE_callbackop(cid, (void (*)(int, int))iFILE_delbigclosecallback);
+        FILE_callbackop(cid, (void (*)(unsigned int, int, int))iFILE_delbigclosecallback);
     }
     return op->id;
 }

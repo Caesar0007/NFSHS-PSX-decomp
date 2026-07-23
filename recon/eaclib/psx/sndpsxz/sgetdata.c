@@ -20,8 +20,9 @@ extern int iSNDgetdata(unsigned char *p, int n)
     }
     if (n == 1 && 0x7f < v)
         v = v - 0x100;
-    else if ((n == 2 && (i = -0x10000, 0x7fff < v)) ||
-             (n == 3 && (i = -0x1000000, 0x7fffff < v)))
-        v = v + i;
+    else if (n == 2 && 0x7fff < v)
+        v = v - 0x10000;
+    else if (n == 3 && 0x7fffff < v)
+        v = v - 0x1000000;
     return v;
 }

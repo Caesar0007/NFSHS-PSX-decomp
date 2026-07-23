@@ -70,90 +70,102 @@ extern void iSNDserver(void)
  *   and pitch sweep, recomputing SPU pitch/volume (and stopping voices whose sweep table runs out). */
 extern void iSND100hzserver(void)
 {
-    int          *clientp = sndgs;
-    int           i, voice, chanIdx;
+    int *g;
+    int i;
+    int chanIdx;
+    int *channelBase;
+    int *globalBase;
     unsigned int *p;
-    int           dirty;
-    unsigned int  dv, cur, tgt, sw;
-    int           keep, num;
-    char          ti;
-    unsigned int *tbl;
-    unsigned char ph;
+    int dirty;
 
-    sndgs[0x11] = sndgs[0x11] + 1;
-    iSNDserve();
+    g = sndgs;
+    *(volatile int *)(g + 0x11) = *(volatile int *)(g + 0x11) + 1;
     i = 0;
-    if (0 < GB(0x40)) {                        /* run the 100 Hz client callbacks */
+    iSNDserve();
+    if (0 < *(signed char *)((char *)g + 0x40)) { /* run the 100 Hz client callbacks */
+        int *clientBase = g;
         do {
-            int *cb = clientp + 0x13;
-            clientp = clientp + 1;
-            (*(void (*)(void))*cb)();
+            (*(void (*)(void))g[0x13])();
+            g++;
             i++;
-        } while (i < (int)GB(0x40));
+        } while (i < (int)*(signed char *)((char *)clientBase + 0x40));
     }
 
-    voice = 0;
-    if (GUB(0x11) != 0) {                       /* over every channel */
-        chanIdx = 0;
+    channelBase = sndgs;
+    i = 0;
+    if (*(unsigned char *)((char *)channelBase + 0x11) != 0) { /* over every channel */
+        globalBase = channelBase;
+        chanIdx = i;
         do {
-            p = (unsigned int *)(sndgs[0x25] + chanIdx);
-            if (*(char *)((int)p + 0xb) == 1 && -1 < (int)*p) {     /* held, valid tag */
+            p = (unsigned int *)(globalBase[0x25] + chanIdx);
+            if (*(signed char *)((int)p + 0xb) == 1 && -1 < (int)*p) { /* held, valid tag */
                 if (p[0x15] != 0) {                                 /* pitch LFO active */
-                    ph = *(char *)((int)p + 0x3b) + 1;
-                    *(unsigned char *)((int)p + 0x3b) = ph;
-                    if (*(unsigned char *)((int)p + 0x39) <= ph)
+                    unsigned char phase = *(unsigned char *)((int)p + 0x3b) + 1;
+                    *(unsigned char *)((int)p + 0x3b) = phase;
+                    if (*(unsigned char *)((int)p + 0x39) <= phase)
                         *(unsigned char *)((int)p + 0x3b) = 0;
                     *(short *)((int)p + 0x5e) = 0;
-                    iSNDcalcpitch(voice);
-                    iSNDplatformpitch(voice, (int)(unsigned)*(unsigned short *)((int)p + 0x62));
+                    iSNDcalcpitch(i);
+                    iSNDplatformpitch(i, (int)(unsigned)*(unsigned short *)((int)p + 0x62));
                 }
                 dirty = 0;
                 if (p[0x14] != 0) {                                 /* velocity envelope active */
+                    unsigned char phase;
                     dirty = 1;
-                    ph = *(char *)((int)p + 0x3a) + 1;
-                    *(unsigned char *)((int)p + 0x3a) = ph;
-                    if ((unsigned char)p[0xe] <= ph)
+                    phase = *(unsigned char *)((int)p + 0x3a) + 1;
+                    *(unsigned char *)((int)p + 0x3a) = phase;
+                    if (*(unsigned char *)((int)p + 0x38) <= phase)
                         *(unsigned char *)((int)p + 0x3a) = 0;
                 }
-                dv = p[5];                                          /* portamento step */
-                if (dv != 0) {
-                    dirty = 1;
-                    cur = p[7] + dv;
-                    p[7] = cur;
-                    tgt = p[6];
-                    keep = ((int)dv < 0) ? ((int)tgt < (int)cur) : ((int)cur < (int)tgt);
-                    if (!keep) { p[7] = tgt; p[5] = 0; }
+                {
+                    unsigned int delta = p[5];                        /* portamento step */
+                    if (delta != 0) {
+                        unsigned int position;
+                        int sign;
+                        dirty = 1;
+                        sign = (int)delta;
+                        position = p[7] + delta;
+                        delta = position;
+                        p[7] = position;
+                        if (sign < 0) {
+                            if (!((int)p[6] < (int)delta)) {
+                                p[7] = p[6];
+                                p[5] = 0;
+                            }
+                        } else if (!((int)delta < (int)p[6])) {
+                            p[7] = p[6];
+                            p[5] = 0;
+                        }
+                    }
                     if ((int)p[7] < 0) { SNDstop(*p); goto next_chan; }
                 }
                 /* portamento done -> pitch sweep */
                 if (p[8] != 0) { dirty = 1; p[9] = p[9] + p[8]; }
-                sw = p[10];
-                if (sw == 0) {                                      /* advance to next sweep segment */
-                    ti = *(char *)((int)p + 0x31) + 1;
-                    *(char *)((int)p + 0x31) = ti;
-                    if ((int)(char)p[0xc] <= (int)ti) { SNDstop(*p); goto next_chan; }
-                    tbl = (unsigned int *)(p[0x10] + ti * 8);
-                    sw = tbl[0];
-                    p[10] = sw;
-                    if ((int)sw < 0) p[10] = 0x7fffffff;
-                    sw = p[10];
-                    num = tbl[1] * 0x10000 - p[9];
-                    if (sw == 0) trap(0x1c00);
-                    if (sw == 0xffffffff && num == (int)0x80000000) trap(0x1800);
-                    p[8] = num / (int)sw;
-                    sw = p[10];
+                if (p[10] == 0) {                                   /* advance to next sweep segment */
+                    signed char index = *(unsigned char *)((int)p + 0x31) + 1;
+                    *(unsigned char *)((int)p + 0x31) = index;
+                    if (!(index < *(signed char *)((int)p + 0x30))) {
+                        SNDstop(*p);
+                        goto next_chan;
+                    } else {
+                        int *table = (int *)(p[0x10] + index * 8);
+                        p[10] = table[0];
+                        if ((int)p[10] < 0)
+                            p[10] = 0x7fffffff;
+                        p[8] = (table[1] * 0x10000 - (int)p[9]) / (int)p[10];
+                    }
                 }
-                p[10] = sw - 1;
+                p[10] = p[10] - 1;
                 if (dirty) {
-                    iSNDcalcvol(voice);
+                    iSNDcalcvol(i);
                     if (-1 < (int)*p)
-                        iSNDvol(voice, (int)*(char *)((int)p + 0x2d));
+                        iSNDvol(i, (int)*(signed char *)((int)p + 0x2d));
                 }
             }
 next_chan:
             chanIdx += 100;
-            voice++;
-        } while (voice < (int)(unsigned)GUB(0x11));
+            i++;
+        } while (i < (int)(unsigned)*(unsigned char *)((char *)globalBase + 0x11));
     }
 }
 
@@ -170,11 +182,13 @@ extern void iSNDenteraudio(void)
 extern void iSNDleaveaudio(void)
 {
     char *g = (char *)sndgs;      /* held across the call (oracle: callee-saved $s0) */
-    g[0x3f] = g[0x3f] - 1;
+    *(volatile unsigned char *)(g + 0x3f) =
+        *(volatile unsigned char *)(g + 0x3f) - 1;
     SNDI_mutexunlock();
-    if (g[0x3f] == 0) {
-        while (*(short *)(g + 0xB2) != 0) {
-            *(short *)(g + 0xB2) = *(short *)(g + 0xB2) - 1;
+    if (*(volatile unsigned char *)(g + 0x3f) == 0) {
+        while (*(volatile unsigned short *)(g + 0xB2) != 0) {
+            *(volatile unsigned short *)(g + 0xB2) =
+                *(volatile unsigned short *)(g + 0xB2) - 1;
             iSNDserver();
         }
     }
@@ -197,27 +211,34 @@ extern short *iSNDserveradd100hzclient(int cb)
 }
 
 /* iSNDserverremove100hzclient @0x800EA620 : unregister a 100 Hz callback, compacting the client list. */
-extern int iSNDserverremove100hzclient(int cb)
+extern void iSNDserverremove100hzclient(int cb)
 {
-    int i = 0, off = 0;
-    int more;
-    if (0 < (int)GB(0x40)) {
-        off = 0;
-        while (*(int *)((int)sndgs + off + 0x4c) != cb) {     /* find the callback slot */
+    int i;
+    int j;
+    char *base;
+    char *p;
+
+    p = (char *)sndgs;
+    if (*(signed char *)(p + 0x40) <= 0)
+        return;
+    i = 0;
+    base = p;
+findloop:
+    if (*(int *)(base + i * 4 + 0x4c) == cb) {
+        *(char *)(base + 0x40) = *(char *)(base + 0x40) - 1;
+        if (i < *(signed char *)(base + 0x40)) {
+shiftloop:
+            j = i * 4;
             i++;
-            off = i * 4;
-            if (GB(0x40) <= i)
-                return off;                                   /* not found */
+            *(int *)(base + j + 0x4c) = *(int *)(base + i * 4 + 0x4c);
+            if (i < *(signed char *)(base + 0x40))
+                goto shiftloop;
         }
-        GB(0x40) = GB(0x40) - 1;
-        more = (i < (int)GB(0x40));
-        while (off = 0, more) {                               /* compact the tail down one slot */
-            sndgs[i + 0x13] = sndgs[i + 0x14];
-            more = (i + 1 < (int)GB(0x40));
-            i++;
-        }
+        return;
     }
-    return off;
+    i++;
+    if (i < *(signed char *)(base + 0x40))
+        goto findloop;
 }
 
 /* owning-TU def (link-harness) */

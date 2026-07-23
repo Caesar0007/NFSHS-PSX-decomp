@@ -11,19 +11,18 @@
 extern "C" int iSNDunsafevol(int handle, int vol)   /* @0x800E69D0 */
 {
     int chan = iSNDgetchan(handle);
+    int iter;
+    int level;
+    SndState *state;
     if (chan < 0)
-        return chan;
-    int iter = -1;
-    int level = vol << 16;
-    /* near-miss floor (3 diffs, was 5 -- 2 were a genuine `break`-vs-`return 0` bug, now fixed):
-     * RESIDUAL: oracle fills the `bltz s2` early-exit delay slot with `iter=-1`, then computes
-     * `level=vol<<16` later (after the sndgs base lui/addiu); our gcc -O2 picks the opposite
-     * independent value for that same delay slot (`level` early, `iter=-1` as a plain li after).
-     * Pure gcc instruction-scheduling choice of which ready value fills the slot -- swapping
-     * declaration/assignment order, splitting decl from init, and re-declaring level after iter
-     * all reproduce the identical schedule; not source-reachable. Permuter candidate. */
+        goto done;
+    iter = -1;
+    state = SND;
+    level = vol << 16;
+    /* MATCH: the shared `done` return and explicit state-base local keep the early-exit delay slot,
+     * voice-table base, and level calculation in the oracle's order. */
     while (iSNDpatchkey(chan, &iter)) {
-        SndVoice *v = &SND->voices[iter];
+        SndVoice *v = &state->voices[iter];
         if (v->f1C == level)
             return 0;                       /* already this level -> done (Ghidra: explicit `return 0;`,
                                               * NOT a break-to-shared-tail -- oracle's beq delay slot sets
@@ -33,6 +32,7 @@ extern "C" int iSNDunsafevol(int handle, int vol)   /* @0x800E69D0 */
         iSNDcalcvol(iter);
         iSNDvol(iter, v->vol_l);
     }
+done:
     return chan;
 }
 

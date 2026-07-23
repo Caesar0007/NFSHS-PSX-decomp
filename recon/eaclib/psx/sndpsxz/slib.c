@@ -1,4 +1,4 @@
-/* eaclib/psx/sndpsxz/slib.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 5/5 ***
+/* eaclib/psx/sndpsxz/slib.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 1/5 PASS ***
  *   Source obj : nfs4\eaclib\psx\slib.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   5 fns @[0x800FF5A8 .. 0x800FFAF4].  The PSX SPU sound-system: boot init (iSNDinit), teardown
  *   (iSNDrestore), the per-frame voice driver (iSNDserve), and the output-format caps/apply.
@@ -16,9 +16,8 @@ extern int            sndgs[];
 extern unsigned char  sndpd[];              /* voice/queue state base @0x80147918 (unsized array: forces
                                               * base+offset addressing instead of folding &sndpd+const into
                                               * one absolute %lo load -- see sdpacket.c/spatkey.c precedent) */
-extern unsigned char  snd_old_chan_mode;    /* last applied channel-mode byte     */
-unsigned char snd_old_chan_mode;  /* def (owning TU; BSS) */
 #define DAT_80147919 (sndpd[1])              /* pre-load guard == sndpd+1 */
+#define snd_old_chan_mode (sndpd[2])         /* last applied channel-mode byte */
 #define DAT_8014791c (*(int *)(sndpd + 4))   /* current fx mode == sndpd+4 */
 extern unsigned char  sndpdsafeloop;        /* DMA scratch RAM (zeroed) @0x80136DF0, per configs/symbol_addrs.txt
                                               * (oracle references this real symbol name directly, not a bare VA) */
@@ -102,11 +101,11 @@ extern unsigned int iSNDpsxkeyon(int mask);                   /* spatkey */
 extern int          iSNDpsxkeyoff(int mask);                  /* spatkey */
 extern unsigned int iSNDsetvol(int chan, int left, int right);/* spatkey */
 extern unsigned int iSNDstartvoice(unsigned int chan);       /* spatkey */
-extern int          iSNDfreechan(int chan);                  /* salloc  */
+extern void         iSNDfreechan(int chan);                  /* salloc  */
 extern unsigned int iSNDpsxfxinit(int mode);                 /* sdfx    */
 extern void         iSNDserver(void);                        /* sserver */
 extern void         iSNDleaveaudio(void);                    /* sserver */
-extern int          iSNDdmqueue(int ram, unsigned int spu, int len, unsigned char prio, unsigned char flag); /* sdma */
+extern int          iSNDdmqueue(int ram, unsigned int spu, int len, int prio, int flag); /* sdma */
 extern int          DMACallback(int ch, int func);            /* libetc INTR.obj @0x800F28AC -- Ghidra/our
                                                                 * previous decl dropped BOTH real args (channel,
                                                                 * new-callback-fn); see cdcont.cpp/SYS.cpp for
@@ -119,9 +118,9 @@ extern void         SNDSYS_service(void);                    /* ssysserv */
 extern void         SNDSYS_restore(void);                    /* ssysinit (exit handler) */
 
 extern int  iSNDplatformoutputcaps(void);   /* @0x800FF5A8 -- oracle explicitly zeroes $v0 before return */
-extern void iSNDplatformoutputset(void);    /* @0x800FF600 */
-extern void iSNDinit(void);                 /* @0x800FF700 */
-extern void iSNDrestore(void);              /* @0x800FF9A0 */
+extern int  iSNDplatformoutputset(void);    /* @0x800FF600 */
+extern int  iSNDinit(void);                 /* @0x800FF700 */
+extern int  iSNDrestore(void);              /* @0x800FF9A0 */
 extern void iSNDserve(void);                /* @0x800FFAF4 */
 
 #define SCB(i) (((char *)sndgs)[i])
@@ -153,7 +152,7 @@ extern int iSNDplatformoutputcaps(void)
 
 /* iSNDplatformoutputset @0x800FF600 : apply the requested output channel count (clamped to caps), and if the
  *   mode changed while audio is up, re-push every playing voice's L/R volume. */
-extern void iSNDplatformoutputset(void)
+extern int iSNDplatformoutputset(void)
 {
     unsigned char *base;    /* &sndgs, CALLER-saved live range (pre-loop field checks only) --
                               * matches iSNDplatformoutputcaps' PASSing lever; SCB(0x11)=0x18 as
@@ -162,11 +161,7 @@ extern void iSNDplatformoutputset(void)
                               * a shifted base), so the reads are ordered BEFORE the 0x11 write to
                               * anchor at offset 0 instead (POSITIVE displacements) -- see
                               * wave-20/wave-21 notes */
-    unsigned char *vbase;    /* a SEPARATE copy of base, used only inside the loop (its only job
-                               * is the 0x11 re-read for the loop bound) -- forces THIS copy into a
-                               * callee-saved reg to survive the iSNDsetvol call, while `base` above
-                               * dies before the loop and can stay caller-saved (matches the
-                               * oracle's a0-then-s2 two-register split) */
+    unsigned char *vbase;
     unsigned char *vp;       /* WALKING &sndpd+0xd8 pointer (voice-table row base), +=0x2c per
                                * iter -- matches iSNDserve's established `vp = &DAT_801479f0 + vt`
                                * lever: keeps the 4 field accesses (0x1c/0x21/0x24/0x25) as load
@@ -174,8 +169,8 @@ extern void iSNDplatformoutputset(void)
                                * &DAT_80147a0x constant bases */
     int chan;
     base = (unsigned char *)sndgs;
-    if (base[0x10] < base[4])   base[0x10] = base[4];
     base[0x11] = 0x18;
+    if (base[0x10] < base[4])   base[0x10] = base[4];
     if (base[5] < base[0x10])   base[0x10] = base[5];
     if (*(signed char *)(base + 0x3c) != 0 && snd_old_chan_mode != base[0x10]) {  /* oracle: lb v0,0x3C(a0)
                                                                                     * -- offset 0xf was wrong;
@@ -188,8 +183,13 @@ extern void iSNDplatformoutputset(void)
         chan = 0;
         vp = &DAT_801479f0;
         do {
-            if (vp[0x1c] == 2 && vp[0x21] == 0)
-                iSNDsetvol(chan, (int)(signed char)vp[0x24], (int)(signed char)vp[0x25]);
+            if (*(volatile unsigned char *)(vp + 0x1c) == 2) {
+                if (*(volatile unsigned char *)(vp + 0x21) == 0) {
+                    iSNDsetvol(chan,
+                        ((int)*(volatile unsigned char *)(vp + 0x24) << 24) >> 24,
+                        ((int)*(volatile unsigned char *)(vp + 0x25) << 24) >> 24);
+                }
+            }
             chan++;
             vp += 0x2c;
         } while (chan < (int)(unsigned)vbase[0x11]);
@@ -198,12 +198,13 @@ extern void iSNDplatformoutputset(void)
                                        * this via its own %hi/%lo AFTER the epilogue register
                                        * restores, so `base`'s live range must END at the if-check
                                        * above, not extend across the loop/call to here */
+    return 0;
 }
 
 /* iSNDinit @0x800FF700 : bring up the SPU -- enable DMA4, zero the SPU voice/main/CD/ext volumes, latch the
  *   DMA + SPU register addresses, key-off all voices, set master volume, apply the fx preset, and install
  *   the audio timer + exit handler. */
-extern void iSNDinit(void)
+extern int iSNDinit(void)
 {
     unsigned int sr = rd_sr();
     int i;
@@ -276,12 +277,19 @@ extern void iSNDinit(void)
         addexit((int)SNDSYS_restore);
         sndpd[0] = 1;
     }
+    return 0;
 }
 
 /* iSNDrestore @0x800FF9A0 : tear the SPU back down -- unwind the audio lock, let all voices fade past their
  *   release, drop the audio timer, clear the fx, and re-arm the DMA callback. */
-extern void iSNDrestore(void)
+extern int iSNDrestore(void)
 {
+    struct RestoreVoice {
+        unsigned char pad[0xf5];
+        unsigned char active;
+    };
+    unsigned char *guard;
+    unsigned char *gpraw;
     unsigned char *gp;       /* &sndgs, INDEPENDENTLY re-materialized for the rest of the fn --
                                * shared for BOTH the 0x11 channel-count byte AND the 0x44 ticks
                                * int (oracle keeps ONE base reg (s3) for both instead of
@@ -292,45 +300,53 @@ extern void iSNDrestore(void)
                                * persistent reg (s5) separate from the per-iter walker, so the
                                * walker resets from a plain base + the 0xf5 field stays a load
                                * DISPLACEMENT instead of folding &sndpd+0xf5 into one constant */
-    unsigned char *vp;       /* WALKING sndpd pointer (reset from base each outer pass, +=0x2c
+    struct RestoreVoice *vp; /* WALKING sndpd pointer (reset from base each outer pass, +=0x2c
                                * per inner iter) */
     int          quiet;
     int          chan;
     unsigned int deadline;
     unsigned int sr;
+    int          dma;
 
-    while (SCB(0x3f) != 0)
-        iSNDleaveaudio();
-    gp = (unsigned char *)sndgs;
+    guard = (unsigned char *)sndgs;
+    if (guard[0x3f] != 0) {
+        unsigned char *waitBase = guard;
+        do {
+            iSNDleaveaudio();
+        } while (waitBase[0x3f] != 0);
+    }
+    gpraw = (unsigned char *)sndgs;
+    gp = gpraw;
     deadline = *(unsigned int *)(gp + 0x44) + 100;
     base = sndpd;
     do {
         quiet = 1;
+        vp = (struct RestoreVoice *)base;
         chan = 0;
         if (gp[0x11] != 0) {
-            vp = base;
             do {
-                if (vp[0xf5] != 0) {     /* voice still active */
-                    quiet = 0;
+                if (*(volatile unsigned char *)((unsigned char *)vp + 0xf5) != 0) { /* voice still active */
                     if (deadline < *(unsigned int *)(gp + 0x44)) {
                         iSNDpsxkeyoff(0xffffff);
-                        vp[0xf5] = 0;
+                        *(volatile unsigned char *)((unsigned char *)vp + 0xf5) = 0;
                         iSNDfreechan(chan);
                     }
+                    quiet = 0;
                 }
-                chan++;
-                vp += 0x2c;
-            } while (chan < (int)(unsigned)gp[0x11]);
+                vp = (struct RestoreVoice *)((unsigned char *)vp + 0x2c);
+            } while ((int)(unsigned)gp[0x11] > ++chan);
         }
         SNDSYS_service();
     } while (!quiet);
     deltimer((int)iSNDserver);
     iSNDpsxfxinit(0);
+    dma = 4;
     sr = rd_sr();
     wr_sr(sr & 0xfffffbfe);   /* oracle reads SR ONCE (mfc0 s0) and reuses it for both the mask
                                 * and the later restore -- rd_sr() called twice emits a 2nd mfc0 */
-    DMACallback(4, 0);        /* detach the DMA4 callback (teardown) */
+    DMACallback(dma, 0);      /* detach the DMA4 callback (teardown) */
     wr_sr(sr);
+    return 0;
 }
 
 /* iSNDserve @0x800FFAF4 : the per-frame SPU voice driver -- run the user serve hook, advance every voice's
@@ -338,10 +354,11 @@ extern void iSNDrestore(void)
  *   newly-armed voices.  Batches the SPU key-on/key-off masks for a single hardware poke. */
 extern void iSNDserve(void)
 {
-    unsigned int koff = 0;     /* local_30 : key-off mask deferred until DMA settles */
-    unsigned int kon = 0;      /* mask     : key-on mask */
+    unsigned int koff;         /* local_30 : key-off mask deferred until DMA settles */
+    unsigned int kon;          /* mask     : key-on mask */
     int          chan, vt, n;
     unsigned char *vp;
+    unsigned char *base;
     unsigned char *fpbase;    /* &sndpd, materialized ONCE right before the loop and kept LIVE across
                                 * the whole loop (matches iSNDinit/iSNDrestore's persistent-base lever,
                                 * oracle reg $fp) -- every plain sndpd-relative field access that is
@@ -349,64 +366,69 @@ extern void iSNDserve(void)
                                 * dereference @+0x510, and the linked-voice-done probe @+0xF5+cvt) goes
                                 * through this cached base instead of re-materializing sndpd's own
                                 * %hi/%lo every time. */
-    short        *vreg;
+    unsigned short *vreg;
 
-    if (snd_user_serve_hook != 0)
-        (*(void (*)(void))snd_user_serve_hook)();
+    *(volatile unsigned int *)&koff = 0;
+    base = sndpd;
+    kon = 0;
+    if (*(int *)(base + 0x720) != 0)
+        (*(void (*)(void))*(int *)(base + 0x720))();
 
     chan = 0;
-    if (SUB(0x11) != 0) {
-        vt = 0;
-        fpbase = sndpd;
+    if (chan < (int)(unsigned int)SUB(0x11)) {
+        fpbase = base;
+        vt = chan;
         do {
-            short *vreg0;    /* split-temp: computed then copied into `vreg` -- a permuter basin find
+            unsigned short *vreg0; /* split-temp: computed then copied into `vreg` -- a permuter basin find
                                * that shaved one more insn off the register-coloring residual */
             vp   = &DAT_801479f0 + vt;
-            vreg0 = (short *)(*(int *)(fpbase + 0x510) + chan * 0x10);
+            vreg0 = (unsigned short *)(*(int *)(fpbase + 0x510) + chan * 0x10);
             vreg = vreg0;
-            if (vp[0x1d] == 2) {                                     /* voice stopping */
-                if (vreg[6] == 0) {                                  /* SPU ADSR reached 0 */
+            if (*(volatile unsigned char *)(vp + 0x1d) == 2) {       /* voice stopping */
+                if (vreg[6] != 0) {
+                    vp[0x26] = 1;
+                } else {                                             /* SPU ADSR reached 0 */
                     if (vp[0x26] != 0 && vp[0x21] == 0 &&
                         (int)((unsigned)vp[0x27] << 0x18) < 0) {
                         n = (int)(unsigned)vp[0x1f];
                         do {
                             int c = chan, cvt = vt;
-                            short *vreg2;   /* the inner cleanup's OWN vreg -- never touches the outer
-                                             * `vreg` (oracle: this whole loop derives its SPU-reg
-                                             * pointer fresh off $fp each pass; the outer loop's $s4
-                                             * stays untouched so it can be reused after the loop) */
-                            if (n == 2) { c = (signed char)vp[0x20]; cvt = (char)vp[0x20] * 0x2c; }
+                            if (n == 2) {
+                                c = (int)((unsigned int)*(volatile unsigned char *)(vp + 0x20) << 24) >> 24;
+                                cvt = ((int)((unsigned int)*(volatile unsigned char *)(vp + 0x20) << 24) >> 24) * 0x2c;
+                            }
                             vp = &DAT_801479f0 + cvt;
                             vp[0x1d] = 0;
                             vp[0x1c] = 0;
-                            n--;
                             iSNDfreechan(c);
-                            vreg2 = (short *)(c * 0x10 + *(int *)(fpbase + 0x510));
-                            vreg2[3] = 0x200;                /* ADSR -> 0, then key-on to force silence */
+                            n--;
+                            *(unsigned short *)(c * 0x10 + *(int *)(fpbase + 0x510) + 6) = 0x200;
                             kon = kon | (1u << c);
-                            vreg2[0] = 0;
-                            vreg2[1] = 0;
+                            *(unsigned short *)(c * 0x10 + *(int *)(fpbase + 0x510)) = 0;
+                            *(unsigned short *)(c * 0x10 + *(int *)(fpbase + 0x510) + 2) = 0;
                         } while (0 < n);
                     }
-                } else {
-                    vp[0x26] = 1;
                 }
                 if (vp[0x28] != 0) {                                 /* pitch dirty -> reprogram */
                     vreg[2] = (short)(*(unsigned int *)(vp + 8) / 0x1b9);
                     vp[0x28] = 0;
                 }
-                if (*(int *)(vp + 0x10) < 1) {                       /* advance play position */
-                    *(int *)(vp + 0xc) = *(int *)(vp + 0xc) + *(int *)(vp + 8);
-                    if (*(unsigned int *)(vp + 0x14) <= *(unsigned int *)(vp + 0xc)) {
-                        if ((int)((unsigned)vp[0x27] << 0x18) < 0)
-                            *(int *)(vp + 0xc) = *(int *)(vp + 0x14);
-                        else
-                            *(int *)(vp + 0xc) = *(int *)(vp + 0xc) - *(int *)(vp + 0x14);
-                    }
+                if (*(volatile int *)(vp + 0x10) > 0) {              /* advance play position */
+                    *(volatile int *)(vp + 0x10) = *(volatile int *)(vp + 0x10) -
+                                                   *(volatile int *)(vp + 8);
                 } else {
-                    *(int *)(vp + 0x10) = *(int *)(vp + 0x10) - *(int *)(vp + 8);
+                    *(volatile int *)(vp + 0xc) = *(volatile int *)(vp + 0xc) +
+                                                  *(volatile int *)(vp + 8);
+                    if (*(volatile unsigned int *)(vp + 0xc) >=
+                        *(volatile unsigned int *)(vp + 0x14)) {
+                        if ((int)((unsigned)vp[0x27] << 0x18) >= 0)
+                            *(volatile int *)(vp + 0xc) = *(volatile int *)(vp + 0xc) -
+                                                          *(volatile int *)(vp + 0x14);
+                        else
+                            *(volatile int *)(vp + 0xc) = *(volatile int *)(vp + 0x14);
+                    }
                 }
-            } else if (vp[0x1d] == 3) {                              /* voice fully stopped */
+            } else if (*(volatile unsigned char *)(vp + 0x1d) == 3) { /* voice fully stopped */
                 if (vreg[6] == 0) {
                     kon = kon | (1u << chan);               /* (Ghidra `mask`) */
                     vp[0x1d] = 0;
@@ -422,7 +444,9 @@ extern void iSNDserve(void)
              * cleanup ran, where it deliberately reads the LAST freed channel's row here; byte-exact
              * behavior, not a bug to "fix"). */
             if (vp[0x1c] == 1 && vp[0x1d] == 0 &&
-                ((unsigned char)vp[0x1f] < 2 || fpbase[0xf5 + (char)vp[0x20] * 0x2c] == 0)) {
+                ((unsigned char)vp[0x1f] < 2 ||
+                 fpbase[0xf5 +
+                    (((int)((unsigned int)vp[0x20] << 24) >> 24) * 0x2c)] == 0)) {
                 kon = kon | iSNDstartvoice(chan);                    /* arm newly-triggered voice */
             }
             chan++;

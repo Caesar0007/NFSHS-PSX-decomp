@@ -1,4 +1,4 @@
-/* eaclib/psx/sndpsxz/sdpacket.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 6/13 PASS
+/* eaclib/psx/sndpsxz/sdpacket.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 8/13 PASS
  *   (w20-a8 2026-07-19/20: getirq 76->39, setirq 31->10, purgeframes 85->15, serve 75->60,
  *   platformpacketplaycreate 55->0 PASS, psxpacketstop 42->18; residual = fillspuwithpackets 480,
  *   platformpacketplay 271, plus the above near-misses -- see commit log for per-fn detail)
@@ -92,14 +92,17 @@
  */
 
 extern int           sndgs[];
-extern int           sndpp;                 /* current-player IRQ cursor                 */
+/* Exact scalar byte symbol for sndgs+0x11, supplied by undefined_syms_auto.txt. */
+extern unsigned char D_80147871;
+extern int           sndpp[];               /* current-player IRQ cursor (one-int symbol; array view keeps
+                                              * the shared %hi base with %lo displacements) */
 extern unsigned char sndpd[];               /* EA sound-driver state base @0x80147918 (unsized array:
                                               * forces the oracle's `lui;addiu &sndpd; lw/sw r,0x4F8(base)`
                                               * base+offset shape for the per-player ctx ptr array, which
                                               * lives INSIDE the sndpd block at +0x4F8, not as its own
                                               * separately-materialized symbol -- see spatkey.c SNDPD_*) */
 #define DAT_80147e10 (((int *)sndpd)[0x4F8/4])   /* per-player ctx ptr array @0x80147e10 == sndpd+0x4F8 */
-extern int           DAT_80147e2c;          /* SPU control reg base (address) @0x80147e2c */
+#define SNDPD_CTRLREG (*(int *)(sndpd + 0x514))      /* SPU control reg base stored in sndpd */
 /* 🔴 BUG FIX + HEADER WISH: DAT_801234e4 was double-defined here AND in snddata.c (real dup-symbol
  * bug) as its own scalar -- but the oracle (iSNDplatformpacketplaycreate: `lui s0,%hi(sndpsxlimits);
  * lw a0,0x10(s0)`) proves it's really `sndpsxlimits[4]`, the 5th int of the sndpsxlimits block
@@ -162,7 +165,7 @@ extern unsigned int iSNDpacketfreeframes(int p, int idx, int bytes);   /* spktpl
                                                                           * (see spktplay.cpp) -- the oracle call
                                                                           * site sets up a0=p/a1=i/a2=taken. */
 extern void iSNDstreamhotroddatachunks(void);              /* sst */
-extern int  iSNDdmqueue(int dst_spu, unsigned int src_ram, int len, unsigned char prio, unsigned char flag);  /* sdma
+extern int  iSNDdmqueue(int dst_spu, unsigned int src_ram, int len, int prio, int flag);  /* sdma
                                                              * -- real 5-arg sig (see sdma.c): the fillspu
                                                              * DMA-kick call was a DROPPED-ARGS bug (1-arg
                                                              * called as if void(spuBuf)); oracle sets up
@@ -184,6 +187,17 @@ extern void iSNDpsxpacketstop(void *p);
 extern void iSNDpsxzerospu(int *addr, int len);
 
 #define VB(base,idx)  ((&(base))[idx])                 /* byte at base+idx        */
+
+struct SNDPDVoiceTableView {
+    unsigned char pad[0xd8];
+    unsigned char table[1];
+};
+
+struct SNDPDPacketPtrView {
+    unsigned char pad[0x4f8];
+    int ptr[1];
+};
+
 #define VI(base,idx)  (*(int *)(&(base) + (idx)))      /* int  at base+idx        */
 #define VH(base,idx)  (*(short *)(&(base) + (idx)))    /* short at base+idx       */
 #define VUH(base,idx) (*(unsigned short *)(&(base) + (idx)))
@@ -220,7 +234,7 @@ static inline void sdpacket_setirq_cs(void)
 extern void iSNDpacketgetirq(void)
 {
     unsigned char *base = sndpd;                    /* materialize the bare sndpd address ONCE (oracle $a3) */
-    unsigned char *slot = base + sndpp * 4;          /* runtime index first, fixed OFFSET as load displacement */
+    unsigned char *slot = base + sndpp[0] * 4;       /* runtime index first, fixed OFFSET as load displacement */
     int pp = *(int *)(slot + 0x4F8);                 /* DAT_80147e10[sndpp] */
     int note = (int)*(signed char *)(pp + 0x42);   /* plain char is UNSIGNED on this build -- lbu vs oracle lb */
     int vt, link;
@@ -283,20 +297,20 @@ extern void iSNDpacketsetirq(void)
     iSNDpsxdisablespuirq();
     base = sndpd;                        /* materialize the sndpd address AFTER the call (oracle: post-call $v0/$v1) */
     if (base[1] == 0) {                  /* DAT_80147919 == sndpd+1 */
-        /* MATCH: &sndpp materialized ONCE right before the loop (oracle: `lui a0,%hi(sndpp)` here,
+        /* MATCH: sndpp materialized ONCE right before the loop (oracle: `lui a0,%hi(sndpp)` here,
          * shared via %lo(sndpp)(a0) displacement addressing across every read/write below) -- a
          * bare `sndpp` global reference at each site instead makes GNU-as re-materialize a fresh
          * full address per access (self-temp read / $at-store), ~2x the instruction count. */
-        int *psndpp = &sndpp;
         unsigned char *pbase = base;   /* MATCH: oracle copies the checked base into a SECOND reg
                                          * (`addu a1,v1,zero`) right before the loop -- base is v1
                                          * for the early sndpd[1] check, pbase/a1 for the loop body. */
         do {
             unsigned char *slot;
-            *psndpp = *psndpp + 1;
-            if (0 < *(volatile int *)psndpp)
-                *psndpp = 0;                              /* single player -> wrap to 0 */
-            slot = pbase + *(volatile int *)psndpp * 4;     /* runtime index first, fixed OFFSET as displacement */
+            sndpp[0] = sndpp[0] + 1;
+            if (0 < *(volatile int *)sndpp)
+                sndpp[0] = 0;                              /* single player -> wrap to 0 */
+            slot = (unsigned char *)(*(volatile int *)sndpp * 4 + (int)pbase); /* integer-add order gives
+                                                                                * oracle `addu v0,v0,a1` */
             pp = *(int *)(slot + 0x4F8);                 /* DAT_80147e10[sndpp] */
             /* MATCH: single merged guard `pp!=0 && note>=0` with a `goto success` to a block placed
              * AFTER the loop (oracle: `beqz v1,.increment; lb; bgez v0,.success` -- the success code
@@ -310,7 +324,10 @@ extern void iSNDpacketsetirq(void)
         } while (i < 2);
         return;
 success:
-        *(short *)(DAT_80147e2c + 0x1a4) = (short)(*(int *)pp + 8 >> 3);
+        /* Volatile is required for the oracle's standalone store followed by the call's nop delay slot.
+         * Residual floor: 2 diffs, 56==56 insns -- our independent `move a1,v1` and `lui a0,sndpp`
+         * are scheduled in the opposite order. About 700 generic-permuter candidates found no lower basin. */
+        *(volatile short *)(SNDPD_CTRLREG + 0x1a4) = (short)(*(int *)pp + 8 >> 3);
         InterruptCallback(9, iSNDpacketirqcallback);   /* re-arm: 9 == SPU IRQ index, handler = self */
         iSNDpsxenablespuirq();
     }
@@ -346,23 +363,27 @@ extern void iSNDpsxzerospu(int *addr, int len)
  *   (Ghidra rendered as __thiscall(this,p,arg2): this=player, p=byteoff, arg2=count.) */
 extern unsigned int iSNDpacketpurgeframes(int p, unsigned int byteoff, int count)
 {
-    /* FLOOR (confirmed): tried the bare-base + LOAD-displacement form (`*(int*)(sndpd+p*4+0x4F8)`,
-     * matching iSNDpacketgetirq's style) hoping to reproduce the oracle's `lw s5,0x4F8(v0)` -- gcc
-     * folds the +0x4F8 into the base pointer's own materialization EITHER way (0 real diff), so this
-     * is the SAME address-fold floor already documented for the p=0-constant call sites in this file. */
-    int          pp = (&DAT_80147e10)[p];
+    /* MATCH (86/86): typed sndpd views preserve the split packet-pointer (+0x4f8) and voice-table
+     * (+0xd8, field +0x1f) addresses. Keeping the block product in `wrapped` selects the oracle's
+     * commutative multiply operand order and result register. */
+    int          pp = ((struct SNDPDPacketPtrView *)sndpd)->ptr[p];
     int          vt = *(signed char *)(pp + 0x42) * 0x2c;  /* BUG FIX: plain char is UNSIGNED on this
                                                              * build (lbu) -- oracle uses `lb` (signed). */
-    unsigned int blk, span, taken, wrapped;
+    unsigned int blk, q, span, taken, wrapped;
     unsigned short *fcnt;
+    unsigned char  *vte;
     int          i;
+
+    vte = ((struct SNDPDVoiceTableView *)(sndpd + vt))->table;
 
     do {
         blk = (unsigned)*(unsigned short *)(pp + 0x46);
-        span = (byteoff / blk + 1) * blk - byteoff;     /* bytes to next block boundary */
+        q = byteoff / blk;
+        wrapped = (q + 1) * blk;
+        span = wrapped - byteoff;                       /* bytes to next block boundary */
         if (count < (int)span)
             span = count;
-        fcnt = (unsigned short *)((byteoff / blk) * 2 + *(int *)(pp + 0x2c));
+        fcnt = (unsigned short *)(q * 2 + *(int *)(pp + 0x2c));
         taken = span;
         /* MATCH: read `*fcnt` directly at each use (no separately-named `n` local) -- oracle keeps
          * the raw `lhu` value in ONE register across both the compare and the later subtraction with
@@ -371,22 +392,19 @@ extern unsigned int iSNDpacketpurgeframes(int p, unsigned int byteoff, int count
         if (*fcnt < (int)span)
             taken = *fcnt;
         *fcnt = *fcnt - (unsigned short)taken;
-        if (taken != 0 && VB(DAT_80147a0f, vt) != 0) {
+        if (taken != 0) {
             i = 0;
-            do {
+            while (i < (int)(unsigned)(unsigned char)vte[0x1f]) {
                 iSNDpacketfreeframes(p, i, (int)taken);
                 i++;
-            } while (i < (int)(unsigned)(unsigned char)VB(DAT_80147a0f, vt));
+            }
         }
+        wrapped = *(unsigned int *)(pp + 0xc);
         byteoff = byteoff + span;
-        wrapped = (unsigned)(byteoff < *(unsigned int *)(pp + 0xc));
-        /* @0x80103B14-1C: count -= span AND byteoff = 0 happen ONLY in the wrapped==0 (byteoff>=limit)
-         * fall-through. The recon decremented count UNCONDITIONALLY, so the purge consumed `count` on
-         * every step instead of only on a buffer wrap (M07). */
-        if (wrapped == 0) {
-            count = count - span;
+        wrapped = (unsigned)(byteoff < wrapped);
+        count = count - span;
+        if (wrapped == 0)
             byteoff = 0;
-        }
     } while (0 < count);
     return wrapped;
 }
@@ -628,13 +646,17 @@ advance:
 extern void iSNDpacketserve(void)
 {
     int p;
+    unsigned char *base;
+    unsigned char *voices;
+    int wrapAdjust;
+
     iSNDstreamhotroddatachunks();
-    for (p = 0; p < 1; p++) {
-        /* NOTE: tried index-first `sndpd+p*4+0x4F8` to match the oracle's `sll;addu;lw,1272`
-         * shape (vs the macro's pre-combined-base form) -- gcc constant-propagates p=0 (just
-         * set by the loop init) through EITHER form identically, so it made no difference;
-         * reverted to the macro for clarity. Accept as a floor (single-iteration-loop CSE). */
-        int pp = (&DAT_80147e10)[p];
+    p = 0;
+    base = sndpd;
+    voices = base + 0xd8;
+    wrapAdjust = 0x90000000;
+    do {
+        int pp = *(int *)(base + p * 4 + 0x4f8);
         if (pp != 0 && *(signed char *)(pp + 0x42) >= 0) {
             int servePos = *(int *)(pp + 0x1c);
             /* MATCH: 0x1c000 == 4096*0x1c (28) -- mathematically `x/0x1c000` == `(x>>0xc)/0x1c` for the
@@ -644,30 +666,38 @@ extern void iSNDpacketserve(void)
              * emits). Empirically verified (isolated probe): the divisor after removing the power-of-2
              * factor is 28 (magic 0x92492493, shift 4), NOT 7 (same magic constant, but shift 2) -- the
              * `(unsigned)` cast on the shift is required to get `srl` (else `sra`, wrong opcode). */
-            int newPos = ((int)((unsigned)*(int *)(&DAT_801479fc + *(signed char *)(pp + 0x42) * 0x2c) >> 0xc) / 0x1c) * 0x1c;
-            unsigned int adv = (newPos < servePos) ? (unsigned)((newPos + *(int *)(pp + 0xc)) - servePos)
-                                                   : (unsigned)(newPos - servePos);
+            int newPos = (int)((unsigned)*(int *)(voices + *(signed char *)(pp + 0x42) * 0x2c + 0xc) >> 0xc);
+            unsigned int adv;
+
+            newPos = newPos / 0x1c;
+            newPos = newPos * 0x1c;
+            if (newPos < servePos)
+                goto wrapped_position;
+            adv = (unsigned)(newPos - servePos);
+            goto have_advance;
+wrapped_position:
+            adv = (unsigned)((newPos + *(int *)(pp + 0xc)) - servePos);
+have_advance:
             if (0x70ffffff < *(int *)(pp + 0x18)) {     /* keep the 64-bit-ish byte counters from overflowing */
-                *(int *)(pp + 0x18) -= 0x70000000;
-                *(int *)(pp + 0x14) -= 0x70000000;
+                *(int *)(pp + 0x18) += wrapAdjust;
+                *(int *)(pp + 0x14) += wrapAdjust;
             }
             *(int *)(pp + 0x18) += adv;
-            iSNDpacketpurgeframes(p, (unsigned)servePos, (int)adv);
-            /* @0x80104148-415C: *(pp+0x1c)=newPos (served-position advance) is stored ONLY when the
-             * buffer-level check passes (bufLevel < threshold), BEFORE the iSNDdmcomplete refill gate.
-             * The recon stored newPos UNCONDITIONALLY (before the check), advancing the served pos even
-             * when the buffer was full enough that no refill was due (M08). */
+            iSNDpacketpurgeframes(p, (unsigned)*(int *)(pp + 0x1c), (int)adv);
+            *(int *)(pp + 0x1c) = newPos;
             if (*(int *)(pp + 0x14) - *(int *)(pp + 0x18) < *(int *)(pp + 0x10)) {
-                *(int *)(pp + 0x1c) = newPos;
-                if (iSNDdmcomplete(*(int *)(pp + 0x20)) != 0) {
-                    unsigned int idx = (unsigned)*(unsigned short *)(pp + 0x3a) + 1;
+                if (iSNDdmcomplete(*(volatile int *)(pp + 0x20)) != 0) {
+                    int idx;
+                    idx = (int)*(unsigned short *)(pp + 0x3a);
+                    idx++;
                     if (*(unsigned short *)(pp + 0x38) <= idx)
                         idx -= *(unsigned short *)(pp + 0x38);
                     iSNDfillspuwithpackets(p, (int)idx);
                 }
             }
         }
-    }
+        p++;
+    } while (p <= 0);
 }
 
 /* iSNDplatformpacketoverhead @0x801041B8 : per-player SPU-context byte overhead (the malloc'd voice ctx
@@ -865,26 +895,32 @@ extern void iSNDpsxpacketstop(void *parg)
      * `lb` + separate `sll 2`, which is semantically identical but a different instruction sequence. */
     int vt4 = (int)((int)(*(unsigned char *)(p + 0x27)) << 24) >> 22;
     int pp = *(int *)(base + vt4 + 0x4F8);
-    int i, active = 0;
+    int active, i = 0;
     *(signed char *)(pp + 0x42) = -1;
-    *(signed char *)(p + 0x27)  = -1;
-    if (((unsigned char *)sndgs)[0x11] != 0) {           /* sndgs[4]._1_1_ = channel count */
+    *(signed char *)(p + 0x27) = -1;
+    active = i;
+    if (D_80147871 != 0) {                               /* sndgs[4]._1_1_ = channel count */
         /* MATCH: POINTER WALK (oracle: v1=base+0xFF, `addiu v1,v1,0x2C` in the loop-back branch's
          * delay slot every iter) not an index-multiply `i*0x2c` -- §3.12 #1 array-index-vs-pointer-
          * walk flip. */
         unsigned char *q;
-        int count = (int)(unsigned)((unsigned char *)sndgs)[0x11];
+        int count = (int)(unsigned)D_80147871;
         /* MATCH: q walks from `base` (not base+0xFF) and reads the byte at the FIXED +0xFF
          * displacement each iter (oracle: `lbu v0,0xFF(v1)` -- offset stays in the load, base
          * is bare); and the sign test is the raw `(byte<<24)>=0` shift-idiom (oracle: unsigned
          * `lbu` + `sll 24` + `bltz`), not a `(signed char)` cast (that folds to a direct `lb`). */
-        for (i = 0, q = base; i < count; i++, q += 0x2c)
+        q = base;
+        do {
             if ((int)(q[0xFF]) << 24 >= 0)   /* bit7 clear == still active */
                 active++;
+            i++;
+            q += 0x2c;
+        } while (i < count);
     }
     if (active == 0) {
-        HOOK_user_serve = 0;
-        HOOK_preload = (void *)iSNDpacketsetirq;
+        unsigned char *hooks = sndpd;
+        *(void **)(hooks + 0x720) = 0;
+        *(void **)(hooks + 0x728) = (void *)iSNDpacketsetirq;
     }
     sdpacket_setirq_cs();
 }

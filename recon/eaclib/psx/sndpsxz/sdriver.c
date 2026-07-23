@@ -1,4 +1,4 @@
-/* eaclib/psx/sndpsxz/sdriver.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 4/4 ***
+/* eaclib/psx/sndpsxz/sdriver.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 4/4 PASS ***
  *   Source obj : nfs4\eaclib\psx\sdriver.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   4 fns @[0x800FFE90 .. 0x801000F8].  The platform (PSX) sound-driver back-end: the four entry points
  *   the channel layer pokes to actually start/stop/pitch/volume a hardware voice.
@@ -33,12 +33,13 @@ extern unsigned char DAT_80147a14;     /* +0x24 L out cache            */
 extern unsigned char DAT_80147a15;     /* +0x25 R out cache            */
 extern unsigned char DAT_80147a17;     /* +0x27 voice-done flag (bit7) */
 extern unsigned char DAT_80147a18;     /* +0x28 pitch-dirty flag       */
+extern unsigned char sndpd[];          /* driver-state base; voice table starts at +0xd8 */
 
 /* "voice has finished" notifier installed by the host (@0x8014803C) */
 extern void (*snd_voice_done_hook)(void *voice);
 
 /* dependencies in sibling objs */
-extern int          iSNDfreechan(int chan);                       /* salloc  */
+extern void         iSNDfreechan(int chan);                       /* salloc  */
 extern int          iSNDpsxkeyoff(int mask);                      /* spatkey */
 extern unsigned int iSNDpsxeffecton(int mask);                    /* spatkey */
 extern unsigned int iSNDpsxeffectoff(int mask);                   /* spatkey */
@@ -54,39 +55,49 @@ extern int iSNDvol(int chan, int level);                          /* @0x801000F8
  *   key-off for the combined voice mask. */
 extern int iSNDstop(unsigned int chan)
 {
-    int          vt = (int)chan * 0x2c;
-    unsigned int mask, link;
+    int vt = (int)chan * 0x2c;
+    volatile unsigned char *base = sndpd + 0xd8;
+    volatile unsigned char *slot = base + vt;
+    unsigned int mask;
 
-    if (-1 < (int)((unsigned)(&DAT_80147a17)[vt] << 0x18))     /* voice-done bit clear -> notify */
-        (*snd_voice_done_hook)(&DAT_801479f0 + vt);
+    if (0 <= (int)((unsigned int)slot[0x27] << 24))            /* voice-done bit clear -> notify */
+        (*(void (**)(void *))(base + 0x64c))((void *)slot);
     iSNDfreechan((int)chan);
-    (&DAT_80147a0d)[vt] = 3;
-    (&DAT_80147a0c)[vt] = 0;
-    mask = 1u << (chan);
-    if (1 < (&DAT_80147a0f)[vt]) {                             /* linked pair -> stop the partner too */
-        link = (unsigned)(char)(&DAT_80147a10)[vt];
-        iSNDfreechan((int)link);
-        mask |= 1u << (link);
-        (&DAT_80147a0d)[link * 0x2c] = 3;
-        (&DAT_80147a0c)[link * 0x2c] = 0;
+    slot[0x1d] = 3;
+    slot[0x1c] = 0;
+    mask = 1u << chan;
+    if (1 < slot[0x1f]) {                                     /* linked pair -> stop the partner too */
+        chan = (int)(signed char)slot[0x20];
+        iSNDfreechan((int)chan);
+        slot = base + (int)chan * 0x2c;
+        mask |= 1u << chan;
+        slot[0x1d] = 3;
+        slot[0x1c] = 0;
     }
     iSNDpsxkeyoff((int)mask);
     return 0;
 }
 
 /* iSNDplatformpitch @0x800FFF94 : program a voice's hardware pitch from its base pitch * `pitch` multiplier
- *   (12.12), scaled by 0x1b9, mirrored to the linked partner. */
+ *   (12.12), scaled by 0x1b9, mirrored to the linked partner. MATCH (49/49): the voice table is
+ *   sndpd+0xd8; spelling the 0x2c stride as 0xb then <<2 preserves the oracle's scheduling. */
 extern int iSNDplatformpitch(int chan, int pitch)
 {
-    int vt = chan * 0x2c;
+    int vt = chan * 0xb;
+    unsigned char *slot;
 
-    (&DAT_801479f8)[chan * 0xb] =
-        ((int)((unsigned)*(unsigned short *)(&DAT_80147a0a + vt) * pitch) >> 0xc) * 0x1b9;
-    (&DAT_80147a18)[vt] = 1;
-    if ((&DAT_80147a0f)[vt] == 2) {                            /* linked pair shares the pitch */
-        int link = (char)(&DAT_80147a10)[vt];
-        (&DAT_801479f8)[link * 0xb] = (&DAT_801479f8)[chan * 0xb];
-        (&DAT_80147a18)[link * 0x2c] = 1;
+    vt <<= 2;
+    chan = (int)(sndpd + 0xd8);
+    slot = (unsigned char *)(chan + vt);
+
+    *(volatile int *)(slot + 8) =
+        ((int)((unsigned)*(unsigned short *)(slot + 0x1a) * pitch) >> 0xc) * 0x1b9;
+    *(volatile unsigned char *)(slot + 0x28) = 1;
+    if (*(volatile unsigned char *)(slot + 0x1f) == 2) {      /* linked pair shares the pitch */
+        chan -= 0xd8;
+        *(int *)(chan + (int)*(volatile signed char *)(slot + 0x20) * 0x2c + 0xe0) =
+            *(int *)(slot + 8);
+        *(unsigned char *)(chan + (int)*(volatile signed char *)(slot + 0x20) * 0x2c + 0x100) = 1;
     }
     return 0;
 }
@@ -94,24 +105,27 @@ extern int iSNDplatformpitch(int chan, int pitch)
 /* iSNDplatformfxlevel @0x80100058 : set/queue a voice's reverb (effect) routing.  While playing, builds the
  *   voice mask (+ linked partner) and turns the SPU echo on/off; otherwise just caches the level.
  *   `fxon` == 0 disables reverb, non-zero enables.  3-arg (chan,bus,fxon): `bus` is unused (the binary
- *   overwrites $a1 with the playstate), `fxon` is $a2 -- matches SNDfxlevel's iSNDplatformfxlevel(voice,bus,fxArg). */
+ *   overwrites $a1 with the playstate), `fxon` is $a2 -- matches SNDfxlevel's iSNDplatformfxlevel(voice,bus,fxArg).
+ *   MATCH: the slot is async/volatile signed-byte storage; casting playstate to unsigned char produces the
+ *   oracle's lbu+nop+andi sequence, and `if (fxon)` preserves its effect-on/effect-off block order. */
 extern int iSNDplatformfxlevel(unsigned int chan, int bus, int fxon)
 {
     int          vt = (int)chan * 0x2c;
+    volatile signed char *slot = (volatile signed char *)&DAT_801479f0 + vt;
     unsigned int mask;
-    (void)bus;        /* 3-arg per IDA/disasm (a1=bus is overwritten by the playstate read); fxon is a2 */
+    bus = (unsigned char)slot[0x1c]; /* 3-arg per IDA/disasm: a1 is overwritten by the playstate */
 
-    if ((&DAT_80147a0c)[vt] != 2) {                           /* not playing -> cache for next key-on */
-        (&DAT_80147a13)[vt] = (char)fxon;
+    if (bus != 2) {                                          /* not playing -> cache for next key-on */
+        slot[0x23] = (char)fxon;
         return 0;
     }
     mask = 1u << (chan);                               /* (computed even when the branch below skips) */
-    if ((&DAT_80147a0f)[vt] == 2)
-        mask |= 1u << ((unsigned char)(&DAT_80147a10)[vt]);
-    if (fxon == 0)
-        iSNDpsxeffectoff((int)mask);
-    else
+    if ((unsigned char)slot[0x1f] == (unsigned int)bus)
+        mask |= 1u << (unsigned char)slot[0x20];
+    if (fxon)
         iSNDpsxeffecton((int)mask);
+    else
+        iSNDpsxeffectoff((int)mask);
     return 0;
 }
 
@@ -122,19 +136,20 @@ extern int iSNDplatformfxlevel(unsigned int chan, int bus, int fxon)
 extern int iSNDvol(int chan, int level)
 {
     int vt = chan * 0x2c;
-    int outL = 0, outR = 0;
+    volatile unsigned char *slot = sndpd + 0xd8 + vt;
+    int outL, outR;
 
-    if ((&DAT_80147a0c)[vt] != 2) {                           /* not playing -> cache the level */
-        (&DAT_80147a12)[vt] = (char)level;
+    if (slot[0x1c] != 2) {                                   /* not playing -> cache the level */
+        slot[0x22] = (char)level;
         return 0;
     }
-    if ((&DAT_80147a0e)[vt] == 0)                             /* absolute L/R from level */
-        iSNDatolrv((unsigned)*(unsigned short *)(&DAT_80147a08 + vt), level, &outL, &outR);
-    else if ((&DAT_80147a0e)[vt] == 1)                        /* delta from current L/R cache */
-        iSNDatodlrv((unsigned)*(unsigned short *)(&DAT_80147a08 + vt), level, &outL, &outR,
-                    (int)(signed char)(&DAT_80147a14)[vt], (int)(signed char)(&DAT_80147a15)[vt]);
-    (&DAT_80147a14)[vt] = (unsigned char)outL;
-    (&DAT_80147a15)[vt] = (unsigned char)outR;
+    if (slot[0x1e] == 0)                                     /* absolute L/R from level */
+        iSNDatolrv((unsigned)*(volatile unsigned short *)(slot + 0x18), level, &outL, &outR);
+    else if (slot[0x1e] == 1)                                /* delta from current L/R cache */
+        iSNDatodlrv((unsigned)*(volatile unsigned short *)(slot + 0x18), level, &outL, &outR,
+                    (int)(signed char)slot[0x24], (int)(signed char)slot[0x25]);
+    slot[0x24] = (unsigned char)outL;
+    slot[0x25] = (unsigned char)outR;
     iSNDsetvol(chan, outL, outR);
     return 0;
 }

@@ -25,21 +25,26 @@ extern void *locateshape(void *shapefile, int *namekey)   /* @0x800EB110 */
     int  i    = *(int *)(sf + 8);                       /* directory count */
     char *p;
     if (i == 0)
-        return 0;
+        goto notfound;
     p = (char *)(i * 8 + (int)sf);                      /* walker init from PRE-decrement count */
     i = i - 1;                                          /* split load/dec (lever #15b) */
 scan:                                                   /* label-goto loop (catalog B): top i-test,
                                                          * bne-back on mismatch w/ i-- in the slot
                                                          * (+1 compensation on the match path) */
+    p = p - 8;                                          /* harmless on the exhausted path; fills beqz slot */
     if (i != 0) {
-        p = p - 8;                                      /* fills the top beqz slot */
-        if (*(int *)(p + 0x10) != name) {
+        {
+            int entryname = *(int *)(p + 0x10);
             i = i - 1;
-            goto scan;
+            if (entryname != name)
+                goto scan;
+            i = i + 1;
         }
     }
-    if (*(int *)(sf + i * 8 + 0x10) == name)            /* tail re-derives entry i by index */
-        return sf + *(int *)(sf + i * 8 + 0x14);        /* base + entry[i].dataoffset */
+    if (*(int *)(sf + i * 8 + 0x10) != name)            /* tail re-derives entry i by index */
+        goto notfound;
+    return sf + *(int *)(sf + i * 8 + 0x14);            /* base + entry[i].dataoffset */
+notfound:
     return 0;
 }
 
@@ -50,20 +55,25 @@ extern void *locateshapez(void *shapefile, int *namekey)  /* @0x800EB170 (identi
     int  i    = *(int *)(sf + 8);
     char *p;
     if (i == 0)
-        return 0;
+        goto notfound;
     p = (char *)(i * 8 + (int)sf);                      /* walker init from PRE-decrement count */
     i = i - 1;                                          /* split load/dec (lever #15b) */
 scan:                                                   /* label-goto loop (catalog B): top i-test,
                                                          * bne-back on mismatch w/ i-- in the slot
                                                          * (+1 compensation on the match path) */
+    p = p - 8;                                          /* harmless on the exhausted path; fills beqz slot */
     if (i != 0) {
-        p = p - 8;                                      /* fills the top beqz slot */
-        if (*(int *)(p + 0x10) != name) {
+        {
+            int entryname = *(int *)(p + 0x10);
             i = i - 1;
-            goto scan;
+            if (entryname != name)
+                goto scan;
+            i = i + 1;
         }
     }
-    if (*(int *)(sf + i * 8 + 0x10) == name)            /* tail re-derives entry i by index */
-        return sf + *(int *)(sf + i * 8 + 0x14);        /* base + entry[i].dataoffset */
+    if (*(int *)(sf + i * 8 + 0x10) != name)            /* tail re-derives entry i by index */
+        goto notfound;
+    return sf + *(int *)(sf + i * 8 + 0x14);            /* base + entry[i].dataoffset */
+notfound:
     return 0;
 }

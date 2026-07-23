@@ -26,11 +26,14 @@ extern int SNDpitchmult(unsigned int tag, unsigned int mult)
     if (-1 < chanIdx) {
         cur[0] = -1;
         while (iSNDpatchkey(chanIdx, (int)cur) != 0) {
-            int v = sndgs[0x25] + cur[0] * 100;
-            if (*(unsigned short *)(v + 0x60) == (unsigned short)mult)
+            /* MATCH: keeping this value live only through iSNDcalcpitch selects a0 for the
+             * multiply and lets the pitch-multiplier store fill that call's delay slot. */
+            int note = cur[0];
+            int v = sndgs[0x25] + note * 100;
+            if (*(unsigned short *)(v + 0x60) == mult)
                 break;
             *(short *)(v + 0x60) = (short)mult;
-            iSNDcalcpitch(cur[0]);
+            iSNDcalcpitch(note);
             iSNDplatformpitch(cur[0], (int)(unsigned)*(unsigned short *)(v + 0x62));
         }
     }

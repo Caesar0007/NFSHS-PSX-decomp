@@ -25,7 +25,7 @@ extern int sndgs[];                      /* (signed char)sndgs[0xf] = init flag,
 #define MI(p,o) (*(int*)((p)+(o)))
 #define MB(p,o) (*(unsigned char*)((p)+(o)))
 
-extern void SNDSTRM_purge(int s);        /* @0x800E9C58 (fwd: destroy calls it) */
+extern int SNDSTRM_purge(int s);         /* @0x800E9C58 (fwd: destroy calls it) */
 
 /* SNDSTRM_create @0x800E9B44 : create a streaming voice with its OWN ring (extHandle/extFlag forced 0).
  *   Returns the stream slot or a negative error. */
@@ -64,22 +64,33 @@ extern int SNDSTRM_queuefile(unsigned int s, int name, char *filename, int off)
 }
 
 /* SNDSTRM_purge @0x800E9C58 : stop playback, flush the ring, and reset the voice to an empty idle state
- *   (counters, parse index, and both format slots cleared) -- ready to be re-queued. */
-extern void SNDSTRM_purge(int s)
+ *   (counters, parse index, and both format slots cleared) -- ready to be re-queued.
+ *   MATCH: volatile byte clears preserve the oracle's 0x16/0x17/0x14 store order and make gcc
+ *   prepare memset's size before them, leaving the call delay slot as the oracle's nop. */
+extern int SNDSTRM_purge(int s)
 {
     int S;
-    if ((signed char)sndgs[0xf] != 0 && (S = iSNDstreamgetstreamptr(s)) != 0) {
-        if (-1 < MI(S, 8))                              /* a play handle is active */
-            SNDPKTPLAY_stop(MI(S, 0xc));
-        MI(S, 8) = -1;
-        if (MB(S, 0x18) == 0)
-            STREAM_kill(MI(S, 4));
-        MB(S, 0x16) = 0;                                /* curReqCount */
-        MB(S, 0x17) = 0;                                /* parseIdx */
-        MB(S, 0x14) = 0;                                /* state */
-        memset((void *)(S + 0x1c), 0, 4);               /* locked rate */
-        memset((void *)(S + 0x20), 0, 4);               /* current rate */
-        memset((void *)(S + 0x24), 0, 0x14);            /* locked header */
-        memset((void *)(S + 0x38), 0, 0x14);            /* current header */
+    int stopped;
+    if ((signed char)sndgs[0xf] == 0)
+        return -10;
+    S = iSNDstreamgetstreamptr(s);
+    if (S == 0)
+        return -8;
+    if (MI(S, 8) < 0) {
+        stopped = -1;
+    } else {
+        SNDPKTPLAY_stop(MI(S, 0xc));                     /* a play handle is active */
+        stopped = -1;
     }
+    *(volatile int *)(S + 8) = stopped;
+    if (*(volatile unsigned char *)(S + 0x18) == 0)
+        STREAM_kill(MI(S, 4));
+    *(volatile unsigned char *)(S + 0x16) = 0;           /* curReqCount */
+    *(volatile unsigned char *)(S + 0x17) = 0;           /* parseIdx */
+    *(volatile unsigned char *)(S + 0x14) = 0;           /* state */
+    memset((void *)(S + 0x1c), 0, 4);                   /* locked rate */
+    memset((void *)(S + 0x20), 0, 4);                   /* current rate */
+    memset((void *)(S + 0x24), 0, 0x14);                /* locked header */
+    memset((void *)(S + 0x38), 0, 0x14);                /* current header */
+    return 0;
 }

@@ -1,10 +1,9 @@
-/* eaclib/psx/spchpsxz/spchpick.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 16/27 PASS ***
- *   (w22-a3, 2026-07-20: header was stale at "27/27" -- corrected after a verify_asm_full survey found
- *    11 real FAILs. Current FAILs by diff size: iSPCH_OrderSentences(64,85/83) iSPCH_ChooseSentence(58,104=104)
- *    iSPCH_SentenceGetChoices(54,84/80) iSPCH_MakeSampleRequests(51,85/82) iSPCH_MatchSample(34,67/65)
- *    iSPCH_IterateChoice(43,45/44) iSPCH_ConstantRuleSet(20,83=83) iSPCH_SampleLength(16,26=26)
- *    iSPCH_SentenceMakeChoice(9,44/43,documented biv-elim floor) iSPCH_RandomizeSentencePicks(7,57/56)
- *    iSPCH_ChooseShortSentence(7,46/45) iSPCH_PlayChosen(7,41/40). See per-fn comments for what's been tried.)
+/* eaclib/psx/spchpsxz/spchpick.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 18/27 PASS ***
+ *   Full detailed survey: remaining FAILs are iSPCH_OrderSentences(64,85/83),
+ *   iSPCH_ChooseSentence(58,104/104), iSPCH_SentenceGetChoices(54,84/80),
+ *   iSPCH_MakeSampleRequests(51,85/82), iSPCH_IterateChoice(43,45/44),
+ *   iSPCH_MatchSample(34,67/65), iSPCH_ConstantRuleSet(20,83/83),
+ *   iSPCH_SampleLength(16,26/26), and iSPCH_SentenceMakeChoice(7,44/43).
  *   Source obj : nfs4\eaclib\psx\spchpick.obj ; archive C:\nfs4\EACLIB\PSX\SPCHPSXZ.LIB (xlsx col12 / SYM v3)
  *   27 fns @[0x8010077C .. 0x801018F4].  The sentence/sample PICKER -- the top of the speech pipeline: takes
  *   a chosen event, picks a sentence template that passes its rules, chooses matching samples per phrase,
@@ -453,8 +452,8 @@ extern "C" void iSPCH_RandomizeSentencePicks(int sentence)
     int n = VoxSentence_GetNumPhrases(sentence);
     int i = 0;
     if (0 < n) {
-        short *choice = ispch_gChoice;
         do {
+            short *choice = ispch_gChoice + i * 6;
             int   k = 0;
             int   cnt  = (int)(((unsigned int)(unsigned short)choice[2]) << 0x10) >> 0x10;
             int   half = cnt / 2;
@@ -472,7 +471,6 @@ extern "C" void iSPCH_RandomizeSentencePicks(int sentence)
                 } while (k < halfCount);
             }
             i = i + 1;
-            choice = choice + 6;
         } while (i < n);
     }
 }
@@ -516,11 +514,10 @@ extern "C" int iSPCH_ChooseShortSentence(int sentence)
     int i = 0;
     int found = 0;
     if (0 < n) {
-        short *choice = ispch_gChoice;
         do {
+            short *choice = ispch_gChoice + i * 6;
             choice[4] = choice[3];
             i = i + 1;
-            choice = choice + 6;
         } while (i < n);
     }
     if (done == 0 && found == 0)
@@ -548,15 +545,13 @@ extern "C" int iSPCH_SentenceMakeChoice(int sentence, int mode)
         int n = VoxSentence_GetNumPhrases(sentence);
         int i = 0;
         if (ok < n) {
-            short *choice = ispch_gChoice;
             ok = 1;
-            do {   /* residual 9: gcc biv-eliminates `choice` into a +8-biased giv (2-insn init,
-                    * offsets -4/-2/0) where the oracle keeps the plain base (+4/+6/+8); index-form,
-                    * alias, and statement-order levers all leave the bias -- allocator floor */
-                int r = iSPCH_Rand((int)choice[2]);
+            sentence = (int)ispch_gChoice + i * 0xc;
+            do {
+                int r = iSPCH_Rand((int)*(short *)(sentence + 4));
                 i = i + 1;
-                choice[4] = choice[3] + (short)r;
-                choice = choice + 6;
+                *(short *)(sentence + 8) = *(unsigned short *)(sentence + 6) + (short)r;
+                sentence = sentence + 0xc;
             } while (i < n);
         }
     }
@@ -685,16 +680,17 @@ extern "C" void iSPCH_PlayChosen(void)
         ((void (*)(short *, int))iSPCH_ConstantRuleSet)((short *)gSentenceChoice[0], gSentenceChoice[1]);
         iSPCH_MakeSampleRequests(gSentenceChoice[1], eventId);
         {
+            int *inGame = gVoxInGame;
             int newRepeatCount;   /* MATCH: gVoxInGame[1] == gRepeatCount; a SHARED store after the
                                     * if/else (not one store per branch) is what tail-merges into the
                                     * oracle's single `sw v0,4(a0)` at the branches' join point. */
-            if (eventId == gVoxInGame[0]) {
-                newRepeatCount = gVoxInGame[1] + 1;
+            if (eventId == inGame[0]) {
+                newRepeatCount = inGame[1] + 1;
             } else {
-                gVoxInGame[0] = eventId;
                 newRepeatCount = 1;
+                inGame[0] = eventId;
             }
-            gVoxInGame[1] = newRepeatCount;
+            inGame[1] = newRepeatCount;
         }
     }
     iSPCH_ClearChosen();

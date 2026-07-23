@@ -15,24 +15,53 @@ extern int iSNDdownloadbank(int bankData, int patchData);   /* @0x8010266C */
  *   ok) or 8 (a patch failed). */
 extern int iSNDdownloadbank(int bankData, int patchData)
 {
+    int *ptr2, *ptr4;
     int scratch[512];
-    int i, ret = 7;
-    int type4 = (*(char *)(bankData + 4) == 4);
+    int i;
+    int ret = 7;
+    int anchor, type4, off2, off4;
 
-    for (i = 0; i < 512; i += 2)
-        scratch[i] = -1;
-    if (*(short *)(bankData + 6) != 0) {
+    i = 0xff;
+    do {
+        scratch[i * 2] = -1;
+        i--;
+    } while (i >= 0);
+
+    anchor = bankData;
+    if (*(unsigned short *)(bankData + 6) != 0) {
+        ptr2 = (int *)bankData;
         i = 0;
+        type4 = 4;
+        off2 = 0xc;
+        off4 = 0x14;
+        ptr4 = (int *)bankData;
         do {
-            int fieldAddr = bankData + i * 4 + (type4 ? 0x14 : 0xc);
-            int off = *(int *)fieldAddr;
+            int fieldAddr, off;
+
+            if (*(unsigned char *)(bankData + 4) == type4)
+                off = ptr4[5];
+            else
+                off = ptr2[3];
             if (off != 0) {
-                int bank = fieldAddr + off;
-                *(int *)fieldAddr = bank;
-                if (iSNDresolvetaggedpatch(bank, patchData, (int)scratch) != 7)
+                if (*(unsigned char *)(bankData + 4) == type4) {
+                    fieldAddr = bankData + off4;
+                    off = ptr4[5];
+                    off += fieldAddr;
+                    ptr4[5] = off;
+                } else {
+                    fieldAddr = anchor + off2;
+                    off = ptr2[3];
+                    off += fieldAddr;
+                    ptr2[3] = off;
+                }
+                if (iSNDresolvetaggedpatch(off, patchData, (int)scratch) != 7)
                     ret = 8;
             }
+            off2 += 4;
+            ptr2++;
+            off4 += 4;
             i++;
+            ptr4++;
         } while (i < (int)(unsigned)*(unsigned short *)(bankData + 6));
     }
     return ret;

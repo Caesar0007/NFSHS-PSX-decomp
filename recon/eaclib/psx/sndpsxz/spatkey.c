@@ -1,4 +1,4 @@
-/* eaclib/psx/sndpsxz/spatkey.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 10/10 ***
+/* eaclib/psx/sndpsxz/spatkey.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 7/10 PASS ***
  *   Source obj : nfs4\eaclib\psx\spatkey.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   10 fns @[0x800FEF4C .. 0x800FF3CC].  SPU key/voice/volume control -- the bottom-level poke layer for
  *   the channel pool (volume calc, panning, SPU key-on/off + reverb-effect registers).
@@ -18,9 +18,7 @@ extern unsigned char sndpd[];   /* EA sound-driver state base @0x80147918 (unsiz
  *   DAT_80147e28 (voice regs)   = *(int*)(sndpd + 0x510)
  *   DAT_80147e2c (control regs) = *(int*)(sndpd + 0x514) */
 #define SNDPD_VOICEREG   (((volatile int *)sndpd)[0x510/4])
-#define SNDPD_CTRLREG    (((volatile int *)sndpd)[0x514/4])
-extern int DAT_80147e28;        /* SPU voice register base (address)   */
-extern int DAT_80147e2c;        /* SPU control register base (address) */
+extern int DAT_80147e28[];      /* one-word SPU voice register base storage */
 extern int DAT_801479f0;        /* packet-voice table base; entry +0x00 = SPU start addr, +0x04 idx src, +0x08 sample-rate src */
 /* packet-voice table fields (0x2c stride, indexed [chan*0x2c]) */
 extern unsigned char DAT_80147a0c;   /* +0x1c playstate */
@@ -35,7 +33,7 @@ extern unsigned char DAT_80147a16;   /* +0x26 flag */
 extern unsigned char DAT_80147a17;   /* +0x27 partner-addr mode (bit7) / table index */
 
 extern void iSNDvol(int chan, int level);            /* sdriver */
-extern void iSNDplatformfxlevel(int chan);
+extern int iSNDplatformfxlevel(unsigned int chan, int bus, int fxon);
 
 extern int iSNDsetslot(int chan, int addr, int pitch);   /* @0x800FF394 */
 
@@ -46,25 +44,29 @@ extern int iSNDsetslot(int chan, int addr, int pitch);   /* @0x800FF394 */
  *   cursor (init -1).  Returns 1 while voices remain, 0 when exhausted. */
 extern int iSNDpatchkey(int chan, int tag)
 {
-    char grp = *(char *)(sndgs[0x25] + chan * 100 + 0x37);
+    int pbase = sndgs[0x25];
+    char grp;
+    pbase += chan * 100;
+    grp = *(char *)(pbase + 0x37);
     if (grp != 0) {
         int i = *(int *)tag;
         *(int *)tag = i + 1;
         if (i + 1 < (int)(unsigned)((unsigned char *)sndgs)[0x11]) {
+            int *gs = sndgs;
             do {
-                int *p = (int *)(sndgs[0x25] + *(int *)tag * 100);
+                int *p = (int *)(gs[0x25] + *(int *)tag * 100);
                 if (*(char *)((int)p + 0x37) == grp && *(signed char *)((int)p + 0xb) == 1 && -1 < *p)
                     return 1;
-                i = *(int *)tag;
-                *(int *)tag = i + 1;
-            } while (i + 1 < (int)(unsigned)((unsigned char *)sndgs)[0x11]);
+                *(int *)tag = *(int *)tag + 1;
+            } while (*(int *)tag < (int)(unsigned)((unsigned char *)gs)[0x11]);
         }
-        return 0;
+        goto no_key;
     }
-    if (*(int *)tag < 0) {
-        *(int *)tag = chan;
-        return 1;
-    }
+    if (*(int *)tag >= 0)
+        goto no_key;
+    *(int *)tag = chan;
+    return 1;
+no_key:
     return 0;
     /* near-miss floor (31 diffs, was 43 -- landed 2 real bugs: block-order INVERSION [grp!=0 is the
      * oracle's fall-through main path, grp==0 branches away to code at the function's END -- the
@@ -175,70 +177,78 @@ extern int iSNDpsxeffectvol(int left, int right)
 }
 
 /* iSNDsetvol @0x800FF238 : write a channel's SPU voice L/R volume from logical (left,right) levels,
- *   panning per the routing mode (mono spread vs hard L/R) and output mode (mono/stereo). */
+ *   panning per the routing mode (mono spread vs hard L/R) and output mode (mono/stereo).
+ *   Unified sndpd voice/SPU storage plus the true clamp assignments improve 112->42 diffs. */
 extern unsigned int iSNDsetvol(int chan, int left, int right)
 {
     int            vt = chan * 0x2c;
-    unsigned short *vreg = (unsigned short *)(DAT_80147e28 + chan * 0x10);
+    volatile unsigned char *voiceBase = sndpd + 0xd8;
+    volatile unsigned char *slot = voiceBase + vt;
+    unsigned char  *pd = (unsigned char *)voiceBase - 0xd8;
+    int            voiceRegs = *(int *)(pd + 0x510);
+    unsigned short *vreg = (unsigned short *)(voiceRegs + chan * 0x10);
     unsigned int   v;
-    unsigned short u;
 
-    if (SB(DAT_80147a0f, vt) == 1) {                /* single channel */
+    chan = slot[0x1f];
+
+    if (chan == 1) {                                /* single channel */
         if ((char)sndgs[4] == 2) {                  /* stereo output */
-            *vreg = (short)left * 0x81 & 0x7fff;
-            v = right * 0x81 & 0x7fff;
-            vreg[1] = (unsigned short)v;
-            return v;
+            left = left * 0x81 & 0x7fff;
+            *(volatile unsigned short *)vreg = (unsigned short)left;
+            right = right * 0x81 & 0x7fff;
+            vreg[1] = (unsigned short)right;
+            return right;
         }
         {
             int sum = left + right;
-            if (SB(DAT_80147a0e, vt) == 1) {        /* L/R-spread routing */
+            if (*(unsigned char *)((unsigned char *)slot + 0x1e) == chan) { /* L/R-spread routing */
                 if (left < 0)  left = -left;
                 if (right < 0) right = -right;
                 if (0x7f < left)  left = 0x7f;
+                if (0x7f < right) right = 0x7f;
                 sum = left + right;
-                if (0x7f < right) sum = left + 0x7f;
             }
-            v = sum * 0x81 >> 1;
-            u = (unsigned short)v;
+            v = (sum * 0x81 >> 1) & 0x7fff;
         }
     } else {                                        /* linked pair */
         if ((char)sndgs[4] == 2) {
             unsigned short *vreg2;
-            *vreg = (short)left * 0x81 & 0x7fff;
-            vreg[1] = 0;
-            vreg2 = (unsigned short *)(DAT_80147e28 + ((int)((unsigned)SB(DAT_80147a10, vt) << 0x18) >> 0x14));
+            *(volatile unsigned short *)vreg = (unsigned short)(left * 0x81 & 0x7fff);
+            *(volatile unsigned short *)(vreg + 1) = 0;
+            vreg2 = (unsigned short *)(*(int *)(pd + 0x510) +
+                    ((int)((unsigned)slot[0x20] << 0x18) >> 0x14));
             v = right * 0x81 & 0x7fff;
             *vreg2 = 0;
             vreg2[1] = (short)v;
             return v;
         }
-        u = (unsigned short)(left * 0x81 >> 1) & 0x7fff;
-        *vreg = u;
-        vreg[1] = u;
-        u = (unsigned short)(right * 0x81 >> 1);
-        vreg = (unsigned short *)(DAT_80147e28 + ((int)((unsigned)SB(DAT_80147a10, vt) << 0x18) >> 0x14));
-        v = DAT_80147e28;
+        {
+            unsigned int leftvol = (left * 0x81 >> 1) & 0x7fff;
+            v = (right * 0x81 >> 1) & 0x7fff;
+            *vreg = (unsigned short)leftvol;
+            vreg[1] = (unsigned short)leftvol;
+        }
+        vreg = (unsigned short *)(*(int *)(pd + 0x510) +
+                ((int)((unsigned)slot[0x20] << 0x18) >> 0x14));
     }
-    *vreg = u & 0x7fff;
-    vreg[1] = u & 0x7fff;
+    *vreg = (unsigned short)v;
+    vreg[1] = (unsigned short)v;
     return v;
 }
 
 /* iSNDsetslot @0x800FF394 : program a channel's SPU voice ADSR + pitch slot (attack/decay rate, start
  *   address, sample rate). */
-/* near-miss floor (6 diffs): oracle's `lui;sll(chan*0x10);sra(addr>>3);lw` interleaves the two
- * independent shifts INTO the DAT_80147e28 lui/lw pair's gap; our gcc-2.8.0 emits the lui+lw
- * back-to-back and both shifts after. Tried: pre-computing addr>>3/chan*0x10 as named locals
- * (before/after/either order), in-place mutation of the params -- all reproduce this identical
- * schedule. Pure RTL instruction-scheduling choice, not source-reachable; permuter candidate. */
+/* MATCH: reconstructing DAT_80147e28 as its true one-word array storage fixes address
+ * materialization.  Listing the two variable stores before the constant ADSR stores gives gcc the
+ * oracle's early `sra`/base-load schedule; it still emits the hardware writes in oracle order
+ * (attack, sustain, pitch, address, level). */
 extern int iSNDsetslot(int chan, int addr, int pitch)
 {
-    int r = DAT_80147e28 + chan * 0x10;
-    *(short *)(r + 8)  = 0xf;                        /* ADSR attack */
-    *(short *)(r + 10) = 5;                          /* ADSR sustain/release */
+    int r = DAT_80147e28[0] + chan * 0x10;
     *(short *)(r + 4)  = (short)pitch;               /* sample rate / pitch */
     *(short *)(r + 6)  = (short)(addr >> 3);         /* SPU start address (8-byte units) */
+    *(short *)(r + 8)  = 0xf;                        /* ADSR attack */
+    *(short *)(r + 10) = 5;                          /* ADSR sustain/release */
     *(short *)(r + 0xe) = 0x200;                     /* ADSR sustain level */
     return r;
 }
@@ -248,41 +258,48 @@ extern int iSNDsetslot(int chan, int addr, int pitch)
 extern unsigned int iSNDstartvoice(unsigned int chan)
 {
     int          vt  = chan * 0x2c;
-    char        *vte = (char *)&DAT_801479f0 + vt;   /* &voicetable[chan] */
-    int          f0  = *(int *)vte;                  /* +0x00 SPU start address / tag */
-    /* H08: pitch = MULT_HI((uint)voicetable[chan].+0x08, 0x4A4DC96F) >> 7 (oracle 0x800FF41C-434); shared by both calls */
-    int          pitch = (int)((unsigned int)(((unsigned long long)(unsigned int)*(int *)(vte + 8) * 0x4A4DC96FuLL) >> 32) >> 7);
+    volatile unsigned char *vte = sndpd + 0xd8 + vt; /* &voicetable[chan] */
+    volatile unsigned char *voiceBase = sndpd + 0xd8;
+    /* 441 Hz units; cc1psx lowers the unsigned divide to multu 0x4A4DC96F + mfhi >> 7. */
+    int          pitch;
     unsigned int mask;
 
-    SB(DAT_80147a14, vt) = 0;
-    SB(DAT_80147a15, vt) = 0;
-    iSNDsetslot((int)chan, f0, pitch);               /* H08: was (chan,0,0) -> addr+pitch were zeroed (oracle 0x800FF438) */
+    vte[0x24] = 0;
+    vte[0x25] = 0;
+    pitch = (int)(*(volatile unsigned int *)(vte + 8) / 441u);
+    iSNDsetslot((int)chan, *(volatile int *)vte, pitch); /* +0x00 SPU start address / tag */
     mask = 1u << (chan);
-    SB(DAT_80147a0c, vt) = 2;
-    SB(DAT_80147a0d, vt) = 2;
-    SB(DAT_80147a16, vt) = 0;
-    if (SB(DAT_80147a0f, vt) == 2) {                 /* linked pair -> arm the partner too */
-        char        link = (char)SB(DAT_80147a10, vt);
+    vte[0x1c] = 2;
+    vte[0x1d] = 2;
+    vte[0x26] = 0;
+    if (vte[0x1f] == 2) {                            /* linked pair -> arm the partner too */
+        signed char link = (signed char)vte[0x20];
+        signed char maskLink;
         int         vt2  = link * 0x2c;
-        signed char f27  = (signed char)SB(DAT_80147a17, vt);   /* +0x27 partner-addr mode */
+        volatile unsigned char *vte2 = voiceBase + vt2;
         int         a3;                              /* linked-partner start-addr offset (oracle 0x800FF468-50C) */
-        if (f27 < 0) {                               /* bit7 set: index from +0x04 via 1/0x1c reciprocal (oracle 0x800FF4C8-50C) */
-            int          f4 = *(int *)(vte + 4);
-            unsigned int q  = (unsigned int)(((unsigned long long)((unsigned int)f4 >> 2) * 0x24924925uLL) >> 32);
-            a3 = (int)q;
-            if (f4 != (int)(q * 0x1c)) a3 = a3 + 1;  /* round up to the 0x1c stride */
-            a3 = a3 << 4;
-        } else {                                     /* bit7 clear: ptr table at base+0x420 indexed by f27 (oracle 0x800FF4A0-BC) */
-            int *pt = *(int **)((char *)&DAT_801479f0 + (int)f27 * 4 + 0x420);
+        if (0 <= (int)((unsigned int)vte[0x27] << 24)) { /* bit7 clear: ptr table at base+0x420 indexed by f27 */
+            int f27x4 = ((int)((unsigned int)vte[0x27] << 24)) >> 22;
+            volatile unsigned char *table = voiceBase + 0x420;
+            int *pt = *(int **)(table + f27x4);
             a3 = *(int *)((char *)pt + 8);
+        } else {                                     /* bit7 set: index from +0x04 via 1/0x1c reciprocal */
+            unsigned int checkNumerator;
+            a3 = (int)(*(volatile unsigned int *)((unsigned char *)vte + 4) / 0x1c);
+            checkNumerator = *(volatile unsigned int *)((unsigned char *)vte + 4);
+            if ((int)checkNumerator != (int)((checkNumerator / 0x1c) * 0x1c))
+                a3 = a3 + 1;
+            a3 = a3 << 4;
         }
-        iSNDsetslot((int)link, f0 + a3, pitch);      /* H08: was (link,0,0); addr = f0 + a3 (oracle 0x800FF524/528) */
-        SB(DAT_80147a0c, vt2) = 2;
-        SB(DAT_80147a0d, vt2) = 2;
-        SB(DAT_80147a16, vt2) = 0;
-        mask = mask | (1u << ((int)link));
+        iSNDsetslot(((int)((unsigned int)vte[0x20] << 24)) >> 24,
+                    *(volatile int *)vte + a3, pitch);
+        maskLink = (signed char)vte[0x20];
+        vte2[0x1c] = 2;
+        vte2[0x1d] = 2;
+        vte2[0x26] = 0;
+        mask = mask | (1u << (int)maskLink);
     }
-    iSNDvol((int)chan, (int)(char)SB(DAT_80147a12, vt));
-    iSNDplatformfxlevel(chan);
+    iSNDvol((int)chan, (int)(signed char)vte[0x22]);
+    iSNDplatformfxlevel(chan, 0, (int)(signed char)vte[0x23]);
     return mask;
 }

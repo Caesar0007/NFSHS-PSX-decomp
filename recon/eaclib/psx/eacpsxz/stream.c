@@ -168,14 +168,9 @@ extern unsigned int inbetween(unsigned int a, unsigned int b, unsigned int c)
  *   NOT reload/preserve the return value across the FILE_priorityop call on the greedy-on path -- it
  *   falls through with whatever $v0 holds post-call (the call's own return, clobbering the earlier `1`).
  *   A faithful transcription must NOT hold `ret` live across that call either.
- * MATCH: dropping the `ret` local (compute `neu<lvl` inline at each use) fixed the a0/v0-vs-a1/v1
- *   register-coloring cascade AND let the `lvl<=old` skip-branch return its own slt result directly
- *   (25->3 diffs). RESIDUAL FLOOR (3 diffs, not source-reachable): on the OTHER skip path (neu>=lvl,
- *   `beqz`), the branch's slt result already equals the desired return value, but gcc-2.8.0 does not
- *   prove that and instead emits a separate 2-insn block that reloads/recomputes `neu<lvl` then falls
- *   through -- a genuine cross-jump/value-numbering miss (the `bnez` skip path DOES get the direct-reuse
- *   optimization; only the `beqz` path doesn't). Tried: explicit `return 0;` on that path (same 3-diff
- *   count, different dead tail), goto-labeled shared return (no better). Accept as floor. */
+ * MATCH (35/35): spell the oracle's three exits directly.  The old<level path returns the comparison,
+ *   the new>=level path returns 1, and the active-read path intentionally falls through after
+ *   FILE_priorityop so that call's value remains in v0. */
 extern int decbufferusage(int s, int amount)
 {
     int sr, old, neu, lvl;
@@ -185,14 +180,15 @@ extern int decbufferusage(int s, int amount)
     MI(s, 0x3c) = neu;
     STREAM_leaveCS(sr);
     lvl = MI(s, 0x34);
-    if (lvl <= old && neu < lvl) {
-        MI(s, 0x38) = 1;                       /* greedy state on */
-        if (MI(s, 0x28) != 1)
-            return 1;
-        FILE_priorityop(MI(s, 0xa4), MI(s, 0x30));
+    if (old < lvl)
+        return neu < lvl;
+    if (lvl <= neu)
         return 1;
-    }
-    return neu < lvl;
+    MI(s, 0x38) = 1;                           /* greedy state on */
+    if (MI(s, 0x28) != 1)
+        return 1;
+    FILE_priorityop(MI(s, 0xa4), MI(s, 0x30));
+    /* The original falls through here: the FILE_priorityop call leaves its value in v0. */
 }
 
 /* getfreerequest @0x800FC400 : pop a request slot off the freelist (+0x58), stamp it with a fresh id
@@ -242,23 +238,20 @@ extern int queuerequest(int s, int req)
 
 /* func_800FC4E4 : map a request id back to its slot, validating the slot index (low byte),
  *   the full id, and that the slot is in use.  Returns the request pointer or 0.
- * RESIDUAL FLOOR (5 diffs, not source-reachable so far): the range-check exit and the two body-tail
- *   `return 0`s (mismatch / slot-inactive) cross-jump-merge correctly (oracle 0.L800FC540 shared by
- *   both), but the LAST check's branch polarity flips: oracle emits `beqz req[1],SHARED_EXIT` with the
- *   success case (`return req`) as an extra, UNSHARED `jr ra` pair after the fallthrough; ours emits
- *   the logically-equivalent `bnez req[1],SHARED_EXIT` with the success value materialized into the
- *   branch's own delay slot (no separate `jr ra`) -- 1 insn shorter, same semantics. Tried: nested-if
- *   guard clauses, explicit goto-to-shared-label, `&&`-combined (all converge to this identical 5-diff
- *   signature). Accept as a genuine cross-jump/tail-duplication tie-break floor. */
+ * MATCH: separate guard returns plus the empty one-shot boundary preserve the shared failure tail
+ * while preventing gcc from folding the final active-slot test into a branch-to-success. */
 static int func_800FC4E4(int s, unsigned int reqid)
 {
     unsigned int *req;
     if (MI(s, 0xc) <= (int)(reqid & 0xff))     /* slot index out of range */
         return 0;
     req = (unsigned int *)(MI(s, 8) + (reqid & 0xff) * 100);
-    if (reqid == req[0] && req[1] != 0)        /* id matches and slot active */
-        return (int)req;
-    return 0;
+    if (reqid != req[0])
+        return 0;
+    do { } while (0);
+    if (req[1] == 0)
+        return 0;
+    return (int)req;
 }
 
 /* freerequest @0x800FC548 : unlink a request from the active queue and push it onto the freelist.
@@ -291,23 +284,31 @@ extern int freerequest(int s, int req)
 
 /* filterchunk @0x800FC5E4 : classify a chunk by its first word against the filter table; returns the
  *   matching filter's consumer value, or 0xFFFFFFFE ("skip") if none match. */
-/* NOTE: the oracle keeps ONE pointer (f, byte offsets 0/4/8, +0xC per iter); gcc-2.8.0 here instead
- * CSEs a SECOND base (f+8) to serve f[1]/f[2] -- tried unsigned-int* w/ +=3, char*-byte-advance, and a
- * raw MI/MU byte-offset int local; all three reproduce the identical dual-base split. Documenting as a
- * near-miss (21 diffs, was 27) rather than a source-shape floor pending further investigation. */
+typedef struct StreamFilter {
+    unsigned int mask;
+    unsigned int value;
+    unsigned int consumer;
+} StreamFilter;
+/* MATCH (disasm-v4 trace, 21->0 diffs): a volatile record pointer keeps one base for the three
+ * filter fields.  Loading the tag before the empty-table test and copying n to the loop-carried
+ * `count` recover the oracle's v1->a3 lifetime split.  The counter increment follows the match
+ * check, so gcc places it in that branch's delay slot and retains the loop-head load-delay nop. */
 extern unsigned int filterchunk(int s, int chunk)
 {
-    unsigned int *f;
-    int i = 0, n;
+    volatile StreamFilter *f;
+    unsigned int tag;
+    int i = 0, n, count;
     n = MI(s, 0x14);
+    tag = *(unsigned int *)chunk;
     if (0 < n) {
-        f = *(unsigned int **)(s + 0x10);      /* filterArray */
+        count = n;
+        f = *(StreamFilter **)(s + 0x10);      /* filterArray */
         do {
+            if ((tag & f->mask) == f->value)
+                return f->consumer;
             i++;
-            if ((*(unsigned int *)chunk & f[0]) == f[1])
-                return f[2];
-            f += 3;
-        } while (i < n);
+            f++;
+        } while (i < count);
     }
     return 0xfffffffeu;
 }
@@ -639,13 +640,14 @@ have_room:
 /* STREAM_overhead @0x800FCDE0 : bytes of bookkeeping a stream of this shape needs (excluding the ring). */
 extern int STREAM_overhead(int numReq, int numFilters, int numConsumers)
 {
-    /* FLOOR (documented): the only residual is a $v0-vs-$v1 register-coloring tie-break on the
-     * `+0xAC` constant fold (oracle folds it into the filter term in $v1; gcc-2.8.0 folds it into
-     * the running total in $v0).  Tried temp-var, nested/right-assoc, operand-swap, and an
-     * explicit filter-variable summed-last reassociation (regressed to 12 -- reorders the whole
-     * term schedule) -- gcc reassociates commutative int-add freely, so the grouping is not
-     * source-controllable here.  $v0-vs-$v1 constant-fold floor (count matches 13==13). */
-    return numReq * 100 + (numFilters * 0xc + 0xac) + numConsumers * 0x10;
+    /* MATCH: separate request/filter terms plus the empty one-shot boundary keep gcc from
+     * reassociating +0xac into the request accumulator; the constant stays on the oracle's v1
+     * filter term and the consumer term fills the return delay slot. */
+    int result = numReq * 100;
+    int filters = numFilters * 0xc + 0xac;
+    do { } while (0);
+    result = result + filters;
+    return result + numConsumers * 0x10;
 }
 
 /* STREAM_create @0x800FCE14 : lay a stream object + its sub-arrays into `objbuf` (size `bufsize`) and
@@ -802,8 +804,13 @@ extern void STREAM_destroy(int s)
             systemtask(0);
         yieldthread(0);
     }
-    freemutex(MI(out[0], 4));
-    MI(out[0], 0) = 0;                            /* invalidate magic */
+    /* MATCH: invalidate before freeing.  The block-local object pointer dies at the call, so gcc
+     * keeps it in v0 and schedules the zero store into freemutex's jal delay slot. */
+    {
+        int obj = out[0];
+        MI(obj, 0) = 0;                                /* invalidate magic */
+        freemutex(MI(obj, 4));
+    }
     FILE_closesync(MI(out[0], 0x9c), 100);
 }
 

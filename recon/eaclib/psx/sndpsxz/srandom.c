@@ -4,32 +4,64 @@
  *   sndseed); returns the accumulated seed.  Ghidra nfs4-f.exe.c (srandom) + IDA (returns int; Ghidra void).
  */
 
-extern unsigned int sndseed;
-extern unsigned int DAT_8013c2f4, DAT_8013c2f8, DAT_8013c2fc, DAT_8013c300, DAT_8013c304;
+extern unsigned int sndseed[6];
+#define SNDSEED(i) state[(i)]
+#define NSNDSEED(i) (((unsigned int *)state)[(i)])
 
 extern int iSNDrandom(void);   /* @0x8010BE80 */
 
 /* iSNDrandom @0x8010BE80 : step the additive generator (with carry propagation) and return the new seed. */
 extern int iSNDrandom(void)
 {
-    unsigned int u1, u2, u3, u4;
-    int carry = 0;
-    u1 = DAT_8013c304 + DAT_8013c300;
-    if (u1 < DAT_8013c304 || u1 < DAT_8013c300)
+    volatile unsigned int *state;
+    unsigned int sum;
+    unsigned int old1, old2, old3, old4, old5;
+    unsigned int carry = 0;
+
+    old5 = sndseed[5];
+    old4 = sndseed[4];
+    sum = old5 + old4;
+    if (sum < old5 || sum < old4)
         carry = 1;
-    u2 = u1 + DAT_8013c2fc + carry;
-    u3 = u2 + DAT_8013c2f8 + (unsigned int)(u2 < DAT_8013c2fc);
-    u4 = u3 + DAT_8013c2f4 + (unsigned int)(u3 < DAT_8013c2f8);
-    sndseed = u4 + sndseed + (unsigned int)(u4 < DAT_8013c2f4);
-    DAT_8013c304 = DAT_8013c304 + 1;
-    DAT_8013c2f4 = u4;
-    DAT_8013c2f8 = u3;
-    DAT_8013c2fc = u2;
-    DAT_8013c300 = u1;
-    if (DAT_8013c304 == 0 && (DAT_8013c300 = u1 + 1, DAT_8013c300 == 0) &&
-        (DAT_8013c2fc = u2 + 1, DAT_8013c2fc == 0) &&
-        (DAT_8013c2f8 = u3 + 1, DAT_8013c2f8 == 0) &&
-        (DAT_8013c2f4 = u4 + 1, DAT_8013c2f4 == 0))
-        sndseed = sndseed + 1;
-    return (int)sndseed;
+
+    state = sndseed;
+    old3 = SNDSEED(3);
+    old2 = SNDSEED(2);
+    old1 = SNDSEED(1);
+    SNDSEED(4) = sum;
+
+    sum = sum + old3 + carry;
+    carry = (unsigned int)(sum < old3);
+    SNDSEED(3) = sum;
+
+    sum = sum + old2 + carry;
+    carry = (unsigned int)(sum < old2);
+    SNDSEED(2) = sum;
+
+    sum = sum + old1 + carry;
+    carry = (unsigned int)(sum < old1);
+    NSNDSEED(1) = sum;
+
+    {
+    unsigned int seed;
+    seed = SNDSEED(0);
+    sum = sum + seed + carry;
+    NSNDSEED(0) = sum;
+
+    if ((NSNDSEED(5) = SNDSEED(5) + 1) != 0)
+        goto done;
+    if ((NSNDSEED(4) = SNDSEED(4) + 1) != 0)
+        goto done;
+    if ((NSNDSEED(3) = SNDSEED(3) + 1) != 0)
+        goto done;
+    if ((NSNDSEED(2) = SNDSEED(2) + 1) != 0)
+        goto done;
+    if ((NSNDSEED(1) = SNDSEED(1) + 1) == 0) {
+        unsigned int final = sum + 1;
+        NSNDSEED(0) = final;
+        sum = final;
+    }
+    }
+done:
+    return (int)sum;
 }

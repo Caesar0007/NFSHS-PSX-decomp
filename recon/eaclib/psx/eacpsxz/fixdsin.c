@@ -37,6 +37,8 @@ extern int fixedcos(int x)   /* @0x800ED4A4 */
     int base  = fastintcos(a);
     int deriv = -fastintsin(a);
     int p;
+    /* MATCH: the empty one-shot boundary keeps gcc from deferring the negation until the multiply. */
+    do { } while (0);
     x = x & 0x3F;
     p = (x << 1) + x;
     p = p + (p << 6);

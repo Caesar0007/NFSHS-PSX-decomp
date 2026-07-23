@@ -11,11 +11,10 @@
  *   PROGRESS (`python tools/verify_asm.py cdfs.cpp <fn>`, w19-a8 2026-07-19 sweep):
  *     [PASS]  CD_Close, CD_Stopread, CD_Getinfo, readsectorB, dircompare, CD_Restore, CD_Init,
  *             CD_timerfunc                                                            -- 8/14
- *     [near]  CD_Open (11 diffs, unchanged), CD_Restart (4 diffs, unchanged) -- pure register-
- *             coloring/scheduling residuals; every structural source-shape variant tried (loop
- *             rotation, guard/bound-copy split, local-pointer holds) reproduces the SAME diff shape
- *             or regresses; a permuter grind (300+ iters, -j4) plateaued without reaching score 0.
- *             Treat as a genuine allocator/scheduling floor for this wave; no asm pins (HARD RULE).
+ *     [PASS]  CD_Restart -- a volatile cached-sector view pins the second store before the callback.
+ *     [near]  CD_Open (11->7 diffs): delaying the handle-table load until the positive-count block
+ *             recovers the oracle's prologue/save schedule; the residual is the max-count precheck
+ *             register/copy plus one redundant while precheck. No asm pins (HARD RULE).
  *     [near]  CD_systaskfunc (71->58 diffs) -- REAL BUG FIXED: the CdlDiskError watchdog branch
  *             delay-slot analysis was wrong (see below); after the fix, insn count now matches the
  *             oracle EXACTLY (87=87) and the residual is a pure ctx-base register-coloring swap
@@ -209,14 +208,20 @@ extern "C" int CD_Open(char *name, int flags, int *outp)
 {
     char   upper[16];
     char  *p    = upper;
-    void **h    = CD_handleTable;
+    void **h;
     int    slot = 0;
+    int    limit = CD_maxOpen;
     void  *entry;
     int    c;
     (void)flags;
 
-    for (slot = 0; slot < CD_maxOpen; slot++, h++) {   /* find the first free slot */
-        if (*h == 0) break;
+    if (limit > 0) {
+        h = CD_handleTable;
+        while (slot < limit) {                          /* find the first free slot */
+            if (*h == 0) break;
+            slot++;
+            h++;
+        }
     }
     do {                                        /* upper-case the name into a scratch buffer */
         c = toupper((unsigned char)*name++);
@@ -487,12 +492,12 @@ extern "C" int CD_Restart(int startSector)
     CdSync(0, 0);
     if (startSector == 0)
         startSector = 0x10;
-    /* oracle stores curSector (ctx+0x14) BEFORE cachedSector (ctx+0xC) -- store order matters
-     * here: it lets gcc schedule the CdReadyHandler address's final `addiu %lo` into the
+    /* MATCH: oracle stores curSector (ctx+0x14) before cachedSector (ctx+0xC).  The volatile view
+     * pins the second store before the call, letting gcc schedule CdReadyHandler's final `addiu %lo` into the
      * `jal CdReadyCallback`'s delay slot (methodology-§3.1 delay-slot-as-arg) instead of
      * completing the address materialization early. */
     CD_curSector    = startSector;        /* ctx+0x14 target  */
-    CD_cachedSector = startSector;        /* ctx+0x0C read-head */
+    *(volatile int *)&CD_cachedSector = startSector; /* ctx+0x0C read-head */
     CdReadyCallback(CdReadyHandler);
     CdIntToPos(CD_curSector, pos);
     return CdControl(0x1B, pos, 0);       /* CdlReadN */

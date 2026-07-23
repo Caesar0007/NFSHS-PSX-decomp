@@ -1,4 +1,4 @@
-/* eaclib/psx/spchpsxz/spchinit.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 7/7 ***
+/* eaclib/psx/spchpsxz/spchinit.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 6 PASS + 1 NEAR ***
  *   Source obj : nfs4\eaclib\psx\spchinit.obj ; archive C:\nfs4\EACLIB\PSX\SPCHPSXZ.LIB (xlsx col12 / SYM v3)
  *   7 fns @[0x800EB5A4 .. 0x800EB748].  Speech subsystem init/deinit + the user-supplied alloc/free callback
  *   wrappers + the sample data-rate helper.  Ghidra nfs4-f.exe.c (spchinit) + disasm-v3 + IDA sigs.
@@ -140,7 +140,12 @@ extern int SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate)
     iSPCH_InitEventDat();
     iSPCH_InitInGame();
     iSPCH_InitBanks();
-    iSPCH_InitEventQueue();
-    gSPCH_Initialized[0] = 0x1789a34;
+    /* Near match (10->3 diffs, 40/39 insns): the one-shot loop gives the oracle's v1 constant and
+     * v0 global-base coloring.  The sole residual is gcc restoring ra at the epilogue and inserting
+     * its load-delay nop instead of scheduling that restore between the constant and base setup. */
+    do {
+        iSPCH_InitEventQueue();
+        gSPCH_Initialized[0] = 0x1789a34;
+    } while (0);
     return 1;
 }

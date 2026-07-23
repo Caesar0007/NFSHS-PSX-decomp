@@ -29,11 +29,13 @@ extern int iSNDunsafebend(unsigned int tag, unsigned int chan)
             if (*(short *)(v + 0x5a) == 0)
                 return 0;
             *(char *)(v + 0x2f) = (char)chan;
-            iSNDcalcpitch(cur[0]);
-            *(short *)(v + 0x5e) = 0;   /* near-miss (1 diff): oracle sinks this +0x5e=0 store into the
-                                         * calcpitch jal delay slot; our gcc leaves nop there. Placing it
-                                         * before the call emits it pre-jal (still nop slot, 3 diffs).
-                                         * Delay-slot scheduling coin-flip; permuter candidate. */
+            {
+                /* MATCH: naming the already-loaded channel before the store lets gcc sink the store
+                 * into iSNDcalcpitch's jal delay slot; either statement alone leaves a nop there. */
+                int c = cur[0];
+                *(short *)(v + 0x5e) = 0;
+                iSNDcalcpitch(c);
+            }
             iSNDplatformpitch(cur[0], (int)(unsigned)*(unsigned short *)(v + 0x62));
         }
     }

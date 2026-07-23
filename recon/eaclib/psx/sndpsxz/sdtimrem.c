@@ -6,6 +6,7 @@
 extern int           DAT_801479f8;   /* +0x08 hw pitch/rate (int view: [chan*0xb])    */
 extern unsigned char DAT_801479fc;   /* +0x0c served byte position (int via &+chan*0x2c) */
 extern unsigned char DAT_80147a04;   /* +0x14 loop-end byte position                  */
+extern unsigned char D_801479F0[];   /* exact voice-table base, supplied by linker */
 extern void trap(unsigned int code);
 
 extern unsigned int iSNDtimeremaining(int chan);   /* @0x801049A8 */
@@ -14,10 +15,9 @@ extern unsigned int iSNDtimeremaining(int chan);   /* @0x801049A8 */
  *   (stopped/infinite).  The pitch==0 retest is the compiler's divide-by-zero guard. */
 extern unsigned int iSNDtimeremaining(int chan)
 {
-    if ((&DAT_801479f8)[chan * 0xb] != 0) {
-        return (unsigned int)(*(int *)(&DAT_80147a04 + chan * 0x2c) -
-                              *(int *)(&DAT_801479fc + chan * 0x2c)) /
-               (unsigned int)(&DAT_801479f8)[chan * 0xb];
-    }
-    return 0x7fffffff;
+    unsigned char *voice = D_801479F0 + chan * 0x2c;
+    if (*(volatile unsigned int *)(voice + 8) == 0)
+        return 0x7fffffff;
+    return (unsigned int)(*(int *)(voice + 0x14) - *(int *)(voice + 0xc)) /
+           *(volatile unsigned int *)(voice + 8);
 }

@@ -81,22 +81,24 @@ extern void synccallback(int op, int type, SyncCtrl *c)
 extern int syncblockio(int fd, int buf, int offset, int len, int cbarg, SyncIoFn iofn)
 {
     SyncCtrl c;
-    c.cbarg  = cbarg;
-    c.fd     = fd;
-    c.buf    = buf;
-    c.remain = len;
-    c.done   = 0;
-    c.chunk  = len;
-    c.offset = offset;
-    /* MATCH: `c.iofn = iofn;` is stored UNCONDITIONALLY -- it sits in the branch delay slot of
-     * the `chunk>0x2000` test, so it always executes on the real hardware regardless of which
-     * side is taken (even though it's only logically needed on the re-issue/>0x2000 path). And
-     * the test itself re-reads the just-stored `c.chunk` field (a stack reload), not the raw
-     * `len` param -- SyncCtrl is address-taken (passed to iofn), so gcc keeps it stack-resident. */
+    int firstchunk;
+    *(volatile int *)&c.cbarg  = cbarg;
+    *(volatile int *)&c.fd     = fd;
+    *(volatile int *)&c.buf    = buf;
+    *(volatile int *)&c.remain = len;
+    *(volatile int *)&c.done   = 0;
+    *(volatile int *)&c.chunk  = len;
+    firstchunk = *(volatile int *)&c.chunk;
+    *(volatile int *)&c.offset = offset;
+    /* MATCH (disasm-v4 trace): the volatile initialization view preserves the oracle's ordered
+     * stack stores.  It then re-reads the just-stored chunk before storing offset; keeping that
+     * value in `firstchunk` recovers the exact load/save-ra/store-offset/compare sequence.
+     * `c.iofn = iofn` is unconditional and lands in the chunk-test branch delay slot.  Reading
+     * c.offset and c.chunk for the first call recovers the oracle's a2/a3 stack reloads. */
     c.iofn = iofn;
-    if (c.chunk > 0x2000)
+    if (firstchunk > 0x2000)
         c.chunk = 0x2000;
-    c.op = iofn(fd, buf, offset, c.chunk, cbarg, &c);
+    c.op = iofn(fd, buf, c.offset, c.chunk, cbarg, &c);
     if (c.op != 0) {
         FILE_callbackop((unsigned int)c.op, (void *)synccallback);
         while ((c.remain != 0) || (c.op != 0))

@@ -197,35 +197,42 @@ extern "C" void *loadbigfileheaderatomic(int retry, LoadArgs *a)   /* @0x800E593
     if (FILE_opensync(a->name, 1, retry, &handle) == 0)
         return 0;                                       /* open fail: no close */
 
-    /* MATCH: goto ERROR-TAIL idiom -- one shared `closefail` (close+return 0) block at
+    /* MATCH work: goto ERROR-TAIL idiom -- one shared `closefail` (close+return 0) block at
      * the end; the typeof-fail purge block sits inline (bnez around it) and the
      * full==0 fail is a byte-identical `purge; goto closefail` that gcc CROSS-JUMPS
      * backward into it.  Inline structured fail blocks emit 3 separate tails.
      * `retry - 1` stays an EXPRESSION per call site (CSE makes the s3 temp for the
-     * readsync path; the closes off the join recompute addiu a1,s4,-1). */
+     * readsync path; the closes off the join recompute addiu a1,s4,-1). A short-lived close
+     * retry local distinguishes the purge tail and improves the authoritative residual 8->7. */
     buf = reservememadr(a->name, 0xA90, a->memclass);
     if (buf == 0)
         goto closefail;
 
-    FILE_readsync(handle, 0, buf, 0xA90, retry - 1);
-
-    if (typeofbigfile(buf) == 0) {                      /* not a big file */
-purgefail:
-        purgememadr(buf);
-        FILE_closesync(handle, retry - 1);              /* CSE: a1=s3 on this path */
-        return 0;
-    }
-
     {
-        unsigned int fullsize = sizeofbigfileheader(buf);   /* unsigned: sltiu 0xA91 */
-        if (fullsize >= 0xA91) {                        /* header exceeds first read */
-            void *full = reservememadr(a->name, fullsize, a->memclass);
-            if (full == 0)
-                goto purgefail;                         /* backward jump into the inline purge block */
-            blockmove(buf, full, 0xA90);                /* keep the bytes already read */
-            purgememadr(buf);
-            buf = full;
-            FILE_readsync(handle, 0xA90, (char *)buf + 0xA90, fullsize - 0xA90, retry - 1);
+        FILE_readsync(handle, 0, buf, 0xA90, retry - 1);
+
+        if (typeofbigfile(buf) == 0) {                  /* not a big file */
+purgefail:
+            {
+                int close_retry = retry - 1;
+                purgememadr(buf);
+                FILE_closesync(handle, close_retry);
+                return 0;
+            }
+        }
+
+        {
+            unsigned int fullsize = sizeofbigfileheader(buf); /* unsigned: sltiu 0xA91 */
+            if (fullsize >= 0xA91) {                    /* header exceeds first read */
+                void *full = reservememadr(a->name, fullsize, a->memclass);
+                if (full == 0)
+                    goto purgefail;                     /* backward jump into inline purge block */
+                blockmove(buf, full, 0xA90);            /* keep the bytes already read */
+                purgememadr(buf);
+                buf = full;
+                FILE_readsync(handle, 0xA90, (char *)buf + 0xA90,
+                              fullsize - 0xA90, retry - 1);
+            }
         }
     }
 

@@ -1,4 +1,4 @@
-/* eaclib/psx/sndpsxz/sdmemman.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 0/3 PASS ***
+/* eaclib/psx/sndpsxz/sdmemman.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 1/3 PASS ***
  *   Source obj : nfs4\eaclib\psx\sdmemman.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   3 fns @[0x8010A550 .. 0x8010A7C8].  SPU local-RAM block allocator -- a sorted free-list of up to 128
  *   {block,size} entries (DAT_80147e38, 4-byte stride) carving the SPU's 512 KB sample area into 64-byte
@@ -68,65 +68,123 @@ extern void iSNDpsxmemconstrain(unsigned int *size, int *avail)
  *   byte address (block << 6) or 0 on failure. */
 extern int iSNDpsxmalloc(int size)
 {
-    /* MATCH: the oracle materializes `&sndpd` as its literal 2nd instruction (before even the callee-save
-     * spills) and keeps it live in a persistent register (v1, then copied to s1) for the WHOLE function --
-     * every alloc_count/engine_ver/block_total/table access below is a small fixed displacement off it.
-     * The SNDPD_ and snd_spu_ macros each independently expand to `sndpd + CONST`, which re-materializes
-     * its own %hi/%lo(sndpd) symbol at every use site instead of sharing one base register (same class
-     * of gap as SNDmemlargestunused/iSNDpsxfxinit) -- write this function's body directly off `pd`. */
-    unsigned char *pd = sndpd;
+    /* MATCH: this split base lifetime plus the label-shaped scan reproduces the oracle's five saved-register
+     * layout without turning the indexed table accesses into walking induction pointers.  Keep the empty path
+     * on the caller-saved `base`; the nonempty path promotes it to persistent `pd`, while commit deliberately
+     * re-materializes sndpd+0x520.  The explicit volatile entry-count gate preserves the oracle's pre-loop
+     * bound check, and branch-local block/avail temporaries keep each gap calculation on its own CFG arm.
+     * The empty/tail candidates remain separate register temporaries until the shared constrain block, matching
+     * the lifetime split recovered by RetDec.  The packed four-byte shift is expressed as __builtin_memcpy so
+     * CC1PSX emits the oracle's direct lwl/lwr/swl/swr sequence without an artificial value move.  Together
+     * with in-place size rounding and the oracle-ordered failure label, these changes reduced the detailed
+     * residual from 140 to 59 instructions. */
+    unsigned char *base = sndpd;
+    unsigned char *pd;
     unsigned int blk, src;
     int          idx = 0;
-    int          need;
+    unsigned int final_block;
+    int          final_avail;
     unsigned int local_block;
     int          local_avail;
-    unsigned short count = *(unsigned short *)(pd + 0x518);
+    unsigned short count = *(unsigned short *)(base + 0x518);
 
-    if (count < 0x80) {
-        need = size + 0x3f >> 6;
-        if (count == 0) {
-            local_block = (unsigned int)*(unsigned short *)(pd + 0x51A);
-            local_avail = (int)*(unsigned short *)(pd + 0x51C) - (int)local_block;
-        } else {
-            do {
-                if (idx == 0) {
-                    local_block = (unsigned int)*(unsigned short *)(pd + 0x51A);
-                    local_avail = *(unsigned short *)(pd + 0x520 + idx * 4) - (int)local_block;
-                } else {
-                    unsigned short *prev = (unsigned short *)(pd + 0x51C) + idx * 2;   /* virtual entry[idx-1] */
-                    local_block = (unsigned int)prev[0] + (unsigned int)prev[1];
-                    local_avail = *(unsigned short *)(pd + 0x520 + idx * 4) - (int)local_block;
+    if (count >= 0x80)
+        goto fail;
+    size += 0x3f;
+    size >>= 6;
+    if (count != 0)
+        goto nonempty;
+    final_block = (unsigned int)*(unsigned short *)(base + 0x51A);
+    final_avail =
+        (int)*(unsigned short *)(base + 0x51C) - (int)final_block;
+final_constrain:
+    local_block = final_block;
+    local_avail = final_avail;
+    iSNDpsxmemconstrain(&local_block, &local_avail);
+    if (size <= local_avail)
+        goto commit;
+fail:
+    return 0;
+nonempty:
+    {
+        unsigned char *table;
+        unsigned char *previous;
+        pd = base;
+        table = pd + 0x520;
+        previous = pd + 0x51c;
+        if (idx >= (int)(unsigned int)
+                       *(volatile unsigned short *)(pd + 0x518))
+            goto scan_done;
+scan:
+        {
+            unsigned char *entry =
+                (unsigned char *)((unsigned int)(idx * 4) +
+                                  (unsigned int)table);
+            if (idx == 0) {
+                unsigned int block =
+                    (unsigned int)*(unsigned short *)(pd + 0x51A);
+                int avail = *(volatile unsigned short *)entry - (int)block;
+                local_block = block;
+                local_avail = avail;
+            } else {
+                unsigned short *prev =
+                    (unsigned short *)(previous + idx * 4);
+                unsigned int block =
+                    (unsigned int)prev[0] + (unsigned int)prev[1];
+                int avail = *(unsigned short *)entry - (int)block;
+                local_block = block;
+                local_avail = avail;
+            }
+            iSNDpsxmemconstrain(&local_block, &local_avail);
+            if (size <= local_avail) {
+                blk = (unsigned int)*(unsigned short *)(pd + 0x518);
+                if (idx < (int)blk) {
+                    do {                                   /* shift entries up to open slot `idx` */
+                        struct PackedAllocSlot {
+                            unsigned char pad[0x520];
+                            int word;
+                        } __attribute__((packed));
+                        volatile struct PackedAllocSlot *dst =
+                            (struct PackedAllocSlot *)
+                                ((unsigned int)(blk * 4) + (unsigned int)pd);
+                        src = blk - 1;
+                        __builtin_memcpy(
+                            (void *)&dst->word,
+                            (void *)&((struct PackedAllocSlot *)
+                                          ((unsigned int)(src * 4) +
+                                           (unsigned int)pd))->word,
+                            4);
+                        blk = src;
+                    } while (idx < (int)src);
                 }
-                iSNDpsxmemconstrain(&local_block, &local_avail);
-                if (need <= local_avail) {
-                    blk = (unsigned int)*(unsigned short *)(pd + 0x518);
-                    if (idx < (int)blk) {
-                        do {                                   /* shift entries up to open slot `idx` */
-                            src = blk - 1;
-                            ((int *)(pd + 0x520))[blk] = ((int *)(pd + 0x520))[src];
-                            blk = src;
-                        } while (idx < (int)src);
-                    }
-                    goto commit;
-                }
-                idx++;
-            } while (idx < (int)(unsigned int)*(unsigned short *)(pd + 0x518));
-            {
-                unsigned short *prev = (unsigned short *)(pd + 0x51C) + idx * 2;
-                local_block = (unsigned int)prev[0] + (unsigned int)prev[1];
-                local_avail = (int)*(unsigned short *)(pd + 0x51C) - (int)local_block;
+                goto commit;
             }
         }
-        iSNDpsxmemconstrain(&local_block, &local_avail);
-        if (need <= local_avail) {
-commit:
-            *(short *)(pd + 0x520 + idx * 4 + 2) = (short)need;
-            *(unsigned short *)(pd + 0x520 + idx * 4) = (unsigned short)local_block;
-            *(unsigned short *)(pd + 0x518) = *(unsigned short *)(pd + 0x518) + 1;
-            return local_block << 6;
+        idx++;
+        if (idx < (int)(unsigned int)*(unsigned short *)(pd + 0x518))
+            goto scan;
+scan_done:
+        {
+            unsigned short *prev =
+                (unsigned short *)(previous + idx * 4);
+            final_block = (unsigned int)prev[0] + (unsigned int)prev[1];
+            final_avail =
+                (int)*(unsigned short *)(pd + 0x51C) - (int)final_block;
         }
     }
-    return 0;
+    goto final_constrain;
+commit:
+    {
+        unsigned char *table = sndpd + 0x520;
+        unsigned short *entry =
+            (unsigned short *)(table + idx * 4);
+        unsigned char *commit_base = table - 0x520;
+        entry[1] = (short)size;
+        entry[0] = (unsigned short)local_block;
+        *(unsigned short *)(commit_base + 0x518) =
+            *(unsigned short *)(commit_base + 0x518) + 1;
+        return local_block << 6;
+    }
 }
 
 /* iSNDpsxfree @0x8010A7C8 : free the SPU block at byte address `ptr` (block == ptr>>6), removing its entry
@@ -140,7 +198,9 @@ commit:
  *   SCOPE for this file to retarget. */
 extern int iSNDpsxfree(int ptr)
 {
-    /* MATCH: same early &sndpd materialization lever as iSNDpsxmalloc/SNDmemlargestunused/iSNDpsxfxinit. */
+    /* MATCH: same early &sndpd materialization lever as iSNDpsxmalloc/SNDmemlargestunused/iSNDpsxfxinit.
+     * __builtin_memcpy on the packed slot is intentional: CC1PSX lowers it to the oracle's direct unaligned
+     * word copy and avoids the extra temporary move produced by a member assignment. */
     int idx = 0;
     unsigned char *pd = sndpd;
     ptr >>= 6;
@@ -159,9 +219,13 @@ extern int iSNDpsxfree(int ptr)
                         int word;
                     } __attribute__((packed));
                     volatile struct PackedAllocSlot *dst =
-                        (struct PackedAllocSlot *)(base + idx * 4);
+                        (struct PackedAllocSlot *)((unsigned int)(idx * 4) +
+                                                  (unsigned int)base);
                     int next = idx + 1;
-                    dst->word = ((struct PackedAllocSlot *)(base + next * 4))->word;
+                    __builtin_memcpy((void *)&dst->word,
+                                     (void *)&((struct PackedAllocSlot *)
+                                                   (base + next * 4))->word,
+                                     4);
                     idx = next;
                   } while (idx < (int)(unsigned int)*(volatile unsigned short *)(base + 0x518));
                 }

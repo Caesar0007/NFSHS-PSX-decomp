@@ -1161,12 +1161,9 @@ extern int STREAM_get(int consumer, void *buf, int len)
 
 /* STREAM_release @0x800FDAD0 : release a chunk previously obtained from STREAM_get, freeing its ring
  *   space and, if the stream had stalled (state 2) on a full buffer, re-arming the fill engine.
- * RESIDUAL FLOOR (21 diffs, down from a mismeasured 39; two real bugs fixed along the way -- see
- *   below): register-coloring tie-break -- the early bounds-check reload of `out[0]` (used 3x before
- *   any store) picks v1 in ours vs a0 in oracle, and the final greedystate-vs-restartstream block's
- *   `out[0]` reload similarly picks a1 vs oracle's a0. Tried a named `sobj=out[0]` local (regressed
- *   hard, 21->63: the local itself got promoted to a callee-saved reg and reshuffled the whole frame).
- *   Accept as floor.
+ * MATCH (39->0): short-lived `sobj` scopes keep each escaped out[0] reload in a0 without promoting it
+ * to a callee-saved register; preloading the release size places the free-marker store in the
+ * decbufferusage jal slot; and the reversed priority ternary matches the restart call's branch layout.
  * TWO REAL BUGS FOUND+FIXED here (2026-07, wave-16 a1): (1) the restartstream() call was missing a
  *   DEAD 2nd arg (`prio`, same ternary shape as STREAM_queuefile's startnextrequest call) that the
  *   oracle still loads+passes despite restartstream ignoring it -- same family as opencallback's
@@ -1178,14 +1175,19 @@ extern void STREAM_release(int s, int chunk)
     int out[2];
     if (validatehandle(s, &out[0], &out[1]) != 0)
         return;
-    if ((unsigned int)chunk < MU(out[0], 0x20))     /* below bufBase */
-        return;
-    if ((unsigned int)(MI(out[0], 0x24) - 8) < (unsigned int)chunk)  /* above bufEnd-8 */
-        return;
-    if (MI(chunk, 0) == -2)                          /* already free */
-        return;
-    MI(chunk, 0) = -2;                              /* mark free */
-    decbufferusage(out[0], MI(chunk, 4));            /* account the chunk's bytes back */
+    {
+        int sobj = out[0];
+        int amount;
+        if ((unsigned int)chunk < MU(sobj, 0x20))     /* below bufBase */
+            return;
+        if ((unsigned int)(MI(sobj, 0x24) - 8) < (unsigned int)chunk)  /* above bufEnd-8 */
+            return;
+        if (MI(chunk, 0) == -2)                      /* already free */
+            return;
+        amount = MI(chunk, 4);
+        MI(chunk, 0) = -2;                           /* mark free */
+        decbufferusage(sobj, amount);                 /* account the chunk's bytes back */
+    }
     {
         int state, sr;
         sr = STREAM_enterCS();
@@ -1199,8 +1201,9 @@ extern void STREAM_release(int s, int chunk)
             /* MATCH: oracle passes a DEAD 2nd arg (prio, same ternary as STREAM_queuefile's
              * wasidle-startnextrequest call) -- restartstream ignores it but the caller still
              * loads+passes it (same dead-2nd-param family as opencallback's restartstream call). */
-            unsigned int prio = (MI(out[0], 0x38) == 0) ? MU(out[0], 0x2c) : MU(out[0], 0x30);
-            ((int (*)(int, unsigned int))restartstream)(out[0], prio);
+            int sobj = out[0];
+            unsigned int prio = (MI(sobj, 0x38) != 0) ? MU(sobj, 0x30) : MU(sobj, 0x2c);
+            ((int (*)(int, unsigned int))restartstream)(sobj, prio);
         }
     }
 }

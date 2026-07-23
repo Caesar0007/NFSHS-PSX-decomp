@@ -588,38 +588,31 @@ extern int iFILE_delbigclosecallback(unsigned int id, int a1, void *cmd)
 extern int iFILE_CommandCompleteCallback(int result)
 {
     FileOp *cmd = gFileMgr.curop;
-    int status;
     if (cmd == 0)
-        return 0;
+        return;
     /* @0x800ED040-50: a flat chain of early-out tests, EACH jumping (with its value already loaded in
      * the branch's delay slot) straight to the shared store -- not an if/else-if/else (that nests the
      * tests instead of chaining independent early-outs to one target). cancelreq!=0 -> -1, result==0 ->
      * -2, else 1 (fall-through default).
-     * 🔴 RESIDUAL FLOOR (23 diffs, investigated this wave): oracle reads the OLD cmd->status
-     * into a register BEFORE this chain (immediately overwritten on every path -- genuinely
-     * dead) and keeps the whole status computation in ONE register ($v0) shared with the
-     * branch-test values; ours uses a SEPARATE `status` local ($v1) and never emits the dead
-     * pre-read (gcc DCEs `status=cmd->status;` when immediately overwritten -- tried it, no
-     * codegen change). Oracle also RE-LOADS cmd->callback right before the `jalr` instead of
-     * reusing the value from the earlier null-test (a fresh load vs a cached test value). Pure
-     * v0-vs-v1 coloring + a reload-vs-reuse tie-break; not source-shapable so far. */
-    status = -1;
-    if (cmd->cancelreq != 0) goto store_status;         /* cancel in flight -> cancelled */
-    status = -2;
-    if (result == 0) goto store_status;                 /* device reported failure */
-    status = 1;                                         /* success (fall-through default) */
-store_status:
-    cmd->status = status;
+     * MATCH work (23->7): a volatile-qualified dead read retains the oracle's overwritten old
+     * status load; the reversed nested ternary keeps the status chain in v0; and value-less
+     * returns recover the entry branch and final tail.  Residual: the oracle keeps the callback
+     * test value in v1 through the counter increment and calls it directly, while this compiler
+     * rematerializes the field into v0 before jalr (one extra load). */
+    (void)*(volatile int *)&cmd->status;
+    cmd->status = (cmd->cancelreq != 0) ? -1 : ((result != 0) ? 1 : -2);
     gFileMgr.curop = 0;
-    if (cmd->callback) {
-        void (*cb)(int, int, int) = (void (*)(int, int, int))cmd->callback;
-        gFileMgr.cbpending++;
-        cb((int)cmd->id, cmd->status, cmd->param);
-        gFileMgr.cbpending--;
+    {
+        register void (*cb)(int, int, int) = (void (*)(int, int, int))cmd->callback;
+        if (cb) {
+            gFileMgr.cbpending++;
+            cb((int)cmd->id, cmd->status, cmd->param);
+            gFileMgr.cbpending--;
+        }
     }
     if (gFileMgr.cbpending == 0)
         iFILE_ExecCommand((void *)0);                   /* kick the next queued command */
-    return 0;
+    return;
 }
 
 /* ---- BIG-archive (.BIG) mount: FILE_addbig + its open/read completion callbacks ---- */

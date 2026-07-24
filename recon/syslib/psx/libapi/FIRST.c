@@ -11,29 +11,21 @@
  *   The 0x150/0x154 kernel globals and the 0x50-byte DCB layout are part of the PSX BIOS ABI (fixed
  *   addresses), represented here as literal volatile pointers per the HW/BIOS-global rule.
  *
- *   BYTE-MATCH STATUS: WALL (firstfile, 102/103 diffs).  This is a faithful BEHAVIORAL recon but
- *   structurally diverges from the oracle in three compounding ways across all 103 instructions:
- *     (1) the oracle finds the device, saves the handler AND installs the patch in ONE search pass
- *         (match at .L80109EA0 reads +0x34 then patches); this recon uses TWO passes + a `found` flag.
- *     (2) the devname-copy loop is SIGNED in the oracle (`lb`+`slti 0x3B`) but this build emits
- *         `lbu`+`sltiu` (target `char` is unsigned by default -> needs an -fsigned-char / signed-char
- *         cast to match).
- *     (3) the recon colors 6 callee-saved regs (frame -0x30) vs the oracle's 5 (frame -0x28), and the
- *         /0x50 magic-divide pair gcc picks here (0x66666667) differs from the oracle's (0xCCCCCCCD>>6).
- *   Reaching 100% needs a single-pass rewrite driven off the oracle CFG + signed-char + reg-budget
- *   trimming -- a multi-hour effort deferred as out of scope for this thunk-focused pass. */
+ *   Oracle tracing shows two searches: the first saves the real handler and the second installs
+ *   the one-shot patch.  The pathname scan is signed, preserves the original `name` for firstfile2,
+ *   and the DCB byte-count division is unsigned (0xCCCCCCCD >> 6). */
 
-extern "C" int   strcmp(const char *a, const char *b);     /* libc C23 @0x800E5D7C */
-extern "C" void *firstfile2(const char *name, void *dir);  /* A66.OBJ : BIOS B0:0x42 */
+extern int   strcmp(const char *a, const char *b);     /* libc C23 @0x800E5D7C */
+extern void *firstfile2(const char *name, void *dir);  /* A66.OBJ : BIOS B0:0x42 */
 
 /* PSX BIOS Device Control Block: 0x50 bytes.  Only the name pointer (+0x00) and the per-device
  * first-file handler slot (+0x34) are touched here. */
-struct DCB {
+typedef struct DCB {
     char  *name;        /* +0x00 */
     int    _r1[12];     /* +0x04 .. +0x30 */
     void  *firstfile;   /* +0x34 : first-file handler (patch target) */
     int    _r2[6];      /* +0x38 .. +0x4C */
-};                      /* sizeof == 0x50 */
+} DCB;                  /* sizeof == 0x50 */
 
 /* BIOS device-table kernel globals (fixed ABI addresses). */
 #define BIOS_DCB_BASE   (*(DCB *volatile *)0x150)   /* @kernel 0x150 : DCB table base pointer */
@@ -41,11 +33,11 @@ struct DCB {
 
 typedef int (*FirstFn)(int *state, int arg, int arg2);
 
-static FirstFn _first_save;          /* @0x80148A7C : saved original device handler */
-static char    _first_devname[16];   /* @0x80148A84 : device prefix extracted from `name` */
+extern FirstFn _first_save;          /* @0x80148A7C : saved original device handler */
+extern char    _first_devname[16];   /* @0x80148A84 : device prefix extracted from `name` */
 
 /* @0x80109F5C : _first_patch -- restore the device's real handler, then forward the call. */
-extern "C" int _first_patch(int *state, int arg, int arg2)
+extern int _first_patch(int *state, int arg, int arg2)
 {
     DCB *e, *end;
 
@@ -63,35 +55,34 @@ extern "C" int _first_patch(int *state, int arg, int arg2)
 }
 
 /* @0x80109DC0 : firstfile */
-extern "C" void *firstfile(char *name, void *dir)
+extern void *firstfile(char *name, void *dir)
 {
     DCB  *e, *end;
     char *p;
-    int   found;
+    signed char *scan;
 
     /* extract the device prefix (characters before ':') into _first_devname */
     p = _first_devname;
-    while (*name > ':')
-        *p++ = *name++;
+    scan = (signed char *)name;
+    while (*scan > ':')
+        *p++ = (unsigned char)*scan++;
     *p = '\0';
 
     /* pass 1: locate the device, remember its current first-file handler */
-    found = 0;
     e   = BIOS_DCB_BASE;
-    end = e + BIOS_DCB_BYTES / (int)sizeof(DCB);
+    end = e + (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
     for (; e < end; e++) {
         if (e->name != 0 && strcmp(e->name, _first_devname) == 0) {
             _first_save = (FirstFn)e->firstfile;
-            found = 1;
-            break;
+            goto install;
         }
     }
-    if (!found)
-        return 0;
+    return 0;
 
     /* pass 2: install the self-removing patch into that device */
+install:
     e   = BIOS_DCB_BASE;
-    end = e + BIOS_DCB_BYTES / (int)sizeof(DCB);
+    end = e + (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
     for (; e < end; e++) {
         if (e->name != 0 && strcmp(e->name, _first_devname) == 0) {
             e->firstfile = (void *)_first_patch;

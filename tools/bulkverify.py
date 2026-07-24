@@ -34,7 +34,7 @@ def oracle_ins(fn):
     return out
 _d=(ROOT/sys.argv[1] if len(sys.argv)>1 else ROOT/'recon'/'game'/'common')
 mods=sorted([*_d.glob('*.cpp'), *_d.glob('*.c')])   # .c = C-module TUs (eaclib/syslib ruling 2026-07-09)
-tot_fn=0; tot_pass=0; near=0; far=0; comp_fail=0; matched=[]; near_list=[]
+tot_fn=0; tot_pass=0; near=0; far=0; comp_fail=0; matched=[]; near_list=[]; far_list=[]
 for m in mods:
     try: obj=bld.compile_c(m, False) if m.suffix=='.c' else bld.compile_cpp(m)
     except SystemExit: comp_fail+=1; continue
@@ -61,7 +61,7 @@ for m in mods:
         d=[l for l in difflib.unified_diff(ins,e,lineterm='') if l[0] in '+-' and not l.startswith(('+++','---'))]
         if not d: tot_pass+=1; matched.append(fn)
         elif len(d)<=15: near+=1; near_list.append((fn,len(d)))
-        else: far+=1
+        else: far+=1; far_list.append((fn,len(d),m.name,len(ins),len(e)))
 print(f"=== BULK VERIFY ===")
 print(f"modules: {len(mods)}  compile-fail: {comp_fail}")
 print(f"functions with oracle: {tot_fn}")
@@ -72,3 +72,6 @@ print(f"=== {tot_pass} FREE byte-matches from verbatim import ===")
 for f in sorted(matched)[:60]: print('  +',f)
 print(f"=== near-misses (<=15 diffs), top 40 ===")
 for f,n in sorted(near_list,key=lambda x:x[1])[:40]: print(f'  {n:2} {f}')
+print(f"=== far residuals (>15 diffs), largest 60 ===")
+for f,n,m,ours_n,oracle_n in sorted(far_list,key=lambda x:x[1],reverse=True)[:60]:
+    print(f'  {n:4} {f} ({m}: ours {ours_n} / oracle {oracle_n})')

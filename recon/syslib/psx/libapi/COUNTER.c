@@ -10,67 +10,65 @@
  *   The three globals live in a sibling data TU (COUNTER_data.cpp) so this TU references them
  *   as extern -> absolute lui/%hi addressing, matching the oracle (a small initialized global
  *   defined here would land in -G4 small-data -> gp-relative and break the match; §3.12 #6).
- *   The `spec` index is taken as a SIGNED int (the oracle's `slti`, not `sltiu`) and every
- *   function has a SINGLE return point the early-outs `goto` (the oracle's `j .Lret`).
- *   STATUS: structurally faithful to the oracle (correct base-pointer indexing + algorithm;
- *   replaces the prior IDA literal-MMIO version which was structurally WRONG).  Residual
- *   near-miss is pure hand-asm coloring/scheduling (GetRCnt 7, StartRCnt 10, SetRCnt 38==39
- *   insn-count): the `andi`-mask on a volatile u16 return and the store parked in the `jr $ra`
- *   delay slot are hand-written-asm idioms gcc won't reproduce here without a forbidden reg
- *   pin -- the SAME accepted near-miss class as the sibling RCnt helpers in libpad/WAITRC2. */
+ *   The source shape is shared with the Psy-Q SDK reconstruction in sotn-decomp: mask `spec`
+ *   to 16 bits, model the 16-byte hardware register stride as a Counter struct, initialize
+ *   final_mode before the range guard, and retain the explicit counter-2 test. */
 
 extern unsigned char  *RCnt_regs;   /* @0x801234B8 : = (uchar*)0x1F801100 */
 extern unsigned char  *RCnt_ctrl;   /* @0x801234B4 : = (uchar*)0x1F801070 */
 extern unsigned long   RCnt_irq[];  /* @0x801234BC : {0x10,0x20,0x40,0x1,0,0} */
 
+typedef struct Counter {
+    unsigned short rootCounter;
+    short          unk2;
+    short          mode;
+    short          pad6;
+    short          target;
+    short          padA;
+    long           padC;
+} Counter;
+
 /* @0x800E9E70 : SetRCnt(spec, target, mode) -- program a root counter, return 1 (0 if spec>=3). */
-extern int SetRCnt(unsigned short spec, short target, short mode)
+extern long SetRCnt(unsigned long spec, unsigned short target, long flags)
 {
-    int            s = spec;          /* signed index -> slti, not sltiu */
-    unsigned char *reg;
-    int            m;
-    int            result;
+    long i = spec & 0xffff;
+    long final_mode = 0x48;
 
-    if (s >= 3) {
-        result = 0;
-        goto out;
+    if (i >= 3)
+        return 0;
+
+    ((volatile Counter *)RCnt_regs)[i].mode = 0;
+    ((volatile Counter *)RCnt_regs)[i].target = target;
+
+    if ((unsigned long)i < 2) {
+        if (flags & 0x10)
+            final_mode = 0x49;
+        if (!(flags & 1))
+            final_mode |= 0x100;
+    } else if (i == 2) {
+        if (!(flags & 1))
+            final_mode = 0x248;
     }
+    if (flags & 0x1000)
+        final_mode |= 0x10;
 
-    reg = RCnt_regs + s * 16;
-    *(volatile unsigned short *)(reg + 4) = 0;          /* clear mode */
-    *(volatile unsigned short *)(reg + 8) = target;     /* set target */
-
-    if (s < 2) {
-        m = 0x48;
-        if (mode & 0x10) m = 0x49;
-        if ((mode & 1) == 0) m |= 0x100;
-    } else {
-        m = 0x48;
-        if ((mode & 1) == 0) m = 0x248;
-    }
-    if (mode & 0x1000) m |= 0x10;
-
-    *(volatile unsigned short *)(RCnt_regs + s * 16 + 4) = (unsigned short)m;
-    result = 1;
-out:
-    return result;
+    ((volatile Counter *)RCnt_regs)[i].mode = final_mode;
+    return 1;
 }
 
 /* @0x800E9F0C : GetRCnt(spec) -- read a counter's current count (0 if spec>=3). */
-extern int GetRCnt(unsigned short spec)
+extern long GetRCnt(long spec)
 {
-    /* NEAR-MISS (7): tail andi 0xffff (volatile blocks the lhu/extend merge) + oracle's
-     * duplicated `j .END`/v0=0 exit with UNFILLED j slot (-fno-delayed-branch lane class).
-     * Tried+reverted: non-volatile read (kills the andi but flips the whole head coloring
-     * s: v1->a0, net 19); if/else funnel and explicit `& 0xffff` (same flip). Coupled. */
-    int s = spec;                     /* signed index -> slti */
-    return (s < 3) ? *(volatile unsigned short *)(RCnt_regs + s * 16) : 0;
+    long i = spec & 0xffff;
+    if (i >= 3)
+        return 0;
+    return ((volatile Counter *)RCnt_regs)[i].rootCounter;
 }
 
 /* @0x800E9F44 : StartRCnt(spec) -- enable a counter's IRQ in the mask; return spec<3. */
-extern int StartRCnt(unsigned short spec)
+extern long StartRCnt(unsigned long spec)
 {
-    int s = spec;                     /* signed index -> slti */
-    *(volatile unsigned long *)(RCnt_ctrl + 4) |= RCnt_irq[s];
-    return s < 3;
+    long i = spec & 0xffff;
+    ((volatile unsigned long *)RCnt_ctrl)[1] |= RCnt_irq[i];
+    return i < 3;
 }

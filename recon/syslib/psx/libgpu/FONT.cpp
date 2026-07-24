@@ -38,9 +38,10 @@ struct FntStream {              /* 0x30 bytes; @0x80135E58 + id*0x30 */
     int    autoupd;             /* +0x2C : auto-fit the clip box to the text */
 };
 
-static FntStream _fnt[8];       /* @0x80135E58 : open font streams */
-static int _fnt_count;          /* @0x80135FD8 : number of open streams */
-static int _fnt_active;         /* @0x80135FDC : current active stream id */
+extern FntStream _fnt[8];       /* @0x80135E58 : open font streams */
+extern int _fnt_count;          /* @0x80135FD8 : number of open streams */
+extern int _fnt_active;         /* @0x80135FDC : current active stream id */
+extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
 
 static FntStream *fnt_pick(int id)
 {
@@ -127,79 +128,127 @@ render:
     return &fs->ot;
 }
 
-/* @0x800F7034 : printf-style append into a stream's text buffer (%x/%X/%c/%d/%s + width). */
-extern "C" int FntPrint(int id, const char *format, ...)
+/* @0x800F7034 : printf-style append into a stream's text buffer (%x/%X/%c/%d/%s + width).
+ * Psy-Q also accepts the format string itself as the first argument, selecting the active stream. */
+#define WriteChar(c)                                                        \
+    fs->textbuf[fs->textlen++] = (c);                                       \
+    if (fs->textlen > fs->maxchars) {                                       \
+        return -1;                                                          \
+    }
+
+extern "C" int FntPrint(const char *id, ...)
 {
-    FntStream *fs = fnt_pick(id);
+    char buf[0x200];
+    va_list args;
+    FntStream *fs;
+    u_char padZeros;
+    int num;
+    int len;
+    int width;
+    char *f;
+    char *bufPtr;
+    char sign;
+    unsigned int ch;
+
+    va_start(args, id);
+    if ((int)id < 0 || (int)id >= _fnt_count) {
+        f = (char *)id;
+        id = (const char *)_fnt_active;
+        if (_fnt[(int)id].textbuf == NULL)
+            return -1;
+    } else {
+        f = va_arg(args, char *);
+    }
+
+    fs = &_fnt[(int)id];
     if (fs->textlen > fs->maxchars)
         return -1;
-    va_list ap;
-    va_start(ap, format);
 
-    const char *f = format;
-    char c = *f;
-    while (c != 0) {
-        if (c == '%') {
-            f++;
-            c = *f;
-            if (c == '%') {
-                fs->textbuf[fs->textlen++] = c;
-                if (fs->maxchars < fs->textlen) { va_end(ap); return -1; }
-            } else {
-                int  width = 0;
-                bool spacepad = (c != '0');
-                while ((unsigned)(c - '0') < 10) { width = width * 10 + (c - '0'); f++; c = *f; }
-                if (width < 1) width = 1;
+    for (; ch = *f, ch; ++f) {
+        if (ch != '%') {
+            WriteChar(ch);
+            continue;
+        }
 
-                char tmp[16];
-                char *s   = tmp + sizeof(tmp);
-                int   cnt = 0;
-                bool  emit_now = false;
+        ch = *++f;
+        if (ch == '%') {
+            WriteChar('%');
+            continue;
+        }
 
-                if (c == 'x' || c == 'X') {
-                    unsigned v = va_arg(ap, unsigned);
-                    do { *--s = "0123456789ABCDEF"[v & 0xf]; v >>= 4; cnt++; } while (v != 0);
-                    if (!spacepad) {                  /* zero-pad */
-                        while (cnt < width) { *--s = '0'; cnt++; }
-                        emit_now = true;
-                    }
-                } else if (c == 'c') {
-                    *--s = (char)va_arg(ap, int);
-                    cnt = 1;
-                } else if (c == 'd') {
-                    int sv = va_arg(ap, int);
-                    char sign = 0;
-                    unsigned v = (unsigned)sv;
-                    if (sv < 0) { v = (unsigned)(-sv); sign = '-'; }
-                    do { *--s = (char)('0' + v % 10); v /= 10; cnt++; } while (v != 0);
-                    if (sign) { *--s = sign; cnt++; emit_now = true; }
-                } else if (c == 's') {
-                    s = va_arg(ap, char *);
-                    cnt = (int)strlen(s);
-                }
+        width = 0;
+        padZeros = ch == '0';
+        while (ch >= '0' && ch <= '9') {
+            width = (width * 10) + (ch - '0');
+            ch = *++f;
+        }
+        bufPtr = (char *)&args;
+        if (width <= 0)
+            width = 1;
 
-                if (!emit_now) {
-                    if (cnt < width) {                /* space-pad on the left */
-                        do {
-                            fs->textbuf[fs->textlen++] = 0x20;
-                            if (fs->maxchars < fs->textlen) { va_end(ap); return -1; }
-                            width--;
-                        } while (cnt < width);
-                    }
-                }
-                while (--cnt != -1) {                 /* emit the generated characters */
-                    fs->textbuf[fs->textlen++] = *s++;
-                    if (fs->maxchars < fs->textlen) { va_end(ap); return -1; }
+        switch (ch) {
+        case 'd':
+            num = va_arg(args, int);
+            sign = 0;
+            if (num < 0) {
+                num = -num;
+                sign = '-';
+            }
+            len = 0;
+            do {
+                do {
+                    *--bufPtr = (num % 10U) + '0';
+                    num /= 10U;
+                    len++;
+                } while (len == 0);
+            } while (num != 0);
+            if (sign != 0) {
+                *--bufPtr = sign;
+                len++;
+            }
+            break;
+
+        case 'X':
+        case 'x':
+            len = 0;
+            num = va_arg(args, int);
+            do {
+                do {
+                    *--bufPtr = D_801369E4[num % 16U];
+                    num /= 16U;
+                    len++;
+                } while (len == 0);
+            } while (num != 0);
+            if (padZeros) {
+                while (len < width) {
+                    *--bufPtr = '0';
+                    len++;
                 }
             }
-        } else {
-            fs->textbuf[fs->textlen++] = c;
-            if (fs->maxchars < fs->textlen) { va_end(ap); return -1; }
+            break;
+
+        case 'c':
+            *--bufPtr = (char)va_arg(args, int);
+            len = 1;
+            break;
+
+        case 's':
+            bufPtr = va_arg(args, char *);
+            len = strlen(bufPtr);
+            break;
         }
-        f++;
-        c = *f;
+
+        while (len < width) {
+            WriteChar(' ');
+            width--;
+        }
+        len--;
+        while (len != -1) {
+            WriteChar(*bufPtr++);
+            len--;
+        }
     }
-    va_end(ap);
     fs->textbuf[fs->textlen] = 0;
     return fs->textlen;
 }
+#undef WriteChar

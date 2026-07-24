@@ -81,7 +81,9 @@ extern void freehandle(FileHandle *h)
  * the found slot's address from the loop COUNTER alone (handlearray + i*0x4C) rather than carrying the
  * walking pointer out -- so the C tracks only the index `i`, never a separate result pointer.
  * 🔴 RESIDUAL FLOOR (32 diffs, investigated this wave): count matches (44=44). Oracle's scan loop
- * is UNROTATED (enters the body directly after the blez guard, tests h->inuse first, increments +
+ * UPDATE: caching handlecount only for the scan (and deliberately re-reading it after leaving the
+ * critical section) improves 32->29 diffs; instruction count is now 43/44.
+ * The oracle's scan loop is UNROTATED (enters the body directly after the blez guard, tests h->inuse first, increments +
  * re-tests i<handlecount at the BOTTOM, no entry jump-to-condition); ours compiles the identical
  * for(;;){break;break;} shape ROTATED (an unconditional `j` to a mid-loop test before the first
  * real iteration, classic for-loop rotation). Tried an explicit `do{}while(1)` instead of `for(;;)`
@@ -91,10 +93,11 @@ extern void freehandle(FileHandle *h)
  * by source reshaping so far; permuter candidate (not run this wave). */
 extern FileHandle *reservehandle(void)
 {
-    int i, sr;
+    int i, sr, count;
     FILE_CS_ENTER(sr);
     i = 0;
-    if (gFileMgr.handlecount > 0) {
+    count = gFileMgr.handlecount;
+    if (count > 0) {
         FileHandle *h = gFileMgr.handlearray;
         for (;;) {
             if (h->inuse == 0) {      /* first empty slot */
@@ -102,7 +105,7 @@ extern FileHandle *reservehandle(void)
                 break;
             }
             i++;
-            if (i >= gFileMgr.handlecount)
+            if (i >= count)
                 break;
             h = (FileHandle *)((char *)h + 0x4C);
         }
@@ -121,29 +124,39 @@ extern FileHandle *reservehandle(void)
  * (the type-nibble set) reuses the address+value already computed for the free-check condition;
  * the byte3 store and the seq-combine store each redo `oparray + off` from scratch (2 extra
  * lui/lw/addu-shaped reloads the oracle has that a single persistent `op` local doesn't produce).
- * OPARR_AT is that fresh-recompute accessor; `off` (a byte offset, not a walked pointer) is the
- * oracle's own loop induction variable (its bnez back-edge delay slot is `addiu a1,a1,0x30`). */
-#define OPARR_AT(o) ((FileOp *)((char *)gFileMgr.oparray + (o)))
+ * A persistent manager base plus fresh `mgr->oparray + off` expressions preserves those reloads.
+ * Hoisting the four id masks and caching opcount for the scan improve the detailed residual
+ * 97->88; `off` remains the oracle's byte-offset induction variable. */
 
 extern FileOp *reserveop(void)
 {
-    int i, sr, off;
+    int i, sr, off, count;
+    FileMgr *mgr;
     FILE_CS_ENTER(sr);
     i = 0;
-    if (gFileMgr.opcount > 0) {
+    mgr = &gFileMgr;
+    count = mgr->opcount;
+    if (count > 0) {
+        unsigned int clearType = 0xFF0FFFFFu;
+        unsigned int setType = 0x100000u;
+        unsigned int seqMask = 0xFFFFFu;
+        unsigned int keepType = 0xFFF00000u;
         off = 0;
         for (;;) {
-            FileOp *op = OPARR_AT(off);
-            if (((op->id >> 0x14) & 0xF) == 0) {             /* type nibble (bits 20-23) == 0 -> free */
-                op->id = (op->id & 0xFF0FFFFFu) | 0x100000u; /* set type nibble = 1 */
-                ((unsigned char *)&OPARR_AT(off)->id)[3] = (unsigned char)i;  /* byte3 = op index */
-                OPARR_AT(off)->id = (OPARR_AT(off)->id & 0xFFF00000u) | (gFileOpSeq & 0xFFFFF); /* bits 0-19 = request seq */
-                if (++gFileOpSeq > 0xFFFFF)                  /* 20-bit wrap */
+            FileOp *op = (FileOp *)((char *)mgr->oparray + off);
+            if (((op->id >> 0x14) & 0xF) == 0) {
+                op->id = (op->id & clearType) | setType; /* set type nibble = 1 */
+                ((unsigned char *)&((FileOp *)((char *)mgr->oparray + off))->id)[3] =
+                    (unsigned char)i;  /* byte3 = op index */
+                ((FileOp *)((char *)mgr->oparray + off))->id =
+                    (((FileOp *)((char *)mgr->oparray + off))->id & keepType) |
+                    (gFileOpSeq & seqMask); /* bits 0-19 = request seq */
+                if (++gFileOpSeq > (int)seqMask)             /* 20-bit wrap */
                     gFileOpSeq = 0;
                 break;
             }
             i++;
-            if (i >= gFileMgr.opcount)
+            if (i >= count)
                 break;
             off += 0x30;
         }

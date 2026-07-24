@@ -118,21 +118,19 @@ extern void iSND100hzserver(void)
                         *(unsigned char *)((int)p + 0x3a) = 0;
                 }
                 {
-                    unsigned int delta = p[5];                        /* portamento step */
-                    if (delta != 0) {
-                        unsigned int position;
-                        int sign;
+                    /* MATCH (184/184): keep the step as direct field reads. GCC CSEs them into the
+                     * oracle's step/sign register pair while retaining `position` as the add result. */
+                    if (p[5] != 0) {                                   /* portamento step */
+                        int position;
                         dirty = 1;
-                        sign = (int)delta;
-                        position = p[7] + delta;
-                        delta = position;
-                        p[7] = position;
-                        if (sign < 0) {
-                            if (!((int)p[6] < (int)delta)) {
+                        position = (int)p[7] + (int)p[5];
+                        p[7] = (unsigned int)position;
+                        if ((int)p[5] < 0) {
+                            if (!((int)p[6] < position)) {
                                 p[7] = p[6];
                                 p[5] = 0;
                             }
-                        } else if (!((int)delta < (int)p[6])) {
+                        } else if (!(position < (int)p[6])) {
                             p[7] = p[6];
                             p[5] = 0;
                         }

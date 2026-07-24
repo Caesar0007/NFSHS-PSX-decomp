@@ -247,39 +247,42 @@ extern int loadfilesizecallback(int id, int status, AsyncReq *req)
 /* loadfileopencallback @0x800F0F18 : open done -> read directly, size-then-read, or close on cancel. */
 extern int loadfileopencallback(int id, int status, AsyncReq *req)
 {
-    /* 🔴 RESIDUAL FLOOR (31 diffs, unchanged from before this wave): oracle materializes a
-     * second req-copy (s1=s0) in the FILE_completeop jal's delay slot for the FILE_size branch
-     * only; reproducing it as an explicit `req2` local coalesced badly (s1 got merged with the
-     * incoming `status` param instead), and removing the "value-less" returns didn't help
-     * either -- tried both independently and combined, no net improvement. Accept for now. */
+    /* MATCH (31->0): req2 is the FILE_size-only callback parameter, while the incoming status is
+     * genuinely unused (FILE_size receives priority 0x63).  Unconditional fileop stores plus
+     * positive callback guards recover the shared callback tail; the direct-read path deliberately
+     * reloads req->handle instead of reusing the equivalent FILE_completeop result. */
+    AsyncReq *req2 = req;
     int handle = FILE_completeop(req->fileop);
     unsigned int nextop;
-    (void)id;
+    (void)id; (void)status;
     req->handle = handle;                          /* asm: stored on both paths (delay slot) */
     if (handle == 0) {                             /* open failed */
         if (req->status != 0) cancelrequest(req);
         else                  finishrequest(req);
-        return 0;
+        goto done;
     }
     if (req->status != 0) {                        /* cancelled during open -> close */
         nextop = FILE_close((void *)(size_t)(unsigned int)handle, 0x63, RQ(req));
-        if (nextop == 0) return 0;
         req->fileop = (int)nextop;
-        FILE_callbackop(nextop, (void (*)(int, int))loadfileclosecallback);
-    } else if (req->buffer != 0) {                 /* alloc mode -> get the size first */
-        nextop = FILE_size((void *)(size_t)(unsigned int)handle, (unsigned int)status, RQ(req));
-        if (nextop == 0) return 0;
-        req->fileop = (int)nextop;
-        FILE_callbackop(nextop, (void (*)(int, int))loadfilesizecallback);
-    } else {                                        /* direct read into the preset dest */
-        nextop = FILE_read((void *)(size_t)(unsigned int)handle,
-                           (unsigned int)req->offset, (unsigned int)req->dest,
-                           readblocksize, 0x63, RQ(req));
-        if (nextop == 0) return 0;
-        req->fileop = (int)nextop;
-        FILE_callbackop(nextop, (void (*)(int, int))loadfilereadcallback);
+        if (nextop != 0)
+            FILE_callbackop(nextop, (void (*)(int, int))loadfileclosecallback);
+    } else {
+        if (req->buffer == 0) {                     /* direct read into the preset dest */
+            nextop = FILE_read((void *)(size_t)(unsigned int)req->handle,
+                               (unsigned int)req->offset, (unsigned int)req->dest,
+                               readblocksize, 0x63, RQ(req));
+            req->fileop = (int)nextop;
+            if (nextop != 0)
+                FILE_callbackop(nextop, (void (*)(int, int))loadfilereadcallback);
+        } else {                                    /* alloc mode -> get the size first */
+            nextop = FILE_size((void *)(size_t)(unsigned int)handle, 0x63, RQ(req2));
+            req2->fileop = (int)nextop;
+            if (nextop != 0)
+                FILE_callbackop(nextop, (void (*)(int, int))loadfilesizecallback);
+        }
     }
-    return 0;
+done:
+    ;
 }
 
 /* loadsegreadcallback @0x800F1024 : segment read from asyncfilehandle, chunked with a clamped tail. */

@@ -146,11 +146,77 @@ def ours(fn):
         out.append(norm_ins(insn))
     return out
 
+def _exists_exact(p: Path) -> bool:
+    """Path.exists() is CASE-INSENSITIVE on this NTFS checkout -- a lookup for
+    'cd_read.s' silently resolves to the unrelated 'CD_Read.s' (wrong oracle:
+    the real cd_read oracle is func_800F9984.s), and 'CD_init.s' resolves to
+    'CD_Init.s' instead of the true 'CD_init_80108140.s'. Both are REAL,
+    differently-named functions that happen to case-fold to the same string,
+    so silently accepting either one produces a false PASS/FAIL against the
+    wrong bytes. Require the resolved directory entry's on-disk name to match
+    byte-for-byte (Python str '==' is case-sensitive regardless of OS)."""
+    return p.exists() and p.name in {e.name for e in p.parent.iterdir()}
+
+
+_SYMBOL_ADDRS = None
+def _symbol_addrs():
+    """configs/symbol_addrs.txt: `NAME = 0xVA; // type:func` per line -- the
+    project's authoritative name<->address map (methodology gotcha 0b)."""
+    global _SYMBOL_ADDRS
+    if _SYMBOL_ADDRS is None:
+        _SYMBOL_ADDRS = {}
+        p = ROOT / 'configs' / 'symbol_addrs.txt'
+        if p.exists():
+            for ln in p.read_text().splitlines():
+                m = re.match(r'^(\w+)\s*=\s*0x([0-9A-Fa-f]+)\s*;', ln.strip())
+                if m:
+                    _SYMBOL_ADDRS[m.group(1)] = int(m.group(2), 16)
+    return _SYMBOL_ADDRS
+
+
+def _find_oracle_path(fn):
+    """Resolve a function NAME to its oracle .s path. The naive 'fn + .s' guess
+    fails two ways, both discovered via the NTFS case-insensitivity bug
+    (_exists_exact above): (1) splat sometimes leaves a function's oracle file
+    under its address-only name (func_800F9984.s holds `glabel cd_read`) when
+    the name was assigned to symbol_addrs.txt AFTER the initial split; (2) a
+    lowercase/uppercase name COLLISION (CD_init vs CD_Init) makes splat append
+    the VA to one side's filename (CD_init_80108140.s) to keep them apart on a
+    case-preserving-but-insensitive filesystem. Both are resolved by going
+    through configs/symbol_addrs.txt's name->VA map rather than trusting the
+    filename to equal the requested identifier."""
+    segs = ('main', 'front')
+    # 1) direct case-exact name match (the common case).
+    for seg in segs:
+        p = ROOT / 'asm' / 'nonmatchings' / seg / (fn + '.s')
+        if _exists_exact(p):
+            return p
+    # 2) VA-based fallbacks, via symbol_addrs.txt.
+    addrs = _symbol_addrs()
+    va_candidates = []
+    if fn in addrs:
+        va_candidates.append(addrs[fn])
+    else:
+        # disambiguated variant: some OTHER name in symbol_addrs.txt of the
+        # form `fn_XXXXXXXX` (case-collision suffix, e.g. CD_init_80108140
+        # for requested fn=CD_init).
+        pat = re.compile(r'^' + re.escape(fn) + r'_[0-9A-Fa-f]{8}$')
+        for name, va in addrs.items():
+            if pat.match(name):
+                va_candidates.append(va)
+    for va in va_candidates:
+        for seg in segs:
+            for cand in (f'{fn}_{va:08X}', f'func_{va:08X}'):
+                p = ROOT / 'asm' / 'nonmatchings' / seg / (cand + '.s')
+                if _exists_exact(p):
+                    return p
+    return None
+
+
 def oracle(fn):
-    p = ROOT / 'asm' / 'nonmatchings' / 'main' / (fn + '.s')
-    if not p.exists():
-        p = ROOT / 'asm' / 'nonmatchings' / 'front' / (fn + '.s')   # front overlay segment
-    if not p.exists(): return None
+    p = _find_oracle_path(fn)
+    if p is None:
+        return None
     out=[]
     for ln in p.read_text().splitlines():
         ln = re.sub(r'/\*.*?\*/', '', ln)                     # strip /* addr hex */ comments

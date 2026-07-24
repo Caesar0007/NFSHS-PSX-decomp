@@ -64,7 +64,12 @@ extern int           CD_nopen;    /* lid-open event counter */
 
 /* The 3-byte interrupt-state struct {sync, ready, c} @0x8013C224. */
 struct CD_intr { unsigned char sync, ready, c; };
-extern "C" CD_intr D_8013C224;            /* = Intr (in asm/data .bss-ish region) */
+extern "C" CD_intr D_8013C224;            /* = Intr (in asm/data .bss-ish region).
+                                            * TRIED `volatile` here (oracle's `Intr.ready=Intr.c;`
+                                            * genuinely reloads rather than const-propagating) -- it
+                                            * shaved 1 diff off CD_flush but REGRESSED CD_sync/CD_ready/
+                                            * CD_cw/CD_datasync/_cd_intr_dispatch (verify_asm, all
+                                            * larger). Reverted; net loss. */
 #define Intr D_8013C224
 
 /* Per-command 8-byte response buffers (this TU OWNS these in BSS @0x8014899C..). */

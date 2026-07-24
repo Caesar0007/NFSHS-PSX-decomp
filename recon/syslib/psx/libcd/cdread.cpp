@@ -82,16 +82,20 @@ extern "C" void _read_sync(void)
     _cdr.w24 = 0;                /* reading = 0 */
 }
 
-/* @0x801088B0 : ready interrupt -- one DataReady per sector. */
+/* @0x801088B0 : ready interrupt -- one DataReady per sector.
+ * NOTE: NO cached `CdrEnv *g` local -- the oracle addresses `_cdr` fresh (a cheap 2-insn lui/addiu
+ * rematerialization of the constant .bss address) at each access, and instead spends its ONE
+ * available callee-saved register on the incoming `code` ARGUMENT (which survives several `jal`s
+ * and can't be cheaply rematerialized).  A persistent `g` pointer local pins the allocator's
+ * saved-reg budget on the wrong value (methodology catalog: "eager-cache" / "don't cache derived
+ * pointers across calls" class). */
 extern "C" void _read_int(int intr, int code)
 {
-    volatile CdrEnv *g = &_cdr;
-
-    g->w34 = code;                                  /* remember intr arg for the user cb */
+    _cdr.w34 = code;                                /* remember intr arg for the user cb */
 
     if ((intr & 0xFF) == 1) {                       /* CdlDataReady */
-        if (g->w14 > 0) {                           /* still sectors to read */
-            if (g->w10 == 0x200) {                  /* 2048-byte mode: verify the MSF header */
+        if (_cdr.w14 > 0) {                          /* still sectors to read */
+            if (_cdr.w10 == 0x200) {                 /* 2048-byte mode: verify the MSF header */
                 CdlLOC hdr;
                 if (CD_read_dma_mode & 1) {
                     CdDataCallback(0);
@@ -101,73 +105,69 @@ extern "C" void _read_int(int intr, int code)
                 } else {
                     CdGetSector(&hdr, 3);
                 }
-                if (CdPosToInt(&hdr) != g->w20) {   /* read landed on the wrong sector */
+                if (CdPosToInt(&hdr) != _cdr.w20) { /* read landed on the wrong sector */
                     puts("CdRead: sector error\n");
-                    g->w14 = -1;
+                    _cdr.w14 = -1;
                 }
             }
             /* copy the sector body */
             if (CD_read_dma_mode & 1) {
-                CdGetSector2(g->w08, g->w10);       /* DMA: advance deferred to _read_data_int */
+                CdGetSector2(_cdr.w08, _cdr.w10);   /* DMA: advance deferred to _read_data_int */
             } else {
-                CdGetSector(g->w08, g->w10);
-                g->w08 += g->w10 * 4;               /* cursor += sector bytes */
-                g->w14--;                           /* one fewer remaining */
-                g->w20++;                           /* next expected sector */
+                CdGetSector(_cdr.w08, _cdr.w10);
+                _cdr.w08 += _cdr.w10 * 4;           /* cursor += sector bytes */
+                _cdr.w14--;                          /* one fewer remaining */
+                _cdr.w20++;                          /* next expected sector */
             }
         }
     } else {
-        g->w14 = 1;                                 /* @80108A14 : non-DataReady intr */
+        _cdr.w14 = 1;                                /* @80108A14 : non-DataReady intr */
     }
 
     /* ---- common tail @80108A18 ---------------------------------------------------------------- */
-    g->w18 = VSync(-1);
-    if (g->w14 < 0)                                 /* error -> re-issue the read */
+    _cdr.w18 = VSync(-1);
+    if (_cdr.w14 < 0)                                /* error -> re-issue the read */
         _read_issue(1);
-    if (g->w1c + 0x4B0 < VSync(-1))                 /* overall watchdog (1200 frames) */
-        g->w14 = -1;
-    if (g->w14 != 0 && !(g->w1c + 0x4B0 < VSync(-1)))
-        return;                                     /* still busy, not timed out -> wait */
+    if (_cdr.w1c + 0x4B0 < VSync(-1))                /* overall watchdog (1200 frames) */
+        _cdr.w14 = -1;
+    if (_cdr.w14 != 0 && !(_cdr.w1c + 0x4B0 < VSync(-1)))
+        return;                                      /* still busy, not timed out -> wait */
 
     /* ---- read finished (or timed out) @80108A98 ---------------------------------------------- */
-    CdReadyCallback(g->w2c);                        /* restore ready cb */
+    CdReadyCallback(_cdr.w2c);                       /* restore ready cb */
     if (CD_read_dma_mode & 1)
-        CdDataCallback(g->w30);                     /* restore data cb */
+        CdDataCallback(_cdr.w30);                    /* restore data cb */
     CdSyncCallback((int)_read_sync);                /* install completion sync handler */
     CdControlF(9, 0);                               /* CdlPause */
     if (CD_cbread != 0) {
-        g->w24 = 1;
-        ((CdlCB)CD_cbread)(g->w14 != 0 ? 5 : 2, g->w34);
+        _cdr.w24 = 1;
+        ((CdlCB)CD_cbread)(_cdr.w14 != 0 ? 5 : 2, code);
     }
 }
 
 /* @0x80108B24 : DMA-data complete -- advance the ring and finish if this was the last sector. */
 extern "C" void _read_data_int(void)
 {
-    volatile CdrEnv *g = &_cdr;
-
-    g->w08 += g->w10 * 4;       /* cursor += sector bytes */
-    g->w14--;                   /* one fewer remaining    */
-    g->w20++;                   /* next expected sector   */
-    if (g->w14 != 0)
+    _cdr.w08 += _cdr.w10 * 4;   /* cursor += sector bytes */
+    _cdr.w14--;                  /* one fewer remaining    */
+    _cdr.w20++;                  /* next expected sector   */
+    if (_cdr.w14 != 0)
         return;
 
-    CdReadyCallback(g->w2c);
+    CdReadyCallback(_cdr.w2c);
     if (CD_read_dma_mode & 1)
-        CdDataCallback(g->w30);
+        CdDataCallback(_cdr.w30);
     CdSyncCallback((int)_read_sync);
     CdControlF(9, 0);           /* CdlPause */
     if (CD_cbread != 0) {
-        g->w24 = 1;
-        ((CdlCB)CD_cbread)(2, g->w34);
+        _cdr.w24 = 1;
+        ((CdlCB)CD_cbread)(2, _cdr.w34);
     }
 }
 
 /* @0x80108BF4 : (re)issue the read.  retry!=0 re-seeks to CdLastPos and re-sends mode. */
 extern "C" int _read_issue(int retry)
 {
-    volatile CdrEnv *g = &_cdr;
-
     CdSyncCallback(0);
     CdReadyCallback(0);
     if (CD_read_dma_mode & 1)
@@ -177,9 +177,9 @@ extern "C" int _read_issue(int retry)
         if ((VSync(-1) & 0x3F) == 0)               /* throttle the spam */
             puts("CdRead: Shell open...\n");
         CdControlF(1, 0);                          /* CdlNop */
-        g->w1c = VSync(-1);
-        g->w14 = -1;
-        return g->w14;
+        _cdr.w1c = VSync(-1);
+        _cdr.w14 = -1;
+        return _cdr.w14;
     }
 
     if (retry != 0) {
@@ -191,32 +191,37 @@ extern "C" int _read_issue(int retry)
 
     CdFlush();
     {
-        u_char modeb = (u_char)g->w0c;
-        if ((g->w0c & 0xFF) != CdMode() || retry != 0) {
+        u_char modeb = (u_char)_cdr.w0c;
+        if ((_cdr.w0c & 0xFF) != CdMode() || retry != 0) {
             if (CdControl(0xE, &modeb, 0) == 0)              /* CdlSetmode */
                 goto error;
         }
     }
 
     /* delay-slot capture: w20 receives CdPosToInt()'s result (computed before CdReadyCallback). */
-    g->w20 = CdPosToInt((CdlLOC *)CdLastPos());             /* start sector */
+    _cdr.w20 = CdPosToInt((CdlLOC *)CdLastPos());           /* start sector */
     CdReadyCallback((int)_read_int);
     if (CD_read_dma_mode & 1)
         CdDataCallback((int)_read_data_int);
     CdControlF(6, 0);                                        /* CdlReadN */
-    g->w08 = g->w04;                                        /* cursor = buffer */
-    g->w14 = g->w00;                                        /* remaining = sectors */
-    g->w18 = VSync(-1);
-    return g->w14;
+    _cdr.w08 = _cdr.w04;                                    /* cursor = buffer */
+    _cdr.w14 = _cdr.w00;                                    /* remaining = sectors */
+    _cdr.w18 = VSync(-1);
+    return _cdr.w14;
 
 error:
-    g->w14 = -1;
-    return g->w14;
+    _cdr.w14 = -1;
+    return _cdr.w14;
 }
 
 /* @0x80108DDC : CdRead -- start an asynchronous N-sector read into `buf`. Returns >0 on success. */
 extern "C" int CdRead(int sectors, u_long *buf, int mode)
 {
+    /* NOTE (unlike _read_int/_read_data_int/_read_issue above): here the oracle DOES anchor one
+     * base pointer register (initially &_cdr.w24) and reuses/rebases it across the whole function
+     * -- a cached-pointer local scores fewer diffs for THIS fn's access pattern (verified: direct
+     * `_cdr.field` access regressed 43->61). Kept as `g` deliberately; do not "clean up" to match
+     * the sibling functions' style. */
     volatile CdrEnv *g = &_cdr;
 
     if (g->w24 != 0) {                              /* a previous read is still active */

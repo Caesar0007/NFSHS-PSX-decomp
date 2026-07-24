@@ -32,8 +32,14 @@ extern int CdDiskReady(int mode)
 
     cc = CdControlB(19, 0, result);                 /* CdlGetTN */
     if (mode == 1) {
+        int ready;                                   /* named bool temp -- matches oracle's a0-held
+                                                        * cc-copy coloring + speculative v0=5/v0=2
+                                                        * delay-slot fills (w24-a10: 23->5 diffs;
+                                                        * residual 5 = 3 more delay-slot filler-
+                                                        * placement swaps, scheduler-only) */
         if (result[0] != 2) return 5;
-        if (cc != 0) return 2;
+        ready = cc != 0;
+        if (ready) return 2;
         return 5;
     }
 
@@ -70,10 +76,20 @@ extern int CdGetDiskType(void)
     CdIntToPos(16, locp);                           /* position of sector 16 (ISO PVD) */
     CdControl(27, locp, 0);                          /* CdlReadS from locp */
 
-    for (i = 0; i < 10; i++) {
-        rdy = CdReady(0, result);
-        if (rdy == 1) break;
-        CdControl(27, locp, 0);                      /* CdlReadS retry */
+    /* w24-a10: explicit goto-retry (not a for-loop with a post-loop `if(rdy==1)` re-check) --
+     * matches the oracle's control-flow shape exactly (the ready-arm is reached via a direct
+     * edge from the CdReady==1 branch OR by falling out of the retry-exhausted guard, never by
+     * a genuinely separate re-test) and drops an unneeded persistent register the for-loop
+     * shape forced (99->76 insns net, 61->54 diffs). */
+    i = 0;
+retry:
+    rdy = CdReady(0, result);
+    if (rdy != 1) {
+        i++;
+        if (i < 10) {
+            CdControl(27, locp, 0);                  /* CdlReadS retry */
+            goto retry;
+        }
     }
 
     if (rdy == 1) {
@@ -88,5 +104,10 @@ extern int CdGetDiskType(void)
         printf("Command Error: ");
         return 1;
     }
-    return (result[0] & 2) != 0;
+    {
+        /* named temp -- oracle compiles the audio-bit test as `andi;sltu`, not the `srl;andi`
+         * bit-shift form a bare `(result[0] & 2) != 0` expression picked. */
+        int audio = result[0] & 2;
+        return audio != 0;
+    }
 }

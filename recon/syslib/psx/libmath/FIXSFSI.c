@@ -13,19 +13,28 @@ extern unsigned int __fixsfsi(unsigned int arg1)   /* @0x800F3938 */
     } else {
         unsigned int exp = (int)arg1 >> 0x17 & 0xff;
         int          e   = exp - 0x9d;
-        if (e < 1) {
-            unsigned int mant = (arg1 & 0x7fffff) | 0x800000;
-            if ((exp - 0x7e < 0x20) && (mant != 0)) {
-                result = (int)(mant << 7) >> (-e);
-                if ((int)arg1 < 0) result = -result;
+        /* e>0 (overflow) is the FIRST arm textually in the oracle (blez skips PAST it to the e<=0
+         * fraction path) -- our prior e<1-first ordering compiled with the opposite branch sense. */
+        if (e > 0) {
+            if ((int)arg1 >= 0) {
+                _err_math(0x22, 0x12);
+                result = 0x7fffffff;
+            } else {
+                result = 0x80000000;
+            }
+        } else {
+            unsigned int mant     = (arg1 & 0x7fffff) | 0x800000;
+            unsigned int shifted  = mant << 7;
+            if ((exp - 0x7e < 0x20) && (shifted != 0)) {
+                unsigned int t = (int)shifted >> (-e);
+                if ((int)arg1 < 0) {
+                    result = -t;
+                } else {
+                    result = t;
+                }
             } else {
                 result = 0;
             }
-        } else if ((int)arg1 < 0) {
-            result = 0x80000000;
-        } else {
-            _err_math(0x22, 0x12);
-            result = 0x7fffffff;
         }
     }
     return result;

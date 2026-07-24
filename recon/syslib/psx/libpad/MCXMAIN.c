@@ -25,18 +25,29 @@ extern unsigned setRC2wait(int ticks);                          /* WAITRC2 @0x80
 
 extern int            _padModeMtap;
 extern int            _padSioChan;
+extern int            _padChanStart;
+extern int            _padGunExec;
+extern void          (*_padFuncGetGunPos)(void);
+extern void          (*_padFuncSetGunPort)(void);
 extern unsigned char *_padInfoDir;
 extern int            _padFixResult[2];
 extern unsigned char     *_padSioRegs;                              /* @0x80137CDC -> 0x1F801040 */
 #define JOY_DATA8 (*(volatile unsigned char *)(_padSioRegs))
 
-/* @0x8013C308 : 12-byte block (3 words) forces out of .sdata → absolute lui/sw addressing.
- *  [0]=_padMtapCount @0x8013C308, [1]=SIO data-reg ptr @0x8013C30C (image word = 0x1F801040,
- *  read by _padIntRecvData's oracle @0x8010C640 `lw %lo(D_8013C30C)` then `lbu 0(v0)` -- NOT
- *  padding; data-audit w10-a4 image-verified), [2]=_padMtapFlag @0x8013C310. */
-static int _padMtapData[3] = { 0, 0x1F801040, 0 };   /* [1] = JOY_DATA mmio base (real image bytes) */
-#define _padMtapCount (_padMtapData[0])
-#define _padMtapFlag  (_padMtapData[2])
+/* @0x8013C308 : originally a 12-byte block (3 words); the oracle addresses each word via its OWN
+ * independent lui/lw pair (no shared base register cached across a call/branch) -- e.g.
+ * _padIntRecvId materializes &_padMtapFlag (@0x8013C310) via a plain direct-load macro at entry
+ * and a SEPARATE direct-store macro for &_padMtapCount (@0x8013C308) later, never a persisting
+ * base pointer. Modeling them as one C array let gcc CSE a shared base into a callee-saved reg
+ * (s2) across the intervening _padSioRW2 call -> extra frame slot the oracle doesn't pay
+ * (_padIntRecvId 32-byte/4-saved-reg frame vs oracle's 24-byte/2-saved-reg). Split into three
+ * independent statics (still ST_BSS-forced so none becomes gp-relative -- see DSCB.c's identical
+ * trick) to match the oracle's per-access addressing. */
+#define ST_BSS  __attribute__((section(".bss")))
+#define ST_DATA __attribute__((section(".data")))
+static int _padMtapCount ST_BSS;                       /* @0x8013C308 */
+static int _padMtapDataReg ST_DATA = 0x1F801040;        /* @0x8013C30C : JOY_DATA mmio base (real image bytes) */
+static int _padMtapFlag ST_BSS;                         /* @0x8013C310 */
 
 /* @0x8010C0A8 : _padIntInit -- begin the exchange (issue 0x01 select). */
 extern int _padIntInit(unsigned char *info)
@@ -50,6 +61,12 @@ extern int _padIntInit(unsigned char *info)
 extern unsigned _padIntQuery(unsigned char *info)
 {
     unsigned op;
+    if (_padSioChan == _padChanStart) {
+        if (_padGunExec != 0) {
+            _padFuncGetGunPos();
+            _padFuncSetGunPort();
+        }
+    }
     if (_padMtapFlag != 0) {
         _padFuncSendAuto(*(unsigned char **)(info + 0xc));
         _padFuncSendAuto(*(unsigned char **)(info + 0xc) + 0xf0);
@@ -61,15 +78,12 @@ extern unsigned _padIntQuery(unsigned char *info)
 /* @0x8010C1C8 : _padIntRecvId -- read the device id; derive the multitap byte count. */
 extern int _padIntRecvId(unsigned char *info)
 {
-    int arg2 = 0;
     unsigned r;
     if (_padMtapFlag != 0) {
         _padFuncSendAuto(*(unsigned char **)(info + 0xc) + 0x1e0);
         _padFuncSendAuto(*(unsigned char **)(info + 0xc) + 0x2d0);
     }
-    if (info[0x36] == 0)
-        arg2 = _padModeMtap;
-    r = _padSioRW2(info, arg2);
+    r = _padSioRW2(info, (info[0x36] == 0) ? _padModeMtap : 0);
     if ((int)r >= 0) {
         unsigned lo = r & 0xf;
         if ((r & 0xf0) == 0) {

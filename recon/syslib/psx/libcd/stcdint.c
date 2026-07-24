@@ -74,15 +74,22 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, int chcr, int e
 {
     volatile int *chcr_reg = (volatile int *)(0x1F801088 + ch * 0x10);
     volatile int *base     = (volatile int *)(0x1F801080 + ch * 0x10);
-    int counter = 0;
+    int i;
     (void)arg6;
 
-    while (*chcr_reg & 0x1000000) {                 /* wait for the channel to go idle */
-        if (counter == 0x10000) {
-            printf("StCdInterrupt: DMA ch busy %08x\n", *chcr_reg);
-            break;
+    /* oracle shape: an OUTER "is it busy at all" test, THEN (only if so) a counting loop that
+     * checks the timeout limit BEFORE re-testing CHCR each pass -- NOT a plain `while(busy){...}`
+     * with the counter check folded into the body (that reorders the two tests and cost 16 insns
+     * -- see asm/nonmatchings/main/_st_dma.s .L800F8814/.L800F8838/.L800F8860). */
+    if (*chcr_reg & 0x1000000) {
+        for (i = 0; ; i++) {
+            if (i == 0x10000) {
+                printf("StCdInterrupt: DMA ch busy %08x\n", *chcr_reg);
+                break;
+            }
+            if ((*chcr_reg & 0x1000000) == 0)
+                break;
         }
-        counter++;
     }
 
     if (enable_irq == 1) _dicr[2] |= (u_char)(1 << ch);

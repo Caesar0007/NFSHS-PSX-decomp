@@ -12,7 +12,10 @@
 typedef int      (*PadSnd)(unsigned char *info);
 typedef unsigned (*PadRcv)(unsigned char *info);
 
-extern void _padFuncClrInfo(unsigned char *info);            /* dispatch: reset port state */
+extern void (*_padFuncClrInfo)(unsigned char *info);         /* dispatch slot: reset port state
+                                                                  (same symbol PADPORTD.c wires to
+                                                                  _pad_reset_state -- must be called
+                                                                  indirectly, not as a direct fn) */
 extern int  _padCmdParaMode(unsigned char *info, int para);  /* PADCMD */
 extern int  _padSendAtLoadInfo(unsigned char *info);         /* PADCMD */
 extern int  _padRecvAtLoadInfo(unsigned char *info);         /* PADCMD */
@@ -58,10 +61,8 @@ extern int _dirSendAuto(unsigned char *info)
     unsigned char *rx = *(unsigned char **)(info + 0x3c);
 
     if (rx[0] == (unsigned char)0xf3) {          /* controller present */
-        if (info[0xe8] == 0) {                   /* unconfigured: re-enter config mode */
-            _padCmdParaMode(info, 0);
-            return 0;
-        }
+        if (info[0xe8] == 0)                     /* unconfigured: shares the st==0xfe call site below */
+            goto reenter_cfgmode;
         if (info[0x49] == 2)
             _padFuncClrInfo(info);
         /* fall through to the state dispatch */
@@ -77,6 +78,7 @@ extern int _dirSendAuto(unsigned char *info)
             return 0;
     } else {
         if (st == 0xfe) {
+        reenter_cfgmode:
             _padCmdParaMode(info, 0);
             return 0;
         }

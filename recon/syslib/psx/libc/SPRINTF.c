@@ -6,11 +6,11 @@
  * conversion buffer, copies a zero printf_info template for every conversion, and
  * derives the backwards number-buffer pointer from the on-stack va_list.
  *
- * VERIFY (2026-07-24 survey): 327 diffs (ours 550 / oracle 545 insns).  The `switch(ch)`
- * case set (h,l,L,d,i,u,o,p,X,x,c,s,n) is confirmed 1:1 against the oracle's jump table
- * `jtbl_80056B60` (dumped from asm/data/rdata_80054548.rodata.s: 45 entries spanning
- * 'L'(0x4C)..'x'(0x78), every non-default slot manually cross-checked against its target
- * block's semantics) -- the algorithm/case coverage is NOT the gap.
+ * VERIFY (2026-07-25 survey): 179 diffs (ours 548 / oracle 545 insns), down from an initial
+ * 327.  The `switch(ch)` case set (h,l,L,d,i,u,o,p,X,x,c,s,n) is confirmed 1:1 against the
+ * oracle's jump table `jtbl_80056B60` (dumped from asm/data/rdata_80054548.rodata.s: 45
+ * entries spanning 'L'(0x4C)..'x'(0x78), every non-default slot manually cross-checked
+ * against its target block's semantics) -- the algorithm/case coverage is NOT the gap.
  * 🔴 SYSTEMIC TOOLCHAIN FLOOR (not this file's bug): every jump-table LOAD in the whole
  * repo's current build emits the address as an explicit 2-register sequence (`lui
  * v0,%hi(tbl); addiu v0,v0,%lo(tbl); sll v1,idx,2; addu v1,v1,v0; lw v0,0(v1)`), but every
@@ -19,10 +19,38 @@
  * at,%hi(tbl); addu at,at,v0; lw v0,%lo(tbl)($at)`) -- confirmed identical on an unrelated,
  * much smaller function in this same tree (PadInfoAct, asm/nonmatchings/main/PadInfoAct.s)
  * so it is NOT source-shape-dependent. This costs ~5 insns and a register-pressure ripple
- * at EVERY jump-table site; not fixable by editing the C. The remaining diffs are ordinary
- * parameter/local->callee-saved-register coloring cascades (20+ live locals across 550
- * insns) plus at least one signed-vs-unsigned `char` read (`lbu` vs oracle `lb` on a
- * `*bufPtr=='0'` compare in the octal-padding loop) not yet isolated to a single cast site.
+ * at EVERY jump-table site; not fixable by editing the C.
+ * 🏆 FIXED (2026-07-25, 327->179 -- the session's headline lever): `flagZero` (`register int
+ * flagZero = '0';`) is the ORIGINAL SOURCE'S own name for the padding-zero character, and the
+ * oracle keeps it live in ONE callee-saved register (`$s3`) for the WHOLE function, reusing it
+ * at every `'0'`-padding/compare site -- NOT just the flags-parser `else if (ch==flagZero)`
+ * check this recon originally scoped it to. Every other `'0'` literal used for PADDING or
+ * COMPARING (case 'o': the alt-form zero-strip compare + its store; the `printDec`/`case 'x'`/
+ * `case 'p'` precision pad loops; the "0x"/"0X" alt-form prefix's leading '0') must reference
+ * `flagZero`, not a fresh `'0'` literal -- the raw oracle confirms this by disassembling those
+ * sites as `sb $s3,0($s1)` / `beq $v0,$s3,...` (a persistent register), never a re-materialized
+ * `li vN,0x30`. (The DIGIT-VALUE computation itself, `(num%8)+'0'` etc., is genuinely a one-off
+ * per-iteration immediate in the oracle too -- `addiu v0,v0,0x30` -- and correctly stays a bare
+ * literal; only the PAD/COMPARE '0' is the shared variable.) Also needed `*(signed char
+ * *)bufPtr` on the alt-form zero-strip compare (this build's plain `char` defaults UNSIGNED so
+ * `*bufPtr` alone reads `lbu`, but the oracle wants `lb`).
+ * STILL OPEN (179 diffs): (1) the prologue's callee-save ORDER -- oracle materializes
+ * `written=0` in the `beqz`-format-empty-check's delay slot and parks `out` in `$s4`; ours
+ * computes `written=0` in the prologue proper and parks `out` in `$s3`. (2) The four flag
+ * constants ('-','+',' ',flagZero) are emitted in a DIFFERENT order: oracle emits flagZero's
+ * `li $s3,48` LAST (after '-','+' ,' ' -- matching the flags if-else chain's textual order,
+ * where the `flagZero` compare is the last arm), ours emits it FIRST (before '-'/'+'/' ') --
+ * likely because flagZero's much higher total ref-count (used well beyond the flags loop, per
+ * the fix above) raises its scheduling priority. Tried moving the `register int flagZero='0';`
+ * declaration to the END of the local-decl block (hoping declaration position, not just usage
+ * count, controls emission order) -- ZERO effect, reverted; this needs the `-dg`/`-dl` RTL-dump
+ * technique (methodology §3.12b) to actually read the allocator's priority table rather than
+ * guess. (3) Beyond those two, the remaining diffs are ordinary parameter/local -> callee-
+ * saved-register coloring cascades from the 20+ live locals across 548 insns; no more `lbu`/
+ * `lb` mismatches or jtbl-adjacent issues were found. (An earlier survey pass mis-read a diff-
+ * alignment artifact near the octal pad loop as a genuinely duplicated instruction block /
+ * loop-rotation bug -- re-examined against the raw oracle labels directly and it was NOT real;
+ * the octal-loop's own shape already matches a standard peeled `while`.)
  */
 typedef enum { false = 0, true = 1 } bool;
 typedef char *va_list;
@@ -183,7 +211,7 @@ extern int sprintf(char *out, signed char *f, ...)
                 len++;
             }
             while (len < info.precision) {
-                *--bufPtr = '0';
+                *--bufPtr = flagZero;
                 len++;
             }
             if (info.leadingChar != '\0') {
@@ -210,12 +238,12 @@ extern int sprintf(char *out, signed char *f, ...)
                 num /= 8U;
                 len++;
             }
-            if (info.alternativeForm && len != 0 && *bufPtr != '0') {
-                *--bufPtr = '0';
+            if (info.alternativeForm && len != 0 && *(signed char *)bufPtr != flagZero) {
+                *--bufPtr = flagZero;
                 len++;
             }
             while (len < info.precision) {
-                *--bufPtr = '0';
+                *--bufPtr = flagZero;
                 len++;
             }
             break;
@@ -252,12 +280,12 @@ extern int sprintf(char *out, signed char *f, ...)
                 len++;
             }
             while (len < info.precision) {
-                *--bufPtr = '0';
+                *--bufPtr = flagZero;
                 len++;
             }
             if (info.alternativeForm) {
                 *--bufPtr = ch;
-                *--bufPtr = '0';
+                *--bufPtr = flagZero;
                 len += 2;
             }
             break;

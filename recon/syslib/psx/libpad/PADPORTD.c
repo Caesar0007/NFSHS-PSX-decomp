@@ -190,9 +190,9 @@ extern int _pad_filter(unsigned char *info)
     unsigned r = 0;
     bzero(info + 0x57, 6);
 
-    if (*(short *)(info + 0xe6) == 0 || *(int *)(info + 0x28) == 0) {
+    if (*(unsigned short *)(info + 0xe6) == 0 || *(int *)(info + 0x28) == 0) {
         if (((unsigned char)(info[0xe8] - 4) < 2 || info[0xe8] == 7) &&
-            (*(short *)(info + 0xe6) == 0 && info[0x34] > 1)) {
+            (*(unsigned short *)(info + 0xe6) == 0 && info[0x34] > 1)) {
             unsigned hdr = **(unsigned char **)(info + 0x28) & 0xc0;
             r = hdr;
             if (hdr == 0x40) {
@@ -212,7 +212,7 @@ extern int _pad_filter(unsigned char *info)
             r = 1;
             if (info[0xe8] == 3) {
                 info[0x57] = 1;
-            } else if (*(short *)(info + 0xe6) == 0) {
+            } else if (*(unsigned short *)(info + 0xe6) == 0) {
                 int i;
                 for (i = 5; i >= 0; i--)
                     info[0x57 + i] = 1;

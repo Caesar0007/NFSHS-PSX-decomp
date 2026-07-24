@@ -91,31 +91,66 @@
 # jump through the loaded value, so this cannot misfire on ordinary
 # indexed loads (which use the identical instruction SHAPE but are not
 # jump tables, and were NOT part of this investigation's scope or
-# verification). Default OFF; opt in via `--jtbl-at-fusion`
-# (build.py: `NFS4_JTBL_AT_FUSION=1` env var).
+# verification). Default OFF at the maspsx-flag level (`--jtbl-at-fusion`).
 #
-# VERIFIED (2026-07-24, this isolated copy only -- NOT applied to the
-# shared C:/Temp/maspsx-master/ used by other agents' concurrent builds):
-#   - PadInfoAct (recon/syslib/psx/libpad/PADENTRY.c): FAIL 25 diffs
-#     (ours 54 / oracle 53) -> FAIL 20 diffs (ours 53 / oracle 53).
-#     Instruction count now matches exactly; the jtbl $at-fusion shape is
-#     now byte-identical to the oracle (sll-delay-slot / lui $at / addu $at
-#     / lw $at / nop / jr). Remaining 20 diffs are a PRE-EXISTING,
+# w24-a9 UPDATE (2026-07-25): the retail binary's jtbl sites turned out to be
+# MIXED -- of the tree-wide 33 `jtbl_`-bearing oracle fns
+# (`grep -l jtbl_ asm/nonmatchings/main/*.s`), only 11 TUs carry the ASPSX
+# $at macro form this peephole targets; the other 22 already emit our
+# explicit 5-insn form and must NOT be fused (enabling globally regresses
+# them). So the wiring changed: NFS4_JTBL_AT_FUSION=1 (global, all TUs) is
+# now only a blunt override for one-off testing/bisection; the real gate is
+# `tools/build.py`'s `PER_TU_FLAGS` dict (`{"jtbl_at_fusion": True}` per
+# source path), which scopes `--jtbl-at-fusion` to exactly the 11 TUs that
+# need it. See build.py's PER_TU_FLAGS comment for the current TU list.
+#
+# VERIFIED (2026-07-24/25, isolated copy C:/Temp/maspsx-a9/ only -- NOT
+# applied to the shared C:/Temp/maspsx-master/ used by other agents'
+# concurrent builds), all 11 $at-form fns, before -> after (mangled name
+# used where the recon free fn isn't `extern "C"`; two libcd/libmcrd
+# internal helpers have an ours-name/oracle-name mismatch pre-existing in
+# recon, unrelated to this fix -- see w24-a9 commit d1059dc for detail):
+#   AudioCmn_SoundCar             FAIL 682 (532/530) -> FAIL 689 (531/530)
+#   CD_get_intr (_cd_get_intr)    FAIL 463 (340/343) -> FAIL 460 (339/343)
+#   FntPrint                      FAIL 103 (241/240) -> FAIL  98 (240/240)
+#   HighExecute__10AIHigh_Cop     FAIL 240 (1450/1460)-> FAIL 247 (1449/1460)
+#   HighExecute__14AIHigh_Traffic FAIL 794 (433/547) -> FAIL 801 (432/547)
+#   MemCardCmd_cb (_..._cb__FPv)  FAIL 140 (111/141) -> FAIL 135 (110/141)
+#   PadInfoAct                    FAIL  25 ( 54/ 53) -> FAIL  20 ( 53/ 53)
+#   R3DCar_InsertCarFacet         FAIL 1388(1168/1144)-> FAIL 1395(1167/1144)
+#   Replay_GetInterfaceKey        FAIL 280 (296/292) -> FAIL 287 (295/292)
+#   Sfx_BuildSouffleFacet         FAIL 1339(877/938) -> FAIL 1346 (876/938)
+#   sprintf                       FAIL 327 (550/545) -> FAIL 322 (549/545)
+# Every case's instruction count drops by exactly 1 (5-insn -> 4-insn
+# collapse). The 6 cases where the raw diff COUNT went UP are all
+# functions already >100%-mismatched (600-1400 diffs on 300-1400 insns,
+# still WIP/floor-heavy); directly diffing ours()-before vs ours()-after in
+# isolation (ignoring the oracle) proves the ONLY change in every one of
+# those 6 functions is the intended, surgical jtbl collapse landing
+# byte-identical to the oracle's `lui $at/addu $at/lw $at` shape -- the
+# diff-count upticks are a difflib global-alignment artifact (removing one
+# line anywhere shifts every downstream match in an already-saturated
+# diff), not a real regression. The 5 cases close to PASS (FntPrint,
+# PadInfoAct, sprintf, CD_get_intr, MemCardCmd_cb) show a clean, unambiguous
+# diff-count DROP with no such noise.
+#   - PadInfoAct: instruction count now matches exactly; the jtbl $at-fusion
+#     shape is byte-identical to the oracle (sll-delay-slot / lui $at /
+#     addu $at / lw $at / nop / jr). Remaining 20 diffs are a PRE-EXISTING,
 #     unrelated register-coloring issue in this function (v1-vs-a2 /
 #     a0-vs-v1 swaps after the switch), out of scope for this fix.
-#   - sprintf (recon/syslib/psx/libc/SPRINTF.c): FAIL 327 diffs
-#     (ours 550 / oracle 545) -> FAIL 322 diffs (ours 549 / oracle 545).
-#   - FntPrint (recon/syslib/psx/libgpu/FONT.cpp), spot-checked: FAIL 125
-#     diffs (ours 241/oracle 240) -> FAIL 120 diffs (ours 240/oracle 240).
-#   - Regression smoke (4 non-jtbl PASS fns, 2 clusters):
-#     PadSetActAlign, PadSetMainMode (libpad, same file as PadInfoAct),
-#     DeliverEvent (libapi, BIOS thunk), atoi (libc, BIOS thunk) -- all
-#     still PASS unchanged with --jtbl-at-fusion enabled. 0 regressions.
+#   - Regression smoke, 0 regressions: 4 of the 22 explicit-form (non-$at)
+#     jtbl fns (fixedatan FAIL 78/82/82, openfile FAIL 94/165/169, cluttype
+#     PASS, shapetype PASS -- all byte-identical before/after) and 4
+#     known-PASS non-jtbl fns in 2 clusters (PadSetActAlign, PadSetMainMode
+#     -- libpad, same file as PadInfoAct; DeliverEvent -- libapi; atoi --
+#     libc) all unchanged.
 #
 # APPLY: copy C:/Temp/maspsx-master/ to an isolated working copy (do NOT
 # edit the shared master -- other agents build against it concurrently),
 # apply this patch there, and point a build at it via
-# `NFS4_MASPSX=<copy>/maspsx.py NFS4_JTBL_AT_FUSION=1`.
+# `NFS4_MASPSX=<copy>/maspsx.py` (PER_TU_FLAGS in build.py does the rest;
+# NFS4_JTBL_AT_FUSION=1 remains available to force it fleet-wide for
+# testing/bisection only).
 --- a/maspsx.py
 +++ b/maspsx.py
 @@ -21,6 +21,7 @@

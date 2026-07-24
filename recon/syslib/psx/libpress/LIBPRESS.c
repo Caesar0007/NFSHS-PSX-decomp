@@ -81,10 +81,10 @@ extern void DecDCTReset(int mode)
 /* @0x800F89FC : start decoding -- patch the run/level header flags then DMA it into MDEC. */
 extern void DecDCTin(u_long *runlevel, int mode)
 {
-    if ((mode & 1) == 0) *runlevel |= 0x08000000u;
-    else                 *runlevel &= 0xf7ffffffu;
-    if ((mode & 2) == 0) *runlevel &= 0xfdffffffu;
-    else                 *runlevel |= 0x02000000u;
+    if ((mode & 1) != 0) *runlevel &= 0xf7ffffffu;
+    else                 *runlevel |= 0x08000000u;
+    if ((mode & 2) != 0) *runlevel |= 0x02000000u;
+    else                 *runlevel &= 0xfdffffffu;
     _MDEC_in_dma(runlevel, (u_short)*runlevel);
 }
 
@@ -97,9 +97,9 @@ extern int DecDCTout(int *cell, long size)
 /* @0x800F8A98 : wait for / poll the MDECin transfer (mode 0 blocks, else returns the FIFO bit). */
 extern int DecDCTinSync(int mode)
 {
-    if (mode == 0)
-        return MDEC_in_sync(0);
-    return (_MDEC_get_reg1() >> 0x1d) & 1;
+    if (mode != 0)
+        return ((unsigned)_MDEC_get_reg1() >> 0x1d) & 1;
+    return MDEC_in_sync(0);
 }
 
 /* @0x800F8AD4 : install the MDECout (DMA channel 1) completion callback. */
@@ -110,7 +110,23 @@ extern int DecDCToutCallback(int func)
 
 /* ---------------------------------- engine ---------------------------------- */
 
-/* @0x800F8AF8 : reset the MDEC + DMA channels; mode 0 also reloads the quant/IDCT tables. */
+/* @0x800F8AF8 : reset the MDEC + DMA channels; mode 0 also reloads the quant/IDCT tables.
+ * VERIFY (2026-07-25 survey): 28 diffs, ours 62 / oracle 60 insns -- NOT yet cracked.
+ * 🔴 KEY LEAD for a future pass: in the oracle, `li v0,0x80000000` (the MDEC software-reset
+ * command word case 1 stores first) is materialized in the DELAY SLOT of the `beq a1,v0,case1`
+ * dispatch branch @0x800F8B10 (a free always-executed slot, only actually consumed on the
+ * taken/case-1 side) and stays live in $v0 all the way into the case-1 block -- case 1 never
+ * recomputes it. Our build instead fills that SAME delay slot with the case-1 constant too in
+ * SOME configurations but not this one (it currently fills it with the `default:` printf
+ * format-string address instead, per the switch's case order), so case 1 must reload it fresh.
+ * Tried: reordering the switch cases (case 1 before case 0) -- flips which delay-slot filler
+ * wins but net WORSE (72 diffs, though it does reach an exact 60==60 insn count) and reverted.
+ * Case 1's tail (the dead D1_CHCR re-read + MDEC1=0x60000000 store) also differs: oracle reloads
+ * D1_CHCR_ptr/MDEC1_ptr into v0/v1 and overwrites v0 directly with 0x60000000 before the final
+ * store; ours reloads MDEC1_ptr into a0 instead of v1 and needs an extra `move v1,v0` before the
+ * store -- a downstream coloring cascade from the same root cause. Untried: an explicit shared-
+ * prefix restructure where case 1 falls into case 0's body (both cases open with the identical
+ * MDEC1=0x80000000; D0_CHCR=0; D1_CHCR=0; triplet) instead of two independent case blocks. */
 static int MDEC_rest(u_long mode)
 {
     switch (mode) {
@@ -173,26 +189,26 @@ static u_long *_MDEC_out_dma(u_long buf, unsigned size)
 static int MDEC_in_sync(int mode)
 {
     volatile int n = 0x100000;
-    do {
-        if ((MDEC1_POLL & 0x20000000) == 0)
-            return 0;
-        n--;
-    } while (n != -1);
-    MDEC_status("MDEC_in_sync");
-    return -1;
+    while ((MDEC1_POLL & 0x20000000) != 0) {
+        if (--n == -1) {
+            MDEC_status("MDEC_in_sync");
+            return -1;
+        }
+    }
+    return 0;
 }
 
 /* @0x800F8D98 : spin until the MDECout DMA (ch1) finishes, or time out. */
 static int MDEC_out_sync(int mode)
 {
     volatile int n = 0x100000;
-    do {
-        if ((D1CHCR_POLL & 0x1000000) == 0)
-            return 0;
-        n--;
-    } while (n != -1);
-    MDEC_status("MDEC_out_sync");
-    return -1;
+    while ((D1CHCR_POLL & 0x1000000) != 0) {
+        if (--n == -1) {
+            MDEC_status("MDEC_out_sync");
+            return -1;
+        }
+    }
+    return 0;
 }
 
 /* @0x800F8E2C : read the MDEC status register via the HW-pointer table entry. */

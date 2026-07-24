@@ -55,9 +55,70 @@ OUT = BUILD  # object output root; overridden by --out
 # so ends up in the compact 4-instruction $at form) can never be reached by
 # maspsx/GNU-as's *existing* passthrough behavior. This flag re-fuses cc1's
 # manual lowering back into the macro form maspsx already knows how to
-# expand correctly. Opt-in via NFS4_JTBL_AT_FUSION=1 pending fleet-wide
-# regression sign-off; other agents can flip the default once satisfied.
+# expand correctly.
+#
+# w24-a9: the retail binary's jtbl sites are MIXED -- 11 of 33 TUs carry the
+# ASPSX $at macro form (older macro-emitting toolchain build of those
+# particular objects), the other 22 already match our explicit 5-insn form.
+# Enabling this GLOBALLY would fuse the jtbl shape in ALL 33 sites and
+# regress the 22 that are already correct without it. NFS4_JTBL_AT_FUSION=1
+# stays as a blunt global override for one-off testing/bisection, but the
+# real gate is per-TU: see PER_TU_FLAGS below (the "jtbl_at_fusion" key),
+# which scopes `--jtbl-at-fusion` to exactly the 11 TUs that need it.
 JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
+
+# --- w24-a9: per-TU build-flag overrides -----------------------------------
+# Keyed by the source file's ROOT-relative POSIX path (forward slashes,
+# matches `rel.as_posix()` regardless of host OS). Each value is a dict of
+# flag-name -> truthy, consulted by compile_c/compile_cpp for exactly that
+# translation unit. This is the general per-TU toolchain-identity mechanism
+# (methodology §3.25 axis 3b/3d: different objects in the SAME retail image
+# were built with different compiler/assembler flags) -- add new keys here
+# as new per-TU levers are discovered/proven, do NOT grow more ad hoc global
+# env vars.
+#
+# Recognised keys:
+#   "jtbl_at_fusion"     -> pass --jtbl-at-fusion to maspsx for this TU only
+#                           (see JTBL_AT_FUSION above).
+#   "no_delayed_branch"  -> pass -fno-delayed-branch to cc1/cc1plus for this
+#                           TU (methodology §3.25 axis 3b: PsyQ's syslib was
+#                           built with gcc's delayed-branch filling OFF,
+#                           aspsx filled slots itself). NOT yet proven safe
+#                           at TU granularity -- see the w24-a9 prototype
+#                           writeup in tools/build.py's git log; a TU with
+#                           this key set may see a MIXED (some-better/
+#                           some-worse) result, since leaf fns in the same
+#                           TU can need gcc's own filling ON. Opt in per-TU
+#                           only after verifying net-positive with
+#                           verify_asm across the WHOLE TU's functions.
+#
+# The 11 TUs below own the retail binary's 11 ASPSX-$at-macro jtbl sites
+# (w23-a11 investigation); the other 22 jtbl TUs are deliberately absent
+# here (their explicit 5-insn form already matches and must stay untouched).
+PER_TU_FLAGS = {
+    "recon/game/common/audiocmn.cpp":       {"jtbl_at_fusion": True},  # AudioCmn_SoundCar
+    "recon/syslib/psx/libcd/drv.cpp":       {"jtbl_at_fusion": True},  # CD_get_intr
+    "recon/syslib/psx/libgpu/FONT.cpp":     {"jtbl_at_fusion": True},  # FntPrint
+    "recon/game/common/aih_cop.cpp":        {"jtbl_at_fusion": True},  # HighExecute__10AIHigh_Cop
+    "recon/game/common/aih_traf.cpp":       {"jtbl_at_fusion": True},  # HighExecute__14AIHigh_Traffic
+    "recon/syslib/psx/libmcrd/LIBMCRD.cpp": {"jtbl_at_fusion": True},  # MemCardCmd_cb
+    "recon/syslib/psx/libpad/PADENTRY.c":   {"jtbl_at_fusion": True},  # PadInfoAct
+    "recon/game/common/r3dcar.cpp":         {"jtbl_at_fusion": True},  # R3DCar_InsertCarFacet
+    "recon/game/common/replay.cpp":         {"jtbl_at_fusion": True},  # Replay_GetInterfaceKey
+    "recon/game/psx/sfx.cpp":               {"jtbl_at_fusion": True},  # Sfx_BuildSouffleFacet
+    "recon/syslib/psx/libc/SPRINTF.c":      {"jtbl_at_fusion": True},  # sprintf
+    # "no_delayed_branch" PROTOTYPED on libetc/INTR.cpp (w24-a9 task 3) and
+    # NOT enabled here: net +3 PASS (ResetCallback/InterruptCallback/
+    # DMACallback/VSyncCallbacks 4->0 diffs each) but a genuine regression
+    # (SetIntrMask PASS -> FAIL 3, a leaf fn that needs gcc's OWN
+    # delay-slot filling ON) proves per-TU granularity is NOT sufficient for
+    # this TU -- would need per-FUNCTION granularity (not yet built). See
+    # the w24-a9 commit message for the full 12-fn before/after table.
+}
+
+
+def per_tu_flags(src: Path) -> dict:
+    return PER_TU_FLAGS.get(src.relative_to(ROOT).as_posix(), {})
 
 ASPSX_VERSION = "2.77"
 G_VALUE = "4"               # original built with -G4
@@ -76,6 +137,7 @@ def run(cmd, **kw):
 def compile_c(src: Path, skip_asm: bool) -> Path:
     """cpp -> cc1 -> maspsx -> as => build/src/<rel>.c.o"""
     rel = src.relative_to(ROOT)
+    tu_flags = per_tu_flags(src)
     obj = OUT / (str(rel) + ".o")
     obj.parent.mkdir(parents=True, exist_ok=True)
     i_file = obj.with_suffix(".i")
@@ -89,7 +151,10 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
     if r.returncode:
         sys.exit(f"[cpp] {rel}\n{r.stderr}")
 
-    r = run([CC1, *CC1_FLAGS, i_file, "-o", s_file])
+    cc1_flags = list(CC1_FLAGS)
+    if tu_flags.get("no_delayed_branch"):
+        cc1_flags.append("-fno-delayed-branch")
+    r = run([CC1, *cc1_flags, i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[cc1] {rel}\n{r.stdout}{r.stderr}")
 
@@ -98,7 +163,7 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
                   "--run-assembler", f"--gnu-as-path={AS}",
                   *AS_ARCH, f"-G{G_VALUE}", "-I", ROOT / "include",
                   "-I", ROOT, "-o", obj]
-    if JTBL_AT_FUSION:
+    if JTBL_AT_FUSION or tu_flags.get("jtbl_at_fusion"):
         maspsx_cmd.append("--jtbl-at-fusion")
     r = subprocess.run([str(c) for c in maspsx_cmd],
                        input=s_file.read_text(), capture_output=True, text=True,
@@ -112,6 +177,7 @@ def compile_cpp(src: Path) -> Path:
     """Vendored reconstruction C++ TU -> ELF via CC1PLPSX. No -D__GNUC__ so
     nfs4_types.h uses its self-contained (PsyQ-free) type defs."""
     rel = src.relative_to(ROOT)
+    tu_flags = per_tu_flags(src)
     obj = OUT / (str(rel) + ".o")
     obj.parent.mkdir(parents=True, exist_ok=True)
     i_file = obj.with_suffix(".i")
@@ -125,13 +191,16 @@ def compile_cpp(src: Path) -> Path:
              f"-I{RECON}", src, "-o", i_file])
     if r.returncode:
         sys.exit(f"[cpp++] {rel}\n{r.stderr}")
-    r = run([CC1PL, "-quiet", "-O2", f"-G{G_VALUE}", i_file, "-o", s_file])
+    cc1pl_flags = ["-quiet", "-O2", f"-G{G_VALUE}"]
+    if tu_flags.get("no_delayed_branch"):
+        cc1pl_flags.append("-fno-delayed-branch")
+    r = run([CC1PL, *cc1pl_flags, i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[cc1pl] {rel}\n{r.stdout}{r.stderr}")
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
                   "--run-assembler", f"--gnu-as-path={AS}",
                   *AS_ARCH, f"-G{G_VALUE}", "-I", RECON, "-o", obj]
-    if JTBL_AT_FUSION:
+    if JTBL_AT_FUSION or tu_flags.get("jtbl_at_fusion"):
         maspsx_cmd.append("--jtbl-at-fusion")
     # cfront dtor mangling: our CC1PL emits `_._<class>` (NO_DOLLAR_IN_LABEL -> '.'),
     # but EA's toolchain used the '.'->'_' convention (NO_DOT_IN_LABEL) => `___<class>`.

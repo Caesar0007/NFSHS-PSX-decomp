@@ -171,18 +171,25 @@ extern "C" void _intrhand(void)            /* @0x800F2A40 */
 
 extern "C" int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
 {
-    int *slot = &g_intr.cb[idx];
+    /* MATCH ATTEMPT (w24-a7): oracle copies BOTH params to callee-saved regs (s1=idx,
+     * s2=handler) back-to-back at function entry, BEFORE any address arithmetic -- freeing
+     * the now-dead a0/a1 to be reused as scratch for the cb[]-slot computation. Force the
+     * same evaluation order from C. */
+    int hv = handler;
+    unsigned int ix = idx;
+    int *cb = g_intr.cb;
+    int *slot = &cb[ix];
     int old = *slot;
-    if ((handler != old) && (g_intr.inited != 0)) {
+    if ((hv != old) && (g_intr.inited != 0)) {
         unsigned short imask = I_MASK;
         I_MASK = 0;
-        if (handler != 0) {
-            *slot = handler;
-            unsigned short bit = (unsigned short)(1 << (idx));
+        if (hv != 0) {
+            *slot = hv;
+            unsigned short bit = (unsigned short)(1 << (ix));
             imask = imask | bit;
             g_intr.enabled = g_intr.enabled | bit;
         } else {
-            unsigned short bit = ~(unsigned short)(1 << (idx));
+            unsigned short bit = ~(unsigned short)(1 << (ix));
             *slot = 0;
             imask = imask & bit;
             g_intr.enabled = g_intr.enabled & bit;
@@ -190,10 +197,10 @@ extern "C" int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C1
         /* @0x800F2CC0-D20: ChangeClearRCnt(<per-IRQ root-counter index>, handler==0). $a0 = the timer
          * id (idx0->RCnt3, idx4->0, idx5->1, idx6->2), $a1 = $s0 = (handler<1) = (handler==0) = the
          * clear flag. Reconstruction passed (0,0) to all four -- wrong timer + ignored handler (H48). */
-        if (idx == 0) { ChangeClearPAD(handler == 0); ChangeClearRCnt(3, handler == 0); }
-        if (idx == 4)   ChangeClearRCnt(0, handler == 0);
-        if (idx == 5)   ChangeClearRCnt(1, handler == 0);
-        if (idx == 6)   ChangeClearRCnt(2, handler == 0);
+        if (ix == 0) { ChangeClearPAD(hv == 0); ChangeClearRCnt(3, hv == 0); }
+        if (ix == 4)   ChangeClearRCnt(0, hv == 0);
+        if (ix == 5)   ChangeClearRCnt(1, hv == 0);
+        if (ix == 6)   ChangeClearRCnt(2, hv == 0);
         I_MASK = imask;
     }
     return old;

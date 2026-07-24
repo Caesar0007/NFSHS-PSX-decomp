@@ -46,10 +46,29 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
 /* @0x800F6D18 : convert a stream's accumulated text into font sprites and draw the OT.
  * An out-of-range id falls back to the active stream; if THAT stream has no text buffer
  * (never opened) the call is a no-op returning NULL.
- * NEAR-MISS (verify_asm ~258/209 vs 199): structurally correct (entry bounds check, r/g/b
- * digit-escape decode, do-while loop shape and the &fs->ot address-escape spill all confirmed
- * against the raw and now present) but the register roles cascade differently past the entry
- * block (fp/s7/s2/s6 role reassignment) -- allocator coloring, not semantics. Left as a floor. */
+ * NEAR-MISS (verify_asm 252/209 vs 199, improved from 258 this wave -- w24-a5): structurally
+ * correct (entry bounds check, r/g/b digit-escape decode, do-while loop shape and the &fs->ot
+ * address-escape spill all confirmed against the raw and present) but the register roles
+ * cascade differently past the entry block -- allocator coloring, not semantics. Left as a
+ * (weak) floor: real headroom likely remains, this is not exhausted.
+ * w24-a5 PINPOINTED the concrete allocator delta: the oracle keeps `remain` (fs->maxchars
+ * countdown) resident in $fp for the whole function and fills $s2 with `p` (fs->primbuf) right
+ * in the entry block; our build instead put `rightx` (fs->x+fs->w) in $fp, left $s2 UNUSED in
+ * the entry block, and shuttled `remain` through a caller-saved temp straight to a NEW stack
+ * slot (frame 96B vs the oracle's 80B). Also: the oracle materializes the r/g glyph-colour
+ * defaults (sw a2,0x1C/0x20(sp)) BEFORE the callee-save push block; ours does all three r/g/b
+ * AFTER it (unresolved, see below).
+ * TRIED THIS WAVE: (1) reordering `remain/curx/cury/boty/p/autoupd/rightx` local declarations
+ * with `remain` alone moved later -- ZERO effect (not a simple declaration-order-only lever).
+ * (2) `for`->`while`-with-trailing-decrement desugar of the main loop -- zero effect (gcc
+ * lowers both identically here). (3) **moving `u_char *p` to be declared 2nd (right after
+ * `text`, before `remain`) -- WORKED, 258->252, applied below.** It still doesn't get `p` into
+ * $s2 (oracle's slot) or free a register for `remain` (both still off), but it measurably
+ * changes downstream coloring for the better with zero regressions -- keep building on this
+ * lever (try moving `p` even earlier / paired with `curx`,`cury` reordering next) rather than
+ * re-trying (1)/(2). NOTE: `boty` is a dead end for the $s2-pressure theory -- it's
+ * stack-cached in BOTH builds (never register-resident in the oracle either), so
+ * eliminating its local won't free a register. */
 extern "C" u_long *FntFlush(int id)
 {
     FntStream *fs;
@@ -68,11 +87,11 @@ extern "C" u_long *FntFlush(int id)
                                  * each use), rather than the cheaper fs+0x10 rematerialization. */
 
     u_char *text  = (u_char *)fs->textbuf;
-    int   remain  = fs->maxchars;
+    u_char *p     = (u_char *)fs->primbuf;
     int   curx    = fs->x;
     int   cury    = fs->y;
     int   boty    = cury + fs->h;
-    u_char *p     = (u_char *)fs->primbuf;
+    int   remain  = fs->maxchars;
     int   autoupd = fs->autoupd;
     int   rightx  = fs->x + fs->w;
 
@@ -143,12 +162,22 @@ render:
 
 /* @0x800F7034 : printf-style append into a stream's text buffer (%x/%X/%c/%d/%s + width).
  * Psy-Q also accepts the format string itself as the first argument, selecting the active stream.
- * NEAR-MISS (verify_asm ~103/241 vs 240): the vararg reads are hand-rolled pointer bumps
- * (`*(T*)args; args += 4;`), not the stdarg.h `va_arg()` macro -- the oracle DEREFERENCES
- * before advancing the cursor (matches this shape), while the project's va_arg macro expands
- * to advance-then-dereference-old (verified: switching back regresses 103->125). Residual is a
- * commutative constant-register tie ('%'=37 vs the /10 magic-multiply constant, s4<->s5) plus
- * an a0/a2 role tie in the entry bounds check -- both tried in both orders, allocator coloring. */
+ * NEAR-MISS (verify_asm 97/239 vs 240, improved from 103/241 this wave -- w24-a5): the vararg
+ * reads are hand-rolled pointer bumps (`*(T*)args; args += 4;`), not the stdarg.h `va_arg()`
+ * macro -- the oracle DEREFERENCES before advancing the cursor (matches this shape), while the
+ * project's va_arg macro expands to advance-then-dereference-old (verified: switching back
+ * regresses badly). A previously-documented "commutative constant-register tie ('%'=37 vs the
+ * /10 magic-multiply constant, s4<->s5) plus an a0/a2 role tie in the entry bounds check" was
+ * tried in both orders with zero effect -- true. w24-a5 found a DIFFERENT, working lever on the
+ * same entry block: replacing the repeated inline `(int)id` casts with ONE named `int idn`
+ * local (computed once right after `va_start`, cast back to `id` only where the original
+ * pointer type is still needed) dropped 103->97 and 241->239 insns, zero regressions -- this is
+ * a genuinely different shape from the already-tried operand-order swaps (same VALUE, different
+ * SOURCE REPRESENTATION: named int vs repeated pointer-to-int casts). The oracle still puts
+ * `addu s3,a0,zero` (a0->s3, i.e. id/f) in a different cycle slot than ours in the
+ * fnt_active-resolution block -- that specific tie is still open; the s4/s5 constant swap
+ * (37 vs the magic /10 divisor) is also still open and per the prior note not worth re-trying
+ * via reordering. */
 #define WriteChar(c)                                                        \
     fs->textbuf[fs->textlen++] = (c);                                       \
     if (fs->textlen > fs->maxchars) {                                       \
@@ -169,15 +198,19 @@ extern "C" int FntPrint(const char *id, ...)
     char sign;
     unsigned int ch;
 
+    int idn;
+
     va_start(args, id);
-    if ((int)id < 0 || (int)id >= _fnt_count) {
+    idn = (int)id;
+    if (idn < 0 || idn >= _fnt_count) {
         f = (signed char *)id;
-        id = (const char *)_fnt_active;
-        if (_fnt[(int)id].textbuf == NULL)
+        idn = _fnt_active;
+        if (_fnt[idn].textbuf == NULL)
             return -1;
     } else {
         f = *(signed char **)args; args = (void *)((char *)args + 4);
     }
+    id = (const char *)idn;
 
     fs = &_fnt[(int)id];
     if (fs->textlen > fs->maxchars)

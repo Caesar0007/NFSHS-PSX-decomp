@@ -239,7 +239,7 @@ extern "C" void _padSioMain(unsigned char *info)
     _padSioState = _padSioState + 1;
     r = fn(info);
     if (r < 0) {
-        _padFuncNextPort(0);
+        _padFuncNextPort(r);
     } else {
         if (_padSioState != 0) {
             u = setRC2wait(0x3c);

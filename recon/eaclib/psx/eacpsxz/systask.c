@@ -70,16 +70,20 @@ extern int addsystemtask(int taskFn, int period, int delay)
  * the loop's own `i<0x10` boolean AS-IS (always 0 there), NOT a bogus `i*0x10` value -- real
  * bug fix vs the prior form; also kept as a single-exit funnel to reproduce the oracle's ONE
  * shared epilogue instead of 3 separate `jr ra`s).
- * RESIDUAL (36 diffs, 29 vs 23 insns): gcc-2.8 `-O2` PEELS the do-while's first iteration
+ * RESIDUAL (30 diffs, 29 vs 23 insns): retaining a separate `base` used both by the
+ * walker and the indexed tail cuts the prior 36-diff register/address divergence.  gcc-2.8
+ * `-O2` still PEELS the do-while's first iteration
  * (compile-time-provable initial `slot`=&systemtasksubs address) into straight-line code
  * before the real loop -- the oracle has NO peeling (uniform 16-iteration do-while). Tried:
  * for-loop rewrite (still peels, 27 insns), avoiding a compile-time-constant initial pointer
- * (not source-reachable without changing the real initial value). Accept as a toolchain-pass
- * floor; the return-value bug fix above is the real, oracle-evidenced improvement here. */
+ * (not source-reachable without changing the real initial value). An explicit-goto uniform
+ * loop recovered the oracle's 23-instruction count but worsened register allocation to 38
+ * diffs, so the closer peeled form is retained. */
 extern int delsystemtask(int fn)
 {
     int  i    = 0;
-    int *slot = &systemtasksubs;
+    int *base = &systemtasksubs;
+    int *slot = base;
     int  ret;
     do {
         if (*slot == fn)
@@ -89,9 +93,9 @@ extern int delsystemtask(int fn)
     } while (i < 0x10);
     ret = 0;
     if (i < 0x10) {
-        ret = (&systemtasksubs)[i * 4];
+        ret = base[i * 4];
         if (ret == fn)
-            (&systemtasksubs)[i * 4] = 0;
+            base[i * 4] = 0;
     }
     return ret;
 }

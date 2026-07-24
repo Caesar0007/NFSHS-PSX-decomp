@@ -256,7 +256,8 @@ extern void iSNDdmservice(void)
 /* iSNDdmqueue @0x8010ACA0 : enqueue a RAM->SPU transfer (len rounded to 64 bytes), returning its handle (or
  *   0 if the 10-slot queue is full).  The five arguments are full ABI words; the queue stores only the
  *   low bytes of prio/flag. Reusing the saved Status value and walking sndpd+0x10 fixes the earlier
- *   critical-section and split-storage bugs (89->54 diffs); the remaining gap includes COP0 hazard nops. */
+ *   critical-section and split-storage bugs. Snapshotting the new handle before the verified interrupt-mask
+ *   sequence preserves the oracle's load and all three COP0 hazard slots (39->28 detailed diffs). */
 extern int iSNDdmqueue(int dst_spu, unsigned int src_ram, int len, int prio, int flag)
 {
     int queuedFlag = flag;
@@ -265,15 +266,16 @@ extern int iSNDdmqueue(int dst_spu, unsigned int src_ram, int len, int prio, int
     unsigned char *pd;
     unsigned int sr;
     unsigned char *entry;
+    int handleSnapshot;
 
     if ((len & 0x3f) != 0)
         len = len + 0x40;
 
     raw = (volatile int *)sndpd;
     raw[2] = raw[2] + 1;
-    sr = rd_sr();
-    wr_sr(sr & 0xfffffbfe);
-    if (raw[2] == 0)
+    handleSnapshot = raw[2];
+    MASK_INTERRUPTS_SR(sr);
+    if (handleSnapshot == 0)
         raw[2] = 1;
 
     pd = (unsigned char *)raw;

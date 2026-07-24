@@ -209,20 +209,22 @@ extern int iSNDplatformoutputset(void)
                                                                                     * unsigned on this build,
                                                                                     * a cast-after-load doesn't
                                                                                     * change the lbu->lb) */
-        vbase = base;
         chan = 0;
+        vbase = base;
         vp = &DAT_801479f0;
         do {
-            if (*(volatile unsigned char *)(vp + 0x1c) == 2) {
+            /* XOR keeps the state literal caller-saved inside the loop instead of
+             * hoisting 2 into $s2; the oracle needs $s2 for the persistent sndgs base. */
+            if ((*(volatile unsigned char *)(vp + 0x1c) ^ 2) == 0) {
                 if (*(volatile unsigned char *)(vp + 0x21) == 0) {
                     iSNDsetvol(chan,
                         ((int)*(volatile unsigned char *)(vp + 0x24) << 24) >> 24,
                         ((int)*(volatile unsigned char *)(vp + 0x25) << 24) >> 24);
                 }
             }
-            chan++;
             vp += 0x2c;
-        } while (chan < (int)(unsigned)vbase[0x11]);
+            /* Preincrement makes the channel-count load precede the counter increment. */
+        } while (++chan < (int)(unsigned)vbase[0x11]);
     }
     snd_old_chan_mode = SUB(0x10);   /* FRESH re-read, not through `base` -- oracle re-materializes
                                        * this via its own %hi/%lo AFTER the epilogue register

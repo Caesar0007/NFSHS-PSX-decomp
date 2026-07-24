@@ -628,18 +628,26 @@ extern int   strncmp(const char *, const char *, int); /* libc C24 @0x800EB1D0  
  *   and kicks the user's command op.  `id`=read op id, `status` unused, `node`=the BIG node (int[4]). */
 extern void iFILE_addbigreadcallback(unsigned int id, int status, int *node)
 {
-    FileOp *op    = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
-    int     handle = op->result24;        /* FILE_read stashed the handle in result24 (+0x24) */
+    /* MATCH: `branchbuf` starts as node and becomes the grown buffer only in the read-more
+     * branch, producing the oracle's s0 branch value while node, manager, and priority occupy
+     * s1/s3/s4.  The two-word pad fixes the saved-register offsets.  `cmd` is intentionally
+     * short-lived: its handle propagation schedules into FILE_completeop's delay slot, while
+     * the final command dispatch reloads node[2] through `publish`. */
+    volatile int frame[2];
+    void   *branchbuf = node;
+    FileMgr *mgr   = &gFileMgr;
+    FileOp *cmd    = (FileOp *)(size_t)(unsigned int)node[2];
+    FileOp *op     = (FileOp *)((char *)mgr->oparray + (id >> 0x18) * 0x30);
     int     prio   = op->prio;            /* +0x10 */
     int     hdrsize, blksize;
     (void)status;
-    /* cmdop (node[2]) is NOT cached in a local -- the oracle re-reads it fresh at each of its two
-     * uses (the delay-slot store here, and the final iFILE_ExecCommand call far below), same
-     * not-cached-across-a-call pattern as HANDLE()/NAME() in iFILE_ExecCommand. */
 
-    node[1] = handle;                     /* node->handle */
-    FILE_completeop(id);                  /* finalize this read op (frees the slot) */
-    ((FileOp *)(size_t)(unsigned int)node[2])->result24 = handle;  /* propagate the handle (asm: delay slot) */
+    {
+        int handle = op->result24;         /* FILE_read stashed the handle in result24 (+0x24) */
+        node[1] = handle;                  /* node->handle */
+        cmd->result24 = handle;
+    }
+    FILE_completeop(id);                   /* final store above schedules into this call's delay slot */
 
     if (typeofbigfile((void *)(size_t)(unsigned int)node[0]) == 0)
         purgememadr((void *)(size_t)(unsigned int)node[0]);   /* invalid type -> drop the buffer */
@@ -649,17 +657,19 @@ extern void iFILE_addbigreadcallback(unsigned int id, int status, int *node)
     if (blksize < hdrsize) {              /* header bigger than what we have -> read the rest */
         void *newbuf = reservememadr((char *)"bigfile buf", hdrsize, 0x10);
         unsigned int rid;
+        branchbuf = newbuf;
         blockmove((void *)(size_t)(unsigned int)node[0], newbuf, 0x800);  /* keep the first block */
         purgememadr((void *)(size_t)(unsigned int)node[0]);
         node[0] = (int)(size_t)newbuf;
-        rid = FILE_read((void *)(size_t)handle, 0x800,
+        rid = FILE_read((void *)(size_t)(unsigned int)node[1], 0x800,
                         (unsigned int)(size_t)((char *)newbuf + 0x800),
                         hdrsize - 0x800, prio, (unsigned int)(size_t)node);
         FILE_callbackop(rid, (void (*)(unsigned int, int, int))iFILE_addbigreadcallback);
     } else {                             /* header complete -> publish the device */
-        node[3] = (int)(size_t)gFileMgr.devicelist;   /* node->next = old head */
-        gFileMgr.devicelist = node;
-        iFILE_ExecCommand((void *)(size_t)(unsigned int)node[2]);
+        int *publish = (int *)branchbuf;
+        publish[3] = (int)(size_t)mgr->devicelist;   /* node->next = old head */
+        mgr->devicelist = publish;
+        iFILE_ExecCommand((void *)(size_t)(unsigned int)publish[2]);
     }
 }
 

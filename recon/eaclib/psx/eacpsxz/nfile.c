@@ -594,21 +594,17 @@ extern int iFILE_CommandCompleteCallback(int result)
      * the branch's delay slot) straight to the shared store -- not an if/else-if/else (that nests the
      * tests instead of chaining independent early-outs to one target). cancelreq!=0 -> -1, result==0 ->
      * -2, else 1 (fall-through default).
-     * MATCH work (23->7): a volatile-qualified dead read retains the oracle's overwritten old
-     * status load; the reversed nested ternary keeps the status chain in v0; and value-less
-     * returns recover the entry branch and final tail.  Residual: the oracle keeps the callback
-     * test value in v1 through the counter increment and calls it directly, while this compiler
-     * rematerializes the field into v0 before jalr (one extra load). */
+     * MATCH: a volatile-qualified dead read retains the oracle's overwritten old status load;
+     * the reversed nested ternary keeps the status chain in v0; value-less returns recover the
+     * entry branch and final tail; and spelling both callback-field accesses directly preserves
+     * the oracle's deliberate reload before jalr. */
     (void)*(volatile int *)&cmd->status;
     cmd->status = (cmd->cancelreq != 0) ? -1 : ((result != 0) ? 1 : -2);
     gFileMgr.curop = 0;
-    {
-        register void (*cb)(int, int, int) = (void (*)(int, int, int))cmd->callback;
-        if (cb) {
-            gFileMgr.cbpending++;
-            cb((int)cmd->id, cmd->status, cmd->param);
-            gFileMgr.cbpending--;
-        }
+    if (cmd->callback) {
+        gFileMgr.cbpending++;
+        ((void (*)(int, int, int))cmd->callback)((int)cmd->id, cmd->status, cmd->param);
+        gFileMgr.cbpending--;
     }
     if (gFileMgr.cbpending == 0)
         iFILE_ExecCommand((void *)0);                   /* kick the next queued command */

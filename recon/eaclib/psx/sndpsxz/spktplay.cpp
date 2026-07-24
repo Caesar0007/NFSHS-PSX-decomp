@@ -524,13 +524,13 @@ extern "C" int iSNDpacketget(int p, int idx, int *out)
         m = *(volatile short *)(ppp + 0xc);
         *(volatile short *)(ppp + 0xc) = (short)0xffff;
         {
-            /* MATCH: compute the callback ARG (the `m*0x18+0x30` index expr) BEFORE fetching the
-             * callback pointer -- the oracle schedules the +0x1c load LATE, right before the
-             * beqz, behind this independent arithmetic. */
-            int arg = MI(ppp, m * 0x18 + 0x30);
+            /* MATCH: compute the completed PacketFrame address before fetching the callback
+             * pointer.  The oracle schedules the +0x1c load late, after the independent index
+             * arithmetic, and forms the final entry base in the branch delay slot. */
+            fr = ((PacketFrame *)(ppp + 0x28)) + m;
             void (*cb)(int) = *(void (**)(int))(ppp + 0x1c);
             if (cb != 0)
-                cb(MI(ppp, m * 0x18 + 0x30));
+                cb(fr->channel[0]);
         }
     }
     if (MUH(ppp, 0xe) == 0)                           /* MATCH: direct `return 0` (oracle's v0=0
@@ -559,14 +559,11 @@ extern "C" int iSNDpacketget(int p, int idx, int *out)
     }
     return fr->channel[idx];
 }
-/* Near-match: 5 diffs, ours 94 / oracle 95 instructions (down from 26 this round).
- * Modeling each 0x18-byte ring entry as PacketFrame fixed the head-frame address coloring and
- * field loads.  Volatile stores to +0x10 and the wrapped +0x0a index preserve the oracle's ordering
- * and duplicate tail index calculation.  The sole residual is the release-callback argument:
- * ours folds `m*0x18+0x30` into a base add plus `lw ...,48`, while the oracle retains the natural
- * PacketFrame split (`m*0x18+0x28`, base add in the branch delay slot, then `lw ...,8`).  Direct
- * typed callback accesses recover that split but hoist/color the callback load and regress the
- * detailed diff, so the verified 5-diff form is retained. */
+/* Exact match: modeling each 0x18-byte ring entry as PacketFrame fixes both head-frame addressing
+ * and the completed-frame callback argument.  Reusing `fr` for that callback is significant: it
+ * retains the natural `m*0x18+0x28` entry base and loads channel[0] at +8, matching the oracle's
+ * branch-delay scheduling.  Volatile stores to +0x10 and the wrapped +0x0a index preserve the
+ * oracle's ordering and duplicate tail-index calculation. */
 
 /* iSNDpacketfreeframes @0x801033C4 : platform notify -- once the last channel of a frame is consumed,
  *   credit `bytes` back and call the notify callback. */

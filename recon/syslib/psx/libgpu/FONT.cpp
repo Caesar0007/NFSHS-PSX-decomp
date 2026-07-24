@@ -145,19 +145,19 @@ extern "C" int FntPrint(const char *id, ...)
     int num;
     int len;
     int width;
-    char *f;
+    signed char *f;
     char *bufPtr;
     char sign;
     unsigned int ch;
 
     va_start(args, id);
     if ((int)id < 0 || (int)id >= _fnt_count) {
-        f = (char *)id;
+        f = (signed char *)id;
         id = (const char *)_fnt_active;
         if (_fnt[(int)id].textbuf == NULL)
             return -1;
     } else {
-        f = va_arg(args, char *);
+        f = (signed char *)va_arg(args, char *);
     }
 
     fs = &_fnt[(int)id];

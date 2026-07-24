@@ -668,9 +668,14 @@ extern void iFILE_addbigreadcallback(unsigned int id, int status, int *node)
  *   failure marks the command op error 4 and runs it.  `status`==1 means open succeeded. */
 extern void iFILE_addbigopencallback(unsigned int id, int status, int *node)
 {
-    /* An eight-byte pad aligns the saved-register area with the oracle (36->28 diffs). */
+    /* MATCH: the separate success-path node copy prevents it being coalesced with the
+     * failure-path node value, recovering the oracle's s1 -> s2 copy in the status-branch
+     * delay slot.  Loading `ops` separately materializes the manager base before the index
+     * arithmetic; spelling the final sum index-first gives the oracle's v0 destination. */
     volatile int frame[2];
-    FileOp *op   = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
+    int    *readNode = node;
+    FileOp *ops  = gFileMgr.oparray;
+    FileOp *op   = (FileOp *)((id >> 0x18) * 0x30 + (size_t)ops);
     int     prio = op->prio;               /* +0x10 */
     int     handle = FILE_completeop(id);  /* open op result24 == the opened handle */
 
@@ -681,8 +686,8 @@ extern void iFILE_addbigopencallback(unsigned int id, int status, int *node)
         iFILE_ExecCommand((void *)(size_t)(unsigned int)node[2]);
     } else {                               /* open ok -> read the first header block */
         unsigned int rid = FILE_read((void *)(size_t)handle, 0,
-                                     (unsigned int)node[0], 0x800,
-                                     prio, (unsigned int)(size_t)node);
+                                     (unsigned int)readNode[0], 0x800,
+                                     prio, (unsigned int)(size_t)readNode);
         FILE_callbackop(rid, (void (*)(unsigned int, int, int))iFILE_addbigreadcallback);
     }
 }

@@ -381,6 +381,13 @@ extern void iFILE_perror(FileOp *op)
  *   gets recycled out from under us during the wait. */
 extern int FILE_waitop(unsigned int id)
 {
+    /* MATCH work (53->19 diffs): the retail object carries an otherwise-unused 24-byte
+     * local area, represented by `frame`, which restores its 72-byte frame and every saved
+     * register offset.  The shared initial invalid-id tail gives the oracle's direct bne,
+     * and the volatile final status read preserves its deliberate post-loop reload.
+     * Remaining differences are the s1/s2/s3 assignment of the loop's offset, mask, and
+     * wanted-id values plus the corresponding equality-branch layout. */
+    volatile int frame[6];
     /* asm: op's address is computed UNCONDITIONALLY first (no side effects), THEN id==0 is
      * tested -- and the whole "recompute op + validate id" sequence (incl. the id==0 test,
      * vestigial though it is once inside the loop -- id is a local param that can't change) is
@@ -393,9 +400,9 @@ extern int FILE_waitop(unsigned int id)
      * fixed pointer + a disposable check, so the two are kept as separate locals here. */
     FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
     if (id == 0)
-        return -3;
+        goto invalid;
     if ((id & 0xFFFFF) != (op->id & 0xFFFFF))         /* stale id */
-        return -3;
+        goto invalid;
     while (op->status == 0) {                          /* not finished yet -> pump the system */
         systemtask(0);
         if (id == 0)
@@ -406,7 +413,9 @@ extern int FILE_waitop(unsigned int id)
                 return -3;
         }
     }
-    return op->status;
+    return *(volatile int *)&op->status;
+invalid:
+    return -3;
 }
 
 /* FILE_atomic @0x800ECB40 : run `fn(a3, a4)` (fn takes the 3rd/4th args -- $a2/$a3), flush the FILE

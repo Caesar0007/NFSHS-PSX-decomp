@@ -132,10 +132,26 @@ extern void iSNDserve(void);                /* @0x800FFAF4 */
 #if defined(__mips__)
 static inline unsigned int rd_sr(void) { unsigned int s; __asm__ volatile("mfc0 %0,$12" : "=r"(s)); return s; }
 static inline void wr_sr(unsigned int s) { __asm__ volatile("mtc0 %0,$12" : : "r"(s)); }
+/* CP0 transaction shim: keep the DMA channel in $a0 across the status-register
+ * mask and spell the required R3000 load/write hazard slots explicitly. */
+#define DECLARE_DMA_CHANNEL(name) register int name __asm__("$4")
+#define MASK_SR_FOR_DMA(sr, channel)                                                   \
+    __asm__ volatile(                                                                 \
+        "mfc0 %0,$12\n\t"                                                            \
+        "nop\n\t"                                                                     \
+        "li $1,-1026\n\t"                                                            \
+        "and $8,%0,$1\n\t"                                                           \
+        "mtc0 $8,$12\n\t"                                                            \
+        "nop\n\t"                                                                     \
+        "nop\n\t"                                                                     \
+        "nop"                                                                         \
+        : "=r"(sr), "+r"(channel) : : "$1", "$8", "memory")
 #else
 static unsigned int g_sr = 0;
 static inline unsigned int rd_sr(void) { return g_sr; }
 static inline void wr_sr(unsigned int s) { g_sr = s; }
+#define DECLARE_DMA_CHANNEL(name) int name
+#define MASK_SR_FOR_DMA(sr, channel) do { (sr) = rd_sr(); wr_sr((sr) & 0xfffffbfe); } while (0)
 #endif
 
 /* iSNDplatformoutputcaps @0x800FF5A8 : publish this platform's output capabilities into sndgs (44.1 kHz,
@@ -306,7 +322,7 @@ extern int iSNDrestore(void)
     int          chan;
     unsigned int deadline;
     unsigned int sr;
-    int          dma;
+    DECLARE_DMA_CHANNEL(dma);
 
     guard = (unsigned char *)sndgs;
     if (guard[0x3f] != 0) {
@@ -316,8 +332,8 @@ extern int iSNDrestore(void)
         } while (waitBase[0x3f] != 0);
     }
     gpraw = (unsigned char *)sndgs;
+    deadline = *(unsigned int *)(gpraw + 0x44) + 100;
     gp = gpraw;
-    deadline = *(unsigned int *)(gp + 0x44) + 100;
     base = sndpd;
     do {
         quiet = 1;
@@ -341,9 +357,7 @@ extern int iSNDrestore(void)
     deltimer((int)iSNDserver);
     iSNDpsxfxinit(0);
     dma = 4;
-    sr = rd_sr();
-    wr_sr(sr & 0xfffffbfe);   /* oracle reads SR ONCE (mfc0 s0) and reuses it for both the mask
-                                * and the later restore -- rd_sr() called twice emits a 2nd mfc0 */
+    MASK_SR_FOR_DMA(sr, dma);
     DMACallback(dma, 0);      /* detach the DMA4 callback (teardown) */
     wr_sr(sr);
     return 0;

@@ -394,12 +394,12 @@ extern void iFILE_perror(FileOp *op)
  *   gets recycled out from under us during the wait. */
 extern int FILE_waitop(unsigned int id)
 {
-    /* MATCH work (53->19 diffs): the retail object carries an otherwise-unused 24-byte
-     * local area, represented by `frame`, which restores its 72-byte frame and every saved
-     * register offset.  The shared initial invalid-id tail gives the oracle's direct bne,
-     * and the volatile final status read preserves its deliberate post-loop reload.
-     * Remaining differences are the s1/s2/s3 assignment of the loop's offset, mask, and
-     * wanted-id values plus the corresponding equality-branch layout. */
+    /* MATCH (53->0 diffs, 61/61 instructions): the otherwise-unused 24-byte `frame`
+     * restores the retail 72-byte frame.  Keeping the loop-only mask/wanted-id/manager/offset
+     * values inside the status guard gives their exact s3/s2/s5/s1 allocation.  The offset-first
+     * check-pointer expression fixes the retail addu operand order, while the inline `invalid`
+     * block followed by `valid` reproduces its positive equality branch and shared -3 tail.
+     * The volatile final status read preserves the deliberate post-loop reload. */
     volatile int frame[6];
     /* asm: op's address is computed UNCONDITIONALLY first (no side effects), THEN id==0 is
      * tested -- and the whole "recompute op + validate id" sequence (incl. the id==0 test,
@@ -416,19 +416,29 @@ extern int FILE_waitop(unsigned int id)
         goto invalid;
     if ((id & 0xFFFFF) != (op->id & 0xFFFFF))         /* stale id */
         goto invalid;
-    while (op->status == 0) {                          /* not finished yet -> pump the system */
-        systemtask(0);
-        if (id == 0)
-            return -3;
-        {
-            FileOp *check = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
-            if ((id & 0xFFFFF) != (check->id & 0xFFFFF))  /* slot recycled -> give up */
-                return -3;
-        }
+    if (op->status == 0) {                             /* not finished yet -> pump the system */
+        unsigned int loopmask = 0xFFFFF;
+        unsigned int wanted = id & 0xFFFFF;
+        FileMgr *mgr = &gFileMgr;
+        unsigned int offset = (id >> 0x18) * 0x30;
+        do {
+            systemtask(0);
+            if (id == 0)
+                goto invalid;
+            {
+                FileOp *check = (FileOp *)(offset + (unsigned int)mgr->oparray);
+                if (wanted == (check->id & loopmask))
+                    goto valid;
+invalid:
+                return -3;                            /* slot recycled -> give up */
+valid:
+                if (op->status == 0)
+                    continue;
+                break;
+            }
+        } while (1);
     }
     return *(volatile int *)&op->status;
-invalid:
-    return -3;
 }
 
 /* FILE_atomic @0x800ECB40 : run `fn(a3, a4)` (fn takes the 3rd/4th args -- $a2/$a3), flush the FILE

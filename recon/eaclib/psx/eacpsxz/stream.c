@@ -112,7 +112,7 @@ extern int  parsechunks(int s);                                            /* @0
 extern void opencallback(int a0, int a1, int s);                           /* @0x800FC810 */
 extern void closecallback(int a0, int a1, int s);                          /* @0x800FC850 */
 extern int  readcallback(int a0, int a1, int s);                           /* @0x800FC8A8 */
-extern int  startnextrequest(int s, unsigned int prio, unsigned int x);    /* @0x800FC9B4 */
+extern int  startnextrequest(int s, unsigned int prio);                    /* @0x800FC9B4 */
 extern int  restartstream(int s, unsigned int prio);                       /* @0x800FCB44 */
 extern int  STREAM_get(int consumer, void *buf, int len);                  /* @0x800FD9AC */
 extern void STREAM_release(int s, int consumer);                           /* @0x800FDAD0 */
@@ -402,7 +402,12 @@ extern void closecallback(int a0, int a1, int s)
 
 /* readcallback @0x800FC8A8 : nfile read-op completion (stream object in $a2).  Advances the read
  *   accounting, parses the freshly-filled data into chunks, and either continues filling or, when the
- *   request finishes, marks it done and starts the next queued request. */
+ *   request finishes, marks it done and starts the next queued request.
+ * MATCH work (37->22 diffs, count-exact 67/67): startnextrequest has only the two arguments
+ * consumed by its oracle; the former third `s` argument was phantom.  Positive completion
+ * logic plus an explicit late restart label gives the oracle's branch polarity and block
+ * order.  The residual is a whole-function s1/s2 allocation swap between reqcur and bvar1;
+ * declaration order, register qualifiers, and copy pseudos were all byte-neutral. */
 extern int readcallback(int a0, int a1, int s)
 {
     int bvar1;
@@ -423,29 +428,29 @@ extern int readcallback(int a0, int a1, int s)
     MU(s, 0x48) += uVar3;                       /* fillptr   += bytes */
     iVar2 = parsechunks(s);
     if (MI(reqcur, 4) != 4) {                   /* not cancelled */
-        if (!bvar1 && iVar2 == 0)
-            return restartstream(s, MU(s, 0x30));
-        {
+        if (bvar1 || iVar2 != 0) {
             int sr = STREAM_enterCS();
             MI(reqcur, 4) = 3;                  /* request done */
             STREAM_leaveCS(sr);
+        } else {
+            goto restart;
         }
     }
-    return startnextrequest(s, MU(s, 0x30), (unsigned int)s);
+    return startnextrequest(s, MU(s, 0x30));
+restart:
+    return restartstream(s, MU(s, 0x30));
 }
 
 /* startnextrequest @0x800FC9B4 : advance the active queue cursor (+0x50) to the next runnable request,
  *   open/seek its file (or rebind to the memory image), and kick restartstream.  Sets state idle if the
  *   queue drains. */
-extern int startnextrequest(int s, unsigned int prio, unsigned int x)
+extern int startnextrequest(int s, unsigned int prio)
 {
     int  done;
     int  ret = 0;
     int  cur;
     int  req;
     int  sr;
-    (void)x;
-
     sr = STREAM_enterCS();
     cur  = MI(s, 0x50);
     done = 1;

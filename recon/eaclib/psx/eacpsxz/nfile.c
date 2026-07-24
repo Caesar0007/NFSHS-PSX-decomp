@@ -530,6 +530,11 @@ extern void stopreadfile(int dev);   /* @0x800F4100 abort an in-flight read on a
  *     (status=-1) and fire its completion callback with (id, param). */
 extern void FILE_cancelop(unsigned int id)
 {
+    /* MATCH work (59->47 diffs): the retail object reserves a dead 24-byte local
+     * area, so this pad restores its 48-byte frame and saved-register offsets.
+     * The remaining delta is dominated by the caller-saved a1/a2/a3 assignment
+     * of id, action, and op plus the queue-not-found block layout. */
+    volatile int frame[6];
     FileOp *op;
     int     nibble, action = 0, sr;
 

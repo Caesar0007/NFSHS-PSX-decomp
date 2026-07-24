@@ -63,7 +63,7 @@ extern "C" void *memcpy(void *d, const void *s, int n);
 /* ---- internal forward decls (mutually recursive) ---- */
 extern "C" int  iSNDstreamdestroyall(void);                       /* @0x800E8C14 */
 extern "C" int  iSNDstreamgetstreamptr(int idx);                  /* @0x800E8C48 */
-extern "C" int  iSNDstreamremoverequest(unsigned int reqid);      /* @0x800E8C64 */
+extern "C" void iSNDstreamremoverequest(unsigned int reqid);      /* @0x800E8C64 */
 extern "C" void iSNDstreamreleasecallback(int sample);            /* @0x800E8D90 */
 extern "C" void iSNDstreamnotifycallback(int handle, unsigned int bytes); /* @0x800E8DD4 */
 extern "C" int  iSNDstreamparseheader(int S, int data);           /* @0x800E8E9C */
@@ -107,39 +107,24 @@ extern "C" int iSNDstreamgetstreamptr(int idx)
 }
 
 /* iSNDstreamremoverequest @0x800E8C64 : drop the request whose id == `reqid` from a stream's packet
- *   array, compacting the remaining requests down and fixing up parseIdx/curReqCount.  Returns the
- *   (possibly adjusted) parseIdx. */
-extern "C" int iSNDstreamremoverequest(unsigned int reqid)
+ *   array, compacting the remaining requests down and fixing up parseIdx/curReqCount. */
+extern "C" void iSNDstreamremoverequest(unsigned int reqid)
 {
     /* struct-assignment (not a memcpy() call) for the compaction copy below -- oracle expands it
      * inline as a manual 4-word+3-word unrolled load/store (this build's memcpy() is a genuine
      * extern call, never inlined; the true original must have used a real struct copy, letting
-     * gcc do the copy itself). Landed 121->94 diffs (wave-19). wave-21 (94->87): the parseIdx
-     * retarget check AND the loop-bound check both needed the literal shift-chain form instead of
-     * the `MSB()` macro's plain `(signed char)` cast (same lever as parsenumchunks/isheld -- MSB
-     * compiles to a bare `lb`; oracle wants `lbu;sll24;sra24`).
-     * wave-22 (87->46, ours 75 / oracle 75 insns -- EXACT count): the doc'd "S colors to $a3, not
-     * source-reachable" turned out to be WRONG -- it wasn't a coloring floor, it was masking a real
-     * bug. (1) `packets = MI(S,0)` was cached once at fn entry; the oracle re-reads S+0 FRESH both
-     * inside the loop (`src` ptr) and again at the compaction-dest calc -- dropping the cached local
-     * for `MVI(S,0)` at both sites ALSO fixed the S->$a1 coloring as a side effect (87->52). (2) the
-     * tail parseIdx-clamp compare/re-store also needed volatile re-reads of S+0x16/S+0x17 (same
-     * lever, oracle reloads both bytes fresh rather than reusing the loop's/decrement's cached
-     * values) PLUS evaluating the S+0x17 (parseIdx) operand FIRST in the compare, matching the
-     * oracle's load order (52->51->46). Residual (46 diffs, count-exact): the do-while's zero-init
-     * (`t2`-vs-fresh-zero-then-copy for a3/t1/t0), the compaction-loop's temp-register numbering
-     * (t3..t6 vs t4..t7, a cascade from the upstream fix), and the final `ret` value living in a
-     * dedicated temp (oracle) vs directly in `v0` (ours) at the epilogue -- all pure register
-     * coloring/allocation, permuter candidate. Tried initializing rd/wr/i from `newidx` (already
-     * zero) instead of a literal 0 to hint reg reuse: byte-identical, reverted. */
+     * gcc do the copy itself). The PC implementation confirms the void ABI and uses int source/
+     * destination indices. Keeping the compacted index and loop index as function-scope ints gives
+     * the oracle's shared-zero register allocation; fresh volatile field reads preserve its exact
+     * load order and scheduling. MATCH (75/75). */
     struct ReqRec { int w[0x2c / 4]; };
     int *base = sndss;
     int  S       = base[reqid & 0xff];
-    char newidx  = 0;            /* write index (compacted) */
-    int  ret     = 0;
+    int  newidx  = 0;            /* write index (compacted) */
+    int  i       = 0;
 
     if (0 < (int)((unsigned)MB(S, 0x16) << 0x18)) {     /* curReqCount > 0 (signed) */
-        int rd = 0, wr = 0, i = 0;
+        int rd = 0, wr = 0;
         do {
             int *src = (int *)(MVI(S, 0) + rd);          /* MATCH: oracle re-reads packetsArray
                         * (S+0) FRESH every loop iteration (and again for the compaction dest below)
@@ -151,7 +136,7 @@ extern "C" int iSNDstreamremoverequest(unsigned int reqid)
                         * iSNDstreamparsenumchunks/isheld/etc -- forces the oracle's lbu+sll+sra
                         * instead of a single lb) -- parseIdx pointed at it -> retarget */
                     MB(S, 0x17) = newidx;
-                *(struct ReqRec *)(MVI(S, 0) + wr) = *(struct ReqRec *)src;
+                *(struct ReqRec *)(wr + MVI(S, 0)) = *(struct ReqRec *)src;
                 wr += 0x2c;
                 newidx = newidx + 1;
             }
@@ -159,16 +144,16 @@ extern "C" int iSNDstreamremoverequest(unsigned int reqid)
             i++;
         } while (i < (((int)(*(volatile unsigned char *)(S + 0x16)) << 24) >> 24));
     }
-    MB(S, 0x16) = MB(S, 0x16) - 1;                       /* curReqCount-- */
+    *(volatile unsigned char *)(S + 0x16) =
+        *(volatile unsigned char *)(S + 0x16) - 1;        /* curReqCount-- */
     if ((int)((unsigned)*(volatile unsigned char *)(S + 0x17) << 0x18) >
         (int)((unsigned)*(volatile unsigned char *)(S + 0x16) << 0x18)) {  /* MATCH: oracle re-reads
                         * BOTH bytes fresh from memory for this compare (not the just-decremented/
                         * loop value still in a register); parseIdx (0x17) is evaluated FIRST. */
-        ret = *(volatile unsigned char *)(S + 0x17) - 1;  /* MATCH: parseIdx reloaded AGAIN here,
+        int ret = *(volatile unsigned char *)(S + 0x17) - 1;  /* MATCH: parseIdx reloaded AGAIN here,
                         * not reused from the compare above. */
         MB(S, 0x17) = (unsigned char)ret;
     }
-    return ret;
 }
 
 /* iSNDstreamreleasecallback @0x800E8D90 : SNDPKTPLAY release hook -- a finished sample buffer carries a

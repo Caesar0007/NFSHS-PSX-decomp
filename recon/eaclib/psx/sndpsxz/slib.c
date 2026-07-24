@@ -439,9 +439,12 @@ extern void iSNDserve(void)
 
     *(volatile unsigned int *)&koff = 0;
     base = sndpd;
-    kon = 0;
-    if (*(int *)(base + 0x720) != 0)
+    if (*(int *)(base + 0x720) != 0) {
+        kon = 0;
         (*(void (*)(void))*(int *)(base + 0x720))();
+    } else {
+        kon = 0;
+    }
 
     chan = 0;
     if (chan < (int)(unsigned int)SUB(0x11)) {
@@ -455,11 +458,11 @@ extern void iSNDserve(void)
             vreg = vreg0;
             if (*(volatile unsigned char *)(vp + 0x1d) == 2) {       /* voice stopping */
                 if (vreg[6] != 0) {
-                    vp[0x26] = 1;
+                    *(volatile unsigned char *)(vp + 0x26) = 1;
                 } else {                                             /* SPU ADSR reached 0 */
                     if (vp[0x26] != 0 && vp[0x21] == 0 &&
                         (int)((unsigned)vp[0x27] << 0x18) < 0) {
-                        n = (int)(unsigned)vp[0x1f];
+                        n = (int)(unsigned)*(volatile unsigned char *)(vp + 0x1f);
                         do {
                             int c = chan, cvt = vt;
                             if (n == 2) {
@@ -468,7 +471,7 @@ extern void iSNDserve(void)
                             }
                             vp = &DAT_801479f0 + cvt;
                             vp[0x1d] = 0;
-                            vp[0x1c] = 0;
+                            *(volatile unsigned char *)(vp + 0x1c) = 0;
                             iSNDfreechan(c);
                             n--;
                             *(unsigned short *)(c * 0x10 + *(int *)(fpbase + 0x510) + 6) = 0x200;
@@ -515,7 +518,7 @@ extern void iSNDserve(void)
             if (vp[0x1c] == 1 && vp[0x1d] == 0 &&
                 ((unsigned char)vp[0x1f] < 2 ||
                  fpbase[0xf5 +
-                    (((int)((unsigned int)vp[0x20] << 24) >> 24) * 0x2c)] == 0)) {
+                    (((int)((unsigned int)*(volatile unsigned char *)(vp + 0x20) << 24) >> 24) * 0x2c)] == 0)) {
                 kon = kon | iSNDstartvoice(chan);                    /* arm newly-triggered voice */
             }
             chan++;

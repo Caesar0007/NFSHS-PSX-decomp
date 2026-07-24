@@ -298,15 +298,16 @@ extern "C" int iSNDstreamparsedata(int S, int chunk)
 
     step = 0;
     if (MB(S, 0x2f) == 0) {                              /* flat: every channel reads chunk+0x10 */
-        int flatVal = chunk + 0x10;
+        int flatBase = chunk + 0x10;
+        int offset = 0;
         i = step;
         if (MB(S, 0x1e) != 0) {
             int *dp = desc;                              /* MATCH: base ptr materialized ONLY here --
                                                            * oracle's `v1=sp+0x10` sits AFTER the
                                                            * numCh!=0 guard, not hoisted to fn scope. */
             do {
-                dp[3] = flatVal;
-                flatVal += step;
+                dp[3] = flatBase + offset;
+                offset += step;
                 dp++;
             } while ((int)MB(S, 0x1e) > ++i);
         }
@@ -338,17 +339,17 @@ extern "C" int iSNDstreamparsedata(int S, int chunk)
     }
     return 1;
 }
-/* near-miss (123->20 diffs, ours 97 / oracle 97 insns). MVI (volatile) on the 4 request-field
+/* near-miss (123->13 diffs, ours 98 / oracle 97 insns). MVI (volatile) on the 4 request-field
  * read/writes was needed to stop gcc from interleaving the 0x1c/0x20/0xc/8 field updates (oracle
- * does each field's read-op-write as one clean sequential block). Residual (21 diffs, two clusters):
- * (1) flat-loop only -- oracle keeps a PHANTOM zero-step induction var: `t1=0` materialized
- * separately from the loop counter `a0` (a COPY of t1), and a live no-op `a2 += t1` every iteration
- * (t1 never changes) on the value being stored. This is a classic gcc -O2 strength-reduction leftover
- * from an index-form `desc[i+3]=flatVal` loop, but reproducing that form here (`for(i=0;i<numCh;i++)
- * desc[i+3]=flatVal;`) REGRESSED 21->68 (wrong pointer-materialization timing, worse overall) --
- * reverted, kept the pointer-walk (`dp[3]=val;dp++;`) which wins on the OTHER 90% of the function.
- * Not reconciled: needs the walk AND the phantom IV simultaneously, no source form tried produces both.
- * (2) ~7 diffs -- oracle schedules the `desc[3]` reload (for the back-ptr store) into the `mult`
+ * does each field's read-op-write as one clean sequential block). The flat loop's explicit
+ * `flatBase + offset` form preserves the oracle's separate zero-step induction register (`t1`) while
+ * retaining the required walking descriptor pointer; it improves the former 17-diff pointer-walk
+ * form to 13. Residual has two clusters:
+ * (1) flat-loop only -- ours initializes a separate zero offset and adds `flatBase` each iteration;
+ * oracle strength-reduces that pair into a derived induction value initialized from `flatBase` and
+ * advanced by the zero step. Direct derived-value and index forms both lose the useful register/IV
+ * split and regress to 17-68 diffs.
+ * (2) tail scheduling -- oracle schedules the `desc[3]` reload (for the back-ptr store) into the `mult`
  * instruction's latency-fill slot, before `mfhi`; ours schedules it after. Tried hoisting the read
  * into its own local before the round-up division (`int backAddr=desc[3];`) -- gcc rescheduled
  * identically either way (RTL-level list-scheduler decision, not source-reachable). */

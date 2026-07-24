@@ -75,13 +75,12 @@ unsigned char D_8014899C[8];
 unsigned char D_801489A4[8];
 unsigned char D_801489AC[8];
 
-/* alarm/timeout state (this TU OWNS these in BSS @0x801489B4..). */
+/* alarm/timeout state is part of the driver's fixed data block.  These need
+ * external linkage so each inlined polling helper uses absolute references,
+ * as in the oracle, rather than gp-relative small-BSS accesses. */
 extern "C" int          D_801489B4;       /* deadline (VSync frame) */
 extern "C" int          D_801489B8;       /* spin counter */
 extern "C" const char  *D_801489BC;       /* current op name (debug) */
-int          D_801489B4;
-int          D_801489B8;
-const char  *D_801489BC;
 
 /* command-name + interrupt-name string tables (debug; in asm/data). */
 extern "C" char *CD_comstr[];             /* @ : CdlXXX names, indexed by CD_com */

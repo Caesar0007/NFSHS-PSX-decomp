@@ -32,13 +32,15 @@ extern short *iSNDserveraddclient(int cb)
 
 /* iSNDserverremoveclient @0x801047CC : unregister `cb`, compacting the list.  void -- $v0 at every
  *   exit is incidental (numclients / slt scratch / i<<2), matching the eaclib.h `void` prototype. */
-extern void iSNDserverremoveclient(int cb)
+extern void iSNDserverremoveclient(volatile int cb)
 {
     int i;
     int j;
+    int target;
     char *base;
     char *p;
     p = (char *)sndgs;
+    target = cb;
     /* MATCH: goto-formed loops (no gcc LOOP notes -> NO strength reduction; the oracle recomputes
      * `sll i,2` EVERY iteration instead of walking a +4 offset giv); ONE char* base for every
      * access (same lever as iSNDserveraddclient above) so +0x64/+0x41 fold into DISPLACEMENTS off
@@ -46,26 +48,24 @@ extern void iSNDserverremoveclient(int cb)
      * (`j = i*4; i++; [j+0x64] = [i*4+0x64]`) so BOTH sides use displacement 0x64 and the sll
      * lands in the entry/back-edge delay slots (an `[i]=[i+1]; i++` form emits 100/104 instead).
      *
-     * NEAR-MISS residual (41 diffs, ours 42 / oracle 43): a pure 3-reg caller-saved ROTATION
-     * {i,base,cb} = ours {a1,a2,a0} vs oracle {a0,a1,a2} -- the oracle's allocation evicts the
-     * param from $a0 (entry copy `addu a2,a0,zero`, our 1 missing insn) and i takes $a0.
-     * Structure/count otherwise exact.  Tried + inert (all stayed 41): all 24 decl orders,
-     * `register` kw, explicit param-copy local (coalesced away), block-scope j, Yoda compare,
-     * i=0 before/after guard/p-init, decl-init i, guard `<1`, base-then-i order, unsigned char*
-     * bases, void* param.  Class: gcc-2.8.0 global-alloc assignment tie-break (methodology
-     * SS3.15); next step = permuter multi-basin (C lane). */
+     * NEAR-MISS residual (4 diffs, ours/oracle 43): making the incoming callback local volatile
+     * recovers the oracle's {i,base,target}={a0,a1,a2} allocation; copying it once into `target`
+     * avoids a reload at every comparison. GCC still realizes the initial preservation as
+     * `sw a0,0(sp); ...; lw a2,0(sp)` where the oracle uses `addu a2,a0,zero` plus a load-delay
+     * nop. The index-first destination expression fixes the final commutative-addu order. */
     if (*(signed char *)(p + 0x41) <= 0)                      /* lb count (signed-char view of the byte) */
         return;
     i = 0;
     base = p;
 findloop:
-    if (*(int *)(base + i * 4 + 0x64) == cb) {                /* client slots @+0x64 */
+    if (*(int *)(base + i * 4 + 0x64) == target) {            /* client slots @+0x64 */
         *(char *)(base + 0x41) = *(char *)(base + 0x41) - 1;  /* lbu/addiu/sb (plain char is unsigned) */
         if (i < *(signed char *)(base + 0x41)) {
 shiftloop:                                                    /* compact the tail down one slot */
             j = i * 4;                                        /* scale BEFORE the increment (sll in the entry/back-edge delay slot) */
             i++;
-            *(int *)(base + j + 0x64) = *(int *)(base + i * 4 + 0x64);
+            *(int *)((unsigned int)j + (unsigned int)base + 0x64) =
+                *(int *)(base + i * 4 + 0x64);
             if (i < *(signed char *)(base + 0x41))
                 goto shiftloop;
         }

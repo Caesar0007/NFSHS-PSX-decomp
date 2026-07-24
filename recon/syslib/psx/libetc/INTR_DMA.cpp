@@ -5,14 +5,16 @@
  *   DMACallback @0x80106878 registers/enables a channel callback.  dma_cb table @0x8013BD24.  The obj-local
  *   _bzero_w (@0x80106924) is `static` (each PsyQ obj carries its own copy).
  */
-#define DICR  (*(volatile unsigned int *)0x1F8010F4)
-
 extern "C" void InterruptCallback(int idx, void (*h)());   /* INTR */
 extern "C" int  printf(const char *fmt, ...);              /* C63 */
 extern "C" void _dma_isr(void);
 static int _dma_set_callback(int ch, int func);   /* @0x80106878 : obj-local; only reached via the pointer startIntrDMA returns */
 
-static int dma_cb[8];   /* @0x8013BD24 : per-channel DMA callbacks */
+extern "C" volatile unsigned int *g_dicr_ptr;   /* @0x8013BD20 : = 0x1F8010F4 */
+extern "C" int dma_cb[8];                        /* @0x8013BD24 : per-channel DMA callbacks */
+extern "C" volatile unsigned int *g_madr_ptr;   /* @0x8013BD44 : = 0x1F801080 */
+
+#define DICR (*g_dicr_ptr)
 
 /* HIDDEN-PHANTOM FIX (w14-a2): oracle name is the bare "_bzero_w" (no __F mangling suffix), but
  * this `static` C++ fn got C++-mangled to _bzero_w__FPii, a NAME MISMATCH invisible to the gate
@@ -28,7 +30,7 @@ static void _bzero_w(int *p, int n)   /* @0x80106924 */
 }
 }   /* extern "C" */
 
-extern "C" void *startIntrDMA(int priority)   /* @0x801066AC */
+extern "C" void *startIntrDMA(void)   /* @0x801066AC */
 {
     _bzero_w(dma_cb, 8);
     DICR = 0;
@@ -38,27 +40,29 @@ extern "C" void *startIntrDMA(int priority)   /* @0x801066AC */
 
 extern "C" void _dma_isr(void)   /* @0x801066F8 */
 {
-    unsigned int pending = DICR >> 0x18 & 0x7f;
-    if (pending != 0) {
-        do {
-            int *cb = dma_cb;
-            for (int i = 0; (pending != 0 && i < 7); i = i + 1) {
-                if ((pending & 1) != 0) {
-                    DICR = DICR & (1 << (i + 0x18U & 0x1f) | 0xffffffU);
-                    if (*cb) ((void (*)())*cb)();
+    unsigned int pending;
+    int i;
+
+    while ((pending = (DICR >> 24) & 0x7f) != 0) {
+        for (i = 0; pending != 0 && i < 7; ++i, pending >>= 1) {
+            if (pending & 1) {
+                DICR &= 0xffffff | (1 << (i + 24));
+                if (dma_cb[i] != 0) {
+                    ((void (*)())dma_cb[i])();
                 }
-                cb = cb + 1;
-                pending = pending >> 1;
             }
-            pending = DICR >> 0x18 & 0x7f;
-        } while (pending != 0);
+        }
     }
-    if (((DICR & 0xff000000) == 0x80000000) || ((DICR & 0x8000) != 0)) {
-        printf("DMA bus error: code=%08x\n", DICR);
-        int i;
-        for (i = 0; i < 7; i++)              /* MADR[0..6]; oracle $s0=0..6, base+$s0*0x10 @0x8010681c-684c */
-            printf("MADR[%d]=%08x\n", i, *(volatile unsigned int *)(0x1F801080 + i * 0x10));
-    }
+
+    if ((DICR & 0xff000000) == 0x80000000)
+        goto dma_error;
+    if ((DICR & 0x8000) == 0)
+        return;
+
+dma_error:
+    printf("DMA bus error: code=%08x\n", DICR);
+    for (i = 0; i < 7; i++)
+        printf("MADR[%d]=%08x\n", i, g_madr_ptr[4 * i]);
 }
 
 static int _dma_set_callback(int ch, int func)   /* @0x80106878 (obj-local; installed by startIntrDMA) */

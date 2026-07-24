@@ -6,10 +6,6 @@
  *   vsync/dma slot-setters returned by startIntr{VSync,DMA} are cached in g_vsync_setter/g_dma_setter.
  */
 
-#define I_STAT  (*(volatile unsigned short *)0x1F801070)
-#define I_MASK  (*(volatile unsigned short *)0x1F801074)
-#define DPCR    (*(volatile unsigned int   *)0x1F8010F0)
-
 typedef int (*IntrSetter)(int, int);
 
 extern "C" int  printf(const char *fmt, ...);          /* C63 */
@@ -22,25 +18,25 @@ extern "C" int  EnterCriticalSection(void);            /* A36 */
 extern "C" void ExitCriticalSection(void);             /* A37 */
 extern "C" void ResetEntryInt(void);                   /* A24 */
 extern "C" void _96_remove(void);                      /* C114 */
-extern "C" void *startIntrVSync(int priority);         /* INTR_VB */
-extern "C" void *startIntrDMA(int priority);           /* INTR_DMA */
+extern "C" void *startIntrVSync(void);                 /* INTR_VB */
+extern "C" void *startIntrDMA(void);                   /* INTR_DMA */
 
 extern "C" void _intrhand(void);
-extern "C" void _set_intr_callback(unsigned int idx, int handler);
-extern "C" void _initIntr(void);
+extern "C" int  _set_intr_callback(unsigned int idx, int handler);
 
 /* EvCB block @0x80134AF8 (0x41a words) */
 typedef struct {
-    short inited;                          /* +0x00  @0x80134AF8 */
-    short in_handler;                      /* +0x02  @0x80134AFA */
+    unsigned short inited;                 /* +0x00  @0x80134AF8 */
+    unsigned short in_handler;             /* +0x02  @0x80134AFA */
     int   cb[11];                          /* +0x04  @0x80134AFC : IRQ callbacks 0..10 */
-    short enabled;                         /* +0x30  @0x80134B28 : enabled-IRQ mask */
-    short saved_imask;                     /* +0x32  @0x80134B2A */
+    unsigned short enabled;                /* +0x30  @0x80134B28 : enabled-IRQ mask */
+    unsigned short saved_imask;            /* +0x32  @0x80134B2A */
     int   saved_dpcr;                      /* +0x34  @0x80134B2C */
     long  jmpbuf[(0x1018 - 0x38) / 4];     /* +0x38  @0x80134B30 : setjmp buf + filler */
     int   evcb[(0x1068 - 0x1018) / 4];     /* +0x1018 @0x80135B10 : BIOS EvCB table */
 } IntrState;
 extern "C" IntrState g_intr;               /* @0x80134AF8 */
+extern "C" IntrState *_initIntr(void);
 
 /* MATCH (structural): the libetc callback API dispatches through a HOOK TABLE --
  * D_80135B60 = 8-slot struct {entry, dma_setter, set_cb, reset, stop, vsync_setter,
@@ -50,8 +46,8 @@ extern "C" IntrState g_intr;               /* @0x80134AF8 */
 typedef struct {
     int        (*entry)();                        /* +0x00 @0x80135B60 : 0x80056F4C (static init) */
     IntrSetter   dma_setter;                      /* +0x04 : filled by _initIntr (startIntrDMA) */
-    void       (*set_cb)(unsigned int, int);      /* +0x08 : _set_intr_callback */
-    void       (*reset)(void);                    /* +0x0C : _initIntr */
+    int        (*set_cb)(unsigned int, int);      /* +0x08 : _set_intr_callback */
+    IntrState *(*reset)(void);                    /* +0x0C : _initIntr */
     long       (*stop)(void);                     /* +0x10 : StopCallback */
     IntrSetter   vsync_setter;                    /* +0x14 : filled by _initIntr (startIntrVSync) */
     void       (*restart)(void);                  /* +0x18 : RestartCallback */
@@ -59,8 +55,14 @@ typedef struct {
 } IntrHooks;
 extern "C" IntrHooks        g_hooks;             /* @0x80135B60 */
 extern "C" IntrHooks       *g_hooks_ptr;         /* @0x80135B80 : = &g_hooks */
-extern "C" unsigned short  *g_imask_ptr;         /* @0x80135B88 : runtime ptr to I_MASK register */
-extern "C" int              g_intr_timeout = 0;  /* @0x80135B90 */
+extern "C" volatile unsigned short *g_istat_ptr; /* @0x80135B84 : = 0x1F801070 */
+extern "C" volatile unsigned short *g_imask_ptr; /* @0x80135B88 : = 0x1F801074 */
+extern "C" volatile unsigned int   *g_dpcr_ptr;  /* @0x80135B8C : = 0x1F8010F0 */
+extern "C" int g_intr_timeout;                   /* @0x80135B90 */
+
+#define I_STAT (*g_istat_ptr)
+#define I_MASK (*g_imask_ptr)
+#define DPCR   (*g_dpcr_ptr)
 
 /* HIDDEN-PHANTOM FIX (w14-a2): oracle name is the bare "_bzero_w" (no __F mangling suffix), but
  * this `static` C++ fn got C++-mangled to _bzero_w__FPii, a NAME MISMATCH invisible to the gate
@@ -74,23 +76,24 @@ static void _bzero_w(int *p, int n)        /* @0x800F2E70 */
 }
 }   /* extern "C" */
 
-extern "C" void _initIntr(void)            /* @0x800F2968 */
+extern "C" IntrState *_initIntr(void)       /* @0x800F2968 */
 {
-    if (g_intr.inited == 0) {
-        I_MASK = 0;
-        I_STAT = 0;
-        DPCR = 0x33333333;
-        _bzero_w((int *)&g_intr, 0x41a);
-        if (setjmp(g_intr.jmpbuf) != 0)
-            _intrhand();
-        g_intr.jmpbuf[1] = (long)g_intr.evcb;
-        HookEntryInt(g_intr.jmpbuf);
-        g_intr.inited = 1;
-        g_hooks_ptr->vsync_setter = (IntrSetter)startIntrVSync((int)g_intr.jmpbuf);
-        g_hooks_ptr->dma_setter   = (IntrSetter)startIntrDMA((int)g_intr.jmpbuf);
-        _96_remove();
-        ExitCriticalSection();
-    }
+    if (g_intr.inited != 0)
+        return 0;
+
+    I_STAT = I_MASK = 0;
+    DPCR = 0x33333333;
+    _bzero_w((int *)&g_intr, 0x41a);
+    if (setjmp(g_intr.jmpbuf) != 0)
+        _intrhand();
+    g_intr.jmpbuf[1] = (long)g_intr.evcb;
+    HookEntryInt(g_intr.jmpbuf);
+    g_intr.inited = 1;
+    g_hooks_ptr->vsync_setter = (IntrSetter)startIntrVSync();
+    g_hooks_ptr->dma_setter   = (IntrSetter)startIntrDMA();
+    _96_remove();
+    ExitCriticalSection();
+    return &g_intr;
 }
 
 extern "C" void ResetCallback(void)        /* @0x800F284C */
@@ -127,7 +130,7 @@ extern "C" int CheckCallback(void)
 extern "C" int SetIntrMask(int mask)   /* @0x800F2950 */
 {
     /* MATCH: oracle uses g_imask_ptr (D_80135B88) indirection → lw ptr; lhu *ptr; sh a0,*ptr in jr delay */
-    unsigned short *p = g_imask_ptr;
+    unsigned short *p = (unsigned short *)g_imask_ptr;
     int old = *p;
     *p = (unsigned short)mask;
     return old;
@@ -140,54 +143,49 @@ extern "C" void _intrhand(void)            /* @0x800F2A40 */
         ReturnFromException();
     }
     g_intr.in_handler = 1;
-    unsigned int pending = (unsigned int)(unsigned short)(I_MASK & g_intr.enabled & I_STAT);
-    if (pending != 0) {
-        do {
-            int *cb = g_intr.cb;
-            for (unsigned int i = 0; (pending != 0 && (int)i < 0xb); i = i + 1) {
-                if ((pending & 1) != 0) {
-                    I_STAT = ~(unsigned short)(1 << (i));
-                    if (*cb) ((void (*)())*cb)();
+    unsigned short pending = (unsigned short)((g_intr.enabled & I_STAT) & I_MASK);
+    while (pending != 0) {
+        for (int i = 0; pending != 0 && i < 11; ++i, pending >>= 1) {
+            if (pending & 1) {
+                I_STAT = (unsigned short)~(1 << i);
+                if (g_intr.cb[i] != 0) {
+                    ((void (*)())g_intr.cb[i])();
                 }
-                cb = cb + 1;
-                pending = pending >> 1;
             }
-            pending = (unsigned int)(unsigned short)(I_MASK & g_intr.enabled & I_STAT);
-        } while (pending != 0);
+        }
+        pending = (unsigned short)((g_intr.enabled & I_STAT) & I_MASK);
     }
-    if ((unsigned short)(I_STAT & I_MASK) == 0) {
-        g_intr_timeout = 0;
-    } else {
-        int n = g_intr_timeout + 1;
-        bool over = 0x800 < g_intr_timeout;
-        g_intr_timeout = n;
-        if (over) {
+
+    if (I_STAT & I_MASK) {
+        if (g_intr_timeout++ > 0x800) {
             printf("intr timeout(%04x:%04x)\n", I_STAT, I_MASK);
             g_intr_timeout = 0;
             I_STAT = 0;
         }
+    } else {
+        g_intr_timeout = 0;
     }
     g_intr.in_handler = 0;
     ReturnFromException();
 }
 
-extern "C" void _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
+extern "C" int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
 {
-    unsigned short imask = I_MASK;
     int *slot = &g_intr.cb[idx];
     int old = *slot;
     if ((handler != old) && (g_intr.inited != 0)) {
+        unsigned short imask = I_MASK;
         I_MASK = 0;
-        if (handler == 0) {
-            unsigned short bit = ~(unsigned short)(1 << (idx));
-            *slot = 0;
-            imask = imask & bit;
-            g_intr.enabled = g_intr.enabled & bit;
-        } else {
+        if (handler != 0) {
             *slot = handler;
             unsigned short bit = (unsigned short)(1 << (idx));
             imask = imask | bit;
             g_intr.enabled = g_intr.enabled | bit;
+        } else {
+            unsigned short bit = ~(unsigned short)(1 << (idx));
+            *slot = 0;
+            imask = imask & bit;
+            g_intr.enabled = g_intr.enabled & bit;
         }
         /* @0x800F2CC0-D20: ChangeClearRCnt(<per-IRQ root-counter index>, handler==0). $a0 = the timer
          * id (idx0->RCnt3, idx4->0, idx5->1, idx6->2), $a1 = $s0 = (handler<1) = (handler==0) = the
@@ -196,8 +194,9 @@ extern "C" void _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C
         if (idx == 4)   ChangeClearRCnt(0, handler == 0);
         if (idx == 5)   ChangeClearRCnt(1, handler == 0);
         if (idx == 6)   ChangeClearRCnt(2, handler == 0);
+        I_MASK = imask;
     }
-    I_MASK = imask;
+    return old;
 }
 
 extern "C" void StopCallback(void)         /* @0x800F2D58 */

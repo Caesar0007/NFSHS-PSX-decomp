@@ -212,8 +212,8 @@ extern short *iSNDserveradd100hzclient(int cb)
 
 /* iSNDserverremove100hzclient @0x800EA620 : unregister a 100 Hz callback, compacting the client list.
  * The volatile incoming local plus one nonvolatile `target` copy recovers the oracle's callback/base/
- * index register rotation. The remaining 4-diff floor is the same stack store/load versus direct
- * register-copy choice as iSNDserverremoveclient; both are otherwise 43-instruction matches. */
+ * index register rotation. The remaining 3-diff floor is the same stack store/load versus direct
+ * register-copy choice as iSNDserverremoveclient (ours 44 / oracle 43). */
 extern void iSNDserverremove100hzclient(volatile int cb)
 {
     int i;
@@ -223,10 +223,10 @@ extern void iSNDserverremove100hzclient(volatile int cb)
     char *p;
 
     p = (char *)sndgs;
-    target = cb;
     if (*(signed char *)(p + 0x40) <= 0)
         return;
     i = 0;
+    target = cb;
     base = p;
 findloop:
     if (*(int *)(base + i * 4 + 0x4c) == target) {

@@ -40,7 +40,6 @@ extern void iSNDserverremoveclient(volatile int cb)
     char *base;
     char *p;
     p = (char *)sndgs;
-    target = cb;
     /* MATCH: goto-formed loops (no gcc LOOP notes -> NO strength reduction; the oracle recomputes
      * `sll i,2` EVERY iteration instead of walking a +4 offset giv); ONE char* base for every
      * access (same lever as iSNDserveraddclient above) so +0x64/+0x41 fold into DISPLACEMENTS off
@@ -48,14 +47,15 @@ extern void iSNDserverremoveclient(volatile int cb)
      * (`j = i*4; i++; [j+0x64] = [i*4+0x64]`) so BOTH sides use displacement 0x64 and the sll
      * lands in the entry/back-edge delay slots (an `[i]=[i+1]; i++` form emits 100/104 instead).
      *
-     * NEAR-MISS residual (4 diffs, ours/oracle 43): making the incoming callback local volatile
+     * NEAR-MISS residual (3 diffs, ours 44 / oracle 43): making the incoming callback local volatile
      * recovers the oracle's {i,base,target}={a0,a1,a2} allocation; copying it once into `target`
-     * avoids a reload at every comparison. GCC still realizes the initial preservation as
-     * `sw a0,0(sp); ...; lw a2,0(sp)` where the oracle uses `addu a2,a0,zero` plus a load-delay
-     * nop. The index-first destination expression fixes the final commutative-addu order. */
+     * after the count guard avoids a reload at every comparison and matches the oracle's scheduling.
+     * GCC still realizes the preservation as `sw a0,0(sp); ...; lw a2,0(sp)` where the oracle uses
+     * one `addu a2,a0,zero`. The index-first destination expression fixes the final add order. */
     if (*(signed char *)(p + 0x41) <= 0)                      /* lb count (signed-char view of the byte) */
         return;
     i = 0;
+    target = cb;
     base = p;
 findloop:
     if (*(int *)(base + i * 4 + 0x64) == target) {            /* client slots @+0x64 */

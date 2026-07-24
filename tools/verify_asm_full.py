@@ -162,7 +162,7 @@ def oracle(fn):
         mw = re.match(r'\.word\s+0x([0-9a-fA-F]+)\b', s)
         if mw and (int(mw.group(1),16) >> 26) == 0x12:
             out.append('cop2 ' + mw.group(1).lower()); continue
-        if not s or s.startswith(('.','glabel','nonmatching','dlabel','jlabel')) or s.startswith('.L') or s.endswith(':'):
+        if not s or s.startswith(('.','glabel','nonmatching','dlabel','jlabel','alabel')) or s.startswith('.L') or s.endswith(':'):
             continue
         out.append(norm_ins(s))
     return out

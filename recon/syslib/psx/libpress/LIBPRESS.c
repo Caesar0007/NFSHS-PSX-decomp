@@ -9,20 +9,34 @@
 typedef unsigned long  u_long;
 typedef unsigned short u_short;
 
-#define MDEC0   (*(volatile u_long *)0x1F801820)   /* MDEC data / command port   */
-#define MDEC1   (*(volatile u_long *)0x1F801824)   /* MDEC status / control      */
+/* @0x80136C08 : the HW-register pointer table.  EVERY MDEC/DMA register in this obj is reached
+ * INDIRECTLY through one of these pointer cells (confirmed against every oracle .s in this file --
+ * each access is `lui/lw D_80136Cxx; ...; lw/sw 0(reg)`, never a direct lui+ori of the literal
+ * address).  Modeled per-cell (matching the pre-existing MDEC1_ptr convention) rather than as one
+ * array, since each cell is referenced by its own fixed VA across the functions below. */
+static volatile u_long *D0_MADR_ptr __attribute__((section(".bss")));  /* @0x80136C08 */
+static volatile u_long *D0_BCR_ptr  __attribute__((section(".bss")));  /* @0x80136C0C */
+static volatile u_long *D0_CHCR_ptr __attribute__((section(".bss")));  /* @0x80136C10 */
+static volatile u_long *D1_MADR_ptr __attribute__((section(".bss")));  /* @0x80136C14 */
+static volatile u_long *D1_BCR_ptr  __attribute__((section(".bss")));  /* @0x80136C18 */
+static volatile u_long *D1_CHCR_ptr __attribute__((section(".bss")));  /* @0x80136C1C */
+static volatile u_long *MDEC0_ptr   __attribute__((section(".bss")));  /* @0x80136C38 */
+static volatile u_long *MDEC1_ptr   __attribute__((section(".bss")));  /* @0x80136C3C */
+static volatile u_long *DPCR_ptr    __attribute__((section(".bss")));  /* @0x80136C40 */
+/* MDEC_in_sync/MDEC_out_sync's poll loops need MDEC1/D1_CHCR's *volatile-pointer* variable itself
+ * (not just its target) reloaded EVERY iteration -- a per-use-site local `volatile T *volatile p`
+ * alias achieves that without forcing every OTHER accessor of the same cell to pay a reload too
+ * (see the two poll loops below). */
 
-/* @0x80136C3C : pointer to MDEC1 register (0x1F801824); part of the HW-register
- * pointer table @0x80136C08.  _MDEC_get_reg1 loads this pointer absolutely, then
- * dereferences it -- NOT a direct lui+ori of the literal address. */
-static volatile u_long *MDEC1_ptr __attribute__((section(".bss")));  /* @0x80136C3C */
-#define D0_MADR (*(volatile u_long *)0x1F801080)   /* DMA ch0 (MDECin)  address  */
-#define D0_BCR  (*(volatile u_long *)0x1F801084)   /*                   block ctl */
-#define D0_CHCR (*(volatile u_long *)0x1F801088)   /*                   channel ctl */
-#define D1_MADR (*(volatile u_long *)0x1F801090)   /* DMA ch1 (MDECout) address  */
-#define D1_BCR  (*(volatile u_long *)0x1F801094)
-#define D1_CHCR (*(volatile u_long *)0x1F801098)
-#define DPCR    (*(volatile u_long *)0x1F8010F0)   /* DMA priority/enable        */
+#define D0_MADR (*D0_MADR_ptr)   /* DMA ch0 (MDECin)  address   -- HW: 0x1F801080 */
+#define D0_BCR  (*D0_BCR_ptr)    /*                   block ctl -- HW: 0x1F801084 */
+#define D0_CHCR (*D0_CHCR_ptr)   /*                   channel ctl -- HW: 0x1F801088 */
+#define D1_MADR (*D1_MADR_ptr)   /* DMA ch1 (MDECout) address   -- HW: 0x1F801090 */
+#define D1_BCR  (*D1_BCR_ptr)    /*                             -- HW: 0x1F801094 */
+#define D1_CHCR (*D1_CHCR_ptr)   /*                             -- HW: 0x1F801098 */
+#define MDEC0   (*MDEC0_ptr)     /* MDEC data / command port    -- HW: 0x1F801820 */
+#define MDEC1   (*MDEC1_ptr)     /* MDEC status / control       -- HW: 0x1F801824 */
+#define DPCR    (*DPCR_ptr)      /* DMA priority/enable         -- HW: 0x1F8010F0 */
 
 extern void ResetCallback(void);             /* libetc INTR.obj @0x800F284C */
 extern int  DMACallback(int ch, int func);   /* libetc INTR.obj @0x800F28AC */
@@ -52,6 +66,7 @@ static int     MDEC_status(const char *who);
 static u_long *_MDEC_in_dma(u_long *buf, unsigned size);
 static u_long *_MDEC_out_dma(u_long buf, unsigned size);
 static int     MDEC_rest(u_long mode);
+extern int      _MDEC_get_reg1(void);
 
 /* ---------------------------------- public API ---------------------------------- */
 
@@ -84,7 +99,7 @@ extern int DecDCTinSync(int mode)
 {
     if (mode == 0)
         return MDEC_in_sync(0);
-    return (MDEC1 >> 0x1d) & 1;
+    return (_MDEC_get_reg1() >> 0x1d) & 1;
 }
 
 /* @0x800F8AD4 : install the MDECout (DMA channel 1) completion callback. */
@@ -98,22 +113,24 @@ extern int DecDCToutCallback(int func)
 /* @0x800F8AF8 : reset the MDEC + DMA channels; mode 0 also reloads the quant/IDCT tables. */
 static int MDEC_rest(u_long mode)
 {
-    if (mode == 0) {
+    switch (mode) {
+    case 0:
         MDEC1 = 0x80000000;   /* @0x800F8B24-28: MDEC software-reset command, must precede reconfigure (H49) */
         D0_CHCR = 0;
         D1_CHCR = 0;
         MDEC1 = 0x60000000;
         _MDEC_in_dma((u_long *)_mdec_iqtab, 0x20);
         return (int)(long)_MDEC_in_dma((u_long *)_mdec_idcttab, 0x20);
-    }
-    if (mode == 1) {
+    case 1:
         MDEC1 = 0x80000000;   /* @0x800F8B7C-88: MDEC software-reset ($v0 from delay slot @0x800F8B10) (H49) */
         D0_CHCR = 0;
         D1_CHCR = 0;
+        (void)D1_CHCR;         /* @0x800F8BBC: dead re-read of D1_CHCR (volatile, discarded) -- oracle bytes */
         MDEC1 = 0x60000000;
         return 0x60000000;
+    default:
+        return printf("MDEC_rest:bad option(%d)\n", (int)mode);
     }
-    return printf("MDEC_rest:bad option(%d)\n", (int)mode);
 }
 
 /* @0x800F8BE8 : feed `buf` (cmd word + payload) to MDEC over DMA channel 0. */
@@ -124,8 +141,11 @@ static u_long *_MDEC_in_dma(u_long *buf, unsigned size)
     D0_MADR = (u_long)(long)(buf + 1);
     D0_BCR  = ((size >> 5) << 16) | 0x20;
     MDEC0   = *buf;
-    D0_CHCR = 0x1000201;
-    return (u_long *)&D0_CHCR;
+    {
+        volatile u_long *p = D0_CHCR_ptr;
+        *p = 0x1000201;
+        return (u_long *)p;
+    }
 }
 
 /* @0x800F8C78 : read decoded output from MDEC into `buf` over DMA channel 1. */
@@ -133,18 +153,28 @@ static u_long *_MDEC_out_dma(u_long buf, unsigned size)
 {
     MDEC_out_sync((int)buf);
     DPCR |= 0x88;
+    D1_CHCR = 0;                              /* @0x800F8CB0-BC: stop ch1 before reprogramming MADR/BCR */
     D1_MADR = buf;
     D1_BCR  = ((size >> 5) << 16) | 0x20;
-    D1_CHCR = 0x1000200;
-    return (u_long *)&D1_CHCR;
+    {
+        volatile u_long *p = D1_CHCR_ptr;
+        *p = 0x1000200;
+        return (u_long *)p;
+    }
 }
+
+/* MDEC_in_sync/MDEC_out_sync re-fetch the table pointer ITSELF fresh every poll iteration in the
+ * oracle (not just its target) -- a per-site cast-to-volatile-pointer-of-volatile-pointer view of
+ * the cell forces that reload without making every OTHER accessor of the same global pay for it. */
+#define MDEC1_POLL   (*(*(volatile u_long *volatile *)&MDEC1_ptr))
+#define D1CHCR_POLL  (*(*(volatile u_long *volatile *)&D1_CHCR_ptr))
 
 /* @0x800F8D04 : spin until the MDEC input FIFO drains (busy bit 29), or time out. */
 static int MDEC_in_sync(int mode)
 {
-    int n = 0x100000;
+    volatile int n = 0x100000;
     do {
-        if ((MDEC1 & 0x20000000) == 0)
+        if ((MDEC1_POLL & 0x20000000) == 0)
             return 0;
         n--;
     } while (n != -1);
@@ -155,9 +185,9 @@ static int MDEC_in_sync(int mode)
 /* @0x800F8D98 : spin until the MDECout DMA (ch1) finishes, or time out. */
 static int MDEC_out_sync(int mode)
 {
-    int n = 0x100000;
+    volatile int n = 0x100000;
     do {
-        if ((D1_CHCR & 0x1000000) == 0)
+        if ((D1CHCR_POLL & 0x1000000) == 0)
             return 0;
         n--;
     } while (n != -1);
@@ -175,8 +205,10 @@ extern int _MDEC_get_reg1(void)
 static int MDEC_status(const char *who)
 {
     printf("%s timeout:\n", who);
+    MDEC1 = 0x80000000;
     D0_CHCR = 0;
     D1_CHCR = 0;
+    (void)D1_CHCR;         /* dead re-read of D1_CHCR (volatile, discarded) -- oracle bytes */
     MDEC1 = 0x60000000;
     return 0;
 }

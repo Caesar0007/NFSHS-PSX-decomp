@@ -5,6 +5,24 @@
  * sotn-decomp/src/main/psxsdk/libc/sprintf.c.  In particular it uses a 0x200-byte
  * conversion buffer, copies a zero printf_info template for every conversion, and
  * derives the backwards number-buffer pointer from the on-stack va_list.
+ *
+ * VERIFY (2026-07-24 survey): 327 diffs (ours 550 / oracle 545 insns).  The `switch(ch)`
+ * case set (h,l,L,d,i,u,o,p,X,x,c,s,n) is confirmed 1:1 against the oracle's jump table
+ * `jtbl_80056B60` (dumped from asm/data/rdata_80054548.rodata.s: 45 entries spanning
+ * 'L'(0x4C)..'x'(0x78), every non-default slot manually cross-checked against its target
+ * block's semantics) -- the algorithm/case coverage is NOT the gap.
+ * 🔴 SYSTEMIC TOOLCHAIN FLOOR (not this file's bug): every jump-table LOAD in the whole
+ * repo's current build emits the address as an explicit 2-register sequence (`lui
+ * v0,%hi(tbl); addiu v0,v0,%lo(tbl); sll v1,idx,2; addu v1,v1,v0; lw v0,0(v1)`), but every
+ * oracle jump table (33 `jtbl_` sites tree-wide) was assembled through GAS's own indexed-
+ * symbol-load MACRO, which always uses `$at` as the scratch (`sll v0,idx,2; lui
+ * at,%hi(tbl); addu at,at,v0; lw v0,%lo(tbl)($at)`) -- confirmed identical on an unrelated,
+ * much smaller function in this same tree (PadInfoAct, asm/nonmatchings/main/PadInfoAct.s)
+ * so it is NOT source-shape-dependent. This costs ~5 insns and a register-pressure ripple
+ * at EVERY jump-table site; not fixable by editing the C. The remaining diffs are ordinary
+ * parameter/local->callee-saved-register coloring cascades (20+ live locals across 550
+ * insns) plus at least one signed-vs-unsigned `char` read (`lbu` vs oracle `lb` on a
+ * `*bufPtr=='0'` compare in the octal-padding loop) not yet isolated to a single cast site.
  */
 typedef enum { false = 0, true = 1 } bool;
 typedef char *va_list;

@@ -301,16 +301,21 @@ tail:
 /* =====================  set-actuator-align command  =========================================== */
 
 /* @0x80105BF4 : _padSetActAlign -- queue the actuator-alignment command (returns 1 if accepted).
- * MATCH: r=1 hoisted before info[0x46]=1 → oracle emits addiu v0,0,1 (return) then addiu v1,0,1
- * (fresh reg for sb v1,0x46) rather than addu v1,v0,zero (copy). */
+ * NEAR-MISS (2, WEAK floor): oracle materializes TWO separate `li 1`'s (v0=return, v1=the
+ * 0x46 store) instead of copying the return value into the store reg (`addu v1,v0,zero`).
+ * Tried+reverted: swapping decl order of the two "1" locals, a volatile byte store (defeats
+ * store reordering, not value-CSE), and the `1^zero` runtime-zero device (forces AUTO stack
+ * storage for `zero`, regressed 2->22 diffs -- wrong lever for a plain RTL constant-CSE, not
+ * a coloring/scheduling residual). w23-a8: unresolved after 4 source-shape attempts. */
 extern "C" int _padSetActAlign(unsigned char *info, int data)
 {
     if (_padFuncChkEng(info) == 0) {
+        int r = 1;
         info[0x46] = 1;
         *(PadSndRcv *)(info + 0x14) = _padSetActAlign_snd;
         *(int *)(info + 0x20) = data;
         *(PadSndRcv *)(info + 0x18) = _padSetActAlign_rcv;
-        return 1;
+        return r;
     }
     return 0;
 }
@@ -367,7 +372,16 @@ extern "C" void _padSetActAlign_rcv(unsigned char *info)
 
 /* =====================  set-main-mode command  ================================================= */
 
-/* @0x80105D40 : _padSetMainMode -- queue the main-mode switch (offs = mode index, lock = lock flag). */
+/* @0x80105D40 : _padSetMainMode -- queue the main-mode switch (offs = mode index, lock = lock flag).
+ * FLOOR (21 diffs): oracle allocates a 4th callee-saved reg (s3) to hold a SECOND copy of `offs`
+ * materialized fresh in the ChkEng() call's delay slot (s3=s1), used only for the final
+ * `(offs&0xff)==info[0xe4]` compare, while `offs`'s original copy (s1) is used only for the
+ * `info[0x51]=offs` store; ours reuses one register for both uses (smaller 32B frame vs the
+ * oracle's 40B). Tried+reverted: splitting into two named locals (offs/offs2) -- no effect,
+ * gcc re-coalesced them. Same "reuse an already-live constant/value" family as the r=1-hoist
+ * floor in _padSetActAlign above; also carries the sltu-vs-sltiu artifact (oracle's equality
+ * compare uses an immediate `sltiu v1,v1,1`; ours reuses the register that already holds the
+ * return-value constant 1 via `sltu v1,v1,v0`). */
 extern "C" int _padSetMainMode(unsigned char *info, int offs, int lock)
 {
     if (_padFuncChkEng(info) == 0) {
@@ -384,7 +398,12 @@ extern "C" int _padSetMainMode(unsigned char *info, int offs, int lock)
 
 /* @0x80105DD8 : _padSetMainMode_snd.
  * MATCH: goto form → beq/beq/j pattern (not bne/bne fall-through).
- *        info[0x35]=st in case2 delay slot reuses cached v1=st(=2). */
+ *        info[0x35]=st in case2 delay slot reuses cached v1=st(=2).
+ * FLOOR (7 diffs): oracle shares ONE epilogue (`jr ra;nop` @.L80105E24) that the no-match
+ * fallthrough and case2 both `j` to; our build TAIL-DUPLICATES a separate `jr ra;nop` at each
+ * `goto end;` site instead of sharing the one case3 reaches by fallthrough. Same
+ * duplicate-vs-share tail-merge class as chkRC2wait's residual (WAITRC2.c) -- a
+ * cross-jump/epilogue-sharing compiler decision, not reachable from goto-based source shape. */
 extern "C" void _padSetMainMode_snd(unsigned char *info)
 {
     int st = info[0x46];    /* lbu; int avoids andi 0xff promotion */

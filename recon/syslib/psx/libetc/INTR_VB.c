@@ -12,8 +12,13 @@ extern void  _bzero_w(int *p, int nwords);                /* INTR */
 extern void  InterruptCallback(int idx, void (*h)());     /* INTR */
 extern void  trapIntrVSync(void);
 
-extern int Vcount = 0;        /* @0x80137D10 */
+/* MATCH: both fns that touch Vcount reach it via lui/%hi+%lo ABSOLUTE addressing in the oracle
+ * (never %gp_rel), so it must stay a bare `extern` decl here (no local definition/initializer) --
+ * an owned tentative-def would flip it gp-relative under -G4 (lever #6), which the oracle does NOT
+ * want. True storage lives elsewhere in the image; kept `extern` pending that data-mat pass. */
+extern int Vcount;            /* @0x80137D10 */
 extern int vsync_cb[8];       /* @0x80137CF0 : 8 vblank callbacks */
+extern volatile unsigned int *g_rcnt_ptr;   /* @0x80137D14 : = 0x1F801114 (RCnt vblank-timing mode reg) */
 
 extern int _vsync_setcb(int idx, int cb)   /* @0x801065F8 (returned by startIntrVSync) */
 {
@@ -24,7 +29,9 @@ extern int _vsync_setcb(int idx, int cb)   /* @0x801065F8 (returned by startIntr
 
 extern void *startIntrVSync(int priority)   /* @0x80106534 */
 {
-    *(volatile unsigned int *)0x1F801114 = 0x100;   /* RCnt vblank-timing mode (via the I/O ptr @0x80137D14) */
+    /* MATCH: oracle reaches the RCnt reg through the g_rcnt_ptr indirection (lui;lw the pointer
+     * VALUE @0x80137D14), NOT a materialized literal MMIO constant. */
+    *g_rcnt_ptr = 0x100;
     Vcount = 0;
     _bzero_w(vsync_cb, 8);
     InterruptCallback(0, trapIntrVSync);
@@ -34,8 +41,13 @@ extern void *startIntrVSync(int priority)   /* @0x80106534 */
 extern void trapIntrVSync(void)   /* @0x8010658C */
 {
     int i = 0;
-    void (**cb)() = (void (**)())vsync_cb;
+    void (**cb)();
     Vcount = Vcount + 1;
+    cb = (void (**)())vsync_cb;
+    /* residual: ours colors {Vcount->v0,vsync_cb-hi->v1} vs oracle {v0,v1} swapped -- pure
+     * commutative-temp coloring tie, immune to decl-order/statement-order (tried both); insn
+     * count exact 27==27. Same class as the catalog's "commutative-operand register-slot
+     * selection" STRONG floor. */
     do {
         if (*cb) (*cb)();
         i = i + 1;

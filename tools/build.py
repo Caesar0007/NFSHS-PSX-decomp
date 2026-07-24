@@ -46,6 +46,19 @@ LDSCRIPT = ROOT / "linkers" / "nfs4.ld"
 BUILD = ROOT / "build"
 OUT = BUILD  # object output root; overridden by --out
 
+# w23-a11 toolchain: opt-in jump-table $at-fusion peephole (default OFF).
+# See maspsx's `fuse_jump_table_addressing` (maspsx-jtbl.patch) for the
+# root-cause writeup: CC1PSX's casesi (switch-jump-table) lowering always
+# manually expands the table-address computation into 5 explicit machine
+# instructions using a normal GPR, never the assembler's symbol+register
+# indexed-load macro -- so ASPSX 2.77's oracle (which used that macro, and
+# so ends up in the compact 4-instruction $at form) can never be reached by
+# maspsx/GNU-as's *existing* passthrough behavior. This flag re-fuses cc1's
+# manual lowering back into the macro form maspsx already knows how to
+# expand correctly. Opt-in via NFS4_JTBL_AT_FUSION=1 pending fleet-wide
+# regression sign-off; other agents can flip the default once satisfied.
+JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
+
 ASPSX_VERSION = "2.77"
 G_VALUE = "4"               # original built with -G4
 AS_ARCH = ["-EL", "-march=r3000", "-mtune=r3000"]
@@ -85,6 +98,8 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
                   "--run-assembler", f"--gnu-as-path={AS}",
                   *AS_ARCH, f"-G{G_VALUE}", "-I", ROOT / "include",
                   "-I", ROOT, "-o", obj]
+    if JTBL_AT_FUSION:
+        maspsx_cmd.append("--jtbl-at-fusion")
     r = subprocess.run([str(c) for c in maspsx_cmd],
                        input=s_file.read_text(), capture_output=True, text=True,
                        cwd=ROOT)
@@ -116,6 +131,8 @@ def compile_cpp(src: Path) -> Path:
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
                   "--run-assembler", f"--gnu-as-path={AS}",
                   *AS_ARCH, f"-G{G_VALUE}", "-I", RECON, "-o", obj]
+    if JTBL_AT_FUSION:
+        maspsx_cmd.append("--jtbl-at-fusion")
     # cfront dtor mangling: our CC1PL emits `_._<class>` (NO_DOLLAR_IN_LABEL -> '.'),
     # but EA's toolchain used the '.'->'_' convention (NO_DOT_IN_LABEL) => `___<class>`.
     # `_._` only ever appears as the dtor prefix, so this rename is surgical.

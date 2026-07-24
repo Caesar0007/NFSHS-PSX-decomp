@@ -43,19 +43,30 @@ extern int _fnt_count;          /* @0x80135FD8 : number of open streams */
 extern int _fnt_active;         /* @0x80135FDC : current active stream id */
 extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
 
-static FntStream *fnt_pick(int id)
-{
-    if (id >= 0 && id < _fnt_count)
-        return &_fnt[id];
-    return &_fnt[_fnt_active];
-}
-
-/* @0x800F6D18 : convert a stream's accumulated text into font sprites and draw the OT. */
+/* @0x800F6D18 : convert a stream's accumulated text into font sprites and draw the OT.
+ * An out-of-range id falls back to the active stream; if THAT stream has no text buffer
+ * (never opened) the call is a no-op returning NULL.
+ * NEAR-MISS (verify_asm ~258/209 vs 199): structurally correct (entry bounds check, r/g/b
+ * digit-escape decode, do-while loop shape and the &fs->ot address-escape spill all confirmed
+ * against the raw and now present) but the register roles cascade differently past the entry
+ * block (fp/s7/s2/s6 role reassignment) -- allocator coloring, not semantics. Left as a floor. */
 extern "C" u_long *FntFlush(int id)
 {
-    FntStream *fs = fnt_pick(id);
-    char r = (char)0x80, g = (char)0x80, b = (char)0x80;   /* default glyph colour */
+    FntStream *fs;
+    int r = 0x80, g = 0x80, b = 0x80;   /* default glyph colour */
     int   maxx = 0;
+
+    if (!(id >= 0 && id < _fnt_count)) {
+        FntStream *act = &_fnt[_fnt_active];
+        if (act->textbuf == NULL)
+            return NULL;
+        id = _fnt_active;
+    }
+    fs = &_fnt[id];
+    u_long *ot = &fs->ot;      /* address escapes across the AddPrim/DrawOTag calls below --
+                                 * high register pressure spills it to the stack (reloaded at
+                                 * each use), rather than the cheaper fs+0x10 rematerialization. */
+
     u_char *text  = (u_char *)fs->textbuf;
     int   remain  = fs->maxchars;
     int   curx    = fs->x;
@@ -65,8 +76,9 @@ extern "C" u_long *FntFlush(int id)
     int   autoupd = fs->autoupd;
     int   rightx  = fs->x + fs->w;
 
-    TermPrim(&fs->ot);
-    for (; *text != 0 && remain != 0; remain--) {
+    TermPrim(ot);
+    for (; *text != 0; remain--) {
+        if (remain == 0) break;
         u_char  c    = *text;
         bool    wrap = false;
         u_char *next = text;
@@ -82,12 +94,13 @@ extern "C" u_long *FntFlush(int id)
             } else {
                 goto render;
             }
-        } else if (c == 0x7e) {                       /* '~c<r><g><b>' colour escape */
+        } else if (c == 0x7e) {                       /* '~c<r><g><b>' colour escape: r/g/b are
+                                                         * ASCII DIGITS ('0'-'9'), not raw bytes. */
             if (text[1] == 'c') {
                 next = text + 4;
-                r = (char)(text[2] << 4);
-                g = (char)(text[3] << 4);
-                b = (char)(text[4] << 4);
+                r = (text[2] - 0x30) << 4;
+                g = (text[3] - 0x30) << 4;
+                b = (text[4] - 0x30) << 4;
             }
         } else {
 render:
@@ -101,7 +114,7 @@ render:
                 p[4] = (u_char)r;
                 p[5] = (u_char)g;
                 p[6] = (u_char)b;
-                AddPrim(&fs->ot, p);
+                AddPrim(ot, p);
                 p += 0x10;
             }
             curx += 8;
@@ -116,20 +129,26 @@ render:
         text = next + 1;
     }
     if (fs->code != 0) {                              /* draw the background box */
-        AddPrim(&fs->ot, fs);
+        AddPrim(ot, fs);
         if (autoupd != 0) {
             fs->w = (short)(maxx - fs->x);
             fs->h = (short)(cury - (fs->y - 8));
         }
     }
-    DrawOTag(&fs->ot);
+    DrawOTag(ot);
     fs->textlen = 0;
     fs->textbuf[0] = 0;
-    return &fs->ot;
+    return ot;
 }
 
 /* @0x800F7034 : printf-style append into a stream's text buffer (%x/%X/%c/%d/%s + width).
- * Psy-Q also accepts the format string itself as the first argument, selecting the active stream. */
+ * Psy-Q also accepts the format string itself as the first argument, selecting the active stream.
+ * NEAR-MISS (verify_asm ~103/241 vs 240): the vararg reads are hand-rolled pointer bumps
+ * (`*(T*)args; args += 4;`), not the stdarg.h `va_arg()` macro -- the oracle DEREFERENCES
+ * before advancing the cursor (matches this shape), while the project's va_arg macro expands
+ * to advance-then-dereference-old (verified: switching back regresses 103->125). Residual is a
+ * commutative constant-register tie ('%'=37 vs the /10 magic-multiply constant, s4<->s5) plus
+ * an a0/a2 role tie in the entry bounds check -- both tried in both orders, allocator coloring. */
 #define WriteChar(c)                                                        \
     fs->textbuf[fs->textlen++] = (c);                                       \
     if (fs->textlen > fs->maxchars) {                                       \
@@ -157,7 +176,7 @@ extern "C" int FntPrint(const char *id, ...)
         if (_fnt[(int)id].textbuf == NULL)
             return -1;
     } else {
-        f = (signed char *)va_arg(args, char *);
+        f = *(signed char **)args; args = (void *)((char *)args + 4);
     }
 
     fs = &_fnt[(int)id];
@@ -188,7 +207,7 @@ extern "C" int FntPrint(const char *id, ...)
 
         switch (ch) {
         case 'd':
-            num = va_arg(args, int);
+            num = *(int *)args; args = (void *)((char *)args + 4);
             sign = 0;
             if (num < 0) {
                 num = -num;
@@ -211,7 +230,7 @@ extern "C" int FntPrint(const char *id, ...)
         case 'X':
         case 'x':
             len = 0;
-            num = va_arg(args, int);
+            num = *(int *)args; args = (void *)((char *)args + 4);
             do {
                 do {
                     *--bufPtr = D_801369E4[num % 16U];
@@ -228,12 +247,12 @@ extern "C" int FntPrint(const char *id, ...)
             break;
 
         case 'c':
-            *--bufPtr = (char)va_arg(args, int);
+            *--bufPtr = (char)(*(int *)args); args = (void *)((char *)args + 4);
             len = 1;
             break;
 
         case 's':
-            bufPtr = va_arg(args, char *);
+            bufPtr = *(char **)args; args = (void *)((char *)args + 4);
             len = strlen(bufPtr);
             break;
         }

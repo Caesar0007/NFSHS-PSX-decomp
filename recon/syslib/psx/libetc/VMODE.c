@@ -13,6 +13,10 @@ extern int SetVideoMode(int mode)   /* @0x800F1770 */
 {
     int old = g_videomode[0];
     g_videomode[0] = mode;
+    /* residual: oracle materializes &g_videomode TWICE independently (dest-as-scratch v0 for
+     * the load, separate $at for the store) where we CSE one base (v1) for both -- tried
+     * volatile (regressed: blocks the sw-in-delay-slot fold too) and a byte-cast store (no
+     * effect, backend CSEs past the syntax). Accept as floor. */
     return old;
 }
 

@@ -27,7 +27,17 @@ extern unsigned setRC2wait(int ticks)
     return now;
 }
 
-/* @0x8010C008 : chkRC2wait -- 1 once `_waitTime` ticks have elapsed since setRC2wait, else 0. */
+/* @0x8010C008 : chkRC2wait -- 1 once `_waitTime` ticks have elapsed since setRC2wait, else 0.
+ * w23-a8: 34->25 diffs. `cur` is kept live in $a0 across the T2_TARGET/T2_MODE blocks in the
+ * oracle (a caller-saved scratch reg, unused as an arg here) -- reproduced by DUPLICATING the
+ * final `return elapsed < _waitTime` into BOTH branches (matches the oracle's per-branch reload
+ * of _startTime/_waitTime) instead of a single post-merge return; branch polarity flipped to
+ * `!=0` first so the /8-prescale arm stays in the fallthrough slot the oracle's `bnez` expects.
+ * RESIDUAL FLOOR (25): oracle DUPLICATES the trailing `addu a0,a0,v0` (T2_TARGET add) and the
+ * `subu/srl` prescale tail into EACH arm via an explicit `j` (no cross-jump merge); our build
+ * cross-jumps them into one shared instruction reached by fallthrough. Compiler
+ * cross-jump/tail-merge decision, not reachable from this source shape (same family as the
+ * catalog's "gcc block-merge of identical arms" floor). */
 extern int chkRC2wait(void)
 {
     unsigned cur = T2_VALUE & 0xffff;
@@ -39,10 +49,11 @@ extern int chkRC2wait(void)
         else
             cur += T2_TARGET;
     }
-    if ((T2_MODE & 0x200) == 0)
-        elapsed = (cur - (unsigned)_startTime) >> 3;  /* /8 prescale */
-    else
+    if ((T2_MODE & 0x200) != 0) {
         elapsed = cur - (unsigned)_startTime;
-
-    return elapsed < (unsigned)_waitTime ? 0 : 1;
+        return elapsed < (unsigned)_waitTime ? 0 : 1;
+    } else {
+        elapsed = (cur - (unsigned)_startTime) >> 3;  /* /8 prescale */
+        return elapsed < (unsigned)_waitTime ? 0 : 1;
+    }
 }

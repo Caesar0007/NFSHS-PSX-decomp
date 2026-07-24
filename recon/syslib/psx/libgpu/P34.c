@@ -2,7 +2,13 @@
  *   obj libgpu.lib(P34.OBJ): SetDrawMove @0x8010C698.  Builds a DR_MOVE (frame-buffer
  *   block copy) primitive: copies rect (src x/y, w/h) to dest (x,y).  Length byte = 5 only
  *   when both w and h are non-zero (a degenerate rect produces a 0-length no-op).  RECT is
- *   {short x,y,w,h}: w/h are the shorts at +4/+6. */
+ *   {short x,y,w,h}: w/h are the shorts at +4/+6.
+ * NEAR-MISS (verify_asm 13/25 vs 24): oracle moves p into t0 as its very first instruction
+ * (freeing a0 to double as the len(0/5) scratch), then spills the byte-store base through t0;
+ * ours keeps p live in a0 and allocates a separate reg (t1) for len. Tried: rebasing the byte
+ * store off `w` instead of `p` (worse, 20 diffs -- collapses len onto the same reg as the base
+ * entirely); a ternary for len (worse, 15 diffs, also flips the beqz/bnez polarity). Allocator
+ * coloring tie, not a semantic gap. */
 extern void SetDrawMove(void *p, void *rect, int x, int y)   /* @0x8010C698 */
 {
     int           *w = (int *)p;

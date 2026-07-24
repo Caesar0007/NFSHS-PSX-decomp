@@ -163,11 +163,26 @@ static int    _drain_saved_mask;     /* @0x801237D0 : imask saved across the dra
 static int    _q_reset_mask;         /* @0x801237D4 : imask saved across timeout/reset */
 static int    _gpu_timeout_target __attribute__((section(".bss")));  /* @0x801237D8 : VSync deadline */
 static int    _gpu_timeout_count  __attribute__((section(".bss")));  /* @0x801237DC : spin counter */
-/* GEnv block small statics -> .bss (absolute), not .sdata/.sbss gp-rel.  See the GEnv_drv/_gpu_debug
- * note below (§3.12 absolute lever); the original addresses every GEnv field absolute. */
-static u_char _gpu_active __attribute__((section(".bss")));   /* @0x8012369D : driver running (set by ResetGraph) */
-static int    _gpu_busy   __attribute__((section(".bss")));   /* @0x801236A4 */
-static QueFunc _gpu_idle_cb __attribute__((section(".bss"))); /* @0x801236A8 : "queue drained" callback */
+/* @0x8012369C..0x8012371C : the whole "GEnv" GPU-environment block, 0x80 bytes, cleared in ONE
+ * shot by ResetGraph (`_memset(&GEnv,0,0x80)` in the oracle -- NOT 7 separate field=0 stores,
+ * which is what an earlier draft of this file did). Modeled as a real struct so multi-field
+ * accesses within one function share ONE `lui %hi(GEnv)` base + per-field CONST offsets (matching
+ * the oracle's addressing), instead of each field re-materializing its own independent %hi/%lo.
+ * Force the instance into REGULAR .bss (absolute), not .sdata/.sbss gp-rel -- the oracle addresses
+ * every GEnv field absolute (§3.12 absolute lever), same reasoning as the GPU_GP0/GP1/DMA ptrs above. */
+struct GEnvT {
+    char    mode;      /* +0x00 @0x8012369C : current video mode (was static _genv_mode) */
+    u_char  active;     /* +0x01 @0x8012369D : driver running, set by ResetGraph (was static _gpu_active) */
+    u_char  debug;      /* +0x02 @0x8012369E : GPU debug level, 0=off (was static _gpu_debug) */
+    u_char  _pad3;      /* +0x03 @0x8012369F : unreferenced pad byte */
+    short   screenW;    /* +0x04 @0x801236A0 : current screen width (was static _screenW) */
+    short   screenH;    /* +0x06 @0x801236A2 : current screen height (was static _screenH) */
+    int     busy;       /* +0x08 @0x801236A4 (was static _gpu_busy) */
+    QueFunc idle_cb;    /* +0x0C @0x801236A8 : "queue drained" callback (was static _gpu_idle_cb) */
+    char    drawenv[0x5c]; /* +0x10 @0x801236AC : last-set DRAWENV cache (was static _genv_drawenv) */
+    char    dispenv[0x14]; /* +0x6C @0x80123708 : last-set DISPENV cache (was static _genv_dispenv) */
+};                                                                 /* total 0x80 bytes, matches the oracle's clear */
+static GEnvT GEnv __attribute__((section(".bss")));   /* @0x8012369C */
 
 extern "C" void _gpu_que_drain(void);    /* @0x800EF60C (fwd) */
 
@@ -212,7 +227,7 @@ extern "C" void _gpu_que_drain(void)
     _drain_saved_mask = SetIntrMask(0);
     if (_qin != _qout && (*D2_CHCR & 0x01000000) == 0) {
         for (;;) {
-            if (((_qout + 1) & 0x3f) == _qin && _gpu_idle_cb == 0)
+            if (((_qout + 1) & 0x3f) == _qin && GEnv.idle_cb == 0)
                 DMACallback(2, 0);               /* last entry, no idle cb: detach drain */
             while ((*GPU_GP1 & 0x04000000) == 0) /* wait until the GPU can accept DMA */
                 ;
@@ -231,9 +246,9 @@ extern "C" void _gpu_que_drain(void)
     }
     SetIntrMask(_drain_saved_mask);
     if (_qin == _qout && (*D2_CHCR & 0x01000000) == 0
-        && _gpu_busy != 0 && _gpu_idle_cb != 0) {
-        _gpu_busy = 0;
-        _gpu_idle_cb(0, 0);
+        && GEnv.busy != 0 && GEnv.idle_cb != 0) {
+        GEnv.busy = 0;
+        GEnv.idle_cb(0, 0);
     }
 }
 
@@ -249,13 +264,13 @@ extern "C" int _gpu_que_push(QueFunc func, u_long *arg, int n, int extra)
         _gpu_que_drain();
     }
     _q_saved_mask = SetIntrMask(0);              /* enter critical section */
-    _gpu_busy = 1;
+    GEnv.busy = 1;
     {
         int direct;
-        if (_gpu_active == 0)                     direct = 1;
+        if (GEnv.active == 0)                     direct = 1;
         else if (_qin != _qout)                  direct = 0;
         else if ((*D2_CHCR & 0x01000000) != 0)   direct = 0;
-        else if (_gpu_idle_cb != 0)              direct = 0;
+        else if (GEnv.idle_cb != 0)              direct = 0;
         else                                     direct = 1;
         if (direct) {
             while ((*GPU_GP1 & 0x04000000) == 0)
@@ -317,22 +332,25 @@ extern "C" void _clearOTagR_dma(u_long *ot, int n)
  *   offset, draw mode, texture window) from a DRAWENV, clamping coordinates to the screen.
  *   _set_drawenv assembles the whole DR_ENV primitive and, when DRAWENV.isbg is set, appends
  *   a background-clear fill (GP0 0x02 fast fill for 64-aligned rects, GP0 0x60 mono-rect with
- *   offset-relative coordinates otherwise).  Screen size lives in _screenW/_screenH. */
-
-static short _screenW __attribute__((section(".bss")));   /* @0x801236A0 (GEnv; absolute, not gp-rel) */
-static short _screenH __attribute__((section(".bss")));   /* @0x801236A2 (GEnv; absolute, not gp-rel) */
+ *   offset-relative coordinates otherwise).  Screen size lives in GEnv.screenW/GEnv.screenH. */
 
 /* @0x800EE898 : GP0 0xE3 drawing-area top-left, x/y clamped to the screen. */
 extern "C" u_long _set_clip_tl(int x, int y)
 {
     int sx = (short)x, cx;
-    if (sx < 0)                  cx = 0;
-    else if (_screenW - 1 < sx)  cx = _screenW - 1;
-    else                         cx = x;
+    if (sx >= 0) {
+        if (GEnv.screenW - 1 < sx) cx = (u_short)GEnv.screenW - 1;
+        else                   cx = x;
+    } else {
+        cx = 0;
+    }
     int sy = (short)y, cy;
-    if (sy < 0)                  cy = 0;
-    else if (_screenH - 1 < sy)  cy = _screenH - 1;
-    else                         cy = y;
+    if (sy >= 0) {
+        if (GEnv.screenH - 1 < sy) cy = (u_short)GEnv.screenH - 1;
+        else                   cy = y;
+    } else {
+        cy = 0;
+    }
     return 0xe3000000u | ((u_long)(cy & 0x3ff) << 10) | (u_long)(cx & 0x3ff);
 }
 
@@ -340,13 +358,19 @@ extern "C" u_long _set_clip_tl(int x, int y)
 extern "C" u_long _set_clip_br(int x, int y)
 {
     int sx = (short)x, cx;
-    if (sx < 0)                  cx = 0;
-    else if (_screenW - 1 < sx)  cx = _screenW - 1;
-    else                         cx = x;
+    if (sx >= 0) {
+        if (GEnv.screenW - 1 < sx) cx = (u_short)GEnv.screenW - 1;
+        else                   cx = x;
+    } else {
+        cx = 0;
+    }
     int sy = (short)y, cy;
-    if (sy < 0)                  cy = 0;
-    else if (_screenH - 1 < sy)  cy = _screenH - 1;
-    else                         cy = y;
+    if (sy >= 0) {
+        if (GEnv.screenH - 1 < sy) cy = (u_short)GEnv.screenH - 1;
+        else                   cy = y;
+    } else {
+        cy = 0;
+    }
     return 0xe4000000u | ((u_long)(cy & 0x3ff) << 10) | (u_long)(cx & 0x3ff);
 }
 
@@ -354,6 +378,14 @@ extern "C" u_long _set_clip_br(int x, int y)
  *   or 0 when tw is null. */
 extern "C" u_long _get_tw(void *tw)
 {
+    /* FLOOR (documented, not re-tried): oracle allocates a real 16-byte AUTO frame and
+     * spills m0/m2/w4/w6 to it (sw a1,0(sp)/a2,8(sp)/v0,4(sp)/v1,0xC(sp)) even though every
+     * value is ALSO consumed straight from the register in the same OR-chain -- classic
+     * cc1 allocator register-pressure spill, not a control-flow/CSE artifact. Tried+reverted:
+     * `volatile int` on all four locals (forces reload-from-mem too, not just one store ->
+     * 40->49 diffs, worse); collapsing to a single-exit `u_long ret; if/else; return ret;`
+     * (oracle's frame is allocated unconditionally either way, so this didn't help -> 40->42,
+     * worse). Register-pressure floors aren't reachable from source restructuring alone. */
     if (tw == 0)
         return 0;
     u_char *b = (u_char *)tw;
@@ -388,12 +420,12 @@ extern "C" void _set_drawenv(void *dr_env, void *env)
         short rw, rh;
         {   int v = (short)eu[2];         /* clamp width to screen */
             if (v < 0)                     rw = 0;
-            else if (_screenW - 1 < v)     rw = (short)(_screenW - 1);
+            else if (GEnv.screenW - 1 < v)     rw = (short)(GEnv.screenW - 1);
             else                           rw = (short)v;
         }
         {   int v = (short)eu[3];          /* clamp height to screen */
             if (v < 0)                     rh = 0;
-            else if (_screenH - 1 < v)     rh = (short)(_screenH - 1);
+            else if (GEnv.screenH - 1 < v)     rh = (short)(GEnv.screenH - 1);
             else                           rh = (short)v;
         }
         if ((rx & 0x3f) != 0 || (rw & 0x3f) != 0) {
@@ -438,10 +470,10 @@ extern "C" void _BlitClear(void *rect, int color)
     u_short *ru = (u_short *)rect;
     short cw, ch;
     {   int v = (short)ru[2];
-        if (v < 0) cw = 0; else if (_screenW - 1 < v) cw = (short)(_screenW - 1); else cw = (short)v; }
+        if (v < 0) cw = 0; else if (GEnv.screenW - 1 < v) cw = (short)(GEnv.screenW - 1); else cw = (short)v; }
     rs[2] = cw;
     {   int v = (short)ru[3];
-        if (v < 0) ch = 0; else if (_screenH - 1 < v) ch = (short)(_screenH - 1); else ch = (short)v; }
+        if (v < 0) ch = 0; else if (GEnv.screenH - 1 < v) ch = (short)(GEnv.screenH - 1); else ch = (short)v; }
     rs[3] = ch;
 
     u_long mode = 0xe1000000u | (*GPU_GP1 & 0x7ff) | (((u_long)color >> 31) << 10);
@@ -486,10 +518,10 @@ extern "C" int _dws(void *rect, u_long *data)
     _gpu_arm_timeout();
     short cw, ch;
     {   int v = (short)ru[2];
-        if (v < 0) cw = 0; else if (_screenW - 1 < v) cw = (short)(_screenW - 1); else cw = (short)v; }
+        if (v < 0) cw = 0; else if (GEnv.screenW - 1 < v) cw = (short)(GEnv.screenW - 1); else cw = (short)v; }
     rs[2] = cw;
     {   int v = (short)ru[3];
-        if (v < 0) ch = 0; else if (_screenH - 1 < v) ch = (short)(_screenH - 1); else ch = (short)v; }
+        if (v < 0) ch = 0; else if (GEnv.screenH - 1 < v) ch = (short)(GEnv.screenH - 1); else ch = (short)v; }
     rs[3] = ch;
     int words = ((int)rs[2] * (int)rs[3] + 1) >> 1;
     if (words <= 0)
@@ -525,10 +557,10 @@ extern "C" int _drs(void *rect, u_long *data)
     _gpu_arm_timeout();
     short cw, ch;
     {   int v = (short)ru[2];
-        if (v < 0) cw = 0; else if (_screenW - 1 < v) cw = (short)(_screenW - 1); else cw = (short)v; }
+        if (v < 0) cw = 0; else if (GEnv.screenW - 1 < v) cw = (short)(GEnv.screenW - 1); else cw = (short)v; }
     rs[2] = cw;
     {   int v = (short)ru[3];
-        if (v < 0) ch = 0; else if (_screenH - 1 < v) ch = (short)(_screenH - 1); else ch = (short)v; }
+        if (v < 0) ch = 0; else if (GEnv.screenH - 1 < v) ch = (short)(GEnv.screenH - 1); else ch = (short)v; }
     rs[3] = ch;
     int words = ((int)rs[2] * (int)rs[3] + 1) >> 1;
     if (words <= 0)
@@ -618,9 +650,9 @@ extern "C" void SetDrawEnv(void *dr_env, void *env)
         short rx = (short)eu[0], ry = (short)eu[1];
         short rw, rh;
         {   int v = (short)eu[2];
-            if (v < 0) rw = 0; else if (_screenW - 1 < v) rw = (short)(_screenW - 1); else rw = (short)v; }
+            if (v < 0) rw = 0; else if (GEnv.screenW - 1 < v) rw = (short)(GEnv.screenW - 1); else rw = (short)v; }
         {   int v = (short)eu[3];
-            if (v < 0) rh = 0; else if (_screenH - 1 < v) rh = (short)(_screenH - 1); else rh = (short)v; }
+            if (v < 0) rh = 0; else if (GEnv.screenH - 1 < v) rh = (short)(GEnv.screenH - 1); else rh = (short)v; }
         short xy[2], wh[2];
         wh[0] = rw; wh[1] = rh;
         if ((rx & 0x3f) != 0 || (rw & 0x3f) != 0) {
@@ -654,8 +686,6 @@ extern "C" void SetDrawEnv(void *dr_env, void *env)
  * CAVEAT: a small global can be regular .data/.bss, not .sdata/.sbss). */
 extern "C" int (*GPU_printf)(const char *fmt, ...) __attribute__((section(".bss"))) = 0;
 
-static u_char _gpu_debug __attribute__((section(".bss")));  /* @0x8012369E : GPU debug level (0=off; GEnv+2) */
-static char  _genv_dispenv[0x14];   /* @0x80123708 : last-set DISPENV cache (GEnv+0x6C) */
 static u_long _move_prim[5] = {      /* @0x80123734 : MoveImage's VRAM->VRAM copy primitive */
     0x04ffffffu,                     /* tag: 4 words, terminates */
     0x80000000u                      /* GP0 0x80 move-image command */
@@ -700,15 +730,15 @@ extern "C" void _image(const char *label, void *rect)
 {
     short *r = (short *)rect;
     const char *fmt;
-    if (_gpu_debug == 1) {
-        if (_screenW < r[2] || _screenW < r[0] + r[2] ||
-            _screenH < r[1] || _screenH < r[1] + r[3] ||
+    if (GEnv.debug == 1) {
+        if (GEnv.screenW < r[2] || GEnv.screenW < r[0] + r[2] ||
+            GEnv.screenH < r[1] || GEnv.screenH < r[1] + r[3] ||
             r[2] <= 0 || r[0] < 0 || r[1] < 0 || r[3] <= 0) {
             fmt = "%s:bad RECT";                  /* @0x80056dc8 */
         } else {
             return;                               /* in bounds */
         }
-    } else if (_gpu_debug == 2) {
+    } else if (GEnv.debug == 2) {
         fmt = "%s:";                              /* @0x80056de8 */
     } else {
         return;
@@ -762,17 +792,17 @@ extern "C" int _gpu_init_videomode(int mode)
 /* @0x800ED7E4 : turn the display on (mask!=0) or off (mask==0). */
 extern "C" void SetDispMask(int mask)
 {
-    if (_gpu_debug >= 2)
+    if (GEnv.debug >= 2)
         GPU_printf("SetDispMask(%d)...\n", mask);   /* @0x80056DA0 (oracle @0x800ed7fc-824) */
     if (mask == 0)
-        _memset(_genv_dispenv, -1, 0x14);
+        _memset(GEnv.dispenv, -1, 0x14);
     _send_gp1(mask ? 0x03000000u : 0x03000001u);
 }
 
 /* @0x800ED87C : DrawSync */
 extern "C" int DrawSync(int mode)
 {
-    if (_gpu_debug >= 2)
+    if (GEnv.debug >= 2)
         GPU_printf("DrawSync(%d)...\n", mode);       /* @0x80056DB4 */
     return GEnv_drv->sync(mode);
 }
@@ -818,7 +848,7 @@ extern "C" int MoveImage(void *rect, int x, int y)
  * Pass n and extra as separate constant paths so CSE uses $zero directly. */
 extern "C" void DrawOTag(u_long *ot)
 {
-    if (_gpu_debug >= 2)
+    if (GEnv.debug >= 2)
         GPU_printf("DrawOTag(%08x)...\n", ot);   /* @0x80056e58 */
     GEnv_drv->que_push((QueFunc)GEnv_drv->dma_chain, ot, 0, 0);
 }
@@ -826,7 +856,7 @@ extern "C" void DrawOTag(u_long *ot)
 /* @0x800EFD10 : DrawOTag2 -- synchronous ordering-table draw (waits, then DMAs directly). */
 extern "C" int DrawOTag2(u_long *p)
 {
-    if (_gpu_debug >= 2)
+    if (GEnv.debug >= 2)
         GPU_printf("DrawOTag(%08x)...\n", p);    /* @0x80056e58 */
     _gpu_arm_timeout();
     while ((*D2_CHCR & 0x01000000) != 0 || (*GPU_GP1 & 0x04000000) == 0) {
@@ -848,9 +878,6 @@ extern "C" int   GetVideoMode(void);                 /* libetc VMODE.obj */
 extern "C" void *memcpy(void *d, const void *s, unsigned n);/* libc   C42.obj @0x800EAAC4 */
 extern "C" void  GPU_cw(u_long cw);                  /* libapi C73.obj @0x80104A0C (BIOS) */
 extern "C" void  ResetCallback(void);                /* libetc INTR.obj @0x800F284C */
-
-static char  _genv_mode;             /* @0x8012369C : current video mode (GEnv+0) */
-static char  _genv_drawenv[0x5c];    /* @0x801236AC : last-set DRAWENV cache (GEnv+0x10) */
 
 /* per-video-mode VRAM clip extents: stride-4 in .data (low u16 = value, high u16 = 0
    padding); @0x8012371C (_vmode_w) / 0x80123728 (_vmode_h). EXE bytes 00 04 00 00.. confirm
@@ -901,24 +928,22 @@ extern "C" int ResetGraph(int mode)
     if (m == 0 || m == 3 || m == 5) {
         if (m == 0 || m == 3)
             printf("ResetGraph:jtb=%08x,env=%08x\n",   /* @0x80056D10 (always; libc printf) */
-                   (int)(long)&_gpu_tbl, (int)(long)&_genv_mode);
-        /* _memset(&GEnv, 0, 0x80) : clear the whole GPU env block */
-        _genv_mode = 0; _gpu_active = 0; _gpu_debug = 0;
-        _screenW = 0; _screenH = 0; _gpu_busy = 0; _gpu_idle_cb = 0;
+                   (int)(long)&_gpu_tbl, (int)(long)&GEnv);
+        _memset((char *)&GEnv, 0, 0x80);
         ResetCallback();
-        GPU_cw((u_long)(long)&_gpu_tbl & 0x00ffffffu);
+        GPU_cw((u_long)(long)GEnv_drv & 0x00ffffffu);
         {
             int u = _reset(mode);
-            _genv_mode = (char)u;
-            _gpu_active = 1;
-            _screenW = (short)_vmode_w[u & 0xff].v;
-            _screenH = (short)_vmode_h[u & 0xff].v;
+            GEnv.mode = (char)u;
+            GEnv.active = 1;
+            GEnv.screenW = (short)_vmode_w[u & 0xff].v;
+            GEnv.screenH = (short)_vmode_h[u & 0xff].v;
         }
-        _memset(_genv_drawenv, -1, 0x5c);
-        _memset(_genv_dispenv, -1, 0x14);
-        return _genv_mode;
+        _memset(GEnv.drawenv, -1, 0x5c);
+        _memset(GEnv.dispenv, -1, 0x14);
+        return GEnv.mode;
     }
-    if (_gpu_debug >= 2)
+    if (GEnv.debug >= 2)
         GPU_printf("ResetGraph(%d)...\n", mode);   /* @0x80056D30 */
     return GEnv_drv->reset(1);
 }
@@ -926,7 +951,7 @@ extern "C" int ResetGraph(int mode)
 /* @0x800EDC08 : clear an ordering table in reverse, then append the fixed terminator tail. */
 extern "C" void ClearOTagR(u_long *ot, int n)
 {
-    if (_gpu_debug >= 2)
+    if (GEnv.debug >= 2)
         GPU_printf("ClearOTagR(%08x,%d)...\n", ot, n);   /* @0x80056E40 */
     GEnv_drv->clear_otag(ot, n);
     _otc_link = 0x04000000u | ((u_long)(long)&_otc_term & 0x00ffffffu);
@@ -937,12 +962,12 @@ extern "C" void ClearOTagR(u_long *ot, int n)
 extern "C" void *PutDrawEnv(void *env)
 {
     char *e = (char *)env;
-    if (_gpu_debug >= 2)
+    if (GEnv.debug >= 2)
         GPU_printf("PutDrawEnv(%08x)...\n", env);    /* @0x80056E6C */
     _set_drawenv(e + 0x1c, env);
     *(u_long *)(e + 0x1c) |= 0x00ffffffu;            /* terminate the DR_ENV */
     GEnv_drv->que_push((QueFunc)GEnv_drv->dma_chain, (u_long *)(e + 0x1c), 0x40, 0);
-    memcpy(_genv_drawenv, env, 0x5c);
+    memcpy(GEnv.drawenv, env, 0x5c);
     return env;
 }
 
@@ -1025,6 +1050,6 @@ extern "C" void *PutDispEnv(void *env)
         _send_gp1(((u3 & 0x3ff) << 10) | (u6 & 0x3ff) | 0x7000000u);
     }
 done:
-    memcpy(_genv_dispenv, env, 0x14);
+    memcpy(GEnv.dispenv, env, 0x14);
     return env;                                  /* oracle @0x800ee2c0 $v0 = $s1 = env */
 }

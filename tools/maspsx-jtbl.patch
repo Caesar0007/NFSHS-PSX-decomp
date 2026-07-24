@@ -1,0 +1,289 @@
+# maspsx fix: --jtbl-at-fusion, an opt-in peephole for the systemic
+# jump-table `$at` codegen mismatch (default OFF, w23-a11 toolchain
+# investigation, 2026-07-24).
+#
+# SYMPTOM: for every `switch` compiled to a jump table (`lw $reg,
+# jtbl_XXXX(idx)`), the ORACLE always shows aspsx 2.77's indexed-symbol-load
+# MACRO expansion via $at:
+#
+#     sll  $v0, $idx, 2
+#     lui  $at, %hi(jtbl_XXXX)
+#     addu $at, $at, $v0
+#     lw   $v0, %lo(jtbl_XXXX)($at)
+#
+# but our pipeline (cc1psx/cc1plpsx -> maspsx -> GNU as) always emits an
+# explicit 2-register form instead (never touching $at):
+#
+#     lui   $v0, %hi(jtbl_XXXX)   # high
+#     addiu $v0, $v0, %lo(jtbl_XXXX) # low
+#     sll   $v1, $idx, 2
+#     addu  $v1, $v1, $v0
+#     lw    $v0, 0($v1)
+#
+# 33-49 oracle sites tree-wide (`grep -rl jtbl_ asm/nonmatchings`); each
+# costs ~5 extra insns + a register-pressure ripple.
+#
+# ROOT CAUSE (layer diagnosis -- the actual deliverable of this
+# investigation): the divergence is NEITHER a maspsx bug NOR a GNU-as
+# quirk. It is CC1PSX ITSELF. gcc's MIPS "casesi" RTL pattern (how it
+# lowers a switch-statement jump-table dispatch) is a HARD-CODED asm
+# template that always manually expands the table-address computation into
+# 5 explicit machine instructions using a normal GPR as scratch -- it NEVER
+# emits the assembler's symbol+register indexed-load pseudo-op (`lw $r,
+# sym($idx)`) that would let the assembler pick $at. This was confirmed by
+# capturing cc1's raw pre-maspsx .s output for PadInfoAct
+# (recon/syslib/psx/libpad/PADENTRY.c) directly:
+#
+#     lui   $2,%hi($L38) # high
+#     addiu $2,$2,%lo($L38) # low
+#     sll   $3,$3,2
+#     addu  $3,$3,$2
+#     lw    $2,0($3)
+#
+# (cc1 lowers a *plain* array/struct index the exact same way -- this shape
+# is generic "materialize a scaled-index base address" codegen, not
+# switch-specific; the fusion below is scoped to jump tables only, see
+# below.)
+#
+# GO/NO-GO FACT (checked BEFORE writing this peephole, per the
+# investigation brief): does GNU as's own $at macro expansion of the
+# *equivalent* single-line pseudo-op byte-match ASPSX 2.77's oracle
+# sequence?  Hand-assembled test (`lw $2, jtbl_test($2)` after a `sll`)
+# through our actual `mipsel-none-elf-as.exe` + objdump:
+#
+#     sll  v0,a0,0x2
+#     lui  at,%hi(jtbl_test)
+#     addu at,at,v0
+#     lw   v0,%lo(jtbl_test)(at)
+#
+# -- byte-identical shape to the oracle. GO. Better still, maspsx ALREADY
+# performs exactly this expansion for any symbol+register indexed load
+# (see the `is_addend and r_source` branch of `process_line`, the
+# non-`addiu_at` sub-case): `lui $at,%hi(sym); addu $at,$at,r_source;
+# {op} $r,%lo(sym)($at)`. So no new expansion code is needed at all -- this
+# peephole only has to re-fuse cc1's manual 5-instruction lowering back
+# into the one-line pseudo-op maspsx's EXISTING machinery already expands
+# correctly (including the load-delay nop insertion before a dependent
+# `j`/`jr`, via the existing `_handle_nop_before_next_instruction`/
+# `uses_at()` logic).
+#
+# WHY A MASPSX PEEPHOLE (not a cc1/build-flag fix): the casesi asm
+# template is baked into gcc's machine description, not reachable via any
+# CC1PSX flag this project's driver exposes; a maspsx-side re-fusion is the
+# right layer, consistent with maspsx's whole purpose (reproduce ASPSX-era
+# assembler/macro behaviors GNU as's naive passthrough doesn't).
+#
+# MATCHING QUIRK -- cc1 sometimes schedules the sequence's first
+# instruction (`lui`) INTO THE DELAY SLOT of a preceding branch (e.g. the
+# switch's bounds-check `sltiu ...; beqz ...`), splitting it from `addiu`
+# by a `.set noreorder/nomacro ... .set macro/reorder` bracket + blank
+# line. The oracle does the same thing, just with `sll` (not `lui`) as the
+# filler -- confirming ASPSX performed the identical re-fusion. The peephole
+# below matches on REAL-INSTRUCTION adjacency (skipping `.set`/blank/
+# comment/label scaffolding) so it fires correctly in both the flat and
+# delay-slot-split cases, and does an in-place replace+delete so the
+# branch's delay-slot bracket is left structurally intact (now filled by
+# `sll` instead of `lui`, matching the oracle).
+#
+# SCOPE / CONSERVATISM: the 5-instruction pattern match additionally
+# requires the loaded register to feed a computed jump (`j`/`jr $R`)
+# shortly after the load. A plain array/struct load is never followed by a
+# jump through the loaded value, so this cannot misfire on ordinary
+# indexed loads (which use the identical instruction SHAPE but are not
+# jump tables, and were NOT part of this investigation's scope or
+# verification). Default OFF; opt in via `--jtbl-at-fusion`
+# (build.py: `NFS4_JTBL_AT_FUSION=1` env var).
+#
+# VERIFIED (2026-07-24, this isolated copy only -- NOT applied to the
+# shared C:/Temp/maspsx-master/ used by other agents' concurrent builds):
+#   - PadInfoAct (recon/syslib/psx/libpad/PADENTRY.c): FAIL 25 diffs
+#     (ours 54 / oracle 53) -> FAIL 20 diffs (ours 53 / oracle 53).
+#     Instruction count now matches exactly; the jtbl $at-fusion shape is
+#     now byte-identical to the oracle (sll-delay-slot / lui $at / addu $at
+#     / lw $at / nop / jr). Remaining 20 diffs are a PRE-EXISTING,
+#     unrelated register-coloring issue in this function (v1-vs-a2 /
+#     a0-vs-v1 swaps after the switch), out of scope for this fix.
+#   - sprintf (recon/syslib/psx/libc/SPRINTF.c): FAIL 327 diffs
+#     (ours 550 / oracle 545) -> FAIL 322 diffs (ours 549 / oracle 545).
+#   - FntPrint (recon/syslib/psx/libgpu/FONT.cpp), spot-checked: FAIL 125
+#     diffs (ours 241/oracle 240) -> FAIL 120 diffs (ours 240/oracle 240).
+#   - Regression smoke (4 non-jtbl PASS fns, 2 clusters):
+#     PadSetActAlign, PadSetMainMode (libpad, same file as PadInfoAct),
+#     DeliverEvent (libapi, BIOS thunk), atoi (libc, BIOS thunk) -- all
+#     still PASS unchanged with --jtbl-at-fusion enabled. 0 regressions.
+#
+# APPLY: copy C:/Temp/maspsx-master/ to an isolated working copy (do NOT
+# edit the shared master -- other agents build against it concurrently),
+# apply this patch there, and point a build at it via
+# `NFS4_MASPSX=<copy>/maspsx.py NFS4_JTBL_AT_FUSION=1`.
+--- a/maspsx.py
++++ b/maspsx.py
+@@ -21,6 +21,7 @@
+     parser.add_argument("--force-stdin", action="store_true")
+     parser.add_argument("--use-comm-section", action="store_true")
+     parser.add_argument("--use-comm-for-lcomm", action="store_true")
++    parser.add_argument("--jtbl-at-fusion", action="store_true")
+     # decomp.me debugging
+     parser.add_argument("--print-output", action="store_true")
+     parser.add_argument("--print-input", action="store_true")
+@@ -129,6 +130,7 @@
+         gp_allow_la=gp_allow_la,
+         use_comm_section=args.use_comm_section,
+         use_comm_for_lcomm=args.use_comm_for_lcomm,
++        jtbl_at_fusion=args.jtbl_at_fusion,
+     )
+     try:
+         out_lines = maspsx_processor.process_lines()
+--- a/maspsx/__init__.py
++++ b/maspsx/__init__.py
+@@ -384,6 +384,129 @@
+     return res
+
+
++# --- w23-a11: opt-in jump-table $at-fusion peephole (--jtbl-at-fusion) -----
++#
++# CC1PSX lowers a switch-statement jump-table dispatch (the "casesi" RTL
++# pattern) fully at compile time into 5 explicit machine instructions that
++# materialize the table's base address in a normal GPR (never $at):
++#
++#     lui   $R,%hi($Lxx)    # high
++#     addiu $R,$R,%lo($Lxx) # low
++#     sll   $I,$I,N
++#     addu  $I,$I,$R
++#     lw    $R,0($I)
++#     ...
++#     j/jr  $R
++#
++# Retail PsyQ aspsx 2.77 instead assembled the *equivalent* single indexed
++# load pseudo-op (`lw $R,$Lxx($I)`) here, and its macro expander turned that
++# into the compact 4-instruction $at-based form:
++#
++#     sll  $I,$I,N
++#     lui  $at,%hi($Lxx)
++#     addu $at,$at,$I
++#     lw   $R,%lo($Lxx)($at)
++#
++# GNU as's own macro expander produces byte-identical output for that same
++# pseudo-op (verified against the oracle bytes), and maspsx already emits
++# exactly this expansion for any symbol+register indexed load (see the
++# `is_addend and r_source` branch of `process_line`). So this pass only has
++# to recognise cc1's manual 5-instruction lowering and re-fuse it back into
++# the one-line pseudo-op maspsx/GNU-as already expand correctly.
++#
++# Scoped conservatively to genuine jump-table dispatches: the loaded
++# register must feed a computed jump (`j`/`jr $R`) shortly after the load
++# (skipping cc1's `#nop` load-delay placeholder) -- a plain array/struct
++# access never does this, so this pass cannot misfire on ordinary indexed
++# loads.
++_JTBL_LUI_HI_RE = re.compile(r"^lui\s+(\$\w+),\s*%hi\((\$L\w+)\)")
++_JTBL_ADDIU_LO_RE = re.compile(r"^addiu\s+(\$\w+),\s*(\$\w+),\s*%lo\((\$L\w+)\)")
++_JTBL_SLL_RE = re.compile(r"^sll\s+(\$\w+),\s*(\$\w+),\s*(\d+)$")
++_JTBL_ADDU_RE = re.compile(r"^addu\s+(\$\w+),\s*(\$\w+),\s*(\$\w+)$")
++_JTBL_LW_ZERO_RE = re.compile(r"^lw\s+(\$\w+),\s*0\((\$\w+)\)$")
++_JTBL_JUMP_RE = re.compile(r"^jr?\s+(\$\w+)$")
++
++
++def _jtbl_is_real_instr(line: str) -> bool:
++    """Cheap 'is this a real machine instruction line' filter for the raw
++    cc1 stream, local to the fusion pass. Deliberately narrower than the
++    module-level `is_instruction`: we only need it to skip over `.set`
++    scaffolding, blank lines, comments (incl. cc1's `#nop` placeholder) and
++    labels so the 5-instruction idiom can be matched by REAL-instruction
++    adjacency even when cc1 has scheduled its first instruction (`lui`)
++    into a preceding branch's delay slot (splitting it from `addiu` by a
++    `.set noreorder/nomacro ... .set macro/reorder` bracket + blank line)."""
++    if line == "":
++        return False
++    if line.startswith("."):
++        return False
++    if line.startswith("#"):
++        return False
++    if line.endswith(":"):
++        return False
++    return True
++
++
++def fuse_jump_table_addressing(lines: List[str]) -> List[str]:
++    lines = list(lines)
++    real_idxs = [i for i, l in enumerate(lines) if _jtbl_is_real_instr(l)]
++
++    k = 0
++    while k + 4 < len(real_idxs):
++        i_lui, i_addiu, i_sll, i_addu, i_lw = real_idxs[k : k + 5]
++
++        m_lui = _JTBL_LUI_HI_RE.match(lines[i_lui])
++        m_addiu = _JTBL_ADDIU_LO_RE.match(lines[i_addiu]) if m_lui else None
++        m_sll = _JTBL_SLL_RE.match(lines[i_sll]) if m_addiu else None
++        m_addu = _JTBL_ADDU_RE.match(lines[i_addu]) if m_sll else None
++        m_lw = _JTBL_LW_ZERO_RE.match(lines[i_lw]) if m_addu else None
++
++        if m_lui and m_addiu and m_sll and m_addu and m_lw:
++            r_base, label = m_lui.group(1), m_lui.group(2)
++            addiu_dst, addiu_src, addiu_label = m_addiu.groups()
++            idx_dst, idx_src, shift = m_sll.groups()
++            addu_dst, addu_src1, addu_src2 = m_addu.groups()
++            lw_dst, lw_base = m_lw.groups()
++
++            same_base = (
++                addiu_dst == r_base and addiu_src == r_base and addiu_label == label
++            )
++            same_index = addu_dst == idx_dst and {addu_src1, addu_src2} == {
++                idx_dst,
++                r_base,
++            }
++            same_load = lw_dst == r_base and lw_base == addu_dst
++
++            m_jump = None
++            if k + 5 < len(real_idxs):
++                m_jump = _JTBL_JUMP_RE.match(lines[real_idxs[k + 5]])
++
++            if (
++                same_base
++                and same_index
++                and same_load
++                and m_jump
++                and m_jump.group(1) == lw_dst
++            ):
++                # Rewrite in place: the `lui` slot (which may be a branch's
++                # delay slot -- leave it filled, just with `sll` instead)
++                # becomes the scale insn; `addiu`/original `sll`/`addu`
++                # lines are dropped; the `lw` slot becomes the one-line
++                # indexed-load pseudo-op that maspsx/GNU-as already know
++                # how to expand into the oracle's exact $at sequence.
++                lines[i_lui] = f"sll\t{idx_dst},{idx_src},{shift}"
++                lines[i_addiu] = ""
++                lines[i_sll] = ""
++                lines[i_addu] = ""
++                lines[i_lw] = f"lw\t{lw_dst},{label}({idx_dst})"
++                k += 5
++                continue
++
++        k += 1
++
++    return lines
++
++
+ class MaspsxProcessor:
+     is_reorder = True
+     skip_instructions = 0
+@@ -405,8 +528,10 @@
+         gp_allow_la=False,
+         use_comm_section=False,
+         use_comm_for_lcomm=False,
++        jtbl_at_fusion=False,
+     ):
+         self.lines = [x.strip() for x in lines]
++        self.jtbl_at_fusion = jtbl_at_fusion
+
+         self.sdata_limit = sdata_limit
+
+@@ -536,6 +661,9 @@
+         self.sbss_entries = {}
+         self.sdata_entries = {}
+
++        if self.jtbl_at_fusion:
++            self.lines = fuse_jump_table_addressing(self.lines)
++
+         self.preprocess_lines()
+
+         res = []

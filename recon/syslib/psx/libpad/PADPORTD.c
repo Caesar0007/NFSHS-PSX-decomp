@@ -102,6 +102,7 @@ extern void _pad_reset_state(unsigned char *info)
 {
     if (info[0x49] != 0) {
         unsigned char *p = info + 0x5d;
+        int fill = 0xff;
         int n = 5;
         info[0x49] = 0;
         info[0x46] = 0;
@@ -116,7 +117,7 @@ extern void _pad_reset_state(unsigned char *info)
         *(int *)(info + 0x00) = 0;
         *(int *)(info + 0x04) = 0;
         *(int *)(info + 0x08) = 0;
-        do { *p++ = 0xff; } while (--n >= 0);
+        do { *p++ = (unsigned char)fill; } while (--n >= 0);
     }
 }
 

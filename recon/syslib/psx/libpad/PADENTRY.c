@@ -36,13 +36,28 @@ int  _padSetActAlign(_PadDev *info, char *data);     /* PADCMD  @0x80105BF4 */
 int  _padSetMainMode(_PadDev *info, int offs, int lock); /* PADCMD @0x80105D40 */
 void _padSetAct(_PadDev *info, unsigned char *data, int len); /* PADCMD @0x801055F0 */
 
-/* @0x800EFE60 : PadStartCom */
+/* @0x800EFE60 : PadStartCom
+ * FLOOR (4 diffs): oracle epilogue is `lw ra; addiu sp,sp,24; jr ra; nop` (sp-restore NOT
+ * in the jr delay slot); ours schedules the sp-restore INTO the delay slot (`lw ra; jr ra;
+ * addiu sp,sp,24`) -- the common/expected gcc shape seen everywhere else in this tree
+ * (e.g. PadInfoMode, AICop_CleanUp). Single-$ra-only-save trivial wrappers apparently get a
+ * DIFFERENT epilogue scheduling shape than multi-register-restore frames on the real
+ * toolchain; not reachable from this 1-statement source. Same shape hits PadStopCom below. */
 void PadStartCom(void) { _padStartCom(); }
 
-/* @0x800EFE80 : PadStopCom */
+/* @0x800EFE80 : PadStopCom -- FLOOR, same single-$ra-save epilogue-scheduling shape as
+ * PadStartCom above (4 diffs). */
 void PadStopCom(void) { _padStopCom(); }
 
-/* @0x800EFEA0 : PadGetState -- map the raw controller state to the public PadState* code. */
+/* @0x800EFEA0 : PadGetState -- map the raw controller state to the public PadState* code.
+ * FLOOR (16 diffs): same duplicate-vs-share tail-merge / branch-polarity class seen throughout
+ * this wave (chkRC2wait, _padSetMainMode_snd) -- oracle emits `beq state,K,RETURN_SITE` (jump
+ * TO each return literal's own `li v0,K;j common_tail` block) for both the s==2 and s==6 arms,
+ * while ours emits `bne state,K,SKIP` (skip-around) for the s==2 arm. Tried+reverted: fully
+ * flat guard-chain (if(s==2)return1;if(s==6)return4;) -- drops the oracle's `slti v0,s,4` (s<4)
+ * test entirely, worse (17 diffs); explicit `return d->state;` duplicated into the s<4 arm --
+ * also worse (26 diffs, breaks the delay-slot-shared slti). Kept the nested if/else-if shape
+ * that reproduces the slti test faithfully. */
 int PadGetState(int port)
 {
     _PadDev *d = _padFuncPort2Info(port);

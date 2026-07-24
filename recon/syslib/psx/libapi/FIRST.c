@@ -28,8 +28,8 @@ typedef struct DCB {
 } DCB;                  /* sizeof == 0x50 */
 
 /* BIOS device-table kernel globals (fixed ABI addresses). */
-#define BIOS_DCB_BASE   (*(DCB *volatile *)0x150)   /* @kernel 0x150 : DCB table base pointer */
-#define BIOS_DCB_BYTES  (*(volatile int  *)0x154)   /* @kernel 0x154 : DCB table size in bytes */
+#define BIOS_DCB_BASE   (*(DCB **)0x150)   /* @kernel 0x150 : DCB table base pointer */
+#define BIOS_DCB_BYTES  (*(int  *)0x154)   /* @kernel 0x154 : DCB table size in bytes */
 
 typedef int (*FirstFn)(int *state, int arg, int arg2);
 
@@ -40,18 +40,22 @@ extern char    _first_devname[16];   /* @0x80148A84 : device prefix extracted fr
 extern int _first_patch(int *state, int arg, int arg2)
 {
     DCB *e, *end;
+    unsigned int cnt;
+    FirstFn saved;
 
     if (*state == 0)
         *state = 1;
-    e   = BIOS_DCB_BASE;
-    end = e + BIOS_DCB_BYTES / (int)sizeof(DCB);
+    cnt  = (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
+    e    = BIOS_DCB_BASE;
+    end  = e + cnt;
+    saved = _first_save;   /* loop-invariant: hoist the un-patch value (oracle materializes it before the search) */
     for (; e < end; e++) {
         if (e->name != 0 && strcmp(e->name, _first_devname) == 0) {
-            e->firstfile = (void *)_first_save;   /* un-patch (one-shot) */
+            e->firstfile = (void *)saved;   /* un-patch (one-shot) */
             break;
         }
     }
-    return (*_first_save)(state, arg, arg2);   /* forward $a2=$s5 too (oracle @0x8010a034) */
+    return (*_first_save)(state, arg, arg2);   /* forward $a2=$s5 too (oracle @0x8010a034); re-reads the global fresh */
 }
 
 /* @0x80109DC0 : firstfile */
@@ -60,6 +64,7 @@ extern void *firstfile(char *name, void *dir)
     DCB  *e, *end;
     char *p;
     signed char *scan;
+    int   found;
 
     /* extract the device prefix (characters before ':') into _first_devname */
     p = _first_devname;
@@ -69,18 +74,20 @@ extern void *firstfile(char *name, void *dir)
     *p = '\0';
 
     /* pass 1: locate the device, remember its current first-file handler */
+    found = 0;
     e   = BIOS_DCB_BASE;
     end = e + (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
     for (; e < end; e++) {
         if (e->name != 0 && strcmp(e->name, _first_devname) == 0) {
             _first_save = (FirstFn)e->firstfile;
-            goto install;
+            found = 1;
+            break;
         }
     }
-    return 0;
+    if (!found)
+        return 0;
 
     /* pass 2: install the self-removing patch into that device */
-install:
     e   = BIOS_DCB_BASE;
     end = e + (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
     for (; e < end; e++) {

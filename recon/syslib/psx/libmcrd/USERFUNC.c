@@ -17,19 +17,31 @@ extern void UserFuncInit(void)
     _uf_top = -1;
 }
 
-/* @0x80109C10 : UserFuncOpen -- push a callback (clearing its argument block). */
+/* @0x80109C10 : UserFuncOpen -- push a callback (clearing its argument block).  Oracle branch
+ *   polarity is `if (n<4) goto PUSH; PRINTF_OVERFLOW; goto END; PUSH: ...` (overflow falls through,
+ *   push is the jump target) -- the early-return-on-overflow C shape below, not an if/else with the
+ *   overflow arm second.  The zero-clear is a real down-counting `for(i=3;i>=0;i--)` loop over a
+ *   pointer walking from &_uf_arg[n][3] down to [0] (oracle decrements the pointer in the branch's
+ *   delay slot -- catalog lever "down-counting for(i=N-1;i!=-1;i--)"), not 4 unrolled stores.
+ *   Structure now matches the oracle exactly (branch shape byte-identical, same 4-insn address-fold
+ *   sequence for &_uf_arg[n][3] incl. the D_x+12-style relocation addend); residual 33 diffs (was 43
+ *   before this fix) is a pure 3-way register-coloring rotation (n: a2 oracle vs a3 ours; pointer:
+ *   v1 vs a2; counter: a1 vs a1 match) -- documented near-miss, not chased further (permuter-class
+ *   residual, out of this pass's budget). */
 extern void UserFuncOpen(UserFn func)
 {
     int n = _uf_top + 1;
-    if (n < 4) {
-        _uf_top = n;
-        _uf_func[n] = func;
-        _uf_arg[n][0] = 0;
-        _uf_arg[n][1] = 0;
-        _uf_arg[n][2] = 0;
-        _uf_arg[n][3] = 0;
-    } else {
+    if (n >= 4) {
         printf("libmcrd: event overflow\n");
+        return;
+    }
+    _uf_top = n;
+    _uf_func[n] = func;
+    {
+        int i = 3;
+        int *p = &_uf_arg[n][3];
+        for (; i >= 0; i--, p--)
+            *p = 0;
     }
 }
 

@@ -67,7 +67,7 @@ extern "C" int cd_read(int nsec, int lba, void *buf)
     CdIntToPos(lba, &loc);
     CdControl(2, (u_char *)&loc, 0);            /* CdlSetloc */
     CdRead(nsec, (u_long *)buf, 0x80);
-    return CdReadSync(0, 0) < 1;
+    return (unsigned)CdReadSync(0, 0) < 1u;
 }
 
 /* @0x800F9360 : directory-name compare (ISO names are exact, so this is effectively ==). */

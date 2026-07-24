@@ -455,7 +455,9 @@ extern int FILE_atomic(int (*fn)(int, int), int unused, int a3, int a4)
  *   ascending priority; the op is unlinked then reinserted before the first higher-priority op. */
 extern void FILE_priorityop(unsigned int id, int priority)
 {
-    /* The otherwise-unused pad recovers the oracle's 16-byte frame and improves 41->38 diffs. */
+    /* The otherwise-unused pad recovers the oracle's 16-byte frame.  The sorted reinsert walks through
+     * op->qnext itself (rather than a detached cursor), matching the retail list mutation order and
+     * reducing the detailed residual from 38 to 18 diffs at the exact 79-instruction length. */
     volatile int frame[3];
     FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
     int oldprio, sr;
@@ -476,16 +478,16 @@ extern void FILE_priorityop(unsigned int id, int priority)
         else            gFileMgr.queuehead = op->qnext; /* unlink (op was head) */
 
         prev = 0;
-        node = gFileMgr.queuehead;
-        while (node != 0) {                          /* sorted reinsert (ascending) */
-            if (priority < node->prio)
+        op->qnext = gFileMgr.queuehead;
+        while (op->qnext != 0) {                     /* sorted reinsert (ascending) */
+            node = op->qnext;
+            if (op->prio < node->prio)
                 break;
             prev = node;
-            node = node->qnext;
+            op->qnext = node->qnext;
         }
-        op->qnext = node;                            /* op goes before the first higher-prio op */
-        if (prev == 0) gFileMgr.queuehead = op;
-        else           prev->qnext        = op;
+        if (prev != 0) prev->qnext        = op;
+        else           gFileMgr.queuehead = op;
     }
     FILE_CS_LEAVE(sr);
 }

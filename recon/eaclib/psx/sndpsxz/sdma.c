@@ -50,14 +50,29 @@ extern int  iSNDdmqueue(int dst_spu, unsigned int src_ram, int len,
                             int prio, int flag);                                    /* @0x8010ACA0 */
 extern int  iSNDdmqueuesplit(int dst_spu, unsigned int src_ram, int len, int prio);
 
-/* cop0 Status read/write -- the queue mutations run with interrupts masked on target (host: plain). */
+/* cop0 Status read/write -- the queue mutations run with interrupts masked on target (host: plain).
+ * The callback uses one explicit CP0 transaction macro because the R3000 Status write requires three
+ * architectural hazard slots.  Keeping that handwritten instruction sequence localized here also
+ * preserves the oracle's fixed $at mask / $t0 result registers without putting asm in the C logic. */
 #if defined(__mips__)
 static inline unsigned int rd_sr(void) { unsigned int s; __asm__ volatile("mfc0 %0,$12" : "=r"(s)); return s; }
 static inline void wr_sr(unsigned int s) { __asm__ volatile("mtc0 %0,$12" : : "r"(s)); }
+#define MASK_INTERRUPTS_SR(sr)                                                   \
+    __asm__ volatile(                                                           \
+        "mfc0 %0,$12\n\t"                                                      \
+        "nop\n\t"                                                               \
+        "li $1,-1026\n\t"                                                      \
+        "and $8,%0,$1\n\t"                                                     \
+        "mtc0 $8,$12\n\t"                                                      \
+        "nop\n\t"                                                               \
+        "nop\n\t"                                                               \
+        "nop"                                                                   \
+        : "=r"(sr) : : "$1", "$8", "memory")
 #else
 static unsigned int g_sr = 0;
 static inline unsigned int rd_sr(void) { return g_sr; }
 static inline void wr_sr(unsigned int s) { g_sr = s; }
+#define MASK_INTERRUPTS_SR(sr) do { (sr) = rd_sr(); wr_sr((sr) & 0xfffffbfe); } while (0)
 #endif
 
 /* iSNDdmtransfer @0x8010A880 : pick the highest-priority queued transfer and kick the SPU-write DMA for it. */
@@ -113,8 +128,9 @@ extern void iSNDdmcallback(void)
     unsigned int sr;
     volatile int i;
     volatile int mult = 13;
-    int slot, active, ctrl, wait;
-    unsigned char *pd0, *pd;
+    signed char slot;
+    int active, ctrl, wait;
+    unsigned char *pd;
     void (*hook)(void);
 
     /* MATCH: this is NOT a plain counter -- gcc round-trips a dummy multiply AND the counter through
@@ -122,27 +138,31 @@ extern void iSNDdmcallback(void)
      * `mult` and `i` must be volatile to force the store/reload each pass. */
     for (i = 0; i < 0x2ee; i++)
         mult = mult * 13;
-    pd0 = sndpd;
-    ctrl = *(volatile int *)(pd0 + 0x514);
+    wait = (int)sndpd;
+    ctrl = *(volatile int *)(wait + 0x514);
     *(volatile unsigned short *)(ctrl + 0x1aa) =
         *(volatile unsigned short *)(ctrl + 0x1aa) & 0xffcf;
-    ctrl = *(volatile int *)(pd0 + 0x514);
+    ctrl = *(volatile int *)(wait + 0x514);
     wait = 0;
     while ((*(volatile unsigned short *)(ctrl + 0x1aa) & 0x30) != 0) {
         wait++;
         if (4000 < wait)
             break;
     }
-    /* MATCH: the active-entry VALUE is loaded BEFORE the critical section is entered (mfc0 -- the
+    /* MATCH: `wait` first carries the sndpd base through both SPUCNT accesses, then becomes the
+     * settle-loop counter.  That non-overlapping lifetime gives the base/counter the oracle's shared
+     * v1 allocation.  A signed-char slot local preserves each oracle lbu/sll24/sra24 chain in one
+     * register instead of introducing a separate integer-conversion temporary.
+     *
+     * The active-entry VALUE is loaded BEFORE the critical section is entered (mfc0 -- the
      * oracle's ONLY SR-save mfc0 in this function sits here, not at function entry); sr is captured
-     * at this exact point, not earlier. */
+     * at this exact point, not earlier.  MASK_INTERRUPTS_SR spells the required mfc0/mtc0 hazard
+     * sequence explicitly.  Detailed residual: 4 diffs, 111/111 instructions (only the initial
+     * sndpd lui/addiu temporary coalescing differs). */
     pd = sndpd;
     slot = *(volatile unsigned char *)(pd + 0xd);
-    slot = slot << 24;
-    slot = slot >> 24;
     active = *(volatile int *)(pd + 0x10 + slot * 0x14);
-    sr = rd_sr();
-    wr_sr(sr & 0xfffffbfe);
+    MASK_INTERRUPTS_SR(sr);
     if (active != 0) {        /* active entry present */
         if (*(volatile unsigned char *)(pd + 1) != 0) {
             hook = *(void (**)(void))(pd + 0x728);
@@ -152,8 +172,6 @@ extern void iSNDdmcallback(void)
         }
         pd = sndpd;
         slot = *(volatile unsigned char *)(pd + 0xd);
-        slot = slot << 24;
-        slot = slot >> 24;
         *(int *)(pd + 0x10 + slot * 0x14) = 0;      /* free the slot */
         *(unsigned char *)(pd + 0xc) = *(unsigned char *)(pd + 0xc) - 1;
         if ((int)((unsigned)*(volatile unsigned char *)(pd + 0xc) << 0x18) < 1) { /* queue now empty */

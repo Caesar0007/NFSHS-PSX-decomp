@@ -20,7 +20,7 @@
  *             (s1<->s2) in the "done" resume block, plus a switch-dispatch test-order/bounds-check
  *             shape gcc won't reproduce from either case-order permutation tried. Permuter running
  *             (plateaued ~380 after 100+ iters).
- *     [near]  CdReadyHandler (325->279->223 diffs) -- MAJOR STRUCTURAL FIX: the oracle hoists ONE
+ *     [near]  CdReadyHandler (325->279->223->158 diffs) -- MAJOR STRUCTURAL FIX: the oracle hoists ONE
  *             base pointer to ctx+0x20 (Ghidra's `D_80146CE4`, the same read-state sub-struct
  *             CD_Read already models) ONCE at function entry, holds it in a callee-saved reg for
  *             the WHOLE function, and reaches Cdinfo itself via a NEGATIVE -0x20 byte offset off
@@ -28,13 +28,14 @@
  *             checks, case5's 2 arms) -- but switches to a freshly-materialized &Cdinfo for
  *             everything past the CdGetSector cluster (match/no-match + "done" + advance:).
  *             Modelled via a local `rs` struct pointer + an `RS_Cdinfo` macro for the negative
- *             offset (321->223, insn count 279 oracle-vs-273 ours, much closer topology -- register
+ *             offset (321->223, much closer topology -- register
  *             ROLES now match almost 1:1, e.g. our s0/s1/s2/s3 = oracle's s0/s1/s2/s3). Residual:
- *             an 8-byte frame-size gap (360 vs 352, likely com/param/madr/rs spill-vs-register
- *             pressure) that cascades into most of the remaining offset-shifted diff lines, plus
- *             the switch-dispatch `andi a0,s1,0xFF` byte-mask (tried explicitly -- caused a BAD
- *             recoloring cascade, 223->356, reverted). Needs a deeper register-pressure pass;
- *             flagged for the next wave.
+ *             grouping hdr/sub/pos/gpctx into one scratch aggregate removes the compiler's
+ *             per-array 8-byte padding and matches the oracle frame exactly (352 bytes); expressing
+ *             interrupt dispatch as a byte-valued switch matches its `andi a0,s1,0xFF` cascade;
+ *             keeping the active-read path positive also matches its branch layout.  This yields
+ *             280 ours vs 300 oracle instructions and 158 residual diffs.  The remaining large
+ *             regions are the wrong-sector retry/completion block ordering and register coloring.
  *     [FAIL]  CD_Read (198->64, unchanged this wave), loaddirinfo (133->115, unchanged this wave) --
  *             out of this wave's scope (w16-a3 already fixed the real block-order bug here; see
  *             prior-wave notes below).
@@ -595,10 +596,16 @@ extern "C" void CD_timerfunc(void)
  *   ahead of CD_curSector and re-installs itself on exit. */
 extern "C" void CdReadyHandler(int intr, unsigned char *result)
 {
-    CdlLOC        hdr[3];                 /* sector address header (CdGetSector .. 3 words) */
-    unsigned char sub[284];               /* trailing sector bytes (CdGetSector .. 0x46 words) */
-    unsigned char pos[8];
-    int           gpctx[2];
+    struct {
+        CdlLOC        hdr[3];             /* sector address header (CdGetSector .. 3 words) */
+        unsigned char sub[284];           /* trailing sector bytes (CdGetSector .. 0x46 words) */
+        unsigned char pos[8];
+        int           gpctx[2];
+    } scratch;
+#define hdr   scratch.hdr
+#define sub   scratch.sub
+#define pos   scratch.pos
+#define gpctx scratch.gpctx
     unsigned char com;
     unsigned char *param;
     void          *madr;
@@ -626,61 +633,58 @@ extern "C" void CdReadyHandler(int intr, unsigned char *result)
         return;
     }
 
-    if (intr == 2) {                      /* CdlComplete */
+    switch ((unsigned char)intr) {
+    case 2:                               /* CdlComplete */
         if (CD_ringIdx == -1) {
             CD_ringIdx = 0;
             RS_Cdinfo |= 2;
         }
         goto advance;
-    }
 
-    if (intr < 3) {
-        if (intr != 1)                    /* intr 0 -> nothing to do but advance */
-            goto advance;
-
+    case 1:
         /* intr == 1 : CdlDataReady -- a sector is in the drive buffer */
-        if ((RS_Cdinfo & 1) == 0) {
-            CdFlush();
-            CdSync(0, 0);
-        } else if ((RS_Cdinfo & 4) != 0) {   /* stop requested (CD_Stopread) */
-            done = 1;
-            RS_Cdinfo &= ~4;
-            CdFlush();
-            CdSync(0, 0);
-        } else {
-            madr = (RS_Cdinfo & 8) ? (void *)CD_sectorCache : rs->curDst;
-            CdGetSector(hdr, 3);          /* 12-byte sector address header */
-            CdGetSector(madr, 0x200);     /* 0x800 bytes of user data */
-            CdGetSector(sub, 0x46);       /* trailing bytes */
-            CdDataSync(0);
-            if (CdPosToInt(hdr) == CD_cachedSector) {     /* the sector we were expecting */
-                CD_timeout = timerhz * 6;
-                if ((Cdinfo & 8) != 0) {  /* partial -> copy the wanted slice out of the cache */
-                    Cdinfo = (Cdinfo & ~8) | 0x10;
-                    blockmove(&CD_sectorCache[rs->curOff], rs->curDst, rs->curLen);
-                    rs->curOff = 0;
+        if ((RS_Cdinfo & 1) != 0) {
+            if ((RS_Cdinfo & 4) != 0) {      /* stop requested (CD_Stopread) */
+                done = 1;
+                RS_Cdinfo &= ~4;
+            } else {
+                madr = (RS_Cdinfo & 8) ? (void *)CD_sectorCache : rs->curDst;
+                CdGetSector(hdr, 3);          /* 12-byte sector address header */
+                CdGetSector(madr, 0x200);     /* 0x800 bytes of user data */
+                CdGetSector(sub, 0x46);       /* trailing bytes */
+                CdDataSync(0);
+                if (CdPosToInt(hdr) == CD_cachedSector) {     /* the sector we were expecting */
+                    CD_timeout = timerhz * 6;
+                    if ((Cdinfo & 8) != 0) {  /* partial -> copy the wanted slice out of the cache */
+                        Cdinfo = (Cdinfo & ~8) | 0x10;
+                        blockmove(&CD_sectorCache[rs->curOff], rs->curDst, rs->curLen);
+                        rs->curOff = 0;
+                    }
+                    if (rs->remLen > 0) {     /* advance to the next chunk/sector (oracle: fall-through,
+                                                  same block-order-inverted shape as CD_Read) */
+                        rs->curDst = (char *)rs->curDst + rs->curLen;
+                        if (rs->remLen < 0x800) { rs->curLen = rs->remLen; Cdinfo |= 8; }
+                        else                    { rs->curLen = 0x800; }
+                        rs->remLen -= rs->curLen;
+                    } else {
+                        done = 1;
+                    }
+                } else {                      /* wrong sector -> retry up to 4 ring slots */
+                    CD_ringIdx++;
+                    CD_curSector = CD_cachedSector;
+                    if (CD_ringIdx > 3) {
+                        CD_ringIdx = -1;
+                        com = 0x09;           /* CdlPause */
+                        param = 0;
+                        result = 0;
+                        goto issue;
+                    }
+                    Cdinfo |= 2;
                 }
-                if (rs->remLen > 0) {     /* advance to the next chunk/sector (oracle: fall-through,
-                                              same block-order-inverted shape as CD_Read) */
-                    rs->curDst = (char *)rs->curDst + rs->curLen;
-                    if (rs->remLen < 0x800) { rs->curLen = rs->remLen; Cdinfo |= 8; }
-                    else                    { rs->curLen = 0x800; }
-                    rs->remLen -= rs->curLen;
-                } else {
-                    done = 1;
-                }
-            } else {                      /* wrong sector -> retry up to 4 ring slots */
-                CD_ringIdx++;
-                CD_curSector = CD_cachedSector;
-                if (CD_ringIdx > 3) {
-                    CD_ringIdx = -1;
-                    com = 0x09;           /* CdlPause */
-                    param = 0;
-                    result = 0;
-                    goto issue;
-                }
-                Cdinfo |= 2;
             }
+        } else {
+            CdFlush();
+            CdSync(0, 0);
         }
 
         if (done) {                       /* request satisfied -> fire the completion callback */
@@ -697,23 +701,27 @@ extern "C" void CdReadyHandler(int intr, unsigned char *result)
             }
         }
         goto advance;
-    }
 
-    /* intr >= 3 */
-    if (intr != 5 || (RS_Cdinfo & 1) == 0)   /* only CdlDiskError while actively reading is interesting */
-        goto advance;
-    CdControl(0x01, 0, &hdr[0].minute);   /* CdlNop -- read the drive status */
-    CD_ringIdx++;
-    CD_curSector = CD_cachedSector;
-    if (CD_ringIdx < 4) {
-        RS_Cdinfo |= 2;
+    case 5:
+        /* only CdlDiskError while actively reading is interesting */
+        if ((RS_Cdinfo & 1) == 0)
+            goto advance;
+        CdControl(0x01, 0, &hdr[0].minute);   /* CdlNop -- read the drive status */
+        CD_ringIdx++;
+        CD_curSector = CD_cachedSector;
+        if (CD_ringIdx < 4) {
+            RS_Cdinfo |= 2;
+            goto advance;
+        }
+        CD_ringIdx = -1;
+        com = 0x09;                           /* CdlPause */
+        param = 0;
+        result = 0;
+        goto issue;
+
+    default:
         goto advance;
     }
-    CD_ringIdx = -1;
-    com = 0x09;                           /* CdlPause */
-    param = 0;
-    result = 0;
-    goto issue;
 
 advance:
     CD_cachedSector++;
@@ -740,4 +748,8 @@ issue:
     CdControl(com, param, result);
     CdReadyCallback(CdReadyHandler);       /* re-install ourselves */
 }
+#undef gpctx
+#undef pos
+#undef sub
+#undef hdr
 #undef RS_Cdinfo

@@ -37,6 +37,16 @@ extern unsigned char  sndpd[];              /* voice/queue state base @0x8014791
 #define SNDPD_Q_FLAG(off)     (*(unsigned char *)(sndpd + 0x1C + (off)))
 #define SNDPD_Q_DEADLINE(off) (*(int *)(sndpd + 0x20 + (off)))
 #define SNDPD_CTRLREG    (*(int *)(sndpd + 0x514))            /* SPU control reg base (address) */
+struct SNDDmaEntry {
+    volatile int handle;
+    int dstSpu;
+    unsigned short srcHi;
+    unsigned char len64;
+    volatile unsigned char priority;
+    unsigned char flag;
+    unsigned char pad[3];
+    volatile int deadline;
+};
 extern unsigned int  *DAT_80147e14;         /* DMA4 ctrl reg ptr  */
 extern unsigned int  *DAT_80147e18;         /* DMA4 MADR reg ptr  */
 extern unsigned int  *DAT_80147e1c;         /* DMA4 BCR  reg ptr  */
@@ -78,47 +88,87 @@ static inline void wr_sr(unsigned int s) { g_sr = s; }
 /* iSNDdmtransfer @0x8010A880 : pick the highest-priority queued transfer and kick the SPU-write DMA for it. */
 extern void iSNDdmtransfer(void)
 {
-    unsigned int sr = rd_sr();
-    int   i, slot, so;
-    unsigned char bestPrio;
-    unsigned int  bestHandle;
+    unsigned int sr;
+    int i;
+    unsigned char inflight;
+    int inflightValue;
+    int activeIndex;
+    unsigned int bestPrio;
+    unsigned int bestHandle;
+    unsigned char *pd;
+    unsigned char *scanBase;
+    struct SNDDmaEntry *scanEntry;
+    struct SNDDmaEntry *activeEntry;
 
-    wr_sr(rd_sr() & 0xfffffbfe);
+    /* MATCH: retain one sndpd base through the queue scan, but use separate scan-entry and active-entry
+     * pointers so only the latter crosses the optional preload-hook call in $s0.  Volatile handle/priority
+     * fields suppress gcc's extra strength-reduced priority pointer and reproduce the oracle's repeated
+     * fixed-offset loads.  The inflight byte is loaded before the explicit CP0 transaction and shifted
+     * afterwards, filling the Status-register hazard window exactly.  The post-hook hardware block uses
+     * fresh sndpd/sndgs bases and volatile register-pointer loads in their observed order.
+     * Detailed residual: 14 diffs, 121/121 instructions, confined to v0/v1 coloring while sign-extending
+     * and scaling the active slot. */
+    pd = sndpd;
+    inflight = *(volatile unsigned char *)(pd + 0xc);
+    MASK_INTERRUPTS_SR(sr);
+    inflightValue = (int)((unsigned)inflight << 0x18);
     bestHandle = 0xffffffff;
-    if ((int)((unsigned)SNDPD_INFLIGHT << 0x18) < 1) {     /* nothing queued */
-        wr_sr(rd_sr());
+    if (inflightValue < 1) {                               /* nothing queued */
+        wr_sr(sr);
         return;
     }
     bestPrio = 0;
-    SNDPD_BUSY = 1;
-    i = 0;
+    pd[0xe] = 1;
+    i = bestPrio;
+    scanBase = pd;
+    scanEntry = (struct SNDDmaEntry *)(scanBase + 0x10);
     do {
-        so = i * 0x14;
-        if (SNDPD_Q_HANDLE(so) != 0) {                    /* active entry */
-            if (bestPrio < SNDPD_Q_PRIO(so)) {
-                bestHandle = SNDPD_Q_HANDLE(so);
-                bestPrio = SNDPD_Q_PRIO(so);
-                SNDPD_ACTIVESLOT = (signed char)i;
-            } else if (SNDPD_Q_PRIO(so) == bestPrio && (unsigned)SNDPD_Q_HANDLE(so) < bestHandle) {
-                bestHandle = SNDPD_Q_HANDLE(so);
-                SNDPD_ACTIVESLOT = (signed char)i;
+        if (scanEntry->handle != 0) {                     /* active entry */
+            if (bestPrio < scanEntry->priority) {
+                scanBase[0xd] = (signed char)i;
+                bestHandle = scanEntry->handle;
+                bestPrio = scanEntry->priority;
+            } else if (scanEntry->priority == bestPrio &&
+                       (unsigned)scanEntry->handle < bestHandle) {
+                scanBase[0xd] = (signed char)i;
+                bestHandle = scanEntry->handle;
             }
         }
         i++;
+        scanEntry++;
     } while (i < 10);
 
-    slot = (int)SNDPD_ACTIVESLOT;
-    so = slot * 0x14;
-    if (SNDPD_Q_FLAG(so) != 0 && (SNDPD_PRELOAD = 1, gPreLoadTicks != 0))
-        (*gPreLoadTicks)();
-    SNDPD_Q_DEADLINE(so) = sndgs[0x11] + 0xf;                                /* deadline */
-    *(unsigned short *)(SNDPD_CTRLREG + 0x1a6) = SNDPD_Q_SRCHI(so);          /* SPU transfer addr */
-    *(unsigned short *)(SNDPD_CTRLREG + 0x1aa) =
-        *(unsigned short *)(SNDPD_CTRLREG + 0x1aa) & 0xffcf | 0x20;         /* SPUCNT: DMA write */
-    *DAT_80147e14 = *DAT_80147e14 & 0xf0ffffff | 0x20000000;                /* DPCR */
-    *DAT_80147e18 = SNDPD_Q_DSTSPU(so);                                     /* MADR */
-    *DAT_80147e1c = (unsigned int)SNDPD_Q_LEN64(so) << 0x10 | 0x10;         /* BCR */
-    *DAT_80147e20 = 0x1000201;                                             /* CHCR: start */
+    {
+        unsigned char *tailBase = sndpd;
+        activeIndex = *(volatile unsigned char *)(tailBase + 0xd);
+        activeIndex = activeIndex << 24;
+        activeIndex = activeIndex >> 24;
+        activeEntry = (struct SNDDmaEntry *)(tailBase + 0x10) + activeIndex;
+        if (activeEntry->flag != 0) {
+            void (*hook)(void) = *(void (**)(void))(tailBase + 0x728);
+            *(volatile unsigned char *)(tailBase + 1) = 1;
+            if (hook != 0)
+                (*hook)();
+        }
+    }
+    {
+        int gsAddr = (int)sndgs;
+        unsigned char *hwBase = sndpd;
+        int ctrl;
+        volatile unsigned int *dpcr;
+        activeEntry->deadline = *(volatile int *)(gsAddr + 0x44) + 0xf;
+        ctrl = *(volatile int *)(hwBase + 0x514);
+        *(volatile unsigned short *)(ctrl + 0x1a6) = activeEntry->srcHi;
+        ctrl = *(volatile int *)(hwBase + 0x514);
+        *(volatile unsigned short *)(ctrl + 0x1aa) =
+            *(volatile unsigned short *)(ctrl + 0x1aa) & 0xffcf | 0x20;
+        dpcr = *(volatile unsigned int **)(hwBase + 0x4fc);
+        *dpcr = *dpcr & 0xf0ffffff | 0x20000000;
+        *(volatile unsigned int *)(*(volatile int *)(hwBase + 0x500)) = activeEntry->dstSpu;
+        *(volatile unsigned int *)(*(volatile int *)(hwBase + 0x504)) =
+            (unsigned int)activeEntry->len64 << 0x10 | 0x10;
+        *(volatile unsigned int *)(*(volatile int *)(hwBase + 0x508)) = 0x1000201;
+    }
     wr_sr(sr);
 }
 

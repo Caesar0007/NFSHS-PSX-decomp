@@ -135,6 +135,7 @@ static inline void wr_sr(unsigned int s) { __asm__ volatile("mtc0 %0,$12" : : "r
 /* CP0 transaction shim: keep the DMA channel in $a0 across the status-register
  * mask and spell the required R3000 load/write hazard slots explicitly. */
 #define DECLARE_DMA_CHANNEL(name) register int name __asm__("$4")
+#define DECLARE_DMA_CALLBACK(name) register int name __asm__("$5")
 #define MASK_SR_FOR_DMA(sr, channel)                                                   \
     __asm__ volatile(                                                                 \
         "mfc0 %0,$12\n\t"                                                            \
@@ -146,12 +147,25 @@ static inline void wr_sr(unsigned int s) { __asm__ volatile("mtc0 %0,$12" : : "r
         "nop\n\t"                                                                     \
         "nop"                                                                         \
         : "=r"(sr), "+r"(channel) : : "$1", "$8", "memory")
+#define MASK_SR_FOR_DMA_CALLBACK(sr, channel, callback)                                \
+    __asm__ volatile(                                                                  \
+        "mfc0 %0,$12\n\t"                                                             \
+        "nop\n\t"                                                                      \
+        "li $1,-1026\n\t"                                                             \
+        "and $8,%0,$1\n\t"                                                            \
+        "mtc0 $8,$12\n\t"                                                             \
+        "nop\n\t"                                                                      \
+        "nop\n\t"                                                                      \
+        "nop"                                                                          \
+        : "=r"(sr), "+r"(channel), "+r"(callback) : : "$1", "$8", "memory")
 #else
 static unsigned int g_sr = 0;
 static inline unsigned int rd_sr(void) { return g_sr; }
 static inline void wr_sr(unsigned int s) { g_sr = s; }
 #define DECLARE_DMA_CHANNEL(name) int name
+#define DECLARE_DMA_CALLBACK(name) int name
 #define MASK_SR_FOR_DMA(sr, channel) do { (sr) = rd_sr(); wr_sr((sr) & 0xfffffbfe); } while (0)
+#define MASK_SR_FOR_DMA_CALLBACK(sr, channel, callback) MASK_SR_FOR_DMA(sr, channel)
 #endif
 
 /* iSNDplatformoutputcaps @0x800FF5A8 : publish this platform's output capabilities into sndgs (44.1 kHz,
@@ -222,72 +236,113 @@ extern int iSNDplatformoutputset(void)
  *   the audio timer + exit handler. */
 extern int iSNDinit(void)
 {
-    unsigned int sr = rd_sr();
+    struct InitWaitSpu {
+        unsigned char pad[0x1ae];
+        volatile unsigned short status;
+    };
+    unsigned int sr;
+    DECLARE_DMA_CHANNEL(ch);      /* DMACallback channel arg (4), materialized early like the oracle */
+    DECLARE_DMA_CALLBACK(callback);
+    volatile unsigned int *delay;
+    volatile unsigned int *madr;
+    volatile unsigned int *bcr;
+    volatile unsigned int *chcr;
+    volatile unsigned int *dpcr;
+    unsigned int *spu;    /* runtime copy of the SPU base (0x1F801C00) */
+    struct InitWaitSpu *wait_spu;
+    unsigned char *pd;
+    unsigned char *latched;
+    unsigned char *gs;
+    unsigned char *loop_gs;
+    unsigned char *loop_pd;
+    unsigned char *post;
+    int postmask_spu;
+    int post_ctrl;
+    int pitch;
+    int done;
+    unsigned short master;
+    int vp;               /* walking sndpd address for the "mark voice done" byte */
     int i;
-    int          ch;      /* DMACallback channel arg (4), materialized early like the oracle */
-    unsigned int *spu;    /* runtime copy of &VOICE_00_LEFT_RIGHT (0x1F801C00) -- see the _AT() macro
-                            * comment above; shared for MAIN_VOL_L/R + SPUCNT + SPUSTAT pre-latch */
-    unsigned char *vp;    /* walking &sndpd copy for the "mark voice done" byte (0xff stride) --
-                            * matches the iSNDrestore lever: keeps the +0xff field a load DISPLACEMENT
-                            * off a persistent WALKING base instead of a folded per-iter address */
 
-    spu = (unsigned int *)&VOICE_00_LEFT_RIGHT;
-    DAT_80147e32 = 0x41;                    /* snd_spu_engine_ver (sdmemman split-storage, see macro) */
-    DPCR = DPCR | 0xb0000;
+    delay = (volatile unsigned int *)0x1f801014;
+    madr = (volatile unsigned int *)0x1f8010c0;
+    bcr = (volatile unsigned int *)0x1f8010c4;
+    chcr = (volatile unsigned int *)0x1f8010c8;
+    dpcr = (volatile unsigned int *)0x1f8010f0;
+    spu = (unsigned int *)0x1f801c00;
+    pd = sndpd;
+    *(unsigned short *)(pd + 0x51a) = 0x41;
+    *dpcr = *dpcr | 0xb0000;
     SPU_MAIN_VOL_L_AT(spu) = 0;
     SPU_MAIN_VOL_R_AT(spu) = 0;
     SPUCNT_AT(spu) = 0;                      /* early clear (pre-latch) */
     SPU_MAIN_VOL_L_AT(spu) = 0;              /* oracle writes both master-vol halves TWICE */
     SPU_MAIN_VOL_R_AT(spu) = 0;
-    DAT_80147e34 = 0x2000;                   /* snd_spu_block_total (sdmemlu split-storage) */
-    DAT_80147e14 = (unsigned int *)&SPU_DELAY;
-    DAT_80147e18 = (unsigned int *)&D4_MADR;
-    DAT_80147e1c = (unsigned int *)&D4_BCR;
-    DAT_80147e20 = (unsigned int *)&D4_CHCR;
-    DAT_80147e24 = (unsigned int *)&DPCR;
-    DAT_80147e28 = (int)spu;
-    DAT_80147e2c = (int)spu;
-    while ((SPUSTAT_AT(spu) & 0x7ff) != 0) { }
-    SOUND_RAM_XFER_CTRL_F = 4;
-    SPU_VOICE_CHN_FM_MODE_L_F = 0;
-    SPU_VOICE_CHN_FM_MODE_H_F = 0;
-    SPU_VOICE_CHN_NOISE_MODE_L_F = 0;
-    SPU_VOICE_CHN_NOISE_MODE_H_F = 0;
+    *(unsigned short *)(pd + 0x51c) = 0x2000;
+    *(volatile unsigned int **)(pd + 0x4fc) = delay;
+    *(volatile unsigned int **)(pd + 0x500) = madr;
+    *(volatile unsigned int **)(pd + 0x504) = bcr;
+    *(volatile unsigned int **)(pd + 0x508) = chcr;
+    *(volatile unsigned int **)(pd + 0x50c) = dpcr;
+    *(unsigned int **)(pd + 0x510) = spu;
+    *(unsigned int **)(pd + 0x514) = spu;
+    if ((SPUSTAT_AT(spu) & 0x7ff) != 0) {
+        do {
+            wait_spu = (struct InitWaitSpu *)0x1f801c00;
+        } while ((wait_spu->status & 0x7ff) != 0);
+    }
+    latched = sndpd;
+    *(volatile unsigned short *)(*(volatile int *)(latched + 0x514) + 0x1ac) = 4;
+    *(volatile unsigned short *)(*(volatile int *)(latched + 0x514) + 0x190) = 0;
+    *(volatile unsigned short *)(*(volatile int *)(latched + 0x514) + 0x192) = 0;
+    *(volatile unsigned short *)(*(volatile int *)(latched + 0x514) + 0x194) = 0;
+    *(volatile unsigned short *)(*(volatile int *)(latched + 0x514) + 0x196) = 0;
     ch = 4;   /* DMACallback channel arg, materialized early (matches oracle's early a0=4) */
-    CD_VOL_L_F = 0;
-    CD_VOL_R_F = 0;
-    wr_sr(rd_sr() & 0xfffffbfe);
-    EXT_VOL_L_F = 0;
-    EXT_VOL_R_F = 0;
-    SPUCNT_F = 0xc000;                       /* enable + unmute SPU */
-    DMACallback(ch, (int)iSNDdmcallback);    /* install the real DMA4 (SPU) callback */
+    callback = (int)iSNDdmcallback;
+    *(volatile unsigned short *)(*(volatile int *)(latched + 0x514) + 0x1b0) = 0;
+    *(volatile unsigned short *)(*(volatile int *)(latched + 0x514) + 0x1b2) = 0;
+    *(volatile unsigned short *)(*(volatile int *)(latched + 0x514) + 0x1b4) = 0;
+    postmask_spu = *(volatile int *)(latched + 0x514);
+    MASK_SR_FOR_DMA_CALLBACK(sr, ch, callback);
+    *(volatile unsigned short *)(postmask_spu + 0x1b6) = 0;
+    *(volatile unsigned short *)(*(volatile int *)(latched + 0x514) + 0x1aa) = 0xc000;
+    DMACallback(ch, callback);               /* install the real DMA4 (SPU) callback */
     wr_sr(sr);
     iSNDdmqueue((int)&sndpdsafeloop, 0x1000, 0x10, 1, 0);     /* clear first SPU page */
 
     i = 0;
-    if (SUB(0x11) != 0) {
-        vp = sndpd;
+    gs = (unsigned char *)sndgs;
+    if (gs[0x11] != 0) {
+        pitch = 0x200;
+        done = -1;
+        loop_pd = latched;
+        loop_gs = gs;
+        vp = (int)latched;
         do {
-            int vr = DAT_80147e28 + i * 0x10;                /* zero SPU voice regs */
+            int vr = *(volatile int *)(loop_pd + 0x510) + i * 0x10;
             *(short *)(vr + 0) = 0;
             *(short *)(vr + 2) = 0;
             *(short *)(vr + 4) = 0;
-            *(short *)(vr + 6) = 0x200;
-            *(short *)(vr + 0xe) = 0x200;
+            *(short *)(vr + 6) = pitch;
+            *(short *)(vr + 0xe) = pitch;
             *(short *)(vr + 8) = 0;
             *(short *)(vr + 0xa) = 0;
             i++;
-            vp[0xff] = 0xff;                /* mark voice done */
+            *(signed char *)(vp + 0xff) = done;             /* mark voice done */
             vp += 0x2c;
-        } while (i < (int)(unsigned)SUB(0x11));
+        } while (i < (int)(unsigned)loop_gs[0x11]);
     }
     iSNDpsxkeyon(0xffffff);
-    *(short *)(DAT_80147e2c + 0x1a2) = (short)0xfffe;        /* reverb work-area base */
-    *(short *)(DAT_80147e2c + 0x180) = 0x3fff;               /* SPU master vol L (Ghidra mis-decompiled +0x60) */
-    *(short *)(DAT_80147e2c + 0x182) = 0x3fff;               /* SPU master vol R */
-    *(unsigned short *)(DAT_80147e2c + 0x1aa) = *(unsigned short *)(DAT_80147e2c + 0x1aa) | 1;
-    iSNDpsxfxinit(DAT_8014791c);
-    DAT_80147919 = 0;
+    post = sndpd;
+    *(volatile unsigned short *)(*(volatile int *)(post + 0x514) + 0x1a2) = 0xfffe;
+    master = 0x3fff;
+    *(volatile unsigned short *)(*(volatile int *)(post + 0x514) + 0x180) = master;
+    *(volatile unsigned short *)(*(volatile int *)(post + 0x514) + 0x182) = master;
+    post_ctrl = *(volatile int *)(post + 0x514);
+    *(volatile unsigned short *)(post_ctrl + 0x1aa) =
+        *(volatile unsigned short *)(post_ctrl + 0x1aa) | 1;
+    iSNDpsxfxinit(*(int *)(post + 4));
+    *(volatile unsigned char *)(post + 1) = 0;
     addtimer((int)iSNDserver);
     if (sndpd[0] == 0) {
         addexit((int)SNDSYS_restore);

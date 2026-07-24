@@ -48,7 +48,7 @@ typedef struct {
     IntrSetter   dma_setter;                      /* +0x04 : filled by _initIntr (startIntrDMA) */
     int        (*set_cb)(unsigned int, int);      /* +0x08 : _set_intr_callback */
     IntrState *(*reset)(void);                    /* +0x0C : _initIntr */
-    long       (*stop)(void);                     /* +0x10 : StopCallback */
+    IntrState *(*stop)(void);                     /* +0x10 : StopCallback */
     IntrSetter   vsync_setter;                    /* +0x14 : filled by _initIntr (startIntrVSync) */
     void       (*restart)(void);                  /* +0x18 : RestartCallback */
     IntrState   *state;                           /* +0x1C : &g_intr */
@@ -199,18 +199,19 @@ extern "C" int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C1
     return old;
 }
 
-extern "C" void StopCallback(void)         /* @0x800F2D58 */
+extern "C" IntrState *StopCallback(void)   /* @0x800F2D58 */
 {
-    if (g_intr.inited != 0) {
-        EnterCriticalSection();
-        g_intr.saved_imask = I_MASK;
-        g_intr.saved_dpcr  = DPCR;
-        I_MASK = 0;
-        I_STAT = 0;
-        DPCR = DPCR & 0x77777777;
-        ResetEntryInt();
-        g_intr.inited = 0;
-    }
+    if (g_intr.inited == 0)
+        return 0;
+    EnterCriticalSection();
+    g_intr.saved_imask = I_MASK;
+    g_intr.saved_dpcr  = DPCR;
+    I_MASK = 0;
+    I_STAT = 0;
+    DPCR = DPCR & 0x77777777;
+    ResetEntryInt();
+    g_intr.inited = 0;
+    return &g_intr;
 }
 
 extern "C" int RestartCallback(void)       /* @0x800F2DF8 */

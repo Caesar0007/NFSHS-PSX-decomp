@@ -101,11 +101,11 @@ extern int delsystemtask(int fn)
 }
 
 /* systemtask @0x800E6C04 : once per tick, run every due task (fn(arg1, elapsed)) and re-arm it; OR of returns.
- * RESIDUAL (77 diffs, 68 vs 59 insns; was 95 diffs/64 insns before the `volatile libticks`
- * fix below): gcc-2.8 strength-reduces the 4-field slot walk into TWO induction variables
- * (base+0 for `fn`, base+8 for deadline/busy) where the oracle keeps ONE pointer + fixed
- * displacements (0/4/8/0xC). Tried: struct-typed pointer (identical codegen to flat int*
- * indexing -- not a C-shape lever, the split is gcc's own loop-strength-reduction heuristic).
+ * RESIDUAL (27 diffs, 62 vs 59 insns; was 77 diffs/68 insns): the NFS2 PC-beta
+ * body confirms indexed `slots[i]` access, which avoids gcc's split induction variables.
+ * Keeping the callback in a named local also preserves the oracle's callback register.
+ * Remaining drift is chiefly gcc hoisting the constant 1 into a saved register, which
+ * adds one save/restore pair and moves arg1 to another saved register.
  * Same class as the catalog's "GENUINE base-anchor FLOOR" (§E) -- accept. */
 struct SysTaskSlot { int fn; int period; int deadline; int busy; };
 
@@ -114,26 +114,24 @@ extern unsigned int systemtask(int arg1)
     unsigned int result = 0;
     if (gSysTaskLastTick != libticks) {
         int  i    = 0;
-        /* MATCH: a struct-typed pointer walk (vs raw int* slot[0..3] indexing) keeps ALL
-         * four field accesses as displacement offsets (0/4/8/0xC) off ONE base register --
-         * the flat-int-array form let gcc strength-reduce slot[2]/slot[3] into a SECOND
-         * induction variable (base+8), costing an extra saved register vs the oracle's
-         * single-pointer walk. */
-        struct SysTaskSlot *slot = (struct SysTaskSlot *)&systemtasksubs;
+        /* MATCH: indexed struct access follows the PC-beta source shape and keeps all
+         * four fields on one slot base in the PSX compiler's generated loop. */
+        struct SysTaskSlot *slots = (struct SysTaskSlot *)&systemtasksubs;
         gSysTaskLastTick = libticks;
         do {
-            if (slot->fn != 0 && slot->deadline <= libticks && slot->busy == 0) {
+            unsigned int (*fn)(int, int) =
+                (unsigned int (*)(int, int))slots[i].fn;
+            if (fn != 0 && slots[i].deadline <= libticks && slots[i].busy == 0) {
                 unsigned int r;
                 int          t;
-                slot->busy = 1;
-                r = ((unsigned int (*)(int, int))slot->fn)(arg1, libticks - slot->deadline);
+                slots[i].busy = 1;
+                r = fn(arg1, libticks - slots[i].deadline);
                 t = libticks;
                 result |= r;
-                slot->busy = 0;
-                slot->deadline = t + slot->period;
+                slots[i].busy = 0;
+                slots[i].deadline = t + slots[i].period;
             }
             i = i + 1;
-            slot = slot + 1;
         } while (i < 0x10);
     }
     return result;

@@ -20,71 +20,78 @@ extern int  unrefpack(unsigned char *comp, unsigned char *out, unsigned char *ds
 extern void chase(unsigned int code);                                               /* @0x800F5530 */
 
 /* unrefpack @0x800F52B8 : decompress RefPack stream `comp` into `out` (only if `dst` != 0, else size-query);
- *   returns the 24-bit uncompressed size. */
+ *   returns the 24-bit uncompressed size.
+ * RAW/ORACLE REDUCTION (146->113): the retail body mutates the incoming compressed/output cursors
+ * directly.  Removing the hdr/ip/back aliases restores the four command layouts, including the
+ * literal-run fall-through and terminator branch.  Remaining residual is dominated by the saved-reg
+ * cycle for out/op/lit plus five arithmetic/scheduling instructions. */
 extern int unrefpack(unsigned char *comp, unsigned char *out, unsigned char *dst)
 {
     int           size = 0;
+    unsigned int  lit;
     unsigned char trail[8];
     if (comp != (unsigned char *)0) {
-        unsigned int   flags = geti(comp, 4);
-        unsigned char *hdr   = comp + 2;
-        unsigned char *ip;
+        unsigned int flags = geti(comp, 4);
+        comp += 2;
         if ((flags & 1) != 0)
-            hdr = comp + 5;
-        ip   = hdr + 3;
-        size = (int)((unsigned int)hdr[0] * 0x10000 + (unsigned int)hdr[1] * 0x100 + hdr[2]);
+            comp += 3;
+        size = (int)(((unsigned int)comp[0] << 16) +
+                     ((unsigned int)comp[1] << 8) + comp[2]);
+        comp += 3;
         if (dst != (unsigned char *)0) {
             puti(trail, geti(out + size, 4), 4);          /* save the bytes at the splice point */
             for (;;) {
-                unsigned int op = geti(ip, 4);
+                unsigned int op = geti(comp, 4);
                 if ((op & 0x80) == 0) {                   /* 2-byte command */
-                    unsigned char *back;
                     unsigned int   count;
                     int            len;
-                    puti(out, geti(ip + 2, 4), 4);
-                    back  = out + (op & 3);
-                    ip    = ip + 2 + (op & 3);
-                    count = (op & 0x60) * 8 + (op >> 8 & 0xff) + 1;
+                    comp += 2;
+                    lit = op & 3;
+                    puti(out, geti(comp, 4), 4);
+                    out += lit;
+                    comp += lit;
+                    count = ((op << 3) & 0x300) + (((op >> 8) & 0xff) + 1);
                     len   = (int)(op >> 2 & 7) + 3;
-                    out   = refcpy(back, count, len);
+                    out   = refcpy(out, count, len);
                 } else if ((op & 0x40) == 0) {            /* 3-byte command */
-                    unsigned int   lit = op >> 0xe & 3;
-                    unsigned char *back;
                     unsigned int   count;
                     int            len;
-                    puti(out, geti(ip + 3, 4), 4);
-                    back  = out + lit;
-                    ip    = ip + 3 + lit;
-                    count = (op & 0x3f00) + (op >> 0x10 & 0xff) + 1;
+                    comp += 3;
+                    lit = op >> 0xe & 3;
+                    puti(out, geti(comp, 4), 4);
+                    out += lit;
+                    comp += lit;
+                    count = (((op >> 8) & 0x3f) << 8) + (((op >> 16) & 0xff) + 1);
                     len   = (int)(op & 0x3f) + 4;
-                    out   = refcpy(back, count, len);
+                    out   = refcpy(out, count, len);
                 } else if ((op & 0x20) == 0) {            /* 4-byte command */
-                    unsigned char *back;
                     unsigned int   count;
                     int            len;
-                    puti(out, geti(ip + 4, 4), 4);
-                    back  = out + (op & 3);
-                    ip    = ip + 4 + (op & 3);
-                    count = (op & 0x10) * 0x1000 + (op & 0xff00) + 1 + (op >> 0x10 & 0xff);
-                    len   = (int)((op & 0xc) * 0x40 + (op >> 0x18)) + 5;
-                    out   = refcpy(back, count, len);
+                    comp += 4;
+                    lit = op & 3;
+                    puti(out, geti(comp, 4), 4);
+                    out += lit;
+                    comp += lit;
+                    count = ((op << 12) & 0x10000) + ((op & 0xff00) + 1) +
+                            ((op >> 16) & 0xff);
+                    len   = (int)(((op << 6) & 0x300) + (op >> 24)) + 5;
+                    out   = refcpy(out, count, len);
                 } else {                                  /* literal run / terminator */
-                    ip = ip + 1;
-                    if (0xfb < (op & 0xff)) {
+                    comp += 1;
+                    if ((op & 0xff) < 0xfc) {
+                        int len = (int)((op & 0x1f) + 1) * 4;
+                        memcpyl((char *)out, (char *)comp, len);
+                        out = out + len;
+                        comp = comp + len;
+                    } else {
                         unsigned int n;
                         for (n = op & 3; n != 0; n = n - 1) {
-                            *out = *ip;
-                            ip   = ip + 1;
+                            *out = *comp;
+                            comp = comp + 1;
                             out  = out + 1;
                         }
                         puti(out, geti(trail, 4), 4);     /* restore the saved splice bytes */
                         return size;
-                    }
-                    {
-                        int len = (int)((op & 0x1f) + 1) * 4;
-                        memcpyl((char *)out, (char *)ip, len);
-                        out = out + len;
-                        ip  = ip + len;
                     }
                 }
             }

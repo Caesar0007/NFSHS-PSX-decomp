@@ -49,7 +49,7 @@ extern int  iSPCH_GetOffset16(int base, int tableBase, int index);    /* spchdat
 extern int  VoxEvent_GetFilterLengthFlag(int e);                      /* spchdata */
 extern int  iSPCH_FindBank(int key);                                  /* spchbank (returns bank index) */
 extern unsigned int iSPCH_TestSubBankBounds(int bankIdx, int subIdx); /* spchbank */
-extern int  iSPCH_UnPackSample(int bank, unsigned int sampleIdx, int *out); /* spchsamp */
+extern int  iSPCH_UnPackSample(int bank, int sampleIdx, int *out); /* spchsamp */
 extern int  iSPCH_Rand(int n);                                        /* spchrand */
 extern unsigned int iSPCH_GetRuleID(int sentence, int index);         /* spchrule */
 extern void iSPCH_RuleSet(short *sentence, int rule, int val);        /* spchrule */

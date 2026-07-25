@@ -15,7 +15,7 @@ typedef int bool;
  */
 
 extern void iSPCH_InitSample(int *out, int sampleId);              /* @0x8010B5AC */
-extern int  iSPCH_UnPackSample(int bank, unsigned int sampleIdx, int *out); /* @0x8010B5D4 */
+extern int  iSPCH_UnPackSample(int bank, int sampleIdx, int *out); /* @0x8010B5D4 */
 
 /* iSPCH_InitSample @0x8010B5AC : reset a VoxSample descriptor to "empty" (length 0, start -1, no filter,
  *   filter bytes 0xff). */
@@ -34,59 +34,57 @@ extern void iSPCH_InitSample(int *out, int sampleId)
 /* iSPCH_UnPackSample @0x8010B5D4 : decode sample `sampleIdx` of `bank` into `out`.  Reads the entry's filter
  *   bytes + start offset, follows a redirect if the entry's high bit is set, then scans forward for the next
  *   real entry (or the bank total at bank+4) to derive the length.  Returns 1 on success, 0 if out of range. */
-extern int iSPCH_UnPackSample(int bank, unsigned int sampleIdx, int *out)
+extern int iSPCH_UnPackSample(int bank, int sampleIdx, int *out)
 {
-    int            ret  = 0;
-    bool           done = false;
-    int           *pp;
-    unsigned char *entry, *nextEntry;
-    unsigned int   filterCnt;
-    int            stride;
-    int            fi, sidx;
-    int            startOff, endOff;
+    int result = 0;
+    int done = result;
+    int endOff = result;
 
-    endOff = 0;
-    iSPCH_InitSample(out, (int)sampleIdx);
-    if ((int)sampleIdx < (int)(unsigned int)*(unsigned char *)(bank + 3)) {
-        unsigned char flagByte = *(unsigned char *)(bank + 2);
-        filterCnt = flagByte & 0xf;
-        stride    = (int)filterCnt + 2;
-        out[2]    = (int)filterCnt;
-        entry     = (unsigned char *)(bank + 8 + (int)sampleIdx * stride);
-        pp        = out;
-        if ((flagByte & 0xf) != 0) {                 /* copy the filter bytes into out[0xc..] */
-            fi = 0;
+    iSPCH_InitSample(out, sampleIdx);
+    if (sampleIdx < (int)*(unsigned char *)(bank + 3)) {
+        int filterCnt = *(unsigned char *)(bank + 2) & 0xf;
+        int stride = filterCnt + 2;
+        unsigned char *entry = (unsigned char *)(bank + 8);
+        int i = 0;
+
+        entry = entry + sampleIdx * stride;
+        out[2] = filterCnt;
+        if (i < filterCnt) {
             do {
-                int srcIx = fi + 2;
-                fi = fi + 1;
-                *(unsigned char *)(pp + 3) = entry[srcIx];
-                pp = (int *)((int)out + fi);
-            } while (fi < (int)filterCnt);
+                *((unsigned char *)out + i + 0xc) = entry[i + 2];
+                i = i + 1;
+            } while (i < filterCnt);
         }
-        if ((*entry & 0x80) != 0) {                  /* redirect to a shared entry */
-            sampleIdx = (unsigned int)entry[1];
-            entry = (unsigned char *)(bank + 8 + (int)sampleIdx * stride);
+
+        if ((*entry & 0x80) != 0) {
+            sampleIdx = entry[1];
+            entry = (unsigned char *)(bank + 8);
+            entry = entry + sampleIdx * stride;
         }
-        nextEntry = entry + stride;
-        sidx      = (int)sampleIdx + 1;
-        startOff  = (unsigned int)*entry * 0x100 + (unsigned int)entry[1];
-        out[1]    = startOff * 0x100;
-        while (!done) {                               /* find the next real entry -> end offset */
-            if (sidx < (int)(unsigned int)*(unsigned char *)(bank + 3)) {
-                if ((*nextEntry & 0x80) == 0) {
-                    done = true;
-                    endOff = ((unsigned int)*nextEntry * 0x100 + (unsigned int)nextEntry[1]) * 0x100;
-                } else {
+
+        {
+            unsigned char *nextEntry = entry + stride;
+            int nextIndex = sampleIdx + 1;
+            int startOff =
+                ((int)entry[0] * 0x100 + (int)entry[1]) * 0x100;
+
+            out[1] = startOff;
+            while (!done) {
+                if ((int)*(unsigned char *)(bank + 3) <= nextIndex) {
+                    done = 1;
+                    endOff = (int)*(unsigned short *)(bank + 4) << 8;
+                } else if ((*nextEntry & 0x80) != 0) {
                     nextEntry = nextEntry + stride;
-                    sidx = sidx + 1;
+                    nextIndex = nextIndex + 1;
+                } else {
+                    done = 1;
+                    endOff =
+                        ((int)nextEntry[0] * 0x100 + (int)nextEntry[1]) * 0x100;
                 }
-            } else {
-                done = true;
-                endOff = (int)((unsigned int)*(unsigned short *)(bank + 4) << 8);
             }
+            *out = endOff - startOff;
         }
-        *out = endOff + startOff * -0x100;
-        ret  = 1;
+        result = 1;
     }
-    return ret;
+    return result;
 }

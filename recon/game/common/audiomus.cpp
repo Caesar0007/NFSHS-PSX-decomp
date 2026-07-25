@@ -229,14 +229,11 @@ void AudioMus_QueueRequestedSong(void)
 /* ---- AudioMus_SetEntry__FP19AudioMus_tSongEntry  [@0x8007a308] ---- */
 void AudioMus_SetEntry(AudioMus_tSongEntry *info)
 {
-  int titlechar;
-  int havefile;
-  char*p;
   char cVar1;
   bool bVar2;
   int iVar3;
   char *pcVar4;
-  
+
   pcVar4 = info->filename;
   iVar3 = 0;
   info->artist = (char *)0x0;
@@ -244,29 +241,30 @@ void AudioMus_SetEntry(AudioMus_tSongEntry *info)
   info->date = (char *)0x0;
   info->notes = (char *)0x0;
   cVar1 = *pcVar4;
-  bVar2 = false;
-  do {
-    if (cVar1 == '\0') {
-LAB_8007a37c:
-      info->strbuf[iVar3] = '\0';
-      info->title = info->strbuf;
-      return;
-    }
-    if (cVar1 == '-') {
-      if (bVar2) {
-        info->artist = pcVar4 + 1;
-        goto LAB_8007a37c;
+  if (cVar1 != '\0') {   /* loop-rotated: oracle tests the FIRST char once up-front, then the */
+    bVar2 = false;       /* back-edge test is the ONLY other '\0' check (matches the rotated */
+    do {                 /* while-loop gcc emits for a plain `while` — see methodology §3.12#15a) */
+      if (cVar1 == '-') {
+        if (!bVar2) {
+          bVar2 = true;
+          iVar3 = 0;
+        }
+        else {
+          info->artist = pcVar4 + 1;
+          goto LAB_8007a37c;
+        }
       }
-      bVar2 = true;
-      iVar3 = 0;
-    }
-    else if (iVar3 < 0x1f) {
-      info->strbuf[iVar3] = cVar1;
-      iVar3 = iVar3 + 1;
-    }
-    pcVar4 = pcVar4 + 1;
-    cVar1 = *pcVar4;
-  } while( true );
+      else if (iVar3 < 0x1f) {
+        info->strbuf[iVar3] = cVar1;
+        iVar3 = iVar3 + 1;
+      }
+      pcVar4 = pcVar4 + 1;
+      cVar1 = *pcVar4;
+    } while (cVar1 != '\0');
+  }
+LAB_8007a37c:
+  info->strbuf[iVar3] = '\0';
+  info->title = info->strbuf;
 }
 
 /* ---- AudioMus_SetCurrentSongInfo__Fv  [@0x8007a390] ---- */

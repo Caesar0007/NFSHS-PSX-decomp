@@ -320,58 +320,73 @@ extern unsigned int filterchunk(int s, int chunk)
 extern int parsechunks(int s)
 {
     int   bvar1;
-    int   iVar2, iVar4;
-    unsigned int uVar3, uVar5;
+    int   consumer;
+    int   consumerCount;
+    int   level;
+    unsigned int fillptr, uVar5;
     int  *chunk;
+    int  *originalChunk;
     int   reqcur;
     int   sr;
+    int   freeTag;
 
-    uVar3   = MU(s, 0x48);                      /* fillptr */
+    fillptr = MU(s, 0x48);
     chunk   = *(int **)(s + 0x44);              /* writeptr */
     reqcur  = MI(s, 0x50);                      /* current request */
-    iVar2   = uVar3 - (int)chunk;
+    if ((int)(fillptr - (int)chunk) < 8)
+        return 0;
+    freeTag = -2;
 
     while (1) {
-        if (iVar2 < 8 || ((uVar5 = chunk[1], (uVar5 & 0xff000000) != 0)) ||
-            uVar3 < (unsigned int)((int)chunk + uVar5))
-            return 0;                           /* incomplete / malformed chunk */
+        uVar5 = chunk[1];
+        originalChunk = chunk;
+        if ((uVar5 & 0xff000000) != 0)
+            goto malformed;
+        if (fillptr < (unsigned int)((int)chunk + uVar5))
+            goto malformed;
 
-        uVar3 = filterchunk(s, (int)chunk);
-        if ((int)uVar3 < 0) {                   /* no consumer (skip) */
+        consumer = filterchunk(s, (int)chunk);
+        if (consumer < 0) {                     /* no consumer (skip) */
             sr = STREAM_enterCS();
             bvar1 = (MI(reqcur, 4) == 4);       /* request cancelled? */
             if (!bvar1) {
-                chunk[0] = -2;                  /* mark chunk free */
+                chunk[0] = freeTag;             /* mark chunk free */
                 MI(s, 0x44) += uVar5;           /* advance writeptr */
             }
             STREAM_leaveCS(sr);
         } else {                                /* routed to consumer uVar3 */
-            chunk[1] = chunk[1] | (uVar3 << 0x18);
+            chunk[1] = chunk[1] | (consumer << 0x18);
             sr = STREAM_enterCS();
             bvar1 = (MI(reqcur, 4) == 4);
             if (!bvar1) {
-                int cons = MI(s, 0x18) + uVar3 * 0x10 - 0x10;  /* consumer slot */
-                uVar3 = MI(cons, 8) + uVar5;
-                MI(cons, 8) = uVar3;            /* consumer.count += len */
-                if (uVar3 == uVar5)             /* first chunk for this consumer */
+                int consOffset = (consumer << 4) - 0x10;
+                int cons = MI(s, 0x18) + consOffset; /* consumer slot */
+                int oldUsage;
+                int newUsage;
+                consumerCount = MI(cons, 8) + uVar5;
+                MI(cons, 8) = consumerCount;    /* consumer.count += len */
+                if (consumerCount == uVar5)     /* first chunk for this consumer */
                     MI(cons, 0xc) = (int)chunk; /* readcursor = chunk */
                 MI(s, 0x44) += uVar5;           /* advance writeptr */
-                iVar2 = MI(s, 0x3c);
-                iVar4 = iVar2 + uVar5;
-                MI(s, 0x3c) = iVar4;            /* bufusage += len */
-                if (iVar2 < MI(s, 0x34) && MI(s, 0x34) <= iVar4)
+                oldUsage = MI(s, 0x3c);
+                level = MI(s, 0x34);
+                newUsage = oldUsage + uVar5;
+                MI(s, 0x3c) = newUsage;         /* bufusage += len */
+                if (oldUsage < level && level <= newUsage)
                     MI(s, 0x38) = 0;            /* crossed greedy level -> greedy off */
             }
             STREAM_leaveCS(sr);
         }
         if (bvar1)
             break;
-        if (chunk[0] == MI(reqcur, 0x5c))       /* reached end-of-stream id */
+        if (originalChunk[0] == MI(reqcur, 0x5c)) /* reached end-of-stream id */
             return 1;
-        uVar3  = MU(s, 0x48);
+        fillptr = MU(s, 0x48);
         chunk  = *(int **)(s + 0x44);
-        iVar2  = uVar3 - (int)chunk;
+        if ((int)(fillptr - (int)chunk) < 8)
+            return 0;
     }
+malformed:
     return 0;
 }
 

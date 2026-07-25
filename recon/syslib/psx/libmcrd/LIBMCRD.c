@@ -21,50 +21,51 @@ struct DIRENTRY {
     char            name[20];
     unsigned long   attr;
     unsigned long   size;
-    DIRENTRY       *next;
+    struct DIRENTRY       *next;
     unsigned long   head;
     char            system[4];
 };
+typedef struct DIRENTRY DIRENTRY;
 
 /* ---- BIOS.OBJ event layer (same library) ----------------------------------------------------- */
-extern "C" void _card_open(int pad_enable);     /* @0x801095F0 */
-extern "C" void _card_close(void);              /* @0x801097FC */
-extern "C" void _card_start(void);              /* @0x80109620 */
-extern "C" void _card_stop(void);               /* @0x8010981C */
-extern "C" void _clr_card_event(void);          /* @0x801098D0 */
-extern "C" int  _get_card_event(void);          /* @0x801099D8 -> event-class index */
-extern "C" int  _get_card_event_x(void);        /* @0x80109AB0 */
-extern "C" int  _chk_card_event(void);          /* @0x80109B88 -> combined slot-0 flags */
-extern "C" int  _chk_card_event_x(void);        /* @0x80109BC4 */
+extern void _card_open(int pad_enable);     /* @0x801095F0 */
+extern void _card_close(void);              /* @0x801097FC */
+extern void _card_start(void);              /* @0x80109620 */
+extern void _card_stop(void);               /* @0x8010981C */
+extern void _clr_card_event(void);          /* @0x801098D0 */
+extern int  _get_card_event(void);          /* @0x801099D8 -> event-class index */
+extern int  _get_card_event_x(void);        /* @0x80109AB0 */
+extern int  _chk_card_event(void);          /* @0x80109B88 -> combined slot-0 flags */
+extern int  _chk_card_event_x(void);        /* @0x80109BC4 */
 
 /* ---- USERFUNC.OBJ callback stack ------------------------------------------------------------- */
-extern "C" void UserFuncInit(void);             /* @0x80109C00 */
-extern "C" void UserFuncOpen(int func);         /* @0x80109C10 */
-extern "C" void UserFuncExecute(void);          /* @0x80109C8C */
-extern "C" int  UserFuncComplete(void);         /* @0x80109CF8 */
+extern void UserFuncInit(void);             /* @0x80109C00 */
+extern void UserFuncOpen(int func);         /* @0x80109C10 */
+extern void UserFuncExecute(void);          /* @0x80109C8C */
+extern int  UserFuncComplete(void);         /* @0x80109CF8 */
 
 /* ---- libetc VSync callback table ------------------------------------------------------------- */
-extern "C" int  VSyncCallbacks(int idx, int func);   /* @0x800F2910 */
+extern int  VSyncCallbacks(int idx, int func);   /* @0x800F2910 */
 
 /* ---- libcard.lib low-level file / card primitives -------------------------------------------- */
-extern "C" int  open(const char *name, int flag);            /* @0x80109D70 */
-extern "C" int  close(int fd);                               /* @0x80109D80 */
-extern "C" int  lseek(int fd, int ofs, int whence);          /* @0x80109D90 */
-extern "C" int  read(int fd, void *buf, int n);              /* @0x80109DA0 */
-extern "C" int  write(int fd, void *buf, int n);             /* @0x80109DB0 */
-extern "C" DIRENTRY *firstfile(const char *name, DIRENTRY *dir); /* @0x80109DC0 */
-extern "C" DIRENTRY *nextfile(DIRENTRY *dir);                /* @0x8010A060 */
-extern "C" int  erase(const char *name);                     /* @0x8010A070 */
-extern "C" int  format(const char *name);                    /* @0x8010A080 */
-extern "C" void _new_card(void);                             /* @0x8010A090 */
-extern "C" int  _card_write(int chan, int blk, void *buf);   /* @0x8010A0A0 */
-extern "C" int  _card_info(int chan);                        /* @0x80109D10 */
-extern "C" int  _card_clear(int chan);                       /* @0x80109D20 */
-extern "C" int  _card_load(int chan);                        /* @0x80109D60 */
+extern int  open(const char *name, int flag);            /* @0x80109D70 */
+extern int  close(int fd);                               /* @0x80109D80 */
+extern int  lseek(int fd, int ofs, int whence);          /* @0x80109D90 */
+extern int  read(int fd, void *buf, int n);              /* @0x80109DA0 */
+extern int  write(int fd, void *buf, int n);             /* @0x80109DB0 */
+extern DIRENTRY *firstfile(const char *name, DIRENTRY *dir); /* @0x80109DC0 */
+extern DIRENTRY *nextfile(DIRENTRY *dir);                /* @0x8010A060 */
+extern int  erase(const char *name);                     /* @0x8010A070 */
+extern int  format(const char *name);                    /* @0x8010A080 */
+extern void _new_card(void);                             /* @0x8010A090 */
+extern int  _card_write(int chan, int blk, void *buf);   /* @0x8010A0A0 */
+extern int  _card_info(int chan);                        /* @0x80109D10 */
+extern int  _card_clear(int chan);                       /* @0x80109D20 */
+extern int  _card_load(int chan);                        /* @0x80109D60 */
 
 /* ---- libc ------------------------------------------------------------------------------------ */
-extern "C" int   printf(const char *fmt, ...);               /* libc C63 */
-extern "C" char *strcat(char *dst, const char *src);         /* libc C21 @0x800E78E8 */
+extern int   printf(const char *fmt, ...);               /* libc C63 */
+extern char *strcat(char *dst, const char *src);         /* libc C21 @0x800E78E8 */
 
 /* =================================  module state (.bss)  ====================================== */
 /* The 19 _mc_* globals @0x80147500-0x8014756F are ONE 0x70-byte aggregate in the original source,
@@ -114,6 +115,7 @@ struct McState {
     int   _rsvd2;                              /* +0x68 @0x80147568 : UNREFERENCED (same as _rsvd1) */
     int (*save_cb)(int, int);                   /* +0x6C @0x8014756C : callback saved across nested sync */
 };
+typedef struct McState McState;
 static McState mc;                       /* @0x80147500 */
 
 static int   _mc_rd_retry;               /* @0x80136CB8 : MemCardReadData retry counter */
@@ -127,7 +129,7 @@ static int   _mc_wf_retry;               /* @0x80136CC4 : MemCardWriteFile retry
  * can never find the oracle's bare-name block ("NOT IN OBJECT" forever). `static`+`extern "C"`
  * can't combine as adjacent storage-class specifiers on this compiler -- wrap in `extern "C" { }`
  * instead (same fix as libetc/INTR.cpp's `_bzero_w`). */
-extern "C" {
+
 static uint MemCardMakeDevname(int chan, char *str);
 static uint MemCardEventToRslt(uint ev);
 static int  MemCardExist_cb(void *pv);
@@ -137,14 +139,14 @@ static int  MemCardWriteData_cb(void *pv);
 static int  MemCardReadFile_cb(void *pv);
 static int  MemCardWriteFile_cb(void *pv);
 static void MemCardStart_cb(void);
-}   /* extern "C" */
+   /* extern "C" */
 
-extern "C" long MemCardSync(long mode, int *cmds, int *result);
-extern "C" int  MemCardCallback(int func);
+extern long MemCardSync(long mode, int *cmds, int *result);
+extern int  MemCardCallback(int func);
 
 /* =================================  static helpers  =========================================== */
 
-extern "C" {
+
 
 /* @0x800FC11C : translate a raw card event-class index into a libmcrd result code. */
 static uint MemCardEventToRslt(uint ev)
@@ -173,8 +175,10 @@ done:
 /* @0x800FC1F4 : build the "buNN:" device prefix for channel `chan` into `str`. */
 static uint MemCardMakeDevname(int chan, char *str)
 {
+    int q;
+    int lo;
     int t = chan;
-    int q, lo;
+
     if (chan < 0)
         t = chan + 0xf;                 /* signed divide-by-16 round-toward-zero */
     q  = t >> 4;
@@ -310,9 +314,11 @@ static int MemCardCmd_cb(void *pv)
 /* @0x800FB118 : MemCardReadData transfer step. */
 static int MemCardReadData_cb(void *pv)
 {
+    int ev;
+    int r;
     int *st = (int *)pv;
     int state = st[0];
-    int ev, r;
+
 
     if (state != 10) {
         if (state > 10) {
@@ -340,9 +346,11 @@ static int MemCardReadData_cb(void *pv)
 /* @0x800FB30C : MemCardWriteData transfer step. */
 static int MemCardWriteData_cb(void *pv)
 {
+    int ev;
+    int r;
     int *st = (int *)pv;
     int state = st[0];
-    int ev, r;
+
 
     if (state == 10) {
         do { r = lseek(mc.fd, mc.ofs, 0); } while (r != mc.ofs);
@@ -449,12 +457,12 @@ static void MemCardStart_cb(void)
     }
 }
 
-}   /* extern "C" */
+   /* extern "C" */
 
 /* =================================  public API  =============================================== */
 
 /* @0x800FAAAC : MemCardInit -- bring up the card subsystem. */
-extern "C" void MemCardInit(int val)
+extern void MemCardInit(int val)
 {
     /* NEAR-MISS (11/11 insns, differs only in base-register reuse): the oracle re-materializes a
      * fresh %hi/%lo per field here (two independent $at-based stores) rather than reusing one base
@@ -469,16 +477,17 @@ extern "C" void MemCardInit(int val)
 }
 
 /* @0x800FAAD8 : MemCardEnd. */
-extern "C" void MemCardEnd(void)
+extern void MemCardEnd(void)
 {
     _card_close();
 }
 
 /* @0x800FAAF8 : MemCardStart -- arm the command engine and install the VSync pump. */
-extern "C" void MemCardStart(void)
+extern void MemCardStart(void)
 {
+    int * base;
     UserFuncInit();
-    int *base = &mc.cmd;                /* anchor = &cmd; fd reached at base+0x10 (skips chan) */
+    base = &mc.cmd;
     __asm__ __volatile__("" : "+r"(base));
     base[0] = 0;    /* cmd  */
     base[1] = 0;    /* rslt */
@@ -489,7 +498,7 @@ extern "C" void MemCardStart(void)
 }
 
 /* @0x800FAB48 : MemCardStop -- drain any pending command, remove the pump. */
-extern "C" void MemCardStop(void)
+extern void MemCardStop(void)
 {
     /* NEAR-MISS (16/16 insns): the oracle hoists &_mc_cmd OUTSIDE the spin loop (one lui/addiu,
      * reused every pass) while a plain re-read of `mc.cmd` recomputes the address fresh each
@@ -510,7 +519,7 @@ extern "C" void MemCardStop(void)
  * MATCH: the oracle materializes &_mc_cmd ONCE at entry ($v1) and reuses it for the guard READ
  * and all four field WRITES (cmd/rslt/done/chan at +0/+4/+8/+C) -- the early-base-pointer-hoist
  * lever (fence a local pointer at the field the oracle anchors on, index the rest from it). */
-extern "C" long MemCardExist(long chan)
+extern long MemCardExist(long chan)
 {
     int *base = &mc.cmd;
     __asm__ __volatile__("" : "+r"(base));
@@ -528,7 +537,7 @@ extern "C" long MemCardExist(long chan)
 
 /* @0x800FADC4 : MemCardAccept -- begin an async "accept/clear the card on chan". Same base-reuse
  * shape as MemCardExist above. */
-extern "C" long MemCardAccept(long chan)
+extern long MemCardAccept(long chan)
 {
     int *base = &mc.cmd;
     __asm__ __volatile__("" : "+r"(base));
@@ -545,7 +554,7 @@ extern "C" long MemCardAccept(long chan)
 }
 
 /* @0x800FB060 : MemCardReadData -- async read into adrs (offset/length must be 128-byte aligned). */
-extern "C" long MemCardReadData(unsigned long *adrs, long ofs, long bytes)
+extern long MemCardReadData(unsigned long *adrs, long ofs, long bytes)
 {
     /* MATCH: the oracle anchors on &_mc_fd ($a3) and reaches cmd/rslt/done via NEGATIVE offsets
      * (-0x10/-0xc/-0x8) and ofs/len/adrs via POSITIVE ones (+4/+8/+0xc) from that SAME base --
@@ -579,7 +588,7 @@ extern "C" long MemCardReadData(unsigned long *adrs, long ofs, long bytes)
 }
 
 /* @0x800FB254 : MemCardWriteData -- async write from adrs. */
-extern "C" long MemCardWriteData(unsigned long *adrs, long ofs, long bytes)
+extern long MemCardWriteData(unsigned long *adrs, long ofs, long bytes)
 {
     /* MATCH shape: see MemCardReadData above (same anchor-on-&_mc_fd pattern). */
     const char *fmt;
@@ -611,7 +620,7 @@ extern "C" long MemCardWriteData(unsigned long *adrs, long ofs, long bytes)
 }
 
 /* @0x800FB448 : MemCardReadFile -- async open+read of a named card file. */
-extern "C" long MemCardReadFile(long chan, char *file, unsigned long *adrs, long ofs, long bytes)
+extern long MemCardReadFile(long chan, char *file, unsigned long *adrs, long ofs, long bytes)
 {
     const char *fmt;
     if (mc.cmd < 1) {
@@ -645,7 +654,7 @@ extern "C" long MemCardReadFile(long chan, char *file, unsigned long *adrs, long
 }
 
 /* @0x800FB668 : MemCardWriteFile -- async open+write of a named card file. */
-extern "C" long MemCardWriteFile(long chan, char *file, unsigned long *adrs, long ofs, long bytes)
+extern long MemCardWriteFile(long chan, char *file, unsigned long *adrs, long ofs, long bytes)
 {
     const char *fmt;
     if (mc.cmd < 1) {
@@ -679,7 +688,7 @@ extern "C" long MemCardWriteFile(long chan, char *file, unsigned long *adrs, lon
 }
 
 /* @0x800FB888 : MemCardGetDirentry -- synchronous directory listing (max files into dir[]). */
-extern "C" long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
+extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
                                    long ofs, long max)
 {
     char     devname[32];
@@ -754,25 +763,28 @@ have_entry:
 }
 
 /* @0x800FBAE8 : MemCardCallback -- install completion callback, return the previous one. */
-extern "C" int MemCardCallback(int func)
+extern int MemCardCallback(int func)
 {
+    int prev;
     typedef int (*CbT)(int, int);
     CbT *p = &mc.callback;
     __asm__ __volatile__("" : "+r"(p));
-    int prev = (int)p[0];
+    prev = (int)p[0];
     p[0] = (CbT)func;
     return prev;
 }
 
 /* @0x800FBAFC : MemCardSync -- poll (mode!=0) or block (mode==0) for command completion. */
-extern "C" long MemCardSync(long mode, int *cmds, int *result)
+extern long MemCardSync(long mode, int *cmds, int *result)
 {
+    int rslt;
+    int cmd;
     /* MATCH: anchor = &_mc_cmd; cmd/rslt/done all reached by offset from it, and sync_cmd/
      * sync_rslt (0x560/0x564, cmd+0x48/+0x4C) likewise -- one shared base for the whole fn. */
     int *base = &mc.cmd;
     __asm__ __volatile__("" : "+r"(base));
-    int cmd  = base[0];
-    int rslt = base[1];
+    cmd = base[0];
+    rslt = base[1];
 
     if (base[0] == 0 && base[2] == 0)
         return -1;                          /* nothing in flight */
@@ -799,7 +811,7 @@ extern "C" long MemCardSync(long mode, int *cmds, int *result)
 }
 
 /* @0x800FBC18 : MemCardCreateFile -- synchronously create a `blocks`-block file. */
-extern "C" long MemCardCreateFile(long chan, char *file, long blocks)
+extern long MemCardCreateFile(long chan, char *file, long blocks)
 {
     char devname[32];
     int  fd;
@@ -858,7 +870,7 @@ extern "C" long MemCardCreateFile(long chan, char *file, long blocks)
 }
 
 /* @0x800FBE20 : MemCardDeleteFile -- synchronously erase a named file. */
-extern "C" long MemCardDeleteFile(long chan, char *file)
+extern long MemCardDeleteFile(long chan, char *file)
 {
     char devname[32];
     int  retry;
@@ -905,7 +917,7 @@ extern "C" long MemCardDeleteFile(long chan, char *file)
 }
 
 /* @0x800FBFDC : MemCardFormat -- synchronously format the card on chan. */
-extern "C" long MemCardFormat(long chan)
+extern long MemCardFormat(long chan)
 {
     char devname[64];
     int  ev;
@@ -926,7 +938,7 @@ extern "C" long MemCardFormat(long chan)
 }
 
 /* @0x800FC068 : MemCardUnformat -- low-level "unformat" by writing 0xFF blocks 0..14. */
-extern "C" long MemCardUnformat(long chan)
+extern long MemCardUnformat(long chan)
 {
     unsigned char buf[128];
     int  blk;

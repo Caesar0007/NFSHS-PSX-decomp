@@ -102,7 +102,7 @@ PER_TU_FLAGS = {
     "recon/syslib/psx/libgpu/FONT.cpp":     {"jtbl_at_fusion": True},  # FntPrint
     "recon/game/common/aih_cop.cpp":        {"jtbl_at_fusion": True},  # HighExecute__10AIHigh_Cop
     "recon/game/common/aih_traf.cpp":       {"jtbl_at_fusion": True},  # HighExecute__14AIHigh_Traffic
-    "recon/syslib/psx/libmcrd/LIBMCRD.cpp": {"jtbl_at_fusion": True},  # MemCardCmd_cb
+    "recon/syslib/psx/libmcrd/LIBMCRD.c": {"jtbl_at_fusion": True},  # MemCardCmd_cb
     "recon/syslib/psx/libpad/PADENTRY.c":   {"jtbl_at_fusion": True},  # PadInfoAct
     "recon/game/common/r3dcar.cpp":         {"jtbl_at_fusion": True},  # R3DCar_InsertCarFacet
     "recon/game/common/replay.cpp":         {"jtbl_at_fusion": True},  # Replay_GetInterfaceKey
@@ -233,7 +233,7 @@ PER_FN_NO_DELAYED_BRANCH = {
     # splice mechanism is a no-op here. FAIL 3 unchanged. The real fix needs
     # maspsx-side ASPSX-style slot-filling (a different, not-yet-built lever
     # per methodology §3.25.3b), not this dual-compile splice. Not added.
-    "recon/syslib/psx/libmcrd/LIBMCRD.cpp": {
+    "recon/syslib/psx/libmcrd/LIBMCRD.c": {
         "MemCardEnd",
         # tried + reverted (Tier-2, interior branches/multi-jal, none reach PASS):
         #   MemCardStart        FAIL 8->6   (improved but not PASS; multi-jal

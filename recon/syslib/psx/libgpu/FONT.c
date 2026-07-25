@@ -1,5 +1,16 @@
-/* syslib/psx/libgpu/FONT.cpp -- RECONSTRUCTED from nfs4-f.exe (Ghidra + disasm-v3; Ghidra
+/* syslib/psx/libgpu/FONT.c -- RECONSTRUCTED from nfs4-f.exe (Ghidra + disasm-v3; Ghidra
  *   mangled the id-bounds checks).  obj libgpu.lib(FONT.OBJ): the PsyQ debug-font printer.
+ *
+ *   COMPILED AS C by USER RULING (2026-07-25, uniformity over diff count): cc1plus (C++) measured
+ *   strictly better per-fn diff counts than cc1 (C) on this TU -- FntFlush 252->350 (w26-a1
+ *   dual-compile audit). Migrated anyway for source-uniformity across syslib/eaclib. Do NOT revert
+ *   to .cpp without a user decision; see recon/syslib/psx/libcd/cdread.c,
+ *   recon/syslib/psx/libcd/iso9660.c and recon/eaclib/psx/eacpsxz/cdfs.c for the sibling KEEP-CPP-
+ *   turned-uniform TUs (same ruling, same date). C89 dialect fix note: `bool wrap` -> `int wrap`
+ *   (no bool keyword in C89) and FntFlush's post-`if` locals (ot/text/p/curx/cury/boty/remain/
+ *   autoupd/rightx) hoisted to plain declarations at function top with their computation moved to
+ *   separate assignment statements after `fs = &_fnt[id];` (C89 forbids declarations after
+ *   statements in the same block; the original interspersed decl+init form is C++-only).
  *
  *   A FntStream (0x30 B, array @0x80135E58, count @0x80135FD8, active id @0x80135FDC) is a
  *   self-describing text overlay: its first 16 bytes double as a TILE background-box primitive
@@ -19,10 +30,10 @@ typedef unsigned short u_short;
 #include <stdarg.h>
 #include <stddef.h>   /* NULL */
 
-extern "C" void  TermPrim(void *p);          /* libgpu P09 @0x80107020 */
-extern "C" void  AddPrim(void *ot, void *p); /* libgpu P06 @0x80107040 */
-extern "C" void  DrawOTag(u_long *ot);       /* libgpu SYS @0x800EDCB4 */
-extern "C" unsigned strlen(const char *s);   /* libc C27 (returns int in the original) */
+extern void  TermPrim(void *p);          /* libgpu P09 @0x80107020 */
+extern void  AddPrim(void *ot, void *p); /* libgpu P06 @0x80107040 */
+extern void  DrawOTag(u_long *ot);       /* libgpu SYS @0x800EDCB4 */
+extern unsigned strlen(const char *s);   /* libc C27 (returns int in the original) */
 
 struct FntStream {              /* 0x30 bytes; @0x80135E58 + id*0x30 */
     u_long tag;                 /* +0x00 : TILE bg-box tag */
@@ -37,6 +48,7 @@ struct FntStream {              /* 0x30 bytes; @0x80135E58 + id*0x30 */
     int    textlen;             /* +0x28 : current text length */
     int    autoupd;             /* +0x2C : auto-fit the clip box to the text */
 };
+typedef struct FntStream FntStream;
 
 extern FntStream _fnt[8];       /* @0x80135E58 : open font streams */
 extern int _fnt_count;          /* @0x80135FD8 : number of open streams */
@@ -69,11 +81,22 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
  * re-trying (1)/(2). NOTE: `boty` is a dead end for the $s2-pressure theory -- it's
  * stack-cached in BOTH builds (never register-resident in the oracle either), so
  * eliminating its local won't free a register. */
-extern "C" u_long *FntFlush(int id)
+extern u_long *FntFlush(int id)
 {
     FntStream *fs;
     int r = 0x80, g = 0x80, b = 0x80;   /* default glyph colour */
     int   maxx = 0;
+    u_long *ot;                /* address escapes across the AddPrim/DrawOTag calls below --
+                                 * high register pressure spills it to the stack (reloaded at
+                                 * each use), rather than the cheaper fs+0x10 rematerialization. */
+    u_char *text;
+    u_char *p;
+    int   curx;
+    int   cury;
+    int   boty;
+    int   remain;
+    int   autoupd;
+    int   rightx;
 
     if (!(id >= 0 && id < _fnt_count)) {
         FntStream *act = &_fnt[_fnt_active];
@@ -82,34 +105,34 @@ extern "C" u_long *FntFlush(int id)
         id = _fnt_active;
     }
     fs = &_fnt[id];
-    u_long *ot = &fs->ot;      /* address escapes across the AddPrim/DrawOTag calls below --
-                                 * high register pressure spills it to the stack (reloaded at
-                                 * each use), rather than the cheaper fs+0x10 rematerialization. */
+    ot = &fs->ot;
 
-    u_char *text  = (u_char *)fs->textbuf;
-    u_char *p     = (u_char *)fs->primbuf;
-    int   curx    = fs->x;
-    int   cury    = fs->y;
-    int   boty    = cury + fs->h;
-    int   remain  = fs->maxchars;
-    int   autoupd = fs->autoupd;
-    int   rightx  = fs->x + fs->w;
+    text    = (u_char *)fs->textbuf;
+    p       = (u_char *)fs->primbuf;
+    curx    = fs->x;
+    cury    = fs->y;
+    boty    = cury + fs->h;
+    remain  = fs->maxchars;
+    autoupd = fs->autoupd;
+    rightx  = fs->x + fs->w;
 
     TermPrim(ot);
     for (; *text != 0; remain--) {
+        u_char  c;
+        int     wrap = 0;
+        u_char *next;
         if (remain == 0) break;
-        u_char  c    = *text;
-        bool    wrap = false;
-        u_char *next = text;
+        c    = *text;
+        next = text;
         if (c == 0x20) {                              /* space */
             curx += 8;
-            if (curx >= rightx && autoupd == 0) wrap = true;
+            if (curx >= rightx && autoupd == 0) wrap = 1;
         } else if (c < '!') {
             if (c == 9) {                             /* tab */
                 curx += 0x20;
-                if (curx >= rightx && autoupd == 0) wrap = true;
+                if (curx >= rightx && autoupd == 0) wrap = 1;
             } else if (c == 10) {                     /* newline */
-                wrap = true;
+                wrap = 1;
             } else {
                 goto render;
             }
@@ -137,7 +160,7 @@ render:
                 p += 0x10;
             }
             curx += 8;
-            if (curx >= rightx && autoupd == 0) wrap = true;
+            if (curx >= rightx && autoupd == 0) wrap = 1;
         }
         if (wrap) {
             if (maxx < curx) maxx = curx;
@@ -184,7 +207,7 @@ render:
         return -1;                                                          \
     }
 
-extern "C" int FntPrint(const char *id, ...)
+extern int FntPrint(const char *id, ...)
 {
     char buf[0x200];
     va_list args;

@@ -3121,7 +3121,9 @@ struct camera_info {   /* 272 bytes */
     char               zooming : 2;   /* +0x77 bit 1 */
     char               inCar : 1;   /* +0x77 bit 3 */
     short              circleCounter, circleAngle;   /* +0x78 */
-    char               animNum, animHandle, splineMode;   /* +0x7C */
+    char               animNum;   /* +0x7C */
+    signed char        animHandle;   /* +0x7D */
+    char               splineMode;   /* +0x7E */
     int                forceFocus;   /* +0x80 */
     char               focusOnAICar;   /* +0x84 */
     int                POInhibitor;   /* +0x88 */

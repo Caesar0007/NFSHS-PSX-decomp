@@ -637,10 +637,7 @@ extern "C" int Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coord
   normal->y = iVar1;
   normal->x = iVar2;
   normal->z = iVar3;
-  if (iVar1 < 0x199a) {
-    iVar1 = -0x7d000000;
-  }
-  else {
+  if (0x199a <= iVar1) {
     iVar1 = Newton_FindGroundElevationGeneral((coorddef *)(newtonObj + 0xa0),normal,(coorddef *)(newtonObj + 0x168));
     uVar4 = *(u_int *)(newtonObj + 0xa0);
     uVar5 = *(u_int *)(newtonObj + 0xa8);
@@ -687,6 +684,9 @@ extern "C" int Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coord
     *(int *)(newtonObj + 0x2d0) = iVar2;
     *(int *)(newtonObj + 0x300) = iVar2;
     *(int *)(newtonObj + 0x330) = iVar2;
+  }
+  else {
+    iVar1 = -0x7d000000;
   }
   return iVar1;
 }
@@ -1364,10 +1364,7 @@ int Newton_CalcPerpenHeightOfCenterPointFromGround(BO_tNewtonObj *newtonObj,coor
   relativePos.z = (newtonObj->position).z - samplePoint->z;
   relativeDot = fixedmult(normal->x,relativePos.x) + fixedmult(normal->y,relativePos.y) +
                 fixedmult(normal->z,relativePos.z);
-  iVar1 = (newtonObj->orientationToGround).y;
-  if (iVar1 < 0) {
-    iVar1 = -iVar1;
-  }
+  iVar1 = __builtin_abs((newtonObj->orientationToGround).y);
   if (0xb334 <= iVar1) {
     return relativeDot - (newtonObj->dimension).y; /* MATCH: direct return per-arm, not via a shared iVar1 temp -- verify_asm 2026-07-11 */
   }

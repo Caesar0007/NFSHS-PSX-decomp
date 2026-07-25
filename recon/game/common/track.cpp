@@ -495,11 +495,9 @@ void Track_ProcessFlipAndUVFlags(int uvFlag,Draw_tPixMap *inputPmx,Draw_tPixMap 
 void Track_AssociateSingleMaterial(Trk_Material *inputMat,Track_tMaterial *outputMat,Track_tArtresource *art)
 
 {
-  u_short uvFlag;
   int shapeIndex;
   int anim_iter;
   Draw_tPixMap originalPmx;
-  int iVar5;
 
   outputMat->flag = inputMat->flag;
   anim_iter = 0;
@@ -518,13 +516,12 @@ TrkAssoc_loopTest:
       art->pmxCount = art->pmxCount + 1;
     }
     else {
-      uvFlag = inputMat->shapeIndex;
+      shapeIndex = (int)inputMat->shapeIndex;
       if ((inputMat->flag & 2) != 0) {
-        iVar5 = Track_GetProperMultiPalShapeIndex((u_int)uvFlag,(u_int)inputMat->interval);
-        uvFlag = (u_short)iVar5;
+        shapeIndex = Track_GetProperMultiPalShapeIndex(shapeIndex,(u_int)inputMat->interval);
       }
       if (anim_iter == 0) {
-        outputMat->pmxIndex = uvFlag;
+        outputMat->pmxIndex = (short)shapeIndex;
       }
     }
     anim_iter = anim_iter + 1;

@@ -219,10 +219,7 @@ LAB_afterhorn:
 LAB_80057cc0:
   target = AIScript_DoReAction(&carObj->script,0x200);
   if (target != -1) {
-    absDistance = AIWorld_ApxSplineDistance(carObj,Cars_gList[target]);
-    if (absDistance < 0) {
-      absDistance = -absDistance;
-    }
+    absDistance = __builtin_abs(AIWorld_ApxSplineDistance(carObj,Cars_gList[target]));
     if (0xc0000 < absDistance) {
       seconds = AIScript_GetReactionTicksLeft(&carObj->script);
       if (seconds < 0) {
@@ -574,6 +571,7 @@ void AI_HandleChangeInNumLanes(Car_tObj *carObj)
   int absLaneLookAhead;
   int lookAhead;
   int laneIndex;
+  int adjLaneIndex;
   u_char bVar1;
 
   absLaneLookAhead = carObj->currentSpeed;
@@ -581,10 +579,11 @@ void AI_HandleChangeInNumLanes(Car_tObj *carObj)
     absLaneLookAhead = -absLaneLookAhead;
   }
   laneIndex = fixedmult(absLaneLookAhead,0x6aaa);
+  adjLaneIndex = laneIndex;
   if (laneIndex < 0) {
-    laneIndex = laneIndex + 0xffff;
+    adjLaneIndex = laneIndex + 0xffff;
   }
-  lookAhead = laneIndex >> 0x10;
+  lookAhead = adjLaneIndex >> 0x10;
   if (lookAhead < 5) {
     lookAhead = 5;
   }
@@ -610,7 +609,7 @@ LAB_800588a4:
   laneIndex = carObj->laneIndex;
   if ((((laneIndex < (int)(7 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 6) < laneIndex)) &&
       (bVar1 = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + (char *)BWorldSm_slices + 0x1d),
-      !(laneIndex < (int)(7 - (u_int)(bVar1 >> 4))))) && ((int)((bVar1 & 0xf) + 6) >= laneIndex)) {
+      (int)(7 - (u_int)(bVar1 >> 4)) <= laneIndex)) && ((int)((bVar1 & 0xf) + 6) >= laneIndex)) {
     if (laneIndex < 7) {
       CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + 0x280000;
     }
@@ -682,8 +681,8 @@ CENTER_DEMERIT:
       }
     }
   }
-  bVar1 = BWorldSm_slices[slice].laneCount;
   lane = carObj->laneIndex + -1;
+  bVar1 = BWorldSm_slices[slice].laneCount;
   if ((lane < (int)(6 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 7) < lane)) {
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + -0x3e80000;
   }
@@ -692,8 +691,8 @@ CENTER_DEMERIT:
   if ((lane < (int)(6 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 7) < lane)) {
     CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + -0x3e80000;
   }
-  bVar1 = BWorldSm_slices[slice].laneCount;
   lane = carObj->laneIndex + 1;
+  bVar1 = BWorldSm_slices[slice].laneCount;
   if ((lane < (int)(6 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 7) < lane)) {
     CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0x3e80000;
   }
@@ -1150,12 +1149,8 @@ void AI_SubmitObstacle(Car_tObj *carObj,int importance,int leftLatPosition,int r
     if (((observations[0] != 0) && (observations[1] != 0)) && (observations[2] != 0)) {
       leftDistance = carObj->roadPosition - leftLatPosition;
       rightDistance = carObj->roadPosition - rightLatPosition;
-      if (leftDistance < 0) {
-        leftDistance = -leftDistance;
-      }
-      if (rightDistance < 0) {
-        rightDistance = -rightDistance;
-      }
+      leftDistance = __builtin_abs(leftDistance);
+      rightDistance = __builtin_abs(rightDistance);
       if (leftDistance < rightDistance) {
         observations[0] = 0;
       }

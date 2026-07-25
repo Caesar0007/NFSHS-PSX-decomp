@@ -269,7 +269,6 @@ void Replay_ResetReplay(void)
   }
   else if (1 < Replay_ReplayMode) {
     i = 0;
-    cam_walk = Replay_ReplayCamera;
     car_walk = Cars_gHumanRaceCarList;
     Replay_ReplayInterface.pause = 0;
     Replay_ReplayInterface.speed = 2;
@@ -289,9 +288,8 @@ void Replay_ResetReplay(void)
       else {
         iVar1 = 4;
       }
-      cam_walk->cameraMode = iVar1;
-      cam_walk->cutToNextCamera = 0;
-      cam_walk = cam_walk + 1;
+      Replay_ReplayCamera[i].cameraMode = iVar1;
+      Replay_ReplayCamera[i].cutToNextCamera = 0;
       i = i + 1;
       car_walk = car_walk + 1;
     } while (i < 2);

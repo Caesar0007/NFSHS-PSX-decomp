@@ -61,7 +61,7 @@ int AudioMus_Threshold(void)
   if (AudioMus_g->errorcode != 0) {
     return 0;
   }
-  if (AudioMus_g->switchsong == 2) {  /* NEAR-MISS 9: bigfileheader beqz-vs-bnez layout tie + un-merged threshold returns; goto forms regress (gp re-read) */
+  if (AudioMus_g->switchsong == 2) {  /* NEAR-MISS 9: bigfileheader beqz-vs-bnez layout tie + un-merged threshold returns; goto forms regress (gp re-read; confirmed again 2026-07-26, w28-a6) */
     return AudioMus_g->threshold;
   }
   if ((AudioMus_g->streamstatus).outstandingrequests == 0) {
@@ -229,14 +229,11 @@ void AudioMus_QueueRequestedSong(void)
 /* ---- AudioMus_SetEntry__FP19AudioMus_tSongEntry  [@0x8007a308] ---- */
 void AudioMus_SetEntry(AudioMus_tSongEntry *info)
 {
-  int titlechar;
-  int havefile;
-  char*p;
   char cVar1;
   bool bVar2;
   int iVar3;
   char *pcVar4;
-  
+
   pcVar4 = info->filename;
   iVar3 = 0;
   info->artist = (char *)0x0;
@@ -244,48 +241,48 @@ void AudioMus_SetEntry(AudioMus_tSongEntry *info)
   info->date = (char *)0x0;
   info->notes = (char *)0x0;
   cVar1 = *pcVar4;
-  bVar2 = false;
-  do {
-    if (cVar1 == '\0') {
-LAB_8007a37c:
-      info->strbuf[iVar3] = '\0';
-      info->title = info->strbuf;
-      return;
-    }
-    if (cVar1 == '-') {
-      if (bVar2) {
-        info->artist = pcVar4 + 1;
-        goto LAB_8007a37c;
+  if (cVar1 != '\0') {   /* loop-rotated: oracle tests the FIRST char once up-front, then the */
+    bVar2 = false;       /* back-edge test is the ONLY other '\0' check (matches the rotated */
+    do {                 /* while-loop gcc emits for a plain `while` — see methodology §3.12#15a) */
+      if (cVar1 == '-') {
+        if (!bVar2) {
+          bVar2 = true;
+          iVar3 = 0;
+        }
+        else {
+          info->artist = pcVar4 + 1;
+          goto LAB_8007a37c;
+        }
       }
-      bVar2 = true;
-      iVar3 = 0;
-    }
-    else if (iVar3 < 0x1f) {
-      info->strbuf[iVar3] = cVar1;
-      iVar3 = iVar3 + 1;
-    }
-    pcVar4 = pcVar4 + 1;
-    cVar1 = *pcVar4;
-  } while( true );
+      else if (iVar3 < 0x1f) {
+        info->strbuf[iVar3] = cVar1;
+        iVar3 = iVar3 + 1;
+      }
+      pcVar4 = pcVar4 + 1;
+      cVar1 = *pcVar4;
+    } while (cVar1 != '\0');
+  }
+LAB_8007a37c:
+  info->strbuf[iVar3] = '\0';
+  info->title = info->strbuf;
 }
 
 /* ---- AudioMus_SetCurrentSongInfo__Fv  [@0x8007a390] ---- */
 void AudioMus_SetCurrentSongInfo(void)
 {
   AudioMus_tSongEntry*info;
-  AudioMus_tCurrentSong *pAVar1;
   AudioMus_tMusicGlobals *pAVar2;
   int iVar3;
   int iVar4;
-  
+
   pAVar2 = AudioMus_g;
-  iVar3 = (AudioMus_g->requeststatus).timetoend;
-  iVar4 = (AudioMus_g->requeststatus).currenttime;
-  pAVar1 = &AudioMus_g->current;
-  (AudioMus_g->current).remaining = iVar3;
-  (pAVar2->current).info.length = iVar3 + iVar4;
-  (pAVar2->current).info.filename = pAVar2->songname;
-  AudioMus_SetEntry(&pAVar1->info);
+  iVar3 = (pAVar2->requeststatus).timetoend;
+  iVar4 = (pAVar2->requeststatus).currenttime;
+  info = &(pAVar2->current).info;
+  (pAVar2->current).remaining = iVar3;
+  info->length = iVar3 + iVar4;
+  info->filename = pAVar2->songname;
+  AudioMus_SetEntry(info);
   return;
 }
 
@@ -527,7 +524,7 @@ void AudioMus_InitDriverGlobals(void)
 {
   AudioMus_tSongEntry*info;
   AudioMus_tMusicGlobals *pAVar1;
-  
+
   pAVar1 = AudioMus_g;
   AudioMus_g->requestsong = -1;
   pAVar1->volume = 0;
@@ -540,12 +537,13 @@ void AudioMus_InitDriverGlobals(void)
   pAVar1->errorcode = 0;
   pAVar1->greedy = 0;
   (pAVar1->current).remaining = 0;
-  (pAVar1->current).info.length = 0;
-  (pAVar1->current).info.filename = (char *)0x0;
-  (pAVar1->current).info.title = (char *)0x0;
-  (pAVar1->current).info.artist = (char *)0x0;
-  (pAVar1->current).info.label = (char *)0x0;
-  (pAVar1->current).info.notes = (char *)0x0;
+  info = &(pAVar1->current).info;
+  info->length = 0;
+  info->filename = (char *)0x0;
+  info->title = (char *)0x0;
+  info->artist = (char *)0x0;
+  info->label = (char *)0x0;
+  info->notes = (char *)0x0;
   pAVar1->driveractive = 1;
   return;
 }
@@ -849,7 +847,7 @@ void AudioMus_Volume(int volume)
   int iVar1;
   int iVar2;
   int s;
-  
+
   if ((AudioMus_g != (AudioMus_tMusicGlobals *)0x0) && (AudioMus_g->volume != volume)) {
     s = 0;
     if (volume == 0) {
@@ -889,16 +887,6 @@ void AudioMus_Volume(int volume)
 /* ---- AudioMus_AutoVolume__Fii  [@0x8007b46c] ---- */
 void AudioMus_AutoVolume(int fadeticks,int volume)
 {
-  int curvol;
-  int titlechar;
-  char *p;
-  int havefile;
-  int ticksleft;
-  int chunks;
-  AudioMus_tSongEntry *song;
-  char title [128];
-  int offset;
-  
   if ((AudioMus_g != (AudioMus_tMusicGlobals *)0x0) && (AudioMus_g->volume != volume)) {
     if (volume == 0) {
       AudioMus_g->volume = 0;

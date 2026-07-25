@@ -89,19 +89,15 @@ void Stats_DoPlayerGlue(void)
 void Stats_ClearPosition(void)
 
 {
-  Stats_tPosition *pSVar1;
   int iVar2;
-  int i;
-  
+
   iVar2 = 0;
-  pSVar1 = Stats_racePosition;
   do {
-    pSVar1->car = -1;
-    pSVar1->slice = -99999;
-    pSVar1->sliceTime = 0;
-    pSVar1->isHuman = 0;
+    Stats_racePosition[iVar2].car = -1;
+    Stats_racePosition[iVar2].slice = -99999;
+    Stats_racePosition[iVar2].sliceTime = 0;
+    Stats_racePosition[iVar2].isHuman = 0;
     iVar2 = iVar2 + 1;
-    pSVar1 = pSVar1 + 1;
   } while (iVar2 < 6);
   return;
 }

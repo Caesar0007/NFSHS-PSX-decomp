@@ -681,8 +681,9 @@ void Camera_UpdateCircleCam(int player)
     pCVar4 = Camera_gInfo + player;
     transform(&src,(pCVar4->anchor->orientMat).m,&des);
     Camera_TunnelLimit(player,&des.y);
-    pBVar2 = pCVar4->anchor;
     Camera_gInfo[player].position.x = (pCVar4->anchor->position).x + des.x;
+    /* MATCH: oracle re-loads anchor for the y/z pair */
+    pBVar2 = *(BO_tNewtonObj *volatile *)&pCVar4->anchor;
     Camera_gInfo[player].position.y = (pBVar2->position).y + des.y;
     Camera_gInfo[player].position.z = (pBVar2->position).z + des.z;
   }

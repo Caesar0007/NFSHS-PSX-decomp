@@ -457,9 +457,11 @@ void Physics_CorrectPostCollisionYaw(Car_tObj *carObj,int impactVel,coorddef bar
             fixedmult(barrierVec.z,(carObj->N).shadowMat.m[2]);
     result = __builtin_abs(diffZ);
     if (__builtin_abs(diffX) < result) {
-      result = __builtin_abs(diffX);
+      result = __builtin_abs(diffX) >> 1;
     }
-    result = result >> 1;
+    else {
+      result = result >> 1;
+    }
     if (diffZ < 0) {
       if (diffX < 0) {
         result = -result;
@@ -1182,33 +1184,32 @@ void Physics_ResetCar(Car_tObj *carObj)
 void Physics_StopCar(Car_tObj *carObj)
 
 {
-  int iVar1;
-  int iVar2;
-  
-  iVar1 = (carObj->N).linearVel.x * 0xf5;
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
+  int iVarX;
+  int iVarY;
+  int iVarZ;
+  int iVarW;
+
+  iVarX = (carObj->N).linearVel.x * 0xf5;
+  if (iVarX < 0) {
+    iVarX = iVarX + 0xff;
   }
-  iVar2 = (carObj->N).linearVel.y;
-  (carObj->N).linearVel.x = iVar1 >> 8;
-  iVar2 = iVar2 * 0xf5;
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
+  (carObj->N).linearVel.x = iVarX >> 8;
+  iVarY = (carObj->N).linearVel.y * 0xf5;
+  if (iVarY < 0) {
+    iVarY = iVarY + 0xff;
   }
-  iVar1 = (carObj->N).linearVel.z;
-  (carObj->N).linearVel.y = iVar2 >> 8;
-  iVar1 = iVar1 * 0xf5;
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
+  (carObj->N).linearVel.y = iVarY >> 8;
+  iVarZ = (carObj->N).linearVel.z * 0xf5;
+  if (iVarZ < 0) {
+    iVarZ = iVarZ + 0xff;
   }
-  iVar2 = (carObj->N).orientationToGround.y;
-  (carObj->N).linearVel.z = iVar1 >> 8;
-  if (iVar2 < 0x3333) {
-    iVar1 = (carObj->N).angularVel.y;
-    if (iVar1 < 0) {
-      iVar1 = iVar1 + 0xff;
+  (carObj->N).linearVel.z = iVarZ >> 8;
+  if ((carObj->N).orientationToGround.y < 0x3333) {
+    iVarW = (carObj->N).angularVel.y;
+    if (iVarW < 0) {
+      iVarW = iVarW + 0xff;
     }
-    (carObj->N).angularVel.y = (iVar1 >> 8) * 0xfa;
+    (carObj->N).angularVel.y = (iVarW >> 8) * 0xfa;
   }
   return;
 }

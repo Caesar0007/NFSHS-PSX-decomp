@@ -50,53 +50,56 @@ extern int  divu64(int lo, int hi, unsigned int den);      /* @0x800FE4E0 math64
 extern int fixedatan(int x, int y)   /* @0x800ED528 */
 {
     int a2;
-    /* RESIDUAL (110->78 diffs; insn count now EXACT 82==82 after two structural fixes below --
-     * see the a2= line and the frac/idx decl-order swap). The remaining 78 are a whole-function
-     * register-role swap: the oracle proactively copies x->$v1 / y->$s0 in the prologue (before
-     * any test), but our build's allocator proves it can reuse $a0/$a1 directly through the
-     * negate/compare/branch chain (2 fewer "addu v1,a0,zero"-style copies) and only promotes
-     * `oct` to a saved reg. Tried: swapping the y<0/x<0 test order, swapping the num/den
-     * assignment order inside the y<x branch -- neither moved the coloring. Count-exact,
-     * no missing/extra logic; accept as an allocator-efficiency near-miss (no pins). */
+    /* MATCH: keep the normalized coordinates in x/y and swap them in place.  Separate num/den
+     * locals let GCC retain the incoming argument registers and caused the former whole-function
+     * coloring residual.  Likewise, split the division result only once: save r>>8 as `frac`,
+     * then shift `r` itself to become the table index.  That preserves the oracle's $v0 result
+     * web and leaves the interpolation accumulator in `a2`. */
     int oct = 0;
-    if (y < 0) { y = -y; oct |= 2; }      /* bit1: y negative */
-    if (x < 0) { x = -x; oct |= 4; }      /* bit2: x negative */
+    if (y < 0) { oct |= 2; y = -y; }      /* bit1: y negative */
+    if (x < 0) { oct |= 4; x = -x; }      /* bit2: x negative */
 
 
     if (x == y) {
         a2 = 0x2000;                       /* 45 deg */
     } else {
         int d;
-        unsigned idx;
         unsigned frac;
         int buf[2];
         unsigned r;
-        unsigned num;
-        unsigned den;
 
-        if (y < x) { num = (unsigned)y; den = (unsigned)x; oct |= 1; }  /* bit0: |x| dominant */
-        else       { num = (unsigned)x; den = (unsigned)y; }
+        if (y < x) {
+            int tmp = x;
+            x = y;
+            y = tmp;
+            oct |= 1;                                      /* bit0: |x| dominant */
+        }
 
-        make64(buf, (int)num, 32);                        /* (@0x800FE488/E4E0; NOT libgcc __udivdi3) */
-        r = (unsigned)divu64(buf[0], buf[1], den);  /* (num<<32)/den as a 0.32 fraction; $a0=buf[0]=lo=0,$a1=buf[1]=hi=num per oracle 0x800ED594/598 (H01) */
-        frac = (r >> 8) & 0xFFFF;
-        idx = r >> 24;
-        d = kAtanTbl[idx + 1] - kAtanTbl[idx];
+        make64(buf, x, 32);                                /* (@0x800FE488/E4E0; NOT libgcc __udivdi3) */
+        r = (unsigned)divu64(buf[0], buf[1], (unsigned)y); /* (x<<32)/y as a 0.32 fraction */
+        frac = r >> 8;
+        r >>= 24;
+        a2 = kAtanTbl[r];
+        d = kAtanTbl[r + 1] - a2;
         /* MATCH: plain 32-bit `mult;mflo;srl 16` -- d and frac both fit comfortably in 32 bits
          * (d <= ~41, frac < 0x10000) so the oracle does NOT widen to a 64-bit multiply here
          * (that's the "mult;mfhi" HIGH-part idiom for OVERFLOWING products, not this). Cast frac
          * to (signed) int so the multiply is `mult` not `multu` (matches oracle's signed mult). */
-        a2 = kAtanTbl[idx] + ((d * (int)frac) >> 16);
+        a2 += (int)((unsigned)(d * (int)(frac & 0xFFFF)) >> 16);
     }
 
     switch (oct) {                         /* octant -> full circle; oracle jump table @0x80056CB8 (H02) */
-    case 0:  return a2;                    /* 0x800ED658 v0=a2                       */
-    case 1:  return 0x4000 - a2;           /* 0x800ED610 v0=-a2; a2=v0+0x4000; v0=a2 */
+    case 0:  goto return_a2;               /* 0x800ED658 v0=a2                       */
+    case 1:  a2 = (-a2) + 0x4000;          /* 0x800ED610 v0=-a2; a2=v0+0x4000; v0=a2 */
+             goto return_a2;
     case 2:  return 0x8000 - a2;           /* 0x800ED61C v0=0x8000; v0-=a2           */
     case 3:  return a2 + 0x4000;           /* 0x800ED628 v0=a2+0x4000                */
     case 4:  return -a2;                   /* 0x800ED630 v0=-a2                      */
     case 5:  return a2 - 0x4000;           /* 0x800ED638 v0=a2-0x4000                */
     case 6:  return a2 - 0x8000;           /* 0x800ED640 v0=-0x8000; v0=a2+v0        */
-    default: return -a2 - 0x4000;          /* 7: 0x800ED64C v0=-a2; v0+=-0x4000      */
+    case 7:  return -a2 - 0x4000;          /* 0x800ED64C v0=-a2; v0+=-0x4000         */
+    default: goto return_a2;               /* out of range -> shared unmodified tail  */
     }
+return_a2:
+    return a2;
 }

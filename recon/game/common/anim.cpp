@@ -18,20 +18,24 @@ Trk_AnimateInst *animScripts[10];   /* @0x8010e24c  (bss(zero)) */
 void Anim_Restart(void)
 {
   AnimScript *deleteMe;
-  int i;
+  AnimScript **p;
+  AnimScript **pEnd;
 
-  i = 0;
-  while (i < 32) {
-    deleteMe = animSlots[i];
-    if (deleteMe != (AnimScript *)0x0) {
-      if (deleteMe->inst != (Trk_AnimateInst **)0x0) {
-        __builtin_vec_delete(deleteMe->inst);
-      }
-      __builtin_delete(deleteMe);
+  p = animSlots;
+  pEnd = animSlots + 32;
+AnimRestart_Test:
+  if (!((int)p < (int)pEnd)) goto AnimRestart_End;
+  deleteMe = *p;
+  if (deleteMe != (AnimScript *)0x0) {
+    if (deleteMe->inst != (Trk_AnimateInst **)0x0) {
+      __builtin_vec_delete(deleteMe->inst);
     }
-    animSlots[i] = (AnimScript *)0x0;
-    i = i + 1;
+    __builtin_delete(deleteMe);
   }
+  *p = (AnimScript *)0x0;
+  p = p + 1;
+  goto AnimRestart_Test;
+AnimRestart_End:;
   DrawW_ResetAnimationTimer();
   return;
 }

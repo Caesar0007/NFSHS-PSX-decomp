@@ -8,21 +8,21 @@
 
 typedef int (*IntrSetter)(int, int);
 
-extern "C" int  printf(const char *fmt, ...);          /* C63 */
-extern "C" void ReturnFromException(void);             /* A23 */
-extern "C" void ChangeClearPAD(int v);                 /* A91 */
-extern "C" int  ChangeClearRCnt(int t, int m);         /* L10 */
-extern "C" int  setjmp(long *env);                     /* C19 */
-extern "C" void HookEntryInt(void *h);                 /* A25 */
-extern "C" int  EnterCriticalSection(void);            /* A36 */
-extern "C" void ExitCriticalSection(void);             /* A37 */
-extern "C" void ResetEntryInt(void);                   /* A24 */
-extern "C" void _96_remove(void);                      /* C114 */
-extern "C" void *startIntrVSync(void);                 /* INTR_VB */
-extern "C" void *startIntrDMA(void);                   /* INTR_DMA */
+extern int  printf(const char *fmt, ...);          /* C63 */
+extern void ReturnFromException(void);             /* A23 */
+extern void ChangeClearPAD(int v);                 /* A91 */
+extern int  ChangeClearRCnt(int t, int m);         /* L10 */
+extern int  setjmp(long *env);                     /* C19 */
+extern void HookEntryInt(void *h);                 /* A25 */
+extern int  EnterCriticalSection(void);            /* A36 */
+extern void ExitCriticalSection(void);             /* A37 */
+extern void ResetEntryInt(void);                   /* A24 */
+extern void _96_remove(void);                      /* C114 */
+extern void *startIntrVSync(void);                 /* INTR_VB */
+extern void *startIntrDMA(void);                   /* INTR_DMA */
 
-extern "C" void _intrhand(void);
-extern "C" int  _set_intr_callback(unsigned int idx, int handler);
+extern void _intrhand(void);
+extern int  _set_intr_callback(unsigned int idx, int handler);
 
 /* EvCB block @0x80134AF8 (0x41a words) */
 typedef struct {
@@ -35,8 +35,8 @@ typedef struct {
     long  jmpbuf[(0x1018 - 0x38) / 4];     /* +0x38  @0x80134B30 : setjmp buf + filler */
     int   evcb[(0x1068 - 0x1018) / 4];     /* +0x1018 @0x80135B10 : BIOS EvCB table */
 } IntrState;
-extern "C" IntrState g_intr;               /* @0x80134AF8 */
-extern "C" IntrState *_initIntr(void);
+extern IntrState g_intr;               /* @0x80134AF8 */
+extern IntrState *_initIntr(void);
 
 /* MATCH (structural): the libetc callback API dispatches through a HOOK TABLE --
  * D_80135B60 = 8-slot struct {entry, dma_setter, set_cb, reset, stop, vsync_setter,
@@ -53,12 +53,12 @@ typedef struct {
     void       (*restart)(void);                  /* +0x18 : RestartCallback */
     IntrState   *state;                           /* +0x1C : &g_intr */
 } IntrHooks;
-extern "C" IntrHooks        g_hooks;             /* @0x80135B60 */
-extern "C" IntrHooks       *g_hooks_ptr;         /* @0x80135B80 : = &g_hooks */
-extern "C" volatile unsigned short *g_istat_ptr; /* @0x80135B84 : = 0x1F801070 */
-extern "C" volatile unsigned short *g_imask_ptr; /* @0x80135B88 : = 0x1F801074 */
-extern "C" volatile unsigned int   *g_dpcr_ptr;  /* @0x80135B8C : = 0x1F8010F0 */
-extern "C" int g_intr_timeout;                   /* @0x80135B90 */
+extern IntrHooks        g_hooks;             /* @0x80135B60 */
+extern IntrHooks       *g_hooks_ptr;         /* @0x80135B80 : = &g_hooks */
+extern volatile unsigned short *g_istat_ptr; /* @0x80135B84 : = 0x1F801070 */
+extern volatile unsigned short *g_imask_ptr; /* @0x80135B88 : = 0x1F801074 */
+extern volatile unsigned int   *g_dpcr_ptr;  /* @0x80135B8C : = 0x1F8010F0 */
+extern int g_intr_timeout;                   /* @0x80135B90 */
 
 #define I_STAT (*g_istat_ptr)
 #define I_MASK (*g_imask_ptr)
@@ -68,15 +68,15 @@ extern "C" int g_intr_timeout;                   /* @0x80135B90 */
  * this `static` C++ fn got C++-mangled to _bzero_w__FPii, a NAME MISMATCH invisible to the gate
  * ("NOT IN OBJECT" forever). `static`+`extern "C"` can't combine as adjacent storage-class
  * specifiers on this compiler -- wrap in an `extern "C" { }` block instead. */
-extern "C" {
+
 static void _bzero_w(int *p, int n)        /* @0x800F2E70 */
 {
     int i = n - 1;
     if (n != 0) { do { *p = 0; i = i - 1; p = p + 1; } while (i != -1); }
 }
-}   /* extern "C" */
+   /* extern "C" */
 
-extern "C" IntrState *_initIntr(void)       /* @0x800F2968 */
+extern IntrState *_initIntr(void)       /* @0x800F2968 */
 {
     if (g_intr.inited != 0)
         return 0;
@@ -96,38 +96,38 @@ extern "C" IntrState *_initIntr(void)       /* @0x800F2968 */
     return &g_intr;
 }
 
-extern "C" void ResetCallback(void)        /* @0x800F284C */
+extern void ResetCallback(void)        /* @0x800F284C */
 {
     g_hooks_ptr->reset();
 }
 
-extern "C" void InterruptCallback(unsigned int idx, int handler)   /* @0x800F287C */
+extern void InterruptCallback(unsigned int idx, int handler)   /* @0x800F287C */
 {
     g_hooks_ptr->set_cb(idx, handler);
 }
 
-extern "C" int DMACallback(int ch, int func)   /* @0x800F28AC */
+extern int DMACallback(int ch, int func)   /* @0x800F28AC */
 {
     return g_hooks_ptr->dma_setter(ch, func);
 }
 
-extern "C" int VSyncCallback(int func)     /* @0x800F28DC */
+extern int VSyncCallback(int func)     /* @0x800F28DC */
 {
     return g_hooks_ptr->vsync_setter(4, func);
 }
 
-extern "C" int VSyncCallbacks(int idx, int func)   /* @0x800F2910 */
+extern int VSyncCallbacks(int idx, int func)   /* @0x800F2910 */
 {
     return g_hooks_ptr->vsync_setter(idx, func);
 }
 
 /* @0x800F2940 -- returns g_intr.in_handler (D_80134AFA); lhu = unsigned read */
-extern "C" int CheckCallback(void)
+extern int CheckCallback(void)
 {
     return (unsigned short)g_intr.in_handler;
 }
 
-extern "C" int SetIntrMask(int mask)   /* @0x800F2950 */
+extern int SetIntrMask(int mask)   /* @0x800F2950 */
 {
     /* MATCH: oracle uses g_imask_ptr (D_80135B88) indirection → lw ptr; lhu *ptr; sh a0,*ptr in jr delay */
     unsigned short *p = (unsigned short *)g_imask_ptr;
@@ -136,16 +136,18 @@ extern "C" int SetIntrMask(int mask)   /* @0x800F2950 */
     return old;
 }
 
-extern "C" void _intrhand(void)            /* @0x800F2A40 */
+extern void _intrhand(void)            /* @0x800F2A40 */
 {
+    unsigned short pending;
     if (g_intr.inited == 0) {
         printf("unexpected interrupt(%04x)\n", I_STAT);
         ReturnFromException();
     }
     g_intr.in_handler = 1;
-    unsigned short pending = (unsigned short)((g_intr.enabled & I_STAT) & I_MASK);
+    pending = (unsigned short)((g_intr.enabled & I_STAT) & I_MASK);
     while (pending != 0) {
-        for (int i = 0; pending != 0 && i < 11; ++i, pending >>= 1) {
+        int i;
+        for (i = 0; pending != 0 && i < 11; ++i, pending >>= 1) {
             if (pending & 1) {
                 I_STAT = (unsigned short)~(1 << i);
                 if (g_intr.cb[i] != 0) {
@@ -169,7 +171,7 @@ extern "C" void _intrhand(void)            /* @0x800F2A40 */
     ReturnFromException();
 }
 
-extern "C" int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
+extern int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
 {
     /* MATCH ATTEMPT (w24-a7): oracle copies BOTH params to callee-saved regs (s1=idx,
      * s2=handler) back-to-back at function entry, BEFORE any address arithmetic -- freeing
@@ -184,8 +186,9 @@ extern "C" int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C1
         unsigned short imask = I_MASK;
         I_MASK = 0;
         if (hv != 0) {
+            unsigned short bit;
             *slot = hv;
-            unsigned short bit = (unsigned short)(1 << (ix));
+            bit = (unsigned short)(1 << (ix));
             imask = imask | bit;
             g_intr.enabled = g_intr.enabled | bit;
         } else {
@@ -206,7 +209,7 @@ extern "C" int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C1
     return old;
 }
 
-extern "C" IntrState *StopCallback(void)   /* @0x800F2D58 */
+extern IntrState *StopCallback(void)   /* @0x800F2D58 */
 {
     if (g_intr.inited == 0)
         return 0;
@@ -221,7 +224,7 @@ extern "C" IntrState *StopCallback(void)   /* @0x800F2D58 */
     return &g_intr;
 }
 
-extern "C" int RestartCallback(void)       /* @0x800F2DF8 */
+extern int RestartCallback(void)       /* @0x800F2DF8 */
 {
     if (g_intr.inited == 0) {
         HookEntryInt(g_intr.jmpbuf);
@@ -234,4 +237,4 @@ extern "C" int RestartCallback(void)       /* @0x800F2DF8 */
     return 0;
 }
 
-extern "C" { IntrState g_intr; }  /* owning-TU def (BSS) -- at EOF for type visibility */
+ IntrState g_intr;   /* owning-TU def (BSS) -- at EOF for type visibility */

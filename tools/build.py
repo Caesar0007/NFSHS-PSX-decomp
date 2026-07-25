@@ -155,7 +155,7 @@ def per_tu_flags(src: Path) -> dict:
 # emits it -- i.e. the C++-MANGLED name for a class method; all current
 # entries are `extern "C"` functions so the label equals the source name).
 PER_FN_NO_DELAYED_BRANCH = {
-    "recon/syslib/psx/libetc/INTR.cpp": {
+    "recon/syslib/psx/libetc/INTR.c": {
         "ResetCallback", "InterruptCallback", "DMACallback", "VSyncCallbacks",
     },
     "recon/syslib/psx/libcd/cdcont.c": {

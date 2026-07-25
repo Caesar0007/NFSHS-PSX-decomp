@@ -1364,10 +1364,7 @@ int Newton_CalcPerpenHeightOfCenterPointFromGround(BO_tNewtonObj *newtonObj,coor
   relativePos.z = (newtonObj->position).z - samplePoint->z;
   relativeDot = fixedmult(normal->x,relativePos.x) + fixedmult(normal->y,relativePos.y) +
                 fixedmult(normal->z,relativePos.z);
-  iVar1 = (newtonObj->orientationToGround).y;
-  if (iVar1 < 0) {
-    iVar1 = -iVar1;
-  }
+  iVar1 = __builtin_abs((newtonObj->orientationToGround).y);
   if (0xb334 <= iVar1) {
     return relativeDot - (newtonObj->dimension).y; /* MATCH: direct return per-arm, not via a shared iVar1 temp -- verify_asm 2026-07-11 */
   }

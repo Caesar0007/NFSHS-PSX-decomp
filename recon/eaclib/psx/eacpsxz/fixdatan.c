@@ -44,11 +44,12 @@ static const int kAtanTbl[257] = {
     8192,
 };
 
-extern "C" void make64(int *out, int y, unsigned int shift);   /* @0x800FE488 math64a.obj */
-extern "C" int  divu64(int lo, int hi, unsigned int den);      /* @0x800FE4E0 math64a.obj; ABI $a0=lo,$a1=hi,$a2=den */
+extern void make64(int *out, int y, unsigned int shift);   /* @0x800FE488 math64a.obj */
+extern int  divu64(int lo, int hi, unsigned int den);      /* @0x800FE4E0 math64a.obj; ABI $a0=lo,$a1=hi,$a2=den */
 
-extern "C" int fixedatan(int x, int y)   /* @0x800ED528 */
+extern int fixedatan(int x, int y)   /* @0x800ED528 */
 {
+    int a2;
     /* RESIDUAL (110->78 diffs; insn count now EXACT 82==82 after two structural fixes below --
      * see the a2= line and the frac/idx decl-order swap). The remaining 78 are a whole-function
      * register-role swap: the oracle proactively copies x->$v1 / y->$s0 in the prologue (before
@@ -61,19 +62,26 @@ extern "C" int fixedatan(int x, int y)   /* @0x800ED528 */
     if (y < 0) { y = -y; oct |= 2; }      /* bit1: y negative */
     if (x < 0) { x = -x; oct |= 4; }      /* bit2: x negative */
 
-    int a2;
+
     if (x == y) {
         a2 = 0x2000;                       /* 45 deg */
     } else {
-        unsigned num, den;
+        int d;
+        unsigned idx;
+        unsigned frac;
+        int buf[2];
+        unsigned r;
+        unsigned num;
+        unsigned den;
+
         if (y < x) { num = (unsigned)y; den = (unsigned)x; oct |= 1; }  /* bit0: |x| dominant */
         else       { num = (unsigned)x; den = (unsigned)y; }
-        int buf[2];                                       /* min/max ratio: EA make64 + divu64       */
+
         make64(buf, (int)num, 32);                        /* (@0x800FE488/E4E0; NOT libgcc __udivdi3) */
-        unsigned r    = (unsigned)divu64(buf[0], buf[1], den);  /* (num<<32)/den as a 0.32 fraction; $a0=buf[0]=lo=0,$a1=buf[1]=hi=num per oracle 0x800ED594/598 (H01) */
-        unsigned frac = (r >> 8) & 0xFFFF;
-        unsigned idx  = r >> 24;
-        int d = kAtanTbl[idx + 1] - kAtanTbl[idx];
+        r = (unsigned)divu64(buf[0], buf[1], den);  /* (num<<32)/den as a 0.32 fraction; $a0=buf[0]=lo=0,$a1=buf[1]=hi=num per oracle 0x800ED594/598 (H01) */
+        frac = (r >> 8) & 0xFFFF;
+        idx = r >> 24;
+        d = kAtanTbl[idx + 1] - kAtanTbl[idx];
         /* MATCH: plain 32-bit `mult;mflo;srl 16` -- d and frac both fit comfortably in 32 bits
          * (d <= ~41, frac < 0x10000) so the oracle does NOT widen to a 64-bit multiply here
          * (that's the "mult;mfhi" HIGH-part idiom for OVERFLOWING products, not this). Cast frac

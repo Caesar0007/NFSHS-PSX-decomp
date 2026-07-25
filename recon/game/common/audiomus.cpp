@@ -61,7 +61,7 @@ int AudioMus_Threshold(void)
   if (AudioMus_g->errorcode != 0) {
     return 0;
   }
-  if (AudioMus_g->switchsong == 2) {  /* NEAR-MISS 9: bigfileheader beqz-vs-bnez layout tie + un-merged threshold returns; goto forms regress (gp re-read) */
+  if (AudioMus_g->switchsong == 2) {  /* NEAR-MISS 9: bigfileheader beqz-vs-bnez layout tie + un-merged threshold returns; goto forms regress (gp re-read; confirmed again 2026-07-26, w28-a6) */
     return AudioMus_g->threshold;
   }
   if ((AudioMus_g->streamstatus).outstandingrequests == 0) {
@@ -527,7 +527,7 @@ void AudioMus_InitDriverGlobals(void)
 {
   AudioMus_tSongEntry*info;
   AudioMus_tMusicGlobals *pAVar1;
-  
+
   pAVar1 = AudioMus_g;
   AudioMus_g->requestsong = -1;
   pAVar1->volume = 0;
@@ -540,12 +540,13 @@ void AudioMus_InitDriverGlobals(void)
   pAVar1->errorcode = 0;
   pAVar1->greedy = 0;
   (pAVar1->current).remaining = 0;
-  (pAVar1->current).info.length = 0;
-  (pAVar1->current).info.filename = (char *)0x0;
-  (pAVar1->current).info.title = (char *)0x0;
-  (pAVar1->current).info.artist = (char *)0x0;
-  (pAVar1->current).info.label = (char *)0x0;
-  (pAVar1->current).info.notes = (char *)0x0;
+  info = &(pAVar1->current).info;
+  info->length = 0;
+  info->filename = (char *)0x0;
+  info->title = (char *)0x0;
+  info->artist = (char *)0x0;
+  info->label = (char *)0x0;
+  info->notes = (char *)0x0;
   pAVar1->driveractive = 1;
   return;
 }

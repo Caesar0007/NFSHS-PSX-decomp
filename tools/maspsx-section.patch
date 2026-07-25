@@ -1,0 +1,212 @@
+# maspsx fix: generalize the `.section` directive recognized in the sdata
+# pre-scan (w26-a3, TOOLCHAIN wave, 2026-07-25).
+#
+# SYMPTOM: compiling libgpu/SYS.cpp (or any other C-lane TU using this
+# tree's `__attribute__((section(".data")))` / `__attribute__((section(
+# ".bss")))` "force absolute placement" lever, §3.12) through CC1PSX and
+# piping its .s straight to maspsx crashes:
+#
+#     MASPSX: An exception occurred: Unable to parse .sdata instruction:
+#     .section .data,"aw",@progbits
+#
+# ROOT CAUSE: maspsx's `preprocess_lines` pre-scan (which sizes every
+# `.sdata`-region symbol so the real emission pass can later decide
+# `.sbss` vs `.bss`) tracks an `in_sdata` flag. It sets `in_sdata = True`
+# on a bare `.sdata` directive and clears it again on `.text`/`.data`/
+# `.rdata`/`.file`/`.extern`/`.comm`/`.lcomm`, and (already) on a bare
+# `.section .text`. But CC1PSX ALSO emits the generic ELF-style
+# `.section NAME,"FLAGS",@TYPE` form -- confirmed present verbatim inside
+# CC1PSX.EXE as the literal format strings `.section %s,"ax",@progbits`
+# (executable), `"a",@progbits` (read-only) and `"aw",@progbits`
+# (writable) -- for ANY global carrying an explicit `__attribute__((
+# section(...)))`. That form doesn't match `.text`/`.data`/`.rdata`/
+# `.sdata`/`.file`/`.extern`/`.comm`/`.lcomm`, and the old check only
+# matched a `.section` line ending in the literal string `.text`. So a
+# `.section .data,...`/`.section .bss,...` line left `in_sdata` however it
+# was left by whatever came before it. When it followed a bare `.sdata`
+# region with NO intervening `.text`/`.data`/`.rdata` reset, `in_sdata`
+# was still True, the line fell through every recognized-directive branch,
+# and the pre-scan's `if in_sdata:` catch-all (which only knows `.size`/
+# a label/`.type`/`.space`/`.word`/`.half`/`.short`/`.byte`/`.ascii`)
+# raised.
+#
+# REAL TRIGGER (libgpu/SYS.cpp, confirmed by compiling the file's global
+# declarations through the real CC1PSX -- `_gpu_tbl` (a `static const`
+# driver-dispatch struct) lands in `.sdata` under this compiler's
+# `-mgpOPT`; its `"GPU"` id string's `$LC1` literal-pool entry is the LAST
+# thing in that `.sdata` run; the very next global, `GEnv_drv`, carries
+# `__attribute__((section(".data")))` (§3.12 "force absolute placement" --
+# without it a 4-byte initialized pointer would default into .sdata under
+# -G4, a gp-relative-load divergence vs the oracle) and is emitted as
+# `.section .data,"aw",@progbits` with NO `.text` in between:
+#
+#     .globl  _gpu_tbl
+#     .sdata                              <- in_sdata = True
+#     .align  2
+#     _gpu_tbl:
+#     .word   $LC1
+#     .align  2
+#     $LC1:
+#     .ascii  "GPU\000"
+#     .globl  GEnv_drv
+#     .section .data,"aw",@progbits       <- CRASH here (unpatched)
+#     .align  2
+#     GEnv_drv:
+#     .word   _gpu_tbl
+#
+# FIX: recognize ANY `.section` directive (not just the `.text`-suffixed
+# one), parse its section NAME, and treat it exactly like the matching
+# bare directive would: `sdata`/`sbss` (re-)enter the sdata scan (parity
+# with bare `.sdata`, in case a future TU ever forces `__attribute__((
+# section(".sdata")))`); anything else (`.text`, `.data`, `.bss`,
+# `.rodata`/`.rdata`, or an arbitrary named section) resets it -- same
+# semantics the existing bare `.text`/`.data`/`.rdata` branches already
+# have. This only changes the PRE-SCAN's bookkeeping of `in_sdata`; the
+# real emission pass (`process_line`) already passes an unrecognized
+# `.section NAME,"FLAGS",@TYPE` line through UNCHANGED (its `if line.
+# startswith(".")` chain falls to the `else: res.append(line)` case), so
+# GNU `as` -- which understands the ELF section syntax natively -- still
+# assembles these forced-placement globals correctly; nothing about their
+# actual output section changes, only whether the pre-scan can get past
+# them without crashing.
+#
+# VERIFIED (2026-07-25, isolated copy C:/Temp/maspsx-a3/ first, per house
+# rule -- NOT applied to the shared C:/Temp/maspsx-master/ until proven):
+#   - maspsx's own `tests/` unittest suite: 136/136 pass unpatched-behavior-
+#     preserving, plus 3 new regression cases added to `tests/test_directives.py`
+#     (`test_named_section_resets_sdata_scan`, `test_named_bss_section_after_
+#     sdata_run`, `test_named_sdata_section_enters_sdata_scan`) -- 139/139
+#     pass on the patched copy; the crash-reproducing case raises on an
+#     UNPATCHED copy (confirmed) and passes clean on the patched one.
+#   - Full-file diagnostic: CC1PSX's real (error-laden but still section-
+#     emitting) .s for libgpu/SYS.cpp with `extern "C"` mechanically
+#     stripped (a throwaway C89-migration probe, not the real migration)
+#     crashes maspsx unpatched with the exact reported error, and processes
+#     cleanly (RC=0) patched, byte-identical whether run via the isolated
+#     copy or the deployed shared master.
+#   - Regression, 0 change to already-working output (compiled + objdump'd
+#     .o BYTE-IDENTICAL between unpatched master and the patched copy) for
+#     6 functions spanning 4 different clusters plus the jtbl-fusion and
+#     per-function delayed-branch-splice code paths (so this fix cannot be
+#     interacting badly with either mechanism):
+#       atoi              (libc/C16.c)              -- known PASS
+#       DeliverEvent      (libapi/A07.c)             -- known PASS
+#       CdSync            (libcd/cdcont.c)           -- known PASS, spliced (PER_FN_NO_DELAYED_BRANCH)
+#       PadStartCom       (libpad/PADENTRY.c)        -- known PASS, spliced (PER_FN_NO_DELAYED_BRANCH)
+#       PadInfoAct        (libpad/PADENTRY.c)        -- jtbl-fusion (PER_TU_FLAGS)
+#       _cdread2_ready    (libcd/cdread2.c)          -- known PASS, spliced (PER_FN_NO_DELAYED_BRANCH)
+#
+# APPLY: copy C:/Temp/maspsx-master/ to an isolated working copy (do NOT
+# edit the shared master directly -- other agents build against it
+# concurrently), apply this patch there, prove it (as above), THEN copy
+# the same two files over the shared master and refresh a dated backup
+# (this session: C:/Temp/maspsx-master-backup-presection/, alongside the
+# pre-existing C:/Temp/maspsx-master-backup-prejtbl/) before overwriting.
+#
+# --- a/maspsx/__init__.py -----------------------------------------------
+--- a/maspsx/__init__.py
++++ b/maspsx/__init__.py
+@@ -582,8 +582,34 @@
+                 in_sdata = False
+                 continue
+
+-            if line.startswith(".section") and line.endswith(".text"):
+-                in_sdata = False
++            if line.startswith(".section"):
++                # w26-a3: generic ELF-style `.section NAME[,"FLAGS",@TYPE]` directive,
++                # not just the bare `.section .text` this used to special-case. CC1PSX
++                # emits this form (via GCC's generic named_section() output path,
++                # confirmed present as literal `.section %s,"aw",@progbits` /
++                # `"a",@progbits` / `"ax",@progbits" format strings inside CC1PSX.EXE)
++                # for any global carrying an explicit
++                # `__attribute__((section(".data"/".bss"/...)))` -- used throughout this
++                # tree (§3.12 "force absolute placement" lever) to pin a would-be-.sdata/
++                # .sbss global into regular .data/.bss so it addresses absolute instead
++                # of gp-relative, matching the retail oracle. The narrow `endswith(".text")`
++                # check here only recognised `.section .text`; any OTHER named section
++                # (`.section .data,"aw",@progbits`, `.section .bss,"aw",@progbits`, ...)
++                # fell through every branch below and -- if a prior bare `.sdata` block
++                # had left `in_sdata` True with no intervening `.text`/`.data`/`.rdata` --
++                # hit the catch-all "Unable to parse .sdata instruction" exception in the
++                # `in_sdata` scan below. (Real trigger, libgpu/SYS.cpp: a `.sdata`-placed
++                # const table's literal-pool tail is immediately followed by
++                # `GEnv_drv`'s forced `.section .data,"aw",@progbits`, no `.text` between.)
++                # Fix: parse the section NAME out of any `.section` directive and treat it
++                # exactly like the matching bare directive would -- `sdata`/`sbss` (re-)enter
++                # the sdata scan (parity with bare `.sdata`, in case a future TU ever forces
++                # `__attribute__((section(".sdata")))`), anything else (`.text`, `.data`,
++                # `.bss`, `.rodata`/`.rdata`, or an arbitrary named section) resets it, same
++                # as the existing bare `.text`/`.data`/`.rdata` handling above.
++                m = re.match(r"^\.section\s+\.?([A-Za-z0-9_.]+)", line)
++                name = m.group(1) if m else ""
++                in_sdata = name in ("sdata", "sbss")
+                 continue
+
+             if line.startswith("#"):
+--- a/tests/test_directives.py
++++ b/tests/test_directives.py
+@@ -18,3 +18,64 @@
+         res = mp.process_line(line)
+         self.assertEqual([line], res)
+         self.assertEqual(mp.file_num, 2)
++
++    def test_named_section_resets_sdata_scan(self):
++        # w26-a3: CC1PSX emits the generic ELF `.section NAME,"FLAGS",@TYPE` form for
++        # any global carrying an explicit `__attribute__((section(".data"/".bss"/...)))`
++        # (used to pin an otherwise-.sdata/.sbss-eligible global into a regular, absolute
++        # section). Previously only a bare `.section .text` was recognised as ending an
++        # `.sdata` run; any OTHER named section immediately after a bare `.sdata` block
++        # (with no intervening `.text`/`.data`/`.rdata`) fell through to the sdata-entry
++        # scan's catch-all and raised "Unable to parse .sdata instruction". Real trigger
++        # (libgpu/SYS.cpp): a `.sdata`-placed const table's ascii literal-pool tail
++        # immediately followed by an attribute-forced `.section .data,"aw",@progbits`.
++        lines = [
++            ".sdata",
++            ".align\t2",
++            "tbl:",
++            ".word\t$LC1",
++            ".align\t2",
++            "$LC1:",
++            '.ascii\t"GPU\\000"',
++            ".globl\tGEnv_drv",
++            '.section .data,"aw",@progbits',
++            ".align\t2",
++            "GEnv_drv:",
++            ".word\ttbl",
++        ]
++        mp = MaspsxProcessor(lines)
++        # must not raise "Unable to parse .sdata instruction: .section .data,..."
++        out = mp.process_lines()
++        self.assertIn("GEnv_drv:", out)
++
++    def test_named_bss_section_after_sdata_run(self):
++        # Same bug, `.bss`-flavoured (the other section name this tree's
++        # `__attribute__((section(".bss")))` globals use).
++        lines = [
++            ".sdata",
++            ".align\t2",
++            "small_const:",
++            ".word\t5",
++            ".globl\tGPU_GP0",
++            '.section .bss,"aw",@progbits',
++            ".align\t2",
++            "GPU_GP0:",
++            ".space\t4",
++        ]
++        mp = MaspsxProcessor(lines)
++        out = mp.process_lines()
++        self.assertIn("GPU_GP0:", out)
++
++    def test_named_sdata_section_enters_sdata_scan(self):
++        # An explicit `.section .sdata,...` (never emitted by this project's CC1PSX in
++        # practice, but the general form) should behave like the bare `.sdata` directive
++        # -- i.e. still be tracked by the sdata-entry scan -- not silently ignored.
++        lines = [
++            '.section .sdata,"aw",@progbits',
++            ".align\t2",
++            "small:",
++            ".word\t1",
++        ]
++        mp = MaspsxProcessor(lines)
++        out = mp.process_lines()
++        self.assertIn("small:", out)

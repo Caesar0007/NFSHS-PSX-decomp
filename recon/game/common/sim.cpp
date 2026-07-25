@@ -139,9 +139,7 @@ void Sim_ProcessSimSchedules(void)
 
 {
   int i;
-  int cd_minus_1;
-  int cd_clamped;
-  
+
   if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
      (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0 ||
       ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0)))))) {
@@ -149,15 +147,13 @@ void Sim_ProcessSimSchedules(void)
     simGlobal.gameStarted = 1;
   }
   else if (simGlobal.gameStarted == 0) {
-    cd_minus_1 = (u_char)countdown - 1;
-    cd_clamped = cd_minus_1;
-    if (cd_minus_1 < 0) {
-      cd_clamped = 0;
+    i = (u_char)countdown - 1;
+    if (i < 0) {
+      i = 0;
     }
-    while (cd_minus_1 < 4) {
-      AudioCmn_GetAsyncSfx(2,cd_clamped + 0x23,false);
-      cd_minus_1 = cd_clamped + 1;
-      cd_clamped = cd_minus_1;
+    while (i < 4) {
+      AudioCmn_GetAsyncSfx(2,i + 0x23,false);
+      i = i + 1;
     }
     if (counter[(u_char)countdown] <= simGlobal.gameTicks) {
       if (0x1ff < simGlobal.gameTicks) {

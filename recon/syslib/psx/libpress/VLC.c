@@ -35,7 +35,7 @@ static u_int    _vlc_state[9] __attribute__((section(".bss")));  /* @0x801369EC.
 static u_short *_vlc_end       __attribute__((section(".bss")));  /* @0x80136A10 : output slice end */
 
 /* @0x800F7400 : set the per-slice output size (in cells); returns the previous value. */
-extern "C" int DecDCTvlcSize(int size);
+extern int DecDCTvlcSize(int size);
 #if defined(__mips__)
 __asm__(
     ".text\n\t.set push\n\t.set noat\n\t.set noreorder\n\t.set\tnoreorder\n"
@@ -56,7 +56,7 @@ __asm__(
     ".set pop\n"
 );
 #else
-extern "C" int DecDCTvlcSize(int size)
+extern int DecDCTvlcSize(int size)
 {
     int prev = _vlc_blksize;
     if (size - 1 > 0) _vlc_blksize = size << 1;
@@ -66,7 +66,7 @@ extern "C" int DecDCTvlcSize(int size)
 #endif
 
 /* @0x800F7430 : decode one slice of the MDEC bit-stream into run/level cells. */
-extern "C" int DecDCTvlc(u_int *bs, u_int *buf);
+extern int DecDCTvlc(u_int *bs, u_int *buf);
 #if defined(__mips__)
 __asm__(
     ".text\n\t.set push\n\t.set noat\n\t.set noreorder\n\t.set\tnoreorder\n"
@@ -309,7 +309,7 @@ __asm__(
     ".set pop\n"
 );
 #else
-extern "C" int DecDCTvlc(u_int *bs, u_int *buf)
+extern int DecDCTvlc(u_int *bs, u_int *buf)
 {
     /* host stub: this routine is genuine hand-written PSX asm (see header); no portable C
      * equivalent is reconstructed -- the real body only exists under __mips__. */

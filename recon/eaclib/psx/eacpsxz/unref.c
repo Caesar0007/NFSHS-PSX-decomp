@@ -16,19 +16,18 @@ extern void           puti(unsigned char *buf, unsigned int val, int n); /* text
 extern unsigned char *refcpy(unsigned char *src, unsigned int count, int len); /* unhuff */
 extern void           memcpyl(char *dst, char *src, int len);  /* unhuff */
 
-extern int  unrefpack(unsigned char *comp, unsigned char *out, unsigned char *dst); /* @0x800F52B8 */
+extern int  unrefpack(unsigned char *comp, unsigned char *out, int reverse); /* @0x800F52B8 */
 extern void chase(unsigned int code);                                               /* @0x800F5530 */
 
-/* unrefpack @0x800F52B8 : decompress RefPack stream `comp` into `out` (only if `dst` != 0, else size-query);
+/* unrefpack @0x800F52B8 : decompress RefPack stream `comp` into `out` (only if `reverse` != 0, else size-query);
  *   returns the 24-bit uncompressed size.
  * RAW/ORACLE REDUCTION (146->113): the retail body mutates the incoming compressed/output cursors
  * directly.  Removing the hdr/ip/back aliases restores the four command layouts, including the
  * literal-run fall-through and terminator branch.  Remaining residual is dominated by the saved-reg
- * cycle for out/op/lit plus five arithmetic/scheduling instructions. */
-extern int unrefpack(unsigned char *comp, unsigned char *out, unsigned char *dst)
+ * cycle for the two cursor parameters plus five arithmetic/scheduling instructions. */
+extern int unrefpack(unsigned char *comp, unsigned char *out, int reverse)
 {
     int           size = 0;
-    unsigned int  lit;
     unsigned char trail[8];
     if (comp != (unsigned char *)0) {
         unsigned int flags = geti(comp, 4);
@@ -38,7 +37,7 @@ extern int unrefpack(unsigned char *comp, unsigned char *out, unsigned char *dst
         size = (int)(((unsigned int)comp[0] << 16) +
                      ((unsigned int)comp[1] << 8) + comp[2]);
         comp += 3;
-        if (dst != (unsigned char *)0) {
+        if (reverse != 0) {
             puti(trail, geti(out + size, 4), 4);          /* save the bytes at the splice point */
             for (;;) {
                 unsigned int op = geti(comp, 4);
@@ -46,10 +45,10 @@ extern int unrefpack(unsigned char *comp, unsigned char *out, unsigned char *dst
                     unsigned int   count;
                     int            len;
                     comp += 2;
-                    lit = op & 3;
+                    reverse = op & 3;
                     puti(out, geti(comp, 4), 4);
-                    out += lit;
-                    comp += lit;
+                    out += reverse;
+                    comp += reverse;
                     count = ((op << 3) & 0x300) + (((op >> 8) & 0xff) + 1);
                     len   = (int)(op >> 2 & 7) + 3;
                     out   = refcpy(out, count, len);
@@ -57,10 +56,10 @@ extern int unrefpack(unsigned char *comp, unsigned char *out, unsigned char *dst
                     unsigned int   count;
                     int            len;
                     comp += 3;
-                    lit = op >> 0xe & 3;
+                    reverse = op >> 0xe & 3;
                     puti(out, geti(comp, 4), 4);
-                    out += lit;
-                    comp += lit;
+                    out += reverse;
+                    comp += reverse;
                     count = (((op >> 8) & 0x3f) << 8) + (((op >> 16) & 0xff) + 1);
                     len   = (int)(op & 0x3f) + 4;
                     out   = refcpy(out, count, len);
@@ -68,10 +67,10 @@ extern int unrefpack(unsigned char *comp, unsigned char *out, unsigned char *dst
                     unsigned int   count;
                     int            len;
                     comp += 4;
-                    lit = op & 3;
+                    reverse = op & 3;
                     puti(out, geti(comp, 4), 4);
-                    out += lit;
-                    comp += lit;
+                    out += reverse;
+                    comp += reverse;
                     count = ((op << 12) & 0x10000) + ((op & 0xff00) + 1) +
                             ((op >> 16) & 0xff);
                     len   = (int)(((op << 6) & 0x300) + (op >> 24)) + 5;
@@ -84,8 +83,8 @@ extern int unrefpack(unsigned char *comp, unsigned char *out, unsigned char *dst
                         out = out + len;
                         comp = comp + len;
                     } else {
-                        unsigned int n;
-                        for (n = op & 3; n != 0; n = n - 1) {
+                        reverse = op & 3;
+                        for (; reverse != 0; reverse = reverse - 1) {
                             *out = *comp;
                             comp = comp + 1;
                             out  = out + 1;

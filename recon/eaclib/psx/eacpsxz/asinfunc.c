@@ -50,12 +50,14 @@ static const unsigned char kArcsinTable[512] = {
 /* ===================================================================== *
  *  intarcsin @0x800EACD8 : arcsine of a 16.16 sine value -> brads.        *
  * ===================================================================== */
-extern "C" int intarcsin(int x)   /* @0x800EACD8 */
+extern int intarcsin(int x)   /* @0x800EACD8 */
 {
+    int idx;
+    int result;
     int sign = 0;
     if (x < 0) { x = -x; sign = 1; }            /* abs, remember sign  */
 
-    int result;
+
     /* MATCH: coarse region = the if-BODY (bnez -> out-of-line steep block); the round
      * select is a BRANCHED if/else (a ?: strength-reduces to the branchless
      * (x>>6&1)+(x>>7)); the steep t0/t1 pair reads through ONE element pointer.
@@ -71,7 +73,7 @@ extern "C" int intarcsin(int x)   /* @0x800EACD8 */
      * base score -- confirms §asm_pattern_catalog Row E "register-materialization FLOOR
      * (v0-vs-a2 tie-break)": the address-scratch choice is allocator-internal, not
      * source-shapable. Accept as a floor. */
-    int idx;                                     /* ONE fn-scope index shared by BOTH regions (a1) */
+
     if (x <= 0xFA00) {                           /* coarse region: round-to-nearest lookup */
         if (x & 0x40)
             idx = (x >> 7) + 1;
@@ -82,8 +84,10 @@ extern "C" int intarcsin(int x)   /* @0x800EACD8 */
         if (0xFFFF < x) {
             result = 0x100;                      /* clamp to 90 degrees */
         } else {
+            int t0;
+            int t1;
             int frac;
-            int t0, t1;
+
             idx  = x >> 7;
             frac = x & 0x7F;                     /* 0x800EAD40 (branch delay slot -> both paths) */
             if (idx == 0x1FF) {                  /* top step interpolates toward 90deg */
@@ -104,7 +108,7 @@ extern "C" int intarcsin(int x)   /* @0x800EACD8 */
 /* ===================================================================== *
  *  intarccos @0x800EAD98 : arccos(x) = 90deg - arcsin(x).                 *
  * ===================================================================== */
-extern "C" int intarccos(int x)   /* @0x800EAD98 */
+extern int intarccos(int x)   /* @0x800EAD98 */
 {
     return 0x100 - intarcsin(x);
 }

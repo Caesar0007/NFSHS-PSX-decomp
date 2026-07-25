@@ -27,7 +27,7 @@
  *             (s1<->s2) in the "done" resume block, plus a switch-dispatch test-order/bounds-check
  *             shape gcc won't reproduce from either case-order permutation tried. Permuter running
  *             (plateaued ~380 after 100+ iters).
- *     [near]  CdReadyHandler (325->279->223->158 diffs) -- MAJOR STRUCTURAL FIX: the oracle hoists ONE
+ *     [near]  CdReadyHandler (325->279->223->158->109 diffs) -- MAJOR STRUCTURAL FIX: the oracle hoists ONE
  *             base pointer to ctx+0x20 (Ghidra's `D_80146CE4`, the same read-state sub-struct
  *             CD_Read already models) ONCE at function entry, holds it in a callee-saved reg for
  *             the WHOLE function, and reaches Cdinfo itself via a NEGATIVE -0x20 byte offset off
@@ -41,8 +41,10 @@
  *             per-array 8-byte padding and matches the oracle frame exactly (352 bytes); expressing
  *             interrupt dispatch as a byte-valued switch matches its `andi a0,s1,0xFF` cascade;
  *             keeping the active-read path positive also matches its branch layout.  This yields
- *             280 ours vs 300 oracle instructions and 158 residual diffs.  The remaining large
- *             regions are the wrong-sector retry/completion block ordering and register coloring.
+ *             Oracle tracing then recovered the wrong-sector fall-through arm, distinct volatile
+ *             flag updates, a separate issue-result local (preserving the result parameter), and
+ *             a case-5 context pointer. Current count is 289 ours vs 300 oracle instructions with
+ *             109 residual diffs. The remaining large regions are retry-tail sharing and coloring.
  *     [PASS]  loaddirinfo -- 139->PASS: void return, rotated entry-count loop, direct parameter
  *             countdown reuse, reloaded filename length after memcpy, one live CD-context base,
  *             unsigned recursive size shift, and the record advance in the loop-test delay slot.
@@ -610,6 +612,7 @@ extern void CdReadyHandler(int intr, unsigned char *result)
 #define gpctx scratch.gpctx
     unsigned char com;
     unsigned char *param;
+    unsigned char *issueResult;
     void          *madr;
     int           done;
     /* oracle hoists ONE base pointer to ctx+0x20 (the Ghidra-named `D_80146CE4` -- the read-state
@@ -655,7 +658,19 @@ extern void CdReadyHandler(int intr, unsigned char *result)
                 CdGetSector(madr, 0x200);     /* 0x800 bytes of user data */
                 CdGetSector(sub, 0x46);       /* trailing bytes */
                 CdDataSync(0);
-                if (CdPosToInt(hdr) == CD_cachedSector) {     /* the sector we were expecting */
+                if (CdPosToInt(hdr) != CD_cachedSector) {     /* wrong sector -> retry up to 4 ring slots */
+                    CD_ringIdx++;
+                    CD_curSector = CD_cachedSector;
+                    if (CD_ringIdx < 4) {
+                        Cdinfo |= 2;
+                    } else {
+                        CD_ringIdx = -1;
+                        com = 0x09;           /* CdlPause */
+                        param = 0;
+                        issueResult = 0;
+                        goto issue;
+                    }
+                } else {                      /* the sector we were expecting */
                     CD_timeout = timerhz * 6;
                     if ((Cdinfo & 8) != 0) {  /* partial -> copy the wanted slice out of the cache */
                         Cdinfo = (Cdinfo & ~8) | 0x10;
@@ -671,17 +686,6 @@ extern void CdReadyHandler(int intr, unsigned char *result)
                     } else {
                         done = 1;
                     }
-                } else {                      /* wrong sector -> retry up to 4 ring slots */
-                    CD_ringIdx++;
-                    CD_curSector = CD_cachedSector;
-                    if (CD_ringIdx > 3) {
-                        CD_ringIdx = -1;
-                        com = 0x09;           /* CdlPause */
-                        param = 0;
-                        result = 0;
-                        goto issue;
-                    }
-                    Cdinfo |= 2;
                 }
             }
         } else {
@@ -704,22 +708,24 @@ extern void CdReadyHandler(int intr, unsigned char *result)
         }
         goto advance;
 
-    case 5:
+    case 5: {
+        CD_ctx_t *ctx = (CD_ctx_t *)((char *)rs - 0x20);
         /* only CdlDiskError while actively reading is interesting */
-        if ((RS_Cdinfo & 1) == 0)
+        if ((ctx->info & 1) == 0)
             goto advance;
         CdControl(0x01, 0, &hdr[0].minute);   /* CdlNop -- read the drive status */
-        CD_ringIdx++;
-        CD_curSector = CD_cachedSector;
-        if (CD_ringIdx < 4) {
-            RS_Cdinfo |= 2;
+        ctx->ringIdx++;
+        ctx->curSector = ctx->cachedSector;
+        if (ctx->ringIdx < 4) {
+            ctx->info |= 2;
             goto advance;
         }
-        CD_ringIdx = -1;
+        ctx->ringIdx = -1;
         com = 0x09;                           /* CdlPause */
         param = 0;
-        result = 0;
+        issueResult = 0;
         goto issue;
+    }
 
     default:
         goto advance;
@@ -728,7 +734,9 @@ extern void CdReadyHandler(int intr, unsigned char *result)
 advance:
     CD_cachedSector++;
     if ((Cdinfo & 2) != 0) {
-        Cdinfo = (Cdinfo & ~0x12) | 1;    /* clear in-progress|copied, mark reading */
+        Cdinfo &= ~2;                     /* clear in-progress */
+        Cdinfo &= ~0x10;                  /* clear copied */
+        Cdinfo |= 1;                      /* mark reading */
         if (CD_cachedSector != CD_curSector) {   /* seek to the requested sector */
             CdFlush();
             CdSync(0, 0);
@@ -746,8 +754,9 @@ advance:
     CdIntToPos(CD_lastSector, pos);
     com   = 0x1B;                          /* CdlReadN */
     param = pos;
+    issueResult = result;
 issue:
-    CdControl(com, param, result);
+    CdControl(com, param, issueResult);
     CdReadyCallback(CdReadyHandler);       /* re-install ourselves */
 }
 #undef gpctx

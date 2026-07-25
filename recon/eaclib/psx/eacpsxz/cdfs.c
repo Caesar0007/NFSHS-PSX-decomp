@@ -1,5 +1,12 @@
-/* eaclib/psx/eacpsxz/cdfs.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 10/14 PASS ***
+/* eaclib/psx/eacpsxz/cdfs.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 10/14 PASS ***
  *   Source obj : nfs4\eaclib\psx\cdfs.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col11)
+ *
+ *   COMPILED AS C by USER RULING (2026-07-25, uniformity over diff count): cc1plus (C++) measured
+ *   strictly better per-fn diff counts than cc1 (C) on this TU -- loaddirinfo 115->139 (w26-a1
+ *   dual-compile audit). Migrated anyway for source-uniformity across syslib/eaclib. Do NOT revert
+ *   to .cpp without a user decision; see recon/syslib/psx/libcd/cdread.c,
+ *   recon/syslib/psx/libcd/iso9660.c and recon/syslib/psx/libgpu/FONT.c for the sibling KEEP-CPP-
+ *   turned-uniform TUs (same ruling, same date).
  *   14 fns @[0x800F9AE8 .. 0x800FA920].  EA CD-ROM filesystem (fs 1): the CD_* backend fileroot calls.
  *   Dual-source reconstruction: Ghidra `C:\Temp\claud\nfs4-f.exe.c` (primary) verified vs disasm-v3.
  *
@@ -56,42 +63,42 @@
  */
 
 /* ---- CD context globals @0x80146CC4 (data-materialization pass owns the addresses) ---- */
-extern "C" int    Cdinfo;            /* +0x00 CD state flags (bit2 == stop-requested)            */
-extern "C" int    CD_maxOpen;        /* +0x04 number of handle slots                             */
-extern "C" int    CD_dirEntryCount;  /* +0x08 number of ISO9660 directory entries                */
-extern "C" void **CD_handleTable;    /* +0x34 open-file slots (each -> a directory entry)        */
-extern "C" void  *CD_dirEntryArray;  /* +0x38 the sorted directory-entry array (0x14-byte stride)*/
+extern int    Cdinfo;            /* +0x00 CD state flags (bit2 == stop-requested)            */
+extern int    CD_maxOpen;        /* +0x04 number of handle slots                             */
+extern int    CD_dirEntryCount;  /* +0x08 number of ISO9660 directory entries                */
+extern void **CD_handleTable;    /* +0x34 open-file slots (each -> a directory entry)        */
+extern void  *CD_dirEntryArray;  /* +0x38 the sorted directory-entry array (0x14-byte stride)*/
 
 /* ---- helpers ---- */
-extern "C" int   toupper(int c);                                  /* @0x8010907C (libc C37)      */
-extern "C" void *bsearch(const void *key, const void *base, int n, int size,
+extern int   toupper(int c);                                  /* @0x8010907C (libc C37)      */
+extern void *bsearch(const void *key, const void *base, int n, int size,
                          int (*cmp)(const void *, const void *)); /* @0x801091DC (libc)          */
-extern "C" int   dircompare(const void *a, const void *b);        /* @0x800FA344 (cdfs, below)   */
-extern "C" char *strncpy(char *d, const char *s, int n);          /* @0x800F6104 (libc C26)      */
+extern int   dircompare(const void *a, const void *b);        /* @0x800FA344 (cdfs, below)   */
+extern char *strncpy(char *d, const char *s, int n);          /* @0x800F6104 (libc C26)      */
 
 /* ---- CD read-state (ctx+0x20 sub-struct) + sector cache + the read machinery CD_Read arms ---- */
-extern "C" int   CD_curOff;          /* byte offset within the current 0x800 sector              */
-extern "C" int   CD_curLen;          /* bytes to transfer from the current sector                */
-extern "C" int   CD_remLen;          /* bytes still to transfer after the current sector         */
-extern "C" int   CD_ringIdx;         /* libcd read-ring index                                    */
-extern "C" int   CD_curSector;       /* the sector currently being read                          */
-extern "C" int   CD_timeout;         /* watchdog (timer ticks)                                   */
-extern "C" void *CD_curDst;          /* current memory destination                               */
-extern "C" void (*CD_completionCallback)(int);  /* fired (with 1) when a read finishes            */
-extern "C" int   timerhz;            /* timer frequency                                          */
-extern "C" int   g_currentthread;    /* execution context id                                     */
-extern "C" int   CD_cachedSector;    /* @0x80146CD0 sector currently in the cache buffer          */
-extern "C" unsigned char CD_sectorCache[]; /* @0x80146D00 the cached 0x800-byte sector            */
-extern "C" void  CD_timerfunc(void); /* @0x800F9C44 (cdfs read watchdog/poll, below)             */
+extern int   CD_curOff;          /* byte offset within the current 0x800 sector              */
+extern int   CD_curLen;          /* bytes to transfer from the current sector                */
+extern int   CD_remLen;          /* bytes still to transfer after the current sector         */
+extern int   CD_ringIdx;         /* libcd read-ring index                                    */
+extern int   CD_curSector;       /* the sector currently being read                          */
+extern int   CD_timeout;         /* watchdog (timer ticks)                                   */
+extern void *CD_curDst;          /* current memory destination                               */
+extern void (*CD_completionCallback)(int);  /* fired (with 1) when a read finishes            */
+extern int   timerhz;            /* timer frequency                                          */
+extern int   g_currentthread;    /* execution context id                                     */
+extern int   CD_cachedSector;    /* @0x80146CD0 sector currently in the cache buffer          */
+extern unsigned char CD_sectorCache[]; /* @0x80146D00 the cached 0x800-byte sector            */
+extern void  CD_timerfunc(void); /* @0x800F9C44 (cdfs read watchdog/poll, below)             */
 
-extern "C" void  addtimer(void *fn, void *arg);   /* @0x800EAFE8 (eaclib)                        */
-extern "C" void  deltimer(void *fn);              /* @0x800EB048 (eaclib)                        */
-extern "C" void  blockmove(void *src, void *dst, int n);  /* @0x800E62DC                          */
-extern "C" int   savegp(void *ctx);               /* save $gp around a cross-module callback     */
-extern "C" void  restoregp(int saved);
+extern void  addtimer(void *fn, void *arg);   /* @0x800EAFE8 (eaclib)                        */
+extern void  deltimer(void *fn);              /* @0x800EB048 (eaclib)                        */
+extern void  blockmove(void *src, void *dst, int n);  /* @0x800E62DC                          */
+extern int   savegp(void *ctx);               /* save $gp around a cross-module callback     */
+extern void  restoregp(int saved);
 
 /* ---- additional CD context globals + the CD machinery ---- */
-extern "C" int   CD_lastSector;      /* @0x80146CD4 (ctx+0x10) completion/prefetch loop marker   */
+extern int   CD_lastSector;      /* @0x80146CD4 (ctx+0x10) completion/prefetch loop marker   */
 
 /* ---- cdfs.obj-OWNED storage for the CD-filesystem state above.
  *   ROOT CAUSE FIX (inverse of methodology-§3.12 lever #6): the original is ONE 0x83C-byte
@@ -112,7 +119,6 @@ extern "C" int   CD_lastSector;      /* @0x80146CD4 (ctx+0x10) completion/prefet
  *   read-state-cluster-volatile test that REGRESSED CD_Read 198->255 / CdReadyHandler 325->367.
  *   Same shape SOTN uses (libcd cdread.c `volatile cdreadStruct`) and NFS4's own `volatile
  *   CdrEnv _cdr` -- one struct, sync-word volatile, accessed via the gcc-CSE'd base. */
-extern "C" {
 struct CD_ctx_t {
     volatile int info;                 /* +0x00  Cdinfo (IRQ-polled sync flags; bit2==stop-req) */
     int   maxOpen;                     /* +0x04  CD_maxOpen                                    */
@@ -131,8 +137,8 @@ struct CD_ctx_t {
     void *dirEntryArray;               /* +0x38  CD_dirEntryArray                              */
     unsigned char sectorCache[0x800];  /* +0x3C  CD_sectorCache  (0x800-byte cached sector)    */
 };                                     /* sizeof == 0x83C == blockclear(&Cdinfo,0x83C)         */
+typedef struct CD_ctx_t CD_ctx_t;
 CD_ctx_t CD_ctx;                       /* the whole CD context @0x80146CC4 (one .bss object)   */
-}
 /* Flat-name -> struct-member accessor macros (call sites unchanged; each expands to an
  * absolute-addressed struct field, killing the gp-rel divergence). */
 #define Cdinfo                CD_ctx.info
@@ -156,37 +162,37 @@ CD_ctx_t CD_ctx;                       /* the whole CD context @0x80146CC4 (one 
 typedef struct CdlLOC { unsigned char minute, second, sector, track; } CdlLOC;
 
 /* ---- syslib / PsyQ libcd backend (toolchain-provided; declared, not reconstructed) ---- */
-extern "C" int  CdInit(void);                                                  /* @0x800F908C */
-extern "C" void CdReset(int mode);                                             /* @0x800F77AC */
-extern "C" void CdSetDebug(int level);                                         /* @0x800F7838 */
-extern "C" int  CdGetToc(CdlLOC *toc);                                         /* @0x800F929C */
-extern "C" int  CdControlB(unsigned char com, unsigned char *p, unsigned char *r); /* @0x800F7B24 */
-extern "C" int  CdControl(unsigned char com, unsigned char *p, unsigned char *r);  /* @0x800F78B4 */
-extern "C" int  CdSync(int mode, unsigned char *r);                            /* @0x800F784C */
-extern "C" int  CdFlush(void);                                                 /* @0x800F7818 */
-extern "C" void CdReadyCallback(void (*fn)(int, unsigned char *));             /* @0x800F78A0 */
-extern "C" void CdIntToPos(int i, unsigned char *p);                           /* @0x800F7CF4 */
-extern "C" int  CdPosToInt(CdlLOC *p);                                         /* syslib SYS  */
-extern "C" int  CdGetSector(void *madr, int size);                             /* syslib SYS  */
-extern "C" int  CdDataSync(int mode);                                          /* syslib SYS  */
-extern "C" int  CdDiskReady(int mode);                                         /* syslib TYPE */
-extern "C" int  CdGetDiskType(void);                                           /* syslib TYPE */
-extern "C" void VSync(int mode);                                               /* @0x800F231C */
+extern int  CdInit(void);                                                  /* @0x800F908C */
+extern void CdReset(int mode);                                             /* @0x800F77AC */
+extern void CdSetDebug(int level);                                         /* @0x800F7838 */
+extern int  CdGetToc(CdlLOC *toc);                                         /* @0x800F929C */
+extern int  CdControlB(unsigned char com, unsigned char *p, unsigned char *r); /* @0x800F7B24 */
+extern int  CdControl(unsigned char com, unsigned char *p, unsigned char *r);  /* @0x800F78B4 */
+extern int  CdSync(int mode, unsigned char *r);                            /* @0x800F784C */
+extern int  CdFlush(void);                                                 /* @0x800F7818 */
+extern void CdReadyCallback(void (*fn)(int, unsigned char *));             /* @0x800F78A0 */
+extern void CdIntToPos(int i, unsigned char *p);                           /* @0x800F7CF4 */
+extern int  CdPosToInt(CdlLOC *p);                                         /* syslib SYS  */
+extern int  CdGetSector(void *madr, int size);                             /* syslib SYS  */
+extern int  CdDataSync(int mode);                                          /* syslib SYS  */
+extern int  CdDiskReady(int mode);                                         /* syslib TYPE */
+extern int  CdGetDiskType(void);                                           /* syslib TYPE */
+extern void VSync(int mode);                                               /* @0x800F231C */
 
-extern "C" void addsystemtask(void *fn, void *a, void *b); /* @ systask  */
-extern "C" void delsystemtask(void *fn);                   /* @ systask  */
-extern "C" void addexit(void *fn);                         /* @0x800F1CF8 (exit) */
-extern "C" void blockclear(void *dst, int n);              /* @0x800F17A0 (blkfill) */
-extern "C" int  strncmp(const char *a, const char *b, int n); /* @0x800EB1D0 (syslib C24) */
-extern "C" void *memcpy(void *d, const void *s, int n);       /* @0x800EAAC4 (syslib C42) */
-extern "C" void qsort(void *base, int n, int sz, int (*cmp)(const void *, const void *)); /* @0x800E5D8C */
+extern void addsystemtask(void *fn, void *a, void *b); /* @ systask  */
+extern void delsystemtask(void *fn);                   /* @ systask  */
+extern void addexit(void *fn);                         /* @0x800F1CF8 (exit) */
+extern void blockclear(void *dst, int n);              /* @0x800F17A0 (blkfill) */
+extern int  strncmp(const char *a, const char *b, int n); /* @0x800EB1D0 (syslib C24) */
+extern void *memcpy(void *d, const void *s, int n);       /* @0x800EAAC4 (syslib C42) */
+extern void qsort(void *base, int n, int sz, int (*cmp)(const void *, const void *)); /* @0x800E5D8C */
 
 /* ---- cdfs internal forward decls (mutually recursive CD machinery) ---- */
-extern "C" unsigned char *readsectorB(void);                       /* @0x800FA154 */
-extern "C" int  *loaddirinfo(int startSector, int numSectors, int maxEntries); /* @0x800FA1A8 */
-extern "C" int   CD_Restart(int startSector);                      /* @0x800FA4A8 */
-extern "C" void  CD_systaskfunc(void);                             /* @0x800F9AE8 */
-extern "C" void  CdReadyHandler(int intr, unsigned char *result);  /* @0x800F9CA4 */
+extern unsigned char *readsectorB(void);                       /* @0x800FA154 */
+extern int  *loaddirinfo(int startSector, int numSectors, int maxEntries); /* @0x800FA1A8 */
+extern int   CD_Restart(int startSector);                      /* @0x800FA4A8 */
+extern void  CD_systaskfunc(void);                             /* @0x800F9AE8 */
+extern void  CdReadyHandler(int intr, unsigned char *result);  /* @0x800F9CA4 */
 
 /* unaligned little-endian 32-bit load (the asm uses lwl/lwr; ISO9660 stores LE first).  MUST be
  * `inline` (a bare `static` at -O2 on this toolchain still emits an out-of-line call) -- the oracle
@@ -204,7 +210,7 @@ static inline int rd_le32(const unsigned char *q)
 /* CD_Open @0x800FA554 : open `name` on the CD; writes the 1-based handle to *outp.  Finds a free slot,
  *   upper-cases the name, binary-searches the directory, and parks the matching entry in the slot.
  *   Returns 1 if found, 0 if not.  (`flags` is unused -- the CD is read-only.) */
-extern "C" int CD_Open(char *name, int flags, int *outp)
+extern int CD_Open(char *name, int flags, int *outp)
 {
     char   upper[16];
     char  *p    = upper;
@@ -242,14 +248,14 @@ slot_done:
 }
 
 /* CD_Close @0x800FA65C : release a CD handle slot (1-based). */
-extern "C" int CD_Close(int handle)
+extern int CD_Close(int handle)
 {
     CD_handleTable[handle - 1] = 0;
     return 0;
 }
 
 /* CD_Stopread @0x800FA904 : request the in-flight CD read to stop (sets Cdinfo bit 2). */
-extern "C" int CD_Stopread(int dev)
+extern int CD_Stopread(int dev)
 {
     /* Cdinfo (info) is volatile (the IRQ + readsectorB's spin re-read it), so a bare
      * `return Cdinfo |= 4;` would RE-READ info after the store to source the return
@@ -263,7 +269,7 @@ extern "C" int CD_Stopread(int dev)
 
 /* CD_Getinfo @0x800FA920 : query an open CD file -- optionally copy its 0xC-byte name into `namebuf`
  *   and write its size to *sizeout; returns the size. */
-extern "C" int CD_Getinfo(int handle, int namebuf, int *sizeout)
+extern int CD_Getinfo(int handle, int namebuf, int *sizeout)
 {
     void **slot = &CD_handleTable[handle - 1];       /* the SLOT address is what's kept; the entry
                                                          pointer itself is RELOADED at every use below
@@ -281,7 +287,7 @@ extern "C" int CD_Getinfo(int handle, int namebuf, int *sizeout)
  *   target sector happens to already be in the sector cache (same execution context), it is copied
  *   immediately -- completing the read (calling the completion callback) or advancing to the next sector.
  *   Returns the (clamped) byte count, or 0 if the CD is busy. */
-extern "C" int CD_Read(int dev, int dest, int offset, int len)
+extern int CD_Read(int dev, int dest, int offset, int len)
 {
     char *entry = (char *)CD_handleTable[dev - 1];
     int   q, remaining;
@@ -351,7 +357,7 @@ extern "C" int CD_Read(int dev, int dest, int offset, int len)
  *   whether to enter the loop, but the loop body reloads Cdinfo FRESH every pass (incl. the first) --
  *   a `do{}while()` gated by an outer `if`, not a `while(){}` (which would test-before-every-pass off
  *   the SAME reload as the guard, an extra reload+branch pair the oracle doesn't have). */
-extern "C" unsigned char *readsectorB(void)
+extern unsigned char *readsectorB(void)
 {
     int busy;
 
@@ -371,7 +377,7 @@ extern "C" unsigned char *readsectorB(void)
  *   global directory-entry array.  Skips the "." and ".." records of the first sector; recurses into
  *   subdirectory records.  Stops when the directory's sectors run out or CD_dirEntryCount hits
  *   `maxEntries` (a budget shared across the recursion).  The return value (a fixed address) is unused. */
-extern "C" int *loaddirinfo(int startSector, int numSectors, int maxEntries)
+extern int *loaddirinfo(int startSector, int numSectors, int maxEntries)
 {
     int            savedSector = CD_curSector;
     int            sectorsLeft;
@@ -427,13 +433,13 @@ extern "C" int *loaddirinfo(int startSector, int numSectors, int maxEntries)
 }
 
 /* dircompare @0x800FA344 : qsort/bsearch comparator -- compares the 0xC-byte names of two dir entries. */
-extern "C" int dircompare(const void *a, const void *b)
+extern int dircompare(const void *a, const void *b)
 {
     return strncmp((const char *)a, (const char *)b, 0xC);
 }
 
 /* CD_Restore @0x800FA364 : addexit() cleanup -- reset the drive and clear the CD context block. */
-extern "C" void CD_Restore(void)
+extern void CD_Restore(void)
 {
     CdReset(0);
     blockclear(&Cdinfo, 0x83C);           /* ctx header (0x3C) + sector cache (0x800) = 0x83C */
@@ -443,7 +449,7 @@ extern "C" void CD_Restore(void)
  *   (sector 0x10), walks its root directory into the caller-provided buffer, sorts the entry array, and
  *   registers the at-exit drive-reset.  `buffer` holds `maxOpen` handle pointers followed by the
  *   `numEntries`-slot (0x14-byte) directory array.  Returns the number of entries found (0 on failure). */
-extern "C" int CD_Init(int maxOpen, int numEntries, void *buffer, void (*callback)(int))
+extern int CD_Init(int maxOpen, int numEntries, void *buffer, void (*callback)(int))
 {
     CdlLOC         toc[2];
     unsigned char *root;
@@ -477,7 +483,7 @@ extern "C" int CD_Init(int maxOpen, int numEntries, void *buffer, void (*callbac
 
 /* CD_Restart @0x800FA4A8 : (re)set the read mode and start a streaming read at `startSector` (default
  *   0x10).  Loops CdlSetmode until accepted, flushes, installs CdReadyHandler, and issues CdlReadN. */
-extern "C" int CD_Restart(int startSector)
+extern int CD_Restart(int startSector)
 {
     unsigned char pos[8];
     unsigned char mode[8];
@@ -509,7 +515,7 @@ extern "C" int CD_Restart(int startSector)
 /* CD_systaskfunc @0x800F9AE8 : disc-swap recovery system task.  Polls CdDiskReady; on a stable disc
  *   (or a timed-out error) it resets the drive, re-arms the read mode + CdReadyHandler, and resumes the
  *   in-flight transfer if one was pending. */
-extern "C" void CD_systaskfunc(void)
+extern void CD_systaskfunc(void)
 {
     unsigned char mode[8];
     unsigned char result[8];
@@ -576,7 +582,7 @@ extern "C" void CD_systaskfunc(void)
 
 /* CD_timerfunc @0x800F9C44 : read watchdog (timer callback).  When the countdown reaches zero it queues
  *   the disc-swap recovery system task and removes itself from the timer list. */
-extern "C" void CD_timerfunc(void)
+extern void CD_timerfunc(void)
 {
     if (CD_timeout != 0) {
         CD_timeout = CD_timeout - 1;
@@ -594,7 +600,7 @@ extern "C" void CD_timerfunc(void)
  *   cache for a partial slice), validates the sector address, advances the transfer, and fires the
  *   completion callback when the request is satisfied.  It also keeps the drive streaming/prefetching
  *   ahead of CD_curSector and re-installs itself on exit. */
-extern "C" void CdReadyHandler(int intr, unsigned char *result)
+extern void CdReadyHandler(int intr, unsigned char *result)
 {
     struct {
         CdlLOC        hdr[3];             /* sector address header (CdGetSector .. 3 words) */

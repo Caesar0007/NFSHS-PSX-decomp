@@ -10,9 +10,9 @@
  *   Decoded verbatim from disasm-v3 (m[] index = byte-offset/4). Behavior-faithful; @VA breadcrumb.
  *   Callers resolve to the plain `transpose` symbol via the central extern "C" lib/libfns.h.
  */
-#include "../../../nfs4_types.h"
+typedef struct matrixtdef { int m[9]; } matrixtdef;   /* local C-lane mirror of nfs4_types.h matrixtdef (pad.c precedent) */
 
-extern "C" void transpose(matrixtdef *src, matrixtdef *dst)   /* @0x800E4358 */
+extern void transpose(matrixtdef *src, matrixtdef *dst)   /* @0x800E4358 */
 {
     int *s = src->m;
     int *d = dst->m;

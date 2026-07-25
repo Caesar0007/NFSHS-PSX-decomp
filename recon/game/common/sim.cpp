@@ -126,8 +126,8 @@ void Sim_FadeInSFX(void)
       iVar2 = simGlobal.gameTicks + -0x10;
     }
     else {
-      iVar1 = simGlobal.gameTicks + -0x10;
       iVar2 = GameSetup_gData.userSetting.sfxLevel;
+      iVar1 = simGlobal.gameTicks + -0x10;
     }
     gMasterSFXLevel = iVar2 * iVar1 >> 6;
   }

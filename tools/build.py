@@ -203,7 +203,7 @@ PER_FN_NO_DELAYED_BRANCH = {
     # pure single-jal shape) so neither reaches full PASS, but both are
     # clean net-positives with zero collateral on PADMAIN.cpp's other 9
     # functions under a whole-TU gate.
-    "recon/syslib/psx/libpad/PADMAIN.cpp": {
+    "recon/syslib/psx/libpad/PADMAIN.c": {
         "_padStopCom",     # FAIL 10 -> FAIL 6
         "_padClrIntSio0",  # FAIL 28 -> FAIL 24
     },

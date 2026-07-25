@@ -17,13 +17,13 @@
  *   faithfully below; on the host none of this runs (compiles, never executes off-PSX). */
 
 /* ---- kernel / cross-obj helpers -------------------------------------------------------------- */
-extern "C" int  EnterCriticalSection(void);     /* A36 @0x8010698C */
-extern "C" void ExitCriticalSection(void);      /* A37 @0x8010696C */
-extern "C" void ChangeClearRCnt(int n, int m);  /* L10 @0x80106664 */
-extern "C" void SysDeqIntRP(int pri, void *rp); /* L03 @0x8010BFC8 */
-extern "C" void SysEnqIntRP(int pri, void *rp); /* L02 @0x8010BFD8 */
-extern "C" unsigned setRC2wait(int ticks);      /* WAITRC2 @0x8010BFE8 */
-extern "C" int      chkRC2wait(void);           /* WAITRC2 @0x8010C008 */
+extern int  EnterCriticalSection(void);     /* A36 @0x8010698C */
+extern void ExitCriticalSection(void);      /* A37 @0x8010696C */
+extern void ChangeClearRCnt(int n, int m);  /* L10 @0x80106664 */
+extern void SysDeqIntRP(int pri, void *rp); /* L03 @0x8010BFC8 */
+extern void SysEnqIntRP(int pri, void *rp); /* L02 @0x8010BFD8 */
+extern unsigned setRC2wait(int ticks);      /* WAITRC2 @0x8010BFE8 */
+extern int      chkRC2wait(void);           /* WAITRC2 @0x8010C008 */
 
 /* ---- SIO0 + interrupt register blocks, reached via libpad's cached base pointers (PAD.OBJ) ----- */
 extern unsigned char *_padSioRegs;   /* @0x80137CDC -> 0x1F801040 : SIO0 (JOY) block base */
@@ -41,49 +41,50 @@ extern unsigned char *_padIntRegs;   /* @0x80137CD8 -> 0x1F801070 : interrupt I_
 #define T2_TARGET (*(volatile unsigned short *)0x1F801128)
 
 /* ---- libpad state globals (defined in PAD.OBJ data) ------------------------------------------- */
-extern "C" int            _padIntExec;          /* engine-running flag */
-extern "C" int            _padSioState;         /* current SIO state-fn index */
-extern "C" int            _padSioChan;          /* channel being serviced (0..1) */
-extern "C" int            _padChanStart;        /* first active channel */
-extern "C" int            _padChanStop;         /* last active channel */
-extern "C" int            _padTotalCurr;        /* total actuator current draw */
-extern "C" unsigned char *_padInfoDir;          /* per-port info array base (0xF0 bytes/port) */
-extern "C" int            _padFixResult[2];     /* @0x80137CD0 : per-channel auto-mode retry count */
-extern "C" int            padIntFunc[];         /* SIO state-function pointer table */
-extern "C" int            _startTime;           /* RC2 timestamp at transfer start */
-extern "C" int            _waitTime;            /* RC2 timeout budget */
-extern "C" int            _padVbExec;           /* @0x80137CE0 : verifier-fired flag */
+extern int            _padIntExec;          /* engine-running flag */
+extern int            _padSioState;         /* current SIO state-fn index */
+extern int            _padSioChan;          /* channel being serviced (0..1) */
+extern int            _padChanStart;        /* first active channel */
+extern int            _padChanStop;         /* last active channel */
+extern int            _padTotalCurr;        /* total actuator current draw */
+extern unsigned char *_padInfoDir;          /* per-port info array base (0xF0 bytes/port) */
+extern int            _padFixResult[2];     /* @0x80137CD0 : per-channel auto-mode retry count */
+extern int            padIntFunc[];         /* SIO state-function pointer table */
+extern int            _startTime;           /* RC2 timestamp at transfer start */
+extern int            _waitTime;            /* RC2 timeout budget */
+extern int            _padVbExec;           /* @0x80137CE0 : verifier-fired flag */
 
 /* dispatch slots (set per pad mode; defined in PAD.OBJ) */
-extern "C" int  (*_padFuncNextPort)(int flag);
-extern "C" int  (*_padFuncRecvAuto)(unsigned char *info);
-extern "C" void (*_padFuncClrInfo)(unsigned char *info);
-extern "C" void (*_padFuncClrCmdNo)(unsigned char *info);
-extern "C" int  (*_padFuncIntGun)(void);
+extern int  (*_padFuncNextPort)(int flag);
+extern int  (*_padFuncRecvAuto)(unsigned char *info);
+extern void (*_padFuncClrInfo)(unsigned char *info);
+extern void (*_padFuncClrCmdNo)(unsigned char *info);
+extern int  (*_padFuncIntGun)(void);
 
 /* internal fns (forward) */
-extern "C" int  _padInitSioMode(unsigned char *info);
-extern "C" void _padSioMain(unsigned char *info);
-extern "C" void _padClrIntSio0(void);
-extern "C" void _padWaitRXready(void);
+extern int  _padInitSioMode(unsigned char *info);
+extern void _padSioMain(unsigned char *info);
+extern void _padClrIntSio0(void);
+extern void _padWaitRXready(void);
 
 /* ---- the VSync interrupt-handler element (Interrupt Request Path) ----------------------------- */
 struct _PadIntRP {
-    _PadIntRP *next;        /* +0x00 */
+    struct _PadIntRP *next;        /* +0x00 */
     void     (*handler)();  /* +0x04 */
     int      (*verifier)(); /* +0x08 */
     int        _pad0c;      /* +0x0c */
 };
+typedef struct _PadIntRP _PadIntRP;
 static _PadIntRP _padVbCb;              /* @0x8014857C */
 static int       _padFramesSinceStart;  /* @0x8014858C : VSync frames since start (clamped 150) */
 static int       _padFramesSinceStop;   /* @0x80148590 : VSync frames since stop  (clamped 150) */
 
 /* prototypes for the handler/verifier installed into the IRP */
-extern "C" void _padVbCallback0(void);
-extern "C" int  _padVbCallback1(void);
+extern void _padVbCallback0(void);
+extern int  _padVbCallback1(void);
 
 /* @0x80104A1C : _padSetVsyncParam -- point the IRP at our handler/verifier. */
-extern "C" void _padSetVsyncParam(void)
+extern void _padSetVsyncParam(void)
 {
     _padVbCb.handler  = _padVbCallback0;
     _padVbCb.verifier = (int (*)())_padVbCallback1;
@@ -92,7 +93,7 @@ extern "C" void _padSetVsyncParam(void)
 }
 
 /* @0x80104A48 : _padVbCallback1 -- IRP verifier: only accept the VSync (bit 0) interrupt. */
-extern "C" int _padVbCallback1(void)
+extern int _padVbCallback1(void)
 {
     if ((I_MASK & 1) != 0 && (I_STAT & 1) != 0) {
         if (_padFuncIntGun != 0)
@@ -104,7 +105,7 @@ extern "C" int _padVbCallback1(void)
 
 /* @0x80104AB0 : _padVbCallback0 -- IRP handler: once armed, pump the SIO engine across the
  *   active channel range every VSync frame. */
-extern "C" void _padVbCallback0(void)
+extern void _padVbCallback0(void)
 {
     if (_padChanStart != 0) {
         _padVbExec = 1;
@@ -128,7 +129,7 @@ extern "C" void _padVbCallback0(void)
 }
 
 /* @0x80104C1C : _padStartCom -- arm the engine: chain in the VSync IRP, enable RCnt, clear info. */
-extern "C" void _padStartCom(void)
+extern void _padStartCom(void)
 {
     _padIntExec = 0;
     EnterCriticalSection();
@@ -146,7 +147,7 @@ extern "C" void _padStartCom(void)
 }
 
 /* @0x80104CE8 : _padStopCom -- unchain the IRP. */
-extern "C" void _padStopCom(void)
+extern void _padStopCom(void)
 {
     EnterCriticalSection();
     ChangeClearRCnt(3, 1);
@@ -156,7 +157,7 @@ extern "C" void _padStopCom(void)
 
 /* @0x80104D2C : _padInitSioMode -- configure SIO0 for `info`'s port, run any pending auto-mode
  *   fix-ups, then exchange the 0x01/0x42/0x01 select+poll prologue.  Returns 1 on success. */
-extern "C" int _padInitSioMode(unsigned char *info)
+extern int _padInitSioMode(unsigned char *info)
 {
     unsigned int u;
     int wait;
@@ -229,7 +230,7 @@ extern "C" int _padInitSioMode(unsigned char *info)
 }
 
 /* @0x80105060 : _padSioMain -- run the next SIO state function; advance / retire on its result. */
-extern "C" void _padSioMain(unsigned char *info)
+extern void _padSioMain(unsigned char *info)
 {
     int (*fn)(unsigned char *);
     int r;
@@ -253,10 +254,13 @@ extern "C" void _padSioMain(unsigned char *info)
 }
 
 /* @0x80105128 : _padSioRW -- exchange one byte; first byte (arg2<0) issues the line, else polls. */
-extern "C" unsigned _padSioRW(unsigned char *dev, unsigned arg2)
+extern unsigned _padSioRW(unsigned char *dev, unsigned arg2)
 {
+    unsigned r;
+    unsigned ack;
+    unsigned ret;
     unsigned char rx;
-    unsigned r, ack, ret;
+
     int again;
 
     rx = JOY_DATA8;
@@ -300,10 +304,12 @@ extern "C" unsigned _padSioRW(unsigned char *dev, unsigned arg2)
 }
 
 /* @0x80105300 : _padSioRW2 -- like _padSioRW but bounded by the RC2 timer (no busy ACK spin). */
-extern "C" unsigned _padSioRW2(unsigned char *dev, int tx)
+extern unsigned _padSioRW2(unsigned char *dev, int tx)
 {
+    unsigned r;
+    unsigned t;
     unsigned char rx;
-    unsigned r, t;
+
     unsigned short baud;
     int again;
 
@@ -350,7 +356,7 @@ extern "C" unsigned _padSioRW2(unsigned char *dev, int tx)
 }
 
 /* @0x80105538 : _padClrIntSio0 -- ack the SIO0 IRQ and re-enable. */
-extern "C" void _padClrIntSio0(void)
+extern void _padClrIntSio0(void)
 {
     I_STAT = 0xffffff7f;
     do {
@@ -363,7 +369,7 @@ extern "C" void _padClrIntSio0(void)
 }
 
 /* @0x801055C8 : _padWaitRXready -- spin until SIO0 RX has a byte (STAT bit 1). */
-extern "C" void _padWaitRXready(void)
+extern void _padWaitRXready(void)
 {
     do {
     } while ((JOY_STAT & 2) == 0);

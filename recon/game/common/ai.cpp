@@ -956,30 +956,31 @@ void AI_CheckForClearLanes(Car_tObj *carObj)
     while (true) {
       if (Cars_gNumCars <= ci) break;
       otherCarObj = Cars_gSortedList[(runningIndex + Cars_gNumCars) % Cars_gNumCars];
-      if (((carObj != otherCarObj) && ((otherCarObj->N).active != '\0')) &&
-         (iVar2 = AIWorld_SplineDistance(otherCarObj,carObj),
-         iVar2 + 0x40000U < 0x6e0000)) {
-        if (((otherCarObj->carInLane >> carObj->laneIndex & 1U) != 0) &&
-           ((lanesFilled >> carObj->laneIndex & 1U) == 0)) {
-          clearAheadMerits[1] = 0;
-          carsFound = carsFound + 1;
-          lanesFilled = lanesFilled | 1 << carObj->laneIndex;
-        }
-        if ((0 < carObj->laneIndex) &&
-           (((otherCarObj->carInLane >> (carObj->laneIndex - 1) & 1U) != 0) &&
-           ((lanesFilled >> (carObj->laneIndex - 1) & 1U) == 0))) {
-          clearAheadMerits[0] = 0;
-          carsFound = carsFound + 1;
-          lanesFilled = lanesFilled | 1 << (carObj->laneIndex - 1U);
-        }
-        if ((carObj->laneIndex + 1U < 0xe) &&
-           (((otherCarObj->carInLane >> (carObj->laneIndex + 1) & 1U) != 0) &&
-           ((lanesFilled >> (carObj->laneIndex + 1) & 1U) == 0))) {
-          clearAheadMerits[2] = 0;
-          carsFound = carsFound + 1;
-          lanesFilled = lanesFilled | 1 << (carObj->laneIndex + 1U);
-        }
+      if (carObj == otherCarObj) goto NEXT_CAR;
+      if ((otherCarObj->N).active == '\0') goto NEXT_CAR;
+      iVar2 = AIWorld_SplineDistance(otherCarObj,carObj);
+      if (iVar2 + 0x40000U >= 0x6e0000) goto NEXT_CAR;
+      if (((otherCarObj->carInLane >> carObj->laneIndex & 1U) != 0) &&
+         ((lanesFilled >> carObj->laneIndex & 1U) == 0)) {
+        clearAheadMerits[1] = 0;
+        carsFound = carsFound + 1;
+        lanesFilled = lanesFilled | 1 << carObj->laneIndex;
       }
+      if ((0 < carObj->laneIndex) &&
+         (((otherCarObj->carInLane >> (carObj->laneIndex - 1) & 1U) != 0) &&
+         ((lanesFilled >> (carObj->laneIndex - 1) & 1U) == 0))) {
+        clearAheadMerits[0] = 0;
+        carsFound = carsFound + 1;
+        lanesFilled = lanesFilled | 1 << (carObj->laneIndex - 1U);
+      }
+      if ((carObj->laneIndex + 1U < 0xe) &&
+         (((otherCarObj->carInLane >> (carObj->laneIndex + 1) & 1U) != 0) &&
+         ((lanesFilled >> (carObj->laneIndex + 1) & 1U) == 0))) {
+        clearAheadMerits[2] = 0;
+        carsFound = carsFound + 1;
+        lanesFilled = lanesFilled | 1 << (carObj->laneIndex + 1U);
+      }
+NEXT_CAR:
       runningIndex = runningIndex + dir;
       if (carsFound == 3) break;
       ci = ci + 1;

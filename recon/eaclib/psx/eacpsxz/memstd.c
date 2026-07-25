@@ -49,34 +49,34 @@ static const unsigned short MAGIC_FREE = 0x4246;   /* 'FB' */
 static const unsigned short MAGIC_HEAD = 0x4253;   /* free-ring sentinel */
 
 /* ---- globals (BSS/rodata, defined in the data-materialization pass) ---- */
-extern "C" MemClass *gMemClassTable[16];   /* @0x8013E900 (BSS) */
-extern "C" int       mb_default;           /* @0x8013DCC8       */
+extern MemClass *gMemClassTable[16];   /* @0x8013E900 (BSS) */
+extern int       mb_default;           /* @0x8013DCC8       */
 
 /* ---- helpers defined in sibling eacpsxz / libc objs (called, not defined here) ---- */
-extern "C" int    sprintf(char *, const char *, ...);   /* libc SPRINTF     */
-extern "C" char  *strcpy(char *, const char *);         /* eacpsxz strcpy   */
-extern "C" unsigned strlen(const char *);               /* eacpsxz strlen   */
-extern "C" void   blockclear(void *, int);              /* eacpsxz blockclear */
-extern "C" void   putm(void *, unsigned, int);          /* guard-band writer  */
-extern "C" void   puti(void *, unsigned, int);          /* guard-band writer  */
-extern "C" void  *allocmutex(void);                     /* mutex allocator    */
+extern int    sprintf(char *, const char *, ...);   /* libc SPRINTF     */
+extern char  *strcpy(char *, const char *);         /* eacpsxz strcpy   */
+extern unsigned strlen(const char *);               /* eacpsxz strlen   */
+extern void   blockclear(void *, int);              /* eacpsxz blockclear */
+extern void   putm(void *, unsigned, int);          /* guard-band writer  */
+extern void   puti(void *, unsigned, int);          /* guard-band writer  */
+extern void  *allocmutex(void);                     /* mutex allocator    */
 
 /* forward decls of intra-obj XDEFs (all C-linkage) */
-extern "C" MemBlock *FREE_find(MemClass *mb, int size, int reverse);
-extern "C" MemBlock *FREE_findlargest(MemClass *mb, int size, int reverse);
-extern "C" void      FREE_add(MemClass *mb, MemBlock *node);
-extern "C" void      FREE_remove(MemClass *mb, MemBlock *node);
-extern "C" int       initmemblock(MemBlock *blk, char *name, int size, int tailextra,
+extern MemBlock *FREE_find(MemClass *mb, int size, int reverse);
+extern MemBlock *FREE_findlargest(MemClass *mb, int size, int reverse);
+extern void      FREE_add(MemClass *mb, MemBlock *node);
+extern void      FREE_remove(MemClass *mb, MemBlock *node);
+extern int       initmemblock(MemBlock *blk, char *name, int size, int tailextra,
                                   int flags, MemBlock *physprev, MemBlock *physnext);
-extern "C" int       MEM_infosize(int id);
-extern "C" int       MEM_tailsize(char *name, int id);
+extern int       MEM_infosize(int id);
+extern int       MEM_tailsize(char *name, int id);
 
 /* ===================================================================== *
  *  FREE_find  @0x800E4D4C : first free block whose size >= `size`.       *
  *  `reverse`!=0 scans the ring backward (freeprev) instead of forward.   *
  *  Returns NULL if only the sentinel qualifies (size 0x7FFFFFFF).        *
  * ===================================================================== */
-extern "C" MemBlock *FREE_find(MemClass *mb, int size, int reverse)   /* @0x800E4D4C */
+extern MemBlock *FREE_find(MemClass *mb, int size, int reverse)   /* @0x800E4D4C */
 {
     /* MATCH: forward walk = the if-BODY (bnez a2 -> out-of-line reverse loop); walker
      * reuses the dead param reg (addiu a0,a0,16 in the bnez slot); ring-head tail is a
@@ -96,7 +96,7 @@ extern "C" MemBlock *FREE_find(MemClass *mb, int size, int reverse)   /* @0x800E
  *  FREE_findlargest @0x800E4DB0 : largest free block with size > size-1. *
  *  The sentinel (size 0x7FFFFFFF) always terminates the walk.           *
  * ===================================================================== */
-extern "C" MemBlock *FREE_findlargest(MemClass *mb, int size, int reverse)   /* @0x800E4DB0 */
+extern MemBlock *FREE_findlargest(MemClass *mb, int size, int reverse)   /* @0x800E4DB0 */
 {
     MemBlock *best = 0;
     int       min  = size - 1;
@@ -128,7 +128,7 @@ extern "C" MemBlock *FREE_findlargest(MemClass *mb, int size, int reverse)   /* 
  *  ring of class `mb`.  Search direction is picked by comparing node to  *
  *  the midpoint of (head,tail) so insertion stays ~O(n/2).               *
  * ===================================================================== */
-extern "C" void FREE_add(MemClass *mb, MemBlock *node)   /* @0x800E4E70 */
+extern void FREE_add(MemClass *mb, MemBlock *node)   /* @0x800E4E70 */
 {
     MemBlock *head  = (MemBlock *)((char *)mb + 0x10);
     int       span  = (int)((char *)node->physnext - (char *)node);   /* node end - node */
@@ -161,11 +161,13 @@ extern "C" void FREE_add(MemClass *mb, MemBlock *node)   /* @0x800E4E70 */
  *  FREE_remove @0x800E4F04 : unlink `node` from the free ring.           *
  *  (`mb` is unused -- the .obj passes it but the code ignores it.)       *
  * ===================================================================== */
-extern "C" void FREE_remove(MemClass *mb, MemBlock *node)   /* @0x800E4F04 */
+extern void FREE_remove(MemClass *mb, MemBlock *node)   /* @0x800E4F04 */
 {
+    MemBlock * next;
+    MemBlock * prev;
     (void)mb;
-    MemBlock *prev = node->freeprev;
-    MemBlock *next = node->freenext;
+    prev = node->freeprev;
+    next = node->freenext;
     prev->freenext = next;
     next->freeprev = prev;
     node->magic = 0;
@@ -177,7 +179,7 @@ extern "C" void FREE_remove(MemClass *mb, MemBlock *node)   /* @0x800E4F04 */
  *  write debug guard bands and copy a block name into the tail region.    *
  *  Returns the total span consumed (header+payload+name) in bytes.        *
  * ===================================================================== */
-extern "C" int initmemblock(MemBlock *blk, char *name, int size, int tailextra,
+extern int initmemblock(MemBlock *blk, char *name, int size, int tailextra,
                             int flags, MemBlock *physprev, MemBlock *physnext)   /* @0x800E4F2C */
 {
     char *end = (char *)blk + (size + 0x10);     /* s0 = blk + (size + 16) */
@@ -209,7 +211,7 @@ extern "C" int initmemblock(MemBlock *blk, char *name, int size, int tailextra,
 /* ===================================================================== *
  *  MEM_infosize @0x800E5008 : per-block overhead of class `id`.          *
  * ===================================================================== */
-extern "C" int MEM_infosize(int id)   /* @0x800E5008 */
+extern int MEM_infosize(int id)   /* @0x800E5008 */
 {
     return gMemClassTable[id & 0xF]->infosize;   /* +0x30 */
 }
@@ -218,7 +220,7 @@ extern "C" int MEM_infosize(int id)   /* @0x800E5008 */
  *  MEM_tailsize @0x800E5030 : bytes reserved after the payload =         *
  *  infosize + (named class & name given ? strlen(name)+1 : 0).          *
  * ===================================================================== */
-extern "C" int MEM_tailsize(char *name, int id)   /* @0x800E5030 */
+extern int MEM_tailsize(char *name, int id)   /* @0x800E5030 */
 {
     MemClass *cls = gMemClassTable[id & 0xF];
     int extra = 0;
@@ -233,11 +235,17 @@ extern "C" int MEM_tailsize(char *name, int id)   /* @0x800E5030 */
  *  a HIGH guard block) and register it in gMemClassTable[id&0xF].        *
  *  Returns the usable size of the big free block.                       *
  * ===================================================================== */
-extern "C" int creatememclass(int id, char *name, char *membuf, int bufsize,
+extern int creatememclass(int id, char *name, char *membuf, int bufsize,
                               int granularity, int alignment, int infosize,
                               int lowguard, int reserved9, int highguard,
                               int usemutex, int field3c)   /* @0x800E5094 */
 {
+    MemClass * cls;
+    char * high;
+    char * low_end;
+    unsigned a;
+    unsigned hi;
+    unsigned lo;
     char namebuf[256];                           /* sp+0x20 scratch */
     int  flags = id;                             /* s2 starts = id  */
     (void)reserved9;                             /* arg9 unreferenced by the asm */
@@ -252,16 +260,16 @@ extern "C" int creatememclass(int id, char *name, char *membuf, int bufsize,
      * `hi` -- the oracle combines membuf+lo first (v0), then computes+adds hi (v1) LAST,
      * right before the &-alignment; declaring hi first (as before) materialized it too
      * early, landing in the wrong delay slot. */
-    unsigned lo = (unsigned)infosize + 0x50u;
-    unsigned hi = (unsigned)alignment + 0x1Fu;
-    unsigned a = ((unsigned)membuf + lo) + hi;
+    lo = (unsigned)infosize + 0x50u;
+    hi = (unsigned)alignment + 0x1Fu;
+    a = ((unsigned)membuf + lo) + hi;
     a &= (unsigned)(-alignment);
-    char *low_end = (char *)a - 0x10;            /* s3 */
+    low_end = (char *)a - 0x10;
 
     /* s0 = membuf + bufsize - infosize - 0x20  (start of HIGH block) */
-    char *high = membuf + bufsize - (infosize + 0x20);   /* s0 */
+    high = membuf + bufsize - (infosize + 0x20);
 
-    MemClass *cls = (MemClass *)(membuf + 0x10); /* s1 = membuf+0x10 */
+    cls = (MemClass *)(membuf + 0x10); /* s1 = membuf+0x10 */
 
     /* RESIDUAL (16 diffs, count-exact 124/124): the oracle materializes namebuf's address
      * (a0=sp+0x20) INTO the highguard branch's delay slot (always-executes) and delays the
@@ -284,7 +292,8 @@ extern "C" int creatememclass(int id, char *name, char *membuf, int bufsize,
     blockclear(cls, 0x40);                        /* zero the 64-byte class */
     strcpy((char *)cls, name);                    /* class->name */
 
-    {   /* initialise the embedded free-ring sentinel + class fields, in oracle store order.
+    {
+        int gran;   /* initialise the embedded free-ring sentinel + class fields, in oracle store order.
          * MATCH: no separate `fh` pointer -- the oracle addresses every one of these fields
          * via cls(s1)+FIXED-DISPLACEMENT (sh/sw …,0x10/0x14/0x20/0x24(s1)); materializing a
          * distinct `fh=cls+0x10` C pointer lets gcc fold it back through cls's own known
@@ -300,7 +309,7 @@ extern "C" int creatememclass(int id, char *name, char *membuf, int bufsize,
          * before the alignment/infosize/flags/mutex stores, and only USES it (the store to
          * +0x28) at the end of the block; a bare `cls->granularity = granularity;` placed
          * last reads-and-stores in one step, one instruction too late. */
-        int gran = granularity;
+        gran = granularity;
         cls->alignment   = alignment;                             /* +0x2C */
         cls->infosize    = infosize;                              /* +0x30 */
         cls->flags       = flags;                                 /* +0x34 */
@@ -320,16 +329,17 @@ extern "C" int creatememclass(int id, char *name, char *membuf, int bufsize,
  *  largestunused @0x800E5284 : size of the largest free block in the     *
  *  default class (0 if none).                                            *
  * ===================================================================== */
-extern "C" int largestunused(void)   /* @0x800E5284 */
+extern int largestunused(void)   /* @0x800E5284 */
 {
-    MemBlock *b = FREE_findlargest(gMemClassTable[mb_default & 0xF], 0, 0);
+    MemBlock *b;
+    b = FREE_findlargest(gMemClassTable[mb_default & 0xF], 0, 0);
     return b ? b->size : 0;
 }
 
 /* ===================================================================== *
  *  getblocksize @0x800E52D4 : payload size recorded in a block header.   *
  * ===================================================================== */
-extern "C" int getblocksize(void *p)   /* @0x800E52D4 */
+extern int getblocksize(void *p)   /* @0x800E52D4 */
 {
     return ((MemBlock *)((char *)p - 0x10))->size;   /* *(int*)(p-12) */
 }
@@ -338,7 +348,7 @@ extern "C" int getblocksize(void *p)   /* @0x800E52D4 */
  *  getblockname @0x800E52E0 : pointer to a named block's stored name,    *
  *  or NULL when the block is unnamed.                                    *
  * ===================================================================== */
-extern "C" char *getblockname(void *p)   /* @0x800E52E0 */
+extern char *getblockname(void *p)   /* @0x800E52E0 */
 {
     MemBlock *hdr   = (MemBlock *)((char *)p - 0x10);
     int       flags = hdr->flags;         /* single lhu into $a0 (reused as the MEM_infosize arg) */
@@ -354,7 +364,7 @@ extern "C" char *getblockname(void *p)   /* @0x800E52E0 */
  *  HIGH end, 0x20=pick the largest free block.  Returns the user pointer *
  *  (header+0x10) or NULL.                                                *
  * ===================================================================== */
-extern "C" void *reservememadr(char *name, int size, int classid)   /* @0x800E533C */
+extern void *reservememadr(char *name, int size, int classid)   /* @0x800E533C */
 {
     /* RESIDUAL (65 diffs, count-exact 128/129 off-by-1 frame slot): a systemic s0<->s1
      * register-coloring swap between `need` and `blk` runs through the WHOLE body (every
@@ -378,13 +388,19 @@ extern "C" void *reservememadr(char *name, int size, int classid)   /* @0x800E53
     }
 
     {
-        int  tail = MEM_tailsize(name, classid);       /* v0 */
-        int  gran = cls->granularity;                  /* +0x28 */
-        int  mask = gran - 1;                          /* s4 */
-        unsigned rounded = ((unsigned)(need + tail) + (unsigned)(gran + 0x0F))
+        int leftover;
+        MemBlock * blk;
+        unsigned rounded;
+        int mask;
+        int gran;
+        int tail;
+        tail = MEM_tailsize(name, classid);       /* v0 */
+        gran = cls->granularity;
+        mask = gran - 1;
+        rounded = ((unsigned)(need + tail) + (unsigned)(gran + 0x0F))
                          & (unsigned)(~mask);
-        MemBlock *blk;                                 /* s0 */
-        int  leftover;
+                                 /* s0 */
+
 
         need = (int)rounded - 0x10;                    /* s1 = aligned span - 16 */
 
@@ -438,7 +454,7 @@ end:
  *  purgememadr @0x800E5540 : free a block, coalescing with free physical *
  *  neighbours on either side.  Always returns 1.                        *
  * ===================================================================== */
-extern "C" int purgememadr(void *p)   /* @0x800E5540 */
+extern int purgememadr(void *p)   /* @0x800E5540 */
 {
     if (p != 0) {
         MemBlock *blk  = (MemBlock *)((char *)p - 0x10);     /* s0 */
@@ -467,4 +483,4 @@ extern "C" int purgememadr(void *p)   /* @0x800E5540 */
     return 1;
 }
 
-extern "C" { MemClass *gMemClassTable[16]; }  /* owning-TU def (BSS) -- at EOF for type visibility */
+ MemClass *gMemClassTable[16];   /* owning-TU def (BSS) -- at EOF for type visibility */

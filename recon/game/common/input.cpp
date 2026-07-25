@@ -566,14 +566,13 @@ char Input_Gear(char currentGear,int numGears)
     if ((int)(u_int)currentGear < numGears + -1) {
       currentGear = currentGear + 1;
     }
+    return currentGear;
   }
-  else {
-    if (Input_gSim.flags >> 3 != 2) {
-      return currentGear;
-    }
+  if (Input_gSim.flags >> 3 == 2) {
     if (currentGear != 0) {
       currentGear = currentGear - 1;
     }
+    return currentGear;
   }
   return currentGear;
 }

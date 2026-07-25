@@ -23,7 +23,7 @@
  */
 
 /* _swap @0x800E5EDC : exchange two `size`-byte elements byte by byte. */
-extern "C" void _swap(char *p, char *q, int size)
+extern void _swap(char *p, char *q, int size)
 {
     unsigned i = 0;
     if (size == 0)
@@ -37,9 +37,11 @@ extern "C" void _swap(char *p, char *q, int size)
 }
 
 /* qsort @0x800E5D8C : sort `nmemb` elements of `size` bytes using comparator `cmp`. */
-extern "C" void qsort(void *base, int nmemb, int size,
+extern void qsort(void *base, int nmemb, int size,
                       int (*cmp)(const void *, const void *))
 {
+    int i;
+    char * boundary;
     char *b     = (char *)base;
     char *elem  = b + size;                 /* hoisted: oracle materializes base+size in the prologue */
     int   count = 0;                        /* hoisted: oracle zeroes count in the prologue */
@@ -55,8 +57,8 @@ extern "C" void qsort(void *base, int nmemb, int size,
 
     _swap(b, b + (nmemb >> 1) * size, size);   /* middle element -> pivot at b[0] */
 
-    char *boundary = b;                     /* end of the "< pivot" region */
-    int   i;
+    boundary = b;
+
     for (i = 1; i < nmemb; i++) {
         if (cmp(elem, b) < 0) {             /* elem < pivot */
             boundary += size;

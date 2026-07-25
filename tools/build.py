@@ -244,7 +244,7 @@ PER_FN_NO_DELAYED_BRANCH = {
         #   MemCardEventToRslt   FAIL 3->24  (REGRESSED badly; if/else/goto, no calls
         #                                     at all -- not a call-through shape)
     },
-    # w25-a7: libgpu SYS.cpp -- TRIED AND REVERTED (2026-07-25). All 5
+    # w25-a7: libgpu SYS.c (SYS.cpp at the time) -- TRIED AND REVERTED (2026-07-25). All 5
     # multiset-equal-reordering candidates (_que_ref, _install_drain_cb,
     # ClearImage, _gpu_arm_timeout, _set_draw_mode) got WORSE under the raw
     # Tier-1 splice, not better: cc1 -fno-delayed-branch leaves a genuine

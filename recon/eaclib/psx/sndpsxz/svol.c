@@ -8,7 +8,7 @@
  */
 #include "../../../lib/snd.h"
 
-extern "C" int iSNDunsafevol(int handle, int vol)   /* @0x800E69D0 */
+extern int iSNDunsafevol(int handle, int vol)   /* @0x800E69D0 */
 {
     int chan = iSNDgetchan(handle);
     int iter;
@@ -36,12 +36,13 @@ done:
     return chan;
 }
 
-extern "C" int SNDvol(int handle, int vol)   /* @0x800E6A94 */
+extern int SNDvol(int handle, int vol)   /* @0x800E6A94 */
 {
+    int r;
     if (SND->enabled == 0)
         return -10;
     iSNDenteraudio();
-    int r = iSNDunsafevol(handle, vol);
+    r = iSNDunsafevol(handle, vol);
     iSNDleaveaudio();
     return r;
 }

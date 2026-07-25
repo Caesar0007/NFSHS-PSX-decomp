@@ -881,10 +881,19 @@ extern void  freehandle(FileHandle *h);                     /* @0x800ED2F0 (abov
  *     write(5): writefile() (async).   size(6): publish handle->size.   7/9/10: status-only completion.
  *   Synchronous ops finish via iFILE_CommandCompleteCallback(); async ops (read/write) return and are
  *   completed later by the device's CD callback.  (-m32-only verified: op stride 0x30 + qnext pointer.) */
+/* RAW/ORACLE REDUCTION (2026-07-26, 56->12 detailed diffs, count-exact 290/290):
+ *   - clear the entry buffer before the first strchr, as the raw instruction order requires;
+ *   - scope/initialize the found flag at its first live branch (the jump-table delay slot stays nop);
+ *   - express the optional volume filter directly instead of introducing a doLookup boolean;
+ *   - preserve the raw archive-walk exit order (end-of-list first, found second);
+ *   - complete each synchronous switch arm directly, allowing cc1's common-tail merge to put the
+ *     result in $a0 at the shared callback label instead of keeping every result live in $s2.
+ * Raw nfs4-f.exe DD398..DD81F SHA-256:
+ * f005d1d202c25693bdaa4a6af71d553309201f7f8db575ef547012c92aaecb52. */
 extern int iFILE_ExecCommand(void *cmdp)
 {
     FileOp *cmd = (FileOp *)cmdp;
-    int type, ccc, sr;
+    int type, sr;
 
     FILE_CS_ENTER(sr);                           /* cop0: disable IRQs */
 
@@ -948,20 +957,17 @@ extern int iFILE_ExecCommand(void *cmdp)
          * at every use site (only CSE-merged by the compiler across a call-free span), so a
          * cached local here would artificially extend its live range across the whole switch and
          * force extra callee-saved registers the oracle never allocates. */
-        ccc = 0;
-
         switch (type) {
         case 2:                                  /* open */
         case 8: {                                /* exists-probe */
-            char *bar  = strchr(NAME(cmd), '|'); /* "volume|entry" separator? */
+            char *bar;                           /* "volume|entry" separator? */
             char  volbuf[0x40], entrybuf[0x40];
-            int   s3;
+            int   s3, ccc;
 
-            /* NOTE: no separate found-flag local -- the oracle reuses `ccc` itself (already
-             * zeroed once, before the dispatch switch) as the found-flag accumulator across this
-             * whole case body; it never re-zeroes it here. A fresh `int s2=0;` local would get its
-             * own materialize-to-zero right at block entry, which the oracle doesn't have. */
+            /* The raw body clears entrybuf before strchr, but does not materialize the found
+             * accumulator until the s3&1 test below (in that branch's delay slot). */
             entrybuf[0] = 0;
+            bar = strchr(NAME(cmd), '|');
             if (bar != 0) {
                 s3 = 2;
                 if (NAME(cmd)[0] != '|') {       /* "volume|entry" -> split out the volume name */
@@ -980,6 +986,7 @@ extern int iFILE_ExecCommand(void *cmdp)
                 }
             }
 
+            ccc = 0;
             if (s3 & 1) {                        /* odd modes (1,3): open the plain file */
                 if (openfile(NAME(cmd), OPI(cmd, 0x18), HANDLE(cmd)) != 0) {
                     ccc = 1;                     /* opened OK (asm: delay slot -> set for BOTH types) */
@@ -991,13 +998,9 @@ extern int iFILE_ExecCommand(void *cmdp)
             if (ccc == 0 && (s3 & 6)) {          /* modes 2,3,4,6: search the mounted BIG archives */
                 int *dev = (int *)gFileMgr.devicelist;
                 while (dev != 0) {
-                    int doLookup = 1;
-                    if (s3 & 4) {                /* volume name must match this device's name */
-                        int *devfh = (int *)(size_t)(unsigned int)dev[1];   /* dev->handle (+4) */
-                        if (strcmp((char *)devfh + 0x0C, volbuf) != 0)
-                            doLookup = 0;
-                    }
-                    if (doLookup) {
+                    /* Explicit volume names only probe matching mounted devices. */
+                    if (!(s3 & 4) ||
+                        strcmp((char *)(size_t)(unsigned int)dev[1] + 0x0C, volbuf) == 0) {
                         int off, sz;
                         if (locatebigentryz((void *)(size_t)(unsigned int)dev[0],
                                             entrybuf, 0, &off, &sz) != 0) {
@@ -1008,7 +1011,11 @@ extern int iFILE_ExecCommand(void *cmdp)
                         }
                     }
                     dev = (int *)(size_t)(unsigned int)dev[3];      /* next device (+0xC) */
-                    if (ccc != 0)
+                    if (dev == 0)
+                        break;
+                    if (ccc == 0)
+                        continue;
+                    else
                         break;
                 }
             }
@@ -1017,7 +1024,8 @@ extern int iFILE_ExecCommand(void *cmdp)
                 freehandle((FileHandle *)HANDLE(cmd));
                 OPI(cmd, 0x18) = ccc;
             }
-            break;
+            iFILE_CommandCompleteCallback(ccc);
+            return;
         }
 
         case 3:                                  /* close */
@@ -1028,12 +1036,15 @@ extern int iFILE_ExecCommand(void *cmdp)
                 freehandle((FileHandle *)HANDLE(cmd));
                 cmd->result24 = 0;
             }
-            ccc = (cmd->error == 0);              /* falls through to the 7/9/10 completion in the asm */
-            break;
+            iFILE_CommandCompleteCallback(cmd->error == 0);
+            return;
 
         case 4: {                                /* read */
             int len = OPI(cmd, 0x1C);
-            if (len <= 0) { ccc = 1; break; }    /* nothing to read -> complete now */
+            if (len <= 0) {                      /* nothing to read -> complete now */
+                iFILE_CommandCompleteCallback(1);
+                return;
+            }
             if (HANDLE(cmd)[2] != 0) {           /* BIG entry: add the entry's base offset */
                 int *dev   = (int *)(size_t)(unsigned int)HANDLE(cmd)[0];
                 int *devfh = (int *)(size_t)(unsigned int)dev[1];   /* dev->handle (+4) */
@@ -1050,26 +1061,19 @@ extern int iFILE_ExecCommand(void *cmdp)
 
         case 6:                                  /* size */
             OPI(cmd, 0x18) = HANDLE(cmd)[1];     /* publish handle->size as the result (+0x18) */
-            ccc = 1;
-            break;
+            iFILE_CommandCompleteCallback(1);
+            return;
 
         case 7:                                  /* status-only completions */
         case 9:
         case 10:
-            ccc = (cmd->error == 0);
-            break;
+            iFILE_CommandCompleteCallback(cmd->error == 0);
+            return;
         }
     }
-
-    iFILE_CommandCompleteCallback(ccc);          /* finalize the current (synchronous) op */
-    /* NOTE: the oracle never zeroes $v0 on ANY exit of this function (every early exit's branch
-     * delay slot is a plain `nop` or an unrelated computation, and even THIS final exit falls
-     * straight from the CommandCompleteCallback call into the epilogue with whatever CALLBACK
-     * returned still sitting in $v0) -- the `int` return type is decorative; no caller depends on
-     * a real value (iFILE_delbigclosecallback's `return iFILE_ExecCommand(cmd);` is itself a bare
-     * tail-jal in the oracle, and every other call site discards the result). A value-less
-     * `return;` here (GNU C accepts it in a non-void fn with a warning, emitting no v0 store)
-     * reproduces this exactly. */
+    /* NOTE: the oracle never zeroes $v0 on ANY exit. The synchronous arms above cross-jump-merge
+     * their callback tails, then fall into the epilogue with the callback's result still in $v0;
+     * the `int` return type is decorative and no caller depends on a defined value. */
 }
 
 #undef OPI

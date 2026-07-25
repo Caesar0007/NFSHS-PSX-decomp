@@ -100,6 +100,18 @@ extern void SPCH_SetPreLoadTicks(int ticks);                       /* @0x801018F
  *   read *(phraseTemplate+i+4), computed and ANDed in the GetMatchValue jal's delay slot (so it's the
  *   PRE-CALL value, not derived from the call's return -- the earlier recon wrongly took lowNib from
  *   matchVal's low nibble AND wrongly read count/cycleByte off the swapped bank/sample roles). */
+/* residual 28 (67/65): ours' gcc loop-invariant-hoists the shift constant `1u` of `bit = 1u <<
+ * cycleByte` OUT of the loop into a 9th callee-saved register (s6), pushing sample/paramTable
+ * (which oracle fits into s6/s7) into s7/$fp -- 2 extra sw/lw = the insn-count gap. oracle
+ * re-materializes `li v1,1` FRESH each pass (a caller-saved temp, not hoisted) and needs only 8
+ * saved regs (s0..s7), no $fp. Tried: named-local reassignment of the "1" each iteration (AIPerson
+ * cmp=K1-style anti-hoist lever) -- gcc's dataflow still recognizes the VALUE as invariant
+ * regardless (no change); declaration-order swap of lowNib/bit -- worse (44 diffs); inlining
+ * `1u<<cycleByte` twice (no named `bit`) -- DOES reach insn parity (65/65, matches the 8-reg
+ * layout exactly) but gcc then picks a different bit-TEST strategy (srlv+andi mask-test instead
+ * of sllv+and) that recolors i/cycleByte and recomputes the 2nd bit test, netting MORE line
+ * diffs (32 > 28) -- fails the strict-diff-count-drop keep bar, reverted. No volatile/asm lever
+ * available (LICM of a true literal isn't source-defeatable without one). Accept as floor. */
 extern int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int paramTable)
 {
     int count = (int)*(signed char *)(phraseTemplate + 3);
@@ -557,6 +569,14 @@ extern int iSPCH_SentenceMakeChoice(int sentence, int mode)
         if (ok < n) {
             ok = 1;
             sentence = (int)ispch_gChoice + i * 0xc;
+            /* residual 7 (44/43): genuine base-anchor FLOOR (catalog §3.12-style) -- ours
+             * folds the store's +8 field offset into the persistent record pointer once at
+             * loop entry (extra `addiu s0,s0,8`, reads become -4/-2), oracle keeps the
+             * pointer at the record base and uses bare +4/+6/+8 displacements throughout.
+             * Tried: named-field temp for the +6 read, short*-indexed CHOICE-style rewrite
+             * (both score EQUAL or WORSE, 7/9), statement-order swap of i++ (no change).
+             * gcc CSE-vs-strength-reduction granularity; accept, do not chase further with
+             * magic-offset pointer math. */
             do {
                 int r = iSPCH_Rand((int)*(short *)(sentence + 4));
                 i = i + 1;
@@ -598,6 +618,15 @@ extern void iSPCH_ConstantRuleSet(short *sentence, int rule, int val)
                         r = iSPCH_UnPackSample(*(int *)(*choice * 4 + gVoxBanks[0]),
                                                    (unsigned int)*(unsigned char *)
                                                        ((int)choice[4] + (int)pickBase), tmp);
+                        /* residual 10 (83/83, exact insn parity): register-pair coloring wall.
+                         * ours colors tmp-byte-addr->v0 then reuses v0 for the reloaded
+                         * gSentenceRuleSet callee address, shift-constant 1->v1; oracle colors
+                         * tmp-byte-addr->v1 (leaving v0 free to materialize the callee address
+                         * EARLY) and shift-constant 1->a3. Tried: named locals for the shift
+                         * value, the callee fn ptr, and the byte address (each alone and
+                         * combined), decl-order swap of tmp/r/rid -- all no-change or worse
+                         * (16/29). No ABI anchor differs (call uses a0/a1/a2 only, a3 free in
+                         * both); pure gcc CSE/coloring granularity -- accept. */
                         if (r != 0)
                             gSentenceRuleSet(
                                 (int)(unsigned int)*(unsigned short *)sentence, (int)rid,

@@ -38,29 +38,32 @@ void SimQueue_Reset(void)
 
 {
   int iVar1;
-  int j;
   int iVar2;
   int iVar3;
-  int i;
   SIM_QUEUE *pSVar4;
-  
+  u_char *entry;
+
   iVar3 = 0;
   pSVar4 = &inputQueue;
+  gSimQueue_BlockSelf = 1;
+  gSimQueue_BlockOther = 1;
   do {
     iVar2 = 0;
     iVar1 = iVar3 << 7;
     do {
+      entry = (u_char *)&inputQueue + iVar1;
       if (iVar2 < 4) {
-        *(u_int *)((int)inputQueue.Validity[0] + iVar1) = 1;
+        *(u_int *)(entry + 0x100) = 1;
       }
       else {
-        *(u_int *)((int)inputQueue.Validity[0] + iVar1) = 0;
+        *(u_int *)(entry + 0x100) = 0;
+        entry = (u_char *)&inputQueue + iVar1;
       }
       iVar2 = iVar2 + 1;
-      (&inputQueue.Buffer[0][0].steering)[iVar1] = '\0';
-      (&inputQueue.Buffer[0][0].gas)[iVar1] = '\0';
-      (&inputQueue.Buffer[0][0].brake)[iVar1] = '\0';
-      (&inputQueue.Buffer[0][0].flags)[iVar1] = '\0';
+      ((Input_tResults *)entry)->steering = 0;
+      ((Input_tResults *)entry)->gas = 0;
+      ((Input_tResults *)entry)->brake = 0;
+      ((Input_tResults *)entry)->flags = 0;
       iVar1 = iVar1 + 4;
     } while (iVar2 < 0x20);
     pSVar4->TailTime[0] = 4;
@@ -87,45 +90,31 @@ void SimQueue_CleanUp(void)
 int SimQueue_Put(int pIndex,Input_tResults *val)
 
 {
-  u_int uVar1;
-  u_int uVar2;
-  u_int *puVar3;
-  int iVar4;
-  u_int lwlBits;
-  Input_tResults IVar5;
-  int tail;
   u_int uVar6;
-  
+  int iVar4;
+  u_char *entry;
+
   uVar6 = inputQueue.TailTime[pIndex] & 0x1f;
   iVar4 = SimQueue_IsBlocking(pIndex);
   if (iVar4 != 0) {
     return 0;
   }
-  if (inputQueue.Validity[pIndex * 0x10][uVar6] != kINVALID) {
+  entry = (u_char *)&inputQueue + (uVar6 * 4 + pIndex * 0x80);
+  if (*(int *)(entry + 0x100) != kINVALID) {
     return 0;
   }
-  uVar1 = (u_int)&val->flags & 3;
-  uVar2 = (u_int)val & 3;
-  *(u_int *)&IVar5 =
-          ((*(int *)(&val->flags + -uVar1) << (3 - uVar1) * 8 |
-           lwlBits & 0xffffffffU >> (uVar1 + 1) * 8) & -1 << (4 - uVar2) * 8 |
-          *(u_int *)((int)val - uVar2) >> uVar2 * 8);
-  uVar1 = uVar6 * 4 + pIndex * 0x80 + ((u_int)&inputQueue + 3);   /* @0x8013e0f7 = (u_int)&inputQueue + 3 (Ghidra-flattened unaligned packed store into inputQueue) */
-  uVar2 = uVar1 & 3;
-  puVar3 = (u_int *)(uVar1 - uVar2);
-  *puVar3 = *puVar3 & -1 << (uVar2 + 1) * 8 | (*(u_int *)&IVar5) >> (3 - uVar2) * 8;
-  inputQueue.Buffer[pIndex * 0x10][uVar6] = IVar5;
-  inputQueue.Validity[pIndex * 0x10][uVar6] = kVALID;
+  *(Input_tResults *)entry = *val;
+  *(int *)(entry + 0x100) = kVALID;
   inputQueue.TailTime[pIndex] = inputQueue.TailTime[pIndex] + 1;
-  if (GameSetup_gData.commMode == 0) {
-    if ((1 < GameSetup_gData.numPlayerRaceCars) && (pIndex == 0)) {
-      return 1;
-    }
-  }
-  else {
+  if (GameSetup_gData.commMode != 0) {
     if (GameSetup_gData.commMode != 1) {
       return 1;
     }
+    if (pIndex == 0) {
+      return 1;
+    }
+  }
+  else if (1 < GameSetup_gData.numPlayerRaceCars) {
     if (pIndex == 0) {
       return 1;
     }
@@ -138,38 +127,32 @@ int SimQueue_Put(int pIndex,Input_tResults *val)
 void SimQueue_SetCurrentInput(int time)
 
 {
-  Input_tResults IVar1;
-  u_int uVar2;
-  u_char *puVar3;
   int pIndex;
-  int i;
   int iVar4;
   int iVar5;
+  int masked;
   Input_tResults *pIVar6;
-  
-  pIndex = 0;
+
+  masked = time & 0x1fU;
   if (0 < GameSetup_gData.numPlayerRaceCars) {
     pIVar6 = output;
-    iVar5 = (time & 0x1fU) << 2;
+    iVar5 = masked << 2;
+    pIndex = 0;
     do {
-      IVar1 = *(Input_tResults *)(&inputQueue.Buffer[0][0].steering + iVar5);
-      uVar2 = (u_int)&pIVar6->flags & 3;
-      puVar3 = &pIVar6->flags + -uVar2;
-      *(u_int *)puVar3 = *(u_int *)puVar3 & -1 << (uVar2 + 1) * 8 | (*(u_int *)&IVar1) >> (3 - uVar2) * 8;
-      *pIVar6 = IVar1;
+      *pIVar6 = *(Input_tResults *)((u_char *)&inputQueue + iVar5);
       pIVar6 = pIVar6 + 1;
       pIndex = pIndex + 1;
       iVar5 = iVar5 + 0x80;
     } while (pIndex < GameSetup_gData.numPlayerRaceCars);
   }
-  iVar5 = 0;
   if (0 < GameSetup_gData.numPlayerRaceCars) {
-    iVar4 = (time & 0x1fU) << 2;
+    pIndex = 0;
+    iVar4 = masked << 2;
     do {
-      *(u_int *)((int)inputQueue.Validity[0] + iVar4) = 0;
-      iVar5 = iVar5 + 1;
+      *(u_int *)((u_char *)&inputQueue + iVar4 + 0x100) = 0;
+      pIndex = pIndex + 1;
       iVar4 = iVar4 + 0x80;
-    } while (iVar5 < GameSetup_gData.numPlayerRaceCars);
+    } while (pIndex < GameSetup_gData.numPlayerRaceCars);
   }
   inputQueue.HeadTime = inputQueue.HeadTime + 1;
   return;
@@ -179,17 +162,7 @@ void SimQueue_SetCurrentInput(int time)
 void SimQueue_GetCurrentInput(int pIndex,Input_tResults *out)
 
 {
-  Input_tResults IVar1;
-  u_int uVar2;
-  u_char *puVar3;
-  
-  IVar1 = output[pIndex];
-  uVar2 = (u_int)&out->flags & 3;
-  puVar3 = &out->flags + -uVar2;
-  *(u_int *)puVar3 = *(u_int *)puVar3 & -1 << (uVar2 + 1) * 8 | (*(u_int *)&IVar1) >> (3 - uVar2) * 8;
-  uVar2 = (u_int)out & 3;
-  *(u_int *)((int)out - uVar2) =
-       *(u_int *)((int)out - uVar2) & 0xffffffffU >> (4 - uVar2) * 8 | (*(int *)&IVar1) << uVar2 * 8;
+  *out = output[pIndex];
   return;
 }
 

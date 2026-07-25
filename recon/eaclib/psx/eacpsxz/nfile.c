@@ -125,41 +125,39 @@ extern FileHandle *reservehandle(void)
  * the byte3 store and the seq-combine store each redo `oparray + off` from scratch (2 extra
  * lui/lw/addu-shaped reloads the oracle has that a single persistent `op` local doesn't produce).
  * A persistent manager base plus fresh `mgr->oparray + off` expressions preserves those reloads.
- * Hoisting the four id masks and caching opcount for the scan improve the detailed residual
- * 97->88; `off` remains the oracle's byte-offset induction variable. */
+ * Hoisting the four id masks first improved the detailed residual 97->88.  Matching the raw
+ * unrotated do/while CFG, re-reading opcount at the back edge, and ordering the independent
+ * offset/index updates so the count load's delay slot is filled reduce it further to 46 diffs
+ * with the exact 71/71 instruction count.  `off` remains the oracle's byte-offset induction
+ * variable; the remaining residual is one allocator cycle among off/slot/base/seq-mask. */
 
 extern FileOp *reserveop(void)
 {
-    int i, sr, off, count;
-    FileMgr *mgr;
+    int i, sr, off;
     FILE_CS_ENTER(sr);
     i = 0;
-    mgr = &gFileMgr;
-    count = mgr->opcount;
-    if (count > 0) {
+    if (gFileMgr.opcount > 0) {
         unsigned int clearType = 0xFF0FFFFFu;
         unsigned int setType = 0x100000u;
         unsigned int seqMask = 0xFFFFFu;
         unsigned int keepType = 0xFFF00000u;
         off = 0;
-        for (;;) {
-            FileOp *op = (FileOp *)((char *)mgr->oparray + off);
+        do {
+            FileOp *op = (FileOp *)((char *)gFileMgr.oparray + off);
             if (((op->id >> 0x14) & 0xF) == 0) {
                 op->id = (op->id & clearType) | setType; /* set type nibble = 1 */
-                ((unsigned char *)&((FileOp *)((char *)mgr->oparray + off))->id)[3] =
+                ((unsigned char *)&((FileOp *)((char *)gFileMgr.oparray + off))->id)[3] =
                     (unsigned char)i;  /* byte3 = op index */
-                ((FileOp *)((char *)mgr->oparray + off))->id =
-                    (((FileOp *)((char *)mgr->oparray + off))->id & keepType) |
+                ((FileOp *)((char *)gFileMgr.oparray + off))->id =
+                    (((FileOp *)((char *)gFileMgr.oparray + off))->id & keepType) |
                     (gFileOpSeq & seqMask); /* bits 0-19 = request seq */
                 if (++gFileOpSeq > (int)seqMask)             /* 20-bit wrap */
                     gFileOpSeq = 0;
                 break;
             }
-            i++;
-            if (i >= count)
-                break;
             off += 0x30;
-        }
+            i++;
+        } while (i < gFileMgr.opcount);
     }
     FILE_CS_LEAVE(sr);
     if (i == gFileMgr.opcount)

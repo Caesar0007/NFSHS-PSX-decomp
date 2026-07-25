@@ -13,8 +13,8 @@
  *    v0=0x80 for the ratio==1 / (0,0) case @5BB4, s0=larger @5B98.)
  */
 
-extern "C" void make64(int *out, int y, unsigned int shift);   /* @0x800FE488 math64a.obj */
-extern "C" int  divu64(int hi, int lo, unsigned int den);      /* @0x800FE4E0 math64a.obj */
+extern void make64(int *out, int y, unsigned int shift);   /* @0x800FE488 math64a.obj */
+extern int  divu64(int hi, int lo, unsigned int den);      /* @0x800FE4E0 math64a.obj */
 
 /* atan(i/256) in brads, 0..0x80 (45deg).  @0x80136CE8 (257 B, monotonic 0..128) */
 static const unsigned char kAtanTable[257] = {
@@ -38,8 +38,9 @@ static const unsigned char kAtanTable[257] = {
 };
 
 /* intatan @0x800E5B38 : atan2(y,x) -> brads. */
-extern "C" int intatan(int y, int x)
+extern int intatan(int y, int x)
 {
+    int atanv;
     int v1 = y;                 /* $a0 */
     int s0 = x;                 /* $a1 */
     int s2 = 0;                 /* parity (subtract vs add) */
@@ -54,11 +55,14 @@ extern "C" int intatan(int y, int x)
         s2 = 1 - s2;
     }
 
-    int atanv;
+
     if (v1 == s0) {                         /* ratio 1.0 (incl. 0,0) -> 45deg */
         atanv = 0x80;
     } else {
-        unsigned num = (unsigned)v1, den = (unsigned)s0;
+        unsigned num;
+        unsigned den;
+        num = (unsigned)v1;
+        den = (unsigned)s0;
         if (num & 0xFF800000u) {            /* big numerator: EA make64 + divu64 (@0x800FE488/E4E0,
                                                the original's own 64-bit helpers -- NOT libgcc __udivdi3) */
             int buf[2];

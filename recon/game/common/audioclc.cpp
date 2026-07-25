@@ -368,7 +368,7 @@ int AudioClc_CalcAzimuth(DRender_tCalcView *view,coorddef *object)
     iVar1 = -iVar1;
   }
   uVar5 = intatan(iVar1 >> 8, result >> 8);
-  return (uVar5 & 0x3ff) << 6;
+  return (uVar5 << 6) & 0xffc0;
 }
 
 /* ---- AudioClc_CalcCarDirection__FP17DRender_tCalcViewP8Car_tObj  [@0x80074d50] ---- */
@@ -476,7 +476,7 @@ int AudioClc_CalcTrackAzimuth(DRender_tCalcView *view,Car_tObj *car)
     iVar1 = -iVar1;
   }
   uVar5 = intatan(iVar1 >> 8, result >> 8);
-  return (uVar5 & 0x3ff) << 6;
+  return (uVar5 << 6) & 0xffc0;
 }
 
 /* ---- AudioClc_SoundOpponentHorn__Fiiii  [@0x80074f5c] ---- */
@@ -1105,12 +1105,18 @@ void AudioClc_SoundCars(void)
        (Cars_gNumHumanRaceCars == 2 && (Cars_gHumanRaceCarList[1]->carFlags & 0x200))) &&
       HudBustedOverlay != 0) {
     if (0 < GameSetup_gData.numPerps) {
-      i = 0;
+      /* w30-a6 FLOOR: residual is a single addu s0,X,zero source-reg tie-break
+         (oracle chains s0<-s2<-a1; ours materializes s0<-a1 directly) -- both
+         forms of the CarType access (global-indexed vs gs->) and both
+         statement orders (gs-then-i vs i-then-gs) reproduce it identically,
+         and a 505-iter permuter run (base score 35, never below) did not
+         crack it either. Pure allocator artifact, not source-reachable. */
       gs = &GameSetup_gData;
+      i = 0;
       do {
-        patch = CopSpeak_GetEnginePatch(GameSetup_gData.perpInfo[i].CarType, 0);
+        patch = CopSpeak_GetEnginePatch(gs->perpInfo[i].CarType, 0);
         AudioCmn_GetAsyncSfx(1, patch, (void *)0);
-        patch = CopSpeak_GetEnginePatch(GameSetup_gData.perpInfo[i].CarType, 1);
+        patch = CopSpeak_GetEnginePatch(gs->perpInfo[i].CarType, 1);
         AudioCmn_GetAsyncSfx(1, patch, (void *)0);
         i++;
       } while (i < gs->numPerps);

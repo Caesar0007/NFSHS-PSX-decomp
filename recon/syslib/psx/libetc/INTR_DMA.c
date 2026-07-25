@@ -19,14 +19,14 @@
  *   separately, then re-test with a1's per-fn splice mechanism (whole-TU flag is not authoritative
  *   for the final per-fn residual, but is a valid proxy since gcc codegens per-function).
  */
-extern "C" void InterruptCallback(int idx, void (*h)());   /* INTR */
-extern "C" int  printf(const char *fmt, ...);              /* C63 */
-extern "C" void _dma_isr(void);
+extern void InterruptCallback(int idx, void (*h)());   /* INTR */
+extern int  printf(const char *fmt, ...);              /* C63 */
+extern void _dma_isr(void);
 static int _dma_set_callback(int ch, int func);   /* @0x80106878 : obj-local; only reached via the pointer startIntrDMA returns */
 
-extern "C" volatile unsigned int *g_dicr_ptr;   /* @0x8013BD20 : = 0x1F8010F4 */
-extern "C" int dma_cb[8];                        /* @0x8013BD24 : per-channel DMA callbacks */
-extern "C" volatile unsigned int *g_madr_ptr;   /* @0x8013BD44 : = 0x1F801080 */
+extern volatile unsigned int *g_dicr_ptr;   /* @0x8013BD20 : = 0x1F8010F4 */
+extern int dma_cb[8];                        /* @0x8013BD24 : per-channel DMA callbacks */
+extern volatile unsigned int *g_madr_ptr;   /* @0x8013BD44 : = 0x1F801080 */
 
 #define DICR (*g_dicr_ptr)
 
@@ -34,7 +34,7 @@ extern "C" volatile unsigned int *g_madr_ptr;   /* @0x8013BD44 : = 0x1F801080 */
  * this `static` C++ fn got C++-mangled to _bzero_w__FPii, a NAME MISMATCH invisible to the gate
  * ("NOT IN OBJECT" forever). `static`+`extern "C"` can't combine as adjacent storage-class
  * specifiers on this compiler -- wrap in an `extern "C" { }` block instead. */
-extern "C" {
+
 static void _bzero_w(int *p, int n)   /* @0x80106924 */
 {
     int i = n - 1;
@@ -42,9 +42,9 @@ static void _bzero_w(int *p, int n)   /* @0x80106924 */
         do { *p = 0; i = i - 1; p = p + 1; } while (i != -1);
     }
 }
-}   /* extern "C" */
+   /* extern "C" */
 
-extern "C" void *startIntrDMA(void)   /* @0x801066AC */
+extern void *startIntrDMA(void)   /* @0x801066AC */
 {
     _bzero_w(dma_cb, 8);
     DICR = 0;
@@ -52,7 +52,7 @@ extern "C" void *startIntrDMA(void)   /* @0x801066AC */
     return (void *)_dma_set_callback;
 }
 
-extern "C" void _dma_isr(void)   /* @0x801066F8 */
+extern void _dma_isr(void)   /* @0x801066F8 */
 {
     unsigned int pending;
     int i;

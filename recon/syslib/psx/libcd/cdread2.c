@@ -9,23 +9,23 @@
 typedef unsigned char u_char;
 
 /* ---- libcd public API (cdcont.cpp) ------------------------------------------------------------ */
-extern "C" int CdControl(u_char com, u_char *param, u_char *result); /* @0x800F78B4 */
-extern "C" int CdDataCallback(int func);                             /* @0x800F7CB0 */
-extern "C" int CdReadyCallback(int func);                            /* @0x800F78A0 */
+extern int CdControl(u_char com, u_char *param, u_char *result); /* @0x800F78B4 */
+extern int CdDataCallback(int func);                             /* @0x800F7CB0 */
+extern int CdReadyCallback(int func);                            /* @0x800F78A0 */
 
 /* ---- streaming subsystem (libcd C_011 / C_004) ------------------------------------------------ */
-extern "C" void StCdInterrupt(void);        /* @0x800F7E78 (C_011) */
-extern "C" int  data_ready_callback(void);  /* @0x80108798 (C_004) */
-extern "C" int  StMode;                     /* @0x801489CC : streaming RGB24/mode flag */
+extern void StCdInterrupt(void);        /* @0x800F7E78 (C_011) */
+extern int  data_ready_callback(void);  /* @0x80108798 (C_004) */
+extern int  StMode;                     /* @0x801489CC : streaming RGB24/mode flag */
 
 /* @0x800F8FCC : ready callback for a streaming read -- pump the stream interrupt handler. */
-extern "C" void _cdread2_ready(int /*intr*/, int /*result*/)  /* MATCH: void - oracle has no addu v0,zero,zero */
+extern void _cdread2_ready(int intr, int result)  /* MATCH: void - oracle has no addu v0,zero,zero */
 {
     StCdInterrupt();
 }
 
 /* @0x800F8F48 : CdRead2 -- begin a CdlReadS read in the given mode. */
-extern "C" int CdRead2(long mode)
+extern int CdRead2(long mode)
 {
     u_char modeb = (u_char)mode;
     CdControl(0xE, &modeb, 0);                  /* CdlSetmode */

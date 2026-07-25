@@ -174,7 +174,7 @@ PER_FN_NO_DELAYED_BRANCH = {
         # Same outcome class as a1's CdDataCallback revert. See
         # scratch/w25a3_state.md for full detail.
     },
-    "recon/syslib/psx/libcd/cdread2.cpp": {
+    "recon/syslib/psx/libcd/cdread2.c": {
         "_cdread2_ready",
     },
     # w25-a5: libpad Tier-1 (single-jal, epilogue-only shape, canonical per

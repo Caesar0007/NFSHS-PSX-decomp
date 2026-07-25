@@ -22,16 +22,18 @@ int Sched_ExecuteCheck(int staggered,int module,int distance,int carId,int *time
   int index;
   int distanceIndex;
   int iVar2;
-  
+  int iVar4;
+
   if (0xf < simGlobal.gameTicks) {
     if (distance < 0) {
       distance = distance + 0xf;
     }
     iVar2 = distance >> 4;
+    iVar4 = iVar2;
     if (iVar2 < 0) {
-      iVar2 = iVar2 + 0xffff;
+      iVar4 = iVar2 + 0xffff;
     }
-    iVar2 = iVar2 >> 0x10;
+    iVar2 = iVar4 >> 0x10;
     if (0x13 < iVar2) {
       iVar2 = 0x13;
     }
@@ -92,44 +94,31 @@ void Sched_AddFunction(Sched_tSchedule *schedule,fn_void *function,void *var1,in
 
 {
   int iVar1;
-  u_char **ppuVar2;
-  void *ppuVar3;
-  int j;
-  int n;
   int iVar3;
   int i;
-  
+
   i = 0;
   iVar3 = 0;
-  iVar1 = schedule->numFunctions + 1;
-  schedule->numFunctions = iVar1;
-  if (0 < iVar1) {
-    iVar1 = 0;
+  schedule->numFunctions = schedule->numFunctions + 1;
+  if (0 < schedule->numFunctions) {
     do {
       iVar3 = i;
-      if (priority < *(int *)((int)&schedule->func[0].priority + iVar1)) {
+      if (priority < schedule->func[i].priority) {
         iVar1 = schedule->numFunctions + -1;
         if (iVar3 < iVar1) {
-          ppuVar3 = &schedule->func[schedule->numFunctions + -2].var1;
           do {
-            *(u_int *)((int)ppuVar3 + 8) = *(u_int *)((int)ppuVar3 + -8);
-            *(u_int *)((int)ppuVar3 + 0xc) = *(u_int *)((int)ppuVar3 + -4);
-            *(u_int *)((int)ppuVar3 + 0x10) = *(u_int *)ppuVar3;
-            *(u_int *)((int)ppuVar3 + 0x14) = *(u_int *)((int)ppuVar3 + 4);
+            schedule->func[iVar1] = schedule->func[iVar1 + -1];
             iVar1 = iVar1 + -1;
-            ppuVar3 = (void *)((int)ppuVar3 + -0x10);
           } while (iVar3 < iVar1);
         }
         break;
       }
       i = iVar3 + 1;
-      iVar1 = i * 0x10;
     } while (i < schedule->numFunctions);
   }
-  ppuVar2 = (u_char **)&schedule->func[iVar3 + -1].var1;
-  ppuVar2[2] = (u_char *)priority;
-  ppuVar2[3] = (u_char *)function;
-  ppuVar2[4] = (u_char *)var1;
+  schedule->func[iVar3].priority = priority;
+  schedule->func[iVar3].function = (void *)function;
+  schedule->func[iVar3].var1 = var1;
   return;
 }
 
@@ -139,11 +128,9 @@ void Sched_DeleteFunction(Sched_tSchedule *schedule,fn_void *function,void *var1
 {
   int i;
   int iVar1;
-  void *ppuVar2;
-  int j;
   Sched_tSchedule *pSVar2;
   int iVar3;
-  
+
   iVar3 = schedule->numFunctions;
   if (iVar3 != 0) {
     iVar1 = 0;
@@ -152,15 +139,10 @@ void Sched_DeleteFunction(Sched_tSchedule *schedule,fn_void *function,void *var1
       do {
         if ((pSVar2->func[0].function == (void *)function) && (pSVar2->func[0].var1 == var1))
         {
-          ppuVar2 = &schedule->func[iVar1 + -1].var1;
           if (iVar1 < iVar3 + -1) {
             do {
-              *(u_int *)((int)ppuVar2 + 8) = *(u_int *)((int)ppuVar2 + 0x18);
-              *(u_int *)((int)ppuVar2 + 0xc) = *(u_int *)((int)ppuVar2 + 0x1c);
-              *(u_int *)((int)ppuVar2 + 0x10) = *(u_int *)((int)ppuVar2 + 0x20);
-              *(u_int *)((int)ppuVar2 + 0x14) = *(u_int *)((int)ppuVar2 + 0x24);
+              schedule->func[iVar1] = schedule->func[iVar1 + 1];
               iVar1 = iVar1 + 1;
-              ppuVar2 = (void *)((int)ppuVar2 + 0x10);
             } while (iVar1 < schedule->numFunctions + -1);
           }
           break;

@@ -1,5 +1,12 @@
-/* syslib/psx/libcd/iso9660.cpp -- RECONSTRUCTED from nfs4-f.exe (Ghidra + disasm-v3).
+/* syslib/psx/libcd/iso9660.c -- RECONSTRUCTED from nfs4-f.exe (Ghidra + disasm-v3).
  *   obj libcd.lib(ISO9660.OBJ): the PsyQ ISO-9660 read-only filesystem on top of the CD driver.
+ *
+ *   COMPILED AS C by USER RULING (2026-07-25, uniformity over diff count): cc1plus (C++) measured
+ *   strictly better per-fn diff counts than cc1 (C) on this TU -- CD_newmedia 125->146 (w26-a1
+ *   dual-compile audit). Migrated anyway for source-uniformity across syslib/eaclib. Do NOT revert
+ *   to .cpp without a user decision; see recon/syslib/psx/libcd/cdread.c,
+ *   recon/eaclib/psx/eacpsxz/cdfs.c and recon/syslib/psx/libgpu/FONT.c for the sibling KEEP-CPP-
+ *   turned-uniform TUs (same ruling, same date).
  *
  *   Public entry: CdSearchFile(fp, "\\DIR\\FILE.EXT;1") -- resolve an absolute path to its CdlFILE
  *   (start MSF + size).  Internals (PsyQ names recovered from the embedded debug strings):
@@ -24,26 +31,29 @@ typedef unsigned char u_char;
 typedef unsigned long  u_long;
 
 struct CdlLOC  { u_char minute, second, sector, track; };
+typedef struct CdlLOC CdlLOC;
 struct CdlFILE { CdlLOC pos; u_long size; char name[16]; };          /* 0x18 */
+typedef struct CdlFILE CdlFILE;
 struct CdPathEnt { int index; int parent; int lba; char name[0x20]; };/* 0x2C */
+typedef struct CdPathEnt CdPathEnt;
 /* ISO9660 32-bit fields are MISALIGNED LE ints (record offset +2/+8C); the original reads them
  * through this CdlLOC-shaped union (misaligned load) -- byte-assembly rd32le diverges. */
 union LBA { int addr; CdlLOC i; };
+typedef union LBA LBA;
 
 /* ---- libc (BIOS) / libcd / driver externs ----------------------------------------------------- */
-extern "C" int      strncmp(const char *, const char *, unsigned);  /* BIOS A0:0x18 @0x800EB1D0 */
-extern "C" int      strcmp(const char *, const char *);             /* BIOS A0:0x17 @0x800E5D7C */
-extern "C" void    *memcpy(void *, const void *, unsigned);         /* BIOS A0:0x2A @0x800EAAC4 */
-extern "C" int      printf(const char *, ...);                 /* libc C63 @0x801028AC */
-extern "C" CdlLOC  *CdIntToPos(int i, CdlLOC *p);              /* @0x800F7CF4 */
-extern "C" int      CdControl(u_char com, u_char *param, u_char *result); /* @0x800F78B4 */
-extern "C" int      CdRead(int sectors, u_long *buf, int mode);          /* @0x80108DDC */
-extern "C" int      CdReadSync(int mode, u_char *result);                /* @0x80108F78 */
-extern "C" int      CD_debug;   /* @0x8013BF50 (DRV) */
-extern "C" int      CD_nopen;   /* @0x8013BF5C : media-change counter (CDROM.OBJ) */
+extern int      strncmp(const char *, const char *, unsigned);  /* BIOS A0:0x18 @0x800EB1D0 */
+extern int      strcmp(const char *, const char *);             /* BIOS A0:0x17 @0x800E5D7C */
+extern void    *memcpy(void *, const void *, unsigned);         /* BIOS A0:0x2A @0x800EAAC4 */
+extern int      printf(const char *, ...);                 /* libc C63 @0x801028AC */
+extern CdlLOC  *CdIntToPos(int i, CdlLOC *p);              /* @0x800F7CF4 */
+extern int      CdControl(u_char com, u_char *param, u_char *result); /* @0x800F78B4 */
+extern int      CdRead(int sectors, u_long *buf, int mode);          /* @0x80108DDC */
+extern int      CdReadSync(int mode, u_char *result);                /* @0x80108F78 */
+extern int      CD_debug;   /* @0x8013BF50 (DRV) */
+extern int      CD_nopen;   /* @0x8013BF5C : media-change counter (CDROM.OBJ) */
 
 /* ---- ISO9660.OBJ .bss -------------------------------------------------------------------------- */
-extern "C" {
 CdlFILE   _cd_dir[64];          /* @0x8014487C */
 CdPathEnt _cd_pathtbl[128];     /* @0x80144E7C */
 char      _cd_secbuf[0x800];    /* @0x8014647C */
@@ -52,7 +62,6 @@ char      _cd_secbuf[0x800];    /* @0x8014647C */
  * Their definitions are part of the linked image's .bss (see asm/data D_80136C6C / D_80136C68). */
 extern int _cd_search_nopen;    /* @0x80136C6C : CD_nopen the path table was built for */
 extern int _cd_cached_dir;      /* @0x80136C68 : index of the directory currently in _cd_dir */
-}
 
 /* little-endian unaligned 32-bit load (matches the lwl/lwr pairs in the binary). */
 static int rd32le(const u_char *p)
@@ -61,7 +70,7 @@ static int rd32le(const u_char *p)
 }
 
 /* @0x800F9984 : read `nsec` sectors starting at LBA `lba` into `buf`; returns 1 on success. */
-extern "C" int cd_read(int nsec, int lba, void *buf)
+extern int cd_read(int nsec, int lba, void *buf)
 {
     CdlLOC loc;
     CdIntToPos(lba, &loc);
@@ -71,13 +80,13 @@ extern "C" int cd_read(int nsec, int lba, void *buf)
 }
 
 /* @0x800F9360 : directory-name compare (ISO names are exact, so this is effectively ==). */
-extern "C" int _cd_cmp_name(char *a, char *b)
+extern int _cd_cmp_name(char *a, char *b)
 {
     return (unsigned)strncmp(a, b, 0xC) < 1u;   /* MATCH: sltiu (unsigned < 1) not slti */
 }
 
 /* @0x800F9644 : find the path-table entry for child (parent, name); returns its 1-based id or -1. */
-extern "C" int _cd_find_path(int parent, char *name)
+extern int _cd_find_path(int parent, char *name)
 {
     int k = 0;
     do {
@@ -91,7 +100,7 @@ extern "C" int _cd_find_path(int parent, char *name)
 }
 
 /* @0x800F9380 : mount new media -- read the PVD, verify it, read & cache the whole path table. */
-extern "C" int CD_newmedia(void)
+extern int CD_newmedia(void)
 {
     LBA     pt_lba;
     u_char *rec;
@@ -141,7 +150,7 @@ extern "C" int CD_newmedia(void)
 }
 
 /* @0x800F96E8 : read directory `dir` (1-based path-table id) and cache its file records. */
-extern "C" int CD_cachefile(int dir)
+extern int CD_cachefile(int dir)
 {
     LBA     entryLba;
     u_char *rec;
@@ -195,7 +204,7 @@ extern "C" int CD_cachefile(int dir)
 }
 
 /* @0x800F9088 : resolve an absolute "\\dir\\file" path to its CdlFILE. */
-extern "C" CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
+extern CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
 {
     char           comp[0x20];
     int            dir;                                     /* current parent dir number */

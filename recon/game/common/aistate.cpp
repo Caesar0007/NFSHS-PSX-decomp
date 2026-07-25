@@ -3482,6 +3482,112 @@ extern "C" void ___14AIState_Normal(AIState_Normal *pThis,int __in_chrg)
 
 
 
+/* ---- func_80072750  AIState_NonActive::Execute  [rule-8, w30-a2] ----
+   SECOND compiled instance of AIState_NonActive::Execute (empty body) -- the OLD-ABI
+   vague-linkage duplicate sitting immediately next to func_80072758/func_80072830/func_80072838
+   below. Every canonical name (Execute__17AIState_NonActive/___17AIState_NonActive/
+   TestForRelease__12AIState_Base) is already claimed by a DIFFERENT VA
+   (0x8005F624/0x8005F62C/0x8005B4C4 -- see configs/symbol_addrs.txt), so this instance keeps
+   its func_<VA> identity (extern-C name can't collide) with the real identity in this comment.
+   PROOF: asm/data/rdata_80054548.rodata.s @0x800555AC (AIState_NonActive_vtable Execute slot,
+   D_800555A0+0xC) holds the literal word `func_80072750`. */
+
+extern "C" void func_80072750(AIState_NonActive *pThis)
+
+{
+
+  return;
+
+}
+
+
+
+
+/* ---- func_80072758  AIState_NonActive's deleting destructor [rule-8, w30-a2] ----
+   SECOND compiled instance of ~AIState_NonActive (see func_80072750 comment -- canonical name
+   ___17AIState_NonActive already claimed by the instance at 0x8005F62C). Same shape as
+   ___17AIState_Purgatory's tail (own-class vtable -> mark carObj_->N.active -> AIState_Base_vtable
+   -> conditional delete).
+   PROOF: rdata_80054548.rodata.s @0x800555B4 (AIState_NonActive_vtable dtor slot) holds the
+   literal word `func_80072758`; the two lui/addiu loads in the oracle (D_800555A0, D_80055640)
+   are the exact VAs of AIState_NonActive_vtable and AIState_Base_vtable materialized in
+   vtables_aistate.cpp. */
+
+extern "C" void func_80072758(AIState_NonActive *pThis,int __in_chrg)
+
+
+
+{
+
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_NonActive_vtable;
+
+  ((pThis->carObj_)->N).active = '\x01';
+
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
+
+  if ((__in_chrg & 1U) != 0) {
+    __builtin_delete(pThis);
+  }
+
+  return;
+
+}
+
+
+
+
+/* ---- func_80072830  AIState_Base::TestForRelease  [rule-8, w30-a2] ----
+   SECOND compiled instance of AIState_Base::TestForRelease (canonical name
+   TestForRelease__12AIState_Base already claimed by the instance at 0x8005B4C4). This is the
+   SHARED default impl (return 0) used by every AIState subclass that does not override
+   TestForRelease -- confirmed by rdata_80054548.rodata.s: the literal word `func_80072830`
+   fills the TestForRelease slot of AIState_NonActive_vtable (@0x800555BC), AIState_Offroad's
+   _vt (@0x800555DC), AIState_Chase's _vt (@0x800555FC), AIState_Idle's _vt (@0x8005561C),
+   AIState_Normal's _vt (@0x8005563C) AND AIState_Base_vtable itself (@0x8005565C). */
+
+extern "C" int func_80072830(AIState_Base *pThis)
+
+{
+
+  return 0;
+
+}
+
+
+
+
+/* ---- func_80072838  AIState_Base's deleting destructor (___12AIState_Base) [rule-8, w30-a2] ----
+   aistate.h forward-declares `void ___12AIState_Base(AIState_Base*,int __in_chrg)` (used by
+   vtables_aistate.cpp's AIState_Base_vtable dtor-slot comment) but NO TU ever defines it --
+   this VA is that real, previously-missing body (canonical name kept free for a future single
+   real definition; this instance keeps its func_<VA> identity per the func_80072750 comment
+   above, since configs/symbol_addrs.txt already reserves ___12AIState_Base for the OTHER
+   duplicate instance at 0x8005B4CC). Same minimal shape as ___14AIState_Normal (no per-class
+   cleanup, straight chain to AIState_Base_vtable then conditional delete) -- AIState_Base has
+   no data members to clear.
+   PROOF: rdata_80054548.rodata.s @0x80055654 (AIState_Base_vtable's OWN dtor slot) holds the
+   literal word `func_80072838`. */
+
+extern "C" void func_80072838(AIState_Base *pThis,int __in_chrg)
+
+
+
+{
+
+
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
+
+  if ((__in_chrg & 1U) != 0) {
+    __builtin_delete(pThis);
+  }
+
+  return;
+
+}
+
+
+
+
 
 
 

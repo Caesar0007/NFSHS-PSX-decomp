@@ -64,10 +64,17 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
      * OUT of the loop (computed once, reused every CLUT-tail hit) rather than remasking each time.
      * The two AND-mask constants used by the packed-xy update (below, in both the bitmap block and
      * the CLUT tail) are ALSO shared/hoisted the same way -- named here so gcc materializes each
-     * ONCE and reuses it at both write sites instead of rematerializing per-site. */
+    * ONCE and reuses it at both write sites instead of rematerializing per-site. */
     {
-    unsigned int clutXm  = (unsigned int)clutX & 0xfff;
-    unsigned int clutYm  = ((unsigned int)clutY & 0xfff) << 0x10;
+    /* RAW/ORACLE (2026-07-26, 100->96 detailed diffs; count-exact 165/165):
+     * keep the four coordinate roles as distinct locals in stack-argument-first order. This
+     * preserves the retail argument lifetimes and improves the saved-register prologue family. */
+    int cy = clutY;
+    int ix = imgX;
+    int iy = imgY;
+    int cx = clutX;
+    unsigned int clutXm  = (unsigned int)cx & 0xfff;
+    unsigned int clutYm  = ((unsigned int)cy & 0xfff) << 0x10;
     unsigned int maskLo  = ~0xFFFu;         /* clears the low 12 bits (x field) */
     unsigned int maskHi  = 0xF000FFFFu;     /* clears bits 16-27 (y field) */
     scratch.clut22p = scratch.clut22;
@@ -90,11 +97,11 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
                  * low 12 bits and OR in x, THEN clear bits 16-27 and OR in y<<16) -- not one combined
                  * `& 0xf000f000` mask; the oracle materializes and shares 2 distinct AND-mask
                  * constants (~0xFFF, 0xF000FFFF) across both this site and the CLUT-tail site below. */
-                c[3] = (c[3] & maskLo) | ((unsigned int)imgX & 0xfff);
-                c[3] = (c[3] & maskHi) | (((unsigned int)imgY & 0xfff) << 0x10);
+                c[3] = (c[3] & maskLo) | ((unsigned int)ix & 0xfff);
+                c[3] = (c[3] & maskHi) | (((unsigned int)iy & 0xfff) << 0x10);
                 *(unsigned char *)c = (unsigned char)*c | 8;
-                scratch.rect.x = imgX;
-                scratch.rect.y = imgY;               /* H04: was missing (oracle 0x800F6A80 *(short*)(18+sp)=imgY) */
+                scratch.rect.x = ix;
+                scratch.rect.y = iy;                 /* H04: was missing (oracle 0x800F6A80 *(short*)(18+sp)=imgY) */
                 bits   = (short)c[1] * shapedepth((unsigned char *)c);
                 w      = bits + 0xf;
                 if (w < 0)
@@ -157,8 +164,8 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
         c[3] = (c[3] & maskLo) | clutXm;
         c[3] = (c[3] & maskHi) | clutYm;
         *(unsigned char *)c = (unsigned char)*c | 8;
-        scratch.rect.x = clutX;
-        scratch.rect.y = clutY;                  /* H04: was missing (oracle 0x800F6BC4 *(short*)(18+sp)=clutY) */
+        scratch.rect.x = cx;
+        scratch.rect.y = cy;                     /* H04: was missing (oracle 0x800F6BC4 *(short*)(18+sp)=clutY) */
         scratch.rect.w = (short)c[1];
         scratch.rect.h = 1;
         vramimage(rectp, data);

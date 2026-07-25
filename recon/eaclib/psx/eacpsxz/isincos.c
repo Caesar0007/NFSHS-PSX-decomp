@@ -57,19 +57,20 @@ extern const int gSinTable[257] = {
 /* intsincos @0x800EADBC : write sin -> *psin, cos -> *pcos for a brads angle. */
 extern void intsincos(int angle, int *psin, int *pcos)
 {
-    /* RESIDUAL (86 diffs, ours 69 vs oracle 71 insns) -- NOT a coloring near-miss, a genuine
+    /* RESIDUAL (73 diffs, ours 72 vs oracle 71 insns) -- NOT a coloring near-miss, a genuine
      * SWITCH-LOWERING SHAPE divergence: the oracle's compare tree checks quad==1 first, then
-     * quad<2, then quad==0/2/3 (each with a dead "can't happen" trap), and CROSS-JUMPS the
+     * quad<2, then quad==0/2/3 (with a dead "can't happen" trap), and CROSS-JUMPS the
      * quad0-cos / quad3-sin arms into one shared `*pcos=gSinTable[idx]` tail. Our cc1 compiles
-     * the same `switch(quad){0,1,2,default}` into a DIFFERENT (shorter, all-loads-unconditional)
-     * cross-merge instead. Tried: literal case-order permutation (1,0,2,default) -> worse
+     * the same explicit 0/1/2/3/default case set into a DIFFERENT cross-merge instead. Making
+     * case 3 explicit recovered the oracle's defensive compare tree and reduced 86 -> 73 diffs.
+     * Tried: literal case-order permutation (1,0,2,default) -> worse
      * (96 diffs); an explicit goto/label CFG hand-built to match the oracle's exact tree ->
      * worse (94 diffs, gcc did not reproduce the switch-expander's RTL from hand-written
      * ifs/gotos); plain if/else-if chain (matching compare order) -> worse (101 diffs). None
      * beat the plain switch. This is switch-expander-internal codegen (case density / cost
      * heuristics), not source-shapable without a pin; accept as a structural near-miss. */
     int quad = (angle >> 8) & 3;
-    int p    = angle & 0xFF;          /* 0x800EADCC (branch delay slot -> all quadrants) */
+    int p = angle & 0xFF;
 
     switch (quad) {
     case 0:
@@ -84,9 +85,11 @@ extern void intsincos(int angle, int *psin, int *pcos)
         *psin = -gSinTable[p];
         *pcos = -gSinTable[256 - p];
         break;
-    default: /* 3 */
+    case 3:
         *psin = -gSinTable[256 - p];
         *pcos =  gSinTable[p];
         break;
+    default:
+        return;
     }
 }

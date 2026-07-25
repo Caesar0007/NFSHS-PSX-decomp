@@ -145,8 +145,9 @@ extern void setdirectory(char *dir)
 extern int openfile(char *name, int flags, int *outp)
 {
     char  namebuf[0x40];
-    int   fs = currentfilesystem;
+    int   fs;
     memset(namebuf, 0, 0x40);
+    fs = currentfilesystem;
 
     if (strchr(name, ':') != 0) {                       /* a "drive:"/fs prefix is present */
         if (strncmp(name, fsprefix1, 6) == 0) {         /* CD prefix */
@@ -159,7 +160,7 @@ extern int openfile(char *name, int flags, int *outp)
             int idx;
             idx = (int)(strchr(name, ':') - name);  /* unknown prefix -> copy the volume, no open */
             strncpy(namebuf, name, idx + 1);
-            namebuf[idx + 2] = 0;
+            namebuf[(int)(strchr(name, ':') - name) + 2] = 0;
             fs = 0;
         }
         /* else: bare "X:" with currentfilesystem != 1 -> keep the current fs and the whole name */
@@ -170,8 +171,8 @@ extern int openfile(char *name, int flags, int *outp)
         *outp |= 0x1000000;                             /* tag fs byte = 1 */
         return 1;
     }
-    if (fs != 2)                                        /* fs 0 -> nothing to open */
-        return 1;
+    if (fs != 2)                                        /* unknown prefix / fs 0 -> failure */
+        return 0;
 
     /* fs == 2 : PC host -- prepend the cwd unless the path is absolute */
     if (name[0] != '\\' && name[0] != '/')
@@ -199,7 +200,7 @@ extern int openfile(char *name, int flags, int *outp)
     }
 
     if (*outp <= 0) { *outp = 0; return 0; }
-    *outp = (fs << 0x18) | *outp;                       /* tag fs byte */
+    *outp = *outp | (fs << 0x18);                       /* tag fs byte */
     return 1;
 }
 

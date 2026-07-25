@@ -11,19 +11,20 @@
  */
 
 /* ---- helpers from sibling reconstructed objs ---- */
-extern "C" int   loadfileadr  (char *name, int memclass);   /* nsync   @0x800E57E8 */
-extern "C" int   unpacksize   (void *buf);                  /* unpack  -- 0 if not packed */
-extern "C" int   unpackz      (void *src, void *dst);       /* unpack  -- nonzero = success */
-extern "C" int   getblocksize (void *p);                    /* memstd  @0x800E52D4 */
-extern "C" void *reservememadr(char *name, int size, int classid); /* memstd @0x800E533C */
-extern "C" int   purgememadr  (void *p);                    /* memstd  @0x800E5540 */
-extern "C" void  blockmove    (void *src, void *dst, int n);/* eacpsxz @0x800E62DC */
+extern int   loadfileadr  (char *name, int memclass);   /* nsync   @0x800E57E8 */
+extern int   unpacksize   (void *buf);                  /* unpack  -- 0 if not packed */
+extern int   unpackz      (void *src, void *dst);       /* unpack  -- nonzero = success */
+extern int   getblocksize (void *p);                    /* memstd  @0x800E52D4 */
+extern void *reservememadr(char *name, int size, int classid); /* memstd @0x800E533C */
+extern int   purgememadr  (void *p);                    /* memstd  @0x800E5540 */
+extern void  blockmove    (void *src, void *dst, int n);/* eacpsxz @0x800E62DC */
 
 /* ===================================================================== *
  *  loadpackadrz @0x800E5C64 : load + transparently unpack `name`.        *
  * ===================================================================== */
-extern "C" void *loadpackadrz(char *name, int memclass)   /* @0x800E5C64 */
+extern void *loadpackadrz(char *name, int memclass)   /* @0x800E5C64 */
 {
+    char *buf;
     /* MATCH (PASS, 46->0 diffs, 62/62 insns): a single result/accumulator (0-init BEFORE the
      * load call, threaded through the whole function) funnels ALL exits -- the buf==0 early-out
      * (a `goto end`) reads the pre-set 0 directly, no re-materialization (§5.0c flat-funnel).
@@ -33,18 +34,19 @@ extern "C" void *loadpackadrz(char *name, int memclass)   /* @0x800E5C64 */
      * tail (2-insn-short near-miss); the oracle keeps them as two SEPARATE tail blocks, which
      * only the if/else nesting reproduces (un-merged-tails class, §catalog "gcc cross-jumping"). */
     void *result = 0;
-    char *buf = (char *)loadfileadr(name, memclass);
+    buf = (char *)loadfileadr(name, memclass);
     if (buf == 0)
         goto end;                                  /* load failed -> result stays 0 */
 
     {
         int usize = unpacksize(buf);
         if (usize != 0) {
+            void *scratch;
             /* relocate the compressed bytes to a scratch block at the opposite heap end.
              * MATCH: `buf` is DEAD after purgememadr(buf) below -- reuse its slot for the
              * scratch ptr (in-place dead-variable reuse) instead of a fresh local; the oracle
              * coalesces scratch into the just-freed buf register the same way. */
-            void *scratch = reservememadr(name, getblocksize(buf), memclass ^ 0x10);
+            scratch = reservememadr(name, getblocksize(buf), memclass ^ 0x10);
             blockmove(buf, scratch, getblocksize(buf));
             purgememadr(buf);
             buf = (char *)scratch;
@@ -69,7 +71,7 @@ end:
 /* ===================================================================== *
  *  loadpackadr @0x800E5D5C : forwarder to loadpackadrz.                  *
  * ===================================================================== */
-extern "C" void *loadpackadr(char *name, int memclass)   /* @0x800E5D5C */
+extern void *loadpackadr(char *name, int memclass)   /* @0x800E5D5C */
 {
     return loadpackadrz(name, memclass);
 }

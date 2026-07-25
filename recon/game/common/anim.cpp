@@ -43,35 +43,20 @@ AnimRestart_End:;
 /* ---- Anim_InitSystem  [@0x80073b1c] ---- */
 int Anim_InitSystem(char *trackName)
 {
-  int i;
-  char fname[80];
-  char*bigFile;
-  char*mem;
-  int size;
-  int numParts;
-  Trk_AnimateInst*objInstance;
   int *src;
   void *pThis;
   Trk_AnimateInst *pTVar1;
   int iVar2;
   Trk_AnimateInst **ppTVar3;
   char acStack_68 [80];
-  
+
   Anim_Restart();
   sprintf(acStack_68,"%sA.viv",trackName);
   src = (int *)loadfileadrz(acStack_68,(void *)0x0);
   iVar2 = 9;
-  if (src == (int *)0x0) {
-    ppTVar3 = animScripts + 9;
-    do {
-      *ppTVar3 = (Trk_AnimateInst *)0x0;
-      iVar2 = iVar2 + -1;
-      ppTVar3 = ppTVar3 + -1;
-    } while (-1 < iVar2);
-  }
-  else {
+  if (src != (int *)0x0) {
     iVar2 = filesize(acStack_68);
-    pThis = 
+    pThis =
            Platform_GetDCTBuffer(iVar2,"animScripts");
     blockmove(src,(int *)pThis,iVar2);
     purgememadr(src);
@@ -86,14 +71,26 @@ int Anim_InitSystem(char *trackName)
       ppTVar3 = ppTVar3 + 1;
     } while (iVar2 < 10);
   }
+  else {
+    ppTVar3 = animScripts + 9;
+    do {
+      *ppTVar3 = (Trk_AnimateInst *)0x0;
+      iVar2 = iVar2 + -1;
+      ppTVar3 = ppTVar3 + -1;
+    } while (-1 < iVar2);
+  }
   if (gPersistObjInst != (Group *)0x0) {
     iVar2 = gPersistObjInst->m_num_elements;
     pTVar1 = (Trk_AnimateInst *)(gPersistObjInst + 1);
-    while (iVar2 = iVar2 + -1, iVar2 != -1) {
-      if (((pTVar1->type == '\x03') || (pTVar1->type == '\a')) && (pTVar1->objectIndex != 0)) {
-        Anim_gInstanceFromIndex[pTVar1->objectIndex] = pTVar1;
-      }
-      pTVar1 = (Trk_AnimateInst *)((int)&pTVar1->size + (int)pTVar1->size);
+    iVar2 = iVar2 - 1;
+    if (iVar2 != -1) {
+      do {
+        if (((pTVar1->type == '\x03') || (pTVar1->type == '\a')) && (pTVar1->objectIndex != 0)) {
+          Anim_gInstanceFromIndex[pTVar1->objectIndex] = pTVar1;
+        }
+        pTVar1 = (Trk_AnimateInst *)((int)&pTVar1->size + (int)pTVar1->size);
+        iVar2 = iVar2 - 1;
+      } while (iVar2 != -1);
     }
   }
   return 0;

@@ -337,31 +337,29 @@ AnimScript::AnimScript(int num,int numParts)
 /* ---- AnimScript::AnimScript  [@0x80074468] ---- */
 AnimScript::AnimScript(Group *instanceGroup,int type,int boomIndex,int numParts)
 {
-  int numElems;
-  Trk_AnimateBoomInst*objInstance;
-  int i;
   int iVar1;
   Trk_AnimateInst **ppTVar2;
   int iVar3;
   Trk_AnimateInst *pTVar4;
   int iVar5;
-  
+
   pTVar4 = (Trk_AnimateInst *)(instanceGroup + 1);
   iVar5 = instanceGroup->m_num_elements;
   ppTVar2 = __builtin_vec_new(numParts << 2);
   this->inst = ppTVar2;
   iVar1 = 0;
-  iVar3 = simGlobal.gameTicks;
-  while (iVar5 = iVar5 + -1, simGlobal.gameTicks = iVar3, iVar5 != -1) {
-    iVar3 = iVar1;
-    if (((u_int)pTVar4->type == type) && ((u_int)*(u_char *)((int)&pTVar4[1].size + 1) == boomIndex)) {
-      iVar3 = iVar1 + 1;
-      this->inst[iVar1] = pTVar4;
-    }
-    pTVar4 = (Trk_AnimateInst *)((int)&pTVar4->size + (int)pTVar4->size);
-    iVar1 = iVar3;
-    iVar3 = simGlobal.gameTicks;
+  iVar5 = iVar5 - 1;
+  if (iVar5 != -1) {
+    do {
+      if (((u_int)pTVar4->type == type) && ((u_int)*(u_char *)((int)&pTVar4[1].size + 1) == boomIndex)) {
+        this->inst[iVar1] = pTVar4;
+        iVar1 = iVar1 + 1;
+      }
+      pTVar4 = (Trk_AnimateInst *)((int)&pTVar4->size + (int)pTVar4->size);
+      iVar5 = iVar5 - 1;
+    } while (iVar5 != -1);
   }
+  iVar3 = simGlobal.gameTicks;
   this->flags = 6;
   this->baseTicks = iVar3;
   return;

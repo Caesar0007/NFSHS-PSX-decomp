@@ -8,8 +8,8 @@
  *   is the work-area size, block[1..0x20] the 0x20 SPU reverb coefficient registers (SPUctrl+0x1c0..).
  */
 
-extern "C" int            sndgs[];
-extern "C" unsigned char  sndpd[];               /* EA sound-driver state base @0x80147918 (shared,
+extern int            sndgs[];
+extern unsigned char  sndpd[];               /* EA sound-driver state base @0x80147918 (shared,
                                                    * sdma.c/sdpacket.c/slib.c/sdmemlu.c/sdmemman.c) */
 #define DAT_8014791c (*(int *)(sndpd + 4))         /* current fx mode */
 /* SPLIT-STORAGE FIX (wave-22 a1): snd_spu_reverb_mode was a standalone extern "own storage" global
@@ -23,7 +23,7 @@ extern "C" unsigned char  sndpd[];               /* EA sound-driver state base @
  * already models it sndpd-relative -- this file's reads were the disconnected half of that same pair.
  * (Other consumers -- spatkey.c/sdspuirq.c/sdpacket.c/sdcdvol.c -- were left untouched; out of scope.) */
 #define DAT_80147e2c (*(int *)(sndpd + 0x514))
-extern "C" unsigned char  snd_reverb_table[];    /* reverb preset coefficient table */
+extern unsigned char  snd_reverb_table[];    /* reverb preset coefficient table */
 /* @0x80136E00 byte-exact from image: 10 blocks (modes 0..9) x 0x42 bytes = 660.
  * block[+0] u16 = SPU reverb work-area size, [+2..0x41] = the 0x20 reverb coefficient regs.
  * VA proven from iSNDpsxfxinit @0x801002D8: `s0 = mode*0x42 + 0x80136E00`. (Old [512]={0} stub
@@ -73,35 +73,38 @@ unsigned char snd_reverb_table[660] = {
     0x00, 0x80, 0x00, 0x80
 };
 
-extern "C" unsigned int iSNDpsxeffectoff(int mask);            /* spatkey */
-extern "C" int          iSNDpsxeffectvol(int left, int right); /* spatkey */
-extern "C" void blockmove(int *src, int *dst, int n);         /* blkmov  */
-extern "C" int  blockclear(int buf, int len);                 /* blkfill (2-arg per IDA; Ghidra dropped both) */
-extern "C" int  iSNDdmqueue(int ram, unsigned int spu, int len, int prio, int flag); /* sdma */
-extern "C" int  iSNDdmcomplete(int handle);                   /* sdma */
+extern unsigned int iSNDpsxeffectoff(int mask);            /* spatkey */
+extern int          iSNDpsxeffectvol(int left, int right); /* spatkey */
+extern void blockmove(int *src, int *dst, int n);         /* blkmov  */
+extern int  blockclear(int buf, int len);                 /* blkfill (2-arg per IDA; Ghidra dropped both) */
+extern int  iSNDdmqueue(int ram, unsigned int spu, int len, int prio, int flag); /* sdma */
+extern int  iSNDdmcomplete(int handle);                   /* sdma */
 
-extern "C" void SNDI_mutexalloc(void);                         /* @0x801001EC */
-extern "C" void SNDI_mutexfree(void);                          /* @0x801001F4 */
-extern "C" void SNDI_mutexlock(void);                          /* @0x801001FC */
-extern "C" void SNDI_mutexunlock(void);                        /* @0x80100204 */
-extern "C" unsigned int iSNDpsxfxinit(int mode);               /* @0x8010020C */
-extern "C" int          iSNDplatformfxinit(int reserved, int mode, int depthL, int depthR); /* @0x80100584 */
+extern void SNDI_mutexalloc(void);                         /* @0x801001EC */
+extern void SNDI_mutexfree(void);                          /* @0x801001F4 */
+extern void SNDI_mutexlock(void);                          /* @0x801001FC */
+extern void SNDI_mutexunlock(void);                        /* @0x80100204 */
+extern unsigned int iSNDpsxfxinit(int mode);               /* @0x8010020C */
+extern int          iSNDplatformfxinit(int reserved, int mode, int depthL, int depthR); /* @0x80100584 */
 
 /* --- audio mutex: the PSX is single-threaded, so these are no-ops --- */
-extern "C" void SNDI_mutexalloc(void)  { }
-extern "C" void SNDI_mutexfree(void)   { }
-extern "C" void SNDI_mutexlock(void)   { }
-extern "C" void SNDI_mutexunlock(void) { }
+extern void SNDI_mutexalloc(void)  { }
+extern void SNDI_mutexfree(void)   { }
+extern void SNDI_mutexlock(void)   { }
+extern void SNDI_mutexunlock(void) { }
 
 /* iSNDpsxfxinit @0x8010020C : load the reverb preset `mode` into the SPU -- program the 0x20 reverb
  *   coefficient registers, set the reverb work-area base, DMA-clear the reverb RAM, then enable reverb.
  *   Modes 5/10/20/30/40/50/100/110/120 map to preset indices; modes 7/8 scale a few taps by sndgs depth. */
-extern "C" unsigned int iSNDpsxfxinit(int mode)
+extern unsigned int iSNDpsxfxinit(int mode)
 {
+    unsigned char * pd;
+    int i;
+    int work;
     unsigned char scratch[256];
     short         rv[0x21];
     unsigned char *src;
-    int           i, work;
+
     unsigned int  ctl;
     /* MATCH: oracle materializes `s2 = &sndgs[0x27]` (D_801478FC == sndgs+0x9C) unconditionally in the
      * PROLOGUE, before even the mode==0 check -- a callee-saved value the scheduler slots in early
@@ -124,7 +127,7 @@ extern "C" unsigned int iSNDpsxfxinit(int mode)
     /* MATCH: oracle materializes `s3 = &sndpd` right here (after the mode-switch resolves, before the
      * preset-table src pointer), reused later for the reverb-depth write below AND the DMA-clear loop
      * further down -- same early-hoist lever as `sg` above. */
-    unsigned char *pd = sndpd;
+    pd = sndpd;
     src = &snd_reverb_table[mode * 0x42];
     *(unsigned short *)(pd + 0x51E) = (short)((int)(0x10000 - (unsigned int)*(unsigned short *)src) >> 3);
     iSNDpsxeffectoff(0xffffff);
@@ -150,9 +153,10 @@ extern "C" unsigned int iSNDpsxfxinit(int mode)
     blockclear((int)scratch, 0x100);                      /* zero the 256-byte DMA scratch */
     i = 0;                                                /* DMA-clear SPU reverb RAM in 0x20-word runs */
     while (i < 0x10000) {
+        int h;
         int chunk = 0x10000 - i;
         if (0x20 < chunk) chunk = 0x20;
-        int h = iSNDdmqueue((int)scratch, (unsigned int)(i << 3), chunk << 3, 1, 0);
+        h = iSNDdmqueue((int)scratch, (unsigned int)(i << 3), chunk << 3, 1, 0);
         i += 0x20;
         do { } while (iSNDdmcomplete(h) == 0);
     }
@@ -165,7 +169,7 @@ extern "C" unsigned int iSNDpsxfxinit(int mode)
 /* iSNDplatformfxinit @0x80100584 : record the requested fx `mode` and, if audio is up, apply it now. */
 /* MATCH: DAT_8014791c is sndpd+4, not independent scalar storage. The shared-state field form makes
  * gcc retain its explicit v0 base and sink the mode store into the guard branch's delay slot. */
-extern "C" int iSNDplatformfxinit(int reserved, int mode, int depthL, int depthR)
+extern int iSNDplatformfxinit(int reserved, int mode, int depthL, int depthR)
 {
     (void)reserved;
     (void)depthL;

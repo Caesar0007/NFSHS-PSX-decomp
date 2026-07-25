@@ -773,6 +773,7 @@ void Camera_UpdateAnimCam(int player)
   coorddef newarm;     /* SYM: AUTO */
   matrixtdef animRot;  /* SYM: AUTO */
   signed char cVar1;   /* signed: decrement emits addiu -1 (not +255) */
+  signed char cVar4;
   int iVar2;
   AnimScript *pAVar3;
   BO_tNewtonObj *pBVar6;
@@ -792,8 +793,9 @@ void Camera_UpdateAnimCam(int player)
     /* MATCH: re-acquire arm FIRST in VA order (blez jumps away to the <1 arm) */
     if (0 < (signed char)Camera_gInfo[player].animNum) {
       Anim_FreeHandle((int)(signed char)Camera_gInfo[player].animHandle);
-      iVar2 = Anim_Handle((u_int)(u_char)gAnimCams[GameSetup_gData.track]
-                                                 [(signed char)Camera_gInfo[player].animNum--]);
+      cVar4 = (signed char)Camera_gInfo[player].animNum;
+      Camera_gInfo[player].animNum--;
+      iVar2 = Anim_Handle((u_int)(u_char)gAnimCams[GameSetup_gData.track][cVar4]);
       Camera_gInfo[player].animHandle = (char)iVar2;
       pAVar3 = Anim_GetAnim((int)(signed char)(char)iVar2);
       pAVar3->GetTimedAnimPosRot(&animPos,&animRot);

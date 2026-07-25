@@ -315,27 +315,22 @@ AnimScript::AnimScript(int num)
 /* ---- AnimScript::AnimScript  [@0x800743cc] ---- */
 AnimScript::AnimScript(int num,int numParts)
 {
-  int i;
   Trk_AnimateInst **ppTVar1;
   int iVar2;
-  int iVar3;
   int iVar4;
-  
+
   ppTVar1 = __builtin_vec_new(numParts << 2);
   iVar4 = 0;
   this->inst = ppTVar1;
   if (0 < numParts) {
-    iVar3 = 0;
     do {
-      iVar2 = num + iVar4;
+      this->inst[iVar4] = animScripts[num + iVar4];
       iVar4 = iVar4 + 1;
-      *(Trk_AnimateInst **)(iVar3 + (int)this->inst) = animScripts[iVar2];
-      iVar3 = iVar4 * 4;
     } while (iVar4 < numParts);
   }
-  iVar4 = simGlobal.gameTicks;
+  iVar2 = simGlobal.gameTicks;
   this->flags = 6;
-  this->baseTicks = iVar4;
+  this->baseTicks = iVar2;
   return;
 }
 
@@ -382,14 +377,11 @@ void AnimScript::SetAnimAttrib(int flags)
 /* ---- AnimScript::GetAnimFrameInfo  [@0x8007453c] ---- */
 void AnimScript::GetAnimFrameInfo(int *frame,int *numFrames)
 {
-  Trk_AnimateInst*animInst;
-  int interval;
-  int ticks;
   int iVar1;
   int iVar2;
   Trk_AnimateInst *pTVar3;
   int iVar4;
-  
+
   pTVar3 = *this->inst;
   iVar2 = simGlobal.gameTicks - this->baseTicks;
   if ((u_short)pTVar3->interval - 1 < 400) {

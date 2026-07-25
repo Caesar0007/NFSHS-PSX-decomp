@@ -1149,12 +1149,8 @@ void AI_SubmitObstacle(Car_tObj *carObj,int importance,int leftLatPosition,int r
     if (((observations[0] != 0) && (observations[1] != 0)) && (observations[2] != 0)) {
       leftDistance = carObj->roadPosition - leftLatPosition;
       rightDistance = carObj->roadPosition - rightLatPosition;
-      if (leftDistance < 0) {
-        leftDistance = -leftDistance;
-      }
-      if (rightDistance < 0) {
-        rightDistance = -rightDistance;
-      }
+      leftDistance = __builtin_abs(leftDistance);
+      rightDistance = __builtin_abs(rightDistance);
       if (leftDistance < rightDistance) {
         observations[0] = 0;
       }

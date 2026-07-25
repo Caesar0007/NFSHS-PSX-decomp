@@ -1,9 +1,9 @@
 /* eaclib/psx/spchpsxz/spchpick.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 18/27 PASS ***
  *   Full detailed survey: remaining FAILs are iSPCH_OrderSentences(64,85/83),
  *   iSPCH_ChooseSentence(58,104/104), iSPCH_SentenceGetChoices(54,84/80),
- *   iSPCH_MakeSampleRequests(51,85/82), iSPCH_IterateChoice(43,45/44),
- *   iSPCH_MatchSample(34,67/65), iSPCH_ConstantRuleSet(20,83/83),
- *   iSPCH_SampleLength(16,26/26), and iSPCH_SentenceMakeChoice(7,44/43).
+ *   iSPCH_MakeSampleRequests(49,85/82), iSPCH_IterateChoice(43,45/44),
+ *   iSPCH_MatchSample(28,67/65), iSPCH_SampleLength(14,26/26),
+ *   iSPCH_ConstantRuleSet(10,83/83), and iSPCH_SentenceMakeChoice(7,44/43).
  *   Source obj : nfs4\eaclib\psx\spchpick.obj ; archive C:\nfs4\EACLIB\PSX\SPCHPSXZ.LIB (xlsx col12 / SYM v3)
  *   27 fns @[0x8010077C .. 0x801018F4].  The sentence/sample PICKER -- the top of the speech pipeline: takes
  *   a chosen event, picks a sentence template that passes its rules, chooses matching samples per phrase,
@@ -29,7 +29,8 @@ extern int            DAT_80148448[];      /* "one chosen" flag */
 extern int  gVoxBanks[];      /* spchbank (array decl -> separate-temp loads) */
 extern int  gDataRate[];      /* spchinit */
 extern int  gSampleRequest;   /* spchinit (callback) */
-extern int  gSentenceRuleSet; /* spchinit (callback) */
+typedef void (*SentenceRuleSetFn)(int, int, int);
+extern SentenceRuleSetFn gSentenceRuleSet; /* spchinit (callback) */
 extern int  gVoxInGame[];     /* spchinit; [1] aliases gRepeatCount@+4 */
 extern int  gRepeatCount;     /* spchinit (== gVoxInGame[1]) */
 extern int  gFilterSetting;   /* spchevnt-shared */
@@ -104,32 +105,35 @@ extern int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int pa
     int count = (int)*(signed char *)(phraseTemplate + 3);
     int result = 1;
     (void)bankIdx;
-    if (count < 5) {
-        if (0 < count) {
-            int i = 0;
-            do {
-                unsigned int cycleByte = *(unsigned char *)(sample + i + 0xc);
-                result = 0;
-                if (0x1f < cycleByte)
-                    break;
-                {
-                    int matchVal;
-                    unsigned int bit      = 1u << (cycleByte);
-                    int          lowNib   = (int)*(unsigned char *)(phraseTemplate + i + 4) & 0xf;
-                    matchVal = iSPCH_GetMatchValue(phraseTemplate, i);
-                    if ((bit & (unsigned int)matchVal) != 0 &&
-                        (lowNib == 0 ||
-                         (bit & (unsigned int)*(int *)(lowNib * 4 + paramTable)) != 0))
-                        result = 1;
-                }
-                if (result == 0)
-                    return 0;
-                i = i + 1;
-            } while (i < count);
-        }
-        return result;
+    if (count < 5)
+        goto valid_count;
+    result = 0;
+    goto done;
+valid_count:
+    if (0 < count) {
+        int i = 0;
+        do {
+            unsigned int cycleByte = *(unsigned char *)(sample + i + 0xc);
+            result = 0;
+            if (0x1f < cycleByte)
+                break;
+            {
+                int matchVal;
+                unsigned int bit      = 1u << (cycleByte);
+                int          lowNib   = (int)*(unsigned char *)(phraseTemplate + i + 4) & 0xf;
+                matchVal = iSPCH_GetMatchValue(phraseTemplate, i);
+                if ((bit & (unsigned int)matchVal) != 0 &&
+                    (lowNib == 0 ||
+                     (bit & (unsigned int)*(int *)(lowNib * 4 + paramTable)) != 0))
+                    result = 1;
+            }
+            if (result == 0)
+                goto done;
+            i = i + 1;
+        } while (i < count);
     }
-    return 0;
+done:
+    return result;
 }
 
 /* iSPCH_GetPhraseBank @0x80100880 : resolve a phrase template's bank choice (fixed / by-param / sub-bank)
@@ -279,11 +283,11 @@ extern int iSPCH_SampleLength(short *choice)
     int bank;
     int r;
     int tmp[4];
-    /* residual 10: ours colors the pick-byte chain base->a1/idx->v0 (la lands in the lbu-arg reg),
+    /* residual 14: ours colors the pick-byte chain base->a1/idx->v0 (la lands in the lbu-arg reg),
      * oracle idx->a1/base->v0; fresh-sum/inline/anonymous-chain reshapes all score worse (14/16/22) */
+    int len = 0;
     unsigned char *pickAddr = ispch_gPickSamples;
     int voxBase = gVoxBanks[0];
-    int len = 0;
     pickAddr = pickAddr + choice[4];
     bank = *(int *)(*choice * 4 + voxBase);
     r = iSPCH_UnPackSample(bank, (unsigned int)*pickAddr, tmp);
@@ -572,16 +576,16 @@ extern void iSPCH_ConstantRuleSet(short *sentence, int rule, int val)
         int n = VoxSentence_GetNumPhrases(rule);
         int table = 0;
         if (0 < n) {
+            unsigned char *pickBase = ispch_gPickSamples;
             short *choice = ispch_gChoice;
             do {
                 int j;
-                int p;
                 int ruleEntry;
                 ruleEntry = iSPCH_GetOffset8(rule, rule + 4, table);
-                p = ruleEntry;
                 j = 0;
                 do {
-                    unsigned int ruleType = (unsigned int)(*(unsigned char *)(p + 4) >> 4);
+                    unsigned int ruleType =
+                        (unsigned int)(*(unsigned char *)(ruleEntry + j + 4) >> 4);
                     if (ruleType != 0xf) {
                         int tmp[4];
                         int r;
@@ -592,14 +596,14 @@ extern void iSPCH_ConstantRuleSet(short *sentence, int rule, int val)
                                        * the same "cycle byte array" field iSPCH_MatchSample reads at
                                        * sample+i+0xc). */
                         r = iSPCH_UnPackSample(*(int *)(*choice * 4 + gVoxBanks[0]),
-                                                   (unsigned int)PICK(choice[4]), tmp);
+                                                   (unsigned int)*(unsigned char *)
+                                                       ((int)choice[4] + (int)pickBase), tmp);
                         if (r != 0)
-                            ((void (*)(int, int, int))gSentenceRuleSet)
-                                ((int)(unsigned int)*(unsigned short *)sentence, (int)rid,
-                                 1 << ((unsigned char *)tmp)[0xc + j]);
+                            gSentenceRuleSet(
+                                (int)(unsigned int)*(unsigned short *)sentence, (int)rid,
+                                1 << ((unsigned char *)tmp)[0xc + j]);
                     }
                     j = j + 1;
-                    p = ruleEntry + j;
                 } while (j < 4);
                 table = table + 1;
                 choice = choice + 6;
@@ -618,7 +622,7 @@ extern int iSPCH_MakeSampleRequests(int sentence, int paramTable)
         short *choice = ispch_gChoice;
         do {
             int           bank = *(int *)(*choice * 4 + gVoxBanks[0]);
-            unsigned char idx  = PICK(choice[4]);
+            unsigned int  idx  = (unsigned int)PICK(choice[4]);
             int           tmp[4];
             /* MATCH: the ClearCycleBit call is gated on BOTH bank[2]&0xf0 AND the separate global
              * gClearCycle != 0 -- the earlier recon only had the bank-flags half of the gate. */

@@ -73,28 +73,26 @@ extern int iSNDmalloc(int size)
         unsigned short block;
         unsigned short size;
     } SNDMemEntry;
-    int words = size;
-    SNDMemState *mm = &sndmm;
     int index = 0;
     int block;
     int available;
     SNDMemEntry *entries;
     int result;
 
-    if ((unsigned short)mm->count >= 0x80)
+    if ((unsigned short)sndmm.count >= 0x80)
         return 0;
-    words = (words + 3) >> 2;
-    if ((unsigned short)mm->count == 0) {
+    size = (size + 3) >> 2;
+    if ((unsigned short)sndmm.count == 0) {
         block = 0;
-        available = (unsigned short)mm->poolWords;
+        available = (unsigned short)sndmm.poolWords;
         iSNDmemconstrain(&block, &available);
-        if (available < words)
-            return 0;
-        goto commit;
+        if (available >= size)
+            goto commit;
+        return 0;
     }
 
-    entries = (SNDMemEntry *)((char *)mm + 0xc);
-    while (index < (unsigned short)mm->count) {
+    entries = (SNDMemEntry *)((char *)&sndmm + 0xc);
+    while (index < (unsigned short)sndmm.count) {
         if (index == 0) {
             block = 0;
             available = entries[index].block;
@@ -103,8 +101,8 @@ extern int iSNDmalloc(int size)
             available = entries[index].block - block;
         }
         iSNDmemconstrain(&block, &available);
-        if (available >= words) {
-            int count = (unsigned short)mm->count;
+        if (available >= size) {
+            int count = (unsigned short)sndmm.count;
             while (index < count) {
                 entries[count] = entries[count - 1];
                 count--;
@@ -115,18 +113,18 @@ extern int iSNDmalloc(int size)
     }
 
     block = entries[index - 1].block + entries[index - 1].size;
-    available = (unsigned short)mm->poolWords - block;
+    available = (unsigned short)sndmm.poolWords - block;
     iSNDmemconstrain(&block, &available);
-    if (available < words)
+    if (available < size)
         return 0;
 
 commit:
-    entries = (SNDMemEntry *)((char *)mm + 0xc);
-    entries[index].size = (unsigned short)words;
+    entries = (SNDMemEntry *)((char *)&sndmm + 0xc);
+    entries[index].size = (unsigned short)size;
     entries[index].block = (unsigned short)block;
-    mm->count = mm->count + 1;
-    result = mm->base + block * 4;
-    if (mm->highWater < block + words)
-        mm->highWater = block + words;
+    sndmm.count = sndmm.count + 1;
+    result = sndmm.base + block * 4;
+    if (sndmm.highWater < block + size)
+        sndmm.highWater = block + size;
     return result;
 }

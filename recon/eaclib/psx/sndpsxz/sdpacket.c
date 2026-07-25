@@ -775,13 +775,11 @@ extern int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, unsi
                                                   * macro (each of which re-derives base+OFFSET+vt fresh
                                                   * from its OWN symbol, defeating the CSE the oracle
                                                   * achieves by materializing ONE base). */
-    unsigned int chunkBytes, frames, perCh;
-    /* NOTE (tried, reverted): oracle's frames/perCh divide emits the FULL signed div-guard
-     * (li at,-1;bne;lui 0x8000;bne;break 6), not a plain `divu` (zero-check only) -- changing
-     * frames/perCh to signed `int` DOES reproduce that guard's shape at its own site, but ripples
-     * register allocation earlier in the fn (the `ch`/blockSamps block) and nets MORE total diffs
-     * (128->134). Left unsigned; the correct fix likely needs the `ch`/blockSamps block's own
-     * near-miss resolved FIRST so the later ripple doesn't cost more than it gains. */
+    int chunkBytes;
+    int frames, perCh;
+    /* MATCH: oracle's frames/perCh divide emits the full signed div guard
+     * (li at,-1;bne;lui 0x8000;bne;break 6), not divu.  Keeping both signed now wins after
+     * reconstructing the preceding stored block-size and shift-field calculations. */
     int  blockSamps;
     int  i;
     (void)a6;
@@ -816,13 +814,16 @@ extern int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, unsi
 
     chunkBytes = 0x1000 / (unsigned char)*(volatile unsigned char *)(voice + 0x1f);
     *(short *)(pp + 0x11) = (short)chunkBytes;
-    *(short *)((int)pp + 0x46) = (short)((int)(chunkBytes * 0x1c) >> 4);
+    *(short *)((int)pp + 0x46) =
+        (short)((int)(*(unsigned short *)(pp + 0x11) * 0x1c) / 0x10);
     {
-        unsigned char ch = (unsigned char)voice[0x1f];
+        unsigned char ch = *(volatile unsigned char *)(voice + 0x1f);
+        int shift;
         pp[0x12] = (int)(pp + 0x14);
-        *(char *)((int)pp + 0x43) = (char)(0xd - ch);
+        shift = 0xd - ch;
+        *(char *)((int)pp + 0x43) = (char)shift;
         pp[0x13] = (int)pp + *(unsigned short *)(pp + 0x11) + 0x50;
-        blockSamps = (int)pp[1] >> (0xd - ch);
+        blockSamps = (int)pp[1] >> (unsigned char)shift;
     }
     *(short *)(pp + 0xe) = (short)blockSamps;
     frames = (unsigned)(blockSamps & 0xffff);
@@ -830,7 +831,8 @@ extern int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, unsi
     *(short *)(pp + 0xe) = (short)(frames / perCh);
     {
         int total = (int)(frames / perCh) * *(unsigned short *)((int)pp + 0x46);
-        *(short *)(pp + 0x10) = *(short *)((int)pp + 0x46);
+        *(short *)(pp + 0x10) =
+            *(volatile unsigned short *)((int)pp + 0x46);
         *(char *)((int)pp + 0x42) = (char)note;
         *(short *)((int)pp + 0x36) = 0;
         *(short *)(pp + 0xc) = 0;
@@ -838,7 +840,8 @@ extern int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, unsi
         *(short *)((int)pp + 0x32) = 0;
         *(short *)(pp + 0xf) = 0;
         pp[9] = 0; pp[8] = 0; pp[7] = 0; pp[6] = 0; pp[5] = 0;
-        pp[2] = (unsigned)*(unsigned short *)(pp + 0xe) << (*(unsigned char *)((int)pp + 0x43));
+        pp[2] = (unsigned)*(volatile unsigned short *)(pp + 0xe) <<
+                (*(unsigned char *)((int)pp + 0x43));
         pp[3] = total;
         pp[4] = total - (unsigned)*(unsigned short *)((int)pp + 0x46);
     }
@@ -866,11 +869,13 @@ extern int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, unsi
          * chain for *0x17c7 stays in a signed int; forcing unsigned emits `srl` instead). */
         *(short *)(voice + 0x1a) = (short)(*hdr * 0x17c7 >> 0x10);   /* DAT_80147a0a, vt */
         if (1 < (unsigned char)voice[0x1f]) {       /* arm the linked partner voice */
-            voice[0x20] = *(unsigned char *)(note * 100 + sndgs[0x25] + 4);
-            base2[0xf9 + (signed char)voice[0x20] * 0x2c] = 1;                          /* DAT_80147a11 */
-            *(int *)(base2 + 0xe4 + (signed char)voice[0x20] * 0x2c) = 0;               /* DAT_801479fc */
-            *(int *)(base2 + 0xe8 + (signed char)voice[0x20] * 0x2c) = 0;               /* DAT_80147a00 */
-            *(int *)(base2 + 0xec + (signed char)voice[0x20] * 0x2c) = *(int *)(voice + 0x14);  /* DAT_80147a04 */
+            *(volatile unsigned char *)(voice + 0x20) =
+                *(unsigned char *)(note * 100 + sndgs[0x25] + 4);
+            base2[0xf9 + ((int)((int)*(volatile unsigned char *)(voice + 0x20) << 24) >> 24) * 0x2c] = 1; /* DAT_80147a11 */
+            *(int *)(base2 + 0xe4 + ((int)((int)*(volatile unsigned char *)(voice + 0x20) << 24) >> 24) * 0x2c) = 0; /* DAT_801479fc */
+            *(int *)(base2 + 0xe8 + ((int)((int)*(volatile unsigned char *)(voice + 0x20) << 24) >> 24) * 0x2c) = 0; /* DAT_80147a00 */
+            *(int *)(base2 + 0xec + ((int)((int)*(volatile unsigned char *)(voice + 0x20) << 24) >> 24) * 0x2c) =
+                *(int *)(voice + 0x14);  /* DAT_80147a04 */
         }
     }
     iSNDplatformpitch(note, pitch);

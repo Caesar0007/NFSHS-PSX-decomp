@@ -57,7 +57,8 @@ extern int movfxya(unsigned char *shape, int x, int y)
       if (((*shape & 3) == 2) && ((semitrans & 2) == 0)) {   /* (b) */
         fastmovfxya((int)shape, x, y);
       } else {                                        /* (c) tile into GPU rects */
-        int yRow, vCoord, vc, rowH, rowH2, vPage, yPos;
+        int yRow, vCoord, vc, rowH, rowH2, vPage;
+        int yPos;
         int xDone, uAcc, uCoord, uBase, uNext, colW, clampW, w2, uq;
         int uTile, u1, v2, sx, sx1, sy2, t;
         short hu;                                     /* height via lhu; uses sign-extend sll/sra */

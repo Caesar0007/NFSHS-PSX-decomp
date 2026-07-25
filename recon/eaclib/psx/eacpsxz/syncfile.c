@@ -48,23 +48,26 @@ extern void synccallback(int op, int type, SyncCtrl *ctrl);                 /* @
 extern int  syncblockio(int fd, int buf, int offset, int len, int cbarg, SyncIoFn iofn); /* @0x800EA7E8 */
 
 /* synccallback @0x800EA6CC : async completion -- on a successful chunk, advance the control block and, if more
- *   remains, re-issue the next chunk; otherwise mark the transfer finished. */
+ *   remains, re-issue the next chunk; otherwise mark the transfer finished.
+ *   Oracle trace fixes retained here: offset advances on every successful chunk (not only a
+ *   short final chunk), the short-read test is signed, and remain is re-read for each clamp
+ *   decision. These changes reduce the detailed residual from 65 to 46 diffs. */
 extern void synccallback(int op, int type, SyncCtrl *c)
 {
     unsigned int done = FILE_completeop((unsigned int)op);
     c->op = 0;
     if (type == 1) {
-        int newoffset = c->offset + done;
         c->buf  += done;
         c->done += done;
-        if (done < (unsigned int)c->chunk) {        /* short transfer => this was the last chunk */
-            c->offset = newoffset;
-            c->remain = 0;
+        c->offset += done;
+        if ((int)done < c->chunk) {                 /* short transfer => this was the last chunk */
+            *(volatile int *)&c->remain = 0;
         } else {
             c->remain -= done;
         }
-        if (0 < c->remain) {
-            c->chunk = (0x2000 < c->remain) ? 0x2000 : c->remain;
+        if (0 < *(volatile int *)&c->remain) {
+            c->chunk = (0x2000 < *(volatile int *)&c->remain)
+                     ? 0x2000 : *(volatile int *)&c->remain;
             c->op = c->iofn(c->fd, c->buf, c->offset, c->chunk, c->cbarg, c);
             if (c->op != 0) {
                 FILE_callbackop((unsigned int)c->op, (void *)synccallback);

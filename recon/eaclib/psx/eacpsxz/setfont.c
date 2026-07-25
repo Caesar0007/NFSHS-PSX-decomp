@@ -50,18 +50,20 @@ extern void setfont(int fontId);   /* @0x800F2E94 */
 
 extern void setfont(int fontId)
 {
-    unsigned char *cf = currentfont;
+    unsigned char *cf;
     unsigned char *shape;
     DecodeFn       decode;
     int            depth;
 
+    /* Oracle loads the shape offset in the prologue, before copying any metrics. */
+    shape         = (unsigned char *)(fontId + *(int *)(fontId + 0x1c));
+    cf            = currentfont;
     CFI(cf, 0x7c) = 100;
     CFI(cf, 0x0c) = (int)*(signed char *)(fontId + 0x10);
     CFI(cf, 0x10) = (int)*(signed char *)(fontId + 0x11);
     CFI(cf, 0x1c) = (int)*(signed char *)(fontId + 0x12);
     CFI(cf, 0x20) = (int)*(signed char *)(fontId + 0x13);
     CFI(cf, 0x24) = (int)*(signed char *)(fontId + 0x13) + (int)*(signed char *)(fontId + 0x12);
-    shape         = (unsigned char *)(fontId + *(int *)(fontId + 0x1c));
     CFI(cf, 0x28) = (int)*(signed char *)(fontId + 0x13) + (int)*(signed char *)(fontId + 0x12);
     CFI(cf, 0x74) = (int)*(unsigned short *)(fontId + 10);
     CFI(cf, 0x18) = 1;
@@ -74,7 +76,8 @@ extern void setfont(int fontId)
     depth         = shapedepth(shape);
     CFI(cf, 0x78) = (int)((unsigned int)(*(short *)(shape + 4) * depth + 0x1f) & 0xffffffe0) >> 3;
 
-    /* RESIDUAL: the oracle's branch polarity is `if((flags&3)!=2) goto notsjis; decode=SJIS;
+    /* RESIDUAL (87 diffs, down from 89): the oracle's branch polarity is
+     * `if((flags&3)!=2) goto notsjis; decode=SJIS;
      * goto decoded;` (bne, NOT beq) with THREE SEPARATE decodeshiftjis materializations (never
      * cross-jump-merged). Our cc1 merges two of them into one shared tail regardless of
      * whether this is written as goto/labels (tried) or nested if/else (tried, same result) --

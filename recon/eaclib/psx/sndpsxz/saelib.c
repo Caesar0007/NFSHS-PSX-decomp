@@ -4,14 +4,15 @@
  *   used by saetolrv/saetodv.  Ghidra nfs4-f.exe.c (saelib) + IDA sig (4-arg; Ghidra __thiscall).
  */
 
-extern "C" int iSNDsin(int phase);     /* ssine */
+extern int iSNDsin(int phase);     /* ssine */
 
-extern "C" int iSNDlibatodlrv(int angle, int level, int *out_l, int *out_r);   /* @0x8010C894 */
+extern int iSNDlibatodlrv(int angle, int level, int *out_l, int *out_r);   /* @0x8010C894 */
 
 /* iSNDlibatodlrv @0x8010C894 : split `level` into left/right gains for pan `angle` via a quarter-wave sine
  *   crossfade (angle>>6 indexes the sine table), each clamped to 0..0x7f. */
-extern "C" int iSNDlibatodlrv(int angle, int level, int *out_l, int *out_r)
+extern int iSNDlibatodlrv(int angle, int level, int *out_l, int *out_r)
 {
+    int r;
     unsigned int s = (unsigned int)iSNDsin(angle >> 6);
     /* gain = (unsigned)(level * delta) >> 16  (srl, value 0..0xFFFF) but compared SIGNED (slti) -> store
      * into a signed int so the clamp test `0x7f < gain` emits `slti`, not `sltiu`. */
@@ -19,7 +20,7 @@ extern "C" int iSNDlibatodlrv(int angle, int level, int *out_l, int *out_r)
     *out_l = l;
     if (0x7f < l)
         *out_l = 0x7f;
-    int r = (int)((unsigned int)(level * (int)(s + 0x10000)) >> 0x10);
+    r = (int)((unsigned int)(level * (int)(s + 0x10000)) >> 0x10);
     *out_r = r;
     if (0x7f < r) {
         *out_r = 0x7f;

@@ -48,7 +48,10 @@
  *     [PASS]  loaddirinfo -- 139->PASS: void return, rotated entry-count loop, direct parameter
  *             countdown reuse, reloaded filename length after memcpy, one live CD-context base,
  *             unsigned recursive size shift, and the record advance in the loop-test delay slot.
- *     [FAIL]  CD_Read (198->64, unchanged this wave) -- out of this wave's scope.
+ *     [near]  CD_Read (198->64->31 diffs; 162/163 insns): keeping the handle-slot address
+ *             live across the busy check, spelling the signed sector quotient as explicit
+ *             correction steps, and selecting curLen before its single store recover the
+ *             oracle's principal control/data flow. Remaining drift is scheduling/coloring.
  *
  *   w16-a3 2026-07-19 notes (kept for history): fixed the SAME real bug in CD_Read/CdReadyHandler
  *     -- the "advance next chunk"/"complete now" if/else had INVERTED block order vs the oracle
@@ -292,7 +295,8 @@ extern int CD_Getinfo(int handle, int namebuf, int *sizeout)
  *   Returns the (clamped) byte count, or 0 if the CD is busy. */
 extern int CD_Read(int dev, int dest, int offset, int len)
 {
-    char *entry = (char *)CD_handleTable[dev - 1];
+    void **slot = (void **)((char *)CD_handleTable + dev * 4 - 4);
+    char  *entry;
     int   q, remaining;
     /* read-state sub-struct pointer (curLen/remLen/curOff/curDst, ctx+0x20) -- materialized HERE
      * (right after the busy-check, oracle @0x800FA6C0 "addiu s0,v1,0x20" lands in the beqz's delay
@@ -302,22 +306,28 @@ extern int CD_Read(int dev, int dest, int offset, int len)
     if ((Cdinfo & 3) != 0)                              /* CD busy -> reject */
         return 0;
 
+    entry = (char *)*slot;
     remaining = *(int *)(entry + 0x10) - offset;        /* clamp len to bytes left in the file */
     if (remaining < len)
         len = remaining;
 
-    q = (offset < 0) ? offset + 0x7FF : offset;
+    q = offset;
+    if (q < 0)
+        q += 0x7FF;
     rs->curOff = offset - ((q >> 0xB) << 0xB);           /* byte offset within the 0x800 sector */
     if (rs->curOff != 0 || len < 0x800)
         Cdinfo |= 8;                                    /* partial-sector transfer */
-    rs->curLen = len;
     if (rs->curOff + len > 0x800)
-        rs->curLen = 0x800 - rs->curOff;                /* clamp this chunk to the sector boundary */
-    rs->remLen = len - rs->curLen;
+        q = 0x800 - rs->curOff;                         /* clamp this chunk to the sector boundary */
+    else
+        q = len;
+    rs->curLen = q;
+    rs->remLen = len - q;
 
-    q = (offset < 0) ? offset + 0x7FF : offset;
+    if (offset < 0)
+        offset += 0x7FF;
     CD_ringIdx   = 0;
-    CD_curSector = *(int *)(entry + 0xC) + (q >> 0xB);  /* start sector + offset / 0x800 */
+    CD_curSector = *(int *)(entry + 0xC) + (offset >> 0xB); /* start sector + offset / 0x800 */
     Cdinfo |= 2;                                        /* read in progress */
     CD_timeout   = timerhz * 6;
     rs->curDst   = (void *)dest;

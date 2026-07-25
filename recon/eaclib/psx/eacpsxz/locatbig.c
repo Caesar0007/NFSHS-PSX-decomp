@@ -15,16 +15,16 @@
  *   overwrites $v0); likewise the per-entry counter++ is the loop-back branch delay slot.
  */
 
-extern "C" unsigned getm   (void *ptr, int nbytes);          /* @0x800F3024 big-endian reader   */
-extern "C" int      stricmp(const char *a, const char *b);   /* @0x800FE520 0 == match           */
-extern "C" unsigned strlen (const char *s);                  /* eacpsxz @0x800E9F74              */
+extern unsigned getm   (void *ptr, int nbytes);          /* @0x800F3024 big-endian reader   */
+extern int      stricmp(const char *a, const char *b);   /* @0x800FE520 0 == match           */
+extern unsigned strlen (const char *s);                  /* eacpsxz @0x800E9F74              */
 
 /* intra-obj forward decls (C-linkage) */
-extern "C" int   typeofbigfile      (void *buf);
-extern "C" int   sizeofbigfileheader(void *buf);
-extern "C" char *locatebigentryz    (void *buf, char *name, int index, int *offset, int *size);
-extern "C" char *locatebigentry     (void *buf, char *name, int index, int *offset, int *size);
-extern "C" int   locatebigoffset    (void *buf, char *name);
+extern int   typeofbigfile      (void *buf);
+extern int   sizeofbigfileheader(void *buf);
+extern char *locatebigentryz    (void *buf, char *name, int index, int *offset, int *size);
+extern char *locatebigentry     (void *buf, char *name, int index, int *offset, int *size);
+extern int   locatebigoffset    (void *buf, char *name);
 
 /* write-only sink for the discarded "size" out-param of locatebigoffset (@0x8013DE64, obj-local) */
 static int gLocatebigSizeSink;
@@ -32,7 +32,7 @@ static int gLocatebigSizeSink;
 /* ===================================================================== *
  *  typeofbigfile @0x800E5F1C : 1 (0xC0FB), 2 ("BIGF"), or 0 (not a BIG). *
  * ===================================================================== */
-extern "C" int typeofbigfile(void *buf)
+extern int typeofbigfile(void *buf)
 {
     /* MATCH: result-FUNNEL var (s0, init 0 in the prologue) set per branch, ONE return --
      * early returns emit a different tail; the else-getm's a0 rides the first bne's slot. */
@@ -47,7 +47,7 @@ extern "C" int typeofbigfile(void *buf)
 /* ===================================================================== *
  *  sizeofbigfileheader @0x800E5F84 : total file size from the header.    *
  * ===================================================================== */
-extern "C" int sizeofbigfileheader(void *buf)
+extern int sizeofbigfileheader(void *buf)
 {
     /* MATCH: result funnel + SWITCH dispatch (two forward beq's to out-of-line case
      * blocks, default j to the shared return; else-if inlines the bodies instead).
@@ -63,7 +63,7 @@ extern "C" int sizeofbigfileheader(void *buf)
 /* ===================================================================== *
  *  bigcount @0x800E6258 : number of entries in the directory.           *
  * ===================================================================== */
-extern "C" int bigcount(void *buf)
+extern int bigcount(void *buf)
 {
     /* MATCH: same funnel + switch-dispatch shape as sizeofbigfileheader. */
     int r = 0;
@@ -80,7 +80,7 @@ extern "C" int bigcount(void *buf)
  *  size through `offset`/`size` (when non-NULL) and return a pointer to  *
  *  the entry's name; on a miss zero them and return NULL.                *
  * ===================================================================== */
-extern "C" char *locatebigentryz(void *buf, char *name, int index, int *offset, int *size)
+extern char *locatebigentryz(void *buf, char *name, int index, int *offset, int *size)
 {
     /* MATCH: the oracle does NOT parameterize width/hdr/nameoff into a single loop -- it
      * emits TWO literal, fully-duplicated scan loops (one per type), dispatched by a
@@ -156,7 +156,7 @@ extern "C" char *locatebigentryz(void *buf, char *name, int index, int *offset, 
 /* ===================================================================== *
  *  locatebigentry @0x800E61B8 : forwarder to locatebigentryz.           *
  * ===================================================================== */
-extern "C" char *locatebigentry(void *buf, char *name, int index, int *offset, int *size)
+extern char *locatebigentry(void *buf, char *name, int index, int *offset, int *size)
 {
     return locatebigentryz(buf, name, index, offset, size);
 }
@@ -164,7 +164,7 @@ extern "C" char *locatebigentry(void *buf, char *name, int index, int *offset, i
 /* ===================================================================== *
  *  locatebigoffset @0x800E61DC : data offset of `name`, or 0.            *
  * ===================================================================== */
-extern "C" int locatebigoffset(void *buf, char *name)
+extern int locatebigoffset(void *buf, char *name)
 {
     int offset = 0;
     if (name != 0)
@@ -175,11 +175,12 @@ extern "C" int locatebigoffset(void *buf, char *name)
 /* ===================================================================== *
  *  locatebig @0x800E6218 : pointer to the entry's data, or NULL.        *
  * ===================================================================== */
-extern "C" char *locatebig(void *buf, char *name)
+extern char *locatebig(void *buf, char *name)
 {
+    int off;
     /* MATCH: result-funnel var (s0=0 in the jal slot), conditional assign, one return. */
     char *r = 0;
-    int off = locatebigoffset(buf, name);
+    off = locatebigoffset(buf, name);
     if (off != 0)
         r = (char *)buf + off;
     return r;

@@ -211,7 +211,7 @@ PER_FN_NO_DELAYED_BRANCH = {
     # (li/beq/j per case) whose ASPSX-unfilled delay-slot nops move each
     # closer to the oracle's per-case beq/nop/j/nop shape without reaching
     # full PASS. Zero collateral on PADCMD.cpp's other 16 functions.
-    "recon/syslib/psx/libpad/PADCMD.cpp": {
+    "recon/syslib/psx/libpad/PADCMD.c": {
         "_padSendAtLoadInfo",  # FAIL 32 -> FAIL 30
         "_padLoadActInfo_snd", # FAIL 24 -> FAIL 22
         "_padSetMainMode_rcv", # FAIL 24 -> FAIL 19

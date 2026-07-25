@@ -19,31 +19,31 @@
 
 typedef void (*PadSndRcv)(unsigned char *info);
 
-extern "C" int  (*_padFuncChkEng)(unsigned char *info);            /* dispatch slot: engine-busy? (0 = free) */
-extern "C" void (*_padFuncClrInfo)(unsigned char *info);
+extern int  (*_padFuncChkEng)(unsigned char *info);            /* dispatch slot: engine-busy? (0 = free) */
+extern void (*_padFuncClrInfo)(unsigned char *info);
 
 static unsigned char *_actcur;   /* @0x8014859C : actuator-descriptor write cursor */
 
 /* ---- forward declarations (mutually recursive) ----------------------------------------------- */
-extern "C" int _padCmdParaMode(unsigned char *info, int para);
-extern "C" int _padCmdGetStatus(unsigned char *info);
-extern "C" int _padCmdSetMap(unsigned char *info, int idx);
-extern "C" int _padCmdGetDescR0(unsigned char *info, int idx);
-extern "C" int _padCmdGetDescR1(unsigned char *info, int idx);
-extern "C" int _padCmd4B(unsigned char *info);
-extern "C" int _padGetActSize(unsigned char *info);
-extern "C" int _padLoadActInfo(unsigned char *info, unsigned char *buf);
-extern "C" void _padLoadActInfo_snd(unsigned char *info);
-extern "C" void _padLoadActInfo_rcv(unsigned char *info);
-extern "C" void _padSetActAlign_snd(unsigned char *info);
-extern "C" void _padSetActAlign_rcv(unsigned char *info);
-extern "C" void _padSetMainMode_snd(unsigned char *info);
-extern "C" void _padSetMainMode_rcv(unsigned char *info);
+extern int _padCmdParaMode(unsigned char *info, int para);
+extern int _padCmdGetStatus(unsigned char *info);
+extern int _padCmdSetMap(unsigned char *info, int idx);
+extern int _padCmdGetDescR0(unsigned char *info, int idx);
+extern int _padCmdGetDescR1(unsigned char *info, int idx);
+extern int _padCmd4B(unsigned char *info);
+extern int _padGetActSize(unsigned char *info);
+extern int _padLoadActInfo(unsigned char *info, unsigned char *buf);
+extern void _padLoadActInfo_snd(unsigned char *info);
+extern void _padLoadActInfo_rcv(unsigned char *info);
+extern void _padSetActAlign_snd(unsigned char *info);
+extern void _padSetActAlign_rcv(unsigned char *info);
+extern void _padSetMainMode_snd(unsigned char *info);
+extern void _padSetMainMode_rcv(unsigned char *info);
 
 /* =====================  command-byte builders (one DualShock opcode each)  ===================== */
 
 /* @0x801055F0 : _padSetAct -- stash the actuator data pointer + length for a later send. */
-extern "C" void _padSetAct(unsigned char *info, int data, int len)
+extern void _padSetAct(unsigned char *info, int data, int len)
 {
     *(int *)(info + 0x28) = data;
     info[0x34] = (unsigned char)len;
@@ -51,18 +51,19 @@ extern "C" void _padSetAct(unsigned char *info, int data, int len)
 
 /* @0x80105E8C : _padCmdParaMode -- 0x43 enter-config(para).
  * MATCH: r=1 hoisted early so v0=1 is live before sb a1,0x24; jr ra delay-slot gets sb v0,0x35. */
-extern "C" int _padCmdParaMode(unsigned char *info, int para)
+extern int _padCmdParaMode(unsigned char *info, int para)
 {
+    int r;
     info[0x36] = 0x43;
     *(unsigned char **)(info + 0x2c) = info + 0x24;
-    int r = 1;
+    r = 1;
     info[0x24] = (unsigned char)para;
     info[0x35] = (unsigned char)r;
     return r;
 }
 
 /* @0x80105EAC : _padCmdGetStatus -- 0x45 get-status. */
-extern "C" int _padCmdGetStatus(unsigned char *info)
+extern int _padCmdGetStatus(unsigned char *info)
 {
     int r = 0x45;                       /* one li v0,0x45 reused for the 0x36 store AND the return */
     info[0x36] = (unsigned char)r;
@@ -73,11 +74,12 @@ extern "C" int _padCmdGetStatus(unsigned char *info)
 
 /* @0x80105EC0 : _padCmdSetMap -- 0x4C set-config-map(idx).
  * MATCH: same r=1 hoist as _padCmdParaMode. */
-extern "C" int _padCmdSetMap(unsigned char *info, int idx)
+extern int _padCmdSetMap(unsigned char *info, int idx)
 {
+    int r;
     info[0x36] = 0x4c;
     *(unsigned char **)(info + 0x2c) = info + 0x24;
-    int r = 1;
+    r = 1;
     info[0x24] = (unsigned char)idx;
     info[0x35] = (unsigned char)r;
     return r;
@@ -85,11 +87,12 @@ extern "C" int _padCmdSetMap(unsigned char *info, int idx)
 
 /* @0x80105EE0 : _padCmdGetDescR0 -- 0x46 get-descriptor-0(idx).
  * MATCH: same r=1 hoist. */
-extern "C" int _padCmdGetDescR0(unsigned char *info, int idx)
+extern int _padCmdGetDescR0(unsigned char *info, int idx)
 {
+    int r;
     info[0x36] = 0x46;
     *(unsigned char **)(info + 0x2c) = info + 0x24;
-    int r = 1;
+    r = 1;
     info[0x24] = (unsigned char)idx;
     info[0x35] = (unsigned char)r;
     return r;
@@ -97,18 +100,19 @@ extern "C" int _padCmdGetDescR0(unsigned char *info, int idx)
 
 /* @0x80105F00 : _padCmdGetDescR1 -- 0x47 get-descriptor-1(idx).
  * MATCH: same r=1 hoist. */
-extern "C" int _padCmdGetDescR1(unsigned char *info, int idx)
+extern int _padCmdGetDescR1(unsigned char *info, int idx)
 {
+    int r;
     info[0x36] = 0x47;
     *(unsigned char **)(info + 0x2c) = info + 0x24;
-    int r = 1;
+    r = 1;
     info[0x24] = (unsigned char)idx;
     info[0x35] = (unsigned char)r;
     return r;
 }
 
 /* @0x80105F20 : _padCmd4B -- 0x4B exit-config. */
-extern "C" int _padCmd4B(unsigned char *info)
+extern int _padCmd4B(unsigned char *info)
 {
     int r = 0x4b;                       /* one li v0,0x4b reused for the 0x36 store AND the return */
     info[0x36] = (unsigned char)r;
@@ -120,9 +124,11 @@ extern "C" int _padCmd4B(unsigned char *info)
 /* =====================  load-info (actuator/mode descriptor) command sequence  ================= */
 
 /* @0x801055FC : _padSendAtLoadInfo -- pick the send command for the current load-info phase. */
-extern "C" int _padSendAtLoadInfo(unsigned char *info)
+extern int _padSendAtLoadInfo(unsigned char *info)
 {
-    int st = info[0x46], r;
+    int st;
+    int r;
+    st = info[0x46];
     if (st == 3) {
         r = _padCmdSetMap(info, info[0xe4]);
     } else if (st < 4) {
@@ -138,7 +144,7 @@ extern "C" int _padSendAtLoadInfo(unsigned char *info)
 }
 
 /* @0x801057CC : _padGetActSize -- size of the actuator-info block being assembled. */
-extern "C" int _padGetActSize(unsigned char *info)
+extern int _padGetActSize(unsigned char *info)
 {
     int nmode = info[0xe3];
     int nact  = info[0xe9];
@@ -149,22 +155,27 @@ extern "C" int _padGetActSize(unsigned char *info)
 }
 
 /* @0x80105680 : _padRecvAtLoadInfo -- consume one response of the load-info handshake. */
-extern "C" int _padRecvAtLoadInfo(unsigned char *info)
+extern int _padRecvAtLoadInfo(unsigned char *info)
 {
     unsigned char *rx = *(unsigned char **)(info + 0x3c);
     int st = info[0x46];
 
     if (st == 3) {
-        unsigned char hi = rx[4], lo = rx[5];
+        unsigned char hi;
+        unsigned char lo;
+        hi = rx[4];
+        lo = rx[5];
         info[0x47] = 0;
         *(unsigned short *)(info + 0xe6) = (unsigned short)lo + (unsigned short)hi * 0x100;
         return 1;
     }
     if (st > 3) {
+        unsigned char nb;
+        unsigned char idx;
         if (st != 4)
             return 1;
-        unsigned char idx = info[0x47] + 1;
-        unsigned char nb  = rx[4];
+        idx = info[0x47] + 1;
+        nb = rx[4];
         info[0x47] = idx;
         *(int *)(info + 0xec) = *(int *)(info + 0xec) + 8 + ((nb + 3) & 0x1fc);
         if (info[0xea] <= idx) {
@@ -193,7 +204,7 @@ extern "C" int _padRecvAtLoadInfo(unsigned char *info)
 
 /* @0x80105804 : _padLoadActInfo -- carve the actuator buffer (info+0x63) into mode/act sub-regions
  *   and install the descriptor send/recv pump.  `buf` is that buffer (aligned up to 4). */
-extern "C" int _padLoadActInfo(unsigned char *info, unsigned char *buf)
+extern int _padLoadActInfo(unsigned char *info, unsigned char *buf)
 {
     if (buf != 0 && *(int *)(info + 4) == 0 && _padFuncChkEng(info) == 0) {
         unsigned char *a = (unsigned char *)(((unsigned long)buf + 3) & ~3UL);
@@ -212,7 +223,7 @@ extern "C" int _padLoadActInfo(unsigned char *info, unsigned char *buf)
 }
 
 /* @0x801058D8 : _padLoadActInfo_snd -- emit the right descriptor request for the current sub-phase. */
-extern "C" void _padLoadActInfo_snd(unsigned char *info)
+extern void _padLoadActInfo_snd(unsigned char *info)
 {
     int st = info[0x46];
     if (st == 3) {
@@ -229,7 +240,7 @@ extern "C" void _padLoadActInfo_snd(unsigned char *info)
 }
 
 /* @0x80105980 : _padLoadActInfo_rcv -- parse a descriptor response into the mode/act tables. */
-extern "C" void _padLoadActInfo_rcv(unsigned char *info)
+extern void _padLoadActInfo_rcv(unsigned char *info)
 {
     unsigned char *rx = *(unsigned char **)(info + 0x3c);
     int st = info[0x46];
@@ -307,7 +318,7 @@ tail:
  * store reordering, not value-CSE), and the `1^zero` runtime-zero device (forces AUTO stack
  * storage for `zero`, regressed 2->22 diffs -- wrong lever for a plain RTL constant-CSE, not
  * a coloring/scheduling residual). w23-a8: unresolved after 4 source-shape attempts. */
-extern "C" int _padSetActAlign(unsigned char *info, int data)
+extern int _padSetActAlign(unsigned char *info, int data)
 {
     if (_padFuncChkEng(info) == 0) {
         int r = 1;
@@ -321,7 +332,7 @@ extern "C" int _padSetActAlign(unsigned char *info, int data)
 }
 
 /* @0x80105C5C : _padSetActAlign_snd -- emit the 0x4D align packet. */
-extern "C" void _padSetActAlign_snd(unsigned char *info)
+extern void _padSetActAlign_snd(unsigned char *info)
 {
     info[0x36] = 0x4d;
     info[0x35] = 6;
@@ -329,14 +340,17 @@ extern "C" void _padSetActAlign_snd(unsigned char *info)
 }
 
 /* @0x80105C78 : _padSetActAlign_rcv -- resolve each mode's actuator map from the alignment request. */
-extern "C" void _padSetActAlign_rcv(unsigned char *info)
+extern void _padSetActAlign_rcv(unsigned char *info)
 {
     unsigned mode = 0;
     if (info[0xe9] != 0) {
         int row = 0;
         do {
+            int matchcount;
+            int j;
+            int k;
             unsigned char *p;
-            int matchcount, j, k;
+
 
             p = *(unsigned char **)(info + 0x20);
             matchcount = 0;
@@ -382,7 +396,7 @@ extern "C" void _padSetActAlign_rcv(unsigned char *info)
  * floor in _padSetActAlign above; also carries the sltu-vs-sltiu artifact (oracle's equality
  * compare uses an immediate `sltiu v1,v1,1`; ours reuses the register that already holds the
  * return-value constant 1 via `sltu v1,v1,v0`). */
-extern "C" int _padSetMainMode(unsigned char *info, int offs, int lock)
+extern int _padSetMainMode(unsigned char *info, int offs, int lock)
 {
     if (_padFuncChkEng(info) == 0) {
         info[0x46] = 1;
@@ -404,7 +418,7 @@ extern "C" int _padSetMainMode(unsigned char *info, int offs, int lock)
  * `goto end;` site instead of sharing the one case3 reaches by fallthrough. Same
  * duplicate-vs-share tail-merge class as chkRC2wait's residual (WAITRC2.c) -- a
  * cross-jump/epilogue-sharing compiler decision, not reachable from goto-based source shape. */
-extern "C" void _padSetMainMode_snd(unsigned char *info)
+extern void _padSetMainMode_snd(unsigned char *info)
 {
     int st = info[0x46];    /* lbu; int avoids andi 0xff promotion */
     if (st == 2) goto case2;
@@ -423,7 +437,7 @@ end: ;
 }
 
 /* @0x80105E2C : _padSetMainMode_rcv. */
-extern "C" void _padSetMainMode_rcv(unsigned char *info)
+extern void _padSetMainMode_rcv(unsigned char *info)
 {
     if (info[0x53] == 0)
         _padFuncClrInfo(info);

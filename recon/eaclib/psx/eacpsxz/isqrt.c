@@ -3,8 +3,10 @@
  *   Ghidra nfs4-f.exe.c (isqrt) + IDA sig.  Seeds low/high bounds from ONE u8[256] estimate ramp
  *   (isqrttbl below; the old u16-isqrttbl + DAT_8013be0f pair was a Ghidra two-view artifact of this
  *   single table) scaled by the magnitude of `a`, then binary-searches to the exact floor-sqrt.
- *   Gate 2026-07-12: 209 -> 83 diffs (110/113, structure aligned; residual = a1/v1 coloring rotation,
- *   permuter candidate now that permuter_sanitize is fixed).
+ *   Gate 2026-07-26: 76 -> 24 diffs (111/113). Reusing `hi` for the low-magnitude midpoint and
+ *   folding the table-bound increment into each seed path makes the 47-insn high-magnitude half
+ *   and three of four low-magnitude seed paths exact. Raw nfs4-f.exe E3ACC..E3C8F SHA-256:
+ *   7b06f575a01ba23f321d2e1bba53b3b6f3a9a40c57c100fb744f7bc59b0a9cab.
  */
 /* ONE u8[256] estimate ramp @0x8013BE10: isqrttbl[i] = round(16*sqrt(i+1)) (0x10..0xff, monotonic,
  * byte-exact from image; model verified 255/255 within +-2). The oracle brackets sqrt with TWO byte
@@ -38,7 +40,7 @@ extern unsigned int isqrt(unsigned int a);   /* @0x800F32CC */
  * scaled by the operand magnitude; big half binary-searches, small half does one midpoint probe. */
 extern unsigned int isqrt(unsigned int a)
 {
-    unsigned int lo, hi, mid;
+    unsigned int lo, hi;
     if ((a & 0xffff0000) != 0) {
         if ((a & 0xff000000) != 0) {   /* oracle: beqz skips -> 24-bit path is the fall-through */
             lo = (unsigned int)isqrttbl[(a >> 0x18) - 1] << 8;
@@ -48,37 +50,36 @@ extern unsigned int isqrt(unsigned int a)
             hi = ((unsigned int)isqrttbl[a >> 0x10] + 1) << 4;
         }
         while (2 <= hi - lo) {
-            mid = (lo + hi) >> 1;
-            if (a < mid * mid)
-                hi = mid;
+            if (a < ((lo + hi) >> 1) * ((lo + hi) >> 1))
+                hi = (lo + hi) >> 1;
             else
-                lo = mid;
+                lo = (lo + hi) >> 1;
         }
         return lo;
     }
     if ((a & 0xff00) != 0) {           /* oracle: beqz skips -> the a<0x100 tail is out-of-line last */
         if ((a & 0xf000) != 0) {
             if ((a & 0xc000) != 0) {
-                lo = (unsigned int)isqrttbl[(a >> 8) - 1];
-                hi = (unsigned int)isqrttbl[a >> 8];
+                unsigned char *p = isqrttbl + (a >> 8);
+                hi = (unsigned int)*p + 1;
+                lo = (unsigned int)*(p - 1);
             } else {
                 lo = (unsigned int)(isqrttbl[(a >> 6) - 1] >> 1);
-                hi = (unsigned int)(isqrttbl[a >> 6] >> 1);
+                hi = (unsigned int)(isqrttbl[a >> 6] >> 1) + 1;
             }
         } else if ((a & 0xc00) != 0) {
             lo = (unsigned int)(isqrttbl[(a >> 4) - 1] >> 2);
-            hi = (unsigned int)(isqrttbl[a >> 4] >> 2);
+            hi = (unsigned int)(isqrttbl[a >> 4] >> 2) + 1;
         } else {
             lo = (unsigned int)(isqrttbl[(a >> 2) - 1] >> 3);
-            hi = (unsigned int)(isqrttbl[a >> 2] >> 3);
+            hi = (unsigned int)(isqrttbl[a >> 2] >> 3) + 1;
         }
-        hi = hi + 1;
         if (hi - lo < 2)
             return lo;
-        mid = (lo + hi) >> 1;
-        if (a < mid * mid)
+        hi = (lo + hi) >> 1;
+        if (a < hi * hi)
             return lo;
-        return mid;
+        return hi;
     }
     if (a != 0)   /* MATCH: table path = bnez branch target, return-0 = fall-through (oracle) */
         return (unsigned int)(isqrttbl[a - 1] >> 4);

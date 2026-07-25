@@ -21,12 +21,12 @@
  *             CD_Restart: a volatile cached-sector view pins the second store before the callback.
  *             CD_Open: a guarded do/while removes the redundant bound precheck; a distinct copied
  *             bound preserves the oracle's post-guard register move. No asm pins (HARD RULE).
- *     [near]  CD_systaskfunc (71->58 diffs) -- REAL BUG FIXED: the CdlDiskError watchdog branch
+ *     [near]  CD_systaskfunc (71->58->27 diffs) -- REAL BUG FIXED: the CdlDiskError watchdog branch
  *             delay-slot analysis was wrong (see below); after the fix, insn count now matches the
- *             oracle EXACTLY (87=87) and the residual is a pure ctx-base register-coloring swap
- *             (s1<->s2) in the "done" resume block, plus a switch-dispatch test-order/bounds-check
- *             shape gcc won't reproduce from either case-order permutation tried. Permuter running
- *             (plateaued ~380 after 100+ iters).
+ *             oracle's result/position/mode stack order removes an unnecessary saved context base
+ *             and cuts the generated body to 84 vs 87 oracle instructions. The residual is now
+ *             chiefly the switch-dispatch physical block order; both case permutations and an
+ *             explicit nested-if form were tested, and the retained case-5-first switch is closest.
  *     [near]  CdReadyHandler (325->279->223->158->109 diffs) -- MAJOR STRUCTURAL FIX: the oracle hoists ONE
  *             base pointer to ctx+0x20 (Ghidra's `D_80146CE4`, the same read-state sub-struct
  *             CD_Read already models) ONCE at function entry, holds it in a callee-saved reg for
@@ -525,9 +525,9 @@ extern int CD_Restart(int startSector)
  *   in-flight transfer if one was pending. */
 extern void CD_systaskfunc(void)
 {
-    unsigned char mode[8];
     unsigned char result[8];
     unsigned char pos[8];
+    unsigned char mode[8];
     int           ready;
     int           done = 0;
 

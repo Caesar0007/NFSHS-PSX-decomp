@@ -7,7 +7,7 @@
  *   w1 as UNSIGNED here, matching the `_us` name). Transcribed VERBATIM as file-scope __asm__; portable
  *   C fallback kept for host (fixed to actually shift w1 unsigned, matching the fn's own name -- the
  *   prior fallback body was a byte-for-byte copy of the signed DBSHIFT.cpp one). */
-extern "C" unsigned int *_dbl_shift_us(unsigned int *out, int dir, unsigned int w0, int w1, int count); /* @0x801048E8 */
+extern unsigned int *_dbl_shift_us(unsigned int *out, int dir, unsigned int w0, int w1, int count); /* @0x801048E8 */
 
 #if defined(__mips__)
 __asm__(
@@ -74,17 +74,19 @@ __asm__(
     "\t.set pop\n"
 );
 #else
-extern "C" unsigned int *_dbl_shift_us(unsigned int *out, int dir, unsigned int w0, int w1, int count) /* @0x801048E8 */
+extern unsigned int *_dbl_shift_us(unsigned int *out, int dir, unsigned int w0, int w1, int count) /* @0x801048E8 */
 {
     if (dir) {
-        for (int i = 0; i < count; i++) {
+        int i;
+        for (i = 0; i < count; i++) {
             unsigned int v = w0 >> 1;
             w0 >>= 1;
             if (w1 & 1) w0 = v | 0x80000000;
             w1 = (int)((unsigned int)w1 >> 1);
         }
     } else {
-        for (int j = 0; j < count; j++) {
+        int j;
+        for (j = 0; j < count; j++) {
             int v = 2 * w1;
             w1 *= 2;
             if (w0 & 0x80000000) w1 = v | 1;

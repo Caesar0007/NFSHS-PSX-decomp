@@ -11,22 +11,25 @@
 
 typedef unsigned char u_char;
 struct CdlLOC { u_char minute, second, sector, track; };
+typedef struct CdlLOC CdlLOC;
 
 /* ---- libcd public API (cdcont.cpp) / libc ----------------------------------------------------- */
-extern "C" int  CdControlB(u_char com, u_char *param, u_char *result); /* @0x800F7B24 */
-extern "C" int  CdSyncCallback(int func);                              /* @0x800F788C */
-extern "C" int  printf(const char *fmt, ...);                         /* libc C63 @0x801028AC */
+extern int  CdControlB(u_char com, u_char *param, u_char *result); /* @0x800F7B24 */
+extern int  CdSyncCallback(int func);                              /* @0x800F788C */
+extern int  printf(const char *fmt, ...);                         /* libc C63 @0x801028AC */
 
 /* ---- driver debug level (DRV.OBJ) ------------------------------------------------------------- */
-extern "C" int CD_debug;   /* @0x8013BF50 */
+extern int CD_debug;   /* @0x8013BF50 */
 
 /* @0x801092C0 : CdGetToc2 -- fill loc[] with the MSF start of every track (lead-in entry first). */
-extern "C" int CdGetToc2(int /*n*/, CdlLOC *loc)
+extern int CdGetToc2(int n, CdlLOC *loc)
 {
+    int track_first;
+    int track_last;
     u_char param[4];
     u_char result[4];
     int save;                 /* $s6 : CdlGetTN result, also fed back to CdSyncCallback() */
-    int track_first, track_last;
+
     int i;
     int nTrack;
 
@@ -75,7 +78,7 @@ err:
 }
 
 /* @0x8010929C : CdGetToc -- convenience wrapper, loc[] points at the caller's CdlLOC array. */
-extern "C" int CdGetToc(CdlLOC *loc)
+extern int CdGetToc(CdlLOC *loc)
 {
     return CdGetToc2(1, loc);
 }

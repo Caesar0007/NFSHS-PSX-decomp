@@ -209,32 +209,19 @@ int Anim_GetLastAnimPosRot(int animNum,int flags,coorddef *pt,matrixtdef *mat)
 /* ---- Anim_GetRotPos  [@0x80073f18] ---- */
 int Anim_GetRotPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,matrixtdef *mat)
 {
-  Anim_tFrame*animFrames;
-  int animInd0;
-  int animInd1;
-  coorddef objcp0;
-  coorddef objcp1;
-  tQuat q;
-  int interval;
-  u_char *puVar1;
-  u_int uVar2;
-  u_int *puVar3;
   int iVar4;
   u_char *puVar5;
   int iVar6;
   u_char *puVar7;
   int iVar8;
   Trk_AnimateInst *pTVar9;
-  u_int uVar10;
-  u_int uVar11;
-  u_int uVar12;
   int iVar13;
   coorddef local_40;
   coorddef local_30;
   tQuat tStack_20;
   u_char auStack_18 [8];
   tQuat tStack_10;
-  
+
   if ((animInst->type == '\x03') ||
      (pTVar9 = (Trk_AnimateInst *)&animInst[1].zoffset, animInst->type == '\a')) {
     pTVar9 = animInst + 1;

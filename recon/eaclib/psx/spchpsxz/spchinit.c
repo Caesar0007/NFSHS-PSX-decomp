@@ -142,7 +142,14 @@ extern int SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate)
     iSPCH_InitBanks();
     /* Near match (10->3 diffs, 40/39 insns): the one-shot loop gives the oracle's v1 constant and
      * v0 global-base coloring.  The sole residual is gcc restoring ra at the epilogue and inserting
-     * its load-delay nop instead of scheduling that restore between the constant and base setup. */
+     * its load-delay nop instead of scheduling that restore between the constant and base setup.
+     * FLOOR (w29-a6, 2026-07-26): tried removing the do-while wrapper (regresses 3->10), a named
+     * `result` local returned instead of the literal `1` (no change), a `for(;;){...;break;}` shape
+     * (no change), and folding iSPCH_InitBanks() into the loop body (no change) -- the `lw ra,16(sp)`
+     * placement is scheduler-fixed regardless of source shape here.  Same class as the catalog's
+     * "two ready values competing for one delay slot -- source order irrelevant" negative result
+     * (reference_asm_pattern_catalog.md svol.cpp:18) and the PADENTRY.c PadStartCom/StopCom
+     * single-$ra-save epilogue floor.  Do not re-attempt without a genuinely new lever. */
     do {
         iSPCH_InitEventQueue();
         gSPCH_Initialized[0] = 0x1789a34;

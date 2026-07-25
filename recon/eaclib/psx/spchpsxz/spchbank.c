@@ -45,7 +45,18 @@ extern void iSPCH_DisposeBanks(void)
     gNumBanks[0] = 0;
 }
 
-/* iSPCH_BankMemAlloc @0x800EB234 : allocate gVoxBanks[numBanks] (once) and zero it.  Returns gVoxBanks. */
+/* iSPCH_BankMemAlloc @0x800EB234 : allocate gVoxBanks[numBanks] (once) and zero it.  Returns gVoxBanks.
+ * FLOOR (w29-a6, 2026-07-26; 4 diffs, 33/33 exact insn parity): oracle schedules `sw ra,24(sp)` BEFORE
+ * the `bnez v0,T` test and fills the branch's delay slot with `sw s1,20(sp)` (nb's callee-save); ours
+ * has the two swapped (s1-save before the branch, ra-save in the delay slot) -- same 33 insns, same
+ * s0=vb/s1=nb coloring, just the two saves trade places around the branch.  Tried+reverted: moving
+ * `int *nb = gNumBanks;` inside the `if` (its true point of first use) and dropping it in favor of
+ * direct `gNumBanks[0]` indexing both regress to 16 diffs (flips s0<->s1 across the WHOLE function --
+ * the top-level vb/nb declaration order+scope is load-bearing for the coloring, not for this tie);
+ * swapping vb/nb declaration order likewise regresses to 16; `nb[0]=` vs `*nb=` is a no-op. Two ready,
+ * independent callee-saves competing for one delay slot -- same negative-result class as
+ * reference_asm_pattern_catalog.md's svol.cpp:18 ("source order irrelevant"). Do not re-attempt
+ * without a genuinely new lever. */
 extern int iSPCH_BankMemAlloc(int numBanks)
 {
     int *vb = gVoxBanks;

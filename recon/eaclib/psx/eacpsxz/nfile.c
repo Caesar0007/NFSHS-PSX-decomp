@@ -554,10 +554,17 @@ extern void stopreadfile(int dev);   /* @0x800F4100 abort an in-flight read on a
  *     (status=-1) and fire its completion callback with (id, param). */
 extern void FILE_cancelop(unsigned int id)
 {
-    /* MATCH work (59->47 diffs): the retail object reserves a dead 24-byte local
+    /* MATCH work (59->47->42 diffs): the retail object reserves a dead 24-byte local
      * area, so this pad restores its 48-byte frame and saved-register offsets.
-     * The remaining delta is dominated by the caller-saved a1/a2/a3 assignment
-     * of id, action, and op plus the queue-not-found block layout. */
+     * wave-29: the "not found in queue" exit is its OWN dedicated CS-leave+return in
+     * the oracle (a separate mtc0+j block at .L800EC0F4), not a shared jump to the
+     * common `cleanup:` tail that every OTHER early-out uses -- writing it as an
+     * explicit FILE_CS_LEAVE(sr); return; (instead of goto cleanup;) reproduces that
+     * duplicate block and fixes the instruction count to exact (106/109 -> 109/109),
+     * cutting 47->42. The remaining delta is a caller-saved a1/a2/a3 allocator
+     * tie-break (id/action/op all shifted one register up from the oracle) -- same
+     * unmovable family as FILE_opstatus/FILE_operror/FILE_priorityop (see their
+     * comments); several named-local/materialize attempts this wave didn't move it. */
     volatile int frame[6];
     FileOp *op;
     int     nibble, action = 0, sr;
@@ -583,7 +590,7 @@ extern void FILE_cancelop(unsigned int id)
             prev = node;
             node = node->qnext;
         }
-        if (node == 0) goto cleanup;              /* not in queue */
+        if (node == 0) { FILE_CS_LEAVE(sr); return; }  /* not in queue */
         if (prev != 0) prev->qnext        = op->qnext;
         else            gFileMgr.queuehead = op->qnext;
         gFileMgr.state--;                        /* one fewer queued op */

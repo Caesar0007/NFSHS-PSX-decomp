@@ -20,19 +20,27 @@
  *                                   +4 usable-size/tail-offset(int) +8 physnext +C physprev.
  */
 struct MemBlock;
+typedef struct MemBlock MemBlock;
 struct MemClass;
+typedef struct MemClass MemClass;
 
-extern "C" MemClass *gMemClassTable[16];                       /* @0x8013E900 */
-extern "C" void  FREE_add   (MemClass *cls, MemBlock *node);   /* @0x800E4E70 */
-extern "C" void  FREE_remove(MemClass *cls, MemBlock *node);   /* @0x800E4F04 */
-extern "C" int   initmemblock(MemBlock *blk, char *name, int size, int tailextra,
+extern MemClass *gMemClassTable[16];                       /* @0x8013E900 */
+extern void  FREE_add   (MemClass *cls, MemBlock *node);   /* @0x800E4E70 */
+extern void  FREE_remove(MemClass *cls, MemBlock *node);   /* @0x800E4F04 */
+extern int   initmemblock(MemBlock *blk, char *name, int size, int tailextra,
                               int flags, MemBlock *physprev, MemBlock *physnext);  /* @0x800E4F2C */
-extern "C" int   MEM_tailsize(char *name, int id);             /* @0x800E5030 */
-extern "C" char *getblockname(void *p);                        /* @0x800E52E0 */
-extern "C" void  blockmove(void *src, void *dst, int n);       /* @0x800E62DC */
+extern int   MEM_tailsize(char *name, int id);             /* @0x800E5030 */
+extern char *getblockname(void *p);                        /* @0x800E52E0 */
+extern void  blockmove(void *src, void *dst, int n);       /* @0x800E62DC */
 
-extern "C" void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
+extern void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
 {
+    int avail;
+    int needed;
+    int align;
+    char * name;
+    int sz;
+    int tail;
     char *hdr = (char *)userptr - 0x10;                         /* s3 = block header */
     unsigned flags = *(unsigned short *)(hdr + 2);              /* s1 (u_int: avoid a redundant andi 0xffff) */
     char *next = *(char **)(hdr + 8);                           /* s2 = hdr->physnext */
@@ -50,18 +58,18 @@ extern "C" void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
     }
 
     /* 2. clamp requested size (s4/usable keeps the raw value used as the new tail offset) */
-    int sz = usable;                                            /* s0 */
+    sz = usable;
     if (sz < 8) {
         if (sz == -1)      sz = 0x40000000;                     /* grow to max */
         else if (sz >= 0)  sz = 8;                              /* 0..7 -> 8 (negatives kept) */
     }
 
     /* 3. aligned physical payload needed, clamped to available span */
-    char *name  = getblockname(userptr);
-    int   tail  = MEM_tailsize(name, flags);
-    int   align = *(int *)((char *)cls + 0x28);                 /* class->alignment */
-    int   needed = (int)(((unsigned)(sz + tail + align + 15)) & (unsigned)(-align)) - 0x10;
-    int   avail  = (int)(next - hdr) - 0x10;
+    name = getblockname(userptr);
+    tail = MEM_tailsize(name, flags);
+    align = *(int *)((char *)cls + 0x28);
+    needed = (int)(((unsigned)(sz + tail + align + 15)) & (unsigned)(-align)) - 0x10;
+    avail = (int)(next - hdr) - 0x10;
     if (avail < needed) {
         needed = avail;                                        /* can't grow past the span */
         usable = avail - tail;                                 /* s4 = avail - tailsize */

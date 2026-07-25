@@ -584,9 +584,8 @@ void Collide_TestWithPlane(BO_tNewtonObj *o,coorddef *normal,coorddef *samplePoi
 
     zone = 9;
     /* MATCH: anonymous dot-sum web (s0) separate from impulse (s6) - the <<2 lands in impulse */
-    dot = fixedmult(normal->x,(o->linearVel).x) + fixedmult(normal->y,(o->linearVel).y) +
-          fixedmult(normal->z,(o->linearVel).z);
-    if (0 < dot) {
+    if (0 < (fixedmult(normal->x,(o->linearVel).x) + fixedmult(normal->y,(o->linearVel).y) +
+             fixedmult(normal->z,(o->linearVel).z))) {
       dot = fixedmult(normal->x,(o->linearVel).x) + fixedmult(normal->y,(o->linearVel).y) +
             fixedmult(normal->z,(o->linearVel).z);
     }

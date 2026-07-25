@@ -35,7 +35,7 @@ extern unsigned int FILE_close(void *handle, unsigned int prio, unsigned int uda
 extern unsigned int FILE_read (void *handle, unsigned int offset, unsigned int dest,
                                    int len, unsigned int a5, unsigned int a6); /*@0x800EC4EC (asm sets a0..a3 only)*/
 extern int  FILE_completeop(unsigned int id);
-extern void FILE_callbackop(unsigned int id, void (*cb)(int, int));   /*@0x800EBE4C*/
+extern unsigned int FILE_callbackop(unsigned int id, void (*cb)(int, int)); /*@0x800EBE4C*/
 extern void FILE_priorityop(unsigned int id, int prio);               /*@0x800EBECC*/
 extern void FILE_closesync(int handle, int prio);                     /* syncfile.obj (asm: a0=handle, a1=0x64) */
 
@@ -563,9 +563,12 @@ extern int startnextrequest(int s, unsigned int prio)
  *       6 min / 97 iters / -j4: base score 1090 -> best 855, NO byte-match basin found (unguided
  *       randomization couldn't hit the s0-time-share coloring). Genuine gcc-2.8.0 allocator floor. KEPT the
  *       gate-optimal form (`prio` declared+unused -> dropped from save set, frame matches oracle's 5-reg
- *       count @149). NEXT: a source shape that computes room-size WITHOUT keeping queue-head's register live
+ *       count @141 after the raw-tail fix below). NEXT: a source shape that computes room-size WITHOUT keeping queue-head's register live
  *       into have_room (freeing s0 for the current-request reuse), or a longer/@PERM-guided permuter run.
- *       DO NOT re-flag "prio is dead" as settled fact -- it demonstrably is not. */
+ *       DO NOT re-flag "prio is dead" as settled fact -- it demonstrably is not.
+ *   RAW-TAIL FIX (2026-07-26, 149->141 detailed): FILE_callbackop is value-returning here. The
+ *       retail tail conditionally replaces `op` with that callback result and returns the merged
+ *       value; it does not call a void function and then return the original FILE_read op. */
 extern int restartstream(int s, unsigned int prio)
 {
     int  iVar1, iVar2;
@@ -650,9 +653,8 @@ have_room:
         unsigned int op = FILE_read((void *)MU(s, 0x9c), MU(s, 0xa0), MU(s, 0x48),
                                     MI(s, 0xa8), 0, 0);   /* real args = prio,(uint)s -- see BLOCKED note above */
         MU(s, 0xa4) = op;
-        if (op == 0)
-            return 0;
-        FILE_callbackop(op, (void (*)(int, int))readcallback);
+        if (op != 0)
+            op = FILE_callbackop(op, (void (*)(int, int))readcallback);
         return op;
     }
 }

@@ -37,7 +37,7 @@ static int iSPCH_GetOffset16(int base, int tableBase, int index)  /* @0x8010B124
 extern int  iSPCH_GetRuleDataAddr(int sentence);                       /* @0x8010B140 */
 extern int  iSPCH_SentenceUsesParm(int sentence, unsigned int paramIdx); /* @0x8010B158 */
 extern unsigned int iSPCH_GetRuleID(int sentence, int index);         /* @0x8010B220 */
-extern void iSPCH_RuleSet(short *sentence, int rule, int val);        /* @0x8010B294 */
+extern void iSPCH_RuleSet(short *sentence, int rule, int *values);    /* @0x8010B294 */
 extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out); /* @0x8010B3CC */
 extern unsigned int iSPCH_CheckSentenceRules(int testVal, int clearMask, int rulePtr); /* @0x8010B58C */
 
@@ -111,9 +111,11 @@ extern unsigned int iSPCH_GetRuleID(int sentence, int index)
 
 /* iSPCH_RuleSet @0x8010B294 : for each type-0/3 rule whose parameter the (offset) sentence uses, fire the
  *   gSentenceRuleSet callback with that rule + the parameter value from val[]. */
-extern void iSPCH_RuleSet(short *sentence, int rule, int val)
+extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
 {
-    if (gSentenceRuleSet != 0) {
+    SentenceRuleSetFn *ruleSet = &gSentenceRuleSet;
+    int **valuesSlot = &values;
+    if (*ruleSet != 0) {
         int offSent;
         int            numRules = *(signed char *)((int)sentence + 7);
         int            i        = 0;
@@ -139,8 +141,9 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int val)
                 case 0:
                 case 3:
                     if (iSPCH_SentenceUsesParm(offSent, paramIdx) != 0) {
-                        gSentenceRuleSet((unsigned short)*sentence, ruleByte,
-                            *(int *)((int)paramIdx * 4 + val), val);
+                        int *valuesNow = *valuesSlot;
+                        (*ruleSet)((unsigned short)*sentence, ruleByte,
+                            valuesNow[paramIdx], (int)valuesNow);
                     }
                     break;
                 case 1:
@@ -170,7 +173,7 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int val)
  *   caused the compiler to delete the returned accumulator completely. */
 extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
 {
-    char           numRules = *(char *)((int)sentence + 7);
+    signed char    numRules = *(signed char *)((int)sentence + 7);
     unsigned int   result = 0;
     unsigned int   flags = 0;
     unsigned char *ruleData = (unsigned char *)iSPCH_GetRuleDataAddr((int)sentence);

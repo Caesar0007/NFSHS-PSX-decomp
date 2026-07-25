@@ -477,7 +477,7 @@ extern void iSNDserve(void)
                             iSNDfreechan(c);
                             n--;
                             *(unsigned short *)(c * 0x10 + *(int *)(fpbase + 0x510) + 6) = 0x200;
-                            kon = kon | (1u << c);
+                            kon = kon | (1 << c);
                             *(unsigned short *)(c * 0x10 + *(int *)(fpbase + 0x510)) = 0;
                             *(unsigned short *)(c * 0x10 + *(int *)(fpbase + 0x510) + 2) = 0;
                         } while (0 < n);
@@ -504,13 +504,13 @@ extern void iSNDserve(void)
                 }
             } else if (*(volatile unsigned char *)(vp + 0x1d) == 3) { /* voice fully stopped */
                 if (vreg[6] == 0) {
-                    kon = kon | (1u << chan);               /* (Ghidra `mask`) */
+                    kon = kon | (1 << chan);                /* (Ghidra `mask`) */
                     vp[0x1d] = 0;
                     vreg[3] = 0x200;
                     vreg[0] = 0;
                     vreg[1] = 0;
                 } else {
-                    koff = koff | (1u << chan);             /* (Ghidra `local_30`) */
+                    koff = koff | (1 << chan);              /* (Ghidra `local_30`) */
                 }
             }
             /* NOTE: no `vp = &DAT_801479f0 + vt;` re-materialize here -- the oracle reuses whatever

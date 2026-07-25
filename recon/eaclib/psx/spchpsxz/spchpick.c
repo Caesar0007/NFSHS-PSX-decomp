@@ -53,7 +53,7 @@ extern unsigned int iSPCH_TestSubBankBounds(int bankIdx, int subIdx); /* spchban
 extern int  iSPCH_UnPackSample(int bank, int sampleIdx, int *out); /* spchsamp */
 extern int  iSPCH_Rand(int n);                                        /* spchrand */
 extern unsigned int iSPCH_GetRuleID(int sentence, int index);         /* spchrule */
-extern void iSPCH_RuleSet(short *sentence, int rule, int val);        /* spchrule */
+extern void iSPCH_RuleSet(short *sentence, int rule, int *values);    /* spchrule */
 extern unsigned int iSPCH_CheckSentenceRules(int a, int b, int c);    /* spchrule */
 extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out); /* spchrule */
 extern int  iSPCH_FindEvent(unsigned int eventID);                    /* spchevnt */
@@ -721,7 +721,7 @@ extern void iSPCH_PlayChosen(void)
          * callee (already `(void)val`) AND the caller never materializes it; cast the call through
          * a 2-arg fn-ptr type so the compiler doesn't force an a2 setup here (§D dropped-arg lever). */
         int eventId = gSentenceChoice[4];
-        iSPCH_RuleSet((short *)gSentenceChoice[0], gSentenceChoice[2], (int)&gSentenceChoice[4]);
+        iSPCH_RuleSet((short *)gSentenceChoice[0], gSentenceChoice[2], &gSentenceChoice[4]);
         ((void (*)(short *, int))iSPCH_ConstantRuleSet)((short *)gSentenceChoice[0], gSentenceChoice[1]);
         iSPCH_MakeSampleRequests(gSentenceChoice[1], eventId);
         {

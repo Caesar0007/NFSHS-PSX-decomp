@@ -1,5 +1,12 @@
-/* syslib/psx/libcd/cdread.cpp -- RECONSTRUCTED from nfs4-f.exe (Ghidra + disasm-v3).
+/* syslib/psx/libcd/cdread.c -- RECONSTRUCTED from nfs4-f.exe (Ghidra + disasm-v3).
  *   obj libcd.lib(CDREAD.OBJ): the high-level multi-sector CdRead engine.
+ *
+ *   COMPILED AS C by USER RULING (2026-07-25, uniformity over diff count): cc1plus (C++) measured
+ *   strictly better per-fn diff counts than cc1 (C) on this TU -- _read_int 109->115 (w26-a1 dual-
+ *   compile audit). Migrated anyway for source-uniformity across syslib/eaclib. Do NOT revert to
+ *   .cpp without a user decision; see recon/eaclib/psx/eacpsxz/cdfs.c and
+ *   recon/syslib/psx/libcd/iso9660.c and recon/syslib/psx/libgpu/FONT.c for the sibling KEEP-CPP-
+ *   turned-uniform TUs (same ruling, same date).
  *
  *   CdRead(sectors, buf, mode) starts an asynchronous N-sector read; the per-sector work is driven
  *   by the libcd ready/data interrupt callbacks installed here, and CdReadSync() polls for / waits
@@ -23,6 +30,7 @@ typedef unsigned long  u_long;
 typedef int (*CdlCB)(int, int);
 
 struct CdlLOC { u_char minute, second, sector, track; };
+typedef struct CdlLOC CdlLOC;
 
 /* ---- private CdRead state block @0x8013C290 (CDREAD.OBJ .bss) -------------------------------- */
 struct CdrEnv {
@@ -41,42 +49,43 @@ struct CdrEnv {
     int      w30;   /* +0x30 : saved data callback                                   */
     int      w34;   /* +0x34 : last interrupt code passed to the user CdReadCallback */
 };
+typedef struct CdrEnv CdrEnv;
 
-extern "C" { volatile CdrEnv _cdr; }   /* @0x8013C290 -- zero-initialised .bss */
+extern volatile CdrEnv _cdr;   /* @0x8013C290 -- zero-initialised .bss */
 
 /* ---- libetc / libc ---------------------------------------------------------------------------- */
-extern "C" int  VSync(int mode);                 /* @0x800F231C */
-extern "C" int  puts(const char *s);             /* libc A63 @0x800E80CC */
+extern int  VSync(int mode);                 /* @0x800F231C */
+extern int  puts(const char *s);             /* libc A63 @0x800E80CC */
 
 /* ---- libcd public API (cdcont.cpp / SYS.OBJ) -------------------------------------------------- */
-extern "C" int   CdStatus(void);                                       /* @0x800F7780 */
-extern "C" int   CdMode(void);                                         /* @0x800F7790 */
-extern "C" void *CdLastPos(void);                                      /* @0x800F77A0 */
-extern "C" void  CdFlush(void);                                        /* @0x800F7818 */
-extern "C" int   CdReady(int mode, u_char *result);                    /* @0x800F786C */
-extern "C" int   CdSyncCallback(int func);                             /* @0x800F788C */
-extern "C" int   CdReadyCallback(int func);                            /* @0x800F78A0 */
-extern "C" int   CdControl(u_char com, u_char *param, u_char *result); /* @0x800F78B4 */
-extern "C" int   CdControlF(u_char com, u_char *param);                /* @0x800F79F0 */
-extern "C" int   CdControlB(u_char com, u_char *param, u_char *result);/* @0x800F7B24 */
-extern "C" int   CdGetSector(void *madr, int size);                    /* @0x800F7C70 */
-extern "C" int   CdGetSector2(void *madr, int size);                   /* @0x800F7C90 */
-extern "C" int   CdDataCallback(int func);                             /* @0x800F7CB0 */
-extern "C" int   CdDataSync(int mode);                                 /* @0x800F7CD4 */
-extern "C" int   CdPosToInt(CdlLOC *p);                                /* @0x800F7DF8 */
+extern int   CdStatus(void);                                       /* @0x800F7780 */
+extern int   CdMode(void);                                         /* @0x800F7790 */
+extern void *CdLastPos(void);                                      /* @0x800F77A0 */
+extern void  CdFlush(void);                                        /* @0x800F7818 */
+extern int   CdReady(int mode, u_char *result);                    /* @0x800F786C */
+extern int   CdSyncCallback(int func);                             /* @0x800F788C */
+extern int   CdReadyCallback(int func);                            /* @0x800F78A0 */
+extern int   CdControl(u_char com, u_char *param, u_char *result); /* @0x800F78B4 */
+extern int   CdControlF(u_char com, u_char *param);                /* @0x800F79F0 */
+extern int   CdControlB(u_char com, u_char *param, u_char *result);/* @0x800F7B24 */
+extern int   CdGetSector(void *madr, int size);                    /* @0x800F7C70 */
+extern int   CdGetSector2(void *madr, int size);                   /* @0x800F7C90 */
+extern int   CdDataCallback(int func);                             /* @0x800F7CB0 */
+extern int   CdDataSync(int mode);                                 /* @0x800F7CD4 */
+extern int   CdPosToInt(CdlLOC *p);                                /* @0x800F7DF8 */
 
 /* ---- shared driver-config globals (EVENT.OBJ .bss) -------------------------------------------- */
-extern "C" int CD_cbread;        /* @0x8013C2D0 : user CdReadCallback */
-extern "C" int CD_read_dma_mode; /* @0x8013C2D4 : bit0 = copy sectors via DMA */
+extern int CD_cbread;        /* @0x8013C2D0 : user CdReadCallback */
+extern int CD_read_dma_mode; /* @0x8013C2D4 : bit0 = copy sectors via DMA */
 
 /* forward decls (callbacks reference each other and _read_issue) */
-extern "C" void _read_sync(void);
-extern "C" void _read_int(int intr, int code);
-extern "C" void _read_data_int(void);
-extern "C" int  _read_issue(int retry);
+extern void _read_sync(void);
+extern void _read_int(int intr, int code);
+extern void _read_data_int(void);
+extern int  _read_issue(int retry);
 
 /* @0x8010887C : sync-complete handler -- restore the saved sync cb and clear the busy flag. */
-extern "C" void _read_sync(void)
+extern void _read_sync(void)
 {
     CdSyncCallback(_cdr.w28);    /* restore saved sync callback */
     _cdr.w24 = 0;                /* reading = 0 */
@@ -89,7 +98,7 @@ extern "C" void _read_sync(void)
  * and can't be cheaply rematerialized).  A persistent `g` pointer local pins the allocator's
  * saved-reg budget on the wrong value (methodology catalog: "eager-cache" / "don't cache derived
  * pointers across calls" class). */
-extern "C" void _read_int(int intr, int code)
+extern void _read_int(int intr, int code)
 {
     _cdr.w34 = code;                                /* remember intr arg for the user cb */
 
@@ -146,7 +155,7 @@ extern "C" void _read_int(int intr, int code)
 }
 
 /* @0x80108B24 : DMA-data complete -- advance the ring and finish if this was the last sector. */
-extern "C" void _read_data_int(void)
+extern void _read_data_int(void)
 {
     _cdr.w08 += _cdr.w10 * 4;   /* cursor += sector bytes */
     _cdr.w14--;                  /* one fewer remaining    */
@@ -166,7 +175,7 @@ extern "C" void _read_data_int(void)
 }
 
 /* @0x80108BF4 : (re)issue the read.  retry!=0 re-seeks to CdLastPos and re-sends mode. */
-extern "C" int _read_issue(int retry)
+extern int _read_issue(int retry)
 {
     CdSyncCallback(0);
     CdReadyCallback(0);
@@ -215,7 +224,7 @@ error:
 }
 
 /* @0x80108DDC : CdRead -- start an asynchronous N-sector read into `buf`. Returns >0 on success. */
-extern "C" int CdRead(int sectors, u_long *buf, int mode)
+extern int CdRead(int sectors, u_long *buf, int mode)
 {
     /* NOTE (unlike _read_int/_read_data_int/_read_issue above): here the oracle DOES anchor one
      * base pointer register (initially &_cdr.w24) and reuses/rebases it across the whole function
@@ -255,7 +264,7 @@ extern "C" int CdRead(int sectors, u_long *buf, int mode)
 }
 
 /* @0x80108F78 : CdReadSync -- poll (mode!=0) or block (mode==0) until the read completes. */
-extern "C" int CdReadSync(int mode, u_char *result)
+extern int CdReadSync(int mode, u_char *result)
 {
     int s0;
 

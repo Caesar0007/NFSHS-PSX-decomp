@@ -5,14 +5,16 @@
  *   intsincos base call):  *psin = s + (c>>2)*P >> 21 ,  *pcos = c - (s>>2)*P >> 21
  *   where (s,c) = intsincos(angle>>6) and P = the 6-bit fractional weight (angle & 0x3F).  16.16.
  */
-extern "C" void intsincos(int angle, int *psin, int *pcos);   /* isincos @0x800EADBC */
+extern void intsincos(int angle, int *psin, int *pcos);   /* isincos @0x800EADBC */
 
-extern "C" void fixedsincos(int angle, int *psin, int *pcos)   /* @0x800F3670 */
+extern void fixedsincos(int angle, int *psin, int *pcos)   /* @0x800F3670 */
 {
+    int s;
+    int c;
     /* MATCH: the weight polynomial is INLINE (no helper call exists in the binary --
      * the oracle has the sll/addu chain right after intsincos, andi s0 in place),
      * and the products are plain 32-bit mult/mflo (NOT a 64-bit long long widen). */
-    int s, c;
+
     int p;
     intsincos(angle >> 6, &s, &c);
     angle = angle & 0x3F;

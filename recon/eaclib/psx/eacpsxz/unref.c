@@ -21,72 +21,75 @@ extern void chase(unsigned int code);                                           
 
 /* unrefpack @0x800F52B8 : decompress RefPack stream `comp` into `out` (only if `reverse` != 0, else size-query);
  *   returns the 24-bit uncompressed size.
- * RAW/ORACLE REDUCTION (146->113): the retail body mutates the incoming compressed/output cursors
- * directly.  Removing the hdr/ip/back aliases restores the four command layouts, including the
- * literal-run fall-through and terminator branch.  Remaining residual is dominated by the saved-reg
- * cycle for the two cursor parameters plus five arithmetic/scheduling instructions. */
+ * RAW/ORACLE REDUCTION (2026-07-26, 103->43 diffs; 153/158 instructions): the retail body keeps a
+ * separate mutable byte cursor derived from `comp` while mutating the output parameter directly.
+ * That lifetime puts source in $s2 and output in $s3 and removes the whole saved-register cascade.
+ * Remaining residual is five missing output-cursor materializations plus arithmetic/prologue scheduling.
+ * Raw nfs4-f.exe E5AB8..E5D2F SHA-256:
+ * eae786e8d18c199bea647b339f069508f7294319d4855358b59db0bf234b749b. */
 extern int unrefpack(unsigned char *comp, unsigned char *out, int reverse)
 {
     int           size = 0;
     unsigned char trail[8];
+    unsigned char *src = comp;
     if (comp != (unsigned char *)0) {
         unsigned int flags = geti(comp, 4);
-        comp += 2;
+        src += 2;
         if ((flags & 1) != 0)
-            comp += 3;
-        size = (int)(((unsigned int)comp[0] << 16) +
-                     ((unsigned int)comp[1] << 8) + comp[2]);
-        comp += 3;
+            src += 3;
+        size = (int)(((unsigned int)src[0] << 16) +
+                     ((unsigned int)src[1] << 8) + src[2]);
+        src += 3;
         if (reverse != 0) {
             puti(trail, geti(out + size, 4), 4);          /* save the bytes at the splice point */
             for (;;) {
-                unsigned int op = geti(comp, 4);
+                unsigned int op = geti(src, 4);
                 if ((op & 0x80) == 0) {                   /* 2-byte command */
                     unsigned int   count;
                     int            len;
-                    comp += 2;
+                    src += 2;
                     reverse = op & 3;
-                    puti(out, geti(comp, 4), 4);
+                    puti(out, geti(src, 4), 4);
                     out += reverse;
-                    comp += reverse;
+                    src += reverse;
                     count = ((op << 3) & 0x300) + (((op >> 8) & 0xff) + 1);
                     len   = (int)(op >> 2 & 7) + 3;
                     out   = refcpy(out, count, len);
                 } else if ((op & 0x40) == 0) {            /* 3-byte command */
                     unsigned int   count;
                     int            len;
-                    comp += 3;
+                    src += 3;
                     reverse = op >> 0xe & 3;
-                    puti(out, geti(comp, 4), 4);
+                    puti(out, geti(src, 4), 4);
                     out += reverse;
-                    comp += reverse;
+                    src += reverse;
                     count = (((op >> 8) & 0x3f) << 8) + (((op >> 16) & 0xff) + 1);
                     len   = (int)(op & 0x3f) + 4;
                     out   = refcpy(out, count, len);
                 } else if ((op & 0x20) == 0) {            /* 4-byte command */
                     unsigned int   count;
                     int            len;
-                    comp += 4;
+                    src += 4;
                     reverse = op & 3;
-                    puti(out, geti(comp, 4), 4);
+                    puti(out, geti(src, 4), 4);
                     out += reverse;
-                    comp += reverse;
+                    src += reverse;
                     count = ((op << 12) & 0x10000) + ((op & 0xff00) + 1) +
                             ((op >> 16) & 0xff);
                     len   = (int)(((op << 6) & 0x300) + (op >> 24)) + 5;
                     out   = refcpy(out, count, len);
                 } else {                                  /* literal run / terminator */
-                    comp += 1;
+                    src += 1;
                     if ((op & 0xff) < 0xfc) {
                         int len = (int)((op & 0x1f) + 1) * 4;
-                        memcpyl((char *)out, (char *)comp, len);
+                        memcpyl((char *)out, (char *)src, len);
                         out = out + len;
-                        comp = comp + len;
+                        src = src + len;
                     } else {
                         reverse = op & 3;
                         for (; reverse != 0; reverse = reverse - 1) {
-                            *out = *comp;
-                            comp = comp + 1;
+                            *out = *src;
+                            src = src + 1;
                             out  = out + 1;
                         }
                         puti(out, geti(trail, 4), 4);     /* restore the saved splice bytes */

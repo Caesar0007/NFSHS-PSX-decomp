@@ -63,7 +63,11 @@ jobs:
           NFS4_CC1:      ${{ github.workspace }}/tc/toolchain/psyq/CC1PSX.EXE
           NFS4_CC1PL:    ${{ github.workspace }}/tc/toolchain/psyq/CC1PLPSX.EXE
           NFS4_MIPS_BIN: ${{ github.workspace }}/tc/toolchain/mips/bin
-          NFS4_MASPSX:   ${{ github.workspace }}/tc/toolchain/maspsx/maspsx.py
+          # maspsx is VENDORED in-repo (tools/maspsx, MIT) so CI runs the exact
+          # same patched assembler stack as the local gate (--jtbl-at-fusion +
+          # generalized .section parsing). The copy inside the toolchain zip is
+          # stale — do not point at it.
+          NFS4_MASPSX:   ${{ github.workspace }}/tools/maspsx/maspsx.py
         run: |
           python tools/build.py --out expected --no-link
           python tools/build.py --skip-asm

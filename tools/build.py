@@ -98,7 +98,7 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 # here (their explicit 5-insn form already matches and must stay untouched).
 PER_TU_FLAGS = {
     "recon/game/common/audiocmn.cpp":       {"jtbl_at_fusion": True},  # AudioCmn_SoundCar
-    "recon/syslib/psx/libcd/drv.cpp":       {"jtbl_at_fusion": True},  # CD_get_intr
+    "recon/syslib/psx/libcd/drv.c":       {"jtbl_at_fusion": True},  # CD_get_intr
     "recon/syslib/psx/libgpu/FONT.cpp":     {"jtbl_at_fusion": True},  # FntPrint
     "recon/game/common/aih_cop.cpp":        {"jtbl_at_fusion": True},  # HighExecute__10AIHigh_Cop
     "recon/game/common/aih_traf.cpp":       {"jtbl_at_fusion": True},  # HighExecute__14AIHigh_Traffic

@@ -18,7 +18,7 @@ typedef int (*CdlCB)(int intr, unsigned char *result);
 /* ---- cached HW-register pointers (driver globals, defined in asm/data @0x8013C20C..) -----------
  *   The driver caches each CD/SPU/DMA register address in a word at init; every access dereferences
  *   the cached pointer (matches the oracle's `lui %hi(D_8013Cxx); lw; sb/lbu`). */
-extern "C" {
+
 extern volatile unsigned char *D_8013C20C;   /* &CDREG0  index/status        0x1F801800 */
 extern volatile unsigned char *D_8013C210;   /* &CDREG1  command/response    0x1F801801 */
 extern volatile unsigned char *D_8013C214;   /* &CDREG2  data/parameter      0x1F801802 */
@@ -30,27 +30,27 @@ extern volatile unsigned int  *D_8013C244;   /* &DPCR  DMA control           0x1
 extern volatile unsigned int  *D_8013C248;   /* &D3_MADR  DMA3 addr          0x1F8010B0 */
 extern volatile unsigned int  *D_8013C24C;   /* &D3_BCR   DMA3 block control 0x1F8010B4 */
 extern volatile unsigned int  *D_8013C250;   /* &D3_CHCR  DMA3 channel ctrl  0x1F8010B8 */
-}
+
 #define CDREG0  (*D_8013C20C)
 #define CDREG1  (*D_8013C210)
 #define CDREG2  (*D_8013C214)
 #define CDREG3  (*D_8013C218)
 
 /* ---- externs (kernel / other libs) ----------------------------------------------------------- */
-extern "C" int  VSync(int mode);
-extern "C" int  CheckCallback(void);
-extern "C" void ResetCallback(void);
-extern "C" void InterruptCallback(int n, void (*cb)(void));
-extern "C" int  puts(const char *s);
-extern "C" int  printf(const char *fmt, ...);
+extern int  VSync(int mode);
+extern int  CheckCallback(void);
+extern void ResetCallback(void);
+extern void InterruptCallback(int n, void (*cb)(void));
+extern int  puts(const char *s);
+extern int  printf(const char *fmt, ...);
 
-extern "C" void CD_flush(void);
-extern "C" int  CD_sync(int mode, unsigned char *result);
+extern void CD_flush(void);
+extern int  CD_sync(int mode, unsigned char *result);
 
 /* ---- shared CD state globals (defined in asm/data with REGULAR .data placement -> ABSOLUTE
  *   addressing; the oracle reaches them via `lui %hi; lw/sw %lo`, NOT gp-rel, so they must be
  *   plain externs here -- a TU-local `int X=0;` def would land them in .sdata = gp-rel = mismatch). */
-extern "C" {
+
 extern int           CD_cbsync;   /* @0x8013BF48 : sync-complete callback */
 extern int           CD_cbready;  /* @0x8013BF4C : data-ready callback */
 extern int           CD_debug;    /* @0x8013BF50 : debug verbosity */
@@ -60,11 +60,12 @@ extern unsigned char CD_pos[4];   /* @0x8013BF60 : last seek location (MSF) */
 extern unsigned char CD_mode;     /* @0x8013BF64 */
 extern unsigned char CD_com;      /* @0x8013BF65 : last command */
 extern int           CD_nopen;    /* lid-open event counter */
-}
+
 
 /* The 3-byte interrupt-state struct {sync, ready, c} @0x8013C224. */
 struct CD_intr { unsigned char sync, ready, c; };
-extern "C" CD_intr D_8013C224;            /* = Intr (in asm/data .bss-ish region).
+typedef struct CD_intr CD_intr;
+extern CD_intr D_8013C224;            /* = Intr (in asm/data .bss-ish region).
                                             * DO NOT mark this `volatile` (w24-a1 tried it: shaved
                                             * 1 diff off CD_flush but REGRESSED CD_sync/CD_ready/
                                             * CD_cw/CD_datasync/_cd_intr_dispatch -- reverted, net
@@ -91,9 +92,9 @@ extern "C" CD_intr D_8013C224;            /* = Intr (in asm/data .bss-ish region
 #define Intr D_8013C224
 
 /* Per-command 8-byte response buffers (this TU OWNS these in BSS @0x8014899C..). */
-extern "C" unsigned char D_8014899C[8];   /* sync   result */
-extern "C" unsigned char D_801489A4[8];   /* ready  result */
-extern "C" unsigned char D_801489AC[8];   /* data-end (c) result */
+extern unsigned char D_8014899C[8];   /* sync   result */
+extern unsigned char D_801489A4[8];   /* ready  result */
+extern unsigned char D_801489AC[8];   /* data-end (c) result */
 unsigned char D_8014899C[8];
 unsigned char D_801489A4[8];
 unsigned char D_801489AC[8];
@@ -101,13 +102,13 @@ unsigned char D_801489AC[8];
 /* alarm/timeout state is part of the driver's fixed data block.  These need
  * external linkage so each inlined polling helper uses absolute references,
  * as in the oracle, rather than gp-relative small-BSS accesses. */
-extern "C" int          D_801489B4;       /* deadline (VSync frame) */
-extern "C" int          D_801489B8;       /* spin counter */
-extern "C" const char  *D_801489BC;       /* current op name (debug) */
+extern int          D_801489B4;       /* deadline (VSync frame) */
+extern int          D_801489B8;       /* spin counter */
+extern const char  *D_801489BC;       /* current op name (debug) */
 
 /* command-name + interrupt-name string tables (debug; in asm/data). */
-extern "C" char *CD_comstr[];             /* @ : CdlXXX names, indexed by CD_com */
-extern "C" char *CD_intstr[];             /* @ : NoIntr/DataReady/.. names, indexed by Intr.* */
+extern char *CD_comstr[];             /* @ : CdlXXX names, indexed by CD_com */
+extern char *CD_intstr[];             /* @ : NoIntr/DataReady/.. names, indexed by Intr.* */
 
 /* per-command attribute tables (data-mat: bytes live in the EXE / cdtables.cpp). */
 extern const int _cd_result_flag[];       /* @0x8013C08C : command produces a ready result? */
@@ -131,11 +132,13 @@ static inline void _memcpy8(unsigned char *dst, unsigned char *src)
         dst[i] = src[i];
 }
 
-extern "C" int _cd_get_intr(void)
+extern int _cd_get_intr(void)
 {
+    int i;
+    int j;
     unsigned char result[8];
     unsigned char nReg;
-    int i, j;
+
     int bHasError;
 
     CDREG0 = 1;
@@ -253,10 +256,10 @@ static inline void callback(void)
 }
 
 /* @0x80108680 : the registered CD interrupt handler (InterruptCallback(2, ...)). */
-extern "C" void _cd_intr_dispatch(void) { callback(); }
+extern void _cd_intr_dispatch(void) { callback(); }
 
 /* @0x801075DC : CD_sync -- wait for the command to acknowledge (mode 0 = block, else poll once). */
-extern "C" int CD_sync(int mode, unsigned char *result)
+extern int CD_sync(int mode, unsigned char *result)
 {
     int sync;
     CD_intr *intr = &Intr;
@@ -278,9 +281,11 @@ extern "C" int CD_sync(int mode, unsigned char *result)
 }
 
 /* @0x8010785C : CD_ready -- wait for a data-ready / data-end interrupt. */
-extern "C" int CD_ready(int mode, unsigned char *result)
+extern int CD_ready(int mode, unsigned char *result)
 {
-    int c, ready;
+    int c;
+    int ready;
+
     set_alarm("CD_ready");
     for (;;) {
         if (get_alarm())
@@ -305,7 +310,7 @@ extern "C" int CD_ready(int mode, unsigned char *result)
 }
 
 /* @0x80107B24 : CD_cw -- write a command (with parameters) and await the ack. */
-extern "C" int CD_cw(int com, unsigned char *param, unsigned char *result, int arg3)
+extern int CD_cw(int com, unsigned char *param, unsigned char *result, int arg3)
 {
     int i;
 
@@ -345,7 +350,7 @@ extern "C" int CD_cw(int com, unsigned char *param, unsigned char *result, int a
 }
 
 /* @0x80107F30 : CD_flush -- abort and reset the controller interrupt state. */
-extern "C" void CD_flush(void)
+extern void CD_flush(void)
 {
     CD_intr *intr;
     unsigned char c;
@@ -379,7 +384,7 @@ extern "C" void CD_flush(void)
  *   `sltiu;beqz`, +1 insn).  The `vol[]` byte inits must be `vol[0]=vol[2]=0x80` order (NOT
  *   `vol[2]=vol[0]=`) so the rightmost assignment stores offset 2 before 0, matching the
  *   oracle's `sb v0,2(sp); sb v0,0(sp)` schedule. */
-extern "C" int CD_initvol(void)
+extern int CD_initvol(void)
 {
     unsigned char vol[4];
     if (D_8013C220[0x1b8 / 2] == 0) {
@@ -404,7 +409,7 @@ extern "C" int CD_initvol(void)
 }
 
 /* @0x801080F4 : CD_initintr -- (re)install the CD interrupt callbacks. */
-extern "C" int CD_initintr(void)
+extern int CD_initintr(void)
 {
     CD_cbready = 0;
     CD_cbsync  = 0;
@@ -416,12 +421,12 @@ extern "C" int CD_initintr(void)
 }
 
 /* @0x8013C228 : the CD_init bookkeeping struct (SOTN's CD_init_struct), only its address is used. */
-extern "C" int D_8013C228;
+extern int D_8013C228;
 
 /* @0x80108140 : CD_init -- bring the CD-ROM subsystem up (nop, reset, demute).
  * NOTE: splat disambiguated this lowercase `CD_init` from the high-level `CD_Init` by appending
  * the address -> the oracle file is asm/nonmatchings/main/CD_init_80108140.s. */
-extern "C" int CD_init(void)
+extern int CD_init(void)
 {
     puts("CD_init:");
     printf("addr=%08x\n", &D_8013C228);
@@ -460,7 +465,7 @@ extern "C" int CD_init(void)
 }
 
 /* @0x80108320 : CD_datasync -- wait for the CD DMA (channel 3) to finish (mode 0 = block). */
-extern "C" int CD_datasync(int mode)
+extern int CD_datasync(int mode)
 {
     int ret;
     set_alarm("CD_datasync");
@@ -482,7 +487,7 @@ extern "C" int CD_datasync(int mode)
 }
 
 /* @0x80108488 : CD_getsector -- DMA `size` words of the current sector to `madr` (blocking). */
-extern "C" int CD_getsector(void *madr, int size)
+extern int CD_getsector(void *madr, int size)
 {
     CDREG0 = 0;
     CDREG3 = 0x80;
@@ -501,7 +506,7 @@ extern "C" int CD_getsector(void *madr, int size)
 }
 
 /* @0x80108588 : CD_getsector2 -- async variant (kick the DMA, do not wait for completion). */
-extern "C" int CD_getsector2(void *madr, int size)
+extern int CD_getsector2(void *madr, int size)
 {
     volatile int tmp;    /* oracle spills the D3_CHCR readback to a stack slot -> volatile local */
     CDREG0 = 0;
@@ -521,5 +526,5 @@ extern "C" int CD_getsector2(void *madr, int size)
 /* @0x80108674 : CD_set_test_parmnum -- patch the param-count of command 0x19 (test).
  * The original stored to &_cd_param_count[25] via a STANDALONE data symbol (splat named it
  * D_8013C1F0 @0x8013C1F0 = 0x8013C18C + 25*4) -> a direct absolute store `lui $at; sw a0,%lo($at)`. */
-extern "C" int D_8013C1F0;
-extern "C" void CD_set_test_parmnum(int n) { D_8013C1F0 = n; }
+extern int D_8013C1F0;
+extern void CD_set_test_parmnum(int n) { D_8013C1F0 = n; }

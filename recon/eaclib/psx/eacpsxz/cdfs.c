@@ -43,9 +43,10 @@
  *             keeping the active-read path positive also matches its branch layout.  This yields
  *             280 ours vs 300 oracle instructions and 158 residual diffs.  The remaining large
  *             regions are the wrong-sector retry/completion block ordering and register coloring.
- *     [FAIL]  CD_Read (198->64, unchanged this wave), loaddirinfo (133->115, unchanged this wave) --
- *             out of this wave's scope (w16-a3 already fixed the real block-order bug here; see
- *             prior-wave notes below).
+ *     [PASS]  loaddirinfo -- 139->PASS: void return, rotated entry-count loop, direct parameter
+ *             countdown reuse, reloaded filename length after memcpy, one live CD-context base,
+ *             unsigned recursive size shift, and the record advance in the loop-test delay slot.
+ *     [FAIL]  CD_Read (198->64, unchanged this wave) -- out of this wave's scope.
  *
  *   w16-a3 2026-07-19 notes (kept for history): fixed the SAME real bug in CD_Read/CdReadyHandler
  *     -- the "advance next chunk"/"complete now" if/else had INVERTED block order vs the oracle
@@ -189,7 +190,7 @@ extern void qsort(void *base, int n, int sz, int (*cmp)(const void *, const void
 
 /* ---- cdfs internal forward decls (mutually recursive CD machinery) ---- */
 extern unsigned char *readsectorB(void);                       /* @0x800FA154 */
-extern int  *loaddirinfo(int startSector, int numSectors, int maxEntries); /* @0x800FA1A8 */
+extern void loaddirinfo(int startSector, int numSectors, int maxEntries); /* @0x800FA1A8 */
 extern int   CD_Restart(int startSector);                      /* @0x800FA4A8 */
 extern void  CD_systaskfunc(void);                             /* @0x800F9AE8 */
 extern void  CdReadyHandler(int intr, unsigned char *result);  /* @0x800F9CA4 */
@@ -377,59 +378,54 @@ extern unsigned char *readsectorB(void)
  *   global directory-entry array.  Skips the "." and ".." records of the first sector; recurses into
  *   subdirectory records.  Stops when the directory's sectors run out or CD_dirEntryCount hits
  *   `maxEntries` (a budget shared across the recursion).  The return value (a fixed address) is unused. */
-extern int *loaddirinfo(int startSector, int numSectors, int maxEntries)
+extern void loaddirinfo(int startSector, int numSectors, int maxEntries)
 {
-    int            savedSector = CD_curSector;
-    int            sectorsLeft;
+    CD_ctx_t      *ctx = &CD_ctx;
+    int            limit = maxEntries;
+    int            savedSector = ctx->curSector;
     unsigned char *p;
 
-    CD_curSector = startSector;
+    ctx->curSector = startSector;
     p = readsectorB();                    /* load the directory's first sector into the cache */
-    sectorsLeft = numSectors - 1;
+    numSectors = numSectors - 1;
     p = p + p[0];                         /* skip the "." self record (record 0) */
 
-    do {                                   /* oracle jumps straight into the body -- NO top-of-loop
-                                              entry-count test; the bound is checked only at the
-                                              bottom (do-while, not while) */
-        p = p + p[0];                     /* advance to the next record (first pass: skip ".." -> rec 2) */
-
+    goto test_entry_count;
+next_entry:
         if (p[0] == 0) {                  /* zero reclen -> no more records in this sector */
-            if (sectorsLeft == 0)
-                break;
-            CD_curSector = CD_curSector + 1;
+            if (numSectors == 0)
+                goto done;
+            ctx->curSector = ctx->curSector + 1;
             p = readsectorB();            /* load the next directory sector (start at its record 0) */
-            sectorsLeft--;
+            numSectors--;
         }
 
         if ((p[0x19] & 2) != 0) {         /* flags bit1 == directory -> recurse */
             int subExtent = rd_le32(p + 2);
-            int subSize   = rd_le32(p + 10);
-            loaddirinfo(subExtent, subSize >> 0xB, maxEntries);
+            unsigned int subSize = (unsigned int)rd_le32(p + 10);
+            loaddirinfo(subExtent, subSize >> 0xB, limit);
             readsectorB();                /* recursion reused the cache -> reload our own sector */
         } else {                          /* a FILE -> append a 0x14-byte directory entry */
-            unsigned char *name    = p + 0x21;
-            int            namelen = p[0x20];
             /* the slot address (CD_dirEntryArray + CD_dirEntryCount*0x14) is RECOMPUTED at each of
              * the 4 uses below, not cached in a local -- oracle independently rematerializes
              * count*0x14+base for the memcpy, the NUL-term, the extent store, and the size store
              * (4 near-identical lw/sll/addu/lw/sll/addu blocks; verified vs the .s). */
-            memcpy((unsigned char *)CD_dirEntryArray + CD_dirEntryCount * 0x14,
-                   name, namelen - 2);                /* drop the ";1" version suffix */
-            ((unsigned char *)CD_dirEntryArray + CD_dirEntryCount * 0x14)[namelen - 2] = 0;  /* NUL-term */
-            *(int *)((unsigned char *)CD_dirEntryArray + CD_dirEntryCount * 0x14 + 0xC)
+            memcpy((unsigned char *)(ctx->dirEntryCount * 0x14 + (int)ctx->dirEntryArray),
+                   p + 0x21, p[0x20] - 2);            /* drop the ";1" version suffix */
+            ((unsigned char *)ctx->dirEntryArray + ctx->dirEntryCount * 0x14)[p[0x20] - 2] = 0;  /* NUL-term */
+            *(int *)((unsigned char *)ctx->dirEntryArray + ctx->dirEntryCount * 0x14 + 0xC)
                 = rd_le32(p + 2);                      /* extent (start sector) */
-            *(int *)((unsigned char *)CD_dirEntryArray + CD_dirEntryCount * 0x14 + 0x10)
+            *(int *)((unsigned char *)ctx->dirEntryArray + ctx->dirEntryCount * 0x14 + 0x10)
                 = rd_le32(p + 10);                     /* file size in bytes */
-            CD_dirEntryCount = CD_dirEntryCount + 1;
+            ctx->dirEntryCount = ctx->dirEntryCount + 1;
         }
-    } while (CD_dirEntryCount < maxEntries);
+test_entry_count:
+        p = p + p[0];
+        if (ctx->dirEntryCount < limit)
+            goto next_entry;
 
+done:
     CD_curSector = savedSector;
-    /* oracle epilogue (asm/nonmatchings/main/loaddirinfo.s tail): `jr ra` with NO explicit $v0 set --
-     * the return value is genuinely UNSPECIFIED (whatever $v0 held from the last executed insn); every
-     * caller (CD_Init, the recursive self-call) discards it.  Returning a real in-scope symbol instead
-     * of a fabricated bare VA keeps this a legitimate C value without affecting any caller. */
-    return (int *)CD_dirEntryArray;
 }
 
 /* dircompare @0x800FA344 : qsort/bsearch comparator -- compares the 0xC-byte names of two dir entries. */

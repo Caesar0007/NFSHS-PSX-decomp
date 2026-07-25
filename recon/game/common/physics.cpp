@@ -457,9 +457,11 @@ void Physics_CorrectPostCollisionYaw(Car_tObj *carObj,int impactVel,coorddef bar
             fixedmult(barrierVec.z,(carObj->N).shadowMat.m[2]);
     result = __builtin_abs(diffZ);
     if (__builtin_abs(diffX) < result) {
-      result = __builtin_abs(diffX);
+      result = __builtin_abs(diffX) >> 1;
     }
-    result = result >> 1;
+    else {
+      result = result >> 1;
+    }
     if (diffZ < 0) {
       if (diffX < 0) {
         result = -result;

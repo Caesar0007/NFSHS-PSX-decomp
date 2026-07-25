@@ -9,7 +9,7 @@
  */
 
 extern int           sndgs[];
-extern unsigned char  sndchanreserved[];       /* scratch list of chosen channel indices */
+extern signed char    sndchanreserved[];       /* scratch list of chosen channel indices */
 extern int           DAT_80136dec;             /* rolling allocation id counter (+=0x20)  */
 int DAT_80136dec;                              /* def (owning TU; @0x80136dec image-verified zero) */
 extern int  SNDstop(unsigned int tag);                          /* sstop  */
@@ -34,7 +34,17 @@ extern int iSNDischanreserved(int chan, int count)
  *   mask.  First takes idle channels (lowest timestamp), then -- if short -- steals the lowest-age /
  *   lowest-timestamp busy channels (stopping their current sound, rolling back on refusal).  Writes the
  *   allocation id to *out and returns the primary channel index, or -9 on failure.
- *     priority = channel-eligibility bitmask;  numChannels = voices needed;  a2 = a voice flag byte. */
+ *     priority = channel-eligibility bitmask;  numChannels = voices needed;  a2 = a voice flag byte.
+ * RAW/CROSS-VERSION REDUCTION (2026-07-26, 416->383 detailed diffs):
+ *   NFS4 PC tagged_play.c, NFS3 isnd.c, NFS2b alloc2.c and PC-beta salloc.obj all confirm the two-pass
+ *   selection/rollback/link algorithm.  The PSX oracle separately holds a bare sndgs base through each
+ *   selection pass, so block-scoped bases reproduce those lifetimes; removing a redundant outer
+ *   positive-count guard restores the raw pass-to-pass CFG; and the chosen-slot array is signed byte
+ *   storage (`-1` sentinel), recovering the oracle's literal materialization without disturbing the
+ *   exact iSNDischanreserved/iSNDgetchan neighbors.  Remaining bulk delta is dominated by one storage
+ *   decision: retail spills numChannels in a caller-saved register across reservation calls, while this
+ *   compile keeps it in $fp.  Raw nfs4-f.exe EEF64..EF40B SHA-256:
+ *   4af4cae9357cee8d5c94a064c543b15d4d1edb7a6f5d1c0d5ccd8c8f259740fc. */
 extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigned int *out)
 {
     int          reserved = 0;
@@ -49,69 +59,73 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
     if (DAT_80136dec < 0)
         DAT_80136dec = 0;
 
-    if (0 < numChannels) {
-        /* pass 1: take idle channels (state 0), preferring the oldest (lowest +0x10) */
-        for (i = 0; i < numChannels; i++) {
-            best = 0xffffffff;
-            c = 0;
-            if (SNDNUMCHAN != 0) {
-                bestval = 0xffffffff;
-                off = 0;
-                do {
-                    if ((priority & (1u << (c & 0x1f))) != 0) {
-                        int ch = sndgs[0x25] + off;
-                        if (*(char *)(ch + 0xb) == 0 &&
-                            iSNDischanreserved(c, reserved) == 0) {
-                            v = *(unsigned int *)(ch + 0x10);
-                            if (v < bestval) { best = c; bestval = v; }
-                        }
-                    }
-                    c++; off += 100;
-                } while ((int)c < (int)(unsigned)SNDNUMCHAN);
-            }
-            if (-1 < (int)best) {
-                sndchanreserved[reserved] = (unsigned char)best;
-                reserved++;
-            }
-        }
-        /* pass 2: short of channels -> steal busy ones by lowest (age, timestamp) */
-        for (k = reserved; k < numChannels; k++) {
-            unsigned char bestage = 0x66;
-            unsigned int  bestv = 0xffffffff;
-            v = 0;
-            best = 0xffffffff;
-            if (SNDNUMCHAN != 0) {
+    /* pass 1: take idle channels (state 0), preferring the oldest (lowest +0x10) */
+    {
+            unsigned char *gs = (unsigned char *)sndgs;
+            for (i = 0; i < numChannels; i++) {
+                best = 0xffffffff;
                 c = 0;
-                off = 0;
-                do {
-                    if ((priority & (1u << (c & 0x1f))) != 0 &&
-                        iSNDischanreserved(c, reserved) == 0) {
-                        int ch = sndgs[0x25] + off;
-                        if (*(unsigned char *)(ch + 0xc) < 0x65) {
-                            unsigned char age = *(unsigned char *)(ch + 0xc);
-                            if (age < bestage) {
+                if (gs[0x11] != 0) {
+                    bestval = 0xffffffff;
+                    off = 0;
+                    do {
+                        if ((priority & (1u << (c & 0x1f))) != 0) {
+                            int ch = *(int *)(gs + 0x94) + off;
+                            if (*(char *)(ch + 0xb) == 0 &&
+                                iSNDischanreserved(c, reserved) == 0) {
                                 v = *(unsigned int *)(ch + 0x10);
-                                bestage = age;
-                            } else if (age != bestage ||
-                                       (v = *(unsigned int *)(ch + 0x10), bestv <= v)) {
-                                goto next2;
+                                if (v < bestval) { best = c; bestval = v; }
                             }
-                            best = c;
-                            bestv = v;
                         }
-                    }
-                next2:
-                    c++; off += 100;
-                } while ((int)c < (int)(unsigned)SNDNUMCHAN);
-            }
-            if (-1 < (int)best) {
-                sndchanreserved[reserved] = (unsigned char)best;
-                reserved++;
-                if (numChannels <= reserved)
-                    break;
+                        c++; off += 100;
+                    } while ((int)c < (int)(unsigned)gs[0x11]);
+                }
+                if (-1 < (int)best) {
+                    sndchanreserved[reserved] = (unsigned char)best;
+                    reserved++;
+                }
             }
         }
-    }
+    /* pass 2: short of channels -> steal busy ones by lowest (age, timestamp) */
+    {
+            unsigned char *gs = (unsigned char *)sndgs;
+            for (k = reserved; k < numChannels; k++) {
+                unsigned char bestage = 0x66;
+                unsigned int  bestv = 0xffffffff;
+                v = 0;
+                best = 0xffffffff;
+                if (gs[0x11] != 0) {
+                    c = 0;
+                    off = 0;
+                    do {
+                        if ((priority & (1u << (c & 0x1f))) != 0 &&
+                            iSNDischanreserved(c, reserved) == 0) {
+                            int ch = *(int *)(gs + 0x94) + off;
+                            if (*(unsigned char *)(ch + 0xc) < 0x65) {
+                                unsigned char age = *(unsigned char *)(ch + 0xc);
+                                if (age < bestage) {
+                                    v = *(unsigned int *)(ch + 0x10);
+                                    bestage = age;
+                                } else if (age != bestage ||
+                                           (v = *(unsigned int *)(ch + 0x10), bestv <= v)) {
+                                    goto next2;
+                                }
+                                best = c;
+                                bestv = v;
+                            }
+                        }
+                    next2:
+                        c++; off += 100;
+                    } while ((int)c < (int)(unsigned)gs[0x11]);
+                }
+                if (-1 < (int)best) {
+                    sndchanreserved[reserved] = (unsigned char)best;
+                    reserved++;
+                    if (numChannels <= reserved)
+                        break;
+                }
+            }
+        }
 
     if (reserved == numChannels) {                   /* got them all -> commit */
         *out = DAT_80136dec | (int)(signed char)sndchanreserved[0];

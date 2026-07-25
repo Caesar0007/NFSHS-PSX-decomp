@@ -335,13 +335,25 @@ AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relP
      CONDITION whose two arms both reset noTurnAroundEndTime_ to 0 -- gcc2.8's cross-jump pass
      merges the byte-identical arm bodies into ONE shared store, but the branch test (and the
      nor/xori computing it) survives because branch removal is a separate optimization gcc
-     doesn't perform here. */
-  reverseDirCheck = ~(this->carObj_)->direction;
+     doesn't perform here.
+     FLOOR (w30-a2, 11 diffs/67 vs 66 insns): shape CONFIRMED -- the oracle loads
+     carObj_->direction into ONE register and reuses it for BOTH the nor(~direction) and the
+     xori(direction^1), which is why this block caches it in a local `direction` instead of
+     re-reading `(this->carObj_)->direction` twice (that re-read version was the pre-w30-a2
+     shape and produced the SAME diff count with an extra dead load); the residual now is
+     purely which physical register (v0/v1 vs the oracle's v1/v0, with the D_8011321C address
+     lui interleaved differently) the allocator/scheduler picks -- a coin-flip already covered
+     by the "declaration-scope/order noise" class, not a missing/wrong construct. */
+  {
+    int direction = (this->carObj_)->direction;
 
-  if (D_8011321C == 0) {
+    reverseDirCheck = ~direction;
 
-    reverseDirCheck = (this->carObj_)->direction ^ 1;
+    if (D_8011321C == 0) {
 
+      reverseDirCheck = direction ^ 1;
+
+    }
   }
 
   if (reverseDirCheck) {
@@ -1807,6 +1819,19 @@ AIState_Offroad::AIState_Offroad(Car_tObj *carObj,int startSlice,coorddef *posit
 
 
 /* ---- UnleashIfInRange__15AIState_OffroadP8Car_tObj  AIState_Offroad::UnleashIfInRange  [AISTATE.CPP:926-936] SLD-VERIFIED ---- */
+/* FLOOR (w30-a2, 9 diffs/29 vs 30 insns): C shape is CONFIRMED correct (the nested
+   if(release<0x140000){if(distAbs<0x140000)}else{if(distAbs<release)} matches the oracle's
+   own control-flow exactly -- both branches set the SAME final field, no extra/missing
+   logic). Residual is a pure allocator/scheduler tie-break on the SHARED constant 0x140000:
+   the oracle reloads it TWICE into two different regs (v0 then v1, one per branch) and uses
+   a beqz(taken=default/else, computed in the branch delay slot)/fallthrough(then,recompute)
+   layout; every C reshape tried here (shared "cond" local pre/post branch, direct literal at
+   both use sites, inverted polarity outer test) reproduces the SAME logic but lands gcc on a
+   DIFFERENT register/constant-fold choice each time (one variant even strength-reduces via
+   the classic x>=C -> (C-1)<x trick). Tried and reverted: shared "cond" local (12-14 diffs,
+   worse), direct-literal both sites (14 diffs, worse), swapped if/else polarity (12 diffs,
+   worse) -- this nested-if-with-cmp-local form is the closest found. Permuter candidate
+   (not run this session -- job budget spent on the mandatory rule-8 reconstructions). */
 
 void AIState_Offroad::UnleashIfInRange(Car_tObj *car)
 
@@ -2053,10 +2078,17 @@ AIState_Purgatory::AIState_Purgatory(Car_tObj *carObj)
 /* reconstructed as extern "C" ___17AIState_Purgatory(AIState_Purgatory*,int) free fn -- see
    AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle); __in_chrg
    is now a real usable param (was previously unreachable/removed from a true member dtor).
-   WALL (register-coloring near-miss, 79 diffs 69/72 insns) -- same root symptom as the
-   AIState_Offroad dtor (see its WALL comment): oracle copies pThis a0->a3 up front (this
-   fn's bigger body needs a3 not a2, one more caller-saved reg already in play), ours keeps
-   pThis in a0. Same gcc-2.x allocator coin-flip; documented near-miss. */
+   WALL (register-coloring near-miss) -- same root symptom as the AIState_Offroad dtor (see
+   its WALL comment): oracle copies pThis a0->a3 up front (this fn's bigger body needs a3 not
+   a2, one more caller-saved reg already in play), ours keeps pThis in a0. Same gcc-2.x
+   allocator coin-flip; documented near-miss.
+   [w30-a2 re-gate, baselines moved per wave-30 note 1: now 14 diffs/72 insns, both sides --
+   someone closed most of the original 79-diff gap since this comment was written; comment
+   left/updated rather than deleted since the residual symptom is unchanged. FLOOR confirmed
+   again this session: the `iVar2 = Cars_gNumCars-1` reverse-scan loop index lands in a2 (ours)
+   vs a0 (oracle) -- a0 is free right after the `pThis` a0->a3 copy on both sides, oracle's
+   allocator just prefers the lowest-numbered free temp, ours doesn't; same coin-flip class,
+   not a shape bug. */
 
 extern "C" void ___17AIState_Purgatory(AIState_Purgatory *pThis,int __in_chrg)
 
@@ -2155,6 +2187,13 @@ LOOP_800716DC:
 
 
 /* ---- TestForRelease__17AIState_Purgatory  AIState_Purgatory::TestForRelease  [AISTATE.CPP:1048-1063] SLD-VERIFIED ---- */
+/* FLOOR (w30-a2, 27 diffs/32 vs 31 insns): control flow + every field/global access already
+   matches the oracle 1:1 (same globals, same offsets, same 2 branches); residual is a
+   register-color/scheduling cluster around `pCVar2`(carObj_ ptr, t0 vs a3), `trafficInWorld`
+   and `Cars_gNumTrafficCars` (a0/a1 swap) that persists identically whether `trafficInWorld`
+   is computed before or after `iVar1` (both orders tried this session, byte-identical 27-diff
+   result -- GCC's scheduler reorders the straight-line block independent of source order
+   here, so this is allocator territory, not a statement-order bug). */
 
 int AIState_Purgatory::TestForRelease()
 
@@ -2671,6 +2710,17 @@ extern "C" void ___14AIState_Donuts(AIState_Donuts *pThis,int __in_chrg)
 
 
 /* ---- Execute__14AIState_Donuts  AIState_Donuts::Execute  [AISTATE.CPP:1256-1334] SLD-VERIFIED ---- */
+/* NOT a floor -- undocumented big FAIL (w30-a2 re-gate: 270 diffs/313 vs 319 insns), left
+   unattempted this session (budget went to the mandatory rule-8 reconstructions + smaller
+   near-misses). LEAD for a future pass: the diff's opening cluster is the FIRST orientMat/
+   roadMatrix.m[6]/256 dot-product term (lines ~2740-2744 below) -- the oracle INTERLEAVES the
+   two operands' load+bgez+addiu+sra (load both /256 dividends, sra both) before the mult,
+   whereas our "three separate accumulating statements" shape (the comment 3 lines below this
+   one, verified for a LATER occurrence in this same function) finishes one /256 division
+   completely before starting the next load. Try the SAME single-combined-expression form used
+   at cpp:2774-2778 (`(a/256)*(b/256)` inline, not split into named locals) for this first
+   occurrence too, then re-diff -- likely a large chunk of the 270 diffs is this one pattern
+   repeated across the function's several dot-product sites, not 270 independent bugs. */
 
 void AIState_Donuts::Execute()
 
@@ -3003,6 +3053,13 @@ AIState_GotoSlice::AIState_GotoSlice(Car_tObj *carObj,int targetSlice,int stopWh
 
 
 /* ---- Execute__17AIState_GotoSlice  AIState_GotoSlice::Execute  [AISTATE.CPP:1355-1388] SLD-VERIFIED ---- */
+/* FLOOR (w30-a2, 28 diffs/70 vs 70 insns): shape CONFIRMED -- the if/else-if cap-selection
+   ladder and the sign-aware clamp both match the oracle's control flow exactly. The whole
+   diff is ONE allocator decision cascading: `cap` lives in a3 (ours) vs a0 (oracle) across
+   the if-elseif chain, which then pushes `speed`/the clamp temp into the other's slot for the
+   rest of the function (every diffed line downstream is the same a2<->a3 swap). a0 is free
+   after `distMeters = AIWorld_ApxSplineDistance(...)` on both sides; oracle's allocator picks
+   it for `cap`, ours doesn't. Coin-flip, not a missing/wrong construct. */
 
 void AIState_GotoSlice::Execute()
 

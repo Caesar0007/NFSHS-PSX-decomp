@@ -257,12 +257,6 @@ int Anim_GetRotPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,ma
 int Anim_GetPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,int *animTicks,
               int *animLength)
 {
-  Anim_tFrame*animFrames;
-  int animInd0;
-  int animInd1;
-  coorddef objcp0;
-  coorddef objcp1;
-  int interval;
   int iVar1;
   int *piVar2;
   int iVar3;
@@ -270,7 +264,7 @@ int Anim_GetPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,int *
   int iVar5;
   coorddef local_38;
   coorddef local_28;
-  
+
   if ((u_short)animInst->interval - 1 < 400) {
     iVar4 = (int)animInst->interval;
   }

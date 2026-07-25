@@ -11,15 +11,17 @@
  *     Y:  [ c  0 -s ; 0  1  0 ; s  0  c ]
  *     Z:  [ c  s  0 ;-s  c  0 ; 0  0  1 ]
  */
-#include "../../../nfs4_types.h"
+typedef struct matrixtdef { int m[9]; } matrixtdef;   /* local C-lane mirror of nfs4_types.h matrixtdef (pad.c precedent) */
 
-extern "C" void intsincos  (int angle, int *psin, int *pcos);   /* @0x800EADBC (integer angle) */
-extern "C" void fixedsincos(int angle, int *psin, int *pcos);   /* @0x800F3670 (fixed angle)   */
+extern void intsincos  (int angle, int *psin, int *pcos);   /* @0x800EADBC (integer angle) */
+extern void fixedsincos(int angle, int *psin, int *pcos);   /* @0x800F3670 (fixed angle)   */
 
 /* xformy @0x800E5AC4 : Y-axis rotation (integer angle). */
-extern "C" void xformy(matrixtdef *out, int angle)
+extern void xformy(matrixtdef *out, int angle)
 {
-    int s, c;
+    int s;
+    int c;
+
     intsincos(angle, &s, &c);
     /* index out->m[] directly (NOT via an `int *m=out->m` hoist): the hoist makes
      * gcc-2.8.0 reload `c` from the stack for the 2nd use; direct indexing keeps
@@ -30,9 +32,11 @@ extern "C" void xformy(matrixtdef *out, int angle)
 }
 
 /* fixedxformx @0x800EABAC : X-axis rotation (fixed angle). */
-extern "C" void fixedxformx(matrixtdef *out, int angle)
+extern void fixedxformx(matrixtdef *out, int angle)
 {
-    int s, c;
+    int s;
+    int c;
+
     fixedsincos(angle, &s, &c);
     /* direct out->m[] index (no `int *m` hoist) -- keeps c/s register-live (lever #1) */
     out->m[0] = 0x10000;  out->m[1] = 0;   out->m[2] = 0;
@@ -41,9 +45,11 @@ extern "C" void fixedxformx(matrixtdef *out, int angle)
 }
 
 /* fixedxformy @0x800EAC10 : Y-axis rotation (fixed angle). */
-extern "C" void fixedxformy(matrixtdef *out, int angle)
+extern void fixedxformy(matrixtdef *out, int angle)
 {
-    int s, c;
+    int s;
+    int c;
+
     fixedsincos(angle, &s, &c);
     /* direct out->m[] index (no `int *m` hoist) -- keeps c/s register-live (lever #1) */
     out->m[0] = c;  out->m[1] = 0;        out->m[2] = -s;
@@ -52,9 +58,11 @@ extern "C" void fixedxformy(matrixtdef *out, int angle)
 }
 
 /* fixedxformz @0x800EAC74 : Z-axis rotation (fixed angle). */
-extern "C" void fixedxformz(matrixtdef *out, int angle)
+extern void fixedxformz(matrixtdef *out, int angle)
 {
-    int s, c;
+    int s;
+    int c;
+
     fixedsincos(angle, &s, &c);
     /* direct out->m[] index (no `int *m` hoist) -- keeps c/s register-live (lever #1) */
     out->m[0] = c;   out->m[1] = s;  out->m[2] = 0;

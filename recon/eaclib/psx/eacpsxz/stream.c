@@ -976,19 +976,28 @@ extern unsigned int STREAM_queuemem(int s, int blocklist, void *ptr, int len)
  *       negated guard) compiles the opposite layout (branch-if-queued jumps away to freerequest,
  *       active code falls through). Restructured to `if (state == 1) freerequest(...); else
  *       { ...active...; goto reclaim; }` to match the oracle's block order.
- * RESIDUAL FLOOR (144 diffs): the reclaim-region register coloring (`s7`/`fp` vs oracle's naming, the
- *   consumer-sweep temps) is a deep multi-variable allocator tie-break across ~8 saved registers: not
- *   pursued further this wave (see follow-up flag / future session). */
+ * Later raw/oracle trace (2026-07-26) reduced the detailed residual 144->61:
+ *   - return validatehandle's actual nonzero status instead of materializing a new literal 1;
+ *   - fall through into the in-place free sweep and branch to the drain sweep, matching raw CFG;
+ *   - call STREAM_get with its one meaningful argument (the untouched a1/a2 values are incidental);
+ *   - reuse escaped out[1] as the consumer stack slot, pre-shift the consumer tag once, and reuse
+ *     the same `sr` local for both CP0 critical sections;
+ *   - express the drain pass as a guarded do-while, reproducing the oracle's separate initial and
+ *     loop-back inbetween tests.
+ * The remaining 61 diffs are concentrated in the request-state constant allocation and the
+ * saved-register naming of the three ring boundaries; the reconstructed control flow is now aligned. */
 extern int STREAM_cancelrequest(int s, int reqid)
 {
     int out[2];
     int ret;
+    int valid;
     int req;
     int *s4, *s6, *s7;
     int sr;
 
-    if (validatehandle(s, &out[0], &out[1]) != 0)
-        return 1;
+    valid = validatehandle(s, &out[0], &out[1]);
+    if (valid != 0)
+        return valid;
 
     sr = STREAM_enterCS();
     req = func_800FC4E4(out[0], reqid);
@@ -1025,37 +1034,38 @@ reclaim:
         int ci = 0;
         if (MI(out[0], 0x1c) > 0) {
             do {
-                int cons = MI(out[0], 0x18) + ci * 0x10;
-                if (MI(cons, 8) > 0) {
-                    unsigned int u2 = inbetween((unsigned int)s7, (unsigned int)s4, MU(cons, 0xc));
-                    if (u2 == 0) {                   /* consumer head is before this request -> drain it */
-                        unsigned int pos = MU(cons, 0xc);
-                        int *p;
-                        while ((p = s6, inbetween((unsigned int)s4, (unsigned int)s6, pos) != 0)) {
-                            ret = STREAM_get(cons, p, pos);
-                            STREAM_release(cons, ret);
-                            if (MI(cons, 8) < 1)
-                                break;
-                            pos = MU(cons, 0xc);
-                        }
-                    } else {                         /* free this request's own chunks in place */
-                        int rstate = MI(cons, 4);
+                out[1] = MI(out[0], 0x18) + ci * 0x10;
+                if (MI(out[1], 8) > 0) {
+                    unsigned int u2 = inbetween((unsigned int)s7, (unsigned int)s4, MU(out[1], 0xc));
+                    if (u2 != 0) {                   /* free this request's own chunks in place */
+                        unsigned int rstate = (unsigned int)MI(out[1], 4) << 0x18;
                         int *p = s4;
                         while (p != s6) {
                             if (p[0] == -1) {
                                 p = *(int **)(out[0] + 0x20);   /* wrap */
                             } else {
                                 unsigned int len = p[1] & 0xffffff;
-                                if ((unsigned int)(p[1] & 0xff000000) == (unsigned int)(rstate << 0x18)) {
-                                    int sr2 = STREAM_enterCS();
-                                    MI(cons, 8) -= len;
-                                    STREAM_leaveCS(sr2);
+                                if ((unsigned int)(p[1] & 0xff000000) == rstate) {
+                                    sr = STREAM_enterCS();
+                                    MI(out[1], 8) -= len;
+                                    STREAM_leaveCS(sr);
                                     decbufferusage(out[0], len);
                                     p[0] = -2;
                                     p[1] = len;
                                 }
                                 p = (int *)((int)p + len);
                             }
+                        }
+                    } else {                         /* consumer head is before this request -> drain it */
+                        unsigned int pos = MU(out[1], 0xc);
+                        if (inbetween((unsigned int)s4, (unsigned int)s6, pos) != 0) {
+                            do {
+                                ret = ((int (*)(int))STREAM_get)(out[1]);
+                                STREAM_release(out[1], ret);
+                                if (MI(out[1], 8) < 1)
+                                    break;
+                                pos = MU(out[1], 0xc);
+                            } while (inbetween((unsigned int)s4, (unsigned int)s6, pos) != 0);
                         }
                     }
                 }

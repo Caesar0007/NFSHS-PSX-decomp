@@ -18,74 +18,74 @@
  *   ChooseSentence's dropped-arg calls recovered from disasm; SetPreLoadTicks' `this` is the tick value.
  */
 
-extern "C" short          ispch_gChoice[];     /* short[6]/phrase choice records */
-extern "C" unsigned char  ispch_gPickSamples[]; /* chosen sample-index pool; MATCH: unsized-array -> separate-temp addr load */
-extern "C" int            gSentenceChoice[];   /* @0x8014843C saved chosen sentence ptr; [0..2]=choice/40/44 (== old
+extern short          ispch_gChoice[];     /* short[6]/phrase choice records */
+extern unsigned char  ispch_gPickSamples[]; /* chosen sample-index pool; MATCH: unsized-array -> separate-temp addr load */
+extern int            gSentenceChoice[];   /* @0x8014843C saved chosen sentence ptr; [0..2]=choice/40/44 (== old
                                                  * DAT_80148440/44), [4..15]=eventArgs (== old DAT_8014844c) --
                                                  * read via gSentenceChoice[N] everywhere so it shares gSentenceChoice[0]'s
                                                  * already-materialized base, matching the oracle (see PlayChosen). */
-extern "C" int            DAT_80148448[];      /* "one chosen" flag */
+extern int            DAT_80148448[];      /* "one chosen" flag */
 
-extern "C" int  gVoxBanks[];      /* spchbank (array decl -> separate-temp loads) */
-extern "C" int  gDataRate[];      /* spchinit */
-extern "C" int  gSampleRequest;   /* spchinit (callback) */
-extern "C" int  gSentenceRuleSet; /* spchinit (callback) */
-extern "C" int  gVoxInGame[];     /* spchinit; [1] aliases gRepeatCount@+4 */
-extern "C" int  gRepeatCount;     /* spchinit (== gVoxInGame[1]) */
-extern "C" int  gFilterSetting;   /* spchevnt-shared */
-extern "C" int  DAT_80148064;     /* spchevnt "kept 'd' event" flag */
-extern "C" int  gPreLoadTicks[];  /* spchevnt-shared */
-extern "C" int  gClearCycle;      /* @0x801370BC "cycle-bit clearing enabled" flag (init val 1);
+extern int  gVoxBanks[];      /* spchbank (array decl -> separate-temp loads) */
+extern int  gDataRate[];      /* spchinit */
+extern int  gSampleRequest;   /* spchinit (callback) */
+extern int  gSentenceRuleSet; /* spchinit (callback) */
+extern int  gVoxInGame[];     /* spchinit; [1] aliases gRepeatCount@+4 */
+extern int  gRepeatCount;     /* spchinit (== gVoxInGame[1]) */
+extern int  gFilterSetting;   /* spchevnt-shared */
+extern int  DAT_80148064;     /* spchevnt "kept 'd' event" flag */
+extern int  gPreLoadTicks[];  /* spchevnt-shared */
+extern int  gClearCycle;      /* @0x801370BC "cycle-bit clearing enabled" flag (init val 1);
                                     * data-materialized right next to gNumBanks in the spchbank data
                                     * block but not yet given a home TU -- HEADER WISH: belongs in
                                     * spchbank.c or spchinit.c alongside its neighbors, out of this
                                     * file's scope. */
 
-extern "C" int  iSPCH_GetMatchValue(int base, int index);                 /* spchdata */
-extern "C" int  VoxSentence_GetNumPhrases(int sentence);                  /* spchdata */
-extern "C" int  VoxSentence_GetShortRule(int sentence);                   /* spchdata */
-extern "C" int  iSPCH_GetOffset8(int base, int tableBase, int index);     /* spchdata */
-extern "C" int  iSPCH_GetOffset16(int base, int tableBase, int index);    /* spchdata */
-extern "C" int  VoxEvent_GetFilterLengthFlag(int e);                      /* spchdata */
-extern "C" int  iSPCH_FindBank(int key);                                  /* spchbank (returns bank index) */
-extern "C" unsigned int iSPCH_TestSubBankBounds(int bankIdx, int subIdx); /* spchbank */
-extern "C" int  iSPCH_UnPackSample(int bank, unsigned int sampleIdx, int *out); /* spchsamp */
-extern "C" int  iSPCH_Rand(int n);                                        /* spchrand */
-extern "C" unsigned int iSPCH_GetRuleID(int sentence, int index);         /* spchrule */
-extern "C" void iSPCH_RuleSet(short *sentence, int rule, int val);        /* spchrule */
-extern "C" unsigned int iSPCH_CheckSentenceRules(int a, int b, int c);    /* spchrule */
-extern "C" void iSPCH_GetRuleSettings(short *sentence, int *values, char *out); /* spchrule */
-extern "C" int  iSPCH_FindEvent(unsigned int eventID);                    /* spchevnt */
-extern "C" int  GetFilterLength(void);                                    /* spchevnt */
-extern "C" void trap(unsigned int code);
+extern int  iSPCH_GetMatchValue(int base, int index);                 /* spchdata */
+extern int  VoxSentence_GetNumPhrases(int sentence);                  /* spchdata */
+extern int  VoxSentence_GetShortRule(int sentence);                   /* spchdata */
+extern int  iSPCH_GetOffset8(int base, int tableBase, int index);     /* spchdata */
+extern int  iSPCH_GetOffset16(int base, int tableBase, int index);    /* spchdata */
+extern int  VoxEvent_GetFilterLengthFlag(int e);                      /* spchdata */
+extern int  iSPCH_FindBank(int key);                                  /* spchbank (returns bank index) */
+extern unsigned int iSPCH_TestSubBankBounds(int bankIdx, int subIdx); /* spchbank */
+extern int  iSPCH_UnPackSample(int bank, unsigned int sampleIdx, int *out); /* spchsamp */
+extern int  iSPCH_Rand(int n);                                        /* spchrand */
+extern unsigned int iSPCH_GetRuleID(int sentence, int index);         /* spchrule */
+extern void iSPCH_RuleSet(short *sentence, int rule, int val);        /* spchrule */
+extern unsigned int iSPCH_CheckSentenceRules(int a, int b, int c);    /* spchrule */
+extern void iSPCH_GetRuleSettings(short *sentence, int *values, char *out); /* spchrule */
+extern int  iSPCH_FindEvent(unsigned int eventID);                    /* spchevnt */
+extern int  GetFilterLength(void);                                    /* spchevnt */
+extern void trap(unsigned int code);
 
-extern "C" int  iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int paramTable); /* @0x8010077C : bankIdx UNUSED */
-extern "C" unsigned int iSPCH_GetPhraseBank(short *phraseTemplate, int paramTable, short *outChoice); /* @0x80100880 */
-extern "C" int  iSPCH_GetBankBits(int bank);                              /* @0x80100994 */
-extern "C" unsigned char *iSPCH_ClearCycleBit(int bank, int cycle);      /* @0x801009B8 */
-extern "C" unsigned int iSPCH_CheckBankBit(int bank, int cycle);         /* @0x80100A1C */
-extern "C" unsigned int iSPCH_CheckTemplateSample(int choice, int bank, int base); /* @0x80100A70 */
-extern "C" unsigned int iSPCH_SampleExists(int choice, int bankPtr, int bank); /* @0x80100AC0 */
-extern "C" int  iSPCH_ChooseSamples(short *choice, int maxToPick, int phraseTemplate, int unused); /* @0x80100B4C */
-extern "C" int  iSPCH_SampleLength(short *choice);                        /* @0x80100C5C */
-extern "C" int  iSPCH_ConvertTime(int samples);                          /* @0x80100CC4 */
-extern "C" int  iSPCH_SentenceLength(int sentence);                      /* @0x80100D20 */
-extern "C" unsigned char *iSPCH_OrderSentences(int event, int outOrder); /* @0x80100D94 */
-extern "C" unsigned int iSPCH_RepeatEvent(unsigned short *eventArgs);    /* @0x80100EE0 */
-extern "C" int  iSPCH_ShortRuleStatus(int sentence, int mode);           /* @0x80100F24 */
-extern "C" int  iSPCH_SentenceGetChoices(int sentence, int paramTable, unsigned int ruleByte1, unsigned int ruleByte2, int filterMode); /* @0x80100F8C */
-extern "C" void iSPCH_RandomizeSentencePicks(int sentence);             /* @0x801010CC */
-extern "C" int  iSPCH_IterateChoice(int sentence);                      /* @0x801011AC : returns 1 if the odometer is exhausted (Ghidra void-bug: real return, read at epilogue) */
-extern "C" int  iSPCH_ChooseShortSentence(int sentence);               /* @0x8010125C */
-extern "C" int  iSPCH_SentenceMakeChoice(int sentence, int mode);      /* @0x80101310 */
-extern "C" void iSPCH_ConstantRuleSet(short *sentence, int rule, int val); /* @0x801013BC */
-extern "C" int  iSPCH_MakeSampleRequests(int sentence, int paramTable); /* @0x80101508 */
-extern "C" void iSPCH_ClearChosen(void);                               /* @0x80101650 */
-extern "C" int  iSPCH_SaveChosenSentence(int sentence, int paramTable, int ruleCtx, int *eventArgs); /* @0x8010165C */
-extern "C" int  iSPCH_OneChosen(void);                                 /* @0x801016A4 */
-extern "C" void iSPCH_PlayChosen(void);                                /* @0x801016B4 */
-extern "C" int  iSPCH_ChooseSentence(unsigned int *eventArgs);         /* @0x80101754 */
-extern "C" void SPCH_SetPreLoadTicks(int ticks);                       /* @0x801018F4 */
+extern int  iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int paramTable); /* @0x8010077C : bankIdx UNUSED */
+extern unsigned int iSPCH_GetPhraseBank(short *phraseTemplate, int paramTable, short *outChoice); /* @0x80100880 */
+extern int  iSPCH_GetBankBits(int bank);                              /* @0x80100994 */
+extern unsigned char *iSPCH_ClearCycleBit(int bank, int cycle);      /* @0x801009B8 */
+extern unsigned int iSPCH_CheckBankBit(int bank, int cycle);         /* @0x80100A1C */
+extern unsigned int iSPCH_CheckTemplateSample(int choice, int bank, int base); /* @0x80100A70 */
+extern unsigned int iSPCH_SampleExists(int choice, int bankPtr, int bank); /* @0x80100AC0 */
+extern int  iSPCH_ChooseSamples(short *choice, int maxToPick, int phraseTemplate, int unused); /* @0x80100B4C */
+extern int  iSPCH_SampleLength(short *choice);                        /* @0x80100C5C */
+extern int  iSPCH_ConvertTime(int samples);                          /* @0x80100CC4 */
+extern int  iSPCH_SentenceLength(int sentence);                      /* @0x80100D20 */
+extern unsigned char *iSPCH_OrderSentences(int event, int outOrder); /* @0x80100D94 */
+extern unsigned int iSPCH_RepeatEvent(unsigned short *eventArgs);    /* @0x80100EE0 */
+extern int  iSPCH_ShortRuleStatus(int sentence, int mode);           /* @0x80100F24 */
+extern int  iSPCH_SentenceGetChoices(int sentence, int paramTable, unsigned int ruleByte1, unsigned int ruleByte2, int filterMode); /* @0x80100F8C */
+extern void iSPCH_RandomizeSentencePicks(int sentence);             /* @0x801010CC */
+extern int  iSPCH_IterateChoice(int sentence);                      /* @0x801011AC : returns 1 if the odometer is exhausted (Ghidra void-bug: real return, read at epilogue) */
+extern int  iSPCH_ChooseShortSentence(int sentence);               /* @0x8010125C */
+extern int  iSPCH_SentenceMakeChoice(int sentence, int mode);      /* @0x80101310 */
+extern void iSPCH_ConstantRuleSet(short *sentence, int rule, int val); /* @0x801013BC */
+extern int  iSPCH_MakeSampleRequests(int sentence, int paramTable); /* @0x80101508 */
+extern void iSPCH_ClearChosen(void);                               /* @0x80101650 */
+extern int  iSPCH_SaveChosenSentence(int sentence, int paramTable, int ruleCtx, int *eventArgs); /* @0x8010165C */
+extern int  iSPCH_OneChosen(void);                                 /* @0x801016A4 */
+extern void iSPCH_PlayChosen(void);                                /* @0x801016B4 */
+extern int  iSPCH_ChooseSentence(unsigned int *eventArgs);         /* @0x80101754 */
+extern void SPCH_SetPreLoadTicks(int ticks);                       /* @0x801018F4 */
 
 #define CHOICE(n)  (ispch_gChoice + (n) * 6)
 #define PICK(i)    (ispch_gPickSamples[i])
@@ -99,7 +99,7 @@ extern "C" void SPCH_SetPreLoadTicks(int ticks);                       /* @0x801
  *   read *(phraseTemplate+i+4), computed and ANDed in the GetMatchValue jal's delay slot (so it's the
  *   PRE-CALL value, not derived from the call's return -- the earlier recon wrongly took lowNib from
  *   matchVal's low nibble AND wrongly read count/cycleByte off the swapped bank/sample roles). */
-extern "C" int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int paramTable)
+extern int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int paramTable)
 {
     int count = (int)*(signed char *)(phraseTemplate + 3);
     int result = 1;
@@ -113,9 +113,10 @@ extern "C" int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, in
                 if (0x1f < cycleByte)
                     break;
                 {
+                    int matchVal;
                     unsigned int bit      = 1u << (cycleByte);
                     int          lowNib   = (int)*(unsigned char *)(phraseTemplate + i + 4) & 0xf;
-                    int          matchVal = iSPCH_GetMatchValue(phraseTemplate, i);
+                    matchVal = iSPCH_GetMatchValue(phraseTemplate, i);
                     if ((bit & (unsigned int)matchVal) != 0 &&
                         (lowNib == 0 ||
                          (bit & (unsigned int)*(int *)(lowNib * 4 + paramTable)) != 0))
@@ -133,7 +134,7 @@ extern "C" int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, in
 
 /* iSPCH_GetPhraseBank @0x80100880 : resolve a phrase template's bank choice (fixed / by-param / sub-bank)
  *   into outChoice[0..1].  Returns 0 on success, nonzero (sign of ~choice) on failure. */
-extern "C" unsigned int iSPCH_GetPhraseBank(short *phraseTemplate, int paramTable, short *outChoice)
+extern unsigned int iSPCH_GetPhraseBank(short *phraseTemplate, int paramTable, short *outChoice)
 {
     unsigned short wanted = *(unsigned short *)phraseTemplate;
     unsigned int   flags  = *(unsigned char *)(phraseTemplate + 1);
@@ -180,7 +181,7 @@ done:
 
 /* iSPCH_GetBankBits @0x80100994 : address of a bank's cycle-bits array (after its sample table).
  * MATCH: in-place dead-ptr: bank+=8 forces oracle's addiu a0,a0,8; addu v0,a0,mflo */
-extern "C" int iSPCH_GetBankBits(int bank)
+extern int iSPCH_GetBankBits(int bank)
 {
     int stride = ((int)*(unsigned char *)(bank + 2) & 0xf) + 2;
     int nSamp  = (int)(unsigned int)*(unsigned char *)(bank + 3);
@@ -189,7 +190,7 @@ extern "C" int iSPCH_GetBankBits(int bank)
 }
 
 /* iSPCH_ClearCycleBit @0x801009B8 : clear cycle bit `cycle` in `bank`'s bits array; returns the byte ptr. */
-extern "C" unsigned char *iSPCH_ClearCycleBit(int bank, int cycle)
+extern unsigned char *iSPCH_ClearCycleBit(int bank, int cycle)
 {
     int            r = cycle;
     int            off;
@@ -208,7 +209,7 @@ extern "C" unsigned char *iSPCH_ClearCycleBit(int bank, int cycle)
 }
 
 /* iSPCH_CheckBankBit @0x80100A1C : test cycle bit `cycle` in `bank`'s bits array. */
-extern "C" unsigned int iSPCH_CheckBankBit(int bank, int cycle)
+extern unsigned int iSPCH_CheckBankBit(int bank, int cycle)
 {
     int byteIdx = cycle / 8;   /* MATCH: plain signed /8 -> gcc's bgez/+7/sra COPY form (cycle stays $a1) */
     unsigned int bit = 1 << (cycle - (byteIdx << 3));
@@ -217,7 +218,7 @@ extern "C" unsigned int iSPCH_CheckBankBit(int bank, int cycle)
 }
 
 /* iSPCH_CheckTemplateSample @0x80100A70 : whether choice's template sample bit is set for this bank. */
-extern "C" unsigned int iSPCH_CheckTemplateSample(int choice, int bank, int base)
+extern unsigned int iSPCH_CheckTemplateSample(int choice, int bank, int base)
 {
     unsigned int result = 0;
     if ((int)(unsigned int)*(unsigned short *)(bank + 6) > (int)*(short *)(choice + 2))
@@ -227,7 +228,7 @@ extern "C" unsigned int iSPCH_CheckTemplateSample(int choice, int bank, int base
 }
 
 /* iSPCH_SampleExists @0x80100AC0 : whether sample `bank` of `choice` is present (template + cycle checks). */
-extern "C" unsigned int iSPCH_SampleExists(int choice, int bankPtr, int bank)
+extern unsigned int iSPCH_SampleExists(int choice, int bankPtr, int bank)
 {
     unsigned int result = 1;
     if ((int)(unsigned int)*(unsigned char *)(bankPtr + 3) < bank) {
@@ -243,7 +244,7 @@ extern "C" unsigned int iSPCH_SampleExists(int choice, int bankPtr, int bank)
 
 /* iSPCH_ChooseSamples @0x80100B4C : collect up to `maxToPick` matching sample indices for `choice` into the
  *   pick pool, returning the count chosen. */
-extern "C" int iSPCH_ChooseSamples(short *choice, int maxToPick, volatile int phraseTemplate, volatile int unused)
+extern int iSPCH_ChooseSamples(short *choice, int maxToPick, volatile int phraseTemplate, volatile int unused)
 {
     int           sampleIdx = 0;
     int           bankIdx   = *choice;
@@ -254,7 +255,8 @@ extern "C" int iSPCH_ChooseSamples(short *choice, int maxToPick, volatile int ph
     int           tmp[4];
     if (nSamples != 0) {
         do {
-            int r = iSPCH_UnPackSample(bank, sampleIdx, tmp);
+            int r;
+            r = iSPCH_UnPackSample(bank, sampleIdx, tmp);
             if (r != 0 &&
                 iSPCH_MatchSample(bankIdx, (int)tmp, phraseTemplate, unused) != 0) {
                 if (iSPCH_SampleExists((int)choice, bank, (int)sampleIdx) != 0) {
@@ -272,8 +274,10 @@ extern "C" int iSPCH_ChooseSamples(short *choice, int maxToPick, volatile int ph
 }
 
 /* iSPCH_SampleLength @0x80100C5C : sample-data length (in samples) of the current pick of `choice`. */
-extern "C" int iSPCH_SampleLength(short *choice)
+extern int iSPCH_SampleLength(short *choice)
 {
+    int bank;
+    int r;
     int tmp[4];
     /* residual 10: ours colors the pick-byte chain base->a1/idx->v0 (la lands in the lbu-arg reg),
      * oracle idx->a1/base->v0; fresh-sum/inline/anonymous-chain reshapes all score worse (14/16/22) */
@@ -281,15 +285,15 @@ extern "C" int iSPCH_SampleLength(short *choice)
     int voxBase = gVoxBanks[0];
     int len = 0;
     pickAddr = pickAddr + choice[4];
-    int bank = *(int *)(*choice * 4 + voxBase);
-    int r = iSPCH_UnPackSample(bank, (unsigned int)*pickAddr, tmp);
+    bank = *(int *)(*choice * 4 + voxBase);
+    r = iSPCH_UnPackSample(bank, (unsigned int)*pickAddr, tmp);
     if (r != 0)
         len = tmp[0];
     return len;
 }
 
 /* iSPCH_ConvertTime @0x80100CC4 : convert a sample count to a time at the current data rate. */
-extern "C" int iSPCH_ConvertTime(int samples)
+extern int iSPCH_ConvertTime(int samples)
 {
     int t = 0;
     if (gDataRate[0] != 0) {
@@ -299,7 +303,7 @@ extern "C" int iSPCH_ConvertTime(int samples)
 }
 
 /* iSPCH_SentenceLength @0x80100D20 : total time of all phrases' current picks for `sentence`. */
-extern "C" int iSPCH_SentenceLength(int sentence)
+extern int iSPCH_SentenceLength(int sentence)
 {
     int total = 0;
     int n = VoxSentence_GetNumPhrases(sentence);
@@ -316,7 +320,7 @@ extern "C" int iSPCH_SentenceLength(int sentence)
 }
 
 /* iSPCH_OrderSentences @0x80100D94 : produce a weighted-random play order of `event`'s phrases into outOrder. */
-extern "C" unsigned char *iSPCH_OrderSentences(int event, int outOrder)
+extern unsigned char *iSPCH_OrderSentences(int event, int outOrder)
 {
     unsigned char  weights[104];
     unsigned char *last = (unsigned char *)0;
@@ -325,7 +329,8 @@ extern "C" unsigned char *iSPCH_OrderSentences(int event, int outOrder)
     int            i = 0;
     if (n != 0) {
         do {
-            unsigned char *p = (unsigned char *)iSPCH_GetOffset16(event, event + 0xc, i);
+            unsigned char *p;
+            p = (unsigned char *)iSPCH_GetOffset16(event, event + 0xc, i);
             weights[i] = *p;
             i = i + 1;
             total = total + (int)(unsigned int)*p;
@@ -359,7 +364,8 @@ extern "C" unsigned char *iSPCH_OrderSentences(int event, int outOrder)
         int k = 0;
         if (n != 0) {
             do {
-                char *p = (char *)iSPCH_GetOffset16(event, event + 0xc, k);
+                char *p;
+                p = (char *)iSPCH_GetOffset16(event, event + 0xc, k);
                 if (*p == '\0') {
                     *(char *)(outOrder + i) = (char)k;
                     i = i + 1;
@@ -373,7 +379,7 @@ extern "C" unsigned char *iSPCH_OrderSentences(int event, int outOrder)
 }
 
 /* iSPCH_RepeatEvent @0x80100EE0 : whether this in-game event may repeat (under its repeat limit). */
-extern "C" unsigned int iSPCH_RepeatEvent(unsigned short *eventArgs)
+extern unsigned int iSPCH_RepeatEvent(unsigned short *eventArgs)
 {
     unsigned int result = 1;
     if ((unsigned int)*eventArgs == (unsigned int)gVoxInGame[0] && 0 < (signed char)eventArgs[4])
@@ -382,7 +388,7 @@ extern "C" unsigned int iSPCH_RepeatEvent(unsigned short *eventArgs)
 }
 
 /* iSPCH_ShortRuleStatus @0x80100F24 : evaluate a sentence's short-rule against `mode`. */
-extern "C" int iSPCH_ShortRuleStatus(int sentence, int mode)
+extern int iSPCH_ShortRuleStatus(int sentence, int mode)
 {
     int ok = 0;
     int rule = VoxSentence_GetShortRule(sentence);
@@ -406,7 +412,7 @@ end:
  *   (NOT paramTable/ruleByte1); GetPhraseBank's 2nd arg is `paramTable` (NOT filterMode); and
  *   ChooseSamples' last two args are `(int)phraseTemplate, paramTable` (NOT filterMode, 0) -- the
  *   earlier recon's "0/filterMode" both came from reading the WRONG incoming register. */
-extern "C" int iSPCH_SentenceGetChoices(int sentence, int paramTable, unsigned int ruleByte1,
+extern int iSPCH_SentenceGetChoices(int sentence, int paramTable, unsigned int ruleByte1,
                                         unsigned int ruleByte2, int filterMode)
 {
     int picked = 0;
@@ -447,7 +453,7 @@ extern "C" int iSPCH_SentenceGetChoices(int sentence, int paramTable, unsigned i
 }
 
 /* iSPCH_RandomizeSentencePicks @0x801010CC : shuffle the chosen samples of each phrase of `sentence`. */
-extern "C" void iSPCH_RandomizeSentencePicks(int sentence)
+extern void iSPCH_RandomizeSentencePicks(int sentence)
 {
     int n = VoxSentence_GetNumPhrases(sentence);
     int i = 0;
@@ -480,7 +486,7 @@ extern "C" void iSPCH_RandomizeSentencePicks(int sentence)
  * recon mis-materialized this as a snapshot; the oracle reads it relative to the runtime `choice`
  * pointer both initially and after each odometer carry).  Returns 1 only when every phrase has been
  * exhausted (Ghidra void-bug -- real int return, read at the epilogue: $v0 = the "ran out" flag). */
-extern "C" int iSPCH_IterateChoice(int sentence)
+extern int iSPCH_IterateChoice(int sentence)
 {
     int exhausted = 0;
     int n = VoxSentence_GetNumPhrases(sentence) - 1;
@@ -507,7 +513,7 @@ extern "C" int iSPCH_IterateChoice(int sentence)
 }
 
 /* iSPCH_ChooseShortSentence @0x8010125C : pick a short sentence variant that fits the filter length. */
-extern "C" int iSPCH_ChooseShortSentence(int sentence)
+extern int iSPCH_ChooseShortSentence(int sentence)
 {
     int done = 0;
     int n = VoxSentence_GetNumPhrases(sentence);
@@ -535,7 +541,7 @@ extern "C" int iSPCH_ChooseShortSentence(int sentence)
 }
 
 /* iSPCH_SentenceMakeChoice @0x80101310 : finalise the per-phrase pick (random or short-fit). */
-extern "C" int iSPCH_SentenceMakeChoice(int sentence, int mode)
+extern int iSPCH_SentenceMakeChoice(int sentence, int mode)
 {
     int ok = 0;
     if (mode == 1) {
@@ -559,7 +565,7 @@ extern "C" int iSPCH_SentenceMakeChoice(int sentence, int mode)
 }
 
 /* iSPCH_ConstantRuleSet @0x801013BC : fire gSentenceRuleSet for each phrase's constant (type != 0xf) rules. */
-extern "C" void iSPCH_ConstantRuleSet(short *sentence, int rule, int val)
+extern void iSPCH_ConstantRuleSet(short *sentence, int rule, int val)
 {
     (void)val;
     if (gSentenceRuleSet != 0) {
@@ -568,18 +574,24 @@ extern "C" void iSPCH_ConstantRuleSet(short *sentence, int rule, int val)
         if (0 < n) {
             short *choice = ispch_gChoice;
             do {
-                int ruleEntry = iSPCH_GetOffset8(rule, rule + 4, table);
-                int p = ruleEntry;
-                int j = 0;
+                int j;
+                int p;
+                int ruleEntry;
+                ruleEntry = iSPCH_GetOffset8(rule, rule + 4, table);
+                p = ruleEntry;
+                j = 0;
                 do {
                     unsigned int ruleType = (unsigned int)(*(unsigned char *)(p + 4) >> 4);
                     if (ruleType != 0xf) {
-                        unsigned int rid = iSPCH_GetRuleID((int)sentence, (int)ruleType);
-                        int tmp[4];   /* MATCH: was int[3] (too small -- oracle's frame reserves the
+                        int tmp[4];
+                        int r;
+                        unsigned int rid;
+                        rid = iSPCH_GetRuleID((int)sentence, (int)ruleType);
+   /* MATCH: was int[3] (too small -- oracle's frame reserves the
                                        * full 16 bytes and reads byte [0xc+j], i.e. tmp[3]'s bytes,
                                        * the same "cycle byte array" field iSPCH_MatchSample reads at
                                        * sample+i+0xc). */
-                        int r = iSPCH_UnPackSample(*(int *)(*choice * 4 + gVoxBanks[0]),
+                        r = iSPCH_UnPackSample(*(int *)(*choice * 4 + gVoxBanks[0]),
                                                    (unsigned int)PICK(choice[4]), tmp);
                         if (r != 0)
                             ((void (*)(int, int, int))gSentenceRuleSet)
@@ -597,7 +609,7 @@ extern "C" void iSPCH_ConstantRuleSet(short *sentence, int rule, int val)
 }
 
 /* iSPCH_MakeSampleRequests @0x80101508 : issue gSampleRequest for each chosen sample; returns total time. */
-extern "C" int iSPCH_MakeSampleRequests(int sentence, int paramTable)
+extern int iSPCH_MakeSampleRequests(int sentence, int paramTable)
 {
     int samples = 0;
     int n = VoxSentence_GetNumPhrases(sentence);
@@ -629,13 +641,13 @@ extern "C" int iSPCH_MakeSampleRequests(int sentence, int paramTable)
 }
 
 /* iSPCH_ClearChosen @0x80101650 : mark "nothing chosen". */
-extern "C" void iSPCH_ClearChosen(void)
+extern void iSPCH_ClearChosen(void)
 {
     DAT_80148448[0] = 0;
 }
 
 /* iSPCH_SaveChosenSentence @0x8010165C : record the chosen sentence + its 12 eventArgs.  Returns 1. */
-extern "C" int iSPCH_SaveChosenSentence(int sentence, int paramTable, int ruleCtx, int *eventArgs)
+extern int iSPCH_SaveChosenSentence(int sentence, int paramTable, int ruleCtx, int *eventArgs)
 {
     /* gSentenceChoice[0..2] = DAT_8014843C/40/44 (one contiguous block); [4..15] = the 12 eventArgs.
      * The original reaches all three head fields + the loop off a single shared base. */
@@ -656,13 +668,13 @@ extern "C" int iSPCH_SaveChosenSentence(int sentence, int paramTable, int ruleCt
 }
 
 /* iSPCH_OneChosen @0x801016A4 : the "one chosen" flag. */
-extern "C" int iSPCH_OneChosen(void)
+extern int iSPCH_OneChosen(void)
 {
     return DAT_80148448[0];
 }
 
 /* iSPCH_PlayChosen @0x801016B4 : apply rules and issue the sample requests for the chosen sentence. */
-extern "C" void iSPCH_PlayChosen(void)
+extern void iSPCH_PlayChosen(void)
 {
     if (iSPCH_OneChosen() != 0) {
         /* MATCH: gSentenceChoice[1/2/4] read relative to the base gcc already materializes for
@@ -698,7 +710,7 @@ extern "C" void iSPCH_PlayChosen(void)
 
 /* iSPCH_ChooseSentence @0x80101754 : top-level -- for the event in `eventArgs`, find a sentence template that
  *   passes its rules, choose samples for it, and save the result.  Returns the chosen-sentence index or -1. */
-extern "C" int iSPCH_ChooseSentence(unsigned int *eventArgs)
+extern int iSPCH_ChooseSentence(unsigned int *eventArgs)
 {
     unsigned char local_order[104];
     char          local_30 = 0;
@@ -707,7 +719,9 @@ extern "C" int iSPCH_ChooseSentence(unsigned int *eventArgs)
     int           result = 0;
     if (event != 0) {
         if (iSPCH_RepeatEvent((unsigned short *)event) != 0) {
-            unsigned int filterMode, filterFlag;
+            unsigned int filterMode;
+            unsigned int filterFlag;
+
             iSPCH_ClearChosen();
             filterFlag = 1;
             filterMode = (unsigned int)gFilterSetting;
@@ -767,7 +781,7 @@ extern "C" int iSPCH_ChooseSentence(unsigned int *eventArgs)
 }
 
 /* SPCH_SetPreLoadTicks @0x801018F4 : set the speech pre-load tick offset. */
-extern "C" void SPCH_SetPreLoadTicks(int ticks)
+extern void SPCH_SetPreLoadTicks(int ticks)
 {
     gPreLoadTicks[0] = ticks;
 }

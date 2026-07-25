@@ -22,8 +22,8 @@ extern int   drawpending;                         /* primate */
 
 extern unsigned int checkrect(int rectp);                         /* @0x800F6934 */
 extern int  vramimage(RECT *rect, u_long *data);                  /* @0x800F6960 */
-extern void vramfxya(int shapep, short imgX, short imgY,
-                         short clutX, short clutY);                   /* @0x800F69A8 */
+extern void vramfxya(int shapep, int imgX, int imgY,
+                         int clutX, int clutY);                       /* @0x800F69A8 */
 
 /* checkrect @0x800F6934 : if the RECT is flagged (+4 bit0), set bit0 of the +6 word.  Returns the +4 flag. */
 extern unsigned int checkrect(int rectp)
@@ -47,12 +47,15 @@ extern int vramimage(RECT *rect, u_long *data)
 
 /* vramfxya @0x800F69A8 : upload every chunk of shape `shapep` to VRAM.  Bitmap chunks (0x40..0x43) go to
  *   (imgX,imgY); CLUT chunks (0x22/0x23/0x24) go to (clutX,clutY). */
-extern void vramfxya(int shapep, short imgX, short imgY, short clutX, short clutY)
+extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
 {
     unsigned int *c = (unsigned int *)shapep;
-    unsigned int  clut22[128];   /* >>1 BGR scratch */
-    unsigned int  clut24[131];   /* >>3 BGR scratch */
-    RECT          rect;
+    struct {
+        RECT rect;
+        unsigned int clut22[128]; /* >>1 BGR scratch */
+        unsigned int clut24[131]; /* >>3 BGR scratch */
+        unsigned int *clut22p;
+    } scratch;
 
     if (c == (unsigned int *)0)
         return;
@@ -67,58 +70,16 @@ extern void vramfxya(int shapep, short imgX, short imgY, short clutX, short clut
     unsigned int clutYm  = ((unsigned int)clutY & 0xfff) << 0x10;
     unsigned int maskLo  = ~0xFFFu;         /* clears the low 12 bits (x field) */
     unsigned int maskHi  = 0xF000FFFFu;     /* clears bits 16-27 (y field) */
-
+    scratch.clut22p = scratch.clut22;
     do {
         u_long       *data;
-        int           count = (short)c[1];
         int           i;
         unsigned int *src;
         unsigned int *dst;
+        unsigned int *next;
+        RECT         *rectp;
 
         switch ((unsigned char)*c & 0xf7) {
-        case 0x22:                                   /* CLUT, 8->5 bit via >>1 */
-            i   = 0;
-            src = c;
-            dst = clut22;
-            if (0 < count) {
-                do {
-                    i = i + 1;
-                    *(unsigned short *)dst =
-                        (unsigned short)(unsigned char)((unsigned char)src[4] >> 1) |
-                        (unsigned short)(*(unsigned char *)((int)src + 0x12) >> 1) << 10 |
-                        (unsigned short)(*(unsigned char *)((int)src + 0x11) >> 1) << 5;
-                    src = (unsigned int *)((int)src + 3);
-                    dst = (unsigned int *)((int)dst + 2);
-                } while (i < count);
-            }
-            data = (u_long *)clut22;
-            break;
-
-        case 0x23:                                   /* raw CLUT words */
-            data = (u_long *)(c + 4);
-            break;
-
-        case 0x24:                                   /* CLUT, 8->5 bit via >>3 */
-            i = 0;
-            if (0 < count) {
-                dst = clut24;
-                src = c;
-                do {
-                    unsigned char *pB = (unsigned char *)((int)src + 0x12);
-                    unsigned char *pG = (unsigned char *)((int)src + 0x11);
-                    unsigned int  *pR = src + 4;
-                    src = (unsigned int *)((int)src + 3);
-                    i   = i + 1;
-                    *(unsigned short *)dst =
-                        (unsigned short)(unsigned char)((unsigned char)*pR >> 3) |
-                        (unsigned short)(*pB >> 3) << 10 |
-                        (unsigned short)(*pG >> 3) << 5;
-                    dst = (unsigned int *)((int)dst + 2);
-                } while (i < count);
-            }
-            data = (u_long *)clut24;
-            break;
-
         case 0x40:
         case 0x41:
         case 0x42:
@@ -132,18 +93,61 @@ extern void vramfxya(int shapep, short imgX, short imgY, short clutX, short clut
                 c[3] = (c[3] & maskLo) | ((unsigned int)imgX & 0xfff);
                 c[3] = (c[3] & maskHi) | (((unsigned int)imgY & 0xfff) << 0x10);
                 *(unsigned char *)c = (unsigned char)*c | 8;
-                rect.x = imgX;
-                rect.y = imgY;                       /* H04: was missing (oracle 0x800F6A80 *(short*)(18+sp)=imgY) */
+                scratch.rect.x = imgX;
+                scratch.rect.y = imgY;               /* H04: was missing (oracle 0x800F6A80 *(short*)(18+sp)=imgY) */
                 bits   = (short)c[1] * shapedepth((unsigned char *)c);
                 w      = bits + 0xf;
                 if (w < 0)
                     w = bits + 0x1e;
-                rect.w = (short)(w >> 4);            /* width in 16-bit VRAM words */
-                rect.h = *(short *)((int)c + 6);
+                scratch.rect.w = (short)(w >> 4);    /* width in 16-bit VRAM words */
+                scratch.rect.h = *(short *)((int)c + 6);
                 data   = (u_long *)(c + 4);
-                vramimage(&rect, data);
+                vramimage(&scratch.rect, data);
             }
             goto walk;
+
+        case 0x23:                                   /* raw CLUT words */
+            rectp = &scratch.rect;
+            data = (u_long *)(c + 4);
+            break;
+
+        case 0x22:                                   /* CLUT, 8->5 bit via >>1 */
+            i   = 0;
+            if (0 < (short)c[1]) {
+                dst = scratch.clut22p;
+                src = c;
+                do {
+                    *(unsigned short *)dst =
+                        (unsigned short)(*(unsigned char *)((int)src + 0x12) >> 1) << 10 |
+                        (unsigned short)(*(unsigned char *)((int)src + 0x11) >> 1) << 5 |
+                        (unsigned short)(*(unsigned char *)((int)src + 0x10) >> 1);
+                    src = (unsigned int *)((int)src + 3);
+                    i += 1;
+                    dst = (unsigned int *)((int)dst + 2);
+                } while (i < (short)c[1]);
+            }
+            rectp = &scratch.rect;
+            data = (u_long *)scratch.clut22;
+            break;
+
+        case 0x24:                                   /* CLUT, 8->5 bit via >>3 */
+            i = 0;
+            if (0 < (short)c[1]) {
+                dst = scratch.clut24;
+                src = c;
+                do {
+                    *(unsigned short *)dst =
+                        (unsigned short)(*(unsigned char *)((int)src + 0x12) >> 3) << 10 |
+                        (unsigned short)(*(unsigned char *)((int)src + 0x11) >> 3) << 5 |
+                        (unsigned short)(*(unsigned char *)((int)src + 0x10) >> 3);
+                    src = (unsigned int *)((int)src + 3);
+                    i += 1;
+                    dst = (unsigned int *)((int)dst + 2);
+                } while (i < (short)c[1]);
+            }
+            rectp = &scratch.rect;
+            data = (u_long *)scratch.clut24;
+            break;
 
         default:                                     /* 0x25 etc.: nothing to upload */
             goto walk;
@@ -153,17 +157,18 @@ extern void vramfxya(int shapep, short imgX, short imgY, short clutX, short clut
         c[3] = (c[3] & maskLo) | clutXm;
         c[3] = (c[3] & maskHi) | clutYm;
         *(unsigned char *)c = (unsigned char)*c | 8;
-        rect.x = clutX;
-        rect.y = clutY;                          /* H04: was missing (oracle 0x800F6BC4 *(short*)(18+sp)=clutY) */
-        rect.w = (short)c[1];
-        rect.h = 1;
-        vramimage(&rect, data);
+        scratch.rect.x = clutX;
+        scratch.rect.y = clutY;                  /* H04: was missing (oracle 0x800F6BC4 *(short*)(18+sp)=clutY) */
+        scratch.rect.w = (short)c[1];
+        scratch.rect.h = 1;
+        vramimage(rectp, data);
 
     walk:
-        if ((*c & 0xffffff00) == 0)
-            c = (unsigned int *)0;
+        if ((*c & 0xffffff00) != 0)
+            next = (unsigned int *)((int)c + ((int)*c >> 8));
         else
-            c = (unsigned int *)((int)c + ((int)*c >> 8));
+            next = (unsigned int *)0;
+        c = next;
     } while (c != (unsigned int *)0);
     }
 }

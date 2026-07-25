@@ -273,19 +273,18 @@ LAB_8007a37c:
 void AudioMus_SetCurrentSongInfo(void)
 {
   AudioMus_tSongEntry*info;
-  AudioMus_tCurrentSong *pAVar1;
   AudioMus_tMusicGlobals *pAVar2;
   int iVar3;
   int iVar4;
-  
+
   pAVar2 = AudioMus_g;
-  iVar3 = (AudioMus_g->requeststatus).timetoend;
-  iVar4 = (AudioMus_g->requeststatus).currenttime;
-  pAVar1 = &AudioMus_g->current;
-  (AudioMus_g->current).remaining = iVar3;
-  (pAVar2->current).info.length = iVar3 + iVar4;
-  (pAVar2->current).info.filename = pAVar2->songname;
-  AudioMus_SetEntry(&pAVar1->info);
+  iVar3 = (pAVar2->requeststatus).timetoend;
+  iVar4 = (pAVar2->requeststatus).currenttime;
+  info = &(pAVar2->current).info;
+  (pAVar2->current).remaining = iVar3;
+  info->length = iVar3 + iVar4;
+  info->filename = pAVar2->songname;
+  AudioMus_SetEntry(info);
   return;
 }
 

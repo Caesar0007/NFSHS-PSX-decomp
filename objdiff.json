@@ -3274,9 +3274,9 @@
     {
       "name": "syslib/psx/libgpu/SYS",
       "target_path": "expected/src/syslib/psx/libgpu/SYS.c.o",
-      "base_path": "build/recon/syslib/psx/libgpu/SYS.cpp.o",
+      "base_path": "build/recon/syslib/psx/libgpu/SYS.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libgpu/SYS.cpp"
+        "source_path": "recon/syslib/psx/libgpu/SYS.c"
       }
     },
     {
@@ -3346,9 +3346,9 @@
     {
       "name": "syslib/psx/libgte/PATCHGTE",
       "target_path": "expected/src/syslib/psx/libgte/PATCHGTE.c.o",
-      "base_path": "build/recon/syslib/psx/libgte/PATCHGTE.cpp.o",
+      "base_path": "build/recon/syslib/psx/libgte/PATCHGTE.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libgte/PATCHGTE.cpp"
+        "source_path": "recon/syslib/psx/libgte/PATCHGTE.c"
       }
     },
     {

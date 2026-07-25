@@ -1,4 +1,4 @@
-/* syslib/psx/libgpu/SYS.cpp -- RECONSTRUCTED from nfs4-f.exe (disasm-v3; Ghidra mangled here).
+/* syslib/psx/libgpu/SYS.c -- RECONSTRUCTED from nfs4-f.exe (disasm-v3; Ghidra mangled here).
  *   obj libgpu.lib(SYS.OBJ) @0x800ED670..0x800EFE58 -- the complete PsyQ libgpu GPU driver:
  *   the public API (ResetGraph/DrawSync/DrawOTag/Put+GetEnv/SetEnv/LoadImage/ClearOTagR/...) over
  *   the internal engine (GPU register I/O, DMA-chain processor, command queue, blitters,
@@ -16,12 +16,27 @@
  *     GPU_GP1 @0x801237A4 -> 0x1F801814 (GP1 / GPUSTAT)
  *     DMA ch2 (GPU)  MADR/BCR/CHCR @0x801237A8/AC/B0
  *     DMA ch6 (OTC)  MADR/BCR/CHCR @0x801237B4/B8/BC ; DPCR @0x801237C0
- */
+ *
+ *   w26-a3 TOOLCHAIN migration (.cpp -> .c, CC1PSX/C lane): mechanical only --
+ *   `extern "C"` stripped (plain C has no name mangling to guard against), a local
+ *   `bool`/`true`/`false` shim added (matches the eaclib spchrule.c/spchsamp.c and
+ *   libc/SPRINTF.c convention for C TUs that used C++'s builtin bool), and every
+ *   C89 "mixed declarations and code" spot (a `TYPE x = expr;` appearing after a
+ *   prior STATEMENT in the same block -- illegal pre-C99) rewritten as a bare
+ *   `TYPE x;` hoisted to the top of its enclosing block plus an `x = expr;`
+ *   assignment left at the original textual position, so evaluation order/timing
+ *   is unchanged (§3.25 code class: this is dialect-only, no semantic edit).
+ *   Dual-compile measurement (verify_asm.py, cc1 vs the pre-migration cc1plus
+ *   baseline) confirmed net non-regressive across all 44 oracled functions --
+ *   see the migration commit message for the full per-fn before/after table. */
 
 typedef unsigned long  u_long;
 typedef unsigned char  u_char;
 typedef unsigned short u_short;
 typedef unsigned int   u_int;
+typedef int bool;
+#define true 1
+#define false 0
 
 /* ---- GPU context state (BSS; pointers installed at runtime by _reset) ----
  * These 4-byte pointers would default to .sbss under -G4 (gp-relative).
@@ -41,32 +56,32 @@ static volatile u_long *DMA_DPCR __attribute__((section(".bss")));  /* @0x801237
 /* @0x8013EAF8 : last value written per GP1 command (top byte = index).
  * Non-static + .bss to force gcc to use the split %hi/%lo reloc displacement
  * form (lui; addu idx; lbu/sb %lo(arr)) instead of fused lui+addiu form. */
-extern "C" u_char _gp1_shadow[256];
+extern u_char _gp1_shadow[256];
 u_char _gp1_shadow[256] __attribute__((section(".bss")));
 
 /* ============================ SUB-GROUP 1 ============================ */
 
 /* @0x800EEA64 : read the GPU status register (GPUSTAT, shares GP1 address). */
-extern "C" int _get_status(void)
+extern int _get_status(void)
 {
     return (int)*GPU_GP1;
 }
 
 /* @0x800EF248 : write one GP1 (control) command and shadow its low byte by command number. */
-extern "C" void _send_gp1(u_long cmd)
+extern void _send_gp1(u_long cmd)
 {
     *GPU_GP1 = cmd;
     _gp1_shadow[cmd >> 24] = (u_char)cmd;
 }
 
 /* @0x800EF26C : read back the shadowed low byte for GP1 command number `idx`. */
-extern "C" int _get_gp1(int idx)
+extern int _get_gp1(int idx)
 {
     return _gp1_shadow[idx];
 }
 
 /* @0x800EF280 : push n words straight to GP0 with DMA disabled (CPU->GP0 transfer). */
-extern "C" int _send_gp0(u_long *p, int n)
+extern int _send_gp0(u_long *p, int n)
 {
     /* MATCH: counter split from the param and computed up-front (oracle addiu a2,a1,-1
      * FIRST insn); guard keeps n live so i gets a fresh reg; explicit -1 sentinel
@@ -83,7 +98,7 @@ extern "C" int _send_gp0(u_long *p, int n)
 }
 
 /* @0x800EF2C0 : kick off a GPU ordering-table (linked-list) DMA on channel 2. */
-extern "C" void _gpu_dma_chain(u_long *ot)
+extern void _gpu_dma_chain(u_long *ot)
 {
     *GPU_GP1 = 0x04000002;                   /* DMA direction = 2 (linked list) */
     *D2_MADR = (u_long)ot;
@@ -94,14 +109,14 @@ extern "C" void _gpu_dma_chain(u_long *ot)
 }
 
 /* @0x800EF308 : issue a GP1 0x10 "get GPU info" query and return the 24-bit GPUREAD reply. */
-extern "C" int _get_gpuinfo(u_long cmd)
+extern int _get_gpuinfo(u_long cmd)
 {
     *GPU_GP1 = cmd | 0x10000000;
     return (int)(*GPU_GP0 & 0x00ffffffu);
 }
 
 /* @0x800EFE34 : obj-local byte fill (libgpu's private memset). */
-extern "C" void _memset(char *p, int c, int n)
+extern void _memset(char *p, int c, int n)
 {
     /* MATCH: i=n-1 hoisted ABOVE the guard -- n stays live across the compare, so the
      * counter can't coalesce into $a2: fresh $v0 counter + $v1 sentinel, and the init
@@ -113,7 +128,7 @@ extern "C" void _memset(char *p, int c, int n)
 }
 
 /* @0x800EE9C8 : build a GP0 0xE5 "drawing offset" command word. */
-extern "C" u_long _set_draw_offset(int x, int y)
+extern u_long _set_draw_offset(int x, int y)
 {
     u_long yi = (u_long)(y & 0x7ff) << 11;
     return 0xe5000000u | yi | (u_long)(x & 0x7ff);
@@ -122,7 +137,7 @@ extern "C" u_long _set_draw_offset(int x, int y)
 /* @0x800EE878 : build a GP0 0xE1 "draw mode" command word (dfe=draw-to-display, dtd=dither).
  * Oracle uses beqz dtd delay-slot=lui v1,E100 (hi base in delay slot), then beqz dfe
  * delay-slot=andi v0,a2,9ff (lo base in delay slot).  Return or v0,v1,v0 = lo|hi. */
-extern "C" u_long _set_draw_mode(int dfe, int dtd, int tpage)
+extern u_long _set_draw_mode(int dfe, int dtd, int tpage)
 {
     /* NEAR-MISS (5): andi not in the dfe-beqz slot (+nop) + `or v0,v0,v1` operand order.
      * Tried+reverted: hi-first statement order (right schedule, wrong coloring 8==8/10),
@@ -142,19 +157,19 @@ extern "C" u_long _set_draw_mode(int dfe, int dtd, int tpage)
  *   wedged GPU (timeout -> reset queue + GPU).  All ring/index mutation runs inside a
  *   SetIntrMask(0) critical section. */
 
-extern "C" int  VSync(int mode);                 /* libetc  VSYNC.obj @0x800F231C */
-extern "C" int  SetIntrMask(int mask);           /* libetc  INTR.obj  @0x800F2950 (returns old mask) */
-extern "C" int  DMACallback(int ch, int func);   /* libetc  INTR.obj  @0x800F28AC */
-extern "C" int  printf(const char *fmt, ...);    /* libc    C63.obj   @0x801028AC */
+extern int  VSync(int mode);                 /* libetc  VSYNC.obj @0x800F231C */
+extern int  SetIntrMask(int mask);           /* libetc  INTR.obj  @0x800F2950 (returns old mask) */
+extern int  DMACallback(int ch, int func);   /* libetc  INTR.obj  @0x800F28AC */
+extern int  printf(const char *fmt, ...);    /* libc    C63.obj   @0x801028AC */
 
 typedef void (*QueFunc)(u_long *arg, int extra);
 
-struct GpuQue {                      /* 0x60 bytes */
+typedef struct GpuQue {               /* 0x60 bytes */
     QueFunc func;                    /* +0x00 */
     u_long *arg;                     /* +0x04 */
     int     extra;                   /* +0x08 */
     u_long  buf[21];                 /* +0x0C : inline-copied args (when push n != 0) */
-};
+} GpuQue;
 static GpuQue _que[64];              /* @0x8013EC00 : the request ring */
 /* MATCH: force absolute placement (same §3.12 lever as GPU_GP0/GEnv above) -- the oracle
  * addresses every one of these via lui %hi;lw/sw %lo, never gp-relative. Without the section
@@ -174,7 +189,7 @@ static int    _gpu_timeout_count  __attribute__((section(".bss")));  /* @0x80123
  * the oracle's addressing), instead of each field re-materializing its own independent %hi/%lo.
  * Force the instance into REGULAR .bss (absolute), not .sdata/.sbss gp-rel -- the oracle addresses
  * every GEnv field absolute (§3.12 absolute lever), same reasoning as the GPU_GP0/GP1/DMA ptrs above. */
-struct GEnvT {
+typedef struct GEnvT {
     char    mode;      /* +0x00 @0x8012369C : current video mode (was static _genv_mode) */
     u_char  active;     /* +0x01 @0x8012369D : driver running, set by ResetGraph (was static _gpu_active) */
     u_char  debug;      /* +0x02 @0x8012369E : GPU debug level, 0=off (was static _gpu_debug) */
@@ -187,13 +202,13 @@ struct GEnvT {
     QueFunc idle_cb;    /* +0x0C @0x801236A8 : "queue drained" callback (was static _gpu_idle_cb) */
     char    drawenv[0x5c]; /* +0x10 @0x801236AC : last-set DRAWENV cache (was static _genv_drawenv) */
     char    dispenv[0x14]; /* +0x6C @0x80123708 : last-set DISPENV cache (was static _genv_dispenv) */
-};                                                                 /* total 0x80 bytes, matches the oracle's clear */
+} GEnvT;                                                          /* total 0x80 bytes, matches the oracle's clear */
 static GEnvT GEnv __attribute__((section(".bss")));   /* @0x8012369C */
 
-extern "C" void _gpu_que_drain(void);    /* @0x800EF60C (fwd) */
+extern void _gpu_que_drain(void);    /* @0x800EF60C (fwd) */
 
 /* @0x800EFAF8 : arm the GPU watchdog against the current VSync hsync count. */
-extern "C" void _gpu_arm_timeout(void)
+extern void _gpu_arm_timeout(void)
 {
     _gpu_timeout_target = VSync(-1) + 0xF0;
     _gpu_timeout_count = 0;
@@ -201,7 +216,7 @@ extern "C" void _gpu_arm_timeout(void)
 
 /* @0x800EFB2C : poll the watchdog.  Returns 0 while still waiting; on timeout it prints the
  *   GPU state, force-resets the queue + GPU, and returns -1. */
-extern "C" int _gpu_check_timeout(void)
+extern int _gpu_check_timeout(void)
 {
     int now = VSync(-1);
     if (!(_gpu_timeout_target < now)) {
@@ -226,7 +241,7 @@ extern "C" int _gpu_check_timeout(void)
 /* @0x800EF60C : dequeue-and-dispatch.  Called inline after a push and from the channel-2
  *   DMA-complete interrupt.  Runs queued requests until the queue empties or a request
  *   kicks off a DMA (CHCR busy), then fires the idle callback if the queue is fully drained. */
-extern "C" void _gpu_que_drain(void)
+extern void _gpu_que_drain(void)
 {
     if ((*D2_CHCR & 0x01000000) != 0)
         return;                                  /* a DMA is still running */
@@ -261,7 +276,7 @@ extern "C" void _gpu_que_drain(void)
 /* @0x800EF35C : enqueue a GPU request func(arg,extra).  If the GPU is idle the request is
  *   run inline; otherwise it is queued (optionally snapshotting n bytes of args into the
  *   slot).  Spins on the watchdog while the ring is full.  Returns the resulting depth. */
-extern "C" int _gpu_que_push(QueFunc func, u_long *arg, int n, int extra)
+extern int _gpu_que_push(QueFunc func, u_long *arg, int n, int extra)
 {
     _gpu_arm_timeout();
     while (((_qin + 1) & 0x3f) == _qout) {       /* ring full */
@@ -305,19 +320,19 @@ extern "C" int _gpu_que_push(QueFunc func, u_long *arg, int n, int extra)
 }
 
 /* @0x800EF338 : convenience wrapper -- push with no inline-arg copy (n = 0). */
-extern "C" int _que_ref(QueFunc func, u_long *arg, int extra)
+extern int _que_ref(QueFunc func, u_long *arg, int extra)
 {
     return _gpu_que_push(func, arg, 0, extra);
 }
 
 /* @0x800EFE0C : attach _gpu_que_drain as the channel-2 (GPU) DMA-complete callback. */
-extern "C" void _install_drain_cb(void)
+extern void _install_drain_cb(void)
 {
     DMACallback(2, (int)_gpu_que_drain);
 }
 
 /* @0x800EEA7C : clear an ordering table in reverse via the OTC DMA (channel 6), with watchdog. */
-extern "C" void _clearOTagR_dma(u_long *ot, int n)
+extern void _clearOTagR_dma(u_long *ot, int n)
 {
     *DMA_DPCR |= 0x08000000;                      /* enable DMA channel 6 (OTC) */
     *D6_CHCR = 0;
@@ -341,16 +356,17 @@ extern "C" void _clearOTagR_dma(u_long *ot, int n)
  *   offset-relative coordinates otherwise).  Screen size lives in GEnv.screenW/GEnv.screenH. */
 
 /* @0x800EE898 : GP0 0xE3 drawing-area top-left, x/y clamped to the screen. */
-extern "C" u_long _set_clip_tl(int x, int y)
+extern u_long _set_clip_tl(int x, int y)
 {
     int sx = (short)x, cx;
+    int sy, cy;
     if (sx >= 0) {
         if (GEnv.screenW - 1 < sx) cx = (u_short)GEnv.screenW - 1;
         else                   cx = x;
     } else {
         cx = 0;
     }
-    int sy = (short)y, cy;
+    sy = (short)y;
     if (sy >= 0) {
         if (GEnv.screenH - 1 < sy) cy = (u_short)GEnv.screenH - 1;
         else                   cy = y;
@@ -361,16 +377,17 @@ extern "C" u_long _set_clip_tl(int x, int y)
 }
 
 /* @0x800EE930 : GP0 0xE4 drawing-area bottom-right, x/y clamped to the screen. */
-extern "C" u_long _set_clip_br(int x, int y)
+extern u_long _set_clip_br(int x, int y)
 {
     int sx = (short)x, cx;
+    int sy, cy;
     if (sx >= 0) {
         if (GEnv.screenW - 1 < sx) cx = (u_short)GEnv.screenW - 1;
         else                   cx = x;
     } else {
         cx = 0;
     }
-    int sy = (short)y, cy;
+    sy = (short)y;
     if (sy >= 0) {
         if (GEnv.screenH - 1 < sy) cy = (u_short)GEnv.screenH - 1;
         else                   cy = y;
@@ -382,7 +399,7 @@ extern "C" u_long _set_clip_br(int x, int y)
 
 /* @0x800EE9E4 : GP0 0xE2 texture window from a RECT (mask x/y at +0/+2, window w/h at +4/+6),
  *   or 0 when tw is null. */
-extern "C" u_long _get_tw(void *tw)
+extern u_long _get_tw(void *tw)
 {
     /* FLOOR (documented, not re-tried): oracle allocates a real 16-byte AUTO frame and
      * spills m0/m2/w4/w6 to it (sw a1,0(sp)/a2,8(sp)/v0,4(sp)/v1,0xC(sp)) even though every
@@ -392,20 +409,23 @@ extern "C" u_long _get_tw(void *tw)
      * 40->49 diffs, worse); collapsing to a single-exit `u_long ret; if/else; return ret;`
      * (oracle's frame is allocated unconditionally either way, so this didn't help -> 40->42,
      * worse). Register-pressure floors aren't reachable from source restructuring alone. */
+    u_char *b;
+    short  *s;
+    int m0, m2, w4, w6;
     if (tw == 0)
         return 0;
-    u_char *b = (u_char *)tw;
-    short  *s = (short *)tw;
-    int m0 = b[0] >> 3;
-    int m2 = b[2] >> 3;
-    int w4 = (-s[2] & 0xff) >> 3;
-    int w6 = (-s[3] & 0xff) >> 3;
+    b = (u_char *)tw;
+    s = (short *)tw;
+    m0 = b[0] >> 3;
+    m2 = b[2] >> 3;
+    w4 = (-s[2] & 0xff) >> 3;
+    w6 = (-s[3] & 0xff) >> 3;
     return 0xe2000000u | ((u_long)m0 << 10) | ((u_long)m2 << 15)
                        | ((u_long)w6 << 5)  | (u_long)w4;
 }
 
 /* @0x800EE608 : populate the DR_ENV primitive `d` from the DRAWENV `e`. */
-extern "C" void _set_drawenv(void *dr_env, void *env)
+extern void _set_drawenv(void *dr_env, void *env)
 {
     /* MATCH: ONE base pointer per parameter -- the oracle addresses every DR_ENV word off a
      * single s-reg (dr_env) and every DRAWENV field off a single other s-reg (env), just with
@@ -416,6 +436,7 @@ extern "C" void _set_drawenv(void *dr_env, void *env)
      * collapse them back to a single register each, matching the oracle. */
     char   *db = (char *)dr_env;
     u_char *eb = (u_char *)env;
+    int t0;
 #define D(i)  (*(int *)(db + (i) * 4))
 #define ES(i) (*(short *)(eb + (i) * 2))
 #define EU(i) (*(u_short *)(eb + (i) * 2))
@@ -430,7 +451,7 @@ extern "C" void _set_drawenv(void *dr_env, void *env)
     /* MATCH: t0's constant 7 materializes HERE (oracle: addiu t0,zero,7 right before this
      * check), not at function entry -- it is dead across every call above, so a caller-saved
      * temp suffices and t0 never needs to be spilled/restored (the oracle uses raw $t0). */
-    int t0 = 7;
+    t0 = 7;
     if (eb[24] != 0) {                    /* DRAWENV.isbg : append a background clear */
         short rx = (short)EU(0), ry = (short)EU(1);
         short rw, rh;
@@ -483,11 +504,12 @@ extern "C" void _set_drawenv(void *dr_env, void *env)
 static u_long _blit_buf[18];   /* @0x8013EAB0 : scratch OT for _BlitClear */
 
 /* @0x800EEB5C : ClearImage backend -- fill rect with `color`. */
-extern "C" void _BlitClear(void *rect, int color)
+extern void _BlitClear(void *rect, int color)
 {
     short   *rs = (short *)rect;
     u_short *ru = (u_short *)rect;
     short cw, ch;
+    u_long mode;
     {   int v = (short)ru[2];
         if (v < 0) cw = 0; else if (GEnv.screenW - 1 < v) cw = (short)(GEnv.screenW - 1); else cw = (short)v; }
     rs[2] = cw;
@@ -495,7 +517,7 @@ extern "C" void _BlitClear(void *rect, int color)
         if (v < 0) ch = 0; else if (GEnv.screenH - 1 < v) ch = (short)(GEnv.screenH - 1); else ch = (short)v; }
     rs[3] = ch;
 
-    u_long mode = 0xe1000000u | (*GPU_GP1 & 0x7ff) | (((u_long)color >> 31) << 10);
+    mode = 0xe1000000u | (*GPU_GP1 & 0x7ff) | (((u_long)color >> 31) << 10);
     if ((ru[0] & 0x3f) == 0 && (cw & 0x3f) == 0) {
         /* 64-aligned: GP0 0x02 fast fill, list terminates immediately */
         _blit_buf[0] = 0x05ffffffu;
@@ -529,26 +551,28 @@ extern "C" void _BlitClear(void *rect, int color)
 }
 
 /* @0x800EED8C : LoadImage backend -- transfer `data` words into the VRAM rect. */
-extern "C" int _dws(void *rect, u_long *data)
+extern int _dws(void *rect, u_long *data)
 {
     /* MATCH: single base pointer for `rect` (§3.12 lever). */
     u_char *rb = (u_char *)rect;
 #define RS(i) (*(short *)(rb + (i) * 2))
 #define RU(i) (*(u_short *)(rb + (i) * 2))
     int s5 = 0;                                  /* GP0 cmd selector (0 = 0xA0 load) */
-    _gpu_arm_timeout();
     short cw, ch;
+    int words;
+    int blocks, remainder;
+    _gpu_arm_timeout();
     {   int v = (short)RU(2);
         if (v < 0) cw = 0; else if (GEnv.screenW - 1 < v) cw = (short)(GEnv.screenW - 1); else cw = (short)v; }
     RS(2) = cw;
     {   int v = (short)RU(3);
         if (v < 0) ch = 0; else if (GEnv.screenH - 1 < v) ch = (short)(GEnv.screenH - 1); else ch = (short)v; }
     RS(3) = ch;
-    int words = ((int)RS(2) * (int)RS(3) + 1) >> 1;
+    words = ((int)RS(2) * (int)RS(3) + 1) >> 1;
     if (words <= 0)
         return -1;
-    int blocks    = words >> 4;
-    int remainder = words & 0xf;
+    blocks    = words >> 4;
+    remainder = words & 0xf;
     while ((*GPU_GP1 & 0x04000000) == 0)         /* wait until ready to receive DMA */
         if (_gpu_check_timeout() != 0)
             return -1;
@@ -573,25 +597,27 @@ extern "C" int _dws(void *rect, u_long *data)
 }
 
 /* @0x800EEFC8 : StoreImage backend -- read the VRAM rect back into `data` words. */
-extern "C" int _drs(void *rect, u_long *data)
+extern int _drs(void *rect, u_long *data)
 {
     /* MATCH: single base pointer for `rect` (§3.12 lever). */
     u_char *rb = (u_char *)rect;
 #define RS(i) (*(short *)(rb + (i) * 2))
 #define RU(i) (*(u_short *)(rb + (i) * 2))
-    _gpu_arm_timeout();
     short cw, ch;
+    int words;
+    int blocks, remainder;
+    _gpu_arm_timeout();
     {   int v = (short)RU(2);
         if (v < 0) cw = 0; else if (GEnv.screenW - 1 < v) cw = (short)(GEnv.screenW - 1); else cw = (short)v; }
     RS(2) = cw;
     {   int v = (short)RU(3);
         if (v < 0) ch = 0; else if (GEnv.screenH - 1 < v) ch = (short)(GEnv.screenH - 1); else ch = (short)v; }
     RS(3) = ch;
-    int words = ((int)RS(2) * (int)RS(3) + 1) >> 1;
+    words = ((int)RS(2) * (int)RS(3) + 1) >> 1;
     if (words <= 0)
         return -1;
-    int blocks    = words >> 4;
-    int remainder = words & 0xf;
+    blocks    = words >> 4;
+    remainder = words & 0xf;
     while ((*GPU_GP1 & 0x04000000) == 0)         /* wait until ready for DMA */
         if (_gpu_check_timeout() != 0)
             return -1;
@@ -623,7 +649,7 @@ extern "C" int _drs(void *rect, u_long *data)
  *   GP0 command words at +4/+8/...) using the SG3a word builders.  No queue/DMA involved. */
 
 /* @0x800EE2DC : SetTexWindow(DR_TWIN *p, RECT *tw) */
-extern "C" void SetTexWindow(void *p, void *tw)
+extern void SetTexWindow(void *p, void *tw)
 {
     ((char *)p)[3] = 2;
     ((int *)p)[1] = (int)_get_tw(tw);
@@ -631,7 +657,7 @@ extern "C" void SetTexWindow(void *p, void *tw)
 }
 
 /* @0x800EE314 : SetDrawArea(DR_AREA *p, RECT *r) */
-extern "C" void SetDrawArea(void *p, void *r)
+extern void SetDrawArea(void *p, void *r)
 {
     short   *rs = (short *)r;
     u_short *ru = (u_short *)r;
@@ -641,7 +667,7 @@ extern "C" void SetDrawArea(void *p, void *r)
 }
 
 /* @0x800EE394 : SetDrawStp(DR_STP *p, int pbw) -- GP0 0xE6 mask-bit setting */
-extern "C" void SetDrawStp(void *p, int pbw)
+extern void SetDrawStp(void *p, int pbw)
 {
     ((char *)p)[3] = 2;
     ((int *)p)[1] = (int)(pbw ? 0xe6000001u : 0xe6000000u);
@@ -649,7 +675,7 @@ extern "C" void SetDrawStp(void *p, int pbw)
 }
 
 /* @0x800EE3BC : SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw) */
-extern "C" void SetDrawMode(void *p, int dfe, int dtd, int tpage, void *tw)
+extern void SetDrawMode(void *p, int dfe, int dtd, int tpage, void *tw)
 {
     ((char *)p)[3] = 2;
     ((int *)p)[1] = (int)_set_draw_mode(dfe, dtd, tpage & 0xffff);
@@ -657,11 +683,12 @@ extern "C" void SetDrawMode(void *p, int dfe, int dtd, int tpage, void *tw)
 }
 
 /* @0x800EE410 : SetDrawEnv(DR_ENV *dr_env, DRAWENV *env) -- public twin of _set_drawenv. */
-extern "C" void SetDrawEnv(void *dr_env, void *env)
+extern void SetDrawEnv(void *dr_env, void *env)
 {
     /* MATCH: single base pointer per parameter (§3.12 lever; same fix as _set_drawenv). */
     char   *db = (char *)dr_env;
     u_char *eb = (u_char *)env;
+    int t0;
 #define D(i)  (*(int *)(db + (i) * 4))
 #define ES(i) (*(short *)(eb + (i) * 2))
 #define EU(i) (*(u_short *)(eb + (i) * 2))
@@ -674,15 +701,15 @@ extern "C" void SetDrawEnv(void *dr_env, void *env)
     D(6) = (int)0xe6000000;
 
     /* MATCH: t0's constant 7 materializes HERE, not at function entry (see _set_drawenv). */
-    int t0 = 7;
+    t0 = 7;
     if (eb[24] != 0) {
         short rx = (short)EU(0), ry = (short)EU(1);
         short rw, rh;
+        short xy[2], wh[2];
         {   int v = (short)EU(2);
             if (v < 0) rw = 0; else if (GEnv.screenW - 1 < v) rw = (short)(GEnv.screenW - 1); else rw = (short)v; }
         {   int v = (short)EU(3);
             if (v < 0) rh = 0; else if (GEnv.screenH - 1 < v) rh = (short)(GEnv.screenH - 1); else rh = (short)v; }
-        short xy[2], wh[2];
         wh[0] = rw; wh[1] = rh;
         if ((rx & 0x3f) != 0 || (rw & 0x3f) != 0) {
             xy[0] = (short)(rx - ES(4));
@@ -716,17 +743,17 @@ extern "C" void SetDrawEnv(void *dr_env, void *env)
  * -G4 here -> single gp-relative loads, a systematic +1-insn divergence.  Pin each into .data (init)
  * or .bss (zero) so it materializes absolute, matching the oracle (§3.12 absolute lever; gp-rel
  * CAVEAT: a small global can be regular .data/.bss, not .sdata/.sbss). */
-extern "C" int (*GPU_printf)(const char *fmt, ...) __attribute__((section(".bss"))) = 0;
+extern int (*GPU_printf)(const char *fmt, ...) __attribute__((section(".bss"))) = 0;
 
 static u_long _move_prim[5] = {      /* @0x80123734 : MoveImage's VRAM->VRAM copy primitive */
     0x04ffffffu,                     /* tag: 4 words, terminates */
     0x80000000u                      /* GP0 0x80 move-image command */
 };
 
-extern "C" int _reset(int mode);                     /* @0x800EF86C (fwd; defined in SG4b-ii) */
-extern "C" int _sync(int mode);                      /* @0x800EF9BC (fwd; defined below) */
+extern int _reset(int mode);                     /* @0x800EF86C (fwd; defined in SG4b-ii) */
+extern int _sync(int mode);                      /* @0x800EF9BC (fwd; defined below) */
 
-struct GpuTbl {                                  /* @0x80123654 */
+typedef struct GpuTbl {                          /* @0x80123654 */
     const char *id;                              /* +0  */
     int  (*que_ref)(QueFunc, u_long *, int);     /* +4  _que_ref */
     int  (*que_push)(QueFunc, u_long *, int, int);/* +8  _gpu_que_push */
@@ -743,7 +770,7 @@ struct GpuTbl {                                  /* @0x80123654 */
     int  (*reset)(int);                          /* +52 _reset */
     int  (*get_status)(void);                    /* +56 _get_status */
     int  (*sync)(int);                           /* +60 _sync (DrawSync backend) */
-};
+} GpuTbl;
 static const GpuTbl _gpu_tbl = {                 /* the live driver table */
     "GPU",                                        /* @0x80056cd8 */
     _que_ref, _gpu_que_push, (QueFunc)_BlitClear, _send_gp1, _send_gp0,
@@ -758,7 +785,7 @@ static const GpuTbl _gpu_tbl = {                 /* the live driver table */
 static const GpuTbl *GEnv_drv __attribute__((section(".data"))) = &_gpu_tbl;   /* @0x80123694 -> @0x80123654 */
 
 /* @0x800ED8E4 : debug-only RECT validator/printer (inert when GPU debug level is 0). */
-extern "C" void _image(const char *label, void *rect)
+extern void _image(const char *label, void *rect)
 {
     short *r = (short *)rect;
     const char *fmt;
@@ -781,7 +808,7 @@ extern "C" void _image(const char *label, void *rect)
 
 /* @0x800EF9BC : DrawSync backend.  mode==0 blocks until the queue and GPU are idle (or the
  *   watchdog fires, -1).  mode!=0 polls and returns the current queue depth. */
-extern "C" int _sync(int mode)
+extern int _sync(int mode)
 {
     /* MATCH: mode==0 arm written FIRST -- the oracle's bnez-mode branches AROUND this whole
      * block (placing it inline/fallthrough) and the mode!=0 arm out-of-line at the tail;
@@ -813,7 +840,7 @@ extern "C" int _sync(int mode)
 }
 
 /* @0x800EFC70 : reconfigure the GPU display registers for the current video mode. */
-extern "C" int _gpu_init_videomode(int mode)
+extern int _gpu_init_videomode(int mode)
 {
     *GPU_GP1 = 0x10000007;
     if ((*GPU_GP0 & 0x00ffffff) != 2) {          /* old GPU */
@@ -828,7 +855,7 @@ extern "C" int _gpu_init_videomode(int mode)
 }
 
 /* @0x800ED7E4 : turn the display on (mask!=0) or off (mask==0). */
-extern "C" void SetDispMask(int mask)
+extern void SetDispMask(int mask)
 {
     if (GEnv.debug >= 2)
         GPU_printf("SetDispMask(%d)...\n", mask);   /* @0x80056DA0 (oracle @0x800ed7fc-824) */
@@ -838,7 +865,7 @@ extern "C" void SetDispMask(int mask)
 }
 
 /* @0x800ED87C : DrawSync */
-extern "C" int DrawSync(int mode)
+extern int DrawSync(int mode)
 {
     if (GEnv.debug >= 2)
         GPU_printf("DrawSync(%d)...\n", mode);       /* @0x80056DB4 */
@@ -846,7 +873,7 @@ extern "C" int DrawSync(int mode)
 }
 
 /* @0x800EDA00 : ClearImage(RECT*, r, g, b) */
-extern "C" int ClearImage(void *rect, int r, int g, int b)
+extern int ClearImage(void *rect, int r, int g, int b)
 {
     int color;
     _image("ClearImage", rect);                  /* @0x80056dec */
@@ -855,21 +882,21 @@ extern "C" int ClearImage(void *rect, int r, int g, int b)
 }
 
 /* @0x800EDA90 : LoadImage(RECT*, u_long *data) */
-extern "C" int LoadImage(void *rect, u_long *data)
+extern int LoadImage(void *rect, u_long *data)
 {
     _image("LoadImage", rect);                   /* @0x80056e04 */
     return GEnv_drv->que_push(GEnv_drv->dws, (u_long *)rect, 8, (int)data);
 }
 
 /* @0x800EDAF0 : StoreImage(RECT*, u_long *data) */
-extern "C" int StoreImage(void *rect, u_long *data)
+extern int StoreImage(void *rect, u_long *data)
 {
     _image("StoreImage", rect);                  /* @0x80056e10 */
     return GEnv_drv->que_push(GEnv_drv->drs, (u_long *)rect, 8, (int)data);
 }
 
 /* @0x800EDB50 : MoveImage(RECT*, x, y) -- VRAM->VRAM block copy. */
-extern "C" int MoveImage(void *rect, int x, int y)
+extern int MoveImage(void *rect, int x, int y)
 {
     short *r = (short *)rect;
     _image("MoveImage", rect);                   /* @0x80056e1c */
@@ -887,7 +914,7 @@ extern "C" int MoveImage(void *rect, int x, int y)
  * effect: named `int n=0` local, both n/extra as separate named locals -- gcc CSEs the two
  * zero args regardless of source form (both are the literal 0 in the same call). Same class as
  * the documented commutative-operand-selection floors; not source-reachable. */
-extern "C" void DrawOTag(u_long *ot)
+extern void DrawOTag(u_long *ot)
 {
     if (GEnv.debug >= 2)
         GPU_printf("DrawOTag(%08x)...\n", ot);   /* @0x80056e58 */
@@ -895,7 +922,7 @@ extern "C" void DrawOTag(u_long *ot)
 }
 
 /* @0x800EFD10 : DrawOTag2 -- synchronous ordering-table draw (waits, then DMAs directly). */
-extern "C" int DrawOTag2(u_long *p)
+extern int DrawOTag2(u_long *p)
 {
     if (GEnv.debug >= 2)
         GPU_printf("DrawOTag(%08x)...\n", p);    /* @0x80056e58 */
@@ -915,10 +942,19 @@ extern "C" int DrawOTag2(u_long *p)
  *   draw/display environment (caching the last one in GEnv); ClearOTagR clears an OT in reverse
  *   and links a fixed terminator tail. */
 
-extern "C" int   GetVideoMode(void);                 /* libetc VMODE.obj */
-extern "C" void *memcpy(void *d, const void *s, unsigned n);/* libc   C42.obj @0x800EAAC4 */
-extern "C" void  GPU_cw(u_long cw);                  /* libapi C73.obj @0x80104A0C (BIOS) */
-extern "C" void  ResetCallback(void);                /* libetc INTR.obj @0x800F284C */
+extern int   GetVideoMode(void);                 /* libetc VMODE.obj */
+/* w26-a3: called via a renamed local decl (asm-label back to the real symbol "memcpy") --
+ * under CC1PSX (C lane, unlike cc1plus) both calls below pass a COMPILE-TIME-CONSTANT length
+ * (0x5c/0x14), which gcc's builtin-function table matches by the literal identifier "memcpy"
+ * and expands INLINE as an lwl/lwr/swl/swr unrolled copy (~35 extra insns, PutDrawEnv 48->95),
+ * unlike the oracle (and the pre-migration cc1plus build, which never triggered this because
+ * C++'s extern "C" memcpy apparently never hit gcc2's builtin table the same way here) which
+ * always calls the real libc C42.obj routine. The asm-label renames the C-visible identifier so
+ * gcc's name-keyed builtin lookup can't match it, while still linking to the real "memcpy"
+ * symbol -- a real `jal memcpy`, verified byte-for-byte against this same idiom in isolation. */
+extern void *_memcpy(void *d, const void *s, unsigned n) __asm__("memcpy");/* libc C42.obj @0x800EAAC4 */
+extern void  GPU_cw(u_long cw);                  /* libapi C73.obj @0x80104A0C (BIOS) */
+extern void  ResetCallback(void);                /* libetc INTR.obj @0x800F284C */
 
 /* per-video-mode VRAM clip extents: stride-4 in .data (low u16 = value, high u16 = 0
    padding); @0x8012371C (_vmode_w) / 0x80123728 (_vmode_h). EXE bytes 00 04 00 00.. confirm
@@ -937,13 +973,14 @@ static u_long _otc_link;                       /* @0x8012375C : OT terminator li
 static const u_long _otc_term = 0x04ffffffu;   /* @0x80123748 : list terminator word */
 
 /* @0x800EF86C : reset the GPU command queue and (optionally) the GPU itself. */
-extern "C" int _reset(int mode)
+extern int _reset(int mode)
 {
     int ret;
+    int m;
     _q_reset_mask = SetIntrMask(0);
     _qout = 0;
     _qin = 0;
-    int m = mode & 7;
+    m = mode & 7;
     if (m == 0 || m == 5) {
         *D2_CHCR = 0x401;
         *DMA_DPCR |= 0x800;
@@ -963,7 +1000,7 @@ extern "C" int _reset(int mode)
 }
 
 /* @0x800ED670 : initialise the graphics system for the given mode. */
-extern "C" int ResetGraph(int mode)
+extern int ResetGraph(int mode)
 {
     int m = mode & 7;
     if (m == 0 || m == 3 || m == 5) {
@@ -990,7 +1027,7 @@ extern "C" int ResetGraph(int mode)
 }
 
 /* @0x800EDC08 : clear an ordering table in reverse, then append the fixed terminator tail. */
-extern "C" void ClearOTagR(u_long *ot, int n)
+extern void ClearOTagR(u_long *ot, int n)
 {
     if (GEnv.debug >= 2)
         GPU_printf("ClearOTagR(%08x,%d)...\n", ot, n);   /* @0x80056E40 */
@@ -1000,7 +1037,7 @@ extern "C" void ClearOTagR(u_long *ot, int n)
 }
 
 /* @0x800EDD24 : build the env draw environment, queue it, and cache it. */
-extern "C" void *PutDrawEnv(void *env)
+extern void *PutDrawEnv(void *env)
 {
     char *e = (char *)env;
     if (GEnv.debug >= 2)
@@ -1008,12 +1045,12 @@ extern "C" void *PutDrawEnv(void *env)
     _set_drawenv(e + 0x1c, env);
     *(u_long *)(e + 0x1c) |= 0x00ffffffu;            /* terminate the DR_ENV */
     GEnv_drv->que_push((QueFunc)GEnv_drv->dma_chain, (u_long *)(e + 0x1c), 0x40, 0);
-    memcpy(GEnv.drawenv, env, 0x5c);
+    _memcpy(GEnv.drawenv, env, 0x5c);
     return env;
 }
 
 /* @0x800EDDE4 : program the GPU display environment (display area, mode, H/V ranges). */
-extern "C" void *PutDispEnv(void *env)
+extern void *PutDispEnv(void *env)
 {
     /* MATCH: single base pointer for `env` (§3.12 lever; same class of bug as _set_drawenv). */
     u_char *eb = (u_char *)env;
@@ -1108,7 +1145,7 @@ extern "C" void *PutDispEnv(void *env)
         _send_gp1(((u3 & 0x3ff) << 10) | (u6 & 0x3ff) | 0x7000000u);
     }
 done:
-    memcpy(GEnv.dispenv, env, 0x14);
+    _memcpy(GEnv.dispenv, env, 0x14);
     return env;                                  /* oracle @0x800ee2c0 $v0 = $s1 = env */
 #undef ES
 #undef EU

@@ -1,4 +1,4 @@
-/* syslib/psx/libgte/PATCHGTE.cpp -- RECONSTRUCTED from nfs4-f.exe (disasm-v3).
+/* syslib/psx/libgte/PATCHGTE.c -- RECONSTRUCTED from nfs4-f.exe (disasm-v3).
  *   obj libgte.lib(PATCHGTE.OBJ): _patch_gte -- the runtime workaround for the GTE hardware
  *   bug.  The oracle is genuine HANDWRITTEN assembly (it spills $ra to a FIXED GLOBAL
  *   D_8014898C rather than the stack, and calls the BIOS via a raw `jalr $t2` after loading
@@ -12,22 +12,42 @@
  *
  *   _gte_patch_text @0x80106500 holds both halves: words [0..5] are the buggy pattern to match
  *   (the loop walks &word[0]..&word[6]), words [6..11] the fixed replacement copied over the
- *   handler (the loop copies &word[6]..&word[12]); the fix adds `mfc0 $2,$13` = read Cause. */
+ *   handler (the loop copies &word[6]..&word[12]); the fix adds `mfc0 $2,$13` = read Cause.
+ *
+ *   w26-a3 TOOLCHAIN migration (.cpp -> .c, CC1PSX/C lane). Two blockers, both resolved:
+ *   1. `extern "C"` is meaningless in C (already default linkage) -- stripped, and the
+ *      `extern "C" { ... }` BLOCK wrapping _gte_patch_text (C++-only syntax) removed outright;
+ *      a plain non-static file-scope `const` array already has external linkage in C99/C89 (C,
+ *      unlike C++, does NOT give `const` internal linkage), so nothing else changes.
+ *   2. CC1PSX emits this TU's data BEFORE the file-scope __asm__ block (the reverse of
+ *      cc1plus's order here -- cc1plus emits the asm FIRST, with `_gte_patch_text` optimized
+ *      away entirely as apparently-unreferenced, a PRE-EXISTING and ORTHOGONAL data-loss bug in
+ *      the prior .cpp build, confirmed by objdump -t showing `_gte_patch_text` as `*UND*` there
+ *      -- flagged separately, not fixed by this migration since it's not this task's scope).
+ *      Under cc1, `_gte_patch_text` lands in `.rdata` (a `.rdata`-then-`.text` switch with NO
+ *      section directive emitted at the asm's `#APP` boundary, since gcc doesn't know the raw
+ *      asm text is about to define a labeled function) -- so without a fix, `_patch_gte`'s
+ *      instruction bytes assemble into `.rodata`, not `.text`. FIX (re-verified cheaply, proven
+ *      via an isolated repro + real objdump -h/-t: `.text` size correct, `_patch_gte` symbol
+ *      correctly in the `.text` section, `_gte_patch_text` correctly in `.rodata` -- this route
+ *      DOES work under Task 1's generalized maspsx `.section` parser, contradicting the earlier
+ *      "confirmed not fixable" note): prepend a literal `.section .text` as the FIRST line
+ *      inside the `__asm__` string, so the assembler explicitly switches back to `.text` before
+ *      any of `_patch_gte`'s real instructions, regardless of whatever section preceded it.
+ *      `_patch_gte` byte-matches: PASS, 43 insns (unchanged from the pre-migration baseline). */
 
-extern "C" int  EnterCriticalSection(void);   /* libapi A36 */
-extern "C" void ExitCriticalSection(void);    /* libapi A37 */
-extern "C" void FlushCache(void);             /* libapi C68 */
+extern int  EnterCriticalSection(void);   /* libapi A36 */
+extern void ExitCriticalSection(void);    /* libapi A37 */
+extern void FlushCache(void);             /* libapi C68 */
 
 /* @0x80106500 : GTE exception-handler patch template (match-half + fix-half).
  * Must be an initialized .rodata/.data table so the loop bounds &[0]/&[6]/&[12] resolve;
  * the handwritten loops reference it as func_80106500 / D_80106518 / D_80106530. */
-extern "C" {
 const unsigned _gte_patch_text[13] = {
     0xaf410004, 0xaf420008, 0xaf43000c, 0xaf5f007c, 0x40037000, 0x00000000,   /* [0..5] buggy pattern */
     0xaf410004, 0xaf420008, 0x40026800, 0xaf43000c, 0x40037000, 0xaf5f007c,   /* [6..11] fixed (mfc0 $2,$13) */
     0x00000000
 };
-}
 
 #if defined(__mips__)
 /* @0x8014898C : scratch word holding $ra across the helper calls (handwritten spill). */
@@ -35,8 +55,12 @@ int _patch_gte_ra_save;
 
 /* @0x80106454 : _patch_gte -- handwritten.  Double `.set noreorder` (tab form disables
  * maspsx's auto delay-slot nop insertion so the hand-filled bne/jal delay slots survive;
- * space form passes through to GNU as) -- the proven libcard CARD.S idiom. */
+ * space form passes through to GNU as) -- the proven libcard CARD.S idiom.
+ * w26-a3: leading `.section .text` forces the assembler back into `.text` regardless of
+ * whatever section (here CC1PSX's `.rdata`, for the const table above) was active when this
+ * raw-asm passthrough block begins -- see the file header note. */
 __asm__(
+    "\t.section .text\n"     /* w26-a3: force .text (CC1PSX leaves us in .rdata here) */
     "\t.set noat\n"
     "\t.set\tnoreorder\n"   /* tab form: turns maspsx's is_reorder OFF (no auto bne/jal delay nop) */
     "\t.set noreorder\n"    /* space form: passes THROUGH maspsx to gnu-as (keeps as from reordering) */
@@ -91,7 +115,7 @@ __asm__(
     "\t.set	pop\n");
 #else
 /* @0x80106454 : _patch_gte -- host no-op (no BIOS, no GTE, no self-modifying code). */
-extern "C" void _patch_gte(void)
+extern void _patch_gte(void)
 {
     EnterCriticalSection();
     (void)_gte_patch_text;

@@ -13,8 +13,10 @@ typedef int bool;
  *   IDA); iSPCH_SentenceUsesParm reads in_v0 = VoxSentence_GetNumPhrases' dropped return.
  */
 
-extern int gSentenceRuleSet;    /* sentence rule-set callback (spchinit-owned) */
-extern int gSentenceRuleTest;   /* sentence rule-test callback */
+typedef void (*SentenceRuleSetFn)(unsigned int, unsigned int, int, int);
+typedef int (*SentenceRuleTestFn)(unsigned int, unsigned int, int, int);
+extern SentenceRuleSetFn gSentenceRuleSet;    /* sentence rule-set callback (spchinit-owned) */
+extern SentenceRuleTestFn gSentenceRuleTest;  /* sentence rule-test callback */
 
 /* ---- per-TU static copies of the shared Vox accessors (canonical versions in spchdata.obj) ---- */
 
@@ -36,7 +38,7 @@ extern int  iSPCH_GetRuleDataAddr(int sentence);                       /* @0x801
 extern int  iSPCH_SentenceUsesParm(int sentence, unsigned int paramIdx); /* @0x8010B158 */
 extern unsigned int iSPCH_GetRuleID(int sentence, int index);         /* @0x8010B220 */
 extern void iSPCH_RuleSet(short *sentence, int rule, int val);        /* @0x8010B294 */
-extern void iSPCH_GetRuleSettings(short *sentence, int *values, char *out); /* @0x8010B3CC */
+extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out); /* @0x8010B3CC */
 extern unsigned int iSPCH_CheckSentenceRules(int testVal, int clearMask, int rulePtr); /* @0x8010B58C */
 
 /* iSPCH_GetRuleDataAddr @0x8010B140 : address of a sentence's rule-data block (after its phrase table).
@@ -113,22 +115,32 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int val)
 {
     if (gSentenceRuleSet != 0) {
         int offSent;
-        char           numRules = *(char *)((int)sentence + 7);
+        int            numRules = *(signed char *)((int)sentence + 7);
         int            i        = 0;
         unsigned char *rd       = (unsigned char *)iSPCH_GetRuleDataAddr((int)sentence);
         offSent = iSPCH_GetOffset16((int)sentence, (int)(sentence + 6), rule);
         if (0 < numRules) {
             do {
-                unsigned char ruleByte = rd[0];
-                unsigned int  paramIdx = (unsigned int)(rd[1] & 0xf);
-                unsigned int  ruleType = (unsigned int)(unsigned char)rd[1] >> 4;
+                volatile unsigned int ruleByteStore;
+                volatile unsigned int paramStore;
+                volatile unsigned int ruleTypeStore;
+                unsigned int ruleByte;
+                unsigned int packed;
+                unsigned int paramIdx;
+                unsigned int ruleType;
+                ruleByte = rd[0];
+                ruleByteStore = ruleByte;
+                packed = *(volatile unsigned char *)(rd + 1);
+                paramIdx = packed & 0xf;
+                paramStore = paramIdx;
+                ruleType = (unsigned int)*(volatile unsigned char *)(rd + 1) >> 4;
+                ruleTypeStore = ruleType;
                 switch (ruleType) {
                 case 0:
                 case 3:
                     if (iSPCH_SentenceUsesParm(offSent, paramIdx) != 0) {
-                        ((void (*)(unsigned int, unsigned char, int, int))gSentenceRuleSet)
-                            ((unsigned short)*sentence, ruleByte,
-                             *(int *)((int)paramIdx * 4 + val), val);
+                        gSentenceRuleSet((unsigned short)*sentence, ruleByte,
+                            *(int *)((int)paramIdx * 4 + val), val);
                     }
                     break;
                 case 1:
@@ -153,67 +165,76 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int val)
  *   two distinct base pointers, and the whole typeNib==4 arm was MISSING from the prior reconstruction.
  *   (2) the real gSentenceRuleTest call is 4-arg (*sentence,ruleId,v,sentence) -- the prior draft passed
  *   6 args (2 extra: a stray *p, paramIdx) that the oracle's call site never sets up.
- *   (3) `result` is a SECOND accumulator (typeNib==4-hit + r>0 hit) that the oracle computes to the very
- *   end (`andi v0,s6,0xff`) but never stores -- dead but must be reproduced; only `flags` (r<0 hits) is
- *   written to *out. */
-extern void iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
+ *   (3) `result` is a SECOND accumulator (typeNib==4-hit + r>0 hit) returned as an unsigned byte
+ *   (`andi v0,s6,0xff`); only `flags` (r<0 hits) is written to *out.  The old `void` reconstruction
+ *   caused the compiler to delete the returned accumulator completely. */
+extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
 {
-    char           numRules   = *(char *)((int)sentence + 7);
-    int           *valuesBase = values;
-    unsigned int   result     = 0;
-    unsigned int   flags      = 0;
-    unsigned char *ruleData   = (unsigned char *)iSPCH_GetRuleDataAddr((int)sentence);
-    unsigned int   ruleType   = 1;
+    char           numRules = *(char *)((int)sentence + 7);
+    unsigned int   result = 0;
+    unsigned int   flags = 0;
+    unsigned char *ruleData = (unsigned char *)iSPCH_GetRuleDataAddr((int)sentence);
+    int            ruleType = 1;
+    int           *value = values + 1;
     do {
-        int            i = 0;
-        unsigned char *p = ruleData;
-        values = values + 1;
+        int            i;
+        int           *currentValue;
+        unsigned char *p;
+        i = 0;
         if (0 < numRules) {
+            currentValue = value;
+            p = ruleData;
             do {
-                volatile unsigned int ruleId0;
-                volatile unsigned int paramNib;
-                volatile unsigned int typeNib;
-                unsigned int paramIdx;
-                int          v        = 0;
-                int          doTest   = 0;
-                ruleId0  = p[0];
-                paramNib = p[1] & 0xf;
-                typeNib  = (unsigned int)(unsigned char)p[1] >> 4;
-                paramIdx = paramNib;
+                volatile unsigned int ruleId;
+                unsigned int param;
+                volatile unsigned int type;
+                unsigned int packed;
+                unsigned int bit;
+                int          hit;
+                int          testValue;
+                ruleId = p[0];
+                packed = *(volatile unsigned char *)(p + 1);
+                hit = 0;
+                param = packed & 0xf;
+                type = (unsigned int)*(volatile unsigned char *)(p + 1) >> 4;
                 if (ruleType == 0xc) {
-                    if (paramIdx == 0)
-                        doTest = 1;
-                } else if (paramIdx == ruleType) {
-                    v      = *values;
-                    doTest = 1;
+                    if (param != 0)
+                        goto next_rule;
+                    testValue = 0;
+                } else {
+                    if (param != (unsigned int)ruleType)
+                        goto next_rule;
+                    testValue = *currentValue;
                 }
-                if (doTest) {
-                    if (typeNib == 4) {
-                        if (valuesBase[paramIdx] != 0)
-                            result = result | (1 << (7 - i));
-                    } else {
-                        int r;
-                        if (gSentenceRuleTest == 0)
-                            r = -1;
-                        else
-                            r = ((int (*)(int, int, int, int))gSentenceRuleTest)
-                                    ((int)*sentence, (int)ruleId0, v, (int)sentence);
-                        if (r != 0 && r < 1)
-                            flags = flags | (1 << (7 - i));
-                    }
+                bit = 1 << (7 - i);
+                if (type == 4) {
+                    if (values[param] != 0)
+                        hit = bit;
+                } else {
+                    int testResult;
+                    if (gSentenceRuleTest != 0)
+                        testResult = gSentenceRuleTest(
+                            (unsigned short)*sentence, ruleId, testValue, (int)sentence);
+                    else
+                        testResult = -1;
+                    if (testResult == 0)
+                        hit = 0;
+                    else if (0 < testResult)
+                        hit = bit;
+                    else
+                        flags |= bit;
                 }
+                result |= hit;
+next_rule:
                 i = i + 1;
                 p = p + 2;
             } while (i < numRules);
         }
         ruleType = ruleType + 1;
-        if (0xc < (int)ruleType) {
-            volatile unsigned char resultByte = (unsigned char)result;
-            (void)resultByte;
-            *out = (char)flags;
-            return;
-        }
-    } while (true);
+        value = value + 1;
+    } while (ruleType < 0xd);
+    *out = (char)flags;
+    return (unsigned char)result;
 }
 
 /* iSPCH_CheckSentenceRules @0x8010B58C : 1 if (rule[+2] ^ testVal) masked by rule[+1] and ~clearMask is 0. */

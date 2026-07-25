@@ -54,7 +54,7 @@ extern int  iSPCH_Rand(int n);                                        /* spchran
 extern unsigned int iSPCH_GetRuleID(int sentence, int index);         /* spchrule */
 extern void iSPCH_RuleSet(short *sentence, int rule, int val);        /* spchrule */
 extern unsigned int iSPCH_CheckSentenceRules(int a, int b, int c);    /* spchrule */
-extern void iSPCH_GetRuleSettings(short *sentence, int *values, char *out); /* spchrule */
+extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out); /* spchrule */
 extern int  iSPCH_FindEvent(unsigned int eventID);                    /* spchevnt */
 extern int  GetFilterLength(void);                                    /* spchevnt */
 extern void trap(unsigned int code);

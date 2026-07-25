@@ -529,64 +529,31 @@ extern int startnextrequest(int s, unsigned int prio)
  *   spent requests, wraps the ring when needed, computes the next contiguous fill region, and issues the
  *   next chunk read -- from the memory image (memcpy + readcallback) or via FILE_read + readcallback.
  *   Stalls (state 2) if there is not at least one sector of room.
- * w18-a9: two REAL findings, one applied + one PROVEN-but-BLOCKED:
- *   (1) APPLIED, gate-verified 155->149: the two internal loops (skip-wrap-markers @+0x40..+0x44, and
- *       free-finished-requests off the queue head @+0x4C) are EXIT-IN-THE-MIDDLE guard+do-while shapes
- *       (oracle caches the loop-invariant bound in a caller-saved reg BEFORE the loop, tests fresh inside
- *       -- see reference_asm_pattern_catalog.md §B), not `while(cond){...; cond=reload;}` -- rewritten
- *       to match; also fixed the (leftover, unused-since-refactor) callers' func-ptr-cast noise.
- *   (2) PROVEN CORRECTNESS BUG, NOT YET APPLIED (blocked -- see below): `prio` is NOT a dead 2nd param
- *       (every prior wave's comment calling it "dead" was wrong) -- the oracle forwards it, together with
- *       `s` itself, as FILE_read's 5th/6th STACK args (a5=prio, a6=s; oracle
- *       `sw $s4,0x10($sp); sw $s1,0x14($sp)` right before the FILE_read jal, both loaded from a
- *       CALLEE-SAVED reg that survives the whole function). Every call site (opencallback/readcallback/
- *       startnextrequest/STREAM_release) already loads+passes the real prio value through a func-ptr-cast
- *       hack "because restartstream ignores it" -- that belief is the actual bug in the retail-behavior
- *       sense. BLOCKED: forwarding `prio` into the FILE_read call (`FILE_read(...,prio,(unsigned)s)`
- *       instead of `FILE_read(...,0,0)`) is semantically correct per the oracle but keeps `prio` live
- *       across the WHOLE function (every intervening call), which our gcc allocates a 6th callee-saved
- *       register for (s0-s5, frame -0x38) where the oracle manages with 5 (s0-s4, frame -0x30) --
- *       verified 149->160 diffs, insn count 170->173 (worse, not "moving decisively toward oracle" per
- *       the iron rule) purely from the extra sw/lw pair + frame growth.
- *   FOLLOW-UP SESSION (2026-07-19, dedicated): ROOT CAUSE now isolated, still a genuine floor.
- *       Oracle's exact 5-reg map (asm/nonmatchings/main/restartstream.s, frame -0x30, saves s0-s4):
- *         s1 = `s` (whole fn; also FILE_read a6 via `sw $s1,0x14($sp)`)
- *         s4 = `prio` (whole fn; FILE_read a5 via `sw $s4,0x10($sp)`)
- *         s0 = TIME-SHARED: queue-head `iVar1` in the free-requests loop (`lw $s0,0x4C($s1)` @ED3F0/ED448)
- *              THEN current-request `iVar2` in have_room (`lw $s0,0x50($s1)` @ED50C) -- non-overlapping uses.
- *       Our build CANNOT reuse s0 that way because our `iVar1` (queue-head) mutates into the ROOM-SIZE and
- *       stays live THROUGH have_room (read at `MI(iVar2,0x58) < MI(s,0xa0)+iVar1`), so its register can't be
- *       recycled for the current-request the way the oracle's s0 is -> with `prio` also demanding a
- *       callee-saved slot, gcc-2.8.0 needs a 6th (s5). The oracle computes room-size in a *different* reg so
- *       s0 frees up. Tried to reproduce: (a) split reused `iVar1` (w18-a9, 160->162 worse); (b) the PERMUTER
- *       (now unblocked -- both sanitizer fixes landed this session) on the correct-args (160-diff) version,
- *       6 min / 97 iters / -j4: base score 1090 -> best 855, NO byte-match basin found (unguided
- *       randomization couldn't hit the s0-time-share coloring). Genuine gcc-2.8.0 allocator floor. KEPT the
- *       gate-optimal form (`prio` declared+unused -> dropped from save set, frame matches oracle's 5-reg
- *       count @141 after the raw-tail fix below). NEXT: a source shape that computes room-size WITHOUT keeping queue-head's register live
- *       into have_room (freeing s0 for the current-request reuse), or a longer/@PERM-guided permuter run.
- *       DO NOT re-flag "prio is dead" as settled fact -- it demonstrably is not.
- *   RAW-TAIL FIX (2026-07-26, 149->141 detailed): FILE_callbackop is value-returning here. The
- *       retail tail conditionally replaces `op` with that callback result and returns the merged
- *       value; it does not call a void function and then return the original FILE_read op. */
+ * RAW/ORACLE REDUCTION (2026-07-26, 141->42 diffs; count-exact 167/167):
+ *   - distinct lexical lifetimes for queue head, room size, wrap-copy size, and current request let
+ *     gcc reuse the oracle's five saved registers; this unblocks the real `prio,s` stack arguments
+ *     to FILE_read instead of the incorrect zero placeholders;
+ *   - the positive-room arm and shared check label recover the oracle's two-arm branch/jump shape;
+ *   - named -1/-2 marker constants recover the oracle's prologue scheduling;
+ *   - FILE_callbackop's result remains the merged return value.
+ * The residual is one caller-saved coloring family across the room calculation (a0/a1 and a2/v1). */
 extern int restartstream(int s, unsigned int prio)
 {
-    int  iVar1, iVar2;
-    unsigned int uVar3, uVar5;
     int *p;
     int *q;
     int  sr;
-    (void)prio;  /* KNOWN-BLOCKED FIX: real oracle behavior forwards this to FILE_read's a5 (see above) */
 
     /* skip wrap/free markers at the read head (+0x40) up to the writeptr (+0x44) */
     if (MI(s, 0x40) != MI(s, 0x44)) {
+        int wrapTag = -1;
+        int freeTag = -2;
         unsigned int wr = MU(s, 0x44);           /* cache writeptr for the whole loop */
         do {
             p = *(int **)(s + 0x40);
-            if (p[0] == -1) {                    /* wrap marker -> jump to bufBase (+0x20) */
+            if (p[0] == wrapTag) {               /* wrap marker -> jump to bufBase (+0x20) */
                 MI(s, 0x40) = MI(s, 0x20);
             } else {
-                if (p[0] != -2)                  /* a live chunk -> stop */
+                if (p[0] != freeTag)             /* a live chunk -> stop */
                     break;
                 MI(s, 0x40) = (int)p + p[1];     /* free marker -> skip its length */
             }
@@ -595,63 +562,75 @@ extern int restartstream(int s, unsigned int prio)
 
     /* free finished requests whose data has been fully consumed */
     sr = STREAM_enterCS();
-    iVar1 = MI(s, 0x4c);                         /* queue head */
-    if (MI(iVar1, 0xc) != 0) {
-        do {
-            iVar2 = MI(iVar1, 0xc);              /* req = head->next */
-            if (MI(iVar2, 4) == 1)               /* state==queued -> stop */
-                break;
-            if (inbetween(MU(s, 0x40), MU(s, 0x48), MI(iVar2, 0x60) - 1) != 0)
-                break;
-            freerequest(s, iVar1);
-            iVar1 = MI(s, 0x4c);
-        } while (MI(iVar1, 0xc) != 0);
+    {
+        int head = MI(s, 0x4c);                  /* queue head */
+        if (MI(head, 0xc) != 0) {
+            do {
+                int req = MI(head, 0xc);         /* req = head->next */
+                if (MI(req, 4) == 1)             /* state==queued -> stop */
+                    break;
+                if (inbetween(MU(s, 0x40), MU(s, 0x48), MI(req, 0x60) - 1) != 0)
+                    break;
+                freerequest(s, head);
+                head = MI(s, 0x4c);
+            } while (MI(head, 0xc) != 0);
+        }
     }
     STREAM_leaveCS(sr);
 
     /* compute the next contiguous fill region [fillptr .. readptr) */
-    uVar3 = MU(s, 0x40);                         /* readptr */
-    uVar5 = MU(s, 0x48);                         /* fillptr */
-    iVar1 = uVar3 - uVar5;
-    if (uVar3 <= uVar5) {
-        iVar1 = (MI(s, 0x24) - uVar5) - 8;       /* room to bufEnd, less header */
-        if (0x1fff < iVar1)
-            goto have_room;
-        /* not enough tail room -> wrap: move the partial chunk down to bufBase */
-        iVar2 = uVar5 - (int)*(unsigned char **)(s + 0x44);
-        if ((int)(uVar3 - (int)*(unsigned char **)(s + 0x20)) < iVar2 + 1)
-            goto stall;
-        memcpy(*(unsigned char **)(s + 0x20), *(unsigned char **)(s + 0x44), iVar2);
-        q = *(int **)(s + 0x44);
-        q[0] = -1;                               /* leave a wrap marker behind */
-        q[1] = 8;
-        iVar2 = MI(s, 0x20) + iVar2;
-        iVar1 = MI(s, 0x40) - iVar2;
-        MI(s, 0x44) = MI(s, 0x20);
-        MI(s, 0x48) = iVar2;
-    }
-    iVar1 = iVar1 - 1;
-    if (iVar1 < 0x2000) {
+    {
+        unsigned int uVar3 = MU(s, 0x40);        /* readptr */
+        unsigned int uVar5 = MU(s, 0x48);        /* fillptr */
+        int room;
+        if (uVar3 > uVar5) {
+            room = (uVar3 - uVar5) - 1;
+            goto check_room;
+        } else {
+            room = (MI(s, 0x24) - uVar5) - 8;    /* room to bufEnd, less header */
+            if (0x1fff < room)
+                goto have_room;
+            /* not enough tail room -> wrap: move the partial chunk down to bufBase */
+            {
+                int moveSize = uVar5 - (int)*(unsigned char **)(s + 0x44);
+                if ((int)(uVar3 - (int)*(unsigned char **)(s + 0x20)) < moveSize + 1)
+                    goto stall;
+                memcpy(*(unsigned char **)(s + 0x20), *(unsigned char **)(s + 0x44), moveSize);
+                q = *(int **)(s + 0x44);
+                q[0] = -1;                       /* leave a wrap marker behind */
+                q[1] = 8;
+                uVar5 = MI(s, 0x20) + moveSize;
+                room = MI(s, 0x40) - uVar5;
+                MI(s, 0x44) = MI(s, 0x20);
+                MI(s, 0x48) = uVar5;
+            }
+        }
+        room = room - 1;
+check_room:
+        if (room < 0x2000) {
 stall:
-        MI(s, 0x28) = 2;                         /* buffer-full stall */
-        return 2;
-    }
+            MI(s, 0x28) = 2;                     /* buffer-full stall */
+            return 2;
+        }
 have_room:
-    iVar2 = MI(s, 0x50);                         /* current request */
-    if (MI(iVar2, 0x10) == 1) {                  /* memory source -> memcpy a chunk in */
-        if (MI(iVar2, 0x58) < MI(s, 0xa0) + iVar1)
-            MI(s, 0xa8) = MI(iVar2, 0x58) - MI(s, 0xa0);  /* clamp to remaining */
-        else
-            MI(s, 0xa8) = iVar1;
-        memcpy(*(unsigned char **)(s + 0x48), *(unsigned char **)(iVar2 + 0x54), MI(s, 0xa8));
-        MI(iVar2, 0x54) += MI(s, 0xa8);          /* advance mem source ptr */
-        return readcallback(0, 0, s);
+        {
+            int req = MI(s, 0x50);               /* current request */
+            if (MI(req, 0x10) == 1) {            /* memory source -> memcpy a chunk in */
+                if (MI(req, 0x58) < MI(s, 0xa0) + room)
+                    MI(s, 0xa8) = MI(req, 0x58) - MI(s, 0xa0); /* clamp to remaining */
+                else
+                    MI(s, 0xa8) = room;
+                memcpy(*(unsigned char **)(s + 0x48), *(unsigned char **)(req + 0x54), MI(s, 0xa8));
+                MI(req, 0x54) += MI(s, 0xa8);    /* advance mem source ptr */
+                return readcallback(0, 0, s);
+            }
+        }
     }
     /* file source -> issue a sector read */
     MI(s, 0xa8) = 0x2000;
     {
         unsigned int op = FILE_read((void *)MU(s, 0x9c), MU(s, 0xa0), MU(s, 0x48),
-                                    MI(s, 0xa8), 0, 0);   /* real args = prio,(uint)s -- see BLOCKED note above */
+                                    MI(s, 0xa8), prio, (unsigned int)s);
         MU(s, 0xa4) = op;
         if (op != 0)
             op = FILE_callbackop(op, (void (*)(int, int))readcallback);

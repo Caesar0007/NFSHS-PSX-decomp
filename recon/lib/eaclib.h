@@ -187,7 +187,7 @@ void vramimage(void * arg0);   /* vramfxya */
    /* vramfxya */
 void getshapeclut(void * arg0);   /* shpclut */
    /* shpclut */
-void CD_systaskfunc();   /* cdfs */
+int CD_systaskfunc();    /* cdfs */
 void CD_timerfunc();   /* cdfs */
 void CdReadyHandler(int arg0);   /* cdfs */
 void readsectorB();   /* cdfs */

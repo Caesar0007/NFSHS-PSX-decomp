@@ -21,10 +21,12 @@
  *             CD_Restart: a volatile cached-sector view pins the second store before the callback.
  *             CD_Open: a guarded do/while removes the redundant bound precheck; a distinct copied
  *             bound preserves the oracle's post-guard register move. No asm pins (HARD RULE).
- *     [near]  CD_systaskfunc (71->58->27 diffs) -- REAL BUG FIXED: the CdlDiskError watchdog branch
+ *     [near]  CD_systaskfunc (71->58->27->26 diffs) -- REAL BUG FIXED: the CdlDiskError watchdog branch
  *             delay-slot analysis was wrong (see below); after the fix, insn count now matches the
  *             oracle's result/position/mode stack order removes an unnecessary saved context base
- *             and cuts the generated body to 84 vs 87 oracle instructions. The residual is now
+ *             and cuts the generated body to 85 vs 87 oracle instructions. Its explicit zero return
+ *             also recovers the oracle epilogue and identifies the system-task callback's real type.
+ *             The residual is now
  *             chiefly the switch-dispatch physical block order; both case permutations and an
  *             explicit nested-if form were tested, and the retained case-5-first switch is closest.
  *     [near]  CdReadyHandler (325->279->223->158->109 diffs) -- MAJOR STRUCTURAL FIX: the oracle hoists ONE
@@ -197,7 +199,7 @@ extern void qsort(void *base, int n, int sz, int (*cmp)(const void *, const void
 extern unsigned char *readsectorB(void);                       /* @0x800FA154 */
 extern void loaddirinfo(int startSector, int numSectors, int maxEntries); /* @0x800FA1A8 */
 extern int   CD_Restart(int startSector);                      /* @0x800FA4A8 */
-extern void  CD_systaskfunc(void);                             /* @0x800F9AE8 */
+extern int   CD_systaskfunc(void);                             /* @0x800F9AE8 */
 extern void  CdReadyHandler(int intr, unsigned char *result);  /* @0x800F9CA4 */
 
 /* unaligned little-endian 32-bit load (the asm uses lwl/lwr; ISO9660 stores LE first).  MUST be
@@ -523,7 +525,7 @@ extern int CD_Restart(int startSector)
 /* CD_systaskfunc @0x800F9AE8 : disc-swap recovery system task.  Polls CdDiskReady; on a stable disc
  *   (or a timed-out error) it resets the drive, re-arms the read mode + CdReadyHandler, and resumes the
  *   in-flight transfer if one was pending. */
-extern void CD_systaskfunc(void)
+extern int CD_systaskfunc(void)
 {
     unsigned char result[8];
     unsigned char pos[8];
@@ -586,6 +588,7 @@ extern void CD_systaskfunc(void)
             addtimer((void *)CD_timerfunc, pos);
         }
     }
+    return 0;
 }
 
 /* CD_timerfunc @0x800F9C44 : read watchdog (timer callback).  When the countdown reaches zero it queues

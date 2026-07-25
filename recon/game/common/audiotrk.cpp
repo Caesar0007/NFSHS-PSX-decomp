@@ -550,27 +550,8 @@ int AudioTrk_PreLoad(void)
 /* ---- AudioTrk_CleanUp__Fv  [@0x8007d52c] ---- */
 void AudioTrk_CleanUp(void)
 {
-  int i;
-  CAudioList *pThis;
-  int fadeIn;
-  int fadeOut;
-  int time;
-  int numelems;
-  int next;
   int iVar1;
-  AudioTrk_tAmbientChannel *c;
-  Trk_AnimateInst *anim;
-  u_short azimuth;
-  int n;
-  int tick;
-  coorddef v;
-  coorddef nextcp;
-  int cur;
-  int max;
-  int gtck;
-  int vx;
-  int check;
-  
+
   AudioTrk_Reset();
   iVar1 = 0;
   if (AudioTrk_g != (AudioTrk_tGlobals *)0x0) {

@@ -15,6 +15,7 @@ Usage:
     python tools/build.py clean
 """
 import hashlib
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -120,6 +121,266 @@ PER_TU_FLAGS = {
 def per_tu_flags(src: Path) -> dict:
     return PER_TU_FLAGS.get(src.relative_to(ROOT).as_posix(), {})
 
+
+# --- w25-a1: PER-FUNCTION delayed-branch dual-compile splice ---------------
+# w24-a9 proved -fno-delayed-branch is not safe as a whole-TU flag (leaf fns
+# in the SAME TU need gcc's own filling ON). This is the per-FUNCTION
+# mechanism that was missing: compile the TU TWICE from the SAME .i (once
+# normal, once with -fno-delayed-branch), then splice the named functions'
+# .s REGIONS out of the flag build and into the normal build's .s before
+# maspsx/as ever sees it. Each spliced function's body is then 100% real
+# cc1/cc1plus output -- no hand-written asm, no synthesized semantics.
+#
+# w25-a8 (relayed by the wave lead) FALSIFIED the naive expectation that the
+# flag alone reproduces the oracle everywhere: retail was built with gcc's
+# delayed-branch filling OFF *followed by ASPSX's own reorder/fill pass* --
+# for a straight-line tail-call/epilogue-only function, cc1's un-scheduled
+# SEQUENTIAL instruction order already happens to land the right instruction
+# in the slot (nothing to "fill" -- there was only ever one way to emit it),
+# so flag-alone reproduces the oracle. For a function with INTERIOR
+# branches (loops, guards, if/else) cc1 with scheduling off leaves a genuine
+# naked `nop` where ASPSX's fill pass put a real instruction -- splicing
+# that in is a REGRESSION relative to the normal (delayed-branch-ON) build,
+# which usually already matches the oracle there via gcc's own filler.
+# CONFIRMED empirically this session: ResetCallback/InterruptCallback/
+# DMACallback/VSyncCallbacks (single-jal, epilogue-only) flip FAIL-4->PASS
+# from the splice alone; SetFogNear/_err_math/__fixsfsi (interior
+# div-guard/loop branches) get WORSE under the same flag (naked nops).
+# => Only splice TIER-1 (epilogue-only / no interior branches) functions
+# until a post-splice fill pass exists (tracked as TIER-2, not built this
+# session -- see the w25-a1 commit message).
+#
+# Keyed the same way as PER_TU_FLAGS: ROOT-relative POSIX src path -> a SET
+# of exact .ent/.end asm label names to splice (the label as cc1/cc1plus
+# emits it -- i.e. the C++-MANGLED name for a class method; all current
+# entries are `extern "C"` functions so the label equals the source name).
+PER_FN_NO_DELAYED_BRANCH = {
+    "recon/syslib/psx/libetc/INTR.cpp": {
+        "ResetCallback", "InterruptCallback", "DMACallback", "VSyncCallbacks",
+    },
+    "recon/syslib/psx/libcd/cdcont.cpp": {
+        "CdSync", "CdReady", "CdFlush", "CdDataSync",
+        # w25-a3 TRIED and REVERTED: CdLastPos/CdSetDebug/CdSyncCallback/
+        # CdReadyCallback looked textbook pure-signature (single `jr ra;nop`
+        # vs oracle's slot-filled `addiu %lo(...)`), but empirically the
+        # splice is a NO-OP for them: the .nodb.s (-fno-delayed-branch)
+        # region is BYTE-IDENTICAL to the normal region at the cc1 level
+        # (`la $2,SYM; j $31`, nothing after the jump either way) -- the
+        # trailing nop is inserted downstream by maspsx/GNU-as, not by
+        # gcc's delayed-branch filler, so this per-function cc1 FLAG cannot
+        # reach this bug class at all (would need a maspsx-side fix, same
+        # family as the methodology's documented "aspsx slot-filling"
+        # follow-up work). FAIL 3 before, FAIL 3 after, 0 net change.
+        # Same outcome class as a1's CdDataCallback revert. See
+        # scratch/w25a3_state.md for full detail.
+    },
+    "recon/syslib/psx/libcd/cdread2.cpp": {
+        "_cdread2_ready",
+    },
+    # w25-a5: libpad Tier-1 (single-jal, epilogue-only shape, canonical per
+    # the w25-a1 taxonomy above) -- confirmed byte-PASS by an independent
+    # whole-TU -fno-delayed-branch probe run BEFORE this splice mechanism
+    # landed, then re-confirmed against the real per-fn splice with a
+    # zero-collateral whole-TU gate on both PADENTRY.c and PADPORTD.c.
+    "recon/syslib/psx/libpad/PADENTRY.c": {
+        "PadStartCom", "PadStopCom",
+        # Tier-2: PadGetState has interior branches (the tail-duplicate-vs
+        # -share if/else-if chain) so the splice does NOT reach full PASS
+        # (no post-splice fill pass exists yet -- see w25-a1's taxonomy),
+        # but it is a clean net-positive (FAIL 16 -> FAIL 10, diff pattern
+        # moves closer to the oracle's shared-tail shape) with zero
+        # collateral on the TU's other 7 functions under a whole-TU gate.
+        "PadGetState",
+    },
+    # _pad_get_port has one small interior `if` (not the pure epilogue-only
+    # shape) but empirically flips FAIL-3->PASS with no naked-nop
+    # regression under both the pre-mechanism whole-TU probe and the real
+    # per-fn splice -- confirmed Tier-1 by construction per the wave lead.
+    "recon/syslib/psx/libpad/PADPORTD.c": {
+        "_pad_get_port",
+    },
+    # Tier-2: both have a jal-arg-setup section outside the epilogue (not
+    # pure single-jal shape) so neither reaches full PASS, but both are
+    # clean net-positives with zero collateral on PADMAIN.cpp's other 9
+    # functions under a whole-TU gate.
+    "recon/syslib/psx/libpad/PADMAIN.cpp": {
+        "_padStopCom",     # FAIL 10 -> FAIL 6
+        "_padClrIntSio0",  # FAIL 28 -> FAIL 24
+    },
+    # Tier-2: all three carry a PADCMD-style command-dispatch case chain
+    # (li/beq/j per case) whose ASPSX-unfilled delay-slot nops move each
+    # closer to the oracle's per-case beq/nop/j/nop shape without reaching
+    # full PASS. Zero collateral on PADCMD.cpp's other 16 functions.
+    "recon/syslib/psx/libpad/PADCMD.cpp": {
+        "_padSendAtLoadInfo",  # FAIL 32 -> FAIL 30
+        "_padLoadActInfo_snd", # FAIL 24 -> FAIL 22
+        "_padSetMainMode_rcv", # FAIL 24 -> FAIL 19
+    },
+    "recon/syslib/psx/libcard/CARDINIT.c": {
+        "StopCARD",   # StartCARD tried + reverted: multi-jal interior arg-slot filling
+                       # (naked nop vs oracle's ASPSX-filled slot) -> FAIL 4->3, not PASS. Tier-2.
+    },
+    "recon/syslib/psx/libmcrd/BIOS.c": {
+        "_card_open", "_card_close",
+        # tried + reverted (Tier-2, interior multi-jal/loop scheduling, none reach PASS):
+        #   _clr_card_event  FAIL 5->2  (8x TestEvent calls, ra-reload timing)
+        #   _get_card_event  FAIL 6->9  (REGRESSED; do-while spin loop)
+        #   _get_card_event_x FAIL 6->9 (REGRESSED; same shape)
+        #   _card_start      FAIL 75->65 (interior if(prev==1) guard + 7x jal-arg blocks)
+    },
+    # USERFUNC.c UserFuncInit tried: cc1's raw .s is BYTE-IDENTICAL with/without
+    # -fno-delayed-branch (no reorderable candidate before the `j $31`) -- the
+    # splice mechanism is a no-op here. FAIL 3 unchanged. The real fix needs
+    # maspsx-side ASPSX-style slot-filling (a different, not-yet-built lever
+    # per methodology §3.25.3b), not this dual-compile splice. Not added.
+    "recon/syslib/psx/libmcrd/LIBMCRD.cpp": {
+        "MemCardEnd",
+        # tried + reverted (Tier-2, interior branches/multi-jal, none reach PASS):
+        #   MemCardStart        FAIL 8->6   (improved but not PASS; multi-jal
+        #                                    straight-line, VSyncCallbacks/_card_start
+        #                                    arg-slot scheduling)
+        #   MemCardExist         FAIL 8->14  (REGRESSED; interior if/return guard)
+        #   MemCardAccept        FAIL 8->14  (REGRESSED; same shape as MemCardExist)
+        #   MemCardEventToRslt   FAIL 3->24  (REGRESSED badly; if/else/goto, no calls
+        #                                     at all -- not a call-through shape)
+    },
+    # w25-a7: libgpu SYS.cpp -- TRIED AND REVERTED (2026-07-25). All 5
+    # multiset-equal-reordering candidates (_que_ref, _install_drain_cb,
+    # ClearImage, _gpu_arm_timeout, _set_draw_mode) got WORSE under the raw
+    # Tier-1 splice, not better: cc1 -fno-delayed-branch leaves a genuine
+    # naked `nop` in every interior jal/branch slot (que_ref 6->5 diffs but
+    # insn count drifted 9->10 with a new nop; install_drain_cb 10->7 diffs
+    # same nop pattern; ClearImage 8->16 diffs, WORSE; gpu_arm_timeout 5->5
+    # diffs but now ours=14 vs oracle=13 (2 nops, not the oracle's 1);
+    # set_draw_mode 5->9 diffs, WORSE) -- because ASPSX's independent fill
+    # pass (which chose a DIFFERENT, unrelated-but-live instruction to fill
+    # each slot) is not reproduced by cc1's un-scheduled sequential order for
+    # any of these; every one of them has an interior jal or branch, i.e.
+    # NONE were the true epilogue-only Tier-1 shape (INTR.cpp's
+    # ResetCallback/etc. and libcd's CdSync/etc. are epilogue-only -- a
+    # single terminal jal/return with nothing else pending). TIER-2 candidate
+    # list for a real post-splice ASPSX-style fill pass, if one gets built:
+    # _que_ref, _install_drain_cb, ClearImage, _gpu_arm_timeout (interior
+    # single-jal, fill choice differs from cc1's natural order);
+    # _set_draw_mode (interior branch, PLUS an unrelated proven-immune
+    # commutative-operand-order floor on top -- ceiling is ~2 diffs even
+    # with a working fill pass, not 0). Do NOT re-add these under the
+    # CURRENT raw-flag mechanism.
+    "recon/syslib/psx/libpress/LIBPRESS.c": {
+        "DecDCTout", "MDEC_status",
+    },
+    # w25-a9 TRIED (verify-or-revert, NOT added): PCread/PCwrite
+    # (recon/syslib/psx/libsn/{READ,WRITE}.c) are a9's only 2 real dbfn
+    # sites (see tools/dbfn_sites.txt), but both have interior branches
+    # (a do/while + 2 ifs each) -- TIER-2 by a1's classification. Spliced
+    # anyway to confirm empirically: FAIL 39->45 diffs (ours 47->53 insns,
+    # 6 genuine extra unfilled nops at the interior chunk-size/error-return
+    # branches) -- a real regression, reverted. Also: even a clean splice
+    # would NOT have closed most of the gap here -- both fns' dominant
+    # residual (see their file-header comments) is an unrelated gcc-2.7.2
+    # callee-saved coloring-rotation near-miss (s2/s3/s4/s6 swapped vs the
+    # oracle), independent of delayed-branch scheduling. TIER-2 needs the
+    # post-splice slot-fill pass a1 tracked as follow-up (maspsx forces
+    # `.set noreorder` on every function, so GNU AS's own reorder-fill never
+    # runs on our output) before either function is worth revisiting.
+}
+
+
+def per_fn_no_delayed_branch(src: Path) -> set:
+    return PER_FN_NO_DELAYED_BRANCH.get(src.relative_to(ROOT).as_posix(), set())
+
+
+_ENT_RE_TMPL = r'^\t\.ent\t{name}\b[^\n]*\n'
+_END_RE_TMPL = r'^\t\.end\t{name}[ \t]*$'
+
+
+def _extract_fn_region(s_text: str, name: str) -> str:
+    """Pull the `.ent NAME ... .end NAME` block (inclusive) out of a raw
+    cc1/cc1plus .s. This is the ENTIRE machine-instruction body of the
+    function; everything genuinely per-function (`.frame`/`.mask`/`.fmask`/
+    body/labels) lives between these two markers. File-scope boilerplate
+    that happens to sit textually adjacent (`.text`, `.globl`, per-symbol
+    `.def NAME;...;.endef` debug records) is verified IDENTICAL between the
+    normal and -fno-delayed-branch compiles (same source, same symbol
+    table -- only instruction SCHEDULING differs) and is left untouched,
+    supplied by the normal build on both sides of the splice."""
+    ent_re = re.compile(_ENT_RE_TMPL.format(name=re.escape(name)), re.M)
+    m = ent_re.search(s_text)
+    if not m:
+        sys.exit(f"[splice] '.ent {name}' not found")
+    end_re = re.compile(_END_RE_TMPL.format(name=re.escape(name)), re.M)
+    m2 = end_re.search(s_text, m.end())
+    if not m2:
+        sys.exit(f"[splice] '.ent {name}' found but no matching '.end {name}'")
+    end = m2.end()
+    if s_text[end:end + 1] == '\n':   # swallow one trailing blank line
+        end += 1
+    return s_text[m.start():end]
+
+
+def _uniquify_local_labels(region: str, tag: str) -> str:
+    """gcc numbers `$L<N>` local branch-target labels per-compile-RUN, so the
+    SAME function compiled twice (normal vs -fno-delayed-branch) gets
+    DIFFERENT numbers for what may be the same or an unrelated target --
+    and the flag-run's numbers can collide with numbers already used by
+    OTHER, un-spliced functions elsewhere in the normal .s (verified: e.g.
+    INTR.cpp's normal build and -fno-delayed-branch build both mint a
+    "$L10" for a DIFFERENT branch in a DIFFERENT function). Rename every
+    $L<N> DEFINED inside this region (and every use of that same N inside
+    the region) to a namespace no gcc run has ever produced, so it can never
+    collide with a label already present in the destination file. `$LC<N>`
+    rodata/string-literal labels are declared once at file scope and are
+    confirmed BYTE-IDENTICAL in number/order between the two compiles (same
+    source -> same string-literal encounter order, independent of
+    scheduling) -- left untouched, resolved against the normal build's
+    single rodata section on both sides of the splice.
+    A $L<N> that is USED in the region but not DEFINED in it (e.g. a switch
+    jump-table entry living in .rdata, outside .ent/.end) is a genuine
+    cross-region reference -- left unrenamed; see the jtbl caveat in the
+    commit message before splicing a function containing a `casesi` table."""
+    defined = set(re.findall(r'^\$L(\d+):', region, re.M))
+    if not defined:
+        return region
+
+    def _sub(m):
+        num = m.group(1)
+        return f'$L{tag}_{num}' if num in defined else m.group(0)
+
+    return re.sub(r'\$L(\d+)\b', _sub, region)
+
+
+_SPLICE_COUNTER = [0]
+
+
+def _apply_fn_splice(rel_posix: str, s_file: Path, i_file: Path,
+                      cc1_bin: Path, cc1_flags: list) -> None:
+    """If `rel_posix` has entries in PER_FN_NO_DELAYED_BRANCH: recompile
+    i_file (same preprocessed source) with -fno-delayed-branch added,
+    extract each named function's region from that second .s, uniquify its
+    local labels, and substitute it for that function's region in s_file
+    IN PLACE (both .s files stay cached in the build dir for debugging)."""
+    fn_names = PER_FN_NO_DELAYED_BRANCH.get(rel_posix)
+    if not fn_names:
+        return
+    nodb_flags = list(cc1_flags)
+    if "-fno-delayed-branch" not in nodb_flags:
+        nodb_flags.append("-fno-delayed-branch")
+    nodb_s = s_file.with_suffix(".nodb.s")
+    r = run([cc1_bin, *nodb_flags, i_file, "-o", nodb_s])
+    if r.returncode:
+        sys.exit(f"[cc1-nodb] {rel_posix}\n{r.stdout}{r.stderr}")
+    nodb_text = nodb_s.read_text()
+    normal_text = s_file.read_text()
+    for name in sorted(fn_names):
+        flagged_region = _extract_fn_region(nodb_text, name)
+        target_region = _extract_fn_region(normal_text, name)
+        _SPLICE_COUNTER[0] += 1
+        flagged_region = _uniquify_local_labels(
+            flagged_region, f"ndb{_SPLICE_COUNTER[0]}")
+        normal_text = normal_text.replace(target_region, flagged_region, 1)
+    s_file.write_text(normal_text)
+
+
 ASPSX_VERSION = "2.77"
 G_VALUE = "4"               # original built with -G4
 AS_ARCH = ["-EL", "-march=r3000", "-mtune=r3000"]
@@ -157,6 +418,8 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
     r = run([CC1, *cc1_flags, i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[cc1] {rel}\n{r.stdout}{r.stderr}")
+
+    _apply_fn_splice(rel.as_posix(), s_file, i_file, CC1, cc1_flags)
 
     # maspsx reads cc1 .s on stdin; remaining args pass through to GNU as.
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
@@ -197,6 +460,9 @@ def compile_cpp(src: Path) -> Path:
     r = run([CC1PL, *cc1pl_flags, i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[cc1pl] {rel}\n{r.stdout}{r.stderr}")
+
+    _apply_fn_splice(rel.as_posix(), s_file, i_file, CC1PL, cc1pl_flags)
+
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
                   "--run-assembler", f"--gnu-as-path={AS}",
                   *AS_ARCH, f"-G{G_VALUE}", "-I", RECON, "-o", obj]

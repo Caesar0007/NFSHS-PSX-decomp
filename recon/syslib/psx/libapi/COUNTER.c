@@ -12,7 +12,26 @@
  *   defined here would land in -G4 small-data -> gp-relative and break the match; §3.12 #6).
  *   The source shape is shared with the Psy-Q SDK reconstruction in sotn-decomp: mask `spec`
  *   to 16 bits, model the 16-byte hardware register stride as a Counter struct, initialize
- *   final_mode before the range guard, and retain the explicit counter-2 test. */
+ *   final_mode before the range guard, and retain the explicit counter-2 test.
+ *
+ * w25-a2 SURVEY (-fno-delayed-branch splice project, methodology sec 3.25.3b -- task asked to
+ *   disambiguate signature vs the $at/cross-jump class for this trio; answer below): NONE of the
+ *   three are the delayed-branch signature. All UNRELATED classes:
+ *   - SetRCnt (2 diffs): oracle tail is `j T` (a cross-jump to a shared exit stub merged with
+ *     another fn's identical return path), ours is a plain `jr ra`. This is gcc's CROSS-JUMPING
+ *     pass (tail-merge of identical epilogue sequences across functions), not delay-slot filling.
+ *     Empirically whole-TU `-fno-delayed-branch` test (w25-a2, reverted, not committed): 2->31
+ *     diffs, MUCH WORSE (the flag changes scheduling enough to break whatever source shape
+ *     currently gets closest to the cross-jump-able form). Do NOT splice.
+ *   - GetRCnt (5 diffs): same cross-jump signature (`j T` vs `jr ra`, plus a delay-slot-vs-hoisted
+ *     `addu v0,zero,zero`). Whole-TU flag test: 5->6, no benefit. Do NOT splice.
+ *   - StartRCnt (10 diffs): pure $at-macro addressing difference -- oracle's indexed load
+ *     expands via the ASSEMBLER's symbol+register load macro (`lui at,0; addu at,at,a0;
+ *     lw a0,0(at)`, per the direct-load-macro rule in reference_mips_isa_asm.md), ours computes
+ *     the same address by hand into a normal register with a redundant `addiu v1,v1,0`. Whole-TU
+ *     flag test: 10->10, EXACTLY UNCHANGED (fully immune to the flag -- conclusive proof this is
+ *     not delay-slot related). Do NOT splice; needs a source-level addressing-mode lever instead.
+ */
 
 extern unsigned char  *RCnt_regs;   /* @0x801234B8 : = (uchar*)0x1F801100 */
 extern unsigned char  *RCnt_ctrl;   /* @0x801234B4 : = (uchar*)0x1F801070 */

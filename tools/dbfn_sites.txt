@@ -1,0 +1,151 @@
+# tools/dbfn_sites.txt -- AUTHORITATIVE -fno-delayed-branch signature-site list
+# wave-25 agent a9 (THE SURVEYOR), Task 1. Built by mechanically scanning every oracle
+# asm/nonmatchings/main/*.s (2563 files) for the PsyQ-syslib -fno-delayed-branch
+# epilogue fingerprint, then validating EVERY hit against the live verify_asm.py gate
+# (a hit only counts if the CURRENT recon, built with normal/standard flags, actually
+# FAILs with the tell-tale epilogue-swap diff -- see METHODOLOGY below).
+#
+# METHODOLOGY (full detail: memory reference_psx_cpp_reconstruction_methodology.md
+# section 3.25 axis 3b -- "DELAYED-BRANCH FILLING identity"):
+#
+# Sony built PsyQ 4.3's syslib with gcc's OWN delay-slot filling OFF
+# (-fno-delayed-branch); the real ASPSX assembler then filled branch/load delay slots
+# itself, mechanically. Its epilogue filler could NOT move the frame-deallocation
+# "addiu $sp,$sp,+N" into the final "jr $ra"'s own branch-delay slot (that slot is a
+# SEPARATE physical instruction from whatever filled the preceding "lw $ra"'s load-delay
+# slot -- the same addiu instruction cannot occupy two delay slots at two different
+# addresses), so the tail is always: "... ; addiu $sp,$sp,+N ; jr $ra ; nop".
+# A NORMAL (delayed-branch-ON) gcc build, by contrast, has full freedom to reorder the
+# independent, no-side-effect "addiu $sp,$sp,+N" directly INTO the "jr $ra" delay slot
+# ("... ; jr $ra ; addiu $sp,$sp,+N") since nothing stops that swap -- this is the single
+# most common PSX epilogue idiom in ordinary (game/EA) code.
+#
+# FINGERPRINT (the only one that survived false-positive testing):
+#   EPI:  "addiu $sp,$sp,+N" immediately followed by "jr $ra" immediately followed by
+#         "nop", found ANYWHERE in the epilogue tail (s-reg restore loads may legally
+#         intervene between "lw $ra" and this addiu -- PCread/PCwrite are real dbfn
+#         sites but were only caught once the pattern was generalized past strict
+#         adjacency to "lw $ra").
+#   EPI-adjacent: the stricter original w23-style form, "lw $ra,N($sp)" DIRECTLY
+#         followed by "addiu $sp,$sp,+N" DIRECTLY followed by "jr $ra" DIRECTLY followed
+#         by "nop" -- a subset of EPI (71 of the 76 sites below; this subset alone
+#         happens to reproduce the historical w23 "~71 sites" estimate almost exactly,
+#         which appears to have been exactly this stricter pattern, under-counting the
+#         5 non-adjacent sites: PCread, PCwrite, PAD_restore, PAD_update, padinit).
+#
+# REJECTED as a fingerprint -- "FP2" PROLOGUE PATTERN ("addiu $sp,$sp,-N" ; "sw $ra,M($sp)"
+# ; "jal X" ; "nop"): this looked plausible by analogy but is a FALSE-POSITIVE MAGNET --
+# 88 raw hits, ~90% of them ordinary GAME C++ (AIHigh_*/AIDataRecord_* destructors,
+# BWorld_*, AITune_*, etc; also flagged libsn's OWN __builtin_delete/__builtin_vec_delete,
+# manually confirmed NEGATIVE -- their real epilogue is the normal "lw ra;nop;jr ra;addiu
+# sp" filled form). The jal-delay-slot nop is architecturally FORCED regardless of compile
+# flags: "$ra" can never be saved into the very first "jal"'s own delay slot since the jal
+# concurrently overwrites $ra, so ANY trivial single-call wrapper -- delayed-branch-ON or
+# OFF -- shows a nop there. Not included below; not a valid discriminator.
+#
+# ALSO EXCLUDED (investigated + confirmed FALSE POSITIVE of the EPI pattern itself):
+#   AI_KeepCarsInLane__FP8Car_tObj (recon/game/common/ai.cpp:1583, real GAME code) --
+#   a fully-empty 4-insn body ("addiu sp,-0x10; addiu sp,0x10; jr ra; nop", a dead
+#   "int local[4]" stack reservation with nothing to schedule) textually matches EPI but
+#   verify_asm.py shows it ALREADY PASSES under STANDARD (delayed-branch-ON) build
+#   flags -- i.e. gcc's own scheduler ALSO leaves that jr's slot nop when a function body
+#   is completely empty, independent of -fno-delayed-branch. Proof that EPI hits must be
+#   cross-checked against the live gate (PASS => reject) before counting a site.
+#
+# UNOWNED FINDING (flagged per task instructions -- real, if modest, news):
+#   recon/eaclib/psx/pad.c (PAD.OBJ) carries 4 EPI sites: PAD_state, PAD_restore,
+#   PAD_update, padinit. This is EA's eaclib layer, textually outside every wave-25
+#   syslib-agent's scope (a2-a9) AND outside true "game" code -- but it is NOT surprising
+#   EA game logic: pad.c is EA's thin wrapper directly over PsyQ libpad (same family as
+#   the syslib PAD* sites a5 owns), and a PRE-EXISTING code comment at
+#   recon/eaclib/psx/pad.c (right before PAD_state, added by a prior wave) already
+#   documents the identical residual: "oracle has EVERY delay slot as a nop ...
+#   reproduced exactly by cc1 -fno-delayed-branch, NOT by repo -O2/-O1 ... needs a
+#   per-obj flag lane" -- i.e. a prior wave already independently discovered this obj
+#   carries the syslib toolchain identity. NOT a case of ordinary EA-authored game C++
+#   showing the signature; still UNOWNED by any wave-25 agent's directory scope, so
+#   flagged here for pickup.
+#
+# COLUMNS: name | fingerprint | oracle .s | owning recon TU | gate diff (verify_asm.py,
+#          CURRENT tree, standard flags) | owning wave-25 agent
+#
+# TOTAL AUTHORITATIVE SITES: 76  (77 raw EPI hits - 1 confirmed false positive)
+# PER-AGENT COUNTS: UNOWNED=4, a2=8, a3=8, a4=11, a5=10, a6=17, a7=4, a8=12, a9=2
+#
+name	fingerprint	oracle_s	owning_recon_tu	gate_diff	owning_agent
+PAD_restore	EPI-general-only	asm/nonmatchings/main/PAD_restore.s	recon/eaclib/psx/pad.c	10 diffs (ours 17/oracle 21)	UNOWNED
+PAD_state	EPI-adjacent+EPI	asm/nonmatchings/main/PAD_state.s	recon/eaclib/psx/pad.c	21 diffs (ours 19/oracle 20)	UNOWNED
+PAD_update	EPI-general-only	asm/nonmatchings/main/PAD_update.s	recon/eaclib/psx/pad.c	78 diffs (ours 66/oracle 66)	UNOWNED
+padinit	EPI-general-only	asm/nonmatchings/main/padinit.s	recon/eaclib/psx/pad.c	23 diffs (ours 27/oracle 28)	UNOWNED
+DMACallback	EPI-adjacent+EPI	asm/nonmatchings/main/DMACallback.s	recon/syslib/psx/libetc/INTR.cpp	4 diffs (ours 12/oracle 12)	a2
+InterruptCallback	EPI-adjacent+EPI	asm/nonmatchings/main/InterruptCallback.s	recon/syslib/psx/libetc/INTR.cpp	4 diffs (ours 12/oracle 12)	a2
+ResetCallback	EPI-adjacent+EPI	asm/nonmatchings/main/ResetCallback.s	recon/syslib/psx/libetc/INTR.cpp	4 diffs (ours 12/oracle 12)	a2
+VSyncCallback	EPI-adjacent+EPI	asm/nonmatchings/main/VSyncCallback.s	recon/syslib/psx/libetc/INTR.cpp	4 diffs (ours 13/oracle 13)	a2
+VSyncCallbacks	EPI-adjacent+EPI	asm/nonmatchings/main/VSyncCallbacks.s	recon/syslib/psx/libetc/INTR.cpp	4 diffs (ours 12/oracle 12)	a2
+_VSync_wait	EPI-adjacent+EPI	asm/nonmatchings/main/_VSync_wait.s	recon/syslib/psx/libetc/VSYNC.c	8 diffs (ours 38/oracle 38)	a2
+startIntrDMA	EPI-adjacent+EPI	asm/nonmatchings/main/startIntrDMA.s	recon/syslib/psx/libetc/INTR_DMA.cpp	14 diffs (ours 19/oracle 19)	a2
+startIntrVSync	EPI-adjacent+EPI	asm/nonmatchings/main/startIntrVSync.s	recon/syslib/psx/libetc/INTR_VB.c	11 diffs (ours 21/oracle 22)	a2
+CD_init	EPI-general-only	asm/nonmatchings/main/CD_init_80108140.s	recon/syslib/psx/libcd/drv.cpp	54 diffs (ours 120/oracle 120)	a3
+CD_initintr	EPI-adjacent+EPI	asm/nonmatchings/main/CD_initintr.s	recon/syslib/psx/libcd/drv.cpp	15 diffs (ours 20/oracle 19)	a3
+CdDataCallback	EPI-adjacent+EPI	asm/nonmatchings/main/CdDataCallback.s	recon/syslib/psx/libcd/cdcont.cpp	6 diffs (ours 9/oracle 9)	a3
+CdDataSync	EPI-adjacent+EPI	asm/nonmatchings/main/CdDataSync.s	recon/syslib/psx/libcd/cdcont.cpp	4 diffs (ours 8/oracle 8)	a3
+CdFlush	EPI-adjacent+EPI	asm/nonmatchings/main/CdFlush.s	recon/syslib/psx/libcd/cdcont.cpp	4 diffs (ours 8/oracle 8)	a3
+CdReady	EPI-adjacent+EPI	asm/nonmatchings/main/CdReady.s	recon/syslib/psx/libcd/cdcont.cpp	4 diffs (ours 8/oracle 8)	a3
+CdSync	EPI-adjacent+EPI	asm/nonmatchings/main/CdSync.s	recon/syslib/psx/libcd/cdcont.cpp	4 diffs (ours 8/oracle 8)	a3
+_cdread2_ready	EPI-adjacent+EPI	asm/nonmatchings/main/_cdread2_ready.s	recon/syslib/psx/libcd/cdread2.cpp	4 diffs (ours 8/oracle 8)	a3
+CdGetToc	EPI-adjacent+EPI	asm/nonmatchings/main/CdGetToc.s	recon/syslib/psx/libcd/toc.cpp	6 diffs (ours 9/oracle 9)	a4
+DsDataCallback	EPI-adjacent+EPI	asm/nonmatchings/main/DsDataCallback.s	recon/syslib/psx/libds/DSCB.c	6 diffs (ours 9/oracle 9)	a4
+StCdInterrupt	EPI-adjacent+EPI	asm/nonmatchings/main/StCdInterrupt.s	recon/syslib/psx/libcd/stcdint.c	214 diffs (ours 591/oracle 583)	a4
+StClearRing	EPI-adjacent+EPI	asm/nonmatchings/main/StClearRing.s	recon/syslib/psx/libcd/stream.c	5 diffs (ours 23/oracle 24)	a4
+StSetRing	EPI-adjacent+EPI	asm/nonmatchings/main/StSetRing.s	recon/syslib/psx/libcd/stream.c	9 diffs (ours 12/oracle 11)	a4
+StUnSetRing	EPI-adjacent+EPI	asm/nonmatchings/main/StUnSetRing.s	recon/syslib/psx/libcd/streamhelp.c	9 diffs (ours 33/oracle 32)	a4
+_cd_event_init	EPI-adjacent+EPI	asm/nonmatchings/main/_cd_event_init.s	recon/syslib/psx/libcd/event.cpp	4 diffs (ours 15/oracle 15)	a4
+_cd_event_read	EPI-adjacent+EPI	asm/nonmatchings/main/_cd_event_read.s	recon/syslib/psx/libcd/event.cpp	6 diffs (ours 10/oracle 10)	a4
+_cd_event_ready	EPI-adjacent+EPI	asm/nonmatchings/main/_cd_event_ready.s	recon/syslib/psx/libcd/event.cpp	6 diffs (ours 10/oracle 10)	a4
+_cd_event_sync	EPI-adjacent+EPI	asm/nonmatchings/main/_cd_event_sync.s	recon/syslib/psx/libcd/event.cpp	6 diffs (ours 10/oracle 10)	a4
+data_ready_callback	EPI-adjacent+EPI	asm/nonmatchings/main/data_ready_callback.s	recon/syslib/psx/libcd/streamhelp.c	21 diffs (ours 36/oracle 35)	a4
+PadGetState	EPI-adjacent+EPI	asm/nonmatchings/main/PadGetState.s	recon/syslib/psx/libpad/PADENTRY.c	16 diffs (ours 44/oracle 48)	a5
+PadStartCom	EPI-adjacent+EPI	asm/nonmatchings/main/PadStartCom.s	recon/syslib/psx/libpad/PADENTRY.c	4 diffs (ours 8/oracle 8)	a5
+PadStopCom	EPI-adjacent+EPI	asm/nonmatchings/main/PadStopCom.s	recon/syslib/psx/libpad/PADENTRY.c	4 diffs (ours 8/oracle 8)	a5
+_padClrIntSio0	EPI-adjacent+EPI	asm/nonmatchings/main/_padClrIntSio0.s	recon/syslib/psx/libpad/PADMAIN.cpp	28 diffs (ours 34/oracle 36)	a5
+_padLoadActInfo_snd	EPI-adjacent+EPI	asm/nonmatchings/main/_padLoadActInfo_snd.s	recon/syslib/psx/libpad/PADCMD.cpp	24 diffs (ours 38/oracle 42)	a5
+_padSendAtLoadInfo	EPI-adjacent+EPI	asm/nonmatchings/main/_padSendAtLoadInfo.s	recon/syslib/psx/libpad/PADCMD.cpp	32 diffs (ours 29/oracle 33)	a5
+_padSetMainMode_rcv	EPI-adjacent+EPI	asm/nonmatchings/main/_padSetMainMode_rcv.s	recon/syslib/psx/libpad/PADCMD.cpp	24 diffs (ours 22/oracle 24)	a5
+_padSioMain	EPI-adjacent+EPI	asm/nonmatchings/main/_padSioMain.s	recon/syslib/psx/libpad/PADMAIN.cpp	45 diffs (ours 53/oracle 50)	a5
+_padStopCom	EPI-adjacent+EPI	asm/nonmatchings/main/_padStopCom.s	recon/syslib/psx/libpad/PADMAIN.cpp	10 diffs (ours 17/oracle 17)	a5
+_padVbCallback1	EPI-adjacent+EPI	asm/nonmatchings/main/_padVbCallback1.s	recon/syslib/psx/libpad/PADMAIN.cpp	18 diffs (ours 26/oracle 26)	a5
+MemCardAccept	EPI-adjacent+EPI	asm/nonmatchings/main/MemCardAccept.s	recon/syslib/psx/libmcrd/LIBMCRD.cpp	8 diffs (ours 26/oracle 26)	a6
+MemCardEnd	EPI-adjacent+EPI	asm/nonmatchings/main/MemCardEnd.s	recon/syslib/psx/libmcrd/LIBMCRD.cpp	4 diffs (ours 8/oracle 8)	a6
+MemCardExist	EPI-adjacent+EPI	asm/nonmatchings/main/MemCardExist.s	recon/syslib/psx/libmcrd/LIBMCRD.cpp	8 diffs (ours 26/oracle 26)	a6
+MemCardFormat	EPI-adjacent+EPI	asm/nonmatchings/main/MemCardFormat.s	recon/syslib/psx/libmcrd/LIBMCRD.cpp	28 diffs (ours 35/oracle 35)	a6
+MemCardInit	EPI-adjacent+EPI	asm/nonmatchings/main/MemCardInit.s	recon/syslib/psx/libmcrd/LIBMCRD.cpp	12 diffs (ours 11/oracle 11)	a6
+MemCardReadData	EPI-adjacent+EPI	asm/nonmatchings/main/MemCardReadData.s	recon/syslib/psx/libmcrd/LIBMCRD.cpp	55 diffs (ours 45/oracle 46)	a6
+MemCardStart	EPI-adjacent+EPI	asm/nonmatchings/main/MemCardStart.s	recon/syslib/psx/libmcrd/LIBMCRD.cpp	8 diffs (ours 20/oracle 20)	a6
+MemCardStart_cb	EPI-adjacent+EPI	asm/nonmatchings/main/MemCardStart_cb.s	recon/syslib/psx/libmcrd/LIBMCRD.cpp	29 diffs (ours 28/oracle 33)	a6
+MemCardStop	EPI-adjacent+EPI	asm/nonmatchings/main/MemCardStop.s	recon/syslib/psx/libmcrd/LIBMCRD.cpp	12 diffs (ours 16/oracle 16)	a6
+MemCardWriteData	EPI-adjacent+EPI	asm/nonmatchings/main/MemCardWriteData.s	recon/syslib/psx/libmcrd/LIBMCRD.cpp	55 diffs (ours 45/oracle 46)	a6
+StartCARD	EPI-adjacent+EPI	asm/nonmatchings/main/StartCARD.s	recon/syslib/psx/libcard/CARDINIT.c	4 diffs (ours 14/oracle 14)	a6
+StopCARD	EPI-adjacent+EPI	asm/nonmatchings/main/StopCARD.s	recon/syslib/psx/libcard/CARDINIT.c	4 diffs (ours 10/oracle 10)	a6
+UserFuncExecute	EPI-adjacent+EPI	asm/nonmatchings/main/UserFuncExecute.s	recon/syslib/psx/libmcrd/USERFUNC.c	23 diffs (ours 28/oracle 27)	a6
+UserFuncOpen	EPI-adjacent+EPI	asm/nonmatchings/main/UserFuncOpen.s	recon/syslib/psx/libmcrd/USERFUNC.c	33 diffs (ours 32/oracle 31)	a6
+_card_close	EPI-adjacent+EPI	asm/nonmatchings/main/_card_close.s	recon/syslib/psx/libmcrd/BIOS.c	4 diffs (ours 8/oracle 8)	a6
+_card_open	EPI-adjacent+EPI	asm/nonmatchings/main/_card_open.s	recon/syslib/psx/libmcrd/BIOS.c	4 diffs (ours 12/oracle 12)	a6
+_clr_card_event	EPI-adjacent+EPI	asm/nonmatchings/main/_clr_card_event.s	recon/syslib/psx/libmcrd/BIOS.c	5 diffs (ours 65/oracle 66)	a6
+_gpu_arm_timeout	EPI-adjacent+EPI	asm/nonmatchings/main/_gpu_arm_timeout.s	recon/syslib/psx/libgpu/SYS.cpp	5 diffs (ours 12/oracle 13)	a7
+_gpu_check_timeout	EPI-adjacent+EPI	asm/nonmatchings/main/_gpu_check_timeout.s	recon/syslib/psx/libgpu/SYS.cpp	42 diffs (ours 77/oracle 81)	a7
+_install_drain_cb	EPI-adjacent+EPI	asm/nonmatchings/main/_install_drain_cb.s	recon/syslib/psx/libgpu/SYS.cpp	10 diffs (ours 10/oracle 10)	a7
+_que_ref	EPI-adjacent+EPI	asm/nonmatchings/main/_que_ref.s	recon/syslib/psx/libgpu/SYS.cpp	6 diffs (ours 9/oracle 9)	a7
+DecDCTin	EPI-adjacent+EPI	asm/nonmatchings/main/DecDCTin.s	recon/syslib/psx/libpress/LIBPRESS.c	4 diffs (ours 31/oracle 31)	a8
+DecDCTinSync	EPI-adjacent+EPI	asm/nonmatchings/main/DecDCTinSync.s	recon/syslib/psx/libpress/LIBPRESS.c	6 diffs (ours 15/oracle 15)	a8
+DecDCTout	EPI-adjacent+EPI	asm/nonmatchings/main/DecDCTout.s	recon/syslib/psx/libpress/LIBPRESS.c	4 diffs (ours 8/oracle 8)	a8
+DecDCToutCallback	EPI-adjacent+EPI	asm/nonmatchings/main/DecDCToutCallback.s	recon/syslib/psx/libpress/LIBPRESS.c	6 diffs (ours 9/oracle 9)	a8
+MDEC_in_sync	EPI-adjacent+EPI	asm/nonmatchings/main/MDEC_in_sync.s	recon/syslib/psx/libpress/LIBPRESS.c	18 diffs (ours 37/oracle 37)	a8
+MDEC_out_sync	EPI-adjacent+EPI	asm/nonmatchings/main/MDEC_out_sync.s	recon/syslib/psx/libpress/LIBPRESS.c	18 diffs (ours 37/oracle 37)	a8
+MDEC_rest	EPI-adjacent+EPI	asm/nonmatchings/main/MDEC_rest.s	recon/syslib/psx/libpress/LIBPRESS.c	28 diffs (ours 62/oracle 60)	a8
+MDEC_status	EPI-adjacent+EPI	asm/nonmatchings/main/MDEC_status.s	recon/syslib/psx/libpress/LIBPRESS.c	8 diffs (ours 29/oracle 31)	a8
+SetFogNear	EPI-adjacent+EPI	asm/nonmatchings/main/SetFogNear.s	recon/syslib/psx/libgte/FOG_01.c	4 diffs (ours 25/oracle 25)	a8
+__fixsfsi	EPI-adjacent+EPI	asm/nonmatchings/main/__fixsfsi.s	recon/syslib/psx/libmath/FIXSFSI.c	12 diffs (ours 43/oracle 45)	a8
+ccos	EPI-adjacent+EPI	asm/nonmatchings/main/ccos.s	recon/syslib/psx/libgte/COR_02.c	12 diffs (ours 43/oracle 49)	a8
+csin	EPI-adjacent+EPI	asm/nonmatchings/main/csin.s	recon/syslib/psx/libgte/COR_03.c	85 diffs (ours 59/oracle 78)	a8
+PCread	EPI-general-only	asm/nonmatchings/main/PCread.s	recon/syslib/psx/libsn/READ.c	39 diffs (ours 47/oracle 48)	a9
+PCwrite	EPI-general-only	asm/nonmatchings/main/PCwrite.s	recon/syslib/psx/libsn/WRITE.c	39 diffs (ours 47/oracle 48)	a9

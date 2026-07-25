@@ -4,6 +4,15 @@
  *   @0x8010658C bumps Vcount and fans out to the 8 registered vblank callbacks.  The @0x801065F8 slot-setter
  *   is renamed _vsync_setcb (Ghidra named it "VSyncCallback" -- collides with the INTR.obj public API; it is
  *   only ever called via the pointer startIntrVSync returns).
+ *
+ * w25-a2 SURVEY (-fno-delayed-branch splice project, methodology sec 3.25.3b): startIntrVSync
+ *   (8-11 diffs) carries the jal-arg-in-slot fingerprint (ours splits the arg-setup addiu into the
+ *   jal's delay slot; oracle computes the arg fully before the jal, matching PsyQ syslib's
+ *   `-fno-delayed-branch` identity). Empirically whole-TU flag test (w25-a2, reverted, not
+ *   committed): 11->8 diffs -- IMPROVES but does not reach PASS; residual `addiu v0,v0,0`
+ *   return-value reorder (same shape as startIntrDMA's residual in INTR_DMA.cpp) survives. NOT yet
+ *   a clean per-function splice target -- revisit once that residual lever is understood, then
+ *   re-test with a1's per-fn splice mechanism.
  */
 
 /* owning-TU def (extern-declared, never defined; BSS) */

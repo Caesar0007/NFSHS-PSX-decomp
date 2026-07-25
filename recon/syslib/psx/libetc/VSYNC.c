@@ -4,6 +4,20 @@
  *   Vsync.txt): mode<0 -> current Vcount; mode==1 -> Hcount delta; mode>0 -> block until that vblank with a
  *   spin-count timeout.  Regs: 0x1F801110 = RCnt vblank-timing COUNT, 0x1F801814 = GPU status (rescan bit
  *   0x400000).  Vcount lives in INTR_VB.obj; Hcount/last-count are VSYNC.obj data.
+ *
+ * w25-a2 SURVEY (-fno-delayed-branch splice project, methodology sec 3.25.3b): MIXED for both fns,
+ *   dominated by an UNRELATED class in each case:
+ *   - _VSync_wait (8 diffs): epilogue lw-ra/addiu-sp/jr-ra reorder (2 of 8 diff lines) IS the
+ *     pure signature, but the other 6 lines are a register-choice mismatch on the timeout-address
+ *     materialize (ours: lui a1,0; addiu a0,a1,0 [via a1 scratch]; oracle: lui a0,0; addiu a0,a0,0
+ *     [direct into dest] -- same rematerialize-into-dest class noted in INTR_DMA.cpp/INTR_VB.c).
+ *     Empirically whole-TU `-fno-delayed-branch` test (w25-a2, reverted, not committed): 8->15
+ *     diffs, WORSE (the flag reorders scheduling elsewhere in the fn and does not isolate the
+ *     epilogue fix). NOT a splice candidate as-is.
+ *   - VSync (45-49 diffs): NO signature lines at all in the diff (pure register-coloring /
+ *     branch-restructuring floor, same family as _initIntr's base-pointer-hoist issue but for a
+ *     different global). Whole-TU flag test: 45->53, WORSE. Confirmed UNRELATED, not a splice
+ *     candidate.
  */
 extern void puts(const char *s);              /* A63 */
 extern void ChangeClearPAD(int v);            /* A91 */

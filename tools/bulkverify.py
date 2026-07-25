@@ -14,6 +14,14 @@ vspec=ilu.spec_from_file_location('vfy', ROOT/'tools'/'verify_asm.py')
 def norm(t):
     t=re.sub(r'\s+',' ',t.strip()).replace('$','')
     t=re.sub(r',\s+',',',t); t=re.sub(r'0x([0-9a-fA-F]+)',lambda m:str(int(m.group(1),16)),t)
+    # eval unevaluated constant-literal paren exprs the oracle sometimes prints verbatim
+    # (spimdisasm renders a li-macro hi/lo split as `(N >> 16)` / `(N & 65535)` instead of
+    # folding it -- our compiled side always shows the folded decimal). Mirrors verify_asm.py's
+    # norm_ins (the authoritative single-fn gate), which already does this fold; bulkverify's
+    # own norm() lacked it, over-counting these as near-miss diffs (w25-a10 gate-bug report,
+    # a6 survey: InitCARD2/_patch_card/_card_start).
+    t=re.sub(r'\((\d+) ?>> ?(\d+)\)',lambda m:str(int(m.group(1))>>int(m.group(2))),t)
+    t=re.sub(r'\((\d+) ?& ?(\d+)\)',lambda m:str(int(m.group(1))&int(m.group(2))),t)
     t=re.sub(r'%hi\([^)]*\)','0',t);t=re.sub(r'%lo\([^)]*\)','0',t);t=re.sub(r'%gp_rel\([^)]*\)','0',t)
     t=re.sub(r'^move (\w+),(\w+)$',r'addu \1,\2,zero',t)
     t=re.sub(r'^(?:addiu|ori) (\w+),zero,(\-?\d+)$',r'li \1,\2',t)

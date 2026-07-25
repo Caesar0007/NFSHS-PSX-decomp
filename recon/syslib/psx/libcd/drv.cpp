@@ -65,11 +65,29 @@ extern int           CD_nopen;    /* lid-open event counter */
 /* The 3-byte interrupt-state struct {sync, ready, c} @0x8013C224. */
 struct CD_intr { unsigned char sync, ready, c; };
 extern "C" CD_intr D_8013C224;            /* = Intr (in asm/data .bss-ish region).
-                                            * TRIED `volatile` here (oracle's `Intr.ready=Intr.c;`
-                                            * genuinely reloads rather than const-propagating) -- it
-                                            * shaved 1 diff off CD_flush but REGRESSED CD_sync/CD_ready/
-                                            * CD_cw/CD_datasync/_cd_intr_dispatch (verify_asm, all
-                                            * larger). Reverted; net loss. */
+                                            * DO NOT mark this `volatile` (w24-a1 tried it: shaved
+                                            * 1 diff off CD_flush but REGRESSED CD_sync/CD_ready/
+                                            * CD_cw/CD_datasync/_cd_intr_dispatch -- reverted, net
+                                            * loss). w25-a11: CD_flush's ONE genuine reload
+                                            * (`Intr.ready=Intr.c` does NOT const-propagate on the
+                                            * oracle) is instead modeled LOCALLY inside CD_flush via
+                                            * a targeted `*(volatile unsigned char*)&intr->c` read
+                                            * through a hoisted `CD_intr *intr=&Intr;` -- 20->17
+                                            * diffs, verified NOT to touch any other fn's codegen
+                                            * (this global stays plain, non-volatile). See CD_flush.
+                                            * CD_sync/CD_ready/CD_cw/CD_datasync ALSO want the same
+                                            * &Intr/&CD_comstr/&CD_intstr hoist per their oracles
+                                            * (CD_sync.s/CD_ready.s/CD_cw.s/CD_datasync.s each pin
+                                            * it into a distinct callee-saved reg across the whole
+                                            * fn), but w25-a11 tried both (a) threading them as
+                                            * params through the shared get_alarm()/callback()
+                                            * helpers and (b) hand-flattening get_alarm() per call
+                                            * site -- BOTH increased the diff count on every one of
+                                            * those 4 fns (verify_asm-confirmed, reverted). Adding
+                                            * the hoist changes gcc-2.8's whole-function register
+                                            * priority ordering in a way that does not converge on
+                                            * the oracle's specific register numbers; likely needs
+                                            * permuter-level search, not hand shaping. Un-fixed. */
 #define Intr D_8013C224
 
 /* Per-command 8-byte response buffers (this TU OWNS these in BSS @0x8014899C..). */
@@ -241,15 +259,16 @@ extern "C" void _cd_intr_dispatch(void) { callback(); }
 extern "C" int CD_sync(int mode, unsigned char *result)
 {
     int sync;
+    CD_intr *intr = &Intr;
     set_alarm("CD_sync");
     for (;;) {
         if (get_alarm())
             return -1;
         if (CheckCallback())
             callback();
-        sync = Intr.sync;
+        sync = intr->sync;
         if (sync == 2 || sync == 5) {
-            Intr.sync = 2;
+            intr->sync = 2;
             _memcpy8(result, D_8014899C);
             return sync;
         }
@@ -328,15 +347,26 @@ extern "C" int CD_cw(int com, unsigned char *param, unsigned char *result, int a
 /* @0x80107F30 : CD_flush -- abort and reset the controller interrupt state. */
 extern "C" void CD_flush(void)
 {
+    CD_intr *intr;
+    unsigned char c;
     CDREG0 = 1;
     while (CDREG3 & 7) {
         CDREG0 = 1;
         CDREG3 = 7;
         CDREG2 = 7;
     }
-    Intr.c = 0;
-    Intr.ready = Intr.c;
-    Intr.sync = 2;
+    /* MATCH lever (EARLY BASE-POINTER HOIST): the oracle materializes &Intr ONCE here (lui/addiu
+     * into $v1) and reuses it via `sb/lbu N($v1)` for all three field accesses below, instead of
+     * rematerializing a fresh `lui $at,%hi(D_8013C224)` macro-store per field (which is what a
+     * bare `Intr.field = ...;` -- no local pointer -- compiles to under gcc-2.8.0/cc1plpsx: it
+     * does NOT auto-CSE a repeated global's address across statements without a real local
+     * holding it). 20->17 diffs verified; residual is a scheduling floor (CDREG0's address load
+     * lands in a different delay slot -- unaffected by source statement order, see below). */
+    intr = &Intr;
+    intr->c = 0;
+    c = *(volatile unsigned char *)&intr->c;   /* oracle genuinely RELOADS .c (no const-propagate) */
+    intr->ready = c;
+    intr->sync = 2;
     CDREG0 = 0;
     CDREG3 = 0;
     *D_8013C21C = 0x1325;

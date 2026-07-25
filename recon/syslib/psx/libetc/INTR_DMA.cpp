@@ -4,6 +4,20 @@
  *   @0x801066F8 services each pending channel (DICR @0x1F8010F4 bits 24-30) and reports DMA bus errors;
  *   DMACallback @0x80106878 registers/enables a channel callback.  dma_cb table @0x8013BD24.  The obj-local
  *   _bzero_w (@0x80106924) is `static` (each PsyQ obj carries its own copy).
+ *
+ * w25-a2 SURVEY (-fno-delayed-branch splice project, methodology sec 3.25.3b): startIntrDMA
+ *   (14 diffs) and _dma_isr (16-24 diffs) both carry PARTIAL signature fingerprints (jal-arg-setup
+ *   split across the delay slot vs oracle computing the full arg BEFORE the jal; epilogue lw
+ *   ra/addiu sp/jr ra reordering). Empirically whole-TU `-fno-delayed-branch` test (w25-a2,
+ *   reverted, not committed): startIntrDMA 14->10 diffs (improves, does NOT reach PASS -- a
+ *   residual `addiu v0,v0,0` return-value-materialization reorder survives); _dma_isr 16->25-33
+ *   diffs (WORSE -- a second, unrelated lever entangles: ours materializes some addresses via an
+ *   intermediate register then copies into the dest [e.g. lui s1,0; addiu a0,s1,0] where the
+ *   oracle materializes directly into the dest [lui a0,0; addiu a0,a0,0], a rematerialize-into-
+ *   dest / address-CSE class, NOT delay-slot filling -- see catalog "F additions"). NEITHER fn is
+ *   a clean per-function splice candidate today: apply only after the address-CSE lever is solved
+ *   separately, then re-test with a1's per-fn splice mechanism (whole-TU flag is not authoritative
+ *   for the final per-fn residual, but is a valid proxy since gcc codegens per-function).
  */
 extern "C" void InterruptCallback(int idx, void (*h)());   /* INTR */
 extern "C" int  printf(const char *fmt, ...);              /* C63 */

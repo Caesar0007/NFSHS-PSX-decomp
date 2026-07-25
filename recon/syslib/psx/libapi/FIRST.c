@@ -13,7 +13,19 @@
  *
  *   Oracle tracing shows two searches: the first saves the real handler and the second installs
  *   the one-shot patch.  The pathname scan is signed, preserves the original `name` for firstfile2,
- *   and the DCB byte-count division is unsigned (0xCCCCCCCD >> 6). */
+ *   and the DCB byte-count division is unsigned (0xCCCCCCCD >> 6).
+ *
+ * w25-a2 SURVEY (-fno-delayed-branch splice project, methodology sec 3.25.3b): UNRELATED for both
+ *   fns -- register-coloring floor (per w24-a7's prior "60/40" diagnosis, re-confirmed here): our
+ *   frame allocates one MORE callee-saved s-reg than the oracle (firstfile: ours s2/s4/s5, sp-48;
+ *   oracle s2/s3, sp-40 -- one fewer live temp across the DCB-walk loop; _first_patch: ours
+ *   s2/s4/s5/s6, sp-48; oracle s2/s3/s4/s5, sp-40, same one-reg-over pattern). No jal-arg-slot or
+ *   epilogue-reorder signature lines present in either diff (the epilogue lw-ra/addiu-sp deltas
+ *   are pure byte-offset shifts caused by the extra saved register, not a slot/order swap).
+ *   Empirically whole-TU `-fno-delayed-branch` test (w25-a2, reverted, not committed): firstfile
+ *   68->136 diffs, _first_patch 44->54 diffs -- both MUCH WORSE. Confirms neither fn is
+ *   delayed-branch-related; do NOT splice. Needs a genuine register-coloring lever instead
+ *   (one fewer live local across the two DCB-table walks). */
 
 extern int   strcmp(const char *a, const char *b);     /* libc C23 @0x800E5D7C */
 extern void *firstfile2(const char *name, void *dir);  /* A66.OBJ : BIOS B0:0x42 */

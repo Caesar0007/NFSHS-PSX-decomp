@@ -158,7 +158,7 @@ PER_FN_NO_DELAYED_BRANCH = {
     "recon/syslib/psx/libetc/INTR.cpp": {
         "ResetCallback", "InterruptCallback", "DMACallback", "VSyncCallbacks",
     },
-    "recon/syslib/psx/libcd/cdcont.cpp": {
+    "recon/syslib/psx/libcd/cdcont.c": {
         "CdSync", "CdReady", "CdFlush", "CdDataSync",
         # w25-a3 TRIED and REVERTED: CdLastPos/CdSetDebug/CdSyncCallback/
         # CdReadyCallback looked textbook pure-signature (single `jr ra;nop`

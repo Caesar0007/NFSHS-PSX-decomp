@@ -847,7 +847,7 @@ void AudioMus_Volume(int volume)
   int iVar1;
   int iVar2;
   int s;
-  
+
   if ((AudioMus_g != (AudioMus_tMusicGlobals *)0x0) && (AudioMus_g->volume != volume)) {
     s = 0;
     if (volume == 0) {
@@ -887,16 +887,6 @@ void AudioMus_Volume(int volume)
 /* ---- AudioMus_AutoVolume__Fii  [@0x8007b46c] ---- */
 void AudioMus_AutoVolume(int fadeticks,int volume)
 {
-  int curvol;
-  int titlechar;
-  char *p;
-  int havefile;
-  int ticksleft;
-  int chunks;
-  AudioMus_tSongEntry *song;
-  char title [128];
-  int offset;
-  
   if ((AudioMus_g != (AudioMus_tMusicGlobals *)0x0) && (AudioMus_g->volume != volume)) {
     if (volume == 0) {
       AudioMus_g->volume = 0;

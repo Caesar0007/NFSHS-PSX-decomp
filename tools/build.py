@@ -387,7 +387,7 @@ AS_ARCH = ["-EL", "-march=r3000", "-mtune=r3000"]
 CC1_FLAGS = ["-quiet", "-O2", f"-G{G_VALUE}", "-g1", "-mgpOPT", "-fgnu-linker"]
 CPP_FLAGS = ["-nostdinc", "-undef", "-D__GNUC__=2", "-D__OPTIMIZE__",
              "-Dmips", "-D__mips__", "-D__psx__", "-DPSX",
-             f"-I{ROOT / 'include'}"]
+             f"-I{ROOT / 'include'}", f"-I{RECON}"]
 
 
 def run(cmd, **kw):

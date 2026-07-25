@@ -100,7 +100,7 @@ int SNDSTRM_destroy(...);   /* (int handle) */
 int SNDSTRM_getvol(...);   /* (int handle) */
 int SNDSTRM_overhead(...);   /* (int a, int b) */
 int SNDSTRM_purge(...);   /* (int handle) */
-void SNDSTRM_queuefile(...);   /* (int arg0) */
+int SNDSTRM_queuefile(...);   /* (u_int handle,int name,char *filename,long off) -> queue handle; real def eaclib sndpsxz/spvoices.c returns int (w30-a7: was void, mismatched the real definition -- AudioMus_QueueRequestedSong stores its return into requesthandle) */
 int SNDSTRM_requeststatus(...);   /* (int req, u_int statusptr) */
 void SNDSTRM_setgreedylevel(...);   /* (int handle, int level) */
 void SNDSTRM_setgreedystate(...);   /* (int handle, int state) */

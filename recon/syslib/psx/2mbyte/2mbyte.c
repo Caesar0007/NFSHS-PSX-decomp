@@ -26,14 +26,14 @@
 
 /* ---- cross-TU call targets (jal targets decoded from EXE bytes; disasm-v3 mislabelled
  *      both by +0x10000 in the boot region -- real targets verified against NFS4.EXE) ---- */
-extern "C" int  main(void);                                /* @0x800A4730  GAME\COMMON\NFS3.CPP   */
-extern "C" void InitHeap(void *head, unsigned long size);  /* @0x800FDD18  libapi (syslib C57.obj) */
+extern int  main(void);                                /* @0x800A4730  GAME\COMMON\NFS3.CPP   */
+extern void InitHeap(void *head, unsigned long size);  /* @0x800FDD18  libapi (syslib C57.obj) */
 
 /* ---- crt0 data (real linker symbols; only referenced from the asm text below) ---- */
-extern "C" unsigned int _stacksize;   /* linker sym: bytes reserved for the stack */
-extern "C" int _bss_obj;              /* linker sym: BSS region start (SN "OBJEND"-style anchor) */
-extern "C" int __last_org;            /* linker sym: end of the linked image / BSS end */
-extern "C" int _gp;                   /* linker sym: small-data anchor (0x8013C54C, nfs4.ld)     */
+extern unsigned int _stacksize;   /* linker sym: bytes reserved for the stack */
+extern int _bss_obj;              /* linker sym: BSS region start (SN "OBJEND"-style anchor) */
+extern int __last_org;            /* linker sym: end of the linked image / BSS end */
+extern int _gp;                   /* linker sym: small-data anchor (0x8013C54C, nfs4.ld)     */
 
 /* @0x800E402C (stup2 / __SN_ENTRY_POINT): zero the BSS region [_bss_obj, __last_org). */
 #if defined(__mips__)
@@ -53,8 +53,8 @@ __asm__(
     ".set pop\n"
 );
 #else
-extern "C" void stup2(void) { }
-extern "C" void __SN_ENTRY_POINT(void) { }
+extern void stup2(void) { }
+extern void __SN_ENTRY_POINT(void) { }
 #endif
 
 /* @0x800E4050 (stup1): install $sp (top of 2 MiB) / $gp / $fp, then InitHeap(base, size).
@@ -97,7 +97,7 @@ __asm__(
     ".set pop\n"
 );
 #else
-extern "C" void stup1(void) { }
+extern void stup1(void) { }
 #endif
 
 /* @0x800E40CC (stup0): enter the game, then halt (should never return). Falls through from
@@ -119,5 +119,5 @@ __asm__(
     ".set pop\n"
 );
 #else
-extern "C" void stup0(void) { for (;;) { } }
+extern void stup0(void) { for (;;) { } }
 #endif

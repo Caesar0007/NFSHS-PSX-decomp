@@ -87,6 +87,20 @@ extern unsigned int iSNDmemrestore(void)
  * Consequence: retail's post-scan tail keeps its OWN `jal iSNDmemconstrain` + tail (`sw $v1,0x14($sp)`
  * differs from the empty arm's `sw $v0,..`), while ours cross-jumps into the empty arm's call because
  * both arms end in the same hard register -- that alone is 5 of the 8 missing instructions.
+ * W33-a7 (2026-07-26): SLD cannot adjudicate this obj either -- ZERO line records across the whole
+ * sndpsxz span (proof + the pad.c consequence in sdmemman.c's header).  Compiler axis closed here
+ * too: gcc 2.8.1 output is BYTE-IDENTICAL to our 2.8.0 (86 both), gcc 2.7.2 is 134 diffs @123 insns.
+ * Flag axis: the only flag that lowers the count is -fno-expensive-optimizations (82) and it does so
+ * by ADDING two instructions (129 vs 127) -- a worse fit, not a better one; every other flag is >=
+ * baseline.  Four more spellings of the post-scan tail's {block,available} build were tried (limit
+ * loaded into its own local first; `block = p2[0]; block += p2[1];` accumulation; available-before-
+ * block; the sum recomputed twice) -> 86 / 91 / 90 / 93, i.e. NONE beats this body and none flips
+ * the $v0/$v1 pair whose coloring is what lets our two constrain arms cross-jump-merge.
+ * Re-audited against the wave's three-way copy taxonomy: there is NO cse.c double-evaluation target
+ * here (the only retail-only "copies" in the diff are three `addu $v0,$zero,$zero` return-zero
+ * setups, not value copies), and no loop.c giv-anchor target (the 4-byte entry stride is a power of
+ * two, but retail emits a per-iteration sll+addu, not a strength-reduced walker -- the multiply-set
+ * offset blocker already in this body IS the retail shape).  Conceded to true allocator coalescing.
  * Also tried and REVERTED: hoisting `j = i << 2` above the entry guard so one sll serves the loop
  * preheader and the tail (retail's `sll $v0,$s0,2` in the guard delay slot is reorg's `redundant_insn`
  * unification of two same-register slls, NOT a shared source expression) -- gcc const-folds our

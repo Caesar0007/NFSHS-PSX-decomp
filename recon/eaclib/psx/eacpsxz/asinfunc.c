@@ -72,7 +72,16 @@ extern int intarcsin(int x)   /* @0x800EACD8 */
      * worse). decomp-permuter (base score 35, 700+ iters, no perm macros) PLATEAUS at the
      * base score -- confirms §asm_pattern_catalog Row E "register-materialization FLOOR
      * (v0-vs-a2 tie-break)": the address-scratch choice is allocator-internal, not
-     * source-shapable. Accept as a floor. */
+     * source-shapable. Accept as a floor.
+     * w33-a4 RE-VERDICT (floor CONFIRMED, mechanism sharpened): the two shapes are a cse.c
+     * copy-vs-rematerialise choice on the SECOND `(plus asintbl, idx)` address pseudo -- retail
+     * replaces it with a register copy from the first (`addu v0,v1,zero`), ours re-emits the add.
+     * Any source form that names the address ONCE collapses to a single address pseudo and 47
+     * insns (`lbu ?,0(p)` + `lbu ?,1(p)`), i.e. it LOSES the instruction retail has; any form that
+     * writes the subscript TWICE reproduces the 48-insn shape but always with the second add.
+     * Re-tested this wave: `*(&kArcsinTable[idx] + 1)` (2 diffs), `{int i2=idx; ...[i2+1];}` (2),
+     * explicit `q = p` alias (25 diffs / 47), `p[0]`+`p[1]` (25 / 47).  SLD could not have helped:
+     * eaclib .lib C members are debug-stripped (0 SLD records anywhere above 0x800E0000). */
 
     if (x <= 0xFA00) {                           /* coarse region: round-to-nearest lookup */
         if (x & 0x40)

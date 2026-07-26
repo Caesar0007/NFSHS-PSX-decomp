@@ -188,11 +188,26 @@ extern unsigned int iSNDpsxfxinit(int mode)
         do { } while (iSNDdmcomplete(h) == 0);
     }
 
-    /* RESIDUAL 6 diffs, 222/222 insns: two pure sched1 ties -- (a) the `la snd_reverb_table`
-     * lands 2 slots later than retail's (before vs after the mode*0x42 sll/addu chain; splitting
-     * the pointer arithmetic, hoisting the table address, and an explicit offset temp all made it
-     * worse: 16/8/66), and (b) the `rv[0xb]` store sits one slot behind its subu (a named temp,
-     * operand-order flip and statement reorder are all diff-neutral). */
+    /* RESIDUAL 6 diffs, 222/222 insns: two single-slot ties -- (a) the `la snd_reverb_table` lands
+     * 2 slots later than retail's (after vs before the mode*0x42 sll/addu chain), and (b) the
+     * `rv[0xb]` store sits one slot behind its subu (retail: subu;sh;lhu rv[2] -- ours:
+     * subu;lhu rv[2];sh).
+     * w33-a6 NARROWED (a) considerably -- it is NOT a scheduler tie at all:
+     *   - cc1 with `-fno-schedule-insns` emits the SAME order, i.e. sched1 never moves these; the
+     *     order is what EXPAND emits.  For `&arr[i]` this build expands the INDEX first and the
+     *     symbol base second; retail's object has base-then-index.
+     *   - the expand order is INVARIANT across four spellings of the same address computation:
+     *     `&tbl[mode*0x42]`, `(unsigned char*)((int)tbl + mode*0x42)`, `(short*)tbl + mode*0x21`,
+     *     `&tbl[mode*33*2]` (all 6); writing the *66 out longhand as `(mode + mode*32)*2` is worse (8).
+     *   - the ONLY way to get base-first is to make the base its own statement
+     *     (`src = tbl; src += mode*0x42;`), and then GCSE hoists the whole constant-address
+     *     computation up into the mode-dispatch blocks and steals the branch delay slot => 16.
+     *   - NOT a compiler-snapshot difference: byte-identical 6-diff output from psq43, psq44 AND
+     *     psq45 CC1PSX.  NOT a flag identity either: -fno-strength-reduce / -fno-cse-follow-jumps
+     *     are diff-neutral; -fno-schedule-insns 191, -fno-schedule-insns2 95,
+     *     -fno-expensive-optimizations 131.
+     * So (a) is an expand-order property of this cc1's `&array[index]` lowering with no source
+     * escape hatch found; (b) is an sched1 load-vs-store priority tie.  Permuter territory. */
     ctl = *(unsigned short *)(DAT_80147e2c + 0x1aa) | 0x80;   /* reverb enable */
     *(short *)(DAT_80147e2c + 0x1aa) = (short)ctl;
     return ctl;

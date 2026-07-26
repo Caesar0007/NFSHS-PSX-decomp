@@ -62,6 +62,18 @@ extern int iSNDischanreserved(int chan, int count)
  *   tried and REVERTED for making it worse: the index form `sndchanreserved[reserved]=best` reaches
  *   297/298 instructions but explodes the coloring to 401 diffs (the pass-local `selected` pointer is
  *   load-bearing), and `int bestage` regresses to 297.
+ *   W33-a7 (2026-07-26): the SLD lever asked for by the wave brief DOES NOT EXIST for this obj (0
+ *   line records across the whole sndpsxz VA span -- see sdmemman.c's header for the proof and the
+ *   pad.c consequence), and the compiler-snapshot axis is closed: gcc 2.8.1 output is BYTE-IDENTICAL
+ *   to our 2.8.0 here (260 both), gcc 2.7.2 is far worse and mis-counts (541 diffs, 293 insns vs the
+ *   oracle's 298).  Two more levers tried and REVERTED: `int bestage` (292, already recorded above as
+ *   297 in w32) and a goto-loop pass-2 with the label reused for entry+continuation (284; it does not
+ *   collapse the duplicated `li s3,102` loop-head init).  The residual is still the s6<->s7 / t1<->t2
+ *   allocno rotation.  Re-audited against the wave's three-way copy taxonomy and BOTH source-reachable
+ *   mechanisms are absent here: the copy counts are SYMMETRIC (13 oracle-only `addu rX,rY,zero` with
+ *   matching ours-only lines -- a pure permutation, no asymmetric copy to explain, so no cse.c
+ *   double-evaluation target), and the loop.c giv anchor cannot apply because both passes walk the
+ *   100-byte channel slot, which is not a power-of-two stride.
  *   Raw nfs4-f.exe EEF64..EF40B SHA-256:
  *   4af4cae9357cee8d5c94a064c543b15d4d1edb7a6f5d1c0d5ccd8c8f259740fc. */
 extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigned int *out)
@@ -220,7 +232,30 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
  *   dropping the `volatile` casts (109/110 insns -- closer parity -- but loop.c then strength-reduces
  *   the scan into TWO walking pointers, 101 diffs) and a label+goto scan loop (107 insns, 111 diffs).
  *   The `volatile` casts here are therefore load-bearing giv blockers, not decoration.  Same family as
- *   methodology sec-3.25-3d (per-obj old-gcc identity); route to the toolchain-identity investigation. */
+ *   methodology sec-3.25-3d (per-obj old-gcc identity); route to the toolchain-identity investigation.
+ *
+ *   ✅ W33-a7 CUT 79 -> 74 diffs, 107 -> 108 insns (oracle 110), via the cse.c DOUBLE-EVALUATION
+ *   mechanism (a3's w33 census, class 2): retail's otherwise inexplicable `addu $t2,$v1,$zero` is NOT
+ *   an allocator artefact -- it is cse rewriting a SECOND textual evaluation of `base[0x11]` into a
+ *   copy of the first load's register.  Retail's guard compares against the loaded reg ($v1) and the
+ *   loop against the copy ($t2), so the guard holds the FIRST evaluation and the loop's `limit` is the
+ *   SECOND.  Spelling that literally -- `if (idx < (int)base[0x11]) { limit = base[0x11]; ... }`
+ *   instead of hoisting one `limit` above the guard -- reproduces the copy exactly.  Anything that
+ *   folds the two evaluations back together (one named local used twice) loses it again.
+ *
+ *   W33-a7 (2026-07-26): SLD cannot adjudicate this fn's variable set -- there are ZERO line records
+ *   for it (proof + consequences in sdmemman.c's header).  The base-pointer-uniform rewrite (every
+ *   `sndgs[0x25]`/`sndgs[0x11]` written as `*(int*)(base+0x94/0x44)`, aimed both at the tail's
+ *   `la sndgs`-vs-fused-`%lo` diff and at raising the base pseudo's ref count so it outranks
+ *   initialSlot) is WORSE: 92 diffs at 100/110 insns, because cse then folds the rematerializations
+ *   away.  The 3-instruction gap to retail decomposes as: retail's extra `addu $t2,$v1,$zero` limit
+ *   copy (retail loaded the limit into $v1 and must free it for the scan; ours loads straight into
+ *   $t0 -- OURS IS SHORTER for a real reason), a duplicated `lui %hi(D_801478F4)` retail parks in a
+ *   branch delay slot, and the `la sndgs` + `lw 0x44` tail where ours fuses `lui;lw %lo`.  Per the
+ *   methodology discriminator an "ours-shorter / oracle's extra insn is a redundant reg-to-reg move"
+ *   residual is a PERMUTER multi-basin case, not an accept -- but iSNDpsxmemconstrain (31/31, 14
+ *   diffs) is a strictly cheaper and cleaner exhibit of the SAME allocator decision, so run that
+ *   one first.  Compiler sweep: gcc 2.8.1 == our 2.8.0 (79 both); gcc 2.7.2 = 110 diffs @112 insns. */
 extern void iSNDfreechan(int chan)
 {
     unsigned int group;
@@ -236,8 +271,8 @@ extern void iSNDfreechan(int chan)
         int limit;
         unsigned char *scan;
 
-        limit = base[0x11];
-        if (idx < limit) {
+        if (idx < (int)base[0x11]) {
+            limit = base[0x11];
             scan = (unsigned char *)pool;
             do {
                 if (*(volatile unsigned char *)(scan + 0x37) == group &&

@@ -81,6 +81,31 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 # Recognised keys:
 #   "jtbl_at_fusion"     -> pass --jtbl-at-fusion to maspsx for this TU only
 #                           (see JTBL_AT_FUSION above).
+#   "no_split_addresses" -> pass -mno-split-addresses to cc1/cc1plus for this
+#                           TU (w33-a10; methodology §3.25 axis 3b -- per-obj
+#                           toolchain identity). CC1PSX's DEFAULT is
+#                           -msplit-addresses: gcc lowers EVERY absolute
+#                           address itself into an explicit `lui %hi` /
+#                           `addiu %lo` pair, and then CSE/loop-invariant
+#                           motion hoists the resulting base register out of
+#                           loops -- burning an extra callee-saved register
+#                           and folding sibling globals against one another.
+#                           With split-addresses OFF, gcc emits the ASSEMBLER
+#                           pseudo-ops instead: `la $r,sym` (unfused
+#                           lui+addiu) and, crucially, the symbol+register
+#                           INDEXED form `lbu $2,sym($3)`, which maspsx /
+#                           GNU-as expand to retail's compact
+#                           `lui $at; addu $at,$at,$idx; lbu %lo(sym)($at)`
+#                           macro. That is the SAME ASPSX-$at-macro identity
+#                           the `jtbl_at_fusion` maspsx peephole reproduces
+#                           for switch dispatches -- but taken at its true
+#                           source (the compiler), so it also covers ordinary
+#                           array/struct indexing and the "rematerialized
+#                           address" shape previously mis-attributed to an
+#                           unknown older cc1 snapshot.
+#                           Enable per-TU only after a WHOLE-TU verify_asm
+#                           sweep: an object that retail DID build with split
+#                           addresses will regress under this flag.
 #   "no_delayed_branch"  -> pass -fno-delayed-branch to cc1/cc1plus for this
 #                           TU (methodology §3.25 axis 3b: PsyQ's syslib was
 #                           built with gcc's delayed-branch filling OFF,
@@ -108,6 +133,13 @@ PER_TU_FLAGS = {
     "recon/game/common/replay.cpp":         {"jtbl_at_fusion": True},  # Replay_GetInterfaceKey
     "recon/game/psx/sfx.cpp":               {"jtbl_at_fusion": True},  # Sfx_BuildSouffleFacet
     "recon/syslib/psx/libc/SPRINTF.c":      {"jtbl_at_fusion": True},  # sprintf
+    # w33-a10: EA's own eaclib PAD.OBJ was built WITHOUT split addresses --
+    # proven by the oracle's `lui $at; addu $at,$at,$idx; lbu %lo(sym)($at)`
+    # indexed loads (two independent sites in PAD_update, no jump table in
+    # sight) plus the unfused `la` into a callee-saved reg in padinit /
+    # PAD_restore / PAD_state. Whole-TU sweep with the flag: 5/5 functions
+    # improve or hold (see the per-fn table in recon/eaclib/psx/pad.c).
+    "recon/eaclib/psx/pad.c":               {"no_split_addresses": True},
     # "no_delayed_branch" PROTOTYPED on libetc/INTR.cpp (w24-a9 task 3) and
     # NOT enabled here: net +3 PASS (ResetCallback/InterruptCallback/
     # DMACallback/VSyncCallbacks 4->0 diffs each) but a genuine regression
@@ -155,6 +187,16 @@ def per_tu_flags(src: Path) -> dict:
 # emits it -- i.e. the C++-MANGLED name for a class method; all current
 # entries are `extern "C"` functions so the label equals the source name).
 PER_FN_NO_DELAYED_BRANCH = {
+    # w33-a10: EA's own eaclib PAD.OBJ (see the "no_split_addresses" entry in
+    # PER_TU_FLAGS). Once split addresses are off, PAD_restore's ONLY residual
+    # was the canonical Tier-1 epilogue-fill signature (ours `jr ra; addiu sp`
+    # vs the oracle's `addiu sp; jr ra; nop`) -- the splice takes it to a byte
+    # PASS. Whole-TU probe: the flag is a NET LOSS on the other four
+    # (padinit 3->9, PAD_state 4->8, PAD_convert PASS->3, PAD_update 30->40),
+    # which is exactly why this is per-FUNCTION and not a TU flag.
+    "recon/eaclib/psx/pad.c": {
+        "PAD_restore",
+    },
     "recon/syslib/psx/libetc/INTR.c": {
         "ResetCallback", "InterruptCallback", "DMACallback", "VSyncCallbacks",
     },
@@ -415,6 +457,8 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
     cc1_flags = list(CC1_FLAGS)
     if tu_flags.get("no_delayed_branch"):
         cc1_flags.append("-fno-delayed-branch")
+    if tu_flags.get("no_split_addresses"):
+        cc1_flags.append("-mno-split-addresses")
     r = run([CC1, *cc1_flags, i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[cc1] {rel}\n{r.stdout}{r.stderr}")

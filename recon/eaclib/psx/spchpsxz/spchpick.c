@@ -1,9 +1,8 @@
-/* eaclib/psx/spchpsxz/spchpick.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 18/27 PASS ***
- *   Full detailed survey: remaining FAILs are iSPCH_OrderSentences(64,85/83),
- *   iSPCH_ChooseSentence(58,104/104), iSPCH_SentenceGetChoices(54,84/80),
- *   iSPCH_MakeSampleRequests(49,85/82), iSPCH_IterateChoice(43,45/44),
- *   iSPCH_MatchSample(28,67/65), iSPCH_SampleLength(14,26/26),
- *   iSPCH_ConstantRuleSet(10,83/83), and iSPCH_SentenceMakeChoice(7,44/43).
+/* eaclib/psx/spchpsxz/spchpick.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 21/27 PASS ***
+ *   Remaining FAILs after wave 33: iSPCH_MatchSample(22,67/65),
+ *   iSPCH_ConstantRuleSet(10,83/83), iSPCH_OrderSentences(9,82/83),
+ *   iSPCH_SentenceGetChoices(7,81/80), iSPCH_SentenceMakeChoice(7,44/43),
+ *   iSPCH_IterateChoice(4,44/44).
  *   Source obj : nfs4\eaclib\psx\spchpick.obj ; archive C:\nfs4\EACLIB\PSX\SPCHPSXZ.LIB (xlsx col12 / SYM v3)
  *   27 fns @[0x8010077C .. 0x801018F4].  The sentence/sample PICKER -- the top of the speech pipeline: takes
  *   a chosen event, picks a sentence template that passes its rules, chooses matching samples per phrase,
@@ -34,10 +33,16 @@ typedef void (*SentenceRuleSetFn)(int, int, int);
 extern SentenceRuleSetFn gSentenceRuleSet; /* spchinit (callback) */
 extern int  gVoxInGame[];     /* spchinit; [1] aliases gRepeatCount@+4 */
 extern int  gRepeatCount;     /* spchinit (== gVoxInGame[1]) */
-extern int  gFilterSetting;   /* spchevnt-shared */
-extern int  DAT_80148064;     /* spchevnt "kept 'd' event" flag */
+extern int  gFilterSetting[]; /* spchevnt-shared; UNSIZED ARRAY -> separate-temp lui/lw pair */
+extern int  DAT_80148064[];   /* spchevnt "kept 'd' event" flag; UNSIZED ARRAY -> separate-temp lui/lw pair */
 extern int  gPreLoadTicks[];  /* spchevnt-shared */
-extern int  gClearCycle;      /* @0x801370BC "cycle-bit clearing enabled" flag (init val 1);
+extern int  gClearCycle[];    /* @0x801370BC "cycle-bit clearing enabled" flag (init val 1);
+                                    * UNSIZED ARRAY (not a scalar): a scalar extern compiles to the
+                                    * single ASSEMBLER MACRO `lw $2,gClearCycle`, which is INELIGIBLE
+                                    * for a branch delay slot (.set nomacro), so gcc's dbr pass skips
+                                    * it and steals the next insn instead; the array form makes cc1
+                                    * emit the real `lui %hi` + `lw %lo` pair and the `lui` becomes
+                                    * the delay-slot filler exactly as retail (see MakeSampleRequests).
                                     * data-materialized right next to gNumBanks in the spchbank data
                                     * block but not yet given a home TU -- HEADER WISH: belongs in
                                     * spchbank.c or spchinit.c alongside its neighbors, out of this
@@ -112,11 +117,23 @@ extern void SPCH_SetPreLoadTicks(int ticks);                       /* @0x801018F
  * cycleByte` into a NINTH callee-saved register ($s7 here), which pushes paramTable into $fp and
  * adds the fp save/restore pair (the 2-insn gap); retail rematerializes `li v1,1` per iteration
  * and gets by on s0-s7.  Same move_movables class as iSPCH_SentenceGetChoices' `li -2`, but here
- * there is no compare to fold the constant into.  Levers tried and rejected: a label+goto loop
- * DOES kill the hoist and reach exact 65/65 parity, but re-rotates the five block locals (40-42
- * diffs, worse); `(matchVal >> cycleByte) & 1` avoids the constant but switches cc1 to a
- * srlv/andi bit test the oracle does not use; a named `one` local and re-assignment per
- * iteration are still recognised as invariant. */
+ * there is no compare to fold the constant into.
+ * w33-a9 NEW RESULT -- the hoist IS source-killable without a goto loop: splitting the shift into
+ * two statements over the SAME variable (`bit = 1; bit = bit << cycleByte;`) makes `bit` a pseudo
+ * that is MODIFIED in the loop, so move_movables has no invariant to move.  That form reaches
+ * EXACT 65/65 parity with the prologue, the whole param set (sample s6 / phraseTemplate s5 /
+ * paramTable s7) and the epilogue BYTE-IDENTICAL -- no fp, no extra li.  NOT KEPT: the split
+ * doubles bit's ref count, and the only residual becomes a 3-way rotation of the block locals,
+ * 32 diffs vs the baseline's 22.  cc1 -dg/-dl numbers for the split form (priority =
+ * floor_log2(refs)*refs/live_length): bit 10/15 = 2.00 -> s0, lowNib 6/8 = 1.50 -> s1,
+ * i 13/28 = 1.39 -> s2, result 9/32 = 0.84 -> s3, count 5/33 = 0.30 -> s4; retail needs
+ * lowNib > i > bit > result > count, i.e. bit's priority must land inside (0.84, 1.39) --
+ * 7 refs at length 15, or 10 refs at length 22-35.  Falsified attempts at that: bit defined
+ * before the cycleByte range guard, bit declared after lowNib, the shift hoisted out of the
+ * inner block (all 32/65).  This is now a 1-parameter permuter target on the SPLIT form, not
+ * the 40-diff goto form banked in w31.  Also falsified this wave: `1u << (cycleByte & 0x1f)`
+ * (23/68), lowNib declared first (38/67), a named `one` local (22/67, still hoisted),
+ * `(result + 1) << cycleByte` (22/67, cc1 folds result to 0). */
 extern int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int paramTable)
 {
     /* w31-a4 NOTE (kept at baseline per strict-drop seal law; findings for a future wave):
@@ -313,14 +330,22 @@ extern int iSPCH_SampleLength(short *choice)
     int bank;
     int r;
     int tmp[4];
-    /* residual 14: ours colors the pick-byte chain base->a1/idx->v0 (la lands in the lbu-arg reg),
-     * oracle idx->a1/base->v0; fresh-sum/inline/anonymous-chain reshapes all score worse (14/16/22) */
-    int len = 0;
-    unsigned char *pickAddr = ispch_gPickSamples;
-    int voxBase = gVoxBanks[0];
-    pickAddr = pickAddr + choice[4];
+    /* MATCH (w33-a9, 14 -> 0): the pick address must be accumulated INTO the INDEX
+     * variable, not into the base pointer.  The oracle loads choice[4] into $a1 and
+     * adds the pick-pool base to it in place (`lh a1,8(a0); addu a1,a1,v0; lbu
+     * a1,0(a1)`), so the index's register is the addu DESTINATION and ends up being
+     * the 2nd call argument; writing `pickBase = pickBase + choice[4]` makes the
+     * BASE the mutated variable, which colors the la into the lbu/arg register and
+     * pushes gVoxBanks' load into $a0 (separate-temp `lui a1; lw a0,0(a1)` instead of
+     * retail's self-temp `lui v1; lw v1,0(v1)`).  Catalog lever #14 (in-place
+     * dead-pointer store) read the other way round: mutate the INDEX, not the base. */
+    int            len      = 0;
+    unsigned char *pickBase = ispch_gPickSamples;
+    int            voxBase  = gVoxBanks[0];
+    int            pick     = choice[4];
+    pick = (int)(pickBase + pick);
     bank = *(int *)(*choice * 4 + voxBase);
-    r = iSPCH_UnPackSample(bank, (unsigned int)*pickAddr, tmp);
+    r = iSPCH_UnPackSample(bank, (unsigned int)*(unsigned char *)pick, tmp);
     if (r != 0)
         len = tmp[0];
     return len;
@@ -367,11 +392,14 @@ extern void iSPCH_OrderSentences(int event, int outOrder)
      * and for(;;) shapes get header-peeled (+4).
      * residual 12 (85/83): (a) phase-1 `p` coalesces with $v0 (oracle copies it to a0, addu
      * a0,v0,zero, because its sb-address temp takes v0) -- ours-1-shorter receiver-reuse class;
-     * (b) the scan while-rotation guard slt/beqz survives (oracle enters the loop straight off
-     * the n!=0 test; unprovable j<n for signed compare, and unsigned-compare or do-while forms
-     * diverge more).  Permuter targets.  w32-a9 re-tested (b): do-while 48 diffs/87 insns (loop.c
-     * PEELS the first iteration, +4) and a label+goto scan 50/81 -- both far worse than the
-     * `while` guard; the guard stands. */
+     * (b) SOLVED in w33-a9 -- see the scan loop below.
+     * RESIDUAL 9 (82/83) is (a) alone: retail copies GetOffset16's return into $a0
+     * (`addu a0,v0,zero`) and addresses both `*p` reads off $a0, while ours reuses $v0
+     * directly and is 1 insn SHORTER.  That is the catalog's "ours-1-shorter receiver/
+     * base-reg reuse" class = PERMUTER multi-basin, NOT a floor.  Source levers falsified
+     * in w33-a9 (all 9 diffs / 82 insns, no movement): j++ before vs after the total
+     * accumulation, a named byte temp for the first read, the p[0] index form, an
+     * int-typed address local, and p hoisted to function scope. */
     unsigned char  weights[104];
     unsigned int   n = (unsigned int)*(unsigned char *)(event + 6);
     int            total = 0;
@@ -392,11 +420,21 @@ extern void iSPCH_OrderSentences(int event, int outOrder)
             int r = iSPCH_Rand(total);
             j = 0;
             if (n != 0) {
-                while (j < (int)n) {
+                /* MATCH (w33-a9, 12 -> 9): the scan is an INFINITE loop with TWO in-body
+                 * breaks -- `while (1) { ...; if (r<0) break; j++; if (!(j<n)) break; }`.
+                 * `while (j<n)` emits a rotation guard (slt/beqz, +3 insns) because cc1
+                 * cannot prove 0<(int)n from n!=0; `for(;;)` with the bound test written
+                 * as `j>=n` / `n<=j` makes loop.c PEEL the first iteration (+5, 87 insns).
+                 * Only the negated `!(j < n)` bottom test reproduces the oracle's
+                 * straight-in body with the exit at the back edge -- the whole scan block
+                 * is now byte-identical. */
+                while (1) {
                     r = r - (int)(unsigned int)weights[j];
                     if (r < 0)
                         break;
                     j = j + 1;
+                    if (!(j < (int)n))
+                        break;
                 }
             }
             *(char *)(outOrder + i) = (char)j;
@@ -462,8 +500,8 @@ extern int iSPCH_SentenceGetChoices(int sentence, int paramTable, unsigned int r
      * from `table` per iteration (CHOICE(table)) so loop.c reduces every access onto ONE +0-based
      * walker (pointer-walk form fabricated an &outChoice[2] anchor giv, +2 insns); result/picked
      * initialized before the GetNumPhrases call. */
-    int picked = 0;
     int result = 1;
+    int picked = 0;
     int n = VoxSentence_GetNumPhrases(sentence);
     if (n < 0xd) {
         int table;
@@ -492,8 +530,13 @@ choose:
                      * a knock-on reschedule of the `li s4,1` result init (retail gets by on s0-s7).
                      * `(int)` casts, Yoda order and a named load temp all leave the motion in
                      * place; folding the constant into the compare removes the movable entirely.
-                     * RESIDUAL 11 = one `nop` where retail's in-block `li v0,-2` fills the lh
-                     * delay, plus the `li s4,1` placement that follows from it. */
+                     * RESIDUAL 7 (81/80) = this compare alone: ours `lh v0; nop; addiu v0,v0,2;
+                     * bnez` (4) vs retail `lh v1; li v0,-2; bne v1,v0` (3, the li filling the lh
+                     * load-delay slot).  w33-a9 also tried the catalog's cure A: a label+goto loop
+                     * DOES kill move_movables, and goto-loop + `!= -2` reaches EXACT 80/80 parity
+                     * -- but at 34 diffs (the un-strength-reduced walker re-colors the whole body),
+                     * so it is not kept.  What is still missing is a source form that keeps the
+                     * reduced loop AND leaves the `li -2` in the block. */
                     if (*outChoice + 2 != 0) {
                         result = 0;
                         goto out;
@@ -635,14 +678,26 @@ extern int iSPCH_SentenceMakeChoice(int sentence, int mode)
         if (ok < n) {
             ok = 1;
             sentence = (int)ispch_gChoice + i * 0xc;
-            /* residual 7 (44/43): genuine base-anchor FLOOR (catalog §3.12-style) -- ours
-             * folds the store's +8 field offset into the persistent record pointer once at
-             * loop entry (extra `addiu s0,s0,8`, reads become -4/-2), oracle keeps the
-             * pointer at the record base and uses bare +4/+6/+8 displacements throughout.
-             * Tried: named-field temp for the +6 read, short*-indexed CHOICE-style rewrite
-             * (both score EQUAL or WORSE, 7/9), statement-order swap of i++ (no change).
-             * gcc CSE-vs-strength-reduction granularity; accept, do not chase further with
-             * magic-offset pointer math. */
+/* residual 7 (44/43): the +1 insn is the giv anchor -- loop.c combines all
+             * three in-loop address givs onto the LAST one (the +8 store), so ours folds
+             * +8 into the record pointer at loop entry (`addiu s0,s0,8`) and the reads
+             * become -4/-2, while retail keeps the pointer at the record base with bare
+             * +4/+6/+8.
+             * w33-a9 RE-VERDICT (was filed a "base-anchor FLOOR"): it IS the catalog's
+             * giv-anchor class, and cure A (label+goto loop => no LOOP notes => no
+             * strength reduction) DOES fix it -- the goto form reaches EXACT 43/43 parity
+             * with the whole loop body byte-identical (lh 4(s0) / lhu 6(s0) / sh 8(s0) /
+             * addiu s0,s0,12).  NOT KEPT because its residual is an 18-diff s2<->s3
+             * rotation of `ok` and `n`, and that is the allocno_compare LIVE-LENGTH
+             * identity, not a source shape: cc1 -dl gives ok = 5 refs / 24 insns
+             * (priority .417) vs n = 3 refs / 15 insns (.200) under
+             * floor_log2(refs)*refs/live_length, so psq43 cc1 allocates ok first; retail
+             * allocates n first, which needs len(ok)/len(n) > 3.33 (ours is 1.6).  Same
+             * >3.4x weighting exhibit as iSPCH_InitEventQueue (hub w32 identity core (b)).
+             * Cure B (recompute the record pointer from the counter each iteration --
+             * CHOICE(i) or an inline i*0xc) does NOT work here: 36 diffs / 45 insns,
+             * loop.c re-derives the same anchor.  Restore the goto form when the cc1
+             * snapshot question is settled. */
             do {
                 int r = iSPCH_Rand((int)*(short *)(sentence + 4));
                 i = i + 1;
@@ -725,7 +780,7 @@ extern int iSPCH_MakeSampleRequests(int sentence, int paramTable)
             int           tmp[4];
             /* MATCH: the ClearCycleBit call is gated on BOTH bank[2]&0xf0 AND the separate global
              * gClearCycle != 0 -- the earlier recon only had the bank-flags half of the gate. */
-            if ((*(unsigned char *)(bank + 2) & 0xf0) != 0 && gClearCycle != 0)
+            if ((*(unsigned char *)(bank + 2) & 0xf0) != 0 && gClearCycle[0] != 0)
                 iSPCH_ClearCycleBit(bank, idx);
             if (iSPCH_UnPackSample(bank, idx, tmp) != 0) {
                 /* MATCH: stride computed UNCONDITIONALLY before the -1 test (oracle lhu+sll precede
@@ -839,21 +894,31 @@ extern int iSPCH_ChooseSentence(unsigned int *eventArgs)
 
             iSPCH_ClearChosen();
             filterFlag = 1;
-            filterMode = (unsigned int)gFilterSetting;
-            if (DAT_80148064 == 1) {
-                filterMode = (unsigned int)(gFilterSetting + 1);
+            filterMode = (unsigned int)gFilterSetting[0];
+            if (DAT_80148064[0] == 1) {
+                filterMode = (unsigned int)(gFilterSetting[0] + 1);
                 filterFlag = (unsigned int)((int)filterMode < 3);
                 if (filterFlag == 0)
                     filterMode = 2;
             }
             {
-                unsigned int useLen = (unsigned int)VoxEvent_GetFilterLengthFlag(event);
+                unsigned int  useLen = (unsigned int)VoxEvent_GetFilterLengthFlag(event);
+                unsigned char ruleBits;
                 /* @0x801017F4-808: gate is (useLen & 0xFF) != 0 && filterMode == 1 -- $v0 tested at
                  * 0x801017F8 is the VoxEvent_GetFilterLengthFlag return (&0xFF), NOT filterFlag. The
                  * recon gated on filterFlag (a distinct var from the DAT_80148064 branch) (M09). */
                 if ((useLen & 0xff) != 0 && filterMode == 1)
                     filterMode = 0;
-                iSPCH_GetRuleSettings((short *)event, (int *)eventArgs, &local_30);
+                /* REAL BUG (w33-a9): ruleByte1 is iSPCH_GetRuleSettings' RETURN, not useLen.
+                 * The oracle saves $v0 into $fp in the OrderSentences jal delay slot
+                 * (@0x8010182C `addu fp,v0,zero`), i.e. AFTER the GetRuleSettings call --
+                 * so the value later masked `andi a2,fp,0xff` and passed as the 3rd arg of
+                 * iSPCH_SentenceGetChoices is the rule-settings byte.  useLen (the
+                 * VoxEvent_GetFilterLengthFlag return) is consumed ONLY by the filterMode
+                 * gate above -- the oracle never saves it (bare `andi v0,v0,0xff; beqz`).
+                 * The old recon reused useLen for both, which both mis-typed the argument
+                 * and pinned useLen into a callee-saved reg for the whole function. */
+                ruleBits = iSPCH_GetRuleSettings((short *)event, (int *)eventArgs, &local_30);
                 iSPCH_OrderSentences(event, (int)local_order);
                 {
                     unsigned int n = (unsigned int)*(unsigned char *)(event + 6);
@@ -870,15 +935,26 @@ extern int iSPCH_ChooseSentence(unsigned int *eventArgs)
                                           * §C "char IS UNSIGNED on this build"). */
                             int          sentence;
                             int          r;
+                            /* MATCH (w33-a9): the three range guards leave via `goto out`
+                             * (ONE shared `return result`), not three textual `return result;`.
+                             * gcc's cross-jump pass merges the three `move v0,result` copies
+                             * only AFTER register allocation, so the textual form makes
+                             * REG_N_REFS(result) 16 instead of 13 -- and 16 crosses a
+                             * floor_log2 step, so local-alloc's priority
+                             * (floor_log2(refs)*refs/live_length) jumps 1.20 -> 1.49 and
+                             * result outranks `table` (10 refs / 25 insns = 1.20), taking $s1
+                             * and pushing table to $s2.  Retail has table in $s1 and result in
+                             * $s2, i.e. the shared-exit form.  (cc1 -dl/-dg dumps: allocation
+                             * order 107 85 83 ... -> 107 83 85 ...; whole-fn 28 diffs -> 0.) */
                             if ((int)n <= idx)
-                                return result;
+                                goto out;
                             table = (int)local_order[idx];
                             if (table < 0)
-                                return result;
+                                goto out;
                             if ((int)n <= table)
-                                return result;
+                                goto out;
                             sentence = iSPCH_GetOffset16(event, event + 0xc, (int)table);
-                            r = iSPCH_SentenceGetChoices(sentence, (int)eventArgs, useLen & 0xff,
+                            r = iSPCH_SentenceGetChoices(sentence, (int)eventArgs, ruleBits,
                                                          (unsigned int)(unsigned char)local_30, (int)filterMode);
                             if (0 < r) {
                                 result = iSPCH_SentenceMakeChoice(sentence, (int)filterMode);
@@ -892,6 +968,7 @@ extern int iSPCH_ChooseSentence(unsigned int *eventArgs)
             }
         }
     }
+out:
     return result;
 }
 

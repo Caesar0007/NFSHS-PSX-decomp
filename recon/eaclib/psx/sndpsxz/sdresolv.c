@@ -23,7 +23,21 @@ struct SNDResolveEntry {
 };
 
 /* iSNDplatformresolve @0x8010B75C : load a patch's sample into SPU RAM (unless already resolved), recording
- *   the SPU address in the 0x8a field and the resolve table.  Returns 7 / -6 (out of SPU memory). */
+ *   the SPU address in the 0x8a field and the resolve table.  Returns 7 / -6 (out of SPU memory).
+ *
+ * RESIDUAL 3 diffs, ours 126 / oracle 127 (w33-a6 re-diagnosis -- was filed only as a "126/127 floor").
+ * The single missing instruction is a delay-slot NOP, not a missing computation: at the
+ * `cur->offset == offset` test the oracle emits `beq v0,s3,found; nop` and only THEN the walker
+ * advance `addiu v1,a0,8`; ours puts the advance INTO the branch slot.  The volatile compare load
+ * `lw v0,0(a0)` already blocks reorg's fill_simple_delay_slots backward scan, so ours is coming from
+ * the EAGER fill stealing the advance out of the FALL-THROUGH thread (legal because `scan` is dead on
+ * the taken path).  Retail's reorg did not take it.  The obvious source counter -- moving `scan++`
+ * below the compare (`cur = scan; if (...) goto found; scan++;`) -- does produce the nop but changes
+ * which register carries `cur` (`addu a0,v1,zero` moves) and nets WORSE: 7 diffs (and 9 with idx++
+ * ordered first).  The 3rd diff (`lw v0,4(a0)` vs the oracle's `lw v0,4(v1)` at `found:`) is the same
+ * a0/v1 pairing.  Same reorg-steal family as sdpacket's iSNDfillspuwithpackets clusters (which WAS
+ * cracked, by a volatile that blocks the SIMPLE fill) -- here the simple fill is already blocked and
+ * there is no source-side handle on the EAGER fill.  Permuter/allocno territory. */
 extern int iSNDplatformresolve(int cursor, int bank, int patch)
 {
     unsigned int  id;

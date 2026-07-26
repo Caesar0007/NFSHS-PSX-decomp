@@ -88,7 +88,15 @@ extern int  syncblockio(int fd, int buf, int offset, int len, int cbarg, SyncIoF
  *   residual is dominated by the s1/s2 rename of (b)).  Falsified around it: volatile on buf+done
  *   only, leaving offset plain (68 insns / 49 diffs), and additionally volatilizing the `c->chunk`
  *   read in the short-transfer test (72 insns / 57 diffs -- it also blocks the offset store from
- *   the beqz delay slot, which is point (c)). */
+ *   the beqz delay slot, which is point (c)).
+ *   w33-a1: (i) the SLD line-tracing lever is NOT AVAILABLE for this TU -- the trusted SYM
+ *   carries `Set SLD to line N of file ...` records for only 194 source files, all GAME/FRONTEND
+ *   plus exactly ONE eaclib member (PAD.C); every other eaclib/syslib .lib member was linked
+ *   debug-stripped, so there is no statement segmentation to read for syncfile/nsync/cdfs.
+ *   (ii) Re-tested the (b) verdict with a TAIL-ONLY second pointer (`SyncCtrl *t;` assigned
+ *   AFTER the completeop call, whole re-issue phase + the shared remain=0 rewritten on t): cc1
+ *   copy-propagates it away and the extra allocno reshuffles s0/s1 -- 70 diffs, still 69 insns.
+ *   The s1/s2 split remains a no-copy-prop identity artifact. */
 extern void synccallback(int op, int type, SyncCtrl *c)
 {
     unsigned int done = FILE_completeop((unsigned int)op);

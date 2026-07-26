@@ -279,7 +279,13 @@ extern int iSNDdmqueue(int dst_spu, unsigned int src_ram, int len, int prio, int
 
     /* RESIDUAL (w31, 28->5): two sites left, both allocation-coupled and resistant to reshaping
      * (every alternative tried -- named id temp, handleSnapshot reuse, plain-store reorder --
-     * re-colors the whole head, 25-51 diffs): (1) walker init emits `addiu v1,v1,16` (cse picks
+     * re-colors the whole head, 25-51 diffs; w33-a6 re-ran the sweep on the current base and
+     * CONFIRMS the local optimum: `&pd[0x10]`, a volatile-qualified pd, and taking pd straight from
+     * the global instead of from `raw` are ALL diff-neutral at 5, while hoisting the id load into a
+     * named temp above the dst store -- or dropping its volatile so it can hoist by itself -- costs
+     * 60/61 insns at 51 diffs.  Diff (1) is the sndpsxz no-copy-prop identity in miniature: retail
+     * reads the FRESH pd copy, our cc1 copy-propagates back to the source register):
+     * (1) walker init emits `addiu v1,v1,16` (cse picks
      * the older equivalent raw reg) vs oracle `addiu v1,s0,16` (reads the pd copy); (2) the id
      * `lw` sits below the volatile dst store (+nop) vs oracle's lw;sw4;sw0 -- our volatile id
      * load cannot hoist over the volatile raw[1] store. Permuter candidate from this basin.

@@ -147,7 +147,17 @@ extern void iSPCH_InitEventQueue(void)
      *   weights SHORT LIVE RANGE over REF COUNT more strongly than psq43 cc1 does; same family as the
      *   catalog's suspected `allocno_compare` delta (sbdload/purge/start/serve).  Additionally retail
      *   keeps a redundant `addu a3,v0,zero` copy of the la result that our cc1 always fuses into the
-     *   `addiu` (the known no-copy-prop identity gap) -- that is the 29th instruction. */
+     *   `addiu` (the known no-copy-prop identity gap) -- that is the 29th instruction.
+     *
+     * w33-a10 RE-VERDICT: FLOOR HOLDS, and a9's derivation can no longer be reopened with SLD --
+     * SPCHPSXZ has NO SLD records at all (see SPCH_AddEvent's note), so there is no independent
+     * statement-segmentation evidence to test the label+goto hypothesis against.  Two build-lane
+     * probes are also negative: -mno-split-addresses (the flag that turned out to be PAD.OBJ's
+     * identity) takes this fn 17 -> 40, and the per-function -fno-delayed-branch splice takes it
+     * 17 -> 22 -- though note the splice DOES reach exact insn parity 29/29, i.e. it supplies the
+     * two missing instructions but puts them in the wrong places.  PROTOTYPE AUDIT: void(void)
+     * confirmed -- no $aN is read before being written and $v0 holds only a leftover %hi at the
+     * epilogue. */
     int argBase = 0;
     int base = (int)gVoxEvents;
     gVoxEvents[0]   = 0;
@@ -229,6 +239,33 @@ extern int iSPCH_FindEventSlot(unsigned int priority)
  *   retail keeps and our cc1 fuses (`lui;addiu v0;addu t0,v0,zero` vs our `lui;addiu t0,v0`, and
  *   `sll v0,v0,2;addu a1,v0,zero` vs our `sll a1,v0,2`) -- the per-obj no-copy-prop identity
  *   (catalog SSG), not a source shape. */
+/* SPCH_AddEvent RESIDUAL 16 diffs, ours 80 / oracle 82 -- FLOOR RE-CONFIRMED
+ * (w33-a10, against three fresh levers; none moved it):
+ *   - SLD is UNAVAILABLE for this TU. D:\nfs4\EACLIB\PSX\PAD.C is the ONLY
+ *     eaclib C file with SLD line records in nfs4-f-v3.txt; every SPCHPSXZ /
+ *     EACPSXZ / SNDPSXZ member is debug-stripped (the only other SLD in the
+ *     whole 0x800E4000-0x8010C000 span is C:\LIB\PSX\*.ASM). So the wave's
+ *     "did the two preheader copies come from source statements?" question
+ *     CANNOT be settled from debug info -- it has to be settled by codegen.
+ *   - -mno-split-addresses (the new PER_TU_FLAGS key that fixed pad.c): a
+ *     whole-TU probe REGRESSES every FAILing function here and breaks 9
+ *     PASSes. SPCHPSXZ.OBJ was definitively built WITH split addresses.
+ *   - per-function -fno-delayed-branch splice: 16 -> 31 (85 insns). No.
+ *   - a3's giv-anchor levers: index form with power-of-2 stride
+ *     `((unsigned int *)(off + base))[5]` = NEUTRAL (16 diffs, same insns);
+ *     anonymous `(int)gVoxEvents` re-eval in the pre-loop stores = 28;
+ *     anonymous re-eval inside the loop = 25 (81 insns); a dead
+ *     `anchor = off + base` eval = neutral.
+ * The 2-insn gap is exactly the oracle's two preheader COPIES
+ * (`addu $t0,$v0,$zero` for base, `addu $a1,$v0,$zero` for off) which our cc1
+ * always fuses into the producing `addiu`/`sll`; the remaining textual diffs
+ * are the tail's `addu $v0,$v0,$v1` vs our `addu $v1,$v1,$v0` (dying-operand
+ * choice, which then flips the `li 1` and `sh` registers -- source-level
+ * operand order is canonicalized away, verified). This is the w32-a7
+ * "coalesce-with-dying-pseudo vs fresh reg" irreducible core, not a shape
+ * error. PROTOTYPE AUDIT (w33-a10): 1 arg -- $a1..$a3 are never read before
+ * being written; returns a literal 0 in $v0 at the single epilogue, so `int`
+ * is correct, not void. */
 extern int SPCH_AddEvent(unsigned int *table)
 {
     int voxEvent = iSPCH_FindEvent(*table);
@@ -301,7 +338,14 @@ extern int iSPCH_ChooseEvent(void)
                  * maxAge feeding the sltu (named-int-temp shape; an `int m = maxAge` folds away
                  * under CSE) and a slot/age s2<->s3 + reload-reg rotation downstream -- the
                  * ours-2-shorter receiver-reuse class, permuter territory. Named `tick` temp
-                 * (load order 12(slot) before now-reload) was the real -12 lever. */
+                 * (load order 12(slot) before now-reload) was the real -12 lever.
+                 * w33-a10 RE-VERDICT: still a floor. The 2-insn gap is the oracle's two no-copy-prop
+                 * copies; the bulk of the 46 is one callee-saved ROTATION -- retail slot=$s3/age=$s2,
+                 * ours slot=$s2/age=$s3 -- i.e. retail's allocator gave the SHORT-live-range value
+                 * (age) the earlier register, the same allocno_compare weighting a9 quantified on
+                 * iSPCH_InitEventQueue. No SLD exists for this TU to test a different statement
+                 * segmentation, and both build-lane probes regress (-mno-split-addresses 46 -> 109,
+                 * per-fn -fno-delayed-branch 46 -> 90). PROTOTYPE: int(void), returns $s4. */
                 int m = maxAge;
                 expired = ((unsigned int)m < (unsigned int)age);
             }

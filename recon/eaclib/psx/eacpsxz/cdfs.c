@@ -1,4 +1,4 @@
-/* eaclib/psx/eacpsxz/cdfs.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 12/14 PASS ***
+/* eaclib/psx/eacpsxz/cdfs.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 13/14 PASS ***
  *   Source obj : nfs4\eaclib\psx\cdfs.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col11)
  *
  *   COMPILED AS C by USER RULING (2026-07-25, uniformity over diff count): cc1plus (C++) measured
@@ -17,7 +17,7 @@
  *
  *   PROGRESS (`python tools/verify_asm.py cdfs.c <fn>`, w32-a1 2026-07-26 sweep):
  *     [PASS]  CD_Close, CD_Stopread, CD_Getinfo, readsectorB, dircompare, CD_Restore, CD_Init,
- *             CD_timerfunc, CD_Restart, CD_Open, loaddirinfo, CD_systaskfunc      -- 12/14
+ *             CD_timerfunc, CD_Restart, CD_Open, loaddirinfo, CD_systaskfunc, CdReadyHandler -- 13/14
  *             CD_Restart: a volatile cached-sector view pins the second store before the callback.
  *             CD_Open: a guarded do/while removes the redundant bound precheck; a distinct copied
  *             bound preserves the oracle's post-guard register move. No asm pins (HARD RULE).
@@ -43,26 +43,50 @@
  *     (c) Flag updates that read-modify-write a volatile word are ONE STATEMENT PER BIT: the
  *         oracle emits `Cdinfo &= ~8; Cdinfo |= 0x10;` as two separate load/modify/store pairs,
  *         not the fused `Cdinfo = (Cdinfo & ~8) | 0x10;`.
- *     [near]  CdReadyHandler (325->...->109->4 diffs; insn parity 300/300).  Residual = ONLY the
- *             prologue emission ORDER of the two param save/copy pairs (oracle `sw s3;move s3,a1;
- *             sw s1;move s1,a0`, ours the reverse -- identical registers, identical frame slots).
- *             This is the known prologue-save-order scheduling floor (methodology 3.12 "irreducible
- *             coloring/scheduling floor", catalog F).  LEVERS TRIED, all diff-neutral at 4:
- *             done-in-declaration; `done = 0` before/after the disarm call; `switch (intr & 0xFF)`
- *             vs the `(unsigned char)` cast; declaration reordering (rs before madr/done);
- *             `result[0]` vs `*result`.
- *     [near]  CD_Read (198->64->31->12 diffs; insn parity 163/163).  Fixed this wave: the
+ *     [PASS] CdReadyHandler (w33-a1, 4 -> 0): the last 4 diffs were the emission ORDER of the two
+ *             param save/copy pairs (oracle `sw s3;move s3,a1; sw s1;move s1,a0`, ours the
+ *             reverse).  NOT a floor -- it is a PROTOTYPE fact.  *** NARROW-PARAM LEVER ***:
+ *             `intr` is declared `unsigned char`, not `int` (IDA types it `unsigned __int8`).  In
+ *             gcc-2.8 `assign_parms`, a parameter whose declared mode is NARROWER than the
+ *             incoming promoted mode has its copy emitted into the deferred `conversion_insns`
+ *             sequence, which is flushed AFTER every plain parm copy -- so the `s3<-a1` (result)
+ *             copy gets a LOWER luid than the `s1<-a0` (intr) copy, the exact reverse of the
+ *             declaration order.  sched2 then breaks its all-priority-1 ready-list tie by
+ *             DESCENDING luid, which puts the s3 pair first.  Derivation: cc1 `-dR` sched2 trace,
+ *             block 0 `ready list at T-12: 6 4` -- one tie, one insn pair, the whole 4-diff delta.
+ *             (Earlier levers, all diff-neutral at 4 and now moot: done-in-declaration; `done = 0`
+ *             before/after the disarm call; `switch (intr & 0xFF)` vs the `(unsigned char)` cast;
+ *             declaration reordering (rs before madr/done); `result[0]` vs `*result`.)
+ *     [near]  CD_Read (198->64->31->12->2 diffs; insn parity 163/163).  Earlier waves: the
  *             `&CD_handleTable[dev-1]` slot idiom (same as the PASSing CD_Getinfo -- it yields the
  *             oracle's full address materialization `sll;addiu -4;addu` instead of a `-4(base)`
  *             load displacement); the directory entry RE-READ from the slot at both uses, with the
  *             second read taken into a block-local BEFORE the sign correction (that placement is
- *             what restores insn parity); `CD_ringIdx = 0` hoisted above that block; and the
- *             start-sector sum written index-term-first.  Residual = the &Cdinfo materialization
- *             being scheduled ~4 slots later than the oracle, the addu destination register on
- *             the start-sector sum, and the blockmove `a0`/`a1` argument-load order -- all pure
- *             scheduling.  Tried and rejected: named accumulator for the sum (16), curDst store
- *             hoisted to just after curOff (16), ringIdx after curSector (12, no change),
- *             in-place `e` mutation (12, no change).
+ *             what restores insn parity).
+ *             w33-a1 12 -> 2, TWO levers, both derived from the cc1 `-dR`/`-dS` RTL traces:
+ *             (1) *** BASE-POINTER-BLOCK vs FIRST-STORE-BLOCK ***.  The oracle materializes the
+ *             `&CD_ctx` base in the block BEFORE the `offset < 0` sign correction (so reorg can
+ *             steal the `addiu s1,s2,%lo` into the `bgez` delay slot) but its FIRST STORE through
+ *             that base (`ringIdx = 0`) is AFTER the join.  A scheduler can never do that -- it
+ *             cannot move an insn across a basic-block boundary -- so the two must be separate
+ *             SOURCE statements in separate blocks: an explicit `CD_ctx_t *ctx = &CD_ctx;` local
+ *             declared in the pre-correction block, with `ctx->ringIdx = 0;` moved after the `if`.
+ *             (`CD_ringIdx = 0` as one statement forces base+store into the same block: 12 diffs;
+ *             moving the whole statement after the correction sinks the base too: 14 diffs.)
+ *             (2) *** NAMED ACCUMULATOR, split load / add ***: `startSector = *(int *)(e+0xC);
+ *             ... startSector += offset >> 0xB; ctx->curSector = startSector;` gives the oracle's
+ *             `addu v1,v1,v0` (dest = the LOADED value's register).  Written as one `A + B`
+ *             expression the dest always coalesces onto the FIRST operand's register and swapping
+ *             the operands only swaps which input gets v0/v1 (16 diffs) -- the accumulate form is
+ *             the only spelling that reaches the oracle's register triple.  It also lets the
+ *             ringIdx store schedule between the `sra` and the `addu`, exactly as the oracle does.
+ *             RESIDUAL 2 (documented floor, mechanism known): the blockmove call loads `a0` before
+ *             `a1` in the oracle, ours the reverse.  Root cause is in cc1's PRE-reload scheduler:
+ *             the `a0` arg needs an `addu a0,a0,v0`, so its two feeder insns get sched.c's
+ *             LAUNCH_PRIORITY (0x7f000001) boost while the plain `lw a1,12(s0)` keeps priority 1
+ *             and therefore loses every ready-list tie and is emitted first.  Not source-
+ *             reachable: 8 spellings tried (pointer-add vs index, hoisted src/off/dst/len locals,
+ *             int-cast add, flat CD_* macros) all reproduce the identical pre-sched1 RTL.
  *
  *   w16-a3 2026-07-19 notes (kept for history): fixed the SAME real bug in CD_Read/CdReadyHandler
  *     -- the "advance next chunk"/"complete now" if/else had INVERTED block order vs the oracle
@@ -199,7 +223,7 @@ extern int  CdControlB(unsigned char com, unsigned char *p, unsigned char *r); /
 extern int  CdControl(unsigned char com, unsigned char *p, unsigned char *r);  /* @0x800F78B4 */
 extern int  CdSync(int mode, unsigned char *r);                            /* @0x800F784C */
 extern int  CdFlush(void);                                                 /* @0x800F7818 */
-extern void CdReadyCallback(void (*fn)(int, unsigned char *));             /* @0x800F78A0 */
+extern void CdReadyCallback(void (*fn)(unsigned char, unsigned char *));             /* @0x800F78A0 */
 extern void CdIntToPos(int i, unsigned char *p);                           /* @0x800F7CF4 */
 extern int  CdPosToInt(CdlLOC *p);                                         /* syslib SYS  */
 extern int  CdGetSector(void *madr, int size);                             /* syslib SYS  */
@@ -221,7 +245,7 @@ extern unsigned char *readsectorB(void);                       /* @0x800FA154 */
 extern void loaddirinfo(int startSector, int numSectors, int maxEntries); /* @0x800FA1A8 */
 extern int   CD_Restart(int startSector);                      /* @0x800FA4A8 */
 extern int   CD_systaskfunc(void);                             /* @0x800F9AE8 */
-extern void  CdReadyHandler(int intr, unsigned char *result);  /* @0x800F9CA4 */
+extern void  CdReadyHandler(unsigned char intr, unsigned char *result);  /* @0x800F9CA4 */
 
 /* unaligned little-endian 32-bit load (the asm uses lwl/lwr; ISO9660 stores LE first).  MUST be
  * `inline` (a bare `static` at -O2 on this toolchain still emits an out-of-line call) -- the oracle
@@ -351,11 +375,17 @@ extern int CD_Read(int dev, int dest, int offset, int len)
     rs->curLen = q;
     rs->remLen = len - q;
 
-    CD_ringIdx   = 0;
-    { char *e = (char *)*slot;   /* re-read; the oracle loads it BEFORE the sign correction */
+    { CD_ctx_t *ctx = &CD_ctx; /* the ctx base is materialized HERE, in the pre-sign-correction
+                                * block, but its first STORE is after the join -- see the note
+                                * above CD_Read for why that is the whole 12-diff residual. */
+      char *e = (char *)*slot;   /* re-read; the oracle loads it BEFORE the sign correction */
+      int   startSector;
       if (offset < 0)
           offset += 0x7FF;
-      CD_curSector = (offset >> 0xB) + *(int *)(e + 0xC); } /* start sector + offset / 0x800 */
+      startSector    = *(int *)(e + 0xC);
+      ctx->ringIdx   = 0;
+      startSector   += offset >> 0xB;
+      ctx->curSector = startSector; } /* start sector + offset / 0x800 */
     Cdinfo |= 2;                                        /* read in progress */
     CD_timeout   = timerhz[0] * 6;
     addtimer((void *)CD_timerfunc, (void *)dest);
@@ -656,7 +686,7 @@ extern void CD_timerfunc(void)
  *   cache for a partial slice), validates the sector address, advances the transfer, and fires the
  *   completion callback when the request is satisfied.  It also keeps the drive streaming/prefetching
  *   ahead of CD_curSector and re-installs itself on exit. */
-extern void CdReadyHandler(int intr, unsigned char *result)
+extern void CdReadyHandler(unsigned char intr, unsigned char *result)
 {
     struct {
         CdlLOC        hdr[3];             /* sector address header (CdGetSector .. 3 words) */
@@ -693,7 +723,7 @@ extern void CdReadyHandler(int intr, unsigned char *result)
         return;
     }
 
-    switch ((unsigned char)intr) {
+    switch (intr) {
     case 2:                               /* CdlComplete */
         if (CD_ringIdx == -1) {
             CD_ringIdx = 0;

@@ -101,9 +101,25 @@ extern void freehandle(FileHandle *h)
  * one-pointer while+goto shape (27 diffs, 47 insns -- worse), and cc1 flags -fno-schedule-insns /
  * -fno-cse-follow-jumps / -fno-cse-skip-blocks / -fno-rerun-cse-after-loop / -fno-thread-jumps /
  * -fno-caller-saves / -fno-strength-reduce / -fno-expensive-optimizations (all no movement).
- * => per-obj old-gcc "no-copy-prop / weaker-coalescing" identity (methodology 3.25, catalog SS G),
- * the SAME class as FILE_completeop / FILE_cancelop / FILE_operror in this TU.  Do not re-fight
- * from source; it needs the toolchain-identity investigation. */
+ * w33-a3 -- the "no legal C can keep them apart" verdict is now KNOWN TO BE TOO STRONG for this
+ * SHAPE class: the identical loop-head copy in callback.c allocmutex WAS cracked from source, as a
+ * loop.c GIV ANCHOR (index form with TWO references to the same element -- the test load and the
+ * flag store -- makes gcc 2.8 build two address givs and derive the second from the last one in
+ * body order with a +0 `move`, advancing the walker FROM the anchor).  That is exactly this
+ * oracle's `addu v1,a1,zero` + `addiu a1,v1,0x4C`.  It does NOT transfer here for a MECHANICAL
+ * reason: FileHandle stride is 0x4C, not a power of two, and our cc1's loop.c refuses to
+ * strength-reduce `ha[i]` at that stride -- index form emits the 76-multiply inside the loop and
+ * peels iteration 0 (55 insns / 25-31 diffs across three spellings tried: bare
+ * gFileMgr.handlearray[i], hoisted-base ha[i], and the anti-peel `for(;;i++)` form).  So the
+ * residual is "our loop.c is weaker at SR", not "retail keeps a redundant copy".  Retest index
+ * form if the SR behaviour ever changes.
+ * w33-a3 -- SLD LINE TRACING IS UNAVAILABLE FOR THIS TU: nfile.obj is a debug-stripped
+ * eacpsxz.lib member.  nfs4-f-v3.txt carries only the `Def class FILE ... eacpsxz.lib(nfile.obj)`
+ * marker PAIR with ZERO line records between them, and a VA-range scan of every 0x80-0x89 SLD
+ * opcode over 0x800EBDC4-0x800ED2F0 returns nothing.  Statement segmentation cannot be read off
+ * the SYM for anything in eaclib except the 16 C:\LIB\PSX\*.ASM members and EACLIB\PSX\PAD.C.
+ * => still a floor, but now for a NAMED compiler reason (loop.c SR at non-power-of-2 stride),
+ * not the blanket "per-obj no-copy-prop identity". */
 extern FileHandle *reservehandle(void)
 {
     int i, sr;
@@ -235,8 +251,17 @@ success:
  * for the `lui a0,%hi(oparray)`; ours srl's $a0 in place and uses $v1 for the lui.  Identical shape
  * to FILE_completeop's `addu a0,a1,zero`: retail cc1 keeps a redundant register-to-register copy our
  * cc1 never emits.  Fifth instance of that pattern in this TU (reservehandle, FILE_completeop,
- * FILE_cancelop, FILE_operror, + syncfile.c synccallback) => per-obj toolchain identity, not a
- * source shape.  Do not grind. */
+ * FILE_cancelop, FILE_operror, + syncfile.c synccallback).
+ * w33-a3 -- the family verdict is now SPLIT, not one identity.  FILE_cancelop was CRACKED
+ * (42->14): its copy was a cse.c artifact of TWO source evaluations of the slot address.
+ * allocmutex (callback.c) was CRACKED: its copy was a loop.c giv anchor.  THIS one differs from
+ * both -- `id` has exactly ONE use, so there is no second evaluation for cse to turn into a copy
+ * and no loop to build givs in; the copy can only be the allocator declining to coalesce the
+ * shift result with the dying param pseudo (w32-a7's irreducible core).  Falsified here this
+ * wave (all still 13 diffs / 11 vs 12 insns): index form gFileMgr.oparray[id>>0x18], a named
+ * `idx` local, a cached `ops` base local, param-as-cursor `id >>= 0x18`, and combinations.
+ * SLD cannot arbitrate: nfile.obj is a debug-stripped .lib member with ZERO line records (see
+ * the reservehandle comment).  Do not grind. */
 extern int FILE_operror(unsigned int id)
 {
     volatile int frame[3];
@@ -291,6 +316,14 @@ extern int FILE_init(int handlecount, int memsize, int opcount)
  * address expression at the freeop call site (gcc does NOT re-CSE it -> 54 insns / 37 diffs), and
  * the whole -fno-{schedule-insns,cse-follow-jumps,cse-skip-blocks,rerun-cse-after-loop,
  * thread-jumps,caller-saves,strength-reduce,expensive-optimizations} sweep (no movement).
+ * w33-a3 -- reconfirmed (28, 47/47).  Reproduced w32's negative exactly (recompute at the
+ * freeop site = 54 insns / 37 diffs) and added three more no-movement spellings:
+ * `&gFileMgr.oparray[id>>0x18]` index form, a cached `ops` base + index, and both together.
+ * NOTE the contrast with FILE_cancelop in this TU, which WAS cracked this wave by the
+ * double-evaluation/cse-copy route: there the oracle has an EXTRA copy we lacked; here the
+ * oracle merely colors op into $a1 while ours (legitimately shorter by the copy the $a0
+ * preference saves) colors it $a0 -- an allocator preference no source form expresses.
+ * SLD cannot arbitrate (nfile.obj is a debug-stripped .lib member, zero line records).
  * => toolchain-identity class, not source-reachable. */
 extern int FILE_completeop(unsigned int id)
 {
@@ -318,6 +351,13 @@ extern int FILE_completeop(unsigned int id)
 /* FILE_callbackop @0x800EBE4C : if the op has a (non-zero) status, store the callback and fire it
  *   immediately with (id, status, param), bracketed by the manager's pending-callback counter. A status
  *   of 0 (op not started/no result yet) does nothing. */
+/* w33-a3: FILE_opstatus 2 and FILE_callbackop 2 RE-VERDICTED AS FLOORS (both unchanged).
+ * opstatus: offset-first pointer arithmetic DOES flip the `addu a0,v0,v1` operand order to
+ * retail's, but re-colors the mask/base web (2 -> 18) -- here the operand order is a SYMPTOM of
+ * the coloring, not a lever (contrast reserveop, where it is one).  callbackop: the lone diff is
+ * the SCHEDULE POSITION of `addu a3,a1,zero` (retail insn #2, ours one slot later) -- a reorg
+ * tie with no source handle.  SLD could not re-verdict either: nfile.obj is a debug-stripped
+ * eacpsxz.lib member and the SYM carries ZERO line records for it (see reservehandle). */
 /* MATCH work: the real callback ABI is (id,status,param), and the four-word pad recovers the
  * oracle's 40-byte frame; together these cut 28->2 diffs. Only the equivalent `callback`->a3 copy
  * scheduling remains (oracle places it at entry, ours in the status branch delay slot). */
@@ -519,7 +559,13 @@ extern void FILE_priorityop(unsigned int id, int priority)
     /* The otherwise-unused pad recovers the oracle's 16-byte frame.  The unlink scan and sorted-reinsert
      * node are distinct source variables, matching the oracle's separate v0/v1 live ranges; the reinsert
      * walks through op->qnext itself.  Together these recover the retail list-mutation order and reduce
-     * the detailed residual from 38 to 6 diffs at the exact 79-instruction length. */
+     * the detailed residual from 38 to 6 diffs at the exact 79-instruction length.
+     * w33-a3 -- the 6 are ONE instruction triple: retail `srl v1,a0,24; sll v0,v1,1;
+     * addu v0,v0,v1` vs ours `srl a0,a0,24; ...` -- our allocator coalesces the shift result
+     * into the dying `id` param register, retail's does not.  Same single-use variant of the
+     * copy family as FILE_operror (see its comment for the now-SPLIT family verdict).
+     * Falsified this wave: a named `idx` local + index form (still 6).  SLD cannot arbitrate
+     * (nfile.obj is a debug-stripped eacpsxz.lib member with zero line records). */
     volatile int frame[3];
     FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
     int oldprio, sr;
@@ -614,36 +660,48 @@ extern void FILE_cancelop(unsigned int id)
      * common `cleanup:` tail that every OTHER early-out uses -- writing it as an
      * explicit FILE_CS_LEAVE(sr); return; (instead of goto cleanup;) reproduces that
      * duplicate block and fixes the instruction count to exact (106/109 -> 109/109),
-     * cutting 47->42. The remaining delta is a caller-saved a1/a2/a3 allocator
-     * tie-break (id/action/op all shifted one register up from the oracle) -- same
-     * unmovable family as FILE_opstatus/FILE_operror/FILE_priorityop (see their
-     * comments); several named-local/materialize attempts this wave didn't move it.
-     * w32-a3 -- the shift is EXPLAINED (IDA sub_800EC008: `v1 // $a2` = action,
-     * `v2 // $s0` = sr, `v3 // $a3` = op, param id -> $a1).  The oracle fills the
-     * `lw v0,20(t0)` load-delay slot with `addu a1,a3,zero` -- a REDUNDANT COPY of
-     * `op` into the register `id` just vacated -- and uses that copy for the whole
-     * rest of the body.  Ours has no such pseudo (nop in that slot), so our single
-     * op pseudo is allocated FIRST and grabs $a1, pushing id->a2 and action->a3.
-     * i.e. ONE missing live-range-split copy accounts for the entire 42-diff web:
-     * with it the order is id->a1(dies) / action->a2 / op->a3 / op-copy->a1 = retail.
-     * No C form can produce it (op and the copy hold the same value everywhere, so
-     * cc1 copy-propagates), and no cc1 flag does either (same sweep as
-     * FILE_completeop).  Falsified additionally: offset-first pointer arithmetic for
-     * `op` (IDA renders `48 * HIBYTE(a1) + dword_8013EAA0`, but it re-colors the whole
-     * body -> 70 diffs, so the operand order here is NOT the lever it is in reserveop).
-     * => per-obj old-gcc no-copy-prop identity (methodology 3.25 / catalog §G). */
+     * cutting 47->42.
+     * w32-a3 diagnosis (kept, it was right): IDA sub_800EC008 gives retail's map
+     * `v1 // $a2` = action, `v2 // $s0` = sr, `v3 // $a3` = op, param id -> $a1, and
+     * the oracle fills the `lw v0,20(t0)` load-delay slot with `addu a1,a3,zero` --
+     * a live-range-split COPY of `op` into the register `id` just vacated, used for
+     * the whole rest of the body.  Ours had no such pseudo, so our single `op` pseudo
+     * was allocated first, grabbed $a1 and pushed id->a2 / action->a3: one missing
+     * copy drove the entire 42-diff web.
+     * w33-a3 SOLVED IT (42->16->14, 109/109 parity throughout).  The w32 verdict
+     * "no C form can produce it / per-obj no-copy-prop identity" was WRONG.  The copy
+     * is a CSE ARTIFACT, and it is source-reachable: the retail source computes the
+     * slot address TWICE -- once as an ANONYMOUS expression inside the stale-id test,
+     * and again for the named `op` used by the body.  cse.c replaces the second
+     * computation with a register COPY of the first result (it does NOT copy-propagate
+     * it away, because the two are separate pseudos with separate live ranges), which
+     * is exactly the oracle's `addu a1,a3,zero`.  Writing the stale test through the
+     * named `op` (one computation) is what deleted the copy and rotated three
+     * registers.  Same family as the giv-anchor copy cracked in callback.c allocmutex:
+     * an apparently redundant retail reg-to-reg move is usually a SECOND source-level
+     * evaluation the optimizer folded, not a weaker compiler.
+     * Also from this wave: the in-flight test is `mgr->curop == op`, not `op ==
+     * mgr->curop` -- the oracle's `bne v0,a1` puts the LOADED value first (-2 diffs).
+     * RESIDUAL 14: (a) the `addiu v0,zero,1` that the oracle hoists into that bne's
+     * delay slot and reuses for both `op->cancelreq = 1` and `action = 1` (ours leaves
+     * a nop; `action = 1; op->cancelreq = action;` and `op->cancelreq = action = 1;`
+     * both REGRESS to 18); (b) a v0/v1 name swap on the `gFileMgr.state--` RMW in the
+     * unlink arm (address in v1 + value in v0 in retail, reversed here) -- join-block
+     * rematerialization coloring. */
     volatile int frame[6];
     FileOp *op;
     int     nibble, action = 0, sr;
 
     FILE_CS_ENTER(sr);
     if (id == 0) goto cleanup;
-    op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
-    if ((id & 0xFFFFF) != (op->id & 0xFFFFF)) goto cleanup;   /* stale id */
+    if ((id & 0xFFFFF) !=
+        (((FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30))->id & 0xFFFFF))
+        goto cleanup;                                         /* stale id */
     nibble = (id >> 0x14) & 0xF;
     if (nibble == 3 || nibble == 0xA) goto cleanup;           /* close/type-10: not cancellable */
+    op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
 
-    if (op == gFileMgr.curop) {                  /* op is in flight */
+    if (gFileMgr.curop == op) {                  /* op is in flight */
         op->cancelreq = 1;
         action = 1;
     } else if (op->status == 1) {                /* already complete */

@@ -132,7 +132,22 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
      * RESIDUAL 52 = a pure callee-saved ROTATION (ours rd/paramIdx/i/ruleByte = s1/s0/s3/s2, retail
      * s0/s1/s2/s3) plus retail loading each rule byte into a CALLER-saved temp and copying it to its
      * s-reg (which also fills the lbu load-delay slot our direct-to-s-reg load has to `nop`).  Same
-     * allocation-order/no-copy-prop identity signature as the rest of this obj (catalog SSG). */
+     * allocation-order/no-copy-prop identity signature as the rest of this obj (catalog SSG).
+     *
+     * w33-a10 RE-VERDICT: FLOOR HOLDS at exact insn parity 78/78; the whole 52 is register naming.
+     * NEW OBSERVATION (not previously recorded): retail REUSES the `rule` parameter's register for
+     * the rule-data cursor -- `addu $s0,$v0,$zero` sits in the `jal func_8010B124` delay slot and
+     * captures iSPCH_GetRuleDataAddr's return into $s0, overwriting the incoming `rule` (already
+     * consumed into $a2 one instruction earlier). That is the w32 PARAM-AS-CURSOR fingerprint, so
+     * it was tested directly: writing `rule = iSPCH_GetRuleDataAddr(...)` after the GetOffset16
+     * call and walking `rule` gives 55 diffs / 79 insns; keeping a separate `rd` but assigning it
+     * from a pre-computed temp gives 49 diffs / 79 insns. BOTH lose the exact insn parity this
+     * form has, so both are rejected -- retail's reuse is the ALLOCATOR coalescing two dead-at-the
+     * -same-point pseudos, not a source-level reassignment.
+     * Build-lane probes negative as well: -mno-split-addresses 52 -> 64, per-fn
+     * -fno-delayed-branch splice 52 -> 67. PROTOTYPE AUDIT: 3 args ($a0/$a1/$a2 all read), void
+     * return ($v0 is an `slt` leftover on one exit path and untouched on the other -- incoherent
+     * across exits, the w32 real-void test). */
     if (gSentenceRuleSet[0] != 0) {
         int offSent;
         int            numRules = *(signed char *)((int)sentence + 7);
@@ -204,6 +219,17 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
  *   retail hoisting `lui %hi(gSentenceRuleTest)` + the ruleByte reload ABOVE the type branch (which
  *   is also our one extra insn: a load-delay `nop` retail fills).  Trying the unsized-array spelling
  *   on gSentenceRuleTest makes it worse (cse merges the two loads: 108/112, 70 diffs). */
+/* iSPCH_GetRuleSettings RESIDUAL 61 diffs, ours 113 / oracle 112 (w33-a10 re-verdict).
+ * PROTOTYPE AUDIT vs the raw: 3 args, and retail spills ALL THREE to their incoming home slots
+ * (`sw $a0,0x50($sp)` / `sw $a1,0x54($sp)` / `sw $a2,0x58($sp)`) then reloads them -- i.e. every
+ * parameter is ADDRESSABLE here, the same fact w32-a9 established for iSPCH_RuleSet's `values`.
+ * Our build already reproduces all three spills, so the prototype is right and the arity is right.
+ * The residual is ONE register-name choice repeated ~20 times: retail's scratch temp for the
+ * phrase-count / reload chain is $a3, ours is $t0 (gcc's REG_ALLOC_ORDER puts $a3 ahead of $t0,
+ * so retail is the DEFAULT choice and ours is the deviation -- something in this body keeps $a3
+ * out of the pool). Shape, instruction order and stack layout otherwise line up.
+ * Build-lane probes: -mno-split-addresses 61 -> 61 (no change, and it wrecks the rest of the TU),
+ * per-fn -fno-delayed-branch splice 61 -> 79. No SLD exists for SPCHPSXZ (see spchevnt.c). */
 extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
 {
     int            numRules = *(signed char *)((int)sentence + 7);

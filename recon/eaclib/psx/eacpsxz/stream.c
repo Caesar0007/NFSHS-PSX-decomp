@@ -421,8 +421,15 @@ extern void closecallback(int a0, int a1, int s)
  * MATCH work (37->22 diffs, count-exact 67/67): startnextrequest has only the two arguments
  * consumed by its oracle; the former third `s` argument was phantom.  Positive completion
  * logic plus an explicit late restart label gives the oracle's branch polarity and block
- * order.  The residual is a whole-function s1/s2 allocation swap between reqcur and bvar1;
- * declaration order, register qualifiers, and copy pseudos were all byte-neutral. */
+ * order.
+ * w33-a2: 22 -> 0 (PASS, 67 insns).  The "whole-function s1/s2 allocation swap between reqcur
+ * and bvar1" was NOT a coloring coin-flip -- it was a variable-identity miss visible in the raw:
+ * the memory-source arm's running total is computed INTO bvar1's own register (`addu s1,v1,a1`,
+ * then `slt v0,s1,v0`, then `xori s1,v0,1` redefines it).  Writing the total as an anonymous
+ * sub-expression `(MI(s,0xa0) + uVar3)` gave it a separate caller-saved pseudo ($v0); assigning
+ * it to `bvar1` first and then overwriting `bvar1` with the comparison reproduces retail exactly.
+ * Side effect (and the reason the swap looked global): the extra two references raise bvar1's
+ * allocno priority above reqcur's, so bvar1 takes $s1 and reqcur $s2 as in retail. */
 extern int readcallback(int a0, int a1, int s)
 {
     int bvar1;
@@ -434,7 +441,11 @@ extern int readcallback(int a0, int a1, int s)
     reqcur = MI(s, 0x50);
     if (MI(reqcur, 0x10) == 1) {               /* memory source */
         uVar3 = MU(s, 0xa8);
-        bvar1 = (MI(reqcur, 0x58) <= (int)(MI(s, 0xa0) + uVar3));
+        /* MATCH: the running total is computed INTO `bvar1` itself (oracle: `addu s1,v1,a1`
+         * writes the sum to the very register the `xori` then redefines as the flag).  Spelling
+         * it as an anonymous sub-expression gives the sum its own caller-saved pseudo ($v0). */
+        bvar1 = MI(s, 0xa0) + uVar3;
+        bvar1 = (MI(reqcur, 0x58) <= bvar1);
     } else {                                   /* file source */
         uVar3 = FILE_completeop(MU(s, 0xa4));
         bvar1 = ((int)uVar3 < MI(s, 0xa8));
@@ -467,10 +478,23 @@ restart:
  *   materializations and an `addu v0,v1,zero` result copy.  Also: the oracle FALLS THROUGH into the
  *   FILE_open arm and lays the close-first arm out of line (`bnez $a0,.L800FCAF4`), so the source test
  *   is `if (handle == 0) { open... }` with the close arm as the tail.
- * RESIDUAL (20): a whole-function 2-slot register shift -- `done` is $a1 for us / $v1 in retail and the
- *   saved SR is $a3 / $a1 -- plus the trailing close arm's `if (op==0) return op;` compiling with the
- *   inverted polarity (`bnez` + `j`, +2 insns) where the identical open arm gets the oracle's
- *   `beqz v0,epilogue` + store-in-delay-slot.  Both arms are textually identical; only one can win. */
+ * w33-a2 (20 -> 16 diffs, now INSTRUCTION-COUNT EXACT 100/100).  The "+2 / only one of two textually
+ *   identical arms can win" note was wrong on both counts:
+ *   - BOTH arms must be written `if (op != 0) return FILE_callbackop(...); return;` -- i.e. the
+ *     callbackop tail in the if-body and the zero exit last.  The `if (op == 0) return op;` spelling
+ *     lays the zero exit out as its own block and gcc CSE (record_jump_equiv) substitutes the proven
+ *     0, producing `j <epilogue>; addu v0,zero,zero`.
+ *   - the zero exit must be VALUELESS (`return;`).  This fn is really void (IDA + the raw: the `done`
+ *     path reaches the epilogue with $v0 undefined); `return (int)op;` still costs the 2-insn
+ *     zero-materialization stub even though $v0 already holds 0.  With both fixed, retail's
+ *     `beqz $v0, <epilogue>` + fall-through into the callbackop call comes out exactly.
+ * RESIDUAL (16): a 2-slot register shift -- retail merges the `cur->state` compare temp INTO `done`
+ *   (both $v1) so `done`/SR land on $v1/$a1, while our local-alloc gives the temp $v1 first and pushes
+ *   `done`/SR to $a1/$a3.  TRIED: spelling the temp as `done` itself (does merge them, but then the
+ *   allocno priority of `cur` beats `done` and they swap -- $a0/$v1 becomes $v1/$a0, 20 diffs); moving
+ *   `done = 1` ahead of `cur = ...` (no effect).  This is the allocno_compare live-length weighting
+ *   already on the wave-33 identity charter: priority(cur)=log2(4)*4/8 beats priority(done)=log2(7)*7/25
+ *   under psq43 cc1, and retail's ordering implies a weaker live-length term. */
 extern int startnextrequest(int s, unsigned int prio)
 {
     int  done;
@@ -514,16 +538,16 @@ extern int startnextrequest(int s, unsigned int prio)
                 if (MU(s, 0x9c) == 0) {          /* nothing open -> open the new file directly */
                     unsigned int op = FILE_open((char *)name, 1, prio, (unsigned int)s);
                     MU(s, 0xa4) = op;
-                    if (op == 0)
-                        return (int)op;          /* MATCH: return the (zero) op, not a fresh `0` */
-                    return (int)FILE_callbackop(op, (void (*)(int, int))opencallback);
+                    if (op != 0)
+                        return (int)FILE_callbackop(op, (void (*)(int, int))opencallback);
+                    return;                      /* MATCH: valueless (see the void note above) */
                 }
                 {                                /* close the open file first */
                     unsigned int op = FILE_close((void *)MU(s, 0x9c), prio, (unsigned int)s);
                     MU(s, 0xa4) = op;
-                    if (op == 0)
-                        return (int)op;
-                    return (int)FILE_callbackop(op, (void (*)(int, int))closecallback);
+                    if (op != 0)
+                        return (int)FILE_callbackop(op, (void (*)(int, int))closecallback);
+                    return;                      /* MATCH: valueless (see the void note above) */
                 }
             }
         }
@@ -549,7 +573,18 @@ extern int startnextrequest(int s, unsigned int prio)
  *   - the positive-room arm and shared check label recover the oracle's two-arm branch/jump shape;
  *   - named -1/-2 marker constants recover the oracle's prologue scheduling;
  *   - FILE_callbackop's result remains the merged return value.
- * The residual is one caller-saved coloring family across the room calculation (a0/a1 and a2/v1). */
+ * RESIDUAL (42, count-exact 167/167): ONE three-variable coloring family across the whole room
+ *   calculation -- (readptr, fillptr, room) is (v1, a2, a0) for us and (a2, v1, a1) in retail, i.e.
+ *   the two ring pointers are swapped and `room` shifts one slot.  Every diff in the function is a
+ *   rename of those three; the instruction sequence, operand order and delay slots already agree.
+ *   w33-a2 TRIED, all byte-identical to the above: spelling the guard `uVar5 < uVar3` instead of
+ *   `uVar3 > uVar5` (gcc canonicalises the compare, so the load order does not follow the source);
+ *   swapping the two initialising loads' statement order; folding the shared `room - 1` into the
+ *   wrap arm as one expression; dropping `uVar3` entirely and re-reading `MU(s,0x40)` at each of its
+ *   three uses (cse rebuilds the same single pseudo).  Next step is a cc1 -dl allocno dump: retail
+ *   gives $v1 to the MORE-referenced fillptr (7 refs, and it is re-assigned in the wrap arm) while
+ *   ours gives it to readptr, which is the allocno_compare live-length weighting already on the
+ *   wave-33 toolchain-identity charter. */
 extern int restartstream(int s, unsigned int prio)
 {
     int *p;
@@ -673,14 +708,22 @@ extern int STREAM_overhead(int numReq, int numFilters, int numConsumers)
  *   bounds optimizer folds a combined `numReq<2 || numReq>=0x101` into ONE unsigned range check
  *   (`addiu;sltiu`), which the oracle does NOT do -- so the two checks must be written as SEPARATE
  *   `if` statements to suppress the fold.
- * RESIDUAL FLOOR (68 diffs, not source-reachable so far): the `MI(objbuf,0x30)=0x32` (prio2) store --
- *   oracle schedules it LATE, interleaved with the bufBase->readptr/writeptr/fillptr triple-copy
- *   (a3/t0/t1) right before the freelist-reqArray reload; our gcc's list scheduler HOISTS the
- *   independent (no-dependency) store all the way up next to the prio1(0x96) store regardless of its
- *   textual position in the source (tried: original placement, block-scoped named temps for
- *   rdp/wrp/flp -- both compile to the IDENTICAL hoisted schedule). Genuine SCHEDULING floor: gcc's DAG
- *   scheduler treats the two non-aliasing constant stores as freely reorderable and always wins the
- *   hoist; no C-level statement reordering blocks it without a fabricated fake dependency. */
+ * w33-a2 (68 -> 22 diffs, now INSTRUCTION-COUNT EXACT 144/144).  The old "not source-reachable
+ *   scheduling floor" verdict fell to two source facts:
+ *   (1) READ-BACK CURSORS (see the inline note): `readptr/writeptr/fillptr = objbuf->bufBase` --
+ *       three separate re-reads of the field just stored -- are what produce the oracle's triple
+ *       `addu a3/t0/t1,v0,zero` copy AND push `li 50`/`sw 48` down into their middle.  Three named
+ *       locals initialised from one expression do not (copy-propagated to one register).
+ *   (2) CONSUMER LOOP index form: `c = consumerArray + i * 0x10; ... c[1] = i + 1; i++;` -- indexing
+ *       off the PRE-increment counter and letting cse share the `i+1` with the loop increment.  The
+ *       old `i++; c = ...(i-1)*0x10; c[1] = i;` spelling let loop.c strength-reduce into a walking
+ *       +16 pointer with a +16/-16 fixup pair (and flipped the whole a0/a1 pair).  -41 diffs alone.
+ * RESIDUAL (22), all list-scheduler placement in one basic block: our sched hoists the
+ *   `lw <reg>,8(s0)` freelist re-read ~30 insns up (so the ring-base copies land on t0/t1/t2 instead
+ *   of a3/t0/t1) and sinks the `sw v1,24(s0)` consumerArray store below the ring-base add (so we add
+ *   in place instead of retail's copy-then-reuse-v1); plus one unfilled `blez` delay slot in the
+ *   argument-validation chain and the `li a0,1` order in the filter loop.  Tried and rejected:
+ *   volatile on the prio2 store, volatile on the freelist re-read, read-back for the ring base. */
 extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbuf, int bufsize)
 {
     int over, base, i, off;
@@ -718,12 +761,22 @@ extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbu
     MI(objbuf, 0x10) = base;                                   /* filterArray */
     base = base + numFilters * 0xc;
     MI(objbuf, 0x18) = base;                                   /* consumerArray */
-    base = base + numConsumers * 0x10;
-    MI(objbuf, 0x20) = base;                                   /* bufBase */
-    MI(objbuf, 0x30) = 0x32;
-    MI(objbuf, 0x40) = base;
-    MI(objbuf, 0x44) = base;
-    MI(objbuf, 0x48) = base;
+    {
+        /* MATCH (w33-a2): the oracle's THREE `addu <reg>,v0,zero` copies of the ring base are NOT a
+         * missing copy-propagation in retail's compiler -- they are THREE SEPARATE SOURCE
+         * EVALUATIONS.  Each cursor is initialised by READING BACK the bufBase field that was just
+         * stored; cse.c replaces each load with a register COPY of the stored value, and because
+         * all three copies are live at once nothing can coalesce them.  Three separate C locals all
+         * initialised from one expression do NOT work (gcc copy-propagates them into one register,
+         * verified) -- the read-back is what makes it three evaluations.  This also frees $v0 for
+         * the late `li 50` and takes the function from 142 to the oracle's 144 instructions. */
+        int bufBase = MI(objbuf, 0x18) + numConsumers * 0x10;
+        MI(objbuf, 0x20) = bufBase;                            /* bufBase */
+        MI(objbuf, 0x30) = 0x32;
+        MI(objbuf, 0x40) = MI(objbuf, 0x20);
+        MI(objbuf, 0x44) = MI(objbuf, 0x20);
+        MI(objbuf, 0x48) = MI(objbuf, 0x20);
+    }
     MI(objbuf, 0x58) = MI(objbuf, 0x08);                       /* freelist = reqArray[0] */
     memset((unsigned char *)(objbuf + 0x5c), 0, 0x40);         /* clear name */
     MI(objbuf, 0x9c) = 0;
@@ -762,12 +815,14 @@ extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbu
     i = 0;
     if (numConsumers > 0) {
         do {
-            int *c;
-            i++;
-            c = (int *)(MI(objbuf, 0x18) + (i - 1) * 0x10);
+            /* MATCH: index off the PRE-increment counter (`i * 0x10`, recomputed each iteration --
+             * oracle's `sll a0,a1,4`), not off `(i-1) * 0x10` after the increment, which loop.c
+             * strength-reduces into a walking `v1 += 16` plus a +16/-16 fixup pair. */
+            int *c = (int *)(MI(objbuf, 0x18) + i * 0x10);
             c[0] = objbuf;
-            c[1] = i;
+            c[1] = i + 1;                                      /* 1-based consumer id */
             c[2] = 0;
+            i++;
         } while (i < numConsumers);
     }
     return MI(objbuf, 0x18);
@@ -995,10 +1050,19 @@ extern unsigned int STREAM_queuemem(int s, int blocklist, void *ptr, int len)
  *   - the `MI(req,4)=4` store's shared `4` constant must stay live ACROSS the out[0] materialization
  *     (block-local `sobj0` read BEFORE the store) -- otherwise the constant lands in $v1, the reload
  *     cannot be scheduled into its load-delay slot, and a nop appears.
- * RESIDUAL (14): one callee-saved pair swap, readptr<->the hoisted -1 marker ($s7 vs $fp), plus the
- * one delay-slot fill and the inner ring loop's branch polarity that ride on it.  Tried: statement
- * reordering of the readptr/startfill pair, splitting the ring walker into its own local (that one
- * DID fix the q/mask pair), declaration order.  Next step would be a cc1 -dl/-dg allocno dump. */
+ * w33-a2 (14 -> 2 diffs, still 173/173).  The "readptr <-> hoisted -1 marker $s7/$fp callee-saved
+ * pair swap" was a COPY-DIRECTION artifact, not an allocator coin-flip:
+ *   - `s7 = readptr; if (req != head) s4 = req->startfill;` (assign-then-conditionally-overwrite)
+ *     let gcc coalesce the LOAD's pseudo with `s4` and emit the copy backwards (`lw s4,64(v1);
+ *     addu fp,s4,zero`), which pushed the readptr onto $fp and the -1 marker onto $s7.  Writing
+ *     the two definitions symmetrically -- `if (req == head) s4 = s7; else s4 = req->startfill;`
+ *     -- coalesces the load with `s7` as retail does ($s7 readptr / $fp marker), and the ring
+ *     loop's `bne v0,fp` + the `addu a0,s7,zero` call arg fall out with it.  (-10 diffs)
+ *   - the consumer slot's COUNT is loaded BEFORE `out[1]` is written, so the `sw v1,20(sp)` is the
+ *     last insn ahead of the `blez` and fill_simple_delay_slots' BACKWARD scan moves it into the
+ *     slot.  With the store first, the store/load memory order pins it and the slot instead gets
+ *     the inbetween() call's `addu a0,s7,zero`.  (-2 diffs)
+ * RESIDUAL (2): the ring walk's back-edge polarity (documented at the loop). */
 extern int STREAM_cancelrequest(int s, int reqid)
 {
     int out[2];
@@ -1035,8 +1099,9 @@ active:                                              /* active (not merely queue
         int sobj0 = out[0];
         MI(req, 4) = 4;                             /* mark cancelled (reuses the compare's `4`) */
         s7 = *(int **)(sobj0 + 0x40);               /* readptr */
-        s4 = s7;
-        if (req != MI(sobj0, 0x4c))
+        if (req == MI(sobj0, 0x4c))
+            s4 = s7;
+        else
             s4 = *(int **)(req + 0x60);              /* this request's start fill */
         {
             int nx = MI(req, 0xc);
@@ -1064,12 +1129,27 @@ reclaim:
                                     * two reloads + two load-delay nops per iteration. */
         if (MI(sobj, 0x1c) > 0) {
             do {
-                out[1] = MI(sobj, 0x18) + ci * 0x10;
-                if (MI(out[1], 8) > 0) {
-                    unsigned int u2 = inbetween((unsigned int)s7, (unsigned int)s4, MU(out[1], 0xc));
+                int cslot = MI(sobj, 0x18) + ci * 0x10;
+                int ccount = MI(cslot, 8);
+                /* MATCH: the count is loaded BEFORE the `out[1] = cslot` store, so the store is the
+                 * last insn before the `blez` and the delay-slot filler moves it DOWN into the slot
+                 * (fill_simple_delay_slots' backward scan).  With the store ahead of the load the
+                 * memory ordering pins it and the slot gets the call's `addu a0,s7,zero` instead. */
+                out[1] = cslot;
+                if (ccount > 0) {
+                    unsigned int u2;
+                    u2 = inbetween((unsigned int)s7, (unsigned int)s4, MU(out[1], 0xc));
                     if (u2 != 0) {                   /* free this request's own chunks in place */
                         unsigned int rstate = (unsigned int)MI(out[1], 4) << 0x18;
                         int *p = s4;
+                        /* RESIDUAL (2): the ring walk's back edge.  Oracle `bne p,s6,<head>;
+                         * j <exit>`; ours `beq p,s6,<exit>; j <head>` -- jump.c's
+                         * invert-conditional-around-unconditional fires in retail but not here
+                         * (our pass threads `goto Lend` straight to the merge label first, which
+                         * destroys the "target is the label right after the jump" precondition).
+                         * TRIED and all identical-or-worse: guard + do-while (2), `continue` in
+                         * the wrap arm (2), empty one-shot boundary after the loop (2), full
+                         * label+goto loop (59 -- also de-hoists the -1 marker). */
                         while (p != s6) {
                             if (p[0] == -1) {
                                 p = *(int **)(out[0] + 0x20);   /* wrap */
@@ -1207,13 +1287,23 @@ extern void STREAM_kill(int s)
  *   patched over with `(void)buf;(void)len;` + a 1-arg fn-ptr cast at the call site -- all removed.
  *   Diff-neutral (37 before and after), no neighbour regressions.
  *   (or 0 if none).  Advances the consumer's read cursor to the following same-tagged chunk.
- * RESIDUAL FLOOR (37 diffs, down from 51): fixed the final `MI(cons,0xc)=p` store to dereference
- *   `out[1]` directly instead of the cached `cons` local -- oracle reloads out[1] FRESH from the stack
- *   at that one site (its `cons`-holding register got reused for the loop's `p` walk and wasn't kept
- *   live across it), matching this shape exactly (14 insns recovered). REMAINING: the very first
- *   `cons=out[1]` materialization picks a2 in ours vs a1 in oracle -- a pure allocator tie-break for
- *   the first fresh pseudo after the validatehandle() call (both regs equally dead/available); this
- *   ONE swap cascades through the whole function. Tried decl-order reshuffle (no effect). Accept. */
+ * w33-a2: 37 -> 0 (PASS, 73 insns).  The "allocator tie-break, accept" verdict was WRONG -- the whole
+ *   cons=$a2-vs-$a1 cascade was a SCHEDULING consequence of one statement, not a coloring coin-flip:
+ *   TAG-HOIST.  The consumer tag must be computed as its own statement BEFORE the cursor pointer:
+ *       unsigned int tag = MI(cons,4) << 24;
+ *       p = (int *)(chunk + hdr);
+ *       while ((p[1] & 0xff000000) != tag) { ... }
+ *   Written that way the oracle's order falls out exactly -- `lw v0,4(a1)` (cons->id) is issued while
+ *   `cons` is still live, `addu a1,a3,a0` then REUSES that register for `p` (which is why retail's
+ *   `cons` is $a1: it is the same pseudo, not a different colour), and `sll a2,v0,24` fills the load
+ *   delay slot.  Leaving `MI(cons,4)<<24` inside the loop condition evaluated `p[1]` first, forced a
+ *   separate register for `cons` across the whole function, and swapped the tag/mask register pair.
+ *   Second (smaller) part: mask into the SAME `hdr` variable inside the walk (`hdr = p[1]&0xffffff;
+ *   p = (int*)((int)p+hdr);`) so the mask result reuses the `hdr` pseudo ($a0) as retail does.
+ *   NOTE the epilogue's apparent extra insn (`addu v0,a3,zero` in the `blez` delay slot) is NOT a
+ *   second `return chunk` -- it is gcc's delayed-branch TARGET-STEAL of the shared return
+ *   materialization; spelling an explicit early `return chunk;` instead flips the branch to
+ *   `bgtz`+`j` (+2).  Keep the single trailing `return chunk;`. */
 extern int STREAM_get(int consumer)
 {
     int out[2];
@@ -1236,14 +1326,20 @@ extern int STREAM_get(int consumer)
         MI(cons, 8) = rem;                          /* count -= len */
         STREAM_leaveCS(sr);
         if (0 < rem) {                              /* advance cursor to next same-tagged chunk */
+            /* MATCH (TAG-HOIST): the consumer tag is computed BEFORE the cursor pointer, so the
+             * oracle's `lw v0,4(a1)` (cons->id) is issued while `cons` is still in its register,
+             * `addu a1,a3,a0` reuses that register for `p`, and the `sll a2,v0,24` fills the
+             * load-delay slot.  Evaluating the tag inside the loop condition instead put the
+             * p[1] load first and swapped the tag/mask register pair. */
+            unsigned int tag = (unsigned int)(MI(cons, 4) << 0x18);
             p = (int *)(chunk + hdr);
-            hdr = p[1];
-            while ((hdr & 0xff000000) != (unsigned int)(MI(cons, 4) << 0x18)) {
-                if (p[0] == -1)
+            while ((p[1] & 0xff000000) != tag) {    /* advance cursor to next same-tagged chunk */
+                if (p[0] == -1) {
                     p = *(int **)(out[0] + 0x20);    /* wrap */
-                else
-                    p = (int *)((int)p + (p[1] & 0xffffff));
-                hdr = p[1];
+                } else {
+                    hdr = p[1] & 0xffffff;           /* MATCH: reuses the `hdr` pseudo ($a0) */
+                    p = (int *)((int)p + hdr);
+                }
             }
             MI(out[1], 0xc) = (int)p;
         }

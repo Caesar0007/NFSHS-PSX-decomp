@@ -34,7 +34,7 @@ typedef struct PAD_COMMON {           /* 8 bytes */
 } PAD_COMMON;
 
 typedef struct tActiveTime {          /* 2 bytes */
-    char bActive, time;               /* +0x0 */
+    u_char bActive, time;             /* +0x0 */
 } tActiveTime;
 
 typedef struct tPadModuleState {      /* 84 bytes */
@@ -66,6 +66,13 @@ void PAD_update(void);
 /* lines 1-65: file header, #includes, static data, macros (no symbols emitted) */
 
 /* ---- padinit  (PAD.C:66, code lines 66-79) ---- */
+/* RESIDUAL 3 diffs (was 23; w33-a10): body is instruction-for-instruction
+ * identical to the oracle once PAD.OBJ's -mno-split-addresses lane is used
+ * (see PAD_restore). The 3 that remain are ONLY the epilogue-fill identity
+ * -- ours `jr ra; addiu sp,sp,24`, retail `addiu sp; jr ra; nop`. The
+ * -fno-delayed-branch splice that PASSes PAD_restore costs 6 more here
+ * (3 -> 9: it also empties the four `jal` argument-setup slots that retail
+ * DID have filled), so padinit belongs to the Tier-2 ASPSX-fill bin. */
 void padinit(void)
 {
   if (gPadinfo.initialized == 0) {
@@ -82,22 +89,21 @@ void padinit(void)
 /* ---- PAD_restore  (PAD.C:83, code lines 83-89) ---- */
 void PAD_restore(void)
 {
-  /* RESIDUAL (10-diff, per-obj TOOLCHAIN-IDENTITY floor, methodology 3.25;
-   * re-confirmed wave-29 a10, cross-checked against the dbfn survey
-   * tools/dbfn_sites.txt "UNOWNED" PAD.OBJ entry): the PAD.OBJ oracle has
-   * EVERY delay slot (beqz/jal/jr) as a bare nop, AND materializes
-   * gPadinfo's address with an UNFUSED `la` (lui $s0,%hi; addiu $s0,$s0,%lo)
-   * into the callee-saved $s0 before the deltimer/PadStopCom calls, reading/
-   * writing it after via plain 0($s0) -- both are the -fno-delayed-branch
-   * PsyQ-syslib codegen signature (methodology 3.25 axis 3b), NOT reproduced
-   * by the repo's standard -O2/-O1 cc1 flags. RE-TESTED this session: a
-   * lever-#16 `tPadModuleState *p = &gPadinfo;` local (methodology 3.12 #16,
-   * HOLD-GLOBAL-ADDR-ACROSS-CALL) does NOT unfuse the %lo here -- cc1 still
-   * folds it straight into the lw/sw displacement (0 diff-count change,
-   * confirms the prior wave's finding that this is flag-gated, not
-   * source-shape-gated). Fixing needs the per-function -fno-delayed-branch
-   * splice already prototyped in tools/build.py's PER_FN_NO_DELAYED_BRANCH
-   * (build.py is shared/out-of-scope for this worker -- not touched here). */
+  /* MATCHED (w33-a10). Two per-obj toolchain-identity facts, both now
+   * reproduced by the build rather than documented as floors:
+   *   1. PAD.OBJ was compiled -mno-split-addresses (PER_TU_FLAGS in
+   *      tools/build.py) -- that is where the unfused `la $s0,gPadinfo`
+   *      (lui %hi + addiu %lo into a callee-saved reg, then plain 0($s0)
+   *      accesses across the calls) comes from. It is a COMPILER address-
+   *      lowering mode, NOT a source shape: no `T *p = &g;` local can
+   *      produce it, which is why every prior wave's lever-#16 attempt
+   *      failed here.
+   *   2. The last 3 diffs were the canonical Tier-1 epilogue-fill signature
+   *      (ours `jr ra; addiu sp` vs the oracle's `addiu sp; jr ra; nop`),
+   *      cleared by the per-FUNCTION -fno-delayed-branch splice
+   *      (PER_FN_NO_DELAYED_BRANCH). The same flag is a NET LOSS on this
+   *      TU's other four functions -- per-function granularity is load-
+   *      bearing. */
   if (gPadinfo.initialized != 0) {
     deltimer(PAD_update);
     PadStopCom();
@@ -108,27 +114,27 @@ void PAD_restore(void)
 /* lines 90-171: (static data / macros / comments - no emitted code) */
 
 /* ---- PAD_state  (PAD.C:172, code lines 172-186) ---- */
-/* RESIDUAL (21 diffs, ours 19/oracle 20 -- wave-29 a10, dbfn survey confirms
- * PAD_state as an "UNOWNED" -fno-delayed-branch site in tools/dbfn_sites.txt):
- * same PAD.OBJ toolchain-identity family as PAD_restore/padinit -- the oracle
- * unfuses gPadinfo's address into $v1 via a real `la` (lui+addiu) and reaches
- * the shared `buttons=0` path via TWO beqz's to one label (the natural `||`
- * short-circuit lowering under -fno-delayed-branch); the standard-flags build
- * fuses the address AND restructures the 2nd branch as bnez-to-compute +
- * inline fall-through set. RE-TESTED this session with the actual
- * -fno-delayed-branch cc1 flag (outside build.py, diagnostic only): it does
- * NOT reproduce the oracle either (25 diffs, WORSE) -- confirms this is not a
- * clean single-flag fix, consistent with padinit/PAD_update's same finding. */
+/* RESIDUAL 4 diffs, insn parity 20/20 (w33-a10; was 21 diffs).
+ * FIXED HERE: (a) the address form -- PAD.OBJ is -mno-split-addresses, so
+ * the oracle's unfused `la $v1,gPadinfo` is a build-lane fact (see
+ * PAD_restore); (b) the branch polarity -- retail's TWO beqz's to ONE label
+ * is the natural lowering of the POSITIVE test `if (init && padID < 8)
+ * { convert } else { 0 }`, not of the negated `|| ... { 0 } else ...` form
+ * this reconstruction used to carry. The 4 that remain are purely the
+ * epilogue-fill identity (`addiu sp; jr ra; nop` vs our `jr ra; addiu sp`);
+ * unlike PAD_restore the -fno-delayed-branch splice does NOT clear them
+ * here (it costs 4 more elsewhere in the body: 4 -> 8), so this one waits
+ * on the Tier-2 ASPSX-fill emulation. */
 u_short PAD_state(int padID)
 {
   uint buttons;
 
-  if ((gPadinfo.initialized == 0) || (7 < (uint)padID)) {
-    buttons = 0;
-  }
-  else {
+  if (gPadinfo.initialized != 0 && (uint)padID < 8) {
     buttons = PAD_convert(gPadinfo.buf + padID);
     buttons = buttons & 0xffff;
+  }
+  else {
+    buttons = 0;
   }
   return buttons;
 }
@@ -144,71 +150,67 @@ static u_short PAD_convert(PAD_COMMON *pad)
 /* lines 279-319: (static data / macros / comments - no emitted code) */
 
 /* ---- PAD_update  (PAD.C:320, code lines 320-375) ---- */
-/* locals provenance: 'i' = SYM-authentic (REG $t0 loop index); liveDst/deltaDst/padOff/
-   fillLen/fillDst/btnOff/debTimer/btnState/rawBtn/debCount = SEMANTIC names inferred from
-   data-flow analysis (original source names not in debug info).
-   RESIDUAL (78 diffs, insn-PARITY 66==66 -- pure coloring/scheduling, wave-29 a10):
-   the 2nd loop's rawBtn read `(&gPadinfo.buf[0].nopad)[btnOff]` CSEs against the
-   already-live gPadinfo+0x45 base (debTimer) via a `base-65` constant fold instead
-   of the oracle's per-iteration REMATERIALIZED `lui %hi(gPadinfo.buf)+addu` (methodology
-   3.12 #1 lever family). TRIED + REVERTED: (a) deriving btnState from debTimer
-   (`debTimer - 1`, matching the oracle's a2=a0-1) -- ZERO diff-count change, the CSE
-   persists; (b) indexing rawBtn by the loop counter `gPadinfo.buf[i].nopad` instead of
-   a separate btnOff byte-offset var (the literal §3.12#1 index-form recipe) --
-   REGRESSED to 82 diffs / 64 insns (gcc still CSEs off debTimer, just via a different
-   constant, and drops 2 real insns vs the oracle). This file's compile lane also carries
-   the confirmed -fno-delayed-branch toolchain-identity floor (see PAD_restore's header
-   comment / tools/dbfn_sites.txt) which likely governs which base gcc's scheduler
-   prefers to rematerialize -- not reachable without that per-obj flag lane. Left as the
-   pre-existing best (78 diffs, exact insn count) pending that lane. */
+/* locals provenance: 'i' = SYM-authentic (REG $t0 loop index; note OUR build
+   still colors it $s0 -- see residual 3 below); all other local names are
+   SEMANTIC reconstructions (debug info preserved no other locals).
+
+   SHAPE IS NOW SLD-PROVEN (w33-a10). D:
+fs4\EACLIB\PSX\PAD.C is the ONLY
+   eaclib TU with SLD line records in nfs4-f-v3.txt, and its address->line map
+   for 0x800E4210-0x800E4314 settles three things this reconstruction had
+   guessed wrong:
+     * L347/L350 vs L353/L354: blockfill is called ONCE PER ARM of the if
+       (gcc cross-jumps the two `jal blockfill; addiu a2,0xFF` tails into the
+       fall-through block), NOT once after the if with fillDst/fillLen
+       variables. The old two-variable form could never produce the oracle's
+       arm-local $a0/$a1 setup.
+     * L365 / L366 / L368 / L370 / L371 = five separate statement lines, i.e.
+       a NAMED `active` local on its own line followed by NESTED ifs -- not
+       the `&&` + comma-expression one-liner this file used to carry.
+     * L363 owns both the loop init and the increment block => a `for`.
+
+   RESIDUAL 30 diffs at exact insn parity 66/66 (was 78), three items:
+     1. loop 1 counter: gcc keeps `i` as the biv and recomputes `sll v1,i,3`
+        each iteration; retail eliminated `i` and made the *8 giv the loop
+        variable (`addiu $s0,$s0,8` / `slti $v0,$s0,0x10`). Writing the loop
+        over a byte offset DOES produce retail's giv, but then gcc hoists
+        `&Padglobal` into a 4th callee-saved reg instead of rematerializing
+        it in the else-arm (38 diffs, frame -40) -- the two halves are
+        mutually exclusive under this cc1. Best of the three spellings kept.
+     2. loop 2 `i` lands in $s0 (reused from loop 1) where retail used $t0.
+        Splitting the two loops' counters into separate named variables makes
+        it WORSE (30 -> 36).
+     3. the epilogue-fill identity (`addiu sp; jr ra; nop`), same as padinit /
+        PAD_state; the -fno-delayed-branch splice costs 10 more here. */
 void PAD_update(void)
 {
-  byte *liveDst;
-  byte *fillDst;
-  char *debTimer;
-  int fillLen;
-  tActiveTime *btnState;
-  int btnOff;
   int i;
-  int padOff;
-  byte *deltaDst;
-  byte rawBtn;
-  byte debCount;
+  int btnOff;
+  int active;
+  uint debCount;
 
-  liveDst = &gPadinfo.buf[0].nopad;
-  deltaDst = &gPadinfo.buf[1].nopad;
-  padOff = 0;
-  do {
-    if ((&Padglobal[0].nopad)[padOff] == '\0') {
-      blockmove(&Padglobal[0].nopad + padOff, liveDst, 8);
-      fillLen = 0x18;
-      fillDst = deltaDst;
+  for (i = 0; i < 2; i++) {
+    if (Padglobal[i].nopad != 0) {
+      blockfill(&gPadinfo.buf[i * 4], 0x20, 0xff);
     }
     else {
-      fillLen = 0x20;
-      fillDst = liveDst;
+      blockmove(&Padglobal[i], &gPadinfo.buf[i * 4], 8);
+      blockfill(&gPadinfo.buf[i * 4 + 1], 0x18, 0xff);
     }
-    blockfill(fillDst, fillLen, 0xff);
-    deltaDst = deltaDst + 0x20;
-    padOff = padOff + 8;
-    liveDst = liveDst + 0x20;
-  } while (padOff < 0x10);
-  i = 0;
-  debTimer = &gPadinfo.state[0].time;
-  btnState = gPadinfo.state;
+  }
   btnOff = 0;
-  do {
-    rawBtn = (&gPadinfo.buf[0].nopad)[btnOff];
-    if (((rawBtn == 0) != (btnState->bActive != 0)) &&
-       (debCount = *debTimer, *debTimer = debCount + 1, 5 < debCount)) {
-      btnState->bActive = rawBtn == 0;
-      *debTimer = 0;
+  for (i = 0; i < 8; i++) {
+    active = (((byte *)gPadinfo.buf)[btnOff] == 0);
+    if (active != gPadinfo.state[i].bActive) {
+      debCount = gPadinfo.state[i].time;
+      gPadinfo.state[i].time = debCount + 1;
+      if (debCount > 5) {
+        gPadinfo.state[i].bActive = active;
+        gPadinfo.state[i].time = 0;
+      }
     }
-    debTimer = debTimer + 2;
-    btnState = btnState + 1;
-    i = i + 1;
-    btnOff = btnOff + 8;
-  } while (i < 8);
+    btnOff += 8;
+  }
 }
 
 /* end of pad.c (~line 375 per SLD) */

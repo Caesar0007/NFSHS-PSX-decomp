@@ -261,10 +261,19 @@ extern int creatememclass(int id, char *name, char *membuf, int bufsize,
      * its own `a &= -alignment;` statement is what pushed the whole sprintf argument block
      * (a0=&namebuf, a1=fmt, a2=name) BELOW the address arithmetic and put the wrong
      * instruction in the highguard branch's delay slot; fusing it puts the arg block first
-     * and `addiu a0,sp,0x20` in the slot, exactly like the oracle (10 -> 2 diffs). */
-    hi = (unsigned)alignment + 0x1Fu;
+     * and `addiu a0,sp,0x20` in the slot, exactly like the oracle (10 -> 2 diffs).
+     * MATCH (w33-a4, the last 2 diffs): `hi` is computed by an EMBEDDED ASSIGNMENT inside the
+     * expression, not by a preceding statement. The oracle emits `addiu v1,s7,0x1F` AFTER
+     * `addu v0,s4,v0` (membuf+lo); both insns have equal sched1 priority, so gcc-2.8's
+     * rank_for_schedule falls through to the INSN_LUID tie-break = original RTL order. A
+     * leading `hi = ...;` statement always gives hi the lower LUID (2 diffs, either statement
+     * order); promoting it to a 4th statement placed after `a = membuf+lo;` fixes the LUID
+     * but swaps the whole arithmetic block above the sprintf arg block (many diffs).
+     * `(hi = alignment+0x1F)` in operand position gives the wanted LUID while keeping ONE
+     * statement -- and, unlike inlining the bare `alignment+0x1F` term, the MODIFY_EXPR blocks
+     * fold() from reassociating 0x50+0x1F into a single `addiu ...,0x6F` (123/124). */
     lo = (unsigned)infosize + 0x50u;
-    a = (((unsigned)membuf + lo) + hi) & (unsigned)(-alignment);
+    a = (((unsigned)membuf + lo) + (hi = (unsigned)alignment + 0x1Fu)) & (unsigned)(-alignment);
     low_end = (char *)a - 0x10;
 
     /* s0 = membuf + bufsize - infosize - 0x20  (start of HIGH block) */
@@ -272,14 +281,12 @@ extern int creatememclass(int id, char *name, char *membuf, int bufsize,
 
     cls = (MemClass *)(membuf + 0x10); /* s1 = membuf+0x10 */
 
-    /* RESIDUAL (2 diffs, count-exact 124/124, was 16): a single scheduling tie -- the oracle
-     * emits `addiu v1,s7,0x1F` (hi) AFTER `addu v0,s4,v0` (membuf+lo), ours one slot earlier.
-     * Tried and measured, all worse or count-breaking: hi/lo statement order either way (2),
-     * hi/lo/a declaration order permutations (2), splitting `membuf+lo` into its own
-     * statement (16), inlining `hi` into the expression (7 but 123/124 -- gcc folds an insn
-     * away), `a = (membuf+hi)+lo` (12), computing `high`/`cls` before the arithmetic (18/20),
-     * hoisting the sprintf() call itself (18; the jal also moves the bufsize/a3 caller-saved
-     * clobber point). A within-block sched1 tie-break on one instruction. */
+    /* (History, for anyone re-shaping the block above: measured alternatives were all worse or
+     * count-breaking -- hi/lo statement order either way (2), hi/lo/a declaration order
+     * permutations (2), splitting `membuf+lo` into its own statement (16), inlining the bare
+     * `alignment+0x1F` term (7 AND 123/124 -- gcc folds 0x50+0x1F), `a = (membuf+hi)+lo` (12),
+     * computing `high`/`cls` before the arithmetic (18/20), hoisting the sprintf() call itself
+     * (18; the jal also moves the bufsize/a3 caller-saved clobber point).) */
     sprintf(namebuf, "%s LOW", name);            /* @0x8013DC20 */
     initmemblock((MemBlock *)membuf,  namebuf, 0x40, infosize,
                  flags | 0x8000, 0,                 (MemBlock *)low_end);

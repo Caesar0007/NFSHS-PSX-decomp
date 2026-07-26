@@ -23,7 +23,19 @@ extern int *transmult(int *a, int *b, int *out)            /* @0x80105F40 */
     register int i2, i1;
     register int j2, j1;
     register int acc;
-    /* MATCH (107->31; residual = pure instruction-ORDER/scratch-serialization: the oracle .obj shows unscheduled reload output -- serial single-v1 reloads with unfillable load-delay nops -- not reachable under the gate's fixed -O2+sched flags; with -fno-schedule-insns{,2} the insn COUNT is exact 81/81): flat-index outer i BY 3, guard i<9 (oracle slti s5,9); SEPARATE
+    /* MATCH (107->31; residual = pure instruction-ORDER/scratch-serialization: the oracle .obj shows
+     * unscheduled reload output -- serial single-$v1 reloads with unfillable load-delay nops -- not
+     * reachable under the gate's fixed -O2+sched flags.  w33-a4 pinned the 3-insn gap EXACTLY: it is
+     * (a) ONE extra `lw v1,0x68(sp)` -- retail reloads the `a` param from its home slot for BOTH
+     * pa[] elements and consumes it IN PLACE (`addu v1,v1,s7`), so reload cannot inherit; ours keeps
+     * one copy in $a3 and adds into $v0 -- plus (b) the two `lw pa[k]; nop; lw a0,0(v1)` load-delay
+     * nops our sched1 fills by interleaving the `b` reload.  Flag measurements (scratch cc1, NOT
+     * applied): -fno-schedule-insns alone = still 78; -fno-schedule-insns2 = exact 81/81 but the
+     * prologue `sw sN`/`init sN` interleave (which retail HAS) is lost, so neither flag alone is
+     * retail's build.  Source-side attempts that do NOT move it: `int *volatile pa[2]`,
+     * `volatile int *pa[2]` (31 both).  Per-obj toolchain identity, methodology 3.25-3d / W30 rule 6.
+     * SLD is unavailable here (eaclib .lib C members are debug-stripped: 0 records in 800E0000+).
+     * Shape levers that DID land the 107->31: flat-index outer i BY 3, guard i<9 (oracle slti s5,9); SEPARATE
      * byte-offset walkers i1/i2 (a row elems, step 12) + j1/j2 (b column walk, step 4) =
      * independent variables so no combine_givs base-fold; the two a-element pointers live in
      * a POINTER ARRAY pa[2] (memory by construction -- the temp[] stores alias-block hoisting,

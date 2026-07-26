@@ -8,6 +8,30 @@
  *   on an odd boundary); Ghidra mangled the swl/swr into a bit-twiddle AND emitted a phantom aligned store
  *   -- disasm shows ONE unaligned word copy, so the bit-twiddle is dropped and the plain copy kept.
  *
+ *   🔴🔴 W33-a7 IDENTITY AXES CLOSED (2026-07-26) -- applies to this whole obj AND to salloc/smemman:
+ *   (1) SLD IS UNAVAILABLE HERE.  Walking the trusted SYM's line stream (88/80/82/84 records) and
+ *       attributing every VA to its file gives **ZERO SLD records** across 800FE764..8010A800 -- the
+ *       SNDPSXZ/EACPSXZ/SPCHPSXZ .LIB members carry only a `2 <name>` address record, no
+ *       `8c Function start` block and no line info (2581 debug'd fns of 4503 symbols; 194 SLD'd
+ *       source files, none of them a sound TU).  The only SLD-bearing objects interleaved in this VA
+ *       span are the hand-written C:\LIB\PSX\*.ASM members, so the absence is PER-OBJECT.  Any future
+ *       "check it against the SLD statement map" plan for a .LIB member is a dead end; the only
+ *       SLD-armed eaclib calibration point in the whole image is D:\nfs4\EACLIB\PSX\PAD.C -- which is
+ *       also the ONLY one of the 194 source paths not on C:, i.e. eaclib was built on a different
+ *       machine, archived without -g, and pad.c alone was compiled into the game build.
+ *   (2) COMPILER-SNAPSHOT AXIS CLOSED.  Three distinct CC1PSX binaries exist locally across six PsyQ
+ *       drops -- 2.7.2 (psyq400 == psyq_sdk 4.3), 2.8.0 (psq43, our gate lane), 2.8.1 (psq44 == psq45
+ *       == psyq_sdk 4.4).  Run through the real gate on all five allocators: **2.8.0 and 2.8.1 are
+ *       byte-identical** (260/79/86/59/14), and **2.7.2 is decisively refuted** (541/110/134/102/23,
+ *       with the wrong instruction count on every one where 2.8.x hits the oracle's exactly).  Retail
+ *       is gcc-2.8-class = our own generation, so the residual is an allocation-ORDER difference
+ *       INSIDE the generation, not a compiler-version difference.  A surviving "other snapshot"
+ *       hypothesis would need a point release absent from every PsyQ drop on this machine.
+ *   (3) Cross-game probe: iSNDfreechan's 21-insn reloc-free scan loop is NOT present in NFS3.EXE,
+ *       NFS3-F.EXE, NFS2.EXE or NFS2-F.EXE -- this is not a byte-shared prebuilt blob from an
+ *       earlier title.
+ *   Full evidence tables: C:\Temp\nfs4-clean\pcmap\W33_IDENTITY_a7.md.
+ *
  *   ⚠️ iSNDpsxmalloc FLOOR NOTE (w31-a2, 2026-07-26): a full oracle-shape rebuild (three-call CFG with
  *   per-site polarity, guarded-preamble base split, multiply-set-offset SR blocker, clean align-2
  *   struct-assign shift copy, fused-symbol scan_done/commit) reached insn 124/127 but 105 diffs vs this
@@ -82,7 +106,27 @@ extern int iSNDpsxmalloc(int size);                               /* @0x8010A5CC
 
 /* iSNDpsxmemconstrain @0x8010A550 : clamp a candidate [block, avail] window to the SPU sample area limits
  *   (floor at engine_ver, ceil at block_total, and at reverb_mode).  Returns the reverb-bounded
- *   available size. */
+ *   available size.
+ *
+ * 🔴 ALLOCNO FLOOR, and now the CLUSTER'S MINIMAL EXHIBIT (w33-a7, 2026-07-26).  Ours is 31 insns /
+ *   oracle 31, SAME ORDER, SAME MNEMONICS, SAME DISPLACEMENTS -- all 14 diffs are two register
+ *   choices in the first basic block, and the last two blocks are already byte-exact:
+ *       lo   = *(u16*)(sndpd+0x51A)   retail $a3   ours $v1
+ *       diff = lo - *size (delay slot) retail $v0   ours $a3
+ *   Retail lets `diff` take BACK $v0 -- the register the `slt` compare temp just died in -- while
+ *   ours gives it a fresh caller-saved reg.  That is the w32 "coalesce-with-dying-pseudo vs fresh
+ *   reg" core, isolated with nothing else moving.  MEASURED INVARIANCE (all still 14 diffs):
+ *     - 4 declaration orders/groupings of {lo, s, diff}: 14/14/14/14 (exactly invariant);
+ *     - 4 source spellings (load order swapped; `lo` as unsigned int; `diff` computed inside the
+ *       `if`; store order swapped): 14/18/20/17 -- this body is the best of them;
+ *     - 11 cc1 flags on top of the gate set (-fno-schedule-insns{,2}, -fno-delayed-branch,
+ *       -fno-cse-follow-jumps, -fno-expensive-optimizations, -fno-strength-reduce,
+ *       -fno-function-cse, -fno-peephole, -fno-thread-jumps, -fcaller-saves): none < 14 at parity
+ *       (-fno-expensive-optimizations shows 13 but BREAKS the 31/31 parity, so it is a worse fit);
+ *     - 3 distinct cc1 binaries / 2 gcc generations -- see the file header sweep.
+ *   NEXT INSTRUMENT (not yet tried on this cluster): permuter multi-basin re-seed.  At 31 insns this
+ *   is the cheapest permuter target in sndpsxz and the methodology's discriminator says a
+ *   "retail reuses a dying reg / ours takes a fresh one" residual is a permuter case, not an accept. */
 extern void iSNDpsxmemconstrain(unsigned int *size, int *avail)
 {
     unsigned char *pd = sndpd;

@@ -478,7 +478,10 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
      * retail colors A=$v0/B=$a0/lim=$v1, so `avail` misses the return register and ours spends the
      * branch delay on `addu $v0,$a0,$zero` where retail has a nop (and the following `lhu 0x36`/`0x38`
      * pair swaps).  The chain SHAPE is identical (avail reuses A's reg, the slt result reuses lim's);
-     * only the physical pair differs.  Tried on the w33 base and ALL diff-neutral at 16: no-local
+     * only the physical pair differs.  Re-tried on the 14-diff w34-a5 base and STILL neutral: split
+     * load-from-subtract, named `served`/`lim` locals, `avail > lim`, and the EMBEDDED-ASSIGNMENT luid
+     * lever `if (lim < (avail = A - B))` / `if ((avail = A - B) > lim)` that cracked sdma's
+     * iSNDdmtransfer.  Tried on the w33 base and ALL diff-neutral at 16: no-local
      * (recompute the expression at the return), return-the-expression, split `avail = A; avail -= B;`,
      * `avail > lim`, `!(lim >= avail)`, a named `lim` local before AND after `avail`, `long avail`,
      * `unsigned lim`, function-scope `avail`, and the `^ runtime-zero` device (317/308, far worse).

@@ -17,19 +17,21 @@ void DrawMoney(int x,int y,int numplaces,long number,int colfore,int colback)
   char string1 [50];
   char string2 [50];
   
-  if (numplaces == 6) {
-    str = TextSys_Word(0x87);
-    sprintf(string1,str,0,0);
-  }
-  else if (numplaces < 7) {
-    if (numplaces == 3) {
-      str = TextSys_Word(0x86);
-      sprintf(string1,str,0);
+  if (numplaces != 6) {
+    if (numplaces < 7) {
+      if (numplaces == 3) {
+        str = TextSys_Word(0x86);
+        sprintf(string1,str,0);
+      }
+    }
+    else if (numplaces == 9) {
+      str = TextSys_Word(0x88);
+      sprintf(string1,str,0,0,0);
     }
   }
-  else if (numplaces == 9) {
-    str = TextSys_Word(0x88);
-    sprintf(string1,str,0,0,0);
+  else {
+    str = TextSys_Word(0x87);
+    sprintf(string1,str,0,0);
   }
   FeTools_FormatMoney(string2,number);
   FETextRender_FullTextRGB(string2,(short)x,(short)y,colfore,'\0',1);

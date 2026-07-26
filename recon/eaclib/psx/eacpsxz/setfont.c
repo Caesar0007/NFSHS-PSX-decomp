@@ -56,8 +56,8 @@ extern void setfont(int fontId)
     int            depth;
 
     /* Oracle loads the shape offset in the prologue, before copying any metrics. */
-    shape         = (unsigned char *)(fontId + *(int *)(fontId + 0x1c));
     cf            = currentfont;
+    shape         = (unsigned char *)(fontId + *(int *)(fontId + 0x1c));
     CFI(cf, 0x7c) = 100;
     CFI(cf, 0x0c) = (int)*(signed char *)(fontId + 0x10);
     CFI(cf, 0x10) = (int)*(signed char *)(fontId + 0x11);
@@ -114,8 +114,10 @@ decoded:
         unsigned char *cf2 = currentfont;
         CFI(cf2, 0x2c) = 0;
         CFI(cf2, 0x30) = 0;
+        CFI(cf2, 0xb4) = 0;   /* oracle: this store sits in blockclear's DELAY slot => it precedes
+                               * the call in source order; after the call gcc steals it for the
+                               * inittextdraw slot instead and the oracle's `jal; nop` is lost. */
         blockclear(cf2 + 0x34, 0x40);                            /* @0x80135BD4 : clear 0x40-byte blit state */
-        CFI(cf2, 0xb4) = 0;
         inittextdraw();
         CFI(cf2, 0xa4) = 0;
     }

@@ -66,25 +66,41 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
      * the CLUT tail) are ALSO shared/hoisted the same way -- named here so gcc materializes each
     * ONCE and reuses it at both write sites instead of rematerializing per-site. */
     {
-    /* RAW/ORACLE (2026-07-26, 100->93 detailed diffs; 166/165 instructions):
-     * keep the coordinate roles and their precomputed masks as distinct locals.  Declaration order
-     * steers the retail compiler closer to the oracle's saved-register family. */
+    /* RAW/ORACLE (w32-a5 2026-07-26: 93 -> 80 diffs and INSTRUCTION PARITY reached, 165/165).
+     * Two levers, both from the IDA per-variable register map of sub_800F69A8:
+     *  (1) DECLARATION ORDER = param copies FIRST, derived mask constants LAST.  Retail's prologue
+     *      copies a1..a3/stack-arg into saved regs before computing any mask (so the params have the
+     *      LONGEST live ranges = lowest allocno priority = the high-numbered saved regs s5..fp, and
+     *      the short-lived masks win s1..s4).  Declaring maskLo first cost one extra instruction.
+     *  (2) the two CLUT convert loops are LABEL+GOTO loops, not do-while: as a do-while, loop.c
+     *      strength-reduces the three byte givs onto the LAST one in body order (src[0x10]) and
+     *      rebases the pointer to `c+16` with displacements 2/1/0; retail keeps base `c` with
+     *      displacements 16/17/18, i.e. loop.c never ran (catalog SS-B goto-loop / giv-anchor).
+     * RESIDUAL 80 = pure register PERMUTATION, no instruction-shape diffs left:
+     *   ours {imgX s3, imgY s2, maskLo s6, clutX s5, clutY s4, clutXm fp, clutYm s7}
+     *   retail{imgX s7, imgY fp, maskLo s4, clutX s5, clutY s6, clutXm s3, clutYm s2}
+     *   plus the a2/a3 counter/dst swap in both CLUT loops and the switch jump-table's
+     *   materialize-then-shift order.  Tried and REJECTED (no change): every declaration-order
+     *   permutation of the 8 outer locals and the 6 inner locals, dst/src assignment order,
+     *   moving `i = 0` inside the guard.  The allocno table (cc1 -dl) says imgX/imgY carry 5 refs
+     *   vs clutXm/clutYm's 3, which is what puts them in the earlier reg class; retail's must be
+     *   the other way round, and no source form found so far flips it. */
+    int ix = imgX;
+    int iy = imgY;
+    int cx = clutX;
+    int cy = clutY;
     unsigned int maskLo  = ~0xFFFu;         /* clears the low 12 bits (x field) */
+    unsigned int maskHi  = 0xF000FFFFu;     /* clears bits 16-27 (y field) */
     unsigned int clutXm  = (unsigned int)clutX & 0xfff;
     unsigned int clutYm  = ((unsigned int)clutY & 0xfff) << 0x10;
-    int cx = clutX;
-    int iy = imgY;
-    int ix = imgX;
-    int cy = clutY;
-    unsigned int maskHi  = 0xF000FFFFu;     /* clears bits 16-27 (y field) */
     scratch.clut22p = scratch.clut22;
     do {
-        u_long       *data;
-        int           i;
-        unsigned int *src;
-        unsigned int *dst;
-        unsigned int *next;
-        RECT         *rectp;
+        u_long        *data;
+        int            i;
+        unsigned short *dst;
+        unsigned char  *src;
+        unsigned int  *next;
+        RECT          *rectp;
 
         switch ((unsigned char)*c & 0xf7) {
         case 0x40:
@@ -121,17 +137,16 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
         case 0x22:                                   /* CLUT, 8->5 bit via >>1 */
             i   = 0;
             if (0 < (short)c[1]) {
-                dst = scratch.clut22p;
-                src = c;
-                do {
-                    *(unsigned short *)dst =
-                        (unsigned short)(*(unsigned char *)((int)src + 0x12) >> 1) << 10 |
-                        (unsigned short)(*(unsigned char *)((int)src + 0x11) >> 1) << 5 |
-                        (unsigned short)(*(unsigned char *)((int)src + 0x10) >> 1);
-                    src = (unsigned int *)((int)src + 3);
-                    i += 1;
-                    dst = (unsigned int *)((int)dst + 2);
-                } while (i < (short)c[1]);
+                dst = (unsigned short *)scratch.clut22p;
+                src = (unsigned char *)c;
+            clut22loop:
+                *dst++ = (unsigned short)(src[0x12] >> 1) << 10 |
+                         (unsigned short)(src[0x11] >> 1) << 5 |
+                         (unsigned short)(src[0x10] >> 1);
+                src += 3;
+                i += 1;
+                if (i < (short)c[1])
+                    goto clut22loop;
             }
             rectp = &scratch.rect;
             data = (u_long *)scratch.clut22;
@@ -140,17 +155,16 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
         case 0x24:                                   /* CLUT, 8->5 bit via >>3 */
             i = 0;
             if (0 < (short)c[1]) {
-                dst = scratch.clut24;
-                src = c;
-                do {
-                    *(unsigned short *)dst =
-                        (unsigned short)(*(unsigned char *)((int)src + 0x12) >> 3) << 10 |
-                        (unsigned short)(*(unsigned char *)((int)src + 0x11) >> 3) << 5 |
-                        (unsigned short)(*(unsigned char *)((int)src + 0x10) >> 3);
-                    src = (unsigned int *)((int)src + 3);
-                    i += 1;
-                    dst = (unsigned int *)((int)dst + 2);
-                } while (i < (short)c[1]);
+                dst = (unsigned short *)scratch.clut24;
+                src = (unsigned char *)c;
+            clut24loop:
+                *dst++ = (unsigned short)(src[0x12] >> 3) << 10 |
+                         (unsigned short)(src[0x11] >> 3) << 5 |
+                         (unsigned short)(src[0x10] >> 3);
+                src += 3;
+                i += 1;
+                if (i < (short)c[1])
+                    goto clut24loop;
             }
             rectp = &scratch.rect;
             data = (u_long *)scratch.clut24;

@@ -57,7 +57,15 @@
  *             (Earlier levers, all diff-neutral at 4 and now moot: done-in-declaration; `done = 0`
  *             before/after the disarm call; `switch (intr & 0xFF)` vs the `(unsigned char)` cast;
  *             declaration reordering (rs before madr/done); `result[0]` vs `*result`.)
- *     [near]  CD_Read (198->64->31->12->2 diffs; insn parity 163/163).  Earlier waves: the
+ *     [near]  CD_Read (198->64->31->12->2 diffs; insn parity 163/163).  w34-a3: the residual-2 is
+ *             the sched2 LAUNCH_PRIORITY tie on the cached-sector blockmove's argument loads --
+ *             retail issues `lw a0,8(s0)` (curOff, which still needs the `addu a0,a0,v0` that ends
+ *             up in the jal delay slot) BEFORE `lw a1,0xC(s0)`, ours the reverse, because $a1's
+ *             load IS an argument setter (0x7f000001 launch boost) while $a0's load is only a
+ *             FEEDER of one.  Falsified this wave (all three byte-identical to the base, so the
+ *             floor is STRONG by the >=3-forms rubric): a named `int off = rs->curOff;` statement
+ *             before the call, a named `char *src = &CD_sectorCache[rs->curOff];` before the call,
+ *             and the byte-base spelling `(char *)CD_sectorCache + rs->curOff`.  Earlier waves: the
  *             `&CD_handleTable[dev-1]` slot idiom (same as the PASSing CD_Getinfo -- it yields the
  *             oracle's full address materialization `sll;addiu -4;addu` instead of a `-4(base)`
  *             load displacement); the directory entry RE-READ from the slot at both uses, with the

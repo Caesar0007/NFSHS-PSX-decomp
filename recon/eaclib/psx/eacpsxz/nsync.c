@@ -241,7 +241,22 @@ extern void *loadbigfileheaderatomic(int retry, LoadArgs *a)   /* @0x800E5938 */
      * delta as loadfileadratomic/InitEventQueue (methodology 3.25 / catalog G).  Reaching the
      * oracle needs BOTH the short-lived shared temp AND a long-lived `retry` -- mutually
      * exclusive under this cc1's cse.  Variants measured: close_retry local 7 (kept, 82/81) /
-     * bare `retry - 1` everywhere 8 (79/81) / rm1 24 (81/81, structure-exact). */
+     * bare `retry - 1` everywhere 8 (79/81) / rm1 24 (81/81, structure-exact).
+     * w34-a3 MECHANISM (quantified; the rm1 branch is now a NAMED floor, not a hunch): under rm1 the
+     * SUCCESS close's textual `retry - 1` is folded by cse onto the rm1 pseudo (emitted `move a1,s3`
+     * where the oracle recomputes `addiu a1,s4,-1`).  That fold is what kills `retry`: with it, retry
+     * is dead through the whole middle -- cc1 -dl prints `used 4 times across 38 insns; crosses 2
+     * calls` (vs 5 refs / 76 insns / 7 calls without it) -- so allocno_compare ranks retry
+     * 2*4/38 = 2105 ABOVE `a` at 2*6/60 = 2000 and the pair swaps ($s0<->$s4).  Retail's own numbers
+     * go the other way (a 6 refs over ~38 live insns = 3157, retry 5 refs over ~78 = 1282), i.e. the
+     * oracle register map falls out for free AS SOON AS the success close recomputes.  No source form
+     * found makes it recompute: the arg IS `retry - 1`, rm1 is provably live and equal at that join.
+     * Also falsified this wave: rm1 hoisted above FILE_opensync (23 diffs, 76/81 -- retry then has no
+     * live range at all), rm1 additionally used at the success close (24, byte-identical to plain rm1
+     * -- the fold had already made that ref free), and the param-copy priority dial
+     * `LoadArgs *a2 = a;` around the reservememadr derefs (cc1 folds the copy before life analysis --
+     * `a` stays at 6 refs, the -dg order is unchanged; the w33 "+2 weighted refs" dial does NOT fire
+     * for a straight pointer-param copy here, same negative result in loadfileadratomic). */
     buf = reservememadr(a->name, 0xA90, a->memclass);
     if (buf == 0)
         goto closefail;

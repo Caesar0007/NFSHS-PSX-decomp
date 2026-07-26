@@ -242,7 +242,31 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
  * so retail is the DEFAULT choice and ours is the deviation -- something in this body keeps $a3
  * out of the pool). Shape, instruction order and stack layout otherwise line up.
  * Build-lane probes: -mno-split-addresses 61 -> 61 (no change, and it wrecks the rest of the TU),
- * per-fn -fno-delayed-branch splice 61 -> 79. No SLD exists for SPCHPSXZ (see spchevnt.c). */
+ * per-fn -fno-delayed-branch splice 61 -> 79. No SLD exists for SPCHPSXZ (see spchevnt.c).
+ *
+ * w34-a10 -- THE $a3-vs-$t0 LEAD IS NOW A QUANTIFIED MECHANISM (cc1 -dl/-dg dumps), and it is
+ * NOT source-reachable from this shape.  `numRules` gets NO hard register; $t0/$a3 is the RELOAD
+ * register reload1 spills for it, and gcc-2.8's `order_regs_for_reload` sorts the candidate regs
+ * by `hard_reg_n_uses` = the summed REG_N_REFS of the pseudos ALLOCATED to each hard reg, ties
+ * broken by ascending regno.  Our lreg dump says:
+ *     Register 121 used 9 times across 10 insns in block 12; ...; pointer.   -> "121 in 7" ($a3)
+ * i.e. the `*sentSlot` deref at the gSentenceRuleTest call site is a real local-alloc pseudo that
+ * local_alloc parks in $a3 (it has a hard preference for $a3 from `(set (reg 7) (reg 121))`).
+ * That gives hard_reg_n_uses[$a3] = 9 vs hard_reg_n_uses[$t0] = 0, so $t0 sorts FIRST and becomes
+ * the spill reg -- and its caller-save/spill slot 0x1C follows the register, which is the whole
+ * 28(sp)-vs-36(sp) half of the diff.  Retail's $a3 carries ZERO pseudo refs (its `lw $a3,0x50($sp)`
+ * is a reload that reload-inheritance then reuses for the 4th argument), so $a3 wins the tie on
+ * regno and everything downstream falls out.
+ * => the fix would be to stop `*sentSlot` from becoming an allocated pseudo, which cse defeats:
+ * `(int)sentence` for arg 4, `(unsigned short)*sentence` for arg 1, and the mixed forms ALL gate
+ * 61/113 identically (cse merges them back into one pseudo), and dropping the `&sentence`
+ * addressability entirely costs a callee-saved reg + an 88-byte frame (122 diffs).
+ * The oracle frame corroborates the reading: retail's locals are 0x10/0x14/0x18 (the three
+ * volatile decode slots), 0x20 (ruleData's spill) and 0x24 (numRules), leaving a HOLE at 0x1C --
+ * exactly the slot our build hands to numRules.
+ * Also probed and rejected this wave: `hit = 0` hoisted to the top of the inner block (61, no
+ * change); `testValue = 0` hoisted out of the ruleType==0xc arm (65); the iSPCH_RuleSet
+ * allocno-priority swap on `param`/`paramStore` (69, and it loses insn parity). */
 extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
 {
     int            numRules = *(signed char *)((int)sentence + 7);

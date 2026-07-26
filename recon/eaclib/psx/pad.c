@@ -72,7 +72,14 @@ void PAD_update(void);
  * -- ours `jr ra; addiu sp,sp,24`, retail `addiu sp; jr ra; nop`. The
  * -fno-delayed-branch splice that PASSes PAD_restore costs 6 more here
  * (3 -> 9: it also empties the four `jal` argument-setup slots that retail
- * DID have filled), so padinit belongs to the Tier-2 ASPSX-fill bin. */
+ * DID have filled), so padinit belongs to the Tier-2 ASPSX-fill bin.
+ * w34-a10 RE-VERDICT: FLOOR HOLDS, evidence class STRONG. Prototype re-audit
+ * against the SYM (the w33/w34 "floors are prototype-conditional" rule):
+ * `94 Def class EXT type FCN VOID size 0 name padinit` + an `8c Function
+ * start` block with fsize=24, mask=$80010000 (ra+s0), maskoffs=-4 and NO
+ * locals and NO REGPARM records -- so the `void padinit(void)` signature,
+ * the return type and the arity are all confirmed correct, and the 3
+ * residual diffs are exclusively the epilogue delay-slot fill. */
 void padinit(void)
 {
   if (gPadinfo.initialized == 0) {
@@ -124,7 +131,14 @@ void PAD_restore(void)
  * epilogue-fill identity (`addiu sp; jr ra; nop` vs our `jr ra; addiu sp`);
  * unlike PAD_restore the -fno-delayed-branch splice does NOT clear them
  * here (it costs 4 more elsewhere in the body: 4 -> 8), so this one waits
- * on the Tier-2 ASPSX-fill emulation. */
+ * on the Tier-2 ASPSX-fill emulation.
+ * w34-a10 RE-VERDICT: FLOOR HOLDS, evidence class STRONG. SYM prototype
+ * re-audit: `94 Def class EXT type FCN USHORT size 0 name PAD_state` with a
+ * single `94 Def class REGPARM type INT size 0 name padID` ($00000004 = the
+ * $a0 home) and fsize=24 / mask=$80000000 (ra only) / maskoffs=-8 -- the
+ * u_short return, the one int parameter and the leaf frame all match what
+ * this reconstruction emits, so nothing about the declaration is left to
+ * reopen; the 4 diffs are purely `addiu sp; jr ra; nop` vs `jr ra; addiu sp`. */
 u_short PAD_state(int padID)
 {
   uint buttons;

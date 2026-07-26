@@ -305,7 +305,24 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
  *   methodology discriminator an "ours-shorter / oracle's extra insn is a redundant reg-to-reg move"
  *   residual is a PERMUTER multi-basin case, not an accept -- but iSNDpsxmemconstrain (31/31, 14
  *   diffs) is a strictly cheaper and cleaner exhibit of the SAME allocator decision, so run that
- *   one first.  Compiler sweep: gcc 2.8.1 == our 2.8.0 (79 both); gcc 2.7.2 = 110 diffs @112 insns. */
+ *   one first.  Compiler sweep: gcc 2.8.1 == our 2.8.0 (79 both); gcc 2.7.2 = 110 diffs @112 insns.
+ *
+ *   W34-a8 (2026-07-26): UNCHANGED at 74 diffs / 108 insns, but the 2-instruction gap is now
+ *   LOCALIZED.  A block-by-block count shows every block equal (14 / 28 / 16 / 26 insns on both
+ *   sides); BOTH missing instructions are in the LAST block (retail ED5C..EDC0 = 26, ours 24), and
+ *   both are reorg consequences of the register permutation, not of the C shape:
+ *     (i) retail pays a `nop` in the `bne $v1,$v0` delay slot and recomputes `sll $v0,$a2,1` inside
+ *         the block, where ours steals that shift into the slot -- in retail's assignment the
+ *         shift writes the branch's own compare register, so `resource_conflicts_p` refuses it;
+ *    (ii) retail reaches the final `sndgs[0x11]` through a REMATERIALIZED base -- `lui;addiu` split
+ *         across two branch delay slots plus one duplicated `addiu %lo` at the join, then
+ *         `lw $v0,0x44($v0)` -- where ours fuses `lui; lw %lo(sndgs+0x44)` (2 insns).
+ *   Rewriting JUST that one site as a base-pointer read `*(int *)(base + 0x44)` (the targeted form
+ *   of the whole-function rewrite already recorded above as worse) goes the WRONG WAY: 75 diffs at
+ *   107 insns, because cse then shares the top-of-function base instead of rematerializing.
+ *   NFS2 PC-beta contributes nothing to this function: its salloc.obj `_iSNDfreechan` is a
+ *   THREE-LINE ungrouped release (`chan[i].state = 0;`) with no linked-group protocol at all, so
+ *   the whole group/partner CFG is NFS3/NFS4-era and has no named-source ancestor to copy. */
 extern void iSNDfreechan(int chan)
 {
     unsigned int group;

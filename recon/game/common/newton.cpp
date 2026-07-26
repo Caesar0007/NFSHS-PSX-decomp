@@ -313,11 +313,13 @@ int Newton_CalculateSliceYaw(int slice)
   int s;
 
   nextSlice = slice + 1;
-  if (gNumSlices <= nextSlice) {
-    nextSlice = slice - (gNumSlices + -1);
-  }
-  return intatan(BWorldSm_slices[nextSlice].center[0] - BWorldSm_slices[slice].center[0],
-                     BWorldSm_slices[nextSlice].center[2] - BWorldSm_slices[slice].center[2]);
+  nextSlice = (nextSlice < gNumSlices) ? nextSlice : (slice - (gNumSlices + -1));
+  x1 = BWorldSm_slices[slice].center[0];
+  z1 = BWorldSm_slices[slice].center[2];
+  x2 = BWorldSm_slices[nextSlice].center[0];
+  z2 = BWorldSm_slices[nextSlice].center[2];
+  s = intatan(x2 - x1,z2 - z1);
+  return s;
 }
 
 /* ---- Newton_UpdateRoadGeometry__FP13BO_tNewtonObj  [NEWTON.CPP:248-354] SLD-VERIFIED ---- */
@@ -1525,12 +1527,15 @@ void Newton_CopyRoadMatrixToOrientMat(BO_tNewtonObj *n,int backwards)
   int iVar4;
   int iVar5;
 
-  ori = &n->orientMat;
-  road = &n->roadMatrix; /* MATCH: shared base ptrs materialized BEFORE the branch (oracle sets the source ptr in the branch's delay slot, used by BOTH arms) -- verify_asm 2026-07-11 */
+  road = &n->roadMatrix; /* MATCH: only the SOURCE ptr is hoisted before the branch (oracle sets
+   * it in the branch's delay slot, used by BOTH arms); the DEST ptr (ori) is computed separately
+   * inside each arm -- verify_asm 2026-07-26 */
   if (backwards == 0) {
+    ori = &n->orientMat;
     *ori = *road;
     return;
   }
+  ori = &n->orientMat;
   ori->m[0] = -road->m[0];
   ori->m[1] = -road->m[1];
   ori->m[2] = -road->m[2];
@@ -1555,12 +1560,15 @@ void Newton_CopyRoadMatrixToShadowMat(BO_tNewtonObj *n,int backwards)
   int iVar4;
   int iVar5;
   
-  shad = &n->shadowMat;
-  road = &n->roadMatrix; /* MATCH: shared base ptrs materialized BEFORE the branch (oracle sets the source ptr in the branch's delay slot, used by BOTH arms) -- verify_asm 2026-07-11 */
+  road = &n->roadMatrix; /* MATCH: only the SOURCE ptr is hoisted before the branch (oracle sets
+   * it in the branch's delay slot, used by BOTH arms); the DEST ptr (shad) is computed separately
+   * inside each arm -- verify_asm 2026-07-26 */
   if (backwards == 0) {
+    shad = &n->shadowMat;
     *shad = *road;
     return;
   }
+  shad = &n->shadowMat;
   shad->m[0] = -road->m[0];
   shad->m[1] = -road->m[1];
   shad->m[2] = -road->m[2];
@@ -1716,7 +1724,7 @@ extern "C" void Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii(u_int *newtonO
   int iVar1;
   u_int *puVar2;
   int iVar3;
-  
+
   *newtonObj = index;
   newtonObj[0x22] = 0;
   *(u_char *)(newtonObj + 0x24) = 0;

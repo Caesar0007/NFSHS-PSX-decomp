@@ -1102,31 +1102,30 @@ RampCtrl_earlyBrake:
 void Physics_FixEngineRpm(Car_tObj *carObj)
 
 {
+  int iVar1;
+  int iVar2;
   int iVar4;
 
   /* no SYM locals for this fn (fsize=0, mask=0) -- the decay-then->>8 idiom is applied
    * INLINE at each field-read site (oracle interleaves decay/shift/mult/load per dot-product
-   * term, not "decay all 6 operands up front then multiply" -- confirms no named temps). */
-  (carObj->linearVel_ch).x =
-       ((((carObj->N).linearVel.x < 0) ? (carObj->N).linearVel.x + 0xff : (carObj->N).linearVel.x) >> 8) *
+   * term, not "decay all 6 operands up front then multiply" -- confirms no named temps).
+   * The running dot-product sum stays in a register (iVar1/iVar2) across the three terms --
+   * only the FINAL sum is stored to linearVel_ch.x/.z (the oracle never re-reads the struct
+   * field mid-sum). */
+  iVar1 = ((((carObj->N).linearVel.x < 0) ? (carObj->N).linearVel.x + 0xff : (carObj->N).linearVel.x) >> 8) *
        ((((carObj->N).shadowMat.m[0] < 0) ? (carObj->N).shadowMat.m[0] + 0xff : (carObj->N).shadowMat.m[0]) >> 8);
-  (carObj->linearVel_ch).x =
-       (carObj->linearVel_ch).x +
+  iVar1 = iVar1 +
        ((((carObj->N).linearVel.y < 0) ? (carObj->N).linearVel.y + 0xff : (carObj->N).linearVel.y) >> 8) *
        ((((carObj->N).shadowMat.m[1] < 0) ? (carObj->N).shadowMat.m[1] + 0xff : (carObj->N).shadowMat.m[1]) >> 8);
-  (carObj->linearVel_ch).x =
-       (carObj->linearVel_ch).x +
+  (carObj->linearVel_ch).x = iVar1 +
        ((((carObj->N).linearVel.z < 0) ? (carObj->N).linearVel.z + 0xff : (carObj->N).linearVel.z) >> 8) *
        ((((carObj->N).shadowMat.m[2] < 0) ? (carObj->N).shadowMat.m[2] + 0xff : (carObj->N).shadowMat.m[2]) >> 8);
-  (carObj->linearVel_ch).z =
-       ((((carObj->N).linearVel.x < 0) ? (carObj->N).linearVel.x + 0xff : (carObj->N).linearVel.x) >> 8) *
+  iVar2 = ((((carObj->N).linearVel.x < 0) ? (carObj->N).linearVel.x + 0xff : (carObj->N).linearVel.x) >> 8) *
        ((((carObj->N).shadowMat.m[6] < 0) ? (carObj->N).shadowMat.m[6] + 0xff : (carObj->N).shadowMat.m[6]) >> 8);
-  (carObj->linearVel_ch).z =
-       (carObj->linearVel_ch).z +
+  iVar2 = iVar2 +
        ((((carObj->N).linearVel.y < 0) ? (carObj->N).linearVel.y + 0xff : (carObj->N).linearVel.y) >> 8) *
        ((((carObj->N).shadowMat.m[7] < 0) ? (carObj->N).shadowMat.m[7] + 0xff : (carObj->N).shadowMat.m[7]) >> 8);
-  (carObj->linearVel_ch).z =
-       (carObj->linearVel_ch).z +
+  (carObj->linearVel_ch).z = iVar2 +
        ((((carObj->N).linearVel.z < 0) ? (carObj->N).linearVel.z + 0xff : (carObj->N).linearVel.z) >> 8) *
        ((((carObj->N).shadowMat.m[8] < 0) ? (carObj->N).shadowMat.m[8] + 0xff : (carObj->N).shadowMat.m[8]) >> 8);
   iVar4 = (carObj->N).collision.collided;
@@ -1659,9 +1658,9 @@ Phy_CalcAcc_finalAdjustReturn:
 void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
 
 {
+  int iVar3;
   int iVar1;
   int iVar2;
-  int iVar3;
   int iVar4;
   int *piVar5;
   int optVar2;
@@ -1670,51 +1669,57 @@ void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
   int iVar6;
   int optVar1;
   int gripDiv;
-  
+
   if (wheel->frontTire != 0) {
-    iVar3 = wheel->roadGrip;
     wheel->skid = *(int *)((int)carObj + 0x484);
-    iVar1 = frontMult;
+    iVar3 = wheel->roadGrip;
     if (iVar3 < 0) {
       iVar3 = iVar3 + 0xff;
     }
+    iVar1 = frontMult;
+    iVar3 = iVar3 >> 8;
   }
   else {
-    iVar3 = wheel->roadGrip;
     wheel->skid = *(int *)((int)carObj + 0x488);
-    iVar1 = rearMult;
+    iVar3 = wheel->roadGrip;
     if (iVar3 < 0) {
       iVar3 = iVar3 + 0xff;
     }
+    iVar1 = rearMult;
+    iVar3 = iVar3 >> 8;
   }
   if (iVar1 < 0) {
     iVar1 = iVar1 + 0xff;
   }
-  iVar1 = (iVar3 >> 8) * (iVar1 >> 8);
+  iVar1 = iVar1 >> 8;
+  iVar1 = iVar3 * iVar1;
   iVar3 = (wheel->velCap).x;
   iVar4 = (wheel->velCap).z;
+  optVar1 = iVar3;
   if (iVar3 < 0) {
-    iVar3 = -iVar3;
+    optVar1 = -optVar1;
   }
+  optVar2 = iVar4;
   if (iVar4 < 0) {
-    iVar4 = -iVar4;
+    optVar2 = -optVar2;
   }
-  if (iVar4 < iVar3) {
-    totalAcc = iVar3 + (iVar4 >> 2);
-  }
-  else {
-    totalAcc = iVar4 + (iVar3 >> 2);
-  }
-  if (slippery == 0) {
-    iVar4 = *(int *)(*(int *)((int)carObj + 0x288) + 0x38);
-    piVar5 = gripLossTable;
+  if (optVar2 < optVar1) {
+    totalAcc = optVar1 + (optVar2 >> 2);
   }
   else {
+    totalAcc = optVar2 + (optVar1 >> 2);
+  }
+  if (slippery != 0) {
     iVar4 = *(int *)(*(int *)((int)carObj + 0x288) + 0x38);
     piVar5 = gripLossTableWet;
   }
+  else {
+    iVar4 = *(int *)(*(int *)((int)carObj + 0x288) + 0x38);
+    piVar5 = gripLossTable;
+  }
   iVar4 = piVar5[iVar4];
   gripDiv = iVar1 / iVar4;
+  roadGrip = iVar1 - gripDiv;
   if (iVar1 < totalAcc) {
     wheel->skid = wheel->skid * 3 + (totalAcc - iVar1) >> 2;
   }
@@ -1734,7 +1739,7 @@ void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
   }
   wheel->skid = iVar6;
   if (0x100 < iVar2) {
-    iVar3 = fixeddiv(iVar1 - gripDiv,totalAcc);
+    iVar3 = fixeddiv(roadGrip,totalAcc);
     iVar3 = iVar3 >> 8;
   }
   iVar1 = (wheel->velCap).z;

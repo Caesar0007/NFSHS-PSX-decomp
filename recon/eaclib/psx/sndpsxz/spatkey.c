@@ -82,35 +82,25 @@ no_key:
 /* iSNDcalcvol @0x800FF050 : compute a channel's effective 0..0x7F volume from its patch volume (+0x2C),
  *   note velocity (+0x1E), expression (+0x26) and the master volume, then apply the optional velocity
  *   (+0x50) and final (+0x44) volume curves.  Caches the result at +0x2D and returns it. */
-extern unsigned int iSNDcalcvol(int chan)
+extern void iSNDcalcvol(int chan)
 {
     int          v = sndgs[0x25] + chan * 100;
     int          n = (int)*(signed char *)(v + 0x2c) * (int)*(short *)(v + 0x1e) *
                      (int)*(short *)(v + 0x26) * (int)((signed char *)sndgs)[0x3d];
-    unsigned int vol = n >> 0x1f;
+    /* VOID (W31): oracle exits `jr ra; nop` with nothing computed into $v0 -- the cached byte at
+     * +0x2D is the only output and no caller consumes a result.  The old "v1-not-v0 coloring floor"
+     * was the reserved-return symptom (3.2): dropping the return frees $v0 and the whole velocity-
+     * curve block colors itself. */
     n = n / 0x1f417f;
     *(char *)(v + 0x2d) = (char)n;
     if (*(int *)(v + 0x50) != 0) {                  /* velocity curve */
-        vol = ((n * 0x1000000 >> 0x18) *
-               (int)*(signed char *)(*(int *)(v + 0x50) + (unsigned)*(unsigned char *)(v + 0x3a))) / 0x7f;
-        *(char *)(v + 0x2d) = (char)vol;
+        *(char *)(v + 0x2d) = (char)(((n * 0x1000000 >> 0x18) *
+               (int)*(signed char *)(*(int *)(v + 0x50) + (unsigned)*(unsigned char *)(v + 0x3a))) / 0x7f);
     }
     if (*(int *)(v + 0x44) != 0) {                  /* final volume curve */
-        unsigned char b = *(unsigned char *)(*(int *)(v + 0x44) + (int)*(signed char *)(v + 0x2d));
-        vol = (unsigned int)b;
-        *(unsigned char *)(v + 0x2d) = b;
-        /* near-miss floor (49 diffs, 61==60 insns +1): oracle's magic-const division for the velocity
-         * curve leaves the divided `n` in $v1 (not $v0) and hoists `lw a1,0x50(a0)` into the mult
-         * latency gap, then keeps that v0/v1/a1 coloring through the whole velocity-curve block;
-         * our gcc-2.8.0 picks the opposite v0/v1/a1 assignment (n stays in v0, +0x50 load stays late
-         * in a1). Tried: pre-loading `*(int*)(v+0x50)` as a named local before the division (no
-         * change), giving the divided value its own fresh local instead of reusing `n` (no change).
-         * Pure allocator/scheduler tie-break across the whole block, not source-reachable; permuter
-         * multi-basin candidate. (2 real signed-char bugs fixed separately: +0x2c patch-volume byte
-         * and the v+0x50 table lookup both need `signed char`, not the platform's unsigned `char` --
-         * landed 53->49 diffs.) */
+        *(unsigned char *)(v + 0x2d) =
+            *(unsigned char *)(*(int *)(v + 0x44) + (int)*(signed char *)(v + 0x2d));
     }
-    return vol;
 }
 
 /* iSNDpsxkeyon @0x800FF140 : strobe the SPU key-on register for `mask` (24 voices). */
@@ -178,8 +168,11 @@ extern int iSNDpsxeffectvol(int left, int right)
 
 /* iSNDsetvol @0x800FF238 : write a channel's SPU voice L/R volume from logical (left,right) levels,
  *   panning per the routing mode (mono spread vs hard L/R) and output mode (mono/stereo).
- *   Unified sndpd voice/SPU storage plus the true clamp assignments improve 112->42 diffs. */
-extern unsigned int iSNDsetvol(int chan, int left, int right)
+ *   VOID (W31): no caller consumes a result and the oracle's exit `$v0` holds the UNMASKED
+ *   `(sum*0x81)>>1` scratch on the mono paths (no C `return` could produce that) -- the declared
+ *   return value was the 4 extra insns (`addu v0,x,zero` funnels).  One `vol` + one reused `vreg`
+ *   carry the a0/a3 webs through the shared tail. */
+extern void iSNDsetvol(int chan, int left, int right)
 {
     int            vt = chan * 0x2c;
     volatile unsigned char *voiceBase = sndpd + 0xd8;
@@ -187,53 +180,45 @@ extern unsigned int iSNDsetvol(int chan, int left, int right)
     unsigned char  *pd = (unsigned char *)voiceBase - 0xd8;
     int            voiceRegs = *(int *)(pd + 0x510);
     unsigned short *vreg = (unsigned short *)(voiceRegs + chan * 0x10);
-    unsigned int   v;
+    int            vol;
 
     chan = slot[0x1f];
 
     if (chan == 1) {                                /* single channel */
+        int sum;
         if ((char)sndgs[4] == 2) {                  /* stereo output */
-            left = left * 0x81 & 0x7fff;
-            *(volatile unsigned short *)vreg = (unsigned short)left;
-            right = right * 0x81 & 0x7fff;
-            vreg[1] = (unsigned short)right;
-            return right;
+            *vreg   = left * 0x81 & 0x7fff;
+            vreg[1] = right * 0x81 & 0x7fff;
+            return;
         }
-        {
-            int sum = left + right;
-            if (*(unsigned char *)((unsigned char *)slot + 0x1e) == chan) { /* L/R-spread routing */
-                if (left < 0)  left = -left;
-                if (right < 0) right = -right;
-                if (0x7f < left)  left = 0x7f;
-                if (0x7f < right) right = 0x7f;
-                sum = left + right;
-            }
-            v = (sum * 0x81 >> 1) & 0x7fff;
+        sum = left + right;
+        if (*(unsigned char *)((unsigned char *)slot + 0x1e) == chan) { /* L/R-spread routing */
+            if (left < 0)  left = -left;
+            if (right < 0) right = -right;
+            if (0x7f < left)  left = 0x7f;
+            if (0x7f < right) right = 0x7f;
+            sum = left + right;
         }
+        vol = (sum * 0x81 >> 1) & 0x7fff;
     } else {                                        /* linked pair */
         if ((char)sndgs[4] == 2) {
-            unsigned short *vreg2;
-            *(volatile unsigned short *)vreg = (unsigned short)(left * 0x81 & 0x7fff);
-            *(volatile unsigned short *)(vreg + 1) = 0;
-            vreg2 = (unsigned short *)(*(int *)(pd + 0x510) +
+            *vreg   = left * 0x81 & 0x7fff;
+            vreg[1] = 0;
+            vreg = (unsigned short *)(*(int *)(pd + 0x510) +
                     ((int)((unsigned)slot[0x20] << 0x18) >> 0x14));
-            v = right * 0x81 & 0x7fff;
-            *vreg2 = 0;
-            vreg2[1] = (short)v;
-            return v;
+            *vreg   = 0;
+            vreg[1] = right * 0x81 & 0x7fff;
+            return;
         }
-        {
-            unsigned int leftvol = (left * 0x81 >> 1) & 0x7fff;
-            v = (right * 0x81 >> 1) & 0x7fff;
-            *vreg = (unsigned short)leftvol;
-            vreg[1] = (unsigned short)leftvol;
-        }
+        vol = (left * 0x81 >> 1) & 0x7fff;
+        *vreg   = vol;
+        vreg[1] = vol;
+        vol = (right * 0x81 >> 1) & 0x7fff;
         vreg = (unsigned short *)(*(int *)(pd + 0x510) +
                 ((int)((unsigned)slot[0x20] << 0x18) >> 0x14));
     }
-    *vreg = (unsigned short)v;
-    vreg[1] = (unsigned short)v;
-    return v;
+    *vreg   = vol;
+    vreg[1] = vol;
 }
 
 /* iSNDsetslot @0x800FF394 : program a channel's SPU voice ADSR + pitch slot (attack/decay rate, start

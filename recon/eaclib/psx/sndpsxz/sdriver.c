@@ -43,7 +43,7 @@ extern void         iSNDfreechan(int chan);                       /* salloc  */
 extern int          iSNDpsxkeyoff(int mask);                      /* spatkey */
 extern unsigned int iSNDpsxeffecton(int mask);                    /* spatkey */
 extern unsigned int iSNDpsxeffectoff(int mask);                   /* spatkey */
-extern unsigned int iSNDsetvol(int chan, int left, int right);    /* spatkey */
+extern void iSNDsetvol(int chan, int left, int right);    /* spatkey */
 extern void iSNDatolrv(unsigned int pan, int level, int *outL, int *outR);                 /* saetolrv */
 extern void iSNDatodlrv(unsigned int pan, int level, int *outL, int *outR, int pL, int pR);/* saetodv  */
 

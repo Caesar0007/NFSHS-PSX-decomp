@@ -267,12 +267,20 @@ extern int iSPCH_ChooseEvent(void)
         unsigned char *slot = (unsigned char *)gVoxEvents + slotIdx * 0x3c;
         if (*(unsigned short *)(slot + 8) != 0) {
             int            voxEvent   = *(int *)(slot + 0x10);
-            int            age        = L.now - *(int *)(slot + 0xc);
+            int            tick       = *(int *)(slot + 0xc);
+            int            age        = L.now - tick;
             int            expired    = 0;
             int            filtered   = 0;
             unsigned short maxAge     = *(unsigned short *)(voxEvent + 2);
-            if (maxAge != 0)
-                expired = ((unsigned int)maxAge < (unsigned int)age);
+            if (maxAge != 0) {
+                /* w31-a4 residual (46, 118/120): oracle has an extra `addu v0,v1,zero` copy of
+                 * maxAge feeding the sltu (named-int-temp shape; an `int m = maxAge` folds away
+                 * under CSE) and a slot/age s2<->s3 + reload-reg rotation downstream -- the
+                 * ours-2-shorter receiver-reuse class, permuter territory. Named `tick` temp
+                 * (load order 12(slot) before now-reload) was the real -12 lever. */
+                int m = maxAge;
+                expired = ((unsigned int)m < (unsigned int)age);
+            }
             if (gFilterSetting[0] == 1) {
                 if ((VoxEvent_GetFilterLengthFlag(voxEvent) & 0xff) != 0) {
                     unsigned short pri = *(unsigned short *)(voxEvent + 4);
@@ -293,8 +301,9 @@ extern int iSPCH_ChooseEvent(void)
                     bestAge = age;
                     L.bestPri = (int)(unsigned int)pri;
                 } else if ((int)(unsigned int)pri == L.bestPri) {
+                    unsigned short sub = *(unsigned short *)(slot + 0xa);
                     if ((unsigned int)age < (unsigned int)bestAge ||
-                        (age == bestAge && (int)(unsigned int)L.bestSub < (int)(unsigned int)*(unsigned short *)(slot + 0xa))) {
+                        (age == bestAge && (int)(unsigned int)L.bestSub < (int)(unsigned int)sub)) {
                         unsigned char *winSlot;
                         winner  = slotIdx;
                         bestAge = age;

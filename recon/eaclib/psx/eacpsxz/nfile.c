@@ -80,35 +80,32 @@ extern void freehandle(FileHandle *h)
  * asm: walks a pointer (not an indexed array) to find the slot but, after leaving the CS, RECOMPUTES
  * the found slot's address from the loop COUNTER alone (handlearray + i*0x4C) rather than carrying the
  * walking pointer out -- so the C tracks only the index `i`, never a separate result pointer.
- * 🔴 RESIDUAL FLOOR (32 diffs, investigated this wave): count matches (44=44). Oracle's scan loop
- * UPDATE: caching handlecount only for the scan (and deliberately re-reading it after leaving the
- * critical section) improves 32->29 diffs; instruction count is now 43/44.
- * The oracle's scan loop is UNROTATED (enters the body directly after the blez guard, tests h->inuse first, increments +
- * re-tests i<handlecount at the BOTTOM, no entry jump-to-condition); ours compiles the identical
- * for(;;){break;break;} shape ROTATED (an unconditional `j` to a mid-loop test before the first
- * real iteration, classic for-loop rotation). Tried an explicit `do{}while(1)` instead of `for(;;)`
- * -- byte-identical codegen (gcc treats them the same at this opt level; not an AST-level lever
- * here). Also a wide $a1/$a3/$v0/$v1 register-coloring divergence throughout, likely downstream of
- * the same rotation decision. reserveop (below) is the same shape/family, same floor. Not cracked
- * by source reshaping so far; permuter candidate (not run this wave). */
+ * w31-a5 (29->17 diffs, 43/44): the loop is a guarded do/while with a TWO-VARIABLE walk --
+ * `cur = next` at the top (oracle `addu v1,a1,zero` per iteration), advance `next = cur + 0x4C`
+ * in the back-edge delay slot -- and the scan bound is a BLOCK-LOCAL re-read of handlecount
+ * inside the guard (`if (gFileMgr.handlecount > 0) { int count = gFileMgr.handlecount; ... }`):
+ * cc1's CSE turns the re-read into the oracle's register COPY `addu a2,v1,zero` (lazy-copy
+ * family, catalog DrawW row).  This un-rotates the loop and recovers the bottom `i < count` test.
+ * RESIDUAL 17: one allocator web -- ours coalesces the cur/next pair into one walker reg (43 vs
+ * 44, the lone missing `addu v1,a1,zero`) and colors sr->a2/count->a1 where retail has sr->a3/
+ * count->a2 (mfc0 scratch tie).  Permuter territory. */
 extern FileHandle *reservehandle(void)
 {
-    int i, sr, count;
+    int i, sr;
     FILE_CS_ENTER(sr);
     i = 0;
-    count = gFileMgr.handlecount;
-    if (count > 0) {
-        FileHandle *h = gFileMgr.handlearray;
-        for (;;) {
-            if (h->inuse == 0) {      /* first empty slot */
-                h->inuse = 1;
+    if (gFileMgr.handlecount > 0) {
+        int count = gFileMgr.handlecount;  /* CSE turns this re-read into the oracle's reg COPY */
+        FileHandle *next = gFileMgr.handlearray;
+        do {
+            FileHandle *cur = next;        /* two-var walk: cur (v1) = next (a1) each iteration */
+            if (cur->inuse == 0) {         /* first empty slot */
+                next->inuse = 1;           /* == cur here; the oracle stores via the a1/next reg */
                 break;
             }
             i++;
-            if (i >= count)
-                break;
-            h = (FileHandle *)((char *)h + 0x4C);
-        }
+            next = (FileHandle *)((char *)cur + 0x4C);  /* back-edge delay slot */
+        } while (i < count);
     }
     FILE_CS_LEAVE(sr);
     if (i == gFileMgr.handlecount)
@@ -241,13 +238,23 @@ extern int FILE_init(int handlecount, int memsize, int opcount)
  * 2/9,3/7/10,4/5,6/8 order; the case labels below are ordered to match (verified: the two `lw
  * s0,24/28(...)` loads now land in the oracle's exact sequence). The volatile four-word pad
  * recovers the 40-byte frame and cuts the residual 39->27; the remaining mismatch is centered on
- * op-pointer/register coloring plus the oracle's extra tail instruction. */
+ * op-pointer/register coloring plus the oracle's extra tail instruction.
+ * w31-a5: the "extra tail instruction" solved -- the oracle's ENTRY has a DEAD first status load
+ * (`lw v0,8(a1)` immediately overwritten) = a volatile re-read pair of the IRQ-written status
+ * word; the dead `st` local reproduces it, making the stream COUNT-EXACT 47/47 (was 46/47).
+ * Residual 28 = ONE coloring web: ours srl's the id in place (a0) and colors op->a0 (saving the
+ * freeop arg copy), retail keeps id in a0, srl->v1, op->a1 + `addu a0,a1,zero` in the freeop
+ * delay slot -- the §3.12 "ours-shorter base-reuse" swap, now count-neutral; permuter territory
+ * (idx-split and param-liveness levers tested, no movement). */
 extern int FILE_completeop(unsigned int id)
 {
     volatile int frame[4];
     FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
+    int st = *(volatile int *)&op->status;      /* dead first read -- the oracle keeps BOTH
+                                                 * status loads (lw v0,8; lw v1,8): the status
+                                                 * word is IRQ-written, volatile semantics */
     int result = 0;
-    if (op->status == 1) {                  /* op finished */
+    if (*(volatile int *)&op->status == 1) {    /* op finished */
         int type = (op->id >> 0x14) & 0xF;  /* op type nibble */
         switch (type) {
             case 2: case 9:           result = op->result24; break;
@@ -890,6 +897,13 @@ extern void  freehandle(FileHandle *h);                     /* @0x800ED2F0 (abov
  *     cmd-field-before-manager-field load order;
  *   - complete each synchronous switch arm directly, allowing cc1's common-tail merge to put the
  *     result in $a0 at the shared callback label instead of keeping every result live in $s2.
+ * RESIDUAL 10 diffs @ 290/290 (w31-a5, FLOOR -- do not re-fight): ONE root cause -- at the second
+ * strchr(name+12,'|') call our cc1 COPY-PROPAGATES the 124 ('|') already sitting in $v0 from the
+ * preceding `name[0] != '|'` compare (`addu a1,v0,zero`), while retail cc1 REMATERIALIZES
+ * `li a1,124` in the jal delay slot; the other 8 lines are the la/scheduling shuffle downstream of
+ * that one choice.  This is the documented "old-gcc no-copy-prop" per-obj toolchain-identity class
+ * (methodology 3.25-3b tail: DrawOTag/_padSetActAlign/CdRead2 siblings) -- invariant across our
+ * cc1/cc1plus, not source-reachable.
  * Raw nfs4-f.exe DD398..DD81F SHA-256:
  * f005d1d202c25693bdaa4a6af71d553309201f7f8db575ef547012c92aaecb52. */
 extern int iFILE_ExecCommand(void *cmdp)

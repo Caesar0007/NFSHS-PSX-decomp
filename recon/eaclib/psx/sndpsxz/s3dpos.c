@@ -8,7 +8,7 @@ extern unsigned char sndpd[];
 extern unsigned char DAT_80147a08, DAT_80147a0c, DAT_80147a0e, DAT_80147a14, DAT_80147a15;
 extern void iSNDatolrv(unsigned int pan, int level, int *outL, int *outR);                 /* saetolrv */
 extern void iSNDatodlrv(unsigned int pan, int level, int *outL, int *outR, int pL, int pR);/* saetodv  */
-extern unsigned int iSNDsetvol(int chan, int left, int right);                             /* spatkey  */
+extern void iSNDsetvol(int chan, int left, int right);                             /* spatkey  */
 
 extern int iSNDplatform3dpos(int chan, int x);   /* @0x800FEE30 */
 

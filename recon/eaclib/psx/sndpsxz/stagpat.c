@@ -27,7 +27,7 @@ extern int  iSNDrandom(void);                                             /* sra
 extern int  iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigned int *out); /* salloc */
 extern void iSNDfreechan(int chan);                                       /* salloc   */
 extern int  iSNDcalcpitch(int note);                                      /* sclcptch */
-extern unsigned int iSNDcalcvol(int chan);                                /* spatkey  */
+extern void iSNDcalcvol(int chan);                                /* spatkey  */
 extern int  iSNDplatformrate[];                                           /* spktplay/data */
 extern int  iSNDplatformplay(int chan, int voice, int level, int pitch, int a5,
                              int fx, int volAngle, int pitchOffset);       /* sdplapat */

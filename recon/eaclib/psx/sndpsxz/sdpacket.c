@@ -237,7 +237,7 @@ extern void iSNDpacketgetirq(void)
     unsigned char *slot = base + sndpp[0] * 4;       /* runtime index first, fixed OFFSET as load displacement */
     int pp = *(int *)(slot + 0x4F8);                 /* DAT_80147e10[sndpp] */
     int note = (int)*(signed char *)(pp + 0x42);   /* plain char is UNSIGNED on this build -- lbu vs oracle lb */
-    int vt, link;
+    int vt;
     if (note < 0)
         return;
     vt = note * 0x2c;
@@ -267,20 +267,31 @@ extern void iSNDpacketgetirq(void)
                 /* DAT_80147a00 is the SAME 0x2c-stride struct's +0x10 field (0xE8-0xD8=0x10) -- index
                  * by vt/link*0x2c (BYTES), NOT *0xb (a stale int-array-index unit mismatch bug: 0xb*4==0x2c
                  * only if scaled by sizeof(int), but VI/raw-pointer here adds bytes directly). */
-                *(int *)(voice + 0x10) = *(volatile int *)(voice + 0xC);
-                /* FLOOR (confirmed): oracle re-reads the link byte (+0x20) a SECOND time after the
-                 * bltz test instead of reusing the tested value -- but marking EITHER occurrence
-                 * `volatile` defeats gcc's `sll 24;bltz` sign-test pattern match for the FIRST
-                 * (regresses to `srl 7;bnez`, a net loss); accept the single cached read here. */
-                if (-1 < (int)((unsigned)voice[0x20] << 0x18)) {                        /* DAT_80147a10[vt] */
-                    link = (signed char)voice[0x20];
-                    *(int *)(base + link * 0x2c + 0xE8) = *(int *)(voice + 0xC);
+                *(volatile int *)(voice + 0x10) = *(volatile int *)(voice + 0xC);   /* MATCH: volatile STORE too --
+                 * oracle refuses to fill the bltz delay slot with it (reorg won't slot volatile mems) */
+                /* MATCH (w31, cracked the 11-insn gap): the oracle re-reads the link byte (+0x20)
+                 * with a SECOND `lbu` after the bltz test (no intervening store -- the IRQ-vs-mixer
+                 * shared-state volatile tell; whole voice record is volatile shared state, stores
+                 * included). Three coupled levers, all required:
+                 *   1. TEST spelled `(signed char)*(volatile u_char*) >= 0` -- the volatile
+                 *      sign_extend path emits `lbu;sll 24;bltz` and BLOCKS combine's
+                 *      `srl 7;bnez` bit-test rewrite (which fires on the explicit `<<24 < 0`
+                 *      form and on any non-volatile-derived 8-bit value).
+                 *   2. VALUE re-read as a fresh volatile load, sign-extended (`sll 24;sra 24`).
+                 *   3. The value+offset chain must be ONE ANONYMOUS EXPRESSION (no named local):
+                 *      a named `link`/`lk` (fn- OR block-scope) gets a scope (use (reg/v)) marker
+                 *      that sched1 hoists ABOVE the def, bloating the live range into a hard-reg-2
+                 *      conflict -> forced v1 coloring (uniform v0/v1 swap, 24 diffs). The anonymous
+                 *      temps tie in local-alloc -> in-place `sra v0,v0` exactly like the oracle. */
+                if ((signed char)*(volatile unsigned char *)(voice + 0x20) >= 0) {  /* DAT_80147a10[vt] */
+                    *(volatile int *)(base + (signed char)*(volatile unsigned char *)(voice + 0x20) * 0x2c + 0xE8) =
+                        *(volatile int *)(voice + 0xC);
                 }
             } else {
-                *(int *)(voice + 0xC) = 0;
-                if (-1 < (int)((unsigned)voice[0x20] << 0x18)) {
-                    link = (signed char)voice[0x20];
-                    *(int *)(base + link * 0x2c + 0xE4) = 0;
+                *(volatile int *)(voice + 0xC) = 0;
+                if ((signed char)*(volatile unsigned char *)(voice + 0x20) >= 0) {
+                    /* MATCH: same fresh-volatile value re-read as the branch above. */
+                    *(volatile int *)(base + (signed char)*(volatile unsigned char *)(voice + 0x20) * 0x2c + 0xE4) = 0;
                 }
             }
         }
@@ -409,6 +420,16 @@ extern unsigned int iSNDpacketpurgeframes(int p, unsigned int byteoff, int count
     return wrapped;
 }
 
+/* RESIDUAL (w31, 74->43): remaining diff families, all allocation/schedule ties after the w31
+ * structural levers (ch+=4-before-i++ in all three call loops; flag default-0+conditional-overwrite;
+ * the 0x3c-before-0x32 source order for the middle store pair -- the scheduler emits pairs
+ * contrarian to source order there): (a) warm-up-loop tail, ours slots ch+=4 vs oracle slots the
+ * next-iter arg copy (eval-order<->delay-slot coupling, the certified W30 floor family); (b) the
+ * avail select colors a0/v0/v1 as a 3-cycle rotation of the oracle (allocno order; anon-expression
+ * form is codegen-neutral); (c) blockmove arg re-mask `andi 65535` from the u_short `take` (int
+ * take regresses 6 elsewhere); (d) the two flag loops keep bnez-back vs oracle beqz-exit+j (the
+ * documented in-source floor -- for(;;)break normalizes back, 0 net); (e) dmqueue-call arg
+ * schedule (lw 0(s2)/lhu 68 order). Permuter candidates from this basin. */
 /* iSNDfillspuwithpackets @0x80103B54 : the core DMA pump -- pull packet frames (iSNDpacketget), block-move
  *   their ADPCM into each channel's SPU buffer, set the ADPCM loop/end flags for `chunk` of the double
  *   buffer, and queue the SPU DMA (iSNDdmqueue).  (Ghidra __thiscall(this,p): this=player, p=chunk; the
@@ -562,12 +583,12 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
                                       (unsigned)*(unsigned short *)(pp + 0x30) * i),
                               (int *)(*(int *)(ch + 0x48) + (unsigned)*(unsigned short *)(pp + 0x3e)),
                               (unsigned)take);
-                    i++; ch += 4;
+                    ch += 4; i++;
                 } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
             }
             *(unsigned short *)(pp + 0x3e) = *(short *)(pp + 0x3e) + take;
-            *(unsigned short *)(pp + 0x32) = *(short *)(pp + 0x32) + take;
             *(unsigned short *)(pp + 0x3c) = *(short *)(pp + 0x3c) - take;
+            *(unsigned short *)(pp + 0x32) = *(short *)(pp + 0x32) + take;
             *(unsigned short *)(pp + 0x34) = *(short *)(pp + 0x34) - take;
         } while (*(volatile unsigned short *)(pp + 0x3c) != 0);
     }
@@ -614,7 +635,7 @@ queue_dma:
             do {
                 int e = (unsigned)*(unsigned short *)(pp + 0x44) + *(int *)(lch + 0x48);
                 *(unsigned char *)(e - 0xf) |= 1;
-                i++; lch += 4;
+                lch += 4; i++;
             } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
         }
     }
@@ -629,10 +650,15 @@ queue_dma:
             unsigned int src = (unsigned int)*(int *)(pp + 0x0) +
                                 (unsigned int)(chunk << *(unsigned char *)(pp + 0x43)) +
                                 (unsigned int)stride;
-            unsigned char flag = (chunk == 0 && i < 1) ? 1 : 0;
+            /* MATCH (w31): flag as default-0 + conditional OVERWRITE (int, no mask) -- the
+             * `&&`-ternary form computed the compare into a temp then copied it into the arg reg
+             * (`sltiu v0;addu a0,v0`), oracle overwrites a0 in place (`sltiu a0,s0,1`). */
+            int flag = 0;
+            if (chunk == 0)
+                flag = (i == 0);
             dma = iSNDdmqueue(*(int *)(ch + 0x48), src, *(unsigned short *)(pp + 0x44), 2, flag);
             *(int *)(pp + 0x20) = dma;
-            i++; ch += 4;
+            ch += 4; i++;
         } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
     }
 advance:

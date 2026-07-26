@@ -99,7 +99,7 @@ extern void          *snd_user_serve_hook;  /* @0x80148038              */
 /* dependencies */
 extern unsigned int iSNDpsxkeyon(int mask);                   /* spatkey */
 extern int          iSNDpsxkeyoff(int mask);                  /* spatkey */
-extern unsigned int iSNDsetvol(int chan, int left, int right);/* spatkey */
+extern void iSNDsetvol(int chan, int left, int right);/* spatkey */
 extern unsigned int iSNDstartvoice(unsigned int chan);       /* spatkey */
 extern void         iSNDfreechan(int chan);                  /* salloc  */
 extern unsigned int iSNDpsxfxinit(int mode);                 /* sdfx    */
@@ -448,11 +448,17 @@ extern void iSNDserve(void)
         kon = 0;
     }
 
-    chan = 0;
-    if (chan < (int)(unsigned int)SUB(0x11)) {
-        fpbase = base;
-        vt = chan;
-        do {
+    /* W31 (106 -> 101): `chan = kon` (== 0) -- the oracle's entry-guard is a real slt against the
+     * count with the zero in a REGISTER (retail cse substituted kon's reg for the literal 0); a
+     * plain `chan = 0` guard folds to beqz.  Natural while: closest measured layout.  RESIDUAL
+     * (101): ours lays the loop as j-to-bottom-test and hoists the `1 <<` constant into $fp
+     * (oracle: test duplicated top+bottom, li 1 rematerialized per use) plus the kon/chan/vt
+     * coloring web -- same allocno-ordering signature as the rest of this wave's monsters. */
+    chan = kon;
+    fpbase = base;
+    vt = chan;
+    while (chan < (int)(unsigned int)SUB(0x11)) {
+        {
             unsigned short *vreg0; /* split-temp: computed then copied into `vreg` -- a permuter basin find
                                * that shaved one more insn off the register-coloring residual */
             vp   = &DAT_801479f0 + vt;
@@ -525,7 +531,7 @@ extern void iSNDserve(void)
             }
             chan++;
             vt += 0x2c;
-        } while (chan < (int)(unsigned)SUB(0x11));
+        }
     }
     if (koff != 0)
         iSNDpsxkeyoff((int)koff);

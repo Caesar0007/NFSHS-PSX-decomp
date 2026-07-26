@@ -12,7 +12,7 @@ struct SNDMasterState {
     int play_records;
 };
 #define SNDMASTER_STATE (*(struct SNDMasterState *)sndgs)
-extern unsigned int iSNDcalcvol(int chan);    /* spatkey */
+extern void iSNDcalcvol(int chan);    /* spatkey */
 extern int  iSNDvol(int chan, int level);     /* sdriver */
 extern void iSNDenteraudio(void);             /* sserver */
 extern void iSNDleaveaudio(void);

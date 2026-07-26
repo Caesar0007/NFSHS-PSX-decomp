@@ -28,7 +28,8 @@ extern int            DAT_80148448[];      /* "one chosen" flag */
 
 extern int  gVoxBanks[];      /* spchbank (array decl -> separate-temp loads) */
 extern int  gDataRate[];      /* spchinit */
-extern int  gSampleRequest;   /* spchinit (callback) */
+typedef void (*SampleRequestFn)(int, int, int, int);
+extern SampleRequestFn gSampleRequest; /* spchinit (callback) */
 typedef void (*SentenceRuleSetFn)(int, int, int);
 extern SentenceRuleSetFn gSentenceRuleSet; /* spchinit (callback) */
 extern int  gVoxInGame[];     /* spchinit; [1] aliases gRepeatCount@+4 */
@@ -71,7 +72,7 @@ extern int  iSPCH_ChooseSamples(short *choice, int maxToPick, int phraseTemplate
 extern int  iSPCH_SampleLength(short *choice);                        /* @0x80100C5C */
 extern int  iSPCH_ConvertTime(int samples);                          /* @0x80100CC4 */
 extern int  iSPCH_SentenceLength(int sentence);                      /* @0x80100D20 */
-extern unsigned char *iSPCH_OrderSentences(int event, int outOrder); /* @0x80100D94 */
+extern void iSPCH_OrderSentences(int event, int outOrder); /* @0x80100D94 */
 extern unsigned int iSPCH_RepeatEvent(unsigned short *eventArgs);    /* @0x80100EE0 */
 extern int  iSPCH_ShortRuleStatus(int sentence, int mode);           /* @0x80100F24 */
 extern int  iSPCH_SentenceGetChoices(int sentence, int paramTable, unsigned int ruleByte1, unsigned int ruleByte2, int filterMode); /* @0x80100F8C */
@@ -114,6 +115,19 @@ extern void SPCH_SetPreLoadTicks(int ticks);                       /* @0x801018F
  * available (LICM of a true literal isn't source-defeatable without one). Accept as floor. */
 extern int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int paramTable)
 {
+    /* w31-a4 NOTE (kept at baseline per strict-drop seal law; findings for a future wave):
+     * a GOTO-loop body (label `loop:` + `if (i<count) goto loop;` instead of do-while) reaches
+     * EXACT insn parity 65/65 -- it stops gcc's loop pass from hoisting the shift constant `1`
+     * out of the loop (`li s6,1` + a 9th saved reg fp in the do-while form; the oracle
+     * rematerializes `li v1,1` per iteration) and lands sample->s6/template->s5/paramTable->s7
+     * exactly.  The residual is then a pure 5-local allocno rotation: ours
+     * {i:s0,result:s1,lowNib:s2,count:s3,bit:s4} vs oracle {lowNib:s0,i:s1,bit:s2,result:s3,
+     * count:s4}.  cc1 -dl data: i 7refs/27len(.52) > result 6/31(.39) > lowNib 3/8(.375) >
+     * count 4/32(.25) >= bit 3/12(.25) reproduces ours exactly (priority ~ floor_log2(refs)*
+     * refs/len); the oracle order needs lowNib ~4refs and bit len ~7 -- no faithful source
+     * shape found that moves those counts (bit two-stmt split self-shifts s0,s0 vs oracle's
+     * li v1,1;sllv s2,v1,a0 temp split; lowNib &=-split would self-andi s0,s0 vs oracle
+     * andi s0,v0).  Diff counts: goto form 42, baseline 28 (alignment luck) -> reverted. */
     int count = (int)*(signed char *)(phraseTemplate + 3);
     int result = 1;
     (void)bankIdx;
@@ -336,62 +350,67 @@ extern int iSPCH_SentenceLength(int sentence)
 }
 
 /* iSPCH_OrderSentences @0x80100D94 : produce a weighted-random play order of `event`'s phrases into outOrder. */
-extern unsigned char *iSPCH_OrderSentences(int event, int outOrder)
+extern void iSPCH_OrderSentences(int event, int outOrder)
 {
+    /* MATCH + CORRECTNESS (w31-a4): (1) VOID -- the oracle epilogue never sets $v0 and the sole
+     * caller (ChooseSentence) ignores it; the old `unsigned char *last` return chain was invented
+     * (+2 insns, phantom stores).  (2) REAL BUG FIXED: phase 3 (append zero-weight entries) must
+     * CONTINUE `i` -- the oracle keeps appending at outOrder+s1 after the weighted picks; the old
+     * recon reset i=0 and overwrote the ordered list.  (3) weights[j] accessed directly (oracle
+     * recomputes the weights+j address per use; no pointer temp).  (4) one function-scope j reused
+     * as the PHASE-1 counter, phase-2 scan index and phase-3 loop counter (oracle reuses s0 for
+     * all three; `i` is born at phase 2).  (5) phase-2 scan = while(j<n){...break;...} -- do-while
+     * and for(;;) shapes get header-peeled (+4).
+     * residual 12 (85/83): (a) phase-1 `p` coalesces with $v0 (oracle copies it to a0, addu
+     * a0,v0,zero, because its sb-address temp takes v0) -- ours-1-shorter receiver-reuse class;
+     * (b) the scan while-rotation guard slt/beqz survives (oracle enters the loop straight off
+     * the n!=0 test; unprovable j<n for signed compare, and unsigned-compare or do-while forms
+     * diverge more).  Permuter targets. */
     unsigned char  weights[104];
-    unsigned char *last = (unsigned char *)0;
     unsigned int   n = (unsigned int)*(unsigned char *)(event + 6);
     int            total = 0;
-    int            i = 0;
+    int            j = 0;
+    int            i;
     if (n != 0) {
         do {
             unsigned char *p;
-            p = (unsigned char *)iSPCH_GetOffset16(event, event + 0xc, i);
-            weights[i] = *p;
-            i = i + 1;
+            p = (unsigned char *)iSPCH_GetOffset16(event, event + 0xc, j);
+            weights[j] = *p;
+            j = j + 1;
             total = total + (int)(unsigned int)*p;
-        } while (i < (int)n);
+        } while (j < (int)n);
     }
     i = 0;
     if (0 < total) {
         do {
-            int            r = iSPCH_Rand(total);
-            int            j = 0;
+            int r = iSPCH_Rand(total);
+            j = 0;
             if (n != 0) {
-                for (;;) {
-                    unsigned char *p = weights + j;
-                    r = r - (int)(unsigned int)*p;
+                while (j < (int)n) {
+                    r = r - (int)(unsigned int)weights[j];
                     if (r < 0)
                         break;
                     j = j + 1;
-                    if ((int)n <= j)
-                        break;
                 }
             }
             *(char *)(outOrder + i) = (char)j;
-            last = weights + j;
             i = i + 1;
-            total = total - (int)(unsigned int)*last;
-            *last = 0;
+            total = total - (int)(unsigned int)weights[j];
+            weights[j] = 0;
         } while (0 < total);
     }
-    i = 0;
-    {
-        int k = 0;
-        if (n != 0) {
-            do {
-                char *p;
-                p = (char *)iSPCH_GetOffset16(event, event + 0xc, k);
-                if (*p == '\0') {
-                    *(char *)(outOrder + i) = (char)k;
-                    i = i + 1;
-                }
-                k = k + 1;
-                last = (unsigned char *)0;
-            } while (k < (int)n);
-        }
+    j = 0;
+    if (n != 0) {
+        do {
+            char *p;
+            p = (char *)iSPCH_GetOffset16(event, event + 0xc, j);
+            if (*p == '\0') {
+                *(char *)(outOrder + i) = (char)j;
+                i = i + 1;
+            }
+            j = j + 1;
+        } while (j < (int)n);
     }
-    return last;
 }
 
 /* iSPCH_RepeatEvent @0x80100EE0 : whether this in-game event may repeat (under its repeat limit). */
@@ -431,40 +450,58 @@ end:
 extern int iSPCH_SentenceGetChoices(int sentence, int paramTable, unsigned int ruleByte1,
                                         unsigned int ruleByte2, int filterMode)
 {
+    /* MATCH (w31-a4, 54->?): single result funnel (`fail:` block laid between the rule checks and
+     * the loop, exactly the oracle's .L80101008) instead of separate return 0/-1 statements; the
+     * -1 path stores THE RESULT VAR (`*outChoice = result`, oracle sh s4); outChoice recomputed
+     * from `table` per iteration (CHOICE(table)) so loop.c reduces every access onto ONE +0-based
+     * walker (pointer-walk form fabricated an &outChoice[2] anchor giv, +2 insns); result/picked
+     * initialized before the GetNumPhrases call. */
     int picked = 0;
-    int n = VoxSentence_GetNumPhrases(sentence);
     int result = 1;
+    int n = VoxSentence_GetNumPhrases(sentence);
     if (n < 0xd) {
-        if (iSPCH_ShortRuleStatus(sentence, filterMode) == 0) {
-            result = 0;
-        } else if (iSPCH_CheckSentenceRules((int)(ruleByte1 & 0xff), (int)(ruleByte2 & 0xff), sentence) == 0) {
-            result = 0;
-        } else {
-            int    table = 0;
-            short *outChoice = ispch_gChoice;
-            if (0 < n) {
-                do {
-                    int    r;
-                    short *phraseTemplate;
-                    outChoice[3] = (short)picked;
-                    phraseTemplate = (short *)iSPCH_GetOffset8(sentence, sentence + 4, table);
-                    if (iSPCH_GetPhraseBank(phraseTemplate, paramTable, outChoice) == 0) {
-                        if (*outChoice != -2)
-                            return 0;
-                        *outChoice = -1;
-                        return -1;
+        int table;
+        if (iSPCH_ShortRuleStatus(sentence, filterMode) == 0)
+            goto fail;
+        if (iSPCH_CheckSentenceRules((int)(ruleByte1 & 0xff), (int)(ruleByte2 & 0xff), sentence) != 0)
+            goto choose;
+fail:
+        result = 0;
+        goto out;
+choose:
+        table = 0;
+        if (0 < n) {
+            do {
+                short *outChoice = CHOICE(table);
+                int    r;
+                short *phraseTemplate;
+                outChoice[3] = (short)picked;
+                phraseTemplate = (short *)iSPCH_GetOffset8(sentence, sentence + 4, table);
+                if (iSPCH_GetPhraseBank(phraseTemplate, paramTable, outChoice) == 0) {
+                    /* residual 17 (83/80): loop.c hoists the fail-path li -2 into fp (savings-1
+                     * conditional-block constant STILL "desirable" to this cc1; oracle remats it
+                     * in-loop, li v0,-2 filling the lh delay) -> +li +fp save/restore and the
+                     * result-init li s4,1 scheduling knock-on.  Local-temp, Yoda, and compare
+                     * shapes all leave the motion; same move_movables identity family as the
+                     * MakeSampleRequests %hi hoist (documented there). */
+                    if (*outChoice != -2) {
+                        result = 0;
+                        goto out;
                     }
-                    r = iSPCH_ChooseSamples(outChoice, 100 - picked, (int)phraseTemplate, paramTable);
-                    picked = picked + r;
-                    if (r == 0)
-                        return 0;
-                    outChoice[2] = (short)r;
-                    table = table + 1;
-                    outChoice = outChoice + 6;
-                } while (table < n);
-            }
+                    result = -1;
+                    *outChoice = (short)result;
+                    goto out;
+                }
+                r = iSPCH_ChooseSamples(outChoice, 100 - picked, (int)phraseTemplate, paramTable);
+                picked = picked + r;
+                if (r == 0)
+                    goto fail;
+                outChoice[2] = (short)r;
+                table = table + 1;
+            } while (table < n);
         }
     }
+out:
     return result;
 }
 
@@ -498,33 +535,52 @@ extern void iSPCH_RandomizeSentencePicks(int sentence)
 }
 
 /* iSPCH_IterateChoice @0x801011AC : advance to the next combination of phrase picks (odometer over choices).
- * MATCH: `limit` = choice[3]+choice[2] of the CURRENT record (not a fixed DAT_ address -- earlier
- * recon mis-materialized this as a snapshot; the oracle reads it relative to the runtime `choice`
- * pointer both initially and after each odometer carry).  Returns 1 only when every phrase has been
- * exhausted (Ghidra void-bug -- real int return, read at the epilogue: $v0 = the "ran out" flag). */
+ * MATCH (w31-a4, 43->4 diffs, insn count EXACT 44/44):
+ *   (1) GOTO-LOOP, NOT do-while -- with do/while, gcc's loop pass (proven via cc1 -dL RTL dump)
+ *       verifies `choice` as a biv, ELIMINATES it and combines every in-loop address giv onto the
+ *       LAST giv in body order (anchor `addiu aN,v1,+4/+6` + all displacements rebased, +1 insn).
+ *       The retail oracle keeps the plain record pointer with bare +4/+6/+8 displacements and a
+ *       -12 decrement => the retail loop never went through loop.c strength-reduction, i.e. it was
+ *       written label+goto (no LOOP notes).  Reverse of the catalog's while-over-goto preference.
+ *   (2) limit built from NAMED temps `count = choice[2]; pbase = choice[3]; limit = pbase + count;`
+ *       (loads in decl order +4,+6; addu operands [3]+[2] with dst = count's reg -- a single
+ *       expression in either order gives the wrong load order or wrong addu operand order).
+ *   (3) `exhausted = loopDone;` (not = 1) reproduces `addu s0,a2,zero` reusing the li 1.
+ * RESIDUAL 4 diffs = position of the ispch_gChoice lui/addiu pair: retail materializes the base
+ *   BEFORE the n*6 sll/addu/sll chain, our cc1 expands sym+mult canonically mult-first (verified
+ *   invariant across ptr-arith / &arr[i] / 2D-row / int-cast / split-stmt forms and with
+ *   -fno-schedule-insns; split-stmt forms flip la first but then mis-coalesce the addu dst with
+ *   the base instead of the mult chain, 10-12 diffs).  Pure emission-order tie -- permuter target.
+ * Returns 1 only when every phrase has been exhausted (Ghidra void-bug -- real int return, read
+ * at the epilogue: $v0 = the "ran out" flag). */
 extern int iSPCH_IterateChoice(int sentence)
 {
     int exhausted = 0;
     int n = VoxSentence_GetNumPhrases(sentence) - 1;
-    short *choice = ispch_gChoice + n * 6;
-    int limit = (int)choice[2] + (int)choice[3];
-    int loopDone = exhausted;
-    do {
-        unsigned int cur = (unsigned int)(unsigned short)choice[4] + 1;
-        choice[4] = (short)cur;
-        if ((int)(short)cur < limit) {
-            loopDone = 1;
-        } else {
-            n = n - 1;
-            choice[4] = choice[3];
-            choice = choice - 6;
-            if (n < 0) {
-                loopDone  = 1;
-                exhausted = 1;
-            }
-            limit = (int)choice[2] + (int)choice[3];   /* choice[-3]/[-4] relative to old ptr */
+    int count, pbase, limit, loopDone, cur;
+    short *choice = ((short (*)[6])ispch_gChoice)[n];
+    count = choice[2];
+    pbase = choice[3];
+    limit = pbase + count;
+    loopDone = exhausted;
+top:
+    cur = (unsigned short)choice[4] + 1;
+    choice[4] = cur;
+    if ((short)cur < limit) {
+        loopDone = 1;
+    } else {
+        choice[4] = choice[3];
+        n = n - 1;
+        choice = choice - 6;
+        if (n < 0) {
+            loopDone  = 1;
+            exhausted = loopDone;
         }
-    } while (!loopDone);
+        count = choice[2];
+        pbase = choice[3];
+        limit = pbase + count;
+    }
+    if (!loopDone) goto top;
     return exhausted;
 }
 
@@ -648,8 +704,8 @@ extern int iSPCH_MakeSampleRequests(int sentence, int paramTable)
     int n = VoxSentence_GetNumPhrases(sentence);
     int i = 0;
     if (0 < n) {
-        short *choice = ispch_gChoice;
         do {
+            short        *choice = CHOICE(i);
             int           bank = *(int *)(*choice * 4 + gVoxBanks[0]);
             unsigned int  idx  = (unsigned int)PICK(choice[4]);
             int           tmp[4];
@@ -658,16 +714,24 @@ extern int iSPCH_MakeSampleRequests(int sentence, int paramTable)
             if ((*(unsigned char *)(bank + 2) & 0xf0) != 0 && gClearCycle != 0)
                 iSPCH_ClearCycleBit(bank, idx);
             if (iSPCH_UnPackSample(bank, idx, tmp) != 0) {
+                /* MATCH: stride computed UNCONDITIONALLY before the -1 test (oracle lhu+sll precede
+                 * the beq; the mult starts in the branch delay slot) and choice[1] read ONCE into a
+                 * named local -- the old double choice[1] read made loop.c fabricate a second
+                 * &choice[1] giv (addiu s3,s2,2 anchor, +2 insns). */
                 int spuAddr = tmp[1];
-                if (choice[1] != -1)
-                    spuAddr = tmp[1] + (int)choice[1] *
-                              ((int)(unsigned int)*(unsigned short *)(bank + 4) << 8);
+                int sub     = (int)choice[1];
+                int stride  = (int)(unsigned int)*(unsigned short *)(bank + 4) << 8;
+                if (sub != -1)
+                    spuAddr = spuAddr + sub * stride;
                 samples = samples + tmp[0];
-                ((void (*)(int, int, int, int))gSampleRequest)
-                    ((int)*choice, spuAddr, tmp[0], paramTable);
+                gSampleRequest((int)*choice, spuAddr, tmp[0], paramTable);
+                /* residual 23 (81/82): oracle additionally hoists lui %hi(gSampleRequest)
+                 * into s6 (freeing the load to lw v0,0(s6)) and parks paramTable in fp; this
+                 * cc1's move_movables rates a lone savings-1 lui "not desirable" (cc1 -dL) so
+                 * no source shape reaches that placement (typed-fnptr call, guard-read, cast
+                 * form all tested); suspected loop.c cost-model identity, not source. */
             }
             i = i + 1;
-            choice = choice + 6;
         } while (i < n);
     }
     return iSPCH_ConvertTime(samples);

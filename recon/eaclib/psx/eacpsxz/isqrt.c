@@ -5,7 +5,14 @@
  *   single table) scaled by the magnitude of `a`, then binary-searches to the exact floor-sqrt.
  *   Gate 2026-07-26: 76 -> 24 diffs (111/113). Reusing `hi` for the low-magnitude midpoint and
  *   folding the table-bound increment into each seed path makes the 47-insn high-magnitude half
- *   and three of four low-magnitude seed paths exact. Raw nfs4-f.exe E3ACC..E3C8F SHA-256:
+ *   and three of four low-magnitude seed paths exact.
+ *   w31-a5 RESIDUAL 24 (do not re-fight blindly): the 2 missing insns are RETAIL REGISTER COPIES
+ *   our cc1 refuses to emit -- (1) in the a&0xC000 seed path the oracle computes p once then
+ *   COPIES it (`addu v0,a0,zero`) and loads hi/lo through the two copies; (2) in the small-half
+ *   midpoint probe the oracle copies mid into $v0 ABOVE the compare and jumps to shared return
+ *   tails (ours inlines both returns, 2 insns tighter).  Tested: `isqrttbl[a>>8]` re-derivation
+ *   (CSE reuses the same reg, no copy) and a named `mid` local (re-colors the whole fn to 46) --
+ *   both failed; same no-copy-prop / lazy-copy identity family as iFILE_ExecCommand's floor. Raw nfs4-f.exe E3ACC..E3C8F SHA-256:
  *   7b06f575a01ba23f321d2e1bba53b3b6f3a9a40c57c100fb744f7bc59b0a9cab.
  */
 /* ONE u8[256] estimate ramp @0x8013BE10: isqrttbl[i] = round(16*sqrt(i+1)) (0x10..0xff, monotonic,

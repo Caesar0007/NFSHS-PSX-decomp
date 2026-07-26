@@ -10,8 +10,11 @@
 
 extern int           sndgs[];
 extern signed char    sndchanreserved[];       /* scratch list of chosen channel indices */
-extern int           DAT_80136dec;             /* rolling allocation id counter (+=0x20)  */
-int DAT_80136dec;                              /* def (owning TU; @0x80136dec image-verified zero) */
+extern int           DAT_80136dec;             /* rolling allocation id counter (+=0x20); OWNED by
+                                                  snddata.c (strong def there). MATCH: must stay a pure
+                                                  extern HERE -- a local tentative def would make it
+                                                  small-common/gp-rel, but the oracle reaches it ABSOLUTE
+                                                  (lui/lw; sec 3.12 #6 caveat: no %gp_rel oracles). */
 extern int  SNDstop(unsigned int tag);                          /* sstop  */
 extern int  SNDover(unsigned int tag);                          /* sover  */
 extern int  DAT_801478f4;                                      /* channel-pool pointer (sndgs + 0x94) */
@@ -65,7 +68,9 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
     /* pass 1: take idle channels (state 0), preferring the oldest (lowest +0x10) */
     {
             unsigned char *gs = (unsigned char *)sndgs;
-            for (i = 0; i < numChannels; i++) {
+            /* MATCH: pass 1 counts from `reserved` like pass 2 (oracle slt i,numChannels with the
+             * reserved copy in the delay slot -- an i=0 form const-folds the guard into blez). */
+            for (i = reserved; i < numChannels; i++) {
                 signed char *selected = sndchanreserved + reserved;
                 best = 0xffffffff;
                 c = 0;

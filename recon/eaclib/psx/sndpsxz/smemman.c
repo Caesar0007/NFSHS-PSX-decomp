@@ -18,6 +18,10 @@ typedef struct SNDMemState {
     unsigned short entries[256];        /* +0x0c {block,size}[128] */
 } SNDMemState;
 extern SNDMemState sndmm;
+
+/* {block,size} free-list entry -- 2-byte alignment is LOAD-BEARING (struct assignment on an
+ * align-2 4-byte struct = the oracle's lwl/lwr+swl/swr unaligned word copy). */
+typedef struct { unsigned short blk, sz; } SndMemEnt;
 #define DAT_80148784 (sndmm.count)
 #define DAT_80148786 (sndmm.poolWords)
 #define DAT_80148788 (sndmm.highWater)
@@ -72,105 +76,96 @@ extern unsigned int iSNDmemrestore(void)
  * This restores the oracle's saved-register family and direct lwl/lwr/swl/swr copy sequence. */
 extern int iSNDmalloc(int size)
 {
-    unsigned char *base = (unsigned char *)&sndmm;
-    unsigned char *mm;
-    unsigned int   count;
-    unsigned int   src;
-    int            index = 0;
-    int            block;
-    int            available;
+    /* MATCH (w31-a2, from the raw oracle -- same shape family as iSNDpsxmalloc but with THREE
+     * separate iSNDmemconstrain call sites (gcc merges none of them: the empty arm and the
+     * post-scan tail use OPPOSITE branch polarities), the {block,size} entry table at sndmm+0xC,
+     * the virtual entry[-1] overlapping the high-water word at sndmm+8, and a commit block that
+     * returns pool + block*4 and bumps the high-water mark. */
+    int             block;      /* sp+0x10 -- address taken */
+    int             available;  /* sp+0x14 -- address taken */
+    int             i, j;
+    unsigned short *entry;
+    unsigned short *prev;
+    unsigned short *pv;
+    unsigned char  *tab;
+    unsigned char  *mm;
+    unsigned char  *base = (unsigned char *)&sndmm;
+    unsigned short  count = *(unsigned short *)(base + 4);
 
-    count = *(unsigned short *)(base + 4);
+    i = 0;
     if (count >= 0x80)
-        goto fail;
+        return 0;
     size += 3;
     size >>= 2;
-    if (count != 0)
-        goto nonempty;
-    block = 0;
-    available = *(unsigned short *)(base + 6);
-constrain:
-    iSNDmemconstrain(&block, &available);
-    if (size <= available)
-        goto commit;
-fail:
-    return 0;
-
-nonempty:
-    {
-        unsigned char *entries;
-        unsigned char *previous;
+    if (count == 0) {
+        block = 0;
+        available = *(unsigned short *)(base + 6);
+        iSNDmemconstrain(&block, &available);
+        if (size <= available)
+            goto commit;
+        return 0;
+    }
+    if (i < (int)*(unsigned short *)(base + 4)) {
+        tab = base + 0xc;
+        prev = (unsigned short *)(base + 8);
         mm = base;
-        entries = mm + 0xc;
-        previous = mm + 8;
-        if (index >= (int)(unsigned int)*(unsigned short *)(mm + 4))
-            goto scan_done;
-scan:
-        {
-            unsigned char *entry =
-                (unsigned char *)((unsigned int)(index * 4) +
-                                  (unsigned int)entries);
-            if (index == 0) {
+        do {
+            /* the byte offset goes through the MULTIPLY-SET `j` so gcc loop.c never sees a giv
+             * (keeps the oracle's per-iteration sll+addu, no strength-reduced walking pointer);
+             * index term FIRST in the adds (commutative-order lever). */
+            j = i << 2;
+            entry = (unsigned short *)(j + (int)tab);
+            if (i == 0) {
                 block = 0;
-                available = *(unsigned short *)entry;
+                available = *entry;
             } else {
-                unsigned short *prev =
-                    (unsigned short *)(previous + index * 4);
-                block = (int)prev[0] + (int)prev[1];
-                available = *(unsigned short *)entry - block;
+                pv = (unsigned short *)(j + (int)prev);
+                block = (int)pv[0] + (int)pv[1];
+                available = *entry - block;
             }
             iSNDmemconstrain(&block, &available);
             if (size <= available) {
-                count = *(unsigned short *)(mm + 4);
-                if (index < (int)count) {
-                    do {
-                        struct PackedMemSlot {
-                            unsigned char pad[0xc];
-                            int word;
-                        } __attribute__((packed));
-                        volatile struct PackedMemSlot *dst =
-                            (struct PackedMemSlot *)
-                                ((unsigned int)(count * 4) + (unsigned int)mm);
-                        src = count - 1;
-                        __builtin_memcpy(
-                            (void *)&dst->word,
-                            (void *)&((struct PackedMemSlot *)
-                                          ((unsigned int)(src * 4) +
-                                           (unsigned int)mm))->word,
-                            4);
-                        count = src;
-                    } while (index < (int)src);
+                j = *(unsigned short *)(mm + 4);
+                while (i < j) {
+                    int n;
+                    /* struct assignment on the 2-aligned 4-byte entry = the oracle's unaligned
+                     * lwl/lwr + swl/swr word copy; `n` keeps the 0xC displacements un-folded. */
+                    ((SndMemEnt *)(mm + 0xc))[j] =
+                        ((SndMemEnt *)(mm + 0xc))[n = j - 1];
+                    j = n;
                 }
                 goto commit;
             }
-        }
-        index++;
-        if (index < (int)(unsigned int)*(unsigned short *)(mm + 4))
-            goto scan;
-scan_done:
-        {
-            unsigned short *prev =
-                (unsigned short *)(previous + index * 4);
-            block = (int)prev[0] + (int)prev[1];
-            available = *(unsigned short *)(mm + 6) - block;
-        }
+            i++;
+        } while (i < (int)*(unsigned short *)(mm + 4));
     }
-    goto constrain;
-
+    {
+        /* post-loop tail: fresh block-locals re-materialize the FUSED sndmm+8 symbol (oracle
+         * D_80148788); poolWords is read as pb[-1] (offset -2 off it). */
+        unsigned short *pb = (unsigned short *)((unsigned char *)&sndmm + 8);
+        unsigned short *p2 = (unsigned short *)((i << 2) + (int)pb);
+        block = (int)p2[0] + (int)p2[1];
+        available = (int)pb[-1] - block;
+    }
+    iSNDmemconstrain(&block, &available);
+    if (available < size)
+        return 0;
+    /* fall through into commit (oracle .L801063D4) */
 commit:
     {
-        unsigned char *entries = (unsigned char *)&sndmm + 0xc;
-        unsigned short *entry =
-            (unsigned short *)(entries + index * 4);
-        unsigned char *commitBase = entries - 0xc;
-        int result;
+        /* fused sndmm+0xC table symbol (oracle D_8014878C); the state base is recovered by
+         * subtracting 0xC from it, and the pool pointer is read at -0xC off the SAME symbol. */
+        unsigned char *tabsym = (unsigned char *)&sndmm + 0xc;
+        unsigned char *cb;
+        int addr;
+        entry = (unsigned short *)((i << 2) + (int)tabsym);
         entry[1] = (unsigned short)size;
         entry[0] = (unsigned short)block;
-        *(unsigned short *)(commitBase + 4) =
-            *(unsigned short *)(commitBase + 4) + 1;
-        result = *(int *)commitBase + block * 4;
-        if (*(int *)(commitBase + 8) < block + size)
-            *(int *)(commitBase + 8) = block + size;
-        return result;
+        cb = tabsym - 0xc;
+        *(unsigned short *)(cb + 4) += 1;
+        addr = *(int *)(tabsym - 0xc) + block * 4;
+        if (*(int *)(cb + 8) < block + size)
+            *(int *)(cb + 8) = block + size;
+        return addr;
     }
 }

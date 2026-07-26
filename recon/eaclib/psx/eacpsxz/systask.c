@@ -12,7 +12,7 @@ extern volatile int libticks; /* free-running tick counter -- volatile: IRQ-upda
                                * at each use inside systemtask() rather than caching one value */
 extern int gSysTaskCount;     /* live task count */
 extern int gSysTaskLastTick;  /* last tick the task list ran */
-extern int systemtasksubs;    /* int[16*4] : 16 slots of {fn, period, deadline, busy} */
+extern int systemtasksubs[];    /* int[16*4] : 16 slots of {fn, period, deadline, busy} */
 
 extern int          addsystemtask(int taskFn, int period, int delay);        /* @0x800E6AF4 */
 extern void         delsystemtask(int fn);                                   /* @0x800E6BA8 */
@@ -29,32 +29,37 @@ extern int addsystemtask(int taskFn, int period, int delay)
     int  count;
     int *slot;
 
-    fn = taskFn;                               /* MATCH: param saved then RECYCLED as the loop index below --
-                                                * the reassignment keeps the copy un-coalesced (`addu t1,a0,zero`)
-                                                * and the index inherits $a0 (the retail allocation) */
-    count = gSysTaskCount;                     /* MATCH: old value kept in a reg (a3) across the scan */
-    gSysTaskCount = count + 1;                 /* re-entrancy bracket: ++ at entry, -- at exit */
+    fn = taskFn;                               /* MATCH: param saved into fn (`addu t1,a0,zero`) -- the
+                                                * INDEX-FORM loop below is what keeps this copy alive
+                                                * (a pointer-walk loop lets fn stay in $a0, no copy) */
     found = -1;
-    slot  = &systemtasksubs;
-    for (taskFn = 0; taskFn < 0x10; taskFn++) {
-        if (*slot == fn) {
+    taskFn = 0;
+    count = gSysTaskCount;                     /* old value kept in a reg across the scan */
+    gSysTaskCount = count + 1;                 /* re-entrancy bracket: ++ at entry, -- at exit */
+    slot  = (int *)&systemtasksubs;
+    for (; taskFn < 0x10; taskFn++) {
+        if (slot[taskFn * 4] == fn) {          /* MATCH: index form (strength-reduces to the oracle's
+                                                * t0 walker) -- do NOT rewrite as *slot/slot+=4 */
             found = taskFn;                    /* exact match -> (re)use this slot */
-        } else if (*slot == 0 && found == -1) {
+        } else if (slot[taskFn * 4] == 0 && found == -1) {
             if (count != 0)                    /* MATCH: != polarity -> beqz to the shared found=i block */
                 count--;                       /* skip `count` free slots when re-entrant */
             else
                 found = taskFn;                /* first non-skipped free slot */
         }
-        slot += 4;
     }
     if (found != -1) {
-        /* MATCH (permuter find, 43->38 diffs + exact 45/45 count -- transcribed VERBATIM, both details
-         * are load-bearing pseudo/scheduling devices; every "clean" rewrite regresses to 48-50):
+        /* MATCH (w31-a5: 38->30 diffs, exact 45/45 count; RESIDUAL 30 = ONE uniform 3-register
+         * rotation {found,i,count}: ours (a3,v1,a0) vs retail (v1,a0,a3) -- greg-dump-verified as a
+         * global-alloc PRIORITY-ORDER tie (ours allocates i>count>found, retail needs found>i>count;
+         * count carries a spurious preference for $a0).  Emission/structure otherwise identical.
+         * Permuter territory -- no manual lever found (register kw, minusOne copy, deadline temp,
+         * struct-index, decl/statement orders all tested via -dg/-dl scratch harness).
          *   (1) `- (-(found * 4))` == `+ found * 4` (found is 0..15, no overflow) but the extra neg
-         *       RTL temp re-colors the head so the entry `addu t1,a0,zero` copy survives;
+         *       RTL temp keeps the tail's fresh base rematerialization;
          *   (2) the dead `count` is reused as the deadline temp (a NEW named temp would add a pseudo
          *       and re-color the head -- the catalog "any-new-pseudo-recolors-head" trap). */
-        slot = (&systemtasksubs) - (-(found * 4));
+        slot = (int *)&systemtasksubs - (-(found * 4));
         count = libticks + delay;              /* MATCH: libticks read AT its use inside the if */
         slot[0] = fn;
         slot[1] = period;
@@ -65,22 +70,29 @@ extern int addsystemtask(int taskFn, int period, int delay)
     return gSysTaskCount;
 }
 
-/* delsystemtask @0x800E6BA8 : remove the task whose fn matches.
+/* delsystemtask @0x800E6BA8 : remove the task whose fn matches.  PASS (w31-a5).
  * The apparent return value in decompiler output is incidental: every known caller discards it,
- * and the oracle has no return-value funnel.  Recovering the void signature removes the false
- * result construction and reduces the detailed residual from 30 to 15 diffs (28/23 instructions);
- * the remaining five-instruction excess is the compiler's peeled first loop iteration. */
+ * and the oracle has no return-value funnel (void signature).
+ * MATCH levers (both load-bearing):
+ *   (1) `for (; i < 0x10; i++)` with the break test in the body -- a do/while form makes gcc
+ *       PEEL the first `*slot == fn` check out of the loop and rotate the break test to the
+ *       back edge (+5 insns); the for-form (entry test provably true at i=0) compiles to the
+ *       oracle's straight do-while with the `i<16` back-edge and the break jumping to the
+ *       shared `slti` head.
+ *   (2) `extern int systemtasksubs[]` (unsized array, its TRUE shape) -- the scalar extern
+ *       self-temps the base la (`lui a2; addiu a2,a2`); the array decl gives the oracle's
+ *       separate-temp form (`lui v0; addiu a2,v0`).  Section 3.12 #5 extended to an ADDRESS
+ *       materialization. */
 extern void delsystemtask(int fn)
 {
     int  i    = 0;
-    int *base = &systemtasksubs;
+    int *base = systemtasksubs;
     int *slot = base;
-    do {
+    for (; i < 0x10; i++) {
         if (*slot == fn)
             break;
-        i = i + 1;
         slot = slot + 4;
-    } while (i < 0x10);
+    }
     if (i < 0x10) {
         if (base[i * 4] == fn)
             base[i * 4] = 0;
@@ -88,12 +100,14 @@ extern void delsystemtask(int fn)
 }
 
 /* systemtask @0x800E6C04 : once per tick, run every due task (fn(arg1, elapsed)) and re-arm it; OR of returns.
- * RESIDUAL (27 diffs, 62 vs 59 insns; was 77 diffs/68 insns): the NFS2 PC-beta
- * body confirms indexed `slots[i]` access, which avoids gcc's split induction variables.
- * Keeping the callback in a named local also preserves the oracle's callback register.
- * Remaining drift is chiefly gcc hoisting the constant 1 into a saved register, which
- * adds one save/restore pair and moves arg1 to another saved register.
- * Same class as the catalog's "GENUINE base-anchor FLOOR" (§E) -- accept. */
+ * RESIDUAL (19 diffs, 62 vs 59 insns; was 77/68, then 27 -- the w31-a5 unsized-array decl of
+ * systemtasksubs removed the base-la drift): the WHOLE remaining diff is our loop.c hoisting the
+ * invariant `li 1` (busy=1 store value) out of the loop into a callee-saved reg (li s3,1), which
+ * adds one save/restore pair and pushes arg1 to s4; the oracle rematerializes `li v0,1` at its use
+ * every iteration.  -fno-schedule-insns{,2} does NOT remove the hoist (tested in a -dg scratch
+ * harness), and no source shape reaches it -- this is the per-use-constant-remat signature of the
+ * catalog's per-obj OPTIMIZATION-FLAG identity class (methodology 3.25-3d, movfxya's `li 255`
+ * sibling).  Suspected per-obj flag identity -- do not contort the source; accept. */
 struct SysTaskSlot { int fn; int period; int deadline; int busy; };
 
 extern unsigned int systemtask(int arg1)
@@ -103,7 +117,7 @@ extern unsigned int systemtask(int arg1)
         int  i    = 0;
         /* MATCH: indexed struct access follows the PC-beta source shape and keeps all
          * four fields on one slot base in the PSX compiler's generated loop. */
-        struct SysTaskSlot *slots = (struct SysTaskSlot *)&systemtasksubs;
+        struct SysTaskSlot *slots = (struct SysTaskSlot *)systemtasksubs;
         gSysTaskLastTick = libticks;
         do {
             unsigned int (*fn)(int, int) =

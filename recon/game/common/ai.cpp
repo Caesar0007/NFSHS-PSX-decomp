@@ -1380,69 +1380,94 @@ int AI_TryToShareLanes(Car_tObj *carObj,Car_tObj *carInWay)
 /* ---- AI_CalculateDesiredLatPosition__FP8Car_tObj  [@0x8005a15c] ---- */
 void AI_CalculateDesiredLatPosition(Car_tObj *carObj)
 {
-  Car_tObj*carInWay;
+  Car_tObj *carObjLocal;
+  Car_tObj *carInWay;
   int slice;
   bool bVar1;
   int iVar2;
-  u_int uVar3;
+  u_int laneInfo;
+  int desiredLane;
   int iVar4;
+  int minLatPosition;
 
-  slice = (int)(carObj->N).simRoadInfo.slice;
+  carObjLocal = carObj;
+  slice = (int)(carObjLocal->N).simRoadInfo.slice;
   carInWay = AI_Info.blockingCars[AI_Info.desiredLaneSide];
-  if ((0 < carObj->preferredLateralPositionPower) &&
-     (iVar2 = AI_CheckPreferredLateralPosition(carObj), iVar2 == 1)) {
+  if ((0 < carObjLocal->preferredLateralPositionPower) &&
+      (AI_CheckPreferredLateralPosition(carObjLocal) == 1)) {
     return;
   }
   bVar1 = false;
   if (carInWay != (Car_tObj *)0x0) {
-    iVar2 = AIWorld_ApxSplineDistance(carInWay,carObj);
-    if (iVar2 < 1) {
-      iVar2 = AIWorld_ApxSplineDistance(carInWay,carObj);
-      iVar2 = -iVar2;
+    iVar2 = AIWorld_ApxSplineDistance(carInWay,carObjLocal);
+    if (0 < iVar2) {
+      iVar2 = AIWorld_ApxSplineDistance(carInWay,carObjLocal);
+      if (iVar2 <= 0x13ffff) {
+        goto blockingCar;
+      }
+      goto noBlockingCar;
     }
     else {
-      iVar2 = AIWorld_ApxSplineDistance(carInWay,carObj);
+      if (0x13ffff <
+          -AIWorld_ApxSplineDistance(carInWay,carObjLocal)) {
+        goto noBlockingCar;
+      }
     }
-    if ((iVar2 < 0x140000) && (iVar2 = AI_IsMellowZone(carObj,0x3e80000), iVar2 == 0))
-    {
+blockingCar:
+    if (AI_IsMellowZone(carObjLocal,0x3e80000) == 0) {
       bVar1 = true;
     }
   }
-  if ((bVar1) && (iVar2 = AI_TryToShareLanes(carObj,carInWay), iVar2 == 1)) {
+noBlockingCar:
+  if ((bVar1) && (AI_TryToShareLanes(carObjLocal,carInWay) == 1)) {
     return;
   }
   iVar2 = slice * 0x20 + (int)BWorldSm_slices;
-  if ((AI_Info.desiredLane == 6 - (u_int)(*(u_char *)(iVar2 + 0x1d) >> 4)) ||
-     (AI_Info.desiredLane == (*(u_char *)(iVar2 + 0x1d) & 0xf) + 7)) {
-    if (AI_Info.desiredLane < 7) {
-      iVar2 = (AI_Info.desiredLane + -6) * (u_int)*(u_char *)(iVar2 + 0x1e) * 0x8000 -
-              (carObj->N).dimension.x;
-      goto LAB_8005a30c;
+  laneInfo = *(u_char *)(iVar2 + 0x1d);
+  desiredLane = AI_Info.desiredLane;
+  if ((desiredLane == 6 - (laneInfo >> 4)) ||
+      (desiredLane == (laneInfo & 0xf) + 7)) {
+    if (desiredLane < 7) {
+      int laneWidth;
+
+      laneWidth = (u_int)*(u_char *)(iVar2 + 0x1e) * 0x8000;
+      carObjLocal->desiredLatPos =
+          (desiredLane + -6) * laneWidth - (carObjLocal->N).dimension.x;
     }
-    iVar2 = (AI_Info.desiredLane + -7) * (u_int)*(u_char *)(iVar2 + 0x1f) * 0x8000;
-    uVar3 = (carObj->N).dimension.x;
+    else {
+      int laneWidth;
+
+      laneWidth = (u_int)*(u_char *)(iVar2 + 0x1f) * 0x8000;
+      carObjLocal->desiredLatPos =
+          (desiredLane + -7) * laneWidth + (carObjLocal->N).dimension.x;
+    }
   }
   else {
-    if (AI_Info.desiredLane < 7) {
-      uVar3 = (u_int)*(u_char *)(iVar2 + 0x1e) * 0x8000;
-      iVar2 = (AI_Info.desiredLane + -6) * uVar3 - (uVar3 >> 1);
-      goto LAB_8005a30c;
+    if (desiredLane < 7) {
+      int laneWidth;
+
+      laneWidth = (u_int)*(u_char *)(iVar2 + 0x1e) * 0x8000;
+      carObjLocal->desiredLatPos =
+          (desiredLane + -6) * laneWidth - ((u_int)laneWidth >> 1);
     }
-    uVar3 = (u_int)*(u_char *)(iVar2 + 0x1f) * 0x8000;
-    iVar2 = (AI_Info.desiredLane + -7) * uVar3;
-    uVar3 = uVar3 >> 1;
+    else {
+      int laneWidth;
+
+      laneWidth = (u_int)*(u_char *)(iVar2 + 0x1f) * 0x8000;
+      carObjLocal->desiredLatPos =
+          (desiredLane + -7) * laneWidth + ((u_int)laneWidth >> 1);
+    }
   }
-  iVar2 = iVar2 + uVar3;
-LAB_8005a30c:
-  carObj->desiredLatPos = iVar2;
-  iVar4 = slice * 0x20;
-  iVar2 = *(short *)(iVar4 + BWorldSm_slices + 0x1a) * 0x100 - (carObj->N).dimension.x;
-  if (iVar2 < carObj->desiredLatPos) {
-    carObj->desiredLatPos = iVar2;
+  iVar2 = slice * 0x20;
+  iVar4 = *(short *)(iVar2 + (int)BWorldSm_slices + 0x1a) * 0x100 -
+          (carObjLocal->N).dimension.x;
+  if (iVar4 < carObjLocal->desiredLatPos) {
+    carObjLocal->desiredLatPos = iVar4;
   }
-  iVar4 = (carObj->N).dimension.x + *(short *)(iVar4 + BWorldSm_slices + 0x18) * -0x100;
-  if (carObj->desiredLatPos < iVar4) {
-    carObj->desiredLatPos = iVar4;
+  minLatPosition = (carObjLocal->N).dimension.x +
+                   *(short *)(iVar2 + (int)BWorldSm_slices + 0x18) * -0x100;
+  if (carObjLocal->desiredLatPos < minLatPosition) {
+    carObjLocal->desiredLatPos = minLatPosition;
   }
   return;
 }

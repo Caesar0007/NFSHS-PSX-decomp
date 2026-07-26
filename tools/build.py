@@ -433,6 +433,9 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
                        cwd=ROOT)
     if r.returncode or not obj.exists():
         sys.exit(f"[maspsx/as] {rel}\n{r.stdout}{r.stderr}")
+    # hand-asm blocks lack .size/.type => objdiff sees 0-length fns (0% on
+    # decomp.dev despite PASS). Symtab-metadata-only, code bytes untouched.
+    import fix_symsizes; fix_symsizes.fix(str(obj))
     return obj
 
 
@@ -477,6 +480,7 @@ def compile_cpp(src: Path) -> Path:
                        cwd=ROOT)
     if r.returncode or not obj.exists():
         sys.exit(f"[maspsx/as++] {rel}\n{r.stdout}{r.stderr}")
+    import fix_symsizes; fix_symsizes.fix(str(obj))  # see compile_c note
     return obj
 
 

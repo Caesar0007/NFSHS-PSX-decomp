@@ -42,6 +42,10 @@ __asm__(
 __asm__(
     "\t.globl rinverse\n"
     "rinverse = fixedinverse\n"
+    /* explicit ELF fn type+size: hand-asm labels carry none, and objdiff sizes
+       symbols from these (without them the unit reports 0% despite PASS). */
+    "\t.type fixedinverse,@function\n"
+    "\t.size fixedinverse,0x38\n"
 );
 #else
 extern unsigned fixedinverse(int x)   /* @0x800ED3EC : host fallback (rounded reciprocal) */

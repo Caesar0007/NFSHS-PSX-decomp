@@ -80,6 +80,10 @@ __asm__(
 __asm__(
     "\t.globl fixeddiv\n"
     "fixeddiv = rdiv\n"
+    /* explicit ELF fn type+size: hand-asm labels carry none, and objdiff sizes
+       symbols from these (without them the unit reports 0% despite PASS). */
+    "\t.type rdiv,@function\n"
+    "\t.size rdiv,0xa8\n"
 );
 #else
 extern int fixeddiv(int a, int b)   /* @0x800E4404 : host fallback (16.16 signed divide) */

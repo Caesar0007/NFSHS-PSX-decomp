@@ -66,6 +66,12 @@ __asm__(
     "fastintcos = intcos\n"
     "\t.globl fastintsin\n"
     "fastintsin = intsin\n"
+    /* explicit ELF fn type+size: hand-asm labels carry none, and objdiff sizes
+       symbols from these (without them the unit reports 0% despite PASS). */
+    "\t.type intcos,@function\n"
+    "\t.size intcos,4\n"
+    "\t.type intsin,@function\n"
+    "\t.size intsin,0x68\n"
 );
 #else  /* host build -- quadrant-folded quarter-sine lookup */
 extern int intsin(int a)   /* @0x800F18E8 */

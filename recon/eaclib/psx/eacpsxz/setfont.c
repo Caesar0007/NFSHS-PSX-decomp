@@ -51,6 +51,7 @@ extern void setfont(int fontId);   /* @0x800F2E94 */
 extern void setfont(int fontId)
 {
     unsigned char *cf;
+    unsigned char *cf2;
     unsigned char *shape;
     DecodeFn       decode;
     int            depth;
@@ -76,8 +77,40 @@ extern void setfont(int fontId)
     depth         = shapedepth(shape);
     CFI(cf, 0x78) = (int)((unsigned int)(*(short *)(shape + 4) * depth + 0x1f) & 0xffffffe0) >> 3;
 
-    /* RESIDUAL 84 diffs (w32-a5: 87 -> 84 after moving the 0xb4 store ahead of blockclear, above;
-     * ours 96 insns vs oracle 100).  The 4-instruction gap is ONE thing: retail emits THREE separate
+    /* ==== w33-a5 (2026-07-26): 84 -> 14 diffs.  THE s1<->s2 SWAP IS SOLVED. ====================
+     * The w32 note below concluded "only a ref-count or live-length change flips it" and stopped
+     * there.  A live-length change WAS available, and it is one statement.
+     *
+     * DIAGNOSIS (cc1 `-dl` local-alloc dump -- it prints the numbers directly, no guessing):
+     *     Register 80 used 17 times across 106 insns; crosses 2 calls;            <- fontId
+     *     Register 81 used 19 times across 144 insns; crosses 3 calls; pointer;   <- currentfont
+     * gcc-2.8 global.c orders allocnos by floor_log2(refs)*refs*size/live_length and hands out
+     * REG_ALLOC_ORDER (s0,s1,...) in that order, so the s-number IS the priority rank:
+     *     fontId      4*17/106 = 0.642   -> wins s1
+     *     currentfont 4*19/144 = 0.528   -> gets s2      (retail is the other way round)
+     * The reference counts are ALREADY retail's instruction-for-instruction, so refs cannot move;
+     * `-dg` confirms the sorted order "122 83 80 81".  currentfont needed live_length < 118.
+     *
+     * THE FIX: `cf` was live 38 insns longer than fontId for ONE reason -- it carried the trailing
+     * `currentfont[0xA0] = decode` store, which sits AFTER the whole decoder-selection tree, while
+     * fontId dies at the `geti(fontId+0x20,...)` call inside it.  The oracle materializes a SECOND
+     * &currentfont for the tail block anyway (`lui $s0,%hi(currentfont)` right after that store), so
+     * moving the 0xA0 store onto THAT pointer -- assigning `cf2 = currentfont;` at the `decoded:`
+     * join -- ends `cf`'s range at the 0x78 store, drops it under fontId's, and the whole function
+     * re-colors to retail's map (currentfont->$s1, fontId->$s2, shape->$s0) in one edit: 84 -> 14.
+     * Costs nothing: the same 3 instructions are emitted, only their ORDER inside the join block
+     * changes (ours materializes then stores; retail stores then materializes = 2 of the 14).
+     * REJECTED on the way (all diff-neutral at 84): 1/2/3 chained copies of `cf` (a global ADDRESS
+     * is CSE-propagated, so extra copies add no allocno refs -- unlike a PARAM copy, which does;
+     * cf. vramfxya.c same session), and a copy of `fontId` (17 -> 19 refs = 84 -> 94, wrong way).
+     * GENERAL RULE worth keeping: to lose a priority compare, move the loser's LAST USE onto another
+     * pointer that the oracle already materializes; to win one, add a copy of a PARAMETER.
+     *
+     * RESIDUAL 14 = the decoder-selection tree only, and it is the unchanged w32 verdict below:
+     * (a) 2-vs-3 `lui/addiu(decodeshiftjis)` materializations (retail never merges identical tails)
+     * (b) the branch polarities that fall out of that merge, (c) `lhu` vs `lh` at fontId+0xE.
+     * ---- w32 note (still accurate for the residual) -------------------------------------------
+     * The 4-instruction gap is ONE thing: retail emits THREE separate
      * `lui/addiu %hi/%lo(decodeshiftjis)` materializations (one per arm, each `lui` in its branch's
      * delay slot + `j`/`addiu` pair), while our cc1 TAIL-MERGES arms 2+3 into one block and shares the
      * `addiu` with arm 1.  Falsified this session: -fno-thread-jumps, -fno-cse-follow-jumps,
@@ -88,10 +121,8 @@ extern void setfont(int fontId)
      * matter; `int flags`, a direct expression, and a masked temp all still give `lhu`).  Both are
      * the documented per-obj OLD-GCC identity class (catalog section G: retail never merges identical
      * tails / weaker combine), NOT a source problem -- do not re-fight without a toolchain change.
-     * The remaining ~40 diff lines are the s1<->s2 swap this forces: retail colors currentfont ->
-     * $s1 and fontId -> $s2, ours the reverse; the cc1 -dl allocno table shows fontId at 17 refs /
-     * 106 insns vs currentfont at 19 / 144, i.e. fontId legitimately wins the priority compare here
-     * and only a ref-count or live-length change flips it. */
+     * (The w32 claim that the s1<->s2 swap was forced by this is WRONG -- see the w33 note above;
+     * the swap was an independent live-range effect and is now fixed.) */
     {
         short flags = *(short *)(fontId + 0xe);
         if ((flags & 3) != 2)
@@ -112,12 +143,15 @@ extern void setfont(int fontId)
         decode = decodeansi;
     }
 decoded:
-    CFFN(cf, 0xa0) = decode;
+    cf2 = currentfont;
+    CFFN(cf2, 0xa0) = decode;
 
     /* MATCH: the oracle RE-MATERIALIZES `&currentfont` into a fresh reg here instead of reusing
-     * the still-live `cf` -- a 2nd local pointer reproduces that separate lui/addiu. */
+     * the still-live `cf` -- a 2nd local pointer reproduces that separate lui/addiu.
+     * w33-a5: that SAME second pointer now also carries the 0xA0 decoder store (assigned at the
+     * `decoded:` join above).  See the header note: it is what ENDS `cf`'s live range early enough
+     * for currentfont to outrank fontId in the allocno priority compare -- 84 -> 14 diffs. */
     {
-        unsigned char *cf2 = currentfont;
         CFI(cf2, 0x2c) = 0;
         CFI(cf2, 0x30) = 0;
         CFI(cf2, 0xb4) = 0;   /* oracle: this store sits in blockclear's DELAY slot => it precedes

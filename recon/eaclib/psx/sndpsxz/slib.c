@@ -453,7 +453,35 @@ extern void iSNDserve(void)
      * plain `chan = 0` guard folds to beqz.  Natural while: closest measured layout.  RESIDUAL
      * (101): ours lays the loop as j-to-bottom-test and hoists the `1 <<` constant into $fp
      * (oracle: test duplicated top+bottom, li 1 rematerialized per use) plus the kon/chan/vt
-     * coloring web -- same allocno-ordering signature as the rest of this wave's monsters. */
+     * coloring web -- same allocno-ordering signature as the rest of this wave's monsters.
+     *
+     * W32-a8 -- TWO STRUCTURAL FACTS CONFIRMED AGAINST THE ORACLE, both TESTED AND REVERTED
+     * because the diff count rises even though the shape gets closer.  Record them so the next
+     * pass does not re-derive them, and so they can be re-applied the moment the `li fp,1`
+     * blocker below falls:
+     *   (i)  the serve-hook guard is a PLAIN `kon = 0; if (hook) hook();` -- NOT the `kon = 0`
+     *        duplicated into both arms of an if/else.  The oracle materializes the zero ONCE, in
+     *        the `beqz` delay slot shared by both paths (`beqz v0,T / addu s3,zero,zero / jalr v0
+     *        / nop`), and has no `j` around an else arm.  With this the whole prologue + hook
+     *        block becomes byte-exact (measured), but the diff count goes 101 -> 121 because kon
+     *        slides s3 -> s5 and drags the rest of the web with it.
+     *   (ii) the voice loop is ROTATED with an ENTRY GUARD, and -- exactly as in sserver.c's
+     *        iSNDserver -- the guard and the back-edge test are on DIFFERENT variables: the guard
+     *        compares `kon` (still 0 there; retail's cse substituted kon's register for the
+     *        literal) while the body's counter `chan` is zeroed in the guard's delay slot:
+     *          if ((int)kon < (int)(unsigned)SUB(0x11)) { chan = 0; fpbase = base; vt = chan;
+     *              do { ...body... } while (chan < (int)(unsigned)SUB(0x11)); }
+     *        Applied together with (i) this reaches EXACT insn parity 231/231 in one variant and
+     *        an oracle-exact loop-entry block, but 120 diffs.
+     *   BLOCKER (why neither is kept): gcc's loop.c hoists the `1` of `1 << chan` / `1 << c` out
+     *   of the voice loop into a register (`li fp,1`), stealing $fp from `fpbase` and rotating the
+     *   whole callee-saved web; the oracle REMATERIALIZES `addiu v0,zero,1` at each site -- and at
+     *   0x800FFD74 it even parks that remat in the `bnez` delay slot so BOTH arms of the
+     *   kon/koff if/else share it.  This is the catalog's "-dL move-insn savings cost-model"
+     *   negative (§F).  A full goto-loop (the documented LICM killer) DOES remove the hoist but
+     *   also kills the `vt`/`vp` induction handling: 161 diffs / 226 insns, far worse.  Until the
+     *   hoist can be suppressed without losing strength reduction, the natural-while form below
+     *   scores best; do not "fix" the if/else or the loop shape in isolation. */
     chan = kon;
     fpbase = base;
     vt = chan;

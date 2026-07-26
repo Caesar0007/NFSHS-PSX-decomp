@@ -4,7 +4,7 @@
  *   dialect fixer did not converge on this TU). Pre-migration (.cpp/cc1plus) vs post-migration
  *   (.c/cc1) per-fn diff counts, verify_asm.py authoritative -- IDENTICAL, zero regressions:
  *     iSNDpacketplayoverhead=PASS(0)  SNDPKTPLAY_overhead=PASS(0)   SNDPKTPLAY_create=PASS(0)
- *     SNDPKTPLAY_start=FAIL(179)      SNDPKTPLAY_submit=FAIL(2)     SNDPKTPLAY_submitspace=PASS(0)
+ *     SNDPKTPLAY_start=FAIL(132 W31, 185/187)  SNDPKTPLAY_submit=FAIL(2)  SNDPKTPLAY_submitspace=PASS(0)
  *     SNDPKTPLAY_unsafeframesoutstanding=PASS(0)  SNDPKTPLAY_framesoutstanding=PASS(0)
  *     SNDPKTPLAY_purge=FAIL(53, W31)                                SNDPKTPLAY_stop=PASS(0)
  *     SNDPKTPLAY_destroy=PASS(0)      iSNDpacketget=PASS(0)         iSNDpacketfreeframes=PASS(0)
@@ -37,7 +37,7 @@ extern int  sndgs[];                  /* (signed char)sndgs[0xf]=init, sndgs[0x2
  * idiom both places), NOT 0x80147840 as this decl previously claimed. Doesn't affect verify_asm
  * (relocations are name/addend-erased) but the address comment was wrong; not chased further this
  * pass -- flag for whoever materializes/cross-checks sndpsxz globals next. */
-extern int  iSNDplatformrate[1];      /* @0x80147900 -- platform sample rate (pitch calc) */
+extern int  iSNDplatformrate[];       /* @0x80147900 -- platform sample rate (pitch calc); UNSIZED: oracle loads it absolute (lui+lw), a sized [1] goes gp-rel */
 
 /* ---- backends ---- */
 extern int  iSNDplatformpacketoverhead(void);                           /* sdpacket */
@@ -83,6 +83,7 @@ extern int SNDPKTPLAY_submitspace(int p);                /* @0x80102E70 */
 extern int SNDPKTPLAY_unsafeframesoutstanding(int p);    /* @0x80102EC4 */
 extern int SNDPKTPLAY_framesoutstanding(int p);          /* @0x80102EEC */
 typedef struct { int w[6]; } PktCopy6;   /* 0x18-byte ring frame, block-copied in purge */
+typedef struct { char b[4]; } Unal4;     /* alignment-1 word: movstrsi emits the lwl/lwr+swl/swr pair */
 extern int SNDPKTPLAY_purge(int p, int lo, int hi);      /* @0x80102F3C */
 extern int SNDPKTPLAY_stop(int p);                       /* @0x80103118 */
 extern int SNDPKTPLAY_destroy(int p);                    /* @0x801031F4 */
@@ -166,13 +167,21 @@ found:
  *   Args (per the caller, sst): rate = locked rate word, hdr = 0x14-byte header, params = 5-word params. */
 extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
 {
-    int ppp, note, allocOut, ch, s3len, t4, v1, dur, r;
+    int ppp, note, allocOut, ch, s3len, dur, r;
     int rateb2;
     char *gp = (char *)sndgs;                     /* MATCH: hoist &sndgs ONCE into a var that
                                                     * survives across enteraudio/allocchan -- the
                                                     * guard and the 0x25 pool-base lookup share the
                                                     * SAME materialized base in the oracle ($s3),
-                                                    * held in a callee-saved reg across both calls. */
+                                                    * held in a callee-saved reg across both calls.
+                                                    * W31 RESIDUAL: retail allocates gp->s3 BEFORE the
+                                                    * params/hdr copies (s4/s5); ours orders params,
+                                                    * hdr, gp (s3,s4,s5) -- the same constant-init-
+                                                    * promoted allocno ordering seen in sbdload/purge
+                                                    * this wave; decl order, direct-sndgs (140, rev.),
+                                                    * and psq45 cc1 (same as ours) all fail to move it.
+                                                    * ~100 of the 132 diffs are this one rotation
+                                                    * cascading through the field stores. */
     if (*(signed char *)(gp + 0x3c) == 0)
         return -10;
     rateb2 = MB(rate, 2);                         /* MATCH: evaluated before the ppp lookup/
@@ -196,14 +205,14 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
                                                     * marker store, before the unaligned copy;
                                                     * the pool-base add is a branch delay-slot
                                                     * filler for the s3len test below either way */
-    *(int *)(ppp + 0x24) = *(int *)rate;          /* unaligned rate-word copy (asm: lwl/lwr) */
+    *(Unal4 *)(ppp + 0x24) = *(Unal4 *)rate;      /* unaligned rate-word copy: lwl/lwr + swl/swr */
 
     if (MSB(params, 0xb) != 0)
         s3len = MUH(params, 0x10);
     else
         s3len = ((MSB(params, 7) - 0x40) << 8) & 0xffff;
 
-    MB(ch, 0xa)   = 0xff;
+    MSB(ch, 0xa)  = -1;              /* li -1 (signed char), not li 255 */
     MUH(ch, 0x5c) = MUH(hdr, 4);
     MI(ch, 0x14)  = 0;
     MUH(ch, 0x60) = MUH(params, 0xc);
@@ -238,10 +247,10 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
                                        * calcpitch jal's delay slot */
     iSNDcalcvol(note);
 
-    /* pitch -> playback duration: rate * ch[0x34] * ch[0x35], divided by a fixed constant */
-    t4 = iSNDplatformrate[0] * MSB(ch, 0x34);
-    v1 = t4 * MSB(ch, 0x35);
-    dur = v1 / 0x3f01;
+    /* pitch -> playback duration: rate * ch[0x34] * ch[0x35], divided by a fixed constant.
+     * PC twin (nfs4-sound SNDPKTPLAY_start): ONE accumulator reassigned across two statements. */
+    dur = iSNDplatformrate[0] * MSB(ch, 0x34);
+    dur = dur * MSB(ch, 0x35) / 0x3f01;
     /* H10: oracle (0x80102C94) passes 9 args; was 6 with dur/rate/hdr+0xc in the wrong slots and
        ch[0x2d]/ch[0x62]/params[0xe] missing.  a0..a3 + sp+16/20/24/28/32. */
     r = iSNDplatformpacketplay(p, note, s3len, MSB(ch, 0x2d), MUH(ch, 0x62),

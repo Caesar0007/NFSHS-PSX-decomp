@@ -669,72 +669,79 @@ int AISpeeds_GetGlueFactor(Car_tObj *carObj)
   int glue;
   int leadSpeed;
   int packPositionGlueModifier;
-  int distance;
-  int glueIndex;
 
   packPositionGlueModifier = 0x10000;
   leadHumanRacerOdometer = AIWorld_GameOdometer(leaderBoard.leadHumanRacer);
   leadAIRacerOdometer = AIWorld_GameOdometer(leaderBoard.leadAIRacer);
   lastAIRacerOdometer = AIWorld_GameOdometer(leaderBoard.lastAIRacer);
-  leadSpeed = (leaderBoard.leadHumanRacer)->currentSpeed;
-  if (leadSpeed < 0) {
-    leadSpeed = -leadSpeed;
-  }
+  leadSpeed = __builtin_abs((leaderBoard.leadHumanRacer)->currentSpeed);
   if (leadSpeed < 0xa0000) {
     glue = 0x10000;
-    goto LAB_8006e818;
   }
-  if (leadHumanRacerOdometer < lastAIRacerOdometer) {
+  else if (leadHumanRacerOdometer < lastAIRacerOdometer) {
+    int distance;
+    int glueIndex;
+
     distance = (leadAIRacerOdometer - leadHumanRacerOdometer) / 0x3c0000 + 10;
-    if (distance < 0) {
-      glueIndex = 0;
-    }
-    else {
-LAB_8006e77c:
+    if (0 <= distance) {
       glueIndex = 0x14;
       if (distance < 0x15) {
         glueIndex = distance;
       }
     }
+    else {
+      glueIndex = 0;
+    }
+    glue = AIPerson_glueTable[glueIndex];
+    packPositionGlueModifier = 0x10000;
+  }
+  else if (leadAIRacerOdometer < leadHumanRacerOdometer) {
+    int distance;
+    int glueIndex;
+
+    distance = (leadAIRacerOdometer - leadHumanRacerOdometer) / 0x3c0000 + 10;
+    if (distance < 0) {
+      glueIndex = 0;
+    }
+    else {
+      glueIndex = 0x14;
+      if (distance < 0x15) {
+        glueIndex = distance;
+      }
+    }
+    glue = AIPerson_glueTable[glueIndex];
+    packPositionGlueModifier = 0x10000;
   }
   else {
-    if (leadHumanRacerOdometer <= leadAIRacerOdometer) {
-      distance = (leadAIRacerOdometer - leadHumanRacerOdometer) / 0x3c0000 + 10;
-      if (distance < 0) {
-        glueIndex = 0;
-      }
-      else {
-        glueIndex = 0x14;
-        if (distance < 0x15) {
-          glueIndex = distance;
-        }
-      }
-      glue = AIPerson_glueTable[glueIndex];
-      packPositionGlueModifier = 0x8000;
-      if (GameSetup_gData.raceType != 3) {
-        packPositionGlueModifier = 0xe666;
-      }
-      goto LAB_8006e818;
-    }
+    int distance;
+    int glueIndex;
+
     distance = (leadAIRacerOdometer - leadHumanRacerOdometer) / 0x3c0000 + 10;
-    if (-1 < distance) goto LAB_8006e77c;
-    glueIndex = 0;
+    if (distance < 0) {
+      glueIndex = 0;
+    }
+    else {
+      glueIndex = 0x14;
+      if (distance < 0x15) {
+        glueIndex = distance;
+      }
+    }
+    glue = AIPerson_glueTable[glueIndex];
+    packPositionGlueModifier = 0x8000;
+    if (GameSetup_gData.raceType != 3) {
+      packPositionGlueModifier = 0xe666;
+    }
   }
-  glue = AIPerson_glueTable[glueIndex];
-  packPositionGlueModifier = 0x10000;
-LAB_8006e818:
+
   leadAIRacerOdometer = AIWorld_GameOdometer(carObj);
   if ((leadAIRacerOdometer < leadHumanRacerOdometer + 0x3c0000) && (glue < 0x10000)) {
     glue = 0x10000;
   }
-  if (glue < 0x10001) {
-    glue = fixedmult(0x10000 - glue,packPositionGlueModifier);
-    glue = -glue;
+  if (glue <= 0x10000) {
+    return 0x10000 -
+           fixedmult(0x10000 - glue,packPositionGlueModifier);
   }
-  else {
-    glue = fixedmult(glue + -0x10000,packPositionGlueModifier);
-  }
-  return glue + 0x10000;
+  return fixedmult(glue - 0x10000,packPositionGlueModifier) + 0x10000;
 }
 
 /* ---- AISpeeds_GetDamageFactor__FP8Car_tObj  [@0x8006e898] ---- */

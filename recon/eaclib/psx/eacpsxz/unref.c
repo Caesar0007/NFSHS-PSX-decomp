@@ -47,6 +47,18 @@ extern void chase(unsigned int code);                                           
  *      register assignment -- tried 3 declaration permutations, none better (2 regressed to 21).
  * (a)+(b) are exactly the 5-instruction gap and are the catalog SS-G "per-obj old-gcc identity"
  * signature (retail keeps redundant copies / weaker combine); recorded, not contorted.
+ * w33-a4 RE-VERDICT (both CONFIRMED, mechanisms named):
+ *  (a) is combine folding i2=`(set out (plus out s0))` into i3=`(set a0 out)`.  It is legal only
+ *      because `out` DIES at i3 -- the shared refcpy tail redefines it (`addu s3,v0,zero`).  There
+ *      is no source form that keeps `out` live there without also moving the a0 setup out of the
+ *      arm (the w32 goto-shared-block experiment, 60 diffs): retail's arms have THREE `addu
+ *      a0,s3,zero`, so the arg setup must stay per-arm, and then combine always has its LOG_LINK.
+ *  (b) is combine merging the 3-insn srl/sll/andi chain into one `andi 0x3f00` (a legal 3->1).
+ *      Every spelling tested this wave still folds: `(op>>8)<<8 & 0x3f00`, `hi=(op>>8)<<8; hi&=`,
+ *      `hi=op>>8; hi=(hi<<8)&`, `hi=op>>8; hi<<=8; hi&=` -- all 17/153.  Blocking it needs a
+ *      SECOND use of the `op>>8` intermediate, which retail does not have (its 2-byte arm emits
+ *      its own `srl v0,s1,8`, so the shift is duplicated, not shared).
+ * SLD is unavailable here (eaclib .lib C members are debug-stripped: 0 records above 0x800E0000).
  * Raw nfs4-f.exe E5AB8..E5D2F SHA-256:
  * eae786e8d18c199bea647b339f069508f7294319d4855358b59db0bf234b749b. */
 extern int unrefpack(unsigned char *comp, unsigned char *out, int reverse)

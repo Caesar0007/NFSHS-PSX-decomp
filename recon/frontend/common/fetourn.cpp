@@ -825,13 +825,13 @@ long tTournamentManager::GetTrackFinishPrize(short position)
 /* ---- tTournamentManager::GetTournamentFinishPrize  [FETOURN.CPP:897-905] ---- */
 long tTournamentManager::GetTournamentFinishPrize(short position)
 {
-  tTournamentDefinition *def;
-
-  if (5 < (ushort)position) {
-    return 0;
+  /* SYM: no locals at all -- `this` is the only REG entry; def/tourn are compiler temps */
+  if ((ushort)position < 6) {
+    tTourneyInfo *tourn = this->fDefinition->fTournaments +
+             (this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament);
+    return tourn->fPrize[position];
   }
-  def = this->fDefinition;
-  return def->fTournaments[def->fTiers[this->fTier].fTournOffset + this->fTournament].fPrize[position];
+  return 0;
 }
 
 /* ---- tTournamentManager::GetAwardInformation  [FETOURN.CPP:913-914] ---- */
@@ -839,31 +839,9 @@ long tTournamentManager::GetTournamentFinishPrize(short position)
 void tTournamentManager::GetAwardInformation(tAwardInformation &info_r)
 
 {
-  tAwardInformation *info = &info_r;   /* R-ref param; alias keeps body codegen-identical */
-  int *src_walk;
-  long tourn_money;
-  uint flags_pack;
-  int activate_class;
-  short tu1;
-  byte tc2;
-  byte tu3;
-  
-  src_walk = (int *)&(this->fAwards).fMoney;
-  do {
-    tourn_money = src_walk[1];
-    flags_pack = src_walk[2];
-    activate_class = src_walk[3];
-    info->fMoney = *src_walk;
-    info->fTournMoney = tourn_money;
-    info->fActivateFlags = (short)flags_pack;
-    info->fActivateTrack = (char)(flags_pack >> 0x10);
-    *((char*)info + 0xb) = (char)(flags_pack >> 0x18);
-    info->fActivateCarClass = activate_class;
-    src_walk = src_walk + 4;
-    info = (tAwardInformation *)&info->fActivateCar;
-  } while (src_walk != &(this->fAwards).fCompletedBonusMoney);
-  *(int *)info = *src_walk;
-  return;
+  /* Ghidra hand-expanded gcc's own movstrsi block copy of the 68-byte
+     tAwardInformation (4 words/iter + 1-word tail) — it is one struct assignment. */
+  info_r = this->fAwards;
 }
 
 
@@ -974,32 +952,34 @@ void tTournamentManager::GetTrophyName(tTourneyInfo *tourn,tTrophySize size,char
                )
 
 {
-  char cVar1;
-  uint uVar2;
+  /* SYM locals: int showplace (REG $2) + char trophySizeLetter[3] (AUTO -0x18)
+     + char trophyPlacementLetter[4] (AUTO -0x10); `place` keeps its own REG $3.
+     The two arrays are AGGREGATE INITIALIZERS (rodata->stack copies: 3x lb/sb
+     for the 3-byte one, an unaligned lwl/lwr+swl/swr word for the 4-byte one) --
+     the Ghidra body had hand-expanded gcc's own unaligned block move. */
   int showplace;
-  int iVar3;
-  char trophySizeLetter [3];
-  char trophyPlacementLetter [4];
-  void *tp1;
-  
-  trophySizeLetter[0] = gFEData_80011658;
-  trophySizeLetter[1] = gFEData_80011659;
-  trophySizeLetter[2] = gFEData_8001165a;
-  cVar1 = tournamentManager.fBestPlacement[tourn->fTournamentID];
-  tp1 = trophyPlacementLetter + 3;
-  uVar2 = (uint)tp1 & 3;
-  *(uint *)((int)tp1 - uVar2) =
-       *(uint *)((int)tp1 - uVar2) & -1 << (uVar2 + 1) * 8 | (uint)gFEData_8001165c >> (3 - uVar2) * 8;
-  *(int *)trophyPlacementLetter = gFEData_8001165c;
+  int best;
+  char trophySizeLetter [3] = { 'S', 'M', 'L' };
+  /* MATCH: `char` is UNSIGNED on this build -> (signed char) restores the oracle's lb.
+     SLD puts this read on line 1042/1043 -- BETWEEN the two array initializers and
+     before the guard, i.e. in the entry basic block (sched1 cannot move a load
+     across a branch, so an in-branch placement can never reproduce it). */
+  best = (signed char)tournamentManager.fBestPlacement
+                    [(signed char)tourn->fTournamentID];
+  char trophyPlacementLetter [4] = { 'W', 'G', 'S', 'B' };
+
   if (place == -1) {
-    iVar3 = 0;
-    if ((int)cVar1 - 1U < 3) {
-      iVar3 = (int)cVar1;
+    short t = 0;
+    if ((u_int)(best - 1U) < 3) {
+      t = best;
     }
-    place = (int)(short)iVar3;
+    showplace = t;
+  }
+  else {
+    showplace = place;
   }
   sprintf(buffer,"TR%c%02d%c",(uint)(byte)trophySizeLetter[size],(uint)tourn->fTrophyID,
-             (uint)(byte)trophyPlacementLetter[place]);
+             (uint)(byte)trophyPlacementLetter[showplace]);
   return;
 }
 

@@ -177,29 +177,23 @@ long tCarManager::CalcUsedPrice(short garageNumber)
 long tCarManager::PurchaseCar(short carModel,short color,short playerNum)
 
 {
+  /* SYM: locals = short i (REG $4), tCarInfo *carInfo (REG $6) */
   tCarInfo *carInfo;
-  int iVar2;
-  int iVar3;
-  int i;
-  int iVar5;
-  
+  short i;
+
   carInfo = carManager.GetCarFromID(carModel);
-  iVar5 = (int)playerNum;
-  iVar2 = 0;
-  i = 0;
-  do {
-    iVar2 = iVar2 >> 0xe;
-    iVar3 = i + 1;
-    if ((&this->fCarGarage[iVar5 * 0x10][0].fCarID)[iVar2] < '\0') {
-      (&this->fCarGarage[iVar5 * 0x10][0].fCarID)[iVar2] = (char)carModel;
-      (&this->fCarGarage[iVar5 * 0x10][0].fCarColor)[iVar2] = (uchar)color;
-      (&this->fCarGarage[iVar5 * 0x10][0].fUpgrades)[iVar2] = '\0';
-      frontEnd.garageCar[iVar5] = (char)i + (char)this->fNumCars;
+
+  for (i = 0; i < 32; i++) {
+    /* MATCH: char is UNSIGNED on this build -> (signed char) restores the
+       oracle's lb/bgez (a plain `< 0` folds to false and gcc DELETES the body) */
+    if ((signed char)this->fCarGarage[playerNum][i].fCarID < 0) {
+      this->fCarGarage[playerNum][i].fCarID = (char)carModel;
+      this->fCarGarage[playerNum][i].fCarColor = (u_char)color;
+      this->fCarGarage[playerNum][i].fUpgrades = 0;
+      frontEnd.garageCar[playerNum] = i + this->fNumCars;
       return carInfo->fPrices[0];
     }
-    iVar2 = iVar3 * 0x10000;
-    i = iVar3;
-  } while (iVar3 * 0x10000 >> 0x10 < 0x20);
+  }
   return 0;
 }
 
@@ -332,28 +326,19 @@ void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
 void tCarManager::AddToPinkSlipsList(short carModel,short color,short playerNum)
 
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int i;
-  
-  iVar3 = (int)playerNum;
-  iVar1 = 0;
-  i = 0;
-  do {
-    iVar1 = iVar1 >> 0xe;
-    iVar2 = i + 1;
-    if ((&this->fPinkSlipsCars[iVar3 * 0x10][0].fCarID)[iVar1] < '\0') {
-      (&this->fPinkSlipsCars[iVar3 * 0x10][0].fCarID)[iVar1] = (char)carModel;
-      (&this->fPinkSlipsCars[iVar3 * 0x10][0].fCarColor)[iVar1] = (uchar)color;
-      (&this->fPinkSlipsCars[iVar3 * 0x10][0].fUpgrades)[iVar1] = '\0';
-      frontEnd.pinkSlipsCar[iVar3] = (char)i + (char)this->fNumCars;
+  /* SYM: sole local = short i (REG $8); leaf fn (fsize 0, mask 0) */
+  short i;
+
+  for (i = 0; i < 32; i++) {
+    /* MATCH: (signed char) — plain `char < 0` folds false (unsigned char ABI) */
+    if ((signed char)this->fPinkSlipsCars[playerNum][i].fCarID < 0) {
+      this->fPinkSlipsCars[playerNum][i].fCarID = (char)carModel;
+      this->fPinkSlipsCars[playerNum][i].fCarColor = (u_char)color;
+      this->fPinkSlipsCars[playerNum][i].fUpgrades = 0;
+      frontEnd.pinkSlipsCar[playerNum] = i + this->fNumCars;
       return;
     }
-    iVar1 = iVar2 * 0x10000;
-    i = iVar2;
-  } while (iVar2 * 0x10000 >> 0x10 < 0x20);
-  return;
+  }
 }
 
 
@@ -1041,42 +1026,29 @@ char tListIteratorCar::Value(tPlayer atIndex)
 short tListIteratorCar::TextValue(tPlayer atIndex)
 
 {
-  u_int *puVar1;
-  short sVar2;
-  tPlayer i;
-  u_int uVar4;
-  u_int uVar5;
-  int iVar6;
-  tCarManager *ptVar7;
-  short nameBase [3];
-  
-  uVar4 = (int)nameBase + 3U & 3;
-  puVar1 = (u_int *)(((int)nameBase + 3U) - uVar4);
-  *puVar1 = *puVar1 & -1 << (uVar4 + 1) * 8 | (u_int)(*(u_int*)((char*)&bigBuf + 384)) >> (3 - uVar4) * 8;
-  (*(u_int*)&nameBase) = (*(u_int*)((char*)&bigBuf + 384));
-  nameBase[2] = (*(u_short*)((char*)&bigBuf + 388));
-  i = kPlayerOne;
+  /* SYM 8c: locals are exactly `short nameBase[3]` (AUTO -8) and `short i`
+     (REG $v1).  nameBase is an AGGREGATE INITIALIZER (bytes @D_80010180) =
+     gcc's own 6-byte rodata->stack copy (lwl/lwr + lh / swl/swr + sh). */
+  short nameBase [3] = { 0x121, 0x153, 0x185 };   /* @0x80010180 */
+  short i;
+
+  i = 0;
   if (atIndex != kPlayerBoth) {
     i = atIndex;
   }
-  iVar6 = (int)(short)i;
-  ptVar7 = this->fCarManager;
-  uVar4 = (u_int)(u_char)this->fValue[iVar6];
-  uVar5 = ptVar7->fNumCars;
-  if (uVar4 < uVar5) {
-    sVar2 = nameBase[this->fNameLength] + (short)ptVar7->fCars[uVar4].fCarID;
+  if (this->fCarManager->fNumCars <= (u_int)(u_char)this->fValue[i]) {
+    if ((this->fCarListFilter & 0x20) != 0) {
+      return nameBase[this->fNameLength] +
+             (signed char)this->fCarManager->fPinkSlipsCars[i]
+               [(u_int)(u_char)this->fValue[i] - this->fCarManager->fNumCars].fCarID;
+    }
+    return nameBase[this->fNameLength] +
+           (signed char)this->fCarManager->fCarGarage[i]
+             [(u_int)(u_char)this->fValue[i] - this->fCarManager->fNumCars].fCarID;
   }
-  else if ((this->fCarListFilter & 0x20U) == 0) {
-    sVar2 = nameBase[this->fNameLength] +
-            (short)*(char *)((int)ptVar7 + (uVar4 - uVar5) * 4 + iVar6 * 0x80 + 8);
-  }
-  else {
-    sVar2 = nameBase[this->fNameLength] +
-            (short)*(char *)((int)ptVar7 + (uVar4 - uVar5) * 4 + iVar6 * 0x80 + 0x108);
-  }
-  return sVar2;
+  return nameBase[this->fNameLength] +
+         (signed char)this->fCarManager->fCars[(u_int)(u_char)this->fValue[i]].fCarID;
 }
-
 
 
 /* ---- tListIteratorCar::AdjustPosition  [FECARS.CPP:925-1059] SLD-VERIFIED ---- */

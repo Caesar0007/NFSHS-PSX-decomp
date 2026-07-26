@@ -445,40 +445,58 @@ end:
 extern int iSPCH_SentenceGetChoices(int sentence, int paramTable, unsigned int ruleByte1,
                                         unsigned int ruleByte2, int filterMode)
 {
+    /* MATCH (w31-a4, 54->?): single result funnel (`fail:` block laid between the rule checks and
+     * the loop, exactly the oracle's .L80101008) instead of separate return 0/-1 statements; the
+     * -1 path stores THE RESULT VAR (`*outChoice = result`, oracle sh s4); outChoice recomputed
+     * from `table` per iteration (CHOICE(table)) so loop.c reduces every access onto ONE +0-based
+     * walker (pointer-walk form fabricated an &outChoice[2] anchor giv, +2 insns); result/picked
+     * initialized before the GetNumPhrases call. */
     int picked = 0;
-    int n = VoxSentence_GetNumPhrases(sentence);
     int result = 1;
+    int n = VoxSentence_GetNumPhrases(sentence);
     if (n < 0xd) {
-        if (iSPCH_ShortRuleStatus(sentence, filterMode) == 0) {
-            result = 0;
-        } else if (iSPCH_CheckSentenceRules((int)(ruleByte1 & 0xff), (int)(ruleByte2 & 0xff), sentence) == 0) {
-            result = 0;
-        } else {
-            int    table = 0;
-            short *outChoice = ispch_gChoice;
-            if (0 < n) {
-                do {
-                    int    r;
-                    short *phraseTemplate;
-                    outChoice[3] = (short)picked;
-                    phraseTemplate = (short *)iSPCH_GetOffset8(sentence, sentence + 4, table);
-                    if (iSPCH_GetPhraseBank(phraseTemplate, paramTable, outChoice) == 0) {
-                        if (*outChoice != -2)
-                            return 0;
-                        *outChoice = -1;
-                        return -1;
+        int table;
+        if (iSPCH_ShortRuleStatus(sentence, filterMode) == 0)
+            goto fail;
+        if (iSPCH_CheckSentenceRules((int)(ruleByte1 & 0xff), (int)(ruleByte2 & 0xff), sentence) != 0)
+            goto choose;
+fail:
+        result = 0;
+        goto out;
+choose:
+        table = 0;
+        if (0 < n) {
+            do {
+                short *outChoice = CHOICE(table);
+                int    r;
+                short *phraseTemplate;
+                outChoice[3] = (short)picked;
+                phraseTemplate = (short *)iSPCH_GetOffset8(sentence, sentence + 4, table);
+                if (iSPCH_GetPhraseBank(phraseTemplate, paramTable, outChoice) == 0) {
+                    /* residual 17 (83/80): loop.c hoists the fail-path li -2 into fp (savings-1
+                     * conditional-block constant STILL "desirable" to this cc1; oracle remats it
+                     * in-loop, li v0,-2 filling the lh delay) -> +li +fp save/restore and the
+                     * result-init li s4,1 scheduling knock-on.  Local-temp, Yoda, and compare
+                     * shapes all leave the motion; same move_movables identity family as the
+                     * MakeSampleRequests %hi hoist (documented there). */
+                    if (*outChoice != -2) {
+                        result = 0;
+                        goto out;
                     }
-                    r = iSPCH_ChooseSamples(outChoice, 100 - picked, (int)phraseTemplate, paramTable);
-                    picked = picked + r;
-                    if (r == 0)
-                        return 0;
-                    outChoice[2] = (short)r;
-                    table = table + 1;
-                    outChoice = outChoice + 6;
-                } while (table < n);
-            }
+                    result = -1;
+                    *outChoice = (short)result;
+                    goto out;
+                }
+                r = iSPCH_ChooseSamples(outChoice, 100 - picked, (int)phraseTemplate, paramTable);
+                picked = picked + r;
+                if (r == 0)
+                    goto fail;
+                outChoice[2] = (short)r;
+                table = table + 1;
+            } while (table < n);
         }
     }
+out:
     return result;
 }
 

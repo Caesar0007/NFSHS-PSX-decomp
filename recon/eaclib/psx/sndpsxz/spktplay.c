@@ -448,7 +448,7 @@ purge_next: {
             int *fr = (int *)(ppp + rdoff);
             if (lo <= fr[0] && fr[0] <= hi) {      /* remove (branch-away, oracle fallthrough) */
                 MUH(ppp, 0xe) = MUH(ppp, 0xe) - 1;  /* plain lhu, no shift (no compare) */
-                MI(ppp, 0x10) = MI(ppp, 0x10) - fr[1];
+                *(volatile int *)(ppp + 0x10) = MI(ppp, 0x10) - fr[1];
                 if (*(void **)(ppp + 0x1c) != 0)
                     (*(void (**)(int))(ppp + 0x1c))(fr[2]);
             } else {                               /* keep -> move down (oracle branch target) */

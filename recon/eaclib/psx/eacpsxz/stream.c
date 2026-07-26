@@ -493,8 +493,29 @@ restart:
  *   `done`/SR to $a1/$a3.  TRIED: spelling the temp as `done` itself (does merge them, but then the
  *   allocno priority of `cur` beats `done` and they swap -- $a0/$v1 becomes $v1/$a0, 20 diffs); moving
  *   `done = 1` ahead of `cur = ...` (no effect).  This is the allocno_compare live-length weighting
- *   already on the wave-33 identity charter: priority(cur)=log2(4)*4/8 beats priority(done)=log2(7)*7/25
- *   under psq43 cc1, and retail's ordering implies a weaker live-length term. */
+ *   already on the wave-33 identity charter.
+ * w34-a2 QUANTIFIED THE GAP with cc1 -dl/-dg allocno dumps (no diff change; kept at 16).  There are
+ *   TWO distinct mechanisms, and the MERGED spelling -- not the shipped one -- is the structurally
+ *   correct base even though it currently gates worse (20):
+ *   - AS SHIPPED (separate anonymous state temp): local-alloc gives that block-local temp $v1, and
+ *     `done` is LIVE ACROSS it, because the source's `done = 0;` precedes the `MI(cur,4)` load AND
+ *     sched1 re-hoists it there even when the load is written first (verified in the lreg dump).
+ *     Result `82 conflicts: ... 2 3 ...` => `done` can NEVER be $v1; it lands $a1 and pushes SR to
+ *     $a3.  The 16 diffs are exactly done + SR.
+ *   - MERGED (`done = MI(cur,4); if (done != 1) {...} else done = 0;` -- the shape retail's $v1
+ *     reuse implies): the hard-$v1 conflict DISAPPEARS (`82 conflicts: ... 2 29`), SR lands
+ *     correctly on $a1, and the ONLY residual is that `cur` is allocated before `done` and takes
+ *     $v1 first.  Measured (allocno_compare = floor_log2(refs)*refs/live_length*10000):
+ *         cur  = log2(4)*4/7  -> 11428        done = log2(8)*8/22 -> 10909
+ *     `done` needs +519: refs 8->9, or live_length 22->21 (a tie hands it to the lower allocno,
+ *     i.e. done), or cur live_length 7->8.  No source spelling was found that moves any of the three
+ *     without changing the instruction stream -- cur's 4 refs (def / !=0 / state base / next base)
+ *     and done's 8 are forced by the oracle, and done's 22 insns of liveness are the two join arms
+ *     plus the post-leaveCS re-test.  IDA sub_800FC9B4 confirms the variable shape is right
+ *     (v7/$v1 = done, v6/$a0 = cur, v5/$a1 = SR, v8/$v0 = nx).  Also byte-identical: hoisting the
+ *     state load above `done = 0`; per-arm `done = 0` is worse (29 diffs, 99 insns);
+ *     -fno-schedule-insns and -fno-schedule-insns2 do not move it.
+ *     => allocno_compare live-length identity; permuter / length-perturbation class. */
 extern int startnextrequest(int s, unsigned int prio)
 {
     int  done;
@@ -584,7 +605,21 @@ extern int startnextrequest(int s, unsigned int prio)
  *   three uses (cse rebuilds the same single pseudo).  Next step is a cc1 -dl allocno dump: retail
  *   gives $v1 to the MORE-referenced fillptr (7 refs, and it is re-assigned in the wrap arm) while
  *   ours gives it to readptr, which is the allocno_compare live-length weighting already on the
- *   wave-33 toolchain-identity charter. */
+ *   wave-33 toolchain-identity charter.
+ * w34-a2 ROOT-CAUSED IT (cc1 -dl/-dg; no diff change, kept at 42).  It is NOT the initial load order
+ *   and NOT a global-alloc priority tie -- it is a LOCAL-ALLOC collision in the WRAP arm:
+ *     - allocnos: 106 = readptr (4 refs / 13 insns), 107 = fillptr (8 / 18, `preferences: 6`),
+ *       108 = room (9 / 21).  Allocation order 107, 108, ..., 106.
+ *     - `107 conflicts: ... 2 3 ...` -- fillptr is BANNED from $v1, so it takes its preferred $a2,
+ *       room takes $a0 and readptr falls to $v1.  The hard-$v1 conflict comes from the wrap arm's
+ *       SECOND `MI(s,0x20)` (bufBase) read: cse makes it ONE block-local pseudo, `q`/$v1 has just
+ *       died, and local-alloc hands it $v1.  Retail's build gives that same pseudo $a0
+ *       (`lw a0,0x20(s1); addu v1,a0,s0`), leaving $v1 free for the redefined fillptr -- which is
+ *       exactly the oracle's register map.
+ *   w34-a2 TRIED, all byte-identical or worse: `volatile` on either initial load (42/42), a named
+ *   `bb` local for the wrap arm's bufBase (42), storing `MI(s,0x44) = MI(s,0x20)` before the fillptr
+ *   update (44).  The lever needed is one that keeps $v1 busy across the wrap arm's bufBase load --
+ *   same local-alloc-ordering identity family as startnextrequest. */
 extern int restartstream(int s, unsigned int prio)
 {
     int *p;

@@ -498,33 +498,52 @@ extern void iSPCH_RandomizeSentencePicks(int sentence)
 }
 
 /* iSPCH_IterateChoice @0x801011AC : advance to the next combination of phrase picks (odometer over choices).
- * MATCH: `limit` = choice[3]+choice[2] of the CURRENT record (not a fixed DAT_ address -- earlier
- * recon mis-materialized this as a snapshot; the oracle reads it relative to the runtime `choice`
- * pointer both initially and after each odometer carry).  Returns 1 only when every phrase has been
- * exhausted (Ghidra void-bug -- real int return, read at the epilogue: $v0 = the "ran out" flag). */
+ * MATCH (w31-a4, 43->4 diffs, insn count EXACT 44/44):
+ *   (1) GOTO-LOOP, NOT do-while -- with do/while, gcc's loop pass (proven via cc1 -dL RTL dump)
+ *       verifies `choice` as a biv, ELIMINATES it and combines every in-loop address giv onto the
+ *       LAST giv in body order (anchor `addiu aN,v1,+4/+6` + all displacements rebased, +1 insn).
+ *       The retail oracle keeps the plain record pointer with bare +4/+6/+8 displacements and a
+ *       -12 decrement => the retail loop never went through loop.c strength-reduction, i.e. it was
+ *       written label+goto (no LOOP notes).  Reverse of the catalog's while-over-goto preference.
+ *   (2) limit built from NAMED temps `count = choice[2]; pbase = choice[3]; limit = pbase + count;`
+ *       (loads in decl order +4,+6; addu operands [3]+[2] with dst = count's reg -- a single
+ *       expression in either order gives the wrong load order or wrong addu operand order).
+ *   (3) `exhausted = loopDone;` (not = 1) reproduces `addu s0,a2,zero` reusing the li 1.
+ * RESIDUAL 4 diffs = position of the ispch_gChoice lui/addiu pair: retail materializes the base
+ *   BEFORE the n*6 sll/addu/sll chain, our cc1 expands sym+mult canonically mult-first (verified
+ *   invariant across ptr-arith / &arr[i] / 2D-row / int-cast / split-stmt forms and with
+ *   -fno-schedule-insns; split-stmt forms flip la first but then mis-coalesce the addu dst with
+ *   the base instead of the mult chain, 10-12 diffs).  Pure emission-order tie -- permuter target.
+ * Returns 1 only when every phrase has been exhausted (Ghidra void-bug -- real int return, read
+ * at the epilogue: $v0 = the "ran out" flag). */
 extern int iSPCH_IterateChoice(int sentence)
 {
     int exhausted = 0;
     int n = VoxSentence_GetNumPhrases(sentence) - 1;
-    short *choice = ispch_gChoice + n * 6;
-    int limit = (int)choice[2] + (int)choice[3];
-    int loopDone = exhausted;
-    do {
-        unsigned int cur = (unsigned int)(unsigned short)choice[4] + 1;
-        choice[4] = (short)cur;
-        if ((int)(short)cur < limit) {
-            loopDone = 1;
-        } else {
-            n = n - 1;
-            choice[4] = choice[3];
-            choice = choice - 6;
-            if (n < 0) {
-                loopDone  = 1;
-                exhausted = 1;
-            }
-            limit = (int)choice[2] + (int)choice[3];   /* choice[-3]/[-4] relative to old ptr */
+    int count, pbase, limit, loopDone, cur;
+    short *choice = ((short (*)[6])ispch_gChoice)[n];
+    count = choice[2];
+    pbase = choice[3];
+    limit = pbase + count;
+    loopDone = exhausted;
+top:
+    cur = (unsigned short)choice[4] + 1;
+    choice[4] = cur;
+    if ((short)cur < limit) {
+        loopDone = 1;
+    } else {
+        choice[4] = choice[3];
+        n = n - 1;
+        choice = choice - 6;
+        if (n < 0) {
+            loopDone  = 1;
+            exhausted = loopDone;
         }
-    } while (!loopDone);
+        count = choice[2];
+        pbase = choice[3];
+        limit = pbase + count;
+    }
+    if (!loopDone) goto top;
     return exhausted;
 }
 

@@ -305,8 +305,12 @@ extern int CD_Getinfo(int handle, int namebuf, int *sizeout)
  *   Returns the (clamped) byte count, or 0 if the CD is busy. */
 extern int CD_Read(int dev, int dest, int offset, int len)
 {
-    void **slot = (void **)((char *)CD_handleTable + dev * 4 - 4);
-    char  *entry;
+    /* same slot idiom as CD_Getinfo (which PASSes): `&CD_handleTable[dev-1]` yields the oracle's
+     * full address materialization `sll $a0,$a0,2; addiu $a0,$a0,-4; addu $a0,$v0,$a0`, and the
+     * directory ENTRY is RE-READ from the slot at each of its two uses (`lw $v0,0($a0)` twice)
+     * rather than cached in a local -- a cached copy lives in a register across the intervening
+     * volatile Cdinfo RMWs (registers are not invalidated) and loses the oracle's second load. */
+    void **slot = &CD_handleTable[dev - 1];
     int   q, remaining;
     /* read-state sub-struct pointer (curLen/remLen/curOff/curDst, ctx+0x20) -- materialized HERE
      * (right after the busy-check, oracle @0x800FA6C0 "addiu s0,v1,0x20" lands in the beqz's delay
@@ -316,8 +320,7 @@ extern int CD_Read(int dev, int dest, int offset, int len)
     if ((Cdinfo & 3) != 0)                              /* CD busy -> reject */
         return 0;
 
-    entry = (char *)*slot;
-    remaining = *(int *)(entry + 0x10) - offset;        /* clamp len to bytes left in the file */
+    remaining = *(int *)((char *)*slot + 0x10) - offset; /* clamp len to bytes left in the file */
     if (remaining < len)
         len = remaining;
 
@@ -334,10 +337,11 @@ extern int CD_Read(int dev, int dest, int offset, int len)
     rs->curLen = q;
     rs->remLen = len - q;
 
-    if (offset < 0)
-        offset += 0x7FF;
-    CD_ringIdx   = 0;
-    CD_curSector = *(int *)(entry + 0xC) + (offset >> 0xB); /* start sector + offset / 0x800 */
+    { char *e = (char *)*slot;   /* re-read; the oracle loads it BEFORE the sign correction */
+      if (offset < 0)
+          offset += 0x7FF;
+      CD_ringIdx   = 0;
+      CD_curSector = *(int *)(e + 0xC) + (offset >> 0xB); } /* start sector + offset / 0x800 */
     Cdinfo |= 2;                                        /* read in progress */
     CD_timeout   = timerhz[0] * 6;
     rs->curDst   = (void *)dest;

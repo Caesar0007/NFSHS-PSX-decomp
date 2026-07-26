@@ -106,9 +106,23 @@ extern void setfont(int fontId)
      * GENERAL RULE worth keeping: to lose a priority compare, move the loser's LAST USE onto another
      * pointer that the oracle already materializes; to win one, add a copy of a PARAMETER.
      *
-     * RESIDUAL 14 = the decoder-selection tree only, and it is the unchanged w32 verdict below:
-     * (a) 2-vs-3 `lui/addiu(decodeshiftjis)` materializations (retail never merges identical tails)
-     * (b) the branch polarities that fall out of that merge, (c) `lhu` vs `lh` at fontId+0xE.
+     * THEN 14 -> 12: the `lhu`-vs-`lh` at fontId+0xE is NOT the old-gcc narrowing after all -- it
+     * is the local's TYPE.  A `short flags` local lets combine fold the sign-extend away (only bits
+     * 0-1 survive the `& 3`), while declaring it `int flags = *(short *)(fontId + 0xe);` keeps the
+     * widening explicit in the source and emits retail's `lh`.  (`(int)flags` in the test, a bare
+     * expression, and a separate masked temp all still give `lhu` -- it has to be the LOCAL's type.)
+     *
+     * RESIDUAL 12, all in the decoder-selection tree, two causes:
+     * (a) 10 = the 2-vs-3 `lui/addiu(decodeshiftjis)` materializations (retail never merges
+     *     identical tails -- catalog SS-G old-gcc identity) plus the two branch POLARITIES that
+     *     fall out of that merge.  Re-tested this session now that the coloring is right, since the
+     *     w32 spelling sweep ran under the wrong register map: if/else-if chain, Yoda compares on
+     *     both tests, and each arm inverted to an early-out -- all six spellings give exactly 12.
+     *     The polarity is downstream of the merge, not a source choice.
+     * (b) 2 = the 0xA0 store's base (`sw v0,0xA0($s0)` ours vs `$s1` retail) -- the unavoidable
+     *     price of the live-range fix above; gcc must emit cf2's lui/addiu before a store through
+     *     it, while retail stores through the still-live cf and materializes afterwards.
+     *     Net trade: -70 diffs for +2.  Do not "fix" this back.
      * ---- w32 note (still accurate for the residual) -------------------------------------------
      * The 4-instruction gap is ONE thing: retail emits THREE separate
      * `lui/addiu %hi/%lo(decodeshiftjis)` materializations (one per arm, each `lui` in its branch's
@@ -124,7 +138,7 @@ extern void setfont(int fontId)
      * (The w32 claim that the s1<->s2 swap was forced by this is WRONG -- see the w33 note above;
      * the swap was an independent live-range effect and is now fixed.) */
     {
-        short flags = *(short *)(fontId + 0xe);
+        int flags = *(short *)(fontId + 0xe);
         if ((flags & 3) != 2)
             goto notsjis;
         decode = decodeshiftjis;                                  /* explicit Shift-JIS flag */

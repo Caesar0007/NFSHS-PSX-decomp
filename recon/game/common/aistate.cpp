@@ -2677,17 +2677,11 @@ extern "C" void ___14AIState_Donuts(AIState_Donuts *pThis,int __in_chrg)
 
 
 /* ---- Execute__14AIState_Donuts  AIState_Donuts::Execute  [AISTATE.CPP:1256-1334] SLD-VERIFIED ---- */
-/* NOT a floor -- undocumented big FAIL (w30-a2 re-gate: 270 diffs/313 vs 319 insns), left
-   unattempted this session (budget went to the mandatory rule-8 reconstructions + smaller
-   near-misses). LEAD for a future pass: the diff's opening cluster is the FIRST orientMat/
-   roadMatrix.m[6]/256 dot-product term (lines ~2740-2744 below) -- the oracle INTERLEAVES the
-   two operands' load+bgez+addiu+sra (load both /256 dividends, sra both) before the mult,
-   whereas our "three separate accumulating statements" shape (the comment 3 lines below this
-   one, verified for a LATER occurrence in this same function) finishes one /256 division
-   completely before starting the next load. Try the SAME single-combined-expression form used
-   at cpp:2774-2778 (`(a/256)*(b/256)` inline, not split into named locals) for this first
-   occurrence too, then re-diff -- likely a large chunk of the 270 diffs is this one pattern
-   repeated across the function's several dot-product sites, not 270 independent bugs. */
+/* NEAR (21 diffs/316 vs 319 insns): IDA's retail register annotations and the
+   SYM SLD line trace recovered the real locals, scopes, and source-statement
+   boundaries. All regions now match except the slice-wrap at 0x80072008:
+   equivalent control flow leaves forwardSlice in v1 instead of the oracle's
+   v0 and folds three oracle branch/merge instructions. */
 
 void AIState_Donuts::Execute()
 
@@ -2700,105 +2694,54 @@ void AIState_Donuts::Execute()
   int latPos;
   int slice;
   int forwardDot;
-  int forwardSlice;
-  int dCarToCenter;
-
-  int iVar1;
-
-  int iVar2;
-
-  int iVar3;
-
-  int iVar4;
-
-  int *piVar5;
-
-  Car_tObj *pCVar6;
-
-  int iVar7;
-
-  int iVar8;
-
-  int iVar9;
-
-  Car_tObj *pCVar10;
-
-  int iVar11;
-
-  u_int uVar12;
-
-  int iVar13;
-
-  int iVar14;
-
-  int iVar15;
-
-  int iVar16;
-
-  int iVar17;
-
-  int iVar18;
 
 
 
-  pCVar10 = this->carObj_;
+  {
+    Car_tObj *carObj = this->carObj_;
 
-  iVar11 = (int)(pCVar10->N).simRoadInfo.slice;
+    slice = (int)carObj->N.simRoadInfo.slice;
 
-  /* gcc-2.x signed /256 idiom -- plain division. Dot product built as THREE
-     separate accumulating statements (oracle interleaves load/div/mult/add
-     PER AXIS -- mflo immediately folded into a running sum -- not one
-     combined tri-term expression; matches disasm 80071E88-80071F34). */
+    forwardDot =
+        (carObj->N.orientMat.m[6] / 256) * (carObj->N.roadMatrix.m[6] / 256) +
+        (carObj->N.orientMat.m[7] / 256) * (carObj->N.roadMatrix.m[7] / 256) +
+        (carObj->N.orientMat.m[8] / 256) * (carObj->N.roadMatrix.m[8] / 256);
 
-  iVar7 = (pCVar10->N).orientMat.m[6] / 256;
+    if (forwardDot > 0) {
 
-  iVar1 = (pCVar10->N).roadMatrix.m[6] / 256;
+      forwardDot = 1;
 
-  iVar7 = iVar7 * iVar1;
+    }
 
-  iVar8 = (pCVar10->N).orientMat.m[7] / 256;
+    else {
 
-  iVar2 = (pCVar10->N).roadMatrix.m[7] / 256;
+      forwardDot = -1;
 
-  iVar7 = iVar7 + iVar8 * iVar2;
+    }
 
-  iVar9 = (pCVar10->N).orientMat.m[8] / 256;
-
-  iVar3 = (pCVar10->N).roadMatrix.m[8] / 256;
-
-  iVar7 = iVar7 + iVar9 * iVar3;
-
-  iVar4 = 1;
-
-  if (iVar7 < 1) {
-
-    iVar4 = -1;
-
+    carObj->desiredDirection = carObj->direction = forwardDot;
   }
-
-  pCVar10->direction = iVar4;
-
-  pCVar10->desiredDirection = iVar4;
 
   if ((this->donutMode_ == 1) || (this->donutMode_ == 3)) {
 
-    pCVar10 = this->carObj_;
+    int forwardSlice;
+    int forwardDot;
+    int dCarToCenter;
 
-    iVar7 = ((pCVar10->N).orientMat.m[6] / 256) * ((pCVar10->N).roadMatrix.m[6] / 256);
+    forwardDot =
+        (this->carObj_->N.orientMat.m[6] / 256) * (this->carObj_->N.roadMatrix.m[6] / 256) +
+        (this->carObj_->N.orientMat.m[7] / 256) * (this->carObj_->N.roadMatrix.m[7] / 256) +
+        (this->carObj_->N.orientMat.m[8] / 256) * (this->carObj_->N.roadMatrix.m[8] / 256);
 
-    iVar7 = iVar7 + ((pCVar10->N).orientMat.m[7] / 256) * ((pCVar10->N).roadMatrix.m[7] / 256);
+    forwardSlice = slice + 3;
 
-    iVar7 = iVar7 + ((pCVar10->N).orientMat.m[8] / 256) * ((pCVar10->N).roadMatrix.m[8] / 256);
-
-    iVar4 = iVar11 + 3;
-
-    if (0 <= iVar7)
+    if (0 <= forwardDot)
 
     {
 
-      if (gNumSlices <= iVar4) {
+      if (!(forwardSlice < gNumSlices)) {
 
-        iVar4 = iVar11 - (gNumSlices + -3);
+        forwardSlice = slice - (gNumSlices - 3);
 
       }
 
@@ -2806,43 +2749,26 @@ void AIState_Donuts::Execute()
 
     else {
 
-      iVar4 = iVar11 + -3;
+      forwardSlice = slice + -3;
 
-      if (iVar4 < 0) {
+      if (forwardSlice < 0) {
 
-        iVar4 = iVar11 + gNumSlices + -3;
+        forwardSlice = slice + (gNumSlices - 3);
 
       }
 
     }
 
-    piVar5 = (int *)(iVar4 * 0x20 + (int)BWorldSm_slices);
-
-    /* load-3/store-3 grouped temps (catalog §A/38,54) */
-
-    iVar7 = *piVar5;
-
-    iVar1 = piVar5[1];
-
-    iVar8 = piVar5[2];
-
-    targetPos.x = iVar7;
-
-    targetPos.y = iVar1;
-
-    targetPos.z = iVar8;
-
-    iVar7 = (this->carObj_)->roadPosition;
-
-    if (iVar7 < 0) {
-
-      iVar7 = -iVar7;
-
+    {
+      coorddef &sliceCenter = *(coorddef *)(BWorldSm_slices + forwardSlice);
+      targetPos = sliceCenter;
     }
+
+    dCarToCenter = __builtin_abs(this->carObj_->roadPosition);
 
     latPos = 0;
 
-    if ((this->donutMode_ == 1) && (iVar7 < 0x28000)) {
+    if ((this->donutMode_ == 1) && (dCarToCenter < 0x28000)) {
 
       this->donutMode_ = 2;
 
@@ -2852,53 +2778,25 @@ void AIState_Donuts::Execute()
 
   else {
 
-    iVar7 = this->donutLookForward_ + -0x10000;
+    this->donutLookForward_ -= 0x10000;
 
-    this->donutLookForward_ = iVar7;
+    if (this->donutLookForward_ < 0x8000) {
 
-    if (iVar7 < 0x8000) {
+      randtemp = fastRandom * randSeed;
 
-      uVar12 = fastRandom * randSeed;
+      fastRandom = randtemp & 0xffff;
 
-      randtemp = uVar12;
-
-      fastRandom = uVar12 & 0xffff;
-
-      this->donutLookForward_ = ((uVar12 >> 8 & 0xffff) * 5 >> 0xe) * 0x10000 + 0x140000;
+      this->donutLookForward_ = ((randtemp >> 8 & 0xffff) * 5 >> 0xe) * 0x10000 + 0x140000;
 
     }
-
-    pCVar10 = this->carObj_;
 
     /* SYM: right/forward/targetPos are real coorddef locals -- right = scaled local
        right-axis (orientMat row0), forward = scaled local forward-axis (orientMat row2
        via donutLookForward_), targetPos = position + right + forward. */
 
-    iVar13 = (pCVar10->N).orientMat.m[0];
+    right = *(coorddef *)&this->carObj_->N.orientMat.m[0];
 
-    iVar14 = (pCVar10->N).orientMat.m[1];
-
-    iVar15 = (pCVar10->N).orientMat.m[2];
-
-    right.x = iVar13;
-
-    right.y = iVar14;
-
-    right.z = iVar15;
-
-    pCVar6 = this->carObj_;
-
-    iVar16 = (pCVar6->N).orientMat.m[6];
-
-    iVar17 = (pCVar6->N).orientMat.m[7];
-
-    iVar18 = (pCVar6->N).orientMat.m[8];
-
-    forward.x = iVar16;
-
-    forward.y = iVar17;
-
-    forward.z = iVar18;
+    forward = *(coorddef *)&this->carObj_->N.orientMat.m[6];
 
     right.x = fixedmult(0x60000,right.x);
 
@@ -2916,41 +2814,36 @@ void AIState_Donuts::Execute()
 
     targetPos.y = ((this->carObj_)->N).position.y + right.y;
 
-    targetPos.x = targetPos.x + forward.x;
-
     targetPos.z = ((this->carObj_)->N).position.z + right.z;
+
+    targetPos.x = targetPos.x + forward.x;
 
     targetPos.y = targetPos.y + forward.y;
 
     targetPos.z = targetPos.z + forward.z;
 
-    pCVar10 = this->carObj_;
+    latPos = Newton_CalculateRoadPositionFromSliceAndPosition(
+        (int)this->carObj_->N.simRoadInfo.slice,&targetPos,&this->carObj_->N.roadMatrix);
 
-    latPos = Newton_CalculateRoadPositionFromSliceAndPosition((int)(pCVar10->N).simRoadInfo.slice,&targetPos,&(pCVar10->N).roadMatrix);
+    if (this->carObj_->roadPosition < 0) {
 
-    iVar7 = (this->carObj_)->roadPosition;
+      if (this->carObj_->roadPosition - 0x20000 <
+          -((BWorldSm_slices[slice].avgPavedWidthLf << 15) *
+            (BWorldSm_slices[slice].laneCount >> 4))) goto LAB_800722e8;
 
-    if (iVar7 < 0) {
-
-      iVar11 = iVar11 * 0x20 + (int)BWorldSm_slices;
-
-      if ((int)-((u_int)*(u_char *)(iVar11 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar11 + 0x1d) >> 4)) <=
-
-          iVar7 + -0x20000) goto LAB_800722ec;
+      goto LAB_800722ec;
 
     }
 
     else {
 
-      iVar11 = iVar11 * 0x20 + (int)BWorldSm_slices;
-
-      if (iVar7 + 0x20000 <=
-
-          (int)((u_int)*(u_char *)(iVar11 + 0x1f) * 0x8000 * (*(u_char *)(iVar11 + 0x1d) & 0xf)))
-
-      goto LAB_800722ec;
+      if (!((BWorldSm_slices[slice].avgPavedWidthRt << 15) *
+            (BWorldSm_slices[slice].laneCount & 0xf) <
+            this->carObj_->roadPosition + 0x20000)) goto LAB_800722ec;
 
     }
+
+LAB_800722e8:
 
     this->donutMode_ = 1;
 
@@ -2966,19 +2859,7 @@ LAB_800722ec:
 
   AI_GenericEndCycle(this->carObj_);
 
-  pCVar10 = this->carObj_;
-
-  iVar7 = targetPos.x;
-
-  iVar1 = targetPos.y;
-
-  iVar8 = targetPos.z;
-
-  (pCVar10->targetPos).x = iVar7;
-
-  (pCVar10->targetPos).y = iVar1;
-
-  (pCVar10->targetPos).z = iVar8;
+  this->carObj_->targetPos = targetPos;
 
   (this->carObj_)->targetLatPos = latPos;
 

@@ -825,13 +825,13 @@ long tTournamentManager::GetTrackFinishPrize(short position)
 /* ---- tTournamentManager::GetTournamentFinishPrize  [FETOURN.CPP:897-905] ---- */
 long tTournamentManager::GetTournamentFinishPrize(short position)
 {
-  tTournamentDefinition *def;
-
-  if (5 < (ushort)position) {
-    return 0;
+  /* SYM: no locals at all -- `this` is the only REG entry; def/tourn are compiler temps */
+  if ((ushort)position < 6) {
+    tTourneyInfo *tourn = this->fDefinition->fTournaments +
+             (this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament);
+    return tourn->fPrize[position];
   }
-  def = this->fDefinition;
-  return def->fTournaments[def->fTiers[this->fTier].fTournOffset + this->fTournament].fPrize[position];
+  return 0;
 }
 
 /* ---- tTournamentManager::GetAwardInformation  [FETOURN.CPP:913-914] ---- */
@@ -839,31 +839,9 @@ long tTournamentManager::GetTournamentFinishPrize(short position)
 void tTournamentManager::GetAwardInformation(tAwardInformation &info_r)
 
 {
-  tAwardInformation *info = &info_r;   /* R-ref param; alias keeps body codegen-identical */
-  int *src_walk;
-  long tourn_money;
-  uint flags_pack;
-  int activate_class;
-  short tu1;
-  byte tc2;
-  byte tu3;
-  
-  src_walk = (int *)&(this->fAwards).fMoney;
-  do {
-    tourn_money = src_walk[1];
-    flags_pack = src_walk[2];
-    activate_class = src_walk[3];
-    info->fMoney = *src_walk;
-    info->fTournMoney = tourn_money;
-    info->fActivateFlags = (short)flags_pack;
-    info->fActivateTrack = (char)(flags_pack >> 0x10);
-    *((char*)info + 0xb) = (char)(flags_pack >> 0x18);
-    info->fActivateCarClass = activate_class;
-    src_walk = src_walk + 4;
-    info = (tAwardInformation *)&info->fActivateCar;
-  } while (src_walk != &(this->fAwards).fCompletedBonusMoney);
-  *(int *)info = *src_walk;
-  return;
+  /* Ghidra hand-expanded gcc's own movstrsi block copy of the 68-byte
+     tAwardInformation (4 words/iter + 1-word tail) — it is one struct assignment. */
+  info_r = this->fAwards;
 }
 
 

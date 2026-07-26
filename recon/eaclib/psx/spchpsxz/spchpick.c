@@ -522,7 +522,26 @@ choose:
                 outChoice[3] = (short)picked;
                 phraseTemplate = (short *)iSPCH_GetOffset8(sentence, sentence + 4, table);
                 if (iSPCH_GetPhraseBank(phraseTemplate, paramTable, outChoice) == 0) {
-                    /* MATCH (w32-a9, 17 -> 11 diffs, 83 -> 81 insns): the fail test is written
+                    /* MATCH (w34-a9, 7 -> 1 diff): the compare constant is carried by a
+                     * loop-body local `mark` that is SET TWICE in the loop (-2 for the test,
+                     * then -1 for the failure store).  Two sets => loop.c's set_in_loop != 1
+                     * => the `li -2` is NOT a movable, so it stays in the loop and fills the
+                     * `lh`'s load-delay slot exactly like retail (`lh v1,0(s0); li v0,-2;
+                     * bne v1,v0`).  This is the general cure for the move_movables constant
+                     * hoist when the cost model (threshold*savings*lifetime >= insn_count)
+                     * cannot be beaten: give the constant a VARIABLE that the loop rewrites.
+                     * A single-set named local, a volatile local, `(int)` casts and Yoda order
+                     * all leave the hoist in place (all 13 diffs / 83 insns, +fp save/restore).
+                     * RESIDUAL 1 (79/80): gcc cross-jumps our mismatch tail (`result = 0;
+                     * goto out;`) into the `fail:` block, so the `bne` targets .L80101008 with
+                     * `li s4,-1` in its delay slot instead of retail's direct
+                     * `bne ... .L8010109C` + duplicated `addu s4,zero,zero` in the slot.
+                     * That is the known eaclib "retail never merges identical tails" identity
+                     * (catalog wave-6 "no reliable anti-merge lever").  Falsified here:
+                     * `return 0;` and `result = 0; return result;` (both 3 diffs / 81 insns,
+                     * the block lands in $v0 not $s4); inverting the test so the -1 arm is the
+                     * if-body (31 diffs).
+                     * HISTORY (w32-a9, 17 -> 11 diffs, 83 -> 81 insns): the fail test was written
                      * `*outChoice + 2 != 0` rather than `*outChoice != -2`.  Retail's compare IS
                      * `lh v1; li v0,-2; bne v1,v0` (the li also filling the lh load-delay slot),
                      * but as a plain loop-invariant constant our cc1's move_movables hoists that
@@ -537,11 +556,13 @@ choose:
                      * -- but at 34 diffs (the un-strength-reduced walker re-colors the whole body),
                      * so it is not kept.  What is still missing is a source form that keeps the
                      * reduced loop AND leaves the `li -2` in the block. */
-                    if (*outChoice + 2 != 0) {
+                    int mark = -2;
+                    if (*outChoice != (short)mark) {
                         result = 0;
                         goto out;
                     }
-                    result = -1;
+                    mark = -1;
+                    result = mark;
                     *outChoice = (short)result;
                     goto out;
                 }

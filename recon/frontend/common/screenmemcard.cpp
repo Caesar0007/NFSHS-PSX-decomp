@@ -566,26 +566,30 @@ void tScreenMemcard::SetEnablings()
 
 {
   bool DontChangeEnablings;
-  CARDINFO_def *cardInfo;
   int status;
   void *cheater;
   int i;
   tScreenMemcard *walk;
-  
-  cardInfo = MCRD_getcard(this->card);
+  int numfiles;
+
+  this->pCI = MCRD_getcard(this->card);
   i = 0;
-  this->pCI = cardInfo;
+  numfiles = this->pCI->numfiles;
   DontChangeEnablings = false;
   walk = this;
-  if (0 < cardInfo->numfiles) {
+  if (0 < numfiles) {
     do {
-      if ((((this->goticon[i] == '\0') || (0 < walk->fFadeIcon[0])) &&
-          (status = this->pCI->status, status != -1)) && (status != -2)) {
-        DontChangeEnablings = true;
+      if ((this->goticon[i] == '\0') || (0 < walk->fFadeIcon[0])) {
+        status = this->pCI->status;
+        if (status != -1) {
+          if (status != -2) {
+            DontChangeEnablings = true;
+          }
+        }
       }
       i = i + 1;
       walk = (tScreenMemcard *)((int)&(walk)->fPermShapes.fShapes + 2);
-    } while (i < cardInfo->numfiles);
+    } while (i < numfiles);
   }
   if (CURRENTLYUSINGMEMCARD != 0) {
     DontChangeEnablings = true;
@@ -845,7 +849,7 @@ void tScreenMemcard::ReleaseIcons()
 void tScreenMemcard::Initialize()
 
 {
-  byte inputPlayer;
+  int inputPlayer;
   tFEApplication *feApp;
   tGlobalMenuDefs *menus;
   uint saveFlags;
@@ -881,21 +885,26 @@ void tScreenMemcard::Initialize()
   msgId = 0x287;
   this->player = (ushort)inputPlayer;
   this->card = (uint)inputPlayer * 4 + 1;
-  menus = menuDefs[0];
   if (this->player != 0) {
     msgId = 0x289;
   }
   i = 0;
-  saveFlags = (menuDefs[0]->itemSaveGame).fFlags;
-  loadFlags = (menuDefs[0]->itemLoadGame).fFlags;
-  (menuDefs[0]->itemLoadGame).fTextDescription = msgId;
+  menus = menuDefs[0];
+  saveFlags = (menus->itemSaveGame).fFlags;
+  loadFlags = (menus->itemLoadGame).fFlags;
+  walk = this;
+  (menus->itemLoadGame).fTextDescription = msgId;
   (menus->itemSaveGame).fFlags = saveFlags | 1;
   (menus->itemLoadGame).fFlags = loadFlags | 1;
-  walk = this;
   do {
     this->goticon[i] = '\0';
     this->numicon[i] = '\0';
     this->numblock[i] = '\0';
+    /* FLOOR: gcc hoists a shared base (this+0x514/0x532, 30 apart) for these
+       two stores regardless of statement order tried; oracle keeps `walk`
+       bare (this+i*2) and uses the full field displacements directly --
+       genuine base-anchor materialization tie-break (§3.12 GENUINE FLOOR
+       family), not source-shapable. 8-diff residual, insn count exact. */
     walk->fFadeIcon[0] = 0x80;
     walk->fMemIconClutId[0] = 0;
     i = i + 1;

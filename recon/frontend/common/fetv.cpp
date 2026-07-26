@@ -522,8 +522,8 @@ void InitTV(tTVConfig &tv,tTexture_ShapeInfo *textures,short index)
           (int)(short)(*(u_short *)((int)&textures->shapex + iVar5) & 0xffc0)) * 0x10;
   tv.u = (u_char)(iVar4 / (int)uVar3);
   uVar1 = *(u_char *)((int)&textures->shapey + iVar5);
-  tv.vh = (u_char)tv.h;
   tv.uw = (u_char)tv.w;
+  tv.vh = (u_char)tv.h;
   tv.v = uVar1;
   tv.shapex = *(u_short *)((int)&textures->shapex + iVar5);
   tv.shapey = *(u_short *)((int)&textures->shapey + iVar5);

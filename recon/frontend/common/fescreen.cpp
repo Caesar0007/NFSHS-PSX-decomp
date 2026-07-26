@@ -470,58 +470,49 @@ void tScreen::InitializeShapes(tShapeInformation &data,u_int numShapes)
 void tScreen::FreeShapes(tShapeInformation &data)
 
 {
-  u_int uVar1;
-  int iVar2;
-  char *pcVar3;
-  int iVar4;
-  tShapeInformation *buf;
-  
-  buf = &data;
+  int status;
+  short i;
+
   this->CancelAsyncLoad(data);
-  uVar1 = data.async_handle;
-  do {
-    if (uVar1 == 0) {
-      if (data.fFile != (char *)0x0) {
-        if (data.fDestFile == (char *)0x0) {
-          purgememadr(data.fFile);
-        }
-        data.fFile = (char *)0x0;
-      }
-      if (data.fShapes != (tTexture_ShapeInfo *)0x0) {
-        iVar2 = 0;
-        if (data.fNumShapes != 0) {
-          iVar4 = 0;
-          do {
-            if (*(int *)((int)&data.fShapes->clutID + (iVar4 >> 0xb)) != 0) {
-              Texture_MenuReleaseClutId(*(short *)((int)&data.fShapes->clutID + (iVar4 >> 0xb)));
-            }
-            iVar2 = iVar2 + 1;
-            iVar4 = iVar2 * 0x10000;
-          } while (iVar2 * 0x10000 >> 0x10 < (int)(u_int)data.fNumShapes);
-        }
-        purgememadr(data.fShapes);
-        data.fShapes = (tTexture_ShapeInfo *)0x0;
-      }
-      return;
-    }
-    iVar2 = getasyncreadstatus(data.async_handle);
-    if ((iVar2 < 1) && (iVar2 != -1)) {
-      if (iVar2 == -2) goto FreeShapes_clearHandleAndPump;
-    }
-    else {
+  /* MATCH: a plain top-tested `while` -- gcc rotates it (entry test + bottom
+     bne) and LICMs the -1/-2 sentinels into callee-saved regs, which the
+     do{}while(true)+early-return shape does not. */
+  while (data.async_handle != 0) {
+    status = getasyncreadstatus(data.async_handle);
+    if ((0 < status) || (status == -1)) {
       if (data.fDestFile == (char *)0x0) {
-        pcVar3 = getasyncreadadr(data.async_handle,buf);
-        data.fFile = pcVar3;
+        data.fFile = getasyncreadadr(data.async_handle);
       }
       else {
         data.fFile = (char *)0x0;
       }
-FreeShapes_clearHandleAndPump:
+      data.async_handle = 0;
+    }
+    else if (status == -2) {
       data.async_handle = 0;
     }
     FeAudio_systemtask(0);
-    uVar1 = data.async_handle;
-  } while( true );
+  }
+  if (data.fFile != (char *)0x0) {
+    if (data.fDestFile == (char *)0x0) {
+      purgememadr(data.fFile);
+    }
+    data.fFile = (char *)0x0;
+  }
+  if (data.fShapes != (tTexture_ShapeInfo *)0x0) {
+    if (data.fNumShapes != 0) {
+      i = 0;
+      do {
+        if (*(int *)&data.fShapes[i].clutID != 0) {
+          Texture_MenuReleaseClutId(data.fShapes[i].clutID);
+        }
+        i = i + 1;
+      } while (i < (int)(u_int)data.fNumShapes);
+    }
+    purgememadr(data.fShapes);
+    data.fShapes = (tTexture_ShapeInfo *)0x0;
+  }
+  return;
 }
 
 

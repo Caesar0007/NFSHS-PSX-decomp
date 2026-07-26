@@ -264,29 +264,21 @@ void LoadShapesAndMakePmx_EnvMap(char *shapefile,Draw_tPixMap *pmxList,int x,int
 
 {
   shapetbl *shape;
-  void *pvVar1;
-  char *n;
   int i;
-  int idx;
   Draw_tPixMap *pPmx;
   int recolor_flag;
   int negOne;
-  int flagBits;
 
-  flagBits = 0;
-  idx = 0;
+  pPmx = pmxList;
+  recolor_flag = 0;
+  i = recolor_flag;
   negOne = -1;
-LoadEnvMap_loopTest:
-  pvVar1 = shapecount(shapefile);
-  if (idx < (int)pvVar1) {
-    n = shapepointer(shapefile,idx);
-    if (n != (char *)0x0) {
-      Texture_LoadPmx((char *)0x0,n,flagBits | 0x42,x,y,negOne,negOne,pmxList)
-      ;
-      pmxList = pmxList + 1;
+  for (; i < (int)shapecount(shapefile); i++) {
+    shape = (shapetbl *)shapepointer(shapefile,i);
+    if (shape != (shapetbl *)0x0) {
+      Texture_LoadPmx((char *)0x0,(char *)shape,recolor_flag | 0x42,x,y,negOne,negOne,pPmx);
+      pPmx = pPmx + 1;
     }
-    idx = idx + 1;
-    goto LoadEnvMap_loopTest;
   }
   return;
 }

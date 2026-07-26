@@ -211,15 +211,6 @@ int AISpeeds_CalcOpponentTopSpeed(Car_tObj *carObj,int *unFetteredDesiredSpeed)
   int f_unfettered;
   int f_crappyFrameRateCompensatingSpeedup;
   int f_caravan;
-  int metersPastFinish;
-  int latLeft;
-  int latRight;
-  int totalSortIndex;
-  int iVar2;
-  int iVar4;
-  int iVar5;
-  Car_tObj **ppCVar6;
-  int iVar7;
 
   topSpeed = AISpeeds_CalcOpponentCurveSpeed(carObj);
   if (carObj->fallBehindCar != (Car_tObj *)0x0) {
@@ -236,60 +227,27 @@ int AISpeeds_CalcOpponentTopSpeed(Car_tObj *carObj,int *unFetteredDesiredSpeed)
   f_script = AISpeeds_GetScriptFactor(carObj);
   f_nitrous = carObj->speedNitrous;
   f_damage = AISpeeds_GetDamageFactor(carObj);
-  if ((GameSetup_gData.raceType == 1) || (Cars_gNumAIRaceCars < 2)) {
-    f_caravan = 0x10000;
-  }
-  else {
-    f_caravan = AISpeeds_GetCaravanFactor(carObj);
-  }
-  if (f_nitrous < 0) {
-    f_nitrous = f_nitrous + 0xff;
-  }
-  iVar7 = AISpeeds_trackAndNightMult;
-  if (AISpeeds_trackAndNightMult < 0) {
-    iVar7 = AISpeeds_trackAndNightMult + 0xff;
-  }
-  if (f_caravan < 0) {
-    f_caravan = f_caravan + 0xff;
-  }
-  iVar5 = GameSetup_gData.tournamentMultiplier;
-  if (GameSetup_gData.tournamentMultiplier < 0) {
-    iVar5 = GameSetup_gData.tournamentMultiplier + 0xff;
-  }
-  if (f_glue < 0) {
-    f_glue = f_glue + 0xff;
-  }
-  f_glue = (iVar5 >> 8) * (f_glue >> 8);
-  if (f_glue < 0) {
-    f_glue = f_glue + 0xff;
-  }
-  f_glue = (f_caravan >> 8) * (f_glue >> 8);
-  if (f_glue < 0) {
-    f_glue = f_glue + 0xff;
-  }
-  f_glue = (iVar7 >> 8) * (f_glue >> 8);
-  if (f_glue < 0) {
-    f_glue = f_glue + 0xff;
-  }
-  f_glue = (f_nitrous >> 8) * (f_glue >> 8);
-  f_unfettered = f_glue;
-  if (f_glue < 0) {
-    f_unfettered = f_glue + 0xff;
-  }
-  if (f_damage < 0) {
-    f_damage = f_damage + 0xff;
-  }
-  if (f_script < 0) {
-    f_script = f_script + 0xff;
-  }
-  f_final = (f_damage >> 8) * (f_script >> 8);
-  if (f_final < 0) {
-    f_final = f_final + 0xff;
-  }
-  f_final = (f_unfettered >> 8) * (f_final >> 8);
+  if (GameSetup_gData.raceType == 1) goto useDefaultCaravan;
+  if (Cars_gNumAIRaceCars < 2) goto useDefaultCaravan;
+  f_caravan = AISpeeds_GetCaravanFactor(carObj);
+  goto haveCaravan;
+useDefaultCaravan:
+  f_caravan = 0x10000;
+haveCaravan:
+  f_unfettered =
+      (f_nitrous / 256) *
+      (((AISpeeds_trackAndNightMult / 256) *
+        (((f_caravan / 256) *
+          (((GameSetup_gData.tournamentMultiplier / 256) *
+            (f_glue / 256)) / 256)) / 256)) / 256);
+
+  f_final =
+      (f_unfettered / 256) *
+      (((f_damage / 256) * (f_script / 256)) / 256);
   if ((GameSetup_gData.raceType != 1) && ((carObj->N).totalSlice < 0x96)) {
-    f_glue = fixedmult((0x10000 - f_glue) * (u_int)(carObj->N).totalSlice,0x1b4);
-    f_glue = 0x10000 - f_glue;
+    f_unfettered = fixedmult(
+        (0x10000 - f_unfettered) * (u_int)(carObj->N).totalSlice,0x1b4);
+    f_unfettered = 0x10000 - f_unfettered;
     if ((carObj->N).totalSlice < 0x96) {
       f_final = fixedmult((0x10000 - f_final) * (u_int)(carObj->N).totalSlice,0x1b4);
       f_final = 0x10000 - f_final;
@@ -297,74 +255,70 @@ int AISpeeds_CalcOpponentTopSpeed(Car_tObj *carObj,int *unFetteredDesiredSpeed)
   }
   f_crappyFrameRateCompensatingSpeedup = AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars(carObj);
   if (f_crappyFrameRateCompensatingSpeedup != 0x10000) {
-    if (f_glue < 0) {
-      f_glue = f_glue + 0xff;
-    }
-    if (f_crappyFrameRateCompensatingSpeedup < 0) {
-      f_crappyFrameRateCompensatingSpeedup = f_crappyFrameRateCompensatingSpeedup + 0xff;
-    }
-    f_glue = (f_glue >> 8) * (f_crappyFrameRateCompensatingSpeedup >> 8);
-    if (f_final < 0) {
-      f_final = f_final + 0xff;
-    }
-    f_final = (f_final >> 8) * (f_crappyFrameRateCompensatingSpeedup >> 8);
+    f_unfettered =
+        (f_unfettered / 256) * (f_crappyFrameRateCompensatingSpeedup / 256);
+    f_final =
+        (f_final / 256) * (f_crappyFrameRateCompensatingSpeedup / 256);
   }
   f_final = AISpeeds_LimitGlueMultiplier(carObj,f_final);
   carObj->aiGlue = f_final;
-  f_glue = AISpeeds_LimitGlueMultiplier(carObj,f_glue);
-  if (carObj->aiGlue < 0x10001) {
-    (carObj->N).gravityMult = 0x10000;
-  }
-  else {
+  f_unfettered = AISpeeds_LimitGlueMultiplier(carObj,f_unfettered);
+  if (0x10000 < carObj->aiGlue) {
     (carObj->N).gravityMult = carObj->aiGlue;
   }
-  if (topSpeed < 0) {
-    topSpeed = topSpeed + 0xff;
+  else {
+    (carObj->N).gravityMult = 0x10000;
   }
-  newDesired = carObj->aiGlue;
-  if (newDesired < 0) {
-    newDesired = newDesired + 0xff;
-  }
-  newDesired = (topSpeed >> 8) * (newDesired >> 8);
-  if (f_glue < 0) {
-    f_glue = f_glue + 0xff;
-  }
-  *unFetteredDesiredSpeed = (topSpeed >> 8) * (f_glue >> 8);
+
+  newDesired = (topSpeed / 256) * (carObj->aiGlue / 256);
+  *unFetteredDesiredSpeed = (topSpeed / 256) * (f_unfettered / 256);
   if ((((carObj->carFlags & 1U) != 0) && ((carObj->stats).finishType == 2)) &&
      (((GameSetup_gData.raceType != 1 && (GameSetup_gData.raceType != 5)) ||
       ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0 &&
-       ((Cars_gNumHumanRaceCars != 2 || (((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0)))))))) {
+       ((Cars_gNumHumanRaceCars != 2 || (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) == 0)))))))) {
+    int metersPastFinish;
+    int latLeft;
+    int latRight;
+    int totalSortIndex;
+
     metersPastFinish = AIWorld_ApxSplineDistance(carObj,0);
     totalSortIndex = 0;
-    if (metersPastFinish < 0) {
-      metersPastFinish = -metersPastFinish;
-    }
-    latRight = (carObj->N).dimension.x;
-    latLeft = carObj->roadPosition - latRight;
-    latRight = carObj->roadPosition + latRight;
-    if (0 < Cars_gNumCars) {
-      ppCVar6 = Cars_gTotalSortedList;
-      do {
-        if (*ppCVar6 == carObj) break;
-        totalSortIndex = totalSortIndex + 1;
-        ppCVar6 = ppCVar6 + 1;
-      } while (totalSortIndex < Cars_gNumCars);
-    }
-    if (totalSortIndex * 0x280000 <= metersPastFinish) {
-      iVar2 = (carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices;
-      totalSortIndex = -((u_int)*(u_char *)(iVar2 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar2 + 0x1d) >> 4));
-      if (totalSortIndex <= latLeft) {
-        iVar4 = (u_int)*(u_char *)(iVar2 + 0x1f) * 0x8000 * (*(u_char *)(iVar2 + 0x1d) & 0xf);
-        if ((latLeft <= iVar4) && (totalSortIndex <= latRight)) {
-          newDesired = 0;
-          if (iVar4 < latRight) goto LAB_8006de40;
-          if (metersPastFinish < 0x1900001) {
-            newDesired = 0x11c71c;
-            goto LAB_8006de40;
-          }
-        }
+    metersPastFinish = __builtin_abs(metersPastFinish);
+    latLeft = carObj->roadPosition - (carObj->N).dimension.x;
+    latRight = carObj->roadPosition + (carObj->N).dimension.x;
+
+    while (totalSortIndex < Cars_gNumCars) {
+
+      if (Cars_gTotalSortedList[totalSortIndex] == carObj) {
+
+        break;
+
       }
-      newDesired = 0;
+
+      totalSortIndex++;
+
+    }
+
+    if (totalSortIndex * 0x280000 <= metersPastFinish) {
+      u_int laneCount =
+          BWorldSm_slices[carObj->N.simRoadInfo.slice].laneCount;
+
+      if ((latLeft <
+           (int)-((BWorldSm_slices[carObj->N.simRoadInfo.slice].avgPavedWidthLf << 15) *
+                  (laneCount >> 4))) ||
+          ((int)((BWorldSm_slices[carObj->N.simRoadInfo.slice].avgPavedWidthRt << 15) *
+                 (laneCount & 0xf)) < latLeft) ||
+          (latRight <
+           (int)-((BWorldSm_slices[carObj->N.simRoadInfo.slice].avgPavedWidthLf << 15) *
+                  (laneCount >> 4))) ||
+          ((int)((BWorldSm_slices[carObj->N.simRoadInfo.slice].avgPavedWidthRt << 15) *
+                 (laneCount & 0xf)) < latRight) ||
+          (0x1900000 < metersPastFinish)) {
+        newDesired = 0;
+      }
+      else {
+        newDesired = 0x11c71c;
+      }
     }
   }
 LAB_8006de40:

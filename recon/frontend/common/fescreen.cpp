@@ -150,13 +150,51 @@ void tScreen::AsyncLoadSwapShapeFile(char *fileName)
 void * tScreen::IsShapeFileLoaded(tShapeInformation &shapes)
 
 {
-  int iVar1;
-  char *pcVar2;
-  void *pvVar3;
-  tShapeInformation *buf;
-  
-  if (shapes.async_handle == 0) {
-    pvVar3 = (void *)0x1;
+  int status;
+  char *file;
+  int result;
+
+  /* MATCH: ONE result var (retail's $s1, set to 1 in the entry branch's delay
+     slot) with a single return -- the per-arm `pvVar3 = 0` funnel Ghidra
+     produced duplicates the tail.  getasyncreadadr takes ONE arg (the oracle
+     sets only $a0). */
+  result = 1;
+  if (shapes.async_handle != 0) {
+    status = getasyncreadstatus(shapes.async_handle);
+    if (0 < status) {
+      if (shapes.fDestFile == (char *)0x0) {
+        shapes.fFile = (char *)getasyncreadadr(shapes.async_handle);
+      }
+      else {
+        shapes.fFile = shapes.fDestFile;
+      }
+      shapes.async_handle = 0;
+      if ((shapes.fFile != (char *)0x0) && (shapes.fLoadCancelled != 0)) {
+        if (shapes.fDestFile == (char *)0x0) {
+          purgememadr(shapes.fFile);
+        }
+        shapes.fFile = (char *)0x0;
+      }
+    }
+    else {
+      if (status == -1) {
+        file = (char *)getasyncreadadr(shapes.async_handle);
+        if (file != (char *)0x0) {
+          purgememadr(file);
+        }
+        this->AsyncLoadShapeFile(shapes.fFilename,shapes);
+        result = 0;
+      }
+      else if (status == -2) {
+        this->AsyncLoadShapeFile(shapes.fFilename,shapes);
+        result = 0;
+      }
+      else {
+        result = 0;
+      }
+    }
+    }
+  else {
     if (shapes.fLoadCancelled != 0) {
       if (shapes.fFile != (char *)0x0) {
         if (shapes.fDestFile == (char *)0x0) {
@@ -167,48 +205,12 @@ void * tScreen::IsShapeFileLoaded(tShapeInformation &shapes)
       shapes.fLoadCancelled = 0;
       this->AsyncLoadShapeFile(shapes.fFilename,shapes);
       this->IsShapeFileLoaded(shapes);
-      pvVar3 = (void *)0x0;
+      result = 0;
     }
-  }
-  else {
-    buf = &shapes;
-    iVar1 = getasyncreadstatus(shapes.async_handle);
-    if (iVar1 < 1) {
-      if (iVar1 == -1) {
-        pvVar3 = getasyncreadadr(shapes.async_handle,buf);
-        if (pvVar3 != (void *)0x0) {
-          purgememadr(pvVar3);
-        }
-        this->AsyncLoadShapeFile(shapes.fFilename,shapes);
-        pvVar3 = (void *)0x0;
-      }
-      else {
-        pvVar3 = (void *)0x0;
-        if (iVar1 == -2) {
-          this->AsyncLoadShapeFile(shapes.fFilename,shapes);
-          pvVar3 = (void *)0x0;
-        }
-      }
     }
-    else {
-      pcVar2 = shapes.fDestFile;
-      if (pcVar2 == (char *)0x0) {
-        pcVar2 = getasyncreadadr(shapes.async_handle,buf);
-      }
-      shapes.fFile = pcVar2;
-      shapes.async_handle = 0;
-      pvVar3 = (void *)0x1;
-      if ((shapes.fFile != (char *)0x0) && (pvVar3 = (void *)0x1, shapes.fLoadCancelled != 0)) {
-        if (shapes.fDestFile == (char *)0x0) {
-          purgememadr(shapes.fFile);
-        }
-        shapes.fFile = (char *)0x0;
-        pvVar3 = (void *)0x1;
-      }
-    }
-  }
-  return pvVar3;
+  return (void *)result;
 }
+
 
 
 

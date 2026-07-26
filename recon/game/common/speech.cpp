@@ -3266,7 +3266,6 @@ Catch_dispatchCallback:
 void RoadBlock__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
 
 {
-  bool bVar1;
   Car_tObj *carObj;
   int iVar2;
   int iVar3;
@@ -3274,17 +3273,20 @@ void RoadBlock__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
   SPCHNFSType_VOICE *ctx;
   SPCHNFSType_VOICE *VOICE;
   SPCHNFSType_REVINTRO *REVINTRO;
+  Speaker *dispatch;
   
-  iVar2 = Dispatch__6Speech();
-  bVar1 = false;
-  if (*(int *)(iVar2 + 0x48) != 0) {
-    iVar2 = Dispatch__6Speech();
-    bVar1 = *(MobileSpeaker **)(iVar2 + 0x48) != pThis;
+  dispatch = (Speaker *)Dispatch__6Speech();
+  ctx = (SPCHNFSType_VOICE *)0;
+  if (dispatch->fSub != 0) {
+    dispatch = (Speaker *)Dispatch__6Speech();
+    ctx = (SPCHNFSType_VOICE *)((u_int)ctx <
+          ((u_int)dispatch->fSub ^ (u_int)pThis));
   }
-  if (bVar1) {
-    iVar2 = Dispatch__6Speech();
-    iVar3 = *(int *)(*(int *)(iVar2 + 0x48) + 0x4c);
-    (**(int (**)(...))(iVar3 + 0x54))(*(int *)(iVar2 + 0x48) + (int)*(short *)(iVar3 + 0x50));
+  if (ctx != (SPCHNFSType_VOICE *)0) {
+    dispatch = (Speaker *)Dispatch__6Speech();
+    dispatch = dispatch->fSub;
+    pa_Var4 = dispatch->_vf;
+    (*(*pa_Var4)[10].pfn)((int)&dispatch->fPosition.flags + (int)(*pa_Var4)[10].delta);
   }
   else {
     Promote__Q26Speech7Speaker(&pThis->_base_Speaker);
@@ -3313,7 +3315,6 @@ void RoadBlock__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
 void SpikeBelt__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
 
 {
-  bool bVar1;
   Car_tObj *carObj;
   int iVar2;
   int iVar3;
@@ -3321,17 +3322,20 @@ void SpikeBelt__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
   SPCHNFSType_VOICE *ctx;
   SPCHNFSType_VOICE *VOICE;
   SPCHNFSType_REVINTRO *REVINTRO;
+  Speaker *dispatch;
   
-  iVar2 = Dispatch__6Speech();
-  bVar1 = false;
-  if (*(int *)(iVar2 + 0x48) != 0) {
-    iVar2 = Dispatch__6Speech();
-    bVar1 = *(MobileSpeaker **)(iVar2 + 0x48) != pThis;
+  dispatch = (Speaker *)Dispatch__6Speech();
+  ctx = (SPCHNFSType_VOICE *)0;
+  if (dispatch->fSub != 0) {
+    dispatch = (Speaker *)Dispatch__6Speech();
+    ctx = (SPCHNFSType_VOICE *)((u_int)ctx <
+          ((u_int)dispatch->fSub ^ (u_int)pThis));
   }
-  if (bVar1) {
-    iVar2 = Dispatch__6Speech();
-    iVar3 = *(int *)(*(int *)(iVar2 + 0x48) + 0x4c);
-    (**(int (**)(...))(iVar3 + 0x5c))(*(int *)(iVar2 + 0x48) + (int)*(short *)(iVar3 + 0x58));
+  if (ctx != (SPCHNFSType_VOICE *)0) {
+    dispatch = (Speaker *)Dispatch__6Speech();
+    dispatch = dispatch->fSub;
+    pa_Var4 = dispatch->_vf;
+    (*(*pa_Var4)[11].pfn)((int)&dispatch->fPosition.flags + (int)(*pa_Var4)[11].delta);
   }
   else {
     Promote__Q26Speech7Speaker(&pThis->_base_Speaker);

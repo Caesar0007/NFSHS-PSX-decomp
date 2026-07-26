@@ -66,7 +66,18 @@ extern int SNDbankheadercopy(void *dst, int bankId);   /* @0x800E7BA8 */
  *    eager-steal `origin = bankData` into the `beqz` slot, while ours leaves the load delay empty and
  *    gives the branch slot to `i = 0`.  Hoisting `i = 0` above the guard (both before and after the
  *    bankData load) does NOT change that -- it only turns `i` into a cross-block allocno that loses
- *    $v1 to $a3 and costs a 7th preheader move (37 diffs both ways).  Scheduler-tie class. */
+ *    $v1 to $a3 and costs a 7th preheader move (37 diffs both ways).  Scheduler-tie class.
+ *
+ * W35-a6 2026-07-26: residual (b) re-attacked from the one angle the earlier waves did NOT cover --
+ * they only tried HOISTING `i = 0` out of the preheader block; this session swept its position
+ * WITHIN the block, which is what actually feeds sched2's ready list.  Moving the `i = 0` statement
+ * to each of the 7 slots gates 37 / 37 / 37 / 33 / 29 / 21 / 13, i.e. the diff count falls
+ * MONOTONICALLY the LATER `i = 0` is written and the kept form (last) is the optimum; putting
+ * `origin = bankData` last instead gates 15, and doing both gates 39.  Every variant stays 82/81, so
+ * no statement position anywhere in the preheader recovers the missing instruction -- the oracle's
+ * choice to spend the `lw s0,0(s0)` load-delay slot on `i = 0` (and only then eager-steal `origin`
+ * into the `beqz` slot) is a scheduler decision that no source order reaches.  Floor CONFIRMED, and
+ * the sweep is exhaustive over statement order, so do not re-run it. */
 extern int SNDbankheadercopy(void *dst, int bankId)
 {
     unsigned char *dest = (unsigned char *)dst;

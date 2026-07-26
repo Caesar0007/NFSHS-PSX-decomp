@@ -382,7 +382,24 @@ extern int iSNDstreamparsedata(int S, int chunk)
  * Also tested (a3's "redundant copy = a SECOND source evaluation" lever): spelling the seed as a
  * literal re-evaluation `int ptr = chunk + 0x10;` alongside the named `flatBase` -- our cse.c folds
  * the two and copy-prop then deletes the copy, so it still lands at 96 insns (17 diffs).  The seed
- * copy is unreachable from C on this compiler. */
+ * copy is unreachable from C on this compiler.
+ *
+ * W35-a6 2026-07-26: independently re-derived and re-measured; every number above REPRODUCES, and
+ * the trichotomy's third branch (loop.c GIV ANCHOR -- the one branch the earlier waves had not
+ * applied to the seed copy) was added and also fails.  The reasoning was that a giv's preheader
+ * initialisation is emitted as a COPY of its base, which is exactly the oracle's `addu a2,a3,zero`;
+ * so the offset was respelled as a genuine giv `dp[3] = flatBase + i * step;` (variable stride, i
+ * already the loop counter starting at 0, so it is value-identical).  loop.c does strength-reduce
+ * it, but it folds the seed into the base register just like the direct form: 23 diffs at 96 insns,
+ * and the index-form twin `desc[3 + i] = flatBase + i * step;` is worse still at 36 (99/97, the
+ * combine_givs merge this archive shows everywhere).  Full w35 measurement set, all vs 13/98:
+ * direct `addr = chunk + 0x10` 17 (96/97) | named base + copy 17 (96/97) | double evaluation
+ * (`flatBase` and `addr` both spelled `chunk + 0x10`) 17 (96/97) | giv `i * step` 23 (96/97) |
+ * giv index form 36 (99/97) | `off` hoisted above the flat/interleaved branch and copied in the
+ * flat arm 20 (95/97).  All three trichotomy branches are now closed, so cluster (1) is a STRONG
+ * no-copy-prop identity floor.  Cluster (2) re-confirmed unchanged: the oracle sinks the
+ * `lw desc[3]` reload into the `mult`/`mfhi` latency window (oracle index 48) where ours issues it
+ * after the quotient store (index 58) -- a list-scheduler decision, source-order-immune. */
 
 /* iSNDstreamparseend @0x800E9230 : 'SCEl' chunk -- end of one queued sound; advance parseIdx. */
 extern int iSNDstreamparseend(int S, int chunk)

@@ -3,6 +3,7 @@
 import sys, importlib.util, difflib
 from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT/"tools"))
 sys.argv = ['verify_asm.py', sys.argv[1], sys.argv[2]]
 spec = importlib.util.spec_from_file_location('vfy', ROOT/'tools'/'verify_asm.py')
 vfy = importlib.util.module_from_spec(spec)

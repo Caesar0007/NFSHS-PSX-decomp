@@ -654,7 +654,6 @@ void Camera_UpdateCircleCam(int player)
   short sVar1;
   BO_tNewtonObj *pBVar2;
   int uVar3;
-  Camera_tInfo *pCVar4;
 
   if ((((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) &&
       (InBetween == 0)) && (simVar.pauseSim == 0)) {
@@ -678,12 +677,13 @@ void Camera_UpdateCircleCam(int player)
       hval = h0;
     }
     src.y = hval;
-    pCVar4 = Camera_gInfo + player;
-    transform(&src,(pCVar4->anchor->orientMat).m,&des);
+    /* SYM has no persistent Camera_tInfo pointer here. Direct indexing lets gcc create
+     * the retail $s0 base only after the merged src.y assignment. */
+    transform(&src,(Camera_gInfo[player].anchor->orientMat).m,&des);
     Camera_TunnelLimit(player,&des.y);
-    Camera_gInfo[player].position.x = (pCVar4->anchor->position).x + des.x;
+    Camera_gInfo[player].position.x = (Camera_gInfo[player].anchor->position).x + des.x;
     /* MATCH: oracle re-loads anchor for the y/z pair */
-    pBVar2 = *(BO_tNewtonObj *volatile *)&pCVar4->anchor;
+    pBVar2 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
     Camera_gInfo[player].position.y = (pBVar2->position).y + des.y;
     Camera_gInfo[player].position.z = (pBVar2->position).z + des.z;
   }

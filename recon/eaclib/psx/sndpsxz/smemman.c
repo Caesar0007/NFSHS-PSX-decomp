@@ -1,4 +1,4 @@
-/* eaclib/psx/sndpsxz/smemman.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 4/4 ***
+/* eaclib/psx/sndpsxz/smemman.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 3/4 PASS ***
  *   Source obj : nfs4\eaclib\psx\smemman.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   4 fns @[0x801061A8 .. 0x80106238].  The sound system's main-RAM sub-allocator (the `sndmm` pool the
  *   game hands SNDSYS_init) -- a sorted first-fit free-list of up to 128 {block,size} word entries.
@@ -66,65 +66,111 @@ extern unsigned int iSNDmemrestore(void)
 }
 
 /* iSNDmalloc @0x80106238 : first-fit allocate `size` bytes (rounded to words) from the sndmm pool,
- *   inserting the new {block,size} entry in sorted order.  Returns the byte address or 0 on failure. */
+ *   inserting the new {block,size} entry in sorted order.  Returns the byte address or 0 on failure.
+ * RAW/ORACLE (2026-07-26, 134->106 detailed diffs): keep the table scan indexed from distinct
+ * `sndmm+0xc` entry and `sndmm+8` previous-entry bases, and express the packed shift as memcpy.
+ * This restores the oracle's saved-register family and direct lwl/lwr/swl/swr copy sequence. */
 extern int iSNDmalloc(int size)
 {
-    typedef struct SNDMemEntry {
-        unsigned short block;
-        unsigned short size;
-    } SNDMemEntry;
-    int index = 0;
-    int block;
-    int available;
-    SNDMemEntry *entries;
-    int result;
+    unsigned char *base = (unsigned char *)&sndmm;
+    unsigned char *mm;
+    unsigned int   count;
+    unsigned int   src;
+    int            index = 0;
+    int            block;
+    int            available;
 
-    if ((unsigned short)sndmm.count >= 0x80)
-        return 0;
-    size = (size + 3) >> 2;
-    if ((unsigned short)sndmm.count == 0) {
-        block = 0;
-        available = (unsigned short)sndmm.poolWords;
-        iSNDmemconstrain(&block, &available);
-        if (available >= size)
-            goto commit;
-        return 0;
-    }
+    count = *(unsigned short *)(base + 4);
+    if (count >= 0x80)
+        goto fail;
+    size += 3;
+    size >>= 2;
+    if (count != 0)
+        goto nonempty;
+    block = 0;
+    available = *(unsigned short *)(base + 6);
+constrain:
+    iSNDmemconstrain(&block, &available);
+    if (size <= available)
+        goto commit;
+fail:
+    return 0;
 
-    entries = (SNDMemEntry *)((char *)&sndmm + 0xc);
-    while (index < (unsigned short)sndmm.count) {
-        if (index == 0) {
-            block = 0;
-            available = entries[index].block;
-        } else {
-            block = entries[index - 1].block + entries[index - 1].size;
-            available = entries[index].block - block;
-        }
-        iSNDmemconstrain(&block, &available);
-        if (available >= size) {
-            int count = (unsigned short)sndmm.count;
-            while (index < count) {
-                entries[count] = entries[count - 1];
-                count--;
+nonempty:
+    {
+        unsigned char *entries;
+        unsigned char *previous;
+        mm = base;
+        entries = mm + 0xc;
+        previous = mm + 8;
+        if (index >= (int)(unsigned int)*(unsigned short *)(mm + 4))
+            goto scan_done;
+scan:
+        {
+            unsigned char *entry =
+                (unsigned char *)((unsigned int)(index * 4) +
+                                  (unsigned int)entries);
+            if (index == 0) {
+                block = 0;
+                available = *(unsigned short *)entry;
+            } else {
+                unsigned short *prev =
+                    (unsigned short *)(previous + index * 4);
+                block = (int)prev[0] + (int)prev[1];
+                available = *(unsigned short *)entry - block;
             }
-            goto commit;
+            iSNDmemconstrain(&block, &available);
+            if (size <= available) {
+                count = *(unsigned short *)(mm + 4);
+                if (index < (int)count) {
+                    do {
+                        struct PackedMemSlot {
+                            unsigned char pad[0xc];
+                            int word;
+                        } __attribute__((packed));
+                        volatile struct PackedMemSlot *dst =
+                            (struct PackedMemSlot *)
+                                ((unsigned int)(count * 4) + (unsigned int)mm);
+                        src = count - 1;
+                        __builtin_memcpy(
+                            (void *)&dst->word,
+                            (void *)&((struct PackedMemSlot *)
+                                          ((unsigned int)(src * 4) +
+                                           (unsigned int)mm))->word,
+                            4);
+                        count = src;
+                    } while (index < (int)src);
+                }
+                goto commit;
+            }
         }
         index++;
+        if (index < (int)(unsigned int)*(unsigned short *)(mm + 4))
+            goto scan;
+scan_done:
+        {
+            unsigned short *prev =
+                (unsigned short *)(previous + index * 4);
+            block = (int)prev[0] + (int)prev[1];
+            available = *(unsigned short *)(mm + 6) - block;
+        }
     }
-
-    block = entries[index - 1].block + entries[index - 1].size;
-    available = (unsigned short)sndmm.poolWords - block;
-    iSNDmemconstrain(&block, &available);
-    if (available < size)
-        return 0;
+    goto constrain;
 
 commit:
-    entries = (SNDMemEntry *)((char *)&sndmm + 0xc);
-    entries[index].size = (unsigned short)size;
-    entries[index].block = (unsigned short)block;
-    sndmm.count = sndmm.count + 1;
-    result = sndmm.base + block * 4;
-    if (sndmm.highWater < block + size)
-        sndmm.highWater = block + size;
-    return result;
+    {
+        unsigned char *entries = (unsigned char *)&sndmm + 0xc;
+        unsigned short *entry =
+            (unsigned short *)(entries + index * 4);
+        unsigned char *commitBase = entries - 0xc;
+        int result;
+        entry[1] = (unsigned short)size;
+        entry[0] = (unsigned short)block;
+        *(unsigned short *)(commitBase + 4) =
+            *(unsigned short *)(commitBase + 4) + 1;
+        result = *(int *)commitBase + block * 4;
+        if (*(int *)(commitBase + 8) < block + size)
+            *(int *)(commitBase + 8) = block + size;
+        return result;
+    }
 }

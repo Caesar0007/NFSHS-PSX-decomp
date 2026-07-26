@@ -1481,7 +1481,6 @@ void AI_CalculateAdjustedDesiredSpeed(Car_tObj *carObj)
   int Vrel_hit;
   int Vlane;
   int finalLaneSpeed;
-  bool bVar1;
   int iVar2;
 
   carObjLocal = carObj;
@@ -1524,38 +1523,35 @@ void AI_CalculateAdjustedDesiredSpeed(Car_tObj *carObj)
     if (iVar2 < carObjLocal->desiredSpeed) {
       carObjLocal->desiredSpeed = iVar2;
     }
-    iVar2 = -0x14ccc;
-    bVar1 = carObjLocal->desiredSpeed < -0x14ccc;
+    if (carObjLocal->desiredSpeed < -0x14ccc) {
+      carObjLocal->desiredSpeed = -0x14ccc;
+    }
   }
   else {
     if (carObjLocal->desiredSpeed < iVar2) {
       carObjLocal->desiredSpeed = iVar2;
     }
-    iVar2 = 0x14ccc;
-    bVar1 = 0x14ccc < carObjLocal->desiredSpeed;
-  }
-  if (bVar1) {
-    carObjLocal->desiredSpeed = iVar2;
+    if (0x14ccc < carObjLocal->desiredSpeed) {
+      carObjLocal->desiredSpeed = 0x14ccc;
+    }
   }
   if ((AI_Info.desiredLane != carObjLocal->laneIndex) && (AI_Info.blockingCars[1] != (Car_tObj *)0x0)) {
-    iVar2 = AI_Info.blockingCars[1]->currentSpeed;
-    if (iVar2 < 0) {
-      iVar2 = -iVar2;
-    }
-    if (iVar2 < 0xa0000) {
+    if (__builtin_abs(AI_Info.blockingCars[1]->currentSpeed) < 0xa0000) {
+      int adjustedSpeed;
+
       if (carObjLocal->direction == 1) {
-        iVar2 = carObjLocal->desiredSpeed;
-        if (iVar2 < 0x6aaaa) {
-          iVar2 = 0x6aaaa;
+        adjustedSpeed = carObjLocal->desiredSpeed;
+        if (adjustedSpeed < 0x6aaaa) {
+          adjustedSpeed = 0x6aaaa;
         }
       }
       else {
-        iVar2 = carObjLocal->desiredSpeed;
-        if (-0x6aaaa < iVar2) {
-          iVar2 = -0x6aaaa;
+        adjustedSpeed = carObjLocal->desiredSpeed;
+        if (-0x6aaaa < adjustedSpeed) {
+          adjustedSpeed = -0x6aaaa;
         }
       }
-      carObjLocal->desiredSpeed = iVar2;
+      carObjLocal->desiredSpeed = adjustedSpeed;
     }
   }
   return;

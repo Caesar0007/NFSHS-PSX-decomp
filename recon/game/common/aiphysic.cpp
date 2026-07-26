@@ -1202,29 +1202,31 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
   int targetVel;
   int uTurn;
   int currentVel;
+  AIPhysic_Config_t *cfg;
 
   carObj->drag = 0;
   uTurn = 0;
   currentLatVel = AIWorld_CalcFutureLateralVel(carObj,carObj->direction * AIPhysicConfig.latvelcalc_lookahead);
+  cfg = &AIPhysicConfig;
   if (carObj->direction * carObj->currentSpeed < 0) {
     uTurn = carObj->driveDirection != -1;
   }
   carObj->wipeOutEndTick = simGlobal[1];
-  desiredAngVel = -carObj->aCarWRTDesired * fixedmult(0x80,AIPhysicConfig.OOCModel.dangle_to_dav);
-  desiredAngVel = (desiredAngVel < AIPhysicConfig.OOCModel.max_dav)
-      ? desiredAngVel : AIPhysicConfig.OOCModel.max_dav;
+  desiredAngVel = -carObj->aCarWRTDesired * fixedmult(0x80,cfg->OOCModel.dangle_to_dav);
+  desiredAngVel = (desiredAngVel < cfg->OOCModel.max_dav)
+      ? desiredAngVel : cfg->OOCModel.max_dav;
   {
     int r;
-    r = -AIPhysicConfig.OOCModel.max_dav;
+    r = -cfg->OOCModel.max_dav;
     if (r < desiredAngVel) r = desiredAngVel;
     desiredAngVel = r;
   }
   desiredLatVel = (desiredAngVel / 256) * 0xa00;
-  desiredLatVel = (desiredLatVel < AIPhysicConfig.OOCModel.max_dlvel)
-      ? desiredLatVel : AIPhysicConfig.OOCModel.max_dlvel;
+  desiredLatVel = (desiredLatVel < cfg->OOCModel.max_dlvel)
+      ? desiredLatVel : cfg->OOCModel.max_dlvel;
   {
     int r;
-    r = -AIPhysicConfig.OOCModel.max_dlvel;
+    r = -cfg->OOCModel.max_dlvel;
     if (r < desiredLatVel) r = desiredLatVel;
     desiredLatVel = r;
   }
@@ -1235,9 +1237,9 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
     if (r < desiredLatVel) r = desiredLatVel;
     desiredLatVel = r;
   }
-  if ((-AIPhysicConfig.OOCModel.vel_limit_range < carObj->currentSpeed) &&
-      (carObj->currentSpeed < AIPhysicConfig.OOCModel.vel_limit_range)) {
-    maxLatVel = (carObj->speed / 256) * (AIPhysicConfig.OOCModel.lat_vel_limit_factor / 256);
+  if ((-cfg->OOCModel.vel_limit_range < carObj->currentSpeed) &&
+      (carObj->currentSpeed < cfg->OOCModel.vel_limit_range)) {
+    maxLatVel = (carObj->speed / 256) * (cfg->OOCModel.lat_vel_limit_factor / 256);
     maxLatVel = __builtin_abs(maxLatVel);
     desiredLatVel = (desiredLatVel < maxLatVel) ? desiredLatVel : maxLatVel;
     {
@@ -1246,7 +1248,7 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
       if (r < desiredLatVel) r = desiredLatVel;
       desiredLatVel = r;
     }
-    maxAngVel = (carObj->speed / 256) * (AIPhysicConfig.OOCModel.ang_vel_limit_factor / 256);
+    maxAngVel = (carObj->speed / 256) * (cfg->OOCModel.ang_vel_limit_factor / 256);
     maxAngVel = __builtin_abs(maxAngVel);
     desiredAngVel = (desiredAngVel < maxAngVel) ? desiredAngVel : maxAngVel;
     {
@@ -1362,7 +1364,7 @@ LAB_8006b908:
   (carObj->angularAcc).y = currentAngAcc;
   (carObj->angularAcc).z = 0;
   return;
-  /* NEAR-MISS 9 diffs, count-exact 413/412 (w17-a7): the `AIWorld_CalcFutureLateralVel`
+  /* NEAR-MISS 5 diffs, count-exact 413/412: the `AIWorld_CalcFutureLateralVel`
      jal's delay slot is a scheduling tie between two independent, far-future-use
      materializations: `uTurn = 0;` (dead until the beqz ~140 insns later) and the
      &AIPhysicConfig base-address CSE (needed again ~10 insns later for the OOCModel
@@ -1370,10 +1372,8 @@ LAB_8006b908:
      the &AIPhysicConfig full-pointer materialize (lui-then-addiu) to just before its
      next real use; ours fills the slot with the pointer materialize and defers
      `uTurn=0` instead -- a straight swap, net insn count off by 1 (412 vs 413).
-     Tried: introducing an explicit `AIPhysic_Config_t *cfg = &AIPhysicConfig;` local
-     scoped to just the OOCModel cluster (hoping to defer the CSE) -- IDENTICAL
-     codegen (gcc's address-CSE operates at the IR level regardless of whether the C
-     expresses it via a pointer local or repeated `AIPhysicConfig.field`). GENUINE
+     The explicit post-call `cfg` local fixes the high-half base allocation
+     ($v1->$s0), reducing this residual from 9 to 5 diffs. GENUINE
      compiler scheduling-priority FLOOR (Catalog §F, same family as InControlPhysics
      below); not source-reachable, no pin. */
 }

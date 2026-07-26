@@ -189,10 +189,24 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
  *   6 args (2 extra: a stray *p, paramIdx) that the oracle's call site never sets up.
  *   (3) `result` is a SECOND accumulator (typeNib==4-hit + r>0 hit) returned as an unsigned byte
  *   (`andi v0,s6,0xff`); only `flags` (r<0 hits) is written to *out.  The old `void` reconstruction
- *   caused the compiler to delete the returned accumulator completely. */
+ *   caused the compiler to delete the returned accumulator completely.
+ *   w32-a9 (85 -> 61 diffs; frame size, spill-slot layout and the whole prologue now IDENTICAL):
+ *   (4) `numRules` is an INT, not a `signed char` -- the char type re-signs on every use
+ *   (`lbu; sll 24; sra 24` + a callee-saved home) where the oracle does a single `lb` into a caller-
+ *   saved temp and SPILLS it (`sw a3,0x24(sp)`, reloaded at both loop tests).
+ *   (5) `param` also gets a dead volatile store (the oracle stores all three decoded fields at
+ *   0x10/0x14/0x18), which is what lands the local-slot layout on the oracle's.
+ *   (6) `sentence` is an ADDRESSABLE parameter (oracle `sw a0,0x50(sp)` + `lw a3,0x50(sp)` at the
+ *   callback): taking its address in the innermost block (same lever as iSPCH_RuleSet's `values`)
+ *   frees $fp for the oracle's per-outer-iteration value pointer.  All three params end up in their
+ *   incoming home slots exactly as retail.
+ *   RESIDUAL 61 = the reload scratch register ($t0 ours vs $a3 retail), an i/hit $s2<->$s3 swap, and
+ *   retail hoisting `lui %hi(gSentenceRuleTest)` + the ruleByte reload ABOVE the type branch (which
+ *   is also our one extra insn: a load-delay `nop` retail fills).  Trying the unsized-array spelling
+ *   on gSentenceRuleTest makes it worse (cse merges the two loads: 108/112, 70 diffs). */
 extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
 {
-    signed char    numRules = *(signed char *)((int)sentence + 7);
+    int            numRules = *(signed char *)((int)sentence + 7);
     unsigned int   result = 0;
     unsigned int   flags = 0;
     unsigned char *ruleData = (unsigned char *)iSPCH_GetRuleDataAddr((int)sentence);
@@ -208,6 +222,7 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
             p = ruleData;
             do {
                 volatile unsigned int ruleId;
+                volatile unsigned int paramStore;
                 unsigned int param;
                 volatile unsigned int type;
                 unsigned int packed;
@@ -218,6 +233,7 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                 packed = *(volatile unsigned char *)(p + 1);
                 hit = 0;
                 param = packed & 0xf;
+                paramStore = param;
                 type = (unsigned int)*(volatile unsigned char *)(p + 1) >> 4;
                 if (ruleType == 0xc) {
                     if (param != 0)
@@ -234,9 +250,10 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                         hit = bit;
                 } else {
                     int testResult;
+                    short **sentSlot = &sentence;
                     if (gSentenceRuleTest != 0)
                         testResult = gSentenceRuleTest(
-                            (unsigned short)*sentence, ruleId, testValue, (int)sentence);
+                            (unsigned short)**sentSlot, ruleId, testValue, (int)*sentSlot);
                     else
                         testResult = -1;
                     if (testResult == 0)

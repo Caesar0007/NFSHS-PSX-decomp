@@ -13,6 +13,13 @@
    cc1plus emitting the `lw $2,sym` / `sw $2,sym` assembler macros, which
    GNU-as expands per-access (self-temp load + $at store).  The array view
    turns %hi back into an RTL pseudo (catalog wave-13 lever). */
+/* MATCH (w35-a10): unsized-array asm-label views -- these globals are reached
+   ABSOLUTELY by every oracle (%hi/%lo as an RTL pseudo, CSE-able and
+   delay-slot schedulable); a plain extern leaves cc1plus emitting the lw/sw
+   assembler macro, which GNU-as expands per-access (self-temp / $at). */
+extern tRecordBuffer *A_Stats_gTrackRecords[] __asm__("Stats_gTrackRecords");
+#define Stats_gTrackRecords A_Stats_gTrackRecords[0]
+
 extern tFEApplication *A_FEApp[] __asm__("FEApp");
 #define FEApp A_FEApp[0]
 extern unsigned int A_gFECheats[] __asm__("gFECheats");

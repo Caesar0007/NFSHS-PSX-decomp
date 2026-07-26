@@ -6,6 +6,15 @@
 #include "screenpinkslips.h"
 
 
+/* MATCH (w35-a10): unsized-array asm-label views -- these globals are reached
+   ABSOLUTELY by every oracle (%hi/%lo as an RTL pseudo, CSE-able and
+   delay-slot schedulable); a plain extern leaves cc1plus emitting the lw/sw
+   assembler macro, which GNU-as expands per-access (self-temp / $at). */
+extern tGlobalMenuDefs *A_menuDefs[] __asm__("menuDefs");
+#define menuDefs A_menuDefs[0]
+extern int A_ticks[] __asm__("ticks");
+#define ticks A_ticks[0]
+
 /* ---- tScreenPinkSlips::DrawBackground  [SCREENPINKSLIPS.CPP:71-194] ---- */
 void tScreenPinkSlips::DrawBackground()
 

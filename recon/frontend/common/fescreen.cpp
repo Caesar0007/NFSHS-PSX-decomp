@@ -12,6 +12,15 @@
  *      this TU emits the oracle's absolute lui/%lo store, not a -G4 small-common gp-rel store. ---- */
 
 
+/* MATCH (w35-a10): unsized-array asm-label views -- these globals are
+   reached ABSOLUTELY by every oracle here (%hi/%lo pair as an RTL pseudo);
+   the plain extern leaves cc1plus emitting the lw/sw assembler macro. */
+extern int A_Draw_gPlayer1View[] __asm__("Draw_gPlayer1View");
+#define Draw_gPlayer1View A_Draw_gPlayer1View[0]
+extern int A_screenheight[] __asm__("screenheight");
+#define screenheight A_screenheight[0]
+extern int A__7tScreen_fSuppressLoadingText[] __asm__("_7tScreen_fSuppressLoadingText");
+#define _7tScreen_fSuppressLoadingText A__7tScreen_fSuppressLoadingText[0]
 /* ---- tScreen::DisplayLoadingText  [FESCREEN.CPP:36-67] SLD-VERIFIED ---- */
 
 void tScreen::DisplayLoadingText()

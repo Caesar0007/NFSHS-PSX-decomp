@@ -3,6 +3,15 @@
  */
 #include "screenmemcard.h"
 
+/* MATCH (w35-a10): unsized-array asm-label views -- these globals are reached
+   ABSOLUTELY by every oracle (%hi/%lo as an RTL pseudo, CSE-able and
+   delay-slot schedulable); a plain extern leaves cc1plus emitting the lw/sw
+   assembler macro, which GNU-as expands per-access (self-temp / $at). */
+extern int A_ticks[] __asm__("ticks");
+#define ticks A_ticks[0]
+extern int A_CURRENTLYUSINGMEMCARD[] __asm__("CURRENTLYUSINGMEMCARD");
+#define CURRENTLYUSINGMEMCARD A_CURRENTLYUSINGMEMCARD[0]
+
 /* MATCH (w35-a10): UNSIZED-ARRAY ASM-LABEL VIEW of the 17 layout ints.
    They are STRONG DATA symbols in asm/data/front_data.data.s (0x800528D8..)
    and every oracle reaches them with an absolute %hi/%lo pair whose `lui` is

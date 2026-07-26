@@ -82,35 +82,25 @@ no_key:
 /* iSNDcalcvol @0x800FF050 : compute a channel's effective 0..0x7F volume from its patch volume (+0x2C),
  *   note velocity (+0x1E), expression (+0x26) and the master volume, then apply the optional velocity
  *   (+0x50) and final (+0x44) volume curves.  Caches the result at +0x2D and returns it. */
-extern unsigned int iSNDcalcvol(int chan)
+extern void iSNDcalcvol(int chan)
 {
     int          v = sndgs[0x25] + chan * 100;
     int          n = (int)*(signed char *)(v + 0x2c) * (int)*(short *)(v + 0x1e) *
                      (int)*(short *)(v + 0x26) * (int)((signed char *)sndgs)[0x3d];
-    unsigned int vol = n >> 0x1f;
+    /* VOID (W31): oracle exits `jr ra; nop` with nothing computed into $v0 -- the cached byte at
+     * +0x2D is the only output and no caller consumes a result.  The old "v1-not-v0 coloring floor"
+     * was the reserved-return symptom (3.2): dropping the return frees $v0 and the whole velocity-
+     * curve block colors itself. */
     n = n / 0x1f417f;
     *(char *)(v + 0x2d) = (char)n;
     if (*(int *)(v + 0x50) != 0) {                  /* velocity curve */
-        vol = ((n * 0x1000000 >> 0x18) *
-               (int)*(signed char *)(*(int *)(v + 0x50) + (unsigned)*(unsigned char *)(v + 0x3a))) / 0x7f;
-        *(char *)(v + 0x2d) = (char)vol;
+        *(char *)(v + 0x2d) = (char)(((n * 0x1000000 >> 0x18) *
+               (int)*(signed char *)(*(int *)(v + 0x50) + (unsigned)*(unsigned char *)(v + 0x3a))) / 0x7f);
     }
     if (*(int *)(v + 0x44) != 0) {                  /* final volume curve */
-        unsigned char b = *(unsigned char *)(*(int *)(v + 0x44) + (int)*(signed char *)(v + 0x2d));
-        vol = (unsigned int)b;
-        *(unsigned char *)(v + 0x2d) = b;
-        /* near-miss floor (49 diffs, 61==60 insns +1): oracle's magic-const division for the velocity
-         * curve leaves the divided `n` in $v1 (not $v0) and hoists `lw a1,0x50(a0)` into the mult
-         * latency gap, then keeps that v0/v1/a1 coloring through the whole velocity-curve block;
-         * our gcc-2.8.0 picks the opposite v0/v1/a1 assignment (n stays in v0, +0x50 load stays late
-         * in a1). Tried: pre-loading `*(int*)(v+0x50)` as a named local before the division (no
-         * change), giving the divided value its own fresh local instead of reusing `n` (no change).
-         * Pure allocator/scheduler tie-break across the whole block, not source-reachable; permuter
-         * multi-basin candidate. (2 real signed-char bugs fixed separately: +0x2c patch-volume byte
-         * and the v+0x50 table lookup both need `signed char`, not the platform's unsigned `char` --
-         * landed 53->49 diffs.) */
+        *(unsigned char *)(v + 0x2d) =
+            *(unsigned char *)(*(int *)(v + 0x44) + (int)*(signed char *)(v + 0x2d));
     }
-    return vol;
 }
 
 /* iSNDpsxkeyon @0x800FF140 : strobe the SPU key-on register for `mask` (24 voices). */

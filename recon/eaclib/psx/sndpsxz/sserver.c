@@ -27,7 +27,7 @@ extern void iSNDserve(void);             /* slib     */
 extern int  iSNDcalcpitch(int note);     /* sclcptch */
 extern int  iSNDplatformpitch(int chan, int pitch);   /* sdriver */
 extern int  iSNDvol(int chan, int level);             /* sdriver */
-extern unsigned int iSNDcalcvol(int chan);            /* spatkey */
+extern void iSNDcalcvol(int chan);            /* spatkey */
 extern int  SNDstop(unsigned int tag);                /* sstop   */
 extern void trap(unsigned int code);
 

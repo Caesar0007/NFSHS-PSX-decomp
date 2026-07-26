@@ -407,11 +407,10 @@ int AnimScript::GetTimedAnimPosRot(coorddef *pt,matrixtdef *mat)
 /* ---- AnimScript::GetTimedAnimPosRot  [@0x80074624] ---- */
 int AnimScript::GetTimedAnimPosRot(int index,coorddef *pt,matrixtdef *mat)
 {
-  int tmp;
   int iVar1;
   int iVar2;
   int iVar3;
-  
+
   iVar1 = this->GetStatus();
   iVar2 = -1;
   if (iVar1 == 1) {
@@ -425,12 +424,12 @@ int AnimScript::GetTimedAnimPosRot(int index,coorddef *pt,matrixtdef *mat)
       iVar2 = 1;
       if ((this->flags & 4U) != 0) {
         iVar1 = mat->m[3];
-        iVar2 = mat->m[4];
-        iVar3 = mat->m[5];
         mat->m[3] = mat->m[6];
         mat->m[6] = -iVar1;
+        iVar1 = mat->m[4];
         mat->m[4] = mat->m[7];
-        mat->m[7] = -iVar2;
+        mat->m[7] = -iVar1;
+        iVar3 = mat->m[5];
         mat->m[5] = mat->m[8];
         mat->m[8] = -iVar3;
         iVar2 = 1;

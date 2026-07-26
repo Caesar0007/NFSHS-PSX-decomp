@@ -1844,89 +1844,72 @@ long tInsideBoxSongMenu::DebounceKeys()
 
 /* ---- tInsideBoxSongMenu::ProcessInput  [FEMENUOPTIONS.CPP:1350-1408] SLD-VERIFIED ---- */
 
-int tInsideBoxSongMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
+void tInsideBoxSongMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
               tMenuCommand &command)
 
 {
-  short sVar1;
-  tInputKeyType tVar2;
-  tScreenAudio *ptVar3;
-  int iVar4;
+  /* SYM: FCN VOID, one local (int j). w35-a9 diagnosis confirmed against the
+     raw oracle: this fn writes its result THROUGH the keyval reference (not
+     a return value) -- the earlier `return 0x1000`/`return -0x7ffb0000`
+     were Ghidra fictions (the latter a misread `lui v0,%hi(screenAudio)`
+     delay slot feeding the fall-through Up-case address materialize, not a
+     constant). Real switch (gcc balance_case_nodes: ==0x400 root + <0x401
+     bound test over 0x200/0x400/0x800/0x1000), tDialogYesNo recipe. */
   int j;
-  int iVar5;
-  int iVar6;
-  
+
   if (screenAudio->songlist == (AudioMus_tSongList *)0x0) {
-    return 0;
+    return;
   }
   if (keyval == kInput_KeyType_Left) {
-    iVar4 = 5;
-InBoxSong_playSfx:
-    AudioCmn_PlayFESFX(iVar4);
+    AudioCmn_PlayFESFX(5);
   }
-  else {
-    iVar4 = 6;
-    if (keyval == kInput_KeyType_Right) goto InBoxSong_playSfx;
+  else if (keyval == kInput_KeyType_Right) {
+    AudioCmn_PlayFESFX(6);
   }
-  tVar2 = keyval;
-  if (tVar2 == kInput_KeyType_Down) {
-    if ((screenAudio->songlist->numsongs + -1 <= (int)screenAudio->fSelectedSong) ||
-       (this->fMoving != 0)) goto InBoxSong_finishReturn;
-    this->fMoving = 0x15;
-    this->fMovingDir = -4;
-    iVar5 = 0;
-    j = 0;
-    do {
-      iVar6 = j + 1;
-      *(short *)((int)this->fOnOffFade + iVar5) = this->fOnOffFade[j + 1];
-      *(short *)((int)this->fSelFade + iVar5) = this->fSelFade[j + 1];
-      ptVar3 = screenAudio;
-      iVar5 = iVar6 * 2;
-      j = iVar6;
-    } while (iVar6 < 4);
-    this->fOnOffFade[4] = 0;
-    this->fSelFade[4] = 0;
-    iVar4 = 4;
-    sVar1 = ptVar3->fSelectedSong + 1;
-  }
-  else {
-    if (0x400 < (int)tVar2) {
-      if ((tVar2 != kInput_KeyType_Left) && (tVar2 != kInput_KeyType_Right)) {
-        return 0x1000;
-      }
-      frontEnd.FEPlayList[screenAudio->fSelectedSong] =
-           (u_int)(frontEnd.FEPlayList[screenAudio->fSelectedSong] == 0);
-      goto InBoxSong_finishReturn;
-    }
-    if (tVar2 != kInput_KeyType_Up) {
-      /* BARE-VA SWEEP (w14-a2): -0x7ffb0000==0x80050000 LOOKS like a disguised VA but raw
-       * @0x8001ee7c/0x8001eeec/0x8001ef0c (this same ProcessInput) shows the ORACLE emits the
-       * identical bare `lui v0,0x8005` with nothing further -- a genuine magic sentinel
-       * return value in the original source, not a materialized symbol address. Left as-is. */
-      return -0x7ffb0000;
-    }
-    if ((screenAudio->fSelectedSong < 1) || (this->fMoving != 0))
-    goto InBoxSong_finishReturn;
+  switch (keyval) {
+  case kInput_KeyType_Left:
+    frontEnd.FEPlayList[screenAudio->fSelectedSong] =
+         (u_int)(frontEnd.FEPlayList[screenAudio->fSelectedSong] == 0);
+    break;
+  case kInput_KeyType_Right:
+    frontEnd.FEPlayList[screenAudio->fSelectedSong] =
+         (u_int)(frontEnd.FEPlayList[screenAudio->fSelectedSong] == 0);
+    break;
+  case kInput_KeyType_Up:
+    if ((screenAudio->fSelectedSong < 1) || (this->fMoving != 0)) break;
     this->fMoving = -0x15;
     this->fMovingDir = 4;
     j = 4;
     do {
-      iVar5 = j + -1;
       this->fOnOffFade[j] = this->fOnOffFade[j + -1];
-      this->fSelFade[j] = this->fOnOffFade[j + 4];
-      ptVar3 = screenAudio;
-      j = iVar5;
-    } while (0 < iVar5);
+      this->fSelFade[j] = this->fSelFade[j + -1];
+      j = j + -1;
+    } while (0 < j);
     this->fOnOffFade[0] = 0;
     this->fSelFade[0] = 0;
-    iVar4 = 3;
-    sVar1 = ptVar3->fSelectedSong + -1;
+    screenAudio->fSelectedSong = screenAudio->fSelectedSong + -1;
+    AudioCmn_PlayFESFX(3);
+    break;
+  case kInput_KeyType_Down:
+    if ((screenAudio->songlist->numsongs + -1 <= (int)screenAudio->fSelectedSong) ||
+       (this->fMoving != 0)) break;
+    this->fMoving = 0x15;
+    this->fMovingDir = -4;
+    j = 0;
+    do {
+      this->fOnOffFade[j] = this->fOnOffFade[j + 1];
+      this->fSelFade[j] = this->fSelFade[j + 1];
+      j = j + 1;
+    } while (j < 4);
+    this->fOnOffFade[4] = 0;
+    this->fSelFade[4] = 0;
+    screenAudio->fSelectedSong = screenAudio->fSelectedSong + 1;
+    AudioCmn_PlayFESFX(4);
+    break;
+  default:
+    return;
   }
-  ptVar3->fSelectedSong = sVar1;
-  AudioCmn_PlayFESFX(iVar4);
-InBoxSong_finishReturn:
   keyval = kInput_KeyType_AlreadyProcessed;
-  return 1;
 }
 
 
@@ -2409,10 +2392,15 @@ void * CheckForCheats(char *fData)
 
 /* ---- tUserNameMenuItem::ProcessInput  [FEMENUOPTIONS.CPP:1712-1849] SLD-VERIFIED ---- */
 
-int tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
+void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
               tMenuCommand &command)
 
 {
+  /* SYM: FCN VOID (no return -- iVar7 in the prior recon was Ghidra
+     inventing a return of the dash-scan cursor; the oracle epilogue calls
+     Stattool_SamNelsonsUpperLowerStringConverterForRecords and returns
+     with no $v0 read at all). Full switch-restructure per the
+     tInsideBoxSongMenu recipe deferred -- see wave report. */
   u_char bVar1;
   u_short uVar2;
   short sVar3;
@@ -2548,7 +2536,6 @@ UserNameProcInp_skipDashColumns:
   }
 UserNameProcInp_convertAndReturn:
   Stattool_SamNelsonsUpperLowerStringConverterForRecords(this->fData);
-  return iVar7;
 }
 
 

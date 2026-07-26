@@ -15,41 +15,16 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
                bool drawArrows,bool reflected)
 
 {
-  u_int *puVar1;
-  char *wordText;
-  int textWidth;
-  int textLen;
-  int col;
-  int wordText2;
-  int sMenuText;
-  short tu13;
-  int pkt_addr24;
-  int tu8;
-  int reg_t3;
-  int tu15;
-  int reg_t4;
-  int tu16;
-  int ti17;
-  int y;
-  int textpix;
-  int dist;
   DRAWENV *drenv;
   RECT temp;
+  int textpix;
+  int dist;
   tDrawShapeExtended drawFlags;
   char buffer [64];
-  void *tp5;
-  int pbVar6;
-  int tu7;
-  void *tp1;
-  int tp4;
-  int pbVar5;
   u_char *daprim;
-  u_char *pbVar8;
   u_char *prev_pkt;
   tTexture_ShapeInfo *shape;
-  u_int tu10;
-  u_int tu9;
-  
+
   drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
   drawFlags.tint[0] = CalcFadeVal(0xb54200,0xbebe,(int)fSelFade);
   if (reflected != 0) {
@@ -64,104 +39,59 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
     (*(u_int*)&temp) = (u_int)*(u_short *)((char *)drenv + 2) << 0x10;
     *(u_int *)Render_gPacketPtr =
          *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
+    *(u_int *)prev_pkt = *(u_int *)prev_pkt & 0xff000000 | ((u_int)Render_gPacketPtr & 0xffffff);
     Render_gPacketPtr = Render_gPacketPtr + 0xc;
-    *(u_int *)prev_pkt = *(u_int *)prev_pkt & 0xff000000 | pkt_addr24;
     SetDrawArea((DR_AREA *)daprim,&temp);
     FETextRender_SetFont(0);
-    wordText = TextSys_Word(helpText);
-    sprintf(buffer,"%s",wordText);
+    sprintf(buffer,"%s",TextSys_Word(helpText));
     s_upper(buffer);
-    textWidth = textpixels(buffer);
-    textLen = strlen(buffer);
-    textpix = textWidth - textLen;
-    if (textpix < initialWidth) {
-      textpix = initialWidth;
+    textpix = textpixels(buffer) - strlen(buffer);
+    dist = textpix;
+    if (dist < initialWidth) {
+      dist = initialWidth;
     }
-    dist = textpix + 0x19;
-    col = CalcTextFadeSelToHi(textType_FlybyHelp,fSelFade,0);
-    if (reflected != 0) {
-      col = CalcFadeVal(0,col,0xf0 - r.y);
-    }
-    wordText2 = (int)TextSys_Word(helpText);
-    FETextRender_FullTextRGB((char *)wordText2,
-               (short)(((u_int)(u_short)r.x + (u_int)(u_short)drawOffset) * 0x10000 >> 0x10),r.y + 4,
-               col,'\0',0);
-    sMenuText = (int)TextSys_Word(helpText);
-    FETextRender_FullTextRGB((char *)sMenuText,
-               (short)((((u_int)(u_short)r.x + (u_int)(u_short)drawOffset) - dist) * 0x10000 >>
-                      0x10),r.y + 4,col,'\0',0);
-    if (drawArrows != 0) {
-      int ypos = r.y + ((int)((u_int)(u_short)r.h << 0x10) >> 0x11);
+    dist = dist + 0x19;
+    {
+      int col = CalcTextFadeSelToHi(textType_FlybyHelp,fSelFade,0);
       if (reflected != 0) {
-        ypos = ypos + 2;
+        col = CalcFadeVal(0,col,0xf0 - r.y);
       }
-      DrawShapeExtended(0xa,0x118,(r.x + drawOffset) - 0xa,ypos,0,0,&drawFlags);
-      DrawShapeExtended(0xb,0x118,r.x + drawOffset + (textWidth - textLen) + 8,ypos,0,0,&drawFlags);
-      DrawShapeExtended(0xa,0x118,((r.x + drawOffset) - dist) - 0xa,ypos,0,0,&drawFlags);
-      DrawShapeExtended(0xb,0x118,((r.x + drawOffset) - dist) + (textWidth - textLen) + 8,ypos,0,0,&drawFlags);
+      FETextRender_FullTextRGB((char *)TextSys_Word(helpText),
+                 (short)(((u_int)(u_short)r.x + (u_int)(u_short)drawOffset) * 0x10000 >> 0x10),r.y + 4,
+                 col,'\0',0);
+      {
+        FETextRender_FullTextRGB((char *)TextSys_Word(helpText),
+                   (short)((((u_int)(u_short)r.x + (u_int)(u_short)drawOffset) - dist) * 0x10000 >>
+                          0x10),r.y + 4,col,'\0',0);
+        if (drawArrows != 0) {
+          int ypos = r.y + ((int)((u_int)(u_short)r.h << 0x10) >> 0x11);
+          if (reflected != 0) {
+            ypos = ypos + 2;
+          }
+          DrawShapeExtended(0xa,0x118,(r.x + drawOffset) - 0xa,ypos,0,0,&drawFlags);
+          DrawShapeExtended(0xb,0x118,r.x + drawOffset + textpix + 8,ypos,0,0,&drawFlags);
+          DrawShapeExtended(0xa,0x118,((r.x + drawOffset) - dist) - 0xa,ypos,0,0,&drawFlags);
+          DrawShapeExtended(0xb,0x118,((r.x + drawOffset) - dist) + textpix + 8,ypos,0,0,&drawFlags);
+        }
+      }
     }
     daprim = Render_gPacketPtr;
     prev_pkt = Render_gPalettePtr;
-    tp4 = (char *)&r + 1;
-    tu9 = tp4 & 3;
-    tu7 = (u_int)&r & 3;
-    reg_t3 = (*(int *)(tp4 - tu9) << (3 - tu9) * 8 | reg_t3 & 0xffffffffU >> (tu9 + 1) * 8) &
-             -1 << (4 - tu7) * 8 | *(u_int *)((int)&r - tu7) >> tu7 * 8;
-    tp5 = (void *)((char *)&r + 1);
-    tu9 = (u_int)tp5 & 3;
-    tu10 = (u_int)&r.w & 3;
-    reg_t4 = (*(int *)((int)tp5 - tu9) << (3 - tu9) * 8 | reg_t4 & 0xffffffffU >> (tu9 + 1) * 8) &
-             -1 << (4 - tu10) * 8 | *(u_int *)((int)&r.w - tu10) >> tu10 * 8;
-    tp1 = (void *)((int)&temp.y + 1);
-    tu9 = (u_int)tp1 & 3;
-    *(u_int *)((int)tp1 - tu9) =
-         *(u_int *)((int)tp1 - tu9) & -1 << (tu9 + 1) * 8 | (u_int)&reg_t3 >> (3 - tu9) * 8;
-    pbVar5 = (int)&temp.h + 1;
-    tu9 = pbVar5 & 3;
-    *(u_int *)(pbVar5 - tu9) =
-         *(u_int *)(pbVar5 - tu9) & -1 << (tu9 + 1) * 8 | (u_int)&reg_t4 >> (3 - tu9) * 8;
-    temp.y = (short)((u_int)&reg_t3 >> 0x10);
-    temp.x = (short)reg_t3;
-    temp.w = (short)reg_t4;
+    temp = r;
     temp.y = temp.y + *(short *)((char *)drenv + 2);
     temp.x = temp.x + 2;
-    temp.h = (short)((u_int)&reg_t4 >> 0x10);
     temp.w = temp.w + -4;
     *(u_int *)Render_gPacketPtr =
          *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    tu8 = (u_int)Render_gPacketPtr & 0xffffff;
+    *(u_int *)prev_pkt = *(u_int *)prev_pkt & 0xff000000 | ((u_int)Render_gPacketPtr & 0xffffff);
     Render_gPacketPtr = Render_gPacketPtr + 0xc;
-    *(u_int *)prev_pkt = *(u_int *)prev_pkt & 0xff000000 | tu8;
     SetDrawArea((DR_AREA *)daprim,&temp);
   }
   shape = gHelpShapes;
-  pbVar8 = (u_char *)((char *)&r + 1);
-  tu9 = (u_int)pbVar8 & 3;
-  tu10 = (u_int)&r & 3;
-  tu15 = (*(int *)(pbVar8 + -tu9) << (3 - tu9) * 8 | reg_t3 & 0xffffffffU >> (tu9 + 1) * 8) &
-         -1 << (4 - tu10) * 8 | *(u_int *)((int)&r - tu10) >> tu10 * 8;
-  pbVar8 = (u_char *)((char *)&r + 1);
-  tu9 = (u_int)pbVar8 & 3;
-  tu10 = (u_int)&r.w & 3;
-  tu16 = (*(int *)(pbVar8 + -tu9) << (3 - tu9) * 8 | reg_t4 & 0xffffffffU >> (tu9 + 1) * 8) &
-         -1 << (4 - tu10) * 8 | *(u_int *)((int)&r.w - tu10) >> tu10 * 8;
-  pbVar6 = (int)&temp.y + 1;
-  tu9 = pbVar6 & 3;
-  *(u_int *)(pbVar6 - tu9) =
-       *(u_int *)(pbVar6 - tu9) & -1 << (tu9 + 1) * 8 | (u_int)tu15 >> (3 - tu9) * 8;
-  pbVar8 = (u_char *)((int)&temp.h + 1);
-  tu9 = (u_int)pbVar8 & 3;
-  puVar1 = (u_int *)(pbVar8 + -tu9);
-  *puVar1 = *puVar1 & -1 << (tu9 + 1) * 8 | (u_int)tu16 >> (3 - tu9) * 8;
-  temp.y = (short)((u_int)tu15 >> 0x10);
-  temp.w = (short)tu16;
+  temp = r;
   temp.y = temp.y + 1;
-  temp.x = (short)tu15;
-  temp.h = (short)((u_int)tu16 >> 0x10);
-  tu13 = (temp.w + -1) - (gHelpShapes[0x1e].width >> 1);
   temp.h = temp.h + -2;
-  temp.w = tu13;
+  temp.w = (temp.w + -1) - (shape[0x1e].width >> 1);
   DrawShapeExtended(0x1e,8,(int)temp.x + (int)temp.w,(int)temp.y,0,0,(tDrawShapeExtended *)0x0);
   PSXDrawSquare(0,(int)temp.x,(int)temp.y,(int)temp.w,(int)shape[0x1e].height);
   return;

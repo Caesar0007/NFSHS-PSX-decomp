@@ -4725,7 +4725,7 @@ struct tInsideBoxSongMenu : public tInsideBoxMenu {   /* 136 bytes */
     void Draw(short, short, short, short, short);
     void DrawOneSong(short, short, short, short, short, short);
     long DebounceKeys();
-    int ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);  /* SYM: FCN VOID */
 
 };
 
@@ -4770,7 +4770,7 @@ struct tUserNameMenuItem : public tMenuItem {   /* 140 bytes */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     tUserNameMenuItem(unsigned int);
-    int ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);  /* SYM: FCN VOID */
     int Draw(bool);
     void TransitionOff();
     void TransitionOn();

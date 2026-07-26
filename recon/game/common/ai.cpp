@@ -1615,12 +1615,9 @@ void AI_PushFinishedCarsToSide(Car_tObj *carObj)
   int totalSortIndex;
   u_char bVar1;
   int iVar2;
-  int iVar3;
-  Car_tObj **ppCVar4;
   
   if (((carObj->carFlags & 1U) != 0) && ((carObj->stats).finishType == 2)) {
     int raceT = GameSetup_gData.raceType;
-    int numCars;
     if ((raceT == 1) || (raceT == 5)) {
       if (((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0) {
         if (Cars_gNumHumanRaceCars == 2) {
@@ -1632,23 +1629,16 @@ void AI_PushFinishedCarsToSide(Car_tObj *carObj)
     }
     else {
 PUSH:
-    totalSortIndex = AIWorld_ApxSplineDistance(carObj,0);
-    numCars = Cars_gNumCars;
-    iVar2 = totalSortIndex;
-    if (totalSortIndex < 0) {
-      iVar2 = -iVar2;
-    }
-    iVar3 = 0;
-    if (0 < numCars) {
-      ppCVar4 = Cars_gTotalSortedList;
-LOOP_8005A7C4:
-      if (*ppCVar4 != carObj) {
-        iVar3 = iVar3 + 1;
-        ppCVar4 = ppCVar4 + 1;
-        if (iVar3 < numCars) goto LOOP_8005A7C4;
+    absDistancePastFinish =
+        __builtin_abs(AIWorld_ApxSplineDistance(carObj,0));
+    totalSortIndex = 0;
+    while (totalSortIndex < Cars_gNumCars) {
+      if (Cars_gTotalSortedList[totalSortIndex] == carObj) {
+        break;
       }
+      totalSortIndex = totalSortIndex + 1;
     }
-    if (iVar3 * 0x280000 <= iVar2) {
+    if (totalSortIndex * 0x280000 <= absDistancePastFinish) {
       iVar2 = carObj->laneIndex;
       bVar1 = *(u_char *)((char *)BWorldSm_slices + (carObj->N).simRoadInfo.slice * 0x20 + 0x1d);
       if ((iVar2 == 6 - (u_int)(bVar1 >> 4)) || (iVar2 == (bVar1 & 0xf) + 7)) {

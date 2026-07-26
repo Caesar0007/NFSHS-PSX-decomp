@@ -43,14 +43,12 @@ int AIWorld_ZSplineDistance(Car_tObj *carObj,Car_tObj *otherCarObj)
                           components of relPos/forward on the stack (incl. the UNUSED .y) before
                           the two fixedmult calls; recon had inlined only the .x/.z terms actually
                           consumed, dropping 2 subu+2 lw (11 insns short). */
-  coorddef forward;   /* SYM AUTO struct @-0x18 */
+  coorddef forward;   /* SYM AUTO struct @-0x18; aggregate copy preserves retail's grouped loads */
 
   relPos.x = (carObj->N).position.x - (otherCarObj->N).position.x;
   relPos.y = (carObj->N).position.y - (otherCarObj->N).position.y;
   relPos.z = (carObj->N).position.z - (otherCarObj->N).position.z;
-  forward.x = (carObj->N).roadMatrix.m[6];
-  forward.y = (carObj->N).roadMatrix.m[7];
-  forward.z = (carObj->N).roadMatrix.m[8];
+  forward = *(coorddef *)&(carObj->N).roadMatrix.m[6];
   return fixedmult(relPos.x,forward.x) + fixedmult(relPos.z,forward.z);
 }
 
@@ -59,14 +57,12 @@ int AIWorld_ZSplineDistance(coorddef *pos1,coorddef *pos2,matrixtdef *roadMatrix
 {
   coorddef relPos;    /* SYM AUTO struct @-0x28 -- H27 FIX (see the FP8Car_tObjT0 overload above):
                           fully materialize relPos/forward incl. the unused .y component. */
-  coorddef forward;   /* SYM AUTO struct @-0x18 */
+  coorddef forward;   /* SYM AUTO struct @-0x18; aggregate copy preserves retail's grouped loads */
 
   relPos.x = pos1->x - pos2->x;
   relPos.y = pos1->y - pos2->y;
   relPos.z = pos1->z - pos2->z;
-  forward.x = roadMatrix->m[6];
-  forward.y = roadMatrix->m[7];
-  forward.z = roadMatrix->m[8];
+  forward = *(coorddef *)&roadMatrix->m[6];
   return fixedmult(relPos.x,forward.x) + fixedmult(relPos.z,forward.z);
 }
 

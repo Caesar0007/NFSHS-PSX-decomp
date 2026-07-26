@@ -1071,7 +1071,9 @@ void AISpeeds_MaintainLeaderBoard(void)
    * pointer-walk (ppCVar1) over Cars_gTotalSortedList instead of plain index-form array access
    * -- same index-vs-pointer-walk duality lever as GetPrevAICar/BTCGetGlueFactor elsewhere in
    * this file: gcc's own strength reduction produces the oracle's decrementing pointer AND
-   * keeps the plain index (carLoop) alive for the loop-continue test. */
+   * keeps the plain index (carLoop) alive for the loop-continue test. The explicit head break
+   * preserves retail's `bltz` plus unconditional back edge, while the post-increment in the
+   * AISlot assignment supplies the retail branch-delay increment. */
   int slot;
   Car_tObj *lastAI;
   int carLoop;
@@ -1083,7 +1085,9 @@ void AISpeeds_MaintainLeaderBoard(void)
   leaderBoard.leadHumanRacer = (Car_tObj *)0x0;
   leaderBoard.leadAIRacer = (Car_tObj *)0x0;
   leaderBoard.lastAIRacer = (Car_tObj *)0x0;
-  for (carLoop = Cars_gNumCars - 1; -1 < carLoop; carLoop = carLoop - 1) {
+  carLoop = Cars_gNumCars - 1;
+  while (true) {
+    if (carLoop < 0) break;
     test = Cars_gTotalSortedList[carLoop];
     if ((((test->carFlags & 1U) != 0) && (leaderBoard.leadRacer == (Car_tObj *)0x0)) &&
        (test->fallBehindCar == (Car_tObj *)0x0)) {
@@ -1092,16 +1096,16 @@ void AISpeeds_MaintainLeaderBoard(void)
     if ((test->carFlags & 8U) != 0) {
       test->nextAIRacer = lastAI;
       lastAI = test;
-      test->AISlot = slot;
+      test->AISlot = slot++;
       if (leaderBoard.leadAIRacer == (Car_tObj *)0x0) {
         leaderBoard.leadAIRacer = test;
       }
-      slot = slot + 1;
       leaderBoard.lastAIRacer = test;
     }
     if (((test->carFlags & 4U) != 0) && (leaderBoard.leadHumanRacer == (Car_tObj *)0x0)) {
       leaderBoard.leadHumanRacer = test;
     }
+    carLoop = carLoop - 1;
   }
   return;
 }

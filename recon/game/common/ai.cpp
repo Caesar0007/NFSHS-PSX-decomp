@@ -428,11 +428,14 @@ void AI_CheckForBarriers(Car_tObj *carObj)
   speed = carObj->currentSpeed / 0x10000;
   if (speed < 0) {
     speed = -speed;
+    slice = (int)(carObj->N).simRoadInfo.slice;
+  }
+  else {
+    slice = (int)(carObj->N).simRoadInfo.slice;
   }
   speed = (speed << 0x12) / 0x60000;
   slicesAhead = speed;
-  slice = (int)(carObj->N).simRoadInfo.slice;
-  speed = speed * dir;
+  speed = slicesAhead * dir;
   forwardSlice0 = slice + speed;
   if (0 <= speed) {
     if (gNumSlices <= forwardSlice0) {

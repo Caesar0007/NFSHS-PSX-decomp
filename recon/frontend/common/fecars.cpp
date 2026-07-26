@@ -1026,42 +1026,29 @@ char tListIteratorCar::Value(tPlayer atIndex)
 short tListIteratorCar::TextValue(tPlayer atIndex)
 
 {
-  u_int *puVar1;
-  short sVar2;
-  tPlayer i;
-  u_int uVar4;
-  u_int uVar5;
-  int iVar6;
-  tCarManager *ptVar7;
-  short nameBase [3];
-  
-  uVar4 = (int)nameBase + 3U & 3;
-  puVar1 = (u_int *)(((int)nameBase + 3U) - uVar4);
-  *puVar1 = *puVar1 & -1 << (uVar4 + 1) * 8 | (u_int)(*(u_int*)((char*)&bigBuf + 384)) >> (3 - uVar4) * 8;
-  (*(u_int*)&nameBase) = (*(u_int*)((char*)&bigBuf + 384));
-  nameBase[2] = (*(u_short*)((char*)&bigBuf + 388));
-  i = kPlayerOne;
+  /* SYM 8c: locals are exactly `short nameBase[3]` (AUTO -8) and `short i`
+     (REG $v1).  nameBase is an AGGREGATE INITIALIZER (bytes @D_80010180) =
+     gcc's own 6-byte rodata->stack copy (lwl/lwr + lh / swl/swr + sh). */
+  short nameBase [3] = { 0x121, 0x153, 0x185 };   /* @0x80010180 */
+  short i;
+
+  i = 0;
   if (atIndex != kPlayerBoth) {
     i = atIndex;
   }
-  iVar6 = (int)(short)i;
-  ptVar7 = this->fCarManager;
-  uVar4 = (u_int)(u_char)this->fValue[iVar6];
-  uVar5 = ptVar7->fNumCars;
-  if (uVar4 < uVar5) {
-    sVar2 = nameBase[this->fNameLength] + (short)ptVar7->fCars[uVar4].fCarID;
+  if (this->fCarManager->fNumCars <= (u_int)(u_char)this->fValue[i]) {
+    if ((this->fCarListFilter & 0x20) != 0) {
+      return nameBase[this->fNameLength] +
+             (signed char)this->fCarManager->fPinkSlipsCars[i]
+               [(u_int)(u_char)this->fValue[i] - this->fCarManager->fNumCars].fCarID;
+    }
+    return nameBase[this->fNameLength] +
+           (signed char)this->fCarManager->fCarGarage[i]
+             [(u_int)(u_char)this->fValue[i] - this->fCarManager->fNumCars].fCarID;
   }
-  else if ((this->fCarListFilter & 0x20U) == 0) {
-    sVar2 = nameBase[this->fNameLength] +
-            (short)*(char *)((int)ptVar7 + (uVar4 - uVar5) * 4 + iVar6 * 0x80 + 8);
-  }
-  else {
-    sVar2 = nameBase[this->fNameLength] +
-            (short)*(char *)((int)ptVar7 + (uVar4 - uVar5) * 4 + iVar6 * 0x80 + 0x108);
-  }
-  return sVar2;
+  return nameBase[this->fNameLength] +
+         (signed char)this->fCarManager->fCars[(u_int)(u_char)this->fValue[i]].fCarID;
 }
-
 
 
 /* ---- tListIteratorCar::AdjustPosition  [FECARS.CPP:925-1059] SLD-VERIFIED ---- */

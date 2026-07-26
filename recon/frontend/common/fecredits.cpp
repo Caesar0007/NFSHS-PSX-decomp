@@ -98,27 +98,28 @@ void tCreditManager::Draw(bool selected)
   int iVar2;
   uint uVar3;
   tScreenMain *ptVar4;
-  int i;
-  
-  if (selected == 0) {
-    iVar1 = this->fTVFade + -4;
-  }
-  else {
+  bool doTextFade;
+
+  if (selected) {
     iVar1 = this->fTVFade + 4;
   }
-  this->fTVFade = iVar1;
-  iVar1 = this->fTVFade;
-  if (iVar1 < 0) {
-    iVar1 = 0;
+  else {
+    iVar1 = this->fTVFade + -4;
   }
+  this->fTVFade = iVar1;
+  iVar1 = *(volatile int *)&this->fTVFade;
   iVar2 = iVar1;
-  if (0x5c < iVar1) {
+  if (iVar1 < 0) {
+    iVar2 = 0;
+  }
+  doTextFade = iVar2 < 0x5c;
+  if (0x5c < iVar2) {
     iVar2 = 0x5c;
   }
   this->fTVFade = iVar2;
-  if (iVar1 < 0x5c) {
+  if (doTextFade) {
     iVar1 = 0x80 - iVar2;
-    if (0x80 - iVar2 < this->fTextFade) {
+    if (iVar1 < this->fTextFade) {
       iVar1 = this->fTextFade;
     }
     this->fTextFade = iVar1;
@@ -137,9 +138,11 @@ void tCreditManager::Draw(bool selected)
       this->RealDeInit();
     }
   }
-  else if ((this->fCreditsInitialized != 0) && (this->SetupCurrCredit(), this->fShowCreditNum != -1))
-  {
-    this->DrawCurrCredit();
+  else if (this->fCreditsInitialized != 0) {
+    this->SetupCurrCredit();
+    if (this->fShowCreditNum != -1) {
+      this->DrawCurrCredit();
+    }
   }
   return;
 }

@@ -161,6 +161,33 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
      * -fno-delayed-branch splice 52 -> 67. PROTOTYPE AUDIT: 3 args ($a0/$a1/$a2 all read), void
      * return ($v0 is an `slt` leftover on one exit path and untouched on the other -- incoherent
      * across exits, the w32 real-void test). */
+    /* w35-a4: 48 -> 14, insn parity still EXACT 78/78, and EVERY callee-saved register now matches
+     * retail ($s0=rd, $s1=paramIdx, $s2=i, $s3=ruleByte, $s4=numRules, $s5=sentence, $s6=offSent,
+     * $s7=ruleSetBase copy).  Three independent fixes, all derived from the cc1 -dl/-dg dumps:
+     *  (1) DEFER THE rd ASSIGNMENT past the GetOffset16 argument setup.  Retail reuses ONE register
+     *      for `rule` and the rule-data cursor (`addu $s0,$a1,$zero` ... `addu $a2,$s0,$zero` ...
+     *      `addu $s0,$v0,$zero`), which is only possible if the two pseudos do NOT conflict -- i.e.
+     *      the cursor's def sits AFTER `rule`'s last use in the RTL.  Writing
+     *      `int rdRaw = iSPCH_GetRuleDataAddr(...); offSent = iSPCH_GetOffset16(...,rule);
+     *       rd = (unsigned char *)rdRaw;` puts the pointer's def after the arg setup and the whole
+     *      s-register file shifts down one (48 -> 30).  (w33's rejected probe assigned the CALL
+     *      result after the second call, which reordered the calls and lost parity -- this keeps it.)
+     *  (2) ruleByte via the TRICHOTOMY-2 double evaluation `ruleByteStore = rd[0]; ruleByte = rd[0];`
+     *      (the same shape w34-a10 found for param), 30 -> 22.
+     *  (3) `if (i < numRules)` instead of `if (0 < numRules)` for the zero-trip guard -- semantically
+     *      identical (i is 0 there; cc1 folds the test to the same `blez $s4`) but it is one extra
+     *      OUT-OF-LOOP REG_N_REF on `i`, taking it 7 -> 8 weighted.  8 is a floor_log2 step, so its
+     *      priority jumps 2*7/49 = 0.286 -> 3*8/49 = 0.490 and it overtakes ruleByte (2*4/19 = 0.421):
+     *      i lands in $s2 and ruleByte in $s3, exactly as retail.  22 -> 14.
+     * RESIDUAL 14 = ONE cause: retail loads rd[0] once into $a0, stores it to the sp+0x10 slot and
+     * COPIES it to $s3 (`addu $s3,$a0,$zero`); ours re-LOADS it (`lbu $s3,0($s0)`) because the
+     * volatile store we use to model the dead decode-slot store invalidates cse's memory table.
+     * That in turn leaves $a0 free in our build, so the ruleType temp takes $a0 where retail (with
+     * $a0 busy) takes $a1 -- the remaining 12 diffs are that knock-on.  Falsified this wave:
+     * modelling the three slots as a plain local `unsigned int decode[3]` with read-backs (49 diffs
+     * / 81 insns -- the read-backs become real `lw`s, cc1 does not forward stack loads here) and
+     * taking the slot's address into a local pointer (neutral, 14).  A fix needs a store form that
+     * keeps a dead stack store WITHOUT killing cse's memory table -- not available from C here. */
     if (gSentenceRuleSet[0] != 0) {
         int offSent;
         int            numRules = *(signed char *)((int)sentence + 7);

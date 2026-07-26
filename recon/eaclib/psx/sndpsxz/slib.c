@@ -212,10 +212,14 @@ extern int iSNDplatformoutputset(void)
         chan = 0;
         vbase = base;
         vp = &DAT_801479f0;
-        do {
-            /* XOR keeps the state literal caller-saved inside the loop instead of
-             * hoisting 2 into $s2; the oracle needs $s2 for the persistent sndgs base. */
-            if ((*(volatile unsigned char *)(vp + 0x1c) ^ 2) == 0) {
+    voiceloop:
+        {
+            /* goto-loop (catalog §B): a label+goto back-edge carries no NOTE_INSN_LOOP_BEG, so
+             * loop.c never runs on this body -- that is what stops gcc hoisting the literal 2 of
+             * the state compare into a callee-saved reg ($s2, which the oracle needs for the
+             * persistent sndgs base) and reproduces the oracle's per-iteration
+             * `addiu v0,zero,2` remat in the lbu's load-delay slot. */
+            if (*(volatile unsigned char *)(vp + 0x1c) == 2) {
                 if (*(volatile unsigned char *)(vp + 0x21) == 0) {
                     iSNDsetvol(chan,
                         ((int)*(volatile unsigned char *)(vp + 0x24) << 24) >> 24,
@@ -224,7 +228,8 @@ extern int iSNDplatformoutputset(void)
             }
             vp += 0x2c;
             /* Preincrement makes the channel-count load precede the counter increment. */
-        } while (++chan < (int)(unsigned)vbase[0x11]);
+            if (++chan < (int)(unsigned)vbase[0x11]) goto voiceloop;
+        }
     }
     snd_old_chan_mode = SUB(0x10);   /* FRESH re-read, not through `base` -- oracle re-materializes
                                        * this via its own %hi/%lo AFTER the epilogue register

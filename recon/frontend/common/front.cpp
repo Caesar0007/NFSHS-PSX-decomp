@@ -1365,37 +1365,44 @@ extern "C" void Front_InitCopCars__FR9tFEStream(tFEStream *streamData)
 extern "C" void Front_InitPerps__FR9tFEStream(tFEStream *streamData)
 
 {
-  byte bVar1;
-  tCarInfo *ptVar2;
-  int iVar3;
-  int iVar4;
-  void *pvVar5;
-  short j;
-  int iVar6;
-  tCarInfo *carInfo;
+  /* SYM (nfs4-f-v3.txt @0x80029054) `8c Function start` gives the EXACT local set:
+       streamData = REGPARM $16 (s0)
+       block: i = REG $17 (s1, SHORT), j = REG $3 (v1, SHORT),
+              carInfo = REG $5 (a1, tCarInfo *)
+       inner block (line +12): carModel = AUTO -0x28 (= sp+0x10, ENUM tCarModels),
+                               carColor = AUTO -0x24 (= sp+0x14, CHAR)
+     Everything else in the old Ghidra body (bVar1/iVar3/iVar4/pvVar5/sVar7) was a
+     compiler temp -- do not reintroduce it. */
   short i;
-  short sVar7;
-  tCarModels carModel;
-  char carColor;
-  
+  short j;
+  tCarInfo *carInfo;
+
   streamData->numPerpObjects = 0;
   streamData->numPerps = 0;
   if (streamData->pMission != (tMissionInfo *)0x0) {
-    for (sVar7 = 0; iVar6 = (int)sVar7, iVar6 < (int)(uint)streamData->pMission->fNumStages;
-        sVar7 = sVar7 + 1) {
-      bVar1 = streamData->pStages[iVar6].fCarModel;
-      carModel = (tCarModels)bVar1;
-      carColor = streamData->pStages[iVar6].fColor;
-      ptVar2 = GetCarFromID(&carManager, (ushort)bVar1);
-      iVar3 = 0;
-      iVar6 = 0;
-      do {
-        iVar4 = iVar6 + 1;
-        if ((int)ptVar2->fColorOrder[iVar3 >> 0x10] == (uint)(byte)carColor) break;
-        iVar3 = iVar4 * 0x10000;
-        iVar6 = iVar4;
-      } while (iVar4 * 0x10000 >> 0x10 < 0x10);
-      carColor = (char)iVar6;
+    i = 0;
+    /* MATCH: EXIT-IN-THE-MIDDLE keeps the bound test at the TOP with an unconditional
+       `j` back-edge (the oracle is un-rotated, no peeled guard) while STILL being a
+       real loop for loop.c -- which is required here: the oracle hoists `lui
+       %hi(carManager)`, `&carManager`, `&carModel` and `&carColor` into s5/s4/s3/s2.
+       A label+goto loop kills loop.c's LICM and loses all four hoists. */
+    while (1) {
+      tCarModels carModel;   /* SYM: declared in the loop-body block, not fn scope */
+      char carColor;
+
+      if ((int)(uint)streamData->pMission->fNumStages <= (int)i) break;
+      carModel = (tCarModels)streamData->pStages[i].fCarModel;
+      carColor = streamData->pStages[i].fColor;
+      carInfo = GetCarFromID(&carManager, carModel);
+      j = 0;
+      /* MATCH: `fColorOrder` is declared plain `char` in the shared header, which is
+         UNSIGNED on this build (lbu); the oracle reads it with `lb` -> signed cast. */
+      while (1) {
+        if ((int)(signed char)carInfo->fColorOrder[j] == (int)(byte)carColor) break;
+        j = j + 1;
+        if (0x10 <= (int)j) break;
+      }
+      carColor = (char)j;
       if (!IsCarAnAddedModel(&carManager, &carModel,&carColor)) {
         if (streamData->totalModels < 0x10) {
           streamData->totalModels = streamData->totalModels + 6;
@@ -1403,10 +1410,11 @@ extern "C" void Front_InitPerps__FR9tFEStream(tFEStream *streamData)
         AddCarToIngameList(&carManager, &carModel,&carColor);
         streamData->totalCars = streamData->totalCars + 2;
         streamData->perps[streamData->numPerpObjects].carModel = carModel;
-        streamData->perps[streamData->numPerpObjects].carColor = streamData->pStages[sVar7].fColor;
+        streamData->perps[streamData->numPerpObjects].carColor = streamData->pStages[i].fColor;
         streamData->numPerpObjects = streamData->numPerpObjects + 1;
       }
       streamData->numPerps = streamData->numPerps + 1;
+      i = i + 1;
     }
   }
   return;

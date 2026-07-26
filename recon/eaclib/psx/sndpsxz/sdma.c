@@ -1,4 +1,4 @@
-/* eaclib/psx/sndpsxz/sdma.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 3/6 PASS ***
+/* eaclib/psx/sndpsxz/sdma.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 4/6 PASS ***
  *   Source obj : nfs4\eaclib\psx\sdma.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   6 fns @[0x8010A880 .. 0x8010AE6C].  RAM->SPU DMA queue -- up to 10 pending transfers serviced by
  *   priority, driven from the SPU IRQ / per-tick service.  Ghidra nfs4-f.exe.c (sdma) + disasm-v3 for the
@@ -92,7 +92,6 @@ extern void iSNDdmtransfer(void)
     int i;
     unsigned char inflight;
     int inflightValue;
-    int activeIndex;
     unsigned int bestPrio;
     unsigned int bestHandle;
     unsigned char *pd;
@@ -106,8 +105,19 @@ extern void iSNDdmtransfer(void)
      * fixed-offset loads.  The inflight byte is loaded before the explicit CP0 transaction and shifted
      * afterwards, filling the Status-register hazard window exactly.  The post-hook hardware block uses
      * fresh sndpd/sndgs bases and volatile register-pointer loads in their observed order.
-     * Detailed residual: 14 diffs, 121/121 instructions, confined to v0/v1 coloring while sign-extending
-     * and scaling the active slot. */
+     * MATCH (w34-a5, 14->0 PASS): the active-slot address is TWO cooperating levers, both required:
+     *   1. EMBEDDED ASSIGNMENT on the queue base -- `idx*0x14 + (qbase = (int)tailBase + 0x10)`.
+     *      A plain `(struct SNDDmaEntry *)(tailBase + 0x10) + idx` lets fold() REASSOCIATE the
+     *      constants into the index chain (`sll;addu;sll; addiu v0,v0,16; addu s0,v0,a0`), where
+     *      the oracle keeps base+0x10 as its OWN late `addiu v0,a0,16` added to the scaled index
+     *      (`addu s0,v1,v0`).  The MODIFY_EXPR blocks the reassociation AND gives qbase a later
+     *      luid so the add lands after the multiply chain.
+     *   2. The sign-extend + scale must be ONE ANONYMOUS EXPRESSION -- a named `activeIndex`
+     *      (fn- or block-scope) carries a scope (use reg) marker that sched1 hoists above the def,
+     *      bloating its live range into a hard-reg conflict -> `sll v1,v0,24` (copy form) plus a
+     *      uniform v0<->v1 swap over the whole address chain.  Anonymous ties in local-alloc ->
+     *      in-place `sll v0,v0,24; sra v0,v0,24` exactly like the oracle.  (Same lever the sibling
+     *      sdpacket.c iSNDpacketgetirq needed in w31.) */
     pd = sndpd;
     inflight = *(volatile unsigned char *)(pd + 0xc);
     MASK_INTERRUPTS_SR(sr);
@@ -140,10 +150,10 @@ extern void iSNDdmtransfer(void)
 
     {
         unsigned char *tailBase = sndpd;
-        activeIndex = *(volatile unsigned char *)(tailBase + 0xd);
-        activeIndex = activeIndex << 24;
-        activeIndex = activeIndex >> 24;
-        activeEntry = (struct SNDDmaEntry *)(tailBase + 0x10) + activeIndex;
+        int qbase;
+        activeEntry = (struct SNDDmaEntry *)
+            (((((int)*(volatile unsigned char *)(tailBase + 0xd)) << 24) >> 24) * 0x14
+             + (qbase = (int)tailBase + 0x10));
         if (activeEntry->flag != 0) {
             void (*hook)(void) = *(void (**)(void))(tailBase + 0x728);
             *(volatile unsigned char *)(tailBase + 1) = 1;

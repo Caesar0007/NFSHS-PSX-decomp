@@ -1,4 +1,4 @@
-/* eaclib/psx/sndpsxz/sdma.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 4/6 PASS ***
+/* eaclib/psx/sndpsxz/sdma.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 5/6 PASS ***
  *   Source obj : nfs4\eaclib\psx\sdma.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   6 fns @[0x8010A880 .. 0x8010AE6C].  RAM->SPU DMA queue -- up to 10 pending transfers serviced by
  *   priority, driven from the SPU IRQ / per-tick service.  Ghidra nfs4-f.exe.c (sdma) + disasm-v3 for the
@@ -273,6 +273,7 @@ extern int iSNDdmqueue(int dst_spu, unsigned int src_ram, int len, int prio, int
     int queuedFlag = flag;
     int i;
     volatile int *raw;
+    volatile int *ent;
     unsigned char *pd;
     unsigned int sr;
     int handleSnapshot;
@@ -287,47 +288,47 @@ extern int iSNDdmqueue(int dst_spu, unsigned int src_ram, int len, int prio, int
     if (handleSnapshot == 0)
         raw[2] = 1;
 
-    /* RESIDUAL (w31, 28->5): two sites left, both allocation-coupled and resistant to reshaping
-     * (every alternative tried -- named id temp, handleSnapshot reuse, plain-store reorder --
-     * re-colors the whole head, 25-51 diffs; w33-a6 re-ran the sweep on the current base and
-     * CONFIRMS the local optimum: `&pd[0x10]`, a volatile-qualified pd, and taking pd straight from
-     * the global instead of from `raw` are ALL diff-neutral at 5, while hoisting the id load into a
-     * named temp above the dst store -- or dropping its volatile so it can hoist by itself -- costs
-     * 60/61 insns at 51 diffs.  Diff (1) is the sndpsxz no-copy-prop identity in miniature: retail
-     * reads the FRESH pd copy, our cc1 copy-propagates back to the source register):
-     * (1) walker init emits `addiu v1,v1,16` (cse picks
-     * the older equivalent raw reg) vs oracle `addiu v1,s0,16` (reads the pd copy); (2) the id
-     * `lw` sits below the volatile dst store (+nop) vs oracle's lw;sw4;sw0 -- our volatile id
-     * load cannot hoist over the volatile raw[1] store. Permuter candidate from this basin.
-     * MATCH (w31): `i = 0` sits RIGHT AFTER the if (reorg copies it into the bnez delay slot AND
-     * keeps the fall-through copy -- the oracle's duplicated zero-init), and the slot WALKER is the
-     * SAME `raw` variable re-pointed at the entry table (one pseudo raw->walker inherits $v1 with
-     * the combined ref count; a separate `entry` local always colored $t0 with $v0/$v1 conflicts).
-     * The walker stays volatile -- the entry stores must not be scheduler-sunk (oracle keeps the
-     * id store adjacent to the dst store) and the id-test load keeps its bare load-delay nop. */
+    /* MATCH (w34-a5, 5->0 PASS).  The w31/w33 "no-copy-prop identity" residual was NOT an identity
+     * -- it took THREE cooperating source facts, and the w33 negative results were all measured with
+     * one of the other two still wrong (they only pay off together; cf. the BLOCKING-REGISTER-CASCADE
+     * rule -- re-test shelved leads after any structural fix):
+     *   1. SEPARATE WALKER PSEUDO `ent` (not the head's `raw` re-pointed).  With one shared pseudo the
+     *      head base is still LIVE past the `pd = raw` copy, so cse's canon_reg keeps the SOURCE
+     *      canonical and emits `addiu v1,v1,16`.  A distinct `ent` makes the head base DIE at the
+     *      copy, so the copy `pd` outlives its source and BECOMES canonical -> oracle `addiu v1,s0,16`
+     *      (make_regs_eqv steering, w33 catalog).  (w31 recorded a separate `entry` local as always
+     *      colouring $t0; that was true only while the id load still sat below the dst store.)
+     *   2. VOLATILE in-flight-count RMW `*(volatile u_char*)(pd+0xc) += 1` -- pins the lbu/addiu/sb
+     *      trio (with its unfilled load-delay nop) so the id `lw` cannot hoist above it.  Dropping
+     *      the volatile lets the whole head re-colour into $t1-$t3 (23 diffs, 60/61 insns).
+     *   3. The id load REUSES the now-dead `handleSnapshot` local and is written ABOVE the dst store
+     *      (oracle: `lw v0,8(s0); sw a0,4(v1); sw v0,0(v1)` -- the dst store fills the load-delay
+     *      slot).  A FRESH named temp here is the w33 51-diff blowup; repurposing the dead variable
+     *      reuses its register exactly like retail (catalog "dead-variable staging reuse").
+     * Still load-bearing from w31: `i = 0` sits RIGHT AFTER the if (reorg copies it into the bnez
+     * delay slot AND keeps the fall-through copy -- the oracle's duplicated zero-init); the walker
+     * stays volatile so the entry stores are not scheduler-sunk. */
     i = 0;
     pd = (unsigned char *)raw;
-    raw = (volatile int *)(pd + 0x10);
+    ent = (volatile int *)(pd + 0x10);
 scan:
-    if (*raw != 0)
+    if (*ent != 0)
         goto occupied;
-    pd[0xc] = pd[0xc] + 1;
-    raw[1] = dst_spu;
-    raw[0] = *(volatile int *)(pd + 8);   /* MATCH: volatile id read -- keeps the lw below the
-                                            * pd[0xc] RMW (unhoisted), freeing $v0 for the temp
-                                            * so the walker can take $v1 (same shared dmid word
-                                            * the head re-reads through volatile raw[2]) */
-    *(volatile unsigned short *)((unsigned char *)raw + 8) = (unsigned short)(src_ram >> 3);
-    ((volatile unsigned char *)raw)[0xa] = (unsigned char)(len >> 6);
-    ((volatile unsigned char *)raw)[0xb] = (unsigned char)prio;
-    ((volatile unsigned char *)raw)[0xc] = (unsigned char)queuedFlag;
+    *(volatile unsigned char *)(pd + 0xc) = *(volatile unsigned char *)(pd + 0xc) + 1;
+    handleSnapshot = *(volatile int *)(pd + 8);
+    ent[1] = dst_spu;
+    ent[0] = handleSnapshot;
+    *(volatile unsigned short *)((unsigned char *)ent + 8) = (unsigned short)(src_ram >> 3);
+    ((volatile unsigned char *)ent)[0xa] = (unsigned char)(len >> 6);
+    ((volatile unsigned char *)ent)[0xb] = (unsigned char)prio;
+    ((volatile unsigned char *)ent)[0xc] = (unsigned char)queuedFlag;
     wr_sr(sr);
     iSNDdmservice();
     return *(volatile int *)(pd + 8);
 occupied:
     i++;
     if (i < 10) {
-        raw = (volatile int *)((unsigned char *)raw + 0x14);
+        ent = (volatile int *)((unsigned char *)ent + 0x14);
         goto scan;
     }
     wr_sr(sr);

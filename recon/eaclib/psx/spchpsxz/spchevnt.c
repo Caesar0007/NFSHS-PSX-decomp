@@ -177,7 +177,24 @@ extern void iSPCH_InitEventQueue(void)
      * the second la copy (`addu $a0,$a3,$zero`): our cc1 copy-propagates
      * `base -> slot` because `base` is never modified, and only the copy that
      * SURVIVES a modification (`addu a3,v1,zero`) is kept.  Same no-copy-prop
-     * identity as SPCH_AddEvent's two preheader copies. */
+     * identity as SPCH_AddEvent's two preheader copies.
+     * w34-a9 BEST SHAPE FOUND (29 diffs / 28 insns -- still worse than this 17-diff
+     * short form, so NOT kept, but it is the one to hand a permuter): a NATURAL
+     * do-while outer loop over a `slot` walker + `end` bound, with the four header
+     * stores marked `volatile`.  The volatile qualifier is what kills the giv anchor
+     * (28 insns, not 30) WITHOUT giving up the loop notes -- so the inner loop's refs
+     * keep their loop-depth weighting, which is the whole point: it lifts off from
+     * 7/11 (goto-outer) to 11/11 = 3.00.  Remaining blocker is one allocno step:
+     * slot 16 refs / 20 insns = 4*16/20 = 3.20 still edges out off's 3.00, and 16 is
+     * again an exact floor_log2 razor edge -- slot at <= 15 refs collapses to
+     * 3*15/20 = 2.25, or off at >= 12 refs rises to 3*12/11 = 3.27.  Sourcing BOTH
+     * `end` and the `gVoxEvents[1]` store from `base` (not from `slot`) already took
+     * slot 18 -> 16 refs and 31 -> 29 diffs; the last ref cannot be shed without
+     * changing an instruction retail has (the outer test is `slt slot,end`, the four
+     * header stores and the `addiu slot,slot,0x3c` are all retail's).  Falsified for
+     * the off side: `argBase = off + 0xc` (cc1 then MERGES off and argBase into one
+     * induction pseudo, 27 insns / 34 diffs) and a named `a = off + base` address
+     * temp (neutral, 29). */
     int argBase = 0;
     int base = (int)gVoxEvents;
     gVoxEvents[0]   = 0;

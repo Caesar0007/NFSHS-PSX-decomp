@@ -47,7 +47,10 @@ int Init_Memcard(...);
 int Init_PSX_FrontEnd(...);
 int InitializeIngameCarList(...);
 int InitializeSpinningCars(...);
-int IsCarAnAddedModel(...);
+/* MATCH: returns bool -- the oracle tests it with `xori v0,v0,1; beqz` at all 7
+   call sites, which is cc1plus's `if (!b)` codegen for a C++ bool. An int return
+   gives `li v1,1; beq` instead. Do NOT widen back to int. */
+bool IsCarAnAddedModel(...);
 int LoadDescription(...);
 int LoadGame(...);
 int MenuExtended_TransitionFromPostGameToMainMenu(...);

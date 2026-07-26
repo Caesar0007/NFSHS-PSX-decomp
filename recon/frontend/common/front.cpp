@@ -949,8 +949,7 @@ FrontInitPlayers_playerLoop:
   for (sVar2 = 0; iVar5 = (int)sVar2, iVar5 < streamData->numPlayers; sVar2 = sVar2 + 1) {
     carModel = (tCarModels)streamData->playerCars[iVar5].fCarID;
     carColor = streamData->playerCars[iVar5].fColor;
-    pvVar4 = IsCarAnAddedModel(&carManager, &carModel,&carColor);
-    if ((pvVar4 != (void *)0x1) && (streamData->totalModels < 0xd)) {
+    if (!IsCarAnAddedModel(&carManager, &carModel,&carColor) && (streamData->totalModels < 0xd)) {
       streamData->totalModels = streamData->totalModels + 6;
     }
     AddCarToIngameList(&carManager, &carModel,&carColor);
@@ -998,8 +997,7 @@ extern "C" void Front_InitTourneyTraffic__FR9tFEStream(tFEStream *streamData)
       if (5 < iVar5 * 0x10000 >> 0x10) {
         iVar5 = 0;
       }
-      pvVar4 = IsCarAnAddedModel(&carManager, &carModel,&carColor);
-      if (pvVar4 != (void *)0x1) {
+      if (!IsCarAnAddedModel(&carManager, &carModel,&carColor)) {
         streamData->totalModels = streamData->totalModels + 1;
         AddCarToIngameList(&carManager, &carModel,&carColor);
       }
@@ -1089,8 +1087,7 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
         carModel = (tCarModels)bVar1;
         ptVar4 = GetCarFromID(&carManager, (ushort)bVar1);
         carColor = ptVar4->fDefaultColor;
-        pvVar5 = IsCarAnAddedModel(&carManager, &carModel,&carColor);
-        if ((pvVar5 != (void *)0x1) && (streamData->totalModels < 0x10)) {
+        if (!IsCarAnAddedModel(&carManager, &carModel,&carColor) && (streamData->totalModels < 0x10)) {
           streamData->totalModels = streamData->totalModels + 3;
         }
         FindSimilarCar(&carManager, &carModel,&carColor,0,(tCarModels *)0x0);
@@ -1151,8 +1148,7 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
     GetStockCar(&carManager, (ushort)(byte)frontEnd.oppCar,&tStack_120);
     tStack_38 = (int)tStack_120.fCarID;
     loc_34[0] = tStack_120.fColorOrder[tStack_120.fDefaultColor];
-    pvVar5 = IsCarAnAddedModel(&carManager, &tStack_38,loc_34);
-    if (pvVar5 != (void *)0x1) {
+    if (!IsCarAnAddedModel(&carManager, &tStack_38,loc_34)) {
       if (streamData->totalModels < 0x10) {
         streamData->totalModels = streamData->totalModels + 3;
       }
@@ -1324,8 +1320,7 @@ extern "C" void Front_InitCopCars__FR9tFEStream(tFEStream *streamData)
             ptVar2 = regularCopModels[uVar9] + (byte)(streamData->trackInfo).fCountry;
           }
           copModel = *ptVar2;
-          pvVar3 = IsCarAnAddedModel(&carManager, &copModel,&copColor);
-          if (pvVar3 != (void *)0x1) {
+          if (!IsCarAnAddedModel(&carManager, &copModel,&copColor)) {
             streamData->totalModels = streamData->totalModels + 3;
             AddCarToIngameList(&carManager, &copModel,&copColor);
           }
@@ -1401,8 +1396,7 @@ extern "C" void Front_InitPerps__FR9tFEStream(tFEStream *streamData)
         iVar6 = iVar4;
       } while (iVar4 * 0x10000 >> 0x10 < 0x10);
       carColor = (char)iVar6;
-      pvVar5 = IsCarAnAddedModel(&carManager, &carModel,&carColor);
-      if (pvVar5 != (void *)0x1) {
+      if (!IsCarAnAddedModel(&carManager, &carModel,&carColor)) {
         if (streamData->totalModels < 0x10) {
           streamData->totalModels = streamData->totalModels + 6;
         }
@@ -1548,8 +1542,7 @@ extern "C" void Front_InitTraffic__FR9tFEStream(tFEStream *streamData)
       if (5 < iVar5 * 0x10000 >> 0x10) {
         iVar3 = 0;
       }
-      pvVar4 = IsCarAnAddedModel(&carManager, &carModel,&carColor);
-      if (pvVar4 != (void *)0x1) {
+      if (!IsCarAnAddedModel(&carManager, &carModel,&carColor)) {
         AddCarToIngameList(&carManager, &carModel,&carColor);
       }
       streamData->trafficCars[streamData->numTraffic] = (u_short)carModel;

@@ -221,9 +221,12 @@ void Camera_UpdateBumperCam(int player)
   BO_tNewtonObj *pBVar4;
 
   lookingBehind = 0;
-  arm = Camera_gFlags[Camera_gInfo[player].mode].arm;
+  {
+    short mode = Camera_gInfo[player].mode;
+    arm = Camera_gFlags[mode].arm;
+  }
   if (Camera_gInfo[player].noLookBack == 0) {
-    lookingBehind = Input_gLookBehind[player] != 0;
+    lookingBehind = *(int *)((player << 2) + (int)Input_gLookBehind) != 0;
   }
   if (lookingBehind) {
     transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
@@ -236,11 +239,11 @@ void Camera_UpdateBumperCam(int player)
   }
   transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
   Camera_gInfo[player].position.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
-  pBVar4 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
+  pBVar4 = Camera_gInfo[player].anchor;
   Camera_gInfo[player].position.y = (pBVar4->position).y + newarm.y;
   Camera_gInfo[player].position.z = (pBVar4->position).z + newarm.z;
   if (lookingBehind) {
-    Camera_LookBack(&pBVar4->orientMat,&Camera_gInfo[player].rotation);
+    Camera_LookBack(&Camera_gInfo[player].anchor->orientMat,&Camera_gInfo[player].rotation);
   }
   else {
     /* MATCH: FRESH anchor re-load here (kills the anchor+240 CSE with the if-arm);

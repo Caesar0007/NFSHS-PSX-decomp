@@ -95,17 +95,15 @@ AIHigh_Traffic::CopCheck(int *blockade)
 
     closest = this->CheckForCops(&closestDistance);
 
+    cop = (AIHigh_Cop *)0x0;
+
     if (closest != (Car_tObj *)0x0) {
 
-      speed = closest->currentSpeed;
+      /* The retail inline abs form is required to retain the SLD allocation:
+       * closest in $a0 and speed in $a1. */
+      speed = __builtin_abs(closest->currentSpeed);
 
-      if (speed < 0) {
-
-        speed = -speed;
-
-      }
-
-      if ((speed <= 0x1ffff) && (closestDistance <= 0x4affff)) {
+      if ((speed < 0x20000) && (closestDistance < 0x4b0000)) {
 
         *blockade = 1;
 
@@ -121,19 +119,7 @@ AIHigh_Traffic::CopCheck(int *blockade)
 
       }
 
-      else if (speed <= 0x1ffff) {
-
-        return cop;
-
-      }
-
-      else if (0x4affff < closestDistance) {
-
-        return cop;
-
-      }
-
-      else {
+      else if ((0x20000 < speed) && (closestDistance < 0x4b0000)) {
 
         cop = (AIHigh_Cop *)highLevelAIObjs[closest->carIndex];
 

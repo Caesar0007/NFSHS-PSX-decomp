@@ -199,47 +199,6 @@ extern FileHandle *reservehandle(void)
  * seq-combine operand swap `(gFileOpSeq & seqMask) | (id & keepType)` (54); literals + that
  * swap (50).  Next lever to try: something that lengthens the mgrbase live range or shortens
  * seqMask's WITHOUT adding an insn. */
-/* w35-a5 -- 46 -> 40 (71/71), and the w34 "two flips" verdict is REFUTED for BOTH flips.
- * (1) FLIP 1 LANDED, honest C: read the sequence counter into a guard-local ONCE
- *     (`unsigned int seq = gFileOpSeq;` as the first statement of the free-slot guard, used by
- *     the id-combine; the wrap keeps `++gFileOpSeq`).  That lengthens `off`'s live range by one
- *     insn (22 -> 23), which is enough to break the EXACT 1.5 priority tie in slot's favour:
- *     slot 6 refs/8 = 2*6/8 = 1.500 vs off 11 refs/23 = 3*11/23 = 1.435 (was 11/22 = 1.500,
- *     and a tie goes to the LOWER allocno number = off).  The -dg list flips to
- *     `94 90 82 80 91 92 88` = retail's [slot, off, i, ...] and slot lands in $a0 like retail;
- *     mgrbase also moves to retail's $t0 and the whole seq/id block (lw 24(t0) x2, addiu v1,v1,1,
- *     sw v1,0(gp), or v0,v0,a1) becomes instruction-identical.  Residual 40 = the tail of the
- *     permutation: off $a2 (retail $a1), i $a3 ($a2), seqMask $t1 ($a3), hicopy $a1 ($t1).
- * (2) FLIP 2 (seqMask must beat mgrbase) IS ALSO REACHABLE -- via the w35 IN-LOOP-DEF REF DIAL:
- *     declaring seqMask uninitialised and assigning `seqMask = 0xFFFFFu;` as the first statement
- *     INSIDE the do-loop leaves the code identical (loop.c hoists the invariant back into the
- *     pre-header) but the def is then counted at loop depth, so REG_N_REFS goes 5 -> 6 and the
- *     -dg order becomes EXACTLY retail's `... 90 82 80 88 91 92` = [slot, off, i, seqMask,
- *     mgrbase, hicopy].  So the w34 note's "either a 3rd in-loop seqMask reference (none exists)
- *     or a 1.4x longer mgrbase live range" dichotomy was FALSE -- the dial supplies the extra
- *     weighted ref with zero instructions.  Arithmetic without the dial: seqMask 5/35 = 0.286,
- *     mgrbase 7/40 = 0.350, hicopy 4/26 = 0.308.
- *     BUT the dial COSTS more than it buys here (46 vs 40), for two NAMED reasons, both new:
- *       (a) loop.c emits the hoisted movable at the END of the pre-header, so the seqMask
- *           lui/ori moves from retail's slot (3rd constant) to after the base materialisation
- *           = 2 unconditional diffs;
- *       (b) the ordering win is then eaten by LOCAL-alloc: the block-local pair {oparray reload,
- *           slot address} is pre-assigned $a1, so `off`/`i`/`seqMask` all carry a hard-reg-5
- *           conflict (see the ";; NN conflicts: ... 2 5 29" lines in the -dg dump) and global
- *           alloc cannot give `off` retail's $a1 no matter what the allocno ORDER is.
- *     Retail's local-alloc instead put that pair in $a0 and the masked-seq value in $a1, which
- *     it can only do if the `and seq,seqMask` is SCHEDULED BEFORE the `addiu seq,seq,1` (then the
- *     seq load dies into the addiu and the addiu re-uses $v1, freeing $a0).  Ours always picks the
- *     addiu at that ready-list slot.  ==> THE REMAINING BLOCKER IS ONE SCHED1 READY-LIST TIE,
- *     not the allocno order.  Falsified this wave for that tie (all at 71/71 unless noted):
- *     splitting `++` out of the `if` (54); a `seq`/`next` pair with the store BEFORE the combine
- *     (54); a guard-top `seqv = gFileOpSeq & seqMask` (46); or-operand swap on top of the head
- *     hoist (44); all-literal constants (52); literals + the dial (52); `gFileOpSeq = seq + 1`
- *     with the wrap re-reading the global (45, 70 insns -- loses the second load).
- *     Also measured but REJECTED as scaffolding: hoisting `seqv = gFileOpSeq & 0xFFFFFu;` to the
- *     TOP OF THE LOOP BODY (i.e. computing it on iterations that never use it) reaches 44 at
- *     71/71, and without the seqMask dial 34 at 73/71 -- both introduce a cross-block `seqv`
- *     allocno retail does not have, which then steals retail's $a3 from seqMask.  Not kept. */
 
 extern FileOp *reserveop(void)
 {

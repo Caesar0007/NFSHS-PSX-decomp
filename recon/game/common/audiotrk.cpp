@@ -26,32 +26,33 @@ void AudioTrk_Reset(void)
   int i;
   AudioTrk_tAmbientChannel *pAVar1;
   CAudioList *pCVar2;
-  u_char *puVar3;
+  signed char *puVar3;
   int iVar4;
   int iVar5;
-  
+  signed char neg1;
+
   if (AudioTrk_g != (AudioTrk_tGlobals *)0x0) {
-    iVar4 = 0;
+    i = 0;
     do {
-      if (AudioTrk_g->chan[iVar4].handle != -1) {
-        freeVoiceChannel(iVar4 + 0x37);
-        AudioTrk_g->chan[iVar4].handle = -1;
+      if (AudioTrk_g->chan[i].handle != -1) {
+        freeVoiceChannel(i + 0x37);
+        AudioTrk_g->chan[i].handle = -1;
       }
-      iVar5 = iVar4 + 1;
-      pAVar1 = AudioTrk_g->chan;
-      pAVar1[iVar4].se = (AudioElem *)0x0;
-      pAVar1[iVar4].patch = -1;
-      iVar4 = iVar5;
-    } while (iVar5 < 0x10);
+      pAVar1 = AudioTrk_g->chan + i;
+      pAVar1->se = (AudioElem *)0x0;
+      pAVar1->patch = -1;
+      i++;
+    } while (i < 0x10);
   }
   if ((gGameAudioList != (CAudioList *)0x0) && (iVar4 = 0, 0 < gGameAudioList->numElements_)) {
-    puVar3 = (u_char *)((int)&gGameAudioList[2].numElements_ + 1);
+    neg1 = -1;
+    puVar3 = (signed char *)((int)&gGameAudioList[2].numElements_ + 1);
     do {
-      *puVar3 = 0xff;
+      *puVar3 = neg1;
       pCVar2 = gGameAudioList;
       *(u_short *)(puVar3 + -9) = 0;
-      iVar4 = iVar4 + 1;
       puVar3 = puVar3 + 0x18;
+      iVar4 = iVar4 + 1;
     } while (iVar4 < pCVar2->numElements_);
   }
   return;
@@ -550,27 +551,8 @@ int AudioTrk_PreLoad(void)
 /* ---- AudioTrk_CleanUp__Fv  [@0x8007d52c] ---- */
 void AudioTrk_CleanUp(void)
 {
-  int i;
-  CAudioList *pThis;
-  int fadeIn;
-  int fadeOut;
-  int time;
-  int numelems;
-  int next;
   int iVar1;
-  AudioTrk_tAmbientChannel *c;
-  Trk_AnimateInst *anim;
-  u_short azimuth;
-  int n;
-  int tick;
-  coorddef v;
-  coorddef nextcp;
-  int cur;
-  int max;
-  int gtck;
-  int vx;
-  int check;
-  
+
   AudioTrk_Reset();
   iVar1 = 0;
   if (AudioTrk_g != (AudioTrk_tGlobals *)0x0) {

@@ -18,20 +18,24 @@ Trk_AnimateInst *animScripts[10];   /* @0x8010e24c  (bss(zero)) */
 void Anim_Restart(void)
 {
   AnimScript *deleteMe;
-  int i;
+  AnimScript **p;
+  AnimScript **pEnd;
 
-  i = 0;
-  while (i < 32) {
-    deleteMe = animSlots[i];
-    if (deleteMe != (AnimScript *)0x0) {
-      if (deleteMe->inst != (Trk_AnimateInst **)0x0) {
-        __builtin_vec_delete(deleteMe->inst);
-      }
-      __builtin_delete(deleteMe);
+  p = animSlots;
+  pEnd = animSlots + 32;
+AnimRestart_Test:
+  if (!((int)p < (int)pEnd)) goto AnimRestart_End;
+  deleteMe = *p;
+  if (deleteMe != (AnimScript *)0x0) {
+    if (deleteMe->inst != (Trk_AnimateInst **)0x0) {
+      __builtin_vec_delete(deleteMe->inst);
     }
-    animSlots[i] = (AnimScript *)0x0;
-    i = i + 1;
+    __builtin_delete(deleteMe);
   }
+  *p = (AnimScript *)0x0;
+  p = p + 1;
+  goto AnimRestart_Test;
+AnimRestart_End:;
   DrawW_ResetAnimationTimer();
   return;
 }
@@ -39,35 +43,20 @@ void Anim_Restart(void)
 /* ---- Anim_InitSystem  [@0x80073b1c] ---- */
 int Anim_InitSystem(char *trackName)
 {
-  int i;
-  char fname[80];
-  char*bigFile;
-  char*mem;
-  int size;
-  int numParts;
-  Trk_AnimateInst*objInstance;
   int *src;
   void *pThis;
   Trk_AnimateInst *pTVar1;
   int iVar2;
   Trk_AnimateInst **ppTVar3;
   char acStack_68 [80];
-  
+
   Anim_Restart();
   sprintf(acStack_68,"%sA.viv",trackName);
   src = (int *)loadfileadrz(acStack_68,(void *)0x0);
   iVar2 = 9;
-  if (src == (int *)0x0) {
-    ppTVar3 = animScripts + 9;
-    do {
-      *ppTVar3 = (Trk_AnimateInst *)0x0;
-      iVar2 = iVar2 + -1;
-      ppTVar3 = ppTVar3 + -1;
-    } while (-1 < iVar2);
-  }
-  else {
+  if (src != (int *)0x0) {
     iVar2 = filesize(acStack_68);
-    pThis = 
+    pThis =
            Platform_GetDCTBuffer(iVar2,"animScripts");
     blockmove(src,(int *)pThis,iVar2);
     purgememadr(src);
@@ -82,14 +71,26 @@ int Anim_InitSystem(char *trackName)
       ppTVar3 = ppTVar3 + 1;
     } while (iVar2 < 10);
   }
+  else {
+    ppTVar3 = animScripts + 9;
+    do {
+      *ppTVar3 = (Trk_AnimateInst *)0x0;
+      iVar2 = iVar2 + -1;
+      ppTVar3 = ppTVar3 + -1;
+    } while (-1 < iVar2);
+  }
   if (gPersistObjInst != (Group *)0x0) {
     iVar2 = gPersistObjInst->m_num_elements;
     pTVar1 = (Trk_AnimateInst *)(gPersistObjInst + 1);
-    while (iVar2 = iVar2 + -1, iVar2 != -1) {
-      if (((pTVar1->type == '\x03') || (pTVar1->type == '\a')) && (pTVar1->objectIndex != 0)) {
-        Anim_gInstanceFromIndex[pTVar1->objectIndex] = pTVar1;
-      }
-      pTVar1 = (Trk_AnimateInst *)((int)&pTVar1->size + (int)pTVar1->size);
+    iVar2 = iVar2 - 1;
+    if (iVar2 != -1) {
+      do {
+        if (((pTVar1->type == '\x03') || (pTVar1->type == '\a')) && (pTVar1->objectIndex != 0)) {
+          Anim_gInstanceFromIndex[pTVar1->objectIndex] = pTVar1;
+        }
+        pTVar1 = (Trk_AnimateInst *)((int)&pTVar1->size + (int)pTVar1->size);
+        iVar2 = iVar2 - 1;
+      } while (iVar2 != -1);
     }
   }
   return 0;
@@ -159,25 +160,22 @@ AnimScript * Anim_GetAnim(int handle)
 /* ---- Anim_GetLastRotPos  [@0x80073e08] ---- */
 void Anim_GetLastRotPos(Trk_AnimateInst *animInst,coorddef *pt,matrixtdef *mat)
 {
-  Anim_tFrame*animFrames;
-  int animInd;
-  tQuat q;
-  u_char *puVar1;
-  u_int uVar2;
-  u_int *puVar3;
+  u_char *puVar4;
   int *piVar4;
-  u_int uVar5;
   int iVar6;
   int iVar7;
+  int iVar8;
   tQuat tStack_10;
-  
-  piVar4 = (int *)((int)animInst + (animInst->count + -1) * 0x14 + 0xc);
+
+  puVar4 = (u_char *)animInst + 0xc;
+  piVar4 = (int *)(puVar4 + (animInst->count + -1) * 0x14);
   tStack_10 = *(tQuat *)((char *)piVar4 + 0xc);   /* @0x63E30 lastFrame.quat (clean copy) */
-  iVar6 = piVar4[1];
-  iVar7 = piVar4[2];
-  pt->x = *piVar4;
-  pt->y = iVar6;
-  pt->z = iVar7;
+  iVar6 = piVar4[0];
+  iVar7 = piVar4[1];
+  iVar8 = piVar4[2];
+  pt->x = iVar6;
+  pt->y = iVar7;
+  pt->z = iVar8;
   Quatern_QuatToMat(&tStack_10,mat);
   return;
 }
@@ -185,20 +183,18 @@ void Anim_GetLastRotPos(Trk_AnimateInst *animInst,coorddef *pt,matrixtdef *mat)
 /* ---- Anim_GetLastAnimPosRot  [@0x80073e80] ---- */
 int Anim_GetLastAnimPosRot(int animNum,int flags,coorddef *pt,matrixtdef *mat)
 {
-  int tmp;
   int iVar1;
-  int iVar2;
   int iVar3;
-  
+
   Anim_GetLastRotPos(animScripts[animNum],pt,mat);
   if ((flags & 4U) != 0) {
     iVar1 = mat->m[3];
-    iVar2 = mat->m[4];
-    iVar3 = mat->m[5];
     mat->m[3] = mat->m[6];
     mat->m[6] = -iVar1;
+    iVar1 = mat->m[4];
     mat->m[4] = mat->m[7];
-    mat->m[7] = -iVar2;
+    mat->m[7] = -iVar1;
+    iVar3 = mat->m[5];
     mat->m[5] = mat->m[8];
     mat->m[8] = -iVar3;
   }
@@ -208,32 +204,19 @@ int Anim_GetLastAnimPosRot(int animNum,int flags,coorddef *pt,matrixtdef *mat)
 /* ---- Anim_GetRotPos  [@0x80073f18] ---- */
 int Anim_GetRotPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,matrixtdef *mat)
 {
-  Anim_tFrame*animFrames;
-  int animInd0;
-  int animInd1;
-  coorddef objcp0;
-  coorddef objcp1;
-  tQuat q;
-  int interval;
-  u_char *puVar1;
-  u_int uVar2;
-  u_int *puVar3;
   int iVar4;
   u_char *puVar5;
   int iVar6;
   u_char *puVar7;
   int iVar8;
   Trk_AnimateInst *pTVar9;
-  u_int uVar10;
-  u_int uVar11;
-  u_int uVar12;
   int iVar13;
   coorddef local_40;
   coorddef local_30;
   tQuat tStack_20;
   u_char auStack_18 [8];
   tQuat tStack_10;
-  
+
   if ((animInst->type == '\x03') ||
      (pTVar9 = (Trk_AnimateInst *)&animInst[1].zoffset, animInst->type == '\a')) {
     pTVar9 = animInst + 1;
@@ -269,12 +252,6 @@ int Anim_GetRotPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,ma
 int Anim_GetPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,int *animTicks,
               int *animLength)
 {
-  Anim_tFrame*animFrames;
-  int animInd0;
-  int animInd1;
-  coorddef objcp0;
-  coorddef objcp1;
-  int interval;
   int iVar1;
   int *piVar2;
   int iVar3;
@@ -282,7 +259,7 @@ int Anim_GetPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,int *
   int iVar5;
   coorddef local_38;
   coorddef local_28;
-  
+
   if ((u_short)animInst->interval - 1 < 400) {
     iVar4 = (int)animInst->interval;
   }
@@ -333,58 +310,51 @@ AnimScript::AnimScript(int num)
 /* ---- AnimScript::AnimScript  [@0x800743cc] ---- */
 AnimScript::AnimScript(int num,int numParts)
 {
-  int i;
   Trk_AnimateInst **ppTVar1;
   int iVar2;
-  int iVar3;
   int iVar4;
-  
+
   ppTVar1 = __builtin_vec_new(numParts << 2);
   iVar4 = 0;
   this->inst = ppTVar1;
   if (0 < numParts) {
-    iVar3 = 0;
     do {
-      iVar2 = num + iVar4;
+      this->inst[iVar4] = animScripts[num + iVar4];
       iVar4 = iVar4 + 1;
-      *(Trk_AnimateInst **)(iVar3 + (int)this->inst) = animScripts[iVar2];
-      iVar3 = iVar4 * 4;
     } while (iVar4 < numParts);
   }
-  iVar4 = simGlobal.gameTicks;
+  iVar2 = simGlobal.gameTicks;
   this->flags = 6;
-  this->baseTicks = iVar4;
+  this->baseTicks = iVar2;
   return;
 }
 
 /* ---- AnimScript::AnimScript  [@0x80074468] ---- */
 AnimScript::AnimScript(Group *instanceGroup,int type,int boomIndex,int numParts)
 {
-  int numElems;
-  Trk_AnimateBoomInst*objInstance;
-  int i;
   int iVar1;
   Trk_AnimateInst **ppTVar2;
   int iVar3;
   Trk_AnimateInst *pTVar4;
   int iVar5;
-  
+
   pTVar4 = (Trk_AnimateInst *)(instanceGroup + 1);
   iVar5 = instanceGroup->m_num_elements;
   ppTVar2 = __builtin_vec_new(numParts << 2);
   this->inst = ppTVar2;
   iVar1 = 0;
-  iVar3 = simGlobal.gameTicks;
-  while (iVar5 = iVar5 + -1, simGlobal.gameTicks = iVar3, iVar5 != -1) {
-    iVar3 = iVar1;
-    if (((u_int)pTVar4->type == type) && ((u_int)*(u_char *)((int)&pTVar4[1].size + 1) == boomIndex)) {
-      iVar3 = iVar1 + 1;
-      this->inst[iVar1] = pTVar4;
-    }
-    pTVar4 = (Trk_AnimateInst *)((int)&pTVar4->size + (int)pTVar4->size);
-    iVar1 = iVar3;
-    iVar3 = simGlobal.gameTicks;
+  iVar5 = iVar5 - 1;
+  if (iVar5 != -1) {
+    do {
+      if (((u_int)pTVar4->type == type) && ((u_int)*(u_char *)((int)&pTVar4[1].size + 1) == boomIndex)) {
+        this->inst[iVar1] = pTVar4;
+        iVar1 = iVar1 + 1;
+      }
+      pTVar4 = (Trk_AnimateInst *)((int)&pTVar4->size + (int)pTVar4->size);
+      iVar5 = iVar5 - 1;
+    } while (iVar5 != -1);
   }
+  iVar3 = simGlobal.gameTicks;
   this->flags = 6;
   this->baseTicks = iVar3;
   return;
@@ -400,14 +370,11 @@ void AnimScript::SetAnimAttrib(int flags)
 /* ---- AnimScript::GetAnimFrameInfo  [@0x8007453c] ---- */
 void AnimScript::GetAnimFrameInfo(int *frame,int *numFrames)
 {
-  Trk_AnimateInst*animInst;
-  int interval;
-  int ticks;
   int iVar1;
   int iVar2;
   Trk_AnimateInst *pTVar3;
   int iVar4;
-  
+
   pTVar3 = *this->inst;
   iVar2 = simGlobal.gameTicks - this->baseTicks;
   if ((u_short)pTVar3->interval - 1 < 400) {
@@ -435,11 +402,10 @@ int AnimScript::GetTimedAnimPosRot(coorddef *pt,matrixtdef *mat)
 /* ---- AnimScript::GetTimedAnimPosRot  [@0x80074624] ---- */
 int AnimScript::GetTimedAnimPosRot(int index,coorddef *pt,matrixtdef *mat)
 {
-  int tmp;
   int iVar1;
   int iVar2;
   int iVar3;
-  
+
   iVar1 = this->GetStatus();
   iVar2 = -1;
   if (iVar1 == 1) {
@@ -453,12 +419,12 @@ int AnimScript::GetTimedAnimPosRot(int index,coorddef *pt,matrixtdef *mat)
       iVar2 = 1;
       if ((this->flags & 4U) != 0) {
         iVar1 = mat->m[3];
-        iVar2 = mat->m[4];
-        iVar3 = mat->m[5];
         mat->m[3] = mat->m[6];
         mat->m[6] = -iVar1;
+        iVar1 = mat->m[4];
         mat->m[4] = mat->m[7];
-        mat->m[7] = -iVar2;
+        mat->m[7] = -iVar1;
+        iVar3 = mat->m[5];
         mat->m[5] = mat->m[8];
         mat->m[8] = -iVar3;
         iVar2 = 1;

@@ -126,8 +126,8 @@ void Sim_FadeInSFX(void)
       iVar2 = simGlobal.gameTicks + -0x10;
     }
     else {
-      iVar1 = simGlobal.gameTicks + -0x10;
       iVar2 = GameSetup_gData.userSetting.sfxLevel;
+      iVar1 = simGlobal.gameTicks + -0x10;
     }
     gMasterSFXLevel = iVar2 * iVar1 >> 6;
   }
@@ -265,39 +265,35 @@ void Sim_CheckForPause(int checkInput)
 void Sim_MainGameLoop(void)
 
 {
-  int iVar1;
-  int diffGoal;
-  int iVar2;
-  int iVar3;
-  int diffReal;
-  u_long uVar4;
-  int realTick;
-  int i;
   int lastRealTick;
   int lastGoalTick;
-  int iVar5;
-  
+  int realTick;
+  int diffReal;
+  int diffGoal;
+  int i;
+  int iVar2;
+  int iVar3;
+  u_long uVar4;
+
   quitType = 1;
-  iVar5 = 0;
+  lastGoalTick = 0;
   simGlobal.time32Hz = Input_gTime;
-  iVar2 = clock_realTime.time64Hz + 10000;
+  lastRealTick = clock_realTime.time64Hz + 10000;
   do {
-    if (simVar.endSimGame != 0) {
-      if (Replay_ReplayMode < 2) {
-        GameSetup_gData.finalPerpArrests = GameSetup_gData.perpArrests;
-      }
-      return;
-    }
+    if (simVar.endSimGame != 0) goto SimMainLoop_endGame;
     systemtask(0);
-    iVar1 = clock_realTime.time64Hz;
+    realTick = clock_realTime.time64Hz;
     simVar.goalClockTicks = gSimQueue_Ticker * 2;
-    if (simVar.goalClockTicks - iVar5 < clock_realTime.time64Hz - iVar2) {
+    diffReal = realTick - lastRealTick;
+    diffGoal = simVar.goalClockTicks - lastGoalTick;
+    if (diffGoal < diffReal) {
       simVar.goalClockTicks = simVar.goalClockTicks + 1;
     }
-    iVar5 = simVar.goalClockTicks;
+    lastGoalTick = simVar.goalClockTicks;
     if (0x10 < Input_gTime - simGlobal.time32Hz) {
       simGlobal.time32Hz = Input_gTime;
     }
+    lastRealTick = realTick;
     while ((simGlobal.time32Hz <= Input_gTime && (simVar.endSimGame == 0))) {
       if ((Replay_ReplayMode == 2) &&
          ((simVar.pauseSim == 0 &&
@@ -333,30 +329,30 @@ void Sim_MainGameLoop(void)
             AudioMus_SwitchSong();
             Hud_ActivateCDPlayer = 1;
           }
-          iVar2 = 0;
+          i = 0;
           if (simVar.keyRelease == 0) {
             do {
               uVar4 = 0x1a;
-              if (iVar2 != 0) {
+              if (i != 0) {
                 uVar4 = 0x1b;
               }
               iVar3 = Input_Interface(uVar4,1);
               if ((iVar3 != 0) && (Replay_ReplayMode < 2)) {
-                Camera_NextMode(iVar2);
+                Camera_NextMode(i);
               }
               uVar4 = 0x1c;
-              if (iVar2 != 0) {
+              if (i != 0) {
                 uVar4 = 0x1d;
               }
               iVar3 = Input_Interface(uVar4,1);
               if (iVar3 != 0) {
-                DashHUD_ToggleHud(iVar2);
+                DashHUD_ToggleHud(i);
               }
-              iVar3 = Input_Interface(iVar2 + 0x16,0);
-              Input_gLookBehind[iVar2] = iVar3;
+              iVar3 = Input_Interface(i + 0x16,0);
+              Input_gLookBehind[i] = iVar3;
               Sim_CheckForPause(1);
-              iVar2 = iVar2 + 1;
-            } while (iVar2 <= (int)(u_int)(GameSetup_gData.commMode == 1));
+              i = i + 1;
+            } while (i <= (int)(u_int)(GameSetup_gData.commMode == 1));
           }
           else {
             iVar2 = Input_Interface(simVar.keyRelease,0);
@@ -408,11 +404,15 @@ SimMainLoop_processSchedules:
       Render_Render(simVar.pauseSim);
     }
     iVar3 = Input_MainExitKey();
-    iVar2 = iVar1;
     if ((iVar3 != 0) || ((Replay_ReplayMode == 3 && (0x40 < simGlobal.gameTicks)))) {
       simVar.endSimGame = 1;
     }
   } while( true );
+SimMainLoop_endGame:
+  if (Replay_ReplayMode < 2) {
+    GameSetup_gData.finalPerpArrests = GameSetup_gData.perpArrests;
+  }
+  return;
 }
 
 /* end of sim.cpp */

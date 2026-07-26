@@ -67,7 +67,7 @@ int AudioMus_Threshold(void)
   if ((AudioMus_g->streamstatus).outstandingrequests == 0) {
     return 0;
   }
-  if ((AudioMus_g->requeststatus).timebuffered < (AudioMus_g->requeststatus).timetoend) {
+  if ((AudioMus_g->requeststatus).timetoend > (AudioMus_g->requeststatus).timebuffered) {
     return AudioMus_g->threshold;
   }
   return 0;
@@ -93,36 +93,42 @@ AudioMus_tCurrentSong * AudioMus_GetCurrentSong(void)
 {
   AudioMus_tCurrentSong*curr;
   AudioMus_tSongEntry*info;
-  AudioMus_tMusicGlobals *pAVar1;
   int iVar2;
   char *pcVar3;
-  
-  pAVar1 = AudioMus_g;
+
+  /* w30-a7: curr = &AudioMus_g->current cached ONCE (oracle computes it in the null-check
+     branch's delay slot) and reused via small offsets for remaining/index; info = &curr->info
+     is a further in-place bump (+0xC) reused for the title store -- cached sub-field pointer
+     idiom (proven this TU, w28-a6). The errorcode/newswitch checks re-read AudioMus_g-> fresh
+     (oracle re-issues the gp-rel load at each of those, not through a cached AudioMus_g local). */
+  curr = &AudioMus_g->current;
   if (AudioMus_g == (AudioMus_tMusicGlobals *)0x0) {
     return (AudioMus_tCurrentSong *)0x0;
   }
-  (AudioMus_g->current).remaining = (AudioMus_g->requeststatus).timetoend;
-  iVar2 = pAVar1->errorcode;
+  curr->remaining = (AudioMus_g->requeststatus).timetoend;
+  iVar2 = AudioMus_g->errorcode;
   if (iVar2 == 0) {
-    iVar2 = pAVar1->requestsong + 1;
+    iVar2 = AudioMus_g->requestsong + 1;
   }
-  (pAVar1->current).index = iVar2;
-  if (AudioMus_g->errorcode == -4) {
-    pcVar3 = "BUFFER NOT ALLOCATED";
-  }
-  else {
-    if (AudioMus_g->errorcode != -3) goto LAB_8007a0ac;
-    pcVar3 = "STREAM NOT CREATED";
-  }
-  (pAVar1->current).info.title = pcVar3;
+  curr->index = iVar2;
+  if (AudioMus_g->errorcode == -4) goto LAB_8007a0_buffer;
+  if (AudioMus_g->errorcode == -3) goto LAB_8007a0_stream;
+  goto LAB_8007a0ac;
+LAB_8007a0_buffer:
+  pcVar3 = "BUFFER NOT ALLOCATED";
+  goto LAB_8007a0_settitle;
+LAB_8007a0_stream:
+  pcVar3 = "STREAM NOT CREATED";
+LAB_8007a0_settitle:
+  info = &curr->info;
+  info->title = pcVar3;
 LAB_8007a0ac:
-  pAVar1 = AudioMus_g;
-  if (AudioMus_g->newswitch == 0) {
-    (AudioMus_g->current).newsong = 0;
+  if (AudioMus_g->newswitch != 0) {
+    AudioMus_g->newswitch = 0;
+    (AudioMus_g->current).newsong = 1;
   }
   else {
-    AudioMus_g->newswitch = 0;
-    (pAVar1->current).newsong = 1;
+    (AudioMus_g->current).newsong = 0;
   }
   return &AudioMus_g->current;
 }
@@ -208,21 +214,37 @@ void AudioMus_QueueRequestedSong(void)
   piVar1 = &AudioMus_g->streamhandle;
   AudioMus_g->songname = pcVar3;
   if (-1 < *piVar1) {
-    SNDSTRM_queuefile(AudioMus_g->streamhandle,0x3e8,AudioMus_g->bigfilename,offset);   /* oracle 0x6a2a8: dropped 3 args (handle,0x3e8,bigfilename,offset) */
-    AudioMus_g->requesthandle = (int)pcVar3;
+    /* w30-a7: oracle stores SNDSTRM_queuefile's RETURN into requesthandle (sw v0,0x78(v1)
+       right after the jal, v0 untouched by the intervening gp-rel reload) -- the prior
+       reconstruction discarded the call's return and stored pcVar3 again, which is a
+       different value; fixed to match the oracle's real data flow. */
+    AudioMus_g->requesthandle = SNDSTRM_queuefile(AudioMus_g->streamhandle,0x3e8,AudioMus_g->bigfilename,offset);   /* oracle 0x6a2a8: dropped 3 args (handle,0x3e8,bigfilename,offset) */
   }
-  iVar4 = 2;
   AudioMus_g->switchsong = 2;
-  gettick();
+  /* w30-a7: failby = gettick()+0x280 (oracle: v0=2 only feeds switchsong via the jal's delay
+     slot; v0 is gettick's RETURN by the time it's added to 0x280) -- prior recon reused the
+     switchsong constant (iVar4=2) for failby instead of the call's return. */
+  iVar4 = gettick();
   pAVar2 = AudioMus_g;
   AudioMus_g->failby = iVar4 + 0x280;
+  info = &pAVar2->current.info;   /* w30-a7: cached sub-field pointer -- oracle computes &current.info
+                                      once (independent of remaining/length, scheduler hoists it early)
+                                      and reuses it for notes/filename/title/artist/label; length still
+                                      goes through pAVar2 at its absolute offset (matches oracle's
+                                      v1-relative store for that one field). */
   (pAVar2->current).remaining = 0;
+  info->notes = (char *)0x0;   /* FLOOR (w30-a7): 4-diff residual is notes-vs-label store-order/
+                                   addressing-mode swap (oracle: notes via v0+24 first, label via
+                                   v0+20 last; ours: notes v1+304 absolute, label v0+20 early) --
+                                   tried notes-last and label-first orderings, both regressed to
+                                   12/4; this ordering is the local minimum. Scheduler tie-break
+                                   among 5 independent zero-stores through the same base, same
+                                   family as the SetEntry/Threshold floors this wave. */
   (pAVar2->current).info.length = 0;
-  (pAVar2->current).info.filename = (char *)0x0;
-  (pAVar2->current).info.title = (char *)0x0;
-  (pAVar2->current).info.artist = (char *)0x0;
-  (pAVar2->current).info.label = (char *)0x0;
-  (pAVar2->current).info.notes = (char *)0x0;
+  info->filename = (char *)0x0;
+  info->title = (char *)0x0;
+  info->artist = (char *)0x0;
+  info->label = (char *)0x0;
   return;
 }
 
@@ -235,7 +257,14 @@ void AudioMus_SetEntry(AudioMus_tSongEntry *info)
   char *pcVar4;
 
   pcVar4 = info->filename;
-  iVar3 = 0;
+  iVar3 = 0;  /* FLOOR (w30-a7, 2026-07-26): 2-diff residual is a single `addu a1,zero,zero`
+                 (iVar3=0) SCHEDULING position tie-break -- oracle hoists it here (right after
+                 the a2 load, before the 4 field-zero stores); our cc1 defers it to right before
+                 first use (after the beqz test, filling that branch's delay slot). Declaration-
+                 order/statement-order edits don't move it (gcc reorders independent constant
+                 loads by register pressure, not source position). One time-boxed permuter job
+                 (-j 2, ~600 iters, stop-on-zero) plateaued at score 20, never reached 0 -- not a
+                 quick permuter win either. Proven allocator/scheduler tie-break; not re-fighting. */
   info->artist = (char *)0x0;
   info->label = (char *)0x0;
   info->date = (char *)0x0;

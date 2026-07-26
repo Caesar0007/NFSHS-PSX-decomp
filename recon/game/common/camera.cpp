@@ -773,6 +773,7 @@ void Camera_UpdateAnimCam(int player)
   coorddef newarm;     /* SYM: AUTO */
   matrixtdef animRot;  /* SYM: AUTO */
   signed char cVar1;   /* signed: decrement emits addiu -1 (not +255) */
+  signed char cVar4;
   int iVar2;
   AnimScript *pAVar3;
   BO_tNewtonObj *pBVar6;
@@ -792,8 +793,9 @@ void Camera_UpdateAnimCam(int player)
     /* MATCH: re-acquire arm FIRST in VA order (blez jumps away to the <1 arm) */
     if (0 < (signed char)Camera_gInfo[player].animNum) {
       Anim_FreeHandle((int)(signed char)Camera_gInfo[player].animHandle);
-      iVar2 = Anim_Handle((u_int)(u_char)gAnimCams[GameSetup_gData.track]
-                                                 [(signed char)Camera_gInfo[player].animNum--]);
+      cVar4 = (signed char)Camera_gInfo[player].animNum;
+      Camera_gInfo[player].animNum--;
+      iVar2 = Anim_Handle((u_int)(u_char)gAnimCams[GameSetup_gData.track][cVar4]);
       Camera_gInfo[player].animHandle = (char)iVar2;
       pAVar3 = Anim_GetAnim((int)(signed char)(char)iVar2);
       pAVar3->GetTimedAnimPosRot(&animPos,&animRot);
@@ -1333,6 +1335,86 @@ LAB_80083500:
           Replay_ReplayFindClosestCamera(player,(int)(pCVar13->anchor->simRoadInfo).slice);
         }
       }
+      /* ============================================================================
+       * PC MODE-ENUM DECODE (w30-a8, 2026-07-26) -- pcmap/map_a6.txt flagged this as the
+       * highest-leverage open item for camera.cpp. PC dispatches through sub_4414E0
+       * (nfs4-pc.c L63426, window 0x43A620-0x441C3F; Camera_Update twin = sub_441A00).
+       * PSX's 19-mode switch below is this function's ONLY oracle; the table records PC's
+       * 25-mode dispatch and what body-content evidence (not index arithmetic) says about
+       * each PC mode's relationship to a PSX case, so a future pass doesn't re-derive it.
+       *
+       *  PSX mode -> handler (this switch)      PC mode -> sub_4414E0 case -> handler
+       *  0,1  Camera_UpdateBumperCam             0   (falls to default -- no dispatch)
+       *  2    Camera_UpdateTailCam(behavior=0)    1   sub_43E3B0  (falls back to sub_43E5D0
+       *  3    Camera_UpdateTailCam(behavior=1)        in the common case; PC-only smooth-turn
+       *  4    Camera_UpdateTailCam(behavior=2)        variant gated on dword_7CBACC/replay
+       *                                               state -- no PSX candidate)
+       *  5    Camera_UpdateHeliCam(behavior=0)    2   sub_43E5D0  = Camera_UpdateBumperCam
+       *  6    Camera_UpdateHeliCam(behavior=1)        [HIGH, upgraded this session from
+       *  7    Camera_UpdateHeliCam(behavior=2)        map_a6's TENTATIVE]: default case is a
+       *                                               plain 9-word orientMat copy (matches
+       *                                               PSX's not-looking-behind else-branch);
+       *                                               dword_661968==1 case calls the CONFIRMED
+       *                                               Camera_LookBack twin sub_43A8A0 (matches
+       *                                               PSX's looking-behind branch); cases 2/3
+       *                                               call quarter-turn helpers sub_43A930/
+       *                                               sub_43A960 (look-left/right -- a PC-only
+       *                                               extension outside the PSX 19-mode enum)
+       *                                          3,5 sub_43EE70  (paired) NOT-FOUND
+       *                                          4,6 sub_43E7D0  (paired) NOT-FOUND
+       *                                          7   sub_43F2C0  NOT-FOUND
+       *  8,9,15 Camera_UpdateSimpleCam            8   sub_43FB50  NOT-FOUND (callee set nearly
+       *                                               identical to case14's sub_4408D0 -- a
+       *                                               sibling pair, same family)
+       *                                          9   sub_440B50  NOT-FOUND (calls sub_43E5D0
+       *                                               itself -- bumper-cam-family relative)
+       *  10   Camera_UpdateCircleCam             10   sub_440550  NOT-FOUND
+       *  11   Camera_UpdateSplineCam             11,13 sub_4406C0 (paired) NOT-FOUND
+       *  12   Camera_UpdateTVCam                 12   sub_440770  NOT-FOUND (calls sub_4406C0
+       *                                               internally)
+       *  13   Camera_UpdateBlimpCam              14   sub_4408D0  NOT-FOUND (sibling of case8)
+       *  14   Camera_UpdateAnimCam               15   (falls to default -- no dispatch)
+       *                                          16   sub_440030  NOT-FOUND; 198-line driver
+       *                                               that calls the SAME pre/post hooks
+       *                                               sub_41E9F0/sub_41EB40 as the top-level
+       *                                               Camera_Update twin sub_441A00 -- a
+       *                                               per-frame ROOT updater, not a single
+       *                                               mode body; structurally unlike PSX's
+       *                                               small CopCam1
+       *                                          17   sub_440300  NOT-FOUND (calls sub_43A990,
+       *                                               one of the 6 inlined Camera_GetMode sites)
+       *                                          18   sub_43FD10  NOT-FOUND; calls the
+       *                                               Camera_SetMode twin sub_43DB90 AND
+       *                                               re-enters sub_4414E0 itself -- a
+       *                                               MODE-TRANSITION handler, not steady-state
+       *  16   Camera_UpdateCopCam1                19   sub_4410C0  TENTATIVE per map_a6
+       *                                               ("attached/spline" view); same
+       *                                               transition shape as case 18 (calls
+       *                                               sub_43DB90 + sub_4414E0)
+       *  17,18 Camera_UpdateCopCam2               20   sub_4410A0  NOT-FOUND; 6-line stub
+       *                                          21   sub_43EBC0  NOT-FOUND
+       *                                          22   (falls to default -- no dispatch)
+       *                                          23   sub_43F4A0  NOT-FOUND
+       *                                          24   sub_43F630  NOT-FOUND (calls sub_43E5D0
+       *                                               -- another bumper-cam-family relative)
+       *
+       * NEGATIVE FINDING (confirmed this session, do not re-attempt naive index mapping):
+       * PC pairs modes (3,5)->sub_43EE70 and (4,6)->sub_43E7D0. PSX groups 2,3,4 into ONE
+       * function (TailCam, behavior 0/1/2) and 5,6,7 into a DIFFERENT ONE function (HeliCam,
+       * behavior 0/1/2). No renumbering of the 25 PC modes reproduces the PSX 3+3 grouping --
+       * PC's mode pairs cut ACROSS the tail/heli boundary, so TailCam/HeliCam need a
+       * content-only match, not index arithmetic. Both sub_43EE70 (389 lines) and sub_43E7D0
+       * (370 lines) are heavy with raw FPU-stack __asm blocks Hex-Rays failed to decompile
+       * (fld/fmul/fxch/fstp sequences) -- unread within this session's budget; hand-floatizing
+       * those blocks is the concrete next step to close Camera_UpdateTailCam/HeliCam.
+       *
+       * Also: PC's sub_441670 (nfs4-pc.c L63528) buckets the raw mode id into a 4-state "look"
+       * enum (0=straight,1=behind,2/3=side) stored in dword_661968[] -- consumed by sub_43E5D0's
+       * and sub_43E3B0's switches (and probably sub_440B50/sub_43F630, both of which also call
+       * sub_43E5D0). This is PC's generalized replacement for PSX's per-family
+       * Input_gLookBehind-check + LookBack-call and does NOT correspond to any single PSX mode
+       * value -- don't mistake it for a 4-way PSX enum split.
+       * ============================================================================ */
       switch(pCVar13->mode) {
       case 0:
       case 1:

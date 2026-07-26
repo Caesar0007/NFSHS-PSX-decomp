@@ -137,7 +137,7 @@ extern int iSNDmalloc(int size)
 
     i = 0;
     if (count >= 0x80)
-        return 0;
+        goto fail;
     size += 3;
     size >>= 2;
     if (count == 0) {
@@ -146,7 +146,7 @@ extern int iSNDmalloc(int size)
         iSNDmemconstrain(&block, &available);
         if (size <= available)
             goto commit;
-        return 0;
+        goto fail;
     }
     if (i < (int)*(unsigned short *)(base + 4)) {
         tab = base + 0xc;
@@ -202,7 +202,7 @@ extern int iSNDmalloc(int size)
     }
     iSNDmemconstrain(&block, &available);
     if (available < size)
-        return 0;
+        goto fail;
     /* fall through into commit (oracle .L801063D4) */
 commit:
     {
@@ -221,4 +221,6 @@ commit:
             *(int *)(cb + 8) = block + size;
         return addr;
     }
+fail:
+    return 0;
 }

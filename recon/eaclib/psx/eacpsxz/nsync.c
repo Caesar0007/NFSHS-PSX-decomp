@@ -80,6 +80,22 @@ extern int filesize(char *name)   /* @0x800E566C */
  *  `a->memclass`, read the whole file in, close, then run the optional   *
  *  loadfilecallback hook.  Returns the buffer (NULL on any failure).     *
  * ===================================================================== */
+/* RESIDUAL 22 (count-exact 62/62), w32-a3 analysis -- a pure s2<->s3 swap: retail keeps the
+ * LoadArgs pointer in $s2 and the file size in $s3, ours has them the other way round.  Everything
+ * else (retry->s0, retry-1->s1, buf->s0-after-retry-dies, hook result->s1) already matches, and IDA
+ * (nfs4-psx-IDA.c sub_800E56B0: `v4 // $s1` = retry-1, `v5 // $s3` = size, `v7 // $s0` = buf,
+ * handle at [sp+18h]) confirms our variable set and types are exactly retail's.
+ * WHY it swaps, from the cc1 -dg/-dl dumps: gcc-2.8 global.c sorts allocnos by
+ * floor_log2(n_refs)*n_refs/live_length and hands out MIPS REG_ALLOC_ORDER regs in that order, so
+ * the earlier allocno wins $s2.  Our numbers -- size: 3 refs / 9 insns = 0.333; `a`: 6 refs /
+ * 62 insns = 0.194 -- put size first, and the printed order (88 93 92 86 87 81 80) matches the
+ * formula exactly for all seven pseudos.  For `a` to win, the source would need EITHER >=8 refs of
+ * `a` (only 5 dereferences exist: name for open, name+memclass for reservememadr, name+memclass for
+ * the hook) OR size live >=16 insns (it dies at the readsync, 9) -- neither is expressible without
+ * changing the emitted code.  Falsified this wave: hoisting the size/buf declarations to function
+ * scope (no change), the inline `if (buf == 0) { close; return 0; }` early-out (64 insns / 32
+ * diffs).  => allocno-priority tie of the class the fleet is tracking as the retail allocno_compare
+ * delta; do NOT re-fight from source without new evidence about that delta. */
 extern void *loadfileadratomic(int retry, LoadArgs *a)   /* @0x800E56B0 */
 {
     int handle;

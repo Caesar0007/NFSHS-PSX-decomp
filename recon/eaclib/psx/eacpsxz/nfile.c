@@ -88,7 +88,22 @@ extern void freehandle(FileHandle *h)
  * family, catalog DrawW row).  This un-rotates the loop and recovers the bottom `i < count` test.
  * RESIDUAL 17: one allocator web -- ours coalesces the cur/next pair into one walker reg (43 vs
  * 44, the lone missing `addu v1,a1,zero`) and colors sr->a2/count->a1 where retail has sr->a3/
- * count->a2 (mfc0 scratch tie).  Permuter territory. */
+ * count->a2 (mfc0 scratch tie).
+ * w32-a3 -- SETTLED by the IDA register annotations (nfs4-psx-IDA.c sub_800ED240): retail's
+ * locals are `v0 // $a3` (saved SR), `v1 // $a0` (i) and `v2 // $a1` -- ONE walker pointer, in
+ * $a1, with the loop written `while (*v2 != 0) { ++v1; v2 += 19; if (v1 >= count) goto out; }
+ * *v2 = 1;`.  So the oracle's second walker register ($v1, fed by `addu v1,a1,zero` at the top of
+ * the loop) is NOT a source-level variable: it is retail cc1 SPLITTING the single pointer's live
+ * range with a redundant copy, which our cc1 always coalesces (any C form with two pointers is
+ * copy-propagated back to one -- cur and next hold the same value at every program point, so no
+ * legal C can keep them apart).  That lone extra pseudo is the whole 17: with it, the ripple is
+ * cur->v1 / next->a1 / count->a2 / sr->a3 = retail exactly.  Falsified this wave: the literal IDA
+ * one-pointer while+goto shape (27 diffs, 47 insns -- worse), and cc1 flags -fno-schedule-insns /
+ * -fno-cse-follow-jumps / -fno-cse-skip-blocks / -fno-rerun-cse-after-loop / -fno-thread-jumps /
+ * -fno-caller-saves / -fno-strength-reduce / -fno-expensive-optimizations (all no movement).
+ * => per-obj old-gcc "no-copy-prop / weaker-coalescing" identity (methodology 3.25, catalog SS G),
+ * the SAME class as FILE_completeop / FILE_cancelop / FILE_operror in this TU.  Do not re-fight
+ * from source; it needs the toolchain-identity investigation. */
 extern FileHandle *reservehandle(void)
 {
     int i, sr;
@@ -126,7 +141,18 @@ extern FileHandle *reservehandle(void)
  * unrotated do/while CFG, re-reading opcount at the back edge, and ordering the independent
  * offset/index updates so the count load's delay slot is filled reduce it further to 46 diffs
  * with the exact 71/71 instruction count.  `off` remains the oracle's byte-offset induction
- * variable; the remaining residual is one allocator cycle among off/slot/base/seq-mask. */
+ * variable; the remaining residual is one allocator cycle among off/slot/base/seq-mask.
+ * w32-a3: IDA (sub_800ED0DC) gives retail's variable->register map -- `v0 // $t5` (saved SR),
+ * `v1 // $a2` (i), `v2 // $a1` (the BYTE OFFSET) -- and, decisively, writes every slot access as
+ * `*(_DWORD *)(v2 + dword_8013EAA0)`: the OFFSET is the FIRST addu operand, matching the oracle's
+ * `addu a0,a1,v0` / `addu v0,a1,v0`.  The four slot expressions below are therefore written
+ * offset-first (`(FileOp *)(off + (int)gFileMgr.oparray)`); that flips our `addu rD,base,off` to
+ * the oracle's `addu rD,off,base` at both sites (diff-neutral 46->46 -- kept as an oracle-proven
+ * correctness alignment, catalog §5.0c commutative-addu lever, so those two lines stop reading as
+ * unexplained).  Retail has NO named slot-pointer local and no mask/constant locals; the residual
+ * is the allocation order (retail off->a1 + slot-temp->a0 + seqMask->a3, ours off->a0 +
+ * slot->a1 + seqMask->t1).  Falsified: masked-value-first statement order in the seq combine
+ * (52 diffs). */
 
 extern FileOp *reserveop(void)
 {
@@ -140,13 +166,13 @@ extern FileOp *reserveop(void)
         unsigned int keepType = 0xFFF00000u;
         off = 0;
         do {
-            FileOp *op = (FileOp *)((char *)gFileMgr.oparray + off);
+            FileOp *op = (FileOp *)(off + (int)gFileMgr.oparray);
             if (((op->id >> 0x14) & 0xF) == 0) {
                 op->id = (op->id & clearType) | setType; /* set type nibble = 1 */
-                ((unsigned char *)&((FileOp *)((char *)gFileMgr.oparray + off))->id)[3] =
+                ((unsigned char *)&((FileOp *)(off + (int)gFileMgr.oparray))->id)[3] =
                     (unsigned char)i;  /* byte3 = op index */
-                ((FileOp *)((char *)gFileMgr.oparray + off))->id =
-                    (((FileOp *)((char *)gFileMgr.oparray + off))->id & keepType) |
+                ((FileOp *)(off + (int)gFileMgr.oparray))->id =
+                    (((FileOp *)(off + (int)gFileMgr.oparray))->id & keepType) |
                     (gFileOpSeq & seqMask); /* bits 0-19 = request seq */
                 if (++gFileOpSeq > (int)seqMask)             /* 20-bit wrap */
                     gFileOpSeq = 0;
@@ -204,6 +230,13 @@ success:
 }
 
 /* FILE_operror @0x800EBE1C : raw error code of the op named by `id` (index=id>>24; no validation). */
+/* RESIDUAL 13 (ours 11 / oracle 12), w32-a3 classification: the missing instruction is the oracle's
+ * `addu v1,a0,zero` -- retail copies the `id` param out of $a0 and srl's the COPY, leaving $a0 free
+ * for the `lui a0,%hi(oparray)`; ours srl's $a0 in place and uses $v1 for the lui.  Identical shape
+ * to FILE_completeop's `addu a0,a1,zero`: retail cc1 keeps a redundant register-to-register copy our
+ * cc1 never emits.  Fifth instance of that pattern in this TU (reservehandle, FILE_completeop,
+ * FILE_cancelop, FILE_operror, + syncfile.c synccallback) => per-obj toolchain identity, not a
+ * source shape.  Do not grind. */
 extern int FILE_operror(unsigned int id)
 {
     volatile int frame[3];
@@ -245,7 +278,20 @@ extern int FILE_init(int handlecount, int memsize, int opcount)
  * Residual 28 = ONE coloring web: ours srl's the id in place (a0) and colors op->a0 (saving the
  * freeop arg copy), retail keeps id in a0, srl->v1, op->a1 + `addu a0,a1,zero` in the freeop
  * delay slot -- the §3.12 "ours-shorter base-reuse" swap, now count-neutral; permuter territory
- * (idx-split and param-liveness levers tested, no movement). */
+ * (idx-split and param-liveness levers tested, no movement).
+ * w32-a3 -- ROOT CAUSE identified from the cc1 -dg dump + IDA.  cc1 -dg says our op-pointer
+ * pseudo carries `preferences: 4` -- a hard-reg preference for $a0 created by the `freeop(op)`
+ * argument copy -- and global.c's find_reg honours copy preferences BEFORE the plain
+ * REG_ALLOC_ORDER scan, so it takes $a0 (nothing conflicts there: the pseudo dies AT the call and
+ * `id` dies at the srl).  Retail put it in $a1 (IDA sub_800EC2B0: `_DWORD *v1; // $a1`, `int v2;
+ * // $s0`), i.e. retail's allocator did NOT take that preference and emitted the redundant
+ * `addu a0,a1,zero` instead -- the same live-range-split copy retail keeps in reservehandle /
+ * FILE_cancelop / FILE_operror.  For $a0 to be unavailable, `id` would have to stay live past the
+ * op-pointer definition; it does not, in retail or here.  Falsified this wave: recomputing the
+ * address expression at the freeop call site (gcc does NOT re-CSE it -> 54 insns / 37 diffs), and
+ * the whole -fno-{schedule-insns,cse-follow-jumps,cse-skip-blocks,rerun-cse-after-loop,
+ * thread-jumps,caller-saves,strength-reduce,expensive-optimizations} sweep (no movement).
+ * => toolchain-identity class, not source-reachable. */
 extern int FILE_completeop(unsigned int id)
 {
     volatile int frame[4];
@@ -571,7 +617,21 @@ extern void FILE_cancelop(unsigned int id)
      * cutting 47->42. The remaining delta is a caller-saved a1/a2/a3 allocator
      * tie-break (id/action/op all shifted one register up from the oracle) -- same
      * unmovable family as FILE_opstatus/FILE_operror/FILE_priorityop (see their
-     * comments); several named-local/materialize attempts this wave didn't move it. */
+     * comments); several named-local/materialize attempts this wave didn't move it.
+     * w32-a3 -- the shift is EXPLAINED (IDA sub_800EC008: `v1 // $a2` = action,
+     * `v2 // $s0` = sr, `v3 // $a3` = op, param id -> $a1).  The oracle fills the
+     * `lw v0,20(t0)` load-delay slot with `addu a1,a3,zero` -- a REDUNDANT COPY of
+     * `op` into the register `id` just vacated -- and uses that copy for the whole
+     * rest of the body.  Ours has no such pseudo (nop in that slot), so our single
+     * op pseudo is allocated FIRST and grabs $a1, pushing id->a2 and action->a3.
+     * i.e. ONE missing live-range-split copy accounts for the entire 42-diff web:
+     * with it the order is id->a1(dies) / action->a2 / op->a3 / op-copy->a1 = retail.
+     * No C form can produce it (op and the copy hold the same value everywhere, so
+     * cc1 copy-propagates), and no cc1 flag does either (same sweep as
+     * FILE_completeop).  Falsified additionally: offset-first pointer arithmetic for
+     * `op` (IDA renders `48 * HIBYTE(a1) + dword_8013EAA0`, but it re-colors the whole
+     * body -> 70 diffs, so the operand order here is NOT the lever it is in reserveop).
+     * => per-obj old-gcc no-copy-prop identity (methodology 3.25 / catalog §G). */
     volatile int frame[6];
     FileOp *op;
     int     nibble, action = 0, sr;

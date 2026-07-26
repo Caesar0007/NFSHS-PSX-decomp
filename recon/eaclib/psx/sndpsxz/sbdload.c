@@ -15,11 +15,28 @@ extern int iSNDdownloadbank(int bankData, int patchData);   /* @0x8010266C */
  *   ok) or 8 (a patch failed). */
 extern int iSNDdownloadbank(int bankData, int patchData)
 {
-    int *ptr2, *ptr4;
+    /* SHAPE (from the IDA per-variable register annotations of sub_8010266C, w32):
+     *   v3 $s6=ret  v4/v6 $s0=ONE counter shared by the clear loop and the scan loop
+     *   v7 $s5=off2  v8 $s2=cur2  v9 $s3=off4  v10 $s1=cur4  $fp=anchor  $s4=bankData
+     *   v11 $v0=off  v12 $v0=abs.
+     * Two facts this pinned down, both worth generalizing:
+     *  - the two cursors are INT variables dereferenced at a CONSTANT byte displacement
+     *    (`*(int *)(cur4 + 0x14)`), not `int *` walkers indexed `[5]`;
+     *  - the 255-down-counter and the scan counter are ONE variable.  Splitting them into two
+     *    locals drops that pseudo's ref count below the cursors' and re-colors the whole frame
+     *    (i lands in $s2, cur2 in $s0); sharing it restores the oracle's $s0.
+     * The do/while (NOT a label+goto loop) is also load-bearing: the front end's loop notes are
+     * what make flow.c weight in-loop refs by loop depth, and that weighting is the ONLY thing
+     * that lifts the short-lived loop constants above the long-lived base copies -- it is what
+     * puts off4 in $s3 ahead of bankData in $s4, and type4 in $s7 ahead of anchor in $fp.
+     * (A goto-loop gets the displacements right, see the residual below, but loses the weighting
+     * and mis-colors four callee-saved registers; measured 46 diffs vs 42 here.) */
     int scratch[512];
     int i;
     int ret = 7;
     int anchor, type4, off2, off4;
+    int cur2, cur4;
+    int off, abs;
 
     i = 0xff;
     do {
@@ -29,40 +46,48 @@ extern int iSNDdownloadbank(int bankData, int patchData)
 
     anchor = bankData;
     if (*(unsigned short *)(bankData + 6) != 0) {
-        ptr2 = (int *)bankData;
         i = 0;
         type4 = 4;
         off2 = 0xc;
+        cur2 = bankData;
         off4 = 0x14;
-        ptr4 = (int *)bankData;
+        cur4 = bankData;
         do {
-            int fieldAddr, off;
-
             if (*(unsigned char *)(bankData + 4) == type4)
-                off = ptr4[5];
+                off = *(int *)(cur4 + 0x14);
             else
-                off = ptr2[3];
+                off = *(int *)(cur2 + 0xc);
             if (off != 0) {
                 if (*(unsigned char *)(bankData + 4) == type4) {
-                    fieldAddr = bankData + off4;
-                    off = ptr4[5];
-                    off += fieldAddr;
-                    ptr4[5] = off;
+                    abs = bankData + off4 + *(int *)(cur4 + 0x14);
+                    *(int *)(cur4 + 0x14) = abs;
                 } else {
-                    fieldAddr = anchor + off2;
-                    off = ptr2[3];
-                    off += fieldAddr;
-                    ptr2[3] = off;
+                    abs = anchor + off2 + *(int *)(cur2 + 0xc);
+                    *(int *)(cur2 + 0xc) = abs;
                 }
-                if (iSNDresolvetaggedpatch(off, patchData, (int)scratch) != 7)
+                if (iSNDresolvetaggedpatch(abs, patchData, (int)scratch) != 7)
                     ret = 8;
             }
             off2 += 4;
-            ptr2++;
+            cur2 += 4;
             off4 += 4;
             i++;
-            ptr4++;
+            cur4 += 4;
         } while (i < (int)(unsigned)*(unsigned short *)(bankData + 6));
     }
+    /* RESIDUAL 42 diffs, 84/84 insns.  All nine callee-saved assignments now match the oracle;
+     * what is left is ONE loop.c decision plus its fallout:
+     *  (a) loop.c strength-reduces each cursor biv into its +0x14 / +0xc giv and eliminates the
+     *      biv, so ours walks `bankData+0x14` and loads `0(s1)` where retail keeps the plain
+     *      cursor and loads `0x14(s1)`.  Retail's object shows NO strength reduction at all
+     *      (four parallel +4 counters survive, and `bankData+off4` is recomputed alongside the
+     *      cursor that already holds the same address) -- the §3.25-3d per-obj flag identity
+     *      (-fno-strength-reduce class), not a source shape.  Tried and rejected: goto-loop
+     *      (kills SR but loses the loop-depth ref weighting -> 46), for(;;)/while(1)+break (42,
+     *      identical), `int *`+[5] indexing (42, identical), volatile cursor derefs (55, +1 insn).
+     *  (b) with the bivs gone the giv pseudos out-rank the counter, so i/cur2 swap $s0<->$s2.
+     *  (c) the oracle spends one extra `addu a0,v0,zero` at the arm merge; ours coalesces abs
+     *      straight into $a0 (the classic ours-1-shorter merge copy).  In-place `abs +=`, a
+     *      separate arg temp and a per-arm abs were all tried (46/42/37+1insn). */
     return ret;
 }

@@ -3,16 +3,20 @@
  *   Ghidra nfs4-f.exe.c (isqrt) + IDA sig.  Seeds low/high bounds from ONE u8[256] estimate ramp
  *   (isqrttbl below; the old u16-isqrttbl + DAT_8013be0f pair was a Ghidra two-view artifact of this
  *   single table) scaled by the magnitude of `a`, then binary-searches to the exact floor-sqrt.
- *   Gate 2026-07-26: 76 -> 24 diffs (111/113). Reusing `hi` for the low-magnitude midpoint and
- *   folding the table-bound increment into each seed path makes the 47-insn high-magnitude half
- *   and three of four low-magnitude seed paths exact.
- *   w31-a5 RESIDUAL 24 (do not re-fight blindly): the 2 missing insns are RETAIL REGISTER COPIES
- *   our cc1 refuses to emit -- (1) in the a&0xC000 seed path the oracle computes p once then
- *   COPIES it (`addu v0,a0,zero`) and loads hi/lo through the two copies; (2) in the small-half
- *   midpoint probe the oracle copies mid into $v0 ABOVE the compare and jumps to shared return
- *   tails (ours inlines both returns, 2 insns tighter).  Tested: `isqrttbl[a>>8]` re-derivation
- *   (CSE reuses the same reg, no copy) and a named `mid` local (re-colors the whole fn to 46) --
- *   both failed; same no-copy-prop / lazy-copy identity family as iFILE_ExecCommand's floor. Raw nfs4-f.exe E3ACC..E3C8F SHA-256:
+ *   Gate 2026-07-26 (w32-a5): PASS 113/113 byte-exact.  The w31 "retail lazy-copy identity floor"
+ *   verdict on the last 24 diffs was WRONG -- all three residuals were source-reachable:
+ *     (1) the a&0xC000 seed path was written as a POINTER (`p = isqrttbl + (a>>8)`), which CSEs to
+ *         one register; its three sibling paths use ARRAY-INDEX form and already matched.  Writing
+ *         it the same way (`isqrttbl[(a>>8)-1]` / `isqrttbl[a>>8]`) reproduces retail's
+ *         `addu a0,idx,base; addu v0,a0,zero` base+copy pair. (24 -> 13)
+ *     (2) midpoint-probe BRANCH POLARITY: the oracle branches to `return mid` and falls through to
+ *         `return lo`, i.e. `if (mid*mid <= a) return mid;` not `if (a < mid*mid) return lo;`.
+ *         (13 -> 9)
+ *     (3) ONE textual `return lo` for the whole small half (probe nested in `if (hi-lo >= 2){}`)
+ *         so both exits share the single tail (9 -> 5), and the big-half loop must use the SAME
+ *         named `mid` local as the small half -- one pseudo across both halves is what parks mid in
+ *         $v1 and forces retail's `addu v0,v1,zero` copy into the mult latency slot (5 -> PASS).
+ *   Raw nfs4-f.exe E3ACC..E3C8F SHA-256:
  *   7b06f575a01ba23f321d2e1bba53b3b6f3a9a40c57c100fb744f7bc59b0a9cab.
  */
 /* ONE u8[256] estimate ramp @0x8013BE10: isqrttbl[i] = round(16*sqrt(i+1)) (0x10..0xff, monotonic,
@@ -47,7 +51,7 @@ extern unsigned int isqrt(unsigned int a);   /* @0x800F32CC */
  * scaled by the operand magnitude; big half binary-searches, small half does one midpoint probe. */
 extern unsigned int isqrt(unsigned int a)
 {
-    unsigned int lo, hi;
+    unsigned int lo, hi, mid;
     if ((a & 0xffff0000) != 0) {
         if ((a & 0xff000000) != 0) {   /* oracle: beqz skips -> 24-bit path is the fall-through */
             lo = (unsigned int)isqrttbl[(a >> 0x18) - 1] << 8;
@@ -57,19 +61,19 @@ extern unsigned int isqrt(unsigned int a)
             hi = ((unsigned int)isqrttbl[a >> 0x10] + 1) << 4;
         }
         while (2 <= hi - lo) {
-            if (a < ((lo + hi) >> 1) * ((lo + hi) >> 1))
-                hi = (lo + hi) >> 1;
+            mid = (lo + hi) >> 1;
+            if (a < mid * mid)
+                hi = mid;
             else
-                lo = (lo + hi) >> 1;
+                lo = mid;
         }
         return lo;
     }
     if ((a & 0xff00) != 0) {           /* oracle: beqz skips -> the a<0x100 tail is out-of-line last */
         if ((a & 0xf000) != 0) {
             if ((a & 0xc000) != 0) {
-                unsigned char *p = isqrttbl + (a >> 8);
-                hi = (unsigned int)*p + 1;
-                lo = (unsigned int)*(p - 1);
+                lo = (unsigned int)isqrttbl[(a >> 8) - 1];
+                hi = (unsigned int)isqrttbl[a >> 8] + 1;
             } else {
                 lo = (unsigned int)(isqrttbl[(a >> 6) - 1] >> 1);
                 hi = (unsigned int)(isqrttbl[a >> 6] >> 1) + 1;
@@ -81,12 +85,12 @@ extern unsigned int isqrt(unsigned int a)
             lo = (unsigned int)(isqrttbl[(a >> 2) - 1] >> 3);
             hi = (unsigned int)(isqrttbl[a >> 2] >> 3) + 1;
         }
-        if (hi - lo < 2)
-            return lo;
-        hi = (lo + hi) >> 1;
-        if (a < hi * hi)
-            return lo;
-        return hi;
+        if (hi - lo >= 2) {
+            mid = (lo + hi) >> 1;
+            if (mid * mid <= a)
+                return mid;
+        }
+        return lo;
     }
     if (a != 0)   /* MATCH: table path = bnez branch target, return-0 = fall-through (oracle) */
         return (unsigned int)(isqrttbl[a - 1] >> 4);

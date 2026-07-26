@@ -4,7 +4,7 @@
  *   Ghidra nfs4-f.exe.c (sdcdvol) + IDA sig.  Ghidra-ism: void(void) typing dropped both args -- IDA shows
  *   2 (pan, vol), passed in $a0/$a1 from SNDcdvol.
  */
-extern int iSNDpvtolrv(int pan, int level, int *out_l, int *out_r);   /* spvtolrv */
+extern void iSNDpvtolrv(int pan, int level, int *out_l, int *out_r);   /* spvtolrv */
 extern unsigned char sndpd[];   /* EA sound-driver state base @0x80147918 */
 
 extern int iSNDplatformcdpanvol(int pan, int vol);   /* @0x801094EC */
@@ -13,15 +13,26 @@ extern int iSNDplatformcdpanvol(int pan, int vol);   /* @0x801094EC */
  *   scaling each by 0x102 and clamping to 15-bit. */
 extern int iSNDplatformcdpanvol(int pan, int vol)
 {
+    volatile int *base;
     int outL, outR;
-    unsigned char *pd;
+    int ctlL, r;
     iSNDpvtolrv(pan, vol, &outL, &outR);
-    pd = sndpd;
-    *(unsigned short *)(*(int *)(pd + 0x514) + 0x1b0) = (unsigned short)(outL * 0x102 & 0x7fff);
-    *(unsigned short *)(*(int *)(pd + 0x514) + 0x1b2) = (unsigned short)(outR * 0x102 & 0x7fff);
-    /* Near-match floor: 17 diffs (ours 24 / oracle 25). GCC folds `sndpd+0x514` into one absolute
-     * relocation and CSEs the control-pointer load; explicit/volatile pd-relative variants preserve
-     * the oracle's base+offset loads but regress to 23-32 diffs. Roughly 740 permuter candidates did
-     * not beat this source form. */
+    /* MATCH (byte-exact): three shape facts the oracle dictates, in order.
+     *  1. `volatile int *base` indexed by a CONSTANT word index (the spatkey.c idiom) is what
+     *     produces the oracle's `lui;addiu &sndpd` + `lw r,0x514(base)` pair -- a plain
+     *     `*(int *)(sndpd + 0x514)` folds base+offset into ONE absolute %lo load and then CSEs
+     *     the second read away (the oracle re-reads it: two `lw ...,0x514($a0)`).
+     *  2. iSNDpvtolrv is declared VOID here: an `int` return makes cc1 emit `(set (reg $v0) call)`,
+     *     which keeps $v0 out of the allocator's reach for the whole body -- every value then
+     *     colors one slot high (product $v1 not $v0, operand $a1 not $v1).  Prototype = coloring.
+     *  3. `r = outR;` read BEFORE the first store is the oracle's hoisted `lw $v1,0x14($sp)`:
+     *     &outR escaped into the call, so the scheduler may NOT move that load across the SPU
+     *     store on its own (it would have to prove no alias) -- retail's source read it early.
+     *     Reading it any earlier (before the ctlL load) mis-orders the pair; hence this exact spot. */
+    base = (volatile int *)sndpd;
+    ctlL = base[0x514/4];
+    r = outR;
+    *(volatile unsigned short *)(ctlL + 0x1b0) = (unsigned short)(outL * 0x102 & 0x7fff);
+    *(volatile unsigned short *)(base[0x514/4] + 0x1b2) = (unsigned short)(r * 0x102 & 0x7fff);
     return 0;
 }

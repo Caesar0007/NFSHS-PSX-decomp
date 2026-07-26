@@ -256,14 +256,15 @@ extern int creatememclass(int id, char *name, char *membuf, int bufsize,
     /* s3 = (membuf + (infosize+0x50) + (alignment+0x1F)) & -alignment, then -0x10
      * MATCH: grouped as TWO separate constant-adds materialized in SEPARATE statements
      * (infosize+0x50, alignment+0x1F) so gcc's constant folder can't merge them into one
-     * 0x6F literal -- reproduces the oracle's addiu/addiu pair. MATCH: `lo` declared BEFORE
-     * `hi` -- the oracle combines membuf+lo first (v0), then computes+adds hi (v1) LAST,
-     * right before the &-alignment; declaring hi first (as before) materialized it too
-     * early, landing in the wrong delay slot. */
-    lo = (unsigned)infosize + 0x50u;
+     * 0x6F literal -- reproduces the oracle's addiu/addiu pair. MATCH (w32-a4): the
+     * &-alignment must be FUSED into the same expression as the two adds. Splitting it into
+     * its own `a &= -alignment;` statement is what pushed the whole sprintf argument block
+     * (a0=&namebuf, a1=fmt, a2=name) BELOW the address arithmetic and put the wrong
+     * instruction in the highguard branch's delay slot; fusing it puts the arg block first
+     * and `addiu a0,sp,0x20` in the slot, exactly like the oracle (10 -> 2 diffs). */
     hi = (unsigned)alignment + 0x1Fu;
-    a = ((unsigned)membuf + lo) + hi;
-    a &= (unsigned)(-alignment);
+    lo = (unsigned)infosize + 0x50u;
+    a = (((unsigned)membuf + lo) + hi) & (unsigned)(-alignment);
     low_end = (char *)a - 0x10;
 
     /* s0 = membuf + bufsize - infosize - 0x20  (start of HIGH block) */
@@ -271,14 +272,14 @@ extern int creatememclass(int id, char *name, char *membuf, int bufsize,
 
     cls = (MemClass *)(membuf + 0x10); /* s1 = membuf+0x10 */
 
-    /* RESIDUAL (16 diffs, count-exact 124/124): the oracle materializes namebuf's address
-     * (a0=sp+0x20) INTO the highguard branch's delay slot (always-executes) and delays the
-     * `hi` (alignment+0x1F) add until right before the &-alignment combine; ours schedules
-     * `lo` (infosize+0x50) into that delay slot instead and `hi` right after the branch
-     * merge. Tried: hoisting the sprintf() call itself before this block (regresses to 33
-     * diffs -- moving the actual `jal` also moves the bufsize/a3 caller-saved-clobber
-     * point, forcing an extra cache store). A pure scheduling tie-break within one basic
-     * block; not further source-reachable without pinning. Accept as floor. */
+    /* RESIDUAL (2 diffs, count-exact 124/124, was 16): a single scheduling tie -- the oracle
+     * emits `addiu v1,s7,0x1F` (hi) AFTER `addu v0,s4,v0` (membuf+lo), ours one slot earlier.
+     * Tried and measured, all worse or count-breaking: hi/lo statement order either way (2),
+     * hi/lo/a declaration order permutations (2), splitting `membuf+lo` into its own
+     * statement (16), inlining `hi` into the expression (7 but 123/124 -- gcc folds an insn
+     * away), `a = (membuf+hi)+lo` (12), computing `high`/`cls` before the arithmetic (18/20),
+     * hoisting the sprintf() call itself (18; the jal also moves the bufsize/a3 caller-saved
+     * clobber point). A within-block sched1 tie-break on one instruction. */
     sprintf(namebuf, "%s LOW", name);            /* @0x8013DC20 */
     initmemblock((MemBlock *)membuf,  namebuf, 0x40, infosize,
                  flags | 0x8000, 0,                 (MemBlock *)low_end);
@@ -304,17 +305,21 @@ extern int creatememclass(int id, char *name, char *membuf, int bufsize,
         *(MemBlock **)((char *)cls + 0x20) = (MemBlock *)((char *)membuf + 0x20); /* fh->freenext +0x20 -> self */
         *(MemBlock **)((char *)cls + 0x24) = (MemBlock *)((char *)membuf + 0x20); /* fh->freeprev +0x24 */
         *(int *)((char *)cls + 0x14) = 0x7FFFFFFF;                 /* fh->size   +0x14 */
-        /* MATCH: `granularity` (a stack-passed param, never register-resident) is READ
-         * EARLY into a named temp -- the oracle reloads it (lw v0,sp+..) right up front,
-         * before the alignment/infosize/flags/mutex stores, and only USES it (the store to
-         * +0x28) at the end of the block; a bare `cls->granularity = granularity;` placed
-         * last reads-and-stores in one step, one instruction too late. */
+        /* MATCH: `granularity` (a stack-passed param, never register-resident) is read into
+         * a named temp AND stored FIRST of the five class-field stores. The oracle reloads it
+         * (`lw v0,0x158(sp)`) up front -- together with the FREE_add receiver copy `addu
+         * a0,s1,zero` that fills its load-delay -- and the scheduler then sinks the actual
+         * `sw v0,0x28(s1)` past the other four stores. Writing the store LAST (its oracle
+         * position) keeps the load pinned to it, four instructions too late; writing it FIRST
+         * and letting the scheduler sink it is what reproduces both (14 -> 10 diffs). Moving
+         * only the `gran = granularity;` read earlier (top of the block, after the 0x14
+         * store, or before blockclear) changes nothing. */
         gran = granularity;
+        cls->granularity = gran;                                  /* +0x28 */
         cls->alignment   = alignment;                             /* +0x2C */
         cls->infosize    = infosize;                              /* +0x30 */
         cls->flags       = flags;                                 /* +0x34 */
         cls->mutex       = 0;                                     /* +0x38 */
-        cls->granularity = gran;                                  /* +0x28 */
     }
 
     cls->field3c     = field3c;                                  /* +0x3C, right at the FREE_add call */
@@ -366,13 +371,17 @@ extern char *getblockname(void *p)   /* @0x800E52E0 */
  * ===================================================================== */
 extern void *reservememadr(char *name, int size, int classid)   /* @0x800E533C */
 {
-    /* RESIDUAL (63 diffs, count-exact 128/129 off-by-1 frame slot): a systemic s0<->s1
-     * register-coloring swap between `need` and `blk` runs through the WHOLE body (every
-     * site that touches either). Tried: decl-order swap (need declared before/after blk,
-     * both scopes) -- no change. Same allocator-priority-tie-break class as resize.cpp's
-     * documented 3-way s2/s3/s4 rotation floor; not source-reachable via decl/order/type
-     * tries so far. nfs4-clean/Ghidra additionally recovered the unconditional class-flags
-     * merge before the anonymous-name bit clear, fixing the final semantic residual. */
+    /* BYTE-MATCH (w32-a4, 63 diffs -> PASS 129/129). The long-standing "systemic s0<->s1
+     * coloring swap" was NOT an allocator tie-break: it was caused by the two split arms
+     * declaring their own ARM-LOCAL remainder pointers. cc1 -dl showed both as
+     * single-basic-block pseudos ("Register 110 ... in block 9", "116 ... in block 10")
+     * that LOCAL-alloc claims $s0 for, which puts a hard-reg-16 conflict on `blk`'s
+     * allocno (cc1 -dg: "94 conflicts: ... 16") and forces blk to $s1 and everything
+     * else to invert. IDA's per-variable register table for sub_800E533C is the oracle
+     * here: v13=$s0 blk, v8/v12=$s1 need, v15=$s1 HIGH remainder, v17=$s1 LOW remainder
+     * -- i.e. retail used ONE remainder variable across BOTH arms (a 2-block = GLOBAL
+     * pseudo, never local-alloc'd) and advanced `blk` in place. See the three MATCH
+     * notes below for the three edits that closed it. */
     void     *result = 0;                              /* s5: single-exit funnel (MATCH: oracle
                                                            inits s5=0 up front and `j END` on both
                                                            failure paths without touching it) */
@@ -396,11 +405,16 @@ extern void *reservememadr(char *name, int size, int classid)   /* @0x800E533C *
         int gran;
         int tail;
         tail = MEM_tailsize(name, classid);       /* v0 */
-        gran = cls->granularity;
-        mask = gran - 1;
-        rounded = ((unsigned)(need + tail) + (unsigned)(gran + 0x0F))
+        gran = cls->granularity;                  /* v1 */
+        mask = gran - 1;                          /* s4 (callee-saved: reused by the HIGH split) */
+        gran = gran + 0x0F;                       /* MATCH: a SEPARATE statement -- written as
+                                                   * `(need+tail) + (gran+0x0F)` inside one
+                                                   * expression, gcc reassociates the constant
+                                                   * onto the FIRST sum (`addiu v0,v0,15`); the
+                                                   * oracle adds it to gran's own register
+                                                   * (`addiu v1,v1,15`) after `addiu s4,v1,-1`. */
+        rounded = ((unsigned)(need + tail) + (unsigned)gran)
                          & (unsigned)(~mask);
-                                 /* s0 */
 
 
         need = (int)rounded - 0x10;                    /* s1 = aligned span - 16 */
@@ -415,19 +429,31 @@ extern void *reservememadr(char *name, int size, int classid)   /* @0x800E533C *
         leftover = blk->size - need;                   /* v1 */
 
         if (leftover >= 0x41) {                         /* enough to split off a block */
+            /* MATCH (IDA register table, sub_800E533C): the remainder block is ONE
+             * variable shared by BOTH arms -- retail keeps it in $s1 (the register
+             * `need` just vacated: IDA v8/v12 = $s1 need, v15 = $s1 HIGH remainder,
+             * v17 = $s1 LOW remainder) while `blk` stays in $s0 (IDA v13). Two
+             * arm-LOCAL pointers instead make each a single-block pseudo that
+             * local-alloc grabs $s0 for (cc1 -dl: "Register 110 ... in block 9",
+             * "116 ... in block 10"), which puts a hard-reg-16 conflict on blk's
+             * allocno and forces the whole s0<->s1 inversion. */
+            MemBlock *rem;                                                   /* s1 */
             if (classid & 0x10) {
-                /* HIGH split: keep front as free, carve the allocation from the top */
-                MemBlock *front = blk;                                       /* s1 */
-                MemBlock *alloc = (MemBlock *)((char *)blk + (leftover & ~mask)); /* s0 */
-                front->physnext->physprev = alloc;
-                alloc->physprev = front;
-                alloc->physnext = front->physnext;
-                initmemblock(front, 0, 0, 0, 0, front->physprev, alloc);
-                FREE_add(cls, front);
-                blk = alloc;
+                /* HIGH split: keep the front as free, carve the allocation from the top.
+                 * MATCH: `blk` is advanced IN PLACE (oracle `addu s0,s0,v0`), the OLD
+                 * value copied out to the remainder var (`addu s1,s0,zero`). */
+                rem = blk;
+                blk = (MemBlock *)((char *)blk + (leftover & ~mask));
+                rem->physnext->physprev = blk;
+                blk->physnext = rem->physnext;    /* MATCH: the rem->physnext RELOAD is issued
+                                                   * BEFORE the physprev store (oracle fills the
+                                                   * load-delay with the a2 setup, then stores) */
+                blk->physprev = rem;
+                initmemblock(rem, 0, 0, 0, 0, rem->physprev, blk);
+                FREE_add(cls, rem);
             } else {
                 /* LOW split: allocation at the front, remainder freed */
-                MemBlock *rem = (MemBlock *)((char *)blk + (need + 0x10));   /* s1 */
+                rem = (MemBlock *)((char *)blk + (need + 0x10));
                 blk->physnext->physprev = rem;
                 initmemblock(rem, 0, 0, 0, 0, blk, blk->physnext);
                 FREE_add(cls, rem);

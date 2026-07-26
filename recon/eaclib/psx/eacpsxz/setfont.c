@@ -56,8 +56,8 @@ extern void setfont(int fontId)
     int            depth;
 
     /* Oracle loads the shape offset in the prologue, before copying any metrics. */
-    shape         = (unsigned char *)(fontId + *(int *)(fontId + 0x1c));
     cf            = currentfont;
+    shape         = (unsigned char *)(fontId + *(int *)(fontId + 0x1c));
     CFI(cf, 0x7c) = 100;
     CFI(cf, 0x0c) = (int)*(signed char *)(fontId + 0x10);
     CFI(cf, 0x10) = (int)*(signed char *)(fontId + 0x11);
@@ -76,16 +76,22 @@ extern void setfont(int fontId)
     depth         = shapedepth(shape);
     CFI(cf, 0x78) = (int)((unsigned int)(*(short *)(shape + 4) * depth + 0x1f) & 0xffffffe0) >> 3;
 
-    /* RESIDUAL (87 diffs, down from 89): the oracle's branch polarity is
-     * `if((flags&3)!=2) goto notsjis; decode=SJIS;
-     * goto decoded;` (bne, NOT beq) with THREE SEPARATE decodeshiftjis materializations (never
-     * cross-jump-merged). Our cc1 merges two of them into one shared tail regardless of
-     * whether this is written as goto/labels (tried) or nested if/else (tried, same result) --
-     * a gcc cross-jump/tail-merge pass artifact, same family as the intsincos residual
-     * (reference_asm_pattern_catalog "un-merged jr ra tails / gcc cross-jumping", accept-as-
-     * floor). Also: the oracle reads `fontId+0xe` with a SIGNED `lh` (not `lhu`) even though
-     * only the low 2 bits matter -- gcc's `&3` simplification picks the zero-extending load
-     * regardless of the C type; not source-reachable either. */
+    /* RESIDUAL 84 diffs (w32-a5: 87 -> 84 after moving the 0xb4 store ahead of blockclear, above;
+     * ours 96 insns vs oracle 100).  The 4-instruction gap is ONE thing: retail emits THREE separate
+     * `lui/addiu %hi/%lo(decodeshiftjis)` materializations (one per arm, each `lui` in its branch's
+     * delay slot + `j`/`addiu` pair), while our cc1 TAIL-MERGES arms 2+3 into one block and shares the
+     * `addiu` with arm 1.  Falsified this session: -fno-thread-jumps, -fno-cse-follow-jumps,
+     * -fno-expensive-optimizations, -fno-rerun-cse-after-loop and -O1 ALL still emit 2 luis, and no
+     * source spelling (goto/label tree, nested if/else, explicit case 3 -- all previously tried)
+     * changes it.  Same signature as the second residual: the `flags & 3` test loads `fontId+0xe`
+     * with `lh` in retail and `lhu` here (gcc narrows the sign-extend away because only bit 0-1
+     * matter; `int flags`, a direct expression, and a masked temp all still give `lhu`).  Both are
+     * the documented per-obj OLD-GCC identity class (catalog section G: retail never merges identical
+     * tails / weaker combine), NOT a source problem -- do not re-fight without a toolchain change.
+     * The remaining ~40 diff lines are the s1<->s2 swap this forces: retail colors currentfont ->
+     * $s1 and fontId -> $s2, ours the reverse; the cc1 -dl allocno table shows fontId at 17 refs /
+     * 106 insns vs currentfont at 19 / 144, i.e. fontId legitimately wins the priority compare here
+     * and only a ref-count or live-length change flips it. */
     {
         short flags = *(short *)(fontId + 0xe);
         if ((flags & 3) != 2)
@@ -114,8 +120,10 @@ decoded:
         unsigned char *cf2 = currentfont;
         CFI(cf2, 0x2c) = 0;
         CFI(cf2, 0x30) = 0;
+        CFI(cf2, 0xb4) = 0;   /* oracle: this store sits in blockclear's DELAY slot => it precedes
+                               * the call in source order; after the call gcc steals it for the
+                               * inittextdraw slot instead and the oracle's `jal; nop` is lost. */
         blockclear(cf2 + 0x34, 0x40);                            /* @0x80135BD4 : clear 0x40-byte blit state */
-        CFI(cf2, 0xb4) = 0;
         inittextdraw();
         CFI(cf2, 0xa4) = 0;
     }

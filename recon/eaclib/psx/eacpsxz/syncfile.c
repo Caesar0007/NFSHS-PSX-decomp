@@ -66,15 +66,37 @@ extern int  syncblockio(int fd, int buf, int offset, int len, int cbarg, SyncIoF
  *   3c).  A full-volatile one-pointer body reproduces (a) exactly (72/71 insns) but loses the
  *   piecewise-volatile ds-store matches -- net worse (57 diffs); the s1/s2 split alone is worth
  *   ~20 rename diffs and looks like an inlined-helper or assembler-era artifact.  Suspected
- *   partial identity floor. */
+ *   partial identity floor.
+ *   w32-a3 CONFIRMS the (b) verdict with the IDA register annotations (nfs4-psx-IDA.c
+ *   sub_800EA6CC): retail's locals are `v5 // $a0` (the completeop result) plus two $v0 temps --
+ *   the control block is the plain parameter, ONE variable, dereferenced throughout.  There is no
+ *   second ctrl-pointer variable in the source: the oracle's `addu s2,s1,zero` (with `sw s2,32(sp)`
+ *   in the completeop jal delay slot, i.e. a pseudo BORN AFTER the call) is retail cc1 splitting
+ *   that single pointer's live range at the `remain > 0` join -- the same redundant-copy artifact
+ *   as nfile.c's reservehandle / FILE_completeop / FILE_cancelop / FILE_operror, which our cc1
+ *   always copy-propagates away.  Also falsified this wave for (a): -fno-schedule-insns is NOT this
+ *   obj's identity -- it makes synccallback WORSE (59 diffs, 72 insns) and regresses the
+ *   neighbouring syncblockio (PASS -> 9 diffs), so the serial single-scratch chains are not an
+ *   unscheduled-cc1 signature.  => partial per-obj old-gcc no-copy-prop identity (methodology 3.25
+ *   / catalog §G); source-reachable ceiling is roughly the non-rename half of the residual.
+ *   w32-a3 CHANGE for (a): the three advance accumulates are now written through the volatile view
+ *   (`*(volatile int *)&c->buf += done;` etc.) -- the SyncCtrl block is async/IRQ-written (the
+ *   remain re-reads below already model that, methodology 3.12 #13), and volatile MEM ordering is
+ *   what produces the oracle's STRICTLY SERIAL `lw; nop; addu; sw` chains.  The buf chain now
+ *   matches the oracle instruction-for-instruction and the count gap narrows -4 -> -2 (67 -> 69 of
+ *   71) at an unchanged 46 diffs -- a documented correctness improvement, not a diff win (the
+ *   residual is dominated by the s1/s2 rename of (b)).  Falsified around it: volatile on buf+done
+ *   only, leaving offset plain (68 insns / 49 diffs), and additionally volatilizing the `c->chunk`
+ *   read in the short-transfer test (72 insns / 57 diffs -- it also blocks the offset store from
+ *   the beqz delay slot, which is point (c)). */
 extern void synccallback(int op, int type, SyncCtrl *c)
 {
     unsigned int done = FILE_completeop((unsigned int)op);
     c->op = 0;
     if (type == 1) {
-        c->buf  += done;
-        c->done += done;
-        c->offset += done;
+        *(volatile int *)&c->buf    += done;
+        *(volatile int *)&c->done   += done;
+        *(volatile int *)&c->offset += done;
         if ((int)done < c->chunk) {                 /* short transfer => this was the last chunk */
             *(volatile int *)&c->remain = 0;
         } else {

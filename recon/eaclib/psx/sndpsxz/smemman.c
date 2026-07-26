@@ -73,7 +73,24 @@ extern unsigned int iSNDmemrestore(void)
  *   inserting the new {block,size} entry in sorted order.  Returns the byte address or 0 on failure.
  * RAW/ORACLE (2026-07-26, 134->106 detailed diffs): keep the table scan indexed from distinct
  * `sndmm+0xc` entry and `sndmm+8` previous-entry bases, and express the packed shift as memcpy.
- * This restores the oracle's saved-register family and direct lwl/lwr/swl/swr copy sequence. */
+ * This restores the oracle's saved-register family and direct lwl/lwr/swl/swr copy sequence.
+ * W32-a7 (88->86 diffs, 129->127 insns): the `i != 0` scan arm is now INSTRUCTION-EXACT against the
+ * oracle (load-before-store, see below) -- only a $v0/$v1 register swap remains there.
+ *
+ * 🔴 ALLOCNO FLOOR, shared with sdmemman.c iSNDpsxmalloc: in BOTH the `i != 0` arm and the post-scan
+ * tail the oracle colors the {prev[0]+prev[1]} sum into $v0 and the {limit - sum} difference into
+ * $v1; ours colors them exactly the other way.  The cause is upstream: retail keeps the entry byte
+ * offset `i*4` in $v0 and ours in $a0, because our `j` is ALSO the shift-loop counter and that
+ * counter's `lhu $a0,4($s1)` drags the fused pseudo into $a0.  Splitting them into two locals (the
+ * textbook catalog sec-A fix) makes it far WORSE (86 -> 131 diffs): the reuse IS the retail shape,
+ * so the two live ranges must stay fused and the register they land in is then the allocator's call.
+ * Consequence: retail's post-scan tail keeps its OWN `jal iSNDmemconstrain` + tail (`sw $v1,0x14($sp)`
+ * differs from the empty arm's `sw $v0,..`), while ours cross-jumps into the empty arm's call because
+ * both arms end in the same hard register -- that alone is 5 of the 8 missing instructions.
+ * Also tried and REVERTED: hoisting `j = i << 2` above the entry guard so one sll serves the loop
+ * preheader and the tail (retail's `sll $v0,$s0,2` in the guard delay slot is reorg's `redundant_insn`
+ * unification of two same-register slls, NOT a shared source expression) -- gcc const-folds our
+ * pre-guard `i<<2` to `move rD,zero` since i==0 there, 98 diffs. */
 extern int iSNDmalloc(int size)
 {
     /* MATCH (w31-a2, from the raw oracle -- same shape family as iSNDpsxmalloc but with THREE
@@ -119,9 +136,19 @@ extern int iSNDmalloc(int size)
                 block = 0;
                 available = *entry;
             } else {
+                /* MATCH: compute BOTH values into plain register temps and only then write the
+                 * two address-taken frame slots.  Writing `block` first makes gcc treat the
+                 * following `*entry` global load as possibly-aliasing, so it cannot be hoisted
+                 * into the store's load-delay slot -- ours emitted two nops the oracle does not
+                 * have.  The oracle issues all three lhu's up front, then addu/subu, then the
+                 * two sw's (catalog sec-F load-before-compute). */
                 pv = (unsigned short *)(j + (int)prev);
-                block = (int)pv[0] + (int)pv[1];
-                available = *entry - block;
+                {
+                    int b = (int)pv[0] + (int)pv[1];
+                    int a = (int)*entry - b;
+                    block = b;
+                    available = a;
+                }
             }
             iSNDmemconstrain(&block, &available);
             if (size <= available) {

@@ -1,4 +1,4 @@
-/* eaclib/psx/eacpsxz/cdfs.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 10/14 PASS ***
+/* eaclib/psx/eacpsxz/cdfs.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 12/14 PASS ***
  *   Source obj : nfs4\eaclib\psx\cdfs.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col11)
  *
  *   COMPILED AS C by USER RULING (2026-07-25, uniformity over diff count): cc1plus (C++) measured
@@ -15,45 +15,54 @@
  *   1-based index into CD_handleTable[]; each slot holds a pointer to the file's ISO9660 directory entry
  *   (0x14 bytes: name[0xC], start sector @+0xC, size @+0x10).
  *
- *   PROGRESS (`python tools/verify_asm.py cdfs.cpp <fn>`, w19-a8 2026-07-19 sweep):
+ *   PROGRESS (`python tools/verify_asm.py cdfs.c <fn>`, w32-a1 2026-07-26 sweep):
  *     [PASS]  CD_Close, CD_Stopread, CD_Getinfo, readsectorB, dircompare, CD_Restore, CD_Init,
- *             CD_timerfunc, CD_Restart, CD_Open                                  -- 10/14
+ *             CD_timerfunc, CD_Restart, CD_Open, loaddirinfo, CD_systaskfunc      -- 12/14
  *             CD_Restart: a volatile cached-sector view pins the second store before the callback.
  *             CD_Open: a guarded do/while removes the redundant bound precheck; a distinct copied
  *             bound preserves the oracle's post-guard register move. No asm pins (HARD RULE).
- *     [near]  CD_systaskfunc (71->58->27->26 diffs) -- REAL BUG FIXED: the CdlDiskError watchdog branch
- *             delay-slot analysis was wrong (see below); after the fix, insn count now matches the
- *             oracle's result/position/mode stack order removes an unnecessary saved context base
- *             and cuts the generated body to 85 vs 87 oracle instructions. Its explicit zero return
- *             also recovers the oracle epilogue and identifies the system-task callback's real type.
- *             The residual is now
- *             chiefly the switch-dispatch physical block order; both case permutations and an
- *             explicit nested-if form were tested, and the retained case-5-first switch is closest.
- *     [near]  CdReadyHandler (325->279->223->158->109 diffs) -- MAJOR STRUCTURAL FIX: the oracle hoists ONE
- *             base pointer to ctx+0x20 (Ghidra's `D_80146CE4`, the same read-state sub-struct
- *             CD_Read already models) ONCE at function entry, holds it in a callee-saved reg for
- *             the WHOLE function, and reaches Cdinfo itself via a NEGATIVE -0x20 byte offset off
- *             that SAME base in the early flag-tests (case2's ringIdx==-1 arm, intr==1's 3 flag
- *             checks, case5's 2 arms) -- but switches to a freshly-materialized &Cdinfo for
- *             everything past the CdGetSector cluster (match/no-match + "done" + advance:).
- *             Modelled via a local `rs` struct pointer + an `RS_Cdinfo` macro for the negative
- *             offset (321->223, much closer topology -- register
- *             ROLES now match almost 1:1, e.g. our s0/s1/s2/s3 = oracle's s0/s1/s2/s3). Residual:
- *             grouping hdr/sub/pos/gpctx into one scratch aggregate removes the compiler's
- *             per-array 8-byte padding and matches the oracle frame exactly (352 bytes); expressing
- *             interrupt dispatch as a byte-valued switch matches its `andi a0,s1,0xFF` cascade;
- *             keeping the active-read path positive also matches its branch layout.  This yields
- *             Oracle tracing then recovered the wrong-sector fall-through arm, distinct volatile
- *             flag updates, a separate issue-result local (preserving the result parameter), and
- *             a case-5 context pointer. Current count is 289 ours vs 300 oracle instructions with
- *             109 residual diffs. The remaining large regions are retry-tail sharing and coloring.
- *     [PASS]  loaddirinfo -- 139->PASS: void return, rotated entry-count loop, direct parameter
- *             countdown reuse, reloaded filename length after memcpy, one live CD-context base,
- *             unsigned recursive size shift, and the record advance in the loop-test delay slot.
- *     [near]  CD_Read (198->64->31 diffs; 162/163 insns): keeping the handle-slot address
- *             live across the busy check, spelling the signed sector quotient as explicit
- *             correction steps, and selecting curLen before its single store recover the
- *             oracle's principal control/data flow. Remaining drift is scheduling/coloring.
+ *             loaddirinfo: void return, rotated entry-count loop, direct parameter countdown
+ *             reuse, reloaded filename length after memcpy, one live CD-context base, unsigned
+ *             recursive size shift, record advance in the loop-test delay slot.
+ *             CD_systaskfunc (w32-a1, 26 -> PASS): (1) the switch has a THIRD, higher-valued,
+ *             EMPTY case label -- that is what puts gcc on its balanced-tree dispatch path (full
+ *             derivation at the switch); (2) case-2 body BEFORE case-5 body in source order;
+ *             (3) the disc-type decrement needs its own `unsigned` local so it stays in $v0;
+ *             (4) its addtimer() call passes ONE argument (the oracle leaves $a1 stale across an
+ *             intervening jal) -- isolated fn-ptr cast, methodology-3.12 #18.
+ *
+ *   w32-a1 2026-07-26 -- THE TU-WIDE ROOT CAUSES (these three moved everything):
+ *     (a) `cachedSector` (ctx+0x0C) is **volatile**, like `info`.  The oracle RE-READS it after
+ *         every store (`lw;nop;addiu;sw` then a fresh `lw` for the next use) instead of keeping
+ *         the incremented value in a register; the un-fillable load-delay `nop`s between it and
+ *         the neighbouring volatile `Cdinfo` accesses are the giveaway.  CdReadyHandler 109->70.
+ *     (b) `timerhz` and `g_currentthread` are reached as UNSIZED ARRAYS (methodology-3.12 #5):
+ *         EVERY oracle access is the SEPARATE-temp form `lui $rX,%hi; lw/sw $rY,%lo(sym)($rX)`,
+ *         which a scalar `extern int` cannot emit (a scalar load self-temps; a scalar store folds
+ *         to the assembler's `$at` macro).  CdReadyHandler 25->4 and CD_Read -5 in one edit.
+ *     (c) Flag updates that read-modify-write a volatile word are ONE STATEMENT PER BIT: the
+ *         oracle emits `Cdinfo &= ~8; Cdinfo |= 0x10;` as two separate load/modify/store pairs,
+ *         not the fused `Cdinfo = (Cdinfo & ~8) | 0x10;`.
+ *     [near]  CdReadyHandler (325->...->109->4 diffs; insn parity 300/300).  Residual = ONLY the
+ *             prologue emission ORDER of the two param save/copy pairs (oracle `sw s3;move s3,a1;
+ *             sw s1;move s1,a0`, ours the reverse -- identical registers, identical frame slots).
+ *             This is the known prologue-save-order scheduling floor (methodology 3.12 "irreducible
+ *             coloring/scheduling floor", catalog F).  LEVERS TRIED, all diff-neutral at 4:
+ *             done-in-declaration; `done = 0` before/after the disarm call; `switch (intr & 0xFF)`
+ *             vs the `(unsigned char)` cast; declaration reordering (rs before madr/done);
+ *             `result[0]` vs `*result`.
+ *     [near]  CD_Read (198->64->31->12 diffs; insn parity 163/163).  Fixed this wave: the
+ *             `&CD_handleTable[dev-1]` slot idiom (same as the PASSing CD_Getinfo -- it yields the
+ *             oracle's full address materialization `sll;addiu -4;addu` instead of a `-4(base)`
+ *             load displacement); the directory entry RE-READ from the slot at both uses, with the
+ *             second read taken into a block-local BEFORE the sign correction (that placement is
+ *             what restores insn parity); `CD_ringIdx = 0` hoisted above that block; and the
+ *             start-sector sum written index-term-first.  Residual = the &Cdinfo materialization
+ *             being scheduled ~4 slots later than the oracle, the addu destination register on
+ *             the start-sector sum, and the blockmove `a0`/`a1` argument-load order -- all pure
+ *             scheduling.  Tried and rejected: named accumulator for the sum (16), curDst store
+ *             hoisted to just after curOff (16), ringIdx after curSector (12, no change),
+ *             in-place `e` mutation (12, no change).
  *
  *   w16-a3 2026-07-19 notes (kept for history): fixed the SAME real bug in CD_Read/CdReadyHandler
  *     -- the "advance next chunk"/"complete now" if/else had INVERTED block order vs the oracle
@@ -93,8 +102,16 @@ extern int   CD_curSector;       /* the sector currently being read             
 extern int   CD_timeout;         /* watchdog (timer ticks)                                   */
 extern void *CD_curDst;          /* current memory destination                               */
 extern void (*CD_completionCallback)(int);  /* fired (with 1) when a read finishes            */
-extern int   timerhz;            /* timer frequency                                          */
-extern int   g_currentthread;    /* execution context id                                     */
+extern int   timerhz[];          /* timer frequency (UNSIZED array -- methodology-§3.12 #5:
+                                  * EVERY oracle timerhz load is the SEPARATE-temp form
+                                  * `lui $rX,%hi; lw $rY,%lo(timerhz)($rX)`, which a scalar
+                                  * extern cannot emit -- it folds to the self-temp
+                                  * `lui $rX; lw $rX,%lo($rX)`.)                            */
+extern int   g_currentthread[];  /* execution context id (UNSIZED array -- methodology-
+                                  * §3.12 lever #5: the oracle materializes its address in a
+                                  * SEPARATE reg (`lui $s0,%hi; sw $v0,%lo($s0)` / `lui $v0;lw $v1,%lo($v0)`),
+                                  * which a scalar extern cannot emit -- a scalar store folds to the
+                                  * assembler's `$at` macro form and a scalar load self-temps.)      */
 extern int   CD_cachedSector;    /* @0x80146CD0 sector currently in the cache buffer          */
 extern unsigned char CD_sectorCache[]; /* @0x80146D00 the cached 0x800-byte sector            */
 extern void  CD_timerfunc(void); /* @0x800F9C44 (cdfs read watchdog/poll, below)             */
@@ -120,18 +137,22 @@ extern int   CD_lastSector;      /* @0x80146CD4 (ctx+0x10) completion/prefetch l
  *   .s displacement stores (readsectorB/CD_Read/CD_timerfunc).  The flat names are kept via
  *   accessor macros so no call site changes.  (timerhz/g_currentthread live at 0x8013Dxxx, NOT
  *   in this struct -> they stay plain externs = absolute, already correct.)
- *   VOLATILE: only `info` (the IRQ-polled sync-flags word) is volatile -- readsectorB's bare
+ *   VOLATILE: `info` (the IRQ-polled sync-flags word) AND `cachedSector` are volatile -- readsectorB's bare
  *   spin `while((Cdinfo&3)!=0);` re-reads it every iteration (a non-volatile field would fold
- *   to `while(true)`), and CdReadyHandler mutates it behind the compiler's back.  The DATA
- *   fields it guards are ordinary: proven by CD_timerfunc PASS (timeout non-volatile) and by a
- *   read-state-cluster-volatile test that REGRESSED CD_Read 198->255 / CdReadyHandler 325->367.
+ *   to `while(true)`), and CdReadyHandler mutates it behind the compiler's back.  `cachedSector`
+ *   is the read HEAD the IRQ advances, and is volatile for the same reason (w32-a1): the oracle
+ *   re-loads it from memory at every use instead of keeping the just-incremented value in a
+ *   register, and leaves un-fillable load-delay nops around it (CdReadyHandler 109->70 diffs).
+ *   The remaining DATA fields are ordinary: proven by CD_timerfunc PASS (timeout non-volatile)
+ *   and by a read-state-cluster-volatile test that REGRESSED CD_Read 198->255 / CdReadyHandler
+ *   325->367 -- volatility here is per-field, not per-struct.
  *   Same shape SOTN uses (libcd cdread.c `volatile cdreadStruct`) and NFS4's own `volatile
  *   CdrEnv _cdr` -- one struct, sync-word volatile, accessed via the gcc-CSE'd base. */
 struct CD_ctx_t {
     volatile int info;                 /* +0x00  Cdinfo (IRQ-polled sync flags; bit2==stop-req) */
     int   maxOpen;                     /* +0x04  CD_maxOpen                                    */
     int   dirEntryCount;               /* +0x08  CD_dirEntryCount                              */
-    int   cachedSector;                /* +0x0C  CD_cachedSector                               */
+    volatile int cachedSector;         /* +0x0C  CD_cachedSector  (EXPERIMENT a1)              */
     int   lastSector;                  /* +0x10  CD_lastSector                                 */
     int   curSector;                   /* +0x14  CD_curSector                                  */
     int   timeout;                     /* +0x18  CD_timeout  (NON-volatile: proven by CD_timerfunc PASS) */
@@ -297,8 +318,12 @@ extern int CD_Getinfo(int handle, int namebuf, int *sizeout)
  *   Returns the (clamped) byte count, or 0 if the CD is busy. */
 extern int CD_Read(int dev, int dest, int offset, int len)
 {
-    void **slot = (void **)((char *)CD_handleTable + dev * 4 - 4);
-    char  *entry;
+    /* same slot idiom as CD_Getinfo (which PASSes): `&CD_handleTable[dev-1]` yields the oracle's
+     * full address materialization `sll $a0,$a0,2; addiu $a0,$a0,-4; addu $a0,$v0,$a0`, and the
+     * directory ENTRY is RE-READ from the slot at each of its two uses (`lw $v0,0($a0)` twice)
+     * rather than cached in a local -- a cached copy lives in a register across the intervening
+     * volatile Cdinfo RMWs (registers are not invalidated) and loses the oracle's second load. */
+    void **slot = &CD_handleTable[dev - 1];
     int   q, remaining;
     /* read-state sub-struct pointer (curLen/remLen/curOff/curDst, ctx+0x20) -- materialized HERE
      * (right after the busy-check, oracle @0x800FA6C0 "addiu s0,v1,0x20" lands in the beqz's delay
@@ -308,8 +333,7 @@ extern int CD_Read(int dev, int dest, int offset, int len)
     if ((Cdinfo & 3) != 0)                              /* CD busy -> reject */
         return 0;
 
-    entry = (char *)*slot;
-    remaining = *(int *)(entry + 0x10) - offset;        /* clamp len to bytes left in the file */
+    remaining = *(int *)((char *)*slot + 0x10) - offset; /* clamp len to bytes left in the file */
     if (remaining < len)
         len = remaining;
 
@@ -317,6 +341,7 @@ extern int CD_Read(int dev, int dest, int offset, int len)
     if (q < 0)
         q += 0x7FF;
     rs->curOff = offset - ((q >> 0xB) << 0xB);           /* byte offset within the 0x800 sector */
+    rs->curDst = (void *)dest;      /* the oracle fills the curOff-test's delay slot with this */
     if (rs->curOff != 0 || len < 0x800)
         Cdinfo |= 8;                                    /* partial-sector transfer */
     if (rs->curOff + len > 0x800)
@@ -326,16 +351,16 @@ extern int CD_Read(int dev, int dest, int offset, int len)
     rs->curLen = q;
     rs->remLen = len - q;
 
-    if (offset < 0)
-        offset += 0x7FF;
     CD_ringIdx   = 0;
-    CD_curSector = *(int *)(entry + 0xC) + (offset >> 0xB); /* start sector + offset / 0x800 */
+    { char *e = (char *)*slot;   /* re-read; the oracle loads it BEFORE the sign correction */
+      if (offset < 0)
+          offset += 0x7FF;
+      CD_curSector = (offset >> 0xB) + *(int *)(e + 0xC); } /* start sector + offset / 0x800 */
     Cdinfo |= 2;                                        /* read in progress */
-    CD_timeout   = timerhz * 6;
-    rs->curDst   = (void *)dest;
+    CD_timeout   = timerhz[0] * 6;
     addtimer((void *)CD_timerfunc, (void *)dest);
 
-    if (CD_cachedSector == CD_curSector && (Cdinfo & 0x10) && g_currentthread == 2) {
+    if (CD_cachedSector == CD_curSector && (Cdinfo & 0x10) && g_currentthread[0] == 2) {
         blockmove(&CD_sectorCache[rs->curOff], rs->curDst, rs->curLen);   /* sector already cached */
         if (rs->remLen > 0) {                            /* more to read -> advance to the next sector */
             rs->curOff = 0;
@@ -534,13 +559,33 @@ extern int CD_systaskfunc(void)
     int           done = 0;
 
     ready = CdDiskReady(1);
-    switch (ready) {                       /* oracle: beq==5 first, THEN a slti<6+bne!=2 guard for
-                                               case 2 -- a genuine switch (not if/else-if), the case-2
-                                               arm gets a redundant bounds pre-check gcc emits for it.
-                                               (case-order swap tried 2026-07-19/w19-a8: case2-first
-                                               source LOSES the bounds check entirely + adds a stray
-                                               `j` default-fallthrough, 87->89 insns -- worse; case5
-                                               first is the closer/equal-count form, keep it.) */
+    /* 🔑 THE SWITCH HAD **THREE** CASE LABELS, and the third one's value is > 5.
+     *   The oracle dispatch is gcc's BALANCED-TREE form -- `li 5; beq ->case5; slti $v1,6;
+     *   beqz ->merge; li 2; bne ->merge; <case-2 body inline>` -- i.e. a tree ROOTED AT 5 with
+     *   a left child {2} and the redundant high-bound test.  gcc-2.8's balance_case_nodes only
+     *   splits (and thus roots at the middle value) when the case list has MORE THAN TWO nodes;
+     *   with exactly {2,5} it leaves the list linear and emits `li 2; beq; li 5; bne` with NO
+     *   bound test -- which is what every 2-case spelling of this function produced (85 insns,
+     *   22 diffs, and the w19-a8 "case-order swap is worse" note).  Adding a THIRD case label
+     *   whose value is above 5 and whose body is empty makes the middle node 5, produces the
+     *   oracle's dispatch exactly, and is a semantic NO-OP (the switch has no default, so that
+     *   value fell out of the switch before too).  Values 6/7/8 were measured to emit BYTE-
+     *   IDENTICAL code, so the retail constant is not recoverable from the image -- only the
+     *   fact that a third, higher-valued, empty case existed.  (Index-type casts -- (unsigned),
+     *   (unsigned char), (short) -- were tested as alternative explanations and all fail.)
+     *   Case BODY order also matters: the oracle lays the case-2 body down first (fall-through
+     *   from the dispatch) and case 5 after it, so `case 2:` must precede `case 5:` in source. */
+    switch (ready) {
+    case 6:                                /* (see above) empty third case -- dispatch shape only */
+        break;
+    case 2: {                              /* CdlComplete -> a disc settled */
+        /* the decrement must live in its OWN local: folding it into the comparison lets gcc
+         * coalesce the `t-1` temp into done's reg ($s0) and write $s0 twice, where the oracle
+         * keeps the decrement in the call-result reg ($v0) and stores $s0 once. */
+        unsigned t = CdGetDiskType() - 1;
+        done = t < 2;                     /* disc type 1 or 2 == a usable disc */
+        break;
+    }
     case 5:                                /* CdlDiskError -> run down the watchdog */
         /* @0x800F9B48-B74: BUG FIX (was M01) -- re-traced the delay slots: the `sw $v0,0x18($a0)`
          * at .L800F9B6C sits in the INNER `bnez $v0,.L800F9B78`'s delay slot, which (like every
@@ -549,18 +594,13 @@ extern int CD_systaskfunc(void)
          * through); for old_timeout>=2 the store lands old_timeout-1 (silently, done stays 0).  Only
          * old_timeout==0 skips this whole branch and re-arms to timerhz*5 instead. */
         if (CD_timeout == 0)
-            CD_timeout = timerhz * 5;     /* re-arm */
+            CD_timeout = timerhz[0] * 5;     /* re-arm */
         else {
             CD_timeout = CD_timeout - 1;
             if (CD_timeout == 0)
                 done = 1;
         }
         break;
-    case 2: {                              /* CdlComplete -> a disc settled */
-        int t = CdGetDiskType();
-        done = ((unsigned)(t - 1) < 2);   /* disc type 1 or 2 == a usable disc */
-        break;
-    }
     }
 
     if (done) {
@@ -584,8 +624,13 @@ extern int CD_systaskfunc(void)
         CdReadyCallback(CdReadyHandler);
         if (ctx->remLen > 0) {            /* a transfer was in progress -> resume it */
             ctx->ringIdx = 0;
-            ctx->timeout = timerhz * 6;
-            addtimer((void *)CD_timerfunc, pos);
+            ctx->timeout = timerhz[0] * 6;
+            /* ONE-ARGUMENT call at this site (methodology-§3.12 #18, isolated fn-ptr cast):
+             * the oracle's `jal addtimer` here sets ONLY $a0 -- $a1 is left stale even though a
+             * `jal CdReadyCallback` clobbered it two calls earlier, so no second argument was
+             * passed.  (CD_Read's site genuinely passes `dest`, which already lives in $a1
+             * there, so the shared 2-arg declaration stays correct for it.) */
+            ((void (*)(void *))addtimer)((void *)CD_timerfunc);
         }
     }
     return 0;
@@ -623,9 +668,6 @@ extern void CdReadyHandler(int intr, unsigned char *result)
 #define sub   scratch.sub
 #define pos   scratch.pos
 #define gpctx scratch.gpctx
-    unsigned char com;
-    unsigned char *param;
-    unsigned char *issueResult;
     void          *madr;
     int           done;
     /* oracle hoists ONE base pointer to ctx+0x20 (the Ghidra-named `D_80146CE4` -- the read-state
@@ -678,15 +720,19 @@ extern void CdReadyHandler(int intr, unsigned char *result)
                         Cdinfo |= 2;
                     } else {
                         CD_ringIdx = -1;
-                        com = 0x09;           /* CdlPause */
-                        param = 0;
-                        issueResult = 0;
-                        goto issue;
+                        /* the CdlPause issue is spelled OUT-OF-LINE in BOTH ring-overflow arms
+                         * (here + case 5): the oracle DUPLICATES the `a0=9,a1=0,a2=0` setup in each
+                         * and cross-jump-merges only the shared `jal CdControl` tail.  A shared
+                         * com/param/result trio + `goto issue` merges the setup too (-3 insns). */
+                        CdControl(0x09, 0, 0);
+                        CdReadyCallback(CdReadyHandler);
+                        return;
                     }
                 } else {                      /* the sector we were expecting */
-                    CD_timeout = timerhz * 6;
+                    CD_timeout = timerhz[0] * 6;
                     if ((Cdinfo & 8) != 0) {  /* partial -> copy the wanted slice out of the cache */
-                        Cdinfo = (Cdinfo & ~8) | 0x10;
+                        Cdinfo &= ~8;
+                        Cdinfo |= 0x10;
                         blockmove(&CD_sectorCache[rs->curOff], rs->curDst, rs->curLen);
                         rs->curOff = 0;
                     }
@@ -712,11 +758,16 @@ extern void CdReadyHandler(int intr, unsigned char *result)
             CD_lastSector = CD_cachedSector;
             deltimer((void *)CD_timerfunc);
             if (CD_completionCallback != 0) {
-                g_currentthread = 2;
+                /* methodology-§3.12 lever #16 (hold-global-addr-across-call): the oracle parks
+                 * &g_currentthread in a CALLEE-SAVED reg ($s0) across savegp/the callback/restoregp
+                 * and stores through it twice; a bare `g_currentthread = N` on both sides
+                 * rematerializes the address with a fresh `lui $at` per store (+2 insns). */
+                int *curThread = g_currentthread;
+                *curThread = 2;
                 savegp(gpctx);
                 CD_completionCallback(1);
                 restoregp(gpctx[0]);
-                g_currentthread = 0;
+                *curThread = 0;
             }
         }
         goto advance;
@@ -734,10 +785,9 @@ extern void CdReadyHandler(int intr, unsigned char *result)
             goto advance;
         }
         ctx->ringIdx = -1;
-        com = 0x09;                           /* CdlPause */
-        param = 0;
-        issueResult = 0;
-        goto issue;
+        CdControl(0x09, 0, 0);                /* CdlPause -- duplicated setup, see case 1 */
+        CdReadyCallback(CdReadyHandler);
+        return;
     }
 
     default:
@@ -765,11 +815,7 @@ advance:
     /* prefetched too far past the last delivered sector -> rewind the read head */
     CD_cachedSector = CD_lastSector;
     CdIntToPos(CD_lastSector, pos);
-    com   = 0x1B;                          /* CdlReadN */
-    param = pos;
-    issueResult = result;
-issue:
-    CdControl(com, param, issueResult);
+    CdControl(0x1B, pos, result);          /* CdlReadN */
     CdReadyCallback(CdReadyHandler);       /* re-install ourselves */
 }
 #undef gpctx

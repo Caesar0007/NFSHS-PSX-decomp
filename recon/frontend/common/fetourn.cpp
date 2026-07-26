@@ -442,80 +442,70 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill_r
 
 /* ---- tTournamentManager::UpdateTrackFinishPoints  [FETOURN.CPP:481-553] ---- */
 
+/* REWRITE (w36-a10): SYM 8c gives fsize=24, mask=$80010000 (ra + s0 only --
+ * `this` REGPARM lives permanently in s0, EVERY other local is a
+ * caller-saved scratch reg since none of them survive across the
+ * GetNumCompetitors()/qsort() calls: i REG $4=$a0 (INT), k REG $7=$a3
+ * (SHORT), dummyCars REG $9=$t1 (PTR Car_tStats), numCompetitors REG $8=$t0
+ * (SHORT). The prior recon fabricated ptVar3 (a manually-incremented
+ * `&this->fNumRacers`-based "walk" standing in for `this->fCompetitors[i]`
+ * array indexing) and pCVar7 (a second, real, pointer-walk that IS the SYM's
+ * `dummyCars`). The byte-fill loop (`*(uchar*)(piVar2+0x237)=iVar5`) writes
+ * this->fRanking[0..5] = {0..5} (offsetof(fRanking)=0x237; piVar2 base =
+ * &this->fTier+1 = offset 0x5, so target 0x232+iStep+0x5 walks exactly
+ * fRanking's 6 bytes) -- an identity-permutation init before qsort sorts it
+ * by tournPointsCompare. */
 void tTournamentManager::UpdateTrackFinishPoints()
 
 {
-  short sVar1;
-  int *piVar2;
-  tTournamentManager *ptVar3;
-  int iVar4;
   int i;
-  int iVar5;
   short k;
-  short sVar6;
-  short numCompetitors;
   Car_tStats *dummyCars;
-  Car_tStats *pCVar7;
-  
-  sVar1 = this->GetNumCompetitors();
-  sVar6 = 0;
+  short numCompetitors;
+
+  numCompetitors = this->GetNumCompetitors();
+  k = 0;
   i = this->fTier;
-  pCVar7 = Cars_gNewCarStatsList;
   if (this->fDefinition->fTournaments
       [(uint)this->fDefinition->fTiers[i].fTournOffset + this->fTournament].fKnockout == '\0') {
-    iVar5 = 0;
-    ptVar3 = this;
-    if (0 < sVar1) {
-      do {
-        if ((pCVar7->finalPosition - 1U < 6) && (pCVar7->finalFinishType == 2)) {
-          ptVar3->fCompetitors[0].fPoints =
-               ptVar3->fCompetitors[0].fPoints +
-               (ushort)this->fFinishPoints[pCVar7->finalPosition + -1];
+    dummyCars = Cars_gNewCarStatsList;
+    if (0 < numCompetitors) {
+      for (i = 0; i < numCompetitors; i = i + 1) {
+        if ((dummyCars->finalPosition - 1U < 6) && (dummyCars->finalFinishType == 2)) {
+          this->fCompetitors[i].fPoints =
+               this->fCompetitors[i].fPoints +
+               (ushort)this->fFinishPoints[dummyCars->finalPosition + -1];
         }
-        iVar5 = iVar5 + 1;
-        pCVar7 = pCVar7 + 1;
-        ptVar3 = (tTournamentManager *)&ptVar3->fNumRacers;
-      } while (iVar5 < sVar1);
+        dummyCars = dummyCars + 1;
+      }
     }
-    iVar5 = 5;
-    piVar2 = (int *)((int)&this->fTier + 1);
-    do {
-      *(uchar *)((int)piVar2 + 0x237) = (uchar)iVar5;
-      iVar5 = iVar5 + -1;
-      piVar2 = (int *)((int)piVar2 + -1);
-    } while (-1 < iVar5);
-    qsort(this->fRanking,(int)sVar1,1,
+    for (i = 0; i < 6; i = i + 1) {
+      this->fRanking[i] = (uchar)i;
+    }
+    qsort(this->fRanking,(int)numCompetitors,1,
                tournPointsCompare);
-    ptVar3 = this;
-    iVar5 = 0;
-    do {
-      iVar4 = iVar5 + 1;
-      this->fCompetitors[ptVar3->fRanking[0]].fPosition = (uchar)iVar4;
-      ptVar3 = (tTournamentManager *)((int)this->fTierList + iVar5 + -0x1b);
-      iVar5 = iVar4;
-    } while (iVar4 < 6);
+    for (i = 0; i < 6; i = i + 1) {
+      this->fCompetitors[this->fRanking[i]].fPosition = (uchar)(i + 1);
+    }
   }
   else {
-    iVar5 = 0;
-    ptVar3 = this;
-    if (0 < sVar1) {
-      do {
-        if (ptVar3->fCompetitors[0].fEliminated == 0) {
-          if ((Cars_gNewCarStatsList[sVar6].finalPosition - 1U < 6) &&
-             (Cars_gNewCarStatsList[sVar6].finalFinishType == 2)) {
-            if (Cars_gNewCarStatsList[sVar6].finalPosition < this->fNumRacers) {
-              ptVar3->fCompetitors[0].fPoints = ptVar3->fCompetitors[0].fPoints + 1;
+    k = 0;
+    if (0 < numCompetitors) {
+      for (i = 0; i < numCompetitors; i = i + 1) {
+        if (this->fCompetitors[i].fEliminated == 0) {
+          if ((Cars_gNewCarStatsList[k].finalPosition - 1U < 6) &&
+             (Cars_gNewCarStatsList[k].finalFinishType == 2)) {
+            if (Cars_gNewCarStatsList[k].finalPosition < this->fNumRacers) {
+              this->fCompetitors[i].fPoints = this->fCompetitors[i].fPoints + 1;
             }
             else {
-              ptVar3->fCompetitors[0].fEliminated = 1;
+              this->fCompetitors[i].fEliminated = 1;
             }
-            ptVar3->fCompetitors[0].fPosition = (uchar)Cars_gNewCarStatsList[sVar6].finalPosition;
+            this->fCompetitors[i].fPosition = (uchar)Cars_gNewCarStatsList[k].finalPosition;
           }
-          sVar6 = sVar6 + 1;
+          k = k + 1;
         }
-        iVar5 = iVar5 + 1;
-        ptVar3 = (tTournamentManager *)&ptVar3->fNumRacers;
-      } while (iVar5 < sVar1);
+      }
     }
     this->fNumRacers = this->fNumRacers + -1;
   }

@@ -820,42 +820,26 @@ int AISpeeds_LimitGlueMultiplier(Car_tObj *carObj,int f_final)
 /* ---- AISpeeds_CalcCopTopSpeed__FP8Car_tObj  [@0x8006eaa4] ---- */
 int AISpeeds_CalcCopTopSpeed(Car_tObj *carObj)
 {
+  /* SYM/IDA roles: topSpeed=$a0, newDesired=$v1, and f_nitrous=$v0.
+   * f_nitrous is the raw nitrous factor; the computed product is stored directly
+   * to aiGlue so retail keeps that result in $v1 through the gravity clamp. */
   int topSpeed;
   int newDesired;
   int f_nitrous;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  
-  iVar1 = AISpeeds_CalcOpponentCurveSpeed(carObj);
-  iVar3 = carObj->copTopSpeed;
-  if (iVar1 < carObj->copTopSpeed) {
-    iVar3 = iVar1;
-  }
-  iVar2 = carObj->speedNitrous;
-  iVar1 = AISpeeds_trackAndNightMult;
-  if (AISpeeds_trackAndNightMult < 0) {
-    iVar1 = AISpeeds_trackAndNightMult + 0xff;
-  }
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  iVar1 = (iVar1 >> 8) * (iVar2 >> 8);
-  carObj->aiGlue = iVar1;
-  if (0x10000 < iVar1) {
-    (carObj->N).gravityMult = iVar1;
+
+  topSpeed = AISpeeds_CalcOpponentCurveSpeed(carObj);
+  newDesired = carObj->copTopSpeed;
+  topSpeed = topSpeed < newDesired ? topSpeed : newDesired;
+  f_nitrous = carObj->speedNitrous;
+  carObj->aiGlue = (AISpeeds_trackAndNightMult / 256) *
+                   (f_nitrous / 256);
+  if (0x10000 < carObj->aiGlue) {
+    (carObj->N).gravityMult = carObj->aiGlue;
   }
   else {
     (carObj->N).gravityMult = 0x10000;
   }
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  iVar1 = carObj->aiGlue;
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
-  }
-  return (iVar3 >> 8) * (iVar1 >> 8) * carObj->direction;
+  return (topSpeed / 256) * (carObj->aiGlue / 256) * carObj->direction;
 }
 
 /* ---- AISpeeds_CalcTrafficTopSpeed__FP8Car_tObj  [@0x8006eb6c] ---- */

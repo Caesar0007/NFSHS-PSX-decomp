@@ -263,7 +263,11 @@ extern short *iSNDserveradd100hzclient(int cb)
 /* iSNDserverremove100hzclient @0x800EA620 : unregister a 100 Hz callback, compacting the client list.
  * The volatile incoming local plus one nonvolatile `target` copy recovers the oracle's callback/base/
  * index register rotation. The remaining 3-diff floor is the same stack store/load versus direct
- * register-copy choice as iSNDserverremoveclient (ours 44 / oracle 43). */
+ * register-copy choice as iSNDserverremoveclient (ours 44 / oracle 43).
+ *
+ * W33-a8: the `volatile` param is KEPT -- the wave's SLD line-tracing evidence does not exist for
+ * sndpsxz (sserver.obj has only a type-2 symbol record; no SLD, no function-start block).  Full
+ * verdict + the re-measured cost of the honest shape (41 diffs) is in ssysserv.c on the twin. */
 extern void iSNDserverremove100hzclient(volatile int cb)
 {
     int i;

@@ -51,7 +51,18 @@ extern void iSNDserverremoveclient(volatile int cb)
      * recovers the oracle's {i,base,target}={a0,a1,a2} allocation; copying it once into `target`
      * after the count guard avoids a reload at every comparison and matches the oracle's scheduling.
      * GCC still realizes the preservation as `sw a0,0(sp); ...; lw a2,0(sp)` where the oracle uses
-     * one `addu a2,a0,zero`. The index-first destination expression fixes the final add order. */
+     * one `addu a2,a0,zero`. The index-first destination expression fixes the final add order.
+     *
+     * W33-a8 GOVERNANCE VERDICT on the `volatile` param -- KEPT, and the deciding evidence the wave
+     * asked for DOES NOT EXIST.  Wave-33's lever was SYM SLD line-tracing: read the address->line map
+     * to see whether retail had a source STATEMENT where this copy sits.  ssysserv.obj (like every
+     * sndpsxz.lib member) is debug-stripped -- `nfs4-f-v3.txt` carries ONLY
+     *     013909: $801047cc 2 iSNDserverremoveclient
+     * i.e. a type-2 plain symbol record: no `8c Function start` block, no locals, no SLD records.
+     * The entire SLD source-file list contains exactly ONE eaclib TU (EACLIB/PSX/PAD.C) and
+     * zero sndpsxz files.  Per the wave order ("do NOT change the volatile without it") the status
+     * quo stands.  Cost of the honest non-volatile shape, re-measured this wave for the user's call:
+     * `int cb` = 41 diffs / 42 insns (oracle 43) on BOTH twins; `volatile int cb` = 3 diffs / 44. */
     if (*(signed char *)(p + 0x41) <= 0)                      /* lb count (signed-char view of the byte) */
         return;
     i = 0;

@@ -984,20 +984,18 @@ LAB_80080154:
 void NormalCache_Init(void)
 {
   int i;
-  tNormalCacheEntry *ptVar1;
-  int iVar2;
+  int invalid;
   
   BWSM_NormalCacheSysTime = 0;
-  iVar2 = 0;
-  ptVar1 = BWSM_NormalCache;
+  i = 0;
+  invalid = -1;
   do {
-    ptVar1->sliceInd = -1;
-    ptVar1->quadInd = -1;
-    ptVar1->triangleFlag = '\0';
-    ptVar1->accessTime = 0;
-    iVar2 = iVar2 + 1;
-    ptVar1 = ptVar1 + 1;
-  } while (iVar2 < 0x10);
+    BWSM_NormalCache[i].sliceInd = invalid;
+    BWSM_NormalCache[i].quadInd = invalid;
+    BWSM_NormalCache[i].triangleFlag = '\0';
+    BWSM_NormalCache[i].accessTime = 0;
+    i++;
+  } while (i < 0x10);
   return;
 }
 

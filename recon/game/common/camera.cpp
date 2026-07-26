@@ -742,11 +742,12 @@ void Camera_UpdateTVCam(int player)
   /* @0x80081EC4-F14: TWO distinct fn-statics indexed by player*4 -- lastX[2]@0x8013DD88 and
    * lastY[2]@0x8013DD90 (8 bytes apart). The reconstruction routed every access through one
    * Ghidra-ism `*(int*)("" + iVar3)` placeholder, collapsing lastY into lastX (H43). */
-  /* MATCH: compare lastX[player] (LHS first -> its address materializes before Camera_gInfo's)
-   * against the field directly; the taken-branch store reuses the loaded position.x */
-  if (lastX[player] != Camera_gInfo[player].position.x) {
-    lastX[player] = Camera_gInfo[player].position.x;
-    lastY[player] = Camera_gInfo[player].position.y;
+  /* SLD has no named index temp, but retail computes player*4 in $s1 before either
+   * static base. Keeping the byte index explicit preserves that allocation/schedule. */
+  iVar2 = player * (int)sizeof(int);
+  if (*(int *)((char *)lastX + iVar2) != Camera_gInfo[player].position.x) {
+    *(int *)((char *)lastX + iVar2) = Camera_gInfo[player].position.x;
+    *(int *)((char *)lastY + iVar2) = Camera_gInfo[player].position.y;
   }
   targetDist = fixedmult(Camera_gInfo[player].TVHeight >> 2,dist4 + -0x4000);
   /* MATCH: if/else (dbr steals the else-arm copy into the beqz slot) + plain if, one CSE'd slt */
@@ -761,7 +762,7 @@ void Camera_UpdateTVCam(int player)
   if (targetDist < 0) {
     height = 0;
   }
-  Camera_gInfo[player].position.y = lastY[player] + height;   /* @0x80081F64 read lastY[player] */
+  Camera_gInfo[player].position.y = *(int *)((char *)lastY + iVar2) + height;   /* @0x80081F64 read lastY[player] */
   SetCameraZoom(player,dist4);
   return;
 }

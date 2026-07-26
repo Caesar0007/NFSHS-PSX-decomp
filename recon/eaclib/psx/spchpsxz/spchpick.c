@@ -29,7 +29,7 @@ extern int            DAT_80148448[];      /* "one chosen" flag */
 extern int  gVoxBanks[];      /* spchbank (array decl -> separate-temp loads) */
 extern int  gDataRate[];      /* spchinit */
 typedef void (*SampleRequestFn)(int, int, int, int);
-extern SampleRequestFn gSampleRequest; /* spchinit (callback) */
+extern SampleRequestFn gSampleRequest[]; /* spchinit (callback) */
 typedef void (*SentenceRuleSetFn)(int, int, int);
 extern SentenceRuleSetFn gSentenceRuleSet; /* spchinit (callback) */
 extern int  gVoxInGame[];     /* spchinit; [1] aliases gRepeatCount@+4 */
@@ -724,12 +724,16 @@ extern int iSPCH_MakeSampleRequests(int sentence, int paramTable)
                 if (sub != -1)
                     spuAddr = spuAddr + sub * stride;
                 samples = samples + tmp[0];
-                gSampleRequest((int)*choice, spuAddr, tmp[0], paramTable);
-                /* residual 23 (81/82): oracle additionally hoists lui %hi(gSampleRequest)
-                 * into s6 (freeing the load to lw v0,0(s6)) and parks paramTable in fp; this
-                 * cc1's move_movables rates a lone savings-1 lui "not desirable" (cc1 -dL) so
-                 * no source shape reaches that placement (typed-fnptr call, guard-read, cast
-                 * form all tested); suspected loop.c cost-model identity, not source. */
+                gSampleRequest[0]((int)*choice, spuAddr, tmp[0], paramTable);
+                /* MATCH (w32-a9, 23 -> 3 diffs): the -dL "savings-1 lone lui not desirable"
+                 * verdict was a CONSEQUENCE of the SCALAR declaration, not a cost-model identity.
+                 * Declaring gSampleRequest as an UNSIZED ARRAY and calling `gSampleRequest[0](...)`
+                 * (catalog SSE / SSE#5) makes cc1 materialize the base in a SEPARATE temp, which
+                 * loop.c then happily hoists into $s6 exactly as retail, leaving `lw v0,0(s6)` in
+                 * the loop.  RESIDUAL 3 (83/82) = reorg fills the `beqz` guarding the ClearCycleBit
+                 * call by STEALING (duplicating) the `addu a0,s0,zero` from the join block, where
+                 * retail fills it with the following `lui %hi(gClearCycle)`; nested-if vs && makes
+                 * no difference -- a delay-slot-filler preference, not a source shape. */
             }
             i = i + 1;
         } while (i < n);

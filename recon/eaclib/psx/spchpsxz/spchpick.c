@@ -28,7 +28,8 @@ extern int            DAT_80148448[];      /* "one chosen" flag */
 
 extern int  gVoxBanks[];      /* spchbank (array decl -> separate-temp loads) */
 extern int  gDataRate[];      /* spchinit */
-extern int  gSampleRequest;   /* spchinit (callback) */
+typedef void (*SampleRequestFn)(int, int, int, int);
+extern SampleRequestFn gSampleRequest; /* spchinit (callback) */
 typedef void (*SentenceRuleSetFn)(int, int, int);
 extern SentenceRuleSetFn gSentenceRuleSet; /* spchinit (callback) */
 extern int  gVoxInGame[];     /* spchinit; [1] aliases gRepeatCount@+4 */
@@ -680,8 +681,8 @@ extern int iSPCH_MakeSampleRequests(int sentence, int paramTable)
     int n = VoxSentence_GetNumPhrases(sentence);
     int i = 0;
     if (0 < n) {
-        short *choice = ispch_gChoice;
         do {
+            short        *choice = CHOICE(i);
             int           bank = *(int *)(*choice * 4 + gVoxBanks[0]);
             unsigned int  idx  = (unsigned int)PICK(choice[4]);
             int           tmp[4];
@@ -690,16 +691,24 @@ extern int iSPCH_MakeSampleRequests(int sentence, int paramTable)
             if ((*(unsigned char *)(bank + 2) & 0xf0) != 0 && gClearCycle != 0)
                 iSPCH_ClearCycleBit(bank, idx);
             if (iSPCH_UnPackSample(bank, idx, tmp) != 0) {
+                /* MATCH: stride computed UNCONDITIONALLY before the -1 test (oracle lhu+sll precede
+                 * the beq; the mult starts in the branch delay slot) and choice[1] read ONCE into a
+                 * named local -- the old double choice[1] read made loop.c fabricate a second
+                 * &choice[1] giv (addiu s3,s2,2 anchor, +2 insns). */
                 int spuAddr = tmp[1];
-                if (choice[1] != -1)
-                    spuAddr = tmp[1] + (int)choice[1] *
-                              ((int)(unsigned int)*(unsigned short *)(bank + 4) << 8);
+                int sub     = (int)choice[1];
+                int stride  = (int)(unsigned int)*(unsigned short *)(bank + 4) << 8;
+                if (sub != -1)
+                    spuAddr = spuAddr + sub * stride;
                 samples = samples + tmp[0];
-                ((void (*)(int, int, int, int))gSampleRequest)
-                    ((int)*choice, spuAddr, tmp[0], paramTable);
+                gSampleRequest((int)*choice, spuAddr, tmp[0], paramTable);
+                /* residual 23 (81/82): oracle additionally hoists lui %hi(gSampleRequest)
+                 * into s6 (freeing the load to lw v0,0(s6)) and parks paramTable in fp; this
+                 * cc1's move_movables rates a lone savings-1 lui "not desirable" (cc1 -dL) so
+                 * no source shape reaches that placement (typed-fnptr call, guard-read, cast
+                 * form all tested); suspected loop.c cost-model identity, not source. */
             }
             i = i + 1;
-            choice = choice + 6;
         } while (i < n);
     }
     return iSPCH_ConvertTime(samples);

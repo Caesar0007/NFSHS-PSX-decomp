@@ -441,8 +441,13 @@ extern int SNDPKTPLAY_purge(int p, int lo, int hi)
                                                       * s0..s7/fp permutation (9 live-across-a-call
                                                       * locals -> every callee-saved reg is used). */
     iSNDenteraudio();
-    wr    = VH(ppp, 0xa);                          /* write (compaction) index  */
-    rd    = VH(ppp, 0xa);                          /* read index (re-read, MATCH: async slot) */
+    rd    = VH(ppp, 0xa);                          /* read index               */
+    wr    = VH(ppp, 0xa);                          /* write (compaction) index (re-read, MATCH:
+                                                      * retail's weaker CSE keeps BOTH lhu's; the
+                                                      * ASSIGNMENT ORDER of the two identical reads
+                                                      * is a live allocno-order lever -- rd first
+                                                      * rotates {wrptr,rd,wr} toward the oracle's
+                                                      * s1/s2/s3 assignment: 50 -> 32 diffs) */
     total = VH(ppp, 0xe);                          /* frames to scan            */
     if (0 < total) {
         rdoff = rd * 0x18 + 0x28;

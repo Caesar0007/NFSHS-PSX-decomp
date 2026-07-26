@@ -842,21 +842,35 @@ extern int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, unsi
     *(short *)(pp + 0x11) = (short)chunkBytes;
     *(short *)((int)pp + 0x46) =
         (short)((int)(*(unsigned short *)(pp + 0x11) * 0x1c) / 0x10);
+    /* MATCH (w32, 42->0) -- the whole block-geometry run is written as STORE-then-READ-BACK, which is
+     * what retail's source did and what produces the oracle's truncating `andi`s instead of fresh
+     * loads: gcc forwards the just-stored value out of the store insn and applies the field's width
+     * as an `andi 0xff`/`andi 0xffff` on the register it already has.  Concretely:
+     *   - the shift is stored to pp+0x43 and re-read as `unsigned char` for the `srav`
+     *     -> oracle `sb $v0,0x43($s0); andi $a0,$v0,0xFF; srav` (a plain `(unsigned char)shift`
+     *        local instead loses the andi AND puts a spurious one on the channel-count load);
+     *   - `frames` and the multiply operand are re-read from the `short` at pp+0x38 -> the oracle's
+     *     `andi $v1,$v0,0xFFFF` / `andi $a0,$v1,0xFFFF` pair, and re-reading the SECOND one is also
+     *     what orders `sh 0x38` before the `mult` (recomputing `frames / perCh` lets the scheduler
+     *     hoist the independent pp+0x40 store above the multiply);
+     *   - `ch` is a plain int read (a `u_char` local re-masks on use), while `perCh` must be the
+     *     VOLATILE re-read of the same field -- the oracle loads it twice.
+     * The pp+0x13 address must associate as `pp + (u16 + 0x50)` (oracle `addiu $v1,$v1,0x50` BEFORE
+     * `addu $v1,$s0,$v1`); the natural left-to-right form emits the two adds in the opposite order,
+     * and only the char*-pointer spelling makes cc1 keep the parenthesized association. */
     {
-        unsigned char ch = *(volatile unsigned char *)(voice + 0x1f);
-        int shift;
+        int ch = voice[0x1f];
         pp[0x12] = (int)(pp + 0x14);
-        shift = 0xd - ch;
-        *(char *)((int)pp + 0x43) = (char)shift;
-        pp[0x13] = (int)pp + *(unsigned short *)(pp + 0x11) + 0x50;
-        blockSamps = (int)pp[1] >> (unsigned char)shift;
+        *(char *)((int)pp + 0x43) = (char)(0xd - ch);
+        pp[0x13] = (int)((char *)pp + (*(unsigned short *)(pp + 0x11) + 0x50));
+        blockSamps = (int)pp[1] >> *(unsigned char *)((int)pp + 0x43);
     }
     *(short *)(pp + 0xe) = (short)blockSamps;
-    frames = (unsigned)(blockSamps & 0xffff);
-    perCh = (unsigned char)voice[0x1f];
+    frames = *(unsigned short *)(pp + 0xe);
+    perCh = *(volatile unsigned char *)(voice + 0x1f);
     *(short *)(pp + 0xe) = (short)(frames / perCh);
     {
-        int total = (int)(frames / perCh) * *(unsigned short *)((int)pp + 0x46);
+        int total = (int)*(unsigned short *)(pp + 0xe) * *(unsigned short *)((int)pp + 0x46);
         *(short *)(pp + 0x10) =
             *(volatile unsigned short *)((int)pp + 0x46);
         *(char *)((int)pp + 0x42) = (char)note;
@@ -893,8 +907,13 @@ extern int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, unsi
         *(int *)(voice + 0x14) = pp[3] << 0xc;    /* DAT_80147a04, vt */
         /* MATCH: no `(unsigned)` cast -- the oracle's final scale is a SIGNED `sra` (the magic-mult
          * chain for *0x17c7 stays in a signed int; forcing unsigned emits `srl` instead). */
-        *(short *)(voice + 0x1a) = (short)(*hdr * 0x17c7 >> 0x10);   /* DAT_80147a0a, vt */
-        if (1 < (unsigned char)voice[0x1f]) {       /* arm the linked partner voice */
+        /* volatile PAIR (w32): the oracle emits `sh ...,0x1A($s2)` and only THEN loads the channel
+         * count for the guard (with an unfilled nop) -- with both plain, cc1 hoists the guard's `lbu`
+         * above the store (it can prove the two constant offsets off `voice` do not overlap) and fills
+         * the slot, costing an insn.  Marking the store volatile pins the load after it; marking the
+         * guard load volatile keeps it out of the preceding block. */
+        *(volatile short *)(voice + 0x1a) = (short)(*hdr * 0x17c7 >> 0x10);   /* DAT_80147a0a, vt */
+        if (1 < *(volatile unsigned char *)(voice + 0x1f)) {       /* arm the linked partner voice */
             *(volatile unsigned char *)(voice + 0x20) =
                 *(unsigned char *)(note * 100 + sndgs[0x25] + 4);
             base2[0xf9 + ((int)((int)*(volatile unsigned char *)(voice + 0x20) << 24) >> 24) * 0x2c] = 1; /* DAT_80147a11 */

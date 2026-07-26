@@ -2027,81 +2027,49 @@ void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)
 /* ---- Camera_GetAudioViewInfo__FiP17DRender_tCalcViewPP8coorddef  [@0x8008533c] ---- */
 void Camera_GetAudioViewInfo(int cviewP,DRender_tCalcView *cview,coorddef **cvel)
 {
-  matrixtdef *pmVar1;
-  matrixtdef *pmVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  
-  if (Input_gLookBehind[cviewP] == 0) {
-    iVar3 = Camera_gInfo[cviewP].position.y;
-    iVar4 = Camera_gInfo[cviewP].position.z;
-    (cview->translation).x = Camera_gInfo[cviewP].position.x;
-    (cview->translation).y = iVar3;
-    (cview->translation).z = iVar4;
-    pmVar2 = &cview->mrotation;
-    pmVar1 = &Camera_gInfo[cviewP].rotation;
-    do {
-      iVar3 = pmVar1->m[1];
-      iVar4 = pmVar1->m[2];
-      iVar5 = pmVar1->m[3];
-      pmVar2->m[0] = pmVar1->m[0];
-      pmVar2->m[1] = iVar3;
-      pmVar2->m[2] = iVar4;
-      pmVar2->m[3] = iVar5;
-      pmVar1 = (matrixtdef *)(pmVar1->m + 4);
-      pmVar2 = (matrixtdef *)(pmVar2->m + 4);
-    } while (pmVar1 != (matrixtdef *)(Camera_gInfo[cviewP].rotation.m + 8));
-    pmVar2->m[0] = pmVar1->m[0];
+  if (*(int *)((cviewP << 2) + (int)Input_gLookBehind) == 0) {
+    cview->translation = Camera_gInfo[cviewP].position;
+    cview->mrotation = Camera_gInfo[cviewP].rotation;
+  }
+  else if (Camera_gInfo[cviewP].noLookBack != 0) {
+    cview->translation = Camera_gInfo[cviewP].position;
+    cview->mrotation = Camera_gInfo[cviewP].rotation;
   }
   else {
-    pmVar1 = &Camera_gInfo[cviewP].rotation;
-    if (Camera_gInfo[cviewP].noLookBack == 0) {
-      if (Camera_gInfo[cviewP].tracking == 0) {
-        iVar3 = Camera_gInfo[cviewP].audioPos.y;
-        iVar4 = Camera_gInfo[cviewP].audioPos.z;
-        (cview->translation).x = Camera_gInfo[cviewP].audioPos.x;
-        (cview->translation).y = iVar3;
-        (cview->translation).z = iVar4;
-        Camera_LookBack(&Camera_gInfo[cviewP].rotation,&cview->mrotation);
-      }
-      else {
-        iVar3 = Camera_gInfo[cviewP].audioPos.y;
-        iVar4 = Camera_gInfo[cviewP].audioPos.z;
-        (cview->translation).x = Camera_gInfo[cviewP].audioPos.x;
-        (cview->translation).y = iVar3;
-        (cview->translation).z = iVar4;
-        Camera_AcquireTarget(cviewP,(coorddef *)0x0,&cview->translation,&cview->mrotation,0);
-      }
+    if (Camera_gInfo[cviewP].tracking != 0) {
+      cview->translation = Camera_gInfo[cviewP].audioPos;
+      Camera_AcquireTarget(cviewP,(coorddef *)0x0,&cview->translation,&cview->mrotation,0);
     }
     else {
-      iVar3 = Camera_gInfo[cviewP].position.y;
-      iVar4 = Camera_gInfo[cviewP].position.z;
-      (cview->translation).x = Camera_gInfo[cviewP].position.x;
-      (cview->translation).y = iVar3;
-      (cview->translation).z = iVar4;
-      pmVar2 = &cview->mrotation;
-      do {
-        iVar3 = pmVar1->m[1];
-        iVar4 = pmVar1->m[2];
-        iVar5 = pmVar1->m[3];
-        pmVar2->m[0] = pmVar1->m[0];
-        pmVar2->m[1] = iVar3;
-        pmVar2->m[2] = iVar4;
-        pmVar2->m[3] = iVar5;
-        pmVar1 = (matrixtdef *)(pmVar1->m + 4);
-        pmVar2 = (matrixtdef *)(pmVar2->m + 4);
-      } while (pmVar1 != (matrixtdef *)(Camera_gInfo[cviewP].rotation.m + 8));
-      pmVar2->m[0] = pmVar1->m[0];
+      cview->translation = Camera_gInfo[cviewP].audioPos;
+      Camera_LookBack(&Camera_gInfo[cviewP].rotation,&cview->mrotation);
     }
   }
   switch(Camera_gInfo[cviewP].mode) {
-  default:
-    *cvel = &(Camera_gInfo[cviewP].anchor)->linearVel;
-    break;
   case 0xc:
   case 0xe:
     *cvel = (coorddef *)0x0;
+    break;
+  case 0:
+  case 1:
+  case 2:
+  case 3:
+  case 4:
+  case 5:
+  case 6:
+  case 7:
+  case 8:
+  case 9:
+  case 10:
+  case 11:
+  case 13:
+  case 15:
+  case 16:
+  case 17:
+  case 18:
+  default:
+    *cvel = &(Camera_gInfo[cviewP].anchor)->linearVel;
+    break;
   }
   return;
 }

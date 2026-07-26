@@ -1,4 +1,5 @@
 /* eaclib/psx/sndpsxz/salloc.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 2/4 PASS ***
+ *   (w35-a1: iSNDallocchan 245->4 diffs @298/298 EXACT, iSNDfreechan 74->19 @107/110)
  *   Source obj : nfs4\eaclib\psx\salloc.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   4 fns @[0x800FE724 .. 0x800FEDC4].  Sound-channel allocation/arbitration (no SPU pokes -- pure
  *   priority logic over the channel pool sndgs[0x25]).  Ghidra nfs4-f.exe.c L163749..164019.
@@ -38,6 +39,58 @@ extern int iSNDischanreserved(int chan, int count)
  *   lowest-timestamp busy channels (stopping their current sound, rolling back on refusal).  Writes the
  *   allocation id to *out and returns the primary channel index, or -9 on failure.
  *     priority = channel-eligibility bitmask;  numChannels = voices needed;  a2 = a voice flag byte.
+ *
+ * ★ W35-a1 (2026-07-26): 245 -> 4 diffs, instruction count EXACT 298/298.
+ *   The "s6<->s7 / t1<->t2 allocno rotation" that w32/w33/w34 filed as the residual was NOT an
+ *   allocator delta at all -- it was FOUR source-shape errors, each of which the RTL/register
+ *   evidence had been read as a coloring symptom.  In order of yield:
+ *   (1) VARIABLE IDENTITY, pass counter (245 -> 205).  Retail runs BOTH selection passes on ONE
+ *       counter in $s3 (and reuses it for the commit and link loops).  Our pass 2 had its own `k`,
+ *       a ninth+tenth callee-saved pseudo that took $fp and rotated every neighbour one step.
+ *       Merging `k` into `i` (and, separately, keeping pass 2's own `bestv` -- merging THAT one
+ *       into `bestval` costs 2) restored $s3/$fp/$s5.
+ *   (2) `int bestage` (205 -> 125).  The w32/w33 notes recorded `int bestage` as a REGRESSION
+ *       (297 / 292); under the corrected counter allocation it is worth 80 diffs and removes the
+ *       function's single excess instruction -- the `andi $v1,$s7,255` a u_char local re-applies on
+ *       every compare (the oracle compares the running best age with a bare `slt`).  A floor/negative
+ *       measured under a wrong allocation says nothing about the right one: RE-TEST OLD NEGATIVES
+ *       AFTER ANY STRUCTURAL FIX.
+ *   (3) VARIABLE IDENTITY, slot pointer (125 -> 97).  The commit loop declared its own `int *ch`;
+ *       retail keeps the channel-slot pointer in $s0 for the WHOLE function, so the extra pseudo
+ *       took $s0 for `owner` and pushed the slot pointer to $s1.  Reusing the function-scope slot
+ *       variable (plus reading the state byte signed, `lb`) restores retail's $s0/$s1.
+ *   (4) RESULT FUNNEL + ADDRESS-EXPRESSION ORDER (97 -> 16, and parity).  The rollback path does not
+ *       `return -9;` -- retail re-materializes -9 into the frame result slot and jumps to the shared
+ *       epilogue.  And the link loop's byte store must address the slot as `(primary*100 + pool) + i`:
+ *       written `i + primary*100 + pool` gcc builds a separate &sndchanreserved[i] induction pointer
+ *       updated in the back-edge delay slot and mis-orders the two addus (-76 diffs alone); explicit
+ *       parens making `i` the FIRST addu operand take the last 2.  The primary-link store likewise
+ *       evaluates `sndgs[0x25]` before `sndchanreserved[0]` (%hi materialization order, -2).
+ *   (5) DEAD-SET CARRIER on the eligibility constant (16 -> 6) -- the w35 lever, and the answer to
+ *       the w34 note that asked for "a lever that keeps a constant address allocno alive, not
+ *       another spelling".  `1 << c`'s literal was LICM-hoisted out of BOTH loop levels into $fp,
+ *       so the `la sndchanreserved` pseudo lost the ninth callee-saved register and reload
+ *       rematerialized it at the store (+2 insns).  `one = 1; use; one = 0;` inside the inner loop
+ *       gives the constant two sets, so loop.c stops treating it as a movable (set_in_loop != 1);
+ *       flow deletes the dead store for free, retail's `li $v0,1` stays in the loop and the
+ *       chosen-list base takes $fp exactly as retail does.  Three named-pointer spellings of
+ *       `chosen = sndchanreserved` had been tried across w34/w35 and ALL fail (a pseudo whose only
+ *       set is a SYMBOL_REF gets a constant REG_EQUIV and is rematerialized) -- the carrier works
+ *       from the other side, by removing the COMPETITOR.
+ *   RESIDUAL 4 = a dbr (delayed-branch) tie, twice (once per pass): retail leaves
+ *   `addu $s5,$s4,$zero` (bestval = best) at the loop head, pays the load-delay `nop` and fills the
+ *   `beqz` slot by stealing the fall-through's `addu $s1,$zero,$zero` (c = 0); our gcc's
+ *   fill_simple_delay_slots takes the backward candidate instead.  Registers, instruction set and
+ *   count are otherwise IDENTICAL.  Falsified against it (all gate 4 or worse, none changes the
+ *   fill): statement order best/bestval vs gs (4), `best = -1` literal (4), `bestval` as a literal
+ *   (6), `bestval` moved inside the guard (9 @297), named `limit` guard (4), declaration order and
+ *   declaration-block order (4 each), and a `volatile` guard load in one or both passes (4) -- the
+ *   §F "volatile blocks the simple fill" lever does NOT reach this one because the volatile MEM is
+ *   the branch's OWN input, not an insn in the backward-scan window.  Per-TU `-mno-split-addresses`
+ *   also tested for the whole obj: 123 diffs @305 insns, and it breaks the other three functions
+ *   (16->9 FAIL, 27->7 FAIL) -- salloc.obj is firmly on the split-addresses side.
+ *   Classification: WEAK-to-MEDIUM floor, dbr class; the honest next step is the permuter.
+ *
  * RAW/CROSS-VERSION REDUCTION (2026-07-26, 416->274 detailed diffs; 298/298 instructions):
  *   NFS4 PC tagged_play.c, NFS3 isnd.c, NFS2b alloc2.c and PC-beta salloc.obj all confirm the two-pass
  *   selection/rollback/link algorithm.  The PSX oracle separately holds a bare sndgs base through each
@@ -273,7 +326,35 @@ done:
  *   protocol; NFS2/NFS2B use only the simpler ungrouped release. The recovered three-release-block CFG
  *   and storage model improve the authoritative residual from 177 to 107 diffs (109/110 instructions).
  *
- * 🔴 ALLOCNO FLOOR (w32-a7, 2026-07-26) -- the whole 79-diff residual is ONE register permutation in a
+ * ★ W35-a1 (2026-07-26): 74 -> 19 diffs.  THE "ALLOCNO FLOOR" BELOW IS REFUTED -- it was a
+ *   VARIABLE-IDENTITY error, exactly like iSNDallocchan's.  The w32 note already quotes the answer
+ *   without recognising it: IDA reads retail's $a1 as "initialSlot/idx/recomputed-slot", i.e. ONE
+ *   source variable serving all three roles (they are pairwise non-overlapping).  Our three separate
+ *   C locals are three pseudos; the extra allocnos rotated the whole caller-saved assignment, and
+ *   THAT is what the dump's "priority inversion on two pseudos with identical ref counts" was
+ *   measuring.  Merging them into one `slot` int -- initial channel slot, then the scan index, then
+ *   the recomputed slot -- restores retail's $v1(base/scan) / $a1(slot) / $a3(group) / $t0(count)
+ *   map verbatim; every register in the diff now agrees.  (Keep the CFG: the three tail stores must
+ *   stay as separate in-block `return`s.  Collapsing them into one shared exit gates 33 but loses
+ *   7 instructions to cross-jumping.)
+ *   RESIDUAL 19, three classes, all WEAKER-OPTIMIZER (per-obj old-gcc identity, methodology
+ *   §3.25-3d -- already banked for this obj's siblings), not source-reachable here:
+ *     (a) the zero-trip guard: retail emits a real `slt $v0,$t0,$v1` comparing the count REGISTER
+ *         (provably 0 at that point) against the limit; our combine folds `0 < (u_char)x` to
+ *         `x != 0` and drops the slt.  Falsified: guard on `count` instead of `slot`, reversed
+ *         operand order, signed limit (21), and a `while`-loop relying on jump.c's
+ *         duplicate_loop_exit_test (63 @105).
+ *     (b) `lb` vs `lbu` on the state byte: the source IS `signed char`, but our combine narrows a
+ *         `!= 0` test to an unsigned load; retail keeps `lb`.  Falsified: `(int)` cast, and dropping
+ *         the `volatile` (89 -- the volatile casts remain load-bearing giv blockers).
+ *     (c) rematerialization: retail recomputes `sll $v0,$a2,1` (pays a `nop` in the preceding
+ *         delay slot) where ours reuses the value, and reaches the tail's `sndgs[0x11]` through a
+ *         split `la` + 0x44 displacement where ours fuses `lui; lw %lo(sndgs+0x44)`.  Falsified:
+ *         base-pointer read at that site (19, no change) and per-TU `-mno-split-addresses`
+ *         (49 @111 here, and it breaks the other three functions in the TU).
+ *
+ * 🔴 (SUPERSEDED by the W35 note above -- kept for the record) ALLOCNO FLOOR (w32-a7, 2026-07-26)
+ *   -- the whole 79-diff residual is ONE register permutation in a
  *   LEAF function, and the RTL dumps say our allocator cannot reach retail's.  IDA sub_800FEC0C gives
  *   retail's map verbatim: count=$t0, initialSlot/idx/recomputed-slot=$a1, group=$a3, partner=$a2,
  *   scan=$v1, result=$v0, partner*100=$a3 (reused after group dies).  Ours (cc1 -dg, "16 regs to

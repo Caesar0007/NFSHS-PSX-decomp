@@ -98,9 +98,26 @@ notleaf:                                   /* '~' leaf body -- emitted BEFORE th
 leaf:
     /* no operator -> leaf glob match, anchored at the start of `text` */
     ct = _ctype_ + 1;
-    for (;;) {
-        int pc = *pat;                     /* v1 (int local: also tips the allocno
-                                            * priority so text gets $s1, pat $s2) */
+    /* MATCH (w33-a4, the other half of 14->0): the leaf scanner is a LABEL+GOTO loop, not a
+     * `for(;;)`.  This is NOT about loop.c's transforms here -- it is about flow.c's REF WEIGHTING:
+     * `REG_N_REFS += loop_depth`, and loop_depth only rises inside a NOTE_INSN_LOOP_BEG/END pair.
+     * With the `for(;;)` every in-loop reference counts double, and the byte-`pc` fix above adds one
+     * more in-loop `pat` read (retail's extra `lbu`), which pushed pat to 32 refs/76 insns
+     * (priority 2.105) just past text's 36/87 (2.069) and swapped $s1/$s2 across the whole body
+     * (68 diffs).  Unweighted the same shape is text 25/87 = 1.15 vs pat 20/76 = 1.05, i.e. retail's
+     * order.  Moving `pat++` into the shared `join` tail also fixes the ratio but costs the '#'
+     * arm's load-delay fill (151 insns, oracle fills it with `addiu s2,s2,1`) -- retail really does
+     * have a `pat++` in BOTH the '?' and '#' arms, so the goto-loop is the correct lever.
+     * (allocno priority = floor_log2(n_refs)*n_refs/live_length, gcc-2.8 global.c allocno_compare.) */
+loop:
+    {
+        unsigned char pc = *pat;           /* v1.  MATCH (w33-a4, half of the 14->0 fix): pc must
+                                            * be a BYTE type.  As `int pc` the `tolower(*pat)` read
+                                            * in the literal arm CSEs into a copy of pc, which then
+                                            * carries pc's $a0 preference into the allocator (pc
+                                            * lands in $a0 and every compare uses it); the byte type
+                                            * blocks that CSE, so the literal arm re-emits retail's
+                                            * fresh `lbu a0,0(s2)` and pc stays in $v1. */
         int v;
         if (pc == '*') {                   /* glob: try the rest at each text position */
             pat++;
@@ -123,24 +140,19 @@ join:                                      /* MATCH: shared tail -- text++ lands
             text++;
             if (v == 0)
                 goto ret0;
-            continue;
+            goto loop;
         }
         if (pc == '~')                     /* NOT the rest */
             goto notleaf;
         {                                  /* case-insensitive literal compare */
-            int t = tolower(*pat);         /* s0; tolower'd FIRST.  RESIDUAL (14 diffs): with the
-                                            * int `pc` this *pat re-read CSEs into a copy from pc,
-                                            * which gives pc an $a0 preference (oracle: fresh lbu,
-                                            * pc in $v1).  Blocking the CSE (u_char pc / volatile)
-                                            * restores the lbu but adds +2 weighted pat refs ->
-                                            * text/pat allocno order flips back (s1<->s2 swap, 70
-                                            * diffs).  The two fixes are ref-circular; int pc is
-                                            * the closer end state.  See session notes. */
+            int t = tolower(*pat);         /* s0; tolower'd FIRST (retail: two `jal tolower` with
+                                            * the first result parked in $s0 in the second call's
+                                            * delay slot). */
             if ((unsigned char)t != (unsigned char)tolower(*text))
                 return 0;
             if (*pat++ != 0) {             /* pattern continues -> advance both, loop */
                 text++;
-                continue;
+                goto loop;
             }
             return 1;
         }

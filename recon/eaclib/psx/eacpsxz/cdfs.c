@@ -328,6 +328,7 @@ extern int CD_Read(int dev, int dest, int offset, int len)
     if (q < 0)
         q += 0x7FF;
     rs->curOff = offset - ((q >> 0xB) << 0xB);           /* byte offset within the 0x800 sector */
+    rs->curDst = (void *)dest;      /* the oracle fills the curOff-test's delay slot with this */
     if (rs->curOff != 0 || len < 0x800)
         Cdinfo |= 8;                                    /* partial-sector transfer */
     if (rs->curOff + len > 0x800)
@@ -337,14 +338,13 @@ extern int CD_Read(int dev, int dest, int offset, int len)
     rs->curLen = q;
     rs->remLen = len - q;
 
+    CD_ringIdx   = 0;
     { char *e = (char *)*slot;   /* re-read; the oracle loads it BEFORE the sign correction */
       if (offset < 0)
           offset += 0x7FF;
-      CD_ringIdx   = 0;
-      CD_curSector = *(int *)(e + 0xC) + (offset >> 0xB); } /* start sector + offset / 0x800 */
+      CD_curSector = (offset >> 0xB) + *(int *)(e + 0xC); } /* start sector + offset / 0x800 */
     Cdinfo |= 2;                                        /* read in progress */
     CD_timeout   = timerhz[0] * 6;
-    rs->curDst   = (void *)dest;
     addtimer((void *)CD_timerfunc, (void *)dest);
 
     if (CD_cachedSector == CD_curSector && (Cdinfo & 0x10) && g_currentthread[0] == 2) {

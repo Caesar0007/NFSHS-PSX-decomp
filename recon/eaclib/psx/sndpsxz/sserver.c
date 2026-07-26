@@ -83,9 +83,12 @@ extern void iSNDserver(void)
         }
         *(volatile int *)(p + 0xac) = *(volatile int *)(p + 0xac) + 1;
         target = (unsigned int)(*(volatile int *)(p + 0xac) * 100) / (unsigned int)timerhz;
-        g = p;
-        while ((unsigned int)*(int *)(g + 0x44) <= target)
-            (*(void (*)(void))*(int *)(g + 0x48))();
+        if ((unsigned int)*(int *)(p + 0x44) <= target) {
+            g = p;
+            do {
+                (*(void (*)(void))*(int *)(g + 0x48))();
+            } while ((unsigned int)*(int *)(g + 0x44) <= target);
+        }
         *(unsigned char *)((char *)sndgs + 0x3e) = 0;
     }
 }

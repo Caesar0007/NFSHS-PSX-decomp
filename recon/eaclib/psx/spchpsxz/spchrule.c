@@ -173,7 +173,7 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
  *   caused the compiler to delete the returned accumulator completely. */
 extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
 {
-    signed char    numRules = *(signed char *)((int)sentence + 7);
+    int            numRules = *(signed char *)((int)sentence + 7);
     unsigned int   result = 0;
     unsigned int   flags = 0;
     unsigned char *ruleData = (unsigned char *)iSPCH_GetRuleDataAddr((int)sentence);

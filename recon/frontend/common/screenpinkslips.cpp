@@ -6,6 +6,17 @@
 #include "screenpinkslips.h"
 
 
+/* MATCH (w35-a10): unsized-array asm-label views -- these globals are reached
+   ABSOLUTELY by every oracle (%hi/%lo as an RTL pseudo, CSE-able and
+   delay-slot schedulable); a plain extern leaves cc1plus emitting the lw/sw
+   assembler macro, which GNU-as expands per-access (self-temp / $at). */
+extern tFEApplication *A_FEApp[] __asm__("FEApp");
+#define FEApp A_FEApp[0]
+extern tGlobalMenuDefs *A_menuDefs[] __asm__("menuDefs");
+#define menuDefs A_menuDefs[0]
+extern int A_ticks[] __asm__("ticks");
+#define ticks A_ticks[0]
+
 /* ---- tScreenPinkSlips::DrawBackground  [SCREENPINKSLIPS.CPP:71-194] ---- */
 void tScreenPinkSlips::DrawBackground()
 
@@ -88,7 +99,7 @@ void tScreenPinkSlips::DrawBackground()
   iVar4 = VIDEO_state(this->hVideo);
   if (iVar4 == 0) {
     if (0x100 < ticks - this->fTVTicks) {
-      sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],(int)trackInfo.fTrackID);
+      sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],*(signed char *)&trackInfo.fTrackID);  /* MATCH: lb -- plain char is unsigned on this build */
       VIDEO_spoolfile(this->hVideo,moviename);
       VIDEO_startplayback(this->hVideo);
     }
@@ -192,7 +203,7 @@ void tScreenPinkSlips::Initialize()
   this->Initialize();
   this->fTVsInitialized = 0;
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
-  sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],(int)trackInfo.fTrackID);
+  sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],*(signed char *)&trackInfo.fTrackID);  /* MATCH: lb -- plain char is unsigned on this build */
   tmp = VIDEO_create(0xa0,0x80,0xf0000,0x20000,0x10);
   this->hVideo = tmp;
   VIDEO_spoolfile(tmp,moviename);
@@ -230,7 +241,7 @@ void tScreenPinkSlips::UpdateVideoWall(tTrackInformation &trackInfo)
   int iVar1;
   
   if ((short)trackInfo.fTrackID != this->fPreviousTrack) {
-    sprintf(gSwapFileName,"TR%02dPS",(int)trackInfo.fTrackID);
+    sprintf(gSwapFileName,"TR%02dPS",*(signed char *)&trackInfo.fTrackID);  /* MATCH: lb -- plain char is unsigned on this build */
     ::AsyncLoadSwapShapeFile((tScreen *)this,gSwapFileName);
     this->fTVsInitialized = 0;
     this->fPreviousTrack = (short)trackInfo.fTrackID;
@@ -251,69 +262,62 @@ void tScreenPinkSlips::DrawVideoWall()
 
 {
   short tv_ticks;
-  int iVar1;
-  int j;
-  int i_packed;
-  int i;
-  int iVar2;
-  
-  i = 0;
-  do {
-    DrawShapeExtended((short)i,0,0,0,0,0,
-               (tDrawShapeExtended *)0x0);
-    i = i + 1;
-  } while (i * 0x10000 >> 0x10 < 0x24);
+  int n;
+  short i;
+  short j;
+
+  /* MATCH: every counter is a real `short` (gcc re-sign-extends per use, which
+     is the oracle's sll/sra pairs); the tick delta is an UNSIGNED >>2 (srl);
+     the fTransitionDirection>0 (TurnOn) arm is the FALL-THROUGH (retail's
+     `blez` jumps to the TurnOff arm), and both reveal loops are
+     exit-in-the-middle with a top `< 4` guard and a bottom `< bound` guard. */
+  for (i = 0; i < 0x24; i = i + 1) {
+    DrawShapeExtended(i,0,0,0,0,0,(tDrawShapeExtended *)0x0);
+  }
   if (((this->fSwapShapes.fFlags & 1) != 0) && (this->fTVsInitialized == 0)) {
-    iVar2 = 0;
-    i_packed = 0;
-    do {
-      InitTV(this->fImageTVs + (i_packed >> 0x10),this->fSwapShapes.fShapes,
-                 (short)((uint)i_packed >> 0x10));
-      iVar2 = iVar2 + 1;
-      i_packed = iVar2 * 0x10000;
-    } while (iVar2 * 0x10000 >> 0x10 < 4);
+    for (i = 0; i < 4; i = i + 1) {
+      InitTV(&this->fImageTVs[i],this->fSwapShapes.fShapes,i);
+    }
     this->fTVsInitialized = 1;
   }
-  tv_ticks = (short)(ticks - this->fTVTicks >> 2);
-  if (this->fTransitionDirection < '\x01') {
-    j = 0;
+  tv_ticks = (short)((u_int)(ticks - this->fTVTicks) >> 2);
+  if (0 < *(signed char *)&this->fTransitionDirection) {
     if (0 < tv_ticks) {
-      iVar1 = 0;
-      do {
-        if (3 < iVar1 >> 0x10) break;
-        if (this->fImageTVs[imageTVOrder[iVar1 >> 0x10]].state == tv_StateOn) {
-          TurnOffTV(this->fImageTVs + imageTVOrder[iVar1 >> 0x10]);
+      n = tv_ticks;
+      j = 0;
+      while (true) {
+        if (3 < j) break;
+        if (this->fImageTVs[imageTVOrder[j]].state == tv_StateOff) {
+          TurnOnTV(&this->fImageTVs[imageTVOrder[j]]);
         }
         j = j + 1;
-        iVar1 = j * 0x10000;
-      } while (j * 0x10000 >> 0x10 < (int)tv_ticks);
-    }
-    iVar2 = 0;
-    if (tv_ticks < 8) goto DrawVidWall_drawTVLoop;
-    this->fTransitionDirection = '\0';
-  }
-  else {
-    j = 0;
-    if (0 < tv_ticks) {
-      iVar1 = 0;
-      while (iVar1 < 4) {
-        if (this->fImageTVs[imageTVOrder[iVar1]].state == tv_StateOff) {
-          TurnOnTV(this->fImageTVs + imageTVOrder[iVar1]);
-        }
-        j = j + 1;
-        if ((int)tv_ticks <= j * 0x10000 >> 0x10) break;
-        iVar1 = (int)(short)j;
+        if (n <= j) break;
       }
     }
   }
-  iVar2 = 0;
-DrawVidWall_drawTVLoop:
-  do {
-    DrawTV(this->fImageTVs + (short)iVar2);
-    iVar2 = iVar2 + 1;
-  } while (iVar2 * 0x10000 >> 0x10 < 4);
+  else {
+    if (0 < tv_ticks) {
+      n = tv_ticks;
+      j = 0;
+      while (true) {
+        if (3 < j) break;
+        if (this->fImageTVs[imageTVOrder[j]].state == tv_StateOn) {
+          TurnOffTV(&this->fImageTVs[imageTVOrder[j]]);
+        }
+        j = j + 1;
+        if (n <= j) break;
+      }
+    }
+    if (7 < tv_ticks) {
+      this->fTransitionDirection = 0;
+    }
+  }
+  for (i = 0; i < 4; i = i + 1) {
+    DrawTV(&this->fImageTVs[i]);
+  }
   return;
 }
+
 
 
 
@@ -350,10 +354,8 @@ void tScreenPinkSlips::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMe
            (menuDefs->itemTraffic).fFlags |
            1;
     }
-    uVar2 = (menuDefs->itemLocalSpeech).
-            fFlags | 1;
     (menuDefs->itemLocalSpeech).fFlags =
-         uVar2;
+         (menuDefs->itemLocalSpeech).fFlags | 1;
   }
   return;
 }

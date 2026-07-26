@@ -12,6 +12,15 @@
  *      this TU emits the oracle's absolute lui/%lo store, not a -G4 small-common gp-rel store. ---- */
 
 
+/* MATCH (w35-a10): unsized-array asm-label views -- these globals are
+   reached ABSOLUTELY by every oracle here (%hi/%lo pair as an RTL pseudo);
+   the plain extern leaves cc1plus emitting the lw/sw assembler macro. */
+extern int A_Draw_gPlayer1View[] __asm__("Draw_gPlayer1View");
+#define Draw_gPlayer1View A_Draw_gPlayer1View[0]
+extern int A_screenheight[] __asm__("screenheight");
+#define screenheight A_screenheight[0]
+extern int A__7tScreen_fSuppressLoadingText[] __asm__("_7tScreen_fSuppressLoadingText");
+#define _7tScreen_fSuppressLoadingText A__7tScreen_fSuppressLoadingText[0]
 /* ---- tScreen::DisplayLoadingText  [FESCREEN.CPP:36-67] SLD-VERIFIED ---- */
 
 void tScreen::DisplayLoadingText()
@@ -150,13 +159,51 @@ void tScreen::AsyncLoadSwapShapeFile(char *fileName)
 void * tScreen::IsShapeFileLoaded(tShapeInformation &shapes)
 
 {
-  int iVar1;
-  char *pcVar2;
-  void *pvVar3;
-  tShapeInformation *buf;
-  
-  if (shapes.async_handle == 0) {
-    pvVar3 = (void *)0x1;
+  int status;
+  char *file;
+  int result;
+
+  /* MATCH: ONE result var (retail's $s1, set to 1 in the entry branch's delay
+     slot) with a single return -- the per-arm `pvVar3 = 0` funnel Ghidra
+     produced duplicates the tail.  getasyncreadadr takes ONE arg (the oracle
+     sets only $a0). */
+  result = 1;
+  if (shapes.async_handle != 0) {
+    status = getasyncreadstatus(shapes.async_handle);
+    if (0 < status) {
+      if (shapes.fDestFile == (char *)0x0) {
+        shapes.fFile = (char *)getasyncreadadr(shapes.async_handle);
+      }
+      else {
+        shapes.fFile = shapes.fDestFile;
+      }
+      shapes.async_handle = 0;
+      if ((shapes.fFile != (char *)0x0) && (shapes.fLoadCancelled != 0)) {
+        if (shapes.fDestFile == (char *)0x0) {
+          purgememadr(shapes.fFile);
+        }
+        shapes.fFile = (char *)0x0;
+      }
+    }
+    else {
+      if (status == -1) {
+        file = (char *)getasyncreadadr(shapes.async_handle);
+        if (file != (char *)0x0) {
+          purgememadr(file);
+        }
+        this->AsyncLoadShapeFile(shapes.fFilename,shapes);
+        result = 0;
+      }
+      else if (status == -2) {
+        this->AsyncLoadShapeFile(shapes.fFilename,shapes);
+        result = 0;
+      }
+      else {
+        result = 0;
+      }
+    }
+    }
+  else {
     if (shapes.fLoadCancelled != 0) {
       if (shapes.fFile != (char *)0x0) {
         if (shapes.fDestFile == (char *)0x0) {
@@ -167,48 +214,12 @@ void * tScreen::IsShapeFileLoaded(tShapeInformation &shapes)
       shapes.fLoadCancelled = 0;
       this->AsyncLoadShapeFile(shapes.fFilename,shapes);
       this->IsShapeFileLoaded(shapes);
-      pvVar3 = (void *)0x0;
+      result = 0;
     }
-  }
-  else {
-    buf = &shapes;
-    iVar1 = getasyncreadstatus(shapes.async_handle);
-    if (iVar1 < 1) {
-      if (iVar1 == -1) {
-        pvVar3 = getasyncreadadr(shapes.async_handle,buf);
-        if (pvVar3 != (void *)0x0) {
-          purgememadr(pvVar3);
-        }
-        this->AsyncLoadShapeFile(shapes.fFilename,shapes);
-        pvVar3 = (void *)0x0;
-      }
-      else {
-        pvVar3 = (void *)0x0;
-        if (iVar1 == -2) {
-          this->AsyncLoadShapeFile(shapes.fFilename,shapes);
-          pvVar3 = (void *)0x0;
-        }
-      }
     }
-    else {
-      pcVar2 = shapes.fDestFile;
-      if (pcVar2 == (char *)0x0) {
-        pcVar2 = getasyncreadadr(shapes.async_handle,buf);
-      }
-      shapes.fFile = pcVar2;
-      shapes.async_handle = 0;
-      pvVar3 = (void *)0x1;
-      if ((shapes.fFile != (char *)0x0) && (pvVar3 = (void *)0x1, shapes.fLoadCancelled != 0)) {
-        if (shapes.fDestFile == (char *)0x0) {
-          purgememadr(shapes.fFile);
-        }
-        shapes.fFile = (char *)0x0;
-        pvVar3 = (void *)0x1;
-      }
-    }
-  }
-  return pvVar3;
+  return (void *)result;
 }
+
 
 
 
@@ -470,58 +481,49 @@ void tScreen::InitializeShapes(tShapeInformation &data,u_int numShapes)
 void tScreen::FreeShapes(tShapeInformation &data)
 
 {
-  u_int uVar1;
-  int iVar2;
-  char *pcVar3;
-  int iVar4;
-  tShapeInformation *buf;
-  
-  buf = &data;
+  int status;
+  short i;
+
   this->CancelAsyncLoad(data);
-  uVar1 = data.async_handle;
-  do {
-    if (uVar1 == 0) {
-      if (data.fFile != (char *)0x0) {
-        if (data.fDestFile == (char *)0x0) {
-          purgememadr(data.fFile);
-        }
-        data.fFile = (char *)0x0;
-      }
-      if (data.fShapes != (tTexture_ShapeInfo *)0x0) {
-        iVar2 = 0;
-        if (data.fNumShapes != 0) {
-          iVar4 = 0;
-          do {
-            if (*(int *)((int)&data.fShapes->clutID + (iVar4 >> 0xb)) != 0) {
-              Texture_MenuReleaseClutId(*(short *)((int)&data.fShapes->clutID + (iVar4 >> 0xb)));
-            }
-            iVar2 = iVar2 + 1;
-            iVar4 = iVar2 * 0x10000;
-          } while (iVar2 * 0x10000 >> 0x10 < (int)(u_int)data.fNumShapes);
-        }
-        purgememadr(data.fShapes);
-        data.fShapes = (tTexture_ShapeInfo *)0x0;
-      }
-      return;
-    }
-    iVar2 = getasyncreadstatus(data.async_handle);
-    if ((iVar2 < 1) && (iVar2 != -1)) {
-      if (iVar2 == -2) goto FreeShapes_clearHandleAndPump;
-    }
-    else {
+  /* MATCH: a plain top-tested `while` -- gcc rotates it (entry test + bottom
+     bne) and LICMs the -1/-2 sentinels into callee-saved regs, which the
+     do{}while(true)+early-return shape does not. */
+  while (data.async_handle != 0) {
+    status = getasyncreadstatus(data.async_handle);
+    if ((0 < status) || (status == -1)) {
       if (data.fDestFile == (char *)0x0) {
-        pcVar3 = getasyncreadadr(data.async_handle,buf);
-        data.fFile = pcVar3;
+        data.fFile = getasyncreadadr(data.async_handle);
       }
       else {
         data.fFile = (char *)0x0;
       }
-FreeShapes_clearHandleAndPump:
+      data.async_handle = 0;
+    }
+    else if (status == -2) {
       data.async_handle = 0;
     }
     FeAudio_systemtask(0);
-    uVar1 = data.async_handle;
-  } while( true );
+  }
+  if (data.fFile != (char *)0x0) {
+    if (data.fDestFile == (char *)0x0) {
+      purgememadr(data.fFile);
+    }
+    data.fFile = (char *)0x0;
+  }
+  if (data.fShapes != (tTexture_ShapeInfo *)0x0) {
+    if (data.fNumShapes != 0) {
+      i = 0;
+      do {
+        if (*(int *)&data.fShapes[i].clutID != 0) {
+          Texture_MenuReleaseClutId(data.fShapes[i].clutID);
+        }
+        i = i + 1;
+      } while (i < (int)(u_int)data.fNumShapes);
+    }
+    purgememadr(data.fShapes);
+    data.fShapes = (tTexture_ShapeInfo *)0x0;
+  }
+  return;
 }
 
 

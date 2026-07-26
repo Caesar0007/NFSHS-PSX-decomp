@@ -4,8 +4,20 @@
  */
 #include "statchk.h"
 
-int NewRecords[8];   /* 0x... per-slot new-record flags */
-int NewBestLap;      /* new best-lap flag */
+/* MATCH (w35-a10): cc1plus expands a constant-size `memcpy` inline (movstrsi);
+   retail emits a real `jal memcpy`.  Calling it under a different C name with
+   an asm label defeats the builtin recognition while emitting the same
+   symbol/relocation. */
+extern "C" void *memcpy_call(void *dst, const void *src, int n) __asm__("memcpy");
+
+/* MATCH (w35-a10): both are STRONG DATA symbols in front_data.data.s and every
+   oracle reaches them absolutely (0 %gp_rel uses tree-wide).  A TU-owned
+   tentative def makes NewBestLap small-common -> .sbss -> %gp_rel; the
+   unsized-array asm-label view keeps %hi an RTL pseudo (catalog wave-13). */
+extern int A_NewRecords[] __asm__("NewRecords");
+extern int A_NewBestLap[] __asm__("NewBestLap");
+#define NewRecords  A_NewRecords
+#define NewBestLap  A_NewBestLap[0]
 
 /* ---- StatChk_IsRecordLapTime  (statchk.cpp:50) ---- */
 void * StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBestCarIndex)
@@ -44,7 +56,7 @@ void * StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBest
           purgememadr(TrackRecords);
           return (void *)0x0;
         }
-        if (carInfo->fCarClass - 7 < 2) {
+        if ((carInfo->fCarClass == 7) || (carInfo->fCarClass == 8)) {   /* MATCH: unsigned sltiu range fold */
           nBestLapTimes[innerIdx] = (innerIdx + 1) * 0x23280;
         }
         else {
@@ -75,7 +87,7 @@ void * StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBest
       idx = *(short *)(((i << 0x10) >> 0xf) + (int)nRankBestLapTimes);
       nShowTrack = Front_GetTrackRaced();
       Stattool_GetRecords(nShowTrack,TrackRecords);
-      memcpy(&RecordHolder,TrackRecords,0x14);
+      memcpy_call(&RecordHolder,TrackRecords,0x14);
       if (((dummyCars[idx].finalBestLap < RecordHolder.nBestLap) || (RecordHolder.nBestLap == 0))
          && (0 < dummyCars[idx].finalBestLap)) {
         bBestLapFlag = 1;
@@ -105,11 +117,13 @@ void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestC
   tRecordBuffer DummyRaceResult;
   
   carInfo = GetCarFromSimID(&carManager, (short)dummyCars[nBestCarIndex].carType);
-  if (1 < carInfo->fCarClass - 7) {
+  /* MATCH: the != pair range-folds to the oracle's UNSIGNED sltiu(x-7,2);
+     a `1 < x - 7` spelling emits the signed slti. */
+  if ((carInfo->fCarClass != 7) && (carInfo->fCarClass != 8)) {
     TrackRecords = (tRecordBuffer *)reservememadr("trkrcrds",0x168,0x10);
     track = Front_GetTrackRaced();
     Stattool_GetRecords(track,TrackRecords);
-    memcpy(&RecordHolder,TrackRecords + 1,0x14);
+    memcpy_call(&RecordHolder,TrackRecords + 1,0x14);
     if ((dummyCars[nBestCarIndex].finalNumArrests == 0) &&
        (dummyCars[nBestCarIndex].finalFinishType == 2)) {
       DummyRaceResult.nTime = dummyCars[nBestCarIndex].finalTotalTime;
@@ -118,10 +132,10 @@ void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestC
       DummyRaceResult.nTime = 0;
     }
     DummyRaceResult.nBestLap = dummyCars[nBestCarIndex].finalBestLap;
-    DummyRaceResult.nCar = (int)carInfo->fCarID;
+    DummyRaceResult.nCar = *(signed char *)&carInfo->fCarID;   /* MATCH: lb, plain char is unsigned here */
     playerName = PlayerName((int)nBestCarIndex);
     strcpy(DummyRaceResult.sName,playerName);
-    memcpy(TrackRecords,&DummyRaceResult,0x14);
+    memcpy_call(TrackRecords,&DummyRaceResult,0x14);
     track = Front_GetTrackRaced();
     blockmove(TrackRecords,Stats_gTrackRecords + track * 0x11,0x154);
     NewBestLap = 1;
@@ -186,7 +200,7 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
       purgememadr(nRankCarTotalTimes);
       return 0;
     }
-    if (1 < carInfo->fCarClass - 7) {
+    if ((carInfo->fCarClass != 7) && (carInfo->fCarClass != 8)) {   /* MATCH: unsigned sltiu range fold */
       if ((((byte)frontEnd.gameMode < 3) && ((dummyCars[nCar].carFlags & 4U) != 0)) &&
          (dummyCars[nCar].finalFinishType == 2)) {
         bDoRecordCheck = true;
@@ -326,7 +340,7 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
     do {
       pSlot = (short *)((k >> 0xf) + (int)nRankCarTotalTimes);
       carInfo = GetCarFromSimID(&carManager, (short)dummyCars[*pSlot].carType);
-      if (1 < carInfo->fCarClass - 7) {
+      if ((carInfo->fCarClass != 7) && (carInfo->fCarClass != 8)) {   /* MATCH: unsigned sltiu range fold */
         if ((byte)frontEnd.gameMode < 3) {
           k = (int)*pSlot;
 StatChkSave_validateCarFinish:
@@ -344,7 +358,7 @@ StatChkSave_validateCarFinish:
           k = dummyCars[*pSlot].finalTotalTime;
           bDoRecordCheck = false;
           if ((k < pRec[7].nTime) || ((pRec[7].nTime == 0 && (0 < k)))) {
-            DummyRaceResult.nCar = (int)carInfo->fCarID;
+            DummyRaceResult.nCar = *(signed char *)&carInfo->fCarID;   /* MATCH: lb, plain char is unsigned here */
             slot = (uint)(ushort)nLapIndicator;
             bTopTenFlag = true;
             DummyRaceResult.nBestLap = dummyCars[*pSlot].finalBestLap;
@@ -395,7 +409,7 @@ StatChkSave_validateCarFinish:
             pRec[7].nCar = DummyRaceResult.nCar;
             pRec[7].nTime = DummyRaceResult.nTime;
             pRec[7].nBestLap = DummyRaceResult.nBestLap;
-            memcpy(buffer,pRec,0xa0);
+            memcpy_call(buffer,pRec,0xa0);
             nCheckTotalTime = 0;
             do {
               memcpy

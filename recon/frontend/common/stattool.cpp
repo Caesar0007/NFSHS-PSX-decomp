@@ -91,66 +91,75 @@ void Stattool_ParseTime(int nTime,char *sLapTime)
 void UserNameUpperCaseOneLetter(char *c)
 
 {
-  char upperE;
-  
-  if (0x19 < (byte)*c - 0x61) {
-    switch(*c) {
-    case -0x20:
-      *c = -0x40;
-      return;
-    case -0x1f:
-      *c = 'A';
-      return;
-    default:
-      return;
-    case -0x1c:
-      *c = -0x3c;
-      return;
-    case -0x1b:
-      *c = -0x3b;
-      return;
-    case -0x18:
-      upperE = 'E';
-      if (frontEnd.language == '\x04') {
-        upperE = -0x38;
-      }
-      *c = upperE;
-uname_setAccentUpper:
-      *c = -0x34;
-      return;
-    case -0x17:
-      *c = 'E';
-      return;
-    case -0x14:
-      goto uname_setAccentUpper;
-    case -0x13:
-      *c = 'I';
-      return;
-    case -0xf:
-      *c = -0x2f;
-      return;
-    case -0xe:
-      *c = -0x2e;
-      return;
-    case -0xd:
-      *c = 'O';
-      return;
-    case -10:
-      *c = -0x2a;
-      return;
-    case -7:
-      *c = -0x27;
-      return;
-    case -6:
-      *c = 'U';
-      return;
-    case -4:
-      *c = -0x24;
-      return;
-    }
+  /* MATCH: plain `char` is UNSIGNED on this build, so the a..z guard folds to
+     the oracle's `addiu v0,v1,-0x61 / sltiu v0,v0,0x1A` range test and the
+     switch index is the UNSIGNED byte (0xE0..0xFC, 0x1D wide).  All stored
+     constants are written as their unsigned byte values -- a signed spelling
+     (-0x3c) emits `li -60`, the oracle has `li 196`.  The case bodies are in
+     the ORACLE'S PHYSICAL BLOCK ORDER (gcc emits switch arms in source order);
+     the two fallthroughs (0xE8 -> 0xEC, 0xF9 -> end) are retail's own missing
+     breaks, kept verbatim.  In the 0xE8 arm the two constants are stored
+     DIRECTLY (`if (..) *c = 0xC8; else *c = 0x45;`) and gcc cross-jumps the
+     two `sb`s into one -- a `char upperE` temp instead lands in $a1 where
+     retail reuses $v0 (6-diff near-miss). */
+  if (('a' <= *c) && (*c <= 'z')) {
+    *c = *c + 0xE0;
+    return;
   }
-  *c = *c - 0x20;
-  return;
+  switch(*c) {
+  case 0xE4:
+    *c = 0xC4;
+    return;
+  case 0xF6:
+    *c = 0xD6;
+    return;
+  case 0xFC:
+    *c = 0xDC;
+    return;
+  case 0xE9:
+    *c = 0x45;
+    return;
+  case 0xE1:
+    *c = 0x41;
+    return;
+  case 0xED:
+    *c = 0x49;
+    return;
+  case 0xF3:
+    *c = 0x4F;
+    return;
+  case 0xFA:
+    *c = 0x55;
+    return;
+  case 0xF1:
+    *c = 0xD1;
+    return;
+  case 0xE5:
+    *c = 0xC5;
+    return;
+  case 0xE0:
+    *c = 0xC0;
+    return;
+  case 0xE8:
+    if (frontEnd.language == 4) {
+      *c = 0xC8;
+    }
+    else {
+      *c = 0x45;
+    }
+    /* FALLTHROUGH (retail) */
+  case 0xEC:
+    *c = 0xCC;
+    return;
+  case 0xF2:
+    *c = 0xD2;
+    return;
+  case 0xF9:
+    *c = 0xD9;
+    /* FALLTHROUGH (retail) */
+  default:
+    return;
+  }
 }
 
 /* ---- Stattool_SamNelsonsUpperLowerStringConverterForRecords  (stattool.cpp:250) ---- */

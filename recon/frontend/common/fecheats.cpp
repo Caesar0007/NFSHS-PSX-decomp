@@ -6,6 +6,27 @@
  */
 #include "fecheats.h"
 
+/* MATCH (w35-a10): UNSIZED-ARRAY ASM-LABEL VIEWS of the two cheat bitmasks.
+   Both are strong .sdata symbols (asm/data/sdata_8013C54C.sdata.s) that every
+   oracle reaches with an absolute %hi/%lo pair sharing ONE gcc-allocated base
+   register across a read+write pair; a bare `extern unsigned int` leaves
+   cc1plus emitting the `lw $2,sym` / `sw $2,sym` assembler macros, which
+   GNU-as expands per-access (self-temp load + $at store).  The array view
+   turns %hi back into an RTL pseudo (catalog wave-13 lever). */
+/* MATCH (w35-a10): unsized-array asm-label views -- these globals are reached
+   ABSOLUTELY by every oracle (%hi/%lo as an RTL pseudo, CSE-able and
+   delay-slot schedulable); a plain extern leaves cc1plus emitting the lw/sw
+   assembler macro, which GNU-as expands per-access (self-temp / $at). */
+extern tRecordBuffer *A_Stats_gTrackRecords[] __asm__("Stats_gTrackRecords");
+#define Stats_gTrackRecords A_Stats_gTrackRecords[0]
+
+extern tFEApplication *A_FEApp[] __asm__("FEApp");
+#define FEApp A_FEApp[0]
+extern unsigned int A_gFECheats[] __asm__("gFECheats");
+extern unsigned int A_gFEBonus[]  __asm__("gFEBonus");
+#define gFECheats A_gFECheats[0]
+#define gFEBonus  A_gFEBonus[0]
+
 static tCheat cheatList[10] = {   /* @0x80051628, byte-exact from retail binary */
     {{0x59,0x68,0x06,0x06,0x60,0x7e,0x7f,0x00}, 11},
     {{0x59,0x58,0x16,0x16,0x60,0x7e,0x7f,0x00}, 12},
@@ -214,48 +235,46 @@ void FECheat_ActivateBonus(tCheatCode cheat)
 void * FECheat_ActivateCheat(char *cheat)
 
 {
-  tFEApplication *ptVar1;
   tFEApplication *ptVar2;
-  int iVar3;
   char *pcVar4;
-  int j;
-  int iVar5;
-  int iVar6;
   tDialogMessageString *dlgThis;
-  u_char result;
+  tCheat *entry;
   int i;
-  int iVar7;
+  int j;
+  int off;
+  int result;
   char buffer [8];
-  
+
+  /* MATCH: ONE result var (retail $s1) with a single return at the end; the
+     `1` it holds is REUSED as the shift base of the gFECheats mask
+     (shared-constant, methodology 3.12 #17).  Outer loop is exit-in-the-middle
+     so gcc does NOT rotate it (top slti + unconditional `j` back-edge). */
+  result = 0;
   FECheat_EncodeString(cheat,buffer);
-  iVar7 = 0;
-  iVar6 = 0;
-  do {
-    iVar5 = 0;
-    iVar3 = iVar6;
-    if (9 < iVar7) {
-      return (void *)0x0;
+  i = 0;
+  while (true) {
+    if (9 < i) break;
+    for (j = 0; j < 8; j = j + 1) {
+      if (cheatList[0].name[j + i * 12] != buffer[j]) break;
     }
-    do {
-      if (cheatList[0].name[iVar3] != buffer[iVar5]) break;
-      iVar5 = iVar5 + 1;
-      iVar3 = iVar5 + iVar6;
-    } while (iVar5 < 8);
-    iVar6 = iVar6 + 0xc;
-    if (iVar5 == 8) {
+    if (j == 8) {
       AudioCmn_PlayFESFX(0x1a);
-      ptVar1 = FEApp;
+      dlgThis = &FEApp->MemCardDialog;
       pcVar4 = TextSys_Word(0x27a);
       ptVar2 = FEApp;
-      (ptVar1->MemCardDialog).string = pcVar4;
+      dlgThis->string = pcVar4;
       ((tDialogBase *)&ptVar2->MemCardDialog)->Display();
-      FECheat_HandleActivation((tCheatCode)cheatList[iVar7].cheat);
-      gFECheats = gFECheats | 1 << cheatList[iVar7].cheat;
-      return (void *)0x1;
+      entry = &cheatList[i];
+      FECheat_HandleActivation((tCheatCode)entry->cheat);
+      result = 1;
+      gFECheats = gFECheats | result << entry->cheat;
+      break;
     }
-    iVar7 = iVar7 + 1;
-  } while( true );
+    i = i + 1;
+  }
+  return (void *)result;
 }
+
 
 
 
@@ -316,41 +335,39 @@ void * FECheat_IsTheUserACryBabyCheater(void)
 void * FECheat_ActivateBonusByCode(char *code)
 
 {
-  int iVar1;
-  int j;
-  int iVar2;
-  int iVar3;
-  int iVar4;
   int i;
-  tCheat *ptVar5;
-  u_char result;
+  int j;
+  int off;
+  tCheat *entry;
+  int result;
   char buffer [8];
-  
+
+  /* MATCH: twin of FECheat_ActivateCheat -- one result var + single return,
+     rotated `for` inner compare loop.  Here the OUTER loop is a real
+     do{}while(i<3) (bottom slti) with TWO ivs: the tCheat* walker and the
+     byte offset. */
+  result = 0;
   FECheat_EncodeString2(code,buffer);
-  iVar4 = 0;
-  ptVar5 = bonusList;
-  iVar3 = 0;
+  i = 0;
+  entry = bonusList;
+  off = 0;
   do {
-    iVar2 = 0;
-    iVar1 = iVar3;
-    do {
-      if (bonusList[0].name[iVar1] != buffer[iVar2]) break;
-      iVar2 = iVar2 + 1;
-      iVar1 = iVar2 + iVar3;
-    } while (iVar2 < 8);
-    iVar4 = iVar4 + 1;
-    if (iVar2 == 8) {
+    for (j = 0; j < 8; j = j + 1) {
+      if (bonusList[0].name[j + off] != buffer[j]) break;
+    }
+    i = i + 1;
+    if (j == 8) {
       AudioCmn_PlayFESFX(0x1a);
-      FECheat_ActivateBonus((tCheatCode)ptVar5->cheat);
-      return (void *)0x1;
+      FECheat_ActivateBonus((tCheatCode)entry->cheat);
+      result = 1;
+      break;
     }
-    ptVar5 = ptVar5 + 1;
-    iVar3 = iVar3 + 0xc;
-    if (2 < iVar4) {
-      return (void *)0x0;
-    }
-  } while( true );
+    entry = entry + 1;
+    off = off + 0xc;
+  } while (i < 3);
+  return (void *)result;
 }
+
 
 
 

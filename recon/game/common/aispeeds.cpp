@@ -991,36 +991,19 @@ void AISpeeds_CalcDesiredSpeed(Car_tObj *carObj)
 /* ---- AISpeeds_CalculateOncomingCarSpeed__FP8Car_tObj  [@0x8006ee80] ---- */
 int AISpeeds_CalculateOncomingCarSpeed(Car_tObj *carObj)
 {
-  /* H54: SYM names the single local playerSpeed (reg $a0) -- was routed through an anonymous
-   * iVar1 while playerSpeed sat declared-but-unused. (Tried collapsing the four threshold
-   * `return CONST;` arms into a single-exit if/elseif chain to match the oracle's one shared
-   * epilogue -- measured WORSE (65->72 diffs), reverted; the multi-return shape below is closer.) */
+  /* SYM names the single local playerSpeed in $a0. The SLD trace places the
+   * complete threshold selection on one source line; the nested conditional
+   * expression produces retail's out-of-line constant blocks and shared return.
+   * __builtin_abs preserves the retail abs macro, and the complemented final
+   * test selects the same fall-through constant block as the oracle. */
   int playerSpeed;
-  u_int uVar2;
 
-  playerSpeed = carObj->basisCar->currentSpeed;
-  if (playerSpeed < 0) {
-    playerSpeed = -playerSpeed;
-  }
-  if (playerSpeed < 0xd5555) {
-    uVar2 = 0x160000;
-  }
-  else {
-    if (playerSpeed < 0x1aaaaa) {
-      return 0xd5555;
-    }
-    if (playerSpeed < 0x280000) {
-      return 0x8e38e;
-    }
-    if (playerSpeed < 0x378e38) {
-      return 0x471c7;
-    }
-    if (0x471c70 < playerSpeed) {
-      return 0x2c51e;
-    }
-    uVar2 = 0x20000;
-  }
-  return uVar2 | 0x38e3;
+  playerSpeed = __builtin_abs(carObj->basisCar->currentSpeed);
+  return playerSpeed < 0xd5555 ? 0x1638e3 :
+         playerSpeed < 0x1aaaaa ? 0xd5555 :
+         playerSpeed < 0x280000 ? 0x8e38e :
+         playerSpeed < 0x378e38 ? 0x471c7 :
+         !(0x471c70 < playerSpeed) ? 0x238e3 : 0x2c51e;
 }
 
 /* ---- AISpeeds_SetTrafficSpeedRandomFactor__FP8Car_tObj  [@0x8006ef28] ---- */

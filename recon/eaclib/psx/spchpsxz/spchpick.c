@@ -131,7 +131,22 @@ extern void SPCH_SetPreLoadTicks(int ticks);                       /* @0x801018F
  * 7 refs at length 15, or 10 refs at length 22-35.  Falsified attempts at that: bit defined
  * before the cycleByte range guard, bit declared after lowNib, the shift hoisted out of the
  * inner block (all 32/65).  This is now a 1-parameter permuter target on the SPLIT form, not
- * the 40-diff goto form banked in w31.  Also falsified this wave: `1u << (cycleByte & 0x1f)`
+ * the 40-diff goto form banked in w31.
+ * w34-a9 NEW DATA on the SPLIT form (still 32 diffs / EXACT 65 insns, not kept):
+ * hoisting the `bit = 1u;` half to the TOP of the loop body (before the cycleByte
+ * load, shift left where it was) lengthens bit's live range 15 -> 19 insns at the
+ * same 10 refs -- prio 3*10/19 = 1.58, still above i's 1.39.  Measured cc1 -dl/-dg
+ * for that form: bit(r91) 10/19 -> $s0, lowNib(r94) 6/8 = 1.50 -> $s1, i(r89) 13/28
+ * = 1.39 -> $s2, result(r87) 9/31 = 0.87 -> $s3, count(r84) 5/33 = 0.30 -> $s4;
+ * retail needs lowNib > i > bit > result > count, i.e. bit's prio in (0.87, 1.39)
+ * => at 10 refs its live length must reach 22-35 (we now have 19, need +3 more), or
+ * its refs must drop to 6-7 (2*7/15 = 0.93; every ref is in-loop so they move in
+ * steps of 2 and 6 refs at length 15 gives 0.80, just under).  Also falsified this
+ * wave: `bit = (unsigned)(result + 1) << cycleByte` (cc1 const-folds result==0 there,
+ * 22/67 unsplit and 32/65 split -- identical to the plain literal), and a shared
+ * `one` variable carrying BOTH the shift base and `result = 1` (set twice in the
+ * loop, the lever that cracked iSPCH_SentenceGetChoices) -- cse folds the second
+ * `one = 1` away so the movable comes back, 38 diffs / 67 insns with $fp.  Also falsified this wave: `1u << (cycleByte & 0x1f)`
  * (23/68), lowNib declared first (38/67), a named `one` local (22/67, still hoisted),
  * `(result + 1) << cycleByte` (22/67, cc1 folds result to 0). */
 extern int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int paramTable)
@@ -399,7 +414,13 @@ extern void iSPCH_OrderSentences(int event, int outOrder)
      * base-reg reuse" class = PERMUTER multi-basin, NOT a floor.  Source levers falsified
      * in w33-a9 (all 9 diffs / 82 insns, no movement): j++ before vs after the total
      * accumulation, a named byte temp for the first read, the p[0] index form, an
-     * int-typed address local, and p hoisted to function scope. */
+     * int-typed address local, and p hoisted to function scope.
+     * w34-a9: three more falsified (all 9 diffs / 82 insns, byte-identical output) --
+     * a second named alias `q = p` used for the store read (the catalog's cse
+     * double-evaluation shape), the `p[0]` index form on BOTH reads, and moving
+     * `j = j + 1` after the total accumulation.  The oracle's `addu a0,v0,zero` is a
+     * genuine local-alloc rotation (retail {p:$a0, byte:$v1, addr:$v0} vs ours
+     * {p:$v0, byte:$a0, addr:$v1}), not a missing evaluation. */
     unsigned char  weights[104];
     unsigned int   n = (unsigned int)*(unsigned char *)(event + 6);
     int            total = 0;
@@ -625,6 +646,18 @@ extern void iSPCH_RandomizeSentencePicks(int sentence)
  *   invariant across ptr-arith / &arr[i] / 2D-row / int-cast / split-stmt forms and with
  *   -fno-schedule-insns; split-stmt forms flip la first but then mis-coalesce the addu dst with
  *   the base instead of the mult chain, 10-12 diffs).  Pure emission-order tie -- permuter target.
+ * w34-a9 RE-VERDICT (8 more spellings, the split reduces to a two-basin tie):
+ *   ANONYMOUS base forms -- `(short*)((int)ispch_gChoice + n*0xc)`, `(short*)(n*0xc +
+ *   (int)ispch_gChoice)`, and both of those with the offset pre-computed into a named
+ *   `chOff` -- ALL emit the mult chain first and the la last (4 diffs, the baseline).
+ *   NAMED base forms -- `int chBase = (int)ispch_gChoice;` / `short *chBase =
+ *   ispch_gChoice;` with the add spelled either way -- ALL emit the la FIRST (retail's
+ *   order) but land base in $v1 and the mult chain in $v0, i.e. `addu v1,v0,v1` where
+ *   retail has base in $v0 / mult in $v1 and `addu v1,v1,v0` (12 diffs).  So the la
+ *   POSITION is source-controllable but the local-alloc qty pick that goes with it is
+ *   not: retail needs la-first AND base->$v0, and no spelling produces that pair.
+ *   Local-alloc quantity-order tie (longest-live-first among two block-0 temps),
+ *   permuter target -- do not re-enumerate spellings.
  * Returns 1 only when every phrase has been exhausted (Ghidra void-bug -- real int return, read
  * at the epilogue: $v0 = the "ran out" flag). */
 extern int iSPCH_IterateChoice(int sentence)
@@ -718,7 +751,23 @@ extern int iSPCH_SentenceMakeChoice(int sentence, int mode)
              * Cure B (recompute the record pointer from the counter each iteration --
              * CHOICE(i) or an inline i*0xc) does NOT work here: 36 diffs / 45 insns,
              * loop.c re-derives the same anchor.  Restore the goto form when the cc1
-             * snapshot question is settled. */
+             * snapshot question is settled.
+             * w34-a9 RE-MEASURED the goto form directly from cc1 -dl/-dg (it is EXACT
+             * 43/43 with the whole loop byte-identical; the 18 diffs are the $s2<->$s3
+             * swap only).  Allocation there: walker(r80) 10 refs/17 insns = 1.765 ->
+             * $s0, i(r85) 4/16 = 0.500 -> $s1, ok(r82) 5/24 = 0.417 -> $s2, n(r84)
+             * 3/15 = 0.200 -> $s3; retail wants walker > i > n > ok.  The flip needs
+             * EITHER n's priority inside (0.417, 0.500) -- 4 refs at live length 17-19,
+             * because 4 refs at the present length 15 gives 0.533 and overshoots i --
+             * OR ok down to <= 3 refs (1*3/24 = 0.125).  All FIVE ok refs exist in the
+             * retail oracle itself (addu s3,zero,zero / addu s3,v0,zero / slt v0,s3,s2
+             * / addiu s3,zero,1 / addu v0,s3,zero), and n's 3 refs are unweighted
+             * precisely BECAUSE a goto loop carries no LOOP notes -- so no spelling
+             * reaches the window without re-introducing loop notes (which brings back
+             * the giv anchor this form exists to kill) or deleting an instruction
+             * retail has.  Also falsified on the do-while form: a `volatile` store to
+             * break combine_givs (51 diffs / 46 insns).  allocno_compare live-length
+             * identity; the goto form is the permuter seed. */
             do {
                 int r = iSPCH_Rand((int)*(short *)(sentence + 4));
                 i = i + 1;
@@ -772,7 +821,23 @@ extern void iSPCH_ConstantRuleSet(short *sentence, int rule)
                          * value, the callee fn ptr, and the byte address (each alone and
                          * combined), decl-order swap of tmp/r/rid -- all no-change or worse
                          * (16/29). No ABI anchor differs (call uses a0/a1/a2 only, a3 free in
-                         * both); pure gcc CSE/coloring granularity -- accept. */
+                         * both); pure gcc CSE/coloring granularity -- accept.
+                         * w34-a9 MECHANISM (new, still not source-reachable): the
+                         * coloring is DOWNSTREAM of WHEN the gSentenceRuleSet
+                         * fn-pointer address is materialized.  Retail emits
+                         * `lui $v0,%hi(gSentenceRuleSet)` BEFORE the tmp-byte `lbu`,
+                         * so the callee-address pseudo's live range OVERLAPS the
+                         * byte-address temp and three distinct registers are needed
+                         * ($v1 addr / $a3 one / $v0 callee).  Ours emits the `lui`
+                         * AFTER the `lbu`, so the callee pseudo is born after the
+                         * addr temp dies and both reuse $v0, freeing $v1 for the
+                         * shift constant.  Falsified attempts to move the
+                         * materialization earlier: declaring gSentenceRuleSet as an
+                         * unsized array + `gSentenceRuleSet[0](...)` (26 diffs -- it
+                         * also breaks the function's ENTRY gate, which retail loads
+                         * with the SCALAR self-temp `lui v0; lw v0,0(v0)`), and an
+                         * `extern ... gSentenceRuleSet_v[] asm("gSentenceRuleSet")`
+                         * array VIEW used only at the call site (18 diffs). */
                         if (r != 0)
                             gSentenceRuleSet(
                                 (int)(unsigned int)*(unsigned short *)sentence, (int)rid,

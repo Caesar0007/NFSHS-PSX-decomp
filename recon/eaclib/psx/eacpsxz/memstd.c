@@ -256,14 +256,15 @@ extern int creatememclass(int id, char *name, char *membuf, int bufsize,
     /* s3 = (membuf + (infosize+0x50) + (alignment+0x1F)) & -alignment, then -0x10
      * MATCH: grouped as TWO separate constant-adds materialized in SEPARATE statements
      * (infosize+0x50, alignment+0x1F) so gcc's constant folder can't merge them into one
-     * 0x6F literal -- reproduces the oracle's addiu/addiu pair. MATCH: `lo` declared BEFORE
-     * `hi` -- the oracle combines membuf+lo first (v0), then computes+adds hi (v1) LAST,
-     * right before the &-alignment; declaring hi first (as before) materialized it too
-     * early, landing in the wrong delay slot. */
-    lo = (unsigned)infosize + 0x50u;
+     * 0x6F literal -- reproduces the oracle's addiu/addiu pair. MATCH (w32-a4): the
+     * &-alignment must be FUSED into the same expression as the two adds. Splitting it into
+     * its own `a &= -alignment;` statement is what pushed the whole sprintf argument block
+     * (a0=&namebuf, a1=fmt, a2=name) BELOW the address arithmetic and put the wrong
+     * instruction in the highguard branch's delay slot; fusing it puts the arg block first
+     * and `addiu a0,sp,0x20` in the slot, exactly like the oracle (10 -> 2 diffs). */
     hi = (unsigned)alignment + 0x1Fu;
-    a = ((unsigned)membuf + lo) + hi;
-    a &= (unsigned)(-alignment);
+    lo = (unsigned)infosize + 0x50u;
+    a = (((unsigned)membuf + lo) + hi) & (unsigned)(-alignment);
     low_end = (char *)a - 0x10;
 
     /* s0 = membuf + bufsize - infosize - 0x20  (start of HIGH block) */
@@ -271,14 +272,14 @@ extern int creatememclass(int id, char *name, char *membuf, int bufsize,
 
     cls = (MemClass *)(membuf + 0x10); /* s1 = membuf+0x10 */
 
-    /* RESIDUAL (16 diffs, count-exact 124/124): the oracle materializes namebuf's address
-     * (a0=sp+0x20) INTO the highguard branch's delay slot (always-executes) and delays the
-     * `hi` (alignment+0x1F) add until right before the &-alignment combine; ours schedules
-     * `lo` (infosize+0x50) into that delay slot instead and `hi` right after the branch
-     * merge. Tried: hoisting the sprintf() call itself before this block (regresses to 33
-     * diffs -- moving the actual `jal` also moves the bufsize/a3 caller-saved-clobber
-     * point, forcing an extra cache store). A pure scheduling tie-break within one basic
-     * block; not further source-reachable without pinning. Accept as floor. */
+    /* RESIDUAL (2 diffs, count-exact 124/124, was 16): a single scheduling tie -- the oracle
+     * emits `addiu v1,s7,0x1F` (hi) AFTER `addu v0,s4,v0` (membuf+lo), ours one slot earlier.
+     * Tried and measured, all worse or count-breaking: hi/lo statement order either way (2),
+     * hi/lo/a declaration order permutations (2), splitting `membuf+lo` into its own
+     * statement (16), inlining `hi` into the expression (7 but 123/124 -- gcc folds an insn
+     * away), `a = (membuf+hi)+lo` (12), computing `high`/`cls` before the arithmetic (18/20),
+     * hoisting the sprintf() call itself (18; the jal also moves the bufsize/a3 caller-saved
+     * clobber point). A within-block sched1 tie-break on one instruction. */
     sprintf(namebuf, "%s LOW", name);            /* @0x8013DC20 */
     initmemblock((MemBlock *)membuf,  namebuf, 0x40, infosize,
                  flags | 0x8000, 0,                 (MemBlock *)low_end);
@@ -304,17 +305,21 @@ extern int creatememclass(int id, char *name, char *membuf, int bufsize,
         *(MemBlock **)((char *)cls + 0x20) = (MemBlock *)((char *)membuf + 0x20); /* fh->freenext +0x20 -> self */
         *(MemBlock **)((char *)cls + 0x24) = (MemBlock *)((char *)membuf + 0x20); /* fh->freeprev +0x24 */
         *(int *)((char *)cls + 0x14) = 0x7FFFFFFF;                 /* fh->size   +0x14 */
-        /* MATCH: `granularity` (a stack-passed param, never register-resident) is READ
-         * EARLY into a named temp -- the oracle reloads it (lw v0,sp+..) right up front,
-         * before the alignment/infosize/flags/mutex stores, and only USES it (the store to
-         * +0x28) at the end of the block; a bare `cls->granularity = granularity;` placed
-         * last reads-and-stores in one step, one instruction too late. */
+        /* MATCH: `granularity` (a stack-passed param, never register-resident) is read into
+         * a named temp AND stored FIRST of the five class-field stores. The oracle reloads it
+         * (`lw v0,0x158(sp)`) up front -- together with the FREE_add receiver copy `addu
+         * a0,s1,zero` that fills its load-delay -- and the scheduler then sinks the actual
+         * `sw v0,0x28(s1)` past the other four stores. Writing the store LAST (its oracle
+         * position) keeps the load pinned to it, four instructions too late; writing it FIRST
+         * and letting the scheduler sink it is what reproduces both (14 -> 10 diffs). Moving
+         * only the `gran = granularity;` read earlier (top of the block, after the 0x14
+         * store, or before blockclear) changes nothing. */
         gran = granularity;
+        cls->granularity = gran;                                  /* +0x28 */
         cls->alignment   = alignment;                             /* +0x2C */
         cls->infosize    = infosize;                              /* +0x30 */
         cls->flags       = flags;                                 /* +0x34 */
         cls->mutex       = 0;                                     /* +0x38 */
-        cls->granularity = gran;                                  /* +0x28 */
     }
 
     cls->field3c     = field3c;                                  /* +0x3C, right at the FREE_add call */

@@ -47,7 +47,7 @@ extern unsigned int isqrt(unsigned int a);   /* @0x800F32CC */
  * scaled by the operand magnitude; big half binary-searches, small half does one midpoint probe. */
 extern unsigned int isqrt(unsigned int a)
 {
-    unsigned int lo, hi;
+    unsigned int lo, hi, mid;
     if ((a & 0xffff0000) != 0) {
         if ((a & 0xff000000) != 0) {   /* oracle: beqz skips -> 24-bit path is the fall-through */
             lo = (unsigned int)isqrttbl[(a >> 0x18) - 1] << 8;
@@ -67,9 +67,8 @@ extern unsigned int isqrt(unsigned int a)
     if ((a & 0xff00) != 0) {           /* oracle: beqz skips -> the a<0x100 tail is out-of-line last */
         if ((a & 0xf000) != 0) {
             if ((a & 0xc000) != 0) {
-                unsigned char *p = isqrttbl + (a >> 8);
-                hi = (unsigned int)*p + 1;
-                lo = (unsigned int)*(p - 1);
+                lo = (unsigned int)isqrttbl[(a >> 8) - 1];
+                hi = (unsigned int)isqrttbl[a >> 8] + 1;
             } else {
                 lo = (unsigned int)(isqrttbl[(a >> 6) - 1] >> 1);
                 hi = (unsigned int)(isqrttbl[a >> 6] >> 1) + 1;
@@ -83,10 +82,10 @@ extern unsigned int isqrt(unsigned int a)
         }
         if (hi - lo < 2)
             return lo;
-        hi = (lo + hi) >> 1;
-        if (a < hi * hi)
-            return lo;
-        return hi;
+        mid = (lo + hi) >> 1;
+        if (mid * mid <= a)
+            return mid;
+        return lo;
     }
     if (a != 0)   /* MATCH: table path = bnez branch target, return-0 = fall-through (oracle) */
         return (unsigned int)(isqrttbl[a - 1] >> 4);

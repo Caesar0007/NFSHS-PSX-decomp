@@ -22,6 +22,17 @@ def norm(t):
     # a6 survey: InitCARD2/_patch_card/_card_start).
     t=re.sub(r'\((\d+) ?>> ?(\d+)\)',lambda m:str(int(m.group(1))>>int(m.group(2))),t)
     t=re.sub(r'\((\d+) ?& ?(\d+)\)',lambda m:str(int(m.group(1))&int(m.group(2))),t)
+    def literal_dlabel(m):
+        digits=m.group(1);addr=int(digits,16)
+        return addr,len(digits)<8 or (addr>>16)==0x1F80
+    def dlabel_hi(m):
+        addr,is_literal=literal_dlabel(m)
+        return str(addr>>16) if is_literal else '0'
+    def dlabel_lo(m):
+        addr,is_literal=literal_dlabel(m)
+        return str(addr&0xFFFF) if is_literal else '0'
+    t=re.sub(r'%hi\(D_([0-9A-Fa-f]{1,8})\)',dlabel_hi,t)
+    t=re.sub(r'%lo\(D_([0-9A-Fa-f]{1,8})\)',dlabel_lo,t)
     t=re.sub(r'%hi\([^)]*\)','0',t);t=re.sub(r'%lo\([^)]*\)','0',t);t=re.sub(r'%gp_rel\([^)]*\)','0',t)
     t=re.sub(r'^move (\w+),(\w+)$',r'addu \1,\2,zero',t)
     t=re.sub(r'^(?:addiu|ori) (\w+),zero,(\-?\d+)$',r'li \1,\2',t)

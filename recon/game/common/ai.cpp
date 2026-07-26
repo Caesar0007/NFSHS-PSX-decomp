@@ -1205,32 +1205,28 @@ void AI_CheckForCarsOnSide(Car_tObj *carObj)
   int blockDistance;
   int threshold;
   Car_tObj *carObj_00;
-  Car_tObj **ppCVar4;
   int demerit;
 
   if ((carObj->carFlags & 0x10U) == 0) {
     blockDistance = (carObj->N).dimension.z;
+    iVar1 = Cars_gNumCars;
     threshold = blockDistance * 2 + blockDistance / 2;
-    if (0 < Cars_gNumCars) {
-    demerit = -0x60000;
-    ppCVar4 = Cars_gList;
-    ci = 0;
-    do {
-      carObj_00 = *ppCVar4;
-      if ((carObj != carObj_00) && ((carObj_00->N).active != '\0')) {
-        absDistance = __builtin_abs(AIWorld_SplineDistance(carObj_00,carObj));
-        if ((absDistance < 0xa0001) && (absDistance < threshold)) {
-          if (carObj_00->laneIndex == carObj->laneIndex + -1) {
-            CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + demerit;
-          }
-          else if (carObj_00->laneIndex == carObj->laneIndex + 1) {
-            CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + demerit;
+    if (0 < iVar1) {
+      demerit = -0x60000;
+      for (ci = 0; ci < Cars_gNumCars; ci++) {
+        carObj_00 = Cars_gList[ci];
+        if ((carObj != carObj_00) && ((carObj_00->N).active != '\0')) {
+          absDistance = __builtin_abs(AIWorld_SplineDistance(carObj_00,carObj));
+          if ((absDistance < 0xa0001) && (absDistance < threshold)) {
+            if (carObj_00->laneIndex == carObj->laneIndex + -1) {
+              CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + demerit;
+            }
+            else if (carObj_00->laneIndex == carObj->laneIndex + 1) {
+              CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + demerit;
+            }
           }
         }
       }
-      ppCVar4 = ppCVar4 + 1;
-      ci = ci + 1;
-    } while (ci < Cars_gNumCars);
     }
   }
   return;

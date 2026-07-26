@@ -743,7 +743,6 @@ Car_tObj * AILife_IsSliceInAnyVisibleArea(int slice)
    * pulled in an unneeded extra saved register (w22-a14). */
   int racerLoop;
   int sliceDist;
-  int maxDist;
   Car_tObj **ppCVar2;
 
   racerLoop = 0;
@@ -753,12 +752,8 @@ RACER_TEST:
     goto RACER_NOT_FOUND;
   }
   sliceDist = AIWorld_ApxSplineDistance((int)((*ppCVar2)->N).simRoadInfo.slice,slice);
-  maxDist = 0xabffff;
-  if (sliceDist < 0) {
-    sliceDist = -sliceDist;
-  }
-  maxDist = maxDist < sliceDist;
-  if (maxDist != 0) goto RACER_CONTINUE;
+  sliceDist = __builtin_abs(sliceDist);
+  if (0xabffff < sliceDist) goto RACER_CONTINUE;
   return *ppCVar2;
 RACER_CONTINUE:
   ppCVar2 = ppCVar2 + 1;
@@ -775,7 +770,6 @@ Car_tObj * AILife_IsSliceCloseToAnyCopCar(int slice)
    * fix as IsSliceInAnyVisibleArea (w22-a14). */
   int copLoop;
   int sliceDist;
-  int maxDist;
   Car_tObj **ppCVar2;
 
   copLoop = 0;
@@ -785,12 +779,8 @@ COP_TEST:
     goto COP_NOT_FOUND;
   }
   sliceDist = AIWorld_ApxSplineDistance((int)((*ppCVar2)->N).simRoadInfo.slice,slice);
-  maxDist = 0x31ffff;
-  if (sliceDist < 0) {
-    sliceDist = -sliceDist;
-  }
-  maxDist = maxDist < sliceDist;
-  if (maxDist != 0) goto COP_CONTINUE;
+  sliceDist = __builtin_abs(sliceDist);
+  if (0x31ffff < sliceDist) goto COP_CONTINUE;
   return *ppCVar2;
 COP_CONTINUE:
   ppCVar2 = ppCVar2 + 1;

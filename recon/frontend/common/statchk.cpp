@@ -4,8 +4,14 @@
  */
 #include "statchk.h"
 
-int NewRecords[8];   /* 0x... per-slot new-record flags */
-int NewBestLap;      /* new best-lap flag */
+/* MATCH (w35-a10): both are STRONG DATA symbols in front_data.data.s and every
+   oracle reaches them absolutely (0 %gp_rel uses tree-wide).  A TU-owned
+   tentative def makes NewBestLap small-common -> .sbss -> %gp_rel; the
+   unsized-array asm-label view keeps %hi an RTL pseudo (catalog wave-13). */
+extern int A_NewRecords[] __asm__("NewRecords");
+extern int A_NewBestLap[] __asm__("NewBestLap");
+#define NewRecords  A_NewRecords
+#define NewBestLap  A_NewBestLap[0]
 
 /* ---- StatChk_IsRecordLapTime  (statchk.cpp:50) ---- */
 void * StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBestCarIndex)

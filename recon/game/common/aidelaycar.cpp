@@ -110,7 +110,8 @@ void AIDelayCar::Update()
 
   if (0 <= iVar1) {
 
-    iVar1 = iVar1 + (this->basisCar_->N).simRoadInfo.slice;
+    /* Preserve the original add operand order emitted by PsyQ cc1plus. */
+    iVar1 = (this->basisCar_->N).simRoadInfo.slice - -iVar1;
 
     if (gNumSlices <= iVar1) {
 
@@ -122,7 +123,8 @@ void AIDelayCar::Update()
 
   else {
 
-    iVar1 = iVar1 + (this->basisCar_->N).simRoadInfo.slice;
+    /* Same compiler-stable addition form as the nonnegative arm. */
+    iVar1 = (this->basisCar_->N).simRoadInfo.slice - -iVar1;
 
     if (iVar1 < 0) {
 

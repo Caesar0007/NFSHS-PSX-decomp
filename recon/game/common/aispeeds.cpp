@@ -912,8 +912,11 @@ int AISpeeds_CalcCopTopSpeed(Car_tObj *carObj)
 /* ---- AISpeeds_CalcTrafficTopSpeed__FP8Car_tObj  [@0x8006eb6c] ---- */
 int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
 {
-  /* H56: SYM names the single local "desired" ($s0) -- was routed through an anonymous iVar1
-   * while desired sat declared-but-unused. */
+  /* H56: `desired` is the saved-register accumulator. The arm-local conditional
+   * expressions intentionally evaluate CalculateOncomingCarSpeed in the condition
+   * and false arm; spelling this as a hoisted temporary loses seven oracle insns.
+   * Separate randomization scale locals and a named minimum restore the remaining
+   * arithmetic/clamp shape (35 detailed diffs down to 10, count-exact 104/104). */
   int desired;
   int iVar2;
   u_int uVar3;
@@ -923,34 +926,42 @@ int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
   if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
      ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
       ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
-    if (carObj->direction == (*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x554))) goto LAB_8006ec80;
-    iVar2 = AISpeeds_CalculateOncomingCarSpeed(carObj);
+    if (carObj->direction != (*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x554))) {
+      desired = (desired < AISpeeds_CalculateOncomingCarSpeed(carObj))
+          ? desired : AISpeeds_CalculateOncomingCarSpeed(carObj);
+    }
   }
   else {
     uVar3 = ~carObj->direction;
     if (GameSetup_gData.reverseTrack == 0) {
       uVar3 = carObj->direction ^ 1;
     }
-    if (uVar3 == 0) goto LAB_8006ec80;
-    iVar2 = AISpeeds_CalculateOncomingCarSpeed(carObj);
+    if (uVar3 != 0) {
+      desired = (desired < AISpeeds_CalculateOncomingCarSpeed(carObj))
+          ? desired : AISpeeds_CalculateOncomingCarSpeed(carObj);
+    }
   }
-  if (iVar2 <= desired) {
-    desired = AISpeeds_CalculateOncomingCarSpeed(carObj);
-  }
-LAB_8006ec80:
   if ((carObj->carFlags & 0x10U) != 0) {
+    int scaledDesired;
+    int desired8;
+    int speedFactor;
     desired = AISpeeds_RandomizeTrafficSpeed(carObj,desired);
+    scaledDesired = desired;
     if (desired < 0) {
-      desired = desired + 0xff;
+      scaledDesired = desired + 0xff;
     }
-    iVar2 = carObj->speedFactor;
-    if (iVar2 < 0) {
-      iVar2 = iVar2 + 0xff;
+    speedFactor = carObj->speedFactor;
+    desired8 = scaledDesired >> 8;
+    if (speedFactor < 0) {
+      speedFactor = speedFactor + 0xff;
     }
-    desired = (desired >> 8) * (iVar2 >> 8);
+    desired = desired8 * (speedFactor >> 8);
   }
-  if (desired < 0x8e38e) {
-    desired = 0x8e38e;
+  {
+    int minimumSpeed = 0x8e38e;
+    if (desired < minimumSpeed) {
+      desired = minimumSpeed;
+    }
   }
   return desired * carObj->direction;
 }

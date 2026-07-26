@@ -1819,19 +1819,9 @@ AIState_Offroad::AIState_Offroad(Car_tObj *carObj,int startSlice,coorddef *posit
 
 
 /* ---- UnleashIfInRange__15AIState_OffroadP8Car_tObj  AIState_Offroad::UnleashIfInRange  [AISTATE.CPP:926-936] SLD-VERIFIED ---- */
-/* FLOOR (w30-a2, 9 diffs/29 vs 30 insns): C shape is CONFIRMED correct (the nested
-   if(release<0x140000){if(distAbs<0x140000)}else{if(distAbs<release)} matches the oracle's
-   own control-flow exactly -- both branches set the SAME final field, no extra/missing
-   logic). Residual is a pure allocator/scheduler tie-break on the SHARED constant 0x140000:
-   the oracle reloads it TWICE into two different regs (v0 then v1, one per branch) and uses
-   a beqz(taken=default/else, computed in the branch delay slot)/fallthrough(then,recompute)
-   layout; every C reshape tried here (shared "cond" local pre/post branch, direct literal at
-   both use sites, inverted polarity outer test) reproduces the SAME logic but lands gcc on a
-   DIFFERENT register/constant-fold choice each time (one variant even strength-reduces via
-   the classic x>=C -> (C-1)<x trick). Tried and reverted: shared "cond" local (12-14 diffs,
-   worse), direct-literal both sites (14 diffs, worse), swapped if/else polarity (12 diffs,
-   worse) -- this nested-if-with-cmp-local form is the closest found. Permuter candidate
-   (not run this session -- job budget spent on the mandatory rule-8 reconstructions). */
+/* IDA's retail register annotations expose the original max-threshold expression:
+   a single comparison against a ternary-selected limit. This produces the oracle's
+   branch-delay comparison and two separate 0x140000 materializations (30/30 PASS). */
 
 void AIState_Offroad::UnleashIfInRange(Car_tObj *car)
 
@@ -1851,32 +1841,9 @@ void AIState_Offroad::UnleashIfInRange(Car_tObj *car)
 
   releaseDistanceMeters = fixedmult((car->N).speedXZ,this->releaseTime_);
 
-  {
-    int cmp;
-
-    cmp = 0x140000;
-
-    if (releaseDistanceMeters < cmp) {
-
-      cmp = 0x140000;
-
-      if (distanceAbsMeters < cmp) {
-
-        this->letGo_ = 1;
-
-      }
-
-    }
-
-    else {
-
-      if (distanceAbsMeters < releaseDistanceMeters) {
-
-        this->letGo_ = 1;
-
-      }
-
-    }
+  if (distanceAbsMeters <
+      ((releaseDistanceMeters < 0x140000) ? 0x140000 : releaseDistanceMeters)) {
+    this->letGo_ = 1;
   }
 
   return;

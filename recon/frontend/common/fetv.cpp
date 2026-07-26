@@ -117,17 +117,16 @@ DrawTVLines_writeTpage:
     cur_pkt_thin[4] = 10;
     *(u_short *)(cur_pkt_thin + 0x14) = ts7 + uVar1;
   }
-  FeDraw_SetABRMode(abr);
+  FeDraw_SetABRMode(1);
   if ((tv.flags & 0x20) != 0) {
     stripe_x = (u_short)tv.x + 4 & 0xfffffffc;
     if ((int)(short)stripe_x < (int)tv.x + (int)tv.w) {
       do {
-        abr = (u_int)(short)stripe_x;
         PSXDrawTransSquare(0xa0a0a,(int)(short)stripe_x,(int)tv.y,1,(int)tv.h,1);
         stripe_x = stripe_x + 4;
       } while ((int)(stripe_x * 0x10000) >> 0x10 < (int)tv.x + (int)tv.w);
     }
-    FeDraw_SetABRMode(abr);
+    FeDraw_SetABRMode(2);
   }
   return;
 }
@@ -522,8 +521,8 @@ void InitTV(tTVConfig &tv,tTexture_ShapeInfo *textures,short index)
           (int)(short)(*(u_short *)((int)&textures->shapex + iVar5) & 0xffc0)) * 0x10;
   tv.u = (u_char)(iVar4 / (int)uVar3);
   uVar1 = *(u_char *)((int)&textures->shapey + iVar5);
-  tv.vh = (u_char)tv.h;
   tv.uw = (u_char)tv.w;
+  tv.vh = (u_char)tv.h;
   tv.v = uVar1;
   tv.shapex = *(u_short *)((int)&textures->shapex + iVar5);
   tv.shapey = *(u_short *)((int)&textures->shapey + iVar5);

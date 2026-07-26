@@ -881,11 +881,13 @@ extern void  freehandle(FileHandle *h);                     /* @0x800ED2F0 (abov
  *     write(5): writefile() (async).   size(6): publish handle->size.   7/9/10: status-only completion.
  *   Synchronous ops finish via iFILE_CommandCompleteCallback(); async ops (read/write) return and are
  *   completed later by the device's CD callback.  (-m32-only verified: op stride 0x30 + qnext pointer.) */
-/* RAW/ORACLE REDUCTION (2026-07-26, 56->12 detailed diffs, count-exact 290/290):
+/* RAW/ORACLE REDUCTION (2026-07-26, 56->10 detailed diffs, count-exact 290/290):
  *   - clear the entry buffer before the first strchr, as the raw instruction order requires;
  *   - scope/initialize the found flag at its first live branch (the jump-table delay slot stays nop);
  *   - express the optional volume filter directly instead of introducing a doLookup boolean;
  *   - preserve the raw archive-walk exit order (end-of-list first, found second);
+ *   - write the dequeue priority test directly as cmd->prio <= idmask, matching the oracle's
+ *     cmd-field-before-manager-field load order;
  *   - complete each synchronous switch arm directly, allowing cc1's common-tail merge to put the
  *     result in $a0 at the shared callback label instead of keeping every result live in $s2.
  * Raw nfs4-f.exe DD398..DD81F SHA-256:
@@ -929,7 +931,7 @@ extern int iFILE_ExecCommand(void *cmdp)
      * (cmd is unused at this point -- it was already stored into the queue in the block above)
      * directly for the dequeued head/pick value, rather than a separate `head`/`pick` local. */
     cmd = gFileMgr.queuehead;
-    if (cmd != 0 && !(gFileMgr.idmask < cmd->prio)) {
+    if (cmd != 0 && cmd->prio <= gFileMgr.idmask) {
         gFileMgr.queuehead = cmd->qnext;
         gFileMgr.state--;
     } else {

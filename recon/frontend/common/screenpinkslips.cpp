@@ -99,7 +99,7 @@ void tScreenPinkSlips::DrawBackground()
   iVar4 = VIDEO_state(this->hVideo);
   if (iVar4 == 0) {
     if (0x100 < ticks - this->fTVTicks) {
-      sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],(int)trackInfo.fTrackID);
+      sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],*(signed char *)&trackInfo.fTrackID);  /* MATCH: lb -- plain char is unsigned on this build */
       VIDEO_spoolfile(this->hVideo,moviename);
       VIDEO_startplayback(this->hVideo);
     }
@@ -203,7 +203,7 @@ void tScreenPinkSlips::Initialize()
   this->Initialize();
   this->fTVsInitialized = 0;
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
-  sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],(int)trackInfo.fTrackID);
+  sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],*(signed char *)&trackInfo.fTrackID);  /* MATCH: lb -- plain char is unsigned on this build */
   tmp = VIDEO_create(0xa0,0x80,0xf0000,0x20000,0x10);
   this->hVideo = tmp;
   VIDEO_spoolfile(tmp,moviename);
@@ -241,7 +241,7 @@ void tScreenPinkSlips::UpdateVideoWall(tTrackInformation &trackInfo)
   int iVar1;
   
   if ((short)trackInfo.fTrackID != this->fPreviousTrack) {
-    sprintf(gSwapFileName,"TR%02dPS",(int)trackInfo.fTrackID);
+    sprintf(gSwapFileName,"TR%02dPS",*(signed char *)&trackInfo.fTrackID);  /* MATCH: lb -- plain char is unsigned on this build */
     ::AsyncLoadSwapShapeFile((tScreen *)this,gSwapFileName);
     this->fTVsInitialized = 0;
     this->fPreviousTrack = (short)trackInfo.fTrackID;
@@ -354,10 +354,8 @@ void tScreenPinkSlips::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMe
            (menuDefs->itemTraffic).fFlags |
            1;
     }
-    uVar2 = (menuDefs->itemLocalSpeech).
-            fFlags | 1;
     (menuDefs->itemLocalSpeech).fFlags =
-         uVar2;
+         (menuDefs->itemLocalSpeech).fFlags | 1;
   }
   return;
 }

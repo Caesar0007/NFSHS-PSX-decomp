@@ -69,7 +69,11 @@ extern int iSNDischanreserved(int chan, int count)
  *   oracle's 298).  Two more levers tried and REVERTED: `int bestage` (292, already recorded above as
  *   297 in w32) and a goto-loop pass-2 with the label reused for entry+continuation (284; it does not
  *   collapse the duplicated `li s3,102` loop-head init).  The residual is still the s6<->s7 / t1<->t2
- *   allocno rotation.
+ *   allocno rotation.  Re-audited against the wave's three-way copy taxonomy and BOTH source-reachable
+ *   mechanisms are absent here: the copy counts are SYMMETRIC (13 oracle-only `addu rX,rY,zero` with
+ *   matching ours-only lines -- a pure permutation, no asymmetric copy to explain, so no cse.c
+ *   double-evaluation target), and the loop.c giv anchor cannot apply because both passes walk the
+ *   100-byte channel slot, which is not a power-of-two stride.
  *   Raw nfs4-f.exe EEF64..EF40B SHA-256:
  *   4af4cae9357cee8d5c94a064c543b15d4d1edb7a6f5d1c0d5ccd8c8f259740fc. */
 extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigned int *out)

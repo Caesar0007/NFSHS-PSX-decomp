@@ -70,6 +70,17 @@
  *   post-scan tail, so it is a property of the allocator, not of either function's source.
  *   NET: reverted to this 59-diff body; the 125/127 variant scores 72 because the shared tail lands
  *   after scan_done instead of after the empty arm (a pure alignment artifact of the same swap).
+ *
+ *   🔬 W33-a7 RE-AUDIT against the wave's three-way copy taxonomy (loop.c giv anchor / cse.c
+ *   double-evaluation / true allocator coalescing): (a) applying w32's class-2 finding IN ISOLATION --
+ *   spelling the empty arm as `final_block = *p; final_avail = *q - *p;` with a literal second read of
+ *   sndpd+0x51A -- is fully CSE'd away here: byte-identical output, still 59 diffs at 120/127, no
+ *   `addu $v1,$a2,$zero` emitted.  It only survives inside the larger w32 scratch, which scores worse
+ *   overall.  (b) The giv-anchor mechanism does NOT apply: the entry table stride is 4 (power of two),
+ *   but retail emits a per-iteration `sll`+`addu` rather than a strength-reduced walker, so the
+ *   multiply-set-`idx` giv BLOCKER already in this body IS the retail shape -- creating an anchor
+ *   would move away from the oracle.  (c) The residual is therefore conceded to class 3, the $v0/$v1
+ *   mirror, whose only untried instrument is the permuter (start with iSNDpsxmemconstrain, 31 insns).
  */
 
 /* MATCH: engine_ver/block_total/reverb_mode/alloc_count are NOT separate linked globals -- the oracle

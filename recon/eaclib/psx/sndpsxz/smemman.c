@@ -82,13 +82,17 @@ extern unsigned int iSNDmemrestore(void)
  * W32-a7 (88->86 diffs, 129->127 insns): the `i != 0` scan arm is now INSTRUCTION-EXACT against the
  * oracle (load-before-store, see below) -- only a $v0/$v1 register swap remains there.
  *
- * 🔴 ALLOCNO FLOOR, shared with sdmemman.c iSNDpsxmalloc: in BOTH the `i != 0` arm and the post-scan
+ * 🔴 ALLOCNO FLOOR [W35-a3: FIRST HALF WITHDRAWN, see the W35 block at the end of this comment],
+ * shared with sdmemman.c iSNDpsxmalloc: in BOTH the `i != 0` arm and the post-scan
  * tail the oracle colors the {prev[0]+prev[1]} sum into $v0 and the {limit - sum} difference into
  * $v1; ours colors them exactly the other way.  The cause is upstream: retail keeps the entry byte
  * offset `i*4` in $v0 and ours in $a0, because our `j` is ALSO the shift-loop counter and that
  * counter's `lhu $a0,4($s1)` drags the fused pseudo into $a0.  Splitting them into two locals (the
  * textbook catalog sec-A fix) makes it far WORSE (86 -> 131 diffs): the reuse IS the retail shape,
  * so the two live ranges must stay fused and the register they land in is then the allocator's call.
+ * [W35-a3: FALSE.  The split is the RIGHT shape -- it just needs a giv blocker of its own, which
+ *  is what the reuse had been doing by accident.  See lever (4) below: split + a DEAD-SET carrier
+ *  puts `i*4` in retail's $v0 in every one of its four sites.]
  * Consequence: retail's post-scan tail keeps its OWN `jal iSNDmemconstrain` + tail (`sw $v1,0x14($sp)`
  * differs from the empty arm's `sw $v0,..`), while ours cross-jumps into the empty arm's call because
  * both arms end in the same hard register -- that alone is 5 of the 8 missing instructions.
@@ -166,7 +170,31 @@ extern unsigned int iSNDmemrestore(void)
  *       shelved leads after a structural fix" rule and is still worse (77 diffs / 138 insns), as is
  *       the pre-guard hoist (98 diffs, unchanged from W33).
  * Flag axis re-probed: `-mno-split-addresses` for this TU is decisively WRONG (91 diffs @136, and
- * it breaks iSNDmemconstrain/iSNDmeminit which currently PASS). */
+ * it breaks iSNDmemconstrain/iSNDmeminit which currently PASS).
+ *
+ *   (4) 🔑 COUNTER/OFFSET SPLIT + DEAD-SET CARRIER (52 -> 50 -> 48 with the post-scan spelling).
+ *       This RETIRES the "the reuse IS the retail shape" verdict at the top of this comment.  The
+ *       W32 experiment that scored 131 split `j` into two locals and nothing else -- which makes the
+ *       entry offset SINGLE-SET in the loop, so loop.c classifies it as a giv, strength-reduces it
+ *       into a walking pointer and destroys the whole scan.  The multiply-set property was doing
+ *       double duty (giv blocker AND register fusion) and only the first half was load-bearing.
+ *       W35 lever #2 (movfxya's DEAD-SET carrier) supplies the blocker separately: the shift loop
+ *       gets its own counter `k`, and a dead `j = 0;` at the end of the loop body keeps
+ *       set_in_loop != 1 (loop.c counts it) while flow deletes it for free -- zero instructions.
+ *       RESULT: `i*4` moves from $a0 to retail's $v0 at ALL FOUR of its sites, so the loop head
+ *       (`sll $v0,$s0,2` / `addu $a1,$v0,$s4`), the shift-loop exit `j` + delay slot, and the loop
+ *       back-edge delay slot are now byte-exact.
+ * RESIDUAL after (1)-(4) = 2 instructions, and they are ONE cause: reorg's steal of the post-scan
+ * block's first instruction.  Retail's post-scan opens with `sll $v0,$s0,2`, which reorg then
+ * distributes into BOTH of its predecessors' delay slots (the entry guard at .L801062C0 and the
+ * loop back-edge at .L80106384) and deletes from the block -- one instruction serving three places.
+ * Ours opens with the sched1-hoisted call-arg setup `addiu $a0,$sp,0x10` instead (call-arg feeders
+ * carry sched.c's 0x7f000001 LAUNCH_PRIORITY boost, so they float to the head of any block ending
+ * in a `jal`), so the guard's slot gets a DUPLICATE `addiu $a0,$sp,0x10` and the block still has to
+ * recompute its own `sll $v0,$s0,2`.  Statement-order levers do not reach it: `int off = i << 2;`
+ * as the block's first statement is diff-WORSE here (50 vs 48) because it also moves the post-scan
+ * base off retail's $v1, and the `j`-live-out unification -- RE-TESTED a third time now that the
+ * registers finally agree -- is still worse (63 diffs @136). */
 extern int iSNDmalloc(int size)
 {
     /* MATCH (w31-a2, from the raw oracle -- same shape family as iSNDpsxmalloc but with THREE
@@ -176,7 +204,7 @@ extern int iSNDmalloc(int size)
      * returns pool + block*4 and bumps the high-water mark. */
     int             block;      /* sp+0x10 -- address taken */
     int             available;  /* sp+0x14 -- address taken */
-    int             i, j;
+    int             i, j, k;
     unsigned short *entry;
     unsigned short *prev;
     unsigned short *pv;
@@ -228,26 +256,30 @@ extern int iSNDmalloc(int size)
             }
             iSNDmemconstrain(&block, &available);
             if (size <= available) {
-                j = *(unsigned short *)(mm + 4);
-                while (i < j) {
+                k = *(unsigned short *)(mm + 4);
+                while (i < k) {
                     int n;
                     /* struct assignment on the 2-aligned 4-byte entry = the oracle's unaligned
                      * lwl/lwr + swl/swr word copy; `n` keeps the 0xC displacements un-folded. */
-                    ((SndMemEnt *)(mm + 0xc))[j] =
-                        ((SndMemEnt *)(mm + 0xc))[n = j - 1];
-                    j = n;
+                    ((SndMemEnt *)(mm + 0xc))[k] =
+                        ((SndMemEnt *)(mm + 0xc))[n = k - 1];
+                    k = n;
                 }
                 goto commit;
             }
             i++;
+            /* DEAD-SET CARRIER (W35 lever): `j` is now single-set in the loop once the shift
+             * counter moved to `k`, which would let loop.c classify it as a giv and strength-
+             * reduce the per-iteration sll+addu into a walking pointer.  This dead store keeps
+             * set_in_loop != 1 (loop.c counts it) and flow deletes it for free. */
+            j = 0;
         } while (i < (int)*(unsigned short *)(mm + 4));
     }
     {
         /* post-loop tail: fresh block-locals re-materialize the FUSED sndmm+8 symbol (oracle
          * D_80148788); poolWords is read as pb[-1] (offset -2 off it). */
-        int off = i << 2;
         unsigned short *pb = (unsigned short *)(sndmm_b + 8);
-        unsigned short *p2 = (unsigned short *)(off + (int)pb);
+        unsigned short *p2 = (unsigned short *)((i << 2) + (int)pb);
         block = (int)p2[0] + (int)p2[1];
         available = (int)pb[-1] - block;
     }

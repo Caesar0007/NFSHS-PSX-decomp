@@ -93,7 +93,11 @@ extern int   CD_curSector;       /* the sector currently being read             
 extern int   CD_timeout;         /* watchdog (timer ticks)                                   */
 extern void *CD_curDst;          /* current memory destination                               */
 extern void (*CD_completionCallback)(int);  /* fired (with 1) when a read finishes            */
-extern int   timerhz;            /* timer frequency                                          */
+extern int   timerhz[];          /* timer frequency (UNSIZED array -- methodology-§3.12 #5:
+                                  * EVERY oracle timerhz load is the SEPARATE-temp form
+                                  * `lui $rX,%hi; lw $rY,%lo(timerhz)($rX)`, which a scalar
+                                  * extern cannot emit -- it folds to the self-temp
+                                  * `lui $rX; lw $rX,%lo($rX)`.)                            */
 extern int   g_currentthread[];  /* execution context id (UNSIZED array -- methodology-
                                   * §3.12 lever #5: the oracle materializes its address in a
                                   * SEPARATE reg (`lui $s0,%hi; sw $v0,%lo($s0)` / `lui $v0;lw $v1,%lo($v0)`),
@@ -335,7 +339,7 @@ extern int CD_Read(int dev, int dest, int offset, int len)
     CD_ringIdx   = 0;
     CD_curSector = *(int *)(entry + 0xC) + (offset >> 0xB); /* start sector + offset / 0x800 */
     Cdinfo |= 2;                                        /* read in progress */
-    CD_timeout   = timerhz * 6;
+    CD_timeout   = timerhz[0] * 6;
     rs->curDst   = (void *)dest;
     addtimer((void *)CD_timerfunc, (void *)dest);
 
@@ -553,7 +557,7 @@ extern int CD_systaskfunc(void)
          * through); for old_timeout>=2 the store lands old_timeout-1 (silently, done stays 0).  Only
          * old_timeout==0 skips this whole branch and re-arms to timerhz*5 instead. */
         if (CD_timeout == 0)
-            CD_timeout = timerhz * 5;     /* re-arm */
+            CD_timeout = timerhz[0] * 5;     /* re-arm */
         else {
             CD_timeout = CD_timeout - 1;
             if (CD_timeout == 0)
@@ -588,7 +592,7 @@ extern int CD_systaskfunc(void)
         CdReadyCallback(CdReadyHandler);
         if (ctx->remLen > 0) {            /* a transfer was in progress -> resume it */
             ctx->ringIdx = 0;
-            ctx->timeout = timerhz * 6;
+            ctx->timeout = timerhz[0] * 6;
             addtimer((void *)CD_timerfunc, pos);
         }
     }
@@ -627,9 +631,6 @@ extern void CdReadyHandler(int intr, unsigned char *result)
 #define sub   scratch.sub
 #define pos   scratch.pos
 #define gpctx scratch.gpctx
-    unsigned char com;
-    unsigned char *param;
-    unsigned char *issueResult;
     void          *madr;
     int           done;
     /* oracle hoists ONE base pointer to ctx+0x20 (the Ghidra-named `D_80146CE4` -- the read-state
@@ -682,13 +683,16 @@ extern void CdReadyHandler(int intr, unsigned char *result)
                         Cdinfo |= 2;
                     } else {
                         CD_ringIdx = -1;
-                        com = 0x09;           /* CdlPause */
-                        param = 0;
-                        issueResult = 0;
-                        goto issue;
+                        /* the CdlPause issue is spelled OUT-OF-LINE in BOTH ring-overflow arms
+                         * (here + case 5): the oracle DUPLICATES the `a0=9,a1=0,a2=0` setup in each
+                         * and cross-jump-merges only the shared `jal CdControl` tail.  A shared
+                         * com/param/result trio + `goto issue` merges the setup too (-3 insns). */
+                        CdControl(0x09, 0, 0);
+                        CdReadyCallback(CdReadyHandler);
+                        return;
                     }
                 } else {                      /* the sector we were expecting */
-                    CD_timeout = timerhz * 6;
+                    CD_timeout = timerhz[0] * 6;
                     if ((Cdinfo & 8) != 0) {  /* partial -> copy the wanted slice out of the cache */
                         Cdinfo &= ~8;
                         Cdinfo |= 0x10;
@@ -744,10 +748,9 @@ extern void CdReadyHandler(int intr, unsigned char *result)
             goto advance;
         }
         ctx->ringIdx = -1;
-        com = 0x09;                           /* CdlPause */
-        param = 0;
-        issueResult = 0;
-        goto issue;
+        CdControl(0x09, 0, 0);                /* CdlPause -- duplicated setup, see case 1 */
+        CdReadyCallback(CdReadyHandler);
+        return;
     }
 
     default:
@@ -775,11 +778,7 @@ advance:
     /* prefetched too far past the last delivered sector -> rewind the read head */
     CD_cachedSector = CD_lastSector;
     CdIntToPos(CD_lastSector, pos);
-    com   = 0x1B;                          /* CdlReadN */
-    param = pos;
-    issueResult = result;
-issue:
-    CdControl(com, param, issueResult);
+    CdControl(0x1B, pos, result);          /* CdlReadN */
     CdReadyCallback(CdReadyHandler);       /* re-install ourselves */
 }
 #undef gpctx

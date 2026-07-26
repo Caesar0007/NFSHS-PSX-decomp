@@ -237,9 +237,12 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
                         owner = *(unsigned int *)((signed char)((int *)ch)[0xf] * 100 + sndgs[0x25]);
                     SNDstop(owner);
                     if (SNDover(owner) != 1) {              /* refused -> roll back */
-                        while (i = i - 1, -1 < i)
-                            *(char *)(sndgs[0x25] + (signed char)sndchanreserved[i] * 100 + 0xb) = 0;
-                        return -9;
+                        while (i = i - 1, -1 < i) {
+                            ch = sndgs[0x25] + (signed char)sndchanreserved[i] * 100;
+                            *(char *)(ch + 0xb) = 0;
+                        }
+                        result = -9;
+                        goto done;
                     }
                 }
                 *(char *)(ch + 0xb) = 1;
@@ -251,13 +254,14 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
         /* link the secondary channels to the primary */
         *(unsigned int *)((signed char)sndchanreserved[0] * 100 + sndgs[0x25]) = *out;
         for (i = 1; i < reserved; i++) {
-            *(unsigned char *)(i + (signed char)sndchanreserved[0] * 100 + sndgs[0x25] + 3) =
+            *(unsigned char *)((signed char)sndchanreserved[0] * 100 + sndgs[0x25] + i + 3) =
                 sndchanreserved[i];
             *(unsigned int *)((signed char)sndchanreserved[i] * 100 + sndgs[0x25]) = 0xffffffff;
             *(unsigned char *)((signed char)sndchanreserved[i] * 100 + sndgs[0x25] + 0x3c) =
                 sndchanreserved[0];
         }
     }
+done:
     return result;
 }
 

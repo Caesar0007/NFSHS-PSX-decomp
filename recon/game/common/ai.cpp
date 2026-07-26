@@ -706,7 +706,6 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
   int distanceFixedMetersSignChecked;
   int inverseCollisionTime;
   int inverseAheadCollisionTime;
-  int currentSpeedAbs;
   u_int carObjLaneShift;
   u_int carObjLeftLaneBits;
   u_int carObjThisLaneBits;
@@ -715,21 +714,17 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
   int collisionSpeed;
   int aheadCollisionSpeed;
   int iVar2;
-  int desiredSpeedTmp;
 
   lanesFilled = 0;
   ci = 0;
   carsFound = 0;
-  maxDistanceToCheck = *(int *)(carObj->personality + 8);
-  desiredSpeedTmp = carObj->desiredSpeed;
-  AI_Info.laneSpeedsAhead[0] = desiredSpeedTmp;
-  AI_Info.laneSpeeds[0] = desiredSpeedTmp;
-  desiredSpeedTmp = carObj->desiredSpeed;
-  AI_Info.laneSpeedsAhead[1] = desiredSpeedTmp;
-  AI_Info.laneSpeeds[1] = desiredSpeedTmp;
-  desiredSpeedTmp = carObj->desiredSpeed;
-  AI_Info.laneSpeedsAhead[2] = desiredSpeedTmp;
-  AI_Info.laneSpeeds[2] = desiredSpeedTmp;
+  maxDistanceToCheck = *(int *)((char *)carObj->personality + 8);
+  AI_Info.laneSpeeds[0] =
+      AI_Info.laneSpeedsAhead[0] = carObj->desiredSpeed;
+  AI_Info.laneSpeeds[1] =
+      AI_Info.laneSpeedsAhead[1] = carObj->desiredSpeed;
+  AI_Info.laneSpeeds[2] =
+      AI_Info.laneSpeedsAhead[2] = carObj->desiredSpeed;
   carObjLaneShift = carObj->laneIndex;
   carObjIndexInSortedList = carObj->sortIndex;
   carObjLeftLaneBits = 1 << (carObjLaneShift - 1);
@@ -744,11 +739,7 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
     if ((carObj != otherCarObj) && ((otherCarObj->N).active != '\0')) {
       distanceFixedMeters = AIWorld_SplineDistance(otherCarObj,carObj);
       distanceFixedMetersSignChecked = distanceFixedMeters * carObj->direction;
-      currentSpeedAbs = carObj->currentSpeed;
-      if (currentSpeedAbs < 0) {
-        currentSpeedAbs = -currentSpeedAbs;
-      }
-      if (currentSpeedAbs < 0x1638e3) {
+      if (__builtin_abs(carObj->currentSpeed) < 0x1638e3) {
         inverseCollisionTime = 0xd555;
         inverseAheadCollisionTime = 0x6666;
       }
@@ -761,20 +752,22 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
         inverseAheadCollisionTime = 0x1999;
       }
       if (((carObj->N).dimension.z < distanceFixedMetersSignChecked) &&
-         (distanceFixedMetersSignChecked < maxDistanceToCheck)) {
+        (distanceFixedMetersSignChecked < maxDistanceToCheck)) {
         if (carObj->direction == 1) {
-          distanceIntMeters = distanceFixedMeters;
-          if (distanceIntMeters < 0) {
-            distanceIntMeters = distanceIntMeters + 0xffff;
-          }
-          distanceIntMeters = (distanceIntMeters >> 0x10) + -2;
+          int forwardDistanceIntMeters;
+
+          forwardDistanceIntMeters = (distanceFixedMeters < 0)
+              ? distanceFixedMeters + 0xffff
+              : distanceFixedMeters;
+          distanceIntMeters =
+              (forwardDistanceIntMeters >> 0x10) + -2;
           if ((carObj->carFlags & 0x28U) != 0) {
-            if (0 < distanceIntMeters) goto LAB_80058f88;
-            distanceIntMeters = 1;
+            if (distanceIntMeters <= 0) {
+              distanceIntMeters = 1;
+            }
           }
-          if (distanceIntMeters < 0) {
-            distanceIntMeters = 0;
-          }
+          distanceIntMeters =
+              (distanceIntMeters < 0) ? 0 : distanceIntMeters;
         }
         else {
           distanceIntMeters = distanceFixedMeters;
@@ -785,11 +778,9 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
           if (((carObj->carFlags & 0x28U) != 0) && (1 < distanceIntMeters)) {
             distanceIntMeters = -1;
           }
-          if (0 < distanceIntMeters) {
-            distanceIntMeters = 0;
-          }
+          distanceIntMeters =
+              (0 < distanceIntMeters) ? 0 : distanceIntMeters;
         }
-LAB_80058f88:
         collisionSpeed = otherCarObj->currentSpeed + distanceIntMeters * inverseCollisionTime;
         aheadCollisionSpeed = otherCarObj->currentSpeed + distanceIntMeters * inverseAheadCollisionTime;
         if (((otherCarObj->carInLane & carObjThisLaneBits) != 0) && ((lanesFilled & carObjThisLaneBits) == 0)) {

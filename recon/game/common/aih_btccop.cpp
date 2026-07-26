@@ -2618,7 +2618,7 @@ void AIHigh_BTC_Wingman::SetupWingman(AIHigh_BTC_HumanCop *humanCop)
 
   if (perpSide >= 0) {
 
-    perpSide = (otherCarObj->N).simRoadInfo.slice + perpSide;
+    perpSide = (otherCarObj->N).simRoadInfo.slice - -perpSide;
 
     if (gNumSlices <= perpSide) {
 
@@ -2630,7 +2630,7 @@ void AIHigh_BTC_Wingman::SetupWingman(AIHigh_BTC_HumanCop *humanCop)
 
   else {
 
-    perpSide = (otherCarObj->N).simRoadInfo.slice + perpSide;
+    perpSide = (otherCarObj->N).simRoadInfo.slice - -perpSide;
 
     if (perpSide < 0) {
 

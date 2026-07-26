@@ -1207,13 +1207,23 @@ extern void STREAM_kill(int s)
  *   patched over with `(void)buf;(void)len;` + a 1-arg fn-ptr cast at the call site -- all removed.
  *   Diff-neutral (37 before and after), no neighbour regressions.
  *   (or 0 if none).  Advances the consumer's read cursor to the following same-tagged chunk.
- * RESIDUAL FLOOR (37 diffs, down from 51): fixed the final `MI(cons,0xc)=p` store to dereference
- *   `out[1]` directly instead of the cached `cons` local -- oracle reloads out[1] FRESH from the stack
- *   at that one site (its `cons`-holding register got reused for the loop's `p` walk and wasn't kept
- *   live across it), matching this shape exactly (14 insns recovered). REMAINING: the very first
- *   `cons=out[1]` materialization picks a2 in ours vs a1 in oracle -- a pure allocator tie-break for
- *   the first fresh pseudo after the validatehandle() call (both regs equally dead/available); this
- *   ONE swap cascades through the whole function. Tried decl-order reshuffle (no effect). Accept. */
+ * w33-a2: 37 -> 0 (PASS, 73 insns).  The "allocator tie-break, accept" verdict was WRONG -- the whole
+ *   cons=$a2-vs-$a1 cascade was a SCHEDULING consequence of one statement, not a coloring coin-flip:
+ *   TAG-HOIST.  The consumer tag must be computed as its own statement BEFORE the cursor pointer:
+ *       unsigned int tag = MI(cons,4) << 24;
+ *       p = (int *)(chunk + hdr);
+ *       while ((p[1] & 0xff000000) != tag) { ... }
+ *   Written that way the oracle's order falls out exactly -- `lw v0,4(a1)` (cons->id) is issued while
+ *   `cons` is still live, `addu a1,a3,a0` then REUSES that register for `p` (which is why retail's
+ *   `cons` is $a1: it is the same pseudo, not a different colour), and `sll a2,v0,24` fills the load
+ *   delay slot.  Leaving `MI(cons,4)<<24` inside the loop condition evaluated `p[1]` first, forced a
+ *   separate register for `cons` across the whole function, and swapped the tag/mask register pair.
+ *   Second (smaller) part: mask into the SAME `hdr` variable inside the walk (`hdr = p[1]&0xffffff;
+ *   p = (int*)((int)p+hdr);`) so the mask result reuses the `hdr` pseudo ($a0) as retail does.
+ *   NOTE the epilogue's apparent extra insn (`addu v0,a3,zero` in the `blez` delay slot) is NOT a
+ *   second `return chunk` -- it is gcc's delayed-branch TARGET-STEAL of the shared return
+ *   materialization; spelling an explicit early `return chunk;` instead flips the branch to
+ *   `bgtz`+`j` (+2).  Keep the single trailing `return chunk;`. */
 extern int STREAM_get(int consumer)
 {
     int out[2];
@@ -1236,14 +1246,20 @@ extern int STREAM_get(int consumer)
         MI(cons, 8) = rem;                          /* count -= len */
         STREAM_leaveCS(sr);
         if (0 < rem) {                              /* advance cursor to next same-tagged chunk */
+            /* MATCH (TAG-HOIST): the consumer tag is computed BEFORE the cursor pointer, so the
+             * oracle's `lw v0,4(a1)` (cons->id) is issued while `cons` is still in its register,
+             * `addu a1,a3,a0` reuses that register for `p`, and the `sll a2,v0,24` fills the
+             * load-delay slot.  Evaluating the tag inside the loop condition instead put the
+             * p[1] load first and swapped the tag/mask register pair. */
+            unsigned int tag = (unsigned int)(MI(cons, 4) << 0x18);
             p = (int *)(chunk + hdr);
-            hdr = p[1];
-            while ((hdr & 0xff000000) != (unsigned int)(MI(cons, 4) << 0x18)) {
-                if (p[0] == -1)
+            while ((p[1] & 0xff000000) != tag) {    /* advance cursor to next same-tagged chunk */
+                if (p[0] == -1) {
                     p = *(int **)(out[0] + 0x20);    /* wrap */
-                else
-                    p = (int *)((int)p + (p[1] & 0xffffff));
-                hdr = p[1];
+                } else {
+                    hdr = p[1] & 0xffffff;           /* MATCH: reuses the `hdr` pseudo ($a0) */
+                    p = (int *)((int)p + hdr);
+                }
             }
             MI(out[1], 0xc) = (int)p;
         }

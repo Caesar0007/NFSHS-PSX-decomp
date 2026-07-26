@@ -300,43 +300,32 @@ int AIWorld_CheckForBarrierBetweenLanes(int slice,int lane0,int lane1)
 }
 
 /* ---- AIWorld_LaneIndex__Fii  [@0x800734cc] ---- */
-/* NEAR-MISS (14 diffs, count-exact 50/50): both scale conversions are signed
- * divisions, not unsigned shifts. Expressing `/ 0x4000` and the explicit signed
- * `/ 0x10000` bias sequence restores the oracle's bgez/addiu/sra code. Keeping a
- * block-local slice pointer in each arm also restores the duplicated base loads.
- * The residual is confined to v0/v1 choice for pointer addition plus scheduling
- * of the positive-arm lane base and the lane-width result copy. */
+/* SYM identifies only laneWidth ($v0) and li ($s0). Keeping the direct slice
+ * indexing in both arms preserves retail's duplicated base loads and register
+ * allocation; the signed divisions retain the bgez/addiu/sra sequences. */
 int AIWorld_LaneIndex(int slice,int position)
 {
   int laneWidth;
   int li;
-  u_char bVar1;
   int iVar2;
-  int iVar3;
 
   if (position < 0) {
-    Trk_NewSlice *roadSlice;
-    roadSlice = BWorldSm_slices + slice;
-    bVar1 = roadSlice->avgPavedWidthLf;
-    iVar3 = 6;
+    laneWidth = (int)BWorldSm_slices[slice].avgPavedWidthLf * 0x8000;
+    li = 6;
   }
   else {
-    Trk_NewSlice *roadSlice;
-    roadSlice = BWorldSm_slices + slice;
-    bVar1 = roadSlice->avgPavedWidthRt;
-    iVar3 = 7;
+    laneWidth = (int)BWorldSm_slices[slice].avgPavedWidthRt * 0x8000;
+    li = 7;
   }
-  laneWidth = (int)bVar1 * 0x8000;
   iVar2 = fixedmult(position,inverseLaneWidthTable[laneWidth / 0x4000]);
   if (iVar2 < 0) {
     iVar2 = iVar2 + 0xffff;
   }
-  li = iVar2 >> 0x10;
-  iVar3 = iVar3 + li;
-  iVar3 = (iVar3 < 0) ? 0 : iVar3;
+  li = li + (iVar2 >> 0x10);
+  li = (li < 0) ? 0 : li;
   iVar2 = 0xd;
-  if (iVar3 < 0xe) {
-    iVar2 = iVar3;
+  if (li < 0xe) {
+    iVar2 = li;
   }
   return iVar2;
 }

@@ -51,7 +51,22 @@ extern int  syncblockio(int fd, int buf, int offset, int len, int cbarg, SyncIoF
  *   remains, re-issue the next chunk; otherwise mark the transfer finished.
  *   Oracle trace fixes retained here: offset advances on every successful chunk (not only a
  *   short final chunk), the short-read test is signed, and remain is re-read for each clamp
- *   decision. These changes reduce the detailed residual from 65 to 46 diffs. */
+ *   decision.  w31-a5: clamp rewritten if/else with slti-0x2001 polarity (oracle beqz + li-in-ds
+ *   toward the 0x2000 arm) and the op store funneled through `r` (oracle tests the jalr $v0, not a
+ *   reload) -- 46 diffs, 67/71 insns (count parity narrowed from -6 to -4; kept as a documented
+ *   correctness improvement).
+ *   RESIDUAL ANALYSIS (w31-a5, do not re-fight blindly): the oracle body (a) runs the advance
+ *   phase as STRICTLY SERIAL single-scratch v0 chains with load-delay nops -- volatile access
+ *   ordering, while ours interleaves two chains; (b) keeps a SECOND copy of the ctrl pointer
+ *   (`addu s2,s1,zero` right after the completeop call) and bases the whole re-issue phase + the
+ *   shared final remain=0 on s2 -- no source shape found that stops cc1 2.8.0 from copy-
+ *   propagating a `ctrl = c` local away (volatile view, init-after-call, cast chains all tested);
+ *   (c) has volatile-class stores sitting in branch delay slots (op=0, offset+=, op=r), which
+ *   gcc's reorg refuses for volatile MEMs -- the aspsx-fills-blind identity (methodology 3.25 3b/
+ *   3c).  A full-volatile one-pointer body reproduces (a) exactly (72/71 insns) but loses the
+ *   piecewise-volatile ds-store matches -- net worse (57 diffs); the s1/s2 split alone is worth
+ *   ~20 rename diffs and looks like an inlined-helper or assembler-era artifact.  Suspected
+ *   partial identity floor. */
 extern void synccallback(int op, int type, SyncCtrl *c)
 {
     unsigned int done = FILE_completeop((unsigned int)op);
@@ -66,11 +81,15 @@ extern void synccallback(int op, int type, SyncCtrl *c)
             c->remain -= done;
         }
         if (0 < *(volatile int *)&c->remain) {
-            c->chunk = (0x2000 < *(volatile int *)&c->remain)
-                     ? 0x2000 : *(volatile int *)&c->remain;
-            c->op = c->iofn(c->fd, c->buf, c->offset, c->chunk, c->cbarg, c);
-            if (c->op != 0) {
-                FILE_callbackop((unsigned int)c->op, (void *)synccallback);
+            int r;
+            if (*(volatile int *)&c->remain < 0x2001)   /* if/else, slti polarity: beqz -> 0x2000 arm */
+                c->chunk = *(volatile int *)&c->remain;
+            else
+                c->chunk = 0x2000;
+            r = c->iofn(c->fd, c->buf, c->offset, c->chunk, c->cbarg, c);
+            c->op = r;                              /* sw in the jalr-test branch delay slot */
+            if (r != 0) {
+                FILE_callbackop((unsigned int)r, (void *)synccallback);
                 return;
             }
         } else {

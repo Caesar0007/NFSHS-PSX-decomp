@@ -1523,7 +1523,7 @@ extern "C" void Front_InitTraffic__FR9tFEStream(tFEStream *streamData)
   tCarModels carModel;
   char carColor;
 
-  carColor = ' ';
+  carColor = '\0';
   maxTraffic = 6;
   if (frontEnd.gameMode == '') {
     maxTraffic = 3;
@@ -1534,7 +1534,7 @@ extern "C" void Front_InitTraffic__FR9tFEStream(tFEStream *streamData)
       maxTraffic = 1;
     }
   }
-  bTraffic = frontEnd.traffic[(byte)frontEnd.pinkSlipsTrackIndex] != ' ';
+  bTraffic = frontEnd.traffic[(byte)frontEnd.pinkSlipsTrackIndex] != '\0';
   /* MATCH: a SWITCH, not an if/else chain -- the oracle dispatches with
      `bltz raceType,default` + `slti raceType,2` + `beq raceType,6`, i.e. gcc's
      emit_case_nodes bound test against the PROMOTED int index type (an if-chain
@@ -1543,16 +1543,16 @@ extern "C" void Front_InitTraffic__FR9tFEStream(tFEStream *streamData)
   switch (frontEnd.raceType) {
   case 0:
   case 1:
-    if ((frontEnd.carListType == ' ') && (frontEnd.raceType == ' ')) {
+    if ((frontEnd.carListType == '\0') && (frontEnd.raceType == '\0')) {
       bTraffic = true;
     }
     else if (frontEnd.raceType == '') {
-      bTraffic = frontEnd.traffic[0] != ' ';
+      bTraffic = frontEnd.traffic[0] != '\0';
     }
     if (2 < (streamData->trackInfo).fTrackDifficulty) {
       bTraffic = false;
     }
-    if ((streamData->trackInfo).fIsEgg != ' ') {
+    if ((streamData->trackInfo).fIsEgg != '\0') {
       bTraffic = false;
     }
     if (frontEnd.gameMode == '') {

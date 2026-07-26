@@ -432,7 +432,9 @@ extern void iSNDserve(void)
 {
     unsigned int koff;         /* local_30 : key-off mask deferred until DMA settles */
     unsigned int kon;          /* mask     : key-on mask */
-    int          chan, vt, n;
+    unsigned short *vreg;
+    int          chan, vt, n, cvt;
+    int          onec, one;
     unsigned char *vp;
     unsigned char *base;
     unsigned char *fpbase;    /* &sndpd, materialized ONCE right before the loop and kept LIVE across
@@ -442,16 +444,13 @@ extern void iSNDserve(void)
                                 * dereference @+0x510, and the linked-voice-done probe @+0xF5+cvt) goes
                                 * through this cached base instead of re-materializing sndpd's own
                                 * %hi/%lo every time. */
-    unsigned short *vreg;
 
+    chan = 0;
     *(volatile unsigned int *)&koff = 0;
     base = sndpd;
-    if (*(int *)(base + 0x720) != 0) {
-        kon = 0;
+    kon = 0;
+    if (*(int *)(base + 0x720) != 0)
         (*(void (*)(void))*(int *)(base + 0x720))();
-    } else {
-        kon = 0;
-    }
 
     /* W31 (106 -> 101): `chan = kon` (== 0) -- the oracle's entry-guard is a real slt against the
      * count with the zero in a REGISTER (retail cse substituted kon's reg for the literal 0); a
@@ -505,12 +504,55 @@ extern void iSNDserve(void)
      *   below stands.  Route to the toolchain-identity investigation, not to more source reshaping.
      *   (Also re-checked this wave: a3's "redundant copy = a SECOND source evaluation" reading of
      *   `chan = kon` -- i.e. two literal zeros that retail's cse turned into a register copy -- is
-     *   what fact (i) already encodes, and it still measures 121, not better.) */
-    chan = kon;
+     *   what fact (i) already encodes, and it still measures 121, not better.)
+     *
+     * 🔴 W35-a2 2026-07-26 -- THE ABOVE "-dL COST-MODEL FLOOR" VERDICT IS **WRONG**; 101 -> 79.
+     *   The `li fp,1` LICM hoist IS killable without touching the loop shape, using the w34/w35
+     *   movfxya SET-TWICE DEAD-SET CARRIER (`one = 1; use; one = 0;`): loop.c counts the dead set
+     *   (set_in_loop != 1 -> not invariant -> no hoist) and flow deletes it for free, so the `1`
+     *   is rematerialized per site exactly like retail -- and the giv/strength-reduction machinery
+     *   the goto-loop destroyed is fully preserved.  With the hoist gone, `$fp` is freed and the
+     *   whole residual becomes a pure ALLOCNO-ORDER problem, which is arithmetic, not guesswork.
+     *
+     *   THE ALLOCNO ARITHMETIC (cc1 `-dl`/`-dg`, priority = floor_log2(refs)*refs/live_length,
+     *   REG_N_REFS weighted by loop DEPTH: 1 outside, 2 in the voice loop, 3 in the cleanup loop;
+     *   callee-saved REG_ALLOC_ORDER is s0..s7 then $fp, and gcc-2.8 allocno_compare TIE-BREAKS BY
+     *   PSEUDO NUMBER = DECLARATION ORDER).  Retail's map, read off the oracle:
+     *       vp $s0 | c $s1 | n $s2 | kon $s3 | vreg $s4 | chan $s5 | cvt $s6 | vt $s7 | fpbase $fp
+     *       (+ koff SPILLED to 0x10(sp) -- 10 callee-saved-needing pseudos, 9 registers)
+     *   Four source levers move our table onto it (all four are load-bearing, measured):
+     *     1. dead-set carriers `one`/`onec` (above) -- removes the const-1 allocno, frees $fp.
+     *     2. facts (i)+(ii) -- plain `kon = 0; if (hook) hook();` + explicit entry-guard/do-while.
+     *        These were measured at 121 in w32 ONLY because the const-1 allocno was still there;
+     *        with lever 1 in place they are what puts fpbase LAST (its live length grows to ~282,
+     *        priority 0.16 < vt's 0.19) and re-spills koff.
+     *     3. `chan = 0;` as the FUNCTION'S FIRST STATEMENT -- pure live-length dial: it lengthens
+     *        chan's range to exactly kon's (both 4*18/154), landing chan in the kon/vreg tie group.
+     *     4. `unsigned short *vreg;` DECLARED BEFORE `chan` -- the three pseudos end up with
+     *        NUMERICALLY IDENTICAL priorities (36/77 == 72/154), so the winner is decided purely by
+     *        allocno_compare's `allocno1 - allocno2` tail, i.e. by declaration order.  Moving the
+     *        vreg decl above chan orders them kon < vreg < chan == $s3/$s4/$s5 = retail.
+     *   Plus `cvt = vt` hoisted OUT of the cleanup do-while (it is loop-invariant there, so it
+     *   crosses iSNDfreechan and becomes the 7th callee-saved allocno = retail's $s6).
+     *
+     *   RESIDUAL (79 diffs, ours 228 / oracle 231): `cvt` currently prices at 3*8/27 = 0.889 and
+     *   takes $s3, rotating {kon,chan} one slot up ($s5/$s6 instead of $s3/$s5).  It needs a
+     *   priority in (0.19, 0.47) -- i.e. refs 8 -> 4-5, or live_length 27 -> ~51-125.  Moving its
+     *   def earlier (3 positions tried: outer-loop top / state==2 entry / ADSR-guard entry) does
+     *   NOT lengthen it -- gcc sinks the copy back to the inner pre-header.  The SPLIT form
+     *   (`vp = &DAT+cvt` in an explicit else arm, `vp = &DAT+c*0x2c` in the n==2 arm) DOES price
+     *   cvt at 0.256 -> $s6 and gives the COMPLETE retail register map at EXACT parity 231/231 --
+     *   but it makes &DAT_801479f0 a 3-site invariant that gcc then hoists into one caller-saved
+     *   pseudo, forcing a caller-save spill slot (frame 72 vs 64) and costing more than it wins
+     *   (128 diffs).  So the remaining lever is: keep the split form AND stop gcc hoisting
+     *   `&DAT_801479f0` (retail rematerializes `lui/addiu %hi/%lo(D_801479F0)` at all THREE sites).
+     *   That is the single next experiment; `-mno-split-addresses` per-TU is the obvious candidate
+     *   but needs a whole-TU sweep (4 other fns in this file PASS).  Saved states for the next
+     *   pass: scratchpad/slib_a2_{79,regsmatch,parity}.c (79 / 128-with-full-map / 231-parity). */
     fpbase = base;
-    vt = chan;
-    while (chan < (int)(unsigned int)SUB(0x11)) {
-        {
+    vt = 0;
+    if ((int)kon < (int)(unsigned int)SUB(0x11)) {
+        do {
             unsigned short *vreg0; /* split-temp: computed then copied into `vreg` -- a permuter basin find
                                * that shaved one more insn off the register-coloring residual */
             vp   = &DAT_801479f0 + vt;
@@ -522,9 +564,10 @@ extern void iSNDserve(void)
                 } else {                                             /* SPU ADSR reached 0 */
                     if (vp[0x26] != 0 && vp[0x21] == 0 &&
                         (int)((unsigned)vp[0x27] << 0x18) < 0) {
+                        cvt = vt;
                         n = (int)(unsigned)*(volatile unsigned char *)(vp + 0x1f);
                         do {
-                            int c = chan, cvt = vt;
+                            int c = chan;
                             if (n == 2) {
                                 c = (int)((unsigned int)*(volatile unsigned char *)(vp + 0x20) << 24) >> 24;
                                 cvt = ((int)((unsigned int)*(volatile unsigned char *)(vp + 0x20) << 24) >> 24) * 0x2c;
@@ -535,7 +578,9 @@ extern void iSNDserve(void)
                             iSNDfreechan(c);
                             n--;
                             *(unsigned short *)(c * 0x10 + *(int *)(fpbase + 0x510) + 6) = 0x200;
-                            kon = kon | (1 << c);
+                            onec = 1;
+                            kon = kon | (onec << c);
+                            onec = 0;
                             *(unsigned short *)(c * 0x10 + *(int *)(fpbase + 0x510)) = 0;
                             *(unsigned short *)(c * 0x10 + *(int *)(fpbase + 0x510) + 2) = 0;
                         } while (0 < n);
@@ -561,15 +606,17 @@ extern void iSNDserve(void)
                     }
                 }
             } else if (*(volatile unsigned char *)(vp + 0x1d) == 3) { /* voice fully stopped */
+                one = 1;
                 if (vreg[6] == 0) {
-                    kon = kon | (1 << chan);                /* (Ghidra `mask`) */
+                    kon = kon | (one << chan);              /* (Ghidra `mask`) */
                     vp[0x1d] = 0;
                     vreg[3] = 0x200;
                     vreg[0] = 0;
                     vreg[1] = 0;
                 } else {
-                    koff = koff | (1 << chan);              /* (Ghidra `local_30`) */
+                    koff = koff | (one << chan);            /* (Ghidra `local_30`) */
                 }
+                one = 0;
             }
             /* NOTE: no `vp = &DAT_801479f0 + vt;` re-materialize here -- the oracle reuses whatever
              * $s0 currently holds (the outer voice's vp on every path EXCEPT after the n==2 linked
@@ -583,7 +630,7 @@ extern void iSNDserve(void)
             }
             chan++;
             vt += 0x2c;
-        }
+        } while (chan < (int)(unsigned int)SUB(0x11));
     }
     if (koff != 0)
         iSNDpsxkeyoff((int)koff);

@@ -101,18 +101,22 @@ extern void SPCH_SetPreLoadTicks(int ticks);                       /* @0x801018F
  *   read *(phraseTemplate+i+4), computed and ANDed in the GetMatchValue jal's delay slot (so it's the
  *   PRE-CALL value, not derived from the call's return -- the earlier recon wrongly took lowNib from
  *   matchVal's low nibble AND wrongly read count/cycleByte off the swapped bank/sample roles). */
-/* residual 28 (67/65): ours' gcc loop-invariant-hoists the shift constant `1u` of `bit = 1u <<
- * cycleByte` OUT of the loop into a 9th callee-saved register (s6), pushing sample/paramTable
- * (which oracle fits into s6/s7) into s7/$fp -- 2 extra sw/lw = the insn-count gap. oracle
- * re-materializes `li v1,1` FRESH each pass (a caller-saved temp, not hoisted) and needs only 8
- * saved regs (s0..s7), no $fp. Tried: named-local reassignment of the "1" each iteration (AIPerson
- * cmp=K1-style anti-hoist lever) -- gcc's dataflow still recognizes the VALUE as invariant
- * regardless (no change); declaration-order swap of lowNib/bit -- worse (44 diffs); inlining
- * `1u<<cycleByte` twice (no named `bit`) -- DOES reach insn parity (65/65, matches the 8-reg
- * layout exactly) but gcc then picks a different bit-TEST strategy (srlv+andi mask-test instead
- * of sllv+and) that recolors i/cycleByte and recomputes the 2nd bit test, netting MORE line
- * diffs (32 > 28) -- fails the strict-diff-count-drop keep bar, reverted. No volatile/asm lever
- * available (LICM of a true literal isn't source-defeatable without one). Accept as floor. */
+/* MATCH (w32-a9, 28 -> 22 diffs): the IDA register annotation for sub_8010077C names retail's
+ * locals and exposes a SIXTH one our recon had inlined: `v10 // $v0` = a plain int cursor
+ * initialised to `sample + i` and RE-COMPUTED at the BOTTOM of the loop (`v10 = a2 + v9`), with
+ * the cycle byte read as `*(v10 + 12)`.  Spelling that cursor out (instead of addressing
+ * `sample + i + 0xc` at the top) lands sample/phraseTemplate/paramTable in retail's s6/s5/s7 and
+ * fixes the whole address-forming block.  Retail's other four are {lowNib:s0, i:s1, bit:s2,
+ * result:s3, count:s4}.
+ * RESIDUAL 22 (67/65) = ours' loop pass still hoists the shift constant `1` of `bit = 1u <<
+ * cycleByte` into a NINTH callee-saved register ($s7 here), which pushes paramTable into $fp and
+ * adds the fp save/restore pair (the 2-insn gap); retail rematerializes `li v1,1` per iteration
+ * and gets by on s0-s7.  Same move_movables class as iSPCH_SentenceGetChoices' `li -2`, but here
+ * there is no compare to fold the constant into.  Levers tried and rejected: a label+goto loop
+ * DOES kill the hoist and reach exact 65/65 parity, but re-rotates the five block locals (40-42
+ * diffs, worse); `(matchVal >> cycleByte) & 1` avoids the constant but switches cc1 to a
+ * srlv/andi bit test the oracle does not use; a named `one` local and re-assignment per
+ * iteration are still recognised as invariant. */
 extern int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int paramTable)
 {
     /* w31-a4 NOTE (kept at baseline per strict-drop seal law; findings for a future wave):
@@ -138,24 +142,24 @@ extern int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int pa
 valid_count:
     if (0 < count) {
         int i = 0;
+        int p = sample + i;
         do {
-            unsigned int cycleByte = *(unsigned char *)(sample + i + 0xc);
+            unsigned int cycleByte = *(unsigned char *)(p + 0xc);
             result = 0;
             if (0x1f < cycleByte)
-                break;
+                goto done;
             {
-                int matchVal;
-                unsigned int bit      = 1u << (cycleByte);
-                int          lowNib   = (int)*(unsigned char *)(phraseTemplate + i + 4) & 0xf;
-                matchVal = iSPCH_GetMatchValue(phraseTemplate, i);
-                if ((bit & (unsigned int)matchVal) != 0 &&
+                unsigned int bit    = 1u << (cycleByte);
+                int          lowNib = (int)*(unsigned char *)(phraseTemplate + i + 4) & 0xf;
+                if ((bit & (unsigned int)iSPCH_GetMatchValue(phraseTemplate, i)) != 0 &&
                     (lowNib == 0 ||
                      (bit & (unsigned int)*(int *)(lowNib * 4 + paramTable)) != 0))
                     result = 1;
             }
+            i = i + 1;
             if (result == 0)
                 goto done;
-            i = i + 1;
+            p = sample + i;
         } while (i < count);
     }
 done:

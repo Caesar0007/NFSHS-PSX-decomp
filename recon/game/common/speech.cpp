@@ -1276,31 +1276,35 @@ u_int BankPatch__6SpeechlP8Car_tObj(int param_1,int bank,int car)
 }
 
 /* ---- SubmitRequest__6Speechlll  [SPEECH.CPP:1317-1342] SLD-VERIFIED ---- */
-int SubmitRequest__6Speechlll(int param_1,int localoffset,u_int size)
+int SubmitRequest__6Speechlll(int bank,int localoffset,u_int size)
 
 {
+  Car_tObj *car;
   int patch;
   long offset;
-  u_int bank;
 
-  if (((int)Speech_fgSpeech) != 0) {
-    *(u_int *)(*(int *)(((int)Speech_fgSpeech) + 0x3a0) + 0x54) = 0;
-    *(u_int *)(*(int *)(((int)Speech_fgSpeech) + 0x3a0) + 0x50) = 0x200;
-    bank = *(u_int *)(((int)Speech_fgSpeech) + 0x38c);
-    patch = BankPatch__6SpeechlP8Car_tObj(((int)Speech_fgSpeech),param_1,bank);
-    if ((param_1 >= 0) && (param_1 < *(int *)(((int)Speech_fgSpeech) + 0x370))) {
-      offset = *(int *)(param_1 * 4 + *(int *)(((int)Speech_fgSpeech) + 0x36c));
-    }
-    else {
-      offset = 0;
+  if (Speech_fgSpeech != 0) {
+    Speech_fgSpeech->fDispatch->fStatusSub = 0;
+    Speech_fgSpeech->fDispatch->fStatusCount = 0x200;
+    car = Speech_fgSpeech->fSpeakerCar;
+    patch = BankPatch__6SpeechlP8Car_tObj((int)Speech_fgSpeech,bank,(int)car);
+    {
+      Speech *pThis = Speech_fgSpeech;
+      if ((bank >= 0) && (bank < pThis->fBankCount)) {
+        offset = pThis->fBankOffset[bank];
+      }
+      else {
+        offset = 0;
+      }
     }
     if (patch >= 0) {
-      CopSpeak_GenericBankRequest(patch,bank);
+      CopSpeak_GenericBankRequest(patch,car);
       return offset + localoffset;
     }
     else {
       if (offset != 0) {
-        CopSpeak_DirectRequest(*(u_int *)(((int)Speech_fgSpeech) + 0x368),offset + localoffset,size,bank,0);
+        Speech *pThis = Speech_fgSpeech;
+        CopSpeak_DirectRequest(pThis->fFileHandle,offset + localoffset,size,car,0);
       }
       return offset + localoffset;
     }

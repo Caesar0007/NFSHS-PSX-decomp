@@ -169,7 +169,6 @@ void tScreenMemcard::LoadIcon(int filenum)
   short x_scale;
   int clutx;
   int cluty;
-  int fileOff2;
   int fileOff8;
   
   i = AudioMus_Buffered();
@@ -189,7 +188,6 @@ void tScreenMemcard::LoadIcon(int filenum)
       this->fMemFile[filenum].icon[2] = (shapetbl *)&iconShape[0x13].width;
       do {
         i = MCRD_handlecardevents(this->card);
-        fileOff2 = filenum * 2;
       } while (i != 0x16);
       done = false;
       MCRD_loadfile(this->card,this->fMemFile + filenum,1);
@@ -219,8 +217,7 @@ void tScreenMemcard::LoadIcon(int filenum)
             this->ReleaseIcons();
             goto LoadIcon_clearCardFlag;
           }
-          this->numicon[filenum] =
-               *(char *)this->fMemFile[0].icon[filenum * 3 + fileOff2 * 4 + 3] + 0xf0;
+          this->numicon[filenum] = *this->fMemFile[filenum].numicons - 0x10;
           i = garyMemCardGrabBlocks(this->card,filenum);
           this->numblock[filenum] = (uchar)i;
           if (3 < this->numicon[filenum]) {

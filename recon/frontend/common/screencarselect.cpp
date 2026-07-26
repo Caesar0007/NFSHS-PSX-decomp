@@ -1930,7 +1930,6 @@ extern tFEApplication *FEAppB[] asm("FEApp");
 void tScreenCarSelectTwoPlayer::DrawBackground()
 
 {
-  int drenvHandle;
   int screenVtbl;
   int ti7;
   int screenVtbl2;
@@ -1953,11 +1952,11 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   byte bVar1;
   
   ts10 = 0x4f;
-  drenvHandle = (int)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
+  drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
   daprim = Render_gPacketPtr;
   cur_pkt = Render_gPalettePtr;
   temp.x = 0;
-  temp.y = *(short *)(drenvHandle + 2);
+  temp.y = *(short *)((char *)drenv + 2);
   temp.w = 0x200;
   carInfoPtr = (tCarInfo *)0xff000000;
   temp.h = (short)screenheight;
@@ -2060,7 +2059,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   daprim = Render_gPacketPtr;
   cur_pkt_2 = Render_gPalettePtr;
   temp.x = 0;
-  temp.y = *(short *)(drenvHandle + 2);
+  temp.y = *(short *)((char *)drenv + 2);
   temp.w = 0x200;
   temp.h = (short)(screenheight / 2);
   if (FEAppB[0]->fPlayer == '\x01') {

@@ -1018,69 +1018,40 @@ void AI_AddCollidableObjects(Car_tObj *carObj,Group *groupSimObjs)
   int latPos;
   int avoidance;
   int radius;
-  int iVar1;
-  int *piVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  int importance;
 
   simObjs = (Trk_SimObject *)(groupSimObjs + 1);
   if (firstTime != '\0') {
     firstTime = '\0';
     BWorldSm_SetSlice(0,(BWorldSm_Pos *)&spos);
   }
-  for (objectIndex = 0; objectIndex < groupSimObjs->m_num_elements; objectIndex = objectIndex + 1) {
-    pt.x = simObjs->point[0];
-    pt.y = simObjs->point[1];
-    pt.z = simObjs->point[2];
+  objectIndex = 0;
+  while (1) {
+    if (groupSimObjs->m_num_elements <= objectIndex) {
+      break;
+    }
+    pt.x = simObjs[objectIndex].point[0];
+    pt.y = simObjs[objectIndex].point[1];
+    pt.z = simObjs[objectIndex].point[2];
     BWorldSm_FindClosestSlice(&pt,(BWorldSm_Pos *)&spos);
-    iVar1 = AIWorld_ApxSplineDistance(spos.slice,carObj);   /* H17: arg0 was 0; oracle 0x800597B4 $a0=*(short*)spos=spos.slice */
-    if (iVar1 * carObj->direction - 1U < 0x63ffff) {
-      piVar2 = (int *)((char *)BWorldSm_slices + (carObj->N).simRoadInfo.slice * 0x20);
-      centerSlice.x = *piVar2;
-      centerSlice.y = piVar2[1];
-      centerSlice.z = piVar2[2];
+    if ((u_int)(AIWorld_ApxSplineDistance(spos.slice,carObj) *
+                carObj->direction - 1) < 0x63ffff) {
+      centerSlice = *(coorddef *)
+          BWorldSm_slices[(carObj->N).simRoadInfo.slice].center;
       centerToPt.x = pt.x - centerSlice.x;
       centerToPt.y = pt.y - centerSlice.y;
       centerToPt.z = pt.z - centerSlice.z;
-      iVar1 = (carObj->N).roadMatrix.m[0];
-      if (iVar1 < 0) {
-        iVar1 = iVar1 + 0xff;
-      }
-      iVar3 = centerToPt.x;
-      if (centerToPt.x < 0) {
-        iVar3 = centerToPt.x + 0xff;
-      }
-      latPos = (iVar1 >> 8) * (iVar3 >> 8);
-      iVar6 = (carObj->N).roadMatrix.m[1];
-      if (iVar6 < 0) {
-        iVar6 = iVar6 + 0xff;
-      }
-      iVar4 = centerToPt.y;
-      if (centerToPt.y < 0) {
-        iVar4 = centerToPt.y + 0xff;
-      }
-      latPos = latPos + (iVar6 >> 8) * (iVar4 >> 8);
-      iVar7 = (carObj->N).roadMatrix.m[2];
-      if (iVar7 < 0) {
-        iVar7 = iVar7 + 0xff;
-      }
-      iVar5 = centerToPt.z;
-      if (centerToPt.z < 0) {
-        iVar5 = centerToPt.z + 0xff;
-      }
+      latPos =
+          (carObj->N).roadMatrix.m[0] / 0x100 * (centerToPt.x / 0x100) +
+          (carObj->N).roadMatrix.m[1] / 0x100 * (centerToPt.y / 0x100) +
+          (carObj->N).roadMatrix.m[2] / 0x100 * (centerToPt.z / 0x100);
       avoidance = -0xd0000;
-      if (simObjs->type == 1) {
+      if (simObjs[objectIndex].type == 1) {
         avoidance = -0x280000;
       }
-      radius = simObjs->radius;
-      latPos = latPos + (iVar7 >> 8) * (iVar5 >> 8);
+      radius = simObjs[objectIndex].radius;
       AI_SubmitObstacle(carObj,avoidance,latPos + radius * -0x200,latPos + radius * 0x200,spos.slice);   /* H17: 5th arg (slice) was 0; oracle 0x800598E4 reload spos.slice -> feeds AIWorld_LaneIndex */
     }
-    simObjs = simObjs + 1;
+    objectIndex = objectIndex + 1;
   }
   return;
 }

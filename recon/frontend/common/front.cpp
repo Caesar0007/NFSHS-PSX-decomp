@@ -1261,113 +1261,93 @@ extern "C" void Front_InitMissions__FR9tFEStream(tFEStream *streamData)
    
    [ghidra-meta] section: front.text */
 
+/* SYM (nfs4-f-v3.txt @0x80028c94) `8c Function start` gives the EXACT local set:
+     streamData = REGPARM $18 (s2)
+     block (fn-scope, line=1..89): fBestModel = REG $5 (a1, tCarModels), fBestClass =
+     REG $6 (a2, tCarClassType), i = REG $19 (s3, SHORT -- ONE counter reused across
+     ALL FOUR loops), copModel = AUTO -0x30 (tCarModels), copColor = AUTO -0x2c (CHAR).
+     Everything else the old Ghidra body invented (uVar1/ptVar2/pvVar3/sVar4/iVar5/
+     tVar6/uVar7/tVar8/uVar9/iVar10) was a compiler temp / the classic short-index
+     `i<<16`/`>>16` rendering artifact -- do not reintroduce it; `i` is a plain short
+     used directly as the array index in every loop. */
 extern "C" void Front_InitCopCars__FR9tFEStream(tFEStream *streamData)
 
 {
-  ushort uVar1;
-  tCarModels *ptVar2;
-  void *pvVar3;
-  short sVar4;
-  int iVar5;
-  tCarModels tVar6;
-  uint uVar7;
-  tCarModels tVar8;
   tCarModels fBestModel;
-  uint uVar9;
   tCarClassType fBestClass;
   short i;
-  int iVar10;
   tCarModels copModel;
   char copColor;
-  
-  tVar8 = cm_MercedesSLK;
-  iVar10 = 0;
-  uVar9 = 0;
+
+  fBestModel = cm_MercedesSLK;
+  i = 0;
+  fBestClass = cct_Roadster;
+  copModel = cm_CapriceCop;
   copColor = '\0';
   streamData->numCops = 0;
   streamData->numSuperCops = 0;
-  if (0 < streamData->numPlayers) {
-    iVar5 = 0;
-    do {
-      tVar6 = (tCarModels)streamData->playerCars[iVar5 >> 0x10].fCarID;
-      if ((int)tVar8 < (int)tVar6) {
-        tVar8 = tVar6;
-      }
-      uVar7 = (uint)streamData->playerCars[iVar5 >> 0x10].fCarClass;
-      iVar10 = iVar10 + 1;
-      if (uVar9 < uVar7) {
-        uVar9 = uVar7;
-      }
-      iVar5 = iVar10 * 0x10000;
-    } while (iVar10 * 0x10000 >> 0x10 < (int)streamData->numPlayers);
-  }
-  if ((streamData->pMission == (tMissionInfo *)0x0) || (streamData->pStages == (tStageInfo *)0x0)) {
-    if (frontEnd.raceType == '\x01') {
-      iVar10 = 0;
-      if (0 < streamData->numPlayers) {
-        iVar5 = 0;
-        do {
-          iVar10 = iVar10 + 1;
-          if (streamData->playerCars[iVar5 >> 0x10].fCarClass == '\a') {
-            return;
-          }
-          iVar5 = iVar10 * 0x10000;
-        } while (iVar10 * 0x10000 >> 0x10 < (int)streamData->numPlayers);
-      }
-      if ((streamData->numPlayers == 1) && (streamData->numOpponents == 0)) {
-        streamData->numCops = 2;
-        streamData->numSuperCops = 1;
-      }
-      else if (streamData->numPlayers == 2) {
-        streamData->numCops = 0;
-        streamData->numSuperCops = 2;
-      }
-      else {
-        streamData->numCops = 4;
-        streamData->numSuperCops = 0;
-      }
-      uVar1 = streamData->numSuperCops;
-      iVar10 = 0;
-      if (0 < (int)streamData->numCops + (int)streamData->numSuperCops) {
-        iVar5 = 0;
-        do {
-          if (iVar5 < (int)((uint)uVar1 << 0x10)) {
-            ptVar2 = superCopModels[uVar9] + (byte)(streamData->trackInfo).fCountry;
-          }
-          else {
-            ptVar2 = regularCopModels[uVar9] + (byte)(streamData->trackInfo).fCountry;
-          }
-          copModel = *ptVar2;
-          if (!IsCarAnAddedModel(&carManager, &copModel,&copColor)) {
-            streamData->totalModels = streamData->totalModels + 3;
-            AddCarToIngameList(&carManager, &copModel,&copColor);
-          }
-          sVar4 = (short)iVar10;
-          streamData->copCars[sVar4] = copModel;
-          iVar10 = iVar10 + 1;
-          streamData->totalCars = streamData->totalCars + 2;
-          streamData->copCountry[sVar4] = (ushort)(byte)(streamData->trackInfo).fCountry;
-          uVar1 = streamData->numSuperCops;
-          iVar5 = iVar10 * 0x10000;
-        } while (iVar10 * 0x10000 >> 0x10 < (int)streamData->numCops + (int)streamData->numSuperCops
-                );
-      }
+  for (i = 0; i < streamData->numPlayers; i = i + 1) {
+    if ((int)fBestModel < (int)(signed char)streamData->playerCars[i].fCarID) {
+      fBestModel = (tCarModels)(signed char)streamData->playerCars[i].fCarID;
+    }
+    if ((int)fBestClass < (int)streamData->playerCars[i].fCarClass) {
+      fBestClass = streamData->playerCars[i].fCarClass;
     }
   }
-  else if ((frontEnd.gameMode != '\x01') && (iVar10 = 0, streamData->pMission->fNumStages != '\0'))
-  {
-    iVar5 = 0;
-    do {
-      if ((-1 < streamData->pStages[iVar5 >> 0x10].fWingman) ||
-         (iVar10 = iVar10 + 1, -1 < streamData->pStages[iVar5 >> 0x10].fBlockadeCop)) {
-        streamData->copCars[streamData->numCops] = tVar8;
+  /* MATCH: physical layout -- the oracle places the (pMission!=0 && pStages!=0)
+     body INLINE/fall-through right after the compound OR-test (jumped-to only
+     when EITHER pointer is null), and the raceType body OUT-OF-LINE. Writing
+     the De Morgan-equivalent `if (A&&B) {...} else if (raceType) {...}` (rather
+     than the original `if (A||B) { if(raceType) {...} }`) reproduces that
+     layout -- swapping which block is "then" vs "else" moves ~30 insns from
+     out-of-line to fall-through and matches. */
+  if ((streamData->pMission != (tMissionInfo *)0x0) && (streamData->pStages != (tStageInfo *)0x0)) {
+    if (frontEnd.gameMode == '\x01') {
+      return;
+    }
+    for (i = 0; i < (short)(uint)streamData->pMission->fNumStages; i = i + 1) {
+      if ((-1 < streamData->pStages[i].fWingman) || (-1 < streamData->pStages[i].fBlockadeCop)) {
+        streamData->copCars[streamData->numCops] = fBestModel;
         streamData->copCountry[streamData->numCops] = (ushort)streamData->playerCars[0].fCountry;
         streamData->numCops = streamData->numCops + 1;
         streamData->totalCars = streamData->totalCars + 2;
         return;
       }
-      iVar5 = iVar10 * 0x10000;
-    } while (iVar10 * 0x10000 >> 0x10 < (int)(uint)streamData->pMission->fNumStages);
+    }
+  }
+  else if (frontEnd.raceType == '\x01') {
+    for (i = 0; i < streamData->numPlayers; i = i + 1) {
+      if (streamData->playerCars[i].fCarClass == '\a') {
+        return;
+      }
+    }
+    if ((streamData->numPlayers == 1) && (streamData->numOpponents == 0)) {
+      streamData->numCops = 2;
+      streamData->numSuperCops = 1;
+    }
+    else if (streamData->numPlayers == 2) {
+      streamData->numCops = 0;
+      streamData->numSuperCops = 2;
+    }
+    else {
+      streamData->numCops = 4;
+      streamData->numSuperCops = 0;
+    }
+    for (i = 0; i < streamData->numCops + streamData->numSuperCops; i = i + 1) {
+      if (i < streamData->numSuperCops) {
+        copModel = superCopModels[fBestClass][(byte)(streamData->trackInfo).fCountry];
+      }
+      else {
+        copModel = regularCopModels[fBestClass][(byte)(streamData->trackInfo).fCountry];
+      }
+      if (!IsCarAnAddedModel(&carManager, &copModel,&copColor)) {
+        streamData->totalModels = streamData->totalModels + 3;
+        AddCarToIngameList(&carManager, &copModel,&copColor);
+      }
+      streamData->copCars[i] = copModel;
+      streamData->totalCars = streamData->totalCars + 2;
+      streamData->copCountry[i] = (ushort)(byte)(streamData->trackInfo).fCountry;
+    }
   }
   return;
 }
@@ -1523,7 +1503,7 @@ extern "C" void Front_InitTraffic__FR9tFEStream(tFEStream *streamData)
   tCarModels carModel;
   char carColor;
 
-  carColor = ' ';
+  carColor = '\0';
   maxTraffic = 6;
   if (frontEnd.gameMode == '') {
     maxTraffic = 3;
@@ -1534,7 +1514,7 @@ extern "C" void Front_InitTraffic__FR9tFEStream(tFEStream *streamData)
       maxTraffic = 1;
     }
   }
-  bTraffic = frontEnd.traffic[(byte)frontEnd.pinkSlipsTrackIndex] != ' ';
+  bTraffic = frontEnd.traffic[(byte)frontEnd.pinkSlipsTrackIndex] != '\0';
   /* MATCH: a SWITCH, not an if/else chain -- the oracle dispatches with
      `bltz raceType,default` + `slti raceType,2` + `beq raceType,6`, i.e. gcc's
      emit_case_nodes bound test against the PROMOTED int index type (an if-chain
@@ -1543,16 +1523,16 @@ extern "C" void Front_InitTraffic__FR9tFEStream(tFEStream *streamData)
   switch (frontEnd.raceType) {
   case 0:
   case 1:
-    if ((frontEnd.carListType == ' ') && (frontEnd.raceType == ' ')) {
+    if ((frontEnd.carListType == '\0') && (frontEnd.raceType == '\0')) {
       bTraffic = true;
     }
     else if (frontEnd.raceType == '') {
-      bTraffic = frontEnd.traffic[0] != ' ';
+      bTraffic = frontEnd.traffic[0] != '\0';
     }
     if (2 < (streamData->trackInfo).fTrackDifficulty) {
       bTraffic = false;
     }
-    if ((streamData->trackInfo).fIsEgg != ' ') {
+    if ((streamData->trackInfo).fIsEgg != '\0') {
       bTraffic = false;
     }
     if (frontEnd.gameMode == '') {

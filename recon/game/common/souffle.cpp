@@ -355,29 +355,30 @@ void Souffle_InsertFacet(DRender_tView *Vi)
 
 {
   int inCircle;
+  int z;
   int iVar1;
   Souffle_tISouffle *is;
   Souffle_tISouffle *is_2;
   int off;
   int i;
   int i_2;
+  coorddef *translation;
   
   i_2 = 0;
-  off = 0;
+  translation = &(Vi->cview).translation;
+  off = i_2;
   do {
     if (gCISouffle <= i_2) {
       return;
     }
     is_2 = (Souffle_tISouffle *)(&gISouffle->type + off);
-    inCircle = Souffle_CircleClip(&is_2->source,&(Vi->cview).translation,0x320000);
+    inCircle = Souffle_CircleClip(&is_2->source,translation,0x320000);
     if (inCircle != 0) {
       if (is_2->type != '\n') {
-        Sfx_Transform(&is_2->source,&is_2->trans,&(Vi->cview).translation);
-        iVar1 = (int)(is_2->trans).vx;
-        if (iVar1 < 0) {
-          iVar1 = -iVar1;
-        }
-        if (((is_2->trans).vz < iVar1) || (is_2->type == '\0')) goto SouffleInsert_iterAdvance;
+        Sfx_Transform(&is_2->source,&is_2->trans,translation);
+        iVar1 = __builtin_abs((int)(is_2->trans).vx);
+        z = (int)(is_2->trans).vz;
+        if ((z < iVar1) || (is_2->type == '\0')) goto SouffleInsert_iterAdvance;
       }
       Sfx_BuildSouffleFacet(Vi,is_2);
     }

@@ -458,7 +458,19 @@ restart:
 
 /* startnextrequest @0x800FC9B4 : advance the active queue cursor (+0x50) to the next runnable request,
  *   open/seek its file (or rebind to the memory image), and kick restartstream.  Sets state idle if the
- *   queue drains. */
+ *   queue drains.
+ * w32-a2 (72 -> 20 diffs, 106 -> 102 insns): IDA types sub_800FC9B4 as **void** and the raw confirms it --
+ *   the oracle has NO return-value bookkeeping at all: the `done` path branches straight to the shared
+ *   epilogue with $v0 undefined, and the three real exits just return their callee's $v0 (FILE_open /
+ *   FILE_close = 0, FILE_callbackop, restartstream).  The reconstruction had invented an `int ret`
+ *   carrying 0/1/2, which cost the whole +6 surplus: a prologue `addu v1,zero,zero`, `ret=1`/`ret=2`
+ *   materializations and an `addu v0,v1,zero` result copy.  Also: the oracle FALLS THROUGH into the
+ *   FILE_open arm and lays the close-first arm out of line (`bnez $a0,.L800FCAF4`), so the source test
+ *   is `if (handle == 0) { open... }` with the close arm as the tail.
+ * RESIDUAL (20): a whole-function 2-slot register shift -- `done` is $a1 for us / $v1 in retail and the
+ *   saved SR is $a3 / $a1 -- plus the trailing close arm's `if (op==0) return op;` compiling with the
+ *   inverted polarity (`bnez` + `j`, +2 insns) where the identical open arm gets the oracle's
+ *   `beqz v0,epilogue` + store-in-delay-slot.  Both arms are textually identical; only one can win. */
 extern int startnextrequest(int s, unsigned int prio)
 {
     int  done;
@@ -966,8 +978,27 @@ extern unsigned int STREAM_queuemem(int s, int blocklist, void *ptr, int len)
  *     the same `sr` local for both CP0 critical sections;
  *   - express the drain pass as a guarded do-while, reproducing the oracle's separate initial and
  *     loop-back inbetween tests.
- * The remaining 61 diffs are concentrated in the request-state constant allocation and the
- * saved-register naming of the three ring boundaries; the reconstructed control flow is now aligned. */
+ * w32-a2 (61 -> 14 diffs, INSTRUCTION-COUNT EXACT 173/173).  Four fixes, all read off the IDA
+ * per-register annotation of sub_800FD554 + the raw CFG:
+ *   - NO trailing `return`.  The oracle falls into the shared epilogue with whatever $v0 holds (the
+ *     consumer loop's own `slt` result on the normal exit).  Spelling `return ret;` kept `ret` live
+ *     across the whole consumer sweep -> it was promoted to a callee-saved reg ($s7), spilled the
+ *     readptr, and grew the frame 0x40 -> 0x48.  `ret` now dies at the `if (ret) return ret;` test.
+ *   - the request test-chain is a flat goto ladder (`req==0`/`state==4` -> notactive, `state!=1` ->
+ *     active) so the `ret = 1` join sits right after freerequest(), where the oracle has it; the
+ *     nested if/else spelling laid that join AFTER both active arms.
+ *   - the consumer sweep re-reads out[0] into a `sobj` local ONCE per iteration, at the loop TAIL --
+ *     that single load serves this iteration's `ci < numConsumers` test and the NEXT iteration's
+ *     consumerArray read (oracle keeps it in $v1 across the back edge).  Reading MI(out[0],..) at
+ *     both sites emitted two reloads + two load-delay nops per iteration.  (Same lever as
+ *     STREAM_kill; IDA renders it as the `for (...; ...; v8 = v11)` update.)
+ *   - the `MI(req,4)=4` store's shared `4` constant must stay live ACROSS the out[0] materialization
+ *     (block-local `sobj0` read BEFORE the store) -- otherwise the constant lands in $v1, the reload
+ *     cannot be scheduled into its load-delay slot, and a nop appears.
+ * RESIDUAL (14): one callee-saved pair swap, readptr<->the hoisted -1 marker ($s7 vs $fp), plus the
+ * one delay-slot fill and the inner ring loop's branch polarity that ride on it.  Tried: statement
+ * reordering of the readptr/startfill pair, splitting the ring walker into its own local (that one
+ * DID fix the q/mask pair), declaration order.  Next step would be a cc1 -dl/-dg allocno dump. */
 extern int STREAM_cancelrequest(int s, int reqid)
 {
     int out[2];

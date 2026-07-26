@@ -13,6 +13,8 @@
    cc1plus emitting the `lw $2,sym` / `sw $2,sym` assembler macros, which
    GNU-as expands per-access (self-temp load + $at store).  The array view
    turns %hi back into an RTL pseudo (catalog wave-13 lever). */
+extern tFEApplication *A_FEApp[] __asm__("FEApp");
+#define FEApp A_FEApp[0]
 extern unsigned int A_gFECheats[] __asm__("gFECheats");
 extern unsigned int A_gFEBonus[]  __asm__("gFEBonus");
 #define gFECheats A_gFECheats[0]
@@ -226,9 +228,9 @@ void FECheat_ActivateBonus(tCheatCode cheat)
 void * FECheat_ActivateCheat(char *cheat)
 
 {
-  tFEApplication *ptVar1;
   tFEApplication *ptVar2;
   char *pcVar4;
+  tDialogMessageString *dlgThis;
   tCheat *entry;
   int i;
   int j;
@@ -243,19 +245,17 @@ void * FECheat_ActivateCheat(char *cheat)
   result = 0;
   FECheat_EncodeString(cheat,buffer);
   i = 0;
-  off = 0;
   while (true) {
     if (9 < i) break;
     for (j = 0; j < 8; j = j + 1) {
-      if (cheatList[0].name[j + off] != buffer[j]) break;
+      if (cheatList[0].name[j + i * 12] != buffer[j]) break;
     }
-    off = off + 0xc;
     if (j == 8) {
       AudioCmn_PlayFESFX(0x1a);
-      ptVar1 = FEApp;
+      dlgThis = &FEApp->MemCardDialog;
       pcVar4 = TextSys_Word(0x27a);
       ptVar2 = FEApp;
-      (ptVar1->MemCardDialog).string = pcVar4;
+      dlgThis->string = pcVar4;
       ((tDialogBase *)&ptVar2->MemCardDialog)->Display();
       entry = &cheatList[i];
       FECheat_HandleActivation((tCheatCode)entry->cheat);

@@ -4,9 +4,9 @@
  *   dialect fixer did not converge on this TU). Pre-migration (.cpp/cc1plus) vs post-migration
  *   (.c/cc1) per-fn diff counts, verify_asm.py authoritative -- IDENTICAL, zero regressions:
  *     iSNDpacketplayoverhead=PASS(0)  SNDPKTPLAY_overhead=PASS(0)   SNDPKTPLAY_create=PASS(0)
- *     SNDPKTPLAY_start=FAIL(132 W31, 185/187)  SNDPKTPLAY_submit=FAIL(2)  SNDPKTPLAY_submitspace=PASS(0)
+ *     SNDPKTPLAY_start=FAIL(114 w32, 187/187)  SNDPKTPLAY_submit=FAIL(2)  SNDPKTPLAY_submitspace=PASS(0)
  *     SNDPKTPLAY_unsafeframesoutstanding=PASS(0)  SNDPKTPLAY_framesoutstanding=PASS(0)
- *     SNDPKTPLAY_purge=FAIL(53, W31)                                SNDPKTPLAY_stop=PASS(0)
+ *     SNDPKTPLAY_purge=FAIL(50, w32, 119/119)                                SNDPKTPLAY_stop=PASS(0)
  *     SNDPKTPLAY_destroy=PASS(0)      iSNDpacketget=PASS(0)         iSNDpacketfreeframes=PASS(0)
  *   10/13 PASS, 3/13 FAIL (start/submit/purge -- pre-existing near-miss floors documented below,
  *   unchanged by the C89 port). NOTE: SNDPKTPLAY_purge is NOT byte-exact PASS despite its insn

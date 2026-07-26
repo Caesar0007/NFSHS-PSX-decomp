@@ -2167,9 +2167,11 @@ void Camera_NextMode(int cviewP)
   camera_flags*flagMode;
   short sVar1;
   u_int uVar2;
+  u_short modeForRange;
 
+  modeForRange = (u_short)Camera_gInfo[cviewP].mode;
   if ((Camera_gInfo[cviewP].mode != 0xe) && (Camera_gInfo[cviewP].modechange == 0)) {
-    if ((u_int)((u_short)Camera_gInfo[cviewP].mode - 0xb) < 2) {
+    if ((u_int)(modeForRange - 0xb) < 2) {
       Camera_gGeomScreen = 0xbe;
       TrsProj_SetProjection(0,0,0x140,0xf0);
     }
@@ -2181,10 +2183,12 @@ void Camera_NextMode(int cviewP)
       Camera_gInfo[cviewP].animHandle = -1;
     }
     if (Camera_gInfo[cviewP].splitscreen != 0) {
+      register int splitBase;
       sVar1 = Camera_gInfo[cviewP].camNum + 1;
       Camera_gInfo[cviewP].camNum = sVar1;
+      splitBase = (int)gSplitCameras;
       Camera_gInfo[cviewP].mode =
-           *(short *)((int)gSplitCameras + (((int)sVar1 % 3) * 0x10000 >> 0xe));
+           *(short *)(splitBase + (((int)sVar1 % 3) * 0x10000 >> 0xe));
     }
     else if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
             ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
@@ -2197,8 +2201,7 @@ void Camera_NextMode(int cviewP)
       sVar1 = Camera_gInfo[cviewP].camNum + 1;
       Camera_gInfo[cviewP].camNum = sVar1;
       Camera_gInfo[cviewP].mode =
-           *(short *)((int)GameSetup_gData.carInfo[cviewP].Camera +
-                     (((int)sVar1 % 3) * 0x10000 >> 0xe));
+           (short)GameSetup_gData.carInfo[cviewP].Camera[(int)sVar1 % 3];
     }
     if (0x13 < Camera_gInfo[cviewP].mode) {
       Camera_gInfo[cviewP].mode = (short)GameSetup_gData.carInfo[cviewP].Camera[0];

@@ -195,44 +195,95 @@ void tFEApplication::PerformMenuDestruction()
 
 
 /* ---- tFEApplication::DrawHelpIcons  [FEAPP.CPP:151-219] SLD-VERIFIED ---- */
+/* MATCH (2026-07-27, 254 diffs [~0%] -> 4 diffs, count-exact 254==254):
+ *  - SYM `8c Function start` gives Col/x/y as REAL named REG locals ($s5/$s3/$s2), NOT
+ *    literal-folded values. Recon had inlined 0x786e14 at 4 call sites (fresh li each time,
+ *    can't survive a jal in a caller-saved reg) -- named `Col` forces ONE materialization
+ *    reused across every intervening call, matching the oracle's $s5 reuse.
+ *  - SYM types Col/x/y INT (not the recon's `short x`); per-statement narrow-then-widen
+ *    masking from a `short` local doesn't match -- only the ARGUMENT boundary (an actual
+ *    short parameter) truncates, and the plain `(short)((u_int)(y*0x10000)>>0x10)` idiom in
+ *    the old recon was a hand-rolled (and wrong-codegen, multiply-based) substitute for a
+ *    bare int-arg-to-short-param truncation; removed, arguments now pass x/y directly.
+ *  - if/else ARM ORDER inverted (De Morgan `A||B then/else` -> `!A&&!B then/else`) to match
+ *    the oracle's physical block layout: the vertical/string path is the FALL-THROUGH block,
+ *    the horizontal/icon path is the branch target reached from both short-circuit tests --
+ *    opposite of what the literal `if(fCurrentMenu[0]==0||VertHelp==0)` phrasing produced.
+ *  - vertical-path loop split the load from the decrement (`i=strlen(s); i=i-1; while(-1<i)`)
+ *    -- classic §3.12#15b rotated-loop shape; loop's X-arg passes the (unmodified, still-14)
+ *    `x` local, letting gcc constant-propagate + hoist its `(short)x` truncation OUT of the
+ *    loop as `lui $s4,0xE ; sra $a1,$s4,16` (only the `sra` re-executes per iteration) --
+ *    passing a literal `0xe` there instead defeats this hoist entirely.
+ *  - post-loop tail: the y+=8 in the branch delay slot always fires; the two DrawShapeExtended
+ *    calls use `x`/`y` (still-live vars from the loop, not fresh literals) -- `x-1`/`y-9` are
+ *    increments on the live values, not restated constants.
+ *  Residual 4-diff floor: `x = x + 5 + (iVar4 - uVar3);` oracle associates the `+5` onto `x`
+ *  FIRST (`v1=x+5` computed once, reused) where ours re-associates onto the difference term
+ *  despite identical source parenthesization -- gcc-2.8's tree reassociation picks its own
+ *  grouping for a flat +chain regardless of C parens. Every attempt to force it (extra temp,
+ *  operand reorder, mutating iVar4 in place) either left it unchanged or REGRESSED into a
+ *  uniform x<->y ($s2<->$s3) register swap elsewhere in the function (adding any new pseudo
+ *  here recolors the whole head, per catalog row 37) -- accepted as a genuine floor. */
 
 void tFEApplication::DrawHelpIcons()
 
 {
   bool bVar1;
   char *pcVar2;
-  u_int uVar3;
-  tMenu *this_tMenu_l52;
   int iVar4;
-  short x;
-  int i;
-  int y;
-  int Col;
+  int uVar3;
   tDrawShapeExtended flags;
+  int Col;
+  int x;
+  int y;
   char string [12];
   char string2 [2];
-  
+
+  Col = 0x786e14;
   x = 0xe;
-  flags.tint[0] = 0x786e14;
+  flags.tint[0] = Col;
   y = screenheight + -0x19;
-  if ((this->fCurrentMenu[0] == (tMenu *)0x0) || (this->fCurrentMenu[0]->VertHelp == 0)) {
+  if ((this->fCurrentMenu[0] != (tMenu *)0x0) && (this->fCurrentMenu[0]->VertHelp != 0)) {
+    int i;
+
+    string2[1] = '\0';
+    pcVar2 = TextSys_Word(0xfc);
+    sprintf(string,pcVar2);
+    i = strlen(string);
+    i = i - 1;
+    while (-1 < i) {
+      string2[0] = string[i];
+      FETextRender_FullTextRGB(string2,x,y,Col,'\0',0);
+      y = y - 8;
+      i = i - 1;
+    }
+    y = y + 8;
+    if (((gPadinfo.buf[0].nopad == '\0') && (gPadinfo.buf[0].ID != '#')) ||
+       ((gPadinfo.buf[4].nopad == '\0' && (gPadinfo.buf[4].ID != '#')))) {
+      y = y - 8;
+      DrawShapeExtended(0x35,0x18,x,y,0,0,&flags);
+    }
+    if ((gPadinfo.buf[0].ID == '#') || (gPadinfo.buf[4].ID == '#')) {
+      DrawShapeExtended(0x36,0x18,x + -1,y + -9,0,0,&flags);
+    }
+  }
+  else {
     if (((gPadinfo.buf[0].nopad == '\0') && (gPadinfo.buf[0].ID != '#')) ||
        ((gPadinfo.buf[4].nopad == '\0' && (gPadinfo.buf[4].ID != '#')))) {
       DrawShapeExtended(0x35,0x18,x,y,0,0,&flags);
-      x = 0x1c;
+      x = x + 0xe;
     }
     if ((gPadinfo.buf[0].ID == '#') || (gPadinfo.buf[4].ID == '#')) {
       DrawShapeExtended(0x36,0x18,x,y,0,0,&flags);
       x = x + 0xf;
     }
-    this_tMenu_l52 = (tMenu *)TextSys_Word(0xfc);
-    FETextRender_FullTextRGB((char *)this_tMenu_l52,x,(short)((u_int)(y * 0x10000) >> 0x10),0x786e14,'\0',0
-              );
+    pcVar2 = TextSys_Word(0xfc);
+    FETextRender_FullTextRGB(pcVar2,x,y,Col,'\0',0);
     pcVar2 = TextSys_Word(0xfc);
     iVar4 = textpixels(pcVar2);
     pcVar2 = TextSys_Word(0xfc);
     uVar3 = strlen(pcVar2);
-    x = x + 5 + ((short)iVar4 - (short)uVar3);
+    x = x + 5 + (iVar4 - uVar3);
     bVar1 = false;
     if ((this->fCurrentMenu[0]->fOptionsMenu != (tMenu *)0x0) ||
        ((this->fCurrentMenu[1] != (tMenu *)0x0 &&
@@ -250,26 +301,7 @@ void tFEApplication::DrawHelpIcons()
         x = x + 0xf;
       }
       pcVar2 = TextSys_Word(0xfd);
-      FETextRender_FullTextRGB(pcVar2,x,(short)((u_int)(y * 0x10000) >> 0x10),0x786e14,'\0',0);
-    }
-  }
-  else {
-    string2[1] = '\0';
-    pcVar2 = TextSys_Word(0xfc);
-    sprintf(string,pcVar2);
-    i = strlen(string);
-    while (i = i - 1, -1 < (int)i) {
-      x = (short)y;
-      y = y + -8;
-      string2[0] = string[i];
-      FETextRender_FullTextRGB(string2,0xe,x,0x786e14,'\0',0);
-    }
-    if (((gPadinfo.buf[0].nopad == '\0') && (gPadinfo.buf[0].ID != '#')) ||
-       ((gPadinfo.buf[4].nopad == '\0' && (gPadinfo.buf[4].ID != '#')))) {
-      DrawShapeExtended(0x35,0x18,0xe,y,0,0,&flags);
-    }
-    if ((gPadinfo.buf[0].ID == '#') || (gPadinfo.buf[4].ID == '#')) {
-      DrawShapeExtended(0x36,0x18,0xd,y + -9,0,0,&flags);
+      FETextRender_FullTextRGB(pcVar2,x,y,Col,'\0',0);
     }
   }
   return;

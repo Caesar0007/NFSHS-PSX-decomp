@@ -14,6 +14,8 @@ extern int A_ticks[] __asm__("ticks");
 #define ticks A_ticks[0]
 extern tScreenMain *A_screenMain[] __asm__("screenMain");
 #define screenMain A_screenMain[0]
+extern int A_FECredits_lastFadeTick[] __asm__("FECredits_lastFadeTick");
+#define FECredits_lastFadeTick A_FECredits_lastFadeTick[0]
 
 
 /* ---- tCreditManager::Setup  [FECREDITS.CPP:32-35] ---- */
@@ -155,6 +157,9 @@ void tCreditManager::SetupCurrCredit()
 {
   bool bVar1;
   int iVar2;
+  int iVar3;
+  int iVar4;
+  int iVar5;
   void *pvVar3;
   int NNNNN;
   
@@ -180,9 +185,9 @@ void tCreditManager::SetupCurrCredit()
     }
   }
   if ((this->fStartTicks != 0) && (CREDFADETICKS < ticks - this->fStartTicks)) {
-    iVar2 = this->fCurrCredit + 1;
-    this->fCurrCredit = iVar2;
-    if (this->fNumCredits <= iVar2) {
+    iVar3 = this->fCurrCredit + 1;
+    this->fCurrCredit = iVar3;
+    if (this->fNumCredits <= iVar3) {
       this->fCurrCredit = 0;
     }
     if (this->fCurrCredit < 0) {
@@ -196,24 +201,24 @@ void tCreditManager::SetupCurrCredit()
     this->StartedLines = 0;
     this->StartedTextFade = 0;
   }
-  iVar2 = this->fTextFade + this->fTextFadeDir;
-  this->fTextFade = iVar2;
-  if (iVar2 < 1) {
+  iVar4 = this->fTextFade + this->fTextFadeDir;
+  this->fTextFade = iVar4;
+  if (iVar4 < 1) {
     this->fTextFade = 0;
   }
   if (0x7f < this->fTextFade) {
     this->fTextFade = 0x80;
   }
   if ((this->fTextFade == 0x80) && (this->StartedTransition == 0)) {
-    iVar2 = this->fCurrCredit;
+    iVar5 = this->fCurrCredit;
     this->StartedTransition = 1;
-    this->fShowCreditNum = iVar2;
-    if ((iVar2 == (iVar2 / 3) * 3) || (this->CreditBuffer[iVar2].bgNumber != -1)) {
-      iVar2 = iVar2 + 1;
-      if (this->fNumCredits < iVar2) {
-        iVar2 = 0;
+    this->fShowCreditNum = iVar5;
+    if ((iVar5 == (iVar5 / 3) * 3) || (this->CreditBuffer[iVar5].bgNumber != -1)) {
+      iVar5 = iVar5 + 1;
+      if (this->fNumCredits < iVar5) {
+        iVar5 = 0;
       }
-      screenMain->SwapBackground((int)this->CreditBuffer[iVar2].bgNumber);
+      screenMain->SwapBackground((int)this->CreditBuffer[iVar5].bgNumber);
     }
   }
   if (((this->StartedLines == 0) && (this->StartedTransition != 0)) &&

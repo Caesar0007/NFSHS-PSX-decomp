@@ -17,35 +17,33 @@ int Sched_ExecuteCheck(int staggered,int module,int distance,int carId,int *time
               ,int forceNoSimOptz)
 
 {
-  u_char bVar1;
   int mask;
   int index;
   int distanceIndex;
-  int iVar2;
-  int iVar4;
+  int distanceTemp;
 
   if (0xf < simGlobal.gameTicks) {
     if (distance < 0) {
       distance = distance + 0xf;
     }
-    iVar2 = distance >> 4;
-    iVar4 = iVar2;
-    if (iVar2 < 0) {
-      iVar4 = iVar2 + 0xffff;
+    distanceIndex = distance >> 4;
+    distanceTemp = distanceIndex;
+    if (distanceIndex < 0) {
+      distanceTemp = distanceIndex + 0xffff;
     }
-    iVar2 = iVar4 >> 0x10;
-    if (0x13 < iVar2) {
-      iVar2 = 0x13;
+    distanceIndex = distanceTemp >> 0x10;
+    if (0x13 < distanceIndex) {
+      distanceIndex = 0x13;
     }
     if (forceNoSimOptz != 0) {
-      iVar2 = 0;
+      distanceIndex = 0;
     }
-    bVar1 = Sched_gExecuteInfo[module][iVar2];
-    *time = Sched_ExecuteTimes[bVar1];
-    *iTime = Sched_ExecuteiTimes[bVar1];
-    *elapsedTime = Sched_ExecuteElapsedTimes[bVar1];
-    return (u_int)((simGlobal.gameTicks / 2 + carId * staggered & Sched_ExecuteMasks[bVar1]) ==
-                 Sched_ExecuteMasks[bVar1]);
+    index = Sched_gExecuteInfo[module][distanceIndex];
+    *time = Sched_ExecuteTimes[index];
+    *iTime = Sched_ExecuteiTimes[index];
+    *elapsedTime = Sched_ExecuteElapsedTimes[index];
+    mask = Sched_ExecuteMasks[index];
+    return (u_int)((simGlobal.gameTicks / 2 + carId * staggered & mask) == mask);
   }
   *time = Sched_ExecuteTimes[6];
   *iTime = Sched_ExecuteiTimes[6];

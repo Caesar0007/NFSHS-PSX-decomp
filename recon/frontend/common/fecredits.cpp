@@ -5,7 +5,15 @@
 #include "fecredits.h"
 
 /* ---- FECredits.obj-OWNED globals -- DEFINED here (self-contained; real NFS4.EXE bytes) ---- */
-int CREDFADETICKS = 700;   /* @0x80051aa0  credit fade-out tick threshold (code resets 700/2000) */
+/* MATCH (w35-a10): strong .sdata symbol in front_data.data.s, reached
+   absolutely by both oracles (0 %gp_rel tree-wide); an initialised TU-owned
+   int is <=G4 -> .sdata -> gp-relative.  Unsized-array asm-label view. */
+extern int A_CREDFADETICKS[] __asm__("CREDFADETICKS");
+#define CREDFADETICKS A_CREDFADETICKS[0]
+extern int A_ticks[] __asm__("ticks");
+#define ticks A_ticks[0]
+extern tScreenMain *A_screenMain[] __asm__("screenMain");
+#define screenMain A_screenMain[0]
 
 
 /* ---- tCreditManager::Setup  [FECREDITS.CPP:32-35] ---- */

@@ -194,13 +194,20 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
         return -9;
     }
 
-    MI(ppp, 0)    = allocOut;
-    MH(ppp, 0xa)  = 0;
-    MH(ppp, 0xe)  = 0;
-    MI(ppp, 0x10) = 0;
-    MI(ppp, 4)    = 0;
-    MI(ppp, 0x14) = 0;
-    MH(ppp, 0xc)  = (short)0xffff;
+    /* MATCH (w32-a8, 132 -> 114 diffs AND insn count 185 -> EXACT 187): the whole ring HEADER is
+     * volatile -- these are the async-touched player-slot words (same justification the VH()/MVUH()
+     * reads and SNDPKTPLAY_stop already carry).  With plain stores gcc's scheduler hoists the
+     * `li -1` + `sh 0xc` marker to the top of the block (stealing the `bgez` delay slot on the way)
+     * and sinks `sw allocOut,0(ppp)` to the bottom; the oracle keeps the written order and leaves
+     * that delay slot unfilled.  Making ONLY the first or only the two end stores volatile is not
+     * enough (132 / 119) -- the run has to be ordered as a whole. */
+    *(volatile int *)(ppp + 0)      = allocOut;
+    *(volatile short *)(ppp + 0xa)  = 0;
+    *(volatile short *)(ppp + 0xe)  = 0;
+    *(volatile int *)(ppp + 0x10)   = 0;
+    *(volatile int *)(ppp + 4)      = 0;
+    *(volatile int *)(ppp + 0x14)   = 0;
+    *(volatile short *)(ppp + 0xc)  = (short)0xffff;
     ch = *(int *)(gp + 0x94) + note * 100;        /* MATCH: note*100 computed right after the
                                                     * marker store, before the unaligned copy;
                                                     * the pool-base add is a branch delay-slot

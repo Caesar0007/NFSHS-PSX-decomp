@@ -629,15 +629,11 @@ void tScreenMemcard::DrawBackground()
   int i;
   short fade;
   tScreenMemcard *walk;
-  int fadeAmt;
-  int boxY;
+  short boxY;
   uint gridY;
   int w;
   int x;
   int gray;
-  int textFlags;
-  int textCol;
-  int textJustify;
   RECT rr;
   short gridpos;
   
@@ -650,22 +646,26 @@ void tScreenMemcard::DrawBackground()
   gray = fScreenFade * 2 + -0x80;
   fade = (short)gray;
   gray = gray * 0x10000 >> 0x10;
-  if ((gray < 0x80) && (gray < 1)) {
-    fade = 0;
+  if (gray < 0x80) {
+    if (gray < 1) goto DrawBg_fadeZero;
   }
-  else if (0x80 < gray) {
-    fade = 0x80;
-  }
+  if (gray < 0x81) goto DrawBg_fadeJoin;
+  fade = 0x80;
+  goto DrawBg_fadeJoin;
+DrawBg_fadeZero:
+  fade = 0;
+DrawBg_fadeJoin:
+  gridpos = (short)((fScreenFade * 2) >> 1);
   gray = (int)(fScreenFade << 0x11) >> 0x11;
-  if ((gray < 0x80) && (gray < 1)) {
-    gridpos = 0;
+  if (gray < 0x80) {
+    if (gray < 1) goto DrawBg_gridposZero;
   }
-  else {
-    gridpos = (short)(fScreenFade * 2) >> 1;
-    if (0x80 < gray) {
-      gridpos = 0x80;
-    }
-  }
+  if (gray < 0x81) goto DrawBg_gridposJoin;
+  gridpos = 0x80;
+  goto DrawBg_gridposJoin;
+DrawBg_gridposZero:
+  gridpos = 0;
+DrawBg_gridposJoin:
   gray = (int)(fScreenFade << 0x11) >> 0xf;
   if (0x80 < gray) {
     gray = 0x80;
@@ -699,7 +699,7 @@ void tScreenMemcard::DrawBackground()
     this->DrawMemCardStuff((short)gray);
   }
 DrawBg47470_calcFadeMessage:
-  gray = CalcFadeVal(kRGBVals[(byte)textDefinitions[6][5]],fadeAmt);
+  gray = CalcFadeVal(kRGBVals[(byte)textDefinitions[6][5]],gray);
   if (this->message != -1) {
     this->fMemCardMessageTextSys = this->message;
   }
@@ -712,13 +712,15 @@ DrawBg47470_calcFadeMessage:
   rr.h = 0;
   rr.x = (ushort)kMemCardMessageX;
   rr.y = (short)kMemCardMessageY;
-  FETextRender_WordWrapTextRGBJustify(this->fMemCardMessage,rr,textCol,textJustify,0,false);
+  FETextRender_WordWrapTextRGBJustify(this->fMemCardMessage,rr,gray,2,0,false);
   word = TextSys_Word(this->player + 0x293);
   FETextRender_FullTextRGB
             (word,(short)kMemCardMessage1X,(short)kMemCardMessage1Y,gray,'\0',2);
   i = 0;
   x = (int)(((GRIDMEMCARD_STARTX & 0xffffU) - (uint)(ushort)GRIDMEMCARDGOURAUDBIT_X) * 0x10000) >>
       0x10;
+  boxY = (short)(((short)GRIDMEMCARD_STARTY - (short)GRIDMEMCARDGOURAUDBIT_Y) -
+             ((short)EXTRAYATTOP + 4));
   w = (int)(((GRIDMEMCARD_WIDTH & 0xffffU) + (uint)(ushort)GRIDMEMCARDGOURAUDBIT_X * 2 + 2) *
            0x10000) >> 0x10;
   gray = ((uint)(ushort)GRIDMEMCARD_HEIGHT + (uint)(ushort)GRIDMEMCARDGOURAUDBIT_Y * 2 +
@@ -772,7 +774,7 @@ DrawBg47470_calcFadeMessage:
   gray = 0;
   do {
     DrawShapeExtended
-              (fScreenFade,textFlags,textCol,textJustify,(int)fade,0,
+              (0x1e + gray,0,0,0,(int)fade,0,
                (tDrawShapeExtended *)0x0);
     gray = gray + 1;
   } while (gray < 0x10);

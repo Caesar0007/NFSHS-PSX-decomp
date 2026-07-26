@@ -369,7 +369,9 @@ extern void iSPCH_OrderSentences(int event, int outOrder)
      * a0,v0,zero, because its sb-address temp takes v0) -- ours-1-shorter receiver-reuse class;
      * (b) the scan while-rotation guard slt/beqz survives (oracle enters the loop straight off
      * the n!=0 test; unprovable j<n for signed compare, and unsigned-compare or do-while forms
-     * diverge more).  Permuter targets. */
+     * diverge more).  Permuter targets.  w32-a9 re-tested (b): do-while 48 diffs/87 insns (loop.c
+     * PEELS the first iteration, +4) and a label+goto scan 50/81 -- both far worse than the
+     * `while` guard; the guard stands. */
     unsigned char  weights[104];
     unsigned int   n = (unsigned int)*(unsigned char *)(event + 6);
     int            total = 0;

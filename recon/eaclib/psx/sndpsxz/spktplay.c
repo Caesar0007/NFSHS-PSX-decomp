@@ -4,7 +4,7 @@
  *   dialect fixer did not converge on this TU). Pre-migration (.cpp/cc1plus) vs post-migration
  *   (.c/cc1) per-fn diff counts, verify_asm.py authoritative -- IDENTICAL, zero regressions:
  *     iSNDpacketplayoverhead=PASS(0)  SNDPKTPLAY_overhead=PASS(0)   SNDPKTPLAY_create=PASS(0)
- *     SNDPKTPLAY_start=FAIL(70 w34, 187/187)   SNDPKTPLAY_submit=FAIL(2)  SNDPKTPLAY_submitspace=PASS(0)
+ *     SNDPKTPLAY_start=FAIL(4 w35, 187/187)    SNDPKTPLAY_submit=FAIL(2)  SNDPKTPLAY_submitspace=PASS(0)
  *     SNDPKTPLAY_unsafeframesoutstanding=PASS(0)  SNDPKTPLAY_framesoutstanding=PASS(0)
  *     SNDPKTPLAY_purge=PASS(0, w34)                                          SNDPKTPLAY_stop=PASS(0)
  *     SNDPKTPLAY_destroy=PASS(0)      iSNDpacketget=PASS(0)         iSNDpacketfreeframes=PASS(0)
@@ -240,19 +240,19 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
 
     MSB(ch, 0xa)  = -1;              /* li -1 (signed char), not li 255 */
     MUH(ch, 0x5c) = MUH(hdr, 4);
-    MI(ch, 0x14)  = 0;
     MUH(ch, 0x60) = MUH(params, 0xc);
+    MI(ch, 0x14)  = 0;
+    MI(ch, 0x1c)  = (int)MSB(params, 8) << 0x10;
     MI(ch, 0x20)  = 0;
     MI(ch, 0x28)  = 0x7fffffff;
     MI(ch, 0x24)  = 0x7f0000;
-    MI(ch, 0x1c)  = (int)MSB(params, 8) << 0x10;
     MB(ch, 0x2c)  = MB(hdr, 7);
     MB(ch, 0x2e)  = MB(hdr, 8);
+    MB(ch, 0x2f)  = MB(params, 9);   /* H09: src was hdr (oracle 0x80102B90 *(u8)(9+$s4=params)) */
     MB(ch, 0x30)  = 1;
     MB(ch, 0x31)  = 0;
     MB(ch, 0x32)  = 0;
     MB(ch, 0x33)  = 1;
-    MB(ch, 0x2f)  = MB(params, 9);   /* H09: src was hdr (oracle 0x80102B90 *(u8)(9+$s4=params)) */
     MB(ch, 0x34)  = MB(hdr, 9);      /* H09: src was params (oracle 0x80102BAC *(u8)(9+$s5=hdr)) */
     MB(ch, 0x35)  = MB(params, 10);  /* H09: src was hdr (oracle 0x80102BB8 *(u8)(10+$s4=params)) */
     MH(ch, 0x5a)  = (short)(MSB(hdr, 10) * 100);
@@ -260,27 +260,27 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
     MB(ch, 0x36)  = 0;
     /* MATCH: 0x40/0x44 zeros BEFORE the 0x3d store, 0x48/0x4c/0x50/0x54 AFTER -- oracle interleaves
      * `a0=note` (calcpitch's arg) between MB(params,7) and the first zero pair. */
+    MB(ch, 0x3d)  = MB(params, 7);   /* H09: src was hdr (oracle 0x80102BE8 *(u8)(7+$s4=params)) */
     MI(ch, 0x40)  = 0;
     MI(ch, 0x44)  = 0;
-    MB(ch, 0x3d)  = MB(params, 7);   /* H09: src was hdr (oracle 0x80102BE8 *(u8)(7+$s4=params)) */
     MI(ch, 0x48)  = 0;
     MI(ch, 0x4c)  = 0;
     MI(ch, 0x50)  = 0;
     MI(ch, 0x54)  = 0;
 
-    iSNDcalcpitch(note);
     MH(ch, 0x5e)  = 0;               /* MATCH: independent store -- oracle schedules it into the
                                        * calcpitch jal's delay slot */
+    iSNDcalcpitch(note);
     iSNDcalcvol(note);
 
     /* pitch -> playback duration: rate * ch[0x34] * ch[0x35], divided by a fixed constant.
      * PC twin (nfs4-sound SNDPKTPLAY_start): ONE accumulator reassigned across two statements. */
-    dur = iSNDplatformrate[0] * MSB(ch, 0x34);
-    dur = dur * MSB(ch, 0x35) / 0x3f01;
     /* H10: oracle (0x80102C94) passes 9 args; was 6 with dur/rate/hdr+0xc in the wrong slots and
        ch[0x2d]/ch[0x62]/params[0xe] missing.  a0..a3 + sp+16/20/24/28/32. */
     r = iSNDplatformpacketplay(p, note, gp, MSB(ch, 0x2d), MUH(ch, 0x62),
-                               MUH(params, 0xe), dur, rate, hdr + 0xc);
+                               MUH(params, 0xe),
+                               iSNDplatformrate[0] * MSB(ch, 0x34) * MSB(ch, 0x35) / 0x3f01,
+                               rate, hdr + 0xc);
     if (r < 0) {
         iSNDfreechan(note);
         iSNDleaveaudio();
@@ -305,9 +305,42 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
  *  (c) the tail: the oracle interleaves the four stack-arg stores INTO the two multiplies' latency
  *      (mflo/mfhi in $t4) where ours issues mflo/mult first.
  * Kept from earlier waves: MB(rate,2) evaluated before the ppp lookup; the whole ring-header store
- * run `volatile` (ordering); the 0x40/0x44-then-0x3d-then-0x48.. interleave; MH(ch,0x5e)=0 as its own
- * statement (fills calcpitch's jal delay slot); signed division by 0x3f01 at the C level (NFS4-PC
- * twin confirms), which recovers the retail 88-byte frame. */
+ * run `volatile` (ordering); signed division by 0x3f01 at the C level (NFS4-PC twin confirms),
+ * which recovers the retail 88-byte frame.
+ *
+ * ===== w35-a2 2026-07-26: 70 -> 4 diffs, insn parity held at 187/187 throughout =====
+ * All FIVE remaining levers were pure STATEMENT ORDER / expression placement -- sched1 + reorg
+ * decisions, no allocno dialing needed (the w34-a6 `gp` allocno fix still carries the register map).
+ * Applied in this order, each measured with verify_asm:
+ *   1. 70 -> 66  MB(ch,0x3d) BEFORE the 0x40/0x44 zero pair (was after).  The zeros were being
+ *                stolen upward to fill the `lb 10(hdr)` load-delay of the 0x5a multiply chain;
+ *                with the 0x3d load first they fill ITS `lbu 7(params)` delay instead, exactly
+ *                as retail.  (This REVERSES the old "0x40/0x44 before the 0x3d store" note.)
+ *   2. 66 -> 37  the WHOLE duration expression folded into the call's argument list
+ *                (`iSNDplatformrate[0] * MSB(ch,0x34) * MSB(ch,0x35) / 0x3f01` as arg 7, no `dur`
+ *                local).  As separate statements gcc has the product ready before expand_call and
+ *                stores it first; as an argument, expand_call evaluates/stores args 4/5/6/8 first
+ *                and the multiply chain lands INSIDE their latency -- which is also what puts the
+ *                mflo/mfhi accumulator in retail's $t4 instead of $v0/$t5.
+ *   3. 37 -> 22  MI(ch,0x1c) BEFORE the 0x28/0x24 constant pair: the `sw 0x28` then fills the
+ *                `lb 8(params)` load delay (ours had a bare `nop` there = the +1 instruction).
+ *   4. 22 -> 12  MB(ch,0x2f) moved up to directly after MB(ch,0x2e) (ASCENDING field order --
+ *                almost certainly what EA wrote): its `lbu 9(params)` issues early and the
+ *                0x30..0x33 constant run fills the load delay, leaving `sb 0x2f` at the end.
+ *   5. 22 -> 18 / 12 -> 8   MH(ch,0x5e)=0 moved BEFORE iSNDcalcpitch(note) (was after).  reorg's
+ *                backward scan then picks `sh 0x5e` for calcpitch's delay slot instead of the
+ *                nearest preceding `sw 0x54`, and calcvol's slot gets `addu a0,note` -- retail's
+ *                pairing.  (Combined 4+5 = 8.)
+ *   6. 8 -> 4    MI(ch,0x14) and MI(ch,0x20) moved one statement LATER each (after MUH(ch,0x60)
+ *                and after MI(ch,0x1c) respectively) -- same delay-slot-filler class as 1/3.
+ * RESIDUAL (4 diffs, exact parity): the else-arm length shift/mask.  Ours `sll v0,s3,8 /
+ * andi s3,v0,0xffff` vs retail's IN-PLACE `sll s3,s3,8 / andi s3,s3,0xffff` -- a coalescing choice
+ * on the anonymous shift temp (catalog "trichotomy" case 3).  Re-measured this wave at the 4-diff
+ * base: every 3-statement in-place spelling (`gp <<= 8; gp &= 0xffff;`, `gp = gp << 8; gp = gp &
+ * 0xffff;`, and the `& 0xff` variant) costs gp 2 more REG_N_REFS, which lifts it over note/ppp and
+ * takes $s1 -> 60 diffs.  `(unsigned short)(gp << 8)` is byte-identical to the current form.  So
+ * the in-place shape is only reachable if gp's refs are simultaneously cut by 2 elsewhere (the two
+ * candidates are the 0x3c guard and the 0x94 pool-base read, both currently through gp). */
 
 /* SNDPKTPLAY_submit @0x80102CFC : append a frame (descriptor `frame`) to the player's ring.  Returns the
  *   submit sequence number, or -0xD if the ring is full. */

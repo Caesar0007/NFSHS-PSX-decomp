@@ -1893,107 +1893,67 @@ void Camera_OpponentLookBehind(int player,coorddef *pos,int reset)
   int dist;
   int oppSlice;
   static coorddef lastOppVector[2];
-  Car_tObj *pCVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  Car_tObj **ppCVar5;
-  int iVar6;
-  coorddef *pcVar7;
-  int pThis;
-  int iVar8;
-  Car_tObj **ppCVar9;
-  int iVar10;
-  coorddef local_48;
-  coorddef local_38;
   
-  iVar10 = 0xb;
+  oppSlice = 0xb;
   if (reset != 0) {
-    pCVar1 = Cars_gHumanRaceCarList[player];
-    iVar10 = (pCVar1->N).orientMat.m[7];
-    iVar6 = (pCVar1->N).orientMat.m[8];
-    lastOppVector[player].x = (pCVar1->N).orientMat.m[6];
-    lastOppVector[player].y = iVar10;
-    lastOppVector[player].z = iVar6;
+    lastOppVector[player] =
+        *(coorddef *)(Cars_gHumanRaceCarList[player]->N.orientMat.m + 6);
     return;
   }
-  ppCVar5 = Cars_gHumanRaceCarList + player;
-  pCVar1 = *ppCVar5;
-  local_48.x = (pCVar1->N).orientMat.m[6];
-  local_48.y = (pCVar1->N).orientMat.m[7];
-  local_48.z = (pCVar1->N).orientMat.m[8];
-  iVar6 = 0;
-  if (0 < Cars_gNumCars) {
-    ppCVar9 = Cars_gList;
-    do {
-      pCVar1 = *ppCVar9;
-      if (pCVar1 != *ppCVar5) {
-        iVar8 = (int)(pCVar1->N).simRoadInfo.slice - (int)((*ppCVar5)->N).simRoadInfo.slice;
-        if (iVar8 < 0) {
-          iVar8 = -iVar8;
-        }
-        if (gNumSlices / 2 < iVar8) {
-          iVar8 = gNumSlices - iVar8;
-        }
-        if (iVar8 < 0xb) {
-          local_38.x = pos->x - (pCVar1->N).position.x;
-          local_38.y = pos->y - ((*ppCVar9)->N).position.y;
-          local_38.z = pos->z - ((*ppCVar9)->N).position.z;
-          Math_NormalizeVector(&local_38);
-          iVar2 = fixedmult(((*ppCVar5)->N).orientMat.m[6],local_38.x);
-          iVar3 = fixedmult(((*ppCVar5)->N).orientMat.m[7],local_38.y);
-          iVar4 = fixedmult(((*ppCVar5)->N).orientMat.m[8],local_38.z);
-          pThis = (iVar2 + iVar3 + iVar4);
-          iVar4 = intarccos(pThis);
-          if (iVar4 < 1) {
-            iVar4 = intarccos(pThis);
-            iVar4 = -iVar4;
-          }
-          else {
-            iVar4 = intarccos(pThis);
-          }
-          if ((iVar4 < 0x80) && (iVar8 < iVar10)) {
-            local_48.x = local_38.x;
-            local_48.y = local_38.y;
-            local_48.z = local_38.z;
-            iVar10 = iVar8;
+  oppVector =
+      *(coorddef *)(Cars_gHumanRaceCarList[player]->N.orientMat.m + 6);
+  for (i = 0; i < Cars_gNumCars; i++) {
+      if (Cars_gList[i] != Cars_gHumanRaceCarList[player]) {
+        dist = (int)Cars_gList[i]->N.simRoadInfo.slice -
+               (int)Cars_gHumanRaceCarList[player]->N.simRoadInfo.slice;
+        dist = (gNumSlices / 2 < __builtin_abs(dist)) ?
+               gNumSlices - __builtin_abs(dist) : __builtin_abs(dist);
+        if (dist < 0xb) {
+          tempVector.x = pos->x - Cars_gList[i]->N.position.x;
+          tempVector.y = pos->y - Cars_gList[i]->N.position.y;
+          tempVector.z = pos->z - Cars_gList[i]->N.position.z;
+          Math_NormalizeVector(&tempVector);
+          oppAngle =
+              fixedmult(Cars_gHumanRaceCarList[player]->N.orientMat.m[6],
+                        tempVector.x) +
+              fixedmult(Cars_gHumanRaceCarList[player]->N.orientMat.m[7],
+                        tempVector.y) +
+              fixedmult(Cars_gHumanRaceCarList[player]->N.orientMat.m[8],
+                        tempVector.z);
+          oppAngle = (0 < intarccos(oppAngle)) ?
+                     intarccos(oppAngle) : -intarccos(oppAngle);
+          if ((oppAngle < 0x80) && (dist < oppSlice)) {
+            oppVector = tempVector;
+            oppSlice = dist;
           }
         }
       }
-      iVar6 = iVar6 + 1;
-      ppCVar9 = ppCVar9 + 1;
-    } while (iVar6 < Cars_gNumCars);
   }
-  pcVar7 = lastOppVector + player;
-  iVar10 = fixedmult(local_48.x - pcVar7->x,0x4ccc);
-  iVar6 = lastOppVector[player].y;
-  pcVar7->x = pcVar7->x + iVar10;
-  iVar10 = fixedmult(local_48.y - iVar6,0x4ccc);
-  iVar6 = lastOppVector[player].z;
-  lastOppVector[player].y = lastOppVector[player].y + iVar10;
-  iVar10 = fixedmult(local_48.z - iVar6,0x4ccc);
-  lastOppVector[player].z = lastOppVector[player].z + iVar10;
-  local_48.x = pos->x - pcVar7->x;
-  local_48.y = pos->y - lastOppVector[player].y;
-  local_48.z = pos->z - lastOppVector[player].z;
+  lastOppVector[player].x +=
+      fixedmult(oppVector.x - lastOppVector[player].x,0x4ccc);
+  lastOppVector[player].y +=
+      fixedmult(oppVector.y - lastOppVector[player].y,0x4ccc);
+  lastOppVector[player].z +=
+      fixedmult(oppVector.z - lastOppVector[player].z,0x4ccc);
+  oppVector.x = pos->x - lastOppVector[player].x;
+  oppVector.y = pos->y - lastOppVector[player].y;
+  oppVector.z = pos->z - lastOppVector[player].z;
   switch((int)(((u_short)Camera_gInfo[player].mode - 2) * 0x10000) >> 0x10) {
   case 0:
   case 1:
   case 2:
-    iVar10 = -0x14ccc;
+    oppVector.y -= 0x14ccc;
     break;
   case 5:
-    local_48.y = local_48.y + -0x6666;
+    oppVector.y -= 0x6666;
   case 3:
   case 4:
-    iVar10 = -0x19999;
+    oppVector.y -= 0x19999;
     break;
   default:
-    goto switchD_80084f6c_default;
+    break;
   }
-  local_48.y = local_48.y + iVar10;
-switchD_80084f6c_default:
-  Camera_AcquireTarget(player,&local_48,pos,&Camera_gInfo[player].rotation,1);
+  Camera_AcquireTarget(player,&oppVector,pos,&Camera_gInfo[player].rotation,1);
   return;
 }
 

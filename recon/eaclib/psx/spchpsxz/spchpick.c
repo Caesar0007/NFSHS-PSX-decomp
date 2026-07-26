@@ -34,8 +34,8 @@ typedef void (*SentenceRuleSetFn)(int, int, int);
 extern SentenceRuleSetFn gSentenceRuleSet; /* spchinit (callback) */
 extern int  gVoxInGame[];     /* spchinit; [1] aliases gRepeatCount@+4 */
 extern int  gRepeatCount;     /* spchinit (== gVoxInGame[1]) */
-extern int  gFilterSetting;   /* spchevnt-shared */
-extern int  DAT_80148064;     /* spchevnt "kept 'd' event" flag */
+extern int  gFilterSetting[]; /* spchevnt-shared; UNSIZED ARRAY -> separate-temp lui/lw pair */
+extern int  DAT_80148064[];   /* spchevnt "kept 'd' event" flag; UNSIZED ARRAY -> separate-temp lui/lw pair */
 extern int  gPreLoadTicks[];  /* spchevnt-shared */
 extern int  gClearCycle[];    /* @0x801370BC "cycle-bit clearing enabled" flag (init val 1);
                                     * UNSIZED ARRAY (not a scalar): a scalar extern compiles to the
@@ -845,21 +845,31 @@ extern int iSPCH_ChooseSentence(unsigned int *eventArgs)
 
             iSPCH_ClearChosen();
             filterFlag = 1;
-            filterMode = (unsigned int)gFilterSetting;
-            if (DAT_80148064 == 1) {
-                filterMode = (unsigned int)(gFilterSetting + 1);
+            filterMode = (unsigned int)gFilterSetting[0];
+            if (DAT_80148064[0] == 1) {
+                filterMode = (unsigned int)(gFilterSetting[0] + 1);
                 filterFlag = (unsigned int)((int)filterMode < 3);
                 if (filterFlag == 0)
                     filterMode = 2;
             }
             {
-                unsigned int useLen = (unsigned int)VoxEvent_GetFilterLengthFlag(event);
+                unsigned int  useLen = (unsigned int)VoxEvent_GetFilterLengthFlag(event);
+                unsigned char ruleBits;
                 /* @0x801017F4-808: gate is (useLen & 0xFF) != 0 && filterMode == 1 -- $v0 tested at
                  * 0x801017F8 is the VoxEvent_GetFilterLengthFlag return (&0xFF), NOT filterFlag. The
                  * recon gated on filterFlag (a distinct var from the DAT_80148064 branch) (M09). */
                 if ((useLen & 0xff) != 0 && filterMode == 1)
                     filterMode = 0;
-                iSPCH_GetRuleSettings((short *)event, (int *)eventArgs, &local_30);
+                /* REAL BUG (w33-a9): ruleByte1 is iSPCH_GetRuleSettings' RETURN, not useLen.
+                 * The oracle saves $v0 into $fp in the OrderSentences jal delay slot
+                 * (@0x8010182C `addu fp,v0,zero`), i.e. AFTER the GetRuleSettings call --
+                 * so the value later masked `andi a2,fp,0xff` and passed as the 3rd arg of
+                 * iSPCH_SentenceGetChoices is the rule-settings byte.  useLen (the
+                 * VoxEvent_GetFilterLengthFlag return) is consumed ONLY by the filterMode
+                 * gate above -- the oracle never saves it (bare `andi v0,v0,0xff; beqz`).
+                 * The old recon reused useLen for both, which both mis-typed the argument
+                 * and pinned useLen into a callee-saved reg for the whole function. */
+                ruleBits = iSPCH_GetRuleSettings((short *)event, (int *)eventArgs, &local_30);
                 iSPCH_OrderSentences(event, (int)local_order);
                 {
                     unsigned int n = (unsigned int)*(unsigned char *)(event + 6);
@@ -876,15 +886,26 @@ extern int iSPCH_ChooseSentence(unsigned int *eventArgs)
                                           * §C "char IS UNSIGNED on this build"). */
                             int          sentence;
                             int          r;
+                            /* MATCH (w33-a9): the three range guards leave via `goto out`
+                             * (ONE shared `return result`), not three textual `return result;`.
+                             * gcc's cross-jump pass merges the three `move v0,result` copies
+                             * only AFTER register allocation, so the textual form makes
+                             * REG_N_REFS(result) 16 instead of 13 -- and 16 crosses a
+                             * floor_log2 step, so local-alloc's priority
+                             * (floor_log2(refs)*refs/live_length) jumps 1.20 -> 1.49 and
+                             * result outranks `table` (10 refs / 25 insns = 1.20), taking $s1
+                             * and pushing table to $s2.  Retail has table in $s1 and result in
+                             * $s2, i.e. the shared-exit form.  (cc1 -dl/-dg dumps: allocation
+                             * order 107 85 83 ... -> 107 83 85 ...; whole-fn 28 diffs -> 0.) */
                             if ((int)n <= idx)
-                                return result;
+                                goto out;
                             table = (int)local_order[idx];
                             if (table < 0)
-                                return result;
+                                goto out;
                             if ((int)n <= table)
-                                return result;
+                                goto out;
                             sentence = iSPCH_GetOffset16(event, event + 0xc, (int)table);
-                            r = iSPCH_SentenceGetChoices(sentence, (int)eventArgs, useLen & 0xff,
+                            r = iSPCH_SentenceGetChoices(sentence, (int)eventArgs, ruleBits,
                                                          (unsigned int)(unsigned char)local_30, (int)filterMode);
                             if (0 < r) {
                                 result = iSPCH_SentenceMakeChoice(sentence, (int)filterMode);
@@ -898,6 +919,7 @@ extern int iSPCH_ChooseSentence(unsigned int *eventArgs)
             }
         }
     }
+out:
     return result;
 }
 

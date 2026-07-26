@@ -649,14 +649,26 @@ extern int iSPCH_SentenceMakeChoice(int sentence, int mode)
         if (ok < n) {
             ok = 1;
             sentence = (int)ispch_gChoice + i * 0xc;
-            /* residual 7 (44/43): genuine base-anchor FLOOR (catalog §3.12-style) -- ours
-             * folds the store's +8 field offset into the persistent record pointer once at
-             * loop entry (extra `addiu s0,s0,8`, reads become -4/-2), oracle keeps the
-             * pointer at the record base and uses bare +4/+6/+8 displacements throughout.
-             * Tried: named-field temp for the +6 read, short*-indexed CHOICE-style rewrite
-             * (both score EQUAL or WORSE, 7/9), statement-order swap of i++ (no change).
-             * gcc CSE-vs-strength-reduction granularity; accept, do not chase further with
-             * magic-offset pointer math. */
+/* residual 7 (44/43): the +1 insn is the giv anchor -- loop.c combines all
+             * three in-loop address givs onto the LAST one (the +8 store), so ours folds
+             * +8 into the record pointer at loop entry (`addiu s0,s0,8`) and the reads
+             * become -4/-2, while retail keeps the pointer at the record base with bare
+             * +4/+6/+8.
+             * w33-a9 RE-VERDICT (was filed a "base-anchor FLOOR"): it IS the catalog's
+             * giv-anchor class, and cure A (label+goto loop => no LOOP notes => no
+             * strength reduction) DOES fix it -- the goto form reaches EXACT 43/43 parity
+             * with the whole loop body byte-identical (lh 4(s0) / lhu 6(s0) / sh 8(s0) /
+             * addiu s0,s0,12).  NOT KEPT because its residual is an 18-diff s2<->s3
+             * rotation of `ok` and `n`, and that is the allocno_compare LIVE-LENGTH
+             * identity, not a source shape: cc1 -dl gives ok = 5 refs / 24 insns
+             * (priority .417) vs n = 3 refs / 15 insns (.200) under
+             * floor_log2(refs)*refs/live_length, so psq43 cc1 allocates ok first; retail
+             * allocates n first, which needs len(ok)/len(n) > 3.33 (ours is 1.6).  Same
+             * >3.4x weighting exhibit as iSPCH_InitEventQueue (hub w32 identity core (b)).
+             * Cure B (recompute the record pointer from the counter each iteration --
+             * CHOICE(i) or an inline i*0xc) does NOT work here: 36 diffs / 45 insns,
+             * loop.c re-derives the same anchor.  Restore the goto form when the cc1
+             * snapshot question is settled. */
             do {
                 int r = iSPCH_Rand((int)*(short *)(sentence + 4));
                 i = i + 1;

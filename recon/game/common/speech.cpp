@@ -2434,13 +2434,10 @@ void Activate__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj 
 {
   Speech_tMobileVoiceAttr *a;
   int Voice;
-  u_long uVar1;
   __vtbl_ptr_type (*pa_Var2) [31];
   int iVar3;
-  /* MATCH: residual 14-diff uVar1 a0-vs-v0 merge-point coloring (oracle keeps the shared
-     a->voice/8/Voice+9 temp in v0 through the branch; ours prefers a0). Tried: inline array
-     index (regressed to 32), decl-order swap, u_long->int retype — all identical or worse.
-     Genuine allocator-preferencing floor (same family as AudioCmn_UnPause), no pin. */
+  /* MATCH: as in ReActivate, branch-local fVoice assignments keep the merged voice value in
+     v0; the scoped pFrom below preserves the virtual-call result as the address-add base. */
 
   pThis->fCarObj = carObj;
   Voice = GetVoice__6SpeechP8Car_tObj(carObj);
@@ -2448,16 +2445,18 @@ void Activate__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj 
   a = &Speech_gCopAttr[Voice];
   if ((carObj->carFlags & 0x40U) != 0) {
     pThis->fUnit = Voice + 9;
-    uVar1 = 8;
+    (pThis->fVoice).flags = 8;
   }
   else {
-    uVar1 = a->voice;
+    (pThis->fVoice).flags = a->voice;
   }
-  (pThis->fVoice).flags = uVar1;
   pa_Var2 = (pThis->_base_Speaker)._vf;
   iVar3 = (*(*pa_Var2)[0x1e].pfn)
                     ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var2)[0x1e].delta);
-  (pThis->_base_Speaker).fFrom = *(int *)(iVar3 + pThis->fUnit * 4 + 8);
+  {
+    int *pFrom = (int *)(iVar3 + pThis->fUnit * 4 + 8);
+    (pThis->_base_Speaker).fFrom = *pFrom;
+  }
   iVar3 = GameSetup_gData.track;
   (pThis->_base_Speaker).fConfirm.flags = 0xff;
   (pThis->_base_Speaker).fPerpName.flags = 0xf;

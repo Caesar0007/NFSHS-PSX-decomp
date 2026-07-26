@@ -177,29 +177,23 @@ long tCarManager::CalcUsedPrice(short garageNumber)
 long tCarManager::PurchaseCar(short carModel,short color,short playerNum)
 
 {
+  /* SYM: locals = short i (REG $4), tCarInfo *carInfo (REG $6) */
   tCarInfo *carInfo;
-  int iVar2;
-  int iVar3;
-  int i;
-  int iVar5;
-  
+  short i;
+
   carInfo = carManager.GetCarFromID(carModel);
-  iVar5 = (int)playerNum;
-  iVar2 = 0;
-  i = 0;
-  do {
-    iVar2 = iVar2 >> 0xe;
-    iVar3 = i + 1;
-    if ((&this->fCarGarage[iVar5 * 0x10][0].fCarID)[iVar2] < '\0') {
-      (&this->fCarGarage[iVar5 * 0x10][0].fCarID)[iVar2] = (char)carModel;
-      (&this->fCarGarage[iVar5 * 0x10][0].fCarColor)[iVar2] = (uchar)color;
-      (&this->fCarGarage[iVar5 * 0x10][0].fUpgrades)[iVar2] = '\0';
-      frontEnd.garageCar[iVar5] = (char)i + (char)this->fNumCars;
+
+  for (i = 0; i < 32; i++) {
+    /* MATCH: char is UNSIGNED on this build -> (signed char) restores the
+       oracle's lb/bgez (a plain `< 0` folds to false and gcc DELETES the body) */
+    if ((signed char)this->fCarGarage[playerNum][i].fCarID < 0) {
+      this->fCarGarage[playerNum][i].fCarID = (char)carModel;
+      this->fCarGarage[playerNum][i].fCarColor = (u_char)color;
+      this->fCarGarage[playerNum][i].fUpgrades = 0;
+      frontEnd.garageCar[playerNum] = i + this->fNumCars;
       return carInfo->fPrices[0];
     }
-    iVar2 = iVar3 * 0x10000;
-    i = iVar3;
-  } while (iVar3 * 0x10000 >> 0x10 < 0x20);
+  }
   return 0;
 }
 
@@ -332,28 +326,19 @@ void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
 void tCarManager::AddToPinkSlipsList(short carModel,short color,short playerNum)
 
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int i;
-  
-  iVar3 = (int)playerNum;
-  iVar1 = 0;
-  i = 0;
-  do {
-    iVar1 = iVar1 >> 0xe;
-    iVar2 = i + 1;
-    if ((&this->fPinkSlipsCars[iVar3 * 0x10][0].fCarID)[iVar1] < '\0') {
-      (&this->fPinkSlipsCars[iVar3 * 0x10][0].fCarID)[iVar1] = (char)carModel;
-      (&this->fPinkSlipsCars[iVar3 * 0x10][0].fCarColor)[iVar1] = (uchar)color;
-      (&this->fPinkSlipsCars[iVar3 * 0x10][0].fUpgrades)[iVar1] = '\0';
-      frontEnd.pinkSlipsCar[iVar3] = (char)i + (char)this->fNumCars;
+  /* SYM: sole local = short i (REG $8); leaf fn (fsize 0, mask 0) */
+  short i;
+
+  for (i = 0; i < 32; i++) {
+    /* MATCH: (signed char) — plain `char < 0` folds false (unsigned char ABI) */
+    if ((signed char)this->fPinkSlipsCars[playerNum][i].fCarID < 0) {
+      this->fPinkSlipsCars[playerNum][i].fCarID = (char)carModel;
+      this->fPinkSlipsCars[playerNum][i].fCarColor = (u_char)color;
+      this->fPinkSlipsCars[playerNum][i].fUpgrades = 0;
+      frontEnd.pinkSlipsCar[playerNum] = i + this->fNumCars;
       return;
     }
-    iVar1 = iVar2 * 0x10000;
-    i = iVar2;
-  } while (iVar2 * 0x10000 >> 0x10 < 0x20);
-  return;
+  }
 }
 
 

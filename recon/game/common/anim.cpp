@@ -183,20 +183,18 @@ void Anim_GetLastRotPos(Trk_AnimateInst *animInst,coorddef *pt,matrixtdef *mat)
 /* ---- Anim_GetLastAnimPosRot  [@0x80073e80] ---- */
 int Anim_GetLastAnimPosRot(int animNum,int flags,coorddef *pt,matrixtdef *mat)
 {
-  int tmp;
   int iVar1;
-  int iVar2;
   int iVar3;
-  
+
   Anim_GetLastRotPos(animScripts[animNum],pt,mat);
   if ((flags & 4U) != 0) {
     iVar1 = mat->m[3];
-    iVar2 = mat->m[4];
-    iVar3 = mat->m[5];
     mat->m[3] = mat->m[6];
     mat->m[6] = -iVar1;
+    iVar1 = mat->m[4];
     mat->m[4] = mat->m[7];
-    mat->m[7] = -iVar2;
+    mat->m[7] = -iVar1;
+    iVar3 = mat->m[5];
     mat->m[5] = mat->m[8];
     mat->m[8] = -iVar3;
   }

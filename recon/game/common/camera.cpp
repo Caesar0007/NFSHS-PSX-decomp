@@ -1651,25 +1651,11 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
   int edgeDotNorm;
   int count;
   int i;
-  BO_tNewtonObj *pBVar4;
-  int *piVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  int iVar9;
-  Camera_tInfo *pCVar12;
-  int iVar13;
-  int iVar14;
-  coorddef *pThis;
   
   /* MATCH: plain struct assignment -> gcc movstrsi copy (Ghidra hand-expanded it as a loop) */
   slicePos = Camera_gInfo[player].slicePos;
-  iVar13 = 0;
-  pCVar12 = Camera_gInfo + player;   /* MATCH: gInfo sum materialized BEFORE feeler3 base */
-  pThis = feeler3;
-  do {
-    transform(pThis,(pCVar12->anchor->orientMat).m,
-               &triVec.x);
+  for (i = 0; i < 3; i++) {
+    transform(feeler3 + i,Camera_gInfo[player].anchor->orientMat.m,&triVec);
     triPnt.x = pos->x + triVec.x;
     triPnt.y = pos->y + triVec.y;
     triPnt.z = pos->z + triVec.z;
@@ -1685,22 +1671,22 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
       if (((slicePos.simQuad)->surface & 0xf) == 0) break;
     }
     if ((((signed char)slicePos.offEdge != 0) ||
-        (iVar14 = Camera_TooSteep(player,&slicePos), iVar14 != 0)) ||
+        (Camera_TooSteep(player,&slicePos) != 0)) ||
        ((slicePos.simQuad != (Trk_NewSimQuad *)0x0 &&
         ((((slicePos.simQuad)->surface & 0x80) != 0 &&
-         (0x38000 < quadUnderCamera.y - (pCVar12->anchor->position).y)))))) break;
-    iVar13 = iVar13 + 1;
-    pThis = pThis + 1;
-    if (2 < iVar13) break;
-  } while( true );
-  if (iVar13 == 3) {
+         (0x38000 < quadUnderCamera.y - Camera_gInfo[player].anchor->position.y)))))) break;
+  }
+  if (i == 3) {
     return;
   }
-  iVar13 = 0;
-  edge = pCVar12->anchor->position;   /* MATCH: struct copy */
-  step.x = (pCVar12->anchor->position).x - triPnt.x >> 7;
-  step.z = (pCVar12->anchor->position).z - triPnt.z >> 7;
-  step.y = (pCVar12->anchor->position).y - triPnt.y >> 7;
+  count = 0;
+  step.x = Camera_gInfo[player].anchor->position.x - triPnt.x;
+  step.y = Camera_gInfo[player].anchor->position.y - triPnt.y;
+  step.z = Camera_gInfo[player].anchor->position.z - triPnt.z;
+  edge = Camera_gInfo[player].anchor->position;
+  step.x >>= 7;
+  step.y >>= 7;
+  step.z >>= 7;
   do {
     edge.x = edge.x - step.x;
     edge.y = edge.y - step.y;
@@ -1717,28 +1703,27 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
       if (((slicePos.simQuad)->surface & 0xf) == 0) break;
     }
     if ((((signed char)slicePos.offEdge != 0) ||
-        (iVar14 = Camera_TooSteep(player,&slicePos), iVar14 != 0)) ||
-       (((slicePos.simQuad != (Trk_NewSimQuad *)0x0 &&
-         ((((slicePos.simQuad)->surface & 0x80) != 0 &&
-          (0x38000 < quadUnderCamera.y - (pCVar12->anchor->position).y)))) ||
-        (iVar13 = iVar13 + 1, 0x7f < iVar13)))) break;
-  } while( true );
-  pCVar12 = Camera_gInfo + player;
+         (Camera_TooSteep(player,&slicePos) != 0)) ||
+        ((slicePos.simQuad != (Trk_NewSimQuad *)0x0) &&
+         (((slicePos.simQuad)->surface & 0x80) != 0) &&
+         (0x38000 < quadUnderCamera.y - Camera_gInfo[player].anchor->position.y))) break;
+    count++;
+  } while (count < 0x80);
   camAngle = 1;
-  step.x = (pCVar12->anchor->position).x - edge.x >> 1;
-  step.y = (pCVar12->anchor->position).y - edge.y >> 1;
-  step.z = (pCVar12->anchor->position).z - edge.z >> 1;
+  step.x = Camera_gInfo[player].anchor->position.x - edge.x;
+  step.y = Camera_gInfo[player].anchor->position.y - edge.y;
+  step.z = Camera_gInfo[player].anchor->position.z - edge.z;
+  step.x >>= 1;
+  step.y >>= 1;
+  step.z >>= 1;
   do {
     intsincos(camAngle,&sin,&cos);
-    iVar13 = fixedmult(cos,step.x);
-    temp.x = fixedmult(sin,step.z);
-    temp.x = iVar13 - temp.x;
+    temp.x = fixedmult(cos,step.x) - fixedmult(sin,step.z);
     temp.y = step.y;
-    iVar13 = fixedmult(sin,step.x);
-    iVar14 = fixedmult(cos,step.z);
+    temp.z = fixedmult(sin,step.x) + fixedmult(cos,step.z);
     temp.x = edge.x + temp.x;
     temp.y = edge.y + temp.y;
-    temp.z = edge.z + iVar13 + iVar14;
+    temp.z = edge.z + temp.z;
     BWorldSm_FindClosestQuadMaxIterations(&temp,&slicePos,3);
     if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
       quadUnderCamera = slicePos.quadPts[0];
@@ -1746,32 +1731,27 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
     else {
       quadUnderCamera = *(coorddef *)BWorldSm_slices[slicePos.slice].center;
     }
-    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
-      if (((slicePos.simQuad)->surface & 0xf) == 0) {
-LAB_80084464:
-        Camera_gInfo[player].wallLeft = temp;
-        break;
-      }
+    if (((slicePos.simQuad != (Trk_NewSimQuad *)0x0) &&
+         (((slicePos.simQuad)->surface & 0xf) == 0)) ||
+        ((signed char)slicePos.offEdge != 0) ||
+        (Camera_TooSteep(player,&slicePos) != 0) ||
+        ((slicePos.simQuad != (Trk_NewSimQuad *)0x0) &&
+         (((slicePos.simQuad)->surface & 0x80) != 0) &&
+         (0x38000 < quadUnderCamera.y - Camera_gInfo[player].anchor->position.y))) {
+      Camera_gInfo[player].wallLeft = temp;
+      break;
     }
-    if ((((signed char)slicePos.offEdge != 0) ||
-        (iVar13 = Camera_TooSteep(player,&slicePos), iVar13 != 0)) ||
-       ((slicePos.simQuad != (Trk_NewSimQuad *)0x0 &&
-        ((((slicePos.simQuad)->surface & 0x80) != 0 &&
-         (0x38000 < quadUnderCamera.y - (pCVar12->anchor->position).y)))))) goto LAB_80084464;
     camAngle = camAngle + 4;
   } while ((int)camAngle < 0x400);
   camAngle = 0xffffffff;
   do {
     intsincos(camAngle,&sin,&cos);
-    iVar13 = fixedmult(cos,step.x);
-    temp.x = fixedmult(sin,step.z);
-    temp.x = iVar13 - temp.x;
+    temp.x = fixedmult(cos,step.x) - fixedmult(sin,step.z);
     temp.y = step.y;
-    iVar13 = fixedmult(sin,step.x);
-    iVar14 = fixedmult(cos,step.z);
+    temp.z = fixedmult(sin,step.x) + fixedmult(cos,step.z);
     temp.x = edge.x + temp.x;
     temp.y = edge.y + temp.y;
-    temp.z = edge.z + iVar13 + iVar14;
+    temp.z = edge.z + temp.z;
     BWorldSm_FindClosestQuadMaxIterations(&temp,&slicePos,3);
     if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
       quadUnderCamera = slicePos.quadPts[0];
@@ -1779,44 +1759,43 @@ LAB_80084464:
     else {
       quadUnderCamera = *(coorddef *)BWorldSm_slices[slicePos.slice].center;
     }
-    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
-      if (((slicePos.simQuad)->surface & 0xf) == 0) {
-LAB_80084634:
-        Camera_gInfo[player].wallRight = temp;
-        break;
-      }
+    if (((slicePos.simQuad != (Trk_NewSimQuad *)0x0) &&
+         (((slicePos.simQuad)->surface & 0xf) == 0)) ||
+        ((signed char)slicePos.offEdge != 0) ||
+        (Camera_TooSteep(player,&slicePos) != 0) ||
+        ((slicePos.simQuad != (Trk_NewSimQuad *)0x0) &&
+         (((slicePos.simQuad)->surface & 0x80) != 0) &&
+         (0x38000 < quadUnderCamera.y - Camera_gInfo[player].anchor->position.y))) {
+      Camera_gInfo[player].wallRight = temp;
+      break;
     }
-    if ((((signed char)slicePos.offEdge != 0) ||
-        (iVar13 = Camera_TooSteep(player,&slicePos), iVar13 != 0)) ||
-       ((slicePos.simQuad != (Trk_NewSimQuad *)0x0 &&
-        ((((slicePos.simQuad)->surface & 0x80) != 0 &&
-         (0x38000 < quadUnderCamera.y - ((Camera_gInfo[player].anchor)->position).y)))))) goto LAB_80084634;
     camAngle = camAngle - 4;
   } while (-0x400 < (int)camAngle);
   temp.x = Camera_gInfo[player].wallRight.x - Camera_gInfo[player].wallLeft.x;
-  temp.y = (Camera_gInfo[player].wallRight.y - Camera_gInfo[player].wallLeft.y) + 0x8000;
+  temp.y = Camera_gInfo[player].wallRight.y - Camera_gInfo[player].wallLeft.y;
   temp.z = Camera_gInfo[player].wallRight.z - Camera_gInfo[player].wallLeft.z;
+  temp.y += 0x8000;
   Math_NormalizeVector(&temp);
   edge.x = edge.x - triPnt.x;
-  normal.z = temp.x;
   normal.x = -temp.z;
   normal.y = temp.y;
-  edge.z = edge.z - triPnt.z;
+  normal.z = temp.x;
   edge.y = edge.y - triPnt.y;
-  iVar13 = fixedmult(edge.x,normal.x);
-  iVar14 = fixedmult(edge.y,normal.y);
-  iVar6 = fixedmult(edge.z,normal.z);
-  iVar7 = fixedmult(triVec.x,normal.x);
-  iVar8 = fixedmult(triVec.y,normal.y);
-  iVar9 = fixedmult(triVec.z,normal.z);
-  iVar13 = iVar13 + iVar14 + iVar6 + iVar7 + iVar8 + iVar9 + 0x10000;
-  if (0 < iVar13) {
-    temp.x = fixedmult(iVar13,normal.x);
-    temp.y = fixedmult(iVar13,normal.y);
-    iVar13 = fixedmult(iVar13,normal.z);
+  edge.z = edge.z - triPnt.z;
+  edgeDotNorm = fixedmult(edge.x,normal.x);
+  edgeDotNorm += fixedmult(edge.y,normal.y);
+  edgeDotNorm += fixedmult(edge.z,normal.z);
+  camDotNorm = fixedmult(triVec.x,normal.x);
+  camDotNorm += fixedmult(triVec.y,normal.y);
+  camDotNorm += fixedmult(triVec.z,normal.z);
+  edgeDotNorm = edgeDotNorm + camDotNorm + 0x10000;
+  if (0 < edgeDotNorm) {
+    temp.x = fixedmult(edgeDotNorm,normal.x);
+    temp.y = fixedmult(edgeDotNorm,normal.y);
+    temp.z = fixedmult(edgeDotNorm,normal.z);
     pos->x = pos->x + temp.x;
     pos->y = pos->y + temp.y;
-    pos->z = pos->z + iVar13;
+    pos->z = pos->z + temp.z;
   }
   return;
 }

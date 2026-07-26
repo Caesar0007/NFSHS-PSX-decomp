@@ -126,16 +126,10 @@ void AudioClc_StartUp(void)
   AudioClc_tPlayer*p;
   AudioClc_tSource*c;
   int i;
-  int iVar2;
-  AudioClc_tSource *s;
-  Car_tObj **ppCVar4;
-  AudioClc_tPlayer *pAVar3;
-  AudioClc_tSource *s_00;
 
-  ppCVar4 = Cars_gHumanRaceCarList;
-  pAVar3 = AudioClc_gPlayer;
-  s_00 = AudioClc_gClosest;
-  iVar2 = 0;
+  p = AudioClc_gPlayer;
+  c = AudioClc_gClosest;
+  i = 0;
   AudioClc_gRandomPhrase = 0;
   AudioClc_gBullHornCount = 0;
   AudioClc_gBumpCopCount = 0;
@@ -144,29 +138,27 @@ void AudioClc_StartUp(void)
   AudioClc_gLastphrase2 = -1;
   AudioClc_gLastphrase3 = -1;
   do {
-    s = &pAVar3->source;
-    pAVar3->cameraMode = -1;
-    *(u_int *)((int)(s + -1) + 0x24) = 0;
-    *(u_int *)((int)(s + -1) + 0x28) = 0;
-    AudioClc_InitSource(s,(Car_tObj *)0x0);
+    p->cameraMode = -1;
+    p->gameTicks = 0;
+    p->warnings = 0;
+    AudioClc_InitSource(&p->source,(Car_tObj *)0x0);
     if (GameSetup_gData.commMode >= 2) {
-      if ((iVar2 == 0) && (GameSetup_gData.localCar < Cars_gNumHumanRaceCars)) {
-        s->car = Cars_gHumanRaceCarList[GameSetup_gData.localCar];
+      if ((i == 0) && (GameSetup_gData.localCar < Cars_gNumHumanRaceCars)) {
+        p->source.car = Cars_gHumanRaceCarList[GameSetup_gData.localCar];
       }
     }
-    else if (iVar2 < Cars_gNumHumanRaceCars) {
-      s->car = *ppCVar4;
+    else if (i < Cars_gNumHumanRaceCars) {
+      p->source.car = Cars_gHumanRaceCarList[i];
     }
-    ppCVar4 = ppCVar4 + 1;
-    iVar2 = iVar2 + 1;
-    pAVar3 = pAVar3 + 1;
-  } while (iVar2 < 2);
-  iVar2 = 0;
+    i = i + 1;
+    p = p + 1;
+  } while (i < 2);
+  i = 0;
   do {
-    AudioClc_InitSource(s_00,(Car_tObj *)0x0);
-    iVar2 = iVar2 + 1;
-    s_00 = s_00 + 1;
-  } while (iVar2 < 4);
+    AudioClc_InitSource(c,(Car_tObj *)0x0);
+    i = i + 1;
+    c = c + 1;
+  } while (i < 4);
   AudioClc_gCameraVelocity = (coorddef *)0x0;
   return;
 }

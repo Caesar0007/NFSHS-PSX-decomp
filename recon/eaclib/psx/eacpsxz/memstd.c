@@ -366,13 +366,17 @@ extern char *getblockname(void *p)   /* @0x800E52E0 */
  * ===================================================================== */
 extern void *reservememadr(char *name, int size, int classid)   /* @0x800E533C */
 {
-    /* RESIDUAL (63 diffs, count-exact 128/129 off-by-1 frame slot): a systemic s0<->s1
-     * register-coloring swap between `need` and `blk` runs through the WHOLE body (every
-     * site that touches either). Tried: decl-order swap (need declared before/after blk,
-     * both scopes) -- no change. Same allocator-priority-tie-break class as resize.cpp's
-     * documented 3-way s2/s3/s4 rotation floor; not source-reachable via decl/order/type
-     * tries so far. nfs4-clean/Ghidra additionally recovered the unconditional class-flags
-     * merge before the anonymous-name bit clear, fixing the final semantic residual. */
+    /* BYTE-MATCH (w32-a4, 63 diffs -> PASS 129/129). The long-standing "systemic s0<->s1
+     * coloring swap" was NOT an allocator tie-break: it was caused by the two split arms
+     * declaring their own ARM-LOCAL remainder pointers. cc1 -dl showed both as
+     * single-basic-block pseudos ("Register 110 ... in block 9", "116 ... in block 10")
+     * that LOCAL-alloc claims $s0 for, which puts a hard-reg-16 conflict on `blk`'s
+     * allocno (cc1 -dg: "94 conflicts: ... 16") and forces blk to $s1 and everything
+     * else to invert. IDA's per-variable register table for sub_800E533C is the oracle
+     * here: v13=$s0 blk, v8/v12=$s1 need, v15=$s1 HIGH remainder, v17=$s1 LOW remainder
+     * -- i.e. retail used ONE remainder variable across BOTH arms (a 2-block = GLOBAL
+     * pseudo, never local-alloc'd) and advanced `blk` in place. See the three MATCH
+     * notes below for the three edits that closed it. */
     void     *result = 0;                              /* s5: single-exit funnel (MATCH: oracle
                                                            inits s5=0 up front and `j END` on both
                                                            failure paths without touching it) */
@@ -396,11 +400,16 @@ extern void *reservememadr(char *name, int size, int classid)   /* @0x800E533C *
         int gran;
         int tail;
         tail = MEM_tailsize(name, classid);       /* v0 */
-        gran = cls->granularity;
-        mask = gran - 1;
-        rounded = ((unsigned)(need + tail) + (unsigned)(gran + 0x0F))
+        gran = cls->granularity;                  /* v1 */
+        mask = gran - 1;                          /* s4 (callee-saved: reused by the HIGH split) */
+        gran = gran + 0x0F;                       /* MATCH: a SEPARATE statement -- written as
+                                                   * `(need+tail) + (gran+0x0F)` inside one
+                                                   * expression, gcc reassociates the constant
+                                                   * onto the FIRST sum (`addiu v0,v0,15`); the
+                                                   * oracle adds it to gran's own register
+                                                   * (`addiu v1,v1,15`) after `addiu s4,v1,-1`. */
+        rounded = ((unsigned)(need + tail) + (unsigned)gran)
                          & (unsigned)(~mask);
-                                 /* s0 */
 
 
         need = (int)rounded - 0x10;                    /* s1 = aligned span - 16 */
@@ -415,19 +424,31 @@ extern void *reservememadr(char *name, int size, int classid)   /* @0x800E533C *
         leftover = blk->size - need;                   /* v1 */
 
         if (leftover >= 0x41) {                         /* enough to split off a block */
+            /* MATCH (IDA register table, sub_800E533C): the remainder block is ONE
+             * variable shared by BOTH arms -- retail keeps it in $s1 (the register
+             * `need` just vacated: IDA v8/v12 = $s1 need, v15 = $s1 HIGH remainder,
+             * v17 = $s1 LOW remainder) while `blk` stays in $s0 (IDA v13). Two
+             * arm-LOCAL pointers instead make each a single-block pseudo that
+             * local-alloc grabs $s0 for (cc1 -dl: "Register 110 ... in block 9",
+             * "116 ... in block 10"), which puts a hard-reg-16 conflict on blk's
+             * allocno and forces the whole s0<->s1 inversion. */
+            MemBlock *rem;                                                   /* s1 */
             if (classid & 0x10) {
-                /* HIGH split: keep front as free, carve the allocation from the top */
-                MemBlock *front = blk;                                       /* s1 */
-                MemBlock *alloc = (MemBlock *)((char *)blk + (leftover & ~mask)); /* s0 */
-                front->physnext->physprev = alloc;
-                alloc->physprev = front;
-                alloc->physnext = front->physnext;
-                initmemblock(front, 0, 0, 0, 0, front->physprev, alloc);
-                FREE_add(cls, front);
-                blk = alloc;
+                /* HIGH split: keep the front as free, carve the allocation from the top.
+                 * MATCH: `blk` is advanced IN PLACE (oracle `addu s0,s0,v0`), the OLD
+                 * value copied out to the remainder var (`addu s1,s0,zero`). */
+                rem = blk;
+                blk = (MemBlock *)((char *)blk + (leftover & ~mask));
+                rem->physnext->physprev = blk;
+                blk->physnext = rem->physnext;    /* MATCH: the rem->physnext RELOAD is issued
+                                                   * BEFORE the physprev store (oracle fills the
+                                                   * load-delay with the a2 setup, then stores) */
+                blk->physprev = rem;
+                initmemblock(rem, 0, 0, 0, 0, rem->physprev, blk);
+                FREE_add(cls, rem);
             } else {
                 /* LOW split: allocation at the front, remainder freed */
-                MemBlock *rem = (MemBlock *)((char *)blk + (need + 0x10));   /* s1 */
+                rem = (MemBlock *)((char *)blk + (need + 0x10));
                 blk->physnext->physprev = rem;
                 initmemblock(rem, 0, 0, 0, 0, blk, blk->physnext);
                 FREE_add(cls, rem);

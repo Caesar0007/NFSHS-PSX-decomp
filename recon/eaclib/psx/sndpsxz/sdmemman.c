@@ -7,6 +7,19 @@
  *   🔴 The shift loop's `entry[dst]=entry[src]` is a lwl/lwr+swl/swr UNALIGNED 4-byte copy (the table sits
  *   on an odd boundary); Ghidra mangled the swl/swr into a bit-twiddle AND emitted a phantom aligned store
  *   -- disasm shows ONE unaligned word copy, so the bit-twiddle is dropped and the plain copy kept.
+ *
+ *   ⚠️ iSNDpsxmalloc FLOOR NOTE (w31-a2, 2026-07-26): a full oracle-shape rebuild (three-call CFG with
+ *   per-site polarity, guarded-preamble base split, multiply-set-offset SR blocker, clean align-2
+ *   struct-assign shift copy, fused-symbol scan_done/commit) reached insn 124/127 but 105 diffs vs this
+ *   body's 59 -- the residual classes are NOT source-reachable under the gate toolchain: (a) retail does
+ *   NOT cross-jump-merge the empty-arm/scan_done constrain+check tails (ours always merges them because
+ *   both arms color identically); (b) retail keeps a redundant value copy in the empty arm
+ *   (`addu v1,a2,zero`) and duplicated per-arm `addiu a0/a1,sp` arg setups; (c) retail re-reads a
+ *   just-la'd constant via the la RESULT reg where ours folds to %lo(hi-reg). All three = the
+ *   methodology sec 3.25-3d "old-gcc no-copy-prop / weaker-cse" per-obj identity family (proven
+ *   elsewhere in sndpsxz: sdmemlu needed the multiply-set-giv + join-block levers to sidestep the same
+ *   engine differences). Do NOT re-fight with source contortions; a per-obj flag/toolchain identity for
+ *   sndpsxz is the suspected root (W30 rule 6).
  */
 
 /* MATCH: engine_ver/block_total/reverb_mode/alloc_count are NOT separate linked globals -- the oracle

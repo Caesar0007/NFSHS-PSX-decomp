@@ -3,12 +3,53 @@
  */
 #include "screenmemcard.h"
 
-/* layout int globals owned by this TU (SYM EXT @0x800528xx; set in Initialize) */
-int GRIDMEMCARD_STARTX, GRIDMEMCARD_STARTY, MEMCARD_DELTAX, MEMCARD_DELTAY;
-int EXTRAYATTOP, GRIDMEMCARDGOURAUDBIT_X, GRIDMEMCARDGOURAUDBIT_Y;
-int GRIDMEMCARD_WIDTH, GRIDMEMCARD_HEIGHT, MEMCARDICONOFFX, MEMCARDICONOFFY;
-int kMemCardMessageX, kMemCardMessageY, kMemCardMessage1X, kMemCardMessage1Y;
-int kMemCardMessageH, kMemCardMessageH1;
+/* MATCH (w35-a10): UNSIZED-ARRAY ASM-LABEL VIEW of the 17 layout ints.
+   They are STRONG DATA symbols in asm/data/front_data.data.s (0x800528D8..)
+   and every oracle reaches them with an absolute %hi/%lo pair whose `lui` is
+   SCHEDULED away from its load/store (two luis hoisted above two lhus in
+   DrawHorizontalLine) -- impossible for an atomic assembler macro, so retail's
+   cc1 materialised %hi as its own RTL pseudo.  A bare `int X;` here is a
+   tentative def (<=G4 small-common -> .sbss -> %gp_rel, which 0 oracles use
+   AND which would mis-relocate against the real .data symbol); a plain
+   `extern int X;` leaves cc1plus emitting the `sw $2,X` assembler macro
+   (GNU-as $at form).  The unsized-array-with-asm-label view is the catalog
+   wave-13 lever (fememcard DeInit) that turns %hi back into a pseudo. */
+extern int A_GRIDMEMCARD_STARTX[] __asm__("GRIDMEMCARD_STARTX");
+extern int A_GRIDMEMCARD_STARTY[] __asm__("GRIDMEMCARD_STARTY");
+extern int A_MEMCARD_DELTAX[] __asm__("MEMCARD_DELTAX");
+extern int A_MEMCARD_DELTAY[] __asm__("MEMCARD_DELTAY");
+extern int A_EXTRAYATTOP[] __asm__("EXTRAYATTOP");
+extern int A_GRIDMEMCARDGOURAUDBIT_X[] __asm__("GRIDMEMCARDGOURAUDBIT_X");
+extern int A_GRIDMEMCARDGOURAUDBIT_Y[] __asm__("GRIDMEMCARDGOURAUDBIT_Y");
+extern int A_GRIDMEMCARD_WIDTH[] __asm__("GRIDMEMCARD_WIDTH");
+extern int A_GRIDMEMCARD_HEIGHT[] __asm__("GRIDMEMCARD_HEIGHT");
+extern int A_MEMCARDICONOFFX[] __asm__("MEMCARDICONOFFX");
+extern int A_MEMCARDICONOFFY[] __asm__("MEMCARDICONOFFY");
+extern int A_kMemCardMessageX[] __asm__("kMemCardMessageX");
+extern int A_kMemCardMessageY[] __asm__("kMemCardMessageY");
+extern int A_kMemCardMessage1X[] __asm__("kMemCardMessage1X");
+extern int A_kMemCardMessage1Y[] __asm__("kMemCardMessage1Y");
+extern int A_kMemCardMessageH[] __asm__("kMemCardMessageH");
+extern int A_kMemCardMessageH1[] __asm__("kMemCardMessageH1");
+
+#define GRIDMEMCARD_STARTX A_GRIDMEMCARD_STARTX[0]
+#define GRIDMEMCARD_STARTY A_GRIDMEMCARD_STARTY[0]
+#define MEMCARD_DELTAX A_MEMCARD_DELTAX[0]
+#define MEMCARD_DELTAY A_MEMCARD_DELTAY[0]
+#define EXTRAYATTOP A_EXTRAYATTOP[0]
+#define GRIDMEMCARDGOURAUDBIT_X A_GRIDMEMCARDGOURAUDBIT_X[0]
+#define GRIDMEMCARDGOURAUDBIT_Y A_GRIDMEMCARDGOURAUDBIT_Y[0]
+#define GRIDMEMCARD_WIDTH A_GRIDMEMCARD_WIDTH[0]
+#define GRIDMEMCARD_HEIGHT A_GRIDMEMCARD_HEIGHT[0]
+#define MEMCARDICONOFFX A_MEMCARDICONOFFX[0]
+#define MEMCARDICONOFFY A_MEMCARDICONOFFY[0]
+#define kMemCardMessageX A_kMemCardMessageX[0]
+#define kMemCardMessageY A_kMemCardMessageY[0]
+#define kMemCardMessage1X A_kMemCardMessage1X[0]
+#define kMemCardMessage1Y A_kMemCardMessage1Y[0]
+#define kMemCardMessageH A_kMemCardMessageH[0]
+#define kMemCardMessageH1 A_kMemCardMessageH1[0]
+
 /* fMemIcon: strong DATA symbol @0x80052938 (front_data.data.s) -> absolute addressing.
    Declared extern (NOT a TU-owned tentative def, which would be small-common -> gp-rel). */
 

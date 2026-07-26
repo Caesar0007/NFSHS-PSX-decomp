@@ -10,7 +10,7 @@
 
 extern int           sndgs[];
 extern signed char    sndchanreserved[];       /* scratch list of chosen channel indices */
-extern int           DAT_80136dec;             /* rolling allocation id counter (+=0x20); OWNED by
+extern int           DAT_80136dec[];             /* rolling allocation id counter (+=0x20); OWNED by
                                                   snddata.c (strong def there). MATCH: must stay a pure
                                                   extern HERE -- a local tentative def would make it
                                                   small-common/gp-rel, but the oracle reaches it ABSOLUTE
@@ -47,9 +47,22 @@ extern int iSNDischanreserved(int chan, int count)
  *   exact iSNDischanreserved/iSNDgetchan neighbors.  A pass-local pointer to the current chosen slot
  *   keeps the selected-array lifetime live across the scan calls; that reproduces the retail 72-byte
  *   frame and caller-saved numChannels spill/reload family.  Retail's eligibility test is a signed
- *   `1 << c` expression (sllv/and), not the compiler-canonicalized unsigned srlv/andi form.  The
- *   remaining delta is primarily the s6/s7 pass-base/reserved rotation and the sequence counter's
- *   small-data placement.  Raw nfs4-f.exe EEF64..EF40B SHA-256:
+ *   `1 << c` expression (sllv/and), not the compiler-canonicalized unsigned srlv/andi form.
+ *   W32-a7 (2026-07-26, 277->260 diffs, 303->302 insns) added three IDA-register-map-driven fixes:
+ *   the sequence counter uses the UNSIZED-ARRAY shape so ONE `lui %hi` base serves the load and both
+ *   stores (the scalar extern left each store to the assembler's `$at` macro, +2 insns); `gs` is
+ *   assigned INSIDE each pass loop so loop.c hoists the `la` into the PREHEADER, after the entry
+ *   guard, matching the oracle's slt/beqz-then-la order; and the pass-2 age local is an `int`, not a
+ *   `u_char`, killing a per-use `andi ..,255` (the oracle compares with a bare `slt`).
+ *   IDA sub_800FE764's per-variable annotations are the retail allocation: reserved=$s7, pass
+ *   counters=$s3, chosen=$s4, bestval=$s5, c=$s1, off=$s2, slot=$s0, numChannels=$t0 (a CALLER-saved
+ *   reg spilled to sp+0x18 across every iSNDischanreserved call and reloaded), and the -9 result on
+ *   the FRAME at sp+0x10.  Ours matches that whole layout except for two swapped pairs, s6<->s7 and
+ *   t1<->t2 -- i.e. the residual is one allocno-priority rotation, not a shape error.  Two levers were
+ *   tried and REVERTED for making it worse: the index form `sndchanreserved[reserved]=best` reaches
+ *   297/298 instructions but explodes the coloring to 401 diffs (the pass-local `selected` pointer is
+ *   load-bearing), and `int bestage` regresses to 297.
+ *   Raw nfs4-f.exe EEF64..EF40B SHA-256:
  *   4af4cae9357cee8d5c94a064c543b15d4d1edb7a6f5d1c0d5ccd8c8f259740fc. */
 extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigned int *out)
 {
@@ -61,17 +74,25 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
     for (i = 0; i < numChannels; i++)               /* clear the chosen list */
         sndchanreserved[i] = 0xff;
 
-    DAT_80136dec += 0x20;                            /* fresh allocation id */
-    if (DAT_80136dec < 0)
-        DAT_80136dec = 0;
+    /* MATCH: unsized-array shape (methodology 3.12 #5).  The oracle keeps ONE `lui $v1,%hi` base
+     * alive across the load AND both stores (`lw/sw ...,%lo(D_80136DEC)($v1)`); the scalar-extern
+     * form folds the %hi into the load's own dest and then leaves each store to the assembler's
+     * `$at` macro -- two extra `lui $at` instructions we do not want. */
+    DAT_80136dec[0] += 0x20;                         /* fresh allocation id */
+    if (DAT_80136dec[0] < 0)
+        DAT_80136dec[0] = 0;
 
     /* pass 1: take idle channels (state 0), preferring the oldest (lowest +0x10) */
     {
-            unsigned char *gs = (unsigned char *)sndgs;
+            unsigned char *gs;
             /* MATCH: pass 1 counts from `reserved` like pass 2 (oracle slt i,numChannels with the
-             * reserved copy in the delay slot -- an i=0 form const-folds the guard into blez). */
+             * reserved copy in the delay slot -- an i=0 form const-folds the guard into blez).
+             * `gs` is assigned INSIDE the body so loop.c hoists it to the PREHEADER (after the
+             * entry guard), matching the oracle's `slt/beqz` then `lui/addiu` order; a block-scope
+             * initialiser put the la ABOVE the guard. */
             for (i = reserved; i < numChannels; i++) {
                 signed char *selected = sndchanreserved + reserved;
+                gs = (unsigned char *)sndgs;
                 best = 0xffffffff;
                 c = 0;
                 if (gs[0x11] != 0) {
@@ -97,10 +118,11 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
         }
     /* pass 2: short of channels -> steal busy ones by lowest (age, timestamp) */
     {
-            unsigned char *gs = (unsigned char *)sndgs;
+            unsigned char *gs;
             for (k = reserved; k < numChannels; k++) {
                 unsigned char bestage = 0x66;
                 unsigned int  bestv = 0xffffffff;
+                gs = (unsigned char *)sndgs;
                 v = 0;
                 best = 0xffffffff;
                 if (gs[0x11] != 0) {
@@ -111,7 +133,10 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
                             iSNDischanreserved(c, reserved) == 0) {
                             int ch = *(int *)(gs + 0x94) + off;
                             if (*(unsigned char *)(ch + 0xc) < 0x65) {
-                                unsigned char age = *(unsigned char *)(ch + 0xc);
+                                /* MATCH: `age` is an int -- the oracle re-loads the byte with a
+                                 * bare `lbu` and compares with no `andi ..,255` re-mask; a u_char
+                                 * local re-masks on every use (methodology 3.12 #9). */
+                                int age = *(unsigned char *)(ch + 0xc);
                                 if (age < bestage) {
                                     v = *(unsigned int *)(ch + 0x10);
                                     bestage = age;
@@ -137,7 +162,7 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
         }
 
     if (reserved == numChannels) {                   /* got them all -> commit */
-        *out = DAT_80136dec | (int)(signed char)sndchanreserved[0];
+        *out = DAT_80136dec[0] | (int)(signed char)sndchanreserved[0];
         result = (int)(signed char)sndchanreserved[0];
         i = 0;
         if (0 < reserved) {
@@ -176,7 +201,26 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
 /* iSNDfreechan @0x800FEC0C : release channel `chan`. Honours linked-channel groups (a stereo/multi voice
  *   only frees when its partners are also done). NFS3/NFS4 confirm the void ABI and primary-state 1->2
  *   protocol; NFS2/NFS2B use only the simpler ungrouped release. The recovered three-release-block CFG
- *   and storage model improve the authoritative residual from 177 to 107 diffs (109/110 instructions). */
+ *   and storage model improve the authoritative residual from 177 to 107 diffs (109/110 instructions).
+ *
+ * 🔴 ALLOCNO FLOOR (w32-a7, 2026-07-26) -- the whole 79-diff residual is ONE register permutation in a
+ *   LEAF function, and the RTL dumps say our allocator cannot reach retail's.  IDA sub_800FEC0C gives
+ *   retail's map verbatim: count=$t0, initialSlot/idx/recomputed-slot=$a1, group=$a3, partner=$a2,
+ *   scan=$v1, result=$v0, partner*100=$a3 (reused after group dies).  Ours (cc1 -dg, "16 regs to
+ *   allocate: 96 94 87 86 134 127 82 154 95 107 81 83 85 116 108 80"; dispositions 87->3 83->5 82->7
+ *   81->9 85->10) is a PERMUTATION of the SAME hard-reg set {v1,a1,a2,a3,t0,t1,t2}: base=$a1,
+ *   slot=$v1, count=$a3, group=$t1, pool=$t2.  The decisive allocno fact is the PRIORITY inversion on
+ *   two pseudos with IDENTICAL ref counts: 87 (initialSlot) "used 4 times across 7 insns" outranks 83
+ *   (&sndgs) "used 4 times across 28 insns", so 87 takes $v1 first and 83 falls to $a1 -- retail has
+ *   them the other way round.  The live-length gap is structural, not source-set: every path inside
+ *   `if (group)` RETURNS, so initialSlot is live only over the short group==0 fall-through while
+ *   &sndgs is additionally live inside the scan; no re-spelling of the C changes either count.  The
+ *   oracle's 3 extra instructions are downstream consequences (`addu $t2,$v1,$zero`/`addu $v1,$t1,$zero`
+ *   to free $v1 for the scan; a `nop`-vs-`addiu %lo` delay-slot fill).  Levers tried and REVERTED:
+ *   dropping the `volatile` casts (109/110 insns -- closer parity -- but loop.c then strength-reduces
+ *   the scan into TWO walking pointers, 101 diffs) and a label+goto scan loop (107 insns, 111 diffs).
+ *   The `volatile` casts here are therefore load-bearing giv blockers, not decoration.  Same family as
+ *   methodology sec-3.25-3d (per-obj old-gcc identity); route to the toolchain-identity investigation. */
 extern void iSNDfreechan(int chan)
 {
     unsigned int group;
@@ -218,17 +262,21 @@ extern void iSNDfreechan(int chan)
             {
                 int partnerOffset = partner * 100;
 
-                if (*(signed char *)(sndgs[0x25] + partnerOffset + 0xb) == 2 &&
+                /* MATCH (diff-neutral under the current coloring, but oracle-truer): the scaled
+                 * partner offset is the FIRST addu operand -- the oracle emits `addu $v0,$a3,$v1`
+                 * / `addu $a3,$v0,$v1`, and addu operand order IS part of the encoding, so this
+                 * only stops showing as a diff once the register permutation above is solved. */
+                if (*(signed char *)(partnerOffset + sndgs[0x25] + 0xb) == 2 &&
                     chan != partner && count == 2) {
                     *(unsigned char *)(slot + 0xb) = 0;
                     *(int *)(slot + 0x10) = sndgs[0x11];
-                    *(unsigned char *)(sndgs[0x25] + partnerOffset + 0xb) = 0;
-                    *(int *)(sndgs[0x25] + partnerOffset + 0x10) = sndgs[0x11];
+                    *(unsigned char *)(partnerOffset + sndgs[0x25] + 0xb) = 0;
+                    *(int *)(partnerOffset + sndgs[0x25] + 0x10) = sndgs[0x11];
                     return;
                 }
 
                 {
-                    int partnerSlot = DAT_801478f4 + partner * 100;
+                    int partnerSlot = partner * 100 + DAT_801478f4;
                     if (*(signed char *)(partnerSlot + 0xb) == 1 && chan == partner) {
                         *(unsigned char *)(partnerSlot + 0xb) = 2;
                         return;

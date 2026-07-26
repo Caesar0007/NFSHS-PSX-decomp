@@ -1825,12 +1825,7 @@ void Camera_AcquireTarget(int player,coorddef *point,coorddef *pos,matrixtdef *r
   coorddef*roty;
   coorddef*rotz;
   BO_tNewtonObj *pBVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
   int adj;
-  int pitchAdj;
-  int dot;
 
   rotx = (coorddef *)rot;
   roty = (coorddef *)(rot->m + 3);
@@ -1858,53 +1853,32 @@ void Camera_AcquireTarget(int player,coorddef *point,coorddef *pos,matrixtdef *r
   }
   rotz->z = adj >> 2;
   if (Camera_gInfo[player].pitch != 0) {
-    pitchAdj = rotz->y + 0x5333;
-    if (2 < (u_int)((u_short)Camera_gInfo[player].mode - 2)) {
-      pitchAdj = rotz->y + 0x6666;
-    }
-    rotz->y = pitchAdj;
+    rotz->y = rotz->y +
+        ((2 < (u_int)((u_short)Camera_gInfo[player].mode - 2)) ? 0x6666 : 0x5333);
   }
   if (Replay_ReplayMode == 2) {
     upvector.x = Camera_gInfo[player].twist;
   }
   Math_NormalizeVector(rotz);
-  iVar2 = fixedmult(upvector.x,rotz->x);
-  iVar3 = fixedmult(upvector.y,rotz->y);
-  iVar4 = fixedmult(upvector.z,rotz->z);
-  if (1 <= iVar2 + iVar3 + iVar4) {
-    iVar3 = fixedmult(upvector.x,rotz->x);
-    iVar4 = fixedmult(upvector.y,rotz->y);
-    iVar2 = fixedmult(upvector.z,rotz->z);
-    dot = iVar3 + iVar4 + iVar2;
-  }
-  else {
-    iVar2 = fixedmult(upvector.x,rotz->x);
-    iVar3 = fixedmult(upvector.y,rotz->y);
-    iVar4 = fixedmult(upvector.z,rotz->z);
-    dot = -(iVar2 + iVar3 + iVar4);
-  }
-  if (0xfd70 < dot) {
+  if (0xfd70 <
+      ((0 < (fixedmult(upvector.x,rotz->x) +
+             fixedmult(upvector.y,rotz->y) +
+             fixedmult(upvector.z,rotz->z))) ?
+       (fixedmult(upvector.x,rotz->x) +
+        fixedmult(upvector.y,rotz->y) +
+        fixedmult(upvector.z,rotz->z)) :
+      -(fixedmult(upvector.x,rotz->x) +
+        fixedmult(upvector.y,rotz->y) +
+        fixedmult(upvector.z,rotz->z)))) {
     upvector = *roty;
   }
-  iVar2 = fixedmult(upvector.y,rotz->z);
-  iVar3 = fixedmult(upvector.z,rotz->y);
-  rotx->x = iVar2 - iVar3;
-  iVar2 = fixedmult(upvector.z,rotz->x);
-  iVar3 = fixedmult(upvector.x,rotz->z);
-  rotx->y = iVar2 - iVar3;
-  iVar2 = fixedmult(upvector.x,rotz->y);
-  iVar3 = fixedmult(upvector.y,rotz->x);
-  rotx->z = iVar2 - iVar3;
+  rotx->x = fixedmult(upvector.y,rotz->z) - fixedmult(upvector.z,rotz->y);
+  rotx->y = fixedmult(upvector.z,rotz->x) - fixedmult(upvector.x,rotz->z);
+  rotx->z = fixedmult(upvector.x,rotz->y) - fixedmult(upvector.y,rotz->x);
   Math_NormalizeVector(rotx);
-  iVar2 = fixedmult(rotz->y,rotx->z);
-  iVar3 = fixedmult(rotz->z,rotx->y);
-  roty->x = iVar2 - iVar3;
-  iVar2 = fixedmult(rotz->z,rotx->x);
-  iVar3 = fixedmult(rotz->x,rotx->z);
-  roty->y = iVar2 - iVar3;
-  iVar2 = fixedmult(rotz->x,rotx->y);
-  iVar3 = fixedmult(rotz->y,rotx->x);
-  roty->z = iVar2 - iVar3;
+  roty->x = fixedmult(rotz->y,rotx->z) - fixedmult(rotz->z,rotx->y);
+  roty->y = fixedmult(rotz->z,rotx->x) - fixedmult(rotz->x,rotx->z);
+  roty->z = fixedmult(rotz->x,rotx->y) - fixedmult(rotz->y,rotx->x);
   Math_NormalizeVector(roty);
   return;
 }

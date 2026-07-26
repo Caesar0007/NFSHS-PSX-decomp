@@ -7,9 +7,9 @@
  *     iSNDstreamreleasecallback=PASS(0) iSNDstreamnotifycallback=PASS(0) iSNDstreamparseheader=PASS(0)
  *     iSNDstreamparsenumchunks=PASS(0)  iSNDstreamparsedata=FAIL(13)     iSNDstreamparseend=PASS(0)
  *     iSNDstreamparsechunk=PASS(0)      iSNDstreamisheld=PASS(0)         iSNDstreamhotroddatachunks=PASS(0)
- *     iSNDstreamservice=PASS(0)         iSNDstreamnumcreated=PASS(0)     iSNDstreamcreate=FAIL(48)
+ *     iSNDstreamservice=PASS(0)         iSNDstreamnumcreated=PASS(0)     iSNDstreamcreate=PASS(0)
  *     iSNDstreamqueue=PASS(0)
- *   14/16 PASS, 2/16 FAIL (parsedata/create -- pre-existing near-miss floors, unchanged by the C89
+ *   15/16 PASS, 1/16 FAIL (parsedata -- pre-existing near-miss floor, unchanged by the C89
  *   port). Do NOT revert to .cpp without user decision.
  *   Source obj : nfs4\eaclib\psx\sst.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   16 fns @[0x800E8C14 .. 0x800E9970].  EA SCxl STREAMING-AUDIO decoder ("iSNDstream*").
@@ -577,12 +577,24 @@ extern int iSNDstreamnumcreated(void)
 /* iSNDstreamcreate @0x800E9730 : carve a stream object + its packet array, packet player and (optionally)
  *   its own ring out of `objbuf`/`memsize`, wire up the priority params, and register it.  Returns the
  *   stream slot, or a negative error.  `extFlag` reuses an external STREAM (extHandle) instead of creating
- *   one. */
+ *   one.
+ * *** MATCH 144/144 (w32-a8, 7 -> 0 diffs).  Two fixes:
+ * (a) THE PARAMETER *IS* THE ALLOCATION CURSOR -- there is no separate `alloc` local.  The oracle
+ *     copies the incoming $a3 into $s2 in the PROLOGUE and only then copies $s2 -> $s1 (`S`) in the
+ *     search loop's beqz delay slot; a separate `alloc` local let gcc coalesce `objbuf` straight into
+ *     $a3 and copy-propagate `S = objbuf` into ONE pseudo (`addu s1,a3,zero`, 1 insn short -- the
+ *     residual this file previously filed as an unreachable dead-copy class).  Re-using the PARAM as
+ *     the running cursor (`objbuf = S + 0x60; ... objbuf += reqBytes; ...`) makes it a pseudo that is
+ *     both live across the calls (-> callee-saved $s2, hence the prologue copy) and reassigned after
+ *     the `S = objbuf` read (-> the copy cannot be propagated away).  This is what EA wrote: C lets a
+ *     parameter be reassigned, and the whole carve walks the caller's buffer forward in place.
+ * (b) `i = 0;` must be written BEFORE `pp = sndss;` -- the oracle emits `addu a1,zero,zero` ahead of
+ *     the sndss `lui/addiu`; the `for (i = 0; ...)` init form put it after. */
 extern int iSNDstreamcreate(int *priority, int numReq, int pktArg, int objbuf,
                                 int memsize, int extHandle, int extFlag)
 {
     int i, slot;
-    int S, alloc, memrem, reqBytes, oh, pktbuf;
+    int S, memrem, reqBytes, oh, pktbuf;
 
     memrem = memsize;                                    /* W31: cache the stack param FIRST -- the
                                                           * oracle loads 80(sp) into $s3 in the
@@ -592,8 +604,9 @@ extern int iSNDstreamcreate(int *priority, int numReq, int pktArg, int objbuf,
 
     {
         int *pp;
+        i = 0;
         pp = sndss;
-        for (i = 0; i < 1; i++, pp++) {                  /* find a free slot (real search loop in the
+        for (; i < 1; i++, pp++) {                  /* find a free slot (real search loop in the
                                                            * oracle even though this build only has 1).
                                                            * W31: `i` is a SEPARATE caller-saved counter
                                                            * ($a1, dies here); `slot` is copied from it
@@ -607,23 +620,20 @@ extern int iSNDstreamcreate(int *priority, int numReq, int pktArg, int objbuf,
 found:
     slot     = i;
     S        = objbuf;
-    alloc    = S + 0x60;                                 /* after the 0x60-byte stream header.
-                                                          * W31 RESIDUAL (7 diffs, 143/144): the oracle
-                                                          * keeps objbuf(a3)->s2 AND S->s1 with a real
-                                                          * addu s1,s2 copy in the beqz delay slot; our
-                                                          * cse copy-propagates S=objbuf into ONE pseudo
-                                                          * (1 insn shorter, a1/prologue ripple).  Tried:
-                                                          * alloc-from-objbuf, copy-inside-the-found-arm
-                                                          * -- both still merged.  Ours-1-shorter dead-
-                                                          * copy class; permuter multi-basin candidate. */
+    objbuf   = S + 0x60;                                 /* after the 0x60-byte stream header; from here
+                                                          * on `objbuf` IS the allocation cursor (see the
+                                                          * header note (a) -- do NOT reintroduce a
+                                                          * separate `alloc` local, it costs the oracle's
+                                                          * prologue `addu s2,a3,zero` + the `addu s1,s2`
+                                                          * copy in the search loop's beqz delay slot). */
     memrem  -= 0x60;
     reqBytes = numReq * 0x2c;
-    MI(S, 0) = alloc;                                    /* packetsArray */
-    alloc += reqBytes; memrem -= reqBytes;
+    MI(S, 0) = objbuf;                                    /* packetsArray */
+    objbuf += reqBytes; memrem -= reqBytes;
 
     oh     = SNDPKTPLAY_overhead(pktArg);
-    pktbuf = alloc;
-    alloc += oh; memrem -= oh;
+    pktbuf = objbuf;
+    objbuf += oh; memrem -= oh;
     oh     = SNDPKTPLAY_overhead(pktArg);
     MVI(S, 0xc) = SNDPKTPLAY_create(pktbuf, oh,
                   (void *)iSNDstreamreleasecallback, (void *)iSNDstreamnotifycallback);
@@ -643,7 +653,7 @@ found:
         *(volatile unsigned char *)(S + 0x18) = 1;   /* volatile: keeps the sb out of the j slot
                                                       * so the tail's li -1 gets target-stolen (W31) */
     } else {                                             /* own ring */
-        MI(S, 4)    = STREAM_create(numReq + 1, 1, 1, alloc, memrem);
+        MI(S, 4)    = STREAM_create(numReq + 1, 1, 1, objbuf, memrem);
         *(volatile unsigned char *)(S + 0x18) = 0;
         SNDSTRM_setgreedylevel(MI(S, 4), STREAM_buffersize(MI(S, 4)) / 3);
     }

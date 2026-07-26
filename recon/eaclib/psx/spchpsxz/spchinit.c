@@ -124,6 +124,15 @@ extern int SPCH_InitBankMem(int memAllocFn, int memFreeFn, int numBanks)
 
 /* SPCH_Init @0x800EB748 : initialise the speech system for game `gameNum` -- seed the PRNG, clear the
  *   pick/event/bank state, and mark it live.  Returns 1. */
+/* SPCH_Init RESIDUAL 3 diffs, ours 40 / oracle 39 -- FLOOR RE-VERDICT (w33-a10).
+ * Body is instruction-for-instruction identical through the last `jal iSPCH_InitEventQueue`.
+ * The 3 are purely epilogue SCHEDULING: retail hoists `lw $ra,0x10($sp)` ABOVE the
+ * gSPCH_Initialized store so the return-value `addiu $v0,$zero,1` fills the load-delay slot
+ * (39 insns); our cc1 emits store / `li 1` / `lw ra` / nop / `jr` (40 insns, the nop is the
+ * extra one). No source spelling reaches this -- it is the sched2/epilogue-emission order.
+ * Probes: per-fn -fno-delayed-branch splice 3 -> 12; -mno-split-addresses 3 -> 47 (SPCHPSXZ
+ * was built WITH split addresses -- see spchevnt.c). No SLD exists for this TU.
+ * PROTOTYPE AUDIT: 3 args ($a0/$a1/$a2 all read and stored), returns literal 1. */
 extern int SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate)
 {
     gSampleRequest[0]    = sampleRequestCb;

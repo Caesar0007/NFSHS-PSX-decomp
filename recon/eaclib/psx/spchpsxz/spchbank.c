@@ -57,6 +57,14 @@ extern void iSPCH_DisposeBanks(void)
  * independent callee-saves competing for one delay slot -- same negative-result class as
  * reference_asm_pattern_catalog.md's svol.cpp:18 ("source order irrelevant"). Do not re-attempt
  * without a genuinely new lever. */
+/* iSPCH_BankMemAlloc RESIDUAL 4 diffs at exact insn parity 33/33 -- FLOOR RE-VERDICT (w33-a10).
+ * Every instruction matches except the ORDER of three prologue register saves around the first
+ * branch: retail `sw $ra,0x18($sp); bnez $v0; sw $s1,0x14($sp)(delay); lui $s1,%hi(gNumBanks)`
+ * vs ours `sw s1; lui s1; bnez; sw ra(delay)`. Same instructions, different slot assignment --
+ * prologue-store scheduling, not a source shape. Probes: per-fn -fno-delayed-branch 4 -> 23;
+ * -mno-split-addresses 4 -> 13. No SLD exists for this TU (see spchevnt.c).
+ * PROTOTYPE AUDIT: 1 arg ($a0 = bank count, stored to gNumBanks); returns gVoxBanks re-loaded
+ * at the shared exit, so the non-void return is real and shared by all four exit paths. */
 extern int iSPCH_BankMemAlloc(int numBanks)
 {
     int *vb = gVoxBanks;

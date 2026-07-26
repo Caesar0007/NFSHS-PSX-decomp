@@ -420,6 +420,16 @@ extern unsigned int iSNDpacketpurgeframes(int p, unsigned int byteoff, int count
     return wrapped;
 }
 
+/* RESIDUAL (w31, 74->43): remaining diff families, all allocation/schedule ties after the w31
+ * structural levers (ch+=4-before-i++ in all three call loops; flag default-0+conditional-overwrite;
+ * the 0x3c-before-0x32 source order for the middle store pair -- the scheduler emits pairs
+ * contrarian to source order there): (a) warm-up-loop tail, ours slots ch+=4 vs oracle slots the
+ * next-iter arg copy (eval-order<->delay-slot coupling, the certified W30 floor family); (b) the
+ * avail select colors a0/v0/v1 as a 3-cycle rotation of the oracle (allocno order; anon-expression
+ * form is codegen-neutral); (c) blockmove arg re-mask `andi 65535` from the u_short `take` (int
+ * take regresses 6 elsewhere); (d) the two flag loops keep bnez-back vs oracle beqz-exit+j (the
+ * documented in-source floor -- for(;;)break normalizes back, 0 net); (e) dmqueue-call arg
+ * schedule (lw 0(s2)/lhu 68 order). Permuter candidates from this basin. */
 /* iSNDfillspuwithpackets @0x80103B54 : the core DMA pump -- pull packet frames (iSNDpacketget), block-move
  *   their ADPCM into each channel's SPU buffer, set the ADPCM loop/end flags for `chunk` of the double
  *   buffer, and queue the SPU DMA (iSNDdmqueue).  (Ghidra __thiscall(this,p): this=player, p=chunk; the
@@ -573,12 +583,12 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
                                       (unsigned)*(unsigned short *)(pp + 0x30) * i),
                               (int *)(*(int *)(ch + 0x48) + (unsigned)*(unsigned short *)(pp + 0x3e)),
                               (unsigned)take);
-                    i++; ch += 4;
+                    ch += 4; i++;
                 } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
             }
             *(unsigned short *)(pp + 0x3e) = *(short *)(pp + 0x3e) + take;
-            *(unsigned short *)(pp + 0x32) = *(short *)(pp + 0x32) + take;
             *(unsigned short *)(pp + 0x3c) = *(short *)(pp + 0x3c) - take;
+            *(unsigned short *)(pp + 0x32) = *(short *)(pp + 0x32) + take;
             *(unsigned short *)(pp + 0x34) = *(short *)(pp + 0x34) - take;
         } while (*(volatile unsigned short *)(pp + 0x3c) != 0);
     }
@@ -625,7 +635,7 @@ queue_dma:
             do {
                 int e = (unsigned)*(unsigned short *)(pp + 0x44) + *(int *)(lch + 0x48);
                 *(unsigned char *)(e - 0xf) |= 1;
-                i++; lch += 4;
+                lch += 4; i++;
             } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
         }
     }
@@ -640,10 +650,15 @@ queue_dma:
             unsigned int src = (unsigned int)*(int *)(pp + 0x0) +
                                 (unsigned int)(chunk << *(unsigned char *)(pp + 0x43)) +
                                 (unsigned int)stride;
-            unsigned char flag = (chunk == 0 && i < 1) ? 1 : 0;
+            /* MATCH (w31): flag as default-0 + conditional OVERWRITE (int, no mask) -- the
+             * `&&`-ternary form computed the compare into a temp then copied it into the arg reg
+             * (`sltiu v0;addu a0,v0`), oracle overwrites a0 in place (`sltiu a0,s0,1`). */
+            int flag = 0;
+            if (chunk == 0)
+                flag = (i == 0);
             dma = iSNDdmqueue(*(int *)(ch + 0x48), src, *(unsigned short *)(pp + 0x44), 2, flag);
             *(int *)(pp + 0x20) = dma;
-            i++; ch += 4;
+            ch += 4; i++;
         } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
     }
 advance:

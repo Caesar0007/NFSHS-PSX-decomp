@@ -301,17 +301,12 @@ void SetCar__Q26Speech11CarBankNamei(u_int *param_1,int carIndex)
 {
   char *game;
   Speech_tCarDescription *d;
-  int iVar2;
-  char *name;
 
-  name = GameSetup_gCarNames[GameSetup_gData.carInfo[carIndex].carType];
+  game = GameSetup_gCarNames[GameSetup_gData.carInfo[carIndex].carType];
   d = Speech_gCarDescription;
-  game = d->game;
-  while ((game != (char *)0x0 &&
-         (iVar2 = strncmp(name,d->game,4), iVar2 != 0)
-         )) {
+  while ((d->game != (char *)0x0 &&
+         strncmp(game,d->game,4) != 0)) {
     d = d + 1;
-    game = d->game;
   }
   *param_1 = d->full;
   param_1[1] = d->make;

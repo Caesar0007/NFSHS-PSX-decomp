@@ -112,23 +112,20 @@ void FindAbsClosestSliceCrude(coorddef *pt,BWorldSm_Pos *slicePos)
 int BWorldSm_FindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
 {
   int startSlice;
-  u_char uVar1;
-  short sVar2;
   bool bVar3;
   int iVar4;
   
-  sVar2 = slicePos->slice;
-  iVar4 = Math_DistXZ((coorddef *)((char *)BWorldSm_slices +sVar2 * 0x20),pt);
+  startSlice = slicePos->slice;
+  iVar4 = Math_DistXZ((coorddef *)((char *)BWorldSm_slices + startSlice * 0x20),pt);
   if (0x800000 < iVar4) {
     FindAbsClosestSliceCrude(pt,slicePos);
   }
   RawFindClosestSlice(pt,slicePos);
-  bVar3 = slicePos->slice != sVar2;
-  startSlice = slicePos->slice;
-  uVar1 = *(u_char *)(startSlice * 0x20 + (char *)BWorldSm_slices + 0x1c);
+  slicePos->chunk =
+      *(u_char *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 0x1c);
+  bVar3 = slicePos->slice != startSlice;
   slicePos->quadChanged = bVar3;
   slicePos->sliceChanged = bVar3;
-  slicePos->chunk = uVar1;
   return (u_int)bVar3;
 }
 

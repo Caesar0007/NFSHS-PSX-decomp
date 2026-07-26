@@ -229,11 +229,12 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
         i = 0;
         if (0 < reserved) {
             do {
-                int *ch = (int *)(sndgs[0x25] + (signed char)sndchanreserved[i] * 100);
-                unsigned int owner = *(unsigned int *)ch;
-                if (*(char *)((int)ch + 0xb) == 1) {        /* currently held -> stop it */
+                unsigned int owner;
+                ch = sndgs[0x25] + (signed char)sndchanreserved[i] * 100;
+                owner = *(unsigned int *)ch;
+                if (*(signed char *)(ch + 0xb) == 1) {      /* currently held -> stop it */
                     if ((int)owner < 0)
-                        owner = *(unsigned int *)((signed char)ch[0xf] * 100 + sndgs[0x25]);
+                        owner = *(unsigned int *)((signed char)((int *)ch)[0xf] * 100 + sndgs[0x25]);
                     SNDstop(owner);
                     if (SNDover(owner) != 1) {              /* refused -> roll back */
                         while (i = i - 1, -1 < i)
@@ -241,9 +242,9 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
                         return -9;
                     }
                 }
-                *(char *)((int)ch + 0xb) = 1;
-                ch[4] = sndgs[0x11];                        /* timestamp */
-                *(char *)((int)ch + 0xc) = (char)a2;        /* voice flag byte */
+                *(char *)(ch + 0xb) = 1;
+                *(int *)(ch + 0x10) = sndgs[0x11];          /* timestamp */
+                *(char *)(ch + 0xc) = (char)a2;             /* voice flag byte */
                 i++;
             } while (i < reserved);
         }

@@ -1919,10 +1919,17 @@ void tScreenCarSelectTwoPlayer::TurnOffVideoWall()
 
 
 /* ---- tScreenCarSelectTwoPlayer::DrawBackground  [SCREENCARSELECT.CPP:1744-1838] ---- */
+/* MATCH: unsized-array asm-label view of FEApp (same device as
+   tScreenCarSelectTwoPlayer::DrawForeground below) -- the oracle hoists
+   `lui $s2,%hi(FEApp)` once and reuses `lw ..,%lo(FEApp)($s2)` at every
+   FEApp-> access across this whole function (3+ uses spanning several
+   calls); the plain scalar extern compiles to the unschedulable
+   `lw $r,sym` macro and gets rematerialized at each use instead. */
+extern tFEApplication *FEAppB[] asm("FEApp");
+
 void tScreenCarSelectTwoPlayer::DrawBackground()
 
 {
-  int drenvHandle;
   int screenVtbl;
   int ti7;
   int screenVtbl2;
@@ -1945,11 +1952,11 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   byte bVar1;
   
   ts10 = 0x4f;
-  drenvHandle = (int)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
+  drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
   daprim = Render_gPacketPtr;
   cur_pkt = Render_gPalettePtr;
   temp.x = 0;
-  temp.y = *(short *)(drenvHandle + 2);
+  temp.y = *(short *)((char *)drenv + 2);
   temp.w = 0x200;
   carInfoPtr = (tCarInfo *)0xff000000;
   temp.h = (short)screenheight;
@@ -1961,7 +1968,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   SetDrawArea((DR_AREA *)daprim,&temp);
   r.x = 0x122;
   r.y = 0x19;
-  if (FEApp->fPlayer == '\x01') {
+  if (FEAppB[0]->fPlayer == '\x01') {
     r.y = 0x82;
   }
   r.w = 200;
@@ -1978,7 +1985,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
                &carInfo);
     showRoomFlag = 0;
     DrawCar__FR8tCarInfossffcbUl7tPlayer(carInfoPtr,0x116,0x4f,1.7,-9.9,(char)this->fBrightness[0],false,
-               this->fCameraRotation,(tPlayer)(byte)FEApp->fPlayer);
+               this->fCameraRotation,(tPlayer)(byte)FEAppB[0]->fPlayer);
     vtbl = this->_vf;
     (*vtbl[1][6].pfn)
               (this->fPermShapes.fFilename + vtbl[1][6].delta + -0x14)
@@ -1986,7 +1993,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   }
   else {
     r.y = 0x14;
-    if (FEApp->fPlayer == '\x01') {
+    if (FEAppB[0]->fPlayer == '\x01') {
       ts10 = 0xb8;
       r.y = 0x80;
     }
@@ -1996,11 +2003,11 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
     (**(code **)(screenVtbl2 + 100))
               (this->fPermShapes.fFilename +
                *(short *)(screenVtbl2 + 0x60) + -0x14,&carInfo);
-    if (gCarObj[(byte)FEApp->fPlayer]->async_handle != 0) {
+    if (gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle != 0) {
       this->SetBrightness(0,0);
       this->fFadeTicks[0] = ticks;
     }
-    if ((((gCarObj[(byte)FEApp->fPlayer]->async_handle == 0) &&
+    if ((((gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle == 0) &&
          (sVar3 = this->fBrightness[0],
          sVar3 == this->fDestBrightness[0])) && (sVar3 == 0)) &&
        (0x80 < ticks - this->fFadeTicks[0])) {
@@ -2014,18 +2021,18 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
     this->UpdateBrightness(0);
     showRoomFlag = 0;
     DrawCar__FR8tCarInfossffcbUl7tPlayer(carInfoPtr,0x116,ts10,1.7,-9.9,(char)this->fBrightness[0],false,
-               this->fCameraRotation,(tPlayer)(byte)FEApp->fPlayer);
+               this->fCameraRotation,(tPlayer)(byte)FEAppB[0]->fPlayer);
   }
   ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
   bVar1 = false;
   if (((this->fSwapShapes.fFile != (char *)0x0) &&
       (this->fVideoWall[0].fTransitionDirection != -1)) &&
-     (gCarObj[(byte)FEApp->fPlayer]->async_handle == 0)) {
+     (gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle == 0)) {
     bVar1 = 0x80 < ticks - this->fFadeTicks[0];
   }
   if ((bool)bVar1) {
     ts3 = 0;
-    if (FEApp->fPlayer == '\x01') {
+    if (FEAppB[0]->fPlayer == '\x01') {
       ts3 = 0x41;
     }
     ::UploadShapes((tScreen *)this,&this->fSwapShapes,0,ts3,5,0);
@@ -2039,7 +2046,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
     }
   }
   r.y = 0;
-  if (FEApp->fPlayer == '\x01') {
+  if (FEAppB[0]->fPlayer == '\x01') {
     r.y = 0x69;
   }
   vtbl = this->_vf;
@@ -2052,10 +2059,10 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   daprim = Render_gPacketPtr;
   cur_pkt_2 = Render_gPalettePtr;
   temp.x = 0;
-  temp.y = *(short *)(drenvHandle + 2);
+  temp.y = *(short *)((char *)drenv + 2);
   temp.w = 0x200;
   temp.h = (short)(screenheight / 2);
-  if (FEApp->fPlayer == '\x01') {
+  if (FEAppB[0]->fPlayer == '\x01') {
     temp.y = temp.y + temp.h;
   }
   *(uint *)Render_gPacketPtr =
@@ -2088,9 +2095,17 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
   tCarInfo carInfo;
   short j;
   short yOffset;
-  BOOL gotcar;
-  tCarInfo *ci;   /* SYM BOOL == int: the oracle just copies $v0 (`addu $s4,$v0,$zero`);
+  BOOL gotcar;   /* SYM BOOL == int: the oracle just copies $v0 (`addu $s4,$v0,$zero`);
                     a C++ `bool` normalizes it with an extra `sltu`. */
+  /* MATCH: the SYM 8c block does NOT list a function-scope `ci`/carInfo-pointer --
+     it names a PTR STRUCT tCarInfo "carInfo" (shadowing the AUTO struct) scoped to
+     the innermost block starting @0x8003EB60, i.e. declared FRESH inside the
+     `if (gotcar)` loop body, not hoisted before the loop. The compiler still
+     loop-invariant-hoists its VALUE (&carInfo is constant), landing the address
+     materialize in the loop-setup preamble (@0x8003EB14, beside the s6/s5 table
+     bases) instead of inside the earlier if/else (which had no reason to touch it
+     when `ci` didn't exist there yet) -- that's what was stealing the if/else's
+     branch-delay slots in the old function-scope-hoisted form. */
 
   yOffset = 0x2d;
   if (FEAppA[0]->fPlayer == '\x01') {
@@ -2114,19 +2129,23 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
            (menuDefs->itemColorP2).fFlags | 1;
     }
   }
-  ci = &carInfo;
   j = 0;
   while (true) {
-    tCarStatType carStat;
     short result;
 
     if (4 < j) break;
     FETextRender_MenuTextPositionedJustify(text2PVals[j],500,(short)(yOffset + 4),1,
                                            textState_Unselected,textType_Default);
     /* MATCH: the ACCUMULATE arm is the inline one -- oracle `beqz $s4,.L8003EBC8`
-       branches AWAY to the `result = 0` block, which sits after it. */
+       branches AWAY to the `result = 0` block, which sits after it. RESIDUAL FLOOR:
+       oracle keeps the accumulator in $v1 (matching the SYM's REG $v1 `result`) and
+       the fUpgrades test byte in $a0; ours swaps them ($a0 accumulator / $v1 test) --
+       a uniform a0<->v1 register-coloring tie-break (§3.15 family). Tried: call
+       duplication per branch (worse, 56 diffs -- reverted), ci/carStat declaration
+       reorder (already applied above, helped elsewhere but doesn't move this pair). */
     if (gotcar != 0) {
-      carStat = remap[j];
+      tCarStatType carStat = remap[j];
+      tCarInfo *ci = &carInfo;
       result = (short)ci->fStats[0][carStat];
       if ((ci->fUpgrades & 1) != 0) {
         result = result + ci->fStats[1][carStat];

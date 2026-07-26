@@ -421,8 +421,15 @@ extern void closecallback(int a0, int a1, int s)
  * MATCH work (37->22 diffs, count-exact 67/67): startnextrequest has only the two arguments
  * consumed by its oracle; the former third `s` argument was phantom.  Positive completion
  * logic plus an explicit late restart label gives the oracle's branch polarity and block
- * order.  The residual is a whole-function s1/s2 allocation swap between reqcur and bvar1;
- * declaration order, register qualifiers, and copy pseudos were all byte-neutral. */
+ * order.
+ * w33-a2: 22 -> 0 (PASS, 67 insns).  The "whole-function s1/s2 allocation swap between reqcur
+ * and bvar1" was NOT a coloring coin-flip -- it was a variable-identity miss visible in the raw:
+ * the memory-source arm's running total is computed INTO bvar1's own register (`addu s1,v1,a1`,
+ * then `slt v0,s1,v0`, then `xori s1,v0,1` redefines it).  Writing the total as an anonymous
+ * sub-expression `(MI(s,0xa0) + uVar3)` gave it a separate caller-saved pseudo ($v0); assigning
+ * it to `bvar1` first and then overwriting `bvar1` with the comparison reproduces retail exactly.
+ * Side effect (and the reason the swap looked global): the extra two references raise bvar1's
+ * allocno priority above reqcur's, so bvar1 takes $s1 and reqcur $s2 as in retail. */
 extern int readcallback(int a0, int a1, int s)
 {
     int bvar1;
@@ -434,7 +441,11 @@ extern int readcallback(int a0, int a1, int s)
     reqcur = MI(s, 0x50);
     if (MI(reqcur, 0x10) == 1) {               /* memory source */
         uVar3 = MU(s, 0xa8);
-        bvar1 = (MI(reqcur, 0x58) <= (int)(MI(s, 0xa0) + uVar3));
+        /* MATCH: the running total is computed INTO `bvar1` itself (oracle: `addu s1,v1,a1`
+         * writes the sum to the very register the `xori` then redefines as the flag).  Spelling
+         * it as an anonymous sub-expression gives the sum its own caller-saved pseudo ($v0). */
+        bvar1 = MI(s, 0xa0) + uVar3;
+        bvar1 = (MI(reqcur, 0x58) <= bvar1);
     } else {                                   /* file source */
         uVar3 = FILE_completeop(MU(s, 0xa4));
         bvar1 = ((int)uVar3 < MI(s, 0xa8));

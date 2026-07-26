@@ -167,6 +167,13 @@ PER_TU_FLAGS = {
     # PAD_restore / PAD_state. Whole-TU sweep with the flag: 5/5 functions
     # improve or hold (see the per-fn table in recon/eaclib/psx/pad.c).
     "recon/eaclib/psx/pad.c":               {"no_split_addresses": True},
+    # w34 follow-up (user call): sched1 OFF for movf.c -- movfxya 149 -> 88
+    # diffs. Insn parity is knowingly conceded (225 vs oracle 221: the
+    # CSE-hoisted `li 255` pseudo + its caller-save spill/reload + one
+    # arg-reg copy); the flag fixes the {shape,yPos,vc} rotation's shape
+    # half (shape lands on retail's $s6). movf.c holds only movfxya, so no
+    # in-TU regression is possible. Full rationale in the comment block above.
+    "recon/eaclib/psx/eacpsxz/movf.c":      {"no_schedule_insns": True},
     # "no_delayed_branch" PROTOTYPED on libetc/INTR.cpp (w24-a9 task 3) and
     # NOT enabled here: net +3 PASS (ResetCallback/InterruptCallback/
     # DMACallback/VSyncCallbacks 4->0 diffs each) but a genuine regression

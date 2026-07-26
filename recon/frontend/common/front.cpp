@@ -1008,23 +1008,23 @@ extern "C" void Front_InitTourneyTraffic__FR9tFEStream(tFEStream *streamData)
   streamData->numTraffic = 0;
   if ((frontEnd.raceType == '\x02') && (ptVar2->fTournaments[(uint)bVar1 + iVar6].fTraffic != '\0'))
   {
-    iVar6 = 0;
+    /* MATCH: same shape as Front_InitTraffic -- SYM has ONE short `i` (REG $17),
+       the postfix `fTrafficCars[i++]` gives the oracle's old-i copy + increment
+       pair, and `i = 0;` first so reorg steals it into the guard's delay slot. */
+    i = 0;
     do {
-      iVar5 = iVar6 + 1;
-      carModel = (tCarModels)(byte)(streamData->trackInfo).fTrafficCars[(short)iVar6];
-      if (5 < iVar5 * 0x10000 >> 0x10) {
-        iVar5 = 0;
+      carModel = (tCarModels)(byte)(streamData->trackInfo).fTrafficCars[i++];
+      if (5 < (int)i) {
+        i = 0;
       }
       if (!IsCarAnAddedModel(&carManager, &carModel,&carColor)) {
         streamData->totalModels = streamData->totalModels + 1;
         AddCarToIngameList(&carManager, &carModel,&carColor);
       }
       streamData->trafficCars[streamData->numTraffic] = (u_short)carModel;
-      sVar3 = streamData->numTraffic + 1;
-      streamData->numTraffic = sVar3;
+      streamData->numTraffic = streamData->numTraffic + 1;
       streamData->totalCars = streamData->totalCars + 1;
-      iVar6 = iVar5;
-    } while (sVar3 < 3);
+    } while (streamData->numTraffic < 3);
   }
   return;
 }

@@ -613,97 +613,104 @@ int tScreenTournamentTrophy::GetCar(tCarInfo &carInfo)
 void tScreenTournamentTrophy::DrawCongratsMessage()
 
 {
-  char *word;
-  char *word2;
-  tTrophyClass trophyClass;
-  int placeoffset;
-  tTourneyInfo *tourneyInfo;
-  int firstmessage;
-  int secondmessage;
+  /* MATCH: locals + block scopes taken VERBATIM from the SYM 8c block
+     (fsize 1456, mask $801f0000 = ra,s0-s4):
+       fn scope  AUTO  r, tInfo, buffer1[500], buffer2[500], buffer[256], money[64]
+       blk @567  REG   firstmessage($s2), secondmessage($s3), tourneyInfo($s1)
+       blk @575  REG   placeoffset($s0)
+       blk @639  REG   yyy($s0)
+     Ghidra's word/word2/trophyClass are FABRICATED (absent from the SYM) --
+     they cost a 6th saved register ($s5) and 8 bytes of frame. */
   RECT r;
   tAwardInformation tInfo;
   char buffer1 [500];
   char buffer2 [500];
   char buffer [256];
   char money [64];
-  
+
   r.x = 0x29;
   r.y = 0x3c;
   r.w = 200;
   r.h = 400;
-  if (this->congratsMessage != kScreenCongrats_Congrats) {
-    firstmessage = TextSys_WordY(800);
-    word = TextSys_Word(800);
-    FETextRender_FullTextRGB(word,0x120,(short)((uint)((firstmessage + -10) * 0x10000) >> 0x10),0x414141,'\x03',2);
-    return;
-  }
-  firstmessage = 0;
-  secondmessage = 0;
-  tourneyInfo = (tournamentManager.fDefinition)->fTournaments +
-           (uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset +
-           tournamentManager.fTournament;
-  /* fPrevBestPlacement/fTournamentID are shared-header plain `char` (unsigned by platform default);
-   * oracle reads BOTH signed (`lb`) throughout this fn -- cast in-TU only at every read site. */
-  if ((signed char)tournamentManager.fPrevBestPlacement < '\x04') goto DrawCongrats_inlinedJoin084;
-  trophyClass = (tTrophyClass)this->trophy;
-  firstmessage = (signed char)tourneyInfo->fTournamentID + 0x3b3;
-  if (trophyClass == kTrophySilver) {
-    placeoffset = 1;
-  }
-  else if ((int)trophyClass < 2) {
-    if (trophyClass == kTrophyGold) {
-DrawCongrats_inlinedJoin048:
-      placeoffset = 0;
+  /* MATCH: the non-Congrats message is the ELSE arm (oracle `bnez $v0,.L800491DC`
+     branches FORWARD to a block sitting just before the epilogue). */
+  if (this->congratsMessage == kScreenCongrats_Congrats) {
+    int firstmessage;
+    int secondmessage;
+    tTourneyInfo *tourneyInfo;
+
+    secondmessage = firstmessage = 0;   /* oracle: `addu s2,zero,zero; addu s3,s2,zero` */
+    tourneyInfo = &(tournamentManager.fDefinition)->fTournaments
+             [(uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset +
+              tournamentManager.fTournament];
+    /* fPrevBestPlacement/fTournamentID are shared-header plain `char` (unsigned by platform
+     * default); the oracle reads BOTH signed (`lb`) throughout -- cast at every read site. */
+    if ('\x03' < (signed char)tournamentManager.fPrevBestPlacement) {
+      int placeoffset;
+
+      firstmessage = (signed char)tourneyInfo->fTournamentID + 0x3b3;
+      /* MATCH: a real switch -- oracle is gcc's case TREE over {0},{1},{3}
+         (root ==1, slti 2, then ==0 / ==3) with bodies in source order 0,1,default. */
+      switch (this->trophy) {
+      case kTrophyGold:
+      case kTrophyCar:
+        placeoffset = 0;
+        break;
+      case kTrophySilver:
+        placeoffset = 1;
+        break;
+      default:
+        placeoffset = 2;
+        break;
+      }
+      sprintf(buffer1,TextSys_Word((signed char)tourneyInfo->fTournamentID + 0x3b3),
+              TextSys_Word(placeoffset + 0x3e1));
     }
-    else {
-      placeoffset = 2;
+    if (((this->trophy == kTrophyGold) &&
+        ((signed char)tournamentManager.fPrevBestPlacement != '\x01')) ||
+       (this->trophy == kTrophyCar)) {
+      /* two separate sprintf calls -- gcc cross-jump-merges them into the oracle's
+         single `.L800490EC: jal sprintf` with only the $a0 setup per arm. */
+      if (firstmessage == 0) {
+        firstmessage = (signed char)tourneyInfo->fTournamentID + 0x3c6;
+        sprintf(buffer1,TextSys_Word(firstmessage));
+      }
+      else {
+        secondmessage = (signed char)tourneyInfo->fTournamentID + 0x3c6;
+        sprintf(buffer2,TextSys_Word(secondmessage));
+      }
+    }
+    /* @0x80049108/144/1C4: the oracle reads `this->fScreenFadeVal` (lh a0,0x5C(s4)) fresh
+     * right before EACH of the 3 calls below, not via a cached local. */
+    if (firstmessage != 0) {
+      FETextRender_WordWrapTextFade((int)this->fScreenFadeVal,buffer1,r,textState_Selected,
+                                    textType_PostGame);
+      r.y = r.y + (short)FETextRender_WordWrapHeight(r.w,buffer1);
+    }
+    if (secondmessage != 0) {
+      FETextRender_WordWrapTextFade
+                ((int)this->fScreenFadeVal,buffer2,r,textState_Selected,textType_PostGame);
+    }
+    GetAwardInformation(&tournamentManager,&tInfo);
+    if (tInfo.fAwardCarGarageFull != 0) {
+      r.x = 0x104;
+      r.y = 200;
+      r.w = 0xf0;
+      FeTools_FormatMoney(money,tInfo.fAwardCarBonusMoney);
+      sprintf(buffer,TextSys_Word(0x40),money);
+      FETextRender_WordWrapTextFade
+                ((int)this->fScreenFadeVal,TextSys_Word(0x40),r,textState_Selected,
+                 textType_PostGame);
     }
   }
   else {
-    if (trophyClass == kTrophyCar) goto DrawCongrats_inlinedJoin048;
-    placeoffset = 2;
-  }
-  word = TextSys_Word((signed char)tourneyInfo->fTournamentID + 0x3b3);
-  word2 = TextSys_Word(placeoffset + 0x3e1);
-  sprintf(buffer1,word,word2);
-DrawCongrats_inlinedJoin084:
-  trophyClass = (tTrophyClass)this->trophy;
-  if (((trophyClass == kTrophyGold) && ((signed char)tournamentManager.fPrevBestPlacement != '\x01')) ||
-     (trophyClass == kTrophyCar)) {
-    if (firstmessage == 0) {
-      firstmessage = (signed char)tourneyInfo->fTournamentID + 0x3c6;
-      word = TextSys_Word(firstmessage);
-      word2 = buffer1;
-    }
-    else {
-      secondmessage = (signed char)tourneyInfo->fTournamentID + 0x3c6;
-      word = TextSys_Word(secondmessage);
-      word2 = buffer2;
-    }
-    sprintf(word2,word);
-  }
-  /* @0x80049108/144/1C4: oracle reads `this->fScreenFadeVal` (lh a0,0x5C(s4)) fresh right before
-   * EACH of the 3 calls below, not an uninitialized `int fade;` local. */
-  if (firstmessage != 0) {
-    FETextRender_WordWrapTextFade((int)this->fScreenFadeVal,buffer1,r,textState_Selected,textType_PostGame);
-    firstmessage = FETextRender_WordWrapHeight(r.w,buffer1);
-    r.y = r.y + (short)firstmessage;
-  }
-  if (secondmessage != 0) {
-    FETextRender_WordWrapTextFade
-              ((int)this->fScreenFadeVal,buffer2,r,textState_Selected,textType_PostGame);
-  }
-  GetAwardInformation(&tournamentManager,&tInfo);
-  if (tInfo.fAwardCarGarageFull != 0) {
-    r.x = 0x104;
-    r.y = 200;
-    r.w = 0xf0;
-    FeTools_FormatMoney(money,tInfo.fAwardCarBonusMoney);
-    word = TextSys_Word(0x40);
-    sprintf(buffer,word,money);
-    word = TextSys_Word(0x40);
-    FETextRender_WordWrapTextFade
-              ((int)this->fScreenFadeVal,word,r,textState_Selected,textType_PostGame);
+    int yyy;
+
+    /* MATCH: the -10 bias is folded into the jal delay slot (oracle
+       `addiu $s0,$v0,-0xA`); computing it after the call costs a copy + addiu. */
+    yyy = TextSys_WordY(800) + -10;
+    FETextRender_FullTextRGB(TextSys_Word(800),0x120,(short)((uint)(yyy * 0x10000) >> 0x10),
+                             0x414141,'\x03',2);
   }
   return;
 }

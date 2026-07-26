@@ -204,7 +204,24 @@ valid_count:
          * re-arm between the guard and the `p` update (27); re-arm at the loop TOP
          * (= the w33 split form, range 19, prio 1.58/2.00, 32 diffs at exact 65/65);
          * `(result + 1)` and a shared `one` variable for both `1` constants (both
-         * const-folded, hoist returns). */
+         * const-folded, hoist returns).
+         * w35-a4 NEW BEST CHARACTERISATION (measured, NOT kept -- 32 diffs vs this form's 15):
+         * the w35 DEAD-SET CARRIER kills the `li 1` hoist cleanly and reaches EXACT 65/65 with
+         * retail's instruction stream, leaving ONE allocno swap.  Form:
+         *     unsigned int one = 1;            (at the top of the loop body)
+         *     ... unsigned int bit = one << cycleByte; ...
+         *     one = 0;                         (dead; loop.c sees set_in_loop != 1 so it cannot
+         *                                       hoist the `li 1`, and flow deletes the store free)
+         * cc1 -dl/-dg for it: i(r89) 13 refs/28 = 3*13/28 = 1.393 -> $s0, lowNib(r94) 6/9 =
+         * 2*6/9 = 1.333 -> $s1, bit $s2, result 9/33 = 0.818 -> $s3, count 5/33 = 0.303 -> $s4.
+         * Retail is lowNib $s0 / i $s1 with the other three ALREADY correct, so the whole 32 is
+         * ONE adjacent pair: lowNib's priority must exceed 1.393 (6 refs at live length <= 8, or
+         * 7-8 refs at 9).  Falsified for that: hoisting `int i = 0;` to function scope to
+         * lengthen i's range (27 diffs but 66 insns -- the early `move` costs an instruction),
+         * and sinking lowNib's def inside the GetMatchValue guard to shorten its range (74/63 --
+         * the byte load moves out of the jal delay slot entirely).  This is now a 1-parameter
+         * permuter target on the DEAD-SET form (a strictly better base than the w33 split form,
+         * which needed the same window but also had bit mis-ranked). */
         unsigned int bit = (unsigned int)result;
         do {
             unsigned int cycleByte = *(unsigned char *)(p + 0xc);

@@ -89,8 +89,6 @@ void AISpeeds_ReadTuningInfo(void)
   int iVar3;
   int iVar4;
   int slotLoop;
-  int carType;
-  int humanCarIndex;
 
   sprintf(filename,"%stuning.bin",DAT_80116470);   /* H34: 3rd arg (path prefix) was omitted; oracle 0x8006D5FC $a2=*(int*)&DAT_80116470 */
   handle = Udff_Opena(filename,(char *)0x0,1);
@@ -109,20 +107,26 @@ void AISpeeds_ReadTuningInfo(void)
     CaravanInfo[slotLoop].fallBackRandomTime_TickPercent = uVar2;
     slotLoop = slotLoop + 1;
   }
-  carType = 0;
   if ((GameSetup_gData.raceType == 0) && (0 < Cars_gNumAIRaceCars)) {
     int skillMult[3];
-    humanCarIndex = *(*(int **)((char *)Cars_gAIRaceCarList[0] + 0x288));  /* @0x5D6C8 disasm-v2 */
-    carType = 0;
-    do {
-      skillMult[0] = Udff_GetInt(handle);
-      skillMult[1] = Udff_GetInt(handle);
-      skillMult[2] = Udff_GetInt(handle);
-      if (carType == humanCarIndex) {
-        GameSetup_gData.tournamentMultiplier = skillMult[GameSetup_gData.skill];
-      }
-      carType = carType + 1;
-    } while (carType < 0x16);
+    /* SYM identifies the selected model as `carType` (s3) and the nested
+     * iteration variable as `carModelLoop` (s0). Keeping those scopes distinct
+     * places the s0 zero-initialization in the oracle's branch delay slot. */
+    int carType;
+    carType = *(*(int **)((char *)Cars_gAIRaceCarList[0] + 0x288));  /* @0x5D6C8 disasm-v2 */
+    {
+      int carModelLoop;
+      carModelLoop = 0;
+      do {
+        skillMult[0] = Udff_GetInt(handle);
+        skillMult[1] = Udff_GetInt(handle);
+        skillMult[2] = Udff_GetInt(handle);
+        if (carModelLoop == carType) {
+          GameSetup_gData.tournamentMultiplier = skillMult[GameSetup_gData.skill];
+        }
+        carModelLoop = carModelLoop + 1;
+      } while (carModelLoop < 0x16);
+    }
   }
   else {
     int carModelLoop;
@@ -373,7 +377,8 @@ int AISpeeds_NeedToSlowDownForCurve(Car_tObj *carObj,int distanceMeters,int curr
 {
   /* The SYM names are load-bearing here: keeping the first scaled brake-table
    * value in `speed` and the final difference in `neededDistance` reproduces
-   * the oracle's v1/v0 arithmetic chain (12 detailed diffs down to 4). */
+   * the oracle's v1/v0 arithmetic chain. The explicit early failure guard also
+   * places the zero result in its branch delay slot (full 41/41 match). */
   int neededDistance;
   int futureSpeed;
   int speed;
@@ -382,38 +387,38 @@ int AISpeeds_NeedToSlowDownForCurve(Car_tObj *carObj,int distanceMeters,int curr
   int iVar3;
   int iVar4;
 
-  if (futureCurveSpeed <= currentSpeed) {
-    pAVar2 = carObj->brakeInfo;
-    if (currentSpeed < 0) {
-      currentSpeed = currentSpeed + 0xffff;
-    }
-    iVar3 = currentSpeed >> 0x10;
-    if (iVar3 < 0) {
-      iVar3 = -iVar3;
-    }
-    /* H48: the "clamp to deceleration_" step is NOT a separate pointer -- the oracle just clamps
-     * the INDEX to 0x80 and reads pAVar2->brakeTable_[idx] uniformly for BOTH accesses (a
-     * pointer-switch to &deceleration_ was one extra load-bearing register the oracle never has;
-     * deceleration_ is laid out immediately after brakeTable_[127], so index 0x80 lands on the
-     * same byte). */
-    if (0x7f < iVar3) {
-      iVar3 = 0x80;
-    }
-    speed = (u_int)(u_char)pAVar2->brakeTable_[iVar3] * 0x20000;
-    if (futureCurveSpeed < 0) {
-      futureCurveSpeed = futureCurveSpeed + 0xffff;
-    }
-    futureCurveSpeed = futureCurveSpeed >> 0x10;
-    if (futureCurveSpeed < 0) {
-      futureCurveSpeed = -futureCurveSpeed;
-    }
-    if (0x7f < futureCurveSpeed) {
-      futureCurveSpeed = 0x80;
-    }
-    neededDistance = speed - (u_int)(u_char)pAVar2->brakeTable_[futureCurveSpeed] * 0x20000;
-    return neededDistance + (neededDistance >> 3) < distanceMeters ^ 1;
+  if (currentSpeed < futureCurveSpeed) {
+    return 0;
   }
-  return 0;
+  pAVar2 = carObj->brakeInfo;
+  if (currentSpeed < 0) {
+    currentSpeed = currentSpeed + 0xffff;
+  }
+  iVar3 = currentSpeed >> 0x10;
+  if (iVar3 < 0) {
+    iVar3 = -iVar3;
+  }
+  /* H48: the "clamp to deceleration_" step is NOT a separate pointer -- the oracle just clamps
+   * the INDEX to 0x80 and reads pAVar2->brakeTable_[idx] uniformly for BOTH accesses (a
+   * pointer-switch to &deceleration_ was one extra load-bearing register the oracle never has;
+   * deceleration_ is laid out immediately after brakeTable_[127], so index 0x80 lands on the
+   * same byte). */
+  if (0x7f < iVar3) {
+    iVar3 = 0x80;
+  }
+  speed = (u_int)(u_char)pAVar2->brakeTable_[iVar3] * 0x20000;
+  if (futureCurveSpeed < 0) {
+    futureCurveSpeed = futureCurveSpeed + 0xffff;
+  }
+  futureCurveSpeed = futureCurveSpeed >> 0x10;
+  if (futureCurveSpeed < 0) {
+    futureCurveSpeed = -futureCurveSpeed;
+  }
+  if (0x7f < futureCurveSpeed) {
+    futureCurveSpeed = 0x80;
+  }
+  neededDistance = speed - (u_int)(u_char)pAVar2->brakeTable_[futureCurveSpeed] * 0x20000;
+  return neededDistance + (neededDistance >> 3) < distanceMeters ^ 1;
 }
 
 /* ---- AISpeeds_CalcOpponentCurveSpeed__FP8Car_tObj  [@0x8006df34] ---- */

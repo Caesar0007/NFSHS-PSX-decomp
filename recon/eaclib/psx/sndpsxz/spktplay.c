@@ -4,7 +4,7 @@
  *   dialect fixer did not converge on this TU). Pre-migration (.cpp/cc1plus) vs post-migration
  *   (.c/cc1) per-fn diff counts, verify_asm.py authoritative -- IDENTICAL, zero regressions:
  *     iSNDpacketplayoverhead=PASS(0)  SNDPKTPLAY_overhead=PASS(0)   SNDPKTPLAY_create=PASS(0)
- *     SNDPKTPLAY_start=FAIL(100 w33, 187/187)  SNDPKTPLAY_submit=FAIL(2)  SNDPKTPLAY_submitspace=PASS(0)
+ *     SNDPKTPLAY_start=FAIL(70 w34, 187/187)   SNDPKTPLAY_submit=FAIL(2)  SNDPKTPLAY_submitspace=PASS(0)
  *     SNDPKTPLAY_unsafeframesoutstanding=PASS(0)  SNDPKTPLAY_framesoutstanding=PASS(0)
  *     SNDPKTPLAY_purge=PASS(0, w34)                                          SNDPKTPLAY_stop=PASS(0)
  *     SNDPKTPLAY_destroy=PASS(0)      iSNDpacketget=PASS(0)         iSNDpacketfreeframes=PASS(0)
@@ -213,16 +213,30 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
     *(volatile int *)(ppp + 4)      = 0;
     *(volatile int *)(ppp + 0x14)   = 0;
     *(volatile short *)(ppp + 0xc)  = (short)0xffff;
-    ch = *(int *)(gp + 0x94) + note * 100;        /* MATCH: note*100 computed right after the
-                                                    * marker store, before the unaligned copy;
-                                                    * the pool-base add is a branch delay-slot
-                                                    * filler for the s3len test below either way */
     *(Unal4 *)(ppp + 0x24) = *(Unal4 *)rate;      /* unaligned rate-word copy: lwl/lwr + swl/swr */
+    ch = *(int *)(gp + 0x94) + note * 100;        /* MATCH: AFTER the unaligned copy -- the oracle's
+                                                    * `lw v1,0x94(s3)` sits between the swl/swr pair
+                                                    * and the params[0xb] test, with the pool-base
+                                                    * add filling the test's beqz delay slot (sched1
+                                                    * still hoists the note*100 multiply chain above
+                                                    * the copy, exactly as retail). */
 
     if (MSB(params, 0xb) != 0)
         gp = MUH(params, 0x10);
-    else
-        gp = ((MSB(params, 7) - 0x40) << 8) & 0xffff;
+    else {
+        /* TWO statements, not one and not three.  `gp` is the retail two-role variable (&sndgs,
+         * then the packet length) and its REG_N_REFS decides whether it wins the oracle's $s3:
+         *   1 stmt  `gp = ((MSB(params,7)-0x40)<<8)&0xffff;`  ->  6 refs, prio 12/97=.124 < params'
+         *           30/224=.134  ->  gp lands $s4, params $s3 (the old 100-diff swap);
+         *   2 stmts (this)                                    ->  8 refs, 24/98=.245 -> gp $s3 OK;
+         *   3 stmts (the oracle's own in-place addiu/sll/andi chain) -> 10 refs, 30/99=.303, which
+         *           outranks `note`/`ppp` and takes $s1 (120 diffs).
+         * So we spell the subtraction in place (matching the oracle's `addiu s3,v0,-0x40`) and fuse
+         * the shift+mask, leaving a 2-insn `sll v0,s3,8 / andi s3,v0,0xffff` vs the oracle's in-place
+         * `sll s3,s3,8 / andi s3,s3,0xffff` -- the price of staying at 8 refs. */
+        gp = MSB(params, 7) - 0x40;
+        gp = (gp << 8) & 0xffff;
+    }
 
     MSB(ch, 0xa)  = -1;              /* li -1 (signed char), not li 255 */
     MUH(ch, 0x5c) = MUH(hdr, 4);
@@ -275,24 +289,25 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
     iSNDleaveaudio();
     return MI(ppp, 0);
 }
-/* near-miss floor (183->132 diffs, ours 181 / oracle 187 insns). This is the biggest fn in the file
- * (9 params/locals -- p,rate,hdr,params,&sndgs,ppp,note,ch,s3len -- all callee-saved, live across
- * 2-3 calls each). NFS4 PC confirms the duration tail is signed division by 0x3f01; expressing the
- * operation at that level lets cc1 emit the oracle's direct magic-multiply/mfhi sequence and removes
- * the artificial 64-bit stack temporary, recovering the retail 88-byte frame. Fixes also kept:
- * `MB(rate,2)` evaluated before the ppp lookup (oracle hoists this
- * alloc-arg early), the 0x40/0x44-then-0x3d-then-0x48.. zero-store interleave + MH(ch,0x5e)=0 as
- * its own statement (lands in calcpitch's jal delay slot), `ch`'s note*100 positioned right after
- * the 0xc marker store (before the unaligned rate copy). Tried and NOT kept as a further win: an
- * explicit `char *gp=(char*)sndgs;` hoisted pointer for the guard+pool-base lookup (matches the
- * oracle's single materialize-once-reuse-across-calls shape SEMANTICALLY, and gp DOES land in a
- * saved reg spanning the calls) -- but it doesn't change the diff count; the residual is a pure
- * GLOBAL-ALLOCATOR REGISTER-NUMBER PERMUTATION (same class as SNDPKTPLAY_purge's ppp/wrptr swap):
- * the SAME set of ~9 long-lived locals gets the SAME 9 callee-saved registers, just numbered
- * differently (ours: hdr/params/gp -> s4/s3/s5; oracle: s5/s4/s3) -- decl order/scope permutations
- * don't move this (per purge's finding); needs an RTL -dg/-dl dump or the permuter. Every `!=` line
- * in the diff is register-renumbering fallout of this one root cause; no further structural bugs
- * were found on this pass. */
+/* near-miss 100 -> 70 diffs (ours 187 / oracle 187) -- w34-a6, cc1 -dl/-dg allocno instrument.
+ * ROOT CAUSE of the old 100: a single s3<->s4 permutation, `gp`(&sndgs/length) vs `params`.  The dump
+ * gave the exact numbers -- gp 6 refs/97 insns = 12/97 = .124 vs params 10/224 = 30/224 = .134 -- so
+ * splitting the else-arm's length arithmetic into two statements (8 refs, .245) lifts gp over params
+ * and pins the whole cascade.  See the in-place comment at that arm for why 1 and 3 statements both
+ * fail.  Second fix: `ch = *(int*)(gp+0x94) + note*100;` moved AFTER the unaligned rate copy (the
+ * oracle's `lw v1,0x94(s3)` sits between the swl/swr pair and the params[0xb] test; sched1 still
+ * hoists the note*100 chain above the copy).  100 -> 78 -> 70.
+ * RESIDUAL (70), three clusters, all sched1/local-alloc ties at EXACT insn parity:
+ *  (a) the movstrsi rate-copy temp: ours $t1, oracle $t0 (2 lwl/lwr + 2 swl/swr = 4 diffs);
+ *  (b) the ch-field store block: the STORE ORDER already matches the oracle exactly; what differs is
+ *      where the 0x7fffffff `lui`/`ori` pair and the `lhu 0xC(params)` land between them (the oracle
+ *      splits the lui from the ori and fills the `lb 0x8(params)` load-delay with the 0x28 store);
+ *  (c) the tail: the oracle interleaves the four stack-arg stores INTO the two multiplies' latency
+ *      (mflo/mfhi in $t4) where ours issues mflo/mult first.
+ * Kept from earlier waves: MB(rate,2) evaluated before the ppp lookup; the whole ring-header store
+ * run `volatile` (ordering); the 0x40/0x44-then-0x3d-then-0x48.. interleave; MH(ch,0x5e)=0 as its own
+ * statement (fills calcpitch's jal delay slot); signed division by 0x3f01 at the C level (NFS4-PC
+ * twin confirms), which recovers the retail 88-byte frame. */
 
 /* SNDPKTPLAY_submit @0x80102CFC : append a frame (descriptor `frame`) to the player's ring.  Returns the
  *   submit sequence number, or -0xD if the ring is full. */

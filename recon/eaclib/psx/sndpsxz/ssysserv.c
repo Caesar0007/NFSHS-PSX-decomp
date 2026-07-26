@@ -62,7 +62,27 @@ extern void iSNDserverremoveclient(volatile int cb)
      * The entire SLD source-file list contains exactly ONE eaclib TU (EACLIB/PSX/PAD.C) and
      * zero sndpsxz files.  Per the wave order ("do NOT change the volatile without it") the status
      * quo stands.  Cost of the honest non-volatile shape, re-measured this wave for the user's call:
-     * `int cb` = 41 diffs / 42 insns (oracle 43) on BOTH twins; `volatile int cb` = 3 diffs / 44. */
+     * `int cb` = 41 diffs / 42 insns (oracle 43) on BOTH twins; `volatile int cb` = 3 diffs / 44.
+     *
+     * W34-a8 GOVERNANCE RE-CHECK (unchanged; NEW named mechanism for the floor).  The honest `int cb`
+     * form was re-measured and re-DUMPED this wave, not just re-counted: it is 41 diffs / 42 insns and
+     * its body is INSTRUCTION-FOR-INSTRUCTION identical to the oracle except for a single 3-WAY REGISTER
+     * ROTATION plus the one copy that rotation requires --
+     *     ours   { cb=$a0, i=$a1, base=$a2 }      (no entry copy, 42 insns)
+     *     retail { i=$a0,  base=$a1, cb=$a2 }     (+ `addu $a2,$a0,$zero` at insn 0, 43 insns)
+     * MECHANISM: gcc-2.8 `find_reg` SKIPS a hard reg that a CONFLICTING allocno *prefers*
+     * (`regs_someone_prefers`), and a pseudo copied straight out of an incoming parameter's hard reg
+     * carries a preference for that reg.  So with a plain `int cb` the callback pseudo reserves $a0 and
+     * both loop pseudos rotate up one; retail's callback pseudo had NO $a0 preference, which is exactly
+     * what a parameter that reaches its pseudo through MEMORY produces -- i.e. the `volatile` qualifier
+     * is standing in for whatever made retail's parameter lose its register preference, and it buys the
+     * correct {a0,a1,a2} roles at the cost of realizing the copy as `sw a0,0(sp) ... lw a2,0(sp)`.
+     * Four honest spellings were tried this wave and ALL produce the identical 41/42 output (the
+     * preference is robust to source shape): `target = cb;` as the FIRST statement, `target` declared
+     * LAST in the local list, the Yoda compare `target == slot[i]`, and the plain in-loop use of `cb`.
+     * A clean structural win therefore needs a lever that removes the parm-copy PREFERENCE without
+     * forcing a stack home -- not another statement order.  Status quo (volatile, 3 diffs) stands.
+     */
     if (*(signed char *)(p + 0x41) <= 0)                      /* lb count (signed-char view of the byte) */
         return;
     i = 0;

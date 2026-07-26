@@ -18,6 +18,11 @@ typedef struct SNDMemState {
     unsigned short entries[256];        /* +0x0c {block,size}[128] */
 } SNDMemState;
 extern SNDMemState sndmm;
+/* UNSIZED-ARRAY VIEW of the same storage (asm-label alias): an unsized `unsigned char[]`
+ * makes gcc materialize each `sndmm_b + K` as the FUSED high(sym+K)/lo_sum pair, so the two
+ * distinct table bases (+8 and +0xC, splat D_80148788 / D_8014878C) cannot share one hoisted
+ * `lui %hi(sndmm)`. */
+extern unsigned char sndmm_b[] __asm__("sndmm");
 
 /* {block,size} free-list entry -- 2-byte alignment is LOAD-BEARING (struct assignment on an
  * align-2 4-byte struct = the oracle's lwl/lwr+swl/swr unaligned word copy). */
@@ -116,7 +121,52 @@ extern unsigned int iSNDmemrestore(void)
  * the `i++` so the induction shift is live out of the loop and the tail just uses `j` (retail's exact
  * dataflow) -> 93 diffs / 128 insns, because gcc const-folds the pre-loop seed to `move rD,zero`
  * exactly as the earlier hoist attempt did.  The unification is register-equality-gated and the
- * register is decided by the same $v0/$v1 mirror as the rest of this floor. */
+ * register is decided by the same $v0/$v1 mirror as the rest of this floor.
+ *
+ * 🟢🟢 W35-a3 (2026-07-26): 86 -> 52 diffs, 127 -> 137 insns (oracle 135).  THE ABOVE "5-of-8
+ * missing instructions is an allocno floor" VERDICT IS WITHDRAWN -- it was a RETURN-STATEMENT
+ * PLACEMENT problem, not a coloring one, and the whole 8-instruction gap plus most of the diff
+ * mass came off with three source-shape levers:
+ *   (1) 🔑 EXPLICIT `fail:` BLOCK PLACED PHYSICALLY LAST (86 -> 74, 127 -> 137 insns).  Retail has
+ *       THREE distinct return-0 exits: the count guard branches to a cold one-insn block AFTER
+ *       commit (.L80106430 `addu $v0,$zero,$zero`), the empty arm zeroes $v0 in its own `beqz`
+ *       DELAY SLOT and `j`s to the epilogue, and the post-scan `bnez`es straight to the epilogue
+ *       with the zero in ITS delay slot.  Three textual `return 0;` statements give gcc three
+ *       byte-identical tails that jump.c cross-jump-MERGES, which is what collapsed our post-scan
+ *       into the empty arm's `jal`+check (the 5 "missing" instructions) and what forced the wrong
+ *       `beqz` delay-slot filler.  Writing all three as `goto fail;` with ONE `fail: return 0;`
+ *       after the commit block removes the merge candidate entirely and reproduces retail's layout.
+ *   (2) 🔑 INDEX-FIRST STATEMENT ORDER in `commit` (74 -> 67, 137 -> 136).  reorg STEALS a branch
+ *       target's first instruction into the predecessors' delay slots when that instruction's dest
+ *       is dead on the fall-through path.  Our commit block opened with the `lui %hi(sndmm)` (dest
+ *       $v1, dead on every fall-through) so ALL THREE predecessors' slots got a copy of it and the
+ *       block kept only the `addiu %lo` -- 4 materialization insns instead of retail's 2, and it
+ *       displaced the real fillers.  Retail's commit opens with `sll $a0,$s0,2` whose dest $a0 IS
+ *       live on the shift-loop fall-through, so the steal is ILLEGAL there and reorg falls back to
+ *       the fall-through thread (`sll $v1,$a0,2`, `addu $v0,$zero,$zero`).  Hoisting `int off =
+ *       i << 2;` to be the block's FIRST statement reproduces that exactly.
+ *   (3) 🔑 DEAD-VAR REPURPOSE for the state base (67 -> 52): retail reuses the now-dead ENTRY
+ *       pointer's register for `&sndmm` (`addiu $a1,$v1,-0xC`), not a fresh temp.  Re-assigning the
+ *       `entry` variable instead of introducing `cb` makes the ENTIRE commit block byte-exact,
+ *       including the oracle's load-delay `nop` after `lhu $v0,4($a1)`.
+ *   Supporting shape change: `sndmm_b[]`, an unsized-array asm-label VIEW of the same storage, so
+ *   the +8 and +0xC bases lower to the FUSED `high(sym+K)` RTL (three distinct high expressions in
+ *   `-dl`) instead of one shareable `high(sndmm)`; codegen-neutral on its own but it is what lets
+ *   levers (2)/(3) land.  Post-scan index-first (same lever as (2)) moved its base into the oracle's
+ *   $v1 and its limit read onto that base (`lhu $v0,-2($v1)`), diff-neutral, shape-correct.
+ * RESIDUAL = 2 instructions + the $v0/$v1 mirror inside the two remaining blocks:
+ *   (a) `addiu $a0,$sp,0x10` DUPLICATED into the entry-guard delay slot -- the same reorg steal as
+ *       (2), but in the post-scan block the first instruction is the sched1-hoisted call-arg setup
+ *       (dest $a0, dead on the fall-through).  Retail's post-scan opens with `lui $v1,%hi(...)` and
+ *       $v1 holds &sndmm, which the fall-through reads (`addiu $s4,$v1,0xC`), so the steal is
+ *       illegal there.  Not reachable by statement order: sched1 floats the dependency-free `addiu
+ *       $aN,$sp,K` to the top of the block regardless of source position.
+ *   (b) the duplicated `sll $s0,2` (a DEAD one in the loop back-edge slot + a live one in the
+ *       post-scan) -- the `j`-live-out unification was RE-TESTED on this new base per the "re-test
+ *       shelved leads after a structural fix" rule and is still worse (77 diffs / 138 insns), as is
+ *       the pre-guard hoist (98 diffs, unchanged from W33).
+ * Flag axis re-probed: `-mno-split-addresses` for this TU is decisively WRONG (91 diffs @136, and
+ * it breaks iSNDmemconstrain/iSNDmeminit which currently PASS). */
 extern int iSNDmalloc(int size)
 {
     /* MATCH (w31-a2, from the raw oracle -- same shape family as iSNDpsxmalloc but with THREE
@@ -195,8 +245,9 @@ extern int iSNDmalloc(int size)
     {
         /* post-loop tail: fresh block-locals re-materialize the FUSED sndmm+8 symbol (oracle
          * D_80148788); poolWords is read as pb[-1] (offset -2 off it). */
-        unsigned short *pb = (unsigned short *)((unsigned char *)&sndmm + 8);
-        unsigned short *p2 = (unsigned short *)((i << 2) + (int)pb);
+        int off = i << 2;
+        unsigned short *pb = (unsigned short *)(sndmm_b + 8);
+        unsigned short *p2 = (unsigned short *)(off + (int)pb);
         block = (int)p2[0] + (int)p2[1];
         available = (int)pb[-1] - block;
     }
@@ -208,13 +259,17 @@ commit:
     {
         /* fused sndmm+0xC table symbol (oracle D_8014878C); the state base is recovered by
          * subtracting 0xC from it, and the pool pointer is read at -0xC off the SAME symbol. */
-        unsigned char *tabsym = (unsigned char *)&sndmm + 0xc;
+        int off = i << 2;
+        unsigned char *tabsym = sndmm_b + 0xc;
         unsigned char *cb;
         int addr;
-        entry = (unsigned short *)((i << 2) + (int)tabsym);
+        entry = (unsigned short *)(off + (int)tabsym);
         entry[1] = (unsigned short)size;
         entry[0] = (unsigned short)block;
-        cb = tabsym - 0xc;
+        /* MATCH: retail REUSES the now-dead entry pointer's register for the state base
+         * (catalog dead-var repurpose) -- `addiu $a1,$v1,-0xC`, not a fresh temp. */
+        entry = (unsigned short *)(tabsym - 0xc);
+        cb = (unsigned char *)entry;
         *(unsigned short *)(cb + 4) += 1;
         addr = *(int *)(tabsym - 0xc) + block * 4;
         if (*(int *)(cb + 8) < block + size)

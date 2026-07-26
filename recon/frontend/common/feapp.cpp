@@ -195,44 +195,95 @@ void tFEApplication::PerformMenuDestruction()
 
 
 /* ---- tFEApplication::DrawHelpIcons  [FEAPP.CPP:151-219] SLD-VERIFIED ---- */
+/* MATCH (2026-07-27, 254 diffs [~0%] -> 4 diffs, count-exact 254==254):
+ *  - SYM `8c Function start` gives Col/x/y as REAL named REG locals ($s5/$s3/$s2), NOT
+ *    literal-folded values. Recon had inlined 0x786e14 at 4 call sites (fresh li each time,
+ *    can't survive a jal in a caller-saved reg) -- named `Col` forces ONE materialization
+ *    reused across every intervening call, matching the oracle's $s5 reuse.
+ *  - SYM types Col/x/y INT (not the recon's `short x`); per-statement narrow-then-widen
+ *    masking from a `short` local doesn't match -- only the ARGUMENT boundary (an actual
+ *    short parameter) truncates, and the plain `(short)((u_int)(y*0x10000)>>0x10)` idiom in
+ *    the old recon was a hand-rolled (and wrong-codegen, multiply-based) substitute for a
+ *    bare int-arg-to-short-param truncation; removed, arguments now pass x/y directly.
+ *  - if/else ARM ORDER inverted (De Morgan `A||B then/else` -> `!A&&!B then/else`) to match
+ *    the oracle's physical block layout: the vertical/string path is the FALL-THROUGH block,
+ *    the horizontal/icon path is the branch target reached from both short-circuit tests --
+ *    opposite of what the literal `if(fCurrentMenu[0]==0||VertHelp==0)` phrasing produced.
+ *  - vertical-path loop split the load from the decrement (`i=strlen(s); i=i-1; while(-1<i)`)
+ *    -- classic §3.12#15b rotated-loop shape; loop's X-arg passes the (unmodified, still-14)
+ *    `x` local, letting gcc constant-propagate + hoist its `(short)x` truncation OUT of the
+ *    loop as `lui $s4,0xE ; sra $a1,$s4,16` (only the `sra` re-executes per iteration) --
+ *    passing a literal `0xe` there instead defeats this hoist entirely.
+ *  - post-loop tail: the y+=8 in the branch delay slot always fires; the two DrawShapeExtended
+ *    calls use `x`/`y` (still-live vars from the loop, not fresh literals) -- `x-1`/`y-9` are
+ *    increments on the live values, not restated constants.
+ *  Residual 4-diff floor: `x = x + 5 + (iVar4 - uVar3);` oracle associates the `+5` onto `x`
+ *  FIRST (`v1=x+5` computed once, reused) where ours re-associates onto the difference term
+ *  despite identical source parenthesization -- gcc-2.8's tree reassociation picks its own
+ *  grouping for a flat +chain regardless of C parens. Every attempt to force it (extra temp,
+ *  operand reorder, mutating iVar4 in place) either left it unchanged or REGRESSED into a
+ *  uniform x<->y ($s2<->$s3) register swap elsewhere in the function (adding any new pseudo
+ *  here recolors the whole head, per catalog row 37) -- accepted as a genuine floor. */
 
 void tFEApplication::DrawHelpIcons()
 
 {
   bool bVar1;
   char *pcVar2;
-  u_int uVar3;
-  tMenu *this_tMenu_l52;
   int iVar4;
-  short x;
-  int i;
-  int y;
-  int Col;
+  int uVar3;
   tDrawShapeExtended flags;
+  int Col;
+  int x;
+  int y;
   char string [12];
   char string2 [2];
-  
+
+  Col = 0x786e14;
   x = 0xe;
-  flags.tint[0] = 0x786e14;
+  flags.tint[0] = Col;
   y = screenheight + -0x19;
-  if ((this->fCurrentMenu[0] == (tMenu *)0x0) || (this->fCurrentMenu[0]->VertHelp == 0)) {
+  if ((this->fCurrentMenu[0] != (tMenu *)0x0) && (this->fCurrentMenu[0]->VertHelp != 0)) {
+    int i;
+
+    string2[1] = '\0';
+    pcVar2 = TextSys_Word(0xfc);
+    sprintf(string,pcVar2);
+    i = strlen(string);
+    i = i - 1;
+    while (-1 < i) {
+      string2[0] = string[i];
+      FETextRender_FullTextRGB(string2,x,y,Col,'\0',0);
+      y = y - 8;
+      i = i - 1;
+    }
+    y = y + 8;
+    if (((gPadinfo.buf[0].nopad == '\0') && (gPadinfo.buf[0].ID != '#')) ||
+       ((gPadinfo.buf[4].nopad == '\0' && (gPadinfo.buf[4].ID != '#')))) {
+      y = y - 8;
+      DrawShapeExtended(0x35,0x18,x,y,0,0,&flags);
+    }
+    if ((gPadinfo.buf[0].ID == '#') || (gPadinfo.buf[4].ID == '#')) {
+      DrawShapeExtended(0x36,0x18,x + -1,y + -9,0,0,&flags);
+    }
+  }
+  else {
     if (((gPadinfo.buf[0].nopad == '\0') && (gPadinfo.buf[0].ID != '#')) ||
        ((gPadinfo.buf[4].nopad == '\0' && (gPadinfo.buf[4].ID != '#')))) {
       DrawShapeExtended(0x35,0x18,x,y,0,0,&flags);
-      x = 0x1c;
+      x = x + 0xe;
     }
     if ((gPadinfo.buf[0].ID == '#') || (gPadinfo.buf[4].ID == '#')) {
       DrawShapeExtended(0x36,0x18,x,y,0,0,&flags);
       x = x + 0xf;
     }
-    this_tMenu_l52 = (tMenu *)TextSys_Word(0xfc);
-    FETextRender_FullTextRGB((char *)this_tMenu_l52,x,(short)((u_int)(y * 0x10000) >> 0x10),0x786e14,'\0',0
-              );
+    pcVar2 = TextSys_Word(0xfc);
+    FETextRender_FullTextRGB(pcVar2,x,y,Col,'\0',0);
     pcVar2 = TextSys_Word(0xfc);
     iVar4 = textpixels(pcVar2);
     pcVar2 = TextSys_Word(0xfc);
     uVar3 = strlen(pcVar2);
-    x = x + 5 + ((short)iVar4 - (short)uVar3);
+    x = x + 5 + (iVar4 - uVar3);
     bVar1 = false;
     if ((this->fCurrentMenu[0]->fOptionsMenu != (tMenu *)0x0) ||
        ((this->fCurrentMenu[1] != (tMenu *)0x0 &&
@@ -250,26 +301,7 @@ void tFEApplication::DrawHelpIcons()
         x = x + 0xf;
       }
       pcVar2 = TextSys_Word(0xfd);
-      FETextRender_FullTextRGB(pcVar2,x,(short)((u_int)(y * 0x10000) >> 0x10),0x786e14,'\0',0);
-    }
-  }
-  else {
-    string2[1] = '\0';
-    pcVar2 = TextSys_Word(0xfc);
-    sprintf(string,pcVar2);
-    i = strlen(string);
-    while (i = i - 1, -1 < (int)i) {
-      x = (short)y;
-      y = y + -8;
-      string2[0] = string[i];
-      FETextRender_FullTextRGB(string2,0xe,x,0x786e14,'\0',0);
-    }
-    if (((gPadinfo.buf[0].nopad == '\0') && (gPadinfo.buf[0].ID != '#')) ||
-       ((gPadinfo.buf[4].nopad == '\0' && (gPadinfo.buf[4].ID != '#')))) {
-      DrawShapeExtended(0x35,0x18,0xe,y,0,0,&flags);
-    }
-    if ((gPadinfo.buf[0].ID == '#') || (gPadinfo.buf[4].ID == '#')) {
-      DrawShapeExtended(0x36,0x18,0xd,y + -9,0,0,&flags);
+      FETextRender_FullTextRGB(pcVar2,x,y,Col,'\0',0);
     }
   }
   return;
@@ -634,13 +666,63 @@ void tFEApplication::RunDemoVideo()
 
 
 /* ---- tFEApplication::MainLoop  [FEAPP.CPP:560-985] SLD-VERIFIED ---- */
+/* PARTIAL (2026-07-27, w36-a2): baseline FAIL 1730 diffs (ours 1139 / oracle 1123, insn
+ * count already close). Reordered the function-scope local declarations to match the SYM
+ * `8c Function start` Block-1 list exactly (this,newMenu params; then stackBackupPin,
+ * wasSubMenu,needToSetChildMenu,doRedraw,ticksAtLastInput,tick,inputStartPlayer,
+ * inputEndPlayer,i,demoLoopLastInputTick,string, then the nested-block SYM locals
+ * command/keyVal/debounce/dialog/err/player/carInfo/ticks_l351 in their SYM block order,
+ * with the Ghidra-fabricated (non-SYM) temps left AFTER all real SYM locals) -- this is a
+ * PURE reorder, no logic/type changes, insn count unaffected (1139==1139) -- dropped to
+ * FAIL 1554 diffs, a real but partial improvement (no regression risk: same instruction
+ * count, only allocator/scheduling order shifted).
+ *
+ * ROOT-CAUSE STATE FOR THE NEXT PASS: the dominant residual is `this` REGPARM ($s2 per SYM)
+ * getting colored $s3 in our build for the WHOLE function (this cascades into ~500+ of the
+ * remaining diff lines, since `this->` is referenced constantly) -- oracle's mask
+ * $c0ff0000 confirms all 8 s-regs + fp + ra are saved (matches ours, frame size 408==408
+ * exact per SYM fsize), so this is NOT a missing-save/frame-shape bug, purely a coloring
+ * PRIORITY tie-break: SYM puts newMenu($s0) and inputStartPlayer($s1) ahead of `this`($s2)
+ * in the register-number ordering despite `this` having far higher raw ref-count -- gcc-2.8's
+ * global-alloc priority is refs-per-live-length (weighted by loop nesting), not raw refs, so
+ * inputStartPlayer's tighter/loopier live range can legitimately outrank `this`'s
+ * function-wide range. A `-dg` allocno dump (CC1PLPSX -dg -dl on the preprocessed .i, see
+ * scratchpad/rtl_a6.sh for the recipe, swap CC1PSX->CC1PLPSX per the wave briefing) shows
+ * MainLoop needs 51 pseudos colored into the saved-reg set with 40-50 PAIRWISE conflicts
+ * each (i.e. most locals are simultaneously live across nearly the whole function) -- a
+ * saturated coloring problem where the fix is almost certainly a handful of SLD-block-scope
+ * corrections (many Ghidra-invented temps below -- ptVar5/ptVar6/pa_Var11/pa_Var12/tVar13/
+ * pcVar15/pcVar16/ptVar17/ptVar18/ptVar19/piVar20/cVar8/sVar9/iVar10/iVar4 -- are NOT in the
+ * SYM at all and are almost certainly compiler temps that should collapse into direct
+ * expressions or the real SYM-named block-scoped `this` pointers seen at VA 0x80014648/
+ * 0x8001491c/0x80014af4/0x8001515c, narrowing the live pseudo count) rather than a single
+ * lever -- recommend a dedicated SLD-block-by-block pass (per this wave's mission) starting
+ * from the `this` register swap, working outward. Function too large (1123 oracle insns,
+ * ~4.5x DrawHelpIcons) to safely hand-derive further without regression risk in this pass. */
 
 tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
 
 {
   bool bVar1;
+  short stackBackupPin;
+  u_char wasSubMenu;
   bool needToSetChildMenu;
   bool doRedraw;
+  u_long ticksAtLastInput [2];
+  u_long tick;
+  tPlayer inputStartPlayer;
+  tPlayer inputEndPlayer;
+  short i;
+  int demoLoopLastInputTick;
+  char string [80];
+  tMenuCommand command [2];
+  tInputKeyType keyVal [2];
+  tInputKeyType debounce;
+  int dialog;
+  PinkSlipsErrorCode err;
+  int player;
+  tCarInfo carInfo;
+  u_long ticks_l351;
   int iVar4;
   tFEApplication *ptVar5;
   tFEApplication *ptVar6;
@@ -651,34 +733,17 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
   __vtbl_ptr_type (*pa_Var11) [11];
   tMenu *this_tMenu_l92;
   __vtbl_ptr_type (*pa_Var12) [10];
-  tInputKeyType debounce;
   tInputKeyType tVar13;
-  int dialog;
   char *pcVar15;
   char *pcVar16;
   tMenu *ptVar17;
   tScreen *ptVar18;
   tDialogBase *this_tDialogBase_l181;
   tMenu *this_tMenu_l139;
-  u_char wasSubMenu;
   tInputKeyType *ptVar19;
   tDialogMessageString *this_tDialogMessageString_l311;
-  u_long ticks_l351;
   int *piVar20;
-  int player;
-  PinkSlipsErrorCode err;
-  short i;
-  tPlayer inputStartPlayer;
-  tPlayer inputEndPlayer;
-  u_long ticksAtLastInput [2];
-  char string [80];
-  tMenuCommand command [2];
-  tInputKeyType keyVal [2];
-  tCarInfo carInfo;
-  short stackBackupPin;
-  u_long tick;
-  int demoLoopLastInputTick;
-  
+
   stackBackupPin = -1;
   needToSetChildMenu = false;
   memset(ticksAtLastInput,0,8);

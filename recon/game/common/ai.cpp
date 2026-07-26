@@ -247,61 +247,68 @@ LAB_80057cc0:
 /* ---- AI_CheckForPlayerActions__FP8Car_tObjT0  [@0x80057dd4] ---- */
 void AI_CheckForPlayerActions(Car_tObj *carObj,Car_tObj *otherCarObj)
 {
+  Car_tObj *otherCarObjLocal;
+  Car_tObj *carObjLocal;
   int absDistance;
-  int iVar1;
-  int iVar2;
-  Car_tObj *pCVar3;
-  int iVar4;
-  AIScript_tPlayAction AVar5;
-  
-  iVar1 = AIWorld_ApxSplineDistance(carObj,otherCarObj);
-  if (iVar1 < 0) {
-    iVar1 = -iVar1;
-  }
-  iVar2 = AIWorld_GameOdometer(carObj);
-  if (iVar2 < 0x3200000) {
+
+  carObjLocal = carObj;
+  otherCarObjLocal = otherCarObj;
+  absDistance =
+      __builtin_abs(AIWorld_ApxSplineDistance(carObjLocal,otherCarObjLocal));
+  if (AIWorld_GameOdometer(carObjLocal) < 0x3200000) {
     return;
   }
-  if (((simGlobal.gameTicks - (otherCarObj->N).collision.lastTime < 0xf) &&
-      (pCVar3 = (Car_tObj *)(otherCarObj->N).collision.lastOtherObj, pCVar3 != (Car_tObj *)0x0)) &&
-     (pCVar3 == carObj)) {
-    AIScript_SubmitPlayerAction(&carObj->script,otherCarObj->carIndex,0,simGlobal.gameTicks);
+  if (((simGlobal.gameTicks - (otherCarObjLocal->N).collision.lastTime < 0xf) &&
+       ((otherCarObjLocal->N).collision.lastOtherObj != (BO_tNewtonObj *)0x0)) &&
+      ((Car_tObj *)(otherCarObjLocal->N).collision.lastOtherObj == carObjLocal)) {
+    AIScript_SubmitPlayerAction(&carObjLocal->script,
+                                otherCarObjLocal->carIndex,0,
+                                simGlobal.gameTicks);
   }
-  if (otherCarObj->currentSpeed * carObj->direction + 0x280000 <
-      carObj->currentSpeed * carObj->direction) {
-    if (0xbffff < iVar1) goto LAB_80057f34;
-    AIScript_SubmitPlayerAction(&carObj->script,otherCarObj->carIndex,1,simGlobal.gameTicks);
+  int direction = carObjLocal->direction;
+  if (otherCarObjLocal->currentSpeed * direction + 0x280000 <
+      carObjLocal->currentSpeed * carObjLocal->direction) {
+    if (0xbffff < absDistance) goto LAB_80057f34;
+    AIScript_SubmitPlayerAction(&carObjLocal->script,
+                                otherCarObjLocal->carIndex,1,
+                                simGlobal.gameTicks);
   }
-  if ((iVar1 < 0xc0000) && (otherCarObj->laneIndex == carObj->laneIndex)) {
-    iVar2 = AIWorld_GameOdometer(otherCarObj);
-    iVar4 = AIWorld_GameOdometer(carObj);
-    if (iVar4 < iVar2) {
-      iVar2 = otherCarObj->carIndex;
-      AVar5 = 2;
+  if ((absDistance < 0xc0000) &&
+      (otherCarObjLocal->laneIndex == carObjLocal->laneIndex)) {
+    int otherOdometer = AIWorld_GameOdometer(otherCarObjLocal);
+    if (AIWorld_GameOdometer(carObjLocal) < otherOdometer) {
+      AIScript_SubmitPlayerAction(&carObjLocal->script,
+                                  otherCarObjLocal->carIndex,2,
+                                  simGlobal.gameTicks);
     }
     else {
-      iVar2 = otherCarObj->carIndex;
-      AVar5 = 3;
+      AIScript_SubmitPlayerAction(&carObjLocal->script,
+                                  otherCarObjLocal->carIndex,3,
+                                  simGlobal.gameTicks);
     }
-    AIScript_SubmitPlayerAction(&carObj->script,iVar2,AVar5,simGlobal.gameTicks);
   }
 LAB_80057f34:
-  if ((otherCarObj->swapCar == carObj) && (simGlobal.gameTicks - carObj->swapTime < 0xf)) {
-    iVar2 = AIWorld_GameOdometer(carObj);
-    iVar4 = AIWorld_GameOdometer(otherCarObj);
-    if (iVar4 < iVar2) {
-      iVar2 = otherCarObj->carIndex;
-      AVar5 = 4;
+  if ((otherCarObjLocal->swapCar == carObjLocal) &&
+      (simGlobal.gameTicks - carObjLocal->swapTime < 0xf)) {
+    int carOdometer = AIWorld_GameOdometer(carObjLocal);
+    if (AIWorld_GameOdometer(otherCarObjLocal) < carOdometer) {
+      AIScript_SubmitPlayerAction(&carObjLocal->script,
+                                  otherCarObjLocal->carIndex,4,
+                                  simGlobal.gameTicks);
     }
     else {
-      iVar2 = otherCarObj->carIndex;
-      AVar5 = 5;
+      AIScript_SubmitPlayerAction(&carObjLocal->script,
+                                  otherCarObjLocal->carIndex,5,
+                                  simGlobal.gameTicks);
     }
-    AIScript_SubmitPlayerAction(&carObj->script,iVar2,AVar5,simGlobal.gameTicks);
   }
-  if (((iVar1 < 0x1e0000) && ((otherCarObj->control).horn != '\0')) && (GameSetup_gData.Time == 0))
+  if (((absDistance < 0x1e0000) &&
+       ((otherCarObjLocal->control).horn != '\0')) &&
+      (GameSetup_gData.Time == 0))
   {
-    AIScript_SubmitPlayerAction(&carObj->script,otherCarObj->carIndex,6,simGlobal.gameTicks);
+    AIScript_SubmitPlayerAction(&carObjLocal->script,
+                                otherCarObjLocal->carIndex,6,
+                                simGlobal.gameTicks);
   }
   return;
 }

@@ -542,6 +542,7 @@ int AISpeeds_GetCaravanFactor(Car_tObj *carObj)
   Car_tObj *pCVar1;
   int desiredSpeedScaled;
   int desiredSpeedProduct;
+  int direction;
   int followBehindDist;
   int halfMaintainTime;
   u_int slot;   /* SYM name: slot */
@@ -564,8 +565,9 @@ int AISpeeds_GetCaravanFactor(Car_tObj *carObj)
          * keeps $s3 UNTOUCHED through this whole straight-line block (pure a0/a1/v0/v1
          * temps), so the aliasing was a register-identity bug that force-extended
          * f_caravan's live range and cascaded a whole-function coloring mismatch. */
-        desiredSpeedScaled = nextAICar->originalDesiredSpeed * carObj->direction;
-        desiredSpeedProduct = nextAICar->desiredSpeed * carObj->direction;
+        direction = carObj->direction;
+        desiredSpeedScaled = nextAICar->originalDesiredSpeed * direction;
+        desiredSpeedProduct = nextAICar->desiredSpeed * direction;
         if (desiredSpeedScaled < 0) {
           desiredSpeedScaled = desiredSpeedScaled + 0xff;
         }
@@ -618,8 +620,12 @@ LAB_8006e444:
   }
   if (carObj->caravanTimer < 0) {
     halfMaintainTime = CaravanInfo[slot].distanceMaintainTime32 / 2;
-    randtemp = (fastRandom * randSeed & 0xffff) * randSeed;
-    carObj->caravanTimer = halfMaintainTime + (halfMaintainTime * ((fastRandom * randSeed & 0xffff00) >> 8) >> 0x10);
+    randtemp = fastRandom * randSeed;
+    fastRandom = randtemp & 0xffff;
+    carObj->caravanTimer =
+         halfMaintainTime +
+         (halfMaintainTime * ((randtemp & 0xffff00) >> 8) >> 0x10);
+    randtemp = fastRandom * randSeed;
     fastRandom = randtemp & 0xffff;
     carObj->caravanFollowBehindDistanceMeters =
          (CaravanInfo[slot].minDistanceMeters +
@@ -628,17 +634,16 @@ LAB_8006e444:
   }
   if (((((int)slot < Cars_gNumAIRaceCars + -1) && (carObj->fallBehindCar == (Car_tObj *)0x0)) &&
       ((int)(u_int)(carObj->N).totalSlice < GameSetup_gData.numLaps * gNumSlices + -0x14d)) &&
-     ((1 < slot || (leaderBoard.leadRacer != (Car_tObj *)0x0)))) {
+     ((1 < slot || (leaderBoard.leadRacer != Cars_gHumanRaceCarList[0])))) {
     /* H36 (wave-21 real bug): oracle @0x8006e5b4-0x8006e638 continues past the fastRandom
      * re-seed with a stochastic "pick up a fall-behind car" roll gated by
      * CaravanInfo[slot].fallBackRandomTime_TickPercent * AI_elapsedTime, then calls
      * AISpeeds_GetPrevAICar and (if found) writes it into carObj->fallBehindCar. This whole
      * tail was previously dropped -- carObj->fallBehindCar could never be (re)acquired via
      * this path, a real gameplay bug (SYM locals tempRandom/prevAICar, block lines 133-142). */
-    tempRandom = fastRandom * randSeed;
-    randtemp = tempRandom;
-    fastRandom = tempRandom & 0xffff;
-    tempRandom = (tempRandom >> 8) & 0xffff;
+    randtemp = fastRandom * randSeed;
+    fastRandom = randtemp & 0xffff;
+    tempRandom = (randtemp >> 8) & 0xffff;
     if ((nextAICar == (Car_tObj *)0x0) || (nextAICar->fallBehindCar == (Car_tObj *)0x0)) {
       if (tempRandom < CaravanInfo[slot].fallBackRandomTime_TickPercent * (u_int)AI_elapsedTime) {
         prevAICar = AISpeeds_GetPrevAICar(carObj);

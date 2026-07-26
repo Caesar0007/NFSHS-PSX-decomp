@@ -95,17 +95,7 @@ extern int filesize(char *name)   /* @0x800E566C */
  * changing the emitted code.  Falsified this wave: hoisting the size/buf declarations to function
  * scope (no change), the inline `if (buf == 0) { close; return 0; }` early-out (64 insns / 32
  * diffs).  => allocno-priority tie of the class the fleet is tracking as the retail allocno_compare
- * delta; do NOT re-fight from source without new evidence about that delta.
- * w35-a5 -- the w35 PARAM-COPY DIAL (vramfxya: "a local copy of a param is a pure priority dial,
- * +2 weighted refs, no code change") DOES NOT APPLY HERE and the 22 stands.  Adding
- * `LoadArgs *aa = a;` and routing all five dereferences through `aa` leaves the -dl numbers
- * BIT-IDENTICAL (`a` still 6 refs / 62 insns, still ranked below `size` at 3 refs / 9), because
- * gcc-2.8 copy-propagates a copy of a pointer param that is only ever DEREFERENCED -- no second
- * reference survives to be counted.  The vramfxya dial works because those params are copied into
- * locals used as loop-carried VALUES, which keeps the copy insn alive.  The w35 IN-LOOP-DEF dial
- * is likewise unavailable: this fn has no loop, so no reference can be loop-weighted.  => the
- * "needs >=8 refs of `a`, or size live >=16 insns" arithmetic is unchanged and both new w35 dials
- * are ruled out on MECHANISM, not by trial. */
+ * delta; do NOT re-fight from source without new evidence about that delta. */
 extern void *loadfileadratomic(int retry, LoadArgs *a)   /* @0x800E56B0 */
 {
     int handle;

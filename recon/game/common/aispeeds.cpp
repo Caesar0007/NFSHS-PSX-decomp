@@ -975,38 +975,40 @@ int AISpeeds_GetLegalSpeed(int slice)
 /* ---- AISpeeds_RandomizeTrafficSpeed__FP8Car_tObji  [@0x8006ed50] ---- */
 int AISpeeds_RandomizeTrafficSpeed(Car_tObj *carObj,int oldsafe)
 {
-  /* H55: SYM names newsafe ($a1) and safeminus30 ($v1) -- was routed through an anonymous
-   * iVar1, and safeminus30 was never materialized as its own variable (the raw oracle computes
-   * `oldsafe + -0xd6666` ONCE, in the branch-entry delay slot, well before the comparison that
-   * uses it -- not inline at each of the two use sites). */
+  /* MATCH: safeminus30 is materialized once before oldsafe is shifted. Reusing
+   * oldsafe for the scaled result, and keeping the nonpositive-arm factor block
+   * local, reproduces the oracle's a1 result and asymmetric a0/v0 factor registers. */
   int newsafe;
   int safeminus30;
 
   if (0 < oldsafe) {
     safeminus30 = oldsafe + -0xd6666;
     newsafe = carObj->trafficSpeedRandomizingFactor;
+    oldsafe = oldsafe >> 8;
     if (newsafe < 0) {
       newsafe = newsafe + 0xff;
     }
-    newsafe = (oldsafe >> 8) * (newsafe >> 8);
-    if (newsafe < safeminus30) {
-      newsafe = safeminus30;
+    oldsafe = oldsafe * (newsafe >> 8);
+    if (oldsafe < safeminus30) {
+      oldsafe = safeminus30;
     }
-    if (newsafe < 0x8e666) {
-      newsafe = 0x8e666;
+    if (oldsafe < 0x8e666) {
+      oldsafe = 0x8e666;
     }
   }
   else {
+    int speedFactor;
     if (oldsafe < 0) {
       oldsafe = oldsafe + 0xff;
     }
-    newsafe = carObj->trafficSpeedRandomizingFactor;
-    if (newsafe < 0) {
-      newsafe = newsafe + 0xff;
+    speedFactor = carObj->trafficSpeedRandomizingFactor;
+    oldsafe = oldsafe >> 8;
+    if (speedFactor < 0) {
+      speedFactor = speedFactor + 0xff;
     }
-    newsafe = (oldsafe >> 8) * (newsafe >> 8);
+    oldsafe = oldsafe * (speedFactor >> 8);
   }
-  return newsafe;
+  return oldsafe;
 }
 
 /* ---- AISpeeds_CalcDesiredSpeed__FP8Car_tObj  [@0x8006eddc] ---- */
@@ -1293,11 +1295,13 @@ int AISpeeds_CalcHumanCurveSpeed(Car_tObj *carObj)
   else if (idx < 0) idx += gNumSlices;
   c = AIDataRecord_TrackCurve->Get(idx); if (best < c) best = c;
 
+  /* Keep the product temporary separate, then reuse `best` for the quotient:
+   * this is the oracle's a1 -> s0 handoff and gives an exact 183/183 match. */
   int scaled = best * 0x1a666;
   if (scaled < 0) scaled = scaled + 0xffff;
-  scaled = scaled >> 0x10;
-  if (0xff < scaled) scaled = 0xff;
-  return carObj->curveSpeedTable->Get(scaled);
+  best = scaled >> 0x10;
+  if (0xff < best) best = 0xff;
+  return carObj->curveSpeedTable->Get(best);
 }
 
 /* ---- AISpeeds_CalcHumanTopSpeed__FP8Car_tObj  [@0x8006f3f4] ---- RECONSTRUCTED 2026-06-12

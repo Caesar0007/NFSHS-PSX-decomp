@@ -743,23 +743,29 @@ Car_tObj * AILife_IsSliceInAnyVisibleArea(int slice)
    * pulled in an unneeded extra saved register (w22-a14). */
   int racerLoop;
   int sliceDist;
+  int maxDist;
   Car_tObj **ppCVar2;
 
   racerLoop = 0;
   ppCVar2 = Cars_gHumanRaceCarList;
-  while( true ) {
-    if (Cars_gNumHumanRaceCars <= racerLoop) {
-      return (Car_tObj *)0x0;
-    }
-    sliceDist = AIWorld_ApxSplineDistance((int)((*ppCVar2)->N).simRoadInfo.slice,slice);
-    if (sliceDist < 0) {
-      sliceDist = -sliceDist;
-    }
-    if (sliceDist <= 0xabffff) break;
-    ppCVar2 = ppCVar2 + 1;
-    racerLoop = racerLoop + 1;
+RACER_TEST:
+  if (Cars_gNumHumanRaceCars <= racerLoop) {
+    goto RACER_NOT_FOUND;
   }
+  sliceDist = AIWorld_ApxSplineDistance((int)((*ppCVar2)->N).simRoadInfo.slice,slice);
+  maxDist = 0xabffff;
+  if (sliceDist < 0) {
+    sliceDist = -sliceDist;
+  }
+  maxDist = maxDist < sliceDist;
+  if (maxDist != 0) goto RACER_CONTINUE;
   return *ppCVar2;
+RACER_CONTINUE:
+  ppCVar2 = ppCVar2 + 1;
+  racerLoop = racerLoop + 1;
+  goto RACER_TEST;
+RACER_NOT_FOUND:
+  return (Car_tObj *)0x0;
 }
 
 /* ---- AILife_IsSliceCloseToAnyCopCar__Fi  [@0x800688ac] ---- */
@@ -769,23 +775,29 @@ Car_tObj * AILife_IsSliceCloseToAnyCopCar(int slice)
    * fix as IsSliceInAnyVisibleArea (w22-a14). */
   int copLoop;
   int sliceDist;
+  int maxDist;
   Car_tObj **ppCVar2;
 
   copLoop = 0;
   ppCVar2 = Cars_gCopCarList;
-  while( true ) {
-    if (Cars_gNumCopCars <= copLoop) {
-      return (Car_tObj *)0x0;
-    }
-    sliceDist = AIWorld_ApxSplineDistance((int)((*ppCVar2)->N).simRoadInfo.slice,slice);
-    if (sliceDist < 0) {
-      sliceDist = -sliceDist;
-    }
-    if (sliceDist <= 0x31ffff) break;
-    ppCVar2 = ppCVar2 + 1;
-    copLoop = copLoop + 1;
+COP_TEST:
+  if (Cars_gNumCopCars <= copLoop) {
+    goto COP_NOT_FOUND;
   }
+  sliceDist = AIWorld_ApxSplineDistance((int)((*ppCVar2)->N).simRoadInfo.slice,slice);
+  maxDist = 0x31ffff;
+  if (sliceDist < 0) {
+    sliceDist = -sliceDist;
+  }
+  maxDist = maxDist < sliceDist;
+  if (maxDist != 0) goto COP_CONTINUE;
   return *ppCVar2;
+COP_CONTINUE:
+  ppCVar2 = ppCVar2 + 1;
+  copLoop = copLoop + 1;
+  goto COP_TEST;
+COP_NOT_FOUND:
+  return (Car_tObj *)0x0;
 }
 
 /* ---- AILife_IsPositionInAnyVisibleArea__FP8coorddef  [@0x8006894c] ---- */

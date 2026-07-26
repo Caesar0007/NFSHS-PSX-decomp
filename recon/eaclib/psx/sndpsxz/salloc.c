@@ -35,15 +35,18 @@ extern int iSNDischanreserved(int chan, int count)
  *   lowest-timestamp busy channels (stopping their current sound, rolling back on refusal).  Writes the
  *   allocation id to *out and returns the primary channel index, or -9 on failure.
  *     priority = channel-eligibility bitmask;  numChannels = voices needed;  a2 = a voice flag byte.
- * RAW/CROSS-VERSION REDUCTION (2026-07-26, 416->383 detailed diffs):
+ * RAW/CROSS-VERSION REDUCTION (2026-07-26, 416->274 detailed diffs; 298/298 instructions):
  *   NFS4 PC tagged_play.c, NFS3 isnd.c, NFS2b alloc2.c and PC-beta salloc.obj all confirm the two-pass
  *   selection/rollback/link algorithm.  The PSX oracle separately holds a bare sndgs base through each
  *   selection pass, so block-scoped bases reproduce those lifetimes; removing a redundant outer
  *   positive-count guard restores the raw pass-to-pass CFG; and the chosen-slot array is signed byte
  *   storage (`-1` sentinel), recovering the oracle's literal materialization without disturbing the
- *   exact iSNDischanreserved/iSNDgetchan neighbors.  Remaining bulk delta is dominated by one storage
- *   decision: retail spills numChannels in a caller-saved register across reservation calls, while this
- *   compile keeps it in $fp.  Raw nfs4-f.exe EEF64..EF40B SHA-256:
+ *   exact iSNDischanreserved/iSNDgetchan neighbors.  A pass-local pointer to the current chosen slot
+ *   keeps the selected-array lifetime live across the scan calls; that reproduces the retail 72-byte
+ *   frame and caller-saved numChannels spill/reload family.  Retail's eligibility test is a signed
+ *   `1 << c` expression (sllv/and), not the compiler-canonicalized unsigned srlv/andi form.  The
+ *   remaining delta is primarily the s6/s7 pass-base/reserved rotation and the sequence counter's
+ *   small-data placement.  Raw nfs4-f.exe EEF64..EF40B SHA-256:
  *   4af4cae9357cee8d5c94a064c543b15d4d1edb7a6f5d1c0d5ccd8c8f259740fc. */
 extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigned int *out)
 {
@@ -63,15 +66,16 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
     {
             unsigned char *gs = (unsigned char *)sndgs;
             for (i = 0; i < numChannels; i++) {
+                signed char *selected = sndchanreserved + reserved;
                 best = 0xffffffff;
                 c = 0;
                 if (gs[0x11] != 0) {
                     bestval = 0xffffffff;
                     off = 0;
                     do {
-                        if ((priority & (1u << (c & 0x1f))) != 0) {
+                        if ((priority & (1 << c)) != 0) {
                             int ch = *(int *)(gs + 0x94) + off;
-                            if (*(char *)(ch + 0xb) == 0 &&
+                            if (*(signed char *)(ch + 0xb) == 0 &&
                                 iSNDischanreserved(c, reserved) == 0) {
                                 v = *(unsigned int *)(ch + 0x10);
                                 if (v < bestval) { best = c; bestval = v; }
@@ -81,7 +85,7 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
                     } while ((int)c < (int)(unsigned)gs[0x11]);
                 }
                 if (-1 < (int)best) {
-                    sndchanreserved[reserved] = (unsigned char)best;
+                    *selected = (unsigned char)best;
                     reserved++;
                 }
             }
@@ -98,7 +102,7 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
                     c = 0;
                     off = 0;
                     do {
-                        if ((priority & (1u << (c & 0x1f))) != 0 &&
+                        if ((priority & (1 << c)) != 0 &&
                             iSNDischanreserved(c, reserved) == 0) {
                             int ch = *(int *)(gs + 0x94) + off;
                             if (*(unsigned char *)(ch + 0xc) < 0x65) {

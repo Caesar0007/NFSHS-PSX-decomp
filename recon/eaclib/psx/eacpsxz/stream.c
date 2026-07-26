@@ -114,7 +114,7 @@ extern void closecallback(int a0, int a1, int s);                          /* @0
 extern int  readcallback(int a0, int a1, int s);                           /* @0x800FC8A8 */
 extern int  startnextrequest(int s, unsigned int prio);                    /* @0x800FC9B4 */
 extern int  restartstream(int s, unsigned int prio);                       /* @0x800FCB44 */
-extern int  STREAM_get(int consumer, void *buf, int len);                  /* @0x800FD9AC */
+extern int  STREAM_get(int consumer);                                      /* @0x800FD9AC */
 extern void STREAM_release(int s, int consumer);                           /* @0x800FDAD0 */
 extern void STREAM_kill(int s);                                            /* @0x800FD808 */
 extern void STREAM_setgreedystate(int s, int state);                       /* @0x800FD2B4 */
@@ -1090,7 +1090,7 @@ reclaim:
                         unsigned int pos = MU(out[1], 0xc);
                         if (inbetween((unsigned int)s4, (unsigned int)s6, pos) != 0) {
                             do {
-                                STREAM_release(out[1], ((int (*)(int))STREAM_get)(out[1]));
+                                STREAM_release(out[1], STREAM_get(out[1]));
                                 if (MI(out[1], 8) < 1)
                                     break;
                                 pos = MU(out[1], 0xc);
@@ -1200,6 +1200,12 @@ extern void STREAM_kill(int s)
 }
 
 /* STREAM_get @0x800FD9AC : pop the next available chunk for a consumer, returning a pointer to its data
+ *   ARITY (w32-a10 prototype audit, R3): ONE arg.  All four call sites (STREAM_cancelrequest,
+ *   iSNDstreamhotroddatachunks, iSNDstreamservice, sst.c x2) set up $a0 only -- the a1/a2 the callee
+ *   passes to validatehandle() are its OWN &out[0]/&out[1], materialized inside.  eaclib.h and
+ *   video_externs.h already declared the 1-arg form; the 3-arg decl here was a stale-register artifact
+ *   patched over with `(void)buf;(void)len;` + a 1-arg fn-ptr cast at the call site -- all removed.
+ *   Diff-neutral (37 before and after), no neighbour regressions.
  *   (or 0 if none).  Advances the consumer's read cursor to the following same-tagged chunk.
  * RESIDUAL FLOOR (37 diffs, down from 51): fixed the final `MI(cons,0xc)=p` store to dereference
  *   `out[1]` directly instead of the cached `cons` local -- oracle reloads out[1] FRESH from the stack
@@ -1208,13 +1214,12 @@ extern void STREAM_kill(int s)
  *   `cons=out[1]` materialization picks a2 in ours vs a1 in oracle -- a pure allocator tie-break for
  *   the first fresh pseudo after the validatehandle() call (both regs equally dead/available); this
  *   ONE swap cascades through the whole function. Tried decl-order reshuffle (no effect). Accept. */
-extern int STREAM_get(int consumer, void *buf, int len)
+extern int STREAM_get(int consumer)
 {
     int out[2];
     int cons, chunk;
     unsigned int hdr;
     int *p;
-    (void)buf; (void)len;
 
     if (validatehandle(consumer, &out[0], &out[1]) != 0)
         return 0;

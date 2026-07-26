@@ -14,15 +14,19 @@ extern int gSysTaskCount;     /* live task count */
 extern int gSysTaskLastTick;  /* last tick the task list ran */
 extern int systemtasksubs[];    /* int[16*4] : 16 slots of {fn, period, deadline, busy} */
 
-extern int          addsystemtask(int taskFn, int period, int delay);        /* @0x800E6AF4 */
+extern void         addsystemtask(int taskFn, int period, int delay);        /* @0x800E6AF4 */
 extern void         delsystemtask(int fn);                                   /* @0x800E6BA8 */
 extern unsigned int systemtask(int arg1);                                    /* @0x800E6C04 */
 
-/* addsystemtask @0x800E6AF4 : register a periodic task (or update its slot); returns the running count.
+/* addsystemtask @0x800E6AF4 : register a periodic task (or update its slot).  VOID (w32-a10 prototype
+ *   audit): the tail `lw v0,gp; addiu v0,-1; sw v0,gp` is the re-entrancy counter's own decrement temp,
+ *   NOT a return funnel -- the value would be the count as it was on ENTRY (useless), 0/6 call sites
+ *   consume $v0, and 3 of the 5 other TUs already declare it `void`.  Codegen is byte-identical either
+ *   way (verified: 30 diffs before and after), so this is a correctness-only correction.
  *   Slot pick: an exact fn match always wins its slot; otherwise the first free slot — but when called
  *   re-entrantly (count>0 at entry) the first `count` free slots are skipped (count is decremented per
  *   skipped free slot, a plain register copy — only the +1/-1 bracket touches the global). */
-extern int addsystemtask(int taskFn, int period, int delay)
+extern void addsystemtask(int taskFn, int period, int delay)
 {
     int  fn;
     int  found;
@@ -67,7 +71,6 @@ extern int addsystemtask(int taskFn, int period, int delay)
         slot[2] = count;
     }
     gSysTaskCount = gSysTaskCount - 1;
-    return gSysTaskCount;
 }
 
 /* delsystemtask @0x800E6BA8 : remove the task whose fn matches.  PASS (w31-a5).

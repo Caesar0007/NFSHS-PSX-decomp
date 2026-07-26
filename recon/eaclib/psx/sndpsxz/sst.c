@@ -43,7 +43,7 @@ unsigned char sndStreamMap[64];  /* def @0x8013EA84 (owning TU; BSS; FIXME size 
 
 /* ---- stream.obj ring (the layer below; already reconstructed) ---- */
 extern void         STREAM_release(int strm, int chunk);
-extern int          STREAM_get(int consumer, void *buf, int len);
+extern int          STREAM_get(int consumer);
 extern int          STREAM_gettable(int strm);
 extern int          STREAM_state(int strm);
 extern int          STREAM_buffersize(int strm);
@@ -471,7 +471,7 @@ extern void iSNDstreamhotroddatachunks(void)
                          * this file). Cast the fn-ptr to a 1-arg signature at THIS call site only
                          * (§3.11/D "dropped call arg"); the 3-arg extern decl stays for any other
                          * caller in the codebase that DOES pass buf/len. */
-                        chunk = ((int (*)(int))STREAM_get)(MI(S, 4));
+                        chunk = STREAM_get(MI(S, 4));
                         if (chunk != 0) {
                             int bytes = *(int *)(chunk + 4);
                             total += bytes;
@@ -541,7 +541,7 @@ extern void iSNDstreamservice(void)
                     int chunk;
                     n--;
                     /* MATCH: only $a0 set at this call site too (§3.11/D dropped call arg). */
-                    chunk = ((int (*)(int))STREAM_get)(MI(S, 4));
+                    chunk = STREAM_get(MI(S, 4));
                     if (chunk != 0)
                         r = iSNDstreamparsechunk(S, chunk);
                     if (r == 0)

@@ -112,6 +112,12 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
      * suspected ALLOCNO_COMPARE DELTA already banked for sbdload/purge/start/serve (catalog SS-G,
      * "retail allocates constant-init short-lived locals into EARLIER callee-saved regs").  Route to
      * the toolchain-identity investigation; do NOT re-fight from source.
+     * w34 follow-up (post-movfxya): the DEAD-SET carrier (movfxya lever) does NOT dial refs here --
+     * `clutXm = 0; clutXm = real;` with the param dials removed gates 84 (= the plain {} form).
+     * Mechanism boundary now precise: loop.c COUNTS a dead set (set_in_loop, blocks move_movables)
+     * but REG_N_REFS is computed in flow AFTER dead-code deletion, so the deleted set adds NOTHING
+     * to allocno priority.  The dead-set device is a HOIST BLOCKER only, never a priority dial.
+     * The 68 allocno_compare-delta floor therefore survives today's new levers too.
      * Also tried and rejected this session: all 6! declaration orders of the local block (no effect --
      * decl order only breaks allocno-number TIES, and here no two priorities tie), and 1- and 2-deep
      * COPY CHAINS on clutXm/clutYm to raise THEIR ref counts instead (68 with the param copies, 84

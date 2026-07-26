@@ -18,6 +18,8 @@ extern unsigned int geti(void *p, char nbits);                 /* getm */
 extern int   shapedepth(unsigned char *shape);                 /* shpdepth */
 extern int   decodeansi(unsigned char **cursor);               /* textcode */
 extern int   decodeshiftjis(unsigned char **cursor);           /* isqrttbl (obj name misnomer) */
+extern int   decodeshiftjis2(unsigned char **cursor);          /* ALIAS-DEVICE TEST: same addr */
+extern int   decodeshiftjis3(unsigned char **cursor);          /* ALIAS-DEVICE TEST: same addr */
 extern void  blockclear(void *dst, int n);                     /* blkfill */
 extern void  inittextdraw(void);                                /* textpsx (game) */
 
@@ -112,6 +114,16 @@ extern void setfont(int fontId)
      * widening explicit in the source and emits retail's `lh`.  (`(int)flags` in the test, a bare
      * expression, and a separate masked temp all still give `lhu` -- it has to be the LOCAL's type.)
      *
+     * w34 follow-up: RESIDUAL 12 -> 2 (exact 100/100).  Cluster (a) SOLVED by inference, not a
+     * spelling: our cc1 provably cross-jumps identical hard-reg la-blocks (post-reload
+     * jump_optimize, no flag) and the compiler snapshot is CLOSED (w33-a7, byte-identical cc1s)
+     * -- so retail's three unmerged blocks CANNOT have referenced one symbol.  The three arms
+     * reference co-equal XDEFs decodeshiftjis/decodeshiftjis2/decodeshiftjis3 (defined
+     * sinfunc-style in isqrttbl.c; same linked bytes; real alias names unrecoverable).  Distinct
+     * symbol_refs make the blocks non-identical at every merge point; all three la's materialize
+     * and the branch polarities fall out.  Only cluster (b) below remains (2 diffs, re-confirmed:
+     * storing 0xA0 through cf gates 74).
+     * ---- pre-w34 history of cluster (a) ----
      * RESIDUAL 12, all in the decoder-selection tree, two causes:
      * (a) 10 = the 2-vs-3 `lui/addiu(decodeshiftjis)` materializations (retail never merges
      *     identical tails -- catalog SS-G old-gcc identity) plus the two branch POLARITIES that
@@ -161,12 +173,12 @@ extern void setfont(int fontId)
 
     notsjis:
         if (CFI(cf, 0x74) >= 0x100) {
-            decode = decodeshiftjis;                              /* large table => multi-byte */
+            decode = decodeshiftjis2;                             /* large table => multi-byte */
             goto decoded;
         }
         /* small glyph table: probe the encoded stream -- ANSI if the first code is < 0x100 */
         if (geti((void *)(fontId + 0x20), 2) >= 0x100) {
-            decode = decodeshiftjis;
+            decode = decodeshiftjis3;
             goto decoded;
         }
         decode = decodeansi;

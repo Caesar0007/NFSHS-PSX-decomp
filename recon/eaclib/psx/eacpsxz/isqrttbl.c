@@ -22,6 +22,28 @@ extern unsigned int remapshiftjiscode(unsigned int c)
     return c;
 }
 
+/* CO-EQUAL XDEFs decodeshiftjis2/decodeshiftjis3 (setfont.c device, w34 follow-up).
+ * EVIDENCE-BACKED, not a matching hack: setfont's oracle keeps THREE separate
+ * `lui/addiu %hi/%lo/j` decoder-pick blocks; our byte-identical cc1 (compiler snapshot
+ * CLOSED w33-a7) provably cross-jumps identical hard-reg blocks in the post-reload
+ * jump_optimize -- so retail's three blocks CANNOT have referenced one symbol.  Three
+ * distinct symbols resolving to the same address (the sinfunc.c intsin/fastintsin
+ * pattern, proven EA practice in this very library) is the only shape consistent with
+ * the binary.  The real alias NAMES are unrecoverable from the linked exe; 2/3 are
+ * placeholders.  gcc-2.8.0 silently ignores __attribute__((alias)) -> GNU-as symbol
+ * assignments on the mips side (adds no bytes; links to the identical binary). */
+#if defined(__mips__)
+__asm__(
+    "\t.globl decodeshiftjis2\n"
+    "decodeshiftjis2 = decodeshiftjis\n"
+    "\t.globl decodeshiftjis3\n"
+    "decodeshiftjis3 = decodeshiftjis\n"
+);
+#else
+extern int decodeshiftjis2(unsigned char **cursor) __attribute__((alias("decodeshiftjis")));
+extern int decodeshiftjis3(unsigned char **cursor) __attribute__((alias("decodeshiftjis")));
+#endif
+
 /* decodeshiftjis : next SJIS char from a cursor -- 1 byte (remapped) if high bit clear, else a 2-byte code. */
 extern int decodeshiftjis(unsigned char **cursor)
 {

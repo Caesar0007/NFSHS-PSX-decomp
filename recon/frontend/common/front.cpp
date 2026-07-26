@@ -1495,68 +1495,79 @@ extern "C" void Front_InitTrack__FR9tFEStream(tFEStream *streamData)
 extern "C" void Front_InitTraffic__FR9tFEStream(tFEStream *streamData)
 
 {
-  bool bVar1;
-  byte bTraffic;
-  short sVar2;
-  int iVar3;
-  void *pvVar4;
-  int iVar5;
+  /* SYM (nfs4-f-v3.txt @0x800293E0) `8c Function start`: streamData REGPARM $19
+     (s3), i REG $16 (s0, SHORT), bTraffic REG $4 (a0, BOOL), maxTraffic REG $6
+     (a2, SHORT), carModel AUTO -0x28 (sp+0x10), carColor AUTO -0x24 (sp+0x14).
+     The Ghidra bVar1/sVar2/iVar3/iVar5/sVar6 temps are NOT real locals. */
+  bool bTraffic;
   short maxTraffic;
-  short sVar6;
   short i;
   tCarModels carModel;
   char carColor;
-  
-  carColor = '\0';
-  sVar6 = 6;
-  if (frontEnd.gameMode == '\x01') {
-    sVar6 = 3;
+
+  carColor = ' ';
+  maxTraffic = 6;
+  if (frontEnd.gameMode == '') {
+    maxTraffic = 3;
   }
-  if ((frontEnd.raceType == '\x01') && (sVar6 = 2, (streamData->track).fTimeOfDay == '\x01')) {
-    sVar6 = 1;
-  }
-  bVar1 = frontEnd.traffic[(byte)frontEnd.pinkSlipsTrackIndex] != '\0';
-  if ((byte)frontEnd.raceType < 2) {
-    if ((frontEnd.carListType == '\0') && (frontEnd.raceType == '\0')) {
-      bVar1 = true;
+  if (frontEnd.raceType == '') {
+    maxTraffic = 2;
+    if ((streamData->track).fTimeOfDay == '') {
+      maxTraffic = 1;
     }
-    else if (frontEnd.raceType == '\x01') {
-      bVar1 = frontEnd.traffic[0] != '\0';
+  }
+  bTraffic = frontEnd.traffic[(byte)frontEnd.pinkSlipsTrackIndex] != ' ';
+  /* MATCH: a SWITCH, not an if/else chain -- the oracle dispatches with
+     `bltz raceType,default` + `slti raceType,2` + `beq raceType,6`, i.e. gcc's
+     emit_case_nodes bound test against the PROMOTED int index type (an if-chain
+     on the `char` field can never emit the bltz, and `(byte)x < 2` gives sltiu).
+     The empty `case 6:` is required for the 3-node tree. */
+  switch (frontEnd.raceType) {
+  case 0:
+  case 1:
+    if ((frontEnd.carListType == ' ') && (frontEnd.raceType == ' ')) {
+      bTraffic = true;
+    }
+    else if (frontEnd.raceType == '') {
+      bTraffic = frontEnd.traffic[0] != ' ';
     }
     if (2 < (streamData->trackInfo).fTrackDifficulty) {
-      bVar1 = false;
+      bTraffic = false;
     }
-    if ((streamData->trackInfo).fIsEgg != '\0') {
-      bVar1 = false;
+    if ((streamData->trackInfo).fIsEgg != ' ') {
+      bTraffic = false;
     }
-    if (frontEnd.gameMode == '\x01') {
-      if (frontEnd.raceType == '\x01') {
-        bVar1 = false;
+    if (frontEnd.gameMode == '') {
+      if (frontEnd.raceType == '') {
+        bTraffic = false;
       }
     }
-    else if (frontEnd.oppNumber == '\x02') {
-      bVar1 = false;
+    else if (frontEnd.oppNumber == '') {
+      bTraffic = false;
     }
+    break;
+  case 6:
+    break;
+  default:
+    bTraffic = false;
+    break;
   }
-  else if (frontEnd.raceType != '\x06') {
-    bVar1 = false;
-  }
-  if ((bVar1) && (streamData->numTraffic = 0, sVar6 != 0)) {
-    iVar3 = 0;
-    do {
-      iVar5 = iVar3 + 1;
-      carModel = (tCarModels)(byte)(streamData->trackInfo).fTrafficCars[(short)iVar3];
-      iVar3 = iVar5;
-      if (5 < iVar5 * 0x10000 >> 0x10) {
-        iVar3 = 0;
-      }
-      if (!IsCarAnAddedModel(&carManager, &carModel,&carColor)) {
-        AddCarToIngameList(&carManager, &carModel,&carColor);
-      }
-      streamData->trafficCars[streamData->numTraffic] = (u_short)carModel;
-      sVar2 = streamData->numTraffic + 1;
-      streamData->numTraffic = sVar2;
-    } while (sVar2 < sVar6);
+  if (bTraffic) {
+    i = 0;
+    streamData->numTraffic = 0;
+    if (maxTraffic != 0) {
+      do {
+        carModel = (tCarModels)(byte)(streamData->trackInfo).fTrafficCars[i++];
+        if (5 < (int)i) {
+          i = 0;
+        }
+        if (!IsCarAnAddedModel(&carManager, &carModel,&carColor)) {
+          AddCarToIngameList(&carManager, &carModel,&carColor);
+        }
+        streamData->trafficCars[streamData->numTraffic] = (u_short)carModel;
+        streamData->numTraffic = streamData->numTraffic + 1;
+      } while (streamData->numTraffic < maxTraffic);
+    }
   }
   return;
 }

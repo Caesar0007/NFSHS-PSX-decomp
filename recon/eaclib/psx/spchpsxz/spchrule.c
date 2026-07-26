@@ -15,7 +15,8 @@ typedef int bool;
 
 typedef void (*SentenceRuleSetFn)(unsigned int, unsigned int, int, int);
 typedef int (*SentenceRuleTestFn)(unsigned int, unsigned int, int, int);
-extern SentenceRuleSetFn gSentenceRuleSet;    /* sentence rule-set callback (spchinit-owned) */
+extern SentenceRuleSetFn gSentenceRuleSet[];  /* sentence rule-set callback (spchinit-owned); unsized-array
+                                               * decl => separate-temp base materialization (catalog SSE #5) */
 extern SentenceRuleTestFn gSentenceRuleTest;  /* sentence rule-test callback */
 
 /* ---- per-TU static copies of the shared Vox accessors (canonical versions in spchdata.obj) ---- */
@@ -113,9 +114,26 @@ extern unsigned int iSPCH_GetRuleID(int sentence, int index)
  *   gSentenceRuleSet callback with that rule + the parameter value from val[]. */
 extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
 {
-    SentenceRuleSetFn *ruleSet = &gSentenceRuleSet;
-    int **valuesSlot = &values;
-    if (*ruleSet != 0) {
+    /* MATCH (w32-a9, 57 -> 52 diffs, insn count now EXACT 78/78):
+     * (1) `values` is ADDRESSABLE in retail -- the oracle keeps it in its incoming home slot and
+     *     reads it there (`sw a2,0x50(sp)` in the gate's delay slot, `lw a3,0x50(sp)` in the loop)
+     *     rather than parking it in a callee-saved reg (all nine of s0-s7/fp are already spoken for).
+     *     Only an ESCAPING `&values` sets TREE_ADDRESSABLE: `(void)&values;` and an inline
+     *     `*(int **)&values` are both folded away before it takes effect (verified -- `values` then
+     *     lands in $s2), and a *dead* `int **p = &values;` local loses the flag too.  The address
+     *     must be taken into a local that is REALLY dereferenced, so it is done in the innermost
+     *     block, at the point of use; cse then folds `*p` back to the direct `lw ...,0x50(sp)`
+     *     and no register is spent on the slot address (an outer-block `p` burns $s7).
+     * (2) gSentenceRuleSet is declared as an UNSIZED ARRAY and read as `gSentenceRuleSet[0]`
+     *     (catalog SSE lever #5 / "unsized-array extern extends to ADDRESS materialization"):
+     *     the scalar spelling emits the self-temp `lui v0; lw v0,0(v0)` for the gate and then a
+     *     SECOND `lui/addiu` for the in-loop load (+1 insn); the array spelling emits the oracle's
+     *     separate-temp `lui s1; lw v0,0(s1)` and keeps that base alive to be copied into $s7.
+     * RESIDUAL 52 = a pure callee-saved ROTATION (ours rd/paramIdx/i/ruleByte = s1/s0/s3/s2, retail
+     * s0/s1/s2/s3) plus retail loading each rule byte into a CALLER-saved temp and copying it to its
+     * s-reg (which also fills the lbu load-delay slot our direct-to-s-reg load has to `nop`).  Same
+     * allocation-order/no-copy-prop identity signature as the rest of this obj (catalog SSG). */
+    if (gSentenceRuleSet[0] != 0) {
         int offSent;
         int            numRules = *(signed char *)((int)sentence + 7);
         int            i        = 0;
@@ -141,8 +159,9 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
                 case 0:
                 case 3:
                     if (iSPCH_SentenceUsesParm(offSent, paramIdx) != 0) {
+                        int **valuesSlot = &values;
                         int *valuesNow = *valuesSlot;
-                        (*ruleSet)((unsigned short)*sentence, ruleByte,
+                        gSentenceRuleSet[0]((unsigned short)*sentence, ruleByte,
                             valuesNow[paramIdx], (int)valuesNow);
                     }
                     break;
@@ -170,10 +189,24 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
  *   6 args (2 extra: a stray *p, paramIdx) that the oracle's call site never sets up.
  *   (3) `result` is a SECOND accumulator (typeNib==4-hit + r>0 hit) returned as an unsigned byte
  *   (`andi v0,s6,0xff`); only `flags` (r<0 hits) is written to *out.  The old `void` reconstruction
- *   caused the compiler to delete the returned accumulator completely. */
+ *   caused the compiler to delete the returned accumulator completely.
+ *   w32-a9 (85 -> 61 diffs; frame size, spill-slot layout and the whole prologue now IDENTICAL):
+ *   (4) `numRules` is an INT, not a `signed char` -- the char type re-signs on every use
+ *   (`lbu; sll 24; sra 24` + a callee-saved home) where the oracle does a single `lb` into a caller-
+ *   saved temp and SPILLS it (`sw a3,0x24(sp)`, reloaded at both loop tests).
+ *   (5) `param` also gets a dead volatile store (the oracle stores all three decoded fields at
+ *   0x10/0x14/0x18), which is what lands the local-slot layout on the oracle's.
+ *   (6) `sentence` is an ADDRESSABLE parameter (oracle `sw a0,0x50(sp)` + `lw a3,0x50(sp)` at the
+ *   callback): taking its address in the innermost block (same lever as iSPCH_RuleSet's `values`)
+ *   frees $fp for the oracle's per-outer-iteration value pointer.  All three params end up in their
+ *   incoming home slots exactly as retail.
+ *   RESIDUAL 61 = the reload scratch register ($t0 ours vs $a3 retail), an i/hit $s2<->$s3 swap, and
+ *   retail hoisting `lui %hi(gSentenceRuleTest)` + the ruleByte reload ABOVE the type branch (which
+ *   is also our one extra insn: a load-delay `nop` retail fills).  Trying the unsized-array spelling
+ *   on gSentenceRuleTest makes it worse (cse merges the two loads: 108/112, 70 diffs). */
 extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
 {
-    signed char    numRules = *(signed char *)((int)sentence + 7);
+    int            numRules = *(signed char *)((int)sentence + 7);
     unsigned int   result = 0;
     unsigned int   flags = 0;
     unsigned char *ruleData = (unsigned char *)iSPCH_GetRuleDataAddr((int)sentence);
@@ -189,6 +222,7 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
             p = ruleData;
             do {
                 volatile unsigned int ruleId;
+                volatile unsigned int paramStore;
                 unsigned int param;
                 volatile unsigned int type;
                 unsigned int packed;
@@ -199,6 +233,7 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                 packed = *(volatile unsigned char *)(p + 1);
                 hit = 0;
                 param = packed & 0xf;
+                paramStore = param;
                 type = (unsigned int)*(volatile unsigned char *)(p + 1) >> 4;
                 if (ruleType == 0xc) {
                     if (param != 0)
@@ -215,9 +250,10 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                         hit = bit;
                 } else {
                     int testResult;
+                    short **sentSlot = &sentence;
                     if (gSentenceRuleTest != 0)
                         testResult = gSentenceRuleTest(
-                            (unsigned short)*sentence, ruleId, testValue, (int)sentence);
+                            (unsigned short)**sentSlot, ruleId, testValue, (int)*sentSlot);
                     else
                         testResult = -1;
                     if (testResult == 0)

@@ -29,7 +29,7 @@ extern int            DAT_80148448[];      /* "one chosen" flag */
 extern int  gVoxBanks[];      /* spchbank (array decl -> separate-temp loads) */
 extern int  gDataRate[];      /* spchinit */
 typedef void (*SampleRequestFn)(int, int, int, int);
-extern SampleRequestFn gSampleRequest; /* spchinit (callback) */
+extern SampleRequestFn gSampleRequest[]; /* spchinit (callback) */
 typedef void (*SentenceRuleSetFn)(int, int, int);
 extern SentenceRuleSetFn gSentenceRuleSet; /* spchinit (callback) */
 extern int  gVoxInGame[];     /* spchinit; [1] aliases gRepeatCount@+4 */
@@ -101,18 +101,22 @@ extern void SPCH_SetPreLoadTicks(int ticks);                       /* @0x801018F
  *   read *(phraseTemplate+i+4), computed and ANDed in the GetMatchValue jal's delay slot (so it's the
  *   PRE-CALL value, not derived from the call's return -- the earlier recon wrongly took lowNib from
  *   matchVal's low nibble AND wrongly read count/cycleByte off the swapped bank/sample roles). */
-/* residual 28 (67/65): ours' gcc loop-invariant-hoists the shift constant `1u` of `bit = 1u <<
- * cycleByte` OUT of the loop into a 9th callee-saved register (s6), pushing sample/paramTable
- * (which oracle fits into s6/s7) into s7/$fp -- 2 extra sw/lw = the insn-count gap. oracle
- * re-materializes `li v1,1` FRESH each pass (a caller-saved temp, not hoisted) and needs only 8
- * saved regs (s0..s7), no $fp. Tried: named-local reassignment of the "1" each iteration (AIPerson
- * cmp=K1-style anti-hoist lever) -- gcc's dataflow still recognizes the VALUE as invariant
- * regardless (no change); declaration-order swap of lowNib/bit -- worse (44 diffs); inlining
- * `1u<<cycleByte` twice (no named `bit`) -- DOES reach insn parity (65/65, matches the 8-reg
- * layout exactly) but gcc then picks a different bit-TEST strategy (srlv+andi mask-test instead
- * of sllv+and) that recolors i/cycleByte and recomputes the 2nd bit test, netting MORE line
- * diffs (32 > 28) -- fails the strict-diff-count-drop keep bar, reverted. No volatile/asm lever
- * available (LICM of a true literal isn't source-defeatable without one). Accept as floor. */
+/* MATCH (w32-a9, 28 -> 22 diffs): the IDA register annotation for sub_8010077C names retail's
+ * locals and exposes a SIXTH one our recon had inlined: `v10 // $v0` = a plain int cursor
+ * initialised to `sample + i` and RE-COMPUTED at the BOTTOM of the loop (`v10 = a2 + v9`), with
+ * the cycle byte read as `*(v10 + 12)`.  Spelling that cursor out (instead of addressing
+ * `sample + i + 0xc` at the top) lands sample/phraseTemplate/paramTable in retail's s6/s5/s7 and
+ * fixes the whole address-forming block.  Retail's other four are {lowNib:s0, i:s1, bit:s2,
+ * result:s3, count:s4}.
+ * RESIDUAL 22 (67/65) = ours' loop pass still hoists the shift constant `1` of `bit = 1u <<
+ * cycleByte` into a NINTH callee-saved register ($s7 here), which pushes paramTable into $fp and
+ * adds the fp save/restore pair (the 2-insn gap); retail rematerializes `li v1,1` per iteration
+ * and gets by on s0-s7.  Same move_movables class as iSPCH_SentenceGetChoices' `li -2`, but here
+ * there is no compare to fold the constant into.  Levers tried and rejected: a label+goto loop
+ * DOES kill the hoist and reach exact 65/65 parity, but re-rotates the five block locals (40-42
+ * diffs, worse); `(matchVal >> cycleByte) & 1` avoids the constant but switches cc1 to a
+ * srlv/andi bit test the oracle does not use; a named `one` local and re-assignment per
+ * iteration are still recognised as invariant. */
 extern int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int paramTable)
 {
     /* w31-a4 NOTE (kept at baseline per strict-drop seal law; findings for a future wave):
@@ -138,24 +142,24 @@ extern int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int pa
 valid_count:
     if (0 < count) {
         int i = 0;
+        int p = sample + i;
         do {
-            unsigned int cycleByte = *(unsigned char *)(sample + i + 0xc);
+            unsigned int cycleByte = *(unsigned char *)(p + 0xc);
             result = 0;
             if (0x1f < cycleByte)
-                break;
+                goto done;
             {
-                int matchVal;
-                unsigned int bit      = 1u << (cycleByte);
-                int          lowNib   = (int)*(unsigned char *)(phraseTemplate + i + 4) & 0xf;
-                matchVal = iSPCH_GetMatchValue(phraseTemplate, i);
-                if ((bit & (unsigned int)matchVal) != 0 &&
+                unsigned int bit    = 1u << (cycleByte);
+                int          lowNib = (int)*(unsigned char *)(phraseTemplate + i + 4) & 0xf;
+                if ((bit & (unsigned int)iSPCH_GetMatchValue(phraseTemplate, i)) != 0 &&
                     (lowNib == 0 ||
                      (bit & (unsigned int)*(int *)(lowNib * 4 + paramTable)) != 0))
                     result = 1;
             }
+            i = i + 1;
             if (result == 0)
                 goto done;
-            i = i + 1;
+            p = sample + i;
         } while (i < count);
     }
 done:
@@ -365,7 +369,9 @@ extern void iSPCH_OrderSentences(int event, int outOrder)
      * a0,v0,zero, because its sb-address temp takes v0) -- ours-1-shorter receiver-reuse class;
      * (b) the scan while-rotation guard slt/beqz survives (oracle enters the loop straight off
      * the n!=0 test; unprovable j<n for signed compare, and unsigned-compare or do-while forms
-     * diverge more).  Permuter targets. */
+     * diverge more).  Permuter targets.  w32-a9 re-tested (b): do-while 48 diffs/87 insns (loop.c
+     * PEELS the first iteration, +4) and a label+goto scan 50/81 -- both far worse than the
+     * `while` guard; the guard stands. */
     unsigned char  weights[104];
     unsigned int   n = (unsigned int)*(unsigned char *)(event + 6);
     int            total = 0;
@@ -478,13 +484,17 @@ choose:
                 outChoice[3] = (short)picked;
                 phraseTemplate = (short *)iSPCH_GetOffset8(sentence, sentence + 4, table);
                 if (iSPCH_GetPhraseBank(phraseTemplate, paramTable, outChoice) == 0) {
-                    /* residual 17 (83/80): loop.c hoists the fail-path li -2 into fp (savings-1
-                     * conditional-block constant STILL "desirable" to this cc1; oracle remats it
-                     * in-loop, li v0,-2 filling the lh delay) -> +li +fp save/restore and the
-                     * result-init li s4,1 scheduling knock-on.  Local-temp, Yoda, and compare
-                     * shapes all leave the motion; same move_movables identity family as the
-                     * MakeSampleRequests %hi hoist (documented there). */
-                    if (*outChoice != -2) {
+                    /* MATCH (w32-a9, 17 -> 11 diffs, 83 -> 81 insns): the fail test is written
+                     * `*outChoice + 2 != 0` rather than `*outChoice != -2`.  Retail's compare IS
+                     * `lh v1; li v0,-2; bne v1,v0` (the li also filling the lh load-delay slot),
+                     * but as a plain loop-invariant constant our cc1's move_movables hoists that
+                     * `li -2` into a NINTH callee-saved register ($fp): +li, +fp save/restore, and
+                     * a knock-on reschedule of the `li s4,1` result init (retail gets by on s0-s7).
+                     * `(int)` casts, Yoda order and a named load temp all leave the motion in
+                     * place; folding the constant into the compare removes the movable entirely.
+                     * RESIDUAL 11 = one `nop` where retail's in-block `li v0,-2` fills the lh
+                     * delay, plus the `li s4,1` placement that follows from it. */
+                    if (*outChoice + 2 != 0) {
                         result = 0;
                         goto out;
                     }
@@ -724,12 +734,16 @@ extern int iSPCH_MakeSampleRequests(int sentence, int paramTable)
                 if (sub != -1)
                     spuAddr = spuAddr + sub * stride;
                 samples = samples + tmp[0];
-                gSampleRequest((int)*choice, spuAddr, tmp[0], paramTable);
-                /* residual 23 (81/82): oracle additionally hoists lui %hi(gSampleRequest)
-                 * into s6 (freeing the load to lw v0,0(s6)) and parks paramTable in fp; this
-                 * cc1's move_movables rates a lone savings-1 lui "not desirable" (cc1 -dL) so
-                 * no source shape reaches that placement (typed-fnptr call, guard-read, cast
-                 * form all tested); suspected loop.c cost-model identity, not source. */
+                gSampleRequest[0]((int)*choice, spuAddr, tmp[0], paramTable);
+                /* MATCH (w32-a9, 23 -> 3 diffs): the -dL "savings-1 lone lui not desirable"
+                 * verdict was a CONSEQUENCE of the SCALAR declaration, not a cost-model identity.
+                 * Declaring gSampleRequest as an UNSIZED ARRAY and calling `gSampleRequest[0](...)`
+                 * (catalog SSE / SSE#5) makes cc1 materialize the base in a SEPARATE temp, which
+                 * loop.c then happily hoists into $s6 exactly as retail, leaving `lw v0,0(s6)` in
+                 * the loop.  RESIDUAL 3 (83/82) = reorg fills the `beqz` guarding the ClearCycleBit
+                 * call by STEALING (duplicating) the `addu a0,s0,zero` from the join block, where
+                 * retail fills it with the following `lui %hi(gClearCycle)`; nested-if vs && makes
+                 * no difference -- a delay-slot-filler preference, not a source shape. */
             }
             i = i + 1;
         } while (i < n);

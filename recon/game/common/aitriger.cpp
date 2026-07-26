@@ -78,16 +78,16 @@ int AITrigger_TriggerManager::InsertTrigger(trigger_t *trigger,bool fromFile)
     size = trigger->trafficPath.numPoints * sizeof(trigger_pathPosition_t) + 0x40;
     goto LAB_80072a14;
   }
-  if (iVar1 == 2) {
-    size = 0x14;
-  }
-  else if (iVar1 < 3) {
-    if (iVar1 == 1) {
+  switch (iVar1) {
+    case 1:
       size = 0x14;
-    }
-  }
-  else if (iVar1 == 3) {
-    size = 0x48;
+      break;
+    case 2:
+      size = 0x14;
+      break;
+    case 3:
+      size = 0x48;
+      break;
   }
   this->triggers_[this->numTriggers_] = trigger;
 LAB_80072a14:

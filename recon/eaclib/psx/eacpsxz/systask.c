@@ -53,22 +53,34 @@ extern void addsystemtask(int taskFn, int period, int delay)
         }
     }
     if (found != -1) {
-        /* MATCH (w31-a5: 38->30 diffs, exact 45/45 count; RESIDUAL 30 = ONE uniform 3-register
-         * rotation {found,i,count}: ours (a3,v1,a0) vs retail (v1,a0,a3) -- greg-dump-verified as a
-         * global-alloc PRIORITY-ORDER tie (ours allocates i>count>found, retail needs found>i>count;
-         * count carries a spurious preference for $a0).  Emission/structure otherwise identical.
-         * Permuter territory -- no manual lever found (register kw, minusOne copy, deadline temp,
-         * struct-index, decl/statement orders all tested via -dg/-dl scratch harness).
-         *   (1) `- (-(found * 4))` == `+ found * 4` (found is 0..15, no overflow) but the extra neg
-         *       RTL temp keeps the tail's fresh base rematerialization;
-         *   (2) the dead `count` is reused as the deadline temp (a NEW named temp would add a pseudo
-         *       and re-color the head -- the catalog "any-new-pseudo-recolors-head" trap). */
-        slot = (int *)&systemtasksubs - (-(found * 4));
-        count = libticks + delay;              /* MATCH: libticks read AT its use inside the if */
-        slot[0] = fn;
-        slot[1] = period;
-        slot[3] = 0;
-        slot[2] = count;
+        /* MATCH (w33-a4: 30 -> 0.  The w31/w32 residual was ONE uniform 3-register rotation
+         * {found,i,count}: ours (a3,v1,a0) vs retail (v1,a0,a3).  It is NOT a coin flip -- the
+         * greg/lreg dumps make gcc-2.8's global allocator fully predictable here:
+         *   priority = floor_log2(n_refs)*n_refs/live_length  (allocno_compare), and find_reg
+         *   then skips any hard reg that a CONFLICTING allocno *prefers* (regs_someone_prefers).
+         * Retail's assignment falls out of exactly TWO source facts, both encoded below:
+         *  (a) the tail SLOT POINTER lives in `found`'s own pseudo (retail: `sll v1,v1,4` shifts
+         *      found IN PLACE and the four stores use $v1).  Writing it to a separate `slot`
+         *      variable creates a 5th allocno that is allocated BEFORE found (7 refs / 6 insns =
+         *      the highest priority in the function), steals $v1, and pushes found down to $a3.
+         *      Reusing `found` merges the two: its refs go 9 -> 14, and the $v1 preference the
+         *      pointer carries becomes FOUND's preference.  Hence the `(int)`/`(int *)` casts --
+         *      they are the only way to keep one C variable across the index->pointer change.
+         *  (b) the deadline temp reuses `taskFn` (the loop counter i), NOT `count`.  The libticks
+         *      load is locally allocated to $a0, and whichever variable receives `libticks+delay`
+         *      inherits a preference for $a0 -- that is retail's i-in-$a0.  With `count` as the
+         *      temp (w31/w32 shape) the preference landed on count and the pair swapped.
+         * (c) `base` must be a BLOCK-LOCAL fresh materialization and the add must be written
+         *      `found*4 + base` (index first): as `base + found*4` gcc emits the commuted
+         *      `addu v1,v0,v1`, and hoisting the base out of the if-block emits the `sll` before
+         *      the `lui/addiu` pair (catalog: join-block fresh materialization + operand order). */
+        int *base = (int *)&systemtasksubs;
+        found  = (int)((found * 4) + base);    /* slot pointer, in found's own register */
+        taskFn = libticks + delay;             /* MATCH: libticks read AT its use inside the if */
+        ((int *)found)[0] = fn;
+        ((int *)found)[1] = period;
+        ((int *)found)[3] = 0;
+        ((int *)found)[2] = taskFn;
     }
     gSysTaskCount = gSysTaskCount - 1;
 }

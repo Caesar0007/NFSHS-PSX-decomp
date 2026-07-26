@@ -1456,10 +1456,10 @@ void AI_CalculateAdjustedDesiredSpeed(Car_tObj *carObj)
   int Vrel_hit;
   int Vlane;
   int finalLaneSpeed;
-  int iVar2;
+  int a;
+  int b;
 
   carObjLocal = carObj;
-  iVar2 = AI_Info.laneSpeeds[1];
   if (((AI_Info.desiredLane != carObjLocal->laneIndex) && (AI_Info.blockingCars[1] != (Car_tObj *)0x0))
      && ((AI_Info.blockingCars[1]->N).deadTimer == 0)) {
     Drel_hit = AIWorld_SplineDistance(carObjLocal,AI_Info.blockingCars[1]);
@@ -1477,34 +1477,41 @@ void AI_CalculateAdjustedDesiredSpeed(Car_tObj *carObj)
     if (Dlane < 1) {
       Dlane = carObjLocal->roadPosition - carObjLocal->desiredLatPos;
     }
-    Vlane = AIWorld_CalcLateralVelocity(carObjLocal);
-    if (0 < Vlane) {
+    if (0 < AIWorld_CalcLateralVelocity(carObjLocal)) {
       Vlane = AIWorld_CalcLateralVelocity(carObjLocal);
     }
     else {
       Vlane = -AIWorld_CalcLateralVelocity(carObjLocal);
     }
-    Dlane = fixedmult(Dlane,Vrel_hit);
-    Vlane = fixedmult(Drel_hit,Vlane);
-    Dlane = fixedmult(Dlane,0x13333);
-    iVar2 = AI_Info.laneSpeeds[1];
-    if ((Dlane < Vlane) &&
-        (iVar2 = AI_Info.laneSpeeds[0],
-         carObjLocal->laneIndex < AI_Info.desiredLane)) {
-      iVar2 = AI_Info.laneSpeeds[2];
+    a = fixedmult(Dlane,Vrel_hit);
+    b = fixedmult(Drel_hit,Vlane);
+    a = fixedmult(a,0x13333);
+    if (a < b) {
+      if (AI_Info.desiredLane > carObjLocal->laneIndex) {
+        finalLaneSpeed = AI_Info.laneSpeeds[2];
+      }
+      else {
+        finalLaneSpeed = AI_Info.laneSpeeds[0];
+      }
+    }
+    else {
+      finalLaneSpeed = AI_Info.laneSpeeds[1];
     }
   }
+  else {
+    finalLaneSpeed = AI_Info.laneSpeeds[1];
+  }
   if (carObjLocal->direction == 1) {
-    if (iVar2 < carObjLocal->desiredSpeed) {
-      carObjLocal->desiredSpeed = iVar2;
+    if (finalLaneSpeed < carObjLocal->desiredSpeed) {
+      carObjLocal->desiredSpeed = finalLaneSpeed;
     }
     if (carObjLocal->desiredSpeed < -0x14ccc) {
       carObjLocal->desiredSpeed = -0x14ccc;
     }
   }
   else {
-    if (carObjLocal->desiredSpeed < iVar2) {
-      carObjLocal->desiredSpeed = iVar2;
+    if (carObjLocal->desiredSpeed < finalLaneSpeed) {
+      carObjLocal->desiredSpeed = finalLaneSpeed;
     }
     if (0x14ccc < carObjLocal->desiredSpeed) {
       carObjLocal->desiredSpeed = 0x14ccc;

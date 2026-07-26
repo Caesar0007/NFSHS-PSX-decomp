@@ -535,7 +535,7 @@
 	 nop
 	 nop
 	 nop") ("=r") 0[ ] 
-                    [ ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 206))
+                    [ ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 247))
             (clobber (reg:QI 8 t0))
             (clobber (reg:QI 1 at))
         ] ) -1 (nil)
@@ -871,7 +871,7 @@
         ] 
         [ 
             (asm_input:SI ("r"))
-        ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 232) -1 (nil)
+        ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 273) -1 (nil)
     (expr_list:REG_DEAD (reg/v:SI 13 t5)
         (nil)))
 
@@ -3911,7 +3911,7 @@
 	 nop
 	 nop
 	 nop") ("=r") 0[ ] 
-                    [ ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 668))
+                    [ ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 709))
             (clobber (reg:QI 8 t0))
             (clobber (reg:QI 1 at))
         ] ) -1 (insn_list 20 (insn_list 17 (insn_list 19 (insn_list 12 (insn_list 13 (insn_list 22 (insn_list 24 (insn_list 14 (nil)))))))))
@@ -4319,7 +4319,7 @@
         ] 
         [ 
             (asm_input:SI ("r"))
-        ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 694) -1 (nil)
+        ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 735) -1 (nil)
     (expr_list:REG_DEAD (reg/v:SI 9 t1)
         (nil)))
 
@@ -4871,7 +4871,7 @@
 	 nop
 	 nop
 	 nop") ("=r") 0[ ] 
-                    [ ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 789))
+                    [ ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 830))
             (clobber (reg:QI 8 t0))
             (clobber (reg:QI 1 at))
         ] ) -1 (insn_list 11 (nil))
@@ -5238,7 +5238,7 @@
         ] 
         [ 
             (asm_input:SI ("r"))
-        ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 812) -1 (nil)
+        ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 853) -1 (nil)
     (expr_list:REG_DEAD (reg/v:SI 16 s0)
         (nil)))
 
@@ -5562,7 +5562,7 @@
         ] 
         [ 
             (asm_input:SI ("r"))
-        ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 836) -1 (nil)
+        ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 877) -1 (nil)
     (expr_list:REG_DEAD (reg/v:SI 16 s0)
         (nil)))
 
@@ -8000,7 +8000,7 @@
 	 nop
 	 nop
 	 nop") ("=r") 0[ ] 
-                    [ ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 1126))
+                    [ ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 1167))
             (clobber (reg:QI 8 t0))
             (clobber (reg:QI 1 at))
         ] ) -1 (nil)
@@ -8277,7 +8277,7 @@
         ] 
         [ 
             (asm_input:SI ("r"))
-        ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 1152) -1 (nil)
+        ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 1193) -1 (nil)
     (expr_list:REG_DEAD (reg/v:SI 6 a2)
         (nil)))
 
@@ -8426,7 +8426,7 @@
         ] 
         [ 
             (asm_input:SI ("r"))
-        ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 1167) -1 (insn_list 174 (insn_list:REG_DEP_ANTI 176 (nil)))
+        ]  ("recon/eaclib/psx/eacpsxz/nfile.c") 1208) -1 (insn_list 174 (insn_list:REG_DEP_ANTI 176 (nil)))
     (expr_list:REG_DEAD (reg/v:SI 6 a2)
         (nil)))
 

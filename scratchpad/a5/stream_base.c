@@ -515,20 +515,7 @@ restart:
  *     (v7/$v1 = done, v6/$a0 = cur, v5/$a1 = SR, v8/$v0 = nx).  Also byte-identical: hoisting the
  *     state load above `done = 0`; per-arm `done = 0` is worse (29 diffs, 99 insns);
  *     -fno-schedule-insns and -fno-schedule-insns2 do not move it.
- *     => allocno_compare live-length identity; permuter / length-perturbation class.
- * w35-a5 -- **PASS (100/100)**.  The w34 verdict ("merged gates worse, 20; needs done +519") was
- * measured on an INCOMPLETE merged spelling: merging the state temp into `done` also requires the
- * `state == 1` path to carry an EXPLICIT `else done = 0;` and the advance path an explicit
- * `done = 0;` beside the cursor store, so that every arm of the merged variable is written in the
- * source.  With all three arms spelled out, `done` and `cur` no longer contend at all -- the
- * merge removes the block-local state temp (hence the hard-$v1 conflict on `done`), and the arms'
- * own sets give `done` the extra RTL references the w34 arithmetic said it needed (+519) without
- * adding a single instruction: gcc tail-merges the two `done = 0` stores and folds the else arm,
- * so the stream is byte-identical to the shipped form except for the register roles it fixes
- * (done/SR -> $v1/$a1 = retail, cur -> $a0, nx -> $v0, exactly IDA sub_800FC9B4's v7/v5/v6/v8).
- * LESSON (catalog-worthy): when a "merged variable" experiment gates worse, check that EVERY arm
- * assigns the merged variable explicitly before filing the allocno-priority verdict -- a partially
- * merged spelling leaves the old anonymous temp alive and measures the wrong thing. */
+ *     => allocno_compare live-length identity; permuter / length-perturbation class. */
 extern int startnextrequest(int s, unsigned int prio)
 {
     int  done;
@@ -539,17 +526,13 @@ extern int startnextrequest(int s, unsigned int prio)
     cur  = MI(s, 0x50);
     done = 1;
     if (cur != 0) {
-        done = MI(cur, 4);                      /* merged: state temp IS done */
-        if (done != 1) {                        /* current no longer queued */
+        done = 0;
+        if (MI(cur, 4) != 1) {                  /* current no longer queued */
             int nx = MI(cur, 0xc);              /* advance to next */
             if (nx == 0)
                 done = 1;
-            else {
+            else
                 MI(s, 0x50) = nx;
-                done = 0;
-            }
-        } else {
-            done = 0;
         }
     }
     if (done) {

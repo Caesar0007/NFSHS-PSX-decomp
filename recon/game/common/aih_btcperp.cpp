@@ -94,9 +94,9 @@ int AIHigh_BTC_Perp::IsFalseArrest()
   /* SYM whole-function rewrite (w22-a13): SYM @0x8005f798 names ONLY randNum1000(REG v0),
    * carLoop(REG s5), cop(REG a1), xDot(REG s2), zDot(REG s1), and carCopVector (AUTO
    * coorddef, sp+0x10/14/18) -- NO iVar1..iVar5/delta[3] temps exist in the real source.
-   * xDot/zDot are each the SUM of 3 fixedmult() calls written as ONE expression (oracle
-   * accumulates directly into s2/s1 across all 3 calls); the earlier per-term iVarN temps
-   * forced a spurious combine-afterward shape that didn't match the oracle's accumulation. */
+   * xDot uses incremental accumulation while zDot remains one expression: this gives the
+   * closest allocator shape found (6 detailed diffs, down from 11). Per-term iVarN temps
+   * still force a substantially worse combine-afterward shape. */
   int randNum1000;
 
   int carLoop;
@@ -145,11 +145,11 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 
                 ((this->carObj_)->N).position.z;
 
-        xDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[0]) +
+        xDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[0]);
 
-               fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[1]) +
+        xDot += fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[1]);
 
-               fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[2]);
+        xDot += fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[2]);
 
         zDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[6]) +
 
@@ -1282,13 +1282,7 @@ void AIHigh_BTC_AIPerp::FindClosestCop()
 
       longMetersBetween = AIWorld_ApxSplineDistance(this->carObj_,*ppCVar4);
 
-      absLongMetersBetween = longMetersBetween;
-
-      if (longMetersBetween < 0) {
-
-        absLongMetersBetween = -longMetersBetween;
-
-      }
+      absLongMetersBetween = __builtin_abs(longMetersBetween);
 
       if (absLongMetersBetween < closestCopInMetersAbs) {
 

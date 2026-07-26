@@ -1286,11 +1286,11 @@ void AIHigh_BTC_AIPerp::FindClosestCop()
 
       if (absLongMetersBetween < closestCopInMetersAbs) {
 
-        closestCarIndex = (*ppCVar4)->carIndex;
+        closestCopInMeters = longMetersBetween;
 
         closestCopInMetersAbs = absLongMetersBetween;
 
-        closestCopInMeters = longMetersBetween;
+        closestCarIndex = (*ppCVar4)->carIndex;
 
       }
 

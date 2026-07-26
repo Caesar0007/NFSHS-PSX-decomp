@@ -718,12 +718,37 @@ extern int STREAM_overhead(int numReq, int numFilters, int numConsumers)
  *       off the PRE-increment counter and letting cse share the `i+1` with the loop increment.  The
  *       old `i++; c = ...(i-1)*0x10; c[1] = i;` spelling let loop.c strength-reduce into a walking
  *       +16 pointer with a +16/-16 fixup pair (and flipped the whole a0/a1 pair).  -41 diffs alone.
- * RESIDUAL (22), all list-scheduler placement in one basic block: our sched hoists the
- *   `lw <reg>,8(s0)` freelist re-read ~30 insns up (so the ring-base copies land on t0/t1/t2 instead
- *   of a3/t0/t1) and sinks the `sw v1,24(s0)` consumerArray store below the ring-base add (so we add
- *   in place instead of retail's copy-then-reuse-v1); plus one unfilled `blez` delay slot in the
- *   argument-validation chain and the `li a0,1` order in the filter loop.  Tried and rejected:
- *   volatile on the prio2 store, volatile on the freelist re-read, read-back for the ring base. */
+ * w34-a2 (22 -> 4 diffs, still count-exact 144/144).  The "list-scheduler placement floor" was three
+ *   independent source facts, each found by walking the oracle's basic-block layout:
+ *   (3) OPERAND ORDER on the ring-base sum: `numConsumers * 0x10 + <read-back of 0x18>` (shift term
+ *       FIRST) reproduces retail's `addu v0,v0,v1`; the natural `<read-back> + numConsumers * 0x10`
+ *       emits `addu v0,v1,v0` (gcc expands operand 0 first, and the read-back costs no insn).  -2.
+ *   (4) VOLATILE consumerArray STORE.  ROOT CAUSE (the whole "scheduler" cluster): with a plain
+ *       store, cse rewrites the following read-back of 0x18 as a register COPY of `base` and a later
+ *       pass COPY-PROPAGATES it away; that keeps `base`/$v1 live to the very end of the block, so
+ *       the `sw v1,24(s0)` store SINKS below the ring-base add and the freelist `lw ,8(s0)` re-read
+ *       is hoisted ~30 insns up into its own extra register (a3).  Retail's build keeps the copy
+ *       (`addu v0,v1,zero`), which frees $v1 for the `sll` and therefore FORCES the store to be
+ *       emitted before it.  Marking the store volatile is the only in-tree way found to keep the
+ *       read-back a real memory reference at that point: it restores the store's position, the late
+ *       freelist load, and the a3/t0/t1 ring-base copies.  -14.
+ *   (5) COMBINED `numConsumers <= 0 || numFilters < numConsumers` guard.  As two separate `if`s,
+ *       jump.c proves $v0 is already 0 at the `blez` (check-4's return-0 setup ran unconditionally)
+ *       and THREADS the branch past the shared `j <epilogue>; addu v0,zero,zero` stub straight to
+ *       the epilogue -- which makes the `blez` delay slot unfillable (`nop`).  Written as one `||`
+ *       both arms target the local stub, and reorg fills the slot with the oracle's `slt v0,s2,s3`.
+ *       (Note this is the INVERSE of the w18-a9 SEPARATE-CHECK lever, which applies to the numReq
+ *       range pair only -- there the fold to be avoided is the unsigned range check, not the stub.)
+ *   (6) NAMED `one` for the filter table's `f[2] = 1`: loop.c inserts hoisted movables at the END of
+ *       the preheader, so an anonymous invariant `1` lands AFTER the `idx = 0` copy; a local
+ *       declared before `idx` puts `li a0,1` first, as retail has it.  -2.
+ * RESIDUAL (4): the consumerArray read-back is a real `lw v1,24(s0)` for us where retail has cse's
+ *   `addu v0,v1,zero` copy (and the $v0/$v1 roles of the following `sll` swap with it).  This is the
+ *   flip side of (4): a plain store gives the copy but then copy-prop removes it and the whole block
+ *   re-schedules (17-19 diffs, 143 insns).  Tried: volatile on the read-back instead of the store
+ *   (same 4), read-back into a named local, in-place `cbase = cbase + n*0x10` mutation, `base` used
+ *   directly, an empty `__asm__("" : : "r"(base))` fence (23).  Needs a non-volatile way to keep
+ *   cse's copy alive = the "old-gcc no-copy-prop" toolchain-identity class. */
 extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbuf, int bufsize)
 {
     int over, base, i, off;
@@ -737,9 +762,7 @@ extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbu
         return 0;
     if ((unsigned int)(numFilters - 1) > 0xf)
         return 0;
-    if (numConsumers <= 0)
-        return 0;
-    if (numFilters < numConsumers)
+    if (numConsumers <= 0 || numFilters < numConsumers)
         return 0;
 
     MI(objbuf, 0x00) = STRM_MAGIC;
@@ -760,7 +783,9 @@ extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbu
     base = MI(objbuf, 0x08) + numReq * 100;
     MI(objbuf, 0x10) = base;                                   /* filterArray */
     base = base + numFilters * 0xc;
-    MI(objbuf, 0x18) = base;                                   /* consumerArray */
+    /* MATCH (w34-a2 #4): volatile keeps the following read-back a real memory reference, which
+     * frees $v1 and therefore pins this store ahead of the ring-base `sll` (see the header note). */
+    *(volatile int *)(objbuf + 0x18) = base;                   /* consumerArray */
     {
         /* MATCH (w33-a2): the oracle's THREE `addu <reg>,v0,zero` copies of the ring base are NOT a
          * missing copy-propagation in retail's compiler -- they are THREE SEPARATE SOURCE
@@ -770,8 +795,7 @@ extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbu
          * initialised from one expression do NOT work (gcc copy-propagates them into one register,
          * verified) -- the read-back is what makes it three evaluations.  This also frees $v0 for
          * the late `li 50` and takes the function from 142 to the oracle's 144 instructions. */
-        int bufBase = MI(objbuf, 0x18) + numConsumers * 0x10;
-        MI(objbuf, 0x20) = bufBase;                            /* bufBase */
+        MI(objbuf, 0x20) = numConsumers * 0x10 + MI(objbuf, 0x18);  /* bufBase */
         MI(objbuf, 0x30) = 0x32;
         MI(objbuf, 0x40) = MI(objbuf, 0x20);
         MI(objbuf, 0x44) = MI(objbuf, 0x20);
@@ -800,13 +824,15 @@ extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbu
     /* clear the filter table */
     i = 0;
     if (numFilters > 0) {
+        int one = 1;   /* MATCH (w34-a2 #6): a NAMED invariant is emitted ahead of the `idx = 0`
+                        * copy; an anonymous `1` is hoisted by loop.c to the END of the preheader. */
         int idx = 0;
         do {
             int *f = (int *)(MI(objbuf, 0x10) + idx);
             i++;
             f[0] = 0;
             f[1] = 0;
-            f[2] = 1;
+            f[2] = one;
             idx += 0xc;
         } while (i < numFilters);
     }

@@ -9,6 +9,20 @@
  *   is the fixed-$t6/$t7 lwl/swl P_TAG template -- EA DMPSX-analog .obj post-processor, see fastmovf.c seal
  *   2026-07-09; the two `/depth` div guards are --expand-div codegen from plain `/`).  Plain C -> extern "C".
  *
+ *   w32-a5 2026-07-26 -- INSTRUCTION PARITY IS REACHABLE BUT COSTS MORE DIFFS (recorded, not kept):
+ *     the single extra instruction at 222/221 is the CSE-HOISTED `li 255` (retail rematerializes 255
+ *     at each of the two `0xff - x` sites; ours hoists one pseudo across both loop levels).  Turning
+ *     the OUTER row loop into a label+goto loop kills that hoist -> exactly 221/221 -- but the diff
+ *     count rises 149 -> 186 (shape moves s7->s4 and the row-header block re-schedules).  Same for a
+ *     goto-loop on the INNER tile loop: 221/221 but 254 diffs, and it spills vPage to the frame.
+ *     Both reverted per the wave keep-rule (strict diff drop).  Also falsified here: `short yPos`
+ *     (IDA types $s7 as __int16 -> 226 insns/229 diffs), `(unsigned char)vCoord` for vc (no change),
+ *     and inlining u1/v2 at both store sites as IDA renders them (no change -- gcc re-CSEs).
+ *     IDA sub_800F0738's register map (v5=$s5 depth, v9=$fp vc, v14=$s7 yPos, v12=$s3 xDone,
+ *     v13=$t0 vPage, v17=$s4 uTile, v19=$s2 colW, v20=$s1 clampW, spills at sp+0x18/0x1C/0x20)
+ *     confirms our variable set is right; the residual really is the unscheduled-cc1 per-obj flag
+ *     identity (METHODOLOGY 3.25-3d) plus the 255 hoist, both toolchain-level.
+ *
  *   MATCH notes (264->149; residual = scheduler-order/scratch-choice class -- {shape,yPos,vc} s6/s7/fp rotation, hoisted-255 CSE pseudo (caller-save-spilled!) vs per-use li, arg-block interleave -- the oracle .obj again shows unscheduled output; -fno-schedule diag gives 128. Levers that landed, mirroring the fastmovf recipe):
  *     - NO `ret` variable / NO explicit return on ANY path: $v0 is incidental (vramimage's or
  *       fastmovfxya's return, or scratch on the tiling path) -- the oracle computes no return value.

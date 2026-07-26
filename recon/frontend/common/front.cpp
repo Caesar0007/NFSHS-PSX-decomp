@@ -904,60 +904,78 @@ extern "C" void Front_InitPlayerCars__FR9tFEStream(tFEStream *streamData)
   if (frontEnd.raceType == '\x02') {
     GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],streamData->playerCars,0);
   }
+  /* MATCH: the PINK-SLIPS arm is the FALL-THROUGH and the stock/garage do-loop is
+     laid out out-of-line (oracle `bne raceType,6 -> .L800281DC`, with `i = 0` stolen
+     into that branch's delay slot).  Writing it as `if (!=6) {loop} pinkslips;`
+     inverts the layout. */
+  else if (frontEnd.raceType == '\x06') {
+    GetPinkSlipsCar(&carManager, (ushort)(byte)frontEnd.pinkSlipsCar[0],streamData->playerCars,0);
+    /* MATCH: SYM local `carInfo` REG $5 (a1) -- a real tCarInfo* local forces the
+       playerCars member offset (+8) INTO the pointer (`addiu v0,v0,8; addu a1,s1,v0`);
+       an inline `streamData->playerCars[n].field` folds the +8 into every field
+       displacement instead (+205 vs the oracle's +197). */
+    carInfo = &streamData->playerCars[streamData->numPlayers];
+    carInfo->fColor = carInfo->fColorOrder[carInfo->fColor];
+    sVar2 = streamData->numPlayers + 1;
+    streamData->numPlayers = sVar2;
+    GetPinkSlipsCar(&carManager, (ushort)(byte)frontEnd.pinkSlipsCar[1],streamData->playerCars + sVar2,1);
+  }
   else {
     iVar5 = 0;
-    if (frontEnd.raceType != '\x06') {
+    {
       do {
         sVar2 = (short)iVar5;
         if (frontEnd.carListType == '\0') {
           GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[sVar2],
                      streamData->playerCars + streamData->numPlayers);
-          ptVar6 = streamData->playerCars + streamData->numPlayers;
-          pcVar3 = ptVar6->fShapeName + ((byte)frontEnd.carColors[sVar2 * 0x18][ptVar6->fCarID] - 8)
+          carInfo = &streamData->playerCars[streamData->numPlayers];
+          pcVar3 = carInfo->fShapeName + ((byte)frontEnd.carColors[sVar2 * 0x18][carInfo->fCarID] - 8)
           ;
         }
         else {
           GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[sVar2],
                      streamData->playerCars + streamData->numPlayers,sVar2);
-          ptVar6 = streamData->playerCars + streamData->numPlayers;
-          pcVar3 = ptVar6->fShapeName + (ptVar6->fColor - 8);
+          carInfo = &streamData->playerCars[streamData->numPlayers];
+          pcVar3 = carInfo->fShapeName + (carInfo->fColor - 8);
         }
-        ptVar6->fColor = pcVar3[0xaf];
-        if (ptVar6->fCarClass == '\a') {
-          uVar1 = frontEnd.carCountry[streamData->numPlayers * 0x18][ptVar6->fCarID];
-          ptVar6->fColor = '\0';
-          ptVar6->fCountry = uVar1;
+        carInfo->fColor = pcVar3[0xaf];
+        if (carInfo->fCarClass == '\a') {
+          uVar1 = frontEnd.carCountry[streamData->numPlayers * 0x18][carInfo->fCarID];
+          carInfo->fColor = '\0';
+          carInfo->fCountry = uVar1;
         }
         streamData->numPlayers = streamData->numPlayers + 1;
         iVar5 = iVar5 + 1;
       } while ((frontEnd.gameMode == '\x01') && (iVar5 * 0x10000 >> 0x10 < 2));
       goto FrontInitPlayers_playerLoop;
     }
-    GetPinkSlipsCar(&carManager, (ushort)(byte)frontEnd.pinkSlipsCar[0],streamData->playerCars,0);
-    sVar2 = streamData->numPlayers;
-    streamData->playerCars[sVar2].fColor =
-         streamData->playerCars[sVar2].fColorOrder[streamData->playerCars[sVar2].fColor];
-    sVar2 = streamData->numPlayers + 1;
-    streamData->numPlayers = sVar2;
-    GetPinkSlipsCar(&carManager, (ushort)(byte)frontEnd.pinkSlipsCar[1],streamData->playerCars + sVar2,1);
   }
-  sVar2 = streamData->numPlayers;
-  streamData->playerCars[sVar2].fColor =
-       streamData->playerCars[sVar2].fColorOrder[streamData->playerCars[sVar2].fColor];
+  carInfo = &streamData->playerCars[streamData->numPlayers];
+  carInfo->fColor = carInfo->fColorOrder[carInfo->fColor];
   streamData->numPlayers = streamData->numPlayers + 1;
 FrontInitPlayers_playerLoop:
-  for (sVar2 = 0; iVar5 = (int)sVar2, iVar5 < streamData->numPlayers; sVar2 = sVar2 + 1) {
-    carModel = (tCarModels)streamData->playerCars[iVar5].fCarID;
-    carColor = streamData->playerCars[iVar5].fColor;
+  i = 0;
+  /* MATCH: EXIT-IN-THE-MIDDLE (top test + unconditional `j` back-edge, no
+     rotation) -- same shape as InitPerps/InitTraffic; a for/while gets rotated. */
+  while (1) {
+    tCarModels carModel;   /* SYM: block AUTOs at sp+0x10 / sp+0x14 */
+    char carColor;
+
+    if (streamData->numPlayers <= (int)i) break;
+    /* MATCH: fCarID is signed here -- the oracle reads it with `lb`, and plain
+       `char` is UNSIGNED on this build. */
+    carModel = (tCarModels)(signed char)streamData->playerCars[i].fCarID;
+    carColor = streamData->playerCars[i].fColor;
     if (!IsCarAnAddedModel(&carManager, &carModel,&carColor) && (streamData->totalModels < 0xd)) {
       streamData->totalModels = streamData->totalModels + 6;
     }
     AddCarToIngameList(&carManager, &carModel,&carColor);
     streamData->totalCars = streamData->totalCars + 2;
-    streamData->carLineup[sVar2].isPlayerCar = 1;
-    streamData->carLineup[sVar2].carModel = carModel;
-    streamData->carLineup[sVar2].carColor = carColor;
-    streamData->carLineup[sVar2].carUpgrades = streamData->playerCars[sVar2].fUpgrades;
+    streamData->carLineup[i].isPlayerCar = 1;
+    streamData->carLineup[i].carModel = carModel;
+    streamData->carLineup[i].carColor = carColor;
+    streamData->carLineup[i].carUpgrades = streamData->playerCars[i].fUpgrades;
+    i = i + 1;
   }
   return;
 }

@@ -127,7 +127,61 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
      *       INVALID 185 candidate (moved the clut22p init behind `return` -- uninitialized read;
      *       scorer-blind).  Residual 34: params still s2/s3/s5 vs retail s7/fp/s5 half-web;
      *       the remaining rotation may yet fall to more in-loop-def dialing -- NO LONGER a
-     *       certified floor, downgraded to OPEN with a working lever family. */
+     *       certified floor, downgraded to OPEN with a working lever family.
+     * 🔴 w35-a6 2026-07-26 -- THE OPEN VERDICT IS CLOSED AGAIN AT 34, THIS TIME WITH A REF-COUNT
+     * PROOF (a NEW evidence class: the w33/w34 arguments were about LIVE LENGTHS, which are only
+     * estimable; this one turns on REF COUNTS, which the shared 165/165 instruction stream FIXES).
+     * The instrument is `cc1 -dl` on both the copy and the no-copy configurations, read together:
+     *   with the {ix,cx} dials   c 52/132 | maskHi 5/129 | imgX 5/131 | clutX 4/125 | maskLo 5/260
+     *                            | imgY 5/268 | clutY 4/266 | clutYm 3/122 | clutXm 3/124
+     *   with NO dials ({})       c 52/130 | maskHi 5/128 | imgX 5/264 | clutX 4/264 | maskLo 5/258
+     *                            | imgY 5/264 | clutY 4/262 | clutYm 3/122 | clutXm 3/124
+     * so live_length falls in exactly two classes -- "short" ~122-132 and "long" ~256-268 -- and the
+     * long class is capped at ~268 by the function itself (c, live everywhere, measures 130-132; the
+     * long class is its 2x).  A param COPY is the only lever that moves a param long->short (it is
+     * NOT the "+2 weighted refs" the w33 note claimed -- ref counts are IDENTICAL with and without
+     * the copy, 5/5 and 4/4; the copy HALVES the live length, which is why it doubles the priority).
+     * maskLo is long and maskHi short intrinsically, and that is a property of the VARIABLE, not of
+     * declaration order: swapping the two decls moves the pseudo NUMBERS (88<->89) but maskLo stays
+     * ~256-260 and maskHi ~129-130 (gated 36, measured this session).
+     * Now the proof.  Retail's rank order is  c, maskHi, clutYm, clutXm, maskLo, clutX, clutY,
+     * imgX, imgY  (s0,s1,s2,s3,s4,s5,s6,s7,fp; the s-reg number IS the allocno rank).  The oracle's
+     * own instruction stream fixes every ref count, because it is OUR stream (165/165, verified
+     * insn-for-insn): imgX/imgY = 1 def + 2 in-loop uses = 5 weighted refs (retail computes
+     * `andi v1,s7,4095` INSIDE the bitmap block, so its imgX has two in-loop uses too), clutX/clutY
+     * = 1 def + 1 preheader use + 1 in-loop use = 4, maskLo/maskHi = 5, clutXm/clutYm = 3.
+     * Under allocno_compare (floor_log2(refs)*refs/live_length) retail therefore requires BOTH:
+     *   (i) clutX (8/L_cx) > imgX (10/L_ix)  =>  L_ix > 1.25 * L_cx.  With both in the long class
+     *       (<=268) and L_cx >= 258, this needs L_ix >= 323 > the 268 ceiling.  If instead clutX is
+     *       dialled short (125) it scores .064, which lifts it ABOVE maskLo (.0385) into rank 3-4 --
+     *       the wrong slot.  No third live-length class exists.  ==> UNSATISFIABLE.
+     *   (ii) clutYm (3/L) > maskLo (10/258 = .0388) => L_cym < 77, but clutYm is born in the
+     *       preheader and dies in the CLUT tail, i.e. it spans the loop (122 measured, and the whole
+     *       short class floors at ~122).  ==> UNSATISFIABLE.
+     * Two independent unsatisfiable constraints, both grounded in ref counts we cannot change
+     * without changing the (already exact) instruction stream.  ==> 8th exhibit of the banked
+     * ALLOCNO_COMPARE DELTA (catalog SS-G; retail ranks short-lived low-ref locals above longer-lived
+     * high-ref ones far more aggressively than our cc1).  STRONG floor; route to toolchain identity.
+     * FALSIFIED THIS SESSION (all gated, none better than 34, ours/oracle noted where parity broke):
+     *   - the full 16-subset param-copy re-enumeration ON TOP of the two w34 permuter levers (the w33
+     *     table was measured before them, so it needed redoing): {} 50 | {cy} 48 | {cx} 42 | {cx,cy}
+     *     40 | {iy} 48 | {iy,cy} 40 | {iy,cx} 34 | {iy,cx,cy} 46 | {ix} 48 | {ix,cy} 40 | {ix,cx} 34
+     *     (kept) | {ix,cx,cy} 46 | {ix,iy} 40 | {ix,iy,cy} 46 | {ix,iy,cx} 40 | all 46.  Two optima
+     *     at 34; the briefing's "remove the param dials, retail ranks params LAST" reading is
+     *     measured WRONG here -- removing them costs 16 diffs, because the dial is a live-length
+     *     halving whose effect is on imgX/clutX, not a params-vs-locals ranking.
+     *   - DEAD-SET carriers (the movfxya hoist-blocker) as trailing in-loop sets after the CLUT tail:
+     *     `clutXm = 0` 49 (166/165), `clutYm = 0` 59 (164/165), both 68.  They perturb the stream.
+     *   - `do { } while (0)` wrappers as a loop-depth ref dial (the theory being depth-2 weighting of
+     *     the CLUT-tail refs would lift clutXm/clutYm to 4): CLUT tail 42, the two mask updates 54
+     *     (167/165), the bitmap updates 54.  gcc drops the notes; no depth-2 weighting materialises.
+     *   - clutXm/clutYm def placement, all four combinations x both orders: only clutYm's in-loop def
+     *     carries the w34 win (PRE/PRE 44, IN/PRE 44, PRE/IN 34, IN/IN 34) -- clutXm's is neutral, so
+     *     the kept form keeps both only for symmetry of intent.
+     *   - outer walker as a label+goto loop (to kill loop.c's LICM so the "m" defs stay in-loop at
+     *     weight 2): 54 (163/165) -- and it loses parity, since goto also kills the giv machinery.
+     *   - computing clutXm/clutYm inside the CLUT tail instead of the preheader (same static insn
+     *     count, no LICM to fight): 63 (166/165), and with the goto loop 49 (164/165). */
      /* (older note, its impossibility claim superseded above:)
      * w34 follow-up (post-movfxya): the DEAD-SET carrier (movfxya lever) does NOT dial refs here --
      * `clutXm = 0; clutXm = real;` with the param dials removed gates 84 (= the plain {} form).

@@ -76,6 +76,20 @@ extern void chase(unsigned int code);                                           
  *    -fno-schedule-insns2 31 (+6 on chase), -fno-delayed-branch 97 (+3 on chase),
  *    -fno-expensive-optimizations 49.  VERDICT unchanged: (a)+(b) are the old-gcc weaker-combine
  *    identity (catalog SS-G), (c) is a scheduler tie -- STRONG floor.
+ * w35-a6 2026-07-26 RE-CHECK (still 17/153-158; the 5-insn gap is confirmed to be exactly (a) x3 +
+ * (b) x2, read off a full uncapped side-by-side: oracle inserts `addu s3,s3,s0` at three arm sites
+ * and keeps `srl 8 / sll 8 / andi 0x3f00` where ours folds to one `andi`).
+ *  - (c) was re-attacked with the COMPLETE decl-permutation space rather than the 3 forms w32 tried:
+ *    all 6 orderings of {src, size, trail} gate 17/17/21/21/17/21, and splitting `src`'s init from
+ *    its declaration gates 21.  No ordering reaches the oracle's reverse/comp/out prologue sequence,
+ *    confirming the sched2 luid tie (the parms are same-width, so the NARROW-PARAM lever has no
+ *    legal target -- IDA's prototype audit already established that).
+ *  - (a) was re-attacked with the in-tree LIVENESS-FENCE device (`__asm__("" : : "r"(out))`, the
+ *    aiphysic/AIHigh_BTC_HumanCop precedent), on the theory that a second use of the post-increment
+ *    value blocks combine's i2->i3 fold.  It DOES partially restore the adds but the fence is not
+ *    free here: after the add 82 (156/158), immediately before the call 39 (155/158).  So it buys
+ *    2 of the 3 missing instructions at a cost of 22 extra diffs -- rejected on the catalog's
+ *    permuter-trust rule (a match held up by scaffolding nobody would write is not a match).
  * Raw nfs4-f.exe E5AB8..E5D2F SHA-256:
  * eae786e8d18c199bea647b339f069508f7294319d4855358b59db0bf234b749b. */
 extern int unrefpack(unsigned char *comp, unsigned char *out, int reverse)

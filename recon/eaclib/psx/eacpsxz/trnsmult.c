@@ -67,6 +67,13 @@ extern int *transmult(int *a, int *b, int *out)            /* @0x80105F40 */
      * Flag matrix (scratch, none adopted): -fno-schedule-insns 37 (78 insns) | -fno-schedule-insns2
      * 52 (81/81 EXACT parity but the a3 shape is unchanged, proving it is reload, not scheduling) |
      * both 58 | -mno-split-addresses 31 | -fno-expensive-optimizations 31 | -fno-delayed-branch 51.
+     * w35-a6 2026-07-26: the A/B control was re-run PER PARAMETER (the w34 note only measured both
+     * params volatile at once, and its recorded "42-44 diffs / 79 insns" figure is STALE against the
+     * current base -- do not quote it).  Fresh: `int * volatile a` alone 49 (78/81), `int * volatile b`
+     * alone 78 (79/81), both 85 (80/81).  So the MEM-operand shape is not separable per parameter and
+     * every variant is far worse than 31; the volatile A/B remains a DIAGNOSTIC that names the
+     * mechanism (reload inheritance + reload-register round-robin), never a candidate fix.  The count
+     * gap stays exactly 3 = the one un-inherited `lw v1,0x68(sp)` plus its two load-delay nops.
      * VERDICT: STRONG floor (>=20 alternate source forms byte-identical or worse, mechanism named,
      * A/B-proven). Reopen only with a reload-level toolchain lever.
      * Shape levers that DID land the 107->31: flat-index outer i BY 3, guard i<9 (oracle slti s5,9); SEPARATE

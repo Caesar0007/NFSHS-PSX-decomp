@@ -697,14 +697,22 @@ extern int STREAM_overhead(int numReq, int numFilters, int numConsumers)
  *   bounds optimizer folds a combined `numReq<2 || numReq>=0x101` into ONE unsigned range check
  *   (`addiu;sltiu`), which the oracle does NOT do -- so the two checks must be written as SEPARATE
  *   `if` statements to suppress the fold.
- * RESIDUAL FLOOR (68 diffs, not source-reachable so far): the `MI(objbuf,0x30)=0x32` (prio2) store --
- *   oracle schedules it LATE, interleaved with the bufBase->readptr/writeptr/fillptr triple-copy
- *   (a3/t0/t1) right before the freelist-reqArray reload; our gcc's list scheduler HOISTS the
- *   independent (no-dependency) store all the way up next to the prio1(0x96) store regardless of its
- *   textual position in the source (tried: original placement, block-scoped named temps for
- *   rdp/wrp/flp -- both compile to the IDENTICAL hoisted schedule). Genuine SCHEDULING floor: gcc's DAG
- *   scheduler treats the two non-aliasing constant stores as freely reorderable and always wins the
- *   hoist; no C-level statement reordering blocks it without a fabricated fake dependency. */
+ * w33-a2 (68 -> 22 diffs, now INSTRUCTION-COUNT EXACT 144/144).  The old "not source-reachable
+ *   scheduling floor" verdict fell to two source facts:
+ *   (1) READ-BACK CURSORS (see the inline note): `readptr/writeptr/fillptr = objbuf->bufBase` --
+ *       three separate re-reads of the field just stored -- are what produce the oracle's triple
+ *       `addu a3/t0/t1,v0,zero` copy AND push `li 50`/`sw 48` down into their middle.  Three named
+ *       locals initialised from one expression do not (copy-propagated to one register).
+ *   (2) CONSUMER LOOP index form: `c = consumerArray + i * 0x10; ... c[1] = i + 1; i++;` -- indexing
+ *       off the PRE-increment counter and letting cse share the `i+1` with the loop increment.  The
+ *       old `i++; c = ...(i-1)*0x10; c[1] = i;` spelling let loop.c strength-reduce into a walking
+ *       +16 pointer with a +16/-16 fixup pair (and flipped the whole a0/a1 pair).  -41 diffs alone.
+ * RESIDUAL (22), all list-scheduler placement in one basic block: our sched hoists the
+ *   `lw <reg>,8(s0)` freelist re-read ~30 insns up (so the ring-base copies land on t0/t1/t2 instead
+ *   of a3/t0/t1) and sinks the `sw v1,24(s0)` consumerArray store below the ring-base add (so we add
+ *   in place instead of retail's copy-then-reuse-v1); plus one unfilled `blez` delay slot in the
+ *   argument-validation chain and the `li a0,1` order in the filter loop.  Tried and rejected:
+ *   volatile on the prio2 store, volatile on the freelist re-read, read-back for the ring base. */
 extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbuf, int bufsize)
 {
     int over, base, i, off;
@@ -742,12 +750,22 @@ extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbu
     MI(objbuf, 0x10) = base;                                   /* filterArray */
     base = base + numFilters * 0xc;
     MI(objbuf, 0x18) = base;                                   /* consumerArray */
-    base = base + numConsumers * 0x10;
-    MI(objbuf, 0x20) = base;                                   /* bufBase */
-    MI(objbuf, 0x30) = 0x32;
-    MI(objbuf, 0x40) = base;
-    MI(objbuf, 0x44) = base;
-    MI(objbuf, 0x48) = base;
+    {
+        /* MATCH (w33-a2): the oracle's THREE `addu <reg>,v0,zero` copies of the ring base are NOT a
+         * missing copy-propagation in retail's compiler -- they are THREE SEPARATE SOURCE
+         * EVALUATIONS.  Each cursor is initialised by READING BACK the bufBase field that was just
+         * stored; cse.c replaces each load with a register COPY of the stored value, and because
+         * all three copies are live at once nothing can coalesce them.  Three separate C locals all
+         * initialised from one expression do NOT work (gcc copy-propagates them into one register,
+         * verified) -- the read-back is what makes it three evaluations.  This also frees $v0 for
+         * the late `li 50` and takes the function from 142 to the oracle's 144 instructions. */
+        int bufBase = MI(objbuf, 0x18) + numConsumers * 0x10;
+        MI(objbuf, 0x20) = bufBase;                            /* bufBase */
+        MI(objbuf, 0x30) = 0x32;
+        MI(objbuf, 0x40) = MI(objbuf, 0x20);
+        MI(objbuf, 0x44) = MI(objbuf, 0x20);
+        MI(objbuf, 0x48) = MI(objbuf, 0x20);
+    }
     MI(objbuf, 0x58) = MI(objbuf, 0x08);                       /* freelist = reqArray[0] */
     memset((unsigned char *)(objbuf + 0x5c), 0, 0x40);         /* clear name */
     MI(objbuf, 0x9c) = 0;
@@ -786,12 +804,14 @@ extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbu
     i = 0;
     if (numConsumers > 0) {
         do {
-            int *c;
-            i++;
-            c = (int *)(MI(objbuf, 0x18) + (i - 1) * 0x10);
+            /* MATCH: index off the PRE-increment counter (`i * 0x10`, recomputed each iteration --
+             * oracle's `sll a0,a1,4`), not off `(i-1) * 0x10` after the increment, which loop.c
+             * strength-reduces into a walking `v1 += 16` plus a +16/-16 fixup pair. */
+            int *c = (int *)(MI(objbuf, 0x18) + i * 0x10);
             c[0] = objbuf;
-            c[1] = i;
+            c[1] = i + 1;                                      /* 1-based consumer id */
             c[2] = 0;
+            i++;
         } while (i < numConsumers);
     }
     return MI(objbuf, 0x18);

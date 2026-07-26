@@ -1339,40 +1339,47 @@ int AI_TryToShareLanes(Car_tObj *carObj,Car_tObj *carInWay)
   int gapLeft;
   int gapRight;
   int minGapSize;
-  u_int uVar2;
-  int iVar5;
-  int iVar6;
 
-  minGapSize = (carObj->N).dimension.x;
-  minGapSize = minGapSize + minGapSize / 2;
+  minGapSize =
+      (carObj->N).dimension.x + (carObj->N).dimension.x / 2;
   if (7 <= AI_Info.desiredLane) {
-    rightRoadEdge = (u_int)*(u_char *)((char *)BWorldSm_slices + (carInWay->N).simRoadInfo.slice * 0x20 + 0x1f) *
-            0x8000;
     absLaneIndex = AI_Info.desiredLane + -7;
-    leftRoadEdge = absLaneIndex * rightRoadEdge;
-    rightRoadEdge = leftRoadEdge + rightRoadEdge;
+    leftRoadEdge = absLaneIndex *
+        ((u_int)*(u_char *)((char *)BWorldSm_slices +
+                            (carInWay->N).simRoadInfo.slice * 0x20 + 0x1f) *
+         0x8000);
+    rightRoadEdge = leftRoadEdge +
+        (u_int)*(u_char *)((char *)BWorldSm_slices +
+                           (carInWay->N).simRoadInfo.slice * 0x20 + 0x1f) *
+        0x8000;
   }
   else {
-    uVar2 = (u_int)*(u_char *)((char *)BWorldSm_slices + (carInWay->N).simRoadInfo.slice * 0x20 + 0x1e);
     absLaneIndex = AI_Info.desiredLane + -6;
-    rightRoadEdge = absLaneIndex * uVar2 * 0x8000;
-    leftRoadEdge = rightRoadEdge + uVar2 * -0x8000;
+    rightRoadEdge = absLaneIndex *
+        ((u_int)*(u_char *)((char *)BWorldSm_slices +
+                            (carInWay->N).simRoadInfo.slice * 0x20 + 0x1e) *
+         0x8000);
+    leftRoadEdge = rightRoadEdge -
+        (u_int)*(u_char *)((char *)BWorldSm_slices +
+                           (carInWay->N).simRoadInfo.slice * 0x20 + 0x1e) *
+        0x8000;
   }
-  iVar6 = carInWay->roadPosition - carInWay->roadSpan;
-  gapLeft = iVar6 - leftRoadEdge;
-  iVar5 = carInWay->roadPosition + carInWay->roadSpan;
-  gapRight = rightRoadEdge - iVar5;
-  if ((gapRight <= minGapSize) && (gapLeft <= minGapSize)) {
-    return 0;
+  gapLeft =
+      (carInWay->roadPosition - carInWay->roadSpan) - leftRoadEdge;
+  gapRight =
+      rightRoadEdge - (carInWay->roadPosition + carInWay->roadSpan);
+  if ((minGapSize < gapRight) || (minGapSize < gapLeft)) {
+    if (gapLeft < gapRight) {
+      carObj->desiredLatPos =
+          carInWay->roadPosition + carInWay->roadSpan + gapRight / 2;
+    }
+    else {
+      carObj->desiredLatPos =
+          carInWay->roadPosition - carInWay->roadSpan - gapLeft / 2;
+    }
+    return 1;
   }
-  if (gapLeft < gapRight) {
-    iVar5 = iVar5 + gapRight / 2;
-  }
-  else {
-    iVar5 = iVar6 - gapLeft / 2;
-  }
-  carObj->desiredLatPos = iVar5;
-  return 1;
+  return 0;
 }
 
 /* ---- AI_CalculateDesiredLatPosition__FP8Car_tObj  [@0x8005a15c] ---- */

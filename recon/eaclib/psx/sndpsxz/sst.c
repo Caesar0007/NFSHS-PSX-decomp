@@ -378,7 +378,11 @@ extern int iSNDstreamparsedata(int S, int chunk)
  * parity, and the residual is the sndpsxz-wide "old-gcc no-copy-prop" identity (retail's cc1 keeps a
  * redundant register copy that ours folds), already triple-confirmed for this archive in w31/w32.
  * NO SLD EVIDENCE IS AVAILABLE for this TU -- see the sndpsxz SLD note; the SYM carries only a type-2
- * symbol record for every sst.obj function, no `8c Function start` block and no line records. */
+ * symbol record for every sst.obj function, no `8c Function start` block and no line records.
+ * Also tested (a3's "redundant copy = a SECOND source evaluation" lever): spelling the seed as a
+ * literal re-evaluation `int ptr = chunk + 0x10;` alongside the named `flatBase` -- our cse.c folds
+ * the two and copy-prop then deletes the copy, so it still lands at 96 insns (17 diffs).  The seed
+ * copy is unreachable from C on this compiler. */
 
 /* iSNDstreamparseend @0x800E9230 : 'SCEl' chunk -- end of one queued sound; advance parseIdx. */
 extern int iSNDstreamparseend(int S, int chunk)

@@ -486,7 +486,26 @@ extern void iSNDserve(void)
      *   negative (§F).  A full goto-loop (the documented LICM killer) DOES remove the hoist but
      *   also kills the `vt`/`vp` induction handling: 161 diffs / 226 insns, far worse.  Until the
      *   hoist can be suppressed without losing strength reduction, the natural-while form below
-     *   scores best; do not "fix" the if/else or the loop shape in isolation. */
+     *   scores best; do not "fix" the if/else or the loop shape in isolation.
+     *
+     * W33-a8 -- THE LAST UNTESTED COMBINATION IS NOW FALSIFIED; treat the hoist as CLOSED.
+     *   The goto-loop is this wave's confirmed LICM-constant killer (it took iSNDplatformoutputset
+     *   in this same file from 7 diffs to PASS by stopping exactly this kind of hoist).  It was
+     *   never tried here TOGETHER with (i)+(ii), so all four combinations were measured:
+     *       (i)+(ii)+goto-loop     161 diffs / 226 insns
+     *       (i)+(ii)+do-while      122 diffs / 229 insns
+     *       (ii)+goto-loop only    165 diffs / 228 insns
+     *       goto-loop, chan=kon    164 diffs / 227 insns
+     *       (i) alone              121 diffs / 228 insns
+     *   EVERY goto-loop variant lands at 226-228 insns against the oracle's 231, i.e. it always
+     *   costs ~5 instructions.  Unlike outputset's tiny loop, THIS loop genuinely needs loop.c:
+     *   killing the loop notes to suppress `li fp,1` also kills the `vt`/`vp` strength reduction
+     *   the oracle depends on.  The two goals are mutually exclusive in our cc1, so the hoist is a
+     *   real -dL move-insn cost-model floor (catalog SS.F) and the 101-diff natural-while form
+     *   below stands.  Route to the toolchain-identity investigation, not to more source reshaping.
+     *   (Also re-checked this wave: a3's "redundant copy = a SECOND source evaluation" reading of
+     *   `chan = kon` -- i.e. two literal zeros that retail's cse turned into a register copy -- is
+     *   what fact (i) already encodes, and it still measures 121, not better.) */
     chan = kon;
     fpbase = base;
     vt = chan;

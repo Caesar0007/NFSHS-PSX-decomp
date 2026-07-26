@@ -37,6 +37,17 @@ extern int SNDbankheadercopy(void *dst, int bankId);   /* @0x800E7BA8 */
  *       hoist above the guard); index form `bankData + i*4 + 0x14` (77 insns -- our cc1 CSEs the
  *       four address expressions down to TWO givs where retail keeps four, the same weaker-CSE
  *       identity seen across this archive).
+ *
+ * W33 follow-up, a3's giv-anchor levers (power-of-2 stride + "two refs to the same element"):
+ * the stride here IS 4, so the giv machinery does fire -- but `combine_givs` merges the four
+ * address givs down to TWO in EVERY index spelling tried: `bankData + i*4 + disp` (77 insns),
+ * four separately-based arrays `((int*)(bankData+0x14))[i]` etc. (77 insns, 42 diffs), and four
+ * per-iteration recomputed walkers `dst12 = dest + i*4; ...` (77 insns, 38 diffs).  Ours is
+ * invariably 4 instructions SHORT of the oracle's 81.  Retail keeps four independent walkers, so
+ * the explicit-pointer form below is not a mis-derivation -- it is the only shape that reproduces
+ * them, and the 4-vs-2 giv count is a `combine_givs` cost-model identity (the w28-31 SS.B
+ * "gcc 2.8 combines all in-loop address givs onto the LAST giv in body order" finding), not
+ * source-reachable.
  * NO SLD EVIDENCE is available (sbhdrcpy.obj has only a type-2 symbol record). */
 extern int SNDbankheadercopy(void *dst, int bankId)
 {

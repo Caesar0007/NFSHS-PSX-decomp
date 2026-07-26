@@ -53,31 +53,25 @@ void Scene_PurgeScene(void)
 int Scene_BuildCustomSceneList(void)
 
 {
-  int i;
-  int i_2;
   SceneElem *se;
-  SceneElem *objectData;
+  int i;
   int slice;
-  int ret_slice;
   
   Object_ClearCustomObjects();
-  ret_slice = -1;
+  slice = -1;
   if (gGameSceneList != (CSceneList *)0x0) {
-    objectData = (SceneElem *)(gGameSceneList + 1);
-    ret_slice = gGameSceneList->slice_;
-    i_2 = 0;
-    Object_customSliceNum = ret_slice;
-    if (0 < gGameSceneList->numElements_) {
-      do {
-        if ((objectData->type < 3) && (-1 < objectData->type)) {
-          Object_AddCustomObject(objectData,1);
+    se = (SceneElem *)(gGameSceneList + 1);
+    slice = gGameSceneList->slice_;
+    Object_customSliceNum = slice;
+    for (i = 0; i < gGameSceneList->numElements_; i++, se++) {
+      if (se->type < 3) {
+        if (-1 < se->type) {
+          Object_AddCustomObject(se,1);
         }
-        i_2 = i_2 + 1;
-        objectData = objectData + 1;
-      } while (i_2 < gGameSceneList->numElements_);
+      }
     }
   }
-  return ret_slice;
+  return slice;
 }
 
 /* ---- Scene_LoadSceneFile__Fi  [SCENE.CPP:1111-1137] SLD-VERIFIED ---- */

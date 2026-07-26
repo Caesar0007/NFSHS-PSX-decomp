@@ -240,10 +240,7 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
     /* pitch -> playback duration: rate * ch[0x34] * ch[0x35], divided by a fixed constant */
     t4 = iSNDplatformrate[0] * MSB(ch, 0x34);
     v1 = t4 * MSB(ch, 0x35);
-    {
-        long long pr = (long long)v1 * (int)0x82061029;
-        dur = (((int)(pr >> 32) + v1) >> 0xD) - (v1 >> 0x1f);
-    }
+    dur = v1 / 0x3f01;
     /* H10: oracle (0x80102C94) passes 9 args; was 6 with dur/rate/hdr+0xc in the wrong slots and
        ch[0x2d]/ch[0x62]/params[0xe] missing.  a0..a3 + sp+16/20/24/28/32. */
     r = iSNDplatformpacketplay(p, note, s3len, MSB(ch, 0x2d), MUH(ch, 0x62),
@@ -256,9 +253,12 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
     iSNDleaveaudio();
     return MI(ppp, 0);
 }
-/* near-miss floor (183->179 diffs, ours 186 / oracle 187 insns). This is the biggest fn in the file
+/* near-miss floor (183->132 diffs, ours 181 / oracle 187 insns). This is the biggest fn in the file
  * (9 params/locals -- p,rate,hdr,params,&sndgs,ppp,note,ch,s3len -- all callee-saved, live across
- * 2-3 calls each). Fixes kept: `MB(rate,2)` evaluated before the ppp lookup (oracle hoists this
+ * 2-3 calls each). NFS4 PC confirms the duration tail is signed division by 0x3f01; expressing the
+ * operation at that level lets cc1 emit the oracle's direct magic-multiply/mfhi sequence and removes
+ * the artificial 64-bit stack temporary, recovering the retail 88-byte frame. Fixes also kept:
+ * `MB(rate,2)` evaluated before the ppp lookup (oracle hoists this
  * alloc-arg early), the 0x40/0x44-then-0x3d-then-0x48.. zero-store interleave + MH(ch,0x5e)=0 as
  * its own statement (lands in calcpitch's jal delay slot), `ch`'s note*100 positioned right after
  * the 0xc marker store (before the unaligned rate copy). Tried and NOT kept as a further win: an

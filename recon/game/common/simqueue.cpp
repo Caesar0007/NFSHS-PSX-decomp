@@ -107,19 +107,20 @@ int SimQueue_Put(int pIndex,Input_tResults *val)
   *(int *)(entry + 0x100) = kVALID;
   inputQueue.TailTime[pIndex] = inputQueue.TailTime[pIndex] + 1;
   if (GameSetup_gData.commMode != 0) {
-    if (GameSetup_gData.commMode != 1) {
-      return 1;
-    }
-    if (pIndex == 0) {
-      return 1;
-    }
-  }
-  else if (1 < GameSetup_gData.numPlayerRaceCars) {
-    if (pIndex == 0) {
-      return 1;
+    if (GameSetup_gData.commMode == 1) {
+      if (pIndex != 0) {
+        gSimQueue_Ticker = gSimQueue_Ticker + 1;
+      }
     }
   }
-  gSimQueue_Ticker = gSimQueue_Ticker + 1;
+  else {
+    if (GameSetup_gData.numPlayerRaceCars < 2) {
+      gSimQueue_Ticker = gSimQueue_Ticker + 1;
+    }
+    else if (pIndex != 0) {
+      gSimQueue_Ticker = gSimQueue_Ticker + 1;
+    }
+  }
   return 1;
 }
 

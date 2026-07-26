@@ -1960,30 +1960,16 @@ void Camera_OpponentLookBehind(int player,coorddef *pos,int reset)
 /* ---- Camera_GetViewInfo__FiP17DRender_tCalcViewi  [@0x80085008] ---- */
 void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)
 {
-  int t1;
-  int t2;
-  int t3;
-  int scale;
-  coorddef tmp;
-  matrixtdef *pmVar1;
-  matrixtdef *pmVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-
   if (Camera_gInfo[cviewP].jostling != 0) {
     Camera_PitchAndRoll(cviewP);
   }
-  iVar3 = Camera_gInfo[cviewP].position.y;
-  iVar4 = Camera_gInfo[cviewP].position.z;
-  (cview->translation).x = Camera_gInfo[cviewP].position.x;
-  (cview->translation).y = iVar3;
-  (cview->translation).z = iVar4;
+  cview->translation = Camera_gInfo[cviewP].position;
   if (Camera_gInfo[cviewP].checkwalls != 0) {
     Camera_CheckWallCollisions(cviewP,&cview->translation);
   }
   BWorldSm_FindClosestQuadRez(&cview->translation,&Camera_gInfo[cviewP].slicePos,1);
-  if ((Camera_gInfo[cviewP].slicePos.offEdge == '\0') && (1 < Camera_gInfo[cviewP].mode)) {
+  if (((signed char)Camera_gInfo[cviewP].slicePos.offEdge == '\0') &&
+      (1 < Camera_gInfo[cviewP].mode)) {
     Camera_SetAboveGround(cviewP,&cview->translation);
   }
   if (Camera_gInfo[cviewP].tracking != 0) {
@@ -1993,55 +1979,45 @@ void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)
     Camera_AcquireTarget(cviewP,gCop1Target + cviewP,&cview->translation,&Camera_gInfo[cviewP].rotation,1);
   }
   if (Camera_gInfo[cviewP].noLookBack == 0) {
-    Camera_OpponentLookBehind(cviewP,&cview->translation,(u_int)(Input_gLookBehind[cviewP] == 0));
+    if (*(int *)((cviewP << 2) + (int)Input_gLookBehind) != 0) {
+      Camera_OpponentLookBehind(cviewP,&cview->translation,0);
+    }
+    else {
+      Camera_OpponentLookBehind(cviewP,&cview->translation,1);
+    }
   }
-  pmVar2 = &cview->mrotation;
-  pmVar1 = &Camera_gInfo[cviewP].rotation;
-  do {
-    iVar3 = pmVar1->m[1];
-    iVar4 = pmVar1->m[2];
-    iVar5 = pmVar1->m[3];
-    pmVar2->m[0] = pmVar1->m[0];
-    pmVar2->m[1] = iVar3;
-    pmVar2->m[2] = iVar4;
-    pmVar2->m[3] = iVar5;
-    pmVar1 = (matrixtdef *)(pmVar1->m + 4);
-    pmVar2 = (matrixtdef *)(pmVar2->m + 4);
-  } while (pmVar1 != (matrixtdef *)(Camera_gInfo[cviewP].rotation.m + 8));
-  pmVar2->m[0] = pmVar1->m[0];
+  cview->mrotation = Camera_gInfo[cviewP].rotation;
   if (GameSetup_gData.mirrorTrack != 0) {
-    iVar4 = (cview->mrotation).m[2];
-    (cview->mrotation).m[0] = -(cview->mrotation).m[0];
-    iVar3 = (cview->mrotation).m[1];
-    (cview->mrotation).m[2] = -iVar4;
-    (cview->mrotation).m[1] = -iVar3;
+    int t1 = cview->mrotation.m[0];
+    int t2 = cview->mrotation.m[1];
+    int t3 = cview->mrotation.m[2];
+    cview->mrotation.m[0] = -t1;
+    cview->mrotation.m[1] = -t2;
+    cview->mrotation.m[2] = -t3;
   }
-  pmVar2 = &cview->mrotationInv;
-  transpose(&cview->mrotation,pmVar2);
-  pmVar1 = &cview->mrotationInvRaw;
-  do {
-    iVar3 = pmVar2->m[1];
-    iVar4 = pmVar2->m[2];
-    iVar5 = pmVar2->m[3];
-    pmVar1->m[0] = pmVar2->m[0];
-    pmVar1->m[1] = iVar3;
-    pmVar1->m[2] = iVar4;
-    pmVar1->m[3] = iVar5;
-    pmVar2 = (matrixtdef *)(pmVar2->m + 4);
-    pmVar1 = (matrixtdef *)(pmVar1->m + 4);
-  } while (pmVar2 != (matrixtdef *)((cview->mrotationInv).m + 8));
-  pmVar1->m[0] = pmVar2->m[0];
-  iVar3 = fixedmult((cview->mrotation).m[3],0xdc00);
-  iVar4 = fixedmult((cview->mrotation).m[4],0xdc00);
-  iVar5 = fixedmult((cview->mrotation).m[5],0xdc00);
-  (cview->mrotation).m[3] = iVar3;
-  (cview->mrotation).m[4] = iVar4;
-  (cview->mrotation).m[5] = iVar5;
+  {
+    int scale;
+    int t1;
+    int t2;
+
+    transpose(&cview->mrotation,&cview->mrotationInv);
+    scale = 0xdc00;
+    cview->mrotationInvRaw = cview->mrotationInv;
+    t1 = fixedmult(cview->mrotation.m[3],scale);
+    t2 = fixedmult(cview->mrotation.m[4],scale);
+    scale = fixedmult(cview->mrotation.m[5],scale);
+    cview->mrotation.m[3] = t1;
+    cview->mrotation.m[4] = t2;
+    cview->mrotation.m[5] = scale;
+  }
   transpose(&cview->mrotation,&cview->mrotationInv);
-  tmp.x = -(cview->translation).x;
-  tmp.y = -(cview->translation).y;
-  tmp.z = -(cview->translation).z;
-  transform(&tmp,(cview->mrotationInv).m,&cview->translationInv);
+  {
+    coorddef tmp;
+    tmp.x = -cview->translation.x;
+    tmp.y = -cview->translation.y;
+    tmp.z = -cview->translation.z;
+    transform(&tmp,cview->mrotationInv.m,&cview->translationInv);
+  }
   return;
 }
 

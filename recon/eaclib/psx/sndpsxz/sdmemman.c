@@ -98,6 +98,46 @@
  *   multiply-set-`idx` giv BLOCKER already in this body IS the retail shape -- creating an anchor
  *   would move away from the oracle.  (c) The residual is therefore conceded to class 3, the $v0/$v1
  *   mirror, whose only untried instrument is the permuter (start with iSNDpsxmemconstrain, 31 insns).
+ *
+ *   🟢🔴 W35-a3 (2026-07-26) -- the SIBLING floor in smemman.c iSNDmalloc, described here and there
+ *   as the same allocno family, WAS BROKEN this wave (86 -> 52 diffs) by three return/block-placement
+ *   levers.  All three were ported here; NONE is a keep.  Recorded as a clean matrix so nobody
+ *   re-derives it (gate = verify_asm, diffs @ insns, oracle 127):
+ *       baseline 59@120 | split 75@120 | dbl 59@120 | pv 61@122
+ *       split+dbl 60@123 | split+pv 85@122 | dbl+pv 61@122 | all three 70@125
+ *     * `split` = TWO textual iSNDpsxmemconstrain call sites writing the address-taken pair directly
+ *                 (retiring the shared `final_constrain:` label and the final_* register copies).
+ *                 This IS retail's shape -- retail duplicates `addiu $a0/$a1,$sp` and both frame
+ *                 stores per arm and shares ONLY `.L8010A634: jal; nop`.
+ *     * `dbl`   = the W32 double READ of sndpd+0x51A in the empty arm (retail's `addu $v1,$a2,$zero`).
+ *                 CONFIRMED: CSE'd away in isolation (59@120, byte-identical output) and it only
+ *                 materializes once `split` exists -- w33-a7's isolated-finding note was right.
+ *     * `pv`    = scan_done against its OWN sndpd+0x51C symbol, limit read at offset 0 off that same
+ *                 base (retail's `.L8010A740 lui/addiu %hi/%lo(D_80147E34)` + `lhu $v1,0($v1)`).
+ *   `split+dbl` reproduces the empty arm BYTE-EXACTLY (first 24 instructions identical, vs the
+ *   baseline's 18) and `split+dbl+pv` reaches 125/127 -- but the LCS-MATCHED instruction count is
+ *   LOWER than the baseline's (91 vs 94), so the baseline body stays.
+ *   WHY THE 7 INSTRUCTIONS SURVIVE: the whole gap is one region.  Retail's post-scan owns
+ *   `addiu $a0/$a1,$sp` + `sw $v0,0x10($sp)` + `sw $v1,0x14($sp)` (4) and the empty arm owns its own
+ *   4, with only `jal`+`nop` shared; ours shares 5 of them.  post-reload cross-jump merge DEPTH is
+ *   decided on HARD REGISTERS, and retail's two arms differ ($a2/$v0 vs $v0/$v1) only because in
+ *   scan_done retail's `entry` address takes a FRESH $a2 while ours coalesces it with the dying
+ *   `idx*4` pseudo in $v0, pushing prev[0] to $v1 and rotating everything after it.
+ *   SOURCE-INVARIANCE OF THAT ONE `addu` is now 14 spellings across w32/w34/w35.  W35 added:
+ *   `(int)pv + idx*4`; `pv + idx*2`; the `pv[k]/pv[k+1]` index form; an `off` named temp; sum-in-a-
+ *   temp; limit-in-a-temp; limit read FIRST; limit read BETWEEN the two prev loads; `prev[1]+prev[0]`
+ *   order; a dead-set `prev = 0` carrier; and moving `table`/`previous` BELOW the entry guard (which
+ *   IS retail's shape -- the oracle assigns $s1/$s3 only on the fall-through, `beqz` first).  ALL
+ *   produce byte-identical output.  The only two that move at all COST instructions: writing the
+ *   limit into the address-taken `local_avail` before overwriting it (61@128, a spurious double
+ *   store) and the `+=` chain (62@129).
+ *   ALSO CLOSED: `-mno-split-addresses` for this TU is decisively WRONG (malloc 63@120, memconstrain
+ *   14 -> 18, and it BREAKS iSNDpsxfree which currently PASSes -> 4 diffs).
+ *   The smemman commit-block levers are diff-neutral here -- our commit already reuses $a0 for the
+ *   state base like retail, and sched1 re-floats the index `sll` regardless of source position
+ *   (index-first: 59 -> 59; on top of split+dbl: 61@124).
+ *   NOTE for the next wave: today's two NEW dials (IN-LOOP-DEF REF doubling, DEAD-SET carrier) are
+ *   both loop.c-mediated and this residual is NOT in a loop, so neither is applicable here.
  */
 
 /* MATCH: engine_ver/block_total/reverb_mode/alloc_count are NOT separate linked globals -- the oracle
@@ -190,7 +230,27 @@ extern int iSNDpsxmalloc(int size);                               /* @0x8010A5CC
  *   a permuter basin, and a named mechanism).  The only untried instrument left is a permuter
  *   multi-basin re-seed FROM the 20-diff block-1 basin -- but its premise is falsified above: every
  *   source form in that basin has the subtraction mis-placed, and the permuter mutates source, not
- *   RTL emission order. */
+ *   RTL emission order.
+ *
+ *   🔴 W35-a3 RE-CONFIRMATION + the PROTOTYPE axis (which the catalog flags as the usual reason a
+ *   floor certification is wrong -- "floors are prototype-conditional incl. PARAMETER WIDTH").  Now
+ *   closed here too: `int *size, int *avail` = 14, `unsigned int *size, unsigned int *avail` = 14,
+ *   `short *size` = 35 @32 insns (breaks parity).  Return type is genuinely void -- the exit $v0
+ *   holds the third clamp's `subu`/`slt` scratch on every path, i.e. incidental, and an `int` return
+ *   would RESERVE $v0, which is the register retail gives to `diff`.
+ *   Five more spellings (all still 14 @31/31, byte-identical output): declaration-with-initializer
+ *   form; `diff` computed from a second literal `*size` read; `lo` typed `unsigned int` with the
+ *   subtraction un-cast; `s` read BEFORE `lo`; Yoda `(int)lo > (int)s`.
+ *   The residual is precisely TWO facts: (i) the first two loads are ORDER-SWAPPED (ours
+ *   `lw $a2,0($a0)` then `lhu`, retail `lhu` then `lw`) because sched1 gives the dependency-free
+ *   `lw` off the incoming `$a0` a higher ready-list priority than the `lhu` that must wait for the
+ *   `la` of sndpd; and (ii) the 3-way rotation that follows from it (lo $v1<-$a3, diff $a3<-$v0,
+ *   block-1 temp $v0<-$v1).  Our body ALREADY has retail's exact instruction sequence including the
+ *   `subu` in the `beqz` delay slot -- the W34 note's "we cannot put the subtraction at the block
+ *   head" concern does not apply to THIS body, only to the 20-diff variants.
+ *   Today's two new dials do not reach it either: both IN-LOOP-DEF REF doubling and the DEAD-SET
+ *   carrier are loop.c-mediated (REG_N_REFS is loop-depth-weighted only inside a
+ *   NOTE_INSN_LOOP_BEG/END pair) and this function contains no loop. */
 extern void iSNDpsxmemconstrain(unsigned int *size, int *avail)
 {
     unsigned char *pd = sndpd;

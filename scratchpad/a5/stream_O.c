@@ -636,29 +636,7 @@ extern int startnextrequest(int s, unsigned int prio)
  *   w34-a2 TRIED, all byte-identical or worse: `volatile` on either initial load (42/42), a named
  *   `bb` local for the wrap arm's bufBase (42), storing `MI(s,0x44) = MI(s,0x20)` before the fillptr
  *   update (44).  The lever needed is one that keeps $v1 busy across the wrap arm's bufBase load --
- *   same local-alloc-ordering identity family as startnextrequest.
- * w35-a5 -- 42 -> 2 (167/167).  The w34 root-cause was RIGHT about the mechanism (a block-local
- * bufBase pseudo stealing $v1 in the wrap arm) and WRONG about the fix being unreachable.  Two
- * source levers, both plain C:
- *  (1) GIVE THE WRAP ARM'S bufBase A NAMED FUNCTION-SCOPE LOCAL THAT IS ALSO THE memcpy ARGUMENT
- *      (`unsigned char *bb`, assigned once BEFORE the memcpy/guard and re-read once AFTER it).
- *      A dedicated local used only after the call stays BLOCK-local and changes nothing (measured:
- *      42, in all three declaration positions) -- what matters is that the SAME variable is
- *      assigned in TWO blocks, which promotes it to a global allocno carrying memcpy's `$a0` copy
- *      preference.  It then takes $a0 (retail's register) instead of the just-freed $v1, the
- *      hard-$v1 ban on fillptr disappears, and (readptr, fillptr) snap to retail's (a2, v1).
- *      42 -> 6.  Staging the bufBase in an existing long-lived local instead of a fresh one is a
- *      weaker form of the same lever: into `room` = 22, into `p` = 17 but 166 insns (p's extra
- *      liveness costs the first loop's `addu a0,v1,zero`), into `q` = 34, into `uVar3` = 39.
- *  (2) SPLIT THE `- 1` OFF THE WRAP ARM'S ROOM SUBTRACTION (`roomRaw = readptr - fillptr;` then
- *      `room = roomRaw - 1;` inside the arm, instead of the shared `room = room - 1;`).  With one
- *      variable gcc coalesces both into `subu a1,v0,v1; addiu a1,a1,-1`; the oracle keeps the
- *      subtraction in a scratch (`subu v0,v0,v1; addiu a1,v0,-1`).  6 -> 2.
- * RESIDUAL 2 = a sched1 ready-list tie on the two initialising loads: the oracle issues
- * `lw a2,0x40(s1)` (readptr) before `lw v1,0x48(s1)` (fillptr), ours the other way round; the
- * registers are already retail's, only the two loads are transposed.  Falsified for it: swapping
- * the two initialisers' source order, and the Yoda compare `uVar5 < uVar3` (both byte-identical --
- * fillptr's longer dependency chain wins the ready list regardless of source order). */
+ *   same local-alloc-ordering identity family as startnextrequest. */
 extern int restartstream(int s, unsigned int prio)
 {
     int *p;
@@ -706,7 +684,6 @@ extern int restartstream(int s, unsigned int prio)
         unsigned int uVar3 = MU(s, 0x40);        /* readptr */
         unsigned int uVar5 = MU(s, 0x48);        /* fillptr */
         int room;
-        int roomRaw;
         if (uVar3 > uVar5) {
             room = (uVar3 - uVar5) - 1;
             goto check_room;
@@ -726,12 +703,12 @@ extern int restartstream(int s, unsigned int prio)
                 q[1] = 8;
                 bb = *(unsigned char **)(s + 0x20);
                 uVar5 = (unsigned int)bb + moveSize;
-                roomRaw = MI(s, 0x40) - uVar5;
+                room = MI(s, 0x40) - uVar5;
                 MI(s, 0x44) = (int)bb;
                 MI(s, 0x48) = uVar5;
-                room = roomRaw - 1;
             }
         }
+        room = room - 1;
 check_room:
         if (room < 0x2000) {
 stall:

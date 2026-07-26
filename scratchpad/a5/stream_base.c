@@ -515,20 +515,7 @@ restart:
  *     (v7/$v1 = done, v6/$a0 = cur, v5/$a1 = SR, v8/$v0 = nx).  Also byte-identical: hoisting the
  *     state load above `done = 0`; per-arm `done = 0` is worse (29 diffs, 99 insns);
  *     -fno-schedule-insns and -fno-schedule-insns2 do not move it.
- *     => allocno_compare live-length identity; permuter / length-perturbation class.
- * w35-a5 -- **PASS (100/100)**.  The w34 verdict ("merged gates worse, 20; needs done +519") was
- * measured on an INCOMPLETE merged spelling: merging the state temp into `done` also requires the
- * `state == 1` path to carry an EXPLICIT `else done = 0;` and the advance path an explicit
- * `done = 0;` beside the cursor store, so that every arm of the merged variable is written in the
- * source.  With all three arms spelled out, `done` and `cur` no longer contend at all -- the
- * merge removes the block-local state temp (hence the hard-$v1 conflict on `done`), and the arms'
- * own sets give `done` the extra RTL references the w34 arithmetic said it needed (+519) without
- * adding a single instruction: gcc tail-merges the two `done = 0` stores and folds the else arm,
- * so the stream is byte-identical to the shipped form except for the register roles it fixes
- * (done/SR -> $v1/$a1 = retail, cur -> $a0, nx -> $v0, exactly IDA sub_800FC9B4's v7/v5/v6/v8).
- * LESSON (catalog-worthy): when a "merged variable" experiment gates worse, check that EVERY arm
- * assigns the merged variable explicitly before filing the allocno-priority verdict -- a partially
- * merged spelling leaves the old anonymous temp alive and measures the wrong thing. */
+ *     => allocno_compare live-length identity; permuter / length-perturbation class. */
 extern int startnextrequest(int s, unsigned int prio)
 {
     int  done;
@@ -539,17 +526,13 @@ extern int startnextrequest(int s, unsigned int prio)
     cur  = MI(s, 0x50);
     done = 1;
     if (cur != 0) {
-        done = MI(cur, 4);                      /* merged: state temp IS done */
-        if (done != 1) {                        /* current no longer queued */
+        done = 0;
+        if (MI(cur, 4) != 1) {                  /* current no longer queued */
             int nx = MI(cur, 0xc);              /* advance to next */
             if (nx == 0)
                 done = 1;
-            else {
+            else
                 MI(s, 0x50) = nx;
-                done = 0;
-            }
-        } else {
-            done = 0;
         }
     }
     if (done) {
@@ -636,35 +619,12 @@ extern int startnextrequest(int s, unsigned int prio)
  *   w34-a2 TRIED, all byte-identical or worse: `volatile` on either initial load (42/42), a named
  *   `bb` local for the wrap arm's bufBase (42), storing `MI(s,0x44) = MI(s,0x20)` before the fillptr
  *   update (44).  The lever needed is one that keeps $v1 busy across the wrap arm's bufBase load --
- *   same local-alloc-ordering identity family as startnextrequest.
- * w35-a5 -- 42 -> 2 (167/167).  The w34 root-cause was RIGHT about the mechanism (a block-local
- * bufBase pseudo stealing $v1 in the wrap arm) and WRONG about the fix being unreachable.  Two
- * source levers, both plain C:
- *  (1) GIVE THE WRAP ARM'S bufBase A NAMED FUNCTION-SCOPE LOCAL THAT IS ALSO THE memcpy ARGUMENT
- *      (`unsigned char *bb`, assigned once BEFORE the memcpy/guard and re-read once AFTER it).
- *      A dedicated local used only after the call stays BLOCK-local and changes nothing (measured:
- *      42, in all three declaration positions) -- what matters is that the SAME variable is
- *      assigned in TWO blocks, which promotes it to a global allocno carrying memcpy's `$a0` copy
- *      preference.  It then takes $a0 (retail's register) instead of the just-freed $v1, the
- *      hard-$v1 ban on fillptr disappears, and (readptr, fillptr) snap to retail's (a2, v1).
- *      42 -> 6.  Staging the bufBase in an existing long-lived local instead of a fresh one is a
- *      weaker form of the same lever: into `room` = 22, into `p` = 17 but 166 insns (p's extra
- *      liveness costs the first loop's `addu a0,v1,zero`), into `q` = 34, into `uVar3` = 39.
- *  (2) SPLIT THE `- 1` OFF THE WRAP ARM'S ROOM SUBTRACTION (`roomRaw = readptr - fillptr;` then
- *      `room = roomRaw - 1;` inside the arm, instead of the shared `room = room - 1;`).  With one
- *      variable gcc coalesces both into `subu a1,v0,v1; addiu a1,a1,-1`; the oracle keeps the
- *      subtraction in a scratch (`subu v0,v0,v1; addiu a1,v0,-1`).  6 -> 2.
- * RESIDUAL 2 = a sched1 ready-list tie on the two initialising loads: the oracle issues
- * `lw a2,0x40(s1)` (readptr) before `lw v1,0x48(s1)` (fillptr), ours the other way round; the
- * registers are already retail's, only the two loads are transposed.  Falsified for it: swapping
- * the two initialisers' source order, and the Yoda compare `uVar5 < uVar3` (both byte-identical --
- * fillptr's longer dependency chain wins the ready list regardless of source order). */
+ *   same local-alloc-ordering identity family as startnextrequest. */
 extern int restartstream(int s, unsigned int prio)
 {
     int *p;
     int *q;
     int  sr;
-    unsigned char *bb;
 
     /* skip wrap/free markers at the read head (+0x40) up to the writeptr (+0x44) */
     if (MI(s, 0x40) != MI(s, 0x44)) {
@@ -706,7 +666,6 @@ extern int restartstream(int s, unsigned int prio)
         unsigned int uVar3 = MU(s, 0x40);        /* readptr */
         unsigned int uVar5 = MU(s, 0x48);        /* fillptr */
         int room;
-        int roomRaw;
         if (uVar3 > uVar5) {
             room = (uVar3 - uVar5) - 1;
             goto check_room;
@@ -717,21 +676,19 @@ extern int restartstream(int s, unsigned int prio)
             /* not enough tail room -> wrap: move the partial chunk down to bufBase */
             {
                 int moveSize = uVar5 - (int)*(unsigned char **)(s + 0x44);
-                bb = *(unsigned char **)(s + 0x20);
-                if ((int)(uVar3 - (int)bb) < moveSize + 1)
+                if ((int)(uVar3 - (int)*(unsigned char **)(s + 0x20)) < moveSize + 1)
                     goto stall;
-                memcpy(bb, *(unsigned char **)(s + 0x44), moveSize);
+                memcpy(*(unsigned char **)(s + 0x20), *(unsigned char **)(s + 0x44), moveSize);
                 q = *(int **)(s + 0x44);
                 q[0] = -1;                       /* leave a wrap marker behind */
                 q[1] = 8;
-                bb = *(unsigned char **)(s + 0x20);
-                uVar5 = (unsigned int)bb + moveSize;
-                roomRaw = MI(s, 0x40) - uVar5;
-                MI(s, 0x44) = (int)bb;
+                uVar5 = MI(s, 0x20) + moveSize;
+                room = MI(s, 0x40) - uVar5;
+                MI(s, 0x44) = MI(s, 0x20);
                 MI(s, 0x48) = uVar5;
-                room = roomRaw - 1;
             }
         }
+        room = room - 1;
 check_room:
         if (room < 0x2000) {
 stall:

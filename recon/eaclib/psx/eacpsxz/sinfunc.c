@@ -13,6 +13,15 @@
  *   sintbl @0x80137464 is SHARED (also isincos) -> extern; the data pass owns its definition.
  *   maspsx: the `lw` displacement is DECIMAL (1024 == 0x400); immediates decimal; `.set noreorder`.
  */
+/* w33-a5 CONST-TABLE RETEST (w32 open item) -- CLOSED, the lever is INAPPLICABLE here.
+ * isincos.c cracked intsincos by DROPPING `const` (gcc-2.8 marks a const object's MEM
+ * RTX_UNCHANGING_P, letting sched hoist its loads across an aliasing-unknown store).  That is a
+ * pure C-CODEGEN lever, and this TU has NO C codegen: SYM SLD @0x800F18E4 = "line 12 of file
+ * C:\LIB\PSX\SINFUNC.ASM" -- the obj is hand-written assembly, transcribed verbatim below, and
+ * `sintbl` is reached through a %hi/%lo TEXT RELOC, not through this declaration.  A/B PROVEN
+ * this session: const vs non-const -> intcos PASS (1) / intsin PASS (26) either way, byte-identical.
+ * So `const` stays (it IS a read-only table, and it is what the host fallback wants); isincos.c's
+ * "worth re-testing there" note is hereby answered NO.  No regression risk to intsin/intcos. */
 extern const int sintbl[257];   /* @0x80137464 : quarter-sine table, 16.16 (blob-owned) */
 
 #if defined(__mips__)

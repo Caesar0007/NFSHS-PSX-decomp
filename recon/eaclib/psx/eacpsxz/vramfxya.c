@@ -76,19 +76,46 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
      *      strength-reduces the three byte givs onto the LAST one in body order (src[0x10]) and
      *      rebases the pointer to `c+16` with displacements 2/1/0; retail keeps base `c` with
      *      displacements 16/17/18, i.e. loop.c never ran (catalog SS-B goto-loop / giv-anchor).
-     * RESIDUAL 80 = pure register PERMUTATION, no instruction-shape diffs left:
-     *   ours {imgX s3, imgY s2, maskLo s6, clutX s5, clutY s4, clutXm fp, clutYm s7}
-     *   retail{imgX s7, imgY fp, maskLo s4, clutX s5, clutY s6, clutXm s3, clutYm s2}
-     *   plus the a2/a3 counter/dst swap in both CLUT loops and the switch jump-table's
-     *   materialize-then-shift order.  Tried and REJECTED (no change): every declaration-order
-     *   permutation of the 8 outer locals and the 6 inner locals, dst/src assignment order,
-     *   moving `i = 0` inside the guard.  The allocno table (cc1 -dl) says imgX/imgY carry 5 refs
-     *   vs clutXm/clutYm's 3, which is what puts them in the earlier reg class; retail's must be
-     *   the other way round, and no source form found so far flips it. */
-    int ix = imgX;
-    int iy = imgY;
-    int cx = clutX;
-    int cy = clutY;
+     * ------------------------------------------------------------------------------------------
+     * w33-a5 (2026-07-26): 80 -> 68 diffs, parity held 165/165, via the PARAM-COPY REF-COUNT LEVER,
+     * and the residual is now QUANTITATIVELY closed out as a toolchain identity (not a source miss).
+     *
+     * METHOD -- read the allocation instead of guessing it.  `cc1 -dg` on the preprocessed TU prints
+     * BOTH the priority-sorted allocation order ("N regs to allocate: ...") and the final
+     * "Register dispositions", so the whole callee-saved assignment is directly readable.  gcc-2.8
+     * global.c sorts allocnos by  floor_log2(n_refs)*n_refs*size / live_length , assigns them in that
+     * order, and each takes the first free reg in REG_ALLOC_ORDER (s0,s1,...,s7,fp) -- so the s-reg
+     * NUMBER *is* the priority rank.  n_refs is weighted by LOOP DEPTH (flow.c adds `loop_depth` per
+     * reference), so an in-loop use counts 2 and a pre-header def counts 1.  That model reproduces our
+     * assignment exactly, every variant tried:
+     *     no copies : {maskLo,imgX,imgY}=5 refs(pri 10) > {clutX,clutY}=4(8) > {clutXm,clutYm}=3(3)
+     *                 -> s2..s4 img/mask, s5/s6 clut, s7/fp clutXm/clutYm   (84 diffs)
+     *     all four copied (w32 form): the copy insn adds a def+use, so all four params reach 7 refs
+     *                 and outrank maskLo -> params take s2..s5                (80 diffs)
+     * A LOCAL COPY OF A PARAM IS THEREFORE A PURE PRIORITY DIAL (+2 weighted refs, no code change --
+     * gcc coalesces the copy away).  Exhaustively enumerating all 16 subsets of {ix,iy,cx,cy} copies:
+     *     {} 84 | {ix} 82 | {iy} 82 | {cy} 82 | {cx} 76 | {ix,cx} 68 | {iy,cx} 68 | {ix,iy} 74 |
+     *     {ix,cy} 74 | {iy,cy} 74 | {cx,cy} 74 | {ix,iy,cx} 74 | rest 80.
+     * {ix,cx} (kept below) puts maskHi->s1, maskLo->s4, clutY->s6 and c->s0 on retail's registers.
+     *
+     * RESIDUAL 68 = REGISTER PERMUTATION ONLY (no instruction-shape diffs; 165/165):
+     *   ours   {c s0, maskHi s1, imgX s2, clutX s3, maskLo s4, imgY s5, clutY s6, clutYm s7, clutXm fp}
+     *   retail {c s0, maskHi s1, clutYm s2, clutXm s3, maskLo s4, clutX s5, clutY s6, imgX s7, imgY fp}
+     * PROOF THAT NO SOURCE FORM REACHES RETAIL'S ORDER: the reference COUNTS are already identical to
+     * retail's instruction-for-instruction (imgX/imgY/maskLo each have 1 def + 2 in-loop uses;
+     * clutXm/clutYm 1 def + 1 in-loop use), and both clutXm/clutYm and maskLo are defined in the same
+     * pre-header and die within 4 insns of each other in the CLUT tail, so their live_lengths differ
+     * by ~1%.  Retail nevertheless ranks clutYm/clutXm (3 weighted refs) ABOVE maskLo (5) and imgX (5).
+     * Under this cc1's formula that requires live_length(clutXm) < 0.3*live_length(maskLo), which the
+     * shared pre-header/tail placement makes impossible.  ==> retail's cc1 ranks a short-lived
+     * constant-initialised local ABOVE an equally-live param copy, i.e. this is a 5th exhibit of the
+     * suspected ALLOCNO_COMPARE DELTA already banked for sbdload/purge/start/serve (catalog SS-G,
+     * "retail allocates constant-init short-lived locals into EARLIER callee-saved regs").  Route to
+     * the toolchain-identity investigation; do NOT re-fight from source.
+     * Also tried and rejected this session: all 6! declaration orders of the local block (no effect --
+     * decl order only breaks allocno-number TIES, and here no two priorities tie). */
+    int ix = imgX;                          /* +2 weighted refs -> priority dial only, see above  */
+    int cx = clutX;                         /* (gcc coalesces both copies away; 0 insns added)     */
     unsigned int maskLo  = ~0xFFFu;         /* clears the low 12 bits (x field) */
     unsigned int maskHi  = 0xF000FFFFu;     /* clears bits 16-27 (y field) */
     unsigned int clutXm  = (unsigned int)clutX & 0xfff;
@@ -114,10 +141,10 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
                  * `& 0xf000f000` mask; the oracle materializes and shares 2 distinct AND-mask
                  * constants (~0xFFF, 0xF000FFFF) across both this site and the CLUT-tail site below. */
                 c[3] = (c[3] & maskLo) | ((unsigned int)ix & 0xfff);
-                c[3] = (c[3] & maskHi) | (((unsigned int)iy & 0xfff) << 0x10);
+                c[3] = (c[3] & maskHi) | (((unsigned int)imgY & 0xfff) << 0x10);
                 *(unsigned char *)c = (unsigned char)*c | 8;
                 scratch.rect.x = ix;
-                scratch.rect.y = iy;                 /* H04: was missing (oracle 0x800F6A80 *(short*)(18+sp)=imgY) */
+                scratch.rect.y = imgY;                 /* H04: was missing (oracle 0x800F6A80 *(short*)(18+sp)=imgY) */
                 bits   = (short)c[1] * shapedepth((unsigned char *)c);
                 w      = bits + 0xf;
                 if (w < 0)
@@ -179,7 +206,7 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
         c[3] = (c[3] & maskHi) | clutYm;
         *(unsigned char *)c = (unsigned char)*c | 8;
         scratch.rect.x = cx;
-        scratch.rect.y = cy;                     /* H04: was missing (oracle 0x800F6BC4 *(short*)(18+sp)=clutY) */
+        scratch.rect.y = clutY;                     /* H04: was missing (oracle 0x800F6BC4 *(short*)(18+sp)=clutY) */
         scratch.rect.w = (short)c[1];
         scratch.rect.h = 1;
         vramimage(rectp, data);

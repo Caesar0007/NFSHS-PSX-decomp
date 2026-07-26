@@ -24,8 +24,14 @@
  *   through `int *psin`.  Retail could NOT do that -> the original declared the table WITHOUT
  *   const.  Dropping `const` (`extern int sintbl[257];`) restores the sequential arm shape and the
  *   whole function falls out byte-exact: 73 diffs -> PASS in one edit.  (Not a hack: the oracle's
- *   three `lw; nop; sw` triples are the proof of the missing const.  sinfunc.c still declares the
- *   same table `const` -- worth re-testing there.)
+ *   three `lw; nop; sw` triples are the proof of the missing const.)
+ *
+ *   w33-a5: the "re-test sinfunc.c" follow-up is CLOSED as NOT-APPLICABLE.  SYM SLD proves
+ *   sinfunc's obj is hand-written assembly (`C:\LIB\PSX\SINFUNC.ASM` @0x800F18E4 line 12), so it
+ *   has no C codegen for `const` to perturb -- an A/B there is byte-identical both ways (intcos
+ *   PASS 1 / intsin PASS 26 either way), and its `const` was kept.  Conversely THIS obj has no
+ *   SLD records at all, which in eaclib is exactly the C-compiled signature (only the 15 .ASM
+ *   objs kept line info) -- so the const-table lever belongs here and only here.
  */
 
 extern int sintbl[257];   /* @0x80137464 : quarter-sine, 16.16.  NON-const ON PURPOSE -- see above:

@@ -613,18 +613,30 @@ void AudioEng_StopServer(void)
 /* ---- AudioEng_Pause__Fv  [@0x8007c47c] ---- */
 void AudioEng_Pause(void)
 {
-  int player;
-  AudioEng_t*g;
-  AudioEng_tState*s;
   AudioEng_tState *pAVar1;
   AudioEng_t *pAVar2;
   AudioEng_t **ppAVar3;
   int iVar4;
-  
+
+  /* w30-a7: loop rotation lever -- the previous `while (A && B && C)` form (with a
+     comma-expr assignment embedded in the condition) compiled to a ROTATED loop (an
+     initial unconditional jump into the middle of the body, entry test duplicated).
+     The oracle reuses the SAME top-of-loop test code as both the entry gate and the
+     back-edge (single `j` back to the top, no duplication) -- a plain top-tested
+     `while` with the condition split into separate statements, no embedded assignment,
+     matches that non-rotated shape. FLOOR: 39 residual diffs -- gcc proves iVar4=0 makes
+     the `while(iVar4<2)` entry test always-true and elides it (only the back-edge test at
+     the bottom survives), while the oracle keeps a real entry test (its original condition
+     must have been compound/non-foldable at entry). Tried: recombining into one `&&` chain
+     (regresses to full rotation, 58 diffs), `for(iVar4=0;iVar4<2;)` (worse, 45), and
+     pre/post-fetching pAVar2 outside the condition (regresses to rotation, 59) -- the
+     split-if form above is the best of everything tried this session. */
   iVar4 = 0;
   ppAVar3 = AudioEng_g;
-  while (((iVar4 < 2 && (pAVar2 = *ppAVar3, pAVar2 != (AudioEng_t *)0x0)) &&
-         ((pAVar2->plypos != '\x0f' || ((pAVar2->setpos + 1U & 1) == 0))))) {
+  while (iVar4 < 2) {
+    pAVar2 = *ppAVar3;
+    if (pAVar2 == (AudioEng_t *)0x0) break;
+    if ((pAVar2->plypos == '\x0f') && ((pAVar2->setpos + 1U & 1) != 0)) break;
     ppAVar3 = ppAVar3 + 1;
     pAVar1 = pAVar2->queue + (u_char)pAVar2->setpos;
     pAVar1->vol = 0;
@@ -649,32 +661,34 @@ void AudioEng_Resume(void)
 /* ---- AudioEng_CleanUp__Fv  [@0x8007c534] ---- */
 void AudioEng_CleanUp(void)
 {
-  AudioEng_t*g;
-  int j;
-  AudioEng_tChanAttr *chan;
+  /* w30-a7: dead-local removal (frame-size lever) -- the previous declaration block carried a
+     large batch of never-referenced locals (incl. a 20-byte SNDPLAYOPTS by value), inflating the
+     stack frame to 0x48 vs the oracle's real 0x30; trimmed to only the locals this body uses. */
   u_int uVar1;
-  int c;
-  char *pdata;
   AudioEng_t *pAVar2;
-  int i;
   int iVar3;
-  u_short leftazim;
   AudioEng_t *ptr;
-  char *current;
-  char *header;
-  int tablesize;
   AudioEng_t **ppAVar4;
-  int bankloaded;
-  SNDPLAYOPTS playopts;
-  AudioEng_tDef *loaddef;
-  AudioEng_tDef *cruisedef;
-  
-  ppAVar4 = AudioEng_g;
+  AudioEng_t **base;   /* w30-a7: oracle materializes AudioEng_g ONCE into s5 (base) and copies it
+                           to s3 (ppAVar4/loop var); the bound s5+8 is a fresh in-loop addiu each
+                           iteration, not a separately-hoisted constant. Naming the base explicitly
+                           (rather than re-referencing the global AudioEng_g+2 each time) matches
+                           that shape (also needed the (int) casts below to get a signed `slt`
+                           bound compare instead of pointer `sltu`, matching the oracle).
+                           FLOOR: 20 residual diffs split into two proven scheduler tie-breaks --
+                           (1) prologue s3<->s5 register-NAME swap (base vs. copy get materialized
+                           into the opposite physical reg; tried both assignment orders, identical
+                           output either way); (2) the inner-loop base-anchor choice already fought
+                           to a floor below (s2+0 vs s2+676) -- neither moves under source reshaping
+                           tried this session; not re-fighting further. */
+
+  base = AudioEng_g;
+  ppAVar4 = base;
   while( true ) {
     /* DISGUISED BARE-VA FIX (w14-a2): -0x7fec38c5 == 0x8013C73B, one byte SHORT of the true
      * array end &AudioEng_g[2]==0x8013C73C -- raw @0x8007c564 confirms `$v0=$s5+8; $v0=$s3<$v0;
      * if($v0==0) goto exit` i.e. the real bound is AudioEng_g+2 (s5=AudioEng_g held live). */
-    if (ppAVar4 >= AudioEng_g + 2) {
+    if ((int)ppAVar4 >= (int)(base + 2)) {
       return;
     }
     ptr = *ppAVar4;
@@ -693,7 +707,14 @@ void AudioEng_CleanUp(void)
         pAVar2->right[0].handle = -1;
       }
       iVar3 = iVar3 + 1;
-      pAVar2 = (AudioEng_t *)pAVar2->vol;
+      /* w30-a7: BUG FIX -- was `pAVar2 = (AudioEng_t *)pAVar2->vol;` (reading the "vol" field's
+         VALUE as a pointer, nonsensical). Raw oracle proves this is a plain 12-byte BYTE-pointer
+         walk (`addiu s0,s0,0xC`); Ghidra rendered the pointer-arithmetic as a field read because
+         offset 0xC coincidentally names a struct field. left[i]/right[i] are reached via the
+         CONSTANT struct-relative offsets 484/676 applied to this walking base (left/right arrays
+         are exactly 192 bytes apart with matching 12-byte element stride, so one incrementing
+         pointer serves both -- confirmed against asm/nonmatchings/main/AudioEng_CleanUp__Fv.s). */
+      pAVar2 = (AudioEng_t *)((char *)pAVar2 + 0xc);
     } while (iVar3 < 0x10);
     purgememadr(ptr->tables);
     purgememadr(ptr);

@@ -19,14 +19,14 @@ void Paths_StartUp(void)
   char *scan;
   int deadfrm[5];  /* MATCH: unused frame filler — SYM shows scan as class AUTO @-8 (0x18 frame in the oracle); 20 dead bytes reproduce it */
 
-  scan = burnPath;
   dirCounter = 0x31;
   do {
-    Paths_Paths[dirCounter] = scan;
+    Paths_Paths[dirCounter] = burnPath;
     dirCounter = dirCounter + -1;
   } while (-1 < dirCounter);
-  Paths_Paths[0x24] = fePath;
-  Paths_Paths[0x20] = fePath;
+  scan = fePath;
+  Paths_Paths[0x24] = scan;
+  Paths_Paths[0x20] = scan;
   return;
 }
 

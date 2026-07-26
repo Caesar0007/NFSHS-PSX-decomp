@@ -664,17 +664,21 @@ int Object_FindDefWithThisID(int ID)
 
   i = 0;
   ppTVar2 = Track_gObjDefs;
-  while( true ) {
+  while (true) {
     if (gPersistObjDef->m_num_elements <= i) {
-      return -1;
+      goto notFound;
     }
     objDef = *ppTVar2;
     ppTVar2 = ppTVar2 + 1;
-    if (ID == objDef->id) {  /* NEAR-MISS 10: gcc lays beq-to-return + inline i++/j; oracle bne-around-return. if/else, continue, no-else, for all emit the same layout (jump-opt tie) */
-      return i;
+    if (ID != objDef->id) {
+      goto nextObjectDef;
     }
+    return i;
+nextObjectDef:
     i = i + 1;
   }
+notFound:
+  return -1;
 }
 
 

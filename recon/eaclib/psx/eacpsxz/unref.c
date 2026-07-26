@@ -21,18 +21,19 @@ extern void chase(unsigned int code);                                           
 
 /* unrefpack @0x800F52B8 : decompress RefPack stream `comp` into `out` (only if `reverse` != 0, else size-query);
  *   returns the 24-bit uncompressed size.
- * RAW/ORACLE REDUCTION (2026-07-26, 103->37 diffs; 153/158 instructions): the retail body keeps a
+ * RAW/ORACLE REDUCTION (2026-07-26, 103->33 diffs; 153/158 instructions): the retail body keeps a
  * separate mutable byte cursor derived from `comp` while mutating the output parameter directly.
  * That lifetime puts source in $s2 and output in $s3 and removes the whole saved-register cascade;
- * the literal-run length reuses the mutable third parameter, matching the retail $s0 schedule.
+ * declaring that cursor before the result accumulator also matches the retail saved-register setup,
+ * while the literal-run length reuses the mutable third parameter for the retail $s0 schedule.
  * Remaining residual is three missing output-cursor materializations plus arithmetic/prologue scheduling.
  * Raw nfs4-f.exe E5AB8..E5D2F SHA-256:
  * eae786e8d18c199bea647b339f069508f7294319d4855358b59db0bf234b749b. */
 extern int unrefpack(unsigned char *comp, unsigned char *out, int reverse)
 {
+    unsigned char *src = comp;
     int           size = 0;
     unsigned char trail[8];
-    unsigned char *src = comp;
     if (comp != (unsigned char *)0) {
         unsigned int flags = geti(comp, 4);
         src += 2;

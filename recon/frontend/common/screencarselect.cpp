@@ -2088,9 +2088,17 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
   tCarInfo carInfo;
   short j;
   short yOffset;
-  BOOL gotcar;
-  tCarInfo *ci;   /* SYM BOOL == int: the oracle just copies $v0 (`addu $s4,$v0,$zero`);
+  BOOL gotcar;   /* SYM BOOL == int: the oracle just copies $v0 (`addu $s4,$v0,$zero`);
                     a C++ `bool` normalizes it with an extra `sltu`. */
+  /* MATCH: the SYM 8c block does NOT list a function-scope `ci`/carInfo-pointer --
+     it names a PTR STRUCT tCarInfo "carInfo" (shadowing the AUTO struct) scoped to
+     the innermost block starting @0x8003EB60, i.e. declared FRESH inside the
+     `if (gotcar)` loop body, not hoisted before the loop. The compiler still
+     loop-invariant-hoists its VALUE (&carInfo is constant), landing the address
+     materialize in the loop-setup preamble (@0x8003EB14, beside the s6/s5 table
+     bases) instead of inside the earlier if/else (which had no reason to touch it
+     when `ci` didn't exist there yet) -- that's what was stealing the if/else's
+     branch-delay slots in the old function-scope-hoisted form. */
 
   yOffset = 0x2d;
   if (FEAppA[0]->fPlayer == '\x01') {
@@ -2114,19 +2122,23 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
            (menuDefs->itemColorP2).fFlags | 1;
     }
   }
-  ci = &carInfo;
   j = 0;
   while (true) {
-    tCarStatType carStat;
     short result;
 
     if (4 < j) break;
     FETextRender_MenuTextPositionedJustify(text2PVals[j],500,(short)(yOffset + 4),1,
                                            textState_Unselected,textType_Default);
     /* MATCH: the ACCUMULATE arm is the inline one -- oracle `beqz $s4,.L8003EBC8`
-       branches AWAY to the `result = 0` block, which sits after it. */
+       branches AWAY to the `result = 0` block, which sits after it. RESIDUAL FLOOR:
+       oracle keeps the accumulator in $v1 (matching the SYM's REG $v1 `result`) and
+       the fUpgrades test byte in $a0; ours swaps them ($a0 accumulator / $v1 test) --
+       a uniform a0<->v1 register-coloring tie-break (§3.15 family). Tried: call
+       duplication per branch (worse, 56 diffs -- reverted), ci/carStat declaration
+       reorder (already applied above, helped elsewhere but doesn't move this pair). */
     if (gotcar != 0) {
-      carStat = remap[j];
+      tCarStatType carStat = remap[j];
+      tCarInfo *ci = &carInfo;
       result = (short)ci->fStats[0][carStat];
       if ((ci->fUpgrades & 1) != 0) {
         result = result + ci->fStats[1][carStat];

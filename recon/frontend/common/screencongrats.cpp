@@ -30,70 +30,80 @@ void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
                char **swapFileName)
 
 {
-  byte tournOffset;
-  tTournamentDefinition *def;
+  /* MATCH: SYM 8c block = tourneyInfo($s4) + j($s2, the winning place) +
+     i($s0); fsize 64, mask $80ff0000.  The RANKING arm is the INLINE one
+     (oracle `sltiu $v0,$v0,2; bnez $v0,.L80048030` branches AWAY to the
+     small-spin arm), and both 2-way selects are if/ELSE so the second value
+     lands in a branch delay slot. */
   short ranking;
   int numRanked;
-  u_short numShapes;
   char *prefix;
   int i;
-  int place;
+  int j;
   tTourneyInfo *tourneyInfo;
-  
-  def = tournamentManager.fDefinition;
-  place = tournamentManager.fTournament;
-  tournOffset = (tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset;
+
   this->fNumSmallSpinShapes = 0;
   this->fNumSpinShapes = 0;
-  tourneyInfo = def->fTournaments + (uint)tournOffset + place;
-  numShapes = 0x16;
+  tourneyInfo = &(tournamentManager.fDefinition)->fTournaments
+      [(uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset +
+       tournamentManager.fTournament];
   if (this->congratsMessage == kScreenCongrats_Congrats) {
-    numShapes = 0x2b;
+    numPermShapes = 0x2b;
   }
-  numPermShapes = numShapes;
+  else {
+    numPermShapes = 0x16;
+  }
   if (this->congratsMessage == kScreenCongrats_Congrats) {
     prefix = "zcong";
   }
   else {
     prefix = "zelim";
   }
-  sprintf("","%s%d",prefix,(uint)(byte)frontEnd.language);
-  *permFileName = "";
-  if (this->trophy - kTrophyCar < 2) {
-    if (this->smallSpinningThing == kSpinningGold) {
-      numSwapShapes = 0x20;
-      this->fNumSmallSpinShapes = 0x20;
-      GetTrophyName(&tournamentManager,tourneyInfo,ts_Small,"",-1);
-      *swapFileName = "";
-    }
-    else if (this->smallSpinningThing == kSpinningMemCard) {
-      numSwapShapes = 10;
-      this->fNumSmallSpinShapes = 10;
-      *swapFileName = "congb";
-    }
-    else {
-      *swapFileName = "";
-      numSwapShapes = 0;
-    }
-  }
-  else {
-    place = 900;
-    numRanked = (int)(((int)(short)tournamentManager.fNumRacers + (uint)(tourneyInfo->fKnockout != '\0')) *
-                 0x10000) >> 0x10;
+  /* 🔴 CORRECTNESS: the "" here were stale Ghidra rodata placeholders -- the
+     oracle sprintf()s into fPermFileNameBuf and hands that buffer back.
+     Writing through a string literal was a real runtime bug. */
+  sprintf(fPermFileNameBuf,"%s%d",prefix,(uint)(byte)frontEnd.language);
+  *permFileName = fPermFileNameBuf;
+  if (2 <= (u_int)(this->trophy - kTrophyCar)) {
+    j = 900;
+    numRanked = (int)(((int)(short)tournamentManager.fNumRacers +
+                 (uint)(tourneyInfo->fKnockout != '\0')) * 0x10000) >> 0x10;
     i = 1;
     if (0 < numRanked) {
       do {
         ranking = PlayerRanking(&tournamentManager,(short)i);
         if (ranking == 0) {
-          place = i;
+          j = i;
         }
         i = i + 1;
       } while (i <= numRanked);
     }
-    GetTrophyName(&tournamentManager,tourneyInfo,ts_Large,"",place);
-    *swapFileName = "";
+    GetTrophyName(&tournamentManager,tourneyInfo,ts_Large,congratsSwapFileName,j);
+    *swapFileName = congratsSwapFileName;
     numSwapShapes = 0x20;
     this->fNumSpinShapes = 0x20;
+  }
+  else {
+    /* MATCH: a real switch -- the oracle chains `beq` to OUT-OF-LINE case blocks
+       with a `j` to the default (gcc's dispatch lowering); an if/else-if chain
+       inlines the bodies at the branch instead. */
+    switch (this->smallSpinningThing) {
+    case kSpinningGold:
+      numSwapShapes = 0x20;
+      this->fNumSmallSpinShapes = 0x20;
+      GetTrophyName(&tournamentManager,tourneyInfo,ts_Small,congratsSwapFileName,-1);
+      *swapFileName = congratsSwapFileName;
+      break;
+    case kSpinningMemCard:
+      numSwapShapes = 10;
+      this->fNumSmallSpinShapes = 10;
+      *swapFileName = "congb";
+      break;
+    default:
+      *swapFileName = "";
+      numSwapShapes = 0;
+      break;
+    }
   }
   return;
 }

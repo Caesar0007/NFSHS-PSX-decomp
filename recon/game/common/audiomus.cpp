@@ -55,21 +55,27 @@ void AudioMus_RefreshStatus(void)
 /* ---- AudioMus_Threshold__Fv  [@0x80079f58] ---- */
 int AudioMus_Threshold(void)
 {
-  if ((AudioMus_g == (AudioMus_tMusicGlobals *)0x0) || (AudioMus_g->bigfileheader == (char *)0x0)) {
-    return 0;  /* MATCH: guards 1-2 one || — B==0 falls INTO the shared ret0, bnez continues */
-  }
-  if (AudioMus_g->errorcode != 0) {
-    return 0;
-  }
-  if (AudioMus_g->switchsong == 2) {  /* NEAR-MISS 9: bigfileheader beqz-vs-bnez layout tie + un-merged threshold returns; goto forms regress (gp re-read; confirmed again 2026-07-26, w28-a6) */
-    return AudioMus_g->threshold;
-  }
-  if ((AudioMus_g->streamstatus).outstandingrequests == 0) {
-    return 0;
-  }
-  if ((AudioMus_g->requeststatus).timetoend > (AudioMus_g->requeststatus).timebuffered) {
-    return AudioMus_g->threshold;
-  }
+  /* Retail keeps music in $a0 and places the threshold-return block before
+   * the buffering tests so the final comparison can branch backward to it. */
+  AudioMus_tMusicGlobals *music = AudioMus_g;
+
+  if (music == (AudioMus_tMusicGlobals *)0x0) goto return_zero;
+  if (music->bigfileheader != (char *)0x0) goto valid_header;
+
+return_zero:
+  return 0;
+
+valid_header:
+  if (music->errorcode != 0) goto return_zero;
+  if (music->switchsong != 2) goto check_buffer;
+
+return_threshold:
+  return music->threshold;
+
+check_buffer:
+  if ((music->streamstatus).outstandingrequests == 0) goto return_zero;
+  if ((music->requeststatus).timetoend >
+      (music->requeststatus).timebuffered) goto return_threshold;
   return 0;
 }
 

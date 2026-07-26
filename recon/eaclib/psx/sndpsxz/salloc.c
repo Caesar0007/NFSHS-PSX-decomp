@@ -74,13 +74,36 @@ extern int iSNDischanreserved(int chan, int count)
  *   matching ours-only lines -- a pure permutation, no asymmetric copy to explain, so no cse.c
  *   double-evaluation target), and the loop.c giv anchor cannot apply because both passes walk the
  *   100-byte channel slot, which is not a power-of-two stride.
+ *   W34-a8 (2026-07-26, 260 -> 255 diffs, 302 -> 301 insns).  The w32 verdict that the index form
+ *   "explodes the coloring" was an ARTEFACT of a missing allocno, not a property of the index form.
+ *   Retail's pass-1 store IS the index form -- the oracle computes `addu $v0,$s7,$fp; sb $s4,0($v0)`
+ *   in the `bltz` block, i.e. base+reserved AT THE STORE, not a pass-local slot pointer built at the
+ *   loop head.  Adopting it alone drops us to EXACT 298/298 instructions but moves `numChannels` out
+ *   of retail's caller-saved $t0 (with its `sw/lw 0x18($sp)` caller-save pair around every
+ *   iSNDischanreserved call) into the freed $s8 -- because the pass-local pointer had been the NINTH
+ *   callee-saved pseudo that pushed numChannels out of the callee-saved pool.  The faithful ninth
+ *   pseudo is the CHANNEL-SLOT POINTER: retail keeps it in $s0 in BOTH passes, and in pass 1 it is
+ *   live across the `jal` (`lw $v1,0x10($s0)` after the call), so ONE function-scope `ch` shared by
+ *   the two passes is call-crossing => callee-saved => numChannels returns to $t0 with the exact
+ *   caller-save pair.  Two block-local `int ch` declarations are two pseudos and let pass 2's copy
+ *   land in a caller-saved reg, which is what had been hiding the whole allocation.
+ *   Pass-1 head order also follows the oracle now: `bestval = best;` sits BEFORE the channel-count
+ *   guard (retail `addu $s5,$s4,$zero` at the loop head, both -1 so cse emits a copy) and `c = 0;
+ *   off = c;` INSIDE it (`addu $s1,$zero,$zero` in the beqz delay slot, then `addu $s2,$s1,$zero`).
+ *   Pass 1 is now instruction-EXACT except for ONE residual: retail hoists `la sndchanreserved` into
+ *   the loop PREHEADER ($fp, 2 insns once) while ours rematerializes it inside the store block (2
+ *   insns, +1 net) and LICM-hoists the `1` of `1 << c` into $s8 instead.  Named-pointer spellings do
+ *   NOT reach it -- a local holding a SYMBOL_REF is constant-propagated back to its use sites and
+ *   rematerialized (verified with the pointer assigned inside the body, before the loop, and shared
+ *   with pass 2: all three produce byte-identical output).  Reaching retail here needs a lever that
+ *   keeps a constant address allocno alive, not another spelling.
  *   Raw nfs4-f.exe EEF64..EF40B SHA-256:
  *   4af4cae9357cee8d5c94a064c543b15d4d1edb7a6f5d1c0d5ccd8c8f259740fc. */
 extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigned int *out)
 {
     int          reserved = 0;
     int          result = -9;
-    int          i, k, off;
+    int          i, k, off, ch;
     unsigned int best, c, v, bestval;
 
     for (i = 0; i < numChannels; i++)               /* clear the chosen list */
@@ -103,16 +126,15 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
              * entry guard), matching the oracle's `slt/beqz` then `lui/addiu` order; a block-scope
              * initialiser put the la ABOVE the guard. */
             for (i = reserved; i < numChannels; i++) {
-                signed char *selected = sndchanreserved + reserved;
                 gs = (unsigned char *)sndgs;
                 best = 0xffffffff;
-                c = 0;
+                bestval = best;
                 if (gs[0x11] != 0) {
-                    bestval = 0xffffffff;
-                    off = 0;
+                    c = 0;
+                    off = c;
                     do {
                         if ((priority & (1 << c)) != 0) {
-                            int ch = *(int *)(gs + 0x94) + off;
+                            ch = *(int *)(gs + 0x94) + off;
                             if (*(signed char *)(ch + 0xb) == 0 &&
                                 iSNDischanreserved(c, reserved) == 0) {
                                 v = *(unsigned int *)(ch + 0x10);
@@ -123,7 +145,7 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
                     } while ((int)c < (int)(unsigned)gs[0x11]);
                 }
                 if (-1 < (int)best) {
-                    *selected = (unsigned char)best;
+                    sndchanreserved[reserved] = (unsigned char)best;
                     reserved++;
                 }
             }
@@ -143,7 +165,7 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
                     do {
                         if ((priority & (1 << c)) != 0 &&
                             iSNDischanreserved(c, reserved) == 0) {
-                            int ch = *(int *)(gs + 0x94) + off;
+                            ch = *(int *)(gs + 0x94) + off;
                             if (*(unsigned char *)(ch + 0xc) < 0x65) {
                                 /* MATCH: `age` is an int -- the oracle re-loads the byte with a
                                  * bare `lbu` and compares with no `andi ..,255` re-mask; a u_char

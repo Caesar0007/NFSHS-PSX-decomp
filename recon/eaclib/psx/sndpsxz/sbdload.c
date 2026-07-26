@@ -82,7 +82,24 @@ extern int iSNDdownloadbank(int bankData, int patchData)
      *      cursor and loads `0x14(s1)`.  Retail's object shows NO strength reduction at all
      *      (four parallel +4 counters survive, and `bankData+off4` is recomputed alongside the
      *      cursor that already holds the same address) -- the §3.25-3d per-obj flag identity
-     *      (-fno-strength-reduce class), not a source shape.  Tried and rejected: goto-loop
+     *      (-fno-strength-reduce class), not a source shape.
+     *      🔬 w33-a6 QUANTIFIED THE IDENTITY (this source, unchanged, one flag flipped):
+     *        -fno-strength-reduce ............ 42 -> 23 diffs (85 insns vs 84)
+     *        -fno-schedule-insns ............. 64   -fno-schedule-insns2 ........ 52
+     *        -fno-cse-follow-jumps / -fno-expensive-optimizations / -fno-thread-jumps /
+     *        -fno-force-mem .................. 42 (all diff-neutral)
+     *      Under -fno-strength-reduce ALL NINE callee-saved assignments AND both cursor shapes
+     *      land exactly: `addu s1,s4,zero` + `lw v0,20(s1)` and `addu s2,s4,zero` + `lw v0,12(s2)`,
+     *      i/cur2 stop swapping $s0<->$s2, and (b) below disappears entirely.  The 23 that remain
+     *      are: the scratch-clear loop (which NEEDS strength reduction -- with SR off it degrades
+     *      to `sll v0,s0,3; addu v0,v1,v0; sw a0,0(v0)`, +1 insn, vs the oracle's descending
+     *      `sw v1,0(v0); addiu v0,v0,-8` walker), the (c) merge copy, and two scheduling slots.
+     *      => sbdload.obj wants SR OFF for the patch loop and ON for the clear loop, i.e. this is a
+     *      genuine per-obj cc1 identity, not a whole-TU flag we could adopt even if flags were on
+     *      the table (W30 rule 6: record, do not flip).  Also tried and rejected as a source-side
+     *      SR escape: writing the clear loop as an explicit descending `int *p` walker -- it removes
+     *      the clear loop's SR dependence (84 insns under -fno-SR) but costs `i` its extra ref, so
+     *      i/cur4 swap $s0<->$s1 (38 under -fno-SR, 44 under normal flags).  Earlier rejects: goto-loop
      *      (kills SR but loses the loop-depth ref weighting -> 46), for(;;)/while(1)+break (42,
      *      identical), `int *`+[5] indexing (42, identical), volatile cursor derefs (55, +1 insn).
      *  (b) with the bivs gone the giv pseudos out-rank the counter, so i/cur2 swap $s0<->$s2.

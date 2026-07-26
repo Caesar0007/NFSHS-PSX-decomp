@@ -80,7 +80,7 @@ extern void iSPCH_RandomizeSentencePicks(int sentence);             /* @0x801010
 extern int  iSPCH_IterateChoice(int sentence);                      /* @0x801011AC : returns 1 if the odometer is exhausted (Ghidra void-bug: real return, read at epilogue) */
 extern int  iSPCH_ChooseShortSentence(int sentence);               /* @0x8010125C */
 extern int  iSPCH_SentenceMakeChoice(int sentence, int mode);      /* @0x80101310 */
-extern void iSPCH_ConstantRuleSet(short *sentence, int rule, int val); /* @0x801013BC */
+extern void iSPCH_ConstantRuleSet(short *sentence, int rule); /* @0x801013BC */
 extern int  iSPCH_MakeSampleRequests(int sentence, int paramTable); /* @0x80101508 */
 extern void iSPCH_ClearChosen(void);                               /* @0x80101650 */
 extern int  iSPCH_SaveChosenSentence(int sentence, int paramTable, int ruleCtx, int *eventArgs); /* @0x8010165C */
@@ -644,10 +644,14 @@ extern int iSPCH_SentenceMakeChoice(int sentence, int mode)
     return ok;
 }
 
-/* iSPCH_ConstantRuleSet @0x801013BC : fire gSentenceRuleSet for each phrase's constant (type != 0xf) rules. */
-extern void iSPCH_ConstantRuleSet(short *sentence, int rule, int val)
+/* iSPCH_ConstantRuleSet @0x801013BC : fire gSentenceRuleSet for each phrase's constant (type != 0xf) rules.
+ * ARITY (w32-a10 prototype audit, R3): TWO args, not three.  The sole call site (iSPCH_PlayChosen
+ * @0x801016F4) sets a0/a1 only and leaves a bare `nop` in the jal delay slot; the callee never reads an
+ * incoming $a2.  The old 3rd param `val` was a decompiler phantom kept alive by a `(void)val;` plus a
+ * 2-arg fn-ptr cast at the call site -- both removed.  Diff-neutral (10 before and after), PlayChosen
+ * still PASS. */
+extern void iSPCH_ConstantRuleSet(short *sentence, int rule)
 {
-    (void)val;
     if (gSentenceRuleSet != 0) {
         int n = VoxSentence_GetNumPhrases(rule);
         int table = 0;
@@ -786,7 +790,7 @@ extern void iSPCH_PlayChosen(void)
          * a 2-arg fn-ptr type so the compiler doesn't force an a2 setup here (§D dropped-arg lever). */
         int eventId = gSentenceChoice[4];
         iSPCH_RuleSet((short *)gSentenceChoice[0], gSentenceChoice[2], &gSentenceChoice[4]);
-        ((void (*)(short *, int))iSPCH_ConstantRuleSet)((short *)gSentenceChoice[0], gSentenceChoice[1]);
+        iSPCH_ConstantRuleSet((short *)gSentenceChoice[0], gSentenceChoice[1]);
         iSPCH_MakeSampleRequests(gSentenceChoice[1], eventId);
         {
             int *inGame = gVoxInGame;

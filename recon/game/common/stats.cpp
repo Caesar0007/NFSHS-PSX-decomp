@@ -130,25 +130,16 @@ int Stats_GetPosition(Car_tObj *carObj)
 int Stats_GetNumOpponents(void)
 
 {
-  Stats_tPosition *pSVar1;
-  int iVar2;
-  int numCars;
-  int iVar3;
   int i;
+  int numCars;
   
-  iVar3 = 0;
-  iVar2 = 0;
-  if (0 < Cars_gNumRaceCars) {
-    pSVar1 = Stats_racePosition;
-    do {
-      if (pSVar1->car != -1) {
-        iVar2 = iVar2 + 1;
-      }
-      iVar3 = iVar3 + 1;
-      pSVar1 = pSVar1 + 1;
-    } while (iVar3 < Cars_gNumRaceCars);
+  numCars = 0;
+  for (i = 0; i < Cars_gNumRaceCars; i++) {
+    if (Stats_racePosition[i].car != -1) {
+      numCars = numCars + 1;
+    }
   }
-  return iVar2;
+  return numCars;
 }
 
 /* ---- Stats_TrackStats__FP8Car_tObj  [STATS.CPP:161-273] SLD-VERIFIED ---- */

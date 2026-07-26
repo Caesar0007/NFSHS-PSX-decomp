@@ -4957,7 +4957,7 @@ struct tScreenTournamentStandings : public tScreen {   /* 148 bytes */
     void Initialize();
     void Cleanup();
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
-    int ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* returns menu-cmd value */
+    void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* SYM: FCN VOID */
     void DrawBackground();
     ~tScreenTournamentStandings();
 };
@@ -5237,7 +5237,7 @@ struct tScreenCarSelect : public tScreen {   /* 928 bytes */
     void FreeAsyncBuffer();
     void InitializeVideoWall();
     void Initialize();
-    int ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* returns menu-cmd value */
+    void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* SYM: FCN VOID */
     void DrawVideoWall(short s);
     int GetCar(tCarInfo &car);
     void SetBrightness(short a, short b);
@@ -5306,7 +5306,7 @@ struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {   /* 1100 
     void Initialize();
     void Cleanup();
     void SetDialog();
-    int ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* returns menu-cmd value */
+    void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* SYM: FCN VOID */
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
 };
 
@@ -5334,7 +5334,7 @@ struct tScreenTournSelect : public tScreen {   /* 712 bytes */
 
 struct tScreenPinkSlipStandings : public tScreenTournamentStandings3item {   /* 148 bytes */
     void DrawBackground();
-    int ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* returns menu-cmd value */
+    void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* SYM: FCN VOID */
     ~tScreenPinkSlipStandings();
 };
 
@@ -5527,7 +5527,7 @@ struct tScreenTrackSelect : public tScreen {   /* 672 bytes */
     void UpdateBrightness(tTrackInformation &trackInfo);
     void UpdateVideoWall(tTrackInformation &trackInfo);
     void DrawVideoWall();
-    int ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* returns menu-cmd value */
+    void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* SYM: FCN VOID */
     ~tScreenTrackSelect();
 };
 

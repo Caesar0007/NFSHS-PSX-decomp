@@ -334,71 +334,79 @@ void tScreenTrackSelect::DrawVideoWall()
 
 
 /* ---- tScreenTrackSelect::ProcessInput ---- */
-int tScreenTrackSelect::ProcessInput(tPlayer player,tInputKeyType &keyval,
+/* MATCH: unsized-array asm-label view of menuDefs -- makes the %hi an RTL
+   pseudo so cc1 CSEs ONE `lui $v0,%hi(menuDefs)` across the flag blocks and
+   loads through a SEPARATE scratch (oracle `lui $v0; lw $v1,%lo(..)($v0)`)
+   instead of the self-temp `lui $v1; lw $v1,0($v1)`. */
+extern tGlobalMenuDefs *menuDefsA[] asm("menuDefs");
+extern tFEApplication *FEAppA[] asm("FEApp");
+
+void tScreenTrackSelect::ProcessInput(tPlayer player,tInputKeyType &keyval,
               tMenuCommand &command)
 
 {
+  /* MATCH (SLD 341-370 + SYM fsize 72 / mask $80010000 = ra,s0 only):
+     the SQUARE arm is the INLINE one (oracle `bne $a2,8,.L80042178` branches
+     AWAY to the Triangle arm); the recon had them the other way round, which
+     rotated the whole body.  Note $s0 holds `this` on the Triangle path and is
+     REASSIGNED to &frontEnd on the Square path.
+     There is NO `return -0x7ffb0000`: the `lui $v0,0x8005` that produced it is
+     just the `lui $v0,%hi(FEApp)` sitting in the `bne` delay slot at 0x80042178,
+     and the SYM types this function FCN VOID -- the Triangle tail simply falls
+     into the epilogue with $v0 incidental. */
   tGlobalMenuDefs *ptVar1;
   void *pvVar2;
   __vtbl_ptr_type (*menuVtbl) [11];
   uint cmdResult;
   tTrackInformation trackInfo;
-  
-  if (keyval != kInput_KeyType_Square) {
-    if (keyval != kInput_KeyType_Triangle) {
-      /* BARE-VA SWEEP (w14-a2): same magic-sentinel family as
-       * tInsideBoxSongMenu::ProcessInput (femenuoptions.cpp) -- oracle itself emits the bare
-       * `lui v0,0x8005` with no further resolution. Not a disguised address; left as-is. */
-      return -0x7ffb0000;
+
+  if (keyval == kInput_KeyType_Square) {
+    GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
+               &trackInfo);
+    ptVar1 = menuDefsA[0];
+    cmdResult = (ptVar1->itemTraffic).fFlags &
+            0xfffffffe;
+    (ptVar1->itemTraffic).fFlags = cmdResult;
+    if ((frontEnd.gameMode != '\x01') && (frontEnd.oppNumber == '\x02')) {
+      (ptVar1->itemTraffic).fFlags = cmdResult | 1
+      ;
     }
-    menuVtbl = FEApp->fCurrentMenu[0]->_vf;
-    cmdResult = (*(*menuVtbl)[8].pfn)
-                      ((int)FEApp->fCurrentMenu[0]->fItemList + (*menuVtbl)[8].delta + -0x10);
-    cmdResult = cmdResult ^ 1;
-    if (cmdResult == 0) {
-      return 0;
+    if (2 < trackInfo.fTrackDifficulty) {
+      (menuDefsA[0]->itemTraffic).fFlags =
+           (menuDefsA[0]->itemTraffic).fFlags | 1;
     }
-    TurnOffInstant(&this->fVideoWall);
-    return cmdResult;
-  }
-  GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
-             &trackInfo);
-  ptVar1 = menuDefs;
-  cmdResult = (menuDefs->itemTraffic).fFlags &
-          0xfffffffe;
-  (menuDefs->itemTraffic).fFlags = cmdResult;
-  if ((frontEnd.gameMode != '\x01') && (frontEnd.oppNumber == '\x02')) {
-    (ptVar1->itemTraffic).fFlags = cmdResult | 1
-    ;
-  }
-  if (2 < trackInfo.fTrackDifficulty) {
-    (menuDefs->itemTraffic).fFlags =
-         (menuDefs->itemTraffic).fFlags | 1;
-  }
-  if (trackInfo.fIsEgg != '\0') {
-    (menuDefs->itemTraffic).fFlags =
-         (menuDefs->itemTraffic).fFlags | 1;
-  }
-  if (frontEnd.gameMode == '\x01') {
-    if (frontEnd.raceType != '\x01') goto ProcInpLocSpch_setFlags;
-    (menuDefs->itemTraffic).fFlags =
-         (menuDefs->itemTraffic).fFlags | 1;
-  }
-  if ((frontEnd.raceType == '\x01') &&
-     (pvVar2 = Front_EnableLocalSpeech(), pvVar2 != (void *)0x0))
-  {
-    cmdResult = (menuDefs->itemLocalSpeech).
-            fFlags & 0xfffffffe;
-    (menuDefs->itemLocalSpeech).fFlags =
-         cmdResult;
-    return cmdResult;
-  }
+    if (trackInfo.fIsEgg != '\0') {
+      (menuDefsA[0]->itemTraffic).fFlags =
+           (menuDefsA[0]->itemTraffic).fFlags | 1;
+    }
+    if (frontEnd.gameMode == '\x01') {
+      if (frontEnd.raceType != '\x01') goto ProcInpLocSpch_setFlags;
+      (menuDefsA[0]->itemTraffic).fFlags =
+           (menuDefsA[0]->itemTraffic).fFlags | 1;
+    }
+    if ((frontEnd.raceType == '\x01') &&
+       (pvVar2 = Front_EnableLocalSpeech(), pvVar2 != (void *)0x0))
+    {
+      (menuDefsA[0]->itemLocalSpeech).fFlags =
+           (menuDefsA[0]->itemLocalSpeech).fFlags & 0xfffffffe;
+      return;
+    }
 ProcInpLocSpch_setFlags:
-  cmdResult = (menuDefs->itemLocalSpeech).fFlags
-          | 1;
-  (menuDefs->itemLocalSpeech).fFlags = cmdResult
-  ;
-  return cmdResult;
+    (menuDefsA[0]->itemLocalSpeech).fFlags =
+         (menuDefsA[0]->itemLocalSpeech).fFlags | 1;
+    return;
+  }
+  if (keyval == kInput_KeyType_Triangle) {
+    menuVtbl = FEAppA[0]->fCurrentMenu[0]->_vf;
+    cmdResult = (*(*menuVtbl)[8].pfn)
+                      ((int)FEAppA[0]->fCurrentMenu[0]->fItemList + -0x10 + (*menuVtbl)[8].delta);
+    if ((cmdResult ^ 1) != 0) {
+      TurnOffInstant(&this->fVideoWall);
+    }
+  }
+  /* NO return statement -- the SYM types this FCN VOID and the oracle's tail
+     falls straight into the epilogue ($v0 incidental).  A literal `return 0;`
+     emits three un-merged `addu $v0,$zero,$zero`. */
 }
 
 

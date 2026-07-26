@@ -265,7 +265,6 @@ extern int iSNDdmqueue(int dst_spu, unsigned int src_ram, int len, int prio, int
     volatile int *raw;
     unsigned char *pd;
     unsigned int sr;
-    unsigned char *entry;
     int handleSnapshot;
 
     if ((len & 0x3f) != 0)
@@ -278,26 +277,41 @@ extern int iSNDdmqueue(int dst_spu, unsigned int src_ram, int len, int prio, int
     if (handleSnapshot == 0)
         raw[2] = 1;
 
-    pd = (unsigned char *)raw;
-    entry = pd + 0x10;
+    /* RESIDUAL (w31, 28->5): two sites left, both allocation-coupled and resistant to reshaping
+     * (every alternative tried -- named id temp, handleSnapshot reuse, plain-store reorder --
+     * re-colors the whole head, 25-51 diffs): (1) walker init emits `addiu v1,v1,16` (cse picks
+     * the older equivalent raw reg) vs oracle `addiu v1,s0,16` (reads the pd copy); (2) the id
+     * `lw` sits below the volatile dst store (+nop) vs oracle's lw;sw4;sw0 -- our volatile id
+     * load cannot hoist over the volatile raw[1] store. Permuter candidate from this basin.
+     * MATCH (w31): `i = 0` sits RIGHT AFTER the if (reorg copies it into the bnez delay slot AND
+     * keeps the fall-through copy -- the oracle's duplicated zero-init), and the slot WALKER is the
+     * SAME `raw` variable re-pointed at the entry table (one pseudo raw->walker inherits $v1 with
+     * the combined ref count; a separate `entry` local always colored $t0 with $v0/$v1 conflicts).
+     * The walker stays volatile -- the entry stores must not be scheduler-sunk (oracle keeps the
+     * id store adjacent to the dst store) and the id-test load keeps its bare load-delay nop. */
     i = 0;
+    pd = (unsigned char *)raw;
+    raw = (volatile int *)(pd + 0x10);
 scan:
-    if (*(int *)entry != 0)
+    if (*raw != 0)
         goto occupied;
     pd[0xc] = pd[0xc] + 1;
-    *(int *)(entry + 4) = dst_spu;
-    *(int *)entry = *(int *)(pd + 8);
-    *(unsigned short *)(entry + 8) = (unsigned short)(src_ram >> 3);
-    entry[0xa] = (unsigned char)(len >> 6);
-    entry[0xb] = (unsigned char)prio;
-    entry[0xc] = (unsigned char)queuedFlag;
+    raw[1] = dst_spu;
+    raw[0] = *(volatile int *)(pd + 8);   /* MATCH: volatile id read -- keeps the lw below the
+                                            * pd[0xc] RMW (unhoisted), freeing $v0 for the temp
+                                            * so the walker can take $v1 (same shared dmid word
+                                            * the head re-reads through volatile raw[2]) */
+    *(volatile unsigned short *)((unsigned char *)raw + 8) = (unsigned short)(src_ram >> 3);
+    ((volatile unsigned char *)raw)[0xa] = (unsigned char)(len >> 6);
+    ((volatile unsigned char *)raw)[0xb] = (unsigned char)prio;
+    ((volatile unsigned char *)raw)[0xc] = (unsigned char)queuedFlag;
     wr_sr(sr);
     iSNDdmservice();
-    return *(int *)(pd + 8);
+    return *(volatile int *)(pd + 8);
 occupied:
     i++;
     if (i < 10) {
-        entry += 0x14;
+        raw = (volatile int *)((unsigned char *)raw + 0x14);
         goto scan;
     }
     wr_sr(sr);

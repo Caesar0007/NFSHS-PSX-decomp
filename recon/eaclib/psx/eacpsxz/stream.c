@@ -573,7 +573,18 @@ extern int startnextrequest(int s, unsigned int prio)
  *   - the positive-room arm and shared check label recover the oracle's two-arm branch/jump shape;
  *   - named -1/-2 marker constants recover the oracle's prologue scheduling;
  *   - FILE_callbackop's result remains the merged return value.
- * The residual is one caller-saved coloring family across the room calculation (a0/a1 and a2/v1). */
+ * RESIDUAL (42, count-exact 167/167): ONE three-variable coloring family across the whole room
+ *   calculation -- (readptr, fillptr, room) is (v1, a2, a0) for us and (a2, v1, a1) in retail, i.e.
+ *   the two ring pointers are swapped and `room` shifts one slot.  Every diff in the function is a
+ *   rename of those three; the instruction sequence, operand order and delay slots already agree.
+ *   w33-a2 TRIED, all byte-identical to the above: spelling the guard `uVar5 < uVar3` instead of
+ *   `uVar3 > uVar5` (gcc canonicalises the compare, so the load order does not follow the source);
+ *   swapping the two initialising loads' statement order; folding the shared `room - 1` into the
+ *   wrap arm as one expression; dropping `uVar3` entirely and re-reading `MU(s,0x40)` at each of its
+ *   three uses (cse rebuilds the same single pseudo).  Next step is a cc1 -dl allocno dump: retail
+ *   gives $v1 to the MORE-referenced fillptr (7 refs, and it is re-assigned in the wrap arm) while
+ *   ours gives it to readptr, which is the allocno_compare live-length weighting already on the
+ *   wave-33 toolchain-identity charter. */
 extern int restartstream(int s, unsigned int prio)
 {
     int *p;

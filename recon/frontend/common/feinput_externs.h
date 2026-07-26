@@ -7,10 +7,13 @@
 /* ===== globals ===== */
 extern tPadModuleState  gPadinfo;
 extern tfrontEnd        frontEnd;
-extern int              ticks;
-extern int              FeTools_gScrollTicksOut;        /* @0x800517d0 */
+extern int              ticks[];                       /* MATCH: unsized -> separate-temp base load (%3.12 #5) */
+extern int              FeTools_gScrollTicksOut[];      /* @0x800517d0 -- unsized, see above */
 extern int              debounce[];                     /* @0x80052b60 */
-extern long             nextTick;                       /* @0x80051738 */
+/* MATCH: UNSIZED array + [0] access -- a scalar extern makes cc1 emit the
+   `lw/sw $r,sym` assembler macro (a $at store + a fresh lui per use); the oracle
+   materializes the address ONCE into a caller-saved reg and offsets from it. */
+extern long             nextTick[];                     /* @0x80051738 */
 extern tPSXToFEMapping  getKeyMappings[];               /* @0x8005173c */
 
 /* ===== input helpers ===== */

@@ -904,61 +904,78 @@ extern "C" void Front_InitPlayerCars__FR9tFEStream(tFEStream *streamData)
   if (frontEnd.raceType == '\x02') {
     GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],streamData->playerCars,0);
   }
+  /* MATCH: the PINK-SLIPS arm is the FALL-THROUGH and the stock/garage do-loop is
+     laid out out-of-line (oracle `bne raceType,6 -> .L800281DC`, with `i = 0` stolen
+     into that branch's delay slot).  Writing it as `if (!=6) {loop} pinkslips;`
+     inverts the layout. */
+  else if (frontEnd.raceType == '\x06') {
+    GetPinkSlipsCar(&carManager, (ushort)(byte)frontEnd.pinkSlipsCar[0],streamData->playerCars,0);
+    /* MATCH: SYM local `carInfo` REG $5 (a1) -- a real tCarInfo* local forces the
+       playerCars member offset (+8) INTO the pointer (`addiu v0,v0,8; addu a1,s1,v0`);
+       an inline `streamData->playerCars[n].field` folds the +8 into every field
+       displacement instead (+205 vs the oracle's +197). */
+    carInfo = &streamData->playerCars[streamData->numPlayers];
+    carInfo->fColor = carInfo->fColorOrder[carInfo->fColor];
+    sVar2 = streamData->numPlayers + 1;
+    streamData->numPlayers = sVar2;
+    GetPinkSlipsCar(&carManager, (ushort)(byte)frontEnd.pinkSlipsCar[1],streamData->playerCars + sVar2,1);
+  }
   else {
     iVar5 = 0;
-    if (frontEnd.raceType != '\x06') {
+    {
       do {
         sVar2 = (short)iVar5;
         if (frontEnd.carListType == '\0') {
           GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[sVar2],
                      streamData->playerCars + streamData->numPlayers);
-          ptVar6 = streamData->playerCars + streamData->numPlayers;
-          pcVar3 = ptVar6->fShapeName + ((byte)frontEnd.carColors[sVar2 * 0x18][ptVar6->fCarID] - 8)
+          carInfo = &streamData->playerCars[streamData->numPlayers];
+          pcVar3 = carInfo->fShapeName + ((byte)frontEnd.carColors[sVar2 * 0x18][carInfo->fCarID] - 8)
           ;
         }
         else {
           GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[sVar2],
                      streamData->playerCars + streamData->numPlayers,sVar2);
-          ptVar6 = streamData->playerCars + streamData->numPlayers;
-          pcVar3 = ptVar6->fShapeName + (ptVar6->fColor - 8);
+          carInfo = &streamData->playerCars[streamData->numPlayers];
+          pcVar3 = carInfo->fShapeName + (carInfo->fColor - 8);
         }
-        ptVar6->fColor = pcVar3[0xaf];
-        if (ptVar6->fCarClass == '\a') {
-          uVar1 = frontEnd.carCountry[streamData->numPlayers * 0x18][ptVar6->fCarID];
-          ptVar6->fColor = '\0';
-          ptVar6->fCountry = uVar1;
+        carInfo->fColor = pcVar3[0xaf];
+        if (carInfo->fCarClass == '\a') {
+          uVar1 = frontEnd.carCountry[streamData->numPlayers * 0x18][carInfo->fCarID];
+          carInfo->fColor = '\0';
+          carInfo->fCountry = uVar1;
         }
         streamData->numPlayers = streamData->numPlayers + 1;
         iVar5 = iVar5 + 1;
       } while ((frontEnd.gameMode == '\x01') && (iVar5 * 0x10000 >> 0x10 < 2));
       goto FrontInitPlayers_playerLoop;
     }
-    GetPinkSlipsCar(&carManager, (ushort)(byte)frontEnd.pinkSlipsCar[0],streamData->playerCars,0);
-    sVar2 = streamData->numPlayers;
-    streamData->playerCars[sVar2].fColor =
-         streamData->playerCars[sVar2].fColorOrder[streamData->playerCars[sVar2].fColor];
-    sVar2 = streamData->numPlayers + 1;
-    streamData->numPlayers = sVar2;
-    GetPinkSlipsCar(&carManager, (ushort)(byte)frontEnd.pinkSlipsCar[1],streamData->playerCars + sVar2,1);
   }
-  sVar2 = streamData->numPlayers;
-  streamData->playerCars[sVar2].fColor =
-       streamData->playerCars[sVar2].fColorOrder[streamData->playerCars[sVar2].fColor];
+  carInfo = &streamData->playerCars[streamData->numPlayers];
+  carInfo->fColor = carInfo->fColorOrder[carInfo->fColor];
   streamData->numPlayers = streamData->numPlayers + 1;
 FrontInitPlayers_playerLoop:
-  for (sVar2 = 0; iVar5 = (int)sVar2, iVar5 < streamData->numPlayers; sVar2 = sVar2 + 1) {
-    carModel = (tCarModels)streamData->playerCars[iVar5].fCarID;
-    carColor = streamData->playerCars[iVar5].fColor;
-    pvVar4 = IsCarAnAddedModel(&carManager, &carModel,&carColor);
-    if ((pvVar4 != (void *)0x1) && (streamData->totalModels < 0xd)) {
+  i = 0;
+  /* MATCH: EXIT-IN-THE-MIDDLE (top test + unconditional `j` back-edge, no
+     rotation) -- same shape as InitPerps/InitTraffic; a for/while gets rotated. */
+  while (1) {
+    tCarModels carModel;   /* SYM: block AUTOs at sp+0x10 / sp+0x14 */
+    char carColor;
+
+    if (streamData->numPlayers <= (int)i) break;
+    /* MATCH: fCarID is signed here -- the oracle reads it with `lb`, and plain
+       `char` is UNSIGNED on this build. */
+    carModel = (tCarModels)(signed char)streamData->playerCars[i].fCarID;
+    carColor = streamData->playerCars[i].fColor;
+    if (!IsCarAnAddedModel(&carManager, &carModel,&carColor) && (streamData->totalModels < 0xd)) {
       streamData->totalModels = streamData->totalModels + 6;
     }
     AddCarToIngameList(&carManager, &carModel,&carColor);
     streamData->totalCars = streamData->totalCars + 2;
-    streamData->carLineup[sVar2].isPlayerCar = 1;
-    streamData->carLineup[sVar2].carModel = carModel;
-    streamData->carLineup[sVar2].carColor = carColor;
-    streamData->carLineup[sVar2].carUpgrades = streamData->playerCars[sVar2].fUpgrades;
+    streamData->carLineup[i].isPlayerCar = 1;
+    streamData->carLineup[i].carModel = carModel;
+    streamData->carLineup[i].carColor = carColor;
+    streamData->carLineup[i].carUpgrades = streamData->playerCars[i].fUpgrades;
+    i = i + 1;
   }
   return;
 }
@@ -991,24 +1008,23 @@ extern "C" void Front_InitTourneyTraffic__FR9tFEStream(tFEStream *streamData)
   streamData->numTraffic = 0;
   if ((frontEnd.raceType == '\x02') && (ptVar2->fTournaments[(uint)bVar1 + iVar6].fTraffic != '\0'))
   {
-    iVar6 = 0;
+    /* MATCH: same shape as Front_InitTraffic -- SYM has ONE short `i` (REG $17),
+       the postfix `fTrafficCars[i++]` gives the oracle's old-i copy + increment
+       pair, and `i = 0;` first so reorg steals it into the guard's delay slot. */
+    i = 0;
     do {
-      iVar5 = iVar6 + 1;
-      carModel = (tCarModels)(byte)(streamData->trackInfo).fTrafficCars[(short)iVar6];
-      if (5 < iVar5 * 0x10000 >> 0x10) {
-        iVar5 = 0;
+      carModel = (tCarModels)(byte)(streamData->trackInfo).fTrafficCars[i++];
+      if (5 < (int)i) {
+        i = 0;
       }
-      pvVar4 = IsCarAnAddedModel(&carManager, &carModel,&carColor);
-      if (pvVar4 != (void *)0x1) {
+      if (!IsCarAnAddedModel(&carManager, &carModel,&carColor)) {
         streamData->totalModels = streamData->totalModels + 1;
         AddCarToIngameList(&carManager, &carModel,&carColor);
       }
       streamData->trafficCars[streamData->numTraffic] = (u_short)carModel;
-      sVar3 = streamData->numTraffic + 1;
-      streamData->numTraffic = sVar3;
+      streamData->numTraffic = streamData->numTraffic + 1;
       streamData->totalCars = streamData->totalCars + 1;
-      iVar6 = iVar5;
-    } while (sVar3 < 3);
+    } while (streamData->numTraffic < 3);
   }
   return;
 }
@@ -1089,8 +1105,7 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
         carModel = (tCarModels)bVar1;
         ptVar4 = GetCarFromID(&carManager, (ushort)bVar1);
         carColor = ptVar4->fDefaultColor;
-        pvVar5 = IsCarAnAddedModel(&carManager, &carModel,&carColor);
-        if ((pvVar5 != (void *)0x1) && (streamData->totalModels < 0x10)) {
+        if (!IsCarAnAddedModel(&carManager, &carModel,&carColor) && (streamData->totalModels < 0x10)) {
           streamData->totalModels = streamData->totalModels + 3;
         }
         FindSimilarCar(&carManager, &carModel,&carColor,0,(tCarModels *)0x0);
@@ -1151,8 +1166,7 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
     GetStockCar(&carManager, (ushort)(byte)frontEnd.oppCar,&tStack_120);
     tStack_38 = (int)tStack_120.fCarID;
     loc_34[0] = tStack_120.fColorOrder[tStack_120.fDefaultColor];
-    pvVar5 = IsCarAnAddedModel(&carManager, &tStack_38,loc_34);
-    if (pvVar5 != (void *)0x1) {
+    if (!IsCarAnAddedModel(&carManager, &tStack_38,loc_34)) {
       if (streamData->totalModels < 0x10) {
         streamData->totalModels = streamData->totalModels + 3;
       }
@@ -1324,8 +1338,7 @@ extern "C" void Front_InitCopCars__FR9tFEStream(tFEStream *streamData)
             ptVar2 = regularCopModels[uVar9] + (byte)(streamData->trackInfo).fCountry;
           }
           copModel = *ptVar2;
-          pvVar3 = IsCarAnAddedModel(&carManager, &copModel,&copColor);
-          if (pvVar3 != (void *)0x1) {
+          if (!IsCarAnAddedModel(&carManager, &copModel,&copColor)) {
             streamData->totalModels = streamData->totalModels + 3;
             AddCarToIngameList(&carManager, &copModel,&copColor);
           }
@@ -1370,49 +1383,56 @@ extern "C" void Front_InitCopCars__FR9tFEStream(tFEStream *streamData)
 extern "C" void Front_InitPerps__FR9tFEStream(tFEStream *streamData)
 
 {
-  byte bVar1;
-  tCarInfo *ptVar2;
-  int iVar3;
-  int iVar4;
-  void *pvVar5;
-  short j;
-  int iVar6;
-  tCarInfo *carInfo;
+  /* SYM (nfs4-f-v3.txt @0x80029054) `8c Function start` gives the EXACT local set:
+       streamData = REGPARM $16 (s0)
+       block: i = REG $17 (s1, SHORT), j = REG $3 (v1, SHORT),
+              carInfo = REG $5 (a1, tCarInfo *)
+       inner block (line +12): carModel = AUTO -0x28 (= sp+0x10, ENUM tCarModels),
+                               carColor = AUTO -0x24 (= sp+0x14, CHAR)
+     Everything else in the old Ghidra body (bVar1/iVar3/iVar4/pvVar5/sVar7) was a
+     compiler temp -- do not reintroduce it. */
   short i;
-  short sVar7;
-  tCarModels carModel;
-  char carColor;
-  
+  short j;
+  tCarInfo *carInfo;
+
   streamData->numPerpObjects = 0;
   streamData->numPerps = 0;
   if (streamData->pMission != (tMissionInfo *)0x0) {
-    for (sVar7 = 0; iVar6 = (int)sVar7, iVar6 < (int)(uint)streamData->pMission->fNumStages;
-        sVar7 = sVar7 + 1) {
-      bVar1 = streamData->pStages[iVar6].fCarModel;
-      carModel = (tCarModels)bVar1;
-      carColor = streamData->pStages[iVar6].fColor;
-      ptVar2 = GetCarFromID(&carManager, (ushort)bVar1);
-      iVar3 = 0;
-      iVar6 = 0;
-      do {
-        iVar4 = iVar6 + 1;
-        if ((int)ptVar2->fColorOrder[iVar3 >> 0x10] == (uint)(byte)carColor) break;
-        iVar3 = iVar4 * 0x10000;
-        iVar6 = iVar4;
-      } while (iVar4 * 0x10000 >> 0x10 < 0x10);
-      carColor = (char)iVar6;
-      pvVar5 = IsCarAnAddedModel(&carManager, &carModel,&carColor);
-      if (pvVar5 != (void *)0x1) {
+    i = 0;
+    /* MATCH: EXIT-IN-THE-MIDDLE keeps the bound test at the TOP with an unconditional
+       `j` back-edge (the oracle is un-rotated, no peeled guard) while STILL being a
+       real loop for loop.c -- which is required here: the oracle hoists `lui
+       %hi(carManager)`, `&carManager`, `&carModel` and `&carColor` into s5/s4/s3/s2.
+       A label+goto loop kills loop.c's LICM and loses all four hoists. */
+    while (1) {
+      tCarModels carModel;   /* SYM: declared in the loop-body block, not fn scope */
+      char carColor;
+
+      if ((int)(uint)streamData->pMission->fNumStages <= (int)i) break;
+      carModel = (tCarModels)streamData->pStages[i].fCarModel;
+      carColor = streamData->pStages[i].fColor;
+      carInfo = GetCarFromID(&carManager, carModel);
+      j = 0;
+      /* MATCH: `fColorOrder` is declared plain `char` in the shared header, which is
+         UNSIGNED on this build (lbu); the oracle reads it with `lb` -> signed cast. */
+      while (1) {
+        if ((int)(signed char)carInfo->fColorOrder[j] == (int)(byte)carColor) break;
+        j = j + 1;
+        if (0x10 <= (int)j) break;
+      }
+      carColor = (char)j;
+      if (!IsCarAnAddedModel(&carManager, &carModel,&carColor)) {
         if (streamData->totalModels < 0x10) {
           streamData->totalModels = streamData->totalModels + 6;
         }
         AddCarToIngameList(&carManager, &carModel,&carColor);
         streamData->totalCars = streamData->totalCars + 2;
         streamData->perps[streamData->numPerpObjects].carModel = carModel;
-        streamData->perps[streamData->numPerpObjects].carColor = streamData->pStages[sVar7].fColor;
+        streamData->perps[streamData->numPerpObjects].carColor = streamData->pStages[i].fColor;
         streamData->numPerpObjects = streamData->numPerpObjects + 1;
       }
       streamData->numPerps = streamData->numPerps + 1;
+      i = i + 1;
     }
   }
   return;
@@ -1493,69 +1513,79 @@ extern "C" void Front_InitTrack__FR9tFEStream(tFEStream *streamData)
 extern "C" void Front_InitTraffic__FR9tFEStream(tFEStream *streamData)
 
 {
-  bool bVar1;
-  byte bTraffic;
-  short sVar2;
-  int iVar3;
-  void *pvVar4;
-  int iVar5;
+  /* SYM (nfs4-f-v3.txt @0x800293E0) `8c Function start`: streamData REGPARM $19
+     (s3), i REG $16 (s0, SHORT), bTraffic REG $4 (a0, BOOL), maxTraffic REG $6
+     (a2, SHORT), carModel AUTO -0x28 (sp+0x10), carColor AUTO -0x24 (sp+0x14).
+     The Ghidra bVar1/sVar2/iVar3/iVar5/sVar6 temps are NOT real locals. */
+  bool bTraffic;
   short maxTraffic;
-  short sVar6;
   short i;
   tCarModels carModel;
   char carColor;
-  
-  carColor = '\0';
-  sVar6 = 6;
-  if (frontEnd.gameMode == '\x01') {
-    sVar6 = 3;
+
+  carColor = ' ';
+  maxTraffic = 6;
+  if (frontEnd.gameMode == '') {
+    maxTraffic = 3;
   }
-  if ((frontEnd.raceType == '\x01') && (sVar6 = 2, (streamData->track).fTimeOfDay == '\x01')) {
-    sVar6 = 1;
-  }
-  bVar1 = frontEnd.traffic[(byte)frontEnd.pinkSlipsTrackIndex] != '\0';
-  if ((byte)frontEnd.raceType < 2) {
-    if ((frontEnd.carListType == '\0') && (frontEnd.raceType == '\0')) {
-      bVar1 = true;
+  if (frontEnd.raceType == '') {
+    maxTraffic = 2;
+    if ((streamData->track).fTimeOfDay == '') {
+      maxTraffic = 1;
     }
-    else if (frontEnd.raceType == '\x01') {
-      bVar1 = frontEnd.traffic[0] != '\0';
+  }
+  bTraffic = frontEnd.traffic[(byte)frontEnd.pinkSlipsTrackIndex] != ' ';
+  /* MATCH: a SWITCH, not an if/else chain -- the oracle dispatches with
+     `bltz raceType,default` + `slti raceType,2` + `beq raceType,6`, i.e. gcc's
+     emit_case_nodes bound test against the PROMOTED int index type (an if-chain
+     on the `char` field can never emit the bltz, and `(byte)x < 2` gives sltiu).
+     The empty `case 6:` is required for the 3-node tree. */
+  switch (frontEnd.raceType) {
+  case 0:
+  case 1:
+    if ((frontEnd.carListType == ' ') && (frontEnd.raceType == ' ')) {
+      bTraffic = true;
+    }
+    else if (frontEnd.raceType == '') {
+      bTraffic = frontEnd.traffic[0] != ' ';
     }
     if (2 < (streamData->trackInfo).fTrackDifficulty) {
-      bVar1 = false;
+      bTraffic = false;
     }
-    if ((streamData->trackInfo).fIsEgg != '\0') {
-      bVar1 = false;
+    if ((streamData->trackInfo).fIsEgg != ' ') {
+      bTraffic = false;
     }
-    if (frontEnd.gameMode == '\x01') {
-      if (frontEnd.raceType == '\x01') {
-        bVar1 = false;
+    if (frontEnd.gameMode == '') {
+      if (frontEnd.raceType == '') {
+        bTraffic = false;
       }
     }
-    else if (frontEnd.oppNumber == '\x02') {
-      bVar1 = false;
+    else if (frontEnd.oppNumber == '') {
+      bTraffic = false;
     }
+    break;
+  case 6:
+    break;
+  default:
+    bTraffic = false;
+    break;
   }
-  else if (frontEnd.raceType != '\x06') {
-    bVar1 = false;
-  }
-  if ((bVar1) && (streamData->numTraffic = 0, sVar6 != 0)) {
-    iVar3 = 0;
-    do {
-      iVar5 = iVar3 + 1;
-      carModel = (tCarModels)(byte)(streamData->trackInfo).fTrafficCars[(short)iVar3];
-      iVar3 = iVar5;
-      if (5 < iVar5 * 0x10000 >> 0x10) {
-        iVar3 = 0;
-      }
-      pvVar4 = IsCarAnAddedModel(&carManager, &carModel,&carColor);
-      if (pvVar4 != (void *)0x1) {
-        AddCarToIngameList(&carManager, &carModel,&carColor);
-      }
-      streamData->trafficCars[streamData->numTraffic] = (u_short)carModel;
-      sVar2 = streamData->numTraffic + 1;
-      streamData->numTraffic = sVar2;
-    } while (sVar2 < sVar6);
+  if (bTraffic) {
+    i = 0;
+    streamData->numTraffic = 0;
+    if (maxTraffic != 0) {
+      do {
+        carModel = (tCarModels)(byte)(streamData->trackInfo).fTrafficCars[i++];
+        if (5 < (int)i) {
+          i = 0;
+        }
+        if (!IsCarAnAddedModel(&carManager, &carModel,&carColor)) {
+          AddCarToIngameList(&carManager, &carModel,&carColor);
+        }
+        streamData->trafficCars[streamData->numTraffic] = (u_short)carModel;
+        streamData->numTraffic = streamData->numTraffic + 1;
+      } while (streamData->numTraffic < maxTraffic);
+    }
   }
   return;
 }

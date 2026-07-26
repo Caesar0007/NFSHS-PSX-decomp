@@ -469,65 +469,76 @@ void tScreenControllerConfig::ActualDrawController(int frame,int fadelevelmain,i
                int shakex,int shakey)
 
 {
-  short *pX;
-  short *pY;
-  byte ofs;
-  int shakeOff;
-  int shapeIdx;
-  int scaleIdx;
-  int i;
-  int shapeFlags;
-  int shapeX;
-  int shapeY;
+  /* SYM (nfs4-f-v3.txt @0x80043b7c) shows NO locals besides the args and one
+   * fn-scope `drawFlags` (tDrawShapeExtended); a SECOND `drawFlags` + `i` are
+   * declared in a nested block starting at the CurrentlyLoadedArt==2 arm --
+   * everything else (scaleIdx/shapeFlags/shapeX/shapeY/ofs/shakeOff/pX/pY)
+   * was Ghidra-fabricated. Rewritten as a literal transcription of the raw
+   * oracle: two mutually-exclusive first-draw arms (frame!=0||art==1 vs
+   * art!=1&&frame==0) that both feed the SAME cross-jump-merged
+   * DrawShapeExtended call, then a shared art==2 check that either emits the
+   * arrow/fade block or falls through to the final generic-shape draw. */
+  unsigned char (*offTbl)[2];
   tDrawShapeExtended drawFlags;
-  tDrawShapeExtended drawFlags2;
-  
+
   if (this->CurrentlyLoadedArt == 0) {
     return;
   }
   drawFlags.custom_shapes = this->fSwapShapes.fShapes;
-  if ((frame == 0) && (this->CurrentlyLoadedArt != 1)) {
-    ofs = Offset[this->CurrentlyLoadedArt][0];
+  offTbl = Offset;
+  if ((frame != 0) || (this->CurrentlyLoadedArt == 1)) {
+    if (fadelevelmain == 0) {
+      ScaleShapeExtended(frame,0x600,offTbl[this->CurrentlyLoadedArt][0],
+                 offTbl[this->CurrentlyLoadedArt][1],fadelevelmain,0,&drawFlags);
+    }
+    else {
+      frame = frame + 1;
+      ScaleShapeExtended(frame,0x601,offTbl[this->CurrentlyLoadedArt][0],
+                 offTbl[this->CurrentlyLoadedArt][1],fadelevelmain,0,&drawFlags);
+    }
+    if (this->CurrentlyLoadedArt != 2) goto ActDrawCtrl_emitShape;
+    if (fadelevelmain == 0) {
+      DrawShapeExtended(0,0x600,offTbl[2][0] + shakex,offTbl[2][1] + shakey,
+                 fadelevelmain,0,&drawFlags);
+    }
+    else {
+      DrawShapeExtended(0,0x601,offTbl[2][0] + shakex,offTbl[2][1] + shakey,
+                 fadelevelmain,0,&drawFlags);
+    }
   }
   else {
-    ScaleShapeExtended(scaleIdx,shapeFlags,shapeX,shapeY,fadelevelmain,0,
-               &drawFlags);
-    ofs = Offset[2][0];
-    if (this->CurrentlyLoadedArt != 2) goto ActDrawCtrl_emitShape;
+    if (fadelevelmain == 0) {
+      DrawShapeExtended(1,0x600,offTbl[this->CurrentlyLoadedArt][0] + shakex,
+                 offTbl[this->CurrentlyLoadedArt][1] + shakey,fadelevelmain,0,&drawFlags);
+    }
+    else {
+      DrawShapeExtended(1,0x601,offTbl[this->CurrentlyLoadedArt][0] + shakex,
+                 offTbl[this->CurrentlyLoadedArt][1] + shakey,fadelevelmain,0,&drawFlags);
+    }
   }
-  shakeOff = (uint)ofs + shakex;
-  DrawShapeExtended
-            (shapeIdx,shapeFlags,shapeX,shapeY,fadelevelmain,0,&drawFlags)
-  ;
   if (this->CurrentlyLoadedArt == 2) {
+    tDrawShapeExtended drawFlags;
+    int i;
+
+    drawFlags.tint[0] = CalcFadeVal(0xc8c8c8,this->fArrowFade);
     i = 0x30;
-    drawFlags2.tint[0] = CalcFadeVal(0xc8c8c8,shakeOff);
-    DrawShapeExtended
-              (shapeIdx,shapeFlags,shapeX,shapeY,0,1,&drawFlags2);
-    DrawShapeExtended
-              (shapeIdx,shapeFlags,shapeX,shapeY,0,1,&drawFlags2);
-    DrawShapeExtended
-              (shapeIdx,shapeFlags,shapeX,shapeY,0,1,&drawFlags2);
-    DrawShapeExtended
-              (shapeIdx,shapeFlags,shapeX,shapeY,0,1,&drawFlags2);
-    /* DISGUISED BARE-VA FIX (w14-a2): -0x7ffadcbc == 0x80052344 == &ArrowLocations[48][0]
-     * (576 == 48*sizeof(short[6])) -- shakeOff is reused here as a byte-address pointer walk
-     * (pX/pY read at +4/+6, +=0xc per iter == sizeof(short[6])). */
-    shakeOff = (int)&ArrowLocations[48][0];
+    DrawShapeExtended(0x1a,0x18,0x9e,0x92,0,1,&drawFlags);
+    DrawShapeExtended(0x1b,0x18,0x9e,0xa1,0,1,&drawFlags);
+    DrawShapeExtended(0x1c,0x18,0x9e,0xac,0,1,&drawFlags);
+    DrawShapeExtended(0x1d,0x18,0x9e,0xbb,0,1,&drawFlags);
     do {
-      pX = (short *)(shakeOff + 4);
-      pY = (short *)(shakeOff + 6);
-      shakeOff = shakeOff + 0xc;
+      PSXDrawSquare(drawFlags.tint[0],ArrowLocations[i][2] + -2,ArrowLocations[i][3] + -2,5,3);
       i = i + 1;
-      PSXDrawSquare
-                (drawFlags2.tint[0],*pX + -2,*pY + -2,5,3);
     } while (i < 0x36);
     return;
   }
 ActDrawCtrl_emitShape:
-  DrawShapeExtended
-            (shapeIdx,shapeFlags,shapeX,shapeY,fadeleveltop,0,&drawFlags);
-  return;
+  if (fadeleveltop == 0) {
+    DrawShapeExtended(0,0x200,0,0,fadeleveltop,0,&drawFlags);
+  }
+  else {
+    DrawShapeExtended(0,0x201,0,0,fadeleveltop,0,&drawFlags);
+  }
 }
 
 /* ---- tScreenControllerConfig::DrawController  (screencontroller.cpp:1156) ---- */
@@ -857,7 +868,13 @@ DrawCtrl_ticksUpdate:
       }
     }
     if ((frame & 0xff) != 0) {
-      DrawShapeExtended(div13hi,shapeFlags,shapeX,shapeY,0,0,&drawFlags);
+      /* CORRECTNESS FIX: oracle @0x8004494C reuses the SAME masked a0 (frame&0xff,
+       * already materialized for the guard test above) as the shape index, with
+       * a1=0x600 literal and a2/a3=Offset[CurrentlyLoadedArt][0/1] -- the prior
+       * recon passed div13hi (an unrelated magic-multiply byproduct) plus three
+       * never-assigned fabricated locals (shapeFlags/shapeX/shapeY). */
+      DrawShapeExtended(frame & 0xff,0x600,Offset[this->CurrentlyLoadedArt][0],
+                 Offset[this->CurrentlyLoadedArt][1],0,0,&drawFlags);
     }
   }
   frame = (uint)(byte)this->fCurrentController;
@@ -1270,8 +1287,11 @@ void tScreenControllerConfig::DrawForeground()
       fadeDir = 0x80;
     }
     do {
+      /* CORRECTNESS FIX: oracle @0x80045678 calls ScaleShapeExtended(ColText+0x16,
+       * 0,0,0, fadeDir,0,NULL) -- the prior recon passed uninitialized fabricated
+       * locals (pNumTexts cast to int, shapeFlags/shapeX/shapeY never assigned). */
       ScaleShapeExtended
-                ((int)pNumTexts,shapeFlags,shapeX,shapeY,(int)fadeDir,0,
+                (ColText + 0x16,0,0,0,(int)fadeDir,0,
                  (tDrawShapeExtended *)0x0);
       ColText = ColText + 1;
     } while (ColText * 0x10000 >> 0x10 < 2);

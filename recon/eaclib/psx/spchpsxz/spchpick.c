@@ -175,19 +175,51 @@ valid_count:
     if (0 < count) {
         int i = 0;
         int p = sample + i;
+        /* MATCH (w34-a9, 22 -> 15 diffs, 67 -> 66 insns): `bit` is a LOOP-CARRIED
+         * pseudo re-armed to 1 at the bottom of every iteration instead of a fresh
+         * `1u << cycleByte` per iteration.  Two effects, both needed:
+         *  (1) it is SET TWICE inside the loop (here and by the shift), so loop.c's
+         *      move_movables has no invariant `li 1` to hoist -- the hoist is what
+         *      burned a NINTH callee-saved register ($fp) and the +2-insn save/restore
+         *      pair in the old form;
+         *  (2) the re-arm sits BEFORE the `i` increment, which stretches bit's live
+         *      range across the back edge to 25 insns at 11 refs -- allocno priority
+         *      floor_log2(11)*11/25 = 1.320, which finally drops bit BELOW `i` (1.345)
+         *      and above `result` (0.844).  That reproduces retail's whole callee-saved
+         *      assignment exactly: lowNib $s0, i $s1, bit $s2, result $s3, count $s4
+         *      (the 5-way rotation w31/w33 filed as an allocno_compare identity).
+         * The re-arm is written `bit = (unsigned int)result` rather than `bit = 1u`
+         * on purpose: on the only path that reaches it `result` IS 1 (result == 0
+         * exits on the next line), but cc1 cannot prove that, so it does not fold the
+         * value into the following `i = i + 1` -- spelling the literal there makes gcc
+         * emit `addu s1,s1,s2` (i += bit) instead of retail's `addiu s1,s1,1` and
+         * costs 2 diffs (17 instead of 15).  Same family as the catalog's `^ zero`
+         * runtime-zero device: value-preserving, purely a codegen fence.
+         * RESIDUAL 15 (66/65): (a) the one extra insn is the pre-loop re-arm -- retail
+         * simply never hoisted the constant, so it needs no carried copy at all; and
+         * (b) the loop-head `p` init folds to `addu v1,s6,zero` for us because cc1
+         * const-propagates the just-assigned `i = 0`, where retail keeps
+         * `addu v0,s6,s1`.  Both are the toolchain-identity residue, not shape.
+         * Falsified: re-arm after the increment (24-insn range, prio 1.375, 27 diffs);
+         * re-arm between the guard and the `p` update (27); re-arm at the loop TOP
+         * (= the w33 split form, range 19, prio 1.58/2.00, 32 diffs at exact 65/65);
+         * `(result + 1)` and a shared `one` variable for both `1` constants (both
+         * const-folded, hoist returns). */
+        unsigned int bit = (unsigned int)result;
         do {
             unsigned int cycleByte = *(unsigned char *)(p + 0xc);
             result = 0;
             if (0x1f < cycleByte)
                 goto done;
             {
-                unsigned int bit    = 1u << (cycleByte);
                 int          lowNib = (int)*(unsigned char *)(phraseTemplate + i + 4) & 0xf;
+                bit = bit << (cycleByte);
                 if ((bit & (unsigned int)iSPCH_GetMatchValue(phraseTemplate, i)) != 0 &&
                     (lowNib == 0 ||
                      (bit & (unsigned int)*(int *)(lowNib * 4 + paramTable)) != 0))
                     result = 1;
             }
+            bit = (unsigned int)result;   /* re-arm to 1; see the note above */
             i = i + 1;
             if (result == 0)
                 goto done;

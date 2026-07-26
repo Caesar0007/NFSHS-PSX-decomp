@@ -249,21 +249,22 @@ LoadIcon_clearCardFlag:
 void tScreenMemcard::DrawVerticalLine(short x,short y,short gridpos,short dir)
 
 {
-  uint depth;
-  
-  depth = (uint)(ushort)gridpos;
-  if ((gridpos < 1) || (gridpos < 0x40)) {
-    if (gridpos < 0) {
-      depth = 0;
+  int height;
+  int g = gridpos;
+
+  /* MATCH: same two-guard clamp as DrawHorizontalLine -- see there. */
+  if (0 < g) {
+    if (0x40 <= g) {
+      gridpos = 0x40;
     }
   }
-  else {
-    depth = 0x40;
+  if (g < 0) {
+    gridpos = 0;
   }
-  PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,2,
-             (int)(((uint)(ushort)EXTRAYATTOP +
-                   (uint)(ushort)GRIDMEMCARD_HEIGHT + (uint)(ushort)GRIDMEMCARDGOURAUDBIT_Y * 2) *
-                  0x10000) >> 0x10,(uint)(dir == 0),(int)(depth << 0x10) >> 0xf,0);
+  height = (ushort)GRIDMEMCARD_HEIGHT + (ushort)GRIDMEMCARDGOURAUDBIT_Y * 2;
+  height = (ushort)EXTRAYATTOP + height;
+  PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,2,(short)height,
+             (uint)(dir == 0),(int)gridpos * 2,0);
   return;
 }
 

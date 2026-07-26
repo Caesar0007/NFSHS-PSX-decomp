@@ -1439,13 +1439,15 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
   if ((AIScript_DoReAction(&carObj->script,(AIScript_tAIReaction)0x800) != -1) ||
       (simGlobal[1] < carObj->wipeOutEndTick)) {
     int vely;
-    maxAngularAcceleration = 0;
     if (simGlobal[1] - (carObj->N).collision.lastTime < 0x40) {
       carObj->wipeOutEndTick = simGlobal[1];
     }
-    gripMultiplier = 0;
+    maxAngularAcceleration = 0;
     vely = (carObj->N).angularVel.y;
-    vely = __builtin_abs(vely);
+    gripMultiplier = maxAngularAcceleration;
+    if (vely < 0) {
+      vely = -vely;
+    }
     vely = vely + 0x1ca;
     if (0x3333 < vely) {
       vely = 0x3333;

@@ -24,8 +24,9 @@ tScreenTournSelect::tScreenTournSelect()
 tScreenTournSelect::~tScreenTournSelect()
 
 {
+  /* MATCH: no manual tScreen_dtor — declared base dtor auto-fires (vptr store
+     lands in its jal delay slot; __in_chrg forwarded in $a1). */
   this->_vf = (__vtbl_ptr_type (*)[10])tScreenTournSelect_vtable;
-  tScreen_dtor((tScreen *)this);
   return;
 }
 

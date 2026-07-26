@@ -478,7 +478,7 @@ int tScreenPinkSlipStandings::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
 tScreenPinkSlipStandings::~tScreenPinkSlipStandings()
 
 {
-  tScreen_dtor((tScreen *)this);
+  /* MATCH: empty body — the declared base dtor auto-fires (jal ___7tScreen). */
   return;
 }
 
@@ -488,7 +488,7 @@ tScreenPinkSlipStandings::~tScreenPinkSlipStandings()
 tScreenTournamentStandings3item::~tScreenTournamentStandings3item()
 
 {
-  tScreen_dtor((tScreen *)this);
+  /* MATCH: empty body — the declared base dtor auto-fires (jal ___7tScreen). */
   return;
 }
 
@@ -498,16 +498,8 @@ tScreenTournamentStandings3item::~tScreenTournamentStandings3item()
 tScreenTournamentStandings::~tScreenTournamentStandings()
 
 {
-  int tt;
-  int wwwww;
-  int colb;
-  int colf;
-  int i;
-  char sBuildOutput [80];
-  tTrackInformation trackInfo;
-  char string [30];
-  
-  tScreen_dtor((tScreen *)this);
+  /* MATCH: empty body — Ghidra's dead locals (tt/wwwww/colb/colf/i/sBuildOutput/
+     trackInfo/string) inflated the frame; the declared base dtor auto-fires. */
   return;
 }
 

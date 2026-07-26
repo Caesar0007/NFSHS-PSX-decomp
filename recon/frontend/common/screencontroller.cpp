@@ -1281,8 +1281,11 @@ void tScreenControllerConfig::DrawForeground()
       fadeDir = 0x80;
     }
     do {
+      /* CORRECTNESS FIX: oracle @0x80045678 calls ScaleShapeExtended(ColText+0x16,
+       * 0,0,0, fadeDir,0,NULL) -- the prior recon passed uninitialized fabricated
+       * locals (pNumTexts cast to int, shapeFlags/shapeX/shapeY never assigned). */
       ScaleShapeExtended
-                ((int)pNumTexts,shapeFlags,shapeX,shapeY,(int)fadeDir,0,
+                (ColText + 0x16,0,0,0,(int)fadeDir,0,
                  (tDrawShapeExtended *)0x0);
       ColText = ColText + 1;
     } while (ColText * 0x10000 >> 0x10 < 2);

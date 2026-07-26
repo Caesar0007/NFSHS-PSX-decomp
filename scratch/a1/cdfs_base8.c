@@ -57,36 +57,18 @@
  *             (Earlier levers, all diff-neutral at 4 and now moot: done-in-declaration; `done = 0`
  *             before/after the disarm call; `switch (intr & 0xFF)` vs the `(unsigned char)` cast;
  *             declaration reordering (rs before madr/done); `result[0]` vs `*result`.)
- *     [near]  CD_Read (198->64->31->12->2 diffs; insn parity 163/163).  Earlier waves: the
+ *     [near]  CD_Read (198->64->31->12 diffs; insn parity 163/163).  Fixed this wave: the
  *             `&CD_handleTable[dev-1]` slot idiom (same as the PASSing CD_Getinfo -- it yields the
  *             oracle's full address materialization `sll;addiu -4;addu` instead of a `-4(base)`
  *             load displacement); the directory entry RE-READ from the slot at both uses, with the
  *             second read taken into a block-local BEFORE the sign correction (that placement is
- *             what restores insn parity).
- *             w33-a1 12 -> 2, TWO levers, both derived from the cc1 `-dR`/`-dS` RTL traces:
- *             (1) *** BASE-POINTER-BLOCK vs FIRST-STORE-BLOCK ***.  The oracle materializes the
- *             `&CD_ctx` base in the block BEFORE the `offset < 0` sign correction (so reorg can
- *             steal the `addiu s1,s2,%lo` into the `bgez` delay slot) but its FIRST STORE through
- *             that base (`ringIdx = 0`) is AFTER the join.  A scheduler can never do that -- it
- *             cannot move an insn across a basic-block boundary -- so the two must be separate
- *             SOURCE statements in separate blocks: an explicit `CD_ctx_t *ctx = &CD_ctx;` local
- *             declared in the pre-correction block, with `ctx->ringIdx = 0;` moved after the `if`.
- *             (`CD_ringIdx = 0` as one statement forces base+store into the same block: 12 diffs;
- *             moving the whole statement after the correction sinks the base too: 14 diffs.)
- *             (2) *** NAMED ACCUMULATOR, split load / add ***: `startSector = *(int *)(e+0xC);
- *             ... startSector += offset >> 0xB; ctx->curSector = startSector;` gives the oracle's
- *             `addu v1,v1,v0` (dest = the LOADED value's register).  Written as one `A + B`
- *             expression the dest always coalesces onto the FIRST operand's register and swapping
- *             the operands only swaps which input gets v0/v1 (16 diffs) -- the accumulate form is
- *             the only spelling that reaches the oracle's register triple.  It also lets the
- *             ringIdx store schedule between the `sra` and the `addu`, exactly as the oracle does.
- *             RESIDUAL 2 (documented floor, mechanism known): the blockmove call loads `a0` before
- *             `a1` in the oracle, ours the reverse.  Root cause is in cc1's PRE-reload scheduler:
- *             the `a0` arg needs an `addu a0,a0,v0`, so its two feeder insns get sched.c's
- *             LAUNCH_PRIORITY (0x7f000001) boost while the plain `lw a1,12(s0)` keeps priority 1
- *             and therefore loses every ready-list tie and is emitted first.  Not source-
- *             reachable: 8 spellings tried (pointer-add vs index, hoisted src/off/dst/len locals,
- *             int-cast add, flat CD_* macros) all reproduce the identical pre-sched1 RTL.
+ *             what restores insn parity); `CD_ringIdx = 0` hoisted above that block; and the
+ *             start-sector sum written index-term-first.  Residual = the &Cdinfo materialization
+ *             being scheduled ~4 slots later than the oracle, the addu destination register on
+ *             the start-sector sum, and the blockmove `a0`/`a1` argument-load order -- all pure
+ *             scheduling.  Tried and rejected: named accumulator for the sum (16), curDst store
+ *             hoisted to just after curOff (16), ringIdx after curSector (12, no change),
+ *             in-place `e` mutation (12, no change).
  *
  *   w16-a3 2026-07-19 notes (kept for history): fixed the SAME real bug in CD_Read/CdReadyHandler
  *     -- the "advance next chunk"/"complete now" if/else had INVERTED block order vs the oracle
@@ -379,13 +361,10 @@ extern int CD_Read(int dev, int dest, int offset, int len)
                                 * block, but its first STORE is after the join -- see the note
                                 * above CD_Read for why that is the whole 12-diff residual. */
       char *e = (char *)*slot;   /* re-read; the oracle loads it BEFORE the sign correction */
-      int   startSector;
       if (offset < 0)
           offset += 0x7FF;
-      startSector    = *(int *)(e + 0xC);
       ctx->ringIdx   = 0;
-      startSector   += offset >> 0xB;
-      ctx->curSector = startSector; } /* start sector + offset / 0x800 */
+      ctx->curSector = (offset >> 0xB) + *(int *)(e + 0xC); } /* start sector + offset / 0x800 */
     Cdinfo |= 2;                                        /* read in progress */
     CD_timeout   = timerhz[0] * 6;
     addtimer((void *)CD_timerfunc, (void *)dest);

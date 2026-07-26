@@ -1503,118 +1503,59 @@ void Camera_Init(void)
   int localCar;
   int i;
   int type;
-  BO_tNewtonObj *pBVar1;
-  matrixtdef *pmVar2;
-  int *piVar3;
-  matrixtdef *pmVar4;
-  BWorldSm_Pos *pBVar5;
-  Camera_tInfo *pCVar6;
-  int iVar7;
-  u_int uVar8;
-  int iVar9;
-  int iVar10;
-  int iVar11;
-  int iVar12;
-  int local_a0 [34];
   
-  uVar8 = (u_int)(GameSetup_gData.commMode == 1);
-  memset((u_char *)local_a0,'\0',0x84);
-  iVar7 = 0;
-  pCVar6 = Camera_gInfo;
-  do {
-    iVar9 = iVar7;
-    if (uVar8 == 0) {
-      iVar9 = GameSetup_gData.localCar;
+  splitScreen = GameSetup_gData.commMode == 1;
+  memset((u_char *)&slicePos,'\0',sizeof(slicePos));
+  for (i = 0; i <= splitScreen; i++) {
+    localCar = i;
+    if (splitScreen == 0) {
+      localCar = GameSetup_gData.localCar;
     }
-    pCVar6->anchor = &Cars_gHumanRaceCarList[iVar9]->N;
-    pBVar1 = pCVar6->anchor;
-    pCVar6->target = &Cars_gHumanRaceCarList[iVar9]->N;
-    iVar9 = (pBVar1->position).y;
-    iVar10 = (pBVar1->position).z;
-    (pCVar6->position).x = (pBVar1->position).x;
-    (pCVar6->position).y = iVar9;
-    (pCVar6->position).z = iVar10;
-    pBVar1 = pCVar6->anchor;
-    iVar9 = (pBVar1->position).y;
-    iVar10 = (pBVar1->position).z;
-    (pCVar6->audioPos).x = (pBVar1->position).x;
-    (pCVar6->audioPos).y = iVar9;
-    (pCVar6->audioPos).z = iVar10;
-    pBVar1 = pCVar6->anchor;
-    pmVar4 = &pCVar6->rotation;
-    pCVar6->TVHeight = 0;
-    pmVar2 = &pBVar1->orientMat;
-    do {
-      iVar9 = pmVar2->m[1];
-      iVar10 = pmVar2->m[2];
-      iVar11 = pmVar2->m[3];
-      pmVar4->m[0] = pmVar2->m[0];
-      pmVar4->m[1] = iVar9;
-      pmVar4->m[2] = iVar10;
-      pmVar4->m[3] = iVar11;
-      pmVar2 = (matrixtdef *)(pmVar2->m + 4);
-      pmVar4 = (matrixtdef *)(pmVar4->m + 4);
-    } while (pmVar2 != (matrixtdef *)((pBVar1->orientMat).m + 8));
-    pmVar4->m[0] = pmVar2->m[0];
-    pBVar1 = pCVar6->anchor;
-    pCVar6->twist = 0;
-    iVar9 = (pBVar1->position).y;
-    iVar10 = (pBVar1->position).z;
-    (pCVar6->wallLeft).x = (pBVar1->position).x;
-    (pCVar6->wallLeft).y = iVar9;
-    (pCVar6->wallLeft).z = iVar10;
-    pBVar1 = pCVar6->anchor;
-    iVar9 = (pBVar1->position).y;
-    iVar10 = (pBVar1->position).z;
-    (pCVar6->wallRight).x = (pBVar1->position).x;
-    (pCVar6->wallRight).y = iVar9;
-    (pCVar6->wallRight).z = iVar10;
-    pCVar6->camNum = 0;
-    pCVar6->circleCounter = 0;
-    pCVar6->circleAngle = 0;
-    *(u_int *)((char *)(pCVar6) + 0x74) = *(u_int *)((char *)(pCVar6) + 0x74) & 0xffffff20 | 0x20 | uVar8 << 7;
-    pCVar6->intransition = '\0';
-    pCVar6->tumbling = '\0';
-    pCVar6->mode = 0xe;
-    *(u_int *)((char *)(pCVar6) + 0x74) = *(u_int *)((char *)(pCVar6) + 0x74) & 0xf0ffffff;
-    pCVar6->animNum = gAnimCams[GameSetup_gData.track][0];
+    Camera_gInfo[i].anchor = &Cars_gHumanRaceCarList[localCar]->N;
+    Camera_gInfo[i].target = &Cars_gHumanRaceCarList[localCar]->N;
+    Camera_gInfo[i].position = Camera_gInfo[i].anchor->position;
+    Camera_gInfo[i].audioPos = Camera_gInfo[i].anchor->position;
+    Camera_gInfo[i].TVHeight = 0;
+    Camera_gInfo[i].rotation = Camera_gInfo[i].anchor->orientMat;
+    Camera_gInfo[i].twist = 0;
+    Camera_gInfo[i].wallLeft = Camera_gInfo[i].anchor->position;
+    Camera_gInfo[i].wallRight = Camera_gInfo[i].anchor->position;
+    Camera_gInfo[i].camNum = 0;
+    Camera_gInfo[i].circleCounter = 0;
+    Camera_gInfo[i].circleAngle = 0;
+    Camera_gInfo[i].modechange = 0;
+    Camera_gInfo[i].pitch = 0;
+    Camera_gInfo[i].jostling = 0;
+    Camera_gInfo[i].tracking = 0;
+    Camera_gInfo[i].checkwalls = 0;
+    Camera_gInfo[i].noLookBack = 1;
+    Camera_gInfo[i].checkcollisions = 0;
+    Camera_gInfo[i].splitscreen = splitScreen;
+    Camera_gInfo[i].intransition = '\0';
+    Camera_gInfo[i].tumbling = '\0';
+    Camera_gInfo[i].mode = 0xe;
+    Camera_gInfo[i].direction = 0;
+    Camera_gInfo[i].zooming = 0;
+    Camera_gInfo[i].inCar = 0;
+    Camera_gInfo[i].animNum = gAnimCams[GameSetup_gData.track][0];
     if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
        ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
         ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
-      pCVar6->animNum = '\x01';
+      Camera_gInfo[i].animNum = '\x01';
     }
-    pBVar5 = &pCVar6->slicePos;
-    piVar3 = local_a0;
-    pCVar6->animHandle = -1;
-    pCVar6->splineMode = '\0';
-    pCVar6->forceFocus = 0;
-    pCVar6->focusOnAICar = -1;
-    pCVar6->POInhibitor = 0x40;
-    do {
-      iVar9 = *piVar3;
-      iVar10 = piVar3[1];
-      iVar11 = piVar3[2];
-      iVar12 = piVar3[3];
-      pBVar5->slice = (short)iVar9;
-      pBVar5->stripQuadInd = (short)((u_int)iVar9 >> 0x10);
-      *(int *)&pBVar5->simRotFlag = iVar10;
-      pBVar5->quadPts[0].x = iVar11;
-      pBVar5->quadPts[0].y = iVar12;
-      piVar3 = piVar3 + 4;
-      pBVar5 = (BWorldSm_Pos *)&pBVar5->quadPts[0].z;
-    } while (piVar3 != local_a0 + 0x20);
-    *(int *)pBVar5 = *piVar3;
-    iVar7 = iVar7 + 1;
-    pCVar6 = pCVar6 + 1;
-  } while (iVar7 <= (int)uVar8);
+    Camera_gInfo[i].animHandle = -1;
+    Camera_gInfo[i].splineMode = '\0';
+    Camera_gInfo[i].forceFocus = 0;
+    Camera_gInfo[i].focusOnAICar = -1;
+    Camera_gInfo[i].POInhibitor = 0x40;
+    Camera_gInfo[i].slicePos = slicePos;
+  }
   Camera_ResetRelPos(3);
-  iVar7 = *(*(int **)((char *)Cars_gHumanRaceCarList[0] + 0x288));
+  type = *(*(int **)((char *)Cars_gHumanRaceCarList[0] + 0x288));
   Camera_gGeomScreen = 0xbe;
-  if (((iVar7 < 0x1c) && ((GameSetup_gData.sgge & 0x100U) != 0)) && (uVar8 == 0)) {
+  if (((type < 0x1c) && ((GameSetup_gData.sgge & 0x100U) != 0)) && (splitScreen == 0)) {
     GameSetup_gData.carInfo[0].Camera[0] = 1;
-    Camera_gFlags[1].arm.x = gDriverCam[iVar7].x;
-    Camera_gFlags[1].arm.y = gDriverCam[iVar7].y;
-    Camera_gFlags[1].arm.z = gDriverCam[iVar7].z;
+    Camera_gFlags[1].arm = gDriverCam[type];
                     
                     
                     

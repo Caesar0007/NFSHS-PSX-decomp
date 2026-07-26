@@ -3125,7 +3125,7 @@ struct camera_info {   /* 272 bytes */
     signed char        animHandle;   /* +0x7D */
     char               splineMode;   /* +0x7E */
     int                forceFocus;   /* +0x80 */
-    char               focusOnAICar;   /* +0x84 */
+    signed char        focusOnAICar;   /* +0x84 */
     int                POInhibitor;   /* +0x88 */
     BWorldSm_Pos       slicePos;   /* +0x8C */
 };

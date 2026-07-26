@@ -14,7 +14,7 @@
  */
 
 extern int           sndgs[];
-extern int           timerhz;            /* hardware tick rate            */
+extern int           timerhz[];          /* hardware tick rate            */
 /* sndgs = 0x80147860 (configs/symbol_addrs.txt); DAT_80147910/DAT_80147912 are FIELDS of sndgs itself
  * (+0xB0 / +0xB2), not separate globals -- confirmed by oracle's lhu/sh %B2(s0) off the SAME &sndgs base
  * used for GB()/GUB() field accesses (iSNDleaveaudio). Both are SHORT (16-bit lhu/sh), not int. */
@@ -55,14 +55,38 @@ extern void iSNDleaveaudio(void);                     /* @0x800EA56C */
  * (4) sndgs[0x2b] (real-tick counter, offset 0xac) needs a VOLATILE re-read for the multiply operand --
  *     oracle stores the incremented count back to memory then re-loads it fresh for `*100/timerhz` instead
  *     of reusing the just-computed register value (same re-read lever as sst.c's MVI macro).
- * A SEPARATE `g` (not `p`) feeds the while-loop/callback pointer: `p` only needs to live in a0 up to the
+ * A SEPARATE `g` (not `p`) feeds the loop/callback pointer: `p` only needs to live in a0 up to the
  * point the loop's `jalr` call clobbers caller-saved regs; the sibling-idiom base pointer must NOT itself
  * be the value carried across that call, or gcc pins it into s0 for the WHOLE function (oracle only makes
  * that copy right before the loop, and recomputes sndgs fresh again for the final `GB(0x3e)=0` after it).
- * Residual (37 diffs): the outer branch's `li v0,1` -> reused two branches later for `GB(0x3e)=1` (a
- * long-distance constant carried across basic blocks) doesn't reproduce from straightforward C; and the
- * while-loop's condition-vs-body layout (gcc's own loop-rotation) doesn't change under an explicit
- * `if(cond){do{...}while(cond);}` rewrite -- both tried, no diff-count effect, reverted. */
+ * *** MATCH 71/71 (w32-a8, 37 -> 0 diffs).  Four more fixes, in the order they landed:
+ * (5) ROTATED LOOP WITH AN ENTRY GUARD, guard and body on DIFFERENT pointers (37->21, 66->70 insns).
+ *     The oracle peels the first `<= target` test before the loop (`lw v0,0x44(a0); sltu; bnez -> exit`),
+ *     puts `addu s0,a0,zero` after it, and re-tests through s0 at the back edge -- i.e.
+ *     `if (test on p) { g = p; do {...} while (test on g); }`.  A plain `while` lowers to the un-rotated
+ *     jump-to-test form and is 5 insns short.  NOTE the earlier attempt logged here as "no diff-count
+ *     effect" used the SAME variable in the guard and the back-edge test, so gcc cross-jump-merged the
+ *     two tests back into one; keeping them textually distinct (p vs g) is what makes the rotation stick.
+ * (6) `extern int timerhz[];` + `timerhz[0]` -- the UNSIZED-ARRAY declaration lever (methodology 3.12 #5),
+ *     here in its ADDRESS-materialization form (21->9): it forces &timerhz into its OWN register
+ *     (`lui v1,%hi(timerhz)` hoisted to the top of the block) which the oracle then SHARES between the
+ *     `lw a1,%lo(timerhz)(v1)` compare load and the later `lhu v0,%lo(timerhz)(v1)` halfword re-read.
+ *     Declared as a scalar, each access self-temps its own `lui` (2 extra insns, no sharing).  This also
+ *     freed the `li v0,1` that reorg then steals into the `beqz` delay slot for the `GB(0x3e)=1` store.
+ * (7) VOLATILE on the three fields the 100 Hz callback / IRQ path also touches -- sndgs[0x11] (0x44,
+ *     the audio clock, already volatile in iSND100hzserver), sndgs[0x2b] (0xac, the real-tick counter)
+ *     and the 0xb2 deferred-request count (already volatile in iSNDleaveaudio).  Without them gcc's
+ *     scheduler hoists the two `sw zero` clears above the `sh` into the timerhz load-delay slot, and
+ *     reorg steals the 0xb2 `sh` into the `j` delay slot where the oracle leaves a nop (9->6->3).
+ * (8) the trailing flag clear is a VOLATILE-pointer store `{volatile char *q = (volatile char*)sndgs;
+ *     q[0x3e] = 0;}` (3->0).  Only the volatile-qualified pointer makes gcc materialize the ADDRESS in a
+ *     register (`lui;addiu;sb 0x3E(v0)` -- and reorg then steals that `lui` into BOTH loop-exit delay
+ *     slots) instead of folding +0x3e into the reloc (`lui;sb %lo(sndgs+0x3e)`, 1 insn short).  A plain
+ *     `char *q`, a bare `((char*)sndgs)[0x3e]`, an `(int)` cast and a volatile MEM cast all fold.
+ *     Re-using `p` here instead is NOT the answer: it makes p live across the jalr, so gcc pins it in s1
+ *     for the whole function (71/71 insns but 56 diffs).  The 0x3e re-entrancy flag is genuinely volatile
+ *     (it guards against re-entry from the IRQ/leaveaudio path), so its read and its `=1` store carry the
+ *     qualifier too -- all four spellings byte-match, the consistent one is kept. */
 extern void iSNDserver(void)
 {
     char *p;
@@ -70,26 +94,26 @@ extern void iSNDserver(void)
     unsigned int target;
 
     p = (char *)sndgs;
-    if (*(unsigned char *)(p + 0x3e) == 0) {           /* not already inside the server */
+    if (*(volatile unsigned char *)(p + 0x3e) == 0) {           /* not already inside the server */
         if (*(unsigned char *)(p + 0x3f) != 0) {       /* audio locked -- defer */
-            *(short *)(p + 0xb2) = *(short *)(p + 0xb2) + 1;   /* run it later, on leaveaudio */
+            *(volatile short *)(p + 0xb2) = *(volatile short *)(p + 0xb2) + 1;   /* run it later, on leaveaudio */
             return;
         }
-        *(unsigned char *)(p + 0x3e) = 1;
-        if (timerhz != (((int)(*(volatile unsigned short *)(p + 0xb0)) << 16) >> 16)) {
-            *(short *)(p + 0xb0) = (short)timerhz;
-            *(int *)(p + 0x44) = 0;
-            *(int *)(p + 0xac) = 0;
+        *(volatile unsigned char *)(p + 0x3e) = 1;
+        if (timerhz[0] != (((int)(*(volatile unsigned short *)(p + 0xb0)) << 16) >> 16)) {
+            *(volatile short *)(p + 0xb0) = (short)timerhz[0];
+            *(volatile int *)(p + 0x44) = 0;
+            *(volatile int *)(p + 0xac) = 0;
         }
         *(volatile int *)(p + 0xac) = *(volatile int *)(p + 0xac) + 1;
-        target = (unsigned int)(*(volatile int *)(p + 0xac) * 100) / (unsigned int)timerhz;
+        target = (unsigned int)(*(volatile int *)(p + 0xac) * 100) / (unsigned int)timerhz[0];
         if ((unsigned int)*(int *)(p + 0x44) <= target) {
             g = p;
             do {
                 (*(void (*)(void))*(int *)(g + 0x48))();
             } while ((unsigned int)*(int *)(g + 0x44) <= target);
         }
-        *(unsigned char *)((char *)sndgs + 0x3e) = 0;
+        { volatile char *q = (volatile char *)sndgs; q[0x3e] = 0; }
     }
 }
 

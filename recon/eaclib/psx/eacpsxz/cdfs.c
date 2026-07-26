@@ -1,4 +1,4 @@
-/* eaclib/psx/eacpsxz/cdfs.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 12/14 PASS ***
+/* eaclib/psx/eacpsxz/cdfs.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 13/14 PASS ***
  *   Source obj : nfs4\eaclib\psx\cdfs.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col11)
  *
  *   COMPILED AS C by USER RULING (2026-07-25, uniformity over diff count): cc1plus (C++) measured
@@ -17,7 +17,7 @@
  *
  *   PROGRESS (`python tools/verify_asm.py cdfs.c <fn>`, w32-a1 2026-07-26 sweep):
  *     [PASS]  CD_Close, CD_Stopread, CD_Getinfo, readsectorB, dircompare, CD_Restore, CD_Init,
- *             CD_timerfunc, CD_Restart, CD_Open, loaddirinfo, CD_systaskfunc      -- 12/14
+ *             CD_timerfunc, CD_Restart, CD_Open, loaddirinfo, CD_systaskfunc, CdReadyHandler -- 13/14
  *             CD_Restart: a volatile cached-sector view pins the second store before the callback.
  *             CD_Open: a guarded do/while removes the redundant bound precheck; a distinct copied
  *             bound preserves the oracle's post-guard register move. No asm pins (HARD RULE).
@@ -43,14 +43,20 @@
  *     (c) Flag updates that read-modify-write a volatile word are ONE STATEMENT PER BIT: the
  *         oracle emits `Cdinfo &= ~8; Cdinfo |= 0x10;` as two separate load/modify/store pairs,
  *         not the fused `Cdinfo = (Cdinfo & ~8) | 0x10;`.
- *     [near]  CdReadyHandler (325->...->109->4 diffs; insn parity 300/300).  Residual = ONLY the
- *             prologue emission ORDER of the two param save/copy pairs (oracle `sw s3;move s3,a1;
- *             sw s1;move s1,a0`, ours the reverse -- identical registers, identical frame slots).
- *             This is the known prologue-save-order scheduling floor (methodology 3.12 "irreducible
- *             coloring/scheduling floor", catalog F).  LEVERS TRIED, all diff-neutral at 4:
- *             done-in-declaration; `done = 0` before/after the disarm call; `switch (intr & 0xFF)`
- *             vs the `(unsigned char)` cast; declaration reordering (rs before madr/done);
- *             `result[0]` vs `*result`.
+ *     [PASS] CdReadyHandler (w33-a1, 4 -> 0): the last 4 diffs were the emission ORDER of the two
+ *             param save/copy pairs (oracle `sw s3;move s3,a1; sw s1;move s1,a0`, ours the
+ *             reverse).  NOT a floor -- it is a PROTOTYPE fact.  *** NARROW-PARAM LEVER ***:
+ *             `intr` is declared `unsigned char`, not `int` (IDA types it `unsigned __int8`).  In
+ *             gcc-2.8 `assign_parms`, a parameter whose declared mode is NARROWER than the
+ *             incoming promoted mode has its copy emitted into the deferred `conversion_insns`
+ *             sequence, which is flushed AFTER every plain parm copy -- so the `s3<-a1` (result)
+ *             copy gets a LOWER luid than the `s1<-a0` (intr) copy, the exact reverse of the
+ *             declaration order.  sched2 then breaks its all-priority-1 ready-list tie by
+ *             DESCENDING luid, which puts the s3 pair first.  Derivation: cc1 `-dR` sched2 trace,
+ *             block 0 `ready list at T-12: 6 4` -- one tie, one insn pair, the whole 4-diff delta.
+ *             (Earlier levers, all diff-neutral at 4 and now moot: done-in-declaration; `done = 0`
+ *             before/after the disarm call; `switch (intr & 0xFF)` vs the `(unsigned char)` cast;
+ *             declaration reordering (rs before madr/done); `result[0]` vs `*result`.)
  *     [near]  CD_Read (198->64->31->12 diffs; insn parity 163/163).  Fixed this wave: the
  *             `&CD_handleTable[dev-1]` slot idiom (same as the PASSing CD_Getinfo -- it yields the
  *             oracle's full address materialization `sll;addiu -4;addu` instead of a `-4(base)`
@@ -199,7 +205,7 @@ extern int  CdControlB(unsigned char com, unsigned char *p, unsigned char *r); /
 extern int  CdControl(unsigned char com, unsigned char *p, unsigned char *r);  /* @0x800F78B4 */
 extern int  CdSync(int mode, unsigned char *r);                            /* @0x800F784C */
 extern int  CdFlush(void);                                                 /* @0x800F7818 */
-extern void CdReadyCallback(void (*fn)(int, unsigned char *));             /* @0x800F78A0 */
+extern void CdReadyCallback(void (*fn)(unsigned char, unsigned char *));             /* @0x800F78A0 */
 extern void CdIntToPos(int i, unsigned char *p);                           /* @0x800F7CF4 */
 extern int  CdPosToInt(CdlLOC *p);                                         /* syslib SYS  */
 extern int  CdGetSector(void *madr, int size);                             /* syslib SYS  */
@@ -221,7 +227,7 @@ extern unsigned char *readsectorB(void);                       /* @0x800FA154 */
 extern void loaddirinfo(int startSector, int numSectors, int maxEntries); /* @0x800FA1A8 */
 extern int   CD_Restart(int startSector);                      /* @0x800FA4A8 */
 extern int   CD_systaskfunc(void);                             /* @0x800F9AE8 */
-extern void  CdReadyHandler(int intr, unsigned char *result);  /* @0x800F9CA4 */
+extern void  CdReadyHandler(unsigned char intr, unsigned char *result);  /* @0x800F9CA4 */
 
 /* unaligned little-endian 32-bit load (the asm uses lwl/lwr; ISO9660 stores LE first).  MUST be
  * `inline` (a bare `static` at -O2 on this toolchain still emits an out-of-line call) -- the oracle
@@ -656,7 +662,7 @@ extern void CD_timerfunc(void)
  *   cache for a partial slice), validates the sector address, advances the transfer, and fires the
  *   completion callback when the request is satisfied.  It also keeps the drive streaming/prefetching
  *   ahead of CD_curSector and re-installs itself on exit. */
-extern void CdReadyHandler(int intr, unsigned char *result)
+extern void CdReadyHandler(unsigned char intr, unsigned char *result)
 {
     struct {
         CdlLOC        hdr[3];             /* sector address header (CdGetSector .. 3 words) */
@@ -693,7 +699,7 @@ extern void CdReadyHandler(int intr, unsigned char *result)
         return;
     }
 
-    switch ((unsigned char)intr) {
+    switch (intr) {
     case 2:                               /* CdlComplete */
         if (CD_ringIdx == -1) {
             CD_ringIdx = 0;

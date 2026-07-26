@@ -18,6 +18,19 @@
  */
 
 extern int            gVoxEvents[];      /* @0x80148060 : live event count + base of the 16-slot queue */
+/* gVoxEventQueue: a SECOND declaration of the same storage (co-equal XDEF / asm-label view, catalog
+ * wave-13 "unsized-array asm-label view").  The 0x80148060 block is a deliberate OVERLAY -- slot 0's
+ * first two words (its fields start at +8) double as the live-count and the 'd'-flag -- so the queue
+ * array and the counter were two named objects in EA's source.  Keeping them DISTINCT symbol_refs is
+ * load-bearing for iSPCH_ChooseEvent: with one symbol, cse merges the slot cursor's base pseudo with
+ * the count/SLOT() base and emits a preheader copy `reg91 = reg160` -- a ref of the cursor pseudo that
+ * is rematerialized away (no instruction) but still counted by flow, taking the cursor to 16 weighted
+ * REG_N_REFS.  16 is a floor_log2 razor edge: prio 4*16/73 = 0.877 beats `age`'s 3*12/45 = 0.800 and
+ * the two swap $s2/$s3 vs retail.  With the separate view the cursor drops to 15 refs (3*15/73 = 0.616)
+ * and the whole callee-saved assignment matches retail exactly (46 -> 35 diffs).  ⚠ the SLOT()/count
+ * sites must STAY on `gVoxEvents` -- routing them through the queue view costs 22 diffs here and
+ * breaks SPCH_ChooseSpeech's PASS. */
+extern unsigned char  gVoxEventQueue[] __asm__("gVoxEvents");
 extern int            DAT_80148064;   /* @0x80148064 : "kept a 'd' event" flag */
 extern int            gLastTick[];    /* last insert tick (array decl -> explicit lui+%lo) */
 extern unsigned short gLastSubTick[]; /* sub-tick counter for same-tick inserts */
@@ -195,23 +208,54 @@ extern void iSPCH_InitEventQueue(void)
      * the off side: `argBase = off + 0xc` (cc1 then MERGES off and argBase into one
      * induction pseudo, 27 insns / 34 diffs) and a named `a = off + base` address
      * temp (neutral, 29). */
+    /* w35-a4 (17 -> 12, and insn parity is now EXACT 29/29; every register matches retail and the
+     * ONLY residual is the 6-insn prologue).  a9's "best shape" was right; what it lacked was the
+     * two REF DIALS that make the allocator produce retail's assignment:
+     *   (1) the six-value retail shape, with the INNER loop written label+goto so loop.c never sees
+     *       it (a natural inner do-while gets REVERSED to a down-counter `li 11; addiu -1; bgez`,
+     *       because with `off` carrying the address `j` is a pure counter) and the four header
+     *       stores `volatile` so the giv anchor never forms.
+     *   (2) `slot` taken from a SEPARATE declaration of the storage (gVoxEventQueue, see the decl
+     *       comment) so cse cannot fuse it with `base`.  With one symbol our cc1 copy-propagates
+     *       base -> slot, which BOTH loses retail's `addu $a0,$a3,$zero` copy AND moves the
+     *       `sw zero,4(base)` onto slot's register -- costing `base` the ref that lifts it over
+     *       `end`.  Two views: base 4 refs/36 = 0.222 > end 3/42 = 0.071, so base takes $a3 and
+     *       end $t0 exactly as retail.
+     *   (3) `end = base + 0x3c0` instead of `slot + 0x3c0`.  Retail computes it off slot
+     *       (`addiu $t0,$a0,0x3C0`) but that OUT-OF-LOOP ref is slot's 16th weighted REG_N_REFS,
+     *       and 16 is a floor_log2 razor edge: 4*16/22 = 2.909 beats off's 3*8/11 = 2.18 and the
+     *       two swap $v1/$a0.  Sourcing `end` from `base` sheds it: slot 3*15/22 = 2.045, which
+     *       lands BETWEEN off (2.18) and j (2.00) -- the exact retail order
+     *       off=$v1, slot=$a0, j=$a1, argBase=$a2, base=$a3, end=$t0.  Cost: one operand diff on
+     *       the `addiu $t0` (a3 vs a0).  (Falsified on the way: moving `off = argBase` below the
+     *       header stores does not shorten its live range, 30 unchanged.)
+     * RESIDUAL 12 = the prologue only: retail materializes the address ONCE and makes two copies
+     * (`lui $v1; addiu $v0; addu $a3,$v0; addu $a0,$a3; addiu $t0,$a0; sw $zero,%lo($v1)`), we
+     * materialize it twice (one `lui/addiu` per view) and keep no copies -- the per-obj
+     * no-copy-prop identity (catalog SSG) crossed with the two-view requirement above.  Reverting
+     * to one symbol restores the single `lui` but costs the whole register assignment (31 diffs). */
     int argBase = 0;
     int base = (int)gVoxEvents;
+    int slot = (int)gVoxEventQueue;
+    int end  = base + 0x3c0;
     gVoxEvents[0]   = 0;
     *(int *)(base + 4) = 0;   /* DAT_80148064: stored via base+4 (oracle sw 0,4(a3)) */
     do {
-        int slot = base + argBase;
         int j = 0;
-        *(short *)(slot + 8)  = 0;
-        *(short *)(slot + 0xa) = 0;
-        *(int *)(slot + 0xc)  = 0;
-        *(int *)(slot + 0x10) = 0;
-        do {
-            ((volatile int *)(base + argBase))[j + 5] = 0;
-            j = j + 1;
-        } while (j < 0xc);
+        int off = argBase;
+        *(volatile short *)(slot + 8)  = 0;
+        *(volatile short *)(slot + 0xa) = 0;
+        *(volatile int *)(slot + 0xc)  = 0;
+        *(volatile int *)(slot + 0x10) = 0;
+      inner:
+        *(int *)(off + base + 0x14) = 0;
+        j = j + 1;
+        off = off + 4;
+        if (j < 0xc)
+            goto inner;
+        slot = slot + 0x3c;
         argBase = argBase + 0x3c;
-    } while (argBase < 0x3c0);
+    } while (slot < end);
     gLastTick[0]    = 0;
     gLastSubTick[0] = 0;
 }
@@ -362,15 +406,14 @@ extern int iSPCH_ChooseEvent(void)
     L.bestSub = 0;
     slotIdx = 0;
     do {
-        unsigned char *slot = (unsigned char *)gVoxEvents + slotIdx * 0x3c;
+        unsigned char *slot = gVoxEventQueue + slotIdx * 0x3c;
         if (*(unsigned short *)(slot + 8) != 0) {
             int            voxEvent   = *(int *)(slot + 0x10);
             int            tick       = *(int *)(slot + 0xc);
             int            age        = L.now - tick;
             int            expired    = 0;
             int            filtered   = 0;
-            unsigned short maxAge     = *(unsigned short *)(voxEvent + 2);
-            if (maxAge != 0) {
+            if (*(unsigned short *)(voxEvent + 2) != 0) {
                 /* w31-a4 residual (46, 118/120): oracle has an extra `addu v0,v1,zero` copy of
                  * maxAge feeding the sltu (named-int-temp shape; an `int m = maxAge` folds away
                  * under CSE) and a slot/age s2<->s3 + reload-reg rotation downstream -- the
@@ -397,8 +440,8 @@ extern int iSPCH_ChooseEvent(void)
                  * and a named `ageCmp` copy feeding the maxAge compare (folded away,
                  * 46 unchanged -- confirms the catalog rule that copies of a COMPUTED
                  * value do not dial priority, unlike param copies). */
-                int m = maxAge;
-                expired = ((unsigned int)m < (unsigned int)age);
+                unsigned int m = *(unsigned short *)(voxEvent + 2);
+                expired = (m < (unsigned int)age);
             }
             if (gFilterSetting[0] == 1) {
                 if ((VoxEvent_GetFilterLengthFlag(voxEvent) & 0xff) != 0) {

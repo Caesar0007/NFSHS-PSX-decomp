@@ -80,10 +80,11 @@ void tScreenMain::SwapBackground(int num)
   oldState = this->hVideo;
   VIDEO_abortplayback(oldState);
   iVar1 = this->fCurrentSlot;
+  tVar2 = (tScreenMainState)iVar1;
   this->bVideoAborted = 1;
   if ((((this->fVideoShapes[iVar1].async_handle == 0) &&
        (this->fVideoShapes[iVar1].fFile == (char *)0x0)) &&
-      (this->fVideoShapes[1 - iVar1].async_handle == 0)) &&
+      (this->fVideoShapes[1 - (int)tVar2].async_handle == 0)) &&
      (this->fVideoShapes[1 - iVar1].fFile == 0)) {
     if (num == -1) {
       do {

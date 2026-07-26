@@ -4725,7 +4725,7 @@ struct tInsideBoxSongMenu : public tInsideBoxMenu {   /* 136 bytes */
     void Draw(short, short, short, short, short);
     void DrawOneSong(short, short, short, short, short, short);
     long DebounceKeys();
-    int ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);  /* SYM: FCN VOID */
 
 };
 

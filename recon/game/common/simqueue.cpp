@@ -184,14 +184,19 @@ void SimQueue_SetLag(void)
 int SimQueue_IsBlocking(int pIndex)
 
 {
-  if (pIndex == 0) {
-    if (GameSetup_gData.commMode != 0) {
-      if (GameSetup_gData.commMode != 1) {
-        return 0;
-      }
-    }
-    return inputQueue.TailTime[0] < inputQueue.HeadTime + maxTicksPerFrame ^ 1;
-  }
+  /* Retail keeps two physical zero-return blocks: the nonzero-index fast path
+   * here and the unsupported-comm-mode tail below. */
+  if (pIndex == 0) goto check_mode;
+  return 0;
+
+check_mode:
+  if (GameSetup_gData.commMode == 0) goto calculate;
+  if (GameSetup_gData.commMode != 1) goto return_zero;
+
+calculate:
+  return inputQueue.TailTime[0] < inputQueue.HeadTime + maxTicksPerFrame ^ 1;
+
+return_zero:
   return 0;
 }
 

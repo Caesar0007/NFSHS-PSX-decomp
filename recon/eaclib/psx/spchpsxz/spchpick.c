@@ -1,9 +1,8 @@
-/* eaclib/psx/spchpsxz/spchpick.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 18/27 PASS ***
- *   Full detailed survey: remaining FAILs are iSPCH_OrderSentences(64,85/83),
- *   iSPCH_ChooseSentence(58,104/104), iSPCH_SentenceGetChoices(54,84/80),
- *   iSPCH_MakeSampleRequests(49,85/82), iSPCH_IterateChoice(43,45/44),
- *   iSPCH_MatchSample(28,67/65), iSPCH_SampleLength(14,26/26),
- *   iSPCH_ConstantRuleSet(10,83/83), and iSPCH_SentenceMakeChoice(7,44/43).
+/* eaclib/psx/spchpsxz/spchpick.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 21/27 PASS ***
+ *   Remaining FAILs after wave 33: iSPCH_MatchSample(22,67/65),
+ *   iSPCH_ConstantRuleSet(10,83/83), iSPCH_OrderSentences(9,82/83),
+ *   iSPCH_SentenceGetChoices(7,81/80), iSPCH_SentenceMakeChoice(7,44/43),
+ *   iSPCH_IterateChoice(4,44/44).
  *   Source obj : nfs4\eaclib\psx\spchpick.obj ; archive C:\nfs4\EACLIB\PSX\SPCHPSXZ.LIB (xlsx col12 / SYM v3)
  *   27 fns @[0x8010077C .. 0x801018F4].  The sentence/sample PICKER -- the top of the speech pipeline: takes
  *   a chosen event, picks a sentence template that passes its rules, chooses matching samples per phrase,
@@ -118,11 +117,23 @@ extern void SPCH_SetPreLoadTicks(int ticks);                       /* @0x801018F
  * cycleByte` into a NINTH callee-saved register ($s7 here), which pushes paramTable into $fp and
  * adds the fp save/restore pair (the 2-insn gap); retail rematerializes `li v1,1` per iteration
  * and gets by on s0-s7.  Same move_movables class as iSPCH_SentenceGetChoices' `li -2`, but here
- * there is no compare to fold the constant into.  Levers tried and rejected: a label+goto loop
- * DOES kill the hoist and reach exact 65/65 parity, but re-rotates the five block locals (40-42
- * diffs, worse); `(matchVal >> cycleByte) & 1` avoids the constant but switches cc1 to a
- * srlv/andi bit test the oracle does not use; a named `one` local and re-assignment per
- * iteration are still recognised as invariant. */
+ * there is no compare to fold the constant into.
+ * w33-a9 NEW RESULT -- the hoist IS source-killable without a goto loop: splitting the shift into
+ * two statements over the SAME variable (`bit = 1; bit = bit << cycleByte;`) makes `bit` a pseudo
+ * that is MODIFIED in the loop, so move_movables has no invariant to move.  That form reaches
+ * EXACT 65/65 parity with the prologue, the whole param set (sample s6 / phraseTemplate s5 /
+ * paramTable s7) and the epilogue BYTE-IDENTICAL -- no fp, no extra li.  NOT KEPT: the split
+ * doubles bit's ref count, and the only residual becomes a 3-way rotation of the block locals,
+ * 32 diffs vs the baseline's 22.  cc1 -dg/-dl numbers for the split form (priority =
+ * floor_log2(refs)*refs/live_length): bit 10/15 = 2.00 -> s0, lowNib 6/8 = 1.50 -> s1,
+ * i 13/28 = 1.39 -> s2, result 9/32 = 0.84 -> s3, count 5/33 = 0.30 -> s4; retail needs
+ * lowNib > i > bit > result > count, i.e. bit's priority must land inside (0.84, 1.39) --
+ * 7 refs at length 15, or 10 refs at length 22-35.  Falsified attempts at that: bit defined
+ * before the cycleByte range guard, bit declared after lowNib, the shift hoisted out of the
+ * inner block (all 32/65).  This is now a 1-parameter permuter target on the SPLIT form, not
+ * the 40-diff goto form banked in w31.  Also falsified this wave: `1u << (cycleByte & 0x1f)`
+ * (23/68), lowNib declared first (38/67), a named `one` local (22/67, still hoisted),
+ * `(result + 1) << cycleByte` (22/67, cc1 folds result to 0). */
 extern int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int paramTable)
 {
     /* w31-a4 NOTE (kept at baseline per strict-drop seal law; findings for a future wave):

@@ -953,8 +953,7 @@ void AI_CheckForClearLanes(Car_tObj *carObj)
     carsFound = lanesFilled;
     runningIndex = ci * ci + carObjIndexInSortedList;
     dir = ci;
-    while (true) {
-      if (Cars_gNumCars <= ci) break;
+    while ((carsFound != 3) && (ci < Cars_gNumCars)) {
       otherCarObj = Cars_gSortedList[(runningIndex + Cars_gNumCars) % Cars_gNumCars];
       if (carObj == otherCarObj) goto NEXT_CAR;
       if ((otherCarObj->N).active == '\0') goto NEXT_CAR;
@@ -982,7 +981,6 @@ void AI_CheckForClearLanes(Car_tObj *carObj)
       }
 NEXT_CAR:
       runningIndex = runningIndex + dir;
-      if (carsFound == 3) break;
       ci = ci + 1;
     }
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + clearAheadMerits[0];

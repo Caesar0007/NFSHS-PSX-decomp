@@ -114,6 +114,19 @@ extern void SPCH_SetPreLoadTicks(int ticks);                       /* @0x801018F
  * available (LICM of a true literal isn't source-defeatable without one). Accept as floor. */
 extern int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int paramTable)
 {
+    /* w31-a4 NOTE (kept at baseline per strict-drop seal law; findings for a future wave):
+     * a GOTO-loop body (label `loop:` + `if (i<count) goto loop;` instead of do-while) reaches
+     * EXACT insn parity 65/65 -- it stops gcc's loop pass from hoisting the shift constant `1`
+     * out of the loop (`li s6,1` + a 9th saved reg fp in the do-while form; the oracle
+     * rematerializes `li v1,1` per iteration) and lands sample->s6/template->s5/paramTable->s7
+     * exactly.  The residual is then a pure 5-local allocno rotation: ours
+     * {i:s0,result:s1,lowNib:s2,count:s3,bit:s4} vs oracle {lowNib:s0,i:s1,bit:s2,result:s3,
+     * count:s4}.  cc1 -dl data: i 7refs/27len(.52) > result 6/31(.39) > lowNib 3/8(.375) >
+     * count 4/32(.25) >= bit 3/12(.25) reproduces ours exactly (priority ~ floor_log2(refs)*
+     * refs/len); the oracle order needs lowNib ~4refs and bit len ~7 -- no faithful source
+     * shape found that moves those counts (bit two-stmt split self-shifts s0,s0 vs oracle's
+     * li v1,1;sllv s2,v1,a0 temp split; lowNib &=-split would self-andi s0,s0 vs oracle
+     * andi s0,v0).  Diff counts: goto form 42, baseline 28 (alignment luck) -> reverted. */
     int count = (int)*(signed char *)(phraseTemplate + 3);
     int result = 1;
     (void)bankIdx;

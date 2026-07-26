@@ -47,6 +47,50 @@
  *     movfxya WORSE -- 174 (shape), 212 (x), 213 (y), 235 (shape+x / shape+y / all three);
  *     {x} and {x,y} do reach 221/221 parity but at 212 diffs.
  *
+ *   w34-a4 2026-07-26 -- THE ROTATION IS QUANTIFIED FROM THE ALLOCNO DUMPS, AND THE FLAG IS
+ *     RE-MEASURED WITH A DECISION RECORDED IN tools/build.py.
+ *     (1) `cc1 -dl/-dg` on this TU prints the whole allocation.  The three fighting pseudos are
+ *         80 = shape  (29 refs / 266 insns -> floor_log2(29)*29/266 = 0.436)
+ *         95 = vc     (13 refs /  88 insns -> 3*13/88            = 0.443)
+ *         99 = yPos   (11 refs /  78 insns -> 3*11/78            = 0.423)
+ *         and gcc-2.8 global.c hands out REG_ALLOC_ORDER in that priority order, so ours is
+ *         95,80,99 -> vc=$s6, shape=$s7, yPos=$fp.  Retail is shape=$s6, yPos=$s7, vc=$fp, i.e.
+ *         the order 80,99,95.  Reaching it needs vc's weighted refs 13->12 (or its live length
+ *         88->>=93) with everything else fixed.  Refs are LOOP-DEPTH weighted, so they only move in
+ *         steps of the depth (2 outer / 3 inner): the ONLY -1 available is demoting one of vc's
+ *         three inner uses to the outer loop, and the only loop-invariant one is `v2 = vc + rowH`.
+ *         TESTED: hoisting v2 to the outer loop DOES produce retail's map (shape->$s6, vc->$fp,
+ *         verified in the objdump) but v2 then has to live across the inner loop's calls, all nine
+ *         callee-saved regs are already taken, so it spills and the FRAME GROWS 80->88 -- every
+ *         frame displacement shifts and the gate goes 149 -> 167.  The oracle computes `addu
+ *         $v0,$fp,$a2` INSIDE the inner loop (movfxya.s:155), so retail's vc has 13 refs too.
+ *         ==> the ordering difference is the banked ALLOCNO_COMPARE DELTA (catalog SS-G), not a
+ *         source miss: retail ranks a long-lived many-ref pointer above a short-lived one.
+ *     (2) `-fno-schedule-insns` (sched1 OFF) re-measured: 149 -> 88 diffs, 222 -> 225 insns.  It
+ *         fixes the SHAPE half of the rotation on its own (shape lands on retail's $s6; only the
+ *         vc<->yPos pair stays swapped).  The +4 is the CSE-hoisted `li 255` pseudo (allocno 125,
+ *         6 refs/204 insns -> $t1) plus its caller-save `sw/lw 36(sp)` pair.  Because it LOSES
+ *         instruction parity it fails the wave keep-rule, so it is NOT enabled -- but the
+ *         PER_TU_FLAGS key `no_schedule_insns` now exists in tools/build.py with the full
+ *         measurement + the sibling controls, so adopting it is a one-line change if a later wave
+ *         decides the diff drop outweighs the count.  movf.c holds exactly one function, so no
+ *         in-TU regression is possible.
+ *     (3) Attempts to kill the `li 255` hoist so the flag build reaches parity, all measured:
+ *         label+goto OUTER loop  default 186 (221/221) | with -fno-schedule-insns 132 (225)
+ *         label+goto INNER loop  default 254 (221/221) | with -fno-schedule-insns 229 (224)
+ *         both                   default 224 (225)     | with -fno-schedule-insns 176 (225)
+ *         and, under the flag, -fno-caller-saves 124, -fno-strength-reduce / -fno-peephole /
+ *         -fno-cse-skip-blocks / -fno-force-mem / -fno-inline all 88 (no effect).
+ *         Other flags on the default build: -mno-split-addresses 151, -fno-schedule-insns2 155,
+ *         -fno-delayed-branch 174, -fno-expensive-optimizations 161.
+ *     (4) NFS2 PC-beta cross-oracle (w34 lever 2) checked and found NOT APPLICABLE here: NFS2's
+ *         movf.obj is a 6-function family of ~6-instruction THUNKS (_movfxya/_movf/_movfxy/
+ *         _movcfxya/_movcf/_movcfxy) that all tail-call one shared PC blitter, `movdfl` in
+ *         movdfl.obj -- a software frame-buffer routine with no GPU-primitive/OT-link structure.
+ *         The PSX movfxya is a whole generation later (a tiling POLY_FT4 emitter); the only thing
+ *         that transfers is the FAMILY shape (one core + thin x/y/anchor-adjusting wrappers), which
+ *         the PSX side already reflects via fastmovfxya.
+ *
  *   MATCH notes (264->149; residual = scheduler-order/scratch-choice class -- {shape,yPos,vc} s6/s7/fp rotation, hoisted-255 CSE pseudo (caller-save-spilled!) vs per-use li, arg-block interleave -- the oracle .obj again shows unscheduled output; -fno-schedule diag gives 128. Levers that landed, mirroring the fastmovf recipe):
  *     - NO `ret` variable / NO explicit return on ANY path: $v0 is incidental (vramimage's or
  *       fastmovfxya's return, or scratch on the tiling path) -- the oracle computes no return value.

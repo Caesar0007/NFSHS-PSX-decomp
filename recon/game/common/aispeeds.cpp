@@ -784,28 +784,27 @@ int AISpeeds_GetDamageFactor(Car_tObj *carObj)
 /* ---- AISpeeds_LimitGlueMultiplier__FP8Car_tObji  [@0x8006e9b0] ---- */
 int AISpeeds_LimitGlueMultiplier(Car_tObj *carObj,int f_final)
 {
+  /* SYM roles: f_final=$s2, bestDistanceAbsMeters=$s3, playerLoop=$s1.
+   * The remaining residual is the compiler choosing $s2/$s3 oppositely. */
   int bestDistanceAbsMeters;
   int playerLoop;
   int thisDistanceAbsMeters;
-  int iVar1;
-  Car_tObj **ppCVar2;
-  int iVar3;
-  int iVar4;
-  
-  if (0xcccb < f_final - 0x999aU) {
-    iVar4 = 0x27100000;
-    ppCVar2 = Cars_gHumanRaceCarList;
-    for (iVar3 = 0; iVar3 < Cars_gNumHumanRaceCars; iVar3 = iVar3 + 1) {
-      iVar1 = AIWorld_ApxSplineDistance(carObj,*ppCVar2);
-      if (iVar1 < 0) {
-        iVar1 = -iVar1;
+
+  if ((f_final < 0x999a) || (0x16665 < f_final)) {
+    bestDistanceAbsMeters = 0x27100000;
+    playerLoop = 0;
+    while (true) {
+      if (Cars_gNumHumanRaceCars <= playerLoop) {
+        break;
       }
-      if (iVar1 < iVar4) {
-        iVar4 = iVar1;
+      thisDistanceAbsMeters = __builtin_abs(
+          AIWorld_ApxSplineDistance(carObj,Cars_gHumanRaceCarList[playerLoop]));
+      if (thisDistanceAbsMeters < bestDistanceAbsMeters) {
+        bestDistanceAbsMeters = thisDistanceAbsMeters;
       }
-      ppCVar2 = ppCVar2 + 1;
+      playerLoop = playerLoop + 1;
     }
-    if (iVar4 < 0x780001) {
+    if (bestDistanceAbsMeters < 0x780001) {
       if (0x16666 < f_final) {
         f_final = 0x16666;
       }

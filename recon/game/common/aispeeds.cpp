@@ -1096,18 +1096,23 @@ int AISpeeds_CalculateOncomingCarSpeed(Car_tObj *carObj)
 /* ---- AISpeeds_SetTrafficSpeedRandomFactor__FP8Car_tObj  [@0x8006ef28] ---- */
 void AISpeeds_SetTrafficSpeedRandomFactor(Car_tObj *carObj)
 {
-  /* H53: SYM (nfs4-f-v3.txt @0x8006ef28, fsize=16) names exactly ONE 4-int array,
+  /* H53: SYM (nfs4-f-v3.txt @0x8006ef28, fsize=16) has exactly ONE stack object, a 4-int array,
    * randomSpeedMultipliers -- the recon had a DUPLICATE unused array (dead, same bug class as
    * the "duplicate 112-byte Ghidra buffer" documented elsewhere in this file) inflating the
    * frame to 32 bytes. Removed the dead twin. The oracle ALSO loads the 4 constants from a
    * static .rodata template (D_800554E0) and copies them onto the stack -- an aggregate
    * initializer list reproduces that "template + copy" codegen; 4 separate assignment
-   * statements do not. */
+   * statements do not. The register-only raw/factor temporaries keep the table load before
+   * the required randtemp/fastRandom writes, matching the retail instruction schedule. */
   int randomSpeedMultipliers[4] = {0x10000, 0xe666, 0xcccc, 0xb333};
+  u_int random;
+  int randomFactor;
 
-  randtemp = randSeed * fastRandom;
-  carObj->trafficSpeedRandomizingFactor = *(int *)((int)randomSpeedMultipliers + (randtemp >> 6 & 0xc));
-  fastRandom = randtemp & 0xffff;
+  random = randSeed * fastRandom;
+  randomFactor = *(int *)((int)randomSpeedMultipliers + (random >> 6 & 0xc));
+  randtemp = random;
+  fastRandom = random & 0xffff;
+  carObj->trafficSpeedRandomizingFactor = randomFactor;
   return;
 }
 

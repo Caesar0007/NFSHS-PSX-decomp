@@ -72,7 +72,7 @@ extern int  iSPCH_ChooseSamples(short *choice, int maxToPick, int phraseTemplate
 extern int  iSPCH_SampleLength(short *choice);                        /* @0x80100C5C */
 extern int  iSPCH_ConvertTime(int samples);                          /* @0x80100CC4 */
 extern int  iSPCH_SentenceLength(int sentence);                      /* @0x80100D20 */
-extern unsigned char *iSPCH_OrderSentences(int event, int outOrder); /* @0x80100D94 */
+extern void iSPCH_OrderSentences(int event, int outOrder); /* @0x80100D94 */
 extern unsigned int iSPCH_RepeatEvent(unsigned short *eventArgs);    /* @0x80100EE0 */
 extern int  iSPCH_ShortRuleStatus(int sentence, int mode);           /* @0x80100F24 */
 extern int  iSPCH_SentenceGetChoices(int sentence, int paramTable, unsigned int ruleByte1, unsigned int ruleByte2, int filterMode); /* @0x80100F8C */
@@ -350,62 +350,67 @@ extern int iSPCH_SentenceLength(int sentence)
 }
 
 /* iSPCH_OrderSentences @0x80100D94 : produce a weighted-random play order of `event`'s phrases into outOrder. */
-extern unsigned char *iSPCH_OrderSentences(int event, int outOrder)
+extern void iSPCH_OrderSentences(int event, int outOrder)
 {
+    /* MATCH + CORRECTNESS (w31-a4): (1) VOID -- the oracle epilogue never sets $v0 and the sole
+     * caller (ChooseSentence) ignores it; the old `unsigned char *last` return chain was invented
+     * (+2 insns, phantom stores).  (2) REAL BUG FIXED: phase 3 (append zero-weight entries) must
+     * CONTINUE `i` -- the oracle keeps appending at outOrder+s1 after the weighted picks; the old
+     * recon reset i=0 and overwrote the ordered list.  (3) weights[j] accessed directly (oracle
+     * recomputes the weights+j address per use; no pointer temp).  (4) one function-scope j reused
+     * as the PHASE-1 counter, phase-2 scan index and phase-3 loop counter (oracle reuses s0 for
+     * all three; `i` is born at phase 2).  (5) phase-2 scan = while(j<n){...break;...} -- do-while
+     * and for(;;) shapes get header-peeled (+4).
+     * residual 12 (85/83): (a) phase-1 `p` coalesces with $v0 (oracle copies it to a0, addu
+     * a0,v0,zero, because its sb-address temp takes v0) -- ours-1-shorter receiver-reuse class;
+     * (b) the scan while-rotation guard slt/beqz survives (oracle enters the loop straight off
+     * the n!=0 test; unprovable j<n for signed compare, and unsigned-compare or do-while forms
+     * diverge more).  Permuter targets. */
     unsigned char  weights[104];
-    unsigned char *last = (unsigned char *)0;
     unsigned int   n = (unsigned int)*(unsigned char *)(event + 6);
     int            total = 0;
-    int            i = 0;
+    int            j = 0;
+    int            i;
     if (n != 0) {
         do {
             unsigned char *p;
-            p = (unsigned char *)iSPCH_GetOffset16(event, event + 0xc, i);
-            weights[i] = *p;
-            i = i + 1;
+            p = (unsigned char *)iSPCH_GetOffset16(event, event + 0xc, j);
+            weights[j] = *p;
+            j = j + 1;
             total = total + (int)(unsigned int)*p;
-        } while (i < (int)n);
+        } while (j < (int)n);
     }
     i = 0;
     if (0 < total) {
         do {
-            int            r = iSPCH_Rand(total);
-            int            j = 0;
+            int r = iSPCH_Rand(total);
+            j = 0;
             if (n != 0) {
-                for (;;) {
-                    unsigned char *p = weights + j;
-                    r = r - (int)(unsigned int)*p;
+                while (j < (int)n) {
+                    r = r - (int)(unsigned int)weights[j];
                     if (r < 0)
                         break;
                     j = j + 1;
-                    if ((int)n <= j)
-                        break;
                 }
             }
             *(char *)(outOrder + i) = (char)j;
-            last = weights + j;
             i = i + 1;
-            total = total - (int)(unsigned int)*last;
-            *last = 0;
+            total = total - (int)(unsigned int)weights[j];
+            weights[j] = 0;
         } while (0 < total);
     }
-    i = 0;
-    {
-        int k = 0;
-        if (n != 0) {
-            do {
-                char *p;
-                p = (char *)iSPCH_GetOffset16(event, event + 0xc, k);
-                if (*p == '\0') {
-                    *(char *)(outOrder + i) = (char)k;
-                    i = i + 1;
-                }
-                k = k + 1;
-                last = (unsigned char *)0;
-            } while (k < (int)n);
-        }
+    j = 0;
+    if (n != 0) {
+        do {
+            char *p;
+            p = (char *)iSPCH_GetOffset16(event, event + 0xc, j);
+            if (*p == '\0') {
+                *(char *)(outOrder + i) = (char)j;
+                i = i + 1;
+            }
+            j = j + 1;
+        } while (j < (int)n);
     }
-    return last;
 }
 
 /* iSPCH_RepeatEvent @0x80100EE0 : whether this in-game event may repeat (under its repeat limit). */

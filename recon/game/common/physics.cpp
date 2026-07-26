@@ -440,14 +440,13 @@ int Physics_GetTorque(Car_tObj *carObj,int index)
 void Physics_CorrectPostCollisionYaw(Car_tObj *carObj,int impactVel,coorddef barrierVec)
 
 {
-  int result;
-  int diffX;
   int diffZ;
+  int diffX;
+  int result;
 
   (carObj->N).collision.impulse = impactVel * 6;
-  result = currentWallType;
   (carObj->N).collision.otherObj = (BO_tNewtonObj *)0x0;
-  (carObj->N).collision.sfxType = result | 0x40000;
+  (carObj->N).collision.sfxType = currentWallType | 0x40000;
   if ((impactVel < 0xf0000) || ((carObj->linearVel_ch).z < 0x140000)) {
     diffZ = fixedmult(barrierVec.x,(carObj->N).shadowMat.m[6]) +
             fixedmult(barrierVec.y,(carObj->N).shadowMat.m[7]) +

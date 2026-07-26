@@ -462,7 +462,6 @@ restart:
 extern int startnextrequest(int s, unsigned int prio)
 {
     int  done;
-    int  ret = 0;
     int  cur;
     int  req;
     int  sr;
@@ -470,14 +469,13 @@ extern int startnextrequest(int s, unsigned int prio)
     cur  = MI(s, 0x50);
     done = 1;
     if (cur != 0) {
-        ret  = 1;
         done = 0;
         if (MI(cur, 4) != 1) {                  /* current no longer queued */
-            ret = MI(cur, 0xc);                 /* advance to next */
-            if (ret == 0)
+            int nx = MI(cur, 0xc);              /* advance to next */
+            if (nx == 0)
                 done = 1;
             else
-                MI(s, 0x50) = ret;
+                MI(s, 0x50) = nx;
         }
     }
     if (done) {
@@ -485,7 +483,6 @@ extern int startnextrequest(int s, unsigned int prio)
     } else {
         req = MI(s, 0x50);
         MI(req, 0x60) = MI(s, 0x44);             /* request start fill ptr = writeptr */
-        ret = 2;
         MI(req, 4) = 2;                          /* state = active */
     }
     STREAM_leaveCS(sr);
@@ -499,30 +496,34 @@ extern int startnextrequest(int s, unsigned int prio)
             MI(s, 0xa0) = MI(req, 0x58);         /* readaccum = request offset */
             if (strcmp((char *)(req + 0x14), (char *)name) != 0) {  /* different file */
                 strcpy((char *)name, (char *)(req + 0x14));
-                if (MU(s, 0x9c) != 0) {          /* close the open file first */
-                    unsigned int op = FILE_close((void *)MU(s, 0x9c), prio, (unsigned int)s);
-                    MU(s, 0xa4) = op;
-                    if (op == 0)
-                        return 0;
-                    FILE_callbackop(op, (void (*)(int, int))closecallback);
-                    return op;
-                }
-                {
+                /* MATCH: the oracle FALLS THROUGH into the FILE_open arm and lays the
+                 * close-first arm OUT OF LINE after it (`bnez $a0,.L800FCAF4`); the natural
+                 * `if (handle != 0) {close...} {open...}` spelling emits the opposite layout. */
+                if (MU(s, 0x9c) == 0) {          /* nothing open -> open the new file directly */
                     unsigned int op = FILE_open((char *)name, 1, prio, (unsigned int)s);
                     MU(s, 0xa4) = op;
                     if (op == 0)
-                        return 0;
-                    FILE_callbackop(op, (void (*)(int, int))opencallback);
-                    return op;
+                        return (int)op;          /* MATCH: return the (zero) op, not a fresh `0` */
+                    return (int)FILE_callbackop(op, (void (*)(int, int))opencallback);
+                }
+                {                                /* close the open file first */
+                    unsigned int op = FILE_close((void *)MU(s, 0x9c), prio, (unsigned int)s);
+                    MU(s, 0xa4) = op;
+                    if (op == 0)
+                        return (int)op;
+                    return (int)FILE_callbackop(op, (void (*)(int, int))closecallback);
                 }
             }
         }
         /* MATCH: oracle keeps this fn's OWN `prio` parameter cached in a callee-saved reg across every
          * intervening call (strcmp/strcpy/FILE_open/FILE_callbackop/FILE_close) to hand to restartstream
          * as its real 2nd arg (forwarded to FILE_read's a5, see restartstream). */
-        ret = restartstream(s, prio);
+        return restartstream(s, prio);
     }
-    return ret;
+    /* MATCH: NO return here -- the oracle's `done` path branches straight to the shared epilogue with
+     * whatever $v0 holds.  An explicit `return ret;` forces a live `ret` pseudo across the whole
+     * critical section (+6 insns: a prologue `addu v1,zero,zero`, the `ret=1`/`ret=2`
+     * materializations and an `addu v0,v1,zero` result copy) -- exactly the +6 surplus. */
 }
 
 /* restartstream @0x800FCB44 : the buffer fill engine.  Reclaims free space at the read head, releases

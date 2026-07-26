@@ -66,16 +66,16 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
      * the CLUT tail) are ALSO shared/hoisted the same way -- named here so gcc materializes each
     * ONCE and reuses it at both write sites instead of rematerializing per-site. */
     {
-    /* RAW/ORACLE (2026-07-26, 100->96 detailed diffs; count-exact 165/165):
-     * keep the four coordinate roles as distinct locals in stack-argument-first order. This
-     * preserves the retail argument lifetimes and improves the saved-register prologue family. */
-    int cy = clutY;
-    int ix = imgX;
-    int iy = imgY;
-    int cx = clutX;
-    unsigned int clutXm  = (unsigned int)cx & 0xfff;
-    unsigned int clutYm  = ((unsigned int)cy & 0xfff) << 0x10;
+    /* RAW/ORACLE (2026-07-26, 100->93 detailed diffs; 166/165 instructions):
+     * keep the coordinate roles and their precomputed masks as distinct locals.  Declaration order
+     * steers the retail compiler closer to the oracle's saved-register family. */
     unsigned int maskLo  = ~0xFFFu;         /* clears the low 12 bits (x field) */
+    unsigned int clutXm  = (unsigned int)clutX & 0xfff;
+    unsigned int clutYm  = ((unsigned int)clutY & 0xfff) << 0x10;
+    int cx = clutX;
+    int iy = imgY;
+    int ix = imgX;
+    int cy = clutY;
     unsigned int maskHi  = 0xF000FFFFu;     /* clears bits 16-27 (y field) */
     scratch.clut22p = scratch.clut22;
     do {

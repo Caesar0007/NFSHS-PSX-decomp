@@ -99,7 +99,7 @@ extern void          *snd_user_serve_hook;  /* @0x80148038              */
 /* dependencies */
 extern unsigned int iSNDpsxkeyon(int mask);                   /* spatkey */
 extern int          iSNDpsxkeyoff(int mask);                  /* spatkey */
-extern unsigned int iSNDsetvol(int chan, int left, int right);/* spatkey */
+extern void iSNDsetvol(int chan, int left, int right);/* spatkey */
 extern unsigned int iSNDstartvoice(unsigned int chan);       /* spatkey */
 extern void         iSNDfreechan(int chan);                  /* salloc  */
 extern unsigned int iSNDpsxfxinit(int mode);                 /* sdfx    */

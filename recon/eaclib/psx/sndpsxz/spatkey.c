@@ -178,8 +178,11 @@ extern int iSNDpsxeffectvol(int left, int right)
 
 /* iSNDsetvol @0x800FF238 : write a channel's SPU voice L/R volume from logical (left,right) levels,
  *   panning per the routing mode (mono spread vs hard L/R) and output mode (mono/stereo).
- *   Unified sndpd voice/SPU storage plus the true clamp assignments improve 112->42 diffs. */
-extern unsigned int iSNDsetvol(int chan, int left, int right)
+ *   VOID (W31): no caller consumes a result and the oracle's exit `$v0` holds the UNMASKED
+ *   `(sum*0x81)>>1` scratch on the mono paths (no C `return` could produce that) -- the declared
+ *   return value was the 4 extra insns (`addu v0,x,zero` funnels).  One `vol` + one reused `vreg`
+ *   carry the a0/a3 webs through the shared tail. */
+extern void iSNDsetvol(int chan, int left, int right)
 {
     int            vt = chan * 0x2c;
     volatile unsigned char *voiceBase = sndpd + 0xd8;
@@ -187,53 +190,45 @@ extern unsigned int iSNDsetvol(int chan, int left, int right)
     unsigned char  *pd = (unsigned char *)voiceBase - 0xd8;
     int            voiceRegs = *(int *)(pd + 0x510);
     unsigned short *vreg = (unsigned short *)(voiceRegs + chan * 0x10);
-    unsigned int   v;
+    int            vol;
 
     chan = slot[0x1f];
 
     if (chan == 1) {                                /* single channel */
+        int sum;
         if ((char)sndgs[4] == 2) {                  /* stereo output */
-            left = left * 0x81 & 0x7fff;
-            *(volatile unsigned short *)vreg = (unsigned short)left;
-            right = right * 0x81 & 0x7fff;
-            vreg[1] = (unsigned short)right;
-            return right;
+            *vreg   = left * 0x81 & 0x7fff;
+            vreg[1] = right * 0x81 & 0x7fff;
+            return;
         }
-        {
-            int sum = left + right;
-            if (*(unsigned char *)((unsigned char *)slot + 0x1e) == chan) { /* L/R-spread routing */
-                if (left < 0)  left = -left;
-                if (right < 0) right = -right;
-                if (0x7f < left)  left = 0x7f;
-                if (0x7f < right) right = 0x7f;
-                sum = left + right;
-            }
-            v = (sum * 0x81 >> 1) & 0x7fff;
+        sum = left + right;
+        if (*(unsigned char *)((unsigned char *)slot + 0x1e) == chan) { /* L/R-spread routing */
+            if (left < 0)  left = -left;
+            if (right < 0) right = -right;
+            if (0x7f < left)  left = 0x7f;
+            if (0x7f < right) right = 0x7f;
+            sum = left + right;
         }
+        vol = (sum * 0x81 >> 1) & 0x7fff;
     } else {                                        /* linked pair */
         if ((char)sndgs[4] == 2) {
-            unsigned short *vreg2;
-            *(volatile unsigned short *)vreg = (unsigned short)(left * 0x81 & 0x7fff);
-            *(volatile unsigned short *)(vreg + 1) = 0;
-            vreg2 = (unsigned short *)(*(int *)(pd + 0x510) +
+            *vreg   = left * 0x81 & 0x7fff;
+            vreg[1] = 0;
+            vreg = (unsigned short *)(*(int *)(pd + 0x510) +
                     ((int)((unsigned)slot[0x20] << 0x18) >> 0x14));
-            v = right * 0x81 & 0x7fff;
-            *vreg2 = 0;
-            vreg2[1] = (short)v;
-            return v;
+            *vreg   = 0;
+            vreg[1] = right * 0x81 & 0x7fff;
+            return;
         }
-        {
-            unsigned int leftvol = (left * 0x81 >> 1) & 0x7fff;
-            v = (right * 0x81 >> 1) & 0x7fff;
-            *vreg = (unsigned short)leftvol;
-            vreg[1] = (unsigned short)leftvol;
-        }
+        vol = (left * 0x81 >> 1) & 0x7fff;
+        *vreg   = vol;
+        vreg[1] = vol;
+        vol = (right * 0x81 >> 1) & 0x7fff;
         vreg = (unsigned short *)(*(int *)(pd + 0x510) +
                 ((int)((unsigned)slot[0x20] << 0x18) >> 0x14));
     }
-    *vreg = (unsigned short)v;
-    vreg[1] = (unsigned short)v;
-    return v;
+    *vreg   = vol;
+    vreg[1] = vol;
 }
 
 /* iSNDsetslot @0x800FF394 : program a channel's SPU voice ADSR + pitch slot (attack/decay rate, start

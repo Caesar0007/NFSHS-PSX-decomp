@@ -339,7 +339,7 @@ void iSNDpsxkeyoff(int arg0);   /* spatkey */
 void iSNDpsxeffecton(int arg0);   /* spatkey */
 void iSNDpsxeffectoff(int arg0);   /* spatkey */
 void iSNDpsxeffectvol(int arg0);   /* spatkey */
-void iSNDsetvol(int arg0);   /* spatkey */
+void iSNDsetvol(int chan, int left, int right);   /* spatkey */
 void iSNDsetslot(int arg0);   /* spatkey */
 void iSNDstartvoice(int arg0);   /* spatkey */
 void iSNDplatformoutputcaps(void * arg0);   /* slib */

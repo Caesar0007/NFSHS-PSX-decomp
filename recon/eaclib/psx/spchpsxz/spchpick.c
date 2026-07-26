@@ -381,11 +381,14 @@ extern void iSPCH_OrderSentences(int event, int outOrder)
      * and for(;;) shapes get header-peeled (+4).
      * residual 12 (85/83): (a) phase-1 `p` coalesces with $v0 (oracle copies it to a0, addu
      * a0,v0,zero, because its sb-address temp takes v0) -- ours-1-shorter receiver-reuse class;
-     * (b) the scan while-rotation guard slt/beqz survives (oracle enters the loop straight off
-     * the n!=0 test; unprovable j<n for signed compare, and unsigned-compare or do-while forms
-     * diverge more).  Permuter targets.  w32-a9 re-tested (b): do-while 48 diffs/87 insns (loop.c
-     * PEELS the first iteration, +4) and a label+goto scan 50/81 -- both far worse than the
-     * `while` guard; the guard stands. */
+     * (b) SOLVED in w33-a9 -- see the scan loop below.
+     * RESIDUAL 9 (82/83) is (a) alone: retail copies GetOffset16's return into $a0
+     * (`addu a0,v0,zero`) and addresses both `*p` reads off $a0, while ours reuses $v0
+     * directly and is 1 insn SHORTER.  That is the catalog's "ours-1-shorter receiver/
+     * base-reg reuse" class = PERMUTER multi-basin, NOT a floor.  Source levers falsified
+     * in w33-a9 (all 9 diffs / 82 insns, no movement): j++ before vs after the total
+     * accumulation, a named byte temp for the first read, the p[0] index form, an
+     * int-typed address local, and p hoisted to function scope. */
     unsigned char  weights[104];
     unsigned int   n = (unsigned int)*(unsigned char *)(event + 6);
     int            total = 0;
@@ -406,11 +409,21 @@ extern void iSPCH_OrderSentences(int event, int outOrder)
             int r = iSPCH_Rand(total);
             j = 0;
             if (n != 0) {
-                while (j < (int)n) {
+                /* MATCH (w33-a9, 12 -> 9): the scan is an INFINITE loop with TWO in-body
+                 * breaks -- `while (1) { ...; if (r<0) break; j++; if (!(j<n)) break; }`.
+                 * `while (j<n)` emits a rotation guard (slt/beqz, +3 insns) because cc1
+                 * cannot prove 0<(int)n from n!=0; `for(;;)` with the bound test written
+                 * as `j>=n` / `n<=j` makes loop.c PEEL the first iteration (+5, 87 insns).
+                 * Only the negated `!(j < n)` bottom test reproduces the oracle's
+                 * straight-in body with the exit at the back edge -- the whole scan block
+                 * is now byte-identical. */
+                while (1) {
                     r = r - (int)(unsigned int)weights[j];
                     if (r < 0)
                         break;
                     j = j + 1;
+                    if (!(j < (int)n))
+                        break;
                 }
             }
             *(char *)(outOrder + i) = (char)j;

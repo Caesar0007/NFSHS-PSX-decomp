@@ -416,12 +416,10 @@ int AISpeeds_CalcOpponentCurveSpeed(Car_tObj *carObj)
 /* ---- AISpeeds_BTCGetGlueFactor__FP8Car_tObj  [@0x8006e09c] ---- */
 int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
 {
+  /* Remaining oracle residual: humanLoop's zero source and the out-of-line
+   * negative glue-index clamp (5 detailed diffs, 110/111 instructions). */
   int closestHumanDistance;
   Car_tObj *closestHumanCarObj;
-  int glueIndex;
-  int glue;
-  int iVar2;
-  int iVar3;
 
   closestHumanDistance = 0x270f0000;
   closestHumanCarObj = (Car_tObj *)0x0;
@@ -434,25 +432,20 @@ int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
      * blocks @0x8006e0d8/0x8006e0e4/0x8006e118), not function-scope -- reproduced as nested
      * declarations (SYM block scopes are load-bearing for gcc-2.8 pseudo-numbering). */
     int humanLoop;
-    for (humanLoop = 0; humanLoop < Cars_gNumHumanRaceCars; humanLoop = humanLoop + 1) {
+    humanLoop = 0;
+    while (humanLoop < Cars_gNumHumanRaceCars) {
       Car_tObj *copCar;
       copCar = Cars_gHumanRaceCarList[humanLoop];
       if ((copCar->carFlags & 0x200U) != 0) {
         int longMetersBetween;
         longMetersBetween = AIWorld_ApxSplineDistance(carObj,copCar);
-        iVar2 = longMetersBetween;
-        if (longMetersBetween < 0) {
-          iVar2 = -longMetersBetween;
-        }
-        iVar3 = closestHumanDistance;
-        if (closestHumanDistance < 0) {
-          iVar3 = -closestHumanDistance;
-        }
-        if (iVar2 < iVar3) {
+        if (__builtin_abs(longMetersBetween) <
+            __builtin_abs(closestHumanDistance)) {
           closestHumanDistance = longMetersBetween;
           closestHumanCarObj = copCar;
         }
       }
+      humanLoop = humanLoop + 1;
     }
     /* H57: the oracle computes closestHumanDistance*carObj->direction EARLY (scheduled into the
      * RSControl-check's delay slot), regardless of whether the early-return is taken -- a
@@ -460,20 +453,30 @@ int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
      * inline inside the later `/0x3c0000+10` expression reproduces that scheduling. */
     closestHumanDistance = closestHumanDistance * carObj->direction;
     if (closestHumanCarObj->RSControl != 0) {
-      return 0x10000;
+      goto LAB_DEFAULT_GLUE;
     }
-    if (0x13fffe < closestHumanCarObj->currentSpeed + 0x9ffffU) {
-      closestHumanDistance = closestHumanDistance / 0x3c0000 + 10;
-      if (closestHumanDistance < 0) {
-        glueIndex = 0;
+    if (0x13fffe < closestHumanCarObj->currentSpeed + 0x9ffffU)
+      goto LAB_GLUE;
+  }
+LAB_DEFAULT_GLUE:
+  return 0x10000;
+LAB_GLUE:
+  {
+      int glueIndex;
+      int glue;
+      int clampedGlueIndex;
+
+      glueIndex = closestHumanDistance / 0x3c0000 + 10;
+      if (glueIndex < 0) {
+        clampedGlueIndex = 0;
+      }
+      else if (glueIndex < 0x15) {
+        clampedGlueIndex = glueIndex;
       }
       else {
-        glueIndex = 0x14;
-        if (closestHumanDistance < 0x15) {
-          glueIndex = closestHumanDistance;
-        }
+        clampedGlueIndex = 0x14;
       }
-      glue = AIPerson_glueTable[glueIndex];
+      glue = AIPerson_glueTable[clampedGlueIndex];
       if (glue < 0x10000) {
         glue = fixedmult(0x10000 - glue,carObj->btcGlueModifier);
         glue = 0x10000 - glue;
@@ -483,9 +486,7 @@ int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
       }
       glue = fixedmult(glue,carObj->speedFactor);
       return glue;
-    }
   }
-  return 0x10000;
 }
 
 /* ---- AISpeeds_GetNextAICar__FP8Car_tObj  [@0x8006e258] ---- */

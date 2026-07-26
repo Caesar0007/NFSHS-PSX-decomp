@@ -15,7 +15,8 @@ typedef int bool;
 
 typedef void (*SentenceRuleSetFn)(unsigned int, unsigned int, int, int);
 typedef int (*SentenceRuleTestFn)(unsigned int, unsigned int, int, int);
-extern SentenceRuleSetFn gSentenceRuleSet;    /* sentence rule-set callback (spchinit-owned) */
+extern SentenceRuleSetFn gSentenceRuleSet[];  /* sentence rule-set callback (spchinit-owned); unsized-array
+                                               * decl => separate-temp base materialization (catalog SSE #5) */
 extern SentenceRuleTestFn gSentenceRuleTest;  /* sentence rule-test callback */
 
 /* ---- per-TU static copies of the shared Vox accessors (canonical versions in spchdata.obj) ---- */
@@ -113,9 +114,26 @@ extern unsigned int iSPCH_GetRuleID(int sentence, int index)
  *   gSentenceRuleSet callback with that rule + the parameter value from val[]. */
 extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
 {
-    SentenceRuleSetFn *ruleSet = &gSentenceRuleSet;
-    int **valuesSlot = &values;
-    if (*ruleSet != 0) {
+    /* MATCH (w32-a9, 57 -> 52 diffs, insn count now EXACT 78/78):
+     * (1) `values` is ADDRESSABLE in retail -- the oracle keeps it in its incoming home slot and
+     *     reads it there (`sw a2,0x50(sp)` in the gate's delay slot, `lw a3,0x50(sp)` in the loop)
+     *     rather than parking it in a callee-saved reg (all nine of s0-s7/fp are already spoken for).
+     *     Only an ESCAPING `&values` sets TREE_ADDRESSABLE: `(void)&values;` and an inline
+     *     `*(int **)&values` are both folded away before it takes effect (verified -- `values` then
+     *     lands in $s2), and a *dead* `int **p = &values;` local loses the flag too.  The address
+     *     must be taken into a local that is REALLY dereferenced, so it is done in the innermost
+     *     block, at the point of use; cse then folds `*p` back to the direct `lw ...,0x50(sp)`
+     *     and no register is spent on the slot address (an outer-block `p` burns $s7).
+     * (2) gSentenceRuleSet is declared as an UNSIZED ARRAY and read as `gSentenceRuleSet[0]`
+     *     (catalog SSE lever #5 / "unsized-array extern extends to ADDRESS materialization"):
+     *     the scalar spelling emits the self-temp `lui v0; lw v0,0(v0)` for the gate and then a
+     *     SECOND `lui/addiu` for the in-loop load (+1 insn); the array spelling emits the oracle's
+     *     separate-temp `lui s1; lw v0,0(s1)` and keeps that base alive to be copied into $s7.
+     * RESIDUAL 52 = a pure callee-saved ROTATION (ours rd/paramIdx/i/ruleByte = s1/s0/s3/s2, retail
+     * s0/s1/s2/s3) plus retail loading each rule byte into a CALLER-saved temp and copying it to its
+     * s-reg (which also fills the lbu load-delay slot our direct-to-s-reg load has to `nop`).  Same
+     * allocation-order/no-copy-prop identity signature as the rest of this obj (catalog SSG). */
+    if (gSentenceRuleSet[0] != 0) {
         int offSent;
         int            numRules = *(signed char *)((int)sentence + 7);
         int            i        = 0;
@@ -141,8 +159,9 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
                 case 0:
                 case 3:
                     if (iSPCH_SentenceUsesParm(offSent, paramIdx) != 0) {
+                        int **valuesSlot = &values;
                         int *valuesNow = *valuesSlot;
-                        (*ruleSet)((unsigned short)*sentence, ruleByte,
+                        gSentenceRuleSet[0]((unsigned short)*sentence, ruleByte,
                             valuesNow[paramIdx], (int)valuesNow);
                     }
                     break;

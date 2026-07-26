@@ -41,9 +41,9 @@ void AITrigger_TriggerManager::Init(char *rawTriggers)
   } while (-1 < tLoop);
   if (rawTriggers != (char *)0x0) {
     numTriggers = (int *)rawTriggers;   /* SYM: numTriggers is a REG PTR INT, aliases rawTriggers's count header */
-    currentTrigger = rawTriggers + 4;   /* SYM: currentTrigger is a REG PTR CHAR (byte cursor, NOT trigger_t* -- must NOT scale by sizeof(trigger_t)=72) */
+    currentTrigger = (char *)(numTriggers + 1);   /* SYM: currentTrigger is a REG PTR CHAR (byte cursor, NOT trigger_t* -- must NOT scale by sizeof(trigger_t)=72) */
+    tLoop = 0;
     if (0 < *numTriggers) {
-      tLoop = 0;
       do {
         currentTrigger = currentTrigger + this->InsertTrigger((trigger_t *)currentTrigger,true);
         tLoop = tLoop + 1;

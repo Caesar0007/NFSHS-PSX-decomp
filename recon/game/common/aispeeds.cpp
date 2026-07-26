@@ -369,58 +369,48 @@ int AISpeeds_NeedToSlowDownForCurve(Car_tObj *carObj,int distanceMeters,int curr
 int AISpeeds_CalcOpponentCurveSpeed(Car_tObj *carObj)
 {
   int speedHere;
-  int scanMetersDistanceInt;
-  int scanSlice;
-  int curve;
-  int curveSpeed;
-  int iVar1;
 
-  /* H51: SYM ground truth (dumpsym_src/nfs4-f-v3.txt @0x8006df34) names speedHere/
-   * scanMetersDistanceInt at function scope and scanSlice/curve/curveSpeed in the nested loop-body
-   * block ($8006df74) -- the recon previously routed everything through anonymous currentSpeed/
-   * iVar1/iVar2/iVar3, and critically REUSED one iVar2 for BOTH the slice-scan index AND the
-   * curveSpeedTable result. Those are two SEPARATE named locals (scanSlice vs curveSpeed) with
-   * different live ranges (curveSpeed alone survives across the NeedToSlowDownForCurve call as its
-   * arg) -- collapsing them into one variable forced them into the same register. */
-  scanMetersDistanceInt = 200;
-  speedHere = carObj->currentSpeed;
-  if (speedHere < 0) {
-    speedHere = -speedHere;
-  }
-  while( true ) {
-    if (scanMetersDistanceInt < 0) {
-      return 0;
-    }
-    scanSlice = (scanMetersDistanceInt / 6) * carObj->direction;
-    if (scanSlice < 0) {
-      scanSlice = (carObj->N).simRoadInfo.slice + scanSlice;
-      if (scanSlice < 0) {
-        scanSlice = scanSlice + gNumSlices;
+  /* SYM scopes scanMetersDistanceInt around the loop and the remaining three
+   * locals inside its body; preserving those scopes is allocation-sensitive. */
+  {
+    int scanMetersDistanceInt;
+
+    scanMetersDistanceInt = 200;
+    speedHere = __builtin_abs(carObj->currentSpeed);
+    while (0 <= scanMetersDistanceInt) {
+      int scanSlice;
+      int curve;
+      int curveSpeed;
+
+      scanSlice = (scanMetersDistanceInt / 6) * carObj->direction;
+      if (0 <= scanSlice) {
+        scanSlice = scanSlice + (carObj->N).simRoadInfo.slice;
+        if (gNumSlices <= scanSlice) {
+          scanSlice = scanSlice - gNumSlices;
+        }
       }
-    }
-    else {
-      scanSlice = (carObj->N).simRoadInfo.slice + scanSlice;
-      if (gNumSlices <= scanSlice) {
-        scanSlice = scanSlice - gNumSlices;
+      else {
+        scanSlice = scanSlice + (carObj->N).simRoadInfo.slice;
+        if (scanSlice < 0) {
+          scanSlice = scanSlice + gNumSlices;
+        }
       }
-    }
-    curve = AIDataRecord_TrackCurve->Get(scanSlice);
-    curveSpeed = (carObj->curveSpeedTable)->Get(curve);
-    if (GameSetup_gData.Weather != 0) {
-      if (curve < 0) {
-        curve = curve + 3;
+      curve = AIDataRecord_TrackCurve->Get(scanSlice);
+      curveSpeed = (carObj->curveSpeedTable)->Get(curve);
+      if (GameSetup_gData.Weather != 0) {
+        curveSpeed = fixedmult(curveSpeed,AISpeeds_WeatherMultFactors[curve / 4]);
       }
-      curveSpeed = fixedmult(curveSpeed,AISpeeds_WeatherMultFactors[curve >> 2]);
-    }
-    if (scanMetersDistanceInt == 0) break;
-    iVar1 = AISpeeds_NeedToSlowDownForCurve(carObj,scanMetersDistanceInt << 0x10,speedHere,curveSpeed)
-    ;
-    scanMetersDistanceInt = scanMetersDistanceInt + -0x19;
-    if (iVar1 != 0) {
-      return curveSpeed;
+      if (scanMetersDistanceInt == 0) {
+        return curveSpeed;
+      }
+      if (AISpeeds_NeedToSlowDownForCurve(
+              carObj,scanMetersDistanceInt << 0x10,speedHere,curveSpeed) != 0) {
+        return curveSpeed;
+      }
+      scanMetersDistanceInt = scanMetersDistanceInt + -0x19;
     }
   }
-  return curveSpeed;
+  return 0;
 }
 
 /* ---- AISpeeds_BTCGetGlueFactor__FP8Car_tObj  [@0x8006e09c] ---- */

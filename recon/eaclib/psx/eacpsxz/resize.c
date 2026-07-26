@@ -37,7 +37,7 @@ extern void  blockmove(void *src, void *dst, int n);       /* @0x800E62DC */
 extern void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
 {
     int avail;
-    int needed;
+    int size;
     int align;
     int alignpad;
     char * name;
@@ -58,14 +58,24 @@ extern void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
      * order and rotates all three registers. Clamping the PARAMETER in place and keeping
      * the raw value in its own local splits the refs the way retail's allocno table shows
      * (raw size 5 refs -> allocated after next/hdr -> lands in $s4).
-     * RESIDUAL 14 (count-exact 94/94), all in the first 20 insns: cc1 canonicalises the
-     * three clamp comparisons onto the raw-size register ($s4) where the oracle tests the
-     * clamped one ($s0), and clamping the param costs one extra prologue home-copy
-     * (`addu s0,a1,zero`) the oracle does not need. The dual is exactly as bad (see the
-     * git log: raw-in-parameter = correct copy shape but 48 diffs from the rotation);
-     * gcc-2.8 cse's make_regs_eqv cannot be steered here from the source -- the copy's
-     * `new` reg is defined inside the cse block and the raw variable outlives it, so the
-     * clamped variable never becomes canonical. */
+     * MATCH (w33-a4: 14 -> 2).  The w32 verdict "cse's make_regs_eqv cannot be steered from
+     * the source" had the mechanism right and the conclusion wrong.  make_regs_eqv makes the
+     * COPY (`new`) canonical iff `new` lives past the cse basic block AND its last use is LATER
+     * than the source reg's last use.  Retail's clamped variable does outlive the raw one --
+     * because it IS the same variable as `needed` and as the split offset (IDA: v9/v12/v14 all
+     * $s0).  So: keep the raw request in `usable` ($s4, copied straight from $a1 -- the param is
+     * then single-use and never needs a home copy), and give the clamp its own local `size`
+     * that is then REUSED for the aligned-payload result and for the split offset.  With that
+     * one variable spanning to the end of the function the three clamp compares canonicalise
+     * onto $s0 exactly like retail (`addu s0,s4,zero` before `slti v0,s0,8`).
+     * RESIDUAL 2 (count-exact 94/94): a single sched1 tie right after the MEM_tailsize call --
+     * retail emits `addu a2,v0,zero` (tail) then `lw v1,0x28(s5)` (align), ours the reverse.
+     * Heights: the copy is 1+height(`addu v0,s0,a2`)=6, the load is loadcost+height(`addiu
+     * a0,v1,15`)=7, so the load wins on priority (and would also win the class tie-break: it is
+     * independent of the call, the copy is data-dependent on it).  Tried, all >=2: embedding the
+     * load in the alignpad statement, splitting `size += tail` (6), dropping the `tail` local
+     * (29 and 93/94).  Raising it needs `tail` to gain an in-block use, which retail does not
+     * have either -- a genuine one-instruction scheduler tie. */
 
     /* 1. coalesce forward if the next physical block is free */
     if (*(unsigned short *)(next + 2) & 0x4000) {
@@ -76,9 +86,10 @@ extern void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
 
     /* 2. clamp the requested size IN THE PARAMETER (usable keeps the raw value used as
      * the new tail offset) */
-    if (newsize < 8) {
-        if (newsize == -1)      newsize = 0x40000000;           /* grow to max */
-        else if (newsize >= 0)  newsize = 8;                    /* 0..7 -> 8 (negatives kept) */
+    size = usable;
+    if (size < 8) {
+        if (size == -1)      size = 0x40000000;                 /* grow to max */
+        else if (size >= 0)  size = 8;                          /* 0..7 -> 8 (negatives kept) */
     }
 
     /* 3. aligned physical payload needed, clamped to available span */
@@ -90,10 +101,10 @@ extern void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
                                                        * (sz+tail) (`addiu v0,v0,15`); the oracle
                                                        * adds it to align (`addiu a0,v1,15`) and
                                                        * keeps align itself live for `negu v1,v1` */
-    needed = (int)(((unsigned)(newsize + tail) + (unsigned)alignpad) & (unsigned)(-align)) - 0x10;
+    size = (int)(((unsigned)(size + tail) + (unsigned)alignpad) & (unsigned)(-align)) - 0x10;
     avail = (int)(next - hdr) - 0x10;
-    if (avail < needed) {
-        needed = avail;                                        /* can't grow past the span */
+    if (avail < size) {
+        size = avail;                                          /* can't grow past the span */
         usable = avail - tail;                                 /* s4 = avail - tailsize */
     }
 
@@ -104,13 +115,13 @@ extern void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
     *(int *)(hdr + 4) = usable;                       /* new tail offset, split or not */
 
     /* 5. split off the leftover as a new free block if it's worth it (>= 65 bytes) */
-    if ((avail - needed) >= 0x41) {
+    if ((avail - size) >= 0x41) {
         MemBlock *split;
-        needed += 0x10;                               /* MATCH: advanced IN PLACE (oracle
+        size += 0x10;                                 /* MATCH: advanced IN PLACE (oracle
                                                        * `addiu s0,s0,0x10; addu s0,s6,s0` --
                                                        * `userptr + needed + 0x10` in one
                                                        * expression associates the other way) */
-        split = (MemBlock *)((char *)userptr + needed);
+        split = (MemBlock *)((char *)userptr + size);
         initmemblock(split, 0, 0, 0, 0, (MemBlock *)hdr, (MemBlock *)next);
         FREE_add(cls, split);
         *(char **)(next + 0xC) = (char *)split;               /* next->physprev = split */

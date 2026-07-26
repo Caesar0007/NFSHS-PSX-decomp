@@ -33,45 +33,31 @@ int * Input_StartUp(void)
 {
   int * h;
   int i;
-  int j;
-  int *piVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  u_long *puVar5;
-  int iVar6;
-  
+
   Device_StartUp();
-  piVar1 = Input_gHandler;
-  iVar4 = 0xb7;
+  h = Input_gHandler;
+  i = 0xb7;
   do {
-    *piVar1 = 0;
-    iVar4 = iVar4 + -1;
-    piVar1 = piVar1 + 1;
-  } while (-1 < iVar4);
-  iVar6 = 0;
-  piVar1 = Input_gMode;
-  puVar5 = Input_gDBFlags;
-  for (iVar4 = 0; iVar3 = 0, iVar4 < 2; iVar4 = iVar4 + 1) {
-    *puVar5 = 0;
-    *piVar1 = 0;
-    iVar2 = iVar6;
-    do {
-      *(u_int *)((int)Input_gPressTime[0] + iVar2) = 0;
-      iVar3 = iVar3 + 1;
-      iVar2 = iVar2 + 4;
-    } while (iVar3 < 0x11);
-    iVar6 = iVar6 + 0x44;
-    piVar1 = piVar1 + 1;
-    puVar5 = puVar5 + 1;
+    *h = 0;
+    i = i + -1;
+    h = h + 1;
+  } while (-1 < i);
+  for (i = 0; i < 2; i = i + 1) {
+    int j;
+    Input_gDBFlags[i] = 0;
+    Input_gMode[i] = 0;
+    for (j = 0; j < 0x11; j = j + 1) {
+      Input_gPressTime[i][j] = 0;
+    }
   }
-  iVar4 = 0x1f;
-  puVar5 = Input_gInterfaceResults + 0x1f;
+  i = 0x1f;
+  h = (int *)Input_gInterfaceResults;
+  h = h + 0x1f;
   do {
-    *puVar5 = 0;
-    iVar4 = iVar4 + -1;
-    puVar5 = puVar5 + -1;
-  } while (-1 < iVar4);
+    *h = 0;
+    i = i + -1;
+    h = h + -1;
+  } while (-1 < i);
   return Input_gHandler;
 }
 

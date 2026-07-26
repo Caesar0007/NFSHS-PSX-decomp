@@ -65,10 +65,7 @@ void tScreenTournamentStandings::Initialize()
   this->gotmoney = 0;
   this->gotbonus = 0;
   this->gotbilled = 0;
-  if (this->fDrawMoney == 0) {
-    this->moneyFinal = tournamentManager.fMoney - tInfo.fTournMoney;
-  }
-  else {
+  if (this->fDrawMoney != 0) {
     if (tInfo.fMoney != 0) {
       this->gotmoney = 1;
     }
@@ -99,6 +96,9 @@ void tScreenTournamentStandings::Initialize()
       max_damage = max_money;
     }
     this->fCountSpeed = max_damage / 0x18;
+  }
+  else {
+    this->moneyFinal = tournamentManager.fMoney - tInfo.fTournMoney;
   }
   this->starttick = ticks;
   return;

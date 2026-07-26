@@ -302,18 +302,12 @@ int AIWorld_CheckForBarrierBetweenLanes(int slice,int lane0,int lane1)
 }
 
 /* ---- AIWorld_LaneIndex__Fii  [@0x800734cc] ---- */
-/* NEAR-MISS (40 diffs, ours 44 / oracle 50 -- 6 insns SHORT): the oracle's
- * `inverseLaneWidthTable[(bVar1<<15)>>14]` index expression keeps gcc's full signed-
- * divide-by-0x4000 codegen (`bgez;addiu 0x3fff;sra 14`, the standard gcc-2.x signed->>N
- * bias-adjust from reference_mips_isa_asm.md), but OUR compile PROVES the shifted byte is
- * always non-negative (max 255<<15 = 0x7F8000, well under 2^31) and folds the whole thing to a
- * bare `sra`/`sll`. Tried: widen bVar1 from u_char->int before use (no effect -- GCC tracks the
- * value's range from the ORIGINATING BYTE LOAD, not the destination variable's declared type);
- * real `BWorldSm_slices[slice].avgPavedWidthLf/Rt` struct-field access instead of raw
- * `*(u_char*)(base+off)` cast (no effect either, same range-proof triggers through field access
- * too). Migrated to the real struct fields for fidelity (avgPavedWidthLf/Rt are genuinely
- * u_char per nfs4_types.h:3092) since it's SYM/type-correct regardless. GENUINE GCC
- * value-range-provable-shift floor; accept, no source-shape lever found. */
+/* NEAR-MISS (14 diffs, count-exact 50/50): both scale conversions are signed
+ * divisions, not unsigned shifts. Expressing `/ 0x4000` and the explicit signed
+ * `/ 0x10000` bias sequence restores the oracle's bgez/addiu/sra code. Keeping a
+ * block-local slice pointer in each arm also restores the duplicated base loads.
+ * The residual is confined to v0/v1 choice for pointer addition plus scheduling
+ * of the positive-arm lane base and the lane-width result copy. */
 int AIWorld_LaneIndex(int slice,int position)
 {
   int laneWidth;
@@ -323,21 +317,25 @@ int AIWorld_LaneIndex(int slice,int position)
   int iVar3;
 
   if (position < 0) {
-    bVar1 = BWorldSm_slices[slice].avgPavedWidthLf;
+    Trk_NewSlice *roadSlice;
+    roadSlice = BWorldSm_slices + slice;
+    bVar1 = roadSlice->avgPavedWidthLf;
     iVar3 = 6;
   }
   else {
-    bVar1 = BWorldSm_slices[slice].avgPavedWidthRt;
+    Trk_NewSlice *roadSlice;
+    roadSlice = BWorldSm_slices + slice;
+    bVar1 = roadSlice->avgPavedWidthRt;
     iVar3 = 7;
   }
-  iVar2 = fixedmult(position,inverseLaneWidthTable[(int)((u_int)bVar1 * 0x8000) >> 0xe]);
+  laneWidth = (int)bVar1 * 0x8000;
+  iVar2 = fixedmult(position,inverseLaneWidthTable[laneWidth / 0x4000]);
   if (iVar2 < 0) {
     iVar2 = iVar2 + 0xffff;
   }
-  iVar3 = iVar3 + (iVar2 >> 0x10);
-  if (iVar3 < 0) {
-    iVar3 = 0;
-  }
+  li = iVar2 >> 0x10;
+  iVar3 = iVar3 + li;
+  iVar3 = (iVar3 < 0) ? 0 : iVar3;
   iVar2 = 0xd;
   if (iVar3 < 0xe) {
     iVar2 = iVar3;

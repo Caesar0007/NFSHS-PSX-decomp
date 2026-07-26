@@ -82,21 +82,12 @@ void AISpeeds_ReadTuningInfo(void)
   int weatherRamp;
   int iVar1;
   u_int uVar2;
-  /* H58 (coordinator-directed correctness fix, wave-22): iVar3 was `u_int`, which compiles the
-   * loop-bound compare `iVar3 < 0x41` as `sltiu` (unsigned). The oracle @0x8006D820ish uses
-   * `slti` (SIGNED) for this exact compare -- a real sign bug, not a coloring artifact: iVar3
-   * only ever counts 0..0x40 here so the two forms happen to behave the same at runtime for
-   * every value this loop actually reaches, but the emitted comparison instruction itself must
-   * match the oracle's signed semantics to be a faithful reconstruction. Retyping to `int` fixes
-   * the sltiu/slti instruction-choice bug and is kept even though it COSTS diff count (12->21):
-   * this project's priority is correctness over byte-match, and the verify-or-revert rule has an
-   * explicit carve-out for provable correctness fixes. The extra ~9 diffs are a downstream
-   * register-coloring CASCADE elsewhere in this same function triggered by the type change, not
-   * a symptom of the fix itself -- investigated (see side_by_side), did not find a tractable
-   * source-level lever to recover them in the time available. */
+  /* iVar3 must stay signed: the oracle uses slti for the 0x41 bound.
+   * The weather table is indexed directly below; a named pointer makes gcc
+   * replace this count-up loop with a countdown, while array indexing restores
+   * the oracle's synthetic pointer plus signed induction variable (21 -> 8 diffs). */
   int iVar3;
   int iVar4;
-  int *piVar5;
   int slotLoop;
   int carType;
   int humanCarIndex;
@@ -163,14 +154,12 @@ void AISpeeds_ReadTuningInfo(void)
   weatherRamp = Udff_GetInt(handle);
   iVar3 = 0;
   iVar1 = 0;
-  piVar5 = AISpeeds_WeatherMultFactors;
   do {
     iVar4 = iVar1;
     if (iVar1 < 0) {
       iVar4 = iVar1 + 0x3f;
     }
-    *piVar5 = 0x10000 - (iVar4 >> 6);
-    piVar5 = piVar5 + 1;
+    AISpeeds_WeatherMultFactors[iVar3] = 0x10000 - (iVar4 >> 6);
     iVar3 = iVar3 + 1;
     iVar1 = iVar1 + weatherRamp;
   } while (iVar3 < 0x41);
@@ -382,6 +371,9 @@ LAB_8006de40:
 /* ---- AISpeeds_NeedToSlowDownForCurve__FP8Car_tObjiii  [@0x8006de90] ---- */
 int AISpeeds_NeedToSlowDownForCurve(Car_tObj *carObj,int distanceMeters,int currentSpeed,int futureCurveSpeed)
 {
+  /* The SYM names are load-bearing here: keeping the first scaled brake-table
+   * value in `speed` and the final difference in `neededDistance` reproduces
+   * the oracle's v1/v0 arithmetic chain (12 detailed diffs down to 4). */
   int neededDistance;
   int futureSpeed;
   int speed;
@@ -407,7 +399,7 @@ int AISpeeds_NeedToSlowDownForCurve(Car_tObj *carObj,int distanceMeters,int curr
     if (0x7f < iVar3) {
       iVar3 = 0x80;
     }
-    iVar4 = (u_int)(u_char)pAVar2->brakeTable_[iVar3] * 0x20000;
+    speed = (u_int)(u_char)pAVar2->brakeTable_[iVar3] * 0x20000;
     if (futureCurveSpeed < 0) {
       futureCurveSpeed = futureCurveSpeed + 0xffff;
     }
@@ -418,8 +410,8 @@ int AISpeeds_NeedToSlowDownForCurve(Car_tObj *carObj,int distanceMeters,int curr
     if (0x7f < futureCurveSpeed) {
       futureCurveSpeed = 0x80;
     }
-    iVar3 = iVar4 - (u_int)(u_char)pAVar2->brakeTable_[futureCurveSpeed] * 0x20000;
-    return iVar3 + (iVar3 >> 3) < distanceMeters ^ 1;
+    neededDistance = speed - (u_int)(u_char)pAVar2->brakeTable_[futureCurveSpeed] * 0x20000;
+    return neededDistance + (neededDistance >> 3) < distanceMeters ^ 1;
   }
   return 0;
 }

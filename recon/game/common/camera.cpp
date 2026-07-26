@@ -1668,29 +1668,22 @@ int Camera_TooSteep(int player,BWorldSm_Pos *slicePos)
   coorddef camToCar;        /* SYM: AUTO */
   BWorldSm_Pos *slicePos2;  /* SYM: REG (anchor+8, addiu s0,s0,8 in the 1st jal slot) */
   int d0;
-  int d1;
-  int d2;
 
   slicePos2 = &(Camera_gInfo[player].anchor)->simRoadInfo;
   normUnderCam = *(coorddef *)BWorldSm_UNormal(slicePos);
   normUnderCar = *(coorddef *)BWorldSm_UNormal(slicePos2);
-  d0 = fixedmult(normUnderCam.x,normUnderCar.x);
-  d1 = fixedmult(normUnderCam.y,normUnderCar.y);
-  d2 = fixedmult(normUnderCam.z,normUnderCar.z);
-  /* MATCH: dot accumulates IN-PLACE into the FIRST temp (s0), two separate += stmts */
-  d0 = d0 + d1;
-  d0 = d0 + d2;
+  d0 = fixedmult(normUnderCam.x,normUnderCar.x) +
+       fixedmult(normUnderCam.y,normUnderCar.y) +
+       fixedmult(normUnderCam.z,normUnderCar.z);
   if (0xb4fc < d0) {
     return 0;   /* MATCH: direct returns - v0=0/1 staged in branch delay slots, no result var */
   }
   camToCar.x = Camera_gInfo[player].anchor->position.x - Camera_gInfo[player].position.x;
   camToCar.y = Camera_gInfo[player].anchor->position.y - Camera_gInfo[player].position.y;
   camToCar.z = Camera_gInfo[player].anchor->position.z - Camera_gInfo[player].position.z;
-  d0 = fixedmult(normUnderCam.x,camToCar.x);
-  d1 = fixedmult(normUnderCam.y,camToCar.y);
-  d2 = fixedmult(normUnderCam.z,camToCar.z);
-  d0 = d0 + d1;
-  d0 = d0 + d2;
+  d0 = fixedmult(normUnderCam.x,camToCar.x) +
+       fixedmult(normUnderCam.y,camToCar.y) +
+       fixedmult(normUnderCam.z,camToCar.z);
   if (0 < d0) {
     if ((Camera_gInfo[player].anchor)->flightTime == 0) {
       return 1;

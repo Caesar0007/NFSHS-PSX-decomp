@@ -94,7 +94,11 @@ extern int   CD_timeout;         /* watchdog (timer ticks)                      
 extern void *CD_curDst;          /* current memory destination                               */
 extern void (*CD_completionCallback)(int);  /* fired (with 1) when a read finishes            */
 extern int   timerhz;            /* timer frequency                                          */
-extern int   g_currentthread;    /* execution context id                                     */
+extern int   g_currentthread[];  /* execution context id (UNSIZED array -- methodology-
+                                  * §3.12 lever #5: the oracle materializes its address in a
+                                  * SEPARATE reg (`lui $s0,%hi; sw $v0,%lo($s0)` / `lui $v0;lw $v1,%lo($v0)`),
+                                  * which a scalar extern cannot emit -- a scalar store folds to the
+                                  * assembler's `$at` macro form and a scalar load self-temps.)      */
 extern int   CD_cachedSector;    /* @0x80146CD0 sector currently in the cache buffer          */
 extern unsigned char CD_sectorCache[]; /* @0x80146D00 the cached 0x800-byte sector            */
 extern void  CD_timerfunc(void); /* @0x800F9C44 (cdfs read watchdog/poll, below)             */
@@ -131,7 +135,7 @@ struct CD_ctx_t {
     volatile int info;                 /* +0x00  Cdinfo (IRQ-polled sync flags; bit2==stop-req) */
     int   maxOpen;                     /* +0x04  CD_maxOpen                                    */
     int   dirEntryCount;               /* +0x08  CD_dirEntryCount                              */
-    int   cachedSector;                /* +0x0C  CD_cachedSector                               */
+    volatile int cachedSector;         /* +0x0C  CD_cachedSector  (EXPERIMENT a1)              */
     int   lastSector;                  /* +0x10  CD_lastSector                                 */
     int   curSector;                   /* +0x14  CD_curSector                                  */
     int   timeout;                     /* +0x18  CD_timeout  (NON-volatile: proven by CD_timerfunc PASS) */
@@ -335,7 +339,7 @@ extern int CD_Read(int dev, int dest, int offset, int len)
     rs->curDst   = (void *)dest;
     addtimer((void *)CD_timerfunc, (void *)dest);
 
-    if (CD_cachedSector == CD_curSector && (Cdinfo & 0x10) && g_currentthread == 2) {
+    if (CD_cachedSector == CD_curSector && (Cdinfo & 0x10) && g_currentthread[0] == 2) {
         blockmove(&CD_sectorCache[rs->curOff], rs->curDst, rs->curLen);   /* sector already cached */
         if (rs->remLen > 0) {                            /* more to read -> advance to the next sector */
             rs->curOff = 0;
@@ -686,7 +690,8 @@ extern void CdReadyHandler(int intr, unsigned char *result)
                 } else {                      /* the sector we were expecting */
                     CD_timeout = timerhz * 6;
                     if ((Cdinfo & 8) != 0) {  /* partial -> copy the wanted slice out of the cache */
-                        Cdinfo = (Cdinfo & ~8) | 0x10;
+                        Cdinfo &= ~8;
+                        Cdinfo |= 0x10;
                         blockmove(&CD_sectorCache[rs->curOff], rs->curDst, rs->curLen);
                         rs->curOff = 0;
                     }
@@ -712,11 +717,16 @@ extern void CdReadyHandler(int intr, unsigned char *result)
             CD_lastSector = CD_cachedSector;
             deltimer((void *)CD_timerfunc);
             if (CD_completionCallback != 0) {
-                g_currentthread = 2;
+                /* methodology-§3.12 lever #16 (hold-global-addr-across-call): the oracle parks
+                 * &g_currentthread in a CALLEE-SAVED reg ($s0) across savegp/the callback/restoregp
+                 * and stores through it twice; a bare `g_currentthread = N` on both sides
+                 * rematerializes the address with a fresh `lui $at` per store (+2 insns). */
+                int *curThread = g_currentthread;
+                *curThread = 2;
                 savegp(gpctx);
                 CD_completionCallback(1);
                 restoregp(gpctx[0]);
-                g_currentthread = 0;
+                *curThread = 0;
             }
         }
         goto advance;

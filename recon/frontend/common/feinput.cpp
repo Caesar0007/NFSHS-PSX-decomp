@@ -138,31 +138,36 @@ FEInpNoDeb_negconButtonII:
 int FEInput_GetDebounceKey(int key,int controller)
 
 {
-  int iVar1;
-  
-  iVar1 = FEInput_GetNoDebounceKey(key,controller);
-  if (iVar1 == 0) {
-    iVar1 = 0;
-    debounce[controller] = debounce[controller] & ~key;
-  }
-  else {
-    if ((debounce[controller] & key) == 0) {
-      iVar1 = 1;
-      debounce[controller] = debounce[controller] | key;
-      nextTick = 0;
-    }
-    else if ((((key == 0x10) || (key == 0x80)) || (key == 0x20)) || (iVar1 = 0, key == 0x40)) {
-      if (nextTick == 0) {
-        nextTick = ticks + FeTools_gScrollTicksOut + 10;
+  /* SYM (nfs4-f-v3.txt @0x80023B74): key REGPARM $16, controller REGPARM $17,
+     and exactly ONE named local -- `int tick` REG $4 (a0), declared at the top of
+     the block starting at 0x80023BB8 (the `lw ticks`) and running to 0x80023C38.
+     The oracle reads `ticks` ONCE into that local; the old body re-read the global
+     at every use.  Branch polarity: the debounce SET path and the debounce CLEAR
+     path are both laid out OUT OF LINE after the tick block (oracle `beqz` to
+     .L80023C38 / .L80023C50), so both guards must be written as the taken-branch
+     case with the tick block falling through. */
+  if (FEInput_GetNoDebounceKey(key,controller) != 0) {
+    if ((debounce[controller] & key) != 0) {
+      int tick = ticks[0];
+
+      if ((((key == 0x10) || (key == 0x80)) || (key == 0x20)) || (key == 0x40)) {
+        if (nextTick[0] == 0) {
+          nextTick[0] = tick + FeTools_gScrollTicksOut[0] + 10;
+        }
+        if (tick < nextTick[0]) {
+          return 0;
+        }
+        nextTick[0] = tick + FeTools_gScrollTicksOut[0];
+        return 1;
       }
-      iVar1 = 0;
-      if (nextTick <= ticks) {
-        iVar1 = 1;
-        nextTick = ticks + FeTools_gScrollTicksOut;
-      }
+      return 0;
     }
+    debounce[controller] = debounce[controller] | key;
+    nextTick[0] = 0;
+    return 1;
   }
-  return iVar1;
+  debounce[controller] = debounce[controller] & ~key;
+  return 0;
 }
 
 

@@ -113,7 +113,14 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
      * "retail allocates constant-init short-lived locals into EARLIER callee-saved regs").  Route to
      * the toolchain-identity investigation; do NOT re-fight from source.
      * Also tried and rejected this session: all 6! declaration orders of the local block (no effect --
-     * decl order only breaks allocno-number TIES, and here no two priorities tie). */
+     * decl order only breaks allocno-number TIES, and here no two priorities tie), and 1- and 2-deep
+     * COPY CHAINS on clutXm/clutYm to raise THEIR ref counts instead (68 with the param copies, 84
+     * without -- a copy of a COMPUTED value is folded away before life analysis, so unlike a copy of
+     * an incoming PARAMETER it is not a priority dial; same negative result as setfont.c's chained
+     * copies of a global address).  Exact allocno arithmetic for the kept form, from `cc1 -dl`
+     * ("Register N used R times across L insns"), which reproduces the observed s-order exactly:
+     *   c 52/132=1.97 | maskHi 5/129=.0775 | imgX 5/131=.0763 | clutX 4/127=.063 | maskLo 5/260=.0385
+     *   | imgY 5/268=.037 | clutY 4/266=.030 | clutYm 3/124=.0242 | clutXm 3/126=.0238  */
     int ix = imgX;                          /* +2 weighted refs -> priority dial only, see above  */
     int cx = clutX;                         /* (gcc coalesces both copies away; 0 insns added)     */
     unsigned int maskLo  = ~0xFFFu;         /* clears the low 12 bits (x field) */

@@ -94,7 +94,6 @@ AudioMus_tCurrentSong * AudioMus_GetCurrentSong(void)
   AudioMus_tCurrentSong*curr;
   AudioMus_tSongEntry*info;
   int iVar2;
-  char *pcVar3;
 
   /* w30-a7: curr = &AudioMus_g->current cached ONCE (oracle computes it in the null-check
      branch's delay slot) and reused via small offsets for remaining/index; info = &curr->info
@@ -112,17 +111,14 @@ AudioMus_tCurrentSong * AudioMus_GetCurrentSong(void)
   }
   curr->index = iVar2;
   info = &curr->info;
-  if (AudioMus_g->errorcode == -4) goto LAB_8007a0_buffer;
-  if (AudioMus_g->errorcode == -3) goto LAB_8007a0_stream;
-  goto LAB_8007a0ac;
-LAB_8007a0_buffer:
-  pcVar3 = "BUFFER NOT ALLOCATED";
-  goto LAB_8007a0_settitle;
-LAB_8007a0_stream:
-  pcVar3 = "STREAM NOT CREATED";
-LAB_8007a0_settitle:
-  info->title = pcVar3;
-LAB_8007a0ac:
+  switch ((*(AudioMus_tMusicGlobals *volatile *)&AudioMus_g)->errorcode) {
+    case -4:
+      info->title = "BUFFER NOT ALLOCATED";
+      break;
+    case -3:
+      info->title = "STREAM NOT CREATED";
+      break;
+  }
   if (AudioMus_g->newswitch != 0) {
     AudioMus_g->newswitch = 0;
     (AudioMus_g->current).newsong = 1;

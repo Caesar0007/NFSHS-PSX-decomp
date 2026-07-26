@@ -15,8 +15,30 @@ size (all compiler-emitted code, plus explicit `.size` directives) are
 untouched; aliases at a shared address all receive the same computed size.
 Pure symtab metadata -- code bytes, relocs, and the byte-match gate are
 unaffected. Idempotent. Wired into tools/build.py after every assemble.
+
+`.L*` EXCLUSION (2026-07-26b): splat's `jlabel` macro (include/macro.inc) emits
+`.global .L800F3D94` for every switch jump-table case target, because the jtbl
+word lives in a *different* translation unit (asm/data/rdata_*.rodata.s) and so
+must reference the case label across objects -- 350 such symbols, referenced UND
+by the two rodata data objects, so they CANNOT be made local or stripped without
+breaking the link. Being GLOBAL + size-less they were swept up by the pass above
+and promoted to sized STT_FUNC, at which point objdiff counts each one as an
+extra, always-unmatched FUNCTION row: fileroot alone gained 6 phantom 0%
+rows (240 B) and fell from 99.97% to 88.54% on decomp.dev.
+
+So: (a) `.L*` symbols are never sized/typed, and (b) their addresses are not
+used as the "next symbol" boundary when sizing a real function (a `.L` label is
+always *interior* to a function, never a function start -- using it as a
+boundary would truncate the enclosing function's size). (c) a repair pass
+resets any `.L*` exec-section symbol that a previous run already promoted back
+to STT_NOTYPE/size 0, so stale objects heal in place without a full rebuild.
 """
 import struct, sys
+
+
+def _is_local_label(name):
+    """GNU as local-label prefix. Never a function start."""
+    return name.startswith('.L')
 
 
 def fix(path):
@@ -34,6 +56,15 @@ def fix(path):
     symtab = next((s for s in secs if s['type'] == 2), None)   # SHT_SYMTAB
     if not symtab:
         return 0
+    strtab = secs[symtab['link']] if symtab['link'] < len(secs) else None
+
+    def sym_name(st_name):
+        if strtab is None:
+            return ''
+        base = strtab['off'] + st_name
+        end = d.index(b'\x00', base)
+        return d[base:end].decode('utf-8', 'replace')
+
     n = symtab['size'] // 16
     syms = []
     for i in range(n):
@@ -41,16 +72,35 @@ def fix(path):
         st_name, st_value, st_size = struct.unpack_from('<3I', d, off)
         st_info, st_other, st_shndx = struct.unpack_from('<BBH', d, off + 12)
         syms.append({'i': i, 'off': off, 'value': st_value, 'size': st_size,
-                     'info': st_info, 'shndx': st_shndx})
-    # per-section sorted value lists (all defined symbols, any binding)
+                     'info': st_info, 'shndx': st_shndx, 'name': sym_name(st_name)})
+    fixed = 0
+
+    # (c) repair pass: undo any earlier promotion of a `.L*` local label to a
+    # sized STT_FUNC -- objdiff would report it as a phantom 0% function row.
+    for s in syms:
+        if not _is_local_label(s['name']):
+            continue
+        if not (0 < s['shndx'] < len(secs)) or not (secs[s['shndx']]['flags'] & 0x4):
+            continue
+        bind, typ = s['info'] >> 4, s['info'] & 0xF
+        if s['size'] == 0 and typ != 2:
+            continue
+        struct.pack_into('<I', d, s['off'] + 8, 0)                  # st_size = 0
+        struct.pack_into('<B', d, s['off'] + 12, bind << 4)         # STT_NOTYPE
+        s['size'], s['info'] = 0, bind << 4
+        fixed += 1
+
+    # per-section sorted value lists (all defined symbols, any binding) --
+    # excluding `.L*` interior labels, see (b).
     by_sec = {}
     for s in syms:
-        if 0 < s['shndx'] < len(secs):
+        if 0 < s['shndx'] < len(secs) and not _is_local_label(s['name']):
             by_sec.setdefault(s['shndx'], set()).add(s['value'])
-    fixed = 0
     for s in syms:
         bind, typ = s['info'] >> 4, s['info'] & 0xF
         if bind != 1 or s['size'] != 0:                       # STB_GLOBAL, size-less only
+            continue
+        if _is_local_label(s['name']):                        # (a) never size a .L label
             continue
         if not (0 < s['shndx'] < len(secs)):
             continue

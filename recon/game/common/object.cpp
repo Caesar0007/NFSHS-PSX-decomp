@@ -534,36 +534,18 @@ void Object_DeInitCustomObjects(void)
 void Object_ClearCustomObjects(void)
 
 {
-  int iVar1;
-  Group *pGVar2;
-  Group *pGVar3;
-  Car_tObj **ppCVar4;
   int i;
   
-  pGVar3 = Object_customSFXInst;
-  pGVar2 = Object_customSimObjs;
-  iVar1 = Cars_gNumTrafficCars;
-  i = 0;
   Object_customObjInst->m_num_elements = 0;
-  pGVar2->m_num_elements = 0;
-  pGVar3->m_num_elements = 0;
-  if (0 < iVar1) {
-    ppCVar4 = Cars_gTrafficCarList;
-    do {
-      i = i + 1;
-      (*ppCVar4)->carFlags = (*ppCVar4)->carFlags & 0xfffffbff;
-      ppCVar4 = ppCVar4 + 1;
-    } while (i < iVar1);
+  Object_customSimObjs->m_num_elements = 0;
+  Object_customSFXInst->m_num_elements = 0;
+  for (i = 0; i < Cars_gNumTrafficCars; i++) {
+    Cars_gTrafficCarList[i]->carFlags =
+        Cars_gTrafficCarList[i]->carFlags & 0xfffffbff;
   }
-  iVar1 = Cars_gNumCopCars;
-  i = 0;
-  if (0 < Cars_gNumCopCars) {
-    ppCVar4 = Cars_gCopCarList;
-    do {
-      i = i + 1;
-      (*ppCVar4)->carFlags = (*ppCVar4)->carFlags & 0xfffffbff;
-      ppCVar4 = ppCVar4 + 1;
-    } while (i < iVar1);
+  for (i = 0; i < Cars_gNumCopCars; i++) {
+    Cars_gCopCarList[i]->carFlags =
+        Cars_gCopCarList[i]->carFlags & 0xfffffbff;
   }
   if (Track_gSaveSurface != (SaveSurface *)0x0) {
     (Track_gSaveSurface)->RestoreAll();

@@ -129,10 +129,23 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
      *     the scalar spelling emits the self-temp `lui v0; lw v0,0(v0)` for the gate and then a
      *     SECOND `lui/addiu` for the in-loop load (+1 insn); the array spelling emits the oracle's
      *     separate-temp `lui s1; lw v0,0(s1)` and keeps that base alive to be copied into $s7.
-     * RESIDUAL 52 = a pure callee-saved ROTATION (ours rd/paramIdx/i/ruleByte = s1/s0/s3/s2, retail
-     * s0/s1/s2/s3) plus retail loading each rule byte into a CALLER-saved temp and copying it to its
+     * RESIDUAL now 48 = a one-step callee-saved ROTATION on the three REMAINING pseudos (ours
+     * ruleSetBase/rule/i = s2/s1/s3, retail s1/s0/s2; `rd` is now s0 on BOTH sides) plus retail loading each rule byte into a CALLER-saved temp and copying it to its
      * s-reg (which also fills the lbu load-delay slot our direct-to-s-reg load has to `nop`).  Same
      * allocation-order/no-copy-prop identity signature as the rest of this obj (catalog SSG).
+     *
+     * w34-a10 (52 -> 48, still exact parity 78/78) -- ALLOCNO-PRIORITY LEVER, derived from the
+     * cc1 -dl/-dg dumps rather than guessed.  The dumps give the 12 global allocnos with their
+     * refs/live-length, and gcc-2.8's priority = floor_log2(refs)*refs/live_length reproduces the
+     * allocation order exactly: paramIdx (8 refs / 20 insns = 1.2) outranked rd (11 / 42 = 0.79),
+     * so paramIdx took $s0 and rd $s1 -- retail has them the other way round.  Dropping ONE ref
+     * off paramIdx moves it below rd: writing the dead volatile store as its own derivation
+     * (`paramStore = packed & 0xf; paramIdx = packed & 0xf;`) instead of `paramIdx = packed & 0xf;
+     * paramStore = paramIdx;` takes paramIdx from 4 raw refs to 3 (weighted 8 -> 6, priority
+     * 2*6/20 = 0.6 < 0.79) while emitting the IDENTICAL instruction shape (cse folds the second
+     * derivation onto the first).  `rd` now lands in $s0 exactly as retail.
+     * ⚠ The same swap applied to iSPCH_GetRuleSettings' `param`/`paramStore` REGRESSES it
+     * (61 -> 69, and it loses insn parity 113 -> 109) -- the lever is per-function, gate it.
      *
      * w33-a10 RE-VERDICT: FLOOR HOLDS at exact insn parity 78/78; the whole 52 is register naming.
      * NEW OBSERVATION (not previously recorded): retail REUSES the `rule` parameter's register for
@@ -166,8 +179,8 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
                 ruleByte = rd[0];
                 ruleByteStore = ruleByte;
                 packed = *(volatile unsigned char *)(rd + 1);
+                paramStore = packed & 0xf;
                 paramIdx = packed & 0xf;
-                paramStore = paramIdx;
                 ruleType = (unsigned int)*(volatile unsigned char *)(rd + 1) >> 4;
                 ruleTypeStore = ruleType;
                 switch (ruleType) {
@@ -229,7 +242,31 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
  * so retail is the DEFAULT choice and ours is the deviation -- something in this body keeps $a3
  * out of the pool). Shape, instruction order and stack layout otherwise line up.
  * Build-lane probes: -mno-split-addresses 61 -> 61 (no change, and it wrecks the rest of the TU),
- * per-fn -fno-delayed-branch splice 61 -> 79. No SLD exists for SPCHPSXZ (see spchevnt.c). */
+ * per-fn -fno-delayed-branch splice 61 -> 79. No SLD exists for SPCHPSXZ (see spchevnt.c).
+ *
+ * w34-a10 -- THE $a3-vs-$t0 LEAD IS NOW A QUANTIFIED MECHANISM (cc1 -dl/-dg dumps), and it is
+ * NOT source-reachable from this shape.  `numRules` gets NO hard register; $t0/$a3 is the RELOAD
+ * register reload1 spills for it, and gcc-2.8's `order_regs_for_reload` sorts the candidate regs
+ * by `hard_reg_n_uses` = the summed REG_N_REFS of the pseudos ALLOCATED to each hard reg, ties
+ * broken by ascending regno.  Our lreg dump says:
+ *     Register 121 used 9 times across 10 insns in block 12; ...; pointer.   -> "121 in 7" ($a3)
+ * i.e. the `*sentSlot` deref at the gSentenceRuleTest call site is a real local-alloc pseudo that
+ * local_alloc parks in $a3 (it has a hard preference for $a3 from `(set (reg 7) (reg 121))`).
+ * That gives hard_reg_n_uses[$a3] = 9 vs hard_reg_n_uses[$t0] = 0, so $t0 sorts FIRST and becomes
+ * the spill reg -- and its caller-save/spill slot 0x1C follows the register, which is the whole
+ * 28(sp)-vs-36(sp) half of the diff.  Retail's $a3 carries ZERO pseudo refs (its `lw $a3,0x50($sp)`
+ * is a reload that reload-inheritance then reuses for the 4th argument), so $a3 wins the tie on
+ * regno and everything downstream falls out.
+ * => the fix would be to stop `*sentSlot` from becoming an allocated pseudo, which cse defeats:
+ * `(int)sentence` for arg 4, `(unsigned short)*sentence` for arg 1, and the mixed forms ALL gate
+ * 61/113 identically (cse merges them back into one pseudo), and dropping the `&sentence`
+ * addressability entirely costs a callee-saved reg + an 88-byte frame (122 diffs).
+ * The oracle frame corroborates the reading: retail's locals are 0x10/0x14/0x18 (the three
+ * volatile decode slots), 0x20 (ruleData's spill) and 0x24 (numRules), leaving a HOLE at 0x1C --
+ * exactly the slot our build hands to numRules.
+ * Also probed and rejected this wave: `hit = 0` hoisted to the top of the inner block (61, no
+ * change); `testValue = 0` hoisted out of the ruleType==0xc arm (65); the iSPCH_RuleSet
+ * allocno-priority swap on `param`/`paramStore` (69, and it loses insn parity). */
 extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
 {
     int            numRules = *(signed char *)((int)sentence + 7);

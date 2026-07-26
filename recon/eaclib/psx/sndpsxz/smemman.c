@@ -104,7 +104,19 @@ extern unsigned int iSNDmemrestore(void)
  * Also tried and REVERTED: hoisting `j = i << 2` above the entry guard so one sll serves the loop
  * preheader and the tail (retail's `sll $v0,$s0,2` in the guard delay slot is reorg's `redundant_insn`
  * unification of two same-register slls, NOT a shared source expression) -- gcc const-folds our
- * pre-guard `i<<2` to `move rD,zero` since i==0 there, 98 diffs. */
+ * pre-guard `i<<2` to `move rD,zero` since i==0 there, 98 diffs.
+ * W34-a7: the NFS2 PC-beta named-source lever does NOT reach this obj either -- NFS2-PC has no sound
+ * sub-pool allocator at all and memman.obj is a linked mem-class/mem-block manager, a different data
+ * structure (full verdict + the INDEX.csv sweep in sdmemman.c's header).  Two more attempts at the
+ * "one `sll` serves the loop back-edge AND the post-scan tail" unification (the oracle's `sll $v0,
+ * $s0,2` in the .L80106378 delay slot feeds .L8010638C's `addu $a2,$v0,$v1`, while ours computes a
+ * DEAD `sll $a0,$s0,2` in the slot and recomputes `sll $v0,$s0,2` in the tail) were made and
+ * REVERTED: (i) tail spelled `j = i << 2; p2 = j + pb;` so both sites write the SAME variable and
+ * reorg's `redundant_insn` could unify them -> 91 diffs / 128 insns; (ii) moving `j = i << 2` BELOW
+ * the `i++` so the induction shift is live out of the loop and the tail just uses `j` (retail's exact
+ * dataflow) -> 93 diffs / 128 insns, because gcc const-folds the pre-loop seed to `move rD,zero`
+ * exactly as the earlier hoist attempt did.  The unification is register-equality-gated and the
+ * register is decided by the same $v0/$v1 mirror as the rest of this floor. */
 extern int iSNDmalloc(int size)
 {
     /* MATCH (w31-a2, from the raw oracle -- same shape family as iSNDpsxmalloc but with THREE

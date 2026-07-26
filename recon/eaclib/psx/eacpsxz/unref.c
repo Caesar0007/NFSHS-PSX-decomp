@@ -59,6 +59,23 @@ extern void chase(unsigned int code);                                           
  *      SECOND use of the `op>>8` intermediate, which retail does not have (its 2-byte arm emits
  *      its own `srl v0,s1,8`, so the shift is duplicated, not shared).
  * SLD is unavailable here (eaclib .lib C members are debug-stripped: 0 records above 0x800E0000).
+ * w34-a4 RE-CHECK (still 17; both mechanisms re-confirmed, plus the two new wave levers applied):
+ *  - PROTOTYPE AUDIT (w33 rule: a floor is conditional on args+return+WIDTH): IDA types this
+ *    `int __fastcall sub_800F52B8(_DWORD *a1, _BYTE *a2, int a3)` -- 3 args, int return, no narrow
+ *    parameter, matching the recon exactly.  So the NARROW-PARAM lever (which reorders the prologue
+ *    parm copies and is the natural candidate for residual (c)) has no legal target here; the 4
+ *    prologue-order diffs are a sched2 luid tie among three same-width pointer/int parm copies.
+ *  - NFS2 PC-beta cross-oracle (w34 lever 2): NFS2's `_unrefpack` lives in module **unref.asm**,
+ *    i.e. on PC this routine was HAND-WRITTEN ASSEMBLY -- there is no EA C source shape to transfer.
+ *    Its Ghidra decompile does confirm the FORMAT and the command decode 1:1 (2-byte `(op&0x80)==0`,
+ *    3-byte `(op&0x40)==0`, 4-byte `(op&0x20)==0`, else literal run with the `<0xFC` terminator
+ *    test), so the reconstruction's control flow is independently corroborated; but the PC version
+ *    inlines every copy loop where the PSX version calls refcpy/memcpyl/geti/puti, so statement
+ *    order does not carry over.
+ *  - Flags re-measured (none adopted, all worse): -mno-split-addresses 17, -fno-schedule-insns 29,
+ *    -fno-schedule-insns2 31 (+6 on chase), -fno-delayed-branch 97 (+3 on chase),
+ *    -fno-expensive-optimizations 49.  VERDICT unchanged: (a)+(b) are the old-gcc weaker-combine
+ *    identity (catalog SS-G), (c) is a scheduler tie -- STRONG floor.
  * Raw nfs4-f.exe E5AB8..E5D2F SHA-256:
  * eae786e8d18c199bea647b339f069508f7294319d4855358b59db0bf234b749b. */
 extern int unrefpack(unsigned char *comp, unsigned char *out, int reverse)

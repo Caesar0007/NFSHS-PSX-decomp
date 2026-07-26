@@ -4,14 +4,11 @@
  *   dialect fixer did not converge on this TU). Pre-migration (.cpp/cc1plus) vs post-migration
  *   (.c/cc1) per-fn diff counts, verify_asm.py authoritative -- IDENTICAL, zero regressions:
  *     iSNDpacketplayoverhead=PASS(0)  SNDPKTPLAY_overhead=PASS(0)   SNDPKTPLAY_create=PASS(0)
- *     SNDPKTPLAY_start=FAIL(100 w33, 187/187)  SNDPKTPLAY_submit=FAIL(2)  SNDPKTPLAY_submitspace=PASS(0)
+ *     SNDPKTPLAY_start=FAIL(70 w34, 187/187)   SNDPKTPLAY_submit=FAIL(2)  SNDPKTPLAY_submitspace=PASS(0)
  *     SNDPKTPLAY_unsafeframesoutstanding=PASS(0)  SNDPKTPLAY_framesoutstanding=PASS(0)
- *     SNDPKTPLAY_purge=FAIL(32, w33, 119/119)                                SNDPKTPLAY_stop=PASS(0)
+ *     SNDPKTPLAY_purge=PASS(0, w34)                                          SNDPKTPLAY_stop=PASS(0)
  *     SNDPKTPLAY_destroy=PASS(0)      iSNDpacketget=PASS(0)         iSNDpacketfreeframes=PASS(0)
- *   10/13 PASS, 3/13 FAIL (start/submit/purge -- pre-existing near-miss floors documented below,
- *   unchanged by the C89 port). NOTE: SNDPKTPLAY_purge is NOT byte-exact PASS despite its insn
- *   count matching the oracle 119/119 -- see its FAIL comment block below (the s0/s1 register-swap
- *   floor). Do NOT revert to .cpp without user decision.
+ *   11/13 PASS, 2/13 FAIL (start/submit) as of w34-a6.  Do NOT revert to .cpp without user decision.
  *   Source obj : nfs4\eaclib\psx\spktplay.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   13 fns @[0x801028BC .. 0x80103424].  SNDPKTPLAY -- the packet player sst.obj feeds.  A ring of
  *   "frames" (each a list of per-channel sample-data pointers) is submitted, then drained by the platform
@@ -83,6 +80,8 @@ extern int SNDPKTPLAY_submitspace(int p);                /* @0x80102E70 */
 extern int SNDPKTPLAY_unsafeframesoutstanding(int p);    /* @0x80102EC4 */
 extern int SNDPKTPLAY_framesoutstanding(int p);          /* @0x80102EEC */
 typedef struct { int w[6]; } PktCopy6;   /* 0x18-byte ring frame, block-copied in purge */
+typedef struct { int w[4]; } PktCopy4;
+typedef struct { int w[2]; } PktCopy2;
 typedef struct { char b[4]; } Unal4;     /* alignment-1 word: movstrsi emits the lwl/lwr+swl/swr pair */
 extern int SNDPKTPLAY_purge(int p, int lo, int hi);      /* @0x80102F3C */
 extern int SNDPKTPLAY_stop(int p);                       /* @0x80103118 */
@@ -214,16 +213,30 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
     *(volatile int *)(ppp + 4)      = 0;
     *(volatile int *)(ppp + 0x14)   = 0;
     *(volatile short *)(ppp + 0xc)  = (short)0xffff;
-    ch = *(int *)(gp + 0x94) + note * 100;        /* MATCH: note*100 computed right after the
-                                                    * marker store, before the unaligned copy;
-                                                    * the pool-base add is a branch delay-slot
-                                                    * filler for the s3len test below either way */
     *(Unal4 *)(ppp + 0x24) = *(Unal4 *)rate;      /* unaligned rate-word copy: lwl/lwr + swl/swr */
+    ch = *(int *)(gp + 0x94) + note * 100;        /* MATCH: AFTER the unaligned copy -- the oracle's
+                                                    * `lw v1,0x94(s3)` sits between the swl/swr pair
+                                                    * and the params[0xb] test, with the pool-base
+                                                    * add filling the test's beqz delay slot (sched1
+                                                    * still hoists the note*100 multiply chain above
+                                                    * the copy, exactly as retail). */
 
     if (MSB(params, 0xb) != 0)
         gp = MUH(params, 0x10);
-    else
-        gp = ((MSB(params, 7) - 0x40) << 8) & 0xffff;
+    else {
+        /* TWO statements, not one and not three.  `gp` is the retail two-role variable (&sndgs,
+         * then the packet length) and its REG_N_REFS decides whether it wins the oracle's $s3:
+         *   1 stmt  `gp = ((MSB(params,7)-0x40)<<8)&0xffff;`  ->  6 refs, prio 12/97=.124 < params'
+         *           30/224=.134  ->  gp lands $s4, params $s3 (the old 100-diff swap);
+         *   2 stmts (this)                                    ->  8 refs, 24/98=.245 -> gp $s3 OK;
+         *   3 stmts (the oracle's own in-place addiu/sll/andi chain) -> 10 refs, 30/99=.303, which
+         *           outranks `note`/`ppp` and takes $s1 (120 diffs).
+         * So we spell the subtraction in place (matching the oracle's `addiu s3,v0,-0x40`) and fuse
+         * the shift+mask, leaving a 2-insn `sll v0,s3,8 / andi s3,v0,0xffff` vs the oracle's in-place
+         * `sll s3,s3,8 / andi s3,s3,0xffff` -- the price of staying at 8 refs. */
+        gp = MSB(params, 7) - 0x40;
+        gp = (gp << 8) & 0xffff;
+    }
 
     MSB(ch, 0xa)  = -1;              /* li -1 (signed char), not li 255 */
     MUH(ch, 0x5c) = MUH(hdr, 4);
@@ -276,24 +289,25 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
     iSNDleaveaudio();
     return MI(ppp, 0);
 }
-/* near-miss floor (183->132 diffs, ours 181 / oracle 187 insns). This is the biggest fn in the file
- * (9 params/locals -- p,rate,hdr,params,&sndgs,ppp,note,ch,s3len -- all callee-saved, live across
- * 2-3 calls each). NFS4 PC confirms the duration tail is signed division by 0x3f01; expressing the
- * operation at that level lets cc1 emit the oracle's direct magic-multiply/mfhi sequence and removes
- * the artificial 64-bit stack temporary, recovering the retail 88-byte frame. Fixes also kept:
- * `MB(rate,2)` evaluated before the ppp lookup (oracle hoists this
- * alloc-arg early), the 0x40/0x44-then-0x3d-then-0x48.. zero-store interleave + MH(ch,0x5e)=0 as
- * its own statement (lands in calcpitch's jal delay slot), `ch`'s note*100 positioned right after
- * the 0xc marker store (before the unaligned rate copy). Tried and NOT kept as a further win: an
- * explicit `char *gp=(char*)sndgs;` hoisted pointer for the guard+pool-base lookup (matches the
- * oracle's single materialize-once-reuse-across-calls shape SEMANTICALLY, and gp DOES land in a
- * saved reg spanning the calls) -- but it doesn't change the diff count; the residual is a pure
- * GLOBAL-ALLOCATOR REGISTER-NUMBER PERMUTATION (same class as SNDPKTPLAY_purge's ppp/wrptr swap):
- * the SAME set of ~9 long-lived locals gets the SAME 9 callee-saved registers, just numbered
- * differently (ours: hdr/params/gp -> s4/s3/s5; oracle: s5/s4/s3) -- decl order/scope permutations
- * don't move this (per purge's finding); needs an RTL -dg/-dl dump or the permuter. Every `!=` line
- * in the diff is register-renumbering fallout of this one root cause; no further structural bugs
- * were found on this pass. */
+/* near-miss 100 -> 70 diffs (ours 187 / oracle 187) -- w34-a6, cc1 -dl/-dg allocno instrument.
+ * ROOT CAUSE of the old 100: a single s3<->s4 permutation, `gp`(&sndgs/length) vs `params`.  The dump
+ * gave the exact numbers -- gp 6 refs/97 insns = 12/97 = .124 vs params 10/224 = 30/224 = .134 -- so
+ * splitting the else-arm's length arithmetic into two statements (8 refs, .245) lifts gp over params
+ * and pins the whole cascade.  See the in-place comment at that arm for why 1 and 3 statements both
+ * fail.  Second fix: `ch = *(int*)(gp+0x94) + note*100;` moved AFTER the unaligned rate copy (the
+ * oracle's `lw v1,0x94(s3)` sits between the swl/swr pair and the params[0xb] test; sched1 still
+ * hoists the note*100 chain above the copy).  100 -> 78 -> 70.
+ * RESIDUAL (70), three clusters, all sched1/local-alloc ties at EXACT insn parity:
+ *  (a) the movstrsi rate-copy temp: ours $t1, oracle $t0 (2 lwl/lwr + 2 swl/swr = 4 diffs);
+ *  (b) the ch-field store block: the STORE ORDER already matches the oracle exactly; what differs is
+ *      where the 0x7fffffff `lui`/`ori` pair and the `lhu 0xC(params)` land between them (the oracle
+ *      splits the lui from the ori and fills the `lb 0x8(params)` load-delay with the 0x28 store);
+ *  (c) the tail: the oracle interleaves the four stack-arg stores INTO the two multiplies' latency
+ *      (mflo/mfhi in $t4) where ours issues mflo/mult first.
+ * Kept from earlier waves: MB(rate,2) evaluated before the ppp lookup; the whole ring-header store
+ * run `volatile` (ordering); the 0x40/0x44-then-0x3d-then-0x48.. interleave; MH(ch,0x5e)=0 as its own
+ * statement (fills calcpitch's jal delay slot); signed division by 0x3f01 at the C level (NFS4-PC
+ * twin confirms), which recovers the retail 88-byte frame. */
 
 /* SNDPKTPLAY_submit @0x80102CFC : append a frame (descriptor `frame`) to the player's ring.  Returns the
  *   submit sequence number, or -0xD if the ring is full. */
@@ -419,19 +433,26 @@ extern int SNDPKTPLAY_framesoutstanding(int p)
 
 /* SNDPKTPLAY_purge @0x80102F3C : drop every frame whose sequence falls within [lo, hi] from the ring,
  *   compacting the survivors down, firing the release callback for each removed frame.
- *   W31: 66 -> 53 diffs (119/118): goto loop kills the strength-reduced store anchor; the 6-word
- *   copy is a real struct assignment (movstrsi 4+2 batch, a3/t0-t2 fixed template regs); ppp->s0
- *   and fr->a0 now match.  RESIDUAL: {wrptr,rd,wr} -> oracle {s1,s2,s3} vs ours {s3,s1,s2}; by the
- *   3.12b priority model ours is "correct" (rd 2*7000/51=274 > wr 254 > wrptr 250) and no source
- *   lever moved the order (decl order, stmt order, split init all no-ops; split-init refs are NOT
- *   stale-counted).  Same unmodelable allocno-ordering signature as sbdload this wave -- suspected
- *   retail cc1 allocno_compare delta, not source-reachable.  Plus 1 unfilled beqz slot (3b class:
- *   ours hoists the callback-arg load, retail aspsx left nop).
- *   MATCH (oracle-traced): (1) VH() volatile-short reads for wr/rd/total/ringsize -- same async-slot
- *   shape as submit/submitspace/stop/iSNDpacketget; (2) REMOVE ("lo<=fr0<=hi") is the branch-away/
- *   fallthrough arm and KEEP is the oracle's explicit two-`bnez`-to-the-same-label branch target --
- *   logically identical to the old "keep-first" if/else, just the inverse polarity gcc actually
- *   emits for this `&&`/`||` pair (not a correctness bug, a codegen-shape fix). */
+ *   PASS (119/119) as of w34-a6 -- cracked with the gcc-2.8 ALLOCNO-PRIORITY model read straight off
+ *   the cc1 `-dl`/`-dg` RTL dumps (priority = floor_log2(refs)*refs/live_length; allocation order IS
+ *   the s-register rank).  The residual was a 3-way rotation of {wrptr,rd,wr} over s1/s2/s3:
+ *     - dump (before): wr 7 refs/52 insns = .269, rd 7/54 = .259, wrptr 5/40 = .250
+ *                      -> order wr(s1), rd(s2), wrptr(s3);  oracle wants wrptr(s1), rd(s2), wr(s3).
+ *     - LEVER 1 (live-length): SWAP the two identical `lhu +0xa` reads back to `wr` FIRST -- the
+ *       earlier-defined pseudo lives longer, giving wr 7/55 = .2545 < rd 7/51 = .2745, i.e. rd now
+ *       outranks wr (the oracle's own read order: its FIRST `sra` lands in $s3 = wr).
+ *     - LEVER 2 (ref count): SPLIT the 0x18-byte ring copy into the movstrsi 4-word + 2-word halves
+ *       as TWO struct assignments.  Byte-identical codegen (a 24-byte movstrsi is emitted as exactly
+ *       load-4/store-4 + load-2/store-2 anyway), but it gives `wrptr` a SECOND address reference ->
+ *       6 refs/40 = .300, lifting it above rd and completing the rotation.
+ *     - LEVER 3: statement order inside the wrap-reset block (`wrptr = ppp;` BEFORE `wr = 0;`) --
+ *       the last 2 diffs.
+ *   The earlier note that this was an "unmodelable retail allocno_compare delta" was WRONG: the
+ *   delta was entirely explained by our own dump's refs/live-length numbers.  (Same instrument is
+ *   worth re-running on sbdload/start, whose floors were filed with the same reasoning.)
+ *   W31 findings that still hold: goto loop kills the strength-reduced store anchor; VH() volatile
+ *   short reads for wr/rd/total/ringsize; REMOVE ("lo<=fr0<=hi") is the branch-away/fallthrough arm
+ *   and KEEP is the oracle's explicit two-`bnez`-to-the-same-label branch target. */
 extern int SNDPKTPLAY_purge(int p, int lo, int hi)
 {
     int   ppp, i, wrptr, wr, rd, total, rdoff;
@@ -447,13 +468,13 @@ extern int SNDPKTPLAY_purge(int p, int lo, int hi)
                                                       * s0..s7/fp permutation (9 live-across-a-call
                                                       * locals -> every callee-saved reg is used). */
     iSNDenteraudio();
-    rd    = VH(ppp, 0xa);                          /* read index               */
-    wr    = VH(ppp, 0xa);                          /* write (compaction) index (re-read, MATCH:
-                                                      * retail's weaker CSE keeps BOTH lhu's; the
-                                                      * ASSIGNMENT ORDER of the two identical reads
-                                                      * is a live allocno-order lever -- rd first
-                                                      * rotates {wrptr,rd,wr} toward the oracle's
-                                                      * s1/s2/s3 assignment: 50 -> 32 diffs) */
+    wr    = VH(ppp, 0xa);                          /* write (compaction) index -- READ FIRST: the
+                                                      * earlier def gives `wr` the LONGER live range
+                                                      * (55 vs rd's 51), which drops its allocno
+                                                      * priority below `rd`'s.  Retail's weaker CSE
+                                                      * keeps BOTH identical lhu's; their ASSIGNMENT
+                                                      * ORDER is the live-length lever. */
+    rd    = VH(ppp, 0xa);                          /* read index (2nd identical volatile read) */
     total = VH(ppp, 0xe);                          /* frames to scan            */
     if (0 < total) {
         rdoff = rd * 0x18 + 0x28;
@@ -470,16 +491,19 @@ purge_next: {
                 if (*(void **)(ppp + 0x1c) != 0)
                     (*(void (**)(int))(ppp + 0x1c))(fr[2]);
             } else {                               /* keep -> move down (oracle branch target) */
-                /* MATCH (load-3/store-3 family, catalog §A row 38): the oracle batches the 6-word
-                 * copy as load-4/store-4 then load-2/store-2 (4 then 2 distinct caller-saved temps,
-                 * $a3/$t0/$t1/$t2) instead of interleaving one load+store per field -- named temps
-                 * reproduce the parallel chains and kill the load-delay nop per field. */
-                *(PktCopy6 *)(wrptr + 0x28) = *(PktCopy6 *)fr;   /* movstrsi 4+2 batch (3.25-3d a) */
+                /* The 0x18-byte ring copy, written as the TWO movstrsi batches gcc would emit for a
+                 * single 24-byte struct assignment anyway (load-4/store-4 then load-2/store-2 in
+                 * $a3/$t0/$t1/$t2).  Codegen-identical to `*(PktCopy6*)(wrptr+0x28) = *(PktCopy6*)fr`
+                 * -- but it references `wrptr` TWICE, which is the point: 5 -> 6 REG_N_REFS lifts
+                 * wrptr's allocno priority (12/40 = .300) above rd's (14/51 = .2745) and pins it to
+                 * the oracle's $s1.  Do NOT re-merge into one assignment (reverts to 32 diffs). */
+                *(PktCopy4 *)(wrptr + 0x28) = *(PktCopy4 *)fr;
+                *(PktCopy2 *)(wrptr + 0x38) = *(PktCopy2 *)(fr + 4);
                 wrptr += 0x18;
                 wr++;
                 if (VH(ppp, 8) <= wr) {
-                    wr = 0;
                     wrptr = ppp;
+                    wr = 0;
                 }
             }
             rdoff += 0x18;
@@ -496,27 +520,6 @@ purge_next: {
     iSNDleaveaudio();
     return 0;
 }
-/* near-miss floor (102->65->66 diffs, ours 124->119 / oracle 119 insns -- INSN COUNT NOW EXACT).
- * wave 21-a8: applied the load-3/store-3 batching lever (catalog §A row 38) to the "keep" branch's
- * 6-word field copy -- named temps `c0..c3` (load all 4, then store all 4) + a nested `{c4,c5}`
- * pair reproduce the oracle's load-4/store-4-then-load-2/store-2 shape (was: one interleaved
- * load+store per field, costing a load-delay nop each -> 5 extra insns). Diff count is technically
- * flat (65->66, +1) but insn count moved DECISIVELY to an exact match (124->119 == oracle's 119) --
- * kept per verify-or-revert rule 1's insn-count carve-out; the diff floor is now PURELY the
- * pre-existing s0/s1 swap below, not a real regression.
- * ALL remaining diffs trace to ONE root cause: `ppp` colors to `$s1` in ours vs the oracle's `$s0`,
- * and `wrptr` takes the register ours gives `ppp` -- i.e. `ppp`/`wrptr` are SWAPPED in the s0..s7+fp
- * permutation (9 locals live across the in-loop `jalr` callback -> every callee-saved reg incl.
- * `$fp` is in play). Tried (both waves): moving `i=0` earlier (81->78, real partial win, kept),
- * `wrptr` at function scope vs block scope (no effect), decl order permutations incl. one matching
- * the oracle's exact definition order ppp,i,wr,rd,total,rdoff,wrptr (no effect), the load-3/store-3
- * batching above (fixed insn count but not the swap) -- decl order/scope/batching do NOT move this
- * specific swap. This is a global-allocator PRIORITY tie-break (refs/live-length, §3.12b) between
- * two heavily-used long-lived pseudos, not a source-shape lever on hand; needs an `-dg`/`-dl` RTL
- * dump or the permuter to crack (permuter run launched this pass, see permuter_work/SNDPKTPLAY_purge
- * for results). Every downstream `!=` line in the diff is this same swap propagating (tail fully
- * matches once s0<->s1 is mentally swapped). */
-
 /* SNDPKTPLAY_stop @0x80103118 : stop the voice, purge the whole ring, and idle the player.
  * MATCH: the +0xc pitch field is read TWICE (guard + multiply) and the +0 state word is re-set right
  * before iSNDleaveaudio -- the oracle genuinely RELOADS +0xc a second time (fresh `lhu`) and does NOT

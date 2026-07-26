@@ -105,6 +105,15 @@ extern int iSNDdownloadbank(int bankData, int patchData)
      *  (b) with the bivs gone the giv pseudos out-rank the counter, so i/cur2 swap $s0<->$s2.
      *  (c) the oracle spends one extra `addu a0,v0,zero` at the arm merge; ours coalesces abs
      *      straight into $a0 (the classic ours-1-shorter merge copy).  In-place `abs +=`, a
-     *      separate arg temp and a per-arm abs were all tried (46/42/37+1insn). */
+     *      separate arg temp and a per-arm abs were all tried (46/42/37+1insn).
+     *  W34-a6 re-verdict, with the wave's NEW evidence class (NFS2 PC-beta named source): the
+     *      floor STANDS.  `pc-split` has no iSNDdownloadbank file, but nfsw.IDA.c's sub_483468 IS
+     *      it (NFS2 SYM `iSNDdownloadbank_` @0x483468).  That older generation writes the scratch
+     *      clear as an ASCENDING index loop (`for (i = 0; i != 768; v14[i] = -1) i += 3;` -- stride
+     *      3, 256 entries) and the patch loop with ONE byte-offset induction variable added to
+     *      base+constant, not four parallel cursors.  Neither matches the PSX oracle (descending
+     *      clear walker; four +4 cursors), i.e. EA rewrote the function between generations, so the
+     *      NFS2 source does NOT supply the "different loop shape" that would reopen this.  The
+     *      per-obj SR identity (clear loop needs SR ON, patch loop needs it OFF) is unchanged. */
     return ret;
 }

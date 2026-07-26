@@ -71,6 +71,23 @@
  *   NET: reverted to this 59-diff body; the 125/127 variant scores 72 because the shared tail lands
  *   after scan_done instead of after the empty arm (a pure alignment artifact of the same swap).
  *
+ *   🔴🔴 W34-a7 LEVER-2 VERDICT (NFS2 PC-beta named source) -- THERE IS NO ANCESTOR FOR THIS OBJ.
+ *   The wave's new weapon (C:\Temp\nfs2-clean\pc-beta\pc-split, 53 NAMED memman.obj bodies + the
+ *   whole INDEX.csv module map) does NOT cover sdmemman/smemman and cannot adjudicate their shape:
+ *     - NFS2-PC has NO SPU (sdmemman allocates SPU local RAM) and NO sound sub-pool allocator.  A
+ *       full INDEX.csv sweep of every `iSND*`/`SND*` name (sbank/spath/sinit/sdriver/sstream/shdr/
+ *       sserver/slib/sbankbld/spatch/salloc/sdirect/smixer) finds no *malloc/*memconstrain/*free
+ *       member at all -- the PC sound lib gets its memory from the general manager.
+ *     - memman.obj IS a different DATA STRUCTURE: a doubly-linked mem-CLASS/mem-BLOCK manager
+ *       (_creatememclass/_linkmemclass/_reservememblock{,z,a,ai}/_reservememadr{,z,a}/_purgeone/
+ *       _largestreserveableinclass walk `piVar[8]` next-pointers), whereas sdmemman/smemman are a
+ *       sorted ARRAY free-list of {block:u16,size:u16} entries scanned by INDEX with an insert-shift.
+ *       No statement order, loop shape or early-exit structure transfers between the two.
+ *     - Its per-fn files are Ghidra/IDA decompiles with synthetic locals (`piVar1`,`iVar2`), so even
+ *       for a matching algorithm they carry function NAMES, not EA statement text.
+ *   => For sndpsxz's allocators the NFS2 axis is CLOSED alongside SLD (w33) and the compiler
+ *   snapshot (w33).  Do not re-spend a wave looking for a PC twin of these three functions.
+ *
  *   🔬 W33-a7 RE-AUDIT against the wave's three-way copy taxonomy (loop.c giv anchor / cse.c
  *   double-evaluation / true allocator coalescing): (a) applying w32's class-2 finding IN ISOLATION --
  *   spelling the empty arm as `final_block = *p; final_avail = *q - *p;` with a literal second read of
@@ -135,9 +152,45 @@ extern int iSNDpsxmalloc(int size);                               /* @0x8010A5CC
  *       -fno-function-cse, -fno-peephole, -fno-thread-jumps, -fcaller-saves): none < 14 at parity
  *       (-fno-expensive-optimizations shows 13 but BREAKS the 31/31 parity, so it is a worse fit);
  *     - 3 distinct cc1 binaries / 2 gcc generations -- see the file header sweep.
- *   NEXT INSTRUMENT (not yet tried on this cluster): permuter multi-basin re-seed.  At 31 insns this
- *   is the cheapest permuter target in sndpsxz and the methodology's discriminator says a
- *   "retail reuses a dying reg / ours takes a fresh one" residual is a permuter case, not an accept. */
+ *
+ *   🔴🔴 W34-a7 RE-VERDICT -- THIS IS **NOT** AN ALLOCNO TIE-BREAK.  It is a LIVE-RANGE fact forced
+ *   by one RTL-emission decision, and the whole coloring follows from it deterministically.  PROOF
+ *   (read the oracle, not the allocno table):
+ *       slt  $v0,$a2,$a3        ; the compare temp IS $v0 and is live until the branch
+ *       beqz $v0,.L8010A588
+ *        subu $v0,$a3,$a2       ; `diff` -- the SAME $v0
+ *   A pseudo defined BEFORE the compare cannot be given $v0: it would be live across an insn that
+ *   already owns $v0 (our -dg dump says exactly that -- `86 conflicts: ... 2 ...`, a HARD conflict
+ *   with $v0 that no priority reordering can dodge).  So retail's `diff` is a BLOCK-1 pseudo (born
+ *   after the branch) that reorg then EAGER-STOLE into the delay slot (legal: $v0 is redefined by
+ *   `lw $v0,0($a1)` on the taken path, so the stolen subu is dead there).  Retail's source therefore
+ *   computed the difference INSIDE the `if`.  Everything else follows: with $v0 taken by a block-1
+ *   pseudo, `lo` is pushed off $v0/$v1 to $a3 and the block-1 avail temp lands in $v1 -- exactly the
+ *   oracle's assignment.  Ours computes `diff` in block 0, so the 3-cycle rotation
+ *   (lo $v1->$a3, diff $a3->$v0, temp $v0->$v1) is a CONSEQUENCE, not a coin-flip.
+ *   WHY WE STILL CANNOT REACH IT (the real, narrow floor): whenever the subtraction is written
+ *   inside the `if`, THIS cc1 always emits it AFTER the `lw *avail` -- it uses the subu to fill the
+ *   load-delay slot, which leaves the un-stealable `sw` at the block head, so reorg fills nothing
+ *   and the count is restored by the removed load-delay nop (20 diffs, 31/31, every time).  Retail's
+ *   build left the subu at the block head and paid the load-delay nop the oracle actually shows.
+ *   MEASURED (w34-a7, all still >= 14; the 20s all carry the correct block-1 live ranges and the
+ *   WRONG placement):  diff-first-in-if 20 | store-then-named 20 | store-then-inline 20 |
+ *   volatile-*avail 20 | re-read-*size-in-diff 20 | avail-cached-first 20 | `-=` form 20 |
+ *   negated (`s-lo` then `+`) 30 | negated in block 0 30 | no-`s`-variable 23 (32 insns) |
+ *   compare via `*size` 14 | `int` lo/diff 14 | source load order swapped 14.
+ *   FLAGS on the block-1 spellings: -fno-schedule-insns 20/30, -fno-schedule-insns2 22,
+ *   both off 35 (34 insns), -fno-cse-follow-jumps 20 -- i.e. the placement is decided at RTL
+ *   EMISSION, not by either scheduler pass, so no flag identity reaches it either.
+ *   PERMUTER (w34-a7, the instrument this note asked for): base score 75, ~3270 iterations at -j 2.
+ *   Best VALID candidate score 50 = "reuse the dead `lo` variable for the third clamp's limit read"
+ *   (catalog dead-var-repurpose) -- transcribed and GATED: still 14 diffs.  A score-60 candidate was
+ *   semantically INVALID (it deleted `s = *size;` and read `s` uninitialized) -- rejected per the
+ *   permuter trust rules.  Two more scorer/gate DISAGREEMENT data points for tools/PERMUTER.md.
+ *   STATUS: STRONG floor (>=13 alternate source forms byte-checked, 4 flag configs, 3 cc1 binaries,
+ *   a permuter basin, and a named mechanism).  The only untried instrument left is a permuter
+ *   multi-basin re-seed FROM the 20-diff block-1 basin -- but its premise is falsified above: every
+ *   source form in that basin has the subtraction mis-placed, and the permuter mutates source, not
+ *   RTL emission order. */
 extern void iSNDpsxmemconstrain(unsigned int *size, int *avail)
 {
     unsigned char *pd = sndpd;
@@ -171,7 +224,24 @@ extern int iSNDpsxmalloc(int size)
      * the lifetime split recovered by RetDec.  The packed four-byte shift is expressed as __builtin_memcpy so
      * CC1PSX emits the oracle's direct lwl/lwr/swl/swr sequence without an artificial value move.  Together
      * with in-place size rounding and the oracle-ordered failure label, these changes reduced the detailed
-     * residual from 140 to 59 instructions. */
+     * residual from 140 to 59 instructions.
+     *
+     * W34-a7 TRIED AND REVERTED (both move the INSN COUNT toward the oracle but raise the gate count,
+     * so neither is a keep -- recorded so they are not re-derived):
+     *  (a) scan_done against a FRESH `sndpd+0x51c` symbol (`pv = sndpd+0x51c; prev = idx*4 + pv;
+     *      avail = pv[0] - block;`) instead of the loop's saved `previous`/`pd+0x51C`.  This IS what
+     *      the oracle does (.L8010A740 emits its own `lui/addiu %hi/%lo(D_80147E34)` and reads the
+     *      limit as `lhu $v1,0($v1)` off that fresh base), and it correctly adds the missing lui/addiu
+     *      pair: 120 -> 122 insns (oracle 127).  But cse folds our limit read onto the %hi register
+     *      (`lhu $v1,0x51C($a1)` + LO16) instead of onto `pv`, so the gate goes 59 -> 61.
+     *  (b) splitting the shared `final_constrain:` label into TWO textual `iSNDpsxmemconstrain(...)`
+     *      call sites (which is retail's shape -- retail shares ONLY the `jal` at .L8010A634 and
+     *      duplicates the `addiu $a0/$a1,$sp` setup and both frame stores per arm).  gcc then
+     *      re-colors the prologue base (`addiu $a1,$v0,%lo(sndpd)` instead of the oracle's `$v1`) and
+     *      the whole function shifts: 59 -> 77 alone, 59 -> 87 combined with (a).
+     * Both confirm the standing diagnosis: our two constrain arms merge deeper than retail's because
+     * they END in the same hard registers, and that hard-register choice is upstream of any source
+     * shape available here (same $v0/$v1 mirror as smemman.c iSNDmalloc's post-scan tail). */
     unsigned char *base = sndpd;
     unsigned char *pd;
     unsigned int blk, src;

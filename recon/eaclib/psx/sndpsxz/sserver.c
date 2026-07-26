@@ -267,7 +267,11 @@ extern short *iSNDserveradd100hzclient(int cb)
  *
  * W33-a8: the `volatile` param is KEPT -- the wave's SLD line-tracing evidence does not exist for
  * sndpsxz (sserver.obj has only a type-2 symbol record; no SLD, no function-start block).  Full
- * verdict + the re-measured cost of the honest shape (41 diffs) is in ssysserv.c on the twin. */
+ * verdict + the re-measured cost of the honest shape (41 diffs) is in ssysserv.c on the twin.
+ * W34-a8: re-checked, unchanged.  The honest form's residual is a 3-way {cb,i,base} register
+ * rotation caused by gcc-2.8 `find_reg` skipping a hard reg a conflicting allocno PREFERS --
+ * the parm-copy preference on $a0.  Four honest spellings all compile byte-identically; the
+ * full mechanism write-up and the experiment list live on the twin in ssysserv.c. */
 extern void iSNDserverremove100hzclient(volatile int cb)
 {
     int i;

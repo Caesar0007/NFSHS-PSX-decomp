@@ -120,7 +120,30 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
      * copies of a global address).  Exact allocno arithmetic for the kept form, from `cc1 -dl`
      * ("Register N used R times across L insns"), which reproduces the observed s-order exactly:
      *   c 52/132=1.97 | maskHi 5/129=.0775 | imgX 5/131=.0763 | clutX 4/127=.063 | maskLo 5/260=.0385
-     *   | imgY 5/268=.037 | clutY 4/266=.030 | clutYm 3/124=.0242 | clutXm 3/126=.0238  */
+     *   | imgY 5/268=.037 | clutY 4/266=.030 | clutYm 3/124=.0242 | clutXm 3/126=.0238
+     * ------------------------------------------------------------------------------------------
+     * w34-a4 2026-07-26 -- THE PROTOTYPE-CONDITIONAL RE-CHECK IS DONE; THE FLOOR HOLDS AT 68.
+     * The w33 verdict above is a "no source form reaches retail's allocno order" claim, and the w33
+     * epistemics rule says a floor is EVIDENCE-SOURCE-conditional and must survive a prototype audit
+     * (args + return + PARAMETER WIDTH).  IDA types this function
+     *     void __fastcall sub_800F69A8(int a1, __int16 a2, __int16 a3, __int16 a4, __int16 a5)
+     * i.e. all FOUR coordinates as `short`, which is exactly the w33 NARROW-PARAM lever (a param
+     * narrower than the ABI-promoted mode has its parm copy deferred into assign_parms'
+     * conversion_insns, reordering the prologue and flipping sched2's luid ties -- it took
+     * CdReadyHandler to PASS).  FALSIFIED HERE, exhaustively: all 16 subsets of
+     * {imgX,imgY,clutX,clutY} declared `short` were gated --
+     *   () 68 | (imgX) 69 | (imgY) 78 | (clutX) 85 | (clutY) 79 | (imgX,imgY) 79 | (imgX,clutX) 86
+     *   | (imgX,clutY) 80 | (imgY,clutX) 81 | (imgY,clutY) 89 | (clutX,clutY) 88
+     *   | (imgX,imgY,clutX) 82 | (imgX,imgY,clutY) 90 | (imgX,clutX,clutY) 89
+     *   | (imgY,clutX,clutY) 84 | (all four) 85
+     * -- EVERY narrowing is worse, and every one that touches an $a-register param also ADDS
+     * instructions (166-168 vs the oracle's 165), whereas the `int` form is count-EXACT 165/165.
+     * A short param would need a widening `sll/sra` (or an `andi`) the oracle does not have, so the
+     * retail prototype is `int` and IDA's `__int16` is a use-site inference from the `& 0xfff` masks
+     * and the `sh` RECT stores.  ==> prototype audit CLEAN; the 68 stays a STRONG allocno_compare
+     * floor.  Also re-measured (not adopted): -mno-split-addresses 67 diffs but 164/165 insns (loses
+     * the exact parity), -fno-expensive-optimizations 88, -fno-schedule-insns 152,
+     * -fno-schedule-insns2 89 (+10 on vramimage), -fno-delayed-branch 106 (+9 on vramimage).  */
     int ix = imgX;                          /* +2 weighted refs -> priority dial only, see above  */
     int cx = clutX;                         /* (gcc coalesces both copies away; 0 insns added)     */
     unsigned int maskLo  = ~0xFFFu;         /* clears the low 12 bits (x field) */

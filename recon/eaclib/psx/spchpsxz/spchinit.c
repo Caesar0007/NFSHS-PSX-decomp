@@ -132,7 +132,20 @@ extern int SPCH_InitBankMem(int memAllocFn, int memFreeFn, int numBanks)
  * extra one). No source spelling reaches this -- it is the sched2/epilogue-emission order.
  * Probes: per-fn -fno-delayed-branch splice 3 -> 12; -mno-split-addresses 3 -> 47 (SPCHPSXZ
  * was built WITH split addresses -- see spchevnt.c). No SLD exists for this TU.
- * PROTOTYPE AUDIT: 3 args ($a0/$a1/$a2 all read and stored), returns literal 1. */
+ * PROTOTYPE AUDIT: 3 args ($a0/$a1/$a2 all read and stored), returns literal 1.
+ * w34-a9 ROOT CAUSE (raises it from "sched2 order" to a named ASSEMBLER identity):
+ * read the cc1 .s -- our cc1 emits the epilogue as
+ *     li $2,1 / lw $31,16($sp) / #nop / .set noreorder / j $31 / addu $sp,$sp,24
+ * i.e. the load-delay placeholder is the COMMENT `#nop`, not a real instruction: gcc
+ * is telling the ASSEMBLER to resolve the $ra load-use hazard (the epilogue is emitted
+ * as TEXT by mips.c FUNCTION_EPILOGUE, after `.set reorder`, so it is not RTL and no
+ * gcc pass can schedule it).  maspsx resolves `#nop` by INSERTING a nop; ASPSX 2.77
+ * resolves it by SCHEDULING -- it hoists the `lw $ra` above the two-instruction
+ * gSPCH_Initialized store, which is exactly the retail layout.  So the 3 diffs are a
+ * maspsx-vs-aspsx reorder-mode difference on a gcc `#nop` placeholder, unreachable
+ * from C and unreachable from any cc1 flag.  Generalisation worth a catalog row: a
+ * lone trailing `nop` between the epilogue's `lw $ra` and `jr $ra` in an otherwise
+ * byte-identical function is ALWAYS this, never a source shape. */
 extern int SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate)
 {
     gSampleRequest[0]    = sampleRequestCb;

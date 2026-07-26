@@ -80,7 +80,18 @@ extern int intarcsin(int x)   /* @0x800EACD8 */
      * insns (`lbu ?,0(p)` + `lbu ?,1(p)`), i.e. it LOSES the instruction retail has; any form that
      * writes the subscript TWICE reproduces the 48-insn shape but always with the second add.
      * Re-tested this wave: `*(&kArcsinTable[idx] + 1)` (2 diffs), `{int i2=idx; ...[i2+1];}` (2),
-     * explicit `q = p` alias (25 diffs / 47), `p[0]`+`p[1]` (25 / 47).  SLD could not have helped:
+     * explicit `q = p` alias (25 diffs / 47), `p[0]`+`p[1]` (25 / 47).
+     * w34-a3 (floor RE-CONFIRMED, STRONG by the >=3-alternate-forms rubric): the w33 trichotomy's
+     * cse-double-evaluation cure (one ANONYMOUS + one NAMED evaluation of the same address expr,
+     * which turns the second into retail's register COPY -- the FILE_cancelop lever) does NOT reach
+     * this site in either order.  Anonymous t0 + named `p = &kArcsinTable[idx]; t1 = p[1];` collapses
+     * to ONE address pseudo (47 insns / 25 diffs); named t0 (`p`) + anonymous `t1 =
+     * kArcsinTable[idx+1]` stays at 48/2; pointer-arithmetic spellings `*(kArcsinTable + idx + 1)`
+     * with either `t0 = kArcsinTable[idx]` or `t0 = *(kArcsinTable + idx)` also stay at 48/2 (they
+     * only flip the second add's operand ORDER, `addu v0,v0,a1` instead of `addu v0,a1,v0`) -- i.e.
+     * cse re-materialises the `(plus asintbl, idx)` value rather than substituting the live
+     * equivalent register, and no C spelling of the second subscript changes that decision.
+     * SLD could not have helped:
      * eaclib .lib C members are debug-stripped (0 SLD records anywhere above 0x800E0000). */
 
     if (x <= 0xFA00) {                           /* coarse region: round-to-nearest lookup */

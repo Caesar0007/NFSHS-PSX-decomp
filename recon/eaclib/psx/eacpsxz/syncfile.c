@@ -89,6 +89,28 @@ extern int  syncblockio(int fd, int buf, int offset, int len, int cbarg, SyncIoF
  *   only, leaving offset plain (68 insns / 49 diffs), and additionally volatilizing the `c->chunk`
  *   read in the short-transfer test (72 insns / 57 diffs -- it also blocks the offset store from
  *   the beqz delay slot, which is point (c)).
+ *   w34-a3 (46 -> 21, insn gap -2 -> +1): the (b) verdict is OVERTURNED -- the second ctrl
+ *   pointer IS source-reachable, via cse.c make_regs_eqv.  gcc-2.8 cse makes the COPY (`new`)
+ *   canonical -- i.e. keeps the copy insn and rewrites the SOURCE reg's later uses onto it --
+ *   only when BOTH (1) `new` lives past the end of the current cse extended basic block, and
+ *   (2) last_uid(new) > last_uid(firstr).  w32/w33 rewrote the WHOLE re-issue phase + the shared
+ *   remain=0 on the second pointer, which makes it die inside the same EBB pieces cse is already
+ *   walking, so it was copy-propagated away every time.  The form that survives is a TAIL-ONLY
+ *   `t`: declare `SyncCtrl *t;`, assign `t = c;` immediately after FILE_completeop, and use it at
+ *   EXACTLY ONE site -- the shared `t->remain = 0;` at the very end (a 2-referenced label, so a
+ *   fresh EBB, so condition (1) holds and c's last use precedes it, so does (2)).  cse then keeps
+ *   `addu s?,s?,zero` AND rewrites the advance phase onto the copy, giving the oracle's TWO
+ *   callee-saved ctrl registers with the oracle's own body register numbers ($s1 advance /
+ *   $s2 re-issue) -- 46 -> 21 diffs.
+ *   RESIDUAL 21 = the copy's DIRECTION: ours makes the param HOME $s2 and the copy $s1 (the copy
+ *   inherits the advance phase, the home keeps the re-issue phase), retail has home $s1 / copy $s2
+ *   (home keeps the advance, copy takes re-issue AND the tail).  Reaching retail's grouping needs
+ *   the tail and the re-issue phase on the SAME pointer while the advance stays on the param --
+ *   mutually exclusive under make_regs_eqv: if `t` also covers the re-issue phase it outlives `c`
+ *   inside EBB1 and absorbs the advance too (w33-a1's 70); if the tail goes back on `c`, `t` has no
+ *   post-EBB use and the copy dies.  Measured this wave: tail-only 21 (kept) / +`t->op = r` 23 /
+ *   re-issue-on-t-with-tail-on-c 61 / `t = c` as an initialiser before the call 61 / clamp funnel
+ *   temp 25 (70 insns) / clamp ternary 29 (70 insns).
  *   w33-a1: (i) the SLD line-tracing lever is NOT AVAILABLE for this TU -- the trusted SYM
  *   carries `Set SLD to line N of file ...` records for only 194 source files, all GAME/FRONTEND
  *   plus exactly ONE eaclib member (PAD.C); every other eaclib/syslib .lib member was linked
@@ -99,7 +121,9 @@ extern int  syncblockio(int fd, int buf, int offset, int len, int cbarg, SyncIoF
  *   The s1/s2 split remains a no-copy-prop identity artifact. */
 extern void synccallback(int op, int type, SyncCtrl *c)
 {
+    SyncCtrl *t;
     unsigned int done = FILE_completeop((unsigned int)op);
+    t = c;
     c->op = 0;
     if (type == 1) {
         *(volatile int *)&c->buf    += done;
@@ -126,7 +150,7 @@ extern void synccallback(int op, int type, SyncCtrl *c)
             return;
         }
     }
-    c->remain = 0;
+    t->remain = 0;
 }
 
 /* syncblockio @0x800EA7E8 : run a chunked blocking transfer of `len` bytes via `iofn`; returns bytes moved. */

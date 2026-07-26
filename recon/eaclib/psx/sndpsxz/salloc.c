@@ -74,13 +74,63 @@ extern int iSNDischanreserved(int chan, int count)
  *   matching ours-only lines -- a pure permutation, no asymmetric copy to explain, so no cse.c
  *   double-evaluation target), and the loop.c giv anchor cannot apply because both passes walk the
  *   100-byte channel slot, which is not a power-of-two stride.
+ *   W34-a8 (2026-07-26, 260 -> 255 diffs, 302 -> 301 insns).  The w32 verdict that the index form
+ *   "explodes the coloring" was an ARTEFACT of a missing allocno, not a property of the index form.
+ *   Retail's pass-1 store IS the index form -- the oracle computes `addu $v0,$s7,$fp; sb $s4,0($v0)`
+ *   in the `bltz` block, i.e. base+reserved AT THE STORE, not a pass-local slot pointer built at the
+ *   loop head.  Adopting it alone drops us to EXACT 298/298 instructions but moves `numChannels` out
+ *   of retail's caller-saved $t0 (with its `sw/lw 0x18($sp)` caller-save pair around every
+ *   iSNDischanreserved call) into the freed $s8 -- because the pass-local pointer had been the NINTH
+ *   callee-saved pseudo that pushed numChannels out of the callee-saved pool.  The faithful ninth
+ *   pseudo is the CHANNEL-SLOT POINTER: retail keeps it in $s0 in BOTH passes, and in pass 1 it is
+ *   live across the `jal` (`lw $v1,0x10($s0)` after the call), so ONE function-scope `ch` shared by
+ *   the two passes is call-crossing => callee-saved => numChannels returns to $t0 with the exact
+ *   caller-save pair.  Two block-local `int ch` declarations are two pseudos and let pass 2's copy
+ *   land in a caller-saved reg, which is what had been hiding the whole allocation.
+ *   Pass-1 head order also follows the oracle now: `bestval = best;` sits BEFORE the channel-count
+ *   guard (retail `addu $s5,$s4,$zero` at the loop head, both -1 so cse emits a copy) and `c = 0;
+ *   off = c;` INSIDE it (`addu $s1,$zero,$zero` in the beqz delay slot, then `addu $s2,$s1,$zero`).
+ *   Pass 1 is now instruction-EXACT except for ONE residual: retail hoists `la sndchanreserved` into
+ *   the loop PREHEADER ($fp, 2 insns once) while ours rematerializes it inside the store block (2
+ *   insns, +1 net) and LICM-hoists the `1` of `1 << c` into $s8 instead.  Named-pointer spellings do
+ *   NOT reach it -- a local holding a SYMBOL_REF is constant-propagated back to its use sites and
+ *   rematerialized (verified with the pointer assigned inside the body, before the loop, and shared
+ *   with pass 2: all three produce byte-identical output).  Reaching retail here needs a lever that
+ *   keeps a constant address allocno alive, not another spelling.
+ *   W34-a8 continued (255 -> 245 diffs, 301 -> 299 insns), three more oracle-shape corrections, all
+ *   confirmed by the NFS2 PC-beta NAMED salloc.obj source (pc-split/salloc.obj/iSNDallocchan.c, the
+ *   direct ancestor of this function):
+ *   (a) PASS-2 ARMS ARE INDEPENDENT, only `best = c;` is shared.  The NFS2 named source is
+ *       `if (age < bestage) { bestage = age; bestv = ch->ts; best = c; }
+ *        else if (age == bestage && ch->ts < bestv) { bestv = ch->ts; best = c; }`
+ *       and gcc CROSS-JUMPS the two `best = c;` copies into retail's single `.L98C: addu $s4,$s1`
+ *       reached by `j` from arm 1.  The previous goto-merged form (one shared `best = c; bestv = v;`
+ *       tail fed by a `v` temp) put BOTH copies in the shared tail, which retail does not do -- retail
+ *       loads arm 1's timestamp straight into bestv (`lw $s5,0x10($s0)`) and puts `bestage = age` in
+ *       the `j` delay slot.  Duplicating the `ch->ts` load in the source is free: cse folds it.
+ *   (b) ASSIGNMENT ORDER inside a winning arm is `bestval = ts;` THEN `best = c;` in BOTH passes
+ *       (retail `addu $s5,$v1,$zero; addu $s4,$s1,$zero`); the reverse order costs 2 diffs.
+ *   (c) THE SCAN LIMIT IS RE-READ INTO A TEMP BEFORE THE COUNTER INCREMENT.  Retail's loop tail is
+ *       `lbu $v0,0x11(base); addiu $s1,$s1,1; slt; bnez; addiu $s2,$s2,0x64` -- the increment fills
+ *       the lbu's LOAD-DELAY slot.  With the count re-read as part of the `while` condition our
+ *       scheduler emits `addiu; lbu; nop; slt` (+1 insn per pass).  Writing `limit = gs[0x11];`
+ *       as its own statement ahead of `c++` gives the load the earlier luid and reproduces retail's
+ *       order in both passes (-2 insns).
+ *   OPEN (pass 1, the last 1-insn structural gap): retail hoists `la sndchanreserved` into the pass-1
+ *   PREHEADER ($fp) and leaves `li 1` of `1 << c` inside the inner loop, while ours does the opposite
+ *   (LICM hoists `li fp,1`; the la is rematerialized inside the `bltz` store block).  A named base
+ *   pointer does NOT reach it: `signed char *chosen = sndchanreserved;` was tested at three source
+ *   positions (inside the loop body, before the loop, and shared with pass 2's store so it has two
+ *   uses) and ALL THREE compile byte-identically to the plain array form -- a pseudo whose only set
+ *   is a SYMBOL_REF gets a constant REG_EQUIV and is rematerialized at its uses, so no spelling can
+ *   keep it in a register.  The remaining residual is that one hoist plus the $s6<->$s7 rotation.
  *   Raw nfs4-f.exe EEF64..EF40B SHA-256:
  *   4af4cae9357cee8d5c94a064c543b15d4d1edb7a6f5d1c0d5ccd8c8f259740fc. */
 extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigned int *out)
 {
     int          reserved = 0;
     int          result = -9;
-    int          i, k, off;
+    int          i, k, off, ch, limit;
     unsigned int best, c, v, bestval;
 
     for (i = 0; i < numChannels; i++)               /* clear the chosen list */
@@ -103,27 +153,27 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
              * entry guard), matching the oracle's `slt/beqz` then `lui/addiu` order; a block-scope
              * initialiser put the la ABOVE the guard. */
             for (i = reserved; i < numChannels; i++) {
-                signed char *selected = sndchanreserved + reserved;
                 gs = (unsigned char *)sndgs;
                 best = 0xffffffff;
-                c = 0;
+                bestval = best;
                 if (gs[0x11] != 0) {
-                    bestval = 0xffffffff;
-                    off = 0;
+                    c = 0;
+                    off = c;
                     do {
                         if ((priority & (1 << c)) != 0) {
-                            int ch = *(int *)(gs + 0x94) + off;
+                            ch = *(int *)(gs + 0x94) + off;
                             if (*(signed char *)(ch + 0xb) == 0 &&
                                 iSNDischanreserved(c, reserved) == 0) {
                                 v = *(unsigned int *)(ch + 0x10);
-                                if (v < bestval) { best = c; bestval = v; }
+                                if (v < bestval) { bestval = v; best = c; }
                             }
                         }
+                        limit = gs[0x11];
                         c++; off += 100;
-                    } while ((int)c < (int)(unsigned)gs[0x11]);
+                    } while ((int)c < limit);
                 }
                 if (-1 < (int)best) {
-                    *selected = (unsigned char)best;
+                    sndchanreserved[reserved] = (unsigned char)best;
                     reserved++;
                 }
             }
@@ -133,36 +183,36 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
             unsigned char *gs;
             for (k = reserved; k < numChannels; k++) {
                 unsigned char bestage = 0x66;
-                unsigned int  bestv = 0xffffffff;
+                unsigned int  bestv;
                 gs = (unsigned char *)sndgs;
-                v = 0;
                 best = 0xffffffff;
+                bestv = best;
                 if (gs[0x11] != 0) {
                     c = 0;
-                    off = 0;
+                    off = c;
                     do {
                         if ((priority & (1 << c)) != 0 &&
                             iSNDischanreserved(c, reserved) == 0) {
-                            int ch = *(int *)(gs + 0x94) + off;
+                            ch = *(int *)(gs + 0x94) + off;
                             if (*(unsigned char *)(ch + 0xc) < 0x65) {
                                 /* MATCH: `age` is an int -- the oracle re-loads the byte with a
                                  * bare `lbu` and compares with no `andi ..,255` re-mask; a u_char
                                  * local re-masks on every use (methodology 3.12 #9). */
                                 int age = *(unsigned char *)(ch + 0xc);
                                 if (age < bestage) {
-                                    v = *(unsigned int *)(ch + 0x10);
+                                    bestv = *(unsigned int *)(ch + 0x10);
                                     bestage = age;
-                                } else if (age != bestage ||
-                                           (v = *(unsigned int *)(ch + 0x10), bestv <= v)) {
-                                    goto next2;
+                                    best = c;
+                                } else if (age == bestage &&
+                                           *(unsigned int *)(ch + 0x10) < bestv) {
+                                    bestv = *(unsigned int *)(ch + 0x10);
+                                    best = c;
                                 }
-                                best = c;
-                                bestv = v;
                             }
                         }
-                    next2:
+                        limit = gs[0x11];
                         c++; off += 100;
-                    } while ((int)c < (int)(unsigned)gs[0x11]);
+                    } while ((int)c < limit);
                 }
                 if (-1 < (int)best) {
                     sndchanreserved[reserved] = (unsigned char)best;
@@ -255,7 +305,24 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
  *   methodology discriminator an "ours-shorter / oracle's extra insn is a redundant reg-to-reg move"
  *   residual is a PERMUTER multi-basin case, not an accept -- but iSNDpsxmemconstrain (31/31, 14
  *   diffs) is a strictly cheaper and cleaner exhibit of the SAME allocator decision, so run that
- *   one first.  Compiler sweep: gcc 2.8.1 == our 2.8.0 (79 both); gcc 2.7.2 = 110 diffs @112 insns. */
+ *   one first.  Compiler sweep: gcc 2.8.1 == our 2.8.0 (79 both); gcc 2.7.2 = 110 diffs @112 insns.
+ *
+ *   W34-a8 (2026-07-26): UNCHANGED at 74 diffs / 108 insns, but the 2-instruction gap is now
+ *   LOCALIZED.  A block-by-block count shows every block equal (14 / 28 / 16 / 26 insns on both
+ *   sides); BOTH missing instructions are in the LAST block (retail ED5C..EDC0 = 26, ours 24), and
+ *   both are reorg consequences of the register permutation, not of the C shape:
+ *     (i) retail pays a `nop` in the `bne $v1,$v0` delay slot and recomputes `sll $v0,$a2,1` inside
+ *         the block, where ours steals that shift into the slot -- in retail's assignment the
+ *         shift writes the branch's own compare register, so `resource_conflicts_p` refuses it;
+ *    (ii) retail reaches the final `sndgs[0x11]` through a REMATERIALIZED base -- `lui;addiu` split
+ *         across two branch delay slots plus one duplicated `addiu %lo` at the join, then
+ *         `lw $v0,0x44($v0)` -- where ours fuses `lui; lw %lo(sndgs+0x44)` (2 insns).
+ *   Rewriting JUST that one site as a base-pointer read `*(int *)(base + 0x44)` (the targeted form
+ *   of the whole-function rewrite already recorded above as worse) goes the WRONG WAY: 75 diffs at
+ *   107 insns, because cse then shares the top-of-function base instead of rematerializing.
+ *   NFS2 PC-beta contributes nothing to this function: its salloc.obj `_iSNDfreechan` is a
+ *   THREE-LINE ungrouped release (`chan[i].state = 0;`) with no linked-group protocol at all, so
+ *   the whole group/partner CFG is NFS3/NFS4-era and has no named-source ancestor to copy. */
 extern void iSNDfreechan(int chan)
 {
     unsigned int group;

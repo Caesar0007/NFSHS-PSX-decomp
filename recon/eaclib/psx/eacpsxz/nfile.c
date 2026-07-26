@@ -35,6 +35,14 @@
  *   +0x1C/+0x20/+0x24 op-specific.  The op-type nibble (bits 20-23) selects the operation:
  *     2 open (0x200000), 3 close (0x300000), 4 read (0x400000), 6 size (0x600000).
  *
+ *   w34-a1 ORACLE-AVAILABILITY NOTE: the NFS2 PC-beta named-source oracle (C:/Temp/nfs2-clean/
+ *   pc-beta) does NOT cover this TU -- the FILE_ op-queue/handle-table generation does not
+ *   exist in that build.  Checked: pc-split/INDEX.csv has no reserveop/reservehandle/freeop/
+ *   FILE_op-anything/ExecCommand entry, nfsw.IDA.c has 0 hits for any of those names, nfs2-v1.txt
+ *   (Watcom SYM) shows the NFS2 file layer is winfile/async.obj/fileio.obj/blockio.obj/queue.obj
+ *   (_openhandle/_asyncread/_qinsert/...), a different API generation.  Together with the SLD
+ *   census (w33: nfile.obj is a debug-stripped eacpsxz.lib member with ZERO line records) this
+ *   TU has NO independent source-shape oracle -- only the raw .s + the cc1 RTL dumps.
  *   The FILE manager singleton lives @0x8013EA88 (gFileMgr): opcount/handlecount/idmask + oparray
  *   (0x30-byte FileOp slots) + handlearray (0x4C-byte FileHandle slots).  Slot alloc/free run inside
  *   a PSX interrupt-disabled critical section.
@@ -168,7 +176,29 @@ extern FileHandle *reservehandle(void)
  * unexplained).  Retail has NO named slot-pointer local and no mask/constant locals; the residual
  * is the allocation order (retail off->a1 + slot-temp->a0 + seqMask->a3, ours off->a0 +
  * slot->a1 + seqMask->t1).  Falsified: masked-value-first statement order in the seq combine
- * (52 diffs). */
+ * (52 diffs).
+ * w34-a1 -- the allocation order is now QUANTIFIED and REPRODUCIBLE from the -dg dump, so the
+ * remaining 46 is a two-swap problem, not a mystery.  global.c hands out REG_ALLOC_ORDER
+ * (v0,v1,a0,a1,a2,a3,t0,t1,...) in descending QTY_CMP_PRI = floor_log2(refs)*refs/live_len, with
+ * in-loop refs counted DOUBLE; feeding this fn's own dump numbers reproduces its printed
+ * ";; 13 regs to allocate" list EXACTLY (94:2.4 > 82:1.5 = 90:1.5 > 80:0.73 > 91:0.37 > 92:0.31
+ * > 88:0.29 > ...).  Retail's registers imply the order [slot, off, i, seqMask, mgrbase, hicopy]
+ * where ours is [off, slot, i, mgrbase, hicopy, seqMask] -- i.e. TWO flips are needed:
+ *   (1) slot(6 refs/8 insns) must beat off(11 refs/22) -- they are an EXACT 1.5 tie today;
+ *   (2) seqMask(5 refs/34) must beat mgrbase(7 refs/38), i.e. either a 3rd in-loop seqMask
+ *       reference (none exists: the oracle uses it exactly twice, `and`+`slt`) or a mgrbase
+ *       live range > 1.4x longer (its def cannot move earlier without changing the head).
+ * Falsified this wave, all with numbers: `FileMgr *mgr = &gFileMgr;` as the first statement in
+ * the guard (51 diffs, 72 insns -- it DOES put base->t0, seqMask->a3, i->a2 = retail, and the
+ * base is materialized before the constants like the oracle, but gcc then needs THREE address
+ * insns: losum-from-%hi, a copy of the base, AND a separate %hi copy for the back-edge opcount
+ * load, where retail derives the base FROM the single %hi copy); the same plus a back-edge
+ * `mgr->opcount` (74, restructures the guard); literal masks instead of the four constant
+ * locals (52 -- but note it DOES hoist the base+%hi-copy into the oracle's position and makes
+ * the back-edge `lw v0,0(t1)` match, so the constants-as-locals are what pin the base late);
+ * seq-combine operand swap `(gFileOpSeq & seqMask) | (id & keepType)` (54); literals + that
+ * swap (50).  Next lever to try: something that lengthens the mgrbase live range or shortens
+ * seqMask's WITHOUT adding an insn. */
 
 extern FileOp *reserveop(void)
 {
@@ -261,7 +291,25 @@ success:
  * wave (all still 13 diffs / 11 vs 12 insns): index form gFileMgr.oparray[id>>0x18], a named
  * `idx` local, a cached `ops` base local, param-as-cursor `id >>= 0x18`, and combinations.
  * SLD cannot arbitrate: nfile.obj is a debug-stripped .lib member with ZERO line records (see
- * the reservehandle comment).  Do not grind. */
+ * the reservehandle comment).  Do not grind.
+ * w34-a1 -- MECHANISM NAMED (cc1 -dl/-dg RTL dumps, this TU).  The residual is NOT "the
+ * allocator declined to coalesce"; it is a REF-COUNT-driven parm-copy elimination:
+ *   .lreg insn14 = (set (reg 85) (lshiftrt (reg:SI 4 a0) 24)) with REG_DEAD (reg a0)
+ * i.e. the parm copy `pseudo = $a0` is already GONE before allocation (combine substitutes a
+ * hard arg reg into its SINGLE use), so the shift reads the dying $a0 and local-alloc ties the
+ * shift's quantity to it => `srl a0,a0,24`.  PROOF OF THE RULE, both directions, in this TU:
+ *   (a) FILE_opstatus references `id` TWICE (index + 0xFFFFF compare) -> the copy SURVIVES and
+ *       our build emits retail's exact shape `addu a2,a0,zero; srl v1,a2,24` (residual there is
+ *       only an addu operand order);
+ *   (b) adding a second `id` reference to FILE_completeop (recomputing the slot address at the
+ *       freeop call) made OUR build emit `addu a1,a0,zero; srl v1,a1,24` -- the copy appears on
+ *       demand (but costs +7 insns, see that fn's comment).
+ * So the family splits cleanly: where the ORACLE has the copy (this fn, 11 vs 12 insns) retail's
+ * `id` had >=2 RTL refs; where the oracle has NO copy but still shifts into $v1 (priorityop,
+ * completeop) it is the local-alloc TIE documented under FILE_priorityop.  Re-opening this one
+ * needs a SECOND, INSTRUCTION-FREE reference to `id` -- none exists in C (a mask/compare/asm
+ * operand all cost an insn or are scaffolding).  Falsified again w34: `int frame[4]`
+ * (non-volatile pad) - identical 13. */
 extern int FILE_operror(unsigned int id)
 {
     volatile int frame[3];
@@ -324,7 +372,16 @@ extern int FILE_init(int handlecount, int memsize, int opcount)
  * oracle merely colors op into $a1 while ours (legitimately shorter by the copy the $a0
  * preference saves) colors it $a0 -- an allocator preference no source form expresses.
  * SLD cannot arbitrate (nfile.obj is a debug-stripped .lib member, zero line records).
- * => toolchain-identity class, not source-reachable. */
+ * => toolchain-identity class, not source-reachable.
+ * w34-a1 -- reconfirmed 28 (47/47) and the "recompute at the freeop site" negative REPRODUCED
+ * with its cause identified: the freeop call sits in the switch's JOIN block, and gcc-2.8's cse
+ * only carries equivalences along an EXTENDED basic block (single-pred chains), so a second
+ * evaluation there cannot become the oracle's `addu a0,a1,zero` copy -- it re-materializes the
+ * whole lui/lw/srl/sll/addu chain (54 insns / 37 diffs, exactly as w32 measured).  That rules
+ * the cse-double-evaluation route (the lever that cracked FILE_cancelop) OUT for this fn on
+ * structural grounds, not by trial.  Also falsified w34: a `FileOp *dead = op; freeop(dead);`
+ * temp (coalesced, identical 28).  The `srl a0` half is the FILE_priorityop local-alloc tie
+ * (see there); the op->$a0-vs-$a1 half is the $a0 copy preference w32 measured. */
 extern int FILE_completeop(unsigned int id)
 {
     volatile int frame[4];
@@ -360,7 +417,19 @@ extern int FILE_completeop(unsigned int id)
  * eacpsxz.lib member and the SYM carries ZERO line records for it (see reservehandle). */
 /* MATCH work: the real callback ABI is (id,status,param), and the four-word pad recovers the
  * oracle's 40-byte frame; together these cut 28->2 diffs. Only the equivalent `callback`->a3 copy
- * scheduling remains (oracle places it at entry, ours in the status branch delay slot). */
+ * scheduling remains (oracle places it at entry, ours in the status branch delay slot).
+ * w34-a1 -- the CAUSE is now pinned, and the "delay-slot scheduling makes this unconditional"
+ * note above is literally true of the SOURCE too: the oracle's `sw a3,0x28(v1)` sits in the
+ * beqz DELAY SLOT, i.e. retail stores op->callback on BOTH paths.  Writing the store
+ * UNCONDITIONALLY in C (before the `if (op->status != 0)`) reproduces that exactly -- the store
+ * moves into the delay slot -- but then our sched2 fills the `lw v0,8(v1)` -> `beqz` load-use
+ * gap with the parm copy `addu a3,a1,zero`, where retail simply pays a `nop` there and keeps the
+ * copy at insn #2.  Result: 31 insns / 3 diffs vs the current 32 / 2 -- BETTER structure, WORSE
+ * gate (insn parity lost), so it is not taken.  The whole residual is therefore ONE sched2
+ * decision (fill the load-delay slot with the ready parm copy, or leave it empty); volatile on
+ * the status load does not block it (tested: no change, since a reg-reg copy has no memory
+ * dependence on the volatile MEM).  Reopen only with a lever that removes a ready insn from
+ * sched2's window at that point. */
 extern void FILE_callbackop(unsigned int id, void (*callback)(unsigned int id, int status, int param))
 {
     volatile int frame[4];
@@ -565,7 +634,19 @@ extern void FILE_priorityop(unsigned int id, int priority)
      * into the dying `id` param register, retail's does not.  Same single-use variant of the
      * copy family as FILE_operror (see its comment for the now-SPLIT family verdict).
      * Falsified this wave: a named `idx` local + index form (still 6).  SLD cannot arbitrate
-     * (nfile.obj is a debug-stripped eacpsxz.lib member with zero line records). */
+     * (nfile.obj is a debug-stripped eacpsxz.lib member with zero line records).
+     * w34-a1 -- MECHANISM NAMED, and it is an EXACT local-alloc PRIORITY TIE, not a coalesce
+     * refusal.  From the cc1 -dl dump of this fn: the srl's dest pseudo (85) is "used 3 times
+     * across 3 insns in block 0" and the sll's dest (87) "2 times across 2 insns"; local-alloc's
+     * QTY_CMP_PRI = floor_log2(refs)*refs*size/(death-birth) gives 1*3/3 = 1.0 and 1*2/2 = 1.0 --
+     * a dead tie, so which quantity is allocated first (and therefore which one inherits the
+     * dying $a0 vs takes the next free reg) falls out of qsort's handling of equal keys.  Ours
+     * allocates the srl dest first (it takes $a0, the dying param); retail allocated the sll
+     * dest first (it took $v0, pushing the srl dest to $v1).  No source form changes 3 refs/3
+     * insns or 2 refs/2 insns without changing the oracle's own instruction shape, so this is
+     * unreachable from C.  (Same tie explains FILE_completeop's srl->$v1.)  Also falsified w34:
+     * computing `op` after FILE_CS_ENTER (16 diffs), and a separate declaration+assignment of
+     * `op` (C89 decl-order error / no movement). */
     volatile int frame[3];
     FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
     int oldprio, sr;

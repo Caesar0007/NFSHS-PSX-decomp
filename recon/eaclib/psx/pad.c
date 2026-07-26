@@ -72,7 +72,14 @@ void PAD_update(void);
  * -- ours `jr ra; addiu sp,sp,24`, retail `addiu sp; jr ra; nop`. The
  * -fno-delayed-branch splice that PASSes PAD_restore costs 6 more here
  * (3 -> 9: it also empties the four `jal` argument-setup slots that retail
- * DID have filled), so padinit belongs to the Tier-2 ASPSX-fill bin. */
+ * DID have filled), so padinit belongs to the Tier-2 ASPSX-fill bin.
+ * w34-a10 RE-VERDICT: FLOOR HOLDS, evidence class STRONG. Prototype re-audit
+ * against the SYM (the w33/w34 "floors are prototype-conditional" rule):
+ * `94 Def class EXT type FCN VOID size 0 name padinit` + an `8c Function
+ * start` block with fsize=24, mask=$80010000 (ra+s0), maskoffs=-4 and NO
+ * locals and NO REGPARM records -- so the `void padinit(void)` signature,
+ * the return type and the arity are all confirmed correct, and the 3
+ * residual diffs are exclusively the epilogue delay-slot fill. */
 void padinit(void)
 {
   if (gPadinfo.initialized == 0) {
@@ -124,7 +131,14 @@ void PAD_restore(void)
  * epilogue-fill identity (`addiu sp; jr ra; nop` vs our `jr ra; addiu sp`);
  * unlike PAD_restore the -fno-delayed-branch splice does NOT clear them
  * here (it costs 4 more elsewhere in the body: 4 -> 8), so this one waits
- * on the Tier-2 ASPSX-fill emulation. */
+ * on the Tier-2 ASPSX-fill emulation.
+ * w34-a10 RE-VERDICT: FLOOR HOLDS, evidence class STRONG. SYM prototype
+ * re-audit: `94 Def class EXT type FCN USHORT size 0 name PAD_state` with a
+ * single `94 Def class REGPARM type INT size 0 name padID` ($00000004 = the
+ * $a0 home) and fsize=24 / mask=$80000000 (ra only) / maskoffs=-8 -- the
+ * u_short return, the one int parameter and the leaf frame all match what
+ * this reconstruction emits, so nothing about the declaration is left to
+ * reopen; the 4 diffs are purely `addiu sp; jr ra; nop` vs `jr ra; addiu sp`. */
 u_short PAD_state(int padID)
 {
   uint buttons;
@@ -169,37 +183,73 @@ fs4\EACLIB\PSX\PAD.C is the ONLY
        the `&&` + comma-expression one-liner this file used to carry.
      * L363 owns both the loop init and the increment block => a `for`.
 
-   RESIDUAL 30 diffs at exact insn parity 66/66 (was 78), three items:
-     1. loop 1 counter: gcc keeps `i` as the biv and recomputes `sll v1,i,3`
-        each iteration; retail eliminated `i` and made the *8 giv the loop
-        variable (`addiu $s0,$s0,8` / `slti $v0,$s0,0x10`). Writing the loop
-        over a byte offset DOES produce retail's giv, but then gcc hoists
-        `&Padglobal` into a 4th callee-saved reg instead of rematerializing
-        it in the else-arm (38 diffs, frame -40) -- the two halves are
-        mutually exclusive under this cc1. Best of the three spellings kept.
-     2. loop 2 `i` lands in $s0 (reused from loop 1) where retail used $t0.
-        Splitting the two loops' counters into separate named variables makes
-        it WORSE (30 -> 36).
-     3. the epilogue-fill identity (`addiu sp; jr ra; nop`), same as padinit /
-        PAD_state; the -fno-delayed-branch splice costs 10 more here. */
+   SYM ground truth (w34-a10, the record this fn had never been read against):
+   the `8c Function start` block for PAD_update carries fsize=32, mask=$80070000
+   (ra+s0+s1+s2) and EXACTLY ONE `90 Block start` containing EXACTLY ONE local --
+   `$00000008 94 Def class REG type INT size 0 name i` = an int in REGISTER 8 =
+   $t0.  Two consequences, both applied below:
+     * $t0 is LOOP 2's counter, so retail's `i` is live ONLY across loop 2.
+       Loop 1's counter has NO SYM record at all => retail's loop.c ELIMINATED
+       it (all three of loop 1's address values became givs: $s0 = the *8
+       Padglobal byte offset, $s1/$s2 = the gPadinfo.buf walkers, and the exit
+       test was rewritten onto $s0 as `slti $v0,$s0,0x10`).  Our cc1 refuses
+       that biv elimination from the index spelling `Padglobal[i]`, so loop 1
+       is written HERE over the byte offset retail's giv holds -- that is a
+       compiler-behaviour compensation, not a different algorithm.
+     * `active` / `debCount` / `btnOff` are NOT retail locals (only `i` is).
+       They survive here as expression temps only; `btnOff` in particular has
+       to stay an explicit source variable because combine_givs otherwise
+       merges the stride-8 buf giv into the stride-2 gPadinfo.state walkers
+       (catalog: "explicit pointer walkers are the only faithful shape there")
+       -- `((byte *)gPadinfo.buf)[i * 8]` gives 20 diffs / 64 insns.
+
+   30 -> 9 diffs (w34-a10), two levers:
+     1. LOOP 1 OVER THE BYTE OFFSET (`for (off = 0; off < 16; off += 8)`, all
+        three addresses derived from `off`): reproduces retail's eliminated-biv
+        loop EXACTLY -- the whole loop-1 body is now byte-identical.  The
+        earlier wave's note that this costs a 4th callee-saved reg was a
+        property of ITS spelling (it kept `&Padglobal[i]`-style typed indexing
+        alongside); deriving BOTH Padglobal references from `off` with a plain
+        `(char *)` base keeps &Padglobal rematerialized in the else arm.
+     2. LOOP 2's `i` AND `btnOff` IN ONE `for` HEADER
+        (`for (i = 0, btnOff = 0; i < 8; i++, btnOff += 8)`): SLD line 363 owns
+        both inits AND the whole increment block, which is exactly what a comma
+        `for` header emits.  This alone is worth 10 diffs -- it fixes the
+        increment ORDER (a0, a2, i, test, btnOff-in-the-delay-slot) and gives
+        `i` $t0 / `btnOff` $a3 as the SYM demands.  With `btnOff += 8` as the
+        last BODY statement instead, the increments come out btnOff, a0, i,
+        test, a2 and the two registers swap (19 diffs).
+
+   RESIDUAL 9 diffs, ours 65 / oracle 66, three items -- all downstream of the
+   one biv elimination our loop.c will not do:
+     1. (4) prologue emission ORDER: retail's `sw $s0/addu $s0,$zero,$zero`
+        pair sits AFTER the $s2 and $s1 pairs because ALL THREE are loop.c
+        givs, emitted in reverse creation order ($s2,$s1,$s0); ours is a real
+        source biv whose init has the lowest luid, so it is emitted first.
+     2. (2) `addu $a3,$t0,$zero` vs retail `addu $a3,$zero,$zero`: cse reuses
+        `i`'s just-materialized 0 for `btnOff`'s.  Retail's two zeros are
+        independent because retail's `btnOff` is a GIV whose preheader init is
+        emitted after the $a0/$a2 giv inits, with no live 0 to reuse.
+     3. (3) the epilogue-fill identity (`addiu sp; jr ra; nop`), same class as
+        padinit / PAD_state; the -fno-delayed-branch splice costs 10 more. */
 void PAD_update(void)
 {
   int i;
+  int off;
   int btnOff;
   int active;
   uint debCount;
 
-  for (i = 0; i < 2; i++) {
-    if (Padglobal[i].nopad != 0) {
-      blockfill(&gPadinfo.buf[i * 4], 0x20, 0xff);
+  for (off = 0; off < 16; off += 8) {
+    if (((PAD_COMMON *)((char *)Padglobal + off))->nopad != 0) {
+      blockfill((char *)gPadinfo.buf + off * 4, 0x20, 0xff);
     }
     else {
-      blockmove(&Padglobal[i], &gPadinfo.buf[i * 4], 8);
-      blockfill(&gPadinfo.buf[i * 4 + 1], 0x18, 0xff);
+      blockmove((char *)Padglobal + off, (char *)gPadinfo.buf + off * 4, 8);
+      blockfill((char *)gPadinfo.buf + off * 4 + 8, 0x18, 0xff);
     }
   }
-  btnOff = 0;
-  for (i = 0; i < 8; i++) {
+  for (i = 0, btnOff = 0; i < 8; i++, btnOff += 8) {
     active = (((byte *)gPadinfo.buf)[btnOff] == 0);
     if (active != gPadinfo.state[i].bActive) {
       debCount = gPadinfo.state[i].time;
@@ -209,7 +259,6 @@ void PAD_update(void)
         gPadinfo.state[i].time = 0;
       }
     }
-    btnOff += 8;
   }
 }
 

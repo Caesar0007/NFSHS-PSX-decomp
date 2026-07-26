@@ -102,7 +102,7 @@ extern unsigned int iSNDpsxfxinit(int mode)
     int work;
     int n;
     unsigned char scratch[256];
-    short         rv[0x21];
+    volatile short rv[0x21];
     unsigned char *src;
 
     unsigned int  ctl;
@@ -128,7 +128,7 @@ extern unsigned int iSNDpsxfxinit(int mode)
      * preset-table src pointer), reused later for the reverb-depth write below AND the DMA-clear loop
      * further down -- same early-hoist lever as `sg` above. */
     pd = sndpd;
-    src = &snd_reverb_table[mode * 0x42];
+    { unsigned char *tb = snd_reverb_table; src = tb + mode * 0x42; }
     *(unsigned short *)(pd + 0x51E) = (short)((int)(0x10000 - (unsigned int)*(unsigned short *)src) >> 3);
     iSNDpsxeffectoff(0xffffff);
     iSNDpsxeffectvol(0, 0);
@@ -188,26 +188,31 @@ extern unsigned int iSNDpsxfxinit(int mode)
         do { } while (iSNDdmcomplete(h) == 0);
     }
 
-    /* RESIDUAL 6 diffs, 222/222 insns: two single-slot ties -- (a) the `la snd_reverb_table` lands
-     * 2 slots later than retail's (after vs before the mode*0x42 sll/addu chain), and (b) the
-     * `rv[0xb]` store sits one slot behind its subu (retail: subu;sh;lhu rv[2] -- ours:
-     * subu;lhu rv[2];sh).
-     * w33-a6 NARROWED (a) considerably -- it is NOT a scheduler tie at all:
-     *   - cc1 with `-fno-schedule-insns` emits the SAME order, i.e. sched1 never moves these; the
-     *     order is what EXPAND emits.  For `&arr[i]` this build expands the INDEX first and the
-     *     symbol base second; retail's object has base-then-index.
-     *   - the expand order is INVARIANT across four spellings of the same address computation:
-     *     `&tbl[mode*0x42]`, `(unsigned char*)((int)tbl + mode*0x42)`, `(short*)tbl + mode*0x21`,
-     *     `&tbl[mode*33*2]` (all 6); writing the *66 out longhand as `(mode + mode*32)*2` is worse (8).
-     *   - the ONLY way to get base-first is to make the base its own statement
-     *     (`src = tbl; src += mode*0x42;`), and then GCSE hoists the whole constant-address
-     *     computation up into the mode-dispatch blocks and steals the branch delay slot => 16.
-     *   - NOT a compiler-snapshot difference: byte-identical 6-diff output from psq43, psq44 AND
-     *     psq45 CC1PSX.  NOT a flag identity either: -fno-strength-reduce / -fno-cse-follow-jumps
-     *     are diff-neutral; -fno-schedule-insns 191, -fno-schedule-insns2 95,
-     *     -fno-expensive-optimizations 131.
-     * So (a) is an expand-order property of this cc1's `&array[index]` lowering with no source
-     * escape hatch found; (b) is an sched1 load-vs-store priority tie.  Permuter territory. */
+    /* 🔴 FLOOR REFUTED (w34-a5, 6 -> 0 PASS).  The w32/w33 notes had certified these last 6 diffs as
+     * a cc1 "true identity" (an `&arr[i]` RTL-expand operand-order constant across psq43/44/45 plus a
+     * sched1 load-vs-store tie).  Both halves were source-reachable; the certification was wrong
+     * because the two were tested INDEPENDENTLY -- neither lever pays off while the other is missing
+     * (the BLOCKING-REGISTER-CASCADE rule again).  The two levers:
+     *   (a) `volatile short rv[0x21]` on the local preset copy.  This is the sched tie: retail
+     *       re-reads every rv element from the stack and does NOT let the next statement's
+     *       `lhu rv[2]` hoist above the previous statement's `sh rv[0xb]`.  Marking the ARRAY
+     *       volatile reproduces it; marking only the ONE store `*(volatile short*)&rv[0xb]`
+     *       does NOT (diff-neutral -- the aliasing that matters is on the LOADS).  Instruction
+     *       count is unchanged at 222/222, so this costs nothing: rv is already stack-resident
+     *       (its address escapes into blockmove).
+     *   (b) a BLOCK-SCOPED named base local for the preset-table address:
+     *       `{ unsigned char *tb = snd_reverb_table; src = tb + mode * 0x42; }`.
+     *       This is the `la`-before-index expand order.  w33 was right that `&tbl[mode*0x42]` and
+     *       its three algebraic respellings all expand INDEX-first, and right that a plain
+     *       function-scope two-statement form (`src = tbl; src += mode*0x42;`) gets the constant
+     *       address hoisted up into the mode-dispatch arms (14-16 diffs).  The BLOCK SCOPE is what
+     *       makes the difference: `tb` is a fresh pseudo that dies inside the block, so cse cannot
+     *       hoist it across the dispatch, while the separate assignment still forces base-then-index.
+     *       (`src = snd_reverb_table + mode*0x42;` -- base written first but as ONE expression --
+     *       is still index-first, 4 diffs: the named local is load-bearing, not the text order.)
+     * LESSON for the catalog: "expand-order identity" was a WEAK floor (single mechanism asserted,
+     * levers never combined).  Compiler-snapshot invariance across psq43/44/45 proves only that the
+     * COMPILER is not the variable -- it says nothing about whether the SOURCE shape is reachable. */
     ctl = *(unsigned short *)(DAT_80147e2c + 0x1aa) | 0x80;   /* reverb enable */
     *(short *)(DAT_80147e2c + 0x1aa) = (short)ctl;
     return ctl;

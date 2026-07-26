@@ -64,7 +64,17 @@ extern void iSPCH_DisposeBanks(void)
  * prologue-store scheduling, not a source shape. Probes: per-fn -fno-delayed-branch 4 -> 23;
  * -mno-split-addresses 4 -> 13. No SLD exists for this TU (see spchevnt.c).
  * PROTOTYPE AUDIT: 1 arg ($a0 = bank count, stored to gNumBanks); returns gVoxBanks re-loaded
- * at the shared exit, so the non-void return is real and shared by all four exit paths. */
+ * at the shared exit, so the non-void return is real and shared by all four exit paths.
+ * w34-a9: one more falsified lever -- SPLITTING the declaration from the initialiser
+ * (`int *nb;` at the top, `nb = gNumBanks;` inside the `if`, so the pseudo is created in
+ * the same order but the `lui %hi(gNumBanks)` sinks into the if-body where retail has it)
+ * gives the SAME 16-diff whole-function $s0<->$s1 flip as moving the whole declaration
+ * in: the flip is driven by the INIT position (which sets the live length), not by the
+ * declaration position.  Mechanism restated: retail's `lui $s1,%hi(gNumBanks)` sits AFTER
+ * the branch, so `sw $s1,0x14($sp)` is the last insn before it and dbr takes THAT for the
+ * delay slot; ours materialises the address before the branch, so `sw $ra` is the nearest
+ * fillable insn.  Any spelling that sinks the lui also shortens nb's live range and hands
+ * it $s0.  Unchanged verdict: 4 diffs at exact 33/33 parity. */
 extern int iSPCH_BankMemAlloc(int numBanks)
 {
     int *vb = gVoxBanks;

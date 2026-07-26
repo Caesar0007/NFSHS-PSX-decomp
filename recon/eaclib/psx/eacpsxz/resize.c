@@ -75,7 +75,15 @@ extern void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
      * independent of the call, the copy is data-dependent on it).  Tried, all >=2: embedding the
      * load in the alignpad statement, splitting `size += tail` (6), dropping the `tail` local
      * (29 and 93/94).  Raising it needs `tail` to gain an in-block use, which retail does not
-     * have either -- a genuine one-instruction scheduler tie. */
+     * have either -- a genuine one-instruction scheduler tie.
+     * w34-a3 RE-VERDICT: STRONG floor (>=3 further alternate forms, all worse, none flipping the
+     * tie).  The barrier is structural, not a spelling: both candidates feed the SAME join insn
+     * (`addu v0,size,tail` / `addiu a0,align,15` -> `addu v0,v0,a0`), so any reassociation that
+     * deepens `tail`'s chain deepens `align`'s by the same amount, and the load keeps its
+     * load-cost lead over a register copy.  Measured: `(tail + alignpad) + size` 8 diffs,
+     * split `size = size + tail;` then the mask 6, a separate `int negalign = -align;` 4 --
+     * all at an unchanged 94/94.  Flipping it needs the load's chain to be SHORTER than the
+     * copy's, which is impossible while `alignpad` is derived from that load. */
 
     /* 1. coalesce forward if the next physical block is free */
     if (*(unsigned short *)(next + 2) & 0x4000) {

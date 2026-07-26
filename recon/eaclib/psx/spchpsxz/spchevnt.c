@@ -157,7 +157,44 @@ extern void iSPCH_InitEventQueue(void)
      * 17 -> 22 -- though note the splice DOES reach exact insn parity 29/29, i.e. it supplies the
      * two missing instructions but puts them in the wrong places.  PROTOTYPE AUDIT: void(void)
      * confirmed -- no $aN is read before being written and $v0 holds only a leftover %hi at the
-     * epilogue. */
+     * epilogue.
+     * w34-a9 NEW MEASUREMENTS (form NOT changed; the baseline do-while stays at 17).
+     * A HYBRID that a9/a10 had not tried -- OUTER loop label+goto (kills the giv
+     * anchor / keeps the retail shape) with the INNER loop left a natural do-while
+     * (so its refs still get the loop-depth doubling) -- compiles to 28 insns in the
+     * oracle's exact instruction ORDER, 31 diffs.  cc1 -dl/-dg for it: slot(r83)
+     * 11 refs/21 insns = 1.571 -> $v1, off(r86) 7/11 = 1.273 -> $a0, j(r85) 7/12 =
+     * 1.167 -> $a1, argBase(r80) 4/23 = 0.348 -> $a2, base(r81) 3/40 = 0.075 -> $a3,
+     * end(r84) 2/38 = 0.053 -> $t0.  Retail is off->$v1, slot->$a0 with the rest
+     * identical, i.e. it needs prio(off) > prio(slot): off at 8 refs would give
+     * 3*8/11 = 2.18, or slot at <= 8 refs would give 3*8/21 = 1.14.  A diagnostic
+     * that DOES flip it -- writing the outer-loop bump as `argBase = off + 0xc`
+     * instead of `argBase += 0x3c` (one extra off ref) -- gives slot=$a0 correctly
+     * but then cc1 MERGES off and argBase into one induction pseudo, losing the
+     * `addu $v1,$a2,$zero` copy (27 insns, 22 diffs).  Making BOTH loops natural
+     * re-introduces the giv anchor (`addiu a1,a2,16` + -8/-6/-4/0 displacements,
+     * 30 insns / 41 diffs).  The 29th instruction retail has and we never emit is
+     * the second la copy (`addu $a0,$a3,$zero`): our cc1 copy-propagates
+     * `base -> slot` because `base` is never modified, and only the copy that
+     * SURVIVES a modification (`addu a3,v1,zero`) is kept.  Same no-copy-prop
+     * identity as SPCH_AddEvent's two preheader copies.
+     * w34-a9 BEST SHAPE FOUND (29 diffs / 28 insns -- still worse than this 17-diff
+     * short form, so NOT kept, but it is the one to hand a permuter): a NATURAL
+     * do-while outer loop over a `slot` walker + `end` bound, with the four header
+     * stores marked `volatile`.  The volatile qualifier is what kills the giv anchor
+     * (28 insns, not 30) WITHOUT giving up the loop notes -- so the inner loop's refs
+     * keep their loop-depth weighting, which is the whole point: it lifts off from
+     * 7/11 (goto-outer) to 11/11 = 3.00.  Remaining blocker is one allocno step:
+     * slot 16 refs / 20 insns = 4*16/20 = 3.20 still edges out off's 3.00, and 16 is
+     * again an exact floor_log2 razor edge -- slot at <= 15 refs collapses to
+     * 3*15/20 = 2.25, or off at >= 12 refs rises to 3*12/11 = 3.27.  Sourcing BOTH
+     * `end` and the `gVoxEvents[1]` store from `base` (not from `slot`) already took
+     * slot 18 -> 16 refs and 31 -> 29 diffs; the last ref cannot be shed without
+     * changing an instruction retail has (the outer test is `slt slot,end`, the four
+     * header stores and the `addiu slot,slot,0x3c` are all retail's).  Falsified for
+     * the off side: `argBase = off + 0xc` (cc1 then MERGES off and argBase into one
+     * induction pseudo, 27 insns / 34 diffs) and a named `a = off + base` address
+     * temp (neutral, 29). */
     int argBase = 0;
     int base = (int)gVoxEvents;
     gVoxEvents[0]   = 0;
@@ -345,7 +382,21 @@ extern int iSPCH_ChooseEvent(void)
                  * (age) the earlier register, the same allocno_compare weighting a9 quantified on
                  * iSPCH_InitEventQueue. No SLD exists for this TU to test a different statement
                  * segmentation, and both build-lane probes regress (-mno-split-addresses 46 -> 109,
-                 * per-fn -fno-delayed-branch 46 -> 90). PROTOTYPE: int(void), returns $s4. */
+                 * per-fn -fno-delayed-branch 46 -> 90). PROTOTYPE: int(void), returns $s4.
+                 * w34-a9 QUANTIFIED the rotation from cc1 -dl/-dg: slot(r160) 16 refs
+                 * / 72 insns -> prio floor_log2(16)*16/72 = 0.889 -> $s2, age(r97)
+                 * 12/44 -> 3*12/44 = 0.818 -> $s3 (nearest below: r99/r100 at 0.522;
+                 * nearest above: r95 at 1.304).  Retail is age=$s2 / slot=$s3, so the
+                 * flip needs prio(age) > prio(slot) while staying under 1.304: age at
+                 * 14-15 refs gives 0.955/1.023 (in window), age at 16 refs overshoots
+                 * to 1.455 and would steal $s1.  Equivalently slot at <= 15 refs
+                 * collapses to 3*15/72 = 0.625 -- 16 is exactly a floor_log2 razor
+                 * edge, so one weighted ref either way moves slot by 30%.  Falsified:
+                 * reading `sub` off a recomputed SLOT(slotIdx) to shed two slot refs
+                 * (129 insns / 141 diffs -- cc1 builds a whole second address chain),
+                 * and a named `ageCmp` copy feeding the maxAge compare (folded away,
+                 * 46 unchanged -- confirms the catalog rule that copies of a COMPUTED
+                 * value do not dial priority, unlike param copies). */
                 int m = maxAge;
                 expired = ((unsigned int)m < (unsigned int)age);
             }

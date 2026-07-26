@@ -119,6 +119,21 @@ extern void setfont(int fontId)
      *     w32 spelling sweep ran under the wrong register map: if/else-if chain, Yoda compares on
      *     both tests, and each arm inverted to an early-out -- all six spellings give exactly 12.
      *     The polarity is downstream of the merge, not a source choice.
+     *     w34-a4: FOUR MORE spellings gated, including the one the NFS2 PC-beta named source
+     *     suggests, and the merge is unmoved -- nested if/else-if (12), three separate per-arm
+     *     temps d1/d2/d3 (12), a 3-level ternary chain (15, 95 insns), and the NFS2 shape where each
+     *     arm STORES THE FIELD DIRECTLY with no `decode` temp (56, 98 insns -- the extra store per
+     *     arm is itself cross-jumped, so it buys nothing).  NFS2 PC textset.obj's _setfont is a real
+     *     structural twin (same three-way decoder pick: `(flags>>0x10 & 3)==2`, then a >0xFF glyph
+     *     count, then a >0xFF probe, else the ANSI decoder, followed by a shared init call) and it
+     *     writes the decoder GLOBAL in each arm -- but on PSX that spelling is strictly worse, so
+     *     retail's PSX source used the `decode` temp + shared store the current form has.
+     *     Flags re-measured (none adopted): -mno-split-addresses 27 (95 insns), -fno-schedule-insns
+     *     23 (97), -fno-schedule-insns2 26 (98), -fno-delayed-branch 37 (103),
+     *     -fno-expensive-optimizations 12.  Mechanism: gcc-2.8 rest_of_compilation's post-reload
+     *     `jump_optimize(insns, 1, 1, 0)` runs cross-jumping on HARD registers, and all three
+     *     `lui $v0,%hi(sjis); addiu $v0,$v0,%lo(sjis); j join` blocks are byte-identical there, so
+     *     they always merge; there is no gcc-2.8 flag for it (-fno-crossjumping is gcc-3+).
      * (b) 2 = the 0xA0 store's base (`sw v0,0xA0($s0)` ours vs `$s1` retail) -- the unavoidable
      *     price of the live-range fix above; gcc must emit cf2's lui/addiu before a store through
      *     it, while retail stores through the still-live cf and materializes afterwards.

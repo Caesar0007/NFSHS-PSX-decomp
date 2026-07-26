@@ -117,6 +117,33 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 #                           TU can need gcc's own filling ON. Opt in per-TU
 #                           only after verifying net-positive with
 #                           verify_asm across the WHOLE TU's functions.
+#   "no_schedule_insns"  -> pass -fno-schedule-insns to cc1 (sched1 OFF) for
+#                           this TU (w34-a4; methodology §3.25 axis 3d, the
+#                           "per-obj OPTIMIZATION-FLAG identity" already
+#                           recorded for the EACPSXZ numeric objs). Sched1 is
+#                           the pre-reload scheduler; with it off, cc1 leaves
+#                           the load-delay gaps and serial single-scratch
+#                           reload chains that the retail eacpsxz objects on
+#                           the "unscheduled" side of the split show.
+#                           ⚠️ STRICTLY per-object -- the SAME flag makes the
+#                           sibling eacpsxz objs much WORSE (w33-a5 controls:
+#                           vramfxya 68->152, setfont 12->23, transmult
+#                           31->37, unrefpack 17->29), so it must never be
+#                           enabled globally. NOT ENABLED below (same
+#                           precedent as "no_delayed_branch"): the one TU it
+#                           helps, recon/eaclib/psx/eacpsxz/movf.c, gains a
+#                           large diff drop but LOSES instruction parity, so
+#                           it fails the w34 keep-rule as written:
+#                              movf.c / movfxya   default      149 diffs, 222/221 insns
+#                                                 +this flag    88 diffs, 225/221 insns
+#                           (the +4 is the CSE-hoisted `li 255` pseudo, its
+#                           caller-save spill/reload, and one arg-reg copy;
+#                           the flag DOES fix the {shape,yPos,vc} rotation's
+#                           shape half -- shape lands on retail's $s6.)
+#                           To adopt: add
+#                             "recon/eaclib/psx/eacpsxz/movf.c": {"no_schedule_insns": True},
+#                           to PER_TU_FLAGS (movf.c holds exactly one
+#                           function, so no in-TU regression is possible).
 #
 # The 11 TUs below own the retail binary's 11 ASPSX-$at-macro jtbl sites
 # (w23-a11 investigation); the other 22 jtbl TUs are deliberately absent
@@ -459,6 +486,8 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
         cc1_flags.append("-fno-delayed-branch")
     if tu_flags.get("no_split_addresses"):
         cc1_flags.append("-mno-split-addresses")
+    if tu_flags.get("no_schedule_insns"):
+        cc1_flags.append("-fno-schedule-insns")
     r = run([CC1, *cc1_flags, i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[cc1] {rel}\n{r.stdout}{r.stderr}")

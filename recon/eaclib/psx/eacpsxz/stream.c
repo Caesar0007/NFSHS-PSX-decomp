@@ -982,29 +982,41 @@ extern int STREAM_cancelrequest(int s, int reqid)
 
     sr = STREAM_enterCS();
     req = func_800FC4E4(out[0], reqid);
-    if (req != 0 && MI(req, 4) != 4) {
-        if (MI(req, 4) == 1) {                      /* queued -> just drop it */
-            freerequest(out[0], req);
-        } else {                                     /* active (not merely queued) */
-            MI(req, 4) = 4;                         /* mark cancelled */
-            s7 = *(int **)(out[0] + 0x40);          /* readptr */
-            s4 = s7;
-            if (req != MI(out[0], 0x4c))
-                s4 = *(int **)(req + 0x60);          /* this request's start fill */
-            {
-                int nx = MI(req, 0xc);
-                if (nx == 0 || MI(nx, 4) == 1) {
-                    s6 = *(int **)(out[0] + 0x44);   /* writeptr */
-                    ret = 0;
-                } else {
-                    s6 = *(int **)(nx + 0x60);
-                    ret = 0;
-                }
+    /* MATCH: the oracle's block order is test-chain -> freerequest -> `ret=1` join -> the ACTIVE
+     * block (the nested if/else spelling lays the `ret=1` join AFTER both active arms instead). */
+    if (req == 0)
+        goto notactive;
+    if (MI(req, 4) == 4)
+        goto notactive;
+    if (MI(req, 4) != 1)
+        goto active;
+    freerequest(out[0], req);                        /* queued -> just drop it */
+notactive:
+    ret = 1;
+    goto reclaim;
+active:                                              /* active (not merely queued) */
+    {
+        /* MATCH: one out[0] load feeds 0x40/0x4c/0x44 here, and it is materialized BEFORE the
+         * `MI(req,4)=4` store so the store's shared `4` constant (reused from the compare above)
+         * is still live across it -- that overlap is what keeps the constant OFF $v1 and lets the
+         * store fill the load-delay slot of `lw $v1,0x10($sp)` instead of costing a nop. */
+        int sobj0 = out[0];
+        MI(req, 4) = 4;                             /* mark cancelled (reuses the compare's `4`) */
+        s7 = *(int **)(sobj0 + 0x40);               /* readptr */
+        s4 = s7;
+        if (req != MI(sobj0, 0x4c))
+            s4 = *(int **)(req + 0x60);              /* this request's start fill */
+        {
+            int nx = MI(req, 0xc);
+            if (nx == 0 || MI(nx, 4) == 1) {
+                s6 = *(int **)(sobj0 + 0x44);        /* writeptr */
+                ret = 0;
+            } else {
+                s6 = *(int **)(nx + 0x60);
+                ret = 0;
             }
-            goto reclaim;
         }
     }
-    ret = 1;
 reclaim:
     STREAM_leaveCS(sr);
     if (ret != 0)
@@ -1013,9 +1025,14 @@ reclaim:
     /* sweep every consumer, returning or freeing the cancelled request's chunks */
     {
         int ci = 0;
-        if (MI(out[0], 0x1c) > 0) {
+        int sobj = out[0];         /* MATCH: ONE out[0] reload per iteration, taken at the loop
+                                    * TAIL -- it feeds this iteration's `ci < numConsumers` test AND
+                                    * the NEXT iteration's consumerArray read (oracle keeps it in $v1
+                                    * across the back edge). Reading MI(out[0],..) at both sites emits
+                                    * two reloads + two load-delay nops per iteration. */
+        if (MI(sobj, 0x1c) > 0) {
             do {
-                out[1] = MI(out[0], 0x18) + ci * 0x10;
+                out[1] = MI(sobj, 0x18) + ci * 0x10;
                 if (MI(out[1], 8) > 0) {
                     unsigned int u2 = inbetween((unsigned int)s7, (unsigned int)s4, MU(out[1], 0xc));
                     if (u2 != 0) {                   /* free this request's own chunks in place */
@@ -1041,8 +1058,7 @@ reclaim:
                         unsigned int pos = MU(out[1], 0xc);
                         if (inbetween((unsigned int)s4, (unsigned int)s6, pos) != 0) {
                             do {
-                                ret = ((int (*)(int))STREAM_get)(out[1]);
-                                STREAM_release(out[1], ret);
+                                STREAM_release(out[1], ((int (*)(int))STREAM_get)(out[1]));
                                 if (MI(out[1], 8) < 1)
                                     break;
                                 pos = MU(out[1], 0xc);
@@ -1051,11 +1067,15 @@ reclaim:
                     }
                 }
                 ci++;
-                ret = 0;
-            } while (ci < MI(out[0], 0x1c));
+                sobj = out[0];
+            } while (ci < MI(sobj, 0x1c));
         }
     }
-    return ret;
+    /* MATCH: NO `return` statement here.  The oracle falls straight into the shared epilogue with
+     * whatever $v0 happens to hold -- the loop's own `slt $v0,$s3,$v0` result (0 on the normal
+     * exit) or the `blez`-tested numConsumers on the no-consumer path.  Spelling an explicit
+     * `return ret;`/`return 0;` keeps `ret` live across the whole sweep, which pushes it into a
+     * callee-saved register (s7), spills the readptr, and grows the frame 0x40 -> 0x48. */
 }
 
 /* STREAM_kill @0x800FD808 : cancel every request, free the queue, reset the ring to empty and the state

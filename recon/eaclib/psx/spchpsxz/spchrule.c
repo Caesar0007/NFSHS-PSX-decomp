@@ -296,6 +296,22 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
  * Also probed and rejected this wave: `hit = 0` hoisted to the top of the inner block (61, no
  * change); `testValue = 0` hoisted out of the ruleType==0xc arm (65); the iSPCH_RuleSet
  * allocno-priority swap on `param`/`paramStore` (69, and it loses insn parity). */
+/* w35-a4: 61 -> 43 (insn count unchanged 113/112).  Both wins are the levers proved on
+ * iSPCH_RuleSet in the same wave, and they DO transfer here even though w34 measured the second
+ * one as a regression from the OLD base:
+ *  (1) zero-trip guard `if (i < numRules)` instead of `if (0 < numRules)` -- semantically identical
+ *      (i is 0 there, cc1 folds to the same `blez`) but one extra OUT-OF-LOOP REG_N_REF on `i`,
+ *      which lifts it over `hit` across a floor_log2 step: i lands in $s2 and hit in $s3, exactly
+ *      as retail (61 -> 49).
+ *  (2) WITH (1) in place, the trichotomy-2 double evaluation `paramStore = packed & 0xf;
+ *      param = packed & 0xf;` now WINS (49 -> 43) -- it produces retail's `andi $v1; sw $v1,0x14(sp);
+ *      addu $a0,$v1,$zero` copy shape.  w34-a10 measured this same edit as 61 -> 69 from the
+ *      pre-(1) base; the two edits are NOT independent, so re-test banked losers after any
+ *      allocation-order change (catalog "BLOCKING REGISTER CASCADE").
+ * RESIDUAL 43 = still the w34-a10 $t0-vs-$a3 reload mechanism (~14 diffs incl. the 28(sp)-vs-36(sp)
+ * spill slot that follows the register) plus its knock-on scheduling, the `addu $a2,$s3,$zero`
+ * vs retail's fresh `addu $a2,$zero,$zero` (our cse copies the known-zero `hit` into testValue),
+ * and one `lw $a1,0x10($sp)` placement.  Probed and NEUTRAL this wave: Yoda `4 == type` (43). */
 extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
 {
     int            numRules = *(signed char *)((int)sentence + 7);
@@ -309,7 +325,7 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
         int           *currentValue;
         unsigned char *p;
         i = 0;
-        if (0 < numRules) {
+        if (i < numRules) {
             currentValue = value;
             p = ruleData;
             do {
@@ -324,8 +340,8 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                 ruleId = p[0];
                 packed = *(volatile unsigned char *)(p + 1);
                 hit = 0;
+                paramStore = packed & 0xf;
                 param = packed & 0xf;
-                paramStore = param;
                 type = (unsigned int)*(volatile unsigned char *)(p + 1) >> 4;
                 if (ruleType == 0xc) {
                     if (param != 0)

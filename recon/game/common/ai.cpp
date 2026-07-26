@@ -831,11 +831,6 @@ void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj)
   int cSpeed;
   int considerDesired;
   int iVar1;
-  int new_var;
-  int iVar2;
-  int *paiVar3;
-  int *paiVar3Row0;
-  AI_tInfo *pAVar4;
 
   dSpeed = carObj->desiredSpeed;
   cSpeed = carObj->currentSpeed;
@@ -851,74 +846,96 @@ void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj)
     CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0xe0000;
   }
   if (carObj->direction == 1) {
-    new_var = 0;
-    paiVar3 = &CarLogic_gObs[new_var][new_var];
-    paiVar3Row0 = paiVar3;
-    pAVar4 = &AI_Info;
+    int *observation;
+    int *observationBase;
+    AI_tInfo *laneInfo;
+    int laneSpeed;
+    int lane;
+
+    lane = 0;
+    observation = &CarLogic_gObs[0][0];
+    observationBase = observation;
+    laneInfo = &AI_Info;
     do {
-      iVar2 = pAVar4->laneSpeeds[new_var];
-      if (iVar2 <= cSpeed) {
-        if (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0) {
-          iVar2 = fixedmult(cSpeed - iVar2,-0x14ccc);
-          *paiVar3 = *paiVar3 + iVar2;
+      laneSpeed = laneInfo->laneSpeeds[lane];
+      if (laneSpeed <= cSpeed) {
+        if (laneInfo->blockingCars[lane] != (Car_tObj *)0x0) {
+          *observation =
+              *observation + fixedmult(cSpeed - laneSpeed,-0x14ccc);
+          laneSpeed = laneInfo->laneSpeeds[lane];
         }
-        iVar2 = pAVar4->laneSpeeds[new_var];
       }
-      if (((iVar2 <= dSpeed) && (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0)) && considerDesired)
+      if (((laneSpeed <= dSpeed) &&
+           (laneInfo->blockingCars[lane] != (Car_tObj *)0x0)) &&
+          considerDesired)
       {
-        iVar2 = fixedmult(dSpeed - iVar2,-0x8000);
-        *paiVar3 = *paiVar3 + iVar2;
+        *observation =
+            *observation + fixedmult(dSpeed - laneSpeed,-0x8000);
       }
-      iVar2 = pAVar4->laneSpeedsAhead[new_var];
-      if (iVar2 <= cSpeed) {
-        if (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0) {
-          iVar2 = fixedmult(cSpeed - iVar2,-0x8000);
-          *paiVar3 = *paiVar3 + iVar2;
+      laneSpeed = laneInfo->laneSpeedsAhead[lane];
+      if (laneSpeed <= cSpeed) {
+        if (laneInfo->blockingCars[lane] != (Car_tObj *)0x0) {
+          *observation =
+              *observation + fixedmult(cSpeed - laneSpeed,-0x8000);
+          laneSpeed = laneInfo->laneSpeedsAhead[lane];
         }
-        iVar2 = pAVar4->laneSpeedsAhead[new_var];
       }
-      if (((iVar2 <= dSpeed) && (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0)) && considerDesired)
+      if (((laneSpeed <= dSpeed) &&
+           (laneInfo->blockingCars[lane] != (Car_tObj *)0x0)) &&
+          considerDesired)
       {
-        iVar2 = fixedmult(dSpeed - iVar2,-0x1999);
-        *paiVar3 = *paiVar3 + iVar2;
+        *observation =
+            *observation + fixedmult(dSpeed - laneSpeed,-0x1999);
       }
-      paiVar3 = paiVar3 + 1;
-      pAVar4 = (AI_tInfo *)(pAVar4->blockingCars + 1);
-    } while (paiVar3 < paiVar3Row0 + 3);   /* row0+3 == &AI_Info (AI_Info sits directly after CarLogic_gObs in the data segment; the oracle recomputes this bound off the ROW-0 base pointer every iteration, not off the AI_Info symbol) */
+      observation = observation + 1;
+      laneInfo = (AI_tInfo *)(laneInfo->blockingCars + 1);
+    } while ((int)observation < (int)(observationBase + 3));
   }
   else {
-    new_var = 0;
-    paiVar3 = &CarLogic_gObs[new_var][new_var];
-    paiVar3Row0 = paiVar3;
-    pAVar4 = &AI_Info;
+    int *observation;
+    int *observationBase;
+    AI_tInfo *laneInfo;
+    int laneSpeed;
+    int lane;
+
+    lane = 0;
+    observation = &CarLogic_gObs[0][0];
+    observationBase = observation;
+    laneInfo = &AI_Info;
     do {
-      iVar2 = pAVar4->laneSpeeds[new_var];
-      if (cSpeed <= iVar2) {
-        if (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0) {
-          iVar2 = fixedmult(iVar2 - cSpeed,-0x14ccc);
-          *paiVar3 = *paiVar3 + iVar2;
+      laneSpeed = laneInfo->laneSpeeds[lane];
+      if (cSpeed <= laneSpeed) {
+        if (laneInfo->blockingCars[lane] == (Car_tObj *)0x0) {
+          goto noLaneSpeedMerit;
         }
-        iVar2 = pAVar4->laneSpeeds[new_var];
+        *observation =
+            *observation + fixedmult(laneSpeed - cSpeed,-0x14ccc);
+        laneSpeed = laneInfo->laneSpeeds[lane];
       }
-      if ((dSpeed <= iVar2) && (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0)) {
-        iVar2 = fixedmult(iVar2 - dSpeed,-0x8000);
-        *paiVar3 = *paiVar3 + iVar2;
+      if ((dSpeed <= laneSpeed) &&
+          (laneInfo->blockingCars[lane] != (Car_tObj *)0x0)) {
+        *observation =
+            *observation + fixedmult(laneSpeed - dSpeed,-0x8000);
       }
-      iVar2 = pAVar4->laneSpeedsAhead[new_var];
-      if (cSpeed <= iVar2) {
-        if (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0) {
-          iVar2 = fixedmult(iVar2 - cSpeed,-0x8000);
-          *paiVar3 = *paiVar3 + iVar2;
+noLaneSpeedMerit:
+      laneSpeed = laneInfo->laneSpeedsAhead[lane];
+      if (cSpeed <= laneSpeed) {
+        if (laneInfo->blockingCars[lane] == (Car_tObj *)0x0) {
+          goto noLaneSpeedAheadMerit;
         }
-        iVar2 = pAVar4->laneSpeedsAhead[new_var];
+        *observation =
+            *observation + fixedmult(laneSpeed - cSpeed,-0x8000);
+        laneSpeed = laneInfo->laneSpeedsAhead[lane];
       }
-      if ((dSpeed <= iVar2) && (pAVar4->blockingCars[new_var] != (Car_tObj *)0x0)) {
-        iVar2 = fixedmult(iVar2 - dSpeed,-0x1999);
-        *paiVar3 = *paiVar3 + iVar2;
+      if ((dSpeed <= laneSpeed) &&
+          (laneInfo->blockingCars[lane] != (Car_tObj *)0x0)) {
+        *observation =
+            *observation + fixedmult(laneSpeed - dSpeed,-0x1999);
       }
-      paiVar3 = paiVar3 + 1;
-      pAVar4 = (AI_tInfo *)(pAVar4->blockingCars + 1);
-    } while (paiVar3 < paiVar3Row0 + 3);   /* row0+3 == &AI_Info (AI_Info sits directly after CarLogic_gObs in the data segment; the oracle recomputes this bound off the ROW-0 base pointer every iteration, not off the AI_Info symbol) */
+noLaneSpeedAheadMerit:
+      observation = observation + 1;
+      laneInfo = (AI_tInfo *)(laneInfo->blockingCars + 1);
+    } while ((int)observation < (int)(observationBase + 3));
   }
   return;
 }

@@ -436,22 +436,49 @@ extern unsigned int iSNDpacketpurgeframes(int p, unsigned int byteoff, int count
  *   uninit local_30 is iSNDpacketget's frameSize out-param.) */
 extern int iSNDfillspuwithpackets(int p, int chunk)
 {
-    /* RESIDUAL 43 diffs, 307/308 (w32 diagnosis, no source form found -- levers tried are listed so
-     * the next pass does not re-fight them).  The diffs cluster in four spots, three of which are the
-     * SAME reorg slot-priority tie:
-     *  (1) every count-loop here sinks its `ch += 4` walker increment into the loop-back BRANCH delay
-     *      slot, while retail spends that slot on the next iteration's call-argument rematerialization
-     *      (`addu $a0,$s7,$zero`) and puts the increment in the preceding LOAD delay instead.  Tried:
-     *      volatile store, `i++` before `ch += 4` (reaches 308/308 parity but 44 diffs), a named
-     *      call-result temp -- all diff-neutral or worse.  Same tie shows at the two flag-byte loops.
-     *  (2) the `avail` early-return colors $a0/$v1/$v0 where retail uses $v0/$a0/$v1, so ours spends
-     *      the branch delay on `addu $v0,$a0,$zero` where retail has a nop -- i.e. retail's subtract
-     *      lands directly in the return register.  Tried: returning the expression directly (no local),
-     *      volatile operand loads -- both diff-neutral.
-     *  (3) one loop-start-flag loop is shaped `beqz exit; j top` in retail vs our single conditional
-     *      back-branch (the pre-existing FLOOR note below).
-     *  (4) `take` must stay `unsigned short`: an `int` take drops the oracle's `andi $a2,$s3,0xFFFF`
-     *      blockmove argument mask but costs 2 insns elsewhere (309/308, 49). */
+    /* RESIDUAL 16 diffs, 308/308 PARITY (was 43 @307/308 after w32; w33-a6 cracked cluster 1/3/4).
+     * The three w33 fixes, all oracle-proven and worth generalizing:
+     *  (1) *** THE LOOP-BOUND FIELD IS VOLATILE. ***  `voice[0x1F]` (the per-voice channel count,
+     *      sndpd+0xD8+vt+0x1F) is re-read from memory at EVERY one of this fn's nine loop guards in
+     *      the oracle -- including the two flag-byte loops that contain NO call and NO aliasing store
+     *      that would force a reload (gcc hoists such a load out of the loop otherwise).  That is the
+     *      textbook methodology-3.12#13 volatile tell (the SPU IRQ/DMA server mutates the driver
+     *      state block behind the compiler's back).  Declaring the read `*(volatile unsigned char *)
+     *      (voice + 0x1F)` does two things at once: it reproduces the per-iteration reload AND -- the
+     *      big one -- it makes reorg's `fill_simple_delay_slots` backward scan hit a volatile MEM
+     *      (resource_conflicts_p returns 1 for ANY volatil resource), so reorg can no longer steal the
+     *      `ch += 4` walker increment out of the body into the loop-back BRANCH delay slot.  With the
+     *      simple fill blocked, reorg falls through to the EAGER fill and steals the branch TARGET's
+     *      first insn instead -- exactly retail's `bnez ...; addu $a0,$s7,$zero` (the call-argument
+     *      rematerialization), which is also the +1 insn that closes the 307-vs-308 gap.  43 -> 20.
+     *  (2) the two flag-byte RMW loops need the SAME reorg block on the byte they touch: those bytes
+     *      live in the channel buffers that are DMA'd to the SPU, so `volatile unsigned char *` is
+     *      semantically right, and it keeps `fch/lch += 4` in the LOAD delay slot where retail has it
+     *      (`lbu v1,1(v0); addiu a0,a0,4; ori v1,v1,4`) instead of the branch slot.  It also fixes the
+     *      loop-start-flag loop's branch polarity (`beqz exit; j top`), which the old note had filed as
+     *      a FLOOR -- it was never a floor, just the same delay-slot steal.  31 -> 20.
+     *  (3) `take` is an `int`-width local, NOT `unsigned short` -- the old note had this exactly
+     *      backwards.  OURS carried the redundant `andi $a2,$s3,0xFFFF` before the blockmove length
+     *      argument; the oracle has a bare `addu $a2,$s3,$zero`, which is only emitted when the C
+     *      variable is int-width (methodology 3.12#9: cc1plus/cc1 re-masks on every use of a
+     *      u_short-typed value).  The 2-insn cost the old note blamed on `int` was really the
+     *      `volatile` on the two `take = ...` clamp loads (`lhu v0,..; andi s3,v0,0xFFFF` instead of a
+     *      direct `lhu s3,..`); with the volatile dropped, `unsigned int take` is a strict win
+     *      (16 diffs vs 35 for `unsigned short`).
+     *  (4) hoisting the iSNDdmqueue length argument into `len` (declared FIRST in the loop block)
+     *      makes cc1 materialize `lhu a2,0x44(s2)` early, alongside the `lw v1,0(s2)` base load, the
+     *      way retail schedules it.  20 -> 16.
+     * WHAT IS LEFT (16 diffs, one cluster): the `avail` early-return colors A=$a0/B=$v1/lim=$v0 where
+     * retail colors A=$v0/B=$a0/lim=$v1, so `avail` misses the return register and ours spends the
+     * branch delay on `addu $v0,$a0,$zero` where retail has a nop (and the following `lhu 0x36`/`0x38`
+     * pair swaps).  The chain SHAPE is identical (avail reuses A's reg, the slt result reuses lim's);
+     * only the physical pair differs.  Tried on the w33 base and ALL diff-neutral at 16: no-local
+     * (recompute the expression at the return), return-the-expression, split `avail = A; avail -= B;`,
+     * `avail > lim`, `!(lim >= avail)`, a named `lim` local before AND after `avail`, `long avail`,
+     * `unsigned lim`, function-scope `avail`, and the `^ runtime-zero` device (317/308, far worse).
+     * Only `avail = -B + A` reaches 14, but it does so by INVERTING the oracle's load order
+     * (`lw 0x18` before `lw 0x14`) -- a count-only win on a provably wrong shape, so rejected.
+     * This is a genuine local-alloc pair tie-break; permuter/RTL-allocno territory. */
     /* MATCH: materialize the bare &sndpd ONCE (oracle: a0) and reach BOTH DAT_80147e10[p] (via
      * base+p*4, +0x4F8 as the LOAD DISPLACEMENT -- the `(&DAT_80147e10)[p]` macro instead folds
      * 0x4F8 into the pointer chain before the index, forcing displacement-0) and the voice-table
@@ -473,7 +500,7 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
                                                    * uses for its tablebase/voice split. */
     unsigned char *voice = tablebase0 + vt;
     int  i, ch, dma;
-    unsigned short take;
+    unsigned int take;
     int  *cbuf;
     short *ringp;
     int  frameSize;      /* MATCH: genuinely uninitialized (Ghidra local_30) -- iSNDpacketget always
@@ -500,7 +527,7 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
             /* MATCH: oracle increments `ch` in the JAL's OWN delay slot (right after the call),
              * `i` afterward -- swap the statement order from the natural i++/ch+=4. */
             do { iSNDpsxzerospu(*(int **)(ch + 0x48), 16); ch += 4; i++; }
-            while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
+            while (i < (int)(unsigned)*(volatile unsigned char *)(voice + 0x1F));
         }
         *(unsigned short *)(pp + 0x3e) = *(short *)(pp + 0x3e) + 0x10;
         *(unsigned short *)(pp + 0x3c) = *(short *)(pp + 0x3c) - 0x10;
@@ -525,7 +552,7 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
                     do {
                         *(int *)(ch + 0x24) = iSNDpacketget(p, i, &frameSize);
                         ch += 4; i++;
-                    } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
+                    } while (i < (int)(unsigned)*(volatile unsigned char *)(voice + 0x1F));
                 }
                 if (*(int *)(pp + 0x24) == 0) {             /* no frame available -> finish/flush */
                     int avail = *(int *)(pp + 0x14) - *(int *)(pp + 0x18);
@@ -548,7 +575,7 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
                                 iSNDpsxzerospu((int *)(chval + (unsigned)*(unsigned short *)(pp + 0x3e)),
                                                *(unsigned short *)(pp + 0x3c));
                                 i++;
-                            } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
+                            } while (i < (int)(unsigned)*(volatile unsigned char *)(voice + 0x1F));
                         }
                     } else {                                      /* mark SPU end (flag byte = 2) */
                         i = 0;
@@ -563,7 +590,7 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
                                 i++;
                                 *(char *)((unsigned)*(unsigned short *)(pp + 0x44) + *(volatile int *)(ech + 0x48) - 0xf) = (char)endFlag;
                                 ech += 4;
-                            } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
+                            } while (i < (int)(unsigned)*(volatile unsigned char *)(voice + 0x1F));
                         }
                     }
                     if (*(unsigned short *)(pp + 0x3e) == 0)
@@ -586,9 +613,9 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
              * pp+0x34's value fresh in the SAME register, so gcc's own CSE across the join point
              * supplies the LHS for free -- an explicit `take` read here would break that reuse. */
             if (*(unsigned short *)(pp + 0x34) < *(unsigned short *)(pp + 0x3c))
-                take = *(volatile unsigned short *)(pp + 0x34);
+                take = *(unsigned short *)(pp + 0x34);
             else
-                take = *(volatile unsigned short *)(pp + 0x3c);
+                take = *(unsigned short *)(pp + 0x3c);
             ringp = (short *)(chunk * 2 + *(int *)(pp + 0x2c));
             *ringp = *ringp + (short)((int)((unsigned)take * 7) >> 2);
             i = 0;
@@ -600,7 +627,7 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
                               (int *)(*(int *)(ch + 0x48) + (unsigned)*(unsigned short *)(pp + 0x3e)),
                               (unsigned)take);
                     ch += 4; i++;
-                } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
+                } while (i < (int)(unsigned)*(volatile unsigned char *)(voice + 0x1F));
             }
             *(unsigned short *)(pp + 0x3e) = *(short *)(pp + 0x3e) + take;
             *(unsigned short *)(pp + 0x3c) = *(short *)(pp + 0x3c) - take;
@@ -617,12 +644,13 @@ queue_dma:
             int fch = pp;   /* MATCH: a SEPARATE walk pointer (oracle: `a0`), not the function-wide
                               * `ch`/s1. */
             i = 0;
-            /* FLOOR (confirmed): oracle shapes this ONE loop (uniquely among this fn's ~9
-             * count-loops) as a trailing conditional-EXIT + unconditional jump-back
-             * (`beqz v0,exit;nop; j top;nop`) instead of a single conditional back-branch --
-             * tried the `for(;;){body;if(!c)break;}` loop-rotation form (matches the SHAPE) but
-             * it costs an extra instruction elsewhere in the fn net-negative vs the do-while;
-             * reverted, keeping the do-while (0 net diff difference either way here). */
+            /* FLOOR CLAIM WITHDRAWN (w33-a6): the oracle's trailing conditional-EXIT +
+             * unconditional jump-back shape here (`beqz v0,exit;nop; j top;nop`) was NEVER a
+             * loop-rotation problem -- it is what reorg emits once it can no longer steal the
+             * `fch += 4` increment into the back-branch's delay slot.  Marking the flag byte
+             * volatile (below) reproduces it with the do-while intact.  Lesson for the catalog:
+             * a "loop-shape floor" whose only evidence is a branch-polarity + empty-delay-slot
+             * pair is usually a delay-slot-steal artifact, not a loop form. */
             do {
                 /* MATCH: read *(int*)(fch+0x48) via LOAD DISPLACEMENT off the bare `fch` (oracle:
                  * `lw v0,72(a0)`) -- a separately-assigned `cbuf` pointer var forces gcc to
@@ -631,15 +659,18 @@ queue_dma:
                  * immediate instead (same lever as the earlier `chval`/`ech` sites in this fn).
                  * MATCH: oracle fills the flag-byte load's OWN delay slot with `fch+=4` (`lbu
                  * v1,1(v0); addiu a0,a0,4; ori v1,v1,4`) -- split the read-modify-write so the
-                 * increment sits BETWEEN the load and the or/store, not after the whole stmt. */
+                 * increment sits BETWEEN the load and the or/store, not after the whole stmt.
+                 * MATCH (w33): the flag byte is DMA-visible SPU buffer memory -- a `volatile`
+                 * pointer both models that and blocks reorg from stealing `fch += 4` into the
+                 * branch delay slot (see cluster (2) in the banner). */
                 {
-                    unsigned char *fb = (unsigned char *)(*(int *)(fch + 0x48) + 1);
+                    volatile unsigned char *fb = (volatile unsigned char *)(*(int *)(fch + 0x48) + 1);
                     unsigned char fv = *fb;
                     fch += 4;
                     *fb = fv | 4;
                 }
                 i++;
-            } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
+            } while (i < (int)(unsigned)*(volatile unsigned char *)(voice + 0x1F));
         }
     } else if (chunk == *(unsigned short *)(pp + 0x38) - 1) {   /* last chunk -> loop-end (|1) */
         /* MATCH: `i=0` in the count-check branch's delay slot; `ch=pp` only on the taken path,
@@ -649,10 +680,15 @@ queue_dma:
         if (voice[0x1F] != 0) {
             int lch = pp;
             do {
-                int e = (unsigned)*(unsigned short *)(pp + 0x44) + *(int *)(lch + 0x48);
-                *(unsigned char *)(e - 0xf) |= 1;
-                lch += 4; i++;
-            } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
+                {
+                    volatile unsigned char *eb = (volatile unsigned char *)
+                        ((unsigned)*(unsigned short *)(pp + 0x44) + *(int *)(lch + 0x48) - 0xf);
+                    unsigned char ev = *eb;
+                    lch += 4;
+                    *eb = ev | 1;
+                }
+                i++;
+            } while (i < (int)(unsigned)*(volatile unsigned char *)(voice + 0x1F));
         }
     }
     i = 0;                                   /* kick the SPU DMA for each channel */
@@ -662,6 +698,7 @@ queue_dma:
             /* MATCH: oracle evaluates pp->0x08*i (mult/mflo) BEFORE the shift/add chain, and the
              * per-first-channel flag as an unconditional a0=0 overwritten to (i<1) only when
              * chunk==0 (the bnez-delay-slot idiom -- both paths always compute src the same). */
+            unsigned int len = *(unsigned short *)(pp + 0x44);
             int  stride = *(int *)(pp + 0x8) * i;
             unsigned int src = (unsigned int)*(int *)(pp + 0x0) +
                                 (unsigned int)(chunk << *(unsigned char *)(pp + 0x43)) +
@@ -672,10 +709,10 @@ queue_dma:
             int flag = 0;
             if (chunk == 0)
                 flag = (i == 0);
-            dma = iSNDdmqueue(*(int *)(ch + 0x48), src, *(unsigned short *)(pp + 0x44), 2, flag);
+            dma = iSNDdmqueue(*(int *)(ch + 0x48), src, len, 2, flag);
             *(int *)(pp + 0x20) = dma;
             ch += 4; i++;
-        } while (i < (int)(unsigned)(unsigned char)voice[0x1F]);
+        } while (i < (int)(unsigned)*(volatile unsigned char *)(voice + 0x1F));
     }
 advance:
     *(short *)(pp + 0x3a) = (short)chunk;

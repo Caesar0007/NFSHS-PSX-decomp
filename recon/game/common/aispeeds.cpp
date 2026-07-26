@@ -5,7 +5,6 @@
 #include "../../nfs4_types.h"
 #include "aispeeds_externs.h"
 
-extern char *DAT_80116470;   /* @0x80116470 -- AI bigfile path prefix (char*); materialized (bss=0) in materialized_data.cpp */
 extern int AI_elapsedTime;   /* @0x8013C554 (ai.cpp:15) -- AI frame elapsed-time global; used by GetCaravanFactor caravanTimer decrement (H35) */
 
 
@@ -82,15 +81,13 @@ void AISpeeds_ReadTuningInfo(void)
   int weatherRamp;
   int iVar1;
   u_int uVar2;
-  /* iVar3 must stay signed: the oracle uses slti for the 0x41 bound.
-   * The weather table is indexed directly below; a named pointer makes gcc
-   * replace this count-up loop with a countdown, while array indexing restores
-   * the oracle's synthetic pointer plus signed induction variable (21 -> 8 diffs). */
+  /* SYM names this induction variable `curveLoop` in $a1. The direct
+   * multiplication is important: retail strength-reduces it to the running
+   * $v1 accumulator visible in the oracle. */
   int iVar3;
-  int iVar4;
   int slotLoop;
 
-  sprintf(filename,"%stuning.bin",DAT_80116470);   /* H34: 3rd arg (path prefix) was omitted; oracle 0x8006D5FC $a2=*(int*)&DAT_80116470 */
+  sprintf(filename,"%stuning.bin",Paths_Paths[2]);
   handle = Udff_Opena(filename,(char *)0x0,1);
   Udff_GetInt(handle);
   slotLoop = 0;
@@ -156,17 +153,10 @@ void AISpeeds_ReadTuningInfo(void)
     }
   }
   weatherRamp = Udff_GetInt(handle);
-  iVar3 = 0;
-  iVar1 = 0;
-  do {
-    iVar4 = iVar1;
-    if (iVar1 < 0) {
-      iVar4 = iVar1 + 0x3f;
-    }
-    AISpeeds_WeatherMultFactors[iVar3] = 0x10000 - (iVar4 >> 6);
-    iVar3 = iVar3 + 1;
-    iVar1 = iVar1 + weatherRamp;
-  } while (iVar3 < 0x41);
+  for (iVar3 = 0; iVar3 < 0x41; iVar3 = iVar3 + 1) {
+    AISpeeds_WeatherMultFactors[iVar3] =
+        0x10000 - (weatherRamp * iVar3) / 0x40;
+  }
   Udff_GetBuffer(handle,(char *)&engineUpgrade,0x10);
   Udff_GetBuffer(handle,(char *)&suspensionUpgrade,0x10);
   Udff_GetBuffer(handle,(char *)&aeroUpgrade,0x10);

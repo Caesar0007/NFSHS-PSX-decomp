@@ -16,6 +16,7 @@ extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj *Cars_gList[];
 extern Car_tObj *Cars_gAIRaceCarList[9];
 extern Car_tObj *Cars_gTotalSortedList[];
+extern char *Paths_Paths[];
 extern GameSetup_tData   GameSetup_gData;
 extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
 extern Trk_NewSlice  *BWorldSm_slices;

@@ -468,7 +468,13 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
      *  (4) hoisting the iSNDdmqueue length argument into `len` (declared FIRST in the loop block)
      *      makes cc1 materialize `lhu a2,0x44(s2)` early, alongside the `lw v1,0(s2)` base load, the
      *      way retail schedules it.  20 -> 16.
-     * WHAT IS LEFT (16 diffs, one cluster): the `avail` early-return colors A=$a0/B=$v1/lim=$v0 where
+     *  (5) w34-a5, 16 -> 14: the `frames`/`chunk` guard right after the `avail` early-return is
+     *      `*(u16*)(pp+0x36) > *(u16*)(pp+0x38)`, NOT the equivalent `0x38 < 0x36`.  C compares are
+     *      evaluated LEFT-TO-RIGHT, so the spelling picks the LOAD ORDER: retail emits
+     *      `lhu v1,54(s2)` (0x36) BEFORE `lhu v0,56(s2)` (0x38); the `<` spelling loads 0x38 first.
+     *      `a > b` and `b < a` produce the identical `sltu tmp,0x38,0x36`, so only the load order
+     *      (2 diffs) distinguishes them.
+     * WHAT IS LEFT (14 diffs, one cluster): the `avail` early-return colors A=$a0/B=$v1/lim=$v0 where
      * retail colors A=$v0/B=$a0/lim=$v1, so `avail` misses the return register and ours spends the
      * branch delay on `addu $v0,$a0,$zero` where retail has a nop (and the following `lhu 0x36`/`0x38`
      * pair swaps).  The chain SHAPE is identical (avail reuses A's reg, the slt result reuses lim's);
@@ -558,7 +564,7 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
                     int avail = *(int *)(pp + 0x14) - *(int *)(pp + 0x18);
                     if ((int)(unsigned)*(unsigned short *)(pp + 0x40) < avail)
                         return avail;
-                    if (*(unsigned short *)(pp + 0x38) < *(unsigned short *)(pp + 0x36))
+                    if (*(unsigned short *)(pp + 0x36) > *(unsigned short *)(pp + 0x38))
                         goto advance;
                     if (*(unsigned short *)(pp + 0x36) < 2) {     /* mark SPU loop-back */
                         i = 0;

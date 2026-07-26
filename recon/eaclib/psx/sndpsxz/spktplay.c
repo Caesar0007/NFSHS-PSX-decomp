@@ -4,9 +4,9 @@
  *   dialect fixer did not converge on this TU). Pre-migration (.cpp/cc1plus) vs post-migration
  *   (.c/cc1) per-fn diff counts, verify_asm.py authoritative -- IDENTICAL, zero regressions:
  *     iSNDpacketplayoverhead=PASS(0)  SNDPKTPLAY_overhead=PASS(0)   SNDPKTPLAY_create=PASS(0)
- *     SNDPKTPLAY_start=FAIL(114 w32, 187/187)  SNDPKTPLAY_submit=FAIL(2)  SNDPKTPLAY_submitspace=PASS(0)
+ *     SNDPKTPLAY_start=FAIL(100 w33, 187/187)  SNDPKTPLAY_submit=FAIL(2)  SNDPKTPLAY_submitspace=PASS(0)
  *     SNDPKTPLAY_unsafeframesoutstanding=PASS(0)  SNDPKTPLAY_framesoutstanding=PASS(0)
- *     SNDPKTPLAY_purge=FAIL(50, w32, 119/119)                                SNDPKTPLAY_stop=PASS(0)
+ *     SNDPKTPLAY_purge=FAIL(32, w33, 119/119)                                SNDPKTPLAY_stop=PASS(0)
  *     SNDPKTPLAY_destroy=PASS(0)      iSNDpacketget=PASS(0)         iSNDpacketfreeframes=PASS(0)
  *   10/13 PASS, 3/13 FAIL (start/submit/purge -- pre-existing near-miss floors documented below,
  *   unchanged by the C89 port). NOTE: SNDPKTPLAY_purge is NOT byte-exact PASS despite its insn
@@ -167,9 +167,14 @@ found:
  *   Args (per the caller, sst): rate = locked rate word, hdr = 0x14-byte header, params = 5-word params. */
 extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
 {
-    int ppp, note, allocOut, ch, s3len, dur, r;
+    int ppp, note, allocOut, ch, dur, r;
     int rateb2;
-    char *gp = (char *)sndgs;                     /* MATCH: hoist &sndgs ONCE into a var that
+    int gp;                                       /* &sndgs as an int, then REUSED to hold the
+                                                    * packet-play length (retail's s3: the oracle
+                                                    * redefines the very register that held the
+                                                    * sndgs base with the 0x10/-0x40<<8 length right
+                                                    * after `lw v1,0x94(s3)` -- one source variable,
+                                                    * two roles) */                     /* MATCH: hoist &sndgs ONCE into a var that
                                                     * survives across enteraudio/allocchan -- the
                                                     * guard and the 0x25 pool-base lookup share the
                                                     * SAME materialized base in the oracle ($s3),
@@ -182,6 +187,7 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
                                                     * and psq45 cc1 (same as ours) all fail to move it.
                                                     * ~100 of the 132 diffs are this one rotation
                                                     * cascading through the field stores. */
+    gp = (int)sndgs;
     if (*(signed char *)(gp + 0x3c) == 0)
         return -10;
     rateb2 = MB(rate, 2);                         /* MATCH: evaluated before the ppp lookup/
@@ -215,9 +221,9 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
     *(Unal4 *)(ppp + 0x24) = *(Unal4 *)rate;      /* unaligned rate-word copy: lwl/lwr + swl/swr */
 
     if (MSB(params, 0xb) != 0)
-        s3len = MUH(params, 0x10);
+        gp = MUH(params, 0x10);
     else
-        s3len = ((MSB(params, 7) - 0x40) << 8) & 0xffff;
+        gp = ((MSB(params, 7) - 0x40) << 8) & 0xffff;
 
     MSB(ch, 0xa)  = -1;              /* li -1 (signed char), not li 255 */
     MUH(ch, 0x5c) = MUH(hdr, 4);
@@ -260,7 +266,7 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
     dur = dur * MSB(ch, 0x35) / 0x3f01;
     /* H10: oracle (0x80102C94) passes 9 args; was 6 with dur/rate/hdr+0xc in the wrong slots and
        ch[0x2d]/ch[0x62]/params[0xe] missing.  a0..a3 + sp+16/20/24/28/32. */
-    r = iSNDplatformpacketplay(p, note, s3len, MSB(ch, 0x2d), MUH(ch, 0x62),
+    r = iSNDplatformpacketplay(p, note, gp, MSB(ch, 0x2d), MUH(ch, 0x62),
                                MUH(params, 0xe), dur, rate, hdr + 0xc);
     if (r < 0) {
         iSNDfreechan(note);

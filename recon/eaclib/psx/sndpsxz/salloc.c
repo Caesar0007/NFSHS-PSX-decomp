@@ -338,15 +338,23 @@ extern void iSNDfreechan(int chan)
     unsigned char *base = (unsigned char *)sndgs;
     int pool = *(int *)(base + 0x94);
     int partner = -1;
-    unsigned char *initialSlot = (unsigned char *)(pool + chan * 100);
-    group = initialSlot[0x37];
+    /* MATCH: ONE slot variable, exactly as IDA reads retail's $a1 -- it holds the
+     * initial channel slot, then the scan index, then the recomputed slot.  Split
+     * into three C locals gcc gives them three pseudos and the whole caller-saved
+     * assignment rotates (base/initialSlot and count/group swap places). */
+    int slot = pool + chan * 100;
+    group = *(unsigned char *)(slot + 0x37);
 
     if (group != 0) {
-        int idx = count;
         int limit;
         unsigned char *scan;
 
-        if (idx < (int)base[0x11]) {
+        slot = count;
+        if (slot < (int)base[0x11]) {
+            /* MATCH (cse.c double evaluation): retail's `addu $t2,$v1,$zero` is a COPY of
+             * the guard's own load -- the guard holds the FIRST evaluation of base[0x11]
+             * and the loop bound is a SECOND textual evaluation.  One hoisted `limit`
+             * folds them together and loses the copy. */
             limit = base[0x11];
             scan = (unsigned char *)pool;
             do {
@@ -354,54 +362,50 @@ extern void iSNDfreechan(int chan)
                     0 <= *(volatile int *)scan &&
                     *(volatile signed char *)(scan + 0xb) != 0 &&
                     (count++, *(volatile unsigned char *)(scan + 0x36) != 0))
-                    partner = idx;
-                idx++;
+                    partner = slot;
+                slot++;
                 scan += 100;
-            } while (idx < limit);
+            } while (slot < limit);
+        }
+
+        slot = sndgs[0x25] + chan * 100;
+
+        if (count == 1) {
+            *(unsigned char *)(slot + 0xb) = 0;
+            *(int *)(slot + 0x10) = sndgs[0x11];
+            return;
         }
 
         {
-            int slot = sndgs[0x25] + chan * 100;
+            int partnerOffset = partner * 100;
 
-            if (count == 1) {
+            /* MATCH: the scaled partner offset is the FIRST addu operand -- the oracle
+             * emits `addu $v0,$a3,$v1` / `addu $a3,$v0,$v1`. */
+            if (*(signed char *)(partnerOffset + sndgs[0x25] + 0xb) == 2 &&
+                chan != partner && count == 2) {
                 *(unsigned char *)(slot + 0xb) = 0;
                 *(int *)(slot + 0x10) = sndgs[0x11];
+                *(unsigned char *)(partnerOffset + sndgs[0x25] + 0xb) = 0;
+                *(int *)(partnerOffset + sndgs[0x25] + 0x10) = sndgs[0x11];
                 return;
             }
 
             {
-                int partnerOffset = partner * 100;
-
-                /* MATCH (diff-neutral under the current coloring, but oracle-truer): the scaled
-                 * partner offset is the FIRST addu operand -- the oracle emits `addu $v0,$a3,$v1`
-                 * / `addu $a3,$v0,$v1`, and addu operand order IS part of the encoding, so this
-                 * only stops showing as a diff once the register permutation above is solved. */
-                if (*(signed char *)(partnerOffset + sndgs[0x25] + 0xb) == 2 &&
-                    chan != partner && count == 2) {
-                    *(unsigned char *)(slot + 0xb) = 0;
-                    *(int *)(slot + 0x10) = sndgs[0x11];
-                    *(unsigned char *)(partnerOffset + sndgs[0x25] + 0xb) = 0;
-                    *(int *)(partnerOffset + sndgs[0x25] + 0x10) = sndgs[0x11];
+                int partnerSlot = partner * 100 + DAT_801478f4;
+                if (*(signed char *)(partnerSlot + 0xb) == 1 && chan == partner) {
+                    *(unsigned char *)(partnerSlot + 0xb) = 2;
                     return;
                 }
-
-                {
-                    int partnerSlot = partner * 100 + DAT_801478f4;
-                    if (*(signed char *)(partnerSlot + 0xb) == 1 && chan == partner) {
-                        *(unsigned char *)(partnerSlot + 0xb) = 2;
-                        return;
-                    }
-                }
-
-                *(unsigned char *)(slot + 0xb) = 0;
-                *(int *)(slot + 0x10) = sndgs[0x11];
-                return;
             }
+
+            *(unsigned char *)(slot + 0xb) = 0;
+            *(int *)(slot + 0x10) = sndgs[0x11];
+            return;
         }
     }
 
-    initialSlot[0xb] = 0;
-    *(int *)(initialSlot + 0x10) = sndgs[0x11];
+    *(unsigned char *)(slot + 0xb) = 0;
+    *(int *)(slot + 0x10) = sndgs[0x11];
 }
 
 /* iSNDgetchan @0x800FEDC4 : resolve a sound tag back to its channel index, validating that the channel is

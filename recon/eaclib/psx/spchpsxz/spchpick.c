@@ -319,14 +319,22 @@ extern int iSPCH_SampleLength(short *choice)
     int bank;
     int r;
     int tmp[4];
-    /* residual 14: ours colors the pick-byte chain base->a1/idx->v0 (la lands in the lbu-arg reg),
-     * oracle idx->a1/base->v0; fresh-sum/inline/anonymous-chain reshapes all score worse (14/16/22) */
-    int len = 0;
-    unsigned char *pickAddr = ispch_gPickSamples;
-    int voxBase = gVoxBanks[0];
-    pickAddr = pickAddr + choice[4];
+    /* MATCH (w33-a9, 14 -> 0): the pick address must be accumulated INTO the INDEX
+     * variable, not into the base pointer.  The oracle loads choice[4] into $a1 and
+     * adds the pick-pool base to it in place (`lh a1,8(a0); addu a1,a1,v0; lbu
+     * a1,0(a1)`), so the index's register is the addu DESTINATION and ends up being
+     * the 2nd call argument; writing `pickBase = pickBase + choice[4]` makes the
+     * BASE the mutated variable, which colors the la into the lbu/arg register and
+     * pushes gVoxBanks' load into $a0 (separate-temp `lui a1; lw a0,0(a1)` instead of
+     * retail's self-temp `lui v1; lw v1,0(v1)`).  Catalog lever #14 (in-place
+     * dead-pointer store) read the other way round: mutate the INDEX, not the base. */
+    int            len      = 0;
+    unsigned char *pickBase = ispch_gPickSamples;
+    int            voxBase  = gVoxBanks[0];
+    int            pick     = choice[4];
+    pick = (int)(pickBase + pick);
     bank = *(int *)(*choice * 4 + voxBase);
-    r = iSPCH_UnPackSample(bank, (unsigned int)*pickAddr, tmp);
+    r = iSPCH_UnPackSample(bank, (unsigned int)*(unsigned char *)pick, tmp);
     if (r != 0)
         len = tmp[0];
     return len;

@@ -81,71 +81,75 @@ void tScreenMemcard::DrawIcon(shapetbl *icon,int x,int y,int destwidth,int desth
                short fFade)
 
 {
-  u_short srcW;
-  u_short srcH;
-  byte u0;
-  byte v0;
-  short ts4;
+  int n;
+  byte iconType;
+  short srcW;
+  short srcH;
+  int destBright;
   int pkt_addr24;
-  int loop_or_color;
-  byte v1;
-  short ts8;
+  int tc1;
+  int destBrightLow;
+  int v0;
+  int v1;
+  short loop_or_color;
   uint pktAddr;
   byte *iconData;
-  int destBright;
-  byte u1;
-  short ts5;
-  short ts6;
-  byte tc1;
   u_char *cur_pkt;
   u_char *prev_pkt;
-  byte iconType;
-  
-  prev_pkt = Render_gPacketPtr;
-  cur_pkt = Render_gPalettePtr;
+  byte u0;
+  short ts4;
+  short ts8;
+
+  /* MATCH: the div-by-4 (and the shift-by-4 feeding it) reach the oracle as a
+     runtime `div`+overflow/zero guard and a variable-shift `sllv`, not a
+     folded `<<2` -- both operands trace to ONE non-literal local materialised
+     in the prologue (before any icon field is even read). */
+  iconData = (byte *)icon;
+  n = 4;
   iconType = *iconData;
-  srcW = *(u_short *)(iconData + 4);
-  srcH = *(u_short *)(iconData + 6);
+  srcW = *(short *)(iconData + 4);
+  srcH = *(short *)(iconData + 6);
   destBright = (*(int *)(iconData + 0xc) << 4) >> 0x14;
   pkt_addr24 = (*(int *)(iconData + 0xc) << 0x14) >> 0x14;
-  *(uint *)Render_gPacketPtr =
-       *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-  pktAddr = (uint)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x28;
+  tc1 = ((pkt_addr24 & 0x3f) << n) / n;
+  destBrightLow = destBright % 256;
+
+  prev_pkt = Render_gPacketPtr;
+  cur_pkt = Render_gPalettePtr;
+  *(uint *)prev_pkt =
+       *(uint *)prev_pkt & 0xff000000 | *(uint *)cur_pkt & 0xffffff;
+  pktAddr = (uint)prev_pkt & 0xffffff;
+  Render_gPacketPtr = prev_pkt + 0x28;
   *(uint *)cur_pkt = *(uint *)cur_pkt & 0xff000000 | pktAddr;
   prev_pkt[7] = 0x2e;
   prev_pkt[3] = 9;
-  u0 = 0x80 - (char)fFade;
+  u0 = -0x80 - fFade;
   prev_pkt[4] = u0;
   prev_pkt[5] = u0;
-  prev_pkt[6] = u0;
   loop_or_color = shapetoclutid(iconData);
-  *(short *)(prev_pkt + 0xe) = (short)loop_or_color;
+  prev_pkt[6] = u0;
+  *(short *)(prev_pkt + 0xe) = loop_or_color;
   *(ushort *)(prev_pkt + 0x16) =
        (iconType & 3) << 7 | (ushort)((int)(destBright & 0x100U) >> 4) |
        (ushort)((int)(pkt_addr24 & 0x3ffU) >> 6) | (ushort)((destBright & 0x200U) << 2);
-  tc1 = (byte)(((pkt_addr24 & 0x3fU) << 4) / 4);
-  v1 = tc1 + (char)srcW;
+  v1 = tc1 + srcW;
   prev_pkt[0xc] = tc1;
-  u1 = (byte)destBright;
-  prev_pkt[0xd] = u1;
+  prev_pkt[0xd] = destBrightLow;
   prev_pkt[0x14] = v1;
-  prev_pkt[0x15] = u1;
+  prev_pkt[0x15] = destBrightLow;
   prev_pkt[0x1c] = tc1;
-  v0 = u1 + (char)srcH;
+  v0 = destBrightLow + srcH;
   prev_pkt[0x1d] = v0;
   prev_pkt[0x24] = v1;
   prev_pkt[0x25] = v0;
-  ts5 = (short)x;
-  *(short *)(prev_pkt + 8) = ts5;
-  ts6 = (short)y;
-  *(short *)(prev_pkt + 10) = ts6;
-  *(short *)(prev_pkt + 0x12) = ts6;
-  *(short *)(prev_pkt + 0x18) = ts5;
-  ts8 = ts5 + (short)destwidth;
+  *(short *)(prev_pkt + 8) = (short)x;
+  *(short *)(prev_pkt + 10) = (short)y;
+  *(short *)(prev_pkt + 0x12) = (short)y;
+  *(short *)(prev_pkt + 0x18) = (short)x;
+  ts8 = (short)(x + destwidth);
   *(short *)(prev_pkt + 0x10) = ts8;
   *(short *)(prev_pkt + 0x20) = ts8;
-  ts4 = ts6 + (short)destheight;
+  ts4 = (short)(y + destheight);
   *(short *)(prev_pkt + 0x1a) = ts4;
   *(short *)(prev_pkt + 0x22) = ts4;
   return;
@@ -315,17 +319,14 @@ void tScreenMemcard::DrawHorizontalLine(short x,short y,short gridpos,short dir)
 void tScreenMemcard::PlaceIcons(int i,int fadeval)
 
 {
-  short fFade;
-  u_char *fade;
+  int fade;
   int yy;
   shapetbl *icon;
   short xx;
   int j;
-  int shapeFlags;
-  int shapeX;
-  int shapeY;
+  int animFrame;
   tDrawShapeExtended fFlags;
-  
+
   for (j = 0; j < (int)(uint)this->numblock[i]; j = j + 1) {
     yy = (int)this->cursorPosition;
     if ((yy / 3 & 1U) == 0) {
@@ -337,23 +338,29 @@ void tScreenMemcard::PlaceIcons(int i,int fadeval)
     xx = (MEMCARDICONOFFX & 0xffffU) + (uint)(ushort)GRIDMEMCARD_STARTX + MEMCARD_DELTAX * yy;
     yy = (uint)(ushort)GRIDMEMCARD_STARTY + (MEMCARDICONOFFY & 0xffffU) +
             (4 - (((int)this->cursorPosition / 3) * 0x10000 >> 0x10)) * MEMCARD_DELTAY;
+    /* MATCH: `ticks>>4` divided by numicon[i] is a genuine RUNTIME div (the
+       oracle carries the div-by-0/overflow guard), NOT a shift -- numicon[i]
+       is a per-instance byte, not a compile-time constant. The remainder
+       selects the icon's animation frame. */
+    animFrame = (ticks >> 4) % this->numicon[i];
     if (i == this->theNFS4icon) {
       fFlags.tint[0] = 0xb55623;
-      fade = (u_char *)(&*(int *)((char *)icon + 0x0) + this->fFadeIcon[i]);
-      if (0x80 < (int)fade) {
-        fade = (u_char *)0x80;
+      fade = fadeval + this->fFadeIcon[i];
+      if (0x80 < fade) {
+        fade = 0x80;
       }
-      DrawShapeExtended((int)icon,shapeFlags,shapeX,shapeY,(int)fade,1,
+      DrawShapeExtended(this->memcardanimframe,0x410,xx - 0xf2,yy - 0x70,fade,1,
                  &fFlags);
     }
     else {
-      fFade = (short)((uint)((int)(&*(int *)((char *)icon + 0x0) + this->fFadeIcon[i]) * 0x10000) >> 0x10);
-      if (0x80 < (int)(&*(int *)((char *)icon + 0x0) + this->fFadeIcon[i])) {
-        fFade = 0x80;
+      icon = (shapetbl *)(*fMemIcon[0])[i][animFrame];
+      fade = fadeval + this->fFadeIcon[i];
+      if (0x80 < fade) {
+        fade = 0x80;
       }
-      this->DrawIcon(icon,xx * 0x10000 >> 0x10,yy * 0x10000 >> 0x10,0x1f,0x10,fFade);
+      this->DrawIcon(icon,xx * 0x10000 >> 0x10,yy * 0x10000 >> 0x10,0x1f,0x10,(short)fade);
     }
-    if (((this->theNFS4icon == i) && (icon == (shapetbl *)0x0)) && (this->fGetNewIcons == 0)) {
+    if (((this->theNFS4icon == i) && (fadeval == 0)) && (this->fGetNewIcons == 0)) {
       xx = xx * 0x10000 >> 0x10;
       yy = (int)(short)yy;
       PSXDrawSquare(0,(xx - MEMCARDICONOFFX) + 2,(yy - MEMCARDICONOFFY) + 1,MEMCARD_DELTAX + -2,
@@ -780,27 +787,27 @@ void tScreenMemcard::DrawForeground()
 {
   short fade;
   int k;
-  int shapeIdx;
-  int shapeFlags;
-  int shapeX;
-  int shapeY;
+  int i;
   int fade_tmp;
-  
+
   fade_tmp = (uint)(ushort)this->fScreenFadeVal * 2 + -0x80;
   fade = (short)fade_tmp;
   k = fade_tmp * 0x10000 >> 0x10;
-  if ((k < 0x80) && (k < 1)) {
-    fade = 0;
+  if (k < 0x80) {
+    if (k < 1) goto DrawFg_setZero;
   }
-  else if (0x80 < k) {
-    fade = 0x80;
-  }
-  k = 0;
+  if (k < 0x81) goto DrawFg_join;
+  fade = 0x80;
+  goto DrawFg_join;
+DrawFg_setZero:
+  fade = 0;
+DrawFg_join:
+  i = 0;
   do {
-    DrawShapeExtended(shapeIdx,shapeFlags,shapeX,shapeY,(int)fade,0,
+    DrawShapeExtended(0x38 + i,0,0,0,(int)fade,0,
                (tDrawShapeExtended *)0x0);
-    k = k + 1;
-  } while (k < 4);
+    i = i + 1;
+  } while (i < 4);
   return;
 }
 

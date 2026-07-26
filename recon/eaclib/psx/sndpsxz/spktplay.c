@@ -6,7 +6,7 @@
  *     iSNDpacketplayoverhead=PASS(0)  SNDPKTPLAY_overhead=PASS(0)   SNDPKTPLAY_create=PASS(0)
  *     SNDPKTPLAY_start=FAIL(179)      SNDPKTPLAY_submit=FAIL(2)     SNDPKTPLAY_submitspace=PASS(0)
  *     SNDPKTPLAY_unsafeframesoutstanding=PASS(0)  SNDPKTPLAY_framesoutstanding=PASS(0)
- *     SNDPKTPLAY_purge=FAIL(66, insn-count-exact 119/119)           SNDPKTPLAY_stop=PASS(0)
+ *     SNDPKTPLAY_purge=FAIL(53, W31)                                SNDPKTPLAY_stop=PASS(0)
  *     SNDPKTPLAY_destroy=PASS(0)      iSNDpacketget=PASS(0)         iSNDpacketfreeframes=PASS(0)
  *   10/13 PASS, 3/13 FAIL (start/submit/purge -- pre-existing near-miss floors documented below,
  *   unchanged by the C89 port). NOTE: SNDPKTPLAY_purge is NOT byte-exact PASS despite its insn
@@ -82,6 +82,7 @@ extern int SNDPKTPLAY_submit(int p, int frame);          /* @0x80102CFC */
 extern int SNDPKTPLAY_submitspace(int p);                /* @0x80102E70 */
 extern int SNDPKTPLAY_unsafeframesoutstanding(int p);    /* @0x80102EC4 */
 extern int SNDPKTPLAY_framesoutstanding(int p);          /* @0x80102EEC */
+typedef struct { int w[6]; } PktCopy6;   /* 0x18-byte ring frame, block-copied in purge */
 extern int SNDPKTPLAY_purge(int p, int lo, int hi);      /* @0x80102F3C */
 extern int SNDPKTPLAY_stop(int p);                       /* @0x80103118 */
 extern int SNDPKTPLAY_destroy(int p);                    /* @0x801031F4 */
@@ -396,6 +397,14 @@ extern int SNDPKTPLAY_framesoutstanding(int p)
 
 /* SNDPKTPLAY_purge @0x80102F3C : drop every frame whose sequence falls within [lo, hi] from the ring,
  *   compacting the survivors down, firing the release callback for each removed frame.
+ *   W31: 66 -> 53 diffs (119/118): goto loop kills the strength-reduced store anchor; the 6-word
+ *   copy is a real struct assignment (movstrsi 4+2 batch, a3/t0-t2 fixed template regs); ppp->s0
+ *   and fr->a0 now match.  RESIDUAL: {wrptr,rd,wr} -> oracle {s1,s2,s3} vs ours {s3,s1,s2}; by the
+ *   3.12b priority model ours is "correct" (rd 2*7000/51=274 > wr 254 > wrptr 250) and no source
+ *   lever moved the order (decl order, stmt order, split init all no-ops; split-init refs are NOT
+ *   stale-counted).  Same unmodelable allocno-ordering signature as sbdload this wave -- suspected
+ *   retail cc1 allocno_compare delta, not source-reachable.  Plus 1 unfilled beqz slot (3b class:
+ *   ours hoists the callback-arg load, retail aspsx left nop).
  *   MATCH (oracle-traced): (1) VH() volatile-short reads for wr/rd/total/ringsize -- same async-slot
  *   shape as submit/submitspace/stop/iSNDpacketget; (2) REMOVE ("lo<=fr0<=hi") is the branch-away/
  *   fallthrough arm and KEEP is the oracle's explicit two-`bnez`-to-the-same-label branch target --
@@ -403,7 +412,7 @@ extern int SNDPKTPLAY_framesoutstanding(int p)
  *   emits for this `&&`/`||` pair (not a correctness bug, a codegen-shape fix). */
 extern int SNDPKTPLAY_purge(int p, int lo, int hi)
 {
-    int   ppp, i, wr, rd, total, rdoff, wrptr;
+    int   ppp, i, wrptr, wr, rd, total, rdoff;
 
     if ((signed char)sndgs[0xf] == 0)
         return -10;
@@ -422,7 +431,11 @@ extern int SNDPKTPLAY_purge(int p, int lo, int hi)
     if (0 < total) {
         rdoff = rd * 0x18 + 0x28;
         wrptr = wr * 0x18 + ppp;
-        do {
+        /* GOTO loop (W31, same finding as sbdload): a natural do/while gets loop notes and gcc
+         * strength-reduces the 0x28..0x3C store addresses onto a REBASED anchor (wrptr+0x3C-held
+         * base, negative displacements); the oracle keeps the raw wrptr/rdoff IVs and recomputes
+         * src = ppp+rdoff each iteration.  No loop notes -> no SR -> source IVs survive. */
+purge_next: {
             int *fr = (int *)(ppp + rdoff);
             if (lo <= fr[0] && fr[0] <= hi) {      /* remove (branch-away, oracle fallthrough) */
                 MUH(ppp, 0xe) = MUH(ppp, 0xe) - 1;  /* plain lhu, no shift (no compare) */
@@ -434,18 +447,9 @@ extern int SNDPKTPLAY_purge(int p, int lo, int hi)
                  * copy as load-4/store-4 then load-2/store-2 (4 then 2 distinct caller-saved temps,
                  * $a3/$t0/$t1/$t2) instead of interleaving one load+store per field -- named temps
                  * reproduce the parallel chains and kill the load-delay nop per field. */
-                int c0 = fr[0], c1 = fr[1], c2 = fr[2], c3 = fr[3];
-                MI(wrptr, 0x28) = c0;
-                MI(wrptr, 0x2c) = c1;
-                MI(wrptr, 0x30) = c2;
-                MI(wrptr, 0x34) = c3;
-                {
-                    int c4 = fr[4], c5 = fr[5];
-                    MI(wrptr, 0x38) = c4;
-                    MI(wrptr, 0x3c) = c5;
-                }
-                wr++;
+                *(PktCopy6 *)(wrptr + 0x28) = *(PktCopy6 *)fr;   /* movstrsi 4+2 batch (3.25-3d a) */
                 wrptr += 0x18;
+                wr++;
                 if (VH(ppp, 8) <= wr) {
                     wr = 0;
                     wrptr = ppp;
@@ -458,7 +462,9 @@ extern int SNDPKTPLAY_purge(int p, int lo, int hi)
                 rd = 0;
             }
             i++;
-        } while (i < total);
+            if (i < total)
+                goto purge_next;
+        }
     }
     iSNDleaveaudio();
     return 0;

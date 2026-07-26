@@ -9,8 +9,8 @@ extern int  ticks;
 extern int  kRGBVals[28];
 extern char textDefinitions[14][6];
 extern tTexture_ShapeInfo *gCurrentShapes;
-extern int  NewRecords[8];
-extern int  NewBestLap;
+extern bool NewRecords[8];
+extern bool NewBestLap;
 void trap(int code);
 int  textpixels(char *str);
 int  CalcFadeVal(int col1, int amount);   /* 2-arg overload */

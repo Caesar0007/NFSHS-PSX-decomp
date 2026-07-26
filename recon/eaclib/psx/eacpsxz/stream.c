@@ -1071,10 +1071,26 @@ reclaim:
  *       validated `out[0]` -- oracle caches the ORIGINAL `$a0` parameter in `$s0` across the
  *       validatehandle() call SOLELY to feed this one call (STREAM_cancelrequest presumably
  *       re-validates internally); every other access in the function uses out[0].
- * RESIDUAL FLOOR (63 diffs): the free-mark-the-whole-ring do-while (mirrors restartstream's wrap-marker
- *   loop, already in the matching guard+do-while shape) has a pure register-coloring tie-break on which
- *   temp gets a0/a1/a2/a3/v0/v1 for the 3 hoisted loop-invariant constants (-1/-2/0xFFFFFF mask) --
- *   same allocator tie-break family as STREAM_overhead/decbufferusage. Not pursued further this wave. */
+ * w32-a2: 63 -> 0 (PASS, 105 insns).  The "63-diff coloring floor" above was NOT a floor -- it was a
+ *   VARIABLE-SHAPE miss, read straight off the IDA per-register annotation of sub_800FD808 (v3/$a1,
+ *   v4/$a1, v8/$a0, i/$v1).  Four changes, each reproducing a live-range the oracle actually has:
+ *   (a) LOOP-CARRIED out[0] RE-READ.  Both trailing loops keep ONE stack reload of out[0] per iteration,
+ *       placed MID-BODY, whose value serves the loop CONDITION of this iteration AND the first field
+ *       read of the NEXT one (oracle: `lw v0,24(a1); lw a1,16(sp); ... lw v0,28(a1)`).  Writing the
+ *       loop with a local `sobj` that is re-assigned `sobj = out[0]` mid-body reproduces exactly that
+ *       (one reload/iteration); reading `MI(out[0],...)` at both sites emits TWO reloads + 2 load-delay
+ *       nops per iteration (the whole +7 instruction surplus).  IDA renders it as `v4 = v11;` inside the
+ *       loop and `for (...; ...; v8 = v11)` -- that IS the register dataflow, not an artifact.
+ *   (b) let loop.c build the i*0x10 giv: index inline with `i * 0x10`, do NOT hand-roll a separate `off`
+ *       accumulator (a multiply-set variable blocks strength reduction -- catalog SB "multiply-set SR
+ *       blocker"); the oracle's preheader `sll v1,a0,4` (of i==0!) is the giv initializer.
+ *   (c) the ring walker is its OWN local (`r`), not a reuse of the first loop's `q` -- retail has two
+ *       distinct variables ($a1 and $v1); reusing one forces the q/mask register pair to swap.
+ *   (d) mask BEFORE the -2 store (`len = r[1] & 0xffffff; r[0] = -2;`) so loop.c hoists the invariants
+ *       in the oracle's order -1 / mask / -2.
+ *   (e) `qc = MI(out[0],0x50)` read into its own local BEFORE `sobj = out[0]`: that keeps the queuecur
+ *       load's pseudo live across the `sobj` definition, so gcc emits the oracle's `addu a1,v0,zero`
+ *       copy instead of loading straight into the loop-carried register (1 insn we were SHORT). */
 extern void STREAM_kill(int s)
 {
     int out[2];
@@ -1093,34 +1109,42 @@ extern void STREAM_kill(int s)
     }
     while (MI(out[0], 0x4c) != MI(out[0], 0x50))    /* free the rest of the queue */
         freerequest(out[0], MI(out[0], 0x4c));
-    MI(MI(out[0], 0x50) + 4, 0) = 4;                /* mark last cancelled */
-
     {
-        int i = 0;
-        if (MI(out[0], 0x1c) > 0) {                  /* zero all consumer counts */
+        int qc = MI(out[0], 0x50);
+        int sobj = out[0];
+        int i;
+        MI(qc + 4, 0) = 4;                          /* mark last cancelled */
+        i = 0;
+        if (MI(sobj, 0x1c) > 0) {                    /* zero all consumer counts */
             do {
-                MI(i * 0x10 + MI(out[0], 0x18) + 8, 0) = 0;
+                int ca = MI(sobj, 0x18);
+                sobj = out[0];
+                MI(i * 0x10 + ca + 8, 0) = 0;
                 i++;
-            } while (i < MI(out[0], 0x1c));
+            } while (i < MI(sobj, 0x1c));
         }
     }
     decbufferusage(out[0], MI(out[0], 0x3c));        /* zero the buffer usage */
 
-    q = *(int **)(out[0] + 0x40);                     /* free-mark the whole ring */
-    if (q != *(int **)(out[0] + 0x44)) {
-        do {
-            if (q[0] == -1) {
-                q = *(int **)(out[0] + 0x20);
-            } else {
-                unsigned int len = q[1];
-                q[0] = -2;
-                q[1] = len & 0xffffff;
-                q = (int *)((int)q + (len & 0xffffff));
-            }
-        } while (q != *(int **)(out[0] + 0x44));
+    {
+        int sobj = out[0];
+        int *r = *(int **)(sobj + 0x40);              /* free-mark the whole ring */
+        if (r != *(int **)(sobj + 0x44)) {
+            do {
+                if (r[0] == -1) {
+                    r = *(int **)(sobj + 0x20);
+                } else {
+                    unsigned int len = r[1] & 0xffffff;
+                    r[0] = -2;
+                    r[1] = len;
+                    r = (int *)((int)r + len);
+                }
+                sobj = out[0];
+            } while (r != *(int **)(sobj + 0x44));
+        }
+        if (MI(sobj, 0x28) == 2)
+            MI(sobj, 0x28) = 0;                      /* clear the stall */
     }
-    if (MI(out[0], 0x28) == 2)
-        MI(out[0], 0x28) = 0;                        /* clear the stall */
 }
 
 /* STREAM_get @0x800FD9AC : pop the next available chunk for a consumer, returning a pointer to its data

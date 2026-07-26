@@ -174,95 +174,112 @@ void tScreenControllerConfig::CheckConfigs()
 {
   byte config;
   byte prevConfig;
-  short animVal;
+  int arrowDim;   /* MATCH: (fArrowFade < 0x80) computed PER ARM (oracle has an
+                     slti in each fade arm sharing ONE bnez at .L80043544) --
+                     a `short animVal` local instead forces lhu + sll/sra. */
+  int ctrlCur;
+  int swapPrev;
+  int swapCur;
   int cmp;
-  
-  if (this->fCurrentController == this->fPrevController) {
-    if ((uint)(byte)frontEnd.controlConfig[this->player] == (uint)(byte)this->fPrevConfig) {
-      return;
-    }
+
+  /* MATCH (SLD-driven block order, oracle 0x80043400..0x800436EC):
+     - top-level guard is `!=` with the CHANGED-controller arm INLINE
+       (oracle `beq v1,v0,.L800435B8` jumps AWAY to the unchanged arm);
+     - the strcmp-hit "swap in" body is OUT OF LINE at the end (oracle
+       `beqz $v0,.L80043570` branches FORWARD past the fTextController block),
+       so it must be a `goto` target, not an inline if-body;
+     - the two fade arms each end computing `slti fArrowFade,0x80` and share
+       ONE `bnez` at .L80043544 (cross-jump-merged tail).
+     SLD: 835 guard / 837 TurnOffShakers / 840 fAnim / 843 curr==0 /
+          853 prev==0 / 869 strcmp / 871-879 fades / 880-883 fTextController /
+          888-892 swap-in / 899-926 unchanged arm. */
+  if (this->fCurrentController != this->fPrevController) {
+    this->TurnOffShakers();
     Front_ResetPSXController(this->player,(uint)(byte)frontEnd.controlConfig[this->player]);
-    if ((*(int *)this->fFade == 0) && (this->fAnim == 0)) {
-      this->fAnim = 1;
-      this->fAnimController = (ushort)(byte)this->fCurrentController;
-      config = frontEnd.controlConfig[this->player];
-      prevConfig = this->fPrevConfig;
-      if (((prevConfig < config) && ((config != 2 || (prevConfig != 0)))) || ((config == 0 && (prevConfig == 2)))) {
-        animVal = this->AnimKeyPoints(true,1);
-        this->fAnimStart = animVal;
-        animVal = this->AnimKeyPoints(true,0);
-        this->fAnimStop = animVal;
-        animVal = 1;
-      }
-      else {
-        animVal = this->AnimKeyPoints(false,1);
-        this->fAnimStart = animVal;
-        animVal = this->AnimKeyPoints(false,0);
-        this->fAnimStop = animVal;
-        animVal = -1;
-      }
-      this->fAnimStep = animVal;
-      this->fAnimFrame = this->fAnimStart;
-    }
-    this->fPrevConfig = frontEnd.controlConfig[this->player];
-    return;
-  }
-  this->TurnOffShakers();
-  Front_ResetPSXController(this->player,(uint)(byte)frontEnd.controlConfig[this->player]);
-  if (this->fAnim != 0) {
-    return;
-  }
-  if (this->fCurrentController == '\0') {
-    if (this->fAnimFade != 0) {
+    if (this->fAnim != 0) {
       return;
     }
-    this->fFade[0] = 1;
-    this->fFadeController[0] = (ushort)(byte)this->fPrevController;
+    if (this->fCurrentController == ' ') {
+      if (this->fAnimFade != 0) {
+        return;
+      }
+      this->fFade[0] = 1;
+      this->fFadeController[0] = (ushort)(byte)this->fPrevController;
+      this->fPrevController = this->fCurrentController;
+      return;
+    }
+    if (this->fPrevController == ' ') {
+      if (this->fAnimFade != 0) {
+        return;
+      }
+      ctrlCur = (byte)this->fCurrentController;
+      arrowDim = this->fArrowFade < 0x80;
+      this->fSwap = 1;
+      this->fFade[1] = 1;
+      this->fFadeController[1] = (ushort)ctrlCur;
+    }
+    else {
+      if ((this->CurrentlyLoadedArt != -1) &&
+         (cmp = strcmp
+                            (fileNames[(byte)this->fCurrentController],
+                             fileNames[this->CurrentlyLoadedArt]), cmp == 0)) {
+        goto ChkConfigs_swapIn;
+      }
+      if (this->fAnimFade != 0) {
+        return;
+      }
+      swapPrev = (byte)this->fPrevController;
+      swapCur = (byte)this->fCurrentController;
+      arrowDim = this->fArrowFade < 0x80;
+      this->fFade[0] = 1;
+      this->fSwap = 1;
+      this->fFade[1] = 1;
+      /* MATCH: [1] before [0] in source -- keeps this arm's `sh ?,0x76` out of
+         cross-jump range of the other arm's (oracle uses distinct regs a0/a1). */
+      this->fFadeController[1] = (ushort)swapCur;
+      this->fFadeController[0] = (ushort)swapPrev;
+    }
+    if (!arrowDim) {
+      this->fTextController = this->fCurrentController;
+    }
+    if (this->fTextController == '') {
+      this->fTextController = '';
+    }
+    this->fPrevController = this->fCurrentController;
+    return;
+ChkConfigs_swapIn:
+    this->fFadeTextOut = 1;
+    if (((this->fPrevController == '') || (this->fPrevController == '')) &&
+       ((this->fCurrentController == '' || (this->fCurrentController == '')))) {
+      this->SwapInController();
+    }
     this->fPrevController = this->fCurrentController;
     return;
   }
-  if (this->fPrevController == '\0') {
-    if (this->fAnimFade != 0) {
-      return;
+  if ((uint)(byte)frontEnd.controlConfig[this->player] == (uint)(byte)this->fPrevConfig) {
+    return;
+  }
+  Front_ResetPSXController(this->player,(uint)(byte)frontEnd.controlConfig[this->player]);
+  if ((*(int *)this->fFade == 0) && (this->fAnim == 0)) {
+    this->fAnim = 1;
+    this->fAnimController = (ushort)(byte)this->fCurrentController;
+    config = frontEnd.controlConfig[this->player];
+    prevConfig = this->fPrevConfig;
+    if (((prevConfig < config) && ((config != 2 || (prevConfig != 0)))) || ((config == 0 && (prevConfig == 2)))) {
+      this->fAnimStart = this->AnimKeyPoints(true,1);
+      this->fAnimStop = this->AnimKeyPoints(true,0);
+      this->fAnimStep = 1;   /* MATCH: store the step DIRECTLY per arm (no shared
+                                animVal local) -- gcc colors each to $v0 and
+                                cross-jump-merges only the `sh $v0,0x86` tail. */
     }
-    config = this->fCurrentController;
-    animVal = this->fArrowFade;
-    this->fSwap = 1;
-    this->fFade[1] = 1;
-    this->fFadeController[1] = (ushort)config;
-  }
-  else {
-    if ((this->CurrentlyLoadedArt != -1) &&
-       (cmp = strcmp
-                          (fileNames[(byte)this->fCurrentController],
-                           fileNames[this->CurrentlyLoadedArt]), cmp == 0)) {
-      this->fFadeTextOut = 1;
-      if (((this->fPrevController == '\x05') || (this->fPrevController == '\x03')) &&
-         ((this->fCurrentController == '\x04' || (this->fCurrentController == '\x06')))) {
-        this->SwapInController();
-      }
-      goto ChkConfigs_savePrevCtrl;
+    else {
+      this->fAnimStart = this->AnimKeyPoints(false,1);
+      this->fAnimStop = this->AnimKeyPoints(false,0);
+      this->fAnimStep = -1;
     }
-    if (this->fAnimFade != 0) {
-      return;
-    }
-    config = this->fPrevController;
-    prevConfig = this->fCurrentController;
-    animVal = this->fArrowFade;
-    this->fFade[0] = 1;
-    this->fSwap = 1;
-    this->fFade[1] = 1;
-    this->fFadeController[0] = (ushort)config;
-    this->fFadeController[1] = (ushort)prevConfig;
+    this->fAnimFrame = this->fAnimStart;
   }
-  if (0x7f < animVal) {
-    this->fTextController = this->fCurrentController;
-  }
-  if (this->fTextController == '\x06') {
-    this->fTextController = '\x05';
-  }
-ChkConfigs_savePrevCtrl:
-  this->fPrevController = this->fCurrentController;
+  this->fPrevConfig = frontEnd.controlConfig[this->player];
   return;
 }
 
@@ -1362,21 +1379,23 @@ tScreenControllerConfig::tScreenControllerConfig()
 int tScreenControllerConfig::GetHelpText()
 
 {
-  byte isNegcon;
-  
-  isNegcon = this->fCurrentController;
-  if (isNegcon == 2) {
-    return 0x21a;
-  }
-  if (isNegcon < 3) {
-    if (isNegcon == 1) {
-      return 0x219;
-    }
-  }
-  else if ((isNegcon < 7) && (4 < isNegcon)) {
+  /* MATCH: a real switch, NOT an if-chain.  The oracle's dispatch is gcc-2.8's
+     balance_case_nodes TREE over 3 case nodes {1},{2},{5..6} (root == 2, then
+     slti 3 / slti 7 / slti 5) with the case BODIES in SOURCE order
+     (5|6, 1, 2) and the default -1 as a shared funnel block.  Switching on the
+     field directly (int-promoted) also drops the `andi 0xff` a u_char local
+     re-mask emitted.  [SLD 1897=switch, 1899/1903/1906=case bodies, 1912=-1] */
+  switch (this->fCurrentController) {
+  case 5:
+  case 6:
     return 0x218;
+  case 1:
+    return 0x219;
+  case 2:
+    return 0x21a;
+  default:
+    return -1;
   }
-  return -1;
 }
 
 /* ---- ___23tScreenControllerConfig  (screencontroller.cpp:177) ----

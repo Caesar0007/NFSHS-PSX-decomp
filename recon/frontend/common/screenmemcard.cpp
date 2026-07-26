@@ -272,25 +272,30 @@ void tScreenMemcard::DrawHorizontalLine(short x,short y,short gridpos,short dir)
 
 {
   int side;
-  
-  if (((short)gridpos < 1) || ((short)gridpos < 0x40)) {
-    if ((short)gridpos < 0) {
-      gridpos = 0;
+  int width;
+  int g = gridpos;
+
+  /* MATCH: the oracle keeps BOTH guards (blez + slti 0x40) -- an
+     `x<1 || x<0x40` spelling folds to one slti.  Clamp-high first,
+     clamp-low as the else-if. */
+  if (0 < g) {
+    if (0x40 <= g) {
+      gridpos = 0x40;
     }
   }
-  else {
-    gridpos = 0x40;
+  if (g < 0) {
+    gridpos = 0;
   }
+  width = (ushort)GRIDMEMCARDGOURAUDBIT_X * 2 + 2;
+  width = (ushort)GRIDMEMCARD_WIDTH + width;
   if (dir == 0) {
     side = 2;
   }
   else {
     side = 3;
   }
-  PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,
-             (int)(((uint)(ushort)GRIDMEMCARD_WIDTH + (GRIDMEMCARDGOURAUDBIT_X & 0xffffU) * 2 + 2) *
-                  0x10000) >> 0x10,1,side,(int)((uint)gridpos << 0x10) >> 0xf,GRIDMEMCARDGOURAUDBIT_X)
-  ;
+  PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,(short)width,
+             1,side,(int)gridpos * 2,GRIDMEMCARDGOURAUDBIT_X);
   return;
 }
 

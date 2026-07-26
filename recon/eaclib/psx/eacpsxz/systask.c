@@ -15,7 +15,7 @@ extern int gSysTaskLastTick;  /* last tick the task list ran */
 extern int systemtasksubs;    /* int[16*4] : 16 slots of {fn, period, deadline, busy} */
 
 extern int          addsystemtask(int taskFn, int period, int delay);        /* @0x800E6AF4 */
-extern int          delsystemtask(int fn);                                   /* @0x800E6BA8 */
+extern void         delsystemtask(int fn);                                   /* @0x800E6BA8 */
 extern unsigned int systemtask(int arg1);                                    /* @0x800E6C04 */
 
 /* addsystemtask @0x800E6AF4 : register a periodic task (or update its slot); returns the running count.
@@ -65,39 +65,26 @@ extern int addsystemtask(int taskFn, int period, int delay)
     return gSysTaskCount;
 }
 
-/* delsystemtask @0x800E6BA8 : remove the task whose fn matches; returns the matched fn word
- * (0 if the scan exhausted all 16 slots without a match -- MATCH: the not-found path returns
- * the loop's own `i<0x10` boolean AS-IS (always 0 there), NOT a bogus `i*0x10` value -- real
- * bug fix vs the prior form; also kept as a single-exit funnel to reproduce the oracle's ONE
- * shared epilogue instead of 3 separate `jr ra`s).
- * RESIDUAL (30 diffs, 29 vs 23 insns): retaining a separate `base` used both by the
- * walker and the indexed tail cuts the prior 36-diff register/address divergence.  gcc-2.8
- * `-O2` still PEELS the do-while's first iteration
- * (compile-time-provable initial `slot`=&systemtasksubs address) into straight-line code
- * before the real loop -- the oracle has NO peeling (uniform 16-iteration do-while). Tried:
- * for-loop rewrite (still peels, 27 insns), avoiding a compile-time-constant initial pointer
- * (not source-reachable without changing the real initial value). An explicit-goto uniform
- * loop recovered the oracle's 23-instruction count but worsened register allocation to 38
- * diffs, so the closer peeled form is retained. */
-extern int delsystemtask(int fn)
+/* delsystemtask @0x800E6BA8 : remove the task whose fn matches.
+ * The apparent return value in decompiler output is incidental: every known caller discards it,
+ * and the oracle has no return-value funnel.  Recovering the void signature removes the false
+ * result construction and reduces the detailed residual from 30 to 15 diffs (28/23 instructions);
+ * the remaining five-instruction excess is the compiler's peeled first loop iteration. */
+extern void delsystemtask(int fn)
 {
     int  i    = 0;
     int *base = &systemtasksubs;
     int *slot = base;
-    int  ret;
     do {
         if (*slot == fn)
             break;
         i = i + 1;
         slot = slot + 4;
     } while (i < 0x10);
-    ret = 0;
     if (i < 0x10) {
-        ret = base[i * 4];
-        if (ret == fn)
+        if (base[i * 4] == fn)
             base[i * 4] = 0;
     }
-    return ret;
 }
 
 /* systemtask @0x800E6C04 : once per tick, run every due task (fn(arg1, elapsed)) and re-arm it; OR of returns.

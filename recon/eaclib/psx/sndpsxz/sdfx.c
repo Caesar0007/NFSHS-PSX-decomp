@@ -99,8 +99,8 @@ extern void SNDI_mutexunlock(void) { }
 extern unsigned int iSNDpsxfxinit(int mode)
 {
     unsigned char * pd;
-    int i;
     int work;
+    int n;
     unsigned char scratch[256];
     short         rv[0x21];
     unsigned char *src;
@@ -144,23 +144,55 @@ extern unsigned int iSNDpsxfxinit(int mode)
         rv[8] = (short)((sg[3] * 0x8100) / 0x7f);
     }
 
+    /* MATCH (w32, 49->6): four shape facts, all read off the oracle's loop at .L8010049C.
+     *  1. The counter `n` is FUNCTION-scope and zeroed BEFORE the reverb-off store: retail's
+     *     `addu $a2,$zero,$zero` is the first insn of the pre-loop block, ahead of the control
+     *     load.  A block-local `for (n = 0; ...)` emits it last (5 diffs of block reordering).
+     *  2. It is a SEPARATE counter from the DMA loop's: nothing here crosses a call, so retail
+     *     colors it caller-saved ($a2) -- reusing the function's cross-call variable forces $s1.
+     *  3. The rv source is a WALKING short pointer read at +2 (`lhu $a0,0x2($a1)`; `$a1 += 2`),
+     *     while the SPU destination is indexed by the counter -- mixed walk/index, exactly as
+     *     retail wrote it; indexing both sides costs 3 extra insns.
+     *  4. The per-iteration control-register reload goes through a volatile int* base indexed by
+     *     a constant word (`lw $v1,0x514($a3)`); the plain DAT_80147e2c macro folds &sndpd+0x514
+     *     into one absolute %lo load and hoists it out as a lui. */
+    n = 0;
     *(unsigned short *)(DAT_80147e2c + 0x1aa) = *(unsigned short *)(DAT_80147e2c + 0x1aa) & 0xff7f;  /* reverb off while loading */
-    for (i = 0; i < 0x20; i++)                            /* 0x20 reverb coefficient regs */
-        *(unsigned short *)(i * 2 + DAT_80147e2c + 0x1c0) = (unsigned short)rv[1 + i];
+    {
+        volatile int *ctl = (volatile int *)pd;
+        short *rp = rv;
+        for (; n < 0x20; n++) {                           /* 0x20 reverb coefficient regs */
+            short v = rp[1];
+            rp++;
+            *(unsigned short *)(n * 2 + ctl[0x514/4] + 0x1c0) = (unsigned short)v;
+        }
+    }
     work = 0x10000 - (unsigned short)rv[0];
-    *(short *)(DAT_80147e2c + 0x1a2) = (short)work;        /* reverb work-area start address */
+    /* volatile: the oracle does NOT fill the following jal's delay slot with this store (it emits
+     * `sh; jal; nop`), which is reorg refusing to move a volatile MEM -- §3.25-3c inverted. */
+    *(volatile short *)(DAT_80147e2c + 0x1a2) = (short)work;        /* reverb work-area start address */
 
     blockclear((int)scratch, 0x100);                      /* zero the 256-byte DMA scratch */
-    i = 0;                                                /* DMA-clear SPU reverb RAM in 0x20-word runs */
-    while (i < 0x10000) {
+    /* 🔴 CORRECTNESS FIX (w32, oracle-proven): the clear loop starts at the reverb WORK-AREA base,
+     * not at 0 -- retail computes `$s1 = 0x10000 - rv[0]` and uses that SAME register as the loop
+     * variable (`slt $v0,0xFFFF,$s1` guard, `subu $a2,$s3,$s1` chunk, `addiu $s1,$s1,0x20`).  The
+     * old `i = 0;` cleared SPU RAM from address 0, i.e. over the sample area below the reverb
+     * buffer.  `work` IS the counter (one variable, no copy insn). */
+    while (work < 0x10000) {                              /* DMA-clear SPU reverb RAM from the work-area
+                                                           * start to 0xFFFF in 0x20-word runs */
         int h;
-        int chunk = 0x10000 - i;
+        int chunk = 0x10000 - work;
         if (0x20 < chunk) chunk = 0x20;
-        h = iSNDdmqueue((int)scratch, (unsigned int)(i << 3), chunk << 3, 1, 0);
-        i += 0x20;
+        h = iSNDdmqueue((int)scratch, (unsigned int)(work << 3), chunk << 3, 1, 0);
+        work += 0x20;
         do { } while (iSNDdmcomplete(h) == 0);
     }
 
+    /* RESIDUAL 6 diffs, 222/222 insns: two pure sched1 ties -- (a) the `la snd_reverb_table`
+     * lands 2 slots later than retail's (before vs after the mode*0x42 sll/addu chain; splitting
+     * the pointer arithmetic, hoisting the table address, and an explicit offset temp all made it
+     * worse: 16/8/66), and (b) the `rv[0xb]` store sits one slot behind its subu (a named temp,
+     * operand-order flip and statement reorder are all diff-neutral). */
     ctl = *(unsigned short *)(DAT_80147e2c + 0x1aa) | 0x80;   /* reverb enable */
     *(short *)(DAT_80147e2c + 0x1aa) = (short)ctl;
     return ctl;

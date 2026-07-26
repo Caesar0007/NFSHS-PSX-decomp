@@ -26,7 +26,27 @@ extern void chase(unsigned int code);                                           
  * That lifetime puts source in $s2 and output in $s3 and removes the whole saved-register cascade;
  * declaring that cursor before the result accumulator also matches the retail saved-register setup,
  * while the literal-run length reuses the mutable third parameter for the retail $s0 schedule.
- * Remaining residual is three missing output-cursor materializations plus arithmetic/prologue scheduling.
+ * w32-a4 (33 -> 17 diffs): every command arm's `count` is built from TWO terms, and written as a
+ * single sum gcc both reassociates the `+1` onto the FIRST term and evaluates the terms in the
+ * wrong order -- giving each term its own named statement (hi/lo) reproduces the oracle's exact
+ * operand order and `addiu vN,vN,1` placement in all three arms (same lever as memstd's
+ * `gran + 0x0F` / resize's `align + 15`).
+ * RESIDUAL 17 (ours 153 / oracle 158), three classes, all "our cc1 optimises MORE than retail's":
+ *  (a) 3x the `out += reverse` before the shared refcpy call: `out`'s new value is dead (refcpy's
+ *      return overwrites it) so combine folds the add into the argument copy (`addu a0,s3,s0`)
+ *      where the oracle materialises it (`addu s3,s3,s0` + `addu a0,s3,zero`). The ONLY form that
+ *      restores the add is moving the call into a goto-shared block -- which breaks the LOG_LINK
+ *      across the block boundary but then emits ONE shared `a0` setup instead of the oracle's
+ *      three, and costs far more elsewhere (tried: 60 diffs, reverted). The identical `out +=`
+ *      AFTER the memcpyl call (literal-run arm) already matches, because there `out` is live at
+ *      the loop back edge.
+ *  (b) the 3-byte arm's `((op >> 8) & 0x3f) << 8`: our cc1 folds the shift pair to one
+ *      `andi 0x3f00`, the oracle keeps `srl 8 / sll 8 / andi 0x3f00`. Writing the oracle's own
+ *      `((op >> 8) << 8) & 0x3f00` form folds identically.
+ *  (c) prologue param-copy ORDER (ours out/reverse/comp, oracle reverse/comp/out) with identical
+ *      register assignment -- tried 3 declaration permutations, none better (2 regressed to 21).
+ * (a)+(b) are exactly the 5-instruction gap and are the catalog SS-G "per-obj old-gcc identity"
+ * signature (retail keeps redundant copies / weaker combine); recorded, not contorted.
  * Raw nfs4-f.exe E5AB8..E5D2F SHA-256:
  * eae786e8d18c199bea647b339f069508f7294319d4855358b59db0bf234b749b. */
 extern int unrefpack(unsigned char *comp, unsigned char *out, int reverse)
@@ -48,36 +68,51 @@ extern int unrefpack(unsigned char *comp, unsigned char *out, int reverse)
                 unsigned int op = geti(src, 4);
                 if ((op & 0x80) == 0) {                   /* 2-byte command */
                     unsigned int   count;
+                    unsigned int   hi;
+                    unsigned int   lo;
                     int            len;
                     src += 2;
                     reverse = op & 3;
                     puti(out, geti(src, 4), 4);
                     out += reverse;
                     src += reverse;
-                    count = ((op << 3) & 0x300) + (((op >> 8) & 0xff) + 1);
+                    hi    = (op << 3) & 0x300;        /* MATCH: BOTH terms get their own
+                                                       * statement -- written as one sum gcc
+                                                       * reassociates the +1 onto the first
+                                                       * term and evaluates them in the wrong
+                                                       * order */
+                    lo    = ((op >> 8) & 0xff) + 1;
+                    count = hi + lo;
                     len   = (int)(op >> 2 & 7) + 3;
                     out   = refcpy(out, count, len);
                 } else if ((op & 0x40) == 0) {            /* 3-byte command */
                     unsigned int   count;
+                    unsigned int   hi;
+                    unsigned int   lo;
                     int            len;
                     src += 3;
                     reverse = op >> 0xe & 3;
                     puti(out, geti(src, 4), 4);
                     out += reverse;
                     src += reverse;
-                    count = (((op >> 8) & 0x3f) << 8) + (((op >> 16) & 0xff) + 1);
+                    hi    = ((op >> 8) & 0x3f) << 8;
+                    lo    = ((op >> 16) & 0xff) + 1;
+                    count = hi + lo;
                     len   = (int)(op & 0x3f) + 4;
                     out   = refcpy(out, count, len);
                 } else if ((op & 0x20) == 0) {            /* 4-byte command */
                     unsigned int   count;
+                    unsigned int   hi;
+                    unsigned int   lo;
                     int            len;
                     src += 4;
                     reverse = op & 3;
                     puti(out, geti(src, 4), 4);
                     out += reverse;
                     src += reverse;
-                    count = ((op << 12) & 0x10000) + ((op & 0xff00) + 1) +
-                            ((op >> 16) & 0xff);
+                    hi    = (op << 12) & 0x10000;
+                    lo    = (op & 0xff00) + 1;
+                    count = hi + lo + ((op >> 16) & 0xff);
                     len   = (int)(((op << 6) & 0x300) + (op >> 24)) + 5;
                     out   = refcpy(out, count, len);
                 } else {                                  /* literal run / terminator */

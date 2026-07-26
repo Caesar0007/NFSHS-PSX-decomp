@@ -147,6 +147,7 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
     /* pass 1: take idle channels (state 0), preferring the oldest (lowest +0x10) */
     {
             unsigned char *gs;
+            unsigned int   one;   /* MATCH: dead-set carrier -- see the note above */
             /* MATCH: pass 1 counts from `reserved` like pass 2 (oracle slt i,numChannels with the
              * reserved copy in the delay slot -- an i=0 form const-folds the guard into blez).
              * `gs` is assigned INSIDE the body so loop.c hoists it to the PREHEADER (after the
@@ -160,7 +161,8 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
                     c = 0;
                     off = c;
                     do {
-                        if ((priority & (1 << c)) != 0) {
+                        one = 1;
+                        if ((priority & (one << c)) != 0) {
                             ch = *(int *)(gs + 0x94) + off;
                             if (*(signed char *)(ch + 0xb) == 0 &&
                                 iSNDischanreserved(c, reserved) == 0) {
@@ -168,6 +170,7 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
                                 if (v < bestval) { bestval = v; best = c; }
                             }
                         }
+                        one = 0;
                         limit = gs[0x11];
                         c++; off += 100;
                     } while ((int)c < limit);

@@ -112,6 +112,23 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
      * suspected ALLOCNO_COMPARE DELTA already banked for sbdload/purge/start/serve (catalog SS-G,
      * "retail allocates constant-init short-lived locals into EARLIER callee-saved regs").  Route to
      * the toolchain-identity investigation; do NOT re-fight from source.
+     * 🔴 w34 PERMUTER SESSION -- the "PROOF" above is PARTIALLY REFUTED, 68 -> 34 (165/165 held).
+     * Two permuter-found levers (run 1, base 310, output-230/-250; both gate-verified):
+     *   (1) `i = w < 0; if (i)` -- naming the bitmap-block sign test in the SHARED `i` local
+     *       (68 -> 44).  The comparison temp joins i's allocno web.
+     *   (2) clutXm/clutYm defs moved INSIDE the walker loop (44 -> 34): LICM hoists the
+     *       computations back to the preheader (identical insns), but the IN-LOOP DEF is
+     *       loop-depth-weighted in REG_N_REFS -- the ref dial for COMPUTED values that the
+     *       param-copy dial (params only) and the dead-set (deleted before counting) cannot
+     *       provide.  This breaks the proof's "ref counts are fixed by the instruction stream"
+     *       premise.  Neutral: `i = imgY` staging (34 either way).  Negative: clut22p init
+     *       in-loop = 36 (a STORE is not a movable; only its address addiu hoists, and the sw
+     *       stays per-iteration-scheduled).  Run 2 (re-seed from 34, base 215) found only an
+     *       INVALID 185 candidate (moved the clut22p init behind `return` -- uninitialized read;
+     *       scorer-blind).  Residual 34: params still s2/s3/s5 vs retail s7/fp/s5 half-web;
+     *       the remaining rotation may yet fall to more in-loop-def dialing -- NO LONGER a
+     *       certified floor, downgraded to OPEN with a working lever family. */
+     /* (older note, its impossibility claim superseded above:)
      * w34 follow-up (post-movfxya): the DEAD-SET carrier (movfxya lever) does NOT dial refs here --
      * `clutXm = 0; clutXm = real;` with the param dials removed gates 84 (= the plain {} form).
      * Mechanism boundary now precise: loop.c COUNTS a dead set (set_in_loop, blocks move_movables)
@@ -154,11 +171,15 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
     int cx = clutX;                         /* (gcc coalesces both copies away; 0 insns added)     */
     unsigned int maskLo  = ~0xFFFu;         /* clears the low 12 bits (x field) */
     unsigned int maskHi  = 0xF000FFFFu;     /* clears bits 16-27 (y field) */
-    unsigned int clutXm  = (unsigned int)clutX & 0xfff;
-    unsigned int clutYm  = ((unsigned int)clutY & 0xfff) << 0x10;
-    scratch.clut22p = scratch.clut22;
+    scratch.clut22p = scratch.clut22;       /* in-loop variant tested: 36 (the sw is not a movable;
+                                             * only its addiu hoists) -- stays in the preheader */
     do {
         u_long        *data;
+        unsigned int clutXm = (unsigned int)clutX & 0xfff;            /* permuter find (w34,
+                                        * output-250 + extension): IN-LOOP defs -- LICM hoists the
+                                        * computations (same insns) but the loop-weighted defs
+                                        * double clutXm/clutYm's REG_N_REFS */
+        unsigned int clutYm = ((unsigned int)clutY & 0xfff) << 0x10;
         int            i;
         unsigned short *dst;
         unsigned char  *src;
@@ -183,7 +204,9 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
                 scratch.rect.y = imgY;                 /* H04: was missing (oracle 0x800F6A80 *(short*)(18+sp)=imgY) */
                 bits   = (short)c[1] * shapedepth((unsigned char *)c);
                 w      = bits + 0xf;
-                if (w < 0)
+                i = w < 0;             /* permuter find (w34, output-230): naming the sign test
+                                        * in the shared `i` local re-weights the allocno web */
+                if (i)
                     w = bits + 0x1e;
                 scratch.rect.w = (short)(w >> 4);    /* width in 16-bit VRAM words */
                 scratch.rect.h = *(short *)((int)c + 6);

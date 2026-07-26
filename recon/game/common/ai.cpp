@@ -1316,27 +1316,24 @@ int AI_TryToShareLanes(Car_tObj *carObj,Car_tObj *carInWay)
 
   minGapSize =
       (carObj->N).dimension.x + (carObj->N).dimension.x / 2;
-  if (7 <= AI_Info.desiredLane) {
-    absLaneIndex = AI_Info.desiredLane + -7;
-    leftRoadEdge = absLaneIndex *
-        ((u_int)*(u_char *)((char *)BWorldSm_slices +
-                            (carInWay->N).simRoadInfo.slice * 0x20 + 0x1f) *
-         0x8000);
-    rightRoadEdge = leftRoadEdge +
+  absLaneIndex = AI_Info.desiredLane;
+  if (7 <= absLaneIndex) {
+    u_int laneWidth =
         (u_int)*(u_char *)((char *)BWorldSm_slices +
-                           (carInWay->N).simRoadInfo.slice * 0x20 + 0x1f) *
-        0x8000;
+                           (carInWay->N).simRoadInfo.slice * 0x20 + 0x1f);
+
+    laneWidth = laneWidth * 0x8000;
+    leftRoadEdge = (absLaneIndex + -7) * laneWidth;
+    rightRoadEdge = leftRoadEdge + laneWidth;
   }
   else {
-    absLaneIndex = AI_Info.desiredLane + -6;
-    rightRoadEdge = absLaneIndex *
-        ((u_int)*(u_char *)((char *)BWorldSm_slices +
-                            (carInWay->N).simRoadInfo.slice * 0x20 + 0x1e) *
-         0x8000);
-    leftRoadEdge = rightRoadEdge -
+    u_int laneWidth =
         (u_int)*(u_char *)((char *)BWorldSm_slices +
-                           (carInWay->N).simRoadInfo.slice * 0x20 + 0x1e) *
-        0x8000;
+                           (carInWay->N).simRoadInfo.slice * 0x20 + 0x1e);
+
+    laneWidth = laneWidth * 0x8000;
+    rightRoadEdge = (absLaneIndex + -6) * laneWidth;
+    leftRoadEdge = rightRoadEdge - laneWidth;
   }
   gapLeft =
       (carInWay->roadPosition - carInWay->roadSpan) - leftRoadEdge;

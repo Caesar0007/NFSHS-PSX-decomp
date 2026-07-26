@@ -165,9 +165,11 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
         int offSent;
         int            numRules = *(signed char *)((int)sentence + 7);
         int            i        = 0;
-        unsigned char *rd       = (unsigned char *)iSPCH_GetRuleDataAddr((int)sentence);
+        unsigned char *rd;
+        int            rdRaw    = iSPCH_GetRuleDataAddr((int)sentence);
         offSent = iSPCH_GetOffset16((int)sentence, (int)(sentence + 6), rule);
-        if (0 < numRules) {
+        rd = (unsigned char *)rdRaw;
+        if (i < numRules) {
             do {
                 volatile unsigned int ruleByteStore;
                 volatile unsigned int paramStore;
@@ -176,8 +178,8 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
                 unsigned int packed;
                 unsigned int paramIdx;
                 unsigned int ruleType;
+                ruleByteStore = rd[0];
                 ruleByte = rd[0];
-                ruleByteStore = ruleByte;
                 packed = *(volatile unsigned char *)(rd + 1);
                 paramStore = packed & 0xf;
                 paramIdx = packed & 0xf;

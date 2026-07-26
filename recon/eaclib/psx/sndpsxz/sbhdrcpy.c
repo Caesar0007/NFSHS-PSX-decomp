@@ -48,7 +48,25 @@ extern int SNDbankheadercopy(void *dst, int bankId);   /* @0x800E7BA8 */
  * them, and the 4-vs-2 giv count is a `combine_givs` cost-model identity (the w28-31 SS.B
  * "gcc 2.8 combines all in-loop address givs onto the LAST giv in body order" finding), not
  * source-reachable.
- * NO SLD EVIDENCE is available (sbhdrcpy.obj has only a type-2 symbol record). */
+ * NO SLD EVIDENCE is available (sbhdrcpy.obj has only a type-2 symbol record).
+ *
+ * W34-a6 (two NEW evidence classes applied, both NEGATIVE here -- record so they are not re-run):
+ *  - NFS2 PC-beta NAMED source (`pc-split/shdr.obj/SNDbankheadercopy.c`, an OLDER generation of this
+ *    same EA lib) confirms the two-arm rebase and the per-arm src/dst base pair, but its patch loop
+ *    walks a single BYTE-OFFSET induction variable (`for (off = 0; off < count*4; off += 4)` with
+ *    `*(int *)(hdr + 8 + off)` / `*(int *)(dst + off + 8)`), and its type test is `< 2` not `== 4`.
+ *    That is a different library generation, so it does NOT overturn the four-walker shape the PSX
+ *    oracle plainly shows ($a0/$a1/$a2/$a3 all +4 per iteration).
+ *  - cc1 `-dl`/`-dg` allocno dumps (the instrument that cracked SNDPKTPLAY_purge/start this wave):
+ *    the residual here is NOT an allocno-priority tie.  Both diffs are EMISSION-ORDER ties that the
+ *    priority model does not describe: (a) sched2's descending-luid tie between the two prologue
+ *    parm copies -- retail emits `dest = $a0` first and leaves `bankId = $a1` for the guard's delay
+ *    slot, ours the reverse (a `int id = bankId;` second local copy makes it WORSE, 29 diffs); and
+ *    (b) retail's scheduler fills the `lw s0,0(s0)` LOAD-delay slot with `i = 0` and then lets reorg
+ *    eager-steal `origin = bankData` into the `beqz` slot, while ours leaves the load delay empty and
+ *    gives the branch slot to `i = 0`.  Hoisting `i = 0` above the guard (both before and after the
+ *    bankData load) does NOT change that -- it only turns `i` into a cross-block allocno that loses
+ *    $v1 to $a3 and costs a 7th preheader move (37 diffs both ways).  Scheduler-tie class. */
 extern int SNDbankheadercopy(void *dst, int bankId)
 {
     unsigned char *dest = (unsigned char *)dst;

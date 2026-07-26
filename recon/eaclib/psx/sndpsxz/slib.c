@@ -435,6 +435,7 @@ extern void iSNDserve(void)
     unsigned short *vreg;
     int          chan, vt, n, cvt;
     int          onec, one;
+    unsigned char *vbase;
     unsigned char *vp;
     unsigned char *base;
     unsigned char *fpbase;    /* &sndpd, materialized ONCE right before the loop and kept LIVE across
@@ -448,9 +449,9 @@ extern void iSNDserve(void)
     chan = 0;
     *(volatile unsigned int *)&koff = 0;
     base = sndpd;
-    kon = 0;
     if (*(int *)(base + 0x720) != 0)
         (*(void (*)(void))*(int *)(base + 0x720))();
+    kon = 0;
 
     /* W31 (106 -> 101): `chan = kon` (== 0) -- the oracle's entry-guard is a real slt against the
      * count with the zero in a REGISTER (retail cse substituted kon's reg for the literal 0); a
@@ -506,7 +507,7 @@ extern void iSNDserve(void)
      *   `chan = kon` -- i.e. two literal zeros that retail's cse turned into a register copy -- is
      *   what fact (i) already encodes, and it still measures 121, not better.)
      *
-     * 🔴 W35-a2 2026-07-26 -- THE ABOVE "-dL COST-MODEL FLOOR" VERDICT IS **WRONG**; 101 -> 79.
+     * 🔴 W35-a2 2026-07-26 -- THE ABOVE "-dL COST-MODEL FLOOR" VERDICT IS **WRONG**; 101 -> 69.
      *   The `li fp,1` LICM hoist IS killable without touching the loop shape, using the w34/w35
      *   movfxya SET-TWICE DEAD-SET CARRIER (`one = 1; use; one = 0;`): loop.c counts the dead set
      *   (set_in_loop != 1 -> not invariant -> no hoist) and flow deletes it for free, so the `1`
@@ -535,20 +536,42 @@ extern void iSNDserve(void)
      *   Plus `cvt = vt` hoisted OUT of the cleanup do-while (it is loop-invariant there, so it
      *   crosses iSNDfreechan and becomes the 7th callee-saved allocno = retail's $s6).
      *
-     *   RESIDUAL (79 diffs, ours 228 / oracle 231): `cvt` currently prices at 3*8/27 = 0.889 and
-     *   takes $s3, rotating {kon,chan} one slot up ($s5/$s6 instead of $s3/$s5).  It needs a
-     *   priority in (0.19, 0.47) -- i.e. refs 8 -> 4-5, or live_length 27 -> ~51-125.  Moving its
-     *   def earlier (3 positions tried: outer-loop top / state==2 entry / ADSR-guard entry) does
-     *   NOT lengthen it -- gcc sinks the copy back to the inner pre-header.  The SPLIT form
-     *   (`vp = &DAT+cvt` in an explicit else arm, `vp = &DAT+c*0x2c` in the n==2 arm) DOES price
-     *   cvt at 0.256 -> $s6 and gives the COMPLETE retail register map at EXACT parity 231/231 --
-     *   but it makes &DAT_801479f0 a 3-site invariant that gcc then hoists into one caller-saved
-     *   pseudo, forcing a caller-save spill slot (frame 72 vs 64) and costing more than it wins
-     *   (128 diffs).  So the remaining lever is: keep the split form AND stop gcc hoisting
-     *   `&DAT_801479f0` (retail rematerializes `lui/addiu %hi/%lo(D_801479F0)` at all THREE sites).
-     *   That is the single next experiment; `-mno-split-addresses` per-TU is the obvious candidate
-     *   but needs a whole-TU sweep (4 other fns in this file PASS).  Saved states for the next
-     *   pass: scratchpad/slib_a2_{79,regsmatch,parity}.c (79 / 128-with-full-map / 231-parity). */
+     *   5. `vbase = &DAT_801479f0;` as a per-arm CARRIER in the cleanup loop, with the SPLIT `vp`
+     *      form (`vp = vbase + c*0x2c` in the n==2 arm, `vp = vbase + cvt` in the else).  The split
+     *      form is what prices `cvt` at 0.24 so it takes retail's $s6 -- but on its own it makes
+     *      &DAT_801479f0 a 3-site loop invariant that gcc hoists into ONE caller-saved pseudo and
+     *      then caller-save-SPILLS (frame 0x48 vs retail's 0x40, +14 diffs).  Assigning it to a
+     *      carrier in BOTH arms makes set_in_loop != 1 -> loop.c refuses the hoist -> each arm
+     *      materializes its own `lui/addiu %hi/%lo` exactly like retail, and the spill slot plus the
+     *      whole frame-offset cascade disappear.  (Lever 1's mechanism applied to an ADDRESS.)
+     *   6. `kon = 0;` AFTER the hook call, not before.  Pure live-length dial: kon and chan
+     *      otherwise price IDENTICALLY (both 18 refs / 157 insns) and no change to `vreg` can then
+     *      land between them.  Moving kon's def past the hook block cuts its range to 153
+     *      (0.471 > chan's 0.459) and opens the gap `vreg` has to fit into.
+     *   7. `vp[0x1d] = 0;` moved AFTER the three `vreg[]` stores in the state==3 arm -- shortens
+     *      vreg's live range by exactly 1 insn (79 -> 78), lifting vreg from 0.4557 (below chan) to
+     *      0.4615 (between chan 0.459 and kon 0.471).
+     *
+     *   ==> THE ENTIRE RETAIL CALLEE-SAVED MAP NOW REPRODUCES EXACTLY (cc1 -dg dispositions):
+     *       vp $s0 | c $s1 | n $s2 | kon $s3 | vreg $s4 | chan $s5 | cvt $s6 | vt $s7 | fpbase $fp
+     *       + koff spilled to 0x10(sp), frame 0x40 = retail.  69 diffs, ours 230 / oracle 231.
+     *
+     *   RESIDUAL (69), four clusters, NONE of them register allocation any more:
+     *    (a) prologue: lever 6's price -- retail sets kon=0 in the hook `beqz` delay slot (shared by
+     *        both paths); ours materializes the 0 after the call and copies it (~6 diffs).  Undoing
+     *        lever 6 re-ties kon with chan and costs far more.  The clean fix would be ONE more
+     *        depth-1 REG_N_REF on kon instead of the range cut (`chan = kon` / `vt = kon` spellings
+     *        are cse'd away, measured).
+     *    (b) the `vreg0` split-temp costs one `addu s4,a0,zero` retail does not have (2 diffs);
+     *        dropping it puts vreg's live length back to 79 and loses $s4 -- coupled to lever 7,
+     *        needs a different -1 on vreg's range (the pitch-block swap was tried: 83 diffs).
+     *    (c) the cleanup-loop store block: retail interleaves the three `lw 0x510(fp)` reloads with
+     *        the sllv/or differently and puts `n--` in the jal delay slot where ours puts the arg
+     *        copy (~12 diffs).  Pure sched1/reorg -- the same class the spktplay.c statement-order
+     *        sweep cleared this wave, so it is the obvious next target.
+     *    (d) `addiu a0,a1,0` vs retail's in-place `addiu a1,a1,0` on the vbase materialization, and
+     *        `li v1,1` vs `li v0,1` -- anonymous-temp coalescing (catalog trichotomy case 3).
+     *   Saved states: scratchpad/slib_a2_{69,75,regsmatch,parity}.c. */
     fpbase = base;
     vt = 0;
     if ((int)kon < (int)(unsigned int)SUB(0x11)) {
@@ -570,9 +593,13 @@ extern void iSNDserve(void)
                             int c = chan;
                             if (n == 2) {
                                 c = (int)((unsigned int)*(volatile unsigned char *)(vp + 0x20) << 24) >> 24;
-                                cvt = ((int)((unsigned int)*(volatile unsigned char *)(vp + 0x20) << 24) >> 24) * 0x2c;
+                                vbase = &DAT_801479f0;
+                                vp = vbase +
+                                     ((int)((unsigned int)*(volatile unsigned char *)(vp + 0x20) << 24) >> 24) * 0x2c;
+                            } else {
+                                vbase = &DAT_801479f0;
+                                vp = vbase + cvt;
                             }
-                            vp = &DAT_801479f0 + cvt;
                             vp[0x1d] = 0;
                             *(volatile unsigned char *)(vp + 0x1c) = 0;
                             iSNDfreechan(c);
@@ -609,10 +636,10 @@ extern void iSNDserve(void)
                 one = 1;
                 if (vreg[6] == 0) {
                     kon = kon | (one << chan);              /* (Ghidra `mask`) */
-                    vp[0x1d] = 0;
                     vreg[3] = 0x200;
                     vreg[0] = 0;
                     vreg[1] = 0;
+                    vp[0x1d] = 0;
                 } else {
                     koff = koff | (one << chan);            /* (Ghidra `local_30`) */
                 }

@@ -10,6 +10,8 @@
    ABSOLUTELY by every oracle (%hi/%lo as an RTL pseudo, CSE-able and
    delay-slot schedulable); a plain extern leaves cc1plus emitting the lw/sw
    assembler macro, which GNU-as expands per-access (self-temp / $at). */
+extern tFEApplication *A_FEApp[] __asm__("FEApp");
+#define FEApp A_FEApp[0]
 extern tGlobalMenuDefs *A_menuDefs[] __asm__("menuDefs");
 #define menuDefs A_menuDefs[0]
 extern int A_ticks[] __asm__("ticks");

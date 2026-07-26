@@ -32,22 +32,24 @@ extern int iSNDplatformplay(int chan, int voice, int level, int pitch, int a5, i
                             int volAngle, int pitchOffset);
 
 /* iSNDplatformplay @0x8010BA48 : launch `voice` playing the patch whose tag stream starts at `chan`.
- * Rebuilt around the real 0x2c-byte voice record and the oracle's direct tag-state machine. The record
- * writes are volatile because this state is consumed by the SPU/service layer asynchronously; that also
- * preserves the oracle's load-delay nops. Pure-C near miss: 171/171, 32 diffs. The residual is primarily
- * a sample-data/voice register-coloring swap that cascades through the second half, plus the 0x82 store's
- * delay-slot placement. No register-pinning assembly is used. */
+ * MATCH (W31, was 32 diffs): (1) the tag parser is a NATURAL `while` loop, not a goto chain -- real
+ * loop notes weight the in-loop defs' ref counts, which is what allocates sampleData->s3 / voice->s4
+ * in oracle order (goto form left them swapped); (2) plain `slot[0x1f] = 1` + in-loop re-store lets
+ * gcc cross-jump the two identical sb's into the oracle's shared store; (3) the 0x1f stores are
+ * volatile like the record's other stores, which keeps gcc's reorg from stealing the shared sb into
+ * the 0x82 case's j delay slot (oracle has the unfilled nop); (4) `slot[0x20] = -1` needs a signed
+ * char store (plain char is unsigned under ccpsx). IDA sub_8010BA48 supplied the loop/store shape. */
 extern int iSNDplatformplay(int chan, int voice, int level, int pitch, int a5, int fx,
                             int volAngle, int pitchOffset)
 {
-    int           sampleData = 0;          /* 0x8a tag -> sample-header ptr */
+    int           *sampleData = 0;         /* 0x8a tag -> sample-header ptr */
     int           vt;
     unsigned char *slot;
     int           rate = 0x5622;           /* 0x84 tag (default) */
     int           loopVal = 0;             /* 0x85 tag */
-    int           empty = -1;
     unsigned int  id;
-    int           val, ptr;
+    int           val;
+    int           *ptr;
     (void)a5;
     (void)pitchOffset;
 
@@ -59,38 +61,35 @@ extern int iSNDplatformplay(int chan, int voice, int level, int pitch, int a5, i
     slot = &DAT_801479f0 + vt;
 
     *(volatile unsigned char *)(slot + 0x21) = 0;
-    *(volatile unsigned char *)(slot + 0x20) = empty;
+    *(volatile signed char *)(slot + 0x20) = -1;
     slot[0x1e] = 0;
-    slot[0x1f] = 1;
-parse_tag:
-    if (iSNDgettag(&chan, &id, &val, &ptr) == 0 || id == 0xfe)
-        goto finalize;
-    if (id == 0x8a) {
-        sampleData = ptr;
-        goto parse_tag;
+    *(volatile unsigned char *)(slot + 0x1f) = 1;
+    while (iSNDgettag(&chan, &id, &val, (int *)&ptr) != 0 && id != 0xfe) {
+        if (id == 0x8a) {
+            sampleData = ptr;
+            continue;
+        }
+        if (id == 0x85) {
+            loopVal = val;
+            continue;
+        }
+        if (id == 0x82) {
+            *(volatile unsigned char *)(slot + 0x1f) = *(unsigned char *)&val;
+            continue;
+        }
+        if (id == 0x84) {
+            rate = val;
+            continue;
+        }
+        if (id == 0x92)
+            *(volatile unsigned char *)(slot + 0x1e) = (unsigned char)val;
     }
-    if (id == 0x85) {
-        loopVal = val;
-        goto parse_tag;
-    }
-    if (id == 0x82) {
-        slot[0x1f] = (unsigned char)val;
-        goto parse_tag;
-    }
-    if (id == 0x84) {
-        rate = val;
-        goto parse_tag;
-    }
-    if (id == 0x92)
-        *(volatile unsigned char *)(slot + 0x1e) = (unsigned char)val;
-    goto parse_tag;
 
-finalize:
     *(volatile int *)(slot + 0x04) = loopVal;
     *(volatile unsigned char *)(slot + 0x22) = (char)level;
     *(volatile unsigned short *)(slot + 0x18) = (unsigned short)volAngle;
     *(volatile unsigned char *)(slot + 0x23) = (unsigned char)fx;
-    *(volatile int *)(slot + 0x00) = *(int *)sampleData;
+    *(volatile int *)(slot + 0x00) = *sampleData;
     *(volatile int *)(slot + 0x0c) = 0;
     *(volatile int *)(slot + 0x10) = 0;
     *(volatile int *)(slot + 0x14) = loopVal << 0xc;

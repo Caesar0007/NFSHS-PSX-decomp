@@ -119,61 +119,59 @@ void tScreenTrackRecords::DrawOneRecord(int index,bool newrecord,int y)
 }
 
 /* ---- tScreenTrackRecords::DrawRecords  (screentrackrec.cpp:161) ---- */
+/* MATCH: unsized-array asm-label view -- the oracle loads NewBestLap through a
+   SEPARATE %hi scratch (`lui $v1; lw $a2,%lo(..)($v1)`), not the self-temp form. */
+extern bool NewBestLapA[] asm("NewBestLap");
+
 void tScreenTrackRecords::DrawRecords(short maxitem)
 
 {
+  /* MATCH: the SYM 8c block lists exactly TWO locals -- short nLapIndicator($a0)
+     and short k($s2) (this=$s4, maxitem=$fp; fsize 64, mask $c0ff0000).
+     Ghidra's kk/flareSign/sMenuText/idx/wy/flareTmp/textState are fabricated;
+     they forced a stack home for the short parameter and hid the shared
+     signed-/2 of the ping-pong flare counter (SLD 163-197). */
   short nLapIndicator;
-  int kk;
-  uint flareSign;
-  char *sMenuText;
-  int idx;
-  int wy;
-  uint flareTmp;
   short k;
-  tMenuTextState textState;
-  
-  kk = this->flareextra + 1;
-  this->flareextra = kk;
-  if (0x3c < kk) {
+
+  this->flareextra = this->flareextra + 1;
+  if (0x3c < this->flareextra) {
     this->flareextra = 0;
   }
-  flareTmp = this->flareextra;
-  flareSign = flareTmp >> 0x1f;
-  if (0x1e < (int)flareTmp) {
-    flareSign = 0x3c - flareTmp;
-    flareTmp = flareSign >> 0x1f;
+  /* MATCH: the signed /2 is written in BOTH arms -- gcc cross-jump-merges the
+     shared `addu; sra 1` tail, leaving the oracle's `slti 0x1F; bnez` that skips
+     only the 60-x subtraction.  A ternary shares the divide in source but emits
+     the addu operands the other way round (addu v0,v0,v1 vs v1,v0). */
+  if (0x1e < this->flareextra) {
+    this->flare_intensity = (0x3c - this->flareextra) / 2;
   }
-  this->flare_intensity = (int)(flareTmp + flareSign) >> 1;
-  this->flare_intensity = (this->flare_intensity + 0x14) * 0x80;
-  kk = Front_GetLapsForType();
-  nLapIndicator = 9;
-  if (kk == 2) {
+  else {
+    this->flare_intensity = this->flareextra / 2;
+  }
+  /* MATCH: the oracle STORES then RE-READS flare_intensity here (sw/lw pair).
+     Our cc1 forward-propagates the value and then dead-store-eliminates the
+     first store; a volatile view of the second read restores retail's
+     store->reload (value-preserving codegen device, cf. catalog SF). */
+  this->flare_intensity = (*(volatile int *)&this->flare_intensity + 0x14)
+                          * 0x80;
+  /* MATCH: explicit if/ELSE -- the `= 9` lands in the `bne` DELAY SLOT after the
+     call, so nLapIndicator lives in the caller-saved $a0 the SYM records.  A
+     plain `nLapIndicator = 9;` before the call forces a callee-saved reg. */
+  if (Front_GetLapsForType() == 2) {
     nLapIndicator = 1;
   }
-  k = 0;
-  kk = 0;
-  do {
-    kk = kk >> 0x10;
-    if (maxitem <= kk) break;
-    sMenuText = TextSys_Word(kk + 599);
-    idx = TextSys_WordX(0x249);
-    wy = TextSys_WordY(kk + 599);
-    if (NewRecords[kk] == 0) {
-      textState = textState_Unselected;
-    }
-    else {
-      textState = textState_Hilighted;
-    }
-    FETextRender_FullText(sMenuText,(short)idx,(short)wy,textType_TrackRecords,textState,0);
-    idx = (int)(short)k;
-    kk = TextSys_WordY(idx + 599);
-    this->DrawOneRecord(idx + nLapIndicator,NewRecords[idx],kk);
-    k = k + 1;
-    kk = k * 0x10000;
-  } while (k * 0x10000 >> 0x10 < 8);
+  else {
+    nLapIndicator = 9;
+  }
+  for (k = 0; k < 8; k = k + 1) {
+    if (maxitem <= k) break;
+    FETextRender_FullText(TextSys_Word(k + 599),(short)TextSys_WordX(0x249),
+                          (short)TextSys_WordY(k + 599),textType_TrackRecords,
+                          (NewRecords[k] == 0) ? textState_Unselected : textState_Hilighted,0);
+    this->DrawOneRecord(k + nLapIndicator,NewRecords[k],TextSys_WordY(k + 599));
+  }
   if (8 < maxitem) {
-    kk = TextSys_WordY(0x260);
-    this->DrawOneRecord(0,NewBestLap,kk);
+    this->DrawOneRecord(0,NewBestLapA[0],TextSys_WordY(0x260));
   }
   return;
 }

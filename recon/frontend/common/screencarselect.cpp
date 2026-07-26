@@ -942,31 +942,44 @@ void tScreenCarSelect::DrawBackground()
 void tScreenCarSelect::DrawSliders(tCarInfo &carInfo,short x,short y)
 
 {
-  byte bVar1;
-  tCarStatType carStat;
-  short result;
-  tCarStatType tVar2;
-  ushort value;
-  int iVar3;
+  /* MATCH: locals from the SYM 8c block (fsize 88, mask $807f0000 = ra,s0-s6):
+       fn scope   short j        ($s2)
+       loop block tCarStatType carStat ($v0), short result ($a0)
+     Ghidra's bVar1/tVar2/value/iVar3/sVar4 were fabricated; the extra
+     sign-extended copy of `y` they induced cost an 8th saved reg ($s7).
+     Loop is EXIT-IN-THE-MIDDLE (oracle: top test + unconditional `j` back
+     edge at .L8003C6B4) -- a `for` rotates it. */
   short j;
-  short sVar4;
-  
-  for (sVar4 = 0; iVar3 = (int)sVar4, iVar3 < 5; sVar4 = sVar4 + 1) {
-    FETextRender_MenuTextPositioned(textVals[iVar3],x,y + 4,textState_Unselected,textType_Default);
-    tVar2 = remap[iVar3];
-    bVar1 = carInfo.fUpgrades;
-    value = (ushort)carInfo.fStats[0][tVar2];
-    if ((bVar1 & 1) != 0) {
-      value = value + carInfo.fStats[1][tVar2 + cst_Brake];
+
+  j = 0;
+  while (true) {
+    tCarStatType carStat;
+    short result;
+
+    if (4 < j) break;
+    /* MATCH: the (short) cast must sit on the SUM -- `y + 4` alone makes gcc
+       materialize a sign-extended copy of y in its own saved reg (an 8th
+       callee-save + 8 bytes of frame); the oracle extends AFTER the add. */
+    FETextRender_MenuTextPositioned(textVals[j],x,(short)(y + 4),textState_Unselected,
+                                    textType_Default);
+    carStat = remap[j];
+    /* 🔴 CORRECTNESS: the previous form indexed fStats[k][carStat + k], reading
+       0x36/0x3C/0x42 instead of the oracle's 0x35/0x3A/0x3F -- the upgrade rows
+       of fStats[4][5] are reached with the SAME column index.  Sharing the index
+       expression is also what lets gcc CSE one base (`addu $a1,$s4,$v0`). */
+    result = (short)carInfo.fStats[0][carStat];
+    if ((carInfo.fUpgrades & 1) != 0) {
+      result = result + carInfo.fStats[1][carStat];
     }
-    if ((bVar1 & 2) != 0) {
-      value = value + carInfo.fStats[2][tVar2 + cst_Speed];
+    if ((carInfo.fUpgrades & 2) != 0) {
+      result = result + carInfo.fStats[2][carStat];
     }
-    if ((bVar1 & 4) != 0) {
-      value = value + carInfo.fStats[3][tVar2 + cst_Handling];
+    if ((carInfo.fUpgrades & 4) != 0) {
+      result = result + carInfo.fStats[3][carStat];
     }
-    DrawSlider(value,0,0xb,x,y,0x68,3,7,3,false,0,0x80,0);
+    DrawSlider(result,0,0xb,x,y,0x68,3,7,3,false,0,0x80,0);
     y = y + 0xf;
+    j = j + 1;
   }
   return;
 }
@@ -2057,76 +2070,80 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
 
 
 /* ---- tScreenCarSelectTwoPlayer::DrawForeground  [SCREENCARSELECT.CPP:1842-1876] ---- */
+/* MATCH: unsized-array asm-label view of FEApp -- keeps %hi(FEApp) as an RTL
+   pseudo so cc1 hoists it into a callee-saved reg and reuses it for both loads
+   (oracle `lui $s0,%hi(FEApp)` + two `lw ..,%lo(FEApp)($s0)`); the scalar extern
+   compiles to the unschedulable `lw $r,sym` macro and is rematerialized. */
+extern tFEApplication *FEAppA[] asm("FEApp");
+
 void tScreenCarSelectTwoPlayer::DrawForeground()
 
 {
-  tGlobalMenuDefs *mdefs;
-  tCarStatType carStat;
-  int iVar2;
-  tCarStatType tVar3;
-  short result;
-  ushort value;
-  uint uVar4;
-  int iVar5;
-  short yOffset;
-  short fY;
+  /* MATCH: locals VERBATIM from the SYM 8c block (fsize 296, mask $807f0000):
+       AUTO tCarInfo carInfo (@sp+0x38)   REG short j($s2), short yOffset($s1),
+       BOOL gotcar($s4).  Ghidra's auStack_f0/abStack_c0/bb/b6/b1/loc_2c were
+       byte-slices of that ONE tCarInfo -- keeping them apart cost the shared
+       `addu $a1,$s3,$v0` stat base.  Loop is exit-in-the-middle like
+       tScreenCarSelect::DrawSliders, and the (short) cast sits on `yOffset + 4`. */
+  tCarInfo carInfo;
   short j;
-  short sVar6;
-  tCarInfo *carInfo;
-  byte gotcar;
-  u_char auStack_f0 [2];
-  char cStack_ee;
-  byte abStack_c0 [5];
-  byte abStack_bb [5];
-  byte abStack_b6 [5];
-  byte abStack_b1 [133];
-  byte loc_2c;
-  
-  fY = 0x2d;
-  if (FEApp->fPlayer == '\x01') {
-    fY = 0x96;
+  short yOffset;
+  BOOL gotcar;
+  tCarInfo *ci;   /* SYM BOOL == int: the oracle just copies $v0 (`addu $s4,$v0,$zero`);
+                    a C++ `bool` normalizes it with an extra `sltu`. */
+
+  yOffset = 0x2d;
+  if (FEAppA[0]->fPlayer == '\x01') {
+    yOffset = 0x96;
   }
-  iVar2 = (**(code **)(*(int *)((int)this + 0x60) + 0x6c))
-                    ((int)this + *(short *)(*(int *)((int)this + 0x60) + 0x68),auStack_f0);
-  mdefs = menuDefs;
-  if (FEApp->fPlayer == '\0') {
-    uVar4 = (menuDefs->itemColorP1).fFlags &
-            0xfffffffe;
-    (menuDefs->itemColorP1).fFlags = uVar4;
-    if ((iVar2 == 0) || (cStack_ee == '\a')) {
-      (mdefs->itemColorP1).fFlags =
-           uVar4 | 1;
+  gotcar = (**(code **)(*(int *)((int)this + 0x60) + 0x6c))
+                     ((int)this + *(short *)(*(int *)((int)this + 0x60) + 0x68),&carInfo);
+  if (FEAppA[0]->fPlayer == '\0') {
+    (menuDefs->itemColorP1).fFlags =
+         (menuDefs->itemColorP1).fFlags & 0xfffffffe;
+    if ((gotcar == 0) || (carInfo.fCarClass == '\a')) {
+      (menuDefs->itemColorP1).fFlags =
+           (menuDefs->itemColorP1).fFlags | 1;
     }
   }
   else {
-    uVar4 = (menuDefs->itemColorP2).fFlags &
-            0xfffffffe;
-    (menuDefs->itemColorP2).fFlags = uVar4;
-    if ((iVar2 == 0) || (cStack_ee == '\a')) {
-      (mdefs->itemColorP2).fFlags =
-           uVar4 | 1;
+    (menuDefs->itemColorP2).fFlags =
+         (menuDefs->itemColorP2).fFlags & 0xfffffffe;
+    if ((gotcar == 0) || (carInfo.fCarClass == '\a')) {
+      (menuDefs->itemColorP2).fFlags =
+           (menuDefs->itemColorP2).fFlags | 1;
     }
   }
-  for (sVar6 = 0; iVar5 = (int)sVar6, iVar5 < 5; sVar6 = sVar6 + 1) {
-    FETextRender_MenuTextPositionedJustify(text2PVals[iVar5],500,fY + 4,1,textState_Unselected,textType_Default);
-    if (iVar2 == 0) {
-      value = 0;
+  ci = &carInfo;
+  j = 0;
+  while (true) {
+    tCarStatType carStat;
+    short result;
+
+    if (4 < j) break;
+    FETextRender_MenuTextPositionedJustify(text2PVals[j],500,(short)(yOffset + 4),1,
+                                           textState_Unselected,textType_Default);
+    /* MATCH: the ACCUMULATE arm is the inline one -- oracle `beqz $s4,.L8003EBC8`
+       branches AWAY to the `result = 0` block, which sits after it. */
+    if (gotcar != 0) {
+      carStat = remap[j];
+      result = (short)ci->fStats[0][carStat];
+      if ((ci->fUpgrades & 1) != 0) {
+        result = result + ci->fStats[1][carStat];
+      }
+      if ((ci->fUpgrades & 2) != 0) {
+        result = result + ci->fStats[2][carStat];
+      }
+      if ((ci->fUpgrades & 4) != 0) {
+        result = result + ci->fStats[3][carStat];
+      }
     }
     else {
-      tVar3 = remap[iVar5];
-      value = (ushort)abStack_c0[tVar3];
-      if ((loc_2c & 1) != 0) {
-        value = value + abStack_bb[tVar3];
-      }
-      if ((loc_2c & 2) != 0) {
-        value = value + abStack_b6[tVar3];
-      }
-      if ((loc_2c & 4) != 0) {
-        value = value + abStack_b1[tVar3];
-      }
+      result = 0;
     }
-    DrawSlider(value,0,0xb,0x1a1,fY,0x49,3,4,3,true,0,0x80,0);
-    fY = fY + 0xf;
+    DrawSlider(result,0,0xb,0x1a1,yOffset,0x49,3,4,3,true,0,0x80,0);
+    yOffset = yOffset + 0xf;
+    j = j + 1;
   }
   return;
 }

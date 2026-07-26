@@ -5527,7 +5527,7 @@ struct tScreenTrackSelect : public tScreen {   /* 672 bytes */
     void UpdateBrightness(tTrackInformation &trackInfo);
     void UpdateVideoWall(tTrackInformation &trackInfo);
     void DrawVideoWall();
-    int ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* returns menu-cmd value */
+    void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* SYM: FCN VOID */
     ~tScreenTrackSelect();
 };
 

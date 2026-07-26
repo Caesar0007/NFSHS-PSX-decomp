@@ -23,8 +23,10 @@ tScreenTrophyRoom::tScreenTrophyRoom()
 tScreenTrophyRoom::~tScreenTrophyRoom()
 
 {
+  /* MATCH: NO manual tScreen_dtor call — the declared base dtor auto-fires
+     (gcc-2.8 derived-dtor shape: vptr store in the base-dtor jal delay slot,
+      original __in_chrg forwarded in $a1 untouched).  cf. catalog D/wave-3. */
   this->_vf = (__vtbl_ptr_type (*)[10])tScreenTrophyRoom_vtable;
-  tScreen_dtor((tScreen *)this);
   return;
 }
 

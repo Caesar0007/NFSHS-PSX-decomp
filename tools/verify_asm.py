@@ -2,7 +2,7 @@
 """verify_asm.py CPP FUNC[,FUNC...] — compile a recon .cpp (cc1plus+maspsx) and diff each
 named function against its asm/nonmatchings/main/<FUNC>.s oracle (spimdisasm format).
 Reloc-name + branch-target lenient. Prints PASS/diff per function."""
-import re, sys, subprocess
+import os, re, sys, subprocess
 from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 MIPS = Path(r'C:/Tools/mips-ps1/mips/bin')
@@ -241,5 +241,5 @@ for fn in funcs:
     if not d: print(f"  {fn}: PASS ({len(o)} insns)")
     else:
         allpass=False; print(f"  {fn}: FAIL {len(d)} diffs (ours {len(o)} / oracle {len(e)})")
-        for l in d[:12]: print("      "+l)
+        for l in d[:int(os.environ.get("VA_MAX","12"))]: print("      "+l)
 sys.exit(0 if allpass else 1)

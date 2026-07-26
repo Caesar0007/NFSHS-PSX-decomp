@@ -4770,7 +4770,7 @@ struct tUserNameMenuItem : public tMenuItem {   /* 140 bytes */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     tUserNameMenuItem(unsigned int);
-    int ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);  /* SYM: FCN VOID */
     int Draw(bool);
     void TransitionOff();
     void TransitionOn();

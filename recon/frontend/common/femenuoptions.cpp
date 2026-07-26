@@ -2392,10 +2392,15 @@ void * CheckForCheats(char *fData)
 
 /* ---- tUserNameMenuItem::ProcessInput  [FEMENUOPTIONS.CPP:1712-1849] SLD-VERIFIED ---- */
 
-int tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
+void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
               tMenuCommand &command)
 
 {
+  /* SYM: FCN VOID (no return -- iVar7 in the prior recon was Ghidra
+     inventing a return of the dash-scan cursor; the oracle epilogue calls
+     Stattool_SamNelsonsUpperLowerStringConverterForRecords and returns
+     with no $v0 read at all). Full switch-restructure per the
+     tInsideBoxSongMenu recipe deferred -- see wave report. */
   u_char bVar1;
   u_short uVar2;
   short sVar3;
@@ -2531,7 +2536,6 @@ UserNameProcInp_skipDashColumns:
   }
 UserNameProcInp_convertAndReturn:
   Stattool_SamNelsonsUpperLowerStringConverterForRecords(this->fData);
-  return iVar7;
 }
 
 

@@ -429,7 +429,19 @@ extern int FILE_completeop(unsigned int id)
  * decision (fill the load-delay slot with the ready parm copy, or leave it empty); volatile on
  * the status load does not block it (tested: no change, since a reg-reg copy has no memory
  * dependence on the volatile MEM).  Reopen only with a lever that removes a ready insn from
- * sched2's window at that point. */
+ * sched2's window at that point.
+ * w34 follow-up (post-movfxya) -- two more classes FALSIFIED, floor hardened to STRONG:
+ *   (1) VOLATILE unconditional store (`*(void * volatile *)&op->callback = ...`): does force
+ *       sw-before-lw memory ordering, but reorg REFUSES a volatile store as a delay-slot
+ *       candidate -> unfilled branch slot, 6 diffs.  General negative worth remembering:
+ *       a retail slot-store is never volatile-qualified in the source.
+ *   (2) sched1 A/B on the unconditional form: -fno-schedule-insns leaves the copy in the load
+ *       gap (31/3) -- the sink is SCHED2, post-reload, where the shared hard base reg makes
+ *       sw 0x28 vs lw 0x8 provably disjoint, so the lw is independent and the priority-2 parm
+ *       copy always sinks to the last free cycle.  An alias-dependence route (separate base
+ *       pseudo for the store) cannot survive to sched2: after reload both addresses share the
+ *       hard base.  Retail's copy-at-insn-2 is not reproducible by any priority/tie model of
+ *       our sched2 over this RTL; residual class = old-sched ready-list emission-order identity. */
 extern void FILE_callbackop(unsigned int id, void (*callback)(unsigned int id, int status, int param))
 {
     volatile int frame[4];

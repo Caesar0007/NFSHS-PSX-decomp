@@ -1103,7 +1103,6 @@ coorddef * BWorldSm_UForward(BWorldSm_Pos *slicePos)
 int BWorldSm_FindClosestTriangleRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFlag)
 {
   int ret;
-  char cVar1;
   int z;
   int iVar2;
   int iVar3;
@@ -1131,13 +1130,7 @@ int BWorldSm_FindClosestTriangleRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRe
                        pt->z - slicePos->quadPts[0].z);
     iVar4 = fixedmult(pt->x - slicePos->quadPts[0].x,
                        slicePos->quadPts[2].z - slicePos->quadPts[0].z);
-    if (0 < iVar3 - iVar4) {
-      cVar1 = '\x01';
-    }
-    else {
-      cVar1 = '\x02';
-    }
-    slicePos->triangleFlag = cVar1;
+    slicePos->triangleFlag = 0 < iVar3 - iVar4 ? 1 : 2;
   }
   return iVar2;
 }

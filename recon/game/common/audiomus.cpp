@@ -229,22 +229,14 @@ void AudioMus_QueueRequestedSong(void)
   AudioMus_g->failby = iVar4 + 0x280;
   info = &pAVar2->current.info;   /* w30-a7: cached sub-field pointer -- oracle computes &current.info
                                       once (independent of remaining/length, scheduler hoists it early)
-                                      and reuses it for notes/filename/title/artist/label; length still
-                                      goes through pAVar2 at its absolute offset (matches oracle's
-                                      v1-relative store for that one field). */
+                                      and reuses it for every song-info field. */
   (pAVar2->current).remaining = 0;
-  info->notes = (char *)0x0;   /* FLOOR (w30-a7): 4-diff residual is notes-vs-label store-order/
-                                   addressing-mode swap (oracle: notes via v0+24 first, label via
-                                   v0+20 last; ours: notes v1+304 absolute, label v0+20 early) --
-                                   tried notes-last and label-first orderings, both regressed to
-                                   12/4; this ordering is the local minimum. Scheduler tie-break
-                                   among 5 independent zero-stores through the same base, same
-                                   family as the SetEntry/Threshold floors this wave. */
-  (pAVar2->current).info.length = 0;
+  info->length = 0;
   info->filename = (char *)0x0;
   info->title = (char *)0x0;
   info->artist = (char *)0x0;
   info->label = (char *)0x0;
+  info->notes = (char *)0x0;
   return;
 }
 

@@ -140,10 +140,13 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 #                           caller-save spill/reload, and one arg-reg copy;
 #                           the flag DOES fix the {shape,yPos,vc} rotation's
 #                           shape half -- shape lands on retail's $s6.)
-#                           To adopt: add
-#                             "recon/eaclib/psx/eacpsxz/movf.c": {"no_schedule_insns": True},
-#                           to PER_TU_FLAGS (movf.c holds exactly one
-#                           function, so no in-TU regression is possible).
+#                           ADOPTED for movf.c 2026-07-26 (w34 follow-up):
+#                           with 6 source levers on top (see movf.c header)
+#                           movfxya reaches PASS 221/221 byte-exact.
+#   "no_schedule_insns2" -> pass -fno-schedule-insns2 (sched2 OFF).  Key
+#                           exists for A/B experiments; NO TU uses it --
+#                           measured on movf.c: both schedulers off = 105
+#                           diffs/236 insns (retail NEEDS sched2 ON).
 #
 # The 11 TUs below own the retail binary's 11 ASPSX-$at-macro jtbl sites
 # (w23-a11 investigation); the other 22 jtbl TUs are deliberately absent
@@ -495,6 +498,8 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
         cc1_flags.append("-mno-split-addresses")
     if tu_flags.get("no_schedule_insns"):
         cc1_flags.append("-fno-schedule-insns")
+    if tu_flags.get("no_schedule_insns2"):
+        cc1_flags.append("-fno-schedule-insns2")
     r = run([CC1, *cc1_flags, i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[cc1] {rel}\n{r.stdout}{r.stderr}")

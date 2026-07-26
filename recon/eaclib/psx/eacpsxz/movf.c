@@ -1,4 +1,38 @@
-/* eaclib/psx/eacpsxz/movf.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 1/1 ***
+/* eaclib/psx/eacpsxz/movf.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 1/1 PASS ***
+ *
+ *   *** SEALED 2026-07-26 (w34 follow-up): movfxya PASS 221/221 byte-exact ***
+ *   Requires PER_TU_FLAGS no_schedule_insns (sched1 OFF -- the 3.25-3d per-obj flag identity)
+ *   PLUS six source levers, applied in this order on top of the flag (149 -> 88 baseline):
+ *     1. 88->68  SET-TWICE dead-set carriers m1/m2 for the two `0xff - x` sites: `mN = 0xff;
+ *                use; mN = 0;` -- loop.c counts the dead set (set_in_loop!=1, no hoist), flow
+ *                deletes it for free; retail rematerializes `li $v0,255` per site.  Tiny 2-ref
+ *                carriers color $v0, whose write-wins conflict with the `lw 0xC($s6)` load-delay
+ *                slot pins the li in retail's position (a fat shared `t` carrier colored $v1 and
+ *                sched2 hoisted it into the slot).
+ *     2. 68->50  (a)-path: `cw` base pointer local + BOTH window loads up front -- shortens cw's
+ *                range so QTY_CMP_PRI ranks it above the load temps (cw=$v0, tx=$v1, ty reuses
+ *                $v0 at cw's death) and kills the tx/ty anti-dep so sched2 interleaves the
+ *                arg reloads (E1238-E125C).
+ *     3. 50->36  inner clamp: `t = *(short*)(shape+4); ... t -= xDone;` two-statement split
+ *                (retail loads w BEFORE the 255/clampW pair and subtracts IN PLACE, E10C8-E10D4).
+ *     4. 36->12  `page = *shape;` lbu split out early + v2 stores moved BEFORE u2/u3 stores:
+ *                the $v1 lbu chain + $v0 v2-temp overlap u1's extended range -> local_alloc
+ *                denies u1 both -> u1=$a0, w2=$a1 (E1134/E1140), and sched2 then reproduces
+ *                retail's whole post-call interleave.  NEGATIVE: u3 textually before the v2 add
+ *                (retail's FINAL order) collapses the denial, 6->22 -- retail got E115C via
+ *                sched2's lw-delay fill, not source order.
+ *     5. 12->6   dead 2nd nextprim reload moved INTO the asm template text (lui/lw $t5): it is
+ *                the EA expander's own fixed-reg byte sequence; as a gcc "r" input it lands in
+ *                whatever t-reg is free ($t1 here, $t5 in fastmovf only by pressure luck).
+ *     6. 6->0    `wend = *(short*)(shape+4);` fresh condition temp before the volatile nextprim
+ *                store (volatile sw = scheduling barrier, an in-condition load can never hoist
+ *                above it to E11FC) -- fresh variable so it colors $v0, not t's $v1; and the
+ *                tpage &3/<<7 math left IN the store expression (late luids lose the sched2
+ *                ready-list tie to the v2 addu, E1160 vs E1164; early `page=(*shape&3)<<7`
+ *                spelling = 2 diffs).
+ *   The w32/w33 notes below are the HISTORY of this wall -- kept for the record; their
+ *   "toolchain-level residual" verdicts are superseded by the levers above.
+ *
  *   obj nfs4\eaclib\psx\movf.obj ; EACPSXZ.LIB (xlsx col12 / SYM v3 FILE record line 358083).
  *   1 fn @0x800F0738 (884 B).  movfxya -- blit a "shape" (fetexture sprite) to screen at (x,y).  Three paths:
  *     (a) shape not yet uploaded (*shape & 8 == 0)  -> DMA straight to VRAM via vramimage at the draw origin.
@@ -142,7 +176,7 @@ extern int movfxya(unsigned char *shape, int x, int y)
         int yRow, vCoord, vc, rowH, rowH2, vPage;
         int yPos;
         int xDone, uAcc, uCoord, uBase, uNext, colW, clampW, w2, uq;
-        int uTile, u1, v2, sx, sx1, sy2, t;
+        int uTile, u1, v2, sx, sx1, sy2, t, m1, m2, page, wend;
         short hu;                                     /* height via lhu; uses sign-extend sll/sra */
         char *prim, *np;
 
@@ -152,7 +186,15 @@ extern int movfxya(unsigned char *shape, int x, int y)
             while (1) {
                 vCoord = ((*(int *)(shape + 0xc) << 4) >> 20) + yRow;
                 vc = vCoord & 0xff;
-                rowH = 0xff - vc;
+                m1 = 0xff;            /* SET-TWICE lever (w34-a9 variant): dedicated tiny carrier +
+                                       * a DEAD second set below -> set_in_loop!=1 blocks the
+                                       * move_movables hoist (loop.c runs BEFORE life analysis, so
+                                       * the dead set still counts; flow then deletes it for free).
+                                       * Tiny 2-ref range colors $v0 like retail (E0FEC), and $v0
+                                       * conflicts with the lw 0xC load-delay slot so sched2 cannot
+                                       * hoist the li -- retail's bare nop stays. */
+                rowH = m1 - vc;
+                m1 = 0;               /* dead set -- deleted by flow, counted by loop.c */
                 t = hu - yRow;
                 if (t < rowH) rowH = t;
                 xDone = 0;
@@ -168,8 +210,14 @@ extern int movfxya(unsigned char *shape, int x, int y)
                         uTile = uCoord + (uAcc >> 4);
                         uNext = (uTile & 0xffffffc0) << 4;
                         colW = (uq + xDone) - uNext / depth;
-                        clampW = 0xff - colW;
-                        t = *(short *)(shape + 4) - xDone;
+                        t = *(short *)(shape + 4);    /* load FIRST, then subtract IN PLACE:
+                                       * retail's lh lands 2 insns before its consumer with the
+                                       * 255/clampW pair filling the gap, and `subu $v1,$v1,$s3`
+                                       * reuses the load register (E10C8-E10D4). */
+                        m2 = 0xff;    /* inner-loop 255: same dead-set device */
+                        clampW = m2 - colW;
+                        m2 = 0;       /* dead set -- deleted by flow, counted by loop.c */
+                        t -= xDone;
                         if (t < clampW) clampW = t;
                         prim = primptr;
                         primptr = prim + 0x28;
@@ -178,18 +226,29 @@ extern int movfxya(unsigned char *shape, int x, int y)
                         prim[7] = *(unsigned char *)&semitrans | 0x2c;
                         *(short *)(prim + 0xe) = shapetoclutid((unsigned int *)shape);
                         w2 = clampW;
+                        page = *shape;              /* JUST the byte read split out EARLY (retail
+                                       * lbu at E113C): the $v1 chain then overlaps u1's range,
+                                       * so local_alloc denies u1 both $v0 (v2 temp) and $v1 ->
+                                       * u1=$a0, w2=$a1.  The &3/<<7 math stays IN the tpage
+                                       * expression: its late luids lose the sched2 ready-list
+                                       * tie to the v2 addu (retail E1160 before E1164). */
                         u1 = colW + w2;
                         prim[0xc] = colW;             /* u0 */
                         prim[0xd] = vc;               /* v0 */
                         prim[0x14] = u1;              /* u1 */
                         prim[0x15] = vc;              /* v1 */
                         prim[0x1c] = colW;            /* u2 */
-                        prim[0x24] = u1;              /* u3 */
-                        v2 = vc + rowH;
+                        v2 = vc + rowH;               /* v2 BEFORE the u3 store: extends u1's
+                                       * live range over the v2 temp's $v0 so local_alloc denies
+                                       * u1 $v0 -> u1=$a0, w2 -> $a1 (retail E1134/E1140).
+                                       * NEGATIVE: u3 before the v2 add (retail's textual order)
+                                       * collapses the denial, 6 -> 22 -- retail reaches E115C's
+                                       * order via sched2, not source order. */
                         prim[0x1d] = v2;              /* v2 */
                         prim[0x25] = v2;              /* v3 */
+                        prim[0x24] = u1;              /* u3 */
                         *(unsigned short *)(prim + 0x16) =
-                            ((*shape & 3) << 7 | vPage) | ((uTile & 0x3c0) >> 6);   /* tpage */
+                            ((page & 3) << 7 | vPage) | ((uTile & 0x3c0) >> 6);   /* tpage */
                         if (w2 < 1) w2 = 1;
                         rowH2 = rowH;
                         if (rowH2 < 1) rowH2 = 1;
@@ -207,20 +266,32 @@ extern int movfxya(unsigned char *shape, int x, int y)
                         *(short *)(prim + 0x20) = sx1;
                         /* OT-stitch: insert `prim` after `nextprim` (24-bit P_TAG addr copy+write).
                          * FIXED-REG TEMPLATE (EA DMPSX-analog .obj post-processor): every retail
-                         * site hardcodes $t6/$t7; the extra "r" input = the DEAD 2nd nextprim
-                         * reload (placeholder-call setup artifact). */
+                         * site hardcodes $t5-$t7.  The DEAD 2nd nextprim reload (placeholder-call
+                         * setup artifact) is TEMPLATE TEXT here, not a gcc "r" input: it is part
+                         * of the expander's emitted byte sequence and always lands in $t5.  (The
+                         * fastmovf volatile-3rd-input variant reproduces $t5 only by register
+                         * pressure; in movfxya $t1/$t2 are free at this point, gcc parks the dead
+                         * pseudo in $t1, and widening the clobber window to force it out regresses
+                         * 48 -> 62 because the in-loop `lw 84/88(sp)` arg reloads NEED $t1/$t2.) */
                         __asm__ volatile(
-                            "lwl	$t6,2(%0)
+                            "lui	$t5,%%hi(nextprim)
+	lw	$t5,%%lo(nextprim)($t5)
+	lwl	$t6,2(%0)
 	sll	$t7,%1,8
 	swl	$t6,2(%1)
 	swl	$t7,2(%0)"
-                            : : "r"(np), "r"(prim), "r"(nextprim)
-                            /* clobber window = expander's reserved temps $t3-$t7 (dead reload
-                             * lands in $t5 like retail) */
-                            : "$11", "$12", "$14", "$15", "memory");
+                            : : "r"(np), "r"(prim)
+                            /* clobber window = expander's reserved temps $t3-$t7 */
+                            : "$11", "$12", "$13", "$14", "$15", "memory");
+                        wend = *(short *)(shape + 4); /* condition read BEFORE the volatile
+                                       * nextprim store: the volatile sw is a scheduling barrier,
+                                       * so a bare in-condition load could never hoist above it
+                                       * to retail's position (E11FC before E1204).  Own variable
+                                       * (not `t`): t's pseudo owns $v1 from the clamp segment,
+                                       * retail's condition temp is a fresh $v0 (in-place slt). */
                         xDone += w2;
                         nextprim = prim;
-                    } while (xDone < *(short *)(shape + 4));
+                    } while (xDone < wend);
                 }
                 yRow += rowH2;
                 hu = *(unsigned short *)(shape + 6);
@@ -230,8 +301,19 @@ extern int movfxya(unsigned char *shape, int x, int y)
       }
     } else {                                          /* (a) not in VRAM -> upload (block at END) */
         RECT rect;
-        rect.x = *(unsigned short *)((char *)currentwindow + 4) + x;
-        rect.y = *(unsigned short *)((char *)currentwindow + 8) + y;
+        int tx, ty;
+        char *cw = (char *)currentwindow;   /* base in a REGISTER: keeps the +4/+8 as load
+                                             * DISPLACEMENTS off %lo(currentwindow) (retail 4/8);
+                                             * direct casts fold the +4 into the la and clobber
+                                             * the base between the two reads. */
+        tx = *(unsigned short *)(cw + 4);   /* BOTH loads up front: shortens cw's live range so
+                                             * QTY_CMP_PRI ranks cw above the load temps (cw->$v0,
+                                             * tx->$v1, ty reuses $v0 at cw's death = retail), and
+                                             * kills the tx/ty anti-dependency so sched2 can
+                                             * interleave the arg reloads (E1240-E125C). */
+        ty = *(unsigned short *)(cw + 8);
+        rect.x = tx + x;
+        rect.y = ty + y;
         rect.w = *(unsigned short *)(shape + 4);
         rect.h = *(unsigned short *)(shape + 6);
         vramimage(&rect, (u_long *)(shape + 0x10));

@@ -1006,10 +1006,19 @@ extern unsigned int STREAM_queuemem(int s, int blocklist, void *ptr, int len)
  *   - the `MI(req,4)=4` store's shared `4` constant must stay live ACROSS the out[0] materialization
  *     (block-local `sobj0` read BEFORE the store) -- otherwise the constant lands in $v1, the reload
  *     cannot be scheduled into its load-delay slot, and a nop appears.
- * RESIDUAL (14): one callee-saved pair swap, readptr<->the hoisted -1 marker ($s7 vs $fp), plus the
- * one delay-slot fill and the inner ring loop's branch polarity that ride on it.  Tried: statement
- * reordering of the readptr/startfill pair, splitting the ring walker into its own local (that one
- * DID fix the q/mask pair), declaration order.  Next step would be a cc1 -dl/-dg allocno dump. */
+ * w33-a2 (14 -> 2 diffs, still 173/173).  The "readptr <-> hoisted -1 marker $s7/$fp callee-saved
+ * pair swap" was a COPY-DIRECTION artifact, not an allocator coin-flip:
+ *   - `s7 = readptr; if (req != head) s4 = req->startfill;` (assign-then-conditionally-overwrite)
+ *     let gcc coalesce the LOAD's pseudo with `s4` and emit the copy backwards (`lw s4,64(v1);
+ *     addu fp,s4,zero`), which pushed the readptr onto $fp and the -1 marker onto $s7.  Writing
+ *     the two definitions symmetrically -- `if (req == head) s4 = s7; else s4 = req->startfill;`
+ *     -- coalesces the load with `s7` as retail does ($s7 readptr / $fp marker), and the ring
+ *     loop's `bne v0,fp` + the `addu a0,s7,zero` call arg fall out with it.  (-10 diffs)
+ *   - the consumer slot's COUNT is loaded BEFORE `out[1]` is written, so the `sw v1,20(sp)` is the
+ *     last insn ahead of the `blez` and fill_simple_delay_slots' BACKWARD scan moves it into the
+ *     slot.  With the store first, the store/load memory order pins it and the slot instead gets
+ *     the inbetween() call's `addu a0,s7,zero`.  (-2 diffs)
+ * RESIDUAL (2): the ring walk's back-edge polarity (documented at the loop). */
 extern int STREAM_cancelrequest(int s, int reqid)
 {
     int out[2];
@@ -1046,8 +1055,9 @@ active:                                              /* active (not merely queue
         int sobj0 = out[0];
         MI(req, 4) = 4;                             /* mark cancelled (reuses the compare's `4`) */
         s7 = *(int **)(sobj0 + 0x40);               /* readptr */
-        s4 = s7;
-        if (req != MI(sobj0, 0x4c))
+        if (req == MI(sobj0, 0x4c))
+            s4 = s7;
+        else
             s4 = *(int **)(req + 0x60);              /* this request's start fill */
         {
             int nx = MI(req, 0xc);
@@ -1075,12 +1085,27 @@ reclaim:
                                     * two reloads + two load-delay nops per iteration. */
         if (MI(sobj, 0x1c) > 0) {
             do {
-                out[1] = MI(sobj, 0x18) + ci * 0x10;
-                if (MI(out[1], 8) > 0) {
-                    unsigned int u2 = inbetween((unsigned int)s7, (unsigned int)s4, MU(out[1], 0xc));
+                int cslot = MI(sobj, 0x18) + ci * 0x10;
+                int ccount = MI(cslot, 8);
+                /* MATCH: the count is loaded BEFORE the `out[1] = cslot` store, so the store is the
+                 * last insn before the `blez` and the delay-slot filler moves it DOWN into the slot
+                 * (fill_simple_delay_slots' backward scan).  With the store ahead of the load the
+                 * memory ordering pins it and the slot gets the call's `addu a0,s7,zero` instead. */
+                out[1] = cslot;
+                if (ccount > 0) {
+                    unsigned int u2;
+                    u2 = inbetween((unsigned int)s7, (unsigned int)s4, MU(out[1], 0xc));
                     if (u2 != 0) {                   /* free this request's own chunks in place */
                         unsigned int rstate = (unsigned int)MI(out[1], 4) << 0x18;
                         int *p = s4;
+                        /* RESIDUAL (2): the ring walk's back edge.  Oracle `bne p,s6,<head>;
+                         * j <exit>`; ours `beq p,s6,<exit>; j <head>` -- jump.c's
+                         * invert-conditional-around-unconditional fires in retail but not here
+                         * (our pass threads `goto Lend` straight to the merge label first, which
+                         * destroys the "target is the label right after the jump" precondition).
+                         * TRIED and all identical-or-worse: guard + do-while (2), `continue` in
+                         * the wrap arm (2), empty one-shot boundary after the loop (2), full
+                         * label+goto loop (59 -- also de-hoists the -1 marker). */
                         while (p != s6) {
                             if (p[0] == -1) {
                                 p = *(int **)(out[0] + 0x20);   /* wrap */

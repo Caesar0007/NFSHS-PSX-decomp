@@ -436,6 +436,22 @@ extern unsigned int iSNDpacketpurgeframes(int p, unsigned int byteoff, int count
  *   uninit local_30 is iSNDpacketget's frameSize out-param.) */
 extern int iSNDfillspuwithpackets(int p, int chunk)
 {
+    /* RESIDUAL 43 diffs, 307/308 (w32 diagnosis, no source form found -- levers tried are listed so
+     * the next pass does not re-fight them).  The diffs cluster in four spots, three of which are the
+     * SAME reorg slot-priority tie:
+     *  (1) every count-loop here sinks its `ch += 4` walker increment into the loop-back BRANCH delay
+     *      slot, while retail spends that slot on the next iteration's call-argument rematerialization
+     *      (`addu $a0,$s7,$zero`) and puts the increment in the preceding LOAD delay instead.  Tried:
+     *      volatile store, `i++` before `ch += 4` (reaches 308/308 parity but 44 diffs), a named
+     *      call-result temp -- all diff-neutral or worse.  Same tie shows at the two flag-byte loops.
+     *  (2) the `avail` early-return colors $a0/$v1/$v0 where retail uses $v0/$a0/$v1, so ours spends
+     *      the branch delay on `addu $v0,$a0,$zero` where retail has a nop -- i.e. retail's subtract
+     *      lands directly in the return register.  Tried: returning the expression directly (no local),
+     *      volatile operand loads -- both diff-neutral.
+     *  (3) one loop-start-flag loop is shaped `beqz exit; j top` in retail vs our single conditional
+     *      back-branch (the pre-existing FLOOR note below).
+     *  (4) `take` must stay `unsigned short`: an `int` take drops the oracle's `andi $a2,$s3,0xFFFF`
+     *      blockmove argument mask but costs 2 insns elsewhere (309/308, 49). */
     /* MATCH: materialize the bare &sndpd ONCE (oracle: a0) and reach BOTH DAT_80147e10[p] (via
      * base+p*4, +0x4F8 as the LOAD DISPLACEMENT -- the `(&DAT_80147e10)[p]` macro instead folds
      * 0x4F8 into the pointer chain before the index, forcing displacement-0) and the voice-table

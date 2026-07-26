@@ -337,7 +337,15 @@ extern void iSNDpacketsetirq(void)
 success:
         /* Volatile is required for the oracle's standalone store followed by the call's nop delay slot.
          * Residual floor: 2 diffs, 56==56 insns -- our independent `move a1,v1` and `lui a0,sndpp`
-         * are scheduled in the opposite order. About 700 generic-permuter candidates found no lower basin. */
+         * are scheduled in the opposite order. About 700 generic-permuter candidates found no lower basin.
+         * w34-a5 re-diagnosis: both insns live in the loop PREHEADER.  `addu a1,v1,zero` comes from the
+         * `pbase = base;` statement; `lui a0,%hi(sndpp)` is the split-address HIGH pseudo that cse/loop
+         * hoists out of the body (every sndpp access then uses `%lo(sndpp)(a0)` as a displacement, so
+         * there is no explicit pointer VARIABLE to reposition -- a real `int *p = sndpp;` would cost the
+         * extra `addiu`).  Retail emits high-then-copy, we emit copy-then-high, and the hoisted insn is
+         * appended to the preheader after the straight-line copy.  Moving `pbase = base;` INTO the loop
+         * body (so it is hoisted too, and hoisted second) makes gcc coalesce the copy away entirely:
+         * 5 diffs at 55/56 insns.  Tested and reverted w34-a5. */
         *(volatile short *)(SNDPD_CTRLREG + 0x1a4) = (short)(*(int *)pp + 8 >> 3);
         InterruptCallback(9, iSNDpacketirqcallback);   /* re-arm: 9 == SPU IRQ index, handler = self */
         iSNDpsxenablespuirq();

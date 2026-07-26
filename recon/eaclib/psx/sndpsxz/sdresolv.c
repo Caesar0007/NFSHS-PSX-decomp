@@ -37,7 +37,26 @@ struct SNDResolveEntry {
  * ordered first).  The 3rd diff (`lw v0,4(a0)` vs the oracle's `lw v0,4(v1)` at `found:`) is the same
  * a0/v1 pairing.  Same reorg-steal family as sdpacket's iSNDfillspuwithpackets clusters (which WAS
  * cracked, by a volatile that blocks the SIMPLE fill) -- here the simple fill is already blocked and
- * there is no source-side handle on the EAGER fill.  Permuter/allocno territory. */
+ * there is no source-side handle on the EAGER fill.  Permuter/allocno territory.
+ *
+ * w34-a5 SHARPENED THE MECHANISM to a single blocker (still open, but now precisely named).  Retail's
+ * slot is empty for a REASON, not a scheduler mood.  Its loop is
+ *     LOOP: addu a0,v1,zero ; lw v0,0(a0) ; nop ; beq v0,s3,found ; nop ; addiu v1,a0,8 ; lw v0,8(a0)
+ * and BOTH slot candidates are illegal there:
+ *   - the copy `addu a0,v1,zero` is a DEPENDENCY of the branch's own compare load (`lw v0,0(a0)`),
+ *     so the backward simple fill cannot take it;
+ *   - the advance `addiu v1,a0,8` WRITES v1, and retail's `found:` block READS v1 (`lw v0,4(v1)` =
+ *     the pre-advance cur->spu), so the eager fill cannot steal it either (a delay-slot insn runs on
+ *     BOTH paths, so liveness only blocks a candidate that CLOBBERS a taken-path live-in).
+ * Reproducing "found reads v1" needs the advance written AFTER the compare (`cur = scan; if(...) goto
+ * found; scan = cur + 1;`) plus `*spuField = scan->spu;`, and that shape WAS built (w34-a5) -- but
+ * then cse copy-propagates `cur = scan` into the compare load (`lw v0,0(v1)`), the copy stops being a
+ * branch dependency, and reorg steals THE COPY into the slot instead: 7 diffs.  So the whole residual
+ * reduces to ONE unsolved item: forcing the compare load to address through `cur` (a0) rather than the
+ * canonical `scan` (v1).  That is the make_regs_eqv canonicalisation the sibling sdma.c iSNDdmqueue
+ * beat by giving the source a SEPARATE pseudo that dies at the copy -- not available here, because
+ * `scan` is loop-carried and by construction outlives `cur` in every iteration.  Also measured and
+ * rejected this pass: Yoda compare order (9 diffs), `scan->spu` vs `cur->spu` at found (both 7). */
 extern int iSNDplatformresolve(int cursor, int bank, int patch)
 {
     unsigned int  id;

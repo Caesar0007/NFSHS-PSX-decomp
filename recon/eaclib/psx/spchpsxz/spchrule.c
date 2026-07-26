@@ -129,10 +129,23 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
      *     the scalar spelling emits the self-temp `lui v0; lw v0,0(v0)` for the gate and then a
      *     SECOND `lui/addiu` for the in-loop load (+1 insn); the array spelling emits the oracle's
      *     separate-temp `lui s1; lw v0,0(s1)` and keeps that base alive to be copied into $s7.
-     * RESIDUAL 52 = a pure callee-saved ROTATION (ours rd/paramIdx/i/ruleByte = s1/s0/s3/s2, retail
-     * s0/s1/s2/s3) plus retail loading each rule byte into a CALLER-saved temp and copying it to its
+     * RESIDUAL now 48 = a one-step callee-saved ROTATION on the three REMAINING pseudos (ours
+     * ruleSetBase/rule/i = s2/s1/s3, retail s1/s0/s2; `rd` is now s0 on BOTH sides) plus retail loading each rule byte into a CALLER-saved temp and copying it to its
      * s-reg (which also fills the lbu load-delay slot our direct-to-s-reg load has to `nop`).  Same
      * allocation-order/no-copy-prop identity signature as the rest of this obj (catalog SSG).
+     *
+     * w34-a10 (52 -> 48, still exact parity 78/78) -- ALLOCNO-PRIORITY LEVER, derived from the
+     * cc1 -dl/-dg dumps rather than guessed.  The dumps give the 12 global allocnos with their
+     * refs/live-length, and gcc-2.8's priority = floor_log2(refs)*refs/live_length reproduces the
+     * allocation order exactly: paramIdx (8 refs / 20 insns = 1.2) outranked rd (11 / 42 = 0.79),
+     * so paramIdx took $s0 and rd $s1 -- retail has them the other way round.  Dropping ONE ref
+     * off paramIdx moves it below rd: writing the dead volatile store as its own derivation
+     * (`paramStore = packed & 0xf; paramIdx = packed & 0xf;`) instead of `paramIdx = packed & 0xf;
+     * paramStore = paramIdx;` takes paramIdx from 4 raw refs to 3 (weighted 8 -> 6, priority
+     * 2*6/20 = 0.6 < 0.79) while emitting the IDENTICAL instruction shape (cse folds the second
+     * derivation onto the first).  `rd` now lands in $s0 exactly as retail.
+     * ⚠ The same swap applied to iSPCH_GetRuleSettings' `param`/`paramStore` REGRESSES it
+     * (61 -> 69, and it loses insn parity 113 -> 109) -- the lever is per-function, gate it.
      *
      * w33-a10 RE-VERDICT: FLOOR HOLDS at exact insn parity 78/78; the whole 52 is register naming.
      * NEW OBSERVATION (not previously recorded): retail REUSES the `rule` parameter's register for
@@ -166,8 +179,8 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
                 ruleByte = rd[0];
                 ruleByteStore = ruleByte;
                 packed = *(volatile unsigned char *)(rd + 1);
+                paramStore = packed & 0xf;
                 paramIdx = packed & 0xf;
-                paramStore = paramIdx;
                 ruleType = (unsigned int)*(volatile unsigned char *)(rd + 1) >> 4;
                 ruleTypeStore = ruleType;
                 switch (ruleType) {

@@ -37,7 +37,13 @@ extern int  gRepeatCount;     /* spchinit (== gVoxInGame[1]) */
 extern int  gFilterSetting;   /* spchevnt-shared */
 extern int  DAT_80148064;     /* spchevnt "kept 'd' event" flag */
 extern int  gPreLoadTicks[];  /* spchevnt-shared */
-extern int  gClearCycle;      /* @0x801370BC "cycle-bit clearing enabled" flag (init val 1);
+extern int  gClearCycle[];    /* @0x801370BC "cycle-bit clearing enabled" flag (init val 1);
+                                    * UNSIZED ARRAY (not a scalar): a scalar extern compiles to the
+                                    * single ASSEMBLER MACRO `lw $2,gClearCycle`, which is INELIGIBLE
+                                    * for a branch delay slot (.set nomacro), so gcc's dbr pass skips
+                                    * it and steals the next insn instead; the array form makes cc1
+                                    * emit the real `lui %hi` + `lw %lo` pair and the `lui` becomes
+                                    * the delay-slot filler exactly as retail (see MakeSampleRequests).
                                     * data-materialized right next to gNumBanks in the spchbank data
                                     * block but not yet given a home TU -- HEADER WISH: belongs in
                                     * spchbank.c or spchinit.c alongside its neighbors, out of this
@@ -725,7 +731,7 @@ extern int iSPCH_MakeSampleRequests(int sentence, int paramTable)
             int           tmp[4];
             /* MATCH: the ClearCycleBit call is gated on BOTH bank[2]&0xf0 AND the separate global
              * gClearCycle != 0 -- the earlier recon only had the bank-flags half of the gate. */
-            if ((*(unsigned char *)(bank + 2) & 0xf0) != 0 && gClearCycle != 0)
+            if ((*(unsigned char *)(bank + 2) & 0xf0) != 0 && gClearCycle[0] != 0)
                 iSPCH_ClearCycleBit(bank, idx);
             if (iSPCH_UnPackSample(bank, idx, tmp) != 0) {
                 /* MATCH: stride computed UNCONDITIONALLY before the -1 test (oracle lhu+sll precede

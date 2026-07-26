@@ -130,7 +130,24 @@ extern int GetFilterPriority(void)
 extern void iSPCH_InitEventQueue(void)
 {
     /* Residual 17: the indexed outer walk and volatile ascending argument clear recover the oracle's
-     * offsets/up-count loop; gcc still folds the separate base, slot, and end induction values together. */
+     * offsets/up-count loop; gcc still folds the separate base, slot, and end induction values together.
+     *
+     * w32-a9 INVESTIGATION (kept as a floor + a toolchain-identity data point, source form NOT changed):
+     * the retail SHAPE is a label+goto double loop with SIX live values -- argBase($a2), base($a3),
+     * slot($a0), end($t0), j($a1), off($v1) -- i.e. it never went through loop.c (no biv elimination,
+     * no giv reduction of `base+off`, no up-count->down-count reversal).  Writing both loops as
+     * label+goto reproduces that shape EXACTLY: 28/29 insns, every instruction in the oracle's order,
+     * every value in its own register.  It is REJECTED here only because the ALLOCATION order differs
+     * and costs more textual diffs than this form (31 vs 17):
+     *   cc1 -dl says slot = 11 refs / 21 insns => prio floor_log2(11)*11/21 = 1.57  -> takes $v1 (1st)
+     *                off  =  4 refs / 12 insns => prio            2*4/12 = 0.67  -> takes $a0 (3rd)
+     *   retail has the REVERSE (off=$v1 first, slot=$a0 second), which this priority formula cannot
+     *   produce for ANY spelling of the same six values: with slot at 9-11 refs it would need
+     *   live_length(slot) > 3.4x live_length(off), impossible in a 29-insn function.  => retail's cc1
+     *   weights SHORT LIVE RANGE over REF COUNT more strongly than psq43 cc1 does; same family as the
+     *   catalog's suspected `allocno_compare` delta (sbdload/purge/start/serve).  Additionally retail
+     *   keeps a redundant `addu a3,v0,zero` copy of the la result that our cc1 always fuses into the
+     *   `addiu` (the known no-copy-prop identity gap) -- that is the 29th instruction. */
     int argBase = 0;
     int base = (int)gVoxEvents;
     gVoxEvents[0]   = 0;
@@ -204,7 +221,14 @@ extern int iSPCH_FindEventSlot(unsigned int priority)
 }
 
 /* SPCH_AddEvent @0x800E71B8 : queue the event identified by table[0] (randomly accepted per its accept
- *   probability), copying table[0..11] into the chosen slot's eventArgs.  Returns 0. */
+ *   probability), copying table[0..11] into the chosen slot's eventArgs.  Returns 0.
+ *   MATCH (w32-a9, 18 -> 16 diffs): the slot address is built OFFSET-FIRST (`off + base`, both plain
+ *   ints) -- the oracle's per-iteration `addu v0,a1,t0` has the byte offset as operand 0, and C
+ *   pointer arithmetic (`base + off`, base a `char *`) always canonicalises the POINTER to operand 0,
+ *   giving the reversed `addu v0,t0,a1`.  RESIDUAL 16 (80/82) = the two redundant preheader COPIES
+ *   retail keeps and our cc1 fuses (`lui;addiu v0;addu t0,v0,zero` vs our `lui;addiu t0,v0`, and
+ *   `sll v0,v0,2;addu a1,v0,zero` vs our `sll a1,v0,2`) -- the per-obj no-copy-prop identity
+ *   (catalog SSG), not a source shape. */
 extern int SPCH_AddEvent(unsigned int *table)
 {
     int voxEvent = iSPCH_FindEvent(*table);
@@ -216,7 +240,7 @@ extern int SPCH_AddEvent(unsigned int *table)
                 int            tick = gettick();
                 short          sub;
                 int            j;
-                unsigned char *base;
+                int            base;
                 int            off;
                 unsigned int  *p;
                 if (tick == gLastTick[0])
@@ -225,15 +249,15 @@ extern int SPCH_AddEvent(unsigned int *table)
                     gLastSubTick[0] = 0;
                 sub  = (short)gLastSubTick[0];
                 j    = 0;
-                base = (unsigned char *)gVoxEvents;
+                base = (int)gVoxEvents;
                 p    = table;
                 off  = slot * 0x3c;
                 gLastTick[0] = tick;
-                *(int *)(base + off + 0x10)  = voxEvent;
-                *(int *)(base + off + 0xc)   = tick;
-                *(short *)(base + off + 0xa) = sub;
+                *(int *)(off + base + 0x10)  = voxEvent;
+                *(int *)(off + base + 0xc)   = tick;
+                *(short *)(off + base + 0xa) = sub;
                 do {
-                    *(unsigned int *)(base + off + 0x14) = *p;
+                    *(unsigned int *)(off + base + 0x14) = *p;
                     p   = p + 1;
                     off = off + 4;
                     j   = j + 1;

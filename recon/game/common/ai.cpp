@@ -409,13 +409,13 @@ void AI_OpponentBlockPlayer(Car_tObj *carObj,Car_tObj *otherCarObj)
 /* ---- AI_CheckForBarriers__FP8Car_tObj  [@0x800582d4] ---- */
 void AI_CheckForBarriers(Car_tObj *carObj)
 {
-  int dir;
   int slicesAhead;
   int forwardSlice0;
   int forwardSlice1;
   int interval;
   int masks[3];
   int laneNotChecked[3] = {1, 1, 1};
+  volatile int dir;
   int speed;
   int sliceLoop;
   int profileHere;
@@ -424,6 +424,7 @@ void AI_CheckForBarriers(Car_tObj *carObj)
   int iVar10;
   int slice;
   int tmp;
+  int demerit;
 
   masks[0] = AIWorld_GetProfileMask(carObj->laneIndex + -1);
   masks[1] = AIWorld_GetProfileMask(carObj->laneIndex);
@@ -439,8 +440,9 @@ void AI_CheckForBarriers(Car_tObj *carObj)
     tmp = -tmp;
   }
   slicesAhead = (tmp << 0x12) / 0x60000;
-  forwardSlice0 = slice + slicesAhead * dir;
-  if (0 <= slicesAhead * dir) {
+  speed = slicesAhead * dir;
+  forwardSlice0 = slice + speed;
+  if (0 <= speed) {
     if (gNumSlices <= forwardSlice0) {
       forwardSlice0 = forwardSlice0 - gNumSlices;
     }
@@ -450,8 +452,9 @@ void AI_CheckForBarriers(Car_tObj *carObj)
       forwardSlice0 = forwardSlice0 + gNumSlices;
     }
   }
-  forwardSlice1 = slice + (slicesAhead + 1) * dir;
-  if (0 <= (slicesAhead + 1) * dir) {
+  speed = (slicesAhead + 1) * dir;
+  forwardSlice1 = slice + speed;
+  if (0 <= speed) {
     if (gNumSlices <= forwardSlice1) {
       forwardSlice1 = forwardSlice1 - gNumSlices;
     }
@@ -477,7 +480,8 @@ void AI_CheckForBarriers(Car_tObj *carObj)
   }
   profileHere = carObj->barrierThinkHarder;
   if (0 < profileHere) {
-    int demerit;
+    int *observations;
+
     iVar10 = slicesAhead * 0xa3d;
     interval = iVar10 >> 0x10;
     if (iVar10 < 0) {
@@ -489,11 +493,13 @@ void AI_CheckForBarriers(Car_tObj *carObj)
       interval = 1;
     }
     demerit = -0x280000;
+    observations = &CarLogic_gObs[0][0];
     carObj->barrierThinkHarder = profileHere - AI_elapsedTime;
 LOOP_80058570:
     if (sliceLoop < slicesAhead) {
-      checkSlice = slice + sliceLoop * dir;
-      if (0 <= sliceLoop * dir) {
+      speed = sliceLoop * dir;
+      checkSlice = slice + speed;
+      if (0 <= speed) {
         if (gNumSlices <= checkSlice) {
           checkSlice = checkSlice - gNumSlices;
         }
@@ -504,17 +510,17 @@ LOOP_80058570:
       if ((laneNotChecked[0] != 0) &&
          (AIWorld_IsDriveableLane_UsingMask(checkSlice,masks[0]) == 0)) {
         laneNotChecked[0] = 0;
-        CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + demerit;
+        observations[0] = observations[0] + demerit;
       }
       if ((laneNotChecked[1] != 0) &&
-         (AIWorld_IsDriveableLane_UsingMask(checkSlice,masks[1]) == 0)) {
+        (AIWorld_IsDriveableLane_UsingMask(checkSlice,masks[1]) == 0)) {
         laneNotChecked[1] = 0;
-        CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + demerit;
+        observations[1] = observations[1] + demerit;
       }
       if ((laneNotChecked[2] != 0) &&
-         (AIWorld_IsDriveableLane_UsingMask(checkSlice,masks[2]) == 0)) {
+        (AIWorld_IsDriveableLane_UsingMask(checkSlice,masks[2]) == 0)) {
         laneNotChecked[2] = 0;
-        CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + demerit;
+        observations[2] = observations[2] + demerit;
       }
       sliceLoop = sliceLoop + interval;
       goto LOOP_80058570;

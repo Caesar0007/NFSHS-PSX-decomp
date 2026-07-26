@@ -2690,38 +2690,33 @@ void Report__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj *p
   Speaker * Sub;
   Car_tObj *carObj;
   __vtbl_ptr_type (*pa_Var1) [31];
-  int iVar2;
   SPCHNFSType_VOICE *ctx;
   SPCHNFSType_VOICE *VOICE;
-  SPCHNFSType_COLOUR *COLOUR;
   int ID_UNIT1;
   SPCHNFSType_REVINTRO *REVINTRO;
-  SPCHNFSType_DISTANCE *DISTANCE;
   
   *(Car_tObj **)(((int)Speech_fgSpeech) + 0x38c) = pThis->fCarObj;
   pa_Var1 = (pThis->_base_Speaker)._vf;
-  iVar2 = (*(*pa_Var1)[0x1e].pfn)
-                    ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1e].delta);
+  pThis->_base_Speaker.fTo =
+      *(int *)((*(*pa_Var1)[0x1e].pfn)
+                    ((int)&(pThis->_base_Speaker).fPosition.flags +
+                     (int)(*pa_Var1)[0x1e].delta) + 4);
   VOICE = &pThis->fVoice;
-  iVar2 = *(int *)(iVar2 + 4);
   ID_UNIT1 = (pThis->_base_Speaker).fFrom;
   REVINTRO = &(pThis->_base_Speaker).fReverse;
-  (pThis->_base_Speaker).fTo = iVar2;
   ctx = VOICE;
-  SPCHNFS_C_A_INTRO(VOICE,iVar2,ID_UNIT1,REVINTRO);
+  SPCHNFS_C_A_INTRO(VOICE,pThis->_base_Speaker.fTo,ID_UNIT1,REVINTRO);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   *(Car_tObj **)(((int)Speech_fgSpeech) + 0x38c) = pThis->fCarObj;
   SetCar__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,perp);
   FindLocation__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,perp);
   SetSpeed__Q26Speech13MobileSpeakerP8Car_tObj(pThis,perp);
-  COLOUR = &(pThis->_base_Speaker).fColour;
-  DISTANCE = &(pThis->_base_Speaker).fDistance;
-  iVar2 = (pThis->_base_Speaker).fCar;
-  SPCHNFS_C_D_PERP_SIGHTED(VOICE,COLOUR,iVar2,DISTANCE,(SPCHNFSType_POSITION *)pThis,(pThis->_base_Speaker).fLocation,
+  SPCHNFS_C_D_PERP_SIGHTED(VOICE,&(pThis->_base_Speaker).fColour,
+             (pThis->_base_Speaker).fCar,&(pThis->_base_Speaker).fDistance,
+             (SPCHNFSType_POSITION *)pThis,(pThis->_base_Speaker).fLocation,
              &(pThis->_base_Speaker).fPerpName);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  iVar2 = Dispatch__6Speech();
-  *(MobileSpeaker **)(iVar2 + 0x48) = pThis;
+  *(MobileSpeaker **)(Dispatch__6Speech() + 0x48) = pThis;
   return;
 }
 

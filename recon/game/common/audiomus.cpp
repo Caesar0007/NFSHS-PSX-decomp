@@ -111,6 +111,7 @@ AudioMus_tCurrentSong * AudioMus_GetCurrentSong(void)
     iVar2 = AudioMus_g->requestsong + 1;
   }
   curr->index = iVar2;
+  info = &curr->info;
   if (AudioMus_g->errorcode == -4) goto LAB_8007a0_buffer;
   if (AudioMus_g->errorcode == -3) goto LAB_8007a0_stream;
   goto LAB_8007a0ac;
@@ -120,7 +121,6 @@ LAB_8007a0_buffer:
 LAB_8007a0_stream:
   pcVar3 = "STREAM NOT CREATED";
 LAB_8007a0_settitle:
-  info = &curr->info;
   info->title = pcVar3;
 LAB_8007a0ac:
   if (AudioMus_g->newswitch != 0) {

@@ -115,40 +115,45 @@ extern void delsystemtask(int fn)
 }
 
 /* systemtask @0x800E6C04 : once per tick, run every due task (fn(arg1, elapsed)) and re-arm it; OR of returns.
- * RESIDUAL (19 diffs, 62 vs 59 insns; was 77/68, then 27 -- the w31-a5 unsized-array decl of
- * systemtasksubs removed the base-la drift): the WHOLE remaining diff is our loop.c hoisting the
- * invariant `li 1` (busy=1 store value) out of the loop into a callee-saved reg (li s3,1), which
- * adds one save/restore pair and pushes arg1 to s4; the oracle rematerializes `li v0,1` at its use
- * every iteration.  -fno-schedule-insns{,2} does NOT remove the hoist (tested in a -dg scratch
- * harness), and no source shape reaches it -- this is the per-use-constant-remat signature of the
- * catalog's per-obj OPTIMIZATION-FLAG identity class (methodology 3.25-3d, movfxya's `li 255`
- * sibling).  Suspected per-obj flag identity -- do not contort the source; accept. */
+ * MATCH (w33-a4: 19 -> 0, and the w31 "per-obj optimization-flag identity" verdict was WRONG).
+ * The whole 3-insn gap was loop.c hoisting the invariant `li 1` (the busy=1 store value) into a
+ * callee-saved reg (`li s3,1` + one extra save/restore pair, arg1 pushed to s4); retail
+ * rematerializes `li v0,1` in the `bnez` delay slot every iteration.  Two source facts fix it:
+ *  (1) LABEL+GOTO loop instead of do/while -- with no NOTE_INSN_LOOP_BEG/END pair, loop.c does
+ *      nothing at all: no invariant hoist (the `li 1` stays at its use) and no strength
+ *      reduction, so the slot walker has to be written explicitly (`p++`).  Retail's loop keeps
+ *      BOTH a counter (s1, `slti 0x10`) and a pointer (s0, `addiu s0,s0,0x10` in the back-edge
+ *      delay slot), which is exactly what the explicit i++/p++ pair emits.  This is the catalog
+ *      "goto-loop defeats loop.c" lever; the previous do/while + index form relied on loop.c's
+ *      strength reduction and therefore could never avoid the hoist.
+ *  (2) `libticks >= p->deadline` (global first), not `p->deadline <= libticks`: gcc evaluates
+ *      left-to-right, and retail loads libticks BEFORE the 0x8(s0) deadline field. */
 struct SysTaskSlot { int fn; int period; int deadline; int busy; };
 
 extern unsigned int systemtask(int arg1)
 {
     unsigned int result = 0;
     if (gSysTaskLastTick != libticks) {
-        int  i    = 0;
-        /* MATCH: indexed struct access follows the PC-beta source shape and keeps all
-         * four fields on one slot base in the PSX compiler's generated loop. */
-        struct SysTaskSlot *slots = (struct SysTaskSlot *)systemtasksubs;
+        int i = 0;
+        struct SysTaskSlot *p = (struct SysTaskSlot *)systemtasksubs;
         gSysTaskLastTick = libticks;
-        do {
-            unsigned int (*fn)(int, int) =
-                (unsigned int (*)(int, int))slots[i].fn;
-            if (fn != 0 && slots[i].deadline <= libticks && slots[i].busy == 0) {
+    next:
+        {
+            unsigned int (*fn)(int, int) = (unsigned int (*)(int, int))p->fn;
+            if (fn != 0 && libticks >= p->deadline && p->busy == 0) {
                 unsigned int r;
                 int          t;
-                slots[i].busy = 1;
-                r = fn(arg1, libticks - slots[i].deadline);
+                p->busy = 1;
+                r = fn(arg1, libticks - p->deadline);
                 t = libticks;
                 result |= r;
-                slots[i].busy = 0;
-                slots[i].deadline = t + slots[i].period;
+                p->busy = 0;
+                p->deadline = t + p->period;
             }
-            i = i + 1;
-        } while (i < 0x10);
+        }
+        i++;
+        p++;
+        if (i < 0x10) goto next;
     }
     return result;
 }

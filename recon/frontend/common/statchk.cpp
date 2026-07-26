@@ -56,7 +56,7 @@ void * StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBest
           purgememadr(TrackRecords);
           return (void *)0x0;
         }
-        if (carInfo->fCarClass - 7 < 2) {
+        if ((carInfo->fCarClass == 7) || (carInfo->fCarClass == 8)) {   /* MATCH: unsigned sltiu range fold */
           nBestLapTimes[innerIdx] = (innerIdx + 1) * 0x23280;
         }
         else {
@@ -87,7 +87,7 @@ void * StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBest
       idx = *(short *)(((i << 0x10) >> 0xf) + (int)nRankBestLapTimes);
       nShowTrack = Front_GetTrackRaced();
       Stattool_GetRecords(nShowTrack,TrackRecords);
-      memcpy(&RecordHolder,TrackRecords,0x14);
+      memcpy_call(&RecordHolder,TrackRecords,0x14);
       if (((dummyCars[idx].finalBestLap < RecordHolder.nBestLap) || (RecordHolder.nBestLap == 0))
          && (0 < dummyCars[idx].finalBestLap)) {
         bBestLapFlag = 1;
@@ -200,7 +200,7 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
       purgememadr(nRankCarTotalTimes);
       return 0;
     }
-    if (1 < carInfo->fCarClass - 7) {
+    if ((carInfo->fCarClass != 7) && (carInfo->fCarClass != 8)) {   /* MATCH: unsigned sltiu range fold */
       if ((((byte)frontEnd.gameMode < 3) && ((dummyCars[nCar].carFlags & 4U) != 0)) &&
          (dummyCars[nCar].finalFinishType == 2)) {
         bDoRecordCheck = true;
@@ -340,7 +340,7 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
     do {
       pSlot = (short *)((k >> 0xf) + (int)nRankCarTotalTimes);
       carInfo = GetCarFromSimID(&carManager, (short)dummyCars[*pSlot].carType);
-      if (1 < carInfo->fCarClass - 7) {
+      if ((carInfo->fCarClass != 7) && (carInfo->fCarClass != 8)) {   /* MATCH: unsigned sltiu range fold */
         if ((byte)frontEnd.gameMode < 3) {
           k = (int)*pSlot;
 StatChkSave_validateCarFinish:
@@ -409,7 +409,7 @@ StatChkSave_validateCarFinish:
             pRec[7].nCar = DummyRaceResult.nCar;
             pRec[7].nTime = DummyRaceResult.nTime;
             pRec[7].nBestLap = DummyRaceResult.nBestLap;
-            memcpy(buffer,pRec,0xa0);
+            memcpy_call(buffer,pRec,0xa0);
             nCheckTotalTime = 0;
             do {
               memcpy

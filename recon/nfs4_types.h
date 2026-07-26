@@ -4986,7 +4986,8 @@ struct SPEECHINFO {   /* 36 bytes */
 
 struct tDialogBackUpOnly : public tDialogMessageString {   /* 152 bytes */
     /* FEDialog methods */
-    int ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval, tMenuCommand &command);
+    /* SYM: `94 Def class EXT type FCN VOID` -- returns nothing */
+    void ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval, tMenuCommand &command);
     ~tDialogBackUpOnly();
 
 };

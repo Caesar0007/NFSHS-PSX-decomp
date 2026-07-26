@@ -638,28 +638,24 @@ void tDialogMessageString::Draw()
 
 /* ---- tDialogBackUpOnly::ProcessInput  [FEDIALOG.CPP:654-670] SLD-VERIFIED ---- */
 
-int tDialogBackUpOnly::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
+void tDialogBackUpOnly::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
               tMenuCommand &command)
 
 {
-  int iVar1;
-  tPlayer tVar2;
-  
-  tVar2 = (tPlayer)this->specificPlayer;
-  iVar1 = -1;
-  if ((tVar2 == kPlayerBoth) || (fromPlayer == tVar2)) {
-    iVar1 = 4;
-    if (keyval == kInput_KeyType_Triangle) {
-      ((tDialogBase *)this)->Hide();
-    }
-    else {
-      iVar1 = 1;
+  /* SYM: FCN VOID, no locals (the "iVar1" return funnel was a Ghidra fiction --
+     the oracle never sets $v0).  SLD: 655 guard / 658 key test / 660 the
+     AlreadyProcessed store / 664 Hide() -- so Hide is the ELSE arm (source
+     order puts the store BEFORE it), which is what lays it out-of-line. */
+  if ((this->specificPlayer == kPlayerBoth) || (fromPlayer == (tPlayer)this->specificPlayer)) {
+    if (keyval != kInput_KeyType_Triangle) {
       if (keyval != kInput_KeyType_Circle) {
         keyval = kInput_KeyType_AlreadyProcessed;
       }
     }
+    else {
+      ((tDialogBase *)this)->Hide();
+    }
   }
-  return iVar1;
 }
 
 
@@ -866,39 +862,30 @@ void tDialogYesNo::Draw()
 void tDialogYesNo::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMenuCommand &command)
 
 {
-  tPlayer tVar1;
-  tInputKeyType tVar2;
-  
-  tVar1 = (tPlayer)this->specificPlayer;
-  if (((tVar1 == kPlayerBoth) || (fromPlayer == tVar1)) &&
-     (this->fFullyOpen == 1)) {
-    tVar2 = keyVal;
-    if (tVar2 == kInput_KeyType_Left) {
-      AudioCmn_PlayFESFX(5);
-      this->ReturnValue = 1;
-    }
-    else {
-      if ((int)tVar2 < 0x801) {
-        if (tVar2 != kInput_KeyType_Cross) {
-          return;
-        }
+  /* SLD: 824 player guard / 827 fFullyOpen guard (own line, own block) /
+     831 the dispatch (a real switch -- gcc balance_case_nodes builds the
+     ==0x800 root + <0x801 bound test tree over 4 case labels) /
+     834-836, 838-840, 844-846 the three arms in ascending source order. */
+  if ((this->specificPlayer == kPlayerBoth) || (fromPlayer == (tPlayer)this->specificPlayer)) {
+    if ((this->fFullyOpen ^ 1) == 0) {   /* xori;bnez -- same idiom as fememcard.cpp */
+      switch (keyVal) {
+      case kInput_KeyType_Left:
+        AudioCmn_PlayFESFX(5);
+        this->ReturnValue = 1;
+        break;
+      case kInput_KeyType_Right:
+        AudioCmn_PlayFESFX(6);
+        this->ReturnValue = 0;
+        break;
+      case kInput_KeyType_Cross:
+      case kInput_KeyType_Start:
+        AudioCmn_PlayFESFX(0);
+        this->ReadyToReturnValue = 1;
+        ((tDialogBase *)this)->Hide();
+        break;
       }
-      else {
-        if (tVar2 == kInput_KeyType_Right) {
-          AudioCmn_PlayFESFX(6);
-          this->ReturnValue = 0;
-          return;
-        }
-        if (tVar2 != kInput_KeyType_Start) {
-          return;
-        }
-      }
-      AudioCmn_PlayFESFX(0);
-      this->ReadyToReturnValue = 1;
-      ((tDialogBase *)this)->Hide();
     }
   }
-  return;
 }
 
 

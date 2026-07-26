@@ -942,31 +942,44 @@ void tScreenCarSelect::DrawBackground()
 void tScreenCarSelect::DrawSliders(tCarInfo &carInfo,short x,short y)
 
 {
-  byte bVar1;
-  tCarStatType carStat;
-  short result;
-  tCarStatType tVar2;
-  ushort value;
-  int iVar3;
+  /* MATCH: locals from the SYM 8c block (fsize 88, mask $807f0000 = ra,s0-s6):
+       fn scope   short j        ($s2)
+       loop block tCarStatType carStat ($v0), short result ($a0)
+     Ghidra's bVar1/tVar2/value/iVar3/sVar4 were fabricated; the extra
+     sign-extended copy of `y` they induced cost an 8th saved reg ($s7).
+     Loop is EXIT-IN-THE-MIDDLE (oracle: top test + unconditional `j` back
+     edge at .L8003C6B4) -- a `for` rotates it. */
   short j;
-  short sVar4;
-  
-  for (sVar4 = 0; iVar3 = (int)sVar4, iVar3 < 5; sVar4 = sVar4 + 1) {
-    FETextRender_MenuTextPositioned(textVals[iVar3],x,y + 4,textState_Unselected,textType_Default);
-    tVar2 = remap[iVar3];
-    bVar1 = carInfo.fUpgrades;
-    value = (ushort)carInfo.fStats[0][tVar2];
-    if ((bVar1 & 1) != 0) {
-      value = value + carInfo.fStats[1][tVar2 + cst_Brake];
+
+  j = 0;
+  while (true) {
+    tCarStatType carStat;
+    short result;
+
+    if (4 < j) break;
+    /* MATCH: the (short) cast must sit on the SUM -- `y + 4` alone makes gcc
+       materialize a sign-extended copy of y in its own saved reg (an 8th
+       callee-save + 8 bytes of frame); the oracle extends AFTER the add. */
+    FETextRender_MenuTextPositioned(textVals[j],x,(short)(y + 4),textState_Unselected,
+                                    textType_Default);
+    carStat = remap[j];
+    /* 🔴 CORRECTNESS: the previous form indexed fStats[k][carStat + k], reading
+       0x36/0x3C/0x42 instead of the oracle's 0x35/0x3A/0x3F -- the upgrade rows
+       of fStats[4][5] are reached with the SAME column index.  Sharing the index
+       expression is also what lets gcc CSE one base (`addu $a1,$s4,$v0`). */
+    result = (short)carInfo.fStats[0][carStat];
+    if ((carInfo.fUpgrades & 1) != 0) {
+      result = result + carInfo.fStats[1][carStat];
     }
-    if ((bVar1 & 2) != 0) {
-      value = value + carInfo.fStats[2][tVar2 + cst_Speed];
+    if ((carInfo.fUpgrades & 2) != 0) {
+      result = result + carInfo.fStats[2][carStat];
     }
-    if ((bVar1 & 4) != 0) {
-      value = value + carInfo.fStats[3][tVar2 + cst_Handling];
+    if ((carInfo.fUpgrades & 4) != 0) {
+      result = result + carInfo.fStats[3][carStat];
     }
-    DrawSlider(value,0,0xb,x,y,0x68,3,7,3,false,0,0x80,0);
+    DrawSlider(result,0,0xb,x,y,0x68,3,7,3,false,0,0x80,0);
     y = y + 0xf;
+    j = j + 1;
   }
   return;
 }

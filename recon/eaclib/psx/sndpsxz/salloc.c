@@ -254,7 +254,7 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
         /* link the secondary channels to the primary */
         *(unsigned int *)((signed char)sndchanreserved[0] * 100 + sndgs[0x25]) = *out;
         for (i = 1; i < reserved; i++) {
-            *(unsigned char *)((signed char)sndchanreserved[0] * 100 + sndgs[0x25] + i + 3) =
+            *(unsigned char *)(i + ((signed char)sndchanreserved[0] * 100 + sndgs[0x25]) + 3) =
                 sndchanreserved[i];
             *(unsigned int *)((signed char)sndchanreserved[i] * 100 + sndgs[0x25]) = 0xffffffff;
             *(unsigned char *)((signed char)sndchanreserved[i] * 100 + sndgs[0x25] + 0x3c) =

@@ -478,13 +478,17 @@ choose:
                 outChoice[3] = (short)picked;
                 phraseTemplate = (short *)iSPCH_GetOffset8(sentence, sentence + 4, table);
                 if (iSPCH_GetPhraseBank(phraseTemplate, paramTable, outChoice) == 0) {
-                    /* residual 17 (83/80): loop.c hoists the fail-path li -2 into fp (savings-1
-                     * conditional-block constant STILL "desirable" to this cc1; oracle remats it
-                     * in-loop, li v0,-2 filling the lh delay) -> +li +fp save/restore and the
-                     * result-init li s4,1 scheduling knock-on.  Local-temp, Yoda, and compare
-                     * shapes all leave the motion; same move_movables identity family as the
-                     * MakeSampleRequests %hi hoist (documented there). */
-                    if (*outChoice != -2) {
+                    /* MATCH (w32-a9, 17 -> 11 diffs, 83 -> 81 insns): the fail test is written
+                     * `*outChoice + 2 != 0` rather than `*outChoice != -2`.  Retail's compare IS
+                     * `lh v1; li v0,-2; bne v1,v0` (the li also filling the lh load-delay slot),
+                     * but as a plain loop-invariant constant our cc1's move_movables hoists that
+                     * `li -2` into a NINTH callee-saved register ($fp): +li, +fp save/restore, and
+                     * a knock-on reschedule of the `li s4,1` result init (retail gets by on s0-s7).
+                     * `(int)` casts, Yoda order and a named load temp all leave the motion in
+                     * place; folding the constant into the compare removes the movable entirely.
+                     * RESIDUAL 11 = one `nop` where retail's in-block `li v0,-2` fills the lh
+                     * delay, plus the `li s4,1` placement that follows from it. */
+                    if (*outChoice + 2 != 0) {
                         result = 0;
                         goto out;
                     }

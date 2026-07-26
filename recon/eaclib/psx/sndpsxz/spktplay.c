@@ -4,9 +4,9 @@
  *   dialect fixer did not converge on this TU). Pre-migration (.cpp/cc1plus) vs post-migration
  *   (.c/cc1) per-fn diff counts, verify_asm.py authoritative -- IDENTICAL, zero regressions:
  *     iSNDpacketplayoverhead=PASS(0)  SNDPKTPLAY_overhead=PASS(0)   SNDPKTPLAY_create=PASS(0)
- *     SNDPKTPLAY_start=FAIL(132 W31, 185/187)  SNDPKTPLAY_submit=FAIL(2)  SNDPKTPLAY_submitspace=PASS(0)
+ *     SNDPKTPLAY_start=FAIL(114 w32, 187/187)  SNDPKTPLAY_submit=FAIL(2)  SNDPKTPLAY_submitspace=PASS(0)
  *     SNDPKTPLAY_unsafeframesoutstanding=PASS(0)  SNDPKTPLAY_framesoutstanding=PASS(0)
- *     SNDPKTPLAY_purge=FAIL(53, W31)                                SNDPKTPLAY_stop=PASS(0)
+ *     SNDPKTPLAY_purge=FAIL(50, w32, 119/119)                                SNDPKTPLAY_stop=PASS(0)
  *     SNDPKTPLAY_destroy=PASS(0)      iSNDpacketget=PASS(0)         iSNDpacketfreeframes=PASS(0)
  *   10/13 PASS, 3/13 FAIL (start/submit/purge -- pre-existing near-miss floors documented below,
  *   unchanged by the C89 port). NOTE: SNDPKTPLAY_purge is NOT byte-exact PASS despite its insn
@@ -194,13 +194,20 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
         return -9;
     }
 
-    MI(ppp, 0)    = allocOut;
-    MH(ppp, 0xa)  = 0;
-    MH(ppp, 0xe)  = 0;
-    MI(ppp, 0x10) = 0;
-    MI(ppp, 4)    = 0;
-    MI(ppp, 0x14) = 0;
-    MH(ppp, 0xc)  = (short)0xffff;
+    /* MATCH (w32-a8, 132 -> 114 diffs AND insn count 185 -> EXACT 187): the whole ring HEADER is
+     * volatile -- these are the async-touched player-slot words (same justification the VH()/MVUH()
+     * reads and SNDPKTPLAY_stop already carry).  With plain stores gcc's scheduler hoists the
+     * `li -1` + `sh 0xc` marker to the top of the block (stealing the `bgez` delay slot on the way)
+     * and sinks `sw allocOut,0(ppp)` to the bottom; the oracle keeps the written order and leaves
+     * that delay slot unfilled.  Making ONLY the first or only the two end stores volatile is not
+     * enough (132 / 119) -- the run has to be ordered as a whole. */
+    *(volatile int *)(ppp + 0)      = allocOut;
+    *(volatile short *)(ppp + 0xa)  = 0;
+    *(volatile short *)(ppp + 0xe)  = 0;
+    *(volatile int *)(ppp + 0x10)   = 0;
+    *(volatile int *)(ppp + 4)      = 0;
+    *(volatile int *)(ppp + 0x14)   = 0;
+    *(volatile short *)(ppp + 0xc)  = (short)0xffff;
     ch = *(int *)(gp + 0x94) + note * 100;        /* MATCH: note*100 computed right after the
                                                     * marker store, before the unaligned copy;
                                                     * the pool-base add is a branch delay-slot
@@ -448,7 +455,7 @@ purge_next: {
             int *fr = (int *)(ppp + rdoff);
             if (lo <= fr[0] && fr[0] <= hi) {      /* remove (branch-away, oracle fallthrough) */
                 MUH(ppp, 0xe) = MUH(ppp, 0xe) - 1;  /* plain lhu, no shift (no compare) */
-                MI(ppp, 0x10) = MI(ppp, 0x10) - fr[1];
+                *(volatile int *)(ppp + 0x10) = MI(ppp, 0x10) - fr[1];
                 if (*(void **)(ppp + 0x1c) != 0)
                     (*(void (**)(int))(ppp + 0x1c))(fr[2]);
             } else {                               /* keep -> move down (oracle branch target) */

@@ -1462,6 +1462,10 @@ LAB_TICKS0:
 
 
 /* ---- FindBarrierEndSlice__13AIState_Chase  AIState_Chase::FindBarrierEndSlice  [AISTATE.CPP:764-866] SLD-VERIFIED ---- */
+/* NEAR (21 diffs/227 vs 230 insns): IDA/SYM register allocation and the raw
+   SLD line trace recover both mirrored scan scopes exactly. The sole residual
+   is the final +/-6 slice wrap: equivalent source keeps the candidate in v1
+   and folds the oracle's v0 branch/merge sequence. */
 
 int AIState_Chase::FindBarrierEndSlice()
 
@@ -1479,232 +1483,216 @@ int AIState_Chase::FindBarrierEndSlice()
   int forwardBarrierDistance;
   int backwardsBarrierEndSlice;
   int backwardsBarrierDistance;
-  int sliceLoop;
-  int sliceCheck;
-  int temp;
-  int leftBarrier;
-  int hereBarrier;
-  int rightBarrier;
 
-  u_char bVar1;
+  myLane = this->carObj_->laneIndex;
+  targetLane = this->targetCar_->laneIndex;
+  mySlice = (int)this->carObj_->N.simRoadInfo.slice;
 
-  u_int uVar2;
+  if (targetLane < myLane) {
 
-  Car_tObj *pCVar3;
-
-  int iVar4;
-
-  int iVar5;
-
-  int iVar6;
-
-  int iVar7;
-
-  int slice;
-
-  int iVar8;
-
-  int iVar9;
-
-  int iVar10;
-
-  int slice_00;
-
-  int local_30;
-
-  int local_2c;
-
-  
-
-  pCVar3 = this->carObj_;
-
-  iVar7 = pCVar3->laneIndex;
-
-  iVar5 = this->targetCar_->laneIndex;
-
-  slice_00 = (int)(pCVar3->N).simRoadInfo.slice;
-
-  iVar4 = iVar7;
-
-  if (iVar5 < iVar7) {
-
-    iVar4 = iVar5;
-
-    iVar5 = iVar7;
-
-  }
-
-  while ((iVar4 < iVar5 &&
-
-         (iVar7 = AIWorld_CheckForBarrierBetweenLanes(slice_00,iVar4,iVar4), iVar7 == 0))) {
-
-    iVar4 = iVar4 + 1;
-
-  }
-
-  barrierLane = iVar4;
-
-  iVar5 = slice_00 + 0x53;
-
-  local_2c = 0x53;
-
-  local_30 = 0x53;
-
-  if (gNumSlices <= iVar5) {
-
-    iVar5 = iVar5 - gNumSlices;
-
-  }
-
-  iVar7 = slice_00 + -0x53;
-
-  if (iVar7 < 0) {
-
-    iVar7 = iVar7 + gNumSlices;
-
-  }
-
-  currentBarrierLane = barrierLane;
-
-  for (iVar10 = 0; slice = iVar5, iVar9 = local_30, iVar10 < 0x53; iVar10 = iVar10 + 4) {
-
-    slice = slice_00 + iVar10;
-
-    if (iVar10 < 0) {
-
-      iVar9 = gNumSlices;
-
-      if (slice < 0) goto LAB_80070e34;
-
-    }
-
-    else if (gNumSlices <= slice) {
-
-      iVar9 = -gNumSlices;
-
-LAB_80070e34:
-
-      slice = slice + iVar9;
-
-    }
-
-    iVar9 = currentBarrierLane + -1;
-
-    uVar2 = AIWorld_CheckForBarrierBetweenLanes(slice,currentBarrierLane + 1,iVar9);
-
-    iVar6 = currentBarrierLane;
-
-    if (((uVar2 & 2) == 0) &&
-
-       ((((uVar2 & 4) == 0 ||
-
-         (bVar1 = *(u_char *)(slice * 0x20 + (int)BWorldSm_slices + 0x1d),
-
-         iVar9 < (int)(6 - (u_int)(bVar1 >> 4)))) ||
-
-        (iVar6 = iVar9, (int)((bVar1 & 0xf) + 7) < iVar9)))) {
-
-      iVar9 = iVar10;
-
-      if ((uVar2 & 1) == 0) break;
-
-      bVar1 = *(u_char *)(slice * 0x20 + (int)BWorldSm_slices + 0x1d);
-
-      iVar6 = currentBarrierLane + 1;
-
-      if ((iVar6 < (int)(6 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 7) < iVar6)) break;
-
-    }
-
-    currentBarrierLane = iVar6;
-
-  }
-
-  local_30 = iVar9;
-
-  currentBarrierLane = barrierLane;
-
-  for (iVar5 = 0; iVar8 = iVar7, iVar10 = local_2c, iVar5 < 0x53; iVar5 = iVar5 + 4) {
-
-    iVar8 = slice_00 - iVar5;
-
-    if (-iVar5 < 0) {
-
-      iVar10 = gNumSlices;
-
-      if (iVar8 < 0) goto LAB_80070f54;
-
-    }
-
-    else if (gNumSlices <= iVar8) {
-
-      iVar10 = -gNumSlices;
-
-LAB_80070f54:
-
-      iVar8 = iVar8 + iVar10;
-
-    }
-
-    iVar10 = currentBarrierLane + -1;
-
-    uVar2 = AIWorld_CheckForBarrierBetweenLanes(iVar8,currentBarrierLane + 1,iVar10);
-
-    iVar9 = currentBarrierLane;
-
-    if (((uVar2 & 2) == 0) &&
-
-       ((((uVar2 & 4) == 0 ||
-
-         (bVar1 = *(u_char *)(iVar8 * 0x20 + (int)BWorldSm_slices + 0x1d),
-
-         iVar10 < (int)(6 - (u_int)(bVar1 >> 4)))) ||
-
-        (iVar9 = iVar10, (int)((bVar1 & 0xf) + 7) < iVar10)))) {
-
-      iVar10 = iVar5;
-
-      if ((uVar2 & 1) == 0) break;
-
-      bVar1 = *(u_char *)(iVar8 * 0x20 + (int)BWorldSm_slices + 0x1d);
-
-      iVar9 = currentBarrierLane + 1;
-
-      if ((iVar9 < (int)(6 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 7) < iVar9)) break;
-
-    }
-
-    currentBarrierLane = iVar9;
-
-  }
-
-  local_2c = iVar10;
-
-  iVar4 = slice + 6;
-
-  if (local_30 < local_2c) {
-
-    if (gNumSlices <= iVar4) {
-
-      iVar4 = slice - (gNumSlices + -6);
-
-    }
+    leftLane = targetLane;
+    rightLane = myLane;
 
   }
 
   else {
 
-    iVar4 = iVar8 + -6;
-
-    if (iVar4 < 0) {
-
-      iVar4 = iVar8 + gNumSlices + -6;
-
-    }
+    leftLane = myLane;
+    rightLane = targetLane;
 
   }
 
-  return iVar4;
+  barrierLane = leftLane;
+
+  while (barrierLane < rightLane) {
+
+    if (AIWorld_CheckForBarrierBetweenLanes(mySlice,barrierLane,barrierLane) != 0) {
+
+      break;
+
+    }
+
+    barrierLane++;
+
+  }
+
+  forwardBarrierDistance = backwardsBarrierDistance = 0x53;
+
+  forwardBarrierEndSlice = mySlice + 0x53;
+
+  if (gNumSlices <= forwardBarrierEndSlice) {
+
+    forwardBarrierEndSlice -= gNumSlices;
+
+  }
+
+  backwardsBarrierEndSlice = mySlice - 0x53;
+
+  if (backwardsBarrierEndSlice < 0) {
+
+    backwardsBarrierEndSlice += gNumSlices;
+
+  }
+
+  currentBarrierLane = barrierLane;
+
+  {
+    int sliceLoop;
+
+    for (sliceLoop = 0; sliceLoop < 0x53; sliceLoop += 4) {
+      int sliceCheck;
+      int temp;
+      int leftBarrier;
+      int hereBarrier;
+      int rightBarrier;
+
+      sliceCheck = mySlice + sliceLoop;
+
+      if (0 <= sliceLoop) {
+
+        if (gNumSlices <= sliceCheck) {
+
+          sliceCheck -= gNumSlices;
+
+        }
+
+      }
+
+      else if (sliceCheck < 0) {
+
+        sliceCheck += gNumSlices;
+
+      }
+
+      temp = AIWorld_CheckForBarrierBetweenLanes(
+          sliceCheck,currentBarrierLane + 1,currentBarrierLane - 1);
+      leftBarrier = temp & 4;
+      hereBarrier = temp & 2;
+      rightBarrier = temp & 1;
+
+      if (hereBarrier == 0) {
+
+        if ((leftBarrier != 0) &&
+            (6 - (BWorldSm_slices[sliceCheck].laneCount >> 4) <= currentBarrierLane - 1) &&
+            (currentBarrierLane - 1 <=
+             (BWorldSm_slices[sliceCheck].laneCount & 0xf) + 7)) {
+
+          currentBarrierLane--;
+
+        }
+
+        else if ((rightBarrier == 0) ||
+                 (currentBarrierLane + 1 <
+                  6 - (BWorldSm_slices[sliceCheck].laneCount >> 4)) ||
+                 ((BWorldSm_slices[sliceCheck].laneCount & 0xf) + 7 <
+                  currentBarrierLane + 1)) {
+
+          forwardBarrierEndSlice = sliceCheck;
+          forwardBarrierDistance = sliceLoop;
+          break;
+
+        }
+
+        else {
+
+          currentBarrierLane++;
+
+        }
+
+      }
+
+    }
+  }
+
+  currentBarrierLane = barrierLane;
+
+  {
+    int sliceLoop;
+
+    for (sliceLoop = 0; sliceLoop < 0x53; sliceLoop += 4) {
+      int sliceCheck;
+      int temp;
+      int leftBarrier;
+      int hereBarrier;
+      int rightBarrier;
+
+      sliceCheck = mySlice - sliceLoop;
+
+      if (0 <= -sliceLoop) {
+
+        if (gNumSlices <= sliceCheck) {
+
+          sliceCheck -= gNumSlices;
+
+        }
+
+      }
+
+      else if (sliceCheck < 0) {
+
+        sliceCheck += gNumSlices;
+
+      }
+
+      temp = AIWorld_CheckForBarrierBetweenLanes(
+          sliceCheck,currentBarrierLane + 1,currentBarrierLane - 1);
+      leftBarrier = temp & 4;
+      hereBarrier = temp & 2;
+      rightBarrier = temp & 1;
+
+      if (hereBarrier == 0) {
+
+        if ((leftBarrier != 0) &&
+            (6 - (BWorldSm_slices[sliceCheck].laneCount >> 4) <= currentBarrierLane - 1) &&
+            (currentBarrierLane - 1 <=
+             (BWorldSm_slices[sliceCheck].laneCount & 0xf) + 7)) {
+
+          currentBarrierLane--;
+
+        }
+
+        else if ((rightBarrier == 0) ||
+                 (currentBarrierLane + 1 <
+                  6 - (BWorldSm_slices[sliceCheck].laneCount >> 4)) ||
+                 ((BWorldSm_slices[sliceCheck].laneCount & 0xf) + 7 <
+                  currentBarrierLane + 1)) {
+
+          backwardsBarrierEndSlice = sliceCheck;
+          backwardsBarrierDistance = sliceLoop;
+          break;
+
+        }
+
+        else {
+
+          currentBarrierLane++;
+
+        }
+
+      }
+
+    }
+  }
+
+  if (forwardBarrierDistance < backwardsBarrierDistance) {
+
+    if (gNumSlices <= forwardBarrierEndSlice + 6) {
+
+      return forwardBarrierEndSlice - (gNumSlices - 6);
+
+    }
+
+    return forwardBarrierEndSlice + 6;
+
+  }
+
+  if (backwardsBarrierEndSlice - 6 < 0) {
+
+    return backwardsBarrierEndSlice + (gNumSlices - 6);
+
+  }
+
+  return backwardsBarrierEndSlice - 6;
 
 }
 

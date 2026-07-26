@@ -160,25 +160,22 @@ AnimScript * Anim_GetAnim(int handle)
 /* ---- Anim_GetLastRotPos  [@0x80073e08] ---- */
 void Anim_GetLastRotPos(Trk_AnimateInst *animInst,coorddef *pt,matrixtdef *mat)
 {
-  Anim_tFrame*animFrames;
-  int animInd;
-  tQuat q;
-  u_char *puVar1;
-  u_int uVar2;
-  u_int *puVar3;
+  u_char *puVar4;
   int *piVar4;
-  u_int uVar5;
   int iVar6;
   int iVar7;
+  int iVar8;
   tQuat tStack_10;
-  
-  piVar4 = (int *)((int)animInst + (animInst->count + -1) * 0x14 + 0xc);
+
+  puVar4 = (u_char *)animInst + 0xc;
+  piVar4 = (int *)(puVar4 + (animInst->count + -1) * 0x14);
   tStack_10 = *(tQuat *)((char *)piVar4 + 0xc);   /* @0x63E30 lastFrame.quat (clean copy) */
-  iVar6 = piVar4[1];
-  iVar7 = piVar4[2];
-  pt->x = *piVar4;
-  pt->y = iVar6;
-  pt->z = iVar7;
+  iVar6 = piVar4[0];
+  iVar7 = piVar4[1];
+  iVar8 = piVar4[2];
+  pt->x = iVar6;
+  pt->y = iVar7;
+  pt->z = iVar8;
   Quatern_QuatToMat(&tStack_10,mat);
   return;
 }

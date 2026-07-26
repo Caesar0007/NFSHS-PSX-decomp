@@ -1,4 +1,5 @@
 /* eaclib/psx/sndpsxz/salloc.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 2/4 PASS ***
+ *   (w35-a1: iSNDallocchan 245->4 diffs @298/298 EXACT, iSNDfreechan 74->19 @107/110)
  *   Source obj : nfs4\eaclib\psx\salloc.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   4 fns @[0x800FE724 .. 0x800FEDC4].  Sound-channel allocation/arbitration (no SPU pokes -- pure
  *   priority logic over the channel pool sndgs[0x25]).  Ghidra nfs4-f.exe.c L163749..164019.
@@ -38,6 +39,58 @@ extern int iSNDischanreserved(int chan, int count)
  *   lowest-timestamp busy channels (stopping their current sound, rolling back on refusal).  Writes the
  *   allocation id to *out and returns the primary channel index, or -9 on failure.
  *     priority = channel-eligibility bitmask;  numChannels = voices needed;  a2 = a voice flag byte.
+ *
+ * ★ W35-a1 (2026-07-26): 245 -> 4 diffs, instruction count EXACT 298/298.
+ *   The "s6<->s7 / t1<->t2 allocno rotation" that w32/w33/w34 filed as the residual was NOT an
+ *   allocator delta at all -- it was FOUR source-shape errors, each of which the RTL/register
+ *   evidence had been read as a coloring symptom.  In order of yield:
+ *   (1) VARIABLE IDENTITY, pass counter (245 -> 205).  Retail runs BOTH selection passes on ONE
+ *       counter in $s3 (and reuses it for the commit and link loops).  Our pass 2 had its own `k`,
+ *       a ninth+tenth callee-saved pseudo that took $fp and rotated every neighbour one step.
+ *       Merging `k` into `i` (and, separately, keeping pass 2's own `bestv` -- merging THAT one
+ *       into `bestval` costs 2) restored $s3/$fp/$s5.
+ *   (2) `int bestage` (205 -> 125).  The w32/w33 notes recorded `int bestage` as a REGRESSION
+ *       (297 / 292); under the corrected counter allocation it is worth 80 diffs and removes the
+ *       function's single excess instruction -- the `andi $v1,$s7,255` a u_char local re-applies on
+ *       every compare (the oracle compares the running best age with a bare `slt`).  A floor/negative
+ *       measured under a wrong allocation says nothing about the right one: RE-TEST OLD NEGATIVES
+ *       AFTER ANY STRUCTURAL FIX.
+ *   (3) VARIABLE IDENTITY, slot pointer (125 -> 97).  The commit loop declared its own `int *ch`;
+ *       retail keeps the channel-slot pointer in $s0 for the WHOLE function, so the extra pseudo
+ *       took $s0 for `owner` and pushed the slot pointer to $s1.  Reusing the function-scope slot
+ *       variable (plus reading the state byte signed, `lb`) restores retail's $s0/$s1.
+ *   (4) RESULT FUNNEL + ADDRESS-EXPRESSION ORDER (97 -> 16, and parity).  The rollback path does not
+ *       `return -9;` -- retail re-materializes -9 into the frame result slot and jumps to the shared
+ *       epilogue.  And the link loop's byte store must address the slot as `(primary*100 + pool) + i`:
+ *       written `i + primary*100 + pool` gcc builds a separate &sndchanreserved[i] induction pointer
+ *       updated in the back-edge delay slot and mis-orders the two addus (-76 diffs alone); explicit
+ *       parens making `i` the FIRST addu operand take the last 2.  The primary-link store likewise
+ *       evaluates `sndgs[0x25]` before `sndchanreserved[0]` (%hi materialization order, -2).
+ *   (5) DEAD-SET CARRIER on the eligibility constant (16 -> 6) -- the w35 lever, and the answer to
+ *       the w34 note that asked for "a lever that keeps a constant address allocno alive, not
+ *       another spelling".  `1 << c`'s literal was LICM-hoisted out of BOTH loop levels into $fp,
+ *       so the `la sndchanreserved` pseudo lost the ninth callee-saved register and reload
+ *       rematerialized it at the store (+2 insns).  `one = 1; use; one = 0;` inside the inner loop
+ *       gives the constant two sets, so loop.c stops treating it as a movable (set_in_loop != 1);
+ *       flow deletes the dead store for free, retail's `li $v0,1` stays in the loop and the
+ *       chosen-list base takes $fp exactly as retail does.  Three named-pointer spellings of
+ *       `chosen = sndchanreserved` had been tried across w34/w35 and ALL fail (a pseudo whose only
+ *       set is a SYMBOL_REF gets a constant REG_EQUIV and is rematerialized) -- the carrier works
+ *       from the other side, by removing the COMPETITOR.
+ *   RESIDUAL 4 = a dbr (delayed-branch) tie, twice (once per pass): retail leaves
+ *   `addu $s5,$s4,$zero` (bestval = best) at the loop head, pays the load-delay `nop` and fills the
+ *   `beqz` slot by stealing the fall-through's `addu $s1,$zero,$zero` (c = 0); our gcc's
+ *   fill_simple_delay_slots takes the backward candidate instead.  Registers, instruction set and
+ *   count are otherwise IDENTICAL.  Falsified against it (all gate 4 or worse, none changes the
+ *   fill): statement order best/bestval vs gs (4), `best = -1` literal (4), `bestval` as a literal
+ *   (6), `bestval` moved inside the guard (9 @297), named `limit` guard (4), declaration order and
+ *   declaration-block order (4 each), and a `volatile` guard load in one or both passes (4) -- the
+ *   §F "volatile blocks the simple fill" lever does NOT reach this one because the volatile MEM is
+ *   the branch's OWN input, not an insn in the backward-scan window.  Per-TU `-mno-split-addresses`
+ *   also tested for the whole obj: 123 diffs @305 insns, and it breaks the other three functions
+ *   (16->9 FAIL, 27->7 FAIL) -- salloc.obj is firmly on the split-addresses side.
+ *   Classification: WEAK-to-MEDIUM floor, dbr class; the honest next step is the permuter.
+ *
  * RAW/CROSS-VERSION REDUCTION (2026-07-26, 416->274 detailed diffs; 298/298 instructions):
  *   NFS4 PC tagged_play.c, NFS3 isnd.c, NFS2b alloc2.c and PC-beta salloc.obj all confirm the two-pass
  *   selection/rollback/link algorithm.  The PSX oracle separately holds a bare sndgs base through each
@@ -130,7 +183,7 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
 {
     int          reserved = 0;
     int          result = -9;
-    int          i, k, off, ch, limit;
+    int          i, off, ch, limit;
     unsigned int best, c, v, bestval;
 
     for (i = 0; i < numChannels; i++)               /* clear the chosen list */
@@ -147,6 +200,7 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
     /* pass 1: take idle channels (state 0), preferring the oldest (lowest +0x10) */
     {
             unsigned char *gs;
+            unsigned int   one;   /* MATCH: dead-set carrier -- see the note above */
             /* MATCH: pass 1 counts from `reserved` like pass 2 (oracle slt i,numChannels with the
              * reserved copy in the delay slot -- an i=0 form const-folds the guard into blez).
              * `gs` is assigned INSIDE the body so loop.c hoists it to the PREHEADER (after the
@@ -160,7 +214,8 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
                     c = 0;
                     off = c;
                     do {
-                        if ((priority & (1 << c)) != 0) {
+                        one = 1;
+                        if ((priority & (one << c)) != 0) {
                             ch = *(int *)(gs + 0x94) + off;
                             if (*(signed char *)(ch + 0xb) == 0 &&
                                 iSNDischanreserved(c, reserved) == 0) {
@@ -168,6 +223,7 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
                                 if (v < bestval) { bestval = v; best = c; }
                             }
                         }
+                        one = 0;
                         limit = gs[0x11];
                         c++; off += 100;
                     } while ((int)c < limit);
@@ -181,8 +237,8 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
     /* pass 2: short of channels -> steal busy ones by lowest (age, timestamp) */
     {
             unsigned char *gs;
-            for (k = reserved; k < numChannels; k++) {
-                unsigned char bestage = 0x66;
+            for (i = reserved; i < numChannels; i++) {
+                int bestage = 0x66;
                 unsigned int  bestv;
                 gs = (unsigned char *)sndgs;
                 best = 0xffffffff;
@@ -229,34 +285,39 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
         i = 0;
         if (0 < reserved) {
             do {
-                int *ch = (int *)(sndgs[0x25] + (signed char)sndchanreserved[i] * 100);
-                unsigned int owner = *(unsigned int *)ch;
-                if (*(char *)((int)ch + 0xb) == 1) {        /* currently held -> stop it */
+                unsigned int owner;
+                ch = sndgs[0x25] + (signed char)sndchanreserved[i] * 100;
+                owner = *(unsigned int *)ch;
+                if (*(signed char *)(ch + 0xb) == 1) {      /* currently held -> stop it */
                     if ((int)owner < 0)
-                        owner = *(unsigned int *)((signed char)ch[0xf] * 100 + sndgs[0x25]);
+                        owner = *(unsigned int *)((signed char)((int *)ch)[0xf] * 100 + sndgs[0x25]);
                     SNDstop(owner);
                     if (SNDover(owner) != 1) {              /* refused -> roll back */
-                        while (i = i - 1, -1 < i)
-                            *(char *)(sndgs[0x25] + (signed char)sndchanreserved[i] * 100 + 0xb) = 0;
-                        return -9;
+                        while (i = i - 1, -1 < i) {
+                            ch = sndgs[0x25] + (signed char)sndchanreserved[i] * 100;
+                            *(char *)(ch + 0xb) = 0;
+                        }
+                        result = -9;
+                        goto done;
                     }
                 }
-                *(char *)((int)ch + 0xb) = 1;
-                ch[4] = sndgs[0x11];                        /* timestamp */
-                *(char *)((int)ch + 0xc) = (char)a2;        /* voice flag byte */
+                *(char *)(ch + 0xb) = 1;
+                *(int *)(ch + 0x10) = sndgs[0x11];          /* timestamp */
+                *(char *)(ch + 0xc) = (char)a2;             /* voice flag byte */
                 i++;
             } while (i < reserved);
         }
         /* link the secondary channels to the primary */
-        *(unsigned int *)((signed char)sndchanreserved[0] * 100 + sndgs[0x25]) = *out;
+        *(unsigned int *)(sndgs[0x25] + (signed char)sndchanreserved[0] * 100) = *out;
         for (i = 1; i < reserved; i++) {
-            *(unsigned char *)(i + (signed char)sndchanreserved[0] * 100 + sndgs[0x25] + 3) =
+            *(unsigned char *)(i + ((signed char)sndchanreserved[0] * 100 + sndgs[0x25]) + 3) =
                 sndchanreserved[i];
             *(unsigned int *)((signed char)sndchanreserved[i] * 100 + sndgs[0x25]) = 0xffffffff;
             *(unsigned char *)((signed char)sndchanreserved[i] * 100 + sndgs[0x25] + 0x3c) =
                 sndchanreserved[0];
         }
     }
+done:
     return result;
 }
 
@@ -265,7 +326,35 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
  *   protocol; NFS2/NFS2B use only the simpler ungrouped release. The recovered three-release-block CFG
  *   and storage model improve the authoritative residual from 177 to 107 diffs (109/110 instructions).
  *
- * 🔴 ALLOCNO FLOOR (w32-a7, 2026-07-26) -- the whole 79-diff residual is ONE register permutation in a
+ * ★ W35-a1 (2026-07-26): 74 -> 19 diffs.  THE "ALLOCNO FLOOR" BELOW IS REFUTED -- it was a
+ *   VARIABLE-IDENTITY error, exactly like iSNDallocchan's.  The w32 note already quotes the answer
+ *   without recognising it: IDA reads retail's $a1 as "initialSlot/idx/recomputed-slot", i.e. ONE
+ *   source variable serving all three roles (they are pairwise non-overlapping).  Our three separate
+ *   C locals are three pseudos; the extra allocnos rotated the whole caller-saved assignment, and
+ *   THAT is what the dump's "priority inversion on two pseudos with identical ref counts" was
+ *   measuring.  Merging them into one `slot` int -- initial channel slot, then the scan index, then
+ *   the recomputed slot -- restores retail's $v1(base/scan) / $a1(slot) / $a3(group) / $t0(count)
+ *   map verbatim; every register in the diff now agrees.  (Keep the CFG: the three tail stores must
+ *   stay as separate in-block `return`s.  Collapsing them into one shared exit gates 33 but loses
+ *   7 instructions to cross-jumping.)
+ *   RESIDUAL 19, three classes, all WEAKER-OPTIMIZER (per-obj old-gcc identity, methodology
+ *   §3.25-3d -- already banked for this obj's siblings), not source-reachable here:
+ *     (a) the zero-trip guard: retail emits a real `slt $v0,$t0,$v1` comparing the count REGISTER
+ *         (provably 0 at that point) against the limit; our combine folds `0 < (u_char)x` to
+ *         `x != 0` and drops the slt.  Falsified: guard on `count` instead of `slot`, reversed
+ *         operand order, signed limit (21), and a `while`-loop relying on jump.c's
+ *         duplicate_loop_exit_test (63 @105).
+ *     (b) `lb` vs `lbu` on the state byte: the source IS `signed char`, but our combine narrows a
+ *         `!= 0` test to an unsigned load; retail keeps `lb`.  Falsified: `(int)` cast, and dropping
+ *         the `volatile` (89 -- the volatile casts remain load-bearing giv blockers).
+ *     (c) rematerialization: retail recomputes `sll $v0,$a2,1` (pays a `nop` in the preceding
+ *         delay slot) where ours reuses the value, and reaches the tail's `sndgs[0x11]` through a
+ *         split `la` + 0x44 displacement where ours fuses `lui; lw %lo(sndgs+0x44)`.  Falsified:
+ *         base-pointer read at that site (19, no change) and per-TU `-mno-split-addresses`
+ *         (49 @111 here, and it breaks the other three functions in the TU).
+ *
+ * 🔴 (SUPERSEDED by the W35 note above -- kept for the record) ALLOCNO FLOOR (w32-a7, 2026-07-26)
+ *   -- the whole 79-diff residual is ONE register permutation in a
  *   LEAF function, and the RTL dumps say our allocator cannot reach retail's.  IDA sub_800FEC0C gives
  *   retail's map verbatim: count=$t0, initialSlot/idx/recomputed-slot=$a1, group=$a3, partner=$a2,
  *   scan=$v1, result=$v0, partner*100=$a3 (reused after group dies).  Ours (cc1 -dg, "16 regs to
@@ -330,15 +419,23 @@ extern void iSNDfreechan(int chan)
     unsigned char *base = (unsigned char *)sndgs;
     int pool = *(int *)(base + 0x94);
     int partner = -1;
-    unsigned char *initialSlot = (unsigned char *)(pool + chan * 100);
-    group = initialSlot[0x37];
+    /* MATCH: ONE slot variable, exactly as IDA reads retail's $a1 -- it holds the
+     * initial channel slot, then the scan index, then the recomputed slot.  Split
+     * into three C locals gcc gives them three pseudos and the whole caller-saved
+     * assignment rotates (base/initialSlot and count/group swap places). */
+    int slot = pool + chan * 100;
+    group = *(unsigned char *)(slot + 0x37);
 
     if (group != 0) {
-        int idx = count;
         int limit;
         unsigned char *scan;
 
-        if (idx < (int)base[0x11]) {
+        slot = count;
+        if (slot < (int)base[0x11]) {
+            /* MATCH (cse.c double evaluation): retail's `addu $t2,$v1,$zero` is a COPY of
+             * the guard's own load -- the guard holds the FIRST evaluation of base[0x11]
+             * and the loop bound is a SECOND textual evaluation.  One hoisted `limit`
+             * folds them together and loses the copy. */
             limit = base[0x11];
             scan = (unsigned char *)pool;
             do {
@@ -346,54 +443,50 @@ extern void iSNDfreechan(int chan)
                     0 <= *(volatile int *)scan &&
                     *(volatile signed char *)(scan + 0xb) != 0 &&
                     (count++, *(volatile unsigned char *)(scan + 0x36) != 0))
-                    partner = idx;
-                idx++;
+                    partner = slot;
+                slot++;
                 scan += 100;
-            } while (idx < limit);
+            } while (slot < limit);
+        }
+
+        slot = sndgs[0x25] + chan * 100;
+
+        if (count == 1) {
+            *(unsigned char *)(slot + 0xb) = 0;
+            *(int *)(slot + 0x10) = sndgs[0x11];
+            return;
         }
 
         {
-            int slot = sndgs[0x25] + chan * 100;
+            int partnerOffset = partner * 100;
 
-            if (count == 1) {
+            /* MATCH: the scaled partner offset is the FIRST addu operand -- the oracle
+             * emits `addu $v0,$a3,$v1` / `addu $a3,$v0,$v1`. */
+            if (*(signed char *)(partnerOffset + sndgs[0x25] + 0xb) == 2 &&
+                chan != partner && count == 2) {
                 *(unsigned char *)(slot + 0xb) = 0;
                 *(int *)(slot + 0x10) = sndgs[0x11];
+                *(unsigned char *)(partnerOffset + sndgs[0x25] + 0xb) = 0;
+                *(int *)(partnerOffset + sndgs[0x25] + 0x10) = sndgs[0x11];
                 return;
             }
 
             {
-                int partnerOffset = partner * 100;
-
-                /* MATCH (diff-neutral under the current coloring, but oracle-truer): the scaled
-                 * partner offset is the FIRST addu operand -- the oracle emits `addu $v0,$a3,$v1`
-                 * / `addu $a3,$v0,$v1`, and addu operand order IS part of the encoding, so this
-                 * only stops showing as a diff once the register permutation above is solved. */
-                if (*(signed char *)(partnerOffset + sndgs[0x25] + 0xb) == 2 &&
-                    chan != partner && count == 2) {
-                    *(unsigned char *)(slot + 0xb) = 0;
-                    *(int *)(slot + 0x10) = sndgs[0x11];
-                    *(unsigned char *)(partnerOffset + sndgs[0x25] + 0xb) = 0;
-                    *(int *)(partnerOffset + sndgs[0x25] + 0x10) = sndgs[0x11];
+                int partnerSlot = partner * 100 + DAT_801478f4;
+                if (*(signed char *)(partnerSlot + 0xb) == 1 && chan == partner) {
+                    *(unsigned char *)(partnerSlot + 0xb) = 2;
                     return;
                 }
-
-                {
-                    int partnerSlot = partner * 100 + DAT_801478f4;
-                    if (*(signed char *)(partnerSlot + 0xb) == 1 && chan == partner) {
-                        *(unsigned char *)(partnerSlot + 0xb) = 2;
-                        return;
-                    }
-                }
-
-                *(unsigned char *)(slot + 0xb) = 0;
-                *(int *)(slot + 0x10) = sndgs[0x11];
-                return;
             }
+
+            *(unsigned char *)(slot + 0xb) = 0;
+            *(int *)(slot + 0x10) = sndgs[0x11];
+            return;
         }
     }
 
-    initialSlot[0xb] = 0;
-    *(int *)(initialSlot + 0x10) = sndgs[0x11];
+    *(unsigned char *)(slot + 0xb) = 0;
+    *(int *)(slot + 0x10) = sndgs[0x11];
 }
 
 /* iSNDgetchan @0x800FEDC4 : resolve a sound tag back to its channel index, validating that the channel is

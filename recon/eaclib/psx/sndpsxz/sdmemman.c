@@ -20,6 +20,32 @@
  *   elsewhere in sndpsxz: sdmemlu needed the multiply-set-giv + join-block levers to sidestep the same
  *   engine differences). Do NOT re-fight with source contortions; a per-obj flag/toolchain identity for
  *   sndpsxz is the suspected root (W30 rule 6).
+ *
+ *   🔴 W32-a7 SHARPENING (2026-07-26) -- the floor above is CONFIRMED and now localized to a single
+ *   allocno decision.  Three of the four residual classes ARE source-reachable and were reproduced
+ *   exactly in a scratch build that reached 125/127 instructions with the first 26 instructions
+ *   byte-identical to the oracle:
+ *     (a) the empty arm's otherwise inexplicable `addu $v1,$a2,$zero` is a plain double READ of
+ *         sndpd+0x51A (`local_block = *p; local_avail = *q - *p;`) -- cse rewrites the second load
+ *         into a register copy that this cc1 then fails to propagate away, and it lands in retail's
+ *         exact registers ($a2/$v0/$v1);
+ *     (b) scan_done's fresh `lui/addiu` of sndpd+0x51C (splat D_80147E34) comes from writing that
+ *         block against its OWN base instead of the loop's $s3 -- retail must rematerialize because
+ *         $s3 is undefined on the guard-taken path;
+ *     (c) the duplicated per-arm `addiu $a0/$a1,$sp` setups come from TWO textual call sites whose
+ *         post-reload cross-jump merges only the bare `jal`.
+ *   What is NOT reachable is (d): retail's scan_done colors the block sum into $v0 and the avail
+ *   difference into $v1; ours colors them $v1/$v0 -- the exact mirror.  Because the merge depth of
+ *   the post-reload cross-jump is decided on HARD registers, that one swap is what makes retail's two
+ *   arms stop merging at the `jal` while ours also merges the `sw ..,0x14($sp)` and the argument
+ *   setup.  Root of the swap: our `addu` for the entry address coalesces its dest with the dying
+ *   `idx*4` pseudo ($v0), so prev[0] is pushed to $v1; retail takes a fresh $a2 and keeps prev[0] in
+ *   $v0.  SIX source spellings of that address were tried -- `(idx*4)+(int)base`, `(int)base+idx*4`,
+ *   `base + idx*2`, `base[idx*2]` index form, total-loaded-first, and a fresh-symbol total -- and ALL
+ *   SIX produce byte-identical RTL/asm.  The identical swap appears in smemman.c iSNDmalloc's
+ *   post-scan tail, so it is a property of the allocator, not of either function's source.
+ *   NET: reverted to this 59-diff body; the 125/127 variant scores 72 because the shared tail lands
+ *   after scan_done instead of after the empty arm (a pure alignment artifact of the same swap).
  */
 
 /* MATCH: engine_ver/block_total/reverb_mode/alloc_count are NOT separate linked globals -- the oracle

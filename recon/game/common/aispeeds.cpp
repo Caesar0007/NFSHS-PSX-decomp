@@ -468,14 +468,17 @@ LAB_GLUE:
 
       glueIndex = closestHumanDistance / 0x3c0000 + 10;
       if (glueIndex < 0) {
-        clampedGlueIndex = 0;
+        goto clampLow;
       }
-      else if (glueIndex < 0x15) {
+      if (glueIndex < 0x15) {
         clampedGlueIndex = glueIndex;
+        goto clampDone;
       }
-      else {
-        clampedGlueIndex = 0x14;
-      }
+      clampedGlueIndex = 0x14;
+      goto clampDone;
+clampLow:
+      clampedGlueIndex = 0;
+clampDone:
       glue = AIPerson_glueTable[clampedGlueIndex];
       if (glue < 0x10000) {
         glue = fixedmult(0x10000 - glue,carObj->btcGlueModifier);

@@ -842,11 +842,11 @@ void CalcObjDefPtrs(void)
   Group *pGVar3;
   int iVar4;
   int i;
-  
-  pGVar2 = gPersistObjDef;
+
   iVar4 = 1;
+  gObjDefOffsetsGroup[1].m_num_elements = (int)(gPersistObjDef + 1);
+  pGVar2 = gPersistObjDef;
   pGVar3 = gObjDefOffsetsGroup + 2;
-  gObjDefOffsetsGroup[1].m_num_elements = (int)(pGVar2 + 1);
 CalcObjDefPtrs_loopTest:
   if (iVar4 < pGVar2->m_num_elements) {
     iVar4 = iVar4 + 1;

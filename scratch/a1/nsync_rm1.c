@@ -226,37 +226,20 @@ extern void *loadbigfileheaderatomic(int retry, LoadArgs *a)   /* @0x800E5938 */
      * backward into it.  Inline structured fail blocks emit 3 separate tails.
      * `retry - 1` stays an EXPRESSION per call site (CSE makes the s3 temp for the
      * readsync path; the closes off the join recompute addiu a1,s4,-1). A short-lived close
-     * retry local distinguishes the purge tail and improves the authoritative residual 8->7.
-     * w33-a1 LOCALISED THE LAST 7 to ONE allocno_compare tie (do not re-fight the shape):
-     * writing the shared `retry - 1` as a FUNCTION-SCOPE named local (`rm1`, assigned at the
-     * first readsync and used by the purge close + the second readsync) reproduces the oracle's
-     * instruction stream EXACTLY -- 81/81 insns, zero structural diffs, the purge tail reuses the
-     * $s3 temp and drops the recompute -- but it SHORTENS `retry`'s live range (cse also folds
-     * the trailing `retry - 1` closes onto the same pseudo), so `retry` stops conflicting with
-     * the middle allocnos, wins the s0 slot off a short-lived neighbour, and the whole
-     * retry/`a` parameter pair swaps registers: 24 pure rename diffs.  cc1 -dg receipts:
-     * base `regs to allocate: 96 83 94 89 81 80` (a=81 before retry=80 -> a in $s0, retry in $s4,
-     * = the oracle) vs rm1 `95 83 93 88 80 81` with `80 conflicts: 80 81 83` only.  ==> the
-     * residual is NOT a source-shape question; it is the same live-length-vs-ref-count weighting
-     * delta as loadfileadratomic/InitEventQueue (methodology 3.25 / catalog G).  Reaching the
-     * oracle needs BOTH the short-lived shared temp AND a long-lived `retry` -- mutually
-     * exclusive under this cc1's cse.  Variants measured: close_retry local 7 (kept, 82/81) /
-     * bare `retry - 1` everywhere 8 (79/81) / rm1 24 (81/81, structure-exact). */
+     * retry local distinguishes the purge tail and improves the authoritative residual 8->7. */
     buf = reservememadr(a->name, 0xA90, a->memclass);
     if (buf == 0)
         goto closefail;
 
     {
-        FILE_readsync(handle, 0, buf, 0xA90, retry - 1);
+        int rm1 = retry - 1;
+        FILE_readsync(handle, 0, buf, 0xA90, rm1);
 
         if (typeofbigfile(buf) == 0) {                  /* not a big file */
 purgefail:
-            {
-                int close_retry = retry - 1;
-                purgememadr(buf);
-                FILE_closesync(handle, close_retry);
-                return 0;
-            }
+            purgememadr(buf);
+            FILE_closesync(handle, rm1);
+            return 0;
         }
 
         {
@@ -270,7 +253,7 @@ purgefail:
                 purgememadr(buf);
                 buf = full;
                 FILE_readsync(handle, 0xA90, (char *)buf + 0xA90,
-                              fullsize - 0xA90, retry - 1);
+                              fullsize - 0xA90, rm1);
             }
         }
     }

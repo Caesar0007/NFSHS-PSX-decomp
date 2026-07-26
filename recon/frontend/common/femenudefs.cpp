@@ -208,8 +208,20 @@ extern "C" void MenuExtended_SetSoloRace__FR12tMenuCommand(tMenuCommand *command
 
 /* Decoded Phase 83: MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand(tMenuCommand&) - enter 2P single-race flow(276 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
-   
-   [ghidra-meta] section: front.text */
+
+   [ghidra-meta] section: front.text
+
+   [BUG FIX 2026-07-27, 45->34 diffs] Same DOUBLE-DESTRUCTION bug as PinkSlipsPreSave/
+   MenuExtended_LoadGame: a manual `tScreen_dtor((tScreen*)&YesNoDialog,2);` at the shared exit
+   was firing IN ADDITION to `YesNoDialog`'s own real `tDialogYesNoTri::~tDialogYesNoTri()`
+   auto-invoked at scope exit (objdump showed `jal tScreen_dtor` then `jal ___15tDialogYesNoTri`
+   back to back). Dropped the manual call -- insn count now matches the oracle EXACTLY (69==69).
+   Residual (34 diffs) = a field-store addressing floor: oracle materializes `a0=s0` once (right
+   after `jal TextSys_Word`) and stores the string/yesnowords/fDefault fields via `a0`
+   displacement; our build keeps the SAME field values but addresses them sp-relative directly
+   (never re-derives an `a0`/`s0` copy for that block) -- same value, same byte offset from the
+   frame, purely a scratch-register/CSE tie-break (§3.15 family); the dead `dlgThis` local doesn't
+   change it. Not source-reachable without a pin (forbidden); accept. */
 
 extern "C" void MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand(tMenuCommand *command)
 
@@ -247,7 +259,6 @@ extern "C" void MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand(tMenuComm
     command->type = kMenu_Command_GoToMenu;
     command->nextMenu = (tMenu *)(tMenu*)&ptVar1->menuSingleTrackSelect;
   }
-  tScreen_dtor((tScreen *)&YesNoDialog,2);
   return;
 }
 
@@ -332,12 +343,19 @@ int AskTheUserToSaveTheGame(void)
      block-scoping YesNoDialog into the `if` (the earlier 2026-07-05 attempt regressed 25->29
      because it block-scoped the declaration but LEFT the redundant manual ctor call in, doubling
      construction inside the block); with the manual call gone this combination is a real win
-     (25->22, insn 35->32 vs oracle 30). Residual = answer-default-0 colored to s0 (ours) vs
-     v0-in-beqz-delay-slot (oracle); cascades to sp-relative vs s0-relative field stores because
-     the oracle frees s0 to hold the dialog `this`. gcc-2.7.2 keeps the 0 default in a callee-saved
-     reg across the body (can't prove it dead post-Run); not source-reachable without a pin
-     (forbidden) -- early-return / goto-tail both SPLIT the shared epilogue (regressed further
-     when tried previously). Accept as floor. */
+     (25->22, insn 35->32 vs oracle 30).
+
+     [BUG FIX 2026-07-27, 22->19] Re-examined via objdump (the "coloring only" verdict above did
+     NOT check for a duplicate call) and found the SAME DOUBLE-DESTRUCTION bug as PinkSlipsPreSave/
+     MenuExtended_LoadGame/GoToTwoPlayerSingleRace: `tScreen_dtor((tScreen*)&YesNoDialog,2)` was
+     firing IN ADDITION to `tDialogYesNo::~tDialogYesNo()`'s own automatic scope-exit call --
+     `jal tScreen_dtor` then `jal ___12tDialogYesNo` back to back, both `a1=2`. Dropped the manual
+     call. Residual (19 diffs, insn 29 vs oracle 30 -- 1 short now) = the SAME sp-relative-vs-
+     s0-relative field-store addressing floor documented on the sibling fns above (oracle
+     re-derives `a0=s0` once and stores string/yesnowords/fDefault via `a0` displacement; ours
+     stays sp-relative) PLUS the pre-existing answer-default-0 coloring tie-break (s0 vs
+     v0-in-delay-slot). Both are gcc scratch-register tie-breaks, not source-reachable without a
+     pin (forbidden). Accept. */
   is_cheater = (int)FECheat_IsTheUserACryBabyCheater();
   answer = 0;
   if ((is_cheater ^ 1) != 0) {
@@ -349,7 +367,6 @@ int AskTheUserToSaveTheGame(void)
     YesNoDialog.yesnowords[1] = 0x322;
     YesNoDialog.fDefault = 0;
     answer = (short)Run((tDialogInteractive *)&YesNoDialog);
-    tScreen_dtor((tScreen *)&YesNoDialog,2);
   }
   return answer;
 }
@@ -706,17 +723,28 @@ void * PinkSlipsPreSave(void)
   void *ret;
   tDialogYesNoTri *dlgThis;
 
-  /* NEAR-MISS 22 diffs (2026-07-11, was 33). Dropped the REDUNDANT `tDialogYesNo_ctor(&YesNoDialog)`
+  /* NEAR-MISS (2026-07-11, 33->22). Dropped the REDUNDANT `tDialogYesNo_ctor(&YesNoDialog)`
      manual call (tDialogYesNo's real ctor is already auto-invoked by the local's declaration --
      see AskTheUserToSaveTheGame's note) and block-scoped YesNoDialog into the `if`; also fixed
      `tDialogYesNoTri_vtable` to `&tDialogYesNoTri_vtable` (it's declared `extern int`, so the
      bare name was a LOAD of the vtable's first word, not its address -- a real correctness bug).
      Re-tried the oracle-suggested `^1` cheater idiom (`(is_cheater^1)!=0`) since the diff now shows
      `xori v0,v0,1;beqz` wanted -- regressed 22->23 (gcc reuses s1 for `xor v0,v0,s1` instead of
-     `xori`), same coloring trap as before; kept the plain `!= 1` int test. Residual = gcc-2.7.2
-     HOISTS the dialog `this` address (s0=&YesNoDialog) and the ret default ABOVE the FECheat call,
-     whereas the oracle computes them after the cheater branch (s0 set in the body). Pure
-     pre-branch scheduling; not source-reachable (forbidden to pin). */
+     `xori`), same coloring trap as before; kept the plain `!= 1` int test.
+
+     [BUG FIX 2026-07-27, 22->16] Same DOUBLE-DESTRUCTION bug as MenuExtended_LoadGame: both the
+     `sVar1==-1` early-return path AND the shared exit dropped through a manual
+     `tScreen_dtor((tScreen*)&YesNoDialog,2);` call in ADDITION to YesNoDialog's own real
+     `tDialogYesNoTri::~tDialogYesNoTri()` (fedialog.cpp, empty body -> base fallthrough) firing
+     automatically at scope exit -- objdump confirmed BOTH `tScreen_dtor` and `___15tDialogYesNoTri`
+     were being called back-to-back on EACH of the two exit paths (4 calls total for 2 logical
+     destructions). Dropped both manual calls, letting the block-scoped local's own destructor
+     fire once per path (matches the fememcard.cpp precedent: "manual tScreen_dtor calls ...
+     dropped too, oracle's two ___7tScreen calls right"). Residual = same pre-branch-scheduling
+     floor as before (gcc-2.7.2 hoists `this`/`ret` ahead of the cheater test; oracle computes them
+     after) PLUS an sp-relative-vs-s0-relative field-store addressing choice (same value, same
+     insn count contribution -- s0=sp+16 so `sw v0,112(sp)`==`sw v0,96(s0)`); not source-reachable,
+     no pin. */
   is_cheater = (int)FECheat_IsTheUserACryBabyCheater();
   ret = (void *)0x1;
   if (is_cheater != 1) {
@@ -733,10 +761,8 @@ void * PinkSlipsPreSave(void)
       ret = GenericMenuSaveGame(1);
     }
     else if (sVar1 == -1) {
-      tScreen_dtor((tScreen *)(tDialogYesNo *)&YesNoDialog,2);
       return (void *)0x0;
     }
-    tScreen_dtor((tScreen *)&YesNoDialog,2);
   }
   return ret;
 }
@@ -989,12 +1015,10 @@ extern "C" void MenuExtended_GoToTournTrackInfo__FR12tMenuCommand(tMenuCommand *
       popUp.fDefault = 0;
       sVar4 = Run((tDialogInteractive *)&popUp);
       if (sVar4 == 0) {
-        tScreen_dtor((tScreen *)&popUp,2);
         return;
       }
       AudioCmn_PlayFESFX(0x1a);
       tournamentManager.fMoney = tournamentManager.fMoney - ptVar3->fTournaments[iVar6].fEntranceFee;
-      tScreen_dtor((tScreen *)&popUp,2);
     }
   }
   StartNewTournament(&tournamentManager,0,frontEnd.tournament);
@@ -1032,7 +1056,14 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
   /* [2026-07-11] Dropped the REDUNDANT `tDialogYesNo_ctor(&popUp)` manual call (tDialogYesNo's
      real ctor is already auto-invoked by the local's declaration -- see AskTheUserToSaveTheGame's
      note) and block-scoped popUp to exactly where the oracle's `jal __12tDialogYesNo` sits: AFTER
-     the insufficient-funds early-return (see twin fn GoToTournTrackInfo). */
+     the insufficient-funds early-return (see twin fn GoToTournTrackInfo).
+
+     [BUG FIX 2026-07-27, 47->41] Same DOUBLE-DESTRUCTION bug as the twin GoToTournTrackInfo:
+     both exit paths (`sVar4==0` early-return and the shared fallthrough) also called
+     `tScreen_dtor((tScreen*)&popUp,2)` manually IN ADDITION to popUp's own auto-invoked
+     `tDialogYesNo::~tDialogYesNo()`. Dropped both manual calls. Residual struct-offset mismatch
+     (84 vs 48 for the fEntranceFee/fTournOffset-style field -- see GoToTournTrackInfo's matching
+     note) is pre-existing and untouched here. */
   ptVar3 = tournamentManager.fDefinition;
   ptVar1 = FEApp;
   frontEnd.tier = '\x01';
@@ -1057,12 +1088,10 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
       popUp.fDefault = 0;
       sVar4 = Run((tDialogInteractive *)&popUp);
       if (sVar4 == 0) {
-        tScreen_dtor((tScreen *)&popUp,2);
         return;
       }
       AudioCmn_PlayFESFX(0x1a);
       tournamentManager.fMoney = tournamentManager.fMoney - ptVar3->fTournaments[iVar6].fEntranceFee;
-      tScreen_dtor((tScreen *)&popUp,2);
     }
   }
   StartNewTournament(&tournamentManager,1,frontEnd.specialevent);
@@ -1294,7 +1323,10 @@ extern "C" void MenuExtended_SellCar__FR12tMenuCommand(tMenuCommand *command)
   tDialogMessageString *dlgThis;
 
   /* [2026-07-11] Dropped the REDUNDANT `tDialogYesNo_ctor(&popUp)` manual call and block-scoped
-     popUp into the `if (bVar1)` (see AskTheUserToSaveTheGame's note for why). */
+     popUp into the `if (bVar1)` (see AskTheUserToSaveTheGame's note for why).
+     [BUG FIX 2026-07-27, 56->53] Same DOUBLE-DESTRUCTION bug as the other tDialogYesNo/
+     tDialogYesNoTri locals in this file: dropped the manual `tScreen_dtor((tScreen*)&popUp,2)`
+     that was firing alongside popUp's own auto-invoked destructor. */
   lVar6 = tournamentManager.fMoney;
   bVar1 = false;
   lVar4 = CalcUsedPrice(&carManager, (ushort)(byte)frontEnd.garageCar[0]);
@@ -1320,7 +1352,6 @@ extern "C" void MenuExtended_SellCar__FR12tMenuCommand(tMenuCommand *command)
       Increment(&menuDefs[0]->iteratorSellerCar,kPlayerOne);
       AudioCmn_PlayFESFX(0x1a);
     }
-    tScreen_dtor((tScreen *)&popUp,2);
   }
   else {
     this_00 = &FEApp->messagePopup;
@@ -1360,7 +1391,9 @@ extern "C" void MenuExtended_BuyCar__FR12tMenuCommand(tMenuCommand *command)
   tCarInfo carInfo;
 
   /* [2026-07-11] Dropped the REDUNDANT `tDialogYesNo_ctor(&yesNo)` manual call and block-scoped
-     yesNo into the inner `if` (see AskTheUserToSaveTheGame's note for why). */
+     yesNo into the inner `if` (see AskTheUserToSaveTheGame's note for why).
+     [BUG FIX 2026-07-27, 44->41] Same DOUBLE-DESTRUCTION bug: dropped the manual
+     `tScreen_dtor((tScreen*)&yesNo,2)` firing alongside yesNo's own auto-invoked destructor. */
   ptVar1 = FEApp;
   this_00 = &FEApp->messagePopup;
   GetStockCar(&carManager, (ushort)(byte)frontEnd.dealerCar,&carInfo);
@@ -1381,7 +1414,6 @@ extern "C" void MenuExtended_BuyCar__FR12tMenuCommand(tMenuCommand *command)
         tournamentManager.fMoney = tournamentManager.fMoney - lVar3;
         AudioCmn_PlayFESFX(0x1a);
       }
-      tScreen_dtor((tScreen *)&yesNo,2);
       return;
     }
     AudioCmn_PlayFESFX(10);
@@ -1426,7 +1458,18 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
      ctor call above GetGarageCar, but that hoisted call was actually the AUTOMATIC ctor for the
      function-scope `popUp` firing at the top unconditionally, stacked with the (redundant) manual
      call in the else; removing the manual call and shrinking popUp's scope to the else fixes
-     the hoist at the source. */
+     the hoist at the source.
+
+     [BUG FIX 2026-07-27, DOCUMENTED CORRECTNESS EXCEPTION] Found the same DOUBLE-DESTRUCTION bug
+     present across this file: the `else` block ALSO had a manual `tScreen_dtor((tScreen*)&popUp,2)`
+     firing IN ADDITION to popUp's own real auto-invoked `tDialogYesNo::~tDialogYesNo()`. Dropped
+     it -- a genuine behavioral bug fix (this function was double-freeing/double-resetting the
+     dialog's vtable on every real invocation). Byte-match went 28->29 diffs (insn count improved
+     79 vs oracle 80, was 82 vs 80) -- removing the dead call shifted downstream register
+     allocation (branch polarity flip beqz<->bnez, s0/a0-vs-v0/sp addressing) rather than a clean
+     3-insn drop like the sibling fns. Kept per the correctness-exception clause: a real
+     double-destruction bug outweighs a 1-line diff delta, and insn count is closer to the oracle
+     than before. */
   uVar5 = 1 << (upgradeNumber);
   GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],&carInfo,0);
   if ((carInfo.fUpgrades & uVar5) == 0) {
@@ -1450,7 +1493,6 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
         tournamentManager.fMoney = tournamentManager.fMoney - lVar3;
         AudioCmn_PlayFESFX(0x1a);
       }
-      tScreen_dtor((tScreen *)&popUp,2);
     }
   }
   return;
@@ -1574,7 +1616,12 @@ void GenericMenuLoadGame(int player)
      scratch reg each access; our build coalesces the VALUE into s0/s1. Caching the value (this
      form) vs not caching (literal derefs -> 36 diffs, wrong 1-saved-reg structure) are the only
      two source-expressible options; the address-hi-CSE-with-value-reload form is not
-     source-reachable (methodology 3.15 reload tie-break). */
+     source-reachable (methodology 3.15 reload tie-break).
+     [2026-07-27 re-tried] T** double-indirection (&FEApp / &screenMemcard held across the call,
+     deref at each use, per §3.12 #16) REGRESSES to 36 diffs with a SMALLER 24B frame (drops s1/s2
+     entirely, spills differently) -- the extra indirection level changes register-pressure
+     enough that gcc abandons the 2-saved-reg structure altogether. Reverted; confirms the
+     3.15 reload tie-break verdict above. WALL, accept. */
   if (CURRENTLYUSINGMEMCARD == 0) {
     app = FEApp;
     mc = screenMemcard;
@@ -1603,16 +1650,31 @@ void GenericMenuLoadGame(int player)
    
    [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_LoadGame__FR12tMenuCommand(int arg0)'.Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling pattern.
 
-   [NEAR-MISS 2026-07-05, was 33 diffs, now 18] Real fix: `AreYouSure`/`sVar1`/`dlgThis` moved
+   [NEAR-MISS 2026-07-05, was 33 diffs, then 18] Real fix: `AreYouSure`/`sVar1`/`dlgThis` moved
    from function scope INTO the `if` block. A C++ local object's non-trivial ctor runs
    unconditionally at its declaration's scope entry -- with `AreYouSure` at function scope its
    ctor call was hoisted BEFORE the fFlags guard test entirely (oracle's ctor call is
    genuinely conditional, reached only in the fFlags==0 fall-through). Block-scoping it
    restores the right control flow; `dlgThis` (unused before) now carries the &AreYouSure
-   hoist matching the ExitPinkSlipsEarly/EnterUserName fix family. Residual = an 8-byte frame
-   gap (oracle -0xC8 vs ours -0xC0) whose source remains unidentified; tried re-scoping every
-   local, no change -- likely a 2nd allocated-but-unused local in the original, not yet
-   found. */
+   hoist matching the ExitPinkSlipsEarly/EnterUserName fix family.
+
+   [BUG FIX 2026-07-27, 18->13 diffs] Found a genuine DOUBLE-DESTRUCTION bug: the block also had
+   a manual `tScreen_dtor((tScreen*)&AreYouSure,2);` call at the end -- but `AreYouSure` is type
+   tDialogYesNo, which HAS a real user-declared `tDialogYesNo::~tDialogYesNo()` (fedialog.cpp,
+   empty body -> forwards to the base tScreen dtor). Declaring the local ALREADY auto-invokes
+   that destructor at scope exit (same family as AskTheUserToSaveTheGame's dropped-phantom-ctor
+   fix, and screencarselect.cpp/screentournselect.cpp/screentrophyroom.cpp's "declared base dtor
+   auto-fires, no manual tScreen_dtor" convention) -- our compiled object was literally calling
+   BOTH `___12tDialogYesNo` (auto) AND `tScreen_dtor` (manual, same net effect) back to back.
+   Dropped the manual call; ours now emits exactly ONE dtor call (`___12tDialogYesNo`, vs the
+   oracle's direct `___7tScreen` -- irrelevant to the gate, `jal` targets normalize to `jal T`).
+   Residual = an 8-byte frame gap (oracle -0xC8 vs ours -0xC0, still unidentified -- tried
+   re-scoping every local and dropping the `dlgThis` pointer indirection [regresses hard, 13->25,
+   drops the s0 dialog-base register entirely], no better form found) PLUS one extra `addu
+   a0,s0,zero` gcc schedules into the `beqz sVar1,...` delay slot (redundant re-materialization of
+   &AreYouSure that the oracle's delay slot doesn't have -- oracle fills that slot with the
+   screenMemcard %hi load instead). Both are gcc scheduling/allocation floors on this shape; not
+   yet source-reachable. */
 
 extern "C" void MenuExtended_LoadGame__FR12tMenuCommand(tMenuCommand *command)
 
@@ -1630,7 +1692,6 @@ extern "C" void MenuExtended_LoadGame__FR12tMenuCommand(tMenuCommand *command)
     if (sVar1 != 0) {
       GenericMenuLoadGame((int)screenMemcard->player);
     }
-    tScreen_dtor((tScreen *)&AreYouSure,2);
   }
   return;
 }
@@ -1833,14 +1894,29 @@ extern "C" void MenuExtended_FinishedPlayer2GetName__FR12tMenuCommand(tMenuComma
   void *pvVar3;
   Car_tStats *dummyCars;
   short nBestCarIndex;
-  
-  pvVar3 = StatChk_IsRecordLapTime(Cars_gNewCarStatsList,(short)Cars_gNumRaceCars,&nBestCarIndex);
+
+  /* [SYM check 2026-07-27] SYM ground truth (8c Function start @0x8002DD14) proves `dummyCars`
+     is a REAL `class REG type PTR STRUCT Car_tStats` local, and the function's .mask is
+     $80070000 = s0|s1|s2 (3 saved regs) + ra. Assigning `Cars_gNewCarStatsList` to `dummyCars`
+     ONCE and passing it at each call site matches the SYM's named local -- but verify_asm
+     confirmed it is CODEGEN-NEUTRAL (byte-identical before/after): gcc-2.8.0 already CSEs the
+     bare global's %hi across all 4 call sites on its own, so the explicit local changes nothing
+     observable. Kept anyway for SYM fidelity (harmless, more faithful to ground truth). Residual
+     (37 diffs) = oracle allocates a genuine 3RD saved reg (s0) to cache %hi(Cars_gNumRaceCars)
+     across all 4 reads (`lui s0,%hi(...)` once, then `lh a1,%lo(...)(s0)` per site); our build
+     allocates only 2 saved regs (command in s1, &Cars_gNewCarStatsList in s0) and rematerializes
+     `lui a1,%hi(Cars_gNumRaceCars); lh a1,...` FRESH at all 4 sites instead. Pure allocator
+     register-BUDGET tie-break (gcc-2.8.0's global.c priority didn't rank Cars_gNumRaceCars's
+     address high enough to earn a 3rd callee-saved reg here); not source-reachable without a
+     pin (forbidden). Accept as floor. */
+  dummyCars = Cars_gNewCarStatsList;
+  pvVar3 = StatChk_IsRecordLapTime(dummyCars,(short)Cars_gNumRaceCars,&nBestCarIndex);
   if (pvVar3 != (void *)0x0) {
-    StatChk_SaveRecordLapTime(Cars_gNewCarStatsList,(short)Cars_gNumRaceCars,nBestCarIndex);
+    StatChk_SaveRecordLapTime(dummyCars,(short)Cars_gNumRaceCars,nBestCarIndex);
   }
-  sVar2 = StatChk_IsTopTime(Cars_gNewCarStatsList,(short)Cars_gNumRaceCars);
+  sVar2 = StatChk_IsTopTime(dummyCars,(short)Cars_gNumRaceCars);
   if (sVar2 != 0) {
-    StatChk_SaveTopTime(Cars_gNewCarStatsList,(short)Cars_gNumRaceCars);
+    StatChk_SaveTopTime(dummyCars,(short)Cars_gNumRaceCars);
   }
   ptVar1 = menuDefs[0];
   command->type = kMenu_Command_GoToMenuOneWay;
@@ -1926,7 +2002,10 @@ extern "C" void MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand(tMenuCommand *c
   
   /* [2026-07-11 consolidation] dropped REDUNDANT tDialogYesNo_ctor(&RetryCancelDialog) manual
      call (undefined phantom extern; tDialogYesNo's real declared ctor auto-fires -- oracle
-     shows a single jal __12tDialogYesNo). Same class as the ~11 sites fixed above. */
+     shows a single jal __12tDialogYesNo). Same class as the ~11 sites fixed above.
+     [BUG FIX 2026-07-27, 130->124] The matching manual `tScreen_dtor((tScreen*)&RetryCancelDialog,2)`
+     at the function's tail was left in -- same DOUBLE-DESTRUCTION bug, firing alongside
+     RetryCancelDialog's own auto-invoked destructor at the real `}`. Dropped it. */
   RetryCancelDialog.yesnowords[0] = 0x291;
   RetryCancelDialog.yesnowords[1] = 0x292;
   RetryCancelDialog.fDefault = 1;
@@ -1967,7 +2046,6 @@ extern "C" void MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand(tMenuCommand *c
   ptVar3 = menuDefs[0];
   command->type = kMenu_Command_GoToMenuOneWay;
   command->nextMenu = (tMenu *)(tMenu*)&ptVar3->menuMain;
-  tScreen_dtor((tScreen *)&RetryCancelDialog,2);
   return;
 }
 
@@ -2140,8 +2218,17 @@ extern "C" void MenuExtended_SetExpert__FR12tMenuCommand(tMenuCommand *command)
 /* Decoded Phase 83: MenuExtended_ExitTourney__FR12tMenuCommand(tMenuCommand&) - abandon current tournament, return to
    main menu (144 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
-   
-   [ghidra-meta] section: front.text */
+
+   [ghidra-meta] section: front.text
+
+   [BUG FIX 2026-07-27] Same DOUBLE-DESTRUCTION bug as the other tDialogYesNo locals: objdump
+   confirmed `jal tScreen_dtor` then `jal ___12tDialogYesNo` back to back on AreYouSure. Dropped
+   the manual call. Insn count coincidentally MATCHED the oracle before this fix (36==36, ours
+   PADDED by the 3 duplicate insns) -- after removing them ours is 33 vs oracle 36, a genuine
+   3-insn shortfall that pre-existed and was simply masked by the double-call bug (oracle caches
+   command/`this` in s1, ours in s0/a0 -- an unrelated register-caching gap, not yet fixed).
+   Diff count still improved 52->49; kept as a correctness fix (this fn was double-freeing the
+   dialog's vtable on every real call). */
 
 extern "C" void MenuExtended_ExitTourney__FR12tMenuCommand(tMenuCommand *command)
 
@@ -2165,7 +2252,6 @@ extern "C" void MenuExtended_ExitTourney__FR12tMenuCommand(tMenuCommand *command
     command->type = kMenu_Command_GoToMenuOneWay;
     command->nextMenu = (tMenu *)(tMenu*)&ptVar1->menuMain;
   }
-  tScreen_dtor((tScreen *)&AreYouSure,2);
   return;
 }
 
@@ -2189,7 +2275,11 @@ extern "C" void MenuExtended_ExitTourney__FR12tMenuCommand(tMenuCommand *command
    first iteration always runs and drops the pre-check; the oracle's build didn't fold it).
    Tried for-clause vs while-with-tail-increment vs short-typed counters -- none reproduce the
    kept pre-check; loop-invariant constant-fold difference, not source-reachable without a
-   pin. */
+   pin.
+
+   [BUG FIX 2026-07-27, 13->10] Same DOUBLE-DESTRUCTION bug: dropped the manual
+   `tScreen_dtor((tScreen*)&AreYouSure,2)` firing alongside AreYouSure's own auto-invoked
+   destructor. */
 
 extern "C" void MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand(tMenuCommand *command)
 
@@ -2229,7 +2319,6 @@ extern "C" void MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand(tMenuCommand *
     command->nextMenu = (tMenu *)(tMenu*)&ptVar2->menuMain;
     frontEnd.raceType = '\0';
   }
-  tScreen_dtor((tScreen *)&AreYouSure,2);
   return;
 }
 

@@ -31,7 +31,7 @@ void  AudioCmn_PlayFESFX(int);  void AudioCmn_PlayFESFXVol(int,int);
 /* batch externs */
 extern tScreenAudio *screenAudio;  extern tScreenControllerConfig *screenControllerConfig[];   /* unsized array (§3.12 #5): oracle lui/lw separate-scratch */
 extern tTexture_ShapeInfo *gHelpShapes;  extern tPlayer gMenu_SubMenuPlayer;
-extern int menu_kUserNameRows;
+extern short menu_kUserNameRows;   /* SYM: $800529b0 94 Def class EXT type SHORT (was wrongly int -> sw/lw instead of sh/lh) */
 int CalcFadeVal(int,int,int);  int CalcFadeVal(int,int,int,int);
 void FETextRender_FullTextRGB(char*,short,short,int,char,short);
 void FETextRender_FullText(char*,short,short,tMenuTextType,tMenuTextState,short);

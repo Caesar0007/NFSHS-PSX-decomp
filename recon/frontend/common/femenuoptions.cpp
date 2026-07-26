@@ -2717,73 +2717,55 @@ void tUserNameMenuItem::TransitionOff()
 void tUserNameMenuItem::TransitionOn()
 
 {
-  char cVar1;
-  short sVar2;
-  u_int *puVar3;
-  char *fmt;
-  u_int uVar4;
-  short sVar5;
-  int iVar6;
-  int i;
-  short NumberOfRows [6];
-  
-  i = 0;
-  do {
-    fmt = TextSys_Word((short)i + 0x1fb);
-    sprintf(this->fRowList[0] + (short)i * 9,fmt);
-    i = i + 1;
-  } while (i * 0x10000 >> 0x10 < 10);
-  i = 0;
-  uVar4 = (int)NumberOfRows + 3U & 3;
-  puVar3 = (u_int *)(((int)NumberOfRows + 3U) - uVar4);
-  *puVar3 = *puVar3 & -1 << (uVar4 + 1) * 8 | 0x00090007U /* @0x80010a00 */ >> (3 - uVar4) * 8;
-  NumberOfRows[0] = 0x00090007U /* @0x80010a00 */;
-  NumberOfRows[1] = _UNK_80010a02;
-  uVar4 = (int)NumberOfRows + 7U & 3;
-  puVar3 = (u_int *)(((int)NumberOfRows + 7U) - uVar4);
-  *puVar3 = *puVar3 & -1 << (uVar4 + 1) * 8 | 0x00090009U /* @0x80010a04 */ >> (3 - uVar4) * 8;
-  NumberOfRows[2] = 0x00090009U /* @0x80010a04 */;
-  NumberOfRows[3] = _UNK_80010a06;
-  uVar4 = (int)NumberOfRows + 0xbU & 3;
-  puVar3 = (u_int *)(((int)NumberOfRows + 0xbU) - uVar4);
-  *puVar3 = *puVar3 & -1 << (uVar4 + 1) * 8 | 0x00090008U /* @0x80010a08 */ >> (3 - uVar4) * 8;
-  NumberOfRows[4] = 0x00090008U /* @0x80010a08 */;
-  NumberOfRows[5] = _UNK_80010a0a;
-  menu_kUserNameRows = NumberOfRows[(u_char)frontEnd.language];
-  this->fCurrentRow = 0;
-  cVar1 = this->fRowList[0][this->fCurrentColumn];
-  if ((cVar1 != '!') && (cVar1 != '@')) {
-    while (i < menu_kUserNameRows) {
-      this->fCurrentColumn = 0;
-      i = this->fCurrentRow * 9;
-      cVar1 = this->fRowList[0][i];
-      iVar6 = 0;
-      if ((cVar1 != '!') && (cVar1 != '@')) {
-        while (uVar4 = strlen(this->fRowList[0] + i), iVar6 < (int)uVar4) {
-          sVar5 = this->fCurrentColumn + 1;
-          iVar6 = (int)sVar5;
-          i = this->fCurrentRow * 9;
-          this->fCurrentColumn = sVar5;
-          cVar1 = this->fRowList[0][iVar6 + i];
-          if ((cVar1 == '!') || (cVar1 == '@')) break;
-        }
-      }
-      sVar5 = this->fCurrentRow + 1;
-      i = (int)sVar5;
-      this->fCurrentRow = sVar5;
-      cVar1 = this->fRowList[0][(int)this->fCurrentColumn + i * 9];
-      if ((cVar1 == '!') || (cVar1 == '@')) break;
-    }
+  /* SYM 8c block: locals are exactly `short i` (REG $s2) and
+     `short NumberOfRows[6]` (AUTO -0x28 = sp+0x10) -- the 6 other Ghidra temps
+     and the hand-expanded unaligned store soup were fictions: the table is an
+     AGGREGATE INITIALIZER, i.e. gcc's own 12-byte rodata->stack block copy
+     (3x lwl/lwr + swl/swr from D_80010A00).  SLD: 1982-1985 the sprintf loop /
+     1989 the table / 1990 kUserNameRows / 1992-1994 the row+column scan /
+     1996 fCurrentRow-- / 2000-2003 fade+selfade / 2010-2012 the speech. */
+  short i;
+  /* MATCH: unsized-array asm-label view of the scalar extern.  A scalar extern
+     compiles to the single `lh $r,sym` / `sh $r,sym` ASSEMBLER MACRO, which is
+     unschedulable (delay-slot poison) and uses the `$at` scratch on stores; the
+     array view splits it into a schedulable lui + lh/sh pair like the oracle. */
+  extern short menu_kUserNameRowsA[] __asm__("menu_kUserNameRows");
+
+  for (i = 0; i < 10; i++) {
+    sprintf(this->fRowList[i],TextSys_Word(i + 0x1fb));
   }
-  sVar2 = this->fCurrentRow;
+
+  {
+    short NumberOfRows [6] = { 7, 9, 9, 9, 8, 9 };   /* @0x80010A00 */
+
+    menu_kUserNameRowsA[0] = NumberOfRows[(u_char)frontEnd.language];
+  }
+
+  this->fCurrentRow = 0;
+  while ((this->fRowList[this->fCurrentRow][this->fCurrentColumn] != '!') &&
+         (this->fRowList[this->fCurrentRow][this->fCurrentColumn] != '@') &&
+         (this->fCurrentRow < menu_kUserNameRowsA[0])) {
+    this->fCurrentColumn = 0;
+    while ((this->fRowList[this->fCurrentRow][this->fCurrentColumn] != '!') &&
+           (this->fRowList[this->fCurrentRow][this->fCurrentColumn] != '@') &&
+           ((int)this->fCurrentColumn < (int)strlen(this->fRowList[this->fCurrentRow]))) {
+      this->fCurrentColumn = this->fCurrentColumn + 1;
+    }
+    this->fCurrentRow = this->fCurrentRow + 1;
+  }
+  this->fCurrentRow = this->fCurrentRow - 1;
   this->fFadeVal = 0x80;
   this->fFadeDir = -0x1e;
-  sVar5 = this->fPlayer;
   this->fSelFade = 0;
-  this->fCurrentRow = sVar2 + -1;
-  if (FEApp->speechToPlay[sVar5] != -1) {
-    FeAudio_AsyncPlaySpeech(2,FEApp->speechToPlay[sVar5]);
-    FEApp->speechToPlay[this->fPlayer] = -1;
+  {
+    /* MATCH (methodology #16): the oracle keeps &FEApp in a callee-saved reg
+       ($s2) ACROSS the FeAudio_AsyncPlaySpeech call and reloads the pointer
+       through it; taking the address into a local forces the sN hoist. */
+    extern tFEApplication *FEAppA[] __asm__("FEApp");
+    if (FEAppA[0]->speechToPlay[this->fPlayer] != -1) {
+      FeAudio_AsyncPlaySpeech(2,FEAppA[0]->speechToPlay[this->fPlayer]);
+      FEAppA[0]->speechToPlay[this->fPlayer] = -1;
+    }
   }
   return;
 }

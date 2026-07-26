@@ -478,10 +478,23 @@ restart:
  *   materializations and an `addu v0,v1,zero` result copy.  Also: the oracle FALLS THROUGH into the
  *   FILE_open arm and lays the close-first arm out of line (`bnez $a0,.L800FCAF4`), so the source test
  *   is `if (handle == 0) { open... }` with the close arm as the tail.
- * RESIDUAL (20): a whole-function 2-slot register shift -- `done` is $a1 for us / $v1 in retail and the
- *   saved SR is $a3 / $a1 -- plus the trailing close arm's `if (op==0) return op;` compiling with the
- *   inverted polarity (`bnez` + `j`, +2 insns) where the identical open arm gets the oracle's
- *   `beqz v0,epilogue` + store-in-delay-slot.  Both arms are textually identical; only one can win. */
+ * w33-a2 (20 -> 16 diffs, now INSTRUCTION-COUNT EXACT 100/100).  The "+2 / only one of two textually
+ *   identical arms can win" note was wrong on both counts:
+ *   - BOTH arms must be written `if (op != 0) return FILE_callbackop(...); return;` -- i.e. the
+ *     callbackop tail in the if-body and the zero exit last.  The `if (op == 0) return op;` spelling
+ *     lays the zero exit out as its own block and gcc CSE (record_jump_equiv) substitutes the proven
+ *     0, producing `j <epilogue>; addu v0,zero,zero`.
+ *   - the zero exit must be VALUELESS (`return;`).  This fn is really void (IDA + the raw: the `done`
+ *     path reaches the epilogue with $v0 undefined); `return (int)op;` still costs the 2-insn
+ *     zero-materialization stub even though $v0 already holds 0.  With both fixed, retail's
+ *     `beqz $v0, <epilogue>` + fall-through into the callbackop call comes out exactly.
+ * RESIDUAL (16): a 2-slot register shift -- retail merges the `cur->state` compare temp INTO `done`
+ *   (both $v1) so `done`/SR land on $v1/$a1, while our local-alloc gives the temp $v1 first and pushes
+ *   `done`/SR to $a1/$a3.  TRIED: spelling the temp as `done` itself (does merge them, but then the
+ *   allocno priority of `cur` beats `done` and they swap -- $a0/$v1 becomes $v1/$a0, 20 diffs); moving
+ *   `done = 1` ahead of `cur = ...` (no effect).  This is the allocno_compare live-length weighting
+ *   already on the wave-33 identity charter: priority(cur)=log2(4)*4/8 beats priority(done)=log2(7)*7/25
+ *   under psq43 cc1, and retail's ordering implies a weaker live-length term. */
 extern int startnextrequest(int s, unsigned int prio)
 {
     int  done;
@@ -525,16 +538,16 @@ extern int startnextrequest(int s, unsigned int prio)
                 if (MU(s, 0x9c) == 0) {          /* nothing open -> open the new file directly */
                     unsigned int op = FILE_open((char *)name, 1, prio, (unsigned int)s);
                     MU(s, 0xa4) = op;
-                    if (op == 0)
-                        return (int)op;          /* MATCH: return the (zero) op, not a fresh `0` */
-                    return (int)FILE_callbackop(op, (void (*)(int, int))opencallback);
+                    if (op != 0)
+                        return (int)FILE_callbackop(op, (void (*)(int, int))opencallback);
+                    return;                      /* MATCH: valueless (see the void note above) */
                 }
                 {                                /* close the open file first */
                     unsigned int op = FILE_close((void *)MU(s, 0x9c), prio, (unsigned int)s);
                     MU(s, 0xa4) = op;
-                    if (op == 0)
-                        return (int)op;
-                    return (int)FILE_callbackop(op, (void (*)(int, int))closecallback);
+                    if (op != 0)
+                        return (int)FILE_callbackop(op, (void (*)(int, int))closecallback);
+                    return;                      /* MATCH: valueless (see the void note above) */
                 }
             }
         }

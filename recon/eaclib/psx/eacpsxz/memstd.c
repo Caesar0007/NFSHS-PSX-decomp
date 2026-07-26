@@ -366,12 +366,13 @@ extern char *getblockname(void *p)   /* @0x800E52E0 */
  * ===================================================================== */
 extern void *reservememadr(char *name, int size, int classid)   /* @0x800E533C */
 {
-    /* RESIDUAL (65 diffs, count-exact 128/129 off-by-1 frame slot): a systemic s0<->s1
+    /* RESIDUAL (63 diffs, count-exact 128/129 off-by-1 frame slot): a systemic s0<->s1
      * register-coloring swap between `need` and `blk` runs through the WHOLE body (every
      * site that touches either). Tried: decl-order swap (need declared before/after blk,
      * both scopes) -- no change. Same allocator-priority-tie-break class as resize.cpp's
      * documented 3-way s2/s3/s4 rotation floor; not source-reachable via decl/order/type
-     * tries so far. Accept as floor. */
+     * tries so far. nfs4-clean/Ghidra additionally recovered the unconditional class-flags
+     * merge before the anonymous-name bit clear, fixing the final semantic residual. */
     void     *result = 0;                              /* s5: single-exit funnel (MATCH: oracle
                                                            inits s5=0 up front and `j END` on both
                                                            failure paths without touching it) */
@@ -437,8 +438,8 @@ extern void *reservememadr(char *name, int size, int classid)   /* @0x800E533C *
         {   /* finalise the allocated block -- MATCH: mutate classid IN PLACE (no separate
                'flags' copy), the oracle ORs/ANDs classid's own register then stores it
                straight into the stack arg slot */
+            classid |= (cls->flags & 0x700);
             if (name == 0) {
-                classid |= (cls->flags & 0x700);
                 classid &= ~0x100;
             }
             initmemblock(blk, name, size, cls->infosize, classid,

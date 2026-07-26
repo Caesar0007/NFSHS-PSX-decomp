@@ -25,35 +25,18 @@ int Risk_ReadNextValue(char **aScript)
 {
   char s[256];
   char *Script;
-  char *pcVar2;
-  char cVar1;
   int n;
 
   n = 0;
   Script = *aScript;
-  while (IsNumChar(*Script) == '\0') {     /* skip to the next number; oracle loop @0x80091f24 */
-    if (*Script != '/') {                    /* non-numeric, non-'/' -> advance + loop (oracle F48 bne+delay) */
-      Script = Script + 1;
-      continue;
+  while (IsNumChar(*Script) == '\0') {
+    if ((u_char)*Script++ == '/') {
+      while ((u_char)*Script++ != '/') {
+      }
     }
-    Script = Script + 1;                     /* past the opening '/' (@0x80091f4c delay) */
-    if (*Script == '/') {                    /* empty "//" -> skip 2nd '/' + loop (@0x80091f58 beq+delay) */
-      Script = Script + 1;
-      continue;
-    }
-    Script = Script + 1;                     /* into the comment body (@0x80091f5c delay) */
-    while (*Script != '/')                   /* scan to the closing '/' (@0x80091f64) */
-      Script = Script + 1;
-    Script = Script + 1;                     /* past the closing '/' (@0x80091f70 delay); j top (@0x80091f74) */
   }
-  while (true) {
-    cVar1 = IsNumChar(*Script);
-    pcVar2 = s + n;
-    if (cVar1 == '\0') break;
-    cVar1 = *Script;
-    Script = Script + 1;
-    n = n + 1;
-    *pcVar2 = cVar1;
+  while (IsNumChar(*Script)) {
+    s[n++] = *Script++;
   }
   s[n] = '\0';
   n = atoi(s);

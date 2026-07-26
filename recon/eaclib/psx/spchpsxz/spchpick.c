@@ -476,8 +476,8 @@ extern int iSPCH_SentenceGetChoices(int sentence, int paramTable, unsigned int r
      * from `table` per iteration (CHOICE(table)) so loop.c reduces every access onto ONE +0-based
      * walker (pointer-walk form fabricated an &outChoice[2] anchor giv, +2 insns); result/picked
      * initialized before the GetNumPhrases call. */
-    int picked = 0;
     int result = 1;
+    int picked = 0;
     int n = VoxSentence_GetNumPhrases(sentence);
     if (n < 0xd) {
         int table;
@@ -506,8 +506,13 @@ choose:
                      * a knock-on reschedule of the `li s4,1` result init (retail gets by on s0-s7).
                      * `(int)` casts, Yoda order and a named load temp all leave the motion in
                      * place; folding the constant into the compare removes the movable entirely.
-                     * RESIDUAL 11 = one `nop` where retail's in-block `li v0,-2` fills the lh
-                     * delay, plus the `li s4,1` placement that follows from it. */
+                     * RESIDUAL 7 (81/80) = this compare alone: ours `lh v0; nop; addiu v0,v0,2;
+                     * bnez` (4) vs retail `lh v1; li v0,-2; bne v1,v0` (3, the li filling the lh
+                     * load-delay slot).  w33-a9 also tried the catalog's cure A: a label+goto loop
+                     * DOES kill move_movables, and goto-loop + `!= -2` reaches EXACT 80/80 parity
+                     * -- but at 34 diffs (the un-strength-reduced walker re-colors the whole body),
+                     * so it is not kept.  What is still missing is a source form that keeps the
+                     * reduced loop AND leaves the `li -2` in the block. */
                     if (*outChoice + 2 != 0) {
                         result = 0;
                         goto out;

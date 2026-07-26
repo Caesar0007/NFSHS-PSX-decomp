@@ -213,7 +213,7 @@ int AIWorld_IsDriveableLaneInSliceRange(int startSlice,int numSlicesToCheck,int 
   sliceDelta = 0;
   while (true) {
     if (numSlicesToCheck <= i) {
-      return 1;
+      break;
     }
     checkSlice = startSlice + sliceDelta;
     if (sliceDelta >= 0) {    /* De Morgan complement -- oracle's sliceDelta<0 case is the
@@ -228,14 +228,12 @@ int AIWorld_IsDriveableLaneInSliceRange(int startSlice,int numSlicesToCheck,int 
     checkSliceOffset = checkSlice * 0x20;
     sliceDelta = sliceDelta + direction;
     if ((*(short *)(checkSliceOffset + (int)BWorldSm_slices + 0x16) & mask) == 0) {
-      return 0;   /* NOTE: cc1plus normalizes an equivalent `!=0{i++;continue;}return 0;` form to
-                     the SAME asm as this -- the oracle's bnez/fallthrough-return-0 layout is a
-                     genuine scheduling floor here, not a reachable De Morgan source-shape lever
-                     (both forms tried, byte-identical output; remaining 10-diff residual is this
-                     + a single-exit `li v0,1` delay-slot-fill scheduling choice, §F class). */
+      return 0;
     }
     i = i + 1;
   }
+  /* Exiting with `break` keeps the success value in the final return delay slot. */
+  return 1;
 }
 
 /* ---- AIWorld_IsDriveableLane__Fii  [@0x800733a8] ---- */

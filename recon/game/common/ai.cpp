@@ -660,9 +660,8 @@ void AI_HandleShouldersAndOffRoad(Car_tObj *carObj)
       CarLogic_gObs[0][2] = merit2 + -0x640000;
     }
   }
-  lane = carObj->laneIndex;
-  bVar1 = BWorldSm_slices[slice].laneCount;
-  if ((lane == 6 - (u_int)(bVar1 >> 4)) || (lane == (bVar1 & 0xf) + 7)) {
+  if ((carObj->laneIndex == 6 - (u_int)(BWorldSm_slices[slice].laneCount >> 4)) ||
+      (carObj->laneIndex == (BWorldSm_slices[slice].laneCount & 0xf) + 7)) {
     CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + shoulder_merit;
     isRight = (carObj->laneIndex < 7) ^ 1;
     if (carObj->laneIndex < 7) {
@@ -687,9 +686,8 @@ CENTER_DEMERIT:
   if ((lane < (int)(6 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 7) < lane)) {
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + -0x3e80000;
   }
-  lane = carObj->laneIndex;
-  bVar1 = BWorldSm_slices[slice].laneCount;
-  if ((lane < (int)(6 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 7) < lane)) {
+  if ((carObj->laneIndex < (int)(6 - (u_int)(BWorldSm_slices[slice].laneCount >> 4))) ||
+      ((int)((BWorldSm_slices[slice].laneCount & 0xf) + 7) < carObj->laneIndex)) {
     CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + -0x3e80000;
   }
   lane = carObj->laneIndex + 1;

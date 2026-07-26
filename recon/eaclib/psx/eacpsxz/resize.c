@@ -12,6 +12,7 @@
  *        where tailsize = MEM_tailsize(getblockname(p), flags) (info + name bytes the block carries),
  *        align = class->alignment (class+0x28).  Clamp to the available span (next-header-0x10).
  *     4. Relocate the tail (info/name) via blockmove from p+header[+4] to p+usable.
+ *        The header's usable-size/tail offset is updated even when no split is needed.
  *     5. If the leftover slack >= 65 bytes, carve it into a new free block (initmemblock + FREE_add)
  *        and relink the physical ring; otherwise leave the whole span in the block.
  *   Returns the (unchanged) user pointer.
@@ -79,11 +80,11 @@ extern void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
     blockmove((char *)userptr + *(int *)(hdr + 4),    /* src = p + old tail offset (hdr[+4]) */
               (char *)userptr + usable,               /* dst = p + new usable size           */
               tail);
+    *(int *)(hdr + 4) = usable;                       /* new tail offset, split or not */
 
     /* 5. split off the leftover as a new free block if it's worth it (>= 65 bytes) */
     if ((avail - needed) >= 0x41) {
         MemBlock *split;
-        *(int *)(hdr + 4) = usable;                            /* hdr usable size = new tail offset */
         split = (MemBlock *)((char *)userptr + needed + 0x10);
         initmemblock(split, 0, 0, 0, 0, (MemBlock *)hdr, (MemBlock *)next);
         FREE_add(cls, split);

@@ -328,41 +328,39 @@ void * FECheat_IsTheUserACryBabyCheater(void)
 void * FECheat_ActivateBonusByCode(char *code)
 
 {
-  int iVar1;
-  int j;
-  int iVar2;
-  int iVar3;
-  int iVar4;
   int i;
-  tCheat *ptVar5;
-  u_char result;
+  int j;
+  int off;
+  tCheat *entry;
+  int result;
   char buffer [8];
-  
+
+  /* MATCH: twin of FECheat_ActivateCheat -- one result var + single return,
+     rotated `for` inner compare loop.  Here the OUTER loop is a real
+     do{}while(i<3) (bottom slti) with TWO ivs: the tCheat* walker and the
+     byte offset. */
+  result = 0;
   FECheat_EncodeString2(code,buffer);
-  iVar4 = 0;
-  ptVar5 = bonusList;
-  iVar3 = 0;
+  i = 0;
+  entry = bonusList;
+  off = 0;
   do {
-    iVar2 = 0;
-    iVar1 = iVar3;
-    do {
-      if (bonusList[0].name[iVar1] != buffer[iVar2]) break;
-      iVar2 = iVar2 + 1;
-      iVar1 = iVar2 + iVar3;
-    } while (iVar2 < 8);
-    iVar4 = iVar4 + 1;
-    if (iVar2 == 8) {
+    for (j = 0; j < 8; j = j + 1) {
+      if (bonusList[0].name[j + off] != buffer[j]) break;
+    }
+    i = i + 1;
+    if (j == 8) {
       AudioCmn_PlayFESFX(0x1a);
-      FECheat_ActivateBonus((tCheatCode)ptVar5->cheat);
-      return (void *)0x1;
+      FECheat_ActivateBonus((tCheatCode)entry->cheat);
+      result = 1;
+      break;
     }
-    ptVar5 = ptVar5 + 1;
-    iVar3 = iVar3 + 0xc;
-    if (2 < iVar4) {
-      return (void *)0x0;
-    }
-  } while( true );
+    entry = entry + 1;
+    off = off + 0xc;
+  } while (i < 3);
+  return (void *)result;
 }
+
 
 
 

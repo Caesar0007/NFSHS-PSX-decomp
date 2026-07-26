@@ -581,22 +581,42 @@ extern int iSNDstreamnumcreated(void)
 extern int iSNDstreamcreate(int *priority, int numReq, int pktArg, int objbuf,
                                 int memsize, int extHandle, int extFlag)
 {
-    int slot;
+    int i, slot;
     int S, alloc, memrem, reqBytes, oh, pktbuf;
 
+    memrem = memsize;                                    /* W31: cache the stack param FIRST -- the
+                                                          * oracle loads 80(sp) into $s3 in the
+                                                          * prologue and mutates it in place */
     if (*(signed char *)&sndgs[0xf] == 0)                /* SND not initialised */
         return -10;
 
-    for (slot = 0; slot < 1; slot++) {                   /* find a free slot (real search loop in the
-                                                           * oracle even though this build only has 1) */
-        if (sndss[slot] == 0)
-            goto found;
+    {
+        int *pp;
+        pp = sndss;
+        for (i = 0; i < 1; i++, pp++) {                  /* find a free slot (real search loop in the
+                                                           * oracle even though this build only has 1).
+                                                           * W31: `i` is a SEPARATE caller-saved counter
+                                                           * ($a1, dies here); `slot` is copied from it
+                                                           * at found (oracle addu s4,a1 in the first
+                                                           * overhead jal's delay slot). */
+            if (*pp == 0)
+                goto found;
+        }
     }
     return -9;                                           /* no free slot */
 found:
+    slot     = i;
     S        = objbuf;
-    alloc    = S + 0x60;                                 /* after the 0x60-byte stream header */
-    memrem   = memsize - 0x60;
+    alloc    = S + 0x60;                                 /* after the 0x60-byte stream header.
+                                                          * W31 RESIDUAL (7 diffs, 143/144): the oracle
+                                                          * keeps objbuf(a3)->s2 AND S->s1 with a real
+                                                          * addu s1,s2 copy in the beqz delay slot; our
+                                                          * cse copy-propagates S=objbuf into ONE pseudo
+                                                          * (1 insn shorter, a1/prologue ripple).  Tried:
+                                                          * alloc-from-objbuf, copy-inside-the-found-arm
+                                                          * -- both still merged.  Ours-1-shorter dead-
+                                                          * copy class; permuter multi-basin candidate. */
+    memrem  -= 0x60;
     reqBytes = numReq * 0x2c;
     MI(S, 0) = alloc;                                    /* packetsArray */
     alloc += reqBytes; memrem -= reqBytes;
@@ -609,27 +629,33 @@ found:
                   (void *)iSNDstreamreleasecallback, (void *)iSNDstreamnotifycallback);
     if (MVI(S, 0xc) < 0)
         return MVI(S, 0xc);
-    sndStreamMap[MVI(S, 0xc)] = (unsigned char)slot;     /* handle -> slot (asm: delay slot, always) */
+    /* W31: the oracle addresses the handle->slot map THROUGH sndss (sb slot,4(sndss+handle) --
+     * literal displacement 4, one symbol; sndStreamMap is the +4 tail of the same block), with the
+     * base REMATERIALIZED here (5.0c per-block assign), not CSE-shared with the search loop's. */
+    {
+        unsigned char *map;
+        map = (unsigned char *)sndss;
+        map[MVI(S, 0xc) + 4] = (unsigned char)slot;      /* handle -> slot (delay slot) */
+    }
 
     if (extFlag != 0) {                                  /* external ring */
         MI(S, 4)    = extHandle;
-        MB(S, 0x18) = 1;
+        *(volatile unsigned char *)(S + 0x18) = 1;   /* volatile: keeps the sb out of the j slot
+                                                      * so the tail's li -1 gets target-stolen (W31) */
     } else {                                             /* own ring */
         MI(S, 4)    = STREAM_create(numReq + 1, 1, 1, alloc, memrem);
-        MB(S, 0x18) = 0;
+        *(volatile unsigned char *)(S + 0x18) = 0;
         SNDSTRM_setgreedylevel(MI(S, 4), STREAM_buffersize(MI(S, 4)) / 3);
     }
     MI(S, 0x10) = 0;
     MI(S, 0x08) = -1;
     MB(S, 0x15) = (unsigned char)numReq;
     {
-        struct Prio4 { int w[4]; };                      /* MATCH: oracle copies priority[0..3] as a
-                        * 4-word load-block/store-block (same struct-assignment lever as removerequest's
-                        * compaction copy / parseheader's Hdr4), THEN priority[4] as a separate trailing
-                        * word -- not 5 uniform per-word copies. */
-        *(struct Prio4 *)(S + 0x4c) = *(struct Prio4 *)priority;
+        struct Prio5 { int w[5]; };                      /* W31: ONE 20-byte struct assignment -- the
+                        * movstrsi block move emits the 4-word t-reg batch PLUS the trailing 5th word
+                        * (tail lw t1/sw 0x5C) itself; a Prio4 + separate word mis-schedules the tail. */
+        *(struct Prio5 *)(S + 0x4c) = *(struct Prio5 *)priority;
     }
-    MVI(S, 0x5c) = priority[4];
 
     if (iSNDstreamnumcreated() == 0) {                   /* first stream -> register the service hook */
         iSNDserveraddclient((void *)iSNDstreamservice);

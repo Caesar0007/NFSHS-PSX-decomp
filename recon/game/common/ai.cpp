@@ -569,7 +569,6 @@ void AI_HandleChangeInNumLanes(Car_tObj *carObj)
 {
   int lookAheadSlice;
   int absLaneLookAhead;
-  int lookAhead;
   int laneIndex;
   int adjLaneIndex;
   u_char bVar1;
@@ -583,33 +582,35 @@ void AI_HandleChangeInNumLanes(Car_tObj *carObj)
   if (laneIndex < 0) {
     adjLaneIndex = laneIndex + 0xffff;
   }
-  lookAhead = adjLaneIndex >> 0x10;
-  if (lookAhead < 5) {
-    lookAhead = 5;
+  laneIndex = adjLaneIndex >> 0x10;
+  if (laneIndex < 5) {
+    laneIndex = 5;
   }
-  absLaneLookAhead = carObj->direction * lookAhead;
-  if (0 <= absLaneLookAhead) {
-    lookAhead = (carObj->N).simRoadInfo.slice + absLaneLookAhead;
-    lookAheadSlice = lookAhead * 0x20;
-    if (gNumSlices <= lookAhead) {
-      lookAhead = lookAhead - gNumSlices;
+  laneIndex = carObj->direction * laneIndex;
+  if (0 <= laneIndex) {
+    lookAheadSlice = (carObj->N).simRoadInfo.slice + laneIndex;
+    if (gNumSlices <= lookAheadSlice) {
+      lookAheadSlice = lookAheadSlice - gNumSlices;
       goto LAB_800588a4;
     }
   }
   else {
-    lookAhead = (carObj->N).simRoadInfo.slice + absLaneLookAhead;
-    lookAheadSlice = lookAhead * 0x20;
-    if (lookAhead < 0) {
-      lookAhead = lookAhead + gNumSlices;
-LAB_800588a4:
-      lookAheadSlice = lookAhead << 5;
+    lookAheadSlice = (carObj->N).simRoadInfo.slice + laneIndex;
+    if (lookAheadSlice < 0) {
+      lookAheadSlice = lookAheadSlice + gNumSlices;
     }
   }
-  bVar1 = *(u_char *)(lookAheadSlice + (char *)BWorldSm_slices + 0x1d);
+LAB_800588a4:
+  bVar1 = BWorldSm_slices[lookAheadSlice].laneCount;
   laneIndex = carObj->laneIndex;
-  if ((((laneIndex < (int)(7 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 6) < laneIndex)) &&
-      (bVar1 = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + (char *)BWorldSm_slices + 0x1d),
-      (int)(7 - (u_int)(bVar1 >> 4)) <= laneIndex)) && ((int)((bVar1 & 0xf) + 6) >= laneIndex)) {
+  if ((laneIndex < (int)(7 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 6) < laneIndex)) {
+    bVar1 = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + (char *)BWorldSm_slices + 0x1d);
+    if (laneIndex < (int)(7 - (u_int)(bVar1 >> 4))) {
+      return;
+    }
+    if ((int)((bVar1 & 0xf) + 6) < laneIndex) {
+      return;
+    }
     if (laneIndex < 7) {
       CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + 0x280000;
     }

@@ -97,13 +97,40 @@ extern int iSNDischanreserved(int chan, int count)
  *   rematerialized (verified with the pointer assigned inside the body, before the loop, and shared
  *   with pass 2: all three produce byte-identical output).  Reaching retail here needs a lever that
  *   keeps a constant address allocno alive, not another spelling.
+ *   W34-a8 continued (255 -> 245 diffs, 301 -> 299 insns), three more oracle-shape corrections, all
+ *   confirmed by the NFS2 PC-beta NAMED salloc.obj source (pc-split/salloc.obj/iSNDallocchan.c, the
+ *   direct ancestor of this function):
+ *   (a) PASS-2 ARMS ARE INDEPENDENT, only `best = c;` is shared.  The NFS2 named source is
+ *       `if (age < bestage) { bestage = age; bestv = ch->ts; best = c; }
+ *        else if (age == bestage && ch->ts < bestv) { bestv = ch->ts; best = c; }`
+ *       and gcc CROSS-JUMPS the two `best = c;` copies into retail's single `.L98C: addu $s4,$s1`
+ *       reached by `j` from arm 1.  The previous goto-merged form (one shared `best = c; bestv = v;`
+ *       tail fed by a `v` temp) put BOTH copies in the shared tail, which retail does not do -- retail
+ *       loads arm 1's timestamp straight into bestv (`lw $s5,0x10($s0)`) and puts `bestage = age` in
+ *       the `j` delay slot.  Duplicating the `ch->ts` load in the source is free: cse folds it.
+ *   (b) ASSIGNMENT ORDER inside a winning arm is `bestval = ts;` THEN `best = c;` in BOTH passes
+ *       (retail `addu $s5,$v1,$zero; addu $s4,$s1,$zero`); the reverse order costs 2 diffs.
+ *   (c) THE SCAN LIMIT IS RE-READ INTO A TEMP BEFORE THE COUNTER INCREMENT.  Retail's loop tail is
+ *       `lbu $v0,0x11(base); addiu $s1,$s1,1; slt; bnez; addiu $s2,$s2,0x64` -- the increment fills
+ *       the lbu's LOAD-DELAY slot.  With the count re-read as part of the `while` condition our
+ *       scheduler emits `addiu; lbu; nop; slt` (+1 insn per pass).  Writing `limit = gs[0x11];`
+ *       as its own statement ahead of `c++` gives the load the earlier luid and reproduces retail's
+ *       order in both passes (-2 insns).
+ *   OPEN (pass 1, the last 1-insn structural gap): retail hoists `la sndchanreserved` into the pass-1
+ *   PREHEADER ($fp) and leaves `li 1` of `1 << c` inside the inner loop, while ours does the opposite
+ *   (LICM hoists `li fp,1`; the la is rematerialized inside the `bltz` store block).  A named base
+ *   pointer does NOT reach it: `signed char *chosen = sndchanreserved;` was tested at three source
+ *   positions (inside the loop body, before the loop, and shared with pass 2's store so it has two
+ *   uses) and ALL THREE compile byte-identically to the plain array form -- a pseudo whose only set
+ *   is a SYMBOL_REF gets a constant REG_EQUIV and is rematerialized at its uses, so no spelling can
+ *   keep it in a register.  The remaining residual is that one hoist plus the $s6<->$s7 rotation.
  *   Raw nfs4-f.exe EEF64..EF40B SHA-256:
  *   4af4cae9357cee8d5c94a064c543b15d4d1edb7a6f5d1c0d5ccd8c8f259740fc. */
 extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigned int *out)
 {
     int          reserved = 0;
     int          result = -9;
-    int          i, k, off, ch;
+    int          i, k, off, ch, limit;
     unsigned int best, c, v, bestval;
 
     for (i = 0; i < numChannels; i++)               /* clear the chosen list */
@@ -138,11 +165,12 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
                             if (*(signed char *)(ch + 0xb) == 0 &&
                                 iSNDischanreserved(c, reserved) == 0) {
                                 v = *(unsigned int *)(ch + 0x10);
-                                if (v < bestval) { best = c; bestval = v; }
+                                if (v < bestval) { bestval = v; best = c; }
                             }
                         }
+                        limit = gs[0x11];
                         c++; off += 100;
-                    } while ((int)c < (int)(unsigned)gs[0x11]);
+                    } while ((int)c < limit);
                 }
                 if (-1 < (int)best) {
                     sndchanreserved[reserved] = (unsigned char)best;
@@ -155,13 +183,13 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
             unsigned char *gs;
             for (k = reserved; k < numChannels; k++) {
                 unsigned char bestage = 0x66;
-                unsigned int  bestv = 0xffffffff;
+                unsigned int  bestv;
                 gs = (unsigned char *)sndgs;
-                v = 0;
                 best = 0xffffffff;
+                bestv = best;
                 if (gs[0x11] != 0) {
                     c = 0;
-                    off = 0;
+                    off = c;
                     do {
                         if ((priority & (1 << c)) != 0 &&
                             iSNDischanreserved(c, reserved) == 0) {
@@ -172,19 +200,19 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
                                  * local re-masks on every use (methodology 3.12 #9). */
                                 int age = *(unsigned char *)(ch + 0xc);
                                 if (age < bestage) {
-                                    v = *(unsigned int *)(ch + 0x10);
+                                    bestv = *(unsigned int *)(ch + 0x10);
                                     bestage = age;
-                                } else if (age != bestage ||
-                                           (v = *(unsigned int *)(ch + 0x10), bestv <= v)) {
-                                    goto next2;
+                                    best = c;
+                                } else if (age == bestage &&
+                                           *(unsigned int *)(ch + 0x10) < bestv) {
+                                    bestv = *(unsigned int *)(ch + 0x10);
+                                    best = c;
                                 }
-                                best = c;
-                                bestv = v;
                             }
                         }
-                    next2:
+                        limit = gs[0x11];
                         c++; off += 100;
-                    } while ((int)c < (int)(unsigned)gs[0x11]);
+                    } while ((int)c < limit);
                 }
                 if (-1 < (int)best) {
                     sndchanreserved[reserved] = (unsigned char)best;

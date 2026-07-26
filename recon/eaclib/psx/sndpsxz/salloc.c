@@ -130,7 +130,7 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
 {
     int          reserved = 0;
     int          result = -9;
-    int          i, k, off, ch, limit;
+    int          i, off, ch, limit;
     unsigned int best, c, v, bestval;
 
     for (i = 0; i < numChannels; i++)               /* clear the chosen list */
@@ -181,8 +181,8 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
     /* pass 2: short of channels -> steal busy ones by lowest (age, timestamp) */
     {
             unsigned char *gs;
-            for (k = reserved; k < numChannels; k++) {
-                unsigned char bestage = 0x66;
+            for (i = reserved; i < numChannels; i++) {
+                int bestage = 0x66;
                 unsigned int  bestv;
                 gs = (unsigned char *)sndgs;
                 best = 0xffffffff;

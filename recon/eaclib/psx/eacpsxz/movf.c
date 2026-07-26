@@ -23,6 +23,30 @@
  *     confirms our variable set is right; the residual really is the unscheduled-cc1 per-obj flag
  *     identity (METHODOLOGY 3.25-3d) plus the 255 hoist, both toolchain-level.
  *
+ *   w33-a5 2026-07-26 -- THE PER-OBJ FLAG IDENTITY IS NOW MEASURED, WITH SIBLING CONTROLS.
+ *     The earlier "-fno-schedule diag gives 128" used BOTH scheduler flags.  Isolating them shows
+ *     it is SCHED1 ONLY, and the effect is large (scratch cc1 A/B, gate flags otherwise untouched):
+ *         (none)                                     149 diffs, 222 insns
+ *         -fno-schedule-insns                          88 diffs, 225      <-- sched1 off
+ *         -fno-schedule-insns2                        155 diffs, 228
+ *         -fno-schedule-insns -fno-schedule-insns2    128 diffs, 237
+ *         -fno-cse-follow-jumps / -fno-rerun-cse-after-loop   149 (no effect at all)
+ *         -fno-expensive-optimizations                161 ; +-fno-delayed-branch 115
+ *     CONTROLS -- the same flag on the two sibling eacpsxz objs worked this session makes both far
+ *     WORSE: vramfxya 68 -> 152, setfont 12 -> 23.  So this is not a global toolchain setting; it
+ *     discriminates PER OBJECT exactly as METHODOLOGY 3.25-3d predicts, and movf.obj is on the
+ *     unscheduled side while vramfxya.obj and textset.obj are on the scheduled side.
+ *     NOT ADOPTED: -fno-schedule-insns still leaves 88 diffs AND breaks instruction parity
+ *     (225 vs 221), so it fails the wave keep-rule; build.py's PER_TU_FLAGS has no
+ *     `no_schedule_insns` key and adding one is a build-system change, not a recon change.
+ *     Under the FIXED gate flags the 149 residual is dominated by sched1 reordering (retail emits
+ *     the row-header sll/sra/subu chain after the store, ours hoists it into the load-delay) plus
+ *     the {shape,yPos,vc} s6/s7/fp rotation that follows from it -- no source lever reaches it.
+ *     Also re-falsified this session with the w33 param-copy ref-count dial (which cracked
+ *     vramfxya 80->68 and is a real lever elsewhere): copies of shape/x/y in every combination make
+ *     movfxya WORSE -- 174 (shape), 212 (x), 213 (y), 235 (shape+x / shape+y / all three);
+ *     {x} and {x,y} do reach 221/221 parity but at 212 diffs.
+ *
  *   MATCH notes (264->149; residual = scheduler-order/scratch-choice class -- {shape,yPos,vc} s6/s7/fp rotation, hoisted-255 CSE pseudo (caller-save-spilled!) vs per-use li, arg-block interleave -- the oracle .obj again shows unscheduled output; -fno-schedule diag gives 128. Levers that landed, mirroring the fastmovf recipe):
  *     - NO `ret` variable / NO explicit return on ANY path: $v0 is incidental (vramimage's or
  *       fastmovfxya's return, or scratch on the tiling path) -- the oracle computes no return value.

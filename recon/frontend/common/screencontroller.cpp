@@ -868,7 +868,13 @@ DrawCtrl_ticksUpdate:
       }
     }
     if ((frame & 0xff) != 0) {
-      DrawShapeExtended(div13hi,shapeFlags,shapeX,shapeY,0,0,&drawFlags);
+      /* CORRECTNESS FIX: oracle @0x8004494C reuses the SAME masked a0 (frame&0xff,
+       * already materialized for the guard test above) as the shape index, with
+       * a1=0x600 literal and a2/a3=Offset[CurrentlyLoadedArt][0/1] -- the prior
+       * recon passed div13hi (an unrelated magic-multiply byproduct) plus three
+       * never-assigned fabricated locals (shapeFlags/shapeX/shapeY). */
+      DrawShapeExtended(frame & 0xff,0x600,Offset[this->CurrentlyLoadedArt][0],
+                 Offset[this->CurrentlyLoadedArt][1],0,0,&drawFlags);
     }
   }
   frame = (uint)(byte)this->fCurrentController;

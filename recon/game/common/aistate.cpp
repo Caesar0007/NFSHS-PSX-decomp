@@ -748,9 +748,7 @@ void AIState_Chase::Execute()
   int far;
   int velocityToHitInTime;
   int deltaVelocity;
-  int targetCarVerySlow;
-
-  int iVar3;
+  int targetCarVerySlow;  /* SYM $a0: holds target speed first, then the slow-car boolean */
 
   
 
@@ -760,11 +758,11 @@ void AIState_Chase::Execute()
 
   deltaVelocity = this->carObj_->currentSpeed;
 
-  iVar3 = this->targetCar_->currentSpeed;
+  targetCarVerySlow = this->targetCar_->currentSpeed;
 
   velocityToHitInTime = __builtin_abs(velocityToHitInTime);
 
-  deltaVelocity = deltaVelocity - iVar3;
+  deltaVelocity = deltaVelocity - targetCarVerySlow;
 
   deltaVelocity = __builtin_abs(deltaVelocity);
 
@@ -782,9 +780,9 @@ void AIState_Chase::Execute()
 
   }
 
-  iVar3 = __builtin_abs(iVar3);
+  targetCarVerySlow = __builtin_abs(targetCarVerySlow);
 
-  targetCarVerySlow = !(0x6aaa9 < iVar3);
+  targetCarVerySlow = !(0x6aaa9 < targetCarVerySlow);
 
   if (far != 0) goto LAB_80070244;
 
@@ -806,30 +804,13 @@ LAB_80070244:
 
   }
 
-  /* NOTE: the far re-test is provably false on this path (far!=0 branched to FarTargeting
-     above) but the ORACLE EMITS IT (bnez a2 @+0x104) -- original source re-tested it. */
-
-  if (0x1aaaaa < deltaVelocity) goto LAB_8007028C;
-
-  if (far != 0) goto LAB_80070290;
-
-  if (!(0x500000 < __builtin_abs(this->longMetersBetween_))) {
-
-    deltaVelocity = 1;
-
-    goto LAB_80070294;
-
+  if ((0x1aaaaa < deltaVelocity) || (far != 0) ||
+      (0x500000 < __builtin_abs(this->longMetersBetween_))) {
+    this->ApproachTargeting(0);
   }
-
-LAB_8007028C:;
-
-LAB_80070290:
-
-  deltaVelocity = 0;
-
-LAB_80070294:
-
-  this->ApproachTargeting(deltaVelocity);
+  else {
+    this->ApproachTargeting(1);
+  }
 
 LAB_800702a0:
 
@@ -839,6 +820,8 @@ LAB_800702a0:
 
   }
 
+  /* Remaining 4 diffs are one uncoalesced retail load: currentSpeed enters $v1
+     before the subtraction result is assigned to deltaVelocity in $a1. */
   return;
 
 }

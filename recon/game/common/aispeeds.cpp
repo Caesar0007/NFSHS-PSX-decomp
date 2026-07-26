@@ -915,11 +915,11 @@ int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
   /* H56: `desired` is the saved-register accumulator. The arm-local conditional
    * expressions intentionally evaluate CalculateOncomingCarSpeed in the condition
    * and false arm; spelling this as a hoisted temporary loses seven oracle insns.
-   * Separate randomization scale locals and a named minimum restore the remaining
-   * arithmetic/clamp shape (35 detailed diffs down to 10, count-exact 104/104). */
+   * Separate randomization scale locals and a named minimum restore the arithmetic/
+   * clamp shape. Expressing the reverse-track test as a direction comparison also
+   * preserves the oracle's shared boolean normalization (full 104/104 match). */
   int desired;
   int iVar2;
-  u_int uVar3;
 
   desired = AISpeeds_GetLegalSpeed((int)(carObj->N).simRoadInfo.slice);
   desired = fixedmult(desired,0xc000);
@@ -932,11 +932,8 @@ int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
     }
   }
   else {
-    uVar3 = ~carObj->direction;
-    if (GameSetup_gData.reverseTrack == 0) {
-      uVar3 = carObj->direction ^ 1;
-    }
-    if (uVar3 != 0) {
+    if (carObj->direction !=
+        ((GameSetup_gData.reverseTrack != 0) ? -1 : 1)) {
       desired = (desired < AISpeeds_CalculateOncomingCarSpeed(carObj))
           ? desired : AISpeeds_CalculateOncomingCarSpeed(carObj);
     }

@@ -390,36 +390,29 @@ int AnimScript::GetTimedAnimPosRot(coorddef *pt,matrixtdef *mat)
 /* ---- AnimScript::GetTimedAnimPosRot  [@0x80074624] ---- */
 int AnimScript::GetTimedAnimPosRot(int index,coorddef *pt,matrixtdef *mat)
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
+  int tmp;
 
-  iVar1 = this->GetStatus();
-  iVar2 = -1;
-  if (iVar1 == 1) {
-    iVar1 = Anim_GetRotPos(this->inst[index],this->flags,simGlobal.gameTicks - this->baseTicks,pt,mat);
-    iVar2 = 0;
-    if (iVar1 == 0) {
-      this->baseTicks = -1;
-      this->inst[index] = (Trk_AnimateInst *)0x0;
-    }
-    else {
-      iVar2 = 1;
-      if ((this->flags & 4U) != 0) {
-        iVar1 = mat->m[3];
-        mat->m[3] = mat->m[6];
-        mat->m[6] = -iVar1;
-        iVar1 = mat->m[4];
-        mat->m[4] = mat->m[7];
-        mat->m[7] = -iVar1;
-        iVar3 = mat->m[5];
-        mat->m[5] = mat->m[8];
-        mat->m[8] = -iVar3;
-        iVar2 = 1;
-      }
-    }
+  if (this->GetStatus() != 1) {
+    return -1;
   }
-  return iVar2;
+  int ticks = simGlobal.gameTicks - this->baseTicks;
+  if (Anim_GetRotPos(this->inst[index],this->flags,ticks,pt,mat) == 0) {
+    this->baseTicks = -1;
+    this->inst[index] = (Trk_AnimateInst *)0x0;
+    return 0;
+  }
+  if ((this->flags & 4U) != 0) {
+    tmp = mat->m[3];
+    mat->m[3] = mat->m[6];
+    mat->m[6] = -tmp;
+    tmp = mat->m[4];
+    mat->m[4] = mat->m[7];
+    mat->m[7] = -tmp;
+    tmp = mat->m[5];
+    mat->m[5] = mat->m[8];
+    mat->m[8] = -tmp;
+  }
+  return 1;
 }
 
 /* ---- AnimScript::GetStatus  [@0x8007471c] ---- */

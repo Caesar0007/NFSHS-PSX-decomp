@@ -11,120 +11,85 @@
 void DrawTVLines(tTVConfig &tv)
 
 {
-  u_short uVar1;
-  int wrapPeriod;
-  int ti6;
-  int iVar2;
-  u_int stripe_x;
-  int fxWideAdj;
-  int fxThinAdj;
-  int pkt_addr24_w;
-  int pkt_addr24_t;
-  u_int abr;
-  short ts11;
-  int yScroll_or_break;
-  short tu12;
-  short ts5;
-  short ts1;
-  u_short tvY_orig;
-  short ts2;
-  short ts3;
-  int fxWideMod;
-  u_char *cur_pkt_thin;
-  u_char *prev_pkt_thin;
-  short ts6;
-  short ts7;
-  
-  fxWideAdj = tv.fxWide + 1;
-  wrapPeriod = tv.h * 0x30;
-  fxWideMod = fxWideAdj % wrapPeriod;
-  tu12 = (short)fxWideMod;
-  ti6 = tv.h * 0x30;
-  fxThinAdj = tv.fxThin + 2;
-  tvY_orig = tv.y;
-  tv.fxWide = tu12;
-  abr = (u_int)tv.y;
-  tv.fxThin = (short)(fxThinAdj % ti6);
-  cur_pkt_thin = Render_gPacketPtr;
-  prev_pkt_thin = Render_gPalettePtr;
-  ts11 = 8;
-  if ((int)tv.fxWide < (int)abr) {
-    yScroll_or_break = 8 - ((u_int)tvY_orig - fxWideMod);
-    tu12 = tvY_orig;
+  short fxHeight;
+  short x;
+  short y;
+  POLY_F4 *videoFX;
+  u_char *prevVideoFX;
+  int drawWide;
+  int pkt_addr24;
+
+  tv.fxWide = (short)((tv.fxWide + 1) % (tv.h * 0x30));
+  y = tv.fxWide;
+  tv.fxThin = (short)((tv.fxThin + 2) % (tv.h * 0x30));
+  if ((int)tv.fxWide < (int)tv.y) {
+    fxHeight = 8;
+    fxHeight = (short)(fxHeight - ((u_int)tv.y - (u_int)y));
+    y = tv.y;
   }
   else {
-    iVar2 = 0x80000;
-    if (tv.fxWide + 8 <= (int)(abr + (int)tv.h)) goto DrawTVLines_writeTpage;
-    yScroll_or_break = (u_int)tvY_orig - fxWideMod;
+    drawWide = 0x80000;
+    if (tv.fxWide + 8 <= (int)((u_int)tv.y + (int)tv.h)) goto DrawTVLines_writeWide;
+    /* fxHeight left as the caller's leftover $t2 -- oracle reads it uninitialized
+       on this path (tv.h>=8 && tv.fxWide>=tv.y); reproduced verbatim, not a fix. */
+    fxHeight = (short)((u_int)tv.y - (u_int)y);
   }
-  ts11 = (short)yScroll_or_break;
-  iVar2 = yScroll_or_break << 0x10;
-DrawTVLines_writeTpage:
-  if (0 < iVar2) {
+  drawWide = fxHeight << 0x10;
+DrawTVLines_writeWide:
+  if (0 < drawWide) {
+    videoFX = (POLY_F4 *)Render_gPacketPtr;
+    prevVideoFX = Render_gPalettePtr;
     *(u_int *)Render_gPacketPtr =
          *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    pkt_addr24_w = (u_int)Render_gPacketPtr & 0xffffff;
+    pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
     Render_gPacketPtr = Render_gPacketPtr + 0x18;
-    *(u_int *)prev_pkt_thin = *(u_int *)prev_pkt_thin & 0xff000000 | pkt_addr24_w;
-    cur_pkt_thin[7] = 0x2a;
-    cur_pkt_thin[3] = 5;
-    ts2 = tv.x;
-    *(short *)(cur_pkt_thin + 10) = tu12;
-    *(short *)(cur_pkt_thin + 8) = ts2;
-    ts1 = tv.x;
-    ts3 = tv.w;
-    *(short *)(cur_pkt_thin + 0xe) = tu12;
-    *(short *)(cur_pkt_thin + 0xc) = ts1 + ts3;
-    ts6 = tv.x;
-    *(short *)(cur_pkt_thin + 0x12) = tu12 + ts11;
-    *(short *)(cur_pkt_thin + 0x10) = ts6;
-    ts6 = tv.x;
-    uVar1 = tv.w;
-    abr = (u_int)uVar1;
-    *(short *)(cur_pkt_thin + 0x16) = tu12 + ts11;
-    cur_pkt_thin[6] = 10;
-    cur_pkt_thin[5] = 10;
-    cur_pkt_thin[4] = 10;
-    *(u_short *)(cur_pkt_thin + 0x14) = ts6 + uVar1;
+    *(u_int *)prevVideoFX = *(u_int *)prevVideoFX & 0xff000000 | pkt_addr24;
+    videoFX->code = 0x2a;
+    videoFX->r0 = 5;
+    videoFX->x0 = tv.x;
+    videoFX->y0 = y;
+    videoFX->x1 = tv.x + tv.w;
+    videoFX->y1 = y;
+    videoFX->x2 = tv.x;
+    videoFX->y2 = (short)(y + fxHeight);
+    videoFX->b0 = 10;
+    videoFX->g0 = 10;
+    videoFX->r0 = 10;
+    videoFX->x3 = tv.x + tv.w;
+    videoFX->y3 = (short)(y + fxHeight);
   }
-  cur_pkt_thin = Render_gPacketPtr;
-  prev_pkt_thin = Render_gPalettePtr;
-  ts6 = tv.fxThin;
+  videoFX = (POLY_F4 *)Render_gPacketPtr;
+  prevVideoFX = Render_gPalettePtr;
+  y = tv.fxThin;
   if (((int)tv.y < (int)tv.fxThin) && ((int)tv.fxThin < (int)tv.y + (int)tv.h)) {
     *(u_int *)Render_gPacketPtr =
          *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    pkt_addr24_t = (u_int)Render_gPacketPtr & 0xffffff;
+    pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
     Render_gPacketPtr = Render_gPacketPtr + 0x18;
-    *(u_int *)prev_pkt_thin = *(u_int *)prev_pkt_thin & 0xff000000 | pkt_addr24_t;
-    cur_pkt_thin[7] = 0x2a;
-    cur_pkt_thin[3] = 5;
-    ts7 = tv.x;
-    *(short *)(cur_pkt_thin + 10) = ts6;
-    *(short *)(cur_pkt_thin + 8) = ts7;
-    ts7 = tv.x;
-    ts5 = tv.w;
-    *(short *)(cur_pkt_thin + 0xe) = ts6;
-    *(short *)(cur_pkt_thin + 0xc) = ts7 + ts5;
-    ts7 = tv.x;
-    *(short *)(cur_pkt_thin + 0x12) = ts6 + 1;
-    *(short *)(cur_pkt_thin + 0x10) = ts7;
-    ts7 = tv.x;
-    uVar1 = tv.w;
-    abr = (u_int)uVar1;
-    *(short *)(cur_pkt_thin + 0x16) = ts6 + 1;
-    cur_pkt_thin[6] = 10;
-    cur_pkt_thin[5] = 10;
-    cur_pkt_thin[4] = 10;
-    *(u_short *)(cur_pkt_thin + 0x14) = ts7 + uVar1;
+    *(u_int *)prevVideoFX = *(u_int *)prevVideoFX & 0xff000000 | pkt_addr24;
+    videoFX->code = 0x2a;
+    videoFX->r0 = 5;
+    videoFX->x0 = tv.x;
+    videoFX->y0 = y;
+    videoFX->x1 = tv.x + tv.w;
+    videoFX->y1 = y;
+    videoFX->x2 = tv.x;
+    videoFX->y2 = (short)(y + 1);
+    videoFX->b0 = 10;
+    videoFX->g0 = 10;
+    videoFX->r0 = 10;
+    videoFX->x3 = tv.x + tv.w;
+    videoFX->y3 = (short)(y + 1);
   }
   FeDraw_SetABRMode(1);
   if ((tv.flags & 0x20) != 0) {
-    stripe_x = (u_short)tv.x + 4 & 0xfffffffc;
-    if ((int)(short)stripe_x < (int)tv.x + (int)tv.w) {
+    x = (short)((u_short)tv.x + 4 & 0xfffc);
+    if ((int)x < (int)tv.x + (int)tv.w) {
+      short abe = 1;
       do {
-        PSXDrawTransSquare(0xa0a0a,(int)(short)stripe_x,(int)tv.y,1,(int)tv.h,1);
-        stripe_x = stripe_x + 4;
-      } while ((int)(stripe_x * 0x10000) >> 0x10 < (int)tv.x + (int)tv.w);
+        PSXDrawTransSquare(0xa0a0a,(int)x,(int)tv.y,1,(int)tv.h,abe);
+        x = (short)(x + 4);
+      } while ((int)((u_int)x << 0x10) >> 0x10 < (int)tv.x + (int)tv.w);
     }
     FeDraw_SetABRMode(2);
   }

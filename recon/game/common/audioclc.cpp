@@ -205,15 +205,9 @@ int AudioClc_CalcDistance(DRender_tCalcView *view,coorddef *object)
   x = object->x - (view->translation).x;
   y = object->y - (view->translation).y;
   z = object->z - (view->translation).z;
-  if (x < 0) {
-    x = -x;
-  }
-  if (y < 0) {
-    y = -y;
-  }
-  if (z < 0) {
-    z = -z;
-  }
+  x = __builtin_abs(x);
+  y = __builtin_abs(y);
+  z = __builtin_abs(z);
   if (z < x) {
     length = x + (z >> 2);
   }

@@ -168,87 +168,29 @@ int AudioClc_CalcDopplerShiftRatio(coorddef *objectPos,coorddef *objectVel)
 {
   coorddef*cameraPos;
   coorddef*cameraVel;
+  coorddef vectorToSound;
   int relativeVelocity;
-  coorddef *pcVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  coorddef local_20;
-  
-  pcVar1 = AudioClc_gCameraVelocity;
-  /* @0x800749AC-EC: vectorToSound = (objectPos - AudioClc_gRenderView.translation) >> 8 per axis.
-   * disasm $a1=0x8010E428=&AudioClc_gRenderView.translation; the camera-translation subtraction
-   * was dropped (H41), normalizing the world-space position instead of the camera-relative vector. */
-  local_20.x = (objectPos->x - AudioClc_gRenderView.translation.x) >> 8;
-  local_20.y = (objectPos->y - AudioClc_gRenderView.translation.y) >> 8;
-  local_20.z = (objectPos->z - AudioClc_gRenderView.translation.z) >> 8;
-  Math_NormalizeVector(&local_20);
-  iVar8 = 0;
+
+  cameraPos = &AudioClc_gRenderView.translation;
+  cameraVel = AudioClc_gCameraVelocity;
+  vectorToSound.x = (objectPos->x - cameraPos->x) >> 8;
+  vectorToSound.y = (objectPos->y - cameraPos->y) >> 8;
+  vectorToSound.z = (objectPos->z - cameraPos->z) >> 8;
+  Math_NormalizeVector(&vectorToSound);
+  relativeVelocity = 0;
   if (objectVel != (coorddef *)0x0) {
-    iVar8 = local_20.x;
-    if (local_20.x < 0) {
-      iVar8 = local_20.x + 0xff;
-    }
-    iVar2 = objectVel->x;
-    if (iVar2 < 0) {
-      iVar2 = iVar2 + 0xff;
-    }
-    iVar8 = (iVar8 >> 8) * (iVar2 >> 8);
-    iVar6 = local_20.y;
-    if (local_20.y < 0) {
-      iVar6 = local_20.y + 0xff;
-    }
-    iVar3 = objectVel->y;
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0xff;
-    }
-    iVar8 = iVar8 + (iVar6 >> 8) * (iVar3 >> 8);
-    iVar7 = local_20.z;
-    if (local_20.z < 0) {
-      iVar7 = local_20.z + 0xff;
-    }
-    iVar4 = objectVel->z;
-    if (iVar4 < 0) {
-      iVar4 = iVar4 + 0xff;
-    }
-    iVar8 = iVar8 + (iVar7 >> 8) * (iVar4 >> 8);
+    relativeVelocity =
+        vectorToSound.x / 256 * (objectVel->x / 256) +
+        vectorToSound.y / 256 * (objectVel->y / 256) +
+        vectorToSound.z / 256 * (objectVel->z / 256);
   }
-  if (pcVar1 != (coorddef *)0x0) {
-    iVar2 = local_20.x;
-    if (local_20.x < 0) {
-      iVar2 = local_20.x + 0xff;
-    }
-    iVar6 = pcVar1->x;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
-    }
-    iVar5 = (iVar2 >> 8) * (iVar6 >> 8);
-    iVar3 = local_20.y;
-    if (local_20.y < 0) {
-      iVar3 = local_20.y + 0xff;
-    }
-    iVar7 = pcVar1->y;
-    if (iVar7 < 0) {
-      iVar7 = iVar7 + 0xff;
-    }
-    iVar5 = iVar5 + (iVar3 >> 8) * (iVar7 >> 8);
-    iVar4 = local_20.z;
-    if (local_20.z < 0) {
-      iVar4 = local_20.z + 0xff;
-    }
-    iVar2 = pcVar1->z;
-    if (iVar2 < 0) {
-      iVar2 = iVar2 + 0xff;
-    }
-    iVar5 = iVar5 + (iVar4 >> 8) * (iVar2 >> 8);
-    iVar8 = iVar8 - iVar5;
+  if (cameraVel != (coorddef *)0x0) {
+    relativeVelocity = relativeVelocity -
+        (vectorToSound.x / 256 * (cameraVel->x / 256) +
+         vectorToSound.y / 256 * (cameraVel->y / 256) +
+         vectorToSound.z / 256 * (cameraVel->z / 256));
   }
-  iVar8 = fixeddiv(0x1540000,iVar8 + 0x1540000);
-  return iVar8;
+  return fixeddiv(0x1540000,relativeVelocity + 0x1540000);
 }
 
 /* ---- AudioClc_CalcDistance__FP17DRender_tCalcViewP8coorddef  [@0x80074b60] ---- */
@@ -259,35 +201,23 @@ int AudioClc_CalcDistance(DRender_tCalcView *view,coorddef *object)
   int z;
   int length;
   int length1;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  
-  x = object->x;
-  iVar3 = x - (view->translation).x;
-  y = object->y;
-  z = object->z;
-  if (iVar3 < 0) {
-    iVar3 = -iVar3;
-  }
-  iVar2 = y - (view->translation).y;
-  iVar1 = z - (view->translation).z;
-  if (iVar2 < 0) {
-    iVar2 = -iVar2;
-  }
-  if (iVar1 < 0) {
-    iVar1 = -iVar1;
-  }
-  if (iVar1 < iVar3) {
-    iVar3 = iVar3 + (iVar1 >> 2);
+
+  x = __builtin_abs(object->x - (view->translation).x);
+  y = __builtin_abs(object->y - (view->translation).y);
+  z = __builtin_abs(object->z - (view->translation).z);
+  if (z < x) {
+    length = x + (z >> 2);
   }
   else {
-    iVar3 = iVar1 + (iVar3 >> 2);
+    length = z + (x >> 2);
   }
-  if (iVar3 < iVar2) {
-    return iVar2 + (iVar3 >> 2);
+  if (length < y) {
+    length1 = y + (length >> 2);
   }
-  return iVar3 + (iVar2 >> 2);
+  else {
+    length1 = length + (y >> 2);
+  }
+  return length1;
 }
 
 /* ---- AudioClc_CalcAzimuth__FP17DRender_tCalcViewP8coorddef  [@0x80074be8] ---- */
@@ -296,115 +226,33 @@ int AudioClc_CalcAzimuth(DRender_tCalcView *view,coorddef *object)
   coorddef temp;
   int x;
   int y;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  u_int uVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  int iVar9;
-  int result;
 
   temp.x = object->x - (view->translation).x;
   temp.y = object->y - (view->translation).y;
   temp.z = object->z - (view->translation).z;
-  iVar8 = temp.x;
-  if (temp.x < 0) {
-    iVar8 = temp.x + 0xff;
-  }
-  iVar1 = (view->mrotation).m[0];
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
-  }
-  result = (iVar8 >> 8) * (iVar1 >> 8);
-  iVar9 = temp.y;
-  if (temp.y < 0) {
-    iVar9 = temp.y + 0xff;
-  }
-  iVar2 = (view->mrotation).m[1];
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  result = result + (iVar9 >> 8) * (iVar2 >> 8);
-  iVar7 = temp.z;
-  if (temp.z < 0) {
-    iVar7 = temp.z + 0xff;
-  }
-  iVar3 = (view->mrotation).m[2];
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  iVar1 = result + (iVar7 >> 8) * (iVar3 >> 8);
-  iVar4 = (view->mrotation).m[6];
-  if (iVar4 < 0) {
-    iVar4 = iVar4 + 0xff;
-  }
-  result = (iVar8 >> 8) * (iVar4 >> 8);
-  iVar2 = (view->mrotation).m[7];
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  result = result + (iVar9 >> 8) * (iVar2 >> 8);
-  iVar6 = temp.z;
-  if (temp.z < 0) {
-    iVar6 = temp.z + 0xff;
-  }
-  iVar7 = (view->mrotation).m[8];
-  if (iVar7 < 0) {
-    iVar7 = iVar7 + 0xff;
-  }
-  result = result + (iVar6 >> 8) * (iVar7 >> 8);
+  x = temp.x / 256 * ((view->mrotation).m[0] / 256) +
+      temp.y / 256 * ((view->mrotation).m[1] / 256) +
+      temp.z / 256 * ((view->mrotation).m[2] / 256);
+  y = temp.x / 256 * ((view->mrotation).m[6] / 256) +
+      temp.y / 256 * ((view->mrotation).m[7] / 256) +
+      temp.z / 256 * ((view->mrotation).m[8] / 256);
   if (GameSetup_gData.mirrorTrack != 0) {
-    iVar1 = -iVar1;
+    x = -x;
   }
-  uVar5 = intatan(iVar1 >> 8, result >> 8);
-  return (uVar5 << 6) & 0xffc0;
+  return (intatan(x >> 8,y >> 8) << 6) & 0xffc0;
 }
 
 /* ---- AudioClc_CalcCarDirection__FP17DRender_tCalcViewP8Car_tObj  [@0x80074d50] ---- */
 int AudioClc_CalcCarDirection(DRender_tCalcView *view,Car_tObj *car)
 {
   coorddef temp;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int result;
 
   temp.x = (car->N).position.x - (view->translation).x;
   temp.y = (car->N).position.y - (view->translation).y;
   temp.z = (car->N).position.z - (view->translation).z;
-  iVar4 = temp.x;
-  if (temp.x < 0) {
-    iVar4 = temp.x + 0xff;
-  }
-  iVar1 = (car->N).orientMat.m[6];
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
-  }
-  result = (iVar4 >> 8) * (iVar1 >> 8);
-  iVar6 = temp.y;
-  if (temp.y < 0) {
-    iVar6 = temp.y + 0xff;
-  }
-  iVar2 = (car->N).orientMat.m[7];
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  result = result + (iVar6 >> 8) * (iVar2 >> 8);
-  iVar5 = temp.z;
-  if (temp.z < 0) {
-    iVar5 = temp.z + 0xff;
-  }
-  iVar3 = (car->N).orientMat.m[8];
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  return result + (iVar5 >> 8) * (iVar3 >> 8);
+  return temp.x / 256 * ((car->N).orientMat.m[6] / 256) +
+         temp.y / 256 * ((car->N).orientMat.m[7] / 256) +
+         temp.z / 256 * ((car->N).orientMat.m[8] / 256);
 }
 
 /* ---- AudioClc_CalcTrackAzimuth__FP17DRender_tCalcViewP8Car_tObj  [@0x80074e24] ---- */
@@ -412,63 +260,17 @@ int AudioClc_CalcTrackAzimuth(DRender_tCalcView *view,Car_tObj *car)
 {
   int x;
   int y;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  u_int uVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  int result;
 
-  iVar8 = (car->N).roadMatrix.m[6];
-  if (iVar8 < 0) {
-    iVar8 = iVar8 + 0xff;
-  }
-  iVar1 = (view->mrotation).m[0];
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
-  }
-  result = (iVar8 >> 8) * (iVar1 >> 8);
-  iVar7 = (car->N).roadMatrix.m[7];
-  if (iVar7 < 0) {
-    iVar7 = iVar7 + 0xff;
-  }
-  iVar2 = (view->mrotation).m[1];
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  result = result + (iVar7 >> 8) * (iVar2 >> 8);
-  iVar6 = (car->N).roadMatrix.m[8];
-  if (iVar6 < 0) {
-    iVar6 = iVar6 + 0xff;
-  }
-  iVar3 = (view->mrotation).m[2];
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  iVar1 = result + (iVar6 >> 8) * (iVar3 >> 8);
-  iVar4 = (view->mrotation).m[6];
-  if (iVar4 < 0) {
-    iVar4 = iVar4 + 0xff;
-  }
-  result = (iVar8 >> 8) * (iVar4 >> 8);
-  iVar2 = (view->mrotation).m[7];
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  result = result + (iVar7 >> 8) * (iVar2 >> 8);
-  iVar3 = (view->mrotation).m[8];
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  result = result + (iVar6 >> 8) * (iVar3 >> 8);
+  x = (car->N).roadMatrix.m[6] / 256 * ((view->mrotation).m[0] / 256) +
+      (car->N).roadMatrix.m[7] / 256 * ((view->mrotation).m[1] / 256) +
+      (car->N).roadMatrix.m[8] / 256 * ((view->mrotation).m[2] / 256);
+  y = (car->N).roadMatrix.m[6] / 256 * ((view->mrotation).m[6] / 256) +
+      (car->N).roadMatrix.m[7] / 256 * ((view->mrotation).m[7] / 256) +
+      (car->N).roadMatrix.m[8] / 256 * ((view->mrotation).m[8] / 256);
   if (GameSetup_gData.mirrorTrack != 0) {
-    iVar1 = -iVar1;
+    x = -x;
   }
-  uVar5 = intatan(iVar1 >> 8, result >> 8);
-  return (uVar5 << 6) & 0xffc0;
+  return (intatan(x >> 8,y >> 8) << 6) & 0xffc0;
 }
 
 /* ---- AudioClc_SoundOpponentHorn__Fiiii  [@0x80074f5c] ---- */

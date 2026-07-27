@@ -58,35 +58,34 @@ int Math_Dist3D(coorddef *a,coorddef *b)
   int dist;
   int dist2;
   int y;
-  int iVar1;
   int z;
-  int iVar2;
-  int iVar3;
   int x;
-  
-  y = a->x;
-  iVar3 = y - b->x;
-  if (iVar3 < 1) {
-    iVar3 = b->x - y;
+
+  x = a->x - b->x;
+  if (x < 1) {
+    x = b->x - a->x;
   }
-  iVar1 = a->y - b->y;
-  if (iVar1 < 1) {
-    iVar1 = b->y - a->y;
+  y = a->y - b->y;
+  if (y < 1) {
+    y = b->y - a->y;
   }
-  iVar2 = a->z - b->z;
-  if (iVar2 < 1) {
-    iVar2 = b->z - a->z;
+  z = a->z - b->z;
+  if (z < 1) {
+    z = b->z - a->z;
   }
-  if (iVar1 < iVar3) {
-    iVar3 = iVar3 + (iVar1 >> 2);
+  if (y < x) {
+    dist = x + (y >> 2);
   }
   else {
-    iVar3 = iVar1 + (iVar3 >> 2);
+    dist = y + (x >> 2);
   }
-  if (iVar2 < iVar3) {
-    return iVar3 + (iVar2 >> 2);
+  if (z < dist) {
+    dist2 = dist + (z >> 2);
   }
-  return iVar2 + (iVar3 >> 2);
+  else {
+    dist2 = z + (dist >> 2);
+  }
+  return dist2;
 }
 
 /* ---- Math_BetterDist__Fii  [MATHNFS.CPP:57-79] SLD-VERIFIED ---- */

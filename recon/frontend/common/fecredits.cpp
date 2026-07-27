@@ -154,6 +154,21 @@ void tCreditManager::Draw(bool selected)
 /* ---- tCreditManager::SetupCurrCredit  [FECREDITS.CPP:155-238] ---- */
 void tCreditManager::SetupCurrCredit()
 
+/* MATCH (w37-a2, 58->10 diffs): SYM has only ONE named local for the whole
+   fn (function-static `lasttick`, i.e. FECredits_lastFadeTick) besides
+   `this` -- everything else is compiler-transient. Two levers found:
+   (1) the fCurrCredit%3-or-bgNumber SwapBackground index is a SEPARATE
+   nested-block local (SYM block@0x80035f94) for `iVar5+1`, not a
+   reassignment of iVar5 itself -- keeps iVar5 in $a0 matching the oracle
+   instead of drifting to $a1. (2) both `ticks` reads that feed a
+   store-after-a-call (fLineTicks, fStartTicks) read `ticks` directly at
+   the point of use (not via a cached `iVar2`) with the store-order
+   `fLineTicks=ticks; StartedLines=1;` / `StartedTextFade=1;
+   fTextFadeDir=-8; fStartTicks=ticks;` -- gcc reloads ticks fresh after
+   the intervening call/branch either way, and this order/direct-read
+   combo is what lands it in the oracle's register. Residual 10-diff
+   floor: one more ticks-reload register tie-break (v0 vs v1) at the
+   final fStartTicks store, no rephrasing tried moved it. */
 {
   bool bVar1;
   int iVar2;
@@ -161,8 +176,7 @@ void tCreditManager::SetupCurrCredit()
   int iVar4;
   int iVar5;
   void *pvVar3;
-  int NNNNN;
-  
+
   if (((0xc < ticks - FECredits_lastFadeTick) && (this->fTextFade == 0)) &&
      (bVar1 = false, this->fCurrCredit == this->fShowCreditNum)) {
     iVar2 = FEInput_GetNoDebounceKey(0x20,0);
@@ -214,25 +228,27 @@ void tCreditManager::SetupCurrCredit()
     this->StartedTransition = 1;
     this->fShowCreditNum = iVar5;
     if ((iVar5 == (iVar5 / 3) * 3) || (this->CreditBuffer[iVar5].bgNumber != -1)) {
-      iVar5 = iVar5 + 1;
-      if (this->fNumCredits < iVar5) {
-        iVar5 = 0;
+      /* MATCH (w37-a2): SYM shows a SEPARATE nested-block local at
+         VA 0x80035f94 (line 66) for iVar5+1, not a reassignment of
+         iVar5 itself. */
+      int nextIdx = iVar5 + 1;
+      if (this->fNumCredits < nextIdx) {
+        nextIdx = 0;
       }
-      screenMain->SwapBackground((int)this->CreditBuffer[iVar5].bgNumber);
+      screenMain->SwapBackground((int)this->CreditBuffer[nextIdx].bgNumber);
     }
   }
   if (((this->StartedLines == 0) && (this->StartedTransition != 0)) &&
-     (pvVar3 = screenMain->DoneLoadingBackground(), iVar2 = ticks, pvVar3 != (void *)0x0)
+     (pvVar3 = screenMain->DoneLoadingBackground(), pvVar3 != (void *)0x0)
      ) {
+    this->fLineTicks = ticks;
     this->StartedLines = 1;
-    this->fLineTicks = iVar2;
   }
-  iVar2 = ticks;
   if (((this->StartedTextFade == 0) && (this->StartedLines != 0)) &&
      (0x1e < ticks - this->fLineTicks)) {
     this->StartedTextFade = 1;
     this->fTextFadeDir = -8;
-    this->fStartTicks = iVar2;
+    this->fStartTicks = ticks;
   }
   return;
 }

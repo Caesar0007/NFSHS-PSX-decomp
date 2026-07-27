@@ -1013,48 +1013,42 @@ void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
   __vtbl_ptr_type (*pa_Var3) [7];
   tPMenuItem *ptVar4;
   tInputKeyType tVar5;
+  tPMenu *ptVar6;
   
   ptVar4 = this->fItemList[this->fCurrentItem];
   if (ptVar4 != (tPMenuItem *)0x0) {
     (*(*ptVar4->_vf)[4].pfn)((int)&ptVar4->fFlags + (int)(*ptVar4->_vf)[4].delta);
   }
   tVar5 = keyval;
-  if (tVar5 == kInput_KeyType_Up) {
-    AudioCmn_PlayPauseSound(3);
-    do {
-      iVar2 = this->fCurrentItem;
-      if (iVar2 < 1) {
-        ptVar4 = this->fItemList[iVar2 + 1];
-        while (ptVar4 != (tPMenuItem *)0x0) {
-          iVar2 = this->fCurrentItem;
-          this->fCurrentItem = iVar2 + 1;
-          ptVar4 = this->fItemList[iVar2 + 2];
+  switch (tVar5) {
+    case kInput_KeyType_Up:
+      AudioCmn_PlayPauseSound(3);
+      do {
+        iVar2 = this->fCurrentItem;
+        if (0 < this->fCurrentItem) {
+          this->fCurrentItem = iVar2 + -1;
         }
-      }
-      else {
-        this->fCurrentItem = iVar2 + -1;
-      }
-      pa_Var3 = this->fItemList[this->fCurrentItem]->_vf;
-      bVar1 = false;
-      iVar2 = (*(*pa_Var3)[5].pfn)
-                        ((int)&this->fItemList[this->fCurrentItem]->fFlags +
-                         (int)(*pa_Var3)[5].delta);
-      if ((iVar2 == 0) || ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0)) {
-        bVar1 = true;
-      }
-    } while (bVar1);
-    keyval = kInput_KeyType_AlreadyProcessed;
-    return;
-  }
-  if ((int)tVar5 < 0x201) {
-    if (tVar5 != kInput_KeyType_Triangle) {
+        else {
+          if (this->fItemList[iVar2 + 1] != (tPMenuItem *)0x0) {
+            do {
+              ptVar6 = (tPMenu *)((char *)this + ((this->fCurrentItem + 2) << 2));
+              this->fCurrentItem = this->fCurrentItem + 1;
+            } while (ptVar6->fItemList[0] != (tPMenuItem *)0x0);
+          }
+        }
+        pa_Var3 = this->fItemList[this->fCurrentItem]->_vf;
+        bVar1 = false;
+        iVar2 = (*(*pa_Var3)[5].pfn)
+                          ((int)&this->fItemList[this->fCurrentItem]->fFlags +
+                           (int)(*pa_Var3)[5].delta);
+        if ((iVar2 == 0) || ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0)) {
+          bVar1 = true;
+        }
+      } while (bVar1);
+      keyval = kInput_KeyType_AlreadyProcessed;
       return;
-    }
-    AudioCmn_PlayPauseSound(4);
-    command.type = kMPause_BackupMenu;
-  }
-  else {
-    if (tVar5 == kInput_KeyType_Down) {
+
+    case kInput_KeyType_Down:
       AudioCmn_PlayPauseSound(3);
       do {
         iVar2 = this->fCurrentItem;
@@ -1073,12 +1067,20 @@ void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
       } while (bVar1);
       keyval = kInput_KeyType_AlreadyProcessed;
       return;
-    }
-    if (tVar5 != kInput_KeyType_Start) {
+
+    case kInput_KeyType_Start:
+      AudioCmn_PlayPauseSound(4);
+      command.type = kMPause_Continue;
+      keyval = kInput_KeyType_AlreadyProcessed;
       return;
-    }
-    AudioCmn_PlayPauseSound(4);
-    command.type = kMPause_Continue;
+
+    case kInput_KeyType_Triangle:
+      AudioCmn_PlayPauseSound(4);
+      command.type = kMPause_BackupMenu;
+      break;
+
+    default:
+      return;
   }
   keyval = kInput_KeyType_AlreadyProcessed;
   return;

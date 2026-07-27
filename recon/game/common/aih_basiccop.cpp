@@ -398,63 +398,38 @@ void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
 
       {
         int i;
-        int z;
 
-        i = 0;
+        for (i = 0; i < 5; i = i + 1) {
 
-        z = -0x100000;
-
-        pt.x = 0;
-
-        do {
+          pt.x = i * 0x20000;
 
           pt.y = 0;
 
-          pt.z = blockade->direction * z;
-
-          i = i + 1;
+          pt.z = blockade->direction * (i * 0x40000 - 0x100000);
 
           PlacePointOnRoad(slice,&pt);
 
           Blockade_AddRoadFlare(&pt);
 
-          z = z + 0x40000;
-
-          pt.x = i * 0x20000;
-
-        } while (i < 5);
+        }
       }
 
       {
         int i;
-        int x;
-        int z;
 
-        i = 1;
+        for (i = 1; i < 5; i = i + 1) {
 
-        z = -0xc0000;
-
-        x = -0x20000;
-
-        do {
-
-          pt.x = x;
+          pt.x = i * -0x20000;
 
           pt.y = 0;
 
-          pt.z = blockade->direction * z;
-
-          i = i + 1;
+          pt.z = blockade->direction * (i * 0x40000 - 0x100000);
 
           PlacePointOnRoad(slice,&pt);
 
           Blockade_AddRoadFlare(&pt);
 
-          z = z + 0x40000;
-
-          x = x + -0x20000;
-
-        } while (i < 5);
+        }
       }
 
     }
@@ -465,59 +440,34 @@ void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
 
       {
         int i;
-        int x;
-        int z;
 
-        i = 0;
+        for (i = 0; i < 7; i = i + 1) {
 
-        x = -0x60000;
-
-        z = -0x180000;
-
-        do {
+          pt.x = i * 0x20000 - 0x60000;
 
           pt.y = 0;
 
-          pt.z = blockade->direction * z;
-
-          i = i + 1;
-
-          pt.x = x;
+          pt.z = blockade->direction * (i * 0x40000 - 0x180000);
 
           PlacePointOnRoad(slice,&pt);
 
           Blockade_AddRoadFlare(&pt);
 
-          z = z + 0x40000;
-
-          x = x + 0x20000;
-
-        } while (i < 7);
+        }
       }
 
       {
         int i;
-        int x;
-        int z;
-        int skip;
 
-        i = 0;
+        for (i = 0; i < 7; i = i + 1) {
 
-        z = -0x180000;
+          if (i != 3) {
 
-        x = 0x60000;
-
-        skip = 3;
-
-        do {
-
-          if (i != skip) {
+            pt.x = 0x60000 - i * 0x20000;
 
             pt.y = 0;
 
-            pt.z = blockade->direction * z;
-
-            pt.x = x;
+            pt.z = blockade->direction * (i * 0x40000 - 0x180000);
 
             PlacePointOnRoad(slice,&pt);
 
@@ -525,13 +475,7 @@ void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
 
           }
 
-          z = z + 0x40000;
-
-          x = x + -0x20000;
-
-          i = i + 1;
-
-        } while (i < 7);
+        }
       }
 
     }

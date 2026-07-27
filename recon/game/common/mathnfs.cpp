@@ -151,50 +151,46 @@ int Math_VectorLength(coorddef *v)
   int shifts;
   u_int vy2;
   u_int vx2;
+  int absV;
 
   shifts = 0;
   vx = v->x;
   vy = v->y;
   vz = v->z;
-  do {
-    int absV = (vx < 0) ? -vx : vx;
-    if (absV < 0x1000001) {
-      absV = (vy < 0) ? -vy : vy;
-      if (absV < 0x1000001) {
-        absV = (vz < 0) ? -vz : vz;
-        if (absV < 0x1000001) {
-          vx2 = fixedmult(vx,vx);
-          vy2 = fixedmult(vy,vy);
-          vz2 = fixedmult(vz,vz);
-          vx2s = vx2 >> 2;
-          vy2s = vy2 >> 2;
-          vz2s = vz2 >> 2;
-          while (0x40000000 < vx2s + vy2s + vz2s) {
-            vx = vx >> 1;
-            vy = vy >> 1;
-            vz = vz >> 1;
-            shifts = shifts + 1;
-            vx2 = fixedmult(vx,vx);
-            vy2 = fixedmult(vy,vy);
-            vz2 = fixedmult(vz,vz);
-            vx2s = vx2 >> 2;
-            vy2s = vy2 >> 2;
-            vz2s = vz2 >> 2;
-          }
-          length = fixedsqrt(vx2 + vy2 + vz2);
-          while (shifts != 0) {
-            shifts = shifts - 1;
-            length = length << 1;
-          }
-          return length;
-        }
-      }
-    }
+  absV = __builtin_abs(vx);
+  while ((0x1000000 < absV) ||
+         (0x1000000 < __builtin_abs(vy)) ||
+         (0x1000000 < __builtin_abs(vz))) {
     vx = vx >> 1;
     vy = vy >> 1;
     vz = vz >> 1;
     shifts = shifts + 1;
-  } while( true );
+    absV = __builtin_abs(vx);
+  }
+  vx2 = fixedmult(vx,vx);
+  vy2 = fixedmult(vy,vy);
+  vz2 = fixedmult(vz,vz);
+  vx2s = vx2 >> 2;
+  vy2s = vy2 >> 2;
+  vz2s = vz2 >> 2;
+  while (0x40000000 < vx2s + vy2s + vz2s) {
+    vx = vx >> 1;
+    vy = vy >> 1;
+    vz = vz >> 1;
+    shifts = shifts + 1;
+    vx2 = fixedmult(vx,vx);
+    vy2 = fixedmult(vy,vy);
+    vz2 = fixedmult(vz,vz);
+    vx2s = vx2 >> 2;
+    vy2s = vy2 >> 2;
+    vz2s = vz2 >> 2;
+  }
+  length = fixedsqrt(vx2 + vy2 + vz2);
+  while (shifts != 0) {
+    shifts = shifts - 1;
+    length = length << 1;
+  }
+  return length;
 }
 
 /* ---- Math_VectorLength2__FP8coorddef  [MATHNFS.CPP:207-273] SLD-VERIFIED ---- */
@@ -212,50 +208,46 @@ int Math_VectorLength2(coorddef *v)
   int shifts;
   u_int vy2;
   u_int vx2;
+  int absV;
 
   shifts = 0;
   vx = v->x;
   vy = v->y;
   vz = v->z;
-  do {
-    int absV = (vx < 0) ? -vx : vx;
-    if (absV < 0x1000001) {
-      absV = (vy < 0) ? -vy : vy;
-      if (absV < 0x1000001) {
-        absV = (vz < 0) ? -vz : vz;
-        if (absV < 0x1000001) {
-          vx2 = fixedmult(vx,vx);
-          vy2 = fixedmult(vy,vy);
-          vz2 = fixedmult(vz,vz);
-          vx2s = vx2 >> 2;
-          vy2s = vy2 >> 2;
-          vz2s = vz2 >> 2;
-          while (0x40000000 < vx2s + vy2s + vz2s) {
-            vx = vx >> 1;
-            vy = vy >> 1;
-            vz = vz >> 1;
-            shifts = shifts + 1;
-            vx2 = fixedmult(vx,vx);
-            vy2 = fixedmult(vy,vy);
-            vz2 = fixedmult(vz,vz);
-            vx2s = vx2 >> 2;
-            vy2s = vy2 >> 2;
-            vz2s = vz2 >> 2;
-          }
-          length2 = vx2 + vy2 + vz2;
-          while (shifts != 0) {
-            shifts = shifts - 1;
-            length2 = length2 << 2;
-          }
-          return length2;
-        }
-      }
-    }
+  absV = __builtin_abs(vx);
+  while ((0x1000000 < absV) ||
+         (0x1000000 < __builtin_abs(vy)) ||
+         (0x1000000 < __builtin_abs(vz))) {
     vx = vx >> 1;
     vy = vy >> 1;
     vz = vz >> 1;
     shifts = shifts + 1;
-  } while( true );
+    absV = __builtin_abs(vx);
+  }
+  vx2 = fixedmult(vx,vx);
+  vy2 = fixedmult(vy,vy);
+  vz2 = fixedmult(vz,vz);
+  vx2s = vx2 >> 2;
+  vy2s = vy2 >> 2;
+  vz2s = vz2 >> 2;
+  while (0x40000000 < vx2s + vy2s + vz2s) {
+    vx = vx >> 1;
+    vy = vy >> 1;
+    vz = vz >> 1;
+    shifts = shifts + 1;
+    vx2 = fixedmult(vx,vx);
+    vy2 = fixedmult(vy,vy);
+    vz2 = fixedmult(vz,vz);
+    vx2s = vx2 >> 2;
+    vy2s = vy2 >> 2;
+    vz2s = vz2 >> 2;
+  }
+  length2 = vx2 + vy2 + vz2;
+  while (shifts != 0) {
+    shifts = shifts - 1;
+    length2 = length2 << 2;
+  }
+  return length2;
 }
 
 /* ---- Math_NormalizeVector__FP8coorddef  [MATHNFS.CPP:298-362] SLD-VERIFIED ---- */
@@ -272,45 +264,43 @@ void Math_NormalizeVector(coorddef *v)
   int length;
   u_int vy2;
   u_int vx2;
+  int absV;
 
   vx = v->x;
   vy = v->y;
   vz = v->z;
-  do {
-    if (__builtin_abs(vx) < 0x1000001) {
-      if (__builtin_abs(vy) < 0x1000001) {
-        if (__builtin_abs(vz) < 0x1000001) {
-          vx2 = fixedmult(vx,vx);
-          vy2 = fixedmult(vy,vy);
-          vz2 = fixedmult(vz,vz);
-          vx2s = vx2 >> 2;
-          vy2s = vy2 >> 2;
-          vz2s = vz2 >> 2;
-          while (0x40000000 < vx2s + vy2s + vz2s) {
-            vx = vx >> 1;
-            vy = vy >> 1;
-            vz = vz >> 1;
-            vx2 = fixedmult(vx,vx);
-            vy2 = fixedmult(vy,vy);
-            vz2 = fixedmult(vz,vz);
-            vx2s = vx2 >> 2;
-            vy2s = vy2 >> 2;
-            vz2s = vz2 >> 2;
-          }
-          length = fixedsqrt(vx2 + vy2 + vz2);
-          if (length != 0) {
-            v->x = fixeddiv(vx,length);
-            v->y = fixeddiv(vy,length);
-            v->z = fixeddiv(vz,length);
-          }
-          return;
-        }
-      }
-    }
+  absV = __builtin_abs(vx);
+  while ((0x1000000 < absV) ||
+         (0x1000000 < __builtin_abs(vy)) ||
+         (0x1000000 < __builtin_abs(vz))) {
     vx = vx >> 1;
     vy = vy >> 1;
     vz = vz >> 1;
-  } while( true );
+    absV = __builtin_abs(vx);
+  }
+  vx2 = fixedmult(vx,vx);
+  vy2 = fixedmult(vy,vy);
+  vz2 = fixedmult(vz,vz);
+  vx2s = vx2 >> 2;
+  vy2s = vy2 >> 2;
+  vz2s = vz2 >> 2;
+  while (0x40000000 < vx2s + vy2s + vz2s) {
+    vx = vx >> 1;
+    vy = vy >> 1;
+    vz = vz >> 1;
+    vx2 = fixedmult(vx,vx);
+    vy2 = fixedmult(vy,vy);
+    vz2 = fixedmult(vz,vz);
+    vx2s = vx2 >> 2;
+    vy2s = vy2 >> 2;
+    vz2s = vz2 >> 2;
+  }
+  length = fixedsqrt(vx2 + vy2 + vz2);
+  if (length != 0) {
+    v->x = fixeddiv(vx,length);
+    v->y = fixeddiv(vy,length);
+    v->z = fixeddiv(vz,length);
+  }
 }
 
 /* ---- Math_NormalizeShortVector__FP8coorddef  [MATHNFS.CPP:371-386] SLD-VERIFIED ---- */

@@ -244,28 +244,25 @@ int Object_GetRadiusCollisionData(Object_tSimObjList *objList,int objIndex,coord
 
 {
   Trk_SimObject *simObj;
-  Trk_SimpleInst *animInst;
-  Chunk *pMChunk;
-  int iVar1;
-  int iVar2;
   int chunk;
-  int dummy;
   
   simObj = GetSimObj(objIndex,objList,&chunk);
-  if (simObj == (Trk_SimObject *)0x0) {
-    *radius = 0;
+  if (simObj != (Trk_SimObject *)0x0) {
+    if (((simObj->type & 0x80) != 0) && (gSimObjAnims[simObj->serialNum] == (ObjectAnim *)0x0)) {
+      int dummy;
+      Chunk *pMChunk;
+
+      pMChunk = Track_chunkList + chunk;
+      Anim_GetPos((Trk_AnimateInst *)
+                      FindObjInstanceFromSerialNum(pMChunk->objInstanceBuf,
+                                                   (u_int)simObj->instIndex),
+                  1,simGlobal.gameTicks,(coorddef *)simObj,&dummy,&dummy);
+    }
+    *pos = *(coorddef *)simObj;
+    *radius = (int)simObj->radius << 7;
   }
   else {
-    if (((simObj->type & 0x80) != 0) && (gSimObjAnims[simObj->serialNum] == (ObjectAnim *)0x0)) {
-      animInst = FindObjInstanceFromSerialNum(Track_chunkList[chunk].objInstanceBuf,(u_int)simObj->instIndex);
-      Anim_GetPos((Trk_AnimateInst *)animInst,1,simGlobal.gameTicks,(coorddef *)simObj,&dummy,&dummy);
-    }
-    iVar1 = simObj->point[1];
-    iVar2 = simObj->point[2];
-    pos->x = simObj->point[0];
-    pos->y = iVar1;
-    pos->z = iVar2;
-    *radius = (int)simObj->radius << 7;
+    *radius = 0;
   }
   return 0;
 }
@@ -278,50 +275,43 @@ int Object_GetRadiusCollisionData(Object_tSimObjList *objList,int objIndex,coord
 void Object_GetPointsCollisionData(Object_tSimObjList *objList,int objIndex,int *numPoints,coorddef *resultPoints)
 
 {
-  u_char bVar1;
   Trk_SimObject *simObj;
-  Trk_SimpleInst *objInstance;
-  Group *group;
-  Trk_ObjectDef *objDef;
-  int iVar3;
-  int iVar4;
   int chunk;
   
   simObj = GetSimObj(objIndex,objList,&chunk);
-  if (simObj == (Trk_SimObject *)0x0) {
-    *numPoints = 0;
+  if (simObj != (Trk_SimObject *)0x0) {
+    Trk_SimpleInst *objInstance;
+
+    if (chunk == -1) {
+      objInstance = FindObjInstanceFromSerialNum(
+          (Group *)0x0,(u_int)simObj->instIndex);
+    }
+    else {
+      objInstance = FindObjInstanceFromSerialNum(
+          Track_chunkList[chunk].objInstanceBuf,(u_int)simObj->instIndex);
+    }
+    if (objInstance != (Trk_SimpleInst *)0x0) {
+      Trk_ObjectDef *objDef;
+
+      objDef = Track_gObjDefs[objInstance->pad];
+      if ((objInstance->type == '\x05') &&
+          (*(char *)((int)&objInstance[1].y + 3) == '\0')) {
+        CalcObjExtentPoints((coorddef *)simObj,(CCOORD16 *)(objDef + 1),
+                            resultPoints,(tQuat *)(objInstance + 1));
+        *numPoints = 3;
+      }
+      else {
+        *resultPoints = *(coorddef *)simObj;
+        *numPoints = 1;
+      }
+    }
+    else {
+      *numPoints = 1;
+      *resultPoints = *(coorddef *)simObj;
+    }
   }
   else {
-    if (chunk == -1) {
-      bVar1 = simObj->instIndex;
-      group = (Group *)0x0;
-    }
-    else {
-      bVar1 = simObj->instIndex;
-      group = Track_chunkList[chunk].objInstanceBuf;
-    }
-    objInstance = FindObjInstanceFromSerialNum(group,(u_int)bVar1);
-    if (objInstance == (Trk_SimpleInst *)0x0) {
-      *numPoints = 1;
-      iVar3 = simObj->point[1];
-      iVar4 = simObj->point[2];
-      resultPoints->x = simObj->point[0];
-      resultPoints->y = iVar3;
-      resultPoints->z = iVar4;
-    }
-    else if ((objInstance->type == '\x05') && (*(char *)((int)&objInstance[1].y + 3) == '\0')) {
-      CalcObjExtentPoints((coorddef *)simObj,(CCOORD16 *)(Track_gObjDefs[objInstance->pad] + 1),resultPoints,
-                 (tQuat *)(objInstance + 1));
-      *numPoints = 3;
-    }
-    else {
-      iVar3 = simObj->point[1];
-      iVar4 = simObj->point[2];
-      resultPoints->x = simObj->point[0];
-      resultPoints->y = iVar3;
-      resultPoints->z = iVar4;
-      *numPoints = 1;
-    }
+    *numPoints = 0;
   }
   return;
 }

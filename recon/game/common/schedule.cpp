@@ -118,31 +118,35 @@ void Sched_AddFunction(Sched_tSchedule *schedule,fn_void *function,void *var1,in
 void Sched_DeleteFunction(Sched_tSchedule *schedule,fn_void *function,void *var1)
 
 {
+  int count;
   int i;
-  int iVar1;
-  Sched_tSchedule *pSVar2;
-  int iVar3;
+  int j;
 
-  iVar3 = schedule->numFunctions;
-  if (iVar3 != 0) {
-    iVar1 = 0;
-    pSVar2 = schedule;
-    if (0 < iVar3) {
+  count = schedule->numFunctions;
+  if (count != 0) {
+    i = 0;
+    if (0 < count) {
       do {
-        if ((pSVar2->func[0].function == (void *)function) && (pSVar2->func[0].var1 == var1))
+        if ((schedule->func[i].function == (void *)function) &&
+            (schedule->func[i].var1 == var1))
         {
-          if (iVar1 < iVar3 + -1) {
+          j = i;
+          if (j < count + -1) {
             do {
-              schedule->func[iVar1] = schedule->func[iVar1 + 1];
-              iVar1 = iVar1 + 1;
-            } while (iVar1 < schedule->numFunctions + -1);
+              *(Sched_tFunctionSchedule *)
+                  ((char *)schedule +
+                   j * sizeof(Sched_tFunctionSchedule) + 8) =
+                  *(Sched_tFunctionSchedule *)
+                  ((char *)schedule +
+                   j * sizeof(Sched_tFunctionSchedule) + 24);
+              j = j + 1;
+            } while (j < schedule->numFunctions + -1);
           }
           break;
         }
-        iVar3 = schedule->numFunctions;
-        iVar1 = iVar1 + 1;
-        pSVar2 = (Sched_tSchedule *)&pSVar2->func[0].var1;
-      } while (iVar1 < iVar3);
+        count = schedule->numFunctions;
+        i = i + 1;
+      } while (i < count);
     }
     schedule->func[schedule->numFunctions].priority = 0x7ffe;
     schedule->numFunctions = schedule->numFunctions + -1;

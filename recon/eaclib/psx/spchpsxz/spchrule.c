@@ -311,7 +311,12 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
  * RESIDUAL 43 = still the w34-a10 $t0-vs-$a3 reload mechanism (~14 diffs incl. the 28(sp)-vs-36(sp)
  * spill slot that follows the register) plus its knock-on scheduling, the `addu $a2,$s3,$zero`
  * vs retail's fresh `addu $a2,$zero,$zero` (our cse copies the known-zero `hit` into testValue),
- * and one `lw $a1,0x10($sp)` placement.  Probed and NEUTRAL this wave: Yoda `4 == type` (43). */
+ * and one `lw $a1,0x10($sp)` placement.  Probed and NEUTRAL this wave: Yoda `4 == type` (43).
+ * 2026-07-27 inline: volatile-view SPLIT of the shared `*sentSlot` pseudo (so arg1/arg4 load
+ * 0x50(sp) separately and pseudo-121 stops parking in $a3) FALSIFIED both ways: volatile on arg4
+ * 59, volatile on arg1 59 (each drops an insn to 111/112 but rotates the web).  Also this date:
+ * the whole-TU PsyQ-4.0 cc1 probe (gcc 2.7.2.SN32.3.7) is decisively wrong here too -- 92 diffs
+ * at 102/112 insns (10 SHORT) -- confirming the 2.8.0 identity for spchpsxz. */
 extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
 {
     int            numRules = *(signed char *)((int)sentence + 7);

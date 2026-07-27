@@ -1851,7 +1851,9 @@ void Cars_InitCar(Car_tObj *carObj,int index)
      (locatbig.cpp:178 `char *locatebig(void*,char*)`; oracle 0x8008A2AC sets up ONLY a0/a1
      before the jal, no a2) -- dropped the bogus 3rd "0" arg (was a stale/wrong "$a2 dropped
      by Ghidra" comment; the SAME bug exists in anim.cpp:81's locatebig call, out of scope
-     here). RESIDUAL 16 = handle_00/handle get s3/s4 swapped vs oracle (both Udff_Opena()
+     here). 16->12 by initializing handle_00 before mem_00, which matches the retail
+     s3/s4 prologue order. RESIDUAL 12 = handle_00/mem_00 still get s3/s4 swapped after
+     their calls (both Udff_Opena()
      results, held live across the loadfileadrz/locatebig/2nd-Udff_Opena call chain to their
      later use as AIInit_InitAICar/Physics_InitCarSpecs args) -- tried swapping their
      declaration order (handle_00 before handle), no change; genuine allocator floor. */
@@ -1867,8 +1869,8 @@ void Cars_InitCar(Car_tObj *carObj,int index)
   char acStack_38 [24];
   
   pThis = 0x0;
-  mem_00 = (char *)0x0;
   handle_00 = (Udff_tInfo *)0x0;
+  mem_00 = (char *)0x0;
   handle = (Udff_tInfo *)0x0;
   if (index < GameSetup_gData.numCars) {
     iVar1 = AIInit_IsNonStandardCarFile(carObj->carInfo->carType);

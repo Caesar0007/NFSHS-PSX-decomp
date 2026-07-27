@@ -2813,39 +2813,17 @@ AIState_GotoSlice::AIState_GotoSlice(Car_tObj *carObj,int targetSlice,int stopWh
 
 
 /* ---- Execute__17AIState_GotoSlice  AIState_GotoSlice::Execute  [AISTATE.CPP:1355-1388] SLD-VERIFIED ---- */
-/* FLOOR (w30-a2, 28 diffs/70 vs 70 insns): shape CONFIRMED -- the if/else-if cap-selection
-   ladder and the sign-aware clamp both match the oracle's control flow exactly. The whole
-   diff is ONE allocator decision cascading: `cap` lives in a3 (ours) vs a0 (oracle) across
-   the if-elseif chain, which then pushes `speed`/the clamp temp into the other's slot for the
-   rest of the function (every diffed line downstream is the same a2<->a3 swap). a0 is free
-   after `distMeters = AIWorld_ApxSplineDistance(...)` on both sides; oracle's allocator picks
-   it for `cap`, ours doesn't. Coin-flip, not a missing/wrong construct. */
 
 void AIState_GotoSlice::Execute()
 
 
 
 {
-      
-  int bVar1;
+  int longMetersBetween;
 
-  int distMeters;
+  longMetersBetween = AIWorld_ApxSplineDistance(this->targetSlice_,this->carObj_);
 
-  int absd;
-
-  Car_tObj *pCVar3;
-
-  int cap;
-
-  int speed;
-
-  int clamped;
-
-  
-
-  distMeters = AIWorld_ApxSplineDistance(this->targetSlice_,this->carObj_);
-
-  if (-1 < distMeters) {
+  if (-1 < longMetersBetween) {
 
     (this->carObj_)->desiredDirection = 1;
 
@@ -2860,62 +2838,49 @@ void AIState_GotoSlice::Execute()
   this->AIState_Normal::Execute();
 
   if (this->stopWhenArrivedAtSlice_ != 0) {
+    int distMeters;
+    int cap;
 
-    absd = __builtin_abs(distMeters);
+    distMeters = __builtin_abs(longMetersBetween);
 
     cap = 0xc80000;
 
-    if (absd < 0xc0000) {
+    if (distMeters < 0xc0000) {
 
       cap = 0x40000;
 
     }
 
-    else if (absd < 0x320000) {
+    else if (distMeters < 0x320000) {
 
       cap = 0x140000;
 
     }
 
-    else if (absd < 0x960000) {
+    else if (distMeters < 0x960000) {
 
       cap = 0x280000;
 
     }
 
-    else if (absd < 0x1900000) {
+    else if (distMeters < 0x1900000) {
 
       cap = 0x500000;
 
     }
 
-    pCVar3 = this->carObj_;
-
-    speed = pCVar3->desiredSpeed;
-
-    clamped = cap;
-
-    if (-1 < speed) {
-
-      bVar1 = speed < clamped;
-
+    if (-1 < this->carObj_->desiredSpeed) {
+      if (this->carObj_->desiredSpeed < cap) {
+        cap = this->carObj_->desiredSpeed;
+      }
+    } else {
+      cap = -cap;
+      if (cap < this->carObj_->desiredSpeed) {
+        cap = this->carObj_->desiredSpeed;
+      }
     }
 
-    else {
-
-      clamped = -cap;
-
-      bVar1 = clamped < speed;
-
-    }
-
-    if (bVar1) {
-
-      clamped = speed;
-
-    }
-
-    pCVar3->desiredSpeed = clamped;
+    this->carObj_->desiredSpeed = cap;
 
   }
 

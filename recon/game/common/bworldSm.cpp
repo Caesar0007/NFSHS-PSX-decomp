@@ -889,33 +889,32 @@ void NormalCache_AddEntry(BWorldSm_Pos *slicePos)
 {
   u_long oldestTime;
   int oldestInd;
-  tNormalCacheEntry*ce;
-  int i;
-  tNormalCacheEntry *ptVar1;
-  int iVar2;
-  u_int uVar3;
-  int iVar4;
-  int iVar5;
-  
-  uVar3 = 0xffffffff;
-  iVar4 = -1;
-  iVar2 = 0;
-  ptVar1 = BWSM_NormalCache;
+  tNormalCacheEntry *ce;
+
+  oldestTime = 0xffffffff;
+  oldestInd = -1;
+  ce = BWSM_NormalCache;
   BWSM_NormalCacheSysTime = BWSM_NormalCacheSysTime + 1;
-  do {
-    if (ptVar1->accessTime < uVar3) {
-      uVar3 = ptVar1->accessTime;
-      iVar4 = iVar2;
-    }
-    iVar2 = iVar2 + 1;
-    ptVar1 = ptVar1 + 1;
-  } while (iVar2 < 0x10);
-  BWSM_NormalCache[iVar4].accessTime = BWSM_NormalCacheSysTime;
-  BWSM_NormalCache[iVar4].forward = slicePos->forward;
-  BWSM_NormalCache[iVar4].normal = slicePos->normal;
-  BWSM_NormalCache[iVar4].sliceInd = slicePos->slice;
-  BWSM_NormalCache[iVar4].quadInd = slicePos->quad;
-  BWSM_NormalCache[iVar4].triangleFlag = slicePos->triangleFlag;
+  {
+    int i;
+
+    i = 0;
+    do {
+      if (ce->accessTime < oldestTime) {
+        oldestInd = i;
+        oldestTime = ce->accessTime;
+      }
+      i = i + 1;
+      ce = ce + 1;
+    } while (i < 0x10);
+  }
+  ce = BWSM_NormalCache + oldestInd;
+  ce->accessTime = BWSM_NormalCacheSysTime;
+  ce->forward = slicePos->forward;
+  ce->normal = slicePos->normal;
+  ce->sliceInd = slicePos->slice;
+  ce->quadInd = slicePos->quad;
+  ce->triangleFlag = slicePos->triangleFlag;
   return;
 }
 

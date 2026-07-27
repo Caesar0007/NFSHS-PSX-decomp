@@ -650,10 +650,6 @@ void Camera_UpdateCircleCam(int player)
   int sin;
   int cos;
   int circle_height[3] = { 0x10000, 0x20000, 0x30000 };
-  int h0;
-  int h1;
-  int ang;
-  int hval;
   short sVar1;
   BO_tNewtonObj *pBVar2;
   int uVar3;
@@ -670,18 +666,20 @@ void Camera_UpdateCircleCam(int player)
     }
     uVar3 = (int)Camera_gInfo[player].circleAngle - 0x80;
     if ((uVar3 & 0x1ff) < 0x80) {
+      int h0;
+      int h1;
+      int ang;
+
       h0 = circle_height[Camera_gInfo[player].circleCounter % 3];
       h1 = circle_height[(Camera_gInfo[player].circleCounter + 1) % 3];
       ang = uVar3 & 0x7f;
-      hval = ((h1 - h0) * ang >> 7) + h0;
+      src.y = ((h1 - h0) * ang >> 7) + h0;
     }
     else {
-      h0 = circle_height[Camera_gInfo[player].circleCounter % 3];
-      hval = h0;
+      src.y = circle_height[Camera_gInfo[player].circleCounter % 3];
     }
-    src.y = hval;
-    /* SYM has no persistent Camera_tInfo pointer here. Direct indexing lets gcc create
-     * the retail $s0 base only after the merged src.y assignment. */
+    /* SYM has scoped h0/h1/ang but no hval or persistent Camera_tInfo pointer.
+     * Direct src.y arms let gcc create the retail $s0 base only after their merge. */
     transform(&src,(Camera_gInfo[player].anchor->orientMat).m,&des);
     Camera_TunnelLimit(player,&des.y);
     Camera_gInfo[player].position.x = (Camera_gInfo[player].anchor->position).x + des.x;

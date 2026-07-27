@@ -2489,15 +2489,11 @@ void Cars_SortCars(void)
  *  forward vector, (sliceChanged) lap/total-slice; then sort, randomize, leaderboard, anims. */
 void Cars_ManageBureaucracy(void)
 {
-  /* MATCH: 34->20 via `i=0;` BEFORE `ppCar=Cars_gList;` (was reversed) -- oracle colors the
-     simple zero-init counter i->s4 and the address-computed ppCar->s3; our prior decl/assign
-     order got them swapped (s4=ppCar,s3=i). RESIDUAL 20 = the carFlags&4 block's d0/d1 (both
-     fixedmult results summed into `dir`'s guard) get s0/s1 swapped vs oracle (d0->s1,d1->s0,
-     reverse of computation order) + the final `dir` store materializes in v1 not v0 -- tried
-     swapping d0/d1 DECLARATION order (int i,dir,d1,d0,d2), no effect; genuine allocator floor. */
+  /* `i=0` must precede `ppCar=Cars_gList`: retail colors the counter to s4 and
+     the address-computed list cursor to s3. */
   Car_tObj **ppCar;
   Car_tObj *carObj;
-  int i, dir, d0, d1, d2;
+  int i;
 
   i = 0;
   ppCar = Cars_gList;
@@ -2512,22 +2508,18 @@ LAB_mb:
         carObj->currentSpeed = Cars_CalcVelDownRoad(carObj);
       }
       if ((carObj->carFlags & 4U) != 0) {
+        int facing;
+
         carObj->speed = carObj->N.speedXZ;
         if ((unsigned)(carObj->currentSpeed + 0x2ffff) < 0x5ffff) {
-          d0 = fixedmult(carObj->N.orientMat.m[6], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[0]);
-          d1 = fixedmult(carObj->N.orientMat.m[7], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[1]);
-          d2 = fixedmult(carObj->N.orientMat.m[8], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[2]);
-          dir = 1;
-          if (d0 + d1 + d2 < 1) {
-            dir = -1;
-          }
+          facing =
+              fixedmult(carObj->N.orientMat.m[6], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[0]) +
+              fixedmult(carObj->N.orientMat.m[7], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[1]) +
+              fixedmult(carObj->N.orientMat.m[8], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[2]);
+          carObj->direction = (0 < facing) ? 1 : -1;
         } else {
-          dir = -1;
-          if (-1 < carObj->currentSpeed) {
-            dir = 1;
-          }
+          carObj->direction = (-1 < carObj->currentSpeed) ? 1 : -1;
         }
-        carObj->direction = dir;
       }
       if ((signed char)carObj->N.simRoadInfo.sliceChanged != '\0') {
         Cars_FindCurrentLap(carObj);

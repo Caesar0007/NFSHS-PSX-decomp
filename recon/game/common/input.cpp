@@ -574,22 +574,21 @@ char Input_Gear(char currentGear,int numGears)
 int Input_Interface(u_long key,int debounce)
 
 {
-  int iVar1;
-  
   if (debounce == 0) {
-    iVar1 = 1;
-    if ((Input_gInterfaceResults[simGlobal.time32Hz & 0x1f] & 1 << (key)) == 0) {
-      iVar1 = 0;
-    }
+    goto no_debounce;
   }
-  else {
-    iVar1 = 0;
-    if ((Input_gInterfaceResults[simGlobal.time32Hz & 0x1f] & 1 << (key) &
-        ~Input_gInterfaceResults[simGlobal.time32Hz - 1U & 0x1f]) != 0) {
-      return 1;
-    }
+  if ((Input_gInterfaceResults[simGlobal.time32Hz & 0x1f] & 1 << key &
+       ~Input_gInterfaceResults[simGlobal.time32Hz - 1U & 0x1f]) == 0) {
+    goto return_zero;
   }
-  return iVar1;
+  return 1;
+
+no_debounce:
+  if ((Input_gInterfaceResults[simGlobal.time32Hz & 0x1f] & 1 << key) != 0) {
+    return 1;
+  }
+return_zero:
+  return 0;
 }
 
 /* ---- Input_MainExitKey__Fv  [INPUT.CPP:543-544] SLD-VERIFIED ---- */

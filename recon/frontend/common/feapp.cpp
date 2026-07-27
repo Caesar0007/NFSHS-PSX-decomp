@@ -933,7 +933,7 @@ i = inputStartPlayer;
           iVar10 = (i << 0x10) >> 0xe;
           piVar20 = (int *)((int)keyVal + iVar10);
           if (*piVar20 != 0) {
-            dialog = ((tDialogBase *)(i * 4))->GetTopMostDialog();
+            dialog = tDialogBase::GetTopMostDialog();
             demoLoopLastInputTick = iVar4;
             *(int *)((int)ticksAtLastInput + iVar10) = iVar4;
             if ((*piVar20 == 4) && ((this->helpPopup).currentlyOn != 0)) {

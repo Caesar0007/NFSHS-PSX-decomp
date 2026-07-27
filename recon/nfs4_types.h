@@ -3723,7 +3723,7 @@ struct tDialogBase : public tScreen {   /* 144 bytes */
     int InitializeClass();
     static int DrawAllDialogs();
     int HideAllDialogs();
-    int GetTopMostDialog();
+    static int GetTopMostDialog();
     void Hide();
     void Draw();
     void ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command);

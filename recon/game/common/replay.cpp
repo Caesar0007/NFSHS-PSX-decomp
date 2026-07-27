@@ -248,13 +248,14 @@ void Replay_ResetReplay(void)
    * flat block spanning the entire body -- the true source reuses a SINGLE int counter across
    * all three loops below (buffer clear / camera-mode init / ReplayCounter clear), not three
    * separate Ghidra-named ints. The buffer-clear loop's address is a genuine anonymous pointer
-   * walk (oracle strength-reduces base+i into a decrementing pointer, §3.12 #1). */
+   * walk (oracle strength-reduces base+i into a decrementing pointer, §3.12 #1). The camera
+   * loop is source-level Cars_gHumanRaceCarList[i]; gcc strength-reduces that index to the
+   * oracle's incrementing $s2 cursor and hoists it after the GameSetup/ReplayCamera bases. */
   int i;
   char *pBuf;
   int iVar1;
   int *piVar2;
   tReplayCameraModes *cam_walk;
-  Car_tObj **car_walk;
 
   if ((u_int)Replay_ReplayMode < 2) {
     i = 0x5fff;
@@ -269,7 +270,6 @@ void Replay_ResetReplay(void)
   }
   else if (1 < Replay_ReplayMode) {
     i = 0;
-    car_walk = Cars_gHumanRaceCarList;
     Replay_ReplayInterface.pause = 0;
     Replay_ReplayInterface.speed = 2;
     Replay_ReplayGetPtr = 0;
@@ -281,7 +281,7 @@ void Replay_ResetReplay(void)
     do {
       if (numValidCams != 0) {
         if ((GameSetup_gData.commMode == 1) || (i == 0)) {
-          Replay_ReplayFindClosestCamera(i,(int)((*car_walk)->N).simRoadInfo.slice);
+          Replay_ReplayFindClosestCamera(i,(int)Cars_gHumanRaceCarList[i]->N.simRoadInfo.slice);
         }
         iVar1 = 0x13;
       }
@@ -291,7 +291,6 @@ void Replay_ResetReplay(void)
       Replay_ReplayCamera[i].cameraMode = iVar1;
       Replay_ReplayCamera[i].cutToNextCamera = 0;
       i = i + 1;
-      car_walk = car_walk + 1;
     } while (i < 2);
   }
   i = 1;

@@ -231,44 +231,38 @@ int Anim_GetRotPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,ma
 int Anim_GetPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,int *animTicks,
               int *animLength)
 {
-  int iVar1;
-  int *piVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  coorddef local_38;
-  coorddef local_28;
+  Anim_tFrame *animFrames;
+  int animInd0;
+  int animInd1;
+  coorddef objcp0;
+  coorddef objcp1;
+  int interval;
 
-  if ((u_short)animInst->interval - 1 < 400) {
-    iVar4 = (int)animInst->interval;
+  animFrames = (Anim_tFrame *)((char *)animInst + 0xc);
+  if ((u_int)((u_short)animInst->interval - 1) < 400) {
+    interval = (int)animInst->interval;
   }
   else {
-    iVar4 = 6;
+    interval = 6;
   }
-  iVar5 = ticks / iVar4;
-  if (((flags & 2U) == 0) || (iVar1 = 0, iVar5 < animInst->count + -1)) {
-    iVar1 = animInst->count + -1;
-    iVar3 = ticks % iVar4 << 0x10;
-    piVar2 = (int *)((int)animInst + (iVar5 % iVar1) * 0x14 + 0xc);
-    local_38.x = *piVar2;
-    local_38.y = piVar2[1];
-    local_38.z = piVar2[2];
-    piVar2 = (int *)((int)animInst + (iVar5 % iVar1 + 1) * 0x14 + 0xc);
-    local_28.x = *piVar2;
-    local_28.y = piVar2[1];
-    local_28.z = piVar2[2];
-    Quatern_VecInterpolate(&local_38,&local_28,iVar3 / iVar4,pt);
-    if (animTicks != (int *)0x0) {
-      iVar5 = (animInst->count + -1) * iVar4;
-      *animTicks = ticks % iVar5;
-    }
-    iVar1 = 1;
-    if (animLength != (int *)0x0) {
-      *animLength = (animInst->count + -1) * iVar4;
-      iVar1 = 1;
-    }
+  flags &= 2;
+  animInd0 = ticks / interval;
+  if ((flags != 0) && (animInst->count - 1 <= animInd0)) {
+    return 0;
   }
-  return iVar1;
+  animInd0 %= animInst->count - 1;
+  animInd1 = animInd0 + 1;
+  objcp0 = *(coorddef *)&animFrames[animInd0];
+  objcp1 = *(coorddef *)&animFrames[animInd1];
+  Quatern_VecInterpolate(&objcp0,&objcp1,
+                         ((ticks % interval) << 0x10) / interval,pt);
+  if (animTicks != (int *)0x0) {
+    *animTicks = ticks % ((animInst->count - 1) * interval);
+  }
+  if (animLength != (int *)0x0) {
+    *animLength = (animInst->count - 1) * interval;
+  }
+  return 1;
 }
 
 /* ---- AnimScript::AnimScript  [@0x80074360] ---- */

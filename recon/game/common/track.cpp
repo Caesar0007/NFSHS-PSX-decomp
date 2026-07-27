@@ -416,36 +416,36 @@ TrkGetPal_loopTest:
 void Track_ProcessFlipAndUVFlags(int uvFlag,Draw_tPixMap *inputPmx,Draw_tPixMap *outputPmx)
 
 {
+  int pmxProcessCount;
   Draw_tPixMap newPmx [4];
-  int mode;
-  int result_pmx_p;
 
-  result_pmx_p = 0;
+  pmxProcessCount = 0;
   newPmx[0] = *inputPmx;
   if ((uvFlag & 0x10U) != 0) {
-    Texture_CloneUVPmx(newPmx,0,newPmx + 1);
-    result_pmx_p = 1;
+    Texture_CloneUVPmx(&newPmx[0],0,&newPmx[1]);
+    pmxProcessCount = 1;
   }
   if ((uvFlag & 0x40U) != 0) {
-    Texture_CloneUVPmx(newPmx + result_pmx_p,1,newPmx + result_pmx_p + 1);
-    result_pmx_p = result_pmx_p + 1;
+    Texture_CloneUVPmx(&newPmx[pmxProcessCount],1,
+                       &newPmx[pmxProcessCount + 1]);
+    pmxProcessCount = pmxProcessCount + 1;
   }
   if ((uvFlag & 0xeU) != 0) {
     if ((uvFlag & 2U) != 0) {
-      mode = 2;
-      Texture_CloneUVPmx(newPmx + result_pmx_p,mode,newPmx + result_pmx_p + 1);
+      Texture_CloneUVPmx(&newPmx[pmxProcessCount],2,
+                         &newPmx[pmxProcessCount + 1]);
     }
     else if ((uvFlag & 4U) != 0) {
-      mode = 3;
-      Texture_CloneUVPmx(newPmx + result_pmx_p,mode,newPmx + result_pmx_p + 1);
+      Texture_CloneUVPmx(&newPmx[pmxProcessCount],3,
+                         &newPmx[pmxProcessCount + 1]);
     }
     else if ((uvFlag & 8U) != 0) {
-      mode = 4;
-      Texture_CloneUVPmx(newPmx + result_pmx_p,mode,newPmx + result_pmx_p + 1);
+      Texture_CloneUVPmx(&newPmx[pmxProcessCount],4,
+                         &newPmx[pmxProcessCount + 1]);
     }
-    result_pmx_p = result_pmx_p + 1;
+    pmxProcessCount = pmxProcessCount + 1;
   }
-  *outputPmx = newPmx[result_pmx_p];
+  *outputPmx = newPmx[pmxProcessCount];
   return;
 }
 

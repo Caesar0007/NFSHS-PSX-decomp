@@ -905,51 +905,47 @@ void Camera_UpdateBlimpCam(int player)
 /* ---- Camera_SetSplineCam__Fi  [@0x800824c0] ---- */
 void Camera_SetSplineCam(int player)
 {
-  Car_tObj*anchor;
+  Car_tObj *anchor;
   int numSlice;
+  int sliceStep;
   int direction;
-  short sVar1;
-  int iVar2;
-  int iVar3;
-  int *piVar4;
-  int iVar5;
-  short sVar6;
-  int iVar7;
-  BO_tNewtonObj *pBVar8;
-  Camera_tInfo *pCVar9;
-  
-  pCVar9 = Camera_gInfo + player;
-  pBVar8 = pCVar9->anchor;
-  iVar5 = ((0x10000 - camSpeedTable[(u_char)Camera_gInfo[player].splineMode]) * 0xf >> 0x10) + 1;
-  iVar7 = 8;
-  if (iVar5 < 9) {
-    iVar7 = iVar5;
+
+  anchor = (Car_tObj *)Camera_gInfo[player].anchor;
+  numSlice = (0xf * (0x10000 - camSpeedTable[(u_char)Camera_gInfo[player].splineMode])) >> 0x10;
+  sliceStep = 8;
+  if (numSlice + 1 < 9) {
+    sliceStep = numSlice + 1;
   }
+  numSlice = sliceStep;
   if (Replay_ReplayCamera[player].defaultCamera == 0) {
-    iVar5 = fixedmult(Camera_gInfo[player].rotation.m[6],(pBVar8->roadMatrix).m[6]);
-    iVar2 = fixedmult(Camera_gInfo[player].rotation.m[7],(pCVar9->anchor->roadMatrix).m[7]);
-    iVar3 = fixedmult(Camera_gInfo[player].rotation.m[8],(pCVar9->anchor->roadMatrix).m[8]);
-    if (iVar5 + iVar2 + iVar3 < 0) {
-      iVar7 = -iVar7;
+    /* MATCH: preserve the retail int-stride pointer to rotation.m[6]. */
+    int *cameraDirection = (int *)Camera_gInfo + player * 68 + 18;
+    direction = fixedmult(cameraDirection[0],anchor->N.roadMatrix.m[6]);
+    if (direction +
+        fixedmult(cameraDirection[1],
+                  Camera_gInfo[player].anchor->roadMatrix.m[7]) +
+        fixedmult(cameraDirection[2],
+                  Camera_gInfo[player].anchor->roadMatrix.m[8]) < 0) {
+      numSlice = -numSlice;
     }
-    if (pBVar8[1].shadowMat.m[7] < 0) {
-      iVar7 = -iVar7;
+    if (anchor->linearVel_ch.z < 0) {
+      numSlice = -numSlice;
     }
-    if (iVar7 >= 0) {
-      sVar1 = (pBVar8->simRoadInfo).slice;
-      sVar6 = sVar1 + (short)iVar7;
-      if (gNumSlices <= sVar1 + iVar7) {
-        sVar6 = sVar6 - (short)gNumSlices;
+    if (numSlice >= 0) {
+      short anchorSlice = anchor->N.simRoadInfo.slice;
+      short slice = anchorSlice + (short)numSlice;
+      if (gNumSlices <= anchorSlice + numSlice) {
+        slice = slice - (short)gNumSlices;
       }
-      Camera_gInfo[player].slicePos.slice = sVar6;
+      Camera_gInfo[player].slicePos.slice = slice;
     }
     else {
-      sVar1 = (pBVar8->simRoadInfo).slice;
-      sVar6 = sVar1 + (short)iVar7;
-      if (sVar1 + iVar7 < 0) {
-        sVar6 = (short)gNumSlices + sVar6;
+      short anchorSlice = anchor->N.simRoadInfo.slice;
+      short slice = anchorSlice + (short)numSlice;
+      if (anchorSlice + numSlice < 0) {
+        slice = (short)gNumSlices + slice;
       }
-      Camera_gInfo[player].slicePos.slice = sVar6;
+      Camera_gInfo[player].slicePos.slice = slice;
     }
     Camera_gInfo[player].position =
          *(coorddef *)BWorldSm_slices[Camera_gInfo[player].slicePos.slice].center;

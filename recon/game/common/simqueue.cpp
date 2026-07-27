@@ -134,26 +134,27 @@ void SimQueue_SetCurrentInput(int time)
   int masked;
   Input_tResults *pIVar6;
 
+  pIndex = 0;
   masked = time & 0x1fU;
   if (0 < GameSetup_gData.numPlayerRaceCars) {
+    GameSetup_tData *setup;
+
     pIVar6 = output;
+    setup = &GameSetup_gData;
     iVar5 = masked << 2;
-    pIndex = 0;
     do {
       *pIVar6 = *(Input_tResults *)((u_char *)&inputQueue + iVar5);
       pIVar6 = pIVar6 + 1;
-      pIndex = pIndex + 1;
       iVar5 = iVar5 + 0x80;
-    } while (pIndex < GameSetup_gData.numPlayerRaceCars);
+    } while (++pIndex < setup->numPlayerRaceCars);
   }
   if (0 < GameSetup_gData.numPlayerRaceCars) {
     pIndex = 0;
     iVar4 = masked << 2;
     do {
-      *(u_int *)((u_char *)&inputQueue + iVar4 + 0x100) = 0;
-      pIndex = pIndex + 1;
+      inputQueue.Validity[pIndex][masked] = 0;
       iVar4 = iVar4 + 0x80;
-    } while (pIndex < GameSetup_gData.numPlayerRaceCars);
+    } while (++pIndex < GameSetup_gData.numPlayerRaceCars);
   }
   inputQueue.HeadTime = inputQueue.HeadTime + 1;
   return;

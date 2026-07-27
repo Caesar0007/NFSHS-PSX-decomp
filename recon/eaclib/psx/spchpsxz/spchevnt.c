@@ -1,4 +1,4 @@
-/* eaclib/psx/spchpsxz/spchevnt.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 13/16 PASS ***
+/* eaclib/psx/spchpsxz/spchevnt.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 14/16 PASS ***
  *   Indexed queue walks now match SPCH_ClearEventQueue exactly and cut iSPCH_InitEventQueue from 42 to
  *   17 diffs; reconstructing gReparm as one-word callback storage made SPCH_ChooseSpeech PASS.
  *   Remaining FAILs are iSPCH_InitEventQueue(17), SPCH_AddEvent(18), and iSPCH_ChooseEvent(58).
@@ -418,9 +418,14 @@ extern int SPCH_AddEvent(unsigned int *table)
  *     64-4 decomposition instead).
  *   - `& 0xff` on the flag helper and the named `maxAge` block-local (double-read -> the
  *     cse copy) are the remaining EA-source fingerprints, both natural.
- * RESIDUAL 14 = two la-pseudo letter pairs (prologue gVoxEvents-HI/gPreLoadTicks = ours
- * {v1,a0} vs retail {a1,v1}; teardown count-la v1-vs-a1) -- the true caller-saved tie-break
- * remainder.  Probed neutral/worse: init order (24), split now accumulation (14). */
+ * ✅ PASS 120/120 (2026-07-27): the last 14 (two la-pseudo letter pairs) fell when the
+ * teardown's live-count decrement was written through the QUEUE view's own slot 0 --
+ * `gVoxQueue[0]._ovl0--` -- i.e. exactly what the storage overlay IS.  With the arm's la
+ * referencing the same symbol_ref family as the loop cursor, the allocator reproduces
+ * retail's {a1,v1} prologue pair and a1 teardown la.  EA's source evidently decremented
+ * the count through the queue record, not a separate counter symbol.  (One-symbol-only
+ * variant is still WRONG: 26 -- the gVoxEvents/gVoxEventQueue two-view split for
+ * cursor-vs-bestSub stays load-bearing.  u16 maxAge: 65.  Init reorder: 24.) */
 extern int iSPCH_ChooseEvent(void)
 {
     int          winner = -1;
@@ -453,7 +458,7 @@ extern int iSPCH_ChooseEvent(void)
             }
             if (expired || filtered) {
                 slot->enabled = 0;
-                gVoxEvents[0] = gVoxEvents[0] - 1;
+                gVoxQueue[0]._ovl0 = gVoxQueue[0]._ovl0 - 1;
             } else if (bestPri < *(unsigned short *)(event + 4)) {
                 winner  = i;
                 bestSub = ((VoxSlot *)(gVoxEventQueue + winner * 0x3c))->subTick;

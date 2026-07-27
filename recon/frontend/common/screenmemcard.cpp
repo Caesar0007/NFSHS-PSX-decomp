@@ -375,102 +375,126 @@ void tScreenMemcard::PlaceIcons(int i,int fadeval)
 void tScreenMemcard::DrawMemCardStuff(short fadeval)
 
 {
-  short fileIdx;
-  short fadeInc;
-  ushort fade;
-  CARDINFO_def *cardInfo;
-  int idx;
-  int i;
-  
-  cardInfo = MCRD_getcard(this->card);
-  this->pCI = cardInfo;
+  /* MATCH (w37-a9): SYM 8c Function start for this fn (VA 0x80046D60) lists
+     ONLY ONE real local across the WHOLE function (all nested blocks) --
+     `i` REG SHORT. The prior recon's cardInfo/idx/fileIdx/fadeInc/fade were
+     ALL Ghidra-fabricated: `this->pCI` is written straight from
+     MCRD_getcard() (no temp), `idx`/`fileIdx` were the compiler's own
+     short-to-int WIDEN of `i` (sll 16/sra 16, gotcha #14 shift-chain
+     transcription -- `idx=idx>>0x10` / `idx=i*0x10000` / `idx>>0xf` are the
+     widen sequence Ghidra mis-read as a second counter, not real math), and
+     `fade`/`fadeInc` were a temp for a plain `this->fFadeIcon[i] +/- 8`
+     read-modify-write. `i` is SHORT throughout (status code AND every loop
+     counter share the one register). */
+  short i;
+
+  this->pCI = MCRD_getcard(this->card);
   this->cursorPosition = 0;
-  if (this->theNFS4icon == -1) {
+  /* MATCH (w37-a9): DE MORGAN branch-body swap (W36 lever #1) -- the oracle's
+     beq(theNFS4icon==-1) branches OUT to the reset block and falls through
+     inline to count++; write the != arm first so gcc lays it out the same. */
+  if (this->theNFS4icon != -1) {
+    this->count = this->count + 1;
+  }
+  else {
     this->memcardanimframe = 0;
     this->count = 0;
   }
-  else {
-    this->count = this->count + 1;
-  }
   if (this->count == 4) {
     this->count = 0;
-    fileIdx = this->memcardanimframe + 1;
-    this->memcardanimframe = fileIdx;
-    if (0x1d < fileIdx) {
+    this->memcardanimframe = this->memcardanimframe + 1;
+    if (0x1d < this->memcardanimframe) {
       this->memcardanimframe = 0;
     }
   }
-  i = this->pCI->status;
-  if (i == -1) {
+  if (this->pCI->status == -1) {
     this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 1;
     if (this->checkingstart == 0) {
       this->checkingstart = ticks;
     }
-    i = 0x27b;
-    if (800 < ticks - this->checkingstart) {
-      i = 0x27f;
-    }
-    this->fMemCardMessageTextSys = i;
+    this->fMemCardMessageTextSys = (800 < ticks - this->checkingstart) ? 0x27f : 0x27b;
     i = 0;
     if (0 < this->pCI->numfiles) {
-      idx = 0;
       do {
-        idx = idx >> 0x10;
-        if (this->goticon[idx] != '\0') {
-          fileIdx = this->fFadeIcon[idx] + 8;
-          this->fFadeIcon[idx] = fileIdx;
-          if (fileIdx < 0x81) {
-            this->PlaceIcons(idx,fadeval);
+        if (this->goticon[i] != '\0') {
+          this->fFadeIcon[i] = this->fFadeIcon[i] + 8;
+          /* MATCH (w37-a9): DE MORGAN branch-body swap -- oracle branches OUT
+             to PlaceIcons (label EE4) when fFadeIcon<0x81 and falls through
+             inline to the reset block otherwise; write the negated/swapped
+             form so gcc lays it out the same way. */
+          if (0x80 < this->fFadeIcon[i]) {
+            this->fFadeIcon[i] = 0x80;
+            this->goticon[i] = '\0';
+            this->numicon[i] = '\0';
+            this->numblock[i] = '\0';
+            if (this->fMemIconClutId[i] != 0) {
+              Texture_MenuReleaseClutId(this->fMemIconClutId[i]);
+              this->fMemIconClutId[i] = 0;
+            }
           }
           else {
-            this->fFadeIcon[idx] = 0x80;
-            this->goticon[idx] = '\0';
-            this->numicon[idx] = '\0';
-            this->numblock[idx] = '\0';
-            if (this->fMemIconClutId[idx] != 0) {
-              Texture_MenuReleaseClutId(this->fMemIconClutId[idx]);
-              this->fMemIconClutId[idx] = 0;
-            }
+            this->PlaceIcons(i,fadeval);
           }
         }
         i = i + 1;
-        idx = i * 0x10000;
-      } while (i * 0x10000 >> 0x10 < this->pCI->numfiles);
+      } while (i < this->pCI->numfiles);
     }
     goto DrawMC_statusCheckFinal;
   }
-  if (i == -2) {
+  if (this->pCI->status == -2) {
     this->checkingstart = 0;
     this->fMemCardMessageTextSys = 0x288;
     goto DrawMC_statusCheckFinal;
   }
   this->checkingstart = 0;
-  i = 0x27d;
-  if (this->pCI->numfiles == 0) {
-    i = 0x284;
+  if (this->pCI->numfiles != 0) {
+    this->fMemCardMessageTextSys = 0x27d;
   }
-  this->fMemCardMessageTextSys = i;
+  else {
+    this->fMemCardMessageTextSys = 0x284;
+  }
+  /* MATCH (w37-a9): the oracle's fGetNewIcons==0 branch jumps STRAIGHT to
+     the per-file loop (label FD8); the !=0 (else) case falls THROUGH the
+     ready-check loop straight into the same loop with no separate jump --
+     i.e. the label/big-loop is COMMON code physically laid out right AFTER
+     the if/else, reached by fallthrough from the else-arm and by a direct
+     branch from the if-arm.  Writing it that way (label outside, no
+     explicit goto in the else-arm) reproduces the layout; the previous
+     goto-into-if-arm form put the else-arm's content at the wrong
+     (physically later) address. */
   if (this->fGetNewIcons == 0) {
     this->fReadyToGetNewIcons = 0;
+  }
+  else {
+    i = 0;
+    this->fReadyToGetNewIcons = 1;
+    if (0 < this->pCI->numfiles) {
+      do {
+        if (this->fFadeIcon[i] < 0x80) {
+          this->fReadyToGetNewIcons = 0;
+        }
+        i = i + 1;
+      } while (i < this->pCI->numfiles);
+    }
+  }
 DrawMC_perFileLoopTop:
     i = 0;
     if (0 < this->pCI->numfiles) {
       do {
-        fileIdx = (short)i;
         if (this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons != 0) {
           this->ReleaseIcons();
           this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 0;
           this->fGetNewIcons = 0;
           break;
         }
-        if ((this->goticon[fileIdx] == '\0') && (CURRENTLYUSINGMEMCARD == 0)) {
+        if ((this->goticon[i] == '\0') && (CURRENTLYUSINGMEMCARD == 0)) {
           if (this->fGetNewIcons == 0) {
-            this->LoadIcon((int)fileIdx);
+            this->LoadIcon(i);
             goto DrawMC_getNewIconsCheck;
           }
 DrawMC_readyToGetNewIcons:
           if (this->fReadyToGetNewIcons != 0) {
-            this->goticon[fileIdx] = '\0';
+            this->goticon[i] = '\0';
           }
         }
         else {
@@ -478,10 +502,9 @@ DrawMC_getNewIconsCheck:
           if (this->fGetNewIcons != 0) goto DrawMC_readyToGetNewIcons;
         }
         if (CURRENTLYUSINGMEMCARD == 0) {
-          if (this->goticon[fileIdx] != '\0') {
-            if (this->fFadeIcon[fileIdx] == 0) {
-              idx = MCRD_fileexists(this->card,"NFS4");
-              this->theNFS4icon = idx;
+          if (this->goticon[i] != '\0') {
+            if (this->fFadeIcon[i] == 0) {
+              this->theNFS4icon = MCRD_fileexists(this->card,"NFS4");
               if ((this->fMemCardMessageTextSys != 0x27f) && (this->fMemCardMessageTextSys != 0x27b)
                  ) {
                 this->checkingstart = 0;
@@ -500,51 +523,32 @@ DrawMC_getNewIconsCheck:
         }
         else {
 DrawMC_iconActive:
-          if (this->goticon[fileIdx] != '\0') {
+          if (this->goticon[i] != '\0') {
             if ((this->fGetNewIcons == 0) || (this->fReadyToGetNewIcons != 0)) {
-              idx = (i << 0x10) >> 0xf;
-              fade = *(short *)((int)this->fFadeIcon + idx) - 8;
-              *(ushort *)((int)this->fFadeIcon + idx) = fade;
-              if ((int)((uint)fade << 0x10) < 0) {
-                *(u_short *)((int)this->fFadeIcon + idx) = 0;
+              this->fFadeIcon[i] = this->fFadeIcon[i] - 8;
+              if (this->fFadeIcon[i] < 0) {
+                this->fFadeIcon[i] = 0;
               }
             }
             else {
-              fadeInc = this->fFadeIcon[fileIdx] + 8;
-              this->fFadeIcon[fileIdx] = fadeInc;
-              if (0x80 < fadeInc) {
-                this->fFadeIcon[fileIdx] = 0x80;
-                if (this->fMemIconClutId[fileIdx] != 0) {
-                  Texture_MenuReleaseClutId(this->fMemIconClutId[fileIdx]);
-                  this->fMemIconClutId[fileIdx] = 0;
+              this->fFadeIcon[i] = this->fFadeIcon[i] + 8;
+              if (0x80 < this->fFadeIcon[i]) {
+                this->fFadeIcon[i] = 0x80;
+                if (this->fMemIconClutId[i] != 0) {
+                  Texture_MenuReleaseClutId(this->fMemIconClutId[i]);
+                  this->fMemIconClutId[i] = 0;
                 }
-                this->goticon[fileIdx] = '\0';
-                this->numicon[fileIdx] = '\0';
-                this->numblock[fileIdx] = '\0';
+                this->goticon[i] = '\0';
+                this->numicon[i] = '\0';
+                this->numblock[i] = '\0';
               }
             }
-            this->PlaceIcons((int)fileIdx,fadeval);
+            this->PlaceIcons(i,fadeval);
           }
         }
         i = i + 1;
-      } while (i * 0x10000 >> 0x10 < this->pCI->numfiles);
+      } while (i < this->pCI->numfiles);
     }
-  }
-  else {
-    this->fReadyToGetNewIcons = 1;
-    i = 0;
-    if (0 < this->pCI->numfiles) {
-      idx = 0;
-      do {
-        i = i + 1;
-        if (*(short *)((int)this->fFadeIcon + (idx >> 0xf)) < 0x80) {
-          this->fReadyToGetNewIcons = 0;
-        }
-        idx = i * 0x10000;
-      } while (i * 0x10000 >> 0x10 < this->pCI->numfiles);
-      goto DrawMC_perFileLoopTop;
-    }
-  }
   if ((this->fGetNewIcons != 0) && (this->fReadyToGetNewIcons != 0)) {
     this->fGetNewIcons = 0;
   }

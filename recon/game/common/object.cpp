@@ -209,28 +209,28 @@ Trk_SimObject *
 GetSimObj(int objIndex,Object_tSimObjList *objList,int *chunk)
 
 {
-  Group *custom;
-  Group *pThis;
-  int index;
   Trk_SimObject *simObj;
-  
-  custom = Object_customSimObjs;
-  pThis = (Group *)objList->numObjects;
+  int index;
+
+  index = objIndex;
   simObj = (Trk_SimObject *)0x0;
-  if ((int)&pThis->m_num_elements + objList->numObjects2 <= objIndex) {
-    index = (objIndex - (int)pThis) - objList->numObjects2;
+  if (index >= objList->numObjects + objList->numObjects2) {
+    index = index - objList->numObjects - objList->numObjects2;
+    simObj = (Trk_SimObject *)(Object_customSimObjs + 1);
     *chunk = -1;
-    return (Trk_SimObject *)(custom + index * 5 + 1);
+    return simObj + index;
   }
   *chunk = objList->chunk;
-  if (objList->numObjects <= objIndex) {
-    objIndex = objIndex - objList->numObjects;
+  if (objList->numObjects <= index) {
+    index = index - objList->numObjects;
     *chunk = objList->chunk2;
   }
-  if ((Track_chunkList[*chunk].simObjBuf != (Group *)0x0) &&
-     (simObj = (Trk_SimObject *)(Track_chunkList[*chunk].simObjBuf + objIndex * 5 + 1),
-     simObj->type == '\x10')) {
-    simObj = (Trk_SimObject *)0x0;
+  if (Track_chunkList[*chunk].simObjBuf != (Group *)0x0) {
+    simObj = (Trk_SimObject *)(Track_chunkList[*chunk].simObjBuf + 1);
+    simObj += index;
+    if (simObj->type == '\x10') {
+      simObj = (Trk_SimObject *)0x0;
+    }
   }
   return simObj;
 }

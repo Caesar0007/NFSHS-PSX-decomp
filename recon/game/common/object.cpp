@@ -129,28 +129,23 @@ Trk_SimpleInst *
 FindObjInstanceFromSerialNum(Group *group,int index)
 
 {
-  int count;
-  Group *pThis;
   Trk_SimpleInst *objInstance;
-  
-  if (1 < index - 0x7eU) {
-    if ((index & 0x80U) == 0) {
-      count = group->m_num_elements;
-    }
-    else {
-      count = Object_customObjInst->m_num_elements;
-      index = index & 0xffffff7f;
-      group = Object_customObjInst;
-    }
-    if (index < count) {
-      objInstance = (Trk_SimpleInst *)(group + 1);
-      while (index = index - 1, index != 0xffffffff) {
-        objInstance = (Trk_SimpleInst *)((int)&objInstance->size + (int)(short)*(int *)&objInstance->size);
-      }
-      return objInstance;
-    }
+
+  if ((u_int)(index - 126) < 2) {
+    return (Trk_SimpleInst *)0x0;
   }
-  return (Trk_SimpleInst *)0x0;
+  if ((index & 0x80) != 0) {
+    group = Object_customObjInst;
+    index &= ~0x80;
+  }
+  if (index >= group->m_num_elements) {
+    return (Trk_SimpleInst *)0x0;
+  }
+  objInstance = (Trk_SimpleInst *)(group + 1);
+  while (index-- != 0) {
+    objInstance = (Trk_SimpleInst *)((char *)objInstance + objInstance->size);
+  }
+  return objInstance;
 }
 
 

@@ -142,75 +142,58 @@ int Math_VectorLength(coorddef *v)
 {
   u_int vx2s;
   int length;
-  u_int uVar1;
-  u_int uVar2;
-  u_int uVar3;
   u_int vy2s;
-  int iVar4;
   u_int vz2s;
   u_int vz2;
   int vz;
-  int a;
   int vy;
-  int a_00;
   int vx;
-  int a_01;
   int shifts;
-  int iVar5;
   u_int vy2;
   u_int vx2;
-  
-  iVar5 = 0;
-  a_01 = v->x;
-  a_00 = v->y;
-  a = v->z;
-  iVar4 = a_01;
-  if (a_01 < 0) {
-    iVar4 = -a_01;
-  }
+
+  shifts = 0;
+  vx = v->x;
+  vy = v->y;
+  vz = v->z;
   do {
-    if (iVar4 < 0x1000001) {
-      iVar4 = a_00;
-      if (a_00 < 0) {
-        iVar4 = -a_00;
-      }
-      if (iVar4 < 0x1000001) {
-        iVar4 = a;
-        if (a < 0) {
-          iVar4 = -a;
-        }
-        if (iVar4 < 0x1000001) {
-          uVar1 = fixedmult(a_01,a_01);
-          uVar2 = fixedmult(a_00,a_00);
-          uVar3 = fixedmult(a,a);
-          iVar4 = uVar1 + uVar2;
-          for (uVar1 = (uVar1 >> 2) + (uVar2 >> 2) + (uVar3 >> 2); 0x40000000 < uVar1;
-              uVar1 = (uVar1 >> 2) + (uVar2 >> 2) + (uVar3 >> 2)) {
-            a_01 = a_01 >> 1;
-            a_00 = a_00 >> 1;
-            a = a >> 1;
-            iVar5 = iVar5 + 1;
-            uVar1 = fixedmult(a_01,a_01);
-            uVar2 = fixedmult(a_00,a_00);
-            uVar3 = fixedmult(a,a);
-            iVar4 = uVar1 + uVar2;
+    int absV = (vx < 0) ? -vx : vx;
+    if (absV < 0x1000001) {
+      absV = (vy < 0) ? -vy : vy;
+      if (absV < 0x1000001) {
+        absV = (vz < 0) ? -vz : vz;
+        if (absV < 0x1000001) {
+          vx2 = fixedmult(vx,vx);
+          vy2 = fixedmult(vy,vy);
+          vz2 = fixedmult(vz,vz);
+          vx2s = vx2 >> 2;
+          vy2s = vy2 >> 2;
+          vz2s = vz2 >> 2;
+          while (0x40000000 < vx2s + vy2s + vz2s) {
+            vx = vx >> 1;
+            vy = vy >> 1;
+            vz = vz >> 1;
+            shifts = shifts + 1;
+            vx2 = fixedmult(vx,vx);
+            vy2 = fixedmult(vy,vy);
+            vz2 = fixedmult(vz,vz);
+            vx2s = vx2 >> 2;
+            vy2s = vy2 >> 2;
+            vz2s = vz2 >> 2;
           }
-          iVar4 = fixedsqrt(iVar4 + uVar3);
-          for (; iVar5 != 0; iVar5 = iVar5 + -1) {
-            iVar4 = iVar4 << 1;
+          length = fixedsqrt(vx2 + vy2 + vz2);
+          while (shifts != 0) {
+            shifts = shifts - 1;
+            length = length << 1;
           }
-          return iVar4;
+          return length;
         }
       }
     }
-    a_01 = a_01 >> 1;
-    a_00 = a_00 >> 1;
-    a = a >> 1;
-    iVar5 = iVar5 + 1;
-    iVar4 = a_01;
-    if (a_01 < 0) {
-      iVar4 = -a_01;
-    }
+    vx = vx >> 1;
+    vy = vy >> 1;
+    vz = vz >> 1;
+    shifts = shifts + 1;
   } while( true );
 }
 
@@ -220,75 +203,58 @@ int Math_VectorLength2(coorddef *v)
 {
   u_int vx2s;
   int length2;
-  u_int uVar1;
-  u_int uVar2;
-  u_int uVar3;
-  int iVar4;
   u_int vy2s;
   u_int vz2s;
   u_int vz2;
   int vz;
-  int a;
   int vy;
-  int a_00;
   int vx;
-  int a_01;
   int shifts;
-  int iVar5;
   u_int vy2;
   u_int vx2;
-  
-  iVar5 = 0;
-  a_01 = v->x;
-  a_00 = v->y;
-  a = v->z;
-  iVar4 = a_01;
-  if (a_01 < 0) {
-    iVar4 = -a_01;
-  }
+
+  shifts = 0;
+  vx = v->x;
+  vy = v->y;
+  vz = v->z;
   do {
-    if (iVar4 < 0x1000001) {
-      iVar4 = a_00;
-      if (a_00 < 0) {
-        iVar4 = -a_00;
-      }
-      if (iVar4 < 0x1000001) {
-        iVar4 = a;
-        if (a < 0) {
-          iVar4 = -a;
-        }
-        if (iVar4 < 0x1000001) {
-          uVar1 = fixedmult(a_01,a_01);
-          uVar2 = fixedmult(a_00,a_00);
-          uVar3 = fixedmult(a,a);
-          iVar4 = uVar1 + uVar2;
-          for (uVar1 = (uVar1 >> 2) + (uVar2 >> 2) + (uVar3 >> 2); 0x40000000 < uVar1;
-              uVar1 = (uVar1 >> 2) + (uVar2 >> 2) + (uVar3 >> 2)) {
-            a_01 = a_01 >> 1;
-            a_00 = a_00 >> 1;
-            a = a >> 1;
-            iVar5 = iVar5 + 1;
-            uVar1 = fixedmult(a_01,a_01);
-            uVar2 = fixedmult(a_00,a_00);
-            uVar3 = fixedmult(a,a);
-            iVar4 = uVar1 + uVar2;
+    int absV = (vx < 0) ? -vx : vx;
+    if (absV < 0x1000001) {
+      absV = (vy < 0) ? -vy : vy;
+      if (absV < 0x1000001) {
+        absV = (vz < 0) ? -vz : vz;
+        if (absV < 0x1000001) {
+          vx2 = fixedmult(vx,vx);
+          vy2 = fixedmult(vy,vy);
+          vz2 = fixedmult(vz,vz);
+          vx2s = vx2 >> 2;
+          vy2s = vy2 >> 2;
+          vz2s = vz2 >> 2;
+          while (0x40000000 < vx2s + vy2s + vz2s) {
+            vx = vx >> 1;
+            vy = vy >> 1;
+            vz = vz >> 1;
+            shifts = shifts + 1;
+            vx2 = fixedmult(vx,vx);
+            vy2 = fixedmult(vy,vy);
+            vz2 = fixedmult(vz,vz);
+            vx2s = vx2 >> 2;
+            vy2s = vy2 >> 2;
+            vz2s = vz2 >> 2;
           }
-          iVar4 = iVar4 + uVar3;
-          for (; iVar5 != 0; iVar5 = iVar5 + -1) {
-            iVar4 = iVar4 << 2;
+          length2 = vx2 + vy2 + vz2;
+          while (shifts != 0) {
+            shifts = shifts - 1;
+            length2 = length2 << 2;
           }
-          return iVar4;
+          return length2;
         }
       }
     }
-    a_01 = a_01 >> 1;
-    a_00 = a_00 >> 1;
-    a = a >> 1;
-    iVar5 = iVar5 + 1;
-    iVar4 = a_01;
-    if (a_01 < 0) {
-      iVar4 = -a_01;
-    }
+    vx = vx >> 1;
+    vy = vy >> 1;
+    vz = vz >> 1;
+    shifts = shifts + 1;
   } while( true );
 }
 
@@ -296,77 +262,54 @@ int Math_VectorLength2(coorddef *v)
 void Math_NormalizeVector(coorddef *v)
 
 {
-  u_int vy2;
   u_int vx2s;
-  u_int uVar1;
-  u_int uVar2;
-  u_int uVar3;
-  int iVar4;
-  u_int uVar5;
   u_int vy2s;
   u_int vz2s;
   u_int vz2;
   int vx;
-  int iVar6;
   int vy;
-  int a;
   int vz;
-  int a_00;
   int length;
+  u_int vy2;
   u_int vx2;
-  
-  iVar6 = v->x;
-  a = v->y;
-  a_00 = v->z;
-  iVar4 = iVar6;
-  if (iVar6 < 0) {
-    iVar4 = -iVar6;
-  }
+
+  vx = v->x;
+  vy = v->y;
+  vz = v->z;
   do {
-    if (iVar4 < 0x1000001) {
-      iVar4 = a;
-      if (a < 0) {
-        iVar4 = -a;
-      }
-      if (iVar4 < 0x1000001) {
-        iVar4 = a_00;
-        if (a_00 < 0) {
-          iVar4 = -a_00;
-        }
-        if (iVar4 < 0x1000001) {
-          uVar1 = fixedmult(iVar6,iVar6);
-          uVar2 = fixedmult(a,a);
-          uVar3 = fixedmult(a_00,a_00);
-          uVar5 = (uVar1 >> 2) + (uVar2 >> 2) + (uVar3 >> 2);
-          while (0x40000000 < uVar5) {
-            iVar6 = iVar6 >> 1;
-            a = a >> 1;
-            a_00 = a_00 >> 1;
-            uVar1 = fixedmult(iVar6,iVar6);
-            uVar2 = fixedmult(a,a);
-            uVar3 = fixedmult(a_00,a_00);
-            uVar5 = (uVar1 >> 2) + (uVar2 >> 2) + (uVar3 >> 2);
+    if (__builtin_abs(vx) < 0x1000001) {
+      if (__builtin_abs(vy) < 0x1000001) {
+        if (__builtin_abs(vz) < 0x1000001) {
+          vx2 = fixedmult(vx,vx);
+          vy2 = fixedmult(vy,vy);
+          vz2 = fixedmult(vz,vz);
+          vx2s = vx2 >> 2;
+          vy2s = vy2 >> 2;
+          vz2s = vz2 >> 2;
+          while (0x40000000 < vx2s + vy2s + vz2s) {
+            vx = vx >> 1;
+            vy = vy >> 1;
+            vz = vz >> 1;
+            vx2 = fixedmult(vx,vx);
+            vy2 = fixedmult(vy,vy);
+            vz2 = fixedmult(vz,vz);
+            vx2s = vx2 >> 2;
+            vy2s = vy2 >> 2;
+            vz2s = vz2 >> 2;
           }
-          iVar4 = fixedsqrt(uVar1 + uVar2 + uVar3);
-          if (iVar4 != 0) {
-            iVar6 = fixeddiv(iVar6,iVar4);
-            v->x = iVar6;
-            iVar6 = fixeddiv(a,iVar4);
-            v->y = iVar6;
-            iVar4 = fixeddiv(a_00,iVar4);
-            v->z = iVar4;
+          length = fixedsqrt(vx2 + vy2 + vz2);
+          if (length != 0) {
+            v->x = fixeddiv(vx,length);
+            v->y = fixeddiv(vy,length);
+            v->z = fixeddiv(vz,length);
           }
           return;
         }
       }
     }
-    iVar6 = iVar6 >> 1;
-    a = a >> 1;
-    a_00 = a_00 >> 1;
-    iVar4 = iVar6;
-    if (iVar6 < 0) {
-      iVar4 = -iVar6;
-    }
+    vx = vx >> 1;
+    vy = vy >> 1;
+    vz = vz >> 1;
   } while( true );
 }
 
@@ -405,51 +348,25 @@ void Math_QDNormalizeVector(coorddef *v)
   coorddef temp;
   int length;
   int inverse;
-  u_int uVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int local_18;
-  int local_14;
-  int local_10;
-  
-  local_18 = v->x;
-  local_14 = v->y;
-  local_10 = v->z;
-  if (local_18 < 0) {
-    local_18 = -local_18;
+
+  temp = *v;
+  if (temp.x < 0) {
+    temp.x = -temp.x;
   }
-  if (local_14 < 0) {
-    local_14 = -local_14;
+  if (temp.y < 0) {
+    temp.y = -temp.y;
   }
-  if (local_10 < 0) {
-    local_10 = -local_10;
+  if (temp.z < 0) {
+    temp.z = -temp.z;
   }
-  uVar1 = Math_BetterDist(local_18,local_14);
-  iVar2 = Math_BetterDist(uVar1,local_10);
-  if (iVar2 != 0) {
-    iVar2 = rinverse(iVar2);
-    iVar4 = v->x;
-    if (iVar4 < 0) {
-      iVar4 = iVar4 + 0xff;
-    }
-    if (iVar2 < 0) {
-      iVar2 = iVar2 + 0xff;
-    }
-    iVar2 = iVar2 >> 8;
-    iVar3 = v->y;
-    v->x = (iVar4 >> 8) * iVar2;
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0xff;
-    }
-    iVar4 = v->z;
-    v->y = (iVar3 >> 8) * iVar2;
-    if (iVar4 < 0) {
-      iVar4 = iVar4 + 0xff;
-    }
-    v->z = (iVar4 >> 8) * iVar2;
+  length = Math_BetterDist(temp.x,temp.y);
+  length = Math_BetterDist(length,temp.z);
+  if (length != 0) {
+    inverse = rinverse(length);
+    v->x = (v->x / 256) * (inverse / 256);
+    v->y = (v->y / 256) * (inverse / 256);
+    v->z = (v->z / 256) * (inverse / 256);
   }
-  return;
 }
 
 /* ---- Math_fasttransmult__FP10matrixtdefN20  [MATHNFS.CPP:533-584] SLD-VERIFIED ---- */

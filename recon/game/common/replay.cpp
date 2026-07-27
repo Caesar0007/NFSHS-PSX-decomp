@@ -702,33 +702,6 @@ void Replay_GetInterfaceKey(void)
 void Replay_LoadCameraFile(void)
 
 {
-  short sVar1;
-  short sVar2;
-  int *addr;
-  u_int uVar3;
-  Camera_tCamSlot *pCVar4;
-  int *piVar5;
-  int i;
-  int iVar6;
-  char *fmt;
-  int temp;
-  int j;
-  int tu7;
-  int tu8;
-  int iVar7;
-  int iVar8;
-  int iVar9;
-  int iVar10;
-  int iVar11;
-  int iVar12;
-  int tu14;
-  int iVar13;
-  int tu16;
-  int iVar14;
-  int iVar15;
-  int tu19;
-  int iVar16;
-  int tu21;
   Camera_tCamSlot *cameraFile;
   char fname [80];
   int bigFile;
@@ -736,133 +709,63 @@ void Replay_LoadCameraFile(void)
   if (numValidCams == 0) {
     bigFile = 0;
     sprintf(fname,"%scamera.viv",Paths_Paths[8]);
-    piVar5 = &bigFile;
-    FILE_addbigsync(fname,(void *)0x10,100,piVar5);
-    if (GameSetup_gData.reverseTrack == 0) {
-      fmt = "tr%02d.rho";
+    FILE_addbigsync(fname,0x10,100,&bigFile);
+    if (GameSetup_gData.reverseTrack) {
+      sprintf(fname,"tr%02dr.rho",GameSetup_gData.track);
+    } else {
+      sprintf(fname,"tr%02d.rho",GameSetup_gData.track);
     }
-    else {
-      fmt = "tr%02dr.rho";
-    }
-    iVar6 = GameSetup_gData.track;
-    sprintf(fname,fmt,GameSetup_gData.track);
-    addr = (int *)loadfileadrz(fname,(void *)0x0);
+    cameraFile = (Camera_tCamSlot *)loadfileadrz(fname,0);
     numValidCams = 0;
-    FILE_delbigsync((char *)bigFile,(void *)0x64,iVar6,piVar5);
-    iVar6 = 0;
-    pCVar4 = gReplayCameraSlots;
-    do {
-      pCVar4->mode = '\x02';
-      ((u_char *)&(uVar3))[0] = pCVar4->mode;
-      ((u_char *)&(uVar3))[1] = ((char *)(pCVar4))[0x1];
-      (*(u_short *)((u_char *)&(uVar3) + 2)) = pCVar4->fov;
-      iVar6 = iVar6 + 1;
-      pCVar4->slice = -1;
-      uVar3 = uVar3 & 0xfffff9ff;
-      pCVar4->mode = (char)uVar3;
-      ((char *)(pCVar4))[0x1] = (char)(uVar3 >> 8);
-      pCVar4->fov = (short)(uVar3 >> 0x10);
-      pCVar4 = pCVar4 + 1;
-    } while (iVar6 < 0x20);
-    if (addr != (int *)0x0) {
-      pCVar4 = gReplayCameraSlots;
-      piVar5 = addr;
-      do {
-        tu7 = *piVar5;
-        iVar6 = piVar5[1];
-        iVar11 = piVar5[2];
-        iVar14 = piVar5[3];
-        pCVar4->mode = (char)tu7;
-        ((char *)(pCVar4))[0x1] = (char)((u_int)tu7 >> 8);
-        pCVar4->fov = (short)((u_int)tu7 >> 0x10);
-        (pCVar4->pos).x = iVar6;
-        (pCVar4->pos).y = iVar11;
-        (pCVar4->pos).z = iVar14;
-        piVar5 = piVar5 + 4;
-        pCVar4 = (Camera_tCamSlot *)&pCVar4->height;
-      } while (piVar5 != addr + 0x100);
-      iVar6 = 0;
-      pCVar4 = gReplayCameraSlots;
-      do {
-        if (pCVar4->fov == 0) {
-          pCVar4->slice = -1;
+    FILE_delbigsync(bigFile,100);
+    {
+      int i;
+      for (i = 0; i < 32; i++) {
+        gReplayCameraSlots[i].mode = 2;
+        gReplayCameraSlots[i].zoom = 0;
+        gReplayCameraSlots[i].slice = -1;
+      }
+    }
+    if (cameraFile) {
+      int i;
+      int j;
+
+      memcpy(gReplayCameraSlots,cameraFile,sizeof(Camera_tCamSlot) * 32);
+      for (i = 0; i < 32; i++) {
+        if (gReplayCameraSlots[i].fov) {
+          numValidCams++;
+        } else {
+          gReplayCameraSlots[i].slice = -1;
         }
-        else {
-          numValidCams = numValidCams + 1;
-        }
-        pCVar4 = pCVar4 + 1;
-        iVar6 = iVar6 + 1;
-      } while (iVar6 < 0x20);
-      purgememadr(addr);
-      for (iVar6 = 0; iVar11 = 0, iVar6 < 0x1f; iVar6 = iVar6 + 1) {
-        iVar14 = 0x20;
-        pCVar4 = gReplayCameraSlots;
-        for (; iVar11 < 0x1f; iVar11 = iVar11 + 1) {
-          sVar1 = *(short *)((int)&gReplayCameraSlots[0].slice + iVar14);
-          if (((sVar1 < pCVar4->slice) || (pCVar4->slice < 0)) && (-1 < sVar1)) {
-            tu8 = *(int *)pCVar4;
-            iVar8 = (pCVar4->pos).x;
-            iVar12 = (pCVar4->pos).y;
-            iVar15 = (pCVar4->pos).z;
-            iVar7 = pCVar4->height;
-            iVar9 = pCVar4->splineOffset;
-            tu14 = *(int *)&pCVar4->euler;
-            tu19 = *(int *)&(pCVar4->euler).z;
-            iVar10 = *(int *)((int)&gReplayCameraSlots[0].pos.x + iVar14);
-            iVar13 = *(int *)((int)&gReplayCameraSlots[0].pos.y + iVar14);
-            iVar16 = *(int *)((int)&gReplayCameraSlots[0].pos.z + iVar14);
-            *(u_int *)pCVar4 = *(u_int *)(&gReplayCameraSlots[0].mode + iVar14);
-            (pCVar4->pos).x = iVar10;
-            (pCVar4->pos).y = iVar13;
-            (pCVar4->pos).z = iVar16;
-            iVar10 = *(int *)((int)&gReplayCameraSlots[0].splineOffset + iVar14);
-            tu16 = *(int *)((int)&gReplayCameraSlots[0].euler.x + iVar14);
-            tu21 = *(int *)((int)&gReplayCameraSlots[0].euler.z + iVar14);
-            pCVar4->height = *(int *)((int)&gReplayCameraSlots[0].height + iVar14);
-            pCVar4->splineOffset = iVar10;
-            (pCVar4->euler).x = (short)tu16;
-            (pCVar4->euler).y = (short)((u_int)tu16 >> 0x10);
-            *(int *)&(pCVar4->euler).z = tu21;
-            *(int *)(&gReplayCameraSlots[0].mode + iVar14) = tu8;
-            *(int *)((int)&gReplayCameraSlots[0].pos.x + iVar14) = iVar8;
-            *(int *)((int)&gReplayCameraSlots[0].pos.y + iVar14) = iVar12;
-            *(int *)((int)&gReplayCameraSlots[0].pos.z + iVar14) = iVar15;
-            *(int *)((int)&gReplayCameraSlots[0].height + iVar14) = iVar7;
-            *(int *)((int)&gReplayCameraSlots[0].splineOffset + iVar14) = iVar9;
-            *(int *)((int)&gReplayCameraSlots[0].euler.x + iVar14) = tu14;
-            *(int *)((int)&gReplayCameraSlots[0].euler.z + iVar14) = tu19;
+      }
+      purgememadr(cameraFile);
+      for (j = 0; j < 31; j++) {
+        for (i = 0; i < 31; i++) {
+          if (((gReplayCameraSlots[i].slice > gReplayCameraSlots[i + 1].slice) ||
+               (gReplayCameraSlots[i].slice < 0)) &&
+              (gReplayCameraSlots[i + 1].slice >= 0)) {
+            Camera_tCamSlot temp;
+            temp = gReplayCameraSlots[i];
+            gReplayCameraSlots[i] = gReplayCameraSlots[i + 1];
+            gReplayCameraSlots[i + 1] = temp;
           }
-          pCVar4 = pCVar4 + 1;
-          iVar14 = iVar14 + 0x20;
         }
       }
       if (GameSetup_gData.reverseTrack != 0) {
-        iVar6 = numValidCams + -1;
-        pCVar4 = gReplayCameraSlots + iVar6;
-        sVar1 = gReplayCameraSlots[iVar6].slice;
-        iVar11 = iVar6 * 0x20;
-        for (; -1 < iVar6; iVar6 = iVar6 + -1) {
-          sVar2 = sVar1;
-          if (iVar6 != 0) {
-            pCVar4->slice = *(short *)(uncompressed_data + iVar11 + 0x1e);
-            sVar2 = gReplayCameraSlots[0].slice;
+        int temp;
+        temp = gReplayCameraSlots[numValidCams - 1].slice;
+        for (i = numValidCams - 1; i >= 0; i--) {
+          if (i == 0) {
+            gReplayCameraSlots[0].slice = temp;
+          } else {
+            gReplayCameraSlots[i].slice = gReplayCameraSlots[i - 1].slice;
           }
-          gReplayCameraSlots[0].slice = sVar2;
-          pCVar4 = pCVar4 + -1;
-          iVar11 = iVar11 + -0x20;
         }
       }
-      iVar6 = numValidCams;
-      iVar11 = 0;
-      if (0 < numValidCams) {
-        pCVar4 = gReplayCameraSlots;
-        do {
-          iVar11 = iVar11 + 1;
-          (pCVar4->pos).x = (pCVar4->pos).x << 6;
-          (pCVar4->pos).z = (pCVar4->pos).z << 6;
-          (pCVar4->pos).y = (pCVar4->pos).y << 6;
-          pCVar4 = pCVar4 + 1;
-        } while (iVar11 < iVar6);
+      for (i = 0; i < numValidCams; i++) {
+        gReplayCameraSlots[i].pos.x <<= 6;
+        gReplayCameraSlots[i].pos.y <<= 6;
+        gReplayCameraSlots[i].pos.z <<= 6;
       }
     }
   }

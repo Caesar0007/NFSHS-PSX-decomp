@@ -1207,163 +1207,49 @@ void Newton_LimitCarsToDrivableDist(BO_tNewtonObj *newtonObj)
 int Newton_CalcPerpenHeightOfLowestPointFromGround(BO_tNewtonObj *newtonObj,coorddef *normal,coorddef *samplePoint)
 
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int relativeDot;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  int iVar9;
-  int iVar10;
-  int iVar11;
-  int iVar12;
-  int zDir;
-  int yDir;
-  int xDir;
   coorddef basisDots;
+  int xDir;
+  int yDir;
+  int zDir;
   coorddef relativePos;
-  
-  relativeDot = normal->x;
-  if (relativeDot < 0) {
-    relativeDot = relativeDot + 0xff;
+  int relativeDot;
+
+  basisDots.x =
+      ((normal->x / 0x100) * (newtonObj->orientMat.m[0] / 0x100) +
+       (normal->y / 0x100) * (newtonObj->orientMat.m[1] / 0x100) +
+       (normal->z / 0x100) * (newtonObj->orientMat.m[2] / 0x100)) /
+      0x100 * (newtonObj->dimension.x / 0x100);
+  basisDots.y =
+      ((normal->x / 0x100) * (newtonObj->orientMat.m[3] / 0x100) +
+       (normal->y / 0x100) * (newtonObj->orientMat.m[4] / 0x100) +
+       (normal->z / 0x100) * (newtonObj->orientMat.m[5] / 0x100)) /
+      0x100 * (newtonObj->dimension.y / 0x100);
+  basisDots.z =
+      ((normal->x / 0x100) * (newtonObj->orientMat.m[6] / 0x100) +
+       (normal->y / 0x100) * (newtonObj->orientMat.m[7] / 0x100) +
+       (normal->z / 0x100) * (newtonObj->orientMat.m[8] / 0x100)) /
+      0x100 * (newtonObj->dimension.z / 0x100);
+  xDir = -1;
+  if (basisDots.x < 0) {
+    xDir = 1;
   }
-  iVar1 = (newtonObj->orientMat).m[0];
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
+  yDir = -1;
+  if (basisDots.y < 0) {
+    yDir = 1;
   }
-  iVar6 = normal->y;
-  if (iVar6 < 0) {
-    iVar6 = iVar6 + 0xff;
+  zDir = -1;
+  if (basisDots.z < 0) {
+    zDir = 1;
   }
-  iVar2 = (newtonObj->orientMat).m[1];
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  iVar7 = normal->z;
-  if (iVar7 < 0) {
-    iVar7 = iVar7 + 0xff;
-  }
-  iVar3 = (newtonObj->orientMat).m[2];
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  iVar1 = (relativeDot >> 8) * (iVar1 >> 8) + (iVar6 >> 8) * (iVar2 >> 8) +
-          (iVar7 >> 8) * (iVar3 >> 8);
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
-  }
-  iVar6 = (newtonObj->dimension).x;
-  if (iVar6 < 0) {
-    iVar6 = iVar6 + 0xff;
-  }
-  iVar1 = (iVar1 >> 8) * (iVar6 >> 8);
-  iVar6 = normal->x;
-  if (iVar6 < 0) {
-    iVar6 = iVar6 + 0xff;
-  }
-  iVar2 = (newtonObj->orientMat).m[3];
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  iVar7 = normal->y;
-  if (iVar7 < 0) {
-    iVar7 = iVar7 + 0xff;
-  }
-  iVar3 = (newtonObj->orientMat).m[4];
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  iVar8 = normal->z;
-  if (iVar8 < 0) {
-    iVar8 = iVar8 + 0xff;
-  }
-  iVar4 = (newtonObj->orientMat).m[5];
-  if (iVar4 < 0) {
-    iVar4 = iVar4 + 0xff;
-  }
-  iVar6 = (iVar6 >> 8) * (iVar2 >> 8) + (iVar7 >> 8) * (iVar3 >> 8) + (iVar8 >> 8) * (iVar4 >> 8);
-  if (iVar6 < 0) {
-    iVar6 = iVar6 + 0xff;
-  }
-  iVar2 = (newtonObj->dimension).y;
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  iVar6 = (iVar6 >> 8) * (iVar2 >> 8);
-  iVar2 = normal->x;
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  iVar7 = (newtonObj->orientMat).m[6];
-  if (iVar7 < 0) {
-    iVar7 = iVar7 + 0xff;
-  }
-  iVar3 = normal->y;
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  iVar8 = (newtonObj->orientMat).m[7];
-  if (iVar8 < 0) {
-    iVar8 = iVar8 + 0xff;
-  }
-  iVar4 = normal->z;
-  if (iVar4 < 0) {
-    iVar4 = iVar4 + 0xff;
-  }
-  iVar5 = (newtonObj->orientMat).m[8];
-  if (iVar5 < 0) {
-    iVar5 = iVar5 + 0xff;
-  }
-  iVar2 = (iVar2 >> 8) * (iVar7 >> 8) + (iVar3 >> 8) * (iVar8 >> 8) + (iVar4 >> 8) * (iVar5 >> 8);
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  iVar7 = (newtonObj->dimension).z;
-  if (iVar7 < 0) {
-    iVar7 = iVar7 + 0xff;
-  }
-  iVar2 = (iVar2 >> 8) * (iVar7 >> 8);
-  iVar7 = -1;
-  if (iVar1 < 0) {
-    iVar7 = 1;
-  }
-  iVar3 = -1;
-  if (iVar6 < 0) {
-    iVar3 = 1;
-  }
-  iVar8 = -1;
-  if (iVar2 < 0) {
-    iVar8 = 1;
-  }
-  iVar4 = (newtonObj->position).x - samplePoint->x;
-  iVar5 = (newtonObj->position).y - samplePoint->y;
-  iVar12 = (newtonObj->position).z - samplePoint->z;
-  iVar9 = normal->x;
-  if (iVar9 < 0) {
-    iVar9 = iVar9 + 0xff;
-  }
-  if (iVar4 < 0) {
-    iVar4 = iVar4 + 0xff;
-  }
-  iVar10 = normal->y;
-  if (iVar10 < 0) {
-    iVar10 = iVar10 + 0xff;
-  }
-  if (iVar5 < 0) {
-    iVar5 = iVar5 + 0xff;
-  }
-  iVar11 = normal->z;
-  if (iVar11 < 0) {
-    iVar11 = iVar11 + 0xff;
-  }
-  if (iVar12 < 0) {
-    iVar12 = iVar12 + 0xff;
-  }
-  return iVar7 * iVar1 + iVar3 * iVar6 + iVar8 * iVar2 +
-         (iVar9 >> 8) * (iVar4 >> 8) + (iVar10 >> 8) * (iVar5 >> 8) + (iVar11 >> 8) * (iVar12 >> 8);
+  relativePos.x = newtonObj->position.x - samplePoint->x;
+  relativePos.y = newtonObj->position.y - samplePoint->y;
+  relativePos.z = newtonObj->position.z - samplePoint->z;
+  relativeDot =
+      (normal->x / 0x100) * (relativePos.x / 0x100) +
+      (normal->y / 0x100) * (relativePos.y / 0x100) +
+      (normal->z / 0x100) * (relativePos.z / 0x100);
+  return xDir * basisDots.x + yDir * basisDots.y +
+         zDir * basisDots.z + relativeDot;
 }
 
 /* ---- Newton_CalcPerpenHeightOfCenterPointFromGround__FP13BO_tNewtonObjP8coorddefT1  [NEWTON.CPP:1110-1118] SLD-VERIFIED ---- */

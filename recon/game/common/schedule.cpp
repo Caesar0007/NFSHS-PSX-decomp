@@ -83,32 +83,34 @@ void Sched_CleanUpSchedule(Sched_tSchedule *schedule)
 void Sched_AddFunction(Sched_tSchedule *schedule,fn_void *function,void *var1,int priority)
 
 {
-  int iVar1;
-  int iVar3;
   int i;
+  int j;
+  int n;
 
-  i = 0;
-  iVar3 = 0;
   schedule->numFunctions = schedule->numFunctions + 1;
+  i = n = 0;
   if (0 < schedule->numFunctions) {
     do {
-      iVar3 = i;
+      n = i;
       if (priority < schedule->func[i].priority) {
-        iVar1 = schedule->numFunctions + -1;
-        if (iVar3 < iVar1) {
+        j = schedule->numFunctions + -1;
+        if (n < j) {
           do {
-            schedule->func[iVar1] = schedule->func[iVar1 + -1];
-            iVar1 = iVar1 + -1;
-          } while (iVar3 < iVar1);
+            *(Sched_tFunctionSchedule *)
+                ((char *)schedule + j * sizeof(Sched_tFunctionSchedule) + 8) =
+                *(Sched_tFunctionSchedule *)
+                ((char *)schedule + j * sizeof(Sched_tFunctionSchedule) + -8);
+            j = j + -1;
+          } while (i < j);
         }
         break;
       }
-      i = iVar3 + 1;
+      i = n + 1;
     } while (i < schedule->numFunctions);
   }
-  schedule->func[iVar3].priority = priority;
-  schedule->func[iVar3].function = (void *)function;
-  schedule->func[iVar3].var1 = var1;
+  schedule->func[n].priority = priority;
+  schedule->func[n].function = (void *)function;
+  schedule->func[n].var1 = var1;
   return;
 }
 

@@ -95,15 +95,11 @@ void tScreenUserName::DrawBackground()
   char *word;
   int fade;
   uint startY;
+  uint gray;
   short y;
-  int yShift;
   uint lineFade;
   int rowY;
-  int boxY;
   int yAcc;
-  int dseY;
-  int dseFade;
-  int dseAbr;
   char output [2];
   short row;
   short col;
@@ -118,8 +114,8 @@ void tScreenUserName::DrawBackground()
   else if (0x80 < fade) {
     fade = 0x80;
   }
-  startY = (t << 0x10) >> 0x12;
-  if (((0x7f < (int)startY) || (lineFade = 0, 0 < (int)startY)) && (lineFade = startY, 0x80 < (int)startY)) {
+  gray = (t << 0x10) >> 0x12;
+  if (((0x7f < (int)gray) || (lineFade = 0, 0 < (int)gray)) && (lineFade = gray, 0x80 < (int)gray)) {
     lineFade = 0x80;
   }
   if ((x < 0x80) && (x < 1)) {
@@ -131,9 +127,9 @@ void tScreenUserName::DrawBackground()
     }
     this->fTextFade = x;
   }
-  SubtractiveBox(0xf0,boxY,0xc2,0x55,0x80808,0x80808,0,0);
+  SubtractiveBox(0xf0,0x2a,0xc2,0x55,0x80808,0x80808,0,0);
   SubtractiveBox
-            (0xf0,boxY,0xc2,0x55,0,0,0x80808,0x80808);
+            (0xf0,0x7f,0xc2,0x55,0,0,0x80808,0x80808);
   startY = (uint)(ushort)MENUUSERNAME_STARTY;
   row = 0;
   rowY = 0;            /* @0x800125e9 = 0x00 (rodata byte after "zUser%d") */
@@ -142,9 +138,9 @@ void tScreenUserName::DrawBackground()
   do {
     if (menu_kUserNameRows <= row) {
       SubtractiveBox
-                (0xf0,boxY,0xc2,0x55,0x505050,0x505050,0,0);
+                (0xf0,0x2a,0xc2,0x55,0x505050,0x505050,0,0);
       SubtractiveBox
-                (0xf0,boxY,0xc2,0x55,0,0,0x505050,0x505050);
+                (0xf0,0x7f,0xc2,0x55,0,0,0x505050,0x505050);
       x = 0xfc;
       t = 0;
       do {
@@ -166,7 +162,7 @@ void tScreenUserName::DrawBackground()
       t = 0;
       do {
         DrawShapeExtended
-                  (rowY,dseY,dseFade,dseAbr,(int)(short)fade,0,
+                  (t,0,0,0,(int)(short)fade,0,
                    (tDrawShapeExtended *)0x0);
         t = t + 1;
       } while (t * 0x10000 >> 0x10 < 0x20);
@@ -178,8 +174,7 @@ void tScreenUserName::DrawBackground()
     rowY = (int)(short)startY;
     while (ch = this->fRowList[0][(int)col + row * 9], ch != '\0') {
       output[0] = ch;
-      colText = CalcFadeVal(0xb54200,t);
-      yShift = yAcc >> 0x10;
+      colText = CalcFadeVal(0xb54200,this->fTextFade);
       y = (short)((uint)yAcc >> 0x10);
       switch(output[0]) {
       case '!':
@@ -188,7 +183,6 @@ void tScreenUserName::DrawBackground()
       default:
         FETextRender_FullTextRGB
                   (output,x + 8,y,colText,'\x01',2);
-        t = yShift;
         break;
       case '#':
         t = 0x206;

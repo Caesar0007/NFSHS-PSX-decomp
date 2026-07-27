@@ -470,7 +470,11 @@ extern int iSPCH_ChooseEvent(void)
                         winner  = slotIdx;
                         bestAge = age;
                         winSlot = SLOT(slotIdx);
-                        L.bestSub = *(unsigned short *)(winSlot + 0xa);
+                        /* permuter find (output-115, 2026-07-27): the do{}while(0) wrapper
+                         * around this one store is load-bearing for the block layout. */
+                        do {
+                            L.bestSub = *(unsigned short *)(winSlot + 0xa);
+                        } while (0);
                     }
                 }
             }

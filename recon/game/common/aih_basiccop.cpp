@@ -537,74 +537,73 @@ void AIHigh_BasicCop::HandleBlockadeSpeech()
 
 {
   Car_tObj*theCar;
-  int carSlice;
-  int sliceDiff;
-  int checkSlice;
-
-  u_short uVar1;
-
-  u_short uVar2;
-
-  int iVar3;
 
   Speaker *pSVar4;
 
-  Car_tObj *pCVar5;
-
-  int iVar6;
-
-  
-
-  uVar1 = (this->blockade_).blockadeSpeechFlags;
-
   if ((this->blockade_).blockadeSpeechFlags != 0) {
 
-    pCVar5 = ((this->blockade_).target)->carObj_;
+    theCar = ((this->blockade_).target)->GetCarObj();
 
-    if ((pCVar5 == (Car_tObj *)0x0) ||
-
-       (iVar6 = (pCVar5->stats).slice - (this->blockade_).slice, pCVar5->blowout != 0)) {
+    if (theCar == (Car_tObj *)0x0) {
 
       (this->blockade_).blockadeSpeechFlags = 0;
 
     }
 
     else {
+      int carSlice;
+      int sliceDiff;
 
-      iVar3 = iVar6;
+      carSlice = (theCar->stats).slice;
 
-      if (iVar6 < 0) {
+      sliceDiff = carSlice - (this->blockade_).slice;
 
-        iVar3 = -iVar6;
+      if (theCar->blowout != 0) {
+
+        (this->blockade_).blockadeSpeechFlags = 0;
 
       }
 
-      if (iVar3 < 0x21) {
+      else {
 
-        iVar3 = (Cars_topSpeedCap[(pCVar5->render).currentCarType] * 0x1c) / 0x640000;
+        if (__builtin_abs(sliceDiff) < 0x21) {
+          int checkSlice;
 
-        uVar2 = uVar1 | 2;
+          checkSlice =
+              (Cars_topSpeedCap[(theCar->render).currentCarType] * 0x1c) /
+              0x640000;
 
-        if ((iVar6 < iVar3) || (uVar2 = uVar1 | 4, iVar3 < iVar6)) {
+          if (sliceDiff < checkSlice) {
 
-          (this->blockade_).blockadeSpeechFlags = uVar2;
+            (this->blockade_).blockadeSpeechFlags =
+                (this->blockade_).blockadeSpeechFlags | 2;
 
-        }
+          }
 
-        if (((this->blockade_).blockadeSpeechFlags & 6U) == 6) {
+          else if (checkSlice < sliceDiff) {
 
-          pSVar4 = (Speaker *)Speech_Mobile(this->carObj_);
+            (this->blockade_).blockadeSpeechFlags =
+                (this->blockade_).blockadeSpeechFlags | 4;
+
+          }
+
+          if (((this->blockade_).blockadeSpeechFlags & 6U) == 6) {
+
+            pSVar4 = (Speaker *)Speech_Mobile(this->carObj_);
 
           /* manual-vtable slot 7 (raw byte offsets from the oracle jalr/lh -- __vtbl_ptr_type
              is 8 bytes, so a typed _vf[N] index/pointer-add is 8x too large; decay to a byte
              base and use the RAW displacement, §3.12 lever #10). */
-          (**(int (**)(...))((char *)pSVar4->_vf + 0x3c))
+            (**(int (**)(...))((char *)pSVar4->_vf + 0x3c))
 
-                    ((int)&(pSVar4->fPosition).flags + (int)*(short *)((char *)pSVar4->_vf + 0x38));
+                      ((int)&(pSVar4->fPosition).flags +
+                       (int)*(short *)((char *)pSVar4->_vf + 0x38));
 
-          (this->blockade_).blockadeSpeechFlags = 0;
+            (this->blockade_).blockadeSpeechFlags = 0;
 
-          AICop_gRoadBlockState = 2;
+            AICop_gRoadBlockState = 2;
+
+          }
 
         }
 

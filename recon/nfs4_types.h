@@ -2021,6 +2021,7 @@ struct AIHigh_Base {   /* 24 bytes */
     AIHigh_Base() {}
     AIHigh_Base(Car_tObj *carObj);
     ~AIHigh_Base();
+    Car_tObj *GetCarObj() { return carObj_; }
     void StateExecute();
 };
 

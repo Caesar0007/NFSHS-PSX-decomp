@@ -79,6 +79,7 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 # env vars.
 #
 # Recognised keys:
+#   "g_value"            -> override the global -G threshold for this TU.
 #   "jtbl_at_fusion"     -> pass --jtbl-at-fusion to maspsx for this TU only
 #                           (see JTBL_AT_FUSION above).
 #   "no_split_addresses" -> pass -mno-split-addresses to cc1/cc1plus for this
@@ -152,6 +153,9 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 # (w23-a11 investigation); the other 22 jtbl TUs are deliberately absent
 # here (their explicit 5-insn form already matches and must stay untouched).
 PER_TU_FLAGS = {
+    # cars.obj's retail .sdata layout contains the 8-byte "p%s.dat" literal
+    # between rearLimit and Cars_gNumCars, proving this object used -G8.
+    "recon/game/common/cars.cpp":           {"g_value": "8"},
     "recon/game/common/audiocmn.cpp":       {"jtbl_at_fusion": True},  # AudioCmn_SoundCar
     "recon/syslib/psx/libcd/drv.c":       {"jtbl_at_fusion": True},  # CD_get_intr
     "recon/syslib/psx/libgpu/FONT.c":       {"jtbl_at_fusion": True},  # FntPrint
@@ -535,6 +539,7 @@ def compile_cpp(src: Path) -> Path:
     nfs4_types.h uses its self-contained (PsyQ-free) type defs."""
     rel = src.relative_to(ROOT)
     tu_flags = per_tu_flags(src)
+    tu_g_value = str(tu_flags.get("g_value", G_VALUE))
     obj = OUT / (str(rel) + ".o")
     obj.parent.mkdir(parents=True, exist_ok=True)
     i_file = obj.with_suffix(".i")
@@ -548,7 +553,7 @@ def compile_cpp(src: Path) -> Path:
              f"-I{RECON}", src, "-o", i_file])
     if r.returncode:
         sys.exit(f"[cpp++] {rel}\n{r.stderr}")
-    cc1pl_flags = ["-quiet", "-O2", f"-G{G_VALUE}"]
+    cc1pl_flags = ["-quiet", "-O2", f"-G{tu_g_value}"]
     if tu_flags.get("no_delayed_branch"):
         cc1pl_flags.append("-fno-delayed-branch")
     r = run([CC1PL, *cc1pl_flags, i_file, "-o", s_file])
@@ -559,7 +564,7 @@ def compile_cpp(src: Path) -> Path:
 
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
                   "--run-assembler", f"--gnu-as-path={AS}",
-                  *AS_ARCH, f"-G{G_VALUE}", "-I", RECON, "-o", obj]
+                  *AS_ARCH, f"-G{tu_g_value}", "-I", RECON, "-o", obj]
     if JTBL_AT_FUSION or tu_flags.get("jtbl_at_fusion"):
         maspsx_cmd.append("--jtbl-at-fusion")
     # cfront dtor mangling: our CC1PL emits `_._<class>` (NO_DOLLAR_IN_LABEL -> '.'),

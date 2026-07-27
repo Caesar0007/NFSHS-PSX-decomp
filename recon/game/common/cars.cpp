@@ -27,12 +27,6 @@ Car_tObj     *Cars_gSortedList[9];   /* @0x8010fafc  (bss(zero)) */
 Car_tObj     *Cars_gTotalSortedList[9];   /* @0x8010fb20  (bss(zero)) */
 Car_tStats   Cars_gNewCarStatsList[9];   /* @0x8010fb44  (bss(zero)) */
 BO_tNewtonObj InfiniteMassNewton[5];   /* @0x801100e4  (bss(zero)) */
-char         D_8013C7E0[4] = {0,0,0,0};   /* @0x8013c7e0 -- empty NUL string; the carType>=0x1D
-   fallback in Cars_InitializeCarTablesFlagsAndCounters passes its ADDRESS (no load) as an
-   empty-format sprintf arg. Sits in the gap between Camera_gGeomScreen (0x8013c7dc) and
-   frontLimit (0x8013c7e4) confirmed by the oracle's bare lui/addiu (no lw) address materialization. */
-int          frontLimit = 32768;   /* @0x8013c7e4 */
-int          rearLimit = 65536;   /* @0x8013c7e8 */
 int          Cars_gNumCars;   /* @0x8013c7f4  (bss(zero)) */
 int          Cars_gNumRaceCars;   /* @0x8013c7f8  (bss(zero)) */
 int          Cars_gNumAICars;   /* @0x8013c7fc  (bss(zero)) */
@@ -269,7 +263,7 @@ void Cars_InitializeCarTablesFlagsAndCounters(Car_tObj *carObj)
     strcpy(carObj->carNameLocalized,pcVar1);
   }
   else {
-    sprintf(carObj->carNameLocalized,D_8013C7E0);
+    sprintf(carObj->carNameLocalized,"");
   }
   if ((uVar7 & 1) == 0) goto LAB_80086300;
   pvVar2 = PlayerNameExist(Cars_gNumHumanRaceCars);
@@ -356,6 +350,11 @@ LAB_80086300:
   }
   return;
 }
+
+/* The empty format literal above occupies .sdata @0x8013c7e0; alignment then
+   places these two initialized limits at their retail addresses. */
+int frontLimit = 32768;   /* @0x8013c7e4 */
+int rearLimit = 65536;    /* @0x8013c7e8 */
 
 /* ---- Cars_ResetVariablesAfterACollision__FP8Car_tObj  [@0x800865fc] ---- */
 void Cars_ResetVariablesAfterACollision(Car_tObj *carObj)

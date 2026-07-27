@@ -1093,30 +1093,32 @@ void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
 void tPMenu::Draw()
 
 {
+  short item;
   __vtbl_ptr_type (*pa_Var1) [7];
   tPMenuItem *ptVar2;
-  bool bVar3;
-  short item;
   
   this->CheckForDisabled();
-  item = 1;
-  pa_Var1 = this->fItemList[0]->_vf;
+  ptVar2 = this->fItemList[0];
+  pa_Var1 = ptVar2->_vf;
   gPause_CurrentY = 0x62;
-  (*(*pa_Var1)[6].pfn)((int)&this->fItemList[0]->fFlags + (int)(*pa_Var1)[6].delta,0);
+  (*(*pa_Var1)[6].pfn)((int)&ptVar2->fFlags + (int)(*pa_Var1)[6].delta,false);
+  item = 1;
   gPause_CurrentY = 0x75;
   while( true ) {
-    ptVar2 = this->fItemList[item];
-    if (ptVar2 == (tPMenuItem *)0x0) break;
-    if (((ptVar2->fFlags ^ 1) & 1) != 0) {
-      if (this->fHighlight == 0) {
-        pa_Var1 = ptVar2->_vf;
-        bVar3 = false;
+    tPMenuItem *ptVar4;
+
+    ptVar4 = this->fItemList[item];
+    if (ptVar4 == (tPMenuItem *)0x0) break;
+    if (((ptVar4->fFlags ^ 1) & 1) != 0) {
+      if (this->fHighlight != 0) {
+        (*(*ptVar4->_vf)[6].pfn)
+            ((int)&ptVar4->fFlags + (int)(*ptVar4->_vf)[6].delta,
+             (int)item == this->fCurrentItem);
       }
       else {
-        pa_Var1 = ptVar2->_vf;
-        bVar3 = (int)item == this->fCurrentItem;
+        (*(*ptVar4->_vf)[6].pfn)
+            ((int)&ptVar4->fFlags + (int)(*ptVar4->_vf)[6].delta,false);
       }
-      (*(*pa_Var1)[6].pfn)((int)&ptVar2->fFlags + (int)(*pa_Var1)[6].delta,bVar3);
       gPause_CurrentY = gPause_CurrentY + 0xd;
     }
     item = item + 1;

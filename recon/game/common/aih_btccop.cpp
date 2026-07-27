@@ -483,13 +483,6 @@ int AIHigh_BTC_HumanCop::FindRandomBarrierFreeArea(int startSlice,int safetyZone
 {
   int newOffset;
   int newSlice;
-  int maxRuns;
-
-  int slideAmount;
-
-  int startCheckSlice;
-  int leftLaneFree;
-  int rightLaneFree;
 
 
 
@@ -527,19 +520,16 @@ int AIHigh_BTC_HumanCop::FindRandomBarrierFreeArea(int startSlice,int safetyZone
 
   }
 
-  slideAmount = safetyZone / 5;
+  {
+    int maxRuns;
 
-  maxRuns = 0;
+    maxRuns = 0;
+    while (maxRuns < 30) {
+      int startCheckSlice;
+      int leftLaneFree;
+      int rightLaneFree;
 
-  do {
-
-    if (0x1d < maxRuns) {
-
-      return newSlice;
-
-    }
-
-    startCheckSlice = newSlice - safetyZone;
+      startCheckSlice = newSlice - safetyZone;
 
     if (0 <= -safetyZone) {
 
@@ -567,36 +557,31 @@ int AIHigh_BTC_HumanCop::FindRandomBarrierFreeArea(int startSlice,int safetyZone
 
     if ((leftLaneFree != 0) && (rightLaneFree != 0)) {
 
-      return newSlice;
+      break;
 
     }
 
-    newSlice = newSlice + slideAmount;
+    if (0 <= safetyZone / 5) {
 
-    if (0 <= slideAmount) {
-
-      if (gNumSlices <= newSlice) {
-
-        newSlice = newSlice - gNumSlices;
-
-      }
+      newSlice = (newSlice + safetyZone / 5 < gNumSlices) ?
+                 newSlice + safetyZone / 5 :
+                 newSlice + safetyZone / 5 - gNumSlices;
 
     }
 
     else {
 
-      if (newSlice < 0) {
-
-        newSlice = newSlice + gNumSlices;
-
-      }
+      newSlice = (0 <= newSlice + safetyZone / 5) ?
+                 newSlice + safetyZone / 5 :
+                 newSlice + safetyZone / 5 + gNumSlices;
 
     }
 
-    maxRuns = maxRuns + 1;
+      maxRuns++;
+    }
+  }
 
-  } while( true );
-
+  return newSlice;
 }
 
 

@@ -966,7 +966,7 @@ i = inputStartPlayer;
             }
           }
           iVar10 = *(int *)((int)&command[0].type + ((i << 0x10) >> 0xd));
-          if (iVar10 == 0) goto switchD_80014c34_default;
+          if (iVar10 == 0) goto MainLoop_commandSwitchDefault;
           switch(iVar10) {
           case 1:
             AudioCmn_PlayFESFX(0);
@@ -1149,7 +1149,7 @@ MainLoop_carInfoApplied:
             this->PerformMenuDestruction();
             return kApp_Command_StartReplay;
           }
-switchD_80014c34_default:
+MainLoop_commandSwitchDefault:
           i = i + kPlayerTwo;
           goto MainLoop_perPlayerInputTop;
         }

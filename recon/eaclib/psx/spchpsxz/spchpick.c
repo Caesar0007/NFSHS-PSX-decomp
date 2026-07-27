@@ -172,8 +172,9 @@ extern int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int pa
     result = 0;
     goto done;
 valid_count:
-    if (0 < count) {
+    {
         int i = 0;
+    if (0 < count) {
         int p = sample + i;
         /* MATCH (w34-a9, 22 -> 15 diffs, 67 -> 66 insns): `bit` is a LOOP-CARRIED
          * pseudo re-armed to 1 at the bottom of every iteration instead of a fresh
@@ -221,27 +222,42 @@ valid_count:
          * and sinking lowNib's def inside the GetMatchValue guard to shorten its range (74/63 --
          * the byte load moves out of the jal delay slot entirely).  This is now a 1-parameter
          * permuter target on the DEAD-SET form (a strictly better base than the w33 split form,
-         * which needed the same window but also had bit mis-ranked). */
-        unsigned int bit = (unsigned int)result;
+         * which needed the same window but also had bit mis-ranked).
+         * 2026-07-27 inline (15 -> 6 @65/65 EXACT): the dead-set form IS the winner once TWO
+         * ordering levers land on top of it: (1) `bit = one << cycleByte` computed BEFORE
+         * lowNib's def (shaves the one insn out of lowNib's live range that the w35 analysis
+         * said it needed -- lowNib now outranks i and takes $s0); (2) `one = 1` declared
+         * INSIDE the inner block, after the cycleByte guard (matches retail's li-after-beqz
+         * and gives cycleByte the earlier caller-saved reg: sllv $s2,$v1,$a0 exact).  The
+         * loop-carried re-arm `bit = result` is GONE -- the carrier replaces it.
+         * RESIDUAL 6 = ONE web: the pre-loop `p = sample + i` folds (cc1 const-props i=0 ->
+         * `addu v1,s6,zero`; retail keeps `addu v0,s6,s1`) and p colors $v1-vs-$v0 at both
+         * its sites.  i=0 hoisted to fn top: 13 @66 (prologue move) -- reverted.  The
+         * freechan EBB-boundary lever does not reach it (the use is an addu, not a compare,
+         * and the branch distance is too short for cse's path limit). */
         do {
+            unsigned int bit;
             unsigned int cycleByte = *(unsigned char *)(p + 0xc);
             result = 0;
             if (0x1f < cycleByte)
                 goto done;
             {
-                int          lowNib = (int)*(unsigned char *)(phraseTemplate + i + 4) & 0xf;
-                bit = bit << (cycleByte);
+                int lowNib;
+                unsigned int one = 1;
+                bit = one << cycleByte;
+                lowNib = (int)*(unsigned char *)(phraseTemplate + i + 4) & 0xf;
+                one = 0;
                 if ((bit & (unsigned int)iSPCH_GetMatchValue(phraseTemplate, i)) != 0 &&
                     (lowNib == 0 ||
                      (bit & (unsigned int)*(int *)(lowNib * 4 + paramTable)) != 0))
                     result = 1;
             }
-            bit = (unsigned int)result;   /* re-arm to 1; see the note above */
             i = i + 1;
             if (result == 0)
                 goto done;
             p = sample + i;
         } while (i < count);
+    }
     }
 done:
     return result;

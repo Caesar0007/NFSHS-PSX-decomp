@@ -1285,7 +1285,8 @@ GOTBANK:
     if (gaChannel[sndPlayer].SFXnum == iSFXnum) goto RECHECK;
 NEWSOUND:
     {
-      Channels_t *slot2 = &gaChannel[sndPlayer];
+      int nbase = (int)gaChannel;
+      Channels_t *slot2 = (Channels_t *)((sndPlayer << 3) + nbase);
       if (slot2->Partial != -1) {
         SNDstop(slot2->Partial);
         NumSFXOn = NumSFXOn - 1;

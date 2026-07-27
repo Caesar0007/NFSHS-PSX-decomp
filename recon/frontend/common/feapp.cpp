@@ -314,36 +314,35 @@ void tFEApplication::DrawHelpIcons()
 void tFEApplication::Redraw()
 
 {
+  int i;
+  u_char saveFPlayer;
+  short height;
+  char buffer [32];
+  int drenv;
+  u_char *daprim;
+  RECT r;
   int iVar1;
   int musThresh;
-  int drenv;
-  int ti8;
-  int pa_Var9;
-  int ti2;
-  int pa_Var3;
-  int freeHeap_or_buf;
-  __vtbl_ptr_type (*pa_Var2) [11];
-  int pkt_addr24_p2;
+  tMenuCommand emptycommand;
+  tInputKeyType JustOneToPass;
+  tGlobalMenuDefs *globalMenuDefs;
+  tInputKeyType JustOneToPass_l85;
   int curItem;
+  u_char *prev_pkt_p1;
   int pkt_addr24_p1;
   int menu_per_player;
   int parentMenu_p;
   tMenu *curMenu;
+  int ti8;
+  int pa_Var9;
   tMenu *ptVar2;
-  tDialogBase *this_00;
-  int i;
-  short height;
-  char buffer [32];
-  RECT r;
-  tMenuCommand emptycommand;
-  tInputKeyType JustOneToPass;
-  tInputKeyType JustOneToPass_l85;
-  u_char saveFPlayer;
   u_char bVar2;
-  u_char *daprim;
-  tGlobalMenuDefs *globalMenuDefs;
-  u_char *prev_pkt_p1;
-  
+  __vtbl_ptr_type (*pa_Var2) [11];
+  int ti2;
+  int pa_Var3;
+  int freeHeap_or_buf;
+  int pkt_addr24_p2;
+
   saveFPlayer = this->fPlayer;
   FeAudio_systemtask(0);
   Draw_StartFrameRender();
@@ -355,15 +354,14 @@ void tFEApplication::Redraw()
   musThresh = AudioMus_Threshold();
   sprintf(buffer,(char *)(bigBuf + 0x48),iVar1,musThresh);
   FETextRender_FullText(buffer,0x10,0xd7,textType_FramedInfo,textState_Hilighted,0);
-  this_00 = (tDialogBase *)Draw_gPlayer1View;
   drenv = (int)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
-  if (this->fCurrentMenu[1] == (tMenu *)0x0) {
-    height = (short)screenheight;
-  }
-  else {
+  if (this->fCurrentMenu[1] != (tMenu *)0x0) {
     height = (short)((u_int)(screenheight - (screenheight >> 0x1f)) >> 1);
   }
-  (this_00)->DrawAllDialogs();
+  else {
+    height = (short)screenheight;
+  }
+  tDialogBase::DrawAllDialogs();
   this->DrawHelpIcons();
   globalMenuDefs = menuDefs[0];
   if ((gPadinfo.buf[0].nopad == '\0') && (gPadinfo.buf[4].nopad == '\0')) {
@@ -935,7 +933,7 @@ i = inputStartPlayer;
           iVar10 = (i << 0x10) >> 0xe;
           piVar20 = (int *)((int)keyVal + iVar10);
           if (*piVar20 != 0) {
-            dialog = ((tDialogBase *)(i * 4))->GetTopMostDialog();
+            dialog = tDialogBase::GetTopMostDialog();
             demoLoopLastInputTick = iVar4;
             *(int *)((int)ticksAtLastInput + iVar10) = iVar4;
             if ((*piVar20 == 4) && ((this->helpPopup).currentlyOn != 0)) {
@@ -968,7 +966,7 @@ i = inputStartPlayer;
             }
           }
           iVar10 = *(int *)((int)&command[0].type + ((i << 0x10) >> 0xd));
-          if (iVar10 == 0) goto switchD_80014c34_default;
+          if (iVar10 == 0) goto MainLoop_commandSwitchDefault;
           switch(iVar10) {
           case 1:
             AudioCmn_PlayFESFX(0);
@@ -1151,7 +1149,7 @@ MainLoop_carInfoApplied:
             this->PerformMenuDestruction();
             return kApp_Command_StartReplay;
           }
-switchD_80014c34_default:
+MainLoop_commandSwitchDefault:
           i = i + kPlayerTwo;
           goto MainLoop_perPlayerInputTop;
         }

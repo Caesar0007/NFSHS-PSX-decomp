@@ -103,62 +103,48 @@ DrawTVLines_writeWide:
 void DrawTV(tTVConfig &tv)
 
 {
-  bool bVar1;
-  short ts10;
-  short ts11;
-  short ts4;
-  short ts5;
-  short ts13;
-  int rng_word;
-  int noise_select;
-  short ts12;
-  int pkt_addr24_a;
+  POLY_FT4 *texture;
+  POLY_GT4 *reflection;
+  tTexture_ShapeInfo *noise;
+  short videoX;
+  short videoY;
+  short videoWidth;
+  short videoHeight;
+  short fadeTop;
+  short fadeBottom;
+  u_long tint;
+  short bright;
+  bool do_tint;
+  int newTransition;
   short destBright_us;
   int destBright_int;
   int state;
-  int pkt_addr24_b;
+  u_char bVar4;
+  u_int depth;
+  int adj;
   u_int tu15;
-  int ti16;
-  int transStep_or_brt;
-  int ti17;
   int tu18;
-  int destBrightness;
   u_int tu21;
-  short tu17;
   int ti10;
   short ts20;
-  int videoY_2;
-  int tvY;
-  short tu20;
-  int tint_2;
   u_int tu24;
-  u_char do_tint;
-  short tu1;
-  short ts1;
-  u_char bVar4;
-  u_short tu2;
-  u_short tu3;
-  u_char *prev_pkt_b;
-  tTexture_ShapeInfo *noiseShape;
-  u_char *cur_pkt_a;
-  u_char *tp10;
-  u_short tu4;
-  
-  rng_word = rand();
-  noiseShape = gHelpShapes;
-  noise_select = rng_word & 3;
-  destBrightness = (int)tv.destBrightness;
-  tint_2 = tv.tint;
-  ts1 = tv.x;
-  tu2 = tv.y;
-  tvY = (int)tu2;
-  ts13 = tv.w;
-  tu3 = tv.h;
-  bVar1 = (tv.flags & 2) == 0;
-  if (bVar1) {
-    tint_2 = 0x808080;
+  u_char *prevPkt;
+  u_int pkt_addr24;
+  short tu17;
+  short tu4;
+
+  noise = &gHelpShapes[(rand() & 3) + 0x22];
+  bright = tv.destBrightness;
+  tint = tv.tint;
+  videoX = tv.x;
+  videoY = tv.y;
+  videoWidth = tv.w;
+  videoHeight = tv.h;
+  do_tint = true;
+  if ((tv.flags & 2) == 0) {
+    tint = 0x808080;
+    do_tint = false;
   }
-  do_tint = (u_int)!bVar1;
   destBright_us = tv.destBrightness;
   destBright_int = (int)(u_short)destBright_us;
   if (tv.transition == destBright_int) {
@@ -166,10 +152,10 @@ DrawTV_stateFetch:
     state = tv.state;
   }
   else {
-    if ((tv.transition < destBright_int) && (ts12 = tv.transition + 4, tv.state - tv_StateOn < 2)
-       ) {
-      tv.transition = ts12;
-      bVar4 = destBright_int < ts12;
+    if ((tv.transition < destBright_int) &&
+        (newTransition = tv.transition + 4, tv.state - tv_StateOn < 2)) {
+      tv.transition = newTransition;
+      bVar4 = destBright_int < newTransition;
 DrawTV_brightStep:
       if ((bool)bVar4) {
         tv.transition = destBright_us;
@@ -179,20 +165,20 @@ DrawTV_brightStep:
     state = tv.state;
     if ((state == tv_TransitionOff) || (state == tv_StateOn)) {
       destBright_us = tv.destBrightness;
-      ts12 = tv.transition + -8;
-      tv.transition = ts12;
-      bVar4 = (int)ts12 < (int)(u_int)(u_short)destBright_us;
+      newTransition = tv.transition + -8;
+      tv.transition = newTransition;
+      bVar4 = (int)newTransition < (int)(u_int)(u_short)destBright_us;
       goto DrawTV_brightStep;
     }
   }
   if (state == tv_StateOn) {
 DrawTV_stateOn:
-    tu4 = tv.destBrightness;
+    bright = tv.destBrightness;
   }
   else {
     if (state < 2) {
       if (state != tv_StateOff) {
-        pkt_addr24_a = (u_int)tint_2 >> 0x10 & 0xff;
+        fadeTop = (short)((u_int)tint >> 0x10 & 0xff);
         goto DrawTV_emitTinted;
       }
       goto DrawTV_stateOn;
@@ -204,7 +190,7 @@ DrawTV_stateOn:
     }
     else {
       if (state != tv_TransitionOff) {
-        pkt_addr24_a = (u_int)tint_2 >> 0x10 & 0xff;
+        fadeTop = (short)((u_int)tint >> 0x10 & 0xff);
         goto DrawTV_emitTinted;
       }
       if ((int)tv.transition == (u_int)tv.destBrightness) {
@@ -212,249 +198,229 @@ DrawTV_stateOn:
       }
     }
     do_tint = 1;
-    tu4 = tv.transition;
+    bright = tv.transition;
   }
-  destBrightness = (int)tu4;
-  pkt_addr24_a = (u_int)tint_2 >> 0x10 & 0xff;
+  fadeTop = (short)((u_int)tint >> 0x10 & 0xff);
 DrawTV_emitTinted:
-  videoY_2 = (destBrightness << 0x10) >> 0x10;
-  tu18 = (tint_2 & 0xffU) * videoY_2 >> 7;
-  tu24 = ((u_int)(pkt_addr24_a * videoY_2) >> 7) << 0x10 |
-         (((u_int)tint_2 >> 8 & 0xff) * videoY_2 >> 7) << 8 | tu18;
+  tu18 = (tint & 0xffU) * bright >> 7;
+  tu24 = ((u_int)(fadeTop * bright) >> 7) << 0x10 |
+         (((u_int)tint >> 8 & 0xff) * bright >> 7) << 8 | tu18;
   if ((tv.flags & 8) == 0) {
     DrawTVLines(tv);
   }
-  tp10 = Render_gPacketPtr;
-  cur_pkt_a = Render_gPalettePtr;
+  texture = (POLY_FT4 *)Render_gPacketPtr;
+  prevPkt = Render_gPalettePtr;
   if ((tv.flags & 0x10) == 0) {
     if (tv.state != tv_StateOn) {
       *(u_int *)Render_gPacketPtr =
            *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      pkt_addr24_b = (u_int)Render_gPacketPtr & 0xffffff;
+      pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
       Render_gPacketPtr = Render_gPacketPtr + 0x28;
-      *(u_int *)cur_pkt_a = *(u_int *)cur_pkt_a & 0xff000000 | pkt_addr24_b;
-      tu15 = 0x40 - ((destBrightness << 0x10) >> 0x11);
-      *(u_int *)(tp10 + 4) = tu15 * 0x10000 | tu15 * 0x100 | tu15;
-      SetPolyFT4((POLY_FT4 *)tp10);
-      SetSemiTrans(tp10,1);
-      SetShadeTex(tp10,0);
-      *(short *)(tp10 + 8) = ts1;
-      *(u_short *)(tp10 + 10) = tu2;
-      *(u_short *)(tp10 + 0x12) = tu2;
-      *(short *)(tp10 + 0x18) = ts1;
-      *(short *)(tp10 + 0x10) = ts1 + ts13;
-      *(short *)(tp10 + 0x20) = ts1 + ts13;
-      tu20 = (short)(tvY + (u_int)tu3);
-      *(short *)(tp10 + 0x1a) = tu20;
-      *(short *)(tp10 + 0x22) = tu20;
-      tu15 = (u_int)(u_char)noiseShape[noise_select + 0x22].depth;
-      ti16 = ((int)noiseShape[noise_select + 0x22].shapex -
-             (int)(short)(noiseShape[noise_select + 0x22].shapex & 0xffc0)) * 0x10;
-      tp10[0xc] = (char)(ti16 / (int)tu15);
-      tp10[0xd] = (char)noiseShape[noise_select + 0x22].shapey;
-      tu15 = (u_int)(u_char)noiseShape[noise_select + 0x22].depth;
-      transStep_or_brt =
-           ((int)noiseShape[noise_select + 0x22].shapex -
-           (int)(short)(noiseShape[noise_select + 0x22].shapex & 0xffc0)) * 0x10;
-      tp10[0x14] = (char)noiseShape[noise_select + 0x22].width +
-                   (char)(transStep_or_brt / (int)tu15);
-      tp10[0x15] = (char)noiseShape[noise_select + 0x22].shapey;
-      tu15 = (u_int)(u_char)noiseShape[noise_select + 0x22].depth;
-      ti17 = ((int)noiseShape[noise_select + 0x22].shapex -
-             (int)(short)(noiseShape[noise_select + 0x22].shapex & 0xffc0)) * 0x10;
-      tp10[0x1c] = (char)(ti17 / (int)tu15);
-      tp10[0x1d] = (char)noiseShape[noise_select + 0x22].height +
-                   (char)noiseShape[noise_select + 0x22].shapey;
-      tu15 = (u_int)(u_char)noiseShape[noise_select + 0x22].depth;
-      ti17 = ((int)noiseShape[noise_select + 0x22].shapex -
-             (int)(short)(noiseShape[noise_select + 0x22].shapex & 0xffc0)) * 0x10;
-      tp10[0x24] = (char)noiseShape[noise_select + 0x22].width + (char)(ti17 / (int)tu15);
-      tp10[0x25] = (char)noiseShape[noise_select + 0x22].height +
-                   (char)noiseShape[noise_select + 0x22].shapey;
-      *(u_short *)(tp10 + 0x16) =
-           ((u_char)(*((u_char *)&noiseShape[noise_select + 0x22] + 9)) & 3) << 7 |
-           (short)(noiseShape[noise_select + 0x22].shapey & 0x100U) >> 4 | 0x60U |
-           (u_short)(((u_short)noiseShape[noise_select + 0x22].shapex & 0x3c0) >> 6) |
-           (noiseShape[noise_select + 0x22].shapey & 0x200U) << 2;
-      ts10 = GetClut((noiseShape[noise_select + 0x22].clutID & 0x3fU) << 4,
-                        noiseShape[noise_select + 0x22].clutID >> 6);
-      *(short *)(tp10 + 0xe) = ts10;
-      prev_pkt_b = Render_gPacketPtr;
-      cur_pkt_a = Render_gPalettePtr;
+      *(u_int *)prevPkt = *(u_int *)prevPkt & 0xff000000 | pkt_addr24;
+      tu15 = 0x40 - (bright >> 1);
+      *(u_int *)((u_char *)texture + 4) = tu15 * 0x10000 | tu15 * 0x100 | tu15;
+      SetPolyFT4(texture);
+      SetSemiTrans(texture,1);
+      SetShadeTex(texture,0);
+      *(short *)((u_char *)texture + 8) = videoX;
+      *(u_short *)((u_char *)texture + 10) = videoY;
+      *(u_short *)((u_char *)texture + 0x12) = videoY;
+      *(short *)((u_char *)texture + 0x18) = videoX;
+      *(short *)((u_char *)texture + 0x10) = videoX + videoWidth;
+      *(short *)((u_char *)texture + 0x20) = videoX + videoWidth;
+      *(short *)((u_char *)texture + 0x1a) = (short)(videoY + (u_int)videoHeight);
+      *(short *)((u_char *)texture + 0x22) = (short)(videoY + (u_int)videoHeight);
+      depth = (u_int)(u_char)noise->depth;
+      adj = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10;
+      ((u_char *)texture)[0xc] = (char)(adj / (int)depth);
+      ((u_char *)texture)[0xd] = (char)noise->shapey;
+      depth = (u_int)(u_char)noise->depth;
+      adj = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10;
+      ((u_char *)texture)[0x14] = (char)noise->width + (char)(adj / (int)depth);
+      ((u_char *)texture)[0x15] = (char)noise->shapey;
+      depth = (u_int)(u_char)noise->depth;
+      adj = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10;
+      ((u_char *)texture)[0x1c] = (char)(adj / (int)depth);
+      ((u_char *)texture)[0x1d] = (char)noise->height + (char)noise->shapey;
+      depth = (u_int)(u_char)noise->depth;
+      adj = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10;
+      ((u_char *)texture)[0x24] = (char)noise->width + (char)(adj / (int)depth);
+      ((u_char *)texture)[0x25] = (char)noise->height + (char)noise->shapey;
+      *(u_short *)((u_char *)texture + 0x16) =
+           ((u_char)(*((u_char *)noise + 9)) & 3) << 7 |
+           (short)(noise->shapey & 0x100U) >> 4 | 0x60U |
+           (u_short)(((u_short)noise->shapex & 0x3c0) >> 6) |
+           (noise->shapey & 0x200U) << 2;
+      *(short *)((u_char *)texture + 0xe) =
+           GetClut((noise->clutID & 0x3fU) << 4, noise->clutID >> 6);
+      reflection = (POLY_GT4 *)Render_gPacketPtr;
+      prevPkt = Render_gPalettePtr;
       if ((tv.flags & 4) != 0) {
-        ti17 = ((u_int)tv.flip_axis - tvY) + 1;
-        if (ti17 * 0x10000 < 0) {
-          ti17 = -ti17;
+        adj = ((u_int)tv.flip_axis - videoY) + 1;
+        if (adj * 0x10000 < 0) {
+          adj = -adj;
         }
-        ts12 = (short)(ti17 << 1);
-        if (0x80 < (ti17 << 0x11) >> 0x10) {
-          ts12 = 0x80;
+        fadeTop = (short)(adj << 1);
+        if (0x80 < (adj << 0x11) >> 0x10) {
+          fadeTop = 0x80;
         }
-        ti17 = ((u_int)tv.flip_axis - (tvY + (u_int)tu3)) + 1;
-        if (ti17 * 0x10000 < 0) {
-          ti17 = -ti17;
+        adj = ((u_int)tv.flip_axis - (videoY + (u_int)videoHeight)) + 1;
+        if (adj * 0x10000 < 0) {
+          adj = -adj;
         }
-        ts11 = (short)(ti17 << 1);
-        if (0x80 < (ti17 << 0x11) >> 0x10) {
-          ts11 = 0x80;
+        fadeBottom = (short)(adj << 1);
+        if (0x80 < (adj << 0x11) >> 0x10) {
+          fadeBottom = 0x80;
         }
-        ti17 = (0x80 - videoY_2) * (0x80 - ts12);
+        adj = (0x80 - bright) * (0x80 - fadeTop);
         *(u_int *)Render_gPacketPtr =
              *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
         tu15 = (u_int)Render_gPacketPtr & 0xffffff;
         Render_gPacketPtr = Render_gPacketPtr + 0x34;
-        *(u_int *)cur_pkt_a = *(u_int *)cur_pkt_a & 0xff000000 | tu15;
-        if (ti17 < 0) {
-          ti17 = ti17 + 0x7f;
+        *(u_int *)prevPkt = *(u_int *)prevPkt & 0xff000000 | tu15;
+        if (adj < 0) {
+          adj = adj + 0x7f;
         }
-        tu15 = ti17 >> 7;
-        ti17 = (0x80 - videoY_2) * (0x80 - ts11);
+        tu15 = adj >> 7;
+        adj = (0x80 - bright) * (0x80 - fadeBottom);
         tu15 = tu15 << 0x10 | tu15 << 8 | tu15;
-        *(u_int *)(prev_pkt_b + 0x10) = tu15;
-        *(u_int *)(prev_pkt_b + 4) = tu15;
-        if (ti17 < 0) {
-          ti17 = ti17 + 0x7f;
+        *(u_int *)((u_char *)reflection + 0x10) = tu15;
+        *(u_int *)((u_char *)reflection + 4) = tu15;
+        if (adj < 0) {
+          adj = adj + 0x7f;
         }
-        tu15 = ti17 >> 7;
+        tu15 = adj >> 7;
         tu15 = tu15 << 0x10 | tu15 << 8 | tu15;
-        *(u_int *)(prev_pkt_b + 0x28) = tu15;
-        *(u_int *)(prev_pkt_b + 0x1c) = tu15;
-        prev_pkt_b[7] = 0x3e;
-        prev_pkt_b[3] = 0xc;
-        *(short *)(prev_pkt_b + 8) = ts1;
-        tu1 = tv.flip_axis;
-        *(short *)(prev_pkt_b + 0x14) = ts1 + ts13;
-        *(u_short *)(prev_pkt_b + 10) = tu1 * 2 - tu2;
-        tu4 = tv.flip_axis;
-        *(short *)(prev_pkt_b + 0x20) = ts1;
-        *(u_short *)(prev_pkt_b + 0x16) = tu4 * 2 - tu2;
-        tu4 = tv.flip_axis;
-        *(short *)(prev_pkt_b + 0x2c) = ts1 + ts13;
-        *(u_short *)(prev_pkt_b + 0x22) = (tu4 * 2 - tu2) - tu3;
-        *(u_short *)(prev_pkt_b + 0x2e) = (tv.flip_axis * 2 - tu2) - tu3;
-        tu15 = (u_int)(u_char)noiseShape[noise_select + 0x22].depth;
-        ti17 = ((int)noiseShape[noise_select + 0x22].shapex -
-               (int)(short)(noiseShape[noise_select + 0x22].shapex & 0xffc0)) * 0x10;
-        prev_pkt_b[0xc] = (char)(ti17 / (int)tu15);
-        prev_pkt_b[0xd] = (char)noiseShape[noise_select + 0x22].shapey + -1;
-        tu15 = (u_int)(u_char)noiseShape[noise_select + 0x22].depth;
-        ti17 = ((int)noiseShape[noise_select + 0x22].shapex -
-               (int)(short)(noiseShape[noise_select + 0x22].shapex & 0xffc0)) * 0x10;
-        prev_pkt_b[0x18] = (char)noiseShape[noise_select + 0x22].width + (char)(ti17 / (int)tu15);
-        prev_pkt_b[0x19] = (char)noiseShape[noise_select + 0x22].shapey + -1;
-        tu15 = (u_int)(u_char)noiseShape[noise_select + 0x22].depth;
-        ti17 = ((int)noiseShape[noise_select + 0x22].shapex -
-               (int)(short)(noiseShape[noise_select + 0x22].shapex & 0xffc0)) * 0x10;
-        prev_pkt_b[0x24] = (char)(ti17 / (int)tu15);
-        prev_pkt_b[0x25] =
-             (char)noiseShape[noise_select + 0x22].height +
-             (char)noiseShape[noise_select + 0x22].shapey + -1;
-        tu15 = (u_int)(u_char)noiseShape[noise_select + 0x22].depth;
-        ti17 = ((int)noiseShape[noise_select + 0x22].shapex -
-               (int)(short)(noiseShape[noise_select + 0x22].shapex & 0xffc0)) * 0x10;
-        prev_pkt_b[0x30] = (char)noiseShape[noise_select + 0x22].width + (char)(ti17 / (int)tu15);
-        prev_pkt_b[0x31] =
-             (char)noiseShape[noise_select + 0x22].height +
-             (char)noiseShape[noise_select + 0x22].shapey + -1;
-        *(u_short *)(prev_pkt_b + 0x1a) =
-             ((u_char)(*((u_char *)&noiseShape[noise_select + 0x22] + 9)) & 3) << 7 |
-             (short)(noiseShape[noise_select + 0x22].shapey & 0x100U) >> 4 | 0x60U |
-             (u_short)(((u_short)noiseShape[noise_select + 0x22].shapex & 0x3c0) >> 6) |
-             (noiseShape[noise_select + 0x22].shapey & 0x200U) << 2;
-        ts4 = GetClut((noiseShape[noise_select + 0x22].clutID & 0x3fU) << 4,
-                         noiseShape[noise_select + 0x22].clutID >> 6);
-        *(short *)(prev_pkt_b + 0xe) = ts4;
+        *(u_int *)((u_char *)reflection + 0x28) = tu15;
+        *(u_int *)((u_char *)reflection + 0x1c) = tu15;
+        ((u_char *)reflection)[7] = 0x3e;
+        ((u_char *)reflection)[3] = 0xc;
+        *(short *)((u_char *)reflection + 8) = videoX;
+        *(short *)((u_char *)reflection + 0x14) = videoX + videoWidth;
+        *(u_short *)((u_char *)reflection + 10) = (u_short)(tv.flip_axis * 2 - videoY);
+        *(short *)((u_char *)reflection + 0x20) = videoX;
+        *(u_short *)((u_char *)reflection + 0x16) = (u_short)(tv.flip_axis * 2 - videoY);
+        *(short *)((u_char *)reflection + 0x2c) = videoX + videoWidth;
+        *(u_short *)((u_char *)reflection + 0x22) =
+             (u_short)((tv.flip_axis * 2 - videoY) - videoHeight);
+        *(u_short *)((u_char *)reflection + 0x2e) =
+             (u_short)((tv.flip_axis * 2 - videoY) - videoHeight);
+        depth = (u_int)(u_char)noise->depth;
+        adj = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10;
+        ((u_char *)reflection)[0xc] = (char)(adj / (int)depth);
+        ((u_char *)reflection)[0xd] = (char)noise->shapey + -1;
+        depth = (u_int)(u_char)noise->depth;
+        adj = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10;
+        ((u_char *)reflection)[0x18] = (char)noise->width + (char)(adj / (int)depth);
+        ((u_char *)reflection)[0x19] = (char)noise->shapey + -1;
+        depth = (u_int)(u_char)noise->depth;
+        adj = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10;
+        ((u_char *)reflection)[0x24] = (char)(adj / (int)depth);
+        ((u_char *)reflection)[0x25] =
+             (char)noise->height + (char)noise->shapey + -1;
+        depth = (u_int)(u_char)noise->depth;
+        adj = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10;
+        ((u_char *)reflection)[0x30] = (char)noise->width + (char)(adj / (int)depth);
+        ((u_char *)reflection)[0x31] =
+             (char)noise->height + (char)noise->shapey + -1;
+        *(u_short *)((u_char *)reflection + 0x1a) =
+             ((u_char)(*((u_char *)noise + 9)) & 3) << 7 |
+             (short)(noise->shapey & 0x100U) >> 4 | 0x60U |
+             (u_short)(((u_short)noise->shapex & 0x3c0) >> 6) |
+             (noise->shapey & 0x200U) << 2;
+        *(short *)((u_char *)reflection + 0xe) =
+             GetClut((noise->clutID & 0x3fU) << 4, noise->clutID >> 6);
       }
     }
-    tp10 = Render_gPacketPtr;
-    cur_pkt_a = Render_gPalettePtr;
+    texture = (POLY_FT4 *)Render_gPacketPtr;
+    prevPkt = Render_gPalettePtr;
     if (tv.state != tv_StateOff) {
       *(u_int *)Render_gPacketPtr =
            *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
       tu15 = (u_int)Render_gPacketPtr & 0xffffff;
       Render_gPacketPtr = Render_gPacketPtr + 0x28;
-      *(u_int *)cur_pkt_a = *(u_int *)cur_pkt_a & 0xff000000 | tu15;
-      *(u_int *)(tp10 + 4) = tu24;
-      SetPolyFT4((POLY_FT4 *)tp10);
-      SetSemiTrans(tp10,0);
-      SetShadeTex(tp10,do_tint ^ 1);
-      *(short *)(tp10 + 8) = ts1;
-      *(u_short *)(tp10 + 10) = tu2;
-      ts20 = ts1 + ts13;
-      *(short *)(tp10 + 0x10) = ts20;
-      *(u_short *)(tp10 + 0x12) = tu2;
-      *(short *)(tp10 + 0x18) = ts1;
-      *(short *)(tp10 + 0x20) = ts20;
-      tu17 = (short)(tvY + (u_int)tu3);
-      *(short *)(tp10 + 0x1a) = tu17;
-      *(short *)(tp10 + 0x22) = tu17;
-      tp10[0xc] = tv.u;
-      tp10[0xd] = tv.v;
-      tp10[0x14] = tv.u + tv.uw;
-      tp10[0x15] = tv.v;
-      tp10[0x1c] = tv.u;
-      tp10[0x1d] = tv.v + tv.vh;
-      tp10[0x24] = tv.u + tv.uw;
-      tp10[0x25] = tv.v + tv.vh;
-      *(u_short *)(tp10 + 0x16) = tv.tpage;
-      *(u_short *)(tp10 + 0xe) = tv.clut;
-      tp10 = Render_gPacketPtr;
-      cur_pkt_a = Render_gPalettePtr;
+      *(u_int *)prevPkt = *(u_int *)prevPkt & 0xff000000 | tu15;
+      *(u_int *)((u_char *)texture + 4) = tu24;
+      SetPolyFT4(texture);
+      SetSemiTrans(texture,0);
+      SetShadeTex(texture,do_tint ^ 1);
+      *(short *)((u_char *)texture + 8) = videoX;
+      *(u_short *)((u_char *)texture + 10) = videoY;
+      ts20 = videoX + videoWidth;
+      *(short *)((u_char *)texture + 0x10) = ts20;
+      *(u_short *)((u_char *)texture + 0x12) = videoY;
+      *(short *)((u_char *)texture + 0x18) = videoX;
+      *(short *)((u_char *)texture + 0x20) = ts20;
+      tu17 = (short)(videoY + (u_int)videoHeight);
+      *(short *)((u_char *)texture + 0x1a) = tu17;
+      *(short *)((u_char *)texture + 0x22) = tu17;
+      ((u_char *)texture)[0xc] = tv.u;
+      ((u_char *)texture)[0xd] = tv.v;
+      ((u_char *)texture)[0x14] = tv.u + tv.uw;
+      ((u_char *)texture)[0x15] = tv.v;
+      ((u_char *)texture)[0x1c] = tv.u;
+      ((u_char *)texture)[0x1d] = tv.v + tv.vh;
+      ((u_char *)texture)[0x24] = tv.u + tv.uw;
+      ((u_char *)texture)[0x25] = tv.v + tv.vh;
+      *(u_short *)((u_char *)texture + 0x16) = tv.tpage;
+      *(u_short *)((u_char *)texture + 0xe) = tv.clut;
+      texture = (POLY_FT4 *)Render_gPacketPtr;
+      prevPkt = Render_gPalettePtr;
       if ((tv.flags & 4) != 0) {
-        ti17 = ((u_int)tv.flip_axis - tvY) + 1;
-        if (ti17 * 0x10000 < 0) {
-          ti17 = -ti17;
+        adj = ((u_int)tv.flip_axis - videoY) + 1;
+        if (adj * 0x10000 < 0) {
+          adj = -adj;
         }
-        ts5 = (short)(ti17 << 1);
-        if (0x80 < (ti17 << 0x11) >> 0x10) {
-          ts5 = 0x80;
+        fadeTop = (short)(adj << 1);
+        if (0x80 < (adj << 0x11) >> 0x10) {
+          fadeTop = 0x80;
         }
-        ti17 = ((u_int)tv.flip_axis - (tvY + (u_int)tu3)) + 1;
-        if (ti17 * 0x10000 < 0) {
-          ti17 = -ti17;
+        adj = ((u_int)tv.flip_axis - (videoY + (u_int)videoHeight)) + 1;
+        if (adj * 0x10000 < 0) {
+          adj = -adj;
         }
-        ts13 = (short)(ti17 << 1);
-        if (0x80 < (ti17 << 0x11) >> 0x10) {
-          ts13 = 0x80;
+        fadeBottom = (short)(adj << 1);
+        if (0x80 < (adj << 0x11) >> 0x10) {
+          fadeBottom = 0x80;
         }
         tu15 = tu24 >> 0x10 & 0xff;
-        ti17 = 0x80 - ts5;
+        adj = 0x80 - fadeTop;
         tu21 = tu24 >> 8 & 0xff;
-        ti10 = 0x80 - ts13;
+        ti10 = 0x80 - fadeBottom;
         *(u_int *)Render_gPacketPtr =
              *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
         tu24 = (u_int)Render_gPacketPtr & 0xffffff;
         Render_gPacketPtr = Render_gPacketPtr + 0x34;
-        *(u_int *)cur_pkt_a = *(u_int *)cur_pkt_a & 0xff000000 | tu24;
-        tp10[3] = 0xc;
-        tu24 = (tu15 * ti17 >> 7) << 0x10 | (tu21 * ti17 >> 7) << 8 | (tu18 & 0xffU) * ti17 >> 7;
-        *(short *)(tp10 + 8) = ts1;
-        *(u_int *)(tp10 + 0x10) = tu24;
-        *(u_int *)(tp10 + 4) = tu24;
+        *(u_int *)prevPkt = *(u_int *)prevPkt & 0xff000000 | tu24;
+        ((u_char *)texture)[3] = 0xc;
+        tu24 = (tu15 * adj >> 7) << 0x10 | (tu21 * adj >> 7) << 8 | (tu18 & 0xffU) * adj >> 7;
+        *(short *)((u_char *)texture + 8) = videoX;
+        *(u_int *)((u_char *)texture + 0x10) = tu24;
+        *(u_int *)((u_char *)texture + 4) = tu24;
         tu24 = (tu15 * ti10 >> 7) << 0x10 | (tu21 * ti10 >> 7) << 8 | (tu18 & 0xffU) * ti10 >> 7;
-        *(u_int *)(tp10 + 0x28) = tu24;
-        *(u_int *)(tp10 + 0x1c) = tu24;
-        tp10[7] = 0x3c;
+        *(u_int *)((u_char *)texture + 0x28) = tu24;
+        *(u_int *)((u_char *)texture + 0x1c) = tu24;
+        ((u_char *)texture)[7] = 0x3c;
         tu4 = tv.flip_axis;
-        *(short *)(tp10 + 0x14) = ts20;
-        *(u_short *)(tp10 + 10) = tu4 * 2 - tu2;
+        *(short *)((u_char *)texture + 0x14) = ts20;
+        *(u_short *)((u_char *)texture + 10) = tu4 * 2 - videoY;
         tu4 = tv.flip_axis;
-        *(short *)(tp10 + 0x20) = ts1;
-        *(u_short *)(tp10 + 0x16) = tu4 * 2 - tu2;
+        *(short *)((u_char *)texture + 0x20) = videoX;
+        *(u_short *)((u_char *)texture + 0x16) = tu4 * 2 - videoY;
         tu4 = tv.flip_axis;
-        *(short *)(tp10 + 0x2c) = ts20;
-        *(u_short *)(tp10 + 0x22) = (tu4 * 2 - tu2) - tu3;
-        *(u_short *)(tp10 + 0x2e) = (tv.flip_axis * 2 - tu2) - tu3;
-        tp10[0xc] = tv.u;
-        tp10[0xd] = tv.v + 0xff;
-        tp10[0x18] = tv.u + tv.uw;
-        tp10[0x19] = tv.v + 0xff;
-        tp10[0x24] = tv.u;
-        tp10[0x25] = tv.v + tv.vh + 0xff;
-        tp10[0x30] = tv.u + tv.uw;
-        tp10[0x31] = tv.v + tv.vh + 0xff;
-        *(u_short *)(tp10 + 0x1a) = tv.tpage;
-        *(u_short *)(tp10 + 0xe) = tv.clut;
+        *(short *)((u_char *)texture + 0x2c) = ts20;
+        *(u_short *)((u_char *)texture + 0x22) = (tu4 * 2 - videoY) - videoHeight;
+        *(u_short *)((u_char *)texture + 0x2e) = (tv.flip_axis * 2 - videoY) - videoHeight;
+        ((u_char *)texture)[0xc] = tv.u;
+        ((u_char *)texture)[0xd] = tv.v + 0xff;
+        ((u_char *)texture)[0x18] = tv.u + tv.uw;
+        ((u_char *)texture)[0x19] = tv.v + 0xff;
+        ((u_char *)texture)[0x24] = tv.u;
+        ((u_char *)texture)[0x25] = tv.v + tv.vh + 0xff;
+        ((u_char *)texture)[0x30] = tv.u + tv.uw;
+        ((u_char *)texture)[0x31] = tv.v + tv.vh + 0xff;
+        *(u_short *)((u_char *)texture + 0x1a) = tv.tpage;
+        *(u_short *)((u_char *)texture + 0xe) = tv.clut;
       }
     }
   }

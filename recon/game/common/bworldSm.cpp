@@ -282,36 +282,27 @@ void SetStrip(BWorldSm_Pos *slicePos)
   int i;
   int maxIndex;
   int quadCount;
-  bool bVar1;
-  Trk_NewStrip *pTVar2;
-  int iVar3;
-  u_int uVar4;
-  
-  iVar3 = 0;
-  uVar4 = (u_int)slicePos->simSlice->stripIndex;
+
+  i = 0;
+  maxIndex = (u_int)slicePos->simSlice->stripIndex;
   slicePos->strip = (Trk_NewStrip *)(Track_chunkList[slicePos->chunk].stripBuf + 1);
-  if (uVar4 != 0) {
+  if (maxIndex != 0) {
     do {
-      iVar3 = iVar3 + 1;
+      i = i + 1;
       slicePos->strip =
            (Trk_NewStrip *)
            (&slicePos->strip[1].topVert + (u_int)(u_char)slicePos->strip->quadCount * 2);
-    } while (iVar3 < (int)uVar4);
+    } while (i < maxIndex);
   }
-  iVar3 = (int)slicePos->quad;
-  uVar4 = (u_int)(u_char)slicePos->strip->quadCount;
-  if ((int)uVar4 <= iVar3) {
-    iVar3 = iVar3 - uVar4;
-    do {
-      pTVar2 = (Trk_NewStrip *)(&slicePos->strip[1].topVert + uVar4 * 2);
-      slicePos->strip = pTVar2;
-      uVar4 = (u_int)(u_char)pTVar2->quadCount;
-      bVar1 = (int)uVar4 <= iVar3;
-      iVar3 = iVar3 - uVar4;
-    } while (bVar1);
-    iVar3 = iVar3 + uVar4;
+  i = (int)(signed char)slicePos->quad;
+  quadCount = (u_int)(u_char)slicePos->strip->quadCount;
+  while (quadCount <= i) {
+    i = i - quadCount;
+    slicePos->strip =
+         (Trk_NewStrip *)(&slicePos->strip[1].topVert + quadCount * 2);
+    quadCount = (u_int)(u_char)slicePos->strip->quadCount;
   }
-  slicePos->stripQuadInd = (short)iVar3;
+  slicePos->stripQuadInd = (short)i;
   return;
 }
 

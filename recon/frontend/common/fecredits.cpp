@@ -243,236 +243,260 @@ void tCreditManager::SetupCurrCredit()
 void tCreditManager::DrawCurrCredit()
 
 {
-  short justify;
+  /* MATCH (w37-a2): full SYM-driven rewrite from the raw oracle .s trace
+     (asm/nonmatchings/front/DrawCurrCredit__14tCreditManager.s). Prior recon
+     invented ~35 locals none of which are in the SYM 8c block (fsize=416);
+     the true set is: fShowCred(s1) width(s0) x(AUTO) y(s3) ColTextTitle(s0)
+     ColTextSubTitle(s2) ColText(s8) r(AUTO) p(s0) p2(s4) buffer(AUTO), plus
+     nested-block hidden(s6) jaguar(s5) rollthedice(s2) rtd(s0) and the tail
+     block's dist(s0) width(s2,shadowed) height(s1). Two real bugs found by
+     register-tracing vs SYM names: (1) the tag-flag semantics were rotated
+     -- TAB(0x9) is really `hidden` (cheat-gated single line), ASTERISK
+     (0x2a) is really `jaguar` (big wordwrap box), CARET(0x5e) is really
+     `rollthedice` (25x repeat loop) -- opposite of the prior recon's
+     labels, though the prior recon's BEHAVIOR per flag happened to be
+     right, just mis-named; (2) the y-cursor (subTitleY-based, SYM `y`)
+     was split across 3 fabricated locals (tu1/fadeAlpha/fadeAlpha_2)
+     instead of being ONE variable updated in place, matching the oracle's
+     single $s3 live across the whole function. Also: the DrawShapeExtended
+     frame index arg is `(ticks>>4) % 10`, not `ticks/160` (m2c's guess) --
+     mathematically equal for ticks>=0 but the oracle's magic-multiply
+     divides the ALREADY-SHIFTED value (shift=2 in the div-by-10 sequence),
+     so the source must apply `% 10` to `ticks>>4` for the codegen to match.
+     Also a real bug: the cheat-gated FullTextRGB color was hardcoded
+     `CalcFadeVal(0x505050,0x40)` -- the oracle reloads `this->fTextFade`
+     (offset 8) as the 2nd arg, not the literal 0x40 (0x40 IS correct for
+     the two tail bright-line CalcFadeVal calls, which stayed literal).
+     Result: 610->12 verify_asm diffs, insn count now EXACT (451/451).
+     Residual 12-diff FLOOR (2 sites, tried multiple rephrasings, no
+     source-level lever moved either): (1) the tagByte reload after the
+     TAB-flag skip-loop compiles to a register copy (`addu v1,v0,zero`)
+     where the oracle emits a fresh `lbu v1,0(s0)` -- gcc-2.8 CSEs the
+     do-while's last failed byte-compare across the join even though the
+     \n-flag and ASTERISK-flag reloads (textually identical pattern) do
+     NOT get this treatment; a coloring coin-flip on carbon-copy source.
+     (2) the rollthedice 25x-loop's post-loop `y=y+8` stages the sum in a
+     temp (`addiu v1,s3,8; addu s3,v1,zero; addiu s3,v1,8`, 3 insns) where
+     the oracle does a direct `nop; addiu s3,s3,8` (1 insn) -- tried
+     do/for-loop shape, increment-before/after-call, increment-order
+     swap; no rephrasing changed it. Likely a genuine loop-carried-value
+     scheduling floor in gcc-2.8's non-SSA allocator (§F class). */
+  int t16;
+  tCredit *fShowCred;
+  short y;
   int lineWidth;
   int ColTextTitle;
   int scrollY;
   int ColTextSubTitle;
   int ColText;
-  int wordText;
   char *pcVar3;
   uint uVar4;
-  int p2;
-  int shape_p;
-  byte tagByte;
-  byte bVar5;
-  short lineY;
-  int i;
-  int iVar6;
-  int dist;
-  byte *s, *p;
-  int rtd;
-  int height;
-  tCredit *fShowCred;
-  int arg5;
   int width;
-  int w;
-  short y;
-  int fadeAlpha;
-  int fadeAlpha_2;
-  char *lineText;
-  byte isJaguarLine;
-  byte isHiddenLine;
-  int textColor;
+  short x;
+  byte *p, *p2;
+  byte tagByte;
+  bool hidden;
+  bool jaguar;
+  bool rollthedice;
+  int dist;
+  int height;
   tDrawShapeExtended drawFlags;
   RECT r;
   char buffer [292];
-  short x;
-  short tu1;
-  bool hidden;
-  bool rollthedice;
-  byte jaguar;
-  
+
   drawFlags.tint[0] = 0xcec844;
-  DrawShapeExtended(((ticks >> 4) - (ticks / 0xa0) * 10) + 0xe6,0x410,0x10,0x10,0,0,&drawFlags);
+  t16 = ticks >> 4;
+  DrawShapeExtended((t16 - (t16 / 10) * 10) + 0xe6,0x410,0x10,0x10,0,0,&drawFlags);
   fShowCred = this->CreditBuffer + this->fShowCreditNum;
   FETextRender_SetABR(1,true);
-  tu1 = fShowCred->subTitleY;
+  y = fShowCred->subTitleY;
   lineWidth = CalcFadeVal(0xbebe,this->fTextFade);
   ColTextTitle = CalcFadeVal(lineWidth,0x28);
   scrollY = CalcFadeVal(0xbebe,this->fTextFade);
   ColTextSubTitle = CalcFadeVal(scrollY,0x28);
   ColText = CalcFadeVal(0x787878,this->fTextFade);
-  if (fShowCred->titleWidth == 0) {
-    pcVar3 = TextSys_Word(fShowCred->titleTextID + 0x514);
-    FETextRender_FullTextRGB(pcVar3,fShowCred->titleX,fShowCred->titleY,ColTextTitle,'\0',
-               fShowCred->titleJustify);
-  }
-  else {
+  /* MATCH (w37-a2): physical block order flip (W36 lever #1 De Morgan swap)
+     -- the oracle reaches the FullTextRGB body via a `beqz`-taken branch
+     target and falls THROUGH into the WordWrap/RECT body, so the source
+     condition is `!= 0` with the WordWrap body first (confirmed by m2c). */
+  if (fShowCred->titleWidth != 0) {
     r.x = fShowCred->titleX;
     r.y = fShowCred->titleY;
     r.w = fShowCred->titleWidth;
     r.h = 100;
-    wordText = (int)TextSys_Word(fShowCred->titleTextID + 0x514);
-    FETextRender_WordWrapTextRGBJustify((char *)wordText,r,ColTextTitle,fShowCred->titleJustify,0,false);
-  }
-  if (fShowCred->subTitleWidth == 0) {
-    fadeAlpha = (ushort)tu1 + 8;
-    pcVar3 = TextSys_Word(fShowCred->subTitleTextID + 0x514);
-    ColTextTitle = (int)fShowCred->subTitleY;
-    FETextRender_FullTextRGB(pcVar3,fShowCred->subTitleX,fShowCred->subTitleY,ColTextSubTitle,'\0',
-               fShowCred->subTitleJustify);
+    pcVar3 = TextSys_Word(fShowCred->titleTextID + 0x514);
+    FETextRender_WordWrapTextRGBJustify(pcVar3,r,ColTextTitle,fShowCred->titleJustify,0,false);
   }
   else {
+    pcVar3 = TextSys_Word(fShowCred->titleTextID + 0x514);
+    FETextRender_FullTextRGB(pcVar3,fShowCred->titleX,fShowCred->titleY,ColTextTitle,'\0',
+               fShowCred->titleJustify);
+  }
+  if (fShowCred->subTitleWidth != 0) {
     r.x = fShowCred->subTitleX;
     r.y = fShowCred->subTitleY;
     r.w = fShowCred->subTitleWidth;
     r.h = 100;
     pcVar3 = TextSys_Word(fShowCred->subTitleTextID + 0x514);
-    ColTextTitle = FETextRender_WordWrapTextRGBJustify(pcVar3,r,ColTextSubTitle,fShowCred->subTitleJustify,0,false);
-    fadeAlpha = (uint)(ushort)tu1 + ColTextTitle;
-    ColTextTitle = ColTextSubTitle;
+    y = y + FETextRender_WordWrapTextRGBJustify(pcVar3,r,ColTextSubTitle,fShowCred->subTitleJustify,0,false);
+  }
+  else {
+    y = y + 8;
+    pcVar3 = TextSys_Word(fShowCred->subTitleTextID + 0x514);
+    FETextRender_FullTextRGB(pcVar3,fShowCred->subTitleX,fShowCred->subTitleY,ColTextSubTitle,'\0',
+               fShowCred->subTitleJustify);
   }
   if (fShowCred->textY != 0) {
-    fadeAlpha = (uint)fShowCred->textY;
+    y = fShowCred->textY;
   }
   x = fShowCred->textX;
-  lineY = fShowCred->subTitleWidth;
-  if (lineY == 0) {
+  width = fShowCred->subTitleWidth;
+  if (width == 0) {
     FETextRender_SetFont(0);
     pcVar3 = TextSys_Word(fShowCred->subTitleTextID + 0x514);
-    ColTextSubTitle = textpixels(pcVar3);
+    uVar4 = textpixels(pcVar3);
     pcVar3 = TextSys_Word(fShowCred->subTitleTextID + 0x514);
-    uVar4 = strlen(pcVar3);
-    lineY = (short)ColTextSubTitle - (short)uVar4;
+    width = uVar4 - strlen(pcVar3);
   }
   if (x == 0) {
     if (fShowCred->subTitleJustify == 0) {
-      x = fShowCred->subTitleX + lineY + 2;
+      x = fShowCred->subTitleX + width + 2;
     }
     else {
-      x = (fShowCred->subTitleX - lineY) + -2;
+      x = (fShowCred->subTitleX - width) + -2;
     }
   }
   strcpy(buffer,fShowCred->text);
-  s = (byte *)buffer;
-  do {
-    jaguar = 0;
-    if (s == (byte *)0x0) {
-      FETextRender_SetABR(0,false);
-      if (this->StartedLines != 0) {
-        ColTextSubTitle = ((ticks - this->fLineTicks) * 0x208) / 0x50;
-        iVar6 = ColTextSubTitle;
-        w = 200;
-        if (ColTextSubTitle < 200) {
-          iVar6 = 200;
-          w = ColTextSubTitle;
-        }
-        if (0x140 < ColTextSubTitle) {
-          w = 0x140 - iVar6;
-          if (w < 0) {
-            w = 0;
-          }
-          iVar6 = 0x208 - w;
-        }
-        if (0 < w) {
-          ColTextSubTitle = CalcFadeVal(0x505050,0x40);
-          ColTextTitle = fShowCred->subTitleY + -2;
-          PSXTransDrawBrightEndLine(ColTextSubTitle,iVar6 + -0x25,ColTextTitle,w,4,3,1,0,1);
-        }
-        ColTextSubTitle = ((ticks - this->fLineTicks) * 0x10c) / 0x50;
-        iVar6 = ColTextSubTitle;
-        arg5 = 100;
-        if (ColTextSubTitle < 100) {
-          iVar6 = 100;
-          arg5 = ColTextSubTitle;
-        }
-        if (0xa8 < ColTextSubTitle) {
-          arg5 = 0xa8 - iVar6;
-          if (arg5 < 0) {
-            arg5 = 0;
-          }
-          iVar6 = 0x10c - w;
-        }
-        if (0 < arg5) {
-          ColTextTitle = CalcFadeVal(0x505050,0x40);
-          PSXTransDrawBrightEndLine(ColTextTitle,(int)x,iVar6 + -0x3a,2,arg5,1,1,0,1);
-        }
-      }
-      return;
-    }
-    rollthedice = false;
+  p = (byte *)buffer;
+  while (p != (byte *)0x0) {
     hidden = false;
-    p2 = (int)strchr((char *)s,10);
+    jaguar = false;
+    rollthedice = false;
+    p2 = (byte *)strchr((char *)p,10);
     if (p2 != 0) {
-      *(u_char *)p2 = 0;
+      *p2 = 0;
     }
-    tagByte = *s;
+    tagByte = *p;
     if (tagByte == 10) {
+      /* MATCH (w37-a2): compare the skip-loop against the CAPTURED
+         tagByte, not the literal again -- lets gcc reuse the register
+         the initial `if` already loaded instead of a fresh `li`. */
       do {
-        s = s + 1;
-      } while (*s == 10);
-      tagByte = *s;
+        p = p + 1;
+      } while (*p == tagByte);
+      tagByte = *p;
     }
     if (tagByte == 9) {
-      jaguar = 1;
-      do {
-        s = s + 1;
-      } while (*s == 9);
-    }
-    bVar5 = *s;
-    if (bVar5 == 0x2a) {
-      rollthedice = true;
-      do {
-        s = s + 1;
-      } while (*s == 0x2a);
-      bVar5 = *s;
-    }
-    if (bVar5 == 0x5e) {
       hidden = true;
       do {
-        s = s + 1;
-      } while (*s == 0x5e);
+        p = p + 1;
+      } while (*p == tagByte);
     }
-    CREDFADETICKS = 2000;
-    if (!hidden) {
-      CREDFADETICKS = 700;
+    tagByte = *p;
+    if (tagByte == 0x2a) {
+      jaguar = true;
+      do {
+        p = p + 1;
+      } while (*p == tagByte);
+      tagByte = *p;
     }
-    if (rollthedice) {
+    if (tagByte == 0x5e) {
+      rollthedice = true;
+      do {
+        p = p + 1;
+      } while (*p == tagByte);
+    }
+    /* MATCH (w37-a2): a single conditional-value store (not two separate
+       assignments) -- the oracle computes v0=2000/700 via one branch and
+       stores it ONCE, scheduled into the jaguar-branch's delay slot. */
+    CREDFADETICKS = rollthedice ? 2000 : 700;
+    if (jaguar) {
       r.x = 0xb4;
       r.y = 0x55;
       r.w = 0x118;
       r.h = 100;
       pcVar3 = TextSys_Word(0x596);
-      ColTextTitle = ColText;
       FETextRender_WordWrapTextRGBJustify(pcVar3,r,ColText,0,0,false);
-      fadeAlpha = fadeAlpha + 8;
+      y = y + 8;
     }
-    else if (hidden) {
-      ColTextSubTitle = 0;
+    else if (rollthedice) {
+      int rtd = 0;
       do {
-        fadeAlpha_2 = fadeAlpha;
-        pcVar3 = TextSys_Word(ColTextSubTitle + 0x597);
-        ColTextTitle = (int)(short)fadeAlpha_2;
-        ColTextSubTitle = ColTextSubTitle + 1;
-        FETextRender_FullTextRGB(pcVar3,x,(short)fadeAlpha_2,ColText,'\0',fShowCred->textJustify);
-        fadeAlpha = fadeAlpha_2 + 8;
-      } while (ColTextSubTitle < 0x19);
-      fadeAlpha = fadeAlpha_2 + 0x10;
+        pcVar3 = TextSys_Word(rtd + 0x597);
+        FETextRender_FullTextRGB(pcVar3,x,y,ColText,'\0',fShowCred->textJustify);
+        y = y + 8;
+        rtd = rtd + 1;
+      } while (rtd < 0x19);
+      y = y + 8;
     }
     else {
-      if ((bool)jaguar) {
-        shape_p = (int)FECheat_IsCheatEnabled(cheat_MyMomSaysImCool);
-        if (shape_p != 0) {
-          ColTextSubTitle = CalcFadeVal(0x505050,0x40);
-          justify = fShowCred->textJustify;
-          goto DrawCredit_emitText;
-        }
+      /* MATCH (w37-a2): De Morgan physical block-order flip (W36 lever #1)
+         -- the oracle's plain render is the FALL-THROUGH and the cheat
+         check is the branch target, so the source condition is `!hidden`
+         with the plain-render body first. */
+      if (!hidden) {
+        FETextRender_FullTextRGB((char *)p,x,y,ColText,'\0',fShowCred->textJustify);
       }
       else {
-        justify = fShowCred->textJustify;
-        ColTextSubTitle = ColText;
-DrawCredit_emitText:
-        ColTextTitle = (int)(short)fadeAlpha;
-        FETextRender_FullTextRGB((char *)s,x,(short)fadeAlpha,ColTextSubTitle,'\0',justify);
+        if (FECheat_IsCheatEnabled(cheat_MyMomSaysImCool) != 0) {
+          FETextRender_FullTextRGB((char *)p,x,y,CalcFadeVal(0x505050,this->fTextFade),'\0',fShowCred->textJustify);
+        }
       }
-      fadeAlpha = fadeAlpha + 8;
+      y = y + 8;
     }
-    s = (byte *)p2;
+    p = p2;
     if (p2 != 0) {
-      s = (byte *)(p2 + 1);
+      p = p2 + 1;
     }
-  } while( true );
+  }
+  FETextRender_SetABR(0,false);
+  if (this->StartedLines != 0) {
+    /* MATCH (w37-a2): SYM shows the tail block's `dist`/`width`/`height`
+       as NESTED-BLOCK locals distinct from the earlier top-level `width`
+       (subTitleWidth-derived, REG s0) -- reusing that SAME C variable here
+       merged the two live ranges and re-colored the earlier one too. Use
+       a fresh `width2` for this block's shadowed `width` (SYM REG s2),
+       with `dist` REASSIGNED in place (matches oracle's $s0 reuse). It
+       stays LIVE into the second bright-line calc (oracle's `subu s1,v0,
+       s2` reuses it there). */
+    int width2;
+    dist = ((ticks - this->fLineTicks) * 0x208) / 0x50;
+    width2 = 200;
+    if (dist < 200) {
+      width2 = dist;
+      dist = 200;
+    }
+    if (0x140 < dist) {
+      width2 = 0x140 - dist;
+      if (width2 < 0) {
+        width2 = 0;
+      }
+      dist = 0x208 - width2;
+    }
+    if (0 < width2) {
+      ColTextSubTitle = CalcFadeVal(0x505050,0x40);
+      ColTextTitle = fShowCred->subTitleY + -2;
+      PSXTransDrawBrightEndLine(ColTextSubTitle,dist + -0x25,ColTextTitle,width2,4,3,1,0,1);
+    }
+    dist = ((ticks - this->fLineTicks) * 0x10c) / 0x50;
+    height = 100;
+    if (dist < 100) {
+      height = dist;
+      dist = 100;
+    }
+    if (0xa8 < dist) {
+      height = 0xa8 - dist;
+      if (height < 0) {
+        height = 0;
+      }
+      dist = 0x10c - width2;
+    }
+    if (0 < height) {
+      ColTextTitle = CalcFadeVal(0x505050,0x40);
+      PSXTransDrawBrightEndLine(ColTextTitle,(int)x,dist + -0x3a,2,height,1,1,0,1);
+    }
+  }
+  return;
 }
 
 

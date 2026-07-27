@@ -986,26 +986,16 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
   u_short uVar2;
   bool fPlayList;
   tTexture_ShapeInfo *shape;
-  tTexture_ShapeInfo *ptVar6;
-  int vtable_ptr;
   int ColText;
-  int boxHeight;
   int x;
-  int topShapeY;
   int y;
-  int ptVar8;
   int tstr10;
   int iVar7;
   int iVar8;
-  int sMenuText;
   int pkt_addr24;
   int ti1;
   int tu1;
   int boxWidth_d;
-  int drawX;
-  tInsideBoxMenu *index;
-  int pa_Var3;
-  int rowSpacing;
   int hh;
   int itemColor;
   tTexture_ShapeInfo *shapebottom;
@@ -1019,35 +1009,40 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
   int width;
   int gray;
   DRAWENV *drenv;
-  u_char bVar1;
-  int ptVar3;
-  int ptVar4;
   u_char *cur_pkt;
   u_char *daprim;
-  
-  vtable_ptr = (int)this->_vf;
-  (**(int (**)(...))(vtable_ptr + 0x5c))
-            ((int)&this->fFlags + (int)*(short *)(vtable_ptr + 0x58),
+
+  /* SYM: fn-scope locals are ONLY ColText/x/y/shape/fPlayList; drawFlags+
+     width are scoped to the "if (currMenu!=0||fPlayList)" block; xx/yy/ww/
+     hh/drenv/daprim/full/temp/gray/shapetop/shapebottom to the big
+     "if (currMenu!=0)" block. The virtual DebounceKeys-flags call, the
+     TextSys_WordX/WordY->x/y fusion, `shape` as the ALREADY-OFFSET
+     &gHelpShapes[0x1e] pointer (not a base ptr re-indexed each use), the
+     shared boxWidth_d (0xdc for a playlist submenu, else fWidth -- computed
+     ONCE, reused by the two flare-arrow DrawShapeExtended calls only), and
+     the two independent currMenu/fPlayList tests (not one cached flag) are
+     all read directly off the raw oracle (asm/nonmatchings/front/
+     Draw__20tMenuItemSlidingMenuiib.s). */
+  (**(int (**)(...))((int)this->_vf + 0x5c))
+            ((int)&this->fFlags + (int)*(short *)((int)this->_vf + 0x58),
              selected);
   ColText = CalcTextFadeSelToHi(textType_Options,this->fSelFade,this->fFadeVal);
-  boxHeight = TextSys_WordX(this->fTextDescription);
-  x = boxHeight + offx;
-  topShapeY = TextSys_WordY(this->fTextDescription);
-  shape = gHelpShapes;
+  x = TextSys_WordX(this->fTextDescription) + offx;
+  y = TextSys_WordY(this->fTextDescription) + offy;
+  shape = &gHelpShapes[0x1e];
   fHelpText = -1;
-  y = topShapeY + offy;
   fPlayList = (tInsideBoxSongMenu *)this->currMenu == &menuDefs->menuPlayListMenu;
   if ((this->fFadeVal != 0x80) && (fPlayList)) {
     DrawLeftFlare(y,(int)this->fSelFade,(int)this->fFadeVal,
                flareextra);
   }
-  if ((this->currMenu != (tInsideBoxMenu *)0x0) || (ptVar8 = 0, fPlayList)) {
+  if ((this->currMenu != (tInsideBoxMenu *)0x0) || (fPlayList)) {
+    boxWidth_d = fPlayList ? 0xdc : (int)this->fWidth;
     drawFlags.tint[0] = CalcFadeVal(0,0xbebe,(int)this->fSelFade,(int)this->fFadeVal);
-    DrawShapeExtended(0x39,0x18,((x + (fPlayList ? 0xdc : (int)this->fWidth)) - (int)shape[0x1e].width) - 0xa,(fPlayList ? y + -3 : y + -2),0,1,&drawFlags);
-    DrawShapeExtended(0x3a,0x18,((x + (fPlayList ? 0xdc : (int)this->fWidth)) - (int)shape[0x1e].width) - 0xa,(fPlayList ? y + 3 : y + 4),0,1,&drawFlags);
-    ptVar8 = (int)this->currMenu;
+    DrawShapeExtended(0x39,0x18,((x + boxWidth_d) - (int)shape->width) - 0xa,(fPlayList ? y + -3 : y + -2),0,1,&drawFlags);
+    DrawShapeExtended(0x3a,0x18,((x + boxWidth_d) - (int)shape->width) - 0xa,(fPlayList ? y + 3 : y + 4),0,1,&drawFlags);
   }
-  if (ptVar8 != 0) {
+  if (this->currMenu != (tInsideBoxMenu *)0x0) {
     uVar2 = this->fOpenHeight;
     sVar1 = this->fWidth;
     ww = (int)sVar1;
@@ -1071,13 +1066,10 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
     gray = 0x505050;
     SubtractiveBox(xx,yy,ww,width,gray,gray,0,0);
     SubtractiveBox(xx,yy + width,ww,width,0,0,gray,gray);
-    ptVar6 = gHelpShapes;
-    shapetop = ptVar6 + 0x1f;
-    shapebottom = ptVar6 + 0x20;
-    index = this->currMenu;
-    pa_Var3 = (int)(index)->_vf;
-    (**(int (**)(...))(pa_Var3 + 0x5c))
-              ((int)(index)->fItemList + *(short *)(pa_Var3 + 0x58) + -0x10,
+    shapetop = gHelpShapes + 0x1f;
+    shapebottom = gHelpShapes + 0x20;
+    (**(int (**)(...))((int)this->currMenu->_vf + 0x5c))
+              ((int)this->currMenu->fItemList + *(short *)((int)this->currMenu->_vf + 0x58) + -0x10,
                xx * 0x10000 >> 0x10,yy * 0x10000 >> 0x10,ww,
                (int)((u_int)(u_short)this->fSlideOffset << 0x11) >> 0x10,(int)this->fHeight);
     itemColor = hh >> 0x10;
@@ -1096,7 +1088,6 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
     daprim = Render_gPacketPtr;
     cur_pkt = Render_gPalettePtr;
     temp.x = (short)xx;
-    ti1 = -0x1000000;
     temp.y = *(short *)((char *)drenv + 2) + (short)yy;
     *(u_int *)Render_gPacketPtr =
          *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
@@ -1112,12 +1103,11 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
       iVar8 = TextSys_WordY(fHelpText);
       FETextRender_FullTextRGB((char *)tstr10,(short)iVar7,(short)iVar8,PulsateYellow[0],'\0',2);
     }
-    sMenuText = (int)TextSys_Word(this->fTextDescription);
-    FETextRender_FullTextRGB((char *)sMenuText,(short)x,(short)y,ColText,'\0',(u_short)fPlayList);
-    DrawShapeExtended(0x1e,8,(x + (fPlayList ? 0xdc : (int)this->fWidth)) - (int)shape[0x1e].width,y + -2,(int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
+    FETextRender_FullTextRGB((char *)TextSys_Word(this->fTextDescription),(short)x,(short)y,ColText,'\0',(u_short)fPlayList);
+    DrawShapeExtended(0x1e,8,(x + (int)this->fWidth) - (int)shape->width,y + -2,(int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
     if (this->fFillback != 0) {
-      PSXDrawSquare(0,x,y + -2,(int)this->fWidth - (int)shape[0x1e].width,
-                 (int)shape[0x1e].height);
+      PSXDrawSquare(0,x,y + -2,(int)this->fWidth - (int)shape->width,
+                 (int)shape->height);
     }
   }
   return;

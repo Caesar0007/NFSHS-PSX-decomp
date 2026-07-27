@@ -3721,7 +3721,7 @@ struct tDialogBase : public tScreen {   /* 144 bytes */
     /* FEDialog methods */
     short ShouldTimeOut();
     int InitializeClass();
-    int DrawAllDialogs();
+    static int DrawAllDialogs();
     int HideAllDialogs();
     int GetTopMostDialog();
     void Hide();

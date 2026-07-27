@@ -330,7 +330,6 @@ void tFEApplication::Redraw()
   int parentMenu_p;
   tMenu *curMenu;
   tMenu *ptVar2;
-  tDialogBase *this_00;
   int i;
   short height;
   char buffer [32];
@@ -355,7 +354,6 @@ void tFEApplication::Redraw()
   musThresh = AudioMus_Threshold();
   sprintf(buffer,(char *)(bigBuf + 0x48),iVar1,musThresh);
   FETextRender_FullText(buffer,0x10,0xd7,textType_FramedInfo,textState_Hilighted,0);
-  this_00 = (tDialogBase *)Draw_gPlayer1View;
   drenv = (int)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
   if (this->fCurrentMenu[1] == (tMenu *)0x0) {
     height = (short)screenheight;
@@ -363,7 +361,7 @@ void tFEApplication::Redraw()
   else {
     height = (short)((u_int)(screenheight - (screenheight >> 0x1f)) >> 1);
   }
-  (this_00)->DrawAllDialogs();
+  tDialogBase::DrawAllDialogs();
   this->DrawHelpIcons();
   globalMenuDefs = menuDefs[0];
   if ((gPadinfo.buf[0].nopad == '\0') && (gPadinfo.buf[4].nopad == '\0')) {

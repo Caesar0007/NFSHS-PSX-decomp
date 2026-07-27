@@ -305,8 +305,8 @@ void TexturesLoadInitial(void)
   else {
     success = (int)Track_MakeTrackPathName("0.psh");
   }
-  gInitialArt.shapeFile = (char *)loadshapeadr((char *)success,(void *)0x0);
-  if (gInitialArt.shapeFile != (char *)0x0) {
+  if ((D_8011E15C[0] = (char *)loadshapeadr((char *)success,(void *)0x0)) !=
+      (char *)0x0) {
     Texture_ResetPaletteSharing();
     gInitialArt.shapeCount = (int)shapecount(gInitialArt.shapeFile);
     LoadShapesAndMakePmx(gInitialArt.shapeFile,gInitialArt.pPmx,0x40,0x100,0);

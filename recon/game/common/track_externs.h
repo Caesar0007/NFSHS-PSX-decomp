@@ -18,6 +18,7 @@ extern Group * gPersistObjDefBoundingSpheres;
 extern Group * gPersistObjInst;
 extern Sim_tSimGlobalVar simGlobal;                /* 0x8011e0ac */
 extern Track_tArtresource gInitialArt;
+extern char *D_8011E15C[];                         /* gInitialArt.shapeFile alias */
 extern Track_tMaterial * Track_materials;
 extern Trk_ObjectDef ** Track_gObjDefs;
 extern char       *Paths_Paths[];

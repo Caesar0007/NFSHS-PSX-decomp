@@ -1953,43 +1953,21 @@ void Cars_DeInitCar(Car_tObj *carObj)
 /* ---- Cars_Restart__Fv  [@0x8008a4cc] ---- */
 void Cars_Restart(void)
 {
-  /* MATCH: the SAME loop-counter variable ("i") spans all three loops -- oracle keeps
-     ONE callee-saved reg ($s0) for the do-while, the for-loop, AND the while-loop
-     counters (reset to 0 between loops, never a fresh allocno), because part of its
-     live range crosses calls (IniCarObjects/GetNumIMassObjects) which forces
-     callee-saved allocation for the WHOLE variable, including the call-free do-while.
-     Splitting it into separate iVar6/iVar7 lets the do-while's copy take a lighter
-     caller-saved reg -- wrong shape (41->33 diffs after the merge). Middle loop
-     converted to top-test goto (33->22, count now exact 58==58). Residual 22 =
-     the numCars/pointer $a0-$a3 exact-register PICK (a3/a2/a1 vs oracle's a2/a1/a0) --
-     tried: gSortedList/gList/gTotalSortedList decl+assignment reorder (no effect,
-     kept the neutral order), `if(0<(numCars=Cars_gNumCars))` fold (no effect), decl
-     order numCars-before-i (no effect) -- a genuine allocator coloring floor, not
-     source-shapable further without a permuter. */
+  /* SLD exposes only i=$s0. The first loop's three pointers and final loop's
+     object address are retail strength-reduction temporaries, so keep their
+     source as direct array indexing instead of named pointer locals. */
   int i;
-  Object_tIMassObjInfo *pOVar1;
-  Car_tObj *pCVar2;
-  Car_tObj **ppCVar3;
-  Car_tObj **ppCVar4;
-  Car_tObj **ppCVar5;
-  Car_tObj **ppCVar6;
-  int iVar6;
   int numCars;
+  Car_tObj *pCVar2;
+  Car_tObj **ppCVar6;
 
   numCars = Cars_gNumCars;
   i = 0;
   if (0 < numCars) {
-    ppCVar4 = Cars_gSortedList;
-    ppCVar3 = Cars_gList;
-    ppCVar5 = Cars_gTotalSortedList;
     do {
+      Cars_gSortedList[i] = Cars_gList[i];
+      Cars_gTotalSortedList[i] = Cars_gList[i];
       i = i + 1;
-      *ppCVar4 = *ppCVar3;
-      pCVar2 = *ppCVar3;
-      ppCVar3 = ppCVar3 + 1;
-      ppCVar4 = ppCVar4 + 1;
-      *ppCVar5 = pCVar2;
-      ppCVar5 = ppCVar5 + 1;
     } while (i < numCars);
   }
   i = 0;
@@ -2004,13 +1982,11 @@ LAB_ini:
   }
   i = 0;
   while( true ) {
-    iVar6 = Object_GetNumIMassObjects();
-    pOVar1 = Object_IMassObjInst;
-    if (iVar6 <= i) break;
+    if (Object_GetNumIMassObjects() <= i) break;
     Object_IMassObjInst[i].lastPos.x = 0;
-    pOVar1[i].lastPos.y = 0;
-    pOVar1[i].lastPos.z = 0;
-    pOVar1[i].lastTick = 0;
+    Object_IMassObjInst[i].lastPos.y = 0;
+    Object_IMassObjInst[i].lastPos.z = 0;
+    Object_IMassObjInst[i].lastTick = 0;
     i = i + 1;
   }
   accidentSlice = 0;

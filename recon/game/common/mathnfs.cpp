@@ -143,22 +143,12 @@ void Math_ResolveRotatedVector(int x,int y,int angle,int *newx,int *newy)
   int ds;
   int dc;
   int a;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  
-  if (angle < 0) {
-    angle = angle + 0xff;
-  }
-  iVar1 = fixedsin(angle >> 8);
-  iVar2 = fixedcos(angle >> 8);
-  iVar3 = fixedmult(iVar2,x);
-  iVar4 = fixedmult(iVar1,y);
-  *newx = iVar3 - iVar4;
-  iVar1 = fixedmult(iVar1,x);
-  iVar2 = fixedmult(iVar2,y);
-  *newy = iVar1 + iVar2;
+
+  a = angle / 256;
+  ds = fixedsin(a);
+  dc = fixedcos(a);
+  *newx = fixedmult(dc,x) - fixedmult(ds,y);
+  *newy = fixedmult(ds,x) + fixedmult(dc,y);
   return;
 }
 

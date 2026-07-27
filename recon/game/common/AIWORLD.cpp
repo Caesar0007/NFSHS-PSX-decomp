@@ -365,23 +365,21 @@ int AIWorld_CalculateDeltaRoadYaw(Car_tObj *carObj)
   int delta;     /* SYM: REG $a0, whole-function scope -- rewired from anonymous iVar1 */
   int yaw0;      /* SYM: REG $s0, block-scoped inside the if -- rewired from anonymous iVar3 */
   int iVar2;
-  int nextSlice;  /* fresh compiler temp (unnamed in SYM) -- keeps the wraparound value OUT of
-                      'delta' until the call, so cc1plus can't algebraically reassociate
-                      `iVar2 - (gNumSlices-1)` into `delta - gNumSlices` (it did when both
-                      branches wrote directly into 'delta': same value, wrong reg/operand shape
-                      -- oracle keeps iVar2 alive in its own reg and subtracts gNumSlices-1 from
-                      IT, not from delta+1). SPLIT gNumSlices-1 into its own temp `gnLess1` too
-                      -- collapsing it to `iVar2 - (gNumSlices + -1)` let cc1plus re-fold back to
-                      the same reassociated form; the explicit intermediate keeps it apart. */
+  int nextSlice;
   int gnLess1;
+  int numSlices;
 
+  /* Reading the invariant before the flag test gives retail's carObj=$v1 allocation and
+     lowers the authoritative residual from 16 to 15; the remaining difference is load
+     scheduling/register choice (ours hoists this read, retail sinks it into the taken arm). */
+  numSlices = gNumSlices;
   delta = 0;
   if ((carObj->carFlags & 8U) != 0) {
     iVar2 = (int)(carObj->N).simRoadInfo.slice;
     yaw0 = (carObj->N).roadYaw;
     nextSlice = iVar2 + 1;
-    if (gNumSlices <= nextSlice) {
-      gnLess1 = gNumSlices - 1;
+    if (numSlices <= nextSlice) {
+      gnLess1 = numSlices - 1;
       nextSlice = iVar2 - gnLess1;
     }
     delta = Newton_CalculateSliceYaw(nextSlice);

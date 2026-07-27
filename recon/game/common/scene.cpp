@@ -96,20 +96,13 @@ void Scene_LoadSceneFile(int sceneFileIndex)
 int GetPlaneY(const coorddef *norm,const coorddef *pointOnPlane,const coorddef *testPoint)
 
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
   int D;
-  
-  iVar1 = fixedmult(norm->x,pointOnPlane->x);
-  iVar2 = fixedmult(norm->y,pointOnPlane->y);
-  iVar3 = fixedmult(norm->z,pointOnPlane->z);
-  iVar4 = fixedmult(norm->x,testPoint->x);
-  iVar5 = fixedmult(norm->z,testPoint->z);
-  iVar1 = fixeddiv(-((iVar4 + iVar5) - (iVar1 + iVar2 + iVar3)),norm->y);
-  return iVar1;
+
+  D = -(fixedmult(norm->x,pointOnPlane->x) +
+        fixedmult(norm->y,pointOnPlane->y) +
+        fixedmult(norm->z,pointOnPlane->z));
+  return fixeddiv(-(fixedmult(norm->x,testPoint->x) +
+                    fixedmult(norm->z,testPoint->z) + D),norm->y);
 }
 
 /* end of scene.cpp */

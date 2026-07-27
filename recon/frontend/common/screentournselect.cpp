@@ -234,30 +234,30 @@ void tScreenTournSelect::DrawVideoWall()
 void tScreenTournSelect::DrawBackground()
 
 {
+  short y;
+  char buffer [64];
+  short i;
+  short j;
+  RECT r;
+  tTourneyInfo *tourn;
+  int YellowCol;
+  int DarkGreyCol;
+  int GreyCol;
+  short shapeY;
+  u_long movieRGB;
   byte tb1;
   long number;
   ushort tu2;
-  int YellowCol;
   int row, col, tvIdx;
-  int DarkGreyCol;
-  int GreyCol;
   int ti6;
   int ti7;
   char *tstr8;
   tListIteratorTournament *tp9;
   tTournamentDefinition *amount;
   RECT *r_00;
-  short shapeY;
-  short j;
-  short i;
   int ti10;
-  short y;
-  tTourneyInfo *tourn;
-  char buffer [64];
-  RECT r;
   char moviename [80];
-  u_long movieRGB;
-  
+
   tb1 = frontEnd.tournament;
   if (frontEnd.tier != '\0') {
     tb1 = frontEnd.specialevent;
@@ -303,21 +303,21 @@ void tScreenTournSelect::DrawBackground()
   if ((this->fFrame & 1U) == 0) {
     ti6 = 0x50;
   }
-  row = 0;
+  i = 0;
   do {
-    col = 0;
+    j = 0;
     do {
-      tvIdx = (col + (short)row * 4) * 0x10000 >> 0x10;
-      this->tvConfigs[tvIdx].x = (short)col * 0x50 + 0xa5;
+      tvIdx = (j + i * 4) * 0x10000 >> 0x10;
+      this->tvConfigs[tvIdx].x = j * 0x50 + 0xa5;
       this->tvConfigs[tvIdx].w = 0x50;
       this->tvConfigs[tvIdx].h = 0x30;
       this->tvConfigs[tvIdx].uw = '\x14';
-      this->tvConfigs[tvIdx].y = (short)row * 0x30 + 0x29;
-      this->tvConfigs[tvIdx].u = (char)col * '\x14';
-      this->tvConfigs[tvIdx].v = (char)row * '(';
+      this->tvConfigs[tvIdx].y = i * 0x30 + 0x29;
+      this->tvConfigs[tvIdx].u = (char)j * '\x14';
+      this->tvConfigs[tvIdx].v = (char)i * '(';
       this->tvConfigs[tvIdx].vh = '(';
       tu2 = GetTPage(2,0,0x200,(int)(short)ti6);
-      col = col + 1;
+      j = j + 1;
       this->tvConfigs[tvIdx].tpage = tu2;
       this->tvConfigs[tvIdx].state = tv_StateOn;
       this->tvConfigs[tvIdx].clut = 0;
@@ -325,9 +325,9 @@ void tScreenTournSelect::DrawBackground()
       this->tvConfigs[tvIdx].tint = 0x2c1e1e;
       this->tvConfigs[tvIdx].destBrightness = 0x80;
       this->tvConfigs[tvIdx].transition = 0x80;
-    } while (col * 0x10000 >> 0x10 < 4);
-    row = row + 1;
-  } while (row * 0x10000 >> 0x10 < 2);
+    } while (j * 0x10000 >> 0x10 < 4);
+    i = i + 1;
+  } while (i * 0x10000 >> 0x10 < 2);
   row = VIDEO_state(this->hVideo);
   if (row == 0) {
     this->fCurrentMovie = 0;

@@ -986,26 +986,16 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
   u_short uVar2;
   bool fPlayList;
   tTexture_ShapeInfo *shape;
-  tTexture_ShapeInfo *ptVar6;
-  int vtable_ptr;
   int ColText;
-  int boxHeight;
   int x;
-  int topShapeY;
   int y;
-  int ptVar8;
   int tstr10;
   int iVar7;
   int iVar8;
-  int sMenuText;
   int pkt_addr24;
   int ti1;
   int tu1;
   int boxWidth_d;
-  int drawX;
-  tInsideBoxMenu *index;
-  int pa_Var3;
-  int rowSpacing;
   int hh;
   int itemColor;
   tTexture_ShapeInfo *shapebottom;
@@ -1019,35 +1009,40 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
   int width;
   int gray;
   DRAWENV *drenv;
-  u_char bVar1;
-  int ptVar3;
-  int ptVar4;
   u_char *cur_pkt;
   u_char *daprim;
-  
-  vtable_ptr = (int)this->_vf;
-  (**(int (**)(...))(vtable_ptr + 0x5c))
-            ((int)&this->fFlags + (int)*(short *)(vtable_ptr + 0x58),
+
+  /* SYM: fn-scope locals are ONLY ColText/x/y/shape/fPlayList; drawFlags+
+     width are scoped to the "if (currMenu!=0||fPlayList)" block; xx/yy/ww/
+     hh/drenv/daprim/full/temp/gray/shapetop/shapebottom to the big
+     "if (currMenu!=0)" block. The virtual DebounceKeys-flags call, the
+     TextSys_WordX/WordY->x/y fusion, `shape` as the ALREADY-OFFSET
+     &gHelpShapes[0x1e] pointer (not a base ptr re-indexed each use), the
+     shared boxWidth_d (0xdc for a playlist submenu, else fWidth -- computed
+     ONCE, reused by the two flare-arrow DrawShapeExtended calls only), and
+     the two independent currMenu/fPlayList tests (not one cached flag) are
+     all read directly off the raw oracle (asm/nonmatchings/front/
+     Draw__20tMenuItemSlidingMenuiib.s). */
+  (**(int (**)(...))((int)this->_vf + 0x5c))
+            ((int)&this->fFlags + (int)*(short *)((int)this->_vf + 0x58),
              selected);
   ColText = CalcTextFadeSelToHi(textType_Options,this->fSelFade,this->fFadeVal);
-  boxHeight = TextSys_WordX(this->fTextDescription);
-  x = boxHeight + offx;
-  topShapeY = TextSys_WordY(this->fTextDescription);
-  shape = gHelpShapes;
+  x = TextSys_WordX(this->fTextDescription) + offx;
+  y = TextSys_WordY(this->fTextDescription) + offy;
+  shape = &gHelpShapes[0x1e];
   fHelpText = -1;
-  y = topShapeY + offy;
   fPlayList = (tInsideBoxSongMenu *)this->currMenu == &menuDefs->menuPlayListMenu;
   if ((this->fFadeVal != 0x80) && (fPlayList)) {
     DrawLeftFlare(y,(int)this->fSelFade,(int)this->fFadeVal,
                flareextra);
   }
-  if ((this->currMenu != (tInsideBoxMenu *)0x0) || (ptVar8 = 0, fPlayList)) {
+  if ((this->currMenu != (tInsideBoxMenu *)0x0) || (fPlayList)) {
+    boxWidth_d = fPlayList ? 0xdc : (int)this->fWidth;
     drawFlags.tint[0] = CalcFadeVal(0,0xbebe,(int)this->fSelFade,(int)this->fFadeVal);
-    DrawShapeExtended(0x39,0x18,((x + (fPlayList ? 0xdc : (int)this->fWidth)) - (int)shape[0x1e].width) - 0xa,(fPlayList ? y + -3 : y + -2),0,1,&drawFlags);
-    DrawShapeExtended(0x3a,0x18,((x + (fPlayList ? 0xdc : (int)this->fWidth)) - (int)shape[0x1e].width) - 0xa,(fPlayList ? y + 3 : y + 4),0,1,&drawFlags);
-    ptVar8 = (int)this->currMenu;
+    DrawShapeExtended(0x39,0x18,((x + boxWidth_d) - (int)shape->width) - 0xa,(fPlayList ? y + -3 : y + -2),0,1,&drawFlags);
+    DrawShapeExtended(0x3a,0x18,((x + boxWidth_d) - (int)shape->width) - 0xa,(fPlayList ? y + 3 : y + 4),0,1,&drawFlags);
   }
-  if (ptVar8 != 0) {
+  if (this->currMenu != (tInsideBoxMenu *)0x0) {
     uVar2 = this->fOpenHeight;
     sVar1 = this->fWidth;
     ww = (int)sVar1;
@@ -1071,13 +1066,10 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
     gray = 0x505050;
     SubtractiveBox(xx,yy,ww,width,gray,gray,0,0);
     SubtractiveBox(xx,yy + width,ww,width,0,0,gray,gray);
-    ptVar6 = gHelpShapes;
-    shapetop = ptVar6 + 0x1f;
-    shapebottom = ptVar6 + 0x20;
-    index = this->currMenu;
-    pa_Var3 = (int)(index)->_vf;
-    (**(int (**)(...))(pa_Var3 + 0x5c))
-              ((int)(index)->fItemList + *(short *)(pa_Var3 + 0x58) + -0x10,
+    shapetop = gHelpShapes + 0x1f;
+    shapebottom = gHelpShapes + 0x20;
+    (**(int (**)(...))((int)this->currMenu->_vf + 0x5c))
+              ((int)this->currMenu->fItemList + *(short *)((int)this->currMenu->_vf + 0x58) + -0x10,
                xx * 0x10000 >> 0x10,yy * 0x10000 >> 0x10,ww,
                (int)((u_int)(u_short)this->fSlideOffset << 0x11) >> 0x10,(int)this->fHeight);
     itemColor = hh >> 0x10;
@@ -1096,7 +1088,6 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
     daprim = Render_gPacketPtr;
     cur_pkt = Render_gPalettePtr;
     temp.x = (short)xx;
-    ti1 = -0x1000000;
     temp.y = *(short *)((char *)drenv + 2) + (short)yy;
     *(u_int *)Render_gPacketPtr =
          *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
@@ -1112,12 +1103,11 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
       iVar8 = TextSys_WordY(fHelpText);
       FETextRender_FullTextRGB((char *)tstr10,(short)iVar7,(short)iVar8,PulsateYellow[0],'\0',2);
     }
-    sMenuText = (int)TextSys_Word(this->fTextDescription);
-    FETextRender_FullTextRGB((char *)sMenuText,(short)x,(short)y,ColText,'\0',(u_short)fPlayList);
-    DrawShapeExtended(0x1e,8,(x + (fPlayList ? 0xdc : (int)this->fWidth)) - (int)shape[0x1e].width,y + -2,(int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
+    FETextRender_FullTextRGB((char *)TextSys_Word(this->fTextDescription),(short)x,(short)y,ColText,'\0',(u_short)fPlayList);
+    DrawShapeExtended(0x1e,8,(x + (int)this->fWidth) - (int)shape->width,y + -2,(int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
     if (this->fFillback != 0) {
-      PSXDrawSquare(0,x,y + -2,(int)this->fWidth - (int)shape[0x1e].width,
-                 (int)shape[0x1e].height);
+      PSXDrawSquare(0,x,y + -2,(int)this->fWidth - (int)shape->width,
+                 (int)shape->height);
     }
   }
   return;
@@ -2396,11 +2386,19 @@ void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
               tMenuCommand &command)
 
 {
-  /* SYM: FCN VOID (no return -- iVar7 in the prior recon was Ghidra
-     inventing a return of the dash-scan cursor; the oracle epilogue calls
-     Stattool_SamNelsonsUpperLowerStringConverterForRecords and returns
-     with no $v0 read at all). Full switch-restructure per the
-     tInsideBoxSongMenu recipe deferred -- see wave report. */
+  /* SYM: FCN VOID, REGPARM this($s0)+keyval($s1) only -- fromPlayer/command
+     are dead (never read in the body, matching the oracle: $a3/&command is
+     never touched). SYM's 8c block shows NO named locals at all: every
+     scalar below is a Ghidra-fabricated compiler temp, not a real variable.
+     Real switch(keyval) (gcc balance_case_nodes: ==0x400/Down root, <0x401
+     bound test over 0x2/Cross+0x200/Up, else 0x800/Left+0x1000/Right) --
+     Down and Up share ONE body (Down falls into a tiny header that
+     recomputes 0x200 before the Up/Down split-test; Up's own dispatch
+     compare already holds 0x200 and jumps straight into the shared test),
+     modeled as case Down: <label> ... ; case Up: goto <label>; per the
+     tInsideBoxSongMenu recipe. menu_kUserNameRows is read LAZILY inside the
+     Down arm only (oracle stages the lui in the shared branch's delay slot,
+     not hoisted to function entry). */
   u_char bVar1;
   u_short uVar2;
   short sVar3;
@@ -2408,118 +2406,116 @@ void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
   u_int uVar5;
   void *pvVar6;
   int iVar7;
-  tInputKeyType tVar8;
   int iVar9;
+  int sfxArg;
   u_int uVar10;
-  
-  sVar4 = menu_kUserNameRows;
+  tInputKeyType tVar8;
+
   tVar8 = keyval;
-  if (tVar8 == kInput_KeyType_Down) {
+  switch (tVar8) {
+  case kInput_KeyType_Down:
+  case kInput_KeyType_Up:
 UserNameProcInp_handleUpDown:
     if (tVar8 == kInput_KeyType_Up) {
       uVar2 = this->fCurrentRow - 1;
       this->fCurrentRow = uVar2;
-      iVar9 = 3;
+      sfxArg = 3;
       if ((int)((u_int)uVar2 << 0x10) < 0) {
         this->fCurrentRow = menu_kUserNameRows + -1;
       }
     }
     else {
+      sVar4 = menu_kUserNameRows;
       sVar3 = this->fCurrentRow + 1;
       this->fCurrentRow = sVar3;
-      iVar9 = 4;
+      sfxArg = 4;
       if (sVar4 <= sVar3) {
         this->fCurrentRow = 0;
       }
     }
-    AudioCmn_PlayFESFX(iVar9);
+    AudioCmn_PlayFESFX(sfxArg);
     if (this->fCurrentColumn < 0) {
       this->fCurrentColumn = 0;
     }
 UserNameProcInp_markProcessed:
     keyval = kInput_KeyType_AlreadyProcessed;
-  }
-  else if ((int)tVar8 < 0x401) {
-    if (tVar8 == kInput_KeyType_Cross) {
-      uVar5 = strlen(this->fData);
-      bVar1 = this->fRowList[0][(int)this->fCurrentColumn + this->fCurrentRow * 9];
-      uVar10 = (u_int)bVar1;
-      sVar4 = (short)uVar5;
-      if (uVar10 - 0x23 < 2) {
-        iVar9 = 0x15;
-        if (0 < sVar4) {
-          this->fData[sVar4 + -1] = '\0';
-          goto UserNameProcInp_playSfxAndMarkProcessed;
-        }
-        goto UserNameProcInp_markProcessed;
-      }
-      if ((uVar10 == 0x21) || (uVar10 == 0x40)) {
-        pvVar6 = CheckForCheats(this->fData);
-        if (pvVar6 != (void *)0x0) {
-          *this->fData = '\0';
-          goto UserNameProcInp_skipDashColumns;
-        }
-        tVar8 = kInput_KeyType_Triangle;
-        if ((FEApp->fCurrentMenu[0]->fFlags & 0x100) == 0) {
-          tVar8 = kInput_KeyType_Start;
-        }
-        keyval = tVar8;
-      }
-      else if ((uVar10 == 0x26) || (uVar10 == 0x5e)) {
-        iVar9 = (int)sVar4;
-        if (iVar9 < this->fMaxStringLength) {
-          this->fData[iVar9] = ' ';
-          this->fData[iVar9 + 1] = '\0';
-          AudioCmn_PlayFESFX(0x15);
-          goto UserNameProcInp_skipDashColumns;
-        }
-      }
-      else {
-        iVar7 = (int)sVar4;
-        iVar9 = 0x15;
-        if (iVar7 < this->fMaxStringLength) {
-          this->fData[iVar7] = bVar1;
-          this->fData[iVar7 + 1] = '\0';
-          goto UserNameProcInp_playSfxAndMarkProcessed;
-        }
-      }
-      AudioCmn_PlayFESFX(1);
+    break;
+  case kInput_KeyType_Left:
+    uVar2 = this->fCurrentColumn - 1;
+    this->fCurrentColumn = uVar2;
+    sfxArg = 3;
+    if ((int)((u_int)uVar2 << 0x10) < 0) {
+      this->fCurrentColumn = 5;
     }
-    else if (tVar8 == kInput_KeyType_Up) goto UserNameProcInp_handleUpDown;
-  }
-  else {
-    if (tVar8 == kInput_KeyType_Left) {
-      uVar2 = this->fCurrentColumn - 1;
-      this->fCurrentColumn = uVar2;
-      iVar9 = 3;
-      if ((int)((u_int)uVar2 << 0x10) < 0) {
-        this->fCurrentColumn = 5;
-      }
 UserNameProcInp_playSfxAndMarkProcessed:
-      AudioCmn_PlayFESFX(iVar9);
-      goto UserNameProcInp_markProcessed;
+    AudioCmn_PlayFESFX(sfxArg);
+    goto UserNameProcInp_markProcessed;
+  case kInput_KeyType_Right:
+    sVar4 = this->fCurrentColumn + 1;
+    this->fCurrentColumn = sVar4;
+    if (5 < sVar4) {
+      this->fCurrentColumn = 0;
     }
-    if (tVar8 == kInput_KeyType_Right) {
-      sVar4 = this->fCurrentColumn + 1;
-      this->fCurrentColumn = sVar4;
-      if (5 < sVar4) {
+    AudioCmn_PlayFESFX(4);
+    keyval = kInput_KeyType_AlreadyProcessed;
+    sVar4 = this->fCurrentColumn;
+    iVar9 = this->fCurrentRow * 9;
+    iVar7 = 0x2d;
+    if (this->fRowList[0][this->fCurrentColumn + iVar9] != '-')
+    goto UserNameProcInp_convertAndReturn;
+    do {
+      this->fCurrentColumn = sVar4 + 1;
+      if (5 < (short)(sVar4 + 1)) {
         this->fCurrentColumn = 0;
       }
-      AudioCmn_PlayFESFX(4);
-      keyval = kInput_KeyType_AlreadyProcessed;
       sVar4 = this->fCurrentColumn;
-      iVar9 = this->fCurrentRow * 9;
-      iVar7 = 0x2d;
-      if (this->fRowList[0][this->fCurrentColumn + iVar9] != '-')
-      goto UserNameProcInp_convertAndReturn;
-      do {
-        this->fCurrentColumn = sVar4 + 1;
-        if (5 < (short)(sVar4 + 1)) {
-          this->fCurrentColumn = 0;
-        }
-        sVar4 = this->fCurrentColumn;
-      } while (this->fRowList[0][this->fCurrentColumn + iVar9] == '-');
+    } while (this->fRowList[0][this->fCurrentColumn + iVar9] == '-');
+    break;
+  case kInput_KeyType_Cross:
+    uVar5 = strlen(this->fData);
+    bVar1 = this->fRowList[0][(int)this->fCurrentColumn + this->fCurrentRow * 9];
+    uVar10 = (u_int)bVar1;
+    sVar4 = (short)uVar5;
+    if (uVar10 - 0x23 < 2) {
+      sfxArg = 0x15;
+      if (0 < sVar4) {
+        this->fData[sVar4 + -1] = '\0';
+        goto UserNameProcInp_playSfxAndMarkProcessed;
+      }
+      goto UserNameProcInp_markProcessed;
     }
+    if ((uVar10 == 0x21) || (uVar10 == 0x40)) {
+      pvVar6 = CheckForCheats(this->fData);
+      if (pvVar6 != (void *)0x0) {
+        *this->fData = '\0';
+        goto UserNameProcInp_skipDashColumns;
+      }
+      tVar8 = kInput_KeyType_Triangle;
+      if ((FEApp->fCurrentMenu[0]->fFlags & 0x100) == 0) {
+        tVar8 = kInput_KeyType_Start;
+      }
+      keyval = tVar8;
+    }
+    else if ((uVar10 == 0x26) || (uVar10 == 0x5e)) {
+      iVar9 = (int)sVar4;
+      if (iVar9 < this->fMaxStringLength) {
+        this->fData[iVar9] = ' ';
+        this->fData[iVar9 + 1] = '\0';
+        AudioCmn_PlayFESFX(0x15);
+        goto UserNameProcInp_skipDashColumns;
+      }
+    }
+    else {
+      iVar7 = (int)sVar4;
+      sfxArg = 0x15;
+      if (iVar7 < this->fMaxStringLength) {
+        this->fData[iVar7] = bVar1;
+        this->fData[iVar7 + 1] = '\0';
+        goto UserNameProcInp_playSfxAndMarkProcessed;
+      }
+    }
+    AudioCmn_PlayFESFX(1);
+    break;
   }
 UserNameProcInp_skipDashColumns:
   iVar9 = this->fCurrentRow * 9;

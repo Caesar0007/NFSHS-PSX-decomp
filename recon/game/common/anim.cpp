@@ -183,48 +183,43 @@ int Anim_GetLastAnimPosRot(int animNum,int flags,coorddef *pt,matrixtdef *mat)
 /* ---- Anim_GetRotPos  [@0x80073f18] ---- */
 int Anim_GetRotPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,matrixtdef *mat)
 {
-  int iVar4;
-  u_char *puVar5;
-  int iVar6;
-  u_char *puVar7;
-  int iVar8;
-  Trk_AnimateInst *pTVar9;
-  int iVar13;
-  coorddef local_40;
-  coorddef local_30;
-  tQuat tStack_20;
-  u_char auStack_18 [8];
-  tQuat tStack_10;
+  Anim_tFrame *animFrames;
+  int animInd0;
+  int animInd1;
+  coorddef objcp0;
+  coorddef objcp1;
+  tQuat q;
+  tQuat q0;
+  tQuat q1;
+  int interval;
 
-  if ((animInst->type == '\x03') ||
-     (pTVar9 = (Trk_AnimateInst *)&animInst[1].zoffset, animInst->type == '\a')) {
-    pTVar9 = animInst + 1;
-  }
-  if ((u_short)animInst->interval - 1 < 400) {
-    iVar6 = (int)animInst->interval;
+  if ((animInst->type == '\x03') || (animInst->type == '\a')) {
+    animFrames = (Anim_tFrame *)((char *)animInst + 0xc);
   }
   else {
-    iVar6 = 6;
+    animFrames = (Anim_tFrame *)((char *)animInst + 0x10);
   }
-  iVar13 = ticks / iVar6;
-  if (((flags & 2U) == 0) || (iVar4 = 0, iVar13 < animInst->count + -1)) {
-    iVar4 = animInst->count + -1;
-    iVar8 = ticks % iVar6 << 0x10;
-    puVar7 = (u_char *)((iVar13 % iVar4) * 0x14 + (int)pTVar9);
-    puVar5 = (u_char *)((iVar13 % iVar4 + 1) * 0x14 + (int)pTVar9);
-        *(tQuat *)auStack_18 = *(tQuat *)((char *)puVar7 + 0xc);   /* @0x64088 q0 = frame[idx0].quat */
-    tStack_10 = *(tQuat *)((char *)puVar5 + 0xc);              /* @0x640A8 q1 = frame[idx0+1].quat */
-    local_40.x = *(int *)puVar7;
-    local_40.y = *(int *)(puVar7 + 4);
-    local_40.z = *(int *)(puVar7 + 8);
-    local_30.x = *(int *)puVar5;
-    local_30.y = *(int *)(puVar5 + 4);
-    local_30.z = *(int *)(puVar5 + 8);
-    Quatern_Interpolate((tQuat *)auStack_18,&tStack_10,&local_40,&local_30,iVar8 / iVar6,&tStack_20,pt);
-    Quatern_QuatToMat(&tStack_20,mat);
-    iVar4 = 1;
+  if ((u_int)((u_short)animInst->interval - 1) < 400) {
+    interval = (int)animInst->interval;
   }
-  return iVar4;
+  else {
+    interval = 6;
+  }
+  flags &= 2;
+  animInd0 = ticks / interval;
+  if ((flags != 0) && (animInst->count - 1 <= animInd0)) {
+    return 0;
+  }
+  animInd0 %= animInst->count - 1;
+  animInd1 = animInd0 + 1;
+  q0 = *(tQuat *)&animFrames[animInd0].qx;
+  q1 = *(tQuat *)&animFrames[animInd1].qx;
+  objcp0 = *(coorddef *)&animFrames[animInd0];
+  objcp1 = *(coorddef *)&animFrames[animInd1];
+  Quatern_Interpolate(&q0,&q1,&objcp0,&objcp1,
+                      ((ticks % interval) << 0x10) / interval,&q,pt);
+  Quatern_QuatToMat(&q,mat);
+  return 1;
 }
 
 /* ---- Anim_GetPos  [@0x8007412c] ---- */

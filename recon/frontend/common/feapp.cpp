@@ -314,35 +314,35 @@ void tFEApplication::DrawHelpIcons()
 void tFEApplication::Redraw()
 
 {
+  int i;
+  u_char saveFPlayer;
+  short height;
+  char buffer [32];
+  int drenv;
+  u_char *daprim;
+  RECT r;
   int iVar1;
   int musThresh;
-  int drenv;
-  int ti8;
-  int pa_Var9;
-  int ti2;
-  int pa_Var3;
-  int freeHeap_or_buf;
-  __vtbl_ptr_type (*pa_Var2) [11];
-  int pkt_addr24_p2;
+  tMenuCommand emptycommand;
+  tInputKeyType JustOneToPass;
+  tGlobalMenuDefs *globalMenuDefs;
+  tInputKeyType JustOneToPass_l85;
   int curItem;
+  u_char *prev_pkt_p1;
   int pkt_addr24_p1;
   int menu_per_player;
   int parentMenu_p;
   tMenu *curMenu;
+  int ti8;
+  int pa_Var9;
   tMenu *ptVar2;
-  int i;
-  short height;
-  char buffer [32];
-  RECT r;
-  tMenuCommand emptycommand;
-  tInputKeyType JustOneToPass;
-  tInputKeyType JustOneToPass_l85;
-  u_char saveFPlayer;
   u_char bVar2;
-  u_char *daprim;
-  tGlobalMenuDefs *globalMenuDefs;
-  u_char *prev_pkt_p1;
-  
+  __vtbl_ptr_type (*pa_Var2) [11];
+  int ti2;
+  int pa_Var3;
+  int freeHeap_or_buf;
+  int pkt_addr24_p2;
+
   saveFPlayer = this->fPlayer;
   FeAudio_systemtask(0);
   Draw_StartFrameRender();

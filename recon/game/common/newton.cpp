@@ -1751,7 +1751,7 @@ extern "C" void Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii(u_int *newtonO
   iVar1 = fixeddiv(0x10000,newtonObj[0x2e]);
   newtonObj[0x2f] = iVar1;
   newtonObj[0x48] = newtonObj[0x2e] << 3;
-  iVar1 = fixeddiv(0x10000,newtonObj[0x2e] << 3);
+  iVar1 = fixeddiv(0x10000,newtonObj[0x48]);
   newtonObj[0x49] = iVar1;
   newtonObj[0x45] = 0;
   newtonObj[0x46] = 0;
@@ -1762,21 +1762,11 @@ extern "C" void Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii(u_int *newtonO
   newtonObj[0x4d] = dimX;
   newtonObj[0x4e] = dimY;
   newtonObj[0x4f] = dimZ;
-  if (dimX < 0) {
-    dimX = dimX + 0xff;
-  }
-  if (dimY < 0) {
-    dimY = dimY + 0xff;
-  }
-  iVar1 = fixedsqrt((dimX >> 8) * (dimX >> 8) + (dimY >> 8) * (dimY >> 8));
+  iVar1 = fixedsqrt((dimX / 0x100) * (dimX / 0x100) +
+                    (dimY / 0x100) * (dimY / 0x100));
   newtonObj[0x50] = iVar1;
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
-  }
-  if (dimZ < 0) {
-    dimZ = dimZ + 0xff;
-  }
-  iVar1 = fixedsqrt((iVar1 >> 8) * (iVar1 >> 8) + (dimZ >> 8) * (dimZ >> 8));
+  iVar1 = fixedsqrt((iVar1 / 0x100) * (iVar1 / 0x100) +
+                    (dimZ / 0x100) * (dimZ / 0x100));
   iVar3 = 9;
   puVar2 = newtonObj + 9;
   newtonObj[0x50] = iVar1;

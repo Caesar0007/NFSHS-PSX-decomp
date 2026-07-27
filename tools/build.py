@@ -177,6 +177,10 @@ PER_TU_FLAGS = {
     # half (shape lands on retail's $s6). movf.c holds only movfxya, so no
     # in-TU regression is possible. Full rationale in the comment block above.
     "recon/eaclib/psx/eacpsxz/movf.c":      {"no_schedule_insns": True},
+    # sbdload.obj per-obj identity (w33-a6 quantified: 42->23, all nine callee-saved
+    # assignments + both cursor shapes land exactly; retail's patch loop shows NO
+    # strength reduction).  Same adoption precedent as movf.c's no_schedule_insns.
+    "recon/eaclib/psx/sndpsxz/sbdload.c":   {"no_strength_reduce": True},
     # "no_delayed_branch" PROTOTYPED on libetc/INTR.cpp (w24-a9 task 3) and
     # NOT enabled here: net +3 PASS (ResetCallback/InterruptCallback/
     # DMACallback/VSyncCallbacks 4->0 diffs each) but a genuine regression
@@ -500,6 +504,8 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
         cc1_flags.append("-fno-schedule-insns")
     if tu_flags.get("no_schedule_insns2"):
         cc1_flags.append("-fno-schedule-insns2")
+    if tu_flags.get("no_strength_reduce"):
+        cc1_flags.append("-fno-strength-reduce")
     r = run([CC1, *cc1_flags, i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[cc1] {rel}\n{r.stdout}{r.stderr}")

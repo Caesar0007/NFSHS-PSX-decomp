@@ -106,6 +106,19 @@ extern int iSNDdownloadbank(int bankData, int patchData)
      *  (c) the oracle spends one extra `addu a0,v0,zero` at the arm merge; ours coalesces abs
      *      straight into $a0 (the classic ours-1-shorter merge copy).  In-place `abs +=`, a
      *      separate arg temp and a per-arm abs were all tried (46/42/37+1insn).
+     *  🟢 2026-07-27 inline: the w33-a6 identity is now ADOPTED as a PER-TU FLAG
+     *  (tools/build.py PER_TU_FLAGS "no_strength_reduce", same precedent as movf.c's
+     *  no_schedule_insns): 42 -> 23 diffs with THIS source untouched.  The 23 = the clear
+     *  loop's no-SR degradation (+1 insn, indexed sll/addu vs retail's -8 walker), the (c)
+     *  merge copy, and two scheduling slots.  ATTACKED AND FALSIFIED on top of the flag
+     *  (full matrix, all at 84/84 unless noted): explicit i+p walker clear loop 50 (fixes
+     *  the loop shape but i loses its index ref -> i/cur2 s0<->s2 swap); walker + zero-trip
+     *  guard 36 (i climbs to s1; residual = pure i/cur4 s0<->s1, i at 15refs/46len=0.978 vs
+     *  cur4 33/33=1.0 -- needs exactly +1 ref or -1 len); walker+guard+cur2-early 40
+     *  (bankData s4->s5); walker+guard+cur-set-swap 42; (i=0)-inside-the-guard-expression
+     *  52 (loses the ref); indexed loop + zero-trip guard 47 (overshoots).  The 36-state's
+     *  i/cur4 tie is THE remaining lever target if a zero-cost +1 i-ref is ever found;
+     *  until then the plain body + flag at 23 stands.
      *  W34-a6 re-verdict, with the wave's NEW evidence class (NFS2 PC-beta named source): the
      *      floor STANDS.  `pc-split` has no iSNDdownloadbank file, but nfsw.IDA.c's sub_483468 IS
      *      it (NFS2 SYM `iSNDdownloadbank_` @0x483468).  That older generation writes the scratch

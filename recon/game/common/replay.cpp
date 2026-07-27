@@ -776,77 +776,52 @@ void Replay_LoadCameraFile(void)
 void Replay_ReplayChooseCamera(int player,int slice)
 
 {
-  int iVar1;
-  Camera_tCamSlot *pCVar2;
-  u_int uVar3;
-  u_int uVar4;
-  int nextDist;
-  int iVar5;
-  int currDist;
-  int iVar6;
-  int prevIndex;
-  int iVar7;
-  int nextIndex;
-  int iVar8;
   int currIndex;
-  int iVar9;
+  int prevIndex;
+  int nextIndex;
+  int currDist;
+  int nextDist;
   
-  iVar9 = Replay_ReplayCamera[player].cutToNextCamera;
-  iVar7 = iVar9 + -1;
-  if (iVar7 < 0) {
-    iVar7 = numValidCams + -1;
+  currIndex = Replay_ReplayCamera[player].cutToNextCamera;
+  prevIndex = currIndex - 1;
+  if (prevIndex < 0) {
+    prevIndex = numValidCams - 1;
   }
-  iVar8 = 0;
-  if (iVar9 + 1 < numValidCams) {
-    iVar8 = iVar9 + 1;
+  nextIndex = 0;
+  if (currIndex + 1 < numValidCams) {
+    nextIndex = currIndex + 1;
   }
-  iVar6 = (int)gReplayCameraSlots[iVar9].slice;
-  iVar5 = (int)gReplayCameraSlots[iVar8].slice;
-  iVar1 = slice - iVar6;
-  if (slice < iVar6) {
-    if (iVar1 < 1) {
-      iVar1 = iVar6 - slice;
-    }
-    if (iVar1 < 200) {
-      Replay_ReplayCamera[player].cutToNextCamera = iVar7;
+  currDist = gReplayCameraSlots[currIndex].slice;
+  nextDist = gReplayCameraSlots[nextIndex].slice;
+  if (slice < currDist) {
+    if (((slice - currDist > 0) ? slice - currDist : currDist - slice) < 200) {
+      Replay_ReplayCamera[player].cutToNextCamera = prevIndex;
       goto ReplayChooseCam_cutCheck;
     }
   }
-  if (iVar5 <= slice) {
-    iVar7 = slice - iVar5;
-    if (iVar7 < 1) {
-      iVar7 = iVar5 - slice;
-    }
-    if (iVar7 < 200) {
-      Replay_ReplayCamera[player].cutToNextCamera = iVar8;
+  if (slice >= nextDist) {
+    if (((slice - nextDist > 0) ? slice - nextDist : nextDist - slice) < 200) {
+      Replay_ReplayCamera[player].cutToNextCamera = nextIndex;
     }
   }
 ReplayChooseCam_cutCheck:
-  if (Replay_ReplayCamera[player].cutToNextCamera != iVar9) {
+  if (Replay_ReplayCamera[player].cutToNextCamera != currIndex) {
     if (((((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
          (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0 ||
           ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0)))))
          ) || (Cars_gHumanRaceCarList[player]->wrongway != 0)) &&
        (gReplayCameraSlots[Replay_ReplayCamera[player].cutToNextCamera].mode == '\v')) {
-      iVar7 = Replay_ReplayCamera[player].cutToNextCamera;
       Replay_ReplayCamera[player].defaultCamera = 0;
-      pCVar2 = gReplayCameraSlots + iVar7;
-      ((u_char *)&(uVar3))[0] = pCVar2->mode;
-      ((u_char *)&(uVar3))[1] = ((char *)(pCVar2))[0x1];
-      (*(u_short *)((u_char *)&(uVar3) + 2)) = pCVar2->fov;
-      *(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) =
-           *(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) & 0xf9ffffff | (uVar3 >> 9 & 3) << 0x19;
-      pCVar2 = gReplayCameraSlots + Replay_ReplayCamera[player].cutToNextCamera;
-      ((u_char *)&(uVar4))[0] = pCVar2->mode;
-      ((u_char *)&(uVar4))[1] = ((char *)(pCVar2))[0x1];
-      (*(u_short *)((u_char *)&(uVar4) + 2)) = pCVar2->fov;
-      Camera_gInfo[player].splineMode = (u_char)(uVar4 >> 0xb) & 7;
-      Camera_SetMode(player,0xb);
+      Camera_gInfo[player].zooming =
+          gReplayCameraSlots[Replay_ReplayCamera[player].cutToNextCamera].zoom;
+      Camera_gInfo[player].splineMode =
+          gReplayCameraSlots[Replay_ReplayCamera[player].cutToNextCamera].splineMode;
+      Camera_SetMode(player,11);
     }
     else {
-      iVar7 = Replay_ReplayCamera[player].cutToNextCamera;
       Replay_ReplayCamera[player].defaultCamera = 1;
-      Camera_ReplayUpdate(player,gReplayCameraSlots + iVar7);
+      Camera_ReplayUpdate(
+          player,gReplayCameraSlots + Replay_ReplayCamera[player].cutToNextCamera);
     }
   }
   return;

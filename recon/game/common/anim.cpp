@@ -43,54 +43,42 @@ AnimRestart_End:;
 /* ---- Anim_InitSystem  [@0x80073b1c] ---- */
 int Anim_InitSystem(char *trackName)
 {
-  int *src;
-  void *pThis;
-  Trk_AnimateInst *pTVar1;
-  int iVar2;
-  Trk_AnimateInst **ppTVar3;
-  char acStack_68 [80];
+  int i;
+  char fname[80];
+  char *bigFile;
 
   Anim_Restart();
-  sprintf(acStack_68,"%sA.viv",trackName);
-  src = (int *)loadfileadrz(acStack_68,(void *)0x0);
-  iVar2 = 9;
-  if (src != (int *)0x0) {
-    iVar2 = filesize(acStack_68);
-    pThis =
-           Platform_GetDCTBuffer(iVar2,"animScripts");
-    blockmove(src,(int *)pThis,iVar2);
-    purgememadr(src);
+  sprintf(fname,"%sA.viv",trackName);
+  bigFile = (char *)loadfileadrz(fname,(void *)0x0);
+  i = 9;
+  if (bigFile != (char *)0x0) {
+    int size = filesize(fname);
+    char *mem = (char *)Platform_GetDCTBuffer(size,"animScripts");
+
+    blockmove((int *)bigFile,(int *)mem,size);
+    purgememadr(bigFile);
     strstr(trackName,"Tr");
-    iVar2 = 0;
-    ppTVar3 = animScripts;
-    do {
-      sprintf(acStack_68,"tr00a%02d.can",iVar2);
-      pTVar1 = (Trk_AnimateInst *)locatebig(pThis, acStack_68);   /* locatebig is genuinely 2-arg (locatbig.cpp:178); oracle sets up only a0/a1 before the jal */
-      *ppTVar3 = pTVar1;
-      iVar2 = iVar2 + 1;
-      ppTVar3 = ppTVar3 + 1;
-    } while (iVar2 < 10);
+    for (i = 0; i < 10; i++) {
+      sprintf(fname,"tr00a%02d.can",i);
+      animScripts[i] = (Trk_AnimateInst *)locatebig(mem,fname);
+    }
   }
   else {
-    ppTVar3 = animScripts + 9;
-    do {
-      *ppTVar3 = (Trk_AnimateInst *)0x0;
-      iVar2 = iVar2 + -1;
-      ppTVar3 = ppTVar3 + -1;
-    } while (-1 < iVar2);
+    for (; 0 <= i; i--) {
+      animScripts[i] = (Trk_AnimateInst *)0x0;
+    }
   }
   if (gPersistObjInst != (Group *)0x0) {
-    iVar2 = gPersistObjInst->m_num_elements;
-    pTVar1 = (Trk_AnimateInst *)(gPersistObjInst + 1);
-    iVar2 = iVar2 - 1;
-    if (iVar2 != -1) {
-      do {
-        if (((pTVar1->type == '\x03') || (pTVar1->type == '\a')) && (pTVar1->objectIndex != 0)) {
-          Anim_gInstanceFromIndex[pTVar1->objectIndex] = pTVar1;
+    int numParts = gPersistObjInst->m_num_elements;
+    Trk_AnimateInst *objInstance = (Trk_AnimateInst *)(gPersistObjInst + 1);
+
+    while (--numParts != -1) {
+        if (((objInstance->type == '\x03') || (objInstance->type == '\a')) &&
+            (objInstance->objectIndex != 0)) {
+          Anim_gInstanceFromIndex[objInstance->objectIndex] = objInstance;
         }
-        pTVar1 = (Trk_AnimateInst *)((int)&pTVar1->size + (int)pTVar1->size);
-        iVar2 = iVar2 - 1;
-      } while (iVar2 != -1);
+        objInstance = (Trk_AnimateInst *)((int)&objInstance->size +
+                                          (int)objInstance->size);
     }
   }
   return 0;

@@ -74,11 +74,11 @@ void TrgSfx_AddCarExtraSfx(int car,int wheel,coorddef *skidpt,int type,coorddef 
 
 {
   coorddef dir;
-  
-  dir.x = vec->x;
-  dir.z = vec->z;
-  dir.y = vec->y + (velY >> 3);
-  gTAddCarExtraSfx[car & 7][wheel] = simGlobal.gameTicks;
+
+  car = car & 7;
+  dir = *vec;
+  dir.y = dir.y + (velY >> 3);
+  gTAddCarExtraSfx[car][wheel] = simGlobal.gameTicks;
   Souffle_Add(skidpt,type,&dir,0,ground,colour);
   return;
 }

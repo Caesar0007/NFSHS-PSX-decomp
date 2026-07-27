@@ -2513,9 +2513,9 @@ LAB_mb:
         carObj->speed = carObj->N.speedXZ;
         if ((unsigned)(carObj->currentSpeed + 0x2ffff) < 0x5ffff) {
           facing =
-              fixedmult(carObj->N.orientMat.m[6], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[0]) +
+              fixedmult(carObj->N.orientMat.m[6], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[0]) + (
               fixedmult(carObj->N.orientMat.m[7], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[1]) +
-              fixedmult(carObj->N.orientMat.m[8], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[2]);
+              fixedmult(carObj->N.orientMat.m[8], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[2]));
           carObj->direction = (0 < facing) ? 1 : -1;
         } else {
           carObj->direction = (-1 < carObj->currentSpeed) ? 1 : -1;

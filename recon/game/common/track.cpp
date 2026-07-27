@@ -1160,67 +1160,64 @@ void KillFile_ReadEntry(char *filePtr,int entryInd,int &chunkInd,int &objectInd)
 void Track_LoadObjectKillData(void)
 
 {
-  Group * group;
-  Group *simGroup;
-  int *filePtr_00;
-  int entryInd;
-  int iVar1;
-  int index;
-  int iVar2;
-  Trk_SimObject *simObjs;
-  Group *pThis;
-  Group *pGVar3;
-  Chunk *chunkDat;
-  coorddef *a;
-  int j;
-  Trk_SimpleInst *inst;
-  Group *pGVar4;
-  int numElements;
-  int iVar5;
-  int i;
   char *filePtr;
   int chunkInd;
   int objInd;
 
-  filePtr_00 = (int *)KillFile_OpenRead();
-  entryInd = 0;
-  if (filePtr_00 != (int *)0x0) {
-TrkKill_loopTest:
-    if (entryInd < *filePtr_00) {
-      KillFile_ReadEntry((char *)filePtr_00,entryInd,chunkInd,objInd);
+  filePtr = KillFile_OpenRead();
+  if (filePtr != (char *)0x0) {
+    int i;
+
+    i = 0;
+    while (i < *(int *)filePtr) {
+      Chunk *chunkDat;
+      Group *group;
+
+      KillFile_ReadEntry(filePtr,i,chunkInd,objInd);
       chunkDat = Track_chunkList + chunkInd;
-      pGVar3 = chunkDat->objInstanceBuf;
-      if ((pGVar3 != (Group *)0x0) && (pGVar4 = pGVar3 + 1, objInd < pGVar3->m_num_elements)) {
-        iVar2 = 0;
-        if (0 < objInd) {
-          do {
-            iVar2 = iVar2 + 1;
-            pGVar4 = (Group *)((int)&pGVar4->m_num_elements + (int)(short)pGVar4->m_num_elements);
-          } while (iVar2 < objInd);
-        }
-        pGVar3 = chunkDat->simObjBuf;
-        iVar2 = 0;
-        if (pGVar3 != (Group *)0x0) {
-          iVar5 = pGVar3->m_num_elements;
-          a = (coorddef *)(pGVar3 + 1);
-          if (0 < iVar5) {
-            do {
-              iVar1 = Math_DistXZ(a,(coorddef *)(pGVar4 + 2));
-              if (iVar1 < 0x1999) {
-                *(u_char *)((int)&a[1].y + 3) = 0x10;
-              }
-              iVar2 = iVar2 + 1;
-              a = (coorddef *)&a[1].z;
-            } while (iVar2 < iVar5);
+      group = chunkDat->objInstanceBuf;
+      if (group != (Group *)0x0) {
+        int groupElements;
+
+        groupElements = group->m_num_elements;
+        if (objInd < groupElements) {
+          Trk_SimpleInst *inst;
+          int index;
+
+          inst = (Trk_SimpleInst *)(group + 1);
+          index = 0;
+          while (index < objInd) {
+            index = index + 1;
+            inst = (Trk_SimpleInst *)((char *)inst + inst->size);
           }
+
+          {
+            Group *simGroup;
+
+            simGroup = chunkDat->simObjBuf;
+            if (simGroup != (Group *)0x0) {
+              Trk_SimObject *simObjs;
+              int numElements;
+              int j;
+
+              j = 0;
+              simObjs = (Trk_SimObject *)(simGroup + 1);
+              numElements = simGroup->m_num_elements;
+              while (j < numElements) {
+                if (Math_DistXZ((coorddef *)&simObjs[j],
+                                (coorddef *)&inst->x) < 0x1999) {
+                  simObjs[j].type = 0x10;
+                }
+                j = j + 1;
+              }
+            }
+          }
+          inst->type = inst->type | 0x80;
         }
-        *(u_char *)((int)&pGVar4->m_num_elements + 2) =
-             *(u_char *)((int)&pGVar4->m_num_elements + 2) | 0x80;
       }
-      entryInd = entryInd + 1;
-      goto TrkKill_loopTest;
+      i = i + 1;
     }
-    purgememadr(filePtr_00);
+    purgememadr(filePtr);
   }
   return;
 }

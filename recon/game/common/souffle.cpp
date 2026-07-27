@@ -328,26 +328,23 @@ int Souffle_CircleClip(coorddef *pt1,coorddef *pt2,int r)
 {
   int dist;
   int dz;
-  int iVar1;
-  int iVar2;
   int dx;
-  
-  dz = pt1->x;
-  iVar2 = dz - pt2->x;
-  if (iVar2 < 1) {
-    iVar2 = pt2->x - dz;
+
+  dx = pt1->x - pt2->x;
+  if (dx < 1) {
+    dx = pt2->x - pt1->x;
   }
-  iVar1 = pt1->z - pt2->z;
-  if (iVar1 < 1) {
-    iVar1 = pt2->z - pt1->z;
+  dz = pt1->z - pt2->z;
+  if (dz < 1) {
+    dz = pt2->z - pt1->z;
   }
-  if (iVar1 < iVar2) {
-    iVar2 = iVar2 + (iVar1 >> 2);
+  if (dz < dx) {
+    dist = dx + (dz >> 2);
   }
   else {
-    iVar2 = iVar1 + (iVar2 >> 2);
+    dist = dz + (dx >> 2);
   }
-  return (u_int)(iVar2 < r);
+  return (u_int)(dist < r);
 }
 
 /* ---- Souffle_InsertFacet__FP13DRender_tView  [SOUFFLE.CPP:320-348] SLD-VERIFIED ---- */

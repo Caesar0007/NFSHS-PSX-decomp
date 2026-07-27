@@ -1472,12 +1472,12 @@ void Car_DoPostCollisionStuff(Car_tObj *carObj)
      `clampCond < -2620` -- NOT the single `-2621 < roundedGV>>5` test the prior recon had.
      Both are logically equivalent when roundedGV>>5 < -2620 (since -2620<1310 the MIN never
      fires there) but the oracle's ACTUAL codegen needs the min-clamp-first shape to byte-match
-     (a<1311 && a<-2620 folds to a<-2620 logically, but NOT in codegen). RESIDUAL 16 = the
-     `negGroundVel2=negGroundVel;if(negGroundVel<0)...` recompute (2nd occurrence of the exact
-     roundedGV pattern) copies negGroundVel into a fresh v0 before the bgez test, where oracle
-     reuses a0(negGroundVel) directly for the branch -- tried restructuring as if/else instead
-     of default-then-override (no change); genuine scheduling floor, 2nd-occurrence-of-same-
-     pattern non-determinism, not further source-shapable. */
+     (a<1311 && a<-2620 folds to a<-2620 logically, but NOT in codegen). Using
+     `__builtin_abs(fixedmult(...))` for the roll term keeps the result in v0 like retail and
+     reduces 16->5. The remaining 5-diff/one-instruction residual is the second signed `/32`
+     expansion: ours copies a0 to v0 before `bgez`, while retail schedules that copy in the
+     branch delay slot. Direct division and explicit round/shift forms both reach this same
+     floor; in-place mutation changes global coloring and is substantially worse. */
   int Yoffset;
   int iVar1;
   Car_tSpecs *pCVar2;
@@ -1507,7 +1507,7 @@ SHORT:
   return;
 LONG:
   {
-    int negGroundVel, roundedGV, gvClamp, clampCond, negGroundVel2, gvClamp2;
+    int negGroundVel, roundedGV, gvClamp, clampCond, gvClamp2;
     int absRoll, currentRollVal, rideOffsetVal, negPitch, bodyPitchVal;
 
     AIPhysic_ProcessCollision(carObj);
@@ -1539,20 +1539,14 @@ LONG:
       Yoffset = -0xa3d;
     }
     else {
-      negGroundVel2 = negGroundVel;
-      if (negGroundVel < 0) {
-        negGroundVel2 = negGroundVel + 0x1f;
-      }
-      gvClamp2 = negGroundVel2 >> 5;
+      gvClamp2 = negGroundVel / 0x20;
       Yoffset = 0x51e;
       if (gvClamp2 < 0x51f) {
         Yoffset = gvClamp2;
       }
     }
-    absRoll = fixedmult(((carObj->render).currentRoll * 3) / 2,carObj->specs->bodyRollFactor);
-    if (absRoll < 0) {
-      absRoll = -absRoll;
-    }
+    absRoll = __builtin_abs(fixedmult(((carObj->render).currentRoll * 3) / 2,
+                                     carObj->specs->bodyRollFactor));
     currentRollVal = (carObj->render).currentRoll;
     rideOffsetVal = carObj->specs->rideOffset;
     (carObj->render).bodyRoll = currentRollVal;

@@ -1048,150 +1048,127 @@ extern "C" void Front_InitTourneyTraffic__FR9tFEStream(tFEStream *streamData)
 extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
 
 {
-  byte bVar1;
-  tTournamentDefinition *ptVar2;
-  short sVar3;
-  tCarInfo *ptVar4;
-  void *pvVar5;
-  uchar uVar6;
-  tCarClassType opponentClass;
-  int iVar7;
-  tPersonalities tVar8;
-  short sVar9;
-  tCarInfo *carInfo;
   short i;
-  int iVar10;
-  tTourneyInfo *tourn;
+  tCarLineup *carLineup;
   short numOpponents;
-  int iVar11;
-  tCarInfo tStack_120;
-  tCarModels modelList [3];
-  tCarModels carModel;
-  char carColor;
-  tCarModels tStack_38;
-  char loc_34 [4];
-  byte usePlayerUpgrades;
-  
+
   streamData->numOpponents = 0;
-  ptVar2 = tournamentManager.fDefinition;
+  carLineup = streamData->carLineup;
+  tTournamentDefinition *ptVar2 = tournamentManager.fDefinition;
   if ((frontEnd.raceType == '\x02') ||
      ((frontEnd.raceType == '\0' && (frontEnd.oppNumber == '\x02')))) {
+    tCarInfo *carInfo;
+    tCarModels carModel;
+    char carColor;
+    tCarClassType opponentClass;
+    BOOL usePlayerUpgrades;
+    tTourneyInfo *tourn;
+    int iVar7;
+    int iVar11;
+
     if (frontEnd.raceType == '\x02') {
-      uVar6 = (tournamentManager.fDefinition)->fTournaments
-              [(uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset +
+      opponentClass = (tCarClassType)ptVar2->fTournaments
+              [(uint)ptVar2->fTiers[tournamentManager.fTier].fTournOffset +
                tournamentManager.fTournament].fOpponentCarClass;
     }
     else {
-      uVar6 = '\n';
+      opponentClass = cct_OpenClass;
     }
-    if (uVar6 != '\n') {
-      iVar7 = (uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset +
+    if (opponentClass != cct_OpenClass) {
+      iVar7 = (uint)ptVar2->fTiers[tournamentManager.fTier].fTournOffset +
               tournamentManager.fTournament;
     }
     else {
-      iVar7 = (uint)(tournamentManager.fDefinition)->fTiers[2].fTournOffset +
+      iVar7 = (uint)ptVar2->fTiers[2].fTournOffset +
               (uint)(byte)streamData->playerCars[0].fCarID;
     }
-    _usePlayerUpgrades = (uint)(uVar6 == '\n');
+    tourn = &ptVar2->fTournaments[iVar7];
+    usePlayerUpgrades = opponentClass == cct_OpenClass;
     iVar11 = 5;
     if (frontEnd.raceType == '\x02') {
       iVar11 = tournamentManager.fNumRacers + -1;
     }
-    iVar10 = 0;
-    if (0 < iVar11 << 0x10) {
-      do {
-        sVar3 = (short)iVar10;
-        bVar1 = ptVar2->fTournaments[iVar7].fOpponentCar[sVar3];
-        carModel = (tCarModels)bVar1;
-        ptVar4 = GetCarFromID(&carManager, (ushort)bVar1);
-        carColor = ptVar4->fDefaultColor;
-        if (!IsCarAnAddedModel(&carManager, &carModel,&carColor) && (streamData->totalModels < 0x10)) {
-          streamData->totalModels = streamData->totalModels + 3;
-        }
-        FindSimilarCar(&carManager, &carModel,&carColor,0,(tCarModels *)0x0);
-        AddCarToIngameList(&carManager, &carModel,&carColor);
-        streamData->carLineup[sVar3 + 1].isPlayerCar = 0;
-        streamData->carLineup[sVar3 + 1].carModel = carModel;
-        streamData->carLineup[sVar3 + 1].carColor = ptVar4->fColorOrder[(byte)carColor];
-        if (_usePlayerUpgrades == 0) {
-          streamData->carLineup[sVar3 + 1].carUpgrades =
-               ptVar2->fTournaments[iVar7].fOpponentUpgrades[sVar3];
+    for (i = 0; i < iVar11; i = i + 1) {
+      carModel = (tCarModels)tourn->fOpponentCar[i];
+      carInfo = GetCarFromID(&carManager, (ushort)carModel);
+      carColor = carInfo->fDefaultColor;
+      if (!IsCarAnAddedModel(&carManager, &carModel,&carColor) && (streamData->totalModels < 0x10)) {
+        streamData->totalModels = streamData->totalModels + 3;
+      }
+      FindSimilarCar(&carManager, &carModel,&carColor,0,(tCarModels *)0x0);
+      AddCarToIngameList(&carManager, &carModel,&carColor);
+      carLineup[i + 1].isPlayerCar = 0;
+      carLineup[i + 1].carModel = carModel;
+      carLineup[i + 1].carColor = carInfo->fColorOrder[(byte)carColor];
+      if (!usePlayerUpgrades) {
+        carLineup[i + 1].carUpgrades = tourn->fOpponentUpgrades[i];
+      }
+      else {
+        carLineup[i + 1].carUpgrades = streamData->playerCars[0].fUpgrades;
+      }
+      if ((frontEnd.raceType == '\x02') && (frontEnd.tier == '\0')) {
+        void *pvVar5 = FECheat_IsCheatEnabled(cheat_FinishedTournament);
+        if ((pvVar5 == (void *)0x0) || (frontEnd.opponentUpgrades == '\0')) {
+          carLineup[i + 1].carUpgrades = '\0';
         }
         else {
-          streamData->carLineup[sVar3 + 1].carUpgrades = streamData->playerCars[0].fUpgrades;
+          carLineup[i + 1].carUpgrades = tourn->fOpponentUpgrades[i];
         }
-        if ((frontEnd.raceType == '\x02') && (frontEnd.tier == '\0')) {
-          pvVar5 = FECheat_IsCheatEnabled(cheat_FinishedTournament);
-          if ((pvVar5 == (void *)0x0) || (frontEnd.opponentUpgrades == '\0')) {
-            streamData->carLineup[sVar3 + 1].carUpgrades = '\0';
-          }
-          else {
-            streamData->carLineup[sVar3 + 1].carUpgrades =
-                 ptVar2->fTournaments[iVar7].fOpponentUpgrades[sVar3];
-          }
-        }
-        iVar10 = iVar10 + 1;
-        streamData->totalCars = streamData->totalCars + 2;
-        streamData->numOpponents = streamData->numOpponents + 1;
-      } while (iVar10 * 0x10000 < iVar11 << 0x10);
+      }
+      streamData->totalCars = streamData->totalCars + 2;
+      streamData->numOpponents = streamData->numOpponents + 1;
     }
-    sVar3 = 0;
     if (frontEnd.raceType == '\x02') {
       UpdateCarLineup(&tournamentManager);
-      iVar10 = 0;
       streamData->numOpponents = (short)tournamentManager.fNumRacers + -1;
-      iVar7 = (short)iVar11 + 1;
-      if (0 < iVar7) {
-        do {
-          sVar3 = (short)iVar10;
-          streamData->carLineup[sVar3].personality = tournamentManager.fCarLineup[sVar3].personality
-          ;
-          iVar10 = iVar10 + 1;
-          streamData->carLineup[sVar3].position = tournamentManager.fCarLineup[sVar3].position;
-        } while (iVar10 * 0x10000 >> 0x10 < iVar7);
+      for (i = 0; i < iVar11 + 1; i = i + 1) {
+        carLineup[i].personality = tournamentManager.fCarLineup[i].personality;
+        carLineup[i].position = tournamentManager.fCarLineup[i].position;
       }
     }
     else {
-      do {
-        sVar9 = sVar3 + 1;
-        tVar8 = (tPersonalities)sVar3;
-        streamData->carLineup[tVar8 + kPersonalityBlurrr].personality = tVar8;
-        streamData->carLineup[tVar8 + kPersonalityBlurrr].position = (char)sVar9;
-        sVar3 = sVar9;
-      } while (sVar9 < 5);
-      streamData->carLineup[0].position = '\x06';
+      for (i = 0; i < 5; i = i + 1) {
+        carLineup[i + kPersonalityBlurrr].personality = (tPersonalities)i;
+        carLineup[i + kPersonalityBlurrr].position = (char)(i + 1);
+      }
+      carLineup[0].position = '\x06';
     }
   }
   else if (((byte)frontEnd.raceType < 2) && (frontEnd.oppNumber == '\x01')) {
-    GetStockCar(&carManager, (ushort)(byte)frontEnd.oppCar,&tStack_120);
-    tStack_38 = (int)tStack_120.fCarID;
-    loc_34[0] = tStack_120.fColorOrder[tStack_120.fDefaultColor];
-    if (!IsCarAnAddedModel(&carManager, &tStack_38,loc_34)) {
+    tCarInfo carInfo;
+    tCarModels carModel;
+    char carColor;
+    tCarModels modelList [3];
+
+    GetStockCar(&carManager, (ushort)(byte)frontEnd.oppCar,&carInfo);
+    carModel = (tCarModels)(int)carInfo.fCarID;
+    carColor = carInfo.fColorOrder[carInfo.fDefaultColor];
+    if (!IsCarAnAddedModel(&carManager, &carModel,&carColor)) {
       if (streamData->totalModels < 0x10) {
         streamData->totalModels = streamData->totalModels + 3;
       }
       else {
-        GetClassList(&carManager, (uint)tStack_120.fCarClass,3,modelList);
-        FindSimilarCar(&carManager, &tStack_38,loc_34,3,modelList);
+        GetClassList(&carManager, (uint)carInfo.fCarClass,3,modelList);
+        FindSimilarCar(&carManager, &carModel,&carColor,3,modelList);
       }
     }
-    sVar3 = streamData->numOpponents;
-    uVar6 = streamData->playerCars[0].fUpgrades;
-    streamData->carLineup[1].isPlayerCar = 0;
-    streamData->carLineup[1].personality = kPersonalityNemesis;
-    streamData->numOpponents = sVar3 + 1;
-    sVar3 = streamData->numOpponents;
-    streamData->carLineup[1].position = '\x01';
-    streamData->carLineup[1].carUpgrades = uVar6;
-    streamData->carLineup[1].carModel = tStack_38;
-    streamData->carLineup[1].carColor = loc_34[0];
-    streamData->carLineup[0].position = (char)sVar3 + '\x01';
-    AddCarToIngameList(&carManager, &tStack_38,loc_34);
+    numOpponents = streamData->numOpponents;
+    byte uVar6 = streamData->playerCars[0].fUpgrades;
+    carLineup[1].isPlayerCar = 0;
+    carLineup[1].personality = kPersonalityNemesis;
+    streamData->numOpponents = numOpponents + 1;
+    numOpponents = streamData->numOpponents;
+    carLineup[1].position = '\x01';
+    carLineup[1].carUpgrades = uVar6;
+    carLineup[1].carModel = carModel;
+    carLineup[1].carColor = carColor;
+    carLineup[0].position = (char)numOpponents + '\x01';
+    AddCarToIngameList(&carManager, &carModel,&carColor);
     streamData->totalCars = streamData->totalCars + 2;
   }
   else {
-    streamData->carLineup[0].position = '\x01';
-    streamData->carLineup[1].position = '\x02';
+    carLineup[0].position = '\x01';
+    carLineup[1].position = '\x02';
   }
   return;
 }

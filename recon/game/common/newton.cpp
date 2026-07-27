@@ -37,7 +37,7 @@ extern "C" void Newton_QDUpdateVel__FP13BO_tNewtonObj(int newtonObj);
 extern "C" void Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj(int newtonObj);
 extern "C" void Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj(int newtonObj);
 extern "C" void Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi(int newtonObj,int *normal,int orientToGround);
-extern "C" void Newton_CalcRealShadowCoordinates__FP8Car_tObji(int carObj,int currentTick);
+extern "C" void Newton_CalcRealShadowCoordinates__FP8Car_tObji(Car_tObj *carObj,int currentTick);
 extern "C" void Newton_CheckForSpikeBelts__FP13BO_tNewtonObj(int newtonObj);
 extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef(Car_tObj *newtonObj,coorddef normal);
 extern "C" void Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(int type,int *vector,int testSimRoadInfo);
@@ -2130,7 +2130,7 @@ NewtonGroundShadow_normalizeV:
 }
 
 /* ---- Newton_CalcRealShadowCoordinates__FP8Car_tObji  [NEWTON.CPP:1830-1880] SLD-VERIFIED ---- */
-extern "C" void Newton_CalcRealShadowCoordinates__FP8Car_tObji(int carObj,int currentTick)
+extern "C" void Newton_CalcRealShadowCoordinates__FP8Car_tObji(Car_tObj *carObj,int currentTick)
 
 {
   coorddef lengthVector;
@@ -2141,83 +2141,72 @@ extern "C" void Newton_CalcRealShadowCoordinates__FP8Car_tObji(int carObj,int cu
   coorddef vecOffset;
   int diff;
   coorddef dimension;
-  int front;
   int i;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  int iVar9;
-  int local_60;
-  int local_5c;
-  int local_58;
-  int local_50;
-  int local_4c;
-  int local_48;
-  
-  iVar7 = *(int *)(carObj + 0x9c);
-  iVar9 = *(int *)(carObj + 0x138);
-  iVar1 = *(int *)(carObj + 0x134) + 0xccc;
-  iVar8 = *(int *)(carObj + 0x13c) + 0xccc;
-  iVar2 = fixedmult(iVar8,*(int *)(carObj + 0x108));
-  iVar3 = fixedmult(iVar8,*(int *)(carObj + 0x10c));
-  iVar8 = fixedmult(iVar8,*(int *)(carObj + 0x110));
-  iVar4 = fixedmult(iVar1,*(int *)(carObj + 0xf0));
-  iVar5 = fixedmult(iVar1,*(int *)(carObj + 0xf4));
-  iVar6 = fixedmult(iVar1,*(int *)(carObj + 0xf8));
-  local_60 = iVar4;
-  local_5c = iVar5;
-  local_58 = iVar6;
-  if (*(short *)(carObj + 0x8bc) == 0x14) {
-    iVar1 = iVar1 * 0xc0 >> 8;
-    local_60 = fixedmult(iVar1,*(int *)(carObj + 0xf0));
-    local_5c = fixedmult(iVar1,*(int *)(carObj + 0xf4));
-    local_58 = fixedmult(iVar1,*(int *)(carObj + 0xf8));
+
+  diff = currentTick - carObj->N.lastUpdated;
+  dimension = carObj->N.dimension;
+  dimension.x += 0xccc;
+  dimension.z += 0xccc;
+
+  lengthVector.x = fixedmult(dimension.z,carObj->N.orientMat.m[6]);
+  lengthVector.y = fixedmult(dimension.z,carObj->N.orientMat.m[7]);
+  lengthVector.z = fixedmult(dimension.z,carObj->N.orientMat.m[8]);
+  widthVector.x = fixedmult(dimension.x,carObj->N.orientMat.m[0]);
+  widthVector.y = fixedmult(dimension.x,carObj->N.orientMat.m[1]);
+  widthVector.z = fixedmult(dimension.x,carObj->N.orientMat.m[2]);
+
+  if (carObj->render.currentCarType == 20) {
+    int front;
+    front = dimension.x * 0xc0 >> 8;
+    frontWidthVector.x = fixedmult(front,carObj->N.orientMat.m[0]);
+    frontWidthVector.y = fixedmult(front,carObj->N.orientMat.m[1]);
+    frontWidthVector.z = fixedmult(front,carObj->N.orientMat.m[2]);
+  } else {
+    frontWidthVector.z = widthVector.z;
+    frontWidthVector.x = widthVector.x;
+    frontWidthVector.y = widthVector.y;
   }
-  if (*(int *)(carObj + 300) < 0xe667) {
-    local_50 = *(int *)(carObj + 0xa0);
-    local_48 = *(int *)(carObj + 0xa8);
-    local_4c = *(int *)(carObj + 0x180);
+
+  if (carObj->N.orientationToGround.y > 0xe666) {
+    vecOffset.x =
+        fixedmult(-dimension.y - carObj->N.objAltitude,carObj->N.roadMatrix.m[3]);
+    vecOffset.y =
+        fixedmult(-dimension.y - carObj->N.objAltitude,carObj->N.roadMatrix.m[4]);
+    vecOffset.z =
+        fixedmult(-dimension.y - carObj->N.objAltitude,carObj->N.roadMatrix.m[5]);
+    carGroundCoord.x = carObj->N.position.x + vecOffset.x;
+    carGroundCoord.y = carObj->N.position.y + vecOffset.y;
+    carGroundCoord.z = carObj->N.position.z + vecOffset.z;
+  } else {
+    carGroundCoord = carObj->N.position;
+    carGroundCoord.y = carObj->N.groundElevation;
   }
-  else {
-    local_50 = fixedmult(-*(int *)(carObj + 0x188) - iVar9,*(int *)(carObj + 0x150));
-    local_4c = fixedmult(-*(int *)(carObj + 0x188) - iVar9,*(int *)(carObj + 0x154));
-    local_48 = fixedmult(-*(int *)(carObj + 0x188) - iVar9,*(int *)(carObj + 0x158));
-    local_50 = *(int *)(carObj + 0xa0) + local_50;
-    local_4c = *(int *)(carObj + 0xa4) + local_4c;
-    local_48 = *(int *)(carObj + 0xa8) + local_48;
-  }
-  *(int *)(carObj + 0x1e8) = (local_50 + iVar2) - local_60;
-  *(int *)(carObj + 0x1ec) = (local_4c + iVar3) - local_5c;
-  *(int *)(carObj + 0x1f0) = (local_48 + iVar8) - local_58;
-  *(int *)(carObj + 500) = local_50 + iVar2 + local_60;
-  *(int *)(carObj + 0x1f8) = local_4c + iVar3 + local_5c;
-  *(int *)(carObj + 0x1fc) = local_48 + iVar8 + local_58;
-  *(int *)(carObj + 0x200) = (local_50 - iVar2) - iVar4;
-  *(int *)(carObj + 0x204) = (local_4c - iVar3) - iVar5;
-  *(int *)(carObj + 0x208) = (local_48 - iVar8) - iVar6;
-  iVar9 = 0;
-  *(int *)(carObj + 0x20c) = (local_50 - iVar2) + iVar4;
-  *(int *)(carObj + 0x210) = (local_4c - iVar3) + iVar5;
-  *(int *)(carObj + 0x214) = (local_48 - iVar8) + iVar6;
-  iVar1 = carObj;
-  iVar2 = carObj;
-  do {
-    iVar8 = *(int *)(iVar2 + 0x290);
-    *(int *)(iVar1 + 0x1ec) = iVar8;
-    iVar3 = *(int *)(carObj + 0xb0);
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0x3f;
+
+  temp.x = carGroundCoord.x + lengthVector.x;
+  temp.y = carGroundCoord.y + lengthVector.y;
+  temp.z = carGroundCoord.z + lengthVector.z;
+  carObj->N.shadowCoord[0].x = temp.x - frontWidthVector.x;
+  carObj->N.shadowCoord[0].y = temp.y - frontWidthVector.y;
+  carObj->N.shadowCoord[0].z = temp.z - frontWidthVector.z;
+  carObj->N.shadowCoord[1].x = temp.x + frontWidthVector.x;
+  carObj->N.shadowCoord[1].y = temp.y + frontWidthVector.y;
+  carObj->N.shadowCoord[1].z = temp.z + frontWidthVector.z;
+
+  temp.x = carGroundCoord.x - lengthVector.x;
+  temp.y = carGroundCoord.y - lengthVector.y;
+  temp.z = carGroundCoord.z - lengthVector.z;
+  carObj->N.shadowCoord[2].x = temp.x - widthVector.x;
+  carObj->N.shadowCoord[2].y = temp.y - widthVector.y;
+  carObj->N.shadowCoord[2].z = temp.z - widthVector.z;
+  carObj->N.shadowCoord[3].x = temp.x + widthVector.x;
+  carObj->N.shadowCoord[3].y = temp.y + widthVector.y;
+  carObj->N.shadowCoord[3].z = temp.z + widthVector.z;
+
+  for (i = 0; i < 4; i++) {
+    carObj->N.shadowCoord[i].y = carObj->wheel[i].currentPos.y;
+    carObj->N.shadowCoord[i].y +=
+        (carObj->N.linearVel.y / 64) * diff;
     }
-    iVar2 = iVar2 + 0x30;
-    iVar9 = iVar9 + 1;
-    *(int *)(iVar1 + 0x1ec) = iVar8 + (iVar3 >> 6) * (currentTick - iVar7);
-    iVar1 = iVar1 + 0xc;
-  } while (iVar9 < 4);
   return;
 }
 

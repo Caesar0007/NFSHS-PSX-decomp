@@ -361,23 +361,21 @@ void AnimScript::SetAnimAttrib(int flags)
 /* ---- AnimScript::GetAnimFrameInfo  [@0x8007453c] ---- */
 void AnimScript::GetAnimFrameInfo(int *frame,int *numFrames)
 {
-  int iVar1;
-  int iVar2;
-  Trk_AnimateInst *pTVar3;
-  int iVar4;
+  Trk_AnimateInst *animInst;
+  int interval;
+  int ticks;
 
-  pTVar3 = *this->inst;
-  iVar2 = simGlobal.gameTicks - this->baseTicks;
-  if ((u_short)pTVar3->interval - 1 < 400) {
-    iVar1 = (int)pTVar3->interval;
+  ticks = simGlobal.gameTicks - this->baseTicks;
+  animInst = *this->inst;
+  if ((u_int)((u_short)animInst->interval - 1) < 400) {
+    interval = (int)animInst->interval;
   }
   else {
-    iVar1 = 6;
+    interval = 6;
   }
-  iVar4 = iVar2 / iVar1;
-  iVar2 = pTVar3->count + -1;
-  *frame = iVar4 % iVar2;
-  *numFrames = pTVar3->count + -1;
+  ticks /= interval;
+  *frame = ticks % (animInst->count - 1);
+  *numFrames = animInst->count - 1;
   return;
 }
 

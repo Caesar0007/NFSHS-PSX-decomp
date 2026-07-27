@@ -31,7 +31,8 @@ extern Sim_tSimSystemVar  simVar;                    /* 0x8011e0c4 */
 extern Car_tObj          *Cars_gHumanRaceCarList[2];
 extern int                Cars_gNumHumanRaceCars;
 extern Input_tResults     Input_gSim;                /* per-frame fetched controller state */
-extern int                StatsTimer[2];
+extern int                StatsTimer;       /* first timer word */
+extern int                D_8013D99C;  /* StatsTimer[1] retail alias */
 extern GameSetup_tData    GameSetup_gData;
 extern char              *Paths_Paths[];             /* 0x80116468 */
 

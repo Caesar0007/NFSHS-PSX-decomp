@@ -300,8 +300,8 @@ void Replay_ResetReplay(void)
     i = i + -1;
     piVar2 = piVar2 + -1;
   } while (-1 < i);
-  StatsTimer[0] = 0;
-  StatsTimer[1] = 0;
+  StatsTimer = 0;
+  D_8013D99C = 0;
   return;
 }
 
@@ -569,8 +569,8 @@ void Replay_GetInterfaceKey(void)
             if (iVar7 == 0) {
               iVar7 = Input_Interface(0x19,1);
               if (iVar7 != 0) {
-                StatsTimer[0] = 0;
-                StatsTimer[1] = 0;
+                StatsTimer = 0;
+                D_8013D99C = 0;
                 Replay_ReplayInterface.statsScreen = 1;
                 AudioCmn_PlayPauseSound(4);
               }

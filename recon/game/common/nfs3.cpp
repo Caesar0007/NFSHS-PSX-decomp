@@ -208,8 +208,6 @@ void Nfs2_GameModuleStartUp(int *FrontEndDataStream)
 
 {
   void *pThis;
-  int iVar1;
-  int iVar2;
   
   Audio_InitDriver(0,0);
   restoretextdraw();
@@ -243,14 +241,7 @@ void Nfs2_GameModuleStartUp(int *FrontEndDataStream)
   Render_InitTrackRenderPostSim();
   Hud_InitMap();
   SimQueue_StartUp();
-  iVar1 = largestunused();
-  if (GameSetup_gData.commMode == 1) {
-    iVar2 = 0x13000;
-  }
-  else {
-    iVar2 = 0xb000;
-  }
-  if (iVar2 < iVar1) {
+  if (((D_801131F8[0] == 1) ? 0x13000 : 0xb000) < largestunused()) {
     AudioMus_SysStartUp(0x6000,0x14000,"ymus");
   }
   AudioMus_BuildPlayList(GameSetup_gData.userSetting.numplaylistsongs,GameSetup_gData.userSetting.playlist);
@@ -408,7 +399,7 @@ void NFS3_CheckForFileOperations(void)
 {
   int *p;
   int *piVar1;
-  
+
   for (piVar1 = (int *)gFileMem; piVar1 < (u_int)gFileHandleTable; piVar1 = piVar1 + 1) {
     if (*piVar1 != 0) {
       trap(0x666);
@@ -530,9 +521,5 @@ int main(void)
 
 /* end of nfs3.cpp */
 
-/* owning-TU def (extern-declared, never defined; link-harness).
-   _6Speech_fgUndefined is OWNED by Speech (3 speech fns reach it via %gp_rel); nfs3 is a
-   NON-owner -> its oracle (Nfs2_SystemNLibStartUp) uses ABSOLUTE lui/%hi, so leave it a pure
-   extern (a tentative def here forced a wrong .comm gp-rel; methodology 3.12 #6). Data lives
-   in asm/data/sdata_8013C54C.sdata.s @0x8013cd88. */
-int _6Speech_fgSpeech;
+/* _6Speech_fgUndefined and _6Speech_fgSpeech are both owned by Speech.  This TU
+   addresses them absolutely, so their declarations remain pure externs. */

@@ -921,14 +921,20 @@ void tPMenu::Initialize()
     bVar1 = iVar2 != 0;
   }
   if (!bVar1) {
-    while (ptVar3 = this->fItemList[this->fCurrentItem], ptVar3 != (tPMenuItem *)0x0) {
-      bVar1 = false;
+    while (true) {
+      bool disabled;
+
+      ptVar3 = this->fItemList[this->fCurrentItem];
+      if (ptVar3 == (tPMenuItem *)0x0) {
+        break;
+      }
+      disabled = false;
       if (((ptVar3->fFlags & 1) != 0) ||
          (iVar2 = (*(*ptVar3->_vf)[5].pfn)((int)&ptVar3->fFlags + (int)(*ptVar3->_vf)[5].delta),
          iVar2 == 0)) {
-        bVar1 = true;
+        disabled = true;
       }
-      if (!bVar1) {
+      if (!disabled) {
         return;
       }
       this->fCurrentItem = this->fCurrentItem + 1;

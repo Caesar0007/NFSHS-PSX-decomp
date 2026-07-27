@@ -2869,18 +2869,19 @@ void AIState_GotoSlice::Execute()
 
     }
 
-    if (-1 < this->carObj_->desiredSpeed) {
-      if (this->carObj_->desiredSpeed < cap) {
-        cap = this->carObj_->desiredSpeed;
-      }
-    } else {
-      cap = -cap;
-      if (cap < this->carObj_->desiredSpeed) {
-        cap = this->carObj_->desiredSpeed;
+    /* IDA gold keeps carObj_ cached in v1 and computes the signed clamp into a
+       separate a2 result before one merged store.  Keeping the two signed arms
+       as field assignments restores that allocation (20 -> 10 diffs). */
+    {
+      Car_tObj *carObj = this->carObj_;
+      if (carObj->desiredSpeed >= 0) {
+        carObj->desiredSpeed =
+            (carObj->desiredSpeed < cap) ? carObj->desiredSpeed : cap;
+      } else {
+        carObj->desiredSpeed =
+            (-cap < carObj->desiredSpeed) ? carObj->desiredSpeed : -cap;
       }
     }
-
-    this->carObj_->desiredSpeed = cap;
 
   }
 

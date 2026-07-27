@@ -373,8 +373,7 @@ void AnimScript::GetAnimFrameInfo(int *frame,int *numFrames)
   else {
     interval = 6;
   }
-  ticks /= interval;
-  *frame = ticks % (animInst->count - 1);
+  *frame = (ticks / interval) % (animInst->count - 1);
   *numFrames = animInst->count - 1;
   return;
 }

@@ -462,7 +462,13 @@ extern int iSPCH_ChooseEvent(void)
                     L.bestSub = *(unsigned short *)(winSlot + 0xa);
                     bestAge = age;
                     L.bestPri = (int)(unsigned int)pri;
-                } else if ((int)(unsigned int)pri == L.bestPri) {
+                } else {
+                    /* permuter find (output-110-2, 2026-07-27, 30 -> 26): the equality compare
+                     * reads pri through a COPY parked in the dead `tick` variable (dead-var
+                     * reuse = the no-copy-prop copy retail keeps).  110-1's sibling device
+                     * (tick = GetFilterPriority() inside the filter compare) is NEUTRAL on top. */
+                    tick = (int)(unsigned int)pri;
+                    if (tick == L.bestPri) {
                     unsigned short sub = *(unsigned short *)(slot + 0xa);
                     if ((unsigned int)age < (unsigned int)bestAge ||
                         (age == bestAge && (int)(unsigned int)L.bestSub < (int)(unsigned int)sub)) {
@@ -475,6 +481,7 @@ extern int iSPCH_ChooseEvent(void)
                         do {
                             L.bestSub = *(unsigned short *)(winSlot + 0xa);
                         } while (0);
+                    }
                     }
                 }
             }

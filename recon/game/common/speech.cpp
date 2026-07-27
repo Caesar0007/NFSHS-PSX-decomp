@@ -2709,10 +2709,14 @@ void Report__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj *p
   SetCar__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,perp);
   FindLocation__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,perp);
   SetSpeed__Q26Speech13MobileSpeakerP8Car_tObj(pThis,perp);
-  SPCHNFS_C_D_PERP_SIGHTED(VOICE,&(pThis->_base_Speaker).fColour,
-             (pThis->_base_Speaker).fCar,&(pThis->_base_Speaker).fDistance,
-             (SPCHNFSType_POSITION *)pThis,(pThis->_base_Speaker).fLocation,
-             &(pThis->_base_Speaker).fPerpName);
+  {
+    int reportCar = (pThis->_base_Speaker).fCar;
+    int reportLocation = (pThis->_base_Speaker).fLocation;
+    SPCHNFS_C_D_PERP_SIGHTED(VOICE,&(pThis->_base_Speaker).fColour,
+               reportCar,&(pThis->_base_Speaker).fDistance,
+               (SPCHNFSType_POSITION *)pThis,reportLocation,
+               &(pThis->_base_Speaker).fPerpName);
+  }
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   *(MobileSpeaker **)(Dispatch__6Speech() + 0x48) = pThis;
   return;

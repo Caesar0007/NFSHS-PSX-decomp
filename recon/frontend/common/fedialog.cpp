@@ -219,10 +219,20 @@ void tDialogHelp::AddItem(short textID,short controllerID)
 
 /* ---- tDialogHelp::CalculateDimensions  [FEDIALOG.CPP:286-451] SLD-VERIFIED ---- */
 
+/* MATCH: the oracle initializes the WHOLE 18-byte helpArray[0] with a single
+   lwl/lwr-block copy from a named .rodata template at 0x80010244 (autoGenerate=1,
+   all 4 items {text=0,button=0} -- verified byte-exact against rom/nfs4-f.exe
+   @foff 0xa44: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00). The prior
+   recon hand-unrolled this as a masked-word alignment copy (tp1/uVar10/puVar8) --
+   that shape is a Ghidra artifact of the byte-address computation, not a real
+   source construct; a plain aggregate-initialized local template + struct-assign
+   reproduces the exact lwl/lwr/swl/swr sequence. */
+static const tHelpData kHelpArrayTemplate /* @0x80010244 */ =
+     { 1, { {0,0}, {0,0}, {0,0}, {0,0} } };
+
 void tDialogHelp::CalculateDimensions()
 
 {
-  u_char *puVar1;
   short sVar2;
   bool bVar3;
   bool showLeftRight;
@@ -238,32 +248,9 @@ void tDialogHelp::CalculateDimensions()
   short i;
   int iVar11;
   tPlayer player;
-  char acStack_90038 [2];
-  short asStack_90036 [294911];
   tHelpData helpArray [1];
-  void *tp1;
-  
-  tp1 = (void *)((int)&helpArray[0].items[0].text + 1);
-  uVar10 = (u_int)tp1 & 3;
-  *(u_int *)((int)tp1 - uVar10) =
-       *(u_int *)((int)tp1 - uVar10) & -1 << (uVar10 + 1) * 8 | 0x00000001U /* @0x80010244 */ >> (3 - uVar10) * 8;
-  (*(u_int*)&helpArray[0]) = 0x00000001U /* @0x80010244 */;
-  puVar1 = (u_char *)((int)&helpArray[0].items[1].text + 1);
-  uVar10 = (u_int)puVar1 & 3;
-  puVar8 = (u_int *)(puVar1 + -uVar10);
-  *puVar8 = *puVar8 & -1 << (uVar10 + 1) * 8 | 0x00000000U /* @0x80010248 */ >> (3 - uVar10) * 8;
-  (*(u_int*)((char*)&helpArray[0].items + 2)) = 0x00000000U /* @0x80010248 */;
-  puVar1 = (u_char *)((int)&helpArray[0].items[2].text + 1);
-  uVar10 = (u_int)puVar1 & 3;
-  puVar8 = (u_int *)(puVar1 + -uVar10);
-  *puVar8 = *puVar8 & -1 << (uVar10 + 1) * 8 | 0x00000000U /* @0x8001024c */ >> (3 - uVar10) * 8;
-  (*(u_int*)((char*)&helpArray[0].items + 6)) = 0x00000000U /* @0x8001024c */;
-  puVar1 = (u_char *)((int)&helpArray[0].items[3].text + 1);
-  uVar10 = (u_int)puVar1 & 3;
-  puVar8 = (u_int *)(puVar1 + -uVar10);
-  *puVar8 = *puVar8 & -1 << (uVar10 + 1) * 8 | 0x00000000U /* @0x80010250 */ >> (3 - uVar10) * 8;
-  (*(u_int*)((char*)&helpArray[0].items + 10)) = 0x00000000U /* @0x80010250 */;
-  helpArray[0].items[3].button = 0x00000000U /* @0x80010254 */;
+
+  helpArray[0] = kHelpArrayTemplate;
   FETextRender_SetFont(0);
   this->numItems = 0;
   this->AddItem(0x59,0);

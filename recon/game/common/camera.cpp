@@ -1773,8 +1773,8 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
   temp.z = Camera_gInfo[player].wallRight.z - Camera_gInfo[player].wallLeft.z;
   temp.y += 0x8000;
   Math_NormalizeVector(&temp);
-  edge.x = edge.x - triPnt.x;
   normal.x = -temp.z;
+  edge.x = edge.x - triPnt.x;
   normal.y = temp.y;
   normal.z = temp.x;
   edge.y = edge.y - triPnt.y;
@@ -1785,7 +1785,8 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
   camDotNorm = fixedmult(triVec.x,normal.x);
   camDotNorm += fixedmult(triVec.y,normal.y);
   camDotNorm += fixedmult(triVec.z,normal.z);
-  edgeDotNorm = edgeDotNorm + camDotNorm + 0x10000;
+  edgeDotNorm += camDotNorm;
+  edgeDotNorm += 0x10000;
   if (0 < edgeDotNorm) {
     temp.x = fixedmult(edgeDotNorm,normal.x);
     temp.y = fixedmult(edgeDotNorm,normal.y);

@@ -1429,6 +1429,11 @@ noBlockingCar:
   return;
 }
 
+static inline int AI_AdjustedLaneMinSpeed(void)
+{
+  return 0x6aaaa;
+}
+
 /* ---- AI_CalculateAdjustedDesiredSpeed__FP8Car_tObj  [@0x8005a390] ---- */
 void AI_CalculateAdjustedDesiredSpeed(Car_tObj *carObj)
 {
@@ -1505,7 +1510,7 @@ void AI_CalculateAdjustedDesiredSpeed(Car_tObj *carObj)
 
       if (carObjLocal->direction == 1) {
         adjustedSpeed = carObjLocal->desiredSpeed;
-        if (adjustedSpeed <= 0x6aaaa) {
+        if (adjustedSpeed < AI_AdjustedLaneMinSpeed()) {
           adjustedSpeed = 0x6aaaa;
         }
       }

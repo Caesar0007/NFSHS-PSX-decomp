@@ -353,15 +353,17 @@ void GetFirstStmQuadPts(BWorldSm_Pos *slicePos,CCOORD16 *vertices)
 /* ---- BWorld_SetSimSlice__FP12BWorldSm_Pos  [@0x8007f034] ---- */
 void BWorld_SetSimSlice(BWorldSm_Pos *slicePos)
 {
-  Chunk *chunk;
+  Trk_NewSimSlice *simSlices;
   int chunkSliceInd;
-  u_char bVar1;
 
-  bVar1 = *(u_char *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 0x1c);
-  slicePos->chunk = bVar1;
-  chunk = &Track_chunkList[bVar1];
-  chunkSliceInd = (int)slicePos->slice - (int)chunk->firstSimSliceInd;
-  slicePos->simSlice = (Trk_NewSimSlice *)((int)chunk->simSliceBuf + chunkSliceInd * 5 + 4);
+  slicePos->chunk =
+      *(u_char *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 0x1c);
+  simSlices = (Trk_NewSimSlice *)
+      ((char *)Track_chunkList[slicePos->chunk].simSliceBuf + 4);
+  chunkSliceInd =
+      (int)slicePos->slice -
+      (int)Track_chunkList[slicePos->chunk].firstSimSliceInd;
+  slicePos->simSlice = &simSlices[chunkSliceInd];
   return;
 }
 

@@ -63,7 +63,7 @@ int Scene_BuildCustomSceneList(void)
     se = (SceneElem *)(gGameSceneList + 1);
     slice = gGameSceneList->slice_;
     Object_customSliceNum = slice;
-    for (i = 0; i < gGameSceneList->numElements_; i++, se++) {
+    for (i = 0; i < gGameSceneList->numElements_; se++, i++) {
       if (se->type < 3) {
         if (-1 < se->type) {
           Object_AddCustomObject(se,1);

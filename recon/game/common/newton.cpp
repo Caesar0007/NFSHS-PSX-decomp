@@ -1615,86 +1615,80 @@ NewtonSetInitSlice_setDriveSurf:
 }
 
 /* ---- Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii  [NEWTON.CPP:1420-1512] SLD-VERIFIED ---- */
-extern "C" void Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii(u_int *newtonObj,u_int index,int mass,u_int moInertia,int dimX,
-               int dimY,int dimZ)
-
+extern "C" void Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii(
+    BO_tNewtonObj *newtonObj,int index,int mass,int moInertia,
+    int dimX,int dimY,int dimZ)
 {
   int i;
-  int iVar1;
-  u_int *puVar2;
-  int iVar3;
 
-  *newtonObj = index;
-  newtonObj[0x22] = 0;
-  *(u_char *)(newtonObj + 0x24) = 0;
-  newtonObj[0x28] = 0;
-  newtonObj[0x29] = 0;
-  newtonObj[0x2a] = 0;
-  newtonObj[0x2b] = 0;
-  newtonObj[0x2c] = 0;
-  newtonObj[0x2d] = 0;
-  newtonObj[0x2e] = mass;
-  if (((GameSetup_gData.sgge & 2U) != 0) && ((newtonObj[0x98] & 4) != 0)) {
-    newtonObj[0x2e] = mass * 5;
+  newtonObj->objID = index;
+  ((int *)newtonObj)[0x22] = 0;
+  newtonObj->simOptz = 0;
+  newtonObj->position.x = 0;
+  newtonObj->position.y = 0;
+  newtonObj->position.z = 0;
+  newtonObj->linearVel.x = 0;
+  newtonObj->linearVel.y = 0;
+  newtonObj->linearVel.z = 0;
+  newtonObj->mass = mass;
+  if (((GameSetup_gData.sgge & 2U) != 0) &&
+      ((((Car_tObj *)newtonObj)->carFlags & 4) != 0)) {
+    newtonObj->mass = mass * 5;
   }
-  if ((newtonObj[0x98] & 0x20) != 0) {
+  if ((((Car_tObj *)newtonObj)->carFlags & 0x20) != 0) {
     if ((GameSetup_gData.commMode == 1) &&
-       ((Cars_gHumanRaceCarList[0]->carInfo->carType < 0x16 ||
-        (Cars_gHumanRaceCarList[1]->carInfo->carType < 0x16)))) {
-      newtonObj[0x2e] = newtonObj[0x2e] << 1;
+        ((Cars_gHumanRaceCarList[0]->carInfo->carType < 0x16 ||
+          Cars_gHumanRaceCarList[1]->carInfo->carType < 0x16))) {
+      newtonObj->mass = newtonObj->mass << 1;
     }
     else {
-      newtonObj[0x2e] = (int)(newtonObj[0x2e] * 3) / 2;
+      newtonObj->mass = (newtonObj->mass * 3) / 2;
     }
   }
-  iVar1 = fixeddiv(0x10000,newtonObj[0x2e]);
-  newtonObj[0x2f] = iVar1;
-  newtonObj[0x48] = newtonObj[0x2e] << 3;
-  iVar1 = fixeddiv(0x10000,newtonObj[0x48]);
-  newtonObj[0x49] = iVar1;
-  newtonObj[0x45] = 0;
-  newtonObj[0x46] = 0;
-  newtonObj[0x47] = 0;
-  newtonObj[0x4a] = 0;
-  newtonObj[0x4b] = 0x10000;
-  newtonObj[0x4c] = 0;
-  newtonObj[0x4d] = dimX;
-  newtonObj[0x4e] = dimY;
-  newtonObj[0x4f] = dimZ;
-  iVar1 = fixedsqrt((dimX / 0x100) * (dimX / 0x100) +
-                    (dimY / 0x100) * (dimY / 0x100));
-  newtonObj[0x50] = iVar1;
-  iVar1 = fixedsqrt((iVar1 / 0x100) * (iVar1 / 0x100) +
-                    (dimZ / 0x100) * (dimZ / 0x100));
-  iVar3 = 9;
-  puVar2 = newtonObj + 9;
-  newtonObj[0x50] = iVar1;
-  *(u_short *)(newtonObj + 0x5f) = 0;
-  newtonObj[0x6f] = 1;
-  newtonObj[0x70] = 1;
-  newtonObj[0x61] = 0;
-  newtonObj[0x62] = 0;
-  newtonObj[0x25] = 0x10000;
-  newtonObj[0x31] = 0;
-  newtonObj[0x5d] = 0;
-  newtonObj[99] = 0;
-  newtonObj[100] = 0;
-  newtonObj[0x65] = 0;
-  newtonObj[0x66] = 0;
-  newtonObj[0x67] = 0;
-  newtonObj[0x6c] = 0;
-  newtonObj[0x6d] = 0;
-  newtonObj[0x6e] = 0;
+  newtonObj->massInv = fixeddiv(0x10000,newtonObj->mass);
+  newtonObj->moInertia = newtonObj->mass << 3;
+  newtonObj->moInertiaInv = fixeddiv(0x10000,newtonObj->moInertia);
+  newtonObj->angularVel.x = 0;
+  newtonObj->angularVel.y = 0;
+  newtonObj->angularVel.z = 0;
+  newtonObj->orientationToGround.x = 0;
+  newtonObj->orientationToGround.y = 0x10000;
+  newtonObj->orientationToGround.z = 0;
+  newtonObj->dimension.x = dimX;
+  newtonObj->dimension.y = dimY;
+  newtonObj->dimension.z = dimZ;
+  newtonObj->dimensionRadius =
+      fixedsqrt((dimX / 0x100) * (dimX / 0x100) +
+                (dimY / 0x100) * (dimY / 0x100));
+  newtonObj->dimensionRadius =
+      fixedsqrt((newtonObj->dimensionRadius / 0x100) *
+                    (newtonObj->dimensionRadius / 0x100) +
+                (dimZ / 0x100) * (dimZ / 0x100));
+  newtonObj->flightTime = 0;
+  newtonObj->groundSurfaceType = 1;
+  newtonObj->driveSurfaceType = 1;
+  newtonObj->groundVel = 0;
+  newtonObj->objAltitude = 0;
+  newtonObj->gravityMult = 0x10000;
+  newtonObj->xRelRoadCenter = 0;
+  newtonObj->roadGravityModifier = 0;
+  newtonObj->collision.collided = 0;
+  newtonObj->collision.impulse = 0;
+  newtonObj->collision.otherObj = 0;
+  newtonObj->collision.sfxType = 0;
+  newtonObj->collision.disableCollisionTimer = 0;
+  newtonObj->collision.lastOtherObj = 0;
+  newtonObj->collision.lastImpulse = 0;
+  newtonObj->collision.lastTime = 0;
+  i = 9;
   do {
-    puVar2[0x86] = 0;
-    iVar3 = iVar3 + -1;
-    puVar2 = puVar2 + -1;
-  } while (-1 < iVar3);
-  *(u_char *)((int)newtonObj + 0x92) = 0;
-  *(u_short *)((int)newtonObj + 0x17e) = 0;
-  *(u_char *)((int)newtonObj + 0x91) = 1;
-  newtonObj[0x26] = 0;
-  return;
+    newtonObj->damage[i] = 0;
+    i--;
+  } while (i >= 0);
+  newtonObj->reOrthoCounter = 0;
+  newtonObj->deadTimer = 0;
+  newtonObj->active = 1;
+  newtonObj->cumulatedRot = 0;
 }
 
 /* ---- Newton_QDUpdateVel__FP13BO_tNewtonObj  [NEWTON.CPP:1516-1558] SLD-VERIFIED ---- */

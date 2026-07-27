@@ -15,6 +15,7 @@ Input_tResults  Input_gResults[2];
 Input_tResults  Input_gSim;                   /* 0x8013d22c; .flags @+3 = Ghidra bGp00000ce3 */
 int             Input_gLookBehind[2];
 int             Input_gMode[2];
+extern Input_tResults D_8013D228[];
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 int * Input_StartUp(void);
@@ -528,26 +529,16 @@ InputUpd_menukeysOr:
 void Input_Store(void)
 
 {
-  int iVar1;
-  Input_tResults *val;
-  
   if (gSimQueue_BlockSelf == 0) {
-    if (GameSetup_gData.numPlayerRaceCars < 2) {
-      if (GameSetup_gData.commMode != 0) {
+    if (1 < GameSetup_gData.numPlayerRaceCars) {
+      if (SimQueue_Put(0,Input_gResults) == 0) {
         return;
       }
-      val = Input_gResults;
-      iVar1 = GameSetup_gData.localCar;
+      SimQueue_Put(1,D_8013D228);
     }
-    else {
-      iVar1 = SimQueue_Put(0,Input_gResults);
-      if (iVar1 == 0) {
-        return;
-      }
-      val = Input_gResults + 1;
-      iVar1 = 1;
+    else if (GameSetup_gData.commMode == 0) {
+      SimQueue_Put(GameSetup_gData.localCar,Input_gResults);
     }
-    SimQueue_Put(iVar1,val);
   }
   return;
 }

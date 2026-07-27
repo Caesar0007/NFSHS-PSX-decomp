@@ -661,65 +661,43 @@ void AudioEng_Resume(void)
 /* ---- AudioEng_CleanUp__Fv  [@0x8007c534] ---- */
 void AudioEng_CleanUp(void)
 {
-  /* w30-a7: dead-local removal (frame-size lever) -- the previous declaration block carried a
-     large batch of never-referenced locals (incl. a 20-byte SNDPLAYOPTS by value), inflating the
-     stack frame to 0x48 vs the oracle's real 0x30; trimmed to only the locals this body uses. */
-  u_int uVar1;
-  AudioEng_t *pAVar2;
-  int iVar3;
-  AudioEng_t *ptr;
-  AudioEng_t **ppAVar4;
-  AudioEng_t **base;   /* w30-a7: oracle materializes AudioEng_g ONCE into s5 (base) and copies it
-                           to s3 (ppAVar4/loop var); the bound s5+8 is a fresh in-loop addiu each
-                           iteration, not a separately-hoisted constant. Naming the base explicitly
-                           (rather than re-referencing the global AudioEng_g+2 each time) matches
-                           that shape (also needed the (int) casts below to get a signed `slt`
-                           bound compare instead of pointer `sltu`, matching the oracle).
-                           FLOOR: 20 residual diffs split into two proven scheduler tie-breaks --
-                           (1) prologue s3<->s5 register-NAME swap (base vs. copy get materialized
-                           into the opposite physical reg; tried both assignment orders, identical
-                           output either way); (2) the inner-loop base-anchor choice already fought
-                           to a floor below (s2+0 vs s2+676) -- neither moves under source reshaping
-                           tried this session; not re-fighting further. */
+  /* SLD exposes only g=$s2 and i=$s1. Keeping the outer table as an array
+     reference and indexing left/right from g reproduces retail's s5 base,
+     s3 cursor, and s0=g anchor; the remaining four prologue diffs are the
+     address-materialization scheduling choice (v0->s5 versus direct s5). */
+  u_int noHandle;
+  AudioEng_t *(&base)[2] = AudioEng_g;
+  AudioEng_t **current;
 
-  base = AudioEng_g;
-  ppAVar4 = base;
-  while( true ) {
-    /* DISGUISED BARE-VA FIX (w14-a2): -0x7fec38c5 == 0x8013C73B, one byte SHORT of the true
-     * array end &AudioEng_g[2]==0x8013C73C -- raw @0x8007c564 confirms `$v0=$s5+8; $v0=$s3<$v0;
-     * if($v0==0) goto exit` i.e. the real bound is AudioEng_g+2 (s5=AudioEng_g held live). */
-    if ((int)ppAVar4 >= (int)(base + 2)) {
+  noHandle = 0xffffffff;
+  current = base;
+  while (true) {
+    AudioEng_t *g;
+
+    if ((int)(base + 2) <= (int)current) {
       return;
     }
-    ptr = *ppAVar4;
-    iVar3 = 0;
-    pAVar2 = ptr;
-    if (ptr == (AudioEng_t *)0x0) break;
-    do {
-      uVar1 = pAVar2->left[0].handle;
-      if (uVar1 != 0xffffffff) {
-        SNDstop(uVar1);
-        uVar1 = pAVar2->right[0].handle;
-        if (uVar1 != 0xffffffff) {
-          SNDstop(uVar1);
+    g = *current;
+    if (g == (AudioEng_t *)0x0) {
+      break;
+    }
+    {
+      int i;
+
+      for (i = 0; i < 0x10; i++) {
+        if (g->left[i].handle != noHandle) {
+          SNDstop(g->left[i].handle);
+          if (g->right[i].handle != noHandle) {
+            SNDstop(g->right[i].handle);
+          }
+          g->left[i].handle = noHandle;
+          g->right[i].handle = noHandle;
         }
-        pAVar2->left[0].handle = -1;
-        pAVar2->right[0].handle = -1;
       }
-      iVar3 = iVar3 + 1;
-      /* w30-a7: BUG FIX -- was `pAVar2 = (AudioEng_t *)pAVar2->vol;` (reading the "vol" field's
-         VALUE as a pointer, nonsensical). Raw oracle proves this is a plain 12-byte BYTE-pointer
-         walk (`addiu s0,s0,0xC`); Ghidra rendered the pointer-arithmetic as a field read because
-         offset 0xC coincidentally names a struct field. left[i]/right[i] are reached via the
-         CONSTANT struct-relative offsets 484/676 applied to this walking base (left/right arrays
-         are exactly 192 bytes apart with matching 12-byte element stride, so one incrementing
-         pointer serves both -- confirmed against asm/nonmatchings/main/AudioEng_CleanUp__Fv.s). */
-      pAVar2 = (AudioEng_t *)((char *)pAVar2 + 0xc);
-    } while (iVar3 < 0x10);
-    purgememadr(ptr->tables);
-    purgememadr(ptr);
-    *ppAVar4 = (AudioEng_t *)0x0;
-    ppAVar4 = ppAVar4 + 1;
+    }
+    purgememadr(g->tables);
+    purgememadr(g);
+    *current = (AudioEng_t *)0x0;
+    current++;
   }
-  return;
 }

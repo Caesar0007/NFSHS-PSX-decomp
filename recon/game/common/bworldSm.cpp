@@ -42,7 +42,7 @@ int BWorldSm_FindEdgeOff(coorddef *pt,BWorldSm_Pos *slicePos1,BWorldSm_Pos *slic
 int BWorldSm_QuadLight(BWorldSm_Pos *slicePos);
 void * BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos);
 void NormalCache_AddEntry(BWorldSm_Pos *slicePos);
-void * NormalCache_FindEntry(BWorldSm_Pos *slicePos);
+bool NormalCache_FindEntry(BWorldSm_Pos *slicePos);
 void NormalCache_Init(void);
 void Check_Rot(BWorldSm_Pos *slicePos);
 coorddef * BWorldSm_UNormal(BWorldSm_Pos *slicePos);
@@ -919,7 +919,7 @@ void NormalCache_AddEntry(BWorldSm_Pos *slicePos)
 }
 
 /* ---- NormalCache_FindEntry__FP12BWorldSm_Pos  [@0x800800e8] ---- */
-void * NormalCache_FindEntry(BWorldSm_Pos *slicePos)
+bool NormalCache_FindEntry(BWorldSm_Pos *slicePos)
 {
   register u_char *cacheFlags;
   tNormalCacheEntry *ce;
@@ -945,14 +945,14 @@ nextCacheEntry:
   if (i < 0x10) goto searchCache;
 searchDone:
   if (i < 0x10) goto copyCacheEntry;
-  return (void *)0x0;
+  return false;
 cacheHit:
   ce->accessTime = BWSM_NormalCacheSysTime;
   goto searchDone;
 copyCacheEntry:
   slicePos->normal = ce->normal;
   slicePos->forward = ce->forward;
-  return (void *)0x1;
+  return true;
 }
 
 /* ---- NormalCache_Init__Fv  [@0x800801ac] ---- */
@@ -979,79 +979,54 @@ void Check_Rot(BWorldSm_Pos *slicePos)
 {
   coorddef vecX;
   coorddef vecZ;
-  coorddef*forward;
-  coorddef*normal;
-  void *pvVar1;
-  int iVar2;
-  int local_30;
-  int local_2c;
-  int local_28;
-  int local_20;
-  int local_1c;
-  int local_18;
   
-  if (((int)slicePos->simRotFlag != (int)slicePos->triangleFlag) &&
-     (pvVar1 = NormalCache_FindEntry(slicePos), pvVar1 != (void *)0x1)) {
-    if (slicePos->triangleFlag == '\x03') {
-      iVar2 = slicePos->quadPts[1].x - slicePos->quadPts[0].x;
-      if (iVar2 < 0) {
-        iVar2 = iVar2 + 7;
+  if (slicePos->simRotFlag != (signed char)slicePos->triangleFlag) {
+    if (!NormalCache_FindEntry(slicePos)) {
+      if ((signed char)slicePos->triangleFlag == 3) {
+        vecZ.x = slicePos->quadPts[2].x - slicePos->quadPts[3].x;
+        vecZ.x += (slicePos->quadPts[1].x - slicePos->quadPts[0].x) / 8;
+        vecZ.y = slicePos->quadPts[2].y - slicePos->quadPts[3].y;
+        vecZ.y += (slicePos->quadPts[1].y - slicePos->quadPts[0].y) / 8;
+        vecZ.z = slicePos->quadPts[2].z - slicePos->quadPts[3].z;
+        vecZ.z += (slicePos->quadPts[1].z - slicePos->quadPts[0].z) / 8;
+        vecX.x = slicePos->quadPts[0].x - slicePos->quadPts[3].x;
+        vecX.x += (slicePos->quadPts[1].x - slicePos->quadPts[2].x) / 8;
+        vecX.y = slicePos->quadPts[0].y - slicePos->quadPts[3].y;
+        vecX.y += (slicePos->quadPts[1].y - slicePos->quadPts[2].y) / 8;
+        vecX.z = slicePos->quadPts[0].z - slicePos->quadPts[3].z;
+        vecX.z += (slicePos->quadPts[1].z - slicePos->quadPts[2].z) / 8;
       }
-      local_20 = (slicePos->quadPts[2].x - slicePos->quadPts[3].x) + (iVar2 >> 3);
-      iVar2 = slicePos->quadPts[1].y - slicePos->quadPts[0].y;
-      if (iVar2 < 0) {
-        iVar2 = iVar2 + 7;
+      else if ((signed char)slicePos->triangleFlag == 2) {
+        vecZ.x = slicePos->quadPts[1].x - slicePos->quadPts[0].x;
+        vecZ.y = slicePos->quadPts[1].y - slicePos->quadPts[0].y;
+        vecZ.z = slicePos->quadPts[1].z - slicePos->quadPts[0].z;
+        vecX.x = slicePos->quadPts[1].x - slicePos->quadPts[2].x;
+        vecX.y = slicePos->quadPts[1].y - slicePos->quadPts[2].y;
+        vecX.z = slicePos->quadPts[1].z - slicePos->quadPts[2].z;
       }
-      local_1c = (slicePos->quadPts[2].y - slicePos->quadPts[3].y) + (iVar2 >> 3);
-      iVar2 = slicePos->quadPts[1].z - slicePos->quadPts[0].z;
-      if (iVar2 < 0) {
-        iVar2 = iVar2 + 7;
+      else {
+        vecZ.x = slicePos->quadPts[2].x - slicePos->quadPts[3].x;
+        vecZ.y = slicePos->quadPts[2].y - slicePos->quadPts[3].y;
+        vecZ.z = slicePos->quadPts[2].z - slicePos->quadPts[3].z;
+        vecX.x = slicePos->quadPts[0].x - slicePos->quadPts[3].x;
+        vecX.y = slicePos->quadPts[0].y - slicePos->quadPts[3].y;
+        vecX.z = slicePos->quadPts[0].z - slicePos->quadPts[3].z;
       }
-      local_18 = (slicePos->quadPts[2].z - slicePos->quadPts[3].z) + (iVar2 >> 3);
-      iVar2 = slicePos->quadPts[1].x - slicePos->quadPts[2].x;
-      if (iVar2 < 0) {
-        iVar2 = iVar2 + 7;
+      {
+        coorddef *forward = &slicePos->forward;
+        coorddef *normal = &slicePos->normal;
+        *forward = vecZ;
+        crossproduct(&vecZ,&vecX,normal);
+        Math_NormalizeVector(normal);
+        if (normal->y > 0xffff) {
+          normal->y = 0xfff9;
+        }
+        Math_NormalizeVector(forward);
+        NormalCache_AddEntry(slicePos);
       }
-      local_30 = (slicePos->quadPts[0].x - slicePos->quadPts[3].x) + (iVar2 >> 3);
-      iVar2 = slicePos->quadPts[1].y - slicePos->quadPts[2].y;
-      if (iVar2 < 0) {
-        iVar2 = iVar2 + 7;
-      }
-      local_2c = (slicePos->quadPts[0].y - slicePos->quadPts[3].y) + (iVar2 >> 3);
-      iVar2 = slicePos->quadPts[1].z - slicePos->quadPts[2].z;
-      if (iVar2 < 0) {
-        iVar2 = iVar2 + 7;
-      }
-      local_28 = (slicePos->quadPts[0].z - slicePos->quadPts[3].z) + (iVar2 >> 3);
     }
-    else if (slicePos->triangleFlag == '\x02') {
-      local_20 = slicePos->quadPts[1].x - slicePos->quadPts[0].x;
-      local_1c = slicePos->quadPts[1].y - slicePos->quadPts[0].y;
-      local_18 = slicePos->quadPts[1].z - slicePos->quadPts[0].z;
-      local_30 = slicePos->quadPts[1].x - slicePos->quadPts[2].x;
-      local_2c = slicePos->quadPts[1].y - slicePos->quadPts[2].y;
-      local_28 = slicePos->quadPts[1].z - slicePos->quadPts[2].z;
-    }
-    else {
-      local_20 = slicePos->quadPts[2].x - slicePos->quadPts[3].x;
-      local_1c = slicePos->quadPts[2].y - slicePos->quadPts[3].y;
-      local_18 = slicePos->quadPts[2].z - slicePos->quadPts[3].z;
-      local_30 = slicePos->quadPts[0].x - slicePos->quadPts[3].x;
-      local_2c = slicePos->quadPts[0].y - slicePos->quadPts[3].y;
-      local_28 = slicePos->quadPts[0].z - slicePos->quadPts[3].z;
-    }
-    (slicePos->forward).x = local_20;
-    (slicePos->forward).y = local_1c;
-    (slicePos->forward).z = local_18;
-    crossproduct((coorddef *)&local_20,(coorddef *)&local_30,(coorddef *)&(slicePos->normal).x);
-    Math_NormalizeVector(&slicePos->normal);
-    if (0xffff < (slicePos->normal).y) {
-      (slicePos->normal).y = 0xfff9;
-    }
-    Math_NormalizeVector(&slicePos->forward);
-    NormalCache_AddEntry(slicePos);
   }
-  slicePos->simRotFlag = (short)slicePos->triangleFlag;
+  slicePos->simRotFlag = (signed char)slicePos->triangleFlag;
   return;
 }
 

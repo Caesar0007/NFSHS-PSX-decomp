@@ -160,43 +160,34 @@ AnimScript * Anim_GetAnim(int handle)
 /* ---- Anim_GetLastRotPos  [@0x80073e08] ---- */
 void Anim_GetLastRotPos(Trk_AnimateInst *animInst,coorddef *pt,matrixtdef *mat)
 {
-  u_char *puVar4;
-  int *piVar4;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  tQuat tStack_10;
+  Anim_tFrame *animFrames;
+  int animInd;
+  tQuat q;
 
-  puVar4 = (u_char *)animInst + 0xc;
-  piVar4 = (int *)(puVar4 + (animInst->count + -1) * 0x14);
-  tStack_10 = *(tQuat *)((char *)piVar4 + 0xc);   /* @0x63E30 lastFrame.quat (clean copy) */
-  iVar6 = piVar4[0];
-  iVar7 = piVar4[1];
-  iVar8 = piVar4[2];
-  pt->x = iVar6;
-  pt->y = iVar7;
-  pt->z = iVar8;
-  Quatern_QuatToMat(&tStack_10,mat);
+  animFrames = (Anim_tFrame *)((char *)animInst + 0xc);
+  animInd = animInst->count - 1;
+  q = *(tQuat *)&animFrames[animInd].qx;
+  *pt = *(coorddef *)&animFrames[animInd].x;
+  Quatern_QuatToMat(&q,mat);
   return;
 }
 
 /* ---- Anim_GetLastAnimPosRot  [@0x80073e80] ---- */
 int Anim_GetLastAnimPosRot(int animNum,int flags,coorddef *pt,matrixtdef *mat)
 {
-  int iVar1;
-  int iVar3;
-
   Anim_GetLastRotPos(animScripts[animNum],pt,mat);
   if ((flags & 4U) != 0) {
-    iVar1 = mat->m[3];
+    int tmp;
+
+    tmp = mat->m[3];
     mat->m[3] = mat->m[6];
-    mat->m[6] = -iVar1;
-    iVar1 = mat->m[4];
+    mat->m[6] = -tmp;
+    tmp = mat->m[4];
     mat->m[4] = mat->m[7];
-    mat->m[7] = -iVar1;
-    iVar3 = mat->m[5];
+    mat->m[7] = -tmp;
+    tmp = mat->m[5];
     mat->m[5] = mat->m[8];
-    mat->m[8] = -iVar3;
+    mat->m[8] = -tmp;
   }
   return 1;
 }

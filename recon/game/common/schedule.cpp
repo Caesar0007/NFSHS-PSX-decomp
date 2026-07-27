@@ -56,27 +56,19 @@ Sched_tSchedule *
 Sched_CreateNewSchedule(char *scheduleName,int maxFunctions)
 
 {
-  Sched_tSchedule *pSVar1;
-  Sched_tSchedule *pSVar2;
   int i;
-  int iVar3;
   Sched_tSchedule *newSchedule;
   
-  newSchedule = (Sched_tSchedule *)(maxFunctions * 0x10);
-  pSVar1 = (Sched_tSchedule *)reservememadr(scheduleName,(int)(newSchedule + 1),0);
-  pSVar1->maxNumFunctions = maxFunctions;
-  iVar3 = 0;
-  pSVar1->numFunctions = 0;
-  pSVar2 = pSVar1;
-  if (0 < maxFunctions) {
-    do {
-      pSVar2->func[0].priority = 0x7ffe;
-      pSVar2->func[0].function = (u_char **)0x0;
-      iVar3 = iVar3 + 1;
-      pSVar2 = (Sched_tSchedule *)&pSVar2->func[0].var1;
-    } while (iVar3 < pSVar1->maxNumFunctions);
+  newSchedule = (Sched_tSchedule *)reservememadr(
+      scheduleName,maxFunctions * sizeof(Sched_tFunctionSchedule) +
+      sizeof(Sched_tSchedule),0);
+  newSchedule->maxNumFunctions = maxFunctions;
+  newSchedule->numFunctions = 0;
+  for (i = 0; i < newSchedule->maxNumFunctions; i++) {
+    newSchedule->func[i].priority = 0x7ffe;
+    newSchedule->func[i].function = 0;
   }
-  return pSVar1;
+  return newSchedule;
 }
 
 /* ---- Sched_CleanUpSchedule__FP15Sched_tSchedule  [SCHEDULE.CPP:113-118] SLD-VERIFIED ---- */

@@ -72,11 +72,23 @@ int Input_WingCommandMode(int player)
   if (player != 0) {
     h = h + 0x4c;
   }
+  if (*h != 0) {
+    mode = player & 1;
+    goto checkMode;
+  }
+  if (h[1] != 0) {
+    mode = player & 1;
+    goto checkMode;
+  }
+  if (h[2] == 0) {
+    goto falseResult;
+  }
   mode = player & 1;
-  if ((((*h != 0) || (h[1] != 0)) || (h[2] != 0)) &&
-      (Input_gMode[mode] == 1)) {
+checkMode:
+  if (Input_gMode[mode] == 1) {
     goto trueResult;
   }
+falseResult:
   return 0;
 
 trueResult:

@@ -135,16 +135,13 @@ void SimQueue_SetCurrentInput(int time)
   pIndex = 0;
   masked = time & 0x1fU;
   if (0 < GameSetup_gData.numPlayerRaceCars) {
-    GameSetup_tData *setup;
-
     pIVar6 = output;
-    setup = &GameSetup_gData;
     iVar5 = masked << 2;
     do {
       *pIVar6 = *(Input_tResults *)((u_char *)&inputQueue + iVar5);
       pIVar6 = pIVar6 + 1;
       iVar5 = iVar5 + 0x80;
-    } while (++pIndex < setup->numPlayerRaceCars);
+    } while (++pIndex < GameSetup_gData.numPlayerRaceCars);
   }
   if (0 < GameSetup_gData.numPlayerRaceCars) {
     pIndex = 0;

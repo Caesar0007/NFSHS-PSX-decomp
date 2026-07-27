@@ -828,208 +828,63 @@ ReplayChooseCam_cutCheck:
 }
 
 /* ---- Replay_ReplayFindClosestCamera__Fii  [REPLAY.CPP:841-871] SLD-VERIFIED ---- */
+#define REPLAY_WRAPPED_SLICE_DIFF(a, b) \
+  ((gNumSlices / 2 < (a) - (b)) ? gNumSlices - ((a) - (b)) : (a) - (b))
+#define REPLAY_SLICE_DISTANCE(a, b) \
+  ((REPLAY_WRAPPED_SLICE_DIFF((a), (b)) > 0) ? \
+   REPLAY_WRAPPED_SLICE_DIFF((a), (b)) : \
+   -REPLAY_WRAPPED_SLICE_DIFF((a), (b)))
+#define REPLAY_WRAPPED_SLICE_DIFF_LE(a, b) \
+  (((a) - (b) <= gNumSlices / 2) ? (a) - (b) : gNumSlices - ((a) - (b)))
+#define REPLAY_SLICE_DISTANCE_LE(a, b) \
+  ((REPLAY_WRAPPED_SLICE_DIFF_LE((a), (b)) > 0) ? \
+   REPLAY_WRAPPED_SLICE_DIFF_LE((a), (b)) : \
+   -REPLAY_WRAPPED_SLICE_DIFF_LE((a), (b)))
+
 void Replay_ReplayFindClosestCamera(int player,int slice)
 
 {
-  bool bVar1;
-  char current_byte;
-  int iVar2;
-  Camera_tCamSlot *pCVar3;
-  u_int uVar4;
-  u_int uVar5;
-  int actualDist;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  int prevIndex;
-  Camera_tCamSlot *pCVar9;
-  int nextIndex;
-  int currIndex;
-  int iVar10;
-  int nextDist;
-  int iVar11;
-  int currDist;
-  int i;
-  int iVar12;
   int cameraIndex;
-  int Cameras;
-  char fname [80];
-  int bigFile;
-  
-  pCVar9 = gReplayCameraSlots;
-  iVar8 = 1;
-  iVar10 = gNumSlices / 2;
-  for (iVar12 = 0; iVar6 = 0, iVar12 < numValidCams; iVar12 = iVar12 + 1) {
-    iVar6 = slice - pCVar9->slice;
-    if (iVar10 < iVar6) {
-      if (0 < gNumSlices - iVar6) goto Replay_FindCam_diffPosA;
-Replay_FindCam_diffNegA:
-      iVar6 = slice - pCVar9->slice;
-      iVar2 = iVar6 - gNumSlices;
-      if (iVar6 <= iVar10) {
-        iVar2 = pCVar9->slice - slice;
+  {
+    int i;
+    cameraIndex = 0;
+    for (i = cameraIndex; i < numValidCams; i++) {
+      int currDist;
+      int nextDist;
+      int actualDist;
+      currDist = REPLAY_SLICE_DISTANCE_LE(
+          slice,gReplayCameraSlots[i].slice);
+      nextDist = REPLAY_SLICE_DISTANCE(
+          slice,gReplayCameraSlots[(i + 1 < numValidCams) ? i + 1 : 0].slice);
+      actualDist = REPLAY_SLICE_DISTANCE(
+          gReplayCameraSlots[i].slice,
+          gReplayCameraSlots[(i + 1 < numValidCams) ? i + 1 : 0].slice);
+      if (actualDist >= currDist + nextDist) {
+        cameraIndex = i;
+        break;
       }
     }
-    else {
-      if (iVar6 < 1) goto Replay_FindCam_diffNegA;
-Replay_FindCam_diffPosA:
-      iVar2 = slice - pCVar9->slice;
-      if (iVar10 < iVar2) {
-        iVar2 = gNumSlices - iVar2;
-      }
-    }
-    bVar1 = iVar8 < numValidCams;
-    iVar6 = 0;
-    if (bVar1) {
-      iVar6 = iVar8 << 5;
-    }
-    if (iVar10 < slice - *(short *)((int)&gReplayCameraSlots[0].slice + iVar6)) {
-      iVar6 = 0;
-      if (bVar1) {
-        iVar6 = iVar8 << 5;
-      }
-      if (0 < gNumSlices - (slice - *(short *)((int)&gReplayCameraSlots[0].slice + iVar6)))
-      goto Replay_FindCam_diffPosB;
-Replay_FindCam_diffNegB:
-      bVar1 = iVar8 < numValidCams;
-      iVar6 = 0;
-      if (bVar1) {
-        iVar6 = iVar8 * 0x20;
-      }
-      if (iVar10 < slice - *(short *)((int)&gReplayCameraSlots[0].slice + iVar6)) {
-        iVar6 = 0;
-        if (bVar1) {
-          iVar6 = iVar8 << 5;
-        }
-        iVar11 = (slice - *(short *)((int)&gReplayCameraSlots[0].slice + iVar6)) - gNumSlices;
-      }
-      else {
-        iVar6 = 0;
-        if (bVar1) {
-          iVar6 = iVar8 << 5;
-        }
-        iVar11 = *(short *)((int)&gReplayCameraSlots[0].slice + iVar6) - slice;
-      }
-    }
-    else {
-      iVar6 = 0;
-      if (bVar1) {
-        iVar6 = iVar8 << 5;
-      }
-      if (slice - *(short *)((int)&gReplayCameraSlots[0].slice + iVar6) < 1)
-      goto Replay_FindCam_diffNegB;
-Replay_FindCam_diffPosB:
-      bVar1 = iVar8 < numValidCams;
-      iVar6 = 0;
-      if (bVar1) {
-        iVar6 = iVar8 << 5;
-      }
-      if (iVar10 < slice - *(short *)((int)&gReplayCameraSlots[0].slice + iVar6)) {
-        iVar6 = 0;
-        if (bVar1) {
-          iVar6 = iVar8 << 5;
-        }
-        iVar11 = gNumSlices - (slice - *(short *)((int)&gReplayCameraSlots[0].slice + iVar6));
-      }
-      else {
-        iVar6 = 0;
-        if (bVar1) {
-          iVar6 = iVar8 << 5;
-        }
-        iVar11 = slice - *(short *)((int)&gReplayCameraSlots[0].slice + iVar6);
-      }
-    }
-    iVar7 = (int)pCVar9->slice;
-    bVar1 = iVar8 < numValidCams;
-    iVar6 = 0;
-    if (bVar1) {
-      iVar6 = iVar8 << 5;
-    }
-    if (iVar10 < iVar7 - *(short *)((int)&gReplayCameraSlots[0].slice + iVar6)) {
-      iVar6 = 0;
-      if (bVar1) {
-        iVar6 = iVar8 << 5;
-      }
-      if (0 < gNumSlices - (iVar7 - *(short *)((int)&gReplayCameraSlots[0].slice + iVar6)))
-      goto Replay_FindCam_diffPosC;
-Replay_FindCam_diffNegC:
-      iVar7 = (int)pCVar9->slice;
-      bVar1 = iVar8 < numValidCams;
-      pCVar3 = gReplayCameraSlots;
-      if (bVar1) {
-        pCVar3 = gReplayCameraSlots + iVar8;
-      }
-      if (iVar10 < iVar7 - pCVar3->slice) {
-        iVar6 = 0;
-        if (bVar1) {
-          iVar6 = iVar8 << 5;
-        }
-        iVar7 = (iVar7 - *(short *)((int)&gReplayCameraSlots[0].slice + iVar6)) - gNumSlices;
-      }
-      else {
-        iVar6 = 0;
-        if (bVar1) {
-          iVar6 = iVar8 << 5;
-        }
-        iVar7 = *(short *)((int)&gReplayCameraSlots[0].slice + iVar6) - iVar7;
-      }
-    }
-    else {
-      iVar6 = 0;
-      if (bVar1) {
-        iVar6 = iVar8 << 5;
-      }
-      if (iVar7 - *(short *)((int)&gReplayCameraSlots[0].slice + iVar6) < 1)
-      goto Replay_FindCam_diffNegC;
-Replay_FindCam_diffPosC:
-      iVar7 = (int)pCVar9->slice;
-      bVar1 = iVar8 < numValidCams;
-      iVar6 = 0;
-      if (bVar1) {
-        iVar6 = iVar8 << 5;
-      }
-      if (iVar10 < iVar7 - *(short *)((int)&gReplayCameraSlots[0].slice + iVar6)) {
-        iVar6 = 0;
-        if (bVar1) {
-          iVar6 = iVar8 << 5;
-        }
-        iVar7 = gNumSlices - (iVar7 - *(short *)((int)&gReplayCameraSlots[0].slice + iVar6));
-      }
-      else {
-        iVar6 = 0;
-        if (bVar1) {
-          iVar6 = iVar8 << 5;
-        }
-        iVar7 = iVar7 - *(short *)((int)&gReplayCameraSlots[0].slice + iVar6);
-      }
-    }
-    pCVar9 = pCVar9 + 1;
-    iVar6 = iVar12;
-    if (iVar2 + iVar11 <= iVar7) break;
-    iVar8 = iVar8 + 1;
   }
-  Replay_ReplayCamera[player].cutToNextCamera = iVar6;
-  if (gReplayCameraSlots[iVar6].mode == '\v') {
-    pCVar9 = gReplayCameraSlots + iVar6;
+  Replay_ReplayCamera[player].cutToNextCamera = cameraIndex;
+  if (gReplayCameraSlots[Replay_ReplayCamera[player].cutToNextCamera].mode == 11) {
     Replay_ReplayCamera[player].defaultCamera = 0;
-    ((u_char *)&(uVar4))[0] = pCVar9->mode;
-    ((u_char *)&(uVar4))[1] = ((char *)(pCVar9))[0x1];
-    (*(u_short *)((u_char *)&(uVar4) + 2)) = pCVar9->fov;
-    *(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) =
-         *(u_int *)((char *)&(Camera_gInfo[player]) + 0x74) & 0xf9ffffff | (uVar4 >> 9 & 3) << 0x19;
-    pCVar9 = gReplayCameraSlots + Replay_ReplayCamera[player].cutToNextCamera;
-    ((u_char *)&(uVar5))[0] = pCVar9->mode;
-    ((u_char *)&(uVar5))[1] = ((char *)(pCVar9))[0x1];
-    (*(u_short *)((u_char *)&(uVar5) + 2)) = pCVar9->fov;
-    Camera_gInfo[player].splineMode = (u_char)(uVar5 >> 0xb) & 7;
-    Camera_SetMode(player,0xb);
+    Camera_gInfo[player].zooming =
+        gReplayCameraSlots[Replay_ReplayCamera[player].cutToNextCamera].zoom;
+    Camera_gInfo[player].splineMode =
+        gReplayCameraSlots[Replay_ReplayCamera[player].cutToNextCamera].splineMode;
+    Camera_SetMode(player,11);
   }
   else {
-    iVar8 = Replay_ReplayCamera[player].cutToNextCamera;
     Replay_ReplayCamera[player].defaultCamera = 1;
-    Camera_ReplayUpdate(player,gReplayCameraSlots + iVar8);
+    Camera_ReplayUpdate(
+        player,gReplayCameraSlots + Replay_ReplayCamera[player].cutToNextCamera);
   }
   return;
 }
+
+#undef REPLAY_SLICE_DISTANCE
+#undef REPLAY_WRAPPED_SLICE_DIFF
+#undef REPLAY_SLICE_DISTANCE_LE
+#undef REPLAY_WRAPPED_SLICE_DIFF_LE
 
 /* end of replay.cpp */

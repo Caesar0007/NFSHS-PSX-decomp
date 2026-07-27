@@ -586,7 +586,17 @@ extern void iSNDserve(void)
      *     ours keeps n-- as a filler and sinks the kon block. The ds choice and the store-block
      *     order are ONE coupled sched1 outcome, not two independent diffs.
      *   - state==3 arm `one <<= chan` in-place shift (matches retail's self-sllv + shared li in
-     *     the bnez ds), with and without a trailing `one = 0` carrier: 73 both. */
+     *     the bnez ds), with and without a trailing `one = 0` carrier: 73 both.
+     *
+     * 2026-07-27 NFS2-PC AXIS CLOSED for this fn (user-requested check of VA 0x0048c0a8):
+     *   nfs2-v1.txt names 0x48c0a8 `iSNDserve_` (FCN VOID) -- the twin EXISTS, but it is a
+     *   complete Windows rewrite: the DirectSound ring-buffer pump (COM vtable calls through
+     *   DAT_004e18bc -- GetCurrentPosition/Lock/Unlock at +0x24/+0x2c/+0x4c -- play-cursor
+     *   chase, 0x32-tick underrun counter, adaptive write-ahead, mixed-audio fills via
+     *   FUN_004b00f8).  No voice loop, no kon/koff masks, no per-voice walk: nothing of the
+     *   PSX body's structure survives, so no statement order or variable identity transfers.
+     *   NOTE: nfsw.IDA.c's sub_48C0A8 is a BROKEN-BOUNDARY stub (`JUMPOUT(0x48C0A5)`) -- use
+     *   nfsw.Ghidra.c FUN_0048c0a8 for this one. */
     fpbase = base;
     vt = 0;
     if ((int)kon < (int)(unsigned int)SUB(0x11)) {

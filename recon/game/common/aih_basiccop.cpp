@@ -267,11 +267,7 @@ void Blockade_AddObject(int slice,coorddef *pos,int objectID)
 
   theObj.scalar2 = 0x23916;
 
-  theObj.cp.x = pos->x;
-
-  theObj.cp.y = pos->y;
-
-  theObj.cp.z = pos->z;
+  theObj.cp = *pos;
 
   theObj.subTypeIndex = objectID;
 

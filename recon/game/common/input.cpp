@@ -66,17 +66,19 @@ int Input_WingCommandMode(int player)
 
 {
   int * h;
-  int *piVar1;
-  
-  piVar1 = Input_gHandler + 0x2d;
+
+  h = Input_gHandler + 0x2d;
   if (player != 0) {
-    piVar1 = Input_gHandler + 0x79;
+    h = h + 0x4c;
   }
-  if ((((*piVar1 != 0) || (piVar1[1] != 0)) || (piVar1[2] != 0)) && (Input_gMode[player & 1] == 1))
-  {
-    return 1;
+  if ((((*h != 0) || (h[1] != 0)) || (h[2] != 0)) &&
+      (Input_gMode[player & 1] == 1)) {
+    goto trueResult;
   }
   return 0;
+
+trueResult:
+  return 1;
 }
 
 /* ---- Input_Update__Fv  [INPUT.CPP:104-430] SLD-VERIFIED ---- */

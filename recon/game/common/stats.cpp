@@ -106,24 +106,22 @@ void Stats_ClearPosition(void)
 int Stats_GetPosition(Car_tObj *carObj)
 
 {
-  Stats_tPosition *pSVar1;
-  int iVar2;
-  int i;
   int position;
   int carindex;
-  
-  iVar2 = 0;
-  if (0 < Cars_gNumRaceCars) {
-    pSVar1 = Stats_racePosition;
-    do {
-      if (pSVar1->car == carObj->carIndex) {
-        return iVar2 + 1;
+
+  position = 0;
+  carindex = carObj->carIndex;
+  {
+    int i;
+
+    for (i = 0; i < Cars_gNumRaceCars; i++) {
+      if (Stats_racePosition[i].car == carindex) {
+        position = i + 1;
+        break;
       }
-      iVar2 = iVar2 + 1;
-      pSVar1 = pSVar1 + 1;
-    } while (iVar2 < Cars_gNumRaceCars);
+    }
   }
-  return 0;
+  return position;
 }
 
 /* ---- Stats_GetNumOpponents__Fv  [STATS.CPP:145-155] SLD-VERIFIED ---- */

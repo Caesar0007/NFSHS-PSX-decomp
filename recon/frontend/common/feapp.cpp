@@ -355,11 +355,11 @@ void tFEApplication::Redraw()
   sprintf(buffer,(char *)(bigBuf + 0x48),iVar1,musThresh);
   FETextRender_FullText(buffer,0x10,0xd7,textType_FramedInfo,textState_Hilighted,0);
   drenv = (int)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
-  if (this->fCurrentMenu[1] == (tMenu *)0x0) {
-    height = (short)screenheight;
+  if (this->fCurrentMenu[1] != (tMenu *)0x0) {
+    height = (short)((u_int)(screenheight - (screenheight >> 0x1f)) >> 1);
   }
   else {
-    height = (short)((u_int)(screenheight - (screenheight >> 0x1f)) >> 1);
+    height = (short)screenheight;
   }
   tDialogBase::DrawAllDialogs();
   this->DrawHelpIcons();

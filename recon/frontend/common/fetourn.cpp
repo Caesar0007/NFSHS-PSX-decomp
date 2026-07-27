@@ -462,52 +462,61 @@ void tTournamentManager::UpdateTrackFinishPoints()
   short k;
   Car_tStats *dummyCars;
   short numCompetitors;
+  tCompetitor *comp;
+  u_char rankVal;
 
   numCompetitors = this->GetNumCompetitors();
   k = 0;
   i = this->fTier;
+  dummyCars = Cars_gNewCarStatsList;
   if (this->fDefinition->fTournaments
-      [(uint)this->fDefinition->fTiers[i].fTournOffset + this->fTournament].fKnockout == '\0') {
-    dummyCars = Cars_gNewCarStatsList;
+      [(uint)this->fDefinition->fTiers[i].fTournOffset + this->fTournament].fKnockout != '\0') {
+    k = 0;
     if (0 < numCompetitors) {
+      comp = this->fCompetitors;
+      for (i = 0; i < numCompetitors; i = i + 1) {
+        if (comp->fEliminated == 0) {
+          if ((dummyCars[k].finalPosition - 1U < 6) &&
+             (dummyCars[k].finalFinishType == 2)) {
+            if (dummyCars[k].finalPosition < this->fNumRacers) {
+              comp->fPoints = comp->fPoints + 1;
+            }
+            else {
+              comp->fEliminated = 1;
+            }
+            comp->fPosition = (uchar)dummyCars[k].finalPosition;
+          }
+          k = k + 1;
+        }
+        comp = comp + 1;
+      }
+    }
+    this->fNumRacers = this->fNumRacers + -1;
+  }
+  else {
+    if (0 < numCompetitors) {
+      comp = this->fCompetitors;
       for (i = 0; i < numCompetitors; i = i + 1) {
         if ((dummyCars->finalPosition - 1U < 6) && (dummyCars->finalFinishType == 2)) {
-          this->fCompetitors[i].fPoints =
-               this->fCompetitors[i].fPoints +
+          comp->fPoints =
+               comp->fPoints +
                (ushort)this->fFinishPoints[dummyCars->finalPosition + -1];
         }
         dummyCars = dummyCars + 1;
+        comp = comp + 1;
       }
     }
-    for (i = 0; i < 6; i = i + 1) {
+    for (i = 5; -1 < i; i = i - 1) {
       this->fRanking[i] = (uchar)i;
     }
     qsort(this->fRanking,(int)numCompetitors,1,
                tournPointsCompare);
-    for (i = 0; i < 6; i = i + 1) {
-      this->fCompetitors[this->fRanking[i]].fPosition = (uchar)(i + 1);
-    }
-  }
-  else {
-    k = 0;
-    if (0 < numCompetitors) {
-      for (i = 0; i < numCompetitors; i = i + 1) {
-        if (this->fCompetitors[i].fEliminated == 0) {
-          if ((Cars_gNewCarStatsList[k].finalPosition - 1U < 6) &&
-             (Cars_gNewCarStatsList[k].finalFinishType == 2)) {
-            if (Cars_gNewCarStatsList[k].finalPosition < this->fNumRacers) {
-              this->fCompetitors[i].fPoints = this->fCompetitors[i].fPoints + 1;
-            }
-            else {
-              this->fCompetitors[i].fEliminated = 1;
-            }
-            this->fCompetitors[i].fPosition = (uchar)Cars_gNewCarStatsList[k].finalPosition;
-          }
-          k = k + 1;
-        }
-      }
-    }
-    this->fNumRacers = this->fNumRacers + -1;
+    i = 0;
+    do {
+      rankVal = this->fRanking[i];
+      i = i + 1;
+      this->fCompetitors[rankVal].fPosition = (uchar)i;
+    } while (i < 6);
   }
   return;
 }

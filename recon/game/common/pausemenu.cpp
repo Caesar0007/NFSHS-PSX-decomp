@@ -225,13 +225,10 @@ int tPListIteratorIndexed::TextValue(tPlayer arg1)
 int tPListIteratorIndexed::Increment(tPlayer arg1)
 
 {
-  int *piVar1;
-  
-  piVar1 = this->fValue + (u_char)*this->fIndex;
-  *piVar1 = *piVar1 + 1;
-  piVar1 = this->fValue + (u_char)*this->fIndex;
-  if (this->fSelectionList[*piVar1] == 0) {
-    *piVar1 = 0;
+  this->fValue[(u_char)*this->fIndex] =
+      this->fValue[(u_char)*this->fIndex] + 1;
+  if (this->fSelectionList[this->fValue[(u_char)*this->fIndex]] == 0) {
+    this->fValue[(u_char)*this->fIndex] = 0;
   }
   AudioCmn_PlayPauseSound(5);
   gMPauseUpdateNextTime = 1;

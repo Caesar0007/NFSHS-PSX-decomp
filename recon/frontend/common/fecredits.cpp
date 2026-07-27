@@ -94,7 +94,23 @@ void tCreditManager::RealDeInit()
 
 /* ---- tCreditManager::Draw  [FECREDITS.CPP:120-151] ---- */
 void tCreditManager::Draw(bool selected)
-
+/* NOTE (w37-a2): 40-diff residual investigated, NOT resolved this pass.
+   SYM (fsize=24, mask=$80010000) names only ONE local for the whole fn:
+   `i` REG $a2, nested in the nvConfigs-loop block@0x80035ca8 -- everything
+   before/around it (the fTVFade delta, the clamp chain, ptVar4) is
+   compiler-transient with no SYM identity. Oracle keeps the pre-loop
+   fTVFade delta/clamp chain in $v0/$v1; ours lands it on $a2 (the SAME
+   physical register `i` later needs) even though the live ranges don't
+   textually overlap. Tried and reverted (no improvement or worse): giving
+   `i` its own nested `{ }` block scope (48 diffs, worse), collapsing the
+   selected?4:-4 delta to a ternary/direct-assign (39 diffs but loses the
+   oracle's explicit branch+duplicate-store shape), and re-scoping the
+   post-store reload into a fresh nested local (no change, 40 diffs).
+   Also: `ptVar4 = screenMain` mis-anchors a base-pointer scratch in the
+   tvConfigs loop tail (`lw v0,0(v0)` double-deref vs oracle's direct
+   `lw a1,0(v0)`) -- not yet isolated from the a2 pressure above. Leaving
+   as a documented floor; a fresh pass with a wider set of source
+   rephrasings (or the permuter) is the likely next lever. */
 {
   int iVar1;
   int iVar2;

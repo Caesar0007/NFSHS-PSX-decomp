@@ -1519,9 +1519,8 @@ void Camera_Init(void)
     Camera_gInfo[i].twist = 0;
     Camera_gInfo[i].wallLeft = Camera_gInfo[i].anchor->position;
     Camera_gInfo[i].wallRight = Camera_gInfo[i].anchor->position;
+    Camera_gInfo[i].mode = 0xe;
     Camera_gInfo[i].camNum = 0;
-    Camera_gInfo[i].circleCounter = 0;
-    Camera_gInfo[i].circleAngle = 0;
     Camera_gInfo[i].modechange = 0;
     Camera_gInfo[i].pitch = 0;
     Camera_gInfo[i].jostling = 0;
@@ -1532,10 +1531,11 @@ void Camera_Init(void)
     Camera_gInfo[i].splitscreen = splitScreen;
     Camera_gInfo[i].intransition = '\0';
     Camera_gInfo[i].tumbling = '\0';
-    Camera_gInfo[i].mode = 0xe;
     Camera_gInfo[i].direction = 0;
     Camera_gInfo[i].zooming = 0;
     Camera_gInfo[i].inCar = 0;
+    Camera_gInfo[i].circleCounter = 0;
+    Camera_gInfo[i].circleAngle = 0;
     Camera_gInfo[i].animNum = gAnimCams[GameSetup_gData.track][0];
     if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
        ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||

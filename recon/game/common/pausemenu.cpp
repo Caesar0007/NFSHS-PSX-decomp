@@ -1127,10 +1127,15 @@ int tPMenu::NumEnabledItems()
   int ret;
 
   ret = this->fNumItems;
-  for (i = 1; i <= this->fNumItems; i = i + 1) {
+  i = 1;
+  while (true) {
+    if (this->fNumItems < i) {
+      break;
+    }
     if ((this->fItemList[i]->fFlags & 1) != 0) {
       ret = ret + -1;
     }
+    i = i + 1;
   }
   return ret;
 }

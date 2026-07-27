@@ -838,8 +838,6 @@ void GetObjMaxDimensions(Trk_ObjectDef **pObjDefs,Trk_SimpleInst *objInstance,co
 void Object_InitIMassObjectInfo(void)
 
 {
-  Trk_ObjectDef **pObjDefs;
-  Object_tIMassObjInfo *pOVar1;
   Trk_SimpleInst *objInst;
   int objIndex;
   
@@ -849,26 +847,27 @@ void Object_InitIMassObjectInfo(void)
     Object_IMassObjInst =
          reservememadr("IMObj info",gPersistObjInst->m_num_elements << 5,0)
     ;
-    objIndex = 0;
-    if ((Object_IMassObjInst != (Object_tIMassObjInfo *)0x0) &&
-       (objInst = (Trk_SimpleInst *)(gPersistObjInst + 1), 0 < gPersistObjInst->m_num_elements))
-    {
-      do {
-        pObjDefs = Track_gObjDefs;
-        if (objInst->type == '\a') {
-          pOVar1 = Object_IMassObjInst + gNumIMassObjects;
-          pOVar1->animInst = (Trk_AnimateInst *)objInst;
-          GetObjMaxDimensions(pObjDefs,objInst,&pOVar1->dimension);
-          pOVar1 = Object_IMassObjInst;
-          Object_IMassObjInst[gNumIMassObjects].lastPos.x = 0;
-          pOVar1[gNumIMassObjects].lastPos.y = 0;
-          pOVar1[gNumIMassObjects].lastPos.z = 0;
-          pOVar1[gNumIMassObjects].lastTick = 0;
-          gNumIMassObjects = gNumIMassObjects + 1;
-        }
-        objIndex = objIndex + 1;
-        objInst = (Trk_SimpleInst *)((int)&objInst->size + (int)objInst->size);
-      } while (objIndex < gPersistObjInst->m_num_elements);
+    if (Object_IMassObjInst != (Object_tIMassObjInfo *)0x0) {
+      objIndex = 0;
+      objInst = (Trk_SimpleInst *)(gPersistObjInst + 1);
+      if (0 < gPersistObjInst->m_num_elements) {
+        do {
+          if (objInst->type == '\a') {
+            Object_IMassObjInst[gNumIMassObjects].animInst =
+                (Trk_AnimateInst *)objInst;
+            GetObjMaxDimensions(Track_gObjDefs,objInst,
+                &Object_IMassObjInst[gNumIMassObjects].dimension);
+            Object_IMassObjInst[gNumIMassObjects].lastPos.x = 0;
+            Object_IMassObjInst[gNumIMassObjects].lastPos.y = 0;
+            Object_IMassObjInst[gNumIMassObjects].lastPos.z = 0;
+            Object_IMassObjInst[gNumIMassObjects].lastTick = 0;
+            gNumIMassObjects = gNumIMassObjects + 1;
+          }
+          objIndex = objIndex + 1;
+          objInst =
+              (Trk_SimpleInst *)((int)&objInst->size + (int)objInst->size);
+        } while (objIndex < gPersistObjInst->m_num_elements);
+      }
     }
   }
   return;

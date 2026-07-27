@@ -2396,11 +2396,19 @@ void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
               tMenuCommand &command)
 
 {
-  /* SYM: FCN VOID (no return -- iVar7 in the prior recon was Ghidra
-     inventing a return of the dash-scan cursor; the oracle epilogue calls
-     Stattool_SamNelsonsUpperLowerStringConverterForRecords and returns
-     with no $v0 read at all). Full switch-restructure per the
-     tInsideBoxSongMenu recipe deferred -- see wave report. */
+  /* SYM: FCN VOID, REGPARM this($s0)+keyval($s1) only -- fromPlayer/command
+     are dead (never read in the body, matching the oracle: $a3/&command is
+     never touched). SYM's 8c block shows NO named locals at all: every
+     scalar below is a Ghidra-fabricated compiler temp, not a real variable.
+     Real switch(keyval) (gcc balance_case_nodes: ==0x400/Down root, <0x401
+     bound test over 0x2/Cross+0x200/Up, else 0x800/Left+0x1000/Right) --
+     Down and Up share ONE body (Down falls into a tiny header that
+     recomputes 0x200 before the Up/Down split-test; Up's own dispatch
+     compare already holds 0x200 and jumps straight into the shared test),
+     modeled as case Down: <label> ... ; case Up: goto <label>; per the
+     tInsideBoxSongMenu recipe. menu_kUserNameRows is read LAZILY inside the
+     Down arm only (oracle stages the lui in the shared branch's delay slot,
+     not hoisted to function entry). */
   u_char bVar1;
   u_short uVar2;
   short sVar3;
@@ -2408,118 +2416,116 @@ void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
   u_int uVar5;
   void *pvVar6;
   int iVar7;
-  tInputKeyType tVar8;
   int iVar9;
+  int sfxArg;
   u_int uVar10;
-  
-  sVar4 = menu_kUserNameRows;
+  tInputKeyType tVar8;
+
   tVar8 = keyval;
-  if (tVar8 == kInput_KeyType_Down) {
+  switch (tVar8) {
+  case kInput_KeyType_Down:
+  case kInput_KeyType_Up:
 UserNameProcInp_handleUpDown:
     if (tVar8 == kInput_KeyType_Up) {
       uVar2 = this->fCurrentRow - 1;
       this->fCurrentRow = uVar2;
-      iVar9 = 3;
+      sfxArg = 3;
       if ((int)((u_int)uVar2 << 0x10) < 0) {
         this->fCurrentRow = menu_kUserNameRows + -1;
       }
     }
     else {
+      sVar4 = menu_kUserNameRows;
       sVar3 = this->fCurrentRow + 1;
       this->fCurrentRow = sVar3;
-      iVar9 = 4;
+      sfxArg = 4;
       if (sVar4 <= sVar3) {
         this->fCurrentRow = 0;
       }
     }
-    AudioCmn_PlayFESFX(iVar9);
+    AudioCmn_PlayFESFX(sfxArg);
     if (this->fCurrentColumn < 0) {
       this->fCurrentColumn = 0;
     }
 UserNameProcInp_markProcessed:
     keyval = kInput_KeyType_AlreadyProcessed;
-  }
-  else if ((int)tVar8 < 0x401) {
-    if (tVar8 == kInput_KeyType_Cross) {
-      uVar5 = strlen(this->fData);
-      bVar1 = this->fRowList[0][(int)this->fCurrentColumn + this->fCurrentRow * 9];
-      uVar10 = (u_int)bVar1;
-      sVar4 = (short)uVar5;
-      if (uVar10 - 0x23 < 2) {
-        iVar9 = 0x15;
-        if (0 < sVar4) {
-          this->fData[sVar4 + -1] = '\0';
-          goto UserNameProcInp_playSfxAndMarkProcessed;
-        }
-        goto UserNameProcInp_markProcessed;
-      }
-      if ((uVar10 == 0x21) || (uVar10 == 0x40)) {
-        pvVar6 = CheckForCheats(this->fData);
-        if (pvVar6 != (void *)0x0) {
-          *this->fData = '\0';
-          goto UserNameProcInp_skipDashColumns;
-        }
-        tVar8 = kInput_KeyType_Triangle;
-        if ((FEApp->fCurrentMenu[0]->fFlags & 0x100) == 0) {
-          tVar8 = kInput_KeyType_Start;
-        }
-        keyval = tVar8;
-      }
-      else if ((uVar10 == 0x26) || (uVar10 == 0x5e)) {
-        iVar9 = (int)sVar4;
-        if (iVar9 < this->fMaxStringLength) {
-          this->fData[iVar9] = ' ';
-          this->fData[iVar9 + 1] = '\0';
-          AudioCmn_PlayFESFX(0x15);
-          goto UserNameProcInp_skipDashColumns;
-        }
-      }
-      else {
-        iVar7 = (int)sVar4;
-        iVar9 = 0x15;
-        if (iVar7 < this->fMaxStringLength) {
-          this->fData[iVar7] = bVar1;
-          this->fData[iVar7 + 1] = '\0';
-          goto UserNameProcInp_playSfxAndMarkProcessed;
-        }
-      }
-      AudioCmn_PlayFESFX(1);
+    break;
+  case kInput_KeyType_Left:
+    uVar2 = this->fCurrentColumn - 1;
+    this->fCurrentColumn = uVar2;
+    sfxArg = 3;
+    if ((int)((u_int)uVar2 << 0x10) < 0) {
+      this->fCurrentColumn = 5;
     }
-    else if (tVar8 == kInput_KeyType_Up) goto UserNameProcInp_handleUpDown;
-  }
-  else {
-    if (tVar8 == kInput_KeyType_Left) {
-      uVar2 = this->fCurrentColumn - 1;
-      this->fCurrentColumn = uVar2;
-      iVar9 = 3;
-      if ((int)((u_int)uVar2 << 0x10) < 0) {
-        this->fCurrentColumn = 5;
-      }
 UserNameProcInp_playSfxAndMarkProcessed:
-      AudioCmn_PlayFESFX(iVar9);
-      goto UserNameProcInp_markProcessed;
+    AudioCmn_PlayFESFX(sfxArg);
+    goto UserNameProcInp_markProcessed;
+  case kInput_KeyType_Right:
+    sVar4 = this->fCurrentColumn + 1;
+    this->fCurrentColumn = sVar4;
+    if (5 < sVar4) {
+      this->fCurrentColumn = 0;
     }
-    if (tVar8 == kInput_KeyType_Right) {
-      sVar4 = this->fCurrentColumn + 1;
-      this->fCurrentColumn = sVar4;
-      if (5 < sVar4) {
+    AudioCmn_PlayFESFX(4);
+    keyval = kInput_KeyType_AlreadyProcessed;
+    sVar4 = this->fCurrentColumn;
+    iVar9 = this->fCurrentRow * 9;
+    iVar7 = 0x2d;
+    if (this->fRowList[0][this->fCurrentColumn + iVar9] != '-')
+    goto UserNameProcInp_convertAndReturn;
+    do {
+      this->fCurrentColumn = sVar4 + 1;
+      if (5 < (short)(sVar4 + 1)) {
         this->fCurrentColumn = 0;
       }
-      AudioCmn_PlayFESFX(4);
-      keyval = kInput_KeyType_AlreadyProcessed;
       sVar4 = this->fCurrentColumn;
-      iVar9 = this->fCurrentRow * 9;
-      iVar7 = 0x2d;
-      if (this->fRowList[0][this->fCurrentColumn + iVar9] != '-')
-      goto UserNameProcInp_convertAndReturn;
-      do {
-        this->fCurrentColumn = sVar4 + 1;
-        if (5 < (short)(sVar4 + 1)) {
-          this->fCurrentColumn = 0;
-        }
-        sVar4 = this->fCurrentColumn;
-      } while (this->fRowList[0][this->fCurrentColumn + iVar9] == '-');
+    } while (this->fRowList[0][this->fCurrentColumn + iVar9] == '-');
+    break;
+  case kInput_KeyType_Cross:
+    uVar5 = strlen(this->fData);
+    bVar1 = this->fRowList[0][(int)this->fCurrentColumn + this->fCurrentRow * 9];
+    uVar10 = (u_int)bVar1;
+    sVar4 = (short)uVar5;
+    if (uVar10 - 0x23 < 2) {
+      sfxArg = 0x15;
+      if (0 < sVar4) {
+        this->fData[sVar4 + -1] = '\0';
+        goto UserNameProcInp_playSfxAndMarkProcessed;
+      }
+      goto UserNameProcInp_markProcessed;
     }
+    if ((uVar10 == 0x21) || (uVar10 == 0x40)) {
+      pvVar6 = CheckForCheats(this->fData);
+      if (pvVar6 != (void *)0x0) {
+        *this->fData = '\0';
+        goto UserNameProcInp_skipDashColumns;
+      }
+      tVar8 = kInput_KeyType_Triangle;
+      if ((FEApp->fCurrentMenu[0]->fFlags & 0x100) == 0) {
+        tVar8 = kInput_KeyType_Start;
+      }
+      keyval = tVar8;
+    }
+    else if ((uVar10 == 0x26) || (uVar10 == 0x5e)) {
+      iVar9 = (int)sVar4;
+      if (iVar9 < this->fMaxStringLength) {
+        this->fData[iVar9] = ' ';
+        this->fData[iVar9 + 1] = '\0';
+        AudioCmn_PlayFESFX(0x15);
+        goto UserNameProcInp_skipDashColumns;
+      }
+    }
+    else {
+      iVar7 = (int)sVar4;
+      sfxArg = 0x15;
+      if (iVar7 < this->fMaxStringLength) {
+        this->fData[iVar7] = bVar1;
+        this->fData[iVar7 + 1] = '\0';
+        goto UserNameProcInp_playSfxAndMarkProcessed;
+      }
+    }
+    AudioCmn_PlayFESFX(1);
+    break;
   }
 UserNameProcInp_skipDashColumns:
   iVar9 = this->fCurrentRow * 9;

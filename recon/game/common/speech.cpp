@@ -1304,7 +1304,9 @@ int SubmitRequest__6Speechlll(int bank,int localoffset,u_int size)
     else {
       if (offset != 0) {
         Speech *pThis = Speech_fgSpeech;
-        CopSpeak_DirectRequest(pThis->fFileHandle,offset + localoffset,size,car,0);
+        int requestFile = pThis->fFileHandle;
+        Car_tObj *requestCar = car;
+        CopSpeak_DirectRequest(requestFile,offset + localoffset,size,requestCar,0);
       }
       return offset + localoffset;
     }

@@ -31,6 +31,18 @@ extern int            gVoxEvents[];      /* @0x80148060 : live event count + bas
  * sites must STAY on `gVoxEvents` -- routing them through the queue view costs 22 diffs here and
  * breaks SPCH_ChooseSpeech's PASS. */
 extern unsigned char  gVoxEventQueue[] __asm__("gVoxEvents");
+/* Typed view of the same queue for iSPCH_ChooseEvent: a 0x3c-byte slot whose named fields start
+ * at +8 (the first two words overlay the live count / 'd' flag, see above). */
+typedef struct {
+    int            _ovl0;        /* +0x0 (slot 0: live event count) */
+    int            _ovl4;        /* +0x4 (slot 0: 'd'-event flag)   */
+    unsigned short enabled;      /* +0x8  */
+    unsigned short subTick;      /* +0xa  */
+    int            tick;         /* +0xc  insert tick */
+    int            event;        /* +0x10 VoxEvent ptr */
+    int            args[10];     /* +0x14 .. 0x3c */
+} VoxSlot;
+extern VoxSlot        gVoxQueue[] __asm__("gVoxEvents");
 extern int            DAT_80148064;   /* @0x80148064 : "kept a 'd' event" flag */
 extern int            gLastTick[];    /* last insert tick (array decl -> explicit lui+%lo) */
 extern unsigned short gLastSubTick[]; /* sub-tick counter for same-tick inserts */
@@ -390,133 +402,73 @@ extern int SPCH_AddEvent(unsigned int *table)
 
 /* iSPCH_ChooseEvent @0x800E7300 : pick the best pending event slot (highest priority, then lowest age, then
  *   lowest subtick), disabling any expired/filtered slots along the way.  Returns the slot index, or -1. */
+/* 🔄 2026-07-27 FROM-SCRATCH REWRITE (user directive: "rewrite it like a human wrote it") --
+ * 26 -> 14 diffs @120/120, replacing the whole device stack the function had accumulated
+ * (the on-stack `L` aggregate, (int)(unsigned int) cast chains, the dead-`tick` reuse copy,
+ * the do{}while(0) store wrapper, the goto funnel).  What the honest form proved:
+ *   - now/bestPri/bestSub spill to sp+0x10/0x14/0x18 NATURALLY -- the loop's own locals
+ *     (winner, bestAge, i, cursor, event, age, expired, filtered, the filter pri temp)
+ *     consume all nine callee-saved registers, so the allocator stack-homes the three
+ *     lowest-priority values exactly as retail did.  The L-struct was never needed.
+ *   - the $a1 stack reloads (now/bestPri/bestSub) fall out for free -- the "reload-scratch
+ *     identity floor" filed after the heavy trace was an ARTIFACT of the hacked body.
+ *   - the winner arms' SLOT recompute is just `((VoxSlot *)(gVoxEventQueue + winner*0x3c))
+ *     ->subTick` -- the cast keeps +0xa as the lhu displacement, and the byte-math form
+ *     gives retail's ((x<<4)-x)<<2 multiply (a typed gVoxQueue[winner] indexes with the
+ *     64-4 decomposition instead).
+ *   - `& 0xff` on the flag helper and the named `maxAge` block-local (double-read -> the
+ *     cse copy) are the remaining EA-source fingerprints, both natural.
+ * RESIDUAL 14 = two la-pseudo letter pairs (prologue gVoxEvents-HI/gPreLoadTicks = ours
+ * {v1,a0} vs retail {a1,v1}; teardown count-la v1-vs-a1) -- the true caller-saved tie-break
+ * remainder.  Probed neutral/worse: init order (24), split now accumulation (14). */
 extern int iSPCH_ChooseEvent(void)
 {
-    int            winner  = -1;
-    /* MATCH: now/bestPri/bestSub genuinely stack-resident in the oracle (sp+0x10/0x14/0x18,
-     * contiguous, reloaded every use -- NOT register-promoted) -- reproduce as an on-stack
-     * aggregate so gcc doesn't SRA/register-allocate the fields (2 ints + 1 short == the exact
-     * 0x10/0x14/0x18 layout). winner/bestAge/slotIdx stay plain locals (oracle keeps them s4/fp/s7). */
-    struct { int now; int bestPri; unsigned short bestSub; } L;
-    int            bestAge;
-    int            slotIdx;
-    L.now     = gettick() + gPreLoadTicks;
-    bestAge   = winner;
-    L.bestPri = 0;
-    L.bestSub = 0;
-    slotIdx = 0;
-    do {
-        unsigned char *slot = gVoxEventQueue + slotIdx * 0x3c;
-        if (*(unsigned short *)(slot + 8) != 0) {
-            int            voxEvent   = *(int *)(slot + 0x10);
-            int            tick       = *(int *)(slot + 0xc);
-            int            age        = L.now - tick;
-            int            expired    = 0;
-            int            filtered   = 0;
-            if (*(unsigned short *)(voxEvent + 2) != 0) {
-                /* w31-a4 residual (46, 118/120): oracle has an extra `addu v0,v1,zero` copy of
-                 * maxAge feeding the sltu (named-int-temp shape; an `int m = maxAge` folds away
-                 * under CSE) and a slot/age s2<->s3 + reload-reg rotation downstream -- the
-                 * ours-2-shorter receiver-reuse class, permuter territory. Named `tick` temp
-                 * (load order 12(slot) before now-reload) was the real -12 lever.
-                 * w33-a10 RE-VERDICT: still a floor. The 2-insn gap is the oracle's two no-copy-prop
-                 * copies; the bulk of the 46 is one callee-saved ROTATION -- retail slot=$s3/age=$s2,
-                 * ours slot=$s2/age=$s3 -- i.e. retail's allocator gave the SHORT-live-range value
-                 * (age) the earlier register, the same allocno_compare weighting a9 quantified on
-                 * iSPCH_InitEventQueue. No SLD exists for this TU to test a different statement
-                 * segmentation, and both build-lane probes regress (-mno-split-addresses 46 -> 109,
-                 * per-fn -fno-delayed-branch 46 -> 90). PROTOTYPE: int(void), returns $s4.
-                 * 🔬 2026-07-27 HEAVY ORACLE TRACE (full side-by-side vs disasm-v4.txt +
-                 * the splat .s, after the permuter finds took this to 26 @120/120):
-                 * EVERYTHING structural now matches -- prologue save order, the expired
-                 * maxAge copy, the teardown arm, BOTH winner arms incl. the SLOT recompute
-                 * chains and the shared `sh bestSub` tail, and (after the nested-if edit
-                 * below) the tie-break subtick load position.  ALL 26 remaining diffs are
-                 * 13 insn-pairs of ONE mechanism: retail's stack-reload/HI-scratch register
-                 * is $a1 at EVERY site (prologue vox-HI + gPreLoadTicks pair, the `now`
-                 * reload feeding subu s2, the bestPri reload feeding slt/bne, the bestSub
-                 * reload in the tie-break) where ours picks $v1/$v0/$a0 -- the
-                 * order_regs_for_reload / hard_reg_n_uses identity ALREADY QUANTIFIED on
-                 * spchrule.c iSPCH_GetRuleSettings ($t0-vs-$a3): ours' $a1 hosts the
-                 * allocated per-arm SLOT-base la pseudos so its n_uses is nonzero and it
-                 * sorts late; retail's equivalents were reload-rematerialized (zero
-                 * allocated refs) so $a1 wins its regno tie everywhere.  Not source-
-                 * reachable by the known dials (the GetRuleSettings falsification set
-                 * covers the spellings).  26 = this floor.
-                 * w34-a9 QUANTIFIED the rotation from cc1 -dl/-dg: slot(r160) 16 refs
-                 * / 72 insns -> prio floor_log2(16)*16/72 = 0.889 -> $s2, age(r97)
-                 * 12/44 -> 3*12/44 = 0.818 -> $s3 (nearest below: r99/r100 at 0.522;
-                 * nearest above: r95 at 1.304).  Retail is age=$s2 / slot=$s3, so the
-                 * flip needs prio(age) > prio(slot) while staying under 1.304: age at
-                 * 14-15 refs gives 0.955/1.023 (in window), age at 16 refs overshoots
-                 * to 1.455 and would steal $s1.  Equivalently slot at <= 15 refs
-                 * collapses to 3*15/72 = 0.625 -- 16 is exactly a floor_log2 razor
-                 * edge, so one weighted ref either way moves slot by 30%.  Falsified:
-                 * reading `sub` off a recomputed SLOT(slotIdx) to shed two slot refs
-                 * (129 insns / 141 diffs -- cc1 builds a whole second address chain),
-                 * and a named `ageCmp` copy feeding the maxAge compare (folded away,
-                 * 46 unchanged -- confirms the catalog rule that copies of a COMPUTED
-                 * value do not dial priority, unlike param copies). */
-                unsigned int m = *(unsigned short *)(voxEvent + 2);
-                expired = (m < (unsigned int)age);
+    int          winner = -1;
+    unsigned int now;
+    int          bestPri;
+    unsigned short bestSub;
+    unsigned int bestAge;
+    int          i;
+
+    now     = gettick() + gPreLoadTicks;
+    bestAge = winner;
+    bestPri = 0;
+    bestSub = 0;
+    for (i = 0; i < 16; i++) {
+        VoxSlot *slot = &gVoxQueue[i];
+        if (slot->enabled != 0) {
+            int          event   = slot->event;
+            unsigned int age     = now - slot->tick;
+            int          expired = 0;
+            int          filtered = 0;
+            if (*(unsigned short *)(event + 2) != 0) {
+                unsigned int maxAge = *(unsigned short *)(event + 2);
+                expired = maxAge < age;
             }
             if (gFilterSetting[0] == 1) {
-                if ((VoxEvent_GetFilterLengthFlag(voxEvent) & 0xff) != 0) {
-                    unsigned short pri = *(unsigned short *)(voxEvent + 4);
-                    if ((int)(unsigned int)pri < GetFilterPriority())
+                if ((VoxEvent_GetFilterLengthFlag(event) & 0xff) != 0) {
+                    if (*(unsigned short *)(event + 4) < GetFilterPriority())
                         filtered = 1;
                 }
             }
-            if (expired != 0 || filtered != 0) {
-                *(short *)(slot + 8) = 0;
+            if (expired || filtered) {
+                slot->enabled = 0;
                 gVoxEvents[0] = gVoxEvents[0] - 1;
-            } else {
-                unsigned short pri = *(unsigned short *)(voxEvent + 4);
-                if (L.bestPri < (int)(unsigned int)pri) {
-                    unsigned char *winSlot;
-                    winner  = slotIdx;
-                    winSlot = SLOT(slotIdx);
-                    L.bestSub = *(unsigned short *)(winSlot + 0xa);
+            } else if (bestPri < *(unsigned short *)(event + 4)) {
+                winner  = i;
+                bestSub = ((VoxSlot *)(gVoxEventQueue + winner * 0x3c))->subTick;
+                bestAge = age;
+                bestPri = *(unsigned short *)(event + 4);
+            } else if (*(unsigned short *)(event + 4) == bestPri) {
+                if (age < bestAge ||
+                    (age == bestAge && bestSub < slot->subTick)) {
+                    winner  = i;
                     bestAge = age;
-                    L.bestPri = (int)(unsigned int)pri;
-                } else {
-                    /* permuter find (output-110-2, 2026-07-27, 30 -> 26): the equality compare
-                     * reads pri through a COPY parked in the dead `tick` variable (dead-var
-                     * reuse = the no-copy-prop copy retail keeps).  110-1's sibling device
-                     * (tick = GetFilterPriority() inside the filter compare) is NEUTRAL on top. */
-                    tick = (int)(unsigned int)pri;
-                    if (tick == L.bestPri) {
-                        /* oracle trace 2026-07-27: NESTED ifs, not a compound ||/&& -- the
-                         * compound form lets sched1 hoist the subtick lhu above BOTH age
-                         * branches; retail loads it only inside the equal-age block. */
-                        if ((unsigned int)age < (unsigned int)bestAge)
-                            goto take2;
-                        if (age == bestAge) {
-                            unsigned short sub = *(unsigned short *)(slot + 0xa);
-                            if ((int)(unsigned int)L.bestSub < (int)(unsigned int)sub)
-                                goto take2;
-                        }
-                        goto skip2;
-take2:
-                        {
-                            unsigned char *winSlot;
-                            winner  = slotIdx;
-                            bestAge = age;
-                            winSlot = SLOT(slotIdx);
-                            /* permuter find (output-115, 2026-07-27): the do{}while(0) wrapper
-                             * around this one store is load-bearing for the block layout. */
-                            do {
-                                L.bestSub = *(unsigned short *)(winSlot + 0xa);
-                            } while (0);
-                        }
-skip2:
-                        ;
-                    }
+                    bestSub = ((VoxSlot *)(gVoxEventQueue + winner * 0x3c))->subTick;
                 }
             }
         }
-        slotIdx = slotIdx + 1;
-    } while (slotIdx < 0x10);
+    }
     return winner;
 }
 

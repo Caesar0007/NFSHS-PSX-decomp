@@ -318,23 +318,11 @@ void PlacePointOnRoad(int slice,coorddef *offset)
 
   coorddef ioff;
 
-  int cVar3;
+  int vecXz;
 
-  int cVar2;
+  int vecZx;
 
-  int cVar1;
-
-  int cVar4;
-
-  Trk_NewSlice *piVar4;
-
-  coorddef *norm;
-
-  coorddef *pointOnPlane;
-
-  int iVar11;
-
-  int iVar13;
+  int vecZz;
 
   /* H18-a6: full body reconstructed from oracle 0x8005C5E4-0x8005C78C. Was a manual field-by-field
      unpack (short/masked-word/int stores across a hand-rolled 16-B/iter pointer-walk loop) copying
@@ -349,55 +337,33 @@ void PlacePointOnRoad(int slice,coorddef *offset)
 
   testSimRoadInfo.slice = (short)slice;
 
-  piVar4 = BWorldSm_slices + slice;
+  slicecenter = *(coorddef *)BWorldSm_slices[slice].center;
 
-  slicecenter.x = piVar4->center[0];
+  vecXz = (int)((signed char *)BWorldSm_slices[slice].right)[2] << 9;
 
-  slicecenter.y = piVar4->center[1];
+  vecZx = (int)((signed char *)BWorldSm_slices[slice].forward)[0] << 9;
 
-  slicecenter.z = piVar4->center[2];
+  vecZz = (int)((signed char *)BWorldSm_slices[slice].forward)[2] << 9;
 
-  cVar4 = ((signed char *)piVar4->right)[0];
-
-  cVar1 = ((signed char *)piVar4->right)[2];
-
-  cVar2 = ((signed char *)piVar4->forward)[0];
-
-  cVar3 = ((signed char *)piVar4->forward)[2];
-
-  iVar11 = fixedmult((int)cVar4 << 9,ioff.x);
-
-  iVar13 = fixedmult((int)cVar2 << 9,ioff.z);
-
-  offset->x = slicecenter.x + iVar11 + iVar13;
+  offset->x =
+      slicecenter.x +
+      fixedmult((int)((signed char *)BWorldSm_slices[slice].right)[0] << 9,
+                ioff.x) +
+      fixedmult(vecZx,ioff.z);
 
   offset->y = slicecenter.y;
 
-  iVar11 = fixedmult((int)cVar1 << 9,ioff.x);
-
-  iVar13 = fixedmult((int)cVar3 << 9,ioff.z);
-
-  offset->z = slicecenter.z + iVar11 + iVar13;
+  offset->z =
+      slicecenter.z + fixedmult(vecXz,ioff.x) + fixedmult(vecZz,ioff.z);
 
   BWorldSm_FindClosestQuadRez(offset,&testSimRoadInfo,1);
 
-  norm = BWorldSm_UNormal(&testSimRoadInfo);
-
-  if (testSimRoadInfo.simQuad == (Trk_NewSimQuad *)0x0) {
-
-    pointOnPlane = (coorddef *)((int)BWorldSm_slices + testSimRoadInfo.slice * 0x20);
-
-  }
-
-  else {
-
-    pointOnPlane = testSimRoadInfo.quadPts;
-
-  }
-
-  iVar11 = GetPlaneY(norm,pointOnPlane,offset);
-
-  offset->y = iVar11;
+  offset->y = GetPlaneY(
+      BWorldSm_UNormal(&testSimRoadInfo),
+      testSimRoadInfo.simQuad != (Trk_NewSimQuad *)0x0
+          ? testSimRoadInfo.quadPts
+          : (coorddef *)((int)BWorldSm_slices + testSimRoadInfo.slice * 0x20),
+      offset);
 
   return;
 

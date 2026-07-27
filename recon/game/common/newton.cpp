@@ -52,7 +52,7 @@ extern "C" void Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj(int newtonObj);
 extern "C" void Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi(int newtonObj,int *normal,int orientToGround);
 extern "C" void Newton_CalcRealShadowCoordinates__FP8Car_tObji(Car_tObj *carObj,int currentTick);
 extern "C" void Newton_CheckForSpikeBelts__FP13BO_tNewtonObj(BO_tNewtonObj *newtonObj);
-extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef(Car_tObj *newtonObj,coorddef normal);
+extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef(BO_tNewtonObj *newtonObj,coorddef normal);
 extern "C" void Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(int type,coorddef *vector,BWorldSm_Pos *testSimRoadInfo);
 void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj);
 extern "C" void Newton_LimitAngularVelocity__FP13BO_tNewtonObj(int newtonObj);
@@ -2248,7 +2248,7 @@ extern "C" void Newton_CheckForSpikeBelts__FP13BO_tNewtonObj(BO_tNewtonObj *newt
 }
 
 /* ---- Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef  [NEWTON.CPP:1922-1956] SLD-VERIFIED ---- */
-extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef(Car_tObj *newtonObj,coorddef normal)
+extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef(BO_tNewtonObj *newtonObj,coorddef normal)
 
 {
   coorddef barrierVec;
@@ -2256,67 +2256,39 @@ extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coordd
   int distRetreat;
   coorddef upVec;
   matrixtdef islandMatrix;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  matrixtdef local_38;
-  
-  iVar1 = normal.z;
-  if (normal.z < 0) {
-    iVar1 = normal.z + 0xff;
+
+  upVec.x = 0;
+  upVec.y = 0x10000;
+  upVec.z = 0;
+  barrierVec.x = -(normal.z / 0x100 * 0x100);
+  barrierVec.y = 0;
+  barrierVec.z = normal.x / 0x100 * 0x100;
+  distRetreat = (normal.x / 0x100) * (newtonObj->linearVel.x / 0x100) +
+                (normal.y / 0x100) * (newtonObj->linearVel.y / 0x100) +
+                (normal.z / 0x100) * (newtonObj->linearVel.z / 0x100);
+  if (distRetreat < 0) {
+    distRetreat = -distRetreat;
   }
-  local_38.m[6] = (iVar1 >> 8) * -0x100;
-  iVar1 = normal.x;
-  if (normal.x < 0) {
-    iVar1 = normal.x + 0xff;
+  distRetreat = -distRetreat;
+  if (distRetreat < 0) {
+    distRetreat = distRetreat + 0xf;
   }
-  local_38.m[8] = (iVar1 >> 8) << 8;
-  iVar2 = normal.y;
-  if (normal.y < 0) {
-    iVar2 = normal.y + 0xff;
+  distRetreat = distRetreat >> 4;
+  if (-0x7ad <= distRetreat) {
+    distRetreat = -0x7ae;
   }
-  iVar3 = (newtonObj->N).linearVel.x;
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  iVar4 = (newtonObj->N).linearVel.y;
-  if (iVar4 < 0) {
-    iVar4 = iVar4 + 0xff;
-  }
-  iVar6 = normal.z;
-  if (normal.z < 0) {
-    iVar6 = normal.z + 0xff;
-  }
-  iVar5 = (newtonObj->N).linearVel.z;
-  if (iVar5 < 0) {
-    iVar5 = iVar5 + 0xff;
-  }
-  iVar1 = (iVar1 >> 8) * (iVar3 >> 8) + (iVar2 >> 8) * (iVar4 >> 8) + (iVar6 >> 8) * (iVar5 >> 8);
-  if (iVar1 < 0) {
-    iVar1 = -iVar1;
-  }
-  iVar1 = -iVar1;
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xf;
-  }
-  iVar2 = -0x7ae;
-  if (iVar1 >> 4 < -0x7ad) {
-    iVar2 = iVar1 >> 4;
-  }
-  local_38.m[3] = 0;
-  local_38.m[4] = 0x10000;
-  local_38.m[5] = 0;
-  local_38.m[7] = 0;
-  local_38.m[0] = normal.x;
-  local_38.m[1] = normal.y;
-  local_38.m[2] = normal.z;
-  iVar1 = Physics_AttenuateVelocity(newtonObj,iVar2,&local_38);
+  islandMatrix.m[0] = normal.x;
+  islandMatrix.m[1] = normal.y;
+  islandMatrix.m[2] = normal.z;
+  islandMatrix.m[3] = upVec.x;
+  islandMatrix.m[4] = upVec.y;
+  islandMatrix.m[5] = upVec.z;
+  islandMatrix.m[6] = barrierVec.x;
+  islandMatrix.m[7] = barrierVec.y;
+  islandMatrix.m[8] = barrierVec.z;
+  impactVel = Physics_AttenuateVelocity((Car_tObj *)newtonObj,distRetreat,&islandMatrix);
   Physics_SetCurrentWallType(4);
-  Physics_CorrectPostCollisionYaw(newtonObj,iVar1,normal);
-  return;
+  Physics_CorrectPostCollisionYaw((Car_tObj *)newtonObj,impactVel,normal);
 }
 
 /* ---- Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos  [NEWTON.CPP:2107-2140] SLD-VERIFIED ---- */
@@ -2649,7 +2621,7 @@ NewtonTestUndrv_genVecRay1:
       iVar14 = 1;
     }
     if (iVar14 != 0) {
-      Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef((Car_tObj *)newtonObj,local_a0);
+      Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef(newtonObj,local_a0);
       iVar12 = *(int *)(pBVar13[1].simRoadInfo.quadPts16 + 2);
       iVar14 = *(int *)&pBVar13[1].simRoadInfo.quadPts16[2].z;
       (newtonObj->collision).collisionPoint.x = *(int *)&pBVar13[1].simRoadInfo.quadPts16[1].z;

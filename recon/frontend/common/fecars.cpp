@@ -1270,22 +1270,19 @@ void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
   tCarInfo *carInfo;
   tCarManager *this_00;
   void *result;
-  tPlayer tVar9;
   u_int uVar10;
   tPlayer k;
   tCarInfo garageCar;
   tTrackInformation trackInfo;
-  
-  tVar9 = kPlayerOne;
+
+  i = 0;
   if (atIndex != kPlayerBoth) {
-    tVar9 = atIndex;
+    i = (short)atIndex;
   }
   result = (void *)0x0;
-  i = (short)tVar9;
-  k = tVar9;
+  k = (tPlayer)i;
   if ((i == 1) &&
-     (carInfo = (tCarInfo *)this->fCarManager,
-     uVar4 = ((tCarManager *)carInfo)->GetNumOwnedCars(1), (int)((u_int)uVar4 << 0x10) < 1)
+     (uVar4 = this->fCarManager->GetNumOwnedCars(1), (int)((u_int)uVar4 << 0x10) < 1)
      ) {
     k = kPlayerOne;
   }
@@ -1293,7 +1290,7 @@ void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
   if (this_00->fNumCars <= (u_int)(u_char)carNumber) {
     uVar10 = (u_int)(u_char)carNumber - (u_int)(u_char)this_00->fNumCars;
     if ((this->fCarListFilter & 0x20U) != 0) {
-      if ((&this_00->fPinkSlipsCars[0][uVar10 & 0xff].fCarID)[(tVar9 << 0x10) >> 9] < '\0') {
+      if ((&this_00->fPinkSlipsCars[0][uVar10 & 0xff].fCarID)[((int)i << 0x10) >> 9] < '\0') {
         return (void *)0x0;
       }
       return (void *)0x1;
@@ -1319,10 +1316,11 @@ void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
     goto ValidCar_tournValidate;
   }
   cVar1 = this_00->fCars[(u_char)carNumber].fCarID;
-  if (cVar1 < 0) {
+  carID = (short)(signed char)cVar1;
+  if (carID < 0) {
     return (void *)0x0;
   }
-  if (this_00->fViewableCars[cVar1] == '\0') {
+  if (this_00->fViewableCars[carID] == '\0') {
     return (void *)0x0;
   }
   if ((frontEnd.raceType == '\x01') && (this_00->fCars[(u_char)carNumber].fPursuitAvailable == '\0'))
@@ -1331,21 +1329,20 @@ void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
   }
   ptVar5 = this->fCarManager->fCars;
   bVar2 = ptVar5[(u_char)carNumber].fCarClass;
-  carID = (short)cVar1;
   if (bVar2 == 7) {
     if ((this->fCarListFilter & 0xcU) != 0) {
       if (((int)(u_int)ptVar5[(u_char)carNumber].fCountries >>
-           ((int)frontEnd.carCountry[i * 0x18][carID]) & 1U) != 0) {
+           (signed char)frontEnd.carCountry[i][carID] & 1U) != 0) {
         trackManager.GetTrack((u_short)(u_char)frontEnd.track[0],trackInfo);
         pvVar6 = FECheat_IsCheatEnabled(cheat_AllCops);
         if (pvVar6 != (void *)0x0) goto ValidCar_filter10Path;
-        if ((u_int)(u_char)trackInfo.fCountry == (int)frontEnd.carCountry[i * 0x18][carID]) {
+        if ((u_int)(u_char)trackInfo.fCountry == (int)(signed char)frontEnd.carCountry[i][carID]) {
           result = (void *)0x1;
         }
       }
     }
   }
-  else if (bVar2 < 8) {
+  else if ((signed char)bVar2 < 8) {
     result = (void *)(u_int)((this->fCarListFilter & 0x81U) != 0);
     if ((carID == 0x1c) &&
        (((frontEnd.carListType == '\x01' || (frontEnd.gameMode == '\x01')) ||

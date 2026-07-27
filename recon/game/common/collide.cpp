@@ -578,22 +578,22 @@ void Collide_TestWithPlane(BO_tNewtonObj *o,coorddef *normal,coorddef *samplePoi
   (o->angularVel).z = fixedmult(0x28be,(o->angularVel).z);
   Collide_LimitAngularVel(o);
   {
-    int dot;
     int zone;
     int impulse;
 
     zone = 9;
     /* MATCH: anonymous dot-sum web (s0) separate from impulse (s6) - the <<2 lands in impulse */
-    if (0 < (fixedmult(normal->x,(o->linearVel).x) + fixedmult(normal->y,(o->linearVel).y) +
-             fixedmult(normal->z,(o->linearVel).z))) {
-      dot = fixedmult(normal->x,(o->linearVel).x) + fixedmult(normal->y,(o->linearVel).y) +
-            fixedmult(normal->z,(o->linearVel).z);
-    }
-    else {
-      dot = -(fixedmult(normal->x,(o->linearVel).x) + fixedmult(normal->y,(o->linearVel).y) +
-              fixedmult(normal->z,(o->linearVel).z));
-    }
-    impulse = dot << 2;
+    impulse =
+        ((0 < (fixedmult(normal->x,(o->linearVel).x) +
+               fixedmult(normal->y,(o->linearVel).y) +
+               fixedmult(normal->z,(o->linearVel).z)))
+             ? (fixedmult(normal->x,(o->linearVel).x) +
+                fixedmult(normal->y,(o->linearVel).y) +
+                fixedmult(normal->z,(o->linearVel).z))
+             : -(fixedmult(normal->x,(o->linearVel).x) +
+                 fixedmult(normal->y,(o->linearVel).y) +
+                 fixedmult(normal->z,(o->linearVel).z)))
+        << 2;
     if (0xA0000 < impulse) {
       int right;
       int top;
@@ -612,9 +612,11 @@ void Collide_TestWithPlane(BO_tNewtonObj *o,coorddef *normal,coorddef *samplePoi
       if (front < -0x1999) {
         if (!(right < 0x199A)) {
           zone = 0;
+          goto LAB_DAMAGE_ZONE;
         }
         else if (right < -0x1999) {
           zone = 2;
+          goto LAB_DAMAGE_ZONE;
         }
       }
       if (!(front < 0x199A)) { /* MATCH: independent if - oracle re-tests front (no else-if) */
@@ -625,6 +627,7 @@ void Collide_TestWithPlane(BO_tNewtonObj *o,coorddef *normal,coorddef *samplePoi
           zone = 6;
         }
       }
+LAB_DAMAGE_ZONE:
       if (zone < 8) {
         Newton_AddDamageZone(o,impulse,zone,0);
       }

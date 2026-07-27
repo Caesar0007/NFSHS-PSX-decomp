@@ -421,24 +421,24 @@ tPMenuItemLeftRightChoice::~tPMenuItemLeftRightChoice()
 int tPMenuItemLeftRightChoice::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
 
 {
-  short sVar1;
-  int (*pcVar2)(...);
-  tPListIterator *ptVar3;
-  
   if (keyval == kInput_KeyType_Left) {
-    ptVar3 = this->fData;
-    sVar1 = (*ptVar3->_vf)[5].delta;
-    pcVar2 = (*ptVar3->_vf)[5].pfn;
+    goto left;
   }
-  else {
-    if (keyval != kInput_KeyType_Right) {
-      return 0x1000;
-    }
-    ptVar3 = this->fData;
-    sVar1 = (*ptVar3->_vf)[4].delta;
-    pcVar2 = (*ptVar3->_vf)[4].pfn;
+  if (keyval == kInput_KeyType_Right) {
+    goto right;
   }
-  (*pcVar2)((int)&ptVar3->fSelectionList + (int)sVar1,0xffffffff);
+  return 0x1000;
+
+left:
+    (*(*this->fData->_vf)[5].pfn)
+              ((int)&this->fData->fSelectionList + (int)(*this->fData->_vf)[5].delta,
+               0xffffffff);
+    goto processed;
+right:
+    (*(*this->fData->_vf)[4].pfn)
+              ((int)&this->fData->fSelectionList + (int)(*this->fData->_vf)[4].delta,
+               0xffffffff);
+processed:
   keyval = kInput_KeyType_AlreadyProcessed;
   return 1;
 }

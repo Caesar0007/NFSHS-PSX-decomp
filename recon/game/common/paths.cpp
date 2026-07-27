@@ -7,8 +7,8 @@
 /* EXT data owned by paths.obj */
 char *Paths_Paths[50];   /* @0x80116468 */
 char *Paths_File;        /* @0x8013d2e8 */
-extern char burnPath[];  /* @0x8013d2e0 .sdata  .asciz "z"  */
-extern char fePath[];    /* @0x8013d2e4 .sdata  "" (4 zero bytes) */
+extern char burnPath;    /* @0x8013d2e0 .sdata  .asciz "z"  */
+extern char fePath;      /* @0x8013d2e4 .sdata  "" (4 zero bytes) */
 
 
 /* ---- Paths_StartUp  [PATHS.CPP:47-101] SLD-VERIFIED ---- */
@@ -17,16 +17,20 @@ void Paths_StartUp(void)
 {
   int dirCounter;
   char *scan;
+  char *frontPath;
+  char **pathTable;
   int deadfrm[5];  /* MATCH: unused frame filler — SYM shows scan as class AUTO @-8 (0x18 frame in the oracle); 20 dead bytes reproduce it */
 
+  scan = &burnPath;
   dirCounter = 0x31;
   do {
-    Paths_Paths[dirCounter] = burnPath;
+    Paths_Paths[dirCounter] = scan;
     dirCounter = dirCounter + -1;
   } while (-1 < dirCounter);
-  scan = fePath;
-  Paths_Paths[0x24] = scan;
-  Paths_Paths[0x20] = scan;
+  pathTable = Paths_Paths;
+  frontPath = &fePath;
+  pathTable[0x24] = frontPath;
+  pathTable[0x20] = frontPath;
   return;
 }
 

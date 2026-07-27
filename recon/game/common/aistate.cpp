@@ -1145,21 +1145,8 @@ void AIState_Chase::ApproachTargeting(int intercept)
   int distance;
   int minSpeed;
 
-  int clamped;
-
-  int speed;
-
-  bool bVar1;
-
-  int iVar2;
-
-  Car_tObj *pCVar3;
-
-  Car_tObj *pCVar4;
-
   int iVar5;
-
-  int iVar6;
+  Car_tObj *pCVar4;
 
   
 
@@ -1289,35 +1276,18 @@ LAB_80070adc:
 
   pCVar4 = this->carObj_;
 
-  clamped = -minSpeed;
-
   if (pCVar4->direction == 1) {
-
-    speed = pCVar4->desiredSpeed;
-
-    clamped = minSpeed;
-
-    if (speed < clamped) {
-
-      clamped = speed;
-
+    if (pCVar4->desiredSpeed < minSpeed) {
+      minSpeed = pCVar4->desiredSpeed;
     }
-
+  } else {
+    minSpeed = -minSpeed;
+    if (minSpeed < pCVar4->desiredSpeed) {
+      minSpeed = pCVar4->desiredSpeed;
+    }
   }
 
-  else {
-
-    speed = pCVar4->desiredSpeed;
-
-    if (clamped < speed) {
-
-      clamped = speed;
-
-    }
-
-  }
-
-  pCVar4->desiredSpeed = clamped;
+  pCVar4->desiredSpeed = minSpeed;
 
   AI_GenericBeginCycle(this->carObj_);
 

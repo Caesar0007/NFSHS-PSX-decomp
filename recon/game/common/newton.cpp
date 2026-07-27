@@ -16,6 +16,19 @@ static BWorldSm_Pos newtestSimRoadInfo;
 static coorddef     dummy_124;
 static coorddef     dummy_133;
 
+static inline int Newton_GetSpikeBelt(int *slice,int *leftLatPos,int *rightLatPos)
+{
+  int active;
+
+  active = AICop_spikeBelt.active_;
+  if (active != 0) {
+    *slice = AICop_spikeBelt.slice_;
+    *leftLatPos = AICop_spikeBelt.leftLatPos_;
+    *rightLatPos = AICop_spikeBelt.rightLatPos_;
+  }
+  return active;
+}
+
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type);
 void Newton_FindClosestQuad(BO_tNewtonObj *n);
@@ -38,7 +51,7 @@ extern "C" void Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj(int newtonObj);
 extern "C" void Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj(int newtonObj);
 extern "C" void Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi(int newtonObj,int *normal,int orientToGround);
 extern "C" void Newton_CalcRealShadowCoordinates__FP8Car_tObji(Car_tObj *carObj,int currentTick);
-extern "C" void Newton_CheckForSpikeBelts__FP13BO_tNewtonObj(int newtonObj);
+extern "C" void Newton_CheckForSpikeBelts__FP13BO_tNewtonObj(BO_tNewtonObj *newtonObj);
 extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef(Car_tObj *newtonObj,coorddef normal);
 extern "C" void Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(int type,int *vector,int testSimRoadInfo);
 void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj);
@@ -2211,29 +2224,27 @@ extern "C" void Newton_CalcRealShadowCoordinates__FP8Car_tObji(Car_tObj *carObj,
 }
 
 /* ---- Newton_CheckForSpikeBelts__FP13BO_tNewtonObj  [NEWTON.CPP:1885-1916] SLD-VERIFIED ---- */
-extern "C" void Newton_CheckForSpikeBelts__FP13BO_tNewtonObj(int newtonObj)
+extern "C" void Newton_CheckForSpikeBelts__FP13BO_tNewtonObj(BO_tNewtonObj *newtonObj)
 
 {
   int slice;
   int leftLatPos;
   int rightLatPos;
   int latPos;
-  int iVar1;
 
-  if (AICop_spikeBelt.active_ != 0) {
-    if ((((AICop_spikeBelt.active_ != 0) && (*(short *)(newtonObj + 8) == AICop_spikeBelt.slice_)) &&
-        ((*(u_int *)(newtonObj + 0x260) & 0x230) == 0)) &&
-       (((AICop_spikeBelt.leftLatPos_ < *(int *)(newtonObj + 0x574) &&
-         (*(int *)(newtonObj + 0x574) < AICop_spikeBelt.rightLatPos_)) &&
-        (iVar1 = *(int *)(newtonObj + 0x274) + 1, *(int *)(newtonObj + 0x274) = iVar1, iVar1 == 1)))) {
-      *(u_int *)(newtonObj + 400) = 0xf0000;
-      *(u_int *)(newtonObj + 0x198) = 0x50007;
-      *(u_int *)(newtonObj + 0x1a0) = *(u_int *)(newtonObj + 0xa0);
-      *(u_int *)(newtonObj + 0x1a4) = *(u_int *)(newtonObj + 0xa4);
-      *(u_int *)(newtonObj + 0x1a8) = *(u_int *)(newtonObj + 0xa8);
+  if (Newton_GetSpikeBelt(&slice,&leftLatPos,&rightLatPos) != 0) {
+    if ((AICop_spikeBelt.active_ != 0) &&
+        (newtonObj->simRoadInfo.slice == slice)) {
+      latPos = ((Car_tObj *)newtonObj)->roadPosition;
+      if (((((Car_tObj *)newtonObj)->carFlags & 0x230) == 0) &&
+          (leftLatPos < latPos) && (latPos < rightLatPos) &&
+          (++((Car_tObj *)newtonObj)->blowout == 1)) {
+        newtonObj->collision.impulse = 0xf0000;
+        newtonObj->collision.sfxType = 0x50007;
+        newtonObj->collision.collisionPoint = newtonObj->position;
+      }
     }
   }
-  return;
 }
 
 /* ---- Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef  [NEWTON.CPP:1922-1956] SLD-VERIFIED ---- */
@@ -2773,7 +2784,7 @@ extern "C" void Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj(Car_tObj *newtonO
       (newtonObj->N).groundVel = iVar1;
       if (iVar8 < 0x3333) {
         if ((newtonObj->N).flightTime == 0) {
-          Newton_CheckForSpikeBelts__FP13BO_tNewtonObj(newtonObj);
+          Newton_CheckForSpikeBelts__FP13BO_tNewtonObj((BO_tNewtonObj *)newtonObj);
         }
         else {
           if ((newtonObj->carFlags & 4U) != 0) {

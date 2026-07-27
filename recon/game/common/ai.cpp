@@ -1505,7 +1505,7 @@ void AI_CalculateAdjustedDesiredSpeed(Car_tObj *carObj)
 
       if (carObjLocal->direction == 1) {
         adjustedSpeed = carObjLocal->desiredSpeed;
-        if (adjustedSpeed < 0x6aaaa) {
+        if (adjustedSpeed <= 0x6aaaa) {
           adjustedSpeed = 0x6aaaa;
         }
       }

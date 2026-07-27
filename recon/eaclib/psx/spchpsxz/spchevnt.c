@@ -426,6 +426,23 @@ extern int iSPCH_ChooseEvent(void)
                  * iSPCH_InitEventQueue. No SLD exists for this TU to test a different statement
                  * segmentation, and both build-lane probes regress (-mno-split-addresses 46 -> 109,
                  * per-fn -fno-delayed-branch 46 -> 90). PROTOTYPE: int(void), returns $s4.
+                 * 🔬 2026-07-27 HEAVY ORACLE TRACE (full side-by-side vs disasm-v4.txt +
+                 * the splat .s, after the permuter finds took this to 26 @120/120):
+                 * EVERYTHING structural now matches -- prologue save order, the expired
+                 * maxAge copy, the teardown arm, BOTH winner arms incl. the SLOT recompute
+                 * chains and the shared `sh bestSub` tail, and (after the nested-if edit
+                 * below) the tie-break subtick load position.  ALL 26 remaining diffs are
+                 * 13 insn-pairs of ONE mechanism: retail's stack-reload/HI-scratch register
+                 * is $a1 at EVERY site (prologue vox-HI + gPreLoadTicks pair, the `now`
+                 * reload feeding subu s2, the bestPri reload feeding slt/bne, the bestSub
+                 * reload in the tie-break) where ours picks $v1/$v0/$a0 -- the
+                 * order_regs_for_reload / hard_reg_n_uses identity ALREADY QUANTIFIED on
+                 * spchrule.c iSPCH_GetRuleSettings ($t0-vs-$a3): ours' $a1 hosts the
+                 * allocated per-arm SLOT-base la pseudos so its n_uses is nonzero and it
+                 * sorts late; retail's equivalents were reload-rematerialized (zero
+                 * allocated refs) so $a1 wins its regno tie everywhere.  Not source-
+                 * reachable by the known dials (the GetRuleSettings falsification set
+                 * covers the spellings).  26 = this floor.
                  * w34-a9 QUANTIFIED the rotation from cc1 -dl/-dg: slot(r160) 16 refs
                  * / 72 insns -> prio floor_log2(16)*16/72 = 0.889 -> $s2, age(r97)
                  * 12/44 -> 3*12/44 = 0.818 -> $s3 (nearest below: r99/r100 at 0.522;
@@ -469,19 +486,31 @@ extern int iSPCH_ChooseEvent(void)
                      * (tick = GetFilterPriority() inside the filter compare) is NEUTRAL on top. */
                     tick = (int)(unsigned int)pri;
                     if (tick == L.bestPri) {
-                    unsigned short sub = *(unsigned short *)(slot + 0xa);
-                    if ((unsigned int)age < (unsigned int)bestAge ||
-                        (age == bestAge && (int)(unsigned int)L.bestSub < (int)(unsigned int)sub)) {
-                        unsigned char *winSlot;
-                        winner  = slotIdx;
-                        bestAge = age;
-                        winSlot = SLOT(slotIdx);
-                        /* permuter find (output-115, 2026-07-27): the do{}while(0) wrapper
-                         * around this one store is load-bearing for the block layout. */
-                        do {
-                            L.bestSub = *(unsigned short *)(winSlot + 0xa);
-                        } while (0);
-                    }
+                        /* oracle trace 2026-07-27: NESTED ifs, not a compound ||/&& -- the
+                         * compound form lets sched1 hoist the subtick lhu above BOTH age
+                         * branches; retail loads it only inside the equal-age block. */
+                        if ((unsigned int)age < (unsigned int)bestAge)
+                            goto take2;
+                        if (age == bestAge) {
+                            unsigned short sub = *(unsigned short *)(slot + 0xa);
+                            if ((int)(unsigned int)L.bestSub < (int)(unsigned int)sub)
+                                goto take2;
+                        }
+                        goto skip2;
+take2:
+                        {
+                            unsigned char *winSlot;
+                            winner  = slotIdx;
+                            bestAge = age;
+                            winSlot = SLOT(slotIdx);
+                            /* permuter find (output-115, 2026-07-27): the do{}while(0) wrapper
+                             * around this one store is load-bearing for the block layout. */
+                            do {
+                                L.bestSub = *(unsigned short *)(winSlot + 0xa);
+                            } while (0);
+                        }
+skip2:
+                        ;
                     }
                 }
             }

@@ -218,17 +218,17 @@ void tScreenTrophyRoom::Cleanup()
 void tScreenTrophyRoom::DrawBackground()
 
 {
-  char *sMenuText;
-  int texttoshow;
-  short x;
-  int amount;
-  short y;
-  short i;
+  tDrawShapeExtended drawFlags3;
   int fModNumber;
   int TROPHY_LEFTOFFSET = 0x114;
-  int shapeArgB = 0, shapeArgC = 0;   /* ScaleShape y/scale args (stack-passed, lost by decompiler) */
-  tDrawShapeExtended drawFlags3;
   tDrawShapeExtended drawFlags;
+  tDrawShapeExtended *pDrawFlags;
+  short i;
+  short x;
+  short y;
+  int texttoshow;
+  char *sMenuText;
+  int amount;
   
   drawFlags3.tint[0] = 0xcec844;
   DrawShapeExtended(ticks >> 0x1f,0x410,0x10,0x10,0,0,&drawFlags3);
@@ -263,16 +263,24 @@ void tScreenTrophyRoom::DrawBackground()
   sMenuText = TextSys_Word(texttoshow);
   texttoshow = CalcFadeVal(0x505050,amount);
   FETextRender_FullTextRGB(sMenuText,0x100,200,texttoshow,'\0',2);
-  for (i = 0; texttoshow = (int)i, texttoshow < this->fNumTrophies; i = i + 1) {
+  i = 0;
+  pDrawFlags = &drawFlags;
+  TROPHY_LEFTOFFSET = TROPHY_LEFTOFFSET - (fModNumber * 0x5f >> 1);
+  while (true) {
+    texttoshow = (int)i;
+    if (this->fNumTrophies <= texttoshow) break;
+    x = TROPHY_LEFTOFFSET + (texttoshow % fModNumber) * 0x5f;
+    y = (texttoshow / fModNumber) * 45 + 70;
     if ((texttoshow == this->fRealCurrentTourn[this->tier]) &&
        ((this->fSwapShapes.fFlags & 1) != 0)) {
-      drawFlags.custom_shapes = this->fSwapShapes.fShapes;
+      pDrawFlags->custom_shapes = this->fSwapShapes.fShapes;
+      texttoshow = ((ticks - this->startTicks) / 6) % 32;
     }
     else {
-      drawFlags.custom_shapes = (this->fTrophyShapes).fShapes;
+      pDrawFlags->custom_shapes = (this->fTrophyShapes).fShapes;
     }
-    ScaleShapeExtended((TROPHY_LEFTOFFSET - (fModNumber * 0x5f >> 1)) + (texttoshow % fModNumber) * 0x5f,0x600,shapeArgB,shapeArgC,(int)this->fScreenFadeVal,0,&drawFlags)
-    ;
+    ScaleShapeExtended(texttoshow,0x600,x,y,(int)this->fScreenFadeVal,0,pDrawFlags);
+    i = i + 1;
   }
   return;
 }

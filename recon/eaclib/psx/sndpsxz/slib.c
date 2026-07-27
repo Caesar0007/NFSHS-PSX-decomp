@@ -571,7 +571,22 @@ extern void iSNDserve(void)
      *        sweep cleared this wave, so it is the obvious next target.
      *    (d) `addiu a0,a1,0` vs retail's in-place `addiu a1,a1,0` on the vbase materialization, and
      *        `li v1,1` vs `li v0,1` -- anonymous-temp coalescing (catalog trichotomy case 3).
-     *   Saved states: scratchpad/slib_a2_{69,75,regsmatch,parity}.c. */
+     *   Saved states: scratchpad/slib_a2_{69,75,regsmatch,parity}.c.
+     *
+     * 2026-07-27 inline pass -- FIVE more directions FALSIFIED at the 69 form; treat 69 as a hard
+     *   local optimum pending a sched1-model tool:
+     *   - kon=0 moved BEFORE the hook (fact i, banking on the un-folded guard slt = the "+1
+     *     depth-1 ref"): 85 (the callee-saved web rotates, sw s5 appears in the prologue).
+     *   - full facts (i)+(ii) (chan=0 inside the guard, vt=chan): 88.
+     *   - per-TU -fno-schedule-insns: 73 (this obj IS sched-on; 3d-identity ruled out).
+     *   - n-- placement (before call / at join top) and a `freearg = c` join copy: all 69
+     *     UNCHANGED -- sched1 canonicalizes: it sinks n-- past the call into the reload_b
+     *     latency gap and copy-props the freearg. Cluster (c)'s root: retail's jal ds CONSUMED
+     *     n--, so retail's store block had to use li/sllv as latency fillers (kon block early);
+     *     ours keeps n-- as a filler and sinks the kon block. The ds choice and the store-block
+     *     order are ONE coupled sched1 outcome, not two independent diffs.
+     *   - state==3 arm `one <<= chan` in-place shift (matches retail's self-sllv + shared li in
+     *     the bnez ds), with and without a trailing `one = 0` carrier: 73 both. */
     fpbase = base;
     vt = 0;
     if ((int)kon < (int)(unsigned int)SUB(0x11)) {

@@ -965,6 +965,7 @@ void tPMenu::CheckForDisabled()
   __vtbl_ptr_type (*pa_Var2) [7];
   int iVar3;
   tPMenuItem *ptVar4;
+  tPMenu *ptVar5;
   
   while( true ) {
     pa_Var2 = this->fItemList[this->fCurrentItem]->_vf;
@@ -977,16 +978,18 @@ void tPMenu::CheckForDisabled()
     }
     if (!bVar1) break;
     iVar3 = this->fCurrentItem;
-    if (iVar3 < 1) {
-      ptVar4 = this->fItemList[iVar3 + 1];
-      while (ptVar4 != (tPMenuItem *)0x0) {
-        iVar3 = this->fCurrentItem;
-        this->fCurrentItem = iVar3 + 1;
-        ptVar4 = this->fItemList[iVar3 + 2];
-      }
+    if (0 < this->fCurrentItem) {
+      this->fCurrentItem = iVar3 + -1;
     }
     else {
-      this->fCurrentItem = iVar3 + -1;
+      ptVar4 = this->fItemList[iVar3 + 1];
+      if (ptVar4 != (tPMenuItem *)0x0) {
+        do {
+          ptVar5 = (tPMenu *)((char *)this + ((this->fCurrentItem + 2) << 2));
+          this->fCurrentItem = this->fCurrentItem + 1;
+          ptVar4 = ptVar5->fItemList[0];
+        } while (ptVar4 != (tPMenuItem *)0x0);
+      }
     }
   }
   return;

@@ -1409,38 +1409,25 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
 /* ---- Cars_FindTotalSlice__FP8Car_tObj  [@0x80089760] ---- */
 void Cars_FindTotalSlice(Car_tObj *carObj)
 {
-  /* MATCH: oracle loads lap (0x264) and gNumSlices via full-word lw + mult (never
-     truncated) -- prior (short) casts forced spurious LHU narrow-loads (a genuine
-     correctness bug: lap/gNumSlices are 32-bit ints, only simRoadInfo.slice is a real
-     short field). 28->26: named `prod = lap*gNumSlices;` temp per-arm (matches oracle's
-     mult-issued-per-branch, mflo-deferred-to-merge shape) instead of the single
-     post-if `lap*gNumSlices` in the final expression. RESIDUAL 26 = gcc-2.8 list-
-     scheduler places the gNumSlices load + mult LATE (after roadSlice's lhu) where
-     oracle schedules them EARLY (right after lap, before roadSlice) + hoists the
-     gNumSlices load 1 insn earlier (before the reverseTrack beqz test) -- a pure
-     latency-hiding scheduling tie-break, not source-reachable. Tried & WORSE (reverted):
-     hoisting `numSlices=gNumSlices;` before the if (23/27, drops a redundant mult --
-     the merge-block cross-jump only fires when BOTH mults literally reload gNumSlices
-     inside each arm); swapping prod-vs-roadSlice statement order (no change, still 26). */
-  int lap;
-  u_int roadSlice;
-  int prod;
+  /* MATCH: the sole SYM local `lapSlices` is $v1 and caches gNumSlices before the
+     reverseTrack branch.  Each arm multiplies lap by that cached value; the shared
+     mflo/add/store merge is exactly the retail dependency graph. */
+  int lapSlices;
 
   if (0 < carObj->unlap) {
     (carObj->N).totalSlice = 0;
     return;
   }
+  lapSlices = gNumSlices;
   if (GameSetup_gData.reverseTrack != 0) {
-    lap = carObj->lap;
-    prod = lap * gNumSlices;
-    roadSlice = (gNumSlices - (u_short)(carObj->N).simRoadInfo.slice) - 1;
+    (carObj->N).totalSlice =
+        (lapSlices - (u_short)(carObj->N).simRoadInfo.slice) - 1 +
+        carObj->lap * lapSlices;
   }
   else {
-    lap = carObj->lap;
-    prod = lap * gNumSlices;
-    roadSlice = (u_short)(carObj->N).simRoadInfo.slice;
+    (carObj->N).totalSlice =
+        (u_short)(carObj->N).simRoadInfo.slice + carObj->lap * lapSlices;
   }
-  (carObj->N).totalSlice = roadSlice + prod;
   return;
 }
 

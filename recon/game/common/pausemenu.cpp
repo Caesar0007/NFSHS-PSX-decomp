@@ -543,49 +543,58 @@ void * tPMenuItemLeftRightSlider::Debounce()
 
 /* ---- tPMenuItemLeftRightSlider::ProcessInput  [PAUSEMENU.CPP:458-485] SLD-VERIFIED ---- */
 
-int tPMenuItemLeftRightSlider::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
+void tPMenuItemLeftRightSlider::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
 
 {
-  bool bVar1;
-  int iVar2;
-  u_int uVar3;
-  u_int uVar4;
-  u_char sound;
+  bool sound;
   
-  bVar1 = false;
+  sound = false;
   if (keyval == kInput_KeyType_Left) {
-    if (0 < *this->fData) {
-      gMPauseUpdateNextTime = 1;
-      iVar2 = *this->fData - (u_char)this->fMaxVal / 0x1e;
-      if (iVar2 < 0) {
-        iVar2 = 0;
-      }
-      *this->fData = iVar2;
-PMLeftRtSlide_setPlayed:
-      bVar1 = true;
-    }
+    goto PMLeftRtSlide_left;
   }
-  else {
-    iVar2 = 0x1000;
-    if (keyval != kInput_KeyType_Right) goto PMLeftRtSlide_playSound;
-    if (*this->fData < (int)(u_int)(u_char)this->fMaxVal) {
+  if (keyval == kInput_KeyType_Right) {
+    goto PMLeftRtSlide_right;
+  }
+  goto PMLeftRtSlide_playSound;
+
+PMLeftRtSlide_left:
+    if (0 < *this->fData) {
+      int value;
+
       gMPauseUpdateNextTime = 1;
-      uVar3 = (u_int)(u_char)this->fMaxVal;
-      uVar4 = *this->fData + uVar3 / 0x1e;
-      if ((int)uVar4 <= (int)uVar3) {
-        uVar3 = uVar4;
+      value = *this->fData - (u_char)this->fMaxVal / 0x1e;
+      if (value < 0) {
+        value = 0;
       }
-      *this->fData = uVar3;
+      *this->fData = value;
       goto PMLeftRtSlide_setPlayed;
     }
-  }
-  iVar2 = 1;
+    goto PMLeftRtSlide_processed;
+PMLeftRtSlide_right:
+    if (*this->fData < (int)(u_int)(u_char)this->fMaxVal) {
+      u_int max;
+      int value;
+
+      gMPauseUpdateNextTime = 1;
+      value = *this->fData + (u_char)this->fMaxVal / 0x1e;
+      max = (u_char)this->fMaxVal;
+      if (value <= (int)max) {
+        max = value;
+      }
+      *this->fData = max;
+    }
+    else {
+      goto PMLeftRtSlide_processed;
+    }
+PMLeftRtSlide_setPlayed:
+  sound = true;
+PMLeftRtSlide_processed:
   keyval = kInput_KeyType_AlreadyProcessed;
 PMLeftRtSlide_playSound:
-  if (bVar1) {
+  if (sound) {
     AudioCmn_PlayPauseSound(5);
   }
-  return iVar2;
+  return;
 }
 
 

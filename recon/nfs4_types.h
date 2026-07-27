@@ -3404,7 +3404,7 @@ struct tPMenuItemLeftRightSlider : public tPMenuItemInteractive {   /* 20 bytes 
     tPMenuItemLeftRightSlider(unsigned int textDescription, int *dataPtr, char maxVal);
     ~tPMenuItemLeftRightSlider();
     void *Debounce();
-    int ProcessInput(tInputKeyType &keyval, tPMenuCommand &menu_command);
+    void ProcessInput(tInputKeyType &keyval, tPMenuCommand &menu_command);
     void Draw(bool selected);
 };
 

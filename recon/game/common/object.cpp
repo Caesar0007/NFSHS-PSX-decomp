@@ -137,10 +137,17 @@ FindObjInstanceFromSerialNum(Group *group,int index)
   if ((index & 0x80) != 0) {
     group = Object_customObjInst;
     index &= ~0x80;
+    if (index < group->m_num_elements) {
+      goto valid_index;
+    }
   }
-  if (index >= group->m_num_elements) {
-    return (Trk_SimpleInst *)0x0;
+  else {
+    if (index < group->m_num_elements) {
+      goto valid_index;
+    }
   }
+  return (Trk_SimpleInst *)0x0;
+valid_index:
   objInstance = (Trk_SimpleInst *)(group + 1);
   while (index-- != 0) {
     objInstance = (Trk_SimpleInst *)((char *)objInstance + objInstance->size);

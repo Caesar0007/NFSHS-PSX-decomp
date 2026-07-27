@@ -373,70 +373,49 @@ void Math_QDNormalizeVector(coorddef *v)
 void Math_fasttransmult(matrixtdef *m1,matrixtdef *m2,matrixtdef *mr)
 
 {
-  int val;
-  int tb;
-  int tf;
-  int iVar1;
-  int *piVar2;
-  int te;
-  int ta;
-  int iVar3;
-  int td;
-  int tc;
-  int j;
-  int iVar4;
-  int *piVar5;
-  int iVar6;
-  int iVar7;
   int i;
-  int iVar8;
-  int *piVar9;
-  int inverse;
-  int shifts;
-  u_int vy2;
-  u_int vx2;
-  int iVar10;
-  int iVar11;
+  int j;
+  int val;
   matrixtdef mtmp;
-  
-  iVar8 = 0;
-  iVar11 = 8;
-  iVar10 = 4;
-  piVar9 = m1->m;
-  do {
-    iVar4 = 0;
-    iVar7 = 0x18;
-    iVar6 = 0xc;
-    piVar5 = m2->m;
-    do {
-      ta = *piVar9;
-      iVar1 = *piVar5;
-      piVar2 = (int *)((int)m2->m + iVar6);
-      piVar5 = piVar5 + 1;
-      iVar6 = iVar6 + 4;
-      iVar3 = iVar8 + iVar4;
-      iVar4 = iVar4 + 1;
-      mtmp.m[iVar3] =
-           ((ta >> 3) * (iVar1 >> 3) >> 10) +
-           ((*(int *)((int)m1->m + iVar10) >> 3) * (*piVar2 >> 3) >> 10) +
-           ((*(int *)((int)m1->m + iVar11) >> 3) * (*(int *)((int)m2->m + iVar7) >> 3) >> 10);
-      iVar7 = iVar7 + 4;
-    } while (iVar4 < 3);
-    iVar11 = iVar11 + 0xc;
-    iVar10 = iVar10 + 0xc;
-    iVar8 = iVar8 + 3;
-    piVar9 = piVar9 + 3;
-  } while (iVar8 < 9);
-  mr->m[0] = mtmp.m[0];
-  mr->m[1] = mtmp.m[1];
-  mr->m[2] = mtmp.m[2];
-  mr->m[3] = mtmp.m[3];
-  mr->m[4] = mtmp.m[4];
-  mr->m[5] = mtmp.m[5];
-  mr->m[6] = mtmp.m[6];
-  mr->m[7] = mtmp.m[7];
-  mr->m[8] = mtmp.m[8];
-  return;
+  int ta;
+  int tb;
+  int tc;
+  int td;
+  int te;
+  int tf;
+
+  for (i = 0; i < 9; i += 3) {
+    for (j = 0; j < 3; j++) {
+      ta = m1->m[i];
+      tb = m2->m[j];
+      tc = m1->m[i + 1];
+      td = m2->m[j + 3];
+      te = m1->m[i + 2];
+      tf = m2->m[j + 6];
+      val = ((ta >> 3) * (tb >> 3) >> 10) +
+            ((tc >> 3) * (td >> 3) >> 10) +
+            ((te >> 3) * (tf >> 3) >> 10);
+      mtmp.m[i + j] = val;
+    }
+  }
+  ta = mtmp.m[0];
+  tb = mtmp.m[1];
+  tc = mtmp.m[2];
+  td = mtmp.m[3];
+  te = mtmp.m[4];
+  mr->m[0] = ta;
+  mr->m[1] = tb;
+  mr->m[2] = tc;
+  mr->m[3] = td;
+  mr->m[4] = te;
+  ta = mtmp.m[5];
+  tb = mtmp.m[6];
+  tc = mtmp.m[7];
+  td = mtmp.m[8];
+  mr->m[5] = ta;
+  mr->m[6] = tb;
+  mr->m[7] = tc;
+  mr->m[8] = td;
 }
 
 /* end of mathnfs.cpp */

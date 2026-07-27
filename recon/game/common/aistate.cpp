@@ -756,13 +756,10 @@ void AIState_Chase::Execute()
 
   velocityToHitInTime = fixedmult(this->longMetersBetween_,0x666);
 
-  deltaVelocity = this->carObj_->currentSpeed;
-
-  targetCarVerySlow = this->targetCar_->currentSpeed;
-
   velocityToHitInTime = __builtin_abs(velocityToHitInTime);
 
-  deltaVelocity = deltaVelocity - targetCarVerySlow;
+  deltaVelocity =
+    this->carObj_->currentSpeed - this->targetCar_->currentSpeed;
 
   deltaVelocity = __builtin_abs(deltaVelocity);
 
@@ -780,7 +777,7 @@ void AIState_Chase::Execute()
 
   }
 
-  targetCarVerySlow = __builtin_abs(targetCarVerySlow);
+  targetCarVerySlow = __builtin_abs(this->targetCar_->currentSpeed);
 
   targetCarVerySlow = !(0x6aaa9 < targetCarVerySlow);
 

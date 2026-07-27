@@ -273,16 +273,16 @@ void Cars_InitializeCarTablesFlagsAndCounters(Car_tObj *carObj)
   }
   if ((uVar7 & 1) == 0) goto LAB_80086300;
   pvVar2 = PlayerNameExist(Cars_gNumHumanRaceCars);
-  if (pvVar2 == (void *)0x0) {
+  if (pvVar2 != (void *)0x0) {
+    pcVar1 = PlayerNameMixedCase(Cars_gNumHumanRaceCars);
+  }
+  else {
     if (frontEnd.gameMode == '\x01') {
       pcVar1 = TextSys_Word(0x2f);
       sprintf(carObj->carInfo->driver,pcVar1,Cars_gNumHumanRaceCars + 1);
       goto LAB_80086248;
     }
     pcVar1 = TextSys_Word(0x2e);
-  }
-  else {
-    pcVar1 = PlayerNameMixedCase(Cars_gNumHumanRaceCars);
   }
 LAB_80086234:
   sprintf(carObj->carInfo->driver,pcVar1);
@@ -309,14 +309,12 @@ LAB_80086300:
     if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
        (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0) ||
         ((Cars_gNumHumanRaceCars == 2) && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))) {
-      pcVar1 = TextSys_Word(0x32);
-      pGVar6 = carObj->carInfo;
+      strcpy(carObj->carInfo->license,TextSys_Word(0x32));
     }
     else {
-      pGVar6 = carObj->carInfo;
-      pcVar1 = GameSetup_gPersonalityNames[0] + personality * 8;
+      strcpy(carObj->carInfo->license,
+             GameSetup_gPersonalityNames[0] + personality * 8);
     }
-    strcpy(pGVar6->license,pcVar1);
     s_lower(carObj->carInfo->license);
     Cars_gAICarList[Cars_gNumAICars] = carObj;
     Cars_gNumAICars = Cars_gNumAICars + 1;

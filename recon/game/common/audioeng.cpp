@@ -613,41 +613,23 @@ void AudioEng_StopServer(void)
 /* ---- AudioEng_Pause__Fv  [@0x8007c47c] ---- */
 void AudioEng_Pause(void)
 {
-  AudioEng_tState *pAVar1;
-  AudioEng_t *pAVar2;
-  AudioEng_t **ppAVar3;
-  int iVar4;
+  int player;
 
-  /* w30-a7: loop rotation lever -- the previous `while (A && B && C)` form (with a
-     comma-expr assignment embedded in the condition) compiled to a ROTATED loop (an
-     initial unconditional jump into the middle of the body, entry test duplicated).
-     The oracle reuses the SAME top-of-loop test code as both the entry gate and the
-     back-edge (single `j` back to the top, no duplication) -- a plain top-tested
-     `while` with the condition split into separate statements, no embedded assignment,
-     matches that non-rotated shape. FLOOR: 39 residual diffs -- gcc proves iVar4=0 makes
-     the `while(iVar4<2)` entry test always-true and elides it (only the back-edge test at
-     the bottom survives), while the oracle keeps a real entry test (its original condition
-     must have been compound/non-foldable at entry). Tried: recombining into one `&&` chain
-     (regresses to full rotation, 58 diffs), `for(iVar4=0;iVar4<2;)` (worse, 45), and
-     pre/post-fetching pAVar2 outside the condition (regresses to rotation, 59) -- the
-     split-if form above is the best of everything tried this session. */
-  iVar4 = 0;
-  ppAVar3 = AudioEng_g;
-  while (iVar4 < 2) {
-    pAVar2 = *ppAVar3;
-    if (pAVar2 == (AudioEng_t *)0x0) break;
-    if ((pAVar2->plypos == '\x0f') && ((pAVar2->setpos + 1U & 1) != 0)) break;
-    ppAVar3 = ppAVar3 + 1;
-    pAVar1 = pAVar2->queue + (u_char)pAVar2->setpos;
-    pAVar1->vol = 0;
-    pAVar1->esp = 0;
-    pAVar1->dop = 0x1000;
-    pAVar1->gas = '\0';
-    pAVar1->exh = '\0';
-    pAVar1->sep = 0;
-    pAVar1->azi = 0;
-    iVar4 = iVar4 + 1;
-    pAVar2->setpos = pAVar2->setpos + 1U & 0xf;
+  for (player = 0; player < 2; player++) {
+    AudioEng_t *g = AudioEng_g[player];
+    AudioEng_tState *s;
+
+    if (g == (AudioEng_t *)0x0) break;
+    if ((g->plypos == '\x0f') && ((g->setpos + 1U & 1) != 0)) break;
+    s = g->queue + (u_char)g->setpos;
+    s->vol = 0;
+    s->esp = 0;
+    s->dop = 0x1000;
+    s->gas = '\0';
+    s->exh = '\0';
+    s->sep = 0;
+    s->azi = 0;
+    g->setpos = g->setpos + 1U & 0xf;
   }
   return;
 }

@@ -1136,7 +1136,8 @@ int AIPhysic_CheckIfOutOfControl(Car_tObj *carObj)
   /* MATCH: every abs here is __builtin_abs -- gcc emits the single-insn assembler
      `abs' macro (bgez/negu with move in the slot), so loads schedule around it;
      branchy if(x<0)x=-x forms split the block and mis-schedule (w11-a8) */
-  futureBend = __builtin_abs(AIWorld_CalcRoadBend(carObj,carObj->direction << 3));
+  futureBend = AIWorld_CalcRoadBend(carObj,carObj->direction << 3);
+  futureBend = __builtin_abs(futureBend);
   if (simGlobal[1] < carObj->wipeOutEndTick) {
     return (0x2ffff < __builtin_abs(carObj->currentSpeed)) ^ 1;
   }
@@ -1163,21 +1164,18 @@ int AIPhysic_CheckIfOutOfControl(Car_tObj *carObj)
       int spd = carObj->speed;
       if (__builtin_abs(lat) > spd / 256 * 0x66) {
         if (0xeffff < __builtin_abs(carObj->currentSpeed)) {
-          goto ret0;
+          return 0;
         }
-        goto ret1;
+        return 1;
       }
-ret0:
       return 0;
     }
   }
-ret1:
   return 1;
-  /* NEAR-MISS 20 diffs, count-exact 104/104 (w11-a8, was 96): residuals = (a) a3/t0
-     allocation-order swap between futureBend (SYM $7=a3) and the CSE'd
-     abs(currentSpeed) temp -- priority tie the source can't flip without breaking
-     the CSE the oracle keeps; (b) EFFFF-test bnez-vs-beqz jump-around-jump
-     canonicalization + ret0/ret1 block placement. Permuter candidate. */
+  /* NEAR-MISS 6 diffs, count-exact 104/104: separating the bend call from its
+     absolute-value assignment gives the SLD/IDA allocation futureBend=$a3 and
+     cached abs(currentSpeed)=$t0. The remaining tail is compiler block-layout
+     canonicalization (xori return versus retail's branch/jump return funnel). */
 }
 
 /* ---- AIPhysic_OutOfControlPhysics__FP8Car_tObj ---- */

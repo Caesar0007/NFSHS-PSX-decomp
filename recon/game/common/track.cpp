@@ -284,37 +284,33 @@ void LoadShapesAndMakePmx_EnvMap(char *shapefile,Draw_tPixMap *pmxList,int x,int
 }
 
 /* ---- TexturesLoadInitial__Fv  [TRACK.CPP:405-465] SLD-VERIFIED ---- */
+/* MATCH: retail SYM exposes only `success` ($v0) and the scoped `tmpShapes`
+   ($s0); branch-local calls preserve the shared path-builder tail. */
 void TexturesLoadInitial(void)
 
 {
-  char *shape_path;
-  Draw_tPixMap *pDVar3;
-  char *pcVar4;
-  char *track_path;
+  int success;
 
   if (GameSetup_gData.Time != 0) {
     if (GameSetup_gData.Weather != 0) {
-      track_path = (char *)&wordFile_psh_snow;
+      success = (int)Track_MakeTrackPathName("S0.psh");
     }
     else {
-      track_path = "N0.psh";
+      success = (int)Track_MakeTrackPathName("N0.psh");
     }
   }
   else if (GameSetup_gData.Weather != 0) {
-    track_path = "W0.psh";
+    success = (int)Track_MakeTrackPathName("W0.psh");
   }
   else {
-    track_path = "0.psh";
+    success = (int)Track_MakeTrackPathName("0.psh");
   }
-  shape_path = Track_MakeTrackPathName(track_path);
-  gInitialArt.shapeFile =
-       (char *)loadshapeadr(shape_path,(void *)0x0);
+  gInitialArt.shapeFile = (char *)loadshapeadr((char *)success,(void *)0x0);
   if (gInitialArt.shapeFile != (char *)0x0) {
     Texture_ResetPaletteSharing();
     gInitialArt.shapeCount = (int)shapecount(gInitialArt.shapeFile);
     LoadShapesAndMakePmx(gInitialArt.shapeFile,gInitialArt.pPmx,0x40,0x100,0);
-    pDVar3 = gInitialArt.pPmx + gInitialArt.shapeCount;
-    *pDVar3 = *gSpikeBeltPixmap;
+    gInitialArt.pPmx[gInitialArt.shapeCount] = *gSpikeBeltPixmap;
     gInitialArt.shapeCount = gInitialArt.shapeCount + 1;
     gInitialArt.pmxCount = gInitialArt.shapeCount;
     gInitialArt.basePmxCount = gInitialArt.shapeCount;
@@ -326,12 +322,15 @@ void TexturesLoadInitial(void)
     } while( true );
   }
   Hrz_GetHorizonPixMap(gInitialArt.pPmx);
-  pcVar4 = Track_MakeTrackPathName("r.psh");
-  pcVar4 = (char *)loadshapeadr(pcVar4,(void *)0x0);
-  if (pcVar4 != (char *)0x0) {
-    Texture_ResetPaletteSharing();
-    LoadShapesAndMakePmx_EnvMap(pcVar4,Track_gReflectionMaps,0x3e0,0);
-    purgememadr(pcVar4);
+  {
+    char *tmpShapes;
+
+    tmpShapes = (char *)loadshapeadr(Track_MakeTrackPathName("r.psh"),(void *)0x0);
+    if (tmpShapes != (char *)0x0) {
+      Texture_ResetPaletteSharing();
+      LoadShapesAndMakePmx_EnvMap(tmpShapes,Track_gReflectionMaps,0x3e0,0);
+      purgememadr(tmpShapes);
+    }
   }
   return;
 }

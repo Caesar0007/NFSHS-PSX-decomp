@@ -46,13 +46,12 @@ void TrgSfx_AddCarSfx(int car,coorddef *skidpt,int type,coorddef *vec)
 void TrgSfx_AddCarWheelSfx(int car,int wheel,coorddef *skidpt,int type,coorddef *vec,int delay)
 
 {
-  coorddef dir;
-  
-  if (delay < simGlobal.gameTicks - gTAddCarWheelSfx[car & 7][wheel]) {
-    dir.y = vec->y;
-    dir.x = vec->x >> 1;
-    dir.z = vec->z >> 1;
-    gTAddCarWheelSfx[car & 7][wheel] = simGlobal.gameTicks;
+  car = car & 7;
+  if (delay < simGlobal.gameTicks - gTAddCarWheelSfx[car][wheel]) {
+    coorddef dir = *vec;
+    dir.x = dir.x >> 1;
+    dir.z = dir.z >> 1;
+    gTAddCarWheelSfx[car][wheel] = simGlobal.gameTicks;
     Souffle_Add(skidpt,type,&dir,0,0,0);
   }
   return;
@@ -87,13 +86,12 @@ void TrgSfx_AddCarExtraSfx(int car,int wheel,coorddef *skidpt,int type,coorddef 
 void TrgSfx_AddCarSplash(int car,int wheel,coorddef *skidpt,int type,coorddef *vec,int delay,int velXZ)
 
 {
-  coorddef dir;
-  
-  if (delay < simGlobal.gameTicks - gTAddCarWheelSfx[car & 7][wheel]) {
-    dir.y = vec->y;
-    dir.x = vec->x >> 1;
-    dir.z = vec->z >> 1;
-    gTAddCarWheelSfx[car & 7][wheel] = simGlobal.gameTicks;
+  car = car & 7;
+  if (delay < simGlobal.gameTicks - gTAddCarWheelSfx[car][wheel]) {
+    coorddef dir = *vec;
+    dir.x = dir.x >> 1;
+    dir.z = dir.z >> 1;
+    gTAddCarWheelSfx[car][wheel] = simGlobal.gameTicks;
     Souffle_Add(skidpt,type,&dir,velXZ,0,0);
   }
   return;

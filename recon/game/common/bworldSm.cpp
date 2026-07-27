@@ -921,44 +921,38 @@ void NormalCache_AddEntry(BWorldSm_Pos *slicePos)
 /* ---- NormalCache_FindEntry__FP12BWorldSm_Pos  [@0x800800e8] ---- */
 void * NormalCache_FindEntry(BWorldSm_Pos *slicePos)
 {
-  tNormalCacheEntry*ce;
+  register u_char *cacheFlags;
+  tNormalCacheEntry *ce;
   int slice;
   int quad;
   int i;
-  u_char *puVar1;
-  tNormalCacheEntry *ptVar2;
-  int iVar3;
-  int iVar4;
-  
-  ptVar2 = BWSM_NormalCache;
-  iVar3 = 0;
-  puVar1 = &BWSM_NormalCache[0].triangleFlag;
+
+  cacheFlags = &BWSM_NormalCache[0].triangleFlag;
+  ce = BWSM_NormalCache;
+  i = 0;
   BWSM_NormalCacheSysTime = BWSM_NormalCacheSysTime + 1;
-  while (((ptVar2->sliceInd != slicePos->slice || (puVar1[1] != slicePos->quad)) ||
-         ((u_int)*puVar1 != (int)slicePos->triangleFlag))) {
-    puVar1 = puVar1 + 0x20;
-    iVar3 = iVar3 + 1;
-    ptVar2 = ptVar2 + 1;
-    if (0xf < iVar3) {
-LAB_80080154:
-      if (0xf < iVar3) {
-        return (void *)0x0;
-      }
-      iVar3 = (ptVar2->normal).y;
-      iVar4 = (ptVar2->normal).z;
-      (slicePos->normal).x = (ptVar2->normal).x;
-      (slicePos->normal).y = iVar3;
-      (slicePos->normal).z = iVar4;
-      iVar3 = (ptVar2->forward).y;
-      iVar4 = (ptVar2->forward).z;
-      (slicePos->forward).x = (ptVar2->forward).x;
-      (slicePos->forward).y = iVar3;
-      (slicePos->forward).z = iVar4;
-      return (void *)0x1;
-    }
-  }
-  ptVar2->accessTime = BWSM_NormalCacheSysTime;
-  goto LAB_80080154;
+  slice = slicePos->slice;
+  quad = *(signed char *)&slicePos->quad;
+searchCache:
+  if (ce->sliceInd != slice) goto nextCacheEntry;
+  if (*(signed char *)&cacheFlags[1] != quad) goto nextCacheEntry;
+  if ((u_int)*cacheFlags ==
+      (int)*(signed char *)&slicePos->triangleFlag) goto cacheHit;
+nextCacheEntry:
+  cacheFlags = cacheFlags + sizeof(tNormalCacheEntry);
+  i = i + 1;
+  ce = ce + 1;
+  if (i < 0x10) goto searchCache;
+searchDone:
+  if (i < 0x10) goto copyCacheEntry;
+  return (void *)0x0;
+cacheHit:
+  ce->accessTime = BWSM_NormalCacheSysTime;
+  goto searchDone;
+copyCacheEntry:
+  slicePos->normal = ce->normal;
+  slicePos->forward = ce->forward;
+  return (void *)0x1;
 }
 
 /* ---- NormalCache_Init__Fv  [@0x800801ac] ---- */

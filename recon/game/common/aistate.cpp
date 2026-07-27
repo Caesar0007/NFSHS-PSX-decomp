@@ -2125,54 +2125,25 @@ LOOP_800716DC:
 
 
 /* ---- TestForRelease__17AIState_Purgatory  AIState_Purgatory::TestForRelease  [AISTATE.CPP:1048-1063] SLD-VERIFIED ---- */
-/* FLOOR (w30-a2, 27 diffs/32 vs 31 insns): control flow + every field/global access already
-   matches the oracle 1:1 (same globals, same offsets, same 2 branches); residual is a
-   register-color/scheduling cluster around `pCVar2`(carObj_ ptr, t0 vs a3), `trafficInWorld`
-   and `Cars_gNumTrafficCars` (a0/a1 swap) that persists identically whether `trafficInWorld`
-   is computed before or after `iVar1` (both orders tried this session, byte-identical 27-diff
-   result -- GCC's scheduler reorders the straight-line block independent of source order
-   here, so this is allocator territory, not a statement-order bug). */
 
 int AIState_Purgatory::TestForRelease()
 
 
 
 {
-  Car_tObj *pCVar2;
-
   int trafficInWorld;
 
-  int iVar1;
-
-  int *limitp;
-
-
-
-  pCVar2 = this->carObj_;
-
-  if (pCVar2->physicsModelTimer < 1) {
-
-    iVar1 = GameSetup_gData.trafficDensity * 4;
-
+  if (this->carObj_->physicsModelTimer < 1) {
     trafficInWorld = Cars_gNumTrafficCars - AIState_Purgatory_numTrafficCarsInPurgatory;
 
-    limitp = (int *)((int)AITune_MaxTraffic + iVar1);
-
-    if (GameSetup_gData.commMode == 1) {
-
-      iVar1 = iVar1 + 0x10;
-
-      limitp = (int *)((int)AITune_MaxTraffic + iVar1);
-
-    }
-
-    if (trafficInWorld < *limitp) {
+    if (trafficInWorld <
+        AITune_MaxTraffic[GameSetup_gData.commMode == 1][GameSetup_gData.trafficDensity]) {
 
       return 1;
 
     }
 
-    pCVar2->physicsModelTimer = 1;
+    this->carObj_->physicsModelTimer = 1;
 
   }
 

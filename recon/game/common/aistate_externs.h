@@ -41,7 +41,7 @@ extern int AITune_LifeTimer[];
 extern int AIWorld_CheckForBarrierBetweenLanes(int slice,int lane0,int lane1);
 extern int Newton_CalculateRoadPositionFromSliceAndPosition(int slice,coorddef *position,matrixtdef *matrix);
 extern u_int               fastRandom, randSeed, randtemp;   /* fastrand.obj PRNG state */
-extern void *AITune_MaxTraffic[];
+extern int AITune_MaxTraffic[2][4];
 extern void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coorddef *offset,int direction);
 int AIWorld_ApxSplineDistance(Car_tObj *a, Car_tObj *b);
 int AIWorld_ApxSplineDistance(Car_tObj *a, int slice);

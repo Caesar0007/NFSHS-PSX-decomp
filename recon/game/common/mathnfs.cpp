@@ -94,45 +94,30 @@ int Math_BetterDist(int a,int b)
 {
   int x;
   int y;
-  int iVar1;
-  int iVar2;
-  int iVar5;
-  int iVar6;
-  int iVar9;
-  int iVar3;
-  int iVar4;
-  int iVar7;
-  int iVar8;
-  
-  iVar9 = a;
+
   if (b < a) {
-    iVar9 = b;
-    b = a;
+    x = a;
+    y = b;
+  } else {
+    x = b;
+    y = a;
   }
-  iVar2 = iVar9 >> 6;
-  iVar3 = iVar9 >> 7;
-  iVar4 = iVar9 >> 9;
-  iVar5 = iVar9 >> 0xe;
-  if (iVar9 < b >> 2) {
-    iVar1 = b + (iVar9 >> 4) + iVar2 + iVar3 + iVar4 + iVar5;
-    iVar5 = iVar9 >> 0xf;
+  if (y < x >> 2) {
+    return x + (y >> 4) + (y >> 6) + (y >> 7) + (y >> 9) +
+           (y >> 14) + (y >> 15) + (y >> 16);
   }
-  else {
-    iVar6 = iVar9 >> 5;
-    iVar7 = iVar9 >> 8;
-    iVar8 = iVar9 >> 0xc;
-    iVar1 = iVar9 >> 0xd;
-    if (b >> 1 <= iVar9) {
-      if (iVar9 < (b >> 1) + (b >> 2)) {
-        return b + (iVar9 >> 2) + iVar6 + iVar7 + (iVar9 >> 10) + (iVar9 >> 0xb) + iVar8 +
-               iVar1;
-      }
-      return b + (iVar9 >> 2) + (iVar9 >> 4) + iVar6 + iVar2 + iVar3 + iVar7 + iVar4 +
-             (iVar9 >> 0xb) + iVar8 + iVar1 + iVar5 + (iVar9 >> 0xf);
-    }
-    iVar1 = b + (iVar9 >> 3) + iVar6 + iVar2 + iVar3 + iVar7 + iVar4 + iVar8 + iVar1;
+  if (y < x >> 1) {
+    return x + (y >> 3) + (y >> 5) + (y >> 6) + (y >> 7) +
+           (y >> 8) + (y >> 9) + (y >> 12) + (y >> 13) +
+           (y >> 14) + (y >> 16);
   }
-  return iVar1 + iVar5 + (iVar9 >> 0x10);
+  if (y < (x >> 1) + (x >> 2)) {
+    return x + (y >> 2) + (y >> 5) + (y >> 8) + (y >> 10) +
+           (y >> 11) + (y >> 12) + (y >> 13);
+  }
+  return x + (y >> 2) + (y >> 4) + (y >> 5) + (y >> 6) +
+         (y >> 7) + (y >> 8) + (y >> 9) + (y >> 11) +
+         (y >> 12) + (y >> 13) + (y >> 14) + (y >> 15);
 }
 
 /* ---- Math_ResolveRotatedVector__FiiiPiT3  [MATHNFS.CPP:96-103] SLD-VERIFIED ---- */

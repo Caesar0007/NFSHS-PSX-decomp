@@ -2315,50 +2315,15 @@ int Cars_CalculateRoadPosition(Car_tObj *carObj)
 /* ---- Cars_CalcVelDownRoad__FP8Car_tObj  [@0x8008aee8] ---- */
 int Cars_CalcVelDownRoad(Car_tObj *carObj)
 {
-  /* MATCH: oracle INTERLEAVES each (linearVel,roadMatrix) pair -- correct both terms,
-     multiply+mflo immediately, accumulate -- rather than computing all 6 corrections
-     up front then all 3 mults at the end. Residual 30-diff floor: oracle fills the
-     2nd branch's delay slot (per pair) with `sra $aN,$vN,8` (the just-corrected value's
-     shift, scheduled early); ours nops it for the 1st/3rd pair (only the 2nd/middle
-     pair's delay slot gets filled, apparently reg-pressure/ILP dependent on the
-     preceding pending mflo) -- genuine scheduling floor (§F class), not source-shapable. */
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int result;
+  /* MATCH: SYM exposes one real local, `temp` in $a1. Keeping the dot product
+     as three direct /256 terms lets the compiler interleave each velocity/matrix
+     pair and fill the signed-division branch delay slots exactly like retail. */
+  int temp;
 
-  iVar4 = (carObj->N).linearVel.x;
-  if (iVar4 < 0) {
-    iVar4 = iVar4 + 0xff;
-  }
-  iVar1 = (carObj->N).roadMatrix.m[6];
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
-  }
-  result = (iVar4 >> 8) * (iVar1 >> 8);
-
-  iVar5 = (carObj->N).linearVel.y;
-  if (iVar5 < 0) {
-    iVar5 = iVar5 + 0xff;
-  }
-  iVar2 = (carObj->N).roadMatrix.m[7];
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  result = result + (iVar5 >> 8) * (iVar2 >> 8);
-
-  iVar6 = (carObj->N).linearVel.z;
-  if (iVar6 < 0) {
-    iVar6 = iVar6 + 0xff;
-  }
-  iVar3 = (carObj->N).roadMatrix.m[8];
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  return result + (iVar6 >> 8) * (iVar3 >> 8);
+  temp = ((carObj->N).linearVel.x / 256) * ((carObj->N).roadMatrix.m[6] / 256);
+  temp += ((carObj->N).linearVel.y / 256) * ((carObj->N).roadMatrix.m[7] / 256);
+  temp += ((carObj->N).linearVel.z / 256) * ((carObj->N).roadMatrix.m[8] / 256);
+  return temp;
 }
 
 /* ---- Cars_Randomize__Fv  [@0x8008af84] ---- */

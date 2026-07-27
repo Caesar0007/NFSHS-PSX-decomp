@@ -667,51 +667,34 @@ void Track_LinkMaterials(SerializedGroup *group,int length,Track_tMaterial *matL
 void ReduceObjectPrecision(Group *instGroup,Group *defGroup,int bits)
 
 {
-  Trk_ObjectDef **ppTVar3;
-  Trk_ObjectDef *pTVar4;
-  short *p0;
-  u_int uVar7;
   Trk_SimpleInst *inst;
   int count;
-  int iVar8;
-  int negOne;
-  short t0v;
-  short t1v;
-  short t2v;
 
   if (instGroup != (Group *)0x0) {
     inst = (Trk_SimpleInst *)(instGroup + 1);
-    negOne = -1;
-    iVar8 = instGroup->m_num_elements;
-    ppTVar3 = Track_gObjDefs;
-ReduceObjPrec_outerTest:
-    iVar8 = iVar8 - 1;
-    if (iVar8 != negOne) {
+    count = instGroup->m_num_elements;
+    while (--count != -1) {
       if (defGroup != (Group *)0x0) {
-        pTVar4 = ppTVar3[inst->pad];
-        p0 = (short *)(pTVar4 + 1);
-        uVar7 = (u_int)pTVar4->vertexCount;
-ReduceObjPrec_innerTest:
-        uVar7 = uVar7 - 1;
-        if (uVar7 != (u_int)negOne) {
-          t0v = *p0;
-          t1v = *(short *)((char *)p0 + 2);
-          t2v = *(short *)((char *)p0 + 4);
-          t0v = (short)((int)t0v >> (bits));
-          t1v = (short)((int)t1v >> (bits));
-          t2v = (short)((int)t2v >> (bits));
-          *p0 = t0v;
-          *(short *)((char *)p0 + 2) = t1v;
-          *(short *)((char *)p0 + 4) = t2v;
-          p0 = (short *)((char *)p0 + 8);
-          goto ReduceObjPrec_innerTest;
+        Trk_ObjectDef *objDef = Track_gObjDefs[inst->pad];
+        CCOORD16 *pts = (CCOORD16 *)(objDef + 1);
+        int pointCount = objDef->vertexCount;
+
+        while (--pointCount != -1) {
+          int x = pts->x;
+          int y = pts->y;
+          int z = pts->z;
+          x >>= bits;
+          y >>= bits;
+          z >>= bits;
+          pts->x = x;
+          pts->y = y;
+          pts->z = z;
+          pts++;
         }
       }
       inst = (Trk_SimpleInst *)((int)&inst->size + (int)inst->size);
-      goto ReduceObjPrec_outerTest;
     }
   }
-  return;
 }
 
 /* ---- InvalidatePersistentCollideBoomObjects__FP5GroupT0  [TRACK.CPP:1012-1026] SLD-VERIFIED ---- */

@@ -138,7 +138,6 @@ void tScreenCarSelect::Cleanup()
 void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
 
 {
-  short sVar3;
   __vtbl_ptr_type (*vtbl) [10];
   int iVar5;
   int iVar6;
@@ -217,12 +216,12 @@ DrawOvl_transitionPos:
                  textType_FramedInfo);
     }
     if (overlay->ID == 2) {
-      sVar3 = 0x8d;
+      text = 0x8d;
     }
     else {
-      sVar3 = 0x8c;
+      text = 0x8c;
       if (overlay->ID == 3) {
-        sVar3 = 0x8e;
+        text = 0x8e;
       }
     }
     if (validCar == 0) {
@@ -244,7 +243,7 @@ DrawOvl_transitionPos:
       }
     }
     DrawMoney((int)temp.x + (int)temp.w + -0xc,temp.y + 3,6,carInfo.fPrices[0],moneyColor,0x232323);
-    FETextRender_MenuTextPositionedJustify(sVar3,(short)(((uint)(ushort)temp.x + ((int)((uint)(ushort)temp.w << 0x10) >> 0x11))
+    FETextRender_MenuTextPositionedJustify(text,(short)(((uint)(ushort)temp.x + ((int)((uint)(ushort)temp.w << 0x10) >> 0x11))
                              * 0x10000 >> 0x10),temp.y + 3,1,textState_Selected,textType_FramedInfo)
     ;
     DrawMoney((int)temp.x + (int)temp.w + -0xc,temp.y + 0xd,9,tournamentManager.fMoney,0xbebe,
@@ -290,23 +289,23 @@ DrawOvl_transitionPos:
         textState = (tGlobalMenuDefs *)(int)carInfo.fCarID;
         r = (RECT *)0xa;
         if ((textState == (tGlobalMenuDefs *)0xc) ||
-           (sVar3 = 0xb0, textState == (tGlobalMenuDefs *)0xa)) {
+           (text = 0xb0, textState == (tGlobalMenuDefs *)0xa)) {
           iVar5 = 0x41;
           goto DrawOvl_wordWrapEmit;
         }
       }
       else {
 DrawOvl_wordWrapEmit:
-        sVar3 = (short)iVar5;
+        text = (short)iVar5;
       }
-      FETextRender_WordWrap(sVar3,r,(tMenuTextState)(int)textState,textType_PopUpText);
-      sVar3 = 0xa0;
+      FETextRender_WordWrap(text,r,(tMenuTextState)(int)textState,textType_PopUpText);
+      text = 0xa0;
       if (((ushort)((ushort)carInfo.fUpgrades &
                    upgradeIcons[(short)(menuDefs->menuCarUpgrades).fCurrentItem]) == 0) &&
-         (sVar3 = 0x9e, gPadinfo.buf[0].ID == '#')) {
-        sVar3 = 0x9f;
+         (text = 0x9e, gPadinfo.buf[0].ID == '#')) {
+        text = 0x9f;
       }
-      FETextRender_MenuTextPositionedJustify(sVar3,pos.x + pos.w + -0xf,pos.y + pos.h + -0x14,1,textState_Hilighted,
+      FETextRender_MenuTextPositionedJustify(text,pos.x + pos.w + -0xf,pos.y + pos.h + -0x14,1,textState_Hilighted,
                  textType_FramedInfo);
     }
     if ((0x42 < pos.w) && (0x32 < pos.h)) {
@@ -718,19 +717,30 @@ int tScreenCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_input,tMenu
     return 1;
   }
   else if (state2 < 6) {
-    if (state2 < 2) {
-      /* BARE-VA SWEEP (w14-a2): -0x7fef0000==0x80110000 looks like a disguised VA; raw
-       * @0x8003c0b4 (this same ProcessInput) shows the oracle emits the identical bare
-       * `lui v0,0x8011` with no further resolution -- same magic-sentinel family as
-       * tInsideBoxSongMenu/tScreenTrackSelect::ProcessInput. Left as-is. */
-      return -0x7fef0000;
-    }
-    if (frontEnd.gameMode == '\x01') {
+    if (2 <= state2) {
+      if (frontEnd.gameMode == '\x01') {
+        return 1;
+      }
+      state = 1;
+      this->SetState(state);
       return 1;
     }
-    state = 1;
-    this->SetState(state);
-    return 1;
+    /* W37 FIX (was `return -0x7fef0000;`): state2<2 has NO explicit return.
+     * The oracle @0x8003C0B0 (`bnez v0,.L8003C104`) branches directly out of
+     * this if/elseif/else to the shared epilogue with $v0 UNSET; the
+     * `lui v0,%hi(D_80114603)` in its delay slot @0x8003C0B4 always executes
+     * (branch-delay semantics) but is really the address setup the fall-
+     * through path (state2>=2) needs for its `lbu v1,%lo(D_80114603)(v0)` at
+     * 0x8003C0E8 -- not a return-value materialization. The old recon misread
+     * that delay-slot lui as a literal `return 0x80110000`, same "misread
+     * delay slot -> phantom sentinel return" bug class documented in the w36
+     * briefing (screencarselect.cpp was the known-unfixed instance). Source-
+     * true fix: this is the LAST statement of the `else if (state2 < 6)` arm,
+     * so falling out of `if (2 <= state2)` with nothing else in the block
+     * falls off the end of the whole if/elseif/else -- and since nothing
+     * follows in the function body, off the end of ProcessInput itself
+     * (retail UB; $v0 holds whatever the scheduler put there, never read by
+     * any caller that matters). */
   }
   else {
     if (state2 != 6) {
@@ -992,8 +1002,7 @@ void tScreenCarSelect::DrawForeground()
 {
   char state;
   ushort splineInterval;
-  bool bShowStats;
-  short currentItem;
+  short bShowStats;
   int elapsedticks;
   tGlobalMenuDefs *mdefs;
   int iVar5;
@@ -1013,7 +1022,7 @@ void tScreenCarSelect::DrawForeground()
   short knot4;
   short sVar12;
   short i;
-  tMenuItem *item;
+  tMenuItem *currentItem;
   int iVar14;
   u_long textTicks;
   uint uVar15;
@@ -1029,8 +1038,7 @@ void tScreenCarSelect::DrawForeground()
   int camRot;
   
   vtbl = this->_vf;
-  currentItem = FEApp->fCurrentMenu[0]->fCurrentItem;
-  item = FEApp->fCurrentMenu[0]->fItemList[currentItem];
+  currentItem = FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem];
   iVar5 = (*vtbl[1][3].pfn)
                     (this->fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
   mdefs = menuDefs;
@@ -1040,7 +1048,7 @@ void tScreenCarSelect::DrawForeground()
        fFlags | 1;
   sVar12 = this->fState;
   if (sVar12 == 1) {
-    bShowStats = (tMenuItemNFS4LeftRightChoice *)item == &mdefs->itemGarageCar;
+    bShowStats = (tMenuItemNFS4LeftRightChoice *)currentItem == &mdefs->itemGarageCar;
     (mdefs->itemUpgradeCar).fFlags =
          (mdefs->itemUpgradeCar).fFlags &
          0xfffffffe;
@@ -1060,7 +1068,7 @@ void tScreenCarSelect::DrawForeground()
     }
   }
   else if (sVar12 == 0) {
-    bShowStats = (tMenuItemNFS4LeftRightChoice *)item == &mdefs->itemCar;
+    bShowStats = (tMenuItemNFS4LeftRightChoice *)currentItem == &mdefs->itemCar;
     uVar15 = (mdefs->itemShowcase).fFlags;
     (mdefs->itemColor).fFlags =
          (mdefs->itemColor).fFlags &
@@ -1076,12 +1084,12 @@ void tScreenCarSelect::DrawForeground()
     }
   }
   else if (sVar12 == 2) {
-    if ((tMenuItemNFS4LeftRightChoice *)item == &mdefs->itemDealerCar) {
+    if ((tMenuItemNFS4LeftRightChoice *)currentItem == &mdefs->itemDealerCar) {
       bShowStats = true;
     }
   }
   else if (sVar12 == 3) {
-    bShowStats = (tMenuItemNFS4LeftRightChoice *)item == &mdefs->itemSellerCar;
+    bShowStats = (tMenuItemNFS4LeftRightChoice *)currentItem == &mdefs->itemSellerCar;
     (mdefs->itemSellCar).fFlags =
          (mdefs->itemSellCar).fFlags &
          0xfffffffe;

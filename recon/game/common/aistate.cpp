@@ -1277,17 +1277,13 @@ LAB_80070adc:
   pCVar4 = this->carObj_;
 
   if (pCVar4->direction == 1) {
-    if (pCVar4->desiredSpeed < minSpeed) {
-      minSpeed = pCVar4->desiredSpeed;
-    }
+    pCVar4->desiredSpeed =
+        (pCVar4->desiredSpeed < minSpeed) ? pCVar4->desiredSpeed : minSpeed;
   } else {
-    minSpeed = -minSpeed;
-    if (minSpeed < pCVar4->desiredSpeed) {
-      minSpeed = pCVar4->desiredSpeed;
-    }
+    pCVar4->desiredSpeed = (-minSpeed < pCVar4->desiredSpeed)
+                              ? pCVar4->desiredSpeed
+                              : -minSpeed;
   }
-
-  pCVar4->desiredSpeed = minSpeed;
 
   AI_GenericBeginCycle(this->carObj_);
 

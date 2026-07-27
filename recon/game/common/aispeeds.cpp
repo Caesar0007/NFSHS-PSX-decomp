@@ -365,6 +365,11 @@ int AISpeeds_NeedToSlowDownForCurve(Car_tObj *carObj,int distanceMeters,int curr
   return neededDistance + (neededDistance >> 3) < distanceMeters ^ 1;
 }
 
+static inline int AISpeeds_AddScanSlice(int slice,int scanSlice)
+{
+  return slice + scanSlice;
+}
+
 /* ---- AISpeeds_CalcOpponentCurveSpeed__FP8Car_tObj  [@0x8006df34] ---- */
 int AISpeeds_CalcOpponentCurveSpeed(Car_tObj *carObj)
 {
@@ -384,13 +389,13 @@ int AISpeeds_CalcOpponentCurveSpeed(Car_tObj *carObj)
 
       scanSlice = (scanMetersDistanceInt / 6) * carObj->direction;
       if (0 <= scanSlice) {
-        scanSlice = scanSlice + (carObj->N).simRoadInfo.slice;
+        scanSlice = AISpeeds_AddScanSlice((carObj->N).simRoadInfo.slice,scanSlice);
         if (gNumSlices <= scanSlice) {
           scanSlice = scanSlice - gNumSlices;
         }
       }
       else {
-        scanSlice = scanSlice + (carObj->N).simRoadInfo.slice;
+        scanSlice = AISpeeds_AddScanSlice((carObj->N).simRoadInfo.slice,scanSlice);
         if (scanSlice < 0) {
           scanSlice = scanSlice + gNumSlices;
         }

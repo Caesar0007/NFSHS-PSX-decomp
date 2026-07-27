@@ -10,6 +10,11 @@
  */
 
 extern int           sndgs[];
+/* DISTINCT SYMBOL VIEW (catalog, w35-a4 device): a second declaration of the SAME storage under its
+ * own asm label.  iSNDfreechan's final-else return block must NOT cross-jump-merge with the group==0
+ * tail -- retail keeps them separate because their base regs differ; giving this arm its own RTL
+ * symbol stops cse from unifying the two `&sndgs` materializations. */
+extern unsigned char sndgs_v[] __asm__("sndgs");
 extern signed char    sndchanreserved[];       /* scratch list of chosen channel indices */
 extern int           DAT_80136dec[];             /* rolling allocation id counter (+=0x20); OWNED by
                                                   snddata.c (strong def there). MATCH: must stay a pure
@@ -409,7 +414,18 @@ done:
  *   Rewriting JUST that one site as a base-pointer read `*(int *)(base + 0x44)` (the targeted form
  *   of the whole-function rewrite already recorded above as worse) goes the WRONG WAY: 75 diffs at
  *   107 insns, because cse then shares the top-of-function base instead of rematerializing.
- *   NFS2 PC-beta contributes nothing to this function: its salloc.obj `_iSNDfreechan` is a
+ *   2026-07-27 inline (19 -> 16 @108/110): three keeps -- (1) the scan-loop entry guard compares
+   COUNT (`if (count < (int)base[0x11])`, slot=count moved inside): the compare crosses the group
+   beqz's EBB boundary so cse cannot fold count=0, restoring retail's real `slt $t0` (+1 insn);
+   (2) the tail re-materializes ONE fresh sndgs base (`gs`) + cached `poolv` and reads 0x44/0x94
+   as displacements, matching retail's $t1 la at .LECB4 (per-site fused sndgs[N] was the divergence);
+   (3) the final-else return block reads through the sndgs_v DISTINCT SYMBOL VIEW so it stops
+   cross-jump-merging with the group==0 tail (retail keeps separate jr blocks with different bases).
+   Residual 16 = the scan-loop `lb`-vs-`lbu` at +0xB (ours emits lbu for a volatile signed char
+   != 0 test -- cc1 legally widens; unresolved) + the partnerSlot block's per-path
+   `lui %hi(D_801478F4)` duplicates and split `%lo(sndgs)` la (DAT_801478f4_v[0] array view and a
+   gv pointer-hold were both tried = no-ops, single-use bases fold back to fused loads).
+   NFS2 PC-beta contributes nothing to this function: its salloc.obj `_iSNDfreechan` is a
  *   THREE-LINE ungrouped release (`chan[i].state = 0;`) with no linked-group protocol at all, so
  *   the whole group/partner CFG is NFS3/NFS4-era and has no named-source ancestor to copy. */
 extern void iSNDfreechan(int chan)
@@ -429,9 +445,11 @@ extern void iSNDfreechan(int chan)
     if (group != 0) {
         int limit;
         unsigned char *scan;
+        unsigned char *gs;
+        int poolv;
 
-        slot = count;
-        if (slot < (int)base[0x11]) {
+        if (count < (int)base[0x11]) {
+            slot = count;
             /* MATCH (cse.c double evaluation): retail's `addu $t2,$v1,$zero` is a COPY of
              * the guard's own load -- the guard holds the FIRST evaluation of base[0x11]
              * and the loop bound is a SECOND textual evaluation.  One hoisted `limit`
@@ -449,11 +467,13 @@ extern void iSNDfreechan(int chan)
             } while (slot < limit);
         }
 
-        slot = sndgs[0x25] + chan * 100;
+        gs = (unsigned char *)sndgs;
+        poolv = *(int *)(gs + 0x94);
+        slot = poolv + chan * 100;
 
         if (count == 1) {
             *(unsigned char *)(slot + 0xb) = 0;
-            *(int *)(slot + 0x10) = sndgs[0x11];
+            *(int *)(slot + 0x10) = *(int *)(gs + 0x44);
             return;
         }
 
@@ -462,12 +482,12 @@ extern void iSNDfreechan(int chan)
 
             /* MATCH: the scaled partner offset is the FIRST addu operand -- the oracle
              * emits `addu $v0,$a3,$v1` / `addu $a3,$v0,$v1`. */
-            if (*(signed char *)(partnerOffset + sndgs[0x25] + 0xb) == 2 &&
+            if (*(signed char *)(partnerOffset + poolv + 0xb) == 2 &&
                 chan != partner && count == 2) {
                 *(unsigned char *)(slot + 0xb) = 0;
-                *(int *)(slot + 0x10) = sndgs[0x11];
-                *(unsigned char *)(partnerOffset + sndgs[0x25] + 0xb) = 0;
-                *(int *)(partnerOffset + sndgs[0x25] + 0x10) = sndgs[0x11];
+                *(int *)(slot + 0x10) = *(int *)(gs + 0x44);
+                *(unsigned char *)(partnerOffset + *(int *)(gs + 0x94) + 0xb) = 0;
+                *(int *)(partnerOffset + *(int *)(gs + 0x94) + 0x10) = *(int *)(gs + 0x44);
                 return;
             }
 
@@ -480,13 +500,13 @@ extern void iSNDfreechan(int chan)
             }
 
             *(unsigned char *)(slot + 0xb) = 0;
-            *(int *)(slot + 0x10) = sndgs[0x11];
+            *(int *)(slot + 0x10) = *(int *)(sndgs_v + 0x44);
             return;
         }
     }
 
     *(unsigned char *)(slot + 0xb) = 0;
-    *(int *)(slot + 0x10) = sndgs[0x11];
+    *(int *)(slot + 0x10) = *(int *)(base + 0x44);
 }
 
 /* iSNDgetchan @0x800FEDC4 : resolve a sound tag back to its channel index, validating that the channel is

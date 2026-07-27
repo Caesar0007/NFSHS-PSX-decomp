@@ -81,30 +81,19 @@ void FindAbsClosestSliceCrude(coorddef *pt,BWorldSm_Pos *slicePos)
   int currInd;
   int dist;
   int i;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  short sVar5;
-  int iVar6;
   
-  iVar1 = gNumSlices;
-  iVar4 = 0x7fffffff;
-  iVar6 = -1;
-  sVar5 = -1;
-  iVar3 = 0;
-  if (0 < gNumSlices) {
-    do {
-      iVar2 = xzsquaredist32((coorddef *)((char *)BWorldSm_slices +iVar3 * 0x20),pt);
-      if (iVar2 < iVar4) {
-        iVar4 = iVar2;
-        iVar6 = iVar3;
-      }
-      sVar5 = (short)iVar6;
-      iVar3 = iVar3 + 8;
-    } while (iVar3 < iVar1);
+  numSlices = gNumSlices;
+  currDist = 0x7fffffff;
+  currInd = -1;
+  for (i = 0; i < numSlices; i += 8) {
+    dist = xzsquaredist32(
+        (coorddef *)((char *)BWorldSm_slices + i * 0x20),pt);
+    if (dist < currDist) {
+      currInd = i;
+      currDist = dist;
+    }
   }
-  slicePos->slice = sVar5;
+  slicePos->slice = currInd;
   return;
 }
 

@@ -1474,10 +1474,9 @@ void Car_DoPostCollisionStuff(Car_tObj *carObj)
      fires there) but the oracle's ACTUAL codegen needs the min-clamp-first shape to byte-match
      (a<1311 && a<-2620 folds to a<-2620 logically, but NOT in codegen). Using
      `__builtin_abs(fixedmult(...))` for the roll term keeps the result in v0 like retail and
-     reduces 16->5. The remaining 5-diff/one-instruction residual is the second signed `/32`
-     expansion: ours copies a0 to v0 before `bgez`, while retail schedules that copy in the
-     branch delay slot. Direct division and explicit round/shift forms both reach this same
-     floor; in-place mutation changes global coloring and is substantially worse. */
+     reduces 16->5. Removing the named second quotient temporary and writing its upper clamp
+     as a real if/else reproduces retail's direct-a0 signed `/32` expansion and schedules the
+     `Yoffset = 0x51e` default into the comparison branch delay slot (5->PASS154). */
   int Yoffset;
   int iVar1;
   Car_tSpecs *pCVar2;
@@ -1507,7 +1506,7 @@ SHORT:
   return;
 LONG:
   {
-    int negGroundVel, roundedGV, gvClamp, clampCond, gvClamp2;
+    int negGroundVel, roundedGV, gvClamp, clampCond;
     int absRoll, currentRollVal, rideOffsetVal, negPitch, bodyPitchVal;
 
     AIPhysic_ProcessCollision(carObj);
@@ -1539,10 +1538,11 @@ LONG:
       Yoffset = -0xa3d;
     }
     else {
-      gvClamp2 = negGroundVel / 0x20;
-      Yoffset = 0x51e;
-      if (gvClamp2 < 0x51f) {
-        Yoffset = gvClamp2;
+      if (negGroundVel / 0x20 < 0x51f) {
+        Yoffset = negGroundVel / 0x20;
+      }
+      else {
+        Yoffset = 0x51e;
       }
     }
     absRoll = __builtin_abs(fixedmult(((carObj->render).currentRoll * 3) / 2,

@@ -37,39 +37,37 @@ void SimQueue_StartUp(void)
 void SimQueue_Reset(void)
 
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  SIM_QUEUE *pSVar4;
-  u_char *entry;
+  int i;
+  int j;
 
-  iVar3 = 0;
-  pSVar4 = &inputQueue;
   gSimQueue_BlockSelf = 1;
   gSimQueue_BlockOther = 1;
-  do {
-    iVar2 = 0;
-    iVar1 = iVar3 << 7;
+
+  for (i = 0; i < 2; i = i + 1) {
+
+    j = 0;
+
     do {
-      entry = (u_char *)&inputQueue + iVar1;
-      if (iVar2 < 4) {
-        *(u_int *)(entry + 0x100) = 1;
+
+      if (j < 4) {
+        inputQueue.Validity[i][j] = 1;
       }
       else {
-        *(u_int *)(entry + 0x100) = 0;
-        entry = (u_char *)&inputQueue + iVar1;
+        inputQueue.Validity[i][j] = 0;
       }
-      iVar2 = iVar2 + 1;
-      ((Input_tResults *)entry)->steering = 0;
-      ((Input_tResults *)entry)->gas = 0;
-      ((Input_tResults *)entry)->brake = 0;
-      ((Input_tResults *)entry)->flags = 0;
-      iVar1 = iVar1 + 4;
-    } while (iVar2 < 0x20);
-    pSVar4->TailTime[0] = 4;
-    pSVar4 = (SIM_QUEUE *)(pSVar4->Buffer[0] + 1);
-    iVar3 = iVar3 + 1;
-  } while (iVar3 < 2);
+
+      inputQueue.Buffer[i][j].steering = 0;
+      inputQueue.Buffer[i][j].gas = 0;
+      inputQueue.Buffer[i][j].brake = 0;
+      inputQueue.Buffer[i][j].flags = 0;
+      j = j + 1;
+
+    } while (j < 0x20);
+
+    inputQueue.TailTime[i] = 4;
+
+  }
+
   inputQueue.HeadTime = 0;
   gSimQueue_Ticker = 3;
   gSimQueue_BlockOther = 0;

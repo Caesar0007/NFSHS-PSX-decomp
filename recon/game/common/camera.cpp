@@ -1651,8 +1651,9 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
   
   /* MATCH: plain struct assignment -> gcc movstrsi copy (Ghidra hand-expanded it as a loop) */
   slicePos = Camera_gInfo[player].slicePos;
-  for (i = 0; i < 3; i++) {
-    transform(feeler3 + i,Camera_gInfo[player].anchor->orientMat.m,&triVec);
+  /* MATCH: reuse camAngle so this loop index and its strength-reduced pointer take retail s1/s0. */
+  for (camAngle = 0; camAngle < 3; camAngle++) {
+    transform(feeler3 + camAngle,Camera_gInfo[player].anchor->orientMat.m,&triVec);
     triPnt.x = pos->x + triVec.x;
     triPnt.y = pos->y + triVec.y;
     triPnt.z = pos->z + triVec.z;
@@ -1673,7 +1674,7 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
         ((((slicePos.simQuad)->surface & 0x80) != 0 &&
          (0x38000 < quadUnderCamera.y - Camera_gInfo[player].anchor->position.y)))))) break;
   }
-  if (i == 3) {
+  if (camAngle == 3) {
     return;
   }
   count = 0;

@@ -2362,38 +2362,39 @@ void DrawW_DoObjectAnimations(void);
  *  N.totalSlice with swapCar/swapTime bookkeeping. Ghidra byte-offset ptr-arith de-garbled. */
 void Cars_SortCars(void)
 {
-  Car_tObj *prev, *cur;
-  int j, swapped;
+  int swapped;
+  int i;
+  Car_tObj *temp;
 
   do {
     swapped = 0;
-    for (j = 0; j < Cars_gNumCars - 1; j++) {
-      prev = Cars_gSortedList[j];
-      cur  = Cars_gSortedList[j + 1];
-      if (cur->N.simRoadInfo.slice < prev->N.simRoadInfo.slice) {
+    for (i = 0; i < Cars_gNumCars - 1; i++) {
+      if (Cars_gSortedList[i]->N.simRoadInfo.slice >
+          Cars_gSortedList[i + 1]->N.simRoadInfo.slice) {
+        temp = Cars_gSortedList[i];
+        Cars_gSortedList[i] = Cars_gSortedList[i + 1];
+        Cars_gSortedList[i + 1] = temp;
         swapped = 1;
-        Cars_gSortedList[j]     = cur;
-        Cars_gSortedList[j + 1] = prev;
       }
     }
   } while (swapped != 0);
 
-  for (j = 0; j < Cars_gNumCars; j++) {
-    Cars_gSortedList[j]->sortIndex = j;
+  for (i = 0; i < Cars_gNumCars; i++) {
+    Cars_gSortedList[i]->sortIndex = i;
   }
 
   do {
     swapped = 0;
-    for (j = 0; j < Cars_gNumCars - 1; j++) {
-      prev = Cars_gTotalSortedList[j];
-      cur  = Cars_gTotalSortedList[j + 1];
-      if (cur->N.totalSlice < prev->N.totalSlice) {
-        prev->swapCar  = cur;
-        cur->swapCar   = prev;
-        cur->swapTime  = simGlobal.gameTicks;
-        prev->swapTime = simGlobal.gameTicks;
-        Cars_gTotalSortedList[j]     = cur;
-        Cars_gTotalSortedList[j + 1] = prev;
+    for (i = 0; i < Cars_gNumCars - 1; i++) {
+      if (Cars_gTotalSortedList[i]->N.totalSlice >
+          Cars_gTotalSortedList[i + 1]->N.totalSlice) {
+        Cars_gTotalSortedList[i]->swapCar = Cars_gTotalSortedList[i + 1];
+        Cars_gTotalSortedList[i + 1]->swapCar = Cars_gTotalSortedList[i];
+        Cars_gTotalSortedList[i]->swapTime =
+            Cars_gTotalSortedList[i + 1]->swapTime = simGlobal.gameTicks;
+        temp = Cars_gTotalSortedList[i];
+        Cars_gTotalSortedList[i] = Cars_gTotalSortedList[i + 1];
+        Cars_gTotalSortedList[i + 1] = temp;
         swapped = 1;
       }
     }

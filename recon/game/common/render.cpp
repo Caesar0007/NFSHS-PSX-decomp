@@ -295,34 +295,23 @@ void Render_Render(int pause)
 void FlareThing(void)
 
 {
-  int i;
-  int i_2;
-  u_short *screen_walk;
   int players;
-  int n_players;
-  FLARE_DEF *flare_walk;
-  RECT rec;
   
-  n_players = 1;
+  players = 1;
   if (GameSetup_gData.commMode == 1) {
-    n_players = 2;
+    players = 2;
   }
-  flare_walk = &gFlare_LensFlare;
-  screen_walk = (u_short *)gFlare_LensFlare.screenData;
-  i_2 = 0;
-  while (1) {
-    if (n_players <= i_2) break;
-    if (gFlare_LensFlare.isDrawn[i_2] != '\0') {
-      rec.x = gEnviro[gFlip].disp.disp.x + flare_walk->oldpos[0].vx + -2;
+  for (int i = 0; i < players; i++) {
+    if (gFlare_LensFlare.isDrawn[i] != '\0') {
+      RECT rec;
+
+      rec.x = gEnviro[gFlip].disp.disp.x + gFlare_LensFlare.oldpos[i].vx - 2;
+      rec.y = gEnviro[gFlip].disp.disp.y + gFlare_LensFlare.oldpos[i].vy - 2;
       rec.w = 5;
       rec.h = 5;
-      rec.y = gEnviro[gFlip].disp.disp.y + flare_walk->oldpos[0].vy + -2;
-      StoreImage(&rec,(u_long *)screen_walk);
-      gFlare_LensFlare.isDrawn[i_2] = '\0';
+      StoreImage(&rec,(u_long *)gFlare_LensFlare.screenData[i]);
+      gFlare_LensFlare.isDrawn[i] = '\0';
     }
-    screen_walk = screen_walk + 0x19;
-    flare_walk = (FLARE_DEF *)(flare_walk->pos + 1);
-    i_2 = i_2 + 1;
   }
   return;
 }

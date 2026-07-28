@@ -328,7 +328,10 @@ int Newton_CalculateSliceYaw(int slice)
   Trk_NewSlice *next;
 
   count = gNumSlices;
-  s = (slice + 1 < count) ? slice + 1 : slice - (count - 1);
+  s = slice + 1;
+  if (count <= s) {
+    s = slice - (count - 1);
+  }
   cur = &BWorldSm_slices[slice];
   x1 = cur->center[0];
   z1 = cur->center[2];

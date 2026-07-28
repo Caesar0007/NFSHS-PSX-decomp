@@ -1239,7 +1239,9 @@ LAB_CHAIN1:
 
   if (0x190000 < distance) { minSpeed = 0x230000; goto LAB_80070adc; }
 
-  if (0xa0000 < distance) { minSpeed = 0xa0000; goto LAB_80070adc; }
+  /* Keep the equal-valued threshold and result in separate blocks: retail
+     materializes 0xA0000 independently in v0 and a0. */
+  if (0xa0000 < distance) goto LAB_MIN_A;
 
 LAB_A60:
 
@@ -1268,6 +1270,14 @@ LAB_CHAIN2:
   if (!(0x60000 < distance)) goto LAB_80070adc;
 
   minSpeed = 0x60000;
+
+  goto LAB_80070adc;
+
+LAB_MIN_A:
+
+  minSpeed = 0xa0000;
+
+  goto LAB_80070adc;
 
 LAB_80070adc:
 

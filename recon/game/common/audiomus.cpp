@@ -138,41 +138,38 @@ AudioMus_tCurrentSong * AudioMus_GetCurrentSong(void)
 /* ---- AudioMus_SwitchSong__Fv  [@0x8007a0e4] ---- */
 void AudioMus_SwitchSong(void)
 {
-  AudioMus_tSongEntry*info;
-  bool bVar1;
-  AudioMus_tMusicGlobals *pAVar2;
-  int iVar3;
-  
-  pAVar2 = AudioMus_g;
+  AudioMus_tSongEntry *info;
+
   if (((AudioMus_g != (AudioMus_tMusicGlobals *)0x0) && (AudioMus_g->availablesongs != 0)) &&
      (0 < AudioMus_g->volume)) {
     AudioMus_g->newswitch = 1;
-    pAVar2->songname = (char *)0x0;
-    pAVar2->errorcode = 0;
-    (pAVar2->current).remaining = 0;
-    (pAVar2->current).info.length = 0;
-    (pAVar2->current).info.filename = (char *)0x0;
-    (pAVar2->current).info.title = (char *)0x0;
-    (pAVar2->current).info.artist = (char *)0x0;
-    (pAVar2->current).info.label = (char *)0x0;
-    (pAVar2->current).info.notes = (char *)0x0;
-    if ((pAVar2->switchsong == 0) && (-1 < pAVar2->requestsong)) {
-      SNDSTRM_autovol(pAVar2->streamhandle,2000,0);
+    AudioMus_g->songname = (char *)0x0;
+    AudioMus_g->errorcode = 0;
+    AudioMus_g->current.remaining = 0;
+    info = &AudioMus_g->current.info;
+    info->length = 0;
+    info->filename = (char *)0x0;
+    info->title = (char *)0x0;
+    info->artist = (char *)0x0;
+    info->label = (char *)0x0;
+    info->notes = (char *)0x0;
+    if ((AudioMus_g->switchsong == 0) && (-1 < AudioMus_g->requestsong)) {
+      SNDSTRM_autovol(AudioMus_g->streamhandle,2000,0);
       AudioMus_g->fadetime = 1000;
     }
-    pAVar2 = AudioMus_g;
-    iVar3 = AudioMus_g->requestsong + 1;
-    bVar1 = Hud_kTurnSongOffNext == 0;
-    AudioMus_g->requestsong = iVar3;
-    if ((bVar1) && (iVar3 < pAVar2->availablesongs)) {
-      pAVar2->switchsong = 1;
-    }
-    else {
-      Hud_kTurnSongOffNext = 0;
-      pAVar2->firstswitch = 0;
-      pAVar2->switchsong = -1;
-      pAVar2->requestsong = -1;
-    }
+    AudioMus_g->requestsong = AudioMus_g->requestsong + 1;
+    if (Hud_kTurnSongOffNext != 0) goto SONG_OFF;
+    if (AudioMus_g->requestsong < AudioMus_g->availablesongs) goto SONG_ON;
+SONG_OFF:
+    Hud_kTurnSongOffNext = 0;
+    AudioMus_g->firstswitch = 0;
+    AudioMus_g->switchsong = -1;
+    AudioMus_g->requestsong = -1;
+    goto SONG_DONE;
+SONG_ON:
+    AudioMus_g->switchsong = 1;
+SONG_DONE:
+    ;
   }
   return;
 }

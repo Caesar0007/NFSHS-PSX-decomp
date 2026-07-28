@@ -155,58 +155,33 @@ void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
 }
 
 /* ---- BWorld_InitSpikeBelt__Fv  [@0x8007d818] ---- */
-/* NEAR-MISS 47 diffs (44/43 insns), reduced from a baseline of 52 diffs (45/43 insns).
- * Removed 3 dead locals (leastDist/leastDistInd/dist -- unused leftovers from a prior
- * refactor) and added an explicit `numLight = Chunk_numLight` cache local, which the
- * oracle also does (loads Chunk_numLight into $t2 ONCE before the loop) -- letting the
- * compiler read it straight off the extern each iteration produced a slightly worse
- * match (52 diffs) than caching it explicitly (47 diffs).
- * REMAINING GAP: gcc-2.8.0 -O2 applies LOOP ROTATION to this loop that the oracle's
- * loop does not have. Oracle emits a plain top-tested loop: `slt v0,i,numLight /
- * beqz v0,exit` at the TOP of every iteration, `j top` at the bottom (43 insns, no
- * separate guard). Our build instead rotates it into guard+do-while shape: a single
- * `blez numLight,exit` pre-check before the loop, then a do-while body that re-tests
- * with `bnez` at the bottom -- and, entangled with the same transform, gcc also
- * strength-reduces the 3 consecutive `pCVar4->r/g/b` byte reads into a peeled
- * `pCVar4[0]` + `(pCVar4+2)[-1]`/`(pCVar4+2)[0]` addressing form instead of the
- * oracle's plain `a0[0]/a0[1]/a0[2]`. Levers tried: `for` vs `while` vs explicit
- * `goto`-based top-test (the goto form REGRESSED to 59 diffs -- worse, reverted);
- * reordering the 3 global-clear statements relative to the loop-var inits; explicit
- * `u_char*` cast + `[0]/[1]/[2]` indexing instead of named r/g/b fields; combined
- * vs separate loop-increment placement (`i++,p++` in the for-clause vs in the body).
- * None of these prevented the rotation -- it is a single coherent gcc -O2 loop
- * transformation (not several independent bugs), same floor CLASS as the coloring
- * near-miss BWorld_OpenContext below (InitContexts, cited here previously, has
- * since sealed 0-diff -- a distinct fix, not this loop-rotation floor). ACCEPT. */
 void BWorld_InitSpikeBelt(void)
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  CVECTOR *pCVar4;
-  int iVar5;
-  int iVar6;
-  int numLight;
+  int leastDist;
+  int leastDistInd;
+  int i;
 
-  iVar6 = 0x7fffffff;
-  gSpikeBeltColourTableIndex = -1;
-  numLight = Chunk_numLight;
-  pCVar4 = Chunk_lightTable;
+  leastDist = 0x7fffffff;
+  leastDistInd = -1;
   gSpikeBelt = 0;
   gSpikeBeltSlice = 0;
   gSpikeBeltChunk = 0;
-  for (iVar5 = 0; iVar5 < numLight; iVar5 = iVar5 + 1) {
-    iVar1 = 0x80 - (u_int)pCVar4->r;
-    iVar2 = 0x80 - (u_int)pCVar4->g;
-    iVar3 = 0x80 - (u_int)pCVar4->b;
-    iVar1 = iVar1 * iVar1 + iVar2 * iVar2 + iVar3 * iVar3;
-    if (iVar1 < iVar6) {
-      iVar6 = iVar1;
-      gSpikeBeltColourTableIndex = iVar5;
+  for (i = 0; i < Chunk_numLight; i = i + 1) {
+    int dist;
+    int r;
+    int g;
+    int b;
+
+    r = 0x80 - (u_int)Chunk_lightTable[i].r;
+    g = 0x80 - (u_int)Chunk_lightTable[i].g;
+    b = 0x80 - (u_int)Chunk_lightTable[i].b;
+    dist = r * r + g * g + b * b;
+    if (dist < leastDist) {
+      leastDist = dist;
+      leastDistInd = i;
     }
-    pCVar4 = pCVar4 + 1;
   }
-  return;
+  gSpikeBeltColourTableIndex = leastDistInd;
 }
 
 /* ---- BWorld_SetSpikeBelt__Fiii  [@0x8007d8c4] ---- */

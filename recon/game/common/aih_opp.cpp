@@ -305,225 +305,105 @@ void AIHigh_Opponent::HighExecute()
 
 
 {
-  AIState_Base*newState;
-  int attackIndex;
-  int aggression;
-  AIState_Chase*attackState;
+  switch ((stateType_t)stateType_) {
 
-  AIState_Normal *pAVar1;
-
-  AIState_Base *pAVar2;
-
-  AIHigh_tAttackMode AVar3;
-
-  AIState_Base *pAVar4;
-
-  int iVar5;
-
-  int iVar6;
-
-  AIState_Chase *pAVar7;
-
-  coorddef cStack_28;
-
-  
-
-  switch(this->stateType_) {
-
-  case 1:
-  case 3:
-  case 5:
-  case 6:
-  case 7:
-  case 8:
-  case 9:
-  case 10:
+  case STATE_PURGATORY:
+  case STATE_IDLE:
+  case STATE_OFFROAD:
+  case STATE_ROVING_TRAFFIC:
+  case STATE_NONACTIVE:
+  case STATE_DONUTS:
+  case STATE_GOTOSLICE:
+  case STATE_CRUISE:
     break;
 
-  case 0:
-
-    pAVar1 = operator new(8);
-
-    pAVar2 = (AIState_Base*)(new(pAVar1) AIState_Normal(this->carObj_));
-
-    pAVar4 = this->state_;
-
-    if (pAVar4 != (AIState_Base *)0x0) {
-
-      /* manual-vtable slot 2 (raw byte offsets from the oracle jalr/lh -- __vtbl_ptr_type
-         is 8 bytes, so a typed _vf[N] index/pointer-add is 8x too large; decay to a byte
-         base and use the RAW displacement, §3.12 lever #10). */
-      (**(int (**)(...))((char *)pAVar4->_vf + 0x14))
-                ((int)&pAVar4->carObj_ + (int)*(short *)((char *)pAVar4->_vf + 0x10),3);
-
-    }
-
-    this->state_ = pAVar2;
-
-    this->stateType_ = 2;
-
+  case STATE_NONE:
+    SetState(
+      (AIState_Base *)new((AIState_Normal *)operator new(8))
+        AIState_Normal(carObj_),
+      STATE_NORMAL);
     return;
 
-  case 2:
+  case STATE_NORMAL:
+    {
+    int attackIndex;
 
     this->HandleCops();
 
     this->CheckForWipeOut();
 
-    attackIndex = AIScript_DoReAction(&(this->carObj_)->script,0x40);   /* SYM: attackIndex is REG $s1,
-                                            rewired from anonymous iVar5 per the SYM ground truth (Block
-                                            start line=13 spans the whole case-2 body). */
-
-    if (attackIndex == -1) {
-
-      attackIndex = this->DoRearEnder();
-
-      if (attackIndex != -1) {
-
-        AVar3 = 1;
-
-        goto LAB_800638c0;
-
-      }
-
-      attackIndex = this->DoProvokedAttack();
-
-      AVar3 = 3;
-
-      if (attackIndex != -1) goto LAB_800638c0;
-
+    if ((attackIndex = AIScript_DoReAction(&carObj_->script,0x40)) != -1) {
+      this->attackMode_ = SCRIPT_ATTACK;
     }
-
-    else {
-
-      AVar3 = 2;
-
-LAB_800638c0:
-
-      this->attackMode_ = AVar3;
-
+    else if ((attackIndex = DoRearEnder()) != -1) {
+      this->attackMode_ = REAR_END;
+    }
+    else if ((attackIndex = DoProvokedAttack()) != -1) {
+      this->attackMode_ = PROVOKED_ATTACK;
     }
 
     if (this->attackMode_ != 0) {
+      coorddef pos;
 
-      memset((u_char *)&cStack_28,'\0',0xc);
+      memset((u_char *)&pos,0,0xc);
 
-      iVar6 = this->attackMode_ - 1;
+      int aggression = attackMode_ - 1;
+      aggression = aggression < 2 ? 2 : aggression;
 
-      aggression = 2;   /* SYM: aggression is REG $s0 (Block start line=33), rewired from aggressionLevel */
-
-      if (1 < iVar6) {
-
-        aggression = iVar6;
-
-      }
-
-      pAVar7 = operator new(0x94);
-
-      pAVar7 = (new(pAVar7) AIState_Chase(this->carObj_,
-
-                          Cars_gList[attackIndex],&cStack_28,0x20,0x960000,0x960000,aggression,
-
-                          0x10000));
-
-      pAVar2 = this->state_;
-
-      if (pAVar2 != (AIState_Base *)0x0) {
-
-        /* manual-vtable slot 2 (raw byte offsets from the oracle jalr/lh -- __vtbl_ptr_type
-           is 8 bytes, so a typed _vf[N] index/pointer-add is 8x too large; decay to a byte
-           base and use the RAW displacement, §3.12 lever #10). */
-        (**(int (**)(...))((char *)pAVar2->_vf + 0x14))
-                  ((int)&pAVar2->carObj_ + (int)*(short *)((char *)pAVar2->_vf + 0x10),3);
-
-      }
-
-      this->state_ = (AIState_Base*)pAVar7;
-
-      this->stateType_ = 4;
+      SetState(
+        (AIState_Base *)new((AIState_Chase *)operator new(0x94))
+          AIState_Chase(carObj_,Cars_gList[attackIndex],&pos,0x20,
+                        0x960000,0x960000,aggression,0x10000),
+        STATE_CHASE);
 
     }
 
     break;
+    }
 
-  case 4:
-
-    pAVar7 = (AIState_Chase *)this->state_;
+  case STATE_CHASE:
+    {
+    AIState_Chase *attackState = (AIState_Chase *)state_;
 
     this->HandleCops();
 
     this->CheckForWipeOut();
 
-    (pAVar7)->SetMurderMode(1,0xf);
+    attackState->SetMurderMode(1,0xf);
 
-    AVar3 = this->attackMode_;
-
-    if (AVar3 == 2) {
-
-      iVar5 = AIScript_DoReAction(&(this->carObj_)->script,0x40)
-
-      ;
-
-      if (iVar5 == -1) {
-
-        this->attackMode_ = 0;
-
+    switch (attackMode_) {
+    case SCRIPT_ATTACK:
+      if (AIScript_DoReAction(&carObj_->script,0x40) == -1) {
+        attackMode_ = NO_ATTACK;
       }
+      break;
 
+    case REAR_END:
+      if (DoRearEnder() == -1) {
+        attackMode_ = NO_ATTACK;
+      }
+      break;
+
+    case PROVOKED_ATTACK:
+      attackTicksLeft_ -= AI_elapsedTime;
+      if (attackTicksLeft_ <= 0) {
+        attackMode_ = NO_ATTACK;
+      }
+      break;
     }
 
-    else if ((int)AVar3 < 3) {
+    if (attackMode_ == NO_ATTACK) {
+      carObj_->desiredDirection =
+        GameSetup_gData.reverseTrack == 0 ? 1 : -1;
 
-      if ((AVar3 == 1) && (iVar5 = this->DoRearEnder(), iVar5 == -1)) {
+      SetState(
+        (AIState_Base *)new((AIState_Normal *)operator new(8))
+          AIState_Normal(carObj_),
+        STATE_NORMAL);
 
-        this->attackMode_ = 0;
-
-      }
-
+      attackMode_ = NO_ATTACK;
     }
-
-    else if ((AVar3 == 3) &&
-
-            (iVar5 = this->attackTicksLeft_ - AI_elapsedTime, this->attackTicksLeft_ = iVar5, iVar5 < 1)) {   /* H25: decrement dropped (m2c self-assign fold); oracle 0x80063A38 $v0-=AI_elapsedTime, 0x80063A40 store, test on decremented value */
-
-      this->attackMode_ = 0;
-
-    }
-
-    if (this->attackMode_ == 0) {
-
-      iVar5 = -1;
-
-      if (GameSetup_gData.reverseTrack == 0) {
-
-        iVar5 = 1;
-
-      }
-
-      (this->carObj_)->desiredDirection = iVar5;
-
-      pAVar1 = operator new(8);
-
-      pAVar2 = (AIState_Base*)(new(pAVar1) AIState_Normal(this->carObj_));
-
-      pAVar4 = this->state_;
-
-      if (pAVar4 != (AIState_Base *)0x0) {
-
-        /* manual-vtable slot 2 (raw byte offsets from the oracle jalr/lh -- __vtbl_ptr_type
-         is 8 bytes, so a typed _vf[N] index/pointer-add is 8x too large; decay to a byte
-         base and use the RAW displacement, §3.12 lever #10). */
-      (**(int (**)(...))((char *)pAVar4->_vf + 0x14))
-                ((int)&pAVar4->carObj_ + (int)*(short *)((char *)pAVar4->_vf + 0x10),3);
-
-      }
-
-      this->state_ = pAVar2;
-
-      this->stateType_ = 2;
-
-      this->attackMode_ = 0;
-
+    break;
     }
 
   }

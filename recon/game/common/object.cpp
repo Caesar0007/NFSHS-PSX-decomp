@@ -908,36 +908,24 @@ void Object_GetIMassObjectDimensions(int objIndex,coorddef *dimensions)
 void Object_GetIMassObjectMotion(int objIndex,coorddef *cpoint,matrixtdef *orientMat,coorddef *velocity)
 
 {
-  Object_tIMassObjInfo *pOVar1;
-  int iVar2;
-  int iVar3;
   int objTime;
   int timeDiff;
 
   objTime = DrawW_GetAnimationTime(Object_IMassObjInst[objIndex].animInst);
   Anim_GetRotPos(Object_IMassObjInst[objIndex].animInst,1,objTime,cpoint,orientMat);
-  pOVar1 = Object_IMassObjInst;
   timeDiff = objTime - Object_IMassObjInst[objIndex].lastTick;
-  if (timeDiff < 1) {
+  if (0 < timeDiff) {
+    velocity->x = (cpoint->x - Object_IMassObjInst[objIndex].lastPos.x) / timeDiff << 6;
+    velocity->y = (cpoint->y - Object_IMassObjInst[objIndex].lastPos.y) / timeDiff << 6;
+    velocity->z = (cpoint->z - Object_IMassObjInst[objIndex].lastPos.z) / timeDiff << 6;
+  }
+  else {
     velocity->x = 0;
     velocity->y = 0;
     velocity->z = 0;
   }
-  else {
-    iVar3 = cpoint->x - Object_IMassObjInst[objIndex].lastPos.x;
-    velocity->x = iVar3 / timeDiff << 6;
-    iVar3 = cpoint->y - pOVar1[objIndex].lastPos.y;
-    velocity->y = iVar3 / timeDiff << 6;
-    iVar3 = cpoint->z - pOVar1[objIndex].lastPos.z;
-    velocity->z = iVar3 / timeDiff << 6;
-  }
-  pOVar1 = Object_IMassObjInst;
-  iVar2 = cpoint->y;
-  iVar3 = cpoint->z;
-  Object_IMassObjInst[objIndex].lastPos.x = cpoint->x;
-  pOVar1[objIndex].lastPos.y = iVar2;
-  pOVar1[objIndex].lastPos.z = iVar3;
-  pOVar1[objIndex].lastTick = objTime;
+  Object_IMassObjInst[objIndex].lastPos = *cpoint;
+  Object_IMassObjInst[objIndex].lastTick = objTime;
   return;
 }
 

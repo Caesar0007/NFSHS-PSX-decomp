@@ -206,42 +206,32 @@ void MPause_MusicLogic(char active)
 void MPause_ControllerLogic(void)
 
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  u_int uVar4;
-  
-  iVar1 = PadGetState((u_int)(Device_gPausePortIndex != '\0') << 4);
-  iVar3 = ((int)gPauseMenuDefs);
-  if (iVar1 == 2) {
-    iVar2 = IsEnabled(((int)gPauseMenuDefs) + 0x248);
-    iVar1 = ((int)gPauseMenuDefs);
-    if (iVar2 != 0) {
+  tPMenuItemLeftRightSliderIndexed *item;
+
+  if (PadGetState((u_int)(Device_gPausePortIndex != '\0') << 4) == 2) {
+    item = &gPauseMenuDefs->itemControllerShockMode;
+    if (item->IsEnabled()) {
       ChangedEnabling = 1;
-      *(u_int *)(iVar3 + 0x248) = *(u_int *)(iVar3 + 0x248) | 1;
+      item->fFlags |= 1;
     }
-    iVar3 = IsEnabled(((int)gPauseMenuDefs) + 0x260);
-    if (iVar3 == 0) {
-      return;
+    item = &gPauseMenuDefs->itemControllerShockImpact;
+    if (item->IsEnabled()) {
+      ChangedEnabling = 1;
+      item->fFlags |= 1;
     }
-    uVar4 = *(u_int *)(iVar1 + 0x260) | 1;
   }
   else {
-    iVar2 = IsDisabled(((int)gPauseMenuDefs) + 0x248);
-    iVar1 = ((int)gPauseMenuDefs);
-    if (iVar2 != 0) {
+    item = &gPauseMenuDefs->itemControllerShockMode;
+    if (item->IsDisabled()) {
       ChangedEnabling = 1;
-      *(u_int *)(iVar3 + 0x248) = *(u_int *)(iVar3 + 0x248) & 0xfffffffe;
+      item->fFlags &= ~1U;
     }
-    iVar3 = IsDisabled(((int)gPauseMenuDefs) + 0x260);
-    if (iVar3 == 0) {
-      return;
+    item = &gPauseMenuDefs->itemControllerShockImpact;
+    if (item->IsDisabled()) {
+      ChangedEnabling = 1;
+      item->fFlags &= ~1U;
     }
-    uVar4 = *(u_int *)(iVar1 + 0x260) & 0xfffffffe;
   }
-  ChangedEnabling = 1;
-  *(u_int *)(iVar1 + 0x260) = uVar4;
-  return;
 }
 
 /* ---- MPause_Logic__Fv  [MPAUSE.CPP:390-486] SLD-VERIFIED ---- */

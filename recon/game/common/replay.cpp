@@ -139,103 +139,20 @@ char * Replay_Decompress(char *compressed_data)
 void Replay_InitReplay(void)
 
 {
-  GameSetup_tUserSetting *pGVar1;
-  GameSetup_tData *pGVar2;
-  tReplayBuffer *ptVar3;
-  tReplayBuffer *ptVar4;
-  GameSetup_tUserSetting *pGVar5;
-  GameSetup_tData *pGVar6;
-  GameSetup_tUserSetting *pGVar7;
-  GameSetup_tUserSetting *pGVar8;
-  int iVar9;
-  int iVar10;
-  int iVar11;
   GameSetup_tUserSetting temp;
-  
+
   Replay_ReplayMode = GameSetup_gData.replayMode;
   Replay_LoadCameraFile();
   if (Replay_ReplayMode == 2) {
-    pGVar1 = &GameSetup_gData.userSetting;
-    pGVar8 = &temp;
-    do {
-      pGVar7 = pGVar8;
-      pGVar5 = pGVar1;
-      iVar9 = pGVar5->display;
-      iVar10 = pGVar5->bestlap;
-      iVar11 = pGVar5->audioMode;
-      pGVar7->language = pGVar5->language;
-      pGVar7->display = iVar9;
-      pGVar7->bestlap = iVar10;
-      pGVar7->audioMode = iVar11;
-      pGVar1 = (GameSetup_tUserSetting *)&pGVar5->musicLevel;
-      pGVar8 = (GameSetup_tUserSetting *)&pGVar7->musicLevel;
-    } while (&pGVar5->musicLevel != GameSetup_gData.userSetting.playlist + 0x25);
-    iVar9 = pGVar5->sfxLevel;
-    iVar10 = pGVar5->engineLevel;
-    pGVar7->musicLevel = GameSetup_gData.userSetting.playlist[0x25];
-    pGVar7->sfxLevel = iVar9;
-    pGVar7->engineLevel = iVar10;
+    temp = GameSetup_gData.userSetting;
     Replay_LoadReplay();
-    ptVar4 = &Replay_ReplayBuffer;
-    pGVar2 = &GameSetup_gData;
-    do {
-      pGVar6 = pGVar2;
-      ptVar3 = ptVar4;
-      iVar9 = (ptVar3->gameSetup).numLaps;
-      iVar10 = (ptVar3->gameSetup).skill;
-      iVar11 = (ptVar3->gameSetup).commMode;
-      pGVar6->raceType = (ptVar3->gameSetup).raceType;
-      pGVar6->numLaps = iVar9;
-      pGVar6->skill = iVar10;
-      pGVar6->commMode = iVar11;
-      ptVar4 = (tReplayBuffer *)&(ptVar3->gameSetup).tournamentMultiplier;
-      pGVar2 = (GameSetup_tData *)&pGVar6->tournamentMultiplier;
-    } while (ptVar4 != (tReplayBuffer *)(Replay_ReplayBuffer.gameSetup.carInfo[8].Camera + 2));
-    iVar9 = (ptVar3->gameSetup).cops;
-    pGVar6->tournamentMultiplier = Replay_ReplayBuffer.gameSetup.carInfo[8].Camera[2];
-    pGVar6->cops = iVar9;
-    pGVar1 = &GameSetup_gData.userSetting;
-    pGVar8 = &temp;
-    do {
-      pGVar7 = pGVar8;
-      pGVar5 = pGVar1;
-      iVar9 = pGVar7->display;
-      iVar10 = pGVar7->bestlap;
-      iVar11 = pGVar7->audioMode;
-      pGVar5->language = pGVar7->language;
-      pGVar5->display = iVar9;
-      pGVar5->bestlap = iVar10;
-      pGVar5->audioMode = iVar11;
-      pGVar8 = (GameSetup_tUserSetting *)&pGVar7->musicLevel;
-      pGVar1 = (GameSetup_tUserSetting *)&pGVar5->musicLevel;
-    } while (pGVar8 != (GameSetup_tUserSetting *)(temp.playlist + 0x25));
-    iVar9 = pGVar7->sfxLevel;
-    iVar10 = pGVar7->engineLevel;
-    pGVar5->musicLevel = *(int *)pGVar8;
-    pGVar5->sfxLevel = iVar9;
-    pGVar5->engineLevel = iVar10;
+    GameSetup_gData = Replay_ReplayBuffer.gameSetup;
+    GameSetup_gData.userSetting = temp;
     Replay_ReplayGetPtr = 0;
     Replay_Size = Replay_ReplayBuffer.size;
   }
   else {
-    pGVar2 = &GameSetup_gData;
-    ptVar4 = &Replay_ReplayBuffer;
-    do {
-      ptVar3 = ptVar4;
-      pGVar6 = pGVar2;
-      iVar9 = pGVar6->numLaps;
-      iVar10 = pGVar6->skill;
-      iVar11 = pGVar6->commMode;
-      (ptVar3->gameSetup).raceType = pGVar6->raceType;
-      (ptVar3->gameSetup).numLaps = iVar9;
-      (ptVar3->gameSetup).skill = iVar10;
-      (ptVar3->gameSetup).commMode = iVar11;
-      ptVar4 = (tReplayBuffer *)&(ptVar3->gameSetup).tournamentMultiplier;
-      pGVar2 = (GameSetup_tData *)&pGVar6->tournamentMultiplier;
-    } while (&pGVar6->tournamentMultiplier != GameSetup_gData.carInfo[8].Camera + 2);
-    iVar9 = pGVar6->cops;
-    *(int *)ptVar4 = GameSetup_gData.carInfo[8].Camera[2];
-    (ptVar3->gameSetup).cops = iVar9;
+    Replay_ReplayBuffer.gameSetup = GameSetup_gData;
   }
   return;
 }

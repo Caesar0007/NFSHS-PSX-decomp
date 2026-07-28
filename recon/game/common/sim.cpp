@@ -135,6 +135,10 @@ void Sim_FadeInSFX(void)
 }
 
 /* ---- Sim_ProcessSimSchedules__Fv  [SIM.CPP:312-531] SLD-VERIFIED ---- */
+/* PASS (201/201 insns). The `firstSfx` loop invariant must be declared inside
+ * the `i < 4` block: that SLD-confirmed scope keeps its `$s1` initialization
+ * after the branch and lets gcc fill the branch delay slot with the speculative
+ * `%hi(simGlobal)` load used by the no-loop path. */
 void Sim_ProcessSimSchedules(void)
 
 {
@@ -150,9 +154,9 @@ void Sim_ProcessSimSchedules(void)
       i = 0;
 countdown_index_ready:
       {
-        int firstSfx = 0x23;
-
         if (i < 4) {
+          int firstSfx = 0x23;
+
           do {
             AudioCmn_GetAsyncSfx(2,i + firstSfx,false);
             i = i + 1;

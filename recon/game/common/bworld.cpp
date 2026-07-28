@@ -560,91 +560,98 @@ void * BWorld_IsSliceInBuildList(int slice)
 /* ---- BWorld_OnyxBuildFacets__FP13DRender_tView  [@0x8007e0f4] ---- */
 void BWorld_OnyxBuildFacets(DRender_tView *Vi)
 {
-  Draw_DCache*sd;
-  Draw_tGiveShelbyMoreCache *cache;
+  Draw_DCache *sd;
   CTrackSpec *ts;
-  short a;
-  u_char ac;
-  u_char bc;
-  u_char cc;
-  u_char dc;
-  int buildInd;
-  Chunk*chunkPtr;
-  int chunkInd;
-  u_short uVar1;
-  u_long uVar2;
+  u_short fogStart;
+  u_short fogDist;
+  u_char fogState;
+  int time;
   void *pvVar3;
-  int iVar4;
-  int *piVar5;
   
   Chunk_UpdateSys(Vi);
   gVi2 = Vi;
   gWSavePtr = (u_long)SetSp((void *)0x1f8003fc);
   stackSpeedUpEnbabledFlag = 1;
-  SetupBuildMatrices(gVi2,(Draw_DCache *)&Render_gPalettePtr);
-  DrawW_WorldSetUpMatrix(&gWorldMat,&Render_gWorldMat);
+  SetupBuildMatrices(gVi2,(Draw_DCache *)0x1f800000);
+  DrawW_WorldSetUpMatrix(&gWorldMat,(MATRIX *)0x1f800014);
   BWorld_gChunkCount = SetupChunkBuildList(gVi2);
+  sd = (Draw_DCache *)0x1f800000;
   gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
-  stackSpeedUpEnbabledFlag = 0;
   /* @0x8007E17C-1F4: the Onyx scratchpad (Draw_tGiveShelbyMoreCache @0x1F800000) gets the fog + night
    * params. startfog/distfog@+0xDC/+0xDE come from TrackSpec_gSpec's INT fog fields read as HALFWORDS
    * (lhu) [the 0xDC/0xDE slots are also read back as Skid_gScratchPos1/2 in draww.cpp]; fogstate@+0x10E
    * from the fogstate short's low byte (lbu). Ghidra AND IDA both constant-fold TrackSpec_gSpec (BSS-zero)
    * to 0 here -- RAW oracle wins (methodology 3.2c). One 0x1F800000 base ($s2) is CSE'd across every
-   * scratchpad store (base+displacement), NOT a per-store lui. */
-  cache = (Draw_tGiveShelbyMoreCache *)0x1f800000;
+  * scratchpad store (base+displacement), NOT a per-store lui. */
   ts = &TrackSpec_gSpec;
-  cache->startfog = *(u_short *)&ts->fogspec.start;
-  cache->distfog  = *(u_short *)&ts->fogspec.dist2base;
-  cache->fogstate = (u_char)ts->fogstate;
-  uVar1 = 0;
-  if (GameSetup_gData.Time != 0) {
-    cache->night_ZNear = (short)Night_gZNear;
-    cache->night_XDistShift = (u_char)Night_gXDistShift;
-    cache->night_ZDistShift = (u_char)Night_gZDistShift;
-    cache->night_DrawLightning = (u_char)Night_gDrawLightning;
-    cache->night_LightningType = (u_char)Night_gLightningType;
-    uVar1 = (u_short)Night_gZNear;
+  fogStart = *(u_short *)&ts->fogspec.start;
+  fogDist = *(u_short *)&ts->fogspec.dist2base;
+  fogState = (u_char)ts->fogstate;
+  time = GameSetup_gData.Time;
+  stackSpeedUpEnbabledFlag = 0;
+  ((Draw_tGiveShelbyMoreCache *)sd)->startfog = fogStart;
+  ((Draw_tGiveShelbyMoreCache *)sd)->distfog  = fogDist;
+  ((Draw_tGiveShelbyMoreCache *)sd)->fogstate = fogState;
+  if (time != 0) {
+    short a;
+    u_char ac;
+    u_char bc;
+    u_char cc;
+    u_char dc;
+
+    a = (short)Night_gZNear;
+    ac = (u_char)Night_gXDistShift;
+    bc = (u_char)Night_gZDistShift;
+    cc = (u_char)Night_gDrawLightning;
+    dc = (u_char)Night_gLightningType;
+    ((Draw_tGiveShelbyMoreCache *)sd)->night_ZNear = a;
+    ((Draw_tGiveShelbyMoreCache *)sd)->night_XDistShift = ac;
+    ((Draw_tGiveShelbyMoreCache *)sd)->night_ZDistShift = bc;
+    ((Draw_tGiveShelbyMoreCache *)sd)->night_DrawLightning = cc;
+    ((Draw_tGiveShelbyMoreCache *)sd)->night_LightningType = dc;
   }
-  uVar2 = (u_long)uVar1;
   gWSavePtr = (u_long)SetSp((void *)0x1f8003fc);
   stackSpeedUpEnbabledFlag = 1;
   DrawW_DoTrough(Vi,(tBuildEntry *)BWorld_gChunkBuildList);
   gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
   stackSpeedUpEnbabledFlag = 0;
-  if ((GameSetup_gData.track != 0) ||
-     (uVar2 = GameSetup_gData.Weather, GameSetup_gData.Weather != 1)) {
+  if (GameSetup_gData.track == 0 && GameSetup_gData.Weather == 1) goto NO_LINES;
+  {
     gWSavePtr = (u_long)SetSp((void *)0x1f8003fc);
     stackSpeedUpEnbabledFlag = 1;
-    DrawW_DoLines(Vi,(tBuildEntry *)BWorld_gChunkBuildList,(Draw_DCache *)&Render_gPalettePtr);
+    DrawW_DoLines(Vi,(tBuildEntry *)BWorld_gChunkBuildList,sd);
     gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
+    stackSpeedUpEnbabledFlag = 0;
   }
-  stackSpeedUpEnbabledFlag = 0;
-  if ((gSpikeBelt != 0) && (iVar4 = 0, 0 < BWorld_gChunkCount)) {
-    piVar5 = BWorld_gChunkBuildList;
-    do {
-      if ((short)*piVar5 == gSpikeBeltChunk) {
-        DrawW_BuildSpikeBelt(Vi,gSpikeBeltWidth,(Draw_DCache *)&Render_gPalettePtr);
+NO_LINES:
+  if (gSpikeBelt != 0) {
+    int buildInd;
+
+    for (buildInd = 0; buildInd < BWorld_gChunkCount; buildInd = buildInd + 1) {
+      if (((tBuildEntry *)BWorld_gChunkBuildList)[buildInd].chunkInd == gSpikeBeltChunk) {
+        DrawW_BuildSpikeBelt(Vi,gSpikeBeltWidth,sd);
       }
-      iVar4 = iVar4 + 1;
-      piVar5 = piVar5 + 1;
-    } while (iVar4 < BWorld_gChunkCount);
+    }
   }
-  iVar4 = 0;
   if (GameSetup_gData.commMode == 0) {
-    piVar5 = BWorld_gChunkBuildList;
-    for (; iVar4 < BWorld_gChunkCount; iVar4 = iVar4 + 1) {
-      if (Track_chunkList[(short)*piVar5].sfxBuf != (Group *)0x0) {
-        BWorld_BuildGlareEffects(Vi,(Draw_DCache *)cache,Track_chunkList[(short)*piVar5].sfxBuf);
+    int buildInd;
+
+    for (buildInd = 0; buildInd < BWorld_gChunkCount; buildInd = buildInd + 1) {
+      Chunk *chunkPtr;
+      int chunkInd;
+
+      chunkInd = ((tBuildEntry *)BWorld_gChunkBuildList)[buildInd].chunkInd;
+      chunkPtr = Track_chunkList + chunkInd;
+      if (chunkPtr->sfxBuf != (Group *)0x0) {
+        BWorld_BuildGlareEffects(Vi,sd,chunkPtr->sfxBuf);
       }
-      piVar5 = piVar5 + 1;
     }
   }
   if ((Object_customSFXInst != (Group *)0x0) &&
      (pvVar3 = BWorld_IsSliceInBuildList(Object_customSliceNum), pvVar3 != (void *)0x0)) {
-    BWorld_BuildGlareEffects(Vi,(Draw_DCache *)cache,Object_customSFXInst);
+    BWorld_BuildGlareEffects(Vi,sd,Object_customSFXInst);
   }
-  DrawW_WorldSetUpMatrix(&gWorldMat,&Render_gWorldMat);
+  DrawW_WorldSetUpMatrix(&gWorldMat,&sd->matB);
   DrawW_DoObjects(Vi,(tBuildEntry *)BWorld_gChunkBuildList);
   return;
 }

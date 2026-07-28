@@ -1531,6 +1531,11 @@ struct Draw_CarVertex {   /* 8 bytes */
 
 struct Group {   /* 4 bytes */
     int                m_num_elements;   /* +0x0 */
+
+    inline void *GetData(void)
+    {
+        return this + 1;
+    }
 };
 
 struct Trk_ObjectDef {   /* 4 bytes */

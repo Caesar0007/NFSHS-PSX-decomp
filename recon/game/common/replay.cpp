@@ -38,22 +38,22 @@ char * Replay_Compress(char *uncompressed_data)
 
 {
   /* SYM lists exactly five source locals: i, done, count, c_pointer, and begin_byte.
-   * `write` and `end` expose the two strength-reduced address cursors that retail keeps
-   * alongside c_pointer; neither is emitted as a named debug local. */
+   * The marker and paired end cursors expose unnamed retail invariant temporaries; the
+   * duplicated end value is required for the inner and outer pointer comparisons. */
   int i;
   int done;
   int count;
   register int c_pointer;
   char begin_byte;
   char marker;
-  char *write;
   char *end;
+  char *innerEnd;
 
   done = 0;
   c_pointer = 1;
   marker = (char)0xff;
-  write = compressed_data + 1;
   end = uncompressed_data + 0x20;
+  innerEnd = end;
   do {
     begin_byte = *uncompressed_data;
     count = 0;
@@ -61,10 +61,9 @@ char * Replay_Compress(char *uncompressed_data)
       uncompressed_data = uncompressed_data + 1;
       count = count + 1;
     } while ((*uncompressed_data == begin_byte) &&
-             ((int)uncompressed_data < (int)end));
+             ((int)uncompressed_data < (int)innerEnd));
     if (count >= 3) {
-      *write = marker;
-      write = write + 3;
+      compressed_data[c_pointer] = marker;
       compressed_data[c_pointer + 1] = (char)count;
       compressed_data[c_pointer + 2] = begin_byte;
       c_pointer = c_pointer + 3;
@@ -73,8 +72,7 @@ char * Replay_Compress(char *uncompressed_data)
       i = 0;
       if (0 < count) {
         do {
-          *write = begin_byte;
-          write = write + 1;
+          compressed_data[c_pointer] = begin_byte;
           c_pointer = c_pointer + 1;
           i = i + 1;
         } while (i < count);
@@ -83,12 +81,10 @@ char * Replay_Compress(char *uncompressed_data)
     if ((int)end <= (int)uncompressed_data) {
       done = 1;
     }
-    if (done) {
-      compressed_data[0] = (char)c_pointer;
-      compressed_data[c_pointer] = '\0';
-      return compressed_data;
-    }
-  } while( true );
+  } while (!done);
+  compressed_data[0] = (char)c_pointer;
+  compressed_data[c_pointer] = '\0';
+  return compressed_data;
 }
 
 /* ---- Replay_Decompress__FPc  [REPLAY.CPP:127-161] SLD-VERIFIED ---- */

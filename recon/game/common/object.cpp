@@ -573,7 +573,7 @@ int Object_AddCustomSimObject(SceneElem *objectData,int serialNum,int instIndex)
   coorddef pt;
   
   if (objectData->type == 0) {
-    simObj = (Trk_SimObject *)(Object_customSimObjs + 1) +
+    simObj = (Trk_SimObject *)Object_customSimObjs->GetData() +
              Object_customSimObjs->m_num_elements;
     simObj->point[0] = objectData->cp.x;
     simObj->point[1] = objectData->cp.y;
@@ -590,10 +590,10 @@ int Object_AddCustomSimObject(SceneElem *objectData,int serialNum,int instIndex)
     SetCautionSurface(&pt,&slicePos);
     pt.z = pt.z + 0x80000;
     SetCautionSurface(&pt,&slicePos);
-    simObj->serialNum = (short)serialNum + 400;
-    simObj->radius = (short)(objectData->scalar2 >> 9);
-    Object_customSliceNum = (int)slicePos.slice;
-    simObj->instIndex = (char)instIndex + -0x80;
+    Object_customSliceNum = slicePos.slice;
+    simObj->radius = objectData->scalar2 >> 9;
+    simObj->serialNum = serialNum + 400;
+    simObj->instIndex = instIndex - 0x80;
     if (objectData->scalar1 < 9) {
       simObj->type = 2;
     } else {

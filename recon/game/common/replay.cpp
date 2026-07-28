@@ -385,35 +385,27 @@ tControllerData Replay_RetreivingControllerData(void)
 void Replay_SaveInput(int car)
 
 {
-  int iVar1;
-  int steer_q;
-  int *ctr_ptr;
-  Car_tObj **car_walk;
-
   Input_Fetch(car);
-  ctr_ptr = Replay_ReplayCounter + car;
-  steer_q = (int)(signed char)Input_gSim.steering;
-  if (steer_q < 0) {
-    steer_q = steer_q + 3;
+  controlData[car].steering[Replay_ReplayCounter[car]] =
+      (char)((int)(signed char)Input_gSim.steering / 4) + '@';
+  controlData[car].gas[Replay_ReplayCounter[car]] = Input_gSim.gas >> 3;
+  controlData[car].brake[Replay_ReplayCounter[car]] = Input_gSim.brake >> 3;
+  controlData[car].states[Replay_ReplayCounter[car]] = Input_gSim.flags;
+  if (Cars_gHumanRaceCarList[car]->carInfo->RampSteering != 0) {
+    controlData[car].steering[Replay_ReplayCounter[car]] =
+        controlData[car].steering[Replay_ReplayCounter[car]] | 0x80;
   }
-  controlData[car].steering[*ctr_ptr] = (char)(steer_q >> 2) + '@';
-  controlData[car].gas[*ctr_ptr] = Input_gSim.gas >> 3;
-  controlData[car].brake[*ctr_ptr] = Input_gSim.brake >> 3;
-  controlData[car].states[*ctr_ptr] = Input_gSim.flags;
-  car_walk = Cars_gHumanRaceCarList + car;
-  if ((*car_walk)->carInfo->RampSteering != 0) {
-    controlData[car].steering[*ctr_ptr] = controlData[car].steering[*ctr_ptr] | 0x80;
+  if (Cars_gHumanRaceCarList[car]->carInfo->RampGas != 0) {
+    controlData[car].gas[Replay_ReplayCounter[car]] =
+        controlData[car].gas[Replay_ReplayCounter[car]] | 0x80;
   }
-  if ((*car_walk)->carInfo->RampGas != 0) {
-    controlData[car].gas[*ctr_ptr] = controlData[car].gas[*ctr_ptr] | 0x80;
+  if (Cars_gHumanRaceCarList[car]->carInfo->RampBrake != 0) {
+    controlData[car].brake[Replay_ReplayCounter[car]] =
+        controlData[car].brake[Replay_ReplayCounter[car]] | 0x80;
   }
-  if ((*car_walk)->carInfo->RampBrake != 0) {
-    controlData[car].brake[*ctr_ptr] = controlData[car].brake[*ctr_ptr] | 0x80;
-  }
-  iVar1 = *ctr_ptr;
-  *ctr_ptr = iVar1 + 1;
-  if (iVar1 + 1 == 0x20) {
-    *ctr_ptr = 0;
+  Replay_ReplayCounter[car] = Replay_ReplayCounter[car] + 1;
+  if (Replay_ReplayCounter[car] == 0x20) {
+    Replay_ReplayCounter[car] = 0;
     Replay_StoringControllerData(controlData[car]);
   }
   return;

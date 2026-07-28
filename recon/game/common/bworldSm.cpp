@@ -920,15 +920,20 @@ void NormalCache_AddEntry(BWorldSm_Pos *slicePos)
 }
 
 /* ---- NormalCache_FindEntry__FP12BWorldSm_Pos  [@0x800800e8] ---- */
+/* NEAR-MISS 3 diffs (50/49 insns), reduced from 4. Forming the byte-field
+ * cursor in two steps keeps the relocation anchored at BWSM_NormalCache and
+ * preserves IDA/SLD's ce=$a2, flags=$a1 allocation. The remaining difference
+ * is one redundant base copy before the +2 adjustment. */
 bool NormalCache_FindEntry(BWorldSm_Pos *slicePos)
 {
-  register u_char *cacheFlags;
+  u_char *cacheFlags;
   tNormalCacheEntry *ce;
   int slice;
   int quad;
   int i;
 
-  cacheFlags = &BWSM_NormalCache[0].triangleFlag;
+  cacheFlags = (u_char *)BWSM_NormalCache;
+  cacheFlags = cacheFlags + 2;
   ce = BWSM_NormalCache;
   i = 0;
   BWSM_NormalCacheSysTime = BWSM_NormalCacheSysTime + 1;

@@ -54,7 +54,6 @@ extern "C" void ___22ObjectFinishedSignAnim(ObjectFinishedSignAnim *pThis,int __
 extern "C" void ___15ObjectMultiAnim(ObjectMultiAnim *pThis,int __in_chrg);
 extern "C" void ___23ObjectFinishedMultiAnim(ObjectFinishedMultiAnim *pThis,int __in_chrg);
 
-
 /* ---- CalcObjYawAngle  [OBJECT.CPP:69-74] SLD-VERIFIED ---- */
 
 
@@ -645,121 +644,135 @@ notFound:
 void Object_AddCustomObject(SceneElem *objectData,int setupSimDataFlag)
 
 {
-  short sVar1;
-  u_char groupFlag;
-  AIHigh_Traffic *aicar;
-  Car_tObj *carObj;
-  SceneElem *accidentData;
-  Group *objDefs;
-  Trk_CollideBoomInst *objBoomInstance;
-  int newInd;
-  int index;
-  int iVar3;
-  Car_tObj **ppCVar4;
-  int i;
-  Group *sfxInstance;
-  Group *pThis;
-  tQuat quat;
+  int type;
 
-  pThis = Object_customSFXInst;
-  iVar3 = objectData->type;
-  if (iVar3 == 1) {
-    i = 0;
-    if (((objectData->subType == 0) && (Cars_gNumTrafficCars != 0)) && (0 < Cars_gNumTrafficCars)) {
-      ppCVar4 = Cars_gTrafficCarList;
-      do {
-        if ((((*ppCVar4)->carFlags & 0x400U) == 0) &&
-           ((int)((*ppCVar4)->render).currentCarType == objectData->scalar3)) break;
-        i = i + 1;
-        ppCVar4 = ppCVar4 + 1;
-      } while (i < Cars_gNumTrafficCars);
-      if (i < Cars_gNumTrafficCars) {
-        carObj = Cars_gTrafficCarList[i];
-        accidentData = objectData;
-        aicar = highLevelAIObjs[carObj->carIndex];
-        aicar->accidentData_ = accidentData;
-      }
-    }
+  type = objectData->type;
+  if (type == 1) {
+    goto traffic_object;
   }
-  else if (iVar3 < 2) {
-    if (iVar3 == 0) {
-      newInd = Object_customObjInst->m_num_elements + -1;
-      pThis = Object_customObjInst + 1;
-      if (newInd != -1) {
+  if (type < 2) {
+    if (type == 0) {
+      goto custom_object;
+    }
+    goto done;
+  }
+  if (type == 2) {
+    goto sfx_object;
+  }
+  goto done;
+custom_object:
+    {
+      Trk_CollideBoomInst *objBoomInstance;
+      int index;
+      tQuat quat;
+
+      index = Object_customObjInst->GetNumElements();
+      objBoomInstance = (Trk_CollideBoomInst *)(Object_customObjInst + 1);
+      index--;
+      if (index != -1) {
+        short size;
+
+        size = (short)Object_customObjInst[1].m_num_elements;
         do {
-          newInd = newInd + -1;
-          pThis = (Group *)((int)&pThis->m_num_elements +
-                            (int)(short)Object_customObjInst[1].m_num_elements);
-        } while (newInd != -1);
+          index--;
+          objBoomInstance = (Trk_CollideBoomInst *)((char *)objBoomInstance + size);
+        } while (index != -1);
       }
-      *(short *)&pThis->m_num_elements = 0x24;
-      groupFlag = 5;
-      if (8 < objectData->scalar1) {
-        groupFlag = 2;
+      objBoomInstance->size = sizeof(Trk_CollideBoomInst);
+      if (objectData->scalar1 < 9) {
+        objBoomInstance->type = 5;
       }
-      *(u_char *)((int)&pThis->m_num_elements + 2) = groupFlag;
-      *(char *)&pThis[1].m_num_elements = 3;
-      *(char *)((int)&pThis[1].m_num_elements + 1) = 0;
-      pThis[2].m_num_elements = (objectData->cp).x;
-      pThis[3].m_num_elements = (objectData->cp).y;
-      iVar3 = (objectData->cp).z;
-      *(char *)((int)&pThis->m_num_elements + 3) = 0;
-      objDefs = gPersistObjDef;
-      pThis[4].m_num_elements = iVar3;
-      index = objectData->subTypeIndex;
-      sVar1 = (short)index;
-      *(short *)((int)&pThis[1].m_num_elements + 2) = sVar1;
-      if (objDefs->m_num_elements <= (int)sVar1) {
-        *(short *)((int)&pThis[1].m_num_elements + 2) = 0;
+      else {
+        objBoomInstance->type = 2;
+      }
+      objBoomInstance->zoffset = 3;
+      objBoomInstance->flags = 0;
+      objBoomInstance->x = objectData->cp.x;
+      objBoomInstance->y = objectData->cp.y;
+      objBoomInstance->z = objectData->cp.z;
+      objBoomInstance->objectIndex = 0;
+      objBoomInstance->pad = (short)objectData->subTypeIndex;
+      if (objBoomInstance->pad >= gPersistObjDef->m_num_elements) {
+        objBoomInstance->pad = 0;
       }
       if ((objectData->committed != 0) && (objectData->visible != 0)) {
-        iVar3 = Object_GetObjDefID((int)*(short *)((int)&pThis[1].m_num_elements + 2));
-        if (iVar3 != objectData->scalar1) {
+        if (Object_GetObjDefID(objBoomInstance->pad) != objectData->scalar1) {
+          int newInd;
+
           Object_FindDefWithThisID(objectData->scalar1);
-          iVar3 = Object_FindDefWithThisID(objectData->scalar1);
-          if (iVar3 == -1) {
-            iVar3 = Object_GetObjDefID((int)*(short *)((int)&pThis[1].m_num_elements + 2));
-            objectData->scalar1 = iVar3;
+          newInd = Object_FindDefWithThisID(objectData->scalar1);
+          if (newInd != -1) {
+            objBoomInstance->pad = (short)newInd;
+            objectData->subTypeIndex = newInd;
+            Object_FindDefWithThisID(objectData->scalar1);
           }
           else {
-            *(short *)((int)&pThis[1].m_num_elements + 2) = (short)iVar3;
-            objectData->subTypeIndex = iVar3;
-            Object_FindDefWithThisID(objectData->scalar1);
+            objectData->scalar1 = Object_GetObjDefID(objBoomInstance->pad);
           }
         }
       }
-      objBoomInstance = (Trk_CollideBoomInst *)pThis;
       Quatern_MatToQuat(&objectData->orient,&quat);
       objBoomInstance->qw = quat.w;
       objBoomInstance->qx = quat.x;
       objBoomInstance->qy = quat.y;
+      objBoomInstance->qz = quat.z;
       objBoomInstance->sx = 0x100;
       objBoomInstance->sy = 0x100;
       objBoomInstance->sz = 0x100;
-      objBoomInstance->qz = quat.z;
-      if (setupSimDataFlag == 0) {
-        *(char *)((int)&pThis[8].m_num_elements + 2) = 0;
-        *(char *)((int)&pThis[8].m_num_elements + 3) = 0;
+      if (setupSimDataFlag != 0) {
+        objBoomInstance->simIndex =
+            Object_AddCustomSimObject(objectData,Object_customObjInst->m_num_elements,
+                                      Object_customObjInst->m_num_elements);
+        objBoomInstance->boomIndex = (u_char)objectData->scalar1;
       }
       else {
-        iVar3 = Object_AddCustomSimObject(objectData,Object_customObjInst->m_num_elements,
-                                          Object_customObjInst->m_num_elements);
-        *(char *)((int)&pThis[8].m_num_elements + 2) = (char)iVar3;
-        *(char *)((int)&pThis[8].m_num_elements + 3) = (char)objectData->scalar1;
+        objBoomInstance->simIndex = 0;
+        objBoomInstance->boomIndex = 0;
       }
-      Object_customObjInst->m_num_elements = Object_customObjInst->m_num_elements + 1;
+      Object_customObjInst->m_num_elements++;
     }
-  }
-  else if (iVar3 == 2) {
-    sfxInstance = Object_customSFXInst + Object_customSFXInst->m_num_elements * 4 + 1;
-    sfxInstance->m_num_elements = (objectData->cp).x;
-    sfxInstance[1].m_num_elements = (objectData->cp).y;
-    sfxInstance[2].m_num_elements = (objectData->cp).z;
-    iVar3 = objectData->subType;
-    *(short *)((int)&sfxInstance[3].m_num_elements + 2) = 0;
-    *(short *)&sfxInstance[3].m_num_elements = (short)iVar3;
-    pThis->m_num_elements = pThis->m_num_elements + 1;
-  }
+    goto done;
+sfx_object:
+    {
+      Trk_SFX *sfxInstance;
+
+      sfxInstance = (Trk_SFX *)Object_customSFXInst->GetData() +
+                    Object_customSFXInst->m_num_elements;
+      sfxInstance->point[0] = objectData->cp.x;
+      sfxInstance->point[1] = objectData->cp.y;
+      sfxInstance->point[2] = objectData->cp.z;
+      sfxInstance->type = (short)objectData->subType;
+      sfxInstance->pad = 0;
+      Object_customSFXInst->m_num_elements++;
+    }
+    goto done;
+traffic_object:
+    {
+      int i;
+      Car_tObj *carObj;
+
+      i = 0;
+      if (((objectData->subType == 0) && (Cars_gNumTrafficCars != 0)) &&
+          (i < Cars_gNumTrafficCars)) {
+        for (i = 0; i < Cars_gNumTrafficCars; i++) {
+          if (((Cars_gTrafficCarList[i]->carFlags & 0x400U) == 0) &&
+              ((int)Cars_gTrafficCarList[i]->render.currentCarType ==
+               objectData->scalar3)) {
+            break;
+          }
+        }
+        if (i < Cars_gNumTrafficCars) {
+          AIHigh_Traffic *aicar;
+          SceneElem *accidentData;
+
+          carObj = Cars_gTrafficCarList[i];
+          aicar = highLevelAIObjs[carObj->carIndex];
+          accidentData = objectData;
+          aicar->accidentData_ = accidentData;
+        }
+      }
+    }
+done:
   return;
 }
 

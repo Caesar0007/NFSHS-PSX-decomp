@@ -704,61 +704,28 @@ void SetContext(int contextHandle)
 }
 
 /* ---- BWorld_OpenContext__Fii  [@0x8007e4ac] ---- */
-/* NEAR-MISS 47 diffs (41/46 insns), reduced from a baseline of 88 diffs (50/46 insns).
- * Two REAL bugs fixed: (1) the context-slot pointer (pBVar4) was being recomputed from
- * scratch via a second `gContextMan.contexts[iVar2]` index for the post-if-else
- * chunkFarZClipSq/lowDetailDistSq stores instead of reusing the SAME pointer the
- * if/else already used for polyFarZClipSq/lineFarZClipSq -- oracle keeps ONE pointer
- * (`a0`) alive for the whole function body; (2) `pBVar4->client = client` was
- * duplicated into both if/else branches instead of being the single unconditional
- * store the oracle emits once (in the first branch's delay slot) before either type
- * check. Fixing both took this 88->47 diffs and dropped insn count from 50 (over
- * oracle's 46) to 41 (under it). Field-value<->offset mapping cross-verified against
- * this same function's raw oracle (0x8C=chunkFarZClipSq, 0x90=polyFarZClipSq,
- * 0x94=lowDetailDistSq, 0x98=lineFarZClipSq) -- also used to fix BWorld_InitContexts'
- * wrong field name (see its comment below).
- * REMAINING 47 diffs are ALL ONE root cause: the context-slot pointer colors into
- * gcc's `v1` here vs the oracle's `a0`; every downstream instruction that touches the
- * pointer (the two field-group stores, the T0/T1 branch's delay-slot store, and the
- * final count-save-then-increment tail) inherits the same register swap, which is
- * why the diff count looks large but is a single coloring difference, confirmed via
- * SequenceMatcher opcode diff (all hunks re-encode the identical `v1<->a0` swap).
- * Levers tried: explicit `int type = contextType` save-out before the pointer calc
- * (mirrors oracle's own first `addu a2,a0,zero`), array-subscript vs pointer-arith
- * addressing for pBVar4, `contextType==1`-positive-branch goto form vs `!=1` -- none
- * changed the coloring (gcc-2.8.0 -O2 register allocator tie-break; IsSliceInBuildList/
- * InitContexts, cited here previously as the same class, have since sealed 0-diff via a
- * dual-materialization / named-constant-order fix -- this fn's v1-vs-a0 pointer coloring
- * did not respond to the analogous levers and remains a near-miss). ACCEPT. */
 int BWorld_OpenContext(int contextType,int client)
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  BW_tContext *pBVar4;
+  BW_tContext *context;
 
-  pBVar4 = gContextMan.contexts + gContextMan.count;
-  pBVar4->slicePos.slice = 0;
-  pBVar4->client = client;
-  if (contextType == 0) goto LAB_type0;
-  if (contextType != 1) goto LAB_8007e54c;
-  iVar3 = 0x52210;
-  pBVar4->polyFarZClipSq = 0x44944;
-  pBVar4->lineFarZClipSq = 10000;
-  iVar1 = 0x8d04;
-  goto LAB_join;
-LAB_type0:
-  iVar3 = 0xcea40;
-  pBVar4->polyFarZClipSq = 640000;
-  pBVar4->lineFarZClipSq = 0x4c90;
-  iVar1 = 0xe100;
-LAB_join:
-  pBVar4->chunkFarZClipSq = iVar3;
-  pBVar4->lowDetailDistSq = iVar1;
-LAB_8007e54c:
-  iVar2 = gContextMan.count;
-  gContextMan.count = gContextMan.count + 1;
-  return iVar2;
+  context = gContextMan.contexts + gContextMan.count;
+  context->slicePos.slice = 0;
+  context->client = client;
+  switch (contextType) {
+    case 0:
+      context->chunkFarZClipSq = 0xcea40;
+      context->polyFarZClipSq = 640000;
+      context->lineFarZClipSq = 0x4c90;
+      context->lowDetailDistSq = 0xe100;
+      break;
+    case 1:
+      context->chunkFarZClipSq = 0x52210;
+      context->polyFarZClipSq = 0x44944;
+      context->lineFarZClipSq = 10000;
+      context->lowDetailDistSq = 0x8d04;
+      break;
+  }
+  return gContextMan.count++;
 }
 
 /* ---- BWorld_Restart__Fv  [@0x8007e564] ---- */

@@ -634,28 +634,32 @@ extern "C" int Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coord
 
 {
   int elevation;
-  int r1;
-  int r2;
-  int r3;
-  int surfaceType;
-  int r4;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  u_int uVar4;
-  u_int uVar5;
-  int iVar6;
-  
-  iVar1 = *(int *)(newtonObj + 0x154);
-  iVar2 = *(int *)(newtonObj + 0x150);
-  iVar3 = *(int *)(newtonObj + 0x158);
-  normal->y = iVar1;
-  normal->x = iVar2;
-  normal->z = iVar3;
-  if (0x199a <= iVar1) {
-    iVar1 = Newton_FindGroundElevationGeneral((coorddef *)(newtonObj + 0xa0),normal,(coorddef *)(newtonObj + 0x168));
-    uVar4 = *(u_int *)(newtonObj + 0xa0);
-    uVar5 = *(u_int *)(newtonObj + 0xa8);
+
+  {
+    int r1;
+    int r2;
+    int r3;
+
+    r2 = *(int *)(newtonObj + 0x154);
+    r1 = *(int *)(newtonObj + 0x150);
+    r3 = *(int *)(newtonObj + 0x158);
+    normal->y = r2;
+    normal->x = r1;
+    normal->z = r3;
+    if (0x199a <= r2) {
+      int surfaceType;
+      elevation = Newton_FindGroundElevationGeneral(
+          (coorddef *)(newtonObj + 0xa0),normal,
+          (coorddef *)(newtonObj + 0x168));
+      surfaceType = 0;
+      {
+        int r2;
+        int r3;
+        int r4;
+
+        r2 = *(int *)(newtonObj + 0xa0);
+        r3 = *(int *)(newtonObj + 0xa8);
+        r4 = elevation;
     *(u_int *)(newtonObj + 0x2ac) = 0;
     *(u_int *)(newtonObj + 0x2dc) = 0;
     *(u_int *)(newtonObj + 0x30c) = 0;
@@ -664,46 +668,49 @@ extern "C" int Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coord
     *(u_int *)(newtonObj + 0x2e0) = 0;
     *(u_int *)(newtonObj + 0x310) = 0;
     *(u_int *)(newtonObj + 0x340) = 0;
-    *(int *)(newtonObj + 0x290) = iVar1;
-    *(int *)(newtonObj + 0x2c0) = iVar1;
-    *(int *)(newtonObj + 0x2f0) = iVar1;
-    *(int *)(newtonObj + 800) = iVar1;
-    *(int *)(newtonObj + 0x2a4) = iVar1;
-    *(int *)(newtonObj + 0x2d4) = iVar1;
-    *(int *)(newtonObj + 0x304) = iVar1;
-    *(int *)(newtonObj + 0x334) = iVar1;
-    *(u_int *)(newtonObj + 0x28c) = uVar4;
-    *(u_int *)(newtonObj + 700) = uVar4;
-    *(u_int *)(newtonObj + 0x2ec) = uVar4;
-    *(u_int *)(newtonObj + 0x31c) = uVar4;
-    *(u_int *)(newtonObj + 0x294) = uVar5;
-    *(u_int *)(newtonObj + 0x2c4) = uVar5;
-    *(u_int *)(newtonObj + 0x2f4) = uVar5;
-    *(u_int *)(newtonObj + 0x324) = uVar5;
-    iVar3 = normal->x;
-    iVar6 = normal->y;
-    iVar2 = normal->z;
+        *(int *)(newtonObj + 0x290) = r4;
+        *(int *)(newtonObj + 0x2c0) = r4;
+        *(int *)(newtonObj + 0x2f0) = r4;
+        *(int *)(newtonObj + 800) = r4;
+        *(int *)(newtonObj + 0x2a4) = r4;
+        *(int *)(newtonObj + 0x2d4) = r4;
+        *(int *)(newtonObj + 0x304) = r4;
+        *(int *)(newtonObj + 0x334) = r4;
+        *(int *)(newtonObj + 0x28c) = r2;
+        *(int *)(newtonObj + 700) = r2;
+        *(int *)(newtonObj + 0x2ec) = r2;
+        *(int *)(newtonObj + 0x31c) = r2;
+        *(int *)(newtonObj + 0x294) = r3;
+        *(int *)(newtonObj + 0x2c4) = r3;
+        *(int *)(newtonObj + 0x2f4) = r3;
+        *(int *)(newtonObj + 0x324) = r3;
+        r2 = normal->x;
+        r3 = normal->y;
+        r4 = normal->z;
     *(u_int *)(newtonObj + 0x2b8) = 1;
     *(u_int *)(newtonObj + 0x2e8) = 1;
     *(u_int *)(newtonObj + 0x318) = 1;
     *(u_int *)(newtonObj + 0x348) = 1;
-    *(int *)(newtonObj + 0x298) = iVar3;
-    *(int *)(newtonObj + 0x2c8) = iVar3;
-    *(int *)(newtonObj + 0x2f8) = iVar3;
-    *(int *)(newtonObj + 0x328) = iVar3;
-    *(int *)(newtonObj + 0x29c) = iVar6;
-    *(int *)(newtonObj + 0x2cc) = iVar6;
-    *(int *)(newtonObj + 0x2fc) = iVar6;
-    *(int *)(newtonObj + 0x32c) = iVar6;
-    *(int *)(newtonObj + 0x2a0) = iVar2;
-    *(int *)(newtonObj + 0x2d0) = iVar2;
-    *(int *)(newtonObj + 0x300) = iVar2;
-    *(int *)(newtonObj + 0x330) = iVar2;
+        *(int *)(newtonObj + 0x298) = r2;
+        *(int *)(newtonObj + 0x2c8) = r2;
+        *(int *)(newtonObj + 0x2f8) = r2;
+        *(int *)(newtonObj + 0x328) = r2;
+        *(int *)(newtonObj + 0x29c) = r3;
+        *(int *)(newtonObj + 0x2cc) = r3;
+        *(int *)(newtonObj + 0x2fc) = r3;
+        *(int *)(newtonObj + 0x32c) = r3;
+        *(int *)(newtonObj + 0x2a0) = r4;
+        *(int *)(newtonObj + 0x2d0) = r4;
+        *(int *)(newtonObj + 0x300) = r4;
+        *(int *)(newtonObj + 0x330) = r4;
+      }
+      (void)surfaceType;
+    }
+    else {
+      elevation = -0x7d000000;
+    }
   }
-  else {
-    iVar1 = -0x7d000000;
-  }
-  return iVar1;
+  return elevation;
 }
 
 /* ---- Newton_FindGroundElevationAndNormal__FP13BO_tNewtonObjP8coorddef  [NEWTON.CPP:610-1057] SLD-VERIFIED ---- */

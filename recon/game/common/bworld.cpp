@@ -447,79 +447,87 @@ int GetRezIndex(int dist)
 }
 
 /* ---- SetupChunkBuildList__FP13DRender_tView  [@0x8007dd74] ---- */
+/* NEAR-MISS 7 diffs (202/203 insns), reduced from 273 diffs. JEB recovered
+ * the high-level loop while the SLD scopes/locals and IDA register annotations
+ * established the 144-byte frame and saved-register allocation. Track_gInViewList
+ * is stored as one flat 32-short row table despite its historical short ** type;
+ * the row cast removes a spurious pointer load. Typed Trk_NewSlice indexing and
+ * the source-order `-view + point` coordinate expressions reproduce retail's
+ * address generation and load scheduling. The remaining gap is confined to two
+ * prologue scheduling choices (one temporary register and one load-delay nop). */
 int SetupChunkBuildList(DRender_tView *Vi)
 {
   int chunkInd;
   int chunkCount;
   int totalVisChunks;
-  int viewInd;
-  int chunkDist;
-  coorddef*pChunkCp;
-  Chunk*chunkPtr;
-  coorddef tmpPts[4];
-  coorddef tmp;
-  coorddef tmp2;
-  int iVar1;
-  coorddef *c1;
-  Chunk *s;
-  int *piVar2;
-  u_int uVar3;
-  short *psVar4;
-  int iVar5;
-  int iVar6;
-  coorddef local_80;
-  int local_74;
-  int local_6c;
-  int local_68;
-  int local_60;
-  int local_5c;
-  int local_54;
-  coorddef local_50;
-  coorddef cStack_40;
-  u_int local_30;
-  
-  piVar2 = BWorld_gChunkBuildList;
-  iVar6 = 0;
-  psVar4 = Track_gInViewList[gCurrContext->currentChunk];
-  local_30 = (u_int)Track_gInViewCount[gCurrContext->currentChunk];
-  for (iVar5 = 0; iVar5 < (int)local_30; iVar5 = iVar5 + 1) {
-    uVar3 = (u_short)*psVar4 & 0x3ff;
-    c1 = Chunk_chunkCenters + uVar3;
-    iVar1 = xzsquaredist32(c1,&(Vi->cview).translation);
-    if ((iVar1 <= gCurrContext->chunkFarZClipSq) && ((*psVar4 & 0x800U) == 0)) {
-      local_50.x = c1->x - (Vi->cview).translation.x;
-      local_50.y = *(int *)(uVar3 * 0x100 + BWorldSm_slices + 4) - (Vi->cview).translation.y;
-      local_50.z = c1->z - (Vi->cview).translation.z;
-      s = Track_chunkList + uVar3;
-      TrsProj_SetPsxTransZero();
-      TrsProj_TransPt(&local_50,&cStack_40);
-      TrsProj_SetPsxTrans(&cStack_40);
-      TrsProj_TransPtN16(s->boundPts,&local_80,4);
-      if (((local_80.x <= local_80.z) ||
-          (((local_74 <= local_6c || (local_68 <= local_60)) || (local_5c <= local_54)))) &&
-         (((((-local_80.x <= local_80.z || (-local_74 <= local_6c)) || (-local_68 <= local_60)) ||
-           (-local_5c <= local_54)) &&
-          (((-1 < local_80.z || (-1 < local_6c)) || ((-1 < local_60 || (-1 < local_54)))))))) {
-        *(u_char *)((int)piVar2 + 3) = 3;
-        if (iVar1 < gCurrContext->lineFarZClipSq) {
-          *(u_char *)((int)piVar2 + 3) = 7;
+  volatile tBuildEntry *buildList;
+
+  buildList = (volatile tBuildEntry *)BWorld_gChunkBuildList;
+  {
+    int viewInd;
+    short *viewList;
+
+    viewList =
+        ((short (*)[32])Track_gInViewList)[gCurrContext->currentChunk];
+    totalVisChunks =
+        (int)*(u_char *)((char *)Track_gInViewCount +
+                         gCurrContext->currentChunk);
+    chunkCount = 0;
+    viewInd = chunkCount;
+    for (; viewInd < totalVisChunks; viewInd++) {
+      int chunkDist;
+      coorddef *pChunkCp;
+      Chunk *chunkPtr;
+      coorddef tmpPts[4];
+      coorddef tmp;
+      coorddef tmp2;
+
+      chunkInd = (u_short)*viewList & 0x3ff;
+      pChunkCp = Chunk_chunkCenters + chunkInd;
+      chunkDist = xzsquaredist32(pChunkCp,&Vi->cview.translation);
+      if ((chunkDist <= gCurrContext->chunkFarZClipSq) &&
+          ((*viewList & 0x800U) == 0)) {
+        tmp.x = -Vi->cview.translation.x + pChunkCp->x;
+        tmp.y = -Vi->cview.translation.y +
+                BWorldSm_slices[chunkInd << 3].center[1];
+        tmp.z = -Vi->cview.translation.z + pChunkCp->z;
+        chunkPtr = Track_chunkList + chunkInd;
+        TrsProj_SetPsxTransZero();
+        TrsProj_TransPt(&tmp,&tmp2);
+        TrsProj_SetPsxTrans(&tmp2);
+        TrsProj_TransPtN16(chunkPtr->boundPts,tmpPts,4);
+        if (((tmpPts[0].x <= tmpPts[0].z) ||
+             (tmpPts[1].x <= tmpPts[1].z) ||
+             (tmpPts[2].x <= tmpPts[2].z) ||
+             (tmpPts[3].x <= tmpPts[3].z)) &&
+            ((-tmpPts[0].x <= tmpPts[0].z) ||
+             (-tmpPts[1].x <= tmpPts[1].z) ||
+             (-tmpPts[2].x <= tmpPts[2].z) ||
+             (-tmpPts[3].x <= tmpPts[3].z)) &&
+            ((0 <= tmpPts[0].z) ||
+             (0 <= tmpPts[1].z) ||
+             (0 <= tmpPts[2].z) ||
+             (0 <= tmpPts[3].z))) {
+          buildList->enableBits = 3;
+          if (chunkDist < gCurrContext->lineFarZClipSq) {
+            buildList->enableBits = 7;
+          }
+          if ((*viewList & 0x4000U) != 0) {
+            buildList->enableBits &= 0xfd;
+          }
+          if ((*viewList & 0x2000U) != 0) {
+            buildList->enableBits &= 0xfe;
+          }
+          buildList->geomRez = (char)GetRezIndex(chunkDist);
+          buildList->chunkInd = (short)chunkInd;
+          buildList++;
+          chunkCount++;
         }
-        if ((*psVar4 & 0x4000U) != 0) {
-          *(u_char *)((int)piVar2 + 3) = *(u_char *)((int)piVar2 + 3) & 0xfd;
-        }
-        if ((*psVar4 & 0x2000U) != 0) {
-          *(u_char *)((int)piVar2 + 3) = *(u_char *)((int)piVar2 + 3) & 0xfe;
-        }
-        iVar1 = GetRezIndex(iVar1);
-        *(char *)((int)piVar2 + 2) = (char)iVar1;
-        *(short *)piVar2 = (short)uVar3;
-        piVar2 = piVar2 + 1;
-        iVar6 = iVar6 + 1;
       }
+      viewList++;
     }
-    psVar4 = psVar4 + 1;
   }
-  return iVar6;
+  return chunkCount;
 }
 
 /* ---- BWorld_IsSliceInBuildList__Fi  [@0x8007e0a0] ---- */

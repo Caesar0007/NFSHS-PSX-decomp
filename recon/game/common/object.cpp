@@ -181,9 +181,11 @@ void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *ob
     objList->chunk2 = altChunk;
     *numObj = objList->numObjects + objList->numObjects2;
   } else {
-    altChunk = slicePos->slice - 1;
-    if (altChunk < 0) {
-      altChunk = slicePos->slice + (gNumSlices - 1);
+    if (slicePos->slice - 1 < 0) {
+      altChunk = slicePos->slice + gNumSlices - 1;
+    }
+    else {
+      altChunk = slicePos->slice - 1;
     }
     altChunk = (int)BWorldSm_slices[altChunk].chunkIndex;
     if ((altChunk != slicePos->chunk) &&

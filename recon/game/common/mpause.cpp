@@ -31,6 +31,12 @@ void MPause_StartPauseMenu(void);
 void MPause_EndPauseMenu(void);
 void MPause_KillMPause(void);
 
+/* Preserve the retail currentItem staging ($v1 -> $a1 in the branch delay slot). */
+static inline int MPause_CurrentItem(tPMenu *menu)
+{
+  return menu->fCurrentItem;
+}
+
 
 /* ---- tPauseMenuDefs  [MPAUSE.CPP:172-264] SLD-VERIFIED ---- */
 int tPauseMenuDefs_ct(int param_1)
@@ -350,44 +356,43 @@ MPauseLogic_cmdProcess:
 void MPause_Render(void)
 
 {
-  tPMenu *pThis;  /* folded receiver temp (SYM REG `this`) */
   int numItems;
-  int currentItem;
-  int iVar1;
-  int iVar2;
   
   ChangedEnabling = 0;
-  if ((short)kMovingHighlight < 1) {
-    if ((-1 < (short)kMovingHighlight) ||
-       (kMovingHighlight = kMovingHighlight + kMovingHighlightDir, (int)((u_int)kMovingHighlight << 0x10) < 1))
-    goto MPauseRender_setHighlight;
+  if (kMovingHighlight > 0) {
+    kMovingHighlight += kMovingHighlightDir;
+    if (kMovingHighlight < 0) {
+      kMovingHighlight = 0;
+    }
   }
-  else {
-    kMovingHighlight = kMovingHighlight + kMovingHighlightDir;
-    if (-1 < (int)((u_int)kMovingHighlight << 0x10)) goto MPauseRender_setHighlight;
+  else if (kMovingHighlight < 0) {
+    kMovingHighlight += kMovingHighlightDir;
+    if (kMovingHighlight > 0) {
+      kMovingHighlight = 0;
+    }
   }
-  kMovingHighlight = 0;
-MPauseRender_setHighlight:
-  if (kMovingHighlight == 0) {
-    ((u_int *)gPauseCurrentMenu)[1] = 1;
+
+  if (kMovingHighlight != 0) {
+    gPauseCurrentMenu->fHighlight = 0;
+  } else {
+    gPauseCurrentMenu->fHighlight = 1;
   }
-  else {
-    ((u_int *)gPauseCurrentMenu)[1] = 0;
-  }
+
   (**(int (**)(...))(((u_int *)gPauseCurrentMenu)[0x14] + 0x24))
-            ((int)((u_int *)gPauseCurrentMenu) + (int)*(short *)(((u_int *)gPauseCurrentMenu)[0x14] + 0x20));
-  iVar1 = NumEnabledItems(((u_int *)gPauseCurrentMenu));
-  if (kMovingHighlight == 0) {
-    iVar2 = ItemEnabledNum(((u_int *)gPauseCurrentMenu),*((u_int *)gPauseCurrentMenu));
-    iVar2 = iVar2 * 0xd + 0x6a;
+            ((int)((u_int *)gPauseCurrentMenu) +
+             (int)*(short *)(((u_int *)gPauseCurrentMenu)[0x14] + 0x20));
+  numItems = NumEnabledItems(gPauseCurrentMenu);
+  int currentItem = MPause_CurrentItem(gPauseCurrentMenu);
+  if (kMovingHighlight != 0) {
+    int y = gPauseCurrentMenu->ItemEnabledNum(currentItem) * 0xd;
+    int offset = kMovingHighlight + 0x6a;
+    Hud_FBuildF4(1,0x50,y + offset,0xa0,0xd,0,0,0);
+  } else {
+    Hud_FBuildF4(1,0x50,
+                 gPauseCurrentMenu->ItemEnabledNum(currentItem) * 0xd + 0x6a,
+                 0xa0,0xd,0,0,0);
   }
-  else {
-    iVar2 = ItemEnabledNum(((u_int *)gPauseCurrentMenu),*((u_int *)gPauseCurrentMenu));
-    iVar2 = iVar2 * 0xd + (short)kMovingHighlight + 0x6a;
-  }
-  Hud_FBuildF4(1,0x50,iVar2,0xa0,0xd,0,'\0','\0');
-  Hud_RenderPauseBox(0x50,100,0xa0,(iVar1 + 1) * 0xd + 0x14);
-  return;
+  Hud_RenderPauseBox(0x50,100,0xa0,(numItems + 1) * 0xd + 0x14);
 }
 
 /* ---- MPause_InitMPause__Fv  [MPAUSE.CPP:540-544] SLD-VERIFIED ---- */

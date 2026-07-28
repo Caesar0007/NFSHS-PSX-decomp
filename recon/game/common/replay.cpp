@@ -526,155 +526,104 @@ void Replay_DoReplay(Car_tObj *carObj)
 void Replay_GetInterfaceKey(void)
 
 {
-  bool bVar1;
-  int iVar2;
   int i;
-  int iVar3;
-  Car_tObj **ppCVar4;
-  camera_info *pcVar5;
-  tReplayCameraModes *ptVar6;
   int Cameras;
-  int iVar7;
-  
-  iVar7 = 1;
+
+  Cameras = 1;
   if (GameSetup_gData.commMode == 1) {
-    iVar7 = 2;
+    Cameras = 2;
   }
   Replay_ReplayInterface.changeCamera = 0;
-  if (Replay_ReplayInterface.depressed < 1) {
-    if (Replay_ReplayInterface.statsScreen == 0) {
-      iVar2 = Input_Interface(3,1);
-      if (iVar2 == 0) {
-        iVar2 = Input_Interface(4,1);
-        if (iVar2 == 0) {
-          iVar2 = Input_Interface(5,1);
-          if (iVar2 == 0) {
-            iVar7 = Input_Interface(6,1);
-            if (iVar7 == 0) {
-              iVar7 = Input_Interface(0x19,1);
-              if (iVar7 != 0) {
-                StatsTimer = 0;
-                D_8013D99C = 0;
-                Replay_ReplayInterface.statsScreen = 1;
-                AudioCmn_PlayPauseSound(4);
-              }
+  if (0 < Replay_ReplayInterface.depressed) {
+    Replay_ReplayInterface.depressed = Replay_ReplayInterface.depressed - 1;
+  }
+  else if (Replay_ReplayInterface.statsScreen != 0) {
+    if ((Input_Interface(5,1) != 0) || (Input_Interface(6,1) != 0)) {
+      Replay_ReplayInterface.depressed = 0x18;
+      Replay_ReplayInterface.end = 1;
+    }
+    else if (Input_Interface(0x19,1) != 0) {
+      AudioCmn_PlayPauseSound(4);
+      Replay_ReplayInterface.statsScreen = 0;
+    }
+  }
+  else {
+    if (Input_Interface(3,1) != 0) {
+      AudioCmn_PlayPauseSound(3);
+      if (Replay_ReplayInterface.selection == 0) {
+        Replay_ReplayInterface.selection = 4;
+      }
+      else {
+        Replay_ReplayInterface.selection = Replay_ReplayInterface.selection - 1;
+      }
+    }
+    else if (Input_Interface(4,1) != 0) {
+      AudioCmn_PlayPauseSound(3);
+      Replay_ReplayInterface.selection = (Replay_ReplayInterface.selection + 1) % 5;
+    }
+    else if (Input_Interface(5,1) != 0) {
+      AudioCmn_PlayPauseSound(4);
+      Replay_ReplayInterface.depressed = 8;
+      switch(Replay_ReplayInterface.selection) {
+      case 0:
+        Replay_ReplayInterface.end = 1;
+        GameSetup_gData.instantReplay = 1;
+        break;
+      case 1:
+        Replay_ReplayInterface.end = 1;
+        break;
+      case 2:
+        Replay_ReplayInterface.pause = Replay_ReplayInterface.pause ^ 1;
+        break;
+      case 3:
+        if (GameSetup_gData.commMode == 1) {
+          Replay_ReplayInterface.speed = (Replay_ReplayInterface.speed + 1) % 3;
+        }
+        else {
+          Replay_ReplayInterface.speed = (Replay_ReplayInterface.speed + 1) % 4;
+        }
+        break;
+      case 4:
+        Replay_ReplayInterface.changeCamera = 1;
+        Replay_ReplayInterface.camera = (Replay_ReplayInterface.camera + 1) % 9;
+        if (ReplayCameraList[Replay_ReplayInterface.camera] == 0x13) {
+          for (i = 0; i < Cameras; i++) {
+            if (numValidCams != 0) {
+              Camera_gInfo[i].anchor = &Cars_gHumanRaceCarList[i]->N;
+              Camera_gInfo[i].target = &Cars_gHumanRaceCarList[i]->N;
+              Replay_ReplayFindClosestCamera(
+                  i,(int)Cars_gHumanRaceCarList[i]->N.simRoadInfo.slice);
+              Replay_ReplayCamera[i].cameraMode = 0x13;
             }
             else {
-              Replay_ReplayInterface.depressed = 8;
-              Replay_ReplayInterface.end = 1;
-            }
-          }
-          else {
-            AudioCmn_PlayPauseSound(4);
-            Replay_ReplayInterface.depressed = 8;
-            switch(Replay_ReplayInterface.selection) {
-            case 0:
-              Replay_ReplayInterface.end = 1;
-              GameSetup_gData.instantReplay = 1;
-              break;
-            case 1:
-              Replay_ReplayInterface.end = 1;
-              break;
-            case 2:
-              Replay_ReplayInterface.pause = Replay_ReplayInterface.pause ^ 1;
-              break;
-            case 3:
-              if (GameSetup_gData.commMode == 1) {
-                Replay_ReplayInterface.speed = (Replay_ReplayInterface.speed + 1) % 3;
-              }
-              else {
-                iVar2 = Replay_ReplayInterface.speed + 1;
-                iVar7 = iVar2;
-                if (iVar2 < 0) {
-                  iVar7 = Replay_ReplayInterface.speed + 4;
-                }
-                Replay_ReplayInterface.speed = iVar2 + (iVar7 >> 2) * -4;
-              }
-              break;
-            case 4:
-              Replay_ReplayInterface.changeCamera = 1;
-              Replay_ReplayInterface.camera = (Replay_ReplayInterface.camera + 1) % 9;
-              if (ReplayCameraList[Replay_ReplayInterface.camera] == 0x13) {
-                iVar2 = 0;
-                if (iVar7 != 0) {
-                  ptVar6 = Replay_ReplayCamera;
-                  ppCVar4 = Cars_gHumanRaceCarList;
-                  pcVar5 = Camera_gInfo;
-                  do {
-                    if (numValidCams == 0) {
-                      Camera_SetMode(iVar2,10);
-                    }
-                    else {
-                      pcVar5->anchor = &(*ppCVar4)->N;
-                      pcVar5->target = &(*ppCVar4)->N;
-                      Replay_ReplayFindClosestCamera(iVar2,(int)((*ppCVar4)->N).simRoadInfo.slice);
-                      ptVar6->cameraMode = 0x13;
-                    }
-                    ptVar6 = ptVar6 + 1;
-                    ppCVar4 = ppCVar4 + 1;
-                    iVar2 = iVar2 + 1;
-                    pcVar5 = pcVar5 + 1;
-                  } while (iVar2 < iVar7);
-                }
-              }
-              else if (iVar7 != 0) {
-                ppCVar4 = Cars_gHumanRaceCarList;
-                pcVar5 = Camera_gInfo;
-                ptVar6 = Replay_ReplayCamera;
-                iVar2 = 0;
-                do {
-                  ptVar6->defaultCamera = 0;
-                  pcVar5->twist = 0;
-                  pcVar5->anchor = &(*ppCVar4)->N;
-                  pcVar5->target = &(*ppCVar4)->N;
-                  iVar3 = iVar2 + 1;
-                  Camera_SetMode(iVar2,ReplayCameraList[Replay_ReplayInterface.camera])
-                  ;
-                  ppCVar4 = ppCVar4 + 1;
-                  pcVar5 = pcVar5 + 1;
-                  ptVar6->cameraMode = ReplayCameraList[Replay_ReplayInterface.camera];
-                  ptVar6 = ptVar6 + 1;
-                  iVar2 = iVar3;
-                } while (iVar3 < iVar7);
-              }
+              Camera_SetMode(i,10);
             }
           }
         }
         else {
-          AudioCmn_PlayPauseSound(3);
-          Replay_ReplayInterface.selection = (Replay_ReplayInterface.selection + 1) % 5;
+          for (i = 0; i < Cameras; i++) {
+            Replay_ReplayCamera[i].defaultCamera = 0;
+            Camera_gInfo[i].twist = 0;
+            Camera_gInfo[i].anchor = &Cars_gHumanRaceCarList[i]->N;
+            Camera_gInfo[i].target = &Cars_gHumanRaceCarList[i]->N;
+            Camera_SetMode(i,ReplayCameraList[Replay_ReplayInterface.camera]);
+            Replay_ReplayCamera[i].cameraMode =
+                ReplayCameraList[Replay_ReplayInterface.camera];
+          }
         }
-      }
-      else {
-        AudioCmn_PlayPauseSound(3);
-        bVar1 = Replay_ReplayInterface.selection == 0;
-        Replay_ReplayInterface.selection = Replay_ReplayInterface.selection + -1;
-        if (bVar1) {
-          Replay_ReplayInterface.selection = 4;
-        }
+        break;
       }
     }
-    else {
-      bVar1 = false;
-      iVar7 = Input_Interface(5,1);
-      if ((iVar7 != 0) || (iVar7 = Input_Interface(6,1), iVar7 != 0)) {
-        bVar1 = true;
-      }
-      if (bVar1) {
-        Replay_ReplayInterface.depressed = 0x18;
-        Replay_ReplayInterface.end = 1;
-      }
-      else {
-        iVar7 = Input_Interface(0x19,1);
-        if (iVar7 != 0) {
-          AudioCmn_PlayPauseSound(4);
-          Replay_ReplayInterface.statsScreen = 0;
-        }
-      }
+    else if (Input_Interface(6,1) != 0) {
+      Replay_ReplayInterface.depressed = 8;
+      Replay_ReplayInterface.end = 1;
     }
-  }
-  else {
-    Replay_ReplayInterface.depressed = Replay_ReplayInterface.depressed + -1;
+    else if (Input_Interface(0x19,1) != 0) {
+      StatsTimer = 0;
+      D_8013D99C = 0;
+      Replay_ReplayInterface.statsScreen = 1;
+      AudioCmn_PlayPauseSound(4);
+    }
   }
   if (simVar.quickPauseSim != 0) {
     Camera_Update();

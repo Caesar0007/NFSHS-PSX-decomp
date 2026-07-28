@@ -164,7 +164,6 @@ PER_TU_FLAGS = {
     "recon/syslib/psx/libmcrd/LIBMCRD.c": {"jtbl_at_fusion": True},  # MemCardCmd_cb
     "recon/syslib/psx/libpad/PADENTRY.c":   {"jtbl_at_fusion": True},  # PadInfoAct
     "recon/game/common/r3dcar.cpp":         {"jtbl_at_fusion": True},  # R3DCar_InsertCarFacet
-    "recon/game/common/replay.cpp":         {"jtbl_at_fusion": True},  # Replay_GetInterfaceKey
     "recon/game/psx/sfx.cpp":               {"jtbl_at_fusion": True},  # Sfx_BuildSouffleFacet
     "recon/syslib/psx/libc/SPRINTF.c":      {"jtbl_at_fusion": True},  # sprintf
     # w33-a10: EA's own eaclib PAD.OBJ was built WITHOUT split addresses --

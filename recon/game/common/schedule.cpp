@@ -89,24 +89,22 @@ void Sched_AddFunction(Sched_tSchedule *schedule,fn_void *function,void *var1,in
 
   schedule->numFunctions = schedule->numFunctions + 1;
   i = n = 0;
-  if (0 < schedule->numFunctions) {
-    do {
-      n = i;
-      if (priority < schedule->func[i].priority) {
-        j = schedule->numFunctions + -1;
-        if (n < j) {
-          do {
-            *(Sched_tFunctionSchedule *)
-                ((char *)schedule + j * sizeof(Sched_tFunctionSchedule) + 8) =
-                *(Sched_tFunctionSchedule *)
-                ((char *)schedule + j * sizeof(Sched_tFunctionSchedule) + -8);
-            j = j + -1;
-          } while (i < j);
-        }
-        break;
+  while (i < schedule->numFunctions) {
+    n = i;
+    if (priority < schedule->func[i].priority) {
+      j = schedule->numFunctions + -1;
+      if (n < j) {
+        do {
+          *(Sched_tFunctionSchedule *)
+              ((char *)schedule + j * sizeof(Sched_tFunctionSchedule) + 8) =
+              *(Sched_tFunctionSchedule *)
+              ((char *)schedule + j * sizeof(Sched_tFunctionSchedule) + -8);
+          j = j + -1;
+        } while (i < j);
       }
-      i = n + 1;
-    } while (i < schedule->numFunctions);
+      break;
+    }
+    i = n + 1;
   }
   schedule->func[n].priority = priority;
   schedule->func[n].function = (void *)function;
@@ -125,28 +123,26 @@ void Sched_DeleteFunction(Sched_tSchedule *schedule,fn_void *function,void *var1
   count = schedule->numFunctions;
   if (count != 0) {
     i = 0;
-    if (0 < count) {
-      do {
-        if ((schedule->func[i].function == (void *)function) &&
-            (schedule->func[i].var1 == var1))
-        {
-          j = i;
-          if (j < count + -1) {
-            do {
-              *(Sched_tFunctionSchedule *)
-                  ((char *)schedule +
-                   j * sizeof(Sched_tFunctionSchedule) + 8) =
-                  *(Sched_tFunctionSchedule *)
-                  ((char *)schedule +
-                   j * sizeof(Sched_tFunctionSchedule) + 24);
-              j = j + 1;
-            } while (j < schedule->numFunctions + -1);
-          }
-          break;
+    while (i < count) {
+      if ((schedule->func[i].function == (void *)function) &&
+          (schedule->func[i].var1 == var1))
+      {
+        j = i;
+        if (j < count + -1) {
+          do {
+            *(Sched_tFunctionSchedule *)
+                ((char *)schedule +
+                 j * sizeof(Sched_tFunctionSchedule) + 8) =
+                *(Sched_tFunctionSchedule *)
+                ((char *)schedule +
+                 j * sizeof(Sched_tFunctionSchedule) + 24);
+            j = j + 1;
+          } while (j < schedule->numFunctions + -1);
         }
-        count = schedule->numFunctions;
-        i = i + 1;
-      } while (i < count);
+        break;
+      }
+      count = schedule->numFunctions;
+      i = i + 1;
     }
     schedule->func[schedule->numFunctions].priority = 0x7ffe;
     schedule->numFunctions = schedule->numFunctions + -1;

@@ -140,29 +140,38 @@ void Sim_ProcessSimSchedules(void)
 {
   int i;
 
-  if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
-     (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0 ||
-      ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0)))))) {
+  if (!(((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
+       (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0 ||
+        ((Cars_gNumHumanRaceCars == 2 &&
+          ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0))))))) {
+    if (simGlobal.gameStarted == 0) {
+      i = (u_char)countdown - 1;
+      if (i >= 0) goto countdown_index_ready;
+      i = 0;
+countdown_index_ready:
+      {
+        int firstSfx = 0x23;
+
+        if (i < 4) {
+          do {
+            AudioCmn_GetAsyncSfx(2,i + firstSfx,false);
+            i = i + 1;
+          } while (i < 4);
+        }
+      }
+      if (simGlobal.gameTicks >= counter[(u_char)countdown]) {
+        if (0x1ff < simGlobal.gameTicks) {
+          simGlobal.gameStarted = 1;
+        }
+        AudioCmn_PlaySound(-4,(u_char)countdown + 0x23,0,0x7f,0x40);
+        countdown = countdown + '\x01';
+      }
+      Sim_FadeInSFX();
+    }
+  }
+  else {
     Sim_FadeInSFX();
     simGlobal.gameStarted = 1;
-  }
-  else if (simGlobal.gameStarted == 0) {
-    i = (u_char)countdown - 1;
-    if (i < 0) {
-      i = 0;
-    }
-    while (i < 4) {
-      AudioCmn_GetAsyncSfx(2,i + 0x23,false);
-      i = i + 1;
-    }
-    if (counter[(u_char)countdown] <= simGlobal.gameTicks) {
-      if (0x1ff < simGlobal.gameTicks) {
-        simGlobal.gameStarted = 1;
-      }
-      AudioCmn_PlaySound(-4,(u_char)countdown + 0x23,0,0x7f,0x40);
-      countdown = countdown + '\x01';
-    }
-    Sim_FadeInSFX();
   }
   if ((simGlobal.gameTicks & 1U) == 0) {
     systemtask(0);

@@ -575,37 +575,24 @@ void AudioMus_DriverStartUp(int buffersize,int spusize)
   int size;
   SNDLIMITS sndlimits;
   SNDPLAYOPTS opts;
-  int *piVar1;
-  AudioMus_tMusicGlobals *pAVar2;
-  int aiStack_40 [4];
-  int local_30;
-  int aiStack_28 [2];
-  u_char local_20;
   
   if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
     if (AudioMus_g->driveractive == 0) {
       AudioMus_InitDriverGlobals();
     }
-    pAVar2 = AudioMus_g;
-    piVar1 = &AudioMus_g->streamhandle;
     AudioMus_g->threshold = buffersize + spusize >> 5;
-    if ((*piVar1 < 0) && (pAVar2->streambuffer != (char *)0x0)) {
-      chunks = buffersize;
-      if (buffersize < 0) {
-        chunks = buffersize + 0x3ff;
-      }
-      chunks = chunks >> 10;
-      SNDSTRM_overhead(0x1,chunks);
-      size = buffersize + SNDgetlimits(aiStack_40);   /* oracle 0x6ab5c: size = buffersize + SNDgetlimits ret */
-      local_30 = spusize;
-      SNDsetlimits(aiStack_40);
-      SNDplaysetdef(aiStack_28);
-      local_20 = 0;
-      pAVar2 = (AudioMus_tMusicGlobals *)
-               SNDSTRM_create(aiStack_28,1,chunks,AudioMus_g->streambuffer,size);   /* oracle 0x6ab90: 5 real args, returns stream handle (was stubbed: 0 args + bogus pAVar2=AudioMus_g) */
-      AudioMus_g->streamhandle = (int)pAVar2;
-      if (-1 < (int)pAVar2) {
-        SNDSTRM_setgreedylevel(pAVar2,0);
+    if ((AudioMus_g->streamhandle < 0) && (AudioMus_g->streambuffer != (char *)0x0)) {
+      chunks = buffersize / 0x400;
+      size = buffersize + SNDSTRM_overhead(1,chunks);
+      SNDgetlimits(&sndlimits);
+      sndlimits.packetbufsize = spusize;
+      SNDsetlimits(&sndlimits);
+      SNDplaysetdef(&opts);
+      opts.vol = 0;
+      AudioMus_g->streamhandle =
+          SNDSTRM_create((int *)&opts,1,chunks,AudioMus_g->streambuffer,size);
+      if (-1 < AudioMus_g->streamhandle) {
+        SNDSTRM_setgreedylevel(AudioMus_g->streamhandle,0);
         SNDSTRM_setpriority(AudioMus_g->streamhandle,0xff,5);
       }
     }

@@ -6,6 +6,10 @@
 #include "../../nfs4_types.h"
 #include "ai_externs.h"
 
+#define WRAP_SLICE(a,b) (((a) >= 0) \
+    ? ((((b) + (a)) >= gNumSlices) ? ((b) + (a)) - gNumSlices : ((b) + (a))) \
+    : ((((b) + (a)) < 0) ? ((b) + (a)) + gNumSlices : ((b) + (a))))
+
 
 /* ---- ai.obj-owned globals (.bss zero) ---- */
 int          curveynessLevelStarts[4] = { 0, 10, 15, 25 };   /* @0x8010ccd4 */
@@ -424,40 +428,13 @@ void AI_CheckForBarriers(Car_tObj *carObj)
   masks[0] = AIWorld_GetProfileMask(carObj->laneIndex + -1);
   masks[1] = AIWorld_GetProfileMask(carObj->laneIndex);
   masks[2] = AIWorld_GetProfileMask(carObj->laneIndex + 1);
+  slice = (int)carObj->N.simRoadInfo.slice;
   dir = carObj->direction;
   speed = carObj->currentSpeed / 0x10000;
-  if (speed < 0) {
-    speed = -speed;
-    slice = (int)(carObj->N).simRoadInfo.slice;
-  }
-  else {
-    slice = (int)(carObj->N).simRoadInfo.slice;
-  }
-  slicesAhead = speed = (speed << 0x12) / 0x60000;
-  speed = slicesAhead * dir;
-  forwardSlice0 = slice + speed;
-  if (0 <= speed) {
-    if (gNumSlices <= forwardSlice0) {
-      forwardSlice0 = forwardSlice0 - gNumSlices;
-    }
-  }
-  else {
-    if (forwardSlice0 < 0) {
-      forwardSlice0 = forwardSlice0 + gNumSlices;
-    }
-  }
-  speed = (slicesAhead + 1) * dir;
-  forwardSlice1 = slice + speed;
-  if (0 <= speed) {
-    if (gNumSlices <= forwardSlice1) {
-      forwardSlice1 = forwardSlice1 - gNumSlices;
-    }
-  }
-  else {
-    if (forwardSlice1 < 0) {
-      forwardSlice1 = forwardSlice1 + gNumSlices;
-    }
-  }
+  speed = __builtin_abs(speed);
+  slicesAhead = (speed << 0x12) / 0x60000;
+  forwardSlice0 = WRAP_SLICE(slicesAhead * dir,slice);
+  forwardSlice1 = WRAP_SLICE((slicesAhead + 1) * dir,slice);
   profileHere = *(short *)(slice * 0x20 + (int)BWorldSm_slices + 0x16);
   if (AIWorld_IsDriveableLane_UsingMask(slice,masks[0]) == 0) {
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + -0xa0000;
@@ -482,16 +459,7 @@ void AI_CheckForBarriers(Car_tObj *carObj)
     while (sliceLoop < slicesAhead) {
       int checkSlice;
 
-      speed = sliceLoop * dir;
-      checkSlice = slice + speed;
-      if (0 <= speed) {
-        if (gNumSlices <= checkSlice) {
-          checkSlice = checkSlice - gNumSlices;
-        }
-      }
-      else if (checkSlice < 0) {
-        checkSlice = checkSlice + gNumSlices;
-      }
+      checkSlice = WRAP_SLICE(sliceLoop * dir,slice);
       if ((laneNotChecked[0] != 0) &&
          (AIWorld_IsDriveableLane_UsingMask(checkSlice,masks[0]) == 0)) {
         laneNotChecked[0] = 0;

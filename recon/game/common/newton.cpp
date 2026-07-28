@@ -548,85 +548,48 @@ int Newton_FindGroundElevationRough(coorddef *point,coorddef *normal,coorddef *p
 {
   int result;
   int fudgeIndex;
-  int index;
-  int iVar1;
-  int iVar2;
-  int fudgeDist;
-  int iVar3;
-  int iVar4;
-  int i;
-  int iVar5;
-  int numerator;
   int fudgeHeight;
-  int iVar6;
-  
-  iVar3 = normal->x;
-  iVar6 = 0;
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  iVar1 = point->x - pointOnQuad->x;
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
-  }
-  iVar4 = normal->z;
-  if (iVar4 < 0) {
-    iVar4 = iVar4 + 0xff;
-  }
-  iVar2 = point->z - pointOnQuad->z;
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  iVar5 = 0;
-  iVar3 = -((iVar4 >> 8) * (iVar2 >> 8)) - (iVar3 >> 8) * (iVar1 >> 8);
-  do {
-    if (iVar5 == 0) {
-      iVar1 = point->x;
-      if (iVar1 < 0) {
-        iVar1 = -iVar1;
-      }
-      iVar4 = point->z >> 1;
-      if (iVar4 < 0) {
-        iVar4 = -iVar4;
-      }
-      if (iVar4 < iVar1) goto FindGERough_iterReduceA;
-FindGERough_iterReduceB:
-      iVar4 = iVar4 + (iVar1 >> 2);
-    }
-    else {
-      iVar4 = point->z;
-      iVar1 = point->x >> 2;
-      if (iVar1 < 0) {
-        iVar1 = -iVar1;
-      }
-      if (iVar4 < 0) {
-        iVar4 = -iVar4;
-      }
-      if (iVar1 <= iVar4) goto FindGERough_iterReduceB;
-FindGERough_iterReduceA:
-      iVar4 = iVar1 + (iVar4 >> 2);
-    }
-    iVar4 = iVar4 >> 0xf;
-    if (iVar4 < 0) {
-      iVar4 = -iVar4;
-    }
-    iVar1 = iVar4;
-    if (iVar4 < 0) {
-      iVar1 = iVar4 + 0x1f;
-    }
-    iVar5 = iVar5 + 1;
-    iVar6 = iVar6 + fudgeTable[iVar4 + (iVar1 >> 5) * -0x20] * 0x80;
-    if (1 < iVar5) {
-      iVar1 = normal->y;
-      if (iVar1 < 0x9eb9) {
-        iVar3 = fixeddiv(iVar3,iVar1);
+  int fudgeDist;
+  int numerator;
+
+  fudgeHeight = 0;
+  numerator =
+      -((normal->x / 256) * ((point->x - pointOnQuad->x) / 256)) -
+       (normal->z / 256) * ((point->z - pointOnQuad->z) / 256);
+  {
+    int i;
+    i = 0;
+    do {
+      int z;
+      int x;
+
+      if (i == 0) {
+        x = __builtin_abs(point->x);
+        z = __builtin_abs(point->z >> 1);
       }
       else {
-        iVar3 = fixedmult(iVar3,divTable[0x10000 - iVar1 >> 9]);
+        x = __builtin_abs(point->x >> 2);
+        z = __builtin_abs(point->z);
       }
-      return iVar3 + pointOnQuad->y + iVar6;
-    }
-  } while( true );
+      if (z < x) {
+        fudgeDist = x + (z >> 2);
+      }
+      else {
+        fudgeDist = z + (x >> 2);
+      }
+      fudgeIndex = __builtin_abs(fudgeDist >> 15);
+      fudgeHeight += fudgeTable[fudgeIndex % 32] << 7;
+      i++;
+    } while (i < 2);
+  }
+  if (0x9eb8 < normal->y) {
+    int index = (0x10000 - normal->y) >> 9;
+    result = fixedmult(numerator,divTable[index]);
+  }
+  else {
+    result = fixeddiv(numerator,normal->y);
+  }
+  return result + pointOnQuad->y + fudgeHeight;
 }
 
 /* ---- Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coorddef  [NEWTON.CPP:515-599] SLD-VERIFIED ---- */

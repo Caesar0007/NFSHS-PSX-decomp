@@ -1443,15 +1443,9 @@ void AIHigh_Player::HandleCops()
 
 
 {
-  copLevel_t*pLevel;
+  copLevel_t *pLevel;
   int ticks;
   int totalCopsEngaged;
-
-  int iVar1;
-
-  int iVar2;
-
-  copLevel_t *pcVar3;
 
   AICop_PerpChaseInfo *pInfo;
 
@@ -1459,100 +1453,50 @@ void AIHigh_Player::HandleCops()
 
   pInfo = &this->perpChaseInfo_;
 
-  pcVar3 = pInfo->chaseLevel_;
+  pLevel = pInfo->chaseLevel_;
 
   if (Cars_gNumCopCars != 0) {
 
     this->MaintainAvailableCops();
 
-    iVar1 = this->CheckIfABlockadeCanBeSetup();
-
-    if (iVar1 != 0) {
+    if (this->CheckIfABlockadeCanBeSetup()) {
 
       this->SetupBlockade();
 
     }
 
-    if (pcVar3->numBlockaders == 0) {
+    if (pLevel->numBlockaders == 0) {
 
       this->CleanupBlockaders(0);
 
     }
 
     {
-      Car_tObj *pCar = this->carObj_;
-      int prodSlipYaw;
-      int elapsed;
+      AICop_PerpChaseInfo *pInfo = &this->perpChaseInfo_;
       u_int prodSlipYawNeg;
 
-      /* H26 setup: product computed UNCONDITIONALLY here (oracle 0x80062B30-60), the
-         AI_elapsedTime load likewise (oracle 0x80062B54-58) -- both live across the
-         copsAssigned_ branch below and are reused in the engagementTime_ shift-select.
-         prodSlipYawNeg extracted via the sign-bit shift (matches oracle's `srl a0,a3,31`
-         in the copsAssigned_ branch's delay slot -- a bare `<0` compare emits `slt` instead). */
-      prodSlipYaw = *(int *)((char *)pCar + 1380) * *(int *)((char *)pCar + 1364);
-
-      prodSlipYawNeg = (u_int)prodSlipYaw >> 31;
-
-      elapsed = AI_elapsedTime;
-
-    if (0 < this->basicPerpInfo_.copsAssigned_[0] +
-
-            this->basicPerpInfo_.copsAssigned_[1]) {
-
-      pInfo->copFreeTicks_ = 0;
-
-      iVar2 = pInfo->engagementTime_;
-
-      iVar1 = iVar2;
-
-      if (iVar2 < 0) {
-
-        iVar1 = iVar2 + 0xffff;
-
+      prodSlipYawNeg =
+          (u_int)(*(int *)((char *)this->carObj_ + 1380) *
+                  *(int *)((char *)this->carObj_ + 1364)) >> 31;
+      ticks = AI_elapsedTime;
+      totalCopsEngaged = this->basicPerpInfo_.copsAssigned_[0] +
+                         this->basicPerpInfo_.copsAssigned_[1];
+      if (0 < totalCopsEngaged) {
+        pInfo->copFreeTicks_ = 0;
+        if (-2 < pInfo->engagementTime_ / 0x10000) {
+          this->perpChaseInfo_.engagementTime_ -=
+              ticks << (prodSlipYawNeg ? 0xf : 0x10);
+          if (pInfo->engagementTime_ / 0x10000 <
+              (pInfo->chaseLevel_->engagementLapFraction * AITune_gRoughLapTime /
+               0x10000) * 0x20 - 0x80) {
+            pInfo->totalEngagementPercent_ +=
+                pInfo->engagementPercentIncreasePerTick_ * ticks;
+          }
+        }
       }
-
-      if (-2 < iVar1 >> 0x10) {
-
-        /* H26: decrement dropped (m2c self-assign fold). Oracle 0x80062BA4: engagementTime_ = iVar2 -
-           (AI_elapsedTime << shift), shift = 0xF if carObj[1380]*carObj[1364] < 0 else 0x10 (the
-           0x80062B9C <<0xF delay slot is used on the product<0 path; 0x80062BA0 <<0x10 otherwise). */
-        pInfo->engagementTime_ = iVar2 - (elapsed << (prodSlipYawNeg ? 0xF : 0x10));
-
-        iVar1 = pInfo->engagementTime_;
-
-        if (iVar1 < 0) {
-
-          iVar1 = iVar1 + 0xffff;
-
-        }
-
-        iVar2 = (pInfo->chaseLevel_)->engagementLapFraction * AITune_gRoughLapTime;
-
-        if (iVar2 < 0) {
-
-          iVar2 = iVar2 + 0xffff;
-
-        }
-
-        if (iVar1 >> 0x10 < (iVar2 >> 0x10) * 0x20 + -0x80) {
-
-          pInfo->totalEngagementPercent_ =
-
-               pInfo->totalEngagementPercent_ +
-               pInfo->engagementPercentIncreasePerTick_ * elapsed;   /* H27: += dropped (m2c self-assign fold); oracle 0x80062C08-24 */
-
-        }
-
+      else {
+        pInfo->copFreeTicks_ += ticks;
       }
-
-    }
-
-    else {
-
-      pInfo->copFreeTicks_ = pInfo->copFreeTicks_ + elapsed;   /* H28: += dropped (m2c self-assign fold); oracle 0x80062C28-34 */
-
-    }
     }
 
     this->CheckForNewLevel(0);

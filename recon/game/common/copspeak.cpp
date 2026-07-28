@@ -655,55 +655,60 @@ int CopSpeak_GetEnginePatch(int type,int timbre)
 int CopSpeak_Play(CopSpeak_tRequest *r,int handle)
 
 {
-  SNDPLAYOPTS opts;
+  SNDPLAYOPTS playopts;
+  int vol;
   int azimuth;
-  int iVar1;
-  int iVar2;
+  int noise;
 
-  SNDplaysetdef(&opts);
   azimuth = 0;
+  SNDplaysetdef(&playopts);
   if (*(signed char *)&r->bank == '\x03') {
-    opts.bhandle = *(u_char *)&gSndBnk[3].bnkID;
-    opts.patnum = r->phrase;
+    playopts.bhandle = *(u_char *)&gSndBnk[3].bnkID;
+    playopts.patnum = r->phrase;
   }
   else {
-    opts.bhandle = (u_char)handle;
-    opts.patnum = 0;
+    playopts.bhandle = (u_char)handle;
+    playopts.patnum = 0;
   }
-  iVar2 = 0x30;
+  vol = 0x30;
   if (r->car != (Car_tObj *)0x0) {
-    iVar1 = *(short *)((char *)r->car + 0x8e) + 0x20;
-    iVar2 = 0x7f;
-    if (iVar1 < 0x80) {
-      iVar2 = iVar1;
+    noise = *(short *)((char *)r->car + 0x8e) + 0x20;
+    vol = 0x7f;
+    if (noise < 0x80) {
+      vol = noise;
     }
   }
   if (r->filehandle == Copspeak_gBank[2].FileHandle) {
-    iVar1 = (gMasterFENarrationLevel * 0x81 >> 7) << 1;
-    iVar2 = 0x7f;
-    if (iVar1 < 0x80) {
-      iVar2 = iVar1;
+    noise = (gMasterFENarrationLevel * 0x81 >> 7) << 1;
+    vol = 0x7f;
+    if (noise < 0x80) {
+      vol = noise;
     }
   }
   else {
-    iVar2 = gMasterFENarrationLevel * (0x80 - (iVar2 >> 2)) * 0x81 >> 0xe;
+    int scaled = 0x80 - (vol >> 2);
+    vol = gMasterFENarrationLevel * ((scaled << 7) + scaled) >> 0xe;
   }
-  opts.bend = 0x40;
-  opts.vol = (u_char)iVar2;
-  opts.use3dpos = Audio_direct3davail != 0;
-  if (Audio_direct3davail == 0) {
-    if (gStereoMode == 0) {
-      opts.pan = 0x40;
+  playopts.bend = 0x40;
+  playopts.vol = (u_char)vol;
+  playopts.use3dpos = Audio_direct3davail != 0;
+  if (Audio_direct3davail != 0) {
+    playopts.azimuth = (u_short)azimuth;
+  }
+  else {
+    if (gStereoMode != 0) {
+      if (azimuth - 0x4000U < 0x8000) {
+        playopts.pan = (u_char)((0xbfff - azimuth) >> 8);
+      }
+      else {
+        playopts.pan = (u_char)((u_int)(azimuth + 0x4000) >> 8);
+      }
     }
     else {
-      opts.pan = 0x40;
+      playopts.pan = 0x40;
     }
   }
-  else {
-    opts.azimuth = (u_short)azimuth;
-  }
-  SNDplay(&opts);
-  return 0;
+  return SNDplay(&playopts);
 }
 
 /* ---- CopSpeak_Skip__Fv  [COPSPEAK.CPP:1028-1042] SLD-VERIFIED ---- */

@@ -74,23 +74,10 @@ void Cars_CheckForAccidentScenes(void);
 /* ---- Cars_DoGravityEffectsOnAcc__FP8Car_tObji  [@0x80085d84] ---- */
 void Cars_DoGravityEffectsOnAcc(Car_tObj *carObj,int arcade)
 {
-  /* MATCH: was 86 diffs w/ dead-code gravity_ch local (iVar1/2/3 scalars only,
-     forced s1/s2 callee-saves + 48-byte frame). Real fix: the declared-but-unused
-     gravity_ch coorddef IS the SYM's true storage for the 3 fixedmult results in
-     the if-branch (oracle spills each to sp+0x10/0x14/0x18, no callee-saves beyond
-     s0=carObj, 40-byte frame) -> 86->38. Operand-order swap on the z-sum
-     (gravity_ch.z + linearAcc.z, matches oracle's z-loaded-into-v0 first) -> 36.
-     RESIDUAL 36 = genuine gcc-2.8 allocator floor: the else-branch's dead
-     `sw v0,0x18(sp)` after the 1st fixedmult call (iVar1, immediately reused from
-     v0 as the 2nd call's a0, never reloaded) is a spill the allocator emits because
-     "iVar1"/"iVar3" are reused source-level names spanning the whole function
-     (top-of-fn iVar1 + else-branch iVar1/iVar3 reuse forces one whole-fn pseudo).
-     Tried: fresh distinctly-named locals per branch (no change, same 36) -- not
-     source-shapable, accept. */
   coorddef gravity_ch;
   int iVar1;
-  int iVar2;
   int iVar3;
+  int iVar2;
 
   if ((carObj->carFlags & 0x10U) != 0) {
     return;
@@ -108,30 +95,28 @@ void Cars_DoGravityEffectsOnAcc(Car_tObj *carObj,int arcade)
     if (0x3f < (u_char)(carObj->control).brakeLevel) {
       return;
     }
-    iVar1 = fixedmult(-0xa0000,(carObj->N).orientMat.m[7]);
-    iVar2 = fixedmult(iVar1,(carObj->N).gravityMult);
-    iVar1 = iVar2;
-    if (iVar2 < 0) {
-      iVar1 = -iVar2;
-    }
+    gravity_ch.z = fixedmult(-0xa0000,(carObj->N).orientMat.m[7]);
+    iVar3 = fixedmult(gravity_ch.z,(carObj->N).gravityMult);
+    iVar1 = __builtin_abs(iVar3);
+    gravity_ch.z = iVar3;
     if (iVar1 < 0xccd) {
       return;
     }
-    if (iVar2 < 1) {
-      iVar3 = (carObj->linearAcc_ch).z;
-      iVar1 = iVar2 >> 3;
-      if (iVar3 < 1) {
-        iVar1 = iVar2 >> 1;
+    if (0 < gravity_ch.z) {
+      iVar2 = (carObj->linearAcc_ch).z;
+      iVar1 = gravity_ch.z >> 1;
+      if (iVar2 < 1) {
+        iVar1 = gravity_ch.z >> 3;
       }
     }
     else {
-      iVar3 = (carObj->linearAcc_ch).z;
-      iVar1 = iVar2 >> 1;
-      if (iVar3 < 1) {
-        iVar1 = iVar2 >> 3;
+      iVar2 = (carObj->linearAcc_ch).z;
+      iVar1 = gravity_ch.z >> 3;
+      if (iVar2 < 1) {
+        iVar1 = gravity_ch.z >> 1;
       }
     }
-    iVar3 = iVar3 + iVar1;
+    iVar3 = iVar2 + iVar1;
   }
   (carObj->linearAcc_ch).z = iVar3;
   return;

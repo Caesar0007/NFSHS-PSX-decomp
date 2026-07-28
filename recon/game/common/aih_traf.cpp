@@ -149,544 +149,216 @@ static const coorddef D_800551A4 = { 0, 0x640000, 0 };
 /* ---- HighExecute__14AIHigh_Traffic  AIHigh_Traffic::HighExecute  [AIH_TRAF.CPP:129-340] SLD-VERIFIED ---- */
 
 void AIHigh_Traffic::HighExecute()
-
-
-
 {
-  bool bVar1;
+  carObj_->unlap = 0;
+  carObj_->lap = 0;
 
-  trigger_t *trigger;
+  switch ((stateType_t)stateType_) {
+  case STATE_NONE:
+    {
+      coorddef trafficOffset = D_800551A4;
 
-  AIState_RovingTraffic *pAVar2;
-
-  AIState_Idle *this_00;
-
-  AIHigh_Cop *pAVar3;
-
-  int iVar4;
-
-  AIState_Purgatory *pAVar5;
-
-  AIState_Base *pAVar6;
-
-  stateType_t sVar7;
-
-  __vtbl_ptr_type (*pa_Var8) [4];
-
-  AIState_Normal *pAVar9;
-
-  Car_tObj *pCVar10;
-
-  int uVar11;
-
-  AIState_Base *pAVar12;
-
-  coorddef trafficOffset;
-
-  BWorldSm_Pos spos;
-
-  int local_28;
-
-  int iStack_24;
-
-  int local_20;
-
-
-
-  (this->carObj_)->unlap = 0;
-
-  (this->carObj_)->lap = 0;
-
-  switch(this->stateType_) {
-
-  case 0:
-
-    trafficOffset = D_800551A4;
-
-    if (((this->carObj_)->carFlags & 0x400U) == 0) {
-
-      pAVar5 = operator new(8);
-
-      pAVar6 = (AIState_Base *) (new(pAVar5) AIState_Purgatory(this->carObj_));
-
-      pAVar12 = this->state_;
-
-      if (pAVar12 != (AIState_Base *)0x0) {
-
-        (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
-
+      if ((carObj_->carFlags & 0x400U) != 0) {
+        AIState_Idle *idleState = operator new(0x10);
+        new((AIState_Base *)idleState) AIState_Base(carObj_);
+        idleState->_vf = (__vtbl_ptr_type (*)[4])AIState_Idle_vtable;
+        idleState->idleInPlaceFlag_ = 1;
+        SetState((AIState_Base *)idleState,STATE_IDLE);
+      }
+      else {
+        AIState_Purgatory *purgatoryState = operator new(8);
+        AIState_Base *newState =
+          (AIState_Base *)new(purgatoryState) AIState_Purgatory(carObj_);
+        SetState(newState,STATE_PURGATORY);
       }
 
-      sVar7 = 1;
-
+      Newton_SetInitialSlicePositionOrientationEtc(&carObj_->N,0,&trafficOffset,1);
+      return;
     }
 
-    else {
+  case STATE_PURGATORY:
+    {
+      if (accidentData_ != (SceneElem *)0x0) {
+        BWorldSm_Pos spos;
+        AIState_Idle *idleState = operator new(0x10);
+        new((AIState_Base *)idleState) AIState_Base(carObj_);
+        idleState->_vf = (__vtbl_ptr_type (*)[4])AIState_Idle_vtable;
+        idleState->idleInPlaceFlag_ = 1;
+        SetState((AIState_Base *)idleState,STATE_IDLE);
 
-      pAVar6 = operator new(0x10);
-
-      (new(pAVar6) AIState_Base(this->carObj_));
-
-      pAVar6->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
-
-      pAVar6[1]._vf = (__vtbl_ptr_type (*) [4])0x1;
-
-      pAVar12 = this->state_;
-
-      if (pAVar12 != (AIState_Base *)0x0) {
-
-        (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
-
+        spos.slice = 0;
+        BWorldSm_FindClosestSlice(&accidentData_->cp,&spos);
+        AILife_ReencarnateTrafficByPosition
+          (carObj_,(int)spos.slice,1,&accidentData_->cp,&accidentData_->orient);
+        carObj_->carFlags = carObj_->carFlags | 0x400U;
+        accidentData_ = (SceneElem *)0x0;
       }
-
-      sVar7 = 3;
-
-    }
-
-    this->state_ = pAVar6;
-
-    this->stateType_ = sVar7;
-
-    Newton_SetInitialSlicePositionOrientationEtc(&(this->carObj_)->N,0,&trafficOffset,1);
-
-    return;
-
-  case 1:
-
-    bVar1 = false;
-
-    if (this->accidentData_ == (SceneElem *)0x0) {
-
-      pAVar6 = this->state_;
-
-      pa_Var8 = pAVar6->_vf;
-
-      iVar4 = (*(*pa_Var8)[3].pfn)((int)&pAVar6->carObj_ + (*pa_Var8)[3].delta);
-
-      if (iVar4 != 0) {
-
-        bVar1 = this->forcePurgatory_ == 0;
-
-      }
-
-      if (bVar1) {
-
-        trigger = this->CheckForNewTriggers();
-
-        if (trigger == (trigger_t *)0x0) {
-
-          pAVar9 = operator new(8);
-
-          pAVar6 = (AIState_Base*)(new(pAVar9) AIState_Normal(this->carObj_));
-
-          pAVar12 = this->state_;
-
-          if (pAVar12 != (AIState_Base *)0x0) {
-
-            (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
-
-          }
-
-          this->state_ = pAVar6;
-
-          this->stateType_ = 2;
-
-          AILife_ReencarnateTraffic(this->carObj_);
-
+      else {
+        int release = 0;
+        if ((*(*state_->_vf)[3].pfn)
+              ((int)&state_->carObj_ + (*state_->_vf)[3].delta) != 0) {
+          release = forcePurgatory_ == 0;
         }
+        if (release != 0) {
+          trigger_t *trigger = CheckForNewTriggers();
 
-        else {
-
-          triggerManagerTraffic->DescribeTrigger(trigger);
-
-          if (*(int *)trigger == 5) {
-
-            pAVar2 = operator new(0x18);
-
-            pAVar2 = (new(pAVar2) AIState_RovingTraffic(this->carObj_,trigger));
-
-            pAVar6 = this->state_;
-
-            if (pAVar6 != (AIState_Base *)0x0) {
-
-              (*(*pAVar6->_vf)[2].pfn)((int)&pAVar6->carObj_ + (*pAVar6->_vf)[2].delta,3);
-
+          if (trigger != (trigger_t *)0x0) {
+            triggerManagerTraffic->DescribeTrigger(trigger);
+            if (*(int *)trigger == 5) {
+              SetState(
+                (AIState_Base *)new((AIState_RovingTraffic *)operator new(0x18))
+                  AIState_RovingTraffic(carObj_,trigger),
+                STATE_ROVING_TRAFFIC);
+              AILife_ReencarnateTrafficByPosition
+                (carObj_,*(int *)((char *)trigger + 4),1,
+                 *(coorddef **)((char *)trigger + 0x3c),
+                 (matrixtdef *)((char *)trigger + 0xc));
             }
-
-            this->stateType_ = 6;
-
-            this->state_ = (AIState_Base*)pAVar2;
-
-            AILife_ReencarnateTrafficByPosition(this->carObj_,*(int *)(trigger + 4),1,
-
-                       *(coorddef **)(trigger + 0x3c),(matrixtdef *)(trigger + 0xc));
-
           }
-
+          else {
+            AIState_Normal *normalState = operator new(8);
+            AIState_Base *newState =
+              (AIState_Base *)new(normalState) AIState_Normal(carObj_);
+            SetState(newState,STATE_NORMAL);
+            AILife_ReencarnateTraffic(carObj_);
+          }
         }
-
       }
-
+      break;
     }
 
-    else {
+  case STATE_NORMAL:
+    {
+      int blockade;
 
-      pAVar6 = operator new(0x10);
-
-      (new(pAVar6) AIState_Base(this->carObj_));
-
-      pAVar6->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
-
-      pAVar6[1]._vf = (__vtbl_ptr_type (*) [4])0x1;
-
-      pAVar12 = this->state_;
-
-      if (pAVar12 != (AIState_Base *)0x0) {
-
-        (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
-
+      if (AILife_EvaluateLife(carObj_) != 0) {
+        AIState_Purgatory *purgatoryState = operator new(8);
+        AIState_Base *newState =
+          (AIState_Base *)new(purgatoryState) AIState_Purgatory(carObj_);
+        SetState(newState,STATE_PURGATORY);
+        break;
       }
 
-      this->state_ = pAVar6;
+      if (forcePurgatory_ != 0) {
+        AIState_Purgatory *purgatoryState = operator new(8);
+        AIState_Base *newState =
+          (AIState_Base *)new(purgatoryState) AIState_Purgatory(carObj_);
+        SetState(newState,STATE_PURGATORY);
+        break;
+      }
 
-      this->stateType_ = 3;
-
-      spos.slice = 0;
-
-      BWorldSm_FindClosestSlice(&this->accidentData_->cp,&spos);
-
-      AILife_ReencarnateTrafficByPosition(this->carObj_,(int)spos.slice,1,&this->accidentData_->cp,
-
-                 &this->accidentData_->orient);
-
-      pCVar10 = this->carObj_;
-
-      pCVar10->carFlags = pCVar10->carFlags | 0x400;
-
-      this->accidentData_ = (SceneElem *)0x0;
-
-    }
-
-    goto stateExecuteAndReturn;
-
-  case 2:
-
-    iVar4 = AILife_EvaluateLife(this->carObj_);
-
-    if (iVar4 == 0) {
-
-      if (this->forcePurgatory_ == 0) {
-
-        pAVar3 = this->CopCheck(&local_28);
-
-        if (pAVar3 == (AIHigh_Cop *)0x0) {
-
-          this->ignoreCops_ = 0;
-
-          goto stateExecuteAndReturn;
-
+      if (CopCheck(&blockade) != (AIHigh_Cop *)0x0) {
+        if (ignoreCops_ != 0) {
+          break;
         }
-
-        if (this->ignoreCops_ != 0) goto stateExecuteAndReturn;
 
         randtemp = fastRandom * randSeed;
-
         fastRandom = randtemp & 0xffff;
+        int cRand = ((randtemp >> 8) & 0xffff) * 5 >> 0xf;
 
-        uVar11 = (randtemp >> 8 & 0xffff) * 5 >> 0xf;
+        if (blockade != 0) {
+          AIState_Idle *idleState;
+          int slice = (int)carObj_->N.simRoadInfo.slice;
+          idleState = operator new(0x10);
+          new((AIState_Base *)idleState) AIState_Base(carObj_);
+          idleState->_vf = (__vtbl_ptr_type (*)[4])AIState_Idle_vtable;
+          idleState->idleInPlaceFlag_ = 1;
+          SetState((AIState_Base *)idleState,STATE_IDLE);
 
-        if (local_28 == 0) {
-
-          if (uVar11 == 0) {
-
-            pAVar6 = operator new(0x10);
-
-            (new(pAVar6) AIState_Base(this->carObj_))
-
-            ;
-
-            pAVar6->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
-
-            pAVar6[1]._vf = (__vtbl_ptr_type (*) [4])0x1;
-
-            pAVar12 = this->state_;
-
-            if (pAVar12 != (AIState_Base *)0x0) {
-
-              (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
-
-            }
-
-            sVar7 = 3;
-
-            break;
-
-          }
-
-          if (7 < uVar11) {
-
-            this->ignoreCops_ = 1;
-
-            goto stateExecuteAndReturn;
-
-          }
-
-          iVar4 = (int)((this->carObj_)->N).simRoadInfo.slice;
-
-          this_00 = operator new(0x10);
-
-          (new((AIState_Base*)this_00) AIState_Base(this->carObj_));
-
-          (this_00)->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
-
-          this_00->idleInPlaceFlag_ = 1;
-
-          pAVar6 = this->state_;
-
-          if (pAVar6 != (AIState_Base *)0x0) {
-
-            (*(*pAVar6->_vf)[2].pfn)((int)&pAVar6->carObj_ + (*pAVar6->_vf)[2].delta,3);
-
-          }
-
-          this->state_ = (AIState_Base*)this_00;
-
-          this->stateType_ = 3;
-
-          if ((this->carObj_)->direction != 1) goto LAB_800664c4;
-
-          iVar4 = iVar4 * 0x20 + (int)BWorldSm_slices;
-
-          local_20 = (u_int)*(u_char *)(iVar4 + 0x1f) << 0xf;
-
-          uVar11 = *(u_char *)(iVar4 + 0x1d) & 0xf;
-
+          idleState->SetIdlePosition(
+            carObj_->direction == 1 ?
+              ((u_int)BWorldSm_slices[slice].avgPavedWidthRt << 0xf) *
+                (BWorldSm_slices[slice].laneCount & 0xf) :
+              ((u_int)BWorldSm_slices[slice].avgPavedWidthLf << 0xf) *
+                ((u_int)BWorldSm_slices[slice].laneCount >> 4));
         }
+        else if (cRand <= 0) {
+          AIState_Idle *idleState = operator new(0x10);
+          new((AIState_Base *)idleState) AIState_Base(carObj_);
+          idleState->_vf = (__vtbl_ptr_type (*)[4])AIState_Idle_vtable;
+          idleState->idleInPlaceFlag_ = 1;
+          SetState((AIState_Base *)idleState,STATE_IDLE);
+        }
+        else if (cRand < 8) {
+          AIState_Idle *idleState;
+          int slice = (int)carObj_->N.simRoadInfo.slice;
+          idleState = operator new(0x10);
+          new((AIState_Base *)idleState) AIState_Base(carObj_);
+          idleState->_vf = (__vtbl_ptr_type (*)[4])AIState_Idle_vtable;
+          idleState->idleInPlaceFlag_ = 1;
+          SetState((AIState_Base *)idleState,STATE_IDLE);
 
+          idleState->SetIdlePosition(
+            carObj_->direction == 1 ?
+              ((u_int)BWorldSm_slices[slice].avgPavedWidthRt << 0xf) *
+                (BWorldSm_slices[slice].laneCount & 0xf) :
+              ((u_int)BWorldSm_slices[slice].avgPavedWidthLf << 0xf) *
+                ((u_int)BWorldSm_slices[slice].laneCount >> 4));
+        }
         else {
-
-          iVar4 = (int)((this->carObj_)->N).simRoadInfo.slice;
-
-          this_00 = operator new(0x10);
-
-          (new((AIState_Base*)this_00) AIState_Base(this->carObj_));
-
-          (this_00)->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
-
-          this_00->idleInPlaceFlag_ = 1;
-
-          pAVar6 = this->state_;
-
-          if (pAVar6 != (AIState_Base *)0x0) {
-
-            (*(*pAVar6->_vf)[2].pfn)((int)&pAVar6->carObj_ + (*pAVar6->_vf)[2].delta,3);
-
-          }
-
-          this->state_ = (AIState_Base*)this_00;
-
-          this->stateType_ = 3;
-
-          if ((this->carObj_)->direction == 1) {
-
-            iVar4 = iVar4 * 0x20 + (int)BWorldSm_slices;
-
-            local_20 = (u_int)*(u_char *)(iVar4 + 0x1f) << 0xf;
-
-            uVar11 = *(u_char *)(iVar4 + 0x1d) & 0xf;
-
-          }
-
-          else {
-
-LAB_800664c4:
-
-            iVar4 = iVar4 * 0x20 + (int)BWorldSm_slices;
-
-            local_20 = (u_int)*(u_char *)(iVar4 + 0x1e) << 0xf;
-
-            uVar11 = (u_int)(*(u_char *)(iVar4 + 0x1d) >> 4);
-
-          }
-
+          ignoreCops_ = 1;
         }
-
-        local_20 = local_20 * uVar11;
-
-        (this_00)->SetIdlePosition(local_20);
-
-        goto stateExecuteAndReturn;
-
       }
-
-      pAVar5 = operator new(8);
-
-      pAVar6 = (AIState_Base *) (new(pAVar5) AIState_Purgatory(this->carObj_));
-
-      pAVar12 = this->state_;
-
-      if (pAVar12 != (AIState_Base *)0x0) {
-
-        (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
-
+      else {
+        ignoreCops_ = 0;
       }
-
-      sVar7 = 1;
-
+      break;
     }
 
-    else {
-
-      pAVar5 = operator new(8);
-
-      pAVar6 = (AIState_Base *) (new(pAVar5) AIState_Purgatory(this->carObj_));
-
-      pAVar12 = this->state_;
-
-      if (pAVar12 != (AIState_Base *)0x0) {
-
-        (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
-
+  case STATE_IDLE:
+    {
+      int blockade;
+      if (AILife_EvaluateLife(carObj_) != 0) {
+        AIState_Purgatory *purgatoryState = operator new(8);
+        AIState_Base *newState =
+          (AIState_Base *)new(purgatoryState) AIState_Purgatory(carObj_);
+        SetState(newState,STATE_PURGATORY);
       }
-
-      sVar7 = 1;
-
+      else if ((CopCheck(&blockade) == (AIHigh_Cop *)0x0) &&
+               ((carObj_->carFlags & 0x400U) == 0)) {
+        AIState_Normal *normalState = operator new(8);
+        AIState_Base *newState =
+          (AIState_Base *)new(normalState) AIState_Normal(carObj_);
+        SetState(newState,STATE_NORMAL);
+      }
+      break;
     }
 
-    break;
-
-  case 3:
-
-    iVar4 = AILife_EvaluateLife(this->carObj_);
-
-    if (iVar4 == 0) {
-
-      pAVar3 = this->CopCheck(&iStack_24);
-
-      if ((pAVar3 != (AIHigh_Cop *)0x0) || (((this->carObj_)->carFlags & 0x400U) != 0)
-
-         ) goto stateExecuteAndReturn;
-
-LAB_80066684:
-
-      pAVar9 = operator new(8);
-
-      pAVar6 = (AIState_Base*)(new(pAVar9) AIState_Normal(this->carObj_));
-
-      pAVar12 = this->state_;
-
-      if (pAVar12 != (AIState_Base *)0x0) {
-
-        (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
-
+  case STATE_ROVING_TRAFFIC:
+    {
+      if (AILife_EvaluateLife(carObj_) != 0) {
+        AIState_Purgatory *purgatoryState = operator new(8);
+        AIState_Base *newState =
+          (AIState_Base *)new(purgatoryState) AIState_Purgatory(carObj_);
+        SetState(newState,STATE_PURGATORY);
       }
-
-      sVar7 = 2;
-
+      else if (forcePurgatory_ != 0) {
+        AIState_Purgatory *purgatoryState = operator new(8);
+        AIState_Base *newState =
+          (AIState_Base *)new(purgatoryState) AIState_Purgatory(carObj_);
+        SetState(newState,STATE_PURGATORY);
+      }
+      else if ((*(*state_->_vf)[3].pfn)
+                 ((int)&state_->carObj_ + (*state_->_vf)[3].delta) != 0) {
+        AIState_Normal *normalState = operator new(8);
+        AIState_Base *newState =
+          (AIState_Base *)new(normalState) AIState_Normal(carObj_);
+        SetState(newState,STATE_NORMAL);
+      }
+      break;
     }
 
-    else {
-
-      pAVar5 = operator new(8);
-
-      pAVar6 = (AIState_Base *) (new(pAVar5) AIState_Purgatory(this->carObj_));
-
-      pAVar12 = this->state_;
-
-      if (pAVar12 != (AIState_Base *)0x0) {
-
-        (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
-
-      }
-
-      sVar7 = 1;
-
-    }
-
-    break;
-
-  case 4:
-
-  case 5:
-
-  case 7:
-
-  case 8:
-
-  case 9:
-
-  case 10:
-
+  case STATE_CHASE:
+  case STATE_OFFROAD:
+  case STATE_NONACTIVE:
+  case STATE_DONUTS:
+  case STATE_GOTOSLICE:
+  case STATE_CRUISE:
   default:
-
-    goto stateExecuteAndReturn;
-
-  case 6:
-
-    iVar4 = AILife_EvaluateLife(this->carObj_);
-
-    if (iVar4 == 0) {
-
-      if (this->forcePurgatory_ == 0) {
-
-        pAVar6 = this->state_;
-
-        pa_Var8 = pAVar6->_vf;
-
-        iVar4 = (*(*pa_Var8)[3].pfn)((int)&pAVar6->carObj_ + (*pa_Var8)[3].delta);
-
-        if (iVar4 == 0) goto stateExecuteAndReturn;
-
-        goto LAB_80066684;
-
-      }
-
-      pAVar5 = operator new(8);
-
-      pAVar6 = (AIState_Base *) (new(pAVar5) AIState_Purgatory(this->carObj_));
-
-      pAVar12 = this->state_;
-
-      if (pAVar12 != (AIState_Base *)0x0) {
-
-        (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
-
-      }
-
-      sVar7 = 1;
-
-    }
-
-    else {
-
-      pAVar5 = operator new(8);
-
-      pAVar6 = (AIState_Base *) (new(pAVar5) AIState_Purgatory(this->carObj_));
-
-      pAVar12 = this->state_;
-
-      if (pAVar12 != (AIState_Base *)0x0) {
-
-        (*(*pAVar12->_vf)[2].pfn)((int)&pAVar12->carObj_ + (*pAVar12->_vf)[2].delta,3);
-
-      }
-
-      sVar7 = 1;
-
-    }
-
+    break;
   }
 
-  this->state_ = pAVar6;
-
-  this->stateType_ = sVar7;
-
-stateExecuteAndReturn:
-
-  (this->state_)->StateExecute();
-
-  return;
-
+  state_->StateExecute();
 }
 
 

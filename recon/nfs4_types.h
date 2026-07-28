@@ -2023,6 +2023,17 @@ struct AIHigh_Base {   /* 24 bytes */
     ~AIHigh_Base();
     Car_tObj *GetCarObj() { return carObj_; }
     void StateExecute();
+    /* AIHIGH.H inline recovered from the repeated SLD `this`/`newState`
+       scopes at every retail state transition. */
+    void SetState(AIState_Base *newState, stateType_t newStateType) {
+        AIState_Base *oldState = state_;
+        if (oldState != (AIState_Base *)0x0) {
+            (*(*oldState->_vf)[2].pfn)
+                ((int)&oldState->carObj_ + (*oldState->_vf)[2].delta, 3);
+        }
+        state_ = newState;
+        stateType_ = newStateType;
+    }
 };
 
 struct AIHigh_None : public AIHigh_Base {   /* 24 bytes */

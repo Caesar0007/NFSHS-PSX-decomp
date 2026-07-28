@@ -2751,112 +2751,35 @@ extern "C" void Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj(Car_tObj *newtonO
 int Newton_CalculateRoadPositionFromSliceAndPosition(int slice,coorddef *position,matrixtdef *matrix)
 
 {
-  int iVar1;
-  Trk_NewSlice *pTVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
   coorddef centerBack;
   coorddef carRelative;
-  
-  pTVar2 = BWorldSm_slices + slice;
-  iVar6 = position->x - pTVar2->center[0];
-  iVar7 = position->y - pTVar2->center[1];
-  iVar1 = position->z - pTVar2->center[2];
-  iVar3 = matrix->m[0];
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  if (iVar6 < 0) {
-    iVar6 = iVar6 + 0xff;
-  }
-  iVar4 = matrix->m[1];
-  if (iVar4 < 0) {
-    iVar4 = iVar4 + 0xff;
-  }
-  if (iVar7 < 0) {
-    iVar7 = iVar7 + 0xff;
-  }
-  iVar5 = matrix->m[2];
-  if (iVar5 < 0) {
-    iVar5 = iVar5 + 0xff;
-  }
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
-  }
-  return (iVar3 >> 8) * (iVar6 >> 8) + (iVar4 >> 8) * (iVar7 >> 8) + (iVar5 >> 8) * (iVar1 >> 8);
+
+  centerBack = *(coorddef *)BWorldSm_slices[slice].center;
+  carRelative.x = position->x - centerBack.x;
+  carRelative.y = position->y - centerBack.y;
+  carRelative.z = position->z - centerBack.z;
+  return (matrix->m[0] / 256) * (carRelative.x / 256) +
+         (matrix->m[1] / 256) * (carRelative.y / 256) +
+         (matrix->m[2] / 256) * (carRelative.z / 256);
 }
 
 /* ---- Newton_CalculateRoadPosition__FP13BO_tNewtonObj  [NEWTON.CPP:2762-2773] SLD-VERIFIED ---- */
 int Newton_CalculateRoadPosition(BO_tNewtonObj *newtonObj)
 
 {
-  int ratio;
-  Trk_NewSlice *pTVar1;
-  int z;
-  int iVar2;
-  int oldOptz;
-  int iVar3;
-  int iVar4;
-  int desiredCompression;
-  int iVar5;
-  int whichPlayer;
-  int iVar6;
-  int index;
-  int iVar7;
-  int v1;
-  int zDir;
-  int yDir;
-  int xDir;
-  int roll;
-  int pitch;
-  int forcedSimOptz;
-  int r6;
-  int r4;
-  int bounce;
-  int xMult;
-  int wheelsInAir;
-  coorddef tireCoord [4];
-  coorddef carNormal;
-  coorddef wheelHeight [4];
-  coorddef vecOffset;
-  BWorldSm_Pos testSimRoadInfo;
-  coorddef tempVecX;
-  coorddef tempVecY;
-  int compressionValue [4];
-  coorddef tempVecZ;
   coorddef centerBack;
   coorddef carRelative;
   coorddef carPos;
-  
-  pTVar1 = BWorldSm_slices + *(short *)((int)newtonObj + 8);
-  iVar7 = *(int *)((int)newtonObj + 0xa0) - pTVar1->center[0];
-  iVar3 = *(int *)((int)newtonObj + 0xa4) - pTVar1->center[1];
-  iVar5 = *(int *)((int)newtonObj + 0xa8) - pTVar1->center[2];
-  iVar6 = *(int *)((int)newtonObj + 0x144);
-  if (iVar6 < 0) {
-    iVar6 = iVar6 + 0xff;
-  }
-  if (iVar7 < 0) {
-    iVar7 = iVar7 + 0xff;
-  }
-  iVar2 = *(int *)((int)newtonObj + 0x148);
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  iVar4 = *(int *)((int)newtonObj + 0x14c);
-  if (iVar4 < 0) {
-    iVar4 = iVar4 + 0xff;
-  }
-  if (iVar5 < 0) {
-    iVar5 = iVar5 + 0xff;
-  }
-  return (iVar6 >> 8) * (iVar7 >> 8) + (iVar2 >> 8) * (iVar3 >> 8) + (iVar4 >> 8) * (iVar5 >> 8);
+
+  centerBack =
+      *(coorddef *)BWorldSm_slices[newtonObj->simRoadInfo.slice].center;
+  carPos = newtonObj->position;
+  carRelative.x = carPos.x - centerBack.x;
+  carRelative.y = carPos.y - centerBack.y;
+  carRelative.z = carPos.z - centerBack.z;
+  return (newtonObj->roadMatrix.m[0] / 256) * (carRelative.x / 256) +
+         (newtonObj->roadMatrix.m[1] / 256) * (carRelative.y / 256) +
+         (newtonObj->roadMatrix.m[2] / 256) * (carRelative.z / 256);
 }
 
 /* end of newton.cpp */

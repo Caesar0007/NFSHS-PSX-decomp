@@ -129,31 +129,18 @@ void Camera_TunnelLimit(int player,int *armheight)
     bVar1 = true;
   }
   if (bVar1) {
-    BWorldSm_Pos *slicePos;   /* SYM: REG slicePos PTR BWorldSm_Pos */
-    coorddef quadnormal;      /* SYM: AUTO */
-    coorddef underCam;        /* SYM: AUTO */
-    int roadheight;           /* SYM: REG */
-    int track;                /* SYM: REG */
-    int maxheight;            /* SYM: REG */
-    int cameraOffset;
-    char *sliceBase;
-
-    /* MATCH: expose the camera stride/base terms so slicePos lands in retail s0.
-     * Retail keeps both terms live for later -132/-140 rematerializations; this
-     * compiler still folds those two reads to negative displacements from s0. */
-    cameraOffset = ((player << 4) + player) << 4;
-    sliceBase = (char *)&Camera_gInfo[0].slicePos;
-    slicePos = (BWorldSm_Pos *)(sliceBase + cameraOffset);
-    quadnormal = *(coorddef *)BWorldSm_UNormal(slicePos);
-    underCam = *(coorddef *)(sliceBase + cameraOffset - 132);
-    roadheight = Newton_FindGroundElevationGeneral(&underCam,&quadnormal,slicePos->quadPts);
-    track = GameSetup_gData.track;
+    BWorldSm_Pos *slicePos = &Camera_gInfo[player].slicePos;
+    coorddef quadnormal = *(coorddef *)BWorldSm_UNormal(slicePos);
+    coorddef underCam = Camera_gInfo[player].position;
+    int roadheight =
+        Newton_FindGroundElevationGeneral(&underCam,&quadnormal,slicePos->quadPts);
+    int track = GameSetup_gData.track;
     if (0xf < GameSetup_gData.track) {
       track = GameSetup_gData.track + -7;
     }
-    maxheight = (gTunnelCamHeight[track] -
-                (*(BO_tNewtonObj **)(sliceBase + cameraOffset - 140))->position.y) +
-                roadheight;
+    int maxheight =
+        (gTunnelCamHeight[track] - Camera_gInfo[player].anchor->position.y) +
+        roadheight;
     if (maxheight < *armheight) {
       *armheight = maxheight;
     }

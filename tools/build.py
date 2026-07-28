@@ -160,7 +160,6 @@ PER_TU_FLAGS = {
     "recon/syslib/psx/libcd/drv.c":       {"jtbl_at_fusion": True},  # CD_get_intr
     "recon/syslib/psx/libgpu/FONT.c":       {"jtbl_at_fusion": True},  # FntPrint
     "recon/game/common/aih_cop.cpp":        {"jtbl_at_fusion": True},  # HighExecute__10AIHigh_Cop
-    "recon/game/common/aih_traf.cpp":       {"jtbl_at_fusion": True},  # HighExecute__14AIHigh_Traffic
     "recon/syslib/psx/libmcrd/LIBMCRD.c": {"jtbl_at_fusion": True},  # MemCardCmd_cb
     "recon/syslib/psx/libpad/PADENTRY.c":   {"jtbl_at_fusion": True},  # PadInfoAct
     "recon/game/common/r3dcar.cpp":         {"jtbl_at_fusion": True},  # R3DCar_InsertCarFacet

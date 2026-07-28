@@ -1422,10 +1422,10 @@ LAB_TICKS0:
 
 
 /* ---- FindBarrierEndSlice__13AIState_Chase  AIState_Chase::FindBarrierEndSlice  [AISTATE.CPP:764-866] SLD-VERIFIED ---- */
-/* NEAR (21 diffs/227 vs 230 insns): IDA/SYM register allocation and the raw
-   SLD line trace recover both mirrored scan scopes exactly. The sole residual
-   is the final +/-6 slice wrap: equivalent source keeps the candidate in v1
-   and folds the oracle's v0 branch/merge sequence. */
+/* MATCH: IDA/SYM register allocation and the raw SLD line trace recover both
+   mirrored scan scopes. Keeping gNumSlices-6 as an explicit branch-local
+   temporary and spelling the non-wrapping return arm first preserves retail's
+   v0 result web and branch layout. */
 
 int AIState_Chase::FindBarrierEndSlice()
 
@@ -1636,19 +1636,22 @@ int AIState_Chase::FindBarrierEndSlice()
 
   if (forwardBarrierDistance < backwardsBarrierDistance) {
 
-    if (gNumSlices <= forwardBarrierEndSlice + 6) {
-
-      return forwardBarrierEndSlice - (gNumSlices - 6);
+    if (forwardBarrierEndSlice + 6 < gNumSlices) {
+      return forwardBarrierEndSlice + 6;
 
     }
 
-    return forwardBarrierEndSlice + 6;
+    {
+      int numSlicesLess6 = gNumSlices - 6;
+      return forwardBarrierEndSlice - numSlicesLess6;
+    }
 
   }
 
   if (backwardsBarrierEndSlice - 6 < 0) {
+    int numSlicesLess6 = gNumSlices - 6;
 
-    return backwardsBarrierEndSlice + (gNumSlices - 6);
+    return backwardsBarrierEndSlice + numSlicesLess6;
 
   }
 
@@ -2596,11 +2599,11 @@ extern "C" void ___14AIState_Donuts(AIState_Donuts *pThis,int __in_chrg)
 
 
 /* ---- Execute__14AIState_Donuts  AIState_Donuts::Execute  [AISTATE.CPP:1256-1334] SLD-VERIFIED ---- */
-/* NEAR (21 diffs/316 vs 319 insns): IDA's retail register annotations and the
+/* NEAR (18 diffs/317 vs 319 insns): IDA's retail register annotations and the
    SYM SLD line trace recovered the real locals, scopes, and source-statement
    boundaries. All regions now match except the slice-wrap at 0x80072008:
-   equivalent control flow leaves forwardSlice in v1 instead of the oracle's
-   v0 and folds three oracle branch/merge instructions. */
+   even with an explicit gNumSlices-3 temporary, equivalent control flow leaves
+   forwardSlice in v1 instead of the oracle's v0 and folds two merge instructions. */
 
 void AIState_Donuts::Execute()
 
@@ -2646,22 +2649,24 @@ void AIState_Donuts::Execute()
     int forwardSlice;
     int forwardDot;
     int dCarToCenter;
+    int numSlicesLess3;
 
     forwardDot =
         (this->carObj_->N.orientMat.m[6] / 256) * (this->carObj_->N.roadMatrix.m[6] / 256) +
         (this->carObj_->N.orientMat.m[7] / 256) * (this->carObj_->N.roadMatrix.m[7] / 256) +
         (this->carObj_->N.orientMat.m[8] / 256) * (this->carObj_->N.roadMatrix.m[8] / 256);
 
-    forwardSlice = slice + 3;
-
     if (0 <= forwardDot)
 
     {
+      const int candidateSlice = slice + 3;
 
-      if (!(forwardSlice < gNumSlices)) {
-
-        forwardSlice = slice - (gNumSlices - 3);
-
+      if (candidateSlice < gNumSlices) {
+        forwardSlice = candidateSlice;
+      }
+      else {
+        numSlicesLess3 = gNumSlices - 3;
+        forwardSlice = slice - numSlicesLess3;
       }
 
     }
@@ -2669,11 +2674,9 @@ void AIState_Donuts::Execute()
     else {
 
       forwardSlice = slice + -3;
-
       if (forwardSlice < 0) {
-
-        forwardSlice = slice + (gNumSlices - 3);
-
+        numSlicesLess3 = gNumSlices - 3;
+        forwardSlice = slice + numSlicesLess3;
       }
 
     }

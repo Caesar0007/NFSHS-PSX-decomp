@@ -1229,11 +1229,6 @@ void Physics_TestForBarrierCollision(Car_tObj *carObj)
   return;
 }
 
-static inline int *Physics_gripAdvanceWheel(Car_tObj *pCVar3)
-{
-  return &(pCVar3->N).simRoadInfo.quadPts[2].z;
-}
-
 /* ---- Physics_CalculateRoadGripModifiers__FP8Car_tObj  [PHYSICS.CPP:1394-1439] SLD-VERIFIED ---- */
 void Physics_CalculateRoadGripModifiers(Car_tObj *carObj)
 
@@ -1243,17 +1238,20 @@ void Physics_CalculateRoadGripModifiers(Car_tObj *carObj)
   int leftWheels;
   int rightWheels;
   int i;
-  Car_tObj *pCVar3;
   int roadSurfaceType;
   int tempSurface;
+  int speed;
 
   frontWheels = 0;
   rearWheels = 0;
   leftWheels = 0;
   rightWheels = 0;
-  pCVar3 = carObj;
-  for (i = 0; frontMult = frontWheels >> 1, i < 4; i = i + 1) {
-    roadSurfaceType = pCVar3->wheel[0].roadSurfaceType & 0xf;
+  i = 0;
+  while (true) {
+    if (4 <= i) {
+      break;
+    }
+    roadSurfaceType = carObj->wheel[i].roadSurfaceType & 0xf;
     tempSurface = (u_int)(u_char)roadSurfaceIndex[carObj->carInfo->TireType][roadSurfaceType];
     if (slippery != 0) {
       tempSurface = tempSurface + 1;
@@ -1270,18 +1268,19 @@ void Physics_CalculateRoadGripModifiers(Car_tObj *carObj)
     else {
       rightWheels = rightWheels + roadSurfaceFrictionCoeff[tempSurface];
     }
-    pCVar3 = (Car_tObj *)Physics_gripAdvanceWheel(pCVar3);
+    i = i + 1;
   }
+  frontMult = frontWheels >> 1;
   rearMult = rearWheels >> 1;
   leftMult = leftWheels >> 1;
   rightMult = rightWheels >> 1;
-  i = (carObj->linearVel_ch).z;
+  speed = (carObj->linearVel_ch).z;
   roadMult = (frontMult + rearMult >> 1) + (carObj->N).roadGravityModifier;
-  if (0x50000 < i) {
-    i = fixedmult(i,carObj->specs->frontAeroDownForce);
-    frontMult = frontMult + i;
-    i = fixedmult((carObj->linearVel_ch).z,carObj->specs->rearAeroDownForce);
-    rearMult = rearMult + i;
+  if (0x50000 < speed) {
+    speed = fixedmult(speed,carObj->specs->frontAeroDownForce);
+    frontMult = frontMult + speed;
+    speed = fixedmult((carObj->linearVel_ch).z,carObj->specs->rearAeroDownForce);
+    rearMult = rearMult + speed;
   }
   return;
 }

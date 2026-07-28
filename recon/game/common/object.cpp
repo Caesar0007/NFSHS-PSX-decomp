@@ -384,93 +384,84 @@ ObjectAnim * Object_GetAnim(Trk_SimObject *simObj)
 int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNewtonObj *N)
 
 {
-  int iVar1;
   Trk_SimObject *simObj;
   ObjectAnim *objStatus;
-  Trk_CollideBoomInst *objInstance;
-  ObjectFinishedMultiAnim *finishedMulti;
-  ObjectMultiAnim *multiAnim;
-  ObjectSignAnim *signAnim;
-  ObjectFinishedSignAnim *finishedSign;
-  Chunk *pMChunk;
-  int iVar3;
-  u_char type;
-  u_char boomIndex;
-  AnimDef *animDef;
-  Trk_ObjectDef *objDef;
   int vel;
-  int ret;
   int chunk;
+  int type;
+  int ret;
 
-  iVar3 = (N->linearVel).x;
-  iVar1 = (N->linearVel).z;
-  if (iVar3 < 0) {
-    iVar3 = -iVar3;
-  }
-  if (iVar1 < 0) {
-    iVar1 = -iVar1;
-  }
+  ret = 0;
+  vel = (__builtin_abs((N->linearVel).x) + __builtin_abs((N->linearVel).z)) >> 16;
   simObj = GetSimObj(objIndex,objList,&chunk);
+  objStatus = gSimObjAnims[simObj->serialNum];
   type = simObj->type & 0xf;
-  if (type == 2) {
-    objStatus = gSimObjAnims[simObj->serialNum];
-    if (objStatus != (ObjectAnim *)0x0) {
-      return 0;
+  if (type != 2) {
+    if (type < 3) {
+      if (type == 1) {
+        ret = 1;
+      }
+      goto done;
     }
-    if (-1 < iVar3 + iVar1 >> 0x10) {
-      objInstance = (Trk_CollideBoomInst *)
-           FindObjInstanceFromSerialNum(Track_chunkList[chunk].objInstanceBuf,(int)simObj->instIndex);
-      if (objInstance->type == '\x06') {
-        boomIndex = *(u_char *)((int)&objInstance->y + 1);
-      }
-      else {
-        boomIndex = objInstance->boomIndex;
-      }
-      animDef = gAnimDefs + boomIndex;
-      if (gAnimDefs[boomIndex].animIndex == 0) {
-        objDef = Track_gObjDefs[objInstance->pad];
-      }
-      else {
-        objDef = (Trk_ObjectDef *)(gPersistObjDef + 1);
-      }
-      if (animDef->type == 0) {
-        finishedSign = (ObjectFinishedSignAnim *)__builtin_new(sizeof(ObjectFinishedSignAnim));
-        (finishedSign->_base_ObjectAnim)._vf =
-             (__vtbl_ptr_type (*) [3])ObjectFinishedSignAnim_vtable;
-        signAnim = (ObjectSignAnim *)__builtin_new(sizeof(ObjectSignAnim));
-        vel = fixedatan((N->linearVel).x >> 8,(N->linearVel).z >> 8);
-        signAnim = ObjectSignAnim_ct(signAnim,&N->linearVel,vel >> 8,animDef,objInstance,objDef,
-                                     simObj,(coorddef *)((N->roadMatrix).m + 3),finishedSign);
-      }
-      else {
-        if (animDef->type != 1) {
-          return -1;
-        }
-        finishedMulti = (ObjectFinishedMultiAnim *)__builtin_new(sizeof(ObjectFinishedMultiAnim));
-        (finishedMulti->_base_ObjectAnim)._vf =
-             (__vtbl_ptr_type (*) [3])ObjectFinishedMultiAnim_vtable;
-        multiAnim = (ObjectMultiAnim *)__builtin_new(sizeof(ObjectMultiAnim));
-        signAnim = (ObjectSignAnim *)
-                   ObjectMultiAnim_ct(multiAnim,&N->linearVel,animDef,objInstance,objDef,simObj,
-                                      finishedMulti);
-      }
-      ret = -1;
-      gSimObjAnims[simObj->serialNum] = &signAnim->_base_ObjectAnim;
-      return ret;
+    if (type == 3) {
+      ret = 2;
     }
+    goto done;
   }
-  else {
-    if (2 < type) {
-      if (type != 3) {
-        return 0;
+  else if ((objStatus == (ObjectAnim *)0x0) && (-1 < vel)) {
+    Chunk *pMChunk;
+    Trk_CollideBoomInst *objInstance;
+    Trk_ObjectDef *objDef;
+    AnimDef *animDef;
+    ObjectFinishedMultiAnim *finishedMulti;
+    ObjectMultiAnim *multiAnim;
+    ObjectSignAnim *signAnim;
+    ObjectFinishedSignAnim *finishedSign;
+    u_char boomIndex;
+
+    pMChunk = Track_chunkList + chunk;
+    objInstance = (Trk_CollideBoomInst *)
+         FindObjInstanceFromSerialNum(pMChunk->objInstanceBuf,(int)simObj->instIndex);
+    if (objInstance->type == '\x06') {
+      boomIndex = *(u_char *)((int)&objInstance->y + 1);
+    }
+    else {
+      boomIndex = objInstance->boomIndex;
+    }
+    animDef = gAnimDefs + boomIndex;
+    if (animDef->animIndex != 0) {
+      objDef = (Trk_ObjectDef *)(gPersistObjDef + 1);
+    }
+    else {
+      objDef = Track_gObjDefs[objInstance->pad];
+    }
+    if (animDef->type != 0) {
+      if (animDef->type != 1) {
+        ret = -1;
+        goto done;
       }
-      return 2;
+      finishedMulti = (ObjectFinishedMultiAnim *)__builtin_new(sizeof(ObjectFinishedMultiAnim));
+      (finishedMulti->_base_ObjectAnim)._vf =
+           (__vtbl_ptr_type (*) [3])ObjectFinishedMultiAnim_vtable;
+      multiAnim = (ObjectMultiAnim *)__builtin_new(sizeof(ObjectMultiAnim));
+      signAnim = (ObjectSignAnim *)
+                 ObjectMultiAnim_ct(multiAnim,&N->linearVel,animDef,objInstance,objDef,simObj,
+                                    finishedMulti);
     }
-    if (type != 1) {
-      return 0;
+    else {
+      finishedSign = (ObjectFinishedSignAnim *)__builtin_new(sizeof(ObjectFinishedSignAnim));
+      (finishedSign->_base_ObjectAnim)._vf =
+           (__vtbl_ptr_type (*) [3])ObjectFinishedSignAnim_vtable;
+      signAnim = (ObjectSignAnim *)__builtin_new(sizeof(ObjectSignAnim));
+      vel = fixedatan((N->linearVel).x >> 8,(N->linearVel).z >> 8);
+      signAnim = ObjectSignAnim_ct(signAnim,&N->linearVel,vel >> 8,animDef,objInstance,objDef,
+                                   simObj,(coorddef *)((N->roadMatrix).m + 3),finishedSign);
     }
+    ret = -1;
+    gSimObjAnims[simObj->serialNum] = &signAnim->_base_ObjectAnim;
   }
-  return 1;
+ done:
+  return ret;
 }
 
 /* ---- Object_InitCustomObjects  [OBJECT.CPP:581-594] SLD-VERIFIED ---- */

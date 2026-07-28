@@ -29,7 +29,7 @@ extern Trk_ObjectDef     **Track_gObjDefs;           /* draww/track */
 extern Chunk              *Track_chunkList;
 extern Trk_NewSlice       *BWorldSm_slices;
 extern int                 gNumSlices;
-extern AnimDef            *gAnimDefs;
+extern AnimDef             gAnimDefs[14];
 extern SaveSurface        *Track_gSaveSurface;
 extern Sim_tSimGlobalVar   simGlobal;
 extern AIHigh_Traffic     *highLevelAIObjs[];        /* per-car AI obj (accidentData_ @+0x20) */

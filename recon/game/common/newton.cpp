@@ -1366,32 +1366,26 @@ void Newton_UpdateRoadInfo(BO_tNewtonObj *n)
 void Newton_CopyRoadMatrixToOrientMat(BO_tNewtonObj *n,int backwards)
 
 {
-  matrixtdef *pmVar1;
-  matrixtdef *road;
-  matrixtdef *ori;
-  matrixtdef *pmVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-
-  road = &n->roadMatrix; /* MATCH: only the SOURCE ptr is hoisted before the branch (oracle sets
-   * it in the branch's delay slot, used by BOTH arms); the DEST ptr (ori) is computed separately
-   * inside each arm -- verify_asm 2026-07-26 */
   if (backwards == 0) {
-    ori = &n->orientMat;
-    *ori = *road;
+    n->orientMat = n->roadMatrix;
     return;
   }
-  ori = &n->orientMat;
-  ori->m[0] = -road->m[0];
-  ori->m[1] = -road->m[1];
-  ori->m[2] = -road->m[2];
-  ori->m[3] = road->m[3];
-  ori->m[4] = road->m[4];
-  ori->m[5] = road->m[5];
-  ori->m[6] = -road->m[6];
-  ori->m[7] = -road->m[7];
-  ori->m[8] = -road->m[8];
+  {
+    matrixtdef *ori;
+    matrixtdef *road;
+
+    ori = &n->orientMat;
+    road = &n->roadMatrix;
+    ori->m[0] = -road->m[0];
+    ori->m[1] = -road->m[1];
+    ori->m[2] = -road->m[2];
+    ori->m[3] = road->m[3];
+    ori->m[4] = road->m[4];
+    ori->m[5] = road->m[5];
+    ori->m[6] = -road->m[6];
+    ori->m[7] = -road->m[7];
+    ori->m[8] = -road->m[8];
+  }
   return;
 }
 
@@ -1399,32 +1393,26 @@ void Newton_CopyRoadMatrixToOrientMat(BO_tNewtonObj *n,int backwards)
 void Newton_CopyRoadMatrixToShadowMat(BO_tNewtonObj *n,int backwards)
 
 {
-  matrixtdef *pmVar1;
-  matrixtdef *road;
-  matrixtdef *shad;
-  matrixtdef *pmVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  
-  road = &n->roadMatrix; /* MATCH: only the SOURCE ptr is hoisted before the branch (oracle sets
-   * it in the branch's delay slot, used by BOTH arms); the DEST ptr (shad) is computed separately
-   * inside each arm -- verify_asm 2026-07-26 */
   if (backwards == 0) {
-    shad = &n->shadowMat;
-    *shad = *road;
+    n->shadowMat = n->roadMatrix;
     return;
   }
-  shad = &n->shadowMat;
-  shad->m[0] = -road->m[0];
-  shad->m[1] = -road->m[1];
-  shad->m[2] = -road->m[2];
-  shad->m[3] = road->m[3];
-  shad->m[4] = road->m[4];
-  shad->m[5] = road->m[5];
-  shad->m[6] = -road->m[6];
-  shad->m[7] = -road->m[7];
-  shad->m[8] = -road->m[8];
+  {
+    matrixtdef *shad;
+    matrixtdef *road;
+
+    shad = &n->shadowMat;
+    road = &n->roadMatrix;
+    shad->m[0] = -road->m[0];
+    shad->m[1] = -road->m[1];
+    shad->m[2] = -road->m[2];
+    shad->m[3] = road->m[3];
+    shad->m[4] = road->m[4];
+    shad->m[5] = road->m[5];
+    shad->m[6] = -road->m[6];
+    shad->m[7] = -road->m[7];
+    shad->m[8] = -road->m[8];
+  }
   return;
 }
 

@@ -309,35 +309,36 @@ void SetStrip(BWorldSm_Pos *slicePos)
 /* ---- GetFirstStmQuadPts__FP12BWorldSm_PosP8CCOORD16  [@0x8007ef98] ---- */
 void GetFirstStmQuadPts(BWorldSm_Pos *slicePos,CCOORD16 *vertices)
 {
-  CCOORD16*pts;
-  Trk_NewStrip*pStrip;
+  CCOORD16 *pts;
+  Trk_NewStrip *pStrip;
   int topInd;
   int botInd;
   short x;
   short z;
-  u_char bVar1;
-  short sVar2;
-  short sVar3;
-  CCOORD16 *pCVar4;
-  CCOORD16 *pCVar5;
   
   SetStrip(slicePos);
-  sVar2 = slicePos->stripQuadInd;
-  bVar1 = slicePos->strip->botVert;
-  pCVar4 = vertices + (u_int)slicePos->strip->topVert + (int)sVar2;
-  sVar3 = pCVar4[1].z;
-  slicePos->quadPts16[1].x = pCVar4[1].x;
-  slicePos->quadPts16[1].z = sVar3;
-  sVar3 = pCVar4->z;
-  pCVar5 = vertices + (u_int)bVar1 + (int)sVar2;
-  slicePos->quadPts16[2].x = pCVar4->x;
-  slicePos->quadPts16[2].z = sVar3;
-  sVar2 = pCVar5->z;
-  slicePos->quadPts16[3].x = pCVar5->x;
-  slicePos->quadPts16[3].z = sVar2;
-  sVar2 = pCVar5[1].z;
-  slicePos->quadPts16[0].x = pCVar5[1].x;
-  slicePos->quadPts16[0].z = sVar2;
+  pts = slicePos->quadPts16;
+  pStrip = slicePos->strip;
+  topInd = (u_int)pStrip->topVert + slicePos->stripQuadInd;
+  botInd = (u_int)pStrip->botVert + slicePos->stripQuadInd;
+
+  x = vertices[topInd + 1].x;
+  z = vertices[topInd + 1].z;
+  pts[1].x = x;
+  pts[1].z = z;
+  x = vertices[topInd].x;
+  z = vertices[topInd].z;
+  pts[2].x = x;
+  pts[2].z = z;
+
+  x = vertices[botInd].x;
+  z = vertices[botInd].z;
+  pts[3].x = x;
+  pts[3].z = z;
+  x = vertices[botInd + 1].x;
+  z = vertices[botInd + 1].z;
+  pts[0].x = x;
+  pts[0].z = z;
   return;
 }
 

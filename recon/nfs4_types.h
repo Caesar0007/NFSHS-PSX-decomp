@@ -1536,6 +1536,11 @@ struct Group {   /* 4 bytes */
     {
         return this + 1;
     }
+
+    inline int GetNumElements(void)
+    {
+        return m_num_elements;
+    }
 };
 
 struct Trk_ObjectDef {   /* 4 bytes */

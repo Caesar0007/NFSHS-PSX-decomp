@@ -161,50 +161,48 @@ valid_index:
 void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *objList,int *numObj)
 
 {
-  Group *pThis;
   int altChunk;
-  int iVar2;
-  int total;
 
-  pThis = Track_chunkList[slicePos->chunk].simObjBuf;
-  if (pThis == (Group *)0x0) {
+  if (Track_chunkList[slicePos->chunk].simObjBuf != (Group *)0x0) {
+    objList->numObjects = Track_chunkList[slicePos->chunk].simObjBuf->m_num_elements;
+  } else {
     objList->numObjects = 0;
   }
-  else {
-    objList->numObjects = pThis->m_num_elements;
-  }
-  objList->numObjects2 = 0;
   objList->chunk = (int)slicePos->chunk;
-  iVar2 = slicePos->slice + 1;
-  if (gNumSlices <= iVar2) {
-    iVar2 = slicePos->slice - (gNumSlices + -1);
+  objList->numObjects2 = 0;
+  altChunk = slicePos->slice + 1;
+  if (altChunk < gNumSlices) {
+    altChunk = (int)BWorldSm_slices[altChunk].chunkIndex;
+  } else {
+    altChunk = (int)BWorldSm_slices[slicePos->slice - (gNumSlices - 1)].chunkIndex;
   }
-  altChunk = (int)BWorldSm_slices[iVar2].chunkIndex;
-  if ((altChunk == slicePos->chunk) || (Track_chunkList[altChunk].simObjBuf == (Group *)0x0)) {
-    iVar2 = slicePos->slice + -1;
-    if (iVar2 < 0) {
-      iVar2 = slicePos->slice + gNumSlices + -1;
-    }
-    altChunk = (int)BWorldSm_slices[iVar2].chunkIndex;
-    if ((altChunk == slicePos->chunk) || (Track_chunkList[altChunk].simObjBuf == (Group *)0x0)) {
-      total = objList->numObjects;
-    }
-    else {
-      objList->numObjects2 = Track_chunkList[altChunk].simObjBuf->m_num_elements;
-      objList->chunk2 = altChunk;
-      total = objList->numObjects + objList->numObjects2;
-    }
-  }
-  else {
+  if ((altChunk != slicePos->chunk) &&
+      (Track_chunkList[altChunk].simObjBuf != (Group *)0x0)) {
     objList->numObjects2 = Track_chunkList[altChunk].simObjBuf->m_num_elements;
     objList->chunk2 = altChunk;
-    total = objList->numObjects + objList->numObjects2;
+    *numObj = objList->numObjects + objList->numObjects2;
+  } else {
+    altChunk = slicePos->slice - 1;
+    if (altChunk < 0) {
+      altChunk = slicePos->slice + (gNumSlices - 1);
+    }
+    altChunk = (int)BWorldSm_slices[altChunk].chunkIndex;
+    if ((altChunk != slicePos->chunk) &&
+        (Track_chunkList[altChunk].simObjBuf != (Group *)0x0)) {
+      objList->numObjects2 = Track_chunkList[altChunk].simObjBuf->m_num_elements;
+      objList->chunk2 = altChunk;
+      *numObj = objList->numObjects + objList->numObjects2;
+    } else {
+      *numObj = objList->numObjects;
+    }
   }
-  *numObj = total;
-  if (((Object_customSimObjs != (Group *)0x0) && (0 < Object_customSimObjs->m_num_elements)) &&
-     (iVar2 = Math_DistXZ((coorddef *)(BWorldSm_slices + Object_customSliceNum),
-                          (coorddef *)(BWorldSm_slices + slicePos->slice)), iVar2 < 0xc00000)) {
-    *numObj = *numObj + Object_customSimObjs->m_num_elements;
+  if (Object_customSimObjs != (Group *)0x0) {
+    if (0 < Object_customSimObjs->m_num_elements) {
+      if (Math_DistXZ((coorddef *)(BWorldSm_slices + Object_customSliceNum),
+                      (coorddef *)(BWorldSm_slices + slicePos->slice)) <= 0xbfffff) {
+        *numObj = *numObj + Object_customSimObjs->GetNumElements();
+      }
+    }
   }
   return;
 }

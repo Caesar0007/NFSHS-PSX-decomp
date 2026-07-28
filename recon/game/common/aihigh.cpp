@@ -33,301 +33,124 @@ int          AIHigh_CopGameType;   /* @0x8013c55c  (bss(zero)) */
 /* ---- AIHigh_StartUp__Fv  AIHigh_StartUp  [AIHIGH.CPP:58-105] SLD-VERIFIED ---- */
 
 void AIHigh_StartUp(void)
-
-
-
 {
   int carLoop;
   int copCounter;
   int humanCopCounter;
-  Car_tObj*carObj;
+  Car_tObj *carObj;
 
-  AIHigh_BTC_HumanCop *newObj;
-
-  AIHigh_BTC_AIPerp *pAVar1;
-
-  void **ppvVar2;
-
-  AIHigh_Traffic *pAVar3;
-
-  AIHigh_BTC_Wingman *this_00;
-
-  AIHigh_Human *this_01;
-
-  AIHigh_Base *pAVar4;
-
-  AIHigh_Opponent *pAVar5;
-
-  AIHigh_Cop *pAVar6;
-
-  u_int uVar7;
-
-  Car_tObj *pCVar8;
-
-  int iVar9;
-
-  int iVar10;
-
-  int iVar11;
-
-  int iVar12;
-
-  Car_tObj **ppCVar13;
-
-  AIHigh_Base **ppAVar14;
-
-  
-
-  iVar12 = 0;
+  copCounter = 0;
+  humanCopCounter = 0;
 
   AIState_StartUp();
 
   if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
+      ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
+       ((Cars_gNumHumanRaceCars == 2 &&
+         (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
+    carLoop = 0;
+    while (carLoop < Cars_gNumCars) {
+      AIHigh_Base *newHigh;
+      AIHigh_Base **slot;
+      u_int carFlags;
 
-     ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
-
-      ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
-
-    ppCVar13 = Cars_gList;
-
-    iVar11 = 0;
-
-    for (iVar10 = 0; iVar10 < Cars_gNumCars; iVar10 = iVar10 + 1) {
-
-      pCVar8 = *ppCVar13;
-
-      uVar7 = pCVar8->carFlags;
-
-      if ((uVar7 & 0x200) == 0) {
-
-        iVar9 = iVar11;
-
-        if ((uVar7 & 4) == 0) {
-
-          if ((uVar7 & 8) == 0) {
-
-            if ((uVar7 & 0x10) == 0) {
-
-              if ((uVar7 & 0x20) == 0) {
-
-                pAVar1 = operator new(0x18);
-
-                (new((AIHigh_Base *)pAVar1) AIHigh_Base(pCVar8));
-
-                ppvVar2 = (void **)&AIHigh_None_vtable;
-
-                goto LAB_8005af74;
-
-              }
-
-              this_00 = operator new(0x7c);
-
-              iVar9 = iVar11 + 1;
-
-              pAVar1 = (AIHigh_BTC_AIPerp *) (new(this_00) AIHigh_BTC_Wingman(pCVar8,iVar11));
-
-            }
-
-            else {
-
-              pAVar3 = operator new(0x24);
-
-              pAVar1 = (AIHigh_BTC_AIPerp *) (new(pAVar3) AIHigh_Traffic(pCVar8));
-
-            }
-
-          }
-
-          else {
-
-            pAVar1 = operator new(0xac);
-
-            pAVar1 = (new(pAVar1) AIHigh_BTC_AIPerp(pCVar8));
-
-          }
-
-        }
-
-        else {
-
-          pAVar1 = operator new(0x88);
-
-          (new((AIHigh_BasicPerp *)pAVar1) AIHigh_BasicPerp(pCVar8));
-
-          (pAVar1)->_vf =
-
-               (__vtbl_ptr_type (*) [3])&AIHigh_kVtbl_80054dcc;
-
-          (pAVar1)->caught_ = 1;
-
-          ppvVar2 = (void **)AIHigh_BTC_HumanPerp_vtable;
-
-          (pAVar1)->hudActivated_ = 0;
-
-          (pAVar1)->originalActivationCop_ = (AIHigh_BTC_HumanCop *)0x0;
-
-LAB_8005af74:
-
-          (pAVar1)->_vf =
-
-               (__vtbl_ptr_type (*) [3])ppvVar2;
-
-        }
-
+      carObj = Cars_gList[carLoop];
+      /* The remaining 8 detailed diffs are only this commutative address
+         calculation's v0/v1 choice; the resulting slot address is identical. */
+      slot = &highLevelAIObjs[carLoop];
+      carFlags = carObj->carFlags;
+      if ((carFlags & 0x200U) != 0) {
+        AIHigh_BTC_HumanCop *p = operator new(0x8c);
+        newHigh = (AIHigh_Base *)new(p) AIHigh_BTC_HumanCop(carObj,copCounter++);
       }
-
+      else if ((carFlags & 4U) != 0) {
+        AIHigh_BTC_AIPerp *p = operator new(0x88);
+        new((AIHigh_BasicPerp *)p) AIHigh_BasicPerp(carObj);
+        p->_vf = (__vtbl_ptr_type (*) [3])&AIHigh_kVtbl_80054dcc;
+        p->caught_ = 1;
+        p->hudActivated_ = 0;
+        p->originalActivationCop_ = (AIHigh_BTC_HumanCop *)0x0;
+        p->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BTC_HumanPerp_vtable;
+        newHigh = (AIHigh_Base *)p;
+      }
+      else if ((carFlags & 8U) != 0) {
+        AIHigh_BTC_AIPerp *p = operator new(0xac);
+        newHigh = (AIHigh_Base *)new(p) AIHigh_BTC_AIPerp(carObj);
+      }
+      else if ((carFlags & 0x10U) != 0) {
+        AIHigh_Traffic *p = operator new(0x24);
+        newHigh = (AIHigh_Base *)new(p) AIHigh_Traffic(carObj);
+      }
+      else if ((carFlags & 0x20U) != 0) {
+        AIHigh_BTC_Wingman *p = operator new(0x7c);
+        newHigh = (AIHigh_Base *)new(p) AIHigh_BTC_Wingman(carObj,copCounter++);
+      }
       else {
-
-        newObj = operator new(0x8c);
-
-        pAVar1 = (AIHigh_BTC_AIPerp *)
-
-                 (new(newObj) AIHigh_BTC_HumanCop(pCVar8,iVar11))
-
-        ;
-
-        iVar9 = iVar11 + 1;
-
+        AIHigh_Base *p = operator new(0x18);
+        new(p) AIHigh_Base(carObj);
+        p->_vf = (__vtbl_ptr_type (*) [3])&AIHigh_None_vtable;
+        newHigh = p;
       }
-
-      highLevelAIObjs[iVar10] = (AIHigh_Base *)pAVar1;
-
-      if ((pCVar8->carFlags & 0x200U) != 0) {
-
-        iVar12 = iVar12 + 1;
-
+      *slot = newHigh;
+      if ((carObj->carFlags & 0x200U) != 0) {
+        humanCopCounter = humanCopCounter + 1;
       }
-
-      ppCVar13 = ppCVar13 + 1;
-
-      iVar11 = iVar9;
-
+      carLoop = carLoop + 1;
     }
 
-    if (iVar12 == 2) {
-
+    if (humanCopCounter == 2) {
       AIHigh_CopGameType = 3;
-
+      return;
     }
-
-    else if ((iVar12 == 1) && (iVar11 == 1)) {
-
-      AIHigh_CopGameType = 4;
-
+    if (humanCopCounter == 1) {
+      if (copCounter == humanCopCounter) {
+        AIHigh_CopGameType = 4;
+        return;
+      }
     }
-
-    else {
-
-      AIHigh_CopGameType = 2;
-
-    }
-
+    AIHigh_CopGameType = 2;
+    return;
   }
-
   else {
+    carLoop = 0;
+    copCounter = carLoop;
+    while (carLoop < Cars_gNumCars) {
+      AIHigh_Base *newHigh;
 
-    ppAVar14 = highLevelAIObjs;
-
-    ppCVar13 = Cars_gList;
-
-    iVar12 = 0;
-
-    for (iVar11 = iVar12; iVar11 < Cars_gNumCars; iVar11 = iVar11 + 1) {
-
-      pCVar8 = *ppCVar13;
-
-      uVar7 = pCVar8->carFlags;
-
-      if ((uVar7 & 4) == 0) {
-
-        if ((uVar7 & 8) == 0) {
-
-          if ((uVar7 & 0x10) == 0) {
-
-            if ((uVar7 & 0x20) == 0) {
-
-              pAVar4 = operator new(0x18);
-
-              (new(pAVar4) AIHigh_Base(pCVar8));
-
-              pAVar4->_vf = (__vtbl_ptr_type (*) [3])&AIHigh_None_vtable;
-
-              *ppAVar14 = pAVar4;
-
-            }
-
-            else {
-
-              pAVar6 = operator new(0x6c);
-
-              pAVar6 = (new(pAVar6) AIHigh_Cop(pCVar8,iVar12));
-
-              *ppAVar14 = (AIHigh_Base *)pAVar6;
-
-              iVar12 = iVar12 + 1;
-
-            }
-
-          }
-
-          else {
-
-            pAVar3 = operator new(0x24);
-
-            pAVar3 = (new(pAVar3) AIHigh_Traffic(pCVar8));
-
-            *ppAVar14 = (AIHigh_Base *)pAVar3;
-
-          }
-
-        }
-
-        else {
-
-          pAVar5 = operator new(0xc0);
-
-          pAVar5 = (new(pAVar5) AIHigh_Opponent(pCVar8));
-
-          *ppAVar14 = (AIHigh_Base *)pAVar5;
-
-        }
-
+      carObj = Cars_gList[carLoop];
+      if ((carObj->carFlags & 4U) != 0) {
+        AIHigh_Human *p = operator new(0xb0);
+        newHigh = (AIHigh_Base *)new(p) AIHigh_Human(carObj);
       }
-
+      else if ((carObj->carFlags & 8U) != 0) {
+        AIHigh_Opponent *p = operator new(0xc0);
+        newHigh = (AIHigh_Base *)new(p) AIHigh_Opponent(carObj);
+      }
+      else if ((carObj->carFlags & 0x10U) != 0) {
+        AIHigh_Traffic *p = operator new(0x24);
+        newHigh = (AIHigh_Base *)new(p) AIHigh_Traffic(carObj);
+      }
+      else if ((carObj->carFlags & 0x20U) != 0) {
+        AIHigh_Cop *p = operator new(0x6c);
+        newHigh = (AIHigh_Base *)new(p) AIHigh_Cop(carObj,copCounter++);
+      }
       else {
-
-        this_01 = operator new(0xb0);
-
-        pAVar4 = (AIHigh_Base *)(new(this_01) AIHigh_Human(pCVar8))
-
-        ;
-
-        *ppAVar14 = pAVar4;
-
+        AIHigh_Base *p = operator new(0x18);
+        new(p) AIHigh_Base(carObj);
+        p->_vf = (__vtbl_ptr_type (*) [3])&AIHigh_None_vtable;
+        newHigh = p;
       }
-
-      ppAVar14 = ppAVar14 + 1;
-
-      ppCVar13 = ppCVar13 + 1;
-
+      highLevelAIObjs[carLoop] = newHigh;
+      carLoop = carLoop + 1;
     }
 
-    if (iVar12 < 1) {
-
-      AIHigh_CopGameType = 0;
-
-    }
-
-    else {
-
+    if (0 < copCounter) {
       AIHigh_CopGameType = 1;
-
+      return;
     }
-
+    AIHigh_CopGameType = 0;
+    return;
   }
-
-  return;
-
 }
 
 

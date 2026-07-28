@@ -139,7 +139,6 @@ AITrigger_TriggerManager::GetPrevTrigger(int car)
 int AITrigger_TriggerManager::CheckForTriggerAtSlice(int car,int slice)
 {
   int *lastTrigger;
-  int iVar1;
 
   if (this->numTriggers_ == 0) {
     return -1;
@@ -153,22 +152,19 @@ int AITrigger_TriggerManager::CheckForTriggerAtSlice(int car,int slice)
       if (*lastTrigger == this->numTriggers_ + -1) break;
       this->GetNextTrigger(car);
     }
-  }
-  else {
-    if ((slice < this->triggers_[*lastTrigger]->any.slice) && (1 < this->numTriggers_)) {
-      while (slice < this->triggers_[*lastTrigger]->any.slice) {
-        if (*lastTrigger == 0) break;
-        this->GetPrevTrigger(car);
-      }
+  } else if ((slice < this->triggers_[*lastTrigger]->any.slice) &&
+             (1 < this->numTriggers_)) {
+    while (slice < this->triggers_[*lastTrigger]->any.slice) {
+      if (*lastTrigger == 0) break;
+      this->GetPrevTrigger(car);
     }
   }
-  iVar1 = -1;
   if (((this->triggers_[*lastTrigger]->any.slice == slice) &&
       (0xa00 < simGlobal.gameTicks - this->checkTime_[*lastTrigger])) &&
      (this->triggers_[*lastTrigger]->any.type != 2)) {
-    iVar1 = *lastTrigger;
+    return *lastTrigger;
   }
-  return iVar1;
+  return -1;
 }
 
 /* ---- AITrigger_TriggerManager::GetTrigger  [@0x80072cd8] ---- */

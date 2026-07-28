@@ -37,48 +37,50 @@ void Replay_ReplayFindClosestCamera(int player,int slice);
 char * Replay_Compress(char *uncompressed_data)
 
 {
-  /* SYM (nfs4-f-v3.txt) Function-start block for this VA lists exactly 5 REG locals:
-   * i, done, count, c_pointer, begin_byte -- no pointer-typed WRITE-side local (only the
-   * REGPARM uncompressed_data pointer is walked). The compressed_data write position is
-   * therefore a plain int array index (c_pointer), not a walked pointer, mirroring the
-   * Replay_Decompress__FPc fix (its c_pointer was the mirrored READ-side index). */
-  char begin_byte;
-  int count;
+  /* SYM lists exactly five source locals: i, done, count, c_pointer, and begin_byte.
+   * `write` and `end` expose the two strength-reduced address cursors that retail keeps
+   * alongside c_pointer; neither is emitted as a named debug local. */
   int i;
-  int c_pointer;
   int done;
-  char *pcVar6;
+  int count;
+  register int c_pointer;
+  char begin_byte;
   char marker;
+  char *write;
+  char *end;
 
   done = 0;
   c_pointer = 1;
   marker = (char)0xff;
-  pcVar6 = uncompressed_data + 0x20;
+  write = compressed_data + 1;
+  end = uncompressed_data + 0x20;
   do {
     begin_byte = *uncompressed_data;
     count = 0;
     do {
       uncompressed_data = uncompressed_data + 1;
       count = count + 1;
-      if (*uncompressed_data != begin_byte) break;
-    } while ((int)uncompressed_data < (int)pcVar6);
-    if (count < 3) {
+    } while ((*uncompressed_data == begin_byte) &&
+             ((int)uncompressed_data < (int)end));
+    if (count >= 3) {
+      *write = marker;
+      write = write + 3;
+      compressed_data[c_pointer + 1] = (char)count;
+      compressed_data[c_pointer + 2] = begin_byte;
+      c_pointer = c_pointer + 3;
+    }
+    else {
       i = 0;
       if (0 < count) {
         do {
-          compressed_data[c_pointer] = begin_byte;
+          *write = begin_byte;
+          write = write + 1;
           c_pointer = c_pointer + 1;
           i = i + 1;
         } while (i < count);
       }
     }
-    else {
-      compressed_data[c_pointer] = marker;
-      compressed_data[c_pointer + 1] = (char)count;
-      compressed_data[c_pointer + 2] = begin_byte;
-      c_pointer = c_pointer + 3;
-    }
-    if ((int)pcVar6 <= (int)uncompressed_data) {
+    if ((int)end <= (int)uncompressed_data) {
       done = 1;
     }
     if (done) {

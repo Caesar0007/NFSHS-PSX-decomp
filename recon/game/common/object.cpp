@@ -568,22 +568,18 @@ void SetCautionSurface(coorddef *pt,BWorldSm_Pos *slicePos)
 int Object_AddCustomSimObject(SceneElem *objectData,int serialNum,int instIndex)
 
 {
-  u_char tu1;
-  Group *pThis;
-  int iVar1;
-  Group *simObj;
+  Trk_SimObject *simObj;
   BWorldSm_Pos slicePos;
   coorddef pt;
   
   if (objectData->type == 0) {
-    simObj = Object_customSimObjs + Object_customSimObjs->m_num_elements * 5 + 1;
-    simObj->m_num_elements = (objectData->cp).x;
-    simObj[1].m_num_elements = (objectData->cp).y;
-    simObj[2].m_num_elements = (objectData->cp).z;
+    simObj = (Trk_SimObject *)(Object_customSimObjs + 1) +
+             Object_customSimObjs->m_num_elements;
+    simObj->point[0] = objectData->cp.x;
+    simObj->point[1] = objectData->cp.y;
+    simObj->point[2] = objectData->cp.z;
     BWorldSm_SetSlice(1,&slicePos);
-    pt.x = (objectData->cp).x;
-    pt.y = (objectData->cp).y;
-    pt.z = (objectData->cp).z;
+    pt = objectData->cp;
     SetCautionSurface(&pt,&slicePos);
     pt.x = pt.x + -0x40000;
     SetCautionSurface(&pt,&slicePos);
@@ -594,16 +590,15 @@ int Object_AddCustomSimObject(SceneElem *objectData,int serialNum,int instIndex)
     SetCautionSurface(&pt,&slicePos);
     pt.z = pt.z + 0x80000;
     SetCautionSurface(&pt,&slicePos);
+    simObj->serialNum = (short)serialNum + 400;
+    simObj->radius = (short)(objectData->scalar2 >> 9);
     Object_customSliceNum = (int)slicePos.slice;
-    iVar1 = objectData->scalar2;
-    *(short *)((int)&simObj[3].m_num_elements + 2) = (short)serialNum + 400;
-    *(short *)&simObj[3].m_num_elements = (short)(iVar1 >> 9);
-    *(char *)((int)&simObj[4].m_num_elements + 2) = (char)instIndex + -0x80;
-    tu1 = 2;
-    if (8 < objectData->scalar1) {
-      tu1 = 1;
+    simObj->instIndex = (char)instIndex + -0x80;
+    if (objectData->scalar1 < 9) {
+      simObj->type = 2;
+    } else {
+      simObj->type = 1;
     }
-    *(u_char *)((int)&simObj[4].m_num_elements + 3) = tu1;
     Object_customSimObjs->m_num_elements = Object_customSimObjs->m_num_elements + 1;
   }
   return Object_customSimObjs->m_num_elements + -1;

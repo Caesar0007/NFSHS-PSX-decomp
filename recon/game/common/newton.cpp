@@ -529,36 +529,39 @@ int Newton_FindGroundElevationRough(coorddef *point,coorddef *normal,coorddef *p
     int i;
     i = 0;
     do {
-      int z;
-      int x;
-
       if (i == 0) {
-        x = __builtin_abs(point->x);
-        z = __builtin_abs(point->z >> 1);
+        fudgeDist =
+            (__builtin_abs(point->x) > __builtin_abs(point->z >> 1))
+                ? __builtin_abs(point->x) +
+                      (__builtin_abs(point->z >> 1) >> 2)
+                : __builtin_abs(point->z >> 1) +
+                      (__builtin_abs(point->x) >> 2);
       }
       else {
-        x = __builtin_abs(point->x >> 2);
-        z = __builtin_abs(point->z);
+        fudgeDist =
+            (__builtin_abs(point->x >> 2) > __builtin_abs(point->z))
+                ? __builtin_abs(point->x >> 2) +
+                      (__builtin_abs(point->z) >> 2)
+                : __builtin_abs(point->z) +
+                      (__builtin_abs(point->x >> 2) >> 2);
       }
-      if (z < x) {
-        fudgeDist = x + (z >> 2);
-      }
-      else {
-        fudgeDist = z + (x >> 2);
-      }
-      fudgeIndex = __builtin_abs(fudgeDist >> 15);
-      fudgeHeight += fudgeTable[fudgeIndex % 32] << 7;
+      fudgeIndex = fudgeDist >> 15;
+      fudgeDist = __builtin_abs(fudgeIndex);
+      fudgeIndex = fudgeDist % 32;
+      fudgeHeight += fudgeTable[fudgeIndex] << 7;
       i++;
     } while (i < 2);
   }
   if (0x9eb8 < normal->y) {
     int index = (0x10000 - normal->y) >> 9;
-    result = fixedmult(numerator,divTable[index]);
+    result = fixedmult(numerator,divTable[index]) +
+             pointOnQuad->y + fudgeHeight;
   }
   else {
-    result = fixeddiv(numerator,normal->y);
+    result = fixeddiv(numerator,normal->y) +
+             pointOnQuad->y + fudgeHeight;
   }
-  return result + pointOnQuad->y + fudgeHeight;
+  return result;
 }
 
 /* ---- Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coorddef  [NEWTON.CPP:515-599] SLD-VERIFIED ---- */

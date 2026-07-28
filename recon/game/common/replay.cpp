@@ -484,35 +484,10 @@ void Replay_GetInput(int car)
 void Replay_SaveReplay(void)
 
 {
-  GameSetup_tData *pGVar1;
-  GameSetup_tData *pGVar2;
-  tReplayBuffer *ptVar3;
-  tReplayBuffer *ptVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-
   if (Replay_ReplayMode == 0) {
     Replay_Size = simGlobal.gameTicks;
   }
-  pGVar1 = &GameSetup_gData;
-  ptVar4 = &Replay_ReplayBuffer;
-  do {
-    ptVar3 = ptVar4;
-    pGVar2 = pGVar1;
-    iVar5 = pGVar2->numLaps;
-    iVar6 = pGVar2->skill;
-    iVar7 = pGVar2->commMode;
-    (ptVar3->gameSetup).raceType = pGVar2->raceType;
-    (ptVar3->gameSetup).numLaps = iVar5;
-    (ptVar3->gameSetup).skill = iVar6;
-    (ptVar3->gameSetup).commMode = iVar7;
-    ptVar4 = (tReplayBuffer *)&(ptVar3->gameSetup).tournamentMultiplier;
-    pGVar1 = (GameSetup_tData *)&pGVar2->tournamentMultiplier;
-  } while (&pGVar2->tournamentMultiplier != GameSetup_gData.carInfo[8].Camera + 2);
-  iVar5 = pGVar2->cops;
-  *(int *)ptVar4 = GameSetup_gData.carInfo[8].Camera[2];
-  (ptVar3->gameSetup).cops = iVar5;
+  Replay_ReplayBuffer.gameSetup = GameSetup_gData;
   Replay_ReplayBuffer.gameSetup.replayMode = 2;
   Replay_ReplayBuffer.size = Replay_Size;
   return;

@@ -415,11 +415,10 @@ void Replay_SaveInput(int car)
 void Replay_GetInput(int car)
 
 {
-  bool bVar1;
-  int *piVar2;
-  
+  bool hasCameras;
+
   Input_Fetch(car);
-  if (Replay_ReplayCounter[car] == 0) {
+  if (*(int *)((char *)Replay_ReplayCounter + (car << 2)) == 0) {
     if (Replay_ReplayBuffer.buffer[Replay_ReplayGetPtr] == '\0') {
       Replay_ReplayMode = 3;
     }
@@ -428,32 +427,43 @@ void Replay_GetInput(int car)
     }
   }
   if (Replay_ReplayMode == 2) {
-    if (((int)(signed char)controlData[car].steering[Replay_ReplayCounter[car]] & 0x80U) == 0) {
-      Cars_gHumanRaceCarList[car]->carInfo->RampSteering = 0;
-    }
-    else {
+    if (((int)(signed char)controlData[car].steering[
+            *(int *)((char *)Replay_ReplayCounter + (car << Replay_ReplayMode))] & 0x80U) != 0) {
       Cars_gHumanRaceCarList[car]->carInfo->RampSteering = 1;
     }
-    if ((controlData[car].gas[Replay_ReplayCounter[car]] & 0x80) == 0) {
-      Cars_gHumanRaceCarList[car]->carInfo->RampGas = 0;
-    }
     else {
+      Cars_gHumanRaceCarList[car]->carInfo->RampSteering = 0;
+    }
+    if ((controlData[car].gas[
+            *(int *)((char *)Replay_ReplayCounter + (car << 2))] & 0x80) != 0) {
       Cars_gHumanRaceCarList[car]->carInfo->RampGas = 1;
     }
-    if ((controlData[car].brake[Replay_ReplayCounter[car]] & 0x80) == 0) {
-      Cars_gHumanRaceCarList[car]->carInfo->RampBrake = 0;
-    }
     else {
+      Cars_gHumanRaceCarList[car]->carInfo->RampGas = 0;
+    }
+    if ((controlData[car].brake[
+            *(int *)((char *)Replay_ReplayCounter + (car << 2))] & 0x80) != 0) {
       Cars_gHumanRaceCarList[car]->carInfo->RampBrake = 1;
     }
-    piVar2 = Replay_ReplayCounter + car;
-    controlData[car].steering[*piVar2] = controlData[car].steering[*piVar2] & 0x7f;
-    controlData[car].gas[*piVar2] = controlData[car].gas[*piVar2] & 0x7f;
-    controlData[car].brake[*piVar2] = controlData[car].brake[*piVar2] & 0x7f;
-    Input_gSim.steering = (char)(((signed char)controlData[car].steering[*piVar2] - '@') << 2);
-    Input_gSim.gas = controlData[car].gas[*piVar2] << 3;
-    Input_gSim.brake = controlData[car].brake[*piVar2] << 3;
-    Input_gSim.flags = controlData[car].states[*piVar2];
+    else {
+      Cars_gHumanRaceCarList[car]->carInfo->RampBrake = 0;
+    }
+    controlData[car].steering[
+        *(int *)((char *)Replay_ReplayCounter + (car << 2))] =
+        controlData[car].steering[
+            *(int *)((char *)Replay_ReplayCounter + (car << 2))] & 0x7f;
+    controlData[car].gas[Replay_ReplayCounter[car]] =
+        controlData[car].gas[Replay_ReplayCounter[car]] & 0x7f;
+    controlData[car].brake[Replay_ReplayCounter[car]] =
+        controlData[car].brake[Replay_ReplayCounter[car]] & 0x7f;
+    {
+      int steering =
+          (signed char)controlData[car].steering[Replay_ReplayCounter[car]];
+      Input_gSim.steering = (char)((steering - '@') << 2);
+    }
+    Input_gSim.gas = controlData[car].gas[Replay_ReplayCounter[car]] << 3;
+    Input_gSim.brake = controlData[car].brake[Replay_ReplayCounter[car]] << 3;
+    Input_gSim.flags = controlData[car].states[Replay_ReplayCounter[car]];
   }
   else if (Replay_ReplayMode == 3) {
     Input_gSim.steering = '\0';
@@ -461,13 +471,20 @@ void Replay_GetInput(int car)
     Input_gSim.brake = '\0';
     Input_gSim.flags = '\0';
   }
-  bVar1 = numValidCams != 0;
-  Replay_ReplayCounter[car] = Replay_ReplayCounter[car] + 1;
-  if (((bVar1) && (Replay_ReplayCamera[car].cameraMode == 0x13)) && (simGlobal.gameStarted != 0)) {
+  hasCameras = numValidCams != 0;
+  {
+    int *counter = &Replay_ReplayCounter[car];
+    *counter = *counter + 1;
+  }
+  if (((hasCameras) && (Replay_ReplayCamera[car].cameraMode == 0x13)) &&
+      (simGlobal.gameStarted != 0)) {
     Replay_ReplayChooseCamera(car,(int)(Cars_gHumanRaceCarList[car]->N).simRoadInfo.slice);
   }
-  if (Replay_ReplayCounter[car] == 0x20) {
-    Replay_ReplayCounter[car] = 0;
+  {
+    int *counter = &Replay_ReplayCounter[car];
+    if (*counter == 0x20) {
+      *counter = 0;
+    }
   }
   return;
 }

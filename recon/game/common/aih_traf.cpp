@@ -399,159 +399,85 @@ AIHigh_Traffic::AIHigh_Traffic(Car_tObj *carObj)
 /* ---- CheckForNewTriggers__14AIHigh_Traffic  AIHigh_Traffic::CheckForNewTriggers  [AIH_TRAF.CPP:353-433] SLD-VERIFIED ---- */
 
 trigger_t * AIHigh_Traffic::CheckForNewTriggers()
-
-
-
 {
   int sortedLoop;
-  Car_tObj*testCar;
-  int dir;
-  AIHigh_Base*thisPlayer;
-  int thisSlice;
-  int startSlice;
-  int endSlice;
-  int fRandomChance;
-  int chanceBase;
-  int temp;
-  int sliceLoop;
-  int triggerHere;
-  int iRandomChance;
-  int randomValue;
-  int loopOk;
+  Car_tObj **sortedCar;
 
-  Car_tObj *pCVar1;
+  sortedLoop = Cars_gNumCars - 1;
+  sortedCar = Cars_gTotalSortedList + sortedLoop;
 
-  trigger_t *ptVar2;
-
-  u_int uVar3;
-
-  int iStack_30;
-
-  Car_tObj **local_2c;
-
-
-
-  sortedLoop = Cars_gNumCars + -1;
-
-  local_2c = Cars_gTotalSortedList + sortedLoop;
-
-  do {
-
-    if (sortedLoop < 0) {
-
-      return (trigger_t *)0x0;
-
-    }
-
-    testCar = *local_2c;
-
-    dir = -1;
+  while (sortedLoop >= 0) {
+    Car_tObj *testCar = *sortedCar;
 
     if ((testCar->carFlags & 0x204U) != 0) {
+      int dir = -1;
+      AIHigh_Base *thisPlayer =
+        (AIHigh_Base *)highLevelAIObjs[testCar->carIndex];
+      int thisSlice;
+      int startSlice;
+      int endSlice;
+      int fRandomChance = 0x320000;
 
-      thisPlayer = (AIHigh_Base *)highLevelAIObjs[testCar->carIndex];
-
-      fRandomChance = 0x320000;
-
-      if (-1 < testCar->currentSpeed) {
-
+      if (testCar->currentSpeed >= 0) {
         dir = 1;
-
       }
 
       thisSlice = dir * 0x2d;
-
       if (thisSlice >= 0) {
-
-        thisSlice = (testCar->N).simRoadInfo.slice + thisSlice;
-
-        if (gNumSlices <= thisSlice) {
-
-          thisSlice = thisSlice - gNumSlices;
-
+        thisSlice += testCar->N.simRoadInfo.slice;
+        if (thisSlice >= gNumSlices) {
+          thisSlice -= gNumSlices;
         }
-
       }
-
       else {
-
-        thisSlice = (testCar->N).simRoadInfo.slice + thisSlice;
-
+        thisSlice += testCar->N.simRoadInfo.slice;
         if (thisSlice < 0) {
-
-          thisSlice = thisSlice + gNumSlices;
-
+          thisSlice += gNumSlices;
         }
-
       }
 
-      temp = thisPlayer->lastTrafficTriggerCheckSlice_;
-
-      thisPlayer->lastTrafficTriggerCheckSlice_ = thisSlice;
-
-      if (temp < thisSlice) {
-
-        startSlice = temp;
-
-        endSlice = thisSlice;
-
+      {
+        int temp = thisPlayer->lastTrafficTriggerCheckSlice_;
+        thisPlayer->lastTrafficTriggerCheckSlice_ = thisSlice;
+        if (temp < thisSlice) {
+          startSlice = temp;
+          endSlice = thisSlice;
+        }
+        else {
+          startSlice = thisSlice;
+          endSlice = temp;
+        }
       }
 
-      else {
-
-        startSlice = thisSlice;
-
-        endSlice = temp;
-
-      }
-
-      sliceLoop = startSlice;
-
-      loopOk = (endSlice - sliceLoop) < 0x32;
-
-      chanceBase = fRandomChance * 0x19;
-
-      while (sliceLoop < endSlice) {
-
-        if (!loopOk) break;
-
-        triggerHere = triggerManagerTraffic->CheckForTriggerAtSlice(testCar->carIndex, sliceLoop);
+      int sliceLoop = startSlice;
+      while ((sliceLoop < endSlice) &&
+             ((endSlice - startSlice) < 0x32)) {
+        int triggerHere =
+          triggerManagerTraffic->CheckForTriggerAtSlice
+            (testCar->carIndex,sliceLoop);
 
         if (triggerHere != -1) {
-
-          iRandomChance = (chanceBase << 2) / 0x10000;
-
+          int iRandomChance = ((fRandomChance * 0x19) << 2) / 0x10000;
           randtemp = fastRandom * randSeed;
-
           fastRandom = randtemp & 0xffff;
+          int randomValue = (((randtemp >> 8) & 0xffff) * 0x19) >> 0xe;
 
-          uVar3 = randtemp >> 8;
-
-          randomValue = (uVar3 & 0xffff) * 0x19 >> 0xe;
-
-          pCVar1 = AILife_IsSliceInAnyVisibleArea(sliceLoop);
-
-          if ((pCVar1 == (Car_tObj *)0x0) && (randomValue < iRandomChance)) {
-
-            ptVar2 = triggerManagerTraffic->GetTrigger(triggerHere, &iStack_30);
-
-            return ptVar2;
-
+          if ((AILife_IsSliceInAnyVisibleArea(sliceLoop) ==
+               (Car_tObj *)0x0) &&
+              (randomValue < iRandomChance)) {
+            int unused;
+            return triggerManagerTraffic->GetTrigger(triggerHere,&unused);
           }
-
         }
-
         sliceLoop = sliceLoop + 1;
-
       }
-
     }
 
-    sortedLoop = sortedLoop + -1;
+    sortedLoop = sortedLoop - 1;
+    sortedCar = sortedCar - 1;
+  }
 
-    local_2c = local_2c + -1;
-
-  } while( true );
+  return (trigger_t *)0x0;
 
 }
 

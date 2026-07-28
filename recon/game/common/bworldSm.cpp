@@ -395,275 +395,331 @@ int BworldSm_IsSimQuadValid(BWorldSm_Pos *slicePos)
 }
 
 /* ---- RawFindClosestQuad__FP8coorddefP12BWorldSm_Pos  [@0x8007f14c] ---- */
+/* JEB/IDA plus the SLD local map recover the retail 64-byte frame and saved
+   registers (pt=fp, slicePos=s0, attempt=s3, cp=s4, startQuadInd=s5,
+   sliceVariance=s6, firstSliceOffEdge=s7, vertices=s2, lastDist=s1).
+   Direct coordinate expressions are significant: they preserve the original
+   short-lived v0/v1/a0-a3 allocation across both distance scans. */
 int RawFindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
 {
   int attempt;
   int startQuadInd;
   static int sliceOffs[12];
   int sliceVariance;
+  coorddef *cp;
+  CCOORD16 *vertices;
   CCOORD16 pt16;
   int dist;
   int lastDist;
   int firstSliceOffEdge;
-  int newSlice;
-  int numSlices;
-  u_char bVar1;
-  u_char uVar2;
-  short sVar3;
-  short sVar4;
-  Trk_NewSimSlice *pTVar5;
-  char cVar6;
-  int iVar7;
-  int iVar8;
   int iVar9;
   int iVar10;
-  int iVar11;
-  int iVar12;
   int iVar13;
   int iVar14;
   int iVar15;
   int iVar16;
-  int iVar17;
-  CCOORD16 *vertices;
-  int iVar18;
-  coorddef *cp;
-  u_char uVar19;
-  int iVar20;
+  int pointZ;
   
-  iVar18 = 0;
+  attempt = 0;
   slicePos->simQuad = (Trk_NewSimQuad *)0x0;
   slicePos->simRotFlag = 0;
   BWorld_SetSimSlice(slicePos);
-  iVar7 = (int)slicePos->quad;
-  iVar20 = 0;
-  if (((iVar7 < 0) || ((int)(slicePos->simSlice->quadCount - 1) <= iVar7)) ||
-     (slicePos->offEdge != '\0')) {
-    cVar6 = (char)((int)(slicePos->simSlice->quadCount - 1) / 2);
-    iVar7 = (int)cVar6;
-    slicePos->quad = cVar6;
-  }
-  cVar6 = '\0';
-  slicePos->offEdge = '\0';
-  uVar19 = (u_char)iVar7;
-  slicePos->quad = uVar19;
-  do {
-    if (gMaxFindQuadSliceIterations <= iVar18) {
-      iVar20 = slicePos->slice - iVar20;
-      if (gNumSlices <= iVar20) {
-        iVar20 = iVar20 - gNumSlices;
-      }
-      if (iVar20 < 0) {
-        iVar20 = iVar20 + gNumSlices;
-      }
-      slicePos->slice = (short)iVar20;
-      BWorld_SetSimSlice(slicePos);
-      slicePos->offEdge = cVar6;
-      slicePos->simQuad = (Trk_NewSimQuad *)0x0;
-      slicePos->triangleFlag = '\0';
-      return 0;
+  sliceVariance = 0;
+  {
+    int currentQuad;
+
+    currentQuad = (int)(signed char)slicePos->quad;
+    if ((0 <= currentQuad) &&
+        (currentQuad < (int)(slicePos->simSlice->quadCount - 1)) &&
+        ((signed char)slicePos->offEdge == 0)) {
+      startQuadInd = currentQuad;
+      firstSliceOffEdge = 0;
     }
+    else {
+      slicePos->quad =
+          (char)((int)(slicePos->simSlice->quadCount - 1) / 2);
+      startQuadInd = (int)(signed char)slicePos->quad;
+      firstSliceOffEdge = 0;
+    }
+  }
+  slicePos->offEdge = '\0';
+  slicePos->quad = (char)startQuadInd;
+  while (attempt < gMaxFindQuadSliceIterations) {
     BWorld_SetSimSlice(slicePos);
-    slicePos->quad = uVar19;
-    bVar1 = slicePos->simSlice->quadCount;
-    if ((int)(bVar1 - 1) < iVar7) {
-      slicePos->quad = bVar1 - 2;
+    slicePos->quad = (char)startQuadInd;
+    if ((int)(slicePos->simSlice->quadCount - 1) < startQuadInd) {
+      slicePos->quad = slicePos->simSlice->quadCount - 2;
     }
     cp = Chunk_chunkCenters + slicePos->chunk;
-    sVar3 = (short)(pt->x - cp->x >> 10);
-    sVar4 = (short)(pt->z - cp->z >> 10);
+    pt16.x = (short)(pt->x - cp->x >> 10);
+    pt16.z = (short)(pt->z - cp->z >> 10);
     vertices = (CCOORD16 *)(Track_chunkList[slicePos->chunk].vertexBuf + 1);
     GetFirstStmQuadPts(slicePos,vertices);
     BworldSm_UpdateSimQuad(slicePos);
-    pTVar5 = slicePos->simSlice;
-    iVar17 = 0x7fffffff;
-    while ((int)slicePos->quad <= (int)(pTVar5->quadCount - 1)) {
+    lastDist = 0x7fffffff;
+    while ((int)(signed char)slicePos->quad <=
+           (int)(slicePos->simSlice->quadCount - 1)) {
       GetFirstStmQuadPts(slicePos,vertices);
-      iVar10 = (int)slicePos->quadPts16[1].x;
-      iVar14 = (int)slicePos->quadPts16[2].x;
-      iVar15 = (int)sVar4;
-      iVar16 = (int)slicePos->quadPts16[2].z;
-      iVar13 = (int)sVar3;
-      iVar9 = (int)slicePos->quadPts16[1].z;
-      if ((iVar10 - iVar14) * (iVar15 - iVar16) - (iVar13 - iVar14) * (iVar9 - iVar16) < 1) {
-        iVar12 = (int)slicePos->quadPts16[0].x;
-        iVar11 = (int)slicePos->quadPts16[0].z;
-        if ((iVar12 - iVar10) * (iVar15 - iVar9) - (iVar13 - iVar10) * (iVar11 - iVar9) < 1) {
-          iVar9 = (int)slicePos->quadPts16[3].x;
-          iVar10 = (int)slicePos->quadPts16[3].z;
-          if ((((iVar14 - iVar9) * (iVar15 - iVar10) - (iVar13 - iVar9) * (iVar16 - iVar10) < 1) &&
-              ((iVar9 - iVar12) * (iVar15 - iVar11) - (iVar13 - iVar12) * (iVar10 - iVar11) < 1)) &&
-             (iVar9 = BworldSm_IsSimQuadValid(slicePos), iVar9 != 0))
-          goto LAB_8007f1dc;
-        }
+      if ((((int)slicePos->quadPts16[1].x -
+            (int)slicePos->quadPts16[2].x) *
+               ((int)pt16.z - (int)slicePos->quadPts16[2].z) -
+           ((int)pt16.x - (int)slicePos->quadPts16[2].x) *
+               ((int)slicePos->quadPts16[1].z -
+                (int)slicePos->quadPts16[2].z) < 1) &&
+          (((int)slicePos->quadPts16[0].x -
+            (int)slicePos->quadPts16[1].x) *
+               ((int)pt16.z - (int)slicePos->quadPts16[1].z) -
+           ((int)pt16.x - (int)slicePos->quadPts16[1].x) *
+               ((int)slicePos->quadPts16[0].z -
+                (int)slicePos->quadPts16[1].z) < 1) &&
+          (((int)slicePos->quadPts16[2].x -
+            (int)slicePos->quadPts16[3].x) *
+               ((int)pt16.z - (int)slicePos->quadPts16[3].z) -
+           ((int)pt16.x - (int)slicePos->quadPts16[3].x) *
+               ((int)slicePos->quadPts16[2].z -
+                (int)slicePos->quadPts16[3].z) < 1) &&
+          (((int)slicePos->quadPts16[3].x -
+            (int)slicePos->quadPts16[0].x) *
+               ((int)pt16.z - (int)slicePos->quadPts16[0].z) -
+           ((int)pt16.x - (int)slicePos->quadPts16[0].x) *
+               ((int)slicePos->quadPts16[3].z -
+                (int)slicePos->quadPts16[0].z) < 1) &&
+          BworldSm_IsSimQuadValid(slicePos)) {
+LAB_8007f1dc:
+        slicePos->rez = '\x02';
+        slicePos->offEdge = '\0';
+        GetStmQuadPts(slicePos,cp);
+        return 1;
       }
-      if ((int)slicePos->quad == slicePos->simSlice->quadCount - 1) {
+      if ((int)(signed char)slicePos->quad ==
+          slicePos->simSlice->quadCount - 1) {
         slicePos->offEdge = '\x02';
         break;
       }
-      iVar10 = BworldSm_IsSimQuadValid(slicePos);
-      iVar9 = iVar17;
-      if (iVar10 != 0) {
-        iVar10 = (int)sVar3;
-        iVar9 = (int)slicePos->quadPts16[3].x;
-        iVar13 = iVar10 - iVar9;
+      if (BworldSm_IsSimQuadValid(slicePos)) {
+        iVar13 = (int)pt16.x -
+                 (int)slicePos->quadPts16[3].x;
         if (iVar13 < 1) {
-          iVar13 = iVar9 - iVar10;
+          iVar13 = (int)slicePos->quadPts16[3].x -
+                   (int)pt16.x;
         }
-        iVar9 = (int)slicePos->quadPts16[2].x;
-        iVar14 = iVar10 - iVar9;
+        iVar14 = (int)pt16.x -
+                 (int)slicePos->quadPts16[2].x;
         if (iVar14 < 1) {
-          iVar14 = iVar9 - iVar10;
+          iVar14 = (int)slicePos->quadPts16[2].x -
+                   (int)pt16.x;
         }
-        iVar9 = (int)slicePos->quadPts16[1].x;
-        iVar15 = iVar10 - iVar9;
+        iVar15 = (int)pt16.x -
+                 (int)slicePos->quadPts16[1].x;
         if (iVar15 < 1) {
-          iVar15 = iVar9 - iVar10;
+          iVar15 = (int)slicePos->quadPts16[1].x -
+                   (int)pt16.x;
         }
-        iVar9 = (int)slicePos->quadPts16[0].x;
-        iVar16 = iVar10 - iVar9;
+        iVar16 = (int)pt16.x -
+                 (int)slicePos->quadPts16[0].x;
         if (iVar16 < 1) {
-          iVar16 = iVar9 - iVar10;
+          iVar16 = (int)slicePos->quadPts16[0].x -
+                   (int)pt16.x;
         }
-        iVar9 = (int)slicePos->quadPts16[0].z;
-        iVar10 = sVar4 - iVar9;
-        iVar9 = iVar9 - sVar4;
-        if (0 < iVar10) {
-          iVar9 = iVar10;
+        pointZ = (int)pt16.z;
+        iVar9 = pointZ -
+                (int)slicePos->quadPts16[0].z;
+        iVar10 = (int)slicePos->quadPts16[0].z -
+                 pointZ;
+        if (0 < iVar9) {
+          iVar16 = iVar16 + iVar9;
         }
-        iVar10 = (int)slicePos->quadPts16[1].z;
-        iVar11 = sVar4 - iVar10;
-        iVar10 = iVar10 - sVar4;
-        if (0 < iVar11) {
-          iVar10 = iVar11;
+        else {
+          iVar16 = iVar16 + iVar10;
         }
-        iVar11 = (int)slicePos->quadPts16[2].z;
-        iVar12 = sVar4 - iVar11;
-        iVar11 = iVar11 - sVar4;
-        if (0 < iVar12) {
-          iVar11 = iVar12;
+        pointZ = (int)pt16.z;
+        iVar9 = pointZ -
+                (int)slicePos->quadPts16[1].z;
+        iVar10 = (int)slicePos->quadPts16[1].z -
+                 pointZ;
+        if (0 < iVar9) {
+          iVar9 = iVar15 + iVar9;
         }
-        iVar12 = (int)slicePos->quadPts16[3].z;
-        iVar8 = sVar4 - iVar12;
-        iVar12 = iVar12 - sVar4;
-        if (0 < iVar8) {
-          iVar12 = iVar8;
+        else {
+          iVar9 = iVar15 + iVar10;
         }
-        iVar9 = iVar16 + iVar9 + iVar15 + iVar10 + iVar14 + iVar11 + iVar13 + iVar12;
-        if (0x28 < iVar9 - iVar17) break;
+        iVar16 = iVar16 + iVar9;
+        pointZ = (int)pt16.z;
+        iVar9 = pointZ -
+                (int)slicePos->quadPts16[2].z;
+        iVar10 = (int)slicePos->quadPts16[2].z -
+                 pointZ;
+        iVar16 =
+            iVar16 + (iVar14 +
+                      ((0 < iVar9) ? iVar9 : iVar10));
+        pointZ = (int)pt16.z;
+        iVar9 = pointZ -
+                (int)slicePos->quadPts16[3].z;
+        iVar10 = (int)slicePos->quadPts16[3].z -
+                 pointZ;
+        dist =
+            iVar16 + (iVar13 +
+                      ((0 < iVar9) ? iVar9 : iVar10));
+        if (0x28 < dist - lastDist) break;
+        lastDist = dist;
       }
       slicePos->quad = slicePos->quad + '\x01';
       BworldSm_UpdateSimQuad(slicePos);
-      pTVar5 = slicePos->simSlice;
-      iVar17 = iVar9;
     }
-    uVar2 = uVar19;
-    if ((slicePos->offEdge != '\0') && (iVar18 == 0)) {
-      uVar2 = slicePos->simSlice->quadCount;
+    lastDist = 0x7fffffff;
+    if (((signed char)slicePos->offEdge != 0) && (attempt == 0)) {
+      slicePos->quad = slicePos->simSlice->quadCount - 1;
     }
-    slicePos->quad = uVar2 + 0xff;
-    if (slicePos->quad < '\0') {
+    else {
+      slicePos->quad = (char)(startQuadInd - 1);
+    }
+    if ((signed char)slicePos->quad < 0) {
       slicePos->quad = '\0';
     }
     GetFirstStmQuadPts(slicePos,vertices);
-    iVar17 = 0x7fffffff;
-    while (BworldSm_UpdateSimQuad(slicePos), -1 < slicePos->quad) {
+    goto LAB_8007f5c8;
+    do {
       GetFirstStmQuadPts(slicePos,vertices);
-      iVar10 = (int)slicePos->quadPts16[1].x;
-      iVar14 = (int)slicePos->quadPts16[2].x;
-      iVar15 = (int)sVar4;
-      iVar16 = (int)slicePos->quadPts16[2].z;
-      iVar13 = (int)sVar3;
-      iVar9 = (int)slicePos->quadPts16[1].z;
-      if ((iVar10 - iVar14) * (iVar15 - iVar16) - (iVar13 - iVar14) * (iVar9 - iVar16) < 1) {
-        iVar12 = (int)slicePos->quadPts16[0].x;
-        iVar11 = (int)slicePos->quadPts16[0].z;
-        if ((iVar12 - iVar10) * (iVar15 - iVar9) - (iVar13 - iVar10) * (iVar11 - iVar9) < 1) {
-          iVar9 = (int)slicePos->quadPts16[3].x;
-          iVar10 = (int)slicePos->quadPts16[3].z;
-          if ((((iVar14 - iVar9) * (iVar15 - iVar10) - (iVar13 - iVar9) * (iVar16 - iVar10) < 1) &&
-              ((iVar9 - iVar12) * (iVar15 - iVar11) - (iVar13 - iVar12) * (iVar10 - iVar11) < 1)) &&
-             (iVar9 = BworldSm_IsSimQuadValid(slicePos), iVar9 != 0)) {
-LAB_8007f1dc:
-            slicePos->rez = '\x02';
-            slicePos->offEdge = '\0';
-            GetStmQuadPts(slicePos,cp);
-            return 1;
-          }
-        }
-      }
-      if (slicePos->quad == '\0') {
+      if ((((int)slicePos->quadPts16[1].x -
+            (int)slicePos->quadPts16[2].x) *
+               ((int)pt16.z - (int)slicePos->quadPts16[2].z) -
+           ((int)pt16.x - (int)slicePos->quadPts16[2].x) *
+               ((int)slicePos->quadPts16[1].z -
+                (int)slicePos->quadPts16[2].z) < 1) &&
+          (((int)slicePos->quadPts16[0].x -
+            (int)slicePos->quadPts16[1].x) *
+               ((int)pt16.z - (int)slicePos->quadPts16[1].z) -
+           ((int)pt16.x - (int)slicePos->quadPts16[1].x) *
+               ((int)slicePos->quadPts16[0].z -
+                (int)slicePos->quadPts16[1].z) < 1) &&
+          (((int)slicePos->quadPts16[2].x -
+            (int)slicePos->quadPts16[3].x) *
+               ((int)pt16.z - (int)slicePos->quadPts16[3].z) -
+           ((int)pt16.x - (int)slicePos->quadPts16[3].x) *
+               ((int)slicePos->quadPts16[2].z -
+                (int)slicePos->quadPts16[3].z) < 1) &&
+          (((int)slicePos->quadPts16[3].x -
+            (int)slicePos->quadPts16[0].x) *
+               ((int)pt16.z - (int)slicePos->quadPts16[0].z) -
+           ((int)pt16.x - (int)slicePos->quadPts16[0].x) *
+               ((int)slicePos->quadPts16[3].z -
+                (int)slicePos->quadPts16[0].z) < 1) &&
+          BworldSm_IsSimQuadValid(slicePos))
+        goto LAB_8007f1dc;
+      if ((signed char)slicePos->quad == 0) {
         slicePos->offEdge = '\x01';
         break;
       }
-      iVar10 = BworldSm_IsSimQuadValid(slicePos);
-      iVar9 = iVar17;
-      if (iVar10 != 0) {
-        iVar10 = (int)sVar3;
-        iVar9 = (int)slicePos->quadPts16[3].x;
-        iVar13 = iVar10 - iVar9;
+      if (BworldSm_IsSimQuadValid(slicePos)) {
+        iVar13 = (int)pt16.x -
+                 (int)slicePos->quadPts16[3].x;
         if (iVar13 < 1) {
-          iVar13 = iVar9 - iVar10;
+          iVar13 = (int)slicePos->quadPts16[3].x -
+                   (int)pt16.x;
         }
-        iVar9 = (int)slicePos->quadPts16[2].x;
-        iVar14 = iVar10 - iVar9;
+        iVar14 = (int)pt16.x -
+                 (int)slicePos->quadPts16[2].x;
         if (iVar14 < 1) {
-          iVar14 = iVar9 - iVar10;
+          iVar14 = (int)slicePos->quadPts16[2].x -
+                   (int)pt16.x;
         }
-        iVar9 = (int)slicePos->quadPts16[1].x;
-        iVar15 = iVar10 - iVar9;
+        iVar15 = (int)pt16.x -
+                 (int)slicePos->quadPts16[1].x;
         if (iVar15 < 1) {
-          iVar15 = iVar9 - iVar10;
+          iVar15 = (int)slicePos->quadPts16[1].x -
+                   (int)pt16.x;
         }
-        iVar9 = (int)slicePos->quadPts16[0].x;
-        iVar16 = iVar10 - iVar9;
+        iVar16 = (int)pt16.x -
+                 (int)slicePos->quadPts16[0].x;
         if (iVar16 < 1) {
-          iVar16 = iVar9 - iVar10;
+          iVar16 = (int)slicePos->quadPts16[0].x -
+                   (int)pt16.x;
         }
-        iVar9 = (int)slicePos->quadPts16[0].z;
-        iVar10 = sVar4 - iVar9;
-        iVar9 = iVar9 - sVar4;
-        if (0 < iVar10) {
-          iVar9 = iVar10;
+        pointZ = (int)pt16.z;
+        iVar9 = pointZ -
+                (int)slicePos->quadPts16[0].z;
+        iVar10 = (int)slicePos->quadPts16[0].z -
+                 pointZ;
+        if (0 < iVar9) {
+          iVar16 = iVar16 + iVar9;
         }
-        iVar10 = (int)slicePos->quadPts16[1].z;
-        iVar11 = sVar4 - iVar10;
-        iVar10 = iVar10 - sVar4;
-        if (0 < iVar11) {
-          iVar10 = iVar11;
+        else {
+          iVar16 = iVar16 + iVar10;
         }
-        iVar11 = (int)slicePos->quadPts16[2].z;
-        iVar12 = sVar4 - iVar11;
-        iVar11 = iVar11 - sVar4;
-        if (0 < iVar12) {
-          iVar11 = iVar12;
+        pointZ = (int)pt16.z;
+        iVar9 = pointZ -
+                (int)slicePos->quadPts16[1].z;
+        iVar10 = (int)slicePos->quadPts16[1].z -
+                 pointZ;
+        if (0 < iVar9) {
+          iVar9 = iVar15 + iVar9;
         }
-        iVar12 = (int)slicePos->quadPts16[3].z;
-        iVar8 = sVar4 - iVar12;
-        iVar12 = iVar12 - sVar4;
-        if (0 < iVar8) {
-          iVar12 = iVar8;
+        else {
+          iVar9 = iVar15 + iVar10;
         }
-        iVar9 = iVar16 + iVar9 + iVar15 + iVar10 + iVar14 + iVar11 + iVar13 + iVar12;
-        if (0x28 < iVar9 - iVar17) break;
+        iVar16 = iVar16 + iVar9;
+        pointZ = (int)pt16.z;
+        iVar9 = pointZ -
+                (int)slicePos->quadPts16[2].z;
+        iVar10 = (int)slicePos->quadPts16[2].z -
+                 pointZ;
+        iVar16 =
+            iVar16 + (iVar14 +
+                      ((0 < iVar9) ? iVar9 : iVar10));
+        pointZ = (int)pt16.z;
+        iVar9 = pointZ -
+                (int)slicePos->quadPts16[3].z;
+        iVar10 = (int)slicePos->quadPts16[3].z -
+                 pointZ;
+        dist =
+            iVar16 + (iVar13 +
+                      ((0 < iVar9) ? iVar9 : iVar10));
+        if (0x28 < dist - lastDist) break;
+        lastDist = dist;
       }
       slicePos->quad = slicePos->quad + -1;
-      iVar17 = iVar9;
+LAB_8007f5c8:
+      BworldSm_UpdateSimQuad(slicePos);
+    } while (-1 < (signed char)slicePos->quad);
+    if (attempt == 0) {
+      firstSliceOffEdge = (int)(signed char)slicePos->offEdge;
     }
-    if (iVar18 == 0) {
-      cVar6 = slicePos->offEdge;
+    {
+      int newSlice;
+      int numSlices;
+
+      newSlice = (int)slicePos->slice + sliceOffs[attempt];
+      numSlices = gNumSlices;
+      if (numSlices <= newSlice) {
+        newSlice = newSlice - numSlices;
+      }
+      if (newSlice < 0) {
+        newSlice = newSlice + numSlices;
+      }
+      slicePos->slice = (short)newSlice;
     }
-    iVar17 = iVar18 + 0x24;
-    iVar9 = (int)slicePos->slice + BWorld_gChunkBuildList[iVar17];
-    if (gNumSlices <= iVar9) {
-      iVar9 = iVar9 - gNumSlices;
+    sliceVariance = sliceVariance + sliceOffs[attempt];
+    attempt = attempt + 1;
+  }
+  {
+    int newSlice;
+    int numSlices;
+
+    newSlice = (int)slicePos->slice - sliceVariance;
+    numSlices = gNumSlices;
+    if (numSlices <= newSlice) {
+      newSlice = newSlice - numSlices;
     }
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + gNumSlices;
+    if (newSlice < 0) {
+      newSlice = newSlice + numSlices;
     }
-    slicePos->slice = (short)iVar9;
-    iVar18 = iVar18 + 1;
-    iVar20 = iVar20 + BWorld_gChunkBuildList[iVar17];
-  } while( true );
+    slicePos->slice = (short)newSlice;
+  }
+  BWorld_SetSimSlice(slicePos);
+  slicePos->offEdge = (char)firstSliceOffEdge;
+  slicePos->simQuad = (Trk_NewSimQuad *)0x0;
+  slicePos->triangleFlag = '\0';
+  return 0;
 }
 
 /* ---- FindClosestQuad__FP8coorddefP12BWorldSm_Pos  [@0x8007f8f8] ---- */

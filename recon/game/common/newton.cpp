@@ -492,54 +492,23 @@ int Newton_FindGroundElevationGeneral(coorddef *point,coorddef *normal,coorddef 
 
 {
   int result;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int index;
-  
-  iVar5 = normal->y;
-  if (iVar5 < 0x9eb9) {
-    iVar4 = normal->x;
-    if (iVar4 < 0) {
-      iVar4 = iVar4 + 0xff;
-    }
-    iVar1 = *((int *)point) - pointOnQuad->x;
-    if (iVar1 < 0) {
-      iVar1 = iVar1 + 0xff;
-    }
-    iVar3 = normal->z;
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0xff;
-    }
-    iVar2 = ((int *)point)[2] - pointOnQuad->z;
-    if (iVar2 < 0) {
-      iVar2 = iVar2 + 0xff;
-    }
-    iVar5 = fixeddiv(-((iVar3 >> 8) * (iVar2 >> 8)) - (iVar4 >> 8) * (iVar1 >> 8),iVar5);
+  if (0x9eb8 < normal->y) {
+    int index;
+
+    index = (0x10000 - normal->y) >> 9;
+    result = fixedmult(
+                 -((normal->x / 256) * ((point->x - pointOnQuad->x) / 256)) -
+                  (normal->z / 256) * ((point->z - pointOnQuad->z) / 256),
+                 divTable[index]) +
+             pointOnQuad->y;
+  } else {
+    result = fixeddiv(
+                 -((normal->x / 256) * ((point->x - pointOnQuad->x) / 256)) -
+                  (normal->z / 256) * ((point->z - pointOnQuad->z) / 256),
+                 normal->y) +
+             pointOnQuad->y;
   }
-  else {
-    iVar4 = normal->x;
-    if (iVar4 < 0) {
-      iVar4 = iVar4 + 0xff;
-    }
-    iVar1 = *((int *)point) - pointOnQuad->x;
-    if (iVar1 < 0) {
-      iVar1 = iVar1 + 0xff;
-    }
-    iVar3 = normal->z;
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0xff;
-    }
-    iVar2 = ((int *)point)[2] - pointOnQuad->z;
-    if (iVar2 < 0) {
-      iVar2 = iVar2 + 0xff;
-    }
-    iVar5 = fixedmult(-((iVar3 >> 8) * (iVar2 >> 8)) - (iVar4 >> 8) * (iVar1 >> 8),
-                       divTable[0x10000 - iVar5 >> 9]);
-  }
-  return iVar5 + pointOnQuad->y;
+  return result;
 }
 
 /* ---- Newton_FindGroundElevationRough__FP8coorddefN20  [NEWTON.CPP:475-506] SLD-VERIFIED ---- */

@@ -409,13 +409,13 @@ void AI_OpponentBlockPlayer(Car_tObj *carObj,Car_tObj *otherCarObj)
 /* ---- AI_CheckForBarriers__FP8Car_tObj  [@0x800582d4] ---- */
 void AI_CheckForBarriers(Car_tObj *carObj)
 {
+  int dir;
   int slicesAhead;
   int forwardSlice0;
   int forwardSlice1;
   int interval;
   int masks[3];
   int laneNotChecked[3] = {1, 1, 1};
-  int dir;
   int speed;
   int sliceLoop;
   int slice;
@@ -433,8 +433,7 @@ void AI_CheckForBarriers(Car_tObj *carObj)
   else {
     slice = (int)(carObj->N).simRoadInfo.slice;
   }
-  speed = (speed << 0x12) / 0x60000;
-  slicesAhead = speed;
+  slicesAhead = speed = (speed << 0x12) / 0x60000;
   speed = slicesAhead * dir;
   forwardSlice0 = slice + speed;
   if (0 <= speed) {

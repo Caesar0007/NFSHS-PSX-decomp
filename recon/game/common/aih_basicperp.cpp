@@ -23,181 +23,70 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
 
 {
-  int crime;
-  int originalCrime;
-  int legal;
+  crimeType crime = basicPerpInfo_.crime_;
+  crimeType originalCrime = crime;
+  int legal = AISpeeds_GetLegalSpeed(carObj_->N.simRoadInfo.slice);
 
-  BO_tNewtonObj *pBVar2;
-
-  Car_tObj *pCVar3;
-
-  int iVar4;
-
-  int iVar1;
-
-
-
-  crime = (this->basicPerpInfo_).crime_;
-
-  pCVar3 = this->carObj_;
-
-  originalCrime = crime;
-
-  legal = AISpeeds_GetLegalSpeed((int)(pCVar3->N).simRoadInfo.slice);
-
-  if (simGlobal.gameTicks - this->lastPullOverTime_ < 0x280) {
-
+  if (simGlobal.gameTicks - lastPullOverTime_ < 0x280)
     return;
 
-  }
-
-  pCVar3 = this->carObj_;
-
-  if (1 < (pCVar3->stats).finishType) {
-
+  if (carObj_->stats.finishType >= 2)
     return;
 
+  if ((simGlobal.gameTicks - carObj_->N.collision.lastTime < 15) &&
+      (carObj_->N.collision.lastOtherObj != 0) &&
+      (((Car_tObj *)carObj_->N.collision.lastOtherObj)->carFlags & 0x20)) {
+    if (carObj_->N.collision.lastImpulse > 0x140000)
+      crime = CRIME_SMASHCOP;
+    else if (crime == CRIME_NONE)
+      crime = CRIME_BUMPCOP;
   }
 
-  if (((simGlobal.gameTicks - (pCVar3->N).collision.lastTime < 0xf) &&
-
-      (pBVar2 = (pCVar3->N).collision.lastOtherObj, pBVar2 != (BO_tNewtonObj *)0x0)) &&
-
-     ((pBVar2[1].simRoadInfo.quadPts[1].y & 0x20U) != 0)) {
-
-    if ((pCVar3->N).collision.lastImpulse < 0x140001) {
-
-      if (crime == 0) {
-
-        originalCrime = 3;
-
-      }
-
-    }
-
-    else {
-
-      originalCrime = 4;
-
-    }
-
-  }
-
-  if ((crime != 0) && (originalCrime != 4)) {
-
+  if ((originalCrime != CRIME_NONE) && (crime != CRIME_SMASHCOP))
     return;
 
-  }
+  if ((__builtin_abs(carObj_->currentSpeed) > __builtin_abs(legal)) &&
+      (crime == CRIME_NONE))
+    crime = CRIME_SPEEDER;
 
-  iVar4 = (this->carObj_)->currentSpeed;
-
-  if (legal < 0) {
-
-    legal = -legal;
-
-  }
-
-  if (iVar4 < 0) {
-
-    iVar4 = -iVar4;
-
-  }
-
-  if ((legal < iVar4) && (originalCrime == 0)) {
-
-    originalCrime = 1;
-
-  }
-
-  if (AITune_oneWay == 0) {
-
-    pCVar3 = this->carObj_;
-
-    iVar1 = pCVar3->currentSpeed;
-
-    if (iVar1 * AITune_driveSide >= 0) {
-
-      if (6 < pCVar3->laneIndex) goto LAB_8005b700;
-
+  if (AITune_oneWay != 0) {
+    int speed = carObj_->currentSpeed;
+    int wrongWay;
+    if (GameSetup_gData.reverseTrack != 0)
+      wrongWay = (u_int)-speed >> 31;
+    else
+      wrongWay = (u_int)speed >> 31;
+    if (wrongWay != 0) {
+      if ((__builtin_abs(carObj_->currentSpeed) > 0x40000) &&
+          (crime == CRIME_NONE))
+        crime = CRIME_WRONGSIDE;
     }
-
-    else if (pCVar3->laneIndex < 7) goto LAB_8005b700;
-
-    if (iVar1 < 0) {
-
-      iVar1 = -iVar1;
-
+  } else {
+    int speed = carObj_->currentSpeed;
+    if ((speed * AITune_driveSide) >= 0) {
+      if (carObj_->laneIndex >= 7)
+        goto crime_checks_done;
+    } else if (carObj_->laneIndex < 7) {
+      goto crime_checks_done;
     }
-
+    if ((__builtin_abs(speed) > 0x40000) && (crime == CRIME_NONE))
+      crime = CRIME_WRONGSIDE;
   }
 
-  else {
+crime_checks_done:
+  if (simGlobal.gameTicks < 0x200)
+    crime = CRIME_NONE;
 
-    iVar1 = (this->carObj_)->currentSpeed;
-
-    if (GameSetup_gData.reverseTrack != 0) {
-
-      iVar1 = -iVar1;
-
-    }
-
-    if (-1 < iVar1) goto LAB_8005b700;
-
-    iVar1 = (this->carObj_)->currentSpeed;
-
-    if (iVar1 < 0) {
-
-      iVar1 = -iVar1;
-
-    }
-
-  }
-
-  if ((0x40000 < iVar1) && (originalCrime == 0)) {
-
-    originalCrime = 2;
-
-  }
-
-LAB_8005b700:
-
-  if (simGlobal.gameTicks < 0x200) {
-
-    originalCrime = 0;
-
-  }
-
-  if (originalCrime != 0) {
-
+  if (crime != CRIME_NONE) {
     int carLoop;
-    Car_tObj **ppCVar5;
-
-    carLoop = 0;
-
-    ppCVar5 = Cars_gList;
-
-    for (; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
-
-      Car_tObj *carObj;
-
-      carObj = *ppCVar5;
-
-      if (((carObj->carFlags & 0x220U) != 0) && ((carObj->N).active != '\0')) {
-
-        (this->basicPerpInfo_).crime_ = originalCrime;
-
+    for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
+      Car_tObj *carObj = Cars_gList[carLoop];
+      if ((carObj->carFlags & 0x220) && carObj->N.active) {
+        basicPerpInfo_.crime_ = crime;
         return;
-
       }
-
-      ppCVar5 = ppCVar5 + 1;
-
     }
-
   }
-
-  return;
-
 }
 
 

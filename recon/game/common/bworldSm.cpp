@@ -512,8 +512,8 @@ int RawFindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
       slicePos->quad = '\0';
     }
     GetFirstStmQuadPts(slicePos,vertices);
-    goto LAB_8007f5c8;
-    do {
+    BworldSm_UpdateSimQuad(slicePos);
+    while (-1 < (signed char)slicePos->quad) {
       GetFirstStmQuadPts(slicePos,vertices);
       if ((((int)slicePos->quadPts16[1].x -
             (int)slicePos->quadPts16[2].x) *
@@ -559,9 +559,8 @@ int RawFindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
         lastDist = dist;
       }
       slicePos->quad = slicePos->quad - '\x01';
-LAB_8007f5c8:
       BworldSm_UpdateSimQuad(slicePos);
-    } while (-1 < (signed char)slicePos->quad);
+    }
     if (attempt == 0) {
       firstSliceOffEdge = (int)(signed char)slicePos->offEdge;
     }

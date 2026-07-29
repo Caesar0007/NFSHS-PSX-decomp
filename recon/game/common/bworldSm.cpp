@@ -974,45 +974,35 @@ void NormalCache_AddEntry(BWorldSm_Pos *slicePos)
 }
 
 /* ---- NormalCache_FindEntry__FP12BWorldSm_Pos  [@0x800800e8] ---- */
-/* NEAR-MISS 3 diffs (50/49 insns), reduced from 4. Forming the byte-field
- * cursor in two steps keeps the relocation anchored at BWSM_NormalCache and
- * preserves IDA/SLD's ce=$a2, flags=$a1 allocation. The remaining difference
- * is one redundant base copy before the +2 adjustment. */
 bool NormalCache_FindEntry(BWorldSm_Pos *slicePos)
 {
-  u_char *cacheFlags;
   tNormalCacheEntry *ce;
   int slice;
   int quad;
   int i;
 
-  cacheFlags = (u_char *)BWSM_NormalCache;
-  cacheFlags = cacheFlags + 2;
   ce = BWSM_NormalCache;
   i = 0;
   BWSM_NormalCacheSysTime = BWSM_NormalCacheSysTime + 1;
   slice = slicePos->slice;
   quad = *(signed char *)&slicePos->quad;
-searchCache:
-  if (ce->sliceInd != slice) goto nextCacheEntry;
-  if (*(signed char *)&cacheFlags[1] != quad) goto nextCacheEntry;
-  if ((u_int)*cacheFlags ==
-      (int)*(signed char *)&slicePos->triangleFlag) goto cacheHit;
-nextCacheEntry:
-  cacheFlags = cacheFlags + sizeof(tNormalCacheEntry);
-  i = i + 1;
-  ce = ce + 1;
-  if (i < 0x10) goto searchCache;
-searchDone:
-  if (i < 0x10) goto copyCacheEntry;
+  while (i < 0x10) {
+    if ((ce->sliceInd == slice) &&
+        (*(signed char *)&ce->quadInd == quad) &&
+        ((u_int)ce->triangleFlag ==
+         (int)*(signed char *)&slicePos->triangleFlag)) {
+      ce->accessTime = BWSM_NormalCacheSysTime;
+      break;
+    }
+    ce = ce + 1;
+    i = i + 1;
+  }
+  if (i < 0x10) {
+    slicePos->normal = ce->normal;
+    slicePos->forward = ce->forward;
+    return true;
+  }
   return false;
-cacheHit:
-  ce->accessTime = BWSM_NormalCacheSysTime;
-  goto searchDone;
-copyCacheEntry:
-  slicePos->normal = ce->normal;
-  slicePos->forward = ce->forward;
-  return true;
 }
 
 /* ---- NormalCache_Init__Fv  [@0x800801ac] ---- */

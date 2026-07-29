@@ -1699,6 +1699,7 @@ void Physics_CalcTractionCircleAcc(Car_tObj *carObj,Physics_tWheelAccStruct *whe
   int gripLoss;
   int roadGrip;
   int gripLossDivider;
+  int tireType;
 
   wheel_reg = wheel;
   if (__builtin_abs(wheel_reg->finalAcc.x) > __builtin_abs(wheel_reg->finalAcc.z)) {
@@ -1763,13 +1764,13 @@ void Physics_CalcTractionCircleAcc(Car_tObj *carObj,Physics_tWheelAccStruct *whe
       wheel_reg->skid = totalAcc << 2;
     }
   }
-  gripLoss = carObj->carInfo->TireType;
-  if (gripLoss == 1) {
+  tireType = carObj->carInfo->TireType;
+  if (tireType == 1) {
     roadGrip = 0x80000;
   }
   else {
     roadGrip = 0x40000;
-    if (gripLoss != 2) goto PhyTracCircle_skidAdjust;
+    if (tireType != 2) goto PhyTracCircle_skidAdjust;
   }
   if (roadGrip >= wheel_reg->skid) {
     roadGrip = wheel_reg->skid;

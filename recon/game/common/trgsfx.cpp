@@ -124,80 +124,81 @@ void TrgSfx_AddSkidmark(int car,int wheel,coorddef *skidpt,int end,int intensity
   int velXZ;
   int slice;
   int tireWidth;
-  int c;
   int value;
   int temp;
   int dx;
   int dz;
   int dist;
   int MaxDist;
-  int near;
-  u_char shade;
+  int shade;
   CVECTOR color;
   coorddef *linvel;
 
+  linvel = &carObj->N.linearVel;
   velXZ = carObj->N.speedXZ;
   slice = (int)carObj->N.simRoadInfo.slice;
   tireWidth = (wheel < 2) ? carObj->N.wheelWidthF : carObj->N.wheelWidthB;
-  c = car & 7;
-  value = (intensity * 0xff) / 0x70000;
-  if (value >= 0x100) value = 0xff;
-  shade = (u_char)value;
-  color.b = shade;
-  color.g = shade;
-  color.r = shade;
-  linvel = &carObj->N.linearVel;
+  car &= 7;
+  temp = (intensity * 0xff) / 0x70000;
+  shade = 0xff;
+  if (temp < 0x100) shade = temp;
+  temp = shade;
+  color.b = (u_char)temp;
+  color.g = (u_char)temp;
+  color.r = (u_char)temp;
   skidpt->x = skidpt->x + (linvel->x >> 6);
   skidpt->y = skidpt->y + (linvel->y >> 6);
   skidpt->z = skidpt->z + (linvel->z >> 6);
-  temp = gStatusSm[c][wheel];
+  temp = gStatusSm[car][wheel];
   if (temp == 0) {
     if (end == 0) {
-      gStatusSm[c][wheel] = 1;
-      gPrevSkidSm[c][wheel].clr = color;
-      gPrevSkidSm[c][wheel].type = type;
-      gPrevSkidSm[c][wheel].pt = *skidpt;
-      gPrevSkidSm[c][wheel].nseg = (Skidmark_Segment *)0x0;
-    }
-  }
-  else if (end == 0) {
-    near = 0;
-    if (gPrevSkidSm[c][wheel].nseg != (Skidmark_Segment *)0x0) {
-      dx = gPrevSkidSm[c][wheel].pt.x - skidpt->x;
-      if (dx < 1) dx = skidpt->x - gPrevSkidSm[c][wheel].pt.x;
-      dz = gPrevSkidSm[c][wheel].pt.z - skidpt->z;
-      if (dz < 1) dz = skidpt->z - gPrevSkidSm[c][wheel].pt.z;
-      MaxDist = (velXZ < 0xa0000) ? 0x3000 : 0xc000;
-      dist = (dz < dx) ? dx + (dz >> 2) : dz + (dx >> 2);
-      if (dist < MaxDist) near = 1;
-    }
-    if (near != 0) {
-      if (gStatusSm[c][wheel] == 2) {
-        Skidmark_Stretch(gSaveSeg[c][wheel],gSaveChunk[c][wheel],&gPrevSkidSm[c][wheel],skidpt,&color,tireWidth,type);
-      }
-      else {
-        gStatusSm[c][wheel] = 2;
-        Skidmark_AddStretch(&gSaveSeg[c][wheel],&gSaveChunk[c][wheel],&gPrevSkidSm[c][wheel],skidpt,&color,tireWidth,type,slice);
-      }
-    }
-    else {
-      if (gStatusSm[c][wheel] == 2) {
-        Skidmark_EndStretch(gSaveSeg[c][wheel],gSaveChunk[c][wheel],&gPrevSkidSm[c][wheel],skidpt,&color,tireWidth,type);
-      }
-      else {
-        Skidmark_Add(&gPrevSkidSm[c][wheel],skidpt,&color,tireWidth,type,slice);
-      }
-      gStatusSm[c][wheel] = 1;
+      gStatusSm[car][wheel] = 1;
+      gPrevSkidSm[car][wheel].clr = color;
+      gPrevSkidSm[car][wheel].type = type;
+      gPrevSkidSm[car][wheel].pt = *skidpt;
+      gPrevSkidSm[car][wheel].nseg = (Skidmark_Segment *)0x0;
     }
   }
   else {
-    if (temp == 2) {
-      Skidmark_Stretch(gSaveSeg[c][wheel],gSaveChunk[c][wheel],&gPrevSkidSm[c][wheel],skidpt,&color,tireWidth,type);
+    if (end != 0) {
+      if (temp == 2) {
+        Skidmark_Stretch(gSaveSeg[car][wheel],gSaveChunk[car][wheel],&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type);
+      }
+      else {
+        Skidmark_Add(&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type,slice);
+      }
+      gStatusSm[car][wheel] = 0;
     }
     else {
-      Skidmark_Add(&gPrevSkidSm[c][wheel],skidpt,&color,tireWidth,type,slice);
+      value = 0;
+      if (gPrevSkidSm[car][wheel].nseg != (Skidmark_Segment *)0x0) {
+        dx = gPrevSkidSm[car][wheel].pt.x - skidpt->x;
+        if (dx < 1) dx = skidpt->x - gPrevSkidSm[car][wheel].pt.x;
+        dz = gPrevSkidSm[car][wheel].pt.z - skidpt->z;
+        if (dz < 1) dz = skidpt->z - gPrevSkidSm[car][wheel].pt.z;
+        MaxDist = (velXZ < 0xa0000) ? 0x3000 : 0xc000;
+        dist = (dz < dx) ? dx + (dz >> 2) : dz + (dx >> 2);
+        if (dist < MaxDist) value = 1;
+      }
+      if (value == 0) {
+        if (gStatusSm[car][wheel] == 2) {
+          Skidmark_EndStretch(gSaveSeg[car][wheel],gSaveChunk[car][wheel],&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type);
+        }
+        else {
+          Skidmark_Add(&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type,slice);
+        }
+        gStatusSm[car][wheel] = 1;
+      }
+      else {
+        if (gStatusSm[car][wheel] == 2) {
+          Skidmark_Stretch(gSaveSeg[car][wheel],gSaveChunk[car][wheel],&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type);
+        }
+        else {
+          gStatusSm[car][wheel] = 2;
+          Skidmark_AddStretch(&gSaveSeg[car][wheel],&gSaveChunk[car][wheel],&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type,slice);
+        }
+      }
     }
-    gStatusSm[c][wheel] = 0;
   }
   return;
 }

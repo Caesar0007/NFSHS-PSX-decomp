@@ -608,56 +608,42 @@ int FindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
   int foundSlice;
   static coorddef corrPt;
   int rCount;
-  char cVar1;
-  short sVar2;
-  short sVar3;
-  bool bVar4;
-  char cVar5;
-  int iVar6;
-  Trk_NewSimQuad *pTVar7;
+  int sliceChanged;
   
-  sVar2 = slicePos->slice;
-  cVar1 = slicePos->quad;
+  startSlice = slicePos->slice;
+  startQuad = (int)(signed char)slicePos->quad;
   BWorldSm_FindClosestSlice(pt,slicePos);
-  sVar3 = slicePos->slice;
-  iVar6 = RawFindClosestQuad(pt,slicePos);
-  if (iVar6 == 0) {
-    if (slicePos->offEdge != '\0') {
-      slicePos->slice = sVar3;
+  foundSlice = slicePos->slice;
+  if (RawFindClosestQuad(pt,slicePos) == 0) {
+    if (*(signed char *)&slicePos->offEdge != 0) {
+      slicePos->slice = (short)foundSlice;
       BWorld_SetSimSlice(slicePos);
-      if (slicePos->offEdge == '\x01') {
-        cVar5 = '\0';
-      }
-      else {
-        cVar5 = slicePos->simSlice->quadCount + 0xff;
-      }
-      slicePos->quad = cVar5;
+      slicePos->quad =
+          (*(signed char *)&slicePos->offEdge == 1) ?
+          0 : slicePos->simSlice->quadCount - 1;
       BworldSm_UpdateSimQuad(slicePos);
       slicePos->rez = '\x02';
       SetStrip(slicePos);
       GetStmQuadPts(slicePos,Chunk_chunkCenters + slicePos->chunk);
     }
-    corrPt.x = pt->x;
-    corrPt.y = pt->y;
-    corrPt.z = pt->z;
-    pTVar7 = slicePos->simQuad;
-    for (iVar6 = 0; (pTVar7 == (Trk_NewSimQuad *)0x0 && (iVar6 < 10)); iVar6 = iVar6 + 1) {
+    corrPt = *pt;
+    rCount = 0;
+    while ((slicePos->simQuad == (Trk_NewSimQuad *)0x0) &&
+           (rCount < 10)) {
       corrPt.x = corrPt.x +
-                    (*(int *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices) - corrPt.x >> 5);
+          ((BWorldSm_slices[slicePos->slice].center[0] - corrPt.x) >> 5);
       corrPt.z = corrPt.z +
-                    (*(int *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 8) - corrPt.z >> 5);
+          ((BWorldSm_slices[slicePos->slice].center[2] - corrPt.z) >> 5);
       RawFindClosestQuad(&corrPt,slicePos);
-      pTVar7 = slicePos->simQuad;
+      rCount = rCount + 1;
     }
   }
-  cVar5 = '\0';
-  bVar4 = sVar2 != slicePos->slice;
-  slicePos->sliceChanged = bVar4;
-  if ((cVar1 != slicePos->quad) || (bVar4)) {
-    cVar5 = '\x01';
-  }
-  slicePos->quadChanged = cVar5;
-  return (int)slicePos->sliceChanged;
+  sliceChanged = startSlice != slicePos->slice;
+  slicePos->sliceChanged = sliceChanged;
+  slicePos->quadChanged =
+      (startQuad != (int)(signed char)slicePos->quad) ||
+      sliceChanged;
+  return (int)*(signed char *)&slicePos->sliceChanged;
 }
 
 /* ---- BWorldSm_FindClosestQuadRez__FP8coorddefP12BWorldSm_Posi  [@0x8007fac4] ---- */

@@ -525,134 +525,106 @@ TrkAssoc_loopTest:
 void Track_LinkMaterials(SerializedGroup *group,int length,Track_tMaterial *matList)
 
 {
-  Draw_tPixMap * pmx;
-  u_char *puVar1;
-  u_char bVar2;
-  short sVar3;
-  u_int uVar4;
-  u_int uVar5;
-  u_int *puVar6;
-  int d;
-  Track_tMaterialController *pTVar7;
-  Draw_tPixMap *pDVar8;
-  int mipmap_offset;
-  SerializedGroup *pSVar9;
-  int iVar10;
-  SerializedGroup *pThis;
-  int *piVar11;
-  int iVar12;
-  int shapeIndex;
-  int iVar13;
-  u_int uVar14;
-  u_int uVar15;
-  u_int pmxLnkW2;
-  u_int uVar16;
-  u_int pmxLnkW0;
   Trk_Material *mats;
-  SerializedGroup *inputMat;
-  int iVar17;
-  int mm;
-  int i;
-  int iVar18;
-  int iVar19;
-  int controlIndex;
-  int iVar20;
-  Draw_tPixMap originalPmx;
-  int matCount;
 
   if (group != (SerializedGroup *)0x0) {
-    iVar18 = 0;
-    inputMat = group + 1;
+    int matCount;
+    int i;
+    int controlIndex;
+
+    matCount = length / sizeof(Trk_Material);
+    mats = (Trk_Material *)(group + 1);
     Track_gControllerCount = 0;
     gInitialArt.pmxCount = gInitialArt.basePmxCount;
-    uVar14 = (u_int)length / 10;
-    pSVar9 = inputMat;
-    if (uVar14 != 0) {
-      do {
-        if ((pSVar9->m_type & 0x840000) != 0) {
-          Track_gControllerCount = Track_gControllerCount + 1;
-        }
-        iVar18 = iVar18 + 1;
-        pSVar9 = (SerializedGroup *)((int)&pSVar9->dummy + 2);
-        pmxLnkW2 = uVar14;
-      } while (iVar18 < (int)uVar14);
+
+    for (i = 0; i < matCount; i = i + 1) {
+      if ((*(u_short *)&mats[i].flag & 0x84) != 0) {
+        Track_gControllerCount = Track_gControllerCount + 1;
+      }
     }
-    uVar15 = uVar14;
+
     if (Track_gControllerCount != 0) {
       Track_gMatController =
            (Track_tMaterialController *)BWAllocMem(Track_gControllerCount << 4);
     }
-    iVar19 = 0;
-    iVar18 = iVar19;
-    for (; iVar19 < (int)uVar14; iVar19 = iVar19 + 1) {
-      uVar16 = uVar14;
-      Track_AssociateSingleMaterial((Trk_Material *)inputMat,matList,&gInitialArt);
-      bVar2 = *(u_char *)((int)&inputMat->m_type + 2);
-      if ((bVar2 & 4) != 0) {
-        pTVar7 = Track_gMatController + iVar18;
-        pTVar7->type = (u_short)bVar2;
-        pTVar7->interval = (u_char)inputMat->dummy;
-        Track_gMatController[iVar18].textureCount = *(char *)((int)&inputMat->m_length + 3);
-        pTVar7 = Track_gMatController;
-        Track_gMatController[iVar18].pmxIndex = matList->pmxIndex;
-        pTVar7[iVar18].matPtr = matList;
-        iVar20 = iVar18 + 1;
+
+    {
+      Trk_Material *inputMat = mats;
+      Track_tMaterial *outputMat = matList;
+
+    for (i = 0, controlIndex = 0; i < matCount; i = i + 1) {
+      Track_AssociateSingleMaterial(inputMat,outputMat,&gInitialArt);
+
+      if ((inputMat->flag & 4) != 0) {
+        Track_gMatController[controlIndex].type = inputMat->flag;
+        Track_gMatController[controlIndex].interval = inputMat->interval;
+        Track_gMatController[controlIndex].textureCount = inputMat->textureCount;
+        Track_gMatController[controlIndex].pmxIndex = outputMat->pmxIndex;
+        Track_gMatController[controlIndex].matPtr = outputMat;
+        controlIndex = controlIndex + 1;
       }
-      else {
-        iVar20 = iVar18;
-        if ((bVar2 & 0x80) != 0) {
-          Track_gMatController[iVar18].type = (u_short)*(u_char *)((int)&inputMat->m_type + 2);
-          if ((char)inputMat->dummy == '\0') {
-            *(u_char *)&inputMat->dummy = 1;
-          }
-          Track_gMatController[iVar18].interval = (u_char)inputMat->dummy;
-          Track_gMatController[iVar18].textureCount = *(char *)((int)&inputMat->m_length + 3);
-          pTVar7 = Track_gMatController;
-          Track_gMatController[iVar18].pmxIndex = matList->pmxIndex;
-          pTVar7[iVar18].matPtr = matList;
-          pDVar8 = gInitialArt.pPmx;
-          sVar3 = matList->pmxIndex;
-          pTVar7[iVar18].uv0 = gInitialArt.pPmx[sVar3].v0;
-          Track_gMatController[iVar18].uv1 = pDVar8[sVar3].v1;
-          Track_gMatController[iVar18].uv2 = pDVar8[sVar3].v2;
-          Track_gMatController[iVar18].uv3 = pDVar8[sVar3].v3;
-          iVar17 = (u_int)pDVar8[sVar3].v3 - (u_int)pDVar8[sVar3].v0;
-          if (iVar17 < 0) {
-            iVar17 = -iVar17;
-          }
-          iVar20 = iVar18 + 1;
-          Track_gMatController[iVar18].textureMax = (char)iVar17 + '\x01';
+      else if ((inputMat->flag & 0x80) != 0) {
+        Draw_tPixMap *pmx;
+        int d;
+
+        Track_gMatController[controlIndex].type = inputMat->flag;
+        if (inputMat->interval == 0) {
+          inputMat->interval = 1;
         }
+        Track_gMatController[controlIndex].interval = inputMat->interval;
+        Track_gMatController[controlIndex].textureCount = inputMat->textureCount;
+        Track_gMatController[controlIndex].pmxIndex = outputMat->pmxIndex;
+        Track_gMatController[controlIndex].matPtr = outputMat;
+
+        pmx = gInitialArt.pPmx + outputMat->pmxIndex;
+        Track_gMatController[controlIndex].uv0 = pmx->v0;
+        Track_gMatController[controlIndex].uv1 = pmx->v1;
+        Track_gMatController[controlIndex].uv2 = pmx->v2;
+        Track_gMatController[controlIndex].uv3 = pmx->v3;
+        d = pmx->v3 - pmx->v0;
+        if (d < 0) {
+          d = -d;
+        }
+        Track_gMatController[controlIndex].textureMax = d + 1;
+        controlIndex = controlIndex + 1;
       }
-      iVar18 = 0;
+
       if (TrackSpec_gSpec.fogstate != 0) {
-        iVar17 = 0;
-        for (; iVar18 < 0x20; iVar18 = iVar18 + 1) {
-          piVar11 = (int *)((int)gTempMipMapInfo->code + iVar17);
-          if ((*piVar11 != -1) && (iVar13 = piVar11[1], iVar13 == (short)inputMat->m_type)) {
-            iVar10 = piVar11[2];
-            matList->flag = matList->flag | 8;
-            iVar12 = (int)(short)inputMat->m_type;
-            iVar10 = iVar10 - iVar13;
-            if (iVar12 == matList->pmxIndex) {
-              matList->mipmap_offset = (char)iVar10;
-            }
-            else {
-              pDVar8 = gInitialArt.pPmx + iVar12 + iVar10;
-              originalPmx = *pDVar8;
-              Track_ProcessFlipAndUVFlags((u_int)*(u_char *)((int)&inputMat->m_type + 3),&originalPmx,
+        int mm;
+
+        for (mm = 0; mm < 0x20; mm = mm + 1) {
+          if ((*(int *)gTempMipMapInfo[mm].code != -1) &&
+              (gTempMipMapInfo[mm].shapeParentIndex == inputMat->shapeIndex)) {
+            int shapeIndex;
+            int mipmap_offset;
+
+            shapeIndex = gTempMipMapInfo[mm].shapeParentIndex;
+            mipmap_offset = gTempMipMapInfo[mm].mipMapIndex;
+            outputMat->flag = outputMat->flag | 8;
+            mipmap_offset = mipmap_offset - shapeIndex;
+            if (inputMat->shapeIndex != outputMat->pmxIndex) {
+              Draw_tPixMap originalPmx;
+              int shapeIndex;
+
+              shapeIndex = inputMat->shapeIndex + mipmap_offset;
+              originalPmx = gInitialArt.pPmx[shapeIndex];
+              Track_ProcessFlipAndUVFlags(inputMat->uvFlag,&originalPmx,
                          gInitialArt.pPmx + gInitialArt.pmxCount);
               gInitialArt.pmxCount = gInitialArt.pmxCount + 1;
-              matList->mipmap_offset = '\x01';
+              outputMat->mipmap_offset = 1;
+            }
+            else {
+              outputMat->mipmap_offset = mipmap_offset;
             }
           }
-          iVar17 = iVar17 + 0xc;
         }
       }
-      matList = matList + 1;
-      inputMat = (SerializedGroup *)((int)&inputMat->dummy + 2);
-      iVar18 = iVar20;
+
+      outputMat = outputMat + 1;
+      inputMat = inputMat + 1;
     }
+    }
+
     if (gTempMipMapInfo != (Track_MipMap *)0x0) {
       purgememadr(gTempMipMapInfo);
     }

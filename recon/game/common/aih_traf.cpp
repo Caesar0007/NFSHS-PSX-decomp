@@ -424,13 +424,15 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 
       thisSlice = dir * 0x2d;
       if (thisSlice >= 0) {
-        thisSlice += testCar->N.simRoadInfo.slice;
+        thisSlice =
+          testCar->N.simRoadInfo.slice + (thisSlice = thisSlice);
         if (thisSlice >= gNumSlices) {
           thisSlice -= gNumSlices;
         }
       }
       else {
-        thisSlice += testCar->N.simRoadInfo.slice;
+        thisSlice =
+          testCar->N.simRoadInfo.slice + (thisSlice = thisSlice);
         if (thisSlice < 0) {
           thisSlice += gNumSlices;
         }

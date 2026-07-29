@@ -49,45 +49,42 @@ void Quatern_Interpolate(tQuat *q0,tQuat *q1,coorddef *cp0,coorddef *cp1,int wei
 void Quatern_QuatToMat(tQuat *q,matrixtdef *matrix)
 
 {
-  int iVar1;
-  int iVar2;
+  int one;
   int x;
   int y;
-  int zz;
-  int one;
-  int iVar3;
-  int iVar4;
-  int xz;
-  int iVar5;
-  int yz;
-  int xy;
   int z;
-  int iVar6;
-  int wz;
-  int iVar7;
-  int yy;
-  int iVar8;
-  int wy;
   int wx;
+  int wy;
+  int wz;
   int xx;
-  
-  iVar4 = (int)q->x;
-  iVar7 = (int)q->w;
-  iVar1 = iVar7 * iVar4 * 2;
-  iVar5 = (int)q->y;
-  iVar8 = iVar5 * 2;
-  iVar6 = q->z * 2;
-  iVar2 = q->z * iVar6;
-  iVar3 = 0x10000000 - iVar4 * iVar4 * 2;
-  matrix->m[0] = (0x10000000 - iVar5 * iVar8) - iVar2 >> 0xc;
-  matrix->m[1] = iVar4 * iVar8 + iVar7 * iVar6 >> 0xc;
-  matrix->m[3] = iVar4 * iVar8 - iVar7 * iVar6 >> 0xc;
-  matrix->m[4] = iVar3 - iVar2 >> 0xc;
-  matrix->m[8] = iVar3 - iVar5 * iVar8 >> 0xc;
-  matrix->m[2] = iVar4 * iVar6 - iVar7 * iVar8 >> 0xc;
-  matrix->m[6] = iVar4 * iVar6 + iVar7 * iVar8 >> 0xc;
-  matrix->m[5] = iVar5 * iVar6 + iVar1 >> 0xc;
-  matrix->m[7] = iVar5 * iVar6 - iVar1 >> 0xc;
+  int xy;
+  int xz;
+  int yy;
+  int yz;
+  int zz;
+
+  one = 0x10000000;
+  x = q->x * 2;
+  y = q->y * 2;
+  z = q->z * 2;
+  wx = q->w * x;
+  wy = q->w * y;
+  wz = q->w * z;
+  xx = q->x * x;
+  xy = q->x * y;
+  xz = q->x * z;
+  yy = q->y * y;
+  yz = q->y * z;
+  zz = q->z * z;
+  matrix->m[0] = one - yy - zz >> 0xc;
+  matrix->m[1] = xy + wz >> 0xc;
+  matrix->m[2] = xz - wy >> 0xc;
+  matrix->m[3] = xy - wz >> 0xc;
+  matrix->m[4] = one - xx - zz >> 0xc;
+  matrix->m[5] = yz + wx >> 0xc;
+  matrix->m[6] = xz + wy >> 0xc;
+  matrix->m[7] = yz - wx >> 0xc;
+  matrix->m[8] = one - xx - yy >> 0xc;
   return;
 }
 

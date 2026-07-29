@@ -346,7 +346,7 @@ void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
 }
 
 /* ---- BWorld_CheckChunkVisible__FP12BWorldSm_PosT0  [@0x8007dc14] ---- */
-/* NEAR-MISS 106 diffs (74/80 insns), reduced from a baseline of 114 diffs (66/80 insns).
+/* HISTORICAL NOTES (resolved; function now PASSes at 80/80 instructions).
  * 🔴 REAL BUG FIXED (not just a byte-match issue): the two `chunkIndex` lookups were
  * written as `*(u_char*)((int)BWorldSm_slices + idx*0x20 + 0x1c)` with NO cast to a byte
  * pointer before the `idx*0x20` add. Since (int)BWorldSm_slices is `Trk_NewSlice*` (32
@@ -376,68 +376,60 @@ void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
  * (e.g. `lh a1,0(a1)` position, add-then-subtract operand order in the bwd-wrap
  * computation) rides on this same root cause. Same floor class as
  * BWorld_OpenContext/BWorld_InitSpikeBelt above. ACCEPT (with the real bug fixed). */
+/* PASS: ternary-selected slice pointers, packed byte counts, flat 32-short rows,
+ * and a separate count-- reproduce the retail source and allocation shape. */
 int BWorld_CheckChunkVisible(BWorldSm_Pos *slicePosSource,BWorldSm_Pos *slicePosTest)
 {
+  int sourceChunkInd;
   int testChunkIndFwd;
   int testChunkIndBwd;
-  u_short chunkIndFwd;
-  u_short chunkIndBwd;
-  u_short uVar1;
-  u_int uVar3;
-  u_int uVar5;
-  u_int uVar6;
-  int iVar7;
-  short *psVar8;
+  int chunkIndFwd;
+  int chunkIndBwd;
+  Trk_NewSlice *sliceFwd;
+  Trk_NewSlice *sliceBwd;
+  short *chunkViewList;
+  int chunkInd;
+  int count;
+  int vis;
 
   if (slicePosSource == slicePosTest) {
     return 1;
   }
   testChunkIndFwd = slicePosTest->slice + 2;
-  if (testChunkIndFwd < gNumSlices) {
-    chunkIndFwd = (u_short)BWorldSm_slices[testChunkIndFwd].chunkIndex;
-  }
-  else {
-    testChunkIndFwd = (int)slicePosTest->slice - (gNumSlices + -2);
-    chunkIndFwd = (u_short)BWorldSm_slices[testChunkIndFwd].chunkIndex;
-  }
+  sliceFwd = testChunkIndFwd < gNumSlices
+                 ? BWorldSm_slices + testChunkIndFwd
+                 : BWorldSm_slices +
+                       ((int)slicePosTest->slice - (gNumSlices + -2));
+  chunkIndFwd = (u_short)sliceFwd->chunkIndex;
   testChunkIndBwd = slicePosTest->slice + -2;
-  if (testChunkIndBwd < 0) {
-    testChunkIndBwd = (int)slicePosTest->slice + gNumSlices + -2;
-    chunkIndBwd = (u_short)BWorldSm_slices[testChunkIndBwd].chunkIndex;
-  }
-  else {
-    chunkIndBwd = (u_short)BWorldSm_slices[testChunkIndBwd].chunkIndex;
-  }
-  iVar7 = Track_gInViewCount[slicePosSource->chunk] - 1;
-  uVar5 = 0;
-  if (iVar7 != -1) {
-    psVar8 = Track_gInViewList[slicePosSource->chunk - 1] +
-             Track_gInViewCount[slicePosSource->chunk] + 0x1f;
+  sliceBwd = testChunkIndBwd >= 0
+                 ? BWorldSm_slices + testChunkIndBwd
+                 : BWorldSm_slices +
+                       ((int)slicePosTest->slice + (gNumSlices + -2));
+  chunkIndBwd = (u_short)sliceBwd->chunkIndex;
+  sourceChunkInd = slicePosSource->chunk;
+  count = ((u_char *)Track_gInViewCount)[sourceChunkInd];
+  chunkViewList = (short *)Track_gInViewList + sourceChunkInd * 32;
+  count--;
+  vis = 0;
+  if (count != -1) {
     do {
-      uVar1 = *psVar8;
-      if ((uVar1 & 0x3ff) == chunkIndFwd) {
-        uVar3 = uVar5 ^ 2;
-        if ((uVar1 & 0x800) != 0) goto LAB_8007dd44;
-        uVar6 = uVar5 + 1;
-        uVar3 = uVar6 ^ 2;
-        uVar5 = 1;
-        if (uVar6 != 1) goto LAB_8007dd44;
+      chunkInd = chunkViewList[count];
+      if ((chunkInd & 0x3ff) == chunkIndFwd) {
+        if ((chunkInd & 0x800) != 0) goto visible_check;
+        vis++;
+        if (vis != 1) goto visible_check;
       }
-      if ((uVar1 & 0x3ff) == chunkIndBwd) {
-        uVar3 = uVar5 ^ 2;
-        if ((uVar1 & 0x800) != 0) goto LAB_8007dd44;
-        uVar6 = uVar5 + 1;
-        uVar3 = uVar6 ^ 2;
-        uVar5 = 1;
-        if (uVar6 != 1) goto LAB_8007dd44;
+      if ((chunkInd & 0x3ff) == chunkIndBwd) {
+        if ((chunkInd & 0x800) != 0) goto visible_check;
+        vis++;
+        if (vis != 1) goto visible_check;
       }
-      iVar7 = iVar7 + -1;
-      psVar8 = psVar8 + -1;
-    } while (iVar7 != -1);
+      count--;
+    } while (count != -1);
   }
-  uVar3 = uVar5 ^ 2;
-LAB_8007dd44:
-  return (u_int)(uVar3 == 0);
+visible_check:
+  return (u_int)((vis ^ 2) == 0);
 }
 
 /* ---- GetRezIndex__Fi  [@0x8007dd54] ---- */

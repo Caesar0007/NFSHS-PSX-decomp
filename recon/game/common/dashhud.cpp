@@ -121,16 +121,16 @@ void DashHUD_CheckWrongWay(int player)
 void DashHUD_HUDCalc(int player)
 
 {
-  Car_tObj * car;
-  int iVar1;
-  Car_tObj *carObj;
-  
-  carObj = Cars_gHumanRaceCarList[player];
-  DashHUD_gInfo.lap = (carObj->stats).lap + 1;
+  Car_tObj *car;
+  int topSpeed;
+
+  if (DashHUD_gInfo.showhud) {
+  car = Cars_gHumanRaceCarList[player];
+  DashHUD_gInfo.lap = (car->stats).lap + 1;
   if (DashHUD_gInfo.lap < 1) {
     DashHUD_gInfo.lap = 1;
   }
-  if (DashHUD_gInfo.maxlaps < DashHUD_gInfo.lap) {
+  if (DashHUD_gInfo.lap > DashHUD_gInfo.maxlaps) {
     DashHUD_gInfo.lap = DashHUD_gInfo.maxlaps;
   }
   if (simGlobal.gameTicks < 0x200) {
@@ -138,15 +138,10 @@ void DashHUD_HUDCalc(int player)
     DashHUD_gInfo.flashtime = 0;
     goto DashHudCalc_lapTimeCheck;
   }
-  iVar1 = (carObj->stats).lap;
-  if ((iVar1 == 0) ||
-     ((0x13f < simGlobal.gameTicks - (carObj->stats).lapTime && ((carObj->stats).finishType != 2))))
-  {
-    DashHUD_gInfo.flashtime = 0;
-    DashHUD_gInfo.laptime = simGlobal.gameTicks - (carObj->stats).lapTime;
-  }
-  else {
-    DashHUD_gInfo.laptime = (carObj->stats).time[iVar1 + -1];
+  if ((car->stats).lap != 0) {
+    if ((simGlobal.gameTicks - (car->stats).lapTime < 0x140) ||
+        ((car->stats).finishType == 2)) {
+    DashHUD_gInfo.laptime = (car->stats).time[(car->stats).lap + -1];
     if (((GameSetup_gData.raceType != 4) && (Replay_ReplayMode < 2)) &&
        ((DashHUD_gInfo.record == 0 ||
         ((DashHUD_gInfo.laptime < DashHUD_gInfo.record || (GameSetup_gData.checkpointType == 4))))))
@@ -158,7 +153,7 @@ void DashHUD_HUDCalc(int player)
     if (DashHUD_gInfo.record == DashHUD_gInfo.laptime) {
       DashHUD_gInfo.flashtime = 1;
     }
-    if ((carObj->stats).sliceTime + 0xc0 < simGlobal.gameTicks) {
+    if ((car->stats).sliceTime + 0xc0 < simGlobal.gameTicks) {
       DashHUD_gInfo.flashtime = 0;
     }
     if ((DashHUD_gInfo.flashtime != 0) && ((simGlobal.gameTicks & 0x10U) != 0)) {
@@ -167,26 +162,35 @@ void DashHUD_HUDCalc(int player)
       }
       goto DashHudCalc_lapTimeCheck;
     }
+    if (resethud != 0) {
+      resethud = 0;
+    }
+    goto DashHudCalc_lapTimeCheck;
+    }
   }
+  DashHUD_gInfo.laptime = simGlobal.gameTicks - (car->stats).lapTime;
+  DashHUD_gInfo.flashtime = 0;
   if (resethud != 0) {
     resethud = 0;
   }
 DashHudCalc_lapTimeCheck:
-  if ((simGlobal.gameTicks - (carObj->stats).lapTime < 0x140) &&
+  if ((simGlobal.gameTicks - (car->stats).lapTime < 0x140) &&
      (DashHUD_gInfo.lap == DashHUD_gInfo.maxlaps)) {
     DashHUD_gInfo.flashlap = 1;
   }
   else {
     DashHUD_gInfo.flashlap = 0;
   }
-  DashHUD_gInfo.position = Stats_GetPosition(carObj);
+  DashHUD_gInfo.position = Stats_GetPosition(car);
   DashHUD_gInfo.opponents = Stats_GetNumOpponents();
-  Cars_InitDashData(carObj,(int *)((char *)&DashHUD_gInfo + 0x44) /* @0x80112774 */,(int *)((char *)&DashHUD_gInfo + 0x50) /* @0x80112780 */);
-  Cars_GetDashData(carObj,(int *)((char *)&DashHUD_gInfo + 0x40) /* @0x80112770 */,(int *)((char *)&DashHUD_gInfo + 0x48) /* @0x80112778 */,(int *)((char *)&DashHUD_gInfo + 0x4c) /* @0x8011277c */);
+  Cars_InitDashData(car,(int *)((char *)&DashHUD_gInfo + 0x44) /* @0x80112774 */,(int *)((char *)&DashHUD_gInfo + 0x50) /* @0x80112780 */);
+  Cars_GetDashData(car,(int *)((char *)&DashHUD_gInfo + 0x40) /* @0x80112770 */,(int *)((char *)&DashHUD_gInfo + 0x48) /* @0x80112778 */,(int *)((char *)&DashHUD_gInfo + 0x4c) /* @0x8011277c */);
+  topSpeed = DashHUD_gInfo.topspeed >> 16;
   if (DashHUD_gInfo.speed < 0) {
     DashHUD_gInfo.speed = -DashHUD_gInfo.speed;
   }
-  DashHUD_gInfo.topspeed = (int)(*(u_short *)((u_char *)&(DashHUD_gInfo.topspeed) + 2));
+  DashHUD_gInfo.topspeed = topSpeed;
+  }
   return;
 }
 

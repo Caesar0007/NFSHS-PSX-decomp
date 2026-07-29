@@ -5,6 +5,10 @@
 #include "../../nfs4_types.h"
 #include "ailife_externs.h"
 
+#define WRAP_SLICE(a,b) (((a) >= 0) \
+    ? ((((b) + (a)) >= gNumSlices) ? ((b) + (a)) - gNumSlices : ((b) + (a))) \
+    : ((((b) + (a)) < 0) ? ((b) + (a)) + gNumSlices : ((b) + (a))))
+
 
 /* ---- intra-TU forward declarations ---- */
 int AILife_EvaluateLife(Car_tObj *carObj);
@@ -63,7 +67,6 @@ void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
    * adjustment is distinct from approachSide, which remains live and unmodified in $s5. */
   int approachSide;
   int offset;
-  int approachOffset;
   int search;
   int count;
   Car_tObj *checkCar;
@@ -86,15 +89,12 @@ void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
     Car_tObj *basisCar =
         *(Car_tObj *volatile *)&carObj->basisCar;
     int speed = basisCar->currentSpeed;
-    if (speed < 0) {
-      speed = -speed;
-    }
+    speed = 0 <= speed ? speed : -speed;
     if (0x1e0000 < speed) {
       approachSide = basisCar->direction;
     }
     search = basisCar->sortIndex;
   }
-  approachOffset = approachSide * 0x24;
   for (count = 0; count < Cars_gNumCars;
        search = search + approachSide, count = count + 1) {
     checkCar = Cars_gSortedList[(search + Cars_gNumCars) % Cars_gNumCars];
@@ -103,15 +103,8 @@ void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
     {
       coorddef basisOuterCoord;
       int basisOuterSlice =
-          (int)(carObj->basisCar->N).simRoadInfo.slice + approachOffset;
-      if (0 <= approachOffset) {
-        basisOuterSlice = basisOuterSlice < gNumSlices ?
-                          basisOuterSlice : basisOuterSlice - gNumSlices;
-      }
-      else {
-        basisOuterSlice = 0 <= basisOuterSlice ?
-                          basisOuterSlice : basisOuterSlice + gNumSlices;
-      }
+          (int)(carObj->basisCar->N).simRoadInfo.slice;
+      basisOuterSlice = WRAP_SLICE(approachSide * 0x24, basisOuterSlice);
       basisOuterCoord = *(coorddef *)BWorldSm_slices[basisOuterSlice].center;
       if ((AILife_IsCoordInThisVisibleArea(&basisOuterCoord,checkCar) != 0) &&
           (0 < approachSide *
@@ -139,23 +132,8 @@ void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
   fastRandom = randtemp & 0xffff;
   carObj->desiredDirection = carObj->direction;
   offset = ((randtemp >> 0x15 & 7) + 0x1c) * approachSide;
-  if (0 <= offset) {
-    (carObj->N).simRoadInfo.slice =
-        (short)(((int)(short)*(u_short *)&(carObj->basisCar->N).simRoadInfo.slice +
-                 offset < gNumSlices) ?
-                (u_int)*(u_short *)&(carObj->basisCar->N).simRoadInfo.slice + offset :
-                (u_int)*(u_short *)&(carObj->basisCar->N).simRoadInfo.slice + offset -
-                 (u_short)gNumSlices);
-  }
-  else {
-    u_int baseSlice =
-        *(u_short *)&(carObj->basisCar->N).simRoadInfo.slice;
-    u_int newSlice = baseSlice + offset;
-    if ((int)(short)baseSlice + offset < 0) {
-      newSlice += (u_short)gNumSlices;
-    }
-    (carObj->N).simRoadInfo.slice = (short)newSlice;
-  }
+  (carObj->N).simRoadInfo.slice =
+      WRAP_SLICE(offset, (carObj->basisCar->N).simRoadInfo.slice);
   /* RAW @0x80067ad4-e8: a1=basisCar->carIndex(+0x254), a2=(basisCar->N).simRoadInfo.slice(+8),
    * a3=(carObj->N).simRoadInfo.slice(+8) -- the 3 dropped varargs, restored from the oracle. */
   AILife_Debug(" psad checked group, basis now %d(s=%d) new slice=%d\n",

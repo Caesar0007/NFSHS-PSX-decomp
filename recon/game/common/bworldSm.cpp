@@ -393,6 +393,10 @@ int BworldSm_IsSimQuadValid(BWorldSm_Pos *slicePos)
 }
 
 /* ---- RawFindClosestQuad__FP8coorddefP12BWorldSm_Pos  [@0x8007f14c] ---- */
+#define RAW_QUAD_ABS(value) ((0 < (value)) ? (value) : -(value))
+#define RAW_QUAD_POINT_DIST(point, quadPoint) \
+  (RAW_QUAD_ABS((int)(point).x - (int)(quadPoint).x) + \
+   RAW_QUAD_ABS((int)(point).z - (int)(quadPoint).z))
 /* JEB/IDA plus the SLD local map recover the retail 64-byte frame and saved
    registers (pt=fp, slicePos=s0, attempt=s3, cp=s4, startQuadInd=s5,
    sliceVariance=s6, firstSliceOffEdge=s7, vertices=s2, lastDist=s1).
@@ -410,13 +414,6 @@ int RawFindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
   int dist;
   int lastDist;
   int firstSliceOffEdge;
-  int iVar9;
-  int iVar10;
-  int iVar13;
-  int iVar14;
-  int iVar15;
-  int iVar16;
-  int pointZ;
   
   attempt = 0;
   slicePos->simQuad = (Trk_NewSimQuad *)0x0;
@@ -451,10 +448,10 @@ int RawFindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
     cp = Chunk_chunkCenters + slicePos->chunk;
     pt16.x = (short)(pt->x - cp->x >> 10);
     pt16.z = (short)(pt->z - cp->z >> 10);
+    lastDist = 0x7fffffff;
     vertices = (CCOORD16 *)(Track_chunkList[slicePos->chunk].vertexBuf + 1);
     GetFirstStmQuadPts(slicePos,vertices);
     BworldSm_UpdateSimQuad(slicePos);
-    lastDist = 0x7fffffff;
     while ((int)(signed char)slicePos->quad <=
            (int)(slicePos->simSlice->quadCount - 1)) {
       GetFirstStmQuadPts(slicePos,vertices);
@@ -483,7 +480,6 @@ int RawFindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
                ((int)slicePos->quadPts16[3].z -
                 (int)slicePos->quadPts16[0].z) < 1) &&
           BworldSm_IsSimQuadValid(slicePos)) {
-LAB_8007f1dc:
         slicePos->rez = '\x02';
         slicePos->offEdge = '\0';
         GetStmQuadPts(slicePos,cp);
@@ -495,69 +491,11 @@ LAB_8007f1dc:
         break;
       }
       if (BworldSm_IsSimQuadValid(slicePos)) {
-        iVar13 = (int)pt16.x -
-                 (int)slicePos->quadPts16[3].x;
-        if (iVar13 < 1) {
-          iVar13 = (int)slicePos->quadPts16[3].x -
-                   (int)pt16.x;
-        }
-        iVar14 = (int)pt16.x -
-                 (int)slicePos->quadPts16[2].x;
-        if (iVar14 < 1) {
-          iVar14 = (int)slicePos->quadPts16[2].x -
-                   (int)pt16.x;
-        }
-        iVar15 = (int)pt16.x -
-                 (int)slicePos->quadPts16[1].x;
-        if (iVar15 < 1) {
-          iVar15 = (int)slicePos->quadPts16[1].x -
-                   (int)pt16.x;
-        }
-        iVar16 = (int)pt16.x -
-                 (int)slicePos->quadPts16[0].x;
-        if (iVar16 < 1) {
-          iVar16 = (int)slicePos->quadPts16[0].x -
-                   (int)pt16.x;
-        }
-        pointZ = (int)pt16.z;
-        iVar9 = pointZ -
-                (int)slicePos->quadPts16[0].z;
-        iVar10 = (int)slicePos->quadPts16[0].z -
-                 pointZ;
-        if (0 < iVar9) {
-          iVar16 = iVar16 + iVar9;
-        }
-        else {
-          iVar16 = iVar16 + iVar10;
-        }
-        pointZ = (int)pt16.z;
-        iVar9 = pointZ -
-                (int)slicePos->quadPts16[1].z;
-        iVar10 = (int)slicePos->quadPts16[1].z -
-                 pointZ;
-        if (0 < iVar9) {
-          iVar9 = iVar15 + iVar9;
-        }
-        else {
-          iVar9 = iVar15 + iVar10;
-        }
-        iVar16 = iVar16 + iVar9;
-        pointZ = (int)pt16.z;
-        iVar9 = pointZ -
-                (int)slicePos->quadPts16[2].z;
-        iVar10 = (int)slicePos->quadPts16[2].z -
-                 pointZ;
-        iVar16 =
-            iVar16 + (iVar14 +
-                      ((0 < iVar9) ? iVar9 : iVar10));
-        pointZ = (int)pt16.z;
-        iVar9 = pointZ -
-                (int)slicePos->quadPts16[3].z;
-        iVar10 = (int)slicePos->quadPts16[3].z -
-                 pointZ;
         dist =
-            iVar16 + (iVar13 +
-                      ((0 < iVar9) ? iVar9 : iVar10));
+            RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[0]) +
+            RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[1]) +
+            RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[2]) +
+            RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[3]);
         if (0x28 < dist - lastDist) break;
         lastDist = dist;
       }
@@ -602,80 +540,26 @@ LAB_8007f1dc:
            ((int)pt16.x - (int)slicePos->quadPts16[0].x) *
                ((int)slicePos->quadPts16[3].z -
                 (int)slicePos->quadPts16[0].z) < 1) &&
-          BworldSm_IsSimQuadValid(slicePos))
-        goto LAB_8007f1dc;
+          BworldSm_IsSimQuadValid(slicePos)) {
+        slicePos->rez = '\x02';
+        slicePos->offEdge = '\0';
+        GetStmQuadPts(slicePos,cp);
+        return 1;
+      }
       if ((signed char)slicePos->quad == 0) {
         slicePos->offEdge = '\x01';
         break;
       }
       if (BworldSm_IsSimQuadValid(slicePos)) {
-        iVar13 = (int)pt16.x -
-                 (int)slicePos->quadPts16[3].x;
-        if (iVar13 < 1) {
-          iVar13 = (int)slicePos->quadPts16[3].x -
-                   (int)pt16.x;
-        }
-        iVar14 = (int)pt16.x -
-                 (int)slicePos->quadPts16[2].x;
-        if (iVar14 < 1) {
-          iVar14 = (int)slicePos->quadPts16[2].x -
-                   (int)pt16.x;
-        }
-        iVar15 = (int)pt16.x -
-                 (int)slicePos->quadPts16[1].x;
-        if (iVar15 < 1) {
-          iVar15 = (int)slicePos->quadPts16[1].x -
-                   (int)pt16.x;
-        }
-        iVar16 = (int)pt16.x -
-                 (int)slicePos->quadPts16[0].x;
-        if (iVar16 < 1) {
-          iVar16 = (int)slicePos->quadPts16[0].x -
-                   (int)pt16.x;
-        }
-        pointZ = (int)pt16.z;
-        iVar9 = pointZ -
-                (int)slicePos->quadPts16[0].z;
-        iVar10 = (int)slicePos->quadPts16[0].z -
-                 pointZ;
-        if (0 < iVar9) {
-          iVar16 = iVar16 + iVar9;
-        }
-        else {
-          iVar16 = iVar16 + iVar10;
-        }
-        pointZ = (int)pt16.z;
-        iVar9 = pointZ -
-                (int)slicePos->quadPts16[1].z;
-        iVar10 = (int)slicePos->quadPts16[1].z -
-                 pointZ;
-        if (0 < iVar9) {
-          iVar9 = iVar15 + iVar9;
-        }
-        else {
-          iVar9 = iVar15 + iVar10;
-        }
-        iVar16 = iVar16 + iVar9;
-        pointZ = (int)pt16.z;
-        iVar9 = pointZ -
-                (int)slicePos->quadPts16[2].z;
-        iVar10 = (int)slicePos->quadPts16[2].z -
-                 pointZ;
-        iVar16 =
-            iVar16 + (iVar14 +
-                      ((0 < iVar9) ? iVar9 : iVar10));
-        pointZ = (int)pt16.z;
-        iVar9 = pointZ -
-                (int)slicePos->quadPts16[3].z;
-        iVar10 = (int)slicePos->quadPts16[3].z -
-                 pointZ;
         dist =
-            iVar16 + (iVar13 +
-                      ((0 < iVar9) ? iVar9 : iVar10));
+            RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[0]) +
+            RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[1]) +
+            RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[2]) +
+            RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[3]);
         if (0x28 < dist - lastDist) break;
         lastDist = dist;
       }
-      slicePos->quad = slicePos->quad + -1;
+      --slicePos->quad;
 LAB_8007f5c8:
       BworldSm_UpdateSimQuad(slicePos);
     } while (-1 < (signed char)slicePos->quad);
@@ -683,11 +567,8 @@ LAB_8007f5c8:
       firstSliceOffEdge = (int)(signed char)slicePos->offEdge;
     }
     {
-      int newSlice;
-      int numSlices;
-
-      newSlice = (int)slicePos->slice + sliceOffs[attempt];
-      numSlices = gNumSlices;
+      int newSlice = (int)slicePos->slice + sliceOffs[attempt];
+      int numSlices = gNumSlices;
       if (numSlices <= newSlice) {
         newSlice = newSlice - numSlices;
       }
@@ -700,11 +581,8 @@ LAB_8007f5c8:
     attempt = attempt + 1;
   }
   {
-    int newSlice;
-    int numSlices;
-
-    newSlice = (int)slicePos->slice - sliceVariance;
-    numSlices = gNumSlices;
+    int newSlice = (int)slicePos->slice - sliceVariance;
+    int numSlices = gNumSlices;
     if (numSlices <= newSlice) {
       newSlice = newSlice - numSlices;
     }
@@ -719,6 +597,8 @@ LAB_8007f5c8:
   slicePos->triangleFlag = '\0';
   return 0;
 }
+#undef RAW_QUAD_POINT_DIST
+#undef RAW_QUAD_ABS
 
 /* ---- FindClosestQuad__FP8coorddefP12BWorldSm_Pos  [@0x8007f8f8] ---- */
 int FindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)

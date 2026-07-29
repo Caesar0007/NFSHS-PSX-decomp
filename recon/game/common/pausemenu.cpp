@@ -450,57 +450,43 @@ processed:
 void tPMenuItemLeftRightChoice::Draw(bool selected)
 
 {
-  u_char *prim_00;
   short index;
   short x;
-  int labelStrId;
   int vtable_p;
-  int valueStrId;
-  int labelText;
-  int color;
-  int pkt_addr24;
-  int color_packed;
-  short selected_00;
-  POLY_GT4 *prim;
-  u_char *prev_pkt;
-  u_char *cur_pkt;
-  u_char *drmode_p;
   int y;
-  
-  labelStrId = TextSys_WordX(this->fTextDescription);
-  selected_00 = (short)selected;
-  PauseMenu_MenuTextPositioned((short)this->fTextDescription,selected_00,
-             (u_short)this->fFlags & 1,(short)labelStrId);
+
+  PauseMenu_MenuTextPositioned((short)this->fTextDescription, (short)selected,
+             *(volatile u_int *)&this->fFlags & 1,
+             (short)TextSys_WordX(this->fTextDescription));
   vtable_p = (int)this->fData->_vf;
   index = (**(int (**)(...))(vtable_p + 0x1c))
                     ((int)&this->fData->fSelectionList + (int)*(short *)(vtable_p + 0x18),0xffffffff
                     );
-  valueStrId = TextSys_WordX((int)index);
-  x = (short)valueStrId;
-  PauseMenu_MenuTextPositioned(index,selected_00,(u_short)this->fFlags & 1,x);
+  x = (short)TextSys_WordX((int)index);
+  PauseMenu_MenuTextPositioned(index, (short)selected,
+                               *(volatile u_int *)&this->fFlags & 1, x);
   y = gPause_CurrentY;
-  prev_pkt = Render_gPacketPtr;
-  cur_pkt = Render_gPalettePtr;
   if ((selected != 0) && (GameSetup_gData.userSetting.language == 0))
   {
-    *(u_int *)Render_gPacketPtr =
-         *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0x34;
-    *(u_int *)cur_pkt = *(u_int *)cur_pkt & 0xff000000 | pkt_addr24;
-    labelText = (int)TextSys_Word((int)index);
-    color = textpixels((char *)labelText);
-    Hud_BuildGT4((POLY_GT4 *)prev_pkt,HudPmx_gShapes + 0x12,(x - color) + -8,y + 5,0xbebe);
-    prim_00 = Render_gPacketPtr;
-    drmode_p = Render_gPalettePtr;
-    *(u_int *)Render_gPacketPtr =
-         *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    color_packed = (u_int)Render_gPacketPtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0x34;
-    *(u_int *)drmode_p = *(u_int *)drmode_p & 0xff000000 | color_packed;
-    Hud_BuildGT4((POLY_GT4 *)prim_00,HudPmx_gShapes + 0x13,x + 4,y + 5,0xbebe);
+    struct PMenuTag {
+      u_int addr : 24;
+      u_int len : 8;
+    };
+    POLY_GT4 *prim;
+
+    prim = (POLY_GT4 *)Render_gPacketPtr;
+    ((PMenuTag *)prim)->addr = ((PMenuTag *)Render_gPalettePtr)->addr;
+    ((PMenuTag *)Render_gPalettePtr)->addr = (u_int)prim;
+    Render_gPacketPtr = (u_char *)(prim + 1);
+    Hud_BuildGT4(prim, HudPmx_gShapes + 0x12,
+                 x - textpixels(TextSys_Word((int)index)) - 8, y + 5, 0xbebe);
+
+    prim = (POLY_GT4 *)Render_gPacketPtr;
+    ((PMenuTag *)prim)->addr = ((PMenuTag *)Render_gPalettePtr)->addr;
+    ((PMenuTag *)Render_gPalettePtr)->addr = (u_int)prim;
+    Render_gPacketPtr = (u_char *)(prim + 1);
+    Hud_BuildGT4(prim, HudPmx_gShapes + 0x13, x + 4, y + 5, 0xbebe);
   }
-  return;
 }
 
 

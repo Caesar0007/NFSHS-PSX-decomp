@@ -96,62 +96,52 @@ void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
 {
   int i;
   int j;
-  Trk_SFX*objInstance;
+  Trk_SFX *objInstance;
   int numObjects;
-  short pad;
-  short type;
-  coorddef dir;
-  int found_match;
-  coorddef*pt1;
-  u_short uVar1;
-  bool bVar2;
-  coorddef *pcVar3;
-  coorddef *pcVar4;
-  int iVar5;
-  coorddef *fpt;
-  int obj;
-  coorddef *pcVar6;
-  int iVar7;
-  coorddef local_30;
-  
-  obj = 0;
-  pcVar6 = (coorddef *)(group + 1);
-  iVar7 = group->m_num_elements;
-  fpt = pcVar6;
-  do {
-    if (iVar7 <= obj) {
+
+  i = 0;
+  objInstance = (Trk_SFX *)(group + 1);
+  numObjects = group->m_num_elements;
+  while (i < numObjects) {
+    u_short type;
+    short pad;
+
+    pad = objInstance[i].pad;
+    type = (u_short)objInstance[i].type;
+    if (objInstance[i].type == 100) {
+      coorddef dir = {0, 0xa0000, 0};
+
+      TrgSfx_AddEnviroEffect(i, 0x101,
+                             (coorddef *)&objInstance[i], &dir);
       return;
     }
-    uVar1 = *(u_short *)((int)&fpt[1].x + 2);
-    iVar5 = (int)(short)fpt[1].x;
-    if (iVar5 == 100) {
-      local_30.x = 0;
-      local_30.y = 0xa0000;
-      local_30.z = 0;
-      TrgSfx_AddEnviroEffect(obj,0x101,fpt,&local_30);
-      return;
-    }
-    bVar2 = false;
-    if (uVar1 == 0) {
-      Flare_Halo(Vi,-1,iVar5,fpt,(Draw_FlareCache *)sd);
-    }
-    else {
-      pcVar4 = pcVar6;
-      for (iVar5 = 0; iVar5 < iVar7; iVar5 = iVar5 + 1) {
-        pcVar3 = pcVar4 + 1;
-        pcVar4 = (coorddef *)&pcVar4[1].y;
-        if ((uVar1 & 0x7fff) == (*(u_short *)((int)&pcVar3->x + 2) & 0x7fff)) {
-          bVar2 = true;
+    if (pad != 0) {
+      int found_match;
+      int group;
+
+      found_match = 0;
+      group = pad & 0x7fff;
+      for (j = 0; j < numObjects; j++) {
+        coorddef *pt1;
+
+        pt1 = (coorddef *)&objInstance[j];
+        if (group == (objInstance[j].pad & 0x7fff)) {
+          found_match = 1;
           break;
         }
       }
-      if ((bVar2) && ((int)((u_int)uVar1 << 0x10) < 0)) {
-        Flare_Halo2(Vi,-1,(int)(short)fpt[1].x,fpt,(coorddef *)((int)pcVar6 + iVar5 * 0x10),(Draw_FlareCache *)sd);
+      if ((found_match != 0) && (pad < 0)) {
+        Flare_Halo2(Vi, -1, (short)type,
+                    (coorddef *)&objInstance[i],
+                    (coorddef *)&objInstance[j], (Draw_FlareCache *)sd);
       }
     }
-    fpt = (coorddef *)&fpt[1].y;
-    obj = obj + 1;
-  } while( true );
+    else {
+      Flare_Halo(Vi, -1, (short)type,
+                 (coorddef *)&objInstance[i], (Draw_FlareCache *)sd);
+    }
+    i++;
+  }
 }
 
 /* ---- BWorld_InitSpikeBelt__Fv  [@0x8007d818] ---- */

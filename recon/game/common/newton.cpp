@@ -323,18 +323,16 @@ int Newton_CalculateSliceYaw(int slice)
   int z1;
   int x2;
   int z2;
-  Trk_NewSlice *cur;
-  Trk_NewSlice *next;
 
   s = slice + 1 >= gNumSlices ?
       slice + 1 - gNumSlices : slice + 1;
-  cur = &BWorldSm_slices[slice];
-  x1 = cur->center[0];
-  z1 = cur->center[2];
-  next = &BWorldSm_slices[s];
-  x2 = next->center[0];
-  z2 = next->center[2];
-  return intatan(x2 - x1,z2 - z1);
+  x1 = BWorldSm_slices[slice].center[0];
+  z1 = BWorldSm_slices[slice].center[2];
+  x2 = BWorldSm_slices[s].center[0];
+  z2 = BWorldSm_slices[s].center[2];
+  x1 = x2 - x1;
+  z1 = z2 - z1;
+  return intatan(x1,z1);
 }
 
 /* ---- Newton_UpdateRoadGeometry__FP13BO_tNewtonObj  [NEWTON.CPP:248-354] SLD-VERIFIED ---- */

@@ -1786,74 +1786,48 @@ PhyTracCircle_skidAdjust:
 void Physics_CalculateTireForces(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
 
 {
-  int brakingSituation;
-  bool bVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
   int latAcc;
+  int brakingSituation;
   int slipAngle;
   int roadGrip;
-  int iVar5;
-  
-  iVar5 = wheel->roadGrip;
-  bVar1 = false;
+
+  roadGrip = wheel->roadGrip;
+  brakingSituation = 0;
   wheel->skid = 0;
   if (wheel->steeringAngle != 0) {
-    latAcc = (wheel->velCap).z;
-    Math_ResolveRotatedVector((wheel->velCap).x,latAcc,wheel->steeringAngle,&(wheel->velCap).x,&(wheel->velCap).z);
+    Math_ResolveRotatedVector(wheel->velCap.x,wheel->velCap.z,wheel->steeringAngle,
+                             &wheel->velCap.x,&wheel->velCap.z);
   }
-  iVar4 = wheel->acc;
-  if ((iVar4 < 0) && (iVar3 = (wheel->velCap).z, iVar3 < 0)) {
+  if ((wheel->acc < 0) && (wheel->velCap.z < 0)) {
     if ((gGasRatio < 0x4001) || ((carObj->control).gear != '\0')) {
-      if (iVar3 < iVar4) {
-        iVar3 = iVar4;
-      }
-Phy_TireF_applyAccCap:
-      wheel->acc = iVar3;
-      bVar1 = true;
+      wheel->acc = (wheel->velCap.z < wheel->acc) ? wheel->acc : wheel->velCap.z;
+      brakingSituation = 1;
     }
   }
-  else if (((0 < iVar4) && (iVar3 = (wheel->velCap).z, 0 < iVar3)) &&
-          ((gGasRatio < 0x4001 || ((u_char)(carObj->control).gear < 2)))) {
-    if (iVar4 <= iVar3) {
-      iVar3 = iVar4;
-    }
-    goto Phy_TireF_applyAccCap;
+  else if (((0 < wheel->acc) && (0 < wheel->velCap.z)) &&
+           ((gGasRatio < 0x4001) || ((u_char)(carObj->control).gear < 2))) {
+    wheel->acc = (wheel->acc <= wheel->velCap.z) ? wheel->acc : wheel->velCap.z;
+    brakingSituation = 1;
   }
-  iVar4 = fixedmult(wheel->acc,carObj->specs->lateralGripMult);
-  wheel->acc = iVar4;
-  if (bVar1) {
-    if (iVar4 < 0) {
-      iVar4 = -iVar4;
-    }
-    if (iVar4 <= wheel->roadGrip) goto Phy_TireF_handBrakeCheck;
-Phy_TireF_handBrakeActive:
+  wheel->acc = fixedmult(wheel->acc,carObj->specs->lateralGripMult);
+  if (((brakingSituation != 0) && (__builtin_abs(wheel->acc) > wheel->roadGrip)) ||
+      (((carObj->control).handBrake != '\0') && (wheel->frontTire == 0) &&
+       (__builtin_abs(carObj->linearVel_ch.z) > 0x8000))) {
     if ((carObj->control).handBrake != '\0') {
-Phy_TireF_wheelLockCalc:
-      if (wheel->frontTire == 0) {
-        iVar5 = carObj->wheelLock + 2;
-      }
-      else {
-        iVar5 = carObj->wheelLock + 1;
-      }
-      carObj->wheelLock = iVar5;
-      Physics_CalcWheelLockAcc(carObj,wheel);
-      iVar5 = wheel->frontTire;
-      goto cfLbl2;
+      goto Phy_TireF_wheelLock;
     }
-    if (((carObj->carInfo->ABS == 0) && (iVar4 = (carObj->linearVel_ch).z, iVar4 < 0x190001)) &&
-       (0xeb < (u_char)(carObj->control).brakeLevel)) {
-      if (iVar4 < 0) {
-        iVar4 = -iVar4;
-      }
-      if ((0x4ffff < iVar4) || (carObj->wheelSpin != 0)) goto Phy_TireF_wheelLockCalc;
+    if ((((carObj->carInfo->ABS == 0) && (carObj->linearVel_ch.z < 0x190001)) &&
+         (0xeb < (u_char)(carObj->control).brakeLevel)) &&
+        ((__builtin_abs(carObj->linearVel_ch.z) > 0x4ffff) || (carObj->wheelSpin != 0))) {
+      goto Phy_TireF_wheelLock;
     }
-    iVar4 = wheel->roadGrip;
-    if ((iVar4 < wheel->acc) || (iVar4 = -iVar4, wheel->acc < iVar4)) {
-      wheel->acc = iVar4;
+    if (wheel->roadGrip < wheel->acc) {
+      wheel->acc = wheel->roadGrip;
     }
-    if ((carObj->carInfo->ABS != 0) && ((carObj->linearVel_ch).z < 0x190000)) {
+    else if (wheel->acc < -wheel->roadGrip) {
+      wheel->acc = -wheel->roadGrip;
+    }
+    if ((carObj->carInfo->ABS != 0) && (carObj->linearVel_ch.z < 0x190000)) {
       if ((simGlobal.gameTicks & 3U) == 0) {
         wheel->skid = 0x80000;
       }
@@ -1862,144 +1836,97 @@ Phy_TireF_wheelLockCalc:
       }
     }
   }
-  else {
-Phy_TireF_handBrakeCheck:
-    if (((carObj->control).handBrake != '\0') && (wheel->frontTire == 0)) {
-      iVar4 = (carObj->linearVel_ch).z;
-      if (iVar4 < 0) {
-        iVar4 = -iVar4;
-      }
-      if (0x8000 < iVar4) goto Phy_TireF_handBrakeActive;
-    }
-  }
-  iVar4 = (wheel->velCap).z;
-  if (iVar4 == 0) {
-    iVar4 = 0;
+  goto Phy_TireF_normalTire;
+Phy_TireF_wheelLock:
+  if (wheel->frontTire != 0) {
+    carObj->wheelLock = carObj->wheelLock + 1;
   }
   else {
-    iVar4 = fixedatan((wheel->velCap).x,-iVar4 / 2);
-    if (0 < (wheel->velCap).z) {
-      iVar3 = (wheel->velCap).x;
-      if (iVar3 < 1) {
-        iVar2 = -0x8000;
-        if (-1 < iVar3) goto Phy_TireF_finalShift;
-      }
-      else {
-        iVar2 = 0x8000;
-      }
-      iVar4 = iVar2 - iVar4;
-    }
-Phy_TireF_finalShift:
-    iVar4 = iVar4 << 8;
+    carObj->wheelLock = carObj->wheelLock + 2;
   }
-  if (wheel->frontTire == 0) {
-    iVar3 = iVar4;
-    if (iVar4 < 0) {
-      iVar3 = -iVar4;
-    }
-    if (iVar3 < 0x8000) {
-      iVar3 = 0x8000;
-    }
-    iVar2 = 0x20000;
-    if (iVar3 < 0x20001) {
-      iVar2 = iVar4;
-      if (iVar4 < 0) {
-        iVar2 = -iVar4;
-      }
-      if (iVar2 < 0x8000) {
-        iVar2 = 0x8000;
-      }
-    }
-    iVar5 = fixedmult(iVar2,iVar5);
-    iVar5 = iVar5 / 2;
-    if (iVar4 < 0) {
-      iVar5 = -iVar5;
-    }
-    iVar4 = (wheel->velCap).x;
-    iVar5 = iVar5 + gravity_ch.x / 2;
-    if (iVar4 < 1) {
-      if (iVar5 < 0) {
-        iVar5 = -iVar5;
-      }
-      iVar3 = -iVar5;
-      if (-iVar5 < iVar4) {
-        iVar3 = iVar4;
-      }
-    }
-    else {
-      if (iVar5 < 0) {
-        iVar5 = -iVar5;
-      }
-      iVar3 = iVar5;
-      if (iVar4 <= iVar5) {
-        iVar3 = iVar4;
-      }
-    }
-Phy_TireF_finalAccX:
-    (wheel->finalAcc).x = iVar3;
+  Physics_CalcWheelLockAcc(carObj,wheel);
+  if (wheel->frontTire != 0) {
+    carObj->frontSkid = wheel->skid;
   }
   else {
-    iVar3 = iVar4;
-    if (iVar4 < 0) {
-      iVar3 = -iVar4;
-    }
-    iVar2 = 0x100000;
-    if (iVar3 < 0x100001) {
-      iVar2 = iVar3;
-    }
-    iVar5 = fixedmult(iVar2,iVar5);
-    iVar5 = fixedmult(iVar5,0x1555);
-    if (iVar4 < 0) {
-      iVar5 = -iVar5;
-    }
-    (wheel->finalAcc).x = iVar5;
-    iVar2 = (wheel->velCap).x;
-    (wheel->finalAcc).x = iVar5 + gravity_ch.x / 2;
-    iVar3 = (wheel->velCap).z;
-    iVar4 = iVar2;
-    if (iVar2 < 0) {
-      iVar4 = -iVar2;
-    }
-    if (iVar3 < 0) {
-      iVar3 = -iVar3;
-    }
-    if (iVar4 + iVar3 < 0x200000) {
-      if (iVar2 < 1) {
-        if (iVar5 < 0) {
-          iVar5 = -iVar5;
-        }
-        iVar3 = -iVar5;
-        if (-iVar5 < iVar2) {
-          iVar3 = iVar2;
-        }
-      }
-      else {
-        if (iVar5 < 0) {
-          iVar5 = -iVar5;
-        }
-        iVar3 = iVar5;
-        if (iVar2 <= iVar5) {
-          iVar3 = iVar2;
-        }
-      }
-      goto Phy_TireF_finalAccX;
-    }
-  }
-  iVar5 = wheel->acc;
-  (wheel->finalAcc).y = 0;
-  (wheel->finalAcc).z = iVar5;
-  Physics_CalcTractionCircleAcc(carObj,wheel);
-  if (wheel->steeringAngle != 0) {
-    Math_ResolveRotatedVector((wheel->finalAcc).x,(wheel->finalAcc).z,-wheel->steeringAngle,&(wheel->finalAcc).x,
-               &(wheel->finalAcc).z);
-  }
-  iVar5 = wheel->frontTire;
-cfLbl2:   /* @0x800abf68  (-f-build goto label) */
-  if (iVar5 == 0) {
     carObj->rearSkid = wheel->skid;
   }
+  return;
+Phy_TireF_normalTire:
+  if (wheel->velCap.z != 0) {
+    slipAngle = fixedatan(wheel->velCap.x,-wheel->velCap.z / 2);
+    if (0 < wheel->velCap.z) {
+      if (0 < wheel->velCap.x) {
+        slipAngle = 0x8000 - slipAngle;
+      }
+      else if (wheel->velCap.x < 0) {
+        slipAngle = -0x8000 - slipAngle;
+      }
+    }
+    slipAngle = slipAngle << 8;
+  }
   else {
+    slipAngle = 0;
+  }
+  if (wheel->frontTire != 0) {
+    latAcc = fixedmult(
+        fixedmult((__builtin_abs(slipAngle) < 0x100000) ?
+                  __builtin_abs(slipAngle) : 0x100000,roadGrip),0x1555);
+    if (slipAngle < 0) {
+      latAcc = -latAcc;
+    }
+    wheel->finalAcc.x = latAcc;
+    wheel->finalAcc.x = latAcc + gravity_ch.x / 2;
+    if (__builtin_abs(wheel->velCap.x) + __builtin_abs(wheel->velCap.z) < 0x200000) {
+      if (0 < wheel->velCap.x) {
+        if (wheel->velCap.x <= __builtin_abs(latAcc)) {
+          wheel->finalAcc.x = wheel->velCap.x;
+        }
+        else {
+          wheel->finalAcc.x = __builtin_abs(latAcc);
+        }
+      }
+      else {
+        if (-__builtin_abs(latAcc) < wheel->velCap.x) {
+          wheel->finalAcc.x = wheel->velCap.x;
+        }
+        else {
+          wheel->finalAcc.x = -__builtin_abs(latAcc);
+        }
+      }
+    }
+  }
+  else {
+    latAcc = fixedmult(
+        (__builtin_abs(slipAngle) < 0x8000) ? 0x8000 :
+        ((0x20000 < __builtin_abs(slipAngle)) ? 0x20000 : __builtin_abs(slipAngle)),
+        roadGrip) / 2;
+    if (slipAngle < 0) {
+      latAcc = -latAcc;
+    }
+    latAcc = latAcc + gravity_ch.x / 2;
+    if (0 < wheel->velCap.x) {
+      wheel->finalAcc.x = (wheel->velCap.x <= __builtin_abs(latAcc)) ?
+                          wheel->velCap.x : __builtin_abs(latAcc);
+    }
+    else {
+      wheel->finalAcc.x = (-__builtin_abs(latAcc) < wheel->velCap.x) ?
+                          wheel->velCap.x : -__builtin_abs(latAcc);
+    }
+  }
+  wheel->finalAcc.y = 0;
+  wheel->finalAcc.z = wheel->acc;
+  Physics_CalcTractionCircleAcc(carObj,wheel);
+  if (wheel->steeringAngle != 0) {
+    Math_ResolveRotatedVector(wheel->finalAcc.x,wheel->finalAcc.z,-wheel->steeringAngle,
+                             &wheel->finalAcc.x,&wheel->finalAcc.z);
+  }
+Phy_TireF_storeSkid:
+  if (wheel->frontTire != 0) {
     carObj->frontSkid = wheel->skid;
+  }
+  else {
+    carObj->rearSkid = wheel->skid;
   }
   return;
 }

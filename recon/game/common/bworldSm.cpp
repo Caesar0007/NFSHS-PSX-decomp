@@ -226,8 +226,9 @@ void BWorldSm_SetSlice(int slice,BWorldSm_Pos *slicePos)
 /* ---- GetStmQuadPts__FP12BWorldSm_PosP8coorddef  [@0x8007edb8] ---- */
 void GetStmQuadPts(BWorldSm_Pos *slicePos,coorddef *cp)
 {
-  Trk_NewStrip*pStrip;
-  coorddef*pts;
+  Trk_NewStrip *pStrip;
+  coorddef *pts;
+  CCOORD16 *vertices;
   int cx;
   int cy;
   int cz;
@@ -236,41 +237,44 @@ void GetStmQuadPts(BWorldSm_Pos *slicePos,coorddef *cp)
   int x;
   int y;
   int z;
-  short sVar1;
-  int iVar2;
-  Group *pGVar3;
-  Group *pGVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  
-  iVar7 = cp->x;
-  iVar6 = cp->y;
-  iVar5 = cp->z;
-  pGVar3 = Track_chunkList[slicePos->chunk].vertexBuf +
-           ((u_int)slicePos->strip->topVert + (int)slicePos->stripQuadInd) * 2 + 1;
-  sVar1 = *(short *)((int)&pGVar3[2].m_num_elements + 2);
-  iVar2 = pGVar3[3].m_num_elements;
-  pGVar4 = Track_chunkList[slicePos->chunk].vertexBuf +
-           ((u_int)slicePos->strip->botVert + (int)slicePos->stripQuadInd) * 2 + 1;
-  slicePos->quadPts[1].x = iVar7 + (short)pGVar3[2].m_num_elements * 0x400;
-  slicePos->quadPts[1].y = iVar6 + sVar1 * 0x400;
-  slicePos->quadPts[1].z = iVar5 + (short)iVar2 * 0x400;
-  sVar1 = *(short *)((int)&pGVar3->m_num_elements + 2);
-  iVar2 = pGVar3[1].m_num_elements;
-  slicePos->quadPts[2].x = iVar7 + (short)pGVar3->m_num_elements * 0x400;
-  slicePos->quadPts[2].y = iVar6 + sVar1 * 0x400;
-  slicePos->quadPts[2].z = iVar5 + (short)iVar2 * 0x400;
-  sVar1 = *(short *)((int)&pGVar4->m_num_elements + 2);
-  iVar2 = pGVar4[1].m_num_elements;
-  slicePos->quadPts[3].x = iVar7 + (short)pGVar4->m_num_elements * 0x400;
-  slicePos->quadPts[3].y = iVar6 + sVar1 * 0x400;
-  slicePos->quadPts[3].z = iVar5 + (short)iVar2 * 0x400;
-  sVar1 = *(short *)((int)&pGVar4[2].m_num_elements + 2);
-  iVar2 = pGVar4[3].m_num_elements;
-  slicePos->quadPts[0].x = iVar7 + (short)pGVar4[2].m_num_elements * 0x400;
-  slicePos->quadPts[0].y = iVar6 + sVar1 * 0x400;
-  slicePos->quadPts[0].z = iVar5 + (short)iVar2 * 0x400;
+
+  cx = cp->x;
+  cy = cp->y;
+  cz = cp->z;
+  pts = slicePos->quadPts;
+  pStrip = slicePos->strip;
+  topInd = (u_int)pStrip->topVert + (int)slicePos->stripQuadInd;
+  botInd = (u_int)pStrip->botVert + (int)slicePos->stripQuadInd;
+  vertices = (CCOORD16 *)
+    Track_chunkList[slicePos->chunk].vertexBuf->GetData();
+
+  x = cx + ((int)vertices[topInd + 1].x << 10);
+  y = cy + ((int)vertices[topInd + 1].y << 10);
+  z = cz + ((int)vertices[topInd + 1].z << 10);
+  pts[1].x = x;
+  pts[1].y = y;
+  pts[1].z = z;
+
+  x = cx + ((int)vertices[topInd].x << 10);
+  y = cy + ((int)vertices[topInd].y << 10);
+  z = cz + ((int)vertices[topInd].z << 10);
+  pts[2].x = x;
+  pts[2].y = y;
+  pts[2].z = z;
+
+  x = cx + ((int)vertices[botInd].x << 10);
+  y = cy + ((int)vertices[botInd].y << 10);
+  z = cz + ((int)vertices[botInd].z << 10);
+  pts[3].x = x;
+  pts[3].y = y;
+  pts[3].z = z;
+
+  x = cx + ((int)vertices[botInd + 1].x << 10);
+  y = cy + ((int)vertices[botInd + 1].y << 10);
+  z = cz + ((int)vertices[botInd + 1].z << 10);
+  pts[0].x = x;
+  pts[0].y = y;
+  pts[0].z = z;
   return;
 }
 

@@ -647,59 +647,49 @@ int FindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
 }
 
 /* ---- BWorldSm_FindClosestQuadRez__FP8coorddefP12BWorldSm_Posi  [@0x8007fac4] ---- */
+#define BW_QUAD_PT_DIR(p1, p2, p3) \
+  (fixedmult((p1).x - (p2).x,(p3).z - (p2).z) - \
+   fixedmult((p3).x - (p2).x,(p1).z - (p2).z))
 int BWorldSm_FindClosestQuadRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFlag)
 {
-  bool bVar1;
-  int iVar2;
-  int iVar3;
-  
   slicePos->triangleFlag = '\x03';
-  if (hiRezFlag == 0) {
-    slicePos->lastRezRequested = '\x01';
-    slicePos->rez = '\x01';
-    slicePos->simSlice = (Trk_NewSimSlice *)0x0;
-    slicePos->simQuad = (Trk_NewSimQuad *)0x0;
-    slicePos->quad = -1;
-    slicePos->triangleFlag = '\0';
-    iVar2 = BWorldSm_FindClosestSlice(pt,slicePos);
-  }
-  else {
+  if (hiRezFlag != 0) {
     slicePos->lastRezRequested = '\x02';
     if (slicePos->simQuad != (Trk_NewSimQuad *)0x0) {
-      bVar1 = false;
-      iVar2 = fixedmult(slicePos->quadPts[1].x - slicePos->quadPts[2].x,
-                         pt->z - slicePos->quadPts[2].z);
-      iVar3 = fixedmult(pt->x - slicePos->quadPts[2].x,
-                         slicePos->quadPts[1].z - slicePos->quadPts[2].z);
-      if (iVar2 - iVar3 < 1) {
-        iVar2 = fixedmult(slicePos->quadPts[0].x - slicePos->quadPts[1].x,
-                           pt->z - slicePos->quadPts[1].z);
-        iVar3 = fixedmult(pt->x - slicePos->quadPts[1].x,
-                           slicePos->quadPts[0].z - slicePos->quadPts[1].z);
-        if (iVar2 - iVar3 < 1) {
-          iVar2 = fixedmult(slicePos->quadPts[2].x - slicePos->quadPts[3].x,
-                             pt->z - slicePos->quadPts[3].z);
-          iVar3 = fixedmult(pt->x - slicePos->quadPts[3].x,
-                             slicePos->quadPts[2].z - slicePos->quadPts[3].z);
-          if (iVar2 - iVar3 < 1) {
-            iVar2 = fixedmult(slicePos->quadPts[3].x - slicePos->quadPts[0].x,
-                               pt->z - slicePos->quadPts[0].z);
-            iVar3 = fixedmult(pt->x - slicePos->quadPts[0].x,
-                               slicePos->quadPts[3].z - slicePos->quadPts[0].z);
-            bVar1 = iVar2 - iVar3 < 1;
+      int inQuad;
+
+      inQuad = 0;
+      if (BW_QUAD_PT_DIR(slicePos->quadPts[1],
+                         slicePos->quadPts[2],*pt) <= 0) {
+        if (BW_QUAD_PT_DIR(slicePos->quadPts[0],
+                           slicePos->quadPts[1],*pt) <= 0) {
+          if (BW_QUAD_PT_DIR(slicePos->quadPts[2],
+                             slicePos->quadPts[3],*pt) <= 0) {
+            int direction;
+
+            direction = BW_QUAD_PT_DIR(slicePos->quadPts[3],
+                                      slicePos->quadPts[0],*pt);
+            inQuad = direction < 1;
           }
         }
       }
-      if (bVar1) {
+      if (inQuad) {
         slicePos->quadChanged = '\0';
         slicePos->sliceChanged = '\0';
         return 0;
       }
     }
-    iVar2 = FindClosestQuad(pt,slicePos);
+    return FindClosestQuad(pt,slicePos);
   }
-  return iVar2;
+  slicePos->lastRezRequested = '\x01';
+  slicePos->rez = '\x01';
+  slicePos->simSlice = (Trk_NewSimSlice *)0x0;
+  slicePos->simQuad = (Trk_NewSimQuad *)0x0;
+  *(signed char *)&slicePos->quad = -1;
+  slicePos->triangleFlag = '\0';
+  return BWorldSm_FindClosestSlice(pt,slicePos);
 }
+#undef BW_QUAD_PT_DIR
 
 /* ---- BWorldSm_FindClosestQuadMaxIterations__FP8coorddefP12BWorldSm_Posi  [@0x8007fc90] ---- */
 int BWorldSm_FindClosestQuadMaxIterations(coorddef *pt,BWorldSm_Pos *slicePos,int maxIterations)

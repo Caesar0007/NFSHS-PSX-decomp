@@ -257,8 +257,6 @@ int AIHigh_BasicPerp::CheckIfCaught()
               ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
 
             coorddef carCopVector;
-            int iVar12;
-            int iVar5;
 
             carCopVector.x = (cop->N).position.x - ((this->carObj_)->N).position.x;
 
@@ -266,21 +264,13 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
             carCopVector.z = (cop->N).position.z - ((this->carObj_)->N).position.z;
 
-            iVar12 = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[0]);
+            xDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[0]) +
+                   fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[1]) +
+                   fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[2]);
 
-            iVar5 = fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[1]);
-
-            xDot = fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[2]);
-
-            xDot = iVar12 + iVar5 + xDot;
-
-            iVar12 = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[6]);
-
-            iVar5 = fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[7]);
-
-            zDot = fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[8]);
-
-            zDot = iVar12 + iVar5 + zDot;
+            zDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[6]) +
+                   fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[7]) +
+                   fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[8]);
 
           }
 
@@ -291,8 +281,6 @@ int AIHigh_BasicPerp::CheckIfCaught()
             if (this->lastArrestingCop_ == (Car_tObj *)0x0) {
 
               this->lastArrestingCop_ = cop;
-
-              return 1;
 
             }
 
@@ -316,8 +304,6 @@ int AIHigh_BasicPerp::CheckIfCaught()
           if (this->lastArrestingCop_ == (Car_tObj *)0x0) {
 
             this->lastArrestingCop_ = cop;
-
-            return 1;
 
           }
 

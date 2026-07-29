@@ -481,19 +481,15 @@ void AILife_ReencarnateCopByPosition(Car_tObj *carObj,int slice,int travelDirect
    * decls the earlier pass left unused (w18-a7). */
   coorddef zero;
   coorddef offset;
-  bool bVar1;
-  int *piVar2;
-  matrixtdef *pmVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
 
   memset((u_char *)&zero,'\0',0xc);
   memset((u_char *)&offset,'\0',0xc);
-  bVar1 = AITune_oneWay != 0;
   (carObj->N).simRoadInfo.slice = (short)slice;
-  if ((bVar1) && (travelDirection = -1, GameSetup_gData.reverseTrack == 0)) {
-    travelDirection = 1;
+  if (AITune_oneWay != 0) {
+    travelDirection = -1;
+    if (GameSetup_gData.reverseTrack == 0) {
+      travelDirection = 1;
+    }
   }
   carObj->direction = travelDirection;
   carObj->desiredDirection = travelDirection;
@@ -501,45 +497,15 @@ void AILife_ReencarnateCopByPosition(Car_tObj *carObj,int slice,int travelDirect
   carObj->currentSpeed = 0;
   AIPhysic_ResetCar(carObj);
   Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,(int)(carObj->N).simRoadInfo.slice,&offset,carObj->direction);
-  pmVar3 = &(carObj->N).orientMat;
   (carObj->N).position = *pos;
-  piVar2 = ori->m;
-  do {
-    iVar4 = piVar2[1];
-    iVar5 = piVar2[2];
-    iVar6 = piVar2[3];
-    pmVar3->m[0] = *piVar2;
-    pmVar3->m[1] = iVar4;
-    pmVar3->m[2] = iVar5;
-    pmVar3->m[3] = iVar6;
-    piVar2 = piVar2 + 4;
-    pmVar3 = (matrixtdef *)(pmVar3->m + 4);
-  } while (piVar2 != ori->m + 8);
-  pmVar3->m[0] = *piVar2;
-  pmVar3 = &(carObj->N).shadowMat;
-  piVar2 = ori->m;
-  do {
-    iVar4 = piVar2[1];
-    iVar5 = piVar2[2];
-    iVar6 = piVar2[3];
-    pmVar3->m[0] = *piVar2;
-    pmVar3->m[1] = iVar4;
-    pmVar3->m[2] = iVar5;
-    pmVar3->m[3] = iVar6;
-    piVar2 = piVar2 + 4;
-    pmVar3 = (matrixtdef *)(pmVar3->m + 4);
-  } while (piVar2 != ori->m + 8);
-  pmVar3->m[0] = *piVar2;
-  /* RAW @0x800683fc-84484: the memset'd `zero` temp is NEVER read back in THIS function
-   * (unlike ReencarnateTrafficByPosition) -- no linearVel/speedXZ store here; dropped the
-   * copy-pasted assignment the earlier pass carried over (w22-a14). */
+  (carObj->N).orientMat = *ori;
+  (carObj->N).shadowMat = *ori;
+  (carObj->N).linearVel = zero;
   AIInit_ClearAICar(carObj);
-  iVar4 = Cars_CalculateRoadPosition(carObj);
-  carObj->rampDesiredLatPos = iVar4;
-  carObj->desiredLatPos = iVar4;
-  carObj->roadPosition = iVar4;
-  iVar4 = Cars_CalculateRoadSpan(carObj);
-  carObj->roadSpan = iVar4;
+  carObj->roadPosition =
+      carObj->desiredLatPos =
+      carObj->rampDesiredLatPos = Cars_CalculateRoadPosition(carObj);
+  carObj->roadSpan = Cars_CalculateRoadSpan(carObj);
   AIWorld_CalculateLaneInfo(carObj);
   return;
 }

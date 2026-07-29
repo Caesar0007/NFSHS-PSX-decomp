@@ -404,10 +404,10 @@ void StampImage(int xo,int depth)
   else {
     frame = 1 - gFlip;
   }
-  i = 0;
   if ((Render_gBlurEffectMode & 4U) == 0) {
     xo = 0;
   }
+  i = 0;
   int x = xo;
   for (; i < 5; i = i + 1, x = x + 0x40) {
     ft4_p = (POLY_FT4 *)Render_gPacketPtr;

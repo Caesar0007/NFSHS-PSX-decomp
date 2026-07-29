@@ -238,15 +238,17 @@ void GetStmQuadPts(BWorldSm_Pos *slicePos,coorddef *cp)
   int y;
   int z;
 
+  pStrip = slicePos->strip;
+  vertices = (CCOORD16 *)
+    Track_chunkList[slicePos->chunk].vertexBuf->GetData();
   cx = cp->x;
   cy = cp->y;
   cz = cp->z;
+  topInd = (u_int)pStrip->topVert;
+  botInd = (u_int)pStrip->botVert;
+  topInd += (int)slicePos->stripQuadInd;
+  botInd += (int)slicePos->stripQuadInd;
   pts = slicePos->quadPts;
-  pStrip = slicePos->strip;
-  topInd = (u_int)pStrip->topVert + (int)slicePos->stripQuadInd;
-  botInd = (u_int)pStrip->botVert + (int)slicePos->stripQuadInd;
-  vertices = (CCOORD16 *)
-    Track_chunkList[slicePos->chunk].vertexBuf->GetData();
 
   x = cx + ((int)vertices[topInd + 1].x << 10);
   y = cy + ((int)vertices[topInd + 1].y << 10);

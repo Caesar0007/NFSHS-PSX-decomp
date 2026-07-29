@@ -166,29 +166,34 @@ void AILife_RCPickDesiredLatPosition(Car_tObj *carObj)
   int randNumLanes;
   int newSlice;
   int width;
-  u_int uVar2;
 
   newSlice = (int)(carObj->N).simRoadInfo.slice;
   if (carObj->direction == AITune_driveSide) {
-    newSlice = newSlice * 0x20 + (int)BWorldSm_slices;
-    width = *(u_char *)(newSlice + 0x1f);
     randtemp = fastRandom * randSeed;
-    randNumLanes = *(u_char *)(newSlice + 0x1d) & 0xf;
-    uVar2 = (u_int)width * 0x8000;
     fastRandom = randtemp & 0xffff;
-    newSlice = uVar2 * ((randNumLanes * (randtemp >> 8 & 0xffff) >> 0x10) + 1) - (uVar2 >> 1);
+    newSlice *= 0x20;
+    newSlice += (int)BWorldSm_slices;
+    width = *(u_char *)(newSlice + 0x1f);
+    width = width << 0xf;
+    randNumLanes = *(u_char *)(newSlice + 0x1d) & 0xf;
+    newSlice =
+        width * ((randNumLanes * (randtemp >> 8 & 0xffff) >> 0x10) + 1) -
+        ((u_int)width >> 1);
   }
   else {
-    newSlice = newSlice * 0x20 + (int)BWorldSm_slices;
-    width = *(u_char *)(newSlice + 0x1e);
     randtemp = fastRandom * randSeed;
-    randNumLanes = *(u_char *)(newSlice + 0x1d) >> 4;
     fastRandom = randtemp & 0xffff;
-    newSlice = (u_int)width * -0x8000 * ((randNumLanes * (randtemp >> 8 & 0xffff) >> 0x10) + 1) +
-               ((u_int)width * 0x8000 >> 1);
+    newSlice *= 0x20;
+    newSlice += (int)BWorldSm_slices;
+    width = *(u_char *)(newSlice + 0x1e);
+    width = width << 0xf;
+    randNumLanes = *(u_char *)(newSlice + 0x1d) >> 4;
+    newSlice =
+        -width * ((randNumLanes * (randtemp >> 8 & 0xffff) >> 0x10) + 1) +
+        ((u_int)width >> 1);
   }
   carObj->desiredLatPos = newSlice;
-  newSlice = carObj->desiredLatPos + carObj->laneSlack;
+  newSlice = *(volatile int *)&carObj->desiredLatPos + carObj->laneSlack;
   carObj->desiredLatPos = newSlice;
   carObj->rampDesiredLatPos = newSlice;
   return;

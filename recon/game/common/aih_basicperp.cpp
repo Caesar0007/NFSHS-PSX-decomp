@@ -198,8 +198,13 @@ int AIHigh_BasicPerp::CheckIfCaught()
           if (__builtin_abs(cop->currentSpeed) >=
               AIHigh_BasicPerp_CopCaughtSpeed[skill]) continue;
 
-          if (__builtin_abs(cop->N.position.y - carObj_->N.position.y) >=
-              AIHigh_BasicPerp_PlayerCaughtDeltaY[skill]) continue;
+          if ((cop->N.position.y - carObj_->N.position.y > 0
+                   ? cop->N.position.y - carObj_->N.position.y
+                   : carObj_->N.position.y - cop->N.position.y) <
+              AIHigh_BasicPerp_PlayerCaughtDeltaY[skill]) {
+          } else {
+            continue;
+          }
 
           distanceAbsMeters = __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_,cop));
 

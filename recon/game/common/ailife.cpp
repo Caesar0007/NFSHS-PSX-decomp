@@ -234,81 +234,55 @@ void AILife_PlaceCarAtLocation(Car_tObj *carObj,int rotation1024)
    * stack slot (fp-0x50) -- each branch writes its own coorddef and copies it into
    * linearVel INSIDE the branch; gcc TAIL-MERGES the byte-identical copy sequence into
    * one shared block (raw shows a single merge point + `j`) (w18-a7, §D tail-merge). */
-  matrixtdef *pmVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  matrixtdef *m1;
-  matrixtdef rotMatrix;
-  matrixtdef *rotP;
-
-  iVar3 = carObj->desiredLatPos;
-  iVar4 = carObj->currentSpeed;
   (carObj->N).active = '\x01';
-  carObj->rampDesiredLatPos = iVar3;
-  carObj->desiredSpeed = iVar4;
+  carObj->rampDesiredLatPos = carObj->desiredLatPos;
+  carObj->desiredSpeed = carObj->currentSpeed;
   AIPhysic_ResetCar(carObj);
-  if (stackSpeedUpEnbabledFlag == 0) {
-    AILife_SetInitialSlicePositionOrientationEtc(carObj);
-  }
-  else {
+  if (stackSpeedUpEnbabledFlag != 0) {
     gWSavePtr = (u_long)SetSp((void *)gWSavePtr);  /* @0x57D38 disasm-v2: scratchpad sp swap */
     stackSpeedUpEnbabledFlag = 0;
     AILife_SetInitialSlicePositionOrientationEtc(carObj);
     gWSavePtr = (u_long)SetSp((void *)gWSavePtr);  /* @0x57D60 disasm-v2: restore sp */
     stackSpeedUpEnbabledFlag = 1;
   }
+  else {
+    AILife_SetInitialSlicePositionOrientationEtc(carObj);
+  }
   if (carObj->currentSpeed != 0) {
     coorddef targetDirection;
     int speed;
-    targetDirection.x = (carObj->N).orientMat.m[6];
-    targetDirection.y = (carObj->N).orientMat.m[7];
-    targetDirection.z = (carObj->N).orientMat.m[8];
+    int direction;
+    targetDirection = *(coorddef *)&(carObj->N).orientMat.m[6];
     speed = carObj->currentSpeed;
+    direction = targetDirection.x;
     if (speed < 0) {
       speed = -speed;
     }
-    targetDirection.x = fixedmult(speed,targetDirection.x);
+    targetDirection.x = fixedmult(speed,direction);
     targetDirection.y = fixedmult(speed,targetDirection.y);
     targetDirection.z = fixedmult(speed,targetDirection.z);
-    (carObj->N).linearVel.x = targetDirection.x;
-    (carObj->N).linearVel.y = targetDirection.y;
-    (carObj->N).linearVel.z = targetDirection.z;
+    (carObj->N).linearVel = targetDirection;
   }
   else {
     coorddef zero;
     memset((u_char *)&zero,'\0',0xc);
-    (carObj->N).linearVel.x = zero.x;
-    (carObj->N).linearVel.y = zero.y;
-    (carObj->N).linearVel.z = zero.z;
+    (carObj->N).linearVel = zero;
   }
   if ((carObj->carFlags & 4U) != 0) {
     Physics_ResetCar(carObj);
   }
-  rotP = &rotMatrix;
-  xformy(rotP,(void *)rotation1024);
-  m1 = &(carObj->N).orientMat;
-  Math_fasttransmult(m1,rotP,m1);
-  pmVar2 = &(carObj->N).shadowMat;
-  do {
-    iVar3 = m1->m[1];
-    iVar4 = m1->m[2];
-    iVar5 = m1->m[3];
-    pmVar2->m[0] = m1->m[0];
-    pmVar2->m[1] = iVar3;
-    pmVar2->m[2] = iVar4;
-    pmVar2->m[3] = iVar5;
-    m1 = (matrixtdef *)(m1->m + 4);
-    pmVar2 = (matrixtdef *)(pmVar2->m + 4);
-  } while (m1 != (matrixtdef *)((carObj->N).orientMat.m + 8));
-  pmVar2->m[0] = m1->m[0];
+  {
+    matrixtdef rotMatrix;
+    xformy(&rotMatrix,(void *)rotation1024);
+    Math_fasttransmult(
+        &(carObj->N).orientMat,&rotMatrix,&(carObj->N).orientMat);
+    (carObj->N).shadowMat = (carObj->N).orientMat;
+  }
   AIInit_ClearAICar(carObj);
-  iVar3 = Cars_CalculateRoadPosition(carObj);
-  carObj->rampDesiredLatPos = iVar3;
-  carObj->desiredLatPos = iVar3;
-  carObj->roadPosition = iVar3;
-  iVar3 = Cars_CalculateRoadSpan(carObj);
-  carObj->roadSpan = iVar3;
+  carObj->roadPosition =
+      carObj->desiredLatPos =
+      carObj->rampDesiredLatPos = Cars_CalculateRoadPosition(carObj);
+  carObj->roadSpan = Cars_CalculateRoadSpan(carObj);
   AIWorld_CalculateLaneInfo(carObj);
   return;
 }

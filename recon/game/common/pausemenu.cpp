@@ -590,82 +590,50 @@ PMLeftRtSlide_playSound:
 void tPMenuItemLeftRightSlider::Draw(bool selected)
 
 {
-  u_char *prim;
-  int labelStrId;
-  int drmode_addr24;
-  u_int uVar1;
-  int pkt_addr24;
-  int iVar2;
-  int tickX;
-  int xacc;
-  int fadeColor;
-  u_long col;
-  int tickColor;
-  short y;
-  int label_y_pack;
-  int label_y;
-  int i;
-  int endX;
-  int valueX;
-  int xpos;
   short x;
-  u_char *tp1;
-  u_char *tp2;
-  u_char *tp3;
-  int ti1;
-  
-  iVar2 = selected;
-  endX = 0;
-  xacc = 0x42;
-  labelStrId = TextSys_WordX(this->fTextDescription);
-  tickX = (int)(short)labelStrId;
-  x = (short)labelStrId;
-  label_y_pack = (int)(u_short)gPause_CurrentY;
-  PauseMenu_MenuTextPositioned((short)this->fTextDescription,(short)iVar2,
-             (u_short)this->fFlags & 1,(short)labelStrId);
-  label_y = label_y_pack + 4;
-  do {
-    tp2 = Render_gPacketPtr;
-    tp1 = Render_gPalettePtr;
-    if (0xe < endX) {
-      Hud_FBuildF4(0,x + 0x3f,(label_y * 0x10000 >> 0x10) + 1,0x4f,7,0,'\0','\0');
-      return;
-    }
-    pkt_addr24 = (int)(u_char)this->fMaxVal;
-    ti1 = *this->fData * 0xf;
-    tickColor = 0x323232;
-    if (endX < ti1 / pkt_addr24) {
-      xpos = tickX + xacc;
-      tickColor = 0x808080;
-      if (iVar2 != 0) {
-        tickColor = 0xbebe;
-        goto Draw7ac8_labelYWrite;
+  short y;
+  int i;
+  u_long col;
+  int xpos;
+
+  x = (short)TextSys_WordX(this->fTextDescription);
+  PauseMenu_MenuTextPositioned((short)this->fTextDescription, (short)selected,
+             *(volatile u_int *)&this->fFlags & 1, x);
+  y = gPause_CurrentY + 4;
+  i = 0;
+  while (i < 15) {
+    col = 0x323232;
+    if (i < (*this->fData * 15) / (u_char)this->fMaxVal) {
+      xpos = i * 5 + 66;
+      xpos += x;
+      col = 0x808080;
+      if (selected != 0) {
+        col = 0xbebe;
       }
     }
-    else {
-Draw7ac8_labelYWrite:
-      if ((iVar2 != 0) && (GameSetup_gData.userSetting.language == 0)) {
-        fadeColor = (label_y * 0x10000 >> 0x10) + 2;
-        *(u_int *)Render_gPacketPtr =
-             *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-        drmode_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
-        Render_gPacketPtr = Render_gPacketPtr + 0x34;
-        *(u_int *)tp1 = *(u_int *)tp1 & 0xff000000 | drmode_addr24;
-        Hud_BuildGT4((POLY_GT4 *)tp2,HudPmx_gShapes + 0x12,tickX + 0x35,fadeColor,0xbebe);
-        prim = Render_gPacketPtr;
-        tp3 = Render_gPalettePtr;
-        *(u_int *)Render_gPacketPtr =
-             *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-        uVar1 = (u_int)Render_gPacketPtr & 0xffffff;
-        Render_gPacketPtr = Render_gPacketPtr + 0x34;
-        *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | uVar1;
-        Hud_BuildGT4((POLY_GT4 *)prim,HudPmx_gShapes + 0x13,tickX + 0x90,fadeColor,0xbebe);
-      }
+    if ((selected != 0) && (GameSetup_gData.userSetting.language == 0)) {
+      struct PMenuTag {
+        u_int addr : 24;
+        u_int len : 8;
+      };
+      POLY_GT4 *prim;
+
+      prim = (POLY_GT4 *)Render_gPacketPtr;
+      ((PMenuTag *)prim)->addr = ((PMenuTag *)Render_gPalettePtr)->addr;
+      ((PMenuTag *)Render_gPalettePtr)->addr = (u_int)prim;
+      Render_gPacketPtr = (u_char *)(prim + 1);
+      Hud_BuildGT4(prim, HudPmx_gShapes + 0x12, x + 53, y + 2, 0xbebe);
+
+      prim = (POLY_GT4 *)Render_gPacketPtr;
+      ((PMenuTag *)prim)->addr = ((PMenuTag *)Render_gPalettePtr)->addr;
+      ((PMenuTag *)Render_gPalettePtr)->addr = (u_int)prim;
+      Render_gPacketPtr = (u_char *)(prim + 1);
+      Hud_BuildGT4(prim, HudPmx_gShapes + 0x13, x + 144, y + 2, 0xbebe);
     }
-    Hud_FBuildF4(0,xpos,(label_y * 0x10000 >> 0x10) + 2,3,5,tickColor,'\0','\0');
-    endX = endX + 1;
-    xacc = xacc + 5;
-  } while( true );
+    Hud_FBuildF4(0, xpos, y + 2, 3, 5, col, '\0', '\0');
+    i++;
+  }
+  Hud_FBuildF4(0, x + 63, y + 1, 79, 7, 0, '\0', '\0');
 }
 
 

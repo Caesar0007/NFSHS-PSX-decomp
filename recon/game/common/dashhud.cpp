@@ -22,30 +22,27 @@ void DashHUD_InitHUD(void)
 
 {
   int i;
-  int iVar1;
-  int iVar2;
-  GameSetup_tData *pGVar3;
-  
-  iVar2 = 0;
-  pGVar3 = &GameSetup_gData;
+
+  i = 0;
   DashHUD_gInfo.splitscreen = (int)(GameSetup_gData.commMode == 1);
-  do {
-    iVar1 = pGVar3->carInfo[0].HudSpeed;
-    if (iVar1 == 0) {
-      pGVar3->carInfo[0].HudSpeedMult = 0x23ca5;
+  while (i <= DashHUD_gInfo.splitscreen) {
+    if (GameSetup_gData.carInfo[i].HudSpeed == 0) {
+      GameSetup_gData.carInfo[i].HudSpeedMult = 0x23ca5;
     }
-    else if (iVar1 == 1) {
-      pGVar3->carInfo[0].HudSpeedMult = 0x39999;
+    else if (GameSetup_gData.carInfo[i].HudSpeed == 1) {
+      GameSetup_gData.carInfo[i].HudSpeedMult = 0x39999;
     }
-    iVar2 = iVar2 + 1;
-    pGVar3 = (GameSetup_tData *)((pGVar3->controllerData).shockImpact + 1);
-  } while (iVar2 <= DashHUD_gInfo.splitscreen);
+    i = i + 1;
+  }
   DashHUD_gInfo.showhud[0] = 1;
   DashHUD_gInfo.showhud[1] = 1;
   if (DashHUD_gInfo.splitscreen != 0) {
+    DashHUD_gInfo.showmap[0] = 0;
     DashHUD_gInfo.showmap[1] = 0;
   }
-  DashHUD_gInfo.showmap[0] = (int)(DashHUD_gInfo.splitscreen == 0);
+  else {
+    DashHUD_gInfo.showmap[0] = 1;
+  }
   DashHUD_gInfo.wrongway[0] = 0;
   DashHUD_gInfo.wrongway[1] = 0;
   if (Replay_ReplayMode < 2) {

@@ -142,121 +142,118 @@ void DeInitArtResources(void)
 void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,int x,int y)
 
 {
-  int palnum;
-  Track_MultiPalette *pTVar1;
-  void *pvVar2;
-  u_char *n;
-  int pcnt;
-  int iVar3;
-  Track_MipMap *pTVar4;
-  int cnt;
-  int iVar5;
-  Track_MultiPalette *pTVar6;
-  int j;
-  int tempclut;
-  int iVar7;
   int i;
   shapetbl *shape;
-  int mipmapcounter;
-  int iVar8;
   Draw_tPixMap *pPmx;
-  int cluttype;
-  int iVar9;
   int recolor_flag;
-  char name [4];
-  short icode [2];
-  
-  iVar9 = -1;
+  int cluttype;
+  int mipmapcounter;
+  int multiPalOffset;
+
+  pPmx = pmxList;
+  cluttype = -1;
+  recolor_flag = 0;
   gTempMipMapInfo = (Track_MipMap *)0x0;
   if (TrackSpec_gSpec.fogstate != 0) {
-    iVar9 = -3;
+    int cnt;
+
+    cluttype = -3;
     gTempMipMapInfo = reservememadr("mipmapinf",0x180,0x10);
-    iVar5 = 0;
-    iVar3 = 0;
-    do {
-      iVar5 = iVar5 + 1;
-      *(u_int *)((int)gTempMipMapInfo->code + iVar3) = 0xffffffff;
-      iVar3 = iVar3 + 0xc;
-    } while (iVar5 < 0x20);
-  }
-  gTempMultiPalInfo = reservememadr("mpalinfo",0x400,0x10);
-  iVar3 = 0x7f;
-  pTVar1 = gTempMultiPalInfo + 0x7f;
-  do {
-    pTVar1->palnum = -1;
-    iVar3 = iVar3 + -1;
-    pTVar1 = pTVar1 + -1;
-  } while (-1 < iVar3);
-  DrawSync(0);
-  iVar8 = 0;
-  iVar3 = 0;
-  iVar5 = 0;
-  do {
-    pvVar2 = shapecount(shapefile);
-    if ((int)pvVar2 <= iVar3) {
-      return;
+    for (cnt = 0; cnt < 0x20; cnt = cnt + 1) {
+      *(int *)gTempMipMapInfo[cnt].code = -1;
     }
-    n = shapepointer(shapefile,iVar3);
-    if (n != (u_char *)0x0) {
-      shapename(shapefile,iVar3,name);
-      if (((iVar3 < 0xc) || ((*n & 3) == 1)) || (iVar7 = iVar9, name[0] == '#')) {
-        iVar7 = -1;
+  }
+
+  gTempMultiPalInfo = reservememadr("mpalinfo",0x400,0x10);
+  {
+    int pcnt;
+    int emptyPalNum;
+
+    emptyPalNum = -1;
+    for (pcnt = 0x7f; 0 <= pcnt; pcnt = pcnt - 1) {
+      gTempMultiPalInfo[pcnt].palnum = emptyPalNum;
+    }
+  }
+
+  DrawSync(0);
+  mipmapcounter = 0;
+  i = 0;
+  multiPalOffset = 0;
+
+  while (i < shapecount(shapefile)) {
+    char name[4];
+    int tempclut;
+
+    shape = (shapetbl *)shapepointer(shapefile,i);
+    if (shape != (shapetbl *)0x0) {
+      shapename(shapefile,i,name);
+      tempclut = cluttype;
+      if ((i < 0xc) || ((shape->type & 3) == 1) || (name[0] == '#')) {
+        tempclut = -1;
       }
-      Texture_LoadPmx((char *)0x0,(char *)n,loadFlags | 2,x,y,iVar7,iVar7,pmxList);
+
+      Texture_LoadPmx((char *)0x0,(char *)shape,loadFlags | recolor_flag | 2,
+                      x,y,tempclut,tempclut,pPmx);
+
       if (name[0] == '!') {
-        gTempMultiPalInfo->charcode[iVar5] = name[1];
-        gTempMultiPalInfo->charcode[iVar5 + 1] = name[2];
-        iVar7 = atoi(name + 3);
-        pTVar1 = gTempMultiPalInfo;
-        *(short *)(gTempMultiPalInfo->charcode + iVar5 + 2) = (short)iVar7;
-        *(short *)(pTVar1->charcode + iVar5 + 6) = (short)iVar3;
-        if (iVar7 == 0) {
-          *(short *)(pTVar1->charcode + iVar5 + 4) = (short)iVar3;
-        }
-        else {
-          iVar7 = 0;
-          pTVar6 = pTVar1;
-          do {
-            if (((pTVar6->charcode[0] == name[1]) && (pTVar6->charcode[1] == name[2])) &&
-               (pTVar6->palnum == 0)) {
-              *(short *)(pTVar1->charcode + iVar5 + 4) = pTVar6->origshapeindex;
+        int palnum;
+
+        *(char *)(multiPalOffset + (int)gTempMultiPalInfo) = name[1];
+        *(char *)(multiPalOffset + (int)gTempMultiPalInfo + 1) = name[2];
+        palnum = atoi(name + 3);
+        ((Track_MultiPalette *)
+         (multiPalOffset + (int)gTempMultiPalInfo))->palnum = palnum;
+        ((Track_MultiPalette *)
+         (multiPalOffset + (int)gTempMultiPalInfo))->actualshapeindex = i;
+        if (palnum != 0) {
+          int j;
+
+          for (j = 0; j < 0x80; j = j + 1) {
+            if ((gTempMultiPalInfo[j].charcode[0] == (u_char)name[1]) &&
+                (gTempMultiPalInfo[j].charcode[1] == (u_char)name[2]) &&
+                (gTempMultiPalInfo[j].palnum == 0)) {
+              ((Track_MultiPalette *)
+               (multiPalOffset + (int)gTempMultiPalInfo))->origshapeindex =
+                  gTempMultiPalInfo[j].origshapeindex;
               break;
             }
-            iVar7 = iVar7 + 1;
-            pTVar6 = pTVar6 + 1;
-          } while (iVar7 < 0x80);
-        }
-        iVar5 = iVar5 + 8;
-      }
-      if ((TrackSpec_gSpec.fogstate != 0) && (name[0] == 'Z')) {
-        if ((name[1] == 'R') && ((*n & 3) == 1)) {
-          pTVar4 = gTempMipMapInfo + iVar8;
-          pTVar4->code[0] = (u_short)(u_char)name[2];
-          iVar8 = iVar8 + 1;
-          pTVar4->shapeParentIndex = iVar3;
-          pTVar4->mipMapIndex = iVar3;
-          pTVar4->code[1] = (u_short)(u_char)name[3];
+          }
         }
         else {
-          iVar7 = 0;
-          pTVar4 = gTempMipMapInfo;
-          if (name[1] == 'Z') {
-            do {
-              if (((u_short)(u_char)name[2] == pTVar4->code[0]) &&
-                 ((u_short)(u_char)name[3] == pTVar4->code[1])) {
-                pTVar4->mipMapIndex = iVar3;
+          ((Track_MultiPalette *)
+           (multiPalOffset + (int)gTempMultiPalInfo))->origshapeindex = i;
+        }
+        multiPalOffset = multiPalOffset + sizeof(Track_MultiPalette);
+      }
+
+      if ((TrackSpec_gSpec.fogstate != 0) && (name[0] == 'Z')) {
+        short icode[2];
+
+        icode[0] = (u_char)name[2];
+        icode[1] = (u_char)name[3];
+        if ((name[1] == 'R') && ((shape->type & 3) == 1)) {
+          gTempMipMapInfo[mipmapcounter].code[0] = icode[0];
+          gTempMipMapInfo[mipmapcounter].code[1] = (u_char)name[3];
+          gTempMipMapInfo[mipmapcounter].shapeParentIndex = i;
+          gTempMipMapInfo[mipmapcounter].mipMapIndex = i;
+          mipmapcounter = mipmapcounter + 1;
+        }
+        else if (name[1] == 'Z') {
+          int j;
+
+          for (j = 0; j < 0x20; j = j + 1) {
+            if ((icode[0] == gTempMipMapInfo[j].code[0]) &&
+                (icode[1] == gTempMipMapInfo[j].code[1])) {
+              gTempMipMapInfo[j].mipMapIndex = i;
                 break;
-              }
-              iVar7 = iVar7 + 1;
-              pTVar4 = pTVar4 + 1;
-            } while (iVar7 < 0x20);
+            }
           }
         }
       }
-      pmxList = pmxList + 1;
+      pPmx = pPmx + 1;
     }
-    iVar3 = iVar3 + 1;
-  } while( true );
+    i = i + 1;
+  }
 }
 
 /* ---- LoadShapesAndMakePmx_EnvMap__FPcP12Draw_tPixMapii  [TRACK.CPP:375-394] SLD-VERIFIED ---- */

@@ -265,7 +265,7 @@ void AIHigh_Traffic::HighExecute()
           idleState->idleInPlaceFlag_ = 1;
           SetState((AIState_Base *)idleState,STATE_IDLE);
 
-          idleState->SetIdlePosition(
+          (idleState = idleState)->SetIdlePosition(
             carObj_->direction == 1 ?
               ((u_int)BWorldSm_slices[slice].avgPavedWidthRt << 0xf) *
                 (BWorldSm_slices[slice].laneCount & 0xf) :
@@ -288,7 +288,7 @@ void AIHigh_Traffic::HighExecute()
           idleState->idleInPlaceFlag_ = 1;
           SetState((AIState_Base *)idleState,STATE_IDLE);
 
-          idleState->SetIdlePosition(
+          (idleState = idleState)->SetIdlePosition(
             carObj_->direction == 1 ?
               ((u_int)BWorldSm_slices[slice].avgPavedWidthRt << 0xf) *
                 (BWorldSm_slices[slice].laneCount & 0xf) :

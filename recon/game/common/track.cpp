@@ -993,84 +993,75 @@ void Track_Init(char *tempName)
   subGroup = (int)((SerializedGroup *)rootSerGroup)->LocateCreateGroupType(0x20,Track_mem,0);
   Chunk_chunkCenters = (coorddef *)(subGroup + 4);
   geomSubGrp = (int)((SerializedGroup *)rootSerGroup)->LocateGroupType(0x23,0);
-  tp7 = (void *)(geomSubGrp + 0x10);
-  pCVar5 = Chunk_lightTable;
-  if ((((u_int)tp7 | (u_int)Chunk_lightTable) & 3) != 0) {
-    struct Pack16 { char b[16]; };
-    do {
-      *(struct Pack16 *)pCVar5 = *(struct Pack16 *)tp7;
-      tp7 = (void *)((int)tp7 + 0x10);
-      pCVar5 = pCVar5 + 4;
-    } while (tp7 != (CVECTOR *)(geomSubGrp + 0x410));
-  }
-  else {
-    do {
-      u_int c0,c1,c2,c3;
-      c0 = ((u_int *)tp7)[0];
-      c1 = ((u_int *)tp7)[1];
-      c2 = ((u_int *)tp7)[2];
-      c3 = ((u_int *)tp7)[3];
-      ((u_int *)pCVar5)[0] = c0;
-      ((u_int *)pCVar5)[1] = c1;
-      ((u_int *)pCVar5)[2] = c2;
-      ((u_int *)pCVar5)[3] = c3;
-      tp7 = (void *)((int)tp7 + 0x10);
-      pCVar5 = pCVar5 + 4;
-    } while (tp7 != (CVECTOR *)(geomSubGrp + 0x410));
+  {
+    struct LightTableData {
+      CVECTOR data[0x100];
+    };
+
+    *(LightTableData *)Chunk_lightTable = *(LightTableData *)(geomSubGrp + 0x10);
   }
   instSubGrp = (int)((SerializedGroup *)rootSerGroup)->LocateGroupType(0x23,0);
-  matOffset = 0;
-  chunkIdx = 0;
   Chunk_numLight = *(int *)(instSubGrp + 4) - 0x10U >> 2;
   Track_gInViewList = (Track_mem)->Alloc(Track_header->chunkCount * 0x48,0);
   Track_gInViewCount = (Track_mem)->Alloc(Track_header->chunkCount,0);
   Track_chunkList = (Track_mem)->Alloc(Track_header->chunkCount * 0x70,0);
   Chunk_Init();
-  perGroup = (int)((SerializedGroup *)rootSerGroup)->LocateGroupType(0x21,0);
-  pSVar4 = ((SerializedGroup *)rootSerGroup)->LocateGroupType(0x1d,0);
-  for (groupOffset = 0; groupOffset < Track_header->chunkCount; groupOffset = groupOffset + 1) {
-    tR7 = (int)Track_chunkList->boundPts;
-    matInfo_p = 0;
-    if (groupOffset < Track_header->chunkCount + -1) {
-      matInfo_p = (int)(pSVar4)->LocateNextGroupType(0x1d);
+  persistentGroup = ((SerializedGroup *)rootSerGroup)->LocateGroupType(0x21,0);
+  chunkGroup = ((SerializedGroup *)rootSerGroup)->LocateGroupType(0x1d,0);
+  i = 0;
+  tu3 = 0x3ff;
+  matOffset = 0;
+  chunkIdx = 0;
+  while (i < Track_header->chunkCount) {
+    chunkDat = (Chunk *)((char *)Track_chunkList + chunkIdx);
+    nextChunkGroup = (SerializedGroup *)0x0;
+    if (i < Track_header->chunkCount + -1) {
+      nextChunkGroup = chunkGroup->LocateNextGroupType(0x1d);
     }
-    ((Chunk *)(tR7 + chunkIdx))->InstanceGroup(pSVar4,Track_mem);
-    pSVar4 = (pSVar4)->LocateGroupType(4,0);
-    tT33 = Track_header;
-    iVar44_field = pSVar4->m_num_elements;
-    pSVar4 = pSVar4 + 1;
-    iVar43_field = 0;
-    if (0x24 < iVar44_field) {
-      iVar44_field = 0x24;
+    chunkDat->InstanceGroup(chunkGroup,Track_mem);
+    group = chunkGroup->LocateGroupType(4,0);
+    count = group->m_num_elements;
+    visList = (short *)(group + 1);
+    if (0x24 < count) {
+      count = 0x24;
     }
-    elemIdx = 0;
-    if (0 < iVar44_field) {
-      elemPtr = (int)*Track_gInViewList + matOffset;
+    srcDataInd = 0;
+    j = 0;
+    if (0 < count) {
+      short *src;
+      short *dest;
+
+      src = visList;
+      dest = (short *)(matOffset + (int)Track_gInViewList);
+
       do {
-        tu3 = (u_short)pSVar4->m_type;
-        if ((int)(tu3 & 0x3ff) < tT33->chunkCount) {
-          *(u_short *)elemPtr = tu3;
-          elemPtr = elemPtr + 2;
-          elemIdx = elemIdx + 1;
+        u_short entry = (u_short)*src;
+
+        if ((int)(entry & 0x3ff) < Track_header->chunkCount) {
+          *dest = entry;
+          dest = dest + 1;
+          j = j + 1;
         }
-        iVar43_field = iVar43_field + 1;
-        pSVar4 = (SerializedGroup *)((int)&pSVar4->m_type + 2);
-      } while (iVar43_field < iVar44_field);
+        srcDataInd = srcDataInd + 1;
+        src = src + 1;
+      } while (srcDataInd < count);
     }
-    Track_gInViewCount[groupOffset] = (u_char)elemIdx;
-    if (elemIdx < 0x24) {
-      elemNext = (void *)((int)*Track_gInViewList + elemIdx * 2 + matOffset);
+    *(u_char *)((char *)Track_gInViewCount + i) = (u_char)j;
+    if (j < 0x24) {
+      short *dest = (short *)(j * 2 + (matOffset + (int)Track_gInViewList));
+
       do {
-        *(u_short *)elemNext = 0x3ff;
-        elemIdx = elemIdx + 1;
-        elemNext = (void *)((int)elemNext + 2);
-      } while (elemIdx < 0x24);
+        *dest = tu3;
+        j = j + 1;
+        dest = dest + 1;
+      } while (j < 0x24);
     }
+    chunkGroup = nextChunkGroup;
     matOffset = matOffset + 0x40;
     chunkIdx = chunkIdx + 0x70;
-    pSVar4 = (SerializedGroup *)matInfo_p;
+    i = i + 1;
   }
-  Track_InitPersistentData((SerializedGroup *)perGroup);
+  Track_InitPersistentData(persistentGroup);
   (Track_mem)->ResizeToFit();
   Track_MakeTrackPathName(".grp");
   gPersistObjDefBoundingSpheres =

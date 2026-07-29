@@ -1801,13 +1801,13 @@ void Physics_CalculateTireForces(Car_tObj *carObj,Physics_tWheelAccStruct *wheel
   }
   if ((wheel->acc < 0) && (wheel->velCap.z < 0)) {
     if ((gGasRatio < 0x4001) || ((carObj->control).gear != '\0')) {
-      wheel->acc = (wheel->velCap.z < wheel->acc) ? wheel->acc : wheel->velCap.z;
+      wheel->acc = (wheel->acc > wheel->velCap.z) ? wheel->acc : wheel->velCap.z;
       brakingSituation = 1;
     }
   }
   else if (((0 < wheel->acc) && (0 < wheel->velCap.z)) &&
            ((gGasRatio < 0x4001) || ((u_char)(carObj->control).gear < 2))) {
-    wheel->acc = (wheel->acc <= wheel->velCap.z) ? wheel->acc : wheel->velCap.z;
+    wheel->acc = (wheel->acc < wheel->velCap.z) ? wheel->acc : wheel->velCap.z;
     brakingSituation = 1;
   }
   wheel->acc = fixedmult(wheel->acc,carObj->specs->lateralGripMult);
@@ -1822,7 +1822,7 @@ void Physics_CalculateTireForces(Car_tObj *carObj,Physics_tWheelAccStruct *wheel
         ((__builtin_abs(carObj->linearVel_ch.z) > 0x4ffff) || (carObj->wheelSpin != 0))) {
       goto Phy_TireF_wheelLock;
     }
-    if (wheel->roadGrip < wheel->acc) {
+    if (wheel->acc > wheel->roadGrip) {
       wheel->acc = wheel->roadGrip;
     }
     else if (wheel->acc < -wheel->roadGrip) {
@@ -1871,8 +1871,8 @@ Phy_TireF_normalTire:
   }
   if (wheel->frontTire != 0) {
     latAcc = fixedmult(
-        fixedmult((__builtin_abs(slipAngle) < 0x100000) ?
-                  __builtin_abs(slipAngle) : 0x100000,roadGrip),0x1555);
+        fixedmult((0x100000 < __builtin_abs(slipAngle)) ?
+                  0x100000 : __builtin_abs(slipAngle),roadGrip),0x1555);
     if (slipAngle < 0) {
       latAcc = -latAcc;
     }
@@ -1898,9 +1898,14 @@ Phy_TireF_normalTire:
     }
   }
   else {
+    int minSlipAngle;
+
+    minSlipAngle = 0x8000;
     latAcc = fixedmult(
-        (__builtin_abs(slipAngle) < 0x8000) ? 0x8000 :
-        ((0x20000 < __builtin_abs(slipAngle)) ? 0x20000 : __builtin_abs(slipAngle)),
+        (0x20000 < ((__builtin_abs(slipAngle) < minSlipAngle) ?
+                    minSlipAngle : __builtin_abs(slipAngle))) ?
+        0x20000 :
+        ((__builtin_abs(slipAngle) < minSlipAngle) ? minSlipAngle : __builtin_abs(slipAngle)),
         roadGrip) / 2;
     if (slipAngle < 0) {
       latAcc = -latAcc;

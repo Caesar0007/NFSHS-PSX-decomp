@@ -1936,57 +1936,48 @@ int Physics_CalculateRSControlDesiredPosition(Car_tObj *carObj,int sliceAhead,in
 
 {
   int driveSide;
-  bool bVar1;
   int position;
-  int iVar2;
-  int iVar3;
-  u_int uVar4;
-  int laneOffset;
-  int iVar5;
-  int desLane;
-  
-  iVar3 = carObj->RSControl * AITune_driveSide;
-  bVar1 = false;
-  if ((((carObj->roadPosition < 0) && (0 < iVar3)) &&
-      (iVar2 = AIWorld_IsDriveableLane((int)(carObj->N).simRoadInfo.slice,carObj->laneIndex + 1), iVar2 == 0)) ||
-     (((0 < carObj->roadPosition && (iVar3 < 0)) &&
-      (iVar2 = AIWorld_IsDriveableLane((int)(carObj->N).simRoadInfo.slice,carObj->laneIndex + -1), iVar2 == 0))))
-  {
-    bVar1 = true;
+
+  driveSide = carObj->RSControl * AITune_driveSide;
+  if ((((carObj->roadPosition < 0) && (0 < driveSide)) &&
+       (AIWorld_IsDriveableLane((int)carObj->N.simRoadInfo.slice,carObj->laneIndex + 1) == 0)) ||
+      (((0 < carObj->roadPosition) && (driveSide < 0)) &&
+       (AIWorld_IsDriveableLane((int)carObj->N.simRoadInfo.slice,carObj->laneIndex - 1) == 0))) {
+    driveSide = -driveSide;
   }
-  if (bVar1) {
-    iVar3 = -iVar3;
-  }
-  iVar2 = 7;
-  if (iVar3 < 1) {
-    iVar3 = 6;
-    while( true ) {
-      iVar2 = AIWorld_IsDriveableLaneInSliceRange((int)(carObj->N).simRoadInfo.slice,lookAhead,carObj->RSControl,iVar3);
-      if ((iVar2 != 0) || (iVar3 < 4)) break;
-      iVar3 = iVar3 + -1;
+  if (0 < driveSide) {
+    int desLane;
+    int laneOffset;
+
+    desLane = 7;
+    while ((AIWorld_IsDriveableLaneInSliceRange((int)carObj->N.simRoadInfo.slice,lookAhead,
+                                                carObj->RSControl,desLane) == 0) &&
+           (desLane < 10)) {
+      desLane = desLane + 1;
     }
-    uVar4 = (u_int)BWorldSm_slices[sliceAhead].avgPavedWidthLf * 0x8000;
-    iVar5 = (6 - iVar3) * uVar4 + (uVar4 >> 1);
-    if (6 - iVar3 < 1) {
-      iVar5 = -iVar5;
+    laneOffset = (u_int)BWorldSm_slices[sliceAhead].avgPavedWidthRt * 0x8000;
+    position = (desLane - 7) * laneOffset + ((u_int)laneOffset >> 1);
+    if (0 < desLane - 7) {
+      position = position + 0x18000;
     }
-    else {
-      iVar5 = -(iVar5 + 0x18000);
-    }
+    return position;
   }
   else {
-    while( true ) {
-      iVar3 = AIWorld_IsDriveableLaneInSliceRange((int)(carObj->N).simRoadInfo.slice,lookAhead,carObj->RSControl,iVar2);
-      if ((iVar3 != 0) || (9 < iVar2)) break;
-      iVar2 = iVar2 + 1;
+    int desLane;
+    int laneOffset;
+    int laneDelta;
+
+    desLane = 6;
+    while ((AIWorld_IsDriveableLaneInSliceRange((int)carObj->N.simRoadInfo.slice,lookAhead,
+                                                carObj->RSControl,desLane) == 0) &&
+           (4 <= desLane)) {
+      desLane = desLane - 1;
     }
-    uVar4 = (u_int)BWorldSm_slices[sliceAhead].avgPavedWidthRt * 0x8000;
-    iVar5 = (iVar2 + -7) * uVar4 + (uVar4 >> 1);
-    if (0 < iVar2 + -7) {
-      iVar5 = iVar5 + 0x18000;
-    }
+    laneDelta = 6 - desLane;
+    laneOffset = (u_int)BWorldSm_slices[sliceAhead].avgPavedWidthLf * 0x8000;
+    position = laneDelta * laneOffset + ((u_int)laneOffset >> 1);
+    return (0 < laneDelta) ? -(position + 0x18000) : -position;
   }
-  return iVar5;
 }
 
 /* ---- Physics_Real__FP8Car_tObj  [PHYSICS.CPP:2048-2500] SLD-VERIFIED ---- */

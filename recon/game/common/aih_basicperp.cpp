@@ -686,55 +686,43 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
 
   thisCopSlice = (highLevelAIObjs[carIndex]->carObj_->N).simRoadInfo.slice;
 
-  while( true ) {
+  if (0 < pos) {
+    do {
+      nextCopIndex = this->positionVSCopList_[pos + -1].copIndex;
 
-    if (pos < 1) {
+      nextCarIndex = this->positionVSCopList_[pos + -1].carIndex;
 
-      return pos;
+      if (pos < 1) break;
 
-    }
+      if (nextCopIndex != -1) {
 
-    nextCopIndex = this->positionVSCopList_[pos + -1].copIndex;
+        if (nextCarIndex != -1) {
+          nextCarIndex =
+              AIWorld_ApxSplineDistance(highLevelAIObjs[nextCarIndex]->carObj_,
+                                        thisCopSlice);
 
-    nextCarIndex = this->positionVSCopList_[pos + -1].carIndex;
+          if (nextCarIndex * (this->carObj_)->direction >= -0xc0000) {
+            return pos;
+          }
 
-    if (pos < 1) break;
+        }
 
-    if (nextCopIndex != -1) {
-
-      if ((nextCarIndex != -1) &&
-
-         (nextCarIndex = AIWorld_ApxSplineDistance(highLevelAIObjs[nextCarIndex]->carObj_,thisCopSlice),
-
-         nextCarIndex * (this->carObj_)->direction >= -0xc0000)) {
-
-        /* oracle: the found/matched path returns 0, not pos -- the raw
-           delay-slot "$v0 = $s0" that would set the return to pos is
-           reached ONLY on the not-matched fallthrough (which continues
-           into the shift/adjust block, so it's dead there); the matched
-           branch jumps DIRECTLY to the epilogue restore with $v0 still
-           holding the slt-comparison result (0). CORRECTNESS FIX vs
-           prior recon (which wrongly returned pos here). */
-        return 0;
+        this->copVSPositionList_[nextCopIndex] = pos;
 
       }
 
-      this->copVSPositionList_[nextCopIndex] = pos;
+      this->copVSPositionList_[copIndex] = pos + -1;
 
-    }
+      this->positionVSCopList_[pos].copIndex = this->positionVSCopList_[pos + -1].copIndex;
 
-    this->copVSPositionList_[copIndex] = pos + -1;
+      this->positionVSCopList_[pos].carIndex = this->positionVSCopList_[pos + -1].carIndex;
 
-    this->positionVSCopList_[pos].copIndex = this->positionVSCopList_[pos + -1].copIndex;
+      this->positionVSCopList_[pos + -1].copIndex = copIndex;
 
-    this->positionVSCopList_[pos].carIndex = this->positionVSCopList_[pos + -1].carIndex;
+      this->positionVSCopList_[pos + -1].carIndex = carIndex;
 
-    this->positionVSCopList_[pos + -1].copIndex = copIndex;
-
-    this->positionVSCopList_[pos + -1].carIndex = carIndex;
-
-    pos = pos + -1;
-
+      pos = pos + -1;
+    } while (0 < pos);
   }
 
   return pos;

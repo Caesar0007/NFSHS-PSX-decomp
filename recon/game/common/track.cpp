@@ -727,88 +727,54 @@ void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
 
 {
   Trk_ObjectDef * objDef;
-  short sVar1;
-  short sVar2;
-  short *psVar3;
-  u_int uVar4;
-  u_int uVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  int diff;
-  Trk_ObjectDef *pTVar9;
-  int ptCount;
-  u_int uVar10;
-  u_int uVar11;
-  CCOORD16 *pts;
-  Trk_ObjectDef *pTVar12;
-  Trk_ObjectDef *pTVar13;
-  int radius;
-  int iVar14;
-  void *tp15;
-  int i;
-  int iVar15;
   tBoundingSphere *bSphere;
-  Group *pGVar16;
   int objCount;
-  int iVar17;
-  coorddef cp;
-  int qx;
-  int qy;
-  int qz;
 
+  bSphere = (tBoundingSphere *)(boundingSphereGroup + 1);
+  objCount = defGroup->m_num_elements;
 
-  pGVar16 = boundingSphereGroup + 1;
-  tp15 = (void *)((int)&boundingSphereGroup[2].m_num_elements + 2);
-  iVar17 = defGroup->m_num_elements;
-  for (iVar15 = 0; iVar15 < iVar17; iVar15 = iVar15 + 1) {
-    pTVar9 = Track_gObjDefs[iVar15];
-    uVar10 = (u_int)pTVar9->vertexCount;
-    pTVar12 = pTVar9 + 1;
-    cp.z = 0;
-    cp.y = 0;
-    cp.x = 0;
-    pTVar13 = pTVar9;
-    while (uVar10 = uVar10 - 1, uVar10 != 0xffffffff) {
-      psVar3 = &pTVar12->id;
-      pTVar12 = pTVar12 + 2;
-      cp.x = cp.x + *psVar3;
-      cp.y = cp.y + *(short *)&pTVar13[1].vertexCount;
-      cp.z = cp.z + pTVar13[2].id;
-      pTVar13 = pTVar13 + 2;
+  for (int i = 0; i < objCount; i = i + 1) {
+    int ptCount;
+    CCOORD16 *pts;
+    coorddef cp;
+    int radius;
+
+    objDef = Track_gObjDefs[i];
+    ptCount = objDef->vertexCount;
+    pts = (CCOORD16 *)(objDef + 1);
+    cp.x = cp.y = cp.z = 0;
+    while (--ptCount != -1) {
+      cp.x = cp.x + pts->x;
+      cp.y = cp.y + pts->y;
+      cp.z = cp.z + pts->z;
+      pts = pts + 1;
     }
-    uVar10 = (u_int)pTVar9->vertexCount;
-    uVar4 = (u_int)pTVar9->vertexCount;
-    uVar5 = (u_int)pTVar9->vertexCount;
-    qx = cp.x / (int)uVar10;
-    qy = cp.y / (int)uVar4;
-    qz = cp.z / (int)uVar5;
-    pTVar13 = pTVar9 + 1;
-    iVar14 = 0;
-    uVar11 = (u_int)pTVar9->vertexCount;
-    while( true ) {
-      uVar11 = uVar11 - 1;
-      if (uVar11 == 0xffffffff) break;
-      iVar6 = qx - (int)pTVar13->id >> 6;
-      iVar7 = qy - (int)(*(short *)&pTVar9[1].vertexCount) >> 6;
-      iVar8 = qz - (int)pTVar9[2].id >> 6;
-      iVar6 = iVar6 * iVar6 + iVar7 * iVar7 + iVar8 * iVar8;
-      if (iVar14 < iVar6) {
-        iVar14 = iVar6;
+
+    cp.x = cp.x / objDef->vertexCount;
+    cp.y = cp.y / objDef->vertexCount;
+    cp.z = cp.z / objDef->vertexCount;
+
+    pts = (CCOORD16 *)(objDef + 1);
+    radius = 0;
+    ptCount = objDef->vertexCount;
+    while (--ptCount != -1) {
+      int diff;
+      int dx = (cp.x - pts->x) >> 6;
+      int dy = (cp.y - pts->y) >> 6;
+      int dz = (cp.z - pts->z) >> 6;
+
+      diff = dx * dx + dy * dy + dz * dz;
+      if (radius < diff) {
+        radius = diff;
       }
-      pTVar13 = pTVar13 + 2;
-      pTVar9 = pTVar9 + 2;
+      pts = pts + 1;
     }
-    (*(u_short *)&(cp.x)) = (u_short)qx;
-    *(u_short *)&pGVar16->m_num_elements = (u_short)cp.x;
-    (*(u_short *)&(cp.y)) = (u_short)qy;
-    *(u_short *)((int)tp15 + -4) = (u_short)cp.y;
-    (*(u_short *)&(cp.z)) = (u_short)qz;
-    pGVar16 = pGVar16 + 2;
-    *(u_short *)((int)tp15 + -2) = (u_short)cp.z;
-    uVar10 = fixedsqrt(iVar14 << 10);
-    *(short *)tp15 = (short)(uVar10 >> 7);
-    tp15 = (void *)((int)tp15 + 8);
+
+    bSphere->cp.x = (short)cp.x;
+    bSphere->cp.y = (short)cp.y;
+    bSphere->cp.z = (short)cp.z;
+    bSphere->radius = (short)((u_int)fixedsqrt(radius << 10) >> 7);
+    bSphere = bSphere + 1;
     boundingSphereGroup->m_num_elements = boundingSphereGroup->m_num_elements + 1;
   }
   return;

@@ -1640,51 +1640,21 @@ Phy_CalcAcc_finalAdjustReturn:
 void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
 
 {
-  int iVar3;
-  int iVar1;
-  int iVar2;
-  int iVar4;
-  int *piVar5;
-  int optVar2;
   int totalAcc;
-  int roadGrip;
-  int iVar6;
   int optVar1;
-  int gripDiv;
+  int optVar2;
+  int roadGrip;
 
   if (wheel->frontTire != 0) {
-    wheel->skid = *(int *)((int)carObj + 0x484);
-    iVar3 = wheel->roadGrip;
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0xff;
-    }
-    iVar1 = frontMult;
-    iVar3 = iVar3 >> 8;
+    wheel->skid = carObj->frontSkid;
+    roadGrip = wheel->roadGrip / 256 * (frontMult / 256);
   }
   else {
-    wheel->skid = *(int *)((int)carObj + 0x488);
-    iVar3 = wheel->roadGrip;
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0xff;
-    }
-    iVar1 = rearMult;
-    iVar3 = iVar3 >> 8;
+    wheel->skid = carObj->rearSkid;
+    roadGrip = wheel->roadGrip / 256 * (rearMult / 256);
   }
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
-  }
-  iVar1 = iVar1 >> 8;
-  iVar1 = iVar3 * iVar1;
-  iVar3 = (wheel->velCap).x;
-  iVar4 = (wheel->velCap).z;
-  optVar1 = iVar3;
-  if (iVar3 < 0) {
-    optVar1 = -optVar1;
-  }
-  optVar2 = iVar4;
-  if (iVar4 < 0) {
-    optVar2 = -optVar2;
-  }
+  optVar1 = __builtin_abs(wheel->velCap.x);
+  optVar2 = __builtin_abs(wheel->velCap.z);
   if (optVar2 < optVar1) {
     totalAcc = optVar1 + (optVar2 >> 2);
   }
@@ -1692,41 +1662,30 @@ void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
     totalAcc = optVar2 + (optVar1 >> 2);
   }
   if (slippery != 0) {
-    iVar4 = *(int *)(*(int *)((int)carObj + 0x288) + 0x38);
-    piVar5 = gripLossTableWet;
+    optVar2 = roadGrip - roadGrip / gripLossTableWet[carObj->carInfo->TireType];
   }
   else {
-    iVar4 = *(int *)(*(int *)((int)carObj + 0x288) + 0x38);
-    piVar5 = gripLossTable;
+    optVar2 = roadGrip - roadGrip / gripLossTable[carObj->carInfo->TireType];
   }
-  iVar4 = piVar5[iVar4];
-  gripDiv = iVar1 / iVar4;
-  roadGrip = iVar1 - gripDiv;
-  if (iVar1 < totalAcc) {
-    wheel->skid = wheel->skid * 3 + (totalAcc - iVar1) >> 2;
+  if (roadGrip < totalAcc) {
+    wheel->skid = wheel->skid * 3 + (totalAcc - roadGrip) >> 2;
   }
   else {
     wheel->skid = 0;
   }
-  iVar6 = 0xa0000;
-  if (*(int *)(*(int *)((int)carObj + 0x288) + 0x38) == 2) {
-    iVar6 = 0x80000;
+  roadGrip = 0xa0000;
+  if (carObj->carInfo->TireType == 2) {
+    roadGrip = 0x80000;
   }
-  if (wheel->skid <= iVar6) {
-    iVar6 = wheel->skid;
+  if (roadGrip >= wheel->skid) {
+    roadGrip = wheel->skid;
   }
-  iVar2 = totalAcc;
-  if (totalAcc < 0) {
-    iVar2 = -totalAcc;
+  wheel->skid = roadGrip;
+  if (0x100 < __builtin_abs(totalAcc)) {
+    optVar1 = fixeddiv(optVar2,totalAcc) >> 8;
   }
-  wheel->skid = iVar6;
-  if (0x100 < iVar2) {
-    iVar3 = fixeddiv(roadGrip,totalAcc);
-    iVar3 = iVar3 >> 8;
-  }
-  iVar1 = (wheel->velCap).z;
-  (wheel->finalAcc).x = (wheel->velCap).x * iVar3 >> 8;
-  (wheel->finalAcc).z = iVar1 * iVar3 >> 8;
+  wheel->finalAcc.x = wheel->velCap.x * optVar1 >> 8;
+  wheel->finalAcc.z = wheel->velCap.z * optVar1 >> 8;
   return;
 }
 

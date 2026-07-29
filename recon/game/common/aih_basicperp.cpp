@@ -174,7 +174,7 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
              ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0 &&
 
-              ((Cars_gNumHumanRaceCars != 2 || (((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0)))))) &&
+              ((Cars_gNumHumanRaceCars != 2 || (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) == 0)))))) &&
 
             ((cop->carFlags & 0x20U) != 0)))) {
 
@@ -195,42 +195,11 @@ int AIHigh_BasicPerp::CheckIfCaught()
           int distanceAbsMeters;
           int barrierInWay;
 
-          {
-            int iVar7;
+          if (__builtin_abs(cop->currentSpeed) >=
+              AIHigh_BasicPerp_CopCaughtSpeed[skill]) continue;
 
-            iVar7 = cop->currentSpeed;
-
-            if (iVar7 < 0) {
-
-              iVar7 = -iVar7;
-
-            }
-
-            if (AIHigh_BasicPerp_CopCaughtSpeed[skill] <= iVar7) continue;
-          }
-
-          {
-            int iVar10;
-            int iVar11;
-            int iVar7;
-            int threshY;
-
-            threshY = AIHigh_BasicPerp_PlayerCaughtDeltaY[skill];
-
-            iVar11 = (cop->N).position.y;
-
-            iVar10 = ((this->carObj_)->N).position.y;
-
-            iVar7 = iVar11 - iVar10;
-
-            if (iVar7 < 1) {
-
-              iVar7 = iVar10 - iVar11;
-
-            }
-
-            if (threshY <= iVar7) continue;
-          }
+          if (__builtin_abs(cop->N.position.y - carObj_->N.position.y) >=
+              AIHigh_BasicPerp_PlayerCaughtDeltaY[skill]) continue;
 
           distanceAbsMeters = __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_,cop));
 

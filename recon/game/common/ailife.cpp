@@ -347,19 +347,15 @@ void AILife_ReencarnateTrafficByPosition(Car_tObj *carObj,int slice,int travelDi
    * decls the earlier pass left unused (w18-a7). */
   coorddef zero;
   coorddef offset;
-  short sVar1;
-  int *piVar2;
-  matrixtdef *pmVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
+  u_int colorIdx;
 
   memset((u_char *)&zero,'\0',0xc);
   memset((u_char *)&offset,'\0',0xc);
   randtemp = fastRandom * randSeed;
   fastRandom = randtemp & 0xffff;
+  colorIdx = (randtemp >> 8 & 0xffff) * 3 >> 0x10;
   if ((carObj->carFlags & 0x10U) != 0) {
-    R3DCar_ChangeTrafficColor(carObj,(randtemp >> 8 & 0xffff) * 3 >> 0x10);
+    R3DCar_ChangeTrafficColor(carObj,colorIdx);
   }
   AI_ChooseNewLaneSlack(carObj);
   AISpeeds_SetTrafficSpeedRandomFactor(carObj);
@@ -368,49 +364,19 @@ void AILife_ReencarnateTrafficByPosition(Car_tObj *carObj,int slice,int travelDi
   carObj->desiredDirection = travelDirection;
   (carObj->N).simRoadInfo.slice = (short)slice;
   AILife_RCSetSpeeds(carObj);
-  sVar1 = (carObj->N).simRoadInfo.slice;
   carObj->currentSpeed = 0;
-  Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,(int)sVar1,&offset,carObj->direction);
-  pmVar3 = &(carObj->N).orientMat;
+  Newton_SetInitialSlicePositionOrientationEtc(
+      &carObj->N,(int)(carObj->N).simRoadInfo.slice,&offset,carObj->direction);
   (carObj->N).position = *pos;
-  piVar2 = ori->m;
-  do {
-    iVar4 = piVar2[1];
-    iVar5 = piVar2[2];
-    iVar6 = piVar2[3];
-    pmVar3->m[0] = *piVar2;
-    pmVar3->m[1] = iVar4;
-    pmVar3->m[2] = iVar5;
-    pmVar3->m[3] = iVar6;
-    piVar2 = piVar2 + 4;
-    pmVar3 = (matrixtdef *)(pmVar3->m + 4);
-  } while (piVar2 != ori->m + 8);
-  pmVar3->m[0] = *piVar2;
-  pmVar3 = &(carObj->N).shadowMat;
-  piVar2 = ori->m;
-  do {
-    iVar4 = piVar2[1];
-    iVar5 = piVar2[2];
-    iVar6 = piVar2[3];
-    pmVar3->m[0] = *piVar2;
-    pmVar3->m[1] = iVar4;
-    pmVar3->m[2] = iVar5;
-    pmVar3->m[3] = iVar6;
-    piVar2 = piVar2 + 4;
-    pmVar3 = (matrixtdef *)(pmVar3->m + 4);
-  } while (piVar2 != ori->m + 8);
-  pmVar3->m[0] = *piVar2;
-  (carObj->N).linearVel.x = zero.x;
-  (carObj->N).linearVel.y = zero.y;
-  (carObj->N).linearVel.z = zero.z;
+  (carObj->N).orientMat = *ori;
+  (carObj->N).shadowMat = *ori;
+  (carObj->N).linearVel = zero;
   (carObj->N).speedXZ = 0;
   AIInit_ClearAICar(carObj);
-  iVar4 = Cars_CalculateRoadPosition(carObj);
-  carObj->rampDesiredLatPos = iVar4;
-  carObj->desiredLatPos = iVar4;
-  carObj->roadPosition = iVar4;
-  iVar4 = Cars_CalculateRoadSpan(carObj);
-  carObj->roadSpan = iVar4;
+  carObj->roadPosition =
+      carObj->desiredLatPos =
+      carObj->rampDesiredLatPos = Cars_CalculateRoadPosition(carObj);
+  carObj->roadSpan = Cars_CalculateRoadSpan(carObj);
   AIWorld_CalculateLaneInfo(carObj);
   AILife_RCPickDesiredLatPosition(carObj);
   return;

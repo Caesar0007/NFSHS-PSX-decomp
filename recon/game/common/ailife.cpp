@@ -121,8 +121,12 @@ void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
 
   randtemp = fastRandom * randSeed;
   fastRandom = randtemp & 0xffff;
-  *(volatile int *)&carObj->direction =
-      500 <= (int)((randtemp >> 8 & 0xffff) * 1000 >> 0x10) ? 1 : -1;
+  if ((int)((randtemp >> 8 & 0xffff) * 1000 >> 0x10) < 500) {
+    carObj->direction = -1;
+  }
+  else {
+    carObj->direction = 1;
+  }
   if (AITune_oneWay != 0) {
     carObj->direction = GameSetup_gData.reverseTrack == 0 ? 1 : -1;
   }
@@ -139,12 +143,13 @@ void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
                  (u_short)gNumSlices);
   }
   else {
-    int baseSlice =
-        *(volatile u_short *)&(carObj->basisCar->N).simRoadInfo.slice;
-    (carObj->N).simRoadInfo.slice =
-        (short)((0 <= ((int)(baseSlice << 0x10) >> 0x10) + offset) ?
-                baseSlice + offset :
-                (u_short)gNumSlices + baseSlice + offset);
+    u_int baseSlice =
+        *(u_short *)&(carObj->basisCar->N).simRoadInfo.slice;
+    u_int newSlice = baseSlice + offset;
+    if ((int)(short)baseSlice + offset < 0) {
+      newSlice += (u_short)gNumSlices;
+    }
+    (carObj->N).simRoadInfo.slice = (short)newSlice;
   }
   /* RAW @0x80067ad4-e8: a1=basisCar->carIndex(+0x254), a2=(basisCar->N).simRoadInfo.slice(+8),
    * a3=(carObj->N).simRoadInfo.slice(+8) -- the 3 dropped varargs, restored from the oracle. */

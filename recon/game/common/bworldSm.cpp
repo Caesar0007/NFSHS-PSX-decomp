@@ -751,15 +751,18 @@ int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)
     short s1;
     short s2;
     short s3;
-    Group *pThis;
+    CCOORD16 *vertices;
 
-    topInd = (u_int)slicePos->strip->topVert + (int)slicePos->stripQuadInd;
-    botInd = (u_int)slicePos->strip->botVert + (int)slicePos->stripQuadInd;
-    pThis = Track_chunkList[slicePos->chunk].vertexBuf;
-    s1 = *(u_short *)((int)&pThis[topInd * 2 + 2].m_num_elements + 2);
-    s2 = *(u_short *)((int)&pThis[botInd * 2 + 2].m_num_elements + 2);
-    s3 = *(u_short *)((int)&pThis[botInd * 2 + 4].m_num_elements + 2);
-    temp0 = Chunk_lightTable[*(short *)((int)&pThis[topInd * 2 + 4].m_num_elements + 2)];
+    topInd = (u_int)slicePos->strip->topVert;
+    botInd = (u_int)slicePos->strip->botVert;
+    topInd += (int)slicePos->stripQuadInd;
+    botInd += (int)slicePos->stripQuadInd;
+    vertices =
+        (CCOORD16 *)Track_chunkList[slicePos->chunk].vertexBuf->GetData();
+    s1 = *(u_short *)&vertices[topInd].light;
+    s2 = *(u_short *)&vertices[botInd].light;
+    s3 = *(u_short *)&vertices[botInd + 1].light;
+    temp0 = Chunk_lightTable[vertices[topInd + 1].light];
     temp1 = Chunk_lightTable[s1];
     temp2 = Chunk_lightTable[s2];
     temp3 = Chunk_lightTable[s3];

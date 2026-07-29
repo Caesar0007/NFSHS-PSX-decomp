@@ -19,70 +19,49 @@ void Stats_TrackEndGame(void);
 void Stats_DoPlayerGlue(void)
 
 {
-  int iVar1;
-  int dist;
-  Car_tObj *pCVar2;
-  Car_tObj **ppCVar3;
   int i;
-  int iVar4;
-  Stats_tPosition *pSVar5;
+  int dist;
   int humanLeader;
-  int iVar6;
-  
-  iVar6 = 99;
-  iVar4 = 0;
-  if (0 < Cars_gNumRaceCars) {
-    pSVar5 = Stats_racePosition;
-    ppCVar3 = Cars_gRaceCarList;
-    do {
-      iVar1 = Stats_GetPosition(*ppCVar3);
-      ((*ppCVar3)->stats).position = iVar1;
-      if ((pSVar5->isHuman != 0) && (iVar6 == 99)) {
-        iVar6 = iVar4;
-      }
-      pSVar5 = pSVar5 + 1;
-      iVar4 = iVar4 + 1;
-      ppCVar3 = ppCVar3 + 1;
-    } while (iVar4 < Cars_gNumRaceCars);
+
+  humanLeader = 99;
+  for (i = 0; i < Cars_gNumRaceCars; i++) {
+    Cars_gRaceCarList[i]->stats.position =
+        Stats_GetPosition(Cars_gRaceCarList[i]);
+    if ((Stats_racePosition[i].isHuman != 0) && (humanLeader == 99)) {
+      humanLeader = i;
+    }
   }
+
   if ((GameSetup_gData.catchupLogic != 0) && (GameSetup_gData.commMode == 1)) {
-    ppCVar3 = Cars_gHumanRaceCarList;
     if (((Cars_gHumanRaceCarList[0]->stats).finishType == 2) ||
        ((Cars_gHumanRaceCarList[1]->stats).finishType == 2)) {
       Cars_gHumanRaceCarList[0]->glue = 0x10000;
       Cars_gHumanRaceCarList[1]->glue = 0x10000;
     }
     else {
-      iVar4 = 0;
-      if (0 < Cars_gNumHumanRaceCars) {
-        do {
-          pCVar2 = *ppCVar3;
-          iVar1 = Stats_racePosition[iVar6].slice - (pCVar2->stats).sliceTotal;
-          if (iVar1 < 5) {
-            pCVar2->glue = 0x10000;
+      for (i = 0; i < Cars_gNumHumanRaceCars; i++) {
+        dist = Stats_racePosition[humanLeader].slice -
+               Cars_gHumanRaceCarList[i]->stats.sliceTotal;
+        if (dist < 5) {
+          Cars_gHumanRaceCarList[i]->glue = 0x10000;
+        }
+        else {
+          if (dist < 10) {
+            Cars_gHumanRaceCarList[i]->glue = 0x10666;
+          }
+          else if (dist < 30) {
+            Cars_gHumanRaceCarList[i]->glue = 0x10ccc;
+          }
+          else if (dist < 60) {
+            Cars_gHumanRaceCarList[i]->glue = 0x11333;
           }
           else {
-            if (iVar1 < 10) {
-              iVar1 = 0x10666;
-            }
-            else if (iVar1 < 0x1e) {
-              iVar1 = 0x10ccc;
-            }
-            else if (iVar1 < 0x3c) {
-              iVar1 = 0x11333;
-            }
-            else {
-              iVar1 = 0x11999;
-            }
-            pCVar2->glue = iVar1;
+            Cars_gHumanRaceCarList[i]->glue = 0x11999;
           }
-          iVar4 = iVar4 + 1;
-          ppCVar3 = ppCVar3 + 1;
-        } while (iVar4 < Cars_gNumHumanRaceCars);
+        }
       }
     }
   }
-  return;
 }
 
 /* ---- Stats_ClearPosition__Fv  [STATS.CPP:112-120] SLD-VERIFIED ---- */

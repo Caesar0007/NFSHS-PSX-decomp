@@ -715,28 +715,26 @@ int PointDirection(coorddef *p1,coorddef *p2,coorddef *p3)
 int BWorldSm_FindEdgeOff(coorddef *pt,BWorldSm_Pos *slicePos1,BWorldSm_Pos *slicePos2,int *heightDiff)
 {
   int ret;
-  coorddef*pts;
+  coorddef *pts;
   int y;
-  int iVar1;
-  u_int uVar2;
   
-  iVar1 = PointDirection(slicePos1->quadPts + 2,slicePos1->quadPts + 3,pt);
-  uVar2 = iVar1 < -0x18000 ^ 1;
-  iVar1 = PointDirection(slicePos1->quadPts + 3,slicePos1->quadPts,pt);
-  if (-1 < iVar1) {
-    uVar2 = uVar2 | 8;
+  pts = slicePos1->quadPts;
+  ret = PointDirection(pts + 2,pts + 3,pt) >= -0x18000;
+  if (PointDirection(pts + 3,pts,pt) >= 0) {
+    ret = ret | 8;
   }
-  iVar1 = PointDirection(slicePos1->quadPts,slicePos1->quadPts + 1,pt);
-  if (-0x18001 < iVar1) {
-    uVar2 = uVar2 | 2;
+  if (PointDirection(pts,pts + 1,pt) >= -0x18000) {
+    ret = ret | 2;
   }
-  iVar1 = PointDirection(slicePos1->quadPts + 1,slicePos1->quadPts + 2,pt);
-  if (-1 < iVar1) {
-    uVar2 = uVar2 | 4;
+  if (PointDirection(pts + 1,pts + 2,pt) >= 0) {
+    ret = ret | 4;
   }
-  *heightDiff = (slicePos2->quadPts[0].y + slicePos2->quadPts[1].y + slicePos2->quadPts[2].y +
-                 slicePos2->quadPts[3].y >> 2) - pt->y;
-  return uVar2;
+  {
+    pts = slicePos2->quadPts;
+    y = pts[0].y + pts[1].y + pts[2].y + pts[3].y;
+    *heightDiff = (y >> 2) - pt->y;
+  }
+  return ret;
 }
 
 /* ---- BWorldSm_QuadLight__FP12BWorldSm_Pos  [@0x8007fe44] ---- */

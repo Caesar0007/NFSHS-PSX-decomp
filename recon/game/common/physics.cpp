@@ -1693,39 +1693,28 @@ void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
 void Physics_CalcTractionCircleAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
 
 {
-  int iVar1;
-  int iVar2;
+  Physics_tWheelAccStruct *wheel_reg;
+  int totalAcc;
+  int ratio;
   int gripLoss;
-  int iVar3;
-  int *piVar4;
   int roadGrip;
   int gripLossDivider;
-  int iVar5;
-  int ratio;
-  int totalAcc;
-  
-  iVar1 = (wheel->finalAcc).x;
-  iVar3 = (wheel->finalAcc).z;
-  if (iVar1 < 0) {
-    iVar1 = -iVar1;
-  }
-  if (iVar3 < 0) {
-    iVar3 = -iVar3;
-  }
-  if (iVar3 < iVar1) {
-    iVar1 = iVar1 + (iVar3 >> 2);
+
+  wheel_reg = wheel;
+  if (__builtin_abs(wheel_reg->finalAcc.x) > __builtin_abs(wheel_reg->finalAcc.z)) {
+    totalAcc = __builtin_abs(wheel_reg->finalAcc.x) + (__builtin_abs(wheel_reg->finalAcc.z) >> 2);
   }
   else {
-    iVar1 = iVar3 + (iVar1 >> 2);
+    totalAcc = __builtin_abs(wheel_reg->finalAcc.z) + (__builtin_abs(wheel_reg->finalAcc.x) >> 2);
   }
-  roadGrip = wheel->roadGrip;
-  if (wheel->frontTire == 0) {
-    iVar3 = (wheel->finalAcc).z;
-    if (iVar3 < 0) {
-      iVar3 = -iVar3;
-    }
-    wheel->skid = carObj->rearSkid;
-    if (((roadGrip < iVar3) && (0x80 < (u_char)(carObj->control).gasLevel)) ||
+  roadGrip = wheel_reg->roadGrip;
+  if (wheel_reg->frontTire != 0) {
+    wheel_reg->skid = carObj->frontSkid;
+  }
+  else {
+    wheel_reg->skid = carObj->rearSkid;
+    if (((roadGrip < __builtin_abs(wheel_reg->finalAcc.z)) &&
+         (0x80 < (u_char)(carObj->control).gasLevel)) ||
        (carObj->wheelSpin == 2)) {
       carObj->wheelSpin = 1;
     }
@@ -1733,91 +1722,62 @@ void Physics_CalcTractionCircleAcc(Car_tObj *carObj,Physics_tWheelAccStruct *whe
       carObj->wheelSpin = 0;
     }
   }
-  else {
-    wheel->skid = carObj->frontSkid;
-  }
-  if (slippery == 0) {
-    iVar3 = carObj->carInfo->TireType;
-    piVar4 = gripLossTable;
+  if (slippery != 0) {
+    gripLossDivider = gripLossTableWet[carObj->carInfo->TireType];
   }
   else {
-    iVar3 = carObj->carInfo->TireType;
-    piVar4 = gripLossTableWet;
+    gripLossDivider = gripLossTable[carObj->carInfo->TireType];
   }
-  iVar3 = piVar4[iVar3];
-  if (roadGrip < iVar1) {
-    iVar5 = iVar1 - roadGrip;
-    if ((carObj->carInfo->Traction == 0) || (wheel->frontTire != 0)) {
-PhyTracCircle_divCheck:
-      iVar2 = iVar5 / iVar3;
-      if (roadGrip / iVar3 <= iVar5 / iVar3) {
-        iVar2 = roadGrip / iVar3;
+  if (roadGrip < totalAcc) {
+    gripLoss = totalAcc - roadGrip;
+    if (((carObj->carInfo->Traction != 0) && (wheel_reg->frontTire == 0)) &&
+        (__builtin_abs(carObj->slide) < 0x2666)) {
+      ratio = rdiv(roadGrip,totalAcc);
+      wheel_reg->skid = 0;
+      if (2 < (u_char)(carObj->control).gear) {
+        wheel_reg->finalAcc.x = fixedmult(wheel_reg->finalAcc.x,ratio);
       }
-      iVar3 = rdiv(roadGrip - iVar2,iVar1);
-      if (carObj->carInfo->TireType == 2) {
-        iVar5 = wheel->skid * 0xf + iVar5;
-        if (iVar5 < 0) {
-          iVar5 = iVar5 + 0xf;
-        }
-        iVar5 = iVar5 >> 4;
-      }
-      else {
-        iVar5 = wheel->skid * 3 + iVar5;
-        if (iVar5 < 0) {
-          iVar5 = iVar5 + 3;
-        }
-        iVar5 = iVar5 >> 2;
-      }
-      wheel->skid = iVar5;
-      iVar5 = fixedmult((wheel->finalAcc).x,iVar3);
-      iVar2 = (wheel->finalAcc).z;
-      (wheel->finalAcc).x = iVar5;
+      wheel_reg->finalAcc.z = fixedmult(wheel_reg->finalAcc.z,ratio);
     }
     else {
-      iVar2 = carObj->slide;
-      if (iVar2 < 0) {
-        iVar2 = -iVar2;
+      ratio = rdiv(roadGrip -
+                   ((gripLoss / gripLossDivider < roadGrip / gripLossDivider) ?
+                    gripLoss / gripLossDivider : roadGrip / gripLossDivider),
+                   totalAcc);
+      if (carObj->carInfo->TireType == 2) {
+        wheel_reg->skid = (wheel_reg->skid * 0xf + gripLoss) / 16;
       }
-      if (0x2665 < iVar2) goto PhyTracCircle_divCheck;
-      iVar3 = rdiv(roadGrip,iVar1);
-      wheel->skid = 0;
-      if (2 < (u_char)(carObj->control).gear) {
-        iVar5 = fixedmult((wheel->finalAcc).x,iVar3);
-        (wheel->finalAcc).x = iVar5;
+      else {
+        wheel_reg->skid = (wheel_reg->skid * 3 + gripLoss) / 4;
       }
-      iVar2 = (wheel->finalAcc).z;
+      wheel_reg->finalAcc.x = fixedmult(wheel_reg->finalAcc.x,ratio);
+      wheel_reg->finalAcc.z = fixedmult(wheel_reg->finalAcc.z,ratio);
     }
-    iVar3 = fixedmult(iVar2,iVar3);
-    (wheel->finalAcc).z = iVar3;
   }
   else {
-    wheel->skid = 0;
+    wheel_reg->skid = 0;
   }
-  if (((wheel->frontTire == 0) && (carObj->wheelSpin == 1)) && (carObj->carInfo->Traction == 0)) {
-    wheel->skid = iVar1;
+  if (((wheel_reg->frontTire == 0) && (carObj->wheelSpin == 1)) && (carObj->carInfo->Traction == 0)) {
+    wheel_reg->skid = totalAcc;
     if ((u_char)(carObj->control).gear < 4) {
-      wheel->skid = iVar1 << 2;
+      wheel_reg->skid = totalAcc << 2;
     }
   }
-  iVar1 = carObj->carInfo->TireType;
-  if (iVar1 == 1) {
-    iVar3 = 0x80000;
+  gripLoss = carObj->carInfo->TireType;
+  if (gripLoss == 1) {
+    roadGrip = 0x80000;
   }
   else {
-    iVar3 = 0x40000;
-    if (iVar1 != 2) goto PhyTracCircle_skidAdjust;
+    roadGrip = 0x40000;
+    if (gripLoss != 2) goto PhyTracCircle_skidAdjust;
   }
-  if (wheel->skid <= iVar3) {
-    iVar3 = wheel->skid;
+  if (roadGrip >= wheel_reg->skid) {
+    roadGrip = wheel_reg->skid;
   }
-  wheel->skid = iVar3;
+  wheel_reg->skid = roadGrip;
 PhyTracCircle_skidAdjust:
   if (carObj->carInfo->Traction != 0) {
-    iVar1 = wheel->skid * 3;
-    if (iVar1 < 0) {
-      iVar1 = iVar1 + 3;
-    }
-    wheel->skid = iVar1 >> 2;
+    wheel_reg->skid = wheel_reg->skid * 3 / 4;
   }
   return;
 }

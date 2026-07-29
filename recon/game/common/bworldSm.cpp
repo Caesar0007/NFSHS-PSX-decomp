@@ -428,15 +428,14 @@ int RawFindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
         (currentQuad < (int)(slicePos->simSlice->quadCount - 1)) &&
         ((signed char)slicePos->offEdge == 0)) {
       startQuadInd = currentQuad;
-      firstSliceOffEdge = 0;
     }
     else {
       slicePos->quad =
           (char)((int)(slicePos->simSlice->quadCount - 1) / 2);
       startQuadInd = (int)(signed char)slicePos->quad;
-      firstSliceOffEdge = 0;
     }
   }
+  firstSliceOffEdge = 0;
   slicePos->offEdge = '\0';
   slicePos->quad = (char)startQuadInd;
   while (attempt < gMaxFindQuadSliceIterations) {
@@ -559,7 +558,7 @@ int RawFindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
         if (0x28 < dist - lastDist) break;
         lastDist = dist;
       }
-      --slicePos->quad;
+      slicePos->quad = slicePos->quad - '\x01';
 LAB_8007f5c8:
       BworldSm_UpdateSimQuad(slicePos);
     } while (-1 < (signed char)slicePos->quad);
@@ -567,8 +566,12 @@ LAB_8007f5c8:
       firstSliceOffEdge = (int)(signed char)slicePos->offEdge;
     }
     {
-      int newSlice = (int)slicePos->slice + sliceOffs[attempt];
-      int numSlices = gNumSlices;
+      int newSlice;
+      int numSlices;
+
+      newSlice = (int)slicePos->slice;
+      newSlice += sliceOffs[attempt];
+      numSlices = gNumSlices;
       if (numSlices <= newSlice) {
         newSlice = newSlice - numSlices;
       }
@@ -581,8 +584,12 @@ LAB_8007f5c8:
     attempt = attempt + 1;
   }
   {
-    int newSlice = (int)slicePos->slice - sliceVariance;
-    int numSlices = gNumSlices;
+    int newSlice;
+    int numSlices;
+
+    newSlice = (int)slicePos->slice;
+    newSlice -= sliceVariance;
+    numSlices = gNumSlices;
     if (numSlices <= newSlice) {
       newSlice = newSlice - numSlices;
     }

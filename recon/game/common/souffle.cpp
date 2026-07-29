@@ -152,27 +152,12 @@ Souffle_Add(coorddef *soufflept,int type,coorddef *vec,int velVX,int ground,int 
 void Souffle_DoSouffle(void)
 
 {
-  char cVar1;
   int iVar2;
-  Souffle_tISouffle *pSVar3;
-  int speed;
-  u_int uVar4;
-  int iVar5;
-  int iVar6;
-  int wave;
-  int *piVar7;
-  int iVar8;
-  Souffle_tISouffle *is;
-  Souffle_tISouffle *pSVar9;
   int i;
-  int iVar10;
   coorddef w;
-  coorddef motion;
-  coorddef extramotion;
   
   if (0 < simGlobal.gameTicks - gTMoveSouffle) {
     gTMoveSouffle = simGlobal.gameTicks;
-    iVar10 = 0;
     if (gCISouffle != 0) {
       gWindDir = gWindDir + 2;
       iVar2 = fastintcos(gWindDir);
@@ -181,132 +166,114 @@ void Souffle_DoSouffle(void)
       w.z = fixedmult(iVar2,0xccc);
       w.y = 0;
     }
-    iVar2 = 0;
-    for (; iVar10 < gCISouffle; iVar10 = iVar10 + 1) {
-      pSVar9 = (Souffle_tISouffle *)(&gISouffle->type + iVar2);
-      motion.x = (pSVar9->motion).x;
-      motion.y = (pSVar9->motion).y;
-      motion.z = (pSVar9->motion).z;
-      if (pSVar9->wind != '\0') {
+    for (i = 0; i < gCISouffle; i++) {
+      Souffle_tISouffle *is = gISouffle + i;
+      coorddef motion = is->motion;
+      if (is->wind != '\0') {
         motion.x = motion.x + w.x;
         motion.y = motion.y + w.y;
         motion.z = motion.z + w.z;
       }
       if (Replay_ReplayMode == 2) {
-        uVar4 = 2 - Replay_ReplayInterface.speed;
-        if (0 < (int)uVar4) {
-          motion.x = motion.x >> (uVar4);
-          motion.z = motion.z >> (uVar4);
-          motion.y = motion.y >> (uVar4);
+        int speed = 2 - Replay_ReplayInterface.speed;
+        if (0 < speed) {
+          motion.x = motion.x >> speed;
+          motion.y = motion.y >> speed;
+          motion.z = motion.z >> speed;
         }
-        if ((int)uVar4 < 0) {
+        if (speed < 0) {
           motion.x = motion.x << 1;
-          motion.z = motion.z << 1;
           motion.y = motion.y << 1;
+          motion.z = motion.z << 1;
         }
       }
-      (pSVar9->source).x = (pSVar9->source).x + motion.x;
-      (pSVar9->source).y = (pSVar9->source).y + motion.y;
-      iVar5 = (pSVar9->motion).x;
-      (pSVar9->source).z = (pSVar9->source).z + motion.z;
-      if (iVar5 < 0) {
-        (pSVar9->motion).x = iVar5 + 0xa3d;
-        if (0 < iVar5 + 0xa3d) {
-          (pSVar9->motion).x = 0;
-        }
-      }
-      else if ((0 < iVar5) && ((pSVar9->motion).x = iVar5 + -0xa3d, iVar5 + -0xa3d < 0)) {
-        (pSVar9->motion).x = 0;
-      }
-      iVar5 = (pSVar9->motion).z;
-      if (iVar5 < 0) {
-        (pSVar9->motion).z = iVar5 + 0xa3d;
-        if (0 < iVar5 + 0xa3d) {
-          (pSVar9->motion).z = 0;
-        }
-      }
-      else if ((0 < iVar5) && ((pSVar9->motion).z = iVar5 + -0xa3d, iVar5 + -0xa3d < 0)) {
-        (pSVar9->motion).z = 0;
-      }
-      if (pSVar9->type == '\r') {
-        extramotion.x = (pSVar9->extramotion).x;
-        extramotion.z = (pSVar9->extramotion).z;
-        iVar5 = fastintsin(pSVar9->angle);
-        if (Replay_ReplayMode == 2) {
-          uVar4 = 2 - Replay_ReplayInterface.speed;
-          if (0 < (int)uVar4) {
-            extramotion.x = extramotion.x >> (uVar4);
-            extramotion.z = extramotion.z >> (uVar4);
+      (is->source).x = (is->source).x + motion.x;
+      (is->source).y = (is->source).y + motion.y;
+      (is->source).z = (is->source).z + motion.z;
+      {
+        int dampingSpeed = (is->motion).x;
+        if (dampingSpeed < 0) {
+          (is->motion).x = dampingSpeed + 0xa3d;
+          if (0 < dampingSpeed + 0xa3d) {
+            (is->motion).x = 0;
           }
-          if ((int)uVar4 < 0) {
+        }
+        else if ((0 < dampingSpeed) && ((is->motion).x = dampingSpeed + -0xa3d, dampingSpeed + -0xa3d < 0)) {
+          (is->motion).x = 0;
+        }
+      }
+      {
+        int dampingSpeed = (is->motion).z;
+        if (dampingSpeed < 0) {
+          (is->motion).z = dampingSpeed + 0xa3d;
+          if (0 < dampingSpeed + 0xa3d) {
+            (is->motion).z = 0;
+          }
+        }
+        else if ((0 < dampingSpeed) && ((is->motion).z = dampingSpeed + -0xa3d, dampingSpeed + -0xa3d < 0)) {
+          (is->motion).z = 0;
+        }
+      }
+      if (is->type == '\r') {
+        coorddef extramotion = is->extramotion;
+        int wave = fastintsin(is->angle);
+        if (Replay_ReplayMode == 2) {
+          int speed = 2 - Replay_ReplayInterface.speed;
+          if (0 < speed) {
+            extramotion.x = extramotion.x >> speed;
+            extramotion.y = extramotion.y >> speed;
+            extramotion.z = extramotion.z >> speed;
+          }
+          if (speed < 0) {
             extramotion.x = extramotion.x << 1;
+            extramotion.y = extramotion.y << 1;
             extramotion.z = extramotion.z << 1;
           }
         }
-        (pSVar9->source).x = (pSVar9->source).x + (extramotion.x * iVar5 >> 0x11);
-        iVar6 = (pSVar9->extramotion).x;
-        (pSVar9->source).z = (pSVar9->source).z + (extramotion.z * iVar5 >> 0x11);
-        if (iVar6 < 0) {
-          (pSVar9->extramotion).x = iVar6 + 0x147;
-          if (0 < iVar6 + 0x147) {
-            (pSVar9->extramotion).x = 0;
+        (is->source).x = (is->source).x + (extramotion.x * wave >> 0x11);
+        (is->source).z = (is->source).z + (extramotion.z * wave >> 0x11);
+        {
+          int dampingSpeed = (is->extramotion).x;
+          if (dampingSpeed < 0) {
+            (is->extramotion).x = dampingSpeed + 0x147;
+            if (0 < dampingSpeed + 0x147) {
+              (is->extramotion).x = 0;
+            }
+          }
+          else if ((0 < dampingSpeed) && ((is->extramotion).x = dampingSpeed + -0x147, dampingSpeed + -0x147 < 0)) {
+            (is->extramotion).x = 0;
           }
         }
-        else if ((0 < iVar6) && ((pSVar9->extramotion).x = iVar6 + -0x147, iVar6 + -0x147 < 0)) {
-          (pSVar9->extramotion).x = 0;
-        }
-        iVar5 = (pSVar9->extramotion).z;
-        if (iVar5 < 0) {
-          (pSVar9->extramotion).z = iVar5 + 0x147;
-          if (0 < iVar5 + 0x147) {
-            (pSVar9->extramotion).z = 0;
+        {
+          int dampingSpeed = (is->extramotion).z;
+          if (dampingSpeed < 0) {
+            (is->extramotion).z = dampingSpeed + 0x147;
+            if (0 < dampingSpeed + 0x147) {
+              (is->extramotion).z = 0;
+            }
+          }
+          else if ((0 < dampingSpeed) && ((is->extramotion).z = dampingSpeed + -0x147, dampingSpeed + -0x147 < 0)) {
+            (is->extramotion).z = 0;
           }
         }
-        else if ((0 < iVar5) && ((pSVar9->extramotion).z = iVar5 + -0x147, iVar5 + -0x147 < 0)) {
-          (pSVar9->extramotion).z = 0;
-        }
-        if (pSVar9->ground < (pSVar9->source).y) {
-          (pSVar9->motion).y = (pSVar9->motion).y + -0x147;
+        if ((is->source).y <= is->ground) {
+          is->type = '\0';
         }
         else {
-          pSVar9->type = '\0';
+          (is->motion).y = (is->motion).y + -0x147;
         }
       }
-      MoveAngleWind(pSVar9);
-      cVar1 = pSVar9->cycle + -1;
-      pSVar9->cycle = cVar1;
-      if (cVar1 == '\0') {
-        pSVar9->type = '\0';
+      MoveAngleWind(is);
+      if (--is->cycle == '\0') {
+        is->type = '\0';
       }
-      iVar2 = iVar2 + 0x44;
     }
-    iVar10 = 0;
-    if (0 < gCISouffle) {
-      iVar2 = 0;
-      do {
-        piVar7 = (int *)(&gISouffle->type + iVar2);
-        if ((char)*piVar7 == '\0') {
-          pSVar3 = gISouffle + gCISouffle + -1;
-          pSVar9 = gISouffle + gCISouffle + -1;
-          do {
-            iVar6 = pSVar3->aspeed;
-            iVar8 = pSVar3->angle;
-            iVar5 = (pSVar3->source).x;
-            *piVar7 = *(int *)pSVar3;
-            piVar7[1] = iVar6;
-            piVar7[2] = iVar8;
-            ((coorddef *)(piVar7 + 3))->x = iVar5;
-            pSVar3 = (Souffle_tISouffle *)&(pSVar3->source).y;
-            piVar7 = piVar7 + 4;
-          } while (pSVar3 != (Souffle_tISouffle *)&pSVar9->colour);
-          iVar2 = iVar2 + -0x44;
-          iVar10 = iVar10 + -1;
-          *piVar7 = *(int *)pSVar3;
-          gCISouffle = gCISouffle + -1;
-        }
-        iVar10 = iVar10 + 1;
-        iVar2 = iVar2 + 0x44;
-      } while (iVar10 < gCISouffle);
+    for (i = 0; i < gCISouffle; i++) {
+      if (gISouffle[i].type == '\0') {
+        gISouffle[i] = gISouffle[gCISouffle - 1];
+        i--;
+        gCISouffle--;
+      }
     }
   }
   return;

@@ -57,124 +57,94 @@ void AILife_RCSetSpeeds(Car_tObj *carObj)
 void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
 {
   /* SYM @0x800676e4: approachSide($s5), offset(scratch $v0), search($s6), count($s4),
-   * checkCar($s0). Every "roll" of the fastRandom/randSeed PRNG writes the RAW product to the
-   * GLOBAL randtemp -- even when the raw value is ALSO kept alive in a local for later use
-   * (uVar2/uVar8 below); the earlier recon dropped those "look-dead" randtemp stores (real
-   * writes on hardware -- gotcha class 3.2c #2 dead-store-elimination). Restored 3 of them
-   * (w22-a14). approachOffset (unnamed $s2) is loop-invariant -- oracle materializes it ONCE
-   * before the loop, not per-iteration. The post-loop slice adjustment is a DISTINCT quantity
-   * from approachSide (kept alive unmodified in $s5 for the whole fn, in the $80ff0000
-   * callee-saved mask) -- the earlier recon wrongly overloaded one `iVar11` local for both. */
+   * checkCar($s0). Every fastRandom/randSeed roll writes its raw product to randtemp; these
+   * stores are observable even when the product is immediately consumed. approachOffset
+   * (unnamed $s2 in retail) is loop-invariant and materialized once. The post-loop slice
+   * adjustment is distinct from approachSide, which remains live and unmodified in $s5. */
   int approachSide;
+  int offset;
   int approachOffset;
   int search;
   int count;
   Car_tObj *checkCar;
-  coorddef local_38;
-  bool bVar4;
-  int *piVar5;
-  int iVar6;
-  int iVar7;
-  u_int uVar2;
-  u_int uVar8;
-  Car_tObj *pCVar9;
-  int newDirection;
-  int slideAmount;
-  u_int slice_u;
-  int slice_s;
 
-  uVar2 = fastRandom * randSeed;
-  randtemp = uVar2;
-  fastRandom = uVar2 & 0xffff;
   randtemp = fastRandom * randSeed;
   fastRandom = randtemp & 0xffff;
-  uVar8 = randtemp & 0xffff00;
   carObj->basisCar =
-       Cars_gLifeBasisCarList[Cars_gNumLifeBasisCars * ((uVar2 & 0xffff00) >> 8) >> 0x10];
+       Cars_gLifeBasisCarList[Cars_gNumLifeBasisCars *
+                             ((randtemp & 0xffff00) >> 8) >> 0x10];
+  randtemp = fastRandom * randSeed;
+  fastRandom = randtemp & 0xffff;
   approachSide = 1;
-  if ((int)((uVar8 >> 8) * 1000 >> 0x10) < 500) {
+  if ((int)(((randtemp & 0xffff00) >> 8) * 1000 >> 0x10) < 500) {
     approachSide = -1;
   }
-  pCVar9 = carObj->basisCar;
-  iVar6 = pCVar9->currentSpeed;
-  if (iVar6 < 0) {
-    iVar6 = -iVar6;
+  {
+    int speed = carObj->basisCar->currentSpeed;
+    if (speed < 0) {
+      speed = -speed;
+    }
+    if (0x1e0000 < speed) {
+      approachSide = carObj->basisCar->direction;
+    }
   }
-  if (0x1e0000 < iVar6) {
-    approachSide = pCVar9->direction;
-  }
-  search = pCVar9->sortIndex;
+  search = carObj->basisCar->sortIndex;
   approachOffset = approachSide * 0x24;
-  for (count = 0; count < Cars_gNumCars; count = count + 1) {
+  for (count = 0; count < Cars_gNumCars;
+       search = search + approachSide, count = count + 1) {
     checkCar = Cars_gSortedList[(search + Cars_gNumCars) % Cars_gNumCars];
     if (((checkCar != carObj) && (checkCar != carObj->basisCar)) &&
         ((checkCar->carFlags & 0x100U) != 0))
     {
-      iVar7 = (int)(carObj->basisCar->N).simRoadInfo.slice + approachOffset;
-      if (approachOffset < 0) {
-        if (iVar7 < 0) {
-          iVar7 = iVar7 + gNumSlices;
-        }
+      coorddef basisOuterCoord;
+      int basisOuterSlice =
+          (int)(carObj->basisCar->N).simRoadInfo.slice + approachOffset;
+      if (0 <= approachOffset) {
+        basisOuterSlice = basisOuterSlice < gNumSlices ?
+                          basisOuterSlice : basisOuterSlice - gNumSlices;
       }
-      else if (gNumSlices <= iVar7) {
-        iVar7 = iVar7 - gNumSlices;
+      else {
+        basisOuterSlice = 0 <= basisOuterSlice ?
+                          basisOuterSlice : basisOuterSlice + gNumSlices;
       }
-      bVar4 = false;
-      piVar5 = (int *)(iVar7 * 0x20 + (int)BWorldSm_slices);
-      local_38.x = *piVar5;
-      local_38.y = piVar5[1];
-      local_38.z = piVar5[2];
-      iVar7 = AILife_IsCoordInThisVisibleArea(&local_38,checkCar);
-      if (iVar7 != 0) {
-        iVar7 = AIWorld_ApxSplineDistance(checkCar,carObj->basisCar);
-        if (iVar7 < 0) {
-          iVar7 = iVar7 + 0xffff;
-        }
-        if (0 < approachSide * (iVar7 >> 0x10)) {
-          bVar4 = true;
-        }
+      basisOuterCoord = *(coorddef *)BWorldSm_slices[basisOuterSlice].center;
+      if ((AILife_IsCoordInThisVisibleArea(&basisOuterCoord,checkCar) != 0) &&
+          (0 < approachSide *
+               (AIWorld_ApxSplineDistance(checkCar,carObj->basisCar) / 0x10000))) {
+        carObj->basisCar = checkCar;
       }
-      if (!bVar4) break;
-      carObj->basisCar = checkCar;
+      else {
+        break;
+      }
     }
-    search = search + approachSide;
   }
-  uVar2 = fastRandom * randSeed;
-  randtemp = uVar2;
-  fastRandom = uVar2 & 0xffff;
-  newDirection = -1;
-  if (499 < (uVar2 >> 8 & 0xffff) * 1000 >> 0x10) {
-    newDirection = 1;
-  }
-  carObj->direction = newDirection;
+
+  randtemp = fastRandom * randSeed;
+  fastRandom = randtemp & 0xffff;
+  *(volatile int *)&carObj->direction =
+      500 <= (int)((randtemp >> 8 & 0xffff) * 1000 >> 0x10) ? 1 : -1;
   if (AITune_oneWay != 0) {
-    newDirection = -1;
-    if (GameSetup_gData.reverseTrack == 0) {
-      newDirection = 1;
-    }
-    carObj->direction = newDirection;
+    carObj->direction = GameSetup_gData.reverseTrack == 0 ? 1 : -1;
   }
   randtemp = fastRandom * randSeed;
-  slideAmount = ((randtemp >> 0x15 & 7) + 0x1c) * approachSide;
   fastRandom = randtemp & 0xffff;
   carObj->desiredDirection = carObj->direction;
-  slice_u = *(u_short *)&(carObj->basisCar->N).simRoadInfo.slice;
-  slice_s = (short)slice_u;
-  if (slideAmount < 0) {
-    slice_u = slice_u + slideAmount;
-    slice_s = slice_s + slideAmount;
-    if (slice_s < 0) {
-      slice_u = gNumSlices + slice_u;
-    }
-    (carObj->N).simRoadInfo.slice = (short)slice_u;
+  offset = ((randtemp >> 0x15 & 7) + 0x1c) * approachSide;
+  if (0 <= offset) {
+    (carObj->N).simRoadInfo.slice =
+        (short)(((int)(short)*(u_short *)&(carObj->basisCar->N).simRoadInfo.slice +
+                 offset < gNumSlices) ?
+                (u_int)*(u_short *)&(carObj->basisCar->N).simRoadInfo.slice + offset :
+                (u_int)*(u_short *)&(carObj->basisCar->N).simRoadInfo.slice + offset -
+                 (u_short)gNumSlices);
   }
   else {
-    slice_u = slice_u + slideAmount;
-    slice_s = slice_s + slideAmount;
-    if (gNumSlices <= slice_s) {
-      slice_u = slice_u - gNumSlices;
-    }
-    (carObj->N).simRoadInfo.slice = (short)slice_u;
+    int baseSlice =
+        *(volatile u_short *)&(carObj->basisCar->N).simRoadInfo.slice;
+    (carObj->N).simRoadInfo.slice =
+        (short)((0 <= ((int)(baseSlice << 0x10) >> 0x10) + offset) ?
+                baseSlice + offset :
+                (u_short)gNumSlices + baseSlice + offset);
   }
   /* RAW @0x80067ad4-e8: a1=basisCar->carIndex(+0x254), a2=(basisCar->N).simRoadInfo.slice(+8),
    * a3=(carObj->N).simRoadInfo.slice(+8) -- the 3 dropped varargs, restored from the oracle. */

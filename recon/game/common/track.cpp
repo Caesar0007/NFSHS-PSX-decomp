@@ -845,63 +845,56 @@ void Track_InitPersistentData(SerializedGroup *perGroup)
 
 {
   int count;
-  SerializedGroup *pSVar1;
   Group *simGroup;
-  SerializedGroup *pThis;
-  int i;
-  int iVar2;
-  void *tp3;
-  void *tp4;
-  int iVar3;
-  SerializedGroup___0_ *persistentGroups;
-  
-  iVar2 = 0;
+  SerializedGroup *persistentGroups[perGroup->m_num_elements];
+
   gObjDefOffsetsGroup = (Group *)0x0;
-  tp3 = (char *)__builtin_alloca((((u_int)(perGroup->m_num_elements << 5) >> 3) + 7 & 0xfffffff8));
-  tp4 = tp3;
-  if (0 < *(volatile int *)&perGroup->m_num_elements) {
-    do {
-      pSVar1 = (perGroup)->LocateGroupNum(iVar2);
-      *(SerializedGroup **)tp4 = pSVar1;
-      iVar2 = iVar2 + 1;
-      tp4 = (void *)((int)tp4 + 4);
-    } while (iVar2 < perGroup->m_num_elements);
-  }
-  (perGroup)->LocateGroupType(8,0);
-  iVar3 = perGroup->m_num_elements;
-  iVar2 = 0;
-TrkInitPersist_loopTest:
-  if (iVar2 < iVar3) {
-    switch(**(u_int **)tp3) {
-    case 2:
-      Track_LinkMaterials(*(SerializedGroup **)tp3,(*(SerializedGroup **)tp3)->m_length + -0x10,
-                 Track_materials);
-      break;
-    case 7:
-      gPersistObjInst =
-           (*(SerializedGroup **)tp3)->CreateLiteGroup(*(SerializedGroup **)tp3,Track_mem);
-      break;
-    case 8:
-      gPersistObjDef =
-           (*(SerializedGroup **)tp3)->CreateLiteGroup(*(SerializedGroup **)tp3,Track_mem);
-      break;
-    case 0xf:
-      simGroup = (*(SerializedGroup **)tp3)->CreateLiteGroup(*(SerializedGroup **)tp3,Track_mem);
-      BWorldSm_Init(simGroup);
-      break;
-    case 0x24:
-      gPersistMidgroundObjInst =
-           (*(SerializedGroup **)tp3)->CreateLiteGroup(*(SerializedGroup **)tp3,Track_mem);
-      break;
-    case 0x26:
-      gObjDefOffsetsGroup =
-           (*(SerializedGroup **)tp3)->CreateLiteGroup(*(SerializedGroup **)tp3,Track_mem);
-    default: break;
+
+  {
+    int i;
+
+    for (i = 0; i < perGroup->m_num_elements; i = i + 1) {
+      persistentGroups[i] = perGroup->LocateGroupNum(i);
     }
-    tp3 = (void *)((int)tp3 + 4);
-    iVar2 = iVar2 + 1;
-    goto TrkInitPersist_loopTest;
   }
+
+  perGroup->LocateGroupType(8,0);
+  count = perGroup->m_num_elements;
+
+  {
+    int i = 0;
+
+    while (i < count) {
+      switch (persistentGroups[i]->m_type) {
+      case 2:
+        Track_LinkMaterials(persistentGroups[i],persistentGroups[i]->m_length + -0x10,
+                   Track_materials);
+        break;
+      case 0xf:
+        simGroup = persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
+        BWorldSm_Init(simGroup);
+        break;
+      case 0x24:
+        gPersistMidgroundObjInst =
+             persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
+        break;
+      case 7:
+        gPersistObjInst =
+             persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
+        break;
+      case 8:
+        gPersistObjDef =
+             persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
+        break;
+      case 0x26:
+        gObjDefOffsetsGroup =
+             persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
+      default: break;
+      }
+      i = i + 1;
+    }
+  }
+
   if (gObjDefOffsetsGroup != (Group *)0x0) {
     CalcObjDefPtrs();
   }

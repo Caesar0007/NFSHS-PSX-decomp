@@ -422,72 +422,53 @@ void AILife_ReencarnateCopBySlice(Car_tObj *carObj,int slice,int travelDirection
   /* SYM @0x800681a0: "width"($v0)/"numLanes"($v1) are BLOCK-SCOPED locals inside each
    * of the 3 lane-metric sub-branches (line23 block, line29 block) -- not function-scope
    * generic uVar2/uVar3 (w18-a7). */
-  int iVar1;
-  u_int uVar2;
-
-  iVar1 = AITune_oneWay;
   (carObj->N).simRoadInfo.slice = (short)slice;
-  if ((iVar1 != 0) && (travelDirection = -1, GameSetup_gData.reverseTrack == 0)) {
-    travelDirection = 1;
+  if (AITune_oneWay != 0) {
+    travelDirection = -1;
+    if (GameSetup_gData.reverseTrack == 0) {
+      travelDirection = 1;
+    }
   }
   carObj->direction = travelDirection;
   carObj->desiredDirection = travelDirection;
   if (moving == 0) {
     if (roadSide == -1) {
-      int width;
-      int numLanes;
-      iVar1 = slice * 0x20 + (int)BWorldSm_slices;
-      width = *(u_char *)(iVar1 + 0x1e);
-      numLanes = *(u_char *)(iVar1 + 0x1d) >> 4;
-      iVar1 = -0x20000 - (u_int)width * 0x8000 * (u_int)numLanes;
-      goto LAB_800682dc;
+      carObj->desiredLatPos =
+          -0x20000 -
+          (BWorldSm_slices[slice].avgPavedWidthLf << 15) *
+          (BWorldSm_slices[slice].laneCount >> 4);
     }
-    {
-      int width;
-      int numLanes;
-      iVar1 = slice * 0x20 + (int)BWorldSm_slices;
-      width = *(u_char *)(iVar1 + 0x1f);
-      numLanes = *(u_char *)(iVar1 + 0x1d) & 0xf;
-      iVar1 = (u_int)width * 0x8000 * numLanes;
+    else {
+      carObj->desiredLatPos =
+          (BWorldSm_slices[slice].avgPavedWidthRt << 15) *
+          (BWorldSm_slices[slice].laneCount & 0xf) + 0x20000;
     }
-    uVar2 = 0x20000;
-LAB_800682d4:
-    iVar1 = iVar1 + uVar2;
   }
   else {
-    if (carObj->direction != 1) {
-      int numLanes;
-      iVar1 = slice * 0x20 + (int)BWorldSm_slices;
-      numLanes = (u_int)(*(u_char *)(iVar1 + 0x1d) >> 4);
-      if (numLanes != 0) {
-        int width;
-        width = (u_int)*(u_char *)(iVar1 + 0x1e);
-        iVar1 = width * -0x8000 * numLanes;
-        uVar2 = width * 0x8000 >> 1;
-        goto LAB_800682d4;
-      }
-    }
-    {
+    if ((carObj->direction == 1) ||
+        ((BWorldSm_slices[slice].laneCount >> 4) == 0)) {
       int width;
       int numLanes;
-      iVar1 = slice * 0x20 + (int)BWorldSm_slices;
-      width = *(u_char *)(iVar1 + 0x1f);
-      uVar2 = (u_int)width * 0x8000;
-      numLanes = *(u_char *)(iVar1 + 0x1d) & 0xf;
-      iVar1 = uVar2 * numLanes - (uVar2 >> 1);
+      width = BWorldSm_slices[slice].avgPavedWidthRt << 15;
+      numLanes = BWorldSm_slices[slice].laneCount & 0xf;
+      carObj->desiredLatPos = width * numLanes - ((u_int)width >> 1);
+    }
+    else {
+      int width;
+      width = BWorldSm_slices[slice].avgPavedWidthLf << 15;
+      carObj->desiredLatPos =
+          -width * (BWorldSm_slices[slice].laneCount >> 4) +
+          ((u_int)width >> 1);
     }
   }
-LAB_800682dc:
-  carObj->desiredLatPos = iVar1;
-  if (moving == 0) {
+  if (moving != 0) {
+    AILife_RCSetSpeeds(carObj);
+  }
+  else {
     carObj->desiredSpeed = 0;
     carObj->currentSpeed = 0;
   }
-  else {
-    AILife_RCSetSpeeds(carObj);
-  }
-  carObj->rampDesiredLatPos = carObj->desiredLatPos;
-  carObj->roadPosition = carObj->desiredLatPos;
+  carObj->roadPosition = carObj->rampDesiredLatPos = carObj->desiredLatPos;
   AILife_PlaceCarAtLocation(carObj,0);
   return;
 }

@@ -1101,33 +1101,17 @@ RampCtrl_earlyBrake:
 void Physics_FixEngineRpm(Car_tObj *carObj)
 
 {
-  int iVar1;
-  int iVar2;
   int iVar4;
 
-  /* no SYM locals for this fn (fsize=0, mask=0) -- the decay-then->>8 idiom is applied
-   * INLINE at each field-read site (oracle interleaves decay/shift/mult/load per dot-product
-   * term, not "decay all 6 operands up front then multiply" -- confirms no named temps).
-   * The running dot-product sum stays in a register (iVar1/iVar2) across the three terms --
-   * only the FINAL sum is stored to linearVel_ch.x/.z (the oracle never re-reads the struct
-   * field mid-sum). */
-  iVar1 = ((((carObj->N).linearVel.x < 0) ? (carObj->N).linearVel.x + 0xff : (carObj->N).linearVel.x) >> 8) *
-       ((((carObj->N).shadowMat.m[0] < 0) ? (carObj->N).shadowMat.m[0] + 0xff : (carObj->N).shadowMat.m[0]) >> 8);
-  iVar1 = iVar1 +
-       ((((carObj->N).linearVel.y < 0) ? (carObj->N).linearVel.y + 0xff : (carObj->N).linearVel.y) >> 8) *
-       ((((carObj->N).shadowMat.m[1] < 0) ? (carObj->N).shadowMat.m[1] + 0xff : (carObj->N).shadowMat.m[1]) >> 8);
-  (carObj->linearVel_ch).x = iVar1 +
-       ((((carObj->N).linearVel.z < 0) ? (carObj->N).linearVel.z + 0xff : (carObj->N).linearVel.z) >> 8) *
-       ((((carObj->N).shadowMat.m[2] < 0) ? (carObj->N).shadowMat.m[2] + 0xff : (carObj->N).shadowMat.m[2]) >> 8);
-  iVar2 = ((((carObj->N).linearVel.x < 0) ? (carObj->N).linearVel.x + 0xff : (carObj->N).linearVel.x) >> 8) *
-       ((((carObj->N).shadowMat.m[6] < 0) ? (carObj->N).shadowMat.m[6] + 0xff : (carObj->N).shadowMat.m[6]) >> 8);
-  iVar2 = iVar2 +
-       ((((carObj->N).linearVel.y < 0) ? (carObj->N).linearVel.y + 0xff : (carObj->N).linearVel.y) >> 8) *
-       ((((carObj->N).shadowMat.m[7] < 0) ? (carObj->N).shadowMat.m[7] + 0xff : (carObj->N).shadowMat.m[7]) >> 8);
-  (carObj->linearVel_ch).z = iVar2 +
-       ((((carObj->N).linearVel.z < 0) ? (carObj->N).linearVel.z + 0xff : (carObj->N).linearVel.z) >> 8) *
-       ((((carObj->N).shadowMat.m[8] < 0) ? (carObj->N).shadowMat.m[8] + 0xff : (carObj->N).shadowMat.m[8]) >> 8);
   iVar4 = (carObj->N).collision.collided;
+  (carObj->linearVel_ch).x =
+       (carObj->N).linearVel.x / 256 * ((carObj->N).shadowMat.m[0] / 256) +
+       (carObj->N).linearVel.y / 256 * ((carObj->N).shadowMat.m[1] / 256) +
+       (carObj->N).linearVel.z / 256 * ((carObj->N).shadowMat.m[2] / 256);
+  (carObj->linearVel_ch).z =
+       (carObj->N).linearVel.x / 256 * ((carObj->N).shadowMat.m[6] / 256) +
+       (carObj->N).linearVel.y / 256 * ((carObj->N).shadowMat.m[7] / 256) +
+       (carObj->N).linearVel.z / 256 * ((carObj->N).shadowMat.m[8] / 256);
   carObj->wheelSpin = 0;
   carObj->slide = 0;
   carObj->frontSkid = 0;

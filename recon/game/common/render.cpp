@@ -389,11 +389,14 @@ void Render_InitLibRender(void)
 void StampImage(int xo,int depth)
 
 {
+  struct StampTag {
+    u_int addr : 24;
+    u_int len : 8;
+  };
   POLY_FT4 *ft4_p;
-  u_int *pal_link;
   int frame;
   int i;
-  int x_remain;
+  int tpageX;
 
   if ((Render_gBlurEffectMode & 2U) != 0) {
     frame = gFlip;
@@ -401,20 +404,21 @@ void StampImage(int xo,int depth)
   else {
     frame = 1 - gFlip;
   }
+  i = 0;
   if ((Render_gBlurEffectMode & 4U) == 0) {
     xo = 0;
   }
-  x_remain = 0x140;
-  for (i = 0; i < 5; i = i + 1) {
+  int x = xo;
+  for (; i < 5; i = i + 1, x = x + 0x40) {
     ft4_p = (POLY_FT4 *)Render_gPacketPtr;
-    pal_link = (u_int *)(Render_gPalettePtr + depth * 4);
-    *(u_int *)ft4_p = *(u_int *)ft4_p & 0xff000000 | *pal_link & 0xffffff;
+    ((StampTag *)ft4_p)->addr =
+        ((StampTag *)(Render_gPalettePtr + depth * 4))->addr;
     Render_gPacketPtr = (u_char *)ft4_p + 0x28;
-    *pal_link = *pal_link & 0xff000000 | (u_int)ft4_p & 0xffffff;
+    ((StampTag *)(Render_gPalettePtr + depth * 4))->addr = (u_int)ft4_p;
     ((u_char *)ft4_p)[3] = 9;
     ft4_p->code = 0x2e;
-    ft4_p->x1 = xo + 0x40;
-    ft4_p->x3 = xo + 0x40;
+    ft4_p->x1 = x + 0x40;
+    ft4_p->x3 = x + 0x40;
     ft4_p->u0 = 0;
     ft4_p->v0 = 0;
     ft4_p->u1 = 0x40;
@@ -423,23 +427,18 @@ void StampImage(int xo,int depth)
     ft4_p->v2 = 0xf0;
     ft4_p->u3 = 0x40;
     ft4_p->v3 = 0xf0;
-    ft4_p->x0 = xo;
+    ft4_p->x0 = x;
     ft4_p->y0 = 0;
     ft4_p->y1 = 0;
-    ft4_p->x2 = xo;
+    ft4_p->x2 = x;
     ft4_p->y2 = 0xf0;
     ft4_p->y3 = 0xf0;
     ft4_p->r0 = 0x80;
     ft4_p->g0 = 0x80;
     ft4_p->b0 = 0x80;
-    if (frame != 0) {
-      ft4_p->tpage = (u_short)((i << 6) & 0x3ff) >> 6 | 0x110;
-    }
-    else {
-      ft4_p->tpage = (u_short)(x_remain & 0x3ff) >> 6 | 0x110;
-    }
-    x_remain = x_remain + 0x40;
-    xo = xo + 0x40;
+    tpageX = i << 6;
+    ft4_p->tpage =
+        (u_short)(((frame == 0 ? (i + 5) << 6 : tpageX) & 0x3ff) >> 6 | 0x110);
   }
   return;
 }

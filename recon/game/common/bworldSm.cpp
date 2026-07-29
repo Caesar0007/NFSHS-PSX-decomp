@@ -742,37 +742,35 @@ int BWorldSm_FindEdgeOff(coorddef *pt,BWorldSm_Pos *slicePos1,BWorldSm_Pos *slic
 /* ---- BWorldSm_QuadLight__FP12BWorldSm_Pos  [@0x8007fe44] ---- */
 int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)
 {
-  CVECTOR light;
-  CVECTOR temp0;
-  CVECTOR temp1;
-  CVECTOR temp2;
-  CVECTOR temp3;
-  int topInd;
-  int botInd;
-  short s1;
-  short s2;
-  short s3;
-  Group *pThis;
+  if (*(signed char *)&slicePos->rez == 2) {
+    CVECTOR light;
+    CVECTOR temp0;
+    CVECTOR temp1;
+    CVECTOR temp2;
+    CVECTOR temp3;
+    int topInd;
+    int botInd;
+    short s1;
+    short s2;
+    short s3;
+    Group *pThis;
 
-  if (slicePos->rez != '\x02') {
-    return 0x7f7f7f;
+    topInd = (u_int)slicePos->strip->topVert + (int)slicePos->stripQuadInd;
+    botInd = (u_int)slicePos->strip->botVert + (int)slicePos->stripQuadInd;
+    pThis = Track_chunkList[slicePos->chunk].vertexBuf;
+    s1 = *(u_short *)((int)&pThis[topInd * 2 + 2].m_num_elements + 2);
+    s2 = *(u_short *)((int)&pThis[botInd * 2 + 2].m_num_elements + 2);
+    s3 = *(u_short *)((int)&pThis[botInd * 2 + 4].m_num_elements + 2);
+    temp0 = Chunk_lightTable[*(short *)((int)&pThis[topInd * 2 + 4].m_num_elements + 2)];
+    temp1 = Chunk_lightTable[s1];
+    temp2 = Chunk_lightTable[s2];
+    temp3 = Chunk_lightTable[s3];
+    light.r = (u_char)((temp0.r + temp1.r + temp2.r + temp3.r) >> 2);
+    light.g = (u_char)((temp0.g + temp1.g + temp2.g + temp3.g) >> 2);
+    light.b = (u_char)((temp0.b + temp1.b + temp2.b + temp3.b) >> 2);
+    return *(int *)&light;
   }
-  topInd = (u_int)slicePos->strip->topVert + (int)slicePos->stripQuadInd;
-  botInd = (u_int)slicePos->strip->botVert + (int)slicePos->stripQuadInd;
-  pThis = Track_chunkList[slicePos->chunk].vertexBuf;
-  /* @0x6FEB4 four corner light indices read from the vertex buffer (corner0 signed, s1..s3 unsigned) */
-  s1 = *(u_short *)((int)&pThis[topInd * 2 + 2].m_num_elements + 2);
-  s2 = *(u_short *)((int)&pThis[botInd * 2 + 2].m_num_elements + 2);
-  s3 = *(u_short *)((int)&pThis[botInd * 2 + 4].m_num_elements + 2);
-  temp0 = Chunk_lightTable[*(short *)((int)&pThis[topInd * 2 + 4].m_num_elements + 2)];
-  temp1 = Chunk_lightTable[s1];
-  temp2 = Chunk_lightTable[s2];
-  temp3 = Chunk_lightTable[s3];
-  /* @0x6FF58 average the 4 corners per channel (>>2); light.cd left as-is (original reads only r/g/b) */
-  light.r = (u_char)((temp0.r + temp1.r + temp2.r + temp3.r) >> 2);
-  light.g = (u_char)((temp0.g + temp1.g + temp2.g + temp3.g) >> 2);
-  light.b = (u_char)((temp0.b + temp1.b + temp2.b + temp3.b) >> 2);
-  return *(int *)&light;
+  return 0x7f7f7f;
 }
 
 /* ---- BWorldSm_TunnelFlagSm__FP12BWorldSm_Pos  [@0x8007ffd4] ---- */

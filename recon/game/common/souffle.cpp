@@ -75,87 +75,77 @@ Souffle_Add(coorddef *soufflept,int type,coorddef *vec,int velVX,int ground,int 
 
 {
   int i;
-  int iVar1;
-  u_char bVar2;
+  int limit;
   int maxc;
   int inserti;
-  int iVar3;
-  int iVar4;
   Souffle_tISouffle *is;
-  Souffle_tISouffle *pSVar5;
   coorddef vempty;
-  
-  iVar3 = 0;
+
+  inserti = 0;
   if (gCISouffle == 0x3c) {
-    iVar1 = 1;
-    bVar2 = gISouffle->cycle;
-    pSVar5 = gISouffle;
-    do {
-      if ((u_char)pSVar5[1].cycle < bVar2) {
-        iVar3 = iVar1;
-        bVar2 = pSVar5[1].cycle;
+    i = 1;
+    limit = 0x3c;
+    maxc = gISouffle[0].cycle;
+    while (i < limit) {
+      if (gISouffle[i].cycle < maxc) {
+        inserti = i;
+        maxc = gISouffle[i].cycle;
       }
-      iVar1 = iVar1 + 1;
-      pSVar5 = pSVar5 + 1;
-    } while (iVar1 < 0x3c);
+      i++;
+    }
   }
   else {
-    iVar3 = gCISouffle;
+    inserti = gCISouffle;
     gCISouffle = gCISouffle + 1;
   }
-  pSVar5 = gISouffle + iVar3;
-  iVar1 = soufflept->y;
-  iVar4 = soufflept->z;
-  (pSVar5->source).x = soufflept->x;
-  (pSVar5->source).y = iVar1;
-  (pSVar5->source).z = iVar4;
-  pSVar5->cycle = '\0';
-  pSVar5->type = (char)type;
-  pSVar5->id = (char)iVar3;
-  pSVar5->ground = ground;
-  pSVar5->colour = colour;
+
+  is = gISouffle + inserti;
+  is->source = *soufflept;
+  is->cycle = 0;
+  is->type = type;
+  is->id = inserti;
+  is->ground = ground;
+  is->colour = colour;
+
   if (vec == (coorddef *)0x0) {
     vec = &vempty;
     vempty.x = 0;
     vempty.y = 0;
     vempty.z = 0;
   }
-  if (type == 9) goto Souffle_setMotion;
-  if (type < 10) {
-    if (type == 4) {
-Souffle_setRndPixmap:
-      pSVar5->rndpixmap = velVX;
-      goto Souffle_setMotion;
-    }
-    if (type < 5) {
-      if (type < 1) goto Souffle_emitAndReturn;
-    }
-    else {
-      if (type == 7) goto Souffle_setMotion;
-      if (7 < type) goto Souffle_setRndPixmap;
-      if (type != 6) goto Souffle_emitAndReturn;
-    }
-    GetGustWind(pSVar5);
-    pSVar5->wind = '\x01';
+
+  switch (type) {
+  case 1:
+  case 2:
+  case 3:
+  case 6:
+    GetGustWind(is);
+    is->wind = 1;
+    GetAngleWind(is);
+    break;
+
+  case 4:
+  case 8:
+  case 10:
+  case 12:
+    is->rndpixmap = velVX;
+    /* fall through */
+  case 7:
+  case 9:
+  case 11:
+  case 13:
+  case 14:
+  case 0x101:
+    is->motion.x = vec->x >> 5;
+    is->motion.y = vec->y >> 6;
+    is->motion.z = vec->z >> 5;
+    is->wind = 0;
+    GetAngleWind(is);
+    break;
   }
-  else {
-    if (type == 0xc) goto Souffle_setRndPixmap;
-    if (type < 0xd) {
-      if (type == 10) goto Souffle_setRndPixmap;
-      if (type != 0xb) goto Souffle_emitAndReturn;
-    }
-    else if ((0xe < type) && (type != 0x101)) goto Souffle_emitAndReturn;
-Souffle_setMotion:
-    (pSVar5->motion).x = vec->x >> 5;
-    (pSVar5->motion).y = vec->y >> 6;
-    iVar3 = vec->z;
-    pSVar5->wind = '\0';
-    (pSVar5->motion).z = iVar3 >> 5;
-  }
-  GetAngleWind(pSVar5);
-Souffle_emitAndReturn:
-  Sfx_Add(pSVar5);
-  return pSVar5;
+
+  Sfx_Add(is);
+  return is;
 }
 
 /* ---- Souffle_DoSouffle__Fv  [SOUFFLE.CPP:176-295] SLD-VERIFIED ---- */

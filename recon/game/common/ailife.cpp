@@ -573,20 +573,17 @@ void AILife_ReencarnateCopByLatPosAndRotation(Car_tObj *carObj,int slice,int tra
   coorddef zero;
   coorddef offset;
   matrixtdef rotMatrix;
-  bool bVar1;
-  matrixtdef *pmVar2;
   int iVar3;
-  int iVar4;
-  int iVar5;
-  matrixtdef *m1;
 
   memset((u_char *)&zero,'\0',0xc);
   memset((u_char *)&offset,'\0',0xc);
   (carObj->N).active = '\x01';
-  bVar1 = AITune_oneWay != 0;
   (carObj->N).simRoadInfo.slice = (short)slice;
-  if ((bVar1) && (travelDirection = -1, GameSetup_gData.reverseTrack == 0)) {
-    travelDirection = 1;
+  if (AITune_oneWay != 0) {
+    travelDirection = -1;
+    if (GameSetup_gData.reverseTrack == 0) {
+      travelDirection = 1;
+    }
   }
   carObj->direction = travelDirection;
   carObj->desiredDirection = travelDirection;
@@ -596,24 +593,9 @@ void AILife_ReencarnateCopByLatPosAndRotation(Car_tObj *carObj,int slice,int tra
   offset.x = latPos * carObj->direction;
   Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,(int)(carObj->N).simRoadInfo.slice,&offset,carObj->direction);
   xformy(&rotMatrix,(void *)rotation1024);
-  m1 = &(carObj->N).orientMat;
-  Math_fasttransmult(m1,&rotMatrix,m1);
-  pmVar2 = &(carObj->N).shadowMat;
-  do {
-    iVar4 = m1->m[1];
-    iVar5 = m1->m[2];
-    iVar3 = m1->m[3];
-    pmVar2->m[0] = m1->m[0];
-    pmVar2->m[1] = iVar4;
-    pmVar2->m[2] = iVar5;
-    pmVar2->m[3] = iVar3;
-    m1 = (matrixtdef *)(m1->m + 4);
-    pmVar2 = (matrixtdef *)(pmVar2->m + 4);
-  } while (m1 != (matrixtdef *)((carObj->N).orientMat.m + 8));
-  pmVar2->m[0] = m1->m[0];
-  (carObj->N).linearVel.x = zero.x;
-  (carObj->N).linearVel.y = zero.y;
-  (carObj->N).linearVel.z = zero.z;
+  Math_fasttransmult(&(carObj->N).orientMat,&rotMatrix,&(carObj->N).orientMat);
+  (carObj->N).shadowMat = (carObj->N).orientMat;
+  (carObj->N).linearVel = zero;
   AIInit_ClearAICar(carObj);
   iVar3 = Cars_CalculateRoadPosition(carObj);
   carObj->rampDesiredLatPos = iVar3;

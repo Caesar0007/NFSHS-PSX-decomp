@@ -119,6 +119,14 @@ int BWorldSm_FindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
 }
 
 /* ---- RawFindClosestSlice__FP8coorddefP12BWorldSm_Pos  [@0x8007eab0] ---- */
+static inline int closeXZDistSquared(Trk_NewSlice *slice,coorddef *pt)
+{
+  return (((pt->x - slice->center[0]) >> 9) *
+          ((pt->x - slice->center[0]) >> 9)) +
+         (((pt->z - slice->center[2]) >> 9) *
+          ((pt->z - slice->center[2]) >> 9));
+}
+
 void RawFindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
 {
   int lastind;
@@ -127,78 +135,68 @@ void RawFindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
   int distcurr;
   int distnext;
   int distprev;
-  Trk_NewSlice*slices;
-  bool bVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int *piVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  int iVar9;
-  
-  iVar7 = (int)slicePos->slice;
-  iVar9 = gNumSlices + -1;
-  iVar8 = iVar7;
-  if (iVar7 != -1) {
+  Trk_NewSlice *slices;
+
+  lastind = -1;
+  maxind = gNumSlices - 1;
+  index = slicePos->slice;
+  slices = BWorldSm_slices;
+
+  if (index != lastind) {
     do {
-      if (iVar8 < iVar9) {
-        iVar2 = pt->x;
-        iVar7 = iVar8;
+      lastind = index;
+
+      if (index < maxind) {
+        distcurr = closeXZDistSquared(slices + index,pt);
       }
       else {
-        iVar7 = iVar8 % gNumSlices;
-        iVar2 = pt->x;
+        distcurr = closeXZDistSquared(slices + index % (maxind + 1),pt);
       }
-      piVar5 = (int *)(iVar7 * 0x20 + (char *)BWorldSm_slices);
-      iVar7 = iVar2 - *piVar5 >> 9;
-      iVar2 = pt->z - piVar5[2] >> 9;
-      iVar2 = iVar7 * iVar7 + iVar2 * iVar2;
-      if (iVar8 < gNumSlices + -2) {
-        iVar6 = iVar8 * 0x20 + (char *)BWorldSm_slices;
-        iVar7 = pt->x - *(int *)(iVar6 + 0x20) >> 9;
-        iVar6 = pt->z - *(int *)(iVar6 + 0x28) >> 9;
-        if (iVar7 * iVar7 + iVar6 * iVar6 < iVar2) {
-          iVar7 = iVar8 + 1;
-        }
-        else {
-LAB_8007ec3c:
-          if (iVar8 < 1) {
-            iVar7 = iVar8 + 1 + iVar9;
-            iVar6 = iVar7 + -1;
-            piVar5 = (int *)((iVar6 % gNumSlices) * 0x20 + (char *)BWorldSm_slices);
-            iVar3 = pt->x - *piVar5 >> 9;
-            iVar4 = pt->z - piVar5[2] >> 9;
-            if (iVar3 * iVar3 + iVar4 * iVar4 < iVar2) {
-              iVar7 = iVar6;
-            }
-            iVar2 = iVar7 + 1 + iVar9;
-            iVar7 = iVar2 % gNumSlices;
-          }
-          else {
-            iVar7 = iVar8 * 0x20 + (char *)BWorldSm_slices;
-            iVar6 = pt->x - *(int *)(iVar7 + -0x20) >> 9;
-            iVar3 = pt->z - *(int *)(iVar7 + -0x18) >> 9;
-            iVar7 = iVar8;
-            if (iVar6 * iVar6 + iVar3 * iVar3 < iVar2) {
-              iVar7 = iVar8 + -1;
-            }
-          }
+
+      if (index < maxind - 1) {
+        distnext =
+            (((pt->x - slices[index + 1].center[0]) >> 9) *
+             ((pt->x - slices[index + 1].center[0]) >> 9)) +
+            (((pt->z - slices[index + 1].center[2]) >> 9) *
+             ((pt->z - slices[index + 1].center[2]) >> 9));
+        if (distnext < distcurr) {
+          index++;
+          continue;
         }
       }
       else {
-        iVar7 = (iVar8 + 1) % gNumSlices;
-        piVar5 = (int *)(iVar7 * 0x20 + (char *)BWorldSm_slices);
-        iVar6 = pt->x - *piVar5 >> 9;
-        iVar3 = pt->z - piVar5[2] >> 9;
-        if (iVar2 <= iVar6 * iVar6 + iVar3 * iVar3) goto LAB_8007ec3c;
+        distnext =
+            closeXZDistSquared(slices + (index + 1) % (maxind + 1),pt);
+        if (distnext < distcurr) {
+          index++;
+          index %= maxind + 1;
+          continue;
+        }
       }
-      bVar1 = iVar8 != iVar7;
-      iVar8 = iVar7;
-    } while (bVar1);
+
+      if (index > 0) {
+        distprev =
+            (((pt->x - slices[index - 1].center[0]) >> 9) *
+             ((pt->x - slices[index - 1].center[0]) >> 9)) +
+            (((pt->z - slices[index - 1].center[2]) >> 9) *
+             ((pt->z - slices[index - 1].center[2]) >> 9));
+        if (distprev < distcurr) {
+          index--;
+        }
+      }
+      else {
+        index += maxind + 1;
+        distprev =
+            closeXZDistSquared(slices + (index - 1) % (maxind + 1),pt);
+        if (distprev < distcurr) {
+          index--;
+        }
+        index += maxind + 1;
+        index %= maxind + 1;
+      }
+    } while (lastind != index);
   }
-  slicePos->slice = (short)iVar7;
+  slicePos->slice = (short)index;
   return;
 }
 

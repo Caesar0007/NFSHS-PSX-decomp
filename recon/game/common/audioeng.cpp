@@ -332,8 +332,10 @@ void AudioEng_LoadDef(char *filename,char *name,int handle,long offset,long size
 }
 
 /* ---- AudioEng_StartUp__FiPc  [@0x8007be54] ---- */
-int AudioEng_StartUp(int player,char *carname)
+int AudioEng_StartUp(int playerArg,char *carnameArg)
 {
+  int player = playerArg;
+  char *carname = carnameArg;
   AudioEng_tDef*cruisedef;
   AudioEng_tDef*loaddef;
   int tablesize;
@@ -372,31 +374,25 @@ int AudioEng_StartUp(int player,char *carname)
   u_char *puVar16;
   u_int name;
   int iVar17;
-  char acStack_80 [64];
-  int local_40;
-  long local_3c;
-  u_int local_38;
-  AudioEng_tDef *local_34;
-  AudioEng_tDef *local_30 [2];
   
   if (1 < (u_int)player) {
     return 0;
   }
-  name = 0;
+  tablesize = 0;
   if (AudioEng_g[player] != (AudioEng_t *)0x0) {
     return 0;
   }
-  iVar17 = 0;
-  pAVar3 = reservememadr("Engine Audio",0x370,0);
-  iVar15 = 0;
-  AudioEng_g[player] = pAVar3;
-  pAVar3->tables = (char *)0x0;
-  pAVar3->tick = 0;
-  pAVar3->azi = 0;
-  pAVar3->sep = 0;
-  pAVar3->dop = 0x1000;
-  pAVar6 = pAVar3;
-  pAVar8 = pAVar3;
+  bankloaded = 0;
+  g = reservememadr("Engine Audio",0x370,0);
+  i = 0;
+  AudioEng_g[player] = g;
+  g->tables = (char *)0x0;
+  g->tick = 0;
+  g->azi = 0;
+  g->sep = 0;
+  g->dop = 0x1000;
+  pAVar6 = g;
+  pAVar8 = g;
   do {
     pAVar8->vol[0] = 0;
     pAVar6->left[0].handle = -1;
@@ -406,21 +402,21 @@ int AudioEng_StartUp(int player,char *carname)
     pAVar6->chan[0].max = 0x200;
     pAVar6->chan[0].xlate = (char *)0x0;
     pAVar6 = (AudioEng_t *)pAVar6->vol;
-    iVar15 = iVar15 + 1;
+    i = i + 1;
     pAVar8 = (AudioEng_t *)&(pAVar8->adjust).rwdExhBoost;
-  } while (iVar15 < 0x10);
-  local_30[0] = (AudioEng_tDef *)0x0;
-  local_34 = (AudioEng_tDef *)0x0;
-  (pAVar3->adjust).inCarBoost = '2';
-  (pAVar3->adjust).inCarExhaust = '\x1f';
-  (pAVar3->adjust).outCarBoost = 0xa6;
-  (pAVar3->adjust).outCarExhaust = '+';
-  (pAVar3->adjust).fwdEngBoost = '@';
-  (pAVar3->adjust).rwdExhBoost = 'y';
-  (pAVar3->adjust).pitchScale = 'P';
-  (pAVar3->adjust).timbreScale = 'h';
-  pAVar3->setpos = '\0';
-  pAVar3->plypos = '\0';
+  } while (i < 0x10);
+  cruisedef = (AudioEng_tDef *)0x0;
+  loaddef = (AudioEng_tDef *)0x0;
+  (g->adjust).inCarBoost = '2';
+  (g->adjust).inCarExhaust = '\x1f';
+  (g->adjust).outCarBoost = 0xa6;
+  (g->adjust).outCarExhaust = '+';
+  (g->adjust).fwdEngBoost = '@';
+  (g->adjust).rwdExhBoost = 'y';
+  (g->adjust).pitchScale = 'P';
+  (g->adjust).timbreScale = 'h';
+  g->setpos = '\0';
+  g->plypos = '\0';
   bVar1 = false;
   if (GameSetup_gData.commMode == 1) {
     pcVar9 = "%s%sens.viv";
@@ -428,8 +424,8 @@ int AudioEng_StartUp(int player,char *carname)
   else {
     pcVar9 = "%s%seng.viv";
   }
-  sprintf(acStack_80,pcVar9,Paths_Paths[28],carname);
-  pcVar9 = (char *)loadbigfileheader(acStack_80,(void *)0x10);
+  sprintf(filename,pcVar9,Paths_Paths[28],carname);
+  pcVar9 = (char *)loadbigfileheader(filename,(void *)0x10);
   if (pcVar9 == (char *)0x0) {
     if (GameSetup_gData.commMode == 1) {
       pcVar9 = "%sp993ens.viv";
@@ -437,66 +433,66 @@ int AudioEng_StartUp(int player,char *carname)
     else {
       pcVar9 = "%sp993eng.viv";
     }
-    sprintf(acStack_80,pcVar9,Paths_Paths[28]);
-    pcVar9 = (char *)loadbigfileheader(acStack_80,(void *)0x10);
+    sprintf(filename,pcVar9,Paths_Paths[28]);
+    pcVar9 = (char *)loadbigfileheader(filename,(void *)0x10);
     if (pcVar9 == (char *)0x0) goto LAB_8007c1ac;
   }
-  FILE_opensync(acStack_80,1,0x64,&local_40);   /* oracle 0x8007c03c: a3=&handle out */
-  for (iVar15 = 0; iVar4 = bigcount(pcVar9), iVar15 < iVar4;
-      iVar15 = iVar15 + 1) {
-    pThis = locatebigentry(pcVar9,(char *)0x0,iVar15,&local_3c,&local_38);   /* oracle 0x8007c06c: a2=i a3=&offset stk=&size */
+  FILE_opensync(filename,1,0x64,&handle);   /* oracle 0x8007c03c: a3=&handle out */
+  for (i = 0; iVar4 = bigcount(pcVar9), i < iVar4;
+      i = i + 1) {
+    pThis = locatebigentry(pcVar9,(char *)0x0,i,&offset,&size);   /* oracle 0x8007c06c: a2=i a3=&offset stk=&size */
     iVar4 = wildcard((u_char *)pThis,"*.bnk");
     if ((iVar4 == 0) || (bVar1)) {
       iVar4 = wildcard((u_char *)pThis,"*.ltb");
-      if ((iVar4 == 0) || (local_34 != (AudioEng_tDef *)0x0)) {
+      if ((iVar4 == 0) || (loaddef != (AudioEng_tDef *)0x0)) {
         iVar4 = wildcard((u_char *)pThis,"*.ctb");
-        if ((iVar4 == 0) || (local_30[0] != (AudioEng_tDef *)0x0)) goto LAB_8007c190;
-        ed = local_30;
+        if ((iVar4 == 0) || (cruisedef != (AudioEng_tDef *)0x0)) goto LAB_8007c190;
+        ed = &cruisedef;
       }
       else {
-        ed = &local_34;
+        ed = &loaddef;
       }
-      AudioEng_LoadDef(acStack_80,(char *)pThis,local_40,local_3c,local_38,ed);
+      AudioEng_LoadDef(filename,(char *)pThis,handle,offset,size,ed);
     }
     else {
-      pdata = reservememadr(pThis,local_38,0x10);
+      pdata = reservememadr(pThis,size,0x10);
       if (pdata != (char *)0x0) {
         bVar1 = true;
-        FILE_readsync(local_40,local_3c,pdata,local_38,0x64);   /* oracle 0x8007c0c8: a0=h a1=off a2=pdata a3=size stk=0x64 */
-        iVar17 = AudioCmn_AddBank((char *)pThis,local_38,pdata,player);
-        pAVar3->bhandle = (char)gSndBnk[player].bnkID;
+        FILE_readsync(handle,offset,pdata,size,0x64);   /* oracle 0x8007c0c8: a0=h a1=off a2=pdata a3=size stk=0x64 */
+        bankloaded = AudioCmn_AddBank((char *)pThis,size,pdata,player);
+        g->bhandle = (char)gSndBnk[player].bnkID;
       }
     }
 LAB_8007c190: ;   /* empty stmt: gcc2.7.2 rejects label before '}' */
   }
-  FILE_closesync(local_40,100);   /* oracle 0x8007c198/c1a0: a0=handle a1=0x64 (both were dropped) */
+  FILE_closesync(handle,100);   /* oracle 0x8007c198/c1a0: a0=handle a1=0x64 (both were dropped) */
   purgememadr(pcVar9);
 LAB_8007c1ac:
   if (!bVar1) {
-    return iVar17;
+    return bankloaded;
   }
-  if (local_30[0] == (AudioEng_tDef *)0x0) {
-    return iVar17;
+  if (cruisedef == (AudioEng_tDef *)0x0) {
+    return bankloaded;
   }
-  iVar15 = 0;
-  if (local_34 == (AudioEng_tDef *)0x0) {
-    return iVar17;
+  i = 0;
+  if (loaddef == (AudioEng_tDef *)0x0) {
+    return bankloaded;
   }
   do {
-    if (1 < iVar15) {
-      dest = reservememadr("Engine Tables",name,0)
+    if (1 < i) {
+      dest = reservememadr("Engine Tables",tablesize,0)
       ;
-      pAVar3->tables = (char *)dest;
-      for (iVar15 = 0; iVar15 < 2; iVar15 = iVar15 + 1) {
+      g->tables = (char *)dest;
+      for (i = 0; i < 2; i = i + 1) {
         iVar4 = 0;
-        pAVar11 = local_30[0];
-        if (iVar15 != 0) {
-          pAVar11 = local_34;
+        pAVar11 = cruisedef;
+        if (i != 0) {
+          pAVar11 = loaddef;
         }
         iVar12 = 0;
         for (; iVar4 < 8; iVar4 = iVar4 + 1) {
-          psVar5 = (short *)((int)&pAVar3->chan[0].min + iVar12);
-          if (iVar15 != 0) {
+          psVar5 = (short *)((int)&g->chan[0].min + iVar12);
+          if (i != 0) {
             psVar5 = psVar5 + 0x30;
           }
           iVar13 = (int)*psVar5;
@@ -512,13 +508,13 @@ LAB_8007c1ac:
           dest = puVar16;
         }
       }
-      purgememadr(local_34);
-      purgememadr(local_30[0]);
-      return iVar17;
+      purgememadr(loaddef);
+      purgememadr(cruisedef);
+      return bankloaded;
     }
-    pAVar11 = local_30[0];
-    if (iVar15 != 0) {
-      pAVar11 = local_34;
+    pAVar11 = cruisedef;
+    if (i != 0) {
+      pAVar11 = loaddef;
     }
     iVar4 = 0;
     if (pAVar11->resolved == '\0') {
@@ -528,14 +524,14 @@ LAB_8007c1ac:
       pAVar10 = pAVar11;
       for (; iVar4 < 8; iVar4 = iVar4 + 1) {
         if (-1 < pAVar11->patchnum[iVar4]) {
-          psVar5 = (short *)((int)&pAVar3->chan[0].min + iVar14);
+          psVar5 = (short *)((int)&g->chan[0].min + iVar14);
           pAVar10->pvoltable[0] =
                (AudioEng_tTable *)
                (pAVar10->pvoltable[0]->xlate + (int)(pAVar11->patchnum + iVar12 + -0x20));
           pAVar10->pbendtable[0] =
                (AudioEng_tTable *)
                (pAVar10->pbendtable[0]->xlate + (int)(pAVar11->patchnum + iVar13 + -0x20));
-          if (iVar15 != 0) {
+          if (i != 0) {
             psVar5 = psVar5 + 0x30;
           }
           *(char *)(psVar5 + 4) = pAVar11->patchnum[iVar4];
@@ -559,7 +555,7 @@ LAB_8007c2c4:
             } while (iVar7 < 0x200);
           }
           psVar5[1] = (short)iVar7;
-          name = name + ((int)(short)iVar7 - (int)*psVar5);
+          tablesize = tablesize + ((int)(short)iVar7 - (int)*psVar5);
         }
         pAVar11->resolved = '\x01';
         pAVar10 = (AudioEng_tDef *)&pAVar10->ver;
@@ -568,7 +564,7 @@ LAB_8007c2c4:
         iVar12 = iVar12 + 4;
       }
     }
-    iVar15 = iVar15 + 1;
+    i = i + 1;
   } while( true );
 }
 

@@ -332,10 +332,8 @@ void AudioEng_LoadDef(char *filename,char *name,int handle,long offset,long size
 }
 
 /* ---- AudioEng_StartUp__FiPc  [@0x8007be54] ---- */
-int AudioEng_StartUp(int playerArg,char *carnameArg)
+int AudioEng_StartUp(int player,char *carname)
 {
-  int player = playerArg;
-  char *carname = carnameArg;
   AudioEng_tDef*cruisedef;
   AudioEng_tDef*loaddef;
   int tablesize;
@@ -358,7 +356,7 @@ int AudioEng_StartUp(int playerArg,char *carnameArg)
   int iVar4;
   void *pThis;
   char *pdata;
-  AudioEng_tDef **ed;
+  AudioEng_tDef *ed;
   u_char *dest;
   short *psVar5;
   AudioEng_t *pAVar6;
@@ -472,58 +470,40 @@ LAB_8007c1ac:
   if (loaddef == (AudioEng_tDef *)0x0) {
     return spu;
   }
-  for (i = 0; i < 2; i = i + 1) {
-    pAVar11 = cruisedef;
-    if (i != 0) {
-      pAVar11 = loaddef;
+  for (c = 0; c < 2; c++) {
+    if (c == 0) {
+      ed = cruisedef;
     }
-    iVar4 = 0;
-    if (pAVar11->resolved == '\0') {
-      iVar14 = 0;
-      iVar13 = 0x148;
-      iVar12 = 0x128;
-      pAVar10 = pAVar11;
-      for (; iVar4 < 8; iVar4 = iVar4 + 1) {
-        if (-1 < pAVar11->patchnum[iVar4]) {
-          psVar5 = (short *)((int)&g->chan[0].min + iVar14);
-          pAVar10->pvoltable[0] =
-               (AudioEng_tTable *)
-               (pAVar10->pvoltable[0]->xlate + (int)(pAVar11->patchnum + iVar12 + -0x20));
-          pAVar10->pbendtable[0] =
-               (AudioEng_tTable *)
-               (pAVar10->pbendtable[0]->xlate + (int)(pAVar11->patchnum + iVar13 + -0x20));
-          if (i != 0) {
-            psVar5 = psVar5 + 0x30;
+    else {
+      ed = loaddef;
+    }
+    if (ed->resolved == 0) {
+      for (j = 0; j < 8; j++) {
+        if ((signed char)ed->patchnum[j] >= 0) {
+          ed->pvoltable[j] =
+              (AudioEng_tTable *)((char *)ed + (int)ed->pvoltable[j]);
+          ed->pbendtable[j] =
+              (AudioEng_tTable *)((char *)ed + (int)ed->pbendtable[j]);
+          chan = &g->chan[j];
+          if (c != 0) {
+            chan += 8;
           }
-          *(char *)(psVar5 + 4) = pAVar11->patchnum[iVar4];
+          chan->patchnum = ed->patchnum[j];
           iVar7 = 0;
-          if (pAVar10->pvoltable[0]->xlate[0] == '\0') {
-            iVar2 = 1;
-            do {
-              iVar7 = iVar2;
-              bVar1 = iVar7 < 0x200;
-              if (!bVar1) goto LAB_8007c2c4;
-              iVar2 = iVar7 + 1;
-            } while (pAVar10->pvoltable[0]->xlate[iVar7] == '\0');
+          while ((iVar7 < 512) &&
+                 ((signed char)ed->pvoltable[j]->xlate[iVar7] == 0)) {
+            iVar7++;
           }
-          bVar1 = iVar7 < 0x200;
-LAB_8007c2c4:
-          *psVar5 = (short)iVar7;
-          if (bVar1) {
-            do {
-              if (pAVar10->pvoltable[0]->xlate[iVar7] == '\0') break;
-              iVar7 = iVar7 + 1;
-            } while (iVar7 < 0x200);
+          chan->min = iVar7;
+          while ((iVar7 < 512) &&
+                 ((signed char)ed->pvoltable[j]->xlate[iVar7] != 0)) {
+            iVar7++;
           }
-          psVar5[1] = (short)iVar7;
-          tablesize = tablesize + ((int)(short)iVar7 - (int)*psVar5);
+          chan->max = iVar7;
+          tablesize += chan->max - chan->min;
         }
-        pAVar11->resolved = '\x01';
-        pAVar10 = (AudioEng_tDef *)&pAVar10->ver;
-        iVar14 = iVar14 + 0xc;
-        iVar13 = iVar13 + 4;
-        iVar12 = iVar12 + 4;
       }
+      ed->resolved = 1;
     }
   }
   dest = reservememadr("Engine Tables",tablesize,0);

@@ -395,7 +395,7 @@ int AudioEng_StartUp(int player,char *carname)
     pAVar8->vol[0] = 0;
     pAVar6->left[0].handle = -1;
     pAVar6->right[0].handle = -1;
-    pAVar6->chan[0].patchnum = -1;
+    *(signed char *)&pAVar6->chan[0].patchnum = -1;
     pAVar6->chan[0].min = 0x200;
     pAVar6->chan[0].max = 0x200;
     pAVar6->chan[0].xlate = (char *)0x0;

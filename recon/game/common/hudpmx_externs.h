@@ -16,8 +16,8 @@ extern char           *Track_gTachNamePtrs[];    /* track.obj (tachometer name p
 extern char           *gShapeNamePtrs_subList[]; /* track.obj */
 
 /* ---- cross-TU fns ---- */
-extern void  Font_LoadFont(char *buf, int w, int h, int flag);                 /* font.obj */
-extern void  Font_GetUVWH(int ch, void *a, void *b, void *c, void *d, void *e);/* font.obj */
+extern void  Font_LoadFont(char *buf, int w, int h, char flag);                /* font.obj */
+extern void  Font_GetUVWH(char ch, int *u, int *v, int *w, int *h, int *yo);  /* font.obj */
 extern int   Texture_LoadPmx(char *a, char *b, int c, int d, int e, int f, int g, Draw_tPixMap *pm);  /* texture.obj */
 extern void  Texture_ResetPaletteSharing(void);                                /* texture.obj */
                               /* eaclib EACPSXZ locatshp */

@@ -46,295 +46,129 @@ void HudPmx_LoadShape(char *n,HudPmx_tShape *s)
 void HudPmx_InitTextures(void)
 
 {
-  char * carType0;
-  char * carType1;
-  char * name;
+  int carType0;
+  int carType1;
+  char name[256];
   int i;
-  char ** tachs;
-  int ntachs;
-  char * mapname;
-  HudPmx_tShape * shapes;
-  int u;
-  int v;
-  int w;
-  int h;
-  int yo;
-  u_char **ppuVar1;
-  void *pvVar2;
-  u_int *puVar3;
-  char **ppcVar4;
-  u_int uVar5;
-  u_char *puVar6;
-  char *pcVar7;
-  u_char *puVar8;
-  char *pcVar9;
-  u_char *puVar10;
-  char *pcVar11;
-  HudPmx_tUV *pHVar12;
-  HudPmx_tShape *pHVar13;
-  int iVar14;
-  int iVar15;
-  int iVar16;
-  char acStack_648 [256];
-  u_int local_548 [30];
-  u_int local_4d0 [30];
-  char acStack_458 [8];
-  u_int local_450 [74];
-  u_int local_328 [55];
-  char *local_24c;
-  char *local_244;
-  char *local_240 [132];
-  uchar local_30 [4];
-  uchar local_2c [4];
-  u_char auStack_28 [4];
-  u_char auStack_24 [4];
-  u_char auStack_20 [8];
-  
-  puVar3 = local_548;
-  ppuVar1 = (u_char **)&Track_gShapeNamePtrs;
-  do {
-    puVar6 = ppuVar1[1];
-    puVar8 = ppuVar1[2];
-    puVar10 = ppuVar1[3];
-    *puVar3 = *ppuVar1;
-    puVar3[1] = puVar6;
-    puVar3[2] = puVar8;
-    puVar3[3] = puVar10;
-    ppuVar1 = ppuVar1 + 4;
-    puVar3 = puVar3 + 4;
-  } while (ppuVar1 != (u_char **)&Track_gShapeNamePtrs_end);
-  *puVar3 = (u_char *)Track_gShapeNamePtrs_end;
-  puVar3 = local_4d0;
-  ppuVar1 = (u_char **)&Track_gTachNamePtrs;
-  do {
-    puVar6 = ppuVar1[1];
-    puVar8 = ppuVar1[2];
-    puVar10 = ppuVar1[3];
-    *puVar3 = *ppuVar1;
-    puVar3[1] = puVar6;
-    puVar3[2] = puVar8;
-    puVar3[3] = puVar10;
-    ppuVar1 = ppuVar1 + 4;
-    puVar3 = puVar3 + 4;
-  } while (ppuVar1 != gShapeNamePtrs_subList + 3);
-  *puVar3 = gShapeNamePtrs_subList[3];
-  sprintf(acStack_458,"mp%02d",GameSetup_gData.track);
-  puVar3 = local_450;
-  ppcVar4 = local_240;
-  local_240[0] = "cmra";
-  local_240[1] = "cam0";
-  local_240[2] = "cam1";
-  local_240[3] = "cam2";
-  local_240[4] = "cam3";
-  local_240[5] = "cam4";
-  local_240[6] = "cam5";
-  local_240[7] = "cam6";
-  local_240[8] = "cam7";
-  local_240[9] = "cam8";
-  local_240[10] = "cam9";
-  local_240[0xb] = "ca10";
-  local_240[0xc] = "ca11";
-  local_240[0xd] = "ca12";
-  local_240[0xe] = "crn1";
-  local_240[0xf] = "crn2";
-  local_240[0x10] = "crn3";
-  local_240[0x11] = "crn4";
-  local_240[0x12] = "arrl";
-  local_240[0x13] = "arrr";
-  local_240[0x14] = "mwt1";
-  local_240[0x15] = "mwt2";
-  local_240[0x16] = "mwb1";
-  local_240[0x17] = "mwb2";
-  local_240[0x18] = "msid";
-  local_240[0x19] = "msi2";
-  local_240[0x1a] = "kmhh";
-  local_240[0x1b] = "mphh";
-  local_240[0x1c] = "gea1";
-  local_240[0x1d] = "gea2";
-  local_240[0x1e] = "gea3";
-  local_240[0x1f] = "gea4";
-  local_240[0x20] = "gea5";
-  local_240[0x21] = "gea6";
-  local_240[0x22] = "smln";
-  local_240[0x23] = "smlr";
-  local_240[0x24] = "pau0";
-  local_240[0x25] = "pau1";
-  local_240[0x26] = "pau2";
-  local_240[0x27] = "pau3";
-  local_240[0x28] = "rwid";
-  local_240[0x29] = "rwi2";
-  local_240[0x2a] = "rsid";
-  local_240[0x2b] = "rsi2";
-  local_240[0x2c] = "big0";
-  local_240[0x2d] = "big1";
-  local_240[0x2e] = "big2";
-  local_240[0x2f] = "big3";
-  local_240[0x30] = "big4";
-  local_240[0x31] = "big5";
-  local_240[0x32] = "big6";
-  local_240[0x33] = "big7";
-  local_240[0x34] = "big8";
-  local_240[0x35] = "big9";
-  local_240[0x36] = "sml1";
-  local_240[0x37] = "sml2";
-  local_240[0x38] = "sml3";
-  local_240[0x39] = "sml4";
-  local_240[0x3a] = "sml5";
-  local_240[0x3b] = "sml6";
-  local_240[0x3c] = "321d";
-  local_240[0x3d] = "321l";
-  local_240[0x3e] = "mpbt";
-  local_240[0x3f] = "smlx";
-  local_240[0x40] = "sml+";
-  local_240[0x41] = "sml-";
-  local_240[0x42] = "sml:";
-  local_240[0x43] = "sml\"";
-  local_240[0x44] = "sml\'";
-  local_240[0x45] = "sml,";
-  local_240[0x46] = "sml.";
-  local_240[0x47] = "sml/";
-  local_240[0x48] = "ahyp";
-  local_240[0x49] = "acol";
-  local_240[0x4a] = "a192";
-  local_240[0x4b] = "a193";
-  local_240[0x4c] = "a194";
-  local_240[0x4e] = "a196";
-  local_240[0x4f] = "a197";
-  local_240[0x51] = "a199";
-  local_240[0x52] = "a200";
-  local_240[0x53] = "a201";
-  local_240[0x55] = "a203";
-  local_240[0x56] = "a204";
-  local_240[0x57] = "a205";
-  local_240[0x58] = "a206";
-  local_240[0x59] = "a207";
-  local_240[0x5b] = "a209";
-  local_240[0x5c] = "a210";
-  local_240[0x5d] = "a211";
-  local_240[0x5e] = "a212";
-  local_240[0x60] = "a214";
-  local_240[99] = "a217";
-  local_240[0x4d] = "wrng";
-  local_240[0x50] = "wrng";
-  local_240[0x54] = "wrng";
-  local_240[0x5a] = "wrng";
-  local_240[0x5f] = "wrng";
-  local_240[0x61] = "wrng";
-  local_240[0x62] = "wrng";
-  local_240[100] = "a218";
-  local_240[0x65] = "a219";
-  local_240[0x66] = "a220";
-  local_240[0x67] = "A229";
-  local_240[0x69] = "time";
-  local_240[0x6a] = "timb";
-  local_240[0x6b] = "laps";
-  local_240[0x6c] = "ejct";
-  local_240[0x6d] = "play";
-  local_240[0x6e] = "paus";
-  local_240[0x6f] = "resg";
-  local_240[0x70] = "rad0";
-  local_240[0x71] = "rad1";
-  local_240[0x72] = "s1/4";
-  local_240[0x73] = "s1/2";
-  local_240[0x74] = "spd2";
-  local_240[0x75] = "spd1";
-  local_240[0x76] = "plus";
-  local_240[0x77] = "minu";
-  local_240[0x79] = "plr1";
-  local_240[0x7a] = "oppn";
-  local_240[0x7b] = "barl";
-  local_240[0x7c] = "barr";
-  local_240[0x7d] = "barb";
-  local_240[0x7e] = "baXl";
-  local_240[0x7f] = "baXr";
-  local_240[0x80] = "tacc";
-  local_240[0x68] = "wrng";
-  local_240[0x78] = acStack_458;
-  local_240[0x82] = "tpno";
-  local_240[0x81] = (char *)local_548[0];
-  local_240[0x83] = (char *)local_548[0];
-  do {
-    pcVar7 = ppcVar4[1];
-    pcVar9 = ppcVar4[2];
-    pcVar11 = ppcVar4[3];
-    *puVar3 = *ppcVar4;
-    puVar3[1] = pcVar7;
-    puVar3[2] = pcVar9;
-    puVar3[3] = pcVar11;
-    ppcVar4 = ppcVar4 + 4;
-    puVar3 = puVar3 + 4;
-  } while (ppcVar4 != (char **)local_30);
+  char *tachs[29] = {
+    "tslk","tbz3","thsv","tfor","tz28","ttra","tdb7","txkr","ttm5","tvet",
+    "t550","t911","tf50","tdsv","tclk","tmcf","t911","thsv","tvet","tbon",
+    "tbon","tbon","tcap","thsv","ttm5","tvet","t911","tdsv","tbon"
+  };
+  char *ntachs[29] = {
+    "nslk","nbz3","nhsv","nfor","nz28","ntra","ndb7","nxkr","nnm5","nvet",
+    "n550","n911","nf50","tdsv","tclk","nmcf","n911","nhsv","nvet","nbon",
+    "nbon","nbon","ncap","nhsv","nnm5","nvet","n911","tdsv","nbon"
+  };
+  char mapname[5];
+
+  sprintf(mapname,"mp%02d",GameSetup_gData.track);
+
+  char *shapes[132] = {
+    "cmra","cam0","cam1","cam2","cam3","cam4","cam5","cam6","cam7","cam8",
+    "cam9","ca10","ca11","ca12","crn1","crn2","crn3","crn4","arrl","arrr",
+    "mwt1","mwt2","mwb1","mwb2","msid","msi2","kmhh","mphh","gea1","gea2",
+    "gea3","gea4","gea5","gea6","smln","smlr","pau0","pau1","pau2","pau3",
+    "rwid","rwi2","rsid","rsi2","big0","big1","big2","big3","big4","big5",
+    "big6","big7","big8","big9","sml1","sml2","sml3","sml4","sml5","sml6",
+    "321d","321l","mpbt","smlx","sml+","sml-","sml:","sml\"","sml'","sml,",
+    "sml.","sml/","ahyp","acol","a192","a193","a194","wrng","a196","a197",
+    "wrng","a199","a200","a201","wrng","a203","a204","a205","a206","a207",
+    "wrng","a209","a210","a211","a212","wrng","a214","wrng","wrng","a217",
+    "a218","a219","a220","A229","wrng","time","timb","laps","ejct","play",
+    "paus","resg","rad0","rad1","s1/4","s1/2","spd2","spd1","plus","minu",
+    mapname,"plr1","oppn","barl","barr","barb","baXl","baXr","tacc",
+    tachs[0],"tpno",tachs[0]
+  };
   loadShapeXOff = 0;
-  sprintf(acStack_648,"%sfont.pfn",Paths_Paths[0x1a]);
-  gHudFont = loadfileadrz(acStack_648,0);
+  sprintf(name,"%sfont.pfn",Paths_Paths[0x1a]);
+  gHudFont = loadfileadrz(name,0);
   Font_LoadFont(gHudFont,0x80,0x80,1);
-  pHVar12 = HudPmx_gHudNumberUV;
-  for (iVar14 = 0; iVar14 < 10; iVar14 = iVar14 + 1) {
-    Font_GetUVWH(iVar14 + 0x30U & 0xff,local_30,local_2c,auStack_28,auStack_24,auStack_20);
-    pHVar12->u0 = local_30[0];
-    pHVar12->v0 = local_2c[0];
-    pHVar12->clut = gFontClut;
-    pHVar12 = pHVar12 + 1;
+  {
+    int u;
+    int v;
+    int w;
+    int h;
+    int yo;
+
+    HudPmx_tUV *numberUV = HudPmx_gHudNumberUV;
+    i = 0;
+    goto HudPmxInit_fontLoopTest;
+HudPmxInit_fontLoop:
+      Font_GetUVWH((char)(i + '0'),&u,&v,&w,&h,&yo);
+      numberUV->u0 = (u_char)u;
+      numberUV->v0 = (u_char)v;
+      numberUV->clut = gFontClut;
+      i = i + 1;
+      numberUV = numberUV + 1;
+HudPmxInit_fontLoopTest:
+    if (i < 10) {
+      goto HudPmxInit_fontLoop;
+    }
   }
-  pvVar2 = (void *)sprintf(acStack_648,"%shud.psh",Paths_Paths[0x1a]);
-  loadfileadr(acStack_648,0);
-  gShpfile = pvVar2;
+  sprintf(name,"%shud.psh",Paths_Paths[0x1a]);
+  gShpfile = (char *)loadfileadr(name,0);
   Texture_ResetPaletteSharing();
-  if (GameSetup_gData.Time == 0) {
-    if (0x1d < GameSetup_gData.carInfo[0].carType) {
-      local_24c = "tbon";
+  carType0 = GameSetup_gData.carInfo[0].carType;
+  carType1 = GameSetup_gData.carInfo[1].carType;
+  if (GameSetup_gData.Time != 0) {
+    if (carType0 < 0x1e) {
+      shapes[129] = ntachs[carType0];
     }
     else {
-      local_24c = (char *)local_548[GameSetup_gData.carInfo[0].carType];
+      shapes[129] = "nbon";
     }
-    if (GameSetup_gData.carInfo[1].carType < 0x1e) {
-      local_244 = (char *)local_548[GameSetup_gData.carInfo[1].carType];
+    if (carType1 < 0x1e) {
+      shapes[131] = ntachs[carType1];
       goto HudPmxInit_shapeLoadLoop;
     }
-    local_244 = "tbon";
+    shapes[131] = "nbon";
   }
   else {
-    if (0x1d < GameSetup_gData.carInfo[0].carType) {
-      local_24c = "nbon";
+    if (carType0 < 0x1e) {
+      shapes[129] = tachs[carType0];
     }
     else {
-      local_24c = (char *)local_4d0[GameSetup_gData.carInfo[0].carType];
+      shapes[129] = "tbon";
     }
-    if (GameSetup_gData.carInfo[1].carType < 0x1e) {
-      local_244 = (char *)local_4d0[GameSetup_gData.carInfo[1].carType];
+    if (carType1 < 0x1e) {
+      shapes[131] = tachs[carType1];
       goto HudPmxInit_shapeLoadLoop;
     }
-    local_244 = "nbon";
+    shapes[131] = "tbon";
   }
 HudPmxInit_shapeLoadLoop:
-  iVar14 = 0;
-  puVar3 = local_450;
-  pHVar13 = HudPmx_gShapes;
+  i = 0;
+  {
+    char **shape = shapes;
+    HudPmx_tShape *hudShape = HudPmx_gShapes;
+
   do {
-    uVar5 = *puVar3;
-    puVar3 = puVar3 + 1;
-    iVar14 = iVar14 + 1;
-    HudPmx_LoadShape((char *)uVar5,pHVar13);
-    pHVar13 = pHVar13 + 1;
-  } while (iVar14 < 0x83);
-  /* DISGUISED BARE-VA (w14-a2, found while fixing the HudPmx_LoadShape phantom): iVar14 was
-   * reused here as an `int` holding -0x7feee918 == 0x801116e8 == &HudPmx_gShapes[132], walked
-   * +0x14/iter (sizeof(HudPmx_tShape)) -- really the SAME pHVar13 pointer walk continuing from
-   * the loop above (which left pHVar13 at &HudPmx_gShapes[0x83]==[131]). Restored as a real
-   * HudPmx_tShape* so HudPmx_LoadShape's 2nd-arg type matches (no more int/pointer mismatch). */
-  pHVar13 = HudPmx_gShapes + 132;   /* &HudPmx_gShapes[132] == 0x801116e8 */
-  for (iVar15 = 0x84; iVar15 < 0x9e; iVar15 = iVar15 + 1) {
-    { static char alph [5] = "alpX";  /* @0x8013cd34, runtime-patched at [3] */
-      alph[3] = (char)iVar15 + -0x43;
-      HudPmx_LoadShape(alph,pHVar13); }
-    pHVar13 = pHVar13 + 1;
+    HudPmx_LoadShape(*shape,hudShape);
+    shape = shape + 1;
+    hudShape = hudShape + 1;
+    i = i + 1;
+  } while (i < 0x83);
   }
-  pHVar13 = HudPmx_gShapes + 158;   /* &HudPmx_gShapes[158] == 0x801118f0 */
-  for (iVar15 = 0x9e; iVar15 < 0xa8; iVar15 = iVar15 + 1) {
+  {
+    HudPmx_tShape *hudShape = HudPmx_gShapes + 132;
+
+  for (i = 0x84; i < 0x9e; i = i + 1) {
+    { static char alph [5] = "alpX";  /* @0x8013cd34, runtime-patched at [3] */
+      alph[3] = (char)i + -0x43;
+      HudPmx_LoadShape(alph,hudShape); }
+    hudShape = hudShape + 1;
+  }
+  }
+  {
+    HudPmx_tShape *hudShape = HudPmx_gShapes + 158;
+
+  for (i = 0x9e; i < 0xa8; i = i + 1) {
     { static char alph [5] = "alpX";  /* @0x8013cd3c, runtime-patched at [3] */
-      alph[3] = (char)iVar15 + -0x6e;
-      HudPmx_LoadShape(alph,pHVar13); }
-    pHVar13 = pHVar13 + 1;
+      alph[3] = (char)i + -0x6e;
+      HudPmx_LoadShape(alph,hudShape); }
+    hudShape = hudShape + 1;
+  }
   }
   HudPmx_LoadShape("alTR",&HudPmx_gShapes[168] /* @0x801119b8 */);
   HudPmx_LoadShape("alCI",&HudPmx_gShapes[169] /* @0x801119cc */);
@@ -343,26 +177,19 @@ HudPmxInit_shapeLoadLoop:
   HudPmx_LoadShape("negB",&HudPmx_gShapes[172] /* @0x80111a08 */);
   HudPmx_LoadShape("neg2",&HudPmx_gShapes[173] /* @0x80111a1c */);
   HudPmx_LoadShape("alUP",&HudPmx_gShapes[174] /* @0x80111a30 */);
-  iVar16 = 0;
-  puVar3 = local_328;
-  iVar14 = 0x128;
-  /* DISGUISED BARE-VA (w14-a2): iVar15 held -0x7feeeda0 == 0x80111260 == &HudPmx_gShapes[74],
-   * walked +0x14/iter -- same pHVar13 pointer-walk pattern as above, restored to a real
-   * HudPmx_tShape* (iVar14/puVar3 are a genuinely separate byte-offset walk into local_450). */
-  pHVar13 = HudPmx_gShapes + 74;   /* &HudPmx_gShapes[74] == 0x80111260 */
-  do {
-    iVar16 = iVar16 + 1;
-    HudPmx_LoadShape((char *)*puVar3,pHVar13);
-    puVar3 = (u_int *)((int)local_450 + iVar14 + 4);
-    iVar14 = iVar14 + 4;
-    pHVar13 = pHVar13 + 1;
-  } while (iVar16 < 0x1c);
+  {
+  HudPmx_tShape *hudShape = HudPmx_gShapes + 74;
+  for (i = 0; i < 0x1c; i = i + 1) {
+    HudPmx_LoadShape(shapes[i + 74],hudShape);
+    hudShape = hudShape + 1;
+  }
+  }
   HudPmx_LoadShape("a229",&HudPmx_gShapes[103] /* @0x801114a4 */);
   HudPmx_LoadShape("ahyp",&HudPmx_gShapes[72] /* @0x80111238 */);
   HudPmx_LoadShape("acol",&HudPmx_gShapes[73] /* @0x8011124c */);
   if (DashHUD_gInfo.splitscreen != 0) {
     loadShapeXOff = 0x16;
-    HudPmx_LoadShape(local_244,&HudPmx_gShapes[131] /* @0x801116d4 */);
+    HudPmx_LoadShape(shapes[131],&HudPmx_gShapes[131] /* @0x801116d4 */);
   }
   purgememadr(gShpfile);
   return;

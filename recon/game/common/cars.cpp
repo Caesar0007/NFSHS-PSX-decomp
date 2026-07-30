@@ -1055,9 +1055,12 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256;
       wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256;
       wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256;
-      point.x = position.x - wheelFrontX.x + wheelFrontZ.x;
-      point.z = position.z - wheelFrontX.z + wheelFrontZ.z;
-      point.y = position.y - wheelFrontX.y + wheelFrontZ.y;
+      point.x = position.x - wheelFrontX.x;
+      point.y = position.y - wheelFrontX.y;
+      point.z = position.z - wheelFrontX.z;
+      point.x += wheelFrontZ.x;
+      point.y += wheelFrontZ.y;
+      point.z += wheelFrontZ.z;
     }
     if (surfaceType >= 2 && frontLimit < skidFront) {
       surfaceType = 3;
@@ -1085,12 +1088,23 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
         wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256;
         wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256;
         wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256;
-        point.x = position.x - wheelFrontX.x + wheelFrontZ.x;
-        point.z = position.z - wheelFrontX.z + wheelFrontZ.z;
-        point.y = position.y - wheelFrontX.y + wheelFrontZ.y;
+        point.x = position.x - wheelFrontX.x;
+        point.y = position.y - wheelFrontX.y;
+        point.z = position.z - wheelFrontX.z;
+        point.x += wheelFrontZ.x;
+        point.y += wheelFrontZ.y;
+        point.z += wheelFrontZ.z;
       }
       TrgSfx_AddCarSplash((carObj->N).objID,0,&point,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
-      front = (0 < front) ? front : 1;
+      {
+        int splashFront;
+
+        splashFront = front;
+        if (splashFront <= 0) {
+          splashFront = 1;
+        }
+        front = splashFront;
+      }
     }
   }
   if ((roadSurfaceWheel & 0x20) != 0 && gLeafPixmap != (Draw_tPixMap *)0x0 &&
@@ -1108,12 +1122,15 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
         wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256;
         wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256;
         wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256;
-        point.x = position.x - wheelFrontX.x + wheelFrontZ.x;
-        point.z = position.z - wheelFrontX.z + wheelFrontZ.z;
-        point.y = position.y - wheelFrontX.y + wheelFrontZ.y;
+        point.x = position.x - wheelFrontX.x;
+        point.y = position.y - wheelFrontX.y;
+        point.z = position.z - wheelFrontX.z;
+        point.x += wheelFrontZ.x;
+        point.y += wheelFrontZ.y;
+        point.z += wheelFrontZ.z;
       }
       TrgSfx_AddCarExtraSfx((carObj->N).objID,0,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
-                 point.y,(carObj->render).light);
+                 *(volatile int *)&point.y,(carObj->render).light);
     }
   }
 
@@ -1134,9 +1151,12 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256;
       wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256;
       wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256;
-      point.x = position.x + wheelFrontX.x + wheelFrontZ.x;
-      point.z = position.z + wheelFrontX.z + wheelFrontZ.z;
-      point.y = position.y + wheelFrontX.y + wheelFrontZ.y;
+      point.x = position.x + wheelFrontX.x;
+      point.y = position.y + wheelFrontX.y;
+      point.z = position.z + wheelFrontX.z;
+      point.x += wheelFrontZ.x;
+      point.y += wheelFrontZ.y;
+      point.z += wheelFrontZ.z;
     }
     if (surfaceType >= 2 && frontLimit < skidFront) {
       surfaceType = 3;
@@ -1164,12 +1184,23 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
         wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256;
         wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256;
         wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256;
-        point.x = position.x + wheelFrontX.x + wheelFrontZ.x;
-        point.z = position.z + wheelFrontX.z + wheelFrontZ.z;
-        point.y = position.y + wheelFrontX.y + wheelFrontZ.y;
+        point.x = position.x + wheelFrontX.x;
+        point.y = position.y + wheelFrontX.y;
+        point.z = position.z + wheelFrontX.z;
+        point.x += wheelFrontZ.x;
+        point.y += wheelFrontZ.y;
+        point.z += wheelFrontZ.z;
       }
       TrgSfx_AddCarSplash((carObj->N).objID,1,&point,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
-      front = (0 < front) ? front : 1;
+      {
+        int splashFront;
+
+        splashFront = front;
+        if (splashFront <= 0) {
+          splashFront = 1;
+        }
+        front = splashFront;
+      }
     }
   }
   if ((roadSurfaceWheel & 0x20) != 0 && gLeafPixmap != (Draw_tPixMap *)0x0 &&
@@ -1187,12 +1218,15 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
         wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256;
         wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256;
         wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256;
-        point.x = position.x + wheelFrontX.x + wheelFrontZ.x;
-        point.z = position.z + wheelFrontX.z + wheelFrontZ.z;
-        point.y = position.y + wheelFrontX.y + wheelFrontZ.y;
+        point.x = position.x + wheelFrontX.x;
+        point.y = position.y + wheelFrontX.y;
+        point.z = position.z + wheelFrontX.z;
+        point.x += wheelFrontZ.x;
+        point.y += wheelFrontZ.y;
+        point.z += wheelFrontZ.z;
       }
       TrgSfx_AddCarExtraSfx((carObj->N).objID,1,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
-                 point.y,(carObj->render).light);
+                 *(volatile int *)&point.y,(carObj->render).light);
     }
   }
 
@@ -1213,9 +1247,12 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256;
       wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256;
       wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256;
-      point.x = position.x - wheelBackX.x - wheelBackZ.x;
-      point.z = position.z - wheelBackX.z - wheelBackZ.z;
-      point.y = position.y - wheelBackX.y - wheelBackZ.y;
+      point.x = position.x - wheelBackX.x;
+      point.y = position.y - wheelBackX.y;
+      point.z = position.z - wheelBackX.z;
+      point.x -= wheelBackZ.x;
+      point.y -= wheelBackZ.y;
+      point.z -= wheelBackZ.z;
     }
     if (surfaceType >= 2 && rearLimit < rear) {
       surfaceType = 3;
@@ -1243,12 +1280,23 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
         wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256;
         wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256;
         wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256;
-        point.x = position.x - wheelBackX.x - wheelBackZ.x;
-        point.z = position.z - wheelBackX.z - wheelBackZ.z;
-        point.y = position.y - wheelBackX.y - wheelBackZ.y;
+        point.x = position.x - wheelBackX.x;
+        point.y = position.y - wheelBackX.y;
+        point.z = position.z - wheelBackX.z;
+        point.x -= wheelBackZ.x;
+        point.y -= wheelBackZ.y;
+        point.z -= wheelBackZ.z;
       }
       TrgSfx_AddCarSplash((carObj->N).objID,2,&point,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
-      rear = (0 < rear) ? rear : 1;
+      {
+        int splashRear;
+
+        splashRear = rear;
+        if (splashRear <= 0) {
+          splashRear = 1;
+        }
+        rear = splashRear;
+      }
     }
   }
   if ((roadSurfaceWheel & 0x20) != 0 && gLeafPixmap != (Draw_tPixMap *)0x0 &&
@@ -1266,12 +1314,15 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
         wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256;
         wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256;
         wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256;
-        point.x = position.x - wheelBackX.x - wheelBackZ.x;
-        point.z = position.z - wheelBackX.z - wheelBackZ.z;
-        point.y = position.y - wheelBackX.y - wheelBackZ.y;
+        point.x = position.x - wheelBackX.x;
+        point.y = position.y - wheelBackX.y;
+        point.z = position.z - wheelBackX.z;
+        point.x -= wheelBackZ.x;
+        point.y -= wheelBackZ.y;
+        point.z -= wheelBackZ.z;
       }
       TrgSfx_AddCarExtraSfx((carObj->N).objID,2,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
-                 point.y,(carObj->render).light);
+                 *(volatile int *)&point.y,(carObj->render).light);
     }
   }
 
@@ -1292,9 +1343,12 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256;
       wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256;
       wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256;
-      point.x = position.x + wheelBackX.x - wheelBackZ.x;
-      point.z = position.z + wheelBackX.z - wheelBackZ.z;
-      point.y = position.y + wheelBackX.y - wheelBackZ.y;
+      point.x = position.x + wheelBackX.x;
+      point.y = position.y + wheelBackX.y;
+      point.z = position.z + wheelBackX.z;
+      point.x -= wheelBackZ.x;
+      point.y -= wheelBackZ.y;
+      point.z -= wheelBackZ.z;
     }
     if (surfaceType >= 2 && rearLimit < rear) {
       surfaceType = 3;
@@ -1322,12 +1376,23 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
         wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256;
         wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256;
         wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256;
-        point.x = position.x + wheelBackX.x - wheelBackZ.x;
-        point.z = position.z + wheelBackX.z - wheelBackZ.z;
-        point.y = position.y + wheelBackX.y - wheelBackZ.y;
+        point.x = position.x + wheelBackX.x;
+        point.y = position.y + wheelBackX.y;
+        point.z = position.z + wheelBackX.z;
+        point.x -= wheelBackZ.x;
+        point.y -= wheelBackZ.y;
+        point.z -= wheelBackZ.z;
       }
       TrgSfx_AddCarSplash((carObj->N).objID,3,&point,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
-      rear = (0 < rear) ? rear : 1;
+      {
+        int splashRear;
+
+        splashRear = rear;
+        if (splashRear <= 0) {
+          splashRear = 1;
+        }
+        rear = splashRear;
+      }
     }
   }
   if ((roadSurfaceWheel & 0x20) != 0 && gLeafPixmap != (Draw_tPixMap *)0x0 &&
@@ -1345,12 +1410,15 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
         wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256;
         wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256;
         wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256;
-        point.x = position.x + wheelBackX.x - wheelBackZ.x;
-        point.z = position.z + wheelBackX.z - wheelBackZ.z;
-        point.y = position.y + wheelBackX.y - wheelBackZ.y;
+        point.x = position.x + wheelBackX.x;
+        point.y = position.y + wheelBackX.y;
+        point.z = position.z + wheelBackX.z;
+        point.x -= wheelBackZ.x;
+        point.y -= wheelBackZ.y;
+        point.z -= wheelBackZ.z;
       }
       TrgSfx_AddCarExtraSfx((carObj->N).objID,3,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
-                 point.y,(carObj->render).light);
+                 *(volatile int *)&point.y,(carObj->render).light);
     }
   }
   if (front != 0) {

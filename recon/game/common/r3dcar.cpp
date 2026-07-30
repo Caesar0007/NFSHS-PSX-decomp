@@ -1188,9 +1188,6 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 {
   int i = 0;             /* SYM fn REG s4 -- ALL loop counters (fused; PrimMenu precedent) */
   Transformer_zObj *obj; /* SYM fn REG a1 -- per-iteration scene object */
-  int cop_flag;          /* SYM fn REG s6 */
-  int carType;           /* SYM fn REG s7 */
-  int detailIndex;       /* SYM fn REG fp */
   coorddef parent;       /* SYM fn AUTO sp+0x18 -- base obj[0] translation cache */
   matrixtdef bodyMat;
   matrixtdef orientMat;
@@ -1198,8 +1195,11 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
   matrixtdef orientIMat;
   matrixtdef steerMat;
   int rideHeight;
+  int detailIndex;       /* SYM fn REG fp */
+  int carType;           /* SYM fn REG s7 */
   int countryFlag;
   int rightHandDrive;
+  int cop_flag;          /* SYM fn REG s6 */
 
   rightHandDrive = 0;
   rideHeight = (carObj->render).rideHeight;

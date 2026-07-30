@@ -65,41 +65,24 @@ int Newton_CalculateRoadPosition(BO_tNewtonObj *newtonObj);
 void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type)
 
 {
-  int temp;
-  int iVar2;
-  void *pvVar3;
-  u_int uVar4;
-  u_int uVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  int iVar9;
-  u_int uVar10;
-  u_int uVar11;
-  u_int uVar12;
-  
   if (Force_IsForceOn((Car_tObj *)newtonObj) != 0) {
     Force_HitWall((newtonObj->collision).impulse);
   }
   if (GameSetup_gData.Damage != 0) {
-    int iVar1;
+    int imp;
 
-    iVar1 = 0x640000;
-    if (impulse / 2 < 0x640001) {
-      iVar1 = impulse / 2;
-    }
+    imp = 0x640000 > impulse / 2 ? impulse / 2 : 0x640000;
     if ((newtonObj[1].simRoadInfo.quadPts[1].y & 0x200U) != 0) {
-      iVar1 = iVar1 / 2;
+      imp = imp / 2;
     }
-    if (iVar1 < newtonObj->damage[zone]) {
-      iVar1 = newtonObj->damage[zone];
+    if (newtonObj->damage[zone] > imp) {
+      imp = newtonObj->damage[zone];
     }
-    newtonObj->damage[zone] = iVar1;
+    newtonObj->damage[zone] = imp;
     if (zone < 8) {
       if (zone == 0) {
-        int temp;
+        int temp = (newtonObj->damage[0] + newtonObj->damage[2]) / 2;
 
-        temp = (newtonObj->damage[0] + newtonObj->damage[2]) / 2;
         if (temp < newtonObj->damage[1]) {
           temp = newtonObj->damage[1];
         }
@@ -155,7 +138,7 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
       else {
         int temp;
 
-        temp = (iVar1 + newtonObj->damage[zone + 2]) / 2;
+        temp = (imp + newtonObj->damage[zone + 2]) / 2;
         if (temp < newtonObj->damage[zone + 1]) {
           temp = newtonObj->damage[zone + 1];
         }
@@ -170,78 +153,71 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
   }
 Newton_AddDmgZ_typeSet:
   if (type != 0) {
-    int iVar1;
     int intensity;
-    int xMult;
-    int yMult;
     int zMult;
+    int yMult;
+    int xMult;
     matrixtdef transposeMat;
 
     xMult = 0x20000;
     yMult = 0;
     zMult = 0x20000;
-    if (impulse < 0x5a0001) {
-      if (impulse < 0) {
-        impulse = impulse + 0x3f;
-      }
-      intensity = impulse >> 6;
-      if (0x8000 < intensity) {
-        intensity = 0x8000;
-      }
-    }
-    else {
-      if (impulse < 0) {
-        impulse = impulse + 3;
-      }
-      iVar2 = impulse >> 2;
-      iVar1 = newtonObj->objAltitude;
+    if (impulse > 0x5a0000) {
+      int newYVel;
+      int cappedYVel;
+
+      impulse /= 4;
       newtonObj->flightTime = 1;
       (newtonObj->collision).lastCollision = 0;
       *(u_int *)&newtonObj[3].eIndexShadow = 1;
-      if (iVar1 < 0x20000) {
+      if (newtonObj->objAltitude < 0x20000) {
         (newtonObj->position).y = (newtonObj->position).y + 0x10000;
       }
-      iVar7 = (newtonObj->linearVel).y + iVar2 / 3;
-      iVar1 = 0xc0000;
-      if (iVar7 < 0xc0001) {
-        iVar1 = iVar7;
+      newYVel = newtonObj->linearVel.y + impulse / 3;
+      cappedYVel = 0xc0000;
+      if (newYVel <= cappedYVel) {
+        cappedYVel = newYVel;
       }
-      (newtonObj->linearVel).y = iVar1;
-      intensity = iVar2;
-      if (iVar2 < 0) {
-        intensity = iVar2 + 0x1f;
-      }
-      intensity = intensity >> 5;
+      newtonObj->linearVel.y = cappedYVel;
+      intensity = impulse / 32;
       if (0x9999 < intensity) {
         intensity = 0x9999;
       }
-      pvVar3 = BWorldSm_TunnelFlagSm(&newtonObj->simRoadInfo);
-      if ((pvVar3 != (void *)0x0) && (0x90000 < (newtonObj->linearVel).y)) {
+      if ((BWorldSm_TunnelFlagSm(&newtonObj->simRoadInfo) != 0) &&
+          (0x90000 < (newtonObj->linearVel).y)) {
         (newtonObj->linearVel).y = 0x90000;
       }
-      if (0x140000 < iVar2) {
-        uVar12 = (fastRandom * randSeed & 0xffff) * randSeed;
-        uVar11 = (uVar12 & 0xffff) * randSeed;
-        uVar10 = (fastRandom * randSeed & 0xffff00) >> 8;
-        randtemp = (uVar11 & 0xffff) * randSeed;
-        uVar4 = (uVar12 & 0xffff00) >> 8;
-        yMult = uVar4 * 3;
-        uVar5 = (uVar11 & 0xffff00) >> 8;
-        zMult = uVar5 * 3;
+      if (0x140000 < impulse) {
+        u_int randomX;
+        u_int randomY;
+        u_int randomZ;
+
+        randtemp = fastRandom * randSeed;
+        randomX = (randtemp & 0xffff00) >> 8;
         fastRandom = randtemp & 0xffff;
-        xMult = uVar10 * 4;
+        randtemp = fastRandom * randSeed;
+        randomY = (randtemp & 0xffff00) >> 8;
+        fastRandom = randtemp & 0xffff;
+        randtemp = fastRandom * randSeed;
+        randomZ = (randtemp & 0xffff00) >> 8;
+        fastRandom = randtemp & 0xffff;
+        yMult = randomY * 3;
+        zMult = randomZ * 3;
+        randtemp = fastRandom * randSeed;
+        fastRandom = randtemp & 0xffff;
+        xMult = randomX * 4;
         if ((randtemp & 0xffff00) >> 8 < 0x3333) {
           intensity = -intensity;
         }
         if (xMult + yMult + zMult < 0x40000) {
           if (xMult < 0x10000) {
-            xMult = uVar10 << 3;
+            xMult = randomX << 3;
           }
           if (yMult < 0x10000) {
-            yMult = uVar4 * 6;
+            yMult = randomY * 6;
           }
           if (zMult < 0x10000) {
-            zMult = uVar5 * 6;
+            zMult = randomZ * 6;
           }
         }
       }
@@ -251,59 +227,51 @@ Newton_AddDmgZ_typeSet:
         zMult = zMult << 1;
       }
     }
-    iVar2 = fixedmult((newtonObj->angularVel).x,(newtonObj->orientMat).m[0]);
-    iVar7 = fixedmult((newtonObj->angularVel).y,(newtonObj->orientMat).m[1]);
-    iVar6 = fixedmult((newtonObj->angularVel).z,(newtonObj->orientMat).m[2]);
-    iVar8 = (newtonObj->angularVel).x;
-    iVar9 = (newtonObj->orientMat).m[3];
-    newtonObj[1].shadowMat.m[8] = iVar2 + iVar7 + iVar6;
-    iVar2 = fixedmult(iVar8,iVar9);
-    iVar7 = fixedmult((newtonObj->angularVel).y,(newtonObj->orientMat).m[4]);
-    iVar6 = fixedmult((newtonObj->angularVel).z,(newtonObj->orientMat).m[5]);
-    iVar8 = (newtonObj->angularVel).x;
-    iVar9 = (newtonObj->orientMat).m[6];
-    newtonObj[1].shadowCoord[0].x = iVar2 + iVar7 + iVar6;
-    iVar2 = fixedmult(iVar8,iVar9);
-    iVar7 = fixedmult((newtonObj->angularVel).y,(newtonObj->orientMat).m[7]);
-    iVar6 = fixedmult((newtonObj->angularVel).z,(newtonObj->orientMat).m[8]);
-    newtonObj[1].shadowCoord[0].y = iVar2 + iVar7 + iVar6;
+    else {
+      intensity = impulse / 64;
+      if (0x8000 < intensity) {
+        intensity = 0x8000;
+      }
+    }
+    newtonObj[1].shadowMat.m[8] =
+        fixedmult(newtonObj->angularVel.x,newtonObj->orientMat.m[0]) +
+        fixedmult(newtonObj->angularVel.y,newtonObj->orientMat.m[1]) +
+        fixedmult(newtonObj->angularVel.z,newtonObj->orientMat.m[2]);
+    newtonObj[1].shadowCoord[0].x =
+        fixedmult(newtonObj->angularVel.x,newtonObj->orientMat.m[3]) +
+        fixedmult(newtonObj->angularVel.y,newtonObj->orientMat.m[4]) +
+        fixedmult(newtonObj->angularVel.z,newtonObj->orientMat.m[5]);
+    newtonObj[1].shadowCoord[0].y =
+        fixedmult(newtonObj->angularVel.x,newtonObj->orientMat.m[6]) +
+        fixedmult(newtonObj->angularVel.y,newtonObj->orientMat.m[7]) +
+        fixedmult(newtonObj->angularVel.z,newtonObj->orientMat.m[8]);
     if ((u_int)zone < 3) {
-      iVar2 = fixedmult(intensity,xMult);
-      iVar2 = newtonObj[1].shadowMat.m[8] - iVar2 / 2;
+      newtonObj[1].shadowMat.m[8] -= fixedmult(intensity,xMult) / 2;
     }
     else {
-      iVar2 = fixedmult(intensity,xMult);
-      iVar2 = newtonObj[1].shadowMat.m[8] + iVar2 / 2;
+      newtonObj[1].shadowMat.m[8] += fixedmult(intensity,xMult) / 2;
     }
-    newtonObj[1].shadowMat.m[8] = iVar2;
     if (zone - 2U < 3) {
-      iVar2 = fixedmult(intensity,yMult);
-      newtonObj[1].shadowCoord[0].x = newtonObj[1].shadowCoord[0].x + iVar2 / 2;
-      iVar1 = fixedmult(intensity,zMult);
-      iVar1 = newtonObj[1].shadowCoord[0].y + iVar1 / 2;
+      newtonObj[1].shadowCoord[0].x += fixedmult(intensity,yMult) / 2;
+      newtonObj[1].shadowCoord[0].y += fixedmult(intensity,zMult) / 2;
     }
     else {
-      iVar2 = fixedmult(intensity,yMult);
-      newtonObj[1].shadowCoord[0].x = newtonObj[1].shadowCoord[0].x - iVar2 / 2;
-      iVar1 = fixedmult(intensity,zMult);
-      iVar1 = newtonObj[1].shadowCoord[0].y - iVar1 / 2;
+      newtonObj[1].shadowCoord[0].x -= fixedmult(intensity,yMult) / 2;
+      newtonObj[1].shadowCoord[0].y -= fixedmult(intensity,zMult) / 2;
     }
-    newtonObj[1].shadowCoord[0].y = iVar1;
     transpose(&newtonObj->orientMat,&transposeMat);
-    iVar1 = fixedmult(newtonObj[1].shadowMat.m[8],transposeMat.m[0]);
-    iVar2 = fixedmult(newtonObj[1].shadowCoord[0].x,transposeMat.m[1]);
-    iVar7 = fixedmult(newtonObj[1].shadowCoord[0].y,transposeMat.m[2]);
-    iVar6 = newtonObj[1].shadowMat.m[8];
-    (newtonObj->angularVel).x = iVar1 + iVar2 + iVar7;
-    iVar1 = fixedmult(iVar6,transposeMat.m[3]);
-    iVar2 = fixedmult(newtonObj[1].shadowCoord[0].x,transposeMat.m[4]);
-    iVar7 = fixedmult(newtonObj[1].shadowCoord[0].y,transposeMat.m[5]);
-    iVar6 = newtonObj[1].shadowMat.m[8];
-    (newtonObj->angularVel).y = iVar1 + iVar2 + iVar7;
-    iVar1 = fixedmult(iVar6,transposeMat.m[6]);
-    iVar2 = fixedmult(newtonObj[1].shadowCoord[0].x,transposeMat.m[7]);
-    iVar7 = fixedmult(newtonObj[1].shadowCoord[0].y,transposeMat.m[8]);
-    (newtonObj->angularVel).z = iVar1 + iVar2 + iVar7;
+    newtonObj->angularVel.x =
+        fixedmult(newtonObj[1].shadowMat.m[8],transposeMat.m[0]) +
+        fixedmult(newtonObj[1].shadowCoord[0].x,transposeMat.m[1]) +
+        fixedmult(newtonObj[1].shadowCoord[0].y,transposeMat.m[2]);
+    newtonObj->angularVel.y =
+        fixedmult(newtonObj[1].shadowMat.m[8],transposeMat.m[3]) +
+        fixedmult(newtonObj[1].shadowCoord[0].x,transposeMat.m[4]) +
+        fixedmult(newtonObj[1].shadowCoord[0].y,transposeMat.m[5]);
+    newtonObj->angularVel.z =
+        fixedmult(newtonObj[1].shadowMat.m[8],transposeMat.m[6]) +
+        fixedmult(newtonObj[1].shadowCoord[0].x,transposeMat.m[7]) +
+        fixedmult(newtonObj[1].shadowCoord[0].y,transposeMat.m[8]);
   }
   return;
 }

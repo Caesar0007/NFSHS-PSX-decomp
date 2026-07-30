@@ -156,6 +156,11 @@ PER_TU_FLAGS = {
     # cars.obj's retail .sdata layout contains the 8-byte "p%s.dat" literal
     # between rearLimit and Cars_gNumCars, proving this object used -G8.
     "recon/game/common/cars.cpp":           {"g_value": "8"},
+    # genericpmx.obj likewise has the exact -G8 threshold signature: the
+    # retail code uses gp-relative relocations for its 8-byte pointer arrays
+    # (gShadowPixmap/gSkidMarkPixmap/gSMokePixmap/gGravelPixmap), while the
+    # 12-byte gWeatherPixmap remains full-addressed.
+    "recon/game/common/genericpmx.cpp":      {"g_value": "8"},
     "recon/game/common/audiocmn.cpp":       {"jtbl_at_fusion": True},  # AudioCmn_SoundCar
     "recon/syslib/psx/libcd/drv.c":       {"jtbl_at_fusion": True},  # CD_get_intr
     "recon/syslib/psx/libgpu/FONT.c":       {"jtbl_at_fusion": True},  # FntPrint

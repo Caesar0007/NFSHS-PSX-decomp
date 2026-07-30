@@ -110,14 +110,6 @@ void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int
 void AudioEng_Update(void)
 {
   int player;
-  AudioEng_t*g;
-  int n;
-  AudioEng_tState*s;
-  int tick;
-  u_long vol;
-  SNDPLAYOPTS playopts;
-  u_short leftazim;
-  u_short rightazim;
   short sVar1;
   short sVar2;
   bool bVar3;
@@ -134,211 +126,195 @@ void AudioEng_Update(void)
   u_short uVar14;
   u_short uVar15;
   AudioEng_t *pAVar16;
-  int local_48;
-  char local_44;
-  u_char local_40;
-  u_char local_3d;
-  u_short local_3c;
-  u_short local_38;
-  u_short local_36;
-  int local_30;
   
-  local_30 = 0;
+  player = 0;
   do {
-    if ((1 < local_30) || (pAVar13 = AudioEng_g[local_30], pAVar13 == (AudioEng_t *)0x0)) {
+    AudioEng_t *g;
+    int n;
+    AudioEng_tState *s;
+    int tick;
+
+    if (1 < player) {
       return;
     }
-    iVar4 = (u_int)(u_char)pAVar13->plypos * 0xc + 0x5a;
-    pAVar12 = pAVar13->queue + (u_char)pAVar13->plypos;
-    gettick();
-    if (pAVar13->plypos != pAVar13->setpos) {
-      iVar8 = iVar4;
-      gettick();
-      if (pAVar13->tick < iVar8) {
-        pAVar13->tick = iVar4 + 2;
-        pAVar10 = pAVar13;
-        pAVar11 = pAVar13;
-        for (iVar4 = 0; iVar4 < 0x10; iVar4 = iVar4 + 1) {
-          if (-1 < pAVar10->chan[0].patchnum) {
-            uVar7 = (u_int)pAVar12->esp;
-            iVar8 = (int)pAVar10->chan[0].min;
-            if (((int)uVar7 < iVar8) || ((int)pAVar10->chan[0].max <= (int)uVar7)) {
-              iVar8 = 0;
+    g = AudioEng_g[player];
+    if (g == (AudioEng_t *)0x0) {
+      return;
+    }
+    s = g->queue + (u_char)g->plypos;
+    tick = gettick();
+    if (g->plypos != g->setpos) {
+      n = gettick();
+      if (g->tick < n) {
+        g->tick = tick + 2;
+        for (n = 0; n < 16; n++) {
+          if ((signed char)g->chan[n].patchnum >= 0) {
+            u_long vol;
+
+            if ((s->esp >= g->chan[n].min) && (s->esp < g->chan[n].max)) {
+              vol = (signed char)g->chan[n].xlate[s->esp - g->chan[n].min];
             }
             else {
-              iVar8 = (int)pAVar10->chan[0].xlate[uVar7 - iVar8];
+              vol = 0;
             }
-            iVar9 = 0;
-            if (iVar8 != 0) {
-              if (iVar4 < 8) {
-                uVar7 = 0x80 - pAVar12->gas;
+            if (vol != 0) {
+              if (n < 8) {
+                vol *= Xfade[128 - s->gas];
               }
               else {
-                uVar7 = (u_int)pAVar12->gas;
+                vol *= Xfade[s->gas];
               }
-              if (pAVar10->chan[0].patchnum < '@') {
-                uVar5 = (u_int)pAVar12->exh;
-code_r_8007b9f4:
-                uVar5 = (u_int)(u_char)Xfade[uVar5];   /* @0x8007b9f4 lbu Xfade(exh) [fp-hoisted base] */
-              }
-              else {
-                if (pAVar12->sep == 0) {
-                  uVar5 = 0x80 - pAVar12->exh;
-                  goto code_r_8007b9f4;
+              if ((signed char)g->chan[n].patchnum >= 64) {
+                if (s->sep != 0) {
+                  vol *= (Xfade[128 - s->exh] * 47) >> 6;
                 }
-                uVar5 = (int)((u_int)(u_char)Xfade[0x80 - (u_int)pAVar12->exh] * 0x2f) >> 6;   /* Xfade LUT */
+                else {
+                  vol *= Xfade[128 - s->exh];
+                }
               }
-              iVar9 = iVar8 * (u_int)(u_char)Xfade[uVar7] * uVar5;   /* Xfade LUT */
+              else {
+                vol *= Xfade[s->exh];
+              }
             }
-            uVar7 = iVar9 * (u_int)pAVar12->vol >> 0x15;
-            if (0x7f < uVar7) {
-              uVar7 = 0x7f;
+            vol *= s->vol;
+            vol >>= 21;
+            if (vol >= 128) {
+              vol = 127;
             }
-            pAVar11->vol[0] = uVar7;
-            pAVar13->azi = (u_int)pAVar12->azi;
-            pAVar13->sep = (u_int)pAVar12->sep;
-            pAVar13->dop = (u_int)pAVar12->dop;
+            g->vol[n] = vol;
+            g->azi = s->azi;
+            g->sep = s->sep;
+            g->dop = s->dop;
           }
-          pAVar11 = (AudioEng_t *)&(pAVar11->adjust).rwdExhBoost;
-          pAVar10 = (AudioEng_t *)pAVar10->vol;
         }
-        pAVar13->plypos = pAVar13->plypos + 1U & 0xf;
+        g->plypos = g->plypos + 1U & 0xf;
       }
     }
-    pAVar10 = pAVar13;
-    pAVar11 = pAVar13;
-    pAVar16 = pAVar13;
-    for (iVar4 = 0; iVar4 < 0x10; iVar4 = iVar4 + 1) {
-      cVar6 = pAVar10->chan[0].patchnum;
-      if (-1 < cVar6) {
-        if (pAVar16->vol[0] == 0) {
-          uVar7 = pAVar10->left[0].handle;
-          if (uVar7 != 0xffffffff) {
-            SNDstop(uVar7);
-            uVar7 = pAVar10->right[0].handle;
-            if (uVar7 != 0xffffffff) {
-              SNDstop(uVar7);
-            }
-            pAVar10->left[0].handle = -1;
-            pAVar10->right[0].handle = -1;
-          }
+    {
+      SNDPLAYOPTS playopts;
+      u_short leftazim;
+      u_short rightazim;
+
+      n = 0;
+      for (;;) {
+        if (n >= 16) {
+          break;
         }
-        else {
-          if (cVar6 < '@') {
-            uVar15 = (u_short)pAVar13->azi;
-            uVar14 = uVar15;
+        if ((signed char)g->chan[n].patchnum >= 0) {
+          if (g->vol[n] != 0) {
+          if ((signed char)g->chan[n].patchnum >= 64) {
+            leftazim = g->azi - g->sep;
+            rightazim = g->azi + g->sep;
           }
           else {
-            sVar1 = (short)pAVar13->azi;
-            sVar2 = (short)pAVar13->sep;
-            uVar15 = sVar1 + sVar2;
-            uVar14 = sVar1 - sVar2;
+            leftazim = g->azi;
+            rightazim = leftazim;
           }
-          SNDplaysetdef(&local_48);
-          local_44 = pAVar13->bhandle;
-          local_48 = (int)pAVar10->chan[0].patchnum;
-          local_40 = 0;
-          local_3c = (u_short)pAVar13->dop;
-          local_3d = 1;
-          local_36 = 0;
-          iVar8 = pAVar10->left[0].handle;
-          if (iVar8 == -1) {
-            local_38 = uVar14;
-            SNDplay(&local_48);
-            pAVar10->left[0].handle = iVar8;
-            pAVar11->delay[0] = '\x02';
-            pAVar10->left[0].vol = '\0';
-            pAVar10->left[0].azim = uVar14;
-            pAVar10->left[0].pitch = (u_short)pAVar13->dop;
+          SNDplaysetdef(&playopts);
+          playopts.bhandle = g->bhandle;
+          playopts.patnum = (signed char)g->chan[n].patchnum;
+          playopts.vol = 0;
+          playopts.pitchmult = g->dop;
+          playopts.use3dpos = 1;
+          playopts.elevation = 0;
+          if (g->left[n].handle == -1) {
+            playopts.azimuth = leftazim;
+            g->left[n].handle = SNDplay(&playopts);
+            g->delay[n] = 2;
+            g->left[n].vol = 0;
+            g->left[n].azim = leftazim;
+            g->left[n].pitch = g->dop;
           }
           else {
-            if (((pAVar13->sep == 0) || (pAVar10->chan[0].patchnum < '@')) ||
-               (pAVar10->right[0].handle != -1)) {
-              iVar8 = (int)pAVar10->left[0].vol;
-              iVar9 = pAVar16->vol[0];
+            if ((g->sep == 0) || ((signed char)g->chan[n].patchnum < 64) ||
+                (g->right[n].handle != -1)) {
+              iVar8 = (signed char)g->left[n].vol;
+              iVar9 = g->vol[n];
               if (iVar8 != iVar9) {
                 if (iVar9 < iVar8) {
-                  iVar8 = iVar8 + -2;
+                  iVar8 -= 2;
                   bVar3 = iVar8 < iVar9;
                 }
                 else {
-                  iVar8 = iVar8 + 2;
+                  iVar8 += 2;
                   bVar3 = iVar9 < iVar8;
                 }
-                cVar6 = (char)iVar8;
                 if (bVar3) {
-                  cVar6 = (char)iVar9;
+                  iVar8 = iVar9;
                 }
-                pAVar10->left[0].vol = cVar6;
-                SNDvol(pAVar10->left[0].handle,(int)pAVar10->left[0].vol);
+                *(volatile char *)&g->left[n].vol = iVar8;
+                SNDvol(*(volatile int *)&g->left[n].handle,
+                       (signed char)g->left[n].vol);
               }
             }
-            if ((u_int)pAVar10->left[0].azim != (u_int)uVar14) {
-              SND3dpos(pAVar10->left[0].handle,(u_int)uVar14,0);
-              pAVar10->left[0].azim = uVar14;
+            if (g->left[n].azim != leftazim) {
+              SND3dpos(g->left[n].handle, leftazim, 0);
+              g->left[n].azim = leftazim;
             }
-            if ((u_int)pAVar10->left[0].pitch != pAVar13->dop) {
-              SNDpitchmult(pAVar10->left[0].handle,pAVar13->dop);
-              pAVar10->left[0].pitch = (u_short)pAVar13->dop;
+            if (g->left[n].pitch != g->dop) {
+              SNDpitchmult(g->left[n].handle, g->dop);
+              g->left[n].pitch = g->dop;
             }
-            if ((pAVar10->chan[0].patchnum < '@') || (pAVar13->sep == 0)) {
-              uVar7 = pAVar10->right[0].handle;
-              if (uVar7 != 0xffffffff) {
-                SNDstop(uVar7);
-                pAVar10->right[0].handle = -1;
-                pAVar11->delay[0] = '\x02';
-              }
-            }
-            else if (pAVar10->right[0].handle == -1) {
-              cVar6 = pAVar11->delay[0] + -1;
-              pAVar11->delay[0] = cVar6;
-              iVar8 = (int)cVar6;
-              if (iVar8 == -1) {
-                local_38 = uVar15;
-                SNDplay(&local_48);
-                pAVar10->right[0].handle = iVar8;
-                pAVar10->right[0].vol = '\0';
-                pAVar10->right[0].azim = uVar15;
-LAB_8007bd18:
-                pAVar10->right[0].pitch = (u_short)pAVar13->dop;
-              }
-            }
-            else {
-              iVar8 = (int)pAVar10->right[0].vol;
-              iVar9 = pAVar16->vol[0];
-              if (iVar8 != iVar9) {
-                if (iVar9 < iVar8) {
-                  iVar8 = iVar8 + -2;
-                  bVar3 = iVar8 < iVar9;
+            if (((signed char)g->chan[n].patchnum >= 64) && (g->sep != 0)) {
+              if (g->right[n].handle == -1) {
+                g->delay[n]--;
+                if ((signed char)g->delay[n] == -1) {
+                  playopts.azimuth = rightazim;
+                  g->right[n].handle = SNDplay(&playopts);
+                  g->right[n].vol = 0;
+                  g->right[n].azim = rightazim;
+                  g->right[n].pitch = g->dop;
                 }
-                else {
-                  iVar8 = iVar8 + 2;
-                  bVar3 = iVar9 < iVar8;
-                }
-                cVar6 = (char)iVar8;
-                if (bVar3) {
-                  cVar6 = (char)iVar9;
-                }
-                pAVar10->right[0].vol = cVar6;
-                SNDvol(pAVar10->right[0].handle,(int)pAVar10->right[0].vol);
               }
-              if ((u_int)pAVar10->right[0].azim != (u_int)uVar15) {
-                SND3dpos(pAVar10->right[0].handle,(u_int)uVar15,0);
-                pAVar10->right[0].azim = uVar15;
-              }
-              if ((u_int)pAVar10->right[0].pitch != pAVar13->dop) {
-                SNDpitchmult(pAVar10->right[0].handle,pAVar13->dop);
-                goto LAB_8007bd18;
+              else {
+                iVar8 = (signed char)g->right[n].vol;
+                iVar9 = g->vol[n];
+                if (iVar8 != iVar9) {
+                  if (iVar9 < iVar8) {
+                    iVar8 -= 2;
+                    bVar3 = iVar8 < iVar9;
+                  }
+                  else {
+                    iVar8 += 2;
+                    bVar3 = iVar9 < iVar8;
+                  }
+                  if (bVar3) {
+                    iVar8 = iVar9;
+                  }
+                  *(volatile char *)&g->right[n].vol = iVar8;
+                  SNDvol(*(volatile int *)&g->right[n].handle,
+                         (signed char)g->right[n].vol);
+                }
+                if (g->right[n].azim != rightazim) {
+                  SND3dpos(g->right[n].handle, rightazim, 0);
+                  g->right[n].azim = rightazim;
+                }
+                if (g->right[n].pitch != g->dop) {
+                  SNDpitchmult(g->right[n].handle, g->dop);
+                  g->right[n].pitch = g->dop;
+                }
               }
             }
+            else if (g->right[n].handle != -1) {
+              SNDstop(g->right[n].handle);
+              g->right[n].handle = -1;
+              g->delay[n] = 2;
+              }
           }
         }
+          else if (g->left[n].handle != -1) {
+            SNDstop(g->left[n].handle);
+            if (g->right[n].handle != -1) {
+              SNDstop(g->right[n].handle);
+            }
+            g->left[n].handle = -1;
+            g->right[n].handle = -1;
+          }
+        }
+        n++;
       }
-      pAVar11 = (AudioEng_t *)&(pAVar11->adjust).inCarExhaust;
-      pAVar10 = (AudioEng_t *)pAVar10->vol;
-      pAVar16 = (AudioEng_t *)&(pAVar16->adjust).rwdExhBoost;
     }
-    local_30 = local_30 + 1;
+    player = player + 1;
   } while( true );
 }
 

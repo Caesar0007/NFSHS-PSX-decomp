@@ -719,159 +719,116 @@ void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
   int z;
   int distance;
   int distance1;
-  Car_tObj**car;
-  AudioClc_tSource*closest;
+  Car_tObj **car;
+  AudioClc_tSource *closest;
   AudioClc_tCLCache cl[numclosest];
   int searchdist;
   int patch;
-  int *piVar1;
-  int iVar2;
-  AudioClc_tSource *pAVar3;
-  Car_tObj *pCVar4;
-  int iVar5;
-  int iVar6;
-  int *piVar7;
-  int iVar8;
-  Car_tObj **ppCVar9;
-  int iVar10;
-  AudioClc_tSource *local_30;
 
-  iVar8 = 0;
-  piVar7 = (int *)cl;
-  local_30 = AudioClc_gClosest + closestIndex;
-  piVar1 = piVar7;
-  if (0 < numclosest) {
-    do {
-      *piVar1 = 0;
-      piVar1[1] = 0x12c0000;
-      iVar8 = iVar8 + 1;
-      piVar1 = piVar1 + 2;
-    } while (iVar8 < numclosest);
+  closest = AudioClc_gClosest + closestIndex;
+  for (i = 0; i < numclosest; i++) {
+    cl[i].ptr = 0;
+    cl[i].dst = 0x12c0000;
   }
-  iVar8 = 0;
-  ppCVar9 = Cars_gList;
-LAB_80075da0:
-  if (Cars_gNumCars <= iVar8) {
-    iVar8 = 0;
-    pAVar3 = local_30;
-    if (0 < numclosest) {
-      do {
-        if (pAVar3->car != (Car_tObj *)0x0) {
-          iVar10 = 0;
-          piVar1 = piVar7;
-          if (0 < numclosest) {
-            do {
-              if ((Car_tObj *)*piVar1 == pAVar3->car) {
-                *piVar1 = 0;
-                break;
-              }
-              iVar10 = iVar10 + 1;
-              piVar1 = piVar1 + 2;
-            } while (iVar10 < numclosest);
-          }
-          if (iVar10 == numclosest) {
-            pAVar3->car = (Car_tObj *)0xffffffff;
-          }
-        }
-        iVar8 = iVar8 + 1;
-        pAVar3 = pAVar3 + 1;
-      } while (iVar8 < numclosest);
+
+  i = 0;
+  car = Cars_gList;
+  while (i < Cars_gNumCars) {
+    if (GameSetup_gData.commMode == 1) {
+      if (((*car)->carFlags & 4U) != 0) {
+        goto AudioClc_nextCar;
+      }
     }
-    iVar8 = 0;
-    if (0 < numclosest) {
-      do {
-        if ((*piVar7 != 0) && (iVar10 = 0, pAVar3 = local_30, 0 < numclosest)) {
-          do {
-            if ((pAVar3->car == (Car_tObj *)0x0) || (pAVar3->car == (Car_tObj *)0xffffffff)) {
-              AudioClc_ResetClosest(iVar10 + closestIndex,(Car_tObj *)*piVar7,playerIndex);
-              break;
-            }
-            iVar10 = iVar10 + 1;
-            pAVar3 = pAVar3 + 1;
-          } while (iVar10 < numclosest);
-        }
-        piVar7 = piVar7 + 2;
-        iVar8 = iVar8 + 1;
-      } while (iVar8 < numclosest);
+    else if (*car == AudioClc_gPlayer[playerIndex].source.car) {
+      goto AudioClc_nextCar;
     }
-    iVar8 = 0;
-    pAVar3 = local_30;
-    if (0 < numclosest) {
-      do {
-        if (pAVar3->car == (Car_tObj *)0xffffffff) {
-          AudioClc_ResetClosest(iVar8 + closestIndex,(Car_tObj *)0x0,playerIndex);
+
+    if ((*car)->N.active != 0) {
+        searchdist = 0x12c0000;
+        if (((*car)->carFlags & 0x10U) != 0) {
+          searchdist = 0x320000;
         }
-        iVar8 = iVar8 + 1;
-        pAVar3 = pAVar3 + 1;
-      } while (iVar8 < numclosest);
-    }
-    return;
-  }
-  if (GameSetup_gData.commMode == 1) {
-    if (((*ppCVar9)->carFlags & 4U) == 0) {
-LAB_80075e18:
-      pCVar4 = *ppCVar9;
-      if ((pCVar4->N).active != '\0') {
-        iVar10 = 0x12c0000;
-        if ((pCVar4->carFlags & 0x10U) != 0) {
-          iVar10 = 0x320000;
-        }
-        iVar2 = (pCVar4->N).position.x;
-        iVar6 = (pCVar4->N).position.y;
-        iVar5 = (pCVar4->N).position.z;
-        if (iVar2 < 0) {
-          iVar2 = -iVar2;
-        }
-        if (iVar6 < 0) {
-          iVar6 = -iVar6;
-        }
-        if (iVar5 < 0) {
-          iVar5 = -iVar5;
-        }
-        if (iVar5 < iVar2) {
-          iVar2 = iVar2 + (iVar5 >> 2);
+
+        x = (*car)->N.position.x - AudioClc_gRenderView.translation.x;
+        y = (*car)->N.position.y - AudioClc_gRenderView.translation.y;
+        z = (*car)->N.position.z - AudioClc_gRenderView.translation.z;
+        if (x < 0) x = -x;
+        if (y < 0) y = -y;
+        if (z < 0) z = -z;
+
+        if (z < x) {
+          distance = x + (z >> 2);
         }
         else {
-          iVar2 = iVar5 + (iVar2 >> 2);
+          distance = z + (x >> 2);
         }
-        if ((iVar2 < 0x1900000) &&
-           (iVar5 = CopSpeak_GetEnginePatch((*ppCVar9)->carInfo->carType,0), -1 < iVar5)) {
-          AudioCmn_GetAsyncSfx(1,iVar5,(void *)0x0);
+
+        if (distance < 0x1900000) {
+          patch = CopSpeak_GetEnginePatch((*car)->carInfo->carType,0);
+          if (patch >= 0) {
+            AudioCmn_GetAsyncSfx(1,patch,(void *)0);
+          }
         }
-        if (iVar2 < iVar10) {
-          if (iVar2 < iVar6) {
-            iVar6 = iVar6 + (iVar2 >> 2);
+
+        if (distance < searchdist) {
+          if (distance < y) {
+            distance1 = y + (distance >> 2);
           }
           else {
-            iVar6 = iVar2 + (iVar6 >> 2);
+            distance1 = distance + (y >> 2);
           }
-          if ((iVar6 < iVar10) && (iVar10 = 0, piVar1 = piVar7, 0 < numclosest)) {
-            do {
-              iVar2 = numclosest + -1;
-              if (iVar6 < piVar1[1]) goto joined_r80075f4c;
-              iVar10 = iVar10 + 1;
-              piVar1 = piVar1 + 2;
-            } while (iVar10 < numclosest);
+
+          if (distance1 < searchdist) {
+            for (j = 0; j < numclosest; j++) {
+              if (distance1 < cl[j].dst) {
+                for (k = numclosest - 1; k > j; k--) {
+                  cl[k].ptr = cl[k - 1].ptr;
+                  cl[k].dst = cl[k - 1].dst;
+                }
+                cl[j].ptr = *car;
+                cl[j].dst = distance1;
+                break;
+              }
+            }
           }
+        }
+    }
+
+AudioClc_nextCar:
+    i++;
+    car++;
+  }
+
+  for (i = 0; i < numclosest; i++) {
+    if (closest[i].car != 0) {
+      for (j = 0; j < numclosest; j++) {
+        if (cl[j].ptr == closest[i].car) {
+          cl[j].ptr = 0;
+          break;
+        }
+      }
+      if (j == numclosest) {
+        closest[i].car = (Car_tObj *)-1;
+      }
+    }
+  }
+
+  for (i = 0; i < numclosest; i++) {
+    if (cl[i].ptr != 0) {
+      for (j = 0; j < numclosest; j++) {
+        if ((closest[j].car == 0) || (closest[j].car == (Car_tObj *)-1)) {
+          AudioClc_ResetClosest(j + closestIndex,cl[i].ptr,playerIndex);
+          break;
         }
       }
     }
   }
-  else if (*ppCVar9 != AudioClc_gPlayer[playerIndex].source.car) goto LAB_80075e18;
-  goto LAB_80075fa8;
-joined_r80075f4c:
-  while (iVar10 < iVar2) {
-    piVar7[iVar2 * 2] = piVar7[(iVar2 + -1) * 2];
-    (piVar7 + iVar2 * 2)[1] = (piVar7 + (iVar2 + -1) * 2)[1];
-    iVar2 = iVar2 + -1;
+
+  for (i = 0; i < numclosest; i++) {
+    if (closest[i].car == (Car_tObj *)-1) {
+      AudioClc_ResetClosest(i + closestIndex,0,playerIndex);
+    }
   }
-  pCVar4 = *ppCVar9;
-  piVar1[1] = iVar6;
-  *piVar1 = (int)pCVar4;
-LAB_80075fa8:
-  iVar8 = iVar8 + 1;
-  ppCVar9 = ppCVar9 + 1;
-  goto LAB_80075da0;
 }
 
 /* ---- AudioClc_SoundSpeech__Fv  [@0x80076130] ---- */

@@ -770,129 +770,100 @@ void Cars_AddCarSfx(Car_tObj *carObj,int wheel,coorddef *skidpt,int roadSurface,
   int smoking;
   int traffic;
   int sfxDelay;
-  int skid;
-  short sVar1;
-  bool bVar2;
-  int iVar3;
-  int iVar4;
-  int car;
-  u_int uVar5;
-  int delay;
-  int iVar6;
-  int type;
-  
-  iVar6 = Cars_kSmokingSurface[roadSurface & 0xfU];
-  uVar5 = 1 << (wheel);
-  car = (carObj->N).objID;
-  type = Cars_kConvertFromRoadToSfxType[roadSurface & 0xfU];
+
+  smoking = Cars_kSmokingSurface[roadSurface & 0xf];
+  stateBit = 1 << wheel;
+  objID = carObj->N.objID;
+  sfxType = Cars_kConvertFromRoadToSfxType[roadSurface & 0xf];
   if (surfaceType == 3) {
-    iVar6 = 0;
+    smoking = 0;
   }
-  sVar1 = (carObj->render).currentCarType;
-  bVar2 = 0x1c < sVar1;
-  delay = gTAddCarWheelDelay;
-  if (bVar2) {
-    delay = gTAddCarWheelDelay << 1;
+  traffic = carObj->render.currentCarType > 0x1c;
+  sfxDelay = gTAddCarWheelDelay;
+  if (traffic) {
+    sfxDelay = gTAddCarWheelDelay << 1;
   }
-  if (sVar1 == 0x1c) {
+  if (carObj->render.currentCarType == 0x1c) {
     return;
   }
-  if (wheel < 2) {
-    if (((drawSkid == 0) || (surfaceType == 0)) || (bVar2)) {
-      if ((carObj->oldSkidState & uVar5) != 0) {
-        TrgSfx_AddSkidmark(car,wheel,carObj->oldSkidPoint + wheel,1,carObj->frontSkid,carObj,0);
-        uVar5 = carObj->oldSkidState - uVar5;
-        goto LAB_80087818;
-      }
-    }
-    else if ((skidpt->x != carObj->oldSkidPoint[wheel].x) ||
-            (skidpt->z != carObj->oldSkidPoint[wheel].z)) {
-      if (wheel == 0) {
-        iVar3 = carObj->frontSkid - carObj->gTransferRight;
-      }
-      else {
-        iVar3 = carObj->frontSkid + carObj->gTransferRight;
-      }
-      iVar4 = iVar3 + -0x18000;
-      if (iVar4 < 0) {
-        iVar4 = 0;
-      }
-      iVar3 = iVar3 + -0x18000;
-      if (iVar4 < 0x60001) {
-        if (iVar3 < 0) {
-          iVar3 = 0;
+  if (wheel >= 2) {
+    if (drawSkid && surfaceType && !traffic) {
+      if ((skidpt->x != carObj->oldSkidPoint[wheel].x) ||
+          (skidpt->z != carObj->oldSkidPoint[wheel].z)) {
+        int skid;
+
+        if (wheel == 2) {
+          skid = carObj->rearSkid - carObj->gTransferRight;
         }
-      }
-      else {
-        iVar3 = 0x60000;
-      }
-      TrgSfx_AddSkidmark(car,wheel,skidpt,0,iVar3,carObj,surfaceType + -1);
-      iVar3 = skidpt->y;
-      iVar4 = skidpt->z;
-      carObj->oldSkidPoint[wheel].x = skidpt->x;
-      carObj->oldSkidPoint[wheel].y = iVar3;
-      carObj->oldSkidPoint[wheel].z = iVar4;
-      uVar5 = carObj->oldSkidState | uVar5;
-LAB_80087818:
-      carObj->oldSkidState = uVar5;
-    }
-    if (type == 8) goto LAB_80087828;
-    if ((iVar6 < (carObj->N).speedXZ) && (0 < iVar6)) goto LAB_80087888;
-    iVar6 = carObj->frontSkid;
-  }
-  else {
-    if (((drawSkid == 0) || (surfaceType == 0)) || (bVar2)) {
-      if ((carObj->oldSkidState & uVar5) != 0) {
-        TrgSfx_AddSkidmark(car,wheel,carObj->oldSkidPoint + wheel,1,carObj->rearSkid,carObj,0);
-        uVar5 = carObj->oldSkidState - uVar5;
-        goto LAB_8008768c;
-      }
-    }
-    else if ((skidpt->x != carObj->oldSkidPoint[wheel].x) ||
-            (skidpt->z != carObj->oldSkidPoint[wheel].z)) {
-      if (wheel == 2) {
-        iVar3 = carObj->rearSkid - carObj->gTransferRight;
-      }
-      else {
-        iVar3 = carObj->rearSkid + carObj->gTransferRight;
-      }
-      iVar4 = iVar3 + -0x10000;
-      if (iVar4 < 0) {
-        iVar4 = 0;
-      }
-      iVar3 = iVar3 + -0x10000;
-      if (iVar4 < 0x60001) {
-        if (iVar3 < 0) {
-          iVar3 = 0;
+        else {
+          skid = carObj->rearSkid + carObj->gTransferRight;
         }
+        skid = (skid - 0x10000 < 0 ? 0 : skid - 0x10000) > 0x60000 ?
+            0x60000 : (skid - 0x10000 < 0 ? 0 : skid - 0x10000);
+        TrgSfx_AddSkidmark(objID,wheel,skidpt,0,skid,carObj,surfaceType - 1);
+        carObj->oldSkidPoint[wheel] = *skidpt;
+        carObj->oldSkidState |= stateBit;
       }
-      else {
-        iVar3 = 0x60000;
-      }
-      TrgSfx_AddSkidmark(car,wheel,skidpt,0,iVar3,carObj,surfaceType + -1);
-      iVar3 = skidpt->y;
-      iVar4 = skidpt->z;
-      carObj->oldSkidPoint[wheel].x = skidpt->x;
-      carObj->oldSkidPoint[wheel].y = iVar3;
-      carObj->oldSkidPoint[wheel].z = iVar4;
-      uVar5 = carObj->oldSkidState | uVar5;
-LAB_8008768c:
-      carObj->oldSkidState = uVar5;
     }
-    if (type == 8) {
-LAB_80087828:
-      TrgSfx_AddCarSplash(car,wheel,skidpt,8,&(carObj->N).linearVel,delay,(carObj->N).speedXZ);
+    else {
+      if (carObj->oldSkidState & stateBit) {
+        TrgSfx_AddSkidmark(objID,wheel,&carObj->oldSkidPoint[wheel],1,
+            carObj->rearSkid,carObj,0);
+        carObj->oldSkidState -= stateBit;
+      }
+    }
+    if (sfxType == 8) {
+      TrgSfx_AddCarSplash(objID,wheel,skidpt,8,&carObj->N.linearVel,
+          sfxDelay,carObj->N.speedXZ);
       return;
     }
-    if ((iVar6 < (carObj->N).speedXZ) && (0 < iVar6)) goto LAB_80087888;
-    iVar6 = carObj->rearSkid;
+    if ((smoking < carObj->N.speedXZ) && (smoking > 0)) {
+      TrgSfx_AddCarWheelSfx(objID,wheel,skidpt,sfxType,&carObj->N.linearVel,sfxDelay);
+      return;
+    }
+    if (carObj->rearSkid > 0x40000) {
+      TrgSfx_AddCarWheelSfx(objID,wheel,skidpt,sfxType,&carObj->N.linearVel,sfxDelay);
+    }
   }
-  if (iVar6 < 0x40001) {
-    return;
+  else {
+    if (drawSkid && surfaceType && !traffic) {
+      if ((skidpt->x != carObj->oldSkidPoint[wheel].x) ||
+          (skidpt->z != carObj->oldSkidPoint[wheel].z)) {
+        int skid;
+
+        if (wheel == 0) {
+          skid = carObj->frontSkid - carObj->gTransferRight;
+        }
+        else {
+          skid = carObj->frontSkid + carObj->gTransferRight;
+        }
+        skid = (skid - 0x18000 < 0 ? 0 : skid - 0x18000) > 0x60000 ?
+            0x60000 : (skid - 0x18000 < 0 ? 0 : skid - 0x18000);
+        TrgSfx_AddSkidmark(objID,wheel,skidpt,0,skid,carObj,surfaceType - 1);
+        carObj->oldSkidPoint[wheel] = *skidpt;
+        carObj->oldSkidState |= stateBit;
+      }
+    }
+    else {
+      if (carObj->oldSkidState & stateBit) {
+        TrgSfx_AddSkidmark(objID,wheel,&carObj->oldSkidPoint[wheel],1,
+            carObj->frontSkid,carObj,0);
+        carObj->oldSkidState -= stateBit;
+      }
+    }
+    if (sfxType == 8) {
+      TrgSfx_AddCarSplash(objID,wheel,skidpt,8,&carObj->N.linearVel,
+          sfxDelay,carObj->N.speedXZ);
+      return;
+    }
+    if ((smoking < carObj->N.speedXZ) && (smoking > 0)) {
+      TrgSfx_AddCarWheelSfx(objID,wheel,skidpt,sfxType,&carObj->N.linearVel,sfxDelay);
+      return;
+    }
+    if (carObj->frontSkid > 0x40000) {
+      TrgSfx_AddCarWheelSfx(objID,wheel,skidpt,sfxType,&carObj->N.linearVel,sfxDelay);
+    }
   }
-LAB_80087888:
-  TrgSfx_AddCarWheelSfx(car,wheel,skidpt,type,&(carObj->N).linearVel,delay);
-  return;
 }
 
 /* ---- Car_TireSkiddingStuff__FP8Car_tObj  [@0x800878cc] ---- */

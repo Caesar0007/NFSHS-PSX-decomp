@@ -992,10 +992,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
     position.z = (carObj->N).position.z;
     position.y = (carObj->N).groundElevation;
     if (carObj->frontSkid > 0) {
-      front = 0xa0000;
-      if (carObj->frontSkid <= 0xa0000) {
-        front = carObj->frontSkid;
-      }
+      front = (0xa0000 < carObj->frontSkid) ? 0xa0000 : carObj->frontSkid;
       originalFront = front;
       carObj->frontSkid = front;
       if (__builtin_abs((carObj->linearVel_ch).z) > 0x140000) {
@@ -1010,10 +1007,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       skidFront = front;
     }
     if (carObj->rearSkid > 0) {
-      rear = 0xa0000;
-      if (carObj->rearSkid <= 0xa0000) {
-        rear = carObj->rearSkid;
-      }
+      rear = (0xa0000 < carObj->rearSkid) ? 0xa0000 : carObj->rearSkid;
       carObj->rearSkid = rear;
       originalRear = rear;
     }
@@ -1083,7 +1077,6 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
     if (surfaceType == 1 && speed != 0 && visible != 0) {
       {
         coorddef wheelFrontX;
-        coorddef wheelBackX;  /* unused: SYM shows wheelFrontZ @ sp+96 (dead 16-byte slot between X and Z) */
         coorddef wheelFrontZ;
         
         wheelFrontX.x = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[0] / 256;

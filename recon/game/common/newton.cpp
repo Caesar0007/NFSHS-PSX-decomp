@@ -2159,7 +2159,6 @@ Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(int newtonObj,int test
 void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
 
 {
-  int impulse;
   int i;
   int collision_type;
   int newHeight;
@@ -2167,287 +2166,195 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
   coorddef cautionaryCenter;
   coorddef undrivableCenter;
   coorddef speedVec;
-  coorddef testPoint;
-  coorddef newTestPoint;
-  int check;
-  int j;
-  coorddef temp;
-  int zone;
-  short sVar1;
-  short sVar2;
-  u_short uVar3;
-  BWorldSm_Pos *pBVar4;
-  u_int uVar5;
-  u_int uVar6;
-  Trk_NewSlice *pTVar7;
-  BWorldSm_Pos *pBVar8;
-  coorddef *pcVar9;
-  int iVar10;
-  int iVar11;
   int iVar12;
   BO_tNewtonObj *pBVar13;
-  int iVar14;
-  coorddef local_a0;
-  int local_90;
-  int local_8c;
-  int local_88;
-  int local_80;
-  int local_7c;
-  int local_78;
-  int local_70;
-  int local_6c;
-  int local_68;
-  coorddef local_60;
-  coorddef local_50;
-  int local_40;
-  int local_3c;
-  int local_38;
-  u_int local_30;
   int local_2c;
   
-  iVar14 = 0;
-  local_30 = 0;
-  local_90 = (newtonObj->roadCenterPoint).x;
-  local_8c = (newtonObj->roadCenterPoint).y;
-  local_88 = (newtonObj->roadCenterPoint).z;
-  memset((u_char *)&local_70,'\0',0xc);
-  pBVar4 = &testSimRoadInfo;
-  pBVar8 = &newtonObj->simRoadInfo;
-  do {
-    sVar1 = pBVar8->stripQuadInd;
-    sVar2 = pBVar8->simRotFlag;
-    uVar3 = *(u_short *)((char *)(pBVar8) + 0x6);
-    iVar10 = pBVar8->quadPts[0].x;
-    iVar12 = pBVar8->quadPts[0].y;
-    pBVar4->slice = pBVar8->slice;
-    pBVar4->stripQuadInd = sVar1;
-    pBVar4->simRotFlag = sVar2;
-    *(u_short *)((char *)(pBVar4) + 0x6) = uVar3;
-    pBVar4->quadPts[0].x = iVar10;
-    pBVar4->quadPts[0].y = iVar12;
-    pBVar8 = (BWorldSm_Pos *)&pBVar8->quadPts[0].z;
-    pBVar4 = (BWorldSm_Pos *)&pBVar4->quadPts[0].z;
-  } while (pBVar8 != (BWorldSm_Pos *)&(newtonObj->simRoadInfo).simSlice);
-  *(int *)pBVar4 = *(int *)pBVar8;
+  collision_type = 0;
+  newHeight = 0;
+  cautionaryCenter.x = (newtonObj->roadCenterPoint).x;
+  cautionaryCenter.y = (newtonObj->roadCenterPoint).y;
+  cautionaryCenter.z = (newtonObj->roadCenterPoint).z;
+  memset((u_char *)&speedVec,'\0',0xc);
+  testSimRoadInfo = newtonObj->simRoadInfo;
   if (0x280000 < newtonObj->speedXZ) {
-    local_70 = (newtonObj->linearVel).x * 5;
-    if (local_70 < 0) {
-      local_70 = local_70 + 0xff;
-    }
-    local_70 = local_70 >> 8;
-    local_6c = (newtonObj->linearVel).y * 5;
-    if (local_6c < 0) {
-      local_6c = local_6c + 0xff;
-    }
-    local_6c = local_6c >> 8;
-    local_68 = (newtonObj->linearVel).z * 5;
-    if (local_68 < 0) {
-      local_68 = local_68 + 0xff;
-    }
-    local_68 = local_68 >> 8;
+    speedVec.x = (newtonObj->linearVel).x * 5 / 0x100;
+    speedVec.y = (newtonObj->linearVel).y * 5 / 0x100;
+    speedVec.z = (newtonObj->linearVel).z * 5 / 0x100;
   }
-  iVar10 = 0;
+  i = 0;
   local_2c = 0;
   pBVar13 = newtonObj;
   do {
-    if (3 < iVar10) {
+    coorddef testPoint;
+
+    if (3 < i) {
       return;
     }
-    local_60.x = *(int *)&pBVar13[1].simRoadInfo.quadPts16[1].z + local_70;
-    local_60.y = *(int *)(pBVar13[1].simRoadInfo.quadPts16 + 2) + local_6c;
-    local_60.z = *(int *)&pBVar13[1].simRoadInfo.quadPts16[2].z + local_68;
-    BWorldSm_FindClosestQuadRez(&local_60,&testSimRoadInfo,1)
+    testPoint = *(coorddef *)((char *)pBVar13 + 0x28c);
+    testPoint.x = testPoint.x + speedVec.x;
+    testPoint.y = testPoint.y + speedVec.y;
+    testPoint.z = testPoint.z + speedVec.z;
+    BWorldSm_FindClosestQuadRez(&testPoint,&testSimRoadInfo,1)
     ;
-    if (testSimRoadInfo.offEdge == 0) {
-      iVar12 = Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(newtonObj,&testSimRoadInfo,iVar10);
-      if (iVar12 != 0) {
-        pBVar8 = &newtestSimRoadInfo;
-        pBVar4 = &testSimRoadInfo;
-        do {
-          sVar1 = pBVar4->stripQuadInd;
-          sVar2 = pBVar4->simRotFlag;
-          uVar3 = *(u_short *)((char *)(pBVar4) + 0x6);
-          iVar14 = pBVar4->quadPts[0].x;
-          iVar12 = pBVar4->quadPts[0].y;
-          pBVar8->slice = pBVar4->slice;
-          pBVar8->stripQuadInd = sVar1;
-          pBVar8->simRotFlag = sVar2;
-          *(u_short *)((char *)(pBVar8) + 0x6) = uVar3;
-          pBVar8->quadPts[0].x = iVar14;
-          pBVar8->quadPts[0].y = iVar12;
-          pBVar4 = (BWorldSm_Pos *)&pBVar4->quadPts[0].z;
-          pBVar8 = (BWorldSm_Pos *)&pBVar8->quadPts[0].z;
-        } while (pBVar4 != (BWorldSm_Pos *)&testSimRoadInfo.simSlice);
-        *(Trk_NewSimSlice **)pBVar8 = testSimRoadInfo.simSlice;
-        local_50.x = local_60.x;
-        local_50.y = local_60.y;
-        local_50.z = local_60.z;
-        uVar5 = BWorldSm_FindEdgeOff(&local_60,&newtonObj->simRoadInfo,&testSimRoadInfo,&local_30);
-        uVar6 = 1;
-        iVar14 = 2;
-        if (uVar5 == 1) {
-NewtonTestUndrv_genVecRay1:
-          Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(uVar6,&local_a0,&newtonObj->simRoadInfo);
-        }
-        else {
-          if (uVar5 == 2) {
-            uVar6 = 2;
-            goto NewtonTestUndrv_genVecRay1;
-          }
-          uVar6 = 4;
-          if ((uVar5 == 4) || (uVar6 = 8, uVar5 == 8)) goto NewtonTestUndrv_genVecRay1;
-        }
-        if ((uVar5 & 3) != 0) {
-          uVar6 = 1;
-          if (((uVar5 & 1) != 0) || (uVar6 = 2, (uVar5 & 2) != 0)) {
-            Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(uVar6,&local_a0,&newtonObj->simRoadInfo);
-          }
-          local_50.x = local_50.x + local_a0.x;
-          local_50.y = local_50.y + local_a0.y;
-          local_50.z = local_50.z + local_a0.z;
-          BWorldSm_FindClosestQuadRez(&local_50,&newtestSimRoadInfo,1);
-          iVar12 = Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(newtonObj,&newtestSimRoadInfo,iVar10);
-          if (iVar12 != 0) {
-            if ((uVar5 & 0xc) == 0) {
-              pcVar9 = testSimRoadInfo.quadPts;
-              local_78 = 0;
-              local_7c = 0;
-              local_80 = 0;
-              for (iVar12 = 0; iVar12 < 4; iVar12 = iVar12 + 1) {
-                if (testSimRoadInfo.simQuad == (Trk_NewSimQuad *)0x0) {
-                  pTVar7 = BWorldSm_slices + testSimRoadInfo.slice;
-                  local_40 = pTVar7->center[0];
-                  local_3c = pTVar7->center[1];
-                  local_38 = pTVar7->center[2];
-                }
-                else {
-                  local_40 = pcVar9->x;
-                  local_3c = pcVar9->y;
-                  local_38 = pcVar9->z;
-                }
-                pcVar9 = pcVar9 + 1;
-                local_80 = local_80 + local_40;
-                local_7c = local_7c + local_3c;
-                local_78 = local_78 + local_38;
-              }
-              if (local_80 < 0) {
-                local_80 = local_80 + 3;
-              }
-              local_80 = local_80 >> 2;
-              if (local_7c < 0) {
-                local_7c = local_7c + 3;
-              }
-              local_7c = local_7c >> 2;
-              if (local_78 < 0) {
-                local_78 = local_78 + 3;
-              }
-              local_78 = local_78 >> 2;
-              local_a0.x = (newtonObj->position).x - local_80;
-              local_a0.z = (newtonObj->position).z - local_78;
-            }
-            else {
-              uVar6 = 4;
-              if (((uVar5 & 4) != 0) || (uVar6 = 8, (uVar5 & 8) != 0)) {
-                Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(uVar6,&local_a0,&newtonObj->simRoadInfo);
-              }
-              pBVar8 = &newtestSimRoadInfo;
-              pBVar4 = &testSimRoadInfo;
-              do {
-                sVar1 = pBVar4->stripQuadInd;
-                sVar2 = pBVar4->simRotFlag;
-                uVar3 = *(u_short *)((char *)(pBVar4) + 0x6);
-                iVar12 = pBVar4->quadPts[0].x;
-                iVar11 = pBVar4->quadPts[0].y;
-                pBVar8->slice = pBVar4->slice;
-                pBVar8->stripQuadInd = sVar1;
-                pBVar8->simRotFlag = sVar2;
-                *(u_short *)((char *)(pBVar8) + 0x6) = uVar3;
-                pBVar8->quadPts[0].x = iVar12;
-                pBVar8->quadPts[0].y = iVar11;
-                pBVar4 = (BWorldSm_Pos *)&pBVar4->quadPts[0].z;
-                pBVar8 = (BWorldSm_Pos *)&pBVar8->quadPts[0].z;
-              } while (pBVar4 != (BWorldSm_Pos *)&testSimRoadInfo.simSlice);
-              *(Trk_NewSimSlice **)pBVar8 = testSimRoadInfo.simSlice;
-              local_50.x = local_60.x + local_a0.x;
-              local_50.y = local_60.y + local_a0.y;
-              local_50.z = local_60.z + local_a0.z;
-              BWorldSm_FindClosestQuadRez(&local_50,&newtestSimRoadInfo,1);
-              iVar12 = Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(newtonObj,&newtestSimRoadInfo,iVar10);
-              iVar11 = 0;
-              if (iVar12 != 0) {
-                pcVar9 = testSimRoadInfo.quadPts;
-                local_78 = 0;
-                local_7c = 0;
-                local_80 = 0;
-                for (; iVar11 < 4; iVar11 = iVar11 + 1) {
-                  if (testSimRoadInfo.simQuad == (Trk_NewSimQuad *)0x0) {
-                    pTVar7 = BWorldSm_slices + testSimRoadInfo.slice;
-                    local_40 = pTVar7->center[0];
-                    local_3c = pTVar7->center[1];
-                    local_38 = pTVar7->center[2];
-                  }
-                  else {
-                    local_40 = pcVar9->x;
-                    local_3c = pcVar9->y;
-                    local_38 = pcVar9->z;
-                  }
-                  pcVar9 = pcVar9 + 1;
-                  local_80 = local_80 + local_40;
-                  local_7c = local_7c + local_3c;
-                  local_78 = local_78 + local_38;
-                }
-                if (local_80 < 0) {
-                  local_80 = local_80 + 3;
-                }
-                local_80 = local_80 >> 2;
-                if (local_7c < 0) {
-                  local_7c = local_7c + 3;
-                }
-                local_7c = local_7c >> 2;
-                if (local_78 < 0) {
-                  local_78 = local_78 + 3;
-                }
-                local_78 = local_78 >> 2;
-                local_a0.x = local_90 - local_80;
-                local_a0.z = local_88 - local_78;
-              }
-            }
-          }
-        }
-        local_a0.y = 0;
-        Math_NormalizeShortVector(&local_a0);
-      }
+    if ((signed char)testSimRoadInfo.offEdge != 0) {
+      Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(
+          (signed char)testSimRoadInfo.offEdge,&normal,&newtonObj->simRoadInfo);
+      normal.y = 0;
+      Math_NormalizeShortVector(&normal);
+      collision_type = 1;
     }
     else {
-      Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos((int)testSimRoadInfo.offEdge,&local_a0,&newtonObj->simRoadInfo);
-      local_a0.y = 0;
-      Math_NormalizeShortVector(&local_a0);
-      iVar14 = 1;
+      iVar12 = Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(newtonObj,&testSimRoadInfo,i);
+      if (iVar12 != 0) {
+        coorddef newTestPoint;
+        int check;
+
+        newtestSimRoadInfo = testSimRoadInfo;
+        newTestPoint = testPoint;
+        check = BWorldSm_FindEdgeOff(&testPoint,&newtonObj->simRoadInfo,
+                                     &testSimRoadInfo,(u_int *)&newHeight);
+        collision_type = 2;
+        if (check == 1) {
+          Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(
+              1,&normal,&newtonObj->simRoadInfo);
+        }
+        else if (check == 2) {
+          Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(
+              2,&normal,&newtonObj->simRoadInfo);
+        }
+        else if (check == 4) {
+          Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(
+              4,&normal,&newtonObj->simRoadInfo);
+        }
+        else if (check == 8) {
+          Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(
+              8,&normal,&newtonObj->simRoadInfo);
+        }
+        if ((check & 3) != 0) {
+          if ((check & 1) != 0) {
+            Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(
+                1,&normal,&newtonObj->simRoadInfo);
+          }
+          else if ((check & 2) != 0) {
+            Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(
+                2,&normal,&newtonObj->simRoadInfo);
+          }
+          newTestPoint.x = newTestPoint.x + normal.x;
+          newTestPoint.y = newTestPoint.y + normal.y;
+          newTestPoint.z = newTestPoint.z + normal.z;
+          BWorldSm_FindClosestQuadRez(&newTestPoint,&newtestSimRoadInfo,1);
+          iVar12 = Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(newtonObj,&newtestSimRoadInfo,i);
+          if (iVar12 != 0) {
+            if ((check & 0xc) != 0) {
+              if ((check & 4) != 0) {
+                Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(
+                    4,&normal,&newtonObj->simRoadInfo);
+              }
+              else if ((check & 8) != 0) {
+                Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(
+                    8,&normal,&newtonObj->simRoadInfo);
+              }
+              newtestSimRoadInfo = testSimRoadInfo;
+              newTestPoint = testPoint;
+              newTestPoint.x = newTestPoint.x + normal.x;
+              newTestPoint.y = newTestPoint.y + normal.y;
+              newTestPoint.z = newTestPoint.z + normal.z;
+              BWorldSm_FindClosestQuadRez(&newTestPoint,&newtestSimRoadInfo,1);
+              iVar12 = Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(newtonObj,&newtestSimRoadInfo,i);
+              if (iVar12 != 0) {
+                int j;
+                coorddef temp;
+
+                undrivableCenter.z = 0;
+                undrivableCenter.y = 0;
+                undrivableCenter.x = 0;
+                j = 0;
+NewtonTestUndrv_loop1:
+                if (j < 4) {
+                  if (testSimRoadInfo.simQuad != (Trk_NewSimQuad *)0x0) {
+                    temp = testSimRoadInfo.quadPts[j];
+                  }
+                  else {
+                    temp.x = BWorldSm_slices[testSimRoadInfo.slice].center[0];
+                    temp.y = BWorldSm_slices[testSimRoadInfo.slice].center[1];
+                    temp.z = BWorldSm_slices[testSimRoadInfo.slice].center[2];
+                  }
+                  undrivableCenter.x = undrivableCenter.x + temp.x;
+                  undrivableCenter.y = undrivableCenter.y + temp.y;
+                  undrivableCenter.z = undrivableCenter.z + temp.z;
+                  j = j + 1;
+                  goto NewtonTestUndrv_loop1;
+                }
+                undrivableCenter.x /= 4;
+                undrivableCenter.y /= 4;
+                undrivableCenter.z /= 4;
+                normal.x = cautionaryCenter.x - undrivableCenter.x;
+                normal.z = cautionaryCenter.z - undrivableCenter.z;
+              }
+            }
+            else {
+              int j;
+              coorddef temp;
+
+              undrivableCenter.z = 0;
+              undrivableCenter.y = 0;
+              undrivableCenter.x = 0;
+              j = 0;
+NewtonTestUndrv_loop2:
+              if (j < 4) {
+                if (testSimRoadInfo.simQuad != (Trk_NewSimQuad *)0x0) {
+                  temp = testSimRoadInfo.quadPts[j];
+                }
+                else {
+                  temp.x = BWorldSm_slices[testSimRoadInfo.slice].center[0];
+                  temp.y = BWorldSm_slices[testSimRoadInfo.slice].center[1];
+                  temp.z = BWorldSm_slices[testSimRoadInfo.slice].center[2];
+                }
+                undrivableCenter.x = undrivableCenter.x + temp.x;
+                undrivableCenter.y = undrivableCenter.y + temp.y;
+                undrivableCenter.z = undrivableCenter.z + temp.z;
+                j = j + 1;
+                goto NewtonTestUndrv_loop2;
+              }
+              undrivableCenter.x /= 4;
+              undrivableCenter.y /= 4;
+              undrivableCenter.z /= 4;
+              normal.x = (newtonObj->position).x - undrivableCenter.x;
+              normal.z = (newtonObj->position).z - undrivableCenter.z;
+            }
+          }
+        }
+        normal.y = 0;
+        Math_NormalizeShortVector(&normal);
+      }
     }
-    if (iVar14 != 0) {
-      Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef(newtonObj,local_a0);
-      iVar12 = *(int *)(pBVar13[1].simRoadInfo.quadPts16 + 2);
-      iVar14 = *(int *)&pBVar13[1].simRoadInfo.quadPts16[2].z;
-      (newtonObj->collision).collisionPoint.x = *(int *)&pBVar13[1].simRoadInfo.quadPts16[1].z;
-      (newtonObj->collision).collisionPoint.y = iVar12;
-      (newtonObj->collision).collisionPoint.z = iVar14;
+    if (collision_type != 0) {
+      int impulse;
+      int zone;
+      Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef(newtonObj,normal);
+      (newtonObj->collision).collisionPoint =
+          *(coorddef *)((char *)pBVar13 + 0x28c);
       AIPhysic_ProcessBarrierCollision((Car_tObj *)newtonObj);
       if ((newtonObj[1].simRoadInfo.quadPts[1].y & 4U) != 0) {
         Physics_FixEngineRpm((Car_tObj *)newtonObj);
       }
-      iVar14 = (newtonObj->collision).impulse;
-      if (iVar14 < 0xa0001) {
+      impulse = (newtonObj->collision).impulse;
+      if (impulse < 0xa0001) {
         return;
       }
-      iVar12 = 6;
-      if ((iVar10 != 2) && (iVar12 = local_2c, iVar10 == 3)) {
-        iVar12 = 4;
+      zone = 6;
+      if (i != 2) {
+        zone = local_2c;
+        if (i == 3) {
+          zone = 4;
+        }
       }
-      Newton_AddDamageZone(newtonObj,iVar14,iVar12,1);
+      Newton_AddDamageZone(newtonObj,impulse,zone,1);
       return;
     }
-    pBVar13 = (BO_tNewtonObj *)&(pBVar13->simRoadInfo).quadPts[2].z;
-    iVar10 = iVar10 + 1;
+    pBVar13 = (BO_tNewtonObj *)((char *)pBVar13 + 0x30);
+    i = i + 1;
     local_2c = local_2c + 2;
   } while( true );
 }

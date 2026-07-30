@@ -3012,7 +3012,9 @@ struct AudioElem {   /* 24 bytes */
     u_short            nextDelay;   /* +0xC */
     char               patchID, fadeIn;   /* +0xE */
     short              range;   /* +0x10 */
-    char               minDelay, randomDelay, type, chan, minRepeat, randomRepeat;   /* +0x12 */
+    char               minDelay, randomDelay, type;
+    signed char        chan;
+    char               minRepeat, randomRepeat;   /* +0x12 */
 };
 
 struct AudioTrk_tAmbientChannel {   /* 16 bytes */

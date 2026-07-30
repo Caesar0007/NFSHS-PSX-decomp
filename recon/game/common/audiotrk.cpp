@@ -91,202 +91,213 @@ void AudioTrk_AddCustomObject(AudioElem *se,int tck,coorddef *vel,int fade,Car_t
   int maxind;
   int maxdst;
   int chkdst;
-  bool repeatnow;
-  u_short azimuth;
-  int dop;
-  char vol;
-  BWorldSm_Pos slicePos;
-  int rangesq;
-  int range;
-  int ambdist;
-  u_char bVar1;
-  bool bVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  u_int uVar6;
-  AudioTrk_tAmbientChannel *pAVar7;
-  u_int uVar8;
-  u_int uVar9;
-  u_short uVar10;
-  int iVar11;
-  AudioTrk_tAmbientChannel *pAVar12;
-  int iVar13;
-  int iVar14;
-  BWorldSm_Pos local_b0;
   
   if (AudioTrk_g != (AudioTrk_tGlobals *)0x0) {
-    iVar3 = Math_Dist3D(&se->cp,&AudioClc_gRenderView.translation);
-    if ((iVar3 < (se->range + 100) * 0x10000) &&
-       (pAVar12 = (AudioTrk_tAmbientChannel *)0x0,
-       (int)(u_int)(u_char)se->patchID < CopSpeak_gNumTrackSfx)) {
-      iVar4 = (int)se->chan;
-      if (iVar4 < 0) {
-        iVar14 = 0;
-        iVar4 = -1;
-        if ((se->nextDelay != 0) && ((u_int)se->nextDelay != tck)) {
+    dst = Math_Dist3D(&se->cp,&AudioClc_gRenderView.translation);
+    if ((se->range + 100) * 0x10000 <= dst) {
+      goto AudioTrk_cleanup;
+    }
+    c = (AudioTrk_tAmbientChannel *)0x0;
+    if (CopSpeak_gNumTrackSfx <= (int)(u_int)(u_char)se->patchID) {
+      goto AudioTrk_cleanup;
+    }
+    goto AudioTrk_valid;
+
+AudioTrk_cleanup:
+    {
+      AudioTrk_tAmbientChannel *c;
+
+      if (-1 < (signed char)se->chan) {
+        c = AudioTrk_g->chan + (signed char)se->chan;
+        if (c->handle != -1) {
+          freeVoiceChannel((signed char)se->chan + 0x37);
+          c->handle = -1;
+        }
+        c->se->chan = -1;
+        c->se = (AudioElem *)0x0;
+        c->patch = -1;
+      }
+      return;
+    }
+
+AudioTrk_valid:
+    {
+      n = -1;
+      if ((signed char)se->chan < 0) {
+        goto AudioTrk_find_channel;
+      }
+      n = (int)(signed char)se->chan;
+      c = AudioTrk_g->chan + n;
+      goto AudioTrk_channel_found;
+
+AudioTrk_find_channel:
+      if ((se->nextDelay != 0) && ((u_int)se->nextDelay != tck)) {
+        return;
+      }
+      for (i = 0; (i < 0x10) && (c == (AudioTrk_tAmbientChannel *)0x0); i++) {
+        if (AudioTrk_g->chan[i].se == (AudioElem *)0x0) {
+          c = AudioTrk_g->chan + i;
+          c->se = se;
+          c->slice = -1;
+          n = i;
+          c->repeat =
+              (u_short)(u_char)se->minRepeat +
+              (se->randomRepeat != '\0'
+                   ? (u_short)((u_int)random() % ((u_char)se->randomRepeat + 1))
+                   : 0);
+          c->se->chan = (char)n;
+        }
+      }
+
+AudioTrk_channel_found:
+      if (c == (AudioTrk_tAmbientChannel *)0x0) {
+        maxind = 0;
+        maxdst = 0;
+        for (i = 0; i < 0x10; i++) {
+          chkdst =
+              Math_Dist3D(&(AudioTrk_g->chan[i].se)->cp,&AudioClc_gRenderView.translation);
+          if (AudioTrk_g->chan[i].handle != 0xffffffff) {
+            if ((SNDover(AudioTrk_g->chan[i].handle) != 0) && (maxdst < chkdst)) {
+              maxdst = chkdst;
+              maxind = i;
+            }
+          }
+        }
+        if (dst < maxdst) {
+          c = AudioTrk_g->chan + maxind;
+          c->se = se;
+          c->slice = -1;
+          c->repeat =
+              (u_short)(u_char)se->minRepeat +
+              (se->randomRepeat != '\0'
+                   ? (u_short)((u_int)random() % ((u_char)se->randomRepeat + 1))
+                   : 0);
+          c->se->chan = (char)maxind;
+          n = maxind;
+        }
+        if (c == (AudioTrk_tAmbientChannel *)0x0) {
           return;
         }
-        do {
-          if (0xf < iVar14) break;
-          pAVar7 = AudioTrk_g->chan + iVar14;
-          if (pAVar7->se == (AudioElem *)0x0) {
-            pAVar7->se = se;
-            pAVar7->slice = -1;
-            bVar1 = se->minRepeat;
-            uVar10 = (u_short)bVar1;
-            if (se->randomRepeat != '\0') {
-              uVar6 = random();
-              uVar8 = (u_char)se->randomRepeat + 1;
-              uVar10 = (u_short)bVar1 + (short)(uVar6 % uVar8);
-            }
-            pAVar7->repeat = uVar10;
-            pAVar7->se->chan = (char)iVar14;
-            pAVar12 = pAVar7;
-            iVar4 = iVar14;
-          }
-          iVar14 = iVar14 + 1;
-        } while (pAVar12 == (AudioTrk_tAmbientChannel *)0x0);
       }
-      else {
-        pAVar12 = AudioTrk_g->chan + iVar4;
+      if (c->patch != (u_short)(u_char)se->patchID) {
+        if (c->handle != -1) {
+          freeVoiceChannel(n + 0x37);
+          c->handle = -1;
+        }
+        c->patch = (u_short)(u_char)se->patchID;
       }
-      iVar14 = 0;
-      if (pAVar12 == (AudioTrk_tAmbientChannel *)0x0) {
-        iVar13 = 0;
-        for (iVar11 = 0; iVar11 < 0x10; iVar11 = iVar11 + 1) {
-          iVar5 = Math_Dist3D(&(AudioTrk_g->chan[iVar11].se)->cp,&AudioClc_gRenderView.translation);
-          if (AudioTrk_g->chan[iVar11].handle != 0xffffffff) {
-            uVar6 = SNDover(AudioTrk_g->chan[iVar11].handle);
-            if ((uVar6 != 0) && (iVar13 < iVar5)) {
-              iVar13 = iVar5;
-              iVar14 = iVar11;
-            }
-          }
+      bool repeatnow;
+
+      repeatnow = false;
+      if ((c->handle != 0xffffffff) &&
+          (SNDover(c->handle) != 0)) {
+        if (c->repeat != 0) {
+          repeatnow = true;
+          c->handle = -1;
+          c->repeat = c->repeat + -1;
         }
-        if (iVar3 < iVar13) {
-          pAVar12 = AudioTrk_g->chan + iVar14;
-          pAVar12->se = se;
-          pAVar12->slice = -1;
-          bVar1 = se->minRepeat;
-          uVar10 = (u_short)bVar1;
-          if (se->randomRepeat != '\0') {
-            uVar6 = random();
-            uVar8 = (u_char)se->randomRepeat + 1;
-            uVar10 = (u_short)bVar1 + (short)(uVar6 % uVar8);
-          }
-          pAVar12->repeat = uVar10;
-          pAVar12->se->chan = (char)iVar14;
-          iVar4 = iVar14;
-        }
-        if (pAVar12 == (AudioTrk_tAmbientChannel *)0x0) {
-          return;
+        else if ((se->type != '\x01') || ((int)se->range << 0x10 < dst)) {
+          freeVoiceChannel(n + 0x37);
+          c->handle = -1;
+          c->patch = -1;
+          c->se->chan = -1;
+          c->se = (AudioElem *)0x0;
         }
       }
-      if (pAVar12->patch != (u_short)(u_char)se->patchID) {
-        if (pAVar12->handle != -1) {
-          freeVoiceChannel(iVar4 + 0x37);
-          pAVar12->handle = -1;
-        }
-        pAVar12->patch = (u_short)(u_char)se->patchID;
-      }
-      bVar2 = false;
-      if ((pAVar12->handle != 0xffffffff) &&
-         (uVar6 = SNDover(pAVar12->handle), uVar6 != 0)) {
-        if (pAVar12->repeat == 0) {
-          if ((se->type != '\x01') || ((int)se->range << 0x10 < iVar3)) {
-            freeVoiceChannel(iVar4 + 0x37);
-            pAVar12->handle = -1;
-            pAVar12->patch = -1;
-            pAVar12->se->chan = -1;
-            pAVar12->se = (AudioElem *)0x0;
-          }
-        }
-        else {
-          bVar2 = true;
-          pAVar12->handle = -1;
-          pAVar12->repeat = pAVar12->repeat + -1;
-        }
-      }
-      if (pAVar12->se != (AudioElem *)0x0) {
-        iVar14 = 0x10000;
-        uVar6 = 0;
-        if ((se->type == '\x01') && (!bVar2)) {
-          if ((pAVar12->handle != 0xffffffff) &&
-             (uVar8 = SNDover(pAVar12->handle), uVar8 != 0)) {
+      if (c->se != (AudioElem *)0x0) {
+        u_short azimuth;
+        int dop;
+        char vol;
+
+        dop = 0x10000;
+        vol = 0;
+        if ((se->type == '\x01') && (!repeatnow)) {
+          if ((c->handle != 0xffffffff) &&
+              (SNDover(c->handle) != 0)) {
             return;
           }
-          if ((iVar3 < (int)((u_int)(u_char)se->fadeIn << 0x10)) && (pAVar12->slice == -1)) {
-            BWorldSm_SetSlice((int)(car->N).simRoadInfo.slice,&local_b0);
-            BWorldSm_FindClosestSlice(&se->cp,&local_b0);
-            pAVar12->slice = (int)local_b0.slice;
+          if ((dst < (int)((u_int)(u_char)se->fadeIn << 0x10)) && (c->slice == -1)) {
+            BWorldSm_Pos slicePos;
+
+            BWorldSm_SetSlice((int)(car->N).simRoadInfo.slice,&slicePos);
+            BWorldSm_FindClosestSlice(&se->cp,&slicePos);
+            c->slice = (int)slicePos.slice;
           }
-          if (((int)(car->N).simRoadInfo.slice != pAVar12->slice) ||
-             ((int)((u_int)(u_char)se->fadeIn << 0x10) < iVar3)) {
-            AudioCmn_GetAsyncSfx(0,(int)pAVar12->patch,(void *)0x0)
+          if (((int)(car->N).simRoadInfo.slice != c->slice) ||
+             ((int)((u_int)(u_char)se->fadeIn << 0x10) < dst)) {
+            AudioCmn_GetAsyncSfx(0,(int)c->patch,(void *)0x0)
             ;
             return;
           }
         }
-        uVar8 = 0;
-        if (iVar3 < (int)se->range << 0x10) {
-          if ((se->type != '\x03') && (trkazi = 0, se->type != '\x02')) {
-            trkazi = AudioClc_CalcAzimuth(&AudioClc_gRenderView,&se->cp);
-            iVar14 = AudioClc_CalcDopplerShiftRatio(&se->cp,vel);
+        azimuth = 0;
+        if (dst < (int)se->range << 0x10) {
+          if (se->type == '\x03') {
+            azimuth += trkazi;
           }
-          uVar8 = trkazi;
-          if (((u_char)se->type - 4 < 0x20) || ((u_char)se->type == 1)) {
-            iVar13 = (int)se->range * (int)se->range;
-            iVar3 = fixedmult(iVar3 >> 2,iVar3 >> 2);
-            iVar3 = (iVar13 >> 4) * 0x10000 - iVar3;
-            uVar9 = (iVar3 / iVar13) * fade * 0x7f;
-            uVar6 = uVar9 >> 0x13;
-            if ((int)uVar9 < 0) {
-              uVar6 = uVar9 + 0xffff >> 0x13;
+          else if (se->type != '\x02') {
+            azimuth = AudioClc_CalcAzimuth(&AudioClc_gRenderView,&se->cp);
+            dop = AudioClc_CalcDopplerShiftRatio(&se->cp,vel);
+          }
+          if ((u_char)se->type - 4 < 0x20) {
+            goto AudioTrk_near_volume;
+          }
+          if ((u_char)se->type != 1) {
+            goto AudioTrk_fade_volume;
+          }
+
+AudioTrk_near_volume:
+          {
+            int rangesq = (int)se->range * (int)se->range;
+            u_int level =
+                (((rangesq >> 4) * 0x10000 -
+                 fixedmult(dst >> 2,dst >> 2)) /
+                 rangesq) *
+                fade * 0x7f;
+
+            vol = level >> 0x13;
+            if ((int)level < 0) {
+              vol = (level + 0xffff) >> 0x13;
             }
+            goto AudioTrk_volume_done;
           }
-          else {
-            uVar9 = (u_int)(u_char)se->fadeIn;
-            uVar6 = 0x7f;
-            if ((int)(uVar9 * 0x10000) <= iVar3) {
-              iVar13 = (int)se->range - uVar9;
-              iVar13 = iVar13 * iVar13;
-              iVar3 = (int)(iVar3 + uVar9 * -0x10000) >> 2;
-              iVar3 = fixedmult(iVar3,iVar3);
-              iVar3 = (iVar13 >> 4) * 0x10000 - iVar3;
-              uVar9 = (iVar3 / iVar13) * 0x7f0;
-              uVar6 = uVar9 >> 0x10;
-              if ((int)uVar9 < 0) {
-                uVar6 = uVar9 + 0xffff >> 0x10;
+
+AudioTrk_fade_volume:
+          {
+            int fadeIn = (u_char)se->fadeIn;
+
+            vol = 0x7f;
+            if (fadeIn * 0x10000 <= dst) {
+              int range = (int)se->range - fadeIn;
+              int rangesq = range * range;
+              int ambdist = (dst - fadeIn * 0x10000) >> 2;
+              u_int level =
+                  (((rangesq >> 4) * 0x10000 -
+                    fixedmult(ambdist,ambdist)) /
+                   rangesq) *
+                  0x7f0;
+
+              vol = level >> 0x10;
+              if ((int)level < 0) {
+                vol = (level + 0xffff) >> 0x10;
               }
             }
           }
+
+AudioTrk_volume_done:
+          ;
         }
-        if (0xa0000 < iVar14) {
-          iVar14 = 0xa0000;
+        if (0xa0000 < dop) {
+          dop = 0xa0000;
         }
-        if (iVar14 < 1) {
-          iVar14 = 1;
+        if (dop < 1) {
+          dop = 1;
         }
-        uVar10 = PAD_state(4);
-        if ((uVar10 & 0x400) == 0) {
-          iVar3 = AudioCmn_PlaySFX(iVar4 + 0x37,(int)pAVar12->patch,0x40,iVar14,uVar6 & 0xff,
-                             uVar8 & 0xffff);
-          pAVar12->handle = iVar3;
+        if ((PAD_state(4) & 0x400) == 0) {
+          c->handle =
+              AudioCmn_PlaySFX(n + 0x37,(int)c->patch,0x40,dop,vol & 0xff,
+                               azimuth & 0xffff);
         }
-      }
-    }
-    else {
-      iVar3 = (int)se->chan;
-      if (-1 < iVar3) {
-        pAVar12 = AudioTrk_g->chan + iVar3;
-        if (pAVar12->handle != -1) {
-          freeVoiceChannel(iVar3 + 0x37);
-          pAVar12->handle = -1;
-        }
-        pAVar12->se->chan = -1;
-        pAVar12->se = (AudioElem *)0x0;
-        pAVar12->patch = -1;
       }
     }
   }

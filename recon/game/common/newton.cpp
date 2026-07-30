@@ -83,8 +83,6 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
   }
   if (GameSetup_gData.Damage != 0) {
     int iVar1;
-    int damage0;
-    int damage1;
 
     iVar1 = 0x640000;
     if (impulse / 2 < 0x640001) {
@@ -99,72 +97,75 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
     newtonObj->damage[zone] = iVar1;
     if (zone < 8) {
       if (zone == 0) {
-        iVar1 = (newtonObj->damage[0] + newtonObj->damage[2]) / 2;
-        if (iVar1 < newtonObj->damage[1]) {
-          iVar1 = newtonObj->damage[1];
+        int temp;
+
+        temp = (newtonObj->damage[0] + newtonObj->damage[2]) / 2;
+        if (temp < newtonObj->damage[1]) {
+          temp = newtonObj->damage[1];
         }
-        damage0 = newtonObj->damage[0];
-        damage1 = newtonObj->damage[6];
-        newtonObj->damage[1] = iVar1;
+        newtonObj->damage[1] = temp;
+        temp = (newtonObj->damage[0] + newtonObj->damage[6]) / 2;
+        if (temp < newtonObj->damage[7]) {
+          temp = newtonObj->damage[7];
+        }
+        newtonObj->damage[7] = temp;
+      }
+      else if (zone == 1) {
+        int temp;
+
+        temp = (newtonObj->damage[7] + newtonObj->damage[1]) / 2;
+        if (temp < newtonObj->damage[0]) {
+          temp = newtonObj->damage[0];
+        }
+        newtonObj->damage[0] = temp;
+        temp = (newtonObj->damage[1] + newtonObj->damage[3]) / 2;
+        if (temp < newtonObj->damage[2]) {
+          temp = newtonObj->damage[2];
+        }
+        newtonObj->damage[2] = temp;
+      }
+      else if (zone == 6) {
+        int temp;
+
+        temp = (newtonObj->damage[4] + newtonObj->damage[6]) / 2;
+        if (temp < newtonObj->damage[5]) {
+          temp = newtonObj->damage[5];
+        }
+        newtonObj->damage[5] = temp;
+        temp = (newtonObj->damage[0] + newtonObj->damage[6]) / 2;
+        if (temp < newtonObj->damage[7]) {
+          temp = newtonObj->damage[7];
+        }
+        newtonObj->damage[7] = temp;
+      }
+      else if (zone == 7) {
+        int temp;
+
+        temp = (newtonObj->damage[7] + newtonObj->damage[1]) / 2;
+        if (temp < newtonObj->damage[0]) {
+          temp = newtonObj->damage[0];
+        }
+        newtonObj->damage[0] = temp;
+        temp = (newtonObj->damage[5] + newtonObj->damage[7]) / 2;
+        if (temp < newtonObj->damage[6]) {
+          temp = newtonObj->damage[6];
+        }
+        newtonObj->damage[6] = temp;
       }
       else {
-        if (zone == 1) {
-          iVar1 = (newtonObj->damage[7] + newtonObj->damage[1]) / 2;
-          if (iVar1 < newtonObj->damage[0]) {
-            iVar1 = newtonObj->damage[0];
-          }
-          damage0 = newtonObj->damage[1];
-          damage1 = newtonObj->damage[3];
-          newtonObj->damage[0] = iVar1;
-          iVar1 = (damage0 + damage1) / 2;
-          if (iVar1 < newtonObj->damage[2]) {
-            iVar1 = newtonObj->damage[2];
-          }
-          newtonObj->damage[2] = iVar1;
-          goto Newton_AddDmgZ_typeSet;
+        int temp;
+
+        temp = (iVar1 + newtonObj->damage[zone + 2]) / 2;
+        if (temp < newtonObj->damage[zone + 1]) {
+          temp = newtonObj->damage[zone + 1];
         }
-        if (zone != 6) {
-          if (zone == 7) {
-            iVar1 = (newtonObj->damage[7] + newtonObj->damage[1]) / 2;
-            if (iVar1 < newtonObj->damage[0]) {
-              iVar1 = newtonObj->damage[0];
-            }
-            damage0 = newtonObj->damage[5];
-            damage1 = newtonObj->damage[7];
-            newtonObj->damage[0] = iVar1;
-            iVar1 = (damage0 + damage1) / 2;
-            if (iVar1 < newtonObj->damage[6]) {
-              iVar1 = newtonObj->damage[6];
-            }
-            newtonObj->damage[6] = iVar1;
-          }
-          else {
-            iVar1 = (iVar1 + newtonObj->damage[zone + 2]) / 2;
-            if (iVar1 < newtonObj->damage[zone + 1]) {
-              iVar1 = newtonObj->damage[zone + 1];
-            }
-            newtonObj->damage[zone + 1] = iVar1;
-            iVar1 = (newtonObj->damage[zone] + newtonObj->damage[zone + -2]) / 2;
-            if (iVar1 < newtonObj->damage[zone + -1]) {
-              iVar1 = newtonObj->damage[zone + -1];
-            }
-            newtonObj->damage[zone + -1] = iVar1;
-          }
-          goto Newton_AddDmgZ_typeSet;
+        newtonObj->damage[zone + 1] = temp;
+        temp = (newtonObj->damage[zone] + newtonObj->damage[zone - 2]) / 2;
+        if (temp < newtonObj->damage[zone - 1]) {
+          temp = newtonObj->damage[zone - 1];
         }
-        iVar1 = (newtonObj->damage[4] + newtonObj->damage[6]) / 2;
-        if (iVar1 < newtonObj->damage[5]) {
-          iVar1 = newtonObj->damage[5];
-        }
-        damage0 = newtonObj->damage[0];
-        damage1 = newtonObj->damage[6];
-        newtonObj->damage[5] = iVar1;
+        newtonObj->damage[zone - 1] = temp;
       }
-      iVar1 = (damage0 + damage1) / 2;
-      if (iVar1 < newtonObj->damage[7]) {
-        iVar1 = newtonObj->damage[7];
-      }
-      newtonObj->damage[7] = iVar1;
     }
   }
 Newton_AddDmgZ_typeSet:

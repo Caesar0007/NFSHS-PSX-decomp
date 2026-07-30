@@ -260,30 +260,33 @@ void Stats_ExtrapolateOpponentTimes(int type)
   int quick_finish;
   int iVar11;
   
-  iVar3 = Input_Interface(3,0);
-  bVar2 = iVar3 != 0;
+  quick_finish = Input_Interface(3,0) != 0;
   ppCVar10 = Cars_gHumanRaceCarList;
-  for (iVar3 = 0; iVar3 < Cars_gNumHumanRaceCars; iVar3 = iVar3 + 1) {
+  for (i = 0; i < Cars_gNumHumanRaceCars; i = i + 1) {
     pCVar7 = *ppCVar10;
     if ((pCVar7->stats).finishType != 2) {
-      iVar5 = (pCVar7->stats).sliceTotal;
-      if (iVar5 < 1) {
-        iVar5 = 1;
+      int sliceTotal;
+      int startingTime;
+      sliceTotal = (pCVar7->stats).sliceTotal;
+      if (sliceTotal < 1) {
+        sliceTotal = 1;
       }
-      iVar8 = (pCVar7->stats).sliceTime + -0x200;
-      if (iVar5 < 100) {
-        iVar8 = iVar5 * 0xd;
+      startingTime = (pCVar7->stats).sliceTime + -0x200;
+      if (sliceTotal < 100) {
+        startingTime = sliceTotal * 0xd;
       }
-      iVar8 = iVar8 * (gNumSlices * GameSetup_gData.numLaps + (pCVar7->stats).extractSlice);
-      iVar11 = iVar8 / iVar5;
-      if (bVar2) {
-        (pCVar7->stats).lapTime = iVar11;
+      extrapolatedTime =
+          startingTime *
+           (gNumSlices * GameSetup_gData.numLaps +
+           (pCVar7->stats).extractSlice) / sliceTotal;
+      if (quick_finish) {
+        (pCVar7->stats).lapTime = extrapolatedTime;
       }
       else {
-        (pCVar7->stats).lapTime = iVar11 << 1;
+        (pCVar7->stats).lapTime = extrapolatedTime << 1;
       }
-      if ((GameSetup_gData.raceType != 2) || (GameSetup_gData.localCar == iVar3)) {
-        if (bVar2) {
+      if ((GameSetup_gData.raceType != 2) || (GameSetup_gData.localCar == i)) {
+        if (quick_finish) {
           ((*ppCVar10)->stats).finishType = 2;
         }
         else {
@@ -294,8 +297,8 @@ void Stats_ExtrapolateOpponentTimes(int type)
     if (type == 1) {
       if (GameSetup_gData.raceType == 2) {
         pCVar7 = *ppCVar10;
-        if (((pCVar7->stats).finishType != 2) && (GameSetup_gData.localCar == iVar3)) {
-          if (bVar2) {
+        if (((pCVar7->stats).finishType != 2) && (GameSetup_gData.localCar == i)) {
+          if (quick_finish) {
             (pCVar7->stats).finishType = 2;
           }
           else {
@@ -303,142 +306,145 @@ void Stats_ExtrapolateOpponentTimes(int type)
           }
         }
       }
-      else if (bVar2) {
+      else if (quick_finish) {
         ((*ppCVar10)->stats).finishType = 2;
       }
       else if (((*ppCVar10)->stats).finishType != 2) {
         ((*ppCVar10)->stats).finishType = 1;
       }
-      iVar5 = Stats_GetPosition(*ppCVar10);
-      ((*ppCVar10)->stats).finalPosition = iVar5;
+      ((*ppCVar10)->stats).finalPosition = Stats_GetPosition(*ppCVar10);
       ((*ppCVar10)->stats).finalTotalTime = ((*ppCVar10)->stats).lapTime;
-      iVar5 = 0;
+      j = 0;
       if (0 < GameSetup_gData.numLaps) {
         do {
-          ((*ppCVar10)->stats).finalLapTime[iVar5] = ((*ppCVar10)->stats).time[iVar5];
-          iVar5 = iVar5 + 1;
-        } while (iVar5 < GameSetup_gData.numLaps);
+          ((*ppCVar10)->stats).finalLapTime[j] =
+              ((*ppCVar10)->stats).time[j];
+          j = j + 1;
+        } while (j < GameSetup_gData.numLaps);
       }
     }
-    iVar5 = Stats_GetPosition(*ppCVar10);
-    ((*ppCVar10)->stats).finalPosition = iVar5;
-    iVar5 = Stats_GetPosition(*ppCVar10);
-    ((*ppCVar10)->stats).finalPosition = iVar5;
+    ((*ppCVar10)->stats).finalPosition = Stats_GetPosition(*ppCVar10);
+    ((*ppCVar10)->stats).finalPosition = Stats_GetPosition(*ppCVar10);
     ((*ppCVar10)->stats).finalTotalTime = ((*ppCVar10)->stats).lapTime;
     ((*ppCVar10)->stats).finalFinishType = ((*ppCVar10)->stats).finishType;
     ((*ppCVar10)->stats).finalBestLap = ((*ppCVar10)->stats).time[0];
     ((*ppCVar10)->stats).finalNumWarnings = ((*ppCVar10)->stats).numWarnings;
     ((*ppCVar10)->stats).finalNumFines = ((*ppCVar10)->stats).numFines;
-    iVar5 = 0;
+    m = 0;
     ((*ppCVar10)->stats).finalNumArrests = ((*ppCVar10)->stats).numArrests;
     ((*ppCVar10)->stats).finalDamage = 0;
     do {
       pCVar7 = *ppCVar10;
-      piVar1 = (pCVar7->N).damage + iVar5;
-      iVar5 = iVar5 + 1;
-      (pCVar7->stats).finalDamage = (pCVar7->stats).finalDamage + *piVar1;
-    } while (iVar5 < 10);
-    iVar5 = 0;
+      (pCVar7->stats).finalDamage =
+          (pCVar7->stats).finalDamage + (pCVar7->N).damage[m];
+      m = m + 1;
+    } while (m < 10);
+    j = 0;
     if (0 < GameSetup_gData.numLaps) {
       do {
-        ((*ppCVar10)->stats).finalLapTime[iVar5] = ((*ppCVar10)->stats).time[iVar5];
+        ((*ppCVar10)->stats).finalLapTime[j] =
+            ((*ppCVar10)->stats).time[j];
         pCVar7 = *ppCVar10;
-        iVar8 = (pCVar7->stats).finalLapTime[iVar5];
+        iVar8 = (pCVar7->stats).finalLapTime[j];
         if ((iVar8 < (pCVar7->stats).finalBestLap) && (iVar8 != 0)) {
           (pCVar7->stats).finalBestLap = iVar8;
         }
-        iVar5 = iVar5 + 1;
-      } while (iVar5 < GameSetup_gData.numLaps);
+        j = j + 1;
+      } while (j < GameSetup_gData.numLaps);
     }
     ppCVar10 = ppCVar10 + 1;
   }
   ppCVar10 = Cars_gAIRaceCarList;
-  for (iVar3 = 0; iVar5 = Cars_gNumRaceCars, iVar3 < Cars_gNumAIRaceCars; iVar3 = iVar3 + 1) {
+  for (i = 0; i < Cars_gNumAIRaceCars; i = i + 1) {
     pCVar7 = *ppCVar10;
     if ((pCVar7->stats).finishType != 2) {
-      iVar5 = (pCVar7->stats).sliceTotal;
-      if (iVar5 < 1) {
-        iVar5 = 1;
+      int sliceTotal;
+      int startingTime;
+      sliceTotal = (pCVar7->stats).sliceTotal;
+      if (sliceTotal < 1) {
+        sliceTotal = 1;
       }
-      iVar8 = (pCVar7->stats).sliceTime + -0x200;
-      if (iVar5 < 100) {
-        iVar8 = iVar5 * 0xd;
+      startingTime = (pCVar7->stats).sliceTime + -0x200;
+      if (sliceTotal < 100) {
+        startingTime = sliceTotal * 0xd;
       }
-      iVar8 = iVar8 * (gNumSlices * GameSetup_gData.numLaps + (pCVar7->stats).extractSlice);
-      iVar11 = iVar8 / iVar5;
-      if ((bVar2) || ((Cars_gHumanRaceCarList[0]->stats).finishType == 2)) {
-        ((*ppCVar10)->stats).lapTime = iVar11;
+      extrapolatedTime =
+          startingTime *
+           (gNumSlices * GameSetup_gData.numLaps +
+           (pCVar7->stats).extractSlice) / sliceTotal;
+      if ((quick_finish) ||
+          ((Cars_gHumanRaceCarList[0]->stats).finishType == 2)) {
+        ((*ppCVar10)->stats).lapTime = extrapolatedTime;
       }
       else {
-        iVar5 = rand();
-        iVar5 = GameSetup_gData.numLaps * iVar5;
-        if (iVar5 < 0) {
-          iVar5 = iVar5 + 0x7f;
+        startingTime = GameSetup_gData.numLaps * rand();
+        if (startingTime < 0) {
+          startingTime = startingTime + 0x7f;
         }
-        ((*ppCVar10)->stats).lapTime = iVar11 + (iVar5 >> 7);
+        ((*ppCVar10)->stats).lapTime =
+            extrapolatedTime + (startingTime >> 7);
       }
       ((*ppCVar10)->stats).finishType = 2;
     }
-    iVar5 = Stats_GetPosition(*ppCVar10);
-    ((*ppCVar10)->stats).finalPosition = iVar5;
+    ((*ppCVar10)->stats).finalPosition = Stats_GetPosition(*ppCVar10);
     ((*ppCVar10)->stats).finalTotalTime = ((*ppCVar10)->stats).lapTime;
     ((*ppCVar10)->stats).finalFinishType = ((*ppCVar10)->stats).finishType;
     ((*ppCVar10)->stats).finalNumArrests = ((*ppCVar10)->stats).numArrests;
     ((*ppCVar10)->stats).finalBestLap = 99999;
-    iVar5 = 0;
+    j = 0;
     if (0 < GameSetup_gData.numLaps) {
       do {
         pCVar7 = *ppCVar10;
-        iVar8 = (pCVar7->stats).time[iVar5];
+        iVar8 = (pCVar7->stats).time[j];
         if ((iVar8 < (pCVar7->stats).finalBestLap) && (0 < iVar8)) {
           (pCVar7->stats).finalBestLap = iVar8;
         }
-        iVar5 = iVar5 + 1;
-      } while (iVar5 < GameSetup_gData.numLaps);
+        j = j + 1;
+      } while (j < GameSetup_gData.numLaps);
     }
-    iVar5 = rand();
-    pCVar7 = *ppCVar10;
-    iVar8 = (pCVar7->stats).finalTotalTime;
-    iVar5 = iVar8 / GameSetup_gData.numLaps - iVar5 / 0x30;
-    if (iVar5 < (pCVar7->stats).finalBestLap) {
-      (pCVar7->stats).finalBestLap = iVar5;
+    {
+      int averageLap;
+      pCVar7 = *ppCVar10;
+      averageLap =
+          (pCVar7->stats).finalTotalTime / GameSetup_gData.numLaps -
+          rand() / 0x30;
+      if (averageLap < (pCVar7->stats).finalBestLap) {
+        (pCVar7->stats).finalBestLap = averageLap;
+      }
     }
-    iVar5 = 0;
+    j = 0;
     if (0 < GameSetup_gData.numLaps) {
       do {
-        ((*ppCVar10)->stats).finalLapTime[iVar5] = ((*ppCVar10)->stats).time[iVar5];
+        ((*ppCVar10)->stats).finalLapTime[j] =
+            ((*ppCVar10)->stats).time[j];
         pCVar7 = *ppCVar10;
-        iVar8 = (pCVar7->stats).finalLapTime[iVar5];
+        iVar8 = (pCVar7->stats).finalLapTime[j];
         if ((iVar8 < (pCVar7->stats).finalBestLap) && (iVar8 != 0)) {
           (pCVar7->stats).finalBestLap = iVar8;
         }
-        iVar5 = iVar5 + 1;
-      } while (iVar5 < GameSetup_gData.numLaps);
+        j = j + 1;
+      } while (j < GameSetup_gData.numLaps);
     }
     ppCVar10 = ppCVar10 + 1;
   }
-  iVar3 = 0;
-  if (!bVar2) {
+  if (!quick_finish) {
     ppCVar10 = Cars_gRaceCarList;
-    for (; iVar8 = 1, iVar3 < iVar5; iVar3 = iVar3 + 1) {
-      iVar11 = 0;
+    for (x = 0; x < Cars_gNumRaceCars; x = x + 1) {
+      position = 1;
       ppCVar9 = Cars_gRaceCarList;
-      if (0 < iVar5) {
-        do {
-          if (iVar3 != iVar11) {
-            iVar6 = ((*ppCVar10)->stats).finalTotalTime;
-            iVar4 = ((*ppCVar9)->stats).finalTotalTime;
-            if ((iVar4 < iVar6) || ((iVar6 == iVar4 && (iVar11 < iVar3)))) {
-              iVar8 = iVar8 + 1;
-            }
+      for (y = 0; y < Cars_gNumRaceCars; y = y + 1) {
+        if (x != y) {
+          iVar6 = ((*ppCVar10)->stats).finalTotalTime;
+          iVar4 = ((*ppCVar9)->stats).finalTotalTime;
+          if ((iVar4 < iVar6) || ((iVar6 == iVar4) && (y < x))) {
+            position = position + 1;
           }
-          iVar11 = iVar11 + 1;
-          ppCVar9 = ppCVar9 + 1;
-        } while (iVar11 < Cars_gNumRaceCars);
+        }
+        ppCVar9 = ppCVar9 + 1;
       }
       pCVar7 = *ppCVar10;
       ppCVar10 = ppCVar10 + 1;
-      (pCVar7->stats).finalPosition = iVar8;
+      (pCVar7->stats).finalPosition = position;
     }
   }
   return;

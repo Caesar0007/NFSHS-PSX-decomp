@@ -1258,7 +1258,10 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
       (carObj->render).signalLight[0] = 0;
       (carObj->render).signalLight[1] = 0;
       if (((carObj->control).lights & 2U) == 0) {
-        R3DCar_TurnHeadLightOff(carObj,(u_int)(((carObj->control).lights & 4U) == 0));
+        u_int lightOff;
+
+        lightOff = (u_int)(carObj->control).lights & 4U;
+        R3DCar_TurnHeadLightOff(carObj,lightOff == 0);
       }
     }
   }
@@ -1357,29 +1360,27 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
         spin = -spin;
       }
       for (; rear < 2; rear = rear + 1) {
-        if (Replay_ReplayMode == 2) {
-          vel = (carObj->linearVel_ch).z >> (8U - Replay_ReplayInterface.speed);
-        }
-        else {
+        if (Replay_ReplayMode != 2) {
           vel = (carObj->linearVel_ch).z >> 6;
         }
-        if (rear == 0) {
-          if (carObj->frontWheelSpin != 0) goto R_ICFt_wheelspinRpmCalc;
+        else {
+          vel = (carObj->linearVel_ch).z >> (8U - Replay_ReplayInterface.speed);
         }
-        else if (spin - 1U < 2) {
+        if (rear != 0) {
+          if (spin - 1U < 2) goto R_ICFt_wheelspinRpmCalc;
+        }
+        else if (carObj->frontWheelSpin != 0) {
 R_ICFt_wheelspinRpmCalc:
-          {
-          u_int gear;
-          gear = (u_int)(u_char)(carObj->control).gear;
-          if (gear != 1) {
-            vel = (carObj->flywheelRpm << 0x10) / carObj->specs->velToRpmRatio[gear];
-            if (Replay_ReplayMode == 2) {
-              vel = vel << (Replay_ReplayInterface.speed + 7U);
-            }
-            else {
+          if ((u_char)(carObj->control).gear != 1) {
+            vel = (carObj->flywheelRpm << 0x10) /
+                  carObj->specs->velToRpmRatio[
+                      (u_char)(carObj->control).gear];
+            if (Replay_ReplayMode != 2) {
               vel = vel << 9;
             }
-          }
+            else {
+              vel = vel << (Replay_ReplayInterface.speed + 7U);
+            }
           }
         }
         if ((carObj->wheelLock != 0) && ((carObj->wheelLock & rear + 1U) != 0)) {
@@ -1407,11 +1408,12 @@ R_ICFt_wheelspinRpmCalc:
   }
   {
     u_short brakeLight;
-    if (((carObj->control).desiredBrakeLevel == '\0') || ((carObj->control).hanno != 0)) {
-      brakeLight = (carObj->render).brakeLight & 0xfe;
+    if (((carObj->control).desiredBrakeLevel != '\0') &&
+        ((carObj->control).hanno == 0)) {
+      brakeLight = (carObj->render).brakeLight | 1;
     }
     else {
-      brakeLight = (carObj->render).brakeLight | 1;
+      brakeLight = (carObj->render).brakeLight & 0xfe;
     }
     (carObj->render).brakeLight = brakeLight;
   }

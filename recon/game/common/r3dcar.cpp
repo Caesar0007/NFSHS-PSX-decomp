@@ -1200,7 +1200,6 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
   int rideHeight;
   int countryFlag;
   int rightHandDrive;
-  matrixtdef *pmStack_2c;
 
   rightHandDrive = 0;
   rideHeight = (carObj->render).rideHeight;
@@ -1589,7 +1588,6 @@ R_ICFt_loop2Post:
     }
   }
   obj = R3DCar_LoadedScenePointer[countryFlag][carType]->obj[0];
-  pmStack_2c = (matrixtdef *)((int)Vi + 0x44);
   parent.x = (obj->translation).x;
   parent.y = (obj->translation).y;
   parent.z = (obj->translation).z;
@@ -1639,18 +1637,21 @@ R_ICFt_loop2Post:
     tmp.x = ((carObj->N).position.x + translation.x) - *(int *)((int)Vi + 8);
     tmp.y = ((carObj->N).position.y + translation.y) - *(int *)((int)Vi + 0xc);
     tmp.z = ((carObj->N).position.z + translation.z) - *(int *)((int)Vi + 0x10);
-    transform(&tmp.x,pmStack_2c->m,(int *)((int)R3DCar_position + i * 0xc));
+    transform(&tmp.x,((matrixtdef *)((int)Vi + 0x44))->m,
+              (int *)((int)R3DCar_position + i * 0xc));
     if (carType == 0x1c) {
       if (i == 0x1f) {
         fixedxformy(&tmpMat,(carObj->N).wheelRot[0]);
         Math_fasttransmult(&tmpMat,&bodyMat,&tmpMat);
-        Math_fasttransmult(&tmpMat,pmStack_2c,(matrixtdef *)((int)R3DCar_orientMat + 0x45c));
+        Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
+                           (matrixtdef *)((int)R3DCar_orientMat + 0x45c));
       }
       else {
         if (i != 0x23) goto switchD_800b0a34_caseD_29;
         fixedxformx(&tmpMat,(carObj->N).wheelRot[1]);
         Math_fasttransmult(&tmpMat,&bodyMat,&tmpMat);
-        Math_fasttransmult(&tmpMat,pmStack_2c,(matrixtdef *)((int)R3DCar_orientMat + 0x4ec));
+        Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
+                           (matrixtdef *)((int)R3DCar_orientMat + 0x4ec));
       }
       goto R_ICFt_matrixCopyDone;
     }

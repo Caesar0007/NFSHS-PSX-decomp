@@ -226,274 +226,147 @@ void AIHigh_Player::SetupBlockade()
   int posIndex;
   int loop;
   int needed[2];
-  AIHigh_Cop*thisCop;
-  int addToSlice;
 
   short sVar1;
 
   bool bVar2;
 
-  trigger_t *ptVar3;
-
   int iVar4;
 
   Speaker *pSVar5;
-
-  AIState_Base *pAVar6;
 
   int iVar7;
 
   int (*pcVar8)(...);
 
-  Car_tObj *pCVar9;
-
-  AIHigh_Base *pAVar10;
-
-  Car_tObj **ppCVar11;
-
-  Car_tObj *pCVar12;
-
-  u_int uVar13;
-
-  int iVar14;
-
   int iVar15;
-
-  Car_tObj *pCVar16;
-
-  copLevel_t *pcVar17;
-
-  AIHigh_Base *pAVar18;
 
   u_int uVar19;
 
-  int local_50;
-
-  int local_4c;
-
-  Car_tObj *local_48 [2];
-
-  int local_40;
-
-  int local_3c;
-
-  Car_tObj *pCStack_38;
-
-  int local_34;
-
-  Car_tObj *local_30;
-
-  
-
-  pCVar9 = this->carObj_;
-
-  pcVar17 = (this->perpChaseInfo_).chaseLevel_;
-
-  iVar14 = pCVar9->direction * 0x53;
-
-  if (iVar14 < 0) {
-
-    iVar14 = (pCVar9->N).simRoadInfo.slice + iVar14;
-
-    if (iVar14 < 0) {
-
-      iVar14 = iVar14 + gNumSlices;
-
+  pLevel = this->perpChaseInfo_.chaseLevel_;
+  totalRoadWidth = this->carObj_->direction * 0x53;
+  if (totalRoadWidth >= 0) {
+    blockadeSlice = this->carObj_->N.simRoadInfo.slice + totalRoadWidth;
+    if (gNumSlices <= blockadeSlice) {
+      blockadeSlice = blockadeSlice - gNumSlices;
     }
-
   }
-
   else {
-
-    iVar14 = (pCVar9->N).simRoadInfo.slice + iVar14;
-
-    if (gNumSlices <= iVar14) {
-
-      iVar14 = iVar14 - gNumSlices;
-
+    blockadeSlice = this->carObj_->N.simRoadInfo.slice + totalRoadWidth;
+    if (blockadeSlice < 0) {
+      blockadeSlice = blockadeSlice + gNumSlices;
     }
-
   }
 
-  local_50 = pcVar17->copBlockaders[0];
+  nCopsNeeded[0] = pLevel->copBlockaders[0];
+  nCopsNeeded[1] = pLevel->copBlockaders[1];
+  blockadeHandle = triggerManagerCops->CheckForClosestTriggerOfType(
+      blockadeSlice,(triggerType)2,this->carObj_->direction);
 
-  local_4c = pcVar17->copBlockaders[1];
+  if (blockadeHandle != -1) {
 
-  iVar14 = triggerManagerCops->CheckForClosestTriggerOfType(iVar14, (triggerType)2, (this->carObj_)->direction);
-
-  if (iVar14 == -1) {
-
-LAB_80062130:
-
-    this->CheckForNewLevel(1);
-
-  }
-
-  else {
-
-    iVar15 = 0;
-
-    ptVar3 = triggerManagerCops->GetTrigger(iVar14, (int *)(local_48 + 4));
-
+    blockade = triggerManagerCops->GetTrigger(blockadeHandle,&used);
+    loop = 0;
     do {
-
-      bVar2 = false;
-
-      pCVar9 = AILife_IsSliceInAnyVisibleArea(*(int *)(ptVar3 + 4));
-
-      if ((pCVar9 != (Car_tObj *)0x0) ||
-
-         (pCVar9 = AILife_IsSliceCloseToAnyCopCar(*(int *)(ptVar3 + 4))
-
-         , pCVar9 != (Car_tObj *)0x0)) {
-
-        bVar2 = true;
-
+      if ((AILife_IsSliceInAnyVisibleArea(blockade->roadblock.slice) != 0) ||
+          (AILife_IsSliceCloseToAnyCopCar(blockade->roadblock.slice) != 0)) {
+        blockadeHandle = blockade->roadblock.slice + 1;
+        if (gNumSlices <= blockadeHandle) {
+          blockadeHandle = blockade->roadblock.slice - (gNumSlices - 1);
+        }
       }
-
-      if (!bVar2) break;
-
-      iVar14 = *(int *)(ptVar3 + 4) + 1;
-
-      if (gNumSlices <= iVar14) {
-
-        iVar14 = *(int *)(ptVar3 + 4) - (gNumSlices + -1);
-
+      else {
+        break;
       }
+      blockadeHandle = triggerManagerCops->CheckForClosestTriggerOfType(
+          blockadeHandle,(triggerType)2,this->carObj_->direction);
+      if (blockadeHandle == -1) goto LAB_80062130;
 
-      iVar14 = triggerManagerCops->CheckForClosestTriggerOfType(iVar14, (triggerType)2, (this->carObj_)->direction);
+      blockade = triggerManagerCops->GetTrigger(blockadeHandle,&used);
+      loop = loop + 1;
+    } while (loop < 4);
 
-      if (iVar14 == -1) goto LAB_80062130;
-
-      iVar15 = iVar15 + 1;
-
-      ptVar3 = triggerManagerCops->GetTrigger(iVar14, (int *)(local_48 + 4));
-
-    } while (iVar15 < 4);
-
-    pCVar16 = *(Car_tObj **)(ptVar3 + 4);
-
-    pCVar9 = (Car_tObj *)0xffffffff;
-
-    if (pcVar17->spikeBelt != 0) {
-
-      pCVar9 = pCVar16;
-
+    blockadeSlice = blockade->roadblock.slice;
+    requestSpikeBeltAtSlice = -1;
+    if (pLevel->spikeBelt != 0) {
+      requestSpikeBeltAtSlice = blockadeSlice;
     }
 
-    ppCVar11 = Cars_gCopCarList;
+    nCopsAvail[0] = 0;
 
-    local_48[0] = (Car_tObj *)0x0;
+    nCopsAvail[1] = 0;
 
-    local_48[1] = (Car_tObj *)0x0;
+    needed[0] = nCopsNeeded[0];
 
-    local_40 = local_50;
+    needed[1] = nCopsNeeded[1];
 
-    local_3c = local_4c;
-
-    for (iVar14 = 0; pAVar18 = (AIHigh_Base *)0x0, iVar14 < Cars_gNumCopCars; iVar14 = iVar14 + 1) {
-
-      pAVar18 = highLevelAIObjs[(*ppCVar11)->carIndex];
-
-      bVar2 = false;
-
-      if ((((*ppCVar11)->AIFlags & 4U) != 0) && (pAVar18[1].stateType_ == 1)) {
-
-        bVar2 = local_48[(int)((int)&((pAVar18[1].carObj_)->N).objID + 2)] != (Car_tObj *)0x0;
-
+    {
+      AIHigh_Cop *thisCop;
+      for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
+        thisCop = (AIHigh_Cop *)highLevelAIObjs[
+            Cars_gCopCarList[copLoop]->carIndex];
+        bVar2 = false;
+        if (((Cars_gCopCarList[copLoop]->AIFlags & 4U) != 0) &&
+            (thisCop->blockade_.mode == 1)) {
+          bVar2 = needed[thisCop->type_] != 0;
+        }
+        if (bVar2) {
+          needed[thisCop->type_] = needed[thisCop->type_] - 1;
+          nCopsAvail[thisCop->type_] = nCopsAvail[thisCop->type_] + 1;
+        }
       }
-
-      if (bVar2) {
-
-        local_48[(int)((int)&((pAVar18[1].carObj_)->N).objID + 2)] =
-
-             (Car_tObj *)
-
-             ((int)&local_48[(int)((int)&((pAVar18[1].carObj_)->N).objID + 2)][-1].async_handle + 3)
-
-        ;
-
-        local_48[(int)pAVar18[1].carObj_] =
-
-             (Car_tObj *)((int)&(local_48[(int)pAVar18[1].carObj_]->N).objID + 1);
-
-      }
-
-      ppCVar11 = ppCVar11 + 1;
-
     }
 
     randtemp = fastRandom * randSeed;
 
-    uVar13 = 0;
+    posIndex = 0;
 
-    pCVar12 = (Car_tObj *)0x1;
-
-    local_34 = 0;
+    saySpikeBelt = false;
 
     fastRandom = randtemp & 0xffff;
 
-    uVar19 = (u_int)(u_char)"\x05\x06\x04\x02"[(randtemp >> 8 & 0xffff) % 5];
+    blockadeFlags =
+        (u_int)(u_char)"\x05\x06\x04\x02"[(randtemp >> 8 & 0xffff) % 5];
 
-    for (iVar14 = 0; iVar14 < Cars_gNumCopCars; iVar14 = iVar14 + 1) {
+    blockadeCar = (AIHigh_Cop *)0x0;
+    {
+      AIHigh_Cop *thisCop;
+      blockade_t *copBlockade;
+      for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
 
-      pAVar10 = highLevelAIObjs[Cars_gCopCarList[iVar14]->carIndex];
+      thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
+      copBlockade = &thisCop->blockade_;
+      if (((Cars_gCopCarList[copLoop]->AIFlags & 4U) != 0) &&
+          (thisCop->blockade_.mode == 1)) {
 
-      if (((Cars_gCopCarList[iVar14]->AIFlags & 4U) != 0) &&
+        if ((thisCop->type_ == 1) && (nCopsNeeded[1] != 0)) {
+          int addToSlice;
 
-         ((Car_tObj *)pAVar10[1].stateType_ == pCVar12)) {
+          if (blockadeCar == (AIHigh_Cop *)0x0) {
 
-        if ((pAVar10[1].carObj_ == pCVar12) && (local_4c != 0)) {
-
-          if (pAVar18 == (AIHigh_Base *)0x0) {
-
-            pAVar18 = pAVar10;
-
-          }
-
-          local_4c = local_4c + -1;
-
-          *(u_short *)&pAVar10[3].stateType_ = 0;
-
-          pAVar10[1].lastTrafficTriggerCheckSlice_ = uVar19;
-
-          pAVar10[1]._vf = (__vtbl_ptr_type (*) [3])(this->perpChaseInfo_).chaseLevelIndex_;
-
-          pAVar10[1].stateType_ = 2;
-
-          iVar15 = (((int)uVar13 / 2) * 2 + 3) *
-
-                   (this->carObj_)->direction;
-
-          if (iVar15 < 0) {
-
-            pAVar6 = (AIState_Base *)((int)(pCVar16->N).simRoadInfo.quadPts + iVar15 + -0x10);
-
-            if ((int)pAVar6 < 0) {
-
-              pAVar6 = (AIState_Base *)((int)&pAVar6->carObj_ + gNumSlices);
-
-            }
+            blockadeCar = thisCop;
 
           }
 
-          else {
+          nCopsNeeded[1] = nCopsNeeded[1] + -1;
 
-            pAVar6 = (AIState_Base *)((int)(pCVar16->N).simRoadInfo.quadPts + iVar15 + -0x10);
+          copBlockade->blockadeSpeechFlags = 0;
+          copBlockade->flags = blockadeFlags;
+          copBlockade->chaseLevel = this->perpChaseInfo_.chaseLevelIndex_;
+          copBlockade->mode = 2;
 
-            if (gNumSlices <= (int)pAVar6) {
-
-              pAVar6 = (AIState_Base *)((int)pAVar6 - gNumSlices);
-
-            }
-
+          addToSlice = ((posIndex / 2) * 2 + 3) * this->carObj_->direction;
+          copBlockade->slice = blockadeSlice + addToSlice;
+          if (copBlockade->slice < 0) {
+            copBlockade->slice = copBlockade->slice + gNumSlices;
+          }
+          else if (gNumSlices <= copBlockade->slice) {
+            copBlockade->slice = copBlockade->slice - gNumSlices;
           }
 
-          pAVar10[2].state_ = pAVar6;
+          copBlockade->direction = this->carObj_->direction;
 
-          pAVar10[2].stateType_ = (this->carObj_)->direction;
-
-          iVar7 = (int)pAVar10[2].state_ * 0x20 + (int)BWorldSm_slices;
+          iVar7 = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
 
           iVar15 = (u_int)*(u_char *)(iVar7 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar7 + 0x1d) >> 4);
 
@@ -501,9 +374,9 @@ LAB_80062130:
 
           ;
 
-          if ((local_48[1] == pCVar12) && (local_48[0] == (Car_tObj *)0x0)) {
+          if ((nCopsAvail[1] == 1) && (nCopsAvail[0] == 0)) {
 
-            pAVar10[2].schedulingOff_ = (uVar19 >> 1) - iVar15;
+            copBlockade->latPos = (uVar19 >> 1) - iVar15;
 
             iVar4 = 0xff;
 
@@ -513,11 +386,11 @@ LAB_80062130:
 
             iVar15 = (int)uVar19 >> 2;
 
-            if ((uVar13 & 1) == 0) {
+            if ((posIndex & 1) == 0) {
 
-              iVar7 = (int)pAVar10[2].state_ * 0x20 + (int)BWorldSm_slices;
+              iVar7 = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
 
-              pAVar10[2].schedulingOff_ =
+              copBlockade->latPos =
 
                    iVar15 - (u_int)*(u_char *)(iVar7 + 0x1e) * 0x8000 *
 
@@ -529,11 +402,11 @@ LAB_80062130:
 
             else {
 
-              iVar7 = (int)pAVar10[2].state_ * 0x20 + (int)BWorldSm_slices;
+              iVar7 = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
 
               iVar4 = -0xbe;
 
-              pAVar10[2].schedulingOff_ =
+              copBlockade->latPos =
 
                    iVar15 * 3 -
 
@@ -543,23 +416,20 @@ LAB_80062130:
 
           }
 
-          pAVar10[2].lastTrafficTriggerCheckSlice_ = iVar4;
+          copBlockade->rotation = iVar4;
 
           randtemp = fastRandom * randSeed;
 
-          pAVar6 = pAVar10[2].state_;
-
-          pAVar10[1].schedulingOff_ = (int)this;
-
-          pAVar10[2]._vf = (__vtbl_ptr_type (*) [3])0x0;
-
-          pAVar10[3].carObj_ = (Car_tObj *)(((randtemp >> 8 & 0xffff) * 0x14ccd >> 0x10) + 0xd999);
+          copBlockade->target = this;
+          copBlockade->reverse = 0;
+          copBlockade->releaseTime =
+              ((randtemp >> 8 & 0xffff) * 0x14ccd >> 0x10) + 0xd999;
 
           fastRandom = randtemp & 0xffff;
 
-          local_30 = pCVar12;
+          saySpikeBelt = true;
 
-          iVar15 = AIWorld_ApxSplineDistance(this->carObj_,(int)pAVar6);
+          iVar15 = AIWorld_ApxSplineDistance(this->carObj_,copBlockade->slice);
 
           if (iVar15 < 0) {
 
@@ -567,95 +437,71 @@ LAB_80062130:
 
           }
 
-          pAVar10[3].state_ = (AIState_Base *)-(iVar15 >> 0x10);
+          copBlockade->initialPlayerDistanceMetersInt = -(iVar15 >> 0x10);
 
           if (-(iVar15 >> 0x10) * (this->carObj_)->direction < 0) {
 
-            pAVar10[3].state_ = (AIState_Base *)0x0;
+            copBlockade->initialPlayerDistanceMetersInt = 0;
 
           }
 
         }
 
         else {
+          int addToSlice;
 
-          if (local_50 == 0) goto LAB_800620e8;
+          if (nCopsNeeded[0] == 0) goto LAB_800620e8;
 
-          if (pAVar18 == (AIHigh_Base *)0x0) {
+          if (blockadeCar == (AIHigh_Cop *)0x0) {
 
-            pAVar18 = pAVar10;
-
-          }
-
-          local_50 = local_50 + -1;
-
-          *(u_short *)&pAVar10[3].stateType_ = 0;
-
-          pAVar10[1].lastTrafficTriggerCheckSlice_ = uVar19;
-
-          pAVar10[1]._vf = (__vtbl_ptr_type (*) [3])(this->perpChaseInfo_).chaseLevelIndex_;
-
-          pAVar10[1].stateType_ = 2;
-
-          iVar15 = (((int)uVar13 / 2) * 2 + 3) *
-
-                   (this->carObj_)->direction;
-
-          if (iVar15 < 0) {
-
-            pAVar6 = (AIState_Base *)((int)(pCVar16->N).simRoadInfo.quadPts + iVar15 + -0x10);
-
-            if ((int)pAVar6 < 0) {
-
-              pAVar6 = (AIState_Base *)((int)&pAVar6->carObj_ + gNumSlices);
-
-            }
+            blockadeCar = thisCop;
 
           }
 
-          else {
+          nCopsNeeded[0] = nCopsNeeded[0] + -1;
 
-            pAVar6 = (AIState_Base *)((int)(pCVar16->N).simRoadInfo.quadPts + iVar15 + -0x10);
+          copBlockade->blockadeSpeechFlags = 0;
+          copBlockade->flags = blockadeFlags;
+          copBlockade->chaseLevel = this->perpChaseInfo_.chaseLevelIndex_;
+          copBlockade->mode = 2;
 
-            if (gNumSlices <= (int)pAVar6) {
-
-              pAVar6 = (AIState_Base *)((int)pAVar6 - gNumSlices);
-
-            }
-
+          addToSlice = ((posIndex / 2) * 2 + 3) * this->carObj_->direction;
+          copBlockade->slice = blockadeSlice + addToSlice;
+          if (copBlockade->slice < 0) {
+            copBlockade->slice = copBlockade->slice + gNumSlices;
+          }
+          else if (gNumSlices <= copBlockade->slice) {
+            copBlockade->slice = copBlockade->slice - gNumSlices;
           }
 
-          pAVar10[2].state_ = pAVar6;
+          randtemp = fastRandom * randSeed;
 
-          uVar19 = fastRandom * randSeed;
+          copBlockade->direction = this->carObj_->direction;
 
-          pAVar10[2].stateType_ = (this->carObj_)->direction;
+          fastRandom = randtemp & 0xffff;
 
-          fastRandom = uVar19 & 0xffff;
+          if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < 300) {
 
-          if ((uVar19 >> 8 & 0xffff) * 1000 >> 0x10 < 300) {
-
-            pAVar10[2]._vf = (__vtbl_ptr_type (*) [3])pCVar12;
+            copBlockade->reverse = 1;
 
           }
 
           else {
 
-            pAVar10[2]._vf = (__vtbl_ptr_type (*) [3])0x0;
+            copBlockade->reverse = 0;
 
           }
 
           randtemp = fastRandom * randSeed;
 
-          pAVar6 = pAVar10[2].state_;
-
-          pAVar10[3].carObj_ = (Car_tObj *)(((randtemp >> 8 & 0xffff) * 0x14ccd >> 0x10) + 0xd999);
+          copBlockade->releaseTime =
+              ((randtemp >> 8 & 0xffff) * 0x14ccd >> 0x10) + 0xd999;
 
           fastRandom = randtemp & 0xffff;
 
-          local_30 = pCVar12;
+          saySpikeBelt = true;
 
-          iVar15 = AIWorld_ApxSplineDistance(this->carObj_,(int)pAVar6);
+          iVar15 = AIWorld_ApxSplineDistance(this->carObj_,copBlockade->slice);
 
           if (iVar15 < 0) {
 
@@ -663,15 +509,15 @@ LAB_80062130:
 
           }
 
-          pAVar10[3].state_ = (AIState_Base *)-(iVar15 >> 0x10);
+          copBlockade->initialPlayerDistanceMetersInt = -(iVar15 >> 0x10);
 
           if (-(iVar15 >> 0x10) * (this->carObj_)->direction < 0) {
 
-            pAVar10[3].state_ = (AIState_Base *)0x0;
+            copBlockade->initialPlayerDistanceMetersInt = 0;
 
           }
 
-          iVar7 = (int)pAVar10[2].state_ * 0x20 + (int)BWorldSm_slices;
+          iVar7 = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
 
           iVar15 = (u_int)*(u_char *)(iVar7 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar7 + 0x1d) >> 4);
 
@@ -679,9 +525,9 @@ LAB_80062130:
 
           ;
 
-          if ((local_48[0] == local_30) && (local_48[1] == (Car_tObj *)0x0)) {
+          if ((nCopsAvail[0] == 1) && (nCopsAvail[1] == 0)) {
 
-            pAVar10[2].schedulingOff_ = (uVar19 >> 1) - iVar15;
+            copBlockade->latPos = (uVar19 >> 1) - iVar15;
 
             iVar4 = 0xff;
 
@@ -691,11 +537,11 @@ LAB_80062130:
 
             iVar15 = (int)uVar19 >> 2;
 
-            if ((uVar13 & 1) == 0) {
+            if ((posIndex & 1) == 0) {
 
-              iVar7 = (int)pAVar10[2].state_ * 0x20 + (int)BWorldSm_slices;
+              iVar7 = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
 
-              pAVar10[2].schedulingOff_ =
+              copBlockade->latPos =
 
                    iVar15 - (u_int)*(u_char *)(iVar7 + 0x1e) * 0x8000 *
 
@@ -707,11 +553,11 @@ LAB_80062130:
 
             else {
 
-              iVar7 = (int)pAVar10[2].state_ * 0x20 + (int)BWorldSm_slices;
+              iVar7 = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
 
               iVar4 = -0xbe;
 
-              pAVar10[2].schedulingOff_ =
+              copBlockade->latPos =
 
                    iVar15 * 3 -
 
@@ -721,43 +567,36 @@ LAB_80062130:
 
           }
 
-          pAVar10[2].lastTrafficTriggerCheckSlice_ = iVar4;
+          copBlockade->rotation = iVar4;
 
-          pAVar10[1].schedulingOff_ = (int)this;
-
-        }
-
-        uVar19 = 0;
-
-        if (pCVar9 != (Car_tObj *)0xffffffff) {
-
-          local_34 = 1;
-
-          pAVar10[2].carObj_ = pCVar9;
-
-          pCVar9 = (Car_tObj *)0xffffffff;
+          copBlockade->target = this;
 
         }
 
-        (this->perpChaseInfo_).blockadeDone_ = (int)local_30;
+        if (requestSpikeBeltAtSlice != -1) {
+          saySpikeBelt = true;
+          copBlockade->requestSpikeBeltAtSlice = requestSpikeBeltAtSlice;
+          requestSpikeBeltAtSlice = -1;
+        }
 
-        uVar13 = uVar13 + 1;
+        (this->perpChaseInfo_).blockadeDone_ = 1;
 
-        pCVar12 = local_30;
+        posIndex = posIndex + 1;
 
       }
 
 LAB_800620e8: ;   /* empty stmt: gcc2.7.2 label before brace */
 
+      }
     }
 
-    if (pAVar18 != (AIHigh_Base *)0x0) {
+    if (blockadeCar != (AIHigh_Cop *)0x0) {
 
-      *(u_short *)&pAVar18[3].stateType_ = 1;
+      blockadeCar->blockade_.blockadeSpeechFlags = 1;
 
-      if (local_34 == 0) {
+      if (!saySpikeBelt) {
 
-        pSVar5 = (Speaker *)Speech_Mobile(pAVar18->carObj_);
+        pSVar5 = (Speaker *)Speech_Mobile(blockadeCar->carObj_);
 
         sVar1 = (*pSVar5->_vf)[11].delta;
 
@@ -767,7 +606,7 @@ LAB_800620e8: ;   /* empty stmt: gcc2.7.2 label before brace */
 
       else {
 
-        pSVar5 = (Speaker *)Speech_Mobile(pAVar18->carObj_);
+        pSVar5 = (Speaker *)Speech_Mobile(blockadeCar->carObj_);
 
         sVar1 = (*pSVar5->_vf)[10].delta;
 
@@ -777,7 +616,7 @@ LAB_800620e8: ;   /* empty stmt: gcc2.7.2 label before brace */
 
       (*pcVar8)((int)pSVar5 + (int)sVar1);
 
-      pSVar5 = (Speaker *)Speech_Mobile(pAVar18->carObj_);
+      pSVar5 = (Speaker *)Speech_Mobile(blockadeCar->carObj_);
 
       (*(*pSVar5->_vf)[6].pfn)((int)pSVar5 + (*pSVar5->_vf)[6].delta,
 
@@ -791,10 +630,13 @@ LAB_800620e8: ;   /* empty stmt: gcc2.7.2 label before brace */
 
       (*(*pSVar5->_vf)[5].pfn)((int)pSVar5 + (*pSVar5->_vf)[5].delta,
 
-                 pAVar18->carObj_);
+                 blockadeCar->carObj_);
 
     }
-
+  }
+  else {
+LAB_80062130:
+    this->CheckForNewLevel(1);
   }
 
   return;

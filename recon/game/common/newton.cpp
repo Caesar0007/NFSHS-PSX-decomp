@@ -652,18 +652,13 @@ extern "C" int Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coord
 int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *normal)
 
 {
-  coorddef roadCenterPoint;
   int r2;
   int r3;
   int r4;
-  coorddef lengthVector;
-  coorddef widthVector;
-  coorddef carGroundCoord;
   int v1;
   int r1;
   coorddef roadNormal;
   int roadSurfaceType;
-  coorddef wheelVec;
   int limit;
   int wheelBounce;
   int speed;
@@ -719,7 +714,6 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
   coorddef tireCoord [4];
   coorddef carNormal;
   coorddef wheelHeight [4];
-  coorddef vecOffset;
   BWorldSm_Pos testSimRoadInfo;
   coorddef tempVecX;
   coorddef tempVecY;

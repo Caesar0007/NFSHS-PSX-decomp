@@ -382,7 +382,7 @@ int AudioEng_StartUp(int playerArg,char *carnameArg)
   if (AudioEng_g[player] != (AudioEng_t *)0x0) {
     return 0;
   }
-  bankloaded = 0;
+  spu = 0;
   g = reservememadr("Engine Audio",0x370,0);
   i = 0;
   AudioEng_g[player] = g;
@@ -417,101 +417,62 @@ int AudioEng_StartUp(int playerArg,char *carnameArg)
   (g->adjust).timbreScale = 'h';
   g->setpos = '\0';
   g->plypos = '\0';
-  bVar1 = false;
+  bankloaded = 0;
   if (GameSetup_gData.commMode == 1) {
-    pcVar9 = "%s%sens.viv";
+    sprintf(filename,"%s%sens.viv",Paths_Paths[28],carname);
   }
   else {
-    pcVar9 = "%s%seng.viv";
+    sprintf(filename,"%s%seng.viv",Paths_Paths[28],carname);
   }
-  sprintf(filename,pcVar9,Paths_Paths[28],carname);
-  pcVar9 = (char *)loadbigfileheader(filename,(void *)0x10);
-  if (pcVar9 == (char *)0x0) {
+  header = (char *)loadbigfileheader(filename,(void *)0x10);
+  if (header == (char *)0x0) {
     if (GameSetup_gData.commMode == 1) {
-      pcVar9 = "%sp993ens.viv";
+      sprintf(filename,"%sp993ens.viv",Paths_Paths[28]);
     }
     else {
-      pcVar9 = "%sp993eng.viv";
+      sprintf(filename,"%sp993eng.viv",Paths_Paths[28]);
     }
-    sprintf(filename,pcVar9,Paths_Paths[28]);
-    pcVar9 = (char *)loadbigfileheader(filename,(void *)0x10);
-    if (pcVar9 == (char *)0x0) goto LAB_8007c1ac;
+    header = (char *)loadbigfileheader(filename,(void *)0x10);
+    if (header == (char *)0x0) goto LAB_8007c1ac;
   }
   FILE_opensync(filename,1,0x64,&handle);   /* oracle 0x8007c03c: a3=&handle out */
-  for (i = 0; iVar4 = bigcount(pcVar9), i < iVar4;
+  for (i = 0; iVar4 = bigcount(header), i < iVar4;
       i = i + 1) {
-    pThis = locatebigentry(pcVar9,(char *)0x0,i,&offset,&size);   /* oracle 0x8007c06c: a2=i a3=&offset stk=&size */
-    iVar4 = wildcard((u_char *)pThis,"*.bnk");
-    if ((iVar4 == 0) || (bVar1)) {
-      iVar4 = wildcard((u_char *)pThis,"*.ltb");
-      if ((iVar4 == 0) || (loaddef != (AudioEng_tDef *)0x0)) {
-        iVar4 = wildcard((u_char *)pThis,"*.ctb");
-        if ((iVar4 == 0) || (cruisedef != (AudioEng_tDef *)0x0)) goto LAB_8007c190;
-        ed = &cruisedef;
+    current = (char *)locatebigentry(header,(char *)0x0,i,&offset,&size);   /* oracle 0x8007c06c: a2=i a3=&offset stk=&size */
+    if ((wildcard((u_char *)current,"*.bnk") != 0) && !bankloaded) {
+      pdata = reservememadr(current,size,0x10);
+      if (pdata != (char *)0x0) {
+        bankloaded = 1;
+        FILE_readsync(handle,offset,pdata,size,0x64);   /* oracle 0x8007c0c8: a0=h a1=off a2=pdata a3=size stk=0x64 */
+        spu = AudioCmn_AddBank(current,size,pdata,player);
+        g->bhandle = (char)gSndBnk[player].bnkID;
       }
-      else {
-        ed = &loaddef;
-      }
-      AudioEng_LoadDef(filename,(char *)pThis,handle,offset,size,ed);
     }
     else {
-      pdata = reservememadr(pThis,size,0x10);
-      if (pdata != (char *)0x0) {
-        bVar1 = true;
-        FILE_readsync(handle,offset,pdata,size,0x64);   /* oracle 0x8007c0c8: a0=h a1=off a2=pdata a3=size stk=0x64 */
-        bankloaded = AudioCmn_AddBank((char *)pThis,size,pdata,player);
-        g->bhandle = (char)gSndBnk[player].bnkID;
+      if ((wildcard((u_char *)current,"*.ltb") != 0) &&
+          (loaddef == (AudioEng_tDef *)0x0)) {
+        AudioEng_LoadDef(filename,current,handle,offset,size,&loaddef);
+      }
+      else if ((wildcard((u_char *)current,"*.ctb") != 0) &&
+               (cruisedef == (AudioEng_tDef *)0x0)) {
+        AudioEng_LoadDef(filename,current,handle,offset,size,&cruisedef);
       }
     }
 LAB_8007c190: ;   /* empty stmt: gcc2.7.2 rejects label before '}' */
   }
   FILE_closesync(handle,100);   /* oracle 0x8007c198/c1a0: a0=handle a1=0x64 (both were dropped) */
-  purgememadr(pcVar9);
+  purgememadr(header);
 LAB_8007c1ac:
-  if (!bVar1) {
-    return bankloaded;
+  if (!bankloaded) {
+    return spu;
   }
   if (cruisedef == (AudioEng_tDef *)0x0) {
-    return bankloaded;
+    return spu;
   }
-  i = 0;
   if (loaddef == (AudioEng_tDef *)0x0) {
-    return bankloaded;
+    return spu;
   }
-  do {
-    if (1 < i) {
-      dest = reservememadr("Engine Tables",tablesize,0)
-      ;
-      g->tables = (char *)dest;
-      for (i = 0; i < 2; i = i + 1) {
-        iVar4 = 0;
-        pAVar11 = cruisedef;
-        if (i != 0) {
-          pAVar11 = loaddef;
-        }
-        iVar12 = 0;
-        for (; iVar4 < 8; iVar4 = iVar4 + 1) {
-          psVar5 = (short *)((int)&g->chan[0].min + iVar12);
-          if (i != 0) {
-            psVar5 = psVar5 + 0x30;
-          }
-          iVar13 = (int)*psVar5;
-          puVar16 = dest;
-          if (psVar5[1] != iVar13) {
-            iVar14 = psVar5[1] - iVar13;
-            *(u_char **)(psVar5 + 2) = dest;
-            puVar16 = dest + iVar14;
-            memcpy(dest,(u_char *)(pAVar11->pvoltable[0]->xlate + iVar13),iVar14);
-          }
-          pAVar11 = (AudioEng_tDef *)&pAVar11->ver;
-          iVar12 = iVar12 + 0xc;
-          dest = puVar16;
-        }
-      }
-      purgememadr(loaddef);
-      purgememadr(cruisedef);
-      return bankloaded;
-    }
+  for (i = 0; i < 2; i = i + 1) {
     pAVar11 = cruisedef;
     if (i != 0) {
       pAVar11 = loaddef;
@@ -564,8 +525,37 @@ LAB_8007c2c4:
         iVar12 = iVar12 + 4;
       }
     }
-    i = i + 1;
-  } while( true );
+  }
+  dest = reservememadr("Engine Tables",tablesize,0);
+  g->tables = (char *)dest;
+  for (i = 0; i < 2; i = i + 1) {
+    iVar4 = 0;
+    pAVar11 = cruisedef;
+    if (i != 0) {
+      pAVar11 = loaddef;
+    }
+    iVar12 = 0;
+    for (; iVar4 < 8; iVar4 = iVar4 + 1) {
+      psVar5 = (short *)((int)&g->chan[0].min + iVar12);
+      if (i != 0) {
+        psVar5 = psVar5 + 0x30;
+      }
+      iVar13 = (int)*psVar5;
+      puVar16 = dest;
+      if (psVar5[1] != iVar13) {
+        iVar14 = psVar5[1] - iVar13;
+        *(u_char **)(psVar5 + 2) = dest;
+        puVar16 = dest + iVar14;
+        memcpy(dest,(u_char *)(pAVar11->pvoltable[0]->xlate + iVar13),iVar14);
+      }
+      pAVar11 = (AudioEng_tDef *)&pAVar11->ver;
+      iVar12 = iVar12 + 0xc;
+      dest = puVar16;
+    }
+  }
+  purgememadr(loaddef);
+  purgememadr(cruisedef);
+  return spu;
 }
 
 /* ---- AudioEng_StartServer__Fv  [@0x8007c434] ---- */

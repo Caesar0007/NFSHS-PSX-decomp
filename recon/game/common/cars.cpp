@@ -520,302 +520,244 @@ void Cars_SetCarUpForHiRezSim(Car_tObj *carObj)
 void Cars_DoExtraCarCollisionProcessing(Car_tObj *carObj)
 {
   int y;
-  int wheel;
-  int roadSurfaceWheel;
-  int surfaceType;
-  coorddef position;
-  coorddef point;
-  coorddef sideX;
-  coorddef sideZ;
-  int surface1;
-  int surface2;
-  int collisionType;
-  int debris;
-  bool bVar1;
-  int iVar2;
-  u_int uVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  u_short uVar9;
-  u_int uVar10;
 
   if ((carObj->carFlags & 0x400U) != 0) {
     return;
   }
   y = carObj->blowout;
   if (y != 0) {
-    iVar2 = (carObj->linearVel_ch).z;
-    if (iVar2 < 0) {
-      iVar2 = -iVar2;
-    }
-    if (iVar2 < 0x1999) {
-      iVar2 = (carObj->linearVel_ch).x;
-      if (iVar2 < 0) {
-        iVar2 = -iVar2;
-      }
-      if (iVar2 < 0x1999) {
+    if ((carObj->linearVel_ch.z < 0 ? -carObj->linearVel_ch.z :
+         carObj->linearVel_ch.z) < 0x1999) {
+      if ((carObj->linearVel_ch.x < 0 ? -carObj->linearVel_ch.x :
+           carObj->linearVel_ch.x) < 0x1999) {
         carObj->blowout = y + 1;
       }
     }
-    if (0x140 < carObj->blowout) {
+    if (carObj->blowout > 0x140) {
       carObj->blowout = 0;
       Cars_ResetCollidedCars(carObj,1,0);
     }
-    if (carObj->blowout != 0) goto LAB_80086cd0;
   }
-  if ((((carObj->pullOver == 0) && ((carObj->control).abort != '\0')) &&
-      ((carObj->stats).finishType == 0)) && (0x340 < simGlobal.gameTicks)) {
-    if ((carObj->stats).fatalCrashes == 0) {
-      if ((carObj->N).speedXZ <= 0x1b9998) {
-        Cars_ResetCollidedCars(carObj,2,0);
-        (carObj->stats).fatalCrashes = 0xa0;
-        bVar1 = carObj == Cars_gHumanRaceCarList[1];
-        Camera_gInfo[bVar1].relpos.x = (carObj->N).orientMat.m[6] * -2;
-        Camera_gInfo[bVar1].relpos.y = (carObj->N).orientMat.m[7] * -2;
-        Camera_gInfo[bVar1].relpos.z = (carObj->N).orientMat.m[8] * -2;
+  if (carObj->blowout == 0) {
+    if (carObj->pullOver == 0) {
+      if (carObj->control.abort) {
+        if (carObj->stats.finishType == 0) {
+          if (simGlobal.gameTicks > 0x340) {
+            if (carObj->stats.fatalCrashes == 0) {
+              if (carObj->N.speedXZ <= 0x1b9998) {
+                int player;
+
+                Cars_ResetCollidedCars(carObj,2,0);
+                carObj->stats.fatalCrashes = 0xa0;
+                player = carObj == Cars_gHumanRaceCarList[0];
+                Camera_gInfo[player].relpos.x = -carObj->N.orientMat.m[6] * 2;
+                Camera_gInfo[player].relpos.y = -carObj->N.orientMat.m[7] * 2;
+                Camera_gInfo[player].relpos.z = -carObj->N.orientMat.m[8] * 2;
+              }
+            }
+          }
+        }
       }
     }
   }
-LAB_80086cd0:
-  iVar2 = (carObj->stats).fatalCrashes;
-  if (0 < iVar2) {
-    (carObj->stats).fatalCrashes = iVar2 + -1;
+  if (carObj->stats.fatalCrashes > 0) {
+    carObj->stats.fatalCrashes--;
   }
-  if (((carObj->collision).smoking != 0) &&
-     (TrgSfx_CrashCar(&(carObj->N).position),
-     (carObj->N).flightTime == 0)) {
-    (carObj->collision).smoking = 0;
-  }
-  if ((carObj->audioDamageScrape != 0) && ((carObj->N).simOptz == '\0')) {
-    uVar10 = 2;
-    if ((carObj->render).currentRoll < 0) {
-      uVar10 = 3;
+  if (carObj->collision.smoking) {
+    TrgSfx_CrashCar(&carObj->N.position);
+    if (carObj->N.flightTime == 0) {
+      carObj->collision.smoking = 0;
     }
-    if ((Cars_kSkidMarkSurface[carObj->wheel[uVar10].roadSurfaceType & 0xf] == 1) &&
-       (uVar3 = random(), (uVar3 & 3) == 0)) {
-      iVar2 = (carObj->N).wheelBackX;
-      if (iVar2 < 0) {
-        iVar2 = iVar2 + 0xff;
+  }
+  if (carObj->audioDamageScrape && !carObj->N.simOptz) {
+    int wheel;
+    int roadSurfaceWheel;
+    int surfaceType;
+
+    wheel = 2;
+    if (carObj->render.currentRoll < 0) {
+      wheel = 3;
+    }
+    roadSurfaceWheel = carObj->wheel[wheel].roadSurfaceType;
+    surfaceType = Cars_kSkidMarkSurface[roadSurfaceWheel & 0xf];
+    if (surfaceType == 1) {
+      if ((random() & 3) == 0) {
+        coorddef position;
+        coorddef point;
+        coorddef sideX;
+        coorddef sideZ;
+
+        sideX.x = carObj->N.wheelBackX / 0x100 * carObj->N.orientMat.m[0] / 0x100;
+        sideX.y = carObj->N.wheelBackX / 0x100 * carObj->N.orientMat.m[1] / 0x100;
+        sideX.z = carObj->N.wheelBackX / 0x100 * carObj->N.orientMat.m[2] / 0x100;
+        sideZ.x = 0;
+        sideZ.y = 0;
+        sideZ.z = 0;
+        position.x = carObj->N.position.x;
+        position.y = carObj->N.position.y;
+        position.z = carObj->N.position.z;
+        position.y = carObj->N.groundElevation;
+        if ((wheel & 1) == 0) {
+          point.x = position.x - sideX.x;
+          point.y = position.y - sideX.y;
+          point.z = position.z - sideX.z;
+        }
+        else {
+          point.x = position.x + sideX.x;
+          point.y = position.y + sideX.y;
+          point.z = position.z + sideX.z;
+        }
+        point.x -= sideZ.x;
+        point.y -= sideZ.y;
+        point.z -= sideZ.z;
+        TrgSfx_AddCarSfx(carObj->N.objID,&point,4,&carObj->N.linearVel);
       }
-      iVar2 = (iVar2 >> 8) * (carObj->N).orientMat.m[0];
-      iVar4 = iVar2 >> 8;
-      if (iVar2 < 0) {
-        iVar4 = (iVar2 + 0xff) >> 8;
-      }
-      sideX.x = iVar4;
-      iVar2 = (carObj->N).wheelBackX;
-      if (iVar2 < 0) {
-        iVar2 = iVar2 + 0xff;
-      }
-      iVar2 = (iVar2 >> 8) * (carObj->N).orientMat.m[1];
-      iVar7 = iVar2 >> 8;
-      if (iVar2 < 0) {
-        iVar7 = (iVar2 + 0xff) >> 8;
-      }
-      sideX.y = iVar7;
-      iVar2 = (carObj->N).wheelBackX;
-      if (iVar2 < 0) {
-        iVar2 = iVar2 + 0xff;
-      }
-      iVar2 = (iVar2 >> 8) * (carObj->N).orientMat.m[2];
-      iVar6 = iVar2 >> 8;
-      if (iVar2 < 0) {
-        iVar6 = (iVar2 + 0xff) >> 8;
-      }
-      sideX.z = iVar6;
-      sideZ.x = 0;
-      sideZ.y = 0;
-      sideZ.z = 0;
-      iVar5 = (carObj->N).position.x;
-      position.x = iVar5;
-      position.y = (carObj->N).position.y;
-      iVar8 = (carObj->N).position.z;
-      position.z = iVar8;
-      iVar2 = (carObj->N).groundElevation;
-      position.y = iVar2;
-      if ((uVar10 & 1) == 0) {
-        point.x = iVar5 - iVar4;
-        point.y = iVar2 - iVar7;
-        point.z = iVar8 - iVar6;
-      }
-      else {
-        point.x = iVar5 + iVar4;
-        point.y = iVar2 + iVar7;
-        point.z = iVar8 + iVar6;
-      }
-      point.x = point.x - sideZ.x;
-      point.y = point.y - sideZ.y;
-      point.z = point.z - sideZ.z;
-      TrgSfx_AddCarSfx((carObj->N).objID,&point,4,&(carObj->N).linearVel);
     }
     carObj->audioDamageScrape = 0;
   }
-  bVar1 = false;
-  if ((carObj->N).collision.impulse == 0) goto LAB_80087310;
-  uVar10 = (carObj->N).collision.sfxType & 0xefff0000;
-  if (carObj->carInfo->carType < 0x1c) {
-    uVar9 = (carObj->render).damageParts;
-    if ((uVar9 & 1) == 0) {
-      bVar1 = 0x1e0000 < (carObj->N).damage[7];
-      if (bVar1) {
-        (carObj->render).damageParts = uVar9 | 1;
-        uVar9 = (carObj->render).damageParts;
-      }
-    }
-    if (((uVar9 & 2) == 0) && (0x1e0000 < (carObj->N).damage[3])) {
-      (carObj->render).damageParts = uVar9 | 2;
-      bVar1 = true;
-    }
-    uVar9 = (carObj->render).damageParts;
-    if (((uVar9 & 4) == 0) && (0x30000 < (carObj->N).damage[8])) {
-      (carObj->render).damageParts = uVar9 | 4;
-      bVar1 = true;
-      uVar9 = (carObj->render).damageParts;
-    }
-    if (((uVar9 & 8) == 0) && (0x1e0000 < (carObj->N).damage[0])) {
-      (carObj->render).damageParts = uVar9 | 8;
-      bVar1 = true;
-    }
-    uVar9 = (carObj->render).damageParts;
-    if (((uVar9 & 0x10) == 0) && (0x1e0000 < (carObj->N).damage[2])) {
-      (carObj->render).damageParts = uVar9 | 0x10;
-      bVar1 = true;
-      uVar9 = (carObj->render).damageParts;
-    }
-    if (((uVar9 & 0x20) == 0) && (0x1e0000 < (carObj->N).damage[6])) {
-      (carObj->render).damageParts = uVar9 | 0x20;
-      bVar1 = true;
-    }
-    uVar9 = (carObj->render).damageParts;
-    if (((uVar9 & 0x40) == 0) && (0x1e0000 < (carObj->N).damage[4])) {
-      (carObj->render).damageParts = uVar9 | 0x40;
-      bVar1 = true;
-    }
-  }
-  if (((carObj->N).collision.otherObj == (BO_tNewtonObj *)0x0) &&
-     (0x4b0000 < (carObj->N).collision.impulse)) {
-    if ((carObj->carFlags & 4U) != 0) {
-      Physics_FixEngineRpm(carObj);
-    }
-    TrgSfx_CrashCar(&(carObj->N).position);
-    iVar2 = (carObj->collision).resetTimer;
-    (carObj->collision).smoking = 1;
-    carObj->frontSkid = 0;
-    carObj->rearSkid = 0;
-    if (iVar2 < 1) {
-      (carObj->collision).resetTimer = 0x140;
-    }
-  }
-  if (uVar10 == 0x40000) {
-    position.x = (carObj->N).collision.collisionPoint.x;
-    position.z = (carObj->N).collision.collisionPoint.z;
-    position.y = (carObj->N).collision.collisionPoint.y + 0x8000;
-    iVar2 = (carObj->N).speedXZ;
-    if (iVar2 < 0x180001) {
-      if (((0xf0000 < iVar2) || (0xf0000 < (carObj->N).collision.impulse)) || (bVar1)) {
-        iVar2 = (carObj->N).objID;
-        iVar4 = 1;
-        goto LAB_800871e0;
-      }
-    }
-    else if ((carObj->N).objAltitude < 0x9999) {
-      TrgSfx_AddCarSfx((carObj->N).objID,&position,
-                 Cars_kSFXWallSurfaceInterface[(u_char)(carObj->N).collision.sfxType],
-                 &(carObj->N).linearVel);
-      if (Cars_kSFXWallSurfaceInterface[(u_char)(carObj->N).collision.sfxType] == 4) {
-        Cars_SetAudioCalls(carObj,1,-1,1,0xf,0,0);
-      }
-    }
-    else {
-      iVar2 = (carObj->N).objID;
-      iVar4 = 6;
-LAB_800871e0:
-      TrgSfx_AddCarSfx(iVar2,&position,iVar4,&(carObj->N).linearVel);
-    }
-  }
-  if (0xa0000 < (carObj->N).collision.impulse) {
-    iVar2 = *(int *)((int)Cars_kAudioCollisoinTypeInterface + ((int)uVar10 >> 0xe));
-    if (uVar10 == 0x40000) {
-      uVar3 = Cars_kAudioWallSurfaceInterface[(u_char)(carObj->N).collision.sfxType];
-    }
-    else if ((int)uVar10 < 0x30001) {
-      uVar3 = Cars_kAudioRoadSurfaceInterface[(u_char)(carObj->N).collision.sfxType];
-      if (uVar10 == 0x30000) {
-        if ((carObj->N).orientationToGround.y < 0xe666) {
-          iVar2 = 1;
+  if (carObj->N.collision.impulse) {
+    int surface1;
+    int surface2;
+    int collisionType;
+    int debris;
+
+    debris = 0;
+    collisionType = carObj->N.collision.sfxType & 0xefff0000;
+    if (carObj->carInfo->carType < 0x1c) {
+      if ((carObj->render.damageParts & 1) == 0) {
+        if (carObj->N.damage[7] > 0x1e0000) {
+          carObj->render.damageParts |= 1;
+          debris = 1;
         }
-        TrgSfx_CrashCar(&(carObj->N).collision.collisionPoint)
-        ;
+      }
+      if ((carObj->render.damageParts & 2) == 0) {
+        if (carObj->N.damage[3] > 0x1e0000) {
+          carObj->render.damageParts |= 2;
+          debris = 1;
+        }
+      }
+      if ((carObj->render.damageParts & 4) == 0) {
+        if (carObj->N.damage[8] > 0x30000) {
+          carObj->render.damageParts |= 4;
+          debris = 1;
+        }
+      }
+      if ((carObj->render.damageParts & 8) == 0) {
+        if (carObj->N.damage[0] > 0x1e0000) {
+          carObj->render.damageParts |= 8;
+          debris = 1;
+        }
+      }
+      if ((carObj->render.damageParts & 0x10) == 0) {
+        if (carObj->N.damage[2] > 0x1e0000) {
+          carObj->render.damageParts |= 0x10;
+          debris = 1;
+        }
+      }
+      if ((carObj->render.damageParts & 0x20) == 0) {
+        if (carObj->N.damage[6] > 0x1e0000) {
+          carObj->render.damageParts |= 0x20;
+          debris = 1;
+        }
+      }
+      if ((carObj->render.damageParts & 0x40) == 0) {
+        if (carObj->N.damage[4] > 0x1e0000) {
+          carObj->render.damageParts |= 0x40;
+          debris = 1;
+        }
       }
     }
-    else {
-      uVar3 = (u_int)(u_char)(carObj->N).collision.sfxType;
-      if (uVar10 == 0x50000) {
-        position.x = (carObj->N).collision.collisionPoint.x;
-        position.z = (carObj->N).collision.collisionPoint.z;
-        position.y = (carObj->N).collision.collisionPoint.y + 0x8000;
-        TrgSfx_AddCarSfx((carObj->N).objID,&position,4,&(carObj->N).linearVel);
+    if ((carObj->N.collision.otherObj == 0) &&
+        (carObj->N.collision.impulse > 0x4b0000)) {
+      if (carObj->carFlags & 4) {
+        Physics_FixEngineRpm(carObj);
+      }
+      TrgSfx_CrashCar(&carObj->N.position);
+      carObj->collision.smoking = 1;
+      carObj->frontSkid = 0;
+      carObj->rearSkid = 0;
+      if (carObj->collision.resetTimer <= 0) {
+        carObj->collision.resetTimer = 0x140;
       }
     }
-    iVar4 = (carObj->N).collision.impulse;
-    if (iVar4 < 0) {
-      iVar4 = iVar4 + 7;
+    if (collisionType == 0x40000) {
+      coorddef impactPoint;
+
+      impactPoint = carObj->N.collision.collisionPoint;
+      impactPoint.y += 0x8000;
+      if (carObj->N.speedXZ > 0x180000) {
+        if (carObj->N.objAltitude < 0x9999) {
+          TrgSfx_AddCarSfx(carObj->N.objID,&impactPoint,
+              Cars_kSFXWallSurfaceInterface[(u_char)carObj->N.collision.sfxType],
+              &carObj->N.linearVel);
+          if (Cars_kSFXWallSurfaceInterface[(u_char)carObj->N.collision.sfxType] == 4) {
+            Cars_SetAudioCalls(carObj,1,-1,1,0xf,0,0);
+          }
+        }
+        else {
+          TrgSfx_AddCarSfx(carObj->N.objID,&impactPoint,6,&carObj->N.linearVel);
+        }
+      }
+      else {
+        if ((carObj->N.speedXZ > 0xf0000) ||
+            (carObj->N.collision.impulse > 0xf0000) || debris) {
+          TrgSfx_AddCarSfx(carObj->N.objID,&impactPoint,1,&carObj->N.linearVel);
+        }
+      }
     }
-    Cars_SetAudioCalls(carObj,1,-1,iVar2,uVar3,iVar4 >> 3,0);
+    if (carObj->N.collision.impulse > 0xa0000) {
+      surface1 = Cars_kAudioCollisoinTypeInterface[collisionType >> 16];
+      if (collisionType == 0x40000) {
+        surface2 = Cars_kAudioWallSurfaceInterface[(u_char)carObj->N.collision.sfxType];
+      }
+      else if (collisionType <= 0x30000) {
+        surface2 = Cars_kAudioRoadSurfaceInterface[(u_char)carObj->N.collision.sfxType];
+        if (collisionType == 0x30000) {
+          if (carObj->N.orientationToGround.y < 0xe666) {
+            surface1 = 1;
+          }
+          TrgSfx_CrashCar(&carObj->N.collision.collisionPoint);
+        }
+      }
+      else {
+        surface2 = (u_char)carObj->N.collision.sfxType;
+        if (collisionType == 0x50000) {
+          coorddef impactPoint;
+
+          impactPoint = carObj->N.collision.collisionPoint;
+          impactPoint.y += 0x8000;
+          TrgSfx_AddCarSfx(carObj->N.objID,&impactPoint,4,&carObj->N.linearVel);
+        }
+      }
+      Cars_SetAudioCalls(carObj,1,-1,surface1,surface2,
+          carObj->N.collision.impulse / 8,0);
+    }
+    carObj->N.collision.impulse = 0;
+    carObj->N.collision.otherObj = 0;
+    carObj->N.collision.sfxType = 0;
   }
-  (carObj->N).collision.impulse = 0;
-  (carObj->N).collision.otherObj = (BO_tNewtonObj *)0x0;
-  (carObj->N).collision.sfxType = 0;
-LAB_80087310:
-  iVar2 = (carObj->collision).resetTimer;
-  if ((0 < iVar2) && (carObj->pullOver == 0)) {
-    (carObj->collision).resetTimer = iVar2 + -1;
-    iVar2 = (carObj->N).linearVel.y;
-    if (iVar2 < 0) {
-      iVar2 = -iVar2;
+  if ((carObj->collision.resetTimer > 0) && (carObj->pullOver == 0)) {
+    carObj->collision.resetTimer--;
+    if ((carObj->N.speedXZ +
+         (carObj->N.linearVel.y >= 0 ? carObj->N.linearVel.y :
+          -carObj->N.linearVel.y) < 0x10000) ||
+        (carObj->N.driveSurfaceType == 0) ||
+        (carObj->N.driveSurfaceType == 0xe)) {
+      carObj->collision.resetTimer -= 8;
     }
-    if ((((carObj->N).speedXZ + iVar2 < 0x10000) ||
-        (iVar2 = (carObj->N).driveSurfaceType, iVar2 == 0)) || (iVar2 == 0xe)) {
-      (carObj->collision).resetTimer = (carObj->collision).resetTimer + -8;
-    }
-    if ((carObj->collision).resetTimer < 1) {
+    if (carObj->collision.resetTimer <= 0) {
       Cars_ResetCollidedCars(carObj,0,0);
-      (carObj->collision).resetTimer = 0;
+      carObj->collision.resetTimer = 0;
     }
   }
-  iVar2 = (carObj->N).roadMatrix.m[3];
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
+  y = carObj->N.roadMatrix.m[3] / 0x100 * (carObj->N.orientMat.m[3] / 0x100) +
+      carObj->N.roadMatrix.m[4] / 0x100 * (carObj->N.orientMat.m[4] / 0x100) +
+      carObj->N.roadMatrix.m[5] / 0x100 * (carObj->N.orientMat.m[5] / 0x100);
+  if ((carObj->collision.resetTimer <= 0) &&
+      ((y < 0x1999) || (carObj->N.driveSurfaceType == 0) ||
+       (carObj->N.driveSurfaceType == 0xe))) {
+    carObj->collision.resetTimer = 0x140;
   }
-  iVar4 = (carObj->N).orientMat.m[3];
-  if (iVar4 < 0) {
-    iVar4 = iVar4 + 0xff;
-  }
-  iVar7 = (carObj->N).roadMatrix.m[4];
-  if (iVar7 < 0) {
-    iVar7 = iVar7 + 0xff;
-  }
-  iVar5 = (carObj->N).orientMat.m[4];
-  if (iVar5 < 0) {
-    iVar5 = iVar5 + 0xff;
-  }
-  iVar8 = (carObj->N).roadMatrix.m[5];
-  if (iVar8 < 0) {
-    iVar8 = iVar8 + 0xff;
-  }
-  iVar6 = (carObj->N).orientMat.m[5];
-  if (iVar6 < 0) {
-    iVar6 = iVar6 + 0xff;
-  }
-  if (((carObj->collision).resetTimer < 1) &&
-     ((((iVar2 >> 8) * (iVar4 >> 8) + (iVar7 >> 8) * (iVar5 >> 8) + (iVar8 >> 8) * (iVar6 >> 8) <
-        0x1999 || (iVar2 = (carObj->N).driveSurfaceType, iVar2 == 0)) || (iVar2 == 0xe)))) {
-    (carObj->collision).resetTimer = 0x140;
-  }
-  return;
 }
 
 /* ---- Cars_AddCarSfx__FP8Car_tObjiP8coorddefiii  [@0x8008748c] ---- */

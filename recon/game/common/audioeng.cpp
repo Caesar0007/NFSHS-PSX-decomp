@@ -38,16 +38,17 @@ void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int
   AudioEng_t *pAVar7;
   
   if ((u_int)player < 2) {
-    pAVar7 = AudioEng_g[player];
-    if ((pAVar7 != (AudioEng_t *)0x0) &&
-       ((pAVar7->plypos != '\x0f' || ((pAVar7->setpos + 1U & 1) == 0)))) {
-      pAVar6 = pAVar7->queue + (u_char)pAVar7->setpos;
-      iVar3 = (int)((u_int)(pAVar7->adjust).timbreScale * esp) >> 0xe;
+    g = AudioEng_g[player];
+    if ((g != (AudioEng_t *)0x0) &&
+       ((g->plypos != '\x0f' || ((g->setpos + 1U & 1) == 0)))) {
+      a = &g->adjust;
+      s = g->queue + (u_char)g->setpos;
+      iVar3 = (int)((u_int)a->timbreScale * esp) >> 0xe;
       iVar5 = 0x1ff;
       if (iVar3 < 0x200) {
         iVar5 = iVar3;
       }
-      pAVar6->esp = (u_short)iVar5;
+      s->esp = (u_short)iVar5;
       if (Cars_gList[player]->carInfo->carType == 0x1c) {
         iVar5 = (esp >> 2) + 0xc000;
       }
@@ -55,52 +56,52 @@ void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int
         iVar5 = esp + 0x3333;
       }
       iVar5 = fixedmult(iVar5,dop);
-      pAVar6->dop = (u_short)((int)((u_int)(pAVar7->adjust).pitchScale * iVar5) >> 10);
+      s->dop = (u_short)((int)((u_int)a->pitchScale * iVar5) >> 10);
       iVar5 = gas + (gas >> 5) + (gas >> 6);
       if (iVar5 < 0x81) {
-        pAVar6->gas = (u_char)iVar5;
+        s->gas = (u_char)iVar5;
       }
       else {
-        pAVar6->gas = 0x80;
+        s->gas = 0x80;
       }
       if (cam == 0) {
-        pAVar6->exh = (pAVar7->adjust).inCarExhaust;
+        s->exh = a->inCarExhaust;
         if (GameSetup_gData.commMode == 1) {
-          pAVar6->sep = 0;
-          pAVar6->azi = (u_short)azi;
+          s->sep = 0;
+          s->azi = (u_short)azi;
         }
         else {
-          pAVar6->azi = 0;
-          pAVar6->sep = 0x3fff;
+          s->azi = 0;
+          s->sep = 0x3fff;
         }
-        bVar4 = (pAVar7->adjust).inCarBoost;
+        bVar4 = a->inCarBoost;
       }
       else {
-        pAVar6->exh = (pAVar7->adjust).outCarExhaust;
+        s->exh = a->outCarExhaust;
         if (dir < 0) {
-          bVar4 = pAVar6->exh;
-          iVar5 = dir * (u_int)(pAVar7->adjust).fwdEngBoost * (u_int)bVar4;
+          bVar4 = s->exh;
+          iVar5 = dir * (u_int)a->fwdEngBoost * (u_int)bVar4;
         }
         else {
-          bVar4 = pAVar6->exh;
-          iVar5 = dir * (u_int)(pAVar7->adjust).rwdExhBoost * (0x80 - (u_int)bVar4);
+          bVar4 = s->exh;
+          iVar5 = dir * (u_int)a->rwdExhBoost * (0x80 - (u_int)bVar4);
         }
         cVar1 = (char)(iVar5 >> 0x17);
         if (iVar5 >> 7 < 0) {
           cVar1 = (char)((u_int)((iVar5 >> 7) + 0xffff) >> 0x10);
         }
-        pAVar6->exh = bVar4 + cVar1;
-        pAVar6->azi = (u_short)azi;
-        pAVar6->sep = 0;
-        bVar4 = (pAVar7->adjust).outCarBoost;
+        s->exh = bVar4 + cVar1;
+        s->azi = (u_short)azi;
+        s->sep = 0;
+        bVar4 = a->outCarBoost;
       }
       iVar5 = (int)(vol * (u_int)bVar4) >> 6;
       uVar2 = 0x7ff;
       if (iVar5 < 0x800) {
         uVar2 = (u_short)iVar5;
       }
-      pAVar6->vol = uVar2;
-      pAVar7->setpos = pAVar7->setpos + 1U & 0xf;
+      s->vol = uVar2;
+      g->setpos = g->setpos + 1U & 0xf;
     }
   }
   return;

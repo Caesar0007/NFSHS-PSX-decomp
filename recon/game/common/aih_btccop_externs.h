@@ -7,6 +7,7 @@
 
 /* ---- vtables: AIHigh_BTC_Cop/HumanCop/Wingman (this obj) + AIState_NonActive/Base ---- */
 extern __vtbl_ptr_type AIHigh_BTC_Cop_vtable[], AIHigh_BTC_HumanCop_vtable[], AIHigh_BTC_Wingman_vtable[], AIState_NonActive_vtable[], AIState_Base_vtable[];
+extern __vtbl_ptr_type D_80054F24[];
 
 CARDINFO_def *MCRD_getcard(...);
 int Speech_Dispatch(void);             /* speech.obj flat (was Dispatch__6Speech; cast result to Speaker*) */

@@ -1817,6 +1817,7 @@ AIHigh_BTC_Wingman::AIHigh_BTC_Wingman(Car_tObj *carObj,int copIndex)
 
 /* ---- HighExecute__18AIHigh_BTC_Wingman  AIHigh_BTC_Wingman::HighExecute  [AIH_BTCCOP.CPP:976-1266] SLD-VERIFIED ---- */
 
+#if 0
 void AIHigh_BTC_Wingman::HighExecute()
 
 
@@ -2417,6 +2418,617 @@ stateExecuteAndReturn:
 
   return;
 
+}
+#endif
+
+void AIHigh_BTC_Wingman::HighExecute()
+{
+  ((AIHigh_BasicCop *)this)->CheckSpikeBelt();
+  this->CheckForActivation();
+
+  switch (this->stateType_) {
+  case 0:
+    {
+      Car_tObj *carObj;
+      AIState_Base *newState;
+      AIState_Base *oldState;
+      coorddef trafficOffset;
+
+      this->carObj_->AIFlags &= ~2;
+      newState = operator new(8);
+      carObj = this->carObj_;
+      new(newState) AIState_Base(carObj);
+      newState->_vf = (__vtbl_ptr_type (*)[4])D_80054F24;
+      memset((u_char *)&trafficOffset,0,12);
+      trafficOffset.y = carObj->carIndex * 0xa0000;
+      Newton_SetInitialSlicePositionOrientationEtc(
+          &newState->carObj_->N,0,&trafficOffset,1);
+      newState->carObj_->N.active = 0;
+      oldState = this->state_;
+      if (oldState != 0) {
+        (*(int (**)(...))((char *)oldState->_vf + 20))(
+            (int)&oldState->carObj_ +
+                (int)*(short *)((int)*oldState->_vf + 0x10),3);
+      }
+      this->state_ = newState;
+      this->stateType_ = (stateType_t)7;
+    }
+    goto stateExecuteAndReturn;
+
+  case 2:
+    {
+      this->carObj_->AIFlags &= ~2;
+
+      if ((this->newRole_ != this->currentRole_) &&
+          ((u_int)(this->newRole_ - 2) < 2)) {
+        if (AILife_IsCarInAnyVisibleArea(this->carObj_) == 0) {
+          Speaker *speaker;
+          AIState_Base *newState;
+          AIState_Base *oldState;
+
+          speaker = (Speaker *)Speech_Mobile(this->carObj_);
+          (**(int (**)(...))((int)*speaker->_vf + 0x84))(
+              (int)&speaker->fPosition.flags +
+                  (int)*(short *)((int)*speaker->_vf + 0x80));
+          this->currentRole_ = this->newRole_;
+          this->SetupBlockader(this->newHumanBoss_,this->newRole_ == 3);
+
+          newState = operator new(0x10);
+          new(newState) AIState_Base(this->carObj_);
+          newState->_vf = (__vtbl_ptr_type (*)[4])AIState_Idle_vtable;
+          ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
+          oldState = this->state_;
+          if (oldState != 0) {
+            (*(int (**)(...))((char *)oldState->_vf + 20))(
+                (int)&oldState->carObj_ +
+                    (int)*(short *)((int)*oldState->_vf + 0x10),3);
+          }
+          this->state_ = newState;
+          this->stateType_ = (stateType_t)3;
+        }
+      } else {
+        this->CheckForNewTarget();
+        if (this->perpTarget_ != 0) {
+          coorddef pos;
+          AIState_Chase *newState;
+          AIState_Base *oldState;
+          Car_tObj *targetCar;
+
+          this->GetCheckChasePosition(&pos);
+          newState = operator new(0x94);
+          targetCar = this->perpTarget_->carObj_;
+          newState = new(newState) AIState_Chase(
+              this->carObj_,targetCar,&pos,
+              0x200,0x3c0000,0x190000,2,0x10000);
+          oldState = this->state_;
+          if (oldState != 0) {
+            (*(int (**)(...))((char *)oldState->_vf + 20))(
+                (int)&oldState->carObj_ +
+                    (int)*(short *)((int)*oldState->_vf + 0x10),3);
+          }
+          this->state_ = (AIState_Base *)newState;
+          this->stateType_ = (stateType_t)4;
+        }
+      }
+
+      if (this->UpdateFreezeModeAndPullOverMode() != 0) {
+        Car_tObj *carObj;
+        AIState_Base *newState;
+        AIState_Base *oldState;
+        coorddef *offset;
+        coorddef trafficOffset;
+
+        this->AssignToPlayer(0);
+        newState = operator new(8);
+        carObj = this->carObj_;
+        new(newState) AIState_Base(carObj);
+        newState->_vf = (__vtbl_ptr_type (*)[4])D_80054F24;
+        offset = (coorddef *)memset((u_char *)&trafficOffset,0,12);
+        trafficOffset.y = carObj->carIndex * 0xa0000;
+        Newton_SetInitialSlicePositionOrientationEtc(
+            &newState->carObj_->N,0,offset,1);
+        newState->carObj_->N.active = 0;
+        oldState = this->state_;
+        if (oldState != 0) {
+          (*(int (**)(...))((char *)oldState->_vf + 20))(
+              (int)&oldState->carObj_ +
+                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
+        }
+        this->state_ = newState;
+        this->stateType_ = (stateType_t)7;
+        this->newRole_ = 0;
+        this->currentRole_ = 0;
+        goto stateExecuteAndReturn;
+      }
+    }
+    goto stateExecuteAndReturn;
+
+  case 4:
+    {
+      coorddef newPos;
+      coorddef pos;
+      coorddef trafficOffset;
+      AIState_Chase *chaseState;
+
+      chaseState = (AIState_Chase *)this->state_;
+      this->carObj_->AIFlags |= 2;
+      ((AIHigh_BasicCop *)this)->HandleBlockadeSpeech();
+
+      if (this->GetCheckChasePosition(&newPos) != 0) {
+        chaseState->SetTarget(this->perpTarget_->carObj_,&newPos);
+      }
+
+      if (0xa0 < chaseState->barrierTicks32_) {
+        int endSlice;
+        AIState_GotoSlice *newState;
+        AIState_Base *oldState;
+
+        endSlice = chaseState->FindBarrierEndSlice();
+        newState = operator new(0x10);
+        newState =
+            new(newState) AIState_GotoSlice(this->carObj_,endSlice,0);
+        oldState = this->state_;
+        if (oldState != 0) {
+          (*(int (**)(...))((char *)oldState->_vf + 20))(
+              (int)&oldState->carObj_ +
+                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
+        }
+        this->state_ = (AIState_Base *)newState;
+        this->stateType_ = (stateType_t)9;
+      }
+
+      if (this->CheckForNewTarget() != 0) {
+        this->GetCheckChasePosition(&pos);
+        chaseState->SetTarget(this->perpTarget_->carObj_,&pos);
+      }
+
+      {
+        int minTimeInZone;
+        int minLatMetersDistance;
+        int minLongMetersDistance;
+        int murder;
+
+        minTimeInZone = 8;
+        minLatMetersDistance = 0xe0000;
+        minLongMetersDistance = 0xf0000;
+        murder = 0;
+        if (minTimeInZone < chaseState->inTargetRegion_) {
+          if (__builtin_abs(chaseState->latMetersBetween_) <
+              minLatMetersDistance) {
+            if (__builtin_abs(chaseState->longMetersBetween_) <
+                minLongMetersDistance) {
+              murder = 1;
+            }
+          }
+        }
+        if (murder) {
+          chaseState->SetMurderMode(1,0x300);
+        }
+      }
+
+      if (this->perpTarget_ == 0) {
+        AIState_Base *newState;
+        AIState_Base *oldState;
+
+        this->AssignToPlayer(0);
+        newState = operator new(8);
+        newState =
+            (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
+        oldState = this->state_;
+        if (oldState != 0) {
+          (*(int (**)(...))((char *)oldState->_vf + 20))(
+              (int)&oldState->carObj_ +
+                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
+        }
+        this->state_ = newState;
+        this->stateType_ = (stateType_t)2;
+      }
+
+      if ((this->newRole_ != this->currentRole_) &&
+          ((u_int)(this->newRole_ - 2) < 2)) {
+        AIState_Base *newState;
+        AIState_Base *oldState;
+        Speaker *speaker;
+
+        this->carObj_->desiredDirection = -this->carObj_->desiredDirection;
+        this->AssignToPlayer(0);
+        newState = operator new(8);
+        newState =
+            (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
+        oldState = this->state_;
+        if (oldState != 0) {
+          (*(int (**)(...))((char *)oldState->_vf + 20))(
+              (int)&oldState->carObj_ +
+                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
+        }
+        this->state_ = newState;
+        this->stateType_ = (stateType_t)2;
+        speaker = (Speaker *)Speech_Mobile(this->carObj_);
+        (**(int (**)(...))((int)*speaker->_vf + 0x3c))(
+            (int)&speaker->fPosition.flags +
+                (int)*(short *)((int)*speaker->_vf + 0x38));
+      }
+
+      if (this->UpdateFreezeModeAndPullOverMode() != 0) {
+        Car_tObj *carObj;
+        AIState_Base *newState;
+        AIState_Base *oldState;
+        coorddef *offset;
+
+        this->AssignToPlayer(0);
+        newState = operator new(8);
+        carObj = this->carObj_;
+        new(newState) AIState_Base(carObj);
+        newState->_vf = (__vtbl_ptr_type (*)[4])D_80054F24;
+        offset = (coorddef *)memset((u_char *)&trafficOffset,0,12);
+        trafficOffset.y = carObj->carIndex * 0xa0000;
+        Newton_SetInitialSlicePositionOrientationEtc(
+            &newState->carObj_->N,0,offset,1);
+        newState->carObj_->N.active = 0;
+        oldState = this->state_;
+        if (oldState != 0) {
+          (*(int (**)(...))((char *)oldState->_vf + 20))(
+              (int)&oldState->carObj_ +
+                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
+        }
+        this->state_ = newState;
+        this->stateType_ = (stateType_t)7;
+        this->newRole_ = 0;
+        this->currentRole_ = 0;
+        goto stateExecuteAndReturn;
+      }
+    }
+    goto stateExecuteAndReturn;
+
+  case 3:
+    {
+      coorddef newPos;
+      int rbDistanceMeters;
+      int rbAbsDistanceMeters;
+      int release;
+
+      this->carObj_->AIFlags |= 2;
+      this->CheckForNewTarget();
+      release = 0;
+
+      if (this->perpTarget_ == 0) {
+        AIState_Base *newState;
+        AIState_Base *oldState;
+
+        this->newRole_ = 1;
+        this->currentRole_ = 1;
+        newState = operator new(8);
+        newState =
+            (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
+        oldState = this->state_;
+        if (oldState != 0) {
+          (*(int (**)(...))((char *)oldState->_vf + 20))(
+              (int)&oldState->carObj_ +
+                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
+        }
+        this->state_ = newState;
+        this->stateType_ = (stateType_t)2;
+        return;
+      }
+
+      this->GetCheckChasePosition(&newPos);
+      if ((this->spikeBeltPlaced_ != 0) &&
+          (AICop_spikeBelt.slice_ == this->spikeBeltSlice_)) {
+        AICop_spikeBelt.freshenTime_ = simGlobal.gameTicks;
+      }
+
+      rbDistanceMeters = AIWorld_ApxSplineDistance(
+          this->carObj_,this->perpTarget_->carObj_);
+      rbAbsDistanceMeters = __builtin_abs(rbDistanceMeters);
+
+      if (rbAbsDistanceMeters < 0x320000) {
+        release = 1;
+      } else if (rbAbsDistanceMeters < 0x12c0000) {
+        int speed;
+        int timeToRB;
+
+        speed =
+            ((volatile AIHigh_BTC_Wingman *)this)->perpTarget_
+                ->carObj_->currentSpeed;
+        if (speed <= 0) {
+          speed = -speed;
+        }
+        speed = 0x471c7 < speed;
+        if (speed &&
+            ((timeToRB = fixeddiv(
+                  rbDistanceMeters,
+                  ((volatile AIHigh_BTC_Wingman *)this)->perpTarget_
+                      ->carObj_->currentSpeed)) > 0) &&
+            (timeToRB < this->spikeBeltInterceptReleaseTime_)) {
+          release = 1;
+        }
+      }
+
+      if (release) {
+        AIState_Chase *newState;
+        AIState_Base *oldState;
+        Car_tObj *targetCar;
+
+        this->spikeBeltPlaced_ = 0;
+        this->newRole_ = 1;
+        this->currentRole_ = 1;
+        newState = operator new(0x94);
+        targetCar = this->perpTarget_->carObj_;
+        newState = new(newState) AIState_Chase(
+            this->carObj_,targetCar,&newPos,
+            0x200,0x3c0000,0x190000,2,0x10000);
+        oldState = this->state_;
+        if (oldState != 0) {
+          (*(int (**)(...))((char *)oldState->_vf + 20))(
+              (int)&oldState->carObj_ +
+                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
+        }
+        this->state_ = (AIState_Base *)newState;
+        this->stateType_ = (stateType_t)4;
+      }
+
+      if ((this->newRole_ != this->currentRole_) &&
+          (this->newRole_ == 1)) {
+        AIState_Base *newState;
+        AIState_Base *oldState;
+
+        this->currentRole_ = 1;
+        newState = operator new(8);
+        newState =
+            (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
+        oldState = this->state_;
+        if (oldState != 0) {
+          (*(int (**)(...))((char *)oldState->_vf + 20))(
+              (int)&oldState->carObj_ +
+                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
+        }
+        this->state_ = newState;
+        this->stateType_ = (stateType_t)2;
+      }
+
+      if (this->UpdateFreezeModeAndPullOverMode() != 0) {
+        Car_tObj *carObj;
+        AIState_Base *newState;
+        AIState_Base *oldState;
+        coorddef *offset;
+        coorddef trafficOffset;
+
+        this->AssignToPlayer(0);
+        newState = operator new(8);
+        carObj = this->carObj_;
+        new(newState) AIState_Base(carObj);
+        newState->_vf = (__vtbl_ptr_type (*)[4])D_80054F24;
+        offset = (coorddef *)memset((u_char *)&trafficOffset,0,12);
+        trafficOffset.y = carObj->carIndex * 0xa0000;
+        Newton_SetInitialSlicePositionOrientationEtc(
+            &newState->carObj_->N,0,offset,1);
+        newState->carObj_->N.active = 0;
+        oldState = this->state_;
+        if (oldState != 0) {
+          (*(int (**)(...))((char *)oldState->_vf + 20))(
+              (int)&oldState->carObj_ +
+                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
+        }
+        this->state_ = newState;
+        this->stateType_ = (stateType_t)7;
+        this->newRole_ = 0;
+        this->currentRole_ = 0;
+        goto stateExecuteAndReturn;
+      }
+    }
+    goto stateExecuteAndReturn;
+
+#if 0
+  case 4:
+    {
+      coorddef newPos;
+      AIState_Chase *chaseState;
+
+      chaseState = (AIState_Chase *)this->state_;
+      this->carObj_->AIFlags |= 2;
+      ((AIHigh_BasicCop *)this)->HandleBlockadeSpeech();
+
+      if (this->GetCheckChasePosition(&newPos) != 0) {
+        chaseState->SetTarget(this->perpTarget_->carObj_,&newPos);
+      }
+
+      if (0xa0 < chaseState->barrierTicks32_) {
+        int endSlice;
+        AIState_GotoSlice *newState;
+        AIState_Base *oldState;
+
+        endSlice = chaseState->FindBarrierEndSlice();
+        newState = operator new(0x10);
+        newState =
+            new(newState) AIState_GotoSlice(this->carObj_,endSlice,0);
+        oldState = this->state_;
+        if (oldState != 0) {
+          (*(int (**)(...))((char *)oldState->_vf + 20))(
+              (int)&oldState->carObj_ +
+                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
+        }
+        this->state_ = (AIState_Base *)newState;
+        this->stateType_ = (stateType_t)9;
+      }
+
+      if (this->CheckForNewTarget() != 0) {
+        coorddef pos;
+        this->GetCheckChasePosition(&pos);
+        chaseState->SetTarget(this->perpTarget_->carObj_,&pos);
+      }
+
+      {
+        int murder;
+        murder = 0;
+        if (8 < chaseState->inTargetRegion_) {
+          int meters;
+          meters = chaseState->latMetersBetween_;
+          if (meters < 0) {
+            meters = -meters;
+          }
+          if (meters < 0xe0000) {
+            meters = chaseState->longMetersBetween_;
+            if (meters < 0) {
+              meters = -meters;
+            }
+            murder = meters < 0xf0000;
+          }
+        }
+        if (murder) {
+          chaseState->SetMurderMode(1,0x300);
+        }
+      }
+
+      if (this->perpTarget_ == 0) {
+        AIState_Base *newState;
+        AIState_Base *oldState;
+
+        this->AssignToPlayer(0);
+        newState = operator new(8);
+        newState =
+            (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
+        oldState = this->state_;
+        if (oldState != 0) {
+          (*(int (**)(...))((char *)oldState->_vf + 20))(
+              (int)&oldState->carObj_ +
+                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
+        }
+        this->state_ = newState;
+        this->stateType_ = (stateType_t)2;
+      }
+
+      if ((this->newRole_ != this->currentRole_) &&
+          ((u_int)(this->newRole_ - 2) < 2)) {
+        AIState_Base *newState;
+        AIState_Base *oldState;
+        Speaker *speaker;
+
+        this->carObj_->desiredDirection = -this->carObj_->desiredDirection;
+        this->AssignToPlayer(0);
+        newState = operator new(8);
+        newState =
+            (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
+        oldState = this->state_;
+        if (oldState != 0) {
+          (*(int (**)(...))((char *)oldState->_vf + 20))(
+              (int)&oldState->carObj_ +
+                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
+        }
+        this->state_ = newState;
+        this->stateType_ = (stateType_t)2;
+        speaker = (Speaker *)Speech_Mobile(this->carObj_);
+        (**(int (**)(...))((int)*speaker->_vf + 0x3c))(
+            (int)&speaker->fPosition.flags +
+                (int)*(short *)((int)*speaker->_vf + 0x38));
+      }
+
+      if (this->UpdateFreezeModeAndPullOverMode() != 0) {
+        Car_tObj *carObj;
+        coorddef trafficOffset;
+
+        this->AssignToPlayer(0);
+        newState = operator new(8);
+        carObj = this->carObj_;
+        new(newState) AIState_Base(carObj);
+        newState->_vf = (__vtbl_ptr_type (*)[4])D_80054F24;
+        memset((u_char *)&trafficOffset,0,12);
+        offset = &trafficOffset;
+        trafficOffset.y = carObj->carIndex * 0xa0000;
+        break;
+      }
+    }
+    goto stateExecuteAndReturn;
+
+#endif
+  case 7:
+    {
+      Wingman_Role currentRole;
+      Wingman_Role newRole;
+      this->carObj_->AIFlags &= ~2;
+      currentRole = this->currentRole_;
+      newRole = this->newRole_;
+      if (currentRole == newRole) {
+        goto stateExecuteAndReturn;
+      }
+
+      if (newRole == 1) {
+        this->currentRole_ = 1;
+        this->SetupWingman(this->newHumanBoss_);
+      } else {
+        AIState_Base *newState;
+        AIState_Base *oldState;
+
+        if (1 < (u_int)(newRole - 2)) {
+          goto stateExecuteAndReturn;
+        }
+        this->currentRole_ = newRole;
+        this->SetupBlockader(
+            this->newHumanBoss_,this->newRole_ == 3);
+        newState = operator new(0x10);
+        new(newState) AIState_Base(this->carObj_);
+        newState->_vf = (__vtbl_ptr_type (*)[4])AIState_Idle_vtable;
+        ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
+        oldState = this->state_;
+        if (oldState != 0) {
+          (*(int (**)(...))((char *)oldState->_vf + 20))(
+              (int)&oldState->carObj_ +
+                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
+        }
+        this->state_ = newState;
+        this->stateType_ = (stateType_t)3;
+        goto stateExecuteAndReturn;
+      }
+
+      {
+        AIState_Base *newState;
+        AIState_Base *oldState;
+        newState = operator new(8);
+        newState =
+            (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
+        oldState = this->state_;
+        if (oldState != 0) {
+          (*(int (**)(...))((char *)oldState->_vf + 20))(
+              (int)&oldState->carObj_ +
+                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
+        }
+        this->state_ = newState;
+        this->stateType_ = (stateType_t)2;
+      }
+    }
+    goto stateExecuteAndReturn;
+
+  case 9:
+    {
+      AIState_GotoSlice *gotoState;
+      AIState_Base *newState;
+      AIState_Base *oldState;
+
+      gotoState = (AIState_GotoSlice *)this->state_;
+      this->AssignToPlayer(0);
+      if (gotoState->InTargetSliceRange(0xa0000) == 0) {
+        goto stateExecuteAndReturn;
+      }
+      newState = operator new(8);
+      newState =
+          (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
+      oldState = this->state_;
+      if (oldState != 0) {
+        (*(int (**)(...))((char *)oldState->_vf + 20))(
+            (int)&oldState->carObj_ +
+                (int)*(short *)((int)*oldState->_vf + 0x10),3);
+      }
+      this->state_ = newState;
+      this->stateType_ = (stateType_t)2;
+    }
+    goto stateExecuteAndReturn;
+
+  case 10:
+  default:
+    goto stateExecuteAndReturn;
+  }
+
+stateExecuteAndReturn:
+  this->state_->StateExecute();
 }
 
 

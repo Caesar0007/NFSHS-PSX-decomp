@@ -66,31 +66,26 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
 
 {
   int temp;
-  int iVar1;
   int iVar2;
   void *pvVar3;
   u_int uVar4;
   u_int uVar5;
   int iVar6;
-  int imp;
   int iVar7;
   int iVar8;
   int iVar9;
   u_int uVar10;
-  int intensity;
-  int zMult;
   u_int uVar11;
-  int yMult;
-  u_int b;
-  int xMult;
   u_int uVar12;
-  matrixtdef transposeMat;
   
-  iVar1 = Force_IsForceOn((Car_tObj *)newtonObj);
-  if (iVar1 != 0) {
+  if (Force_IsForceOn((Car_tObj *)newtonObj) != 0) {
     Force_HitWall((newtonObj->collision).impulse);
   }
   if (GameSetup_gData.Damage != 0) {
+    int iVar1;
+    int damage0;
+    int damage1;
+
     iVar1 = 0x640000;
     if (impulse / 2 < 0x640001) {
       iVar1 = impulse / 2;
@@ -108,8 +103,8 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
         if (iVar1 < newtonObj->damage[1]) {
           iVar1 = newtonObj->damage[1];
         }
-        iVar2 = newtonObj->damage[0];
-        iVar7 = newtonObj->damage[6];
+        damage0 = newtonObj->damage[0];
+        damage1 = newtonObj->damage[6];
         newtonObj->damage[1] = iVar1;
       }
       else {
@@ -118,10 +113,10 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
           if (iVar1 < newtonObj->damage[0]) {
             iVar1 = newtonObj->damage[0];
           }
-          iVar2 = newtonObj->damage[1];
-          iVar7 = newtonObj->damage[3];
+          damage0 = newtonObj->damage[1];
+          damage1 = newtonObj->damage[3];
           newtonObj->damage[0] = iVar1;
-          iVar1 = (iVar2 + iVar7) / 2;
+          iVar1 = (damage0 + damage1) / 2;
           if (iVar1 < newtonObj->damage[2]) {
             iVar1 = newtonObj->damage[2];
           }
@@ -134,10 +129,10 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
             if (iVar1 < newtonObj->damage[0]) {
               iVar1 = newtonObj->damage[0];
             }
-            iVar2 = newtonObj->damage[5];
-            iVar7 = newtonObj->damage[7];
+            damage0 = newtonObj->damage[5];
+            damage1 = newtonObj->damage[7];
             newtonObj->damage[0] = iVar1;
-            iVar1 = (iVar2 + iVar7) / 2;
+            iVar1 = (damage0 + damage1) / 2;
             if (iVar1 < newtonObj->damage[6]) {
               iVar1 = newtonObj->damage[6];
             }
@@ -161,11 +156,11 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
         if (iVar1 < newtonObj->damage[5]) {
           iVar1 = newtonObj->damage[5];
         }
-        iVar2 = newtonObj->damage[0];
-        iVar7 = newtonObj->damage[6];
+        damage0 = newtonObj->damage[0];
+        damage1 = newtonObj->damage[6];
         newtonObj->damage[5] = iVar1;
       }
-      iVar1 = (iVar2 + iVar7) / 2;
+      iVar1 = (damage0 + damage1) / 2;
       if (iVar1 < newtonObj->damage[7]) {
         iVar1 = newtonObj->damage[7];
       }
@@ -173,17 +168,24 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
     }
   }
 Newton_AddDmgZ_typeSet:
-  uVar12 = 0x20000;
   if (type != 0) {
-    b = 0;
-    uVar11 = 0x20000;
+    int iVar1;
+    int intensity;
+    int xMult;
+    int yMult;
+    int zMult;
+    matrixtdef transposeMat;
+
+    xMult = 0x20000;
+    yMult = 0;
+    zMult = 0x20000;
     if (impulse < 0x5a0001) {
       if (impulse < 0) {
         impulse = impulse + 0x3f;
       }
-      iVar1 = impulse >> 6;
-      if (0x8000 < iVar1) {
-        iVar1 = 0x8000;
+      intensity = impulse >> 6;
+      if (0x8000 < intensity) {
+        intensity = 0x8000;
       }
     }
     else {
@@ -204,13 +206,13 @@ Newton_AddDmgZ_typeSet:
         iVar1 = iVar7;
       }
       (newtonObj->linearVel).y = iVar1;
-      iVar1 = iVar2;
+      intensity = iVar2;
       if (iVar2 < 0) {
-        iVar1 = iVar2 + 0x1f;
+        intensity = iVar2 + 0x1f;
       }
-      iVar1 = iVar1 >> 5;
-      if (0x9999 < iVar1) {
-        iVar1 = 0x9999;
+      intensity = intensity >> 5;
+      if (0x9999 < intensity) {
+        intensity = 0x9999;
       }
       pvVar3 = BWorldSm_TunnelFlagSm(&newtonObj->simRoadInfo);
       if ((pvVar3 != (void *)0x0) && (0x90000 < (newtonObj->linearVel).y)) {
@@ -222,30 +224,30 @@ Newton_AddDmgZ_typeSet:
         uVar10 = (fastRandom * randSeed & 0xffff00) >> 8;
         randtemp = (uVar11 & 0xffff) * randSeed;
         uVar4 = (uVar12 & 0xffff00) >> 8;
-        b = uVar4 * 3;
+        yMult = uVar4 * 3;
         uVar5 = (uVar11 & 0xffff00) >> 8;
-        uVar11 = uVar5 * 3;
+        zMult = uVar5 * 3;
         fastRandom = randtemp & 0xffff;
-        uVar12 = uVar10 * 4;
+        xMult = uVar10 * 4;
         if ((randtemp & 0xffff00) >> 8 < 0x3333) {
-          iVar1 = -iVar1;
+          intensity = -intensity;
         }
-        if (uVar12 + b + uVar11 < 0x40000) {
-          if (uVar12 < 0x10000) {
-            uVar12 = uVar10 << 3;
+        if (xMult + yMult + zMult < 0x40000) {
+          if (xMult < 0x10000) {
+            xMult = uVar10 << 3;
           }
-          if (b < 0x10000) {
-            b = uVar4 * 6;
+          if (yMult < 0x10000) {
+            yMult = uVar4 * 6;
           }
-          if (uVar11 < 0x10000) {
-            uVar11 = uVar5 * 6;
+          if (zMult < 0x10000) {
+            zMult = uVar5 * 6;
           }
         }
       }
       if (type == 2) {
-        uVar12 = uVar12 << 1;
-        b = b << 1;
-        uVar11 = uVar11 << 1;
+        xMult = xMult << 1;
+        yMult = yMult << 1;
+        zMult = zMult << 1;
       }
     }
     iVar2 = fixedmult((newtonObj->angularVel).x,(newtonObj->orientMat).m[0]);
@@ -265,24 +267,24 @@ Newton_AddDmgZ_typeSet:
     iVar6 = fixedmult((newtonObj->angularVel).z,(newtonObj->orientMat).m[8]);
     newtonObj[1].shadowCoord[0].y = iVar2 + iVar7 + iVar6;
     if ((u_int)zone < 3) {
-      iVar2 = fixedmult(iVar1,uVar12);
+      iVar2 = fixedmult(intensity,xMult);
       iVar2 = newtonObj[1].shadowMat.m[8] - iVar2 / 2;
     }
     else {
-      iVar2 = fixedmult(iVar1,uVar12);
+      iVar2 = fixedmult(intensity,xMult);
       iVar2 = newtonObj[1].shadowMat.m[8] + iVar2 / 2;
     }
     newtonObj[1].shadowMat.m[8] = iVar2;
     if (zone - 2U < 3) {
-      iVar2 = fixedmult(iVar1,b);
+      iVar2 = fixedmult(intensity,yMult);
       newtonObj[1].shadowCoord[0].x = newtonObj[1].shadowCoord[0].x + iVar2 / 2;
-      iVar1 = fixedmult(iVar1,uVar11);
+      iVar1 = fixedmult(intensity,zMult);
       iVar1 = newtonObj[1].shadowCoord[0].y + iVar1 / 2;
     }
     else {
-      iVar2 = fixedmult(iVar1,b);
+      iVar2 = fixedmult(intensity,yMult);
       newtonObj[1].shadowCoord[0].x = newtonObj[1].shadowCoord[0].x - iVar2 / 2;
-      iVar1 = fixedmult(iVar1,uVar11);
+      iVar1 = fixedmult(intensity,zMult);
       iVar1 = newtonObj[1].shadowCoord[0].y - iVar1 / 2;
     }
     newtonObj[1].shadowCoord[0].y = iVar1;

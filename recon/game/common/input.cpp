@@ -116,18 +116,8 @@ void Input_Update(void)
 
   Device_Update();
 
-  {
-    char *activePtr;
-    int activeValue;
-
-    activeValue = 1;
-    i = 31;
-    activePtr = &iactive[31];
-    do {
-      *activePtr = activeValue;
-      i--;
-      activePtr--;
-    } while (i >= 0);
+  for (i = 31; i >= 0; i--) {
+    iactive[i] = 1;
   }
 
   h = Input_gHandler;

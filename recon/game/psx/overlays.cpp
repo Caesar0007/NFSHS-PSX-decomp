@@ -343,7 +343,11 @@ void Hud_BTCStats(short player,bool postgame)
     PLAYERWIDTH = 0xa1;
   }
   showtimeleft = 0;
-  if ((postgame == 0) || (BTCPerpInfo[player + -1][Hud_NextPerp[player] + 9].caught != 0)) {
+  /* the oracle indexes row `player` and element `Hud_NextPerp[player] - 1`
+     (`addiu $v1,$v1,-1` @0x800DA810, no -1 on the row); the old
+     `[player-1][NextPerp+9]` spelling is numerically identical (row stride 160,
+     element stride 16) but costs an extra `addiu` and is a Ghidra artifact. */
+  if ((postgame == 0) || (BTCPerpInfo[player][Hud_NextPerp[player] - 1].caught != 0)) {
     showtimeleft = 1;
   }
   HUD_STATS_SIZE_W = PLAYERWIDTH + 6;

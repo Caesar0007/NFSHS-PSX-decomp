@@ -24,6 +24,23 @@
 #define gte_ldir0v(x) ((void)(x))
 #endif
 
+/* PsyQ POINTER-form colour-FIFO stores (inline_c gte_strgb / gte_strgb3): a lone
+   `swc2 $22,0(rt)` and the three-pointer RGB0/1/2 trio.  psx_gte.h only carries the
+   FIXED-OFFSET `gte_strgb3_gt4(p)` family (one base + folded displacements); the
+   DrawW_DrawQuad oracle materializes each destination address into its own register
+   (`addiu $a0,$s1,0x4; addiu $v1,$s1,0x10; addiu $v0,$s1,0x1C; swc2 $20,0($a0) ...`),
+   which is exactly the "r"-constraint pointer form (catalog SS.H: the constraint, not
+   the call site, decides address-materialization-vs-displacement). */
+#if defined(__mips__)
+#define gte_strgb(p)  __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(p) : "memory")
+#define gte_strgb3(a,b,c) __asm__ volatile (                                   \
+    "swc2 $20, 0(%0)\n\tswc2 $21, 0(%1)\n\tswc2 $22, 0(%2)"                    \
+    : : "r"(a), "r"(b), "r"(c) : "memory")
+#else
+#define gte_strgb(p)       ((void)(p))
+#define gte_strgb3(a,b,c)  do { (void)(a); (void)(b); (void)(c); } while (0)
+#endif
+
 /* ---- DrawW.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero) ---- */
 char         offsets[8] = { 125, 125, 50, 15, -1, 125, 0, 0 };   /* @0x8013D828 */
@@ -939,14 +956,11 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   int depth_index;
   int primPtr;
   int depth_avg;
-  int tC30;
   short ts31;
   int uVar7_00;
   int ti18;
   Track_tMaterial *currentQuadMat;
-  u_char d;
   int vert_y_pack;
-  u_char c;
   int vert_x_pack;
   int vertProj_idx;
   int vert1_idx;
@@ -983,7 +997,7 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   int depthcue;
   long a;
   long b;
-  u_int uStack_28;
+  long c;   /* SYM AUTO -0x28 -- vertex-3 colour for the dpct trio (was a stray u_int) */
   long color;
   u_char tc3;
   int tu5;
@@ -1206,40 +1220,40 @@ gte_swc2(0x8,&depthcue);
       prim->y3 = (*(u_short *)((u_char *)&(dvxy3) + 2));
       if (sd->nightFlags == '\0') {
         gte_ldir0v(depthcue);   /* MATCH+CORRECTNESS: oracle `lw rt,depthcue; mtc2 rt,$8` -- gte_ldIR0() is the ADDRESS form (lwc2), so passing the VALUE read memory at the depth-cue number */
+        /* CORRECTNESS + MATCH (2026-08-01, oracle @0x800C6A90/.L800C6B64 read
+         * instruction-by-instruction): BOTH arms were wrong.
+         *  - the depth-cue RESULTS were being dumped into three invented
+         *    sd+0x114/0x120/0x12c slots via raw gte_swc2 numbers instead of into
+         *    the prim's colour words / the SYM's `color` AUTO, so every quad drew
+         *    with an unwritten colour and the dpcs/dpct output was discarded;
+         *  - `uStack_28` was a separate u_int while `gte_ldrgb3(&a,&b,&c)` read the
+         *    SYM's `c` (AUTO LONG @-0x28) which nothing ever wrote -> vertex 3's
+         *    colour came from uninitialised stack;
+         *  - the else arm wrote 16 individual bytes where the oracle re-reads the
+         *    strgb'd `color` once and stores FOUR WORDS (`sw v0,4/0x10/0x1C/0x28(s1)`).
+         * Oracle (light==-1 arm): ldrgb(&a); dpcs; c/a/b loads; strgb(&prim->r3);
+         * ldrgb3(&a,&b,&c); dpct; strgb3(&prim->r0,&prim->r1,&prim->r2). */
         if (sd->light == -1) {
           a = *(long *)(Chunk_lightTable + vt2.light);
-          tC30 = (int)Chunk_lightTable;
 gte_ldrgb(&a);
           gte_dpcs();
-          uStack_28 = *(u_int *)(vt3.light * 4 + tC30);
-          a = *(long *)(vt0.light * 4 + tC30);
-          b = *(long *)(vt1.light * 4 + tC30);
-gte_swc2(0x16,((char *)sd + 0x138));
+          c = *(long *)(Chunk_lightTable + vt3.light);
+          a = *(long *)(Chunk_lightTable + vt0.light);
+          b = *(long *)(Chunk_lightTable + vt1.light);
+gte_strgb(&prim->r3);
 gte_ldrgb3(&a,&b,&c);
           gte_dpct();
-gte_swc2(0x14,((char *)sd + 0x114));
+gte_strgb3(&prim->r0,&prim->r1,&prim->r2);
         }
         else {
           color = *(long *)(Chunk_lightTable + sd->light);
-gte_swc2(0x15,((char *)sd + 0x120));
+gte_ldrgb(&color);
           gte_dpcs();
-gte_swc2(0x16,((char *)sd + 0x12c));
-          prim->r0 = (u_char)color;
-          prim->g0 = ((u_char *)&(color))[1];
-          prim->b0 = ((u_char *)&(color))[2];
-          prim->code = ((u_char *)&(color))[3];
-          prim->r1 = (u_char)color;
-          prim->g1 = ((u_char *)&(color))[1];
-          prim->b1 = ((u_char *)&(color))[2];
-          prim->p1 = ((u_char *)&(color))[3];
-          prim->r2 = (u_char)color;
-          prim->g2 = ((u_char *)&(color))[1];
-          prim->b2 = ((u_char *)&(color))[2];
-          prim->p2 = ((u_char *)&(color))[3];
-          prim->r3 = (u_char)color;
-          prim->g3 = ((u_char *)&(color))[1];
-          prim->b3 = ((u_char *)&(color))[2];
-          prim->p3 = ((u_char *)&(color))[3];
+gte_strgb(&color);
+          *(long *)&prim->r0 = color;
+          *(long *)&prim->r1 = color;
+          *(long *)&prim->r2 = color;
+          *(long *)&prim->r3 = color;
         }
       }
       else {

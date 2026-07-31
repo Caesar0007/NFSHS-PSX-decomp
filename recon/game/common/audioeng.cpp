@@ -335,75 +335,41 @@ void AudioEng_LoadDef(char *filename,char *name,int handle,long offset,long size
 /* ---- AudioEng_StartUp__FiPc  [@0x8007be54] ---- */
 int AudioEng_StartUp(int player,char *carname)
 {
-  AudioEng_tDef*cruisedef;
-  AudioEng_tDef*loaddef;
+  AudioEng_tDef *cruisedef;
+  AudioEng_tDef *loaddef;
   int tablesize;
   int i;
   int bankloaded;
   int spu;
   char filename[64];
-  AudioEng_t*g;
-  char*header;
-  int handle;
-  long size;
-  long offset;
-  char*current;
-  int c;
-  AudioEng_tChanAttr*chan;
-  int j;
-  bool bVar1;
-  int iVar2;
-  AudioEng_t *pAVar3;
-  int iVar4;
-  void *pThis;
-  char *pdata;
-  AudioEng_tDef *ed;
-  u_char *dest;
-  short *psVar5;
-  AudioEng_t *pAVar6;
-  int iVar7;
-  AudioEng_t *pAVar8;
-  char *pcVar9;
-  AudioEng_tDef *pAVar10;
-  AudioEng_tDef *pAVar11;
-  int iVar12;
-  int iVar13;
-  int iVar14;
-  int iVar15;
-  u_char *puVar16;
-  u_int name;
-  int iVar17;
+  AudioEng_t *g;
+  char *header;
   
   if (1 < (u_int)player) {
     return 0;
   }
-  tablesize = 0;
   if (AudioEng_g[player] != (AudioEng_t *)0x0) {
     return 0;
   }
-  spu = 0;
-  g = reservememadr("Engine Audio",0x370,0);
-  i = 0;
+  tablesize = 0;
+  spu = tablesize;
+  g = (AudioEng_t *)reservememadr("Engine Audio",0x370,tablesize);
+  i = tablesize;
   AudioEng_g[player] = g;
   g->tables = (char *)0x0;
   g->tick = 0;
   g->azi = 0;
   g->sep = 0;
   g->dop = 0x1000;
-  pAVar6 = g;
-  pAVar8 = g;
-  do {
-    pAVar8->vol[0] = 0;
-    pAVar6->left[0].handle = -1;
-    pAVar6->right[0].handle = -1;
-    *(signed char *)&pAVar6->chan[0].patchnum = -1;
-    pAVar6->chan[0].min = 0x200;
-    pAVar6->chan[0].max = 0x200;
-    pAVar6->chan[0].xlate = (char *)0x0;
-    pAVar6 = (AudioEng_t *)pAVar6->vol;
-    i = i + 1;
-    pAVar8 = (AudioEng_t *)&(pAVar8->adjust).rwdExhBoost;
-  } while (i < 0x10);
+  for (; i < 16; i++) {
+    g->vol[i] = 0;
+    g->left[i].handle = -1;
+    g->right[i].handle = -1;
+    *(signed char *)&g->chan[i].patchnum = -1;
+    g->chan[i].min = 0x200;
+    g->chan[i].max = 0x200;
+    g->chan[i].xlate = (char *)0x0;
+  }
   cruisedef = (AudioEng_tDef *)0x0;
   loaddef = (AudioEng_tDef *)0x0;
   (g->adjust).inCarBoost = '2';
@@ -423,7 +389,7 @@ int AudioEng_StartUp(int player,char *carname)
   else {
     sprintf(filename,"%s%seng.viv",Paths_Paths[28],carname);
   }
-  header = (char *)loadbigfileheader(filename,(void *)0x10);
+  header = (char *)loadbigfileheader(filename,(void *)16);
   if (header == (char *)0x0) {
     if (GameSetup_gData.commMode == 1) {
       sprintf(filename,"%sp993ens.viv",Paths_Paths[28]);
@@ -431,37 +397,47 @@ int AudioEng_StartUp(int player,char *carname)
     else {
       sprintf(filename,"%sp993eng.viv",Paths_Paths[28]);
     }
-    header = (char *)loadbigfileheader(filename,(void *)0x10);
-    if (header == (char *)0x0) goto LAB_8007c1ac;
+    header = (char *)loadbigfileheader(filename,(void *)16);
   }
-  FILE_opensync(filename,1,0x64,&handle);   /* oracle 0x8007c03c: a3=&handle out */
-  for (i = 0; iVar4 = bigcount(header), i < iVar4;
-      i = i + 1) {
-    current = (char *)locatebigentry(header,(char *)0x0,i,&offset,&size);   /* oracle 0x8007c06c: a2=i a3=&offset stk=&size */
-    if ((wildcard((u_char *)current,"*.bnk") != 0) && !bankloaded) {
-      pdata = reservememadr(current,size,0x10);
-      if (pdata != (char *)0x0) {
-        bankloaded = 1;
-        FILE_readsync(handle,offset,pdata,size,0x64);   /* oracle 0x8007c0c8: a0=h a1=off a2=pdata a3=size stk=0x64 */
-        spu = AudioCmn_AddBank(current,size,pdata,player);
-        g->bhandle = (char)gSndBnk[player].bnkID;
+  {
+    int handle;
+
+    if (header != (char *)0x0) {
+      FILE_opensync(filename,1,100,&handle);
+      {
+        int i;
+
+        for (i = 0; i < bigcount(header); i++) {
+          long size;
+          long offset;
+          char *name;
+
+          name = (char *)locatebigentry(header,(char *)0x0,i,&offset,&size);
+          if ((wildcard((u_char *)name,"*.bnk") != 0) && !bankloaded) {
+            char *pdata;
+
+            pdata = (char *)reservememadr(name,size,16);
+            if (pdata != (char *)0x0) {
+              bankloaded = 1;
+              FILE_readsync(handle,offset,pdata,size,100);
+              spu = AudioCmn_AddBank(name,size,pdata,player);
+              g->bhandle = (char)gSndBnk[player].bnkID;
+            }
+          }
+          else if ((wildcard((u_char *)name,"*.ltb") != 0) &&
+                   (loaddef == (AudioEng_tDef *)0x0)) {
+            AudioEng_LoadDef(filename,name,handle,offset,size,&loaddef);
+          }
+          else if ((wildcard((u_char *)name,"*.ctb") != 0) &&
+                   (cruisedef == (AudioEng_tDef *)0x0)) {
+            AudioEng_LoadDef(filename,name,handle,offset,size,&cruisedef);
+          }
+        }
       }
+      FILE_closesync(handle,100);
+      purgememadr(header);
     }
-    else {
-      if ((wildcard((u_char *)current,"*.ltb") != 0) &&
-          (loaddef == (AudioEng_tDef *)0x0)) {
-        AudioEng_LoadDef(filename,current,handle,offset,size,&loaddef);
-      }
-      else if ((wildcard((u_char *)current,"*.ctb") != 0) &&
-               (cruisedef == (AudioEng_tDef *)0x0)) {
-        AudioEng_LoadDef(filename,current,handle,offset,size,&cruisedef);
-      }
-    }
-LAB_8007c190: ;   /* empty stmt: gcc2.7.2 rejects label before '}' */
   }
-  FILE_closesync(handle,100);   /* oracle 0x8007c198/c1a0: a0=handle a1=0x64 (both were dropped) */
-  purgememadr(header);
-LAB_8007c1ac:
   if (!bankloaded) {
     return spu;
   }
@@ -471,71 +447,90 @@ LAB_8007c1ac:
   if (loaddef == (AudioEng_tDef *)0x0) {
     return spu;
   }
-  for (c = 0; c < 2; c++) {
-    if (c == 0) {
-      ed = cruisedef;
+  {
+    char *current;
+    {
+      int c;
+
+      for (c = 0; c < 2; c++) {
+        AudioEng_tDef *ed;
+
+        if (c != 0) {
+          ed = loaddef;
+        }
+        else {
+          ed = cruisedef;
+        }
+        if (ed->resolved == 0) {
+          for (i = 0; i < 8; i++) {
+            if ((signed char)ed->patchnum[i] >= 0) {
+              AudioEng_tChanAttr *chan;
+              int j;
+
+              ed->pvoltable[i] =
+                  (AudioEng_tTable *)((char *)&ed->pvoltable[i] +
+                                      (int)ed->pvoltable[i]);
+              ed->pbendtable[i] =
+                  (AudioEng_tTable *)((char *)&ed->pbendtable[i] +
+                                      (int)ed->pbendtable[i]);
+              chan = g->chan + i;
+              if (c != 0) {
+                chan += 8;
+              }
+              chan->patchnum = ed->patchnum[i];
+              j = 0;
+              while ((j < 512) &&
+                     ((signed char)ed->pvoltable[i]->xlate[j] == 0)) {
+                j++;
+              }
+              chan->min = j;
+              while ((j < 512) &&
+                     ((signed char)ed->pvoltable[i]->xlate[j] != 0)) {
+                j++;
+              }
+              chan->max = j;
+              tablesize += chan->max - chan->min;
+            }
+            ed->resolved = 1;
+          }
+        }
+      }
     }
-    else {
-      ed = loaddef;
-    }
-    if (ed->resolved == 0) {
-      for (j = 0; j < 8; j++) {
-        if ((signed char)ed->patchnum[j] >= 0) {
-          ed->pvoltable[j] =
-              (AudioEng_tTable *)((char *)ed + (int)ed->pvoltable[j]);
-          ed->pbendtable[j] =
-              (AudioEng_tTable *)((char *)ed + (int)ed->pbendtable[j]);
-          chan = &g->chan[j];
+    {
+      int c;
+
+      g->tables = current =
+          (char *)reservememadr("Engine Tables",tablesize,0);
+      for (c = 0; c < 2; c++) {
+        AudioEng_tDef *ed;
+
+        if (c != 0) {
+          ed = loaddef;
+        }
+        else {
+          ed = cruisedef;
+        }
+        for (i = 0; i < 8; i++) {
+          AudioEng_tChanAttr *chan;
+
+          chan = g->chan + i;
           if (c != 0) {
             chan += 8;
           }
-          chan->patchnum = ed->patchnum[j];
-          iVar7 = 0;
-          while ((iVar7 < 512) &&
-                 ((signed char)ed->pvoltable[j]->xlate[iVar7] == 0)) {
-            iVar7++;
+          if (chan->max != chan->min) {
+            int size;
+
+            size = chan->max - chan->min;
+            chan->xlate = current;
+            memcpy(current,ed->pvoltable[i]->xlate + chan->min,size);
+            current += size;
           }
-          chan->min = iVar7;
-          while ((iVar7 < 512) &&
-                 ((signed char)ed->pvoltable[j]->xlate[iVar7] != 0)) {
-            iVar7++;
-          }
-          chan->max = iVar7;
-          tablesize += chan->max - chan->min;
         }
       }
-      ed->resolved = 1;
     }
+    purgememadr(loaddef);
+    purgememadr(cruisedef);
   }
-  dest = reservememadr("Engine Tables",tablesize,0);
-  g->tables = (char *)dest;
-  for (i = 0; i < 2; i = i + 1) {
-    iVar4 = 0;
-    pAVar11 = cruisedef;
-    if (i != 0) {
-      pAVar11 = loaddef;
-    }
-    iVar12 = 0;
-    for (; iVar4 < 8; iVar4 = iVar4 + 1) {
-      psVar5 = (short *)((int)&g->chan[0].min + iVar12);
-      if (i != 0) {
-        psVar5 = psVar5 + 0x30;
-      }
-      iVar13 = (int)*psVar5;
-      puVar16 = dest;
-      if (psVar5[1] != iVar13) {
-        iVar14 = psVar5[1] - iVar13;
-        *(u_char **)(psVar5 + 2) = dest;
-        puVar16 = dest + iVar14;
-        memcpy(dest,(u_char *)(pAVar11->pvoltable[0]->xlate + iVar13),iVar14);
-      }
-      pAVar11 = (AudioEng_tDef *)&pAVar11->ver;
-      iVar12 = iVar12 + 0xc;
-      dest = puVar16;
-    }
-  }
-  purgememadr(loaddef);
-  purgememadr(cruisedef);
   return spu;
 }
 

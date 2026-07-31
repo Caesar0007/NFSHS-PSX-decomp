@@ -2687,89 +2687,83 @@ char * Hud_NextPlayerNameOrCarOrTime(int player)
   return "";
 }
 
-/* ---- Hud_RenderMapView__Fv  [HUD.CPP:2935-2980] SLD-VERIFIED ---- */
+/* ---- Hud_RenderMapView__Fv  [HUD.CPP:2935-2980] SLD-VERIFIED ----
+ * w39-a1 rule-8 rewrite.  SYM block @0x800d7838 declares exactly TWO locals: `j` (REG $19
+ * = $s3) and, in the line-6 block, `HudFT4` (REG $16 = $s0, PTR POLY_FT4).  The previous
+ * recon carried NINE invented locals (player/tile_count/current_tile_idx/tile_dest_p/
+ * tile_pmx_p/ft4_iter_b/tp1/tp2/tp3); the oracle's $s4 (+4), $s5 (+0xB4) and $s6 (+0x30)
+ * are compiler GIVs strength-reduced from index expressions off `j`, and $fp/$s7/$s1/$s2
+ * are LICM'd invariants (&DashHUD_gInfo, 1, 0xFFFFFF, 0xFF000000).
+ * Field check vs raw: `lw $v0,0x450($s5)` with $s5 = &GameSetup_gData + j*0xB4 IS
+ * carInfo[j].HudMap (carInfo @+0x3D4, stride 0xB4, HudMap @+0x7C -> 0x450). */
 void Hud_RenderMapView(void)
 
 {
-  int tile_pmx_p;
-  int ft4_iter_b;
-  int tile_dest_p;
-  int HudFT4;
   int j;
-  int player;
-  int tile_count;
-  int current_tile_idx;
-  u_char *tp2;
-  u_char *tp1;
-  u_char *tp3;
-  
-  tile_count = 0;
-  current_tile_idx = 0;
-  player = 0;
+
+  j = 0;
   while (true) {
-    if (DashHUD_gInfo.splitscreen < player) break;
-    /* was `*(int *)(track_geom_p + 0x450)` off &GameSetup_gData -- that read gData+0x450
-     * (inside userSetting), NOT carInfo[player].HudMap at gData+0x89C+player*0xB4 as the
-     * oracle does (LO16-blind verify hid it). Real field access re-creates the oracle's
-     * 0xB4-stride anchored giv. */
-    if (((GameSetup_gData.carInfo[player].HudMap != 0) &&
-        (((dashhud_info *)((int)&DashHUD_gInfo + tile_count))->showhud[0] != 0)) &&
-       (Hud_gWingmanInterface[player] == '\0')) {
-      HudFT4 = (int)gHudFT4;
-      if (player != 0) {
-        HudFT4 = (int)(gHudFT4 + 5);
+    if (DashHUD_gInfo.splitscreen < j) break;
+    if (((GameSetup_gData.carInfo[j].HudMap != 0) && (DashHUD_gInfo.showhud[j] != 0)) &&
+       (Hud_gWingmanInterface[j] == '\0')) {
+      POLY_FT4 *HudFT4;
+
+      HudFT4 = gHudFT4;
+      if (j != 0) {
+        HudFT4 = HudFT4 + 5;
       }
-      Draw_StartRenderingView(*(int *)((int)Hud_gMapView + tile_count));
-      if (GameSetup_gData.carInfo[player].HudMap == 1) {
-        Hud_BuildMapMarkers(player);
-        tp1 = Render_gPalettePtr;
-        ((POLY_FT4 *)HudFT4)->tag =
-             (u_long *)
-             ((u_int)((POLY_FT4 *)HudFT4)->tag & 0xff000000 |
-             *(u_int *)Render_gPalettePtr & 0xffffff);
-        *(u_int *)tp1 = *(u_int *)tp1 & 0xff000000 | HudFT4 & 0xffffffU;
+      Draw_StartRenderingView(Hud_gMapView[j]);
+      if (GameSetup_gData.carInfo[j].HudMap == 1) {
+        u_char *pal;
+
+        Hud_BuildMapMarkers(j);
+        /* the oracle loads Render_gPalettePtr ONCE per block into a caller-saved reg
+         * (lui 0x1F80; lw) -- spelling the macro at every use makes gcc LICM the
+         * 0x1F800000 base into a callee-saved reg instead. */
+        pal = Render_gPalettePtr;
+        HudFT4->tag =
+             (u_long *)((u_int)HudFT4->tag & 0xff000000 | *(u_int *)pal & 0xffffff);
+        *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)HudFT4 & 0xffffff;
       }
       else {
-        tile_pmx_p = Hud_BuildRadar(player);
-        tp2 = Render_gPalettePtr;
-        if (tile_pmx_p == 1) {
-          ((POLY_FT4 *)(HudFT4 + 0x28))->tag =
-               (u_long *)
-               ((u_int)((POLY_FT4 *)(HudFT4 + 0x28))->tag & 0xff000000 |
-               *(u_int *)Render_gPalettePtr & 0xffffff);
-          *(u_int *)tp2 = *(u_int *)tp2 & 0xff000000 | (u_int)(HudFT4 + 0x28) & 0xffffff;
-          ((POLY_FT4 *)(HudFT4 + 0x50))->tag =
-               (u_long *)
-               ((u_int)((POLY_FT4 *)(HudFT4 + 0x50))->tag & 0xff000000 |
-               (u_int)(HudFT4 + 0x28) & 0xffffff);
-          ft4_iter_b = HudFT4 + 0x50;
+        int prim;
+        u_char *pal;
+
+        if (Hud_BuildRadar(j) == 1) {
+          pal = Render_gPalettePtr;
+          HudFT4[1].tag =
+               (u_long *)((u_int)HudFT4[1].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
+          *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)(HudFT4 + 1) & 0xffffff;
+          /* oracle `and $v1,$v1,$s1` on the JUST-STORED palette word: the second link is
+           * the same read-modify idiom, not a re-materialized &HudFT4[1]. */
+          HudFT4[2].tag =
+               (u_long *)((u_int)HudFT4[2].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
+          prim = (int)(HudFT4 + 2);
         }
         else {
-          ((POLY_FT4 *)(HudFT4 + 0x78))->tag =
-               (u_long *)
-               ((u_int)((POLY_FT4 *)(HudFT4 + 0x78))->tag & 0xff000000 |
-               *(u_int *)Render_gPalettePtr & 0xffffff);
-          *(u_int *)tp2 = *(u_int *)tp2 & 0xff000000 | (u_int)(HudFT4 + 0x78) & 0xffffff;
-          ((POLY_FT4 *)(HudFT4 + 0xa0))->tag =
-               (u_long *)
-               ((u_int)((POLY_FT4 *)(HudFT4 + 0xa0))->tag & 0xff000000 |
-               (u_int)(HudFT4 + 0x78) & 0xffffff);
-          ft4_iter_b = HudFT4 + 0xa0;
+          pal = Render_gPalettePtr;
+          HudFT4[3].tag =
+               (u_long *)((u_int)HudFT4[3].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
+          *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)(HudFT4 + 3) & 0xffffff;
+          HudFT4[4].tag =
+               (u_long *)((u_int)HudFT4[4].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
+          prim = (int)(HudFT4 + 4);
         }
-        *(u_int *)tp2 = *(u_int *)tp2 & 0xff000000 | ft4_iter_b & 0xffffffU;
+        *(u_int *)pal = *(u_int *)pal & 0xff000000 | prim & 0xffffffU;
       }
-      tp3 = Render_gPalettePtr;
-      /* &gTPage1[player][1] via the 0x30-stride walker (was the disguised bare VA
-       * 0x8013E3FC = gTPage1 + 0xC) */
-      tile_dest_p = (int)gTPage1 + current_tile_idx + 0xc;
-      *(u_int *)tile_dest_p =
-           *(u_int *)tile_dest_p & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | tile_dest_p & 0xffffffU;
-      Draw_StopRenderingView(*(int *)((int)Hud_gMapView + tile_count));
+      {
+        /* oracle computes `D_8013E3FC + $s6` ONCE into $a0 and uses it for both the tag
+         * read/write and the link value; two textual `gTPage1[j][1]` uses make gcc keep a
+         * SECOND +0x30 giv for the address. */
+        DR_MODE *tp = &gTPage1[j][1];
+        u_char *pal = Render_gPalettePtr;
+
+        tp->tag = tp->tag & 0xff000000 | *(u_int *)pal & 0xffffff;
+        *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tp & 0xffffff;
+      }
+      Draw_StopRenderingView(Hud_gMapView[j]);
     }
-    tile_count = tile_count + 4;
-    current_tile_idx = current_tile_idx + 0x30;
-    player = player + 1;
+    j = j + 1;
   }
   return;
 }

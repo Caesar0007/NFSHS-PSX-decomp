@@ -119,30 +119,30 @@ FogKey * Fog_CheckRange(int currentslice,FogKey *fkey)
 
 {
   FogKey *keynext;
-  FogKey *pFVar1;
   int iVar2;
   int iVar3;
 
   keynext = fkey->next;
   iVar2 = (int)fkey->slice;
   iVar3 = (int)keynext->slice;
+  /* MATCH: direct returns (no result funnel) -- the oracle stages 0/fkey straight
+   * into $v0 in the branch delay slots; a funnel local takes $a2 + a tail copy. */
   if (iVar3 < iVar2) {
-    if ((iVar2 <= currentslice) || (pFVar1 = (FogKey *)0x0, currentslice < iVar3)) {
+    /* MATCH: `||` short-circuit -- both arms fall into ONE `return fkey` block
+     * (oracle beqz/beqz both target .L800E0BC4); split returns duplicate it. */
+    if ((iVar2 <= currentslice) || (currentslice < iVar3)) {
       return fkey;
     }
+    goto ret0;
   }
-  else {
-    pFVar1 = (FogKey *)0x0;
-    if (iVar2 <= currentslice) {
-      if (currentslice < iVar3) {
-        pFVar1 = fkey;
-      }
-      else {
-        pFVar1 = (FogKey *)0x0;
-      }
-    }
+  if (currentslice < iVar2) {
+    goto ret0;
   }
-  return pFVar1;
+  if (currentslice < iVar3) {
+    return fkey;
+  }
+ret0:
+  return (FogKey *)0x0;
 }
 
 /* ---- Fog_FindKey__FiP6FogKey  [TEXTUREPROCESS.CPP:665-695] SLD-VERIFIED ---- */

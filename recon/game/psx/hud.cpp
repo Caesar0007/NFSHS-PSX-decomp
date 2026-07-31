@@ -2726,7 +2726,6 @@ void Hud_RenderMapView(void)
         *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)HudFT4 & 0xffffff;
       }
       else {
-        int prim;
         u_char *pal;
 
         if (Hud_BuildRadar(j) == 1) {
@@ -2738,7 +2737,7 @@ void Hud_RenderMapView(void)
            * the same read-modify idiom, not a re-materialized &HudFT4[1]. */
           HudFT4[2].tag =
                (u_long *)((u_int)HudFT4[2].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
-          prim = (int)(HudFT4 + 2);
+          *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)(HudFT4 + 2) & 0xffffff;
         }
         else {
           pal = Render_gPalettePtr;
@@ -2747,9 +2746,11 @@ void Hud_RenderMapView(void)
           *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)(HudFT4 + 3) & 0xffffff;
           HudFT4[4].tag =
                (u_long *)((u_int)HudFT4[4].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
-          prim = (int)(HudFT4 + 4);
+          /* SYM has no phi local here: the final link store is written INLINE in both
+           * arms and gcc cross-jump-merges it (a `prim` variable makes gcc hoist BOTH
+           * &HudFT4[2] and &HudFT4[4] above the branch). */
+          *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)(HudFT4 + 4) & 0xffffff;
         }
-        *(u_int *)pal = *(u_int *)pal & 0xff000000 | prim & 0xffffffU;
       }
       {
         /* oracle computes `D_8013E3FC + $s6` ONCE into $a0 and uses it for both the tag

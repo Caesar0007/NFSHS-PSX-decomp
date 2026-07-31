@@ -297,7 +297,10 @@ void Hrz_InitSkyColor(void)
  * allocno tie: k<->sin-value swap $s4/$s6 (ours k=s4; oracle k=s6). -dg dump: ours
  * k pri=4*19/100=0.76 vs sin 2*7/32=0.44, height 3*10/43=0.70 -- k allocates 5th, oracle
  * wants it LAST. Tried+failed: decl order, k=i copy, init hoist (41, reverted), k-before-i
- * (18), dummy pre-inits, role-name swap (all no-op or worse). Permuter candidate. */
+ * (18), dummy pre-inits, role-name swap (all no-op or worse). Permuter candidate.
+ * w39-a8: re-certified against the now-wired per-TU C++ flags.  hrzsku.cpp whole-TU
+ * baseline 15 PASS / 843 diffs vs no_split_addresses 7/1441, no_schedule_insns 7/1592,
+ * no_schedule_insns2 2/1095, no_strength_reduce 12/1038 -- all worse, stock flags stand. */
 void Hrz_InitSky(void)
 
 {

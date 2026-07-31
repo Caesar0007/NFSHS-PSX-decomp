@@ -447,7 +447,14 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
  *     gte statements (lines 374-379), i.e. exactly where the recon has it. Not adopted.
  * Classified as the constant-hoist-order / allocno-tie floor (catalog sec.A + the PrimStop
  * 0xffffff/0xff000000 tie family). Prototype re-checked vs raw oracle: (long *center, int otz),
- * void return (no $v0 at the single epilogue). */
+ * void return (no $v0 at the single epilogue).
+ * w39-a8 RE-CERTIFICATION with the NOW-WIRED per-TU C++ flags (compile_cpp honours
+ * no_split_addresses / no_schedule_insns / no_schedule_insns2 / no_strength_reduce since
+ * cb24f4ab, so every earlier "flag didn't help" note on a C++ TU measured a no-op).
+ * Whole-TU receipts, flare.cpp, baseline 15 PASS / 458 total diffs:
+ *   no_split_addresses  10 PASS / 1387    no_schedule_insns    4 PASS / 2086
+ *   no_schedule_insns2   2 PASS /  845    no_strength_reduce  15 PASS /  889
+ * ALL FOUR are strictly worse -- flare.obj is a stock -O2 -G4 object.  Floor stands. */
 /* ---- Flare_HexFlare__FPli  [FLARE.CPP:370-400] SLD-VERIFIED ---- */
 void Flare_HexFlare(long *center,int otz)
 
@@ -1559,6 +1566,24 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
    *    the /25 colour scale).
    *  - Render_gPacketPtr / Render_gPalettePtr are read in the TAIL only; the old
    *    `while (p = ..., tp3 = ..., idx < 9)` comma-hoist has no oracle basis. */
+  /* RESIDUAL 56 (ours 407 / oracle 409), w39-a8.  TWO clusters, both measured:
+   *  (a) HEAD: the oracle loads screenPos->vx/vy into $v0/$v1 and COPIES them to
+   *      $fp/$s7 (`addu $fp,$v0,zero` / `addu $s7,$v1,zero`, the 2 missing insns);
+   *      that extra pair lets its scheduler hold sx-2 in $a3 across the whole pt[]
+   *      build and sink the pt[0]/pt[2].vx stores to the end.  Ours loads straight
+   *      into the home regs and therefore serializes the four value chains through
+   *      $v0.  Probed: all 24 group orderings of the four chained pt assignments
+   *      (56 is the minimum; the oracle's STORE order costs 76 because it flips
+   *      which of sx/sy is defined first, and with it the $fp/$s7 split), reading
+   *      pos[0].vx/vy back from screenPos instead of sx/sy (84), (int) casts (56),
+   *      moving sx/sy into the pt block (56).
+   *  (b) TAIL: the 3-cycle rotation of the pkt-ptr address / 0xFFFFFF / 0xFF000000
+   *      constant registers -- the shared flare.cpp allocator tie, see the note on
+   *      Flare_Sun.  Structure and count are otherwise exact.
+   * Per-TU flag probe (w39, now that compile_cpp honours the keys): flare.cpp is
+   * NOT a no_split_addresses / no_schedule_insns / no_schedule_insns2 /
+   * no_strength_reduce object -- whole-TU baseline 15 PASS / 458 diffs vs
+   * 10/1387, 4/2086, 2/845, 15/889. */
   int dx;
   int dy;
   DVECTOR pxy;
@@ -1698,7 +1723,21 @@ gte_SetRotMatrix(&mtx);
   return;
 }
 
-/* ---- Flare_Sun__FP7SVECTORP15Draw_FlareCache  [FLARE.CPP:1742-1818] SLD-VERIFIED ---- */
+/* ---- Flare_Sun__FP7SVECTORP15Draw_FlareCache  [FLARE.CPP:1742-1818] SLD-VERIFIED ----
+ * NEAR-MISS 50, COUNT-EXACT 187/187.  ALL 50 diffs are one 3-CYCLE REGISTER ROTATION of
+ * the three block-local constants in the two AddPrim/SetDrawMode tails:
+ *     ours  pktPtrAddr(0x1F800004)=$t2  0xFFFFFF=$t3  0xFF000000=$t1
+ *     oracle             "        =$t3          =$t1            =$t2
+ * Instruction stream, schedule, def positions and use positions are IDENTICAL -- only the
+ * local-alloc quantity ORDER differs, i.e. the documented 0xffffff/0xff000000 constant-reg
+ * tie (catalog wave-12 a7: both mask pseudos are block-LOCAL, so local-alloc decides, and
+ * no zero-cost source lever changes the qty priority).  The SAME rotation is the whole
+ * residual of Flare_2DHalo (68), most of Flare_LensFlare's tail, Flare_CarShapedHalo and
+ * Flare_Halo2's tails, and Sky_RenderStars (2, LICM-hoist ORDER variant of the same tie).
+ * w39-a8 probes, ALL byte-neutral or worse: Hrz_SetDitheringPrim's exact spelling (slot
+ * first, unmasked `tag = *slot` then `(tag & 0xff000000)|(...)`) = 50; unmasked pkt24 with
+ * the original statement order = 50; swapping the first RMW's OR operands = 56.  Also NOT
+ * a per-TU flag object (see the Flare_LensFlare banner for the four flag receipts). */
 void Flare_Sun(SVECTOR *worldPos,Draw_FlareCache *sd)
 
 {

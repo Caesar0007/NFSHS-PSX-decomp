@@ -718,7 +718,17 @@ void Night_SetEnviroment(DRender_tView *Vi)
  * (SYM: newR $7=a3, newG $8=t0, newB $6=a2). Tried: inlining zfar into the
  * condition (88), materializing zfar before z/znear (79), znear-before-z (77,
  * tie). This is the allocno-priority race between the short-lived guard temps
- * and the long-lived, few-ref `color` parameter. */
+ * and the long-lived, few-ref `color` parameter.
+ * w39-a9 RE-PROBE (all re-gated, none improved on 77): the w32/w33 "param-copy priority
+ * dial" (`CVECTOR *c = color;` used at every site -- 88 at 66 insns) · a self-copy
+ * `color = color;` (77, gcc drops it) · shortening zfar's live range by folding its
+ * assignment into the guard via a comma expression (88) · hoisting `xdist` above the
+ * `x` load (77) · -G8 (77) · all four wired per-TU codegen flags (no_split_addresses 78,
+ * no_schedule_insns 83, no_schedule_insns2 83, no_strength_reduce 77).  The single extra
+ * insn is always `addu t3,a1,zero` -- `zfar` beats `color` for $a1 because its live range
+ * is far shorter (priority = floor_log2(refs)*refs/live_length), and no source form
+ * reachable from here changes that ordering.  STRONG FLOOR pending a permuter run (the
+ * C++ permuter harness is still blocked for C++ TUs). */
 void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
 
 {

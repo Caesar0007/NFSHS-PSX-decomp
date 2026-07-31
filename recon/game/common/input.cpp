@@ -116,9 +116,10 @@ void Input_Update(void)
 
   Device_Update();
 
-  for (i = 31; i >= 0; i--) {
-    iactive[i] = 1;
-  }
+  i = 31;
+  do {
+    iactive[i--] = 1;
+  } while (i >= 0);
 
   h = Input_gHandler;
   r = Input_gResults;

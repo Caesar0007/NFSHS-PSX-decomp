@@ -25,10 +25,18 @@ u_char       (*Night_gCopLightingTableBlue)[256][8];   /* @0x8013d9ec  (bss(zero
    (Night_InitWeatherTables / Night_SetWeatherColors, and draww.cpp's Night_NightCalc) address
    the base absolutely with %hi/%lo(Night_gWeatherLightingTable) -- reproduced by the unsized
    asm-label array VIEW below.  The two 4-byte .comm symbols land adjacently in .sbss in
-   declaration order, so the array view still reaches both words: KEEP THEM ADJACENT. */
+   declaration order, so the array view still reaches both words: KEEP THEM ADJACENT.
+   The view MUST carry its CORRECT size [2], NOT the usual unsized `[]` (methodology
+   sec.3.12 #5): an UNKNOWN-size extern makes cc1plus emit the `la sym` assembler MACRO,
+   which GNU-as expands with a SEPARATE scratch (`lui v0,%hi; addiu s0,v0,%lo`), whereas
+   retail's base-walk sites use the SELF-TEMP form (`lui s0,%hi; addiu s0,s0,%lo`) that
+   only gcc's own split-address lowering produces -- and that lowering needs a KNOWN size
+   over the -G threshold.  Sized [2] = 8 bytes > -G8's threshold-inclusive small test for
+   an EXTERN of known size here, so gcc lowers it itself.  Measured: unsized -> 6/8 diffs
+   on Night_InitWeatherTables/Night_SetWeatherColors, sized [2] -> 4/PASS. */
 u_char       (*Night_gWeatherLightingTable)[256];   /* @0x8013d9f0  = [0]  (bss(zero)) */
 u_char       (*D_8013D9F4)[256];   /* @0x8013d9f4  = [1] retail per-element gp-rel alias (bss(zero)) */
-extern u_char (*Night_gWeatherLightingTable_arr[])[256] asm("Night_gWeatherLightingTable"); /* array VIEW */
+extern u_char (*Night_gWeatherLightingTable_arr[2])[256] asm("Night_gWeatherLightingTable"); /* array VIEW -- MUST be sized [2] */
 char         CopCarTypeLights[6] = { 0, 0, 1, 0, 1, 1 };   /* @0x8013d9f8 */
 int          gNight_renderNight;   /* @0x8013da28  (bss(zero)) */
 int          Night_gXDist;   /* @0x8013da2c  (bss(zero)) */
@@ -63,7 +71,7 @@ long         Night_gPlayerHeadLightColor[2];   /* @0x8013da80  (bss(zero)) */
    KEEP THE TWO .comm SYMBOLS ADJACENT (declaration order == .sbss order). */
 long         Night_gWeatherColor;   /* @0x8013da88  = [0] (bss(zero)) */
 long         D_8013DA8C;   /* @0x8013da8c  = [1] retail per-element gp-rel alias (bss(zero)) */
-extern long  Night_gWeatherColor_arr[] asm("Night_gWeatherColor"); /* array VIEW for the base-walk sites */
+extern long  Night_gWeatherColor_arr[2] asm("Night_gWeatherColor"); /* array VIEW -- MUST be sized [2] */
 tNightInitCache *gNightInitCache;   /* @0x8013da90  (bss(zero)) */
 tCompRGB     *gTableCache;   /* @0x8013da94  (bss(zero)) */
 char         *nightfile;   /* @0x8013da98  (bss(zero)) */

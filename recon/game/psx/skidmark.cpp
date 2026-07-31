@@ -119,7 +119,17 @@ Skidmark_CheckChunk(coorddef *skidpt,int newsegs,int slice)
   return returnsm;
 }
 
-/* ---- Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii  [SKIDMARK.CPP:159-239] SLD-VERIFIED ---- */
+/* ---- Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii  [SKIDMARK.CPP:159-239] SLD-VERIFIED ----
+ * NEAR-MISS 98 diffs, COUNT-EXACT 245/245 (w38-a5, was 158).  Residual = a single
+ * $s4<->$s5 parameter tie that propagates through every use: retail puts the STACK
+ * parameter `type` in $s4 (the earlier reg) and `color` in $s5; ours is the other way
+ * round.  Both allocnos have identical ref counts at RTL level (5 uses + 1 param copy
+ * each -- `color` is only referenced ONCE per struct copy because movstrsi is a single
+ * RTL insn) and both live the whole function, so this is the documented gcc-2.8
+ * `allocno_compare` tie-break delta, not a source shape.  Tried: array-index form
+ * (landed, -60), operand/statement reordering in the tail (neutral).  The other two
+ * residual sites are cross-jump DEPTH (the oracle keeps 2 more insns inside the
+ * first arm before jumping to the shared tail). */
 void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,int type,int slice)
 
 {
@@ -170,7 +180,11 @@ void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,
   return;
 }
 
-/* ---- Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii  [SKIDMARK.CPP:264-326] SLD-VERIFIED ---- */
+/* ---- Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii  [SKIDMARK.CPP:264-326] SLD-VERIFIED ----
+ * NEAR-MISS 20 diffs (229/231) after the &sm->seg[n] array-index fix (was 70).
+ * Residual: (a) the same $a0/$v0-vs-$v1 chunk-count scratch rotation as Skidmark_Add,
+ * (b) 2 insns of cross-jump DEPTH -- the oracle keeps the `n*28` recompute inside the
+ * first arm where our build merges it into the shared tail. */
 void Skidmark_AddStretch(Skidmark_Segment **save,int *savechunk,tSkid *prevskid,coorddef *skidpt,
                         CVECTOR *color,int tireWidth,int type,int slice)
 

@@ -119,8 +119,14 @@ void Sfx_BuildFastDisolveFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,Draw_t
  * Access via the centralized fixed-address lvalue macros Render_gPacketPtr/Render_gPalettePtr
  * (nfs4_types.h, sec.3.6b) -- same storage as render.cpp's owned global, byte-identical
  * semantics -- to reproduce that codegen.
- * NEAR-MISS 53 diffs (121/126 insns -- 5-insn STRUCTURAL gap, re-measured 2026-07-06; the
- * in-file "38, pure coloring" note above was STALE). ROOT CAUSE ISOLATED this session: the 5
+ * NEAR-MISS 38 diffs, COUNT-EXACT 126/126 (re-measured w38-a5 2026-07-31; the 53-diff /
+ * 121-insn claim below is STALE -- psx_gte.h has since gained the PsyQ pointer-form
+ * `gte_st*(p)` macros with the "r" constraint, which closed the 5-insn structural gap.
+ * What is LEFT is the 0xFFFFFF / 0xFF000000 / &Render_gPacketPtr / Render_gPalettePtr
+ * four-constant register ROTATION in the OT-link tail (ours t0=0xFFFFFF a1=palette
+ * a2=&packetptr a3=0xFF000000; retail t0=&packetptr a1=0xFFFFFF a2=palette
+ * a3=0xFF000000) -- the same allocator tie the catalog tracks as the PrimStop /
+ * SpotPrims / SubdividFacet 0xffffff-pair family.  The historical note follows:) ROOT CAUSE ISOLATED this session: the 5
  * missing insns are the `addiu vN,base,OFF` address-materializations the oracle emits before
  * EVERY `gte_stsxy`/`gte_stsxy3` GTE store (`prim->x0/x1/x3/x2`) -- ours folds the field offset
  * straight into the `swc2` displacement (`swc2 14,8(s0)`) instead. Compared against the REAL

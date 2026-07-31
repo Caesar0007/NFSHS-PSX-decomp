@@ -684,6 +684,7 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
   testSimRoadInfo = newtonObj->simRoadInfo;
   tpi12 = (int)wheelHeight;
   pt = (int)tireCoord;
+  {
   coorddef roadNormal;
   coorddef roadCenterPoint;
   int roadSurfaceType;
@@ -745,6 +746,7 @@ accumGroundElev: /* @0x800a0398 */
     tpi12 = tpi12 + 0xc;
     pt = pt + 0xc;
     *(coorddef *)(wheelInst_p + 0x298) = roadNormal;
+  }
   }
   {
   coorddef wheelVec;

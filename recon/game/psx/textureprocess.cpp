@@ -10,6 +10,8 @@
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
 BWorldSm_Pos *fogslicePos;
 FogKey *Fog_gHeadKey;
+FogKey *Fog_gCurrentKey;
+FogKey *D_8013DB84;
 TP_ZPaletteSystem TP_gZPaletteSystem;
 int Fog_gNumKeys;
 int gZDepth;
@@ -274,8 +276,8 @@ void Fog_Update(int player)
   if (Fog_gNumKeys != 1) {
     BWorldSm_FindClosestQuadRez(&gCView.cview.translation,fogslicePos + player,1);
     currentslice = fogslicePos[player].slice;
-    key = Fog_FindKey(currentslice,Fog_gCurrentKey[player]);
-    Fog_gCurrentKey[player] = key;
+    key = Fog_FindKey(currentslice,Fog_gCurrentKeyArr[player]);
+    Fog_gCurrentKeyArr[player] = key;
     /* MATCH: NO cached `nextkey` local -- the oracle re-reads key->next (and
      * key->slice / key->distance) at each use; only `nextslice` is a real
      * variable (it is mutated by += numslices).  The interpolating arm is the
@@ -392,13 +394,16 @@ void Fog_InitFogTriggers(void)
   int i;
   int k;
   int slice_off;
+  int openval;
   
+  openval = 1;
   i = 0x1f;
-  openkey_walk = openkeys + 0x1f;
+  openkey_walk = openkeys;
+  openkey_walk = openkey_walk + 0x1f;
   Fog_gNumKeys = 0;
   Fog_gHeadKey = (FogKey *)0x0;
   do {
-    *openkey_walk = 1;
+    *openkey_walk = openval;
     i = i + -1;
     openkey_walk = openkey_walk + -1;
   } while (-1 < i);
@@ -407,29 +412,38 @@ void Fog_InitFogTriggers(void)
     Fog_AddKey(0,TrackSpec_gSpec.fogspec.start);
   }
   num_player = 1;
-  /* FLOOR (35 diffs, ours 58/57): the oracle stores these two slots through
-   * SEPARATE per-element gp-rel symbols (`%gp_rel(Fog_gCurrentKey)` and
-   * `%gp_rel(D_8013DB84)`), i.e. this TU OWNS them as two 4-byte gp objects,
-   * while Fog_Update reaches the same storage as a real ARRAY with an absolute
-   * base + variable index.  Reproducing that needs the catalog's DUAL-MODEL
-   * storage (per-element tentative defs alongside the array) which touches the
-   * shared extern header + data materialization -- out of this wave's scope.
-   * Everything else in this function matches. */
-  Fog_gCurrentKey[0] = Fog_gHeadKey;
-  Fog_gCurrentKey[1] = Fog_gHeadKey;
+  /* MATCH (w39-a10, 35 -> 4).  Four levers:
+   *  (1) PER-ELEMENT gp-rel split of Fog_gCurrentKey (see the header): retail's
+   *      .sdata really does carry two separate 4-byte dlabels, and only two
+   *      distinct <=G4 objects can produce the oracle's per-element
+   *      `%gp_rel(Fog_gCurrentKey)` / `%gp_rel(D_8013DB84)` stores.  Fog_Update
+   *      keeps the runtime index and uses the unsized asm-label array view.
+   *  (2) SPLIT the openkeys base init (`p = openkeys; p = p + 0x1f;`): the
+   *      fused `openkeys + 0x1f` folds the +124 into the %lo reloc (2 insns),
+   *      retail emits the discrete third `addiu $v0,$v0,0x7C`.
+   *  (3) `openval = 1;` as a real local: the store value is a LICM-hoisted
+   *      constant, and loop.c appends its hoisted `li` AFTER the preheader
+   *      statements, so ours came out last where retail has it first.
+   *  (4) `slice_off = 0;` before the zero-trip guard, `k = slice_off;` inside
+   *      it, and the counter increment AFTER the call (not before).
+   * RESIDUAL 4 = the $s0<->$s1 allocno tie on (k, slice_off): retail gives the
+   * counter $s0, we give it to the offset.  Six init-order/loop-shape spellings
+   * measured (4/12/12/12/14/16 diffs) -- none flips the pair. */
+  Fog_gCurrentKey = Fog_gHeadKey;
+  D_8013DB84 = Fog_gHeadKey;
   if (GameSetup_gData.commMode == 1) {
     num_player = 2;
   }
   fogslicePos = reservememadr("fog pos",num_player * 0x84,0);
-  k = 0;
+  slice_off = 0;
   if (num_player != 0) {
-    slice_off = k;
+    k = slice_off;
     do {
-      k = k + 1;
       /* MATCH: plain base+offset off fogslicePos (oracle re-reads the gp-rel
        * pointer each iteration and does `addu a1,a1,slice_off`); the Ghidra
        * `fogslicePos->quadPts + slice_off - 8` form is the same address. */
       BWorldSm_SetSlice(0,(BWorldSm_Pos *)((char *)fogslicePos + slice_off));
+      k = k + 1;
       slice_off = slice_off + 0x84;
     } while (k < num_player);
   }

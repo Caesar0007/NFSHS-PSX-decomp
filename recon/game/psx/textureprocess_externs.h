@@ -11,7 +11,15 @@ extern BWorldSm_Pos      *fogslicePos;           /* 0x8013db8c */
 extern TP_ZPaletteSystem  TP_gZPaletteSystem;    /* 0x8013db78 */
 extern int                Fog_gNumKeys;          /* 0x8013db7c */
 extern FogKey            *Fog_gHeadKey;          /* 0x8013db88 */
-extern FogKey            *Fog_gCurrentKey[2];    /* 0x8013db80 */
+/* PER-ELEMENT SPLIT (w39-a10): retail's .sdata carries these as TWO separate
+   4-byte dlabels (Fog_gCurrentKey @0x8013db80, D_8013DB84 @0x8013db84), and
+   Fog_InitFogTriggers stores to them through per-element %gp_rel relocations --
+   only possible if each element is its OWN <=G4 object.  Fog_Update indexes the
+   pair at runtime, so it uses the unsized asm-label ARRAY VIEW over the same
+   storage (catalog E: dual-model per-element gp-rel).  */
+extern FogKey            *Fog_gCurrentKey;       /* 0x8013db80  element [0] */
+extern FogKey            *D_8013DB84;            /* 0x8013db84  element [1] */
+extern FogKey            *Fog_gCurrentKeyArr[] asm("Fog_gCurrentKey");
 extern FogKey             Fog_gBuf[32];          /* 0x8012307c */
 extern int                openkeys[32];          /* 0x801231fc */
 extern int                gZDepth;               /* 0x8013db74 */

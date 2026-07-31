@@ -916,6 +916,7 @@ void Weather_CreateSnow(SVECTOR *pt)
   SVECTOR gv [4];
   POLY_FT4 *prim;
   Draw_tPixMap *pmx;
+  u_int *pal;
   unsigned long l0;
   unsigned long l1;
   unsigned long l2;
@@ -935,9 +936,10 @@ void Weather_CreateSnow(SVECTOR *pt)
   gte_ldv3(&gv[0],&gv[1],&gv[2]);
   gte_rtpt();
   prim = (POLY_FT4 *)RENDER_PACKETPTR_ADDR;
-  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)RENDER_PALETTEPTR_ADDR & 0xffffff;
+  pal = (u_int *)RENDER_PALETTEPTR_ADDR;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
   RENDER_PACKETPTR_ADDR = RENDER_PACKETPTR_ADDR + 0x28;
-  *(u_int *)RENDER_PALETTEPTR_ADDR = *(u_int *)RENDER_PALETTEPTR_ADDR & 0xff000000 | (u_int)prim & 0xffffff;
+  *pal = *pal & 0xff000000 | (u_int)prim & 0xffffff;
   *((char *)prim + 3) = 9;                                  /* OT tag length (9 words) */
   gte_stsxy3(&prim->x0,&prim->x1,&prim->x2);
 
@@ -1145,6 +1147,7 @@ void Weather_DoWeather(DRender_tView *Vi)
   int n;
   int mode;
   DR_MODE *prim;
+  u_int *pal;
 
   player = Vi->player;
   wpt = Weather_gPServerA[player];
@@ -1204,9 +1207,10 @@ void Weather_DoWeather(DRender_tView *Vi)
     }
     /* tail: link a DR_MODE primitive into the OT to reset the texture page */
     prim = (DR_MODE *)RENDER_PACKETPTR_ADDR;
-    *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)RENDER_PALETTEPTR_ADDR & 0xffffff;
+    pal = (u_int *)RENDER_PALETTEPTR_ADDR;
+    *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
     RENDER_PACKETPTR_ADDR = RENDER_PACKETPTR_ADDR + 0xc;
-    *(u_int *)RENDER_PALETTEPTR_ADDR = *(u_int *)RENDER_PALETTEPTR_ADDR & 0xff000000 | (u_int)prim & 0xffffff;
+    *pal = *pal & 0xff000000 | (u_int)prim & 0xffffff;
     SetDrawMode(prim,0,0,0x20,(RECT *)0x0);
   }
 }

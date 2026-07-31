@@ -46,7 +46,28 @@ tCompRGB     *gTableCache;   /* @0x8013da94  (bss(zero)) */
 char         *nightfile;   /* @0x8013da98  (bss(zero)) */
 
 
-/* ---- Night_FindClosestColor__FG7CVECTORPi  [NIGHT.CPP:134-175] SLD-VERIFIED ---- */
+/* ---- Night_FindClosestColor__FG7CVECTORPi  [NIGHT.CPP:134-175] SLD-VERIFIED ----
+ * SEALED 50/50 PASS (w38-a10; was an 82-diff far-miss at ours 52 / oracle 50).
+ * FIVE stacked levers, all SYM/oracle-derived (SYM block @43bbac):
+ *  (1) the search cursor is NOT a walking `tCompRGB *p` -- the oracle re-loads
+ *      %gp_rel(gTableCache) INSIDE the loop and adds a *3 offset giv
+ *      (`addiu t1,t1,3`), i.e. the source indexes the GLOBAL: gTableCache[search].
+ *      (gcc must reload the pointer because the `*bestIndex` store may alias it.)
+ *  (2) the zero-trip guard compares the VARIABLE, `if (search < maxLights)`
+ *      (oracle `slt v0,a3,v1; beqz`), not the literal `1 < maxLights`
+ *      (which folds to `slti v0,v1,2; bnez`).
+ *  (3) diffSum is a term-by-term ACCUMULATION (3 statements), not one sum
+ *      expression -- makes diffSum's own pseudo hold the running sum from the
+ *      first product (oracle `mflo a0 ... addu a0,a0,a2 ... addu a0,a0,t9`);
+ *      the single expression built the sum in a fresh temp (+1 insn).
+ *  (4) `bestDiff = 0x2fa03;` is the FIRST statement -- its long live range
+ *      LOWERS its allocno priority so it lands on $t0 and `search` wins $a3
+ *      (SYM: bestDiff $8 = t0, search $7 = a3). Initialising it just before the
+ *      guard inverted the pair (28 diffs, count already exact).
+ *  (5) inside the if-body `bestDiff = diffSum;` precedes `*bestIndex = ...`.
+ * `search` sits in its own nested SYM block (2nd `Block start line = 1`).
+ * Prototype re-checked vs raw oracle: struct-by-value ARG colorMatch (spilled to
+ * 0(sp) and re-read as 3 lbu), REGPARM $a1 bestIndex, INT return in $v0. */
 int Night_FindClosestColor(CVECTOR colorMatch,int *bestIndex)
 
 {
@@ -62,38 +83,40 @@ int Night_FindClosestColor(CVECTOR colorMatch,int *bestIndex)
   int searchColorb;
   int diffSum;
   int maxLights;
-  int search;
-  tCompRGB *p;
 
+  bestDiff = 0x2fa03;
   colorMatchr = colorMatch.r;
   colorMatchg = colorMatch.g;
   colorMatchb = colorMatch.b;
+  {
+  int search;
+
   search = 1;
   maxLights = Night_gTotalLights + 1;
   searchColorr = (u_char)gTableCache->r;
   searchColorg = (u_char)gTableCache->g;
   searchColorb = (u_char)gTableCache->b;
-  bestDiff = 0x2fa03;
-  if (1 < maxLights) {
-    p = gTableCache + 1;
+  if (search < maxLights) {
     do {
       diffR = colorMatchr - searchColorr;
       diffG = colorMatchg - searchColorg;
       diffB = colorMatchb - searchColorb;
-      searchColorr = (u_char)p->r;
-      searchColorg = (u_char)p->g;
-      searchColorb = (u_char)p->b;
-      diffSum = diffR * diffR + diffG * diffG + diffB * diffB;
+      searchColorr = (u_char)gTableCache[search].r;
+      searchColorg = (u_char)gTableCache[search].g;
+      searchColorb = (u_char)gTableCache[search].b;
+      diffSum = diffR * diffR;
+      diffSum = diffSum + diffG * diffG;
+      diffSum = diffSum + diffB * diffB;
       if (diffSum < bestDiff) {
-        *bestIndex = search + -1;
         bestDiff = diffSum;
+        *bestIndex = search + -1;
         if (diffSum < 0x40) {
           return diffSum;
         }
       }
       search = search + 1;
-      p = p + 1;
     } while (search < maxLights);
+  }
   }
   return bestDiff;
 }

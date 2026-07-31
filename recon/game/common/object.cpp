@@ -379,6 +379,20 @@ ObjectAnim * Object_GetAnim(Trk_SimObject *simObj)
   return gSimObjAnims[simObj->serialNum];
 }
 
+static inline ObjectSignAnim *
+Object_CreateSignAnim(BO_tNewtonObj *N,AnimDef *animDef,
+                      Trk_CollideBoomInst *objInstance,Trk_ObjectDef *objDef,
+                      Trk_SimObject *simObj,ObjectFinishedSignAnim *finishedSign)
+{
+  ObjectSignAnim *signAnim;
+
+  signAnim = (ObjectSignAnim *)__builtin_new(sizeof(ObjectSignAnim));
+  return ObjectSignAnim_ct(signAnim,&N->linearVel,
+                           fixedatan((N->linearVel).x >> 8,(N->linearVel).z >> 8) >> 8,
+                           animDef,objInstance,objDef,simObj,
+                           (coorddef *)((N->roadMatrix).m + 3),finishedSign);
+}
+
 
 
 /* ---- Object_CheckCollisionResults  [OBJECT.CPP:455-557] SLD-VERIFIED ---- */
@@ -397,39 +411,26 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
   simObj = GetSimObj(objIndex,objList,&chunk);
   objStatus = gSimObjAnims[simObj->serialNum];
   type = simObj->type & 0xf;
-  if (type != 2) {
-    if (type < 3) {
-      if (type == 1) {
-        ret = 1;
-      }
-      goto done;
+  switch (type) {
+  case 2:
+    if ((objStatus != (ObjectAnim *)0x0) || (vel < 0)) {
+      break;
     }
-    if (type == 3) {
-      ret = 2;
-    }
-    goto done;
-  }
-  else if ((objStatus == (ObjectAnim *)0x0) && (-1 < vel)) {
+    {
     Chunk *pMChunk;
     Trk_CollideBoomInst *objInstance;
     Trk_ObjectDef *objDef;
     AnimDef *animDef;
-    ObjectFinishedMultiAnim *finishedMulti;
-    ObjectMultiAnim *multiAnim;
-    ObjectSignAnim *signAnim;
-    ObjectFinishedSignAnim *finishedSign;
-    u_char boomIndex;
 
     pMChunk = Track_chunkList + chunk;
     objInstance = (Trk_CollideBoomInst *)
          FindObjInstanceFromSerialNum(pMChunk->objInstanceBuf,(int)simObj->instIndex);
     if (objInstance->type == '\x06') {
-      boomIndex = *(u_char *)((int)&objInstance->y + 1);
+      animDef = gAnimDefs + *(u_char *)((int)&objInstance->y + 1);
     }
     else {
-      boomIndex = objInstance->boomIndex;
+      animDef = gAnimDefs + objInstance->boomIndex;
     }
-    animDef = gAnimDefs + boomIndex;
     if (animDef->animIndex != 0) {
       objDef = (Trk_ObjectDef *)(gPersistObjDef + 1);
     }
@@ -441,25 +442,35 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
         ret = -1;
         goto done;
       }
+      ObjectFinishedMultiAnim *finishedMulti;
+
       finishedMulti = (ObjectFinishedMultiAnim *)__builtin_new(sizeof(ObjectFinishedMultiAnim));
       (finishedMulti->_base_ObjectAnim)._vf =
            (__vtbl_ptr_type (*) [3])ObjectFinishedMultiAnim_vtable;
-      multiAnim = (ObjectMultiAnim *)__builtin_new(sizeof(ObjectMultiAnim));
-      signAnim = (ObjectSignAnim *)
-                 ObjectMultiAnim_ct(multiAnim,&N->linearVel,animDef,objInstance,objDef,simObj,
-                                    finishedMulti);
+      gSimObjAnims[simObj->serialNum] =
+          &ObjectMultiAnim_ct((ObjectMultiAnim *)__builtin_new(sizeof(ObjectMultiAnim)),
+                              &N->linearVel,animDef,objInstance,objDef,simObj,
+                              finishedMulti)->_base_ObjectAnim;
     }
     else {
+      ObjectFinishedSignAnim *finishedSign;
+
       finishedSign = (ObjectFinishedSignAnim *)__builtin_new(sizeof(ObjectFinishedSignAnim));
       (finishedSign->_base_ObjectAnim)._vf =
            (__vtbl_ptr_type (*) [3])ObjectFinishedSignAnim_vtable;
-      signAnim = (ObjectSignAnim *)__builtin_new(sizeof(ObjectSignAnim));
-      vel = fixedatan((N->linearVel).x >> 8,(N->linearVel).z >> 8);
-      signAnim = ObjectSignAnim_ct(signAnim,&N->linearVel,vel >> 8,animDef,objInstance,objDef,
-                                   simObj,(coorddef *)((N->roadMatrix).m + 3),finishedSign);
+      gSimObjAnims[simObj->serialNum] =
+          &Object_CreateSignAnim(N,animDef,objInstance,objDef,simObj,finishedSign)
+               ->_base_ObjectAnim;
     }
     ret = -1;
-    gSimObjAnims[simObj->serialNum] = &signAnim->_base_ObjectAnim;
+    }
+    break;
+  case 1:
+    ret = 1;
+    break;
+  case 3:
+    ret = 2;
+    break;
   }
  done:
   return ret;

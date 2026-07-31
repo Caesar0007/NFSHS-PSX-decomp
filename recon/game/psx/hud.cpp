@@ -2698,7 +2698,13 @@ char * Hud_NextPlayerNameOrCarOrTime(int player)
  * are compiler GIVs strength-reduced from index expressions off `j`, and $fp/$s7/$s1/$s2
  * are LICM'd invariants (&DashHUD_gInfo, 1, 0xFFFFFF, 0xFF000000).
  * Field check vs raw: `lw $v0,0x450($s5)` with $s5 = &GameSetup_gData + j*0xB4 IS
- * carInfo[j].HudMap (carInfo @+0x3D4, stride 0xB4, HudMap @+0x7C -> 0x450). */
+ * carInfo[j].HudMap (carInfo @+0x3D4, stride 0xB4, HudMap @+0x7C -> 0x450).
+ * RESIDUAL 4 (insn count EXACT 161/161, every register role matches): the PROLOGUE
+ * emits the two LICM'd mask constants in the other order -- ours `sw $s2;lui $s2(0xFF000000)`
+ * then `sw $s1;lui/ori $s1(0xFFFFFF)`, retail the reverse.  Falsified levers (all
+ * re-gated): swapping the `&`-operand order of the first tag build (4->8), of the first
+ * palette store (4->8), of the radar arm's first tag (4->12), of the gTPage1 tag
+ * (4, no change).  Emission-order tie, not source-reachable. */
 void Hud_RenderMapView(void)
 
 {
@@ -3197,7 +3203,12 @@ void Hud_RenderHudView(void)
  * (REG $17 = $s1); the recon carried four more (player/tag_walk/car_walk/puVar1).  The
  * oracle's $s2 (+0x30) and $s3 (+0xB4) are compiler givs off index expressions, and $s0
  * (&Hud_gTacView[j]) is a CSE'd address parked in a callee-saved reg because it is live
- * across the three jals. GameSetup_gData+0x44C = carInfo[j].HudTach (0x3D4 + 0x78). */
+ * across the three jals. GameSetup_gData+0x44C = carInfo[j].HudTach (0x3D4 + 0x78).
+ * RESIDUAL 40 (ours 75 / oracle 71, frame 56 vs SYM fsize 48): ours strength-reduces
+ * `DashHUD_gInfo.showhud[j]` into a +4 giv and therefore has to park %hi(DashHUD_gInfo)
+ * in a callee-saved reg across the three jals (two extra saved regs, $s7 + $s4);
+ * retail recomputes `sll $v1,$s1,2; addu` per iteration and shares that one shift with
+ * Hud_gTacView[j].  Retail's saved set is exactly $s0-$s5 (mask 0x803f0000). */
 void Hud_RenderTacView(void)
 
 {

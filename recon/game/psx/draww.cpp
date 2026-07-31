@@ -15,6 +15,15 @@
 #define gte_rtps_u(u) ((void)(u))
 #endif
 
+/* IR0 load from a REGISTER VALUE (PsyQ inline_c `gte_ldir0`): the oracle loads the
+   depth-cue word into a CPU reg and does `mtc2 rt,$8`; psx_gte.h's gte_ldIR0() is the
+   ADDRESS form (`lwc2 $8,0(rt)`) and cannot express it. */
+#if defined(__mips__)
+#define gte_ldir0v(x) __asm__ volatile ("mtc2 %0, $8" : : "r"(x))
+#else
+#define gte_ldir0v(x) ((void)(x))
+#endif
+
 /* ---- DrawW.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero) ---- */
 char         offsets[8] = { 125, 125, 50, 15, -1, 125, 0, 0 };   /* @0x8013D828 */
@@ -3197,9 +3206,7 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
          * as DrawW_SubdividFacet / DrawW_DrawQuad's sealed instances): slot =
          * sd->head.cprim.LastPrim + sd->otz*4; sd->head.cprim.PrimPtr = prim+0x34;
          * prim->tag = slot->addr24 | (0x0C<<24); slot->addr24 = prim. */
-        int primSlot;
-
-        primSlot = (int)(sd->head).cprim.PrimPtr;
+        prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;
         __asm__ volatile(
             "lw	$t4,0(%2)
 	lw	$t5,0(%1)
@@ -3214,9 +3221,8 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
 	sll	$t4,%0,8
 	sw	$t6,0(%0)
 	swl	$t4,2($t5)"
-            : : "r"(primSlot), "r"(sd), "r"(&sd->otz)
+            : : "r"(prim), "r"(sd), "r"(&sd->otz)
             : "$12", "$13", "$14", "memory");
-        prim = (POLY_GT4 *)primSlot;
       }
       gte_swc2(0x8,&depthcue);
       if (sd->nightFlags != 0) {
@@ -3269,13 +3275,13 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
          * movstrsi runs; a u_long cast here would emit aligned lw/sw instead. */
         a = *(CVECTOR *)&Chunk_lightTable[vt3.light];
         gte_ldrgb(&a);
-        gte_ldIR0(&depthcue);
+        gte_ldir0v(depthcue);
         gte_dpcs();
         gte_swc2(0x16,(char *)prim + 0x1c);
         *(CVECTOR *)&prim->r0 = *(CVECTOR *)&prim->r2;
         a = *(CVECTOR *)&Chunk_lightTable[vt2.light];
         gte_ldrgb(&a);
-        gte_ldIR0(&depthcue);
+        gte_ldir0v(depthcue);
         gte_dpcs();
         gte_swc2(0x16,(char *)prim + 0x28);
         *(CVECTOR *)&prim->r1 = *(CVECTOR *)&prim->r3;

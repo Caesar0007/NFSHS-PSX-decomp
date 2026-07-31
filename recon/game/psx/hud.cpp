@@ -3189,35 +3189,33 @@ void Hud_RenderHudView(void)
   }
 }
 
-/* ---- Hud_RenderTacView__Fv  [HUD.CPP:3744-3764] SLD-VERIFIED ---- */
+/* ---- Hud_RenderTacView__Fv  [HUD.CPP:3744-3764] SLD-VERIFIED ----
+ * w39-a1 rule-8 rewrite: the SYM block @0x800d8c48 declares exactly ONE local, `j`
+ * (REG $17 = $s1); the recon carried four more (player/tag_walk/car_walk/puVar1).  The
+ * oracle's $s2 (+0x30) and $s3 (+0xB4) are compiler givs off index expressions, and $s0
+ * (&Hud_gTacView[j]) is a CSE'd address parked in a callee-saved reg because it is live
+ * across the three jals. GameSetup_gData+0x44C = carInfo[j].HudTach (0x3D4 + 0x78). */
 void Hud_RenderTacView(void)
 
 {
-  u_char *puVar1;
   int j;
-  int player;
-  DR_MODE *tag_walk;
-  GameSetup_tData *car_walk;
-  
-  player = 0;
+
+  j = 0;
   if (-1 < DashHUD_gInfo.splitscreen) {
-    tag_walk = gTPage1[0] + 2;
-    car_walk = &GameSetup_gData;
     do {
-      if ((car_walk->carInfo[0].HudTach != 0) && (DashHUD_gInfo.showhud[player] != 0)) {
-        Draw_StartRenderingView(Hud_gTacView[player]);
-        DashHUD_HUDCalc(player);
-        Hud_BuildTach(player);
-        puVar1 = Render_gPalettePtr;
-        tag_walk->tag =
-             (u_long *)((u_int)tag_walk->tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff);
-        *(u_int *)puVar1 = *(u_int *)puVar1 & 0xff000000 | (u_int)tag_walk & 0xffffff;
-        Draw_StopRenderingView(Hud_gTacView[player]);
+      if ((GameSetup_gData.carInfo[j].HudTach != 0) && (DashHUD_gInfo.showhud[j] != 0)) {
+        u_char *pal;
+
+        Draw_StartRenderingView(Hud_gTacView[j]);
+        DashHUD_HUDCalc(j);
+        Hud_BuildTach(j);
+        pal = Render_gPalettePtr;
+        gTPage1[j][2].tag = gTPage1[j][2].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
+        *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&gTPage1[j][2] & 0xffffff;
+        Draw_StopRenderingView(Hud_gTacView[j]);
       }
-      tag_walk = tag_walk + 4;
-      player = player + 1;
-      car_walk = (GameSetup_tData *)((car_walk->controllerData).shockImpact + 1);
-    } while (player <= DashHUD_gInfo.splitscreen);
+      j = j + 1;
+    } while (j <= DashHUD_gInfo.splitscreen);
   }
   return;
 }

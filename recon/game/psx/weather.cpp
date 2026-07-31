@@ -638,7 +638,20 @@ void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
   s->vz = (short)r2;
 }
 
-/* ---- Weather_CheckAndResetParticles__FP7SVECTOR  [WEATHER.CPP:623-668] SLD-VERIFIED ---- */
+/* ---- Weather_CheckAndResetParticles__FP7SVECTOR  [WEATHER.CPP:623-668] SLD-VERIFIED ----
+ * SEALED w39-a6 (was 118 diffs, ours 215 / oracle 223).  Four levers:
+ *  1. NO shared-tail gotos.  Ghidra funnelled the six wrap arms through
+ *     `goto WeatherReset_frontWrap/topCheck` shared stores; the oracle writes the full
+ *     `pt->vX = base + random()%span` in EACH arm and lets gcc cross-jump-merge only the
+ *     last 2 insns (`addu v0,v0,v1; sh v0,OFF(s2)`).  A source-level funnel merges far
+ *     more than retail did (catalog: funnel vars/labels PREVENT the match).
+ *  2. `-Weather_gSys.width + 0x40`, not `0x40 - Weather_gSys.width` (oracle negu+addiu 64
+ *     vs our li 64 + subu).
+ *  3. `zfar / 2` written as a plain signed divide -- the transcribed magic
+ *     `(a - (a>>31)) >> 1` emits sra+subu where gcc's own /2 idiom is srl 31 + addu.
+ *  4. COMPARE OPERAND ORDER = evaluation order: the oracle loads `pt->vX` BEFORE the
+ *     Weather_gSys field, so the tests must be spelled `pt->vx > Weather_gSys.width`
+ *     (not `width < pt->vx`).  That was the last 6 diffs -> PASS 223/223. */
 short Weather_CheckAndResetParticles(SVECTOR *pt)
 
 {
@@ -653,20 +666,17 @@ short Weather_CheckAndResetParticles(SVECTOR *pt)
   short reset_flag;
   
   sVar3 = 0;
-  if ((int)Weather_gSys.width < (int)pt->vx) {
-    rnd = 0x40 - Weather_gSys.width;
-    pt->vx = (short)rnd;
+  if ((int)pt->vx > (int)Weather_gSys.width) {
+    pt->vx = (short)(-Weather_gSys.width + 0x40);
     rnd = random();
     if ((int)Weather_gSys.height == 0) {
     }
     pt->vy = Weather_gSys.bottom + (short)(rnd % (u_int)(int)Weather_gSys.height);
     uVar1 = random();
-    z_off = (short)(uVar1 % (u_int)(int)Weather_gSys.length);
     if ((int)Weather_gSys.length == 0) {
     }
+    pt->vz = Weather_gSys.znear + (short)(uVar1 % (u_int)(int)Weather_gSys.length);
     sVar3 = 1;
-WeatherReset_frontWrap:
-    pt->vz = Weather_gSys.znear + z_off;
   }
   else if ((int)pt->vx < -(int)Weather_gSys.width) {
     pt->vx = Weather_gSys.width + -0x40;
@@ -677,28 +687,25 @@ WeatherReset_frontWrap:
     uVar1 = random();
     if ((int)Weather_gSys.length == 0) {
     }
-    z_off = (short)(uVar1 % (u_int)(int)Weather_gSys.length);
+    pt->vz = Weather_gSys.znear + (short)(uVar1 % (u_int)(int)Weather_gSys.length);
     sVar3 = 2;
-    goto WeatherReset_frontWrap;
   }
-  if (Weather_gSys.zfar < pt->vz) {
+  if (pt->vz > Weather_gSys.zfar) {
     pt->vz = Weather_gSys.znear + 0x40;
     uVar1 = random();
     if ((int)Weather_gSys.width == 0) {
     }
     pt->vx = (short)(uVar1 % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
     uVar1 = random();
-    sVar4 = (short)(uVar1 % (u_int)(int)Weather_gSys.height);
     if ((int)Weather_gSys.height == 0) {
     }
+    pt->vy = Weather_gSys.bottom + (short)(uVar1 % (u_int)(int)Weather_gSys.height);
     sVar3 = 3;
   }
-  else {
-    if (Weather_gSys.znear <= pt->vz) goto WeatherReset_topCheck;
+  else if ((int)pt->vz < (int)Weather_gSys.znear) {
     sVar3 = 4;
     uVar1 = random();
-    uVar2 = ((int)((u_int)(u_short)Weather_gSys.zfar << 0x10) >> 0x10) -
-            ((int)((u_int)(u_short)Weather_gSys.zfar << 0x10) >> 0x1f) >> 1;
+    uVar2 = (u_int)(((int)((u_int)(u_short)Weather_gSys.zfar << 0x10) >> 0x10) / 2);
     if (uVar2 == 0) {
     }
     pt->vz = Weather_gSys.znear + (short)(uVar1 % uVar2);
@@ -709,26 +716,21 @@ WeatherReset_frontWrap:
     uVar1 = random();
     if ((int)Weather_gSys.height == 0) {
     }
-    sVar4 = (short)(uVar1 % (u_int)(int)Weather_gSys.height);
+    pt->vy = Weather_gSys.bottom + (short)(uVar1 % (u_int)(int)Weather_gSys.height);
   }
-  pt->vy = Weather_gSys.bottom + sVar4;
-WeatherReset_topCheck:
-  if (Weather_gSys.top < pt->vy) {
+  if (pt->vy > Weather_gSys.top) {
     pt->vy = Weather_gSys.bottom + 0x40;
     uVar1 = random();
     if ((int)Weather_gSys.width == 0) {
     }
     pt->vx = (short)(uVar1 % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
     uVar1 = random();
-    reset_flag = (short)(uVar1 % (u_int)(int)Weather_gSys.length);
     if ((int)Weather_gSys.length == 0) {
     }
+    pt->vz = Weather_gSys.znear + (short)(uVar1 % (u_int)(int)Weather_gSys.length);
     sVar3 = 5;
   }
-  else {
-    if (Weather_gSys.bottom <= pt->vy) {
-      return sVar3;
-    }
+  else if ((int)pt->vy < (int)Weather_gSys.bottom) {
     pt->vy = Weather_gSys.top + -0x40;
     uVar1 = random();
     if ((int)Weather_gSys.width == 0) {
@@ -737,10 +739,9 @@ WeatherReset_topCheck:
     uVar1 = random();
     if ((int)Weather_gSys.length == 0) {
     }
-    reset_flag = (short)(uVar1 % (u_int)(int)Weather_gSys.length);
+    pt->vz = Weather_gSys.znear + (short)(uVar1 % (u_int)(int)Weather_gSys.length);
     sVar3 = 6;
   }
-  pt->vz = Weather_gSys.znear + reset_flag;
   return sVar3;
 }
 

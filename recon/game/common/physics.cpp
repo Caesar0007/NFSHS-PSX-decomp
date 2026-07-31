@@ -1190,9 +1190,6 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
   int diffDesiredRpm;
   int ratio;
   int temp;
-  char cVar1;
-  u_char bVar2;
-  u_int uVar6;
   int desiredRpm;
   Car_tSpecs *specs;
   int diffFlywheelRpm;
@@ -1205,13 +1202,13 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
   int bblip [8] = { 0, 0, 200, 175, 150, 125, 100, 0 };
   driveAcc = 0;
   wheelRpm = 0;
+  damage = 0;
   smokeRpm = carObj->specs->redline;
   if (smokeRpm < 0) {
     smokeRpm = smokeRpm + 7;
   }
   smokeRpm = smokeRpm >> 3;
   randtemp = fastRandom * randSeed;
-  damage = 0;
   temp = (carObj->N).damage[1] + (carObj->N).damage[5];
   fastRandom = randtemp & 0xffff;
   if (temp < 0) {
@@ -1221,57 +1218,46 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
     damage = 1;
   }
   specs = carObj->specs;
-  exceedRedline = (int)(specs->redline + 500 < carObj->flywheelRpm);
+  exceedRedline = 0;
+  if (specs->redline + 500 < carObj->flywheelRpm) {
+    exceedRedline = 1;
+  }
   drag = 0x10000;
   if (carObj->carInfo->GroundEffects != 0) {
     drag = (carObj->specs->frontAeroDownForce + carObj->specs->rearAeroDownForce) / 2 + 0x10000;
   }
   drag = fixedmult((carObj->linearVel_ch).z,drag);
-  if (drag < 0) {
-    drag = drag + 0xffff;
-  }
-  drag = drag >> 0x10;
-  drag = fixedmult(specs->dragCoeff,drag * drag * drag);
+  drag = fixedmult(specs->dragCoeff,
+                   (drag / 0x10000) * (drag / 0x10000) * (drag / 0x10000));
   if (((carObj->control).gear == '\x01') || (powerControl == 0)) {
     desiredRpm = specs->redline + 0xfa;
-    driveAcc = fixedmult(desiredRpm,gGasRatio);
-    if (driveAcc < desiredRpm) {
-      driveAcc = specs->redline + 0xfa;
-      goto Phy_CalcAcc_gasRatioMul;
+    if (fixedmult(desiredRpm,gGasRatio) < desiredRpm) {
+      desiredRpm = fixedmult(specs->redline + 0xfa,gGasRatio);
     }
-    driveAcc = specs->redline + 0xfa;
   }
   else {
     desiredRpm = specs->redline + 100;
-    driveAcc = fixedmult(desiredRpm,gGasRatio);
-    if (driveAcc < desiredRpm) {
-      driveAcc = specs->redline + 100;
-Phy_CalcAcc_gasRatioMul:
-      driveAcc = fixedmult(driveAcc,gGasRatio);
-    }
-    else {
-      driveAcc = specs->redline + 100;
+    if (fixedmult(desiredRpm,gGasRatio) < desiredRpm) {
+      desiredRpm = fixedmult(specs->redline + 100,gGasRatio);
     }
   }
   if (specs->redline <= carObj->flywheelRpm) {
-    cVar1 = (carObj->control).gear;
     carObj->flywheelRpm = specs->redline + 0x32;
     temp = 3;
-    if ((cVar1 != '\x01') && (temp = 4, powerControl == 0)) {
+    if (((carObj->control).gear != '\x01') && (temp = 4, powerControl == 0)) {
       temp = 3;
     }
     carObj->revLimit = temp;
   }
-  desiredRpm = driveAcc;
   if (0 < carObj->revLimit) {
     if (((carObj->control).gear == '\x01') || (powerControl == 0)) {
-      desiredRpm = specs->redline + -800;
+      temp = specs->redline + -800;
     }
     else {
-      desiredRpm = specs->redline + -400;
+      temp = specs->redline + -400;
     }
-    if (driveAcc <= desiredRpm) {
-      desiredRpm = driveAcc;
+    if (temp < desiredRpm) {
+      desiredRpm = temp;
     }
     carObj->revLimit = carObj->revLimit + -1;
   }
@@ -1286,10 +1272,11 @@ cfLbl1:   /* @0x800aae38  (-f-build goto label) */
     }
     else {
       if (carObj->flywheelRpm < desiredRpm) {
-        carObj->flywheelRpm = carObj->flywheelRpm + 0xfa;
+        temp = carObj->flywheelRpm + 0xfa;
         if ((carObj->control).gearShiftTimer == '\0') {
-          if (carObj->flywheelRpm <= desiredRpm) {
-            desiredRpm = carObj->flywheelRpm;
+          carObj->flywheelRpm = temp;
+          if (temp <= desiredRpm) {
+            desiredRpm = temp;
           }
         }
         else {
@@ -1350,22 +1337,13 @@ Phy_CalcAcc_clearWheelSpinExit:
     wheelRpm = wheelRpm + 0xffff;
   }
   wheelRpm = wheelRpm >> 0x10;
-  if ((exceedRedline == 0) && (carObj->revLimit < 1)) {
-    driveAcc = carObj->flywheelRpm;
-    if (driveAcc < 0) {
-      driveAcc = driveAcc + 0xff;
-    }
-    driveAcc = Physics_GetTorque(carObj,driveAcc >> 8);
-    driveAcc = fixedmult(driveAcc,specs->gearAccCoeff[(u_char)(carObj->control).gear]);
+  if ((exceedRedline != 0) || (0 < carObj->revLimit)) {
+    driveAcc = fixedmult(specs->torqueCurve[specs->redline / 0x100],
+                         specs->gearAccCoeff[(u_char)(carObj->control).gear]) << 1;
   }
   else {
-    driveAcc = specs->redline;
-    if (driveAcc < 0) {
-      driveAcc = driveAcc + 0xff;
-    }
-    driveAcc = fixedmult(specs->torqueCurve[driveAcc >> 8],
-                       specs->gearAccCoeff[(u_char)(carObj->control).gear]);
-    driveAcc = driveAcc << 1;
+    driveAcc = fixedmult(Physics_GetTorque(carObj,carObj->flywheelRpm / 0x100),
+                         specs->gearAccCoeff[(u_char)(carObj->control).gear]);
   }
   diffDesiredRpm = desiredRpm - wheelRpm;
   if ((__builtin_abs(diffDesiredRpm) < 0x7d) && (desiredRpm < specs->redline + -300)) {
@@ -1385,11 +1363,10 @@ Phy_CalcAcc_clearWheelSpinExit:
       rpmDrop = 200;
     }
     else {
-      bVar2 = (carObj->control).gear;
-      if ((bVar2 == 2) || (bVar2 == 0)) {
+      if (((carObj->control).gear == 2) || ((carObj->control).gear == 0)) {
         rpmDrop = 10;
       }
-      else if (2 < bVar2) {
+      else if (2 < (u_char)(carObj->control).gear) {
         rpmDrop = 0x32;
       }
     }
@@ -1404,29 +1381,14 @@ Phy_CalcAcc_clearWheelSpinExit:
   else {
     if (diffDesiredRpm < 0) {
       int rpmRise;
-      driveAcc = fixedmult(driveAcc,specs->gasOffFactor);
-      driveAcc = -driveAcc;
-      if ((((gravity_ch.z < 1) || (bVar2 = (carObj->control).gear, bVar2 < 2)) || (-1 < driveAcc)) ||
-         (2 < bVar2)) {
-        if (-1 < gravity_ch.z) goto Phy_CalcAcc_gearFetchJoin;
-        uVar6 = (u_int)(u_char)(carObj->control).gear;
-        if (uVar6 == 0) {
-          if (0 < driveAcc) goto Phy_CalcAcc_halveAccPath;
-          goto Phy_CalcAcc_gearFetchJoin;
-        }
-      }
-      else {
-Phy_CalcAcc_halveAccPath:
+      driveAcc = -fixedmult(driveAcc,specs->gasOffFactor);
+      if ((((0 < gravity_ch.z) && (1 < (u_char)(carObj->control).gear)) &&
+           ((driveAcc < 0) && ((u_char)(carObj->control).gear < 3))) ||
+          (((gravity_ch.z < 0) && ((carObj->control).gear == 0)) && (0 < driveAcc))) {
         driveAcc = driveAcc / 2;
-Phy_CalcAcc_gearFetchJoin:
-        uVar6 = (u_int)(u_char)(carObj->control).gear;
       }
-      rpmRise = fixedmult(specs->velToRpmRatioInv[uVar6] << 3,0x28000000)
-      ;
-      if (rpmRise < 0) {
-        rpmRise = rpmRise + 0xffff;
-      }
-      rpmRise = rpmRise >> 0x10;
+      rpmRise = fixedmult(specs->velToRpmRatioInv[(u_char)(carObj->control).gear] << 3,
+                          0x28000000) / 0x10000;
       if ((carObj->control).gear == '\0') {
         if (rpmRise < -diffFlywheelRpm) {
           rpmRise = -diffFlywheelRpm;

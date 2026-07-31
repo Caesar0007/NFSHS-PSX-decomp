@@ -1214,7 +1214,7 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
 
 {
   char cVar1;
-  short sVar2;
+  HudPmx_tShape *shp;
   int offy;
   char alphShape;
   int ix;
@@ -1227,53 +1227,47 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
   numch = strlen(str);
   i = 0;
   ix = x;
-  do {
-    if (numch <= i) {
-      Hud_GoTpage(0);
-      return ix - ox;
-    }
+  while (true) {
+    if (numch <= i) break;    /* exit-in-the-middle: top test + `j` back-edge, tail out-of-line */
     cVar1 = *str;
     if (cVar1 == ' ') {
       ix = ix + 3;
     }
     else if (cVar1 == '*') {
+      ix = ix + 2;            /* own statement -> lands in the buf[0].ID test's delay slot */
       if (gPadinfo.buf[0].ID == '#') {
-        sVar2 = HudPmx_gShapes[0xad].width;
+        shp = &HudPmx_gShapes[0xad];
         if (justwidth == 0) {
-          Hud_FBuildSprite(0xad,ix + 2,y,color,0);
-          sVar2 = HudPmx_gShapes[0xad].width;
+          Hud_FBuildSprite(0xad,ix,y,color,0);
         }
+        ix = ix + 3 + shp->width;         /* per-arm; gcc cross-jump-merges the final addu */
       }
       else {
-        sVar2 = HudPmx_gShapes[0xaa].width;
+        shp = &HudPmx_gShapes[0xaa];
         if (justwidth == 0) {
-          Hud_FBuildSprite(0xaa,ix + 2,y,color,0);
-          sVar2 = HudPmx_gShapes[0xaa].width;
+          Hud_FBuildSprite(0xaa,ix,y,color,0);
         }
+        ix = ix + 3 + shp->width;
       }
-      ix = ix + 5 + (int)sVar2;
       if (GameSetup_gData.commMode == 1) {
         if (gPadinfo.buf[4].ID == '#') {
-          if (gPadinfo.buf[0].ID != '#') {
-HudBuildStr_hashMarker:
-            if (gPadinfo.buf[4].ID == '#') {
-              if (justwidth == 0) {
-                Hud_FBuildSprite(0xad,ix,y,color,0);
-              }
-              offy = (int)HudPmx_gShapes[0xad].width;
-              ix = ix + 3;
-            }
-            else {
-              if (justwidth == 0) {
-                Hud_FBuildSprite(0xaa,ix,y,color,0);
-              }
-              offy = (int)HudPmx_gShapes[0xaa].width;
-              ix = ix + 3;
-            }
-            goto HudBuildStr_accumWidth;
-          }
+          if (gPadinfo.buf[0].ID == '#') goto HudBuildStr_next;
         }
-        else if (gPadinfo.buf[0].ID == '#') goto HudBuildStr_hashMarker;
+        else if (gPadinfo.buf[0].ID != '#') goto HudBuildStr_next;
+        if (gPadinfo.buf[4].ID == '#') {
+          shp = &HudPmx_gShapes[0xad];
+          if (justwidth == 0) {
+            Hud_FBuildSprite(0xad,ix,y,color,0);
+          }
+          ix = ix + 3 + shp->width;
+        }
+        else {
+          shp = &HudPmx_gShapes[0xaa];
+          if (justwidth == 0) {
+            Hud_FBuildSprite(0xaa,ix,y,color,0);
+          }
+          ix = ix + 3 + shp->width;
+        }
       }
     }
     else {
@@ -1314,8 +1308,12 @@ HudBuildStr_hashMarker:
               offy = -1;
             }
             else {
+              /* BUGFIX (w38-a1): was `*str == -0x1b` -- `char` is UNSIGNED on this build, so
+               * the compare was provably false and gcc DELETED this whole arm (oracle
+               * @800D4574 has `lbu v1,0(s2); li v0,0xE5; bne` + the 0x67/-1 block).  Compare
+               * the raw byte value instead. */
               alphShape = *str + 0x43;
-              if (*str == -0x1b) {
+              if ((u_char)*str == 0xe5) {
                 alphShape = 0x67;
                 offy = -1;
               }
@@ -1326,14 +1324,14 @@ HudBuildStr_hashMarker:
       if (justwidth == 0) {
         Hud_FBuildSprite((u_int)alphShape,ix,y + offy,color,0);
       }
-      offy = (int)HudPmx_gShapes[alphShape].width;
-      ix = ix + 1;
-HudBuildStr_accumWidth:
-      ix = ix + offy;
+      ix = ix + 1 + HudPmx_gShapes[alphShape].width;
     }
+HudBuildStr_next:
     str = str + 1;
     i = i + 1;
-  } while( true );
+  }
+  Hud_GoTpage(0);
+  return ix - ox;
 }
 
 /* PsyQ libgpu P_TAG head-word shape (addr:24|len:8) -- the original tag-link code is the

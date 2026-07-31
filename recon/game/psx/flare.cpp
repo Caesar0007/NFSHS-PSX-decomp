@@ -805,7 +805,14 @@ gte_SetRotMatrix(&mtx);
         *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
         Render_gPacketPtr = (u_char *)aprim + 0xc;
         *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
-        SetDrawMode(aprim,0,(u_int)((flags & 0x40U) != 0),0x120,(RECT *)0x0);
+        {
+          /* MATCH: the AND must land in its OWN variable -- gcc-2.8's fold()
+             rewrites `(flags & 0x40) != 0` (any spelling: Yoda, >0, !!, explicit
+             shift) into `(flags >> 6) & 1`; only a VAR_DECL operand keeps the
+             oracle's `andi a2,s4,0x40 ; sltu a2,zero,a2`. */
+          u_int dtd = flags & 0x40U;
+          SetDrawMode(aprim,0,(u_int)(dtd != 0),0x120,(RECT *)0x0);
+        }
       }
     }
   }
@@ -1064,7 +1071,12 @@ gte_SetRotMatrix(&mtx);
       *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
       Render_gPacketPtr = (u_char *)aprim + 0xc;
       *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
-      SetDrawMode(aprim,0,(u_int)((flags & 0x40U) != 0),0x120,(RECT *)0x0);
+      {
+        /* MATCH: see Flare_CarShapedHalo -- the AND needs its own VAR_DECL to
+           stop gcc's fold() turning the test into `(flags >> 6) & 1`. */
+        u_int dtd = flags & 0x40U;
+        SetDrawMode(aprim,0,(u_int)(dtd != 0),0x120,(RECT *)0x0);
+      }
     }
   }
   return;

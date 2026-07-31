@@ -161,6 +161,7 @@ void RaceStatistics(void)
   int halfH;
   int titleX;
   int titleY;
+  int posy;
   int dataY;
   int barH;
   int color;
@@ -178,7 +179,8 @@ void RaceStatistics(void)
     HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0x1b;
   }
   halfH = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10) >> 0x11;
-  HUD_STATS_POS_Y = (short)(0x78 - halfH);
+  posy = 0x78 - halfH;
+  HUD_STATS_POS_Y = (short)posy;
   titleX = 0xa0 - (textpixels(TextSys_Word(0x39)) >> 1);
   col1 = HUD_STATS_POS_X + 0xa;
   col2 = 0xa0;
@@ -200,9 +202,9 @@ void RaceStatistics(void)
     if (Cars_gNumHumanRaceCars <= (int)i) break;
     car = Cars_gRaceCarList[i];
     colmid = col2 - ((textpixels(car->carInfo->driver) >> 1) + 2);
-    Hud_FBuildF4(0,col2 + -2,dataY + 0xb,1,barH - ((dataY - (0x78 - halfH)) + 0x13),0,'\0','\0');
+    Hud_FBuildF4(0,col2 + -2,dataY + 0xb,1,barH - ((dataY - posy) + 0x13),0,'\0','\0');
     if (0 < (int)i) {
-      Hud_FBuildF4(0,col1 + -2,0x78 - halfH,1,barH + -8,0,'\0','\0');
+      Hud_FBuildF4(0,col1 + -2,posy,1,barH + -8,0,'\0','\0');
     }
     if (2 < D_8013D99C) {
       Font_TextColor(3);
@@ -213,7 +215,11 @@ void RaceStatistics(void)
          0x87 px too high. */
       Font_TextXY(string,colmid,dataY + -4);
     }
-    if ((GameSetup_gData.numLaps != 1) && (0 < GameSetup_gData.numLaps)) {
+    /* NOT `a && b`: the oracle keeps two separate compares off ONE load
+       (`beq $v0,1` @0x800DA2E0 then `blez $v0` @0x800DA2EC); the &&-form lets gcc
+       range-fold them into a single `slti v0,v0,2`. */
+    if (GameSetup_gData.numLaps != 1) {
+     if (0 < GameSetup_gData.numLaps) {
       j = 0;
       do {
         if ((int)j * 2 + 4 < D_8013D99C) {
@@ -233,6 +239,7 @@ void RaceStatistics(void)
         }
         j = j + 1;
       } while ((int)j < GameSetup_gData.numLaps);
+     }
     }
     if (GameSetup_gData.numLaps * 2 + 4 < D_8013D99C) {
       sprintf(string,TextSys_Word(0x37));

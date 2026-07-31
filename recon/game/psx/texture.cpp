@@ -516,45 +516,49 @@ int Texture_GetTranslucencyMode(shapetbl *shp)
 void Texture_LoadPmx(char *f,char *n,int ctrl,int rx,int ry,int cx,int cy,Draw_tPixMap *pmx)
 
 {
+  /* SYM-driven local set (rule 8): shpptr=$s0 x=$s5 y=$s6 u=$a0 v=$a1 h=$fp
+   * bpp=$s4 clutptr=$s1, and the AUTO spill slots w@sp+24 rotated@sp+28
+   * bshapex@32 bshapey@36 bwidth@40 bheight@44 bpp_real@48 bwidthclut@52.
+   * The earlier reconstruction folded all of these into inline expressions and
+   * came out 316 diffs; materializing them as real C locals (with bshapex/
+   * bshapey/clutptr as the 12-bit `shapex`/`shapey`/`next` BITFIELDS rather
+   * than hand-rolled shifts and a `paloff` int) is the whole match. */
+  shapetbl *shpptr;
+  int x;
+  int y;
+  int u;
+  int v;
+  int w;
+  int h;
   int rotated;
+  int bpp;
   int bshapex;
   int bshapey;
   int bwidth;
   int bheight;
-  int bpp_real;
-  shapetbl*clutptr;
-  int bwidthclut;
-  shapetbl *shpptr;
-  u_char typebyte;
-  int bpp;
-  short savew;
-  short saveh;
-  u_int flags;
-  int x;
-  int y;
-  int w;
-  int h;
-  int paloff;
-  short palw;
-  short palmode;
-  int transmode;
-  int u;
-  int v;
-  int xwrap;
 
-  shpptr = (shapetbl *)n;
   if (f != (char *)0x0) {
     shpptr = (shapetbl *)locateshapez(f,n);
   }
+  else {
+    shpptr = (shapetbl *)n;
+  }
   if (shpptr != (shapetbl *)0x0) {
-    flags = *(u_int *)((char *)shpptr + 0xc);
-    typebyte = *(u_char *)shpptr;
-    savew = shpptr->width;
-    saveh = shpptr->height;
-    bpp = typebyte & 3;
-    if (((ctrl & 8U) != 0) && ((typebyte & 3) != 0)) {
+    int bpp_real;
+
+    bshapex = shpptr->shapex;
+    bshapey = shpptr->shapey;
+    bpp = shpptr->type & 3;
+    bpp_real = bpp;
+    bwidth = shpptr->width;
+    bheight = shpptr->height;
+    if (((ctrl & 8U) != 0) && (bpp_real != 0)) {
       bpp = 0;
     }
+    /* MATCH: the masked word goes through its OWN temp before the != 0 test --
+     * a direct `(word & 0x4000) != 0` lets gcc fold the single-bit test into
+     * `srl 14; andi 1`; the temp keeps the oracle's `andi 0x4000; sltu zero,v0`. */
+    { int fl = *(u_int *)((char *)shpptr + 0xc) & 0x4000; rotated = (fl != 0); }
     if (rx == -1) {
       x = 0;
       y = 0xa0;
@@ -562,61 +566,61 @@ void Texture_LoadPmx(char *f,char *n,int ctrl,int rx,int ry,int cx,int cy,Draw_t
       shpptr->height = 1;
     }
     else {
-      x = ((int)(flags << 0x14) >> 0x14) + rx;
-      y = ((int)(flags << 4) >> 0x14) + ry;
+      x = shpptr->shapex + rx;
+      y = shpptr->shapey + ry;
     }
-    w = (u_char)shpptr->width;
-    h = (u_char)shpptr->height;
+    w = shpptr->width;
+    h = shpptr->height;
     if ((ctrl & 1U) == 0) {
       w = w + -1;
       h = h + -1;
     }
-    if (bpp == 2) {
-      Texture_Vramcf(shpptr,x,y,0,0);
-    }
-    else {
-      paloff = *(int *)shpptr >> 8;
-      palw = *(short *)((int)&shpptr->width + paloff);
+    if (bpp != 2) {
+      shapetbl *clutptr;
+      int bwidthclut;
+
+      clutptr = (shapetbl *)((int)shpptr + (*(int *)shpptr >> 8));
+      bwidthclut = clutptr->width;
       if (bpp == 0) {
-        palmode = 0x10;
+        clutptr->width = 0x10;
       }
       else {
-        palmode = 0x100;
+        clutptr->width = 0x100;
       }
-      *(short *)((int)&shpptr->width + paloff) = palmode;
-      if (Texture_CheckForSharedPalette(ctrl & 0x40,&shpptr->data + paloff,pmx,bpp) == 0) {
+      if (Texture_CheckForSharedPalette(ctrl & 0x40,&clutptr->data,pmx,bpp) == 0) {
         if (cx == -1) {
           Texture_GetClutId(bpp,&cx,&cy);
         }
         else if (cx == -3) {
-          pmx->pad2 = (u_short)TextureProcess_DepthColorCluts(&shpptr->data + paloff,
-                             (int)*(short *)((int)&shpptr->width + paloff));
+          pmx->pad2 = (u_short)TextureProcess_DepthColorCluts(&clutptr->data,clutptr->width);
         }
         else if (cx == -2) {
           cy = 0xa0;
           cx = 0;
-          *(u_short *)((int)&shpptr->width + paloff) = 1;
+          clutptr->width = 1;
         }
         if ((ctrl & 2U) != 0) {
-          pmx->flag = (u_short)(TextureProcess_TransColorCheck(&shpptr->data + paloff,
-                             (int)*(short *)((int)&shpptr->width + paloff)) << 1);
+          pmx->flag = (u_short)(TextureProcess_TransColorCheck(&clutptr->data,clutptr->width) << 1);
         }
-        if (((ctrl & 8U) != 0) && ((typebyte & 3) != 0)) {
+        if (((ctrl & 8U) != 0) && (bpp_real != 0)) {
           if (Texture_palCopy != (Texture_pal8bit *)0x0) {
-            Texture_CopyPalette(&shpptr->data + paloff,(int)palw,cx,cy);
+            Texture_CopyPalette(&clutptr->data,bwidthclut,cx,cy);
           }
           if ((ctrl & 0x10U) != 0) {
-            Texture_ColorCarPalette(&shpptr->data + paloff,&shpptr->data + paloff,0x10);
+            Texture_ColorCarPalette(&clutptr->data,&clutptr->data,0x10);
           }
         }
-        if (cx < 0) {
-          pmx->clut = 0xffff;
-        }
-        else {
+        /* MATCH: GetClut arm FIRST -- the oracle keeps two separate
+         * `sh v0,2(s2)` stores (the fall-through one sits in a `j`'s delay
+         * slot); with the 0xffff arm first gcc cross-jumps them into one. */
+        if (0 <= cx) {
           pmx->clut = GetClut(cx,cy);
         }
+        else {
+          pmx->clut = 0xffff;
+        }
         if ((ctrl & 0x40U) != 0) {
-          Texture_AddSharedPalette(&shpptr->data + paloff,pmx,bpp);
+          Texture_AddSharedPalette(&clutptr->data,pmx,bpp);
         }
       }
       if ((ctrl & 0x20U) != 0) {
@@ -625,48 +629,44 @@ void Texture_LoadPmx(char *f,char *n,int ctrl,int rx,int ry,int cx,int cy,Draw_t
       else {
         Texture_Vramcf(shpptr,x,y,cx,cy);
       }
-      *(short *)((int)&shpptr->width + paloff) = palw;
+      clutptr->width = (short)bwidthclut;
     }
-    transmode = Texture_GetTranslucencyMode(shpptr);
-    pmx->tpage = GetTPage(bpp,transmode,x,y);
-    xwrap = x;
-    if (x < 0) {
-      xwrap = x + 0x3f;
+    else {
+      Texture_Vramcf(shpptr,x,y,0,0);
     }
-    x = x + (xwrap >> 6) * -0x40;
+    pmx->tpage = GetTPage(bpp,Texture_GetTranslucencyMode(shpptr),x,y);
+    u = x % 0x40;
+    v = y % 0x100;
     if (bpp == 0) {
-      x = x * 4;
+      u = u * 4;
     }
-    u = (u_char)x;
     if (bpp == 1) {
-      u = (u_char)(x << 1);
+      u = u << 1;
     }
-    v = (u_char)y;
-    if ((flags & 0x4000) == 0) {
+    if (rotated != 0) {
       pmx->u0 = u;
-      pmx->v0 = v;
-      pmx->u1 = u + (char)w;
+      pmx->v0 = v + h;
+      pmx->u1 = u;
       pmx->v1 = v;
-      pmx->u2 = u;
-      pmx->v2 = v + (char)h;
-      pmx->u3 = u + (char)w;
-      pmx->v3 = v + (char)h;
+      pmx->u2 = u + w;
+      pmx->v2 = v + h;
+      pmx->u3 = u + w;
+      pmx->v3 = v;
     }
     else {
       pmx->u0 = u;
-      pmx->v0 = v + (char)h;
-      pmx->u1 = u;
+      pmx->v0 = v;
+      pmx->u1 = u + w;
       pmx->v1 = v;
-      pmx->u2 = u + (char)w;
-      pmx->v2 = v + (char)h;
-      pmx->u3 = u + (char)w;
-      pmx->v3 = v;
+      pmx->u2 = u;
+      pmx->v2 = v + h;
+      pmx->u3 = u + w;
+      pmx->v3 = v + h;
     }
-    shpptr->width = savew;
-    shpptr->height = saveh;
-    *(u_int *)((char *)shpptr + 0xc) =
-         *(u_int *)((char *)shpptr + 0xc) & 0xf000f000 | (u_int)((int)(flags << 0x14) >> 0x14) & 0xfffU |
-         (((u_int)((int)(flags << 4) >> 0x14) & 0xfffU) << 0x10);
+    shpptr->width = (short)bwidth;
+    shpptr->height = (short)bheight;
+    shpptr->shapex = bshapex;
+    shpptr->shapey = bshapey;
   }
   return;
 }

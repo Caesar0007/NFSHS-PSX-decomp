@@ -334,47 +334,69 @@ void Texture_Vramf(shapetbl *shp,int x,int y,int clutx,int cluty)
 {
   int rowpix;
   int rowround;
-  u_char kind;
+  u_int kind;            /* MATCH: UNSIGNED -- the oracle compares with sltu/sltiu */
+  shapetbl *nextshp;     /* MATCH: the list advance funnels through a temp that is
+                          * then copied into shp (oracle: addu a0,...; addu s0,a0). */
   RECT r;
-  
+  int deadfrm[4];        /* MATCH: SYM says fsize=80 with `r` the ONLY named AUTO
+                          * (at -0x40 => sp+0x10) and mask=$80ff0000 (ra + s0-s7,
+                          * NO $fp).  16 bytes of gcc temp space sit above `r`;
+                          * this filler reproduces the frame size. */
+
   if (shp != (shapetbl *)0x0) {
     do {
       kind = *(u_char *)shp & 0xf7;
-      if (kind == 0x23) {
-        if (-1 < clutx) {
-          *(u_int *)&(*(u_int *)((char *)shp + 0xc)) =
-               *(u_int *)&(*(u_int *)((char *)shp + 0xc)) & 0xf000f000 | clutx & 0xfffU | (cluty & 0xfffU) << 0x10;
+      /* MATCH: the TEX arm is the fall-through and is emitted FIRST (the oracle
+       * hoists (y&0xfff)<<16 into $s7 BEFORE (cluty&0xfff)<<16 into $s6, which
+       * follows the RTL order of the two arm bodies); the CLUT body sits
+       * out-of-line at the beq target.  The three range tests must be SEPARATE
+       * nested ifs -- as one `&&` chain gcc folds `0x3f<kind && kind<0x44`
+       * into `(u)(kind-0x40) < 4` and drops the `0x22<kind` test entirely.
+       * The LoadImage call is written in BOTH arms; gcc cross-jumps only the
+       * `jal` itself, matching the oracle's per-arm a0/a1 setup. */
+      if (kind != 0x23) {
+        if (0x22 < kind) { if (kind < 0x44) { if (0x3f < kind) {
+          /* MATCH: two real BITFIELD assignments (lw / and ~0xfff / or x&0xfff /
+           * and 0xf000ffff / or (y&0xfff)<<16 / sw), NOT one fused
+           * `word & 0xf000f000 | ...` expression which collapses to a single
+           * `and`.  FLOOR (18 diffs, ours 109/107): our cc1 additionally hoists
+           * `x & 0xfff` out of the loop into $fp (+sw/lw fp), which the retail
+           * loop.c cost model refused -- it hoists only the two 2-insn
+           * `(v&0xfff)<<16` movables and the -0x1000 constant.  Tried: bitfield
+           * store order swaps, type-first order, dropping the frame filler,
+           * u_char kind -- none suppress the extra savings-1 hoist. */
+          shp->shapex = x;
+          shp->shapey = y;
           *(u_char *)shp = *(u_char *)shp | 8;
-          r.x = (short)clutx;
-          r.y = (short)cluty;
-          r.w = shp->width;
-          r.h = 1;
-          goto TexVramf_loadImageEmit;
-        }
+          r.x = (short)x;
+          r.y = (short)y;
+          rowpix = shp->width * shapedepth(shp);
+          rowround = rowpix + 0xf;
+          if (rowround < 0) {
+            rowround = rowpix + 0x1e;
+          }
+          r.w = (short)(rowround >> 4);
+          r.h = shp->height;
+          Texture_LoadImage(&r,(u_long *)&shp->data);
+        } } }
       }
-      else if (((0x22 < kind) && (kind < 0x44)) && (0x3f < kind)) {
-        *(u_int *)&(*(u_int *)((char *)shp + 0xc)) =
-             *(u_int *)&(*(u_int *)((char *)shp + 0xc)) & 0xf000f000 | x & 0xfffU | (y & 0xfffU) << 0x10;
+      else if (-1 < clutx) {
+        shp->shapex = clutx;
+        shp->shapey = cluty;
         *(u_char *)shp = *(u_char *)shp | 8;
-        r.x = (short)x;
-        r.y = (short)y;
-        rowpix = shapedepth(shp);
-        rowpix = shp->width * rowpix;
-        rowround = rowpix + 0xf;
-        if (rowround < 0) {
-          rowround = rowpix + 0x1e;
-        }
-        r.w = (short)(rowround >> 4);
-        r.h = shp->height;
-TexVramf_loadImageEmit:
+        r.x = (short)clutx;
+        r.y = (short)cluty;
+        r.w = shp->width;
+        r.h = 1;
         Texture_LoadImage(&r,(u_long *)&shp->data);
       }
-      if ((*(u_int *)shp & 0xffffff00) == 0) {
-        shp = (shapetbl *)0x0;
+      if ((*(u_int *)shp & 0xffffff00) != 0) {
+        nextshp = (shapetbl *)((int)shp + ((int)*(u_int *)shp >> 8));
       }
       else {
-        shp = (shapetbl *)((int)&(*(u_int *)((char *)shp + 0x0)) + ((int)*(u_int *)shp >> 8));
+        nextshp = (shapetbl *)0x0;
       }
+      shp = nextshp;
     } while (shp != (shapetbl *)0x0);
   }
   return;

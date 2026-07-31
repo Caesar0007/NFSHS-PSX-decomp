@@ -67,6 +67,16 @@ extern int            gFlip;             /* 0x8013d7b4 */
 extern Draw_tPixMap   *gMenuPixmap[8];          /* 0x80120fd0 */
 extern matrixtdef gNightMat;
 extern Draw_tPixMap *gShadowPixmap[2];
+/* per-TU SCALAR VIEW of gShadowPixmap[0] (asm-label alias, catalog wave-13
+ * "unsized-array asm-label view" idiom).  The oracle reads this global with the
+ * SELF-TEMP form `lui fp,%hi(sym); lw fp,%lo(sym)(fp)` = the scalar-load shape;
+ * indexing the sized `[2]` array makes cc1plus materialize the base in a SEPARATE
+ * scratch first (`lui v0; lw fp,%lo(v0)`), which costs the head coloring in BOTH
+ * DrawC_ShadowPrim (41->31) and DrawC_ShadowPrimClip (287->277).  NOTE: no TU in
+ * the tree ever references gShadowPixmap[1], so the owning definition
+ * (game/common/genericpmx.cpp) may itself be a Ghidra `[2]` fiction -- left alone
+ * here (out of scope); the alias gives this TU the retail shape without touching it. */
+extern Draw_tPixMap *gShadowPixmap0 asm("gShadowPixmap");
 extern int gShowroomLights;  /* TODO type-refine */
 extern u_long hilight_colors[5];
 

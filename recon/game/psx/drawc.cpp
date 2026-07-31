@@ -3552,7 +3552,7 @@ void DrawC_ShadowPrim(Draw_tVertex *shadowVT,Draw_CarCache *sd)
   int iVar1;
   Draw_tPixMap *shadowPmx;
 
-  shadowPmx = gShadowPixmap[0];
+  shadowPmx = gShadowPixmap0;
   if (R3DCar_InMenu != 0) {
     shadowPmx = gMenuPixmap[1];
   }
@@ -3736,7 +3736,7 @@ void DrawC_ShadowPrimClip(Draw_tVertex *shadowVT,Draw_CarCache *sd)
   Draw_tPixMap *shadowPmx;
   Draw_tPixMap *pmx;
   
-  pmx = gShadowPixmap[0];
+  pmx = gShadowPixmap0;
   if (R3DCar_InMenu != 0) {
     pmx = gMenuPixmap[1];
   }

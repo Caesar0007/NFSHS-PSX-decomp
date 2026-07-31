@@ -110,6 +110,8 @@ void Input_Update(void)
   int left;
   int right;
   char iactive[32];
+  char *activeBase;
+  u_long *dbflags;
   int modeOffset;
   int pressOffset;
 
@@ -118,21 +120,24 @@ void Input_Update(void)
   {
     char *activePtr;
 
+    i = 31;
     activePtr = &iactive[31];
-    for (i = 31; i >= 0; i--) {
-      *activePtr-- = 1;
-    }
+    do {
+      *activePtr = 1;
+      i--;
+      activePtr--;
+    } while (i >= 0);
   }
 
   h = Input_gHandler;
   r = Input_gResults;
   menukeys = 0;
+  dbflags = Input_gDBFlags;
   modeOffset = 0;
   pressOffset = 0;
 
   for (i = 0; i < 2; i++) {
     int mode;
-    u_long *dbflags = &Input_gDBFlags[i];
 
     mode = 0;
     for (j = 0; j < 2; j++) {
@@ -146,6 +151,8 @@ void Input_Update(void)
 
     if (mode == 0) {
       char active[17];
+
+      activeBase = active;
 
       left = (*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8);
       h++;
@@ -172,7 +179,7 @@ void Input_Update(void)
       {
         char *activePtr;
 
-        activePtr = &active[16];
+        activePtr = &activeBase[16];
         for (k = 16; k >= 0; k--) {
           *activePtr = 1;
           activePtr--;
@@ -227,16 +234,21 @@ void Input_Update(void)
         h++;
       }
 
-      for (j = 0; j < 2; j++) {
-        for (k = 0; k < 17; k++) {
-          if (*h != 0) {
-            if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) < 65) {
-              *dbflags &= ~(1 << k);
-            } else {
-              *dbflags |= (1 << k);
+      {
+        int m;
+        int k;
+
+        for (m = 0; m < 2; m++) {
+          for (k = 0; k < 17; k++) {
+            if (*h != 0) {
+              if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) < 65) {
+                *dbflags &= ~(1 << k);
+              } else {
+                *dbflags |= (1 << k);
+              }
             }
+            h++;
           }
-          h++;
         }
       }
     } else {
@@ -299,12 +311,14 @@ void Input_Update(void)
       {
         char hactive[17];
 
+        activeBase = hactive;
+
         acc = 0;
         r->flags &= 7;
         {
           char *activePtr;
 
-          activePtr = &hactive[16];
+          activePtr = &activeBase[16];
           for (k = 16; k >= 0; k--) {
             *activePtr = 1;
             activePtr--;
@@ -400,6 +414,7 @@ void Input_Update(void)
     }
 
     r++;
+    dbflags++;
     if (GameSetup_gData.numPlayerRaceCars == 1) {
       h += 76;
       modeOffset += 4;

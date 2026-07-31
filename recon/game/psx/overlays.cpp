@@ -51,12 +51,11 @@ void RaceSummary(void)
   short colbestlap;
   char string [40];
   int halfH;
+  int titleY;
   int headerY;
   int dataY;
   int barH;
   int color;
-  Car_tObj *car;
-  char *word;
 
   HUD_STATS_POS_X = 8;
   if (GameSetup_gData.numLaps == 1) {
@@ -74,19 +73,19 @@ void RaceSummary(void)
   colcar = HUD_STATS_POS_X + 0x5f;
   coltime = HUD_STATS_POS_X + 0xa7;
   colbestlap = HUD_STATS_POS_X + 0xe1;
-  word = TextSys_Word(0x38);
-  color = textpixels(word);
+  color = 0xa0 - (textpixels(TextSys_Word(0x38)) >> 1);
+  titleY = 0x76 - halfH;
   Font_TextColor(6);
-  Font_TextXY(TextSys_Word(0x38),(0xa0 - (color >> 1)) * 0x10000 >> 0x10,-halfH + 0x76);
+  Font_TextXY(TextSys_Word(0x38),color * 0x10000 >> 0x10,titleY);
   Font_TextColor(3);
-  headerY = (-halfH + 0x85) * 0x10000 >> 0x10;
+  headerY = (titleY + 0xf) * 0x10000 >> 0x10;
   Font_TextXY(TextSys_Word(0x2e),colname,headerY);
   Font_TextXY(TextSys_Word(0x3a),colcar,headerY);
   Font_TextXY(TextSys_Word(0x3b),coltime,headerY);
   if (GameSetup_gData.numLaps != 1) {
     Font_TextXY(TextSys_Word(0x3c),colbestlap,headerY);
   }
-  dataY = (-halfH + 0x87) * 0x10000 >> 0x10;
+  dataY = (titleY + 0x11) * 0x10000 >> 0x10;
   Hud_FBuildF4(0,HUD_STATS_POS_X,dataY + 0xc,(u_short)HUD_STATS_SIZE_W,1,0,'\0','\0');
   barH = HUD_STATS_SIZE_H + -8;
   Hud_FBuildF4(0,colname + -2,HUD_STATS_POS_Y,1,barH,0,'\0','\0');
@@ -96,52 +95,51 @@ void RaceSummary(void)
     Hud_FBuildF4(0,colbestlap + -2,HUD_STATS_POS_Y,1,barH,0,'\0','\0');
   }
   i = 0;
-  do {
-    if (Cars_gNumRaceCars <= i) {
-      OptionsBarThing(HUD_STATS_POS_X,HUD_STATS_POS_Y,(u_short)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
-      Hud_RenderPauseBox(HUD_STATS_POS_X,HUD_STATS_POS_Y,(u_short)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
-      return;
-    }
-    car = Cars_gRaceCarList[i];
-    pos = car->stats.finalPosition;
+  while (1) {
+    if (Cars_gNumRaceCars <= i) break;
+    pos = Cars_gRaceCarList[i]->stats.finalPosition;
     if (pos * 2 + 4 < StatsTimer) {
       color = 4;
-      if ((car->carFlags & 4U) != 0) {
+      if ((Cars_gRaceCarList[i]->carFlags & 4U) != 0) {
         color = 3;
       }
       Font_TextColor(color);
       sprintf(string,"%d",pos);
       Font_TextXY(string,colpos | 1,dataY + pos * 0xc);
       Font_TextColor(3);
-      sprintf(string,"%s",(char *)(*(int *)((int)car + 0x288) + 0x5c));
+      sprintf(string,"%s",(char *)(*(int *)((int)Cars_gRaceCarList[i] + 0x288) + 0x5c));
       Font_TextXY(string,colname,dataY + pos * 0xc);
       color = 4;
-      if ((*(u_int *)((int)car + 0x260) & 4) != 0) {
+      if ((*(u_int *)((int)Cars_gRaceCarList[i] + 0x260) & 4) != 0) {
         color = 3;
       }
       Font_TextColor(color);
-      sprintf(string,"%s",car->carNameLocalized);
+      sprintf(string,"%s",Cars_gRaceCarList[i]->carNameLocalized);
       Font_TextXY(string,colcar,dataY + pos * 0xc);
       if (GameSetup_gData.pinkSlipsForfeit == i) {
         sprintf(string,TextSys_Word(0x36));
       }
-      else if ((GameSetup_gData.raceType == 1) && (car->stats.finalNumArrests != 0)) {
+      else if ((GameSetup_gData.raceType == 1) &&
+               (Cars_gRaceCarList[i]->stats.finalNumArrests != 0)) {
         sprintf(string,TextSys_Word(0x3d));
       }
-      else if (*(int *)((int)car + 0x3cc) != 2) {
+      else if (*(int *)((int)Cars_gRaceCarList[i] + 0x3cc) != 2) {
         sprintf(string,TextSys_Word(0x35));
       }
       else {
-        Hud_ParseTime(*(int *)((int)car + 0x3d4),string);
+        Hud_ParseTime(*(int *)((int)Cars_gRaceCarList[i] + 0x3d4),string);
       }
       Font_TextXY(string,coltime,dataY + pos * 0xc);
       if (GameSetup_gData.numLaps != 1) {
-        Hud_ParseTime(*(int *)((int)car + 0x3e8),string);
+        Hud_ParseTime(*(int *)((int)Cars_gRaceCarList[i] + 0x3e8),string);
         Font_TextXY(string,colbestlap,dataY + pos * 0xc);
       }
     }
     i = i + 1;
-  } while (1);
+  }
+  OptionsBarThing(HUD_STATS_POS_X,HUD_STATS_POS_Y,(u_short)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
+  Hud_RenderPauseBox(HUD_STATS_POS_X,HUD_STATS_POS_Y,(u_short)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
+  return;
 }
 
 /* ---- RaceStatistics__Fv  [OVERLAYS.CPP:165-321] SLD-VERIFIED ---- */

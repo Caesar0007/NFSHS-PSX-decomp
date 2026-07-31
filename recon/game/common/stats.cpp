@@ -467,9 +467,9 @@ void Stats_TrackEndGame(void)
         int DesiredSlice;
         int DesiredSpeed;
 
-        PlayerSlice = Cars_gHumanRaceCarList[i]->stats.sliceTotal;
-        if (trackSlices < PlayerSlice) {
-          PlayerSlice = trackSlices;
+        PlayerSlice = trackSlices;
+        if (Cars_gHumanRaceCarList[i]->stats.sliceTotal <= trackSlices) {
+          PlayerSlice = Cars_gHumanRaceCarList[i]->stats.sliceTotal;
         }
 
         PlayerPosition = Stats_GetPosition(Cars_gHumanRaceCarList[i]);
@@ -486,17 +486,21 @@ void Stats_TrackEndGame(void)
           }
         }
 
-        for (int j = 0; j < Cars_gNumRaceCars; j++) {
-          if (Stats_GetPosition(Cars_gRaceCarList[j]) == DesiredComparison) {
-            DesiredSlice = Cars_gRaceCarList[j]->stats.sliceTotal;
+        int j = 0;
+        Car_tObj **raceCar = Cars_gRaceCarList;
+        while (1) {
+          if (j >= Cars_gNumRaceCars) {
+            break;
+          }
+          if (Stats_GetPosition(*raceCar) == DesiredComparison) {
+            DesiredSlice = (*raceCar)->stats.sliceTotal;
             if (trackSlices < DesiredSlice) {
               DesiredSlice = trackSlices;
             }
 
             if (PlayerPosition == 1) {
               DesiredSpeed =
-                  ((Car_tObj * volatile *)Cars_gRaceCarList)[j]
-                      ->linearVel_ch.z;
+                  Cars_gRaceCarList[j]->linearVel_ch.z;
               if (DesiredSpeed < 0) {
                 DesiredSpeed = -DesiredSpeed;
               }
@@ -508,6 +512,8 @@ void Stats_TrackEndGame(void)
             }
             break;
           }
+          j++;
+          raceCar++;
         }
 
         Cars_gHumanRaceCarList[i]->stats.checkpointUpdate =

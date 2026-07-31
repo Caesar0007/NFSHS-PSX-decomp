@@ -1526,82 +1526,80 @@ void Cars_CalculateStartingGridOffset(Car_tObj *carObj,int *slice,coorddef *offs
   int startingPosition;
   int carOnRight;
   int negDir;
-  int center;
-  int totalWidth;
-  int iVar1;
-  int iVar2;
-  u_int uVar3;
-  u_int uVar4;
-  u_int uVar5;
+  int result;
   
-  iVar2 = -1;
+  negDir = -1;
   if (GameSetup_gData.reverseTrack != 0) {
-    iVar2 = 1;
+    negDir = 1;
   }
-  uVar5 = GameSetup_gData.carInfo[carObj->carIndex].StartingPos;
-  /* NOTE: oracle keeps TWO SEPARATE (non-cross-jumped) copies of the "-1<x { if
-     (gNumSlices<=x) x-=gNumSlices; *slice=x; goto } " block, one per branch below
-     (registers v1 for the >=3 path, a1 for the <3 path), sharing only the FINAL
-     "*slice=x+gNumSlices" store at the fallthrough tail. Writing it as a plain
-     if/else with the SAME variable in both arms lets gcc cross-jump/tail-merge the
-     two copies into one (9-13 insns short); using distinct locals per arm (tried:
-     startingPosition/negDir) changes WHICH insns get shared but doesn't reproduce
-     the oracle's exact non-merged layout -- residual structural floor, not fully
-     source-shapable without a permuter. Kept the simpler (fewer-diff) shared form. */
+  startingPosition = GameSetup_gData.carInfo[carObj->carIndex].StartingPos;
+  /* Retail keeps separate slice-normalization paths for the multi-car and
+     two-car grids; spelling both paths out prevents an incorrect cross-jump. */
   if (3 <= Cars_gNumRaceCars) {
-    iVar2 = iVar2 + iVar2 * 10 * uVar5;
-    if (-1 < iVar2) {
-      if (gNumSlices <= iVar2) {
-        iVar2 = iVar2 - gNumSlices;
+    if (-1 < negDir + negDir * 10 * startingPosition) {
+      if (gNumSlices <= negDir + negDir * 10 * startingPosition) {
+        *slice = negDir + negDir * 10 * startingPosition - gNumSlices;
       }
-      *slice = iVar2;
+      else {
+        *slice = negDir + negDir * 10 * startingPosition;
+      }
       goto LAB_80089c40;
     }
+    *slice = negDir + negDir * 10 * startingPosition + gNumSlices;
+    goto LAB_80089c40;
   }
   else {
-    if (-1 < iVar2) {
-      if (gNumSlices <= iVar2) {
-        iVar2 = iVar2 - gNumSlices;
+    if (-1 < negDir) {
+      if (gNumSlices <= negDir) {
+        *slice = negDir - gNumSlices;
       }
-      *slice = iVar2;
+      else {
+        *slice = negDir;
+      }
       goto LAB_80089c40;
     }
   }
-  *slice = iVar2 + gNumSlices;
+  *slice = negDir + gNumSlices;
 LAB_80089c40:
-  uVar5 = uVar5 & 1;
+  carOnRight = startingPosition & 1;
   if (carObj->desiredDirection * AITune_driveSide == -1) {
-    uVar5 = 1 - uVar5;
+    carOnRight = 1 - carOnRight;
   }
-  iVar2 = AITune_GetOneWay();
-  if (iVar2 != 0) {
+  if (AITune_GetOneWay() != 0) {
+    int center;
+    int totalWidth;
     /* CORRECTNESS FIX: (int)BWorldSm_slices is `Trk_NewSlice *` (sizeof==0x20) -- adding
        an already-byte-scaled `*slice * 0x20` to it without a byte-base cast makes
        gcc apply ITS OWN pointer-arithmetic scale by sizeof(Trk_NewSlice) on top,
        double-scaling to *slice*0x400 (oracle proves `sll v0,v0,5` == *0x20 only,
        matching the `(int)BWorldSm_slices` cast form used elsewhere, e.g.
        aiphysic.cpp/bworldSm.cpp). Cast to a byte base first. */
-    iVar2 = *slice * 0x20 + (int)BWorldSm_slices;
-    uVar3 = (u_int)(*(u_char *)(iVar2 + 0x1d) >> 4);
-    iVar1 = (u_int)*(u_char *)(iVar2 + 0x1e) * 0x8000 * uVar3;
-    uVar4 = *(u_char *)(iVar2 + 0x1d) & 0xf;
-    uVar3 = uVar3 + uVar4;
-    uVar4 = iVar1 + (u_int)*(u_char *)(iVar2 + 0x1f) * 0x8000 * uVar4;
-    iVar1 = (uVar4 >> 1) - iVar1;
-    iVar2 = iVar1 + uVar4 / uVar3;
-    if (uVar5 == 0) {
-      iVar2 = iVar1 - uVar4 / uVar3;
+    u_char *road = (u_char *)BWorldSm_slices + *slice * 0x20;
+    int firstWidth = (u_int)road[0x1e] * 0x8000 * (road[0x1d] >> 4);
+
+    totalWidth = firstWidth +
+                 (u_int)road[0x1f] * 0x8000 * (road[0x1d] & 0xf);
+    center = (totalWidth >> 1) - firstWidth;
+    result = center + totalWidth /
+                      ((road[0x1d] >> 4) + (road[0x1d] & 0xf));
+    if (carOnRight == 0) {
+      result = center - totalWidth /
+                        ((road[0x1d] >> 4) + (road[0x1d] & 0xf));
     }
   }
   else {
-    if (uVar5 == 0) {
-      iVar2 = (int)((u_int)*(u_char *)(*slice * 0x20 + (int)BWorldSm_slices + 0x1e) * -0x8000) / 2;
+    if (carOnRight == 0) {
+      result =
+          (int)((u_int)*((u_char *)BWorldSm_slices + *slice * 0x20 + 0x1e) *
+                -0x8000) /
+          2;
     }
     else {
-      iVar2 = (u_int)*(u_char *)(*slice * 0x20 + (int)BWorldSm_slices + 0x1f) << 0xe;
+      result =
+          (u_int)*((u_char *)BWorldSm_slices + *slice * 0x20 + 0x1f) << 0xe;
     }
   }
-  offset->x = iVar2;
+  offset->x = result;
   offset->y = 0x8000;
   offset->z = 0;
   return;

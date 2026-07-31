@@ -132,22 +132,19 @@ done4:
 void Texture_AddSharedPalette(char *ptr_to_data,Draw_tPixMap *ptr_to_pmx,int bpp)
 
 {
-  char **palslot;
-  Draw_tPixMap **pmxslot;
-  
+  /* MATCH: plain index form with the count re-read at each subscript (no
+   * palslot/pmxslot temps, no cached `n`) -- gcc CSEs the count load and the
+   * common `n*4` scaling exactly like the oracle. */
   if (bpp == 0) {
-    pmxslot = Texture_gP4bitPmx + Texture_gNum4bitPal;
     Texture_gPalette4bit[Texture_gNum4bitPal] = ptr_to_data;
-    *pmxslot = ptr_to_pmx;
+    Texture_gP4bitPmx[Texture_gNum4bitPal] = ptr_to_pmx;
     Texture_gNum4bitPal = Texture_gNum4bitPal + 1;
     return;
   }
   if (bpp == 1) {
-    palslot = Texture_gPalette8bit + Texture_gNum8bitPal;
-    pmxslot = Texture_gP8bitPmx + Texture_gNum8bitPal;
+    Texture_gPalette8bit[Texture_gNum8bitPal] = ptr_to_data;
+    Texture_gP8bitPmx[Texture_gNum8bitPal] = ptr_to_pmx;
     Texture_gNum8bitPal = Texture_gNum8bitPal + 1;
-    *palslot = ptr_to_data;
-    *pmxslot = ptr_to_pmx;
   }
   return;
 }

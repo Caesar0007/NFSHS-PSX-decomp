@@ -1278,21 +1278,18 @@ Phy_CalcAcc_gasRatioMul:
   if ((((carObj->control).gear == '\x01') || ((carObj->control).gearShiftTimer != '\0')) ||
      (powerControl == 0)) {
     if (damage) {
-      smokeRpm = carObj->flywheelRpm + -100;
-      carObj->flywheelRpm = smokeRpm;
+      carObj->flywheelRpm = carObj->flywheelRpm + -100;
 cfLbl1:   /* @0x800aae38  (-f-build goto label) */
-      if (smokeRpm < 0) {
-        smokeRpm = 0;
+      if (carObj->flywheelRpm < 0) {
+        carObj->flywheelRpm = 0;
       }
-      carObj->flywheelRpm = smokeRpm;
     }
     else {
       if (carObj->flywheelRpm < desiredRpm) {
-        smokeRpm = carObj->flywheelRpm + 0xfa;
+        carObj->flywheelRpm = carObj->flywheelRpm + 0xfa;
         if ((carObj->control).gearShiftTimer == '\0') {
-          carObj->flywheelRpm = smokeRpm;
-          if (smokeRpm <= desiredRpm) {
-            desiredRpm = smokeRpm;
+          if (carObj->flywheelRpm <= desiredRpm) {
+            desiredRpm = carObj->flywheelRpm;
           }
         }
         else {
@@ -1300,22 +1297,21 @@ Phy_CalcAcc_gearShiftHandler:
           if ((carObj->control).lastGear == '\x01') goto Phy_CalcAcc_rpmBleedDown;
           if ((carObj->control).downShifting == '\0') {
             if ((u_char)(carObj->control).gear < 4) {
-              smokeRpm = carObj->flywheelRpm + -100;
+              carObj->flywheelRpm = carObj->flywheelRpm + -100;
             }
             else {
-              smokeRpm = carObj->flywheelRpm + -200;
+              carObj->flywheelRpm = carObj->flywheelRpm + -200;
             }
-            carObj->flywheelRpm = smokeRpm;
-            smokeRpm = carObj->flywheelRpm;
             goto cfLbl1;
           }
           if ((u_char)(carObj->control).brakeLevel < 0x41) {
-            smokeRpm = carObj->flywheelRpm + blip[(u_char)(carObj->control).desiredGear];
+            carObj->flywheelRpm =
+                carObj->flywheelRpm + blip[(u_char)(carObj->control).desiredGear];
           }
           else {
-            smokeRpm = carObj->flywheelRpm + bblip[(u_char)(carObj->control).desiredGear];
+            carObj->flywheelRpm =
+                carObj->flywheelRpm + bblip[(u_char)(carObj->control).desiredGear];
           }
-          carObj->flywheelRpm = smokeRpm;
           desiredRpm = specs->redline;
           if (carObj->flywheelRpm <= specs->redline) {
             desiredRpm = carObj->flywheelRpm;
@@ -1325,11 +1321,10 @@ Phy_CalcAcc_gearShiftHandler:
       else {
         if ((carObj->control).gearShiftTimer != '\0') goto Phy_CalcAcc_gearShiftHandler;
 Phy_CalcAcc_rpmBleedDown:
-        smokeRpm = carObj->flywheelRpm + -200;
         if (carObj->flywheelRpm < desiredRpm) goto Phy_CalcAcc_clearWheelSpinExit;
-        carObj->flywheelRpm = smokeRpm;
-        if (desiredRpm < smokeRpm) {
-          desiredRpm = smokeRpm;
+        carObj->flywheelRpm = carObj->flywheelRpm + -200;
+        if (desiredRpm < carObj->flywheelRpm) {
+          desiredRpm = carObj->flywheelRpm;
         }
       }
       carObj->flywheelRpm = desiredRpm;
@@ -1344,12 +1339,13 @@ Phy_CalcAcc_clearWheelSpinExit:
     Physics_AutoShift(carObj);
   }
   if (((carObj->control).gearShiftTimer == '\0') || ((carObj->control).downShifting != '\0')) {
-    bVar2 = (carObj->control).gear;
+    wheelRpm = fixedmult((carObj->linearVel_ch).z,
+                         specs->velToRpmRatio[(u_char)(carObj->control).gear]);
   }
   else {
-    bVar2 = (carObj->control).lastGear;
+    wheelRpm = fixedmult((carObj->linearVel_ch).z,
+                         specs->velToRpmRatio[(u_char)(carObj->control).lastGear]);
   }
-  wheelRpm = fixedmult((carObj->linearVel_ch).z,specs->velToRpmRatio[bVar2]);
   if (wheelRpm < 0) {
     wheelRpm = wheelRpm + 0xffff;
   }
@@ -1376,13 +1372,38 @@ Phy_CalcAcc_clearWheelSpinExit:
     diffDesiredRpm = 0;
   }
   diffFlywheelRpm = carObj->flywheelRpm - wheelRpm;
-  if ((((((diffFlywheelRpm < 0xfb) || ((carObj->control).gearShiftTimer != '\0')) ||
+  if (!((((((diffFlywheelRpm < 0xfb) || ((carObj->control).gearShiftTimer != '\0')) ||
         (4 < (u_char)(carObj->control).gear)) &&
        ((((u_char)(carObj->control).gear < 2 || (-0x199a < (carObj->linearVel_ch).z)) ||
         (gGasRatio < 0x8001)))) &&
       (((((carObj->control).gear != '\0' || ((carObj->linearVel_ch).z < 0x199a)) ||
-        (gGasRatio < 0x8001)) && (carObj->wheelSpin != 1)))) || (carObj->revLimit != 0)) {
+        (gGasRatio < 0x8001)) && (carObj->wheelSpin != 1)))) || (carObj->revLimit != 0))) {
+    int rpmDrop;
+    rpmDrop = 0;
+    if (((desiredRpm < 2000) || ((u_char)(carObj->control).desiredGasLevel < 0x40)) ||
+       ((damage || ((carObj->carInfo->carType == 0x13 && (2 < (u_char)(carObj->control).gear)))))) {
+      rpmDrop = 200;
+    }
+    else {
+      bVar2 = (carObj->control).gear;
+      if ((bVar2 == 2) || (bVar2 == 0)) {
+        rpmDrop = 10;
+      }
+      else if (2 < bVar2) {
+        rpmDrop = 0x32;
+      }
+    }
+    if (smokeRpm >> 3 < diffFlywheelRpm) {
+      carObj->wheelSpin = 2;
+    }
+    if (diffFlywheelRpm <= rpmDrop) {
+      rpmDrop = diffFlywheelRpm;
+    }
+    carObj->flywheelRpm = carObj->flywheelRpm - rpmDrop;
+  }
+  else {
     if (diffDesiredRpm < 0) {
+      int rpmRise;
       driveAcc = fixedmult(driveAcc,specs->gasOffFactor);
       driveAcc = -driveAcc;
       if ((((gravity_ch.z < 1) || (bVar2 = (carObj->control).gear, bVar2 < 2)) || (-1 < driveAcc)) ||
@@ -1400,21 +1421,21 @@ Phy_CalcAcc_halveAccPath:
 Phy_CalcAcc_gearFetchJoin:
         uVar6 = (u_int)(u_char)(carObj->control).gear;
       }
-      smokeRpm = fixedmult(specs->velToRpmRatioInv[uVar6] << 3,0x28000000)
+      rpmRise = fixedmult(specs->velToRpmRatioInv[uVar6] << 3,0x28000000)
       ;
-      if (smokeRpm < 0) {
-        smokeRpm = smokeRpm + 0xffff;
+      if (rpmRise < 0) {
+        rpmRise = rpmRise + 0xffff;
       }
-      smokeRpm = smokeRpm >> 0x10;
+      rpmRise = rpmRise >> 0x10;
       if ((carObj->control).gear == '\0') {
-        if (smokeRpm < -diffFlywheelRpm) {
-          smokeRpm = -diffFlywheelRpm;
+        if (rpmRise < -diffFlywheelRpm) {
+          rpmRise = -diffFlywheelRpm;
         }
-        wheelRpm = carObj->flywheelRpm + smokeRpm;
+        wheelRpm = carObj->flywheelRpm + rpmRise;
       }
       else {
-        wheelRpm = carObj->flywheelRpm + smokeRpm;
-        if (-diffFlywheelRpm <= smokeRpm) {
+        wheelRpm = carObj->flywheelRpm + rpmRise;
+        if (-diffFlywheelRpm <= rpmRise) {
           wheelRpm = carObj->flywheelRpm - diffFlywheelRpm;
         }
       }
@@ -1432,7 +1453,7 @@ Phy_CalcAcc_gearFetchJoin:
     }
     else {
       if (damage) {
-        smokeRpm = 0;
+        driveAcc = 0;
         carObj->flywheelRpm = carObj->flywheelRpm + -100;
       }
       else {
@@ -1447,7 +1468,7 @@ Phy_CalcAcc_gearFetchJoin:
         else {
           carObj->flywheelRpm = carObj->flywheelRpm + -200;
         }
-        smokeRpm = fixedmult(driveAcc,gGasRatio);
+        driveAcc = fixedmult(driveAcc,gGasRatio);
       }
       if (carObj->flywheelRpm <= desiredRpm) {
         desiredRpm = carObj->flywheelRpm;
@@ -1466,50 +1487,24 @@ Phy_CalcAcc_gearFetchJoin:
       else if (0x30000 < ratio) {
         ratio = 0x30000;
       }
-      if (smokeRpm < 0) {
-        smokeRpm = smokeRpm + 0xff;
+      if (driveAcc < 0) {
+        driveAcc = driveAcc + 0xff;
       }
       if (ratio < 0) {
         ratio = ratio + 0xff;
       }
-      driveAcc = (smokeRpm >> 8) * (ratio >> 8);
+      driveAcc = (driveAcc >> 8) * (ratio >> 8);
     }
-  }
-  else {
-    int rpmRise;
-    rpmRise = 0;
-    if (((desiredRpm < 2000) || ((u_char)(carObj->control).desiredGasLevel < 0x40)) ||
-       ((damage || ((carObj->carInfo->carType == 0x13 && (2 < (u_char)(carObj->control).gear)))))) {
-      rpmRise = 200;
-    }
-    else {
-      bVar2 = (carObj->control).gear;
-      if ((bVar2 == 2) || (bVar2 == 0)) {
-        rpmRise = 10;
-      }
-      else if (2 < bVar2) {
-        rpmRise = 0x32;
-      }
-    }
-    if (smokeRpm >> 3 < diffFlywheelRpm) {
-      carObj->wheelSpin = 2;
-    }
-    if (diffFlywheelRpm <= rpmRise) {
-      rpmRise = diffFlywheelRpm;
-    }
-    carObj->flywheelRpm = carObj->flywheelRpm - rpmRise;
   }
   if (carObj->flywheelRpm < 0) {
-    temp = (carObj->linearVel_ch).z;
-    smokeRpm = temp * -0x20;
-    if ((((driveAcc < 1) || (smokeRpm < 1)) || (driveAcc + temp * 0x20 < 1)) &&
-       (((-1 < driveAcc || (-1 < smokeRpm)) || (-1 < driveAcc + temp * 0x20)))) {
+    temp = (carObj->linearVel_ch).z * -0x20;
+    if ((((driveAcc < 1) || (temp < 1)) || (driveAcc - temp < 1)) &&
+       (((-1 < driveAcc || (-1 < temp)) || (-1 < driveAcc - temp)))) {
       carObj->flywheelRpm = 0;
-      driveAcc = smokeRpm;
+      driveAcc = temp;
     }
   }
 Phy_CalcAcc_finalAdjustReturn:
-  smokeRpm = driveAcc - drag;
   if (carObj->carInfo->carType - 0xcU < 4) {
     if (slippery != 0) {
       if ((carObj->control).gear != '\x02') {
@@ -1519,9 +1514,8 @@ Phy_CalcAcc_finalAdjustReturn:
         driveAcc = driveAcc * 3 >> 2;
       }
     }
-    smokeRpm = driveAcc - drag;
   }
-  return smokeRpm;
+  return driveAcc - drag;
 }
 
 /* ---- Physics_CalcWheelLockAcc__FP8Car_tObjP23Physics_tWheelAccStruct  [PHYSICS.CPP:1680-1725] SLD-VERIFIED ---- */

@@ -3403,8 +3403,6 @@ void DrawC_PrimHalo(matrixtdef *m,coorddef *t,Transformer_zObj *obj,int type,int
   int bfct;
   u_int overlayFlag;
   u_long *copyLastPrim;
-  short sVar1;
-  short sVar2;
   int iVar6;
   int uVar8;
   u_int uVar9;
@@ -3425,23 +3423,25 @@ void DrawC_PrimHalo(matrixtdef *m,coorddef *t,Transformer_zObj *obj,int type,int
     r0 = m->m[1];
     r1 = m->m[4];
     r2 = m->m[7];
-    (sd->matB).m[1][0] = sVar2 = (short)(r0 >> 4);
+    (sd->matB).m[1][0] = (short)(r0 >> 4);
     (sd->matB).m[1][1] = (short)(r1 >> 4);
     (sd->matB).m[1][2] = (short)(r2 >> 4);
   }
   {
+    /* identity-then-tweak: row 1 is stored POSITIVE above and negated in
+       place here.  No sVar1/sVar2 carriers (the SYM has none) -- cc1
+       forwards the still-live m[1][0] value (negu on its own register) and
+       RELOADS m[1][1]/m[1][2] (lhu) exactly like retail. */
     int r0,r1,r2;
     r0 = m->m[2];
     r1 = m->m[5];
     r2 = m->m[8];
-    (sd->matB).m[1][0] = -sVar2;
-    sVar2 = (sd->matB).m[1][1];
+    (sd->matB).m[1][0] = -(sd->matB).m[1][0];
     (sd->matB).m[2][0] = (short)(r0 >> 4);
-    sVar1 = (sd->matB).m[1][2];
     (sd->matB).m[2][1] = (short)(r1 >> 4);
     (sd->matB).m[2][2] = (short)(r2 >> 4);
-    (sd->matB).m[1][1] = -sVar2;
-    (sd->matB).m[1][2] = -sVar1;
+    (sd->matB).m[1][1] = -(sd->matB).m[1][1];
+    (sd->matB).m[1][2] = -(sd->matB).m[1][2];
   }
   (sd->matB).t[0] = t->x >> TrsProj_precision;
   (sd->matB).t[1] = -(t->y >> TrsProj_precision);

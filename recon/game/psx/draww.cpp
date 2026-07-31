@@ -911,7 +911,21 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
   return;
 }
 
-/* ---- DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad  [DRAWW.CPP:930-1297] SLD-VERIFIED ---- */
+/* OPEN RESIDUAL (2026-08-01, w39-a2): after the rule-8 SYM rewrite (643->404) the
+   dominant remaining diff is ONE allocation decision -- `sd` lands in $s1 and `prim`
+   in $s0, the oracle has them the other way round (SYM: sd REGPARM $0x10 = $s0,
+   prim REG $0x11 = $s1); 182 of the 404 diff lines are just that swap, the rest is
+   its caller-saved fallout.  MEASURED with cc1plpsx `-dg`/`-dl` on the preprocessed
+   TU: our allocno order is `... 145(prim) ... 80(sd) ...`, i.e. prim is ranked ~6
+   places ABOVE sd and takes $s0 first; RTL ref counts are sd=97 / prim=28 over
+   spans ~797 / ~192 insns.  Two razor edges are adjacent here (floor_log2 steps at
+   16/32 for prim, 64/128 for sd), and reducing prim's ASM refs 35->31 by fusing the
+   x/y stores into words did NOT flip it -- so the deciding term is live_length, not
+   ref count.  NEXT IDEAS (untried): lengthen prim's live range without adding an
+   instruction (catalog SS.A "live-range-lengthening read"), or find the remaining
+   4-insn excess (596 vs 592) that inflates sd's span.  Do NOT grind the caller-saved
+   permutations before this flips -- they are downstream of it.
+   ---- DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad  [DRAWW.CPP:930-1297] SLD-VERIFIED ---- */
 void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
 
 {

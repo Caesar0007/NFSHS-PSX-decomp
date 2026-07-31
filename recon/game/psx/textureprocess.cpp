@@ -177,20 +177,30 @@ FogKey * Fog_AllocKey(void)
 
 {
   FogKey *pFVar2;
-  int i;
   int *piVar1;
+  int i;
+  int one;                 /* MATCH: the "slot is free" marker held in a named
+                            * local -- the oracle materializes `li a2,1` right
+                            * after i=0 and BEFORE the two base addresses; a bare
+                            * literal in the compare gets it emitted last. */
 
   i = 0;
+  one = 1;
   pFVar2 = Fog_gBuf;
   piVar1 = openkeys;
   do {
     i = i + 1;
-    if (*piVar1 == 1) {
+    /* MATCH: if/else with the ADVANCE as the if-arm -- the oracle keeps the
+     * found-body INLINE (bne skips it); an early `return` if-arm makes gcc
+     * invert the branch and push the found block past the loop exit. */
+    if (*piVar1 != one) {
+      pFVar2 = pFVar2 + 1;
+      piVar1 = piVar1 + 1;
+    }
+    else {
       *piVar1 = 0;
       return pFVar2;
     }
-    pFVar2 = pFVar2 + 1;
-    piVar1 = piVar1 + 1;
   } while (i < 0x20);
   return (FogKey *)0x0;
 }

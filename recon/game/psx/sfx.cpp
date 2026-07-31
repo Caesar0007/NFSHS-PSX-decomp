@@ -259,7 +259,86 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
  *  (f) `wpos = is->motion;` / `src = is->source;` are STRUCT ASSIGNMENTS (movstrsi -> the
  *      oracle's parallel `lw t2/t3/t4; sw t2/t3/t4`), not three scalar field copies.
  * eaclib `intcos`/`fastintcos` (same for sin) are CO-EQUAL LINKER XDEFs at one address, so
- * the spelling is byte-identical (verify_asm is reloc-name lenient). */
+ * the spelling is byte-identical (verify_asm is reloc-name lenient).
+ *
+ * ============================ w39-a9 STATUS + FULL SYM MAP ============================
+ * GATE 399 diffs (ours 945 / oracle 938) -- was 422 at wave start; -23 came from adopting
+ * -G8 for this TU (see tools/build.py PER_TU_FLAGS "recon/game/psx/sfx.cpp").
+ * The residual is 196 REGISTER-NAME lines + only ~11 structural insns, i.e. this is an
+ * ALLOCATION problem now, not a control-flow one; the case bodies, the jump table order,
+ * the call skeleton and the delay slots all line up.
+ *
+ * The briefing's targeted lever ("kill the &wpos callee-saved hoist") was ATTEMPTED and
+ * FAILED as a local edit.  Ours emits `addiu s0,sp,72` once + two `addu a0,s0,zero`;
+ * retail emits `addiu a0,sp,72` TWICE (once in the Math_NormalizeVector jal delay slot,
+ * once immediately after).  cse unifies the two `&wpos` rtxes because after folding they
+ * are the identical `(plus (frame) 72)`.  FALSIFIED shapes (both re-gate to exactly 399,
+ * byte-identical output): `(coorddef *)&wpos.x` and `(coorddef *)((char *)&wpos.z - 8)`.
+ * The hoist is a SYMPTOM of the whole-frame divergence below, not an independent knob --
+ * do not re-grind it in isolation.
+ *
+ * ROOT CAUSE = our LOCAL SET / FRAME LAYOUT, and the SYM hands over the full ground truth.
+ * SYM `8c Function start` @45bddd: fp=$29(sp)  fsize=224  retreg=31  mask=$800F0000
+ *   => saved regs are EXACTLY s0,s1,s2,s3,ra (5).  Ours saves s0,s1,s2,s3,s4,ra (6) and
+ *   has an 8-byte-smaller frame (216 / 192 local bytes vs retail 224 / 200).
+ * SYM REGISTER MAP (Def/Def2 `class REG $N`; $10=s0 $11=s1 $12=s2 $13=s3 $2=v0 $3=v1
+ *   $4=a0 $5=a1 $6=a2 $7=a3):
+ *   fn scope : Vi   REGPARM $10 = s0   (OURS PUTS IT IN s1 -- the head of the cascade)
+ *              is   REGPARM $12 = s2   (ours agrees)
+ *              sd   REG     $13 = s3   (ours agrees)
+ *              dSouffle AUTO STRUCT sfxsouffle size 48 @ -0xC8 => sp+24
+ *   Every case body is a NESTED BLOCK that REDECLARES `Vi` / `is` / `dSouffle` as REG
+ *   locals (dSouffle as a `sfxsouffle *`).  That is the wave-9-a1 block lever in its ONLY
+ *   working form (same identifier redeclared in SIBLING blocks => fresh gcc-2.8 pseudo per
+ *   block); it is why retail can put `dSouffle` in s0 in case 4 AFTER `Vi` dies there
+ *   (oracle `addiu s0,sp,0x18`) while ours is stuck with a0.
+ *   case 1/2/3  (SYM block line 9  @800DD7E8): color  AUTO CVECTOR @-0x98 => sp+72
+ *                                              gcolor AUTO CVECTOR @-0x90 => sp+80
+ *                                              (both DEAD in the emitted code -- frame
+ *                                               reservation only; ours declares neither)
+ *   case 4      (SYM block line 36 @800DD874): Vi/is/dSouffle REG s0/s2/s0
+ *                                              ptrans    AUTO SVECTOR  @-0x88 => sp+88
+ *                                              invertedm AUTO coorddef @-0x98 => sp+72
+ *                                              (`invertedm` is what this file calls `wpos`;
+ *                                               there is NO `ds`/`skip`/`dx` SYM local --
+ *                                               those three are our inventions)
+ *   case 10     (SYM block line 46 @800DDA74): color AUTO CVECTOR   @-0x74 => sp+108
+ *                                              scale REG $3 = v1
+ *                                              pt    AUTO coorddef[2] @-0x48 => sp+152
+ *                                              dest  AUTO SVECTOR[4]  @-0x68 => sp+120
+ *                                              check AUTO VECTOR      @-0x30 => sp+176
+ *                                              prim  REG $10 = s0
+ *                                    + inlined OT-link block @800DDC44:
+ *                                              l0..l3 REG v1,a1,a2,a3 · pmx REG v0
+ *                                              tpage  AUTO USHORT @-0x20 => sp+192
+ *   case 6      (line 53 @800DDD0C): is/dSouffle REG s2/s0 · sina REG v0 · cosa REG s1
+ *   case 7      (line 62 @800DDDEC): + radius REG s0 · sina v0 · cosa s1
+ *   case 9      (line 71 @800DDEF4): same shape as case 7
+ *   case 11     (line 80 @800DDFFC): same shape as case 7
+ *   case 8      (line 89 @800DE130): color @-0x7c => sp+100 · scale REG v1
+ *                                    pt   coorddef[2] @-0x50 => sp+144
+ *                                    dest SVECTOR[4]  @-0x70 => sp+112
+ *                                    check VECTOR     @-0x38 => sp+168 · prim REG s0
+ *                                    + inlined OT-link block @800DE300: l0..l3/pmx as above,
+ *                                      tpage AUTO @-0x1e => sp+194
+ *   case 13/14  (@800DE3C8): is REG s2 · dSouffle REG $4 = a0 · sina v0 · cosa s0
+ *                            + block: prim REG $8 = t0 · pt REG $4 = a0
+ *                            + block line 137: pmx REG v0 · l0..l3 REG v1,a0,a2,v0
+ * SLOT-MAP DIFF (ours vs retail, local bytes only): retail occupies
+ *   ...0x48 0x4b 0x4c 0x50 0x53 0x58 0x5a 0x5c 0x64 0x67 0x6c 0x6f 0x70 0x78 0x80 0x88
+ *      0x90 0x94 0x98 0x9c 0xa0 0xa4 0xa8 0xac 0xb0 0xb8 0xc0 0xc2
+ *   ours 72 76 80 88 90 92 96 104 112 120 124 128 132 136 140 144 148 152 160 163 168 171
+ *        176 179 180 184 187 188   (top slot 188 vs retail's 194)
+ *
+ * NEXT-WAVE RECIPE (a full rule-8 rewrite, one-session job -- partial edits scramble the
+ * LCS on a 940-insn monster, catalog wave-12): (1) delete the invented `ds`/`skip`/`dx`
+ * locals; (2) give every case its OWN brace block that REDECLARES `Vi`,`is` and a
+ * `sfxsouffle *dSouffle` pointer, in the SYM's order; (3) declare each block's AUTOs in
+ * the SYM's slot order so the frame reaches 224/200 and the top slot lands at 0xC2;
+ * (4) add the two dead `color`/`gcolor` CVECTORs to the case-1/2/3 block.  Expect the
+ * s1->s0 `Vi` fix and the s4 spill to fall out together.
+ * NOTE cases 1/2/3, 6, 7, 9, 11 already byte-match; preserve them verbatim.
+ * ===================================================================================== */
 void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
 
 {

@@ -2276,8 +2276,12 @@ HudCdPlay_buildOutString:
                  0xbebe,0,false);
       Hud_GoTpage(0);
       if (index != 0) {
+        /* oracle `subu $s5,$s5,$v1` -- `time` is mutated IN PLACE (min*60000 subtracted),
+         * not a `%` remainder; that extra read+write is also what lifts `time`'s allocno
+         * above `type`'s (retail: time=$s5, type=$s6). */
         int min = time / 60000;
-        sec = (time % 60000) / 1000;
+        time = time - min * 60000;
+        sec = time / 1000;
         sprintf(strtime,"%1d%c%02d",min,
                    (u_int)(u_char)"::\'\'\'."[GameSetup_gData.userSetting.language],
                    sec);

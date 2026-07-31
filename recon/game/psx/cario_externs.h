@@ -23,7 +23,10 @@ extern void Texture_ResetPaletteSharing(void);
 extern CarIO_textureInfo CarIO_textureName[51];  /* dims 1 51; pCVar->pal/palShare/tex */
 extern short     CarIO_carVRamSlots[18][2];    /* [c][0/1] -> short sVar / (int) cast */
 extern short     CarIO_carVRamSlotsMenu[6][2]; /* short */
-extern int       CarIO_carVRamAdd[6];          /* slot-stride table (int arithmetic) */
+extern short     CarIO_carVRamAdd[6];          /* SYM: ARY SHORT dims 1 6, size 12 (data
+                                                * 8011EAC8 = {2,1,2,1,2,1}).  Was wrongly
+                                                * declared int[6]: 4-byte stride read past
+                                                * the end into CarIO_carVRamOffset. */
 extern short     CarIO_carVRamOffset[6];       /* (int) cast => short */
 extern short     CarIO_licensePlate[22][6];    /* [c][0..2] short (id+coords) */
 extern short     CarIO_licenseSFX_Vram[12][2]; /* short vram coords */

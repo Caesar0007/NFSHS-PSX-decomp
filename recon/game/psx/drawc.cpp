@@ -3,6 +3,25 @@
  *   object/chunk facet builders, object transforms, skidmarks, lines/spike-belt, anim timers, depth cue.
  *   GTE-heavy (142 cop2 stubs -> gte_ intrinsics). Full SYM-locals applied.
  */
+/* PER-TU FLAG RECEIPTS (w39-a3, 2026-08-01; compile_cpp now honours all four keys,
+ * commit cb24f4ab -- every earlier "flag didn't help" note on this TU measured a NO-OP).
+ * Whole-TU gate, baseline -> flag, for the 11 sub-100% fns:
+ *                       base  no_split  no_sched1  no_sched2  no_strength
+ *   PrimClip            867     874       1243       1007        849
+ *   Prim                790     792        866        892        790
+ *   PrimHalo            322     243        306        335        322
+ *   PrimMenu            441     405        490        488        400
+ *   PrimStart           129     944        538        193        137
+ *   ShadowPrimClip      277     283        601        323        277
+ *   NightHeadlight       93      89        117        115         93
+ *   ShowroomPrims       133     144        163        180        158
+ *   DivideShadowPrim    109     109        109        113        109
+ *   SpotPrims            30      67        100         91         86
+ *   PrimStop             14      20         18         14         14
+ * VERDICT: drawc.obj is NOT a per-TU-flag object.  no_split_addresses is the only
+ * one with real wins (PrimHalo -79, PrimMenu -36) but it destroys PrimStart
+ * (129 -> 944) and costs SpotPrims/ShowroomPrims; no_strength_reduce is net
+ * negative once SpotPrims/ShowroomPrims are counted.  Do not re-probe. */
 #include "../../nfs4_types.h"
 #include "drawc_externs.h"
 

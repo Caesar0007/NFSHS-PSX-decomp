@@ -456,83 +456,66 @@ int AudioTrk_PreLoad(void)
   int vz;
   int tick;
   bool loaded;
-  int check;
+  int check[2];
   int numelems;
-  AudioElem*se;
-  int i;
-  int x;
-  int z;
-  int d;
-  bool bVar1;
-  bool bVar2;
-  u_int uVar3;
-  int iVar4;
-  int iVar5;
-  u_char *pbVar6;
-  CAudioList *pCVar7;
-  int iVar8;
-  int iVar9;
-  int iVar10;
-  int iVar11;
-  int iVar12;
-  int aiStack_30 [2];
-  
+
   if ((gGameAudioList == (CAudioList *)0x0) || (gMasterAmbientLevel == 0)) {
-    uVar3 = 1;
+    return 1;
   }
-  else {
-    iVar10 = *(int *)BWorldSm_slices;
-    iVar9 = *(int *)(BWorldSm_slices + 8);
-    bVar1 = false;
-    uVar3 = BWorldSm_slices;
-    gettick();
-    iVar12 = uVar3 + 0x280;
-    iVar11 = gGameAudioList->numElements_;
-    while( true ) {
-      bVar2 = false;
-      if (!bVar1) {
-        gettick();
-        bVar1 = (int)uVar3 < iVar12;
-        uVar3 = 0;
-        if (bVar1) {
-          uVar3 = SNDmemlargestunused(aiStack_30);
-          bVar2 = 0x8000 < (int)uVar3;
-        }
+
+  vx = *(int *)BWorldSm_slices;
+  vz = *(int *)((char *)BWorldSm_slices + 8);
+  loaded = false;
+  tick = gettick() + 0x280;
+  numelems = gGameAudioList->numElements_;
+  for (;;) {
+    bool room;
+
+    room = false;
+    if (!loaded) {
+      if (gettick() < tick) {
+        room = 0x8000 < SNDmemlargestunused(check);
       }
-      bVar1 = true;
-      if (!bVar2) break;
-      pCVar7 = gGameAudioList + 1;
-      pbVar6 = (u_char *)((int)&gGameAudioList[1].versionNumber_ + 2);
-      for (iVar8 = 0; iVar8 < iVar11; iVar8 = iVar8 + 1) {
-        iVar5 = pCVar7->id_ - iVar10;
-        if (iVar5 < 1) {
-          iVar5 = iVar10 - pCVar7->id_;
+    }
+    loaded = true;
+    if (!room) {
+      break;
+    }
+    {
+      AudioElem *se;
+      int i;
+
+      se = (AudioElem *)(gGameAudioList + 1);
+      for (i = 0; i < numelems; se++,i++) {
+        int x;
+        int z;
+        int d;
+
+        x = se->cp.x - vx;
+        if (x <= 0) {
+          x = vx - se->cp.x;
         }
-        iVar4 = *(int *)(pbVar6 + -6) - iVar9;
-        if (iVar4 < 1) {
-          iVar4 = iVar9 - *(int *)(pbVar6 + -6);
+        z = se->cp.z - vz;
+        if (z <= 0) {
+          z = vz - se->cp.z;
         }
-        if (iVar4 < iVar5) {
-          iVar5 = iVar5 + (iVar4 >> 2);
+        if (z < x) {
+          d = x + (z >> 2);
         }
         else {
-          iVar5 = iVar4 + (iVar5 >> 2);
+          d = z + (x >> 2);
         }
-        if (((iVar5 < (*(short *)(pbVar6 + 2) + 100) * 0x10000) &&
-            ((int)(u_int)*pbVar6 < CopSpeak_gNumTrackSfx)) &&
-           (iVar5 = AudioCmn_GetAsyncSfx(0,(u_int)*pbVar6,(void *)0x0), iVar5 == -1)) {
-          bVar1 = false;
+        if ((d < (se->range + 100) * 0x10000) &&
+            ((int)(u_char)se->patchID < CopSpeak_gNumTrackSfx) &&
+            (AudioCmn_GetAsyncSfx(0,(u_int)(u_char)se->patchID,(void *)0x0) == -1)) {
+          loaded = false;
         }
-        pbVar6 = pbVar6 + 0x18;
-        pCVar7 = (CAudioList *)&pCVar7[1].slice_;
       }
-      CopSpeak_Server();
-      uVar3 = systemtask(0);
     }
-    gettick();
-    uVar3 = (u_int)((int)uVar3 < iVar12);
+    CopSpeak_Server();
+    systemtask(0);
   }
-  return uVar3;
+  return gettick() < tick;
 }
 
 /* ---- AudioTrk_CleanUp__Fv  [@0x8007d52c] ---- */

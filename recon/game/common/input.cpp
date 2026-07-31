@@ -205,7 +205,12 @@ void Input_Update(void)
 
       for (j = 0; j < 17; j++) {
         if (*h != 0) {
-          if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) < 65) {
+          if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65) {
+            if ((active[j] != 0) && ((Input_gDBFlags[i] & (1 << j)) == 0)) {
+              acc = j + 1;
+              Input_gDBFlags[i] |= (1 << j);
+            }
+          } else {
             if ((u_int)(Input_gPressTime[i][j] - 1) < 5) {
               if ((Input_gDBFlags[i] & (1 << j)) == 0) {
                 acc = j + 1;
@@ -215,9 +220,6 @@ void Input_Update(void)
             } else {
               Input_gDBFlags[i] &= ~(1 << j);
             }
-          } else if ((active[j] != 0) && ((Input_gDBFlags[i] & (1 << j)) == 0)) {
-            acc = j + 1;
-            Input_gDBFlags[i] |= (1 << j);
           }
         }
         h++;
@@ -369,11 +371,13 @@ void Input_Update(void)
       h += (mode - 1) * 17;
       for (j = 0; j < 17; j++) {
         if (*h != 0) {
-          if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) < 65) {
+          if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65) {
+            if ((Input_gDBFlags[i] & (1 << j)) == 0) {
+              acc = j + 1;
+              Input_gDBFlags[i] |= (1 << j);
+            }
+          } else {
             Input_gDBFlags[i] &= ~(1 << j);
-          } else if ((Input_gDBFlags[i] & (1 << j)) == 0) {
-            acc = j + 1;
-            Input_gDBFlags[i] |= (1 << j);
           }
         }
         h++;

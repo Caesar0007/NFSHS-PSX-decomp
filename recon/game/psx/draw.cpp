@@ -368,15 +368,10 @@ void Draw_StartRenderingView(int viewid)
      ORACLE places the Draw_gMaxPrim (else) block at the FALLTHROUGH position with the
      membudget (then) block reached by a forward jump -- i.e. BOTH `viewid==Player1View`
      and `viewid==Player2View` jump-if-true to the SAME target, fallthrough is the else.
-     Ours (`if(A||B) X; else Y;`) treats the LAST OR-term specially (`if(!B) goto ELSE`,
-     fallthrough is THEN) -- a different, also-standard cc1plus OR-codegen; tried operand
-     swap (P2||P1) = no change, De Morgan `&&`-negated form, and an explicit label/goto
-     transliteration of the oracle's exact branch topology -- ALL THREE cause a FULL-
-     FUNCTION register-recolor regression (viewid's home reg flips a2<->t0 from the very
-     first instruction, 9->45 diffs) because reshaping the tail changes viewid's live-range
-     length and re-tips the whole-function allocator priority (§A row-41 family, in
-     reverse). Reverted every attempt; the clean 9-diff form is kept. GENUINE FLOOR --
-     accept, do not pin. */
+     (The old "GENUINE FLOOR -- accept" note here is RETRACTED: see the MATCH
+     comment at the tail if/else -- De Morgan DOES crack it once the arm body
+     reads `view->membudget` instead of re-indexing `Draw_gView[viewid]`.
+     PASS 46/46 as of 2026-07-31.) */
   Draw_DCache *sd;
   Draw_tView *view;
   int iVar1;
@@ -392,11 +387,21 @@ void Draw_StartRenderingView(int viewid)
   sd->head.clipH = Draw_gView[viewid].drawenv[0].clip.h;
   Draw_gMidGroundOtz = iVar1 >> 3;
   sd->head.cprim.LastPrim = (u_long *)view->ot[gFlip];
-  if ((viewid == Draw_gPlayer1View) || (viewid == Draw_gPlayer2View)) {
-    sd->head.cprim.MPrimPtr = sd->head.cprim.PrimPtr + Draw_gView[viewid].membudget;
+  /* MATCH (2026-07-31, w38-a3): the oracle's tail is the DE MORGAN form --
+     `if (viewid != P1 && viewid != P2) { gMaxPrim } else { PrimPtr+membudget }`
+     -- so BOTH equality tests `beq` out to the SAME out-of-line THEN block and
+     the gMaxPrim arm is the fall-through, exactly as the oracle lays it out.
+     A previous pass tried De Morgan and saw a +10-insn blow-up, concluding
+     "GENUINE FLOOR"; that verdict was WRONG -- the blow-up came from the arm
+     body still spelling `Draw_gView[viewid].membudget`, which re-materializes
+     the array base inside the now-out-of-line block (the oracle reads it off
+     the already-live `view` pointer, `lw v1,0x4($a2)`).  De Morgan + the
+     `view->` spelling together = PASS 46/46. */
+  if ((viewid != Draw_gPlayer1View) && (viewid != Draw_gPlayer2View)) {
+    sd->head.cprim.MPrimPtr = (char *)Draw_gMaxPrim;
   }
   else {
-    sd->head.cprim.MPrimPtr = (char *)Draw_gMaxPrim;
+    sd->head.cprim.MPrimPtr = sd->head.cprim.PrimPtr + view->membudget;
   }
   sd->head.mirror = 0;
   return;

@@ -744,18 +744,8 @@ void Physics_AutoShift(Car_tObj *carObj)
 void Physics_RampCarControlValues(Car_tObj *carObj)
 
 {
-  char inc;
-  u_char bVar1;
-  u_char bVar2;
-  char cVar3;
-  char cVar4;
   int diff;
   int iVar5;
-  int iVar6;
-  int rampIn;
-  Car_tSpecs *pCVar7;
-  int iVar8;
-  int iVar9;
   int i;
   int gear;
   
@@ -764,73 +754,61 @@ void Physics_RampCarControlValues(Car_tObj *carObj)
     (carObj->control).gear = '\x02';
   }
   if (1 < (carObj->stats).finishType) {
-    iVar5 = (carObj->N).linearVel.x;
     (carObj->control).steering = 0;
     (carObj->control).gasLevel = '\0';
     (carObj->control).brakeLevel = -1;
     (carObj->control).downShifting = '\0';
-    iVar5 = iVar5 * 0xfe;
     (carObj->control).hanno = 0;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
-    }
-    iVar6 = (carObj->N).linearVel.y;
-    (carObj->N).linearVel.x = iVar5 >> 8;
-    iVar6 = iVar6 * 0xfe;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
-    }
-    iVar5 = (carObj->N).linearVel.z;
-    (carObj->N).linearVel.y = iVar6 >> 8;
-    iVar5 = iVar5 * 0xfe;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
-    }
-    (carObj->N).linearVel.z = iVar5 >> 8;
+    (carObj->N).linearVel.x = (carObj->N).linearVel.x * 0xfe / 0x100;
+    (carObj->N).linearVel.y = (carObj->N).linearVel.y * 0xfe / 0x100;
+    (carObj->N).linearVel.z = (carObj->N).linearVel.z * 0xfe / 0x100;
     goto RampCtrl_earlyBrake;
   }
-  rampIn = 0x30;
-  if (carObj->carInfo->RampGas != 0) {
-    rampIn = 0x24;
-  }
-  bVar1 = (carObj->control).gasLevel;
-  iVar5 = (u_int)(u_char)(carObj->control).desiredGasLevel - (u_int)bVar1;
-  if (iVar5 < 0) {
-    cVar3 = bVar1 + (char)iVar5;
-    if (rampIn <= -iVar5) {
-      cVar3 = bVar1 - (char)rampIn;
+  {
+    char inc;
+
+    if (carObj->carInfo->RampGas != 0) {
+      inc = 0x24;
+    }
+    else {
+      inc = 0x30;
+    }
+    diff = (carObj->control).desiredGasLevel - (carObj->control).gasLevel;
+    if (diff >= 0) {
+      (carObj->control).gasLevel +=
+          (diff < (u_char)inc) ? diff : (u_char)inc;
+    }
+    else {
+      diff = -diff;
+      (carObj->control).gasLevel -=
+          (diff < (u_char)inc) ? diff : (u_char)inc;
     }
   }
-  else {
-    cVar3 = bVar1 + (char)iVar5;
-    if (rampIn <= iVar5) {
-      cVar3 = bVar1 + (char)rampIn;
-    }
-  }
-  (carObj->control).gasLevel = cVar3;
-  if (carObj->carInfo->RampBrake == 0) {
-    cVar3 = (carObj->control).desiredBrakeLevel;
-  }
-  else {
-    bVar1 = (carObj->control).brakeLevel;
-    iVar5 = (u_int)(u_char)(carObj->control).desiredBrakeLevel - (u_int)bVar1;
-    if (iVar5 < 0) {
-      cVar3 = bVar1 + (char)iVar5;
-      if (0xf < -iVar5) {
-        cVar3 = bVar1 - 0x10;
+  if (carObj->carInfo->RampBrake != 0) {
+    diff = (carObj->control).desiredBrakeLevel - (carObj->control).brakeLevel;
+    if (diff >= 0) {
+      if (diff < 0x10) {
+        (carObj->control).brakeLevel += diff;
+      }
+      else {
+        (carObj->control).brakeLevel += 0x10;
       }
     }
     else {
-      cVar3 = bVar1 + (char)iVar5;
-      if (0xf < iVar5) {
-        cVar3 = bVar1 + 0x10;
+      diff = -diff;
+      if (diff < 0x10) {
+        (carObj->control).brakeLevel -= diff;
+      }
+      else {
+        (carObj->control).brakeLevel -= 0x10;
       }
     }
   }
-  (carObj->control).brakeLevel = cVar3;
-  cVar3 = (carObj->control).gearShiftTimer;
-  if (cVar3 != '\0') {
-    (carObj->control).gearShiftTimer = cVar3 + -1;
+  else {
+    (carObj->control).brakeLevel = (carObj->control).desiredBrakeLevel;
+  }
+  if ((carObj->control).gearShiftTimer > 0) {
+    (carObj->control).gearShiftTimer--;
   }
   if (0x200 < simGlobal.gameTicks) {
     if (GameSetup_gData.carInfo[carObj->carIndex].Transmission == 1) {
@@ -842,118 +820,102 @@ void Physics_RampCarControlValues(Car_tObj *carObj)
         (carObj->control).desiredGear = '\x02';
       }
       else {
-        bVar1 = (carObj->control).desiredGear;
-        if ((bVar1 == (carObj->control).gear) && ((carObj->stats).finishType == 0)) {
+        if (((carObj->control).desiredGear == (carObj->control).gear) &&
+            ((carObj->stats).finishType == 0)) {
           if ((carObj->pullOver == 0) && (carObj->blowout == 0)) {
-            iVar5 = (carObj->N).speedXZ;
-            if (iVar5 < 0) {
-              iVar5 = -iVar5;
-            }
-            if (iVar5 < 0x3333) {
-              if (((((u_char)(carObj->control).desiredBrakeLevel < 0x81) ||
-                   ((carObj->control).desiredGasLevel != '\0')) || (bVar1 < 2)) ||
-                 ((carObj->control).hanno != 0)) {
-                iVar5 = (carObj->N).speedXZ;
-                if (iVar5 < 0) {
-                  iVar5 = -iVar5;
-                }
-                if (((iVar5 < 0x3333) && (0x80 < (u_char)(carObj->control).desiredGasLevel)) &&
-                   (((carObj->control).gear == '\0' && ((carObj->control).hanno != 0)))) {
-                  (carObj->control).desiredGear = '\x02';
-                  goto RampCtrl_hannoReset;
-                }
-              }
-              else {
+            if ((((carObj->N).speedXZ < 0) ? -(carObj->N).speedXZ :
+                 (carObj->N).speedXZ) < 0x3333) {
+              if (((u_char)(carObj->control).desiredBrakeLevel > 0x80) &&
+                  ((carObj->control).desiredGasLevel == '\0') &&
+                  ((u_char)(carObj->control).desiredGear >= 2) &&
+                  ((carObj->control).hanno == 0)) {
                 (carObj->control).desiredGear = '\0';
                 (carObj->control).hanno = 1;
+              }
+              else {
+                if ((((((carObj->N).speedXZ < 0) ? -(carObj->N).speedXZ :
+                       (carObj->N).speedXZ) < 0x3333) &&
+                     (0x80 < (u_char)(carObj->control).desiredGasLevel)) &&
+                   (((carObj->control).gear == '\0' && ((carObj->control).hanno != 0)))) {
+                  (carObj->control).desiredGear = '\x02';
+                  (carObj->control).hanno = 0;
+                }
               }
             }
           }
         }
         else {
-RampCtrl_hannoReset:
           (carObj->control).hanno = 0;
         }
       }
     }
-    bVar1 = (carObj->control).gear;
-    bVar2 = (carObj->control).desiredGear;
-    if (bVar2 != bVar1) {
-      if ((GameSetup_gData.carInfo[carObj->carIndex].Transmission == 1) || (carObj->RSControl != 0))
-      {
-        if (1 < bVar2) {
-          if (bVar2 == 2) {
-            iVar5 = 2;
-            cVar3 = '\x02';
-            if (bVar1 < 2) {
-              pCVar7 = carObj->specs;
-              (carObj->control).lastGear = bVar1;
-              iVar6 = 2;
-              if (2 < pCVar7->numGears) {
-                iVar8 = 8;
-                do {
-                  iVar8 = fixedmult(*(int *)((int)pCVar7->velToRpmRatioInv + iVar8),
-                                     pCVar7->redline << 0x10);
-                  if (iVar8 < (carObj->linearVel_ch).z) {
-                    iVar5 = iVar6;
-                  }
-                  cVar3 = (char)iVar5;
-                  pCVar7 = carObj->specs;
-                  iVar6 = iVar6 + 1;
-                  iVar8 = iVar6 * 4;
-                } while (iVar6 < pCVar7->numGears);
-              }
-              pCVar7 = carObj->specs;
-              (carObj->control).downShifting = '\0';
-              (carObj->control).gear = cVar3;
-              (carObj->control).gearShiftTimer = (char)pCVar7->gearShiftDelay;
+    if ((carObj->control).desiredGear != (carObj->control).gear) {
+      if ((GameSetup_gData.carInfo[carObj->carIndex].Transmission == 1) ||
+          (carObj->RSControl != 0)) {
+        if ((u_char)(carObj->control).desiredGear < 2) {
+          (carObj->control).downShifting = '\0';
+          (carObj->control).lastGear = (carObj->control).gear;
+          (carObj->control).gear = (carObj->control).desiredGear;
+          (carObj->control).gearShiftTimer = (char)carObj->specs->gearShiftDelay;
+        }
+        else if (((carObj->control).desiredGear == 2) &&
+                 ((u_char)(carObj->control).gear < 2)) {
+          (carObj->control).lastGear = (carObj->control).gear;
+          gear = 2;
+          for (i = 2; i < carObj->specs->numGears; i++) {
+            if (fixedmult(carObj->specs->velToRpmRatioInv[i],
+                          carObj->specs->redline << 0x10) <
+                (carObj->linearVel_ch).z) {
+              gear = i;
             }
           }
-          goto RampCtrl_setSteering;
+          (carObj->control).downShifting = '\0';
+          (carObj->control).gear = gear;
+          (carObj->control).gearShiftTimer = (char)carObj->specs->gearShiftDelay;
         }
-        cVar3 = (carObj->control).gear;
-        cVar4 = (carObj->control).desiredGear;
-        pCVar7 = carObj->specs;
-        (carObj->control).downShifting = '\0';
       }
       else {
-        if ((bVar2 < bVar1) && (1 < bVar2)) {
+        if (((u_char)(carObj->control).desiredGear <
+             (u_char)(carObj->control).gear) &&
+            (1 < (u_char)(carObj->control).desiredGear)) {
           (carObj->control).downShifting = '\x01';
         }
         else {
           (carObj->control).downShifting = '\0';
         }
-        cVar3 = (carObj->control).gear;
-        cVar4 = (carObj->control).desiredGear;
-        pCVar7 = carObj->specs;
+        (carObj->control).lastGear = (carObj->control).gear;
+        (carObj->control).gear = (carObj->control).desiredGear;
+        (carObj->control).gearShiftTimer = (char)carObj->specs->gearShiftDelay;
       }
-      (carObj->control).lastGear = cVar3;
-      (carObj->control).gear = cVar4;
-      (carObj->control).gearShiftTimer = (char)pCVar7->gearShiftDelay;
     }
   }
 RampCtrl_setSteering:
-  if (carObj->carInfo->RampSteering == 0) {
-    iVar5 = (carObj->control).desiredSteering;
-  }
-  else {
-    iVar9 = (carObj->control).steering;
-    iVar6 = (carObj->control).desiredSteering - iVar9;
-    iVar8 = carObj->specs->steeringRamp;
-    if (iVar6 < 0) {
-      iVar5 = iVar9 + iVar6;
-      if (iVar8 <= -iVar6) {
-        iVar5 = iVar9 - iVar8;
+  if (carObj->carInfo->RampSteering != 0) {
+    int rampIn;
+
+    rampIn = carObj->specs->steeringRamp;
+    diff = (carObj->control).desiredSteering - (carObj->control).steering;
+    if (diff >= 0) {
+      if (diff < rampIn) {
+        (carObj->control).steering += diff;
+      }
+      else {
+        (carObj->control).steering += rampIn;
       }
     }
     else {
-      iVar5 = iVar9 + iVar6;
-      if (iVar8 <= iVar6) {
-        iVar5 = iVar9 + iVar8;
+      diff = -diff;
+      if (diff < rampIn) {
+        (carObj->control).steering -= diff;
+      }
+      else {
+        (carObj->control).steering -= rampIn;
       }
     }
   }
-  (carObj->control).steering = iVar5;
+  else {
+    (carObj->control).steering = (carObj->control).desiredSteering;
+  }
 RampCtrl_earlyBrake:
   if ((simGlobal.gameTicks < 0x200) &&
      (((GameSetup_gData.raceType != 1 && (GameSetup_gData.raceType != 5)) ||
@@ -963,13 +925,13 @@ RampCtrl_earlyBrake:
     (carObj->control).brakeLevel = -1;
   }
   else if ((carObj->blowout != 0) || (carObj->pullOver != 0)) {
-    if ((carObj->control).hanno == 0) {
-      (carObj->control).gasLevel = '\0';
-      (carObj->control).brakeLevel = -0x80;
-    }
-    else {
+    if ((carObj->control).hanno != 0) {
       (carObj->control).gasLevel = -0x80;
       (carObj->control).brakeLevel = '\0';
+    }
+    else {
+      (carObj->control).gasLevel = '\0';
+      (carObj->control).brakeLevel = -0x80;
     }
     (carObj->control).downShifting = '\0';
   }
@@ -977,21 +939,24 @@ RampCtrl_earlyBrake:
     (carObj->control).gasLevel = '\0';
   }
   if ((AIInit_forceHumanHandBrake != 0) && (carObj->RSControl != 0)) {
-    iVar5 = -0x7c;
-    if (carObj->roadPosition * carObj->direction < 1) {
-      iVar5 = 0x7c;
+    if (carObj->roadPosition * carObj->direction > 0) {
+      (carObj->control).steering = -0x7c;
     }
-    (carObj->control).steering = iVar5;
+    else {
+      (carObj->control).steering = 0x7c;
+    }
     (carObj->control).handBrake = '\x01';
   }
-  gGasRatio = (((u_char)(carObj->control).gasLevel + 1) * 0x10000) / 0xf8;
-  if (0x10000 < (u_int)gGasRatio) {
-    gGasRatio = 0x10000;
+  iVar5 = (((u_char)(carObj->control).gasLevel + 1) * 0x10000) / 0xf8;
+  if (0x10000 < iVar5) {
+    iVar5 = 0x10000;
   }
-  gBrakeRatio = (((u_char)(carObj->control).brakeLevel + 1) * 0x10000) / 0xf8;
-  if (0x10000 < (u_int)gBrakeRatio) {
-    gBrakeRatio = 0x10000;
+  gGasRatio = iVar5;
+  iVar5 = (((u_char)(carObj->control).brakeLevel + 1) * 0x10000) / 0xf8;
+  if (0x10000 < iVar5) {
+    iVar5 = 0x10000;
   }
+  gBrakeRatio = iVar5;
   iVar5 = (carObj->control).steering;
   if (iVar5 < 0) {
     iVar5 = -iVar5;
@@ -999,14 +964,16 @@ RampCtrl_earlyBrake:
   gSteerRatio = iVar5 << 9;
   if (((GameSetup_gData.carInfo[carObj->carIndex].Transmission == 1) &&
       ((carObj->control).gear == '\0')) && ((carObj->control).hanno == 1)) {
-    gGasRatio = (((u_char)(carObj->control).brakeLevel + 1) * 0x10000) / 0xf8;
-    if (0x10000 < (u_int)gGasRatio) {
-      gGasRatio = 0x10000;
+    iVar5 = (((u_char)(carObj->control).brakeLevel + 1) * 0x10000) / 0xf8;
+    if (0x10000 < iVar5) {
+      iVar5 = 0x10000;
     }
-    gBrakeRatio = (((u_char)(carObj->control).gasLevel + 1) * 0x10000) / 0xf8;
-    if (0x10000 < (u_int)gBrakeRatio) {
-      gBrakeRatio = 0x10000;
+    gGasRatio = iVar5;
+    iVar5 = (((u_char)(carObj->control).gasLevel + 1) * 0x10000) / 0xf8;
+    if (0x10000 < iVar5) {
+      iVar5 = 0x10000;
     }
+    gBrakeRatio = iVar5;
   }
   return;
 }

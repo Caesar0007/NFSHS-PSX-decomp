@@ -110,10 +110,7 @@ void Input_Update(void)
   int left;
   int right;
   char iactive[32];
-  char *activeBase;
-  u_long *dbflags;
   int modeOffset;
-  int pressOffset;
 
   Device_Update();
 
@@ -132,9 +129,7 @@ void Input_Update(void)
   h = Input_gHandler;
   r = Input_gResults;
   menukeys = 0;
-  dbflags = Input_gDBFlags;
   modeOffset = 0;
-  pressOffset = 0;
 
   for (i = 0; i < 2; i++) {
     int mode;
@@ -151,8 +146,6 @@ void Input_Update(void)
 
     if (mode == 0) {
       char active[17];
-
-      activeBase = active;
 
       left = (*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8);
       h++;
@@ -179,7 +172,7 @@ void Input_Update(void)
       {
         char *activePtr;
 
-        activePtr = &activeBase[16];
+        activePtr = &active[16];
         for (k = 16; k >= 0; k--) {
           *activePtr = 1;
           activePtr--;
@@ -189,24 +182,22 @@ void Input_Update(void)
       for (j = 0; j < 17; j++) {
         if (*h != 0) {
           if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65) {
-            (*(int *)((char *)Input_gPressTime + pressOffset + j * 4))++;
-            if (*(int *)((char *)Input_gPressTime + pressOffset + j * 4) >=
-                6) {
-              if ((*dbflags & (1 << j)) == 0) {
+            Input_gPressTime[i][j]++;
+            if (Input_gPressTime[i][j] >= 6) {
+              if ((Input_gDBFlags[i] & (1 << j)) == 0) {
                 acc = j + 1;
-                *dbflags |= (1 << j);
+                Input_gDBFlags[i] |= (1 << j);
               }
             }
             for (k = 0; k < 17; k++) {
               if (h[k - (j - 17)] == *h) {
                 active[k] = 0;
-                *(int *)((char *)Input_gPressTime + pressOffset + k * 4) =
-                    *(int *)((char *)Input_gPressTime + pressOffset + j * 4);
+                Input_gPressTime[i][k] = Input_gPressTime[i][j];
               }
             }
           } else {
-            *dbflags &= ~(1 << j);
-            *(int *)((char *)Input_gPressTime + pressOffset + j * 4) = 0;
+            Input_gDBFlags[i] &= ~(1 << j);
+            Input_gPressTime[i][j] = 0;
           }
         }
         h++;
@@ -215,20 +206,18 @@ void Input_Update(void)
       for (j = 0; j < 17; j++) {
         if (*h != 0) {
           if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) < 65) {
-            if ((u_int)(*(int *)((char *)Input_gPressTime + pressOffset +
-                                 j * 4) -
-                         1) < 5) {
-              if ((*dbflags & (1 << j)) == 0) {
+            if ((u_int)(Input_gPressTime[i][j] - 1) < 5) {
+              if ((Input_gDBFlags[i] & (1 << j)) == 0) {
                 acc = j + 1;
-                *dbflags |= (1 << j);
+                Input_gDBFlags[i] |= (1 << j);
               }
-              *(int *)((char *)Input_gPressTime + pressOffset + j * 4) = 0;
+              Input_gPressTime[i][j] = 0;
             } else {
-              *dbflags &= ~(1 << j);
+              Input_gDBFlags[i] &= ~(1 << j);
             }
-          } else if ((active[j] != 0) && ((*dbflags & (1 << j)) == 0)) {
+          } else if ((active[j] != 0) && ((Input_gDBFlags[i] & (1 << j)) == 0)) {
             acc = j + 1;
-            *dbflags |= (1 << j);
+            Input_gDBFlags[i] |= (1 << j);
           }
         }
         h++;
@@ -242,9 +231,9 @@ void Input_Update(void)
           for (k = 0; k < 17; k++) {
             if (*h != 0) {
               if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65) {
-                *dbflags |= (1 << k);
+                Input_gDBFlags[i] |= (1 << k);
               } else {
-                *dbflags &= ~(1 << k);
+                Input_gDBFlags[i] &= ~(1 << k);
               }
             }
             h++;
@@ -311,14 +300,12 @@ void Input_Update(void)
       {
         char hactive[17];
 
-        activeBase = hactive;
-
         acc = 0;
         r->flags &= 7;
         {
           char *activePtr;
 
-          activePtr = &activeBase[16];
+          activePtr = &hactive[16];
           for (k = 16; k >= 0; k--) {
             *activePtr = 1;
             activePtr--;
@@ -329,25 +316,22 @@ void Input_Update(void)
           if (*h != 0) {
             if ((active[j + 6] != 0) &&
                 ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65)) {
-              (*(int *)((char *)Input_gPressTime + pressOffset + j * 4))++;
-              if (*(int *)((char *)Input_gPressTime + pressOffset + j * 4) >=
-                  6) {
-                if ((*dbflags & (1 << j)) == 0) {
+              Input_gPressTime[i][j]++;
+              if (Input_gPressTime[i][j] >= 6) {
+                if ((Input_gDBFlags[i] & (1 << j)) == 0) {
                   acc = j + 1;
-                  *dbflags |= (1 << j);
+                  Input_gDBFlags[i] |= (1 << j);
                 }
               }
               for (k = 0; k < 17; k++) {
                 if (h[k - (j - 17)] == *h) {
                   hactive[k] = 0;
-                  *(int *)((char *)Input_gPressTime + pressOffset + k * 4) =
-                      *(int *)((char *)Input_gPressTime + pressOffset +
-                              j * 4);
+                  Input_gPressTime[i][k] = Input_gPressTime[i][j];
                 }
               }
             } else {
-              *dbflags &= ~(1 << j);
-              *(int *)((char *)Input_gPressTime + pressOffset + j * 4) = 0;
+              Input_gDBFlags[i] &= ~(1 << j);
+              Input_gPressTime[i][j] = 0;
             }
           }
           h++;
@@ -357,26 +341,26 @@ void Input_Update(void)
           if (*h != 0) {
             if (active[j + 23] != 0) {
               if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65) {
-                if (((*dbflags & (1 << j)) == 0) && (hactive[j] != 0)) {
+                if (((Input_gDBFlags[i] & (1 << j)) == 0) && (hactive[j] != 0)) {
                   acc = j + 1;
-                  *dbflags |= (1 << j);
+                  Input_gDBFlags[i] |= (1 << j);
                 }
                 h++;
                 continue;
               }
-              if (*(int *)((char *)Input_gPressTime + pressOffset + j * 4) > 0) {
-                if (*(int *)((char *)Input_gPressTime + pressOffset + j * 4) < 6) {
-                  if ((*dbflags & (1 << j)) == 0) {
+              if (Input_gPressTime[i][j] > 0) {
+                if (Input_gPressTime[i][j] < 6) {
+                  if ((Input_gDBFlags[i] & (1 << j)) == 0) {
                     acc = j + 1;
-                    *dbflags |= (1 << j);
+                    Input_gDBFlags[i] |= (1 << j);
                   }
-                  *(int *)((char *)Input_gPressTime + pressOffset + j * 4) = 0;
+                  Input_gPressTime[i][j] = 0;
                   h++;
                   continue;
                 }
               }
             }
-            *dbflags &= ~(1 << j);
+            Input_gDBFlags[i] &= ~(1 << j);
           }
           h++;
         }
@@ -386,10 +370,10 @@ void Input_Update(void)
       for (j = 0; j < 17; j++) {
         if (*h != 0) {
           if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) < 65) {
-            *dbflags &= ~(1 << j);
-          } else if ((*dbflags & (1 << j)) == 0) {
+            Input_gDBFlags[i] &= ~(1 << j);
+          } else if ((Input_gDBFlags[i] & (1 << j)) == 0) {
             acc = j + 1;
-            *dbflags |= (1 << j);
+            Input_gDBFlags[i] |= (1 << j);
           }
         }
         h++;
@@ -414,15 +398,12 @@ void Input_Update(void)
     }
 
     r++;
-    dbflags++;
     if (GameSetup_gData.numPlayerRaceCars == 1) {
       h += 76;
       modeOffset += 4;
-      pressOffset += 68;
       i++;
     }
     modeOffset += 4;
-    pressOffset += 68;
   }
 
   for (i = 0; i < 32; i++) {

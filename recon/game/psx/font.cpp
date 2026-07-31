@@ -321,6 +321,7 @@ int Font_LoadFont(char *f1,int x,int y,char in_game)
   int i;
   int l;
   shapetbl *shp;
+  char *hdr;
 
   setfont(f1);
   shp = (shapetbl *)(*(int *)((u_char *)&(currentfont) + 136));
@@ -342,7 +343,11 @@ int Font_LoadFont(char *f1,int x,int y,char in_game)
   }
   Font_ReSetBlitter();
   Font_SwitchFont(f1);
-  resizememadr(f1,(*(int *)((u_char *)&(currentfont) + 136)) - (int)(f1 + -0x10));
+  /* MATCH (w39-a6): the header base MUST be its own named local.  Written inline as
+   * `X - (int)(f1 - 0x10)` gcc reassociates the constant out (addiu a1,a1,16; subu a1,a1,a0);
+   * the oracle keeps the subexpression whole (addiu v0,a0,-16; subu a1,a1,v0).  PASS 117/117. */
+  hdr = f1 - 0x10;
+  resizememadr(f1,(*(int *)((u_char *)&(currentfont) + 136)) - (int)hdr);
   Font_TextTint(0x808080);
   Font_TextColor(2);
   return y + shp->height;

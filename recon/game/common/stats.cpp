@@ -446,114 +446,95 @@ void Stats_ExtrapolateOpponentTimes(int type)
 void Stats_TrackEndGame(void)
 
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int r1;
-  int iVar4;
-  int averageLap;
-  Car_tObj *pCVar5;
-  int y;
-  int trackSlices;
-  int startingTime;
   int i;
-  int iVar6;
-  int carindex;
-  int x;
-  int extrapolatedTime;
-  Car_tObj **ppCVar7;
-  int j;
-  int iVar8;
-  int DesiredComparison;
-  int iVar9;
-  int quick_finish;
-  Car_tObj **ppCVar10;
-  int DesiredSpeed;
-  int PlayerPosition;
-  int DesiredSlice;
-  int iVar11;
   int Stats_PlayersFinishedRace;
-  int PlayerSlice;
-  
+
   Stats_PlayersFinishedRace = 0;
-  if (1 < Cars_gNumRaceCars) {
-    iVar1 = simGlobal.gameTicks;
-    if (simGlobal.gameTicks < 0) {
-      iVar1 = simGlobal.gameTicks + 0x3f;
-    }
-    if ((iVar1 >> 6) << 6 == simGlobal.gameTicks + -1) {
-      iVar1 = GameSetup_gData.numLaps * gNumSlices;
-      ppCVar10 = Cars_gHumanRaceCarList;
-      for (iVar6 = 0; iVar6 < Cars_gNumHumanRaceCars; iVar6 = iVar6 + 1) {
-        iVar4 = ((*ppCVar10)->stats).sliceTotal;
-        PlayerSlice = iVar1;
-        if (iVar4 <= iVar1) {
-          PlayerSlice = iVar4;
+  if (Cars_gNumRaceCars > 1) {
+    if ((simGlobal.gameTicks % 64) == 1) {
+      int trackSlices;
+
+      trackSlices = GameSetup_gData.numLaps * gNumSlices;
+      for (i = 0; i < Cars_gNumHumanRaceCars; i++) {
+        int PlayerSlice;
+        int PlayerPosition;
+        int DesiredComparison;
+        int DesiredSlice;
+        int DesiredSpeed;
+
+        PlayerSlice = Cars_gHumanRaceCarList[i]->stats.sliceTotal;
+        if (trackSlices < PlayerSlice) {
+          PlayerSlice = trackSlices;
         }
-        iVar2 = Stats_GetPosition(*ppCVar10);
-        iVar11 = 0;
-        iVar4 = 0;
-        if (iVar2 == 1) {
-          iVar9 = 2;
+
+        PlayerPosition = Stats_GetPosition(Cars_gHumanRaceCarList[i]);
+        DesiredSlice = 0;
+        DesiredSpeed = 0;
+
+        if (PlayerPosition == 1) {
+          DesiredComparison = 2;
         }
         else {
-          iVar9 = 1;
+          DesiredComparison = 1;
           if (GameSetup_gData.checkpointType != 1) {
-            iVar9 = iVar2 + -1;
+            DesiredComparison = PlayerPosition - 1;
           }
         }
-        ppCVar7 = Cars_gRaceCarList;
-        for (iVar8 = 0; iVar8 < Cars_gNumRaceCars; iVar8 = iVar8 + 1) {
-          iVar3 = Stats_GetPosition(*ppCVar7);
-          if (iVar3 == iVar9) {
-            iVar4 = ((*ppCVar7)->stats).sliceTotal;
-            iVar11 = iVar1;
-            if (iVar4 <= iVar1) {
-              iVar11 = iVar4;
+
+        for (int j = 0; j < Cars_gNumRaceCars; j++) {
+          if (Stats_GetPosition(Cars_gRaceCarList[j]) == DesiredComparison) {
+            DesiredSlice = Cars_gRaceCarList[j]->stats.sliceTotal;
+            if (trackSlices < DesiredSlice) {
+              DesiredSlice = trackSlices;
             }
-            if (iVar2 == 1) {
-              iVar4 = (Cars_gRaceCarList[iVar8]->linearVel_ch).z;
-              if (iVar4 < 0) {
-                iVar4 = -iVar4;
+
+            if (PlayerPosition == 1) {
+              DesiredSpeed =
+                  ((Car_tObj * volatile *)Cars_gRaceCarList)[j]
+                      ->linearVel_ch.z;
+              if (DesiredSpeed < 0) {
+                DesiredSpeed = -DesiredSpeed;
               }
-              iVar4 = iVar4 >> 0x10;
+              DesiredSpeed >>= 16;
             }
             else {
-              iVar4 = (int)*(short *)((int)&((*ppCVar10)->linearVel_ch).z + 2);
+              DesiredSpeed =
+                  *(short *)((char *)&Cars_gHumanRaceCarList[i]->linearVel_ch.z + 2);
             }
             break;
           }
-          ppCVar7 = ppCVar7 + 1;
         }
-        ((*ppCVar10)->stats).checkpointUpdate = iVar11 - PlayerSlice;
-        if ((iVar4 < 0x10) || (pCVar5 = *ppCVar10, (pCVar5->stats).finishType == 2)) {
-          ((*ppCVar10)->stats).checkpointDifference = 0;
-          ((*ppCVar10)->stats).checkpointDisplay = 0;
+
+        Cars_gHumanRaceCarList[i]->stats.checkpointUpdate =
+            DesiredSlice - PlayerSlice;
+        if ((DesiredSpeed >= 16) &&
+            (Cars_gHumanRaceCarList[i]->stats.finishType != 2)) {
+          Cars_gHumanRaceCarList[i]->stats.checkpointDifference =
+              Cars_gHumanRaceCarList[i]->stats.checkpointUpdate * 0x180 /
+              DesiredSpeed;
+          Cars_gHumanRaceCarList[i]->stats.checkpointDisplay = 1;
         }
         else {
-          iVar11 = (pCVar5->stats).checkpointUpdate * 0x180;
-          (pCVar5->stats).checkpointDifference = iVar11 / iVar4;
-          ((*ppCVar10)->stats).checkpointDisplay = 1;
+          Cars_gHumanRaceCarList[i]->stats.checkpointDifference = 0;
+          Cars_gHumanRaceCarList[i]->stats.checkpointDisplay = 0;
         }
-        ppCVar10 = ppCVar10 + 1;
       }
     }
   }
+
   if (simVar.endSimGame == 0) {
-    iVar1 = 0;
-    if (0 < Cars_gNumHumanRaceCars) {
-      trackSlices = (int)Cars_gHumanRaceCarList;
-      do {
-        if (((1 < *(int *)(*(int *)trackSlices + 0x390)) &&
-            (iVar6 = *(int *)(*(int *)trackSlices + 0x354), iVar6 + 0x140 < simGlobal.gameTicks)) &&
-           (((CopSpeak_gQueuePlay == CopSpeak_gQueueHead && (CopSpeak_gSpchHandle == -1)) ||
-            (iVar6 + 0x280 < simGlobal.gameTicks)))) {
-          Stats_PlayersFinishedRace = Stats_PlayersFinishedRace + 1;
-        }
-        iVar1 = iVar1 + 1;
-        trackSlices = trackSlices + 4;
-      } while (iVar1 < Cars_gNumHumanRaceCars);
+    for (i = 0; i < Cars_gNumHumanRaceCars; i++) {
+      if ((Cars_gHumanRaceCarList[i]->stats.finishType > 1) &&
+          (Cars_gHumanRaceCarList[i]->stats.sliceTime + 0x140 <
+           simGlobal.gameTicks) &&
+          (((CopSpeak_gQueuePlay == CopSpeak_gQueueHead) &&
+            (CopSpeak_gSpchHandle == -1)) ||
+           (Cars_gHumanRaceCarList[i]->stats.sliceTime + 0x280 <
+            simGlobal.gameTicks))) {
+        Stats_PlayersFinishedRace++;
+      }
     }
+
     if (Stats_PlayersFinishedRace == Cars_gNumHumanRaceCars) {
       simVar.endSimGame = 1;
       Stats_ExtrapolateOpponentTimes(2);

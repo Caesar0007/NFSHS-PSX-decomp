@@ -518,42 +518,28 @@ void Weather_Init(void)
       Weather_gSys.num[1] = 0x4c;
       Weather_gSplatInfoServer1 = Weather_gSplatInfo + 9;
     }
+    /* MATCH (w39-a6): these four are plain STRUCT ASSIGNMENTS, not the hand-unrolled
+     * copy loops Ghidra printed.  The oracle emits gcc's own movstrsi expansion:
+     * coorddef (12B) -> straight-line 3x lw + 3x sw; matrixtdef (36B) -> a 4-word/iter
+     * loop with an end-pointer `bne` + a 1-word tail (methodology 3.25 3d(a)).  Note the
+     * second copy of each pair READS BACK the destination just written (prevCamPos[1],
+     * prevCamMat[0]) -- the oracle's `lw t2,12(v1)` / `addu v1,a3,zero` prove the source
+     * is the freshly-stored copy, not a second read of Camera_gInfo. */
+    /* MATCH (w39-a6): TWO separate base locals.  The oracle carries an extra
+     * `addu t1,a3,zero` copy of &prevCamMat that is used ONLY as the second copy's
+     * destination base (`addiu a0,t1,36`) -- the cse.c double-evaluation shape
+     * (catalog: one anonymous + one named evaluation of the same address expr yields
+     * a register COPY).  One shared local is 1 insn short and shifts the whole
+     * movstrsi scratch pool down a register (t1-t4 vs the oracle's t2-t5): 85 diffs.
+     * Two locals => 211/211 count-exact and the entire block byte-matches (12 diffs). */
     pmVar5 = prevCamMat;
-    pmVar4 = &Camera_gInfo[0].rotation;
-    prevCamPos[1].x = Camera_gInfo[0].position.x;
-    prevCamPos[1].y = Camera_gInfo[0].position.y;
-    prevCamPos[1].z = Camera_gInfo[0].position.z;
-    prevCamPos[0].x = Camera_gInfo[0].position.x;
-    prevCamPos[0].y = Camera_gInfo[0].position.y;
-    prevCamPos[0].z = Camera_gInfo[0].position.z;
-    piVar3 = pmVar5->m;
-    do {
-      iVar6 = pmVar4->m[1];
-      iVar7 = pmVar4->m[2];
-      iVar8 = pmVar4->m[3];
-      *piVar3 = pmVar4->m[0];
-      piVar3[1] = iVar6;
-      piVar3[2] = iVar7;
-      piVar3[3] = iVar8;
-      pmVar4 = (matrixtdef *)(pmVar4->m + 4);
-      piVar3 = piVar3 + 4;
-    } while (pmVar4 != (matrixtdef *)(Camera_gInfo[0].rotation.m + 8));
-    *piVar3 = Camera_gInfo[0].rotation.m[8];
-    piVar3 = prevCamMat[1].m;
-    do {
-      iVar6 = *(int *)((int)pmVar5 + 4);
-      iVar7 = *(int *)((int)pmVar5 + 8);
-      iVar8 = *(int *)((int)pmVar5 + 0xc);
-      *piVar3 = pmVar5->m[0];
-      piVar3[1] = iVar6;
-      piVar3[2] = iVar7;
-      piVar3[3] = iVar8;
-      pSVar10 = Weather_gPos;
-      pmVar5 = (matrixtdef *)((int)pmVar5 + 0x10);
-      piVar3 = piVar3 + 4;
-    } while (pmVar5 != (matrixtdef *)(prevCamMat[0].m + 8));
+    pmVar4 = prevCamMat;
+    prevCamPos[1] = Camera_gInfo[0].position;
+    prevCamPos[0] = prevCamPos[1];
+    pmVar5[0] = Camera_gInfo[0].rotation;
+    pmVar4[1] = pmVar5[0];
+    pSVar10 = Weather_gPos;
     iVar6 = 0x97;
-    *piVar3 = prevCamMat[0].m[8];
     psVar9 = &pSVar10->vz;
     do {
       iVar6 = iVar6 + -1;

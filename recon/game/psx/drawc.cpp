@@ -3395,14 +3395,6 @@ void DrawC_PrimHalo(matrixtdef *m,coorddef *t,Transformer_zObj *obj,int type,int
      the oracle keeps in that register. */
   int i;
   COORD16 *vertice;
-  int real_type;
-  Transformer_zFacet *facet;
-  u_short id0;
-  u_short id1;
-  u_short id2;
-  int bfct;
-  u_int overlayFlag;
-  u_long *copyLastPrim;
   int iVar6;
   int uVar8;
 
@@ -3448,6 +3440,14 @@ void DrawC_PrimHalo(matrixtdef *m,coorddef *t,Transformer_zObj *obj,int type,int
   TrsProj_ResetTransPrecision();
   i = (int)obj->numFacet;
   while (true) {
+    int real_type;
+    Transformer_zFacet *facet;
+    u_short id0;
+    u_short id1;
+    u_short id2;
+    int bfct;
+    u_int overlayFlag;
+    u_long *copyLastPrim;
     {
         {
         {
@@ -3456,6 +3456,15 @@ void DrawC_PrimHalo(matrixtdef *m,coorddef *t,Transformer_zObj *obj,int type,int
             return;
           }
           facet = obj->facet + i;
+          /* ALLOCNO DIAL (w39-a3): retail emits `andi $s3,type,0xffbf` AFTER the
+             sub_otSize gate, but computing it there gives real_type a SHORTER
+             live range than `facet` and it wins retail's $s1 (facet's home),
+             rotating 14 insns.  Hoisting the (loop-invariant, per-iteration
+             recomputed -- real_type is mutated by the >>8 below) assignment to
+             the loop head lengthens real_type's range, demotes it to $s3 and
+             hands facet $s1: 53 -> 38 diffs.  Cost: the 2-insn andi block sits
+             at the loop head instead of after the gate. */
+          real_type = ((u_int)type) & 0xffbf;
           id0 = facet->vertexId0;
           id1 = facet->vertexId1;
           id2 = facet->vertexId2;
@@ -3508,7 +3517,6 @@ gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
         if (iVar6 < 0) continue;
         if (sd->sub_otSize < iVar6) continue;
         }
-      real_type = ((u_int)type) & 0xffbf;
       if (index < 0) goto DrawCHalo_emitFlare;
       /* MATCH (w39-a3): the overlay word is loaded ONCE and only the SHIFT is
          branch-dependent (oracle: `lhu v0,0(v0); sll a0,v0,16; lh v0,0(s1);

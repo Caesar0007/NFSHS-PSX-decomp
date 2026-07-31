@@ -422,6 +422,32 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
   return;
 }
 
+/* ---- SMALL-FLARE FAMILY residual (w38-a10) -- Flare_OctFlare / Flare_OctFlareSpikes /
+ * Flare_Spikes / Flare_HexFlare / Flare_ReflectHexFlare, 20-22 diffs each, ALL COUNT-EXACT.
+ * ONE shared mechanism, two visible halves:
+ *  (a) the two LICM-hoisted OT-link mask constants are emitted in the opposite ORDER --
+ *      oracle `lui 0xFFFFFF` BEFORE `lui 0xFF000000`, ours after (the first body use of
+ *      0xFF000000 creates its pseudo first);
+ *  (b) consequently the 0xFFFFFF mask and the loop counter `i` swap $t0/$t1 (SYM/oracle:
+ *      mask $t0, i $t1) -- an allocno tie broken by pseudo NUMBER, and the mask's pseudo
+ *      is created later in ours.
+ * LEVERS TRIED (all measured with verify_asm, all rejected):
+ *   - one-expression `otz*4 + (int)Render_gPalettePtr` slot address: collapses one
+ *     instruction (116 vs oracle 117) -> WORSE (29). These functions genuinely need the
+ *     two-statement `pal` then `+ otz*4` chain (unlike Sky_RenderStars/Hrz_TextureQuad).
+ *   - `slot = (u_int*)(otz*4); slot = (u_int*)((int)slot + (int)pal);` (accumulate into the
+ *     index): 29, also one instruction short.
+ *   - `slot = pal; slot = (u_int*)(otz*4 + (int)slot);` (shift-first operand order): 20, no
+ *     change -- gcc canonicalizes the addu operands.
+ *   - swapping the OR operands of the first RMW statement: 26; of the second: 24;
+ *     rewriting the second as `*slot = *slot & 0xff000000 | pkt24`: 30.
+ *   - moving `i = 6;` up among the six unrolled gte blocks DOES dial the allocno priority
+ *     (20 -> 10 with the init before the 3rd block) but is REFUTED BY THE SYM SLD: the
+ *     `addiu $t1,$zero,6` at 0x800CC774 is source line 383, its own statement AFTER all six
+ *     gte statements (lines 374-379), i.e. exactly where the recon has it. Not adopted.
+ * Classified as the constant-hoist-order / allocno-tie floor (catalog sec.A + the PrimStop
+ * 0xffffff/0xff000000 tie family). Prototype re-checked vs raw oracle: (long *center, int otz),
+ * void return (no $v0 at the single epilogue). */
 /* ---- Flare_HexFlare__FPli  [FLARE.CPP:370-400] SLD-VERIFIED ---- */
 void Flare_HexFlare(long *center,int otz)
 

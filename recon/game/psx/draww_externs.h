@@ -62,10 +62,10 @@ extern Trk_ObjectDef ** Track_gObjDefs;
 extern Track_tMaterial * Track_materials;
 // [owned->defined in draww.cpp] extern int animation_timer[12];
 // [owned->defined in draww.cpp] extern ChunkObjectInfo gChunkObjInfo;
-extern short gClutDepth[1][4096];
+extern short gClutDepth[256][16];   /* FIX: matches owner textureprocess.cpp def [256][16]; the stale [1][4096] gave an 8192-byte row stride (oracle: sll 5 = 32-byte rows) */
 extern matrixtdef gCopMat;
 extern BW_tContext * gCurrContext;
-extern Draw_tPixMap * gDLPixmap[2];
+extern Draw_tPixMap * gDLPixmap[10];   /* FIX: matches owner genericpmx.cpp def [10] */
 // [owned->defined in draww.cpp] extern Draw_SubdivStruct gDiv;
 // [owned->defined in draww.cpp] extern MATRIX gIdentTemplate;
 extern Track_tArtresource gInitialArt;

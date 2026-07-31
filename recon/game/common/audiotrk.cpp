@@ -205,7 +205,6 @@ AudioTrk_channel_found:
         }
       }
       if (c->se != (AudioElem *)0x0) {
-        u_short azimuth;
         int dop;
         char vol;
 
@@ -230,16 +229,16 @@ AudioTrk_channel_found:
             return;
           }
         }
-        azimuth = 0;
+        maxind = 0;
         if (dst < (int)se->range << 0x10) {
           if (se->type == '\x03') {
-            azimuth += trkazi;
+            maxind += trkazi;
           }
           else if (se->type != '\x02') {
-            azimuth = AudioClc_CalcAzimuth(&AudioClc_gRenderView,&se->cp);
+            maxind = AudioClc_CalcAzimuth(&AudioClc_gRenderView,&se->cp);
             dop = AudioClc_CalcDopplerShiftRatio(&se->cp,vel);
           }
-          if ((u_char)se->type - 4 < 0x20) {
+          if ((u_int)((u_char)se->type - 4) < 0x20) {
             goto AudioTrk_near_volume;
           }
           if ((u_char)se->type != 1) {
@@ -296,7 +295,7 @@ AudioTrk_volume_done:
         if ((PAD_state(4) & 0x400) == 0) {
           c->handle =
               AudioCmn_PlaySFX(n + 0x37,(int)c->patch,0x40,dop,vol & 0xff,
-                               azimuth & 0xffff);
+                               maxind & 0xffff);
         }
       }
     }

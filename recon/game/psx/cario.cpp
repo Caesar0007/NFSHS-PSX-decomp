@@ -124,9 +124,7 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
   if (mask == 0) {
     lastMask = 0;
   }
-  while (1) {
-    mask = mask - 1;
-    if (mask == -1) break;
+  while (mask = mask - 1, mask != -1) {
     lastMask = lastMask << 4;
   }
   firstMask = 0;
@@ -137,9 +135,9 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
     mask = mask - 1;
     if (mask == -1) break;
     firstMask = (firstMask << 4) | 0xf;
-    rollOver = lastMask & 0xf000;
+    rollOver = (lastMask & 0xf000) >> 0xc;
     lastMask = lastMask << 4;
-    lastLastMask = (lastLastMask << 4) | (rollOver >> 0xc);
+    lastLastMask = (lastLastMask << 4) | rollOver;
   }
   if (lastLastMask != 0xffff) {
     columns = columns + 1;
@@ -161,9 +159,9 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
 
       mask = mask - 1;
       if (mask == -1) break;
-      rollOver = current & 0xf000;
+      rollOver = (current & 0xf000) >> 0xc;
       current = current << 4;
-      next = (next << 4) | (rollOver >> 0xc);
+      next = (next << 4) | rollOver;
     }
     i = 1;
     dest[0] = (short)((dest[0] & firstMask) | current);
@@ -178,9 +176,9 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
 
         mask = mask - 1;
         if (mask == -1) break;
-        rollOver = current & 0xf000;
+        rollOver = (current & 0xf000) >> 0xc;
         current = current << 4;
-        next = (next << 4) | (rollOver >> 0xc);
+        next = (next << 4) | rollOver;
       }
       dest[i] = (short)(dest[i] | current);
       i = i + 1;
@@ -190,9 +188,7 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
     if (lastLastMask == 0xffff) {
       current = *source;
       source = source + 1;
-      while (1) {
-        mask = mask - 1;
-        if (mask == -1) break;
+      while (mask = mask - 1, mask != -1) {
         current = current << 4;
       }
       dest[i] = (short)(dest[i] | current);

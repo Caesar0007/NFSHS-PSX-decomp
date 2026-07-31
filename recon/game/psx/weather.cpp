@@ -424,7 +424,21 @@ void Weather_Restart(void)
   return;
 }
 
-/* ---- Weather_Init__Fv  [WEATHER.CPP:414-496] SLD-VERIFIED ---- */
+/* ---- Weather_Init__Fv  [WEATHER.CPP:414-496] SLD-VERIFIED ----
+ * NEXT LEVER (w38-a8, measured but NOT applied -- needs a coordinated data-mat pass):
+ * the dominant residual here is gp-rel-vs-absolute.  The oracle reaches the four
+ * per-player server arrays through PER-ELEMENT gp-rel symbols --
+ *   Weather_gSplatInfoServer / D_8013DBCC(=+4), Weather_gPServer / D_8013DBD4(+4),
+ *   Weather_gPrevPServer / D_8013DBDC(+4), Weather_gDrawnServer / D_8013DBE4(+4)
+ * (also D_8013DE4C/54/58) -- while this TU only declares them `extern T x[2]`, so we
+ * emit absolute lui/%lo pairs.  They are owned by weather.cpp (no other TU references
+ * them: `grep -rl Weather_gPServer recon/` = weather.cpp + its externs header).
+ * FIX = the established in-file duality (see the Weather_gLastProcessTime0/1 block at
+ * the top of this file): tentative-define one 4-byte scalar PER ELEMENT for the
+ * CONSTANT-index sites (Weather_Init) and keep the real `T x[2]` array for the
+ * variable-index sites (Weather_DoWeather's `[player]`), writing both at every
+ * mutation.  SYM block locals for this fn: i $s0 (block @line 7), sv $s2 (PTR SVECTOR,
+ * block @line 62). */
 void Weather_Init(void)
 
 {

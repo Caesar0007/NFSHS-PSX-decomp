@@ -33,15 +33,17 @@ int TrackSpec_gPrevSpec;
 void TrackSpec_SetDefault(CTrackSpec *spec)
 
 {
-  bool bVar1;
+  /* SYM @0x800e1544: fsize 0, mask $00000000 (LEAF, no frame).  spec =
+   * REGPARM $05 ($a1) -- retail copies the incoming $a0 out and keeps $a1 as
+   * the record base for the whole body.  The ONLY named locals are
+   * i REG $06 ($a2) and j REG $03 ($v1); the retail sky-loop walker ($a0) and
+   * the i*4 term ($a3) are compiler GIVs, so both loops are written in INDEX
+   * form and the invented Ghidra temps (bVar1/pCVar5/iVar3/iVar7/local_a0__1)
+   * are deleted (catalog: SYM has only i/j => the pointers are givs). */
   short sVar2;
-  int iVar3;
-  int j;
-  CTrackSpec *local_a0__1;
-  CTrackSpec *pCVar5;
   int i;
-  int iVar7;
-  
+  int j;
+
   i = 0;
   spec->fogstate = 0;
   sVar2 = (short)GameSetup_gData.Weather;
@@ -75,41 +77,29 @@ void TrackSpec_SetDefault(CTrackSpec *spec)
   (spec->horizonspec).backColor[1].g = 0x80;
   (spec->horizonspec).backColor[1].b = 0x80;
   spec->nightstate = sVar2;
-  bVar1 = true;
-  do {
-    if (bVar1) {
+  for (; i < 0x10; i = i + 1) {
+    if (i < 8) {
       (spec->horizonspec).ringPMX[i] = (char)i;
     }
     else {
-      (spec->horizonspec).ringPMX[i] = '\x17' - (char)i;
+      (spec->horizonspec).ringPMX[i] = (char)(0x17 - i);
     }
-    i = i + 1;
-    bVar1 = i < 8;
-  } while (i < 0x10);
+  }
   i = 0;
-  iVar7 = 0;
   (spec->skyspec).type = 0;
   (spec->skyspec).flags = 4;
-  pCVar5 = spec;
-  do {
-    j = 0;
-    (pCVar5->skyspec).frontcolors[0].r = '2';
-    (pCVar5->skyspec).frontcolors[0].g = '2';
-    (pCVar5->skyspec).frontcolors[0].b = 'F';
-    (pCVar5->skyspec).backcolors[0].r = '2';
-    (pCVar5->skyspec).backcolors[0].g = '2';
-    (pCVar5->skyspec).backcolors[0].b = 'F';
-    iVar3 = iVar7;
-    do {
-      (spec->skyspec).cloudIndices[0][iVar3] = '\0';
-      j = j + 1;
-      iVar3 = j + iVar7;
-    } while (j < 4);
-    (pCVar5->skyspec).ringAngles[0] = i << 0xc;
-    pCVar5 = (CTrackSpec *)&pCVar5->horizonstate;
-    i = i + 1;
-    iVar7 = iVar7 + 4;
-  } while (i < 5);
+  for (; i < 5; i = i + 1) {
+    (spec->skyspec).frontcolors[i].r = '2';
+    (spec->skyspec).frontcolors[i].g = '2';
+    (spec->skyspec).frontcolors[i].b = 'F';
+    (spec->skyspec).backcolors[i].r = '2';
+    (spec->skyspec).backcolors[i].g = '2';
+    (spec->skyspec).backcolors[i].b = 'F';
+    for (j = 0; j < 4; j = j + 1) {
+      (spec->skyspec).cloudIndices[i][j] = '\0';
+    }
+    (spec->skyspec).ringAngles[i] = i << 0xc;
+  }
   (spec->skyspec).sunAngleInSky = -0x1848;
   (spec->skyspec).sunHeightInSky = 0xee;
   (spec->skyspec).moonHeightInSky = 0xee;

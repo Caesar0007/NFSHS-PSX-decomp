@@ -41,21 +41,25 @@ void Loading_DrawLoadingScreen(void)
 }
 
 /* ---- Loading_UpdateLoadingScreen__Fi  [LOADING.CPP:60-92] SLD-VERIFIED ---- */
-/* NEAR-MISS 4 diffs (62/62, improved from 25 baseline): FIXED (a) `max=0x17` moved BEFORE
- * the `if(checkpoint==1..)` block -- oracle materializes the constant once, very early,
- * before any conditional, not after (matches the do-while's guard test too, added a
- * `if(i<max)` entry guard around the do-while per the standard guarded-do-while shape,
- * §3.12 #15a family). Residual 4 diffs = a commutative-add reassociation: oracle groups
- * the DrawDirectScreen offset as `(i+0x8e) + s1invariant`, ours as `(s1invariant+i)+0x8e`
- * -- same value, tried several explicit parenthesizations/operand orders, none reproduced
- * the oracle's exact grouping without perturbing the loop-invariant hoist itself (worse).
- * Accepted near-miss. */
+/* PASS (w39-a4, 62/62).  Two levers, in this order:
+ *   (1) `max = 0x17` hoisted BEFORE the `if(checkpoint==1..)` block + an `if(i<max)`
+ *       entry guard around the do-while (banked w38);
+ *   (2) the remaining 4-diff "commutative reassociation" was NOT a floor (the old
+ *       in-source note claiming so was wrong): the oracle groups the X arg as
+ *       `invariant + (i + 0x8e)` (`addiu $a1,$s0,0x8E; addu $a1,$s1,$a1`
+ *       @0x800DB290/94).  Explicit parentheses do NOT reach it (they perturb loop.c's
+ *       hoist: 6 diffs) and hoisting the multiply into a named local is much worse
+ *       (29 diffs -- loop.c then can't build the `sll/addu/sll/subu` *0x17 chain in
+ *       the oracle's place).  The lever is a NAMED TEMP for the *inner* term only
+ *       (`y = i + 0x8e;`), leaving the invariant inline.  Catalog: "const-multiply
+ *       reassociation needs a NAMED TEMP, not parens" -- applied to the ADDEND side. */
 void Loading_UpdateLoadingScreen(int checkpoint)
 
 {
   shapetbl *tile;
   int i;
   int max;
+  int y;
   char name [255];
 
   max = 0x17;
@@ -67,7 +71,8 @@ void Loading_UpdateLoadingScreen(int checkpoint)
   if (i < max) {
     do {
       tile = locateshapez(smallShapeFile,"back");
-      Draw_DrawDirectScreen(tile,(checkpoint + -1) * 0x17 + i + 0x8e,0xc0);
+      y = i + 0x8e;
+      Draw_DrawDirectScreen(tile,(checkpoint + -1) * 0x17 + y,0xc0);
       i = i + 1;
     } while (i < max);
   }

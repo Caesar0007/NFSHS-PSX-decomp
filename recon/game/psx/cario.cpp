@@ -740,10 +740,18 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
 
       palIndex = carPixMapCount;
       if (palShare != 0) {
+        /* the oracle computes `palShare - 1` ONCE into palIndex (delay slot of
+         * the recolor_flag guard) and then ADDS textureStartIndex to it -- so
+         * palShare is referenced 5x, not 6x.  That one ref is load-bearing:
+         * -dl gives palShare 12 refs / 170 insns (prio 3*12/170 = .212) vs
+         * recolor_flag 14 / 211 (.199), which is exactly why OUR build gave
+         * palShare $s7 and spilled recolor_flag.  At 10 refs palShare drops to
+         * .176 and the pair swaps to the retail assignment. */
+        palIndex = palShare + -1;
         if (recolor_flag != 0) {
-          (carObj->render).palCopyNum[i] = (carObj->render).palCopyNum[palShare + -1];
+          (carObj->render).palCopyNum[i] = (carObj->render).palCopyNum[palIndex];
         }
-        palIndex = palShare + -1 + (carObj->render).textureStartIndex;
+        palIndex = palIndex + (carObj->render).textureStartIndex;
       }
       shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].tex);
       if (shape != (shapetbl *)0x0) {

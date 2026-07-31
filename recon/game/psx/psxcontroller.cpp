@@ -7,71 +7,109 @@
 #include "psxcontroller_externs.h"
 
 
-/* ---- InGame_ResetPSXController__Fii  [PSXCONTROLLER.CPP:97-163] SLD-VERIFIED ---- */
-void InGame_ResetPSXController(int player,int config)
-
-{
-  int type;
-  int *h;
-  u_int v;
-
-  type = gPadinfo.buf[player * 4].ID;
-  if (type == 0x23) {
-    type = 0;
-  }
-  else if ((type == 0x53) || (type == 0x73)) {
-    type = 1;
-  }
-  else {
-    type = 2;
-  }
-  if (frontEnd.controlType[player] != (u_short)gPadinfo.buf[player * 4].ID) {
-    frontEnd.controlType[player] = (u_short)gPadinfo.buf[player * 4].ID;
-  }
-  GameSetup_gData.controllerData.controllerConfig[player] = config;
-  h = Input_gHandler;
-  h[0x4f - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0][type],player);
-  h[0x50 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][1][type],player);
-  h[0x51 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][2][type],player);
-  h[0x52 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][3][type],player);
-  h[player + 0xae] = InGame_GetPSXPadValue(mappings[config][8][type],player);
-  h[0x75 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][7][type],player);
-  h[0x65 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][7][type],player);
-  h[0x53 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][4][type],player);
-  if ((Cars_gHumanRaceCarList[player]->carFlags & 0x200U) == 0) {
-    h[0x7d - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0][type],0);
-    h[0x7e - hoff[player]] = InGame_GetPSXPadValue(mappings[config][1][type],0);
-    v = mappings[config][10][type];
-    if (type == 1) {
-      v = v | 6;
-    }
-    h[0x82 - hoff[player]] = InGame_GetPSXPadValue(v,player);
-  }
-  else {
-    v = mappings[config][10][type];
-    if (type == 1) {
-      v = v | 6;
-    }
-    h[0x81 - hoff[player]] = InGame_GetPSXPadValue(v,player);
-  }
-  if (GameSetup_gData.Time == 0) {
-    h[0x73 - hoff[player]] = InGame_GetPSXPadValue(0,player);
-    v = mappings[config][9][type];
-    if (type == 1) {
-      v = v | 6;
-    }
-  }
-  else {
-    h[0x73 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][9][type],player);
-    v = (type == 1) ? 6 : 0;
-  }
-  h[0x54 - hoff[player]] = InGame_GetPSXPadValue(v,player);
-  h[0x66 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][5][type],player);
-  h[0x67 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][6][type],player);
-  h[0x68 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0xc][type],player);
-  h[0x4d - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0xb][type],player);
-  return;
-}
+/* ---- InGame_ResetPSXController__Fii  [PSXCONTROLLER.CPP:97-163] SLD-VERIFIED ----
+ * w39-a7: 334 -> 254 diffs, instruction count now EXACT 305/305.  Four fixes, each
+ * gate-measured in isolation (all against the raw oracle, not a guess):
+ *  (1) `h = Input_gHandler;` moves to right after `type = ...ID` -- the oracle
+ *      materializes $s4 = %hi/%lo(Input_gHandler) BEFORE the type classification,
+ *      i.e. it is the second statement of the function, not a late one.  (-14)
+ *  (2) carFlags arm SWAP: oracle is `beqz` on `carFlags & 0x200`, so the flag-SET
+ *      case (the single `h[0x81]` store) is the FALL-THROUGH and the flag-clear case
+ *      (0x7d/0x7e/0x82) is the branch target -- write `if ((..&0x200)!=0){0x81}
+ *      else {0x7d;0x7e;0x82}`.  (-12)
+ *  (3) GameSetup_gData.Time arm SWAP, same reasoning (oracle `beqz` on the loaded
+ *      Time word => the Time!=0 body falls through).  (-32)
+ *  (4) the shared `u_int v` local was a FABRICATION -- the SYM lists exactly two
+ *      named locals for this function, `h` (REG $0x14 = $s4, PTR INT) and `type`
+ *      (REG $0x13 = $s3); there is no `v`.  One long-lived `v` spanning both
+ *      carFlags arms forced a copy trio (`addu a0,a1,zero; ori a1,a1,6; addu
+ *      a0,a1,zero`) at each of the three `| 6` sites where the oracle ORs in place
+ *      (`nop; ori a0,a0,6`).  Giving each independent site its own block-scoped
+ *      `int m` collapses them and makes the count exact.  (-50, 307->305 insns)
+ *      The remaining function-scope `v` is real: the Time if/else assigns it in
+ *      both arms and it is consumed after the join (h[0x54]).
+ *  (5) the 3-way type classification is spelled as a NESTED if (`if (type != 0x23)
+ *      { if (0x53||0x73) 1 else 2 } else 0`), which matches the oracle's `beq` on
+ *      the 0x23 test; the flat else-if chain inverts it to `bne` and a ternary
+ *      funnel is much worse (302).  (-4)
+ * RESIDUAL 254 = a 5-way CALLEE-SAVED ROTATION, count-exact and otherwise
+ * instruction-for-instruction identical.  ours {s0=player*4, s1=&mappings-row,
+ * s2=&hoff[player], s3=type, s4=player, s5=h, s6=config} vs retail {s0=&mappings-row,
+ * s1=&hoff[player], s2=player, s3=type, s4=h, s5=player*4, s6=config} -- i.e. our
+ * allocno priority puts the `player*4` giv FIRST where retail ranks it LAST, which
+ * pushes `player` and `h` one saved register up each.  Plus the type-select funnel
+ * (retail computes the 0/1/2 into $v0 then `addu $s3,$v0,$zero`; ours writes $s3
+ * directly).  Both are gcc-2.8 allocno-priority items (-dl/-dg territory), not
+ * reachable by the statement-shape levers enumerated above. */
+void InGame_ResetPSXController(int player,int config)
+
+{
+  int type;
+  int *h;
+  u_int v;
+
+  type = gPadinfo.buf[player * 4].ID;
+  h = Input_gHandler;
+  if (type != 0x23) {
+    if ((type == 0x53) || (type == 0x73)) {
+      type = 1;
+    }
+    else {
+      type = 2;
+    }
+  }
+  else {
+    type = 0;
+  }
+  if (frontEnd.controlType[player] != (u_short)gPadinfo.buf[player * 4].ID) {
+    frontEnd.controlType[player] = (u_short)gPadinfo.buf[player * 4].ID;
+  }
+  GameSetup_gData.controllerData.controllerConfig[player] = config;
+  h[0x4f - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0][type],player);
+  h[0x50 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][1][type],player);
+  h[0x51 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][2][type],player);
+  h[0x52 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][3][type],player);
+  h[player + 0xae] = InGame_GetPSXPadValue(mappings[config][8][type],player);
+  h[0x75 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][7][type],player);
+  h[0x65 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][7][type],player);
+  h[0x53 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][4][type],player);
+  if ((Cars_gHumanRaceCarList[player]->carFlags & 0x200U) != 0) {
+    int m = mappings[config][10][type];
+
+    if (type == 1) {
+      m = m | 6;
+    }
+    h[0x81 - hoff[player]] = InGame_GetPSXPadValue(m,player);
+  }
+  else {
+    int m;
+
+    h[0x7d - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0][type],0);
+    h[0x7e - hoff[player]] = InGame_GetPSXPadValue(mappings[config][1][type],0);
+    m = mappings[config][10][type];
+    if (type == 1) {
+      m = m | 6;
+    }
+    h[0x82 - hoff[player]] = InGame_GetPSXPadValue(m,player);
+  }
+  if (GameSetup_gData.Time != 0) {
+    h[0x73 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][9][type],player);
+    v = (type == 1) ? 6 : 0;
+  }
+  else {
+    h[0x73 - hoff[player]] = InGame_GetPSXPadValue(0,player);
+    v = mappings[config][9][type];
+    if (type == 1) {
+      v = v | 6;
+    }
+  }
+  h[0x54 - hoff[player]] = InGame_GetPSXPadValue(v,player);
+  h[0x66 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][5][type],player);
+  h[0x67 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][6][type],player);
+  h[0x68 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0xc][type],player);
+  h[0x4d - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0xb][type],player);
+  return;
+}
 
 /* ---- InGame_GetPSXPadValue__Fii  [PSXCONTROLLER.CPP:197-332] SLD-VERIFIED ----
  * w38-a9: rewritten as the NESTED SWITCH the oracle proves.  The oracle's

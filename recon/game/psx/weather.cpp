@@ -31,6 +31,34 @@ int Weather_gLastProcessTime1;
 #define WEATHER_GLASTPROCESSTIME1 Weather_gLastProcessTime1
 int Weather_gLastProcessTime[2];
 
+/* ---- SPLIT-STORAGE data-mat for the four per-player server arrays (w39-a6) ----------------
+ * Oracle evidence (Weather_Init__Fv.s): every CONSTANT-index element is reached through its
+ * OWN one-instruction %gp_rel symbol -- %gp_rel(Weather_gSplatInfoServer) for [0] and
+ * %gp_rel(D_8013DBCC) for [1], likewise Weather_gPServer/D_8013DBD4,
+ * Weather_gPrevPServer/D_8013DBDC, Weather_gDrawnServer/D_8013DBE4.  An `extern T x[2]`
+ * declaration can NEVER produce that: 8 bytes is over this build's -G4 threshold as ONE
+ * object, so both elements come out as absolute lui/%lo pairs (+1 insn each, 8 sites).
+ * Each 4-byte ELEMENT alone IS gp-eligible, so the true storage shape is one tentative def
+ * per element (methodology 3.12 #6 applied per-element).
+ * The RUNTIME-index site (Weather_DoWeather `[player]`) genuinely wants an absolute array
+ * base -- its oracle has `lui/addiu %hi/%lo(Weather_gPServer)` etc.  That is served by an
+ * UNSIZED asm-label array VIEW aliased onto element [0]'s symbol: unsized + extern keeps it
+ * out of maspsx's sbss_entries, and `gp_allow_la` is off, so `la` stays absolute.  The view
+ * ALIASES the real storage (no duplicated object, unlike the older gLastProcessTime duality). */
+Weather_tSplatInfo *Weather_gSplatInfoServer;   /* [0] @0x8013dbc8 */
+Weather_tSplatInfo *Weather_gSplatInfoServer1;  /* [1] @0x8013dbcc (oracle D_8013DBCC) */
+SVECTOR            *Weather_gPServer;           /* [0] @0x8013dbd0 */
+SVECTOR            *Weather_gPServer1;          /* [1] @0x8013dbd4 (oracle D_8013DBD4) */
+DVECTOR            *Weather_gPrevPServer;       /* [0] @0x8013dbd8 */
+DVECTOR            *Weather_gPrevPServer1;      /* [1] @0x8013dbdc (oracle D_8013DBDC) */
+char               *Weather_gDrawnServer;       /* [0] @0x8013dbe0 */
+char               *Weather_gDrawnServer1;      /* [1] @0x8013dbe4 (oracle D_8013DBE4) */
+
+extern Weather_tSplatInfo *Weather_gSplatInfoServerA[] asm("Weather_gSplatInfoServer");
+extern SVECTOR            *Weather_gPServerA[]         asm("Weather_gPServer");
+extern DVECTOR            *Weather_gPrevPServerA[]     asm("Weather_gPrevPServer");
+extern char               *Weather_gDrawnServerA[]     asm("Weather_gDrawnServer");
+
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
@@ -478,17 +506,17 @@ void Weather_Init(void)
     }
     WEATHER_GLASTPROCESSTIME1 = simGlobal.gameTicks;
     WEATHER_GLASTPROCESSTIME0 = simGlobal.gameTicks;
-    Weather_gPServer[0] = Weather_gPos;
-    Weather_gPrevPServer[0] = Weather_gPrevPos;
-    Weather_gDrawnServer[0] = Weather_gWasDrawn;
-    Weather_gSplatInfoServer[0] = Weather_gSplatInfo;
+    Weather_gPServer = Weather_gPos;
+    Weather_gPrevPServer = Weather_gPrevPos;
+    Weather_gDrawnServer = Weather_gWasDrawn;
+    Weather_gSplatInfoServer = Weather_gSplatInfo;
     if (GameSetup_gData.commMode == 1) {
-      Weather_gPServer[1] = Weather_gPos + 0x4c;
-      Weather_gPrevPServer[1] = Weather_gPrevPos + 0x4c;
-      Weather_gDrawnServer[1] = Weather_gWasDrawn + 0x4c;
+      Weather_gPServer1 = Weather_gPos + 0x4c;
+      Weather_gPrevPServer1 = Weather_gPrevPos + 0x4c;
+      Weather_gDrawnServer1 = Weather_gWasDrawn + 0x4c;
       Weather_gSys.num[0] = 0x4c;
       Weather_gSys.num[1] = 0x4c;
-      Weather_gSplatInfoServer[1] = Weather_gSplatInfo + 9;
+      Weather_gSplatInfoServer1 = Weather_gSplatInfo + 9;
     }
     pmVar5 = prevCamMat;
     pmVar4 = &Camera_gInfo[0].rotation;
@@ -1112,9 +1140,9 @@ void Weather_DoWeather(DRender_tView *Vi)
   DR_MODE *prim;
 
   player = Vi->player;
-  wpt = Weather_gPServer[player];
-  wprevpt = Weather_gPrevPServer[player];
-  wd = Weather_gDrawnServer[player];
+  wpt = Weather_gPServerA[player];
+  wprevpt = Weather_gPrevPServerA[player];
+  wd = Weather_gDrawnServerA[player];
   if ((GameSetup_gData.commMode != 1) && (0x20 < simGlobal.gameTicks - timechange)) {
     timechange = simGlobal.gameTicks;
     if (Weather_gSnowTrack == 0) {
@@ -1150,7 +1178,7 @@ void Weather_DoWeather(DRender_tView *Vi)
     }
     Weather_SetIdentMatrix();
     if (Camera_gInfo[player].inCar) {
-      Weather_DoSplats(Weather_gSys.num[player] >> 3,Weather_gSplatInfoServer[player]);
+      Weather_DoSplats(Weather_gSys.num[player] >> 3,Weather_gSplatInfoServerA[player]);
     }
     /* emit one snow/rain primitive per particle; wpt + wprevpt advance in lockstep */
     n = 0;

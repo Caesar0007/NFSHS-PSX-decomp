@@ -18,10 +18,12 @@ extern SVECTOR          *Weather_gPos;                         /* 0x8013dba8 */
 extern Weather_tSplatInfo *Weather_gSplatInfo;                 /* 0x8013dbac */
 extern DVECTOR          *Weather_gPrevPos;                     /* 0x8013dbb0 */
 extern CWeatherSpec     *Weather_gTrackSpec;                   /* 0x8013dbc4 */
-extern Weather_tSplatInfo *Weather_gSplatInfoServer[2];        /* 0x8013dbc8 */
-extern SVECTOR          *Weather_gPServer[2];                  /* 0x8013dbd0 */
-extern DVECTOR          *Weather_gPrevPServer[2];              /* 0x8013dbd8 */
-extern char             *Weather_gDrawnServer[2];              /* 0x8013dbe0 */
+/* The four per-player server arrays are SPLIT-STORAGE in the oracle: every CONSTANT-index
+ * site reaches an element through its OWN %gp_rel symbol (Weather_gSplatInfoServer /
+ * D_8013DBCC = +4, ...), while the runtime-index site (Weather_DoWeather) materializes an
+ * absolute lui/addiu base.  weather.cpp OWNS them (only consumer in the tree), so their
+ * storage is modeled there as per-element tentative defs + unsized asm-label array views.
+ * Declared in recon/game/psx/weather.cpp, NOT here. */
 extern long              Weather_gLastTimeProcessed;           /* 0x8013dbe8 */
 extern int               Weather_gType;                        /* 0x8013dbec  enum Weather_tState */
 extern int               Weather_gDensityGoalState;            /* 0x8013dbf0 */

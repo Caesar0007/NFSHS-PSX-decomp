@@ -317,63 +317,44 @@ void Font_ExitFromGame(void)
   return;
 }
 
-/* ---- Font_LoadFont__FPciic  [FONT.CPP:348-399] SLD-VERIFIED ---- */
+/* ---- Font_LoadFont__FPciic  [FONT.CPP:348-399] SLD-VERIFIED ----
+ * SYM (fsize 56, ra+s0-s6): f1 $s3, x $s5, y $s6, in_game $s4 CHAR; block locals
+ * shp $s2 (PTR shapetbl), i $s0, l $s1.  Both nibble-swap loops and the colour loop
+ * are plain index-form `for`s -- the oracle's `addu a0,s0,s2` / `addiu s1,s1,4`
+ * walkers are gcc strength reduction, not source pointers.
+ */
 int Font_LoadFont(char *f1,int x,int y,char in_game)
 
 {
-  u_int shp_00;
-  int iVar1;
   int i;
-  int iVar2;
   int l;
-  int iVar3;
-  long *plVar4;
   shapetbl *shp;
-  
+
   setfont(f1);
-  shp_00 = (*(int *)((u_char *)&(currentfont) + 136));
-  iVar3 = ((int)*(short *)((*(int *)((u_char *)&(currentfont) + 136)) + 4) * (int)*(short *)((*(int *)((u_char *)&(currentfont) + 136)) + 6)) / 2;
-  iVar2 = 0;
-  iVar1 = (*(int *)((u_char *)&(currentfont) + 136));
-  if (0 < iVar3) {
-    do {
-      iVar2 = iVar2 + 1;
-      *(u_char *)(iVar1 + 0x10) = *(u_char *)(iVar1 + 0x10) << 4 | *(u_char *)(iVar1 + 0x10) >> 4;
-      iVar1 = iVar2 + shp_00;
-    } while (iVar2 < iVar3);
+  shp = (shapetbl *)(*(int *)((u_char *)&(currentfont) + 136));
+  l = ((int)shp->width * (int)shp->height) / 2;
+  for (i = 0; i < l; i++) {
+    (&shp->data)[i] = ((&shp->data)[i] & 0xf) << 4 | (&shp->data)[i] >> 4;
   }
   if (font_clutx == -1) {
     Texture_GetClutId(1,&font_clutx,&font_cluty);
   }
-  iVar2 = 0;
-  Texture_Vramf((shapetbl *)shp_00,x,y,font_clutx,font_cluty);
+  Texture_Vramf(shp,x,y,font_clutx,font_cluty);
   waitdraw();
-  *(u_int *)shp_00 = (u_int)*(u_char *)shp_00 | ((int)&shpfontclut - shp_00) * 0x100;
-  iVar1 = shp_00;
-  if (0 < iVar3) {
-    do {
-      iVar2 = iVar2 + 1;
-      *(u_char *)(iVar1 + 0x10) = *(u_char *)(iVar1 + 0x10) << 4 | *(u_char *)(iVar1 + 0x10) >> 4;
-      iVar1 = iVar2 + shp_00;
-    } while (iVar2 < iVar3);
+  shp->next = (int)&shpfontclut - (int)shp;
+  for (i = 0; i < l; i++) {
+    (&shp->data)[i] = ((&shp->data)[i] & 0xf) << 4 | (&shp->data)[i] >> 4;
   }
-  plVar4 = colourRGB;
-  iVar1 = 0;
-  do {
-    iVar2 = *plVar4;
-    plVar4 = plVar4 + 1;
-    iVar3 = iVar1 + 1;
-    Font_ComputeColors(iVar1,iVar2,0,in_game);
-    iVar1 = iVar3;
-  } while (iVar3 < 0x10);
+  for (i = 0; i < 0x10; i++) {
+    Font_ComputeColors(i,colourRGB[i],0,in_game);
+  }
   Font_ReSetBlitter();
   Font_SwitchFont(f1);
   resizememadr(f1,(*(int *)((u_char *)&(currentfont) + 136)) - (int)(f1 + -0x10));
   Font_TextTint(0x808080);
   Font_TextColor(2);
-  return y + *(short *)(shp_00 + 6);
+  return y + shp->height;
 }
-
 /* ---- Font_TextXY__FPcii  [FONT.CPP:414-453] SLD-VERIFIED ----
  * SYM locals (fn block): str $s4, ch $s1, code $s3; inner block (line ~431): u $s0;
  * tail block (line ~450): dr_mode $a0.  Params x -> $s2, y -> $s6 (REGPARM copies).

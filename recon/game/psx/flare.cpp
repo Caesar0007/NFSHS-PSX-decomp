@@ -1497,7 +1497,23 @@ void Flare_InitLensFlare(void)
   return;
 }
 
-/* ---- Flare_LensFlare__FP7DVECTORP15Draw_FlareCache  [FLARE.CPP:1578-1738] SLD-VERIFIED ---- */
+/* ---- Flare_LensFlare__FP7DVECTORP15Draw_FlareCache  [FLARE.CPP:1578-1738] SLD-VERIFIED ----
+ * FAR-MISS 303 diffs (ours 414 / oracle 409). w38-a10 DIAGNOSIS (no code change yet; the
+ * SYM block @404e96 is the recipe for the next pass):
+ *  - `screenPos` is SYM class ARG, i.e. it lives in the incoming stack slot: the oracle
+ *    does `sw $a0,184($sp)` in the prologue and RELOADS it (`lw $t7,184($sp)`) just to
+ *    take vx/vy. Ours parks it in $fp for the whole function.
+ *  - SYM REG map that the body must reproduce: width $6, height $7, i $16, sx $30(fp),
+ *    sy $23(s7), piece $8(t0) [FLARE_PIECE_DEF*], angleZ $17(s1), flareVis $21(s5),
+ *    result $3 (block at line 13), aprim $4 (block at line 159); AUTO: dx -0x40,
+ *    dy -0x3c, pxy -0xa0, angleZ2 -0x38, pt[4] -0x98, col -0x88 (line-14 block),
+ *    scalemat -0x80 / mtx -0x60 (line-78 block), a SECOND `col` -0x98 (line-134 block).
+ *    So the oracle's $fp/$s7 are sx/sy (two named INT locals read from screenPos), NOT the
+ *    pointer -- our recon has no `width`/`height` locals at all and carries eight invented
+ *    temps (piece_color/piece_idx/pieceCount/piece_iter_a/ti7/piece_y/piece_x/tu1/p/tp3)
+ *    that the SYM does not have.
+ *  => this is a rule-8 SYM-driven rewrite (name the SYM locals into the dataflow, add the
+ *    line-13/14/78/134/159 block scopes), not a coloring grind. */
 void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
 
 {

@@ -14,7 +14,22 @@ int TrackSpec_gMaxSpec;
 int TrackSpec_gPrevSpec;
 
 
-/* ---- TrackSpec_SetDefault__FP10CTrackSpec  [TRACKSPEC.CPP:44-113] SLD-VERIFIED ---- */
+/* ---- TrackSpec_SetDefault__FP10CTrackSpec  [TRACKSPEC.CPP:44-113] SLD-VERIFIED ----
+ * FAR-MISS 228 diffs but COUNT-EXACT (142/142) -- w38-a10 root-caused it to exactly TWO
+ * decisions, neither cracked yet (recorded so the next pass does not re-diagnose):
+ *  (1) BASE REGISTER: every one of the ~90 field stores uses $a1 in the oracle and $a0
+ *      (the raw parameter) in ours. The oracle's $a0 is DEAD after an early
+ *      `addu $a1,$a0,$zero` and gets reused as a scratch (`lhu $a0,72($v0)`) and later as
+ *      the 5-iteration ring walker (`addu $a0,$a1,$zero` ... `addiu $a0,$a0,4`), while
+ *      $a1 stays the fixed record base for the whole body. Introducing an explicit local
+ *      `CTrackSpec *spec = specArg;` does NOT reproduce it -- gcc copy-propagates the
+ *      local straight back onto the incoming $a0 (measured: no change, 228).
+ *  (2) CONSTANT REMATERIALIZATION: the oracle re-emits `li $v1,K` per store group
+ *      (1/200/8/2/1/-4224 ...) reusing ONE register, while ours CSEs the repeated small
+ *      constants into $t0/$a2/$t1 up front and copies them out (`addu $v0,$a2,$zero`).
+ *      This is the documented per-obj "old-gcc weaker-CSE / no-copy-prop" identity class.
+ *  The ring-PMX loop also differs: the oracle recomputes `base + i` per iteration
+ *  (`addu $v1,$a1,$a2`, index form) where ours strength-reduces to a walking pointer. */
 void TrackSpec_SetDefault(CTrackSpec *spec)
 
 {

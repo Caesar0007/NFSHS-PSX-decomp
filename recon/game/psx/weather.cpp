@@ -361,6 +361,12 @@ WeatherDensity_numAdd:
  * hoists the slt past an unconditional j (looks like a scheduling tie-break, same family as the
  * TrsProj_TransformProjectVertex register-coloring residual). Tried >=, <=-with-swapped-operands,
  * !(<) -- none land both position AND polarity simultaneously. */
+/* w39-a6 FLOOR (4 diffs, count EXACT 62/62): the first velocity-vs-table guard has the
+ * opposite branch polarity (ours beqz-to-call, oracle bnez-to-velYUpdate) and therefore a
+ * different `j` delay-slot filler (ours the addiu half of a `la`, oracle a nop).
+ * FALSIFIED: writing the guard in the oracle's polarity
+ * (`if (velY < tbl[state]) goto velYUpdate; goto call;`) lets gcc merge the two gotos --
+ * 58 insns / 6 diffs, i.e. structurally further away. */
 void Weather_ChangeIntensityBasedOnTime(void)
 
 {
@@ -602,6 +608,11 @@ void Weather_DeInit(void)
  * coloring swap (ours=v0, oracle=a1) cascading into the tv.vx/vy/vz field-register triple
  * shifting by one slot; no ABI anchor found (next isn't a call-arg/return at its use point) --
  * same permuter-class coloring-tiebreak family as TrsProj_TransformProjectVertex. */
+/* w39-a6 FLOOR (32 diffs, count EXACT 49/49): a uniform one-step register rotation --
+ * ours puts `next` in $v0 and r0/r1/r2 in $v1/$a0/$a1, the oracle puts `next` in $a1 and
+ * r0/r1/r2 in $v0/$v1/$a0.  FALSIFIED: dropping the `next` variable (inline `s + 1`),
+ * block-scoping its declaration, and reading tv.vx/vy/vz straight into the stores (52
+ * insns, worse).  Allocno-priority tie on `next`. */
 void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
 {
   int r0;
@@ -960,6 +971,11 @@ void Weather_CreateSnow(SVECTOR *pt)
 }
 
 /* ---- Weather_CreateRain__FP7SVECTORP7DVECTORPc  [WEATHER.CPP:967-1005] SLD-VERIFIED ---- */
+/* w39-a6 (56 diffs, ours 117 / oracle 113): the residual is the packet/palette header
+ * merge in BOTH arms -- ours reloads the palette pointer for the write-back where the
+ * oracle keeps it in one register.  The `u_int *pal` CSE local that fixed exactly this in
+ * CreateSnow/DoWeather/CreateSplat REGRESSES here (fn-scope 122, block-scope-per-arm 134)
+ * even though it takes the count to 115: the two arms' pal pseudos interfere.  Left alone. */
 void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
 {
   LINE_G2 *prim;
@@ -1134,6 +1150,13 @@ void Weather_DoSplats
 }
 
 /* ---- Weather_DoWeather__FP13DRender_tView  [WEATHER.CPP:1069-1156] SLD-VERIFIED ---- */
+/* w39-a6 (138 -> 131, count 196 vs 197): the palette-pointer CSE local landed on the
+ * DR_MODE tail.  RESIDUAL = a whole-function allocno permutation rooted at the three
+ * per-player server-array loads: the oracle materializes all three base addresses UP FRONT
+ * in three distinct registers (lui/addiu x3 before the frame stores) and then does
+ * addu/lw x3 off one shared `sll player,2`; ours emits them serially through $v0, which
+ * rotates Vi/player/wpt/wprevpt/wd across $s2-$s7.  FALSIFIED: hoisting the three array
+ * bases into local pointers before reading `player` (gcc folds them straight back). */
 void Weather_DoWeather(DRender_tView *Vi)
 {
   SVECTOR *wpt;

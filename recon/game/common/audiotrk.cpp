@@ -307,170 +307,128 @@ AudioTrk_volume_done:
 /* ---- AudioTrk_SoundTrack__FP8Car_tObji  [@0x8007cdc4] ---- */
 void AudioTrk_SoundTrack(Car_tObj *car,int trkazi)
 {
-  int numelems;
-  int quater;
-  int gtck;
-  int vx;
-  int vz;
-  coorddef v;
-  int start;
-  int end;
-  int i;
-  int tck;
-  int cur;
-  int max;
-  Trk_AnimateInst*anim;
-  int x;
-  int z;
-  int d;
-  int randtick;
-  int fade;
-  int fadeIn;
-  int fadeOut;
-  coorddef nextcp;
-  int next;
-  int time;
-  u_int uVar1;
-  int iVar2;
-  short sVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  char *pcVar9;
-  Trk_AnimateInst *animInst;
-  AudioElem *se;
-  coorddef *vel;
-  coorddef local_60;
-  coorddef local_50;
-  int local_40;
-  int local_3c;
-  int local_38;
-  int local_34;
-  int local_30;
-  
-  if ((((GameSetup_gData.commMode != 1) && (gMasterAmbientLevel != 0)) &&
-      (AudioTrk_g != (AudioTrk_tGlobals *)0x0)) && (gGameAudioList != (CAudioList *)0x0)) {
-    iVar8 = gGameAudioList->numElements_;
-    iVar6 = simGlobal.gameTicks >> 1;
-    iVar7 = (iVar8 >> 2) + 1;
-    local_38 = simGlobal.gameTicks >> 3;
-    local_34 = 0;
-    local_30 = 0;
-    iVar4 = iVar6;
-    if (iVar6 < 0) {
-      iVar4 = iVar6 + 3;
-    }
-    iVar4 = (iVar6 + (iVar4 >> 2) * -4) * iVar7;
-    iVar7 = iVar4 + iVar7;
-    if (iVar7 <= iVar8) {
-      iVar8 = iVar7;
-    }
-    se = (AudioElem *)((int)gGameAudioList + iVar4 * 0x18 + 0x10);
-    pcVar9 = &se->type;
-    for (; iVar7 = local_38, iVar4 < iVar8; iVar4 = iVar4 + 1) {
-      if ((pcVar9[1] != -1) && (AudioTrk_g->chan[pcVar9[1]].se != se)) {
-        pcVar9[1] = 0xff;
-      }
-      animInst = (Trk_AnimateInst *)0x0;
-      if ((u_char)*pcVar9 - 4 < 0x20) {
-        local_60.z = 0;
-        local_60.y = 0;
-        local_60.x = 0;
-        animInst = Anim_gInstanceFromIndex[(u_char)*pcVar9 - 4];
-        if (animInst != (Trk_AnimateInst *)0x0) {
-          iVar7 = DrawW_GetAnimationTime(animInst);
-          Anim_GetPos(animInst,1,iVar7,&se->cp,&local_40,&local_3c);
-        }
-      }
-      else if ((((*(u_int *)(pcVar9 + -4) & 0xffff0000) != 0) &&
-               ((int)(u_int)*(u_short *)(pcVar9 + -8) < local_38)) && (pcVar9[1] == 0xff)) {
-        sVar3 = 0;
-        if (1 < (u_char)pcVar9[-1]) {
-          uVar1 = random();
-          sVar3 = (short)(uVar1 % (u_int)(u_char)pcVar9[-1]);
-        }
-        *(u_short *)(pcVar9 + -8) = (u_short)(u_char)pcVar9[-2] + (short)iVar7 + sVar3;
-      }
-      iVar6 = (se->cp).x;
-      iVar5 = iVar6 - local_34;
-      if (iVar5 < 1) {
-        iVar5 = local_34 - iVar6;
-      }
-      iVar6 = *(int *)(pcVar9 + -0xc) - local_30;
-      if (iVar6 < 1) {
-        iVar6 = local_30 - *(int *)(pcVar9 + -0xc);
-      }
-      if (iVar6 < iVar5) {
-        iVar5 = iVar5 + (iVar6 >> 2);
-      }
-      else {
-        iVar5 = iVar6 + (iVar5 >> 2);
-      }
-      vel = (coorddef *)0x0;
-      if ((iVar5 < (*(short *)(pcVar9 + -4) + 100) * 0x10000) || (-1 < pcVar9[1])) {
-        iVar6 = 0x80;
-        if ((u_char)*pcVar9 - 4 < 0x20) {
-          if (animInst != (Trk_AnimateInst *)0x0) {
-            *(u_short *)(pcVar9 + -8) = (u_short)(u_char)pcVar9[-2];
-            iVar5 = (u_int)(u_char)pcVar9[-5] * 8;
-            if (local_40 < iVar5) {
-              iVar6 = 0;
+  if (GameSetup_gData.commMode != 1) {
+    if (gMasterAmbientLevel != 0) {
+      if (AudioTrk_g != 0) {
+        if (gGameAudioList != 0) {
+          AudioElem *se;
+          int numelems = gGameAudioList->numElements_;
+          int quater = (numelems >> 2) + 1;
+          int gtck = simGlobal.gameTicks >> 3;
+          int vx = AudioClc_gRenderView.translation.x;
+          se = (AudioElem *)(gGameAudioList + 1);
+          int vz = AudioClc_gRenderView.translation.z;
+          coorddef v;
+          int start = ((simGlobal.gameTicks >> 1) % 4) * quater;
+          int end = numelems < start + quater ? numelems : start + quater;
+          se += start;
+          for (int i = start; i < end; se++, i++) {
+            int tck;
+            int cur;
+            int max;
+            Trk_AnimateInst *anim;
+            int x;
+            int z;
+            int d;
+
+            if ((se->chan != -1) && (AudioTrk_g->chan[se->chan].se != se)) {
+              se->chan = -1;
             }
-            else if (local_40 < iVar5 + 0x80) {
-              iVar6 = local_40 + (u_int)(u_char)pcVar9[-5] * -8;
-            }
-            iVar5 = (u_int)(u_char)pcVar9[-1] * 8;
-            if ((u_char)pcVar9[-1] != 0) {
-              if (iVar5 + 0x80 < local_40) {
-                iVar6 = 0;
+
+            tck = gtck;
+            anim = 0;
+            if ((u_int)((u_char)se->type - 4) < 32) {
+              v.x = v.y = v.z = 0;
+              anim = Anim_gInstanceFromIndex[(u_char)se->type - 4];
+              if (anim != 0) {
+                tck = DrawW_GetAnimationTime(anim);
+                Anim_GetPos(anim,1,tck,&se->cp,&cur,&max);
               }
-              else if (iVar5 < local_40) {
-                iVar6 = iVar5 - (local_40 + -0x80);
+            } else {
+              if (((*(u_int *)&se->range & 0xffff0000) != 0) &&
+                  (se->nextDelay < gtck) && (se->chan == -1)) {
+                int randtick = 0;
+                if ((u_char)se->randomDelay > 1) {
+                  randtick = (u_int)random() % (u_char)se->randomDelay;
+                }
+                se->nextDelay = (u_char)se->minDelay + tck + randtick;
               }
             }
-            if (0 < iVar6) {
-              iVar5 = local_3c + -1;
-              if (iVar7 + 0x20 < local_3c + -1) {
-                iVar5 = iVar7 + 0x20;
-              }
-              Anim_GetPos(animInst,1,iVar5,&local_50,(int *)0x0,(int *)0x0);
-              iVar5 = iVar5 - iVar7;
-              if (iVar5 == 0x20) {
-                local_60.x = (local_50.x - (se->cp).x) * 2;
-                local_60.y = (local_50.y - *(int *)(pcVar9 + -0x10)) * 2;
-                local_60.z = (local_50.z - *(int *)(pcVar9 + -0xc)) * 2;
-              }
-              else {
-                if (iVar5 == 0) goto LAB_8007d294;
-                iVar2 = (local_50.x - (se->cp).x) * 0x40;
-                local_60.x = iVar2 / iVar5;
-                iVar2 = (local_50.y - *(int *)(pcVar9 + -0x10)) * 0x40;
-                local_60.y = iVar2 / iVar5;
-                iVar2 = (local_50.z - *(int *)(pcVar9 + -0xc)) * 0x40;
-                local_60.z = iVar2 / iVar5;
-              }
-              vel = &local_60;
+
+            x = se->cp.x - vx;
+            if (x <= 0) {
+              x = vx - se->cp.x;
             }
-LAB_8007d294:
-            iVar5 = iVar7;
-            if (0 < local_3c) {
-              iVar5 = iVar7 % local_3c;
+            z = se->cp.z - vz;
+            if (z <= 0) {
+              z = vz - se->cp.z;
             }
-            iVar7 = iVar5 >> 3;
+            if (z < x) {
+              d = x + (z >> 2);
+            } else {
+              d = z + (x >> 2);
+            }
+
+            if ((d < (se->range + 100) * 0x10000) || (se->chan >= 0)) {
+              coorddef *vel = 0;
+              int fade = 128;
+
+              if ((u_int)((u_char)se->type - 4) < 32) {
+                if (anim != 0) {
+                  se->nextDelay = (u_char)se->minDelay;
+                  int fadeIn = (u_char)se->fadeIn << 3;
+                  if (cur < fadeIn) {
+                    fade = 0;
+                  } else if (cur < fadeIn + 128) {
+                    fade = cur - fadeIn;
+                  }
+                  int fadeOut = (u_char)se->randomDelay << 3;
+                  if (fadeOut != 0) {
+                    if (fadeOut + 128 < cur) {
+                      fade = 0;
+                    } else if (fadeOut < cur) {
+                      fade = fadeOut - (cur - 128);
+                    }
+                  }
+
+                  if (fade > 0) {
+                    coorddef nextcp;
+                    int next = max - 1;
+                    int time;
+
+                    if (next > tck + 32) {
+                      next = tck + 32;
+                    }
+                    Anim_GetPos(anim,1,next,&nextcp,0,0);
+                    time = next - tck;
+                    if (time == 32) {
+                      v.x = (nextcp.x - se->cp.x) * 2;
+                      v.y = (nextcp.y - se->cp.y) * 2;
+                      v.z = (nextcp.z - se->cp.z) * 2;
+                      vel = &v;
+                    } else if (time != 0) {
+                      v.x = ((nextcp.x - se->cp.x) * 64) / time;
+                      v.y = ((nextcp.y - se->cp.y) * 64) / time;
+                      v.z = ((nextcp.z - se->cp.z) * 64) / time;
+                      vel = &v;
+                    }
+                  }
+                  if (max > 0) {
+                    tck %= max;
+                  }
+                  tck >>= 3;
+                }
+                if (((u_int)((u_char)se->type - 4) < 32) && (anim == 0)) {
+                  continue;
+                }
+              }
+              AudioTrk_AddCustomObject(se,tck,vel,fade,car,trkazi);
+            }
           }
-          if (((u_char)*pcVar9 - 4 < 0x20) && (animInst == (Trk_AnimateInst *)0x0)) goto LAB_8007d31c;
         }
-        AudioTrk_AddCustomObject(se,iVar7,vel,iVar6,car,trkazi)
-        ;
       }
-LAB_8007d31c:
-      pcVar9 = pcVar9 + 0x18;
-      se = se + 1;
     }
   }
-  return;
 }
 
 /* ---- AudioTrk_PreLoad__Fv  [@0x8007d35c] ---- */

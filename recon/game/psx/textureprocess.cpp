@@ -317,55 +317,60 @@ char * Fog_MakeTrackPathName(char *ext)
 int Fog_ReadFogKeys(void)
 
 {
-  u_int *puVar1;
-  u_int *puVar2;
-  bool bVar3;
   char *strspc;
   int i;
-  u_int *puVar5;
-  int *readmem;
+  u_int *readmem;
   u_int numkeys;
 
+  /* 🔴 CORRECTNESS (raw oracle @0x800E0F18): the three selector tests were
+   * INVERTED in the previous reconstruction (`bnez` where the oracle has
+   * `beqz`), which also made the third arm provably DEAD (it required
+   * Weather!=0 && Weather==0).  The oracle picks:
+   *   Time!=0 && Weather!=0 -> literal 1   Time!=0 -> literal 2
+   *   Weather!=0            -> literal 3   else    -> literal 4
+   * (offsets 0x54=Time, 0x48=Weather; the four literals sit 8 bytes apart at
+   * D_8013DB4C/54/5C/64, i.e. in source order).  The literal TEXTS keep their
+   * previous order -- verify_asm normalizes the %hi/%lo so the oracle cannot
+   * arbitrate which name belongs to which slot; only the CONDITIONS are proven. */
   if (GameSetup_gData.Time != 0) {
-    if (GameSetup_gData.Weather == 0) {
+    if (GameSetup_gData.Weather != 0) {
       strspc = Fog_MakeTrackPathName("N.fog");
       goto haveext;
     }
   }
-  if (GameSetup_gData.Time == 0) {
+  if (GameSetup_gData.Time != 0) {
     strspc = Fog_MakeTrackPathName("W.fog");
     goto haveext;
   }
-  if (GameSetup_gData.Weather == 0) {
+  if (GameSetup_gData.Weather != 0) {
     strspc = Fog_MakeTrackPathName("S.fog");
     goto haveext;
   }
   strspc = Fog_MakeTrackPathName(".fog");
 haveext:
-  readmem = (int *)loadfileadr(strspc,0);
-  i = 0;
-  if (readmem != (u_int *)0x0) {
-    numkeys = *readmem;
-    i = 0;
-    if (numkeys < 0x20) {
-      bVar3 = 0 < (int)numkeys;
-      puVar5 = readmem;
-      while (bVar3) {
-        puVar1 = puVar5 + 1;
-        puVar2 = puVar5 + 2;
-        puVar5 = puVar5 + 2;
-        i = i + 1;
-        Fog_AddKey(*puVar1,*puVar2);
-        bVar3 = i < (int)numkeys;
-      }
-      purgememadr(readmem);
-      i = 1;
-    }
-    else {
-      i = 0;
-    }
+  readmem = (u_int *)loadfileadr(strspc,0);
+  if (readmem == (u_int *)0x0) {
+    return 0;
   }
-  return i;
+  numkeys = *readmem;
+  if (0x1f < numkeys) {
+    return 0;
+  }
+  i = 0;
+  /* MATCH: exit-in-the-middle (top test + unconditional `j` back edge, the
+   * `slt` recomputed in the back-edge delay slot) -- a plain `while (i<numkeys)`
+   * rotates into a zero-trip `blez` guard + bottom test. */
+  while (1) {
+    if (!(i < (int)numkeys)) break;
+    /* MATCH: INDEX form off readmem -- loop.c strength-reduces it to the
+     * oracle's unbiased walker (`addu s0,s2,zero` + `lw 4(s0)/lw 8(s0)`);
+     * an explicit `p = readmem; p += 2` walker makes gcc pre-bias the base by
+     * +8 and use -4/0 displacements. */
+    Fog_AddKey(readmem[i * 2 + 1],readmem[i * 2 + 2]);
+    i = i + 1;
+  }
+  purgememadr(readmem);
+  return 1;
 }
 
 /* ---- Fog_InitFogTriggers__Fv  [TEXTUREPROCESS.CPP:1082-1119] SLD-VERIFIED ---- */

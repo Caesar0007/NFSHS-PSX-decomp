@@ -145,79 +145,84 @@ void MPause_MusicLogic(char active)
   bool bVar1;
   u_int uVar2;
   int iVar3;
-  int iVar4;
   
-  iVar4 = 1;
-  if (GameSetup_gData.userSetting.audioMode == 1) {
-    gStereoMode = 0;
-    Audio_direct3davail = 0;
-  }
-  else if (GameSetup_gData.userSetting.audioMode < 2) {
-    if (GameSetup_gData.userSetting.audioMode == 0) {
+  sndover = 1;
+  samp = 0x10;
+  switch (GameSetup_gData.userSetting.audioMode) {
+    case 0:
       gStereoMode = 1;
       Audio_direct3davail = 0;
-    }
+      break;
+    case 1:
+      gStereoMode = 0;
+      Audio_direct3davail = 0;
+      break;
+    case 2:
+      gStereoMode = 1;
+      Audio_direct3davail = 1;
+      break;
   }
-  else if (GameSetup_gData.userSetting.audioMode == 2) {
-    gStereoMode = 1;
-    Audio_direct3davail = 1;
-  }
-  if (active == '\0') {
-    if (wasActive != '\0') {
-      SNDstop(SFXHandle);
-      AudioMus_AutoVolume(500,0);
-    }
-  }
-  else {
+  if (active != '\0') {
     if (wasActive == '\0') {
       uVar2 = AudioCmn_MusicLevel(gMasterMusicLevel);
       AudioMus_AutoVolume(500,uVar2);
     }
     bVar1 = false;
-    if ((*((int *)gPauseCurrentMenu) == 1) || (*((int *)gPauseCurrentMenu) == 2)) {
+    iVar3 = *((int *)gPauseCurrentMenu);
+    if (iVar3 == 1) {
+      bVar1 = true;
+    }
+    else if (iVar3 == 2) {
       bVar1 = true;
     }
     if (bVar1) {
       iVar3 = AudioCmn_MusicLevel(gMasterMusicLevel);
       AudioMus_Volume(iVar3);
     }
-    if (*((int *)gPauseCurrentMenu) == 3) {
+    iVar3 = *((int *)gPauseCurrentMenu);
+    testSFX = false;
+    if (iVar3 == 3) {
+      samp = 0x10;
       vol = gMasterSFXLevel;
+      testSFX = true;
+    }
+    if (*((int *)gPauseCurrentMenu) == 4) {
+      samp = 0x10;
+      vol = gMasterFENarrationLevel;
+      testSFX = true;
     }
     iVar3 = *((int *)gPauseCurrentMenu);
-    bVar1 = iVar3 == 4;
-    if (bVar1) {
-      vol = gMasterFENarrationLevel;
-      iVar3 = *((int *)gPauseCurrentMenu);
-    }
-    testSFX = bVar1 || *((int *)gPauseCurrentMenu) == 3;
     if (iVar3 == 5) {
-      testSFX = true;
+      samp = 0x10;
       vol = gMasterEngineLevel;
+      testSFX = true;
     }
     if (*((int *)gPauseCurrentMenu) == 6) {
-      testSFX = true;
+      samp = 0x10;
       vol = gMasterAmbientLevel;
+      testSFX = true;
     }
-    if ((bool)testSFX == false) {
-      if (playingSFX == '\x01') {
-        SNDstop(SFXHandle);
-        playingSFX = '\0';
-      }
-    }
-    else {
+    if ((bool)testSFX != false) {
       if (playingSFX == '\0') {
         playingSFX = '\x01';
       }
       else {
-        iVar4 = SNDover(SFXHandle);
+        sndover = SNDover(SFXHandle);
       }
-      if ((iVar4 != 0) && (0xc0 < ticks - lastplaytick)) {
-        lastplaytick = ticks;
-        SFXHandle = AudioCmn_PlaySound(gSndBnk[3].bnkID,0x10,0,vol,0x40)
+      if ((sndover != 0) && (0xc0 < ticks - lastplaytick)) {
+        lastplaytick = *(volatile int *)&ticks;
+        SFXHandle = AudioCmn_PlaySound(gSndBnk[3].bnkID,samp,0,vol,0x40)
         ;
       }
     }
+    else if (playingSFX == '\x01') {
+      SNDstop(SFXHandle);
+      playingSFX = '\0';
+    }
+  }
+  else if (wasActive != '\0') {
+    SNDstop(SFXHandle);
+    AudioMus_AutoVolume(500,0);
   }
   wasActive = active;
   return;

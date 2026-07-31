@@ -287,7 +287,15 @@ void CarIO_CreateLicense(char *text,int carType,int player)
   shapetbl *clutPlate2;
   char letter [5];
   
-  if (carType < 0x16) {
+  /* oracle: `slti a1,carType,22; bnez a1,<big arm>` -- the carType>=0x16
+   * (no-plate) arm is the FALL-THROUGH, so it is the if-BODY and the
+   * plate-building arm is the else (catalog: arm order sets branch
+   * polarity + which block goes out of line). */
+  if (carType >= 0x16) {
+    CarIO_Plate2[player] = (shapetbl *)0x0;
+    CarIO_Plate1[player] = (shapetbl *)0x0;
+  }
+  else {
     psVar1 = reservememadr("plate1",0x148,0);
     ppsVar12 = CarIO_Plate1 + player;
     *ppsVar12 = psVar1;
@@ -377,10 +385,6 @@ void CarIO_CreateLicense(char *text,int carType,int player)
     }
     CarIO_CopyToShape(source,(short *)&psVar1->data,iVar13);
     purgememadr(dest);
-  }
-  else {
-    CarIO_Plate2[player] = (shapetbl *)0x0;
-    CarIO_Plate1[player] = (shapetbl *)0x0;
   }
   return;
 }

@@ -15,24 +15,21 @@ int TrackSpec_gPrevSpec;
 
 
 /* ---- TrackSpec_SetDefault__FP10CTrackSpec  [TRACKSPEC.CPP:44-113] SLD-VERIFIED ----
- * FAR-MISS 193 diffs (was 228), COUNT-EXACT 141/142.  w39-a5 applied the SYM rule-8
- * rewrite (only i/j survive; both loops in index form) and the arm-order flip
- * (`8 <= i` first = the oracle's fall-through arm), 228 -> 195 -> 193.
- * THE WHOLE RESIDUAL IS ONE ALLOCATION DECISION: `spec` sits in $a0 for us and in
- * $a1 for retail (SYM: spec = REGPARM $05), so every one of the ~90 field stores
- * differs only in its base register.  -dg/-dl on THIS body (w39-a5):
- *   83  j            prio 3.23 -> $v1
- *   191 ring walker  prio 3.04 -> $a1   <-- retail has NO such pseudo
- *   80  spec 76 refs prio 1.64 -> $a0   (copy-preference for the incoming $a0)
- *   195 sky walker   prio 0.50 -> $a1 (reuse)
- * Retail instead has sky-walker=$a0 and spec=$a1, i.e. something took $a0 BEFORE
- * spec despite spec's lower-numbered copy preference.  Probes measured here:
- *   goto-loop on the ring loop (kills the giv)          218  WORSE
- *   arm order `i < 8` first                             195
- *   arm order `8 <= i` first                            193  <- kept
- *   per-TU no_split_addresses/no_schedule_insns{,2}/
- *     no_strength_reduce                                see the trackspec flag receipts
- * The residual is the documented allocno/copy-preference identity class. */
+ * FAR-MISS 228 diffs but COUNT-EXACT (142/142) -- w38-a10 root-caused it to exactly TWO
+ * decisions, neither cracked yet (recorded so the next pass does not re-diagnose):
+ *  (1) BASE REGISTER: every one of the ~90 field stores uses $a1 in the oracle and $a0
+ *      (the raw parameter) in ours. The oracle's $a0 is DEAD after an early
+ *      `addu $a1,$a0,$zero` and gets reused as a scratch (`lhu $a0,72($v0)`) and later as
+ *      the 5-iteration ring walker (`addu $a0,$a1,$zero` ... `addiu $a0,$a0,4`), while
+ *      $a1 stays the fixed record base for the whole body. Introducing an explicit local
+ *      `CTrackSpec *spec = specArg;` does NOT reproduce it -- gcc copy-propagates the
+ *      local straight back onto the incoming $a0 (measured: no change, 228).
+ *  (2) CONSTANT REMATERIALIZATION: the oracle re-emits `li $v1,K` per store group
+ *      (1/200/8/2/1/-4224 ...) reusing ONE register, while ours CSEs the repeated small
+ *      constants into $t0/$a2/$t1 up front and copies them out (`addu $v0,$a2,$zero`).
+ *      This is the documented per-obj "old-gcc weaker-CSE / no-copy-prop" identity class.
+ *  The ring-PMX loop also differs: the oracle recomputes `base + i` per iteration
+ *  (`addu $v1,$a1,$a2`, index form) where ours strength-reduces to a walking pointer. */
 void TrackSpec_SetDefault(CTrackSpec *spec)
 
 {
@@ -81,11 +78,11 @@ void TrackSpec_SetDefault(CTrackSpec *spec)
   (spec->horizonspec).backColor[1].b = 0x80;
   spec->nightstate = sVar2;
   for (; i < 0x10; i = i + 1) {
-    if (8 <= i) {
-      (spec->horizonspec).ringPMX[i] = (char)(0x17 - i);
+    if (i < 8) {
+      (spec->horizonspec).ringPMX[i] = (char)i;
     }
     else {
-      (spec->horizonspec).ringPMX[i] = (char)i;
+      (spec->horizonspec).ringPMX[i] = (char)(0x17 - i);
     }
   }
   i = 0;

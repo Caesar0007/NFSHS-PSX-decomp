@@ -280,110 +280,108 @@ void Sim_MainGameLoop(void)
 {
   int lastRealTick;
   int lastGoalTick;
-  int realTick;
-  int diffReal;
-  int diffGoal;
-  int i;
-  int iVar2;
-  int iVar3;
-  u_long uVar4;
+  GameSetup_tData *replaySetup;
 
   quitType = 1;
+  lastRealTick = clock_realTime.time64Hz + 10000;
   lastGoalTick = 0;
   simGlobal.time32Hz = Input_gTime;
-  lastRealTick = clock_realTime.time64Hz + 10000;
   do {
     if (simVar.endSimGame != 0) goto SimMainLoop_endGame;
     systemtask(0);
-    realTick = clock_realTime.time64Hz;
-    simVar.goalClockTicks = gSimQueue_Ticker * 2;
-    diffReal = realTick - lastRealTick;
-    diffGoal = simVar.goalClockTicks - lastGoalTick;
-    if (diffGoal < diffReal) {
-      simVar.goalClockTicks = simVar.goalClockTicks + 1;
+    {
+      int realTick;
+      int diffReal;
+      int diffGoal;
+
+      realTick = clock_realTime.time64Hz;
+      simVar.goalClockTicks = gSimQueue_Ticker * 2;
+      diffReal = realTick - lastRealTick;
+      diffGoal = simVar.goalClockTicks - lastGoalTick;
+      if (diffReal > diffGoal) {
+        simVar.goalClockTicks++;
+      }
+      lastRealTick = realTick;
+      lastGoalTick = simVar.goalClockTicks;
     }
-    lastGoalTick = simVar.goalClockTicks;
     if (0x10 < Input_gTime - simGlobal.time32Hz) {
       simGlobal.time32Hz = Input_gTime;
     }
-    lastRealTick = realTick;
+    replaySetup = &GameSetup_gData;
     while ((simGlobal.time32Hz <= Input_gTime && (simVar.endSimGame == 0))) {
-      if ((Replay_ReplayMode == 2) &&
-         ((simVar.pauseSim == 0 &&
-          (Replay_GetInterfaceKey(), Replay_ReplayInterface.depressed == 4)))) {
-        Replay_ReplayInterface.depressed = 0;
-        simVar.endSimGame = Replay_ReplayInterface.end;
-        if (GameSetup_gData.instantReplay == 0) {
-          if ((Replay_ReplayInterface.end == 0) || (simVar.quickPauseSim == 0)) {
-            if (simVar.quickPauseSim != Replay_ReplayInterface.pause) {
+      if ((Replay_ReplayMode == 2) && (simVar.pauseSim == 0)) {
+        Replay_GetInterfaceKey();
+        if (Replay_ReplayInterface.depressed == 4) {
+          Replay_ReplayInterface.depressed = 0;
+          simVar.endSimGame = Replay_ReplayInterface.end;
+          if (replaySetup->instantReplay != 0) {
+            AudioCmn_UnPauseAndRestart();
+          }
+          else {
+            if ((Replay_ReplayInterface.end != 0) && (simVar.quickPauseSim != 0)) {
+              simVar.quickPauseSim = 0;
+              AudioCmn_UnPauseAndQuit();
+            }
+            else if (simVar.quickPauseSim != Replay_ReplayInterface.pause) {
               simVar.quickPauseSim = Replay_ReplayInterface.pause;
-              if (Replay_ReplayInterface.pause == 0) {
-                AudioCmn_UnPause();
-              }
-              else {
+              if (simVar.quickPauseSim != 0) {
                 Camera_Update();
                 AudioCmn_Pause();
               }
+              else {
+                AudioCmn_UnPause();
+              }
             }
           }
-          else {
-            simVar.quickPauseSim = 0;
-            AudioCmn_UnPauseAndQuit();
-          }
-        }
-        else {
-          AudioCmn_UnPauseAndRestart();
         }
       }
       if (simVar.endSimGame == 0) {
-        if (simVar.pauseSim == 0) {
-          iVar2 = Input_Interface(0x15,1);
-          if (iVar2 != 0) {
+        if (simVar.pauseSim != 0) {
+          Sim_ProcessPause();
+          simVar.keyRelease = 0x18;
+        }
+        else {
+          if (Input_Interface(0x15,1) != 0) {
             AudioMus_SwitchSong();
             Hud_ActivateCDPlayer = 1;
           }
-          i = 0;
-          if (simVar.keyRelease == 0) {
-            do {
-              uVar4 = 0x1a;
-              if (i != 0) {
-                uVar4 = 0x1b;
-              }
-              iVar3 = Input_Interface(uVar4,1);
-              if ((iVar3 != 0) && (Replay_ReplayMode < 2)) {
-                Camera_NextMode(i);
-              }
-              uVar4 = 0x1c;
-              if (i != 0) {
-                uVar4 = 0x1d;
-              }
-              iVar3 = Input_Interface(uVar4,1);
-              if (iVar3 != 0) {
-                DashHUD_ToggleHud(i);
-              }
-              iVar3 = Input_Interface(i + 0x16,0);
-              Input_gLookBehind[i] = iVar3;
-              Sim_CheckForPause(1);
-              i = i + 1;
-            } while (i <= (int)(u_int)(GameSetup_gData.commMode == 1));
-          }
-          else {
-            iVar2 = Input_Interface(simVar.keyRelease,0);
-            if (iVar2 == 0) {
+          if (simVar.keyRelease != 0) {
+            if (Input_Interface(simVar.keyRelease,0) == 0) {
               simVar.keyRelease = 0;
             }
           }
-        }
-        else {
-          Sim_ProcessPause();
-          simVar.keyRelease = 0x18;
+          else {
+            int i;
+            char *gameSetup;
+
+            i = 0;
+            gameSetup = (char *)&GameSetup_gData;
+            if (i > (int)(u_int)(*(int *)(gameSetup + 0xc) == 1))
+              goto SimMainLoop_inputDone;
+SimMainLoop_inputLoop:
+              if ((Input_Interface(i != 0 ? 0x1b : 0x1a,1) != 0) &&
+                  (Replay_ReplayMode < 2)) {
+                Camera_NextMode(i);
+              }
+              if (Input_Interface(i != 0 ? 0x1d : 0x1c,1) != 0) {
+                DashHUD_ToggleHud(i);
+              }
+              *(int *)((i << 2) + (int)Input_gLookBehind) =
+                  Input_Interface(i + 0x16,0);
+              Sim_CheckForPause(1);
+              i++;
+              if (i <= (int)(u_int)(*(int *)(gameSetup + 0xc) == 1))
+                goto SimMainLoop_inputLoop;
+SimMainLoop_inputDone:
+              ;
+          }
         }
       }
       simGlobal.time32Hz = simGlobal.time32Hz + 1;
     }
     skipRender = 0;
     if (((simVar.pauseSim == 0) && (simVar.quickPauseSim == 0)) && (simVar.endSimGame == 0)) {
-      if (simVar.goalClockTicks < simVar.currentClockTicks) {
+      if (simVar.currentClockTicks > simVar.goalClockTicks) {
         skipRender = 1;
       }
       else {
@@ -392,19 +390,23 @@ void Sim_MainGameLoop(void)
             SimQueue_SetCurrentInput(simVar.currentClockTicks >> 1);
           }
           InBetween = 0;
-          if ((((Replay_ReplayMode == 2) && (Replay_ReplayInterface.speed != 2)) &&
-              ((Replay_ReplayInterface.speed != 1 || ((simVar.currentClockTicks & 1U) != 0)))) &&
-             ((Replay_ReplayInterface.speed != 0 || ((simVar.currentClockTicks & 3U) != 0)))) {
-            if (Replay_ReplayInterface.speed == 3) {
-              Sim_ProcessSimSchedules();
-              goto SimMainLoop_processSchedules;
-            }
-            InBetween = 1;
-            Camera_Update();
+          if ((Replay_ReplayMode != 2) ||
+              (Replay_ReplayInterface.speed == 2) ||
+              ((Replay_ReplayInterface.speed == 1) &&
+               ((simVar.currentClockTicks & 1U) == 0)) ||
+              ((Replay_ReplayInterface.speed == 0) &&
+               ((simVar.currentClockTicks & 3U) == 0))) {
+            Sim_ProcessSimSchedules();
           }
           else {
-SimMainLoop_processSchedules:
-            Sim_ProcessSimSchedules();
+            if (Replay_ReplayInterface.speed == 3) {
+              Sim_ProcessSimSchedules();
+              Sim_ProcessSimSchedules();
+            }
+            else {
+              InBetween++;
+              Camera_Update();
+            }
           }
           simVar.currentClockTicks = simVar.currentClockTicks + 1;
         } while (simVar.currentClockTicks <= simVar.goalClockTicks);
@@ -416,8 +418,8 @@ SimMainLoop_processSchedules:
     if (skipRender == 0) {
       Render_Render(simVar.pauseSim);
     }
-    iVar3 = Input_MainExitKey();
-    if ((iVar3 != 0) || ((Replay_ReplayMode == 3 && (0x40 < simGlobal.gameTicks)))) {
+    if ((Input_MainExitKey() != 0) ||
+        ((Replay_ReplayMode == 3 && (0x40 < simGlobal.gameTicks)))) {
       simVar.endSimGame = 1;
     }
   } while( true );

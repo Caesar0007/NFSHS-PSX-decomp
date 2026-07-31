@@ -241,10 +241,10 @@ void Input_Update(void)
         for (m = 0; m < 2; m++) {
           for (k = 0; k < 17; k++) {
             if (*h != 0) {
-              if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) < 65) {
-                *dbflags &= ~(1 << k);
-              } else {
+              if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65) {
                 *dbflags |= (1 << k);
+              } else {
+                *dbflags &= ~(1 << k);
               }
             }
             h++;
@@ -364,16 +364,16 @@ void Input_Update(void)
                 h++;
                 continue;
               }
-              if ((u_int)(*(int *)((char *)Input_gPressTime + pressOffset +
-                                   j * 4) -
-                           1) < 5) {
-                if ((*dbflags & (1 << j)) == 0) {
-                  acc = j + 1;
-                  *dbflags |= (1 << j);
+              if (*(int *)((char *)Input_gPressTime + pressOffset + j * 4) > 0) {
+                if (*(int *)((char *)Input_gPressTime + pressOffset + j * 4) < 6) {
+                  if ((*dbflags & (1 << j)) == 0) {
+                    acc = j + 1;
+                    *dbflags |= (1 << j);
+                  }
+                  *(int *)((char *)Input_gPressTime + pressOffset + j * 4) = 0;
+                  h++;
+                  continue;
                 }
-                *(int *)((char *)Input_gPressTime + pressOffset + j * 4) = 0;
-                h++;
-                continue;
               }
             }
             *dbflags &= ~(1 << j);
@@ -397,20 +397,20 @@ void Input_Update(void)
       h += (2 - mode) * 17;
     }
 
-    r->flags |= (acc << 3);
-    if ((r->flags >> 3) == 16) {
-      r->flags &= 7;
-      menukeys |= (1 << (i + 26));
-    } else if ((r->flags >> 3) < 17) {
-      if ((r->flags >> 3) == 15) {
+    *(volatile u_char *)&r->flags |= (acc << 3);
+    switch (r->flags >> 3) {
+      case 15:
         r->flags &= 7;
         menukeys |= 0x200000;
-      }
-    } else {
-      if ((r->flags >> 3) == 17) {
+        break;
+      case 16:
+        r->flags &= 7;
+        menukeys |= (1 << (i + 26));
+        break;
+      case 17:
         r->flags &= 7;
         menukeys |= (1 << (i + 28));
-      }
+        break;
     }
 
     r++;

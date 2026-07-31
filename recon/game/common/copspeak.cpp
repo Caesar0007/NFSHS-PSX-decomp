@@ -748,84 +748,69 @@ void CopSpeak_LoadNextRequest(void)
 
 {
   CopSpeak_tRequest *r;
-  int bank;
-  int iVar1;
-  char sfx;
-  int freed;
-  int wrap;
-  int next;
+  CopSpeak_tBankHeader *bnk;
 
-  iVar1 = AudioMus_Buffered();
-  iVar1 = iVar1 < AudioMus_Threshold();
-  if (iVar1 != 0) {
+  if (AudioMus_Buffered() < AudioMus_Threshold()) {
     return;
   }
-  freed = -1;
-  do {
+  while (true) {
     if (CopSpeak_gQueueLoad == CopSpeak_gQueueHead) {
       return;
     }
-    if (7 < ((CopSpeak_gQueueLoad - (CopSpeak_gQueueReady - 0x40)) & 0x3f)) {
+    if (7 < ((CopSpeak_gQueueLoad -
+              (*(volatile int *)&CopSpeak_gQueueReady - 0x40)) & 0x3f)) {
       return;
     }
     r = &CopSpeak_gQueue[CopSpeak_gQueueLoad];
-    bank = *(signed char *)&r->bank;
-    if (bank < 0) {
-CopSpeak_skipPath:
+    if (*(signed char *)&r->bank < 0) {
       CopSpeak_Skip();
       continue;
     }
-    if (bank == 3) {
-      r->buffer = freed;
-      wrap = 0;
-      if (CopSpeak_gQueueLoad < 0x3f) {
-        wrap = CopSpeak_gQueueLoad + 1;
-      }
-      CopSpeak_gQueueLoad = wrap;
+    if (*(signed char *)&r->bank == 3) {
+      r->buffer = -1;
+      CopSpeak_gQueueLoad =
+          CopSpeak_gQueueLoad < 0x3f ? CopSpeak_gQueueLoad + 1 : 0;
       continue;
     }
-    if (r->sfx == '\0') {
-      if (r->phrase < 0) {
-        goto CopSpeak_checkBankSfx;
+
+    if ((r->sfx == 0) && (r->phrase >= 0)) {
+      if (AudioCmn_GetAsyncSfx(*(signed char *)&r->bank,r->phrase,true) >= 0) {
+        r->buffer = -1;
+        CopSpeak_gQueueLoad =
+            CopSpeak_gQueueLoad < 0x3f ? CopSpeak_gQueueLoad + 1 : 0;
+        continue;
       }
-      bank = AudioCmn_GetAsyncSfx(bank,r->phrase,true);
-      if (bank < 0) {
-CopSpeak_checkBankSfx: /* @0x8009a70c */
-        if ((r->sfx != '\0') ||
-           (bank = AudioCmn_GetAsyncSfx(*(signed char *)&r->bank,r->offset + 0x4000,true), bank < 0)) {
-          goto CopSpeak_allocGate;
-        }
-      }
-      r->buffer = freed;
-      iVar1 = CopSpeak_gQueueLoad;
-      goto CopSpeak_advanceLoad;
     }
-CopSpeak_allocGate:
-    if ((((int)CopSpeak_gBuffer == 0) || (bank = CopSpeak_BankVolume(r), bank == 0)) ||
-        (r->size == 0) || (0x7ffc < r->size)) {
-      goto CopSpeak_skipPath;
+    if ((r->sfx == 0) &&
+        (AudioCmn_GetAsyncSfx(*(signed char *)&r->bank,
+                              r->offset + 0x4000,true) >= 0)) {
+      r->buffer = -1;
+      CopSpeak_gQueueLoad =
+          CopSpeak_gQueueLoad < 0x3f ? CopSpeak_gQueueLoad + 1 : 0;
+      continue;
+    }
+
+    if ((CopSpeak_gBuffer == (char *)0x0) || (CopSpeak_BankVolume(r) == 0) ||
+        (r->size == 0) || (r->size > 0x7ffc)) {
+      CopSpeak_Skip();
+      continue;
     }
     CopSpeak_Alloc(r);
     if (r->buffer < 0) {
       return;
     }
-    *(u_int *)((int)CopSpeak_gBuffer + r->buffer) = 0x4c494146;
-    bank = FILE_read(r->filehandle,(void *)r->offset,(int)CopSpeak_gBuffer + r->buffer,r->size,
-                      100,(void *)0x0);
-    r->ophandle = bank;
-    CopSpeak_gHandleCount = CopSpeak_gHandleCount + '\x01';
-    bank = FILE_operror(r->ophandle);
-    if (0 < bank) {
+    bnk = (CopSpeak_tBankHeader *)(CopSpeak_gBuffer + r->buffer);
+    bnk->id = 0x4c494146;
+    r->ophandle = FILE_read(r->filehandle,(void *)r->offset,
+                            CopSpeak_gBuffer + r->buffer,r->size,
+                            100,(void *)0x0);
+    CopSpeak_gHandleCount++;
+    if (FILE_operror(r->ophandle) > 0) {
       continue;
     }
-    next = 0;
-    iVar1 = CopSpeak_gQueueLoad;
-CopSpeak_advanceLoad: /* @0x8009a7f8 */
-    if (iVar1 < 0x3f) {
-      next = iVar1 + 1;
-    }
-    CopSpeak_gQueueLoad = next;
-  } while( true );
+    CopSpeak_gQueueLoad =
+        CopSpeak_gQueueLoad < 0x3f ? CopSpeak_gQueueLoad + 1 : 0;
+  }
 }
 
 /* ---- CopSpeak_PlayNextRequest__Fv  [COPSPEAK.CPP:1191-1238] SLD-VERIFIED ---- */

@@ -3271,15 +3271,10 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
   Car_tObj*copObj;
   int blockadeType;
   int perpToHumanDistance;
+  Car_tObj *carObj;
   int side;
   int initializationDistance;
   Car_tObj*perpObj;
-  int spikeBeltSide;
-  int left;
-  int right;
-  int slice;
-  int rightLatPos;
-  int timeNow;
 
   u_char bVar1;
 
@@ -3296,8 +3291,6 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
   int iVar7;
 
   AIHigh_BTC_Perp *pAVar8;
-
-  Car_tObj *carObj;
 
   int iVar9;
 
@@ -3323,49 +3316,23 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
     }
 
-    iVar3 = AIWorld_ApxSplineDistance(carObj,otherCarObj);
+    perpToHumanDistance = AIWorld_ApxSplineDistance(carObj,otherCarObj);
 
-    iVar7 = iVar3;
-
-    if (iVar3 < 0) {
-
-      iVar7 = -iVar3;
-
+    initializationDistance = 0x1f40000;
+    if (initializationDistance < __builtin_abs(perpToHumanDistance)) {
+      initializationDistance = __builtin_abs(perpToHumanDistance);
     }
+    initializationDistance =
+        (initializationDistance < 0x5dc0000) ?
+        initializationDistance : 0x5dc0000;
 
-    iVar6 = 0x1f40000;
+    if (perpToHumanDistance * side < 0) {
 
-    if (0x1f40000 < iVar7) {
+      iVar3 = (initializationDistance / 0x60000) * side;
 
-      iVar6 = iVar7;
+      if (-1 < iVar3) {
 
-    }
-
-    iVar7 = 0x5dc0000;
-
-    if (iVar6 < 0x5dc0000) {
-
-      iVar7 = iVar6;
-
-    }
-
-    if (iVar3 * side < 0) {
-
-      initSlice = (iVar7 / 0x60000) * side;
-
-      if (initSlice < 0) {
-
-        initSlice = (otherCarObj->N).simRoadInfo.slice + initSlice;
-
-        goto LAB_8005f1bc;
-
-      }
-
-      sVar2 = (otherCarObj->N).simRoadInfo.slice;
-
-LAB_8005f190:
-
-      initSlice = sVar2 + initSlice;
+        initSlice = (otherCarObj->N).simRoadInfo.slice + iVar3;
 
       if (gNumSlices <= initSlice) {
 
@@ -3373,27 +3340,47 @@ LAB_8005f190:
 
       }
 
+      }
+
+      else {
+
+        initSlice = (otherCarObj->N).simRoadInfo.slice + iVar3;
+
+        if (initSlice < 0) {
+
+          initSlice = initSlice + gNumSlices;
+
+        }
+
+      }
+
     }
 
     else {
 
-      initSlice = (iVar7 / 0x60000) * side;
+      iVar3 = (initializationDistance / 0x60000) * side;
 
-      if (-1 < initSlice) {
+      if (-1 < iVar3) {
 
-        sVar2 = (perpObj->N).simRoadInfo.slice;
+        initSlice = (perpObj->N).simRoadInfo.slice + iVar3;
 
-        goto LAB_8005f190;
+        if (gNumSlices <= initSlice) {
+
+          initSlice = initSlice - gNumSlices;
+
+        }
 
       }
 
-      initSlice = (perpObj->N).simRoadInfo.slice + initSlice;
+      else {
 
-LAB_8005f1bc:
+        initSlice = (perpObj->N).simRoadInfo.slice + iVar3;
 
       if (initSlice < 0) {
 
         initSlice = initSlice + gNumSlices;
+
+      }
 
       }
 
@@ -3419,13 +3406,13 @@ LAB_8005f1bc:
 
     initSlice = initSlice * 0x53;
 
-    if (initSlice < 0) {
+    if (-1 < initSlice) {
 
       initSlice = (otherCarObj->N).simRoadInfo.slice + initSlice;
 
-      if (initSlice < 0) {
+      if (gNumSlices <= initSlice) {
 
-        initSlice = initSlice + gNumSlices;
+        initSlice = initSlice - gNumSlices;
 
       }
 
@@ -3435,9 +3422,9 @@ LAB_8005f1bc:
 
       initSlice = (otherCarObj->N).simRoadInfo.slice + initSlice;
 
-      if (gNumSlices <= initSlice) {
+      if (initSlice < 0) {
 
-        initSlice = initSlice - gNumSlices;
+        initSlice = initSlice + gNumSlices;
 
       }
 
@@ -3451,13 +3438,13 @@ LAB_8005f1bc:
 
 LAB_8005f268:
 
-  iVar7 = otherCarObj->direction;
+  blockadeType = otherCarObj->direction;
 
-  this->blockade_.direction = iVar7;
+  this->blockade_.direction = blockadeType;
 
-  if (0 <= -iVar7) {
+  if (0 <= -blockadeType) {
 
-    iVar7 = initSlice - iVar7;
+    iVar7 = initSlice - blockadeType;
 
     if (gNumSlices <= iVar7) {
 
@@ -3469,7 +3456,7 @@ LAB_8005f268:
 
   else {
 
-    iVar7 = initSlice - iVar7;
+    iVar7 = initSlice - blockadeType;
 
     if (iVar7 < 0) {
 
@@ -3518,6 +3505,13 @@ LAB_8005f268:
              ((humanCop)->carObj_)->direction,0,0x100);
 
   if (spikeBeltRequest != 0) {
+
+    int spikeBeltSide;
+    int left;
+    int right;
+    int slice;
+    int rightLatPos;
+    int timeNow;
 
     iVar9 = AIWorld_ApxSplineDistance(this->carObj_,otherCarObj);
 
@@ -3569,19 +3563,21 @@ LAB_8005f268:
 
     iVar9 = *(volatile int *)&this->spikeBeltSlice_ * 0x20 + (int)BWorldSm_slices;
 
-    iVar9 = fixedmult((u_int)*(u_char *)(iVar9 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar9 + 0x1d) >> 4)
+    left = fixedmult((u_int)*(u_char *)(iVar9 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar9 + 0x1d) >> 4)
 
                        ,0xcccc);
 
     iVar7 = *(volatile int *)&this->spikeBeltSlice_ * 0x20 + (int)BWorldSm_slices;
 
-    AICop_spikeBelt.rightLatPos_ =
+    rightLatPos =
 
          fixedmult((u_int)*(u_char *)(iVar7 + 0x1f) * 0x8000 * (*(u_char *)(iVar7 + 0x1d) & 0xf),0xcccc)
 
     ;
 
-    AICop_spikeBelt.leftLatPos_ = -iVar9;
+    AICop_spikeBelt.rightLatPos_ = rightLatPos;
+
+    AICop_spikeBelt.leftLatPos_ = -left;
 
     AICop_spikeBelt.slice_ = this->spikeBeltSlice_;
 
@@ -3591,7 +3587,7 @@ LAB_8005f268:
 
     BWorld_SetSpikeBelt(this->spikeBeltSlice_,AICop_spikeBelt.leftLatPos_,
 
-               iVar9 + AICop_spikeBelt.rightLatPos_);
+               left + rightLatPos);
 
     this->spikeBeltPlaced_ = 1;
 

@@ -113,6 +113,13 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
   u_short lastMask;
   u_short lastLastMask;
 
+  /* 161 -> 101 (rule-8) -> 63 (`== -1` exit-in-the-middle on the nibble loops +
+   * parenthesized dest offset + `mask = x&3` before the tail) -> 32 (rollOver holds
+   * the SHIFTED nibble).  RESIDUAL 32 (ours 111 / oracle 113): the two SHIFT-ONLY
+   * mask loops keep the unsigned `nor v0,zero,a2; bnez` canonicalization and are not
+   * loop-rotated, where retail peels a guard and shares one `li v0,-1`.  Probes:
+   * hand-written rotated guard+do-while 37, `== -1` if-break form 47, swapped `|`
+   * operand order 32 (neutral) -- the comma-while at 32 is the best measured. */
   columns = w >> 2;
   mask = w & 3;
   if (mask != 0) {
@@ -451,7 +458,19 @@ void CarIO_LicenseCheck(int reload,int *license_vx,int *license_vy,Car_tObj *car
  *                 cx REG $14($s4), cy REG $15($s5)
  * No pointer local in the SYM => CarIO_textureName[i] / palCopyNum[i] /
  * CarIO_carPixMap[carPixMapCount] are written in INDEX form and the retail
- * walkers ($fp, 88(sp), $s1) come back as compiler givs. */
+ * walkers ($fp, 88(sp), $s1) come back as compiler givs.
+ * 687 -> 344 diffs (ours 477 / oracle 491 -- ours is now 14 insns SHORTER).
+ * RESIDUAL = ONE allocation decision, diagnosed with -dg/-dl (w39-a5):
+ *   pseudo 81 = carObj, 28 refs / 720 insns, prio floor_log2(28)*28/720 = .1556
+ *   -> it WINS $fp here, which shifts vx $s6->$s5, vy $s7->$s6, the
+ *      CarIO_textureName giv $fp->$s7 and pushes `palette` out of $s4.
+ *   Retail SPILLS carObj to its incoming arg home 140(sp) (SYM: carObj = class ARG)
+ *   and gives $fp to the textureName giv.  Every carObj materialization site was
+ *   counted 1:1 against the oracle's `0x8C($sp)` reloads (15 outside the loop, 6
+ *   inside x2 = the same 28), and `palette` (pseudo 197, 6 refs / 120) is far below
+ *   carObj either way -- so this is NOT a ref-count difference we can spell away;
+ *   it is the allocno/copy-preference identity residue (catalog sec.G).  Do not
+ *   re-derive: dump -dg/-dl and compare the priority table before touching it. */
 void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int player)
 
 {
@@ -660,7 +679,22 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
    * element, s7 = &CarIO_textureName[i], 60(sp) = &carObj->..palCopyNum[i])
    * are compiler GIVs, so every access is written in INDEX form (catalog:
    * "SYM has only i => the pointers are givs").  player (REGPARM $10) is only
-   * ever used as CarIO_PlateN[player], so gcc hoists player*4 to 56(sp). */
+   * ever used as CarIO_PlateN[player], so gcc hoists player*4 to 56(sp).
+ * 459 -> 97 (rule-8 rewrite) -> 27 (palShare ref-count lever, below).
+ * RESIDUAL 27 diffs (ours 301 / oracle 298 = +3), TWO clusters, both scheduling:
+ *  (a) the spilled `&carObj->..palCopyNum[i]` giv: retail emits its store ONCE, in
+ *      the loop-guard `beqz`'s DELAY SLOT (shared by the preheader fall-through and
+ *      the back edge); ours stores it separately in the preheader (+ a load-delay
+ *      nop) and again at the loop tail.  Reload/dbr placement, not source-shaped.
+ *  (b) `addu a1,v0,s5` vs the oracle's `addu a1,s5,v0` -- commutative operand order
+ *      on the ONE pmx materialization (RTL canonicalization; every other addu in the
+ *      function already matches).
+ * Per-TU flag probes on cario.cpp (w39-a5, all measured over ALL 11 fns):
+ *   no_split_addresses 459->402/Update, ReadIn 344->512, LicenseCheck PASS->11  WORSE
+ *   no_schedule_insns  Update->265 but ReadIn 344->603                          WORSE
+ *   no_schedule_insns2 Update->139 but breaks 6 currently-PASSing fns           WORSE
+ *   no_strength_reduce Update->379, CopyToShape 51->55                          WORSE
+ * => cario.obj is a STOCK-FLAG object (only the proven g_value:8 stays). */
   int i;
   int carType;
   int vx;

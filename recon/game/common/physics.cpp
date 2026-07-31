@@ -1203,11 +1203,11 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
   driveAcc = 0;
   wheelRpm = 0;
   damage = 0;
-  smokeRpm = carObj->specs->redline;
-  if (smokeRpm < 0) {
-    smokeRpm = smokeRpm + 7;
+  temp = carObj->specs->redline;
+  if (temp < 0) {
+    temp = temp + 7;
   }
-  smokeRpm = smokeRpm >> 3;
+  smokeRpm = temp >> 3;
   randtemp = fastRandom * randSeed;
   temp = (carObj->N).damage[1] + (carObj->N).damage[5];
   fastRandom = randtemp & 0xffff;
@@ -1271,43 +1271,39 @@ cfLbl1:   /* @0x800aae38  (-f-build goto label) */
       }
     }
     else {
-      if (carObj->flywheelRpm < desiredRpm) {
+      if ((carObj->flywheelRpm < desiredRpm) &&
+          ((carObj->control).gearShiftTimer == '\0')) {
         temp = carObj->flywheelRpm + 0xfa;
-        if ((carObj->control).gearShiftTimer == '\0') {
-          carObj->flywheelRpm = temp;
-          if (temp <= desiredRpm) {
-            desiredRpm = temp;
-          }
+        carObj->flywheelRpm = temp;
+        if (temp <= desiredRpm) {
+          desiredRpm = temp;
         }
-        else {
-Phy_CalcAcc_gearShiftHandler:
-          if ((carObj->control).lastGear == '\x01') goto Phy_CalcAcc_rpmBleedDown;
-          if ((carObj->control).downShifting == '\0') {
-            if ((u_char)(carObj->control).gear < 4) {
-              carObj->flywheelRpm = carObj->flywheelRpm + -100;
-            }
-            else {
-              carObj->flywheelRpm = carObj->flywheelRpm + -200;
-            }
-            goto cfLbl1;
-          }
-          if ((u_char)(carObj->control).brakeLevel < 0x41) {
-            carObj->flywheelRpm =
-                carObj->flywheelRpm + blip[(u_char)(carObj->control).desiredGear];
+      }
+      else if (((carObj->control).gearShiftTimer != '\0') &&
+               ((carObj->control).lastGear != '\x01')) {
+        if ((carObj->control).downShifting == '\0') {
+          if ((u_char)(carObj->control).gear < 4) {
+            carObj->flywheelRpm = carObj->flywheelRpm + -100;
           }
           else {
-            carObj->flywheelRpm =
-                carObj->flywheelRpm + bblip[(u_char)(carObj->control).desiredGear];
+            carObj->flywheelRpm = carObj->flywheelRpm + -200;
           }
-          desiredRpm = specs->redline;
-          if (carObj->flywheelRpm <= specs->redline) {
-            desiredRpm = carObj->flywheelRpm;
-          }
+          goto cfLbl1;
+        }
+        if ((u_char)(carObj->control).brakeLevel < 0x41) {
+          carObj->flywheelRpm =
+              carObj->flywheelRpm + blip[(u_char)(carObj->control).desiredGear];
+        }
+        else {
+          carObj->flywheelRpm =
+              carObj->flywheelRpm + bblip[(u_char)(carObj->control).desiredGear];
+        }
+        desiredRpm = specs->redline;
+        if (carObj->flywheelRpm <= specs->redline) {
+          desiredRpm = carObj->flywheelRpm;
         }
       }
       else {
-        if ((carObj->control).gearShiftTimer != '\0') goto Phy_CalcAcc_gearShiftHandler;
-Phy_CalcAcc_rpmBleedDown:
         if (carObj->flywheelRpm < desiredRpm) goto Phy_CalcAcc_clearWheelSpinExit;
         carObj->flywheelRpm = carObj->flywheelRpm + -200;
         if (desiredRpm < carObj->flywheelRpm) {

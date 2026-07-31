@@ -2153,57 +2153,32 @@ int Cars_CalculateRoadSpan(Car_tObj *carObj)
 {
   int span;
   int tempSpan;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  int iVar9;
-  int iVar10;
-  
-  iVar10 = (carObj->N).roadMatrix.m[0] / 256;
-  iVar1 = (carObj->N).orientMat.m[0] / 256;
-  iVar1 = iVar10 * iVar1;
-  iVar9 = (carObj->N).roadMatrix.m[1] / 256;
-  iVar2 = (carObj->N).orientMat.m[1] / 256;
-  iVar1 = iVar1 + iVar9 * iVar2;
-  iVar8 = (carObj->N).roadMatrix.m[2] / 256;
-  iVar3 = (carObj->N).orientMat.m[2] / 256;
-  iVar1 = iVar1 + iVar8 * iVar3;
-  if (iVar1 < 0) {
-    iVar1 = -iVar1;
-  }
-  iVar1 = iVar1 / 256;
-  iVar2 = (carObj->N).dimension.x / 256;
-  iVar3 = (carObj->N).orientMat.m[3] / 256;
-  iVar10 = iVar10 * iVar3;
-  iVar4 = (carObj->N).orientMat.m[4] / 256;
-  iVar10 = iVar10 + iVar9 * iVar4;
-  iVar5 = (carObj->N).orientMat.m[5] / 256;
-  iVar10 = iVar10 + iVar8 * iVar5;
-  if (iVar10 < 0) {
-    iVar10 = -iVar10;
-  }
-  iVar10 = iVar10 / 256;
-  iVar9 = (carObj->N).dimension.y / 256;
-  iVar8 = (carObj->N).roadMatrix.m[0] / 256;
-  iVar3 = (carObj->N).orientMat.m[6] / 256;
-  iVar8 = iVar8 * iVar3;
-  iVar4 = (carObj->N).roadMatrix.m[1] / 256;
-  iVar5 = (carObj->N).orientMat.m[7] / 256;
-  iVar8 = iVar8 + iVar4 * iVar5;
-  iVar7 = (carObj->N).roadMatrix.m[2] / 256;
-  iVar6 = (carObj->N).orientMat.m[8] / 256;
-  iVar8 = iVar8 + iVar7 * iVar6;
-  if (iVar8 < 0) {
-    iVar8 = -iVar8;
-  }
-  iVar8 = iVar8 / 256;
-  iVar3 = (carObj->N).dimension.z / 256;
-  return iVar1 * iVar2 + iVar10 * iVar9 + iVar8 * iVar3;
+
+  span = ((carObj->N).roadMatrix.m[0] / 256) *
+             ((carObj->N).orientMat.m[0] / 256) +
+         ((carObj->N).roadMatrix.m[1] / 256) *
+             ((carObj->N).orientMat.m[1] / 256) +
+         ((carObj->N).roadMatrix.m[2] / 256) *
+             ((carObj->N).orientMat.m[2] / 256);
+  span = __builtin_abs(span);
+  span /= 256;
+  span *= (carObj->N).dimension.x / 256;
+  tempSpan = ((carObj->N).roadMatrix.m[0] / 256) *
+                 ((carObj->N).orientMat.m[3] / 256) +
+             ((carObj->N).roadMatrix.m[1] / 256) *
+                 ((carObj->N).orientMat.m[4] / 256) +
+             ((carObj->N).roadMatrix.m[2] / 256) *
+                 ((carObj->N).orientMat.m[5] / 256);
+  span += (__builtin_abs(tempSpan) / 256) *
+          ((carObj->N).dimension.y / 256);
+  tempSpan = ((carObj->N).roadMatrix.m[0] / 256) *
+                 ((carObj->N).orientMat.m[6] / 256) +
+             ((carObj->N).roadMatrix.m[1] / 256) *
+                 ((carObj->N).orientMat.m[7] / 256) +
+             ((carObj->N).roadMatrix.m[2] / 256) *
+                 ((carObj->N).orientMat.m[8] / 256);
+  return span + (__builtin_abs(tempSpan) / 256) *
+                ((carObj->N).dimension.z / 256);
 }
 
 /* ---- Cars_CalculateRoadPosition__FP8Car_tObj  [@0x8008aec8] ---- */

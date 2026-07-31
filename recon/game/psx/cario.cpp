@@ -200,40 +200,55 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
 void CarIO_CopyToShape(short *source,short *dest,int mirror)
 
 {
-  bool bVar1;
-  u_short uVar2;
-  u_short pixel3;
-  u_short *puVar3;
-  u_int uVar4;
-  int iVar5;
-  int i;
+  /* SYM @0x800bc1b4: fsize 0, mask 0 (leaf).  REGPARMs source=$0a($t2),
+   * dest=$08($t0), mirror=$06($a2).  Only THREE locals, in nested blocks:
+   *   fn block        -> h      REG $0b ($t3)
+   *   outer-loop body -> i      REG $07 ($a3)   [shared by both arms]
+   *   inner mirror    -> pixel3 REG $03 ($v1)   USHORT
+   * There is NO pointer local: the source walkers ($v1 / $t1) are compiler
+   * GIVs of `source[i]`, so the source indexes the array (catalog: SYM has
+   * only i/j => pointers are givs, use index form).  Both loops are
+   * EXIT-IN-THE-MIDDLE so gcc does not rotate/peel them (oracle back-edges
+   * are unconditional `j`), and `h == -1` (not `!= -1`) keeps the signed
+   * `beq h,K` against the loop-hoisted -1 in $t4 instead of the unsigned
+   * `nor`+`bnez` canonicalization.
+   * RESIDUAL 51 diffs (ours 39 / oracle 42) -- TWO independent 1-/2-insn gaps:
+   *  (a) retail copies BOTH pointer params out of their arg regs (SYM: source
+   *      REGPARM $0a, dest REGPARM $08) because local-alloc had claimed $a0/$a1
+   *      for the four nibble-mask temps; ours keeps `dest` in $a1 and therefore
+   *      reuses one scratch for the mask terms (same insn COUNT, different
+   *      register letters).  Falsified: symmetric 4th `& 0xf000` mask, postfix
+   *      `*dest++`, for-vs-do-while on the copy loop -- all byte-identical.
+   *  (b) the two arms' identical `source += 12; j looptop` tails: our gcc
+   *      CROSS-JUMPS them into one, retail kept both copies (2 insns).  No
+   *      source spelling reached it; moving the statement out of the arms
+   *      produces exactly our merged form. */
   int h;
-  int iVar6;
-  
-  iVar6 = 0x16;
-  while (iVar6 = iVar6 + -1, iVar6 != -1) {
-    iVar5 = 5;
+
+  h = 0x16;
+  while (1) {
+    int i;
+
+    h = h - 1;
+    if (h == -1) break;
     if (mirror == 0) {
-      iVar5 = 0;
-      puVar3 = (u_short *)source;
+      i = 0;
       do {
-        uVar2 = *puVar3;
-        puVar3 = puVar3 + 1;
-        iVar5 = iVar5 + 1;
-        *dest = uVar2;
-        dest = dest + 1;
-      } while (iVar5 < 6);
+        *dest++ = source[i];
+        i = i + 1;
+      } while (i < 6);
       source = source + 0xc;
     }
     else {
-      puVar3 = (u_short *)(source + 5);
-      while (bVar1 = -1 < iVar5, iVar5 = iVar5 + -1, bVar1) {
-        uVar2 = *puVar3;
-        uVar4 = (u_int)uVar2;
-        puVar3 = puVar3 + -1;
-        *dest = (u_short)((uVar4 & 0xf) << 0xc) | (u_short)((uVar4 & 0xf0) << 4) |
-                (u_short)((uVar4 & 0xf00) >> 4) | uVar2 >> 0xc;
-        dest = dest + 1;
+      i = 5;
+      while (1) {
+        u_short pixel3;
+
+        if (i < 0) break;
+        pixel3 = source[i];
+        *dest++ = (short)(((pixel3 & 0xf) << 0xc) | ((pixel3 & 0xf0) << 4) |
+                        ((pixel3 & 0xf00) >> 4) | (pixel3 >> 0xc));
+        i = i - 1;
       }
       source = source + 0xc;
     }

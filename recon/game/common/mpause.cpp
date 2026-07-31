@@ -37,6 +37,21 @@ static inline int MPause_CurrentItem(tPMenu *menu)
   return menu->fCurrentItem;
 }
 
+struct MPauseMenuPrefix {
+  int fCurrentItem;
+  BOOL fHighlight;
+  tPMenuItem *fItemList[16];
+  tPMenu *fNextMenu;
+  int fNumItems;
+};
+
+struct MPauseMenuVirtual : public MPauseMenuPrefix {
+  virtual void Unknown1(void);
+  virtual void Initialize(void);
+  virtual void ProcessInput(tInputKeyType &keyVal,tPMenuCommand &command);
+  virtual void Draw(void);
+};
+
 
 /* ---- tPauseMenuDefs  [MPAUSE.CPP:172-264] SLD-VERIFIED ---- */
 int tPauseMenuDefs_ct(int param_1)
@@ -244,108 +259,123 @@ void MPause_ControllerLogic(void)
 u_int MPause_Logic(void)
 
 {
-  tPMenu *pThis;  /* folded receiver temp (SYM REG `this`) */
   tPMenuCommand command;
-  int keyVal;
-  int debounce;
-  int start;
-  int finish;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  __vtbl_ptr_type (*pa_Var4) [5];
-  u_int local_20;
-  tPMenu *local_1c;
-  int local_18 [2];
-  
-  local_18[0] = 0;
-  iVar1 = Debounce(gPauseCurrentMenu);
-  iVar2 = Input_Interface(5,1);
-  iVar3 = 2;
-  if (iVar2 == 0) {
-    iVar2 = Input_Interface(1,1);
-    iVar3 = 0x200;
-    if (iVar2 != 0) goto MPauseLogic_keyValJoin;
-    iVar2 = Input_Interface(2,1);
-    iVar3 = 0x400;
-    if (iVar2 != 0) goto MPauseLogic_keyValJoin;
-    iVar2 = Input_Interface(3,iVar1);
-    iVar3 = 0x800;
-    if (iVar2 != 0) goto MPauseLogic_keyValJoin;
-    iVar1 = Input_Interface(4,iVar1);
-    iVar3 = 0x1000;
-    if (iVar1 != 0) goto MPauseLogic_keyValJoin;
-    iVar1 = Input_Interface(6,1);
-    iVar3 = 0x2000;
-    if (iVar1 != 0) goto MPauseLogic_keyValJoin;
-    iVar1 = Input_Interface(0x18,1);
-    iVar3 = 0x10;
-    if (iVar1 != 0) goto MPauseLogic_keyValJoin;
+  tInputKeyType keyVal;
+  BOOL debounce;
+  int oldItem;
+  int newItem;
+
+  keyVal = kInput_KeyType_NoKey;
+  debounce = Debounce(gPauseCurrentMenu);
+  if (Input_Interface(5,1)) {
+    keyVal = kInput_KeyType_Cross;
   }
-  else {
-MPauseLogic_keyValJoin:
-    local_18[0] = iVar3;
+  else if (Input_Interface(1,1)) {
+    keyVal = kInput_KeyType_Up;
   }
-  local_20 = 0;
+  else if (Input_Interface(2,1)) {
+    keyVal = kInput_KeyType_Down;
+  }
+  else if (Input_Interface(3,debounce)) {
+    keyVal = kInput_KeyType_Left;
+  }
+  else if (Input_Interface(4,debounce)) {
+    keyVal = kInput_KeyType_Right;
+  }
+  else if (Input_Interface(6,1)) {
+    keyVal = kInput_KeyType_Start;
+  }
+  else if (Input_Interface(0x18,1)) {
+    keyVal = kInput_KeyType_Triangle;
+  }
+
+  command.type = kMPause_NoEvent;
   if (kMovingHighlight == 0) {
-    if (local_18[0] != 0) {
+    if (keyVal != kInput_KeyType_NoKey) {
+      tPMenu *pThis;
+
       gMPauseUpdate = 1;
-      iVar1 = gPauseCurrentMenu->fCurrentItem;
-      (*(*gPauseCurrentMenu->_vf)[3].pfn)
-                ((int)gPauseCurrentMenu->fItemList + (*gPauseCurrentMenu->_vf)[3].delta + -8,local_18,
-                 &local_20);
-      iVar2 = (int)(short)gPauseCurrentMenu->fCurrentItem;
-      if ((short)iVar1 != iVar2) {
-        iVar1 = ItemEnabledNum(gPauseCurrentMenu,(short)iVar1);
-        iVar3 = iVar1 * 0xd + 0x6a;
-        iVar1 = ItemEnabledNum(gPauseCurrentMenu,iVar2);
-        iVar1 = iVar1 * 0xd + 0x6a;
-        kMovingHighlight = (short)iVar3 - (short)iVar1;
-        kMovingHighlightDir = (u_short)((iVar1 - iVar3) / 10);
+      pThis = gPauseCurrentMenu;
+      oldItem = pThis->fCurrentItem;
+      ((MPauseMenuVirtual *)pThis)->ProcessInput(keyVal,command);
+      newItem = gPauseCurrentMenu->fCurrentItem;
+      if ((short)oldItem != (short)newItem) {
+        int start;
+        int finish;
+
+        start = ItemEnabledNum(gPauseCurrentMenu,(short)oldItem) * 0xd + 0x6a;
+        finish = ItemEnabledNum(gPauseCurrentMenu,(short)newItem) * 0xd + 0x6a;
+        kMovingHighlight = start - finish;
+        kMovingHighlightDir = (finish - start) / 10;
       }
-      goto MPauseLogic_cmdProcess;
+      goto MPauseLogic_command;
     }
     if (ChangedEnabling == 0) {
-      if (gMPauseUpdateNextTime == 0) {
-        gMPauseUpdate = 0;
-      }
-      else {
-        gMPauseUpdate = 1;
-        gMPauseUpdateNextTime = 0;
-      }
-      goto MPauseLogic_cmdProcess;
+      goto MPauseLogic_updateNext;
     }
   }
   gMPauseUpdate = 1;
-MPauseLogic_cmdProcess:
-  if (local_20 != 0) {
-    if ((local_20 & 0x100) != 0) {
-      *(u_int *)(((int)gPauseMenuDefs) + 0x2d0) =
-           gPauseCurrentMenu->fItemList[gPauseCurrentMenu->fCurrentItem]->fTextDescription;
-      *(u_int *)(((int)gPauseMenuDefs) + 0x304) = 0;
-      *(u_int *)(((int)gPauseMenuDefs) + 0x300) = local_20 & 0xff;
-      local_1c = (tPMenu *)(((int)gPauseMenuDefs) + 0x304);
-      local_20 = 6;
+  goto MPauseLogic_command;
+
+MPauseLogic_updateNext:
+  if (gMPauseUpdateNextTime != 0) {
+    gMPauseUpdate = 1;
+    gMPauseUpdateNextTime = 0;
+  }
+  else {
+    gMPauseUpdate = 0;
+  }
+
+MPauseLogic_command:
+  if (command.type != kMPause_NoEvent) {
+    int backDepth;
+    MPauseMenuVirtual *nextMenu;
+
+    if ((command.type & kMPause_CommandConfirmationFlag) != 0) {
+      gPauseMenuDefs->itemConfirmTitle.fTextDescription =
+          gPauseCurrentMenu->fItemList[gPauseCurrentMenu->fCurrentItem]->fTextDescription;
+      gPauseMenuDefs->itemConfirmYes.fCommand = command.type & 0xff;
+      gPauseMenuDefs->menuConfirmYesNo.fCurrentItem = 0;
+      command.type = kMPause_GoToMenu;
+      command.nextMenu = &gPauseMenuDefs->menuConfirmYesNo;
     }
-    if (local_20 == 6) {
-      gBackList[gBackDepth] = gPauseCurrentMenu;
-      pa_Var4 = local_1c->_vf;
-      iVar1 = gBackDepth + 1;
-      gPauseCurrentMenu = local_1c;
-    }
-    else {
-      if (local_20 != 7) {
-        return local_20;
+
+    switch (command.type) {
+    case kMPause_GoToMenu:
+      backDepth = gBackDepth;
+      gBackList[backDepth] = gPauseCurrentMenu;
+      nextMenu = (MPauseMenuVirtual *)command.nextMenu;
+      backDepth++;
+      goto MPauseLogic_initialize;
+
+    case kMPause_BackupMenu:
+      backDepth = gBackDepth;
+      if (backDepth <= 0) {
+        goto MPauseLogic_noBack;
       }
-      iVar1 = gBackDepth + -1;
-      if (gBackDepth < 1) {
-        return 1;
-      }
-      pa_Var4 = gBackList[iVar1]->_vf;
-      gPauseCurrentMenu = gBackList[iVar1];
+      backDepth--;
+      nextMenu = (MPauseMenuVirtual *)gBackList[backDepth];
+      goto MPauseLogic_initialize;
+
+    default:
+      goto MPauseLogic_returnCommand;
     }
-    gBackDepth = iVar1;
-    (*(*pa_Var4)[2].pfn)((int)gPauseCurrentMenu->fItemList + (*pa_Var4)[2].delta + -8);
+
+MPauseLogic_initialize:
+    gBackDepth = backDepth;
+    gPauseCurrentMenu = (tPMenu *)nextMenu;
+    nextMenu->Initialize();
+    goto MPauseLogic_commandDone;
+
+MPauseLogic_noBack:
+    command.type = kMPause_Continue;
+    return command.type;
+
+MPauseLogic_returnCommand:
+    return command.type;
+
+MPauseLogic_commandDone:
+    ;
   }
   MPause_MusicLogic(gPauseCurrentMenu == (tPMenu *)(((int)gPauseMenuDefs) + 0x1c8));
   MPause_ControllerLogic();

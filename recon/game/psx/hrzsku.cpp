@@ -163,19 +163,19 @@ void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *per
  * both explicit `if/trap` pairs and folded the range subtraction directly into the modulo
  * expression -- this ALSO fixed a signed-vs-unsigned bug (starBright was `int`, giving a
  * SIGNED `div` with an extra INT_MIN/-1 overflow guard the oracle doesn't have; corrected
- * to `u_int` -- oracle's second range check is `divu`, not `div`). Residual: oracle uses
- * ONE more callee-saved reg (`$s0-$s5`, 6 regs) than ours (`$s0-$s4`, 5 regs) -- `height`
- * and `radius` are both simultaneously live across the same call span in both builds (SYM
- * confirms height=$s2/radius=$s1 alongside heightAngle=$s0/latAngle=$s3/i=$s4/oldSeed=$s5)
- * but our allocator finds a way to route one fewer live range through a save/restore;
- * every remaining diff line is otherwise position-identical, just uniformly shifted by
- * this one missing slot -- genuine allocator floor, not chased further. */
+ * to `u_int` -- oracle's second range check is `divu`, not `div`).
+ * (4) w39-a8: PASS (was 50 diffs / 5 saved regs vs the oracle's 6).  The "one missing
+ * callee-saved reg" was NOT an allocator floor -- it was THREE fabricated locals the SYM
+ * (@40dd10: oldSeed $s5, i $s4, radius $s1, height $s2, latAngle $s3, heightAngle $s0,
+ * starBright $a0) does not have: `int vx`, `SVECTOR *pSVar6` and `u_int uVar2`.  Writing
+ * the two fixedmult results straight into `starPosInSky[i].vx/.vz` (and NOT recycling
+ * `height` for the vz value) gives the oracle's `sh $v0,0(v1)` / `sh $v0,4(s0)` direct
+ * stores, its re-load of starPosInSky after the intervening call, and the 6-register
+ * frame exactly.  Floor claim RETRACTED. */
 void Sky_InitStars(void)
 
 {
   int seed;
-  u_int uVar2;
-  SVECTOR *pSVar6;
   int i;
   long oldSeed;
 
@@ -189,26 +189,19 @@ void Sky_InitStars(void)
       int heightAngle;
       int height;
       int radius;
-      int vx;
       u_int starBright;
 
       latAngle = random();
       latAngle = latAngle & 0xffff;
-      uVar2 = random();
       heightAngle = Sky_gTrackSpec->starAngleLow +
-                    uVar2 % (Sky_gTrackSpec->starAngleHigh - Sky_gTrackSpec->starAngleLow);
+                    (u_int)random() % (Sky_gTrackSpec->starAngleHigh - Sky_gTrackSpec->starAngleLow);
       height = fixedsin(heightAngle);
       height = fixedmult(height,1000);
       radius = fixedcos(heightAngle);
       radius = fixedmult(radius,1000);
-      vx = fixedsin(latAngle);
-      vx = fixedmult(vx,radius);
-      pSVar6 = starPosInSky + i;
-      pSVar6->vx = (short)vx;
-      pSVar6->vy = (short)height;
-      height = fixedcos(latAngle);
-      height = fixedmult(height,radius);
-      starPosInSky[i].vz = (short)height;
+      starPosInSky[i].vx = (short)fixedmult(fixedsin(latAngle),radius);
+      starPosInSky[i].vy = (short)height;
+      starPosInSky[i].vz = (short)fixedmult(fixedcos(latAngle),radius);
       starBright = random();
       starBright = Sky_gTrackSpec->starBrightMin +
                    starBright % (Sky_gTrackSpec->starBrightMax - Sky_gTrackSpec->starBrightMin);
@@ -304,7 +297,10 @@ void Hrz_InitSkyColor(void)
  * allocno tie: k<->sin-value swap $s4/$s6 (ours k=s4; oracle k=s6). -dg dump: ours
  * k pri=4*19/100=0.76 vs sin 2*7/32=0.44, height 3*10/43=0.70 -- k allocates 5th, oracle
  * wants it LAST. Tried+failed: decl order, k=i copy, init hoist (41, reverted), k-before-i
- * (18), dummy pre-inits, role-name swap (all no-op or worse). Permuter candidate. */
+ * (18), dummy pre-inits, role-name swap (all no-op or worse). Permuter candidate.
+ * w39-a8: re-certified against the now-wired per-TU C++ flags.  hrzsku.cpp whole-TU
+ * baseline 15 PASS / 843 diffs vs no_split_addresses 7/1441, no_schedule_insns 7/1592,
+ * no_schedule_insns2 2/1095, no_strength_reduce 12/1038 -- all worse, stock flags stand. */
 void Hrz_InitSky(void)
 
 {
@@ -801,24 +797,73 @@ void HrzSetPsxMatrix(matrixtdef *m)
   MATRIX mpsx;
   matrixtdef temp;
 
-  temp.m[0] = m->m[0];
-  temp.m[1] = -m->m[1];
-  temp.m[2] = m->m[2];
-  temp.m[3] = m->m[3];
-  temp.m[4] = -m->m[4];
-  temp.m[5] = m->m[5];
-  temp.m[6] = m->m[6];
-  temp.m[7] = -m->m[7];
-  temp.m[8] = m->m[8];
-  mpsx.m[0][0] = (short)(temp.m[0] >> 4);
-  mpsx.m[1][0] = (short)(temp.m[1] >> 4);
-  mpsx.m[2][0] = (short)(temp.m[2] >> 4);
-  mpsx.m[0][1] = (short)(temp.m[3] >> 4);
-  mpsx.m[1][1] = (short)(temp.m[4] >> 4);
-  mpsx.m[2][1] = (short)(temp.m[5] >> 4);
-  mpsx.m[0][2] = (short)(temp.m[6] >> 4);
-  mpsx.m[1][2] = (short)(temp.m[7] >> 4);
-  mpsx.m[2][2] = (short)(temp.m[8] >> 4);
+  /* MATCH: the SYM (@40e91f) has FOUR sibling blocks -- ONE {t1,t2,t3} block
+   * (regs $t1/$t0/$t2, i.e. the SAME three names reloaded per source row, which
+   * is why the oracle reuses exactly those three load registers for all three
+   * rows) and THREE {r0,r1,r2} blocks whose register triples map 1:1 onto the
+   * mpsx ROWS: {$v1,$a0,$v0}=m[0][0..2], {$a1,$v0,$v1}=m[1][0..2],
+   * {$a2,$a3,$v0}=m[2][0..2].  So the shift/store half is grouped BY mpsx ROW
+   * (temp.m[k], temp.m[k+3], temp.m[k+6]), not by temp index. */
+  {
+    int t1;
+    int t2;
+    int t3;
+
+    t1 = m->m[0];
+    t2 = m->m[1];
+    t3 = m->m[2];
+    temp.m[0] = t1;
+    temp.m[1] = -t2;
+    temp.m[2] = t3;
+    t1 = m->m[3];
+    t2 = m->m[4];
+    t3 = m->m[5];
+    temp.m[3] = t1;
+    temp.m[4] = -t2;
+    temp.m[5] = t3;
+    t1 = m->m[6];
+    t2 = m->m[7];
+    t3 = m->m[8];
+    temp.m[6] = t1;
+    temp.m[7] = -t2;
+    temp.m[8] = t3;
+  }
+  {
+    int r0;
+    int r1;
+    int r2;
+
+    r0 = temp.m[0] >> 4;
+    r1 = temp.m[3] >> 4;
+    r2 = temp.m[6] >> 4;
+    mpsx.m[0][0] = (short)r0;
+    mpsx.m[0][1] = (short)r1;
+    mpsx.m[0][2] = (short)r2;
+  }
+  {
+    int r0;
+    int r1;
+    int r2;
+
+    r0 = temp.m[1] >> 4;
+    r1 = temp.m[4] >> 4;
+    r2 = temp.m[7] >> 4;
+    mpsx.m[1][0] = (short)r0;
+    mpsx.m[1][1] = (short)r1;
+    mpsx.m[1][2] = (short)r2;
+  }
+  {
+    int r0;
+    int r1;
+    int r2;
+
+    r0 = temp.m[2] >> 4;
+    r1 = temp.m[5] >> 4;
+    r2 = temp.m[8] >> 4;
+    mpsx.m[2][0] = (short)r0;
+    mpsx.m[2][1] = (short)r1;
+    mpsx.m[2][2] = (short)r2;
+  }
   gte_SetRotMatrix(&mpsx);
 }
 
@@ -1289,12 +1334,12 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       gte_ldv0(&p_);
       gte_rtps();
       gte_stSXY2((DVECTOR *)&s_);
-      temp2d[1] = *(DVECTOR *)&s_;
+      *(long *)&temp2d[1] = s_;   /* MATCH: word copy (a DVECTOR assign = align-1 lwl/lwr quad) */
       p_ = updown[0];
       gte_ldv0(&p_);
       gte_rtps();
       gte_stSXY2((DVECTOR *)&s_);
-      temp2d[0] = *(DVECTOR *)&s_;
+      *(long *)&temp2d[0] = s_;   /* MATCH: word copy, see above */
     }
     /* BUG FIX (round 2 diagnosis, now applied): each loop computes its OWN dx/dy delta ONCE
        from its own temp2d[] entry against a freshly-read posA[farI] baseline -- not a shared
@@ -1348,7 +1393,11 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       iVar16 = (int)hsd;
       iVar15 = 0;
       iVar18 = 4;
-      for (; iVar17 < 0x10; iVar17 = iVar17 + 1) {
+      /* MATCH: exit-in-the-middle (top test + unconditional `j` back edge with the
+         counter increment in its delay slot) -- a `for` rotates to a bottom-tested
+         do-while (slti/bnez), which the oracle does not have. */
+      while (true) {
+        if (!(iVar17 < 0x10)) break;
         if ((15999 < *(int *)(iVar16 + 0x124)) || (15999 < *(int *)(((int)hsd + 0x124) + iVar18))) {
           mpts[0] = *(DVECTOR *)(iVar16 + 0x9c);          /* posB[k] */
           mpts[1] = *(DVECTOR *)(iVar16 + 0xe0);          /* posC[k] */
@@ -1396,14 +1445,16 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                    DIRECT ">=8" form (fall-through arm is >=8, not <8); the inverted-and-swap
                    compiles with the SAME polarity/inline-arm layout the oracle uses. */
                 if (8 <= (u_char)Hrz_gTrackSpec->ringPMX[iVar17]) {
-                  *(DVECTOR *)(p + 8) = right;
+                  /* MATCH: WORD copy -- a DVECTOR struct assignment emits the align-1
+                     lwl/lwr+swl/swr quad; the oracle does one lw/sw pair. */
+                  *(u_int *)(p + 8) = *(u_int *)&right;
                   *(u_int *)(p + 0x14) = *(u_int *)(iVar16 + 0x9c);
                   *(u_int *)(p + 0x20) = *(u_int *)(iVar16 + 0x5c);
                   *(u_int *)(p + 0x2c) = *(u_int *)(iVar16 + 0x58);
                 }
                 else {
                   *(u_int *)(p + 8) = *(u_int *)(((int)hsd + 0x9c) + iVar15);
-                  *(DVECTOR *)(p + 0x14) = right;
+                  *(u_int *)(p + 0x14) = *(u_int *)&right;   /* MATCH: word copy, see above */
                   *(u_int *)(p + 0x20) = *(u_int *)(((int)hsd + 0x58) + iVar15);
                   *(u_int *)(p + 0x2c) = *(u_int *)(((int)hsd + 0x5c) + iVar15);
                 }
@@ -1414,6 +1465,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
         iVar16 = iVar16 + 4;
         iVar15 = iVar15 + 4;
         iVar18 = iVar18 + 4;
+        iVar17 = iVar17 + 1;
       }
     }
   }

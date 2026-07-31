@@ -447,7 +447,14 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
  *     gte statements (lines 374-379), i.e. exactly where the recon has it. Not adopted.
  * Classified as the constant-hoist-order / allocno-tie floor (catalog sec.A + the PrimStop
  * 0xffffff/0xff000000 tie family). Prototype re-checked vs raw oracle: (long *center, int otz),
- * void return (no $v0 at the single epilogue). */
+ * void return (no $v0 at the single epilogue).
+ * w39-a8 RE-CERTIFICATION with the NOW-WIRED per-TU C++ flags (compile_cpp honours
+ * no_split_addresses / no_schedule_insns / no_schedule_insns2 / no_strength_reduce since
+ * cb24f4ab, so every earlier "flag didn't help" note on a C++ TU measured a no-op).
+ * Whole-TU receipts, flare.cpp, baseline 15 PASS / 458 total diffs:
+ *   no_split_addresses  10 PASS / 1387    no_schedule_insns    4 PASS / 2086
+ *   no_schedule_insns2   2 PASS /  845    no_strength_reduce  15 PASS /  889
+ * ALL FOUR are strictly worse -- flare.obj is a stock -O2 -G4 object.  Floor stands. */
 /* ---- Flare_HexFlare__FPli  [FLARE.CPP:370-400] SLD-VERIFIED ---- */
 void Flare_HexFlare(long *center,int otz)
 
@@ -698,8 +705,12 @@ gte_stsxy(&sp2);
       else {
         gscale = (vec2.x * vec2.x + vec2.y * vec2.y + vec2.z * vec2.z) >> 1;
       }
-      scale = gscale << scale;
-      gscale = scale;
+      /* MATCH: gscale is the SHIFT DESTINATION and `scale` re-reads it (not
+         `scale = gscale<<scale; gscale = scale;`) -- the re-read is the second
+         evaluation cse turns into the oracle's `sllv v0,v0,s3 ; addu s3,v0,zero`
+         copy; the scale-first form coalesces it into an in-place `sllv s3,v0,s3`. */
+      gscale = gscale << scale;
+      scale = gscale;
       if ((flags & 1U) != 0) {
         VECTOR tvec1;           /* @sp+0x50 */
         VECTOR tvec2;           /* @sp+0x68 */
@@ -805,7 +816,14 @@ gte_SetRotMatrix(&mtx);
         *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
         Render_gPacketPtr = (u_char *)aprim + 0xc;
         *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
-        SetDrawMode(aprim,0,(u_int)((flags & 0x40U) != 0),0x120,(RECT *)0x0);
+        {
+          /* MATCH: the AND must land in its OWN variable -- gcc-2.8's fold()
+             rewrites `(flags & 0x40) != 0` (any spelling: Yoda, >0, !!, explicit
+             shift) into `(flags >> 6) & 1`; only a VAR_DECL operand keeps the
+             oracle's `andi a2,s4,0x40 ; sltu a2,zero,a2`. */
+          u_int dtd = flags & 0x40U;
+          SetDrawMode(aprim,0,(u_int)(dtd != 0),0x120,(RECT *)0x0);
+        }
       }
     }
   }
@@ -1064,7 +1082,12 @@ gte_SetRotMatrix(&mtx);
       *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
       Render_gPacketPtr = (u_char *)aprim + 0xc;
       *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
-      SetDrawMode(aprim,0,(u_int)((flags & 0x40U) != 0),0x120,(RECT *)0x0);
+      {
+        /* MATCH: see Flare_CarShapedHalo -- the AND needs its own VAR_DECL to
+           stop gcc's fold() turning the test into `(flags >> 6) & 1`. */
+        u_int dtd = flags & 0x40U;
+        SetDrawMode(aprim,0,(u_int)(dtd != 0),0x120,(RECT *)0x0);
+      }
     }
   }
   return;
@@ -1517,150 +1540,204 @@ void Flare_InitLensFlare(void)
 void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
 
 {
-  /* MATCH: SYM rule-8 (block 0x800ceb6c). CONCAT11/switchD Ghidra-isms REMOVED
-   * and re-derived from raw (BF820-BF89C): piece color is a SEPARATE inner
-   * `col` CVECTOR (oracle sp20, distinct from pxy sp18) whose r/g/b bytes are
-   * SIGNED col.field = piece->color.field * piece_color / 25 -- oracle emits
-   * `mult; mfhi; sra 3` with NO sign-fix because gcc proves the product >=0
-   * (u_char * masked-int); the prior `(u_int)`-cast form was an unsigned-divide
-   * CORRECTNESS/codegen bug. dx/dy(0x140-sx,0xf0-sy) + angleZ/angleZ2((sx+sy)*8,
-   * *6) precomputed post-quad AUTO spills; col(white)= one word store 0x00ffffff;
-   * switch case-4 falls through to default (both reach the shared piece_idx++,
-   * = the oracle jtbl_80056894 shared tail). */
-  int sx;
-  int sy;
+  /* MATCH: SYM rule-8 rewrite (SYM block @404e96, fsize 184, mask $c0ff0000).
+   * SYM locals, EXACTLY: fn-scope dx/dy(AUTO -0x40/-0x3c) pxy(AUTO -0xa0)
+   * width($7=a3) height($6=a2) i($16) sx($30=fp) sy($23=s7) piece($8=t0)
+   * angleZ($17=s1) angleZ2(AUTO -0x38) flareVis(REG $21, type CHAR);
+   * block@line14 { pt[4](-0x98) col(-0x88) }; block@line78 { scalemat(-0x80)
+   * mtx(-0x60) }; block@line134 { col(-0x98, REUSES pt's slot) };
+   * block@line159 { aprim($4) }.  `screenPos` is SYM class ARG -- retail runs
+   * out of callee-saved regs (all 10 in mask) and spills it to its incoming
+   * slot 184($sp), reloading it for sx/sy and for the two Flare_Spikes calls.
+   * Fixes vs the old iVarN body (all raw-oracle evidence, BF36C-BF1CC):
+   *  - width/height: ONE compute `size*piece->size/0x10000` + a copy
+   *    (`addu a2,a3,zero` in the guard's delay slot); calls take (height,width).
+   *  - gte_ldsv/gte_stsv (stride 2, SVECTOR) were WRONG -- oracle uses lhu/sh at
+   *    0/6/12 = PsyQ gte_ldclmv/gte_stclmv (MATRIX COLUMN, row stride 6).
+   *  - scalemat IS built here (5 word stores 0/8/0x10/4/0xc = flareVis*128,
+   *    flareVis*64, 0, 0, 0) and its m[0][0..1] is REWRITTEN to flareVis*64
+   *    before the 2nd spike pass -- the old body fed an UNINITIALIZED scalemat
+   *    to gte_SetRotMatrix twice (correctness bug).
+   *  - Flare_SingleColorHex took `(DVECTOR*)piece` -- oracle passes &pxy
+   *    (`addiu a0,$sp,0x18`) like every other arm (correctness bug).
+   *  - the 25-entry visibility scan walks gFlare_LensFlare.screenData[0]
+   *    (base+0x10, stride 2) with the SAME `i` the piece loop reuses; flareVis
+   *    is a CHAR (oracle `andi s6,s5,0xff` once, then reused for *128/*64 and
+   *    the /25 colour scale).
+   *  - Render_gPacketPtr / Render_gPalettePtr are read in the TAIL only; the old
+   *    `while (p = ..., tp3 = ..., idx < 9)` comma-hoist has no oracle basis. */
+  /* RESIDUAL 56 (ours 407 / oracle 409), w39-a8.  TWO clusters, both measured:
+   *  (a) HEAD: the oracle loads screenPos->vx/vy into $v0/$v1 and COPIES them to
+   *      $fp/$s7 (`addu $fp,$v0,zero` / `addu $s7,$v1,zero`, the 2 missing insns);
+   *      that extra pair lets its scheduler hold sx-2 in $a3 across the whole pt[]
+   *      build and sink the pt[0]/pt[2].vx stores to the end.  Ours loads straight
+   *      into the home regs and therefore serializes the four value chains through
+   *      $v0.  Probed: all 24 group orderings of the four chained pt assignments
+   *      (56 is the minimum; the oracle's STORE order costs 76 because it flips
+   *      which of sx/sy is defined first, and with it the $fp/$s7 split), reading
+   *      pos[0].vx/vy back from screenPos instead of sx/sy (84), (int) casts (56),
+   *      moving sx/sy into the pt block (56).
+   *  (b) TAIL: the 3-cycle rotation of the pkt-ptr address / 0xFFFFFF / 0xFF000000
+   *      constant registers -- the shared flare.cpp allocator tie, see the note on
+   *      Flare_Sun.  Structure and count are otherwise exact.
+   * Per-TU flag probe (w39, now that compile_cpp honours the keys): flare.cpp is
+   * NOT a no_split_addresses / no_schedule_insns / no_schedule_insns2 /
+   * no_strength_reduce object -- whole-TU baseline 15 PASS / 458 diffs vs
+   * 10/1387, 4/2086, 2/845, 15/889. */
   int dx;
   int dy;
+  DVECTOR pxy;
+  int width;
+  int height;
+  int i;
+  int sx;
+  int sy;
+  FLARE_PIECE_DEF *piece;
   long angleZ;
   long angleZ2;
-  int flareVis;
-  int piece_color;
-  int piece_idx;
-  int pieceCount;
-  int piece_iter_a;
-  int ti7;
-  int piece_y;
-  int piece_x;
-  u_int tu1;
-  DR_MODE *aprim;
-  DVECTOR pxy;
-  DVECTOR pt [4];
-  CVECTOR col;
-  MATRIX scalemat;
-  MATRIX mtx;
-  u_char *p;
-  u_char *tp3;
+  char flareVis;
+  int otz;
 
+  otz = 0;
   if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr + -0x400) {
     sx = screenPos->vx;
     sy = screenPos->vy;
-    *(u_long *)&col = 0xffffff;
-    pt[0].vx = (short)(sx + -2);
-    pt[0].vy = (short)(sy + -2);
-    pt[1].vx = (short)(sx + 3);
-    pt[2].vy = (short)(sy + 3);
-    pt[1].vy = pt[0].vy;
-    pt[2].vx = pt[0].vx;
-    pt[3].vx = pt[1].vx;
-    pt[3].vy = pt[2].vy;
-    Flare_QuadNotTransparent((long *)pt,&col,Draw_gViewOtSize + -2);
+    {
+      DVECTOR pt [4];
+      CVECTOR col;
+
+      *(u_long *)&col = 0xffffff;
+      /* MATCH: group order sx-2, sy-2, sx+3, sy+3 (compute order in the oracle)
+       * with each chain written HI = LO = v (stores ascending).  Moving the
+       * sx-2 group last (= the oracle's STORE order) costs 14 diffs: it flips
+       * which of sx/sy is defined first and therefore the fp/s7 split. */
+      pt[2].vx = pt[0].vx = (short)(sx + -2);
+      pt[1].vy = pt[0].vy = (short)(sy + -2);
+      pt[3].vx = pt[1].vx = (short)(sx + 3);
+      pt[3].vy = pt[2].vy = (short)(sy + 3);
+      Flare_QuadNotTransparent((long *)pt,&col,Draw_gViewOtSize + -2);
+    }
     angleZ = (sx + sy) * 8;
     angleZ2 = (sx + sy) * 6;
     dx = 0x140 - sx;
     dy = 0xf0 - sy;
-    flareVis = 0;
-    piece_iter_a = (int)&gFlare_LensFlare;
-    gFlare_LensFlare.isDrawn[0] = '\x01';
+    flareVis = '\0';
     gFlare_LensFlare.oldpos[0].vx = gFlare_LensFlare.pos[0].vx;
     gFlare_LensFlare.oldpos[0].vy = gFlare_LensFlare.pos[0].vy;
-    pieceCount = 0;
-    do {
-      if ((*(u_short *)(piece_iter_a + 0x10) & 0x7fff) == 0x7fff) {
-        flareVis = flareVis + 1;
-      }
-      pieceCount = pieceCount + 1;
-      piece_iter_a = piece_iter_a + 2;
-    } while (pieceCount < 0x19);
-    piece_color = flareVis & 0xff;
     gFlare_LensFlare.pos[0].vx = (short)sx;
     gFlare_LensFlare.pos[0].vy = (short)sy;
-    if (piece_color != 0) {
-      gfrgb2 = TrackSpec_gSpec.skyspec.sunBeamColor;
+    gFlare_LensFlare.isDrawn[0] = '\x01';
+    for (i = 0; i < 0x19; i = i + 1) {
+      if ((gFlare_LensFlare.screenData[0][0][i] & 0x7fff) == 0x7fff) {
+        flareVis = flareVis + 1;
+      }
+    }
+    if (flareVis != '\0') {
+      MATRIX scalemat;
+      MATRIX mtx;
+
+      *(int *)((char *)&scalemat + 0) = flareVis * 0x80;
+      *(int *)((char *)&scalemat + 8) = flareVis * 0x40;
+      *(int *)((char *)&scalemat + 0x10) = 0;
+      *(int *)((char *)&scalemat + 4) = 0;
+      *(int *)((char *)&scalemat + 0xc) = 0;
+      *(u_long *)&gfrgb2 = *(u_long *)&TrackSpec_gSpec.skyspec.sunBeamColor;
       Flare_IdentMatrix(&mtx);
       RotMatrixZ(angleZ,&mtx);
 gte_SetRotMatrix(&scalemat);
-gte_ldsv(&mtx);
+gte_ldclmv(&mtx);
       gte_rtir();
-gte_stsv(&mtx);
-gte_ldsv(((char *)&mtx + 0x2));
+gte_stclmv(&mtx);
+gte_ldclmv(((char *)&mtx + 0x2));
       gte_rtir();
-gte_stsv(((char *)&mtx + 0x2));
-gte_ldsv(((char *)&mtx + 0x4));
+gte_stclmv(((char *)&mtx + 0x2));
+gte_ldclmv(((char *)&mtx + 0x4));
       gte_rtir();
-gte_stsv(((char *)&mtx + 0x4));
+gte_stclmv(((char *)&mtx + 0x4));
 gte_SetRotMatrix(&mtx);
       Flare_Spikes((long *)screenPos,0);
+      *(int *)((char *)&scalemat + 0) = flareVis * 0x40;
       Flare_IdentMatrix(&mtx);
       RotMatrixZ(angleZ2,&mtx);
 gte_SetRotMatrix(&scalemat);
-gte_ldsv(&mtx);
+gte_ldclmv(&mtx);
       gte_rtir();
-gte_stsv(&mtx);
-gte_ldsv(((char *)&mtx + 0x2));
+gte_stclmv(&mtx);
+gte_ldclmv(((char *)&mtx + 0x2));
       gte_rtir();
-gte_stsv(((char *)&mtx + 0x2));
-gte_ldsv(((char *)&mtx + 0x4));
+gte_stclmv(((char *)&mtx + 0x2));
+gte_ldclmv(((char *)&mtx + 0x4));
       gte_rtir();
-gte_stsv(((char *)&mtx + 0x4));
+gte_stclmv(((char *)&mtx + 0x4));
 gte_SetRotMatrix(&mtx);
       Flare_Spikes((long *)screenPos,0);
-      piece_idx = 0;
-      (gFlare_LensFlare.piece)->color = TrackSpec_gSpec.skyspec.sunHaloColor;
-      while (p = Render_gPacketPtr, tp3 = Render_gPalettePtr, piece_idx < 9) {
-        FLARE_PIECE_DEF *piece;
+      i = 0;
+      *(u_long *)&(gFlare_LensFlare.piece)->color =
+           *(u_long *)&TrackSpec_gSpec.skyspec.sunHaloColor;
+      while (i < 9) {
+        piece = gFlare_LensFlare.piece + i;
+        pxy.vx = (short)(((0x10000 - piece->distance) * sx + piece->distance * dx) / 0x10000);
+        pxy.vy = (short)(((0x10000 - piece->distance) * sy + piece->distance * dy) / 0x10000);
+        width = gFlare_LensFlare.size * piece->size / 0x10000;
+        height = width;
+        if (3 < width) {
+          CVECTOR col;
 
-        piece = gFlare_LensFlare.piece + piece_idx;
-        piece_y = (0x10000 - piece->distance) * sx + piece->distance * dx;
-        pxy.vx = (short)(piece_y / 0x10000);
-        piece_x = (0x10000 - piece->distance) * sy + piece->distance * dy;
-        pxy.vy = (short)(piece_x / 0x10000);
-        ti7 = gFlare_LensFlare.size * piece->size / 0x10000;
-        if (3 < ti7) {
-          col.r = piece->color.r * piece_color / 0x19;
-          col.g = piece->color.g * piece_color / 0x19;
-          col.b = piece->color.b * piece_color / 0x19;
+          col.r = piece->color.r * flareVis / 0x19;
+          col.g = piece->color.g * flareVis / 0x19;
+          col.b = piece->color.b * flareVis / 0x19;
           switch(piece->type) {
           case 0:
           case 1:
-            Flare_SingleColorTex(&pxy,&col,ti7,ti7,piece->type,0);
+            Flare_SingleColorTex(&pxy,&col,height,width,piece->type,0);
             break;
           case 2:
-            Flare_SingleColorHex((DVECTOR *)piece,&col,ti7,ti7,0);
+            Flare_SingleColorHex(&pxy,&col,height,width,0);
             break;
           case 3:
-            Flare_SingleColorOct(&pxy,&col,ti7,ti7,0);
+            Flare_SingleColorOct(&pxy,&col,height,width,0);
             break;
           case 4:
-            Flare_SingleColorOctRing(&pxy,&col,ti7,ti7,0);
-            /* fall through to default -> shared piece_idx++ */
-          default:
-            ;
+            Flare_SingleColorOctRing(&pxy,&col,height,width,0);
+            break;
           }
         }
-        piece_idx = piece_idx + 1;
+        i = i + 1;
       }
-      *(u_int *)Render_gPacketPtr =
-           *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      tu1 = (u_int)Render_gPacketPtr & 0xffffff;
-      Render_gPacketPtr = Render_gPacketPtr + 0xc;
-      *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | tu1;
-      SetDrawMode((DR_MODE *)p,0,0,0x120,(RECT *)0x0);
+      {
+        DR_MODE *aprim;
+        u_int *slot;
+        u_int pkt24;
+
+        aprim = (DR_MODE *)Render_gPacketPtr;
+        slot = (u_int *)(otz * 4);
+        slot = (u_int *)((int)slot + (int)Render_gPalettePtr);
+        *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
+        pkt24 = *slot & 0xff000000;
+        Render_gPacketPtr = (u_char *)aprim + 0xc;
+        *slot = pkt24 | (u_int)aprim & 0xffffff;
+        SetDrawMode(aprim,0,otz,0x120,(RECT *)0x0);
+      }
     }
   }
   return;
 }
 
-/* ---- Flare_Sun__FP7SVECTORP15Draw_FlareCache  [FLARE.CPP:1742-1818] SLD-VERIFIED ---- */
+/* ---- Flare_Sun__FP7SVECTORP15Draw_FlareCache  [FLARE.CPP:1742-1818] SLD-VERIFIED ----
+ * NEAR-MISS 50, COUNT-EXACT 187/187.  ALL 50 diffs are one 3-CYCLE REGISTER ROTATION of
+ * the three block-local constants in the two AddPrim/SetDrawMode tails:
+ *     ours  pktPtrAddr(0x1F800004)=$t2  0xFFFFFF=$t3  0xFF000000=$t1
+ *     oracle             "        =$t3          =$t1            =$t2
+ * Instruction stream, schedule, def positions and use positions are IDENTICAL -- only the
+ * local-alloc quantity ORDER differs, i.e. the documented 0xffffff/0xff000000 constant-reg
+ * tie (catalog wave-12 a7: both mask pseudos are block-LOCAL, so local-alloc decides, and
+ * no zero-cost source lever changes the qty priority).  The SAME rotation is the whole
+ * residual of Flare_2DHalo (68), most of Flare_LensFlare's tail, Flare_CarShapedHalo and
+ * Flare_Halo2's tails, and Sky_RenderStars (2, LICM-hoist ORDER variant of the same tie).
+ * w39-a8 probes, ALL byte-neutral or worse: Hrz_SetDitheringPrim's exact spelling (slot
+ * first, unmasked `tag = *slot` then `(tag & 0xff000000)|(...)`) = 50; unmasked pkt24 with
+ * the original statement order = 50; swapping the first RMW's OR operands = 56.  Also NOT
+ * a per-TU flag object (see the Flare_LensFlare banner for the four flag receipts). */
 void Flare_Sun(SVECTOR *worldPos,Draw_FlareCache *sd)
 
 {

@@ -3634,10 +3634,16 @@ gte_ldv0(vt0);
     gte_rtps();
     /* scratchpad SXY staging = EA-expander template block (scratches $t0/$v0/$v1/$a0 --
      * the reason vt0 is copied out of $a0 up-front). Two asm halves share the packet
-     * cursor via tp8; low-reg clobbers steer the cursor into $t0 like retail. */
+     * cursor via tp8; low-reg clobbers steer the cursor into $t0 like retail.
+     * BUG FIX (w38-a3): the `nop` after `lw %0,4(%0)` was MISSING.  The oracle has it
+     * (`lui t0; lw t0,4(t0); nop; addiu v0,t0,8`) and it is a REAL R3000 load-delay
+     * slot -- without it `addiu $v0,%0,8` reads the PRE-load %0, so the following
+     * `swc2 $14,0($v0)` wrote the transformed SXY to a wild address.  Inside an
+     * __asm__ neither maspsx nor gnu-as fills the slot for us. */
     __asm__ volatile(
         "lui	%0,0x1f80
 	lw	%0,4(%0)
+	nop
 	addiu	$v0,%0,8
 	swc2	$14,0($v0)"
         : "=&r"(tp8) : : "$2", "$3", "$4", "memory");
@@ -3685,6 +3691,15 @@ gte_ldv3(vt1,vt2,vt3);
       uVar1 = pmx->tpage;
       *(u_short *)((int)puVar8 + 0xe) = pmx->clut;
       *(u_short *)((int)puVar8 + 0x16) = uVar1;
+      /* RESIDUAL (w38-a3): 109 diffs at 123/122 insns.  ONE extra insn = a second
+         register copy: gcc gives the asm's `tp8` cursor $a1 (retail uses $t0), so
+         vt1 has to be copied out of $a1 (`addu t2,a1,zero`) ON TOP OF the vt0 copy
+         that the $a0 clobber forces; retail copies vt0 only.  Everything else is the
+         resulting rotation (t1/t0, a1/t0, a2/a1, a3/a2).  Falsified: minimal block-1
+         clobber list ($v0 only) = no change; clobbering $a2/$a3 = 129; clobbering
+         $a1-$a3 = 89 but 125 insns (2 more copies); dummy `"r"(vt1)` earlyclobber
+         inputs = 105/123 but that is pure scaffolding, rejected.  Steering an asm
+         OUTPUT to a specific hard register without a pin is the open problem. */
       uv0 = *u0;                    /* oracle load order: u0, u1, u3, u2 */
       uv1 = *u1;
       uv3 = *u3;

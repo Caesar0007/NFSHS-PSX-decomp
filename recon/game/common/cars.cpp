@@ -1970,147 +1970,94 @@ void Cars_Initialize(char *mem,int size)
 void Cars_StartUp(void)
 {
   int i;
-  Car_tObj*newCar;
-  Car_tObj*carObj;
-  Car_tObj *pCVar1;
-  Sched_tSchedule *schedule32Hz;
-  BO_tNewtonObj *newtonObj;
-  int iVar2;
-  int iVar3;
-  Car_tObj **ppCVar4;
-  coorddef local_28;
-  
+  Car_tObj *newCar;
+
   Cars_ResetCarCounters();
-  iVar2 = 0;
-  if (0 < GameSetup_gData.numCars) {
-    iVar3 = 0;
-    do {
-      pCVar1 = reservememadr("Car_tObj",0x8dc,0);
-      Cars_Initialize((char *)pCVar1,0x8dc);
-      if (iVar2 < GameSetup_gData.numCars) {
-        pCVar1->carInfo = (GameSetup_tCarData *)(GameSetup_gData.carInfo[0].driver + iVar3 + -0x5c);
-      }
-      Cars_InitializeCarTablesFlagsAndCounters(pCVar1);
-      iVar2 = iVar2 + 1;
-      iVar3 = iVar3 + 0xb4;
-    } while (iVar2 < GameSetup_gData.numCars);
+
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+    newCar = (Car_tObj *)reservememadr("Car_tObj",0x8dc,0);
+    Cars_Initialize((char *)newCar,0x8dc);
+    if (i < GameSetup_gData.numCars) {
+      newCar->carInfo = &GameSetup_gData.carInfo[i];
+    }
+    Cars_InitializeCarTablesFlagsAndCounters(newCar);
   }
-  newtonObj = InfiniteMassNewton;
-  iVar2 = 0;
-LAB_newton:
-  iVar3 = Object_GetNumIMassObjects();
-  if (iVar2 < iVar3) {
-    Object_GetIMassObjectDimensions(iVar2,&local_28);
-    iVar2 = iVar2 + 1;
-    Newton_InitBaseNewtonObj((u_int *)newtonObj,0x201,0x280000,0x1400000,local_28.x,local_28.y,local_28.z + 0x10000);
-    newtonObj = newtonObj + 1;
-    goto LAB_newton;
+
+  for (i = 0; i < Object_GetNumIMassObjects(); i++) {
+    coorddef dim;
+
+    Object_GetIMassObjectDimensions(i,&dim);
+    Newton_InitBaseNewtonObj(
+        (u_int *)&InfiniteMassNewton[i],0x201,0x280000,0x1400000,
+        dim.x,dim.y,dim.z + 0x10000);
   }
-  ppCVar4 = Cars_gList;
-  iVar2 = 0;
-LAB_road:
-  if (iVar2 < GameSetup_gData.numCars) {
-    pCVar1 = *ppCVar4;
-    ppCVar4 = ppCVar4 + 1;
-    Cars_InitCar(pCVar1,iVar2);
-    iVar2 = iVar2 + 1;
-    Sched_AddFunction(simGlobal.schedule32Hz,pCVar1->funcUpdateRoadInfo,pCVar1,6);
-    goto LAB_road;
+
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+    Car_tObj *carObj = Cars_gList[i];
+    Cars_InitCar(carObj,i);
+    Sched_AddFunction(
+        simGlobal.schedule32Hz,carObj->funcUpdateRoadInfo,carObj,6);
   }
+
   if (R3DCar_LicenseShapeFile != (char *)0x0) {
     purgememadr(R3DCar_LicenseShapeFile);
   }
   R3DCar_LicenseShapeFile = (char *)0x0;
-  ppCVar4 = Cars_gList;
-  iVar2 = 0;
-LAB_control:
-  if (iVar2 < GameSetup_gData.numCars) {
-    pCVar1 = *ppCVar4;
-    ppCVar4 = ppCVar4 + 1;
-    iVar2 = iVar2 + 1;
-    Sched_AddFunction(simGlobal.schedule32Hz,pCVar1->funcControl,pCVar1,0x15);
-    goto LAB_control;
+
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+    Car_tObj *carObj = Cars_gList[i];
+    Sched_AddFunction(
+        simGlobal.schedule32Hz,carObj->funcControl,carObj,0x15);
   }
-  ppCVar4 = Cars_gList;
-  iVar2 = 0;
-LAB_handling:
-  if (iVar2 < GameSetup_gData.numCars) {
-    pCVar1 = *ppCVar4;
-    ppCVar4 = ppCVar4 + 1;
-    iVar2 = iVar2 + 1;
-    Sched_AddFunction(simGlobal.schedule32Hz,pCVar1->funcHandlingPhysics,pCVar1,0x1e);
-    goto LAB_handling;
+
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+    Car_tObj *carObj = Cars_gList[i];
+    Sched_AddFunction(
+        simGlobal.schedule32Hz,carObj->funcHandlingPhysics,carObj,0x1e);
   }
-  ppCVar4 = Cars_gList;
-  iVar2 = 0;
-LAB_gravity:
-  if (iVar2 < GameSetup_gData.numCars) {
-    pCVar1 = *ppCVar4;
-    ppCVar4 = ppCVar4 + 1;
-    iVar2 = iVar2 + 1;
-    Sched_AddFunction(simGlobal.schedule32Hz,pCVar1->funcGravityPhysics,pCVar1,0x1e);
-    goto LAB_gravity;
+
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+    Car_tObj *carObj = Cars_gList[i];
+    Sched_AddFunction(
+        simGlobal.schedule32Hz,carObj->funcGravityPhysics,carObj,0x1e);
   }
-  ppCVar4 = Cars_gList;
-  iVar2 = 0;
-LAB_testme:
-  if (iVar2 < GameSetup_gData.numCars) {
-    pCVar1 = *ppCVar4;
-    ppCVar4 = ppCVar4 + 1;
-    iVar2 = iVar2 + 1;
-    Sched_AddFunction(simGlobal.schedule32Hz,pCVar1->funcTestMeForCollisions,pCVar1,0x28);
-    goto LAB_testme;
+
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+    Car_tObj *carObj = Cars_gList[i];
+    Sched_AddFunction(
+        simGlobal.schedule32Hz,carObj->funcTestMeForCollisions,carObj,0x28);
   }
-  ppCVar4 = Cars_gList;
-  iVar2 = 0;
-LAB_postcoll:
-  if (iVar2 < GameSetup_gData.numCars) {
-    pCVar1 = *ppCVar4;
-    ppCVar4 = ppCVar4 + 1;
-    iVar2 = iVar2 + 1;
-    Sched_AddFunction(simGlobal.schedule32Hz,pCVar1->funcDoPostCollisionStuff,pCVar1,0x32);
-    goto LAB_postcoll;
+
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+    Car_tObj *carObj = Cars_gList[i];
+    Sched_AddFunction(
+        simGlobal.schedule32Hz,carObj->funcDoPostCollisionStuff,carObj,0x32);
   }
+
   Force_StartUp();
-  ppCVar4 = Cars_gList;
-  iVar2 = 0;
-LAB_stats:
-  if (iVar2 < GameSetup_gData.numCars) {
-    pCVar1 = *ppCVar4;
-    if ((pCVar1->carFlags & 1U) != 0) {
-      Sched_AddFunction(simGlobal.schedule64Hz,pCVar1->funcStats,pCVar1,0x19);
+
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+    Car_tObj *carObj = Cars_gList[i];
+    if ((carObj->carFlags & 1U) != 0) {
+      Sched_AddFunction(
+          simGlobal.schedule64Hz,carObj->funcStats,carObj,0x19);
     }
-    ppCVar4 = ppCVar4 + 1;
-    iVar2 = iVar2 + 1;
-    goto LAB_stats;
   }
-  ppCVar4 = Cars_gList;
-  iVar2 = 0;
-LAB_qdvel:
-  if (iVar2 < GameSetup_gData.numCars) {
-    pCVar1 = *ppCVar4;
-    ppCVar4 = ppCVar4 + 1;
-    iVar2 = iVar2 + 1;
-    Sched_AddFunction(simGlobal.schedule64Hz,pCVar1->funcQDPhysicsUpdateVel,pCVar1,0x1e);
-    goto LAB_qdvel;
+
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+    Car_tObj *carObj = Cars_gList[i];
+    Sched_AddFunction(
+        simGlobal.schedule64Hz,carObj->funcQDPhysicsUpdateVel,carObj,0x1e);
   }
-  ppCVar4 = Cars_gList;
-  iVar2 = 0;
-LAB_qdrot:
-  if (iVar2 < GameSetup_gData.numCars) {
-    pCVar1 = *ppCVar4;
-    if ((pCVar1->carFlags & 4U) != 0) {
-      schedule32Hz = simGlobal.schedule64Hz;
-    }
-    else {
-      schedule32Hz = simGlobal.schedule32Hz2;
-    }
-    Sched_AddFunction(schedule32Hz,pCVar1->funcQDPhysicsUpdateRot,pCVar1,0x1e);
-    ppCVar4 = ppCVar4 + 1;
-    iVar2 = iVar2 + 1;
-    goto LAB_qdrot;
+
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+    Car_tObj *carObj = Cars_gList[i];
+    Sched_AddFunction(
+        ((carObj->carFlags & 4U) != 0)
+            ? simGlobal.schedule64Hz
+            : simGlobal.schedule32Hz2,
+        carObj->funcQDPhysicsUpdateRot,carObj,0x1e);
   }
-  return;
 }
 
 /* ---- Cars_CleanUp__Fv  [@0x8008aa40] ---- */

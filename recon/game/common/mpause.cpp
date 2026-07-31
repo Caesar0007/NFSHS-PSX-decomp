@@ -52,6 +52,31 @@ struct MPauseMenuVirtual : public MPauseMenuPrefix {
   virtual void Draw(void);
 };
 
+static inline void MPause_EnableItem(tPMenuItem *item)
+{
+  if (item->IsDisabled()) {
+    ChangedEnabling = 1;
+    item->fFlags &= ~1U;
+  }
+}
+
+static inline void MPause_DisableItem(tPMenuItem *item)
+{
+  if (item->IsEnabled()) {
+    ChangedEnabling = 1;
+    item->fFlags |= 1;
+  }
+}
+
+static inline void MPause_SetCommandPlayer(tPMenuItemCommandButton *item, int player)
+{
+  if (player == 0) {
+    item->fCommand &= ~0x100;
+  } else {
+    item->fCommand |= 0x100;
+  }
+}
+
 
 /* ---- tPauseMenuDefs  [MPAUSE.CPP:172-264] SLD-VERIFIED ---- */
 int tPauseMenuDefs_ct(int param_1)
@@ -446,77 +471,36 @@ void MPause_InitMPause(void)
 void MPause_StartPauseMenu(void)
 
 {
-  tPMenuItemCommandButton *pThis;  /* folded receiver temp (SYM REG `this`) */
-  int iVar1;
-  u_int uVar2;
-  int iVar3;
-  int iVar4;
-  
-  gPauseCurrentMenu = (tPMenu *)(((int)gPauseMenuDefs) + 0x60);
-  (**(int (**)(...))(*(int *)(((int)gPauseMenuDefs) + 0xb0) + 0x14))
-            (((int)gPauseCurrentMenu) + *(short *)(*(int *)(((int)gPauseMenuDefs) + 0xb0) + 0x10));
-  iVar4 = ((int)gPauseMenuDefs);
+  gPauseCurrentMenu = &gPauseMenuDefs->menuPause;
+  ((MPauseMenuVirtual *)gPauseCurrentMenu)->Initialize();
   gBackDepth = 0;
-  if ((GameSetup_gData.raceType == 6) || (GameSetup_gData.raceType == 2)) {
-    iVar1 = IsEnabled(((int)gPauseMenuDefs) + 0x1c);
-    if (iVar1 != 0) {
-      uVar2 = *(u_int *)(iVar4 + 0x1c) | 1;
-      goto MPauseStart_setRestart;
-    }
+
+  if ((GameSetup_gData.raceType != 6) && (GameSetup_gData.raceType != 2)) {
+    MPause_EnableItem(&gPauseMenuDefs->itemRestart);
+  } else {
+    MPause_DisableItem(&gPauseMenuDefs->itemRestart);
   }
-  else {
-    iVar1 = IsDisabled(((int)gPauseMenuDefs) + 0x1c);
-    if (iVar1 != 0) {
-      uVar2 = *(u_int *)(iVar4 + 0x1c) & 0xfffffffe;
-MPauseStart_setRestart:
-      ChangedEnabling = 1;
-      *(u_int *)(iVar4 + 0x1c) = uVar2;
-    }
-  }
-  iVar4 = ((int)gPauseMenuDefs);
+
   if (GameSetup_gData.raceType == 6) {
-    iVar3 = IsDisabled(((int)gPauseMenuDefs) + 0x50);
-    iVar1 = ((int)gPauseMenuDefs);
-    if (iVar3 != 0) {
-      ChangedEnabling = 1;
-      *(u_int *)(iVar4 + 0x50) = *(u_int *)(iVar4 + 0x50) & 0xfffffffe;
-    }
-    iVar4 = IsEnabled(((int)gPauseMenuDefs) + 0x40);
-    if (iVar4 == 0) goto MPauseStart_disableAudio;
-    uVar2 = *(u_int *)(iVar1 + 0x40) | 1;
+    MPause_EnableItem(&gPauseMenuDefs->itemForfeitRace);
+    MPause_DisableItem(&gPauseMenuDefs->itemQuitRace);
   }
   else {
-    iVar3 = IsEnabled(((int)gPauseMenuDefs) + 0x50);
-    iVar1 = ((int)gPauseMenuDefs);
-    if (iVar3 != 0) {
-      ChangedEnabling = 1;
-      *(u_int *)(iVar4 + 0x50) = *(u_int *)(iVar4 + 0x50) | 1;
-    }
-    iVar4 = IsDisabled(((int)gPauseMenuDefs) + 0x40);
-    if (iVar4 == 0) goto MPauseStart_disableAudio;
-    uVar2 = *(u_int *)(iVar1 + 0x40) & 0xfffffffe;
+    MPause_DisableItem(&gPauseMenuDefs->itemForfeitRace);
+    MPause_EnableItem(&gPauseMenuDefs->itemQuitRace);
   }
-  ChangedEnabling = 1;
-  *(u_int *)(iVar1 + 0x40) = uVar2;
-MPauseStart_disableAudio:
-  iVar4 = ((int)gPauseMenuDefs);
-  iVar1 = IsDisabled(((int)gPauseMenuDefs) + 0x164);
-  if (iVar1 != 0) {
-    ChangedEnabling = 1;
-    *(u_int *)(iVar4 + 0x164) = *(u_int *)(iVar4 + 0x164) & 0xfffffffe;
+
+  MPause_EnableItem(&gPauseMenuDefs->itemAudioSettingsMusicVolume);
+
+  if (Replay_ReplayMode >= 2) {
+    MPause_SetCommandPlayer(&gPauseMenuDefs->itemQuitRace, 0);
+    MPause_SetCommandPlayer(&gPauseMenuDefs->itemRestart, 0);
+    MPause_SetCommandPlayer(&gPauseMenuDefs->itemForfeitRace, 0);
+  } else {
+    MPause_SetCommandPlayer(&gPauseMenuDefs->itemQuitRace, 1);
+    MPause_SetCommandPlayer(&gPauseMenuDefs->itemRestart, 1);
+    MPause_SetCommandPlayer(&gPauseMenuDefs->itemForfeitRace, 1);
   }
-  if (Replay_ReplayMode < 2) {
-    *(u_int *)(((int)gPauseMenuDefs) + 0x4c) = *(u_int *)(((int)gPauseMenuDefs) + 0x4c) | 0x100;
-    *(u_int *)(((int)gPauseMenuDefs) + 0x28) = *(u_int *)(((int)gPauseMenuDefs) + 0x28) | 0x100;
-    uVar2 = *(u_int *)(((int)gPauseMenuDefs) + 0x5c) | 0x100;
-  }
-  else {
-    *(u_int *)(((int)gPauseMenuDefs) + 0x4c) = *(u_int *)(((int)gPauseMenuDefs) + 0x4c) & 0xfffffeff;
-    *(u_int *)(((int)gPauseMenuDefs) + 0x28) = *(u_int *)(((int)gPauseMenuDefs) + 0x28) & 0xfffffeff;
-    uVar2 = *(u_int *)(((int)gPauseMenuDefs) + 0x5c) & 0xfffffeff;
-  }
-  *(u_int *)(((int)gPauseMenuDefs) + 0x5c) = uVar2;
-  return;
 }
 
 /* ---- MPause_EndPauseMenu__Fv  [MPAUSE.CPP:598-600] SLD-VERIFIED ---- */

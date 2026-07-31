@@ -499,7 +499,15 @@ int Texture_GetTranslucencyMode(shapetbl *shp)
        * gcc build the value in $v1 and copy it out at a shared tail. */
       if (abr == 3) { abr = 2; }
       return abr;
-      /* FLOOR (4 diffs, 28/30): the oracle keeps TWO separate `jr ra` tails --
+      /* FLOOR (4 diffs, 28/30) -- MECHANISM (w39-a10): gcc's post-reload
+       * cross-jump pass merges the two return blocks (both end `jr ra`), which
+       * leaves `move v0,zero; j <shared jr ra>`; reorg then EAGER-STEALS that
+       * `move` into the `beqz $a0` delay slot and retargets the branch, so we
+       * lose both the separate return-0 block and the oracle's empty slot.
+       * Retail's simple-delay-slot pass consumed the `move` as the return
+       * block's OWN slot first, after which the eager fill had nothing to take.
+       * Same family as the catalog's "dual `jr ra` tails always cross-jump-
+       * merge" negative result.  Original note: the oracle keeps TWO separate `jr ra` tails --
        * .L800DFF08 `jr ra; addu v0,zero,zero` for `return 0` and .L800DFF10
        * `jr ra; nop` for `return abr`.  gcc-2.8 cross-jump-merges them here and
        * sinks the 0 into the `beqz shp` delay slot.  Tried: while(shp!=0)+trailing

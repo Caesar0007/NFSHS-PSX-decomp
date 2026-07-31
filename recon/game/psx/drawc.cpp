@@ -3395,17 +3395,16 @@ void DrawC_PrimHalo(matrixtdef *m,coorddef *t,Transformer_zObj *obj,int type,int
      the oracle keeps in that register. */
   int i;
   COORD16 *vertice;
+  int real_type;
   Transformer_zFacet *facet;
   u_short id0;
   u_short id1;
   u_short id2;
-  int real_type;
   int bfct;
   u_int overlayFlag;
   u_long *copyLastPrim;
   int iVar6;
   int uVar8;
-  u_int uVar9;
 
   vertice = obj->vertex;   /* oracle: lw fp,0x10(obj) = ->vertex */
   TrsProj_SetTransPrecision(8);
@@ -3492,9 +3491,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
             (sd->vt2).y = t2;
             (sd->vt2).z = t3;
           }
-gte_ldv0((char *)sd + 0xac);
-gte_ldv1((char *)sd + 0xb4);
-gte_ldv2((char *)sd + 0xbc);
+gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
           gte_rtpt();
           gte_nclip();
           gte_stMAC0m(sd->bfct);

@@ -451,36 +451,37 @@ void Hud_RenderStatsView(void)
   int screen;
 
   screen = simGlobal.gameTicks >> 9 & 1;
-  if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) {
-    if (GameSetup_gData.commMode == 1) goto HudStats_check200;
-    if (Cars_gNumRaceCars != 1) goto HudStats_finalize;
-HudStats_setUserOne:
-    screen = 1;
-  }
-  else {
-    if (GameSetup_gData.commMode != 1) {
+  /* Block order + branch polarity transcribed from the oracle CFG (0x800DAE94..0x800DAFE8):
+     the flags!=0 arm is the if-BODY (oracle `beqz` skips to the ==0 block), the shared
+     screen=0 block sits EARLY at .L800DAED0, and the "one player" tail (.L800DAFE4)
+     falls out of the numRaceCars test at .L800DAFD0. */
+  if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0) {
+    if (GameSetup_gData.commMode == 1) goto HudStats_common;
 HudStats_setUserZero:
-      screen = 0;
-      goto HudStats_finalize;
-    }
-HudStats_check200:
-    if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) {
-      if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0) goto HudStats_check200B;
-    }
-    else {
-      if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) {
-        screen = 0;
-        goto HudStats_finalize;
-      }
-HudStats_check200B:
-      if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) goto HudStats_setUserOne;
-      if ((Hud_NextPerp[0] != 0) || (GameSetup_gData.commMode != 1)) goto HudStats_setUserZero;
-    }
-    if (((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0) &&
-       ((GameSetup_gData.commMode == 1) && (Hud_NextPerp[1] != 0))) {
-      screen = 1;
-    }
+    screen = 0;
+    goto HudStats_finalize;
   }
+  if (GameSetup_gData.commMode != 1) goto HudStats_checkNumCars;
+HudStats_common:
+  if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0) {
+    if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0) goto HudStats_check200B;
+    goto HudStats_setUserZero;
+  }
+  if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) goto HudStats_secondCar;
+HudStats_check200B:
+  if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) goto HudStats_setUserOne;
+  if (Hud_NextPerp[0] != 0) goto HudStats_setUserZero;
+  if (GameSetup_gData.commMode != 1) goto HudStats_setUserZero;
+HudStats_secondCar:
+  if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) goto HudStats_finalize;
+  if (GameSetup_gData.commMode != 1) goto HudStats_finalize;
+  if (Hud_NextPerp[1] == 0) goto HudStats_finalize;
+  screen = 1;
+  goto HudStats_finalize;
+HudStats_checkNumCars:
+  if (Cars_gNumRaceCars != 1) goto HudStats_finalize;
+HudStats_setUserOne:
+  screen = 1;
 HudStats_finalize:
   if (screen == 0) {
     D_8013D99C = 0;

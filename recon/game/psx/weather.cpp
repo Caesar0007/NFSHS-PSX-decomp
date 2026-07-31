@@ -824,33 +824,37 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
   {
     coorddef *cp;
 
+    coorddef *tr = &Vi->cview.translation;
+
     temp_vector.vx = (short)((Vi->cview.translation.x - prevCamPos[Vi->player].x) / 0x400);
-    temp_vector.vy = (short)((Vi->cview.translation.y - prevCamPos[Vi->player].y) / 0x400);
-    temp_vector.vz = (short)((Vi->cview.translation.z - prevCamPos[Vi->player].z) / 0x400);
+    temp_vector.vy = (short)((tr->y - prevCamPos[Vi->player].y) / 0x400);
+    temp_vector.vz = (short)((tr->z - prevCamPos[Vi->player].z) / 0x400);
     gte_ldv0(&temp_vector);
     gte_mvmva(1,0,0,0,0);
     cp = &prevCamPos[Vi->player];
-    *cp = Vi->cview.translation;
+    *cp = *tr;
     gte_stlvnl(&result);
-    total_vector_change.vy = -(short)result.vy;
     total_vector_change.vx = -(short)result.vx;
+    total_vector_change.vy = -(short)result.vy;
     total_vector_change.vz = -(short)result.vz;
   }
 
   /* wind/gravity velocity, rotated into camera space; folded into total_vector_change */
   {
-    temp_vector.vx = Weather_gSys.velocity.vx;
-    temp_vector.vy = Weather_gSys.velocity.vy;
-    temp_vector.vz = Weather_gSys.velocity.vz;
+    SVECTOR *vel = &Weather_gSys.velocity;
+
+    temp_vector.vx = vel->vx;
+    temp_vector.vy = vel->vy;
+    temp_vector.vz = vel->vz;
     gte_ldv0(&temp_vector);
     gte_mvmva(1,0,0,0,0);
     gte_stlvnl(&result);
-    total_vector_change.vx = total_vector_change.vx + (short)result.vx;
     velocity_vector_change.vx = (short)result.vx;
     velocity_vector_change.vy = (short)result.vy;
     velocity_vector_change.vz = (short)result.vz;
-    total_vector_change.vz = total_vector_change.vz + (short)result.vz;
-    total_vector_change.vy = total_vector_change.vy + (short)result.vy;
+    total_vector_change.vx = total_vector_change.vx + velocity_vector_change.vx;
+    total_vector_change.vz = total_vector_change.vz + velocity_vector_change.vz;
+    total_vector_change.vy = total_vector_change.vy + velocity_vector_change.vy;
   }
 
   /* rotate the 12 turbulence velocity vectors into camera space (frame-local copy) */
@@ -858,7 +862,9 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
     signed char *vel;
 
     vel = (signed char *)Weather_gRandomVelocityVectors;
-    for (n = 0; n < 12; n = n + 1) {
+    n = 0;
+    while (1) {
+      if (12 <= n) break;
       temp_vector.vx = vel[0];
       temp_vector.vy = vel[1];
       temp_vector.vz = vel[2];
@@ -869,6 +875,7 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
       Weather_gTransformedRandomVelocityVectors[n].vy = (short)result.vy;
       Weather_gTransformedRandomVelocityVectors[n].vz = (short)result.vz;
       vel = vel + 3;
+      n = n + 1;
     }
   }
 
@@ -876,22 +883,29 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
   {
     SVECTOR *tv;
     long n;
+    short reset;
 
     tv = wpt;
-    for (n = 0; n < num; n = n + 1) {
+    n = 0;
+    while (1) {
+      if (num <= n) break;
       temp_vector.vx = Weather_gTransformedRandomVelocityVectors[n % 12].vx +
               (tv->vx + total_vector_change.vx);
       temp_vector.vy = Weather_gTransformedRandomVelocityVectors[n % 12].vy +
               (tv->vy + total_vector_change.vy);
       temp_vector.vz = Weather_gTransformedRandomVelocityVectors[n % 12].vz +
               (tv->vz + total_vector_change.vz);
-      if (Weather_CheckAndResetParticles(&temp_vector) != 0) {
+      reset = Weather_CheckAndResetParticles(&temp_vector);
+      /* MATCH: the oracle writes vx+vy as ONE aligned word (lw 0x70(sp); sw 0(s2))
+       * then vz as a halfword -- a COORD16/6-byte struct assign compiles to the
+       * align-2 lwl/lwr/swl/swr soup instead, so the word pun is the faithful form. */
+      *(long *)&tv->vx = *(long *)&temp_vector.vx;
+      tv->vz = temp_vector.vz;
+      if (reset != 0) {
         wd[n] = 0;
       }
-      tv->vx = temp_vector.vx;
-      tv->vy = temp_vector.vy;
-      tv->vz = temp_vector.vz;
       tv = tv + 1;
+      n = n + 1;
     }
   }
 }

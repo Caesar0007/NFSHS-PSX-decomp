@@ -409,22 +409,27 @@ void CV_ProcessWorldColors_FINAL(int constrast,CVECTOR *color,short brightness)
   int g;
   int b;
   int temp;
-  u_char *light;
 
-  for (i = 0; i < Chunk_numLight; i = i + 1) {
-    light = &Chunk_lightTable[i].r;
-    temp = fixedmult((u_int)light[0] - (u_int)color->r,constrast);
-    temp = (u_int)light[0] - temp;
-    r = 0;
-    if ((-1 < temp) && (r = temp, 0xff < temp)) { r = 0xff; }
-    temp = fixedmult((u_int)light[1] - (u_int)color->g,constrast);
-    temp = (u_int)light[1] - temp;
-    g = 0;
-    if ((-1 < temp) && (g = temp, 0xff < temp)) { g = 0xff; }
-    temp = fixedmult((u_int)light[2] - (u_int)color->b,constrast);
-    temp = (u_int)light[2] - temp;
-    b = 0;
-    if ((-1 < temp) && (b = temp, 0xff < temp)) { b = 0xff; }
+  /* MATCH: NO cached `light` pointer -- the oracle re-materializes
+   * %hi/%lo(Chunk_lightTable) at the read group and again at EVERY byte store
+   * (a char store may alias the pointer global itself), and strength-reduces
+   * the index into a byte-offset giv (+4/iter).  The three source bytes are
+   * read UP FRONT into r/g/b because they have to survive the fixedmult calls. */
+  i = 0;
+  /* MATCH: exit-in-the-middle -- the oracle re-tests Chunk_numLight at the TOP
+   * of every iteration and closes with an unconditional `j` back (no rotation,
+   * no zero-trip guard); a plain `for` rotates and hoists the bound load. */
+  while (1) {
+    if (!(i < Chunk_numLight)) break;
+    r = Chunk_lightTable[i].r;
+    g = Chunk_lightTable[i].g;
+    b = Chunk_lightTable[i].b;
+    temp = r - fixedmult(r - color->r,constrast);
+    if (temp < 0) { r = 0; } else { r = temp; if (0xff < r) { r = 0xff; } }
+    temp = g - fixedmult(g - color->g,constrast);
+    if (temp < 0) { g = 0; } else { g = temp; if (0xff < g) { g = 0xff; } }
+    temp = b - fixedmult(b - color->b,constrast);
+    if (temp < 0) { b = 0; } else { b = temp; if (0xff < b) { b = 0xff; } }
     r = r + brightness;
     g = g + brightness;
     b = b + brightness;
@@ -434,9 +439,10 @@ void CV_ProcessWorldColors_FINAL(int constrast,CVECTOR *color,short brightness)
     if (g < 0) { g = 0; }
     if (0xff < b) { b = 0xff; }
     if (b < 0) { b = 0; }
-    light[0] = (u_char)r;
-    light[1] = (u_char)g;
-    light[2] = (u_char)b;
+    Chunk_lightTable[i].r = (u_char)r;
+    Chunk_lightTable[i].g = (u_char)g;
+    Chunk_lightTable[i].b = (u_char)b;
+    i = i + 1;
   }
 }
 

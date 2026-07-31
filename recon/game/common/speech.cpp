@@ -2817,9 +2817,12 @@ MSEngage_dispatchCheck:
       iVar4 = (*(*pa_Var10)[0x1b].pfn)
                         ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var10)[0x1b].delta),
       (*(u_int *)(iVar4 + 0x260) & 4) != 0)) && (iVar4 = Dispatch__6Speech(), *(int *)(iVar4 + 0x48) != 0)) {
+    int dispatchVtable;
+
     iVar4 = Dispatch__6Speech();
-    iVar7 = *(int *)(*(int *)(iVar4 + 0x48) + 0x4c);
-    iVar4 = (**(int (**)(...))(iVar7 + 0xcc))(*(int *)(iVar4 + 0x48) + (int)*(short *)(iVar7 + 200));
+    dispatchVtable = *(int *)(*(int *)(iVar4 + 0x48) + 0x4c);
+    iVar4 = (**(int (**)(...))(dispatchVtable + 0xcc))
+                (*(int *)(iVar4 + 0x48) + (int)*(short *)(dispatchVtable + 200));
     bVar2 = (*(u_int *)(iVar4 + 0x260) & 0x40) == 0;
   }
   if (bVar2) {

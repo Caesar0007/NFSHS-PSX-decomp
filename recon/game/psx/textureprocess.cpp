@@ -524,7 +524,30 @@ void CV_ColorTracks(int track,int weather,int night)
   /* MATCH: `contrast` is initialized to 0 BEFORE the memset, so its live range
    * crosses that call and it earns a callee-saved reg -- assigning it only
    * inside the branches leaves it in $a0 (the outgoing arg reg).  The same 0
-   * feeds memset's fill arg (oracle: addu a1,s0,zero). */
+   * feeds memset's fill arg (oracle: addu a1,s0,zero).
+   *
+   * FLOOR, QUANTIFIED (72 diffs, COUNT-EXACT 130/130, w39-a10): the body is
+   * structurally identical to retail -- same insns, same $s0/$s1 reference
+   * counts (22/16 both sides) -- and the ONLY residual is one uniform
+   * $s0<->$s1 swap: retail puts `contrast` in $s0 and `weather` in $s1, we do
+   * the reverse.  cc1's `-dl`/`-dg` dumps pin it to a RAZOR-EDGE
+   * allocno_compare tie (priority = floor_log2(refs)*refs/live_length*10000):
+   *     weather  (pseudo 81): 14 refs / 114 insns -> 3684
+   *     contrast (pseudo 85): 11 refs /  90 insns -> 3666
+   * i.e. 0.5% apart; ONE extra insn inside weather's live range (but before
+   * contrast's first def) or one fewer insn of contrast's range flips it.
+   * PROVEN by an experiment, NOT adopted: inserting a redundant `color.cd = 0;`
+   * before `contrast = 0;` (dead -- the memset zeroes it) flips the pair and
+   * takes the function to 3 diffs, the whole body then matching.  That is pure
+   * scaffolding (a real extra `sb`, 131 vs 130 insns), so the honest 72-diff
+   * form is kept.  Also measured and rejected: memset(&color,contrast,4) (CSE
+   * folds the ref back to a literal), a `final_contrast = contrast` copy before
+   * the call (regmove propagates it away), a `wthr` copy of the param (+3
+   * insns), brightness/uVar1 retyping, decl-order permutations, moving
+   * `brightness = 0` ahead of the memset (27 diffs / +3 insns) -- all no-ops or
+   * worse.  A 1-insn allocno razor edge with no zero-cost source lever; the
+   * C++ permuter is unavailable, so this needs the permuter fix or a retail
+   * RTL-level difference we have not found. */
   contrast = 0;
   memset(&color,0,4);
   brightness = 0;

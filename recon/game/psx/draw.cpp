@@ -510,7 +510,20 @@ void Draw_StartFrameRender(void)
     iVar5 = iVar5 + 1;
     goto TEST;
   }
-  Render_gPacketPtr = gEnviro[gFlip].server;
+  /* MATCH (2026-07-31, w38-a3): the oracle LOADS gEnviro[gFlip].server TWICE
+     (`lw v1,0x14(v0)` then `lw v0,0x14(v0)` off the SAME CSE'd address); our
+     build CSE'd the value once and emitted `addu v0,a0,zero`.  ROOT CAUSE:
+     the intervening store went through the `Render_gPacketPtr` macro
+     (`*(u_char **)0x1F800004`) -- a NON-struct MEM, so gcc-2.8's alias check
+     (MEM_IN_STRUCT_P mismatch) let the loaded value live across it.  The
+     scratchpad word at 0x1F800004 IS `Draw_PrimStruct::PrimPtr` (the cache
+     header's packet cursor, cf. Draw_tCacheHeader/Draw_DCache @0x1F800000),
+     so writing it through the STRUCT view sets MEM_IN_STRUCT_P, cse
+     invalidates the field load, and the second genuine `lw` reappears.
+     Identical address + identical stored value; PASS 40/40.
+     NEW LEVER: a scratchpad "global" that is really a struct FIELD must be
+     stored through its struct view or it silently loses alias conflicts. */
+  ((Draw_PrimStruct *)0x1F800000)->PrimPtr = gEnviro[gFlip].server;
   Draw_gMaxPrim = gEnviro[gFlip].server + gTotalMem;
   return;
 }

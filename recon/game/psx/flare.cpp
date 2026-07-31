@@ -1555,7 +1555,9 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
   long angleZ;
   long angleZ2;
   char flareVis;
+  int otz;
 
+  otz = 0;
   if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr + -0x400) {
     sx = screenPos->vx;
     sy = screenPos->vy;
@@ -1667,13 +1669,13 @@ gte_SetRotMatrix(&mtx);
         u_int pkt24;
 
         aprim = (DR_MODE *)Render_gPacketPtr;
-        slot = (u_int *)(0 * 4);
+        slot = (u_int *)(otz * 4);
         slot = (u_int *)((int)slot + (int)Render_gPalettePtr);
         *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
         pkt24 = *slot & 0xff000000;
         Render_gPacketPtr = (u_char *)aprim + 0xc;
         *slot = pkt24 | (u_int)aprim & 0xffffff;
-        SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
+        SetDrawMode(aprim,0,otz,0x120,(RECT *)0x0);
       }
     }
   }

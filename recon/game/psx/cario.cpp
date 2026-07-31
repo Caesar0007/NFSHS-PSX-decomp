@@ -221,17 +221,22 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
    * are unconditional `j`), and `h == -1` (not `!= -1`) keeps the signed
    * `beq h,K` against the loop-hoisted -1 in $t4 instead of the unsigned
    * `nor`+`bnez` canonicalization.
-   * RESIDUAL 51 diffs (ours 39 / oracle 42) -- TWO independent 1-/2-insn gaps:
-   *  (a) retail copies BOTH pointer params out of their arg regs (SYM: source
-   *      REGPARM $0a, dest REGPARM $08) because local-alloc had claimed $a0/$a1
-   *      for the four nibble-mask temps; ours keeps `dest` in $a1 and therefore
-   *      reuses one scratch for the mask terms (same insn COUNT, different
-   *      register letters).  Falsified: symmetric 4th `& 0xf000` mask, postfix
-   *      `*dest++`, for-vs-do-while on the copy loop -- all byte-identical.
-   *  (b) the two arms' identical `source += 12; j looptop` tails: our gcc
-   *      CROSS-JUMPS them into one, retail kept both copies (2 insns).  No
-   *      source spelling reached it; moving the statement out of the arms
-   *      produces exactly our merged form. */
+   * 51 -> 6 diffs (w39-a5).  (a) was SOLVED: writing the four mirrored nibbles as
+   * four NAMED `int` temps (not one fused expression, and not `u_short` temps --
+   * u_short scored 22, int 18, the fused expression 51) gives gcc four independent
+   * chains to schedule, which is what frees $a0/$a1 and copies BOTH pointer params
+   * out into $t2/$t0 exactly like retail.  The ASSIGNMENT ORDER of the four temps is
+   * then load-bearing: all 24 permutations were measured, n1,n2,n0,n3 = 6 and every
+   * other order 12-22 (the `|` operand order was also swept: n0|n1|n2|n3 is best).
+   * The temps are compiler temps in the SYM (only pixel3 is named) but naming them is
+   * required to reproduce the retail schedule -- see the catalog's "N named value-temps
+   * give the parallel chains" row.
+   * RESIDUAL 6 diffs (ours 40 / oracle 42), TWO 2-insn gaps, both already documented:
+   *  (a) the oracle emits n0 (`andi v0,v1,15; sll v0,v0,12`) FIRST; ours emits it
+   *      third.  All registers match -- pure sched2 placement.
+   *  (b) the two arms' identical `source += 12; j looptop` tails: our gcc CROSS-JUMPS
+   *      them into one, retail kept both copies.  No source spelling reached it;
+   *      moving the statement out of the arms produces exactly our merged form. */
   int h;
 
   h = 0x16;
@@ -254,9 +259,17 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
         u_short pixel3;
 
         if (i < 0) break;
+        int n0;
+        int n1;
+        int n2;
+        int n3;
+
         pixel3 = source[i];
-        *dest++ = (short)(((pixel3 & 0xf) << 0xc) | ((pixel3 & 0xf0) << 4) |
-                        ((pixel3 & 0xf00) >> 4) | (pixel3 >> 0xc));
+        n1 = (pixel3 & 0xf0) << 4;
+        n2 = (pixel3 & 0xf00) >> 4;
+        n0 = (pixel3 & 0xf) << 0xc;
+        n3 = pixel3 >> 0xc;
+        *dest++ = (short)(n0 | n1 | n2 | n3);
         i = i - 1;
       }
       source = source + 0xc;

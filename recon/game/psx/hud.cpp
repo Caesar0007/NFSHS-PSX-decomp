@@ -54,9 +54,6 @@ int          Hud_gStatsView;   /* @0x8013d968  (bss(zero)) */
  * base+offset/variable-index array codegen in their own oracles and keep referencing the
  * array form above -- a known duality (same accepted tradeoff as weather.cpp's precedent;
  * not attempted to unify this pass). */
-int          Hud_gHudView0, Hud_gHudView1;
-int          Hud_gMapView0, Hud_gMapView1;
-int          Hud_gTacView0, Hud_gTacView1;
 int          HudMapOffsetY;   /* @0x8013d96c  (bss(zero)) */
 long         gMapRotate;   /* @0x8013d970  (bss(zero)) */
 long         gMapScaleX;   /* @0x8013d974  (bss(zero)) */
@@ -87,7 +84,7 @@ int          BTC_UserHasControl;   /* @0x8013de30  (bss(zero)) */
  * (oracle emits it before `lui $v1,%hi(Hud_NextPerp)`, ours after -- tried reordering the loop
  * body statement that consumes BTC_CurrentPerpName, regressed 2->6, reverted; not source-reachable).
  * ⚠️ KNOWN DUALITY, NOT COLLAPSED (same open issue as weather.cpp Weather_gLastProcessTime0/1):
- * PerpOverlayOn0/1 are a SEPARATE (not memory-aliased) object from PerpOverlayOn[0..1].
+ * PerpOverlayOn[0]/1 are a SEPARATE (not memory-aliased) object from PerpOverlayOn[0..1].
  * Hud_Reset now only WRITES the scalars, not the array -- Hud_RenderHudView reads the array
  * (`*(int*)((int)PerpOverlayOn+viewOff) != 0`, ~line 3351) and Perp_OverlayOn/Off (~line
  * 3849/3881) write the array by player index. So Hud_Reset() no longer actually zeroes the
@@ -96,8 +93,6 @@ int          BTC_UserHasControl;   /* @0x8013de30  (bss(zero)) */
  * Hud_RenderHudView could show a stale busted-overlay message. Flagged as a real behavior
  * change, not silently accepted; a full fix needs a link-level aliasing pass (out of scope for
  * a single-diff codegen lever, and out of scope for this pass' file-only mandate). */
-int          PerpOverlayOn0;   /* per-element gp-rel dual (Hud_Reset constant-index site) */
-int          PerpOverlayOn1;   /* per-element gp-rel dual (Hud_Reset constant-index site) */
 int          PerpOverlayOn[2];   /* @0x8013de38  (bss(zero)) */
 int          PerpOverlayMessage[2];   /* @0x8013de40  (bss(zero)) */
 int          Hud_gShowedCDPlayer;   /* @0x8013de48  (bss(zero)) */
@@ -191,16 +186,16 @@ void Hud_CreateHudViews(void)
     HudMapOffsetY = 0;
   }
   if (GameSetup_gData.commMode == 1) {
-    Hud_gMapView0 = Draw_SetView(0x105, HudMapOffsetY + 0x13e, 0x245, HudMapOffsetY + 0x13e, 0x2d, 0x30, 0, 0, 1);
-    Hud_gMapView1 = Draw_SetView(0x105, HudMapOffsetY + 0x1a9, 0x245, HudMapOffsetY + 0x1a9, 0x2d, 0x30, 0, 0, 1);
-    Hud_gHudView0 = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0x78, 0, 0, 1);
-    Hud_gHudView1 = Draw_SetView(0,     0x178, 0x140, 0x178, 0x140, 0x78, 0, 0, 1);
-    Hud_gTacView0 = Draw_SetView(0x115, 0x113, 0x255, 0x113, 0x1c, 0x1c, 0, 0, 1);
-    Hud_gTacView1 = Draw_SetView(0x115, 0x17c, 0x255, 0x17c, 0x1c, 0x1c, 0, 0, 1);
+    Hud_gMapView[0] = Draw_SetView(0x105, HudMapOffsetY + 0x13e, 0x245, HudMapOffsetY + 0x13e, 0x2d, 0x30, 0, 0, 1);
+    Hud_gMapView[1] = Draw_SetView(0x105, HudMapOffsetY + 0x1a9, 0x245, HudMapOffsetY + 0x1a9, 0x2d, 0x30, 0, 0, 1);
+    Hud_gHudView[0] = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0x78, 0, 0, 1);
+    Hud_gHudView[1] = Draw_SetView(0,     0x178, 0x140, 0x178, 0x140, 0x78, 0, 0, 1);
+    Hud_gTacView[0] = Draw_SetView(0x115, 0x113, 0x255, 0x113, 0x1c, 0x1c, 0, 0, 1);
+    Hud_gTacView[1] = Draw_SetView(0x115, 0x17c, 0x255, 0x17c, 0x1c, 0x1c, 0, 0, 1);
   } else {
-    Hud_gMapView0 = Draw_SetView(0xff,  HudMapOffsetY + 0x1a4, 0x23f, HudMapOffsetY + 0x1a4, 0x2d, 0x30, 0, 0, 1);
-    Hud_gHudView0 = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0xf0, 0, 0, 1);
-    Hud_gTacView0 = Draw_SetView(0xb8,  0x115, 0x1f8, 0x115, 0x1c, 0x1c, 0, 0, 1);
+    Hud_gMapView[0] = Draw_SetView(0xff,  HudMapOffsetY + 0x1a4, 0x23f, HudMapOffsetY + 0x1a4, 0x2d, 0x30, 0, 0, 1);
+    Hud_gHudView[0] = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0xf0, 0, 0, 1);
+    Hud_gTacView[0] = Draw_SetView(0xb8,  0x115, 0x1f8, 0x115, 0x1c, 0x1c, 0, 0, 1);
   }
   Hud_gStatsView = Draw_SetView(0, 0x100, 0x140, 0x100, 0x140, 0xf0, 0, 0, 1);
 }
@@ -3510,8 +3505,8 @@ void Hud_Reset(void)
   }
   BTC_BonusTime = 0;
   HudBustedOverlay = 0;
-  PerpOverlayOn0 = 0;
-  PerpOverlayOn1 = 0;
+  PerpOverlayOn[0] = 0;
+  PerpOverlayOn[1] = 0;
   BTC_UserHasControl = 0;
   return;
 }

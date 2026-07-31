@@ -1210,14 +1210,16 @@ gte_swc2(0x8,&depthcue);
       else {
         prim = &sd->GT4Prim;
       }
-      prim->x0 = (u_short)dvxy0;
-      prim->y0 = (*(u_short *)((u_char *)&(dvxy0) + 2));
-      prim->x1 = (u_short)dvxy1;
-      prim->y1 = (*(u_short *)((u_char *)&(dvxy1) + 2));
-      prim->x2 = (u_short)dvxy2;
-      prim->y2 = (*(u_short *)((u_char *)&(dvxy2) + 2));
-      prim->x3 = (u_short)dvxy3;
-      prim->y3 = (*(u_short *)((u_char *)&(dvxy3) + 2));
+      /* MATCH (2026-08-01): the four dvxy AUTOs ARE packed screen-XY words, and the
+       * oracle stores each with ONE `sw` (0x8/0x14/0x20/0x2C off prim) -- the 8
+       * separate `sh` halves cost 4 extra insns AND, decisively, 4 extra references
+       * to `prim`: at 29 body refs the oracle's prim sits just under the
+       * floor_log2 razor edge at 32, so it loses $s0 to `sd`; at 33 ours crossed it
+       * and stole $s0, flipping the entire function's $s0/$s1 assignment. */
+      *(long *)&prim->x0 = dvxy0;
+      *(long *)&prim->x1 = dvxy1;
+      *(long *)&prim->x2 = dvxy2;
+      *(long *)&prim->x3 = dvxy3;
       if (sd->nightFlags == '\0') {
         gte_ldir0v(depthcue);   /* MATCH+CORRECTNESS: oracle `lw rt,depthcue; mtc2 rt,$8` -- gte_ldIR0() is the ADDRESS form (lwc2), so passing the VALUE read memory at the depth-cue number */
         /* CORRECTNESS + MATCH (2026-08-01, oracle @0x800C6A90/.L800C6B64 read

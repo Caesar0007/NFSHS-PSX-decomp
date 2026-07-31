@@ -24,6 +24,13 @@
 #define gte_ldir0v(x) ((void)(x))
 #endif
 
+/* Scratchpad overlay base (methodology SS3.6b): the PSX fast-RAM Draw cache lives at
+   0x1F800000 and every field the renderer's GTE actually reads is an offset into it.
+   DrawW_BuildChunkObjectFacets' oracle reaches matB (+0x14) and offsubdivid (+0x148)
+   through LITERAL addresses (`lui $at,(0x1F800014>>16); sw $zero,...($at)`,
+   `sh $v0,(0x1F800148 & 0xFFFF)($at)`), never a %hi/%lo symbol relocation. */
+#define DW_SCRATCH ((Draw_tGiveShelbyMoreCache *)0x1F800000)
+
 /* PsyQ POINTER-form colour-FIFO stores (inline_c gte_strgb / gte_strgb3): a lone
    `swc2 $22,0(rt)` and the three-pointer RGB0/1/2 trio.  psx_gte.h only carries the
    FIXED-OFFSET `gte_strgb3_gt4(p)` family (one base + folded displacements); the
@@ -2361,7 +2368,7 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      walking pointer as Trk_CollideBoomInst* turns every `pGVar12[N].m_num_elements`
      byte-math expression into a real field access, which is rule-8/SYM-driven local
      structure (SYM names this pointer `objInstance`). */
-  u_char bVar1;
+  u_char type;   /* SYM REG $s0 */
   void *pvVar3;
   int heading;
   ObjectAnim *pOVar6;
@@ -2369,9 +2376,9 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
   Trk_SimObject *simObjs;
   short light;
   Trk_CollideBoomInst *objInstance;
-  Trk_ObjectDef *objDef_00;
+  Trk_ObjectDef *objDef;
   int totalCount;
-  int iVar14;
+  int objectOffset;
   matrixtdef matrix;
   int groupNumElements;
   int objectIndex;
@@ -2385,21 +2392,28 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
     totalCount = 0;
   }
   else {
-    Render_gWorldMat.t[2] = 0;
-    Render_gWorldMat.t[1] = 0;
-    Render_gWorldMat.t[0] = 0;
-gte_SetTransMatrix((void *)0x1f800014);
+    /* CORRECTNESS (2026-08-01, same class as the DoTrough/kCtrlSkidmark finds):
+     * the GTE translation vector zeroed here must be the SCRATCHPAD matrix at
+     * 0x1F800014 (== sd->matB) that the very next gte_SetTransMatrix loads --
+     * the oracle stores through literal 0x1F800014/0x1F800028 addresses.  Writing
+     * the separate linked `Render_gWorldMat` .bss symbol left the scratchpad
+     * translation STALE, so every chunk object was transformed with whatever the
+     * previous draw had left at 0x1F800028..0x30. */
+    DW_SCRATCH->matB.t[2] = 0;
+    DW_SCRATCH->matB.t[1] = 0;
+    DW_SCRATCH->matB.t[0] = 0;
+gte_SetTransMatrix(&DW_SCRATCH->matB);
     for (objectIndex = 0; objectIndex < groupNumElements; objectIndex = objectIndex + 1) {
-      iVar14 = (int)goffsets[objInstance->zoffset];
-      bVar1 = objInstance->type;
+      objectOffset = (int)goffsets[objInstance->zoffset];
+      type = objInstance->type;
       /* MATCH: oracle is a CASCADE of separate ifs, not one fused ||/&& expression --
          type==5 short-circuits straight to emit (skipping the clip test entirely), and
          the final type!=2 check is a FRESH re-read of objInstance->type from memory
-         (`lbu` after the ObjectClipped() call), not a reuse of the cached bVar1. */
-      if ((bVar1 & 0x80) != 0) {
+         (`lbu` after the ObjectClipped() call), not a reuse of the cached type. */
+      if ((type & 0x80) != 0) {
         goto DrawWChunkFacets_groupNext;
       }
-      if (bVar1 != 5) {
+      if (type != 5) {
         if (doFrustumClip != 0) {
           pvVar3 = ObjectClipped(Vi,(int)objInstance->pad,
                                (coorddef *)&objInstance->x,
@@ -2409,13 +2423,17 @@ gte_SetTransMatrix((void *)0x1f800014);
           }
         }
       }
-      DrawW_gObjScratch_148 = 0x400;
+      /* CORRECTNESS: oracle `sh $v0,(0x1F800148 & 0xFFFF)($at)` -- this is the
+       * scratchpad cache's `offsubdivid` SHORT (the same field OnyxLinePrim sets to
+       * 0x200), not a private .bss int.  The old write-only DrawW_gObjScratch_148
+       * global meant the subdivision offset never reached the renderer. */
+      DW_SCRATCH->offsubdivid = 0x400;
       light = -1;
       if ((objInstance->flags & 1) != 0) {
         heading = fixedatan(objInstance->x - (Vi->cview).translation.x,
                            objInstance->z - (Vi->cview).translation.z);
         fixedxformy(&matrix,heading);
-        if (bVar1 == 9) {
+        if (type == 9) {
           /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
           int t1, t2, sx, sy;
 
@@ -2435,18 +2453,33 @@ gte_SetTransMatrix((void *)0x1f800014);
           t2 = fixedmult(matrix.m[5],sx);
           matrix.m[8] = fixedmult(matrix.m[8],sx);
           light = objInstance->qw;
-          DrawW_gObjScratch_148 = 0;
+          DW_SCRATCH->offsubdivid = 0;
           matrix.m[2] = t1;
           matrix.m[5] = t2;
         }
-        objDef_00 = Track_gObjDefs[objInstance->pad];
+        objDef = Track_gObjDefs[objInstance->pad];
 DrawWChunkFacets_emitObj:
-        iVar14 = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef_00,
-                            (coorddef *)&objInstance->x,iVar14,light);
-        totalCount = totalCount + iVar14;
+        objectOffset = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+                            (coorddef *)&objInstance->x,objectOffset,light);
+        totalCount = totalCount + objectOffset;
       }
       else {
-        if (bVar1 == 2) {
+        /* MATCH (2026-08-01): the oracle @0x800C8780 dispatches with gcc's
+         * balance_case_nodes BST -- `andi v1,s0,0xFF; li v0,2; beq (case 2);
+         * slti v0,v1,3; beqz -> {li 5/beq, li 9/beq}; li v0,1; beq (case 1)` --
+         * the unmistakable fingerprint of a real `switch` (root compare + bound
+         * test + two subtree compares), NOT the if/else-if cascade this used to
+         * be (which collapsed to one `sltiu` unsigned range test).  gcc emits
+         * case BODIES in SOURCE order and the oracle's physical order is
+         * 1 (0x800C87C4), 2 (0x87F8), 9 (0x8900), 5 (0x8A08) -- exactly the SYM
+         * block line numbers 121/137/186/235. */
+        switch (type) {
+        case 1:
+          objDef = Track_gObjDefs[objInstance->pad];
+          totalCount = totalCount + DrawObjectSimple(Vi,(Draw_DCache *)&Render_gPalettePtr,
+                              objDef,(coorddef *)&objInstance->x,objectOffset);
+          break;
+        case 2: {
           /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
           int t1, t2, sx, sy, sz;
 
@@ -2467,60 +2500,50 @@ DrawWChunkFacets_emitObj:
           t1 = fixedmult(matrix.m[2],sz);
           t2 = fixedmult(matrix.m[5],sz);
           matrix.m[8] = fixedmult(matrix.m[8],sz);
-          objDef_00 = Track_gObjDefs[objInstance->pad];
+          objDef = Track_gObjDefs[objInstance->pad];
           light = *(short *)&objInstance->simIndex;
           matrix.m[2] = t1;
           matrix.m[5] = t2;
           goto DrawWChunkFacets_emitObj;
         }
-        if (bVar1 < 3) {
-          if (bVar1 == 1) {
-            iVar14 = DrawObjectSimple(Vi,(Draw_DCache *)&Render_gPalettePtr,
-                                Track_gObjDefs[objInstance->pad],
-                                (coorddef *)&objInstance->x,iVar14);
-            totalCount = totalCount + iVar14;
-          }
-        }
-        else if (bVar1 == 5) {
-          objDef_00 = Track_gObjDefs[objInstance->pad];
-          pOVar6 = Object_GetAnim(simObjs + objInstance->simIndex);
-          if (pOVar6 == (ObjectAnim *)0x0) {
-            /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
-            int t1, t2, sx, sy, sz;
+        case 9: {
+        /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
+        int t1, t2, sx, sy;
 
-            Quatern_QuatToMat((tQuat *)&objInstance->qx,&matrix);
-            sx = (int)objInstance->sx << 8;
-            sy = (int)objInstance->sy << 8;
-            sz = (int)objInstance->sz << 8;
-            t1 = fixedmult(matrix.m[0],sx);
-            t2 = fixedmult(matrix.m[3],sx);
-            matrix.m[6] = fixedmult(matrix.m[6],sx);
-            matrix.m[0] = t1;
-            matrix.m[3] = t2;
-            t1 = fixedmult(matrix.m[1],sy);
-            t2 = fixedmult(matrix.m[4],sy);
-            matrix.m[7] = fixedmult(matrix.m[7],sy);
-            matrix.m[1] = t1;
-            matrix.m[4] = t2;
-            t1 = fixedmult(matrix.m[2],sz);
-            t2 = fixedmult(matrix.m[5],sz);
-            matrix.m[8] = fixedmult(matrix.m[8],sz);
-            light = -1;
-            matrix.m[2] = t1;
-            matrix.m[5] = t2;
-            goto DrawWChunkFacets_emitObj;
-          }
-          pOVar6 = Object_GetAnim(simObjs + objInstance->simIndex);
-          (*(*pOVar6->_vf)[2].pfn)
-                    ((int)&pOVar6->_vf + (int)(*pOVar6->_vf)[2].delta,Vi,0x1f800000,iVar14);
+        xformy(&matrix,(int)objInstance->qx);
+        sx = (int)objInstance->qz << 8;
+        sy = (int)objInstance->qy << 8;
+        t1 = fixedmult(matrix.m[0],sx);
+        t2 = fixedmult(matrix.m[3],sx);
+        matrix.m[6] = fixedmult(matrix.m[6],sx);
+        matrix.m[0] = t1;
+        matrix.m[3] = t2;
+        t1 = fixedmult(matrix.m[1],sy);
+        t2 = fixedmult(matrix.m[4],sy);
+        matrix.m[7] = fixedmult(matrix.m[7],sy);
+        matrix.m[1] = t1;
+        matrix.m[4] = t2;
+        t1 = fixedmult(matrix.m[2],sx);
+        t2 = fixedmult(matrix.m[5],sx);
+        matrix.m[8] = fixedmult(matrix.m[8],sx);
+        DW_SCRATCH->offsubdivid = 0;
+        objDef = Track_gObjDefs[objInstance->pad];
+        light = objInstance->qw;
+        matrix.m[2] = t1;
+        matrix.m[5] = t2;
+        goto DrawWChunkFacets_emitObj;
         }
-        else if (bVar1 == 9) {
-          /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
-          int t1, t2, sx, sy;
+        case 5: {
+        objDef = Track_gObjDefs[objInstance->pad];
+        pOVar6 = Object_GetAnim(simObjs + objInstance->simIndex);
+        if (pOVar6 == (ObjectAnim *)0x0) {
+          /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
+          int t1, t2, sx, sy, sz;
 
-          xformy(&matrix,(int)objInstance->qx);
-          sx = (int)objInstance->qz << 8;
-          sy = (int)objInstance->qy << 8;
+          Quatern_QuatToMat((tQuat *)&objInstance->qx,&matrix);
+          sx = (int)objInstance->sx << 8;
+          sy = (int)objInstance->sy << 8;
+          sz = (int)objInstance->sz << 8;
           t1 = fixedmult(matrix.m[0],sx);
           t2 = fixedmult(matrix.m[3],sx);
           matrix.m[6] = fixedmult(matrix.m[6],sx);
@@ -2531,15 +2554,19 @@ DrawWChunkFacets_emitObj:
           matrix.m[7] = fixedmult(matrix.m[7],sy);
           matrix.m[1] = t1;
           matrix.m[4] = t2;
-          t1 = fixedmult(matrix.m[2],sx);
-          t2 = fixedmult(matrix.m[5],sx);
-          matrix.m[8] = fixedmult(matrix.m[8],sx);
-          DrawW_gObjScratch_148 = 0;
-          objDef_00 = Track_gObjDefs[objInstance->pad];
-          light = objInstance->qw;
+          t1 = fixedmult(matrix.m[2],sz);
+          t2 = fixedmult(matrix.m[5],sz);
+          matrix.m[8] = fixedmult(matrix.m[8],sz);
+          light = -1;
           matrix.m[2] = t1;
           matrix.m[5] = t2;
-          goto DrawWChunkFacets_emitObj;
+            goto DrawWChunkFacets_emitObj;
+          }
+          pOVar6 = Object_GetAnim(simObjs + objInstance->simIndex);
+          (*(*pOVar6->_vf)[2].pfn)
+                    ((int)&pOVar6->_vf + (int)(*pOVar6->_vf)[2].delta,Vi,0x1f800000,objectOffset);
+          break;
+        }
         }
       }
 DrawWChunkFacets_groupNext:

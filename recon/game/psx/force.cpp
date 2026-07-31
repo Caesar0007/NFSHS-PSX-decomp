@@ -126,195 +126,210 @@ void Force_Vbl(void)
  * the recon had declared but left UNWIRED (every access went through the indexed
  * `Force_g[carIndex]`, costing a re-materialized base + index at each site).  Wiring
  * `f = &Force_g[carIndex]` once and using `f->field` throughout dropped 12 insns.
- * STILL UNWIRED (next lever, per SYM): skids($a1) impacts($a3) impactmultiplier($s7)
- * v0($s4) v1($s3) and the block-scoped c($s5) force($s2) shock($v1) time($s0) --
- * the body is still Ghidra `iVarN` soup, so the residual is mostly rule-8 shape. */
-void Force_Update(Car_tObj *car)
-
-{
-  int iVar1;
-  int shock;
-  int iVar2;
-  int skids;
-  u_int uVar3;
-  int iVar4;
-  int impacts;
-  int iVar5;
-  int time;
-  int *piVar6;
-  int force;
-  u_char uVar7;
-  int v1;
-  int iVar8;
-  u_char uVar9;
-  int v0;
-  int iVar10;
-  int iVar11;
-  int c;
-  Force_tGlobal *f;
-  int impactmultiplier;
-  int frontmultiplier;
-  int rearmultiplier;
-  
-  uVar3 = car->carIndex;
-  if (1 < uVar3) {
-    return;
-  }
-  f = &Force_g[uVar3];
-  if (1 < Replay_ReplayMode) {
-    f->high = '\0';
-    f->low = '\0';
-    f->time = '\0';
-    return;
-  }
-  iVar4 = GameSetup_gData.controllerData.shockMode[uVar3];
-  iVar5 = GameSetup_gData.controllerData.shockImpact[uVar3];
-  if (iVar4 == 0) {
-    frontmultiplier = 0;
-    rearmultiplier = 0;
-  }
-  else {
-    frontmultiplier = (iVar4 + 0x10) * 0x2da6;
-    rearmultiplier = (iVar4 + 0x10) * 0x1e6e;
-  }
-  if (iVar5 == 0) {
-    iVar4 = 0;
-  }
-  else {
-    iVar4 = (iVar5 + 0x10) * 0xb699;
-  }
-  iVar10 = 0;
-  iVar5 = 0;
-  if ((car->N).flightTime == 0) {
-    switch((car->N).driveSurfaceType) {
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-    case 7:
-    case 8:
-    case 9:
-      iVar10 = 0;
-      iVar1 = (car->linearVel_ch).z;
-      if (iVar1 < 0) {
-        iVar1 = -iVar1;
-      }
-      iVar5 = 0x78000;
-      if (iVar1 >> 2 < 0x78001) {
-        iVar5 = iVar1 >> 2;
-      }
-      goto ForceUpd_audioRevLoop;
-    case 10:
-    case 0xb:
-    case 0xc:
-    case 0xd:
-    case 0xf:
-      iVar5 = (car->linearVel_ch).z;
-      if (iVar5 < 0) {
-        iVar5 = -iVar5;
-      }
-      iVar10 = 0x58000;
-      if (iVar5 >> 1 < 0x58001) {
-        iVar10 = iVar5 >> 1;
-      }
-      break;
-    case 0xe:
-      iVar10 = 0;
-    }
-    iVar5 = 0;
-  }
-ForceUpd_audioRevLoop:
-  iVar1 = car->audioCount;
-  if (iVar1 != 0) {
-    piVar6 = &(car->N).simRoadInfo.quadPts[iVar1 * 2 + -4].z;
-    while (iVar1 = iVar1 + -1, -1 < iVar1) {
-      iVar2 = piVar6[0x1e7];
-      iVar8 = iVar5;
-      iVar11 = iVar10;
-      if (iVar2 == 0x12) {
-        iVar11 = piVar6[0x1ea] << 1;
-        if (piVar6[0x1ea] << 1 < iVar10) {
-          iVar11 = iVar10;
-        }
-      }
-      else if (iVar2 == 0x14) {
-        iVar8 = piVar6[0x1ea] << 1;
-        if (piVar6[0x1ea] << 1 < iVar5) {
-          iVar8 = iVar5;
-        }
-      }
-      else if ((((iVar2 < 0) && (iVar4 != 0)) && (piVar6[0x1e8] != 10)) && (piVar6[0x1e8] != 8)) {
-        iVar5 = piVar6[0x1ea];
-        if (iVar5 < 0x28001) {
-          iVar10 = 0x20;
-        }
-        else {
-          iVar2 = 0x28000;
-          iVar10 = fixeddiv(iVar5,0x28000);
-          iVar10 = iVar10 * 0x20;
-          if (iVar10 < 0) {
-            iVar10 = iVar10 + 0xffff;
-          }
-          iVar5 = iVar2;
-          if (iVar10 >> 0x10 < 0x61) {
-            iVar2 = fixeddiv(piVar6[0x1ea],0x28000);
-            iVar2 = iVar2 * 0x20;
-            iVar10 = iVar2 >> 0x10;
-            if (iVar2 < 0) {
-              iVar10 = iVar2 + 0xffff >> 0x10;
-            }
-          }
-          else {
-            iVar10 = 0x60;
-          }
-        }
-        iVar5 = fixedmult(iVar5,iVar4);
-        if (iVar5 < 0) {
-          iVar5 = iVar5 + 0xffff;
-        }
-        if (((int)(u_int)f->jolt < iVar5 >> 0x10) ||
-           ((int)(u_int)f->time < iVar10)) {
-          f->fade = (u_char)(iVar10 >> 1);
-          f->time = (u_char)iVar10;
-          f->jolt = (u_char)((u_int)iVar5 >> 0x10);
-        }
-      }
-      piVar6 = piVar6 + -6;
-      iVar5 = iVar8;
-      iVar10 = iVar11;
-    }
-  }
-  if (frontmultiplier == 0) {
-    uVar9 = '\0';
-  }
-  else {
-    if (0xa0000 < iVar10) {
-      iVar10 = 0xa0000;
-    }
-    iVar4 = fixedmult(iVar10,frontmultiplier);
-    uVar9 = (u_char)((u_int)iVar4 >> 0x10);
-    if (iVar4 < 0) {
-      uVar9 = (u_char)((u_int)(iVar4 + 0xffff) >> 0x10);
-    }
-  }
-  if (rearmultiplier == 0) {
-    uVar7 = '\0';
-  }
-  else {
-    if (0xf0000 < iVar5) {
-      iVar5 = 0xf0000;
-    }
-    iVar4 = fixedmult(iVar5,rearmultiplier);
-    uVar7 = (u_char)((u_int)iVar4 >> 0x10);
-    if (iVar4 < 0) {
-      uVar7 = (u_char)((u_int)(iVar4 + 0xffff) >> 0x10);
-    }
-  }
-  f->high = uVar9;
-  f->low = uVar7;
-  return;
-}
+ * w39-a7: 326 -> 223 diffs (271/278).  The rule-8 pass the old note called for, plus
+ * three branch-polarity/operand-order fixes read off the raw oracle:
+ *  (1) SYM locals WIRED: `skids` ($a1) and `impacts` ($a3) are the two
+ *      GameSetup_gData.controllerData reads (shockMode@0xA8 / shockImpact@0xB0) -- they
+ *      are CALLER-saved in retail because they are dead after the multiplier setup;
+ *      Ghidra had fused them with later values (`iVar4`/`iVar5`), which forced them into
+ *      callee-saved registers.  `impactmultiplier` ($s7), `v0` ($s4) / `v1` ($s3) (the
+ *      two road-surface accumulators) and the loop's `c` ($s5) / `force` ($s2) /
+ *      `shock` ($v1) / `time` ($s0) are named now too.
+ *  (2) the front/rear multipliers are THREE separate `if (skids != 0)` / `if (skids != 0)`
+ *      / `if (impacts != 0)` guards, not one fused if/else -- the oracle has three
+ *      distinct `beqz $a1/$a1/$a3` tests, each with its own zero-store block, and the
+ *      NON-zero body is the FALL-THROUGH (so the guard must be spelled `!= 0`).
+ *  (3) the Ghidra `iVar8`/`iVar11` snapshot-and-restore dance around the impact block was
+ *      an artifact of Ghidra reusing the accumulator variables inside it.  Retail uses
+ *      three DIFFERENT locals there (force/shock/time), so v0/v1 are simply not touched;
+ *      writing it that way deletes the whole save/restore pair.
+ *  (4) the two surface-clamp arms must use a CALLER-saved temp for `|linearVel.z|` (the
+ *      oracle holds it in $v0 in BOTH arms); Ghidra had the 10..0xF arm reusing `v1`.
+ * Falsified: spelling the clamps as `if (0x78000 < x) v1 = 0x78000; else v1 = x;`
+ * (the oracle's `slt $v1,$v1,$v0` operand order) REGRESSES 223 -> 255/246 -- keep the
+ * `v1 = 0x78000; if (x < 0x78001) v1 = x;` default-then-override form.
+ * RESIDUAL 223 (ours 271 / oracle 278, 7 short): the surface-switch arms and the impact
+ * block still schedule their constant materializations differently (retail splits
+ * `lui $s3,0x0007` / `ori $s3,$s3,0x8000` across the clamp branch and hoists `li $v0,18`
+ * above the audio loop), and the loop head still differs -- next lever is the loop's own
+ * SYM block structure (Block start line 61/62/65/68/72/76/77). */
+void Force_Update(Car_tObj *car)
+
+{
+  Force_tGlobal *f;
+  int skids;
+  int impacts;
+  int impactmultiplier;
+  int v0;
+  int v1;
+  int c;
+  int force;
+  int shock;
+  int time;
+  u_int uVar3;
+  int iVar1;
+  int iVar2;
+  int iVar4;
+  int *piVar6;
+  u_char uVar7;
+  u_char uVar9;
+  int frontmultiplier;
+  int rearmultiplier;
+  
+  uVar3 = car->carIndex;
+  if (1 < uVar3) {
+    return;
+  }
+  f = &Force_g[uVar3];
+  if (1 < Replay_ReplayMode) {
+    f->high = '\0';
+    f->low = '\0';
+    f->time = '\0';
+    return;
+  }
+  skids = GameSetup_gData.controllerData.shockMode[uVar3];
+  impacts = GameSetup_gData.controllerData.shockImpact[uVar3];
+  if (skids != 0) {
+    frontmultiplier = (skids + 0x10) * 0x2da6;
+  }
+  else {
+    frontmultiplier = 0;
+  }
+  if (skids != 0) {
+    rearmultiplier = (skids + 0x10) * 0x1e6e;
+  }
+  else {
+    rearmultiplier = 0;
+  }
+  if (impacts != 0) {
+    impactmultiplier = (impacts + 0x10) * 0xb699;
+  }
+  else {
+    impactmultiplier = 0;
+  }
+  v0 = 0;
+  v1 = v0;
+  if ((car->N).flightTime == 0) {
+    switch((car->N).driveSurfaceType) {
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+      v0 = 0;
+      iVar1 = (car->linearVel_ch).z;
+      if (iVar1 < 0) {
+        iVar1 = -iVar1;
+      }
+      v1 = 0x78000;
+      if (iVar1 >> 2 < 0x78001) {
+        v1 = iVar1 >> 2;
+      }
+      goto ForceUpd_audioRevLoop;
+    case 10:
+    case 0xb:
+    case 0xc:
+    case 0xd:
+    case 0xf:
+      iVar1 = (car->linearVel_ch).z;
+      if (iVar1 < 0) {
+        iVar1 = -iVar1;
+      }
+      v0 = 0x58000;
+      if (iVar1 >> 1 < 0x58001) {
+        v0 = iVar1 >> 1;
+      }
+      break;
+    case 0xe:
+      v0 = 0;
+    }
+    v1 = 0;
+  }
+ForceUpd_audioRevLoop:
+  c = car->audioCount;
+  if (c != 0) {
+    piVar6 = &(car->N).simRoadInfo.quadPts[c * 2 + -4].z;
+    while (c = c + -1, -1 < c) {
+      iVar2 = piVar6[0x1e7];
+      if (iVar2 == 0x12) {
+        if (v0 < piVar6[0x1ea] << 1) {
+          v0 = piVar6[0x1ea] << 1;
+        }
+      }
+      else if (iVar2 == 0x14) {
+        if (v1 < piVar6[0x1ea] << 1) {
+          v1 = piVar6[0x1ea] << 1;
+        }
+      }
+      else if ((((iVar2 < 0) && (impactmultiplier != 0)) && (piVar6[0x1e8] != 10)) &&
+               (piVar6[0x1e8] != 8)) {
+        shock = piVar6[0x1ea];
+        if (shock < 0x28001) {
+          time = 0x20;
+        }
+        else {
+          force = fixeddiv(shock,0x28000) * 0x20;
+          if (force < 0) {
+            force = force + 0xffff;
+          }
+          shock = 0x28000;
+          if (force >> 0x10 < 0x61) {
+            force = fixeddiv(piVar6[0x1ea],0x28000) * 0x20;
+            time = force >> 0x10;
+            if (force < 0) {
+              time = force + 0xffff >> 0x10;
+            }
+          }
+          else {
+            time = 0x60;
+          }
+        }
+        force = fixedmult(shock,impactmultiplier);
+        if (force < 0) {
+          force = force + 0xffff;
+        }
+        if (((int)(u_int)f->jolt < force >> 0x10) || ((int)(u_int)f->time < time)) {
+          f->fade = (u_char)(time >> 1);
+          f->time = (u_char)time;
+          f->jolt = (u_char)((u_int)force >> 0x10);
+        }
+      }
+      piVar6 = piVar6 + -6;
+    }
+  }
+  if (frontmultiplier == 0) {
+    uVar9 = '\0';
+  }
+  else {
+    if (0xa0000 < v0) {
+      v0 = 0xa0000;
+    }
+    iVar4 = fixedmult(v0,frontmultiplier);
+    uVar9 = (u_char)((u_int)iVar4 >> 0x10);
+    if (iVar4 < 0) {
+      uVar9 = (u_char)((u_int)(iVar4 + 0xffff) >> 0x10);
+    }
+  }
+  if (rearmultiplier == 0) {
+    uVar7 = '\0';
+  }
+  else {
+    if (0xf0000 < v1) {
+      v1 = 0xf0000;
+    }
+    iVar4 = fixedmult(v1,rearmultiplier);
+    uVar7 = (u_char)((u_int)iVar4 >> 0x10);
+    if (iVar4 < 0) {
+      uVar7 = (u_char)((u_int)(iVar4 + 0xffff) >> 0x10);
+    }
+  }
+  f->high = uVar9;
+  f->low = uVar7;
+  return;
+}
 
 /* ---- Force_StartUp__Fv  [FORCE.CPP:230-244] SLD-VERIFIED ---- */
 void Force_StartUp(void)

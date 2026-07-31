@@ -772,17 +772,14 @@ void Cars_AddCarSfx(Car_tObj *carObj,int wheel,coorddef *skidpt,int roadSurface,
   int sfxDelay;
 
   smoking = Cars_kSmokingSurface[roadSurface & 0xf];
+  sfxType = Cars_kConvertFromRoadToSfxType[roadSurface & 0xf];
   stateBit = 1 << wheel;
   objID = carObj->N.objID;
-  sfxType = Cars_kConvertFromRoadToSfxType[roadSurface & 0xf];
   if (surfaceType == 3) {
     smoking = 0;
   }
   traffic = carObj->render.currentCarType > 0x1c;
-  sfxDelay = gTAddCarWheelDelay;
-  if (traffic) {
-    sfxDelay = gTAddCarWheelDelay << 1;
-  }
+  sfxDelay = gTAddCarWheelDelay << traffic;
   if (carObj->render.currentCarType == 0x1c) {
     return;
   }

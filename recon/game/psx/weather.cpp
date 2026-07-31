@@ -1028,7 +1028,7 @@ void Weather_CreateSplat
   short vy;
   u_char *prim;
   u_char *tp3;
-  short ts2;
+  int ts2;
   short ts1;
   short ts3;
   
@@ -1036,10 +1036,9 @@ void Weather_CreateSplat
   tp3 = RENDER_PALETTEPTR_ADDR;
   ts3 = (splat->pos).vx;
   ts1 = (splat->pos).vy;
-  *(u_int *)RENDER_PACKETPTR_ADDR =
-       *(u_int *)RENDER_PACKETPTR_ADDR & 0xff000000 | *(u_int *)RENDER_PALETTEPTR_ADDR & 0xffffff;
-  uv_pack = (u_int)RENDER_PACKETPTR_ADDR & 0xffffff;
-  RENDER_PACKETPTR_ADDR = RENDER_PACKETPTR_ADDR + 0x28;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)tp3 & 0xffffff;
+  uv_pack = (u_int)prim & 0xffffff;
+  RENDER_PACKETPTR_ADDR = prim + 0x28;
   *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | uv_pack;
   prim[3] = 9;
   prim[7] = 0x2e;
@@ -1048,8 +1047,8 @@ void Weather_CreateSplat
     splat_size = 0xc;
   }
   splatTick = simGlobal.gameTicks - splat->startTick;
-  splat_glyph = (char)splatTick * -4 + 0x80;
-  ts2 = (short)(splatTick >> 3);
+  splat_glyph = (u_char)(-0x80 - splatTick * 4);
+  ts2 = splatTick >> 3;
   size_x = ts3 - ts2;
   prim[6] = splat_glyph;
   prim[5] = splat_glyph;

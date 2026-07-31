@@ -123,111 +123,117 @@ int Stats_GetNumOpponents(void)
 void Stats_TrackStats(Car_tObj *carObj)
 
 {
-  int roadSlice;
-  int *piVar1;
-  int iVar2;
-  u_int uVar3;
-  int r1;
-  int iVar4;
-  int r2;
-  int iVar5;
-  int iVar6;
-  int r3;
-  int iVar7;
-  int r4;
-  int iVar8;
-  Stats_tPosition *pSVar9;
-  int j;
-  Stats_tPosition *pSVar10;
-  int i;
-  int currentTime;
-  int trackSlices;
-  
-  iVar5 = gNumSlices;
-  iVar6 = simGlobal.gameTicks;
   if ((simGlobal.gameTicks & 1U) == 0) {
-    r2 = (carObj->stats).lap;
-    if ((r2 < 4) && ((carObj->stats).topSpeed[r2] < (carObj->linearVel_ch).z)) {
+    int trackSlices;
+    int currentTime;
+
+    trackSlices = gNumSlices;
+    currentTime = simGlobal.gameTicks;
+    if (((carObj->stats).lap < 4) &&
+        ((carObj->stats).topSpeed[(carObj->stats).lap] <
+         (carObj->linearVel_ch).z)) {
       if (((carObj->carFlags & 8U) == 0) || (0x12 < carObj->carInfo->carType)) {
         (carObj->stats).topSpeed[(carObj->stats).lap] = (carObj->linearVel_ch).z;
       }
       else {
-        iVar2 = rand();
-        iVar4 = (carObj->linearVel_ch).z;
-        if (Cars_topSpeedCap[carObj->carInfo->carType] + iVar2 * -3 < iVar4) {
-          iVar2 = rand();
-          iVar4 = Cars_topSpeedCap[carObj->carInfo->carType] + iVar2 * -3;
+        if (Cars_topSpeedCap[carObj->carInfo->carType] - rand() * 3 <
+            (carObj->linearVel_ch).z) {
+          (carObj->stats).topSpeed[(carObj->stats).lap] =
+              Cars_topSpeedCap[carObj->carInfo->carType] - rand() * 3;
         }
-        (carObj->stats).topSpeed[r2] = iVar4;
+        else {
+          (carObj->stats).topSpeed[(carObj->stats).lap] =
+              (carObj->linearVel_ch).z;
+        }
       }
     }
-    iVar2 = (carObj->stats).lap;
-    if ((iVar2 != carObj->lap) && ((carObj->stats).finishType == 0)) {
+    if (((carObj->stats).lap != carObj->lap) &&
+        ((carObj->stats).finishType == 0)) {
       if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
          (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0 ||
           ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0)))))
          ) {
-        (carObj->stats).time[iVar2] = 99999;
+        (carObj->stats).time[(carObj->stats).lap] = 99999;
       }
       else {
-        (carObj->stats).time[(carObj->stats).lap] = iVar6 - (carObj->stats).lapTime;
+        (carObj->stats).time[(carObj->stats).lap] =
+            currentTime - (carObj->stats).lapTime;
       }
-      iVar2 = carObj->lap;
-      (carObj->stats).lapTime = iVar6;
-      (carObj->stats).lap = iVar2;
-      if ((iVar2 == GameSetup_gData.numLaps) &&
+      (carObj->stats).lapTime = currentTime;
+      (carObj->stats).lap = carObj->lap;
+      if (((carObj->stats).lap == GameSetup_gData.numLaps) &&
          (((GameSetup_gData.raceType != 1 && (GameSetup_gData.raceType != 5)) ||
           (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0 &&
            ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0))))
           )))) {
-        (carObj->stats).sliceTime = iVar6;
+        (carObj->stats).sliceTime = currentTime;
         (carObj->stats).finishType = 2;
-        (carObj->stats).lapTime = (carObj->stats).lapTime + -0x200;
-        (carObj->stats).sliceTotal = ((carObj->stats).lap + 1) * iVar5;
+        (carObj->stats).lapTime -= 0x200;
+        (carObj->stats).sliceTotal =
+            ((carObj->stats).lap + 1) * trackSlices;
       }
     }
-    if (GameSetup_gData.reverseTrack == 0) {
-      iVar2 = (int)(carObj->N).simRoadInfo.slice;
-    }
-    else {
-      iVar2 = (iVar5 - (carObj->N).simRoadInfo.slice) + -1;
-    }
-    if (((carObj->stats).slice != iVar2) &&
-       ((carObj->stats).slice = iVar2, (carObj->stats).finishType == 0)) {
-      iVar2 = carObj->unlap;
-      (carObj->stats).sliceTime = iVar6;
-      (carObj->stats).sliceTotal = ((carObj->stats).lap - iVar2) * iVar5 + (carObj->stats).slice;
-    }
-    pSVar10 = Stats_racePosition;
-    for (iVar6 = 0; iVar6 < Cars_gNumRaceCars; iVar6 = iVar6 + 1) {
-      iVar5 = (carObj->stats).sliceTotal;
-      iVar2 = Cars_gNumRaceCars + -2;
-      if ((pSVar10->slice < iVar5) ||
-         ((iVar5 == pSVar10->slice && ((carObj->stats).sliceTime < pSVar10->sliceTime)))) {
-        pSVar9 = Stats_racePosition + iVar2;
-        iVar5 = iVar2 * 0x10 + 0x10;
-        for (; iVar6 <= iVar2; iVar2 = iVar2 + -1) {
-          piVar1 = &pSVar9->car;
-          iVar4 = pSVar9->slice;
-          iVar7 = pSVar9->sliceTime;
-          iVar8 = pSVar9->isHuman;
-          pSVar9 = pSVar9 + -1;
-          *(int *)((int)&Stats_racePosition[0].car + iVar5) = *piVar1;
-          *(int *)((int)&Stats_racePosition[0].slice + iVar5) = iVar4;
-          *(int *)((int)&Stats_racePosition[0].sliceTime + iVar5) = iVar7;
-          *(int *)((int)&Stats_racePosition[0].isHuman + iVar5) = iVar8;
-          iVar5 = iVar5 + -0x10;
+    {
+      int roadSlice;
+
+      if (GameSetup_gData.reverseTrack == 0) {
+        roadSlice = (int)(carObj->N).simRoadInfo.slice;
+      }
+      else {
+        roadSlice = trackSlices - (carObj->N).simRoadInfo.slice - 1;
+      }
+      if ((carObj->stats).slice != roadSlice) {
+        (carObj->stats).slice = roadSlice;
+        if ((carObj->stats).finishType == 0) {
+          (carObj->stats).sliceTime = currentTime;
+          (carObj->stats).sliceTotal =
+              ((carObj->stats).lap - carObj->unlap) * trackSlices +
+              (carObj->stats).slice;
         }
-        iVar6 = (carObj->stats).sliceTotal;
-        uVar3 = carObj->carFlags;
-        iVar5 = (carObj->stats).sliceTime;
-        pSVar10->car = carObj->carIndex;
-        pSVar10->slice = iVar6;
-        pSVar10->sliceTime = iVar5;
-        pSVar10->isHuman = uVar3 & 4;
-        return;
       }
-      pSVar10 = pSVar10 + 1;
+    }
+    {
+      int i;
+
+      for (i = 0; i < Cars_gNumRaceCars; i++) {
+        if ((Stats_racePosition[i].slice < (carObj->stats).sliceTotal) ||
+            (((carObj->stats).sliceTotal == Stats_racePosition[i].slice) &&
+             ((carObj->stats).sliceTime < Stats_racePosition[i].sliceTime))) {
+          int j;
+
+          for (j = Cars_gNumRaceCars - 2; i <= j; j--) {
+            int r1;
+            int r2;
+            int r3;
+            int r4;
+
+            r1 = Stats_racePosition[j].car;
+            r2 = Stats_racePosition[j].slice;
+            r3 = Stats_racePosition[j].sliceTime;
+            r4 = Stats_racePosition[j].isHuman;
+            Stats_racePosition[j + 1].car = r1;
+            Stats_racePosition[j + 1].slice = r2;
+            Stats_racePosition[j + 1].sliceTime = r3;
+            Stats_racePosition[j + 1].isHuman = r4;
+          }
+          {
+            int r1;
+            int r2;
+            int r3;
+            int r4;
+
+            r1 = carObj->carIndex;
+            r2 = (carObj->stats).sliceTotal;
+            r3 = (carObj->stats).sliceTime;
+            r4 = carObj->carFlags & 4;
+            Stats_racePosition[i].car = r1;
+            Stats_racePosition[i].slice = r2;
+            Stats_racePosition[i].sliceTime = r3;
+            Stats_racePosition[i].isHuman = r4;
+          }
+          return;
+        }
+      }
     }
   }
   return;

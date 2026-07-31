@@ -271,7 +271,26 @@ void Night_DoLightningEffect(DRender_tView *Vi)
   return;
 }
 
-/* ---- Night_SetCopColor__FP18GameSetup_tCarData  [NIGHT.CPP:473-484] SLD-VERIFIED ---- */
+typedef struct { int w[2]; } NightCopTablePair;
+
+/* ---- Night_SetCopColor__FP18GameSetup_tCarData  [NIGHT.CPP:473-484] SLD-VERIFIED ----
+ * NEAR-MISS 25 diffs (ours 38 / oracle 37), was 39 (ours 36 / oracle 37).
+ * MATCH (w38-a10): (1) cartype/country are read BEFORE the carTable fill
+ * (oracle `lw v0,0(a0); lw a1,160(a0); lbu a0,0(v0)` precede the gp loads);
+ * (2) the lower half of carTable[] is a two-word BLOCK COPY of the upper half,
+ * not two more loads of the globals -- the oracle's `lw a2,8(sp); lw a3,12(sp);
+ * sw a2,0(sp); sw a3,4(sp)` is gcc's movstrsi, reproduced with a same-sized
+ * local struct assignment (a plain `carTable[0]=carTable[2]` gets copy-forwarded).
+ * RESIDUAL: (a) the final two stores -- the oracle writes Night_gCopColor[0] and
+ * [1] through SEPARATE per-element gp-rel symbols (%gp_rel(Night_gCopColor) and
+ * %gp_rel(D_8013DA50)); ours materializes the 8-byte array base with lui/addiu
+ * (+2 insns). The known fix is the per-element scalar split (catalog sec.E
+ * dual-model / wave-13 per-field split), but Night_gCopColor is ALSO read with a
+ * RUNTIME index by draww.cpp (DrawW cop-lighting lookup, another agent's TU), so
+ * the split needs a coordinated dual-model change across both TUs -- NOT done
+ * here (out of scope), flagged for a follow-up.  (b) cartype/country land on
+ * $a1/$a0 instead of $a0/$a1; tried decl-order swap (no change), statement-order
+ * swap (41, worse) and an explicit pointer-form index (39, worse). */
 void Night_SetCopColor(GameSetup_tCarData *carinfo)
 
 {
@@ -281,12 +300,11 @@ void Night_SetCopColor(GameSetup_tCarData *carinfo)
   int col2;
   u_char (*carTable[4])[256][8];
 
-  carTable[2] = Night_gCopLightingTableRed;
-  carTable[3] = Night_gCopLightingTableBlue;
-  carTable[0] = Night_gCopLightingTableRed;
-  carTable[1] = Night_gCopLightingTableBlue;
   cartype = Night_gCopCarTypeColorIdx[carinfo->carType];
   country = carinfo->Country;
+  carTable[2] = Night_gCopLightingTableRed;
+  carTable[3] = Night_gCopLightingTableBlue;
+  *(NightCopTablePair *)&carTable[0] = *(NightCopTablePair *)&carTable[2];
   col1 = (u_char)Night_gCopCountryLightTbl[cartype][country][0];
   Night_gCopColor[0] = carTable[col1];
   col2 = (u_char)Night_gCopCountryLightTbl[cartype][country][1];

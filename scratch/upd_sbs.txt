@@ -1,0 +1,488 @@
+  addiu sp,sp,-104
+-ONLY  OURS:li t2,8                        ORACLE:
+  sw ra,100(sp)
+  sw fp,96(sp)
+  sw s7,92(sp)
+  sw s6,88(sp)
+  sw s5,84(sp)
+  sw s4,80(sp)
+  sw s3,76(sp)
+  sw s2,72(sp)
+  sw s1,68(sp)
+  sw s0,64(sp)
+  sw a0,104(sp)
+  sw a1,108(sp)
+!=     OURS:sw a2,112(sp)                  ORACLE:lw t0,2116(a1)
+!=     OURS:sw t2,56(sp)                   ORACLE:
+!=     OURS:lw t2,2116(a1)                 ORACLE:
+  lui v0,0
+  lw v0,0(v0)
+!=     OURS:sw t2,52(sp)                   ORACLE:sw t0,44(sp)
+!=     OURS:lh t2,2236(a1)                 ORACLE:lh t0,2236(a1)
+  nop
+!=     OURS:sw t2,40(sp)                   ORACLE:sw t0,32(sp)
+!=     OURS:lh t2,2244(a1)                 ORACLE:lh t0,2244(a1)
+!=     OURS:                               ORACLE:addu s0,a2,zero
+!=     OURS:                               ORACLE:sw t0,36(sp)
+!=     OURS:                               ORACLE:lh t0,2246(a1)
+!=     OURS:                               ORACLE:li fp,8
+!=     OURS:                               ORACLE:bnez v0,T
+!=     OURS:                               ORACLE:sw t0,40(sp)
+!=     OURS:                               ORACLE:li fp,24
+!=     OURS:                               ORACLE:lw t0,108(sp)
+  nop
+!=     OURS:sw t2,44(sp)                   ORACLE:lw v0,2180(t0)
+!=     OURS:lh t2,2246(a1)                 ORACLE:lw t0,44(sp)
+!=     OURS:bnez v0,T                      ORACLE:addu s6,zero,zero
+!=     OURS:sw t2,48(sp)                   ORACLE:
+!=     OURS:li t2,24                       ORACLE:
+!=     OURS:sw t2,56(sp)                   ORACLE:
+!=     OURS:lw t2,52(sp)                   ORACLE:
+!=     OURS:nop                            ORACLE:
+!=     OURS:sll s5,t2,4                    ORACLE:
+!=     OURS:lw t2,108(sp)                  ORACLE:
+!=     OURS:nop                            ORACLE:
+!=     OURS:lw v0,2180(t2)                 ORACLE:
+!=     OURS:addiu t2,s5,6                  ORACLE:
+!=     OURS:sw t2,60(sp)                   ORACLE:
+  lui at,0
+  sw v0,0(at)
+  jal T
+!=     OURS:addu s3,zero,zero              ORACLE:sll s5,t0,4
+!=     OURS:                               ORACLE:lui v1,0
+!=     OURS:                               ORACLE:addiu v1,v1,0
+!=     OURS:                               ORACLE:lw t0,32(sp)
+!=     OURS:                               ORACLE:sll s0,s0,2
+!=     OURS:                               ORACLE:sw s0,56(sp)
+!=     OURS:                               ORACLE:sll v0,t0,1
+!=     OURS:                               ORACLE:addu v0,v0,t0
+!=     OURS:                               ORACLE:sll v0,v0,2
+!=     OURS:                               ORACLE:addu s2,v0,v1
+!=     OURS:                               ORACLE:lui v0,0
+!=     OURS:                               ORACLE:lw t0,108(sp)
+!=     OURS:                               ORACLE:addiu s7,v0,0
+!=     OURS:                               ORACLE:slti v0,s6,51
+!=     OURS:                               ORACLE:beqz v0,T
+!=     OURS:                               ORACLE:sw t0,60(sp)
+!=     OURS:                               ORACLE:lw a0,104(sp)
+!=     OURS:                               ORACLE:lw a1,4(s7)
+!=     OURS:                               ORACLE:li t0,1
+!=     OURS:                               ORACLE:jal T
+!=     OURS:                               ORACLE:sw t0,52(sp)
+!=     OURS:                               ORACLE:lw t0,8(s7)
+!=     OURS:                               ORACLE:addu s1,v0,zero
+!=     OURS:                               ORACLE:bnez s1,T
+!=     OURS:                               ORACLE:sw t0,48(sp)
+!=     OURS:                               ORACLE:bnez t0,T
+!=     OURS:                               ORACLE:li v0,20
+!=     OURS:                               ORACLE:sw zero,52(sp)
+!=     OURS:                               ORACLE:lw a1,0(s7)
+!=     OURS:                               ORACLE:lw a0,104(sp)
+!=     OURS:                               ORACLE:jal T
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:addu s1,v0,zero
+!=     OURS:                               ORACLE:li v0,20
+!=     OURS:                               ORACLE:bne s6,v0,T
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:addu fp,zero,zero
+!=     OURS:                               ORACLE:beqz s1,T
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:lw v0,0(gp)
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:addu a1,s5,v0
+!=     OURS:                               ORACLE:lhu v0,14(a1)
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:andi v0,v0,128
+!=     OURS:                               ORACLE:beqz v0,T
+!=     OURS:                               ORACLE:addu s0,zero,zero
+!=     OURS:                               ORACLE:lhu v1,2(a1)
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:andi v0,v1,63
+!=     OURS:                               ORACLE:sll s3,v0,4
+!=     OURS:                               ORACLE:beqz fp,T
+!=     OURS:                               ORACLE:srl s4,v1,6
+!=     OURS:                               ORACLE:lw t0,60(sp)
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:lh v0,2186(t0)
+!=     OURS:                               ORACLE:lui at,0
+!=     OURS:                               ORACLE:sw v0,0(at)
+!=     OURS:                               ORACLE:lw t0,32(sp)
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:slti v0,t0,22
+!=     OURS:                               ORACLE:beqz v0,T
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:lh v0,0(s2)
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:bne s6,v0,T
+!=     OURS:                               ORACLE:addu a0,zero,zero
+!=     OURS:                               ORACLE:li s0,1
+!=     OURS:                               ORACLE:lh v0,4(s2)
+!=     OURS:                               ORACLE:lw t0,40(sp)
+!=     OURS:                               ORACLE:lh a3,2(s2)
+!=     OURS:                               ORACLE:addu v0,t0,v0
+!=     OURS:                               ORACLE:lw t0,56(sp)
+!=     OURS:                               ORACLE:sw s3,20(sp)
+!=     OURS:                               ORACLE:sw s4,24(sp)
+!=     OURS:                               ORACLE:sw a1,28(sp)
+!=     OURS:                               ORACLE:sw v0,16(sp)
+  lui v0,0
+  addiu v0,v0,0
+!=     OURS:lw t2,108(sp)                  ORACLE:j T
+!=     OURS:lui v1,0                       ORACLE:addu a2,fp,zero
+!=     OURS:sw t2,32(sp)                   ORACLE:lh v0,6(s2)
+!=     OURS:lw t2,40(sp)                   ORACLE:
+!=     OURS:addiu v1,v1,0                  ORACLE:
+!=     OURS:sw v0,36(sp)                   ORACLE:
+!=     OURS:sll v0,t2,1                    ORACLE:
+!=     OURS:addu v0,v0,t2                  ORACLE:
+!=     OURS:sll v0,v0,2                    ORACLE:
+!=     OURS:addu s2,v0,v1                  ORACLE:
+!=     OURS:slti v0,s3,51                  ORACLE:
+!=     OURS:beqz v0,T                      ORACLE:
+  nop
+!=     OURS:lw t2,36(sp)                   ORACLE:bne s6,v0,T
+!=     OURS:                               ORACLE:addu a2,fp,zero
+!=     OURS:                               ORACLE:li s0,1
+!=     OURS:                               ORACLE:lh v0,10(s2)
+!=     OURS:                               ORACLE:lw t0,40(sp)
+!=     OURS:                               ORACLE:lh a3,8(s2)
+!=     OURS:                               ORACLE:addu v0,t0,v0
+!=     OURS:                               ORACLE:lw t0,56(sp)
+!=     OURS:                               ORACLE:sw s3,20(sp)
+!=     OURS:                               ORACLE:sw s4,24(sp)
+!=     OURS:                               ORACLE:sw a1,28(sp)
+!=     OURS:                               ORACLE:sw v0,16(sp)
+!=     OURS:                               ORACLE:lui v0,0
+!=     OURS:                               ORACLE:addiu v0,v0,0
+!=     OURS:                               ORACLE:addu v0,t0,v0
+!=     OURS:                               ORACLE:lw t0,36(sp)
+!=     OURS:                               ORACLE:lw a1,0(v0)
+!=     OURS:                               ORACLE:jal T
+!=     OURS:                               ORACLE:addu a3,t0,a3
+!=     OURS:                               ORACLE:bnez s0,T
+!=     OURS:                               ORACLE:li v0,32
+!=     OURS:                               ORACLE:addu a0,zero,zero
+!=     OURS:                               ORACLE:addu a1,s1,zero
+!=     OURS:                               ORACLE:lw v0,0(gp)
+!=     OURS:                               ORACLE:lw a3,36(sp)
+!=     OURS:                               ORACLE:lw t0,40(sp)
+!=     OURS:                               ORACLE:addu a2,fp,zero
+!=     OURS:                               ORACLE:sw s3,20(sp)
+!=     OURS:                               ORACLE:sw s4,24(sp)
+!=     OURS:                               ORACLE:addu v0,v0,s5
+!=     OURS:                               ORACLE:sw t0,16(sp)
+!=     OURS:                               ORACLE:jal T
+!=     OURS:                               ORACLE:sw v0,28(sp)
+!=     OURS:                               ORACLE:li v0,32
+!=     OURS:                               ORACLE:bne s6,v0,T
+!=     OURS:                               ORACLE:li a1,2
+!=     OURS:                               ORACLE:lw a0,0(gp)
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:addu a0,a0,s5
+!=     OURS:                               ORACLE:jal T
+!=     OURS:                               ORACLE:addiu a0,a0,6
+!=     OURS:                               ORACLE:lw v1,0(gp)
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:addu v1,s5,v1
+!=     OURS:                               ORACLE:lhu v0,14(v1)
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:ori v0,v0,128
+!=     OURS:                               ORACLE:sh v0,14(v1)
+!=     OURS:                               ORACLE:lw t0,52(sp)
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:beqz t0,T
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:lw t0,48(sp)
+!=     OURS:                               ORACLE:lw s0,44(sp)
+!=     OURS:                               ORACLE:beqz t0,T
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:beqz fp,T
+!=     OURS:                               ORACLE:addiu s0,t0,-1
+!=     OURS:                               ORACLE:lw t0,108(sp)
+!=     OURS:                               ORACLE:sll v0,s0,1
+!=     OURS:                               ORACLE:addu v0,t0,v0
+!=     OURS:                               ORACLE:lhu v0,2186(v0)
+!=     OURS:                               ORACLE:lw t0,60(sp)
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:sh v0,2186(t0)
+!=     OURS:                               ORACLE:lw t0,108(sp)
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:lw v0,2116(t0)
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:addu s0,s0,v0
+!=     OURS:                               ORACLE:lw a1,0(s7)
+  lw a0,104(sp)
+-ONLY  OURS:lw a1,4(t2)                    ORACLE:
+-ONLY  OURS:jal T                          ORACLE:
+-ONLY  OURS:li s7,1                        ORACLE:
+-ONLY  OURS:lw t2,36(sp)                   ORACLE:
+-ONLY  OURS:addu s1,v0,zero                ORACLE:
+-ONLY  OURS:lw fp,8(t2)                    ORACLE:
+-ONLY  OURS:bnez s1,T                      ORACLE:
+-ONLY  OURS:li v0,20                       ORACLE:
+-ONLY  OURS:bnez fp,T                      ORACLE:
+-ONLY  OURS:nop                            ORACLE:
+-ONLY  OURS:lw a1,0(t2)                    ORACLE:
+-ONLY  OURS:lw a0,104(sp)                  ORACLE:
+-ONLY  OURS:jal T                          ORACLE:
+-ONLY  OURS:addu s7,zero,zero              ORACLE:
+-ONLY  OURS:addu s1,v0,zero                ORACLE:
+-ONLY  OURS:li v0,20                       ORACLE:
+-ONLY  OURS:bne s3,v0,T                    ORACLE:
+-ONLY  OURS:nop                            ORACLE:
+-ONLY  OURS:sw zero,56(sp)                 ORACLE:
+-ONLY  OURS:bnez s1,T                      ORACLE:
+-ONLY  OURS:nop                            ORACLE:
+-ONLY  OURS:beqz s7,T                      ORACLE:
+-ONLY  OURS:nop                            ORACLE:
+-ONLY  OURS:lw s0,52(sp)                   ORACLE:
+-ONLY  OURS:beqz fp,T                      ORACLE:
+-ONLY  OURS:nop                            ORACLE:
+-ONLY  OURS:lw t2,56(sp)                   ORACLE:
+-ONLY  OURS:nop                            ORACLE:
+-ONLY  OURS:beqz t2,T                      ORACLE:
+-ONLY  OURS:addiu v0,fp,-1                 ORACLE:
+-ONLY  OURS:lw t2,108(sp)                  ORACLE:
+-ONLY  OURS:sll v0,v0,1                    ORACLE:
+-ONLY  OURS:addu v0,t2,v0                  ORACLE:
+-ONLY  OURS:lhu v0,2186(v0)                ORACLE:
+-ONLY  OURS:lw t2,32(sp)                   ORACLE:
+-ONLY  OURS:nop                            ORACLE:
+-ONLY  OURS:sh v0,2186(t2)                 ORACLE:
+-ONLY  OURS:lw t2,108(sp)                  ORACLE:
+-ONLY  OURS:nop                            ORACLE:
+-ONLY  OURS:lw v0,2116(t2)                 ORACLE:
+-ONLY  OURS:nop                            ORACLE:
+-ONLY  OURS:addiu v0,v0,-1                 ORACLE:
+-ONLY  OURS:addu s0,fp,v0                  ORACLE:
+-ONLY  OURS:lw t2,36(sp)                   ORACLE:
+-ONLY  OURS:lw a0,104(sp)                  ORACLE:
+-ONLY  OURS:lw a1,0(t2)                    ORACLE:
+  jal T
+  nop
+  addu s1,v0,zero
+  beqz s1,T
+  sll v0,s0,4
+!=     OURS:lw v1,0(gp)                    ORACLE:lw a1,0(gp)
+!=     OURS:nop                            ORACLE:addu s0,zero,zero
+!=     OURS:addu v0,v0,v1                  ORACLE:addu v0,v0,a1
+!=     OURS:lhu v0,2(v0)                   ORACLE:lhu v1,2(v0)
+!=     OURS:lw t2,40(sp)                   ORACLE:lw t0,32(sp)
+!=     OURS:srl s4,v0,6                    ORACLE:andi v0,v1,63
+!=     OURS:andi v0,v0,63                  ORACLE:sll s3,v0,4
+!=     OURS:sll s0,v0,4                    ORACLE:slti v0,t0,22
+!=     OURS:slti v0,t2,22                  ORACLE:
+  beqz v0,T
+!=     OURS:addu s7,zero,zero              ORACLE:srl s4,v1,6
+  lh v0,0(s2)
+  nop
+!=     OURS:bne s3,v0,T                    ORACLE:bne s6,v0,T
+!=     OURS:nop                            ORACLE:addu a0,zero,zero
+!=     OURS:lui a1,0                       ORACLE:li s0,1
+!=     OURS:addiu a1,a1,0                  ORACLE:lh a3,2(s2)
+!=     OURS:lhu t0,2(s2)                   ORACLE:lh v1,4(s2)
+!=     OURS:lhu a3,4(s2)                   ORACLE:lw t0,40(sp)
+!=     OURS:                               ORACLE:addu v0,a1,s5
+!=     OURS:                               ORACLE:sw v0,28(sp)
+!=     OURS:                               ORACLE:addu v1,t0,v1
+!=     OURS:                               ORACLE:lw t0,56(sp)
+!=     OURS:                               ORACLE:lui v0,0
+!=     OURS:                               ORACLE:addiu v0,v0,0
+  j T
+!=     OURS:li s7,1                        ORACLE:li a2,32
+  lh v0,6(s2)
+  nop
+!=     OURS:bne s3,v0,T                    ORACLE:bne s6,v0,T
+!=     OURS:nop                            ORACLE:
+!=     OURS:lui a1,0                       ORACLE:
+!=     OURS:addiu a1,a1,0                  ORACLE:
+!=     OURS:lhu t0,8(s2)                   ORACLE:
+!=     OURS:lhu a3,10(s2)                  ORACLE:
+!=     OURS:li s7,1                        ORACLE:
+!=     OURS:addu a0,zero,zero              ORACLE:
+  li a2,32
+!=     OURS:sll v0,a3,16                   ORACLE:li s0,1
+!=     OURS:sra v0,v0,16                   ORACLE:lh a3,8(s2)
+!=     OURS:sll a3,t0,16                   ORACLE:lh v1,10(s2)
+!=     OURS:lw v1,0(gp)                    ORACLE:lw t0,40(sp)
+!=     OURS:lw t2,48(sp)                   ORACLE:addu v0,a1,s5
+!=     OURS:sra a3,a3,16                   ORACLE:sw v0,28(sp)
+!=     OURS:sw s0,20(sp)                   ORACLE:addu v1,t0,v1
+!=     OURS:                               ORACLE:lw t0,56(sp)
+!=     OURS:                               ORACLE:lui v0,0
+!=     OURS:                               ORACLE:addiu v0,v0,0
+!=     OURS:                               ORACLE:sw s3,20(sp)
+  sw s4,24(sp)
+!=     OURS:addu v0,t2,v0                  ORACLE:sw v1,16(sp)
+!=     OURS:lw t2,112(sp)                  ORACLE:addu v0,t0,v0
+!=     OURS:addu v1,v1,s5                  ORACLE:lw t0,36(sp)
+!=     OURS:sw v0,16(sp)                   ORACLE:
+!=     OURS:sw v1,28(sp)                   ORACLE:
+!=     OURS:sll v0,t2,2                    ORACLE:
+!=     OURS:addu v0,v0,a1                  ORACLE:
+!=     OURS:lw t2,44(sp)                   ORACLE:
+  lw a1,0(v0)
+  jal T
+!=     OURS:addu a3,t2,a3                  ORACLE:addu a3,t0,a3
+!=     OURS:bnez s7,T                      ORACLE:bnez s0,T
+  li v0,32
+  addu a0,zero,zero
+  addu a1,s1,zero
+  lw v0,0(gp)
+!=     OURS:lw a3,44(sp)                   ORACLE:lw a3,36(sp)
+!=     OURS:lw t2,48(sp)                   ORACLE:lw t0,40(sp)
+  li a2,32
+!=     OURS:sw s0,20(sp)                   ORACLE:sw s3,20(sp)
+  sw s4,24(sp)
+  addu v0,v0,s5
+!=     OURS:sw t2,16(sp)                   ORACLE:sw t0,16(sp)
+  jal T
+  sw v0,28(sp)
+  li v0,32
+!=     OURS:bne s3,v0,T                    ORACLE:bne s6,v0,T
+  li a1,2
+  lw a0,0(gp)
+!=     OURS:lw t2,60(sp)                   ORACLE:nop
+!=     OURS:                               ORACLE:addu a0,a0,s5
+  jal T
+!=     OURS:addu a0,a0,t2                  ORACLE:addiu a0,a0,6
+!=     OURS:bnez fp,T                      ORACLE:lw t0,48(sp)
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:bnez t0,T
+  nop
+  lw v1,0(gp)
+  nop
+  addu v1,s5,v1
+  lhu v0,14(v1)
+  nop
+  ori v0,v0,128
++ONLY  OURS:                               ORACLE:sh v0,14(v1)
++ONLY  OURS:                               ORACLE:addiu s5,s5,16
++ONLY  OURS:                               ORACLE:lw t0,44(sp)
++ONLY  OURS:                               ORACLE:addiu s7,s7,12
++ONLY  OURS:                               ORACLE:addiu t0,t0,1
++ONLY  OURS:                               ORACLE:sw t0,44(sp)
++ONLY  OURS:                               ORACLE:lw t0,60(sp)
++ONLY  OURS:                               ORACLE:addiu s6,s6,1
+  j T
+!=     OURS:sh v0,14(v1)                   ORACLE:addiu t0,t0,2
+!=     OURS:lw v0,0(gp)                    ORACLE:
+!=     OURS:nop                            ORACLE:
+!=     OURS:addu t1,v0,s5                  ORACLE:
+!=     OURS:lhu v0,14(t1)                  ORACLE:
+!=     OURS:nop                            ORACLE:
+!=     OURS:andi v0,v0,128                 ORACLE:
+!=     OURS:beqz v0,T                      ORACLE:
+!=     OURS:addu s6,zero,zero              ORACLE:
+!=     OURS:lhu v1,2(t1)                   ORACLE:
+!=     OURS:lw t2,56(sp)                   ORACLE:
+!=     OURS:andi v0,v1,63                  ORACLE:
+!=     OURS:sll s0,v0,4                    ORACLE:
+!=     OURS:beqz t2,T                      ORACLE:
+!=     OURS:srl s4,v1,6                    ORACLE:
+!=     OURS:lw t2,32(sp)                   ORACLE:
+!=     OURS:nop                            ORACLE:
+!=     OURS:lh v0,2186(t2)                 ORACLE:
+!=     OURS:lui at,0                       ORACLE:
+!=     OURS:sw v0,0(at)                    ORACLE:
+!=     OURS:lw t2,40(sp)                   ORACLE:
+!=     OURS:nop                            ORACLE:
+!=     OURS:slti v0,t2,22                  ORACLE:
+!=     OURS:beqz v0,T                      ORACLE:
+!=     OURS:nop                            ORACLE:
+!=     OURS:lh v0,0(s2)                    ORACLE:
+!=     OURS:nop                            ORACLE:
+!=     OURS:bne s3,v0,T                    ORACLE:
+!=     OURS:nop                            ORACLE:
+!=     OURS:lui a1,0                       ORACLE:
+!=     OURS:addiu a1,a1,0                  ORACLE:
+!=     OURS:lhu t0,4(s2)                   ORACLE:
+!=     OURS:lhu a3,2(s2)                   ORACLE:
+!=     OURS:j T                            ORACLE:
+!=     OURS:li s6,1                        ORACLE:
+!=     OURS:lh v0,6(s2)                    ORACLE:
+!=     OURS:nop                            ORACLE:
+!=     OURS:bne s3,v0,T                    ORACLE:
+!=     OURS:nop                            ORACLE:
+!=     OURS:lui a1,0                       ORACLE:
+!=     OURS:addiu a1,a1,0                  ORACLE:
+!=     OURS:lhu t0,10(s2)                  ORACLE:
+!=     OURS:lhu a3,8(s2)                   ORACLE:
+!=     OURS:li s6,1                        ORACLE:
+!=     OURS:addu a0,zero,zero              ORACLE:
+!=     OURS:sll v0,t0,16                   ORACLE:
+!=     OURS:sra v0,v0,16                   ORACLE:
+!=     OURS:sll a3,a3,16                   ORACLE:
+!=     OURS:lw t2,48(sp)                   ORACLE:
+!=     OURS:lw a2,56(sp)                   ORACLE:
+!=     OURS:addu v0,t2,v0                  ORACLE:
+!=     OURS:lw t2,112(sp)                  ORACLE:
+!=     OURS:sra a3,a3,16                   ORACLE:
+!=     OURS:sw s0,20(sp)                   ORACLE:
+!=     OURS:sw s4,24(sp)                   ORACLE:
+!=     OURS:sw t1,28(sp)                   ORACLE:
+!=     OURS:sw v0,16(sp)                   ORACLE:
+!=     OURS:sll v0,t2,2                    ORACLE:
+!=     OURS:addu v0,v0,a1                  ORACLE:
+!=     OURS:lw t2,44(sp)                   ORACLE:
+!=     OURS:lw a1,0(v0)                    ORACLE:
+!=     OURS:jal T                          ORACLE:
+!=     OURS:addu a3,t2,a3                  ORACLE:
+!=     OURS:bnez s6,T                      ORACLE:
+!=     OURS:li v0,32                       ORACLE:
+!=     OURS:addu a0,zero,zero              ORACLE:
+!=     OURS:lw a2,56(sp)                   ORACLE:
+!=     OURS:lw v0,0(gp)                    ORACLE:
+!=     OURS:lw a3,44(sp)                   ORACLE:
+!=     OURS:lw t2,48(sp)                   ORACLE:
+!=     OURS:addu a1,s1,zero                ORACLE:
+!=     OURS:sw s0,20(sp)                   ORACLE:
+!=     OURS:sw s4,24(sp)                   ORACLE:
+!=     OURS:addu v0,v0,s5                  ORACLE:
+!=     OURS:sw t2,16(sp)                   ORACLE:
+!=     OURS:jal T                          ORACLE:
+!=     OURS:sw v0,28(sp)                   ORACLE:
+!=     OURS:li v0,32                       ORACLE:
+!=     OURS:bne s3,v0,T                    ORACLE:
+!=     OURS:li a1,2                        ORACLE:
+!=     OURS:lw a0,0(gp)                    ORACLE:
+!=     OURS:lw t2,60(sp)                   ORACLE:
+!=     OURS:jal T                          ORACLE:
+!=     OURS:addu a0,a0,t2                  ORACLE:
+!=     OURS:lw v1,0(gp)                    ORACLE:
+!=     OURS:nop                            ORACLE:
+!=     OURS:addu v1,s5,v1                  ORACLE:
+!=     OURS:lhu v0,14(v1)                  ORACLE:
+!=     OURS:nop                            ORACLE:
+!=     OURS:ori v0,v0,128                  ORACLE:
+!=     OURS:j T                            ORACLE:
+!=     OURS:sh v0,14(v1)                   ORACLE:
+!=     OURS:lw t2,60(sp)                   ORACLE:
+!=     OURS:nop                            ORACLE:
+!=     OURS:addiu t2,t2,16                 ORACLE:
+!=     OURS:sw t2,60(sp)                   ORACLE:
+!=     OURS:lw t2,36(sp)                   ORACLE:
+!=     OURS:nop                            ORACLE:
+!=     OURS:addiu t2,t2,12                 ORACLE:
+!=     OURS:sw t2,36(sp)                   ORACLE:
+!=     OURS:lw t2,52(sp)                   ORACLE:
+!=     OURS:addiu s5,s5,16                 ORACLE:
+!=     OURS:addiu t2,t2,1                  ORACLE:
+!=     OURS:sw t2,52(sp)                   ORACLE:
+!=     OURS:lw t2,32(sp)                   ORACLE:
+!=     OURS:addiu s3,s3,1                  ORACLE:
+!=     OURS:addiu t2,t2,2                  ORACLE:
+!=     OURS:j T                            ORACLE:
+!=     OURS:sw t2,32(sp)                   ORACLE:
+  lw ra,100(sp)
+  lw fp,96(sp)
+  lw s7,92(sp)
+  lw s6,88(sp)
+  lw s5,84(sp)
+  lw s4,80(sp)
+  lw s3,76(sp)
+  lw s2,72(sp)
+  lw s1,68(sp)
+  lw s0,64(sp)
+  jr ra
+  addiu sp,sp,104

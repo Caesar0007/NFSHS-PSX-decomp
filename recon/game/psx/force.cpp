@@ -88,7 +88,14 @@ void Force_Vbl(void)
   Force_gTick = Force_gTick + 1;
 }
 
-/* ---- Force_Update__FP8Car_tObj  [FORCE.CPP:105-223] SLD-VERIFIED ---- */
+/* ---- Force_Update__FP8Car_tObj  [FORCE.CPP:105-223] SLD-VERIFIED ----
+ * w38-a9: 432 -> 326 diffs.  The SYM declares a real `Force_tGlobal *f` ($s6) which
+ * the recon had declared but left UNWIRED (every access went through the indexed
+ * `Force_g[carIndex]`, costing a re-materialized base + index at each site).  Wiring
+ * `f = &Force_g[carIndex]` once and using `f->field` throughout dropped 12 insns.
+ * STILL UNWIRED (next lever, per SYM): skids($a1) impacts($a3) impactmultiplier($s7)
+ * v0($s4) v1($s3) and the block-scoped c($s5) force($s2) shock($v1) time($s0) --
+ * the body is still Ghidra `iVarN` soup, so the residual is mostly rule-8 shape. */
 void Force_Update(Car_tObj *car)
 
 {
@@ -120,10 +127,11 @@ void Force_Update(Car_tObj *car)
   if (1 < uVar3) {
     return;
   }
+  f = &Force_g[uVar3];
   if (1 < Replay_ReplayMode) {
-    Force_g[uVar3].high = '\0';
-    Force_g[uVar3].low = '\0';
-    Force_g[uVar3].time = '\0';
+    f->high = '\0';
+    f->low = '\0';
+    f->time = '\0';
     return;
   }
   iVar4 = GameSetup_gData.controllerData.shockMode[uVar3];
@@ -232,11 +240,11 @@ ForceUpd_audioRevLoop:
         if (iVar5 < 0) {
           iVar5 = iVar5 + 0xffff;
         }
-        if (((int)(u_int)Force_g[uVar3].jolt < iVar5 >> 0x10) ||
-           ((int)(u_int)Force_g[uVar3].time < iVar10)) {
-          Force_g[uVar3].fade = (u_char)(iVar10 >> 1);
-          Force_g[uVar3].time = (u_char)iVar10;
-          Force_g[uVar3].jolt = (u_char)((u_int)iVar5 >> 0x10);
+        if (((int)(u_int)f->jolt < iVar5 >> 0x10) ||
+           ((int)(u_int)f->time < iVar10)) {
+          f->fade = (u_char)(iVar10 >> 1);
+          f->time = (u_char)iVar10;
+          f->jolt = (u_char)((u_int)iVar5 >> 0x10);
         }
       }
       piVar6 = piVar6 + -6;
@@ -270,8 +278,8 @@ ForceUpd_audioRevLoop:
       uVar7 = (u_char)((u_int)(iVar4 + 0xffff) >> 0x10);
     }
   }
-  Force_g[uVar3].high = uVar9;
-  Force_g[uVar3].low = uVar7;
+  f->high = uVar9;
+  f->low = uVar7;
   return;
 }
 

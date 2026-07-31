@@ -698,8 +698,12 @@ gte_stsxy(&sp2);
       else {
         gscale = (vec2.x * vec2.x + vec2.y * vec2.y + vec2.z * vec2.z) >> 1;
       }
-      scale = gscale << scale;
-      gscale = scale;
+      /* MATCH: gscale is the SHIFT DESTINATION and `scale` re-reads it (not
+         `scale = gscale<<scale; gscale = scale;`) -- the re-read is the second
+         evaluation cse turns into the oracle's `sllv v0,v0,s3 ; addu s3,v0,zero`
+         copy; the scale-first form coalesces it into an in-place `sllv s3,v0,s3`. */
+      gscale = gscale << scale;
+      scale = gscale;
       if ((flags & 1U) != 0) {
         VECTOR tvec1;           /* @sp+0x50 */
         VECTOR tvec2;           /* @sp+0x68 */

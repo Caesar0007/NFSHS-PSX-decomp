@@ -264,7 +264,6 @@ void Fog_Update(int player)
 {
   int currentslice;
   FogKey *key;
-  FogKey *nextkey;
   int nextslice;
   int diffslice;
   int diffdistance;
@@ -276,12 +275,18 @@ void Fog_Update(int player)
     currentslice = fogslicePos[player].slice;
     key = Fog_FindKey(currentslice,Fog_gCurrentKey[player]);
     Fog_gCurrentKey[player] = key;
-    nextkey = key->next;
-    nextslice = nextkey->slice;
-    if (key->distance == nextkey->distance) {
-      TrackSpec_gSpec.fogspec.start = key->distance;
-    }
-    else {
+    /* MATCH: NO cached `nextkey` local -- the oracle re-reads key->next (and
+     * key->slice / key->distance) at each use; only `nextslice` is a real
+     * variable (it is mutated by += numslices).  The interpolating arm is the
+     * FALL-THROUGH (oracle `beq key->distance,next->distance` branches away to
+     * the plain-copy arm).
+     * FLOOR (15 diffs, ours 82/81): the oracle CROSS-JUMPS the two
+     * `TrackSpec_gSpec.fogspec.start = ...` stores into one `sw a1,0(v0)` with
+     * the `lui` hoisted into the beq delay slot; funnelling both arms through a
+     * shared `start` local does merge them (81/81) but rotates key/nextslice/
+     * distance one allocno step (36 diffs), so the 2-store form is kept. */
+    nextslice = key->next->slice;
+    if (key->distance != key->next->distance) {
       if (nextslice < key->slice) {
         numslices = gNumSlices;
         nextslice = nextslice + numslices;
@@ -289,10 +294,13 @@ void Fog_Update(int player)
           currentslice = currentslice + numslices;
         }
       }
-      diffdistance = nextkey->distance - key->distance;
+      diffdistance = key->next->distance - key->distance;
       diffslice = nextslice - key->slice;
       final_dist = ((currentslice - key->slice) * diffdistance) / diffslice;
       TrackSpec_gSpec.fogspec.start = key->distance + final_dist;
+    }
+    else {
+      TrackSpec_gSpec.fogspec.start = key->distance;
     }
   }
 }

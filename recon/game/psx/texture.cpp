@@ -675,39 +675,40 @@ void Texture_LoadPmx(char *f,char *n,int ctrl,int rx,int ry,int cx,int cy,Draw_t
 void Texture_CloneUVPmx(Draw_tPixMap *pmx,int mode,Draw_tPixMap *rpmx)
 
 {
-  u_char t;
-
+  /* MATCH: each u/v pair is copied as ONE 16-bit unit (oracle: lhu/sh at
+   * 0/4/8/0xC) -- the per-byte `t = pmx->vN; rpmx->uM = pmx->uN; rpmx->vM = t;`
+   * form emits 3 insns per pair (110 insns vs 88). */
   *rpmx = *pmx;
   switch(mode) {
   case 0:
-    t = pmx->v1; rpmx->u0 = pmx->u1; rpmx->v0 = t;
-    t = pmx->v0; rpmx->u1 = pmx->u0; rpmx->v1 = t;
-    t = pmx->v3; rpmx->u2 = pmx->u3; rpmx->v2 = t;
-    t = pmx->v2; rpmx->u3 = pmx->u2; rpmx->v3 = t;
+    *(u_short *)&rpmx->u0 = *(u_short *)&pmx->u1;
+    *(u_short *)&rpmx->u1 = *(u_short *)&pmx->u0;
+    *(u_short *)&rpmx->u2 = *(u_short *)&pmx->u3;
+    *(u_short *)&rpmx->u3 = *(u_short *)&pmx->u2;
     return;
   case 1:
-    t = pmx->v1; rpmx->u3 = pmx->u1; rpmx->v3 = t;
-    t = pmx->v3; rpmx->u1 = pmx->u3; rpmx->v1 = t;
-    t = pmx->v0; rpmx->u2 = pmx->u0; rpmx->v2 = t;
-    t = pmx->v2; rpmx->u0 = pmx->u2; rpmx->v0 = t;
+    *(u_short *)&rpmx->u3 = *(u_short *)&pmx->u1;
+    *(u_short *)&rpmx->u1 = *(u_short *)&pmx->u3;
+    *(u_short *)&rpmx->u2 = *(u_short *)&pmx->u0;
+    *(u_short *)&rpmx->u0 = *(u_short *)&pmx->u2;
     return;
   case 2:
-    t = pmx->v2; rpmx->u0 = pmx->u2; rpmx->v0 = t;
-    t = pmx->v0; rpmx->u1 = pmx->u0; rpmx->v1 = t;
-    t = pmx->v1; rpmx->u3 = pmx->u1; rpmx->v3 = t;
-    t = pmx->v3; rpmx->u2 = pmx->u3; rpmx->v2 = t;
+    *(u_short *)&rpmx->u0 = *(u_short *)&pmx->u2;
+    *(u_short *)&rpmx->u1 = *(u_short *)&pmx->u0;
+    *(u_short *)&rpmx->u3 = *(u_short *)&pmx->u1;
+    *(u_short *)&rpmx->u2 = *(u_short *)&pmx->u3;
     return;
   case 3:
-    t = pmx->v3; rpmx->u0 = pmx->u3; rpmx->v0 = t;
-    t = pmx->v2; rpmx->u1 = pmx->u2; rpmx->v1 = t;
-    t = pmx->v0; rpmx->u3 = pmx->u0; rpmx->v3 = t;
-    t = pmx->v1; rpmx->u2 = pmx->u1; rpmx->v2 = t;
+    *(u_short *)&rpmx->u0 = *(u_short *)&pmx->u3;
+    *(u_short *)&rpmx->u1 = *(u_short *)&pmx->u2;
+    *(u_short *)&rpmx->u3 = *(u_short *)&pmx->u0;
+    *(u_short *)&rpmx->u2 = *(u_short *)&pmx->u1;
     return;
   case 4:
-    t = pmx->v1; rpmx->u0 = pmx->u1; rpmx->v0 = t;
-    t = pmx->v3; rpmx->u1 = pmx->u3; rpmx->v1 = t;
-    t = pmx->v2; rpmx->u3 = pmx->u2; rpmx->v3 = t;
-    t = pmx->v0; rpmx->u2 = pmx->u0; rpmx->v2 = t;
+    *(u_short *)&rpmx->u0 = *(u_short *)&pmx->u1;
+    *(u_short *)&rpmx->u1 = *(u_short *)&pmx->u3;
+    *(u_short *)&rpmx->u3 = *(u_short *)&pmx->u2;
+    *(u_short *)&rpmx->u2 = *(u_short *)&pmx->u0;
   }
   return;
 }

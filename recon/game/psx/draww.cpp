@@ -3412,12 +3412,15 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
     idx = slice + (u_int)curLine->slice;
     rightN = ((Trk_NewSlice *)((idx << 5) + (int)BWorldSm_slices))->right;
     pCoord = wpts + pts;
-    sVar12 = (short)((int)((u_int)(u_char)rightN[0] << 0x18) >> 0x1b);
-    sVar13 = (short)((int)((u_int)(u_char)rightN[1] << 0x18) >> 0x1b);
-    sVar14 = (short)((int)((u_int)(u_char)rightN[2] << 0x18) >> 0x1b);
+    /* SYM inner block names six shorts: x,y,z (= pts->x/y/z, oracle $v1/$a0/$a1) and
+       wx,wy,wz (= the 5-bit sign-extended right-normal bytes, oracle $t0/$t1/$a3).
+       The oracle issues ALL SIX loads first and only then the three sll/sra extends. */
     sVar7 = pCoord->x;
     sVar8 = pCoord->y;
     sVar9 = pCoord->z;
+    sVar12 = (short)((int)((u_int)(u_char)rightN[0] << 0x18) >> 0x1b);
+    sVar13 = (short)((int)((u_int)(u_char)rightN[1] << 0x18) >> 0x1b);
+    sVar14 = (short)((int)((u_int)(u_char)rightN[2] << 0x18) >> 0x1b);
     /* MATCH: the oracle walks pts3d with TWO +8 bumps per iteration (one per vertex,
        `addiu t3,t3,8` mid-body and again at the tail) and splits the stores across a
        base/base+6 giv pair -- the index form pts3d[0]/pts3d[1] + a single +16 bump

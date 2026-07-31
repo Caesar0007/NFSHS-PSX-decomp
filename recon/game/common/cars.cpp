@@ -1523,7 +1523,6 @@ void Cars_CalculateStartingGridOffset(Car_tObj *carObj,int *slice,coorddef *offs
   int startingPosition;
   int carOnRight;
   int negDir;
-  int result;
   
   negDir = -1;
   if (GameSetup_gData.reverseTrack != 0) {
@@ -1533,26 +1532,18 @@ void Cars_CalculateStartingGridOffset(Car_tObj *carObj,int *slice,coorddef *offs
   /* Retail keeps separate slice-normalization paths for the multi-car and
      two-car grids; spelling both paths out prevents an incorrect cross-jump. */
   if (3 <= Cars_gNumRaceCars) {
-    if (-1 < negDir + negDir * 10 * startingPosition) {
-      if (gNumSlices <= negDir + negDir * 10 * startingPosition) {
-        *slice = negDir + negDir * 10 * startingPosition - gNumSlices;
-      }
-      else {
-        *slice = negDir + negDir * 10 * startingPosition;
-      }
+    if (-1 < negDir + ((negDir * 5) << 1) * startingPosition) {
+      *slice = negDir + ((negDir * 5) << 1) * startingPosition < gNumSlices ?
+                   negDir + ((negDir * 5) << 1) * startingPosition :
+                   negDir + ((negDir * 5) << 1) * startingPosition - gNumSlices;
       goto LAB_80089c40;
     }
-    *slice = negDir + negDir * 10 * startingPosition + gNumSlices;
+    *slice = negDir + ((negDir * 5) << 1) * startingPosition + gNumSlices;
     goto LAB_80089c40;
   }
   else {
     if (-1 < negDir) {
-      if (gNumSlices <= negDir) {
-        *slice = negDir - gNumSlices;
-      }
-      else {
-        *slice = negDir;
-      }
+      *slice = negDir < gNumSlices ? negDir : negDir - gNumSlices;
       goto LAB_80089c40;
     }
   }
@@ -1565,38 +1556,33 @@ LAB_80089c40:
   if (AITune_GetOneWay() != 0) {
     int center;
     int totalWidth;
-    /* CORRECTNESS FIX: (int)BWorldSm_slices is `Trk_NewSlice *` (sizeof==0x20) -- adding
-       an already-byte-scaled `*slice * 0x20` to it without a byte-base cast makes
-       gcc apply ITS OWN pointer-arithmetic scale by sizeof(Trk_NewSlice) on top,
-       double-scaling to *slice*0x400 (oracle proves `sll v0,v0,5` == *0x20 only,
-       matching the `(int)BWorldSm_slices` cast form used elsewhere, e.g.
-       aiphysic.cpp/bworldSm.cpp). Cast to a byte base first. */
-    u_char *road = (u_char *)BWorldSm_slices + *slice * 0x20;
-    int firstWidth = (u_int)road[0x1e] * 0x8000 * (road[0x1d] >> 4);
-
-    totalWidth = firstWidth +
-                 (u_int)road[0x1f] * 0x8000 * (road[0x1d] & 0xf);
-    center = (totalWidth >> 1) - firstWidth;
-    result = center + totalWidth /
-                      ((road[0x1d] >> 4) + (road[0x1d] & 0xf));
-    if (carOnRight == 0) {
-      result = center - totalWidth /
-                        ((road[0x1d] >> 4) + (road[0x1d] & 0xf));
+    int laneWidth;
+    totalWidth =
+        ((u_int)BWorldSm_slices[*slice].avgPavedWidthLf << 15) *
+            (BWorldSm_slices[*slice].laneCount >> 4) +
+        ((u_int)BWorldSm_slices[*slice].avgPavedWidthRt << 15) *
+            (BWorldSm_slices[*slice].laneCount & 0xf);
+    center = totalWidth / 2 -
+             ((u_int)BWorldSm_slices[*slice].avgPavedWidthLf << 15) *
+                 (BWorldSm_slices[*slice].laneCount >> 4);
+    laneWidth = totalWidth / ((BWorldSm_slices[*slice].laneCount >> 4) +
+                              (BWorldSm_slices[*slice].laneCount & 0xf));
+    if (carOnRight) {
+      offset->x = center + laneWidth;
+    }
+    else {
+      offset->x = center - laneWidth;
     }
   }
   else {
-    if (carOnRight == 0) {
-      result =
-          (int)((u_int)*((u_char *)BWorldSm_slices + *slice * 0x20 + 0x1e) *
-                -0x8000) /
-          2;
+    if (carOnRight) {
+      offset->x = (u_int)BWorldSm_slices[*slice].avgPavedWidthRt << 14;
     }
     else {
-      result =
-          (u_int)*((u_char *)BWorldSm_slices + *slice * 0x20 + 0x1f) << 0xe;
+      offset->x =
+          -((int)((u_int)BWorldSm_slices[*slice].avgPavedWidthLf << 15)) / 2;
     }
   }
-  offset->x = result;
   offset->y = 0x8000;
   offset->z = 0;
   return;

@@ -187,33 +187,67 @@ int InGame_GetDevice(int control)
   return control & 0xff;
 }
 
-/* ---- InGame_SetRamp__Fv  [PSXCONTROLLER.CPP:349-365] SLD-VERIFIED ---- */
+/* ---- InGame_SetRamp__Fv  [PSXCONTROLLER.CPP:349-365] SLD-VERIFIED ----
+ * w39-a7: 25 -> 13 diffs (99/98).  The recon had MIS-ASSIGNED the SYM's local `h`.
+ * SYM (fsize 48, mask $803F0000 = ra,s5..s0 -- SIX saved regs) declares exactly two
+ * named locals: `h` = REG $0x14 = **$s4** (PTR INT) at FUNCTION scope, and `i` =
+ * REG $0x13 = $s3 (SHORT) inside the line-8 block.  The oracle materializes $s4 =
+ * &Input_gHandler BEFORE the `Replay_ReplayMode` test, i.e. `h` is Input_gHandler
+ * (an unconditional function-scope initializer) -- NOT `hoff + i` as the old recon had
+ * it.  Rewritten to the SYM shape: `h = Input_gHandler` at fn scope, `short i` in the
+ * if-block, `h[K - hoff[i]]` at the three call sites.  Loop shape is the oracle's
+ * zero-trip-guard + ROTATED do-while (`i=0; if(i<N){do{...}while(i<N);}`): a plain
+ * `for`/`while` emits a top-tested loop with a `j` back-edge and no `blez` pre-guard
+ * (41 diffs, and 5 insns SHORT).  Placing `hp = hoff + i;` FIRST in the loop body
+ * (before the three ramp stores) is worth another 4.
+ * RESIDUAL 13 = ONE loop-invariant too many: our loop.c hoists `&hoff`'s `lui/addiu`
+ * into the preheader and parks it in a SEVENTH callee-saved register ($s6, frame 48
+ * with `sw ra,44`), while retail REMATERIALIZES `lui %hi(D_8013DAC0); addiu %lo` inside
+ * the loop every iteration and keeps six saved regs (`sw ra,40`).  Everything else is
+ * byte-identical.  Falsified levers (do NOT re-try): single-use `int *hp = hoff + i`
+ * (still hoisted), `*(volatile int *)&hoff[i]` (volatile does not defeat THIS hoist),
+ * `*(int *)((char *)hoff + i*4)` and `*(int *)((i<<2) + (int)hoff)` byte-math forms,
+ * sized `extern int hoff[2]`, `extern volatile int hoff[]` (regresses ResetPSXController
+ * 334 -> 345), an `__asm__("hoff")` label view, making `hoff` a real file-scope
+ * `static int hoff[2] = { 0x4d, 1 };` per its SYM `class STAT` (neutral under BOTH -G4
+ * and -G8), and all four PER_TU flag keys (no_schedule_insns{,2}, no_strength_reduce,
+ * g_value=8 -- all exactly neutral on this TU).  This is the gcc-2.8 loop.c
+ * `threshold*savings*lifetime >= insn_count` cost model choosing to move a third
+ * invariant that retail's cc1 left in place; -dL territory. */
 void InGame_SetRamp(void)
 
 {
-  short i;   /* SYM: REG $s3, type SHORT -- an int counter cost 8 insns */
-  int *h;
-  int ctrl;
-
-  if (Replay_ReplayMode < 2) {
-    for (i = 0; i < Cars_gNumHumanRaceCars; i = i + 1) {
-      ctrl = *(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288);
-      *(int *)(ctrl + 0x1c) = 1;
-      *(int *)(ctrl + 0x20) = 1;
-      *(int *)(ctrl + 0x18) = 1;
-      h = hoff + i;
-      if (InGame_GetDevice(Input_gHandler[0x4f - *h]) == 1) {
-        *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x18) = 0;
-      }
-      if (InGame_GetDevice(Input_gHandler[0x51 - *h]) == 1) {
-        *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x1c) = 0;
-      }
-      if (InGame_GetDevice(Input_gHandler[0x52 - *h]) == 1) {
-        *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x20) = 0;
-      }
-    }
-  }
-  return;
+  int *h;
+  int *hp;
+
+  h = Input_gHandler;
+  if (Replay_ReplayMode < 2) {
+    short i;
+
+    i = 0;
+    if (i < Cars_gNumHumanRaceCars) {
+      do {
+      int ctrl;
+  
+        hp = hoff + i;
+        ctrl = *(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288);
+        *(int *)(ctrl + 0x1c) = 1;
+        *(int *)(ctrl + 0x20) = 1;
+        *(int *)(ctrl + 0x18) = 1;
+        if (InGame_GetDevice(h[0x4f - *hp]) == 1) {
+          *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x18) = 0;
+        }
+        if (InGame_GetDevice(h[0x51 - *hp]) == 1) {
+          *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x1c) = 0;
+        }
+        if (InGame_GetDevice(h[0x52 - *hp]) == 1) {
+          *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x20) = 0;
+        }
+        i = i + 1;
+      } while (i < Cars_gNumHumanRaceCars);
+    }
+  }
+  return;
 }
 
 /* end of psxcontroller.cpp */

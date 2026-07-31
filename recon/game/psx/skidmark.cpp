@@ -72,60 +72,48 @@ Skidmark_Chunk *
 Skidmark_CheckChunk(coorddef *skidpt,int newsegs,int slice)
 
 {
-  int NewChunk;
   bool needNew;
-  int dist;
+  int d;
   Skidmark_Chunk *returnsm;
-  int anchor;
-  
+
   returnsm = gSm + gUseSm;
-  anchor = (returnsm->cp).x;
   needNew = 0x18 < returnsm->n + newsegs;
-  dist = anchor - skidpt->x;
-  if (dist < 1) {
-    dist = skidpt->x - anchor;
+  /* The oracle does NOT compute |d| once and compare once -- it materializes the
+     0xFFFFF limit and does a SEPARATE `slt 0xFFFFF,<diff>` in EACH arm
+     (`blez a1,.L800DEA48` + a duplicated `lui/ori 0xFFFFF`), i.e. the source is a
+     two-comparison ternary per axis, not an abs-then-compare. */
+  d = (returnsm->cp).x - skidpt->x;
+  if ((0 < d) ? (0xfffff < d) : (0xfffff < skidpt->x - (returnsm->cp).x)) {
+    needNew = true;
   }
-  if (dist < 0x100000) {
-    anchor = (returnsm->cp).y;
-    dist = anchor - skidpt->y;
-    if (dist < 1) {
-      dist = skidpt->y - anchor;
+  else {
+    d = (returnsm->cp).y - skidpt->y;
+    if ((0 < d) ? (0xfffff < d) : (0xfffff < skidpt->y - (returnsm->cp).y)) {
+      needNew = true;
     }
-    if (dist < 0x100000) {
-      anchor = (returnsm->cp).z;
-      dist = anchor - skidpt->z;
-      if (0 < dist) {
-        if (0xfffff < dist) {
-          needNew = true;
-        }
-        goto SkidChkChunk_useGCount;
+    else {
+      d = (returnsm->cp).z - skidpt->z;
+      if ((0 < d) ? (0xfffff < d) : (0xfffff < skidpt->z - (returnsm->cp).z)) {
+        needNew = true;
       }
-      if (skidpt->z - anchor < 0x100000) goto SkidChkChunk_useGCount;
     }
   }
-  needNew = true;
-SkidChkChunk_useGCount:
   if (needNew) {
     if (gCountSm < gMaxSChunk) {
       gUseSm = gCountSm;
       gCountSm = gCountSm + 1;
     }
-    else {
-      needNew = gMaxSChunk + -1 <= gUseSm;
+    else if (gUseSm < gMaxSChunk + -1) {
       gUseSm = gUseSm + 1;
-      if (needNew) {
-        gUseSm = 0;
-      }
+    }
+    else {
+      gUseSm = 0;
     }
     returnsm = gSm + gUseSm;
     returnsm->n = 0;
   }
   if (returnsm->n == 0) {
-    dist = skidpt->y;
-    anchor = skidpt->z;
-    (returnsm->cp).x = skidpt->x;
-    (returnsm->cp).y = dist;
-    (returnsm->cp).z = anchor;
+    returnsm->cp = *skidpt;
     returnsm->slice = (short)slice;
   }
   return returnsm;

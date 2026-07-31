@@ -74,10 +74,21 @@ Skidmark_CheckChunk(coorddef *skidpt,int newsegs,int slice)
 {
   bool needNew;
   int d;
+  int nseg;
   Skidmark_Chunk *returnsm;
 
   returnsm = gSm + gUseSm;
-  needNew = 0x18 < returnsm->n + newsegs;
+  /* MATCH (w39-a10): the segment total must be a NAMED local MUTATED IN PLACE
+     (`nseg = returnsm->n; nseg = nseg + newsegs;`) -- the one-expression form
+     `0x18 < returnsm->n + newsegs` gives the sum its own anonymous pseudo, which
+     local-alloc parks in $t1 (needNew's home) instead of reusing the dying $v0
+     that held returnsm->n.  Same pseudo on both sides of the `+` guarantees the
+     oracle's in-place `addu $v0,$v0,$a1; slti $v0,$v0,0x19`.  (Reusing the
+     existing `d` for this REGRESSES 4 -> 55: `d` is live across the three axis
+     arms, so it becomes a global allocno and drags the whole compare chain.) */
+  nseg = returnsm->n;
+  nseg = nseg + newsegs;
+  needNew = 0x18 < nseg;
   /* The oracle does NOT compute |d| once and compare once -- it materializes the
      0xFFFFF limit and does a SEPARATE `slt 0xFFFFF,<diff>` in EACH arm
      (`blez a1,.L800DEA48` + a duplicated `lui/ori 0xFFFFF`), i.e. the source is a

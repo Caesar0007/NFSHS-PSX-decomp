@@ -638,7 +638,7 @@ LAB_DAMAGE_ZONE:
 
 
 /* ---- Collide_DoObjectObjectCollision__FP13BO_tNewtonObjT0P8coorddefT2  [@0x8008e5d4] ---- */
-int Collide_DoObjectObjectCollision(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,coorddef *normal)
+int Collide_DoObjectObjectCollision(BO_tNewtonObj * volatile o0,BO_tNewtonObj *o1,coorddef *p,coorddef *normal)
 {
   /* RULE-8 rewrite from SYM 8c block @0x8008e5d4 (fsize=184 mask=$c0ff0000 = ra+s2..s7) + m2c
      pregen + raw oracle, blocks in oracle VA order.  Note SYM: o0/normal are class ARG (stack-

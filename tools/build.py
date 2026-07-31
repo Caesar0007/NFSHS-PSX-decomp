@@ -572,6 +572,18 @@ def compile_cpp(src: Path) -> Path:
     cc1pl_flags = ["-quiet", "-O2", f"-G{tu_g_value}"]
     if tu_flags.get("no_delayed_branch"):
         cc1pl_flags.append("-fno-delayed-branch")
+    # w38-a9/a10 finding: these four keys were wired in compile_c only, so any
+    # past per-TU flag experiment on a C++ TU silently measured a no-op.
+    # Mirrors the compile_c block above; CC1PLPSX accepts all four (verified
+    # by a9/a10 local patches: they DO change C++ codegen when applied).
+    if tu_flags.get("no_split_addresses"):
+        cc1pl_flags.append("-mno-split-addresses")
+    if tu_flags.get("no_schedule_insns"):
+        cc1pl_flags.append("-fno-schedule-insns")
+    if tu_flags.get("no_schedule_insns2"):
+        cc1pl_flags.append("-fno-schedule-insns2")
+    if tu_flags.get("no_strength_reduce"):
+        cc1pl_flags.append("-fno-strength-reduce")
     r = run([CC1PL, *cc1pl_flags, i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[cc1pl] {rel}\n{r.stdout}{r.stderr}")

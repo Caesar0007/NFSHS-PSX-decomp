@@ -1137,15 +1137,22 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
         if ((scnt.vx <= (sd->head).clipW) && (-1 < scnt.vx) &&
             ((short)((transformed.vy >> 2) + pshift) <= (sd->head).clipH) &&
             (-1 < (short)((transformed.vy >> 2) + pshift))) {
-          /* MATCH: in-place slot chain (sll then add in the SAME pseudo) -- a single
-             `otz*4 + pal` expression lets LICM hoist the invariant sll to the preheader
-             (oracle keeps it in the bltz delay slot; a twice-set reg is not movable) */
+          /* MATCH (w38-a10): ONE-EXPRESSION `otz*4 + (int)pal` slot form (the same idiom
+             as Hrz_TextureQuad@652 / Hrz_BuildSky@861). The earlier two-statement
+             sll-then-add chain cost an extra insn AND a t2/a1 base-vs-index swap
+             (11 diffs, ours 112 vs oracle 111); the single expression makes the shift
+             result itself the addu dest + accumulator == oracle `sll a1,s3,2 ;
+             lui v0 ; lw v0 ; addu a1,a1,v0`. 11 -> 2 diffs, count exact.
+             RESIDUAL 2 = emission ORDER of the two LICM-hoisted mask constants
+             (ours lui 0xff000000 BEFORE lui 0xffffff, oracle after). Tried flipping the
+             OR operand order of the first RMW statement (8 diffs) and of the second
+             (6 diffs) -- both worse; the hoist order is not steered by operand order
+             here. Same 2-constant hoist-order residual as the Flare_*Flare family. */
           u_int *slot;
           u_int tag;
           u_char *pal;
           pal = Render_gPalettePtr;
-          slot = (u_int *)(otz * 4);
-          slot = (u_int *)((int)slot + (int)pal);
+          slot = (u_int *)(otz * 4 + (int)pal);
           prim = (TILE_1 *)Render_gPacketPtr;
           *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
           tag = *slot;

@@ -337,7 +337,16 @@ int Device_PSXPadMulti(u_long param)
  * "scale [min,max] onto [0,255]" formula; the old code divided the UNSHIFTED raw byte,
  * i.e. every analog axis read was biased by min*255/(max-min) at runtime.
  * The div guards (`bnez $v1 / break 7`, the -1 / INT_MIN `break 6` pair) are maspsx
- * --expand-div's automatic expansion of a plain C `/` -- never write them by hand. */
+ * --expand-div's automatic expansion of a plain C `/` -- never write them by hand.
+ * RESIDUAL 22 diffs (ours 76 / oracle 64 = +12): retail CROSS-JUMPS the two arms'
+ * divide tails into ONE shared `div` block (`j .L800BDA70` out of the min<max arm);
+ * our cc1plus keeps both copies.  w39-a5 probes (all WORSE, do not retry):
+ *   explicit `goto` to a shared divide + denominator folded into `max`   44 (62/64)
+ *   split `v = v - min;` then `v = (v*0xff)/(max-min);`                  62 (76/64)
+ *   early-`return 0/0xff` guards instead of if/else arms                 37 (77/64)
+ * The goto form DOES produce the single shared divide (62 vs 64 insns) but re-colors
+ * min/max out of their SYM homes because `max` is then mutated; there is no spelling
+ * that shares the tail without inventing a denominator local the SYM does not have. */
 int Device_Analog(u_long param)
 
 {

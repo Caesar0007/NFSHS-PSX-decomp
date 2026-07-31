@@ -406,7 +406,12 @@ void Night_SetCopLightColors(int colorIndex,int brighten)
  * %gp_rel stores.  REMAINING 6: the oracle materializes Night_gWeatherLightingTable's
  * base DIRECTLY into s0 (`lui s0; addiu s0,s0,lo`), ours self-temps via v0 (`lui v0;
  * addiu s0,v0,lo`) -- the sec.3.15 v0-vs-dest register-materialization tie-break, shared
- * with the sibling Night_SetWeatherColors below.  Survives -G8 and all four wired per-TU
+ * with the sibling Night_SetWeatherColors below -- which the sized-[2] array-VIEW fix has
+ * since SEALED (it cut this fn 6 -> 4 too; see that fn's note).  What is LEFT here is the
+ * same self-temp materialization surviving the shape fix because the `wtnight` string
+ * literal (D_8013DA18) competes for the slot: ours `lui v0,%hi; sw s0,16(sp); addiu
+ * s0,v0,%lo`, retail `sw s0,16(sp); lui s0,%hi; addiu s0,s0,%lo`.  Survives -G8 and all
+ * four wired per-TU
  * codegen flags (w39-a9 probe: no_split_addresses +4, no_schedule_insns +6,
  * no_schedule_insns2 +14, no_strength_reduce 0). */
 void Night_InitWeatherTables(void)
@@ -432,14 +437,15 @@ void Night_InitWeatherTables(void)
 }
 
 /* ---- Night_SetWeatherColors__Fi  [NIGHT.CPP:544-546] SLD-VERIFIED ---- */
-/* NEAR-MISS 8 diffs (31/31): oracle loads Night_gWeatherColor → s1 via `lui s1; addiu s1,s1,lo`
- * (destination = source in addiu). Ours: `lui v0; addiu s1,v0,lo` (v0 temp for high part).
- * Same pattern for Night_gWeatherLightingTable → s0. Register-materialization tie-break
- * (catalog §E "v0-vs-a2"), not source-shapable: tried &arr[0] form, swapped init order,
- * i=0-after-inits, extra-pointer-then-copy (the exact lever that PASSed
- * Night_GenerateNextLightningEvent) — all no-change or regress (up to 20 diffs). Permuter
- * (short supervised grind, base score 80, 4 iters, no improvement) also didn't crack it.
- * GENUINE FLOOR. ACCEPT. */
+/* SEALED 31/31 PASS (w39-a9).  The prior note certified this as a "GENUINE FLOOR" --
+ * the sec.3.15 v0-vs-dest register-materialization tie-break (ours `lui v0; addiu s1,v0,lo`,
+ * retail `lui s1; addiu s1,s1,lo`).  It was NOT a floor: it was the DECLARED SHAPE of the
+ * two base-walk arrays.  An UNSIZED `extern T g[]` view makes cc1plus emit the `la sym`
+ * assembler MACRO, and GNU-as expands that with a separate scratch; giving the view its
+ * CORRECT size [2] lets gcc lower the address ITSELF (split-addresses) into the self-temp
+ * `lui sN,%hi; addiu sN,sN,%lo` retail uses.  Exactly IDT Ch9's own rule -- "either omit
+ * the size or give the CORRECT size" -- read in the OTHER direction from methodology
+ * sec.3.12 #5's usual unsized-array lever. */
 void Night_SetWeatherColors(int colorIndex)
 
 {

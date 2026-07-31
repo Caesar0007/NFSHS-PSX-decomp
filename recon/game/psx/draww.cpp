@@ -2,6 +2,15 @@
  *   35 fns: subdivision facets, world matrix/translation setup, night colour calc, DrawW_DrawQuad,
  *   object/chunk facet builders, object transforms, skidmarks, lines/spike-belt, anim timers, depth cue.
  *   GTE-heavy (142 cop2 stubs -> gte_ intrinsics). Full SYM-locals applied.
+ *
+ * PER-TU FLAG RECEIPT (w39-a2, 2026-08-01 -- measured with the now-WIRED compile_cpp
+ * PER_TU_FLAGS keys; whole-TU gate over all 32 oracles, baseline 1989 diffs / 15 PASS):
+ *     no_split_addresses  1989 -> 2654  (+665, 3 PASS->FAIL)
+ *     no_schedule_insns   1989 -> 4231 (+2242, 6 PASS->FAIL)
+ *     no_schedule_insns2  1989 -> 2611  (+622, 9 PASS->FAIL)
+ *     no_strength_reduce  1989 -> 2257  (+268, 2 PASS->FAIL)
+ * All four are decisively NEGATIVE and none produced a single FAIL->PASS -- draww.obj
+ * was built with the project-default flag set.  Do not re-probe.
  */
 #include "../../nfs4_types.h"
 #include "draww_externs.h"

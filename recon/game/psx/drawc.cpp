@@ -3126,27 +3126,37 @@ gte_stlvnl((char *)sd + 0x9c);
   /* load-3/shift-3/store-3 per row (oracle batches lw x3 -> sra x3 -> sh x3);
    * row1 stored POSITIVE first, then the middle column negated: [1][0] via the
    * still-live temp (negu reg), [1][1]/[1][2] via lhu read-modify-write. */
-  r0 = m->m[0] >> 4;
-  r1 = m->m[3] >> 4;
-  r2 = m->m[6] >> 4;
-  (sd->matB).m[0][0] = (short)r0;
-  (sd->matB).m[0][1] = (short)r1;
-  (sd->matB).m[0][2] = (short)r2;
-  r0 = m->m[1] >> 4;
-  r1 = m->m[4] >> 4;
-  r2 = m->m[7] >> 4;
-  (sd->matB).m[1][0] = (short)r0;
-  (sd->matB).m[1][1] = (short)r1;
-  (sd->matB).m[1][2] = (short)r2;
-  r1 = m->m[2] >> 4;
-  r2 = m->m[5] >> 4;
-  iVar19 = m->m[8] >> 4;
-  (sd->matB).m[1][0] = (short)-r0;
-  (sd->matB).m[1][1] = -(sd->matB).m[1][1];
-  (sd->matB).m[2][0] = (short)r1;
-  (sd->matB).m[1][2] = -(sd->matB).m[1][2];
-  (sd->matB).m[2][1] = (short)r2;
-  (sd->matB).m[2][2] = (short)iVar19;
+  {
+    int r0 = m->m[0] >> 4;
+    int r1 = m->m[3] >> 4;
+    int r2 = m->m[6] >> 4;
+    (sd->matB).m[0][0] = (short)r0;
+    (sd->matB).m[0][1] = (short)r1;
+    (sd->matB).m[0][2] = (short)r2;
+  }
+  {
+    int r0 = m->m[1] >> 4;
+    int r1 = m->m[4] >> 4;
+    int r2 = m->m[7] >> 4;
+    (sd->matB).m[1][0] = (short)r0;
+    (sd->matB).m[1][1] = (short)r1;
+    (sd->matB).m[1][2] = (short)r2;
+  }
+  {
+    /* identity-then-tweak (PrimHalo-proven, w39-a3): row 1 is stored POSITIVE
+       above and negated IN PLACE here -- carrying the value in an r0/iVarN
+       temp across the block boundary lengthens its live range and rotates the
+       whole {r0,r1,r2} triple off the SYM's per-block registers. */
+    int r0 = m->m[2] >> 4;
+    int r1 = m->m[5] >> 4;
+    int r2 = m->m[8] >> 4;
+    (sd->matB).m[1][0] = -(sd->matB).m[1][0];
+    (sd->matB).m[1][1] = -(sd->matB).m[1][1];
+    (sd->matB).m[2][0] = (short)r0;
+    (sd->matB).m[1][2] = -(sd->matB).m[1][2];
+    (sd->matB).m[2][1] = (short)r1;
+    (sd->matB).m[2][2] = (short)r2;
+  }
   /* TrsProj_precision loaded AT-USE, one lw CSE'd across the 3 sravs; the former
    * `& 0x1f` shift-count masks were a Ghidra transcription artifact (catalog SC) */
   (sd->matB).t[0] = t->x >> TrsProj_precision;

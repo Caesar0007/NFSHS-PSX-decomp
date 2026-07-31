@@ -620,7 +620,25 @@ void Night_SetEnviroment(DRender_tView *Vi)
   return;
 }
 
-/* ---- Night_AdditiveNightCalc__FP6VECTORP7CVECTOR  [NIGHT.CPP:811-861] SLD-VERIFIED ---- */
+/* ---- Night_AdditiveNightCalc__FP6VECTORP7CVECTOR  [NIGHT.CPP:811-861] SLD-VERIFIED ----
+ * NEAR-MISS 77 diffs (ours 65 / oracle 64), was 106 (ours 66 / oracle 64).
+ * MATCH (w38-a10), all from the SYM block @43cab4 + the raw oracle:
+ *  (1) SYM BLOCK SCOPES restored: {x,xdist} live in the z-guard block and
+ *      {lookup,newR,newG,newB,addColor} in the x-guard block -- xdist REUSES
+ *      zfar's register ($6) exactly because they are in disjoint blocks.
+ *  (2) `zfar` holds znear + (1<<(gZDistShift+6)), i.e. the sum is computed
+ *      SPECULATIVELY before the first guard (oracle `addu a2,a3,v0` precedes
+ *      `slt v0,a3,v1; beqz`), not folded into the second compare.
+ *  (3) the three channel SUMS are computed first, then the three clamps
+ *      (oracle batches `addu`+copy trios then three slti/bnez/li 255).
+ *  (4) the blue channel shift is LOGICAL: `((u_int)lookup >> 0x10) & 0xff`
+ *      (oracle `srl`, not `sra`) -- a signed `int` shift emitted `sra`.
+ * RESIDUAL (1 insn over + coloring): ours copies the `color` REGPARM out of
+ * $a1 into $t3 because {zfar,xdist} win $a1, and newR/newG swap $a3<->$t0
+ * (SYM: newR $7=a3, newG $8=t0, newB $6=a2). Tried: inlining zfar into the
+ * condition (88), materializing zfar before z/znear (79), znear-before-z (77,
+ * tie). This is the allocno-priority race between the short-lived guard temps
+ * and the long-lived, few-ref `color` parameter. */
 void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
 
 {
@@ -628,29 +646,31 @@ void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
   int index;
   int znear;
   int zfar;
-  int x;
-  int xdist;
-  int lookup;
-  short newR;
-  short newG;
-  short newB;
-  long addColor;
 
   z = v->vz;
   znear = Night_gZNear;
-  zfar = 1 << (Night_gZDistShift + 6);
-  if ((znear < z) && (z < znear + zfar)) {
+  zfar = znear + (1 << (Night_gZDistShift + 6));
+  if ((znear < z) && (z < zfar)) {
+    int x;
+    int xdist;
+
     x = v->vx;
     xdist = 1 << (Night_gXDistShift + 5);
     if ((-xdist < x) && (x < xdist)) {
+      int lookup;
+      short newR;
+      short newG;
+      short newB;
+      long addColor;
+
       index = (((z - znear) >> Night_gZDistShift) << 6) + ((x + xdist) >> Night_gXDistShift);
       addColor = *(long *)&Night_gAdditiveHeadlightColor[(u_char)Night_gNightTbl[index]];
       lookup = (int)addColor;
       newR = (short)(color->r + (lookup & 0xff));
-      if (0xff < newR) newR = 0xff;
       newG = (short)(color->g + ((lookup & 0xff00) >> 8));
+      newB = (short)(color->b + (((u_int)lookup >> 0x10) & 0xff));
+      if (0xff < newR) newR = 0xff;
       if (0xff < newG) newG = 0xff;
-      newB = (short)(color->b + ((lookup >> 0x10) & 0xff));
       if (0xff < newB) newB = 0xff;
       color->r = (u_char)newR;
       color->g = (u_char)newG;

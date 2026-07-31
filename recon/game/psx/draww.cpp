@@ -1004,66 +1004,98 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   u_int tu2;
   u_int tu18;
   
-  /* MATCH (2026-07-11 b): oracle reads the header in THIS interleaved order --
-   * quad byte@3 (vt0 idx) FIRST, then sd's vertices/trans.x/trans.y, then
-   * quad byte@2 (vt1 idx), byte@4 (vt3 idx), byte@5 (vt2 idx), then
-   * sd->trans.z LAST -- not the previous grouped sd-then-quad-then-sd order
-   * (which read byte@2 lazily at tp2's site, well after gte_ldv0(vt0)). */
-  vertProj_idx = (int)*(u_char *)((char *)inQuad + 3);
-  geomVerts_p = (int)sd->vertices;
-  ts31 = (sd->trans).x;
-  ts27 = (sd->trans).y;
-  vert1_idx = (int)*(u_char *)((char *)inQuad + 2);
-  vert_x_pack = (int)*(u_char *)((char *)inQuad + 4);
-  vert_y_pack = (int)*(u_char *)((char *)inQuad + 5);
-  sVar1 = (sd->trans).z;
-  vertProj_p = geomVerts_p + (u_int)vertProj_idx * 8;
-  /* MATCH (2026-07-11): read each vertex's xy/zl word ONCE into the SAME
-   * tu18/tu2 temps DrawW_DrawQuad already uses for vt2/vt3 below (not a
-   * fresh local -- oracle's asm shows a SINGLE lw per word, sra-extracted
-   * into both fields), instead of dereferencing `*(u_int*)vertProj_p` twice
-   * inline. The inline double-deref let gcc independently strength-reduce
-   * each occurrence to its own plain lhu (2 lhu vs oracle's 1 lw+sra+2 add),
-   * a structural (not just coloring) mismatch that was cascading a
-   * register-coloring shift through vt1-vt3 and the whole function tail. */
-  tu18 = *(u_int *)vertProj_p;
-  tu2 = *(u_int *)(vertProj_p + 4);
-  vt0.x = (short)tu18 + ts31;
-  vt0.y = (short)((int)tu18 >> 0x10) + ts27;
-  vt0.light = (short)((int)tu2 >> 0x10);
-  vt0.z = (short)tu2 + sVar1;
-gte_ldv0((int *)(&vt0));
-  tp2 = (void *)(geomVerts_p + ((u_int)vert1_idx & 0xffU) * 8);
-  gte_rtps_b();
-  tu18 = *(u_int *)tp2;
-  tu2 = *(u_int *)((int)tp2 + 4);
-  vt1.x = (short)tu18 + ts31;
-  vt1.y = (short)((int)tu18 >> 0x10) + ts27;
-  vt1.light = (short)((int)tu2 >> 0x10);
-  vt1.z = (short)tu2 + sVar1;
-gte_stlvnl(((char *)sd + 0x98));
-gte_swc2(0xe,&dvxy0);
-gte_ldv0((int *)(&vt1));
-  tp1 = (u_int *)(geomVerts_p + (vert_y_pack & 0xffU) * 8);
-  gte_rtps_b();
-  tu18 = *tp1;
-  tu2 = tp1[1];
-  vt2.x = (short)tu18 + ts31;
-  vt2.y = (short)((int)tu18 >> 0x10) + ts27;
-  vt2.light = (short)((int)tu2 >> 0x10);
-  vt2.z = (short)tu2 + sVar1;
-gte_stlvnl(((char *)sd + 0xa8));
-gte_ldv0((int *)(&vt2));
-  tp1 = (u_int *)(geomVerts_p + (vert_x_pack & 0xffU) * 8);
-  gte_rtps_b();
-  tu18 = *tp1;
-  tu2 = tp1[1];
-  vt3.x = (short)tu18 + ts31;
-  vt3.y = (short)((int)tu18 >> 0x10) + ts27;
-  vt3.light = (short)((int)tu2 >> 0x10);
-  vt3.z = (short)tu2 + sVar1;
-gte_stlvnl(((char *)sd + 0xb8));
-gte_ldv0((int *)(&vt3));
+  /* MATCH (2026-08-01, rule-8 SYM rewrite of the whole vertex-setup section):
+   * the SYM 8c block @0x800C64F8 names EVERY local here -- outer block:
+   * `geomVertices` (REG $9, PTR CCOORD16); inner block (line 1..106):
+   * t1/t2/t3 (INT $10/$2/$11), z (PTR INT $2 -- shares $v0 with t2),
+   * tx/ty/tz (SHORT $6/$5/$4) and a/c/d (UCHAR $3/$8/$7 = quad bytes 2/4/5).
+   * The previous iVarN-soup form invented 13 temps for those 11 names and lost
+   * three structural properties the oracle shows:
+   *  (a) tx/ty/tz are SHORT locals whose sum lands in an INT local, so the
+   *      oracle canonically sign-extends each `lhu` (sll;sra) -- the old
+   *      "(short)word + shortlocal -> short field" form is pure truncation and
+   *      gcc drops the extensions;
+   *  (b) the second source word is stored as a FULL WORD into &vt.z (one `sw`
+   *      sets z AND light) and only then the low half is overwritten with
+   *      z+tz -- identity-then-tweak, vs the old separate sra+sh for .light;
+   *  (c) the three sums MUTATE t1/t3/t2 in place before the field stores. */
+  {
+    int t1;
+    int t2;
+    int t3;
+    int * z;
+    short tx;
+    short ty;
+    short tz;
+    u_char a;
+    u_char c;
+    u_char d;
+
+    t2 = *(u_char *)((char *)inQuad + 3);
+    geomVertices = sd->vertices;
+    tx = (sd->trans).x;
+    ty = (sd->trans).y;
+    a = *(u_char *)((char *)inQuad + 2);
+    c = *(u_char *)((char *)inQuad + 4);
+    d = *(u_char *)((char *)inQuad + 5);
+    tz = (sd->trans).z;
+
+    z = (int *)(geomVertices + t2);
+    t1 = z[0];
+    t2 = z[1];
+    t3 = t1 >> 0x10;
+    *(long *)&vt0.z = t2;
+    t1 = t1 + tx;
+    t3 = t3 + ty;
+    t2 = t2 + tz;
+    vt0.x = t1;
+    vt0.y = t3;
+    vt0.z = t2;
+    gte_ldv0((int *)(&vt0));
+    z = (int *)(geomVertices + a);
+    gte_rtps_b();
+    t1 = z[0];
+    t2 = z[1];
+    t3 = t1 >> 0x10;
+    *(long *)&vt1.z = t2;
+    t1 = t1 + tx;
+    t3 = t3 + ty;
+    t2 = t2 + tz;
+    vt1.x = t1;
+    vt1.y = t3;
+    vt1.z = t2;
+    gte_stlvnl(((char *)sd + 0x98));
+    gte_swc2(0xe,&dvxy0);
+    gte_ldv0((int *)(&vt1));
+    z = (int *)(geomVertices + d);
+    gte_rtps_b();
+    t1 = z[0];
+    t2 = z[1];
+    t3 = t1 >> 0x10;
+    *(long *)&vt2.z = t2;
+    t1 = t1 + tx;
+    t3 = t3 + ty;
+    t2 = t2 + tz;
+    vt2.x = t1;
+    vt2.y = t3;
+    vt2.z = t2;
+    gte_stlvnl(((char *)sd + 0xa8));
+    gte_ldv0((int *)(&vt2));
+    z = (int *)(geomVertices + c);
+    gte_rtps_b();
+    t1 = z[0];
+    t2 = z[1];
+    t3 = t1 >> 0x10;
+    *(long *)&vt3.z = t2;
+    t1 = t1 + tx;
+    t3 = t3 + ty;
+    t2 = t2 + tz;
+    vt3.x = t1;
+    vt3.y = t3;
+    vt3.z = t2;
+    gte_stlvnl(((char *)sd + 0xb8));
+    gte_ldv0((int *)(&vt3));
+  }
   gte_rtps();
 gte_stlvnl(((char *)sd + 0xc8));
   if (((((((sd->tVn3).vx <= (sd->tVn3).vz) || ((sd->tVn0).vx <= (sd->tVn0).vz)) ||

@@ -1015,58 +1015,38 @@ int CopSpeak_SfxQueued(void)
 void CopSpeak_ShowQueue(void)
 
 {
-  int chkQ;
-  int bufferstat;
-  long lVar1;
-  int iVar2;
-  int iVar3;
-  char local_58;
-  u_char local_57;
-  u_char auStack_56 [70];
-  
-  iVar2 = CopSpeak_gQueuePlay;
-  local_58 = 0;
-  local_57 = 0;
-  memset(auStack_56,'\0',0x40);
-  if (iVar2 != CopSpeak_gQueueHead) {
+  int chkQ = CopSpeak_gQueuePlay;
+  char bufferstat[66] = "\0";
+
+  if (chkQ != CopSpeak_gQueueHead) {
     do {
-      if (CopSpeak_gQueue[iVar2].bank == -1) {
-        strcat(&local_58,"x");
+      if ((signed char)CopSpeak_gQueue[chkQ].bank == -1) {
+        strcat(bufferstat,"x");
       }
-      else if (CopSpeak_gQueue[iVar2].sfx == '\0') {
-        if (CopSpeak_gQueue[iVar2].bank == '\x03') {
-          strcat(&local_58,".");
-        }
-        else if (CopSpeak_gQueue[iVar2].phrase < 0) {
-          if (CopSpeak_gQueue[iVar2].car == (Car_tObj *)0x0) {
-            strcat(&local_58,"D");
-          }
-          else {
-            sprintf(&local_58,"%s%d",&local_58,(CopSpeak_gQueue[iVar2].car)->carIndex);
-          }
-        }
-        else {
-          strcat(&local_58,"n");
-        }
+      else if (CopSpeak_gQueue[chkQ].sfx != 0) {
+        strcat(bufferstat,"s");
+      }
+      else if ((signed char)CopSpeak_gQueue[chkQ].bank == 3) {
+        strcat(bufferstat,".");
+      }
+      else if (CopSpeak_gQueue[chkQ].phrase >= 0) {
+        strcat(bufferstat,"n");
+      }
+      else if (CopSpeak_gQueue[chkQ].car == (Car_tObj *)0x0) {
+        strcat(bufferstat,"D");
       }
       else {
-        strcat(&local_58,"s");
+        sprintf(bufferstat,"%s%d",bufferstat,CopSpeak_gQueue[chkQ].car->carIndex);
       }
-      if ((iVar2 == CopSpeak_gQueueReady) || (iVar2 == CopSpeak_gQueueLoad)) {
-        strcat(&local_58,"|");
+      if ((chkQ == CopSpeak_gQueueReady) || (chkQ == CopSpeak_gQueueLoad)) {
+        strcat(bufferstat,"|");
       }
-      iVar3 = 0;
-      if (iVar2 < 0x3f) {
-        iVar3 = iVar2 + 1;
-      }
-      iVar2 = iVar3;
-    } while (iVar3 != CopSpeak_gQueueHead);
+      chkQ = chkQ < 0x3f ? chkQ + 1 : 0;
+    } while (chkQ != CopSpeak_gQueueHead);
   }
-  lVar1 = strlen((u_long)&local_58);
-  if (lVar1 != 0) {
-    Font_TextXY(&local_58,10,6);
-    iVar2 = textpixels(&local_58);
-    Hud_FBuildF4(1,8,9,iVar2 + 5,9,0x190505,'\0','\0');
+  if (strlen((u_long)bufferstat) != 0) {
+    Font_TextXY(bufferstat,10,6);
+    Hud_FBuildF4(1,8,9,textpixels(bufferstat) + 5,9,0x190505,0,0);
   }
   return;
 }

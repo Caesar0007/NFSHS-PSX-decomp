@@ -17,13 +17,7 @@ void Control_AI(Car_tObj *carObj)
 /* @0x80091fe4  Control_Human(Car_tObj *carObj) -- line 80 */
 void Control_Human(Car_tObj *carObj)
 {
-  u_short uVar1;
-  char    cVar2;
-  u_char  bVar3;
-  int     iVar4;
   int     newGear;
-  int     index;
-  u_int   uVar5;
 
   if ((simGlobal.gameTicks & 3U) != 0) {
     return;
@@ -33,141 +27,124 @@ void Control_Human(Car_tObj *carObj)
   }
   InGame_SetRamp();
   (*(void (*)(Car_tObj *))carObj->funcReplay)(carObj);
-  if (carObj->RSControl == 0) {
+  if (carObj->RSControl != 0) {
+    carObj->control.desiredGasLevel = carObj->RSGasLevel & 0xf8;
+    carObj->control.desiredSteering = (carObj->RSSteering / 4) * 4;
+    carObj->control.desiredBrakeLevel = 0;
+    carObj->control.handBrake = 0;
+    carObj->control.horn = 0;
+    carObj->control.abort = 0;
+    carObj->control.event = 0;
+  }
+  else {
     (carObj->control).desiredGasLevel = Input_gSim.gas & 0xf8;
     (carObj->control).desiredBrakeLevel = Input_gSim.brake & 0xf8;
     if (GameSetup_gData.mirrorTrack == 1) {
-      iVar4 = (int)Input_gSim.steering;
-      if (iVar4 < 0) {
-        iVar4 = iVar4 + 3;
-      }
-      iVar4 = (iVar4 >> 2) * -4;
+      carObj->control.desiredSteering = ((signed char)Input_gSim.steering / 4) * -4;
     }
     else {
-      iVar4 = (int)Input_gSim.steering;
-      if (iVar4 < 0) {
-        iVar4 = iVar4 + 3;
-      }
-      iVar4 = (iVar4 >> 2) << 2;
+      carObj->control.desiredSteering = ((signed char)Input_gSim.steering / 4) * 4;
     }
-    (carObj->control).desiredSteering = iVar4;
     (carObj->control).handBrake = Input_gSim.flags & 1;
     (carObj->control).horn = Input_gSim.flags >> 1 & 1;
     (carObj->control).abort = Input_gSim.flags >> 3 == 3;
     (carObj->control).event = Input_gSim.flags >> 3;
   }
-  else {
-    iVar4 = carObj->RSSteering;
-    (carObj->control).desiredGasLevel = carObj->RSGasLevel & 0xf8;
-    if (iVar4 < 0) {
-      iVar4 = iVar4 + 3;
-    }
-    (carObj->control).desiredSteering = (iVar4 >> 2) << 2;
-    (carObj->control).desiredBrakeLevel = '\0';
-    (carObj->control).handBrake = '\0';
-    (carObj->control).horn = '\0';
-    (carObj->control).abort = '\0';
-    (carObj->control).event = '\0';
-  }
   switch((carObj->control).event) {
   case '\x04':
-    if (HudBustedOverlay != 0) goto update_gear;
-    iVar4 = carObj->carIndex;
-    cVar2 = (carObj->control).event;
-    index = 0;
+    if (HudBustedOverlay != 0) break;
+    carObj->control.queuedEvent = carObj->control.event;
+    Hud_WingmanFlash(carObj->carIndex, 0);
     break;
   case '\x05':
-    if (HudBustedOverlay != 0) goto update_gear;
-    iVar4 = carObj->carIndex;
-    cVar2 = (carObj->control).event;
-    index = 1;
+    if (HudBustedOverlay != 0) break;
+    carObj->control.queuedEvent = carObj->control.event;
+    Hud_WingmanFlash(carObj->carIndex, 1);
     break;
   case '\x06':
-    if (HudBustedOverlay != 0) goto update_gear;
-    iVar4 = carObj->carIndex;
-    cVar2 = (carObj->control).event;
-    index = 2;
+    if (HudBustedOverlay != 0) break;
+    carObj->control.queuedEvent = carObj->control.event;
+    Hud_WingmanFlash(carObj->carIndex, 2);
     break;
   case '\a':
-    if (carObj->carInfo->carType - 0x16U < 6) goto update_gear;
-    bVar3 = (carObj->control).lights;
-    if ((bVar3 & 8) == 0) {
-      uVar1 = (carObj->render).signalLight[0];
-      (carObj->control).lights = bVar3 & 0xef | 8;
-      (carObj->render).signalLight[1] = 0;
-      (carObj->render).signalLight[0] = uVar1 | 0x80;
-      goto update_gear;
+    if (carObj->carInfo->carType - 0x16U >= 6) {
+      if ((carObj->control.lights & 8) != 0) {
+        carObj->control.lights &= 0xe7;
+        carObj->render.signalLight[0] = 0;
+        carObj->render.signalLight[1] = 0;
+      }
+      else {
+        carObj->control.lights = (carObj->control.lights | 8) & 0xef;
+        carObj->render.signalLight[1] = 0;
+        carObj->render.signalLight[0] |= 0x80;
+      }
     }
-    goto signal_clear;
+    break;
   case '\b':
     if (5 < carObj->carInfo->carType - 0x16U) {
-      bVar3 = (carObj->control).lights;
-      if ((bVar3 & 0x10) == 0) {
-        uVar1 = (carObj->render).signalLight[1];
-        (carObj->control).lights = bVar3 & 0xf7 | 0x10;
-        (carObj->render).signalLight[0] = 0;
-        (carObj->render).signalLight[1] = uVar1 | 0x80;
+      if ((carObj->control.lights & 0x10) != 0) {
+        carObj->control.lights &= 0xe7;
+        carObj->render.signalLight[1] = 0;
+        carObj->render.signalLight[0] = 0;
       }
       else {
-        (carObj->control).lights = bVar3 & 0xe7;
-        (carObj->render).signalLight[1] = 0;
-        (carObj->render).signalLight[0] = 0;
+        carObj->control.lights = (carObj->control.lights | 0x10) & 0xf7;
+        carObj->render.signalLight[0] = 0;
+        carObj->render.signalLight[1] |= 0x80;
       }
     }
-  default:
-    goto update_gear;
+    break;
   case '\v':
     if (carObj->carInfo->carType - 0x16U < 6) {
-      uVar5 = carObj->AIFlags;
-      if ((uVar5 & 2) == 0) {
-        carObj->AIFlags = uVar5 | 2;
+      if ((carObj->AIFlags & 2) != 0) {
+        carObj->AIFlags &= ~2;
       }
       else {
-        carObj->AIFlags = uVar5 & 0xfffffffd;
+        carObj->AIFlags |= 2;
       }
-      goto update_gear;
     }
-    bVar3 = (carObj->control).lights;
-    if ((bVar3 & 0x18) == 0) {
-      (carObj->control).lights = bVar3 | 0x18;
-      uVar1 = (carObj->render).signalLight[1];
-      (carObj->render).signalLight[0] = (carObj->render).signalLight[0] | 0x80;
-      (carObj->render).signalLight[1] = uVar1 | 0x80;
-      goto update_gear;
+    else {
+      if ((carObj->control.lights & 0x18) == 0) {
+        carObj->control.lights |= 0x18;
+        carObj->render.signalLight[0] |= 0x80;
+        carObj->render.signalLight[1] |= 0x80;
+      }
+      else {
+        carObj->control.lights &= 0xe7;
+        carObj->render.signalLight[0] = 0;
+        carObj->render.signalLight[1] = 0;
+      }
     }
-signal_clear:
-    (carObj->control).lights = bVar3 & 0xe7;
-    (carObj->render).signalLight[0] = 0;
-    (carObj->render).signalLight[1] = 0;
-    goto update_gear;
+    break;
   case '\f':
-    if ((carObj->AIFlags & 2U) != 0) goto update_gear;
-    bVar3 = (carObj->control).lights ^ 3;
-    (carObj->control).lights = bVar3;
-    if ((bVar3 & 2) != 0) {
-      R3DCar_TurnHeadLightOn(carObj,1);
-      goto update_gear;
+    if ((carObj->AIFlags & 2U) == 0) {
+      signed char lights;
+
+      lights = carObj->control.lights ^ 3;
+      carObj->control.lights = lights;
+      if ((lights & 2) != 0) {
+        R3DCar_TurnHeadLightOn(carObj,1);
+      }
+      else {
+        R3DCar_TurnHeadLightOff(carObj, (lights &= 4) < 1);
+      }
     }
-    uVar5 = (u_int)((bVar3 & 4) == 0);
-    goto headlight_off;
+    break;
   case '\x0e':
-    bVar3 = (carObj->control).lights ^ 4;
-    (carObj->control).lights = bVar3;
-    if (((bVar3 & 2) != 0) || ((carObj->AIFlags & 2U) != 0)) goto update_gear;
-    if ((bVar3 & 4) != 0) {
-      R3DCar_TurnHeadLightOn(carObj,0);
-      goto update_gear;
+    carObj->control.lights ^= 4;
+    if (((carObj->control.lights & 2) == 0) &&
+        ((carObj->AIFlags & 2U) == 0)) {
+      if ((carObj->control.lights & 4) != 0) {
+        R3DCar_TurnHeadLightOn(carObj,0);
+      }
+      else {
+        R3DCar_TurnHeadLightOff(carObj,1);
+      }
     }
-    uVar5 = 1;
-headlight_off:
-    R3DCar_TurnHeadLightOff(carObj,uVar5);
-    goto update_gear;
+    break;
   }
-  (carObj->control).queuedEvent = cVar2;
-  Hud_WingmanFlash(iVar4,index);
-update_gear:
   newGear = Input_Gear((carObj->control).gear,carObj->specs->numGears);
-  if ((carObj->flywheelRpm <= carObj->specs->redline) || ((u_char)(carObj->control).gear <= (u_char)newGear)) {
+  if ((carObj->flywheelRpm <= carObj->specs->redline) || ((carObj->control).gear <= newGear)) {
     (carObj->control).desiredGear = newGear;
   }
   return;

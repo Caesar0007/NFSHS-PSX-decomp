@@ -82,6 +82,7 @@ void HudPmx_InitTextures(void)
   };
   loadShapeXOff = 0;
   sprintf(name,"%sfont.pfn",Paths_Paths[0x1a]);
+  i = 0;
   gHudFont = loadfileadrz(name,0);
   Font_LoadFont(gHudFont,0x80,0x80,1);
   {
@@ -91,19 +92,12 @@ void HudPmx_InitTextures(void)
     int h;
     int yo;
 
-    HudPmx_tUV *numberUV = HudPmx_gHudNumberUV;
-    i = 0;
-    goto HudPmxInit_fontLoopTest;
-HudPmxInit_fontLoop:
+    while (i < 10) {
       Font_GetUVWH((char)(i + '0'),&u,&v,&w,&h,&yo);
-      numberUV->u0 = (u_char)u;
-      numberUV->v0 = (u_char)v;
-      numberUV->clut = gFontClut;
+      HudPmx_gHudNumberUV[i].u0 = (u_char)u;
+      HudPmx_gHudNumberUV[i].v0 = (u_char)v;
+      HudPmx_gHudNumberUV[i].clut = gFontClut;
       i = i + 1;
-      numberUV = numberUV + 1;
-HudPmxInit_fontLoopTest:
-    if (i < 10) {
-      goto HudPmxInit_fontLoop;
     }
   }
   sprintf(name,"%shud.psh",Paths_Paths[0x1a]);
@@ -138,36 +132,21 @@ HudPmxInit_fontLoopTest:
     shapes[131] = "tbon";
   }
 HudPmxInit_shapeLoadLoop:
-  i = 0;
-  {
-    char **shape = shapes;
-    HudPmx_tShape *hudShape = HudPmx_gShapes;
-
-  do {
-    HudPmx_LoadShape(*shape,hudShape);
-    shape = shape + 1;
-    hudShape = hudShape + 1;
-    i = i + 1;
-  } while (i < 0x83);
+  for (i = 0; i < 0x83; i = i + 1) {
+    HudPmx_LoadShape(shapes[i],&HudPmx_gShapes[i]);
   }
   {
-    HudPmx_tShape *hudShape = HudPmx_gShapes + 132;
-
   for (i = 0x84; i < 0x9e; i = i + 1) {
     { static char alph [5] = "alpX";  /* @0x8013cd34, runtime-patched at [3] */
-      alph[3] = (char)i + -0x43;
-      HudPmx_LoadShape(alph,hudShape); }
-    hudShape = hudShape + 1;
+      alph[3] = (char)(i - 0x43);
+      HudPmx_LoadShape(alph,&HudPmx_gShapes[i]); }
   }
   }
   {
-    HudPmx_tShape *hudShape = HudPmx_gShapes + 158;
-
   for (i = 0x9e; i < 0xa8; i = i + 1) {
     { static char alph [5] = "alpX";  /* @0x8013cd3c, runtime-patched at [3] */
-      alph[3] = (char)i + -0x6e;
-      HudPmx_LoadShape(alph,hudShape); }
-    hudShape = hudShape + 1;
+      alph[3] = (char)(i - 0x6e);
+      HudPmx_LoadShape(alph,&HudPmx_gShapes[i]); }
   }
   }
   HudPmx_LoadShape("alTR",&HudPmx_gShapes[168] /* @0x801119b8 */);
@@ -178,10 +157,8 @@ HudPmxInit_shapeLoadLoop:
   HudPmx_LoadShape("neg2",&HudPmx_gShapes[173] /* @0x80111a1c */);
   HudPmx_LoadShape("alUP",&HudPmx_gShapes[174] /* @0x80111a30 */);
   {
-  HudPmx_tShape *hudShape = HudPmx_gShapes + 74;
   for (i = 0; i < 0x1c; i = i + 1) {
-    HudPmx_LoadShape(shapes[i + 74],hudShape);
-    hudShape = hudShape + 1;
+    HudPmx_LoadShape(shapes[i + 74],&HudPmx_gShapes[i + 74]);
   }
   }
   HudPmx_LoadShape("a229",&HudPmx_gShapes[103] /* @0x801114a4 */);

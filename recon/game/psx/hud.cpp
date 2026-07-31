@@ -1209,7 +1209,15 @@ void Hud_BuildTach(int player)
   return;
 }
 
-/* ---- Hud_BuildString__FPciiiib  [HUD.CPP:1450-1544] SLD-VERIFIED ---- */
+/* ---- Hud_BuildString__FPciiiib  [HUD.CPP:1450-1544] SLD-VERIFIED ----
+ * RESIDUAL 118 (ours 205 / oracle 215).  SYM (fsize 80) has NO `shp` local -- the oracle
+ * re-materializes `&HudPmx_gShapes[K]` AFTER each Hud_FBuildSprite call (`lui $t0; addiu
+ * $t0; lh $v1,0x10($t0)`) where our `shp` pointer is hoisted before it.  NEGATIVE (w39-a1
+ * receipt): deleting `shp` and writing `ix = ix + 3 + HudPmx_gShapes[K].width;` DOES move
+ * the count the right way (205 -> 211 of 215) but the freed register re-permutes the whole
+ * PARAM s-assignment (y $s6->$s7, color $s7->$fp, justwidth $s5->$s6) and the gate
+ * REGRESSES 118 -> 204.  Banked: it needs to land together with a fix for the str/'#'
+ * allocno swap ($s2/$s3, the other standing residual), not on its own. */
 int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
 
 {

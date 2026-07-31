@@ -2882,6 +2882,20 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
      use via `sd=(Draw_DCache*)&Render_gPalettePtr`. This explains the
      whole-function register/frame divergence from insn 1 -- our recon spent
      an extra reg + a real relocation on a global that was never linked here. */
+  /* NEGATIVE (2026-08-01, w39-a2 -- re-confirms the wave-9 note with two more
+     shapes).  SYM @0x800C909C declares the matrix conversion as THREE sibling
+     blocks of `int r0,r1,r2` ($3/$4/$5 then $2/$3/$4 twice) plus fn-scope
+     pointers `m` (PTR matrixtdef, $s4 == fskid) and `t` (PTR coorddef, $s6 ==
+     fskid+36) and `ccount` ($s5); the oracle prologue is `addu $s4,$a0,$zero;
+     addiu $s6,$s4,36; lw $s5,48($s4)` and each row is `lw r0/r1/r2; sra; sra;
+     sh; sh; sh` (three parallel chains).  MEASURED: writing the three r0/r1/r2
+     blocks 377 -> 383 (count 364 -> 362, so the parallel chains ARE the right
+     shape but re-colour the head); additionally routing every `fskid->t` /
+     `(int*)fskid` use through `t` / `m` 383 -> 405.  Both reverted.  The whole
+     residual is upstream of this: our prologue/frame layout differs from insn 1
+     and the `sm` (Skidmark_Chunk*, SYM REG $s2, size 0x2B0) walker is still
+     modelled as the invented `skidIdx`/`skidIter` byte offsets -- that walker,
+     not the matrix rows, is the next lever. */
   sd = (Draw_DCache *)&Render_gPalettePtr;
   ccount_local = fskid->count;
   l2 = (fskid->m).m[3];

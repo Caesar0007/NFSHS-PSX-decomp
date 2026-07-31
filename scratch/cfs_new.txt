@@ -26,20 +26,24 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
   if (mask != 0) {
     columns = columns + 1;
   }
-  dest = dest + (x >> 2) + y * 0xc;
+  dest = dest + ((x >> 2) + y * 0xc);
   lastLastMask = 0xffff;
   lastMask = 0xffff;
   if (mask == 0) {
     lastMask = 0;
   }
-  while (mask = mask - 1, mask != -1) {
+  while (1) {
+    mask = mask - 1;
+    if (mask == -1) break;
     lastMask = lastMask << 4;
   }
   firstMask = 0;
   mask = x & 3;
-  while (mask = mask - 1, mask != -1) {
+  while (1) {
     u_short rollOver;
 
+    mask = mask - 1;
+    if (mask == -1) break;
     firstMask = (firstMask << 4) | 0xf;
     rollOver = lastMask & 0xf000;
     lastMask = lastMask << 4;
@@ -60,9 +64,11 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
     current = *source;
     source = source + 1;
     mask = x & 3;
-    while (mask = mask - 1, mask != -1) {
+    while (1) {
       u_short rollOver;
 
+      mask = mask - 1;
+      if (mask == -1) break;
       rollOver = current & 0xf000;
       current = current << 4;
       next = (next << 4) | (rollOver >> 0xc);
@@ -70,26 +76,31 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
     i = 1;
     dest[0] = (short)((dest[0] & firstMask) | current);
     while (i < columns - 1) {
+      mask = x & 3;
       dest[i] = (short)next;
       current = *source;
       source = source + 1;
       next = 0;
-      while (mask = mask - 1, mask != -1) {
+      while (1) {
         u_short rollOver;
 
+        mask = mask - 1;
+        if (mask == -1) break;
         rollOver = current & 0xf000;
         current = current << 4;
         next = (next << 4) | (rollOver >> 0xc);
       }
       dest[i] = (short)(dest[i] | current);
       i = i + 1;
-      mask = x & 3;
     }
+    mask = x & 3;
     dest[i] = (short)((dest[i] & lastMask) | next);
     if (lastLastMask == 0xffff) {
       current = *source;
       source = source + 1;
-      while (mask = mask - 1, mask != -1) {
+      while (1) {
+        mask = mask - 1;
+        if (mask == -1) break;
         current = current << 4;
       }
       dest[i] = (short)(dest[i] | current);

@@ -397,6 +397,14 @@ void Fog_InitFogTriggers(void)
     Fog_AddKey(0,TrackSpec_gSpec.fogspec.start);
   }
   num_player = 1;
+  /* FLOOR (35 diffs, ours 58/57): the oracle stores these two slots through
+   * SEPARATE per-element gp-rel symbols (`%gp_rel(Fog_gCurrentKey)` and
+   * `%gp_rel(D_8013DB84)`), i.e. this TU OWNS them as two 4-byte gp objects,
+   * while Fog_Update reaches the same storage as a real ARRAY with an absolute
+   * base + variable index.  Reproducing that needs the catalog's DUAL-MODEL
+   * storage (per-element tentative defs alongside the array) which touches the
+   * shared extern header + data materialization -- out of this wave's scope.
+   * Everything else in this function matches. */
   Fog_gCurrentKey[0] = Fog_gHeadKey;
   Fog_gCurrentKey[1] = Fog_gHeadKey;
   if (GameSetup_gData.commMode == 1) {
@@ -405,10 +413,13 @@ void Fog_InitFogTriggers(void)
   fogslicePos = reservememadr("fog pos",num_player * 0x84,0);
   k = 0;
   if (num_player != 0) {
-    slice_off = 0;
+    slice_off = k;
     do {
       k = k + 1;
-      BWorldSm_SetSlice(0,(BWorldSm_Pos *)((int)fogslicePos->quadPts + slice_off + -8));
+      /* MATCH: plain base+offset off fogslicePos (oracle re-reads the gp-rel
+       * pointer each iteration and does `addu a1,a1,slice_off`); the Ghidra
+       * `fogslicePos->quadPts + slice_off - 8` form is the same address. */
+      BWorldSm_SetSlice(0,(BWorldSm_Pos *)((char *)fogslicePos + slice_off));
       slice_off = slice_off + 0x84;
     } while (k < num_player);
   }

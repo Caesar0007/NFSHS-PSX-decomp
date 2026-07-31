@@ -2303,17 +2303,10 @@ void Cars_SortCars(void)
  *  forward vector, (sliceChanged) lap/total-slice; then sort, randomize, leaderboard, anims. */
 void Cars_ManageBureaucracy(void)
 {
-  /* `i=0` must precede `ppCar=Cars_gList`: retail colors the counter to s4 and
-     the address-computed list cursor to s3. */
-  Car_tObj **ppCar;
-  Car_tObj *carObj;
-  int i;
+  int carLoop;
 
-  i = 0;
-  ppCar = Cars_gList;
-LAB_mb:
-  if (i < Cars_gNumCars) {
-    carObj = *ppCar;
+  for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
+    Car_tObj *carObj = Cars_gList[carLoop];
     if (carObj->N.active != '\0') {
       carObj->roadSpan = Cars_CalculateRoadSpan(carObj);
       carObj->roadPosition = Cars_CalculateRoadPosition(carObj);
@@ -2327,9 +2320,9 @@ LAB_mb:
         carObj->speed = carObj->N.speedXZ;
         if ((unsigned)(carObj->currentSpeed + 0x2ffff) < 0x5ffff) {
           facing =
-              fixedmult(carObj->N.orientMat.m[6], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[0]) + (
+              fixedmult(carObj->N.orientMat.m[6], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[0]) +
               fixedmult(carObj->N.orientMat.m[7], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[1]) +
-              fixedmult(carObj->N.orientMat.m[8], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[2]));
+              fixedmult(carObj->N.orientMat.m[8], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[2]);
           carObj->direction = (0 < facing) ? 1 : -1;
         } else {
           carObj->direction = (-1 < carObj->currentSpeed) ? 1 : -1;
@@ -2340,9 +2333,6 @@ LAB_mb:
         Cars_FindTotalSlice(carObj);
       }
     }
-    ppCar = ppCar + 1;
-    i = i + 1;
-    goto LAB_mb;
   }
   Cars_SortCars();
   Cars_Randomize();

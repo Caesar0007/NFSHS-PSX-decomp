@@ -43,11 +43,8 @@ void Font_GetUVWH(char code,int *u,int *v,int *w,int *h,int *yoff);
 void Font_TextColor(int color)
 
 {
-  u_int uVar1;
-  
-  uVar1 = (u_int)(u_short)font_clutx + color * 0x10;
-  shpfontclut.shapex = (short)uVar1;
-  gFontClut = shpfontclut.shapey << 6 | (u_short)(uVar1 >> 4) & 0x3f;
+  shpfontclut.shapex = (short)((u_int)(u_short)font_clutx + color * 0x10);
+  gFontClut = shpfontclut.shapey << 6 | (u_int)shpfontclut.shapex >> 4 & 0x3f;
   return;
 }
 
@@ -432,34 +429,22 @@ void Font_TextXY(char *string,int x,int y)
   }
   return;
 }
-/* ---- Font_GetUVWH__FcPiN41  [FONT.CPP:541-549] SLD-VERIFIED ---- */
+/* ---- Font_GetUVWH__FcPiN41  [FONT.CPP:541-549] SLD-VERIFIED ----
+ * SYM (fsize 48, ra+s0-s5): code $a0 CHAR, u $s1, v $s2, w $s3, h $s4 (ARG), yoff $s5
+ * (ARG); one block local: ch $s0.  The Ghidra leftover locals (fclr/bclr/width/...)
+ * were dead but their AUTO slots inflated the frame to 64. */
 void Font_GetUVWH(char code,int *u,int *v,int *w,int *h,int *yoff)
 
 {
-  int cmp;
-  charactertbl *pcVar1;
-  int iVar2;
-  int fr1;
-  int height;
-  int i;
-  int fg;
-  int width;
   charactertbl *ch;
-  char *str;
-  int opaque;
-  int fr;
-  CVECTOR fclr;
-  CVECTOR bclr;
-  
-  pcVar1 = Font_Getcharacter((u_int)(u_char)code);
-  iVar2 = geti(pcVar1->u,2);
-  *u = iVar2;
-  iVar2 = geti(pcVar1->v,2);
-  *v = ((*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 0x14) >> 0x14) + iVar2;
-  *w = (u_int)pcVar1->width;
-  *h = (u_int)pcVar1->height;
-  *yoff = (int)pcVar1->yoffset;
+
+  ch = Font_Getcharacter((u_int)(u_char)code);
+  *u = geti(ch->u,2);
+  *v = ((*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 0x14) >> 0x14) +
+       geti(ch->v,2);
+  *w = (u_int)ch->width;
+  *h = (u_int)ch->height;
+  *yoff = *(signed char *)&ch->yoffset;
   return;
 }
-
 /* end of font.cpp */

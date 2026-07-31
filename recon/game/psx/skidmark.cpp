@@ -128,7 +128,7 @@ void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,
 
   if (prevskid->nseg == (Skidmark_Segment *)0x0) {
     sm = Skidmark_CheckChunk(skidpt,2,slice);
-    CalcStartSegment(sm->seg + sm->n,sm->seg + sm->n + 1,&sm->cp,&prevskid->pt,skidpt,tireWidth);
+    CalcStartSegment(&sm->seg[sm->n],&sm->seg[sm->n + 1],&sm->cp,&prevskid->pt,skidpt,tireWidth);
     n = sm->n;
     sm->seg[n + 1].rgb = *color;
     sm->seg[n].rgb = sm->seg[n + 1].rgb;
@@ -138,34 +138,34 @@ void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,
   else {
     sm = Skidmark_CheckChunk(skidpt,2,slice);
     if (prevskid->chunk == gUseSm) {
-      CalcOneSegment(sm->seg + sm->n,&sm->cp,&prevskid->pt,skidpt,tireWidth);
+      CalcOneSegment(&sm->seg[sm->n],&sm->cp,&prevskid->pt,skidpt,tireWidth);
       sm->seg[sm->n].rgb = *color;
       sm->seg[sm->n].type = type;
-      prevskid->nseg->next = sm->seg + sm->n;
+      prevskid->nseg->next = &sm->seg[sm->n];
       sm->seg[sm->n].next = (Skidmark_Segment *)0x0;
       prevskid->clr = *color;
       prevskid->type = type;
       prevskid->pt = *skidpt;
       prevskid->chunk = gUseSm;
-      prevskid->nseg = sm->seg + sm->n;
+      prevskid->nseg = &sm->seg[sm->n];
       sm->n = sm->n + 1;
       return;
     }
     n = sm->n;
-    CalcStartSegment(sm->seg + n,sm->seg + n + 1,&sm->cp,&prevskid->pt,skidpt,tireWidth);
+    CalcStartSegment(&sm->seg[n],&sm->seg[n + 1],&sm->cp,&prevskid->pt,skidpt,tireWidth);
     sm->seg[sm->n].rgb = prevskid->clr;
     sm->seg[sm->n].type = prevskid->type;
     sm->seg[sm->n + 1].rgb = *color;
     n = sm->n + 1;
   }
   sm->seg[n].type = type;
-  sm->seg[sm->n].next = sm->seg + sm->n + 1;
+  sm->seg[sm->n].next = &sm->seg[sm->n + 1];
   sm->seg[sm->n + 1].next = (Skidmark_Segment *)0x0;
   prevskid->clr = *color;
   prevskid->type = type;
   prevskid->pt = *skidpt;
   prevskid->chunk = gUseSm;
-  prevskid->nseg = sm->seg + sm->n + 1;
+  prevskid->nseg = &sm->seg[sm->n + 1];
   sm->n = sm->n + 2;
   return;
 }
@@ -180,7 +180,7 @@ void Skidmark_AddStretch(Skidmark_Segment **save,int *savechunk,tSkid *prevskid,
 
   if (prevskid->nseg == (Skidmark_Segment *)0x0) {
     sm = Skidmark_CheckChunk(skidpt,2,slice);
-    CalcStartSegment(sm->seg + sm->n,sm->seg + sm->n + 1,&sm->cp,&prevskid->pt,skidpt,tireWidth);
+    CalcStartSegment(&sm->seg[sm->n],&sm->seg[sm->n + 1],&sm->cp,&prevskid->pt,skidpt,tireWidth);
     n = sm->n;
     sm->seg[n + 1].rgb = *color;
     sm->seg[n].rgb = sm->seg[n + 1].rgb;
@@ -190,27 +190,27 @@ void Skidmark_AddStretch(Skidmark_Segment **save,int *savechunk,tSkid *prevskid,
   else {
     sm = Skidmark_CheckChunk(skidpt,2,slice);
     if (prevskid->chunk == gUseSm) {
-      CalcOneSegment(sm->seg + sm->n,&sm->cp,&prevskid->pt,skidpt,tireWidth);
+      CalcOneSegment(&sm->seg[sm->n],&sm->cp,&prevskid->pt,skidpt,tireWidth);
       sm->seg[sm->n].rgb = *color;
       sm->seg[sm->n].type = type;
-      prevskid->nseg->next = sm->seg + sm->n;
+      prevskid->nseg->next = &sm->seg[sm->n];
       sm->seg[sm->n].next = (Skidmark_Segment *)0x0;
-      *save = sm->seg + sm->n;
+      *save = &sm->seg[sm->n];
       *savechunk = gUseSm;
       sm->n = sm->n + 1;
       return;
     }
     n = sm->n;
-    CalcStartSegment(sm->seg + n,sm->seg + n + 1,&sm->cp,&prevskid->pt,skidpt,tireWidth);
+    CalcStartSegment(&sm->seg[n],&sm->seg[n + 1],&sm->cp,&prevskid->pt,skidpt,tireWidth);
     sm->seg[sm->n].rgb = prevskid->clr;
     sm->seg[sm->n].type = prevskid->type;
     sm->seg[sm->n + 1].rgb = *color;
     n = sm->n + 1;
   }
   sm->seg[n].type = type;
-  sm->seg[sm->n].next = sm->seg + sm->n + 1;
+  sm->seg[sm->n].next = &sm->seg[sm->n + 1];
   sm->seg[sm->n + 1].next = (Skidmark_Segment *)0x0;
-  *save = sm->seg + sm->n + 1;
+  *save = &sm->seg[sm->n + 1];
   *savechunk = gUseSm;
   sm->n = sm->n + 2;
   return;

@@ -146,7 +146,14 @@ Skidmark_CheckChunk(coorddef *skidpt,int newsegs,int slice)
  * sched1 hoists `lw gUseSm` one insn further (into the live `$v0` address chain, so it
  * lands in $v1) than retail (which loads AFTER `sw zero,0x28($v0)`, into the freed
  * $v0) -- with the value in $v1 the store can no longer sink into the following
- * `lh $v1,0xC($s0)` load-delay slot, costing the 2 extra nops (247 vs 245). */
+ * `lh $v1,0xC($s0)` load-delay slot, costing the 2 extra nops (247 vs 245).
+ * Measured alternatives, none better: a named `chunk = gUseSm;` local at four
+ * different source positions all give COUNT-EXACT 245/245 but 16 diffs (the load
+ * moves into the `lh` load-delay slot and takes $a0); a volatile cast on the
+ * `sm->seg[...].next = 0` store to block the hoist gives 19.  The sibling
+ * Skidmark_AddStretch PASSES with the identical statement (`*savechunk = gUseSm;`)
+ * because its preceding statement is a single pointer store, not the three
+ * clr/type/pt struct copies that give our scheduler room to hoist. */
 void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,int type,int slice)
 
 {

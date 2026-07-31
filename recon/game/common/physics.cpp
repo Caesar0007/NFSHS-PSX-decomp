@@ -1321,13 +1321,13 @@ Phy_CalcAcc_clearWheelSpinExit:
   if ((GameSetup_gData.carInfo[carObj->carIndex].Transmission == 1) || (carObj->RSControl != 0)) {
     Physics_AutoShift(carObj);
   }
-  if (((carObj->control).gearShiftTimer == '\0') || ((carObj->control).downShifting != '\0')) {
+  if (((carObj->control).gearShiftTimer != '\0') && ((carObj->control).downShifting == '\0')) {
     wheelRpm = fixedmult((carObj->linearVel_ch).z,
-                         specs->velToRpmRatio[(u_char)(carObj->control).gear]);
+                         specs->velToRpmRatio[(u_char)(carObj->control).lastGear]);
   }
   else {
     wheelRpm = fixedmult((carObj->linearVel_ch).z,
-                         specs->velToRpmRatio[(u_char)(carObj->control).lastGear]);
+                         specs->velToRpmRatio[(u_char)(carObj->control).gear]);
   }
   if (wheelRpm < 0) {
     wheelRpm = wheelRpm + 0xffff;

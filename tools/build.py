@@ -169,6 +169,13 @@ PER_TU_FLAGS = {
     # licensePlate (264) -- stays full-addressed %hi/%lo.  Under -G4 the
     # 8-byte arrays fall out of .sbss and we emit lui/addiu instead.
     "recon/game/psx/cario.cpp":             {"g_value": "8"},
+    # device.obj carries the SAME -G8 signature (w39-a5, coordinator lead):
+    # the Device_StartUp/Device_Update oracles reach the 8-byte arrays
+    # Device_gPrev[2] / Device_gToggleTime[2] via %gp_rel(BASE) plus the
+    # per-element %gp_rel(D_8013D788)/%gp_rel(D_8013D790) -- impossible under
+    # -G4 -- while every device symbol LARGER than 8 (Input_gResults,
+    # mappings, Device_gDeviceList, gPadinfo, frontEnd) stays %hi/%lo.
+    "recon/game/psx/device.cpp":            {"g_value": "8"},
     "recon/game/common/audiocmn.cpp":       {"jtbl_at_fusion": True},  # AudioCmn_SoundCar
     "recon/syslib/psx/libcd/drv.c":       {"jtbl_at_fusion": True},  # CD_get_intr
     "recon/syslib/psx/libgpu/FONT.c":       {"jtbl_at_fusion": True},  # FntPrint

@@ -1294,11 +1294,13 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         r.h = (short)ti5 + 1;
         r.x = 0;
         r.y = 0;
-        *(u_int *)Render_gPacketPtr =
-             *(u_int *)Render_gPacketPtr & 0xff000000 |
-             *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
-        uVar3_00 = (u_int)Render_gPacketPtr & 0xffffff;
-        Render_gPacketPtr = Render_gPacketPtr + 0xc;
+        /* MATCH: the oracle reads each scratchpad cursor ONCE (`lw a0,0(t2)` /
+         * `lw t0,0(t0)`) and drives the whole OT-link off those two registers -- the
+         * per-use `Render_gPacketPtr` / `Render_gPalettePtr` re-reads cost 5 extra
+         * scratchpad loads. */
+        *(u_int *)p = *(u_int *)p & 0xff000000 | *(u_int *)(tp20 + sd->otz * 4) & 0xffffff;
+        uVar3_00 = (u_int)p & 0xffffff;
+        Render_gPacketPtr = p + 0xc;
         *(u_int *)(tp20 + sd->otz * 4) = *(u_int *)(tp20 + sd->otz * 4) & 0xff000000 | uVar3_00;
         SetTexWindow((DR_TWIN *)p,&r);
       }

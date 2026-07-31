@@ -574,19 +574,14 @@
   ctc2 t6,7
   lw v0,0(gp)
   nop
-!=     OURS:bnez v0,T                      ORACLE:beqz v0,T
+  beqz v0,T
   addu a0,s6,zero
--ONLY  OURS:jal T                          ORACLE:
--ONLY  OURS:addu a1,s1,zero                ORACLE:
--ONLY  OURS:j T                            ORACLE:
--ONLY  OURS:addiu v1,s1,20                 ORACLE:
   lw a0,0(gp)
   jal T
   nop
   addu a0,s6,zero
-+ONLY  OURS:                               ORACLE:sw v0,0(gp)
+  sw v0,0(gp)
   sw zero,0(gp)
--ONLY  OURS:sw v0,0(gp)                    ORACLE:
   jal T
 !=     OURS:addu a1,s1,zero                ORACLE:addu a1,s0,zero
   lw a0,0(gp)
@@ -595,13 +590,13 @@
   sw v0,0(gp)
   li v0,1
   sw v0,0(gp)
-!=     OURS:addiu v1,s1,20                 ORACLE:j T
-!=     OURS:lw t4,0(v1)                    ORACLE:addiu v0,s0,20
-!=     OURS:lw t5,4(v1)                    ORACLE:jal T
-!=     OURS:                               ORACLE:addu a1,s0,zero
-!=     OURS:                               ORACLE:addiu v0,s0,20
-!=     OURS:                               ORACLE:lw t4,0(v0)
-!=     OURS:                               ORACLE:lw t5,4(v0)
+  j T
+!=     OURS:addiu v1,s1,20                 ORACLE:addiu v0,s0,20
+  jal T
+!=     OURS:addu a1,s1,zero                ORACLE:addu a1,s0,zero
+!=     OURS:addiu v1,s1,20                 ORACLE:addiu v0,s0,20
+!=     OURS:lw t4,0(v1)                    ORACLE:lw t4,0(v0)
+!=     OURS:lw t5,4(v1)                    ORACLE:lw t5,4(v0)
   ctc2 t4,0
   ctc2 t5,1
 !=     OURS:lw t4,8(v1)                    ORACLE:lw t4,8(v0)
@@ -612,28 +607,29 @@
   ctc2 t6,4
 !=     OURS:andi v0,s0,255                 ORACLE:bnez s1,T
 !=     OURS:bnez v0,T                      ORACLE:nop
-!=     OURS:lui t1,8064                    ORACLE:lw t4,20(v0)
+!=     OURS:andi v0,s4,128                 ORACLE:lw t4,20(v0)
 !=     OURS:lw t4,20(v1)                   ORACLE:lw t5,24(v0)
 !=     OURS:lw t5,24(v1)                   ORACLE:
   ctc2 t4,5
 !=     OURS:lw t6,28(v1)                   ORACLE:lw t6,28(v0)
   ctc2 t5,6
   ctc2 t6,7
--ONLY  OURS:lui t1,8064                    ORACLE:
--ONLY  OURS:ori t1,t1,4                    ORACLE:
   andi v0,s4,128
+  beqz v0,T
+!=     OURS:lui t1,8064                    ORACLE:nop
+!=     OURS:ori t1,t1,4                    ORACLE:
+  lbu v1,12(s2)
+  lbu v0,0(s2)
 -ONLY  OURS:lw a0,0(t1)                    ORACLE:
 -ONLY  OURS:lui t2,8064                    ORACLE:
 -ONLY  OURS:lw t2,0(t2)                    ORACLE:
-  beqz v0,T
+-ONLY  OURS:subu a2,v1,v0                  ORACLE:
+-ONLY  OURS:bgez a2,T                      ORACLE:
   nop
-  lbu v1,12(s2)
-  lbu v0,0(s2)
-  nop
-!=     OURS:subu a2,v1,v0                  ORACLE:subu a0,v1,v0
-!=     OURS:bgez a2,T                      ORACLE:bgez a0,T
-  nop
-!=     OURS:negu a2,a2                     ORACLE:negu a0,a0
+!=     OURS:negu a2,a2                     ORACLE:subu a0,v1,v0
+!=     OURS:                               ORACLE:bgez a0,T
+!=     OURS:                               ORACLE:nop
+!=     OURS:                               ORACLE:negu a0,a0
   lbu v1,13(s2)
   lbu v0,1(s2)
   nop

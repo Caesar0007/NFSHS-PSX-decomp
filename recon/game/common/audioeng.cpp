@@ -343,19 +343,21 @@ int AudioEng_StartUp(int player,char *carname)
   int spu;
   char filename[64];
   AudioEng_t *g;
+  AudioEng_t **gslot;
   char *header;
   
   if (1 < (u_int)player) {
     return 0;
   }
-  if (AudioEng_g[player] != (AudioEng_t *)0x0) {
+  gslot = &AudioEng_g[player];
+  if (*gslot != (AudioEng_t *)0x0) {
     return 0;
   }
   tablesize = 0;
   spu = tablesize;
   g = (AudioEng_t *)reservememadr("Engine Audio",0x370,tablesize);
   i = tablesize;
-  AudioEng_g[player] = g;
+  *gslot = g;
   g->tables = (char *)0x0;
   g->tick = 0;
   g->azi = 0;
@@ -450,9 +452,12 @@ int AudioEng_StartUp(int player,char *carname)
   {
     char *current;
     {
+      AudioEng_tChanAttr *chanbase;
       int c;
 
-      for (c = 0; c < 2; c++) {
+      c = 0;
+      chanbase = g->chan;
+      for (; c < 2; c++) {
         AudioEng_tDef *ed;
 
         if (c != 0) {
@@ -473,7 +478,7 @@ int AudioEng_StartUp(int player,char *carname)
               ed->pbendtable[i] =
                   (AudioEng_tTable *)((char *)&ed->pbendtable[i] +
                                       (int)ed->pbendtable[i]);
-              chan = g->chan + i;
+              chan = chanbase + i;
               if (c != 0) {
                 chan += 8;
               }
@@ -497,11 +502,14 @@ int AudioEng_StartUp(int player,char *carname)
       }
     }
     {
+      AudioEng_tChanAttr *chanbase;
       int c;
 
-      g->tables = current =
+      current = g->tables =
           (char *)reservememadr("Engine Tables",tablesize,0);
-      for (c = 0; c < 2; c++) {
+      c = 0;
+      chanbase = g->chan;
+      for (; c < 2; c++) {
         AudioEng_tDef *ed;
 
         if (c != 0) {
@@ -513,7 +521,7 @@ int AudioEng_StartUp(int player,char *carname)
         for (i = 0; i < 8; i++) {
           AudioEng_tChanAttr *chan;
 
-          chan = g->chan + i;
+          chan = chanbase + i;
           if (c != 0) {
             chan += 8;
           }

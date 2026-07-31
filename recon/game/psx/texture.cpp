@@ -308,24 +308,27 @@ void Texture_CopyPalette(char *data,int width,int x,int y)
 void Texture_ProcessPaletteCopy(Texture_pal8bit *palCopy,int palStart,int palNum)
 
 {
-  Texture_pal8bit *src;
   int i;
   RECT r;
   short tmpPal [16];
 
+  /* MATCH: INDEX form palCopy[i].* everywhere and NO `src` walker -- a walking
+   * `src` pointer makes gcc build a SECOND induction variable for `src->pal`
+   * (= src+8), costing an extra saved reg and 4 insns.  With the index form
+   * loop.c strength-reduces to the oracle's single $s0 walker (+0x208/iter) and
+   * rematerializes `s0+8` in the back-edge delay slot.  `i = i + 1` LAST (after
+   * the LoadImage call) is what puts the increment in the oracle's slot. */
   if (palCopy != (Texture_pal8bit *)0x0) {
     i = palStart;
     r.w = 0x10;
     r.h = 1;
     if (i < palNum) {
-      src = palCopy + i;
       do {
-        Texture_ColorCarPalette((char *)src->pal,(char *)tmpPal,0x10);
-        r.x = (short)src->x;
-        i = i + 1;
-        r.y = (short)src->y;
-        src = src + 1;
+        Texture_ColorCarPalette((char *)palCopy[i].pal,(char *)tmpPal,0x10);
+        r.x = (short)palCopy[i].x;
+        r.y = (short)palCopy[i].y;
         LoadImage(&r,(u_long *)tmpPal);
+        i = i + 1;
       } while (i < palNum);
     }
   }

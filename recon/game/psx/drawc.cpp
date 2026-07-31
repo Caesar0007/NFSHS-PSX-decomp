@@ -3388,34 +3388,28 @@ void DrawC_PrimHalo(matrixtdef *m,coorddef *t,Transformer_zObj *obj,int type,int
                Draw_CarCache *sd)
 
 {
-  Transformer_zFacet * facet;
+  /* rule-8 (w39-a3): SYM DrawC_PrimHalo names exactly i($s5), vertice($fp),
+     real_type($s3), facet($s1), id0/id1/id2 ($v1/$a1/$a2 USHORT), the r0/r1/r2
+     and z/t1/t2/t3 block triples, bfct, overlayFlag and copyLastPrim($s4).
+     The Ghidra iVarN/uVarN soup is gone; each SYM name now carries the value
+     the oracle keeps in that register. */
+  int i;
+  COORD16 *vertice;
+  Transformer_zFacet *facet;
   u_short id0;
-  short * z;
-  short t1;
-  int bfct;
-  short sVar1;
-  short t3;
-  short sVar2;
-  short *psVar3;
-  int overlayFlag;
-  short t2;
-  int iVar4;
-  u_int uVar5;
   u_short id1;
+  u_short id2;
+  int real_type;
+  int bfct;
+  u_int overlayFlag;
+  u_long *copyLastPrim;
+  short sVar1;
+  short sVar2;
   int iVar6;
   int uVar8;
-  u_short id2;
   u_int uVar9;
-  short *psVar10;
-  int real_type;
-  u_long *copyLastPrim;
-  u_long *puVar11;
-  int i;
-  int uVar12;
-  COORD16 *vertice;
-  int iVar13;
 
-  iVar13 = *(int *)(((int)obj) + 0x10);
+  vertice = obj->vertex;   /* oracle: lw fp,0x10(obj) = ->vertex */
   TrsProj_SetTransPrecision(8);
   {
     int r0,r1,r2;
@@ -3453,53 +3447,50 @@ void DrawC_PrimHalo(matrixtdef *m,coorddef *t,Transformer_zObj *obj,int type,int
   (sd->matB).t[1] = -(t->y >> TrsProj_precision);
   (sd->matB).t[2] = t->z >> TrsProj_precision;
   TrsProj_ResetTransPrecision();
-  uVar12 = (u_int)*(u_short *)(((int)obj) + 2);
-  iVar4 = uVar12 * 0xc;
-DrawCHalo_facetLoopTop:
-  do {
-    uVar8 = uVar12 - 1;
-    do {
-      do {
-        do {
-          uVar12 = uVar8;
-          iVar4 = iVar4 + -0xc;
-          if (uVar12 == -1) {
+  i = (int)obj->numFacet;
+  while (true) {
+    {
+        {
+        {
+          i = i - 1;
+          if (i == -1) {
             return;
           }
-          psVar10 = (short *)(*(int *)(((int)obj) + 0x18) + iVar4);
-          uVar8 = (u_int)*(u_char *)(psVar10 + 2);
-          uVar9 = (u_int)*(u_char *)((int)psVar10 + 5);
+          facet = obj->facet + i;
+          id0 = facet->vertexId0;
+          id1 = facet->vertexId1;
+          id2 = facet->vertexId2;
 gte_SetRotMatrix(((char *)sd + 0x14));
 gte_SetTransMatrix(((char *)sd + 0x14));
           {
-            short *z; short t1,t2,t3;
-            z = (short *)(iVar13 + ((u_int)*(u_char *)((int)psVar10 + 3)) * 6);
-            t1 = *z;
-            t2 = z[1];
-            t3 = z[2];
-            (sd->vt0).z = t3;
+            COORD16 *z; short t1,t2,t3;
+            z = vertice + id0;
+            t1 = z->x;
+            t2 = z->y;
+            t3 = z->z;
             (sd->vt0).x = t1;
             (sd->vt0).y = t2;
+            (sd->vt0).z = t3;
           }
           {
-            short *z; short t1,t2,t3;
-            z = (short *)(iVar13 + uVar8 * 6);
-            t1 = *z;
-            t2 = z[1];
-            t3 = z[2];
-            (sd->vt1).z = t3;
+            COORD16 *z; short t1,t2,t3;
+            z = vertice + id1;
+            t1 = z->x;
+            t2 = z->y;
+            t3 = z->z;
             (sd->vt1).x = t1;
             (sd->vt1).y = t2;
+            (sd->vt1).z = t3;
           }
           {
-            short *z; short t1,t2,t3;
-            z = (short *)(iVar13 + uVar9 * 6);
-            t1 = *z;
-            t2 = z[2];
-            t3 = z[1];
-            (sd->vt2).y = t3;
+            COORD16 *z; short t1,t2,t3;
+            z = vertice + id2;
+            t1 = z->x;
+            t2 = z->y;
+            t3 = z->z;
             (sd->vt2).x = t1;
-            (sd->vt2).z = t2;
+            (sd->vt2).y = t2;
+            (sd->vt2).z = t3;
           }
 gte_ldv0((char *)sd + 0xac);
 gte_ldv1((char *)sd + 0xb4);
@@ -3507,54 +3498,66 @@ gte_ldv2((char *)sd + 0xbc);
           gte_rtpt();
           gte_nclip();
           gte_stMAC0m(sd->bfct);
-          iVar6 = sd->bfct;
+          bfct = sd->bfct;
           if ((sd->head).mirror != 0) {
-            iVar6 = -iVar6;
+            bfct = -bfct;
           }
-          uVar8 = uVar12 - 1;
-        } while (iVar6 < 1);
+          if (bfct < 1) continue;
+        }
         gte_avsz3();
         gte_stOTZm(sd->otz);
         iVar6 = sd->otz + sd->sub_otz;
         sd->otz = iVar6;
-        if (iVar6 < 0) goto DrawCHalo_facetLoopTop;
-        uVar8 = uVar12 - 1;
-      } while (sd->sub_otSize < iVar6);
-      uVar9 = ((u_int)type) & 0xffbf;
+        if (iVar6 < 0) continue;
+        if (sd->sub_otSize < iVar6) continue;
+        }
+      real_type = ((u_int)type) & 0xffbf;
       if (index < 0) goto DrawCHalo_emitFlare;
-      if (*psVar10 < 0) {
-        uVar5 = (int)((u_int)(u_short)DrawC_gOverlay[index] << 0x10) >> 0x18;
-      }
-      else {
-        uVar5 = (int)((u_int)(u_short)DrawC_gOverlay[index] << 0x10) >> 0x10 & 0xff;
-      }
-      if (((((u_int)type) & 0x40) != 0) && ((uVar5 & 0x40) == 0)) {
-        if (*psVar10 < 0) {
-          uVar5 = (int)((u_int)(u_short)DrawC_gOverlay[0x18] << 0x10) >> 0x18;
+      /* MATCH (w39-a3): the overlay word is loaded ONCE and only the SHIFT is
+         branch-dependent (oracle: `lhu v0,0(v0); sll a0,v0,16; lh v0,0(s1);
+         bgez -> sra 16 + andi 0xff : sra 24`).  Duplicating the array read in
+         both arms let cc1 CSE the address and then LOOP-INVARIANT-HOIST
+         `&DrawC_gOverlay[index]` out of the facet loop -- 2 extra insns plus a
+         stack slot (frame 80 vs the SYM's 72). */
+      {
+        u_int ov = (u_int)(u_short)DrawC_gOverlay[index] << 0x10;
+        if (facet->flag < 0) {
+          overlayFlag = (int)ov >> 0x18;
         }
         else {
-          uVar5 = (int)((u_int)(u_short)DrawC_gOverlay[0x18] << 0x10) >> 0x10 & 0xff;
+          overlayFlag = (int)ov >> 0x10 & 0xff;
         }
       }
-      uVar8 = uVar12 - 1;
-    } while ((uVar5 & 0x81) == 0);
-    uVar8 = ((u_int)type) & 0xbf;
-    if (((uVar5 & 3) != 1) && ((((u_int)type) & 0x7f00) != 0)) {
-      uVar9 = (int)uVar9 >> 8;
-DrawCHalo_emitFlare:
-      uVar8 = uVar9 & 0xff;
+      if (((((u_int)type) & 0x40) != 0) && ((overlayFlag & 0x40) == 0)) {
+        u_int ov = (u_int)(u_short)DrawC_gOverlay[0x18] << 0x10;
+        if (facet->flag < 0) {
+          overlayFlag = (int)ov >> 0x18;
+        }
+        else {
+          overlayFlag = (int)ov >> 0x10 & 0xff;
+        }
+      }
+      if ((overlayFlag & 0x81) == 0) continue;
     }
-    puVar11 = (sd->head).cprim.LastPrim;
+    /* the flare-type byte lives in the dead `m` register ($s0) in retail -- an
+       anonymous cc1 temp, so no SYM name; the value is `real_type & 0xff`. */
+    uVar8 = real_type & 0xff;
+    if (((overlayFlag & 3) != 1) && ((((u_int)type) & 0x7f00) != 0)) {
+      real_type = real_type >> 8;
+DrawCHalo_emitFlare:
+      uVar8 = real_type & 0xff;
+    }
+    copyLastPrim = (sd->head).cprim.LastPrim;
     (sd->head).cprim.LastPrim = sd->sub_ot;
-    Flare_CarShapedHalo(uVar8,&sd->vt0,&sd->vt1,&sd->vt2,*psVar10,sd->otz,(Draw_FlareCache *)sd);
+    Flare_CarShapedHalo(uVar8,&sd->vt0,&sd->vt1,&sd->vt2,facet->flag,sd->otz,(Draw_FlareCache *)sd);
     if (((0 < reflect) || ((reflect == -1 && (uVar8 == 5)))) || ((reflect == -2 && (uVar8 != 5)))) {
 gte_SetRotMatrix(((char *)sd + 0x14));
 gte_SetTransMatrix(((char *)sd + 0x14));
-      Flare_CarShapedHalo(uVar9 & 0xff | 0x100,&sd->vt0,&sd->vt1,&sd->vt2,*psVar10,sd->otz,
+      Flare_CarShapedHalo(real_type & 0xff | 0x100,&sd->vt0,&sd->vt1,&sd->vt2,facet->flag,sd->otz,
                  (Draw_FlareCache *)sd);
     }
-    (sd->head).cprim.LastPrim = puVar11;
-  } while( true );
+    (sd->head).cprim.LastPrim = copyLastPrim;
+  }
 }
 
 /* ---- DrawC_ShadowPrim__FP12Draw_tVertexP13Draw_CarCache  [DRAWC.CPP:3997-4051] SLD-VERIFIED ---- */

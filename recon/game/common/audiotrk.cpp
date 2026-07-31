@@ -134,10 +134,14 @@ AudioTrk_find_channel:
       if ((se->nextDelay != 0) && ((u_int)se->nextDelay != tck)) {
         return;
       }
-      for (i = 0; (i < 0x10) && (c == (AudioTrk_tAmbientChannel *)0x0); i++) {
+      i = 0;
+      for (;;) {
+        if (i >= 0x10) {
+          break;
+        }
         if (AudioTrk_g->chan[i].se == (AudioElem *)0x0) {
+          AudioTrk_g->chan[i].se = se;
           c = AudioTrk_g->chan + i;
-          c->se = se;
           c->slice = -1;
           n = i;
           c->repeat =
@@ -147,22 +151,38 @@ AudioTrk_find_channel:
                    : 0);
           c->se->chan = (char)n;
         }
+        i++;
+        if (c != (AudioTrk_tAmbientChannel *)0x0) {
+          break;
+        }
       }
 
 AudioTrk_channel_found:
-      if (c == (AudioTrk_tAmbientChannel *)0x0) {
-        maxind = 0;
-        maxdst = 0;
-        for (i = 0; i < 0x10; i++) {
-          chkdst =
-              Math_Dist3D(&(AudioTrk_g->chan[i].se)->cp,&AudioClc_gRenderView.translation);
-          if (AudioTrk_g->chan[i].handle != 0xffffffff) {
-            if ((SNDover(AudioTrk_g->chan[i].handle) != 0) && (maxdst < chkdst)) {
-              maxdst = chkdst;
-              maxind = i;
+        if (c == (AudioTrk_tAmbientChannel *)0x0) {
+          maxind = 0;
+          maxdst = 0;
+          {
+            int i;
+
+            i = 0;
+            for (;;) {
+              if (c != (AudioTrk_tAmbientChannel *)0x0) {
+                break;
+              }
+              if (i >= 0x10) {
+                break;
+              }
+              chkdst = Math_Dist3D(&(AudioTrk_g->chan[i].se)->cp,
+                                   &AudioClc_gRenderView.translation);
+              if (c->handle != 0xffffffff) {
+                if ((SNDover(c->handle) != 0) && (maxdst < chkdst)) {
+                  maxind = i;
+                  maxdst = chkdst;
+                }
+              }
+              i++;
             }
           }
-        }
         if (dst < maxdst) {
           c = AudioTrk_g->chan + maxind;
           c->se = se;
@@ -205,9 +225,11 @@ AudioTrk_channel_found:
         }
       }
       if (c->se != (AudioElem *)0x0) {
+        u_short azimuth;
         int dop;
         char vol;
 
+        azimuth = 0;
         dop = 0x10000;
         vol = 0;
         if ((se->type == '\x01') && (!repeatnow)) {
@@ -229,13 +251,12 @@ AudioTrk_channel_found:
             return;
           }
         }
-        maxind = 0;
         if (dst < (int)se->range << 0x10) {
           if (se->type == '\x03') {
-            maxind += trkazi;
+            azimuth += trkazi;
           }
           else if (se->type != '\x02') {
-            maxind = AudioClc_CalcAzimuth(&AudioClc_gRenderView,&se->cp);
+            azimuth = AudioClc_CalcAzimuth(&AudioClc_gRenderView,&se->cp);
             dop = AudioClc_CalcDopplerShiftRatio(&se->cp,vel);
           }
           if ((u_int)((u_char)se->type - 4) < 0x20) {
@@ -248,16 +269,17 @@ AudioTrk_channel_found:
 AudioTrk_near_volume:
           {
             int rangesq = (int)se->range * (int)se->range;
+            int fadevol = fade * 0x7f;
             u_int level =
                 (((rangesq >> 4) * 0x10000 -
-                 fixedmult(dst >> 2,dst >> 2)) /
+                  fixedmult(dst >> 2,dst >> 2)) /
                  rangesq) *
-                fade * 0x7f;
+                fadevol;
 
-            vol = level >> 0x13;
             if ((int)level < 0) {
-              vol = (level + 0xffff) >> 0x13;
+              level += 0xffff;
             }
+            vol = level >> 0x13;
             goto AudioTrk_volume_done;
           }
 
@@ -276,26 +298,23 @@ AudioTrk_fade_volume:
                    rangesq) *
                   0x7f0;
 
-              vol = level >> 0x10;
               if ((int)level < 0) {
-                vol = (level + 0xffff) >> 0x10;
+                level += 0xffff;
               }
+              vol = level >> 0x10;
             }
           }
 
 AudioTrk_volume_done:
           ;
         }
-        if (0xa0000 < dop) {
-          dop = 0xa0000;
-        }
-        if (dop < 1) {
-          dop = 1;
-        }
+        dop = ((dop > 0xa0000 ? 0xa0000 : dop) > 0)
+                  ? (dop > 0xa0000 ? 0xa0000 : dop)
+                  : 1;
         if ((PAD_state(4) & 0x400) == 0) {
           c->handle =
               AudioCmn_PlaySFX(n + 0x37,(int)c->patch,0x40,dop,vol & 0xff,
-                               maxind & 0xffff);
+                               azimuth & 0xffff);
         }
       }
     }

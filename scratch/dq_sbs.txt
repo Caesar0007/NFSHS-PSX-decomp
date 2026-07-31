@@ -223,15 +223,15 @@
   nop
   bgez v0,T
   addiu v0,sp,84
-+ONLY  OURS:                               ORACLE:lw t7,64(sp)
-+ONLY  OURS:                               ORACLE:lw t8,68(sp)
-+ONLY  OURS:                               ORACLE:lw t9,76(sp)
-+ONLY  OURS:                               ORACLE:mtc2 t7,12
-+ONLY  OURS:                               ORACLE:mtc2 t9,14
-+ONLY  OURS:                               ORACLE:mtc2 t8,13
-+ONLY  OURS:                               ORACLE:nop
-+ONLY  OURS:                               ORACLE:nop
-+ONLY  OURS:                               ORACLE:cop2 4b400006
+  lw t7,64(sp)
+  lw t8,68(sp)
+  lw t9,76(sp)
+  mtc2 t7,12
+  mtc2 t9,14
+  mtc2 t8,13
+  nop
+  nop
+  cop2 4b400006
   swc2 24,0(v1)
 !=     OURS:lw v0,12(s1)                   ORACLE:lw v0,12(s0)
   nop

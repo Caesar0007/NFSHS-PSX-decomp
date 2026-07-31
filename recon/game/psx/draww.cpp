@@ -1258,25 +1258,30 @@ gte_SetRotMatrix(((char *)sd + 0x74));
         if (tc3 == 0) {
 gte_SetTransMatrix(((char *)sd + 0x74));
         }
-        if (stackSpeedUpEnbabledFlag == 0) {
-          DrawW_SetUpSubdividFacet(facetIdx,sd);
-        }
-        else {
-          tu24 = (int)SetSp((void *)gWSavePtr);
+        /* MATCH: oracle `beqz flag -> else` = the SPEEDUP arm is the fall-through, and it
+         * stores gWSavePtr BEFORE clearing the flag (`sw v0,%gp_rel(gWSavePtr); sw zero,
+         * %gp_rel(stackSpeedUpEnbabledFlag)`). */
+        if (stackSpeedUpEnbabledFlag != 0) {
+          gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
           stackSpeedUpEnbabledFlag = 0;
-          gWSavePtr = tu24;
           DrawW_SetUpSubdividFacet(facetIdx,sd);
           gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
           stackSpeedUpEnbabledFlag = 1;
+        }
+        else {
+          DrawW_SetUpSubdividFacet(facetIdx,sd);
         }
 gte_SetRotMatrix(((char *)sd + 0x14));
         if (tc3 == 0) {
 gte_SetTransMatrix(((char *)sd + 0x14));
         }
       }
-      p = Render_gPacketPtr;
-      tp20 = Render_gPalettePtr;
       if ((bVar2 & 0x80) != 0) {
+        /* MATCH: the oracle reads the two scratchpad cursors INSIDE the guard (single
+         * use site); hoisting them above the `andi 0x80` test costs 5 unconditional
+         * insns the oracle never pays. */
+        p = Render_gPacketPtr;
+        tp20 = Render_gPalettePtr;
         iVar2 = (u_int)*(u_char *)(workPmx_p + 0xc) - (u_int)*(u_char *)workPmx_p;
         if (iVar2 < 0) {
           iVar2 = -iVar2;

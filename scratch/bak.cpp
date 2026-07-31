@@ -1094,6 +1094,13 @@ gte_swc2(0x18,&bfct);
         bfct = -bfct;
       }
       if (bfct < 0) {
+        /* CORRECTNESS (oracle @0x800C6858: `lw t7,0x40(sp); lw t8,0x44(sp); lw t9,0x4C(sp);
+         * mtc2 t7,$12; mtc2 t9,$14; mtc2 t8,$13; nclip`): the SECOND (other-triangle)
+         * winding test must RELOAD SXY0-2 from dvxy0/dvxy1/dvxy2 and re-run nclip.  The
+         * previous body only re-read the flag register, so the second test always saw the
+         * first triangle's result -- every quad that failed test 1 was dropped. */
+        gte_ldsxy3(dvxy0,dvxy1,dvxy2);
+        gte_nclip();
 gte_swc2(0x18,&bfct);
         if ((sd->head).mirror == iVar2) {
           bfct = -bfct;
@@ -1179,7 +1186,7 @@ gte_swc2(0x8,&depthcue);
       prim->x3 = (u_short)dvxy3;
       prim->y3 = (*(u_short *)((u_char *)&(dvxy3) + 2));
       if (sd->nightFlags == '\0') {
-        gte_ldIR0(depthcue);
+        gte_ldir0v(depthcue);   /* MATCH+CORRECTNESS: oracle `lw rt,depthcue; mtc2 rt,$8` -- gte_ldIR0() is the ADDRESS form (lwc2), so passing the VALUE read memory at the depth-cue number */
         if (sd->light == -1) {
           a = *(long *)(Chunk_lightTable + vt2.light);
           tC30 = (int)Chunk_lightTable;

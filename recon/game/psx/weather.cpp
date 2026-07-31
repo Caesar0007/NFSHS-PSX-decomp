@@ -31,6 +31,34 @@ int Weather_gLastProcessTime1;
 #define WEATHER_GLASTPROCESSTIME1 Weather_gLastProcessTime1
 int Weather_gLastProcessTime[2];
 
+/* ---- SPLIT-STORAGE data-mat for the four per-player server arrays (w39-a6) ----------------
+ * Oracle evidence (Weather_Init__Fv.s): every CONSTANT-index element is reached through its
+ * OWN one-instruction %gp_rel symbol -- %gp_rel(Weather_gSplatInfoServer) for [0] and
+ * %gp_rel(D_8013DBCC) for [1], likewise Weather_gPServer/D_8013DBD4,
+ * Weather_gPrevPServer/D_8013DBDC, Weather_gDrawnServer/D_8013DBE4.  An `extern T x[2]`
+ * declaration can NEVER produce that: 8 bytes is over this build's -G4 threshold as ONE
+ * object, so both elements come out as absolute lui/%lo pairs (+1 insn each, 8 sites).
+ * Each 4-byte ELEMENT alone IS gp-eligible, so the true storage shape is one tentative def
+ * per element (methodology 3.12 #6 applied per-element).
+ * The RUNTIME-index site (Weather_DoWeather `[player]`) genuinely wants an absolute array
+ * base -- its oracle has `lui/addiu %hi/%lo(Weather_gPServer)` etc.  That is served by an
+ * UNSIZED asm-label array VIEW aliased onto element [0]'s symbol: unsized + extern keeps it
+ * out of maspsx's sbss_entries, and `gp_allow_la` is off, so `la` stays absolute.  The view
+ * ALIASES the real storage (no duplicated object, unlike the older gLastProcessTime duality). */
+Weather_tSplatInfo *Weather_gSplatInfoServer;   /* [0] @0x8013dbc8 */
+Weather_tSplatInfo *Weather_gSplatInfoServer1;  /* [1] @0x8013dbcc (oracle D_8013DBCC) */
+SVECTOR            *Weather_gPServer;           /* [0] @0x8013dbd0 */
+SVECTOR            *Weather_gPServer1;          /* [1] @0x8013dbd4 (oracle D_8013DBD4) */
+DVECTOR            *Weather_gPrevPServer;       /* [0] @0x8013dbd8 */
+DVECTOR            *Weather_gPrevPServer1;      /* [1] @0x8013dbdc (oracle D_8013DBDC) */
+char               *Weather_gDrawnServer;       /* [0] @0x8013dbe0 */
+char               *Weather_gDrawnServer1;      /* [1] @0x8013dbe4 (oracle D_8013DBE4) */
+
+extern Weather_tSplatInfo *Weather_gSplatInfoServerA[] asm("Weather_gSplatInfoServer");
+extern SVECTOR            *Weather_gPServerA[]         asm("Weather_gPServer");
+extern DVECTOR            *Weather_gPrevPServerA[]     asm("Weather_gPrevPServer");
+extern char               *Weather_gDrawnServerA[]     asm("Weather_gDrawnServer");
+
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
@@ -333,6 +361,12 @@ WeatherDensity_numAdd:
  * hoists the slt past an unconditional j (looks like a scheduling tie-break, same family as the
  * TrsProj_TransformProjectVertex register-coloring residual). Tried >=, <=-with-swapped-operands,
  * !(<) -- none land both position AND polarity simultaneously. */
+/* w39-a6 FLOOR (4 diffs, count EXACT 62/62): the first velocity-vs-table guard has the
+ * opposite branch polarity (ours beqz-to-call, oracle bnez-to-velYUpdate) and therefore a
+ * different `j` delay-slot filler (ours the addiu half of a `la`, oracle a nop).
+ * FALSIFIED: writing the guard in the oracle's polarity
+ * (`if (velY < tbl[state]) goto velYUpdate; goto call;`) lets gcc merge the two gotos --
+ * 58 insns / 6 diffs, i.e. structurally further away. */
 void Weather_ChangeIntensityBasedOnTime(void)
 
 {
@@ -478,54 +512,40 @@ void Weather_Init(void)
     }
     WEATHER_GLASTPROCESSTIME1 = simGlobal.gameTicks;
     WEATHER_GLASTPROCESSTIME0 = simGlobal.gameTicks;
-    Weather_gPServer[0] = Weather_gPos;
-    Weather_gPrevPServer[0] = Weather_gPrevPos;
-    Weather_gDrawnServer[0] = Weather_gWasDrawn;
-    Weather_gSplatInfoServer[0] = Weather_gSplatInfo;
+    Weather_gPServer = Weather_gPos;
+    Weather_gPrevPServer = Weather_gPrevPos;
+    Weather_gDrawnServer = Weather_gWasDrawn;
+    Weather_gSplatInfoServer = Weather_gSplatInfo;
     if (GameSetup_gData.commMode == 1) {
-      Weather_gPServer[1] = Weather_gPos + 0x4c;
-      Weather_gPrevPServer[1] = Weather_gPrevPos + 0x4c;
-      Weather_gDrawnServer[1] = Weather_gWasDrawn + 0x4c;
+      Weather_gPServer1 = Weather_gPos + 0x4c;
+      Weather_gPrevPServer1 = Weather_gPrevPos + 0x4c;
+      Weather_gDrawnServer1 = Weather_gWasDrawn + 0x4c;
       Weather_gSys.num[0] = 0x4c;
       Weather_gSys.num[1] = 0x4c;
-      Weather_gSplatInfoServer[1] = Weather_gSplatInfo + 9;
+      Weather_gSplatInfoServer1 = Weather_gSplatInfo + 9;
     }
+    /* MATCH (w39-a6): these four are plain STRUCT ASSIGNMENTS, not the hand-unrolled
+     * copy loops Ghidra printed.  The oracle emits gcc's own movstrsi expansion:
+     * coorddef (12B) -> straight-line 3x lw + 3x sw; matrixtdef (36B) -> a 4-word/iter
+     * loop with an end-pointer `bne` + a 1-word tail (methodology 3.25 3d(a)).  Note the
+     * second copy of each pair READS BACK the destination just written (prevCamPos[1],
+     * prevCamMat[0]) -- the oracle's `lw t2,12(v1)` / `addu v1,a3,zero` prove the source
+     * is the freshly-stored copy, not a second read of Camera_gInfo. */
+    /* MATCH (w39-a6): TWO separate base locals.  The oracle carries an extra
+     * `addu t1,a3,zero` copy of &prevCamMat that is used ONLY as the second copy's
+     * destination base (`addiu a0,t1,36`) -- the cse.c double-evaluation shape
+     * (catalog: one anonymous + one named evaluation of the same address expr yields
+     * a register COPY).  One shared local is 1 insn short and shifts the whole
+     * movstrsi scratch pool down a register (t1-t4 vs the oracle's t2-t5): 85 diffs.
+     * Two locals => 211/211 count-exact and the entire block byte-matches (12 diffs). */
     pmVar5 = prevCamMat;
-    pmVar4 = &Camera_gInfo[0].rotation;
-    prevCamPos[1].x = Camera_gInfo[0].position.x;
-    prevCamPos[1].y = Camera_gInfo[0].position.y;
-    prevCamPos[1].z = Camera_gInfo[0].position.z;
-    prevCamPos[0].x = Camera_gInfo[0].position.x;
-    prevCamPos[0].y = Camera_gInfo[0].position.y;
-    prevCamPos[0].z = Camera_gInfo[0].position.z;
-    piVar3 = pmVar5->m;
-    do {
-      iVar6 = pmVar4->m[1];
-      iVar7 = pmVar4->m[2];
-      iVar8 = pmVar4->m[3];
-      *piVar3 = pmVar4->m[0];
-      piVar3[1] = iVar6;
-      piVar3[2] = iVar7;
-      piVar3[3] = iVar8;
-      pmVar4 = (matrixtdef *)(pmVar4->m + 4);
-      piVar3 = piVar3 + 4;
-    } while (pmVar4 != (matrixtdef *)(Camera_gInfo[0].rotation.m + 8));
-    *piVar3 = Camera_gInfo[0].rotation.m[8];
-    piVar3 = prevCamMat[1].m;
-    do {
-      iVar6 = *(int *)((int)pmVar5 + 4);
-      iVar7 = *(int *)((int)pmVar5 + 8);
-      iVar8 = *(int *)((int)pmVar5 + 0xc);
-      *piVar3 = pmVar5->m[0];
-      piVar3[1] = iVar6;
-      piVar3[2] = iVar7;
-      piVar3[3] = iVar8;
-      pSVar10 = Weather_gPos;
-      pmVar5 = (matrixtdef *)((int)pmVar5 + 0x10);
-      piVar3 = piVar3 + 4;
-    } while (pmVar5 != (matrixtdef *)(prevCamMat[0].m + 8));
+    pmVar4 = prevCamMat;
+    prevCamPos[1] = Camera_gInfo[0].position;
+    prevCamPos[0] = prevCamPos[1];
+    pmVar5[0] = Camera_gInfo[0].rotation;
+    pmVar4[1] = pmVar5[0];
+    pSVar10 = Weather_gPos;
     iVar6 = 0x97;
-    *piVar3 = prevCamMat[0].m[8];
     psVar9 = &pSVar10->vz;
     do {
       iVar6 = iVar6 + -1;
@@ -588,6 +608,11 @@ void Weather_DeInit(void)
  * coloring swap (ours=v0, oracle=a1) cascading into the tv.vx/vy/vz field-register triple
  * shifting by one slot; no ABI anchor found (next isn't a call-arg/return at its use point) --
  * same permuter-class coloring-tiebreak family as TrsProj_TransformProjectVertex. */
+/* w39-a6 FLOOR (32 diffs, count EXACT 49/49): a uniform one-step register rotation --
+ * ours puts `next` in $v0 and r0/r1/r2 in $v1/$a0/$a1, the oracle puts `next` in $a1 and
+ * r0/r1/r2 in $v0/$v1/$a0.  FALSIFIED: dropping the `next` variable (inline `s + 1`),
+ * block-scoping its declaration, and reading tv.vx/vy/vz straight into the stores (52
+ * insns, worse).  Allocno-priority tie on `next`. */
 void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
 {
   int r0;
@@ -624,7 +649,20 @@ void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
   s->vz = (short)r2;
 }
 
-/* ---- Weather_CheckAndResetParticles__FP7SVECTOR  [WEATHER.CPP:623-668] SLD-VERIFIED ---- */
+/* ---- Weather_CheckAndResetParticles__FP7SVECTOR  [WEATHER.CPP:623-668] SLD-VERIFIED ----
+ * SEALED w39-a6 (was 118 diffs, ours 215 / oracle 223).  Four levers:
+ *  1. NO shared-tail gotos.  Ghidra funnelled the six wrap arms through
+ *     `goto WeatherReset_frontWrap/topCheck` shared stores; the oracle writes the full
+ *     `pt->vX = base + random()%span` in EACH arm and lets gcc cross-jump-merge only the
+ *     last 2 insns (`addu v0,v0,v1; sh v0,OFF(s2)`).  A source-level funnel merges far
+ *     more than retail did (catalog: funnel vars/labels PREVENT the match).
+ *  2. `-Weather_gSys.width + 0x40`, not `0x40 - Weather_gSys.width` (oracle negu+addiu 64
+ *     vs our li 64 + subu).
+ *  3. `zfar / 2` written as a plain signed divide -- the transcribed magic
+ *     `(a - (a>>31)) >> 1` emits sra+subu where gcc's own /2 idiom is srl 31 + addu.
+ *  4. COMPARE OPERAND ORDER = evaluation order: the oracle loads `pt->vX` BEFORE the
+ *     Weather_gSys field, so the tests must be spelled `pt->vx > Weather_gSys.width`
+ *     (not `width < pt->vx`).  That was the last 6 diffs -> PASS 223/223. */
 short Weather_CheckAndResetParticles(SVECTOR *pt)
 
 {
@@ -639,20 +677,17 @@ short Weather_CheckAndResetParticles(SVECTOR *pt)
   short reset_flag;
   
   sVar3 = 0;
-  if ((int)Weather_gSys.width < (int)pt->vx) {
-    rnd = 0x40 - Weather_gSys.width;
-    pt->vx = (short)rnd;
+  if ((int)pt->vx > (int)Weather_gSys.width) {
+    pt->vx = (short)(-Weather_gSys.width + 0x40);
     rnd = random();
     if ((int)Weather_gSys.height == 0) {
     }
     pt->vy = Weather_gSys.bottom + (short)(rnd % (u_int)(int)Weather_gSys.height);
     uVar1 = random();
-    z_off = (short)(uVar1 % (u_int)(int)Weather_gSys.length);
     if ((int)Weather_gSys.length == 0) {
     }
+    pt->vz = Weather_gSys.znear + (short)(uVar1 % (u_int)(int)Weather_gSys.length);
     sVar3 = 1;
-WeatherReset_frontWrap:
-    pt->vz = Weather_gSys.znear + z_off;
   }
   else if ((int)pt->vx < -(int)Weather_gSys.width) {
     pt->vx = Weather_gSys.width + -0x40;
@@ -663,28 +698,25 @@ WeatherReset_frontWrap:
     uVar1 = random();
     if ((int)Weather_gSys.length == 0) {
     }
-    z_off = (short)(uVar1 % (u_int)(int)Weather_gSys.length);
+    pt->vz = Weather_gSys.znear + (short)(uVar1 % (u_int)(int)Weather_gSys.length);
     sVar3 = 2;
-    goto WeatherReset_frontWrap;
   }
-  if (Weather_gSys.zfar < pt->vz) {
+  if (pt->vz > Weather_gSys.zfar) {
     pt->vz = Weather_gSys.znear + 0x40;
     uVar1 = random();
     if ((int)Weather_gSys.width == 0) {
     }
     pt->vx = (short)(uVar1 % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
     uVar1 = random();
-    sVar4 = (short)(uVar1 % (u_int)(int)Weather_gSys.height);
     if ((int)Weather_gSys.height == 0) {
     }
+    pt->vy = Weather_gSys.bottom + (short)(uVar1 % (u_int)(int)Weather_gSys.height);
     sVar3 = 3;
   }
-  else {
-    if (Weather_gSys.znear <= pt->vz) goto WeatherReset_topCheck;
+  else if ((int)pt->vz < (int)Weather_gSys.znear) {
     sVar3 = 4;
     uVar1 = random();
-    uVar2 = ((int)((u_int)(u_short)Weather_gSys.zfar << 0x10) >> 0x10) -
-            ((int)((u_int)(u_short)Weather_gSys.zfar << 0x10) >> 0x1f) >> 1;
+    uVar2 = (u_int)(((int)((u_int)(u_short)Weather_gSys.zfar << 0x10) >> 0x10) / 2);
     if (uVar2 == 0) {
     }
     pt->vz = Weather_gSys.znear + (short)(uVar1 % uVar2);
@@ -695,26 +727,21 @@ WeatherReset_frontWrap:
     uVar1 = random();
     if ((int)Weather_gSys.height == 0) {
     }
-    sVar4 = (short)(uVar1 % (u_int)(int)Weather_gSys.height);
+    pt->vy = Weather_gSys.bottom + (short)(uVar1 % (u_int)(int)Weather_gSys.height);
   }
-  pt->vy = Weather_gSys.bottom + sVar4;
-WeatherReset_topCheck:
-  if (Weather_gSys.top < pt->vy) {
+  if (pt->vy > Weather_gSys.top) {
     pt->vy = Weather_gSys.bottom + 0x40;
     uVar1 = random();
     if ((int)Weather_gSys.width == 0) {
     }
     pt->vx = (short)(uVar1 % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
     uVar1 = random();
-    reset_flag = (short)(uVar1 % (u_int)(int)Weather_gSys.length);
     if ((int)Weather_gSys.length == 0) {
     }
+    pt->vz = Weather_gSys.znear + (short)(uVar1 % (u_int)(int)Weather_gSys.length);
     sVar3 = 5;
   }
-  else {
-    if (Weather_gSys.bottom <= pt->vy) {
-      return sVar3;
-    }
+  else if ((int)pt->vy < (int)Weather_gSys.bottom) {
     pt->vy = Weather_gSys.top + -0x40;
     uVar1 = random();
     if ((int)Weather_gSys.width == 0) {
@@ -723,10 +750,9 @@ WeatherReset_topCheck:
     uVar1 = random();
     if ((int)Weather_gSys.length == 0) {
     }
-    reset_flag = (short)(uVar1 % (u_int)(int)Weather_gSys.length);
+    pt->vz = Weather_gSys.znear + (short)(uVar1 % (u_int)(int)Weather_gSys.length);
     sVar3 = 6;
   }
-  pt->vz = Weather_gSys.znear + reset_flag;
   return sVar3;
 }
 
@@ -810,33 +836,37 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
   {
     coorddef *cp;
 
+    coorddef *tr = &Vi->cview.translation;
+
     temp_vector.vx = (short)((Vi->cview.translation.x - prevCamPos[Vi->player].x) / 0x400);
-    temp_vector.vy = (short)((Vi->cview.translation.y - prevCamPos[Vi->player].y) / 0x400);
-    temp_vector.vz = (short)((Vi->cview.translation.z - prevCamPos[Vi->player].z) / 0x400);
+    temp_vector.vy = (short)((tr->y - prevCamPos[Vi->player].y) / 0x400);
+    temp_vector.vz = (short)((tr->z - prevCamPos[Vi->player].z) / 0x400);
     gte_ldv0(&temp_vector);
     gte_mvmva(1,0,0,0,0);
     cp = &prevCamPos[Vi->player];
-    *cp = Vi->cview.translation;
+    *cp = *tr;
     gte_stlvnl(&result);
-    total_vector_change.vy = -(short)result.vy;
     total_vector_change.vx = -(short)result.vx;
+    total_vector_change.vy = -(short)result.vy;
     total_vector_change.vz = -(short)result.vz;
   }
 
   /* wind/gravity velocity, rotated into camera space; folded into total_vector_change */
   {
-    temp_vector.vx = Weather_gSys.velocity.vx;
-    temp_vector.vy = Weather_gSys.velocity.vy;
-    temp_vector.vz = Weather_gSys.velocity.vz;
+    SVECTOR *vel = &Weather_gSys.velocity;
+
+    temp_vector.vx = vel->vx;
+    temp_vector.vy = vel->vy;
+    temp_vector.vz = vel->vz;
     gte_ldv0(&temp_vector);
     gte_mvmva(1,0,0,0,0);
     gte_stlvnl(&result);
-    total_vector_change.vx = total_vector_change.vx + (short)result.vx;
     velocity_vector_change.vx = (short)result.vx;
     velocity_vector_change.vy = (short)result.vy;
     velocity_vector_change.vz = (short)result.vz;
-    total_vector_change.vz = total_vector_change.vz + (short)result.vz;
-    total_vector_change.vy = total_vector_change.vy + (short)result.vy;
+    total_vector_change.vx = total_vector_change.vx + velocity_vector_change.vx;
+    total_vector_change.vz = total_vector_change.vz + velocity_vector_change.vz;
+    total_vector_change.vy = total_vector_change.vy + velocity_vector_change.vy;
   }
 
   /* rotate the 12 turbulence velocity vectors into camera space (frame-local copy) */
@@ -844,7 +874,9 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
     signed char *vel;
 
     vel = (signed char *)Weather_gRandomVelocityVectors;
-    for (n = 0; n < 12; n = n + 1) {
+    n = 0;
+    while (1) {
+      if (12 <= n) break;
       temp_vector.vx = vel[0];
       temp_vector.vy = vel[1];
       temp_vector.vz = vel[2];
@@ -855,6 +887,7 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
       Weather_gTransformedRandomVelocityVectors[n].vy = (short)result.vy;
       Weather_gTransformedRandomVelocityVectors[n].vz = (short)result.vz;
       vel = vel + 3;
+      n = n + 1;
     }
   }
 
@@ -862,22 +895,29 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
   {
     SVECTOR *tv;
     long n;
+    short reset;
 
     tv = wpt;
-    for (n = 0; n < num; n = n + 1) {
+    n = 0;
+    while (1) {
+      if (num <= n) break;
       temp_vector.vx = Weather_gTransformedRandomVelocityVectors[n % 12].vx +
               (tv->vx + total_vector_change.vx);
       temp_vector.vy = Weather_gTransformedRandomVelocityVectors[n % 12].vy +
               (tv->vy + total_vector_change.vy);
       temp_vector.vz = Weather_gTransformedRandomVelocityVectors[n % 12].vz +
               (tv->vz + total_vector_change.vz);
-      if (Weather_CheckAndResetParticles(&temp_vector) != 0) {
+      reset = Weather_CheckAndResetParticles(&temp_vector);
+      /* MATCH: the oracle writes vx+vy as ONE aligned word (lw 0x70(sp); sw 0(s2))
+       * then vz as a halfword -- a COORD16/6-byte struct assign compiles to the
+       * align-2 lwl/lwr/swl/swr soup instead, so the word pun is the faithful form. */
+      *(long *)&tv->vx = *(long *)&temp_vector.vx;
+      tv->vz = temp_vector.vz;
+      if (reset != 0) {
         wd[n] = 0;
       }
-      tv->vx = temp_vector.vx;
-      tv->vy = temp_vector.vy;
-      tv->vz = temp_vector.vz;
       tv = tv + 1;
+      n = n + 1;
     }
   }
 }
@@ -887,6 +927,7 @@ void Weather_CreateSnow(SVECTOR *pt)
   SVECTOR gv [4];
   POLY_FT4 *prim;
   Draw_tPixMap *pmx;
+  u_int *pal;
   unsigned long l0;
   unsigned long l1;
   unsigned long l2;
@@ -906,9 +947,10 @@ void Weather_CreateSnow(SVECTOR *pt)
   gte_ldv3(&gv[0],&gv[1],&gv[2]);
   gte_rtpt();
   prim = (POLY_FT4 *)RENDER_PACKETPTR_ADDR;
-  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)RENDER_PALETTEPTR_ADDR & 0xffffff;
+  pal = (u_int *)RENDER_PALETTEPTR_ADDR;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
   RENDER_PACKETPTR_ADDR = RENDER_PACKETPTR_ADDR + 0x28;
-  *(u_int *)RENDER_PALETTEPTR_ADDR = *(u_int *)RENDER_PALETTEPTR_ADDR & 0xff000000 | (u_int)prim & 0xffffff;
+  *pal = *pal & 0xff000000 | (u_int)prim & 0xffffff;
   *((char *)prim + 3) = 9;                                  /* OT tag length (9 words) */
   gte_stsxy3(&prim->x0,&prim->x1,&prim->x2);
 
@@ -929,6 +971,11 @@ void Weather_CreateSnow(SVECTOR *pt)
 }
 
 /* ---- Weather_CreateRain__FP7SVECTORP7DVECTORPc  [WEATHER.CPP:967-1005] SLD-VERIFIED ---- */
+/* w39-a6 (56 diffs, ours 117 / oracle 113): the residual is the packet/palette header
+ * merge in BOTH arms -- ours reloads the palette pointer for the write-back where the
+ * oracle keeps it in one register.  The `u_int *pal` CSE local that fixed exactly this in
+ * CreateSnow/DoWeather/CreateSplat REGRESSES here (fn-scope 122, block-scope-per-arm 134)
+ * even though it takes the count to 115: the two arms' pal pseudos interfere.  Left alone. */
 void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
 {
   LINE_G2 *prim;
@@ -997,7 +1044,7 @@ void Weather_CreateSplat
   short vy;
   u_char *prim;
   u_char *tp3;
-  short ts2;
+  int ts2;
   short ts1;
   short ts3;
   
@@ -1005,10 +1052,9 @@ void Weather_CreateSplat
   tp3 = RENDER_PALETTEPTR_ADDR;
   ts3 = (splat->pos).vx;
   ts1 = (splat->pos).vy;
-  *(u_int *)RENDER_PACKETPTR_ADDR =
-       *(u_int *)RENDER_PACKETPTR_ADDR & 0xff000000 | *(u_int *)RENDER_PALETTEPTR_ADDR & 0xffffff;
-  uv_pack = (u_int)RENDER_PACKETPTR_ADDR & 0xffffff;
-  RENDER_PACKETPTR_ADDR = RENDER_PACKETPTR_ADDR + 0x28;
+  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)tp3 & 0xffffff;
+  uv_pack = (u_int)prim & 0xffffff;
+  RENDER_PACKETPTR_ADDR = prim + 0x28;
   *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | uv_pack;
   prim[3] = 9;
   prim[7] = 0x2e;
@@ -1017,8 +1063,8 @@ void Weather_CreateSplat
     splat_size = 0xc;
   }
   splatTick = simGlobal.gameTicks - splat->startTick;
-  splat_glyph = (char)splatTick * -4 + 0x80;
-  ts2 = (short)(splatTick >> 3);
+  splat_glyph = (u_char)(-0x80 - splatTick * 4);
+  ts2 = splatTick >> 3;
   size_x = ts3 - ts2;
   prim[6] = splat_glyph;
   prim[5] = splat_glyph;
@@ -1045,6 +1091,23 @@ void Weather_CreateSplat
 }
 
 /* ---- Weather_DoSplats__FiP18Weather_tSplatInfo  [WEATHER.CPP:1039-1064] SLD-VERIFIED ---- */
+/* w39-a6: 117 -> 62 diffs, count EXACT 113/113.  Levers:
+ *  - no `new_count` funnel: Ghidra routed every arm through a shared
+ *    `gCurrentNumSplats = new_count;` store; the oracle only stores in the retire arm
+ *    (sw s1,%gp_rel(gCurrentNumSplats)) and j's straight to the loop increment.
+ *  - the retire guard is POSITIVE: `if (num < gCurrentNumSplats && i == gCurrentNumSplats-1)`
+ *    (oracle slt s4,a2 / beqz body / bne s1,v0 body), not the inverted `||` + comma form.
+ *  - `(u_int)random() % K` inline, no named u_int temp: the temp costs an extra
+ *    `addu a0,v0,zero` to preserve the dividend at every one of the 4 modulo sites.
+ *    (a plain `random() % K` would be a SIGNED modulo -- oracle uses multu.)
+ *  - plain top-tested `while (i < gCurrentNumSplats)`: gcc rotates it and CSEs the
+ *    guard load with the loop-carried one ($a2 reused), where the if+do/while form
+ *    reloads gCurrentNumSplats inside the body.
+ * RESIDUAL 62 = giv-anchor: gcc anchors the loop walker at +4 (startTick, the LAST
+ * access in body order -- combine_givs rule) and walks a second IV at +0; the oracle
+ * anchors at +0 and re-COPIES it (addu s2,s0,zero in a jal delay slot) for the pos.vy
+ * store.  Index form, cast-pointer spellings and per-field pointers all measured
+ * neutral-or-worse. */
 void Weather_DoSplats
                (int num,Weather_tSplatInfo *splats)
 
@@ -1053,51 +1116,47 @@ void Weather_DoSplats
   u_int rnd;
   u_int uVar1;
   int i;
-  int local_s1_64;
-  int num_reg;
-  int new_count;
-  
+
   if (gCurrentNumSplats < num) {
     gCurrentNumSplats = num;
   }
-  local_s1_64 = 0;
-  if (0 < gCurrentNumSplats) {
-    do {
-      new_count = gCurrentNumSplats;
+  i = 0;
+  while (i < gCurrentNumSplats) {
       if (splats->startTick <= simGlobal.gameTicks) {
         if (splats->startTick + 0x20 < simGlobal.gameTicks) {
-          if ((gCurrentNumSplats <= num) ||
-             (new_count = local_s1_64, local_s1_64 != gCurrentNumSplats + -1)) {
-            rnd = random();
-            (splats->pos).vx = (short)(rnd % 320);
+          if ((num < gCurrentNumSplats) && (i == gCurrentNumSplats + -1)) {
+            gCurrentNumSplats = i;
+          }
+          else {
+            (splats->pos).vx = (short)((u_int)random() % 320);
             if (GameSetup_gData.commMode == 1) {
-              uVar1 = random();
-              y_pos = (short)(uVar1 % 0xf0 >> 1);
+              y_pos = (short)((u_int)random() % 0xf0 >> 1);
             }
             else {
-              uVar1 = random();
-              y_pos = (short)uVar1 + (short)(uVar1 / 0xf0) * -0xf0;
+              y_pos = (short)((u_int)random() % 0xf0);
             }
             (splats->pos).vy = y_pos;
-            uVar1 = random();
-            splats->startTick = simGlobal.gameTicks + uVar1 % 100;
-            new_count = gCurrentNumSplats;
+            splats->startTick = simGlobal.gameTicks + (u_int)random() % 100;
           }
         }
         else {
           Weather_CreateSplat(splats);
-          new_count = gCurrentNumSplats;
         }
       }
-      gCurrentNumSplats = new_count;
       splats = splats + 1;
-      local_s1_64 = local_s1_64 + 1;
-    } while (local_s1_64 < gCurrentNumSplats);
+      i = i + 1;
   }
   return;
 }
 
 /* ---- Weather_DoWeather__FP13DRender_tView  [WEATHER.CPP:1069-1156] SLD-VERIFIED ---- */
+/* w39-a6 (138 -> 131, count 196 vs 197): the palette-pointer CSE local landed on the
+ * DR_MODE tail.  RESIDUAL = a whole-function allocno permutation rooted at the three
+ * per-player server-array loads: the oracle materializes all three base addresses UP FRONT
+ * in three distinct registers (lui/addiu x3 before the frame stores) and then does
+ * addu/lw x3 off one shared `sll player,2`; ours emits them serially through $v0, which
+ * rotates Vi/player/wpt/wprevpt/wd across $s2-$s7.  FALSIFIED: hoisting the three array
+ * bases into local pointers before reading `player` (gcc folds them straight back). */
 void Weather_DoWeather(DRender_tView *Vi)
 {
   SVECTOR *wpt;
@@ -1110,11 +1169,12 @@ void Weather_DoWeather(DRender_tView *Vi)
   int n;
   int mode;
   DR_MODE *prim;
+  u_int *pal;
 
   player = Vi->player;
-  wpt = Weather_gPServer[player];
-  wprevpt = Weather_gPrevPServer[player];
-  wd = Weather_gDrawnServer[player];
+  wpt = Weather_gPServerA[player];
+  wprevpt = Weather_gPrevPServerA[player];
+  wd = Weather_gDrawnServerA[player];
   if ((GameSetup_gData.commMode != 1) && (0x20 < simGlobal.gameTicks - timechange)) {
     timechange = simGlobal.gameTicks;
     if (Weather_gSnowTrack == 0) {
@@ -1150,7 +1210,7 @@ void Weather_DoWeather(DRender_tView *Vi)
     }
     Weather_SetIdentMatrix();
     if (Camera_gInfo[player].inCar) {
-      Weather_DoSplats(Weather_gSys.num[player] >> 3,Weather_gSplatInfoServer[player]);
+      Weather_DoSplats(Weather_gSys.num[player] >> 3,Weather_gSplatInfoServerA[player]);
     }
     /* emit one snow/rain primitive per particle; wpt + wprevpt advance in lockstep */
     n = 0;
@@ -1169,9 +1229,10 @@ void Weather_DoWeather(DRender_tView *Vi)
     }
     /* tail: link a DR_MODE primitive into the OT to reset the texture page */
     prim = (DR_MODE *)RENDER_PACKETPTR_ADDR;
-    *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)RENDER_PALETTEPTR_ADDR & 0xffffff;
+    pal = (u_int *)RENDER_PALETTEPTR_ADDR;
+    *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
     RENDER_PACKETPTR_ADDR = RENDER_PACKETPTR_ADDR + 0xc;
-    *(u_int *)RENDER_PALETTEPTR_ADDR = *(u_int *)RENDER_PALETTEPTR_ADDR & 0xff000000 | (u_int)prim & 0xffffff;
+    *pal = *pal & 0xff000000 | (u_int)prim & 0xffffff;
     SetDrawMode(prim,0,0,0x20,(RECT *)0x0);
   }
 }

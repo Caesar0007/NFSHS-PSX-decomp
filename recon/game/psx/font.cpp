@@ -81,6 +81,11 @@ void Font_SetABR(int abr)
  * list) -- keep it in the signature so the indirect call type matches.
  * width/height are INT locals per the SYM: u_char locals would re-mask every use
  * (andi 0xff) that the oracle does not have. */
+/* w39-a6 FLOOR (48 diffs, count EXACT 55/55): the residual is one uniform v0<->v1 swap in
+ * the packet/palette header merge that cascades through the whole body.  FALSIFIED here:
+ * moving the `dv` computation to any of 3 earlier source positions (+1 insn each, 79-87
+ * diffs); accumulating dv in place / pre-masking (54); reversing the u0 `|` chain (48);
+ * swapping either merge's operand order (50/52/54).  Allocator tie-break. */
 void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
 
 {
@@ -261,6 +266,10 @@ void Font_ReSetBlitter(void)
 }
 
 /* ---- Font_SwitchFont__FPc  [FONT.CPP:317-329] SLD-VERIFIED ---- */
+/* w39-a6 FLOOR (2 diffs, count EXACT 27/27): sched2 places the gp-rel `font_abr` load
+ * AFTER the three currentfont zero-stores; the oracle places it before.  FALSIFIED:
+ * 4 statement positions for `abr_val`, read-at-use, u_long type, volatile stores,
+ * reversed store order (6), unsized-array-view extern (3). */
 void Font_SwitchFont(char *f1)
 
 {
@@ -321,6 +330,7 @@ int Font_LoadFont(char *f1,int x,int y,char in_game)
   int i;
   int l;
   shapetbl *shp;
+  char *hdr;
 
   setfont(f1);
   shp = (shapetbl *)(*(int *)((u_char *)&(currentfont) + 136));
@@ -342,7 +352,11 @@ int Font_LoadFont(char *f1,int x,int y,char in_game)
   }
   Font_ReSetBlitter();
   Font_SwitchFont(f1);
-  resizememadr(f1,(*(int *)((u_char *)&(currentfont) + 136)) - (int)(f1 + -0x10));
+  /* MATCH (w39-a6): the header base MUST be its own named local.  Written inline as
+   * `X - (int)(f1 - 0x10)` gcc reassociates the constant out (addiu a1,a1,16; subu a1,a1,a0);
+   * the oracle keeps the subexpression whole (addiu v0,a0,-16; subu a1,a1,v0).  PASS 117/117. */
+  hdr = f1 - 0x10;
+  resizememadr(f1,(*(int *)((u_char *)&(currentfont) + 136)) - (int)hdr);
   Font_TextTint(0x808080);
   Font_TextColor(2);
   return y + shp->height;
@@ -354,6 +368,11 @@ int Font_LoadFont(char *f1,int x,int y,char in_game)
  * call | 442 x+=advance | 446 space path (textually LAST => the `else` arm) | 449-453 tail.
  * The scratchpad packet/palette reads live ONLY in the tail block (oracle .L800CBB5C).
  */
+/* w39-a6: 34 -> 28, count EXACT 86/86.  `cfbase = &currentfont` must be the LAST of the
+ * three prologue initialisers -- placed first it materializes the %hi/%lo + the $s5 save
+ * three insns too early.  RESIDUAL 28 = a 3-way rotation of the hoisted literal constants
+ * in the DR_MODE tail (ours 0x1F800004/0x00ffffff/0xff000000 = t2/t3/t1, oracle
+ * t3/t1/t2); swapping the merge's `|` operand order makes it worse (38). */
 void Font_TextXY(char *string,int x,int y)
 
 {
@@ -362,9 +381,9 @@ void Font_TextXY(char *string,int x,int y)
   char *str;
   u_char *cfbase;
 
-  cfbase = (u_char *)&(currentfont);
   str = string;
   code = -1;
+  cfbase = (u_char *)&(currentfont);
   while (code != 0) {
     code = *(u_char *)str;
     str = str + 1;

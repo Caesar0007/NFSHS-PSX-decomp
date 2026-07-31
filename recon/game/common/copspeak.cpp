@@ -29,7 +29,7 @@ short              CopSpeak_gBufferStart;
 short              CopSpeak_gBufferEnd;
 short              CopSpeak_gBufferHigh;
 int                CopSpeak_gStaticHandle[2];
-char               CopSpeak_gStaticPatch[2];
+signed char        CopSpeak_gStaticPatch[2];
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void CopSpeak_RadioStaticInit(void);
@@ -78,61 +78,48 @@ void CopSpeak_RadioStaticInit(void)
 void CopSpeak_RadioStaticActive(int noise)
 
 {
-  bool bVar1;
-  u_int uVar2;
-  int iVar3;
-  int *piVar4;
-  char *pcVar5;
-  int iVar6;
-  u_int uVar7;
-  u_int local_38;
-  u_char local_34;
-  u_char local_30;
+  int numpatches = 3;
 
-  uVar7 = 3;
-  if (0x60 < noise) {
-    uVar7 = 4;
+  if (noise > 0x60) {
+    numpatches = 4;
   }
-  iVar6 = 0;
-  bVar1 = true;
-CopSpkRadioStatic_returnLoop:
-  do {
-    if (!bVar1) {
-      return;
-    }
-    pcVar5 = CopSpeak_gStaticPatch + iVar6;
-    if (*(signed char *)pcVar5 == -1) {
-      uVar2 = random();
-      *(signed char *)pcVar5 = (char)(uVar2 % uVar7);
-    }
-    piVar4 = CopSpeak_gStaticHandle + iVar6;
-    if (*piVar4 == -1) {
-      iVar3 = AudioCmn_GetAsyncSfx(2,*(signed char *)pcVar5 + 0x2f,false);
-      if (-1 < iVar3) {
-        SNDplaysetdef(&local_38);
-        local_34 = (u_char)iVar3;
-        local_38 = 0;
-        local_30 = (u_char)(gMasterFENarrationLevel * noise * 0x81 >> 0xe);
-        iVar3 = SNDplay(&local_38);
-        *piVar4 = iVar3;
-        *(signed char *)pcVar5 = -1;
-        if (*piVar4 < 0) {
-          iVar6 = iVar6 + 1;
-          AudioClc_SndError();
-          bVar1 = iVar6 < 2;
-          goto CopSpkRadioStatic_returnLoop;
+  {
+    int i;
+
+    for (i = 0; i < 2; i++) {
+      if (CopSpeak_gStaticPatch[i] == -1) {
+        CopSpeak_gStaticPatch[i] =
+            (u_int)random() % (u_int)numpatches;
+      }
+      {
+        int *handle = &CopSpeak_gStaticHandle[i];
+
+        if (*handle == -1) {
+          int bhandle = AudioCmn_GetAsyncSfx
+              (2,CopSpeak_gStaticPatch[i] + 0x2f,false);
+
+          if (bhandle >= 0) {
+            SNDPLAYOPTS playopts;
+
+            SNDplaysetdef(&playopts);
+            playopts.bhandle = (u_char)bhandle;
+            playopts.patnum = 0;
+            playopts.vol =
+                (u_char)(gMasterFENarrationLevel *
+                         ((noise << 7) + noise) >> 0xe);
+            *handle = SNDplay(&playopts);
+            CopSpeak_gStaticPatch[i] = -1;
+            if (*handle < 0) {
+              AudioClc_SndError(*handle);
+            }
+          }
+        }
+        else if (SNDover(*handle) != 0) {
+          *handle = -1;
         }
       }
     }
-    else {
-      iVar3 = SNDover(*piVar4);
-      if (iVar3 != 0) {
-        *piVar4 = -1;
-      }
-    }
-    iVar6 = iVar6 + 1;
-    bVar1 = iVar6 < 2;
-  } while( true );
+  }
 }
 
 /* ---- CopSpeak_RadioStaticSquelch__Fv  [COPSPEAK.CPP:259-267] SLD-VERIFIED ---- */

@@ -449,6 +449,7 @@ void Hud_RenderStatsView(void)
 {
   short player;
   int screen;
+  int t;
 
   screen = simGlobal.gameTicks >> 9 & 1;
   /* Block order + branch polarity transcribed from the oracle CFG (0x800DAE94..0x800DAFE8):
@@ -485,10 +486,15 @@ HudStats_setUserOne:
 HudStats_finalize:
   if (screen == 0) {
     D_8013D99C = 0;
+    /* the oracle keeps the incremented value in its own pseudo and stores it BOTH
+       before and after the clamp (`addu $v1,$v0,$zero` / two `sw $v1,%gp_rel(...)`);
+       the plain `X = X + 1; if (K < X) X = K;` form stores straight out of $v0. */
     StatsTimer = StatsTimer + 1;
-    if (10000 < StatsTimer) {
-      StatsTimer = 10000;
+    t = StatsTimer;
+    if (10000 < t) {
+      t = 10000;
     }
+    StatsTimer = t;
     player = 0;
     if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) {
       RaceSummary();
@@ -498,11 +504,17 @@ HudStats_finalize:
   else {
     StatsTimer = 0;
     D_8013D99C = D_8013D99C + 1;
-    if (10000 < D_8013D99C) {
-      D_8013D99C = 10000;
+    t = D_8013D99C;
+    if (10000 < t) {
+      t = 10000;
     }
-    if (((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) ||
-       (player = 1, GameSetup_gData.commMode != 1)) {
+    D_8013D99C = t;
+    if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) {
+      RaceStatistics();
+      return;
+    }
+    player = 1;
+    if (GameSetup_gData.commMode != 1) {
       RaceStatistics();
       return;
     }

@@ -1329,6 +1329,19 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         {
           u_char u = (sd->ePmx0).u0 + 0x40;
           u_char v = (sd->ePmx0).v0;
+          /* LEAD (w38-a3, MEASURED, NOT APPLIED -- see the block comment at the top of
+             DrawC_Prim): this 6-statement u/v block and its `(char)(sd->vtN).y/.z`
+             sibling are the SOLE source of the +21 (Prim) / +17 (PrimClip) EXCESS
+             NOPS.  Each statement loads one byte and immediately consumes it, so
+             every `lbu` eats a load-delay nop; the oracle runs TWO parallel chains
+             (`lbu t4,..; lbu t5,..; addu t4,t4,t6; sb t4,..; addu t5,t5,t7; sb t5,..`)
+             where the second load fills the first's delay slot.  Rewriting each
+             vertex as a PAIR of named temps (c0/c1 loaded, then both stored)
+             removes 19 insns from Prim (1413->1394 vs oracle 1389) and 16 from
+             PrimClip (1902->1886 vs 1877) -- but it RAISES the LCS diff count
+             (790->843, 867->1083) because the surrounding saved-register colouring
+             and the 8-byte frame excess are still wrong, so the aligner re-anchors.
+             Apply it as part of a full block-scope/frame rewrite, not on its own. */
           /* idN are morphed addresses: tV[id].u/v = 0xd6/0xd7(idN) (oracle t9/t8/t3) */
           *(u_char *)(prim + 3) = *(u_char *)(id0 + 0xd6) + u;
           *(u_char *)((int)prim + 0xd) = *(u_char *)(id0 + 0xd7) + v;

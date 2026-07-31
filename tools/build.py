@@ -169,6 +169,22 @@ PER_TU_FLAGS = {
     # licensePlate (264) -- stays full-addressed %hi/%lo.  Under -G4 the
     # 8-byte arrays fall out of .sbss and we emit lui/addiu instead.
     "recon/game/psx/cario.cpp":             {"g_value": "8"},
+    # force.obj: third -G8 object, same exact <=8/>8 threshold signature
+    # (w39-a7).  Retail small-data region 0x8013D8xx holds EXACTLY the force
+    # symbols of size <= 8: Force_gActAlign[6] @0x8013D840, Force_gOffAlign[6]
+    # @0x8013D848, Force_gTick (u_short) @0x8013D84E (the one symbol the
+    # oracle reaches with %gp_rel), Force_gVblHandle (4).  Every force symbol
+    # LARGER than 8 bytes lives in the ordinary data/bss region 0x8011Fxxx --
+    # Force_rand_256[256] @0x8011FC60, Force_g[2] (16) @0x8011FD60.  Under -G4
+    # the two 6-byte align arrays fall out of .sdata, which makes cc1plus
+    # SPLIT their address itself (lui %hi/addiu %lo) and then CSE-hoist the
+    # shared base into a callee-saved register across the two PadSetActAlign
+    # calls; retail rematerializes it per call.  With -G8 cc1plus emits the
+    # `la` macro form instead and the hoist disappears.
+    # Receipts (whole TU, -G4 -> -G8): Force_Disable 17 -> PASS,
+    # Force_Vbl 46 -> 40, Force_Update 326 -> 326, Force_IsForceOn 14 -> 14,
+    # HitSign/HitWall/Pause/StartUp/UnPause PASS -> PASS.  Zero regressions.
+    "recon/game/psx/force.cpp":             {"g_value": "8"},
     "recon/game/common/audiocmn.cpp":       {"jtbl_at_fusion": True},  # AudioCmn_SoundCar
     "recon/syslib/psx/libcd/drv.c":       {"jtbl_at_fusion": True},  # CD_get_intr
     "recon/syslib/psx/libgpu/FONT.c":       {"jtbl_at_fusion": True},  # FntPrint

@@ -321,14 +321,12 @@ void Hud_BTCStats(short player,bool postgame)
   short HUD_STATS_TITLE_START_Y;
   short HUD_STATS_TEXT_START_Y;
   int halfH;
-  int negH;
-  int perpH;
+  int textY;
   int dataY;
   int y;
   int nperps;
   int wnum;
   int k;
-  char *word;
 
   chasinghuman = 0;
   showname = 0;
@@ -350,22 +348,21 @@ void Hud_BTCStats(short player,bool postgame)
   }
   HUD_STATS_SIZE_W = PLAYERWIDTH + 6;
   HUD_STATS_TEXT_START_X = -(PLAYERWIDTH >> 1);
-  perpH = (Hud_NextPerp[player] + 1) * 0xc + 0x16;
+  HUD_STATS_SIZE_H = (Hud_NextPerp[player] + 1) * 0xc + 0x16;
   if (showtimeleft != 0) {
-    perpH = (Hud_NextPerp[player] + 1) * 0xc + 0x22;
+    HUD_STATS_SIZE_H = (Hud_NextPerp[player] + 1) * 0xc + 0x22;
   }
   if (postgame != 0) {
-    perpH = perpH + 8;
+    HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 8;
   }
-  HUD_STATS_SIZE_H = (short)perpH;
   if (showname != 0) {
-    HUD_STATS_SIZE_H = (short)(perpH + 0xc);
+    HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0xc;
   }
   halfH = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10) >> 0x11;
   HUD_STATS_POS_Y = (short)(0x78 - halfH);
-  negH = -halfH;
-  HUD_STATS_TEXT_START_Y = (short)(negH + 0x76);
-  HUD_STATS_TITLE_START_Y = (short)(negH + 0x85);
+  textY = 0x76 - halfH;
+  HUD_STATS_TEXT_START_Y = (short)textY;
+  HUD_STATS_TITLE_START_Y = (short)(textY + 0xf);
   HUD_STATS_POS_X = HUD_STATS_TEXT_START_X + 0xa0;
   col[0] = HUD_STATS_TEXT_START_X + 0xa3;
   if (chasinghuman != 0) {
@@ -378,15 +375,14 @@ void Hud_BTCStats(short player,bool postgame)
     col[2] = HUD_STATS_TEXT_START_X + 0xa7 + 0x50;
     col[3] = HUD_STATS_TEXT_START_X + 0xa7 + 0x96;
   }
-  word = TextSys_Word((postgame != 0) ? 0x48 : 0x47);
-  HUD_STATS_TITLE_START_X = (short)(0xa0 - (textpixels(word) >> 1));
+  HUD_STATS_TITLE_START_X = (short)(0xa0 - (textpixels(TextSys_Word((postgame != 0) ? 0x48 : 0x47)) >> 1));
   Font_TextColor(6);
   Font_TextXY(TextSys_Word((postgame != 0) ? 0x48 : 0x47),(int)HUD_STATS_TITLE_START_X,(int)HUD_STATS_TEXT_START_Y);
   startY = HUD_STATS_TITLE_START_Y;
   if (showname != 0) {
     Font_TextColor(4);
     Font_TextXY(Cars_gRaceCarList[player]->carInfo->driver,(int)col[2],(int)startY);
-    startY = (short)(negH + 0x91);
+    startY = (short)(textY + 0x1b);
   }
   Font_TextColor(3);
   if (chasinghuman == 0) {

@@ -3574,6 +3574,8 @@ gte_stsxy3((char *)prim + 0x10,(char *)prim + 0x20,(char *)prim + 0x18);
     if ((-1 < iVar1) && (iVar1 <= Draw_gViewOtSize + -3)) {
       u_long *ot;
       {
+      u_long lc;      /* MATCH: the colour word needs its OWN temp -- reusing l1 for it
+                         rotates the whole {l1,l2,l3} triple off the oracle's regs (19->3) */
       u_long l1;
       u_long l2;
       u_long l3;
@@ -3585,11 +3587,21 @@ gte_stsxy3((char *)prim + 0x10,(char *)prim + 0x20,(char *)prim + 0x18);
          second half of the 24-bit OT link, because the prim store may alias the
          OT word.  Staging through a temp let gcc keep the single ot[] load and
          reorder the two stores (-2 insns, 110->41 diffs). */
-      *(u_long *)prim = *(u_long *)prim & 0xff000000 | ot[iVar1] & 0xffffff;
-      ot[iVar1] = ot[iVar1] & 0xff000000 | (u_long)prim & 0xffffff;
-      l1 = sd->color;
+      {
+      /* MATCH (w38-a3): a BLOCK-LOCAL `otp` for the OT slot (not an `ot[iVar1]`
+         index expression at each of the 3 uses) -- the oracle computes the slot
+         address once into its own pseudo and the index copy `addu v0,v1,zero`
+         falls out of it (41->31->19 diffs). */
+      /* MATCH: index the OT with the field we JUST STORED (`sd->otz`), not the
+         local `iVar1` -- cc1 forwards the stored value and emits retail's
+         redundant `addu v0,v1,zero` copy before the shift (3 -> PASS). */
+      u_long *otp = ot + sd->otz;
+      *(u_long *)prim = *(u_long *)prim & 0xff000000 | *otp & 0xffffff;
+      *otp = *otp & 0xff000000 | (u_long)prim & 0xffffff;
+      }
+      lc = sd->color;
       *(u_char *)((char *)prim + 3) = 9;
-      *(u_long *)&prim->r0 = l1;
+      *(u_long *)&prim->r0 = lc;
       *(u_char *)((char *)prim + 7) = 0x2e;
       l1 = *(u_long *)&shadowPmx->u1;
       l2 = *(u_long *)&shadowPmx->u2;

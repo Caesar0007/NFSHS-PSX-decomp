@@ -1074,6 +1074,23 @@ void Weather_CreateSplat
 }
 
 /* ---- Weather_DoSplats__FiP18Weather_tSplatInfo  [WEATHER.CPP:1039-1064] SLD-VERIFIED ---- */
+/* w39-a6: 117 -> 62 diffs, count EXACT 113/113.  Levers:
+ *  - no `new_count` funnel: Ghidra routed every arm through a shared
+ *    `gCurrentNumSplats = new_count;` store; the oracle only stores in the retire arm
+ *    (sw s1,%gp_rel(gCurrentNumSplats)) and j's straight to the loop increment.
+ *  - the retire guard is POSITIVE: `if (num < gCurrentNumSplats && i == gCurrentNumSplats-1)`
+ *    (oracle slt s4,a2 / beqz body / bne s1,v0 body), not the inverted `||` + comma form.
+ *  - `(u_int)random() % K` inline, no named u_int temp: the temp costs an extra
+ *    `addu a0,v0,zero` to preserve the dividend at every one of the 4 modulo sites.
+ *    (a plain `random() % K` would be a SIGNED modulo -- oracle uses multu.)
+ *  - plain top-tested `while (i < gCurrentNumSplats)`: gcc rotates it and CSEs the
+ *    guard load with the loop-carried one ($a2 reused), where the if+do/while form
+ *    reloads gCurrentNumSplats inside the body.
+ * RESIDUAL 62 = giv-anchor: gcc anchors the loop walker at +4 (startTick, the LAST
+ * access in body order -- combine_givs rule) and walks a second IV at +0; the oracle
+ * anchors at +0 and re-COPIES it (addu s2,s0,zero in a jal delay slot) for the pos.vy
+ * store.  Index form, cast-pointer spellings and per-field pointers all measured
+ * neutral-or-worse. */
 void Weather_DoSplats
                (int num,Weather_tSplatInfo *splats)
 
@@ -1082,46 +1099,35 @@ void Weather_DoSplats
   u_int rnd;
   u_int uVar1;
   int i;
-  int local_s1_64;
-  int num_reg;
-  int new_count;
-  
+
   if (gCurrentNumSplats < num) {
     gCurrentNumSplats = num;
   }
-  local_s1_64 = 0;
-  if (0 < gCurrentNumSplats) {
-    do {
-      new_count = gCurrentNumSplats;
+  i = 0;
+  while (i < gCurrentNumSplats) {
       if (splats->startTick <= simGlobal.gameTicks) {
         if (splats->startTick + 0x20 < simGlobal.gameTicks) {
-          if ((gCurrentNumSplats <= num) ||
-             (new_count = local_s1_64, local_s1_64 != gCurrentNumSplats + -1)) {
-            rnd = random();
-            (splats->pos).vx = (short)(rnd % 320);
+          if ((num < gCurrentNumSplats) && (i == gCurrentNumSplats + -1)) {
+            gCurrentNumSplats = i;
+          }
+          else {
+            (splats->pos).vx = (short)((u_int)random() % 320);
             if (GameSetup_gData.commMode == 1) {
-              uVar1 = random();
-              y_pos = (short)(uVar1 % 0xf0 >> 1);
+              y_pos = (short)((u_int)random() % 0xf0 >> 1);
             }
             else {
-              uVar1 = random();
-              y_pos = (short)uVar1 + (short)(uVar1 / 0xf0) * -0xf0;
+              y_pos = (short)((u_int)random() % 0xf0);
             }
             (splats->pos).vy = y_pos;
-            uVar1 = random();
-            splats->startTick = simGlobal.gameTicks + uVar1 % 100;
-            new_count = gCurrentNumSplats;
+            splats->startTick = simGlobal.gameTicks + (u_int)random() % 100;
           }
         }
         else {
           Weather_CreateSplat(splats);
-          new_count = gCurrentNumSplats;
         }
       }
-      gCurrentNumSplats = new_count;
       splats = splats + 1;
-      local_s1_64 = local_s1_64 + 1;
-    } while (local_s1_64 < gCurrentNumSplats);
+      i = i + 1;
   }
   return;
 }

@@ -131,16 +131,22 @@ Skidmark_CheckChunk(coorddef *skidpt,int newsegs,int slice)
 }
 
 /* ---- Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii  [SKIDMARK.CPP:159-239] SLD-VERIFIED ----
- * NEAR-MISS 98 diffs, COUNT-EXACT 245/245 (w38-a5, was 158).  Residual = a single
- * $s4<->$s5 parameter tie that propagates through every use: retail puts the STACK
- * parameter `type` in $s4 (the earlier reg) and `color` in $s5; ours is the other way
- * round.  Both allocnos have identical ref counts at RTL level (5 uses + 1 param copy
- * each -- `color` is only referenced ONCE per struct copy because movstrsi is a single
- * RTL insn) and both live the whole function, so this is the documented gcc-2.8
- * `allocno_compare` tie-break delta, not a source shape.  Tried: array-index form
- * (landed, -60), operand/statement reordering in the tail (neutral).  The other two
- * residual sites are cross-jump DEPTH (the oracle keeps 2 more insns inside the
- * first arm before jumping to the shared tail). */
+ * NEAR-MISS 14 diffs (w39-a10, was 98).  The w38 note that blamed a "$s4<->$s5
+ * parameter tie" was WRONG -- the whole rotation was a CROSS-JUMP-DEPTH artifact:
+ *   (1) `sm->seg[n].type = type;` must live INSIDE EACH ARM (arm1 indexes the arm's
+ *       own `n` = sm->n, arm3 recomputes `sm->n + 1`), NOT in the shared tail.  With
+ *       one shared `n` variable both arms feed the SAME hard reg, so gcc's post-reload
+ *       cross-jump merges 2 insns deeper than retail (`sll ,3; subu` get merged too)
+ *       and the whole index web re-colours.  Retail's tail starts at `sll $v0,$v0,2`.
+ *   (2) arm3's CalcStartSegment must use the INLINE `&sm->seg[sm->n]` /
+ *       `&sm->seg[sm->n + 1]` form, not a named `n` -- the named local takes $a0 where
+ *       retail's anonymous CSE temp takes $v0 (arm1 already used the inline form and
+ *       already matched).  Adding a named `n` to arm1's call regresses 6 -> 12.
+ * Residual 14 = the `prevskid->chunk = gUseSm;` load-placement tie at 2 sites: our
+ * sched1 hoists `lw gUseSm` one insn further (into the live `$v0` address chain, so it
+ * lands in $v1) than retail (which loads AFTER `sw zero,0x28($v0)`, into the freed
+ * $v0) -- with the value in $v1 the store can no longer sink into the following
+ * `lh $v1,0xC($s0)` load-delay slot, costing the 2 extra nops (247 vs 245). */
 void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,int type,int slice)
 
 {
@@ -155,6 +161,7 @@ void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,
     sm->seg[n].rgb = sm->seg[n + 1].rgb;
     n = sm->n;
     sm->seg[n + 1].type = type;
+    sm->seg[n].type = type;
   }
   else {
     sm = Skidmark_CheckChunk(skidpt,2,slice);
@@ -172,14 +179,12 @@ void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,
       sm->n = sm->n + 1;
       return;
     }
-    n = sm->n;
-    CalcStartSegment(&sm->seg[n],&sm->seg[n + 1],&sm->cp,&prevskid->pt,skidpt,tireWidth);
+    CalcStartSegment(&sm->seg[sm->n],&sm->seg[sm->n + 1],&sm->cp,&prevskid->pt,skidpt,tireWidth);
     sm->seg[sm->n].rgb = prevskid->clr;
     sm->seg[sm->n].type = prevskid->type;
     sm->seg[sm->n + 1].rgb = *color;
-    n = sm->n + 1;
+    sm->seg[sm->n + 1].type = type;
   }
-  sm->seg[n].type = type;
   sm->seg[sm->n].next = &sm->seg[sm->n + 1];
   sm->seg[sm->n + 1].next = (Skidmark_Segment *)0x0;
   prevskid->clr = *color;
@@ -211,6 +216,7 @@ void Skidmark_AddStretch(Skidmark_Segment **save,int *savechunk,tSkid *prevskid,
     sm->seg[n].rgb = sm->seg[n + 1].rgb;
     n = sm->n;
     sm->seg[n + 1].type = type;
+    sm->seg[n].type = type;
   }
   else {
     sm = Skidmark_CheckChunk(skidpt,2,slice);
@@ -225,14 +231,12 @@ void Skidmark_AddStretch(Skidmark_Segment **save,int *savechunk,tSkid *prevskid,
       sm->n = sm->n + 1;
       return;
     }
-    n = sm->n;
-    CalcStartSegment(&sm->seg[n],&sm->seg[n + 1],&sm->cp,&prevskid->pt,skidpt,tireWidth);
+    CalcStartSegment(&sm->seg[sm->n],&sm->seg[sm->n + 1],&sm->cp,&prevskid->pt,skidpt,tireWidth);
     sm->seg[sm->n].rgb = prevskid->clr;
     sm->seg[sm->n].type = prevskid->type;
     sm->seg[sm->n + 1].rgb = *color;
-    n = sm->n + 1;
+    sm->seg[sm->n + 1].type = type;
   }
-  sm->seg[n].type = type;
   sm->seg[sm->n].next = &sm->seg[sm->n + 1];
   sm->seg[sm->n + 1].next = (Skidmark_Segment *)0x0;
   *save = &sm->seg[sm->n + 1];

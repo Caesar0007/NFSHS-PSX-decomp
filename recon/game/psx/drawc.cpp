@@ -3751,29 +3751,18 @@ gte_ldv3(vt1,vt2,vt3);
 void DrawC_ShadowPrimClip(Draw_tVertex *shadowVT,Draw_CarCache *sd)
 
 {
-  short t3;
-  short * z;
-  short sVar1;
-  short sVar2;
-  short sVar3;
-  short sVar4;
-  short sVar5;
-  u_short uv0;
-  u_short uv1;
-  short t2;
-  short t1;
-  u_short uv2;
-  u_short uv3;
+  /* rule-8 (w39-a3): the SYM names ONLY shadowPmx ($fp) plus five sibling
+     block-scoped temp sets ({t1,t2,t3}, 3x {z,t1,t2,t3}, {uv0..uv3}).  The
+     fn-scope t1/t2/t3/z/sVar1-5/uv0-3 copies were dead Ghidra leftovers. */
   u_char *u2;
   COORD16 *vt2;
   Draw_tPixMap *shadowPmx;
-  Draw_tPixMap *pmx;
-  
-  pmx = gShadowPixmap0;
+
+  shadowPmx = gShadowPixmap0;
   if (R3DCar_InMenu != 0) {
-    pmx = gMenuPixmap[1];
+    shadowPmx = gMenuPixmap[1];
   }
-  ChangeTPage(&pmx->tpage,2);
+  ChangeTPage(&shadowPmx->tpage,2);
 gte_SetRotMatrix(&DrawC_gScreenMat);
 gte_SetTransMatrix(&DrawC_gScreenMat);
   vt2 = &sd->vt8;
@@ -3817,8 +3806,8 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     (sd->vt3).y = t2;
     (sd->vt3).z = t3;
     (sd->vt0).x = (sd->vt0).x << 2;
-    (sd->vt0).z = (sd->vt0).z << 2;
     (sd->vt0).y = (sd->vt0).y << 2;
+    (sd->vt0).z = (sd->vt0).z << 2;
     (sd->vt1).x = (sd->vt1).x << 2;
     (sd->vt1).y = (sd->vt1).y << 2;
     (sd->vt1).z = (sd->vt1).z << 2;
@@ -3846,14 +3835,16 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
   (sd->vt8).x = (short)(((sd->vt0).x + (sd->vt2).x + 1) >> 1);
   (sd->vt8).y = (short)(((sd->vt0).y + (sd->vt2).y + 1) >> 1);
   (sd->vt8).z = (short)(((sd->vt0).z + (sd->vt2).z + 1) >> 1);
-  uv0 = *(u_short *)&pmx->u0;
-  uv1 = *(u_short *)&pmx->u1;
-  uv3 = *(u_short *)&pmx->u3;
-  uv2 = *(u_short *)&pmx->u2;
-  *(u_short *)&sd->u0 = uv0;
-  *(u_short *)&sd->u1 = uv1;
-  *(u_short *)&sd->u2 = uv3;
-  *(u_short *)&sd->u3 = uv2;
+  {
+    u_short uv0 = *(u_short *)&shadowPmx->u0;
+    u_short uv1 = *(u_short *)&shadowPmx->u1;
+    u_short uv3 = *(u_short *)&shadowPmx->u3;
+    u_short uv2 = *(u_short *)&shadowPmx->u2;
+    *(u_short *)&sd->u0 = uv0;
+    *(u_short *)&sd->u1 = uv1;
+    *(u_short *)&sd->u2 = uv3;
+    *(u_short *)&sd->u3 = uv2;
+  }
   sd->u4 = (u_char)((int)((u_int)sd->u0 + (u_int)sd->u1 + 1) >> 1);
   sd->v4 = (u_char)((int)((u_int)sd->v0 + (u_int)sd->v1 + 1) >> 1);
   sd->u5 = (u_char)((int)((u_int)sd->u1 + (u_int)sd->u2 + 1) >> 1);
@@ -3865,13 +3856,13 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
   sd->offsetU2 = (u_char)((int)((u_int)sd->u0 + (u_int)sd->u2 + 1) >> 1);
   sd->offsetV2 = (u_char)((int)((u_int)sd->v0 + (u_int)sd->v2 + 1) >> 1);
   DrawC_DivideShadowPrim(&sd->vt0,&sd->vt4,vt2,&sd->vt7,(u_short *)&sd->u0,(u_short *)&sd->u4,(u_short *)u2,
-             (u_short *)&sd->offsetU1,pmx,sd);
+             (u_short *)&sd->offsetU1,shadowPmx,sd);
   DrawC_DivideShadowPrim(&sd->vt4,&sd->vt1,&sd->vt5,vt2,(u_short *)&sd->u4,(u_short *)&sd->u1,(u_short *)&sd->u5,
-             (u_short *)u2,pmx,sd);
+             (u_short *)u2,shadowPmx,sd);
   DrawC_DivideShadowPrim(&sd->vt7,vt2,&sd->vt6,&sd->vt3,(u_short *)&sd->offsetU1,(u_short *)u2,
-             (u_short *)&sd->offsetU0,(u_short *)&sd->u3,pmx,sd);
+             (u_short *)&sd->offsetU0,(u_short *)&sd->u3,shadowPmx,sd);
   DrawC_DivideShadowPrim(&sd->vt8,&sd->vt5,&sd->vt2,&sd->vt6,(u_short *)u2,(u_short *)&sd->u5,(u_short *)&sd->u2,
-             (u_short *)&sd->offsetU0,pmx,sd);
+             (u_short *)&sd->offsetU0,shadowPmx,sd);
   return;
 }
 

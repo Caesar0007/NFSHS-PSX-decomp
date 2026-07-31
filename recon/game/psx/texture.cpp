@@ -387,33 +387,51 @@ void Texture_Vramcf(shapetbl *shp,int x,int y,int clutx,int cluty)
   char*s;
   int rowbytes;
   u_short height;
+  int h;                 /* MATCH: the sign-extended height lands in a SECOND
+                          * variable born exactly where `height` dies (its last
+                          * use is the &1 test) -- gcc reuses height's register
+                          * for it (oracle: sll/sra back into $s2, and every
+                          * later use incl. the restore takes the extended
+                          * value).  One `short height` keeps the raw lhu alive. */
   int rowall;
   int off;
   short ybot;
   RECT r;
 
-  rowall = shp->width * shapedepth(shp) + 0xf;
-  rowbytes = (int)(rowall & 0xfffffff0) >> 3;
-  if (((rowbytes & 2) == 0) || (height = shp->height, (height & 1) != 0)) {
-    Texture_Vramf(shp,x,y,clutx,cluty);
+  /* MATCH: mask INTO rowall (ONE statement) -- the oracle parks the MASKED value
+   * in the callee-saved reg and derives BOTH rowbytes and r.w from it. */
+  rowall = (shp->width * shapedepth(shp) + 0xf) & 0xfffffff0;
+  rowbytes = (int)rowall >> 3;
+  /* MATCH: the odd/simple case is the BRANCH TARGET (beqz/bnez skip forward) and
+   * the two-blit path is the FALL-THROUGH, with a SECOND textual Vramf call laid
+   * out after it -- an `if (simple) {...} else {...}` inverts both. */
+  if ((rowbytes & 2) != 0) {
+    height = shp->height;
+    if ((height & 1) == 0) {
+      h = (short)height;
+      off = (h + -1) * rowbytes;
+      /* MATCH: ONE base pointer (&shp->data + off) reused as s-2 / s+2 -- the
+       * SYM names it `s`; separate (char*)shp + 0xe/0x12 + off forms build two
+       * independent addu chains. */
+      s = &shp->data + off;
+      ybot = y + h;
+      r.y = ybot + -2;
+      r.x = (short)x;
+      r.w = 1;
+      r.h = 2;
+      LoadImage(&r,(u_long *)(s + -2));
+      r.x = (short)x + 1;
+      r.y = ybot + -1;
+      r.w = ((int)rowall >> 4) + -1;
+      r.h = 1;
+      LoadImage(&r,(u_long *)(s + 2));
+      shp->height = shp->height + -1;
+      Texture_Vramf(shp,x,y,clutx,cluty);
+      shp->height = h;
+      return;
+    }
   }
-  else {
-    off = ((short)height + -1) * rowbytes;
-    ybot = (short)y + height;
-    r.y = ybot + -2;
-    r.w = 1;
-    r.h = 2;
-    r.x = (short)x;
-    LoadImage(&r,(u_long *)((char *)shp + 0xe + off));
-    r.x = (short)x + 1;
-    r.y = ybot + -1;
-    r.w = ((int)rowall >> 4) + -1;
-    r.h = 1;
-    LoadImage(&r,(u_long *)((char *)shp + 0x12 + off));
-    shp->height = shp->height + -1;
-    Texture_Vramf(shp,x,y,clutx,cluty);
-    shp->height = height;
-  }
+  Texture_Vramf(shp,x,y,clutx,cluty);
   return;
 }
 

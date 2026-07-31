@@ -1025,38 +1025,24 @@ vhalf:   /* VERTEX!=0 : o0 orientMat, if(0<xRange) negation */
         int dotz;
         coorddef vel;
 
-        {
-          int lvx = (o1->linearVel).x, lvy = (o1->linearVel).y, lvz = (o1->linearVel).z;
-          int m0 = (o0->orientMat).m[0], m1 = (o0->orientMat).m[1], m2 = (o0->orientMat).m[2];
-          int m3 = (o0->orientMat).m[3], m4 = (o0->orientMat).m[4], m5 = (o0->orientMat).m[5];
-          int m6 = (o0->orientMat).m[6], m7 = (o0->orientMat).m[7], m8 = (o0->orientMat).m[8];
-          vel.x = lvx;
-          vel.y = lvy;
-          vel.z = lvz;
-          normalx.x = m0;
-          normalx.y = m1;
-          normalx.z = m2;
-          normaly.x = m3;
-          normaly.y = m4;
-          normaly.z = m5;
-          normalz.x = m6;
-          normalz.y = m7;
-          normalz.z = m8;
-        }
+        vel = o1->linearVel;
+        normalx = *(coorddef *)&(o0->orientMat).m[0];
+        normaly = *(coorddef *)&(o0->orientMat).m[3];
+        normalz = *(coorddef *)&(o0->orientMat).m[6];
         if (0 < xRange) {
           normalx.x = -normalx.x;
-          normalx.z = -normalx.z;
           normalx.y = -normalx.y;
+          normalx.z = -normalx.z;
         }
         if (0 < yRange) {
           normaly.x = -normaly.x;
-          normaly.z = -normaly.z;
           normaly.y = -normaly.y;
+          normaly.z = -normaly.z;
         }
         if (0 < zRange) {
           normalz.x = -normalz.x;
-          normalz.z = -normalz.z;
           normalz.y = -normalz.y;
+          normalz.z = -normalz.z;
         }
         dotx = normalx.x / 256 * (vel.x / 256) + normalx.y / 256 * (vel.y / 256) +
                normalx.z / 256 * (vel.z / 256);
@@ -1074,20 +1060,14 @@ vhalf:   /* VERTEX!=0 : o0 orientMat, if(0<xRange) negation */
           dotz = -dotz;
         }
         if (doty < dotx && dotz < dotx) {
-          normal->x = normalx.x;
-          normal->y = normalx.y;
-          normal->z = normalx.z;
+          *normal = normalx;
           return 1;
         }
         if (dotz < doty) {
-          normal->x = normaly.x;
-          normal->y = normaly.y;
-          normal->z = normaly.z;
+          *normal = normaly;
           return 1;
         }
-        normal->x = normalz.x;
-        normal->y = normalz.y;
-        normal->z = normalz.z;
+        *normal = normalz;
         return 1;
       }
       {
@@ -1114,34 +1094,28 @@ vhalf:   /* VERTEX!=0 : o0 orientMat, if(0<xRange) negation */
           zDiff = (o0->dimension).z - zRange;
         }
         if (xDiff < yDiff && xDiff < zDiff) {
-          normal->x = (o0->orientMat).m[0];
-          normal->y = (o0->orientMat).m[1];
-          normal->z = (o0->orientMat).m[2];
+          *normal = *(coorddef *)&(o0->orientMat).m[0];
           if (0 < xRange) {
             normal->x = -normal->x;
-            normal->z = -normal->z;
             normal->y = -normal->y;
+            normal->z = -normal->z;
           }
           return 1;
         }
         if (yDiff < zDiff) {
-          normal->x = (o0->orientMat).m[3];
-          normal->y = (o0->orientMat).m[4];
-          normal->z = (o0->orientMat).m[5];
+          *normal = *(coorddef *)&(o0->orientMat).m[3];
           if (0 < yRange) {
             normal->x = -normal->x;
-            normal->z = -normal->z;
             normal->y = -normal->y;
+            normal->z = -normal->z;
           }
           return 1;
         }
-        normal->x = (o0->orientMat).m[6];
-        normal->y = (o0->orientMat).m[7];
-        normal->z = (o0->orientMat).m[8];
+        *normal = *(coorddef *)&(o0->orientMat).m[6];
         if (0 < zRange) {
           normal->x = -normal->x;
-          normal->z = -normal->z;
           normal->y = -normal->y;
+          normal->z = -normal->z;
         }
 ohalf:   /* OTHER!=0 : o1 orientMat, if(xRange<0) negation */
   {
@@ -1185,38 +1159,24 @@ ohalf:   /* OTHER!=0 : o1 orientMat, if(xRange<0) negation */
         int dotz;
         coorddef vel;
 
-        {
-          int lvx = (o0->linearVel).x, lvy = (o0->linearVel).y, lvz = (o0->linearVel).z;
-          int m0 = (o1->orientMat).m[0], m1 = (o1->orientMat).m[1], m2 = (o1->orientMat).m[2];
-          int m3 = (o1->orientMat).m[3], m4 = (o1->orientMat).m[4], m5 = (o1->orientMat).m[5];
-          int m6 = (o1->orientMat).m[6], m7 = (o1->orientMat).m[7], m8 = (o1->orientMat).m[8];
-          vel.x = lvx;
-          vel.y = lvy;
-          vel.z = lvz;
-          normalx.x = m0;
-          normalx.y = m1;
-          normalx.z = m2;
-          normaly.x = m3;
-          normaly.y = m4;
-          normaly.z = m5;
-          normalz.x = m6;
-          normalz.y = m7;
-          normalz.z = m8;
-        }
+        vel = o0->linearVel;
+        normalx = *(coorddef *)&(o1->orientMat).m[0];
+        normaly = *(coorddef *)&(o1->orientMat).m[3];
+        normalz = *(coorddef *)&(o1->orientMat).m[6];
         if (xRange < 0) {
           normalx.x = -normalx.x;
-          normalx.z = -normalx.z;
           normalx.y = -normalx.y;
+          normalx.z = -normalx.z;
         }
         if (yRange < 0) {
           normaly.x = -normaly.x;
-          normaly.z = -normaly.z;
           normaly.y = -normaly.y;
+          normaly.z = -normaly.z;
         }
         if (zRange < 0) {
           normalz.x = -normalz.x;
-          normalz.z = -normalz.z;
           normalz.y = -normalz.y;
+          normalz.z = -normalz.z;
         }
         dotx = normalx.x / 256 * (vel.x / 256) + normalx.y / 256 * (vel.y / 256) +
                normalx.z / 256 * (vel.z / 256);
@@ -1234,20 +1194,14 @@ ohalf:   /* OTHER!=0 : o1 orientMat, if(xRange<0) negation */
           dotz = -dotz;
         }
         if (doty < dotx && dotz < dotx) {
-          normal->x = normalx.x;
-          normal->y = normalx.y;
-          normal->z = normalx.z;
+          *normal = normalx;
           return 1;
         }
         if (dotz < doty) {
-          normal->x = normaly.x;
-          normal->y = normaly.y;
-          normal->z = normaly.z;
+          *normal = normaly;
           return 1;
         }
-        normal->x = normalz.x;
-        normal->y = normalz.y;
-        normal->z = normalz.z;
+        *normal = normalz;
         return 1;
       }
       {
@@ -1274,34 +1228,28 @@ ohalf:   /* OTHER!=0 : o1 orientMat, if(xRange<0) negation */
           zDiff = (o1->dimension).z - zRange;
         }
         if (xDiff < yDiff && xDiff < zDiff) {
-          normal->x = (o1->orientMat).m[0];
-          normal->y = (o1->orientMat).m[1];
-          normal->z = (o1->orientMat).m[2];
+          *normal = *(coorddef *)&(o1->orientMat).m[0];
           if (xRange < 0) {
             normal->x = -normal->x;
-            normal->z = -normal->z;
             normal->y = -normal->y;
+            normal->z = -normal->z;
           }
           return 1;
         }
         if (yDiff < zDiff) {
-          normal->x = (o1->orientMat).m[3];
-          normal->y = (o1->orientMat).m[4];
-          normal->z = (o1->orientMat).m[5];
+          *normal = *(coorddef *)&(o1->orientMat).m[3];
           if (yRange < 0) {
             normal->x = -normal->x;
-            normal->z = -normal->z;
             normal->y = -normal->y;
+            normal->z = -normal->z;
           }
           return 1;
         }
-        normal->x = (o1->orientMat).m[6];
-        normal->y = (o1->orientMat).m[7];
-        normal->z = (o1->orientMat).m[8];
+        *normal = *(coorddef *)&(o1->orientMat).m[6];
         if (zRange < 0) {
           normal->x = -normal->x;
-          normal->z = -normal->z;
           normal->y = -normal->y;
+          normal->z = -normal->z;
         }
         return 1;
       }

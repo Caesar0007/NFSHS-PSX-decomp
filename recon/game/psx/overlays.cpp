@@ -55,6 +55,7 @@ void RaceSummary(void)
   int headerY;
   int dataY;
   int barH;
+  int titleX;
   int color;
 
   HUD_STATS_POS_X = 8;
@@ -73,10 +74,10 @@ void RaceSummary(void)
   colcar = HUD_STATS_POS_X + 0x5f;
   coltime = HUD_STATS_POS_X + 0xa7;
   colbestlap = HUD_STATS_POS_X + 0xe1;
-  color = 0xa0 - (textpixels(TextSys_Word(0x38)) >> 1);
+  titleX = 0xa0 - (textpixels(TextSys_Word(0x38)) >> 1);
   titleY = 0x76 - halfH;
   Font_TextColor(6);
-  Font_TextXY(TextSys_Word(0x38),color * 0x10000 >> 0x10,titleY);
+  Font_TextXY(TextSys_Word(0x38),titleX * 0x10000 >> 0x10,titleY);
   Font_TextColor(3);
   headerY = (titleY + 0xf) * 0x10000 >> 0x10;
   Font_TextXY(TextSys_Word(0x2e),colname,headerY);

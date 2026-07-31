@@ -26,82 +26,61 @@ void AudioEng_CleanUp(void);
 /* ---- AudioEng_Set__Fiiiiiiii  [@0x8007b5a8] ---- */
 void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int dir)
 {
-  AudioEng_t*g;
-  AudioEng_tAdjustments*a;
-  AudioEng_tState*s;
-  char cVar1;
-  u_short uVar2;
-  int iVar3;
-  u_char bVar4;
-  int iVar5;
-  AudioEng_tState *pAVar6;
-  AudioEng_t *pAVar7;
-  
+  AudioEng_t *g;
+  AudioEng_tAdjustments *a;
+  AudioEng_tState *s;
+  const int d = dop;
+
   if ((u_int)player < 2) {
     g = AudioEng_g[player];
-    if ((g != (AudioEng_t *)0x0) &&
-       ((g->plypos != '\x0f' || ((g->setpos + 1U & 1) == 0)))) {
+    if (g != (AudioEng_t *)0x0) {
       a = &g->adjust;
-      s = g->queue + (u_char)g->setpos;
-      iVar3 = (int)((u_int)a->timbreScale * esp) >> 0xe;
-      iVar5 = 0x1ff;
-      if (iVar3 < 0x200) {
-        iVar5 = iVar3;
-      }
-      s->esp = (u_short)iVar5;
-      if (Cars_gList[player]->carInfo->carType == 0x1c) {
-        iVar5 = (esp >> 2) + 0xc000;
-      }
-      else {
-        iVar5 = esp + 0x3333;
-      }
-      iVar5 = fixedmult(iVar5,dop);
-      s->dop = (u_short)((int)((u_int)a->pitchScale * iVar5) >> 10);
-      iVar5 = gas + (gas >> 5) + (gas >> 6);
-      if (iVar5 < 0x81) {
-        s->gas = (u_char)iVar5;
-      }
-      else {
-        s->gas = 0x80;
-      }
-      if (cam == 0) {
-        s->exh = a->inCarExhaust;
-        if (GameSetup_gData.commMode == 1) {
-          s->sep = 0;
+      if (g->plypos != '\x0f' || ((g->setpos + 1U & 1) == 0)) {
+        s = g->queue + (u_char)g->setpos;
+        s->esp = ((int)((u_int)a->timbreScale * esp) >> 0xe) < 0x200
+                     ? (u_short)((int)((u_int)a->timbreScale * esp) >> 0xe)
+                     : 0x1ff;
+        s->dop = (u_short)((int)((u_int)g->adjust.pitchScale *
+            fixedmult(Cars_gList[player]->carInfo->carType != 0x1c
+                          ? esp + 0x3333
+                          : (esp >> 2) + 0xc000,
+                      d)) >> 10);
+        if (gas + (gas >> 5) + (gas >> 6) < 0x81) {
+          s->gas = gas + (gas >> 5) + (gas >> 6);
+        }
+        else {
+          s->gas = 0x80;
+        }
+        if (cam == 0) {
+          s->exh = a->inCarExhaust;
+          if (GameSetup_gData.commMode == 1) {
+            s->sep = 0;
+            s->azi = (u_short)azi;
+          }
+          else {
+            s->azi = 0;
+            s->sep = 0x3fff;
+          }
+          s->vol = ((int)(vol * (u_int)a->inCarBoost) >> 6) < 0x800
+                       ? (u_short)((int)(vol * (u_int)a->inCarBoost) >> 6)
+                       : 0x7ff;
+        }
+        else {
+          s->exh = a->outCarExhaust;
+          s->exh += ((int)(dir < 0
+                               ? dir * (u_int)a->fwdEngBoost *
+                                     (u_int)s->exh
+                               : dir * (u_int)a->rwdExhBoost *
+                                     (0x80 - (u_int)s->exh)) >> 7) /
+                    0x10000;
           s->azi = (u_short)azi;
+          s->sep = 0;
+          s->vol = ((int)(vol * (u_int)a->outCarBoost) >> 6) < 0x800
+                       ? (u_short)((int)(vol * (u_int)a->outCarBoost) >> 6)
+                       : 0x7ff;
         }
-        else {
-          s->azi = 0;
-          s->sep = 0x3fff;
-        }
-        bVar4 = a->inCarBoost;
+        g->setpos = g->setpos + 1U & 0xf;
       }
-      else {
-        s->exh = a->outCarExhaust;
-        if (dir < 0) {
-          bVar4 = s->exh;
-          iVar5 = dir * (u_int)a->fwdEngBoost * (u_int)bVar4;
-        }
-        else {
-          bVar4 = s->exh;
-          iVar5 = dir * (u_int)a->rwdExhBoost * (0x80 - (u_int)bVar4);
-        }
-        cVar1 = (char)(iVar5 >> 0x17);
-        if (iVar5 >> 7 < 0) {
-          cVar1 = (char)((u_int)((iVar5 >> 7) + 0xffff) >> 0x10);
-        }
-        s->exh = bVar4 + cVar1;
-        s->azi = (u_short)azi;
-        s->sep = 0;
-        bVar4 = a->outCarBoost;
-      }
-      iVar5 = (int)(vol * (u_int)bVar4) >> 6;
-      uVar2 = 0x7ff;
-      if (iVar5 < 0x800) {
-        uVar2 = (u_short)iVar5;
-      }
-      s->vol = uVar2;
-      g->setpos = g->setpos + 1U & 0xf;
     }
   }
   return;

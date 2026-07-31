@@ -152,184 +152,184 @@ void Force_Vbl(void)
  * block still schedule their constant materializations differently (retail splits
  * `lui $s3,0x0007` / `ori $s3,$s3,0x8000` across the clamp branch and hoists `li $v0,18`
  * above the audio loop), and the loop head still differs -- next lever is the loop's own
- * SYM block structure (Block start line 61/62/65/68/72/76/77). */
-void Force_Update(Car_tObj *car)
-
-{
-  Force_tGlobal *f;
-  int skids;
-  int impacts;
-  int impactmultiplier;
-  int v0;
-  int v1;
-  int c;
-  int force;
-  int shock;
-  int time;
-  u_int uVar3;
-  int iVar1;
-  int iVar2;
-  int iVar4;
-  int *piVar6;
-  u_char uVar7;
-  u_char uVar9;
-  int frontmultiplier;
-  int rearmultiplier;
-  
-  uVar3 = car->carIndex;
-  if (1 < uVar3) {
-    return;
-  }
-  f = &Force_g[uVar3];
-  if (1 < Replay_ReplayMode) {
-    f->high = '\0';
-    f->low = '\0';
-    f->time = '\0';
-    return;
-  }
-  skids = GameSetup_gData.controllerData.shockMode[uVar3];
-  impacts = GameSetup_gData.controllerData.shockImpact[uVar3];
-  if (skids != 0) {
-    frontmultiplier = (skids + 0x10) * 0x2da6;
-  }
-  else {
-    frontmultiplier = 0;
-  }
-  if (skids != 0) {
-    rearmultiplier = (skids + 0x10) * 0x1e6e;
-  }
-  else {
-    rearmultiplier = 0;
-  }
-  if (impacts != 0) {
-    impactmultiplier = (impacts + 0x10) * 0xb699;
-  }
-  else {
-    impactmultiplier = 0;
-  }
-  v0 = 0;
-  v1 = v0;
-  if ((car->N).flightTime == 0) {
-    switch((car->N).driveSurfaceType) {
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-    case 7:
-    case 8:
-    case 9:
-      v0 = 0;
-      iVar1 = (car->linearVel_ch).z;
-      if (iVar1 < 0) {
-        iVar1 = -iVar1;
-      }
-      v1 = 0x78000;
-      if (iVar1 >> 2 < 0x78001) {
-        v1 = iVar1 >> 2;
-      }
-      goto ForceUpd_audioRevLoop;
-    case 10:
-    case 0xb:
-    case 0xc:
-    case 0xd:
-    case 0xf:
-      iVar1 = (car->linearVel_ch).z;
-      if (iVar1 < 0) {
-        iVar1 = -iVar1;
-      }
-      v0 = 0x58000;
-      if (iVar1 >> 1 < 0x58001) {
-        v0 = iVar1 >> 1;
-      }
-      break;
-    case 0xe:
-      v0 = 0;
-    }
-    v1 = 0;
-  }
-ForceUpd_audioRevLoop:
-  c = car->audioCount;
-  if (c != 0) {
-    piVar6 = &(car->N).simRoadInfo.quadPts[c * 2 + -4].z;
-    while (c = c + -1, -1 < c) {
-      iVar2 = piVar6[0x1e7];
-      if (iVar2 == 0x12) {
-        if (v0 < piVar6[0x1ea] << 1) {
-          v0 = piVar6[0x1ea] << 1;
-        }
-      }
-      else if (iVar2 == 0x14) {
-        if (v1 < piVar6[0x1ea] << 1) {
-          v1 = piVar6[0x1ea] << 1;
-        }
-      }
-      else if ((((iVar2 < 0) && (impactmultiplier != 0)) && (piVar6[0x1e8] != 10)) &&
-               (piVar6[0x1e8] != 8)) {
-        shock = piVar6[0x1ea];
-        if (shock < 0x28001) {
-          time = 0x20;
-        }
-        else {
-          force = fixeddiv(shock,0x28000) * 0x20;
-          if (force < 0) {
-            force = force + 0xffff;
-          }
-          shock = 0x28000;
-          if (force >> 0x10 < 0x61) {
-            force = fixeddiv(piVar6[0x1ea],0x28000) * 0x20;
-            time = force >> 0x10;
-            if (force < 0) {
-              time = force + 0xffff >> 0x10;
-            }
-          }
-          else {
-            time = 0x60;
-          }
-        }
-        force = fixedmult(shock,impactmultiplier);
-        if (force < 0) {
-          force = force + 0xffff;
-        }
-        if (((int)(u_int)f->jolt < force >> 0x10) || ((int)(u_int)f->time < time)) {
-          f->fade = (u_char)(time >> 1);
-          f->time = (u_char)time;
-          f->jolt = (u_char)((u_int)force >> 0x10);
-        }
-      }
-      piVar6 = piVar6 + -6;
-    }
-  }
-  if (frontmultiplier == 0) {
-    uVar9 = '\0';
-  }
-  else {
-    if (0xa0000 < v0) {
-      v0 = 0xa0000;
-    }
-    iVar4 = fixedmult(v0,frontmultiplier);
-    uVar9 = (u_char)((u_int)iVar4 >> 0x10);
-    if (iVar4 < 0) {
-      uVar9 = (u_char)((u_int)(iVar4 + 0xffff) >> 0x10);
-    }
-  }
-  if (rearmultiplier == 0) {
-    uVar7 = '\0';
-  }
-  else {
-    if (0xf0000 < v1) {
-      v1 = 0xf0000;
-    }
-    iVar4 = fixedmult(v1,rearmultiplier);
-    uVar7 = (u_char)((u_int)iVar4 >> 0x10);
-    if (iVar4 < 0) {
-      uVar7 = (u_char)((u_int)(iVar4 + 0xffff) >> 0x10);
-    }
-  }
-  f->high = uVar9;
-  f->low = uVar7;
-  return;
-}
+ * SYM block structure (Block start line 61/62/65/68/72/76/77). */
+void Force_Update(Car_tObj *car)
+
+{
+  Force_tGlobal *f;
+  int skids;
+  int impacts;
+  int impactmultiplier;
+  int v0;
+  int v1;
+  int c;
+  int force;
+  int shock;
+  int time;
+  u_int uVar3;
+  int iVar1;
+  int iVar2;
+  int iVar4;
+  int *piVar6;
+  u_char uVar7;
+  u_char uVar9;
+  int frontmultiplier;
+  int rearmultiplier;
+  
+  uVar3 = car->carIndex;
+  if (1 < uVar3) {
+    return;
+  }
+  f = &Force_g[uVar3];
+  if (1 < Replay_ReplayMode) {
+    f->high = '\0';
+    f->low = '\0';
+    f->time = '\0';
+    return;
+  }
+  skids = GameSetup_gData.controllerData.shockMode[uVar3];
+  impacts = GameSetup_gData.controllerData.shockImpact[uVar3];
+  if (skids != 0) {
+    frontmultiplier = (skids + 0x10) * 0x2da6;
+  }
+  else {
+    frontmultiplier = 0;
+  }
+  if (skids != 0) {
+    rearmultiplier = (skids + 0x10) * 0x1e6e;
+  }
+  else {
+    rearmultiplier = 0;
+  }
+  if (impacts != 0) {
+    impactmultiplier = (impacts + 0x10) * 0xb699;
+  }
+  else {
+    impactmultiplier = 0;
+  }
+  v0 = 0;
+  v1 = v0;
+  if ((car->N).flightTime == 0) {
+    switch((car->N).driveSurfaceType) {
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+      v0 = 0;
+      iVar1 = (car->linearVel_ch).z;
+      if (iVar1 < 0) {
+        iVar1 = -iVar1;
+      }
+      v1 = 0x78000;
+      if (iVar1 >> 2 < 0x78001) {
+        v1 = iVar1 >> 2;
+      }
+      goto ForceUpd_audioRevLoop;
+    case 10:
+    case 0xb:
+    case 0xc:
+    case 0xd:
+    case 0xf:
+      iVar1 = (car->linearVel_ch).z;
+      if (iVar1 < 0) {
+        iVar1 = -iVar1;
+      }
+      v0 = 0x58000;
+      if (iVar1 >> 1 < 0x58001) {
+        v0 = iVar1 >> 1;
+      }
+      break;
+    case 0xe:
+      v0 = 0;
+    }
+    v1 = 0;
+  }
+ForceUpd_audioRevLoop:
+  c = car->audioCount;
+  if (c != 0) {
+    piVar6 = &(car->N).simRoadInfo.quadPts[c * 2 + -4].z;
+    while (c = c + -1, -1 < c) {
+      iVar2 = piVar6[0x1e7];
+      if (iVar2 == 0x12) {
+        if (v0 < piVar6[0x1ea] << 1) {
+          v0 = piVar6[0x1ea] << 1;
+        }
+      }
+      else if (iVar2 == 0x14) {
+        if (v1 < piVar6[0x1ea] << 1) {
+          v1 = piVar6[0x1ea] << 1;
+        }
+      }
+      else if ((((iVar2 < 0) && (impactmultiplier != 0)) && (piVar6[0x1e8] != 10)) &&
+               (piVar6[0x1e8] != 8)) {
+        shock = piVar6[0x1ea];
+        if (shock < 0x28001) {
+          time = 0x20;
+        }
+        else {
+          force = fixeddiv(shock,0x28000) * 0x20;
+          if (force < 0) {
+            force = force + 0xffff;
+          }
+          shock = 0x28000;
+          if (force >> 0x10 < 0x61) {
+            force = fixeddiv(piVar6[0x1ea],0x28000) * 0x20;
+            time = force >> 0x10;
+            if (force < 0) {
+              time = force + 0xffff >> 0x10;
+            }
+          }
+          else {
+            time = 0x60;
+          }
+        }
+        force = fixedmult(shock,impactmultiplier);
+        if (force < 0) {
+          force = force + 0xffff;
+        }
+        if (((int)(u_int)f->jolt < force >> 0x10) || ((int)(u_int)f->time < time)) {
+          f->fade = (u_char)(time >> 1);
+          f->time = (u_char)time;
+          f->jolt = (u_char)((u_int)force >> 0x10);
+        }
+      }
+      piVar6 = piVar6 + -6;
+    }
+  }
+  if (frontmultiplier == 0) {
+    uVar9 = '\0';
+  }
+  else {
+    if (0xa0000 < v0) {
+      v0 = 0xa0000;
+    }
+    iVar4 = fixedmult(v0,frontmultiplier);
+    uVar9 = (u_char)((u_int)iVar4 >> 0x10);
+    if (iVar4 < 0) {
+      uVar9 = (u_char)((u_int)(iVar4 + 0xffff) >> 0x10);
+    }
+  }
+  if (rearmultiplier == 0) {
+    uVar7 = '\0';
+  }
+  else {
+    if (0xf0000 < v1) {
+      v1 = 0xf0000;
+    }
+    iVar4 = fixedmult(v1,rearmultiplier);
+    uVar7 = (u_char)((u_int)iVar4 >> 0x10);
+    if (iVar4 < 0) {
+      uVar7 = (u_char)((u_int)(iVar4 + 0xffff) >> 0x10);
+    }
+  }
+  f->high = uVar9;
+  f->low = uVar7;
+  return;
+}
 
 /* ---- Force_StartUp__Fv  [FORCE.CPP:230-244] SLD-VERIFIED ---- */
 void Force_StartUp(void)

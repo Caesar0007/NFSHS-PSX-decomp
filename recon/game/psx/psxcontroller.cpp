@@ -41,75 +41,75 @@
  * (retail computes the 0/1/2 into $v0 then `addu $s3,$v0,$zero`; ours writes $s3
  * directly).  Both are gcc-2.8 allocno-priority items (-dl/-dg territory), not
  * reachable by the statement-shape levers enumerated above. */
-void InGame_ResetPSXController(int player,int config)
-
-{
-  int type;
-  int *h;
-  u_int v;
-
-  type = gPadinfo.buf[player * 4].ID;
-  h = Input_gHandler;
-  if (type != 0x23) {
-    if ((type == 0x53) || (type == 0x73)) {
-      type = 1;
-    }
-    else {
-      type = 2;
-    }
-  }
-  else {
-    type = 0;
-  }
-  if (frontEnd.controlType[player] != (u_short)gPadinfo.buf[player * 4].ID) {
-    frontEnd.controlType[player] = (u_short)gPadinfo.buf[player * 4].ID;
-  }
-  GameSetup_gData.controllerData.controllerConfig[player] = config;
-  h[0x4f - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0][type],player);
-  h[0x50 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][1][type],player);
-  h[0x51 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][2][type],player);
-  h[0x52 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][3][type],player);
-  h[player + 0xae] = InGame_GetPSXPadValue(mappings[config][8][type],player);
-  h[0x75 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][7][type],player);
-  h[0x65 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][7][type],player);
-  h[0x53 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][4][type],player);
-  if ((Cars_gHumanRaceCarList[player]->carFlags & 0x200U) != 0) {
-    int m = mappings[config][10][type];
-
-    if (type == 1) {
-      m = m | 6;
-    }
-    h[0x81 - hoff[player]] = InGame_GetPSXPadValue(m,player);
-  }
-  else {
-    int m;
-
-    h[0x7d - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0][type],0);
-    h[0x7e - hoff[player]] = InGame_GetPSXPadValue(mappings[config][1][type],0);
-    m = mappings[config][10][type];
-    if (type == 1) {
-      m = m | 6;
-    }
-    h[0x82 - hoff[player]] = InGame_GetPSXPadValue(m,player);
-  }
-  if (GameSetup_gData.Time != 0) {
-    h[0x73 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][9][type],player);
-    v = (type == 1) ? 6 : 0;
-  }
-  else {
-    h[0x73 - hoff[player]] = InGame_GetPSXPadValue(0,player);
-    v = mappings[config][9][type];
-    if (type == 1) {
-      v = v | 6;
-    }
-  }
-  h[0x54 - hoff[player]] = InGame_GetPSXPadValue(v,player);
-  h[0x66 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][5][type],player);
-  h[0x67 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][6][type],player);
-  h[0x68 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0xc][type],player);
-  h[0x4d - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0xb][type],player);
-  return;
-}
+void InGame_ResetPSXController(int player,int config)
+
+{
+  int type;
+  int *h;
+  u_int v;
+
+  type = gPadinfo.buf[player * 4].ID;
+  h = Input_gHandler;
+  if (type != 0x23) {
+    if ((type == 0x53) || (type == 0x73)) {
+      type = 1;
+    }
+    else {
+      type = 2;
+    }
+  }
+  else {
+    type = 0;
+  }
+  if (frontEnd.controlType[player] != (u_short)gPadinfo.buf[player * 4].ID) {
+    frontEnd.controlType[player] = (u_short)gPadinfo.buf[player * 4].ID;
+  }
+  GameSetup_gData.controllerData.controllerConfig[player] = config;
+  h[0x4f - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0][type],player);
+  h[0x50 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][1][type],player);
+  h[0x51 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][2][type],player);
+  h[0x52 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][3][type],player);
+  h[player + 0xae] = InGame_GetPSXPadValue(mappings[config][8][type],player);
+  h[0x75 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][7][type],player);
+  h[0x65 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][7][type],player);
+  h[0x53 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][4][type],player);
+  if ((Cars_gHumanRaceCarList[player]->carFlags & 0x200U) != 0) {
+    int m = mappings[config][10][type];
+
+    if (type == 1) {
+      m = m | 6;
+    }
+    h[0x81 - hoff[player]] = InGame_GetPSXPadValue(m,player);
+  }
+  else {
+    int m;
+
+    h[0x7d - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0][type],0);
+    h[0x7e - hoff[player]] = InGame_GetPSXPadValue(mappings[config][1][type],0);
+    m = mappings[config][10][type];
+    if (type == 1) {
+      m = m | 6;
+    }
+    h[0x82 - hoff[player]] = InGame_GetPSXPadValue(m,player);
+  }
+  if (GameSetup_gData.Time != 0) {
+    h[0x73 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][9][type],player);
+    v = (type == 1) ? 6 : 0;
+  }
+  else {
+    h[0x73 - hoff[player]] = InGame_GetPSXPadValue(0,player);
+    v = mappings[config][9][type];
+    if (type == 1) {
+      v = v | 6;
+    }
+  }
+  h[0x54 - hoff[player]] = InGame_GetPSXPadValue(v,player);
+  h[0x66 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][5][type],player);
+  h[0x67 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][6][type],player);
+  h[0x68 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0xc][type],player);
+  h[0x4d - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0xb][type],player);
+  return;
+}
 
 /* ---- InGame_GetPSXPadValue__Fii  [PSXCONTROLLER.CPP:197-332] SLD-VERIFIED ----
  * w38-a9: rewritten as the NESTED SWITCH the oracle proves.  The oracle's
@@ -149,7 +149,7 @@ void InGame_ResetPSXController(int player,int config)
  * `type = 0; if (nopad==0) type = ID;`, the ternary form, the inverted
  * `if (nopad != 0) type = 0; else ...` form, and `c = value; switch (c)`; a
  * `PAD_COMMON *p = &gPadinfo.buf[player*4];` entry pointer is slightly WORSE (331).
- * Also exactly neutral: all four PER_TU flag keys and g_value=8 on this TU. */
+ * Also exactly neutral: all four PER_TU flag keys and g_value=8 on this TU. */
 int InGame_GetPSXPadValue(int value,int player)
 
 {
@@ -277,37 +277,37 @@ int InGame_GetDevice(int control)
 void InGame_SetRamp(void)
 
 {
-  int *h;
-  int *hp;
-
-  h = Input_gHandler;
-  if (Replay_ReplayMode < 2) {
-    short i;
-
-    i = 0;
-    if (i < Cars_gNumHumanRaceCars) {
-      do {
-      int ctrl;
-  
-        hp = hoff + i;
-        ctrl = *(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288);
-        *(int *)(ctrl + 0x1c) = 1;
-        *(int *)(ctrl + 0x20) = 1;
-        *(int *)(ctrl + 0x18) = 1;
-        if (InGame_GetDevice(h[0x4f - *hp]) == 1) {
-          *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x18) = 0;
-        }
-        if (InGame_GetDevice(h[0x51 - *hp]) == 1) {
-          *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x1c) = 0;
-        }
-        if (InGame_GetDevice(h[0x52 - *hp]) == 1) {
-          *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x20) = 0;
-        }
-        i = i + 1;
-      } while (i < Cars_gNumHumanRaceCars);
-    }
-  }
-  return;
+  int *h;
+  int *hp;
+
+  h = Input_gHandler;
+  if (Replay_ReplayMode < 2) {
+    short i;
+
+    i = 0;
+    if (i < Cars_gNumHumanRaceCars) {
+      do {
+      int ctrl;
+  
+        hp = hoff + i;
+        ctrl = *(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288);
+        *(int *)(ctrl + 0x1c) = 1;
+        *(int *)(ctrl + 0x20) = 1;
+        *(int *)(ctrl + 0x18) = 1;
+        if (InGame_GetDevice(h[0x4f - *hp]) == 1) {
+          *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x18) = 0;
+        }
+        if (InGame_GetDevice(h[0x51 - *hp]) == 1) {
+          *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x1c) = 0;
+        }
+        if (InGame_GetDevice(h[0x52 - *hp]) == 1) {
+          *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x20) = 0;
+        }
+        i = i + 1;
+      } while (i < Cars_gNumHumanRaceCars);
+    }
+  }
+  return;
 }
 
 /* end of psxcontroller.cpp */

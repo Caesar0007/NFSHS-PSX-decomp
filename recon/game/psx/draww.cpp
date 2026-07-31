@@ -3083,6 +3083,10 @@ DrW_SubSetupLine_callSubdiv:
   return;
 }
 
+/* MATCH (SYM DRAWW.CPP line 3128 block: `int t1, t2;` in $a0/$a1): 8-byte 4-ALIGNED
+   vertex copy used by DrawW_OnyxLinePrim -- lw/lw/sw/sw, not the align-2 movstrsi. */
+#define ONYX_COPYVT(d,s)  { int t1, t2;  t1 = ((int *)(s))[0];  t2 = ((int *)(s))[1];                             ((int *)(d))[0] = t1;  ((int *)(d))[1] = t2; }
+
 /* ---- DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:3108-3330] SLD-VERIFIED ----
    REWRITTEN 2026-07-31 (w38-a2) from the SYM 8c block + raw oracle.  The prior body was
    Ghidra soup (~50 fabricated locals) and carried FOUR behavioural bugs (see below).
@@ -3138,10 +3142,14 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
 
       linetype = lineQuad->type;
       pmx = gDLPixmap[linetype];
-      vt0 = geomVertices[3];
-      vt1 = geomVertices[1];
-      vt2 = geomVertices[0];
-      vt3 = geomVertices[2];
+      /* MATCH: the vertex copy is the SYM's line-21 block { int t1, t2; ... } (t1=$a0,
+       * t2=$a1) -- a WORD-PAIR copy, i.e. the original knew the CCOORD16s are 4-aligned.
+       * A plain `vt0 = geomVertices[3];` struct assignment carries CCOORD16's align-2
+       * and expands to the unaligned lwl/lwr+swl/swr movstrsi run (8 insns/copy vs 4). */
+      ONYX_COPYVT(&vt0,&geomVertices[3]);
+      ONYX_COPYVT(&vt1,&geomVertices[1]);
+      ONYX_COPYVT(&vt2,&geomVertices[0]);
+      ONYX_COPYVT(&vt3,&geomVertices[2]);
       gte_ldv0((int *)(&vt0));
       gte_rtps();
       gte_stlvnl(((char *)sd + 0x98));

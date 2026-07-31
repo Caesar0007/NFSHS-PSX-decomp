@@ -1361,7 +1361,13 @@ gte_SetTransMatrix(((char *)sd + 0x14));
              PrimClip (1902->1886 vs 1877) -- but it RAISES the LCS diff count
              (790->843, 867->1083) because the surrounding saved-register colouring
              and the 8-byte frame excess are still wrong, so the aligner re-anchors.
-             Apply it as part of a full block-scope/frame rewrite, not on its own. */
+             Apply it as part of a full block-scope/frame rewrite, not on its own.
+             RE-MEASURED w39-a3 2026-08-01 on the post-matB-fix baseline (Prim 756):
+             converting BOTH of Prim's ePmx0/ePmx1 tint blocks to per-vertex named
+             pairs (cu0/cv0 .. cu2/cv2 loaded, then stored) gives 1413 -> 1394 insns
+             (5 over oracle instead of 24) but 756 -> 1507 diffs.  The temps are the
+             RIGHT shape -- the metric explosion is pure re-anchoring, the same
+             verdict as w38-a3.  Still banked; needs the frame/colouring pass. */
           /* idN are morphed addresses: tV[id].u/v = 0xd6/0xd7(idN) (oracle t9/t8/t3) */
           *(u_char *)(prim + 3) = *(u_char *)(id0 + 0xd6) + u;
           *(u_char *)((int)prim + 0xd) = *(u_char *)(id0 + 0xd7) + v;

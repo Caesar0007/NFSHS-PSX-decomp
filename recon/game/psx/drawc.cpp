@@ -147,7 +147,6 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
 {
   int i;
   short newB;
-  Car_tObj **ppCVar1;
   coorddef *pos;
   short newG;
   short newR;
@@ -163,12 +162,12 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
    * $a2) = &carObj->N.position, likewise materialized unconditionally (the compiler schedules the
    * pure-address addiu into the branch's delay slot regardless of source position). */
   light = (int *)&(carObj->render).light;
-  if (((Cars_gList[gCView.player]->control).lights & 6U) != 0) {
+  i = gCView.player;
+  if (((Cars_gList[i]->control).lights & 6U) != 0) {
     pos = &(carObj->N).position;
-    ppCVar1 = Cars_gHumanRaceCarList + gCView.player;
-    tmp.x = (carObj->N).position.x - ((*ppCVar1)->N).position.x;
-    tmp.y = pos->y - ((*ppCVar1)->N).position.y;
-    tmp.z = pos->z - ((*ppCVar1)->N).position.z;
+    tmp.x = (carObj->N).position.x - (Cars_gHumanRaceCarList[i]->N).position.x;
+    tmp.y = pos->y - (Cars_gHumanRaceCarList[i]->N).position.y;
+    tmp.z = pos->z - (Cars_gHumanRaceCarList[i]->N).position.z;
     transform(&tmp.x,gNightMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&nightMat);
     DrawW_WorldSetUpMatrix(&gNightMat,&nightMat);
@@ -186,12 +185,15 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
    * the `light` POINTER slot itself (104+$sp = &light), NOT *light -- gcc-2.7.2 preserved these stores
    * because &light escapes. Reproduced byte-faithfully; this whole block was missing (H46). */
   if (Night_gDrawLightning != '\0') {
-    newR = (short)((int)*(u_char *)&light +
-                   (int)*(u_char *)&Night_gWeatherColor[Night_gLightningType]);
-    newG = (short)((int)((u_char *)&light)[1] +
-                   (int)((u_char *)&Night_gWeatherColor[Night_gLightningType])[1]);
-    newB = (short)((int)((u_char *)&light)[2] +
-                   (int)((u_char *)&Night_gWeatherColor[Night_gLightningType])[2]);
+    /* MATCH (w39-a3): retail keeps ONE base register for the weather colour
+       (addu $v1,$v1,$v0 once, then lbu 0/1/2($v1)) and ONE for &light
+       ($a2 = sp+104).  Spelling the full &Night_gWeatherColor[type] address
+       at each of the three byte reads made cc1 rematerialize it. */
+    u_char *wc = (u_char *)&Night_gWeatherColor[Night_gLightningType];
+    u_char *lp = (u_char *)&light;
+    newR = (short)((int)lp[0] + (int)wc[0]);
+    newG = (short)((int)lp[1] + (int)wc[1]);
+    newB = (short)((int)lp[2] + (int)wc[2]);
     if (0xff < newR) {
       newR = 0xff;
     }
@@ -201,9 +203,9 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
     if (0xff < newB) {
       newB = 0xff;
     }
-    *(char *)&light = (char)newR;
-    ((char *)&light)[1] = (char)newG;
-    ((char *)&light)[2] = (char)newB;
+    lp[0] = (u_char)newR;
+    lp[1] = (u_char)newG;
+    lp[2] = (u_char)newB;
   }
   return;
 }

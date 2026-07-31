@@ -3,6 +3,11 @@
  *   alloc/clear, frame render start/stop (Start/StopRenderingView, Start/StopFrameRender), draw
  *   environment, render-engine init. GTE-free (0 cop2 stubs). Full SYM-locals applied.
  */
+/* PER-TU FLAG RECEIPTS (w39-a3, 2026-08-01, all four PER_TU keys now wired):
+ * draw.cpp is 21/22 PASS at baseline.  no_split_addresses breaks 8 PASSing fns,
+ * no_schedule_insns breaks 7, no_schedule_insns2 breaks 11; no_strength_reduce is
+ * byte-neutral (21 PASS, StopRenderingView still 50).  draw.obj is NOT a flag
+ * object -- do not re-probe. */
 #include "../../nfs4_types.h"
 #include "draw_externs.h"
 

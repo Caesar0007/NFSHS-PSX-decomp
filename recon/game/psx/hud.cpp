@@ -2056,7 +2056,7 @@ void Hud_InitCdPlayer(void)
 int Hud_BuildCdPlayer(int type,int arg1)
 
 {
-  bool bVar2;
+  int bVar2;
   int sec;
   u_int uVar5;
   int w;
@@ -2091,27 +2091,30 @@ int Hud_BuildCdPlayer(int type,int arg1)
   }
   if (Hud_gCdActive == 0) {
     /* SYM has NO bool flag local here (only x/y/index/time/title/artist/tx/dx/w/min/sec/s/
-     * currentSong are REG-class) -- the activate decision is PURE CONTROL FLOW.  A `bVar2`
-     * flag variable took a callee-saved register ($s3) in the old form and pushed every SYM
-     * local one register down (type $s4-not-$s6, y $s7-not-$fp, ...).  Written as the goto
-     * chain the oracle's branch layout shows. */
-    if (simGlobal.gameTicks < 0x240) goto HudCdPlay_activateGate;
-    if (((u_char)countdown < 4) && (Hud_BeTheCop == 0)) goto HudCdPlay_activateGate;
-    if (((PAD_state(4) & 0x400) != 0) && (DashHUD_gInfo.splitscreen != 0))
-      goto HudCdPlay_activateGate;
-    if (((PAD_state(0) & 0x400) != 0) &&
-        ((Hud_BeTheCop == 0) || (DashHUD_gInfo.splitscreen != 0)))
-      goto HudCdPlay_activateGate;
+     * currentSong are REG-class) -- but the oracle DOES materialize a 0/1 flag into a
+     * callee-saved reg ($s0, initialised by copying the known-zero dx reg at 800D6464, set
+     * by `addiu $s0,$zero,1` at .L800D64E8 and tested `bnez $s0` at .L800D64EC), i.e. an
+     * ANONYMOUS compiler temp -- so the source is the flat `||` chain assigned to a flag. */
+    bVar2 = (((simGlobal.gameTicks < 0x240) || (((u_char)countdown < 4 && (Hud_BeTheCop == 0)))) ||
+        ((uVar5 = PAD_state(4), (uVar5 & 0x400) != 0 &&
+         (DashHUD_gInfo.splitscreen != 0)))) ||
+       ((uVar5 = PAD_state(0), (uVar5 & 0x400) != 0 &&
+        ((Hud_BeTheCop == 0 || (DashHUD_gInfo.splitscreen != 0)))));
     /* oracle shape: nested if/goto (NOT a flattened || chain) -- gPadinfo.buf[0] gate
      * falls through to the buf[4] gate on failure, and a Hud_BeTheCop!=0 && splitscreen==0
      * combo also falls through instead of short-circuiting. §asm_pattern_catalog funnel class. */
-    if ((gPadinfo.buf[0].ID == '#') && (0xbf < gPadinfo.buf[0].data.negcon.leftshift)) {
-      if ((Hud_BeTheCop != 0) && (DashHUD_gInfo.splitscreen == 0)) goto HudCdPlay_checkBuf4;
-      goto HudCdPlay_activateGate;
-    }
+    if (!bVar2) {
+      if ((gPadinfo.buf[0].ID == '#') && (0xbf < gPadinfo.buf[0].data.negcon.leftshift)) {
+        if ((Hud_BeTheCop != 0) && (DashHUD_gInfo.splitscreen == 0)) goto HudCdPlay_checkBuf4;
+        goto HudCdPlay_activateGate;
+      }
 HudCdPlay_checkBuf4:
-    if ((gPadinfo.buf[4].ID == '#') && (0xbf < gPadinfo.buf[4].data.negcon.leftshift) &&
-        (DashHUD_gInfo.splitscreen != 0)) {
+      if ((gPadinfo.buf[4].ID == '#') && (0xbf < gPadinfo.buf[4].data.negcon.leftshift) &&
+          (DashHUD_gInfo.splitscreen != 0)) {
+        goto HudCdPlay_activateGate;
+      }
+    }
+    else {
 HudCdPlay_activateGate:
       Hud_gCdActive = 1;
       Hud_ActivateCDPlayer = 1;

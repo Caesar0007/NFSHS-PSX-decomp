@@ -62,45 +62,67 @@ int Texture_CheckForSharedPalette(int test,char *data,Draw_tPixMap *pmx,int bpp)
 {
   int i;
   int j;
+  int count;             /* MATCH: a NAMED entry-count local -- gcc propagates the
+                          * literal into the inner `slti` but keeps the register
+                          * for the `beq j,count` full-match test (oracle $t4). */
+  int num;
   int *indata;
   int *checkdata;
 
   if (test == 0) {
     return 0;
   }
-  i = 0;
-  if (bpp == 0) {
-    for (; i < Texture_gNum4bitPal; i = i + 1) {
-      checkdata = (int *)Texture_gPalette4bit[i];
-      j = 0;
+  /* MATCH: `i = 0` lives INSIDE each arm -- gcc then knows i==0 at the
+   * strength-reduction giv init and emits a bare `lw t2,%gp_rel(table)` instead
+   * of `base + i*4`; it still cross-jumps the two zeroings into the bpp branch's
+   * delay slot exactly like the oracle. */
+  if (bpp != 0) {
+    i = 0;
+    count = 0x80;
+    num = Texture_gNum8bitPal;
+    while (1) {
+      if (!(i < num)) break;
       indata = (int *)data;
-      do {
-        if (*indata != *checkdata) break;
-        checkdata = checkdata + 1;
-        indata = indata + 1;
-        j = j + 1;
-      } while (j < 8);
-      if (j == 8) {
-        *pmx = *Texture_gP4bitPmx[i];
-        return 1;
-      }
-    }
-  }
-  else {
-    for (; i < Texture_gNum8bitPal; i = i + 1) {
+      /* MATCH: INDEX form Texture_gPalette8bit[i] (not a walked `pal` pointer) --
+       * loop.c strength-reduces it to the oracle's walking $t2 AND the extra `i`
+       * references lift i's allocno above it (oracle i=$t1, walker=$t2). */
       checkdata = (int *)Texture_gPalette8bit[i];
       j = 0;
-      indata = (int *)data;
-      do {
-        if (*indata != *checkdata) break;
-        checkdata = checkdata + 1;
-        indata = indata + 1;
-        j = j + 1;
-      } while (j < 0x80);
-      if (j == 0x80) {
+      /* MATCH: explicit goto-loop -- a `do { if(..) break; j++; } while(j<N)`
+       * gets rotated by gcc into an entry-jump + top increment/test; the label
+       * form reproduces the oracle's body/increment/bottom-test topology.
+       * Compare operand order is load order: *indata first. */
+inner8:
+      if (*indata++ != *checkdata++) goto done8;
+      j = j + 1;
+      if (j < 0x80) goto inner8;
+done8:
+      if (j == count) {
         *pmx = *Texture_gP8bitPmx[i];
         return 1;
       }
+      i = i + 1;
+    }
+  }
+  else {
+    i = 0;
+    count = 8;
+    num = Texture_gNum4bitPal;
+    while (1) {
+      if (!(i < num)) break;
+      indata = (int *)data;
+      checkdata = (int *)Texture_gPalette4bit[i];
+      j = 0;
+inner4:
+      if (*indata++ != *checkdata++) goto done4;
+      j = j + 1;
+      if (j < 8) goto inner4;
+done4:
+      if (j == count) {
+        *pmx = *Texture_gP4bitPmx[i];
+        return 1;
+      }
+      i = i + 1;
     }
   }
   return 0;

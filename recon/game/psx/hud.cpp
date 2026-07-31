@@ -3205,13 +3205,17 @@ void Hud_RenderTacView(void)
     do {
       if ((GameSetup_gData.carInfo[j].HudTach != 0) && (DashHUD_gInfo.showhud[j] != 0)) {
         u_char *pal;
+        DR_MODE *tp;
 
         Draw_StartRenderingView(Hud_gTacView[j]);
         DashHUD_HUDCalc(j);
         Hud_BuildTach(j);
         pal = Render_gPalettePtr;
-        gTPage1[j][2].tag = gTPage1[j][2].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-        *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&gTPage1[j][2] & 0xffffff;
+        /* ONE address for the tag: two textual gTPage1[j][2] uses make gcc keep a second
+         * +0x30 giv (oracle has a single $s2 walker). */
+        tp = &gTPage1[j][2];
+        tp->tag = tp->tag & 0xff000000 | *(u_int *)pal & 0xffffff;
+        *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tp & 0xffffff;
         Draw_StopRenderingView(Hud_gTacView[j]);
       }
       j = j + 1;

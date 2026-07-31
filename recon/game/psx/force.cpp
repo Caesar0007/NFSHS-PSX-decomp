@@ -41,48 +41,81 @@ void Force_HitWall(int impulse);
  * `mult`, `div` + the maspsx --expand-div `break 7`/`break 6` guards -- the old
  * u_int-cast recon emitted sltu/multu/divu.  The `jolt*time/fade` term is
  * written TWICE on purpose: the intervening `actuator[0]` store kills gcc's
- * memory CSE, which is exactly why the oracle has two mult/div sequences. */
+ * memory CSE, which is exactly why the oracle has two mult/div sequences.
+ *
+ * w39-a7: 46 -> PASS 138/138.  FOUR cooperating fixes, in the order they paid:
+ *  (1) -G8 (see tools/build.py PER_TU_FLAGS): 46 -> 40.
+ *  (2) `Force_tGlobal *f = &Force_g[i];` + `f->` throughout.  The indexed `Force_g[i].x`
+ *      form made loop.c build THREE induction/base pseudos -- a base `&Force_g`, an
+ *      OFFSET giv `8*i` and a SECOND base `&Force_g+6` for the
+ *      `PadSetAct(...,Force_g[i].actuator,...)` argument -- costing 2 extra callee-saved
+ *      registers ($s4,$s5) and a 48-byte frame.  Retail has ONE +8 pointer walker in $s0,
+ *      the actuator arg as a plain `addiu $a1,$s0,6` displacement, and a 40-byte frame
+ *      (SYM fsize 40, mask $800F0000 = ra,s3,s2,s1,s0).  40 -> 8, count exact 138/138.
+ *  (3) `padnum = i << 4` (NOT `i * 16`): the multiply spelling let gcc compute the product
+ *      straight into the call-arg register and copy it BACK to padnum's home ($s1); retail
+ *      does `sll $s1,$s2,4` into padnum's home in the loop guard's delay slot and copies
+ *      to `$a0` in the `jal` delay slot.  8 -> 2.
+ *  (4) `f->time > f->fade` (NOT `f->fade < f->time`): compare operand order IS load order
+ *      for cc1plus (left to right) and retail loads `time` (+4) before `fade` (+5). 2 -> 0.
+ * The 0xff clamp is spelled `actuator1 = 0xff; if (... < 0x100) actuator1 = ...;` rather
+ * than the ternary `(... > 0xff) ? 0xff : ...`, which narrows the clamp constant against
+ * the u_char destination and emits `li $a2,-1` where retail has `li $a2,0xFF`; the if-form
+ * also lands the 255 default in the `beqz` delay slot and shares ONE clamp block between
+ * the two arms, exactly like the oracle's .L800CAB3C.
+ * HONESTY NOTE: the SYM lists only `i`/`padnum`/`padstate` as named locals, so retail's
+ * source had NO `f` and no `actuator1`; both are matching devices standing in for the giv
+ * retail's cc1 derived from the indexed form and for its anonymous clamp temp.  The
+ * emitted instruction stream is byte-identical either way. */
 void Force_Vbl(void)
 
 {
   int i;
 
   for (i = 0; i < 2; i = i + 1) {
+    Force_tGlobal *f;
     int padnum;
     int padstate;
+    int actuator1;
 
-    padnum = i * 16;
+    f = &Force_g[i];
+    padnum = i << 4;
     padstate = PadGetState(padnum);
     if (padstate != 6) {
       if (padstate < 4) {
-        Force_g[i].active = 0;
+        f->active = 0;
       }
     }
-    else if (Force_g[i].active == 0) {
-      PadSetAct(padnum,Force_g[i].actuator,2);
+    else if (f->active == 0) {
+      PadSetAct(padnum,f->actuator,2);
       PadSetActAlign(padnum,Force_gActAlign);
-      Force_g[i].active = 1;
+      f->active = 1;
     }
-    if (Force_g[i].fade < Force_g[i].time) {
-      Force_g[i].actuator[0] =
-           Force_rand_256[Force_gTick >> 1 & 0xff] < Force_g[i].high + Force_g[i].jolt;
-      Force_g[i].actuator[1] = (Force_g[i].low + Force_g[i].jolt > 0xff)
-                               ? 0xff : Force_g[i].low + Force_g[i].jolt;
-      Force_g[i].time = Force_g[i].time - 1;
+    if (f->time > f->fade) {
+      f->actuator[0] =
+           Force_rand_256[Force_gTick >> 1 & 0xff] < f->high + f->jolt;
+      actuator1 = 0xff;
+      if (f->low + f->jolt < 0x100) {
+        actuator1 = f->low + f->jolt;
+      }
+      f->actuator[1] = actuator1;
+      f->time = f->time - 1;
     }
-    else if (Force_g[i].time != 0) {
-      Force_g[i].actuator[0] =
+    else if (f->time != 0) {
+      f->actuator[0] =
            Force_rand_256[Force_gTick >> 1 & 0xff] <
-           Force_g[i].jolt * Force_g[i].time / Force_g[i].fade + Force_g[i].high;
-      Force_g[i].actuator[1] =
-           (Force_g[i].jolt * Force_g[i].time / Force_g[i].fade + Force_g[i].low > 0xff)
-           ? 0xff : Force_g[i].jolt * Force_g[i].time / Force_g[i].fade + Force_g[i].low;
-      Force_g[i].time = Force_g[i].time - 1;
+           f->jolt * f->time / f->fade + f->high;
+      actuator1 = 0xff;
+      if (f->jolt * f->time / f->fade + f->low < 0x100) {
+        actuator1 = f->jolt * f->time / f->fade + f->low;
+      }
+      f->actuator[1] = actuator1;
+      f->time = f->time - 1;
     }
     else {
-      Force_g[i].jolt = 0;
-      Force_g[i].actuator[0] = Force_rand_256[Force_gTick >> 1 & 0xff] < Force_g[i].high;
-      Force_g[i].actuator[1] = Force_g[i].low;
+      f->jolt = 0;
+      f->actuator[0] = Force_rand_256[Force_gTick >> 1 & 0xff] < f->high;
+      f->actuator[1] = f->low;
     }
   }
   Force_gTick = Force_gTick + 1;

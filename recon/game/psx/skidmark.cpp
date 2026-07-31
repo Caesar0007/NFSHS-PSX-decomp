@@ -259,27 +259,40 @@ void Skidmark_EndStretch(Skidmark_Segment *save,int savechunk,tSkid *prevskid,co
 void Skidmark_OnyxBuildFacets(DRender_tView *Vi)
 
 {
-  int t2;
-  Draw_tCtrlSkidmark *fskid;
-  int t1;
-  int t3;
   Draw_tCtrlSkidmark fskidspace;
-  
-  fskidspace.t.x = *(int *)((int)Vi + 8);
-  fskidspace.t.y = *(int *)((int)Vi + 0xc);
-  fskidspace.t.z = *(int *)((int)Vi + 0x10);
-  fskidspace.count = gCountSm;
-  fskidspace.smp = gSm;
-  fskidspace.m.m[0] = *(int *)((int)Vi + 0x44);
-  fskidspace.m.m[2] = *(int *)((int)Vi + 0x4c);
-  fskidspace.m.m[1] = -*(int *)((int)Vi + 0x48);
-  fskidspace.m.m[3] = *(int *)((int)Vi + 0x50);
-  fskidspace.m.m[5] = *(int *)((int)Vi + 0x58);
-  fskidspace.m.m[4] = -*(int *)((int)Vi + 0x54);
-  fskidspace.m.m[6] = *(int *)((int)Vi + 0x5c);
-  fskidspace.m.m[8] = *(int *)((int)Vi + 100);
-  fskidspace.m.m[7] = -*(int *)((int)Vi + 0x60);
-  Draw_kCtrlSkidmark(&fskidspace);
+  Draw_tCtrlSkidmark *fskid;
+  int r0;
+  int r1;
+  int r2;
+
+  /* Oracle loads each 3-int group into THREE distinct caller-saved regs and only then
+     stores them (the loads fill each other's load-delay slots); per-field
+     `dst = src;` statements serialize through one reg and cost a nop each.
+     `fskidspace.t = Vi->cview.translation` is a movstrsi struct assignment
+     (oracle `lw a3/t0/t1; sw a3/t0/t1`). */
+  fskid = &fskidspace;
+  fskidspace.t = Vi->cview.translation;
+  fskid->count = gCountSm;
+  fskid->smp = gSm;
+  r0 = Vi->cview.mrotationInv.m[0];
+  r1 = Vi->cview.mrotationInv.m[1];
+  r2 = Vi->cview.mrotationInv.m[2];
+  fskidspace.m.m[0] = r0;
+  fskid->m.m[1] = -r1;
+  fskid->m.m[2] = r2;
+  r0 = Vi->cview.mrotationInv.m[3];
+  r1 = Vi->cview.mrotationInv.m[4];
+  r2 = Vi->cview.mrotationInv.m[5];
+  fskid->m.m[3] = r0;
+  fskid->m.m[4] = -r1;
+  fskid->m.m[5] = r2;
+  r0 = Vi->cview.mrotationInv.m[6];
+  r1 = Vi->cview.mrotationInv.m[7];
+  r2 = Vi->cview.mrotationInv.m[8];
+  fskid->m.m[6] = r0;
+  fskid->m.m[7] = -r1;
+  fskid->m.m[8] = r2;
+  Draw_kCtrlSkidmark(fskid);
   return;
 }
 

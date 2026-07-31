@@ -48,20 +48,24 @@ void Platform_InitMemory(void)
 }
 
 /* ---- Platform_ReserveMemory__FiPc  [PLATFORM.CPP:139-156] SLD-VERIFIED ---- */
-/* NEAR-MISS 24 diffs (19/19): same round-up-to-4 v0/v1-vs-a1 allocator floor as the
- * Platform_TempReserveMemory note above (the compiler back-substitutes `newmem+3` to
- * `size+6` regardless of source form -- confirmed by testing both). Accepted near-miss. */
+/* NEAR-MISS 12 diffs (19/19), was 24. MATCH: the round-up-to-4 is a SIGNED DIVIDE
+ * `(size+3)/4*4`, not a hand-guarded `>>2`. Oracle `addiu v0,a0,3; bgez v0,L;
+ * addu v1,v0,zero; addiu v1,v0,3; L: sra v0,v1,2` IS gcc-2.8's inline signed /4 (add
+ * 2^n-1 on the negative path); the old hand-written `if(newmem<0) newmem = size+6;`
+ * rematerializes from the param (`addiu a1,a0,6`) instead of from newmem. SYM: REGPARM
+ * size = $2(v0) => `size` is MUTATED IN PLACE here too (`size = size + 3;`), which is
+ * what keeps the guard add on the newmem pseudo instead of folding to `size+6`.
+ * Residual 12: (a) gcc coalesces the divide's pre-branch copy away (ours `nop` in the
+ * bgez slot, oracle `addu v1,v0,zero`); (b) the return funnel picks the other value for
+ * the bnez delay slot (ours v0=0, oracle v0=mem). See methodology signed-/2^n codegen. */
 char *Platform_ReserveMemory(int size,char *string)
 
 {
   int newmem;
   char *mem;
 
-  newmem = size + 3;
-  if (newmem < 0) {
-    newmem = size + 6;
-  }
-  newmem = gCurrentMemory + (newmem >> 2) * 4;
+  size = size + 3;
+  newmem = gCurrentMemory + (size / 4) * 4;
   mem = (char *)gCurrentMemory;
   if (newmem - gLowMemory <= (int)gTotalMemory) {
     gCurrentMemory = newmem;
@@ -71,27 +75,27 @@ char *Platform_ReserveMemory(int size,char *string)
 }
 
 /* ---- Platform_TempReserveMemory__FiPc  [PLATFORM.CPP:161-178] SLD-VERIFIED ---- */
-/* NEAR-MISS 20 diffs (17/17, improved from 22 via direct-return): the round-up-to-4 divide
- * (`newmem = (size+3); if(newmem<0) newmem = size+6; then >>2<<2`) oracle keeps LIVE IN a0
- * (self-mutates the dead param register throughout, incl. reusing it later for the
- * candidate-address subtraction: `sll a0,v0,2; addu a0,a2,a0; subu a0,a0,a1`); ours always
- * allocates a fresh v0/v1 pseudo instead of reusing a0. Tried: mutating `size` in place,
- * mutating `newmem` in place, direct-return vs cached-`mem`-var, both branch polarities --
- * all land on the same v0/v1-vs-a0 tie-break (genuine allocator coloring floor, same family
- * as the Night_SetWeatherColors v0-vs-dest note). Accepted near-miss. */
+/* NEAR-MISS 20 diffs (17/17) -- STRUCTURE NOW EXACT (w38-a6): the round-up-to-4 is gcc's
+ * inline SIGNED /4 (`bgez x,L; addu t,x,zero; addiu t,x,3; L: sra q,t,2`), NOT a hand-guarded
+ * `>>2`; and SYM says this fn has NO named locals + REGPARM size = $4(a0), i.e. the source
+ * REUSES the `size` param as the running scratch (size+3 -> rounded -> +gCurrentMemory ->
+ * -gLowMemory), with the failure `return 0` written FIRST (early-return) so its v0=0 lands in
+ * the bnez delay slot. With that shape every insn matches 1:1 in kind+order; the residual is a
+ * pure 2-register rotation (ours size->$a1/temp->$v1, oracle size->$a0/temp->$v0).
+ * Tried and rejected: separate `newmem`/`mem` locals (22), separate quotient local (20),
+ * inline one-expression `(size+3)/4*4` (combine folds the guard add to `size+6`),
+ * opposite branch polarity (structural mismatch in the tail). Prototype re-checked vs oracle:
+ * 2 args (a0=size read at insn 1, a1=string never read), returns char* in $v0. */
 char *Platform_TempReserveMemory(int size,char *string)
 
 {
-  int newmem;
-
-  newmem = size + 3;
-  if (newmem < 0) {
-    newmem = size + 6;
+  size = size + 3;
+  size = gCurrentMemory + (size / 4) * 4;
+  size = size - gLowMemory;
+  if ((int)gTotalMemory < size) {
+    return (char *)0x0;
   }
-  if ((gCurrentMemory + (newmem >> 2) * 4) - gLowMemory <= (int)gTotalMemory) {
-    return (char *)gCurrentMemory;
-  }
-  return (char *)0x0;
+  return (char *)gCurrentMemory;
 }
 
 /* ---- Platform_SysStartUp__Fv  [PLATFORM.CPP:207-305] SLD-VERIFIED ---- */

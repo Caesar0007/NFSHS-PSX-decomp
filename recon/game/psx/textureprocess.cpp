@@ -269,6 +269,7 @@ void Fog_Update(int player)
   int diffdistance;
   int final_dist;
   int numslices;
+  int start;
 
   if (Fog_gNumKeys != 1) {
     BWorldSm_FindClosestQuadRez(&gCView.cview.translation,fogslicePos + player,1);
@@ -280,11 +281,19 @@ void Fog_Update(int player)
      * variable (it is mutated by += numslices).  The interpolating arm is the
      * FALL-THROUGH (oracle `beq key->distance,next->distance` branches away to
      * the plain-copy arm).
-     * FLOOR (15 diffs, ours 82/81): the oracle CROSS-JUMPS the two
-     * `TrackSpec_gSpec.fogspec.start = ...` stores into one `sw a1,0(v0)` with
-     * the `lui` hoisted into the beq delay slot; funnelling both arms through a
-     * shared `start` local does merge them (81/81) but rotates key/nextslice/
-     * distance one allocno step (36 diffs), so the 2-store form is kept. */
+     * MATCH (w39-a10, 15 -> 4): the two `TrackSpec_gSpec.fogspec.start = ...`
+     * stores DO funnel through a shared `start` local -- retail's else arm is
+     * literally empty (`beq $a1,$v1,.L800E0EA8` jumps straight at the single
+     * `sw $a1,%lo(D_80123294)($v0)` with the `lui` in its delay slot, $a1
+     * already holding key->distance from the compare).  With two separate store
+     * statements our build cannot cross-jump them: the if-arm stores $a1 via a
+     * `lui $v1` rematerialised in the mflo delay slot while the else arm stores
+     * $a0 via the beq-slot `lui $v0`.  (The w38 note claiming the funnel costs
+     * 36 diffs was measured on an older body and is WRONG -- re-verified.)
+     * RESIDUAL 4 = one scheduling tie at the head: retail issues
+     * `lh $s1,0($s0)` + `sll $s0,$s2,2` BEFORE materialising &Fog_gCurrentKey,
+     * ours materialises the address first.  Statement splits/reorders of the
+     * Fog_gCurrentKey[player] read (3 forms) are all sched-equivalent. */
     nextslice = key->next->slice;
     if (key->distance != key->next->distance) {
       if (nextslice < key->slice) {
@@ -297,11 +306,12 @@ void Fog_Update(int player)
       diffdistance = key->next->distance - key->distance;
       diffslice = nextslice - key->slice;
       final_dist = ((currentslice - key->slice) * diffdistance) / diffslice;
-      TrackSpec_gSpec.fogspec.start = key->distance + final_dist;
+      start = key->distance + final_dist;
     }
     else {
-      TrackSpec_gSpec.fogspec.start = key->distance;
+      start = key->distance;
     }
+    TrackSpec_gSpec.fogspec.start = start;
   }
 }
 

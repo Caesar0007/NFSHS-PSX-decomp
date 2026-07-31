@@ -29,7 +29,9 @@
    DrawW_BuildChunkObjectFacets' oracle reaches matB (+0x14) and offsubdivid (+0x148)
    through LITERAL addresses (`lui $at,(0x1F800014>>16); sw $zero,...($at)`,
    `sh $v0,(0x1F800148 & 0xFFFF)($at)`), never a %hi/%lo symbol relocation. */
-#define DW_SCRATCH ((Draw_tGiveShelbyMoreCache *)0x1F800000)
+#define DW_SCRATCH  ((Draw_tGiveShelbyMoreCache *)0x1F800000)
+#define DW_WORLDMAT (*(MATRIX *)0x1F800014)   /* == DW_SCRATCH->matB; the oracle
+       anchors these three stores on the 0x1F800014 base, not on 0x1F800000 */
 
 /* PsyQ POINTER-form colour-FIFO stores (inline_c gte_strgb / gte_strgb3): a lone
    `swc2 $22,0(rt)` and the three-pointer RGB0/1/2 trio.  psx_gte.h only carries the
@@ -2369,9 +2371,7 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      byte-math expression into a real field access, which is rule-8/SYM-driven local
      structure (SYM names this pointer `objInstance`). */
   u_char type;   /* SYM REG $s0 */
-  void *pvVar3;
-  int heading;
-  ObjectAnim *pOVar6;
+  ObjectAnim *anim;
   int doFrustumClip;
   Trk_SimObject *simObjs;
   short light;
@@ -2399,10 +2399,10 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      * the separate linked `Render_gWorldMat` .bss symbol left the scratchpad
      * translation STALE, so every chunk object was transformed with whatever the
      * previous draw had left at 0x1F800028..0x30. */
-    DW_SCRATCH->matB.t[2] = 0;
-    DW_SCRATCH->matB.t[1] = 0;
-    DW_SCRATCH->matB.t[0] = 0;
-gte_SetTransMatrix(&DW_SCRATCH->matB);
+    DW_WORLDMAT.t[2] = 0;
+    DW_WORLDMAT.t[1] = 0;
+    DW_WORLDMAT.t[0] = 0;
+gte_SetTransMatrix(&DW_WORLDMAT);
     for (objectIndex = 0; objectIndex < groupNumElements; objectIndex = objectIndex + 1) {
       objectOffset = (int)goffsets[objInstance->zoffset];
       type = objInstance->type;
@@ -2415,10 +2415,12 @@ gte_SetTransMatrix(&DW_SCRATCH->matB);
       }
       if (type != 5) {
         if (doFrustumClip != 0) {
-          pvVar3 = ObjectClipped(Vi,(int)objInstance->pad,
-                               (coorddef *)&objInstance->x,
-                               (Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr);
-          if ((pvVar3 != (void *)0x0) && (objInstance->type != 2)) {
+          /* rule-8: the SYM names NO local for either the clip result or the
+           * heading -- both were invented temps whose register pressure pushed
+           * `totalCount` (SYM REG $s7) out into a stack slot (frame 136 vs 128). */
+          if ((ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->x,
+                             (Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr) != (void *)0x0)
+              && (objInstance->type != 2)) {
             goto DrawWChunkFacets_groupNext;
           }
         }
@@ -2430,9 +2432,9 @@ gte_SetTransMatrix(&DW_SCRATCH->matB);
       DW_SCRATCH->offsubdivid = 0x400;
       light = -1;
       if ((objInstance->flags & 1) != 0) {
-        heading = fixedatan(objInstance->x - (Vi->cview).translation.x,
-                           objInstance->z - (Vi->cview).translation.z);
-        fixedxformy(&matrix,heading);
+        fixedxformy(&matrix,
+                    fixedatan(objInstance->x - (Vi->cview).translation.x,
+                              objInstance->z - (Vi->cview).translation.z));
         if (type == 9) {
           /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
           int t1, t2, sx, sy;
@@ -2535,8 +2537,8 @@ DrawWChunkFacets_emitObj:
         }
         case 5: {
         objDef = Track_gObjDefs[objInstance->pad];
-        pOVar6 = Object_GetAnim(simObjs + objInstance->simIndex);
-        if (pOVar6 == (ObjectAnim *)0x0) {
+        anim = Object_GetAnim(simObjs + objInstance->simIndex);
+        if (anim == (ObjectAnim *)0x0) {
           /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
           int t1, t2, sx, sy, sz;
 
@@ -2562,9 +2564,9 @@ DrawWChunkFacets_emitObj:
           matrix.m[5] = t2;
             goto DrawWChunkFacets_emitObj;
           }
-          pOVar6 = Object_GetAnim(simObjs + objInstance->simIndex);
-          (*(*pOVar6->_vf)[2].pfn)
-                    ((int)&pOVar6->_vf + (int)(*pOVar6->_vf)[2].delta,Vi,0x1f800000,objectOffset);
+          anim = Object_GetAnim(simObjs + objInstance->simIndex);
+          (*(*anim->_vf)[2].pfn)
+                    ((int)&anim->_vf + (int)(*anim->_vf)[2].delta,Vi,0x1f800000,objectOffset);
           break;
         }
         }

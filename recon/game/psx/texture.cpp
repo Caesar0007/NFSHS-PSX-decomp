@@ -154,54 +154,62 @@ void Texture_InitClut(void)
 
 {
   int clut;
+  int cbase;
   int x;
   int y;
 
-  /* MATCH: no `idx` temp -- read/increment the counter global in place
-   * (`gFreePal4[gNbFreePal4] = ...; gNbFreePal4 = gNbFreePal4 + 1;`) so the
-   * value-`or` lands in the counter load's delay slot instead of a `nop`
-   * (55 -> 37 diffs).  RESIDUAL FLOOR (37, ours 68/65): the oracle keeps the
-   * running clut in a caller-saved temp ($v1, rematerialized by `sll v1,y,6`
-   * at the top and in the back-edge delay slot) and the loop-invariant
-   * `(x>>4)&0x3f` in $a2; ours colors them the other way round and pays an
-   * extra `addu a2,a1,zero`.  Tried: pre-loop `clut = y*0x40`, an explicit
-   * hoisted `xpart` local (62, worse), in-place `clut |= xpart`. */
+  /* MATCH (w39-a10, 37 -> 16, now COUNT-EXACT 65/65).  Three levers:
+   *  (1) SOURCE-HOISTED `cbase` -- the loop-invariant `(x>>4)&0x3f` must be its
+   *      own statement placed BEFORE the clut initialisation.  loop.c inserts
+   *      its own hoisted copy AFTER everything already in the preheader, so the
+   *      in-expression form emits `li clut` BEFORE the andi chain; retail has
+   *      andi first.  (Same lever took Texture_InitMenuClut 14 -> PASS.)
+   *  (2) counter POST-INCREMENT `gFreePalN[gNbFreePalN++]` -- puts the
+   *      `addiu v1,v1,1` before the `addu v0,v0,base` and frees the counter
+   *      load's delay slot for the `y++`.
+   *  (3) loops 2 and 3 are `for (clut = K; y < N; y++)` (y initialised on its
+   *      own line before, so `y = 0` sits outside the invariant chain); loop 1
+   *      keeps the do-while with `clut = y * 0x40` as its LAST statement, which
+   *      is what rotates that multiply into the back-edge delay slot.
+   * RESIDUAL 16 = one register rotation in loop 1 only: retail keeps clut in
+   * $v1 and ORs cbase INTO it (`or v1,v1,a2`, so the rotated `sll v1,a1,6` fills
+   * the back-edge delay slot), we compute the OR into a fresh $v0 and pay a
+   * `nop` there; cbase/base land in $t0/$t1 instead of $a2/$t0.  Writing the OR
+   * in place (`clut = clut | cbase;`) DOES buy the delay-slot fill and exact
+   * count but rotates all six registers one step (54 diffs) -- and decl-order
+   * permutations, a private loop-1 counter and per-loop cbase locals do not
+   * unwind that rotation (measured: 49-54).  Permuter is unavailable for C++
+   * TUs, so this is where it stands. */
   x = 0;
   gNbFreePal4 = 0;
   do {
     y = 0;
-    clut = y * 0x40;
-    do {
-      y = y + 1;
-      gFreePal4[gNbFreePal4] = (u_short)clut | (u_short)(x >> 4) & 0x3f;
-      gNbFreePal4 = gNbFreePal4 + 1;
+    cbase = (u_short)(x >> 4) & 0x3f;
+    for (; y < 0x78; y++) {
       clut = y * 0x40;
-    } while (y < 0x78);
+      gFreePal4[gNbFreePal4++] = (u_short)clut | cbase;
+    }
     x = x + 0x10;
   } while (x < 0x100);
   x = 0;
   do {
     y = 0;
-    clut = 0x2000;
-    do {
-      y = y + 1;
-      gFreePal4[gNbFreePal4] = (u_short)clut | (u_short)(x >> 4) & 0x3f;
-      gNbFreePal4 = gNbFreePal4 + 1;
+    cbase = (u_short)(x >> 4) & 0x3f;
+    for (clut = 0x2000; y < 0x20; y++) {
+      gFreePal4[gNbFreePal4++] = (u_short)clut | cbase;
       clut = clut + 0x40;
-    } while (y < 0x20);
+    }
     x = x + 0x10;
   } while (x < 0x80);
   x = 0;
   gNbFreePal8 = 0;
   do {
     y = 0;
-    clut = 0x1e00;
-    do {
-      y = y + 1;
-      gFreePal8[gNbFreePal8] = (u_short)clut | (u_short)(x >> 4) & 0x3f;
-      gNbFreePal8 = gNbFreePal8 + 1;
+    cbase = (u_short)(x >> 4) & 0x3f;
+    for (clut = 0x1e00; y < 8; y++) {
+      gFreePal8[gNbFreePal8++] = (u_short)clut | cbase;
       clut = clut + 0x40;
-    } while (y < 8);
+    }
     x = x + 0x100;
   } while (x < 0x100);
   return;
@@ -491,7 +499,15 @@ int Texture_GetTranslucencyMode(shapetbl *shp)
        * gcc build the value in $v1 and copy it out at a shared tail. */
       if (abr == 3) { abr = 2; }
       return abr;
-      /* FLOOR (4 diffs, 28/30): the oracle keeps TWO separate `jr ra` tails --
+      /* FLOOR (4 diffs, 28/30) -- MECHANISM (w39-a10): gcc's post-reload
+       * cross-jump pass merges the two return blocks (both end `jr ra`), which
+       * leaves `move v0,zero; j <shared jr ra>`; reorg then EAGER-STEALS that
+       * `move` into the `beqz $a0` delay slot and retargets the branch, so we
+       * lose both the separate return-0 block and the oracle's empty slot.
+       * Retail's simple-delay-slot pass consumed the `move` as the return
+       * block's OWN slot first, after which the eager fill had nothing to take.
+       * Same family as the catalog's "dual `jr ra` tails always cross-jump-
+       * merge" negative result.  Original note: the oracle keeps TWO separate `jr ra` tails --
        * .L800DFF08 `jr ra; addu v0,zero,zero` for `return 0` and .L800DFF10
        * `jr ra; nop` for `return abr`.  gcc-2.8 cross-jump-merges them here and
        * sinks the 0 into the `beqz shp` delay slot.  Tried: while(shp!=0)+trailing
@@ -728,6 +744,7 @@ void Texture_InitMenuClut(void)
   short *pal4;
   short *pal8;
   u_short clut;
+  int cbase;
   int y;
   int x;
   
@@ -738,22 +755,26 @@ void Texture_InitMenuClut(void)
    * `pal8 = gFreePal8` loaded once BEFORE the SECOND loop, not inside the first
    * one -- the misplaced load forced an extra `addu t2,v0,zero` copy of the
    * reservememadr result (40 -> 14 diffs).
-   * RESIDUAL FLOOR (14, ours 66/64): per loop the oracle fills the counter
-   * load's delay slot with the `y++` and orders `addiu v1,v1,1` before
-   * `addu v0,v0,t1`; ours issues `y++` ahead of the value-`or` and pays a
-   * `nop`.  Statement-order moves of `y = y + 1` (top / after the store / last)
-   * are all sched1-equivalent. */
+   * PASS (w39-a10, was 14).  The last three insns came from:
+   *  (a) counter POST-INCREMENT `palN[gNbFreePalN++] = ...` (14 -> 10): puts
+   *      `addiu v1,v1,1` before `addu v0,v0,t1` and frees the counter load's
+   *      delay slot for `y++`;
+   *  (b) inner loop as `for (clut = K; y < N; y++)` with `y = 0` on its own
+   *      line before it (10 -> 4);
+   *  (c) SOURCE-HOISTED `cbase = (u_short)(x + 0x200 >> 4) & 0x3f;` as its own
+   *      statement BEFORE the clut init (4 -> 0).  loop.c appends its hoisted
+   *      copy of an in-expression invariant AFTER the preheader statements, so
+   *      the `li a1,<clut>` came out ahead of the andi chain; retail has the
+   *      andi chain first, which only a real source-level hoist reproduces. */
   x = 0;
   gNbFreePal4 = 0;
   do {
     y = 0;
-    clut = 0x7a00;
-    do {
-      y = y + 1;
-      pal4[gNbFreePal4] = clut | (u_short)(x + 0x200 >> 4) & 0x3f;
-      gNbFreePal4 = gNbFreePal4 + 1;
+    cbase = (u_short)(x + 0x200 >> 4) & 0x3f;
+    for (clut = 0x7a00; y < 0x18; y++) {
+      pal4[gNbFreePal4++] = clut | cbase;
       clut = clut + 0x40;
-    } while (y < 0x18);
+    }
     x = x + 0x10;
   } while (x < 0x100);
   pal8 = gFreePal8;
@@ -762,13 +783,11 @@ void Texture_InitMenuClut(void)
   gNbFreePal8 = 0;
   do {
     y = 0;
-    clut = 0x5700;
-    do {
-      y = y + 1;
-      pal8[gNbFreePal8] = clut | (u_short)(x + 0x200 >> 4) & 0x3f;
-      gNbFreePal8 = gNbFreePal8 + 1;
+    cbase = (u_short)(x + 0x200 >> 4) & 0x3f;
+    for (clut = 0x5700; y < 0x8c; y++) {
+      pal8[gNbFreePal8++] = clut | cbase;
       clut = clut + 0x40;
-    } while (y < 0x8c);
+    }
     x = x + 0x100;
   } while (x < 0x100);
   return;

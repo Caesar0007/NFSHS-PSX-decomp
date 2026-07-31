@@ -1331,12 +1331,12 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       gte_ldv0(&p_);
       gte_rtps();
       gte_stSXY2((DVECTOR *)&s_);
-      temp2d[1] = *(DVECTOR *)&s_;
+      *(long *)&temp2d[1] = s_;   /* MATCH: word copy (a DVECTOR assign = align-1 lwl/lwr quad) */
       p_ = updown[0];
       gte_ldv0(&p_);
       gte_rtps();
       gte_stSXY2((DVECTOR *)&s_);
-      temp2d[0] = *(DVECTOR *)&s_;
+      *(long *)&temp2d[0] = s_;   /* MATCH: word copy, see above */
     }
     /* BUG FIX (round 2 diagnosis, now applied): each loop computes its OWN dx/dy delta ONCE
        from its own temp2d[] entry against a freshly-read posA[farI] baseline -- not a shared
@@ -1390,7 +1390,11 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       iVar16 = (int)hsd;
       iVar15 = 0;
       iVar18 = 4;
-      for (; iVar17 < 0x10; iVar17 = iVar17 + 1) {
+      /* MATCH: exit-in-the-middle (top test + unconditional `j` back edge with the
+         counter increment in its delay slot) -- a `for` rotates to a bottom-tested
+         do-while (slti/bnez), which the oracle does not have. */
+      while (true) {
+        if (!(iVar17 < 0x10)) break;
         if ((15999 < *(int *)(iVar16 + 0x124)) || (15999 < *(int *)(((int)hsd + 0x124) + iVar18))) {
           mpts[0] = *(DVECTOR *)(iVar16 + 0x9c);          /* posB[k] */
           mpts[1] = *(DVECTOR *)(iVar16 + 0xe0);          /* posC[k] */
@@ -1438,14 +1442,16 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                    DIRECT ">=8" form (fall-through arm is >=8, not <8); the inverted-and-swap
                    compiles with the SAME polarity/inline-arm layout the oracle uses. */
                 if (8 <= (u_char)Hrz_gTrackSpec->ringPMX[iVar17]) {
-                  *(DVECTOR *)(p + 8) = right;
+                  /* MATCH: WORD copy -- a DVECTOR struct assignment emits the align-1
+                     lwl/lwr+swl/swr quad; the oracle does one lw/sw pair. */
+                  *(u_int *)(p + 8) = *(u_int *)&right;
                   *(u_int *)(p + 0x14) = *(u_int *)(iVar16 + 0x9c);
                   *(u_int *)(p + 0x20) = *(u_int *)(iVar16 + 0x5c);
                   *(u_int *)(p + 0x2c) = *(u_int *)(iVar16 + 0x58);
                 }
                 else {
                   *(u_int *)(p + 8) = *(u_int *)(((int)hsd + 0x9c) + iVar15);
-                  *(DVECTOR *)(p + 0x14) = right;
+                  *(u_int *)(p + 0x14) = *(u_int *)&right;   /* MATCH: word copy, see above */
                   *(u_int *)(p + 0x20) = *(u_int *)(((int)hsd + 0x58) + iVar15);
                   *(u_int *)(p + 0x2c) = *(u_int *)(((int)hsd + 0x5c) + iVar15);
                 }
@@ -1456,6 +1462,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
         iVar16 = iVar16 + 4;
         iVar15 = iVar15 + 4;
         iVar18 = iVar18 + 4;
+        iVar17 = iVar17 + 1;
       }
     }
   }

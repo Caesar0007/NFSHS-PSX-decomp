@@ -750,101 +750,80 @@ void BWorld_StartLoop(void)
 void BWorld_Init(void)
 {
   int AudioScene;
-  bool bVar1;
-  int iVar2;
-  char *pcVar3;
-  u_int uVar4;
-  
+  int random;
+
   if (Replay_ReplayMode == 0) {
-    if ((GameSetup_gData.commMode == 1) || (GameSetup_gData.raceType == 2)) {
-      GameSetup_gData.SceneNumber = 99;
-      GameSetup_gData.SceneStartLap = 99;
-      GameSetup_gData.SceneEndLap = 99;
-    }
-    else {
-      iVar2 = rand();
-      if (iVar2 < 0) {
-        iVar2 = iVar2 + 0x3fff;
-      }
-      GameSetup_gData.SceneNumber = iVar2 >> 0xe;
-      iVar2 = rand();
-      if (GameSetup_gData.numLaps < 2) {
-        if (iVar2 < 0) {
-          iVar2 = iVar2 + 0x3fff;
-        }
-        GameSetup_gData.SceneStartLap = iVar2 >> 0xe;
+    if ((GameSetup_gData.commMode != 1) && (GameSetup_gData.raceType != 2)) {
+      GameSetup_gData.SceneNumber = rand() / 0x4000;
+      random = rand();
+      if (GameSetup_gData.numLaps >= 2) {
+        GameSetup_gData.SceneStartLap =
+            random * GameSetup_gData.numLaps / 0x8000;
       }
       else {
-        iVar2 = iVar2 * GameSetup_gData.numLaps;
-        if (iVar2 < 0) {
-          iVar2 = iVar2 + 0x7fff;
-        }
-        GameSetup_gData.SceneStartLap = iVar2 >> 0xf;
+        GameSetup_gData.SceneStartLap = random / 0x4000;
       }
-      iVar2 = rand();
-      iVar2 = iVar2 * GameSetup_gData.numLaps;
-      if (iVar2 < 0) {
-        iVar2 = iVar2 + 0x7fff;
-      }
-      GameSetup_gData.SceneEndLap = GameSetup_gData.SceneStartLap + (iVar2 >> 0xf);
+      GameSetup_gData.SceneEndLap = GameSetup_gData.SceneStartLap +
+          rand() * GameSetup_gData.numLaps / 0x8000;
       if (GameSetup_gData.SceneStartLap == GameSetup_gData.SceneEndLap) {
         GameSetup_gData.SceneEndLap = GameSetup_gData.SceneStartLap + 1;
       }
-      if (GameSetup_gData.Weather == 0) {
-        if (GameSetup_gData.trafficDensity != 0) {
-          GameSetup_gData.SceneNumber = GameSetup_gData.SceneNumber + 0x14;
-        }
-      }
-      else {
+      if (GameSetup_gData.Weather != 0) {
         GameSetup_gData.SceneNumber = GameSetup_gData.SceneNumber + 10;
         GameSetup_gData.SceneEndLap = GameSetup_gData.SceneEndLap + 5;
       }
+      else if (GameSetup_gData.trafficDensity != 0) {
+        GameSetup_gData.SceneNumber = GameSetup_gData.SceneNumber + 0x14;
+      }
       SceneLoaded = 0;
+    }
+    else {
+      GameSetup_gData.SceneNumber = 99;
+      GameSetup_gData.SceneStartLap = 99;
+      GameSetup_gData.SceneEndLap = 99;
     }
   }
   Object_InitStatus();
   Track_SetTrackNumber(GameSetup_gData.track);
   BWorld_InitContexts();
-  bVar1 = GameSetup_gData.commMode == 1;
-  if (bVar1) {
+  if (GameSetup_gData.commMode == 1) {
     BWorld_OpenContext(1,0);
-  }
-  uVar4 = (u_int)bVar1;
-  BWorld_OpenContext(uVar4,uVar4);
-  SetContext(0);
-  if (GameSetup_gData.Time == 0) {
-    if (GameSetup_gData.Weather == 0) {
-      pcVar3 = ".grp";
-    }
-    else {
-      pcVar3 = "W.grp";
-    }
-  }
-  else if (GameSetup_gData.Weather == 0) {
-    pcVar3 = "N.grp";
+    BWorld_OpenContext(1,1);
   }
   else {
-    pcVar3 = "S.grp";
+    BWorld_OpenContext(0,0);
   }
-  pcVar3 = Track_MakeTrackPathName(pcVar3);
-  Track_Init(pcVar3);
+  SetContext(0);
+  if (GameSetup_gData.Time != 0) {
+    if (GameSetup_gData.Weather != 0) {
+      Track_Init(Track_MakeTrackPathName("S.grp"));
+    }
+    else {
+      Track_Init(Track_MakeTrackPathName("N.grp"));
+    }
+  }
+  else if (GameSetup_gData.Weather != 0) {
+    Track_Init(Track_MakeTrackPathName("W.grp"));
+  }
+  else {
+    Track_Init(Track_MakeTrackPathName(".grp"));
+  }
   Object_InitCustomObjects();
   Object_InitIMassObjectInfo();
   if (gPersistObjDef != (Group *)0x0) {
     Scene_Init(gPersistObjDef->m_num_elements);
   }
   Loading_UpdateLoadingScreen(5);
-  pcVar3 = Track_MakeTrackDataPathName("");
-  Anim_InitSystem(pcVar3);
+  Anim_InitSystem(Track_MakeTrackDataPathName(""));
   if (((GameSetup_gData.commMode != 1) && (GameSetup_gData.raceType != 1)) &&
      (GameSetup_gData.raceType != 5)) {
     Scene_LoadSceneFile(GameSetup_gData.SceneNumber);
   }
-  uVar4 = (u_int)(GameSetup_gData.Time != 0);
+  AudioScene = (u_int)(GameSetup_gData.Time != 0);
   if (GameSetup_gData.Weather != 0) {
-    uVar4 = uVar4 + 2;
+    AudioScene = AudioScene + 2;
   }
-  AudList_LoadAudioFile(uVar4);
+  AudList_LoadAudioFile(AudioScene);
   BWorld_InitSpikeBelt();
   return;
 }

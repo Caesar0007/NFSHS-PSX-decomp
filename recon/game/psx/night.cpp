@@ -17,7 +17,18 @@ char         Night_gDrawLightning;   /* @0x8013d9e0  (bss(zero)) */
 u_char       (*Night_gPlayerLightingTable)[256][16];   /* @0x8013d9e4  (bss(zero)) */
 u_char       (*Night_gCopLightingTableRed)[256][8];   /* @0x8013d9e8  (bss(zero)) */
 u_char       (*Night_gCopLightingTableBlue)[256][8];   /* @0x8013d9ec  (bss(zero)) */
-u_char       (*Night_gWeatherLightingTable[2])[256];   /* @0x8013d9f0  (bss(zero)) */
+/* Night_gWeatherLightingTable[2] is modelled as its TWO retail per-element gp-rel symbols
+   (StatsTimer/overlays.cpp model, catalog sec.E dual-model + wave-13 "unsized-array asm-label
+   view"): the oracle reaches the CONSTANT-index sites (Night_KillNightDriving [0] and [1])
+   through a one-instruction %gp_rel(Night_gWeatherLightingTable) / %gp_rel(D_8013D9F4), which
+   an 8-byte object can never produce under -G4, while the WALKING-BASE sites
+   (Night_InitWeatherTables / Night_SetWeatherColors, and draww.cpp's Night_NightCalc) address
+   the base absolutely with %hi/%lo(Night_gWeatherLightingTable) -- reproduced by the unsized
+   asm-label array VIEW below.  The two 4-byte .comm symbols land adjacently in .sbss in
+   declaration order, so the array view still reaches both words: KEEP THEM ADJACENT. */
+u_char       (*Night_gWeatherLightingTable)[256];   /* @0x8013d9f0  = [0]  (bss(zero)) */
+u_char       (*D_8013D9F4)[256];   /* @0x8013d9f4  = [1] retail per-element gp-rel alias (bss(zero)) */
+extern u_char (*Night_gWeatherLightingTable_arr[])[256] asm("Night_gWeatherLightingTable"); /* array VIEW */
 char         CopCarTypeLights[6] = { 0, 0, 1, 0, 1, 1 };   /* @0x8013d9f8 */
 int          gNight_renderNight;   /* @0x8013da28  (bss(zero)) */
 int          Night_gXDist;   /* @0x8013da2c  (bss(zero)) */
@@ -28,7 +39,13 @@ int          Night_gZDistShift;   /* @0x8013da3c  (bss(zero)) */
 char         *Night_gNightTbl;   /* @0x8013da40  (bss(zero)) */
 int          Night_gLightningType;   /* @0x8013da44  (bss(zero)) */
 u_char       (*Night_gCurrentNightColor)[256][16];   /* @0x8013da48  (bss(zero)) */
-u_char       (*Night_gCopColor[2])[256][8];   /* @0x8013da4c  (bss(zero)) */
+/* Night_gCopColor[2]: same per-element gp-rel dual-model as Night_gWeatherLightingTable above --
+   Night_SetCopColor stores both elements through %gp_rel(Night_gCopColor)/%gp_rel(D_8013DA50),
+   while draww.cpp's Night_NightCopCalc indexes the base at RUNTIME via %hi/%lo(Night_gCopColor)
+   (that TU keeps its own `extern u_char (*Night_gCopColor[2])[256][8];` array decl).
+   KEEP THE TWO .comm SYMBOLS ADJACENT (declaration order == .sbss order). */
+u_char       (*Night_gCopColor)[256][8];   /* @0x8013da4c  = [0] (bss(zero)) */
+u_char       (*D_8013DA50)[256][8];   /* @0x8013da50  = [1] retail per-element gp-rel alias (bss(zero)) */
 CVECTOR      Night_gNightAmbientColor;   /* @0x8013da54  (bss(zero)) */
 CVECTOR      Night_gColor[2];   /* @0x8013da58  (bss(zero)) */
 int          Night_gTotalLights;   /* @0x8013da60  (bss(zero)) */
@@ -306,9 +323,9 @@ void Night_SetCopColor(GameSetup_tCarData *carinfo)
   carTable[3] = Night_gCopLightingTableBlue;
   *(NightCopTablePair *)&carTable[0] = *(NightCopTablePair *)&carTable[2];
   col1 = (u_char)Night_gCopCountryLightTbl[cartype][country][0];
-  Night_gCopColor[0] = carTable[col1];
+  Night_gCopColor = carTable[col1];
   col2 = (u_char)Night_gCopCountryLightTbl[cartype][country][1];
-  Night_gCopColor[1] = carTable[col2];
+  D_8013DA50 = carTable[col2];
   return;
 }
 
@@ -389,7 +406,7 @@ void Night_InitWeatherTables(void)
   int i;
   
   i = 0;
-  tbl_walk = (u_char *)Night_gWeatherLightingTable;
+  tbl_walk = (u_char *)Night_gWeatherLightingTable_arr;
   do {
     if (*(int *)tbl_walk == 0) {
       alloc_buf = reservememadr("wtnight",0x100,0);
@@ -423,7 +440,7 @@ void Night_SetWeatherColors(int colorIndex)
 
   i = 0;
   color_walk = Night_gWeatherColor;
-  wtblp = Night_gWeatherLightingTable;
+  wtblp = Night_gWeatherLightingTable_arr;
   do {
     colorH = *color_walk;
     color_walk = color_walk + 1;
@@ -578,14 +595,14 @@ void Night_KillNightDriving(void)
     purgememadr(Night_gCopLightingTableBlue);
   }
   Night_gCopLightingTableBlue = (u_char (*) [256] [8])0x0;
-  if (Night_gWeatherLightingTable[0] != (u_char (*) [256])0x0) {
-    purgememadr(Night_gWeatherLightingTable[0]);
+  if (Night_gWeatherLightingTable != (u_char (*) [256])0x0) {
+    purgememadr(Night_gWeatherLightingTable);
   }
-  Night_gWeatherLightingTable[0] = (u_char (*) [256])0x0;
-  if (Night_gWeatherLightingTable[1] != (u_char (*) [256])0x0) {
-    purgememadr(Night_gWeatherLightingTable[1]);
+  Night_gWeatherLightingTable = (u_char (*) [256])0x0;
+  if (D_8013D9F4 != (u_char (*) [256])0x0) {
+    purgememadr(D_8013D9F4);
   }
-  Night_gWeatherLightingTable[1] = (u_char (*) [256])0x0;
+  D_8013D9F4 = (u_char (*) [256])0x0;
   return;
 }
 

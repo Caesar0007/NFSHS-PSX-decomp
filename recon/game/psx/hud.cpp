@@ -2172,22 +2172,26 @@ HudCdPlay_activateGate:
     }
   }
   else {
+    /* the SYM's `tx` is the SCROLL cursor ($a1), not a TextSys_Word staging temp: the oracle
+     * materializes each word id straight into $a0 (`li $a0,0x44/0x45/0x46`) in the delay slot
+     * of a `j` to ONE shared `jal TextSys_Word` -- i.e. each arm calls it inline and gcc
+     * cross-jump-merged the calls. */
     if (index == 0) {
       sprintf(strindex,"- -");
-      tx = 0x44;
+      artist = (char *)0x0;
+      title = TextSys_Word(0x44);
     }
     else if (index == -2) {
       sprintf(strindex,"- -");
-      tx = 0x45;
+      artist = (char *)0x0;
+      title = TextSys_Word(0x45);
     }
     else {
       sprintf(strindex,"- -");
       artist = (char *)0x0;
       if (title != (char *)0x0) goto HudCdPlay_nullStringFallback;
-      tx = 0x46;
+      title = TextSys_Word(0x46);
     }
-    artist = (char *)0x0;
-    title = TextSys_Word(tx);
 HudCdPlay_nullStringFallback:
     if (title == (char *)0x0) {
       keepup = 0;

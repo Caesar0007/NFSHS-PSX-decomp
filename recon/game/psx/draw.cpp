@@ -439,22 +439,37 @@ void Draw_StopRenderingView(int viewid)
      literal-address form is what the oracle actually uses here, sd-cast is wrong for this
      fn); (2) reordering the `Render_gPacketPtr = pEnv+0x40;` statement to after the 2nd RMW
      (oracle interleaves its store late, inside the 2nd statement's instruction stream) --
-     REGRESSED 63->69. Both reverted. GENUINE FLOOR (fine-grained allocator tie-break over
-     4 short-lived scratch temps, not source-shapable without a pin) -- accept. */
+     REGRESSED 63->69. Both reverted.
+     2026-07-31 (w38-a3), 63 -> 50 diffs and INSN COUNT NOW EXACT (70/70): two structural
+     gaps were still real, not coloring. (a) The oracle materializes the VALUE of
+     Render_gPalettePtr ONCE (`lui a3,0x1F80; lw a3,0(a3)`) and reuses it for BOTH OT-word
+     addresses (`addu v0,v0,a3` / `addu a1,a1,a3`); our build re-LOADED it at the 2nd site
+     because the intervening `sw` invalidates a plain non-struct literal-address MEM in
+     gcc-2.8's alias check.  Modelled with the local `pal`.  (b) The 2nd OT address is
+     MUTATED INTO `pal` in place (`pal = pal + otsize*4 - 4;`), not recomputed as a
+     sub-expression -- the in-place form (catalog 3.12 #14 family) dropped another 18 diffs.
+     RESIDUAL 50 = a pure 4-way HARD-REGISTER ROTATION: ours {a1=LEnv copy-walker, a2/a3
+     scratch, t1=view}, oracle {a1=view, a2=0xffffff mask, a3=LEnv copy-walker, t1=0x1F800004
+     base}.  i.e. retail gives `view` the FIRST allocation slot while our allocator gives it
+     to the movstrsi copy-walker (which has loop-DOUBLED ref counts and therefore a much
+     higher floor_log2(refs)*refs/live_length priority here).  Falsified while chasing it:
+     decl-order permutation, `pal` init before/after `pEnv`, late `view` init (index-form
+     copy source) 107, index-form 2nd otsize read 65.  Allocno-priority tie -- accept
+     (WEAK floor: an -dg/-dl allocno dump for the C++ lane would settle it). */
   Draw_tView *view;
   DR_ENV *pEnv;
   DRAWENV LEnv;
+  u_char *pal;                 /* oracle's CSE'd Render_gPalettePtr VALUE (see note) */
 
   view = Draw_gView + viewid;
   LEnv = view->drawenv[gFlip];
   pEnv = (DR_ENV *)Render_gPacketPtr;
-  *(u_int *)Render_gPacketPtr =
-       *(u_int *)Render_gPacketPtr & 0xff000000 |
-       *(u_int *)(Render_gPalettePtr + view->otsize * 4 + -4) & 0xffffff;
+  pal = Render_gPalettePtr;
+  *(u_int *)pEnv = *(u_int *)pEnv & 0xff000000 |
+       *(u_int *)(pal + view->otsize * 4 + -4) & 0xffffff;
   Render_gPacketPtr = (char *)pEnv + 0x40;
-  *(u_int *)(Render_gPalettePtr + view->otsize * 4 + -4) =
-       *(u_int *)(Render_gPalettePtr + view->otsize * 4 + -4) & 0xff000000 |
-       (u_int)pEnv & 0xffffff;
+  pal = pal + view->otsize * 4 + -4;
+  *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)pEnv & 0xffffff;
   SetDrawEnv(pEnv,&LEnv);
   return;
 }

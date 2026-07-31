@@ -358,9 +358,6 @@ MPauseLogic_updateNext:
 
 MPauseLogic_command:
   if (command.type != kMPause_NoEvent) {
-    int backDepth;
-    MPauseMenuVirtual *nextMenu;
-
     if ((command.type & kMPause_CommandConfirmationFlag) != 0) {
       gPauseMenuDefs->itemConfirmTitle.fTextDescription =
           gPauseCurrentMenu->fItemList[gPauseCurrentMenu->fCurrentItem]->fTextDescription;
@@ -372,40 +369,25 @@ MPauseLogic_command:
 
     switch (command.type) {
     case kMPause_GoToMenu:
-      backDepth = gBackDepth;
-      gBackList[backDepth] = gPauseCurrentMenu;
-      nextMenu = (MPauseMenuVirtual *)command.nextMenu;
-      backDepth++;
-      goto MPauseLogic_initialize;
+      gBackList[gBackDepth++] = gPauseCurrentMenu;
+      gPauseCurrentMenu = command.nextMenu;
+      ((MPauseMenuVirtual *)gPauseCurrentMenu)->Initialize();
+      break;
 
     case kMPause_BackupMenu:
-      backDepth = gBackDepth;
-      if (backDepth <= 0) {
-        goto MPauseLogic_noBack;
+      if (gBackDepth > 0) {
+        --gBackDepth;
+        gPauseCurrentMenu = gBackList[gBackDepth];
+        ((MPauseMenuVirtual *)gPauseCurrentMenu)->Initialize();
+      } else {
+        command.type = kMPause_Continue;
+        return command.type;
       }
-      backDepth--;
-      nextMenu = (MPauseMenuVirtual *)gBackList[backDepth];
-      goto MPauseLogic_initialize;
+      break;
 
     default:
-      goto MPauseLogic_returnCommand;
+      return command.type;
     }
-
-MPauseLogic_initialize:
-    gBackDepth = backDepth;
-    gPauseCurrentMenu = (tPMenu *)nextMenu;
-    nextMenu->Initialize();
-    goto MPauseLogic_commandDone;
-
-MPauseLogic_noBack:
-    command.type = kMPause_Continue;
-    return command.type;
-
-MPauseLogic_returnCommand:
-    return command.type;
-
-MPauseLogic_commandDone:
-    ;
   }
   MPause_MusicLogic(gPauseCurrentMenu == (tPMenu *)(((int)gPauseMenuDefs) + 0x1c8));
   MPause_ControllerLogic();

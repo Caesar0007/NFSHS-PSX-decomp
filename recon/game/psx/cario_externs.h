@@ -35,6 +35,8 @@ extern shapetbl *CarIO_Plate2[2];
 extern int       CarIO_carPixMapCount;
 extern int       CarIO_carVRamCount;
 extern int       CarIO_licenseSFX_Count;
-extern char      R3DCar_LicenseShapeFile[];    /* locateshapez(name,...) */
+extern char     *R3DCar_LicenseShapeFile;      /* OWNER r3dcar.cpp:44 defines a
+                                                * POINTER; the old `char []` decl made
+                                                * both locateshapez calls pass &ptr. */
 
 #endif

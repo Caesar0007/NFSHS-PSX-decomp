@@ -259,134 +259,129 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
 }
 
 /* ---- CarIO_CreateLicense__FPcii  [CARIO.CPP:379-483] SLD-VERIFIED ---- */
+/* SYM @0x800bc25c (fsize 72, mask $80ff0000).  FULL rule-8 rewrite (w39-a5):
+ *   REGPARMs text=$17($s7) carType=$05($a1) player=$16($s6)
+ *   fn block  -> i REG $12($s2), clutPlate1 REG $14($s4), clutPlate2 REG $15($s5),
+ *                thePlate REG $13($s3), shape REG $07($a3), clutptr REG $08($t0)
+ *   line-32   -> length REG $11($s1), start REG $10($s0)
+ *   line-44   -> letter AUTO 24(sp) char[5], ascii REG $03($v1)
+ * TWO REAL BUGS fixed here:
+ *  (a) R3DCar_LicenseShapeFile is a `char *` in its OWNER (r3dcar.cpp:44) but was
+ *      declared `char []` in cario_externs.h, so both locateshapez calls passed the
+ *      ADDRESS OF THE POINTER instead of the buffer (oracle: `lui;lw %lo(sym)` = a
+ *      value load, ours emitted `lui;addiu` = address-of).  Extern-type-vs-owner class.
+ *  (b) the accent-folding switch was written with SIGNED case labels (-0x40..-0x24)
+ *      but `char` is UNSIGNED on this build, so the compare value is 0..255 and NONE
+ *      of the cases could ever match -- gcc kept the table (`addiu v1,v1,64;
+ *      sltiu v0,v1,29`) but it was unreachable, i.e. accented characters never folded
+ *      to their base letter at runtime.  The oracle normalizes against +0xC0
+ *      (`addiu a0,a0,-192`), confirming unsigned labels.  Case BODY order is retail's
+ *      (n, a, e, i, o, u) -- switch case bodies emit in SOURCE order. */
 void CarIO_CreateLicense(char *text,int carType,int player)
 
 {
-  shapetbl *psVar1;
-  short *dest;
-  int *piVar2;
-  int tu3;
-  u_int uVar3;
-  void *pvVar4;
-  char ascii;
-  char cVar5;
-  int iVar6;
-  shapetbl *psVar7;
-  short *source;
-  int iVar8;
-  int *piVar9;
   shapetbl *shape;
   shapetbl *clutptr;
-  int *piVar10;
-  shapetbl *psVar11;
-  int start;
-  shapetbl **ppsVar12;
-  int length;
-  int i;
-  int iVar13;
-  short *thePlate;
   shapetbl *clutPlate1;
   shapetbl *clutPlate2;
-  char letter [5];
-  
+  short *thePlate;
+  int i;
+
   /* oracle: `slti a1,carType,22; bnez a1,<big arm>` -- the carType>=0x16
    * (no-plate) arm is the FALL-THROUGH, so it is the if-BODY and the
-   * plate-building arm is the else (catalog: arm order sets branch
-   * polarity + which block goes out of line). */
+   * plate-building arm is the else. */
   if (carType >= 0x16) {
     CarIO_Plate2[player] = (shapetbl *)0x0;
     CarIO_Plate1[player] = (shapetbl *)0x0;
   }
   else {
-    psVar1 = reservememadr("plate1",0x148,0);
-    ppsVar12 = CarIO_Plate1 + player;
-    *ppsVar12 = psVar1;
-    psVar1 = reservememadr("plate2",0x148,0);
-    iVar13 = 0;
-    CarIO_Plate2[player] = psVar1;
-    psVar1 = psVar1 + 0xe;
-    psVar11 = *ppsVar12 + 0xe;
-    dest = reservememadr("theplate",0x210,0x10);
-    piVar2 = locateshapez(R3DCar_LicenseShapeFile,"blnk");
-    piVar10 = (int *)((int)piVar2 + (*piVar2 >> 8));
-    piVar9 = piVar2;
+    CarIO_Plate1[player] = (shapetbl *)reservememadr("plate1",0x148,0);
+    CarIO_Plate2[player] = (shapetbl *)reservememadr("plate2",0x148,0);
+    clutPlate2 = CarIO_Plate2[player] + 0xe;
+    i = 0;
+    clutPlate1 = CarIO_Plate1[player] + 0xe;
+    thePlate = (short *)reservememadr("theplate",0x210,0x10);
+    shape = (shapetbl *)locateshapez(R3DCar_LicenseShapeFile,"blnk");
+    clutptr = (shapetbl *)((int)shape + (*(int *)shape >> 8));
     do {
-      iVar8 = *piVar9;
-      piVar9 = piVar9 + 1;
-      iVar6 = iVar13 * 4;
-      iVar13 = iVar13 + 1;
-      psVar7 = *ppsVar12;
-      *(int *)((char *)(CarIO_Plate2[player]) + iVar6) = iVar8;
-      *(int *)((char *)(psVar7) + iVar6) = iVar8;
-    } while (iVar13 < 4);
-    iVar13 = 0;
+      int hdr;
+
+      hdr = ((int *)shape)[i];
+      *(int *)((char *)(CarIO_Plate2[player]) + i * 4) = hdr;
+      *(int *)((char *)(CarIO_Plate1[player]) + i * 4) = hdr;
+      i = i + 1;
+    } while (i < 4);
+    i = 0;
     do {
-      tu3 = *piVar10;
-      piVar10 = piVar10 + 1;
-      iVar13 = iVar13 + 1;
-      *(int *)psVar1 = tu3;
-      *(int *)psVar11 = tu3;
-      psVar11 = (shapetbl *)&psVar11->width;
-      psVar1 = (shapetbl *)&psVar1->width;
-    } while (iVar13 < 0xc);
-    psVar11 = CarIO_Plate2[player];
-    psVar1 = CarIO_Plate1[player];
-    *(u_int *)psVar11 = *(u_char *)psVar11 | 0x11800;
-    *(u_int *)psVar1 = *(u_char *)psVar1 | 0x11800;
-    psVar1 = CarIO_Plate1[player];
+      int tu3;
+
+      tu3 = ((int *)clutptr)[i];
+      ((int *)clutPlate2)[i] = tu3;
+      ((int *)clutPlate1)[i] = tu3;
+      i = i + 1;
+    } while (i < 0xc);
+    *(u_int *)(CarIO_Plate2[player]) = *(u_char *)(CarIO_Plate2[player]) | 0x11800;
+    *(u_int *)(CarIO_Plate1[player]) = *(u_char *)(CarIO_Plate1[player]) | 0x11800;
+    i = 0;
     CarIO_Plate2[player]->width = 0x18;
-    psVar1->width = 0x18;
-    CarIO_CopyFromShape((short *)(piVar2 + 4),dest,0x30,0x16,0,0);
-    uVar3 = strlen(text);
-    iVar13 = uVar3 * -3 + 0x18;
-    for (iVar6 = 0; iVar6 < (int)uVar3; iVar6 = iVar6 + 1) {
-      cVar5 = text[iVar6];
-      if (cVar5 != ' ') {
-        switch(cVar5) {
-        case -0x40:
-        case -0x3c:
-        case -0x3b:
-          cVar5 = 'a';
-          break;
-        case -0x38:
-          cVar5 = 'e';
-          break;
-        case -0x34:
-          cVar5 = 'i';
-          break;
-        case -0x2f:
-          cVar5 = 'n';
-          break;
-        case -0x2e:
-        case -0x2a:
-          cVar5 = 'o';
-          break;
-        case -0x27:
-        case -0x24:
-          cVar5 = 'u';
+    CarIO_Plate1[player]->width = 0x18;
+    CarIO_CopyFromShape((short *)((int)shape + 0x10),thePlate,0x30,0x16,0,0);
+    {
+      int length;
+      int start;
+
+      length = strlen(text);
+      start = 0x18 - length * 3;
+      while (i < length) {
+        char ascii;
+
+        ascii = text[i];
+        if (ascii != ' ') {
+          char letter [5];
+          void *pShape;
+
+          switch(ascii) {
+          case 0xd1:
+            ascii = 'n';
+            break;
+          case 0xc0:
+          case 0xc4:
+          case 0xc5:
+            ascii = 'a';
+            break;
+          case 0xc8:
+            ascii = 'e';
+            break;
+          case 0xcc:
+            ascii = 'i';
+            break;
+          case 0xd2:
+          case 0xd6:
+            ascii = 'o';
+            break;
+          case 0xd9:
+          case 0xdc:
+            ascii = 'u';
+          }
+          letter[0] = ascii;
+          letter[1] = '\0';
+          strcat(letter,"   ");
+          pShape = locateshapez(R3DCar_LicenseShapeFile,letter);
+          CarIO_CopyFromShape((short *)((int)pShape + 0x10),thePlate,7,0xc,start,5);
         }
-        letter[1] = '\0';
-        letter[0] = cVar5;
-        strcat(letter,"   ");
-        pvVar4 = locateshapez(R3DCar_LicenseShapeFile,letter);
-        CarIO_CopyFromShape((short *)((int)pvVar4 + 0x10),dest,7,0xc,iVar13,5);
+        start = start + 6;
+        i = i + 1;
       }
-      iVar13 = iVar13 + 6;
     }
     if ((R3DCar_InMenu == 0) && (GameSetup_gData.mirrorTrack != 0)) {
-      CarIO_CopyToShape(dest + 6,(short *)&CarIO_Plate1[player]->data,1);
-      psVar1 = CarIO_Plate2[player];
-      iVar13 = 1;
-      source = dest;
+      CarIO_CopyToShape(thePlate + 6,(short *)&CarIO_Plate1[player]->data,1);
+      CarIO_CopyToShape(thePlate,(short *)&CarIO_Plate2[player]->data,1);
     }
     else {
-      CarIO_CopyToShape(dest,(short *)&CarIO_Plate1[player]->data,0);
-      source = dest + 6;
-      psVar1 = CarIO_Plate2[player];
-      iVar13 = 0;
+      CarIO_CopyToShape(thePlate,(short *)&CarIO_Plate1[player]->data,0);
+      CarIO_CopyToShape(thePlate + 6,(short *)&CarIO_Plate2[player]->data,0);
     }
-    CarIO_CopyToShape(source,(short *)&psVar1->data,iVar13);
-    purgememadr(dest);
+    purgememadr(thePlate);
   }
   return;
 }

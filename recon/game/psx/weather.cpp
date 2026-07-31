@@ -716,81 +716,52 @@ WeatherReset_topCheck:
   return sVar3;
 }
 
-/* ---- Weather_QuickReOrthogonalize__FP10matrixtdefT0  [WEATHER.CPP:673-700] SLD-VERIFIED ---- */
+/* ---- Weather_QuickReOrthogonalize__FP10matrixtdefT0  [WEATHER.CPP:673-700] SLD-VERIFIED ----
+ * SYM (fsize 72, ra+s0-s7): rot $s5, rotNew $s4; AUTO upvector @-0x38 (coorddef);
+ * REG locals nrotx $s4(=rotNew), nroty $s6, nrotz $s3, roty $s7, rotz $s2.
+ * 🔴 BUG FIXED: the previous body initialised `upvector` from prevLookBehind[]/
+ * prevCameraMode[] (Weather_DoWeather's file statics) -- the raw oracle copies the
+ * three words of the .rodata constant D_80056B2C = {0, 0x10000, 0} (the +Y world-up
+ * vector, 16.16) into the stack slot, i.e. an initialised local aggregate.  The old
+ * form read unrelated globals => wrong up-vector at runtime.
+ * The dot product is expanded THREE times (test + both ternary arms) = an ABS() macro
+ * over a DOT() macro, and there is no SYM local for it. */
 void Weather_QuickReOrthogonalize
                (matrixtdef *rot,matrixtdef *rotNew)
 
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  coorddef *rotz;
-  coorddef *nrotz;
-  coorddef *v;
+  coorddef upvector = {0,0x10000,0};
   coorddef *nrotx;
-  matrixtdef *rot_reg;
   coorddef *nroty;
+  coorddef *nrotz;
   coorddef *roty;
-  coorddef upvector;
-  
-  iVar4 = prevCameraMode[0];
-  iVar2 = prevLookBehind[1];
-  iVar3 = prevLookBehind[0];
-  v = (coorddef *)(rotNew->m + 6);
-  upvector.x = prevLookBehind[0];
-  upvector.y = prevLookBehind[1];
-  upvector.z = prevCameraMode[0];
-  iVar5 = rot->m[7];
-  iVar6 = rot->m[8];
-  rotNew->m[6] = rot->m[6];
-  rotNew->m[7] = iVar5;
-  rotNew->m[8] = iVar6;
-  Math_NormalizeVector(v);
-  iVar5 = fixedmult(iVar3,rot->m[6]);
-  iVar6 = fixedmult(iVar2,rot->m[7]);
-  iVar1 = fixedmult(iVar4,rot->m[8]);
-  if (iVar5 + iVar6 + iVar1 < 1) {
-    iVar3 = fixedmult(iVar3,rot->m[6]);
-    iVar2 = fixedmult(iVar2,rot->m[7]);
-    iVar4 = fixedmult(iVar4,rot->m[8]);
-    iVar3 = -(iVar3 + iVar2 + iVar4);
+  coorddef *rotz;
+
+  nrotx = (coorddef *)rotNew;
+  nroty = (coorddef *)(rotNew->m + 3);
+  nrotz = (coorddef *)(rotNew->m + 6);
+  roty = (coorddef *)(rot->m + 3);
+  rotz = (coorddef *)(rot->m + 6);
+  *nrotz = *rotz;
+  Math_NormalizeVector(nrotz);
+  if (0xfd70 <
+      (0 < fixedmult(upvector.x,rotz->x) + fixedmult(upvector.y,rotz->y) +
+           fixedmult(upvector.z,rotz->z) ?
+       fixedmult(upvector.x,rotz->x) + fixedmult(upvector.y,rotz->y) +
+       fixedmult(upvector.z,rotz->z) :
+       -(fixedmult(upvector.x,rotz->x) + fixedmult(upvector.y,rotz->y) +
+         fixedmult(upvector.z,rotz->z)))) {
+    upvector = *roty;
   }
-  else {
-    iVar5 = fixedmult(iVar3,rot->m[6]);
-    iVar2 = fixedmult(iVar2,rot->m[7]);
-    iVar3 = fixedmult(iVar4,rot->m[8]);
-    iVar3 = iVar5 + iVar2 + iVar3;
-  }
-  if (0xfd70 < iVar3) {
-    upvector.x = rot->m[3];
-    upvector.y = rot->m[4];
-    upvector.z = rot->m[5];
-  }
-  iVar3 = fixedmult(upvector.y,rotNew->m[8]);
-  iVar2 = fixedmult(upvector.z,rotNew->m[7]);
-  rotNew->m[0] = iVar3 - iVar2;
-  iVar3 = fixedmult(upvector.z,v->x);
-  iVar2 = fixedmult(upvector.x,rotNew->m[8]);
-  rotNew->m[1] = iVar3 - iVar2;
-  iVar3 = fixedmult(upvector.x,rotNew->m[7]);
-  iVar2 = fixedmult(upvector.y,v->x);
-  rotNew->m[2] = iVar3 - iVar2;
-  Math_NormalizeVector((coorddef *)rotNew);
-  iVar3 = fixedmult(rotNew->m[7],rotNew->m[2]);
-  iVar2 = fixedmult(rotNew->m[8],rotNew->m[1]);
-  rotNew->m[3] = iVar3 - iVar2;
-  iVar3 = fixedmult(rotNew->m[8],rotNew->m[0]);
-  iVar2 = fixedmult(v->x,rotNew->m[2]);
-  rotNew->m[4] = iVar3 - iVar2;
-  iVar3 = fixedmult(v->x,rotNew->m[1]);
-  iVar2 = fixedmult(rotNew->m[7],rotNew->m[0]);
-  rotNew->m[5] = iVar3 - iVar2;
+  nrotx->x = fixedmult(upvector.y,nrotz->z) - fixedmult(upvector.z,nrotz->y);
+  nrotx->y = fixedmult(upvector.z,nrotz->x) - fixedmult(upvector.x,nrotz->z);
+  nrotx->z = fixedmult(upvector.x,nrotz->y) - fixedmult(upvector.y,nrotz->x);
+  Math_NormalizeVector(nrotx);
+  nroty->x = fixedmult(nrotz->y,nrotx->z) - fixedmult(nrotz->z,nrotx->y);
+  nroty->y = fixedmult(nrotz->z,nrotx->x) - fixedmult(nrotz->x,nrotx->z);
+  nroty->z = fixedmult(nrotz->x,nrotx->y) - fixedmult(nrotz->y,nrotx->x);
   return;
 }
-
 /* ---- Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc  [WEATHER.CPP:704-887] SLD-VERIFIED ---- */
 void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
 {

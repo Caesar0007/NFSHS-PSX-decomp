@@ -40,6 +40,12 @@ int TextureProcess_TransColorCheck(char *data,int numentry)
 void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int cx,int cy)
 {
   short newdata [256];
+  CTrackSpec *spec;              /* MATCH: the oracle materializes
+                                  * la $v1,TrackSpec_gSpec ONCE and parks it in
+                                  * $fp across the whole loop (lw 0x10, lbu
+                                  * 0x14/0x15/0x16 off it); direct
+                                  * TrackSpec_gSpec.fogspec.X references emit a
+                                  * fresh fused %hi/%lo per access. */
   char *sourcedata;
   short *p;
   int contrasttemp;
@@ -49,35 +55,47 @@ void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int
   int g;
   int b;
   int temp;
-  int rawr;
-  int rawg;
-  int rawb;
 
   sourcedata = data;
   j = 0;
-  p = newdata;
+  /* MATCH: the contrast read goes through the GLOBAL directly and `spec` is
+   * assigned AFTER it -- cse then turns `spec = &TrackSpec_gSpec` into a plain
+   * register COPY of the address already materialized for the contrast load
+   * (oracle: la $v1,TrackSpec_gSpec; lw 0x10($v1); addu $fp,$v1,$zero).
+   * `p = newdata` must come LAST: its luid decides whether sched1 issues the
+   * addiu before or after the mflo. */
   contrasttemp = (TrackSpec_gSpec.fogspec.contrast * level) / (maxlevel + -1);
-  while (j < numentry) {
+  spec = &TrackSpec_gSpec;
+  p = newdata;
+  /* MATCH: exit-in-the-middle -- numentry is re-loaded from its arg slot at the
+   * top of every iteration and the back edge is an unconditional `j`. */
+  while (1) {
+    if (!(j < numentry)) break;
     color = *(u_short *)sourcedata;
     if (color == 0) {
       *p = 0;
     }
     else {
-      rawb = (color >> 7) & 0xf8;
-      rawg = (color >> 2) & 0xf8;
-      rawr = (color & 0x1f) * 8;
-      temp = fixedmult(rawr - TrackSpec_gSpec.fogspec.color.r,contrasttemp);
-      r = rawr - temp;
-      if (r < 0) { r = 0; } else if (0xff < r) { r = 0xff; }
-      temp = fixedmult(rawg - TrackSpec_gSpec.fogspec.color.g,contrasttemp);
-      g = rawg - temp;
-      if (g < 0) { g = 0; } else if (0xff < g) { g = 0xff; }
-      temp = fixedmult(rawb - TrackSpec_gSpec.fogspec.color.b,contrasttemp);
-      b = rawb - temp;
-      if (b < 0) { b = 0; } else if (0xff < b) { b = 0xff; }
+      b = (color >> 7) & 0xf8;
+      g = (color >> 2) & 0xf8;
+      r = (color & 0x1f) * 8;
+      /* MATCH: one variable per channel (raw value then clamped result share
+       * $s1/$s2/$s0) and the `= 0` default as the if-ARM so it lands in the
+       * bltz delay slot. */
+      temp = r - fixedmult(r - spec->fogspec.color.r,contrasttemp);
+      if (temp < 0) { r = 0; } else { r = temp; if (0xff < r) { r = 0xff; } }
+      temp = g - fixedmult(g - spec->fogspec.color.g,contrasttemp);
+      if (temp < 0) { g = 0; } else { g = temp; if (0xff < g) { g = 0xff; } }
+      temp = b - fixedmult(b - spec->fogspec.color.b,contrasttemp);
+      if (temp < 0) { b = 0; } else { b = temp; if (0xff < b) { b = 0xff; } }
       if (b < 8) { b = 8; }                          /* keep a minimum blue so the pixel stays visible */
-      *p = (color & 0x8000) | (short)(((b >> 3) & 0x1f) << 10) |
-           (short)(((g >> 3) & 0x1f) << 5) | (short)((r >> 3) & 0x1f);
+      /* MATCH: narrow each channel to 5 bits as its OWN statement (assigned back
+       * into the channel var) before composing -- folding the shift+mask into
+       * the compose expression lets gcc reassociate it to (b<<7)&0x7c00. */
+      b = (b >> 3) & 0x1f;
+      g = (g >> 3) & 0x1f;
+      r = (r >> 3) & 0x1f;
+      *p = (short)((color & 0x8000) | (b << 10) | (g << 5) | r);
     }
     sourcedata = sourcedata + 2;
     p = p + 1;

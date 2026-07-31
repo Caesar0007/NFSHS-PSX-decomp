@@ -197,10 +197,16 @@ void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,
 }
 
 /* ---- Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii  [SKIDMARK.CPP:264-326] SLD-VERIFIED ----
- * NEAR-MISS 20 diffs (229/231) after the &sm->seg[n] array-index fix (was 70).
- * Residual: (a) the same $a0/$v0-vs-$v1 chunk-count scratch rotation as Skidmark_Add,
- * (b) 2 insns of cross-jump DEPTH -- the oracle keeps the `n*28` recompute inside the
- * first arm where our build merges it into the shared tail. */
+ * PASS (w39-a10, 231/231; was 20).  Two structural corrections, both readable
+ * straight off the oracle's shared-tail entry label .L800DF250 (which sits MID
+ * address-computation, at `sll $v0,$v0,2`):
+ *   (1) `sm->seg[n].type = type;` lives INSIDE EACH ARM -- arm1 indexes its own
+ *       `n` (= sm->n, $a0), arm3 recomputes `sm->n + 1` ($v1).  A single shared `n`
+ *       in the tail puts both arms' n*7 term in ONE hard reg, so gcc's post-reload
+ *       cross-jump merges 2 insns deeper than retail and re-colours the index web.
+ *   (2) arm3's CalcStartSegment args are spelled inline (`&sm->seg[sm->n]`,
+ *       `&sm->seg[sm->n + 1]`); a named `n` local takes $a0 where retail's anonymous
+ *       CSE temp takes $v0.  Converting arm1 to the named form regresses 6 -> 12. */
 void Skidmark_AddStretch(Skidmark_Segment **save,int *savechunk,tSkid *prevskid,coorddef *skidpt,
                         CVECTOR *color,int tireWidth,int type,int slice)
 

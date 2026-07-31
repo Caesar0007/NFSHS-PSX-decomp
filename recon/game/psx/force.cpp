@@ -310,17 +310,16 @@ void Force_StartUp(void)
 }
 
 /* ---- Force_Disable__Fv  [FORCE.CPP:250-258] SLD-VERIFIED ---- */
-/* NEAR-MISS 17 diffs (30/29, improved from 25 baseline): FIXED the loop -- guarded
- * do-while (`if(pFVar2<Force_g+2){do{...}while(...)}`, entry-tested like a real `while`)
- * + direct struct-member stores (`pFVar2->actuator[0/1]=0`) instead of a raw negative-
- * offset byte pointer + `colourRGB` sentinel -- the loop body/guard now byte-matches
- * EXACTLY (indices 0-14 identical). Residual is entirely in the POST-loop tail: the two
- * `PadSetActAlign(N,Force_gOffAlign)` calls -- oracle REMATERIALIZES `Force_gOffAlign`'s
- * address at each call site (2x `lui a1;addiu a1`, no saved reg, smaller frame, no `sw
- * s0`); our build's GCSE hoists the (identical) address computation into a callee-saved
- * `s0` across the intervening `jal`. Tried: block-scoping each call in `{ }` (no change).
- * A compiler-internal GCSE-across-calls profitability decision, not source-reachable via
- * the standard levers; accepted near-miss. */
+/* PASS 29/29 (w39-a7).  The loop body/guard was already exact after w38-a9's guarded
+ * do-while + direct struct-member stores; the whole 17-diff residual was the POST-loop
+ * tail -- the oracle REMATERIALIZES `Force_gOffAlign`'s address at each of the two
+ * `PadSetActAlign` call sites (2x `lui a1;addiu a1`, no saved reg, smaller frame), while
+ * our build GCSE-hoisted it into `$s0` across the intervening `jal`.  That was NOT a
+ * compiler-internal profitability wall as the old comment claimed: force.obj is a **-G8
+ * object** (see tools/build.py PER_TU_FLAGS), and under -G8 the 6-byte Force_gOffAlign is
+ * small data, so cc1plus emits the `la` MACRO form instead of splitting %hi/%lo itself --
+ * there is no split address expression left for GCSE to hoist.  Fixed by the per-TU
+ * g_value=8 key, not by a source change. */
 void Force_Disable(void)
 
 {
@@ -341,26 +340,38 @@ void Force_Disable(void)
 }
 
 /* ---- Force_IsForceOn__FP8Car_tObj  [FORCE.CPP:264-273] SLD-VERIFIED ---- */
-/* NEAR-MISS 14 diffs (23/23, count exact -- improved from 24 baseline): FIXED branch
- * polarity -- rewrote the carIndex-range guard as an early-return `if(>=2) return 0;`
- * (matches the oracle's fallthrough-is-the-real-body layout) instead of the inline-body
- * `if(<2){...}return 0;` form, which had produced 3 EXTRA insns (dead early-guard delay
- * slot + inverted bnez + a spurious `lui v0,0` return-0 dup). Residual = oracle reuses the
- * dead `car` param register (a0, dead after reading carIndex) directly for BOTH the guard
- * test AND the later `sll a0,3` array-index shift; ours always allocates a fresh v0/v1.
- * Tried: hoisting carIndex into a local `int carIndex;` (no change -- same v1), inlining
- * `car->carIndex` twice (no change). Genuine allocator coloring tie-break for a dead-param
- * register reuse; accepted near-miss. */
+/* PASS 23/23 (w39-a7, was a "certified" 14-diff allocator floor -- the floor claim was
+ * WRONG).  Two things had to be right:
+ *   (1) branch polarity: the carIndex-range guard is an early-return `if(>=2) return 0;`
+ *       (the oracle's fall-through IS the real body), not the inline-body `if(<2){...}`
+ *       form -- that had cost 3 extra insns (w38-a9).
+ *   (2) the last 14 diffs were NOT the "dead-param $a0 reuse" the old comment blamed.
+ *       They are the COMMUTATIVE-addu / sll-vs-base SCHEDULING tie-break (methodology
+ *       Sec.5.0c): the oracle computes the scaled index FIRST -- `sll $v0,$a0,3` sits in
+ *       the guard's `beqz` delay slot -- then materializes the Force_g base into $v1 and
+ *       does `addu $v0,$v0,$v1` (scaled index = addu operand 1).  A plain `Force_g[carIndex]`
+ *       subscript makes gcc emit `addu rd,BASE,scaled` and materialize the base first,
+ *       which cascades the whole $v0/$v1 pair.  Writing the address as an explicit
+ *       int-cast with the INDEX TERM FIRST, `(carIndex << 3) + (int)Force_g`, puts the
+ *       just-computed shift in addu operand 1 and frees the schedule => byte-exact.
+ * Falsified on the way (do not re-try): the single `&&` boolean form (IDA renders this fn
+ * as `v1 < 2 && LOBYTE(...) == 1`) REGRESSES 14 -> 20; `u_int` vs `int` for the local is
+ * neutral; the dead-param-reuse hack `car = (Car_tObj *)car->carIndex;` also reaches PASS
+ * but is not needed once the addu operand order is right, so the honest `int carIndex`
+ * local is kept.  IDA (`sub_800CB158`) confirms the index value lives in $a0. */
 int Force_IsForceOn(Car_tObj *car)
 
 {
+  int carIndex;
+
   if (1 < Replay_ReplayMode) {
     return 0;
   }
-  if ((u_int)car->carIndex >= 2) {
+  carIndex = car->carIndex;
+  if ((u_int)carIndex >= 2) {
     return 0;
   }
-  return (u_int)(Force_g[car->carIndex].active == '\x01');
+  return ((Force_tGlobal *)((carIndex << 3) + (int)Force_g))->active == 1;
 }
 
 /* ---- Force_Pause__Fv  [FORCE.CPP:279-285] SLD-VERIFIED ---- */

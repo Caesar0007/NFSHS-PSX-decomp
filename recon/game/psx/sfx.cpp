@@ -126,7 +126,17 @@ void Sfx_BuildFastDisolveFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,Draw_t
  * four-constant register ROTATION in the OT-link tail (ours t0=0xFFFFFF a1=palette
  * a2=&packetptr a3=0xFF000000; retail t0=&packetptr a1=0xFFFFFF a2=palette
  * a3=0xFF000000) -- the same allocator tie the catalog tracks as the PrimStop /
- * SpotPrims / SubdividFacet 0xffffff-pair family.  The historical note follows:) ROOT CAUSE ISOLATED this session: the 5
+ * SpotPrims / SubdividFacet 0xffffff-pair family.
+ * FLOOR RE-PROBED w39-a9 with the NOW-WIRED per-TU C++ flags (w38 discovered compile_cpp
+ * had silently ignored them, so every earlier "flag didn't help" note measured a no-op).
+ * Receipts, whole-TU probe: g_value=8 38 (adopted for OTHER reasons, see build.py) ·
+ * no_split_addresses 38 · no_strength_reduce 38 · no_schedule_insns 47 (+9) ·
+ * no_schedule_insns2 43 (+5).  Also re-tried the wave-14 "repeated literal -> named
+ * fn-scope local" lever (`u_int m24 = 0xffffff;` feeding both `&` sites): NO CHANGE, gcc
+ * copy-propagates the constant back.  Prototype re-checked vs the raw oracle: 5 REGPARM
+ * args ($a0 pmx, $a1 pt, $a2 mode, $a3 offset, 0x10($sp) sd -- the 5th IS read), VOID
+ * return ($v0 incoherent at the single exit).  STRONG FLOOR (count-exact 126/126,
+ * >=6 source shapes + 5 build-flag configurations).  The historical note follows:) ROOT CAUSE ISOLATED this session: the 5
  * missing insns are the `addiu vN,base,OFF` address-materializations the oracle emits before
  * EVERY `gte_stsxy`/`gte_stsxy3` GTE store (`prim->x0/x1/x3/x2`) -- ours folds the field offset
  * straight into the `swc2` displacement (`swc2 14,8(s0)`) instead. Compared against the REAL

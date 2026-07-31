@@ -52,7 +52,10 @@
 
 /* ---- DrawW.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero) ---- */
-char         offsets[8] = { 125, 125, 50, 15, -1, 125, 0, 0 };   /* @0x8013D828 */
+signed char  offsets[8] = { 125, 125, 50, 15, -1, 125, 0, 0 };   /* @0x8013D828 -- MATCH+CORRECTNESS:
+                        the oracle reads this table with `lb` (BuildCustomObjectFacets @0x800C7C3C,
+                        %hi(D_8013D828)); `char` is UNSIGNED on this build, so entry 4 (-1) was
+                        being read as +255 -- a real z-offset bug as well as an lbu-vs-lb diff. */
 MATRIX       gIdentTemplate = {4096, 0};   /* @0x8011f570 */
 int          trk0[9][2] = { 410, 530, 800, 850, 800, 850, 800, 850, 800, 850, 800, 850, 815, 885, 815, 885, 815, 885 };   /* @0x8011f590 */
 int          trk4[10][2] = { 300, 440, 300, 440, 300, 440, 300, 440, 300, 440, 705, 910, 705, 910, 705, 910, 705, 910, 705, 910 };   /* @0x8011f5d8 */
@@ -2074,16 +2077,16 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
   int loc_20;
   int tu6;
   u_char bVar7;
-  u_char tc4;
+  int tc4;   /* the z-offset -- SYM/oracle keep it sign-extended in a saved reg (`lb`) */
   u_char tc5;
 
   groupBase_p = (int)(group + 1);
   totalCount = 0;
   iVar6 = group->m_num_elements;
-  if (iVar6 == 0) {
-    totalCount = 0;
-  }
-  else {
+  /* MATCH (2026-08-01): the oracle's guard is `bnez` INTO the loop with the empty
+   * group as the FALL-THROUGH `j <epilogue>; [ds] addu $v0,$zero,$zero` -- the
+   * non-empty case is the branch TARGET, not the else arm. */
+  if (iVar6 != 0) {
     /* MATCH (2026-07-11, correctness bug): gte_SetTransMatrix was reading a
        fabricated/wrong global (CF_DVLC -- a video-buffer symbol, completely
        unrelated) instead of the just-zeroed sd->matB the oracle loads (`lw
@@ -2146,7 +2149,7 @@ gte_SetTransMatrix((MATRIX *)&sd->matB);
             matrix.m[8] = fixedmult(matrix.m[8],blend_z);
             matrix.m[2] = iVar3;
             matrix.m[5] = iVar4;
-            iVar3 = DrawObjectTransform(Vi,sd,&matrix,objDef_00,(coorddef *)(groupBase_p + 8),(int)(char)tc4,
+            iVar3 = DrawObjectTransform(Vi,sd,&matrix,objDef_00,(coorddef *)(groupBase_p + 8),tc4,
                                -1);
             objMat_p = totalCount + iVar3;
             totalCount = objMat_p;
@@ -2155,7 +2158,7 @@ gte_SetTransMatrix((MATRIX *)&sd->matB);
         else {
           pOVar5 = Object_GetAnim(simObjs + *(u_char *)(groupBase_p + 0x22));
           (*(*pOVar5->_vf)[2].pfn)
-                    ((int)&pOVar5->_vf + (int)(*pOVar5->_vf)[2].delta,Vi,sd,(int)(char)tc4);
+                    ((int)&pOVar5->_vf + (int)(*pOVar5->_vf)[2].delta,Vi,sd,tc4);
         }
       }
       groupBase_p = groupBase_p + *(short *)groupBase_p;

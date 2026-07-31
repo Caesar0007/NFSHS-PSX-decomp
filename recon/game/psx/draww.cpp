@@ -999,7 +999,6 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   long b;
   long c;   /* SYM AUTO -0x28 -- vertex-3 colour for the dpct trio (was a stray u_int) */
   long color;
-  u_char tc3;
   int tu5;
   int tp6;
   u_char *tp20;
@@ -1288,9 +1287,9 @@ gte_strgb(&color);
         prim->clut = gClutDepth[workPmx->pad2][ti18];
       }
       if (doSubdivision != 0) {
-        tc3 = sd->zeroGTETransFlag;
+        zeroTransFlag = sd->zeroGTETransFlag;
 gte_SetRotMatrix(((char *)sd + 0x74));
-        if (tc3 == 0) {
+        if (zeroTransFlag == 0) {
 gte_SetTransMatrix(((char *)sd + 0x74));
         }
         /* MATCH: oracle `beqz flag -> else` = the SPEEDUP arm is the fall-through, and it
@@ -1307,7 +1306,7 @@ gte_SetTransMatrix(((char *)sd + 0x74));
           DrawW_SetUpSubdividFacet(face,sd);
         }
 gte_SetRotMatrix(((char *)sd + 0x14));
-        if (tc3 == 0) {
+        if (zeroTransFlag == 0) {
 gte_SetTransMatrix(((char *)sd + 0x14));
         }
       }

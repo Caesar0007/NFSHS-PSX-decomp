@@ -73,46 +73,39 @@ void Font_SetABR(int abr)
   return;
 }
 
-/* ---- Font_Blit__FiiPviiP12charactertbli  [FONT.CPP:128-152] SLD-FLAG:NONMONO ---- */
-void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int arg6)
+/* ---- Font_Blit__FiiPviiP12charactertbli  [FONT.CPP:128-152] SLD-FLAG:NONMONO ----
+ * SYM (fsize 24, only ra saved): x $a0, y $a1, src $a2, u $a3, v ARG+$t6,
+ * ch ARG+$t0; block locals width $t7, height $t0, sprt $t1 (PTR SPRT), dv $a2.
+ * NOTE the 7th parameter (tpage) is in the blitter fn-ptr typedef and IS passed by
+ * Font_TextXY, but this implementation never reads it (absent from the SYM param
+ * list) -- keep it in the signature so the indirect call type matches.
+ * width/height are INT locals per the SYM: u_char locals would re-mask every use
+ * (andi 0xff) that the oracle does not have. */
+void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
 
 {
-  int fontClut;
-  u_int uVar1;
-  int dv;
-  int iVar2;
-  int height;
-  int pkt_addr24;
   int width;
-  int loc_8;
-  u_char uv_x;
-  u_char uv_y;
-  u_long tu3;
-  u_char *prev_pkt;
-  u_char *sprt;
-  
-  sprt = Render_gPacketPtr;
-  prev_pkt = Render_gPalettePtr;
-  iVar2 = *(int *)((int)src + 0xc);
-  uv_x = ch->width;
-  uv_y = ch->height;
-  *(u_int *)Render_gPacketPtr =
-       *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x14;
-  *(u_int *)prev_pkt = *(u_int *)prev_pkt & 0xff000000 | pkt_addr24;
-  sprt[3] = 4;
-  tu3 = font_tint;
-  *(int *)(sprt + 8) = y << 0x10 | x;
-  *(u_long *)(sprt + 4) = tu3;
-  fontClut = (int)gFontClut;
-  *(u_int *)(sprt + 0x10) = (u_int)uv_y << 0x10 | (u_int)uv_x;
-  uVar1 = fontClut << 0x10 | (((iVar2 << 4) >> 0x14) + v & 0xffU) << 8 | u;
-  *(u_int *)(sprt + 0xc) = uVar1;
+  int height;
+  SPRT *sprt;
+  int dv;
+  u_int *pal;
+
+  sprt = (SPRT *)Render_gPacketPtr;
+  pal = (u_int *)Render_gPalettePtr;
+  width = ch->width;
+  height = ch->height;
+  *(u_int *)sprt = *(u_int *)sprt & 0xff000000 | *pal & 0xffffff;
+  Render_gPacketPtr = (u_char *)sprt + 0x14;
+  *pal = *pal & 0xff000000 | (u_int)sprt & 0xffffff;
+  *((u_char *)sprt + 3) = 4;
+  *(int *)&sprt->x0 = y << 0x10 | x;
+  *(u_long *)&sprt->r0 = font_tint;
+  *(u_int *)&sprt->w = height << 0x10 | width;
+  dv = (*(int *)((u_char *)src + 0xc) << 4) >> 0x14;
+  *(u_int *)&sprt->u0 = (u_int)gFontClut << 0x10 | (dv + v & 0xffU) << 8 | u;
   SetSemiTrans(sprt,1);
   return;   /* Font_Blit is void per disasm-v3 (Ghidra void-return mis-infer) */
 }
-
 /* ---- Font_ComputeColors__Fiiic  [FONT.CPP:168-255] SLD-VERIFIED ----
  * SYM (one fn-scope block, fsize 88): i $t2, r $v0, g $v1, b $a0, fr $t8, fg $t4,
  * fb $a3, br $a2, bg $a1, bb $a0, rgb $v0 (= THE result variable), opaque $s5,
@@ -205,33 +198,32 @@ void Font_ComputeColors(int colour,int forecolour,int backcolour,char in_game)
   DrawSync(0);
   return;
 }
-/* ---- Font_textbsearch__FiPcUlUl  [FONT.CPP:262-280] SLD-VERIFIED ---- */
+/* ---- Font_textbsearch__FiPcUlUl  [FONT.CPP:262-280] SLD-VERIFIED ----
+ * SYM (fsize 40, ra+s0-s4): key $s4, base $s2, nmemb $a2, size $s3; locals lim $s1,
+ * cmp $v0, ch $s0.  This is the classic BSD bsearch loop (lim halved per iteration,
+ * lim-- on the take-the-upper-half side) -- the Ghidra body had it as a while(true)
+ * with the lim/nmemb roles fused. */
 charactertbl *
 Font_textbsearch(int key,char *base,u_long nmemb,u_long size)
 
 {
-  int cmp;
-  int iVar1;
-  charactertbl *ch;
-  charactertbl *p;
   int lim;
-  
-  while( true ) {
-    if (nmemb == 0) {
-      return (charactertbl *)0x0;
-    }
-    p = (charactertbl *)(base + ((int)nmemb >> 1) * size);
-    iVar1 = geti(p,2);
-    if (key == iVar1) break;
-    if (0 < key - iVar1) {
-      base = (char *)(p->index + size);
-      nmemb = nmemb - 1;
-    }
-    nmemb = (int)nmemb >> 1;
-  }
-  return p;
-}
+  int cmp;
+  charactertbl *ch;
 
+  for (lim = nmemb; lim != 0; lim >>= 1) {
+    ch = (charactertbl *)(base + (lim >> 1) * size);
+    cmp = key - geti(ch,2);
+    if (cmp == 0) {
+      return ch;
+    }
+    if (0 < cmp) {
+      base = (char *)ch + size;
+      lim--;
+    }
+  }
+  return (charactertbl *)0x0;
+}
 /* ---- Font_Getcharacter__Fi  [FONT.CPP:286-299] SLD-VERIFIED ---- */
 charactertbl * Font_Getcharacter(int targetindex)
 

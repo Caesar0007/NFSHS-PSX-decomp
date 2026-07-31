@@ -11,17 +11,15 @@
 void InGame_ResetPSXController(int player,int config)
 
 {
-  u_char id;
   int type;
-  int *map;
   int *h;
   u_int v;
 
-  id = gPadinfo.buf[player * 4].ID;
-  if (id == 0x23) {
+  type = gPadinfo.buf[player * 4].ID;
+  if (type == 0x23) {
     type = 0;
   }
-  else if ((id == 0x53) || (id == 0x73)) {
+  else if ((type == 0x53) || (type == 0x73)) {
     type = 1;
   }
   else {
@@ -31,48 +29,47 @@ void InGame_ResetPSXController(int player,int config)
     frontEnd.controlType[player] = (u_short)gPadinfo.buf[player * 4].ID;
   }
   GameSetup_gData.controllerData.controllerConfig[player] = config;
-  map = mappings[config][0] + type;
-  h = hoff + player;
-  Input_gHandler[0x4f - *h] = InGame_GetPSXPadValue(*map,player);
-  Input_gHandler[0x50 - *h] = InGame_GetPSXPadValue(mappings[config][1][type],player);
-  Input_gHandler[0x51 - *h] = InGame_GetPSXPadValue(mappings[config][2][type],player);
-  Input_gHandler[0x52 - *h] = InGame_GetPSXPadValue(mappings[config][3][type],player);
-  Input_gHandler[player + 0xae] = InGame_GetPSXPadValue(mappings[config][8][type],player);
-  Input_gHandler[0x75 - *h] = InGame_GetPSXPadValue(mappings[config][7][type],player);
-  Input_gHandler[0x65 - *h] = InGame_GetPSXPadValue(mappings[config][7][type],player);
-  Input_gHandler[0x53 - *h] = InGame_GetPSXPadValue(mappings[config][4][type],player);
+  h = Input_gHandler;
+  h[0x4f - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0][type],player);
+  h[0x50 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][1][type],player);
+  h[0x51 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][2][type],player);
+  h[0x52 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][3][type],player);
+  h[player + 0xae] = InGame_GetPSXPadValue(mappings[config][8][type],player);
+  h[0x75 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][7][type],player);
+  h[0x65 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][7][type],player);
+  h[0x53 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][4][type],player);
   if ((Cars_gHumanRaceCarList[player]->carFlags & 0x200U) == 0) {
-    Input_gHandler[0x7d - *h] = InGame_GetPSXPadValue(*map,0);
-    Input_gHandler[0x7e - *h] = InGame_GetPSXPadValue(mappings[config][1][type],0);
+    h[0x7d - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0][type],0);
+    h[0x7e - hoff[player]] = InGame_GetPSXPadValue(mappings[config][1][type],0);
     v = mappings[config][10][type];
     if (type == 1) {
       v = v | 6;
     }
-    Input_gHandler[0x82 - *h] = InGame_GetPSXPadValue(v,player);
+    h[0x82 - hoff[player]] = InGame_GetPSXPadValue(v,player);
   }
   else {
     v = mappings[config][10][type];
     if (type == 1) {
       v = v | 6;
     }
-    Input_gHandler[0x81 - *h] = InGame_GetPSXPadValue(v,player);
+    h[0x81 - hoff[player]] = InGame_GetPSXPadValue(v,player);
   }
   if (GameSetup_gData.Time == 0) {
-    Input_gHandler[0x73 - *h] = InGame_GetPSXPadValue(0,player);
+    h[0x73 - hoff[player]] = InGame_GetPSXPadValue(0,player);
     v = mappings[config][9][type];
     if (type == 1) {
       v = v | 6;
     }
   }
   else {
-    Input_gHandler[0x73 - *h] = InGame_GetPSXPadValue(mappings[config][9][type],player);
+    h[0x73 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][9][type],player);
     v = (type == 1) ? 6 : 0;
   }
-  Input_gHandler[0x54 - *h] = InGame_GetPSXPadValue(v,player);
-  Input_gHandler[0x66 - *h] = InGame_GetPSXPadValue(mappings[config][5][type],player);
-  Input_gHandler[0x67 - *h] = InGame_GetPSXPadValue(mappings[config][6][type],player);
-  Input_gHandler[0x68 - *h] = InGame_GetPSXPadValue(mappings[config][0xc][type],player);
-  Input_gHandler[0x4d - *h] = InGame_GetPSXPadValue(mappings[config][0xb][type],player);
+  h[0x54 - hoff[player]] = InGame_GetPSXPadValue(v,player);
+  h[0x66 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][5][type],player);
+  h[0x67 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][6][type],player);
+  h[0x68 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0xc][type],player);
+  h[0x4d - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0xb][type],player);
   return;
 }
 

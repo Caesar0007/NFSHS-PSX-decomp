@@ -1,0 +1,108 @@
+/* ---- CarIO_CopyFromShape__FPsT0iiii  [CARIO.CPP:258-342] SLD-VERIFIED ---- */
+/* SYM @0x800bbff0: fsize 0, mask $00000000 -- a LEAF with NO frame and NO
+ * saved registers.  REGPARMs source=$04 dest=$05 w=$06 h=$07, x/y ARG 16/20(sp)
+ * copied to REG $18($t8)/$09($t1).  Locals (all REG, no AUTO):
+ *   fn block  -> columns $08, mask $06, firstMask $0f, lastMask $0c,
+ *                lastLastMask $0d   (the three masks are USHORT)
+ *   line-15   -> rollOver $03 USHORT      (mask-build loop)
+ *   line-34   -> i $0b, current $08 USHORT, next $0a USHORT  (row-loop body)
+ *   line-42/61-> rollOver $03 USHORT      (the two nibble-rotate loops)
+ * There is NO destination-pointer local: `dest` itself is MUTATED in place
+ * (`addu a1,a1,v1` then `addiu a1,a1,0x18` per row) and the columns are
+ * reached as dest[0]/dest[i]; the retail $t1 walker is the strength-reduced
+ * giv of dest[i].  `mask` is a SIGNED int -- the `== -1` guard must emit
+ * li+beq, not the unsigned nor+bnez canonicalization. */
+void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
+
+{
+  int columns;
+  int mask;
+  u_short firstMask;
+  u_short lastMask;
+  u_short lastLastMask;
+
+  columns = w >> 2;
+  mask = w & 3;
+  if (mask != 0) {
+    columns = columns + 1;
+  }
+  dest = dest + ((x >> 2) + y * 0xc);
+  lastLastMask = 0xffff;
+  lastMask = 0xffff;
+  if (mask == 0) {
+    lastMask = 0;
+  }
+  while (mask = mask - 1, mask != -1) {
+    lastMask = lastMask << 4;
+  }
+  firstMask = 0;
+  mask = x & 3;
+  while (1) {
+    u_short rollOver;
+
+    mask = mask - 1;
+    if (mask == -1) break;
+    firstMask = (firstMask << 4) | 0xf;
+    rollOver = (lastMask & 0xf000) >> 0xc;
+    lastMask = lastMask << 4;
+    lastLastMask = (lastLastMask << 4) | rollOver;
+  }
+  if (lastLastMask != 0xffff) {
+    columns = columns + 1;
+    lastMask = lastLastMask;
+  }
+  while (1) {
+    int i;
+    u_short current;
+    u_short next;
+
+    h = h - 1;
+    next = 0;
+    if (h == -1) break;
+    current = *source;
+    source = source + 1;
+    mask = x & 3;
+    while (1) {
+      u_short rollOver;
+
+      mask = mask - 1;
+      if (mask == -1) break;
+      rollOver = (current & 0xf000) >> 0xc;
+      current = current << 4;
+      next = (next << 4) | rollOver;
+    }
+    i = 1;
+    dest[0] = (short)((dest[0] & firstMask) | current);
+    while (i < columns - 1) {
+      mask = x & 3;
+      dest[i] = (short)next;
+      current = *source;
+      source = source + 1;
+      next = 0;
+      while (1) {
+        u_short rollOver;
+
+        mask = mask - 1;
+        if (mask == -1) break;
+        rollOver = (current & 0xf000) >> 0xc;
+        current = current << 4;
+        next = (next << 4) | rollOver;
+      }
+      dest[i] = (short)(dest[i] | current);
+      i = i + 1;
+    }
+    mask = x & 3;
+    dest[i] = (short)((dest[i] & lastMask) | next);
+    if (lastLastMask == 0xffff) {
+      current = *source;
+      source = source + 1;
+      while (mask = mask - 1, mask != -1) {
+        current = current << 4;
+      }
+      dest[i] = (short)(dest[i] | current);
+    }
+    dest = dest + 0xc;
+  }
+  return;
+}
+

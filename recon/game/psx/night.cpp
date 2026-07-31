@@ -57,7 +57,13 @@ int          Night_gFlashAzimuth;   /* @0x8013da74  (bss(zero)) */
 char         Night_gShowForks;   /* @0x8013da78  (bss(zero)) */
 int          Night_gFlashIntensity;   /* @0x8013da7c  (bss(zero)) */
 long         Night_gPlayerHeadLightColor[2];   /* @0x8013da80  (bss(zero)) */
-long         Night_gWeatherColor[2];   /* @0x8013da88  (bss(zero)) */
+/* Night_gWeatherColor[2]: same per-element gp-rel dual-model -- Night_InitWeatherTables stores
+   both words through %gp_rel(Night_gWeatherColor)/%gp_rel(D_8013DA8C), while
+   Night_SetWeatherColors (and drawc.cpp's DrawC_NightHeadlight) walk the base absolutely.
+   KEEP THE TWO .comm SYMBOLS ADJACENT (declaration order == .sbss order). */
+long         Night_gWeatherColor;   /* @0x8013da88  = [0] (bss(zero)) */
+long         D_8013DA8C;   /* @0x8013da8c  = [1] retail per-element gp-rel alias (bss(zero)) */
+extern long  Night_gWeatherColor_arr[] asm("Night_gWeatherColor"); /* array VIEW for the base-walk sites */
 tNightInitCache *gNightInitCache;   /* @0x8013da90  (bss(zero)) */
 tCompRGB     *gTableCache;   /* @0x8013da94  (bss(zero)) */
 char         *nightfile;   /* @0x8013da98  (bss(zero)) */
@@ -415,8 +421,8 @@ void Night_InitWeatherTables(void)
     i = i + 1;
     tbl_walk = tbl_walk + 4;
   } while (i < 2);
-  Night_gWeatherColor[0] = 0x574054;
-  Night_gWeatherColor[1] = 0x6c4040;
+  Night_gWeatherColor = 0x574054;
+  D_8013DA8C = 0x6c4040;
   return;
 }
 
@@ -439,7 +445,7 @@ void Night_SetWeatherColors(int colorIndex)
   int i;
 
   i = 0;
-  color_walk = Night_gWeatherColor;
+  color_walk = Night_gWeatherColor_arr;
   wtblp = Night_gWeatherLightingTable_arr;
   do {
     colorH = *color_walk;

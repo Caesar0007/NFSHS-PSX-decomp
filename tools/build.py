@@ -153,6 +153,17 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 # (w23-a11 investigation); the other 22 jtbl TUs are deliberately absent
 # here (their explicit 5-insn form already matches and must stay untouched).
 PER_TU_FLAGS = {
+    # hud.obj has the same exact -G8 threshold signature as cars/genericpmx/cario
+    # (w39-a1, cross-checked with a9's night/sfx finding): hud.cpp OWNS the 8-byte
+    # arrays Hud_gHudView[2]/Hud_gMapView[2]/Hud_gTacView[2] (@0x8013D950/58/60) and
+    # the retail code reaches ALL THREE with %gp_rel on the BASE symbol (plus the
+    # per-element D_8013D954/D_8013D95C/D_8013D964 for [1]) -- impossible under -G4,
+    # where an 8-byte object falls out of .sbss.  Receipts: whole-TU gate over all 63
+    # hud oracles, 36 -> 38 PASS, ZERO regressions; every other delta an improvement
+    # (ParseTime 10->PASS, WingmanFlash 10->PASS, RenderMapView 16->4, RenderTacView
+    # 77->51, Init 640->612, RenderHudView 99->88, Render 157->153, BustedOverlayOn
+    # 39->37, NextPlayerNameOrCarOrTime 59->57).
+    "recon/game/psx/hud.cpp":               {"g_value": "8"},
     # cars.obj's retail .sdata layout contains the 8-byte "p%s.dat" literal
     # between rearLimit and Cars_gNumCars, proving this object used -G8.
     "recon/game/common/cars.cpp":           {"g_value": "8"},

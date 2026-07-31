@@ -54,9 +54,6 @@ int          Hud_gStatsView;   /* @0x8013d968  (bss(zero)) */
  * base+offset/variable-index array codegen in their own oracles and keep referencing the
  * array form above -- a known duality (same accepted tradeoff as weather.cpp's precedent;
  * not attempted to unify this pass). */
-int          Hud_gHudView0, Hud_gHudView1;
-int          Hud_gMapView0, Hud_gMapView1;
-int          Hud_gTacView0, Hud_gTacView1;
 int          HudMapOffsetY;   /* @0x8013d96c  (bss(zero)) */
 long         gMapRotate;   /* @0x8013d970  (bss(zero)) */
 long         gMapScaleX;   /* @0x8013d974  (bss(zero)) */
@@ -87,7 +84,7 @@ int          BTC_UserHasControl;   /* @0x8013de30  (bss(zero)) */
  * (oracle emits it before `lui $v1,%hi(Hud_NextPerp)`, ours after -- tried reordering the loop
  * body statement that consumes BTC_CurrentPerpName, regressed 2->6, reverted; not source-reachable).
  * ⚠️ KNOWN DUALITY, NOT COLLAPSED (same open issue as weather.cpp Weather_gLastProcessTime0/1):
- * PerpOverlayOn0/1 are a SEPARATE (not memory-aliased) object from PerpOverlayOn[0..1].
+ * PerpOverlayOn[0]/1 are a SEPARATE (not memory-aliased) object from PerpOverlayOn[0..1].
  * Hud_Reset now only WRITES the scalars, not the array -- Hud_RenderHudView reads the array
  * (`*(int*)((int)PerpOverlayOn+viewOff) != 0`, ~line 3351) and Perp_OverlayOn/Off (~line
  * 3849/3881) write the array by player index. So Hud_Reset() no longer actually zeroes the
@@ -96,8 +93,6 @@ int          BTC_UserHasControl;   /* @0x8013de30  (bss(zero)) */
  * Hud_RenderHudView could show a stale busted-overlay message. Flagged as a real behavior
  * change, not silently accepted; a full fix needs a link-level aliasing pass (out of scope for
  * a single-diff codegen lever, and out of scope for this pass' file-only mandate). */
-int          PerpOverlayOn0;   /* per-element gp-rel dual (Hud_Reset constant-index site) */
-int          PerpOverlayOn1;   /* per-element gp-rel dual (Hud_Reset constant-index site) */
 int          PerpOverlayOn[2];   /* @0x8013de38  (bss(zero)) */
 int          PerpOverlayMessage[2];   /* @0x8013de40  (bss(zero)) */
 int          Hud_gShowedCDPlayer;   /* @0x8013de48  (bss(zero)) */
@@ -191,16 +186,16 @@ void Hud_CreateHudViews(void)
     HudMapOffsetY = 0;
   }
   if (GameSetup_gData.commMode == 1) {
-    Hud_gMapView0 = Draw_SetView(0x105, HudMapOffsetY + 0x13e, 0x245, HudMapOffsetY + 0x13e, 0x2d, 0x30, 0, 0, 1);
-    Hud_gMapView1 = Draw_SetView(0x105, HudMapOffsetY + 0x1a9, 0x245, HudMapOffsetY + 0x1a9, 0x2d, 0x30, 0, 0, 1);
-    Hud_gHudView0 = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0x78, 0, 0, 1);
-    Hud_gHudView1 = Draw_SetView(0,     0x178, 0x140, 0x178, 0x140, 0x78, 0, 0, 1);
-    Hud_gTacView0 = Draw_SetView(0x115, 0x113, 0x255, 0x113, 0x1c, 0x1c, 0, 0, 1);
-    Hud_gTacView1 = Draw_SetView(0x115, 0x17c, 0x255, 0x17c, 0x1c, 0x1c, 0, 0, 1);
+    Hud_gMapView[0] = Draw_SetView(0x105, HudMapOffsetY + 0x13e, 0x245, HudMapOffsetY + 0x13e, 0x2d, 0x30, 0, 0, 1);
+    Hud_gMapView[1] = Draw_SetView(0x105, HudMapOffsetY + 0x1a9, 0x245, HudMapOffsetY + 0x1a9, 0x2d, 0x30, 0, 0, 1);
+    Hud_gHudView[0] = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0x78, 0, 0, 1);
+    Hud_gHudView[1] = Draw_SetView(0,     0x178, 0x140, 0x178, 0x140, 0x78, 0, 0, 1);
+    Hud_gTacView[0] = Draw_SetView(0x115, 0x113, 0x255, 0x113, 0x1c, 0x1c, 0, 0, 1);
+    Hud_gTacView[1] = Draw_SetView(0x115, 0x17c, 0x255, 0x17c, 0x1c, 0x1c, 0, 0, 1);
   } else {
-    Hud_gMapView0 = Draw_SetView(0xff,  HudMapOffsetY + 0x1a4, 0x23f, HudMapOffsetY + 0x1a4, 0x2d, 0x30, 0, 0, 1);
-    Hud_gHudView0 = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0xf0, 0, 0, 1);
-    Hud_gTacView0 = Draw_SetView(0xb8,  0x115, 0x1f8, 0x115, 0x1c, 0x1c, 0, 0, 1);
+    Hud_gMapView[0] = Draw_SetView(0xff,  HudMapOffsetY + 0x1a4, 0x23f, HudMapOffsetY + 0x1a4, 0x2d, 0x30, 0, 0, 1);
+    Hud_gHudView[0] = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0xf0, 0, 0, 1);
+    Hud_gTacView[0] = Draw_SetView(0xb8,  0x115, 0x1f8, 0x115, 0x1c, 0x1c, 0, 0, 1);
   }
   Hud_gStatsView = Draw_SetView(0, 0x100, 0x140, 0x100, 0x140, 0xf0, 0, 0, 1);
 }
@@ -1209,7 +1204,15 @@ void Hud_BuildTach(int player)
   return;
 }
 
-/* ---- Hud_BuildString__FPciiiib  [HUD.CPP:1450-1544] SLD-VERIFIED ---- */
+/* ---- Hud_BuildString__FPciiiib  [HUD.CPP:1450-1544] SLD-VERIFIED ----
+ * RESIDUAL 118 (ours 205 / oracle 215).  SYM (fsize 80) has NO `shp` local -- the oracle
+ * re-materializes `&HudPmx_gShapes[K]` AFTER each Hud_FBuildSprite call (`lui $t0; addiu
+ * $t0; lh $v1,0x10($t0)`) where our `shp` pointer is hoisted before it.  NEGATIVE (w39-a1
+ * receipt): deleting `shp` and writing `ix = ix + 3 + HudPmx_gShapes[K].width;` DOES move
+ * the count the right way (205 -> 211 of 215) but the freed register re-permutes the whole
+ * PARAM s-assignment (y $s6->$s7, color $s7->$fp, justwidth $s5->$s6) and the gate
+ * REGRESSES 118 -> 204.  Banked: it needs to land together with a fix for the str/'#'
+ * allocno swap ($s2/$s3, the other standing residual), not on its own. */
 int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
 
 {
@@ -2052,22 +2055,30 @@ void Hud_InitCdPlayer(void)
   return;
 }
 
-/* ---- Hud_BuildCdPlayer__Fii  [HUD.CPP:2225-2487] SLD-VERIFIED ---- */
+/* ---- Hud_BuildCdPlayer__Fii  [HUD.CPP:2225-2487] SLD-VERIFIED ----
+ * w39-a1: 433 -> 77 diffs, insn count 474/475.  SYM-driven purge of 8 invented locals +
+ * five branch/loop-shape levers (see the git log for the per-lever receipts).
+ * RESIDUAL 77, three clusters, all measured:
+ *  (1) ~20 in the scroll-loop `w` block: retail RELOADS `*p` for the sltiu digit test
+ *      (`bne` delay slot steals `addiu $v0,$v0,-0x30` from the else block) while our cc1
+ *      keeps the byte live in a second reg, flipping the char/base register pair
+ *      (v1/t0 ours vs v0/a3 retail).  Our form is strictly tighter; no source spelling
+ *      found that makes gcc drop the live byte.
+ *  (2) ~10 in the scroll-tick loop: pure v1<->a0 / v0<->v1 renaming, structure identical.
+ *  (3) the two Hud_BuildString x-args.  NEGATIVE (receipts): re-grouping as
+ *      `x + (dx + K)` -- which IS the oracle's tree (`addiu $v0,$s3,10`; `addu $v0,$s7,$v0`;
+ *      `addiu $a1,$a1,-0x4c`) -- REGRESSES: both sites 77->141, first site only 77->122
+ *      (it re-colors x/y), second site only 77->83.  Left flat. */
 int Hud_BuildCdPlayer(int type,int arg1)
 
 {
-  bool bVar2;
+  int bVar2;
   int sec;
   u_int uVar5;
   int w;
   u_char *p;
   int tx;
   char *s;
-  int box_transp;
-  int box_x;
-  int box_y;
-  int box_w;
-  int box_h;
   char *artist;
   char *title;
   int index;
@@ -2095,14 +2106,16 @@ int Hud_BuildCdPlayer(int type,int arg1)
     return 0;
   }
   if (Hud_gCdActive == 0) {
-    bVar2 = false;
-    if ((((simGlobal.gameTicks < 0x240) || (((u_char)countdown < 4 && (Hud_BeTheCop == 0)))) ||
+    /* SYM has NO bool flag local here (only x/y/index/time/title/artist/tx/dx/w/min/sec/s/
+     * currentSong are REG-class) -- but the oracle DOES materialize a 0/1 flag into a
+     * callee-saved reg ($s0, initialised by copying the known-zero dx reg at 800D6464, set
+     * by `addiu $s0,$zero,1` at .L800D64E8 and tested `bnez $s0` at .L800D64EC), i.e. an
+     * ANONYMOUS compiler temp -- so the source is the flat `||` chain assigned to a flag. */
+    bVar2 = (((simGlobal.gameTicks < 0x240) || (((u_char)countdown < 4 && (Hud_BeTheCop == 0)))) ||
         ((uVar5 = PAD_state(4), (uVar5 & 0x400) != 0 &&
          (DashHUD_gInfo.splitscreen != 0)))) ||
        ((uVar5 = PAD_state(0), (uVar5 & 0x400) != 0 &&
-        ((Hud_BeTheCop == 0 || (DashHUD_gInfo.splitscreen != 0)))))) {
-      bVar2 = true;
-    }
+        ((Hud_BeTheCop == 0 || (DashHUD_gInfo.splitscreen != 0)))));
     /* oracle shape: nested if/goto (NOT a flattened || chain) -- gPadinfo.buf[0] gate
      * falls through to the buf[4] gate on failure, and a Hud_BeTheCop!=0 && splitscreen==0
      * combo also falls through instead of short-circuiting. §asm_pattern_catalog funnel class. */
@@ -2142,19 +2155,22 @@ HudCdPlay_activateGate:
   }
   time = currentSong->remaining;
   index = currentSong->index;
-  if ((currentSong->info).title == (char *)0x0) {
+  /* oracle materializes &strtitle into its OWN pseudo ($s0) inside the beqz delay slot and
+   * only THEN copies it into title ($s1) -- i.e. the buffer, not `title`, is the sprintf
+   * destination in the original source. */
+  if ((currentSong->info).title != (char *)0x0) {
+    sprintf(strtitle,"%s",(currentSong->info).title);
+    title = strtitle;
+  }
+  else {
     title = (char *)0x0;
   }
-  else {
-    title = strtitle;
-    sprintf(title,"%s",(currentSong->info).title);
-  }
-  if ((currentSong->info).artist == (char *)0x0) {
-    artist = (char *)0x0;
-  }
-  else {
+  if ((currentSong->info).artist != (char *)0x0) {
+    sprintf(strartist,"%s",(currentSong->info).artist);
     artist = strartist;
-    sprintf(artist,"%s",(currentSong->info).artist);
+  }
+  else {
+    artist = (char *)0x0;
   }
   uppercase(title);
   if ((type == 0) && (artist != (char *)0x0)) {
@@ -2164,31 +2180,9 @@ HudCdPlay_activateGate:
     Hud_kTurnSongOffNext = 1;
     return 1;
   }
-  if (index < 1) {
-    if (index == 0) {
-      sprintf(strindex,"- -");
-      tx = 0x44;
-    }
-    else if (index == -2) {
-      sprintf(strindex,"- -");
-      tx = 0x45;
-    }
-    else {
-      sprintf(strindex,"- -");
-      artist = (char *)0x0;
-      if (title != (char *)0x0) goto HudCdPlay_nullStringFallback;
-      tx = 0x46;
-    }
-    artist = (char *)0x0;
-    title = TextSys_Word(tx);
-HudCdPlay_nullStringFallback:
-    if (title == (char *)0x0) {
-      keepup = 0;
-      Hud_gCdLastTick = ticks;
-      goto HudCdPlay_buildOutString;
-    }
-  }
-  else {
+  /* oracle: `blez $s4,.L800D66C4` -- the index>0 arm is the FALL-THROUGH and the index<=0
+   * cascade sits OUT-OF-LINE, so the source tests `0 < index` first. */
+  if (0 < index) {
     sprintf(strindex,"%02d",index);
     if (title == (char *)0x0) {
       Hud_gCdScrollTitle = 1;
@@ -2196,10 +2190,42 @@ HudCdPlay_nullStringFallback:
       goto HudCdPlay_nullStringFallback;
     }
   }
+  else {
+    /* the SYM's `tx` is the SCROLL cursor ($a1), not a TextSys_Word staging temp: the oracle
+     * materializes each word id straight into $a0 (`li $a0,0x44/0x45/0x46`) in the delay slot
+     * of a `j` to ONE shared `jal TextSys_Word` -- i.e. each arm calls it inline and gcc
+     * cross-jump-merged the calls. */
+    if (index == 0) {
+      sprintf(strindex,"- -");
+      artist = (char *)0x0;
+      title = TextSys_Word(0x44);
+    }
+    else if (index == -2) {
+      sprintf(strindex,"- -");
+      artist = (char *)0x0;
+      title = TextSys_Word(0x45);
+    }
+    else {
+      sprintf(strindex,"- -");
+      artist = (char *)0x0;
+      if (title != (char *)0x0) goto HudCdPlay_nullStringFallback;
+      title = TextSys_Word(0x46);
+    }
+HudCdPlay_nullStringFallback:
+    /* oracle `.L800D6724: beqz $s1,.L800D6894` -- the keepup/lastTick block is OUT OF LINE,
+     * placed immediately before the buildOutString join (.L800D68A4); the main path reaches
+     * the join with `j` from `sb $zero,0($a2)` (.L800D688C). */
+    if (title == (char *)0x0) goto HudCdPlay_nullTitleTail;
+  }
   if (Hud_gCdScrollTitle < Hud_BuildString(title,0,0,0,0,true) + 0x4c) {
-    while (Hud_gCdLastTick < ticks) {
-      Hud_gCdScrollTitle = Hud_gCdScrollTitle + 1;
+    /* oracle .L800D675C is an UN-ROTATED top-test loop with an unconditional `j` back-edge
+     * (a plain `while` gets rotated to a guard + bottom `bnez`), so the source is the
+     * label+goto shape. */
+HudCdPlay_scrollTick:
+    if (ticks > Hud_gCdLastTick) {   /* operand order: oracle loads ticks FIRST */
       Hud_gCdLastTick = Hud_gCdLastTick + 4;
+      Hud_gCdScrollTitle = Hud_gCdScrollTitle + 1;
+      goto HudCdPlay_scrollTick;
     }
   }
   else if (Hud_gCdLastTick + 0x80 < ticks) {
@@ -2210,13 +2236,17 @@ HudCdPlay_nullStringFallback:
   tx = 0x4c - Hud_gCdScrollTitle;
   if (*title != 0) {
     p = (u_char *)title;
-    do {
+    /* exit-in-the-middle `while(1)`: the do/while form let gcc PEEL the bound test into
+     * the preheader AND re-test it at the bottom; the oracle (.L800D67E4) tests the bound
+     * ONCE at the top and uses the *p!=0 test as the conditional back-edge. */
+    while (1) {
       if ((int)((u_char *)title + 0x3f) <= (int)p) break;
       if (*p == 0x20) {
         w = 3;
       }
       else {
-        if (*p - 0x30 < 10) {
+        /* oracle `sltiu $v0,$v0,0xA` -- the digit test is UNSIGNED */
+        if ((u_int)(*p - 0x30) < 10) {
           w = *p + 0x6e;
         }
         else {
@@ -2225,18 +2255,24 @@ HudCdPlay_nullStringFallback:
         w = HudPmx_gShapes[w].width + 1;
       }
       if (0x4b < tx + w) break;
-      if (tx < 0) {
-        dx = dx + w;
-      }
-      else {
+      /* oracle `bltz $a1,.L800D6874` -- the COPY arm is the fall-through */
+      if (0 <= tx) {
         *s = *p;
         s = s + 1;
       }
+      else {
+        dx = dx + w;
+      }
       p = p + 1;
       tx = tx + w;
-    } while (*p != 0);
+      if (*p == 0) break;
+    }
   }
   *s = 0;
+  goto HudCdPlay_buildOutString;
+HudCdPlay_nullTitleTail:
+  keepup = 0;
+  Hud_gCdLastTick = ticks;
 HudCdPlay_buildOutString:
   if (type == 0) {
     if (title == (char *)0x0) {
@@ -2250,11 +2286,7 @@ HudCdPlay_buildOutString:
     }
     Hud_GoTpage(0);
     Hud_BlackThinBox(g1Player[0xf].x + 10,g1Player[0xf].y + 10,0x50,0x12);
-    box_w = 0x50;
-    box_h = 0x12;
-    box_y = g1Player[0xf].y + 10;
-    box_transp = 0;
-    box_x = g1Player[0xf].x + 10;
+    Hud_FBuildF4(0,g1Player[0xf].x + 10,g1Player[0xf].y + 10,0x50,0x12,0,'\0','\0');
   }
   else {
     Hud_gShowedCDPlayer = 1;
@@ -2266,8 +2298,12 @@ HudCdPlay_buildOutString:
                  0xbebe,0,false);
       Hud_GoTpage(0);
       if (index != 0) {
+        /* oracle `subu $s5,$s5,$v1` -- `time` is mutated IN PLACE (min*60000 subtracted),
+         * not a `%` remainder; that extra read+write is also what lifts `time`'s allocno
+         * above `type`'s (retail: time=$s5, type=$s6). */
         int min = time / 60000;
-        sec = (time % 60000) / 1000;
+        time = time - min * 60000;
+        sec = time / 1000;
         sprintf(strtime,"%1d%c%02d",min,
                    (u_int)(u_char)"::\'\'\'."[GameSetup_gData.userSetting.language],
                    sec);
@@ -2278,14 +2314,8 @@ HudCdPlay_buildOutString:
     Hud_BlackThinBox((int)g1Player[0xf].x,(int)g1Player[0xf].y,0x66,0x1c);
     Hud_FBuildF4(0,(int)g1Player[0xf].x,(int)g1Player[0xf].y,0x66,0xe,0,'\0','\0');
     Hud_FBuildF4(0,(int)g1Player[0xf].x,g1Player[0xf].y + 0x1b,0x66,1,0,'\0','\0');
-    box_w = 0x66;
-    box_y = (int)g1Player[0xf].y;
-    box_transp = 1;
-    box_x = (int)g1Player[0xf].x;
-    box_h = 0x1c;
+    Hud_FBuildF4(1,(int)g1Player[0xf].x,(int)g1Player[0xf].y,0x66,0x1c,0,'\0','\0');
   }
-  Hud_FBuildF4(box_transp,box_x,box_y,box_w,box_h,0,'\0','\0');
-  return box_h;
 }
 
 /* ---- Hud_BuildRadar__Fi  [HUD.CPP:2497-2614] SLD-VERIFIED ---- */
@@ -2660,89 +2690,90 @@ char * Hud_NextPlayerNameOrCarOrTime(int player)
   return "";
 }
 
-/* ---- Hud_RenderMapView__Fv  [HUD.CPP:2935-2980] SLD-VERIFIED ---- */
+/* ---- Hud_RenderMapView__Fv  [HUD.CPP:2935-2980] SLD-VERIFIED ----
+ * w39-a1 rule-8 rewrite.  SYM block @0x800d7838 declares exactly TWO locals: `j` (REG $19
+ * = $s3) and, in the line-6 block, `HudFT4` (REG $16 = $s0, PTR POLY_FT4).  The previous
+ * recon carried NINE invented locals (player/tile_count/current_tile_idx/tile_dest_p/
+ * tile_pmx_p/ft4_iter_b/tp1/tp2/tp3); the oracle's $s4 (+4), $s5 (+0xB4) and $s6 (+0x30)
+ * are compiler GIVs strength-reduced from index expressions off `j`, and $fp/$s7/$s1/$s2
+ * are LICM'd invariants (&DashHUD_gInfo, 1, 0xFFFFFF, 0xFF000000).
+ * Field check vs raw: `lw $v0,0x450($s5)` with $s5 = &GameSetup_gData + j*0xB4 IS
+ * carInfo[j].HudMap (carInfo @+0x3D4, stride 0xB4, HudMap @+0x7C -> 0x450).
+ * RESIDUAL 4 (insn count EXACT 161/161, every register role matches): the PROLOGUE
+ * emits the two LICM'd mask constants in the other order -- ours `sw $s2;lui $s2(0xFF000000)`
+ * then `sw $s1;lui/ori $s1(0xFFFFFF)`, retail the reverse.  Falsified levers (all
+ * re-gated): swapping the `&`-operand order of the first tag build (4->8), of the first
+ * palette store (4->8), of the radar arm's first tag (4->12), of the gTPage1 tag
+ * (4, no change).  Emission-order tie, not source-reachable. */
 void Hud_RenderMapView(void)
 
 {
-  int tile_pmx_p;
-  int ft4_iter_b;
-  int tile_dest_p;
-  int HudFT4;
   int j;
-  int player;
-  int tile_count;
-  int current_tile_idx;
-  u_char *tp2;
-  u_char *tp1;
-  u_char *tp3;
-  
-  tile_count = 0;
-  current_tile_idx = 0;
-  player = 0;
+
+  j = 0;
   while (true) {
-    if (DashHUD_gInfo.splitscreen < player) break;
-    /* was `*(int *)(track_geom_p + 0x450)` off &GameSetup_gData -- that read gData+0x450
-     * (inside userSetting), NOT carInfo[player].HudMap at gData+0x89C+player*0xB4 as the
-     * oracle does (LO16-blind verify hid it). Real field access re-creates the oracle's
-     * 0xB4-stride anchored giv. */
-    if (((GameSetup_gData.carInfo[player].HudMap != 0) &&
-        (((dashhud_info *)((int)&DashHUD_gInfo + tile_count))->showhud[0] != 0)) &&
-       (Hud_gWingmanInterface[player] == '\0')) {
-      HudFT4 = (int)gHudFT4;
-      if (player != 0) {
-        HudFT4 = (int)(gHudFT4 + 5);
+    if (DashHUD_gInfo.splitscreen < j) break;
+    if (((GameSetup_gData.carInfo[j].HudMap != 0) && (DashHUD_gInfo.showhud[j] != 0)) &&
+       (Hud_gWingmanInterface[j] == '\0')) {
+      POLY_FT4 *HudFT4;
+
+      HudFT4 = gHudFT4;
+      if (j != 0) {
+        HudFT4 = HudFT4 + 5;
       }
-      Draw_StartRenderingView(*(int *)((int)Hud_gMapView + tile_count));
-      if (GameSetup_gData.carInfo[player].HudMap == 1) {
-        Hud_BuildMapMarkers(player);
-        tp1 = Render_gPalettePtr;
-        ((POLY_FT4 *)HudFT4)->tag =
-             (u_long *)
-             ((u_int)((POLY_FT4 *)HudFT4)->tag & 0xff000000 |
-             *(u_int *)Render_gPalettePtr & 0xffffff);
-        *(u_int *)tp1 = *(u_int *)tp1 & 0xff000000 | HudFT4 & 0xffffffU;
+      Draw_StartRenderingView(Hud_gMapView[j]);
+      if (GameSetup_gData.carInfo[j].HudMap == 1) {
+        u_char *pal;
+
+        Hud_BuildMapMarkers(j);
+        /* the oracle loads Render_gPalettePtr ONCE per block into a caller-saved reg
+         * (lui 0x1F80; lw) -- spelling the macro at every use makes gcc LICM the
+         * 0x1F800000 base into a callee-saved reg instead. */
+        pal = Render_gPalettePtr;
+        HudFT4->tag =
+             (u_long *)((u_int)HudFT4->tag & 0xff000000 | *(u_int *)pal & 0xffffff);
+        *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)HudFT4 & 0xffffff;
       }
       else {
-        tile_pmx_p = Hud_BuildRadar(player);
-        tp2 = Render_gPalettePtr;
-        if (tile_pmx_p == 1) {
-          ((POLY_FT4 *)(HudFT4 + 0x28))->tag =
-               (u_long *)
-               ((u_int)((POLY_FT4 *)(HudFT4 + 0x28))->tag & 0xff000000 |
-               *(u_int *)Render_gPalettePtr & 0xffffff);
-          *(u_int *)tp2 = *(u_int *)tp2 & 0xff000000 | (u_int)(HudFT4 + 0x28) & 0xffffff;
-          ((POLY_FT4 *)(HudFT4 + 0x50))->tag =
-               (u_long *)
-               ((u_int)((POLY_FT4 *)(HudFT4 + 0x50))->tag & 0xff000000 |
-               (u_int)(HudFT4 + 0x28) & 0xffffff);
-          ft4_iter_b = HudFT4 + 0x50;
+        u_char *pal;
+
+        if (Hud_BuildRadar(j) == 1) {
+          pal = Render_gPalettePtr;
+          HudFT4[1].tag =
+               (u_long *)((u_int)HudFT4[1].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
+          *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)(HudFT4 + 1) & 0xffffff;
+          /* oracle `and $v1,$v1,$s1` on the JUST-STORED palette word: the second link is
+           * the same read-modify idiom, not a re-materialized &HudFT4[1]. */
+          HudFT4[2].tag =
+               (u_long *)((u_int)HudFT4[2].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
+          *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)(HudFT4 + 2) & 0xffffff;
         }
         else {
-          ((POLY_FT4 *)(HudFT4 + 0x78))->tag =
-               (u_long *)
-               ((u_int)((POLY_FT4 *)(HudFT4 + 0x78))->tag & 0xff000000 |
-               *(u_int *)Render_gPalettePtr & 0xffffff);
-          *(u_int *)tp2 = *(u_int *)tp2 & 0xff000000 | (u_int)(HudFT4 + 0x78) & 0xffffff;
-          ((POLY_FT4 *)(HudFT4 + 0xa0))->tag =
-               (u_long *)
-               ((u_int)((POLY_FT4 *)(HudFT4 + 0xa0))->tag & 0xff000000 |
-               (u_int)(HudFT4 + 0x78) & 0xffffff);
-          ft4_iter_b = HudFT4 + 0xa0;
+          pal = Render_gPalettePtr;
+          HudFT4[3].tag =
+               (u_long *)((u_int)HudFT4[3].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
+          *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)(HudFT4 + 3) & 0xffffff;
+          HudFT4[4].tag =
+               (u_long *)((u_int)HudFT4[4].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
+          /* SYM has no phi local here: the final link store is written INLINE in both
+           * arms and gcc cross-jump-merges it (a `prim` variable makes gcc hoist BOTH
+           * &HudFT4[2] and &HudFT4[4] above the branch). */
+          *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)(HudFT4 + 4) & 0xffffff;
         }
-        *(u_int *)tp2 = *(u_int *)tp2 & 0xff000000 | ft4_iter_b & 0xffffffU;
       }
-      tp3 = Render_gPalettePtr;
-      /* &gTPage1[player][1] via the 0x30-stride walker (was the disguised bare VA
-       * 0x8013E3FC = gTPage1 + 0xC) */
-      tile_dest_p = (int)gTPage1 + current_tile_idx + 0xc;
-      *(u_int *)tile_dest_p =
-           *(u_int *)tile_dest_p & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | tile_dest_p & 0xffffffU;
-      Draw_StopRenderingView(*(int *)((int)Hud_gMapView + tile_count));
+      {
+        /* oracle computes `D_8013E3FC + $s6` ONCE into $a0 and uses it for both the tag
+         * read/write and the link value; two textual `gTPage1[j][1]` uses make gcc keep a
+         * SECOND +0x30 giv for the address. */
+        DR_MODE *tp = &gTPage1[j][1];
+        u_char *pal = Render_gPalettePtr;
+
+        tp->tag = tp->tag & 0xff000000 | *(u_int *)pal & 0xffffff;
+        *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tp & 0xffffff;
+      }
+      Draw_StopRenderingView(Hud_gMapView[j]);
     }
-    tile_count = tile_count + 4;
-    current_tile_idx = current_tile_idx + 0x30;
-    player = player + 1;
+    j = j + 1;
   }
   return;
 }
@@ -3167,35 +3198,42 @@ void Hud_RenderHudView(void)
   }
 }
 
-/* ---- Hud_RenderTacView__Fv  [HUD.CPP:3744-3764] SLD-VERIFIED ---- */
+/* ---- Hud_RenderTacView__Fv  [HUD.CPP:3744-3764] SLD-VERIFIED ----
+ * w39-a1 rule-8 rewrite: the SYM block @0x800d8c48 declares exactly ONE local, `j`
+ * (REG $17 = $s1); the recon carried four more (player/tag_walk/car_walk/puVar1).  The
+ * oracle's $s2 (+0x30) and $s3 (+0xB4) are compiler givs off index expressions, and $s0
+ * (&Hud_gTacView[j]) is a CSE'd address parked in a callee-saved reg because it is live
+ * across the three jals. GameSetup_gData+0x44C = carInfo[j].HudTach (0x3D4 + 0x78).
+ * RESIDUAL 40 (ours 75 / oracle 71, frame 56 vs SYM fsize 48): ours strength-reduces
+ * `DashHUD_gInfo.showhud[j]` into a +4 giv and therefore has to park %hi(DashHUD_gInfo)
+ * in a callee-saved reg across the three jals (two extra saved regs, $s7 + $s4);
+ * retail recomputes `sll $v1,$s1,2; addu` per iteration and shares that one shift with
+ * Hud_gTacView[j].  Retail's saved set is exactly $s0-$s5 (mask 0x803f0000). */
 void Hud_RenderTacView(void)
 
 {
-  u_char *puVar1;
   int j;
-  int player;
-  DR_MODE *tag_walk;
-  GameSetup_tData *car_walk;
-  
-  player = 0;
+
+  j = 0;
   if (-1 < DashHUD_gInfo.splitscreen) {
-    tag_walk = gTPage1[0] + 2;
-    car_walk = &GameSetup_gData;
     do {
-      if ((car_walk->carInfo[0].HudTach != 0) && (DashHUD_gInfo.showhud[player] != 0)) {
-        Draw_StartRenderingView(Hud_gTacView[player]);
-        DashHUD_HUDCalc(player);
-        Hud_BuildTach(player);
-        puVar1 = Render_gPalettePtr;
-        tag_walk->tag =
-             (u_long *)((u_int)tag_walk->tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff);
-        *(u_int *)puVar1 = *(u_int *)puVar1 & 0xff000000 | (u_int)tag_walk & 0xffffff;
-        Draw_StopRenderingView(Hud_gTacView[player]);
+      if ((GameSetup_gData.carInfo[j].HudTach != 0) && (DashHUD_gInfo.showhud[j] != 0)) {
+        u_char *pal;
+        DR_MODE *tp;
+
+        Draw_StartRenderingView(Hud_gTacView[j]);
+        DashHUD_HUDCalc(j);
+        Hud_BuildTach(j);
+        pal = Render_gPalettePtr;
+        /* ONE address for the tag: two textual gTPage1[j][2] uses make gcc keep a second
+         * +0x30 giv (oracle has a single $s2 walker). */
+        tp = &gTPage1[j][2];
+        tp->tag = tp->tag & 0xff000000 | *(u_int *)pal & 0xffffff;
+        *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tp & 0xffffff;
+        Draw_StopRenderingView(Hud_gTacView[j]);
       }
-      tag_walk = tag_walk + 4;
-      player = player + 1;
-      car_walk = (GameSetup_tData *)((car_walk->controllerData).shockImpact + 1);
-    } while (player <= DashHUD_gInfo.splitscreen);
+      j = j + 1;
+    } while (j <= DashHUD_gInfo.splitscreen);
   }
   return;
 }
@@ -3478,8 +3516,8 @@ void Hud_Reset(void)
   }
   BTC_BonusTime = 0;
   HudBustedOverlay = 0;
-  PerpOverlayOn0 = 0;
-  PerpOverlayOn1 = 0;
+  PerpOverlayOn[0] = 0;
+  PerpOverlayOn[1] = 0;
   BTC_UserHasControl = 0;
   return;
 }

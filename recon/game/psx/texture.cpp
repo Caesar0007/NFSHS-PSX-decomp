@@ -724,7 +724,6 @@ void Texture_InitMenuClut(void)
 {
   short *pal4;
   short *pal8;
-  int idx;
   u_short clut;
   int y;
   int x;
@@ -732,6 +731,15 @@ void Texture_InitMenuClut(void)
   gFreePal4 = reservememadr("4 bits cluts",0x300,0);
   gFreePal8 = reservememadr("8 bits cluts",0x1180,0);
   pal4 = gFreePal4;
+  /* MATCH: no `idx` temp (read/increment the counter global in place) and
+   * `pal8 = gFreePal8` loaded once BEFORE the SECOND loop, not inside the first
+   * one -- the misplaced load forced an extra `addu t2,v0,zero` copy of the
+   * reservememadr result (40 -> 14 diffs).
+   * RESIDUAL FLOOR (14, ours 66/64): per loop the oracle fills the counter
+   * load's delay slot with the `y++` and orders `addiu v1,v1,1` before
+   * `addu v0,v0,t1`; ours issues `y++` ahead of the value-`or` and pays a
+   * `nop`.  Statement-order moves of `y = y + 1` (top / after the store / last)
+   * are all sched1-equivalent. */
   x = 0;
   gNbFreePal4 = 0;
   do {
@@ -739,14 +747,14 @@ void Texture_InitMenuClut(void)
     clut = 0x7a00;
     do {
       y = y + 1;
-      idx = gNbFreePal4 + 1;
       pal4[gNbFreePal4] = clut | (u_short)(x + 0x200 >> 4) & 0x3f;
-      pal8 = gFreePal8;
+      gNbFreePal4 = gNbFreePal4 + 1;
       clut = clut + 0x40;
-      gNbFreePal4 = idx;
     } while (y < 0x18);
     x = x + 0x10;
   } while (x < 0x100);
+  pal8 = gFreePal8;
+  pal8 = gFreePal8;
   x = 0;
   gNbFreePal8 = 0;
   do {
@@ -754,9 +762,8 @@ void Texture_InitMenuClut(void)
     clut = 0x5700;
     do {
       y = y + 1;
-      idx = gNbFreePal8 + 1;
       pal8[gNbFreePal8] = clut | (u_short)(x + 0x200 >> 4) & 0x3f;
-      gNbFreePal8 = idx;
+      gNbFreePal8 = gNbFreePal8 + 1;
       clut = clut + 0x40;
     } while (y < 0x8c);
     x = x + 0x100;

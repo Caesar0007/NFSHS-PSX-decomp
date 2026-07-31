@@ -17,7 +17,26 @@ char         Night_gDrawLightning;   /* @0x8013d9e0  (bss(zero)) */
 u_char       (*Night_gPlayerLightingTable)[256][16];   /* @0x8013d9e4  (bss(zero)) */
 u_char       (*Night_gCopLightingTableRed)[256][8];   /* @0x8013d9e8  (bss(zero)) */
 u_char       (*Night_gCopLightingTableBlue)[256][8];   /* @0x8013d9ec  (bss(zero)) */
-u_char       (*Night_gWeatherLightingTable[2])[256];   /* @0x8013d9f0  (bss(zero)) */
+/* Night_gWeatherLightingTable[2] is modelled as its TWO retail per-element gp-rel symbols
+   (StatsTimer/overlays.cpp model, catalog sec.E dual-model + wave-13 "unsized-array asm-label
+   view"): the oracle reaches the CONSTANT-index sites (Night_KillNightDriving [0] and [1])
+   through a one-instruction %gp_rel(Night_gWeatherLightingTable) / %gp_rel(D_8013D9F4), which
+   an 8-byte object can never produce under -G4, while the WALKING-BASE sites
+   (Night_InitWeatherTables / Night_SetWeatherColors, and draww.cpp's Night_NightCalc) address
+   the base absolutely with %hi/%lo(Night_gWeatherLightingTable) -- reproduced by the unsized
+   asm-label array VIEW below.  The two 4-byte .comm symbols land adjacently in .sbss in
+   declaration order, so the array view still reaches both words: KEEP THEM ADJACENT.
+   The view MUST carry its CORRECT size [2], NOT the usual unsized `[]` (methodology
+   sec.3.12 #5): an UNKNOWN-size extern makes cc1plus emit the `la sym` assembler MACRO,
+   which GNU-as expands with a SEPARATE scratch (`lui v0,%hi; addiu s0,v0,%lo`), whereas
+   retail's base-walk sites use the SELF-TEMP form (`lui s0,%hi; addiu s0,s0,%lo`) that
+   only gcc's own split-address lowering produces -- and that lowering needs a KNOWN size
+   over the -G threshold.  Sized [2] = 8 bytes > -G8's threshold-inclusive small test for
+   an EXTERN of known size here, so gcc lowers it itself.  Measured: unsized -> 6/8 diffs
+   on Night_InitWeatherTables/Night_SetWeatherColors, sized [2] -> 4/PASS. */
+u_char       (*Night_gWeatherLightingTable)[256];   /* @0x8013d9f0  = [0]  (bss(zero)) */
+u_char       (*D_8013D9F4)[256];   /* @0x8013d9f4  = [1] retail per-element gp-rel alias (bss(zero)) */
+extern u_char (*Night_gWeatherLightingTable_arr[2])[256] asm("Night_gWeatherLightingTable"); /* array VIEW -- MUST be sized [2] */
 char         CopCarTypeLights[6] = { 0, 0, 1, 0, 1, 1 };   /* @0x8013d9f8 */
 int          gNight_renderNight;   /* @0x8013da28  (bss(zero)) */
 int          Night_gXDist;   /* @0x8013da2c  (bss(zero)) */
@@ -28,7 +47,13 @@ int          Night_gZDistShift;   /* @0x8013da3c  (bss(zero)) */
 char         *Night_gNightTbl;   /* @0x8013da40  (bss(zero)) */
 int          Night_gLightningType;   /* @0x8013da44  (bss(zero)) */
 u_char       (*Night_gCurrentNightColor)[256][16];   /* @0x8013da48  (bss(zero)) */
-u_char       (*Night_gCopColor[2])[256][8];   /* @0x8013da4c  (bss(zero)) */
+/* Night_gCopColor[2]: same per-element gp-rel dual-model as Night_gWeatherLightingTable above --
+   Night_SetCopColor stores both elements through %gp_rel(Night_gCopColor)/%gp_rel(D_8013DA50),
+   while draww.cpp's Night_NightCopCalc indexes the base at RUNTIME via %hi/%lo(Night_gCopColor)
+   (that TU keeps its own `extern u_char (*Night_gCopColor[2])[256][8];` array decl).
+   KEEP THE TWO .comm SYMBOLS ADJACENT (declaration order == .sbss order). */
+u_char       (*Night_gCopColor)[256][8];   /* @0x8013da4c  = [0] (bss(zero)) */
+u_char       (*D_8013DA50)[256][8];   /* @0x8013da50  = [1] retail per-element gp-rel alias (bss(zero)) */
 CVECTOR      Night_gNightAmbientColor;   /* @0x8013da54  (bss(zero)) */
 CVECTOR      Night_gColor[2];   /* @0x8013da58  (bss(zero)) */
 int          Night_gTotalLights;   /* @0x8013da60  (bss(zero)) */
@@ -40,7 +65,13 @@ int          Night_gFlashAzimuth;   /* @0x8013da74  (bss(zero)) */
 char         Night_gShowForks;   /* @0x8013da78  (bss(zero)) */
 int          Night_gFlashIntensity;   /* @0x8013da7c  (bss(zero)) */
 long         Night_gPlayerHeadLightColor[2];   /* @0x8013da80  (bss(zero)) */
-long         Night_gWeatherColor[2];   /* @0x8013da88  (bss(zero)) */
+/* Night_gWeatherColor[2]: same per-element gp-rel dual-model -- Night_InitWeatherTables stores
+   both words through %gp_rel(Night_gWeatherColor)/%gp_rel(D_8013DA8C), while
+   Night_SetWeatherColors (and drawc.cpp's DrawC_NightHeadlight) walk the base absolutely.
+   KEEP THE TWO .comm SYMBOLS ADJACENT (declaration order == .sbss order). */
+long         Night_gWeatherColor;   /* @0x8013da88  = [0] (bss(zero)) */
+long         D_8013DA8C;   /* @0x8013da8c  = [1] retail per-element gp-rel alias (bss(zero)) */
+extern long  Night_gWeatherColor_arr[2] asm("Night_gWeatherColor"); /* array VIEW -- MUST be sized [2] */
 tNightInitCache *gNightInitCache;   /* @0x8013da90  (bss(zero)) */
 tCompRGB     *gTableCache;   /* @0x8013da94  (bss(zero)) */
 char         *nightfile;   /* @0x8013da98  (bss(zero)) */
@@ -274,41 +305,56 @@ void Night_DoLightningEffect(DRender_tView *Vi)
 typedef struct { int w[2]; } NightCopTablePair;
 
 /* ---- Night_SetCopColor__FP18GameSetup_tCarData  [NIGHT.CPP:473-484] SLD-VERIFIED ----
- * NEAR-MISS 25 diffs (ours 38 / oracle 37), was 39 (ours 36 / oracle 37).
- * MATCH (w38-a10): (1) cartype/country are read BEFORE the carTable fill
- * (oracle `lw v0,0(a0); lw a1,160(a0); lbu a0,0(v0)` precede the gp loads);
- * (2) the lower half of carTable[] is a two-word BLOCK COPY of the upper half,
- * not two more loads of the globals -- the oracle's `lw a2,8(sp); lw a3,12(sp);
- * sw a2,0(sp); sw a3,4(sp)` is gcc's movstrsi, reproduced with a same-sized
- * local struct assignment (a plain `carTable[0]=carTable[2]` gets copy-forwarded).
- * RESIDUAL: (a) the final two stores -- the oracle writes Night_gCopColor[0] and
- * [1] through SEPARATE per-element gp-rel symbols (%gp_rel(Night_gCopColor) and
- * %gp_rel(D_8013DA50)); ours materializes the 8-byte array base with lui/addiu
- * (+2 insns). The known fix is the per-element scalar split (catalog sec.E
- * dual-model / wave-13 per-field split), but Night_gCopColor is ALSO read with a
- * RUNTIME index by draww.cpp (DrawW cop-lighting lookup, another agent's TU), so
- * the split needs a coordinated dual-model change across both TUs -- NOT done
- * here (out of scope), flagged for a follow-up.  (b) cartype/country land on
- * $a1/$a0 instead of $a0/$a1; tried decl-order swap (no change), statement-order
- * swap (41, worse) and an explicit pointer-form index (39, worse). */
+ * NEAR-MISS 5 diffs (ours 38 / oracle 37).  Was 25, then 21 after the per-element
+ * %gp_rel split of Night_gCopColor (w39-a9), then 5 after the SYM rewrite below.
+ * SYM block @43c244 is the ground truth (fsize 16, mask $00000000 = NO saved regs,
+ * ONE block, six locals):
+ *    carinfo  REGPARM $4  = a0
+ *    cartype  REG     $2         country REG $5 = a1        carTable REG $4
+ *    copColors AUTO `ARY PTR ARY ARY UCHAR size 8 dims 3 2 256 8` @ -0x10 => sp+0
+ *    col1     REG     $2         col2    REG $2
+ * => the retail local is `u_char (*copColors[2])[256][8]` -- TWO entries at sp+0..7, NOT
+ *    the four-entry sp+0..0xF table the old recon modelled.  The oracle's second pair at
+ *    sp+8/sp+0xC is gcc's TEMPORARY for a LOCAL AGGREGATE INITIALIZER whose elements are
+ *    NOT compile-time constants: `u_char (*copColors[2])[256][8] = { Red, Blue };` builds
+ *    the value at sp+8/0xC and then movstrsi-copies it down to sp+0/4.  That is exactly
+ *    the oracle's `sw v0,8(sp); sw v1,0xC(sp); lw a2,8(sp); lw a3,0xC(sp); sw a2,0(sp);
+ *    sw a3,4(sp)` -- reproduced here for the right reason (the old recon got the same
+ *    bytes out of a hand-written 4-slot array + a struct-assignment, which is why the
+ *    SYM's `copColors` name/shape never fit).
+ *    NEW CATALOG ROW: a local array with a NON-CONSTANT aggregate initializer = build-in-
+ *    temp + block copy; the same values written as element assignments do NOT produce it.
+ * `country` MUST be read BEFORE `cartype` (13 -> 5 diffs): it is what puts cartype in $a0
+ * and country in $a1 like retail; the reverse order swaps them and cascades.
+ * RESIDUAL 5: ours `lw v0,0(v0); nop; sw v0,%gp_rel(Night_gCopColor)` for the FIRST
+ * element; retail loads it into $a0 and DEFERS the store past col2's index arithmetic,
+ * which fills the load-delay slot (37 vs our 38 insns).  Tried and re-gated: moving the
+ * store after `col2 = ...` (35 insns, 32 diffs -- gcc cross-merges the two stores),
+ * hoisting both col1/col2 reads first (same 32), dropping the carTable temp (5, tie),
+ * carTable typed `int` per the SYM (5, tie), carTable block-scoped (5, tie), a
+ * `char *pair` local for the two country-table bytes (20, worse), flat single-scope
+ * decls (5, tie).  Also survives -G8 and all four wired per-TU codegen flags. */
 void Night_SetCopColor(GameSetup_tCarData *carinfo)
 
 {
   int cartype;
   int country;
-  int col1;
-  int col2;
-  u_char (*carTable[4])[256][8];
+  u_char (*carTable)[256][8];
 
-  cartype = Night_gCopCarTypeColorIdx[carinfo->carType];
   country = carinfo->Country;
-  carTable[2] = Night_gCopLightingTableRed;
-  carTable[3] = Night_gCopLightingTableBlue;
-  *(NightCopTablePair *)&carTable[0] = *(NightCopTablePair *)&carTable[2];
-  col1 = (u_char)Night_gCopCountryLightTbl[cartype][country][0];
-  Night_gCopColor[0] = carTable[col1];
-  col2 = (u_char)Night_gCopCountryLightTbl[cartype][country][1];
-  Night_gCopColor[1] = carTable[col2];
+  cartype = Night_gCopCarTypeColorIdx[carinfo->carType];
+  {
+    u_char (*copColors[2])[256][8] = { Night_gCopLightingTableRed,
+                                       Night_gCopLightingTableBlue };
+    int col1;
+    int col2;
+
+    col1 = (u_char)Night_gCopCountryLightTbl[cartype][country][0];
+    carTable = copColors[col1];
+    Night_gCopColor = carTable;
+    col2 = (u_char)Night_gCopCountryLightTbl[cartype][country][1];
+    D_8013DA50 = copColors[col2];
+  }
   return;
 }
 
@@ -325,19 +371,15 @@ void Night_InitPlayerHeadLightColor(int player)
 }
 
 /* ---- Night_SetPlayerHeadLightColor__Fiii  [NIGHT.CPP:501-503] SLD-VERIFIED ---- */
-/* NEAR-MISS 10 diffs (15/15): oracle computes the element address as
- * `sll v0,a0,2; lui v1,%hi(Night_gPlayerHeadLightColor); addiu v1,...; addu v0,v0,v1;
- * lw a1,0(v0)` (shift result keeps v0, base-address scratch is v1). Ours swaps the two:
- * shift->v1, base-address->v0, so the final `lw a1,...` reads off v1 instead. Same
- * register-materialization tie-break as Night_SetWeatherColors (catalog §E "v0-vs-a2"):
- * tried named local for the array element (direct + split), address-of-element pointer
- * (folds back — no intervening call to force materialization, unlike
- * Night_GenerateNextLightningEvent's `ticksp` fix), pointer-arithmetic form matching the
- * sibling Night_InitPlayerHeadLightColor's `Night_gPlayerHeadLightColor + player` idiom —
- * all no-change. Permuter (supervised, base score 65, 100+ iters) plateaued at 65, never
- * improved; needs a multi-basin re-seed this session didn't attempt (long unsupervised
- * grind risked contending with concurrent sibling sessions on this machine). GENUINE
- * FLOOR. ACCEPT. */
+/* SEALED 15/15 PASS (w39-a9).  The prior "GENUINE FLOOR. ACCEPT." verdict here (a 10-diff
+ * v0/v1 register-materialization tie-break on &Night_gPlayerHeadLightColor[player]) was
+ * WRONG -- it was a per-OBJ TOOLCHAIN-IDENTITY artifact, not an allocator tie-break:
+ * night.obj was built -G8, not -G4.  Proof: the retail oracle reaches the night-OWNED,
+ * 8-BYTE Night_gPlayerHeadLightColor (long[2] @0x8013da80) with a one-instruction
+ * %gp_rel in Night_GenerateAllLightTables -- impossible under -G4.  Under -G8 cc1plus
+ * emits the `la $r,sym` assembler MACRO instead of pre-splitting it into a schedulable
+ * `lui %hi / addiu %lo` pair, and the macro expansion is retail's.  See the
+ * "recon/game/psx/night.cpp" entry in tools/build.py PER_TU_FLAGS.  No source change. */
 void Night_SetPlayerHeadLightColor(int player,int colorIndex,int bright)
 
 {
@@ -371,16 +413,22 @@ void Night_SetCopLightColors(int colorIndex,int brighten)
 }
 
 /* ---- Night_InitWeatherTables__Fv  [NIGHT.CPP:532-540] SLD-VERIFIED ---- */
-/* NEAR-MISS 20 diffs (35/33): (1) oracle materializes Night_gWeatherLightingTable's base
- * DIRECTLY into s0 (`lui s0;addiu s0,s0,lo`); ours self-temps via v0 first (`lui v0;addiu
- * s0,v0,lo`) -- same v0-vs-dest register-materialization tie-break already documented on
- * the sibling Night_SetWeatherColors below (tried &arr[0], order swaps -- no change).
- * (2) Night_gWeatherColor[0]/[1] stores: oracle uses SEPARATE per-element %gp_rel(sym)/
- * %gp_rel(D_sym+4) symbols (a real 8-byte array > -G4 gp-elig threshold gets gp-rel'd
- * per-element by the ORIGINAL aspsx toolchain); ours materializes the array base via lui
- * and stores at fixed offsets. Catalog "gp-rel-INTO-an-array-ELEMENT" toolchain floor
- * (reference_asm_pattern_catalog.md row E / Hud_Reset) -- confirmed NOT source-reachable.
- * Both are genuine floors, not source-shapable; accepted near-miss. */
+/* NEAR-MISS 6 diffs, insn count now EXACT 33/33 (was 20 diffs at 35/33).  Residual 2 is
+ * GONE: the old note's "Night_gWeatherColor[0]/[1] per-element gp-rel = confirmed
+ * toolchain floor, NOT source-reachable" verdict was WRONG -- splitting the 8-byte array
+ * into its two retail per-element symbols (Night_gWeatherColor / D_8013DA8C, + the
+ * unsized asm-label array view for Night_SetWeatherColors' base walk) reproduces both
+ * %gp_rel stores.  REMAINING 6: the oracle materializes Night_gWeatherLightingTable's
+ * base DIRECTLY into s0 (`lui s0; addiu s0,s0,lo`), ours self-temps via v0 (`lui v0;
+ * addiu s0,v0,lo`) -- the sec.3.15 v0-vs-dest register-materialization tie-break, shared
+ * with the sibling Night_SetWeatherColors below -- which the sized-[2] array-VIEW fix has
+ * since SEALED (it cut this fn 6 -> 4 too; see that fn's note).  What is LEFT here is the
+ * same self-temp materialization surviving the shape fix because the `wtnight` string
+ * literal (D_8013DA18) competes for the slot: ours `lui v0,%hi; sw s0,16(sp); addiu
+ * s0,v0,%lo`, retail `sw s0,16(sp); lui s0,%hi; addiu s0,s0,%lo`.  Survives -G8 and all
+ * four wired per-TU
+ * codegen flags (w39-a9 probe: no_split_addresses +4, no_schedule_insns +6,
+ * no_schedule_insns2 +14, no_strength_reduce 0). */
 void Night_InitWeatherTables(void)
 
 {
@@ -389,7 +437,7 @@ void Night_InitWeatherTables(void)
   int i;
   
   i = 0;
-  tbl_walk = (u_char *)Night_gWeatherLightingTable;
+  tbl_walk = (u_char *)Night_gWeatherLightingTable_arr;
   do {
     if (*(int *)tbl_walk == 0) {
       alloc_buf = reservememadr("wtnight",0x100,0);
@@ -398,20 +446,21 @@ void Night_InitWeatherTables(void)
     i = i + 1;
     tbl_walk = tbl_walk + 4;
   } while (i < 2);
-  Night_gWeatherColor[0] = 0x574054;
-  Night_gWeatherColor[1] = 0x6c4040;
+  Night_gWeatherColor = 0x574054;
+  D_8013DA8C = 0x6c4040;
   return;
 }
 
 /* ---- Night_SetWeatherColors__Fi  [NIGHT.CPP:544-546] SLD-VERIFIED ---- */
-/* NEAR-MISS 8 diffs (31/31): oracle loads Night_gWeatherColor → s1 via `lui s1; addiu s1,s1,lo`
- * (destination = source in addiu). Ours: `lui v0; addiu s1,v0,lo` (v0 temp for high part).
- * Same pattern for Night_gWeatherLightingTable → s0. Register-materialization tie-break
- * (catalog §E "v0-vs-a2"), not source-shapable: tried &arr[0] form, swapped init order,
- * i=0-after-inits, extra-pointer-then-copy (the exact lever that PASSed
- * Night_GenerateNextLightningEvent) — all no-change or regress (up to 20 diffs). Permuter
- * (short supervised grind, base score 80, 4 iters, no improvement) also didn't crack it.
- * GENUINE FLOOR. ACCEPT. */
+/* SEALED 31/31 PASS (w39-a9).  The prior note certified this as a "GENUINE FLOOR" --
+ * the sec.3.15 v0-vs-dest register-materialization tie-break (ours `lui v0; addiu s1,v0,lo`,
+ * retail `lui s1; addiu s1,s1,lo`).  It was NOT a floor: it was the DECLARED SHAPE of the
+ * two base-walk arrays.  An UNSIZED `extern T g[]` view makes cc1plus emit the `la sym`
+ * assembler MACRO, and GNU-as expands that with a separate scratch; giving the view its
+ * CORRECT size [2] lets gcc lower the address ITSELF (split-addresses) into the self-temp
+ * `lui sN,%hi; addiu sN,sN,%lo` retail uses.  Exactly IDT Ch9's own rule -- "either omit
+ * the size or give the CORRECT size" -- read in the OTHER direction from methodology
+ * sec.3.12 #5's usual unsized-array lever. */
 void Night_SetWeatherColors(int colorIndex)
 
 {
@@ -422,8 +471,8 @@ void Night_SetWeatherColors(int colorIndex)
   int i;
 
   i = 0;
-  color_walk = Night_gWeatherColor;
-  wtblp = Night_gWeatherLightingTable;
+  color_walk = Night_gWeatherColor_arr;
+  wtblp = Night_gWeatherLightingTable_arr;
   do {
     colorH = *color_walk;
     color_walk = color_walk + 1;
@@ -548,17 +597,14 @@ void Night_InitNightDriving(void)
 }
 
 /* ---- Night_KillNightDriving__Fv  [NIGHT.CPP:687-719] SLD-VERIFIED ---- */
-/* NEAR-MISS 26 diffs (44/40): first 4 purge-blocks (nightfile, Night_gPlayerLightingTable,
- * Night_gCopLightingTableRed, Night_gCopLightingTableBlue -- all true SCALAR globals)
- * byte-match via %gp_rel. The last 2 blocks (Night_gWeatherLightingTable[0]/[1], elements of
- * a real 2-elem array also indexed with a RUNTIME variable in draww.cpp -- off-limits, can't
- * split into two scalars) diverge: oracle addresses them via SEPARATE per-element
- * %gp_rel(Night_gWeatherLightingTable)/%gp_rel(D_8013D9F4) symbols (the original aspsx
- * toolchain gp-rel's each element of a small array individually); ours must materialize an
- * absolute base (lui s0 / addiu s1,s0,0) since our array's total size (8B) exceeds GCC's
- * -G4 per-OBJECT threshold. Confirmed toolchain floor, catalog "gp-rel-INTO-an-array-ELEMENT"
- * row (reference_asm_pattern_catalog.md §E / Hud_Reset) -- not source-reachable without
- * splitting the array (would break draww.cpp's variable index). Accepted near-miss. */
+/* SEALED 40/40 PASS (w39-a9).  The prior note certified the last two purge-blocks as a
+ * "confirmed toolchain floor" (gp-rel-INTO-an-array-ELEMENT, catalog sec.E / Hud_Reset)
+ * because Night_gWeatherLightingTable is ALSO indexed with a runtime variable in
+ * draww.cpp.  That was WRONG on the "can't split" premise: the split is per-TU, and
+ * draww.cpp keeps its own array-shaped extern (which is the form ITS oracle wants).
+ * Splitting the definition here into the two retail per-element symbols
+ * Night_gWeatherLightingTable / D_8013D9F4 (+ an unsized asm-label array VIEW for this
+ * TU's own base-walk sites) reproduces both %gp_rel stores exactly. */
 void Night_KillNightDriving(void)
 
 {
@@ -578,14 +624,14 @@ void Night_KillNightDriving(void)
     purgememadr(Night_gCopLightingTableBlue);
   }
   Night_gCopLightingTableBlue = (u_char (*) [256] [8])0x0;
-  if (Night_gWeatherLightingTable[0] != (u_char (*) [256])0x0) {
-    purgememadr(Night_gWeatherLightingTable[0]);
+  if (Night_gWeatherLightingTable != (u_char (*) [256])0x0) {
+    purgememadr(Night_gWeatherLightingTable);
   }
-  Night_gWeatherLightingTable[0] = (u_char (*) [256])0x0;
-  if (Night_gWeatherLightingTable[1] != (u_char (*) [256])0x0) {
-    purgememadr(Night_gWeatherLightingTable[1]);
+  Night_gWeatherLightingTable = (u_char (*) [256])0x0;
+  if (D_8013D9F4 != (u_char (*) [256])0x0) {
+    purgememadr(D_8013D9F4);
   }
-  Night_gWeatherLightingTable[1] = (u_char (*) [256])0x0;
+  D_8013D9F4 = (u_char (*) [256])0x0;
   return;
 }
 
@@ -607,7 +653,23 @@ void Night_RestartNightDriving(void)
   return;
 }
 
-/* ---- Night_SetEnviroment__FP13DRender_tView  [NIGHT.CPP:736-804] SLD-VERIFIED ---- */
+/* ---- Night_SetEnviroment__FP13DRender_tView  [NIGHT.CPP:736-804] SLD-VERIFIED ----
+ * NEAR-MISS 8 diffs, COUNT-EXACT 68/68.  ONE register-materialization tie in the
+ * camera-flag guard: retail `lw $v0,0x4($v0)` (load dest REUSES its own base = self-temp)
+ * + `addiu $v1,$zero,0x80` for the Night_gZNear constant; ours takes `lw v1,4(v0)` +
+ * `li v0,128`, i.e. the constant's pseudo wins $v0 and pushes the loaded `.target`
+ * pointer to $v1.  SYM block @43c9fa: fsize 24, mask $80010000 (s0 + ra only), Vi
+ * REGPARM $10 = s0, and NO named locals at all -- so there is nothing left to wire in
+ * (the `int mode;` here is an unused recon leftover; deleting it is diff-neutral, kept
+ * only to document that it is not the lever).
+ * STRONG FLOOR (w39-a9): 7 alternate source forms, ALL byte-identical at 8 diffs --
+ * delete `mode` (8) · named `u_char *target` local before the guard (8) · same local
+ * declared before the Night_gZNear store (8) · `(char *)`-based byte cast (8) ·
+ * Night_gZNear store hoisted above the two shift stores (16, worse) · store folded into
+ * the guard via a comma expression (11 at 69 insns, worse) · plus -G8 and all four wired
+ * per-TU codegen flags (no_split_addresses 31, no_schedule_insns 33, no_schedule_insns2
+ * 22, no_strength_reduce 8 -- all >= current).  Prototype re-checked vs the raw oracle:
+ * single REGPARM $a0 (Vi), VOID return ($v0 holds the last guard byte at the exit). */
 void Night_SetEnviroment(DRender_tView *Vi)
 
 {
@@ -656,7 +718,17 @@ void Night_SetEnviroment(DRender_tView *Vi)
  * (SYM: newR $7=a3, newG $8=t0, newB $6=a2). Tried: inlining zfar into the
  * condition (88), materializing zfar before z/znear (79), znear-before-z (77,
  * tie). This is the allocno-priority race between the short-lived guard temps
- * and the long-lived, few-ref `color` parameter. */
+ * and the long-lived, few-ref `color` parameter.
+ * w39-a9 RE-PROBE (all re-gated, none improved on 77): the w32/w33 "param-copy priority
+ * dial" (`CVECTOR *c = color;` used at every site -- 88 at 66 insns) · a self-copy
+ * `color = color;` (77, gcc drops it) · shortening zfar's live range by folding its
+ * assignment into the guard via a comma expression (88) · hoisting `xdist` above the
+ * `x` load (77) · -G8 (77) · all four wired per-TU codegen flags (no_split_addresses 78,
+ * no_schedule_insns 83, no_schedule_insns2 83, no_strength_reduce 77).  The single extra
+ * insn is always `addu t3,a1,zero` -- `zfar` beats `color` for $a1 because its live range
+ * is far shorter (priority = floor_log2(refs)*refs/live_length), and no source form
+ * reachable from here changes that ordering.  STRONG FLOOR pending a permuter run (the
+ * C++ permuter harness is still blocked for C++ TUs). */
 void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
 
 {

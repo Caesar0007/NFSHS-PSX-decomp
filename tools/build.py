@@ -203,6 +203,40 @@ PER_TU_FLAGS = {
     # Force_Vbl 46 -> 40, Force_Update 326 -> 326, Force_IsForceOn 14 -> 14,
     # HitSign/HitWall/Pause/StartUp/UnPause PASS -> PASS.  Zero regressions.
     "recon/game/psx/force.cpp":             {"g_value": "8"},
+    # sfx.obj is a -G8 object too (w39-a9).  Its oracle has NO %gp_rel at all, so the
+    # usual gp-rel discriminator is silent here -- the tell is the ADDRESS-MATERIALIZATION
+    # FORM instead.  Under -G4 an 8-byte extern (`gSMokePixmap[2]`, `gGravelPixmap[2]`) is
+    # above the threshold, so cc1plus lowers `&sym` ITSELF into a schedulable
+    # `lui %hi / addiu %lo` pair -- and then hoists the `lui` into a branch delay slot the
+    # retail code leaves as `nop`.  Under -G8 the same symbol is small-data-eligible, so
+    # cc1plus emits the single ASSEMBLER MACRO `la $3,gSMokePixmap`, which is unschedulable
+    # (catalog: "a scalar extern global is a DELAY-SLOT POISON PILL") and which GNU-as
+    # expands to the IDENTICAL absolute lui/addiu pair -- same bytes, retail's schedule.
+    # The threshold is exact: the 8-byte arrays flip, the 4-byte scalars (gSMokePalette,
+    # gDirtPalette, ...) were already macro-form under both.  No %gp_rel appears in the
+    # object either way (the symbols are undefined here), so this cannot introduce a
+    # wrong gp-relative access.  Receipts: Sfx_BuildSmokeFacet 3 -> PASS,
+    # Sfx_BuildSouffleFacet 422 -> 399, other 5 fns unchanged (4 already PASS).
+    "recon/game/psx/sfx.cpp":               {"g_value": "8"},
+    # night.obj is a -G8 object, PROVEN by the gp-rel discriminator (w39-a9): the retail
+    # oracle reaches TWO night-OWNED 8-BYTE objects with a one-instruction %gp_rel --
+    #   Night_GenerateAllLightTables:  lbu $v0,%gp_rel(Night_gPlayerHeadLightColor)($gp)
+    #                                  (long[2] @0x8013da80, 8 bytes)
+    #   Night_InitWeatherTables:       sw  $v1,%gp_rel(Night_gWeatherColor)($gp)
+    #                                  (long[2] @0x8013da88, 8 bytes)
+    # -- which is IMPOSSIBLE under -G4 (an 8-byte object never lands in .sdata/.sbss).
+    # Every night-owned object LARGER than 8 bytes stays full-addressed %hi/%lo
+    # (Night_gCopCountryLightTbl 20B, Night_gAdditiveHeadlightColor 64B,
+    # Night_gLightningPauseAreas 128B), so the threshold is exactly 8.  (The 4-byte
+    # %hi-only symbols -- Chunk_lightTable, Chunk_numLight, Weather_gType -- are owned by
+    # OTHER objects, which is the normal ownership rule of methodology 3.12 #6, not a
+    # counterexample.)  Secondary effect, same as sfx.cpp above: over-threshold globals get
+    # cc1plus's pre-split schedulable `lui %hi/addiu %lo`, at-or-under-threshold ones get
+    # the unschedulable `la sym` assembler macro that matches retail's scheduling.
+    # Receipts (whole TU re-gated, 19 fns): Night_InitPlayerHeadLightColor 10 -> PASS,
+    # Night_SetPlayerHeadLightColor 10 -> PASS (both previously certified "GENUINE FLOOR"),
+    # Night_GenerateAllLightTables 118 -> 114, all other 16 fns unchanged.
+    "recon/game/psx/night.cpp":             {"g_value": "8"},
     "recon/game/common/audiocmn.cpp":       {"jtbl_at_fusion": True},  # AudioCmn_SoundCar
     "recon/syslib/psx/libcd/drv.c":       {"jtbl_at_fusion": True},  # CD_get_intr
     "recon/syslib/psx/libgpu/FONT.c":       {"jtbl_at_fusion": True},  # FntPrint

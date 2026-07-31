@@ -134,14 +134,10 @@ AudioTrk_find_channel:
       if ((se->nextDelay != 0) && ((u_int)se->nextDelay != tck)) {
         return;
       }
-      i = 0;
-      for (;;) {
-        if (i >= 0x10) {
-          break;
-        }
+      for (i = 0; (c == (AudioTrk_tAmbientChannel *)0x0) && (i < 0x10); i++) {
         if (AudioTrk_g->chan[i].se == (AudioElem *)0x0) {
-          AudioTrk_g->chan[i].se = se;
           c = AudioTrk_g->chan + i;
+          AudioTrk_g->chan[i].se = se;
           c->slice = -1;
           n = i;
           c->repeat =
@@ -150,10 +146,6 @@ AudioTrk_find_channel:
                    ? (u_short)((u_int)random() % ((u_char)se->randomRepeat + 1))
                    : 0);
           c->se->chan = (char)n;
-        }
-        i++;
-        if (c != (AudioTrk_tAmbientChannel *)0x0) {
-          break;
         }
       }
 
@@ -165,13 +157,7 @@ AudioTrk_channel_found:
             int i;
 
             i = 0;
-            for (;;) {
-              if (c != (AudioTrk_tAmbientChannel *)0x0) {
-                break;
-              }
-              if (i >= 0x10) {
-                break;
-              }
+            while ((c == (AudioTrk_tAmbientChannel *)0x0) && (i < 0x10)) {
               chkdst = Math_Dist3D(&(AudioTrk_g->chan[i].se)->cp,
                                    &AudioClc_gRenderView.translation);
               if (c->handle != 0xffffffff) {
@@ -182,8 +168,9 @@ AudioTrk_channel_found:
               }
               i++;
             }
-          }
+        }
         if (dst < maxdst) {
+          n = maxind;
           c = AudioTrk_g->chan + maxind;
           c->se = se;
           c->slice = -1;
@@ -193,7 +180,6 @@ AudioTrk_channel_found:
                    ? (u_short)((u_int)random() % ((u_char)se->randomRepeat + 1))
                    : 0);
           c->se->chan = (char)maxind;
-          n = maxind;
         }
         if (c == (AudioTrk_tAmbientChannel *)0x0) {
           return;
@@ -269,12 +255,13 @@ AudioTrk_channel_found:
 AudioTrk_near_volume:
           {
             int rangesq = (int)se->range * (int)se->range;
-            int fadevol = fade * 0x7f;
-            u_int level =
+            int fadevol;
+            int level =
                 (((rangesq >> 4) * 0x10000 -
                   fixedmult(dst >> 2,dst >> 2)) /
-                 rangesq) *
-                fadevol;
+                 rangesq);
+            fadevol = fade * 0x7f;
+            level *= fadevol;
 
             if ((int)level < 0) {
               level += 0xffff;
@@ -308,7 +295,7 @@ AudioTrk_fade_volume:
 AudioTrk_volume_done:
           ;
         }
-        dop = ((dop > 0xa0000 ? 0xa0000 : dop) > 0)
+        dop = ((dop > 0xa0000 ? 0xa0000 : dop) > 1)
                   ? (dop > 0xa0000 ? 0xa0000 : dop)
                   : 1;
         if ((PAD_state(4) & 0x400) == 0) {

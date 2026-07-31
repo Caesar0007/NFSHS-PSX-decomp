@@ -51,12 +51,12 @@ void RaceSummary(void)
   short colbestlap;
   char string [40];
   int halfH;
+  int titleY;
   int headerY;
   int dataY;
   int barH;
+  int titleX;
   int color;
-  Car_tObj *car;
-  char *word;
 
   HUD_STATS_POS_X = 8;
   if (GameSetup_gData.numLaps == 1) {
@@ -74,19 +74,19 @@ void RaceSummary(void)
   colcar = HUD_STATS_POS_X + 0x5f;
   coltime = HUD_STATS_POS_X + 0xa7;
   colbestlap = HUD_STATS_POS_X + 0xe1;
-  word = TextSys_Word(0x38);
-  color = textpixels(word);
+  titleX = 0xa0 - (textpixels(TextSys_Word(0x38)) >> 1);
+  titleY = 0x76 - halfH;
   Font_TextColor(6);
-  Font_TextXY(TextSys_Word(0x38),(0xa0 - (color >> 1)) * 0x10000 >> 0x10,-halfH + 0x76);
+  Font_TextXY(TextSys_Word(0x38),titleX * 0x10000 >> 0x10,titleY);
   Font_TextColor(3);
-  headerY = (-halfH + 0x85) * 0x10000 >> 0x10;
+  headerY = (titleY + 0xf) * 0x10000 >> 0x10;
   Font_TextXY(TextSys_Word(0x2e),colname,headerY);
   Font_TextXY(TextSys_Word(0x3a),colcar,headerY);
   Font_TextXY(TextSys_Word(0x3b),coltime,headerY);
   if (GameSetup_gData.numLaps != 1) {
     Font_TextXY(TextSys_Word(0x3c),colbestlap,headerY);
   }
-  dataY = (-halfH + 0x87) * 0x10000 >> 0x10;
+  dataY = (titleY + 0x11) * 0x10000 >> 0x10;
   Hud_FBuildF4(0,HUD_STATS_POS_X,dataY + 0xc,(u_short)HUD_STATS_SIZE_W,1,0,'\0','\0');
   barH = HUD_STATS_SIZE_H + -8;
   Hud_FBuildF4(0,colname + -2,HUD_STATS_POS_Y,1,barH,0,'\0','\0');
@@ -96,52 +96,51 @@ void RaceSummary(void)
     Hud_FBuildF4(0,colbestlap + -2,HUD_STATS_POS_Y,1,barH,0,'\0','\0');
   }
   i = 0;
-  do {
-    if (Cars_gNumRaceCars <= i) {
-      OptionsBarThing(HUD_STATS_POS_X,HUD_STATS_POS_Y,(u_short)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
-      Hud_RenderPauseBox(HUD_STATS_POS_X,HUD_STATS_POS_Y,(u_short)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
-      return;
-    }
-    car = Cars_gRaceCarList[i];
-    pos = car->stats.finalPosition;
+  while (1) {
+    if (Cars_gNumRaceCars <= i) break;
+    pos = Cars_gRaceCarList[i]->stats.finalPosition;
     if (pos * 2 + 4 < StatsTimer) {
       color = 4;
-      if ((car->carFlags & 4U) != 0) {
+      if ((Cars_gRaceCarList[i]->carFlags & 4U) != 0) {
         color = 3;
       }
       Font_TextColor(color);
       sprintf(string,"%d",pos);
       Font_TextXY(string,colpos | 1,dataY + pos * 0xc);
       Font_TextColor(3);
-      sprintf(string,"%s",(char *)(*(int *)((int)car + 0x288) + 0x5c));
+      sprintf(string,"%s",(char *)(*(int *)((int)Cars_gRaceCarList[i] + 0x288) + 0x5c));
       Font_TextXY(string,colname,dataY + pos * 0xc);
       color = 4;
-      if ((*(u_int *)((int)car + 0x260) & 4) != 0) {
+      if ((*(u_int *)((int)Cars_gRaceCarList[i] + 0x260) & 4) != 0) {
         color = 3;
       }
       Font_TextColor(color);
-      sprintf(string,"%s",car->carNameLocalized);
+      sprintf(string,"%s",Cars_gRaceCarList[i]->carNameLocalized);
       Font_TextXY(string,colcar,dataY + pos * 0xc);
       if (GameSetup_gData.pinkSlipsForfeit == i) {
         sprintf(string,TextSys_Word(0x36));
       }
-      else if ((GameSetup_gData.raceType == 1) && (car->stats.finalNumArrests != 0)) {
+      else if ((GameSetup_gData.raceType == 1) &&
+               (Cars_gRaceCarList[i]->stats.finalNumArrests != 0)) {
         sprintf(string,TextSys_Word(0x3d));
       }
-      else if (*(int *)((int)car + 0x3cc) != 2) {
+      else if (*(int *)((int)Cars_gRaceCarList[i] + 0x3cc) != 2) {
         sprintf(string,TextSys_Word(0x35));
       }
       else {
-        Hud_ParseTime(*(int *)((int)car + 0x3d4),string);
+        Hud_ParseTime(*(int *)((int)Cars_gRaceCarList[i] + 0x3d4),string);
       }
       Font_TextXY(string,coltime,dataY + pos * 0xc);
       if (GameSetup_gData.numLaps != 1) {
-        Hud_ParseTime(*(int *)((int)car + 0x3e8),string);
+        Hud_ParseTime(*(int *)((int)Cars_gRaceCarList[i] + 0x3e8),string);
         Font_TextXY(string,colbestlap,dataY + pos * 0xc);
       }
     }
     i = i + 1;
-  } while (1);
+  }
+  OptionsBarThing(HUD_STATS_POS_X,HUD_STATS_POS_Y,(u_short)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
+  Hud_RenderPauseBox(HUD_STATS_POS_X,HUD_STATS_POS_Y,(u_short)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
+  return;
 }
 
 /* ---- RaceStatistics__Fv  [OVERLAYS.CPP:165-321] SLD-VERIFIED ---- */
@@ -160,19 +159,19 @@ void RaceStatistics(void)
   short HUD_STATS_HOTPURSUIT_Y;
   char string [40];
   int halfH;
-  int negH;
+  int titleX;
   int titleY;
+  int posy;
   int dataY;
   int barH;
   int color;
   int rowY;
   Car_tObj *car;
-  char *word;
   int t;
 
   HUD_STATS_SIZE_W = (short)(Cars_gNumHumanRaceCars * 0x96);
-  HUD_STATS_SIZE_H = ((short)GameSetup_gData.numLaps + 1) * 0xc + 0x28;
-  HUD_STATS_POS_X = (short)(Cars_gNumHumanRaceCars * -0x4b + 0xa0);
+  HUD_STATS_SIZE_H = (GameSetup_gData.numLaps + 1) * 0xc + 0x28;
+  HUD_STATS_POS_X = (short)(0xa0 - Cars_gNumHumanRaceCars * 0x4b);
   if (GameSetup_gData.numLaps == 1) {
     HUD_STATS_SIZE_H = 0x34;
   }
@@ -180,44 +179,47 @@ void RaceStatistics(void)
     HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0x1b;
   }
   halfH = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10) >> 0x11;
-  HUD_STATS_POS_Y = (short)(0x78 - halfH);
-  word = TextSys_Word(0x39);
-  color = textpixels(word);
+  posy = 0x78 - halfH;
+  HUD_STATS_POS_Y = (short)posy;
+  titleX = 0xa0 - (textpixels(TextSys_Word(0x39)) >> 1);
   col1 = HUD_STATS_POS_X + 0xa;
   col2 = 0xa0;
-  negH = -halfH;
-  titleY = negH + 0x76;
+  titleY = 0x76 - halfH;
   HUD_STATS_HOTPURSUIT_Y = (short)(titleY + (GameSetup_gData.numLaps + 2) * 0xc + 0x13);
   if (1 < Cars_gNumHumanRaceCars) {
     col2 = 0x55;
   }
   Font_TextColor(6);
-  Font_TextXY(TextSys_Word(0x39),(0xa0 - (color >> 1)) * 0x10000 >> 0x10,titleY);
-  dataY = (negH + 0x87) * 0x10000 >> 0x10;
+  Font_TextXY(TextSys_Word(0x39),titleX * 0x10000 >> 0x10,titleY);
+  dataY = (titleY + 0x11) * 0x10000 >> 0x10;
   Hud_FBuildF4(0,HUD_STATS_POS_X,dataY + 0xb,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
   if (GameSetup_gData.raceType == 1) {
     Hud_FBuildF4(0,HUD_STATS_POS_X,(int)HUD_STATS_HOTPURSUIT_Y * 0x10000 >> 0x10,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
   }
   i = 0;
   barH = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10) >> 0x10;
-  do {
-    if (Cars_gNumHumanRaceCars <= (int)i) {
-      OptionsBarThing(HUD_STATS_POS_X,(int)HUD_STATS_POS_Y,(int)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
-      Hud_RenderPauseBox(HUD_STATS_POS_X,(int)HUD_STATS_POS_Y,(int)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
-      return;
-    }
+  while (1) {
+    if (Cars_gNumHumanRaceCars <= (int)i) break;
     car = Cars_gRaceCarList[i];
     colmid = col2 - ((textpixels(car->carInfo->driver) >> 1) + 2);
-    Hud_FBuildF4(0,col2 + -2,dataY + 0xb,1,barH - ((dataY - (0x78 - halfH)) + 0x13),0,'\0','\0');
+    Hud_FBuildF4(0,col2 + -2,dataY + 0xb,1,barH - ((dataY - posy) + 0x13),0,'\0','\0');
     if (0 < (int)i) {
-      Hud_FBuildF4(0,col1 + -2,0x78 - halfH,1,barH + -8,0,'\0','\0');
+      Hud_FBuildF4(0,col1 + -2,posy,1,barH + -8,0,'\0','\0');
     }
     if (2 < D_8013D99C) {
       Font_TextColor(3);
       sprintf(string,"%s",Cars_gRaceCarList[i]->carInfo->driver);
-      Font_TextXY(string,colmid,negH + -4);
+      /* CORRECTNESS (w39-a4): the Y arg is dataY-4, NOT (-halfH)-4.  Raw oracle
+         @0x800DA2D0 `addiu $a2,$s3,-0x4` with $s3 = dataY (set once @0x800DA1AC from
+         the (titleY+0x11) sign-extend).  The old `negH + -4` drew the driver name
+         0x87 px too high. */
+      Font_TextXY(string,colmid,dataY + -4);
     }
-    if ((GameSetup_gData.numLaps != 1) && (0 < GameSetup_gData.numLaps)) {
+    /* NOT `a && b`: the oracle keeps two separate compares off ONE load
+       (`beq $v0,1` @0x800DA2E0 then `blez $v0` @0x800DA2EC); the &&-form lets gcc
+       range-fold them into a single `slti v0,v0,2`. */
+    if (GameSetup_gData.numLaps != 1) {
+     if (0 < GameSetup_gData.numLaps) {
       j = 0;
       do {
         if ((int)j * 2 + 4 < D_8013D99C) {
@@ -237,6 +239,7 @@ void RaceStatistics(void)
         }
         j = j + 1;
       } while ((int)j < GameSetup_gData.numLaps);
+     }
     }
     if (GameSetup_gData.numLaps * 2 + 4 < D_8013D99C) {
       sprintf(string,TextSys_Word(0x37));
@@ -288,7 +291,10 @@ void RaceStatistics(void)
     col1 = col1 + 0x96;
     col2 = col2 + 0x96;
     i = i + 1;
-  } while (1);
+  }
+  OptionsBarThing(HUD_STATS_POS_X,(int)HUD_STATS_POS_Y,(int)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
+  Hud_RenderPauseBox(HUD_STATS_POS_X,(int)HUD_STATS_POS_Y,(int)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
+  return;
 }
 
 /* ---- Hud_BTCStats__Fsb  [OVERLAYS.CPP:326-441] SLD-VERIFIED ---- */
@@ -315,14 +321,12 @@ void Hud_BTCStats(short player,bool postgame)
   short HUD_STATS_TITLE_START_Y;
   short HUD_STATS_TEXT_START_Y;
   int halfH;
-  int negH;
-  int perpH;
+  int textY;
   int dataY;
   int y;
   int nperps;
   int wnum;
   int k;
-  char *word;
 
   chasinghuman = 0;
   showname = 0;
@@ -339,27 +343,30 @@ void Hud_BTCStats(short player,bool postgame)
     PLAYERWIDTH = 0xa1;
   }
   showtimeleft = 0;
-  if ((postgame == 0) || (BTCPerpInfo[player + -1][Hud_NextPerp[player] + 9].caught != 0)) {
+  /* the oracle indexes row `player` and element `Hud_NextPerp[player] - 1`
+     (`addiu $v1,$v1,-1` @0x800DA810, no -1 on the row); the old
+     `[player-1][NextPerp+9]` spelling is numerically identical (row stride 160,
+     element stride 16) but costs an extra `addiu` and is a Ghidra artifact. */
+  if ((postgame == 0) || (BTCPerpInfo[player][Hud_NextPerp[player] - 1].caught != 0)) {
     showtimeleft = 1;
   }
   HUD_STATS_SIZE_W = PLAYERWIDTH + 6;
   HUD_STATS_TEXT_START_X = -(PLAYERWIDTH >> 1);
-  perpH = (Hud_NextPerp[player] + 1) * 0xc + 0x16;
+  HUD_STATS_SIZE_H = (Hud_NextPerp[player] + 1) * 0xc + 0x16;
   if (showtimeleft != 0) {
-    perpH = (Hud_NextPerp[player] + 1) * 0xc + 0x22;
+    HUD_STATS_SIZE_H = (Hud_NextPerp[player] + 1) * 0xc + 0x22;
   }
   if (postgame != 0) {
-    perpH = perpH + 8;
+    HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 8;
   }
-  HUD_STATS_SIZE_H = (short)perpH;
   if (showname != 0) {
-    HUD_STATS_SIZE_H = (short)(perpH + 0xc);
+    HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0xc;
   }
   halfH = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10) >> 0x11;
   HUD_STATS_POS_Y = (short)(0x78 - halfH);
-  negH = -halfH;
-  HUD_STATS_TEXT_START_Y = (short)(negH + 0x76);
-  HUD_STATS_TITLE_START_Y = (short)(negH + 0x85);
+  textY = 0x76 - halfH;
+  HUD_STATS_TEXT_START_Y = (short)textY;
+  HUD_STATS_TITLE_START_Y = (short)(textY + 0xf);
   HUD_STATS_POS_X = HUD_STATS_TEXT_START_X + 0xa0;
   col[0] = HUD_STATS_TEXT_START_X + 0xa3;
   if (chasinghuman != 0) {
@@ -372,15 +379,14 @@ void Hud_BTCStats(short player,bool postgame)
     col[2] = HUD_STATS_TEXT_START_X + 0xa7 + 0x50;
     col[3] = HUD_STATS_TEXT_START_X + 0xa7 + 0x96;
   }
-  word = TextSys_Word((postgame != 0) ? 0x48 : 0x47);
-  HUD_STATS_TITLE_START_X = (short)(0xa0 - (textpixels(word) >> 1));
+  HUD_STATS_TITLE_START_X = (short)(0xa0 - (textpixels(TextSys_Word((postgame != 0) ? 0x48 : 0x47)) >> 1));
   Font_TextColor(6);
   Font_TextXY(TextSys_Word((postgame != 0) ? 0x48 : 0x47),(int)HUD_STATS_TITLE_START_X,(int)HUD_STATS_TEXT_START_Y);
   startY = HUD_STATS_TITLE_START_Y;
   if (showname != 0) {
     Font_TextColor(4);
     Font_TextXY(Cars_gRaceCarList[player]->carInfo->driver,(int)col[2],(int)startY);
-    startY = (short)(negH + 0x91);
+    startY = (short)(textY + 0x1b);
   }
   Font_TextColor(3);
   if (chasinghuman == 0) {
@@ -443,45 +449,52 @@ void Hud_RenderStatsView(void)
 {
   short player;
   int screen;
+  int t;
 
   screen = simGlobal.gameTicks >> 9 & 1;
-  if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) {
-    if (GameSetup_gData.commMode == 1) goto HudStats_check200;
-    if (Cars_gNumRaceCars != 1) goto HudStats_finalize;
-HudStats_setUserOne:
-    screen = 1;
-  }
-  else {
-    if (GameSetup_gData.commMode != 1) {
+  /* Block order + branch polarity transcribed from the oracle CFG (0x800DAE94..0x800DAFE8):
+     the flags!=0 arm is the if-BODY (oracle `beqz` skips to the ==0 block), the shared
+     screen=0 block sits EARLY at .L800DAED0, and the "one player" tail (.L800DAFE4)
+     falls out of the numRaceCars test at .L800DAFD0. */
+  if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0) {
+    if (GameSetup_gData.commMode == 1) goto HudStats_common;
 HudStats_setUserZero:
-      screen = 0;
-      goto HudStats_finalize;
-    }
-HudStats_check200:
-    if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) {
-      if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0) goto HudStats_check200B;
-    }
-    else {
-      if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) {
-        screen = 0;
-        goto HudStats_finalize;
-      }
-HudStats_check200B:
-      if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) goto HudStats_setUserOne;
-      if ((Hud_NextPerp[0] != 0) || (GameSetup_gData.commMode != 1)) goto HudStats_setUserZero;
-    }
-    if (((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0) &&
-       ((GameSetup_gData.commMode == 1) && (Hud_NextPerp[1] != 0))) {
-      screen = 1;
-    }
+    screen = 0;
+    goto HudStats_finalize;
   }
+  if (GameSetup_gData.commMode != 1) goto HudStats_checkNumCars;
+HudStats_common:
+  if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0) {
+    if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0) goto HudStats_check200B;
+    goto HudStats_setUserZero;
+  }
+  if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) goto HudStats_secondCar;
+HudStats_check200B:
+  if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) goto HudStats_setUserOne;
+  if (Hud_NextPerp[0] != 0) goto HudStats_setUserZero;
+  if (GameSetup_gData.commMode != 1) goto HudStats_setUserZero;
+HudStats_secondCar:
+  if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) goto HudStats_finalize;
+  if (GameSetup_gData.commMode != 1) goto HudStats_finalize;
+  if (Hud_NextPerp[1] == 0) goto HudStats_finalize;
+  screen = 1;
+  goto HudStats_finalize;
+HudStats_checkNumCars:
+  if (Cars_gNumRaceCars != 1) goto HudStats_finalize;
+HudStats_setUserOne:
+  screen = 1;
 HudStats_finalize:
   if (screen == 0) {
     D_8013D99C = 0;
+    /* the oracle keeps the incremented value in its own pseudo and stores it BOTH
+       before and after the clamp (`addu $v1,$v0,$zero` / two `sw $v1,%gp_rel(...)`);
+       the plain `X = X + 1; if (K < X) X = K;` form stores straight out of $v0. */
     StatsTimer = StatsTimer + 1;
-    if (10000 < StatsTimer) {
-      StatsTimer = 10000;
+    t = StatsTimer;
+    if (10000 < t) {
+      t = 10000;
     }
+    StatsTimer = t;
     player = 0;
     if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) {
       RaceSummary();
@@ -491,11 +504,17 @@ HudStats_finalize:
   else {
     StatsTimer = 0;
     D_8013D99C = D_8013D99C + 1;
-    if (10000 < D_8013D99C) {
-      D_8013D99C = 10000;
+    t = D_8013D99C;
+    if (10000 < t) {
+      t = 10000;
     }
-    if (((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) ||
-       (player = 1, GameSetup_gData.commMode != 1)) {
+    D_8013D99C = t;
+    if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) {
+      RaceStatistics();
+      return;
+    }
+    player = 1;
+    if (GameSetup_gData.commMode != 1) {
       RaceStatistics();
       return;
     }

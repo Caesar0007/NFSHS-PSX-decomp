@@ -482,231 +482,149 @@ void Physics_CorrectPostCollisionYaw(Car_tObj *carObj,int impactVel,coorddef bar
 int Physics_DoBarrierCheck(Car_tObj *carObj)
 
 {
-  int wallType;
-  char cVar1;
-  char cVar2;
-  short sVar3;
-  int r2;
-  int iVar4;
-  Trk_NewSlice *pTVar5;
-  int iVar6;
-  int iVar7;
-  int r3;
-  int iVar8;
-  int iVar9;
-  int r1;
-  int iVar10;
-  int iVar11;
-  int iVar12;
-  int x2;
-  int iVar13;
-  int iVar14;
-  int iVar15;
+  int diff = 0;
   int carCollisionWidth;
-  int iVar16;
-  int x1;
-  int x3;
   int x_relRoad;
+  int wallType;
   int collide;
-  int iVar17;
-  int diff;
-  int iVar18;
-  int slice;
   coorddef vel_b;
   coorddef right;
   coorddef normal;
-  coorddef widthVector;
+  int slice;
 
-  iVar18 = 0;
-  sVar3 = (carObj->N).simRoadInfo.slice;
-  pTVar5 = BWorldSm_slices + sVar3;
-  cVar1 = pTVar5->right[0];
-  r3 = (int)pTVar5->right[2];
-  iVar10 = cVar1 * 0x200;
-  cVar2 = pTVar5->right[1];
-  iVar17 = 0;
-  iVar8 = r3 * 0x200;
-  iVar4 = cVar2 * 0x200;
-  iVar14 = ((carObj->N).position.x + ((carObj->N).linearVel.x >> 5)) - pTVar5->center[0];
-  iVar16 = ((carObj->N).position.y + ((carObj->N).linearVel.y >> 5)) - pTVar5->center[1];
-  iVar6 = ((carObj->N).position.z + ((carObj->N).linearVel.z >> 5)) - pTVar5->center[2];
-  iVar13 = iVar10;
-  if (iVar10 < 0) {
-    iVar13 = iVar10 + 0xff;
+  slice = (carObj->N).simRoadInfo.slice;
+  {
+    {
+    int r1;
+    int r2;
+    int r3;
+
+    r1 = (int)(signed char)BWorldSm_slices[slice].right[0];
+    r3 = (int)(signed char)BWorldSm_slices[slice].right[2];
+    right.x = r1 * 0x200;
+    r2 = (int)(signed char)BWorldSm_slices[slice].right[1];
+    collide = diff;
+    right.z = r3 * 0x200;
+    right.y = r2 * 0x200;
+    {
+      int x1;
+      int x2;
+      int x3;
+
+      vel_b.x = ((carObj->N).position.x + ((carObj->N).linearVel.x >> 5)) - BWorldSm_slices[slice].center[0];
+      vel_b.y = ((carObj->N).position.y + ((carObj->N).linearVel.y >> 5)) - BWorldSm_slices[slice].center[1];
+      vel_b.z = ((carObj->N).position.z + ((carObj->N).linearVel.z >> 5)) - BWorldSm_slices[slice].center[2];
+      x1 = vel_b.x;
+      x2 = vel_b.y;
+      x3 = vel_b.z;
+      x_relRoad = right.x / 0x100 * (x1 / 0x100) +
+                  right.y / 0x100 * (x2 / 0x100) +
+                  right.z / 0x100 * (x3 / 0x100);
+    }
+    (carObj->N).xRelRoadCenter = x_relRoad;
+    }
+
+    {
+    int r1;
+    int r2;
+    int r3;
+    int x1;
+    int x2;
+    int x3;
+
+    r1 = (carObj->N).orientMat.m[6];
+    r2 = (carObj->N).orientMat.m[7];
+    r3 = (carObj->N).orientMat.m[8];
+    r1 = r1 / 0x100 * (right.x / 0x100) +
+         r2 / 0x100 * (right.y / 0x100) +
+         r3 / 0x100 * (right.z / 0x100);
+    carCollisionWidth = fixedmult((carObj->N).dimension.z,r1);
+    if (0 < carCollisionWidth) {
+      carCollisionWidth = fixedmult((carObj->N).dimension.z,r1);
+    }
+    else {
+      carCollisionWidth = -fixedmult((carObj->N).dimension.z,r1);
+    }
+
+    r1 = (carObj->N).orientMat.m[0];
+    r2 = (carObj->N).orientMat.m[1];
+    r3 = (carObj->N).orientMat.m[2];
+    r1 = (carObj->N).dimension.x / 0x100 *
+         ((r1 / 0x100 * (right.x / 0x100) +
+           r2 / 0x100 * (right.y / 0x100) +
+           r3 / 0x100 * (right.z / 0x100)) / 0x100);
+    if (r1 < 0) {
+      r1 = -r1;
+    }
+    carCollisionWidth = carCollisionWidth + r1;
+    r2 = carCollisionWidth - BWorldSm_slices[slice].leftDrive * 0x100;
+    if (x_relRoad < r2 - carObj->extraWallCollisionAllowance) {
+      collide = -1;
+      diff = r2 - x_relRoad;
+      currentWallType = 1;
+    }
+    r3 = BWorldSm_slices[slice].rightDrive * 0x100 - carCollisionWidth;
+    if (r3 + carObj->extraWallCollisionAllowance < x_relRoad) {
+      collide = 1;
+      diff = x_relRoad - r3;
+      currentWallType = 1;
+    }
+    }
   }
-  if (iVar14 < 0) {
-    iVar14 = iVar14 + 0xff;
-  }
-  iVar11 = iVar4;
-  if (iVar4 < 0) {
-    iVar11 = iVar4 + 0xff;
-  }
-  if (iVar16 < 0) {
-    iVar16 = iVar16 + 0xff;
-  }
-  iVar12 = iVar8;
-  if (iVar8 < 0) {
-    iVar12 = iVar8 + 0xff;
-  }
-  if (iVar6 < 0) {
-    iVar6 = iVar6 + 0xff;
-  }
-  iVar9 = (carObj->N).orientMat.m[7];
-  iVar7 = (carObj->N).orientMat.m[6];
-  iVar15 = (carObj->N).orientMat.m[8];
-  iVar13 = (iVar13 >> 8) * (iVar14 >> 8) + (iVar11 >> 8) * (iVar16 >> 8) +
-           (iVar12 >> 8) * (iVar6 >> 8);
-  (carObj->N).xRelRoadCenter = iVar13;
-  if (iVar7 < 0) {
-    iVar7 = iVar7 + 0xff;
-  }
-  iVar14 = iVar10;
-  if (iVar10 < 0) {
-    iVar14 = iVar10 + 0xff;
-  }
-  if (iVar9 < 0) {
-    iVar9 = iVar9 + 0xff;
-  }
-  iVar16 = iVar4;
-  if (iVar4 < 0) {
-    iVar16 = iVar4 + 0xff;
-  }
-  if (iVar15 < 0) {
-    iVar15 = iVar15 + 0xff;
-  }
-  iVar6 = iVar8;
-  if (iVar8 < 0) {
-    iVar6 = iVar8 + 0xff;
-  }
-  iVar16 = (iVar7 >> 8) * (iVar14 >> 8) + (iVar9 >> 8) * (iVar16 >> 8) +
-           (iVar15 >> 8) * (iVar6 >> 8);
-  iVar14 = fixedmult((carObj->N).dimension.z,iVar16);
-  if (iVar14 < 1) {
-    iVar14 = fixedmult((carObj->N).dimension.z,iVar16);
-    iVar14 = -iVar14;
-  }
-  else {
-    iVar14 = fixedmult((carObj->N).dimension.z,iVar16);
-  }
-  iVar6 = (carObj->N).orientMat.m[1];
-  iVar16 = (carObj->N).orientMat.m[0];
-  iVar11 = (carObj->N).orientMat.m[2];
-  if (iVar16 < 0) {
-    iVar16 = iVar16 + 0xff;
-  }
-  iVar12 = iVar10;
-  if (iVar10 < 0) {
-    iVar12 = iVar10 + 0xff;
-  }
-  if (iVar6 < 0) {
-    iVar6 = iVar6 + 0xff;
-  }
-  iVar7 = iVar4;
-  if (iVar4 < 0) {
-    iVar7 = iVar4 + 0xff;
-  }
-  if (iVar11 < 0) {
-    iVar11 = iVar11 + 0xff;
-  }
-  iVar9 = iVar8;
-  if (iVar8 < 0) {
-    iVar9 = iVar8 + 0xff;
-  }
-  iVar15 = (carObj->N).dimension.x;
-  if (iVar15 < 0) {
-    iVar15 = iVar15 + 0xff;
-  }
-  iVar16 = (iVar16 >> 8) * (iVar12 >> 8) + (iVar6 >> 8) * (iVar7 >> 8) +
-           (iVar11 >> 8) * (iVar9 >> 8);
-  if (iVar16 < 0) {
-    iVar16 = iVar16 + 0xff;
-  }
-  iVar16 = (iVar15 >> 8) * (iVar16 >> 8);
-  if (iVar16 < 0) {
-    iVar16 = -iVar16;
-  }
-  iVar6 = iVar14 + iVar16 + BWorldSm_slices[sVar3].leftDrive * -0x100;
-  if (iVar13 < iVar6 - carObj->extraWallCollisionAllowance) {
-    iVar17 = -1;
-    iVar18 = iVar6 - iVar13;
-    currentWallType = 1;
-  }
-  iVar14 = BWorldSm_slices[sVar3].rightDrive * 0x100 - (iVar14 + iVar16);
-  if (iVar14 + carObj->extraWallCollisionAllowance < iVar13) {
-    iVar17 = 1;
-    iVar18 = iVar13 - iVar14;
-    currentWallType = 1;
-  }
-  iVar13 = 0;
-  if (iVar17 != 0) {
-    iVar13 = Force_IsForceOn(carObj);
-    if (iVar13 != 0) {
+  if (collide != 0) {
+    if (Force_IsForceOn(carObj) != 0) {
       Force_HitWall(0x1e0000);
     }
-    iVar13 = (carObj->N).dimension.x;
-    if (iVar13 < 0) {
-      iVar13 = iVar13 + 0xff;
-    }
-    iVar13 = (iVar13 >> 8) * iVar10;
-    if (iVar13 < 0) {
-      iVar13 = iVar13 + 0xff;
-    }
-    iVar14 = (carObj->N).dimension.x;
-    if (iVar14 < 0) {
-      iVar14 = iVar14 + 0xff;
-    }
-    iVar14 = (iVar14 >> 8) * iVar4;
-    if (iVar14 < 0) {
-      iVar14 = iVar14 + 0xff;
-    }
-    iVar16 = (carObj->N).dimension.x;
-    if (iVar16 < 0) {
-      iVar16 = iVar16 + 0xff;
-    }
-    iVar16 = (iVar16 >> 8) * iVar8;
-    if (iVar16 < 0) {
-      iVar16 = iVar16 + 0xff;
-    }
-    if (iVar17 < 1) {
-      (carObj->N).collision.collisionPoint.x = (carObj->N).position.x - (iVar13 >> 8);
-      (carObj->N).collision.collisionPoint.y = (carObj->N).position.y - (iVar14 >> 8);
-      iVar13 = (carObj->N).position.z - (iVar16 >> 8);
-    }
-    else {
-      (carObj->N).collision.collisionPoint.x = (carObj->N).position.x + (iVar13 >> 8);
-      (carObj->N).collision.collisionPoint.y = (carObj->N).position.y + (iVar14 >> 8);
-      iVar13 = (carObj->N).position.z + (iVar16 >> 8);
-    }
-    (carObj->N).collision.collisionPoint.z = iVar13;
-    iVar13 = iVar17;
-    if ((((carObj->N).objAltitude < 0x999a) && (0xe665 < (carObj->N).orientationToGround.y)) &&
-       (iVar14 = iVar18 * 2, (carObj->N).flightTime == 0)) {
-      if (iVar14 < 0) {
-        iVar14 = iVar18 * -2;
-      }
-      iVar4 = Physics_AttenuateVelocity(carObj,iVar17 * iVar14,&(carObj->N).roadMatrix);
-      Physics_CorrectPostCollisionYaw(carObj,iVar4,normal);
-    }
-    else {
-      if (iVar17 < 0) {
-        normal.x = iVar10;
-        normal.y = iVar4;
-        normal.z = iVar8;
+    {
+      coorddef widthVector;
+
+      widthVector.x = ((carObj->N).dimension.x / 0x100 * right.x) / 0x100;
+      widthVector.y = ((carObj->N).dimension.x / 0x100 * right.y) / 0x100;
+      widthVector.z = ((carObj->N).dimension.x / 0x100 * right.z) / 0x100;
+      if (0 < collide) {
+        (carObj->N).collision.collisionPoint.x = (carObj->N).position.x + widthVector.x;
+        (carObj->N).collision.collisionPoint.y = (carObj->N).position.y + widthVector.y;
+        (carObj->N).collision.collisionPoint.z = (carObj->N).position.z + widthVector.z;
       }
       else {
-        normal.x = -iVar10;
-        normal.z = -iVar8;
-        normal.y = -iVar4;
-      }
-      Collide_TestWithPlane(&carObj->N,&normal,&(carObj->N).position);
-      iVar4 = currentWallType;
-      if ((carObj->N).collision.impulse != 0) {
-        (carObj->N).collision.otherObj = (BO_tNewtonObj *)0x0;
-        (carObj->N).collision.sfxType = iVar4 | 0x40000;
+        (carObj->N).collision.collisionPoint.x = (carObj->N).position.x - widthVector.x;
+        (carObj->N).collision.collisionPoint.y = (carObj->N).position.y - widthVector.y;
+        (carObj->N).collision.collisionPoint.z = (carObj->N).position.z - widthVector.z;
       }
     }
+    if (((carObj->N).objAltitude >= 0x999a) ||
+        ((carObj->N).orientationToGround.y <= 0xe665) ||
+        ((carObj->N).flightTime != 0)) {
+      if (collide < 0) {
+        normal.x = right.x;
+        normal.y = right.y;
+        normal.z = right.z;
+      }
+      else {
+        normal.x = -right.x;
+        normal.z = -right.z;
+        normal.y = -right.y;
+      }
+      Collide_TestWithPlane(&carObj->N,&normal,&(carObj->N).position);
+      if ((carObj->N).collision.impulse != 0) {
+        wallType = currentWallType;
+        (carObj->N).collision.otherObj = (BO_tNewtonObj *)0x0;
+        (carObj->N).collision.sfxType = wallType | 0x40000;
+      }
+    }
+    else {
+      int impact;
+
+      impact = diff * 2;
+      if (impact < 0) {
+        impact = -impact;
+      }
+      wallType = Physics_AttenuateVelocity(carObj,collide * impact,&(carObj->N).roadMatrix);
+      Physics_CorrectPostCollisionYaw(carObj,wallType,normal);
+    }
+    return collide;
   }
-  return iVar13;
+  return 0;
 }
 
 /* ---- Physics_AutoShift__FP8Car_tObj  [PHYSICS.CPP:938-1038] SLD-VERIFIED ---- */

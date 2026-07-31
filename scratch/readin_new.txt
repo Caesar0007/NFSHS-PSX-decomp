@@ -1,0 +1,206 @@
+/* ---- CarIO_ReadInCarTextureData__FPcP8Car_tObjii  [CARIO.CPP:515-713] SLD-VERIFIED ---- */
+/* SYM @0x800bc704 (fsize 136, mask $c0ff0000).  FULL rule-8 rewrite (w39-a5):
+ *   fn scope   -> i REG $13($s3), carType AUTO 64(sp), vx REG $16($s6),
+ *                 vy REG $17($s7), carPixMapCount AUTO 68(sp),
+ *                 recolor_flag AUTO 72(sp); player REGPARM $10($s0)
+ *   loop body  -> shape REG $12($s2), palShare AUTO 76(sp), palette REG $14($s4)
+ *   arm blocks -> license REG $10($s0), license_vx/license_vy AUTO
+ *                 (32/36, 40/44, 48/52, 56/60(sp) -- FOUR distinct pairs, one
+ *                 per license arm; the SYM redeclares them per block)
+ *   pal blocks -> palIndex REG $10($s0), clut REG $03($v1),
+ *                 cx REG $14($s4), cy REG $15($s5)
+ * No pointer local in the SYM => CarIO_textureName[i] / palCopyNum[i] /
+ * CarIO_carPixMap[carPixMapCount] are written in INDEX form and the retail
+ * walkers ($fp, 88(sp), $s1) come back as compiler givs. */
+void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int player)
+
+{
+  int i;
+  int carType;
+  int vx;
+  int vy;
+  int carPixMapCount;
+  int recolor_flag;
+
+  recolor_flag = 8;
+  carType = (carObj->render).currentCarType;
+  if ((reload & 1U) == 0) {
+    if (R3DCar_InMenu == 0) {
+      vx = (carObj->render).VRamX = CarIO_carVRamSlots[CarIO_carVRamCount][0];
+      vy = (carObj->render).VRamY = CarIO_carVRamSlots[CarIO_carVRamCount][1];
+      if (carType < 0x1c) {
+        /* oracle: `andi v0,inside,1; beqz v0,<+3 arm>` -- the inside!=0 case is
+         * the FALL-THROUGH, so it is the if-BODY (arm order was inverted). */
+        if (((carObj->render).inside & 1U) != 0) {
+          CarIO_carVRamCount = CarIO_carVRamCount + CarIO_carVRamAdd[CarIO_carVRamCount / 3] * 3;
+        }
+        else {
+          CarIO_carVRamCount = CarIO_carVRamCount + 3;
+        }
+      }
+      else {
+        CarIO_carVRamCount = CarIO_carVRamCount + 1;
+      }
+    }
+    else {
+      vx = (carObj->render).VRamX = CarIO_carVRamSlotsMenu[CarIO_carVRamCount][0];
+      vy = (carObj->render).VRamY = CarIO_carVRamSlotsMenu[CarIO_carVRamCount][1];
+      CarIO_carVRamCount = CarIO_carVRamCount + CarIO_carVRamAdd[CarIO_carVRamCount];
+    }
+  }
+  else {
+    vx = (carObj->render).VRamX;
+    vy = (carObj->render).VRamY;
+  }
+  if ((reload & 0x10U) == 0) {
+    carPixMapCount = CarIO_carPixMapCount;
+    (carObj->render).textureStartIndex = CarIO_carPixMapCount;
+  }
+  else {
+    carPixMapCount = (carObj->render).textureStartIndex;
+  }
+  if ((reload & 8U) != 0) {
+    if (((carObj->render).inside & 1U) != 0) {
+      int index;
+
+      index = vx - 0x200;
+      if (R3DCar_InMenu == 0) {
+        index = vx - 0x280;
+      }
+      vx = vx + CarIO_carVRamOffset[index >> 6];
+    }
+    (carObj->render).textureOffsetU = (short)((vx & 0x3f) << 2);
+    (carObj->render).textureOffsetV = (u_short)vy & 0xff;
+  }
+  i = 0;
+  if (R3DCar_InMenu == 0) {
+    /* oracle: `lw t1,72(sp); ori t1,t1,0x10; sw t1,72(sp)` -- an OR into the
+     * already-stored 8, NOT a fresh `recolor_flag = 0x18` store. */
+    recolor_flag = recolor_flag | 0x10;
+  }
+  Texture_palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
+  Texture_ResetPaletteSharing();
+  for (; i < 0x33; i = i + 1, carPixMapCount = carPixMapCount + 1) {
+    shapetbl *shape;
+    int palShare;
+    int palette;
+
+    palette = 1;
+    shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].pal);
+    palShare = CarIO_textureName[i].palShare;
+    if ((shape == (shapetbl *)0x0) && (palShare == 0)) {
+      palette = 0;
+      shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].tex);
+    }
+    if (i == 0x14) {
+      recolor_flag = 0;
+    }
+    if (shape != (shapetbl *)0x0) {
+      int license;
+
+      license = 0;
+      if (recolor_flag != 0) {
+        (carObj->render).palCopyNum[i] = (short)Texture_palNum;
+      }
+      if (carType < 0x16) {
+        if (i == CarIO_licensePlate[carType][0]) {
+          int license_vx;
+          int license_vy;
+
+          license_vx = vx + CarIO_licensePlate[carType][1];
+          license_vy = vy + CarIO_licensePlate[carType][2];
+          CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,0);
+          Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate1[player],recolor_flag,license_vx,
+                     license_vy,-1,-1,&CarIO_carPixMap[carPixMapCount]);
+          license = 1;
+          CarIO_carPixMap[carPixMapCount].flag = 1;
+        }
+        else if (i == CarIO_licensePlate[carType][3]) {
+          int license_vx;
+          int license_vy;
+
+          license_vx = vx + CarIO_licensePlate[carType][4];
+          license_vy = vy + CarIO_licensePlate[carType][5];
+          CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,1);
+          Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate2[player],recolor_flag,license_vx,
+                     license_vy,-1,-1,&CarIO_carPixMap[carPixMapCount]);
+          license = 1;
+          CarIO_carPixMap[carPixMapCount].flag = 2;
+        }
+      }
+      if (license == 0) {
+        Texture_LoadPmx((char *)0x0,(char *)shape,recolor_flag,vx,vy,-1,-1,
+                   &CarIO_carPixMap[carPixMapCount]);
+      }
+      if (i == 0x20) {
+        ChangeTPage(&CarIO_carPixMap[carPixMapCount].tpage,2);
+      }
+      CarIO_carPixMap[carPixMapCount].flag = CarIO_carPixMap[carPixMapCount].flag | 0x80;
+    }
+    if (palette != 0) {
+      int palIndex;
+
+      palIndex = carPixMapCount;
+      if (palShare != 0) {
+        palIndex = palShare + -1;
+        if (recolor_flag != 0) {
+          (carObj->render).palCopyNum[i] = (carObj->render).palCopyNum[palIndex];
+        }
+        palIndex = palIndex + (carObj->render).textureStartIndex;
+      }
+      shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].tex);
+      if (shape != (shapetbl *)0x0) {
+        int license;
+        u_short clut;
+        int cx;
+        int cy;
+
+        license = 0;
+        clut = CarIO_carPixMap[palIndex].clut;
+        cx = (clut & 0x3f) << 4;
+        cy = (int)(clut >> 6);
+        if (carType < 0x16) {
+          if (i == CarIO_licensePlate[carType][0]) {
+            int license_vx;
+            int license_vy;
+
+            license_vx = vx + CarIO_licensePlate[carType][1];
+            license_vy = vy + CarIO_licensePlate[carType][2];
+            CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,0);
+            Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate1[player],0x20,license_vx,license_vy,
+                       cx,cy,&CarIO_carPixMap[carPixMapCount]);
+            license = 1;
+            CarIO_carPixMap[carPixMapCount].flag = 1;
+          }
+          else if (i == CarIO_licensePlate[carType][3]) {
+            int license_vx;
+            int license_vy;
+
+            license_vx = vx + CarIO_licensePlate[carType][4];
+            license_vy = vy + CarIO_licensePlate[carType][5];
+            CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,1);
+            Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate2[player],0x20,license_vx,license_vy,
+                       cx,cy,&CarIO_carPixMap[carPixMapCount]);
+            license = 1;
+            CarIO_carPixMap[carPixMapCount].flag = 2;
+          }
+        }
+        if (license == 0) {
+          Texture_LoadPmx((char *)0x0,(char *)shape,0x20,vx,vy,cx,cy,
+                     &CarIO_carPixMap[carPixMapCount]);
+        }
+        if (i == 0x20) {
+          ChangeTPage(&CarIO_carPixMap[carPixMapCount].tpage,2);
+        }
+        if (palShare == 0) {
+          CarIO_carPixMap[carPixMapCount].flag = CarIO_carPixMap[carPixMapCount].flag | 0x80;
+        }
+      }
+    }
+  }
+  if ((reload & 0x80U) != 0) {
+    CarIO_carPixMapCount = carPixMapCount;
+  }
+  return;
+}
+

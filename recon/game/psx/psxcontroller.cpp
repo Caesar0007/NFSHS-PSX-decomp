@@ -127,7 +127,29 @@ void InGame_ResetPSXController(int player,int config)
  * inline per-case expressions -- do NOT hand-funnel them.
  * SYM locals = exactly {c $s0, newControl $v0, type $v1} -> `type` is an INT
  * (oracle `slti ...,0x54` is SIGNED and there is no `andi 0xff` re-mask; a
- * u_char local emitted both). */
+ * u_char local emitted both).
+ *
+ * w39-a7 re-audit (unchanged at 329; ours 230 / oracle 233).  The STRUCTURE is
+ * verified correct and is NOT the problem:
+ *   - outer BST over {0x23, 0x53, 0x73}: our dispatch is instruction-for-instruction
+ *     the oracle's (root 0x53 + `slti $v0,$v1,0x54` bound + 0x23/0x73 children);
+ *   - inner 8-node BST (root 0x400000, signed order so 0x80000000 sorts first) and
+ *     5-node BST (root 0x8000) both match, and the case-BODY emission order read off
+ *     the oracle's block VAs is exactly the source order used here.
+ * The residual is the ORACLE'S CROSS-JUMPING of the case tails: retail merges the
+ * structurally identical case bodies into six shared tails (.L800DCC68 / .L800DCB9C /
+ * .L800DCBAC / .L800DCBD8 / .L800DCBE8 / .L800DCCEC / .L800DCCF4), which is why each
+ * case's OR-accumulator lives in a DIFFERENT caller-saved register ($a0 / $a1 / $a2 --
+ * whichever the tail it jumps into expects) and why `sll $aN,$s1,2` (player*4) and
+ * `sll $aN,$s1,30` (player<<30) end up speculatively computed in the BST branch delay
+ * slots.  Our build emits every case body standalone with the chain in $v0, so the
+ * jump2 cross-jump pass never fires -- gcc-2.8 cross-jumps only byte-identical tails,
+ * i.e. AFTER register allocation, so this is allocator-conditioned, not a statement
+ * shape.  Falsified this wave (all EXACTLY 329, i.e. jump-opt canonicalization):
+ * `type = 0; if (nopad==0) type = ID;`, the ternary form, the inverted
+ * `if (nopad != 0) type = 0; else ...` form, and `c = value; switch (c)`; a
+ * `PAD_COMMON *p = &gPadinfo.buf[player*4];` entry pointer is slightly WORSE (331).
+ * Also exactly neutral: all four PER_TU flag keys and g_value=8 on this TU. */
 int InGame_GetPSXPadValue(int value,int player)
 
 {

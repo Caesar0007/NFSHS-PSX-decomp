@@ -309,6 +309,56 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
     dSouffle.pmx = *gSparkHPixmap[6 - (u_char)is->cycle];
     Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,2,0x28,sd);
     break;
+  case 10:
+    /* oracle: type8 and type10 are TWO SEPARATE, independently-compiled case bodies (own jump-
+       table slots .L800DDA74 / .L800DE130) -- textually near-identical but NOT a case-fallthrough
+       or shared tail (confirmed: neither block jumps into the other; each has its own copy of the
+       full Math_NormalizeVector->Sfx_ThickenXZ->TrsProj_SetPsxMatrix->GTE sequence, at different
+       stack offsets). Duplicated verbatim per-case to match. */
+    wpos.x = is->motion.x; wpos.y = is->motion.y; wpos.z = is->motion.z;
+    Math_NormalizeVector(&wpos);
+    src.x = is->source.x; src.y = is->source.y; src.z = is->source.z;
+    radius = *(short *)((char *)is + 0x3a);   /* push-back scale */
+    wpos.x = src.x - (wpos.x * radius >> 4);
+    wpos.y = src.y - (wpos.y * radius >> 4);
+    wpos.z = src.z - (wpos.z * radius >> 4);
+    Sfx_ThickenXZ(ribbon,&wpos,&src,&Vi->cview.translation);
+    colorcode = 0x2e181010;
+    otz = 0x32;
+    pmx = gSparkHPixmap[6 - (u_char)is->cycle];
+    TrsProj_SetPsxMatrix(&gWorldMat,(coorddef *)0x0);
+    if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
+      gte_ldv0(&ribbon[1]);
+      gte_rtps();
+      prim = (POLY_FT4 *)sd->head.cprim.PrimPtr;
+      gte_stlvnl(&proj);
+      if (proj.vz >= 0x20) {
+        gte_stsxy(&prim->x1);
+        gte_ldv3(&ribbon[0],&ribbon[2],&ribbon[3]);
+        gte_rtpt();
+        *(int *)&prim->r0 = colorcode;
+        gte_stsxy3(&prim->x0,&prim->x3,&prim->x2);
+        gte_avsz4();
+        gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
+        sd->otz = (sd->otz >> 1) + otz;
+        if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
+          *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
+          *(u_int *)&prim->u0 = *(u_int *)&pmx->u0;
+          *(u_int *)&prim->u1 = *(u_int *)&pmx->u1;
+          *(u_int *)&prim->u2 = *(u_int *)&pmx->u2;
+          *(u_int *)&prim->u3 = *(u_int *)&pmx->u3;
+          tpage = pmx->tpage;
+          ChangeTPage(&tpage,1);
+          prim->tpage = tpage;
+          prim->tag = prim->tag & 0xff000000 | *(u_int *)(sd->head.cprim.LastPrim + sd->otz) & 0xffffff;
+          colorcode = (int)sd->head.cprim.PrimPtr & 0xffffff;
+          sd->head.cprim.PrimPtr = (char *)((char *)sd->head.cprim.PrimPtr + 0x28);
+          ((u_int *)sd->head.cprim.LastPrim)[sd->otz] =
+               ((u_int *)sd->head.cprim.LastPrim)[sd->otz] & 0xff000000 | colorcode;
+        }
+      }
+    }
+    break;
   case 6:
     /* oracle: type6 (.L800DDD0C) is its OWN independent block that falls through into the
        SAME shared color-setup body as type11 (.L800DE0E0) -- but gcc did NOT tail-merge type6's
@@ -370,56 +420,6 @@ SfxSouffle_tailA_mode0:
     mode = 0;
 SfxSouffle_tailA:
     Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,mode,0xf,sd);
-    break;
-  case 10:
-    /* oracle: type8 and type10 are TWO SEPARATE, independently-compiled case bodies (own jump-
-       table slots .L800DDA74 / .L800DE130) -- textually near-identical but NOT a case-fallthrough
-       or shared tail (confirmed: neither block jumps into the other; each has its own copy of the
-       full Math_NormalizeVector->Sfx_ThickenXZ->TrsProj_SetPsxMatrix->GTE sequence, at different
-       stack offsets). Duplicated verbatim per-case to match. */
-    wpos.x = is->motion.x; wpos.y = is->motion.y; wpos.z = is->motion.z;
-    Math_NormalizeVector(&wpos);
-    src.x = is->source.x; src.y = is->source.y; src.z = is->source.z;
-    radius = *(short *)((char *)is + 0x3a);   /* push-back scale */
-    wpos.x = src.x - (wpos.x * radius >> 4);
-    wpos.y = src.y - (wpos.y * radius >> 4);
-    wpos.z = src.z - (wpos.z * radius >> 4);
-    Sfx_ThickenXZ(ribbon,&wpos,&src,&Vi->cview.translation);
-    colorcode = 0x2e181010;
-    otz = 0x32;
-    pmx = gSparkHPixmap[6 - (u_char)is->cycle];
-    TrsProj_SetPsxMatrix(&gWorldMat,(coorddef *)0x0);
-    if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
-      gte_ldv0(&ribbon[1]);
-      gte_rtps();
-      prim = (POLY_FT4 *)sd->head.cprim.PrimPtr;
-      gte_stlvnl(&proj);
-      if (proj.vz >= 0x20) {
-        gte_stsxy(&prim->x1);
-        gte_ldv3(&ribbon[0],&ribbon[2],&ribbon[3]);
-        gte_rtpt();
-        *(int *)&prim->r0 = colorcode;
-        gte_stsxy3(&prim->x0,&prim->x3,&prim->x2);
-        gte_avsz4();
-        gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
-        sd->otz = (sd->otz >> 1) + otz;
-        if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
-          *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
-          *(u_int *)&prim->u0 = *(u_int *)&pmx->u0;
-          *(u_int *)&prim->u1 = *(u_int *)&pmx->u1;
-          *(u_int *)&prim->u2 = *(u_int *)&pmx->u2;
-          *(u_int *)&prim->u3 = *(u_int *)&pmx->u3;
-          tpage = pmx->tpage;
-          ChangeTPage(&tpage,1);
-          prim->tpage = tpage;
-          prim->tag = prim->tag & 0xff000000 | *(u_int *)(sd->head.cprim.LastPrim + sd->otz) & 0xffffff;
-          colorcode = (int)sd->head.cprim.PrimPtr & 0xffffff;
-          sd->head.cprim.PrimPtr = (char *)((char *)sd->head.cprim.PrimPtr + 0x28);
-          ((u_int *)sd->head.cprim.LastPrim)[sd->otz] =
-               ((u_int *)sd->head.cprim.LastPrim)[sd->otz] & 0xff000000 | colorcode;
-        }
-      }
-    }
     break;
   case 8:
     wpos.x = is->motion.x; wpos.y = is->motion.y; wpos.z = is->motion.z;

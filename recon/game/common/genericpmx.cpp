@@ -38,8 +38,11 @@ void GenericPMX_LoadTexture(void)
   int np;
   int i;
   int recolor_flag;
+  int pmx_height; /* matching aid (permuter): keep the repeated call argument in one pseudo */
+  shapetbl *shape_result; /* matching aid (permuter): preserve the locate result pseudo */
 
   np = 0;
+  pmx_height = 0xa0;
   if ((GameSetup_gData.track & 0xfU) == 4) {
     if (GameSetup_gData.Weather != 0) {
       sprintf(name,"%sSfx4w.psh",Paths_Paths[0x19]);
@@ -60,34 +63,34 @@ void GenericPMX_LoadTexture(void)
     sprintf(name,"LIN%d",i);
     {
       Draw_tPixMap *pmx = &gPixmaps[np++];
-      Texture_LoadPmx(shpfile,name,recolor_flag | 0x40,0,0xa0,-1,-1,pmx);
+      Texture_LoadPmx(shpfile,name,recolor_flag | 0x40,0,pmx_height,-1,-1,pmx);
       gDLPixmap[i] = pmx;
     }
   }
 
   {
     Draw_tPixMap *pmx = &gPixmaps[np++];
-    Texture_LoadPmx(shpfile,"spik",0x40,0,0xa0,-1,-1,pmx);
+    Texture_LoadPmx(shpfile,"spik",0x40,0,pmx_height,-1,-1,pmx);
     gSpikeBeltPixmap = pmx;
   }
   {
     Draw_tPixMap *pmx = &gPixmaps[np++];
-    Texture_LoadPmx(shpfile,"DEBG",0x40,0,0xa0,-1,-1,pmx);
+    Texture_LoadPmx(shpfile,"DEBG",0x40,0,pmx_height,-1,-1,pmx);
     gDPixmap = pmx;
   }
   {
     Draw_tPixMap *pmx = &gPixmaps[np++];
-    Texture_LoadPmx(shpfile,"SHAD",0x40,0,0xa0,-1,-1,pmx);
+    Texture_LoadPmx(shpfile,"SHAD",0x40,0,pmx_height,-1,-1,pmx);
     gShadowPixmap[0] = pmx;
   }
   {
     Draw_tPixMap *pmx = &gPixmaps[np++];
-    Texture_LoadPmx(shpfile,"SKD0",0x40,0,0xa0,-1,-1,pmx);
+    Texture_LoadPmx(shpfile,"SKD0",0x40,0,pmx_height,-1,-1,pmx);
     gSkidMarkPixmap[0] = pmx;
   }
   {
     Draw_tPixMap *pmx = &gPixmaps[np++];
-    Texture_LoadPmx(shpfile,"SKD1",0x40,0,0xa0,-1,-1,pmx);
+    Texture_LoadPmx(shpfile,"SKD1",0x40,0,pmx_height,-1,-1,pmx);
     gSkidMarkPixmap[1] = pmx;
   }
   ChangeTPage(&gSkidMarkPixmap[0]->tpage,2);
@@ -96,17 +99,17 @@ void GenericPMX_LoadTexture(void)
   if (GameSetup_gData.Weather != 0) {
     {
       Draw_tPixMap *pmx = &gPixmaps[np++];
-      Texture_LoadPmx(shpfile,"FLAK",0x40,0,0xa0,-1,-1,pmx);
+      Texture_LoadPmx(shpfile,"FLAK",0x40,0,pmx_height,-1,-1,pmx);
       gWeatherPixmap[0] = pmx;
     }
     {
       Draw_tPixMap *pmx = &gPixmaps[np++];
-      Texture_LoadPmx(shpfile,"FLA1",0x40,0,0xa0,-1,-1,pmx);
+      Texture_LoadPmx(shpfile,"FLA1",0x40,0,pmx_height,-1,-1,pmx);
       gWeatherPixmap[1] = pmx;
     }
     {
       Draw_tPixMap *pmx = &gPixmaps[np++];
-      Texture_LoadPmx(shpfile,"SPLT",0x40,0,0xa0,-1,-1,pmx);
+      Texture_LoadPmx(shpfile,"SPLT",0x40,0,pmx_height,-1,-1,pmx);
       gWeatherPixmap[2] = pmx;
     }
     ChangeTPage(&gWeatherPixmap[0]->tpage,1);
@@ -116,12 +119,12 @@ void GenericPMX_LoadTexture(void)
 
   {
     Draw_tPixMap *pmx = &gPixmaps[np++];
-    Texture_LoadPmx(shpfile,"SMX0",0x40,0,0xa0,-1,-1,pmx);
+    Texture_LoadPmx(shpfile,"SMX0",0x40,0,pmx_height,-1,-1,pmx);
     gSMokePixmap[0] = pmx;
   }
   {
     Draw_tPixMap *pmx = &gPixmaps[np++];
-    Texture_LoadPmx(shpfile,"SMX1",0x40,0,0xa0,-1,-1,pmx);
+    Texture_LoadPmx(shpfile,"SMX1",0x40,0,pmx_height,-1,-1,pmx);
     gSMokePixmap[1] = pmx;
   }
   {
@@ -136,12 +139,12 @@ void GenericPMX_LoadTexture(void)
   }
   {
     Draw_tPixMap *pmx = &gPixmaps[np++];
-    Texture_LoadPmx(shpfile,"GRX0",0x40,0,0xa0,-1,-1,pmx);
+    Texture_LoadPmx(shpfile,"GRX0",0x40,0,pmx_height,-1,-1,pmx);
     gGravelPixmap[0] = pmx;
   }
   {
     Draw_tPixMap *pmx = &gPixmaps[np++];
-    Texture_LoadPmx(shpfile,"GRX1",0x40,0,0xa0,-1,-1,pmx);
+    Texture_LoadPmx(shpfile,"GRX1",0x40,0,pmx_height,-1,-1,pmx);
     gGravelPixmap[1] = pmx;
   }
   {
@@ -164,7 +167,7 @@ void GenericPMX_LoadTexture(void)
     sprintf(name,"SHX%d",i);
     {
       Draw_tPixMap *pmx = &gPixmaps[np++];
-      Texture_LoadPmx(shpfile,name,0x40,0,0xa0,-1,-1,pmx);
+      Texture_LoadPmx(shpfile,name,0x40,0,pmx_height,-1,-1,pmx);
       gSparkHPixmap[i] = pmx;
     }
   }
@@ -173,10 +176,10 @@ void GenericPMX_LoadTexture(void)
     shapetbl *shape;
     char shpname[5];
     sprintf(shpname,"LF%02d",GameSetup_gData.track);
-    shape = (shapetbl *)locateshapez(shpfile,shpname);
+    shape = (shape_result = (shapetbl *)locateshapez(shpfile,shpname));
     if (shape != 0) {
       Draw_tPixMap *pmx = &gPixmaps[np++];
-      Texture_LoadPmx(0,(char *)shape,0x40,0,0xa0,-1,-1,pmx);
+      Texture_LoadPmx(0,(char *)shape,0x40,0,pmx_height,-1,-1,pmx);
       gLeafPixmap = pmx;
     }
     else {
@@ -189,7 +192,7 @@ void GenericPMX_LoadTexture(void)
 
   {
     Draw_tPixMap *pmx = &gPixmaps[np++];
-    Texture_LoadPmx(shpfile,"DAMG",0x40,0,0xa0,-1,-1,pmx);
+    Texture_LoadPmx(shpfile,"DAMG",0x40,0,pmx_height,-1,-1,pmx);
     gDamagePixmap = pmx;
   }
 
@@ -198,7 +201,7 @@ void GenericPMX_LoadTexture(void)
       sprintf(name,"LNG%d",i);
       {
         Draw_tPixMap *pmx = &gPixmaps[np++];
-        Texture_LoadPmx(shpfile,name,0x40,0,0xa0,-1,-1,pmx);
+        Texture_LoadPmx(shpfile,name,0x40,0,pmx_height,-1,-1,pmx);
         gLightningPixmap[i] = pmx;
       }
       {
@@ -212,24 +215,24 @@ void GenericPMX_LoadTexture(void)
   else {
     if ((TrackSpec_gSpec.skyspec.flags & 8U) != 0) {
       Draw_tPixMap *pmx = &gPixmaps[np++];
-      Texture_LoadPmx(shpfile,"MONF",0x40,0,0xa0,-1,-1,pmx);
+      Texture_LoadPmx(shpfile,"MONF",0x40,0,pmx_height,-1,-1,pmx);
       gFlarePixmap[0] = pmx;
     }
 
     if ((TrackSpec_gSpec.skyspec.flags & 4U) != 0) {
       {
         Draw_tPixMap *pmx = &gPixmaps[np++];
-        Texture_LoadPmx(shpfile,"FLR0",0x40,0,0xa0,-1,-1,pmx);
+        Texture_LoadPmx(shpfile,"FLR0",0x40,0,pmx_height,-1,-1,pmx);
         gFlarePixmap[0] = pmx;
       }
       {
         Draw_tPixMap *pmx = &gPixmaps[np++];
-        Texture_LoadPmx(shpfile,"FLR1",0x40,0,0xa0,-1,-1,pmx);
+        Texture_LoadPmx(shpfile,"FLR1",0x40,0,pmx_height,-1,-1,pmx);
         gFlarePixmap[1] = pmx;
       }
       {
         Draw_tPixMap *pmx = &gPixmaps[np++];
-        Texture_LoadPmx(shpfile,"RBOW",0x40,0,0xa0,-1,-1,pmx);
+        Texture_LoadPmx(shpfile,"RBOW",0x40,0,pmx_height,-1,-1,pmx);
         gFlarePixmap[2] = pmx;
       }
       ChangeTPage(&gFlarePixmap[0]->tpage,1);

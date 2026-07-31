@@ -653,7 +653,23 @@ void Night_RestartNightDriving(void)
   return;
 }
 
-/* ---- Night_SetEnviroment__FP13DRender_tView  [NIGHT.CPP:736-804] SLD-VERIFIED ---- */
+/* ---- Night_SetEnviroment__FP13DRender_tView  [NIGHT.CPP:736-804] SLD-VERIFIED ----
+ * NEAR-MISS 8 diffs, COUNT-EXACT 68/68.  ONE register-materialization tie in the
+ * camera-flag guard: retail `lw $v0,0x4($v0)` (load dest REUSES its own base = self-temp)
+ * + `addiu $v1,$zero,0x80` for the Night_gZNear constant; ours takes `lw v1,4(v0)` +
+ * `li v0,128`, i.e. the constant's pseudo wins $v0 and pushes the loaded `.target`
+ * pointer to $v1.  SYM block @43c9fa: fsize 24, mask $80010000 (s0 + ra only), Vi
+ * REGPARM $10 = s0, and NO named locals at all -- so there is nothing left to wire in
+ * (the `int mode;` here is an unused recon leftover; deleting it is diff-neutral, kept
+ * only to document that it is not the lever).
+ * STRONG FLOOR (w39-a9): 7 alternate source forms, ALL byte-identical at 8 diffs --
+ * delete `mode` (8) · named `u_char *target` local before the guard (8) · same local
+ * declared before the Night_gZNear store (8) · `(char *)`-based byte cast (8) ·
+ * Night_gZNear store hoisted above the two shift stores (16, worse) · store folded into
+ * the guard via a comma expression (11 at 69 insns, worse) · plus -G8 and all four wired
+ * per-TU codegen flags (no_split_addresses 31, no_schedule_insns 33, no_schedule_insns2
+ * 22, no_strength_reduce 8 -- all >= current).  Prototype re-checked vs the raw oracle:
+ * single REGPARM $a0 (Vi), VOID return ($v0 holds the last guard byte at the exit). */
 void Night_SetEnviroment(DRender_tView *Vi)
 
 {

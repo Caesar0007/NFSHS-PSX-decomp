@@ -311,151 +311,114 @@ void Newton_UpdateRoadGeometry(BO_tNewtonObj *n)
 
 {
   int hiRez;
-  int i;
-  char cVar1;
-  char cVar2;
-  bool bVar3;
-  int z2;
-  Trk_NewSlice *pTVar4;
-  coorddef *pcVar5;
-  int x2;
-  BO_tNewtonObj *pBVar6;
-  int iVar7;
-  int z1;
-  int iVar8;
-  int s;
-  int r3;
-  int a;
-  int r5;
-  int b;
-  int r1;
-  int a_00;
-  int r6;
-  int b_00;
-  int r4;
-  int b_01;
-  int r2;
-  int a_01;
-  int x1;
   int slice;
-  int iVar9;
-  coorddef temp;
-  
-  if (n->active != '\0') {
-    iVar9 = (int)(n->simRoadInfo).slice;
-    bVar3 = 1 < n->simOptz;
-    iVar8 = 0;
-    if (bVar3) {
-      if ((n->simRoadInfo).simQuad == (Trk_NewSimQuad *)0x0) {
-        pTVar4 = BWorldSm_slices + iVar9;
-        iVar8 = pTVar4->center[1];
-        iVar7 = pTVar4->center[2];
-        (n->roadCenterPoint).x = pTVar4->center[0];
-        (n->roadCenterPoint).y = iVar8;
-        (n->roadCenterPoint).z = iVar7;
+
+  if (n->active) {
+    slice = n->simRoadInfo.slice;
+    hiRez = n->simOptz < 2;
+
+    if (hiRez) {
+      int i;
+
+      n->roadCenterPoint.z = 0;
+      n->roadCenterPoint.y = 0;
+      n->roadCenterPoint.x = 0;
+      for (i = 0; i < 4; i++) {
+        coorddef temp;
+
+        if (n->simRoadInfo.simQuad) {
+          temp = n->simRoadInfo.quadPts[i];
+        }
+        else {
+          temp = *(coorddef *)BWorldSm_slices[n->simRoadInfo.slice].center;
+        }
+        n->roadCenterPoint.x += temp.x;
+        n->roadCenterPoint.y += temp.y;
+        n->roadCenterPoint.z += temp.z;
+      }
+      n->roadCenterPoint.x /= 4;
+      n->roadCenterPoint.y /= 4;
+      n->roadCenterPoint.z /= 4;
+    }
+    else {
+      if (n->simRoadInfo.simQuad) {
+        n->roadCenterPoint = n->simRoadInfo.quadPts[0];
       }
       else {
-        iVar8 = (n->simRoadInfo).quadPts[0].y;
-        iVar7 = (n->simRoadInfo).quadPts[0].z;
-        (n->roadCenterPoint).x = (n->simRoadInfo).quadPts[0].x;
-        (n->roadCenterPoint).y = iVar8;
-        (n->roadCenterPoint).z = iVar7;
+        n->roadCenterPoint = *(coorddef *)BWorldSm_slices[slice].center;
+      }
+    }
+
+    if (hiRez) {
+      if (*(signed char *)&n->simRoadInfo.quadChanged) {
+        int r1;
+        int r2;
+        int r3;
+        int r4;
+        int r5;
+        int r6;
+        int x1;
+
+        *(coorddef *)&n->roadMatrix.m[3] =
+            *(coorddef *)BWorldSm_UNormal(&n->simRoadInfo);
+        *(coorddef *)&n->roadMatrix.m[6] =
+            *(coorddef *)BWorldSm_UForward(&n->simRoadInfo);
+        r1 = n->roadMatrix.m[3];
+        r2 = n->roadMatrix.m[4];
+        r3 = n->roadMatrix.m[5];
+        r4 = n->roadMatrix.m[6];
+        r5 = n->roadMatrix.m[7];
+        r6 = n->roadMatrix.m[8];
+        x1 = fixedmult(r2,r6);
+        n->roadMatrix.m[0] = x1 - fixedmult(r3,r5);
+        x1 = fixedmult(r3,r4);
+        n->roadMatrix.m[1] = x1 - fixedmult(r1,r6);
+        x1 = fixedmult(r1,r5);
+        n->roadMatrix.m[2] = x1 - fixedmult(r2,r4);
       }
     }
     else {
-      (n->roadCenterPoint).z = 0;
-      (n->roadCenterPoint).y = 0;
-      (n->roadCenterPoint).x = 0;
-      pBVar6 = n;
-      for (; iVar8 < 4; iVar8 = iVar8 + 1) {
-        if ((n->simRoadInfo).simQuad == (Trk_NewSimQuad *)0x0) {
-          pTVar4 = BWorldSm_slices + (n->simRoadInfo).slice;
-          temp.x = pTVar4->center[0];
-          temp.y = pTVar4->center[1];
-          temp.z = pTVar4->center[2];
-        }
-        else {
-          temp.x = (pBVar6->simRoadInfo).quadPts[0].x;
-          temp.y = (pBVar6->simRoadInfo).quadPts[0].y;
-          temp.z = (pBVar6->simRoadInfo).quadPts[0].z;
-        }
-        (n->roadCenterPoint).x = (n->roadCenterPoint).x + temp.x;
-        pBVar6 = (BO_tNewtonObj *)&(pBVar6->simRoadInfo).simRotFlag;
-        (n->roadCenterPoint).y = (n->roadCenterPoint).y + temp.y;
-        (n->roadCenterPoint).z = (n->roadCenterPoint).z + temp.z;
-      }
-      iVar8 = (n->roadCenterPoint).x;
-      if (iVar8 < 0) {
-        iVar8 = iVar8 + 3;
-      }
-      iVar7 = (n->roadCenterPoint).y;
-      (n->roadCenterPoint).x = iVar8 >> 2;
-      if (iVar7 < 0) {
-        iVar7 = iVar7 + 3;
-      }
-      iVar8 = (n->roadCenterPoint).z;
-      (n->roadCenterPoint).y = iVar7 >> 2;
-      if (iVar8 < 0) {
-        iVar8 = iVar8 + 3;
-      }
-      (n->roadCenterPoint).z = iVar8 >> 2;
+      int r1;
+      int r2;
+      int r3;
+
+      r1 = (int)(signed char)BWorldSm_slices[slice].right[0] << 9;
+      r2 = (int)(signed char)BWorldSm_slices[slice].right[1] << 9;
+      r3 = (int)(signed char)BWorldSm_slices[slice].right[2] << 9;
+      n->roadMatrix.m[0] = r1;
+      n->roadMatrix.m[1] = r2;
+      n->roadMatrix.m[2] = r3;
+      r1 = (int)(signed char)BWorldSm_slices[slice].normal[0] << 9;
+      r2 = (int)(signed char)BWorldSm_slices[slice].normal[1] << 9;
+      r3 = (int)(signed char)BWorldSm_slices[slice].normal[2] << 9;
+      n->roadMatrix.m[3] = r1;
+      n->roadMatrix.m[4] = r2;
+      n->roadMatrix.m[5] = r3;
+      r1 = (int)(signed char)BWorldSm_slices[slice].forward[0] << 9;
+      r2 = (int)(signed char)BWorldSm_slices[slice].forward[1] << 9;
+      r3 = (int)(signed char)BWorldSm_slices[slice].forward[2] << 9;
+      n->roadMatrix.m[6] = r1;
+      n->roadMatrix.m[7] = r2;
+      n->roadMatrix.m[8] = r3;
     }
-    pTVar4 = BWorldSm_slices;
-    if (bVar3) {
-      cVar1 = BWorldSm_slices[iVar9].right[2];
-      cVar2 = BWorldSm_slices[iVar9].right[1];
-      (n->roadMatrix).m[0] = (int)BWorldSm_slices[iVar9].right[0] << 9;
-      (n->roadMatrix).m[2] = (int)cVar1 << 9;
-      (n->roadMatrix).m[1] = (int)cVar2 << 9;
-      cVar1 = pTVar4[iVar9].normal[2];
-      cVar2 = pTVar4[iVar9].normal[1];
-      (n->roadMatrix).m[3] = (int)pTVar4[iVar9].normal[0] << 9;
-      (n->roadMatrix).m[5] = (int)cVar1 << 9;
-      (n->roadMatrix).m[4] = (int)cVar2 << 9;
-      cVar1 = pTVar4[iVar9].forward[1];
-      cVar2 = pTVar4[iVar9].forward[2];
-      (n->roadMatrix).m[6] = (int)pTVar4[iVar9].forward[0] << 9;
-      (n->roadMatrix).m[7] = (int)cVar1 << 9;
-      (n->roadMatrix).m[8] = (int)cVar2 << 9;
+    {
+      int s;
+      int x1;
+      int z1;
+      int x2;
+      int z2;
+
+      s = slice + 1 >= gNumSlices ?
+          slice + 1 - gNumSlices : slice + 1;
+      x1 = BWorldSm_slices[slice].center[0];
+      z1 = BWorldSm_slices[slice].center[2];
+      x2 = BWorldSm_slices[s].center[0];
+      z2 = BWorldSm_slices[s].center[2];
+      x1 = x2 - x1;
+      z1 = z2 - z1;
+      n->roadYaw = intatan(x1,z1);
     }
-    else if ((n->simRoadInfo).quadChanged != '\0') {
-      pcVar5 = BWorldSm_UNormal(&n->simRoadInfo);
-      iVar8 = pcVar5->y;
-      iVar7 = pcVar5->z;
-      (n->roadMatrix).m[3] = pcVar5->x;
-      (n->roadMatrix).m[4] = iVar8;
-      (n->roadMatrix).m[5] = iVar7;
-      pcVar5 = BWorldSm_UForward(&n->simRoadInfo);
-      iVar8 = pcVar5->y;
-      iVar7 = pcVar5->z;
-      (n->roadMatrix).m[6] = pcVar5->x;
-      (n->roadMatrix).m[7] = iVar8;
-      (n->roadMatrix).m[8] = iVar7;
-      a_01 = (n->roadMatrix).m[4];
-      b_00 = (n->roadMatrix).m[8];
-      a_00 = (n->roadMatrix).m[3];
-      a = (n->roadMatrix).m[5];
-      b_01 = (n->roadMatrix).m[6];
-      b = (n->roadMatrix).m[7];
-      iVar8 = fixedmult(a_01,b_00);
-      iVar7 = fixedmult(a,b);
-      (n->roadMatrix).m[0] = iVar8 - iVar7;
-      iVar8 = fixedmult(a,b_01);
-      iVar7 = fixedmult(a_00,b_00);
-      (n->roadMatrix).m[1] = iVar8 - iVar7;
-      iVar8 = fixedmult(a_00,b);
-      iVar7 = fixedmult(a_01,b_01);
-      (n->roadMatrix).m[2] = iVar8 - iVar7;
-    }
-    iVar8 = iVar9 + 1;
-    if (gNumSlices <= iVar8) {
-      iVar8 = iVar9 - (gNumSlices + -1);
-    }
-    iVar8 = intatan(BWorldSm_slices[iVar8].center[0] - BWorldSm_slices[iVar9].center[0],
-                       BWorldSm_slices[iVar8].center[2] - BWorldSm_slices[iVar9].center[2]);
-    n->roadYaw = iVar8;
   }
-  return;
 }
 
 /* ---- Newton_FindGroundElevationGeneral__FP8coorddefN20  [NEWTON.CPP:445-463] SLD-VERIFIED ---- */

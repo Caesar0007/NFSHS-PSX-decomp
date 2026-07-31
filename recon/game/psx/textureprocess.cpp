@@ -469,48 +469,53 @@ void CV_ColorTracks(int track,int weather,int night)
 
 {
   u_char uVar1;
-  short sVar2;
   short brightness;
   int contrast;
   CVECTOR color;
-  
+
+  /* MATCH: `contrast` is initialized to 0 BEFORE the memset, so its live range
+   * crosses that call and it earns a callee-saved reg -- assigning it only
+   * inside the branches leaves it in $a0 (the outgoing arg reg).  The same 0
+   * feeds memset's fill arg (oracle: addu a1,s0,zero). */
+  contrast = 0;
   memset(&color,0,4);
   brightness = 0;
-  sVar2 = 0;
   if (GameSetup_gData.commMode == 1) {
     if (((track == 2) && (weather == 1)) && (night == 1)) {
       contrast = -0x9c80;
       uVar1 = '\x10';
+      /* MATCH: the shared "color.g = uVar1; brightness = 0x10" block is laid out
+       * at the track==4 site -- this arm JUMPS to it while the track==4 arm FALLS
+       * THROUGH into it; hosting the label here inlines a duplicate copy. */
+      goto CVColor_setColorG;
+    }
+    /* MATCH: FLAT per-case chain -- each arm re-tests `track` (the oracle has two
+     * separate track==3 tests and two track==4 tests, with the compare constant
+     * rematerialized into the intervening delay slots).  A nested
+     * `if (track == 3) { ... }` tests it once and comes out 8 insns short. */
+    if (((track == 3) && (weather == 0)) && (night == 1)) {
+      contrast = -0xf400;
+      goto CVColor_emitFinal;
+    }
+    if (((track == 3) && (weather == 1)) && (night == 1)) {
+      contrast = -0x7400;
+      /* MATCH: the oracle writes the whole CVECTOR with ONE word store
+       * (sw 0x10 -> r=0x10, g=b=cd=0), not four byte stores. */
+      *(int *)&color = 0x10;
+      brightness = 0x10;
+      goto CVColor_emitFinal;
+    }
+    if (((track == 4) && (weather == 0)) && (night == 1)) {
+      contrast = -0x7800;
+      goto CVColor_emitFinal;
+    }
+    if (((track == 4) && (weather == 1)) && (night == 1)) {
+      contrast = -0x10000;
+      uVar1 = '\x18';
 CVColor_setColorG:
       color.g = uVar1;
       brightness = 0x10;
       goto CVColor_emitFinal;
-    }
-    if (track == 3) {
-      if ((weather == 0) && (night == 1)) {
-        contrast = -0xf400;
-        goto CVColor_emitFinal;
-      }
-      if ((weather == 1) && (night == 1)) {
-        contrast = -0x7400;
-        color.r = '\x10';
-        color.g = '\0';
-        color.b = '\0';
-        color.cd = '\0';
-        brightness = 0x10;
-        goto CVColor_emitFinal;
-      }
-    }
-    if (track == 4) {
-      if ((weather == 0) && (night == 1)) {
-        contrast = -0x7800;
-        goto CVColor_emitFinal;
-      }
-      if ((weather == 1) && (night == 1)) {
-        contrast = -0x10000;
-        uVar1 = '\x18';
-        goto CVColor_setColorG;
-      }
     }
     if (((track == 6) && (weather == 0)) && (night == 1)) {
       contrast = -0x9610;
@@ -523,8 +528,6 @@ CVColor_setColorG:
       goto CVColor_emitFinal;
     }
     if (((track != 8) || (weather != 0)) || (night != 1)) {
-      contrast = 0;
-      brightness = sVar2;
       if (((track == 10) && (weather == 1)) && (night == 1)) {
         contrast = -0x5400;
       }
@@ -532,8 +535,6 @@ CVColor_setColorG:
     }
   }
   else {
-    contrast = 0;
-    brightness = sVar2;
     if (((track != 8) || (weather != 0)) || (night != 1)) goto CVColor_emitFinal;
   }
   contrast = 0x6800;

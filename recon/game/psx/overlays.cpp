@@ -169,8 +169,8 @@ void RaceStatistics(void)
   int t;
 
   HUD_STATS_SIZE_W = (short)(Cars_gNumHumanRaceCars * 0x96);
-  HUD_STATS_SIZE_H = ((short)GameSetup_gData.numLaps + 1) * 0xc + 0x28;
-  HUD_STATS_POS_X = (short)(Cars_gNumHumanRaceCars * -0x4b + 0xa0);
+  HUD_STATS_SIZE_H = (GameSetup_gData.numLaps + 1) * 0xc + 0x28;
+  HUD_STATS_POS_X = (short)(0xa0 - Cars_gNumHumanRaceCars * 0x4b);
   if (GameSetup_gData.numLaps == 1) {
     HUD_STATS_SIZE_H = 0x34;
   }

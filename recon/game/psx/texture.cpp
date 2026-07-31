@@ -209,32 +209,23 @@ void Texture_InitClut(void)
 void Texture_GetClutId(int bpp,int *xclut,int *yclut)
 
 {
-  int newNb8;
-  int newNb4;
-  short *freelist;
-  int count;
-  int idx;
   short id;
-  
+
+  /* MATCH: direct global decrement + index (no newNb4/newNb8/freelist/count
+   * scaffolding) -- the oracle zeroes `id` before the bpp branch and both arms
+   * cross-jump into one shared `base + idx*2; lhu` tail. */
   id = 0;
   if (bpp == 0) {
-    idx = gNbFreePal4 + -1;
-    newNb8 = gNbFreePal8;
-    newNb4 = idx;
-    freelist = gFreePal4;
-    count = gNbFreePal4;
+    if (gNbFreePal4 != 0) {
+      gNbFreePal4 = gNbFreePal4 - 1;
+      id = gFreePal4[gNbFreePal4];
+    }
   }
   else {
-    idx = gNbFreePal8 + -1;
-    newNb8 = idx;
-    newNb4 = gNbFreePal4;
-    freelist = gFreePal8;
-    count = gNbFreePal8;
-  }
-  if (count != 0) {
-    id = (u_int)(u_short)freelist[idx];
-    gNbFreePal4 = newNb4;
-    gNbFreePal8 = newNb8;
+    if (gNbFreePal8 != 0) {
+      gNbFreePal8 = gNbFreePal8 - 1;
+      id = gFreePal8[gNbFreePal8];
+    }
   }
   *xclut = (id & 0x3f) << 4;
   *yclut = (int)(id << 0x10) >> 0x16;

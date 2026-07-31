@@ -7,7 +7,27 @@
 #include "fe3dmenu_externs.h"
 
 
-/* ---- Fe3D_InitShowroom  [FE3DMENU.CPP:76-114] SLD-FLAG:NONMONO ---- */
+/* ---- Fe3D_InitShowroom  [FE3DMENU.CPP:76-114] SLD-FLAG:NONMONO ----
+ * w38-a9: 104 -> 24 diffs.  Four oracle-driven corrections:
+ *  (1) loop 1 walks `Fe3D_spotVertex[i]` by INDEX (gcc strength-reduces it to the
+ *      oracle's single `addiu $s0,$s0,6` giv); the old explicit `pCVar6` pointer walk
+ *      made gcc build a SECOND base pointer and address .z off `-2($s0)`.
+ *  (2) the scale is written UN-SIMPLIFIED as `(x<<5)+(x<<4)`: `x * 0x30 >> 8` is
+ *      folded by combine to `(x*3)>>4` (2 insns), but the oracle keeps the full
+ *      `sll 4 / sll 5 / addu / sra 8` (methodology 3.14 "keep arithmetic
+ *      un-simplified"); the >>8 must stay ARITHMETIC (sra).
+ *  (3) `angle_sin`/`angle_cos` hold the ALREADY-shifted (`>>3`) value, so the sin
+ *      shift lands in the intcos jal's delay slot like the oracle.
+ *  (4) loop 2 is a top-tested `while(1){ if(0x20<=i) break; ... }` (oracle: `slti /
+ *      beqz OUT / ... / j TOP`, i.e. NOT rotated) and its vertex index is a real
+ *      `short` incremented TWICE per iteration -- that is what produces the oracle's
+ *      untruncated `addiu a1,s3,1 / addiu s3,a1,1` pair plus a `sll 16 / sra 16`
+ *      sign-extend at every use.
+ * RESIDUAL (24, ours 103 / oracle 107): the oracle keeps a SECOND copy of the
+ * sign-extended index ($a2) and re-materializes `&Fe3D_lightsVertex[idx]` for the .z
+ * store, where our build CSEs the address across .x/.y/.z (7 insns); plus one
+ * `addu v1,v0,zero` copy of the csin/ccos result.  Both are cse/coloring, not shape.
+ */
 
 void Fe3D_InitShowroom(void)
 
@@ -26,33 +46,33 @@ void Fe3D_InitShowroom(void)
   pCVar6 = Fe3D_spotVertex;
   do {
     iVar1 = csin(angle);
-    pCVar6->x = (short)((u_int)(iVar1 * 0x30) >> 8);
-    pCVar6->y = 0;
+    Fe3D_spotVertex[i].x = (short)(((iVar1 << 5) + (iVar1 << 4)) >> 8);
+    Fe3D_spotVertex[i].y = 0;
     iVar1 = ccos(angle);
     angle = angle + 0x80;
-    pCVar6->z = (short)((u_int)(iVar1 * 0x30) >> 8);
+    Fe3D_spotVertex[i].z = (short)(((iVar1 << 5) + (iVar1 << 4)) >> 8);
     i = i + 1;
-    pCVar6 = pCVar6 + 1;
   } while (i < 0x20);
   angle = 0;
-  iVar1 = 0;
+  sVar4 = 0;
   Fe3D_spotVertex[i].x = 0;
   Fe3D_spotVertex[i].y = 0;
   Fe3D_spotVertex[i].z = 0;
-  for (i = 0; i < 0x20; i = i + 1) {
-    angle_sin = fastintsin(angle);
-    angle_cos = fastintcos(angle);
-    sVar4 = (short)iVar1;
-    iPlus = iVar1 + 1;
-    iVar1 = iVar1 + 2;
+  i = 0;
+  while (1) {
+    if (0x20 <= i) break;
+    angle_sin = fastintsin(angle) >> 3;
+    angle_cos = fastintcos(angle) >> 3;
     angle = angle + 0x20;
-    Fe3D_lightsVertex[sVar4].x = (short)((u_int)((angle_sin >> 3) * 3) >> 5);
+    i = i + 1;
+    Fe3D_lightsVertex[sVar4].x = (short)((u_int)(angle_sin * 3) >> 5);
     Fe3D_lightsVertex[sVar4].y = 0;
-    iPlus = iPlus * 0x10000 >> 0x10;
-    Fe3D_lightsVertex[sVar4].z = (short)((u_int)((angle_cos >> 3) * 3) >> 5);
-    Fe3D_lightsVertex[iPlus].x = (short)((u_int)((angle_sin >> 3) * 0x15) >> 8);
-    Fe3D_lightsVertex[iPlus].y = 0;
-    Fe3D_lightsVertex[iPlus].z = (short)((u_int)((angle_cos >> 3) * 0x15) >> 8);
+    Fe3D_lightsVertex[sVar4].z = (short)((u_int)(angle_cos * 3) >> 5);
+    sVar4 = sVar4 + 1;
+    Fe3D_lightsVertex[sVar4].x = (short)(angle_sin * 0x15 >> 8);
+    Fe3D_lightsVertex[sVar4].y = 0;
+    Fe3D_lightsVertex[sVar4].z = (short)(angle_cos * 0x15 >> 8);
+    sVar4 = sVar4 + 1;
   }
   return;
 }

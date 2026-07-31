@@ -942,24 +942,23 @@ gte_stlvnl((char *)sd + 0x9c);
     int r0 = m->m[1];
     int r1 = m->m[4];
     int r2 = m->m[7];
-    matRow1_x = r0 >> 4;            /* int pseudo survives into row-2 block --
-                                     * oracle negates the LIVE reg (negu v0,v0) */
-    (sd->matB).m[1][0] = (short)matRow1_x;
+    (sd->matB).m[1][0] = (short)(r0 >> 4);
     (sd->matB).m[1][1] = (short)(r1 >> 4);
     (sd->matB).m[1][2] = (short)(r2 >> 4);
   }
   {
+    /* identity-then-tweak (PrimHalo/PrimMenu-proven, w39-a3): row 1 stored
+       POSITIVE above, negated IN PLACE here.  matRow1_x/ts7/ts10 carriers
+       lengthened the live ranges and rotated the SYM's per-block triples. */
     int r0 = m->m[2];
     int r1 = m->m[5];
     int r2 = m->m[8];
-    (sd->matB).m[1][0] = (short)-matRow1_x;
-    ts7 = (sd->matB).m[1][1];
+    (sd->matB).m[1][0] = -(sd->matB).m[1][0];
     (sd->matB).m[2][0] = (short)(r0 >> 4);
-    ts10 = (sd->matB).m[1][2];
     (sd->matB).m[2][1] = (short)(r1 >> 4);
     (sd->matB).m[2][2] = (short)(r2 >> 4);
-    (sd->matB).m[1][1] = -ts7;
-    (sd->matB).m[1][2] = -ts10;
+    (sd->matB).m[1][1] = -(sd->matB).m[1][1];
+    (sd->matB).m[1][2] = -(sd->matB).m[1][2];
   }
   (sd->matB).t[0] = t->x >> (TrsProj_precision);
   (sd->matB).t[1] = -(t->y >> (TrsProj_precision));

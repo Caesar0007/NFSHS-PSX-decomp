@@ -91,107 +91,116 @@ void CarIO_ReStart(void)
 }
 
 /* ---- CarIO_CopyFromShape__FPsT0iiii  [CARIO.CPP:258-342] SLD-VERIFIED ---- */
+/* SYM @0x800bbff0: fsize 0, mask $00000000 -- a LEAF with NO frame and NO
+ * saved registers.  REGPARMs source=$04 dest=$05 w=$06 h=$07, x/y ARG 16/20(sp)
+ * copied to REG $18($t8)/$09($t1).  Locals (all REG, no AUTO):
+ *   fn block  -> columns $08, mask $06, firstMask $0f, lastMask $0c,
+ *                lastLastMask $0d   (the three masks are USHORT)
+ *   line-15   -> rollOver $03 USHORT      (mask-build loop)
+ *   line-34   -> i $0b, current $08 USHORT, next $0a USHORT  (row-loop body)
+ *   line-42/61-> rollOver $03 USHORT      (the two nibble-rotate loops)
+ * There is NO destination-pointer local: `dest` itself is MUTATED in place
+ * (`addu a1,a1,v1` then `addiu a1,a1,0x18` per row) and the columns are
+ * reached as dest[0]/dest[i]; the retail $t1 walker is the strength-reduced
+ * giv of dest[i].  `mask` is a SIGNED int -- the `== -1` guard must emit
+ * li+beq, not the unsigned nor+bnez canonicalization. */
 void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
 
 {
   int columns;
-  u_short rollOver;
-  u_int uVar1;
-  u_int uVar2;
-  u_short *puVar3;
-  u_short *puVar4;
-  u_int uVar5;
   int mask;
-  u_short current;
-  u_short uVar6;
-  u_short *puVar8;
-  u_short next;
-  int i;
-  int iVar9;
-  u_short lastMask;
-  u_short uVar10;
-  u_int uVar11;
-  u_short lastLastMask;
-  u_int uVar12;
   u_short firstMask;
-  u_int uVar13;
-  int iVar7;
-  
-  iVar7 = w >> 2;
-  uVar5 = w & 3;
-  if (uVar5 != 0) {
-    iVar7 = iVar7 + 1;
+  u_short lastMask;
+  u_short lastLastMask;
+
+  /* 161 -> 101 (rule-8) -> 63 (`== -1` exit-in-the-middle on the nibble loops +
+   * parenthesized dest offset + `mask = x&3` before the tail) -> 32 (rollOver holds
+   * the SHIFTED nibble).  RESIDUAL 32 (ours 111 / oracle 113): the two SHIFT-ONLY
+   * mask loops keep the unsigned `nor v0,zero,a2; bnez` canonicalization and are not
+   * loop-rotated, where retail peels a guard and shares one `li v0,-1`.  Probes:
+   * hand-written rotated guard+do-while 37, `== -1` if-break form 47, swapped `|`
+   * operand order 32 (neutral) -- the comma-while at 32 is the best measured. */
+  columns = w >> 2;
+  mask = w & 3;
+  if (mask != 0) {
+    columns = columns + 1;
   }
-  puVar4 = (u_short *)(dest + (x >> 2) + y * 0xc);
-  uVar12 = 0xffff;
-  uVar11 = 0xffff;
-  if (uVar5 == 0) {
-    uVar11 = 0;
+  dest = dest + ((x >> 2) + y * 0xc);
+  lastLastMask = 0xffff;
+  lastMask = 0xffff;
+  if (mask == 0) {
+    lastMask = 0;
   }
-  while (uVar5 = uVar5 - 1, uVar5 != 0xffffffff) {
-    uVar11 = uVar11 << 4;
+  while (mask = mask - 1, mask != -1) {
+    lastMask = lastMask << 4;
   }
-  uVar13 = 0;
-  uVar5 = x & 3;
-  while( true ) {
-    uVar5 = uVar5 - 1;
-    if (uVar5 == 0xffffffff) break;
-    uVar13 = uVar13 << 4 | 0xf;
-    uVar1 = uVar11 & 0xf000;
-    uVar11 = uVar11 << 4;
-    uVar12 = uVar12 << 4 | uVar1 >> 0xc;
+  firstMask = 0;
+  mask = x & 3;
+  while (1) {
+    u_short rollOver;
+
+    mask = mask - 1;
+    if (mask == -1) break;
+    firstMask = (firstMask << 4) | 0xf;
+    rollOver = (lastMask & 0xf000) >> 0xc;
+    lastMask = lastMask << 4;
+    lastLastMask = (lastLastMask << 4) | rollOver;
   }
-  uVar10 = (u_short)uVar11;
-  if ((uVar12 & 0xffff) != 0xffff) {
-    iVar7 = iVar7 + 1;
-    uVar10 = (u_short)uVar12;
+  if (lastLastMask != 0xffff) {
+    columns = columns + 1;
+    lastMask = lastLastMask;
   }
-  while( true ) {
-    h = h + -1;
-    uVar5 = 0;
+  while (1) {
+    int i;
+    u_short current;
+    u_short next;
+
+    h = h - 1;
+    next = 0;
     if (h == -1) break;
-    uVar1 = (u_int)(u_short)*source;
-    uVar11 = x & 3;
-    while( true ) {
-      uVar11 = uVar11 - 1;
-      uVar2 = uVar1 & 0xf000;
-      if (uVar11 == 0xffffffff) break;
-      uVar1 = uVar1 << 4;
-      uVar5 = uVar5 << 4 | uVar2 >> 0xc;
+    current = *source;
+    source = source + 1;
+    mask = x & 3;
+    while (1) {
+      u_short rollOver;
+
+      mask = mask - 1;
+      if (mask == -1) break;
+      rollOver = (current & 0xf000) >> 0xc;
+      current = current << 4;
+      next = (next << 4) | rollOver;
     }
-    iVar9 = 1;
-    *puVar4 = *puVar4 & (u_short)uVar13 | (u_short)uVar1;
-    puVar3 = (u_short *)source;
-    puVar8 = puVar4;
-    while( true ) {
-      puVar8 = puVar8 + 1;
-      source = (short *)(puVar3 + 1);
-      uVar11 = x & 3;
-      if (iVar7 + -1 <= iVar9) break;
-      *puVar8 = (u_short)uVar5;
-      uVar1 = (u_int)(u_short)*source;
-      uVar5 = 0;
-      while( true ) {
-        uVar11 = uVar11 - 1;
-        uVar2 = uVar1 & 0xf000;
-        if (uVar11 == 0xffffffff) break;
-        uVar1 = uVar1 << 4;
-        uVar5 = uVar5 << 4 | uVar2 >> 0xc;
+    i = 1;
+    dest[0] = (short)((dest[0] & firstMask) | current);
+    while (i < columns - 1) {
+      mask = x & 3;
+      dest[i] = (short)next;
+      current = *source;
+      source = source + 1;
+      next = 0;
+      while (1) {
+        u_short rollOver;
+
+        mask = mask - 1;
+        if (mask == -1) break;
+        rollOver = (current & 0xf000) >> 0xc;
+        current = current << 4;
+        next = (next << 4) | rollOver;
       }
-      iVar9 = iVar9 + 1;
-      *puVar8 = *puVar8 | (u_short)uVar1;
-      puVar3 = (u_short *)source;
+      dest[i] = (short)(dest[i] | current);
+      i = i + 1;
     }
-    puVar4[iVar9] = puVar4[iVar9] & uVar10 | (u_short)uVar5;
-    if ((uVar12 & 0xffff) == 0xffff) {
-      uVar6 = *source;
-      source = (short *)(puVar3 + 2);
-      while (uVar11 = uVar11 - 1, uVar11 != 0xffffffff) {
-        uVar6 = uVar6 << 4;
+    mask = x & 3;
+    dest[i] = (short)((dest[i] & lastMask) | next);
+    if (lastLastMask == 0xffff) {
+      current = *source;
+      source = source + 1;
+      while (mask = mask - 1, mask != -1) {
+        current = current << 4;
       }
-      puVar4[iVar9] = puVar4[iVar9] | uVar6;
+      dest[i] = (short)(dest[i] | current);
     }
-    puVar4 = puVar4 + 0xc;
+    dest = dest + 0xc;
   }
   return;
 }
@@ -212,17 +221,22 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
    * are unconditional `j`), and `h == -1` (not `!= -1`) keeps the signed
    * `beq h,K` against the loop-hoisted -1 in $t4 instead of the unsigned
    * `nor`+`bnez` canonicalization.
-   * RESIDUAL 51 diffs (ours 39 / oracle 42) -- TWO independent 1-/2-insn gaps:
-   *  (a) retail copies BOTH pointer params out of their arg regs (SYM: source
-   *      REGPARM $0a, dest REGPARM $08) because local-alloc had claimed $a0/$a1
-   *      for the four nibble-mask temps; ours keeps `dest` in $a1 and therefore
-   *      reuses one scratch for the mask terms (same insn COUNT, different
-   *      register letters).  Falsified: symmetric 4th `& 0xf000` mask, postfix
-   *      `*dest++`, for-vs-do-while on the copy loop -- all byte-identical.
-   *  (b) the two arms' identical `source += 12; j looptop` tails: our gcc
-   *      CROSS-JUMPS them into one, retail kept both copies (2 insns).  No
-   *      source spelling reached it; moving the statement out of the arms
-   *      produces exactly our merged form. */
+   * 51 -> 6 diffs (w39-a5).  (a) was SOLVED: writing the four mirrored nibbles as
+   * four NAMED `int` temps (not one fused expression, and not `u_short` temps --
+   * u_short scored 22, int 18, the fused expression 51) gives gcc four independent
+   * chains to schedule, which is what frees $a0/$a1 and copies BOTH pointer params
+   * out into $t2/$t0 exactly like retail.  The ASSIGNMENT ORDER of the four temps is
+   * then load-bearing: all 24 permutations were measured, n1,n2,n0,n3 = 6 and every
+   * other order 12-22 (the `|` operand order was also swept: n0|n1|n2|n3 is best).
+   * The temps are compiler temps in the SYM (only pixel3 is named) but naming them is
+   * required to reproduce the retail schedule -- see the catalog's "N named value-temps
+   * give the parallel chains" row.
+   * RESIDUAL 6 diffs (ours 40 / oracle 42), TWO 2-insn gaps, both already documented:
+   *  (a) the oracle emits n0 (`andi v0,v1,15; sll v0,v0,12`) FIRST; ours emits it
+   *      third.  All registers match -- pure sched2 placement.
+   *  (b) the two arms' identical `source += 12; j looptop` tails: our gcc CROSS-JUMPS
+   *      them into one, retail kept both copies.  No source spelling reached it;
+   *      moving the statement out of the arms produces exactly our merged form. */
   int h;
 
   h = 0x16;
@@ -245,9 +259,17 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
         u_short pixel3;
 
         if (i < 0) break;
+        int n0;
+        int n1;
+        int n2;
+        int n3;
+
         pixel3 = source[i];
-        *dest++ = (short)(((pixel3 & 0xf) << 0xc) | ((pixel3 & 0xf0) << 4) |
-                        ((pixel3 & 0xf00) >> 4) | (pixel3 >> 0xc));
+        n1 = (pixel3 & 0xf0) << 4;
+        n2 = (pixel3 & 0xf00) >> 4;
+        n0 = (pixel3 & 0xf) << 0xc;
+        n3 = pixel3 >> 0xc;
+        *dest++ = (short)(n0 | n1 | n2 | n3);
         i = i - 1;
       }
       source = source + 0xc;
@@ -257,134 +279,129 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
 }
 
 /* ---- CarIO_CreateLicense__FPcii  [CARIO.CPP:379-483] SLD-VERIFIED ---- */
+/* SYM @0x800bc25c (fsize 72, mask $80ff0000).  FULL rule-8 rewrite (w39-a5):
+ *   REGPARMs text=$17($s7) carType=$05($a1) player=$16($s6)
+ *   fn block  -> i REG $12($s2), clutPlate1 REG $14($s4), clutPlate2 REG $15($s5),
+ *                thePlate REG $13($s3), shape REG $07($a3), clutptr REG $08($t0)
+ *   line-32   -> length REG $11($s1), start REG $10($s0)
+ *   line-44   -> letter AUTO 24(sp) char[5], ascii REG $03($v1)
+ * TWO REAL BUGS fixed here:
+ *  (a) R3DCar_LicenseShapeFile is a `char *` in its OWNER (r3dcar.cpp:44) but was
+ *      declared `char []` in cario_externs.h, so both locateshapez calls passed the
+ *      ADDRESS OF THE POINTER instead of the buffer (oracle: `lui;lw %lo(sym)` = a
+ *      value load, ours emitted `lui;addiu` = address-of).  Extern-type-vs-owner class.
+ *  (b) the accent-folding switch was written with SIGNED case labels (-0x40..-0x24)
+ *      but `char` is UNSIGNED on this build, so the compare value is 0..255 and NONE
+ *      of the cases could ever match -- gcc kept the table (`addiu v1,v1,64;
+ *      sltiu v0,v1,29`) but it was unreachable, i.e. accented characters never folded
+ *      to their base letter at runtime.  The oracle normalizes against +0xC0
+ *      (`addiu a0,a0,-192`), confirming unsigned labels.  Case BODY order is retail's
+ *      (n, a, e, i, o, u) -- switch case bodies emit in SOURCE order. */
 void CarIO_CreateLicense(char *text,int carType,int player)
 
 {
-  shapetbl *psVar1;
-  short *dest;
-  int *piVar2;
-  int tu3;
-  u_int uVar3;
-  void *pvVar4;
-  char ascii;
-  char cVar5;
-  int iVar6;
-  shapetbl *psVar7;
-  short *source;
-  int iVar8;
-  int *piVar9;
   shapetbl *shape;
   shapetbl *clutptr;
-  int *piVar10;
-  shapetbl *psVar11;
-  int start;
-  shapetbl **ppsVar12;
-  int length;
-  int i;
-  int iVar13;
-  short *thePlate;
   shapetbl *clutPlate1;
   shapetbl *clutPlate2;
-  char letter [5];
-  
+  short *thePlate;
+  int i;
+
   /* oracle: `slti a1,carType,22; bnez a1,<big arm>` -- the carType>=0x16
    * (no-plate) arm is the FALL-THROUGH, so it is the if-BODY and the
-   * plate-building arm is the else (catalog: arm order sets branch
-   * polarity + which block goes out of line). */
+   * plate-building arm is the else. */
   if (carType >= 0x16) {
     CarIO_Plate2[player] = (shapetbl *)0x0;
     CarIO_Plate1[player] = (shapetbl *)0x0;
   }
   else {
-    psVar1 = reservememadr("plate1",0x148,0);
-    ppsVar12 = CarIO_Plate1 + player;
-    *ppsVar12 = psVar1;
-    psVar1 = reservememadr("plate2",0x148,0);
-    iVar13 = 0;
-    CarIO_Plate2[player] = psVar1;
-    psVar1 = psVar1 + 0xe;
-    psVar11 = *ppsVar12 + 0xe;
-    dest = reservememadr("theplate",0x210,0x10);
-    piVar2 = locateshapez(R3DCar_LicenseShapeFile,"blnk");
-    piVar10 = (int *)((int)piVar2 + (*piVar2 >> 8));
-    piVar9 = piVar2;
+    CarIO_Plate1[player] = (shapetbl *)reservememadr("plate1",0x148,0);
+    CarIO_Plate2[player] = (shapetbl *)reservememadr("plate2",0x148,0);
+    clutPlate2 = CarIO_Plate2[player] + 0xe;
+    i = 0;
+    clutPlate1 = CarIO_Plate1[player] + 0xe;
+    thePlate = (short *)reservememadr("theplate",0x210,0x10);
+    shape = (shapetbl *)locateshapez(R3DCar_LicenseShapeFile,"blnk");
+    clutptr = (shapetbl *)((int)shape + (*(int *)shape >> 8));
     do {
-      iVar8 = *piVar9;
-      piVar9 = piVar9 + 1;
-      iVar6 = iVar13 * 4;
-      iVar13 = iVar13 + 1;
-      psVar7 = *ppsVar12;
-      *(int *)((char *)(CarIO_Plate2[player]) + iVar6) = iVar8;
-      *(int *)((char *)(psVar7) + iVar6) = iVar8;
-    } while (iVar13 < 4);
-    iVar13 = 0;
+      int hdr;
+
+      hdr = ((int *)shape)[i];
+      *(int *)((char *)(CarIO_Plate2[player]) + i * 4) = hdr;
+      *(int *)((char *)(CarIO_Plate1[player]) + i * 4) = hdr;
+      i = i + 1;
+    } while (i < 4);
+    i = 0;
     do {
-      tu3 = *piVar10;
-      piVar10 = piVar10 + 1;
-      iVar13 = iVar13 + 1;
-      *(int *)psVar1 = tu3;
-      *(int *)psVar11 = tu3;
-      psVar11 = (shapetbl *)&psVar11->width;
-      psVar1 = (shapetbl *)&psVar1->width;
-    } while (iVar13 < 0xc);
-    psVar11 = CarIO_Plate2[player];
-    psVar1 = CarIO_Plate1[player];
-    *(u_int *)psVar11 = *(u_char *)psVar11 | 0x11800;
-    *(u_int *)psVar1 = *(u_char *)psVar1 | 0x11800;
-    psVar1 = CarIO_Plate1[player];
+      int tu3;
+
+      tu3 = ((int *)clutptr)[i];
+      ((int *)clutPlate2)[i] = tu3;
+      ((int *)clutPlate1)[i] = tu3;
+      i = i + 1;
+    } while (i < 0xc);
+    *(u_int *)(CarIO_Plate2[player]) = *(u_char *)(CarIO_Plate2[player]) | 0x11800;
+    *(u_int *)(CarIO_Plate1[player]) = *(u_char *)(CarIO_Plate1[player]) | 0x11800;
+    i = 0;
     CarIO_Plate2[player]->width = 0x18;
-    psVar1->width = 0x18;
-    CarIO_CopyFromShape((short *)(piVar2 + 4),dest,0x30,0x16,0,0);
-    uVar3 = strlen(text);
-    iVar13 = uVar3 * -3 + 0x18;
-    for (iVar6 = 0; iVar6 < (int)uVar3; iVar6 = iVar6 + 1) {
-      cVar5 = text[iVar6];
-      if (cVar5 != ' ') {
-        switch(cVar5) {
-        case -0x40:
-        case -0x3c:
-        case -0x3b:
-          cVar5 = 'a';
-          break;
-        case -0x38:
-          cVar5 = 'e';
-          break;
-        case -0x34:
-          cVar5 = 'i';
-          break;
-        case -0x2f:
-          cVar5 = 'n';
-          break;
-        case -0x2e:
-        case -0x2a:
-          cVar5 = 'o';
-          break;
-        case -0x27:
-        case -0x24:
-          cVar5 = 'u';
+    CarIO_Plate1[player]->width = 0x18;
+    CarIO_CopyFromShape((short *)((int)shape + 0x10),thePlate,0x30,0x16,0,0);
+    {
+      int length;
+      int start;
+
+      length = strlen(text);
+      start = 0x18 - length * 3;
+      while (i < length) {
+        char ascii;
+
+        ascii = text[i];
+        if (ascii != ' ') {
+          char letter [5];
+          void *pShape;
+
+          switch(ascii) {
+          case 0xd1:
+            ascii = 'n';
+            break;
+          case 0xc0:
+          case 0xc4:
+          case 0xc5:
+            ascii = 'a';
+            break;
+          case 0xc8:
+            ascii = 'e';
+            break;
+          case 0xcc:
+            ascii = 'i';
+            break;
+          case 0xd2:
+          case 0xd6:
+            ascii = 'o';
+            break;
+          case 0xd9:
+          case 0xdc:
+            ascii = 'u';
+          }
+          letter[0] = ascii;
+          letter[1] = '\0';
+          strcat(letter,"   ");
+          pShape = locateshapez(R3DCar_LicenseShapeFile,letter);
+          CarIO_CopyFromShape((short *)((int)pShape + 0x10),thePlate,7,0xc,start,5);
         }
-        letter[1] = '\0';
-        letter[0] = cVar5;
-        strcat(letter,"   ");
-        pvVar4 = locateshapez(R3DCar_LicenseShapeFile,letter);
-        CarIO_CopyFromShape((short *)((int)pvVar4 + 0x10),dest,7,0xc,iVar13,5);
+        start = start + 6;
+        i = i + 1;
       }
-      iVar13 = iVar13 + 6;
     }
     if ((R3DCar_InMenu == 0) && (GameSetup_gData.mirrorTrack != 0)) {
-      CarIO_CopyToShape(dest + 6,(short *)&CarIO_Plate1[player]->data,1);
-      psVar1 = CarIO_Plate2[player];
-      iVar13 = 1;
-      source = dest;
+      CarIO_CopyToShape(thePlate + 6,(short *)&CarIO_Plate1[player]->data,1);
+      CarIO_CopyToShape(thePlate,(short *)&CarIO_Plate2[player]->data,1);
     }
     else {
-      CarIO_CopyToShape(dest,(short *)&CarIO_Plate1[player]->data,0);
-      source = dest + 6;
-      psVar1 = CarIO_Plate2[player];
-      iVar13 = 0;
+      CarIO_CopyToShape(thePlate,(short *)&CarIO_Plate1[player]->data,0);
+      CarIO_CopyToShape(thePlate + 6,(short *)&CarIO_Plate2[player]->data,0);
     }
-    CarIO_CopyToShape(source,(short *)&psVar1->data,iVar13);
-    purgememadr(dest);
+    purgememadr(thePlate);
   }
   return;
 }
@@ -442,38 +459,47 @@ void CarIO_LicenseCheck(int reload,int *license_vx,int *license_vy,Car_tObj *car
 }
 
 /* ---- CarIO_ReadInCarTextureData__FPcP8Car_tObjii  [CARIO.CPP:515-713] SLD-VERIFIED ---- */
+/* SYM @0x800bc704 (fsize 136, mask $c0ff0000).  FULL rule-8 rewrite (w39-a5):
+ *   fn scope   -> i REG $13($s3), carType AUTO 64(sp), vx REG $16($s6),
+ *                 vy REG $17($s7), carPixMapCount AUTO 68(sp),
+ *                 recolor_flag AUTO 72(sp); player REGPARM $10($s0)
+ *   loop body  -> shape REG $12($s2), palShare AUTO 76(sp), palette REG $14($s4)
+ *   arm blocks -> license REG $10($s0), license_vx/license_vy AUTO
+ *                 (32/36, 40/44, 48/52, 56/60(sp) -- FOUR distinct pairs, one
+ *                 per license arm; the SYM redeclares them per block)
+ *   pal blocks -> palIndex REG $10($s0), clut REG $03($v1),
+ *                 cx REG $14($s4), cy REG $15($s5)
+ * No pointer local in the SYM => CarIO_textureName[i] / palCopyNum[i] /
+ * CarIO_carPixMap[carPixMapCount] are written in INDEX form and the retail
+ * walkers ($fp, 88(sp), $s1) come back as compiler givs.
+ * 687 -> 344 diffs (ours 477 / oracle 491 -- ours is now 14 insns SHORTER).
+ * RESIDUAL = ONE allocation decision, diagnosed with -dg/-dl (w39-a5):
+ *   pseudo 81 = carObj, 28 refs / 720 insns, prio floor_log2(28)*28/720 = .1556
+ *   -> it WINS $fp here, which shifts vx $s6->$s5, vy $s7->$s6, the
+ *      CarIO_textureName giv $fp->$s7 and pushes `palette` out of $s4.
+ *   Retail SPILLS carObj to its incoming arg home 140(sp) (SYM: carObj = class ARG)
+ *   and gives $fp to the textureName giv.  Every carObj materialization site was
+ *   counted 1:1 against the oracle's `0x8C($sp)` reloads (15 outside the loop, 6
+ *   inside x2 = the same 28), and `palette` (pseudo 197, 6 refs / 120) is far below
+ *   carObj either way -- so this is NOT a ref-count difference we can spell away;
+ *   it is the allocno/copy-preference identity residue (catalog sec.G).  Do not
+ *   re-derive: dump -dg/-dl and compare the priority table before touching it. */
 void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int player)
 
 {
-  short sVar2;
-  bool bVar3;
-  bool bVar4;
-  char *pcVar5;
-  u_short clut;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  int iVar9;
-  int cx_00;
-  u_int cy_00;
+  int i;
+  int carType;
   int vx;
   int vy;
-  CarIO_textureInfo *pCVar10;
-  int carType;
   int carPixMapCount;
   int recolor_flag;
-  int palShare;
-  Car_tObj *pCStack_30;
-  
+
   recolor_flag = 8;
   carType = (carObj->render).currentCarType;
   if ((reload & 1U) == 0) {
     if (R3DCar_InMenu == 0) {
-      sVar2 = CarIO_carVRamSlots[CarIO_carVRamCount][0];
-      (carObj->render).VRamX = sVar2;
-      vx = (u_int)sVar2;
-      vy = (int)CarIO_carVRamSlots[CarIO_carVRamCount][1];
-      (carObj->render).VRamY = CarIO_carVRamSlots[CarIO_carVRamCount][1];
+      vx = (carObj->render).VRamX = CarIO_carVRamSlots[CarIO_carVRamCount][0];
+      vy = (carObj->render).VRamY = CarIO_carVRamSlots[CarIO_carVRamCount][1];
       if (carType < 0x1c) {
         /* oracle: `andi v0,inside,1; beqz v0,<+3 arm>` -- the inside!=0 case is
          * the FALL-THROUGH, so it is the if-BODY (arm order was inverted). */
@@ -489,18 +515,14 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
       }
     }
     else {
-      sVar2 = CarIO_carVRamSlotsMenu[CarIO_carVRamCount][0];
-      (carObj->render).VRamX = sVar2;
-      vx = (u_int)sVar2;
-      sVar2 = CarIO_carVRamSlotsMenu[CarIO_carVRamCount][1];
-      (carObj->render).VRamY = sVar2;
+      vx = (carObj->render).VRamX = CarIO_carVRamSlotsMenu[CarIO_carVRamCount][0];
+      vy = (carObj->render).VRamY = CarIO_carVRamSlotsMenu[CarIO_carVRamCount][1];
       CarIO_carVRamCount = CarIO_carVRamCount + CarIO_carVRamAdd[CarIO_carVRamCount];
-      vy = (int)sVar2;
     }
   }
   else {
-    vx = (u_int)(carObj->render).VRamX;
-    vy = (int)(carObj->render).VRamY;
+    vx = (carObj->render).VRamX;
+    vy = (carObj->render).VRamY;
   }
   if ((reload & 0x10U) == 0) {
     carPixMapCount = CarIO_carPixMapCount;
@@ -511,42 +533,49 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
   }
   if ((reload & 8U) != 0) {
     if (((carObj->render).inside & 1U) != 0) {
-      iVar6 = vx - 0x200;
+      int index;
+
+      index = vx - 0x200;
       if (R3DCar_InMenu == 0) {
-        iVar6 = vx - 0x280;
+        index = vx - 0x280;
       }
-      vx = vx + (int)CarIO_carVRamOffset[iVar6 >> 6];
+      vx = vx + CarIO_carVRamOffset[index >> 6];
     }
     (carObj->render).textureOffsetU = (short)((vx & 0x3f) << 2);
     (carObj->render).textureOffsetV = (u_short)vy & 0xff;
   }
-  iVar6 = 0;
+  i = 0;
   if (R3DCar_InMenu == 0) {
-    recolor_flag = 0x18;
+    /* oracle: `lw t1,72(sp); ori t1,t1,0x10; sw t1,72(sp)` -- an OR into the
+     * already-stored 8, NOT a fresh `recolor_flag = 0x18` store. */
+    recolor_flag = recolor_flag | 0x10;
   }
   Texture_palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
-  iVar9 = carPixMapCount << 4;
   Texture_ResetPaletteSharing();
-  pCVar10 = CarIO_textureName;
-  pCStack_30 = carObj;
-  for (; iVar6 < 0x33; iVar6 = iVar6 + 1) {
-    bVar4 = true;
-    pcVar5 = locateshapez(shpfile,pCVar10->pal);
-    iVar7 = pCVar10->palShare;
-    if ((pcVar5 == (char *)0x0) && (iVar7 == 0)) {
-      bVar4 = false;
-      pcVar5 = locateshapez(shpfile,pCVar10->tex);
+  for (; i < 0x33; i = i + 1, carPixMapCount = carPixMapCount + 1) {
+    shapetbl *shape;
+    int palShare;
+    int palette;
+
+    palette = 1;
+    shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].pal);
+    palShare = CarIO_textureName[i].palShare;
+    if ((shape == (shapetbl *)0x0) && (palShare == 0)) {
+      palette = 0;
+      shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].tex);
     }
-    if (iVar6 == 0x14) {
+    if (i == 0x14) {
       recolor_flag = 0;
     }
-    if (pcVar5 != (char *)0x0) {
-      bVar3 = false;
+    if (shape != (shapetbl *)0x0) {
+      int license;
+
+      license = 0;
       if (recolor_flag != 0) {
-        (pCStack_30->render).palCopyNum[0] = (short)Texture_palNum;
+        (carObj->render).palCopyNum[i] = (short)Texture_palNum;
       }
       if (carType < 0x16) {
-        if (iVar6 == CarIO_licensePlate[carType][0]) {
+        if (i == CarIO_licensePlate[carType][0]) {
           int license_vx;
           int license_vy;
 
@@ -554,11 +583,11 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
           license_vy = vy + CarIO_licensePlate[carType][2];
           CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,0);
           Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate1[player],recolor_flag,license_vx,
-                     license_vy,-1,-1,(Draw_tPixMap *)(&CarIO_carPixMap->u0 + iVar9));
-          bVar3 = true;
-          *(u_short *)((int)&CarIO_carPixMap->flag + iVar9) = 1;
+                     license_vy,-1,-1,&CarIO_carPixMap[carPixMapCount]);
+          license = 1;
+          CarIO_carPixMap[carPixMapCount].flag = 1;
         }
-        else if (iVar6 == CarIO_licensePlate[carType][3]) {
+        else if (i == CarIO_licensePlate[carType][3]) {
           int license_vx;
           int license_vy;
 
@@ -566,36 +595,44 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
           license_vy = vy + CarIO_licensePlate[carType][5];
           CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,1);
           Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate2[player],recolor_flag,license_vx,
-                     license_vy,-1,-1,(Draw_tPixMap *)(&CarIO_carPixMap->u0 + iVar9));
-          bVar3 = true;
-          *(u_short *)((int)&CarIO_carPixMap->flag + iVar9) = 2;
+                     license_vy,-1,-1,&CarIO_carPixMap[carPixMapCount]);
+          license = 1;
+          CarIO_carPixMap[carPixMapCount].flag = 2;
         }
       }
-      if (!bVar3) {
-        Texture_LoadPmx((char *)0x0,pcVar5,recolor_flag,vx,vy,-1,-1,
-                   (Draw_tPixMap *)(&CarIO_carPixMap->u0 + iVar9));
+      if (license == 0) {
+        Texture_LoadPmx((char *)0x0,(char *)shape,recolor_flag,vx,vy,-1,-1,
+                   &CarIO_carPixMap[carPixMapCount]);
       }
-      if (iVar6 == 0x20) {
-        ChangeTPage((u_short *)((int)&CarIO_carPixMap->tpage + iVar9),2);
+      if (i == 0x20) {
+        ChangeTPage(&CarIO_carPixMap[carPixMapCount].tpage,2);
       }
-      *(u_short *)((int)&CarIO_carPixMap->flag + iVar9) =
-           *(u_short *)((int)&CarIO_carPixMap->flag + iVar9) | 0x80;
+      CarIO_carPixMap[carPixMapCount].flag = CarIO_carPixMap[carPixMapCount].flag | 0x80;
     }
-    if (bVar4) {
-      iVar8 = carPixMapCount;
-      if (iVar7 != 0) {
+    if (palette != 0) {
+      int palIndex;
+
+      palIndex = carPixMapCount;
+      if (palShare != 0) {
+        palIndex = palShare + -1;
         if (recolor_flag != 0) {
-          (pCStack_30->render).palCopyNum[0] = (carObj->render).palCopyNum[iVar7 + -1];
+          (carObj->render).palCopyNum[i] = (carObj->render).palCopyNum[palIndex];
         }
-        iVar8 = iVar7 + -1 + (carObj->render).textureStartIndex;
+        palIndex = palIndex + (carObj->render).textureStartIndex;
       }
-      pcVar5 = locateshapez(shpfile,pCVar10->tex);
-      if (pcVar5 != (char *)0x0) {
-        bVar4 = false;
-        cx_00 = (CarIO_carPixMap[iVar8].clut & 0x3f) << 4;
-        cy_00 = (u_int)(CarIO_carPixMap[iVar8].clut >> 6);
+      shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].tex);
+      if (shape != (shapetbl *)0x0) {
+        int license;
+        u_short clut;
+        int cx;
+        int cy;
+
+        license = 0;
+        clut = CarIO_carPixMap[palIndex].clut;
+        cx = (clut & 0x3f) << 4;
+        cy = (int)(clut >> 6);
         if (carType < 0x16) {
-          if (iVar6 == CarIO_licensePlate[carType][0]) {
+          if (i == CarIO_licensePlate[carType][0]) {
             int license_vx;
             int license_vy;
 
@@ -603,11 +640,11 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
             license_vy = vy + CarIO_licensePlate[carType][2];
             CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,0);
             Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate1[player],0x20,license_vx,license_vy,
-                       cx_00,cy_00,(Draw_tPixMap *)(&CarIO_carPixMap->u0 + iVar9));
-            bVar4 = true;
-            *(u_short *)((int)&CarIO_carPixMap->flag + iVar9) = 1;
+                       cx,cy,&CarIO_carPixMap[carPixMapCount]);
+            license = 1;
+            CarIO_carPixMap[carPixMapCount].flag = 1;
           }
-          else if (iVar6 == CarIO_licensePlate[carType][3]) {
+          else if (i == CarIO_licensePlate[carType][3]) {
             int license_vx;
             int license_vy;
 
@@ -615,28 +652,23 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
             license_vy = vy + CarIO_licensePlate[carType][5];
             CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,1);
             Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate2[player],0x20,license_vx,license_vy,
-                       cx_00,cy_00,(Draw_tPixMap *)(&CarIO_carPixMap->u0 + iVar9));
-            bVar4 = true;
-            *(u_short *)((int)&CarIO_carPixMap->flag + iVar9) = 2;
+                       cx,cy,&CarIO_carPixMap[carPixMapCount]);
+            license = 1;
+            CarIO_carPixMap[carPixMapCount].flag = 2;
           }
         }
-        if (!bVar4) {
-          Texture_LoadPmx((char *)0x0,pcVar5,0x20,vx,vy,cx_00,cy_00,
-                     (Draw_tPixMap *)(&CarIO_carPixMap->u0 + iVar9));
+        if (license == 0) {
+          Texture_LoadPmx((char *)0x0,(char *)shape,0x20,vx,vy,cx,cy,
+                     &CarIO_carPixMap[carPixMapCount]);
         }
-        if (iVar6 == 0x20) {
-          ChangeTPage((u_short *)((int)&CarIO_carPixMap->tpage + iVar9),2);
+        if (i == 0x20) {
+          ChangeTPage(&CarIO_carPixMap[carPixMapCount].tpage,2);
         }
-        if (iVar7 == 0) {
-          *(u_short *)((int)&CarIO_carPixMap->flag + iVar9) =
-               *(u_short *)((int)&CarIO_carPixMap->flag + iVar9) | 0x80;
+        if (palShare == 0) {
+          CarIO_carPixMap[carPixMapCount].flag = CarIO_carPixMap[carPixMapCount].flag | 0x80;
         }
       }
     }
-    iVar9 = iVar9 + 0x10;
-    pCVar10 = pCVar10 + 1;
-    carPixMapCount = carPixMapCount + 1;
-    pCStack_30 = (Car_tObj *)((int)&(pCStack_30->N).objID + 2);
   }
   if ((reload & 0x80U) != 0) {
     CarIO_carPixMapCount = carPixMapCount;
@@ -648,34 +680,41 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
 void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
 
 {
-  short sVar1;
-  short sVar2;
-  bool bVar3;
-  bool bVar4;
-  char *pcVar5;
-  shapetbl **ppsVar6;
-  u_short clut;
-  Draw_tPixMap *pmx;
-  Car_tObj *pCVar8;
-  int iVar9;
-  int iVar10;
-  int cx_00;
-  u_int uVar11;
-  int iVar12;
+  /* SYM @0x800bceb0 (fsize 104, mask $c0ff0000).  FULL rule-8 rewrite (w39-a5):
+   *   fn scope    -> i REG $16($s6), carType/vx/vy/carPixMapCount AUTO
+   *                  (32/36/40/44(sp)), recolor_flag REG $1e($fp)
+   *   loop body   -> shape REG $11($s1), palShare AUTO 48(sp),
+   *                  palette AUTO 52(sp)
+   *   arm blocks  -> license REG $10($s0), clut REG $03($v1),
+   *                  cx REG $13($s3), cy REG $14($s4)
+   *   palette blk -> palIndex REG $10($s0)
+   * There is NO pointer local in the SYM: the retail walkers (s5 = &carPixMap
+   * element, s7 = &CarIO_textureName[i], 60(sp) = &carObj->..palCopyNum[i])
+   * are compiler GIVs, so every access is written in INDEX form (catalog:
+   * "SYM has only i => the pointers are givs").  player (REGPARM $10) is only
+   * ever used as CarIO_PlateN[player], so gcc hoists player*4 to 56(sp).
+ * 459 -> 97 (rule-8 rewrite) -> 27 (palShare ref-count lever, below).
+ * RESIDUAL 27 diffs (ours 301 / oracle 298 = +3), TWO clusters, both scheduling:
+ *  (a) the spilled `&carObj->..palCopyNum[i]` giv: retail emits its store ONCE, in
+ *      the loop-guard `beqz`'s DELAY SLOT (shared by the preheader fall-through and
+ *      the back edge); ours stores it separately in the preheader (+ a load-delay
+ *      nop) and again at the loop tail.  Reload/dbr placement, not source-shaped.
+ *  (b) `addu a1,v0,s5` vs the oracle's `addu a1,s5,v0` -- commutative operand order
+ *      on the ONE pmx materialization (RTL canonicalization; every other addu in the
+ *      function already matches).
+ * Per-TU flag probes on cario.cpp (w39-a5, all measured over ALL 11 fns):
+ *   no_split_addresses 459->402/Update, ReadIn 344->512, LicenseCheck PASS->11  WORSE
+ *   no_schedule_insns  Update->265 but ReadIn 344->603                          WORSE
+ *   no_schedule_insns2 Update->139 but breaks 6 currently-PASSing fns           WORSE
+ *   no_strength_reduce Update->379, CopyToShape 51->55                          WORSE
+ * => cario.obj is a STOCK-FLAG object (only the proven g_value:8 stays). */
   int i;
-  CarIO_textureInfo *pCVar14;
-  /* SYM @0x800bceb0 (fsize 104, mask $c0ff0000): i=REG $16($s6),
-   * recolor_flag=REG $1e($fp), player=REGPARM $10($s0); carType/vx/vy/
-   * carPixMapCount are AUTO (stack), palShare/palette AUTO in the line-20
-   * block.  Names applied; 11 unused Ghidra locals dropped. */
   int carType;
   int vx;
   int vy;
   int carPixMapCount;
   int recolor_flag;
-  int palShare;
-  int palette;
-  
+
   carPixMapCount = (carObj->render).textureStartIndex;
   carType = (int)(carObj->render).currentCarType;
   vx = (int)(carObj->render).VRamX;
@@ -685,115 +724,123 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
     recolor_flag = 0x18;
   }
   Texture_palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
-  i = 0;
-  iVar12 = carPixMapCount << 4;
   Texture_ResetPaletteSharing();
-  pCVar14 = CarIO_textureName;
-  pCVar8 = carObj;
-  do {
-    if (0x32 < i) {
-      return;
-    }
-    bVar4 = true;
-    pcVar5 = locateshapez(shpfile,pCVar14->pal);
-    iVar9 = pCVar14->palShare;
-    if ((pcVar5 == (char *)0x0) && (iVar9 == 0)) {
-      bVar4 = false;
-      pcVar5 = locateshapez(shpfile,pCVar14->tex);
+  for (i = 0; i < 0x33; i = i + 1, carPixMapCount = carPixMapCount + 1) {
+    shapetbl *shape;
+    int palShare;
+    int palette;
+
+    palette = 1;
+    shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].pal);
+    palShare = CarIO_textureName[i].palShare;
+    if ((shape == (shapetbl *)0x0) && (palShare == 0)) {
+      palette = 0;
+      shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].tex);
     }
     if (i == 0x14) {
       recolor_flag = 0;
     }
-    if (pcVar5 == (char *)0x0) {
-CarIOUpd_locateShape:
-      if (bVar4) {
-        iVar10 = carPixMapCount;
-        if (iVar9 != 0) {
-          if (recolor_flag != 0) {
-            (pCVar8->render).palCopyNum[0] = (carObj->render).palCopyNum[iVar9 + -1];
-          }
-          iVar10 = iVar9 + -1 + (carObj->render).textureStartIndex;
-        }
-        pcVar5 = locateshapez(shpfile,pCVar14->tex);
-        if (pcVar5 != (char *)0x0) {
-          bVar4 = false;
-          cx_00 = (CarIO_carPixMap[iVar10].clut & 0x3f) << 4;
-          uVar11 = (u_int)(CarIO_carPixMap[iVar10].clut >> 6);
-          if (carType < 0x16) {
-            if (i == CarIO_licensePlate[carType][0]) {
-              sVar1 = CarIO_licensePlate[carType][1];
-              sVar2 = CarIO_licensePlate[carType][2];
-              ppsVar6 = CarIO_Plate1;
-            }
-            else {
-              if (i != CarIO_licensePlate[carType][3]) goto CarIOUpd_loadPmxCtrl20;
-              sVar1 = CarIO_licensePlate[carType][4];
-              sVar2 = CarIO_licensePlate[carType][5];
-              ppsVar6 = CarIO_Plate2;
-            }
-            bVar4 = true;
-            Texture_LoadPmx((char *)0x0,(char *)ppsVar6[player],0x20,vx + sVar1,vy + sVar2,cx_00,uVar11,
-                       (Draw_tPixMap *)(&CarIO_carPixMap->u0 + iVar12));
-          }
-CarIOUpd_loadPmxCtrl20:
-          if (!bVar4) {
-            Texture_LoadPmx((char *)0x0,pcVar5,0x20,vx,vy,cx_00,uVar11,
-                       (Draw_tPixMap *)(&CarIO_carPixMap->u0 + iVar12));
-          }
-          if (i == 0x20) {
-            ChangeTPage((u_short *)((int)&CarIO_carPixMap->tpage + iVar12),2);
-          }
-          if (iVar9 == 0) {
-            *(u_short *)((int)&CarIO_carPixMap->flag + iVar12) =
-                 *(u_short *)((int)&CarIO_carPixMap->flag + iVar12) | 0x80;
-          }
-        }
-      }
-    }
-    else {
-      pmx = (Draw_tPixMap *)(&CarIO_carPixMap->u0 + iVar12);
-      bVar3 = false;
-      if ((pmx->flag & 0x80) != 0) {
-        iVar10 = (pmx->clut & 0x3f) << 4;
-        uVar11 = (u_int)(pmx->clut >> 6);
+    if (shape != (shapetbl *)0x0) {
+      Draw_tPixMap *pmx;
+
+      pmx = &CarIO_carPixMap[carPixMapCount];
+      if ((pmx->flag & 0x80) == 0) continue;
+      {
+        int license;
+        u_short clut;
+        int cx;
+        int cy;
+
+        license = 0;
+        clut = pmx->clut;
+        cx = (clut & 0x3f) << 4;
+        cy = (int)(clut >> 6);
         if (recolor_flag != 0) {
-          Texture_palNum = (int)(pCVar8->render).palCopyNum[0];
+          Texture_palNum = (int)(carObj->render).palCopyNum[i];
         }
         if (carType < 0x16) {
           if (i == CarIO_licensePlate[carType][0]) {
-            sVar1 = CarIO_licensePlate[carType][2];
-            sVar2 = CarIO_licensePlate[carType][1];
-            ppsVar6 = CarIO_Plate1;
+            license = 1;
+            Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate1[player],recolor_flag,
+                       vx + CarIO_licensePlate[carType][1],
+                       vy + CarIO_licensePlate[carType][2],cx,cy,pmx);
           }
-          else {
-            if (i != CarIO_licensePlate[carType][3]) goto CarIOUpd_loadPmxFallback;
-            sVar1 = CarIO_licensePlate[carType][5];
-            sVar2 = CarIO_licensePlate[carType][4];
-            ppsVar6 = CarIO_Plate2;
+          else if (i == CarIO_licensePlate[carType][3]) {
+            license = 1;
+            Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate2[player],recolor_flag,
+                       vx + CarIO_licensePlate[carType][4],
+                       vy + CarIO_licensePlate[carType][5],cx,cy,pmx);
           }
-          bVar3 = true;
-          Texture_LoadPmx((char *)0x0,(char *)ppsVar6[player],recolor_flag,vx + sVar2,vy + sVar1,iVar10,uVar11,
-                     pmx);
         }
-CarIOUpd_loadPmxFallback:
-        if (!bVar3) {
-          Texture_LoadPmx((char *)0x0,pcVar5,recolor_flag,vx,vy,iVar10,uVar11,
-                     (Draw_tPixMap *)(&CarIO_carPixMap->u0 + iVar12));
+        if (license == 0) {
+          Texture_LoadPmx((char *)0x0,(char *)shape,recolor_flag,vx,vy,cx,cy,
+                     &CarIO_carPixMap[carPixMapCount]);
         }
         if (i == 0x20) {
-          ChangeTPage((u_short *)((int)&CarIO_carPixMap->tpage + iVar12),2);
+          ChangeTPage(&CarIO_carPixMap[carPixMapCount].tpage,2);
         }
-        *(u_short *)((int)&CarIO_carPixMap->flag + iVar12) =
-             *(u_short *)((int)&CarIO_carPixMap->flag + iVar12) | 0x80;
-        goto CarIOUpd_locateShape;
+        CarIO_carPixMap[carPixMapCount].flag = CarIO_carPixMap[carPixMapCount].flag | 0x80;
       }
     }
-    iVar12 = iVar12 + 0x10;
-    pCVar14 = pCVar14 + 1;
-    carPixMapCount = carPixMapCount + 1;
-    i = i + 1;
-    pCVar8 = (Car_tObj *)((int)&(pCVar8->N).objID + 2);
-  } while( true );
+    if (palette != 0) {
+      int palIndex;
+
+      palIndex = carPixMapCount;
+      if (palShare != 0) {
+        /* the oracle computes `palShare - 1` ONCE into palIndex (delay slot of
+         * the recolor_flag guard) and then ADDS textureStartIndex to it -- so
+         * palShare is referenced 5x, not 6x.  That one ref is load-bearing:
+         * -dl gives palShare 12 refs / 170 insns (prio 3*12/170 = .212) vs
+         * recolor_flag 14 / 211 (.199), which is exactly why OUR build gave
+         * palShare $s7 and spilled recolor_flag.  At 10 refs palShare drops to
+         * .176 and the pair swaps to the retail assignment. */
+        palIndex = palShare + -1;
+        if (recolor_flag != 0) {
+          (carObj->render).palCopyNum[i] = (carObj->render).palCopyNum[palIndex];
+        }
+        palIndex = palIndex + (carObj->render).textureStartIndex;
+      }
+      shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].tex);
+      if (shape != (shapetbl *)0x0) {
+        int license;
+        u_short clut;
+        int cx;
+        int cy;
+
+        license = 0;
+        clut = CarIO_carPixMap[palIndex].clut;
+        cx = (clut & 0x3f) << 4;
+        cy = (int)(clut >> 6);
+        if (carType < 0x16) {
+          if (i == CarIO_licensePlate[carType][0]) {
+            license = 1;
+            Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate1[player],0x20,
+                       vx + CarIO_licensePlate[carType][1],
+                       vy + CarIO_licensePlate[carType][2],cx,cy,
+                       &CarIO_carPixMap[carPixMapCount]);
+          }
+          else if (i == CarIO_licensePlate[carType][3]) {
+            license = 1;
+            Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate2[player],0x20,
+                       vx + CarIO_licensePlate[carType][4],
+                       vy + CarIO_licensePlate[carType][5],cx,cy,
+                       &CarIO_carPixMap[carPixMapCount]);
+          }
+        }
+        if (license == 0) {
+          Texture_LoadPmx((char *)0x0,(char *)shape,0x20,vx,vy,cx,cy,
+                     &CarIO_carPixMap[carPixMapCount]);
+        }
+        if (i == 0x20) {
+          ChangeTPage(&CarIO_carPixMap[carPixMapCount].tpage,2);
+        }
+        if (palShare == 0) {
+          CarIO_carPixMap[carPixMapCount].flag = CarIO_carPixMap[carPixMapCount].flag | 0x80;
+        }
+      }
+    }
+  }
+  return;
 }
 
 /* ---- CarIO_ReleaseCarCluts__FP8Car_tObj  [CARIO.CPP:856-871] SLD-VERIFIED ---- */

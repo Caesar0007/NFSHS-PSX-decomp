@@ -13,24 +13,17 @@ int Device_gForcePause;
 int Device_gPausePort;
 int Device_gPaused;
 
-/* Device_gToggleTime[2]/Device_gPrev[2] (device_externs.h) are declared as ONE 8-byte
- * array each, but the Device_StartUp/Device_Update oracles reach every access -- all
- * CONSTANT-index [0]/[1] -- as TWO INDEPENDENT %gp_rel(SYM)/%gp_rel(D_..) globals, no
- * address materialization at all (8 bytes is over this build's -G4 small-data threshold
- * as ONE object, but each 4-byte element alone qualifies; both D_ syms are listed in
- * configs/gp_rel_symbols.txt). Same fix as weather.cpp's Weather_gLastProcessTime0/1
- * precedent (section 3.12 #6, applied per-element): model the TRUE per-element storage
- * as real tentative-def scalars for these constant-index sites. Neither array has any
- * OTHER (variable-index) reference anywhere in the project's oracle set, so no residual
- * array-form duality to keep in sync here. */
-int Device_gToggleTime0;
-int Device_gToggleTime1;
-#define DEVICE_GTOGGLETIME0 Device_gToggleTime0
-#define DEVICE_GTOGGLETIME1 Device_gToggleTime1
-u_long Device_gPrev0;
-u_long Device_gPrev1;
-#define DEVICE_GPREV0 Device_gPrev0
-#define DEVICE_GPREV1 Device_gPrev1
+/* Device_gToggleTime[2] / Device_gPrev[2] are the TU's OWN 8-byte arrays and the
+ * oracle reaches them gp-relatively (`%gp_rel(Device_gToggleTime)`,
+ * `%gp_rel(Device_gPrev)` + the per-element D_8013D788/D_8013D790), which is
+ * only possible with -G8 -- so device.obj is a -G8 object (PER_TU_FLAGS).
+ * They were previously hand-split into Device_gToggleTime0/1 + Device_gPrev0/1
+ * scalars to fake the gp-rel under -G4; that was a REAL BUG, not just a match
+ * device: the duals are DIFFERENT storage from the arrays every other consumer
+ * sees through device_externs.h, so Device_StartUp/Device_Update never actually
+ * cleared the arrays.  Real arrays restored. */
+int Device_gToggleTime[2];
+u_long Device_gPrev[2];
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 int Device_VerifyType(int port);
@@ -125,14 +118,14 @@ void Device_Update(void)
   PAD_update();
   if (simVar.pauseSim != 0) {
     Device_gPaused = 1;
-    DEVICE_GTOGGLETIME0 = 0x11;
-    DEVICE_GTOGGLETIME1 = 0x11;
+    Device_gToggleTime[0] = 0x11;
+    Device_gToggleTime[1] = 0x11;
   }
   else if (Device_gPaused != 0) {
     Device_gPaused = 0;
     Device_gPausePort = -1;
-    DEVICE_GTOGGLETIME0 = 0;
-    DEVICE_GTOGGLETIME1 = 0;
+    Device_gToggleTime[0] = 0;
+    Device_gToggleTime[1] = 0;
   }
   if (simVar.pauseSim == 0) {
     iVar2 = Device_Fail(0);
@@ -163,10 +156,10 @@ void Device_StartUp(void)
   Device_gPaused = 0;
   Device_gForcePause = 0;
   Device_gPausePort = -1;
-  DEVICE_GTOGGLETIME0 = 0;
-  DEVICE_GTOGGLETIME1 = 0;
-  DEVICE_GPREV0 = 0;
-  DEVICE_GPREV1 = 0;
+  Device_gToggleTime[0] = 0;
+  Device_gToggleTime[1] = 0;
+  Device_gPrev[0] = 0;
+  Device_gPrev[1] = 0;
   return;
 }
 
@@ -337,7 +330,16 @@ int Device_PSXPadMulti(u_long param)
  * "scale [min,max] onto [0,255]" formula; the old code divided the UNSHIFTED raw byte,
  * i.e. every analog axis read was biased by min*255/(max-min) at runtime.
  * The div guards (`bnez $v1 / break 7`, the -1 / INT_MIN `break 6` pair) are maspsx
- * --expand-div's automatic expansion of a plain C `/` -- never write them by hand. */
+ * --expand-div's automatic expansion of a plain C `/` -- never write them by hand.
+ * RESIDUAL 22 diffs (ours 76 / oracle 64 = +12): retail CROSS-JUMPS the two arms'
+ * divide tails into ONE shared `div` block (`j .L800BDA70` out of the min<max arm);
+ * our cc1plus keeps both copies.  w39-a5 probes (all WORSE, do not retry):
+ *   explicit `goto` to a shared divide + denominator folded into `max`   44 (62/64)
+ *   split `v = v - min;` then `v = (v*0xff)/(max-min);`                  62 (76/64)
+ *   early-`return 0/0xff` guards instead of if/else arms                 37 (77/64)
+ * The goto form DOES produce the single shared divide (62 vs 64 insns) but re-colors
+ * min/max out of their SYM homes because `max` is then mutated; there is no spelling
+ * that shares the tail without inventing a denominator local the SYM does not have. */
 int Device_Analog(u_long param)
 
 {

@@ -116,92 +116,98 @@ void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int arg6)
   return;   /* Font_Blit is void per disasm-v3 (Ghidra void-return mis-infer) */
 }
 
-/* ---- Font_ComputeColors__Fiiic  [FONT.CPP:168-280] SLD-VERIFIED ---- */
+/* ---- Font_ComputeColors__Fiiic  [FONT.CPP:168-255] SLD-VERIFIED ----
+ * SYM (one fn-scope block, fsize 88): i $t2, r $v0, g $v1, b $a0, fr $t8, fg $t4,
+ * fb $a3, br $a2, bg $a1, bb $a0, rgb $v0 (= THE result variable), opaque $s5,
+ * fclr AUTO -0x40 (= sp+0x18), bclr AUTO -0x38 (= sp+0x20), fr1 $v1, fg1 $v0, fb1 $s0.
+ * Oracle evidence: `opaque = forecolour & 0xff000000` is hoisted to the prologue ($s5);
+ * gcc LICMs (fr1<<10)|(fg1<<5) -> $s2, that|0x8000 -> $s3 and fb1 -> $s0 out of the loop,
+ * which is why `rgb` is NOT materialised before the loop; the clut walker $t7 is the
+ * strength-reduced &shpfontclut.data[i]; the literal 15 is CSE'd between `15 - i` and
+ * `colour == 15` ($s1); both `if (rgb == 0) rgb = 0x400;` tails cross-jump into one
+ * block (.L800CB62C) while the i<8 / i<12 / i<4 arms branch straight to the store.
+ * Divides are SIGNED (mult + magic + sign fixup), not unsigned.
+ */
 void Font_ComputeColors(int colour,int forecolour,int backcolour,char in_game)
 
 {
-  u_int uVar1;
-  int fg1;
-  cluttbl *pcVar2;
-  u_int uVar3;
-  u_int uVar4;
-  int fr1;
-  u_int uVar5;
-  int bb;
-  int iVar6;
-  int bg;
-  int br;
-  int fb;
   int i;
-  int iVar7;
-  int fg;
-  int fb1;
-  int opaque;
-  int fr;
-  CVECTOR fclr;
-  CVECTOR bclr;
   int r;
   int g;
   int b;
+  int fr;
+  int fg;
+  int fb;
+  int br;
+  int bg;
+  int bb;
   int rgb;
-  
-  iVar7 = 0;
-  fclr.b = (u_char)((u_int)forecolour >> 0x10);
-  bb = (int)fclr.b;
-  pcVar2 = &shpfontclut;
+  int opaque;
+  CVECTOR fclr;
+  CVECTOR bclr;
+  int fr1;
+  int fg1;
+  int fb1;
+
+  opaque = forecolour & 0xff000000;
+  shpfontclut.type = 0x23;
+  shpfontclut.next = 0;
   shpfontclut.width = 0x10;
-  fclr.g = (u_char)((u_int)forecolour >> 8);
-  fb = (int)fclr.g;
   shpfontclut.height = 1;
   shpfontclut.centerx = 0;
   shpfontclut.centery = 0;
-  (*(int *)&(shpfontclut)) = 0x23;
   shpfontclut.shapex = (short)font_clutx;
   shpfontclut.shapey = (short)font_cluty;
-  uVar1 = (u_int)(bb * 0x1f) / 0xff;
-  r = forecolour & 0xff;
-  uVar5 = ((r * 0x1f) / 0xff) * 0x400;
-  uVar3 = ((u_int)(fb * 0x1f) / 0xff) * 0x20;
-  rgb = uVar5 | uVar3 | uVar1;
-  do {
-    if ((in_game == '\0') || ((forecolour & 0xff000000U) != 0)) {
-      iVar6 = 0xf - iVar7;
-      if (3 < iVar7) {
-        uVar4 = ((int)(r * iVar7 * 0x1f) / 0xef1 +
-                (int)((backcolour & 0xffU) * iVar6 * 0x1f) / 0xef1) * 0x400 |
-                ((int)((u_int)fclr.g * iVar7 * 0x1f) / 0xef1 +
-                (int)(((u_int)backcolour >> 8 & 0xff) * iVar6 * 0x1f) / 0xef1) * 0x20 |
-                (int)((u_int)fclr.b * iVar7 * 0x1f) / 0xef1 +
-                (int)(((u_int)backcolour >> 0x10 & 0xff) * iVar6 * 0x1f) / 0xef1;
-        if (colour == 0xf) {
-          uVar4 = uVar4 | 0x8000;
-        }
-        goto FontColors_defaultColor;
+  *(long *)&fclr = forecolour;
+  *(long *)&bclr = backcolour;
+  r = fclr.r;
+  g = fclr.g;
+  b = fclr.b;
+  fr1 = (r * 31) / 255;
+  fg1 = (g * 31) / 255;
+  fb1 = (b * 31) / 255;
+  for (i = 0; i < 16; i++) {
+    if ((in_game != 0) && (opaque == 0)) {
+      if (i < 8) {
+        rgb = 0;
       }
-      uVar4 = 0;
+      else if (i < 12) {
+        rgb = 0x8000 | fr1 << 10 | fg1 << 5 | fb1;
+      }
+      else {
+        rgb = fr1 << 10 | fg1 << 5 | fb1;
+        if (rgb == 0) {
+          rgb = 0x400;
+        }
+      }
     }
     else {
-      uVar4 = 0;
-      if ((7 < iVar7) && (uVar4 = rgb | 0x8000, 0xb < iVar7)) {
-        uVar4 = rgb;
-FontColors_defaultColor:
-        if (uVar4 == 0) {
-          uVar4 = 0x400;
+      fr = (fclr.r * i * 31) / 3825;
+      fg = (fclr.g * i * 31) / 3825;
+      fb = (fclr.b * i * 31) / 3825;
+      br = (bclr.r * (15 - i) * 31) / 3825;
+      bg = (bclr.g * (15 - i) * 31) / 3825;
+      bb = (bclr.b * (15 - i) * 31) / 3825;
+      if (i < 4) {
+        rgb = 0;
+      }
+      else {
+        rgb = (fr + br) << 10 | (fg + bg) << 5 | (fb + bb);
+        if (colour == 0xf) {
+          rgb = rgb | 0x8000;
+        }
+        if (rgb == 0) {
+          rgb = 0x400;
         }
       }
     }
-    pcVar2->data[0] = (short)uVar4;
-    iVar7 = iVar7 + 1;
-    pcVar2 = (cluttbl *)((char *)pcVar2 + 2);
-    if (0xf < iVar7) {
-      Texture_Vramf((shapetbl *)&shpfontclut,font_clutx,font_cluty,font_clutx + colour * 0x10,
-                 font_cluty);
-      DrawSync(0);
-      return;
-    }
-  } while( true );
+    shpfontclut.data[i] = (short)rgb;
+  }
+  Texture_Vramf((shapetbl *)&shpfontclut,font_clutx,font_cluty,font_clutx + colour * 0x10,
+                font_cluty);
+  DrawSync(0);
+  return;
 }
-
 /* ---- Font_textbsearch__FiPcUlUl  [FONT.CPP:262-280] SLD-VERIFIED ---- */
 charactertbl *
 Font_textbsearch(int key,char *base,u_long nmemb,u_long size)

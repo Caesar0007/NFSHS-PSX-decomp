@@ -313,7 +313,7 @@ void AudioClc_SilenceOpponentHorn(int closestIndex)
 /* ---- AudioClc_SoundCloseCar__Fii  [@0x80075028] ---- */
 void AudioClc_SoundCloseCar(int playerIndex,int closestIndex)
 {
-  AudioClc_tSource*source;
+  AudioClc_tSource *source;
   Car_tObj *car;
   int dsquare;
   int distSq;
@@ -321,48 +321,27 @@ void AudioClc_SoundCloseCar(int playerIndex,int closestIndex)
   int dst;
   int dir;
   int azimuth;
-  int c;
-  int iamp;
-  int iVar1;
-  int iVar4;
-  int relvel;
-  int iVar5;
-  s_type surface1;
-  s_type surface2;
-  coorddef *objectPos;
-  int *piVar6;
 
   source = &AudioClc_gClosest[closestIndex];
   car = source->car;
   if (car == (Car_tObj *)0x0) {
     return;
   }
-  objectPos = &(car->N).position;
-  dop = AudioClc_CalcDopplerShiftRatio(objectPos,&(car->N).linearVel);
+  dop = AudioClc_CalcDopplerShiftRatio(&(car->N).position,&(car->N).linearVel);
   if (dop < 0) {
     return;
   }
-  dst = AudioClc_CalcDistance(&AudioClc_gRenderView,objectPos);
-  dir = AudioClc_CalcCarDirection(&AudioClc_gRenderView,car);
-  dir = fixeddiv(dir,dst);
-  if (dir < 0x10001) {
-    dir = AudioClc_CalcCarDirection(&AudioClc_gRenderView,car);
-    dir = fixeddiv(dir,dst);
-    if (-0x10001 < dir) goto LAB_800750fc;
-    dir = -0x10000;
-  }
-  else {
-LAB_800750fc:
-    dir = AudioClc_CalcCarDirection(&AudioClc_gRenderView,car);
-    dir = fixeddiv(dir,dst);
-    if (dir < 0x10001) {
-      dir = AudioClc_CalcCarDirection(&AudioClc_gRenderView,car);
-      dir = fixeddiv(dir,dst);
-    }
-    else {
-      dir = 0x10000;
-    }
-  }
+  dst = AudioClc_CalcDistance(&AudioClc_gRenderView,&(car->N).position);
+  dir =
+      (((fixeddiv(AudioClc_CalcCarDirection(&AudioClc_gRenderView,car),dst) <
+          0x10001) ?
+         fixeddiv(AudioClc_CalcCarDirection(&AudioClc_gRenderView,car),dst) :
+         0x10000) >= -0x10000) ?
+        ((fixeddiv(AudioClc_CalcCarDirection(&AudioClc_gRenderView,car),dst) <
+          0x10001) ?
+         fixeddiv(AudioClc_CalcCarDirection(&AudioClc_gRenderView,car),dst) :
+         0x10000) :
+        -0x10000;
   if (GameSetup_gData.commMode == 1) {
     azimuth = 0x3fff;
     if (playerIndex == 0) {
@@ -372,73 +351,66 @@ LAB_800750fc:
   else {
     azimuth = AudioClc_CalcAzimuth(&AudioClc_gRenderView,&(car->N).position);
   }
-  dsquare = dst;
-  if (dst < 0) {
-    dsquare = dst + 0xffff;
-  }
-  dsquare = (dsquare >> 0x10) * (dsquare >> 0x10);
+  dsquare = dst / 0x10000;
+  dsquare *= dsquare;
   distSq = 0x1324;
   if (dsquare < 0x1324) {
     distSq = dsquare;
   }
-  if (AudioClc_gCameraVelocity == (coorddef *)0x0) {
-    iVar4 = car->currentSpeed;
-    if (iVar4 < 0) {
-      iVar4 = -iVar4;
+  if (AudioClc_gCameraVelocity != (coorddef *)0x0) {
+    source->relVelocity =
+        ((car->currentSpeed -
+          AudioClc_gPlayer[playerIndex].source.car->currentSpeed) > 0) ?
+        (car->currentSpeed -
+         AudioClc_gPlayer[playerIndex].source.car->currentSpeed) :
+        (AudioClc_gPlayer[playerIndex].source.car->currentSpeed -
+         car->currentSpeed);
+  }
+  else {
+    source->relVelocity = __builtin_abs(car->currentSpeed);
+  }
+  source->distSq = distSq;
+  AudioCmn_TrafficSFX(closestIndex + 6,car->carInfo->carType,
+                      (car->flywheelRpm << 0x10) / car->specs->redline,
+                      dop,dst,azimuth,__builtin_abs((car->linearVel_ch).z),dir);
+  {
+    int c;
+
+    c = car->audioCount - 1;
+    while (c >= 0) {
+      if (car->audio[c].channel >= 0) {
+        AudioCmn_TrafficSkidSFX(closestIndex + 0x20,
+            (s_type)car->audio[c].surface1,(s_type)car->audio[c].surface2,
+            car->audio[c].force,dsquare,azimuth);
+      }
+      else {
+        AudioCmn_TrafficSkidSFX(-1,
+            (s_type)car->audio[c].surface1,(s_type)car->audio[c].surface2,
+            car->audio[c].force,distSq,azimuth);
+      }
+      c--;
+    }
+  }
+  if ((car->carFlags & 4U) != 0) {
+    if ((car->control).horn != '\0') {
+      AudioClc_SoundOpponentHorn(closestIndex,azimuth,dop,distSq);
+      source->horn = 1;
+    }
+    else if (source->horn != 0) {
+      AudioClc_SilenceOpponentHorn(closestIndex);
+      source->horn = 0;
     }
   }
   else {
-    iVar5 = (AudioClc_gPlayer[playerIndex].source.car)->currentSpeed;
-    iVar4 = car->currentSpeed - iVar5;
-    if (iVar4 < 1) {
-      iVar4 = iVar5 - car->currentSpeed;
-    }
-  }
-  source->relVelocity = iVar4;
-  source->distSq = distSq;
-  iVar4 = car->specs->redline;
-  iVar5 = car->flywheelRpm << 0x10;
-  relvel = (car->linearVel_ch).z;
-  if (relvel < 0) {
-    relvel = -relvel;
-  }
-  AudioCmn_TrafficSFX(closestIndex + 6,car->carInfo->carType,iVar5 / iVar4,dop,dst,azimuth,relvel,dir
-            );
-  c = car->audioCount + -1;
-  if (-1 < c) {
-    piVar6 = &(car->N).simRoadInfo.quadPts[car->audioCount * 2 + -4].z;
-    do {
-      iVar1 = closestIndex + 0x20;
-      if (piVar6[0x1e7] < 0) {
-        surface1 = piVar6[0x1e8];
-        surface2 = piVar6[0x1e9];
-        iVar5 = piVar6[0x1ea];
-        iVar1 = -1;
-        iVar4 = distSq;
-      }
-      else {
-        surface1 = piVar6[0x1e8];
-        surface2 = piVar6[0x1e9];
-        iVar5 = piVar6[0x1ea];
-        iVar4 = dsquare;
-      }
-      piVar6 = piVar6 + -6;
-      AudioCmn_TrafficSkidSFX(iVar1,surface1,surface2,iVar5,iVar4,azimuth);
-      c = c + -1;
-    } while (-1 < c);
-  }
-  if ((car->carFlags & 4U) == 0) {
-    iVar1 = source->horn;
-    if (0 < iVar1) {
+    if (0 < source->horn) {
       if (0 < source->hornOn) {
-        source->horn = iVar1 + -1;
+        source->horn--;
       }
       if (source->horn == 0) {
         (car->control).horn = '\0';
         AudioClc_SilenceOpponentHorn(closestIndex);
-        iVar1 = source->hornCount + -1;
-        source->hornCount = iVar1;
-        if (iVar1 != 0) {
+        source->hornCount--;
+        if (source->hornCount != 0) {
           source->horn = source->hornOff;
         }
       }
@@ -446,27 +418,18 @@ LAB_800750fc:
         (car->control).horn = '\x01';
         AudioClc_SoundOpponentHorn(closestIndex,azimuth,dop,distSq);
       }
-      goto LAB_800753f8;
     }
-    if ((-1 < iVar1) || (source->horn = iVar1 + 1, iVar1 + 1 != 0))
-    goto LAB_800753f8;
-    iVar1 = source->hornOn;
-  }
-  else {
-    if ((car->control).horn == '\0') {
-      if (source->horn != 0) {
-        AudioClc_SilenceOpponentHorn(closestIndex);
-        source->horn = 0;
+    else if (source->horn < 0) {
+      source->horn++;
+      if (source->horn == 0) {
+        source->horn = source->hornOn;
       }
-      goto LAB_800753f8;
     }
-    AudioClc_SoundOpponentHorn(closestIndex,azimuth,dop,distSq);
-    iVar1 = 1;
   }
-  source->horn = iVar1;
-LAB_800753f8:
   if (car->carInfo->carType - 0x16U < 6) {
     if ((car->AIFlags & 2U) != 0) {
+      int iamp;
+
       iamp = ((0x1324 - distSq) * 0x7f) / 0x1324;
       if (bSirenOn[closestIndex] == 0) {
         SirenOn(closestIndex,car->carFlags & 0x40);

@@ -303,7 +303,7 @@ void Hud_FBuildSprite(int shapeIdx,int x,int y,u_long color,int trans)
   prim = Render_gPacketPtr;
   prev_pkt = Render_gPalettePtr;
   *(u_int *)prim =
-       *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+       *(u_int *)prim & 0xff000000 | *(u_int *)prev_pkt & 0xffffff;
   prev_hi = *(u_int *)prev_pkt & 0xff000000;
   Render_gPacketPtr = prim + 0x14;
   tu1 = (u_int)prim & 0xffffff;
@@ -586,7 +586,7 @@ void Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char
   prim     = (POLY_F4 *)Render_gPacketPtr;
   prev_pkt = Render_gPalettePtr;
   *(u_int *)prim =
-       *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+       *(u_int *)prim & 0xff000000 | *(u_int *)prev_pkt & 0xffffff;
   prev_hi = *(u_int *)prev_pkt & 0xff000000;
   Render_gPacketPtr = (u_char *)prim + 0x18;
   pkt_addr24 = (u_int)prim & 0xffffff;
@@ -2885,54 +2885,53 @@ HudRender321_drawCountNum:
   return;
 }
 
-/* ---- BigBTCTime__Fi  [HUD.CPP:3345-3423] SLD-VERIFIED ---- */
+/* ---- BigBTCTime__Fi  [HUD.CPP:3345-3423] SLD-VERIFIED ----
+ * SYM-EXACT locals (8c @0x800d7fb0, fsize=80): secs REGPARM $s3 | prim $s1 (POLY_GT4*) |
+ * x $s2 | y $s7 | xx $fp | yy AUTO -0x30 | Col $s5 | Col2 $s4 | w1 $s6 | w2 AUTO -0x2c |
+ * ten $s0 | diff $v0 (block @line 34).  x is MUTATED in place (`x += w1`, then `x -= w1/w2`)
+ * while xx/yy keep the untouched origin for the two box calls -- that pair of copies is what
+ * the SYM's xx/yy are for; the previous recon fabricated ~25 scalar temps instead and spilled
+ * 24 bytes of frame. */
 void BigBTCTime(int secs)
 
 {
-  static int lastsec;
-  static int lastsectick;
-  int iVar1;
-  int iVar2;
-  u_char *prim_00;
-  int diff;
-  int iVar3;
-  int tens_digit;
-  int color_pack;
-  int ten;
   POLY_GT4 *prim;
+  u_char   *prev_pkt;
+  u_int     prev_hi;
+  int       pkt_addr24;
   int x;
-  int x_00;
-  int Col_shadow;
-  int Col2;
-  int Col_main;
-  int Col;
-  int w1;
-  int iVar4;
   int y;
-  int y_00;
   int xx;
-  int loc_40;
   int yy;
+  int Col;
+  int Col2;
+  int w1;
   int w2;
-  u_char *tp4;
-  u_char *tp3;
-  u_char *tp2;
-  short ts1;
-  
+  int ten;
+
   if (((BTC_BonusTime == 0) && (HudBustedOverlay == 0)) && (-1 < secs)) {
     if (secs != BigBTCTime_state1) {
-      BigBTCTime_state2 = ticks;
       BigBTCTime_state1 = secs;
+      BigBTCTime_state2 = ticks;
     }
-    ts1 = g1Player[0xf].x;
-    y_00 = (int)g1Player[0xf].y;
-    x_00 = ts1 + 2;
-    iVar3 = (int)HudPmx_gShapes[0x2d].width;
-    iVar4 = HudPmx_gShapes[0x2c].width + 1;
-    if (secs < 0xb) {
-      if ((diff = ticks - BigBTCTime_state2) < 0x40) {
-        Hud_BlackThinBox(x_00,y_00,iVar4 * 2,0xe);
-        Hud_FBuildF4(0,x_00,y_00,iVar4 * 2,0xe,0,'\0','\0');
+    x = g1Player[0xf].x + 2;
+    y = g1Player[0xf].y;
+    xx = x;
+    yy = y;
+    w1 = HudPmx_gShapes[0x2c].width + 1;
+    w2 = HudPmx_gShapes[0x2d].width + 1;
+    if (0xa < secs) {
+      Col = 0xc800;
+      BTC_playedsoundalready = 0;
+      Col2 = 0x6400;
+    }
+    else {
+      int diff;
+
+      diff = ticks - BigBTCTime_state2;
+      if (diff < 0x40) {
+        Hud_BlackThinBox(xx,yy,w1 * 2,0xe);
+        Hud_FBuildF4(0,xx,yy,w1 * 2,0xe,0,'\0','\0');
         BTC_playedsoundalready = 0;
         return;
       }
@@ -2943,42 +2942,40 @@ void BigBTCTime(int secs)
       }
       Col2 = 100;
     }
-    else {
-      Col = 0xc800;
-      BTC_playedsoundalready = 0;
-      Col2 = 0x6400;
-    }
-    tp3 = Render_gPacketPtr;
-    tp2 = Render_gPalettePtr;
-    *(u_int *)Render_gPacketPtr =
-         *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    tens_digit = (u_int)Render_gPacketPtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0x34;
-    *(u_int *)tp2 = *(u_int *)tp2 & 0xff000000 | tens_digit;
-    iVar2 = secs / 10;
-    Hud_BuildGT4((POLY_GT4 *)tp3,HudPmx_gShapes + secs % 10 + 0x2c,x_00 + iVar4 + -1,y_00,
-               Col);
-    *(int *)(tp3 + 0x28) = Col2;
-    *(int *)(tp3 + 0x1c) = Col2;
-    prim_00 = Render_gPacketPtr;
-    tp4 = Render_gPalettePtr;
-    if (iVar2 != 0) {
-      iVar1 = iVar4;
-      if (iVar2 == 1) {
-        iVar1 = iVar3 + 1;
+    x = x + w1;
+    prim = (POLY_GT4 *)Render_gPacketPtr;
+    prev_pkt = Render_gPalettePtr;
+    *(u_int *)prim =
+         *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+    prev_hi = *(u_int *)prev_pkt & 0xff000000;
+    Render_gPacketPtr = (u_char *)prim + 0x34;
+    pkt_addr24 = (u_int)prim & 0xffffff;
+    *(u_int *)prev_pkt = prev_hi | pkt_addr24;
+    Hud_BuildGT4(prim,HudPmx_gShapes + 0x2c + secs % 10,x + -1,y,Col);
+    *(int *)((char *)prim + 0x28) = Col2;
+    *(int *)((char *)prim + 0x1c) = Col2;
+    ten = secs / 10;
+    if (ten != 0) {
+      if (ten == 1) {
+        x = x - w2;
       }
-      *(u_int *)Render_gPacketPtr =
-           *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      color_pack = (u_int)Render_gPacketPtr & 0xffffff;
-      Render_gPacketPtr = Render_gPacketPtr + 0x34;
-      *(u_int *)tp4 = *(u_int *)tp4 & 0xff000000 | color_pack;
-      Hud_BuildGT4((POLY_GT4 *)prim_00,HudPmx_gShapes + iVar2 + 0x2c,(x_00 + iVar4) - iVar1,y_00,
-                 Col);
-      *(int *)(prim_00 + 0x28) = Col2;
-      *(int *)(prim_00 + 0x1c) = Col2;
+      else {
+        x = x - w1;
+      }
+      prim = (POLY_GT4 *)Render_gPacketPtr;
+      prev_pkt = Render_gPalettePtr;
+      *(u_int *)prim =
+           *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+      prev_hi = *(u_int *)prev_pkt & 0xff000000;
+      Render_gPacketPtr = (u_char *)prim + 0x34;
+      pkt_addr24 = (u_int)prim & 0xffffff;
+      *(u_int *)prev_pkt = prev_hi | pkt_addr24;
+      Hud_BuildGT4(prim,HudPmx_gShapes + 0x2c + ten,x,y,Col);
+      *(int *)((char *)prim + 0x28) = Col2;
+      *(int *)((char *)prim + 0x1c) = Col2;
     }
-    Hud_BlackThinBox(x_00,y_00,iVar4 * 2,0xe);
-    Hud_FBuildF4(0,x_00,y_00,iVar4 * 2,0xe,0,'\0','\0');
+    Hud_BlackThinBox(xx,yy,w1 * 2,0xe);
+    Hud_FBuildF4(0,xx,yy,w1 * 2,0xe,0,'\0','\0');
   }
   return;
 }

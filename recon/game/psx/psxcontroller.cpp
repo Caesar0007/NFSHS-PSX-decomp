@@ -191,7 +191,7 @@ int InGame_GetDevice(int control)
 void InGame_SetRamp(void)
 
 {
-  int i;
+  short i;   /* SYM: REG $s3, type SHORT -- an int counter cost 8 insns */
   int *h;
   int ctrl;
 

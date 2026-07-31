@@ -371,52 +371,61 @@ int Font_LoadFont(char *f1,int x,int y,char in_game)
   return y + *(short *)(shp_00 + 6);
 }
 
-/* ---- Font_TextXY__FPcii  [FONT.CPP:414-453] SLD-VERIFIED ---- */
+/* ---- Font_TextXY__FPcii  [FONT.CPP:414-453] SLD-VERIFIED ----
+ * SYM locals (fn block): str $s4, ch $s1, code $s3; inner block (line ~431): u $s0;
+ * tail block (line ~450): dr_mode $a0.  Params x -> $s2, y -> $s6 (REGPARM copies).
+ * SLD: 419 code=-1 | 421 while | 423 code=*str++ | 425 if | 433/434 geti | 436-439 blit
+ * call | 442 x+=advance | 446 space path (textually LAST => the `else` arm) | 449-453 tail.
+ * The scratchpad packet/palette reads live ONLY in the tail block (oracle .L800CBB5C).
+ */
 void Font_TextXY(char *string,int x,int y)
 
 {
-  int ch_entry_p;
-  int char_w;
-  int char_h;
-  int tpage_packed;
-  DR_MODE *dr_mode;
-  int tpage;
-  int u;
   charactertbl *ch;
   int code;
-  int ch_byte;
   char *str;
-  u_char *tp1;
-  u_char *p;
-  
-  ch_byte = -1;
-  while (p = Render_gPacketPtr, tp1 = Render_gPalettePtr, ch_byte != 0) {
-    ch_byte = (int)(u_char)*string;
-    string = string + 1;
-    if ((u_int)ch_byte < 0x21) {
-      x = x + (u_int)gFontSpaceWidth;
-    }
-    else {
-      ch_entry_p = (int)Font_Getcharacter(ch_byte);
-      if (ch_entry_p != 0) {
-        char_w = geti((void *)(ch_entry_p + 4),2);
-        char_h = geti((void *)(ch_entry_p + 6),2);
-        (*gCurrentBlitter)(x + *(char *)(ch_entry_p + 9),y + *(char *)(ch_entry_p + 10),
-                           (*(int *)((u_char *)&(currentfont) + 136)),char_w,char_h,ch_entry_p,(*(int *)((u_char *)&(currentfont) + 120)));
-        x = x + *(char *)(ch_entry_p + 8);
+  u_char *cfbase;
+
+  cfbase = (u_char *)&(currentfont);
+  str = string;
+  code = -1;
+  while (code != 0) {
+    code = *(u_char *)str;
+    str = str + 1;
+    if (0x20 < code) {
+      ch = Font_Getcharacter(code);
+      if (ch != (charactertbl *)0x0) {
+        int u;
+
+        u = geti(ch->u,2);
+        /* `char` is UNSIGNED on this build -> (signed char) forces the oracle's `lb` */
+        (*gCurrentBlitter)(x + *(signed char *)&ch->xoffset,
+                           y + *(signed char *)&ch->yoffset,
+                           *(void **)(cfbase + 136),
+                           u,geti(ch->v,2),(charactertbl *)ch,
+                           *(int *)(cfbase + 120));
+        x = x + *(signed char *)&ch->advance;
       }
     }
+    else {
+      x = x + (u_int)gFontSpaceWidth;
+    }
   }
-  tpage = (int)font_currentTPage;
-  *(u_int *)Render_gPacketPtr =
-       *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  tpage_packed = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0xc;
-  *(u_int *)tp1 = *(u_int *)tp1 & 0xff000000 | tpage_packed;
-  SetDrawMode((DR_MODE *)p,0,0,tpage,(RECT *)0x0);
+  {
+    DR_MODE *dr_mode;
+    u_int *pal;
+    int tpage;
+
+    dr_mode = (DR_MODE *)Render_gPacketPtr;
+    pal = (u_int *)Render_gPalettePtr;
+    tpage = (int)font_currentTPage;
+    *(u_int *)dr_mode = *pal & 0xffffff | *(u_int *)dr_mode & 0xff000000;
+    Render_gPacketPtr = (u_char *)dr_mode + 0xc;
+    *pal = *pal & 0xff000000 | (u_int)dr_mode & 0xffffff;
+    SetDrawMode(dr_mode,0,0,tpage,(RECT *)0x0);
+  }
   return;
 }
-
 /* ---- Font_GetUVWH__FcPiN41  [FONT.CPP:541-549] SLD-VERIFIED ---- */
 void Font_GetUVWH(char code,int *u,int *v,int *w,int *h,int *yoff)
 

@@ -48,16 +48,20 @@ void Platform_InitMemory(void)
 }
 
 /* ---- Platform_ReserveMemory__FiPc  [PLATFORM.CPP:139-156] SLD-VERIFIED ---- */
-/* NEAR-MISS 12 diffs (19/19), was 24. MATCH: the round-up-to-4 is a SIGNED DIVIDE
- * `(size+3)/4*4`, not a hand-guarded `>>2`. Oracle `addiu v0,a0,3; bgez v0,L;
- * addu v1,v0,zero; addiu v1,v0,3; L: sra v0,v1,2` IS gcc-2.8's inline signed /4 (add
- * 2^n-1 on the negative path); the old hand-written `if(newmem<0) newmem = size+6;`
- * rematerializes from the param (`addiu a1,a0,6`) instead of from newmem. SYM: REGPARM
- * size = $2(v0) => `size` is MUTATED IN PLACE here too (`size = size + 3;`), which is
- * what keeps the guard add on the newmem pseudo instead of folding to `size+6`.
- * Residual 12: (a) gcc coalesces the divide's pre-branch copy away (ours `nop` in the
- * bgez slot, oracle `addu v1,v0,zero`); (b) the return funnel picks the other value for
- * the bnez delay slot (ours v0=0, oracle v0=mem). See methodology signed-/2^n codegen. */
+/* NEAR-MISS 6 diffs (19/19), was 12 (w39-a4).  Structure now 1:1 with the oracle:
+ *   - round-up-to-4 is gcc-2.8's inline SIGNED /4 (`addiu v0,a0,3; bgez v0,L;
+ *     addu v1,v0,zero; addiu v1,v0,3; L: sra v0,v1,2`), on the IN-PLACE-mutated `size`
+ *     (SYM REGPARM size = $2 = $v0, so `size = size + 3;` is the source form);
+ *   - BRANCH POLARITY: the FAILURE arm is the early return (`if (gTotal < newmem-gLow)
+ *     return 0;`), which makes the success path the fall-through, puts `addu v0,a1,zero`
+ *     (mem) in the `bnez` delay slot and leaves the two `jr ra` tails UNMERGED, exactly
+ *     as the oracle @0x800DC318-0x800DC330.  The old `if (... <= gTotal) {success}` form
+ *     put v0=0 in the slot (that was the documented 12-diff residual (b)).
+ * Residual 6 = the divide guard: gcc rematerializes `size+6` from $a0 and DUPLICATES the
+ * `sra` into both arms, where the oracle keeps a copy `addu v1,v0,zero` on the positive
+ * path plus ONE shared `sra`.  Tried: separate quotient local (8), extra `q = size` copy
+ * (6, same shape), hand-written guard `if (size<0)` (22, folds wrong).  $a0 stays live so
+ * combine can always refold (size+3)+3 -> a0+6; no source form found that kills it. */
 char *Platform_ReserveMemory(int size,char *string)
 
 {
@@ -67,11 +71,11 @@ char *Platform_ReserveMemory(int size,char *string)
   size = size + 3;
   newmem = gCurrentMemory + (size / 4) * 4;
   mem = (char *)gCurrentMemory;
-  if (newmem - gLowMemory <= (int)gTotalMemory) {
-    gCurrentMemory = newmem;
-    return mem;
+  if ((int)gTotalMemory < newmem - gLowMemory) {
+    return (char *)0x0;
   }
-  return (char *)0x0;
+  gCurrentMemory = newmem;
+  return mem;
 }
 
 /* ---- Platform_TempReserveMemory__FiPc  [PLATFORM.CPP:161-178] SLD-VERIFIED ---- */

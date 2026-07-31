@@ -287,8 +287,15 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
       }
       else {
         dx = ptrans.vx - is->trans.vx;
-        if ((dx <= 0) ? (is->trans.vx - ptrans.vx < 0x20) : (dx < 0x20)) {
-          ptrans.vx = (is->trans.vx < ptrans.vx) ? ptrans.vx + 0x20 : ptrans.vx + -0x20;
+        /* oracle `blez v0,.L800DD924` => the dx>0 arm is the FALL-THROUGH, so the
+           positive test must be written first. */
+        if ((0 < dx) ? (dx < 0x20) : (is->trans.vx - ptrans.vx < 0x20)) {
+          /* BUG FIX (w38-a5): the clamped endpoint is measured from is->trans.vx, NOT
+             from ptrans.vx -- oracle `lhu $v1,0x30($s2)` (is->trans.vx) feeds both
+             `addiu $v0,$v1,0x20` and `addiu $v0,$v1,-0x20` before `sh $v0,0x58($sp)`.
+             The old form re-based on ptrans.vx, so the 32-unit minimum separation was
+             not enforced (spark ribbon could stay degenerate). */
+          ptrans.vx = (is->trans.vx < ptrans.vx) ? is->trans.vx + 0x20 : is->trans.vx + -0x20;
         }
         ds->v0.vx = is->trans.vx;
         ds->v0.vy = is->trans.vy + 0x20;

@@ -1387,12 +1387,9 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   int tuntrig;
   int cam;
   int roadNoisePatch;
-  int gas;
   u_char bVar1;
   short sVar2;
-  bool bVar3;
   int iVar4;
-  void *pvVar5;
   int iVar6;
   u_int uVar7;
   int iVar8;
@@ -1401,23 +1398,18 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   int iVar10;
   int iVar11;
   int iVar12;
-  int local_38;
   
   AudioCmn_CheckState(car);
   if (AudioCmn_kAudioOn) {
-  iVar8 = 0x8000000;
+  iAmpIn = 0x8000000;
   if (Camera_gInfo[car->carIndex].mode == 0xc) {
-    iVar8 = 0x10000000;
-    iVar9 = 0x10000;
+    iAmpIn = 0x10000000;
+    roadNoisePatch = 0x10000;
   }
   else {
-    iVar9 = 0x20000;
+    roadNoisePatch = 0x20000;
   }
-  iVar8 = fixeddiv(iVar8,dst + iVar9);
-  if (iVar8 < 0) {
-    iVar8 = iVar8 + 0xffff;
-  }
-  iVar8 = iVar8 >> 0x10;
+  iAmpIn = fixeddiv(iAmpIn,dst + roadNoisePatch) / 0x10000;
   iVar9 = (car->linearVel_ch).z;
   if (iVar9 < 0) {
     iVar9 = -iVar9;
@@ -1436,6 +1428,9 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   if (0x7f < CurCarGasLevel) {
     CurCarGasLevel = 0x7f;
   }
+  /* Keep the source-level freq lifetime distinct from iFreqIn.  Retail carries
+     iFreqIn in $s2, then reuses that register for PlayerPan and loadAmp. */
+  freq = iFreqIn;
   /* SYM: cobbleMod is a distinct REG local ($s3) spanning from this clamp through the
      switch-case modulo below -- split out of the Ghidra iVar4 temp (which is reused later
      for unrelated short-lived values) so its live range doesn't force one register to
@@ -1448,11 +1443,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   if (cobbleMod < 3) {
     cobbleMod = 3;
   }
-  local_38 = 0x40;
-  /* @0x800789CC: oracle copies the clamped value into a FRESH reg ($s6) --
-     iFreqIn's own reg ($s2) is dead after this and gets reused later
-     (PlayerPan). Model as a genuinely separate local, not an in-place clamp. */
-  freq = iFreqIn;
+  roadNoiseFreq = 0x40;
   if (0x96 < freq) {
     freq = 0x96;
   }
@@ -1463,8 +1454,8 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
      (blowout override + case-7 check) -- split from iVar12 which is reused for 3
      unrelated short-lived values later in the function. */
   roadSurface = (car->N).driveSurfaceType;
-  pvVar5 = BWorldSm_TunnelFlagSm(&(car->N).simRoadInfo);
-  if (pvVar5 != (void *)0x0) {
+  tuntrig = (int)BWorldSm_TunnelFlagSm(&(car->N).simRoadInfo);
+  if (tuntrig != 0) {
     if ((GameSetup_gData.commMode != 1) && ((u_char)fReverbLevel < 100)) {
       uVar7 = 100;
       if ((u_char)fReverbLevel + 10 < 0x65) {
@@ -1475,7 +1466,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
       fReverbOn = '\x01';
     }
     roadNoiseAmp = roadNoiseAmp + 0x14;
-    local_38 = 0x5e;
+    roadNoiseFreq = 0x5e;
   }
   else {
     if ((u_char)fReverbLevel < 0x20) {
@@ -1492,16 +1483,16 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
       SNDfxmasterlevel(0x0,uVar7 & 0xff);
     }
   }
-  bVar3 = false;
+  SPSC = false;
   if (GameSetup_gData.commMode == 1) {
-    bVar3 = true;
-    iVar11 = 0xc002;
+    SPSC = true;
+    PlayerPan = 0xc002;
     if (car->carIndex != 0) {
-      iVar11 = 0x3ffe;
+      PlayerPan = 0x3ffe;
     }
   }
   else {
-    iVar11 = 0;
+    PlayerPan = 0;
   }
   if (car->blowout != 0) {
     roadSurface = 4;
@@ -1531,7 +1522,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
       iVar9 = roadNoiseAmp + 3;
     }
     roadNoiseAmp = roadNoiseAmp + (iVar9 >> 2);
-    local_38 = 0x18;
+    roadNoiseFreq = 0x18;
     break;
   case 4:
   case 7:
@@ -1544,8 +1535,8 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
     cobbleCount = cobbleCount % cobbleMod;
     if ((cobbleCount == 0) && ((car->N).objAltitude < 0x3333) && (0 < gMasterSFXLevel)) {
       iVar9 = 0;
-      if (bVar3) {
-        iVar9 = iVar11;
+      if (SPSC) {
+        iVar9 = PlayerPan;
       }
       iVar4 = 0x40;
       if (roadSurface == 7) {
@@ -1563,20 +1554,19 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
      (sra) -- iVar4 happens to equal 1 there, but the register form must be reproduced. */
   sVar2 = Camera_gInfo[car->carIndex].mode;
   if (sVar2 < 0) {
-    iVar4 = 2;
-    iVar9 = roadNoiseAmp >> 1;
+    cam = 2;
+    roadNoiseAmp = roadNoiseAmp >> 1;
   }
   else if (sVar2 < 2) {
-    iVar4 = 0;
-    iVar9 = roadNoiseAmp;
+    cam = 0;
   }
   else if (sVar2 < 5) {
-    iVar4 = 1;
-    iVar9 = roadNoiseAmp >> iVar4;
+    cam = 1;
+    roadNoiseAmp = roadNoiseAmp >> cam;
   }
   else {
-    iVar4 = 2;
-    iVar9 = roadNoiseAmp >> 1;
+    cam = 2;
+    roadNoiseAmp = roadNoiseAmp >> 1;
   }
   uVar7 = (u_int)(u_char)(car->control).gasLevel;
   iVar10 = PlayersRampedGasLevel[car->carIndex];
@@ -1607,59 +1597,59 @@ LAB_80078d54:
   if (0xff < cobblestoneAmp) {
     cobblestoneAmp = 0xff;
   }
-  iVar12 = iVar8 * (freq + 0x28);
-  if (iVar12 < 0) {
-    iVar12 = iVar12 + 0x7f;
+  amplitude = iAmpIn * (freq + 0x28);
+  if (amplitude < 0) {
+    amplitude = amplitude + 0x7f;
   }
-  iVar11 = iVar12 >> 7;
-  if (iVar12 >> 7 < iVar8) {
-    iVar11 = iVar8;
+  amplitude = amplitude >> 7;
+  if (amplitude < iAmpIn) {
+    amplitude = iAmpIn;
   }
-  iVar12 = iVar11 * 0x7f >> 7;
-  iVar8 = iVar9 * iVar11 >> 7;
-  if (pvVar5 == (void *)0x0) {
-    iVar9 = Weather_GetNumParticles(car->carIndex);
+  loadAmp = amplitude * 0x7f >> 7;
+  roadNoiseAmp = roadNoiseAmp * amplitude >> 7;
+  if (tuntrig == 0) {
+    wetNoiseAmp = Weather_GetNumParticles(car->carIndex);
   }
   else {
-    iVar9 = 0;
+    wetNoiseAmp = 0;
   }
-  iVar11 = iVar9 >> 3;
-  if (0x7f < iVar9) {
-    iVar9 = 0x7f;
-    iVar11 = 0xf;
+  wetNoiseFreq = wetNoiseAmp >> 3;
+  if (0x7f < wetNoiseAmp) {
+    wetNoiseAmp = 0x7f;
+    wetNoiseFreq = wetNoiseAmp >> 3;
   }
-  iVar6 = 0x7f;
-  if (iVar8 < 0x80) {
-    iVar6 = iVar8;
+  wetNoiseFreq = 0x48 - wetNoiseFreq;
+  if (0x7f < roadNoiseAmp) {
+    roadNoiseAmp = 0x7f;
   }
   if ((relvel != 0) || (Camera_gInfo[car->carIndex].mode == 0xb)) {
     /* @0x80078E50: the div-by-zero / INT_MIN-by(-1) guard is the automatic
        --expand-div guard on the '/' below (matches the oracle's single
        div;break7;break6 sequence) -- no manual trap() in source. */
-    iVar8 = iVar12 << 0x10;
-    iVar12 = iVar8 / doppler;
+    loadAmp = (loadAmp << 0x10) / doppler;
   }
-  iVar8 = 0xe;
-  if ((iVar4 == 0) && (iVar8 = 0, GameSetup_gData.commMode == 1)) {
-    iVar8 = 0xe;
+  freq = freq * doppler;
+  roadNoisePatch = 0xe;
+  if ((cam == 0) && (roadNoisePatch = 0, GameSetup_gData.commMode == 1)) {
+    roadNoisePatch = 0xe;
   }
-  if (iVar6 == 0) {
-    iVar8 = 0x19;
+  if (roadNoiseAmp == 0) {
+    sndPlayer = 0x19;
     if (car->carIndex == 0) {
-      iVar8 = 0x18;
+      sndPlayer = 0x18;
     }
-    freeVoiceChannel(iVar8);
+    freeVoiceChannel(sndPlayer);
   }
   else {
     sndPlayer = 0x19;
     if (car->carIndex == 0) {
       sndPlayer = 0x18;
     }
-    AudioCmn_PlaySFX(sndPlayer,iVar8,local_38,doppler,iVar6,azimuth);
+    AudioCmn_PlaySFX(sndPlayer,roadNoisePatch,roadNoiseFreq,doppler,roadNoiseAmp,azimuth);
   }
   if (car->carIndex == 0) {
-    if ((GameSetup_gData.Weather == 1) && (iVar9 != 0)) {
-      AudioCmn_PlaySFX(0x1a,0,0x48 - iVar11,doppler,iVar9,0);
+    if ((GameSetup_gData.Weather == 1) && (wetNoiseAmp != 0)) {
+      AudioCmn_PlaySFX(0x1a,0,wetNoiseFreq,doppler,wetNoiseAmp,0);
     }
     else {
       freeVoiceChannel(0x1a);
@@ -1672,7 +1662,7 @@ LAB_80078d54:
     uVar7 = (u_int)(u_char)(car->control).gearShiftTimer;
     iVar8 = car->specs->gearShiftDelay;
     /* @0x8007902C-ish gearShiftDelay division: automatic --expand-div guard on '/'. */
-    iVar12 = iVar12 + (int)(iVar12 * uVar7) / iVar8 >> 1;
+    loadAmp = loadAmp + (int)(loadAmp * uVar7) / iVar8 >> 1;
     iVar8 = cobblestoneAmp >> 2;
     if (uVar7 == 5) {
       iVar8 = cobblestoneAmp - iVar8;
@@ -1685,15 +1675,19 @@ LAB_80078d54:
     }
     PlayersRampedGasLevel[car->carIndex] = iVar8;
   }
-  iVar10 = car->specs->redline;
-  iVar9 = car->flywheelRpm << 0x10;
-  /* @0x80079044 redline division (mflo a2): automatic --expand-div guard, no manual trap(). */
-  iVar11 = 0x7f;
-  if (car->revLimit == 0) {
-    iVar11 = iVar8 >> 1;
+  {
+    int gas;
+
+    iVar10 = car->specs->redline;
+    iVar9 = car->flywheelRpm << 0x10;
+    /* @0x80079044 redline division (mflo a2): automatic --expand-div guard, no manual trap(). */
+    gas = 0x7f;
+    if (car->revLimit == 0) {
+      gas = iVar8 >> 1;
+    }
+    AudioEng_Set(car->carIndex,gMasterEngineLevel * loadAmp * 0xe >> 0xe,iVar9 / iVar10,gas,cam,
+               doppler,azimuth,cardir);
   }
-  AudioEng_Set(car->carIndex,gMasterEngineLevel * iVar12 * 0xe >> 0xe,iVar9 / iVar10,iVar11,iVar4,
-             doppler,azimuth,cardir);
   }
   return;
 }

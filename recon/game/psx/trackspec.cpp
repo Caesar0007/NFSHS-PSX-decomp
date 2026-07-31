@@ -14,7 +14,22 @@ int TrackSpec_gMaxSpec;
 int TrackSpec_gPrevSpec;
 
 
-/* ---- TrackSpec_SetDefault__FP10CTrackSpec  [TRACKSPEC.CPP:44-113] SLD-VERIFIED ---- */
+/* ---- TrackSpec_SetDefault__FP10CTrackSpec  [TRACKSPEC.CPP:44-113] SLD-VERIFIED ----
+ * FAR-MISS 228 diffs but COUNT-EXACT (142/142) -- w38-a10 root-caused it to exactly TWO
+ * decisions, neither cracked yet (recorded so the next pass does not re-diagnose):
+ *  (1) BASE REGISTER: every one of the ~90 field stores uses $a1 in the oracle and $a0
+ *      (the raw parameter) in ours. The oracle's $a0 is DEAD after an early
+ *      `addu $a1,$a0,$zero` and gets reused as a scratch (`lhu $a0,72($v0)`) and later as
+ *      the 5-iteration ring walker (`addu $a0,$a1,$zero` ... `addiu $a0,$a0,4`), while
+ *      $a1 stays the fixed record base for the whole body. Introducing an explicit local
+ *      `CTrackSpec *spec = specArg;` does NOT reproduce it -- gcc copy-propagates the
+ *      local straight back onto the incoming $a0 (measured: no change, 228).
+ *  (2) CONSTANT REMATERIALIZATION: the oracle re-emits `li $v1,K` per store group
+ *      (1/200/8/2/1/-4224 ...) reusing ONE register, while ours CSEs the repeated small
+ *      constants into $t0/$a2/$t1 up front and copies them out (`addu $v0,$a2,$zero`).
+ *      This is the documented per-obj "old-gcc weaker-CSE / no-copy-prop" identity class.
+ *  The ring-PMX loop also differs: the oracle recomputes `base + i` per iteration
+ *  (`addu $v1,$a1,$a2`, index form) where ours strength-reduces to a walking pointer. */
 void TrackSpec_SetDefault(CTrackSpec *spec)
 
 {
@@ -170,7 +185,22 @@ void read(char **handle,void *buf,int bytes)
   return;
 }
 
-/* ---- TrackSpec_Read__Fi  [TRACKSPEC.CPP:145-200] SLD-VERIFIED ---- */
+/* ---- TrackSpec_Read__Fi  [TRACKSPEC.CPP:145-200] SLD-VERIFIED ----
+ * NEAR-MISS 26 diffs (ours 59 / oracle 63), was 32.
+ * MATCH (w38-a10): ARM ORDER -- the oracle's `slt v0,s2,v1; bnez v0,.L800E186C`
+ * makes the SetDefault arm the FALL-THROUGH and the parse arm the branch target,
+ * i.e. the source tests `spec_num >= header.num_spec` with SetDefault as the
+ * if-BODY (catalog sec.B arm-order/polarity row).
+ * RESIDUAL 4 insns = retail's REDUNDANT COPY `addu $s3,$s0,$zero` of startpos
+ * (+ its frame save/restore) so the cross-jump-merged `jal purgememadr` is
+ * reached with `a0` set from $s0 on the SetDefault path and from $s3 on the
+ * parse path (oracle 800E181C / 800E1868 / 800E18A4). Both hold the SAME value;
+ * our cc1 copy-propagates it away. Tried: duplicating purgememadr into both arms
+ * (gcc re-merges, no change), a second C variable `filebuf = startpos` used by
+ * one arm (copy-propagated, no change). This is the documented per-obj
+ * "old-gcc no-copy-prop" toolchain-identity class (catalog sec.G) -- FLOOR.
+ * Prototype re-checked vs raw oracle: 1 int arg ($a0->$s2), void return
+ * (no $v0 set at the single epilogue). */
 void TrackSpec_Read(int spec_num)
 
 {
@@ -186,14 +216,14 @@ void TrackSpec_Read(int spec_num)
     TrackSpec_gCurrentSpec = spec_num;
     currentpos = startpos;
     read(&currentpos,&header,8);
-    if (spec_num < header.num_spec) {
+    if (spec_num >= header.num_spec) {
+      TrackSpec_SetDefault(&TrackSpec_gSpec);
+    }
+    else {
       TrackSpec_gMaxSpec = header.num_spec + 1;
       currentpos = currentpos + spec_num * 0x108;
       read(&currentpos,&TrackSpec_gSpec,0x108);
       TrackSpec_SetUp();
-    }
-    else {
-      TrackSpec_SetDefault(&TrackSpec_gSpec);
     }
     purgememadr(startpos);
   }
@@ -204,13 +234,9 @@ void TrackSpec_Read(int spec_num)
 void TrackSpec_Load(int weather,int night)
 
 {
-  int spec [4];
+  int spec [2] [2] = { { 0, 1 }, { 2, 3 } };   /* @0x80056ad4 rodata template -> stack copy */
   
-  spec[0] = 0x00000000U /* @0x80056ad4 */;
-  spec[1] = 0x00000001U /* @0x80056ad8 */;
-  spec[2] = 0x00000002U /* @0x80056adc */;
-  spec[3] = 0x00000003U /* @0x80056ae0 */;
-  TrackSpec_Read(spec[weather * 2 + night]);
+  TrackSpec_Read(spec[weather][night]);
   return;
 }
 

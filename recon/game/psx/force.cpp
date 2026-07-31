@@ -27,78 +27,75 @@ void Force_HitSign(Car_tObj *car);
 void Force_HitWall(int impulse);
 
 
-/* ---- Force_Vbl__Fv  [FORCE.CPP:61-98] SLD-VERIFIED ---- */
+/* ---- Force_Vbl__Fv  [FORCE.CPP:61-98] SLD-VERIFIED ----
+ * w38-a9 full rewrite from the SLD line map + raw oracle.  SYM says the ONLY
+ * locals are `i` ($s2, outer block) and, in the LOOP block, `padnum` ($s1) +
+ * `padstate` ($v1) -- there is NO pointer local, so `Force_g[i]` is indexed and
+ * the walking `$s0` is gcc's strength-reduced giv; `$s3` is the LICM-hoisted
+ * `Force_rand_256` base.  SLD statement map: 66 PadGetState / 68 `!=6` test /
+ * 70-71 the `<4` arm (FALL-THROUGH, hence the `!= 6` spelling: the ==6 block is
+ * the oracle's BRANCH TARGET at .L800CA9F8) / 73-77 the ==6 arm / 79 fade<time /
+ * 81-83 + 87-89 + 93-95 the three actuator arms / 97 loop increment /
+ * 98 Force_gTick++ AFTER the loop.
+ * All arithmetic is SIGNED int (u_char operands promote): oracle uses `slt`,
+ * `mult`, `div` + the maspsx --expand-div `break 7`/`break 6` guards -- the old
+ * u_int-cast recon emitted sltu/multu/divu.  The `jolt*time/fade` term is
+ * written TWICE on purpose: the intervening `actuator[0]` store kills gcc's
+ * memory CSE, which is exactly why the oracle has two mult/div sequences. */
 void Force_Vbl(void)
 
 {
-  u_char uVar1;
-  u_char bVar2;
-  u_int uVar3;
-  int iVar4;
-  int padstate;
-  u_int uVar5;
-  u_int uVar6;
-  u_int uVar7;
-  Force_tGlobal *pFVar8;
-  int padnum;
-  int port;
   int i;
-  int iVar9;
-  
-  iVar9 = 0;
-  pFVar8 = Force_g;
-  do {
-    port = iVar9 << 4;
-    if (1 < iVar9) {
-      Force_gTick = Force_gTick + 1;
-      return;
-    }
-    iVar4 = PadGetState(port);
-    if (iVar4 == 6) {
-      if (pFVar8->active == '\0') {
-        PadSetAct(port,pFVar8->actuator,2);
-        PadSetActAlign(port,Force_gActAlign);
-        pFVar8->active = '\x01';
+
+  for (i = 0; i < 2; i = i + 1) {
+    int padnum;
+    int padstate;
+
+    padnum = i * 16;
+    padstate = PadGetState(padnum);
+    if (padstate != 6) {
+      if (padstate < 4) {
+        Force_g[i].active = 0;
       }
     }
-    else if (iVar4 < 4) {
-      pFVar8->active = '\0';
+    else if (Force_g[i].active == 0) {
+      PadSetAct(padnum,Force_g[i].actuator,2);
+      PadSetActAlign(padnum,Force_gActAlign);
+      Force_g[i].active = 1;
     }
-    if (pFVar8->fade < pFVar8->time) {
-      uVar6 = (u_int)pFVar8->low + (u_int)pFVar8->jolt;
-      pFVar8->actuator[0] =
-           (u_int)Force_rand_256[Force_gTick >> 1 & 0xff] < (u_int)pFVar8->high + (u_int)pFVar8->jolt;
-MCCmd_cb_clampValue:
-      uVar5 = 0xff;
-      if (uVar6 < 0x100) {
-        uVar5 = uVar6;
-      }
-      uVar1 = pFVar8->time;
-      pFVar8->actuator[1] = (u_char)uVar5;
-      pFVar8->time = uVar1 + 0xff;
+    if (Force_g[i].fade < Force_g[i].time) {
+      Force_g[i].actuator[0] =
+           Force_rand_256[Force_gTick >> 1 & 0xff] < Force_g[i].high + Force_g[i].jolt;
+      Force_g[i].actuator[1] = (Force_g[i].low + Force_g[i].jolt > 0xff)
+                               ? 0xff : Force_g[i].low + Force_g[i].jolt;
+      Force_g[i].time = Force_g[i].time - 1;
+    }
+    else if (Force_g[i].time != 0) {
+      Force_g[i].actuator[0] =
+           Force_rand_256[Force_gTick >> 1 & 0xff] <
+           Force_g[i].jolt * Force_g[i].time / Force_g[i].fade + Force_g[i].high;
+      Force_g[i].actuator[1] =
+           (Force_g[i].jolt * Force_g[i].time / Force_g[i].fade + Force_g[i].low > 0xff)
+           ? 0xff : Force_g[i].jolt * Force_g[i].time / Force_g[i].fade + Force_g[i].low;
+      Force_g[i].time = Force_g[i].time - 1;
     }
     else {
-      if (pFVar8->time != 0) {
-        uVar6 = (u_int)pFVar8->jolt * (u_int)pFVar8->time;
-        uVar5 = (u_int)pFVar8->fade;
-        uVar3 = (u_int)pFVar8->jolt * (u_int)pFVar8->time;
-        uVar7 = (u_int)pFVar8->fade;
-        pFVar8->actuator[0] = (u_int)Force_rand_256[Force_gTick >> 1 & 0xff] < uVar6 / uVar5 + (u_int)pFVar8->high
-        ;
-        uVar6 = uVar3 / uVar7 + (u_int)pFVar8->low;
-        goto MCCmd_cb_clampValue;
-      }
-      pFVar8->jolt = '\0';
-      bVar2 = Force_rand_256[Force_gTick >> 1 & 0xff];
-      pFVar8->actuator[1] = pFVar8->low;
-      pFVar8->actuator[0] = bVar2 < pFVar8->high;
+      Force_g[i].jolt = 0;
+      Force_g[i].actuator[0] = Force_rand_256[Force_gTick >> 1 & 0xff] < Force_g[i].high;
+      Force_g[i].actuator[1] = Force_g[i].low;
     }
-    pFVar8 = pFVar8 + 1;
-    iVar9 = iVar9 + 1;
-  } while( true );
+  }
+  Force_gTick = Force_gTick + 1;
 }
 
-/* ---- Force_Update__FP8Car_tObj  [FORCE.CPP:105-223] SLD-VERIFIED ---- */
+/* ---- Force_Update__FP8Car_tObj  [FORCE.CPP:105-223] SLD-VERIFIED ----
+ * w38-a9: 432 -> 326 diffs.  The SYM declares a real `Force_tGlobal *f` ($s6) which
+ * the recon had declared but left UNWIRED (every access went through the indexed
+ * `Force_g[carIndex]`, costing a re-materialized base + index at each site).  Wiring
+ * `f = &Force_g[carIndex]` once and using `f->field` throughout dropped 12 insns.
+ * STILL UNWIRED (next lever, per SYM): skids($a1) impacts($a3) impactmultiplier($s7)
+ * v0($s4) v1($s3) and the block-scoped c($s5) force($s2) shock($v1) time($s0) --
+ * the body is still Ghidra `iVarN` soup, so the residual is mostly rule-8 shape. */
 void Force_Update(Car_tObj *car)
 
 {
@@ -130,10 +127,11 @@ void Force_Update(Car_tObj *car)
   if (1 < uVar3) {
     return;
   }
+  f = &Force_g[uVar3];
   if (1 < Replay_ReplayMode) {
-    Force_g[uVar3].high = '\0';
-    Force_g[uVar3].low = '\0';
-    Force_g[uVar3].time = '\0';
+    f->high = '\0';
+    f->low = '\0';
+    f->time = '\0';
     return;
   }
   iVar4 = GameSetup_gData.controllerData.shockMode[uVar3];
@@ -242,11 +240,11 @@ ForceUpd_audioRevLoop:
         if (iVar5 < 0) {
           iVar5 = iVar5 + 0xffff;
         }
-        if (((int)(u_int)Force_g[uVar3].jolt < iVar5 >> 0x10) ||
-           ((int)(u_int)Force_g[uVar3].time < iVar10)) {
-          Force_g[uVar3].fade = (u_char)(iVar10 >> 1);
-          Force_g[uVar3].time = (u_char)iVar10;
-          Force_g[uVar3].jolt = (u_char)((u_int)iVar5 >> 0x10);
+        if (((int)(u_int)f->jolt < iVar5 >> 0x10) ||
+           ((int)(u_int)f->time < iVar10)) {
+          f->fade = (u_char)(iVar10 >> 1);
+          f->time = (u_char)iVar10;
+          f->jolt = (u_char)((u_int)iVar5 >> 0x10);
         }
       }
       piVar6 = piVar6 + -6;
@@ -280,8 +278,8 @@ ForceUpd_audioRevLoop:
       uVar7 = (u_char)((u_int)(iVar4 + 0xffff) >> 0x10);
     }
   }
-  Force_g[uVar3].high = uVar9;
-  Force_g[uVar3].low = uVar7;
+  f->high = uVar9;
+  f->low = uVar7;
   return;
 }
 

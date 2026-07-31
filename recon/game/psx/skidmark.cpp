@@ -72,66 +72,64 @@ Skidmark_Chunk *
 Skidmark_CheckChunk(coorddef *skidpt,int newsegs,int slice)
 
 {
-  int NewChunk;
   bool needNew;
-  int dist;
+  int d;
   Skidmark_Chunk *returnsm;
-  int anchor;
-  
+
   returnsm = gSm + gUseSm;
-  anchor = (returnsm->cp).x;
   needNew = 0x18 < returnsm->n + newsegs;
-  dist = anchor - skidpt->x;
-  if (dist < 1) {
-    dist = skidpt->x - anchor;
+  /* The oracle does NOT compute |d| once and compare once -- it materializes the
+     0xFFFFF limit and does a SEPARATE `slt 0xFFFFF,<diff>` in EACH arm
+     (`blez a1,.L800DEA48` + a duplicated `lui/ori 0xFFFFF`), i.e. the source is a
+     two-comparison ternary per axis, not an abs-then-compare. */
+  d = (returnsm->cp).x - skidpt->x;
+  if ((0 < d) ? (0xfffff < d) : (0xfffff < skidpt->x - (returnsm->cp).x)) {
+    needNew = true;
   }
-  if (dist < 0x100000) {
-    anchor = (returnsm->cp).y;
-    dist = anchor - skidpt->y;
-    if (dist < 1) {
-      dist = skidpt->y - anchor;
+  else {
+    d = (returnsm->cp).y - skidpt->y;
+    if ((0 < d) ? (0xfffff < d) : (0xfffff < skidpt->y - (returnsm->cp).y)) {
+      needNew = true;
     }
-    if (dist < 0x100000) {
-      anchor = (returnsm->cp).z;
-      dist = anchor - skidpt->z;
-      if (0 < dist) {
-        if (0xfffff < dist) {
-          needNew = true;
-        }
-        goto SkidChkChunk_useGCount;
+    else {
+      d = (returnsm->cp).z - skidpt->z;
+      if ((0 < d) ? (0xfffff < d) : (0xfffff < skidpt->z - (returnsm->cp).z)) {
+        needNew = true;
       }
-      if (skidpt->z - anchor < 0x100000) goto SkidChkChunk_useGCount;
     }
   }
-  needNew = true;
-SkidChkChunk_useGCount:
   if (needNew) {
     if (gCountSm < gMaxSChunk) {
       gUseSm = gCountSm;
       gCountSm = gCountSm + 1;
     }
-    else {
-      needNew = gMaxSChunk + -1 <= gUseSm;
+    else if (gUseSm < gMaxSChunk + -1) {
       gUseSm = gUseSm + 1;
-      if (needNew) {
-        gUseSm = 0;
-      }
+    }
+    else {
+      gUseSm = 0;
     }
     returnsm = gSm + gUseSm;
     returnsm->n = 0;
   }
   if (returnsm->n == 0) {
-    dist = skidpt->y;
-    anchor = skidpt->z;
-    (returnsm->cp).x = skidpt->x;
-    (returnsm->cp).y = dist;
-    (returnsm->cp).z = anchor;
+    returnsm->cp = *skidpt;
     returnsm->slice = (short)slice;
   }
   return returnsm;
 }
 
-/* ---- Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii  [SKIDMARK.CPP:159-239] SLD-VERIFIED ---- */
+/* ---- Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii  [SKIDMARK.CPP:159-239] SLD-VERIFIED ----
+ * NEAR-MISS 98 diffs, COUNT-EXACT 245/245 (w38-a5, was 158).  Residual = a single
+ * $s4<->$s5 parameter tie that propagates through every use: retail puts the STACK
+ * parameter `type` in $s4 (the earlier reg) and `color` in $s5; ours is the other way
+ * round.  Both allocnos have identical ref counts at RTL level (5 uses + 1 param copy
+ * each -- `color` is only referenced ONCE per struct copy because movstrsi is a single
+ * RTL insn) and both live the whole function, so this is the documented gcc-2.8
+ * `allocno_compare` tie-break delta, not a source shape.  Tried: array-index form
+ * (landed, -60), operand/statement reordering in the tail (neutral).  The other two
+ * residual sites are cross-jump DEPTH (the oracle keeps 2 more insns inside the
+ * first arm before jumping to the shared tail). */
 void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,int type,int slice)
 
 {
@@ -140,7 +138,7 @@ void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,
 
   if (prevskid->nseg == (Skidmark_Segment *)0x0) {
     sm = Skidmark_CheckChunk(skidpt,2,slice);
-    CalcStartSegment(sm->seg + sm->n,sm->seg + sm->n + 1,&sm->cp,&prevskid->pt,skidpt,tireWidth);
+    CalcStartSegment(&sm->seg[sm->n],&sm->seg[sm->n + 1],&sm->cp,&prevskid->pt,skidpt,tireWidth);
     n = sm->n;
     sm->seg[n + 1].rgb = *color;
     sm->seg[n].rgb = sm->seg[n + 1].rgb;
@@ -150,39 +148,43 @@ void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,
   else {
     sm = Skidmark_CheckChunk(skidpt,2,slice);
     if (prevskid->chunk == gUseSm) {
-      CalcOneSegment(sm->seg + sm->n,&sm->cp,&prevskid->pt,skidpt,tireWidth);
+      CalcOneSegment(&sm->seg[sm->n],&sm->cp,&prevskid->pt,skidpt,tireWidth);
       sm->seg[sm->n].rgb = *color;
       sm->seg[sm->n].type = type;
-      prevskid->nseg->next = sm->seg + sm->n;
+      prevskid->nseg->next = &sm->seg[sm->n];
       sm->seg[sm->n].next = (Skidmark_Segment *)0x0;
       prevskid->clr = *color;
       prevskid->type = type;
       prevskid->pt = *skidpt;
       prevskid->chunk = gUseSm;
-      prevskid->nseg = sm->seg + sm->n;
+      prevskid->nseg = &sm->seg[sm->n];
       sm->n = sm->n + 1;
       return;
     }
     n = sm->n;
-    CalcStartSegment(sm->seg + n,sm->seg + n + 1,&sm->cp,&prevskid->pt,skidpt,tireWidth);
+    CalcStartSegment(&sm->seg[n],&sm->seg[n + 1],&sm->cp,&prevskid->pt,skidpt,tireWidth);
     sm->seg[sm->n].rgb = prevskid->clr;
     sm->seg[sm->n].type = prevskid->type;
     sm->seg[sm->n + 1].rgb = *color;
     n = sm->n + 1;
   }
   sm->seg[n].type = type;
-  sm->seg[sm->n].next = sm->seg + sm->n + 1;
+  sm->seg[sm->n].next = &sm->seg[sm->n + 1];
   sm->seg[sm->n + 1].next = (Skidmark_Segment *)0x0;
   prevskid->clr = *color;
   prevskid->type = type;
   prevskid->pt = *skidpt;
   prevskid->chunk = gUseSm;
-  prevskid->nseg = sm->seg + sm->n + 1;
+  prevskid->nseg = &sm->seg[sm->n + 1];
   sm->n = sm->n + 2;
   return;
 }
 
-/* ---- Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii  [SKIDMARK.CPP:264-326] SLD-VERIFIED ---- */
+/* ---- Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii  [SKIDMARK.CPP:264-326] SLD-VERIFIED ----
+ * NEAR-MISS 20 diffs (229/231) after the &sm->seg[n] array-index fix (was 70).
+ * Residual: (a) the same $a0/$v0-vs-$v1 chunk-count scratch rotation as Skidmark_Add,
+ * (b) 2 insns of cross-jump DEPTH -- the oracle keeps the `n*28` recompute inside the
+ * first arm where our build merges it into the shared tail. */
 void Skidmark_AddStretch(Skidmark_Segment **save,int *savechunk,tSkid *prevskid,coorddef *skidpt,
                         CVECTOR *color,int tireWidth,int type,int slice)
 
@@ -192,7 +194,7 @@ void Skidmark_AddStretch(Skidmark_Segment **save,int *savechunk,tSkid *prevskid,
 
   if (prevskid->nseg == (Skidmark_Segment *)0x0) {
     sm = Skidmark_CheckChunk(skidpt,2,slice);
-    CalcStartSegment(sm->seg + sm->n,sm->seg + sm->n + 1,&sm->cp,&prevskid->pt,skidpt,tireWidth);
+    CalcStartSegment(&sm->seg[sm->n],&sm->seg[sm->n + 1],&sm->cp,&prevskid->pt,skidpt,tireWidth);
     n = sm->n;
     sm->seg[n + 1].rgb = *color;
     sm->seg[n].rgb = sm->seg[n + 1].rgb;
@@ -202,27 +204,27 @@ void Skidmark_AddStretch(Skidmark_Segment **save,int *savechunk,tSkid *prevskid,
   else {
     sm = Skidmark_CheckChunk(skidpt,2,slice);
     if (prevskid->chunk == gUseSm) {
-      CalcOneSegment(sm->seg + sm->n,&sm->cp,&prevskid->pt,skidpt,tireWidth);
+      CalcOneSegment(&sm->seg[sm->n],&sm->cp,&prevskid->pt,skidpt,tireWidth);
       sm->seg[sm->n].rgb = *color;
       sm->seg[sm->n].type = type;
-      prevskid->nseg->next = sm->seg + sm->n;
+      prevskid->nseg->next = &sm->seg[sm->n];
       sm->seg[sm->n].next = (Skidmark_Segment *)0x0;
-      *save = sm->seg + sm->n;
+      *save = &sm->seg[sm->n];
       *savechunk = gUseSm;
       sm->n = sm->n + 1;
       return;
     }
     n = sm->n;
-    CalcStartSegment(sm->seg + n,sm->seg + n + 1,&sm->cp,&prevskid->pt,skidpt,tireWidth);
+    CalcStartSegment(&sm->seg[n],&sm->seg[n + 1],&sm->cp,&prevskid->pt,skidpt,tireWidth);
     sm->seg[sm->n].rgb = prevskid->clr;
     sm->seg[sm->n].type = prevskid->type;
     sm->seg[sm->n + 1].rgb = *color;
     n = sm->n + 1;
   }
   sm->seg[n].type = type;
-  sm->seg[sm->n].next = sm->seg + sm->n + 1;
+  sm->seg[sm->n].next = &sm->seg[sm->n + 1];
   sm->seg[sm->n + 1].next = (Skidmark_Segment *)0x0;
-  *save = sm->seg + sm->n + 1;
+  *save = &sm->seg[sm->n + 1];
   *savechunk = gUseSm;
   sm->n = sm->n + 2;
   return;
@@ -259,27 +261,40 @@ void Skidmark_EndStretch(Skidmark_Segment *save,int savechunk,tSkid *prevskid,co
 void Skidmark_OnyxBuildFacets(DRender_tView *Vi)
 
 {
-  int t2;
-  Draw_tCtrlSkidmark *fskid;
-  int t1;
-  int t3;
   Draw_tCtrlSkidmark fskidspace;
-  
-  fskidspace.t.x = *(int *)((int)Vi + 8);
-  fskidspace.t.y = *(int *)((int)Vi + 0xc);
-  fskidspace.t.z = *(int *)((int)Vi + 0x10);
-  fskidspace.count = gCountSm;
-  fskidspace.smp = gSm;
-  fskidspace.m.m[0] = *(int *)((int)Vi + 0x44);
-  fskidspace.m.m[2] = *(int *)((int)Vi + 0x4c);
-  fskidspace.m.m[1] = -*(int *)((int)Vi + 0x48);
-  fskidspace.m.m[3] = *(int *)((int)Vi + 0x50);
-  fskidspace.m.m[5] = *(int *)((int)Vi + 0x58);
-  fskidspace.m.m[4] = -*(int *)((int)Vi + 0x54);
-  fskidspace.m.m[6] = *(int *)((int)Vi + 0x5c);
-  fskidspace.m.m[8] = *(int *)((int)Vi + 100);
-  fskidspace.m.m[7] = -*(int *)((int)Vi + 0x60);
-  Draw_kCtrlSkidmark(&fskidspace);
+  Draw_tCtrlSkidmark *fskid;
+  int r0;
+  int r1;
+  int r2;
+
+  /* Oracle loads each 3-int group into THREE distinct caller-saved regs and only then
+     stores them (the loads fill each other's load-delay slots); per-field
+     `dst = src;` statements serialize through one reg and cost a nop each.
+     `fskidspace.t = Vi->cview.translation` is a movstrsi struct assignment
+     (oracle `lw a3/t0/t1; sw a3/t0/t1`). */
+  fskid = &fskidspace;
+  fskidspace.t = Vi->cview.translation;
+  fskid->count = gCountSm;
+  fskid->smp = gSm;
+  r0 = Vi->cview.mrotationInv.m[0];
+  r1 = Vi->cview.mrotationInv.m[1];
+  r2 = Vi->cview.mrotationInv.m[2];
+  fskidspace.m.m[0] = r0;
+  fskid->m.m[1] = -r1;
+  fskid->m.m[2] = r2;
+  r0 = Vi->cview.mrotationInv.m[3];
+  r1 = Vi->cview.mrotationInv.m[4];
+  r2 = Vi->cview.mrotationInv.m[5];
+  fskid->m.m[3] = r0;
+  fskid->m.m[4] = -r1;
+  fskid->m.m[5] = r2;
+  r0 = Vi->cview.mrotationInv.m[6];
+  r1 = Vi->cview.mrotationInv.m[7];
+  r2 = Vi->cview.mrotationInv.m[8];
+  fskid->m.m[6] = r0;
+  fskid->m.m[7] = -r1;
+  fskid->m.m[8] = r2;
+  Draw_kCtrlSkidmark(fskid);
   return;
 }
 

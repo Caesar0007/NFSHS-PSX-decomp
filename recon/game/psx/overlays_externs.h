@@ -7,7 +7,17 @@
 #include "../../lib/libfns.h"
 
 /* ---- globals ---- */
-extern int            StatsTimer[2];           /* 0x8013d998 */
+/* StatsTimer[2] is modelled as its TWO retail per-element gp-rel symbols (the same
+   scalar+alias pair replay_externs.h already uses): the oracle reaches every CONSTANT
+   index through a one-instruction %gp_rel (RaceSummary [0], RaceStatistics [1],
+   Hud_RenderStatsView both), which an 8-byte object can never produce under -G4, while
+   the one VARIABLE-index site (Hud_BTCStats' StatsTimer[player]) materializes the base
+   absolutely with %hi/%lo(StatsTimer) -- reproduced here as (&StatsTimer)[player].
+   Hud_NextPerp[2] is only 4 bytes, so it stays a real array and just needs its owning-TU
+   tentative definition (overlays.obj is where the SYM defines it) to become gp-rel. */
+extern int            StatsTimer;              /* 0x8013d998  = StatsTimer[0] */
+extern int            D_8013D99C;              /* 0x8013d99c  = StatsTimer[1] */
+extern int            StatsTimer_arr[] asm("StatsTimer");  /* array VIEW of the pair, for the variable-index site */
 extern short          Hud_NextPerp[2];         /* 0x8013d994 */
 extern int            Cars_gNumRaceCars;       /* 0x8013c7f8 */
 extern int            Cars_gNumHumanRaceCars;  /* 0x8013c800 */

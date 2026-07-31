@@ -161,6 +161,14 @@ PER_TU_FLAGS = {
     # (gShadowPixmap/gSkidMarkPixmap/gSMokePixmap/gGravelPixmap), while the
     # 12-byte gWeatherPixmap remains full-addressed.
     "recon/game/common/genericpmx.cpp":      {"g_value": "8"},
+    # cario.obj shows the same exact -G8 threshold signature (w38-a4): the
+    # 8-byte pointer arrays CarIO_Plate1/CarIO_Plate2 are reached with
+    # %gp_rel (incl. per-element D_8013D74C/D_8013D754 for [1]) while every
+    # cario symbol LARGER than 8 bytes -- carVRamAdd/carVRamOffset (12),
+    # carVRamSlotsMenu (24), licenseSFX_Vram (48), carVRamSlots (72),
+    # licensePlate (264) -- stays full-addressed %hi/%lo.  Under -G4 the
+    # 8-byte arrays fall out of .sbss and we emit lui/addiu instead.
+    "recon/game/psx/cario.cpp":             {"g_value": "8"},
     "recon/game/common/audiocmn.cpp":       {"jtbl_at_fusion": True},  # AudioCmn_SoundCar
     "recon/syslib/psx/libcd/drv.c":       {"jtbl_at_fusion": True},  # CD_get_intr
     "recon/syslib/psx/libgpu/FONT.c":       {"jtbl_at_fusion": True},  # FntPrint
@@ -168,7 +176,12 @@ PER_TU_FLAGS = {
     "recon/syslib/psx/libmcrd/LIBMCRD.c": {"jtbl_at_fusion": True},  # MemCardCmd_cb
     "recon/syslib/psx/libpad/PADENTRY.c":   {"jtbl_at_fusion": True},  # PadInfoAct
     "recon/game/common/r3dcar.cpp":         {"jtbl_at_fusion": True},  # R3DCar_InsertCarFacet
-    "recon/game/psx/sfx.cpp":               {"jtbl_at_fusion": True},  # Sfx_BuildSouffleFacet
+    # NOTE (w38-a5): sfx.cpp does NOT want jtbl_at_fusion -- BOTH of its switch
+    # dispatches (Sfx_BuildSouffleFacet@jtbl_8005699C, Sfx_Add@jtbl_800569D4)
+    # use the SPLIT-address form in the oracle
+    # (`lui %hi(jtbl); addiu %lo(jtbl); sll idx,2; addu; lw 0(idx)`), not the
+    # fused `$at` macro. The entry was a mis-attribution; removing it takes
+    # Sfx_Add 7 -> 0 (PASS) and drops 3 diffs off Sfx_BuildSouffleFacet.
     "recon/syslib/psx/libc/SPRINTF.c":      {"jtbl_at_fusion": True},  # sprintf
     # w33-a10: EA's own eaclib PAD.OBJ was built WITHOUT split addresses --
     # proven by the oracle's `lui $at; addu $at,$at,$idx; lbu %lo(sym)($at)`

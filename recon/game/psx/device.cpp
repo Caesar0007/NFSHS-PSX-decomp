@@ -39,7 +39,7 @@ void Device_Update(void);
 void Device_StartUp(void);
 void Device_SetHardCodedKeys(void);
 int Device_PSXPad(u_long param);
-void * Device_ReadPad(int port,u_long param);
+bool Device_ReadPad(int port,u_long param);
 int Device_PSXPadMulti(u_long param);
 int Device_Analog(u_long param);
 int Device_Null(u_long param);
@@ -206,75 +206,78 @@ int Device_PSXPad(u_long param)
   return 0;
 }
 
-/* ---- Device_ReadPad__FiUl  [DEVICE.CPP:261-302] SLD-VERIFIED ---- */
-void * Device_ReadPad(int port,u_long param)
+/* ---- Device_ReadPad__FiUl  [DEVICE.CPP:261-302] SLD-VERIFIED ----
+ * PASS (140/140, was 138 diffs).  REWRITTEN from the SYM + raw oracle (w38-a6).
+ * SYM @0x800bd6ac: REGPARMs port($10=s0), param($11=s1) and ONE named local -- `analogs`,
+ * class REG $4 = $a0, type PTR CHAR.  In the oracle `analogs` is materialized at
+ * .L800BD758 as `addiu $a0,$a1,2` off the shared base $a1 = &gPadinfo.buf[port].data
+ * (splat's D_8013E8A2 = gPadinfo+6), i.e. &data.negcon.twist; every negcon test after that
+ * point indexes it analogs[0..3] (twist/buttonI/buttonII/leftshift) and the ID byte is
+ * read off the SAME base as `lbu $v1,-1($v0)`.  The `if (ID == X && ...)` tests are SIX
+ * FLAT STATEMENTS, each re-loading gPadinfo.buf[port].ID; gcc's jump threading is what
+ * makes a failed ID test branch straight past all later same-ID statements
+ * (.L800BD758 / .L800BD8B4), which is why the previous nested-if + goto reconstruction
+ * came out 12 insns SHORT (128 vs 140).  Return type is BOOL per the SYM
+ * (`Def class EXT type FCN BOOL`); the mangled name __FiUl is unaffected. */
+bool Device_ReadPad(int port,u_long param)
 
 {
-  int iVar1;
-  void *pvVar2;
-  u_int uVar3;
   char *analogs;
-  
-  iVar1 = Device_VerifyType(port);
-  if (iVar1 == 0) {
-    return (void *)0x0;
+
+  if (Device_VerifyType(port) == 0) {
+    return 0;
   }
-  if (gPadinfo.buf[port].ID == '#') {
-    if (((param & 0xffff) != 0x4000) || (gPadinfo.buf[port].data.negcon.buttonI < 0x40)) {
-      if ((gPadinfo.buf[port].ID == '#') &&
-         (((param & 0xffff) == 0x8000 && (0x3f < gPadinfo.buf[port].data.negcon.buttonII)))) {
-        return (void *)0x1;
-      }
-      goto DevReadPad_negconPath;
+  if (((gPadinfo.buf[port].ID == '#') && ((param & 0xffff) == 0x4000)) &&
+     (0x3f < gPadinfo.buf[port].data.negcon.buttonI)) {
+    return 1;
+  }
+  if (((gPadinfo.buf[port].ID == '#') && ((param & 0xffff) == 0x8000)) &&
+     (0x3f < gPadinfo.buf[port].data.negcon.buttonII)) {
+    return 1;
+  }
+  analogs = (char *)&gPadinfo.buf[port].data.negcon.twist;
+  if ((gPadinfo.buf[port].ID == 's') && ((param & 0xffff) == 0x80)) {
+    if (analogs[0] < 0x41) {
+      return 1;
     }
-DevReadPad_defaultRet:
-    pvVar2 = (void *)0x1;
-  }
-  else {
-DevReadPad_negconPath:
-    if (gPadinfo.buf[port].ID == 's') {
-      if ((param & 0xffff) == 0x80) {
-        if (gPadinfo.buf[port].data.negcon.twist < 0x41) goto DevReadPad_defaultRet;
-        if (gPadinfo.buf[port].data.negcon.buttonII < 0x41) {
-          return (void *)0x1;
-        }
-      }
-      if (gPadinfo.buf[port].ID == 's') {
-        if ((param & 0xffff) == 0x20) {
-          if (0xbf < gPadinfo.buf[port].data.negcon.twist) {
-            return (void *)0x1;
-          }
-          if (0xbf < gPadinfo.buf[port].data.negcon.buttonII) {
-            return (void *)0x1;
-          }
-        }
-        if (gPadinfo.buf[port].ID == 's') {
-          if ((param & 0xffff) == 0x10) {
-            if (gPadinfo.buf[port].data.negcon.leftshift < 0x41) {
-              return (void *)0x1;
-            }
-            if (gPadinfo.buf[port].data.negcon.buttonI < 0x41) {
-              return (void *)0x1;
-            }
-          }
-          if ((gPadinfo.buf[port].ID == 's') && ((param & 0xffff) == 0x40)) {
-            if (0xbf < gPadinfo.buf[port].data.negcon.leftshift) {
-              return (void *)0x1;
-            }
-            if (0xbf < gPadinfo.buf[port].data.negcon.buttonI) {
-              return (void *)0x1;
-            }
-          }
-        }
-      }
+    if (analogs[2] < 0x41) {
+      return 1;
     }
-    uVar3 = PAD_state(port);
-    pvVar2 = (void *)(u_int)((uVar3 & 0xffff & param) != 0);
   }
-  return pvVar2;
+  if ((gPadinfo.buf[port].ID == 's') && ((param & 0xffff) == 0x20)) {
+    if (0xbf < analogs[0]) {
+      return 1;
+    }
+    if (0xbf < analogs[2]) {
+      return 1;
+    }
+  }
+  if ((gPadinfo.buf[port].ID == 's') && ((param & 0xffff) == 0x10)) {
+    if (analogs[3] < 0x41) {
+      return 1;
+    }
+    if (analogs[1] < 0x41) {
+      return 1;
+    }
+  }
+  if ((gPadinfo.buf[port].ID == 's') && ((param & 0xffff) == 0x40)) {
+    if (0xbf < analogs[3]) {
+      return 1;
+    }
+    if (0xbf < analogs[1]) {
+      return 1;
+    }
+  }
+  return (PAD_state(port) & 0xffff & param) != 0;
 }
 
 /* ---- Device_PSXPadMulti__FUl  [DEVICE.CPP:306-342] SLD-VERIFIED ----
+ * PASS (55/55, was 17 diffs).  SYM @0x800bd8dc lists REGPARM param ($10=s0) and NO named
+ * locals at all -- so the recon's cached-result + result-funnel variables were fabricated:
+ * they pinned the return value into $a0 and added a trailing `addu $v0,$a0,$zero`.  Writing
+ * every arm as a DIRECT `return 0xff;` / `return 0;` on the call expression makes gcc stage
+ * the constants straight into $v0 and copy the call result into $v1, exactly like retail.
+ * ---- historical note (superseded) ----
  * NEAR-MISS (was 46 diffs -> now 17, ours 56/oracle 55): outer if/else branch polarity
  * inverted to match the oracle's beqz-pauseSim==0 fall-through (same class as Device_
  * Update); the inner "port 0 found" if/else polarity flipped to match too; dropped a
@@ -294,117 +297,86 @@ DevReadPad_negconPath:
 int Device_PSXPadMulti(u_long param)
 
 {
-  void *pvVar1;
-  int iVar2;
-
   if (simVar.pauseSim != 0) {
-    pvVar1 = Device_ReadPad(Device_gPausePort,param);
-    iVar2 = 0xff;
-    if (pvVar1 == (void *)0x0) {
-      iVar2 = 0;
+    if (Device_ReadPad(Device_gPausePort,param) != 0) {
+      return 0xff;
     }
+    return 0;
   }
-  else {
-    pvVar1 = Device_ReadPad(0,param);
-    if (pvVar1 != (void *)0x0) {
-      iVar2 = 0xff;
-      if ((param & 0xffff) == 8) {
-        Device_gPausePort = 0;
-        Device_gPausePortIndex = '\0';
-      }
+  if (Device_ReadPad(0,param) != 0) {
+    if ((param & 0xffff) == 8) {
+      Device_gPausePort = 0;
+      Device_gPausePortIndex = '\0';
     }
-    else {
-      if ((1 < Replay_ReplayMode) || (GameSetup_gData.commMode == 1)) {
-        pvVar1 = Device_ReadPad(4,param);
-        if (pvVar1 == (void *)0x0) {
-          iVar2 = 0;
-        }
-        else {
-          if ((param & 0xffff) == 8) {
-            Device_gPausePortIndex = '\x01';
-            Device_gPausePort = 4;
-          }
-          iVar2 = 0xff;
-        }
-      }
-      else {
-        iVar2 = 0;
-      }
-    }
+    return 0xff;
   }
-  return iVar2;
+  if ((1 < Replay_ReplayMode) || (GameSetup_gData.commMode == 1)) {
+    if (Device_ReadPad(4,param) == 0) {
+      return 0;
+    }
+    if ((param & 0xffff) == 8) {
+      Device_gPausePortIndex = '\x01';
+      Device_gPausePort = 4;
+    }
+    return 0xff;
+  }
+  return 0;
 }
 
 /* ---- Device_Analog__FUl  [DEVICE.CPP:352-384] SLD-VERIFIED ----
- * NEAR-MISS (was 63 diffs -> now 57, ours 67/oracle 64): uVar2/uVar4/uVar5 retyped
- * u_int->int -- the oracle's clamp compares are SIGNED (slt), but these were declared
- * u_int so the compare chain emitted sltu; fixed all 3 comparison sites at once (a
- * whole cluster of "slt" vs "sltu" diffs vanished). RESIDUAL (57 diffs): a persistent
- * beqz/bnez branch-POLARITY mismatch on the outer Device_VerifyType==0 early-return
- * (oracle: bnez-continue/fall-through-return0; ours: beqz-return0/fall-through-
- * continue) -- tried both `if(iVar1==0)return 0;` (early-return) and the inverted
- * `if(iVar1!=0){...whole body...}return 0;` wrap; BOTH compile to the identical beqz
- * shape (gcc folds the wrap back to the early-return form regardless of source
- * polarity, similar to the shift-simplification seen on Device_VerifyType). The
- * downstream subtract/divide-guard chain (DevAnalog_scaledByteCalc goto-merge, the
- * div-by-INT_MIN/-1 break guard) carries its own separate scheduling residuals not
- * yet investigated in isolation. v/max/min are declared-but-unused locals (present
- * before this pass, left untouched per the "unused local can be load-bearing"
- * caution -- section 3.12 #15 -- not confirmed either way this session). */
+ * REWRITTEN from the SYM + raw oracle (w38-a6).  SYM `8c Function start` @0x800bd9b8 lists
+ * EXACTLY THREE named locals -- min ($5=a1), max ($4=a0), v ($3=v1) -- plus REGPARM param
+ * ($10=s0); every other value in the oracle is a compiler temp.  The previous recon carried
+ * 9 fabricated locals + a hand-written div guard + a goto-merged tail.
+ * 🔴 CORRECTNESS BUG FIXED (the old in-source note had it exactly backwards): the numerator
+ * is the MIN-SUBTRACTED value, not the raw byte.  At 0x800BDA24 `beqz $v0,.L800BDA34` the
+ * DELAY SLOT 0x800BDA28 `subu $v1,$v1,$a1` (v -= min) executes on BOTH paths, and .L800BDA34
+ * -- the TAKEN path -- then does `sll $v0,$v1,8; subu $v0,$v0,$v1` = (v-min)*255.  It is dead
+ * only on the fall-through (the `return 0xff` clamp).  Same on the mirrored arm at
+ * 0x800BDA58/.L800BDA64 = (min-v)*255 over (min-max).  So this is the normal
+ * "scale [min,max] onto [0,255]" formula; the old code divided the UNSHIFTED raw byte,
+ * i.e. every analog axis read was biased by min*255/(max-min) at runtime.
+ * The div guards (`bnez $v1 / break 7`, the -1 / INT_MIN `break 6` pair) are maspsx
+ * --expand-div's automatic expansion of a plain C `/` -- never write them by hand. */
 int Device_Analog(u_long param)
 
 {
-  int iVar1;
-  int v;
-  int uVar2;
-  int iVar3;
-  int max;
-  int uVar4;
   int min;
-  int uVar5;
-  int iVar6;
+  int max;
+  int v;
 
-  iVar1 = Device_VerifyType(param >> 0x14);
-  if (iVar1 == 0) {
+  if (Device_VerifyType(param >> 0x14) == 0) {
     return 0;
   }
-  uVar2 = (int)*(u_char *)((int)&gPadinfo.buf[param >> 0x14].data + (param >> 0x10 & 3) + 2);
-  uVar5 = param >> 8 & 0xff;
-  uVar4 = param & 0xff;
-  if (uVar5 < uVar4) {
-    if (uVar5 <= uVar2) {
-      iVar1 = uVar2 - uVar5;
-      if (uVar4 < uVar2) {
-        return 0xff;
-      }
-      iVar3 = uVar4 - uVar5;
-DevAnalog_scaledByteCalc:
-      /* @0x800BDA34-38 / 0x800BDA64-68: numerator = raw analog byte uVar2 * 0xff ($v1<<8 - $v1),
-       * NOT the min-subtracted iVar1. iVar1 (=uVar2-uVar5 / uVar5-uVar2) is the MIPS dead-store at
-       * 0x800BDA28 / 0x800BDA58 that is overwritten by 0xFF/0 on the clamp paths and never reaches
-       * the (signed) divide. Reconstruction fed iVar1*0xff into the scale instead of uVar2*0xff (H45). */
-      iVar6 = ((int)uVar2 * 0xff) / iVar3;
-      if (iVar3 == -1) {
-        if ((int)uVar2 * 0xff == -0x80000000) {
-          trap(0x1800);
-          return iVar6;
-        }
-        return iVar6;
-      }
-      return iVar6;
+  v = (int)*(u_char *)((int)&gPadinfo.buf[param >> 0x14].data + (param >> 0x10 & 3) + 2);
+  min = param >> 8 & 0xff;
+  max = param & 0xff;
+  if (min < max) {
+    if (v < min) {
+      v = 0;
+    }
+    else if (max < v) {
+      v = 0xff;
+    }
+    else {
+      v = ((v - min) * 0xff) / (max - min);
     }
   }
-  else if (uVar5 != uVar4) {
-    if (uVar2 < uVar4) {
-      return 0xff;
+  else if (min != max) {
+    if (v < max) {
+      v = 0xff;
     }
-    iVar1 = uVar5 - uVar2;
-    if (uVar2 <= uVar5) {
-      iVar3 = uVar5 - uVar4;
-      goto DevAnalog_scaledByteCalc;
+    else if (min < v) {
+      v = 0;
+    }
+    else {
+      v = ((min - v) * 0xff) / (min - max);
     }
   }
-  return 0;
+  else {
+    v = 0;
+  }
+  return v;
 }
 
 /* ---- Device_Null__FUl  [DEVICE.CPP:393-394] SLD-VERIFIED ---- */

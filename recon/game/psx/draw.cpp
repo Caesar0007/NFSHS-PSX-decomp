@@ -368,15 +368,10 @@ void Draw_StartRenderingView(int viewid)
      ORACLE places the Draw_gMaxPrim (else) block at the FALLTHROUGH position with the
      membudget (then) block reached by a forward jump -- i.e. BOTH `viewid==Player1View`
      and `viewid==Player2View` jump-if-true to the SAME target, fallthrough is the else.
-     Ours (`if(A||B) X; else Y;`) treats the LAST OR-term specially (`if(!B) goto ELSE`,
-     fallthrough is THEN) -- a different, also-standard cc1plus OR-codegen; tried operand
-     swap (P2||P1) = no change, De Morgan `&&`-negated form, and an explicit label/goto
-     transliteration of the oracle's exact branch topology -- ALL THREE cause a FULL-
-     FUNCTION register-recolor regression (viewid's home reg flips a2<->t0 from the very
-     first instruction, 9->45 diffs) because reshaping the tail changes viewid's live-range
-     length and re-tips the whole-function allocator priority (§A row-41 family, in
-     reverse). Reverted every attempt; the clean 9-diff form is kept. GENUINE FLOOR --
-     accept, do not pin. */
+     (The old "GENUINE FLOOR -- accept" note here is RETRACTED: see the MATCH
+     comment at the tail if/else -- De Morgan DOES crack it once the arm body
+     reads `view->membudget` instead of re-indexing `Draw_gView[viewid]`.
+     PASS 46/46 as of 2026-07-31.) */
   Draw_DCache *sd;
   Draw_tView *view;
   int iVar1;
@@ -392,11 +387,21 @@ void Draw_StartRenderingView(int viewid)
   sd->head.clipH = Draw_gView[viewid].drawenv[0].clip.h;
   Draw_gMidGroundOtz = iVar1 >> 3;
   sd->head.cprim.LastPrim = (u_long *)view->ot[gFlip];
-  if ((viewid == Draw_gPlayer1View) || (viewid == Draw_gPlayer2View)) {
-    sd->head.cprim.MPrimPtr = sd->head.cprim.PrimPtr + Draw_gView[viewid].membudget;
+  /* MATCH (2026-07-31, w38-a3): the oracle's tail is the DE MORGAN form --
+     `if (viewid != P1 && viewid != P2) { gMaxPrim } else { PrimPtr+membudget }`
+     -- so BOTH equality tests `beq` out to the SAME out-of-line THEN block and
+     the gMaxPrim arm is the fall-through, exactly as the oracle lays it out.
+     A previous pass tried De Morgan and saw a +10-insn blow-up, concluding
+     "GENUINE FLOOR"; that verdict was WRONG -- the blow-up came from the arm
+     body still spelling `Draw_gView[viewid].membudget`, which re-materializes
+     the array base inside the now-out-of-line block (the oracle reads it off
+     the already-live `view` pointer, `lw v1,0x4($a2)`).  De Morgan + the
+     `view->` spelling together = PASS 46/46. */
+  if ((viewid != Draw_gPlayer1View) && (viewid != Draw_gPlayer2View)) {
+    sd->head.cprim.MPrimPtr = (char *)Draw_gMaxPrim;
   }
   else {
-    sd->head.cprim.MPrimPtr = (char *)Draw_gMaxPrim;
+    sd->head.cprim.MPrimPtr = sd->head.cprim.PrimPtr + view->membudget;
   }
   sd->head.mirror = 0;
   return;
@@ -434,22 +439,37 @@ void Draw_StopRenderingView(int viewid)
      literal-address form is what the oracle actually uses here, sd-cast is wrong for this
      fn); (2) reordering the `Render_gPacketPtr = pEnv+0x40;` statement to after the 2nd RMW
      (oracle interleaves its store late, inside the 2nd statement's instruction stream) --
-     REGRESSED 63->69. Both reverted. GENUINE FLOOR (fine-grained allocator tie-break over
-     4 short-lived scratch temps, not source-shapable without a pin) -- accept. */
+     REGRESSED 63->69. Both reverted.
+     2026-07-31 (w38-a3), 63 -> 50 diffs and INSN COUNT NOW EXACT (70/70): two structural
+     gaps were still real, not coloring. (a) The oracle materializes the VALUE of
+     Render_gPalettePtr ONCE (`lui a3,0x1F80; lw a3,0(a3)`) and reuses it for BOTH OT-word
+     addresses (`addu v0,v0,a3` / `addu a1,a1,a3`); our build re-LOADED it at the 2nd site
+     because the intervening `sw` invalidates a plain non-struct literal-address MEM in
+     gcc-2.8's alias check.  Modelled with the local `pal`.  (b) The 2nd OT address is
+     MUTATED INTO `pal` in place (`pal = pal + otsize*4 - 4;`), not recomputed as a
+     sub-expression -- the in-place form (catalog 3.12 #14 family) dropped another 18 diffs.
+     RESIDUAL 50 = a pure 4-way HARD-REGISTER ROTATION: ours {a1=LEnv copy-walker, a2/a3
+     scratch, t1=view}, oracle {a1=view, a2=0xffffff mask, a3=LEnv copy-walker, t1=0x1F800004
+     base}.  i.e. retail gives `view` the FIRST allocation slot while our allocator gives it
+     to the movstrsi copy-walker (which has loop-DOUBLED ref counts and therefore a much
+     higher floor_log2(refs)*refs/live_length priority here).  Falsified while chasing it:
+     decl-order permutation, `pal` init before/after `pEnv`, late `view` init (index-form
+     copy source) 107, index-form 2nd otsize read 65.  Allocno-priority tie -- accept
+     (WEAK floor: an -dg/-dl allocno dump for the C++ lane would settle it). */
   Draw_tView *view;
   DR_ENV *pEnv;
   DRAWENV LEnv;
+  u_char *pal;                 /* oracle's CSE'd Render_gPalettePtr VALUE (see note) */
 
   view = Draw_gView + viewid;
   LEnv = view->drawenv[gFlip];
   pEnv = (DR_ENV *)Render_gPacketPtr;
-  *(u_int *)Render_gPacketPtr =
-       *(u_int *)Render_gPacketPtr & 0xff000000 |
-       *(u_int *)(Render_gPalettePtr + view->otsize * 4 + -4) & 0xffffff;
+  pal = Render_gPalettePtr;
+  *(u_int *)pEnv = *(u_int *)pEnv & 0xff000000 |
+       *(u_int *)(pal + view->otsize * 4 + -4) & 0xffffff;
   Render_gPacketPtr = (char *)pEnv + 0x40;
-  *(u_int *)(Render_gPalettePtr + view->otsize * 4 + -4) =
-       *(u_int *)(Render_gPalettePtr + view->otsize * 4 + -4) & 0xff000000 |
-       (u_int)pEnv & 0xffffff;
+  pal = pal + view->otsize * 4 + -4;
+  *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)pEnv & 0xffffff;
   SetDrawEnv(pEnv,&LEnv);
   return;
 }
@@ -510,7 +530,20 @@ void Draw_StartFrameRender(void)
     iVar5 = iVar5 + 1;
     goto TEST;
   }
-  Render_gPacketPtr = gEnviro[gFlip].server;
+  /* MATCH (2026-07-31, w38-a3): the oracle LOADS gEnviro[gFlip].server TWICE
+     (`lw v1,0x14(v0)` then `lw v0,0x14(v0)` off the SAME CSE'd address); our
+     build CSE'd the value once and emitted `addu v0,a0,zero`.  ROOT CAUSE:
+     the intervening store went through the `Render_gPacketPtr` macro
+     (`*(u_char **)0x1F800004`) -- a NON-struct MEM, so gcc-2.8's alias check
+     (MEM_IN_STRUCT_P mismatch) let the loaded value live across it.  The
+     scratchpad word at 0x1F800004 IS `Draw_PrimStruct::PrimPtr` (the cache
+     header's packet cursor, cf. Draw_tCacheHeader/Draw_DCache @0x1F800000),
+     so writing it through the STRUCT view sets MEM_IN_STRUCT_P, cse
+     invalidates the field load, and the second genuine `lw` reappears.
+     Identical address + identical stored value; PASS 40/40.
+     NEW LEVER: a scratchpad "global" that is really a struct FIELD must be
+     stored through its struct view or it silently loses alias conflicts. */
+  ((Draw_PrimStruct *)0x1F800000)->PrimPtr = gEnviro[gFlip].server;
   Draw_gMaxPrim = gEnviro[gFlip].server + gTotalMem;
   return;
 }

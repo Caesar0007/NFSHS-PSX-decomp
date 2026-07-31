@@ -119,8 +119,14 @@ void Sfx_BuildFastDisolveFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,Draw_t
  * Access via the centralized fixed-address lvalue macros Render_gPacketPtr/Render_gPalettePtr
  * (nfs4_types.h, sec.3.6b) -- same storage as render.cpp's owned global, byte-identical
  * semantics -- to reproduce that codegen.
- * NEAR-MISS 53 diffs (121/126 insns -- 5-insn STRUCTURAL gap, re-measured 2026-07-06; the
- * in-file "38, pure coloring" note above was STALE). ROOT CAUSE ISOLATED this session: the 5
+ * NEAR-MISS 38 diffs, COUNT-EXACT 126/126 (re-measured w38-a5 2026-07-31; the 53-diff /
+ * 121-insn claim below is STALE -- psx_gte.h has since gained the PsyQ pointer-form
+ * `gte_st*(p)` macros with the "r" constraint, which closed the 5-insn structural gap.
+ * What is LEFT is the 0xFFFFFF / 0xFF000000 / &Render_gPacketPtr / Render_gPalettePtr
+ * four-constant register ROTATION in the OT-link tail (ours t0=0xFFFFFF a1=palette
+ * a2=&packetptr a3=0xFF000000; retail t0=&packetptr a1=0xFFFFFF a2=palette
+ * a3=0xFF000000) -- the same allocator tie the catalog tracks as the PrimStop /
+ * SpotPrims / SubdividFacet 0xffffff-pair family.  The historical note follows:) ROOT CAUSE ISOLATED this session: the 5
  * missing insns are the `addiu vN,base,OFF` address-materializations the oracle emits before
  * EVERY `gte_stsxy`/`gte_stsxy3` GTE store (`prim->x0/x1/x3/x2`) -- ours folds the field offset
  * straight into the `swc2` displacement (`swc2 14,8(s0)`) instead. Compared against the REAL
@@ -210,75 +216,53 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
 }
 
 /* ---- Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle  [SFX.CPP:367-525] ----
- * NEAR-MISS 74 diffs (864/938 insns), was previously mis-classified + transcribed as a file-scope
- * __asm__ blob. 🔴 CORRECTED 2026-07-06 (GTE-heavy near-miss sweep): that classification was WRONG
- * -- verified against BOTH independent sources: (1) Ghidra (nfs4-f.exe.c @0x800DD790) decompiles a
- * completely ordinary `switch(is->type)` C++ member function -- normal locals, normal calls to this
- * TU's own Sfx_BuildSmokeFacet/Sfx_Transform/Sfx_BuildFastDisolveFacet/Sfx_ThickenXZ/Sfx_AdditivePrim
- * plus eaclib intcos/intsin/fixedmult/Math_NormalizeVector, TrsProj_SetPsxMatrix, ChangeTPage --
- * exactly the shape a dense `switch` on a 1..14 range compiles to (range-check `addiu v1,v0,-1;
- * sltiu v0,v1,14; beqz .Lret` + a computed `jr` through a jump table). (2) the oracle .s line 4 reads
- * plain `nonmatching <name>, 0xEA8` -- there is NO "Handwritten function" tag anywhere in this file;
- * that claim in the prior comment was false. The two `swc2 $26/$27 "handwritten instruction"`
- * annotations are NOT a whole-function marker -- grep confirms the SAME per-instruction annotation
- * appears in 94 other oracle .s files across this tree (DrawC_*, DrawW_*, DrawObject*, the DCT
- * decoder, ...), all of them ordinary compiled functions that use COP2 (GTE) instructions via
- * inline-asm macros (e.g. drawc.cpp's DrawC_ShadowPrim, cited by the prior comment as a "sibling
- * handwritten fn", itself calls plain `__asm__ volatile("mfc2 ...")` and carries the identical tag)
- * -- splat/spimdisasm just can't auto-name a COP2 opcode/reg into a macro mnemonic and flags it
- * per-instruction; it is NOT evidence of a hand-written function body. The jump table
- * `jtbl_8005699C` is simply what gcc-2.8.0 emits for a dense switch (14 case values, no gaps wide
- * enough to prefer an if-chain) -- materialized in .rodata by the compiler itself, not hand-placed.
- * eaclib `intcos`/`fastintcos` (same for sin) are CO-EQUAL LINKER XDEFs at the identical address
- * (see eacpsxz/sinfunc.cpp) -- calling either name is byte-identical, not a bug.
- * Reconstructed as real C (promoted from this file's previous "host fallback"); cracked from a
- * 249-insn gap to 74 this session via 3 structural fixes vs the oracle CFG: (a) type8 and type10
- * are TWO SEPARATE, independently-compiled case bodies (own jump-table slots .L800DDA74/.L800DE130,
- * textually near-identical but never one jumps into the other) -- was wrongly `case 8: case 10:`
- * shared, split into 2 full duplicates; (b) type6 must be a FULLY DUPLICATED case body, not a `goto`
- * into type11's shared billboard label -- a `goto` there invites gcc-2.8.0 to tail-merge the common
- * radius/cos/sin prologue with type7/9/11's near-identical one, which the oracle's compile never
- * does (confirmed by call-count: fixedmult/intcos/intsin now match the oracle's 10/5/5 exactly,
- * up from 8/4/4); (c) case4's post-normalize scale is `source - (motion<<2)` (oracle: `sll v0,v0,2;
- * subu`), not `source + motion*-4`. HELD residual (74 insns, concentrated in case 4's early-exit
- * dead-store scheduling + a large block whose fine-grained content hasn't been fully isolated from
- * the SequenceMatcher's alignment loss after case4) -- NOT chased further this pass; call-SITE
- * counts for every helper (Sfx_BuildSmokeFacet=3, Math_NormalizeVector=3, TrsProj_SetPsxMatrix=2,
- * Sfx_ThickenXZ=2, Sfx_AdditivePrim=2, ChangeTPage=2, Sfx_Transform=1, Sfx_BuildFastDisolveFacet=1,
- * fixedmult=10, intcos/intsin=5/5) all match the oracle exactly, so the residual is register
- * coloring/scheduling + possibly one more content nit in case 4 or the cases-6/7/9/11 tail, not a
- * missing/duplicated call. GTE ops use this file's own gte_* macros (psx_gte.h, §3.6b "=m" fold)
- * exactly like every other Sfx_* function in this TU. */
+ * REWRITTEN 2026-07-31 (w38-a5) against the raw oracle CFG.  The prior in-file claim of
+ * "74 diffs (864/938)" was STALE -- the gate measured 1346 at wave start.  Structure taken
+ * from the oracle + jtbl_8005699C (asm/data/rdata_80054548.rodata.s:3578):
+ *   idx (type-1) -> block:  1->.L800DD7E8  2->.L800DD804  3->.L800DD850  4->.L800DD874
+ *   5->ret  6->.L800DDD0C  7->.L800DDDEC  8->.L800DE130  9->.L800DDEF4  10->.L800DDA74
+ *   11->.L800DDFFC  12->ret  13/14->.L800DE3C8
+ * => PHYSICAL case-body order (= C source order; wave-10 "case bodies emit in source order"):
+ *   1, 2, 3, 4, 10, 6, 7, 9, 11, 8, 13/14.
+ * Oracle facts driving the shape:
+ *  (a) `ds` -- the vertex stores in cases 4/6/7/9/11/13/14 go through a REGISTER BASE holding
+ *      &dSouffle (`addiu $s0,$sp,0x18` / `addiu $a0,$sp,0x18`, then `sh $v1,0x10($s0)` ...),
+ *      NOT sp-relative displacements.  That is a real pointer local; it also defeats gcc's
+ *      alias analysis so case-4 RE-LOADS ptrans.vx/vy/vz per vertex (the plain
+ *      `dSouffle.v1.vx = ptrans.vx` form CSEs those loads and comes out ~6 insns short).
+ *  (b) case 4 uses a SKIP FLAG, not `break`: the vz<0x40 arm does `j .L800DD9F8; li v1,1`,
+ *      the normal arm ends `addu v1,zero,zero`, and .L800DD9F8 is `bnez v1,<ret>`.
+ *  (c) NO source-level shared-tail gotos: every case spells its own Sfx_AdditivePrim /
+ *      Sfx_BuildFastDisolveFacet call and gcc's CROSS-JUMP pass merges what it can
+ *      (.L800DE0E0/.L800DE100/.L800DE114/.L800DE11C/.L800DE120 are merge entry points; case
+ *      2's call is deliberately NOT merged because its arg schedule differs).  Source funnel
+ *      labels/`goto`s force the WRONG merge set (catalog wave-11 "let gcc cross-jump" row).
+ *  (d) cases 8/10/13/14 reach the packet cursor + OT through the SCRATCHPAD LITERALS
+ *      Render_gPacketPtr (0x1F800004) / Render_gPalettePtr (0x1F800000) -- the same storage
+ *      as sd->head.cprim.PrimPtr / .LastPrim (sd == 0x1F800000), but the oracle
+ *      re-materializes the literal address (`lui 0x1F80; lw 4(..)`); only the
+ *      PrimPtr<MPrimPtr guard and sd->otz go through the `sd` base.  Same idiom as
+ *      Sfx_AdditivePrim in this TU.
+ *  (e) cases 8/10 build the prim colour in an align-1 4-byte struct copied from a word temp
+ *      (`sw v0,0x48(sp); lwl/lwr 0x48(sp); swl/swr 0x6C(sp)`) = an 8-insn movstrsi(size 4,
+ *      align 1); a plain `int colorcode` is 8 insns short there.
+ *  (f) `wpos = is->motion;` / `src = is->source;` are STRUCT ASSIGNMENTS (movstrsi -> the
+ *      oracle's parallel `lw t2/t3/t4; sw t2/t3/t4`), not three scalar field copies.
+ * eaclib `intcos`/`fastintcos` (same for sin) are CO-EQUAL LINKER XDEFs at one address, so
+ * the spelling is byte-identical (verify_asm is reloc-name lenient). */
 void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
 
 {
   sfxsouffle dSouffle;
   Sfx_tCache *sd;
-  POLY_FT4 *prim;
-  Draw_tPixMap *pmx;
-  Draw_tPixMap *pal;
-  SVECTOR ribbon[4];
-  SVECTOR ptrans;
-  VECTOR proj;
-  coorddef wpos;
-  coorddef src;
-  u_short tpage;
-  int radius;
-  int cosa;
-  int sina;
-  int otz;
-  int colorcode;
-  int mode;
 
   sd = (Sfx_tCache *)0x1f800000;   /* oracle: literal scratchpad address, not %hi/%lo(Sfx_gCache) */
   switch((u_char)is->type) {
   case 1:
     Sfx_BuildSmokeFacet(is,&dSouffle,gSMokePalette);
-    goto SfxSouffle_tailA_mode0;
+    Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,0,0xf,sd);
+    break;
   case 2:
-    /* oracle: type2 has its OWN, SEPARATE Sfx_AdditivePrim call site -- does NOT join the
-       shared tail below (confirmed: .L800DD804 falls to .L800DD830's own jal, then
-       `j .L800DE61C` directly, never touching .L800DE114/11C/120). */
     Sfx_BuildSmokeFacet(is,&dSouffle,gSMokePalette);
     if ((u_char)is->cycle < 0x12) {
       is->type = 1;
@@ -287,216 +271,354 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
     break;
   case 3:
     Sfx_BuildSmokeFacet(is,&dSouffle,gSMokePalette);
-    goto SfxSouffle_tailA_mode1;
-  case 4:
-    wpos.x = is->motion.x; wpos.y = is->motion.y; wpos.z = is->motion.z;
-    Math_NormalizeVector(&wpos);
-    wpos.x = is->source.x - (wpos.x << 2);
-    wpos.y = is->source.y - (wpos.y << 2);
-    wpos.z = is->source.z - (wpos.z << 2);
-    Sfx_Transform(&wpos,&ptrans,&Vi->cview.translation);
-    if (ptrans.vz < 0x40) {
-      break;
-    }
-    radius = ptrans.vx - is->trans.vx;
-    if ((radius <= 0) ? (is->trans.vx - ptrans.vx < 0x20) : (radius < 0x20)) {
-      ptrans.vx = (is->trans.vx < ptrans.vx) ? ptrans.vx + -0x20 : ptrans.vx + 0x20;
-    }
-    dSouffle.v0.vx = is->trans.vx;  dSouffle.v0.vy = is->trans.vy + 0x20;  dSouffle.v0.vz = is->trans.vz;
-    dSouffle.v3.vx = is->trans.vx;  dSouffle.v3.vy = is->trans.vy + -0x20; dSouffle.v3.vz = is->trans.vz;
-    dSouffle.v1.vx = ptrans.vx;     dSouffle.v1.vy = ptrans.vy + 0x20;     dSouffle.v1.vz = ptrans.vz;
-    dSouffle.v2.vx = ptrans.vx;     dSouffle.v2.vy = ptrans.vy + -0x20;    dSouffle.v2.vz = ptrans.vz;
-    dSouffle.pmx = *gSparkHPixmap[6 - (u_char)is->cycle];
-    Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,2,0x28,sd);
+    Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,1,0xf,sd);
     break;
-  case 6:
-    /* oracle: type6 (.L800DDD0C) is its OWN independent block that falls through into the
-       SAME shared color-setup body as type11 (.L800DE0E0) -- but gcc did NOT tail-merge type6's
-       radius/cos/sin prologue with type7/9/11's near-identical one (they remain fully separate
-       instruction streams in the oracle); a `goto` into a shared label here invites gcc-2.8.0 to
-       tail-merge the common prologue, which the oracle never does -- so type6 is fully duplicated
-       instead of jumping into type11's body. */
-    radius = 0x88 - (u_char)is->cycle;
-    cosa = fixedmult(fastintcos(is->angle),radius);
-    sina = fixedmult(fastintsin(is->angle),radius);
-    dSouffle.v0.vx = is->trans.vx - (short)sina;  dSouffle.v0.vy = is->trans.vy + (short)cosa;  dSouffle.v0.vz = is->trans.vz;
-    dSouffle.v1.vx = is->trans.vx + (short)cosa;  dSouffle.v1.vy = is->trans.vy + (short)sina;  dSouffle.v1.vz = is->trans.vz;
-    dSouffle.v2.vx = is->trans.vx + (short)sina;  dSouffle.v2.vy = is->trans.vy - (short)cosa;  dSouffle.v2.vz = is->trans.vz;
-    dSouffle.v3.vx = is->trans.vx - (short)cosa;  dSouffle.v3.vy = is->trans.vy - (short)sina;  dSouffle.v3.vz = is->trans.vz;
-    pmx = gSMokePixmap[is->rndpixmap];
-    pal = gDirtPalette;
-    goto SfxSouffle_tailFD;
-  case 7:
-    radius = (8 - (u_char)is->cycle) * 4 + 0x19;
-    cosa = fixedmult(fastintcos(is->angle),radius);
-    sina = fixedmult(fastintsin(is->angle),radius);
-    dSouffle.v0.vx = is->trans.vx - (short)sina;  dSouffle.v0.vy = is->trans.vy + (short)cosa;  dSouffle.v0.vz = is->trans.vz;
-    dSouffle.v1.vx = is->trans.vx + (short)cosa;  dSouffle.v1.vy = is->trans.vy + (short)sina;  dSouffle.v1.vz = is->trans.vz;
-    dSouffle.v2.vx = is->trans.vx + (short)sina;  dSouffle.v2.vy = is->trans.vy - (short)cosa;  dSouffle.v2.vz = is->trans.vz;
-    dSouffle.v3.vx = is->trans.vx - (short)cosa;  dSouffle.v3.vy = is->trans.vy - (short)sina;  dSouffle.v3.vz = is->trans.vz;
-    pmx = gGravelPixmap[is->rndpixmap];
-    goto SfxSouffle_tailFD_grass;
-  case 9:
-    radius = (8 - (u_char)is->cycle) * 4 + 0x19;
-    cosa = fixedmult(fastintcos(is->angle),radius);
-    sina = fixedmult(fastintsin(is->angle),radius);
-    dSouffle.v0.vx = is->trans.vx - (short)sina;  dSouffle.v0.vy = is->trans.vy + (short)cosa;  dSouffle.v0.vz = is->trans.vz;
-    dSouffle.v1.vx = is->trans.vx + (short)cosa;  dSouffle.v1.vy = is->trans.vy + (short)sina;  dSouffle.v1.vz = is->trans.vz;
-    dSouffle.v2.vx = is->trans.vx + (short)sina;  dSouffle.v2.vy = is->trans.vy - (short)cosa;  dSouffle.v2.vz = is->trans.vz;
-    dSouffle.v3.vx = is->trans.vx - (short)cosa;  dSouffle.v3.vy = is->trans.vy - (short)sina;  dSouffle.v3.vz = is->trans.vz;
-    pmx = gGravelPixmap[is->rndpixmap];
-    pal = gSnowPalette;
-    goto SfxSouffle_tailFD;
-  case 11:
-    radius = (8 - (u_char)is->cycle) * 4 + 0xc;
-    cosa = fixedmult(fastintcos(is->angle),radius);
-    sina = fixedmult(fastintsin(is->angle),radius);
-    dSouffle.v0.vx = is->trans.vx - (short)sina;  dSouffle.v0.vy = is->trans.vy + (short)cosa;  dSouffle.v0.vz = is->trans.vz;
-    dSouffle.v1.vx = is->trans.vx + (short)cosa;  dSouffle.v1.vy = is->trans.vy + (short)sina;  dSouffle.v1.vz = is->trans.vz;
-    dSouffle.v2.vx = is->trans.vx + (short)sina;  dSouffle.v2.vy = is->trans.vy - (short)cosa;  dSouffle.v2.vz = is->trans.vz;
-    dSouffle.v3.vx = is->trans.vx - (short)cosa;  dSouffle.v3.vy = is->trans.vy - (short)sina;  dSouffle.v3.vz = is->trans.vz;
-    pmx = gSMokePixmap[is->rndpixmap];
-    pal = gSnowPalette;
-SfxSouffle_tailFD:
-    Sfx_BuildFastDisolveFacet(is,&dSouffle,pmx,pal);
-    goto SfxSouffle_tailA_mode0;
-SfxSouffle_tailFD_grass:
-    Sfx_BuildFastDisolveFacet(is,&dSouffle,pmx,gGrassPalette);
-    goto SfxSouffle_tailA_mode0;
-SfxSouffle_tailA_mode1:
-    mode = 1;
-    goto SfxSouffle_tailA;
-SfxSouffle_tailA_mode0:
-    mode = 0;
-SfxSouffle_tailA:
-    Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,mode,0xf,sd);
+  case 4:
+    {
+      coorddef wpos;
+      SVECTOR ptrans;
+      sfxsouffle *ds;
+      int dx;
+      int skip;
+
+      wpos = is->motion;
+      Math_NormalizeVector(&wpos);
+      wpos.x = is->source.x - (wpos.x << 2);
+      wpos.y = is->source.y - (wpos.y << 2);
+      wpos.z = is->source.z - (wpos.z << 2);
+      Sfx_Transform(&wpos,&ptrans,&Vi->cview.translation);
+      ds = &dSouffle;
+      if (ptrans.vz < 0x40) {
+        skip = 1;
+      }
+      else {
+        dx = ptrans.vx - is->trans.vx;
+        /* oracle `blez v0,.L800DD924` => the dx>0 arm is the FALL-THROUGH, so the
+           positive test must be written first. */
+        if ((0 < dx) ? (dx < 0x20) : (is->trans.vx - ptrans.vx < 0x20)) {
+          /* BUG FIX (w38-a5): the clamped endpoint is measured from is->trans.vx, NOT
+             from ptrans.vx -- oracle `lhu $v1,0x30($s2)` (is->trans.vx) feeds both
+             `addiu $v0,$v1,0x20` and `addiu $v0,$v1,-0x20` before `sh $v0,0x58($sp)`.
+             The old form re-based on ptrans.vx, so the 32-unit minimum separation was
+             not enforced (spark ribbon could stay degenerate). */
+          ptrans.vx = (is->trans.vx < ptrans.vx) ? is->trans.vx + 0x20 : is->trans.vx + -0x20;
+        }
+        ds->v0.vx = is->trans.vx;
+        ds->v0.vy = is->trans.vy + 0x20;
+        ds->v0.vz = is->trans.vz;
+        ds->v3.vx = is->trans.vx;
+        ds->v3.vy = is->trans.vy + -0x20;
+        ds->v3.vz = is->trans.vz;
+        ds->v1.vx = ptrans.vx;
+        ds->v1.vy = ptrans.vy + 0x20;
+        ds->v1.vz = ptrans.vz;
+        ds->v2.vx = ptrans.vx;
+        ds->v2.vy = ptrans.vy + -0x20;
+        ds->v2.vz = ptrans.vz;
+        skip = 0;
+      }
+      if (skip == 0) {
+        dSouffle.pmx = *gSparkHPixmap[6 - (u_char)is->cycle];
+        Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,2,0x28,sd);
+      }
+    }
     break;
   case 10:
-    /* oracle: type8 and type10 are TWO SEPARATE, independently-compiled case bodies (own jump-
-       table slots .L800DDA74 / .L800DE130) -- textually near-identical but NOT a case-fallthrough
-       or shared tail (confirmed: neither block jumps into the other; each has its own copy of the
-       full Math_NormalizeVector->Sfx_ThickenXZ->TrsProj_SetPsxMatrix->GTE sequence, at different
-       stack offsets). Duplicated verbatim per-case to match. */
-    wpos.x = is->motion.x; wpos.y = is->motion.y; wpos.z = is->motion.z;
-    Math_NormalizeVector(&wpos);
-    src.x = is->source.x; src.y = is->source.y; src.z = is->source.z;
-    radius = *(short *)((char *)is + 0x3a);   /* push-back scale */
-    wpos.x = src.x - (wpos.x * radius >> 4);
-    wpos.y = src.y - (wpos.y * radius >> 4);
-    wpos.z = src.z - (wpos.z * radius >> 4);
-    Sfx_ThickenXZ(ribbon,&wpos,&src,&Vi->cview.translation);
-    colorcode = 0x2e181010;
-    otz = 0x32;
-    pmx = gSparkHPixmap[6 - (u_char)is->cycle];
-    TrsProj_SetPsxMatrix(&gWorldMat,(coorddef *)0x0);
-    if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
-      gte_ldv0(&ribbon[1]);
-      gte_rtps();
-      prim = (POLY_FT4 *)sd->head.cprim.PrimPtr;
-      gte_stlvnl(&proj);
-      if (proj.vz >= 0x20) {
-        gte_stsxy(&prim->x1);
-        gte_ldv3(&ribbon[0],&ribbon[2],&ribbon[3]);
-        gte_rtpt();
-        *(int *)&prim->r0 = colorcode;
-        gte_stsxy3(&prim->x0,&prim->x3,&prim->x2);
-        gte_avsz4();
-        gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
-        sd->otz = (sd->otz >> 1) + otz;
-        if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
-          *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
-          *(u_int *)&prim->u0 = *(u_int *)&pmx->u0;
-          *(u_int *)&prim->u1 = *(u_int *)&pmx->u1;
-          *(u_int *)&prim->u2 = *(u_int *)&pmx->u2;
-          *(u_int *)&prim->u3 = *(u_int *)&pmx->u3;
-          tpage = pmx->tpage;
-          ChangeTPage(&tpage,1);
-          prim->tpage = tpage;
-          prim->tag = prim->tag & 0xff000000 | *(u_int *)(sd->head.cprim.LastPrim + sd->otz) & 0xffffff;
-          colorcode = (int)sd->head.cprim.PrimPtr & 0xffffff;
-          sd->head.cprim.PrimPtr = (char *)((char *)sd->head.cprim.PrimPtr + 0x28);
-          ((u_int *)sd->head.cprim.LastPrim)[sd->otz] =
-               ((u_int *)sd->head.cprim.LastPrim)[sd->otz] & 0xff000000 | colorcode;
+    {
+      SVECTOR ribbon[4];
+      VECTOR proj;
+      coorddef wpos;
+      coorddef src;
+      CVECTOR colour;
+      POLY_FT4 *prim;
+      Draw_tPixMap *pmx;
+      u_short tpage;
+      u_long ccode;
+      u_int p0f,p1f,p2f,p3f;
+      int scale;
+
+      ccode = 0x2e181010;
+      colour = *(CVECTOR *)&ccode;
+      wpos = is->motion;
+      Math_NormalizeVector(&wpos);
+      src = is->source;
+      scale = *(short *)((char *)is + 0x3a);   /* push-back scale */
+      wpos.x = src.x - (wpos.x * scale >> 4);
+      wpos.y = src.y - (wpos.y * scale >> 4);
+      wpos.z = src.z - (wpos.z * scale >> 4);
+      Sfx_ThickenXZ(ribbon,&wpos,&src,&Vi->cview.translation);
+      TrsProj_SetPsxMatrix(&gWorldMat,(coorddef *)0x0);
+      if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
+        gte_ldv0(&ribbon[1]);
+        gte_rtps();
+        prim = (POLY_FT4 *)Render_gPacketPtr;
+        gte_stlvnl(&proj);
+        if (proj.vz >= 0x20) {
+          gte_stsxy(&prim->x1);
+          gte_ldv3(&ribbon[0],&ribbon[2],&ribbon[3]);
+          gte_rtpt();
+          *(u_long *)&prim->r0 = *(u_long *)&colour;
+          gte_stsxy3(&prim->x0,&prim->x3,&prim->x2);
+          gte_avsz4();
+          gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
+          sd->otz = (sd->otz >> 1) + 0x32;
+          if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
+            *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
+            pmx = gSparkHPixmap[6 - (u_char)is->cycle];
+            /* 4 named temps: oracle loads all four pixmap words into DISTINCT regs
+               (lw v1/a1/a2/a3) then stores all four -- the loads fill each other's
+               load-delay slots.  Per-field copies serialize through one reg (+4 nops). */
+            p0f = *(u_int *)&pmx->u0;
+            p1f = *(u_int *)&pmx->u1;
+            p2f = *(u_int *)&pmx->u2;
+            p3f = *(u_int *)&pmx->u3;
+            *(u_int *)&prim->u0 = p0f;
+            *(u_int *)&prim->u1 = p1f;
+            *(u_int *)&prim->u2 = p2f;
+            *(u_int *)&prim->u3 = p3f;
+            tpage = pmx->tpage;
+            ChangeTPage(&tpage,1);
+            prim->tpage = tpage;
+            prim->tag = prim->tag & 0xff000000 |
+                        *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
+            scale = (u_int)Render_gPacketPtr & 0xffffff;
+            Render_gPacketPtr = Render_gPacketPtr + 0x28;
+            *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
+                 *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | scale;
+          }
         }
       }
     }
     break;
+  case 6:
+    {
+      int radius;
+      int cosa;
+      int sina;
+      sfxsouffle *ds;
+
+      radius = 0x88 - (u_char)is->cycle;
+      cosa = fixedmult(fastintcos(is->angle),radius);
+      sina = fixedmult(fastintsin(is->angle),radius);
+      ds = &dSouffle;
+      ds->v0.vx = is->trans.vx - (short)sina;
+      ds->v0.vy = is->trans.vy + (short)cosa;
+      ds->v0.vz = is->trans.vz;
+      ds->v1.vx = is->trans.vx + (short)cosa;
+      ds->v1.vy = is->trans.vy + (short)sina;
+      ds->v1.vz = is->trans.vz;
+      ds->v2.vx = is->trans.vx + (short)sina;
+      ds->v2.vy = is->trans.vy - (short)cosa;
+      ds->v2.vz = is->trans.vz;
+      ds->v3.vx = is->trans.vx - (short)cosa;
+      ds->v3.vy = is->trans.vy - (short)sina;
+      ds->v3.vz = is->trans.vz;
+      Sfx_BuildFastDisolveFacet(is,ds,gSMokePixmap[is->rndpixmap],gDirtPalette);
+      Sfx_AdditivePrim(&ds->pmx,&dSouffle.v0,0,0xf,sd);
+    }
+    break;
+  case 7:
+    {
+      int radius;
+      int cosa;
+      int sina;
+      sfxsouffle *ds;
+
+      radius = (8 - (u_char)is->cycle) * 4 + 0x19;
+      cosa = fixedmult(fastintcos(is->angle),radius);
+      sina = fixedmult(fastintsin(is->angle),radius);
+      ds = &dSouffle;
+      ds->v0.vx = is->trans.vx - (short)sina;
+      ds->v0.vy = is->trans.vy + (short)cosa;
+      ds->v0.vz = is->trans.vz;
+      ds->v1.vx = is->trans.vx + (short)cosa;
+      ds->v1.vy = is->trans.vy + (short)sina;
+      ds->v1.vz = is->trans.vz;
+      ds->v2.vx = is->trans.vx + (short)sina;
+      ds->v2.vy = is->trans.vy - (short)cosa;
+      ds->v2.vz = is->trans.vz;
+      ds->v3.vx = is->trans.vx - (short)cosa;
+      ds->v3.vy = is->trans.vy - (short)sina;
+      ds->v3.vz = is->trans.vz;
+      Sfx_BuildFastDisolveFacet(is,ds,gGravelPixmap[is->rndpixmap],gGrassPalette);
+      Sfx_AdditivePrim(&ds->pmx,&dSouffle.v0,0,0xf,sd);
+    }
+    break;
+  case 9:
+    {
+      int radius;
+      int cosa;
+      int sina;
+      sfxsouffle *ds;
+
+      radius = (8 - (u_char)is->cycle) * 4 + 0x19;
+      cosa = fixedmult(fastintcos(is->angle),radius);
+      sina = fixedmult(fastintsin(is->angle),radius);
+      ds = &dSouffle;
+      ds->v0.vx = is->trans.vx - (short)sina;
+      ds->v0.vy = is->trans.vy + (short)cosa;
+      ds->v0.vz = is->trans.vz;
+      ds->v1.vx = is->trans.vx + (short)cosa;
+      ds->v1.vy = is->trans.vy + (short)sina;
+      ds->v1.vz = is->trans.vz;
+      ds->v2.vx = is->trans.vx + (short)sina;
+      ds->v2.vy = is->trans.vy - (short)cosa;
+      ds->v2.vz = is->trans.vz;
+      ds->v3.vx = is->trans.vx - (short)cosa;
+      ds->v3.vy = is->trans.vy - (short)sina;
+      ds->v3.vz = is->trans.vz;
+      Sfx_BuildFastDisolveFacet(is,ds,gGravelPixmap[is->rndpixmap],gSnowPalette);
+      Sfx_AdditivePrim(&ds->pmx,&dSouffle.v0,0,0xf,sd);
+    }
+    break;
+  case 11:
+    {
+      int radius;
+      int cosa;
+      int sina;
+      sfxsouffle *ds;
+
+      radius = (8 - (u_char)is->cycle) * 4 + 0xc;
+      cosa = fixedmult(fastintcos(is->angle),radius);
+      sina = fixedmult(fastintsin(is->angle),radius);
+      ds = &dSouffle;
+      ds->v0.vx = is->trans.vx - (short)sina;
+      ds->v0.vy = is->trans.vy + (short)cosa;
+      ds->v0.vz = is->trans.vz;
+      ds->v1.vx = is->trans.vx + (short)cosa;
+      ds->v1.vy = is->trans.vy + (short)sina;
+      ds->v1.vz = is->trans.vz;
+      ds->v2.vx = is->trans.vx + (short)sina;
+      ds->v2.vy = is->trans.vy - (short)cosa;
+      ds->v2.vz = is->trans.vz;
+      ds->v3.vx = is->trans.vx - (short)cosa;
+      ds->v3.vy = is->trans.vy - (short)sina;
+      ds->v3.vz = is->trans.vz;
+      Sfx_BuildFastDisolveFacet(is,ds,gSMokePixmap[is->rndpixmap],gSnowPalette);
+      Sfx_AdditivePrim(&ds->pmx,&dSouffle.v0,0,0xf,sd);
+    }
+    break;
   case 8:
-    wpos.x = is->motion.x; wpos.y = is->motion.y; wpos.z = is->motion.z;
-    Math_NormalizeVector(&wpos);
-    src.x = is->source.x; src.y = is->source.y; src.z = is->source.z;
-    radius = *(short *)((char *)is + 0x3a);   /* push-back scale */
-    wpos.x = src.x - (wpos.x * radius >> 4);
-    wpos.y = src.y - (wpos.y * radius >> 4);
-    wpos.z = src.z - (wpos.z * radius >> 4);
-    Sfx_ThickenXZ(ribbon,&wpos,&src,&Vi->cview.translation);
-    colorcode = 0x2e301818;
-    otz = 0x32;
-    pmx = gSparkHPixmap[6 - (u_char)is->cycle];
-    TrsProj_SetPsxMatrix(&gWorldMat,(coorddef *)0x0);
-    if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
-      gte_ldv0(&ribbon[1]);
-      gte_rtps();
-      prim = (POLY_FT4 *)sd->head.cprim.PrimPtr;
-      gte_stlvnl(&proj);
-      if (proj.vz >= 0x20) {
-        gte_stsxy(&prim->x1);
-        gte_ldv3(&ribbon[0],&ribbon[2],&ribbon[3]);
-        gte_rtpt();
-        *(int *)&prim->r0 = colorcode;
-        gte_stsxy3(&prim->x0,&prim->x3,&prim->x2);
-        gte_avsz4();
-        gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
-        sd->otz = (sd->otz >> 1) + otz;
-        if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
-          *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
-          *(u_int *)&prim->u0 = *(u_int *)&pmx->u0;
-          *(u_int *)&prim->u1 = *(u_int *)&pmx->u1;
-          *(u_int *)&prim->u2 = *(u_int *)&pmx->u2;
-          *(u_int *)&prim->u3 = *(u_int *)&pmx->u3;
-          tpage = pmx->tpage;
-          ChangeTPage(&tpage,2);
-          prim->tpage = tpage;
-          prim->tag = prim->tag & 0xff000000 | *(u_int *)(sd->head.cprim.LastPrim + sd->otz) & 0xffffff;
-          colorcode = (int)sd->head.cprim.PrimPtr & 0xffffff;
-          sd->head.cprim.PrimPtr = (char *)((char *)sd->head.cprim.PrimPtr + 0x28);
-          ((u_int *)sd->head.cprim.LastPrim)[sd->otz] =
-               ((u_int *)sd->head.cprim.LastPrim)[sd->otz] & 0xff000000 | colorcode;
+    {
+      SVECTOR ribbon[4];
+      VECTOR proj;
+      coorddef wpos;
+      coorddef src;
+      CVECTOR colour;
+      POLY_FT4 *prim;
+      Draw_tPixMap *pmx;
+      u_short tpage;
+      u_long ccode;
+      u_int p0f,p1f,p2f,p3f;
+      int scale;
+
+      ccode = 0x2e301818;
+      colour = *(CVECTOR *)&ccode;
+      wpos = is->motion;
+      Math_NormalizeVector(&wpos);
+      src = is->source;
+      scale = *(short *)((char *)is + 0x3a);   /* push-back scale */
+      wpos.x = src.x - (wpos.x * scale >> 4);
+      wpos.y = src.y - (wpos.y * scale >> 4);
+      wpos.z = src.z - (wpos.z * scale >> 4);
+      Sfx_ThickenXZ(ribbon,&wpos,&src,&Vi->cview.translation);
+      TrsProj_SetPsxMatrix(&gWorldMat,(coorddef *)0x0);
+      if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
+        gte_ldv0(&ribbon[1]);
+        gte_rtps();
+        prim = (POLY_FT4 *)Render_gPacketPtr;
+        gte_stlvnl(&proj);
+        if (proj.vz >= 0x20) {
+          gte_stsxy(&prim->x1);
+          gte_ldv3(&ribbon[0],&ribbon[2],&ribbon[3]);
+          gte_rtpt();
+          *(u_long *)&prim->r0 = *(u_long *)&colour;
+          gte_stsxy3(&prim->x0,&prim->x3,&prim->x2);
+          gte_avsz4();
+          gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
+          sd->otz = (sd->otz >> 1) + 0x32;
+          if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
+            *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
+            pmx = gSparkHPixmap[6 - (u_char)is->cycle];
+            /* 4 named temps: oracle loads all four pixmap words into DISTINCT regs
+               (lw v1/a1/a2/a3) then stores all four -- the loads fill each other's
+               load-delay slots.  Per-field copies serialize through one reg (+4 nops). */
+            p0f = *(u_int *)&pmx->u0;
+            p1f = *(u_int *)&pmx->u1;
+            p2f = *(u_int *)&pmx->u2;
+            p3f = *(u_int *)&pmx->u3;
+            *(u_int *)&prim->u0 = p0f;
+            *(u_int *)&prim->u1 = p1f;
+            *(u_int *)&prim->u2 = p2f;
+            *(u_int *)&prim->u3 = p3f;
+            tpage = pmx->tpage;
+            ChangeTPage(&tpage,2);
+            prim->tpage = tpage;
+            prim->tag = prim->tag & 0xff000000 |
+                        *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
+            scale = (u_int)Render_gPacketPtr & 0xffffff;
+            Render_gPacketPtr = Render_gPacketPtr + 0x28;
+            *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
+                 *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | scale;
+          }
         }
       }
     }
     break;
   case 13:
   case 14:
-    cosa = fixedmult(fastintcos(is->angle),6);
-    sina = fixedmult(fastintsin(is->angle),6);
-    dSouffle.v0.vx = is->trans.vx - (short)sina;  dSouffle.v0.vy = is->trans.vy + (short)cosa;  dSouffle.v0.vz = is->trans.vz;
-    dSouffle.v1.vx = is->trans.vx + (short)cosa;  dSouffle.v1.vy = is->trans.vy + (short)sina;  dSouffle.v1.vz = is->trans.vz;
-    dSouffle.v2.vx = is->trans.vx + (short)sina;  dSouffle.v2.vy = is->trans.vy - (short)cosa;  dSouffle.v2.vz = is->trans.vz;
-    dSouffle.v3.vx = is->trans.vx - (short)cosa;  dSouffle.v3.vy = is->trans.vy - (short)sina;  dSouffle.v3.vz = is->trans.vz;
-    if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
-      gte_ldv0(&dSouffle.v0);
-      gte_rtps();
-      prim = (POLY_FT4 *)sd->head.cprim.PrimPtr;
-      gte_stsxy(&prim->x0);
-      gte_ldv3(&dSouffle.v1,&dSouffle.v2,&dSouffle.v3);
-      gte_rtpt();
-      *(int *)&prim->r0 = is->colour | 0x2c000000;
-      gte_stsxy3(&prim->x1,&prim->x3,&prim->x2);
-      gte_avsz4();
-      gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
-      sd->otz = (sd->otz >> 1) + 0xf;
-      if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
-        *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
-        *(u_int *)&prim->u0 = *(u_int *)&gLeafPixmap->u0;
-        *(u_int *)&prim->u1 = *(u_int *)&gLeafPixmap->u1;
-        *(u_int *)&prim->u2 = *(u_int *)&gLeafPixmap->u2;
-        *(u_int *)&prim->u3 = *(u_int *)&gLeafPixmap->u3;
-        prim->tag = prim->tag & 0xff000000 | *(u_int *)(sd->head.cprim.LastPrim + sd->otz) & 0xffffff;
-        colorcode = (int)sd->head.cprim.PrimPtr & 0xffffff;
-        sd->head.cprim.PrimPtr = (char *)((char *)sd->head.cprim.PrimPtr + 0x28);
-        ((u_int *)sd->head.cprim.LastPrim)[sd->otz] =
-             ((u_int *)sd->head.cprim.LastPrim)[sd->otz] & 0xff000000 | colorcode;
+    {
+      int cosa;
+      int sina;
+      sfxsouffle *ds;
+      POLY_FT4 *prim;
+      u_int p0f,p1f,p2f,p3f;
+      int link;
+
+      cosa = fixedmult(fastintcos(is->angle),6);
+      sina = fixedmult(fastintsin(is->angle),6);
+      ds = &dSouffle;
+      ds->v0.vx = is->trans.vx - (short)sina;
+      ds->v0.vy = is->trans.vy + (short)cosa;
+      ds->v0.vz = is->trans.vz;
+      ds->v1.vx = is->trans.vx + (short)cosa;
+      ds->v1.vy = is->trans.vy + (short)sina;
+      ds->v1.vz = is->trans.vz;
+      ds->v2.vx = is->trans.vx + (short)sina;
+      ds->v2.vy = is->trans.vy - (short)cosa;
+      ds->v2.vz = is->trans.vz;
+      ds->v3.vx = is->trans.vx - (short)cosa;
+      ds->v3.vy = is->trans.vy - (short)sina;
+      ds->v3.vz = is->trans.vz;
+      if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
+        gte_ldv0(&dSouffle.v0);
+        gte_rtps();
+        prim = (POLY_FT4 *)Render_gPacketPtr;
+        gte_stsxy(&prim->x0);
+        gte_ldv3(&dSouffle.v1,&dSouffle.v2,&dSouffle.v3);
+        gte_rtpt();
+        *(int *)&prim->r0 = is->colour | 0x2c000000;
+        gte_stsxy3(&prim->x1,&prim->x3,&prim->x2);
+        gte_avsz4();
+        gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
+        sd->otz = (sd->otz >> 1) + 0xf;
+        if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
+          *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
+          p0f = *(u_int *)&gLeafPixmap->u0;
+          p1f = *(u_int *)&gLeafPixmap->u1;
+          p2f = *(u_int *)&gLeafPixmap->u2;
+          p3f = *(u_int *)&gLeafPixmap->u3;
+          *(u_int *)&prim->u0 = p0f;
+          *(u_int *)&prim->u1 = p1f;
+          *(u_int *)&prim->u2 = p2f;
+          *(u_int *)&prim->u3 = p3f;
+          prim->tag = prim->tag & 0xff000000 |
+                      *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
+          link = (u_int)Render_gPacketPtr & 0xffffff;
+          Render_gPacketPtr = Render_gPacketPtr + 0x28;
+          *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
+               *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | link;
+        }
       }
     }
     break;

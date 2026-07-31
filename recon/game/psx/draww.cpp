@@ -15,6 +15,15 @@
 #define gte_rtps_u(u) ((void)(u))
 #endif
 
+/* IR0 load from a REGISTER VALUE (PsyQ inline_c `gte_ldir0`): the oracle loads the
+   depth-cue word into a CPU reg and does `mtc2 rt,$8`; psx_gte.h's gte_ldIR0() is the
+   ADDRESS form (`lwc2 $8,0(rt)`) and cannot express it. */
+#if defined(__mips__)
+#define gte_ldir0v(x) __asm__ volatile ("mtc2 %0, $8" : : "r"(x))
+#else
+#define gte_ldir0v(x) ((void)(x))
+#endif
+
 /* ---- DrawW.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero) ---- */
 char         offsets[8] = { 125, 125, 50, 15, -1, 125, 0, 0 };   /* @0x8013D828 */
@@ -1085,6 +1094,13 @@ gte_swc2(0x18,&bfct);
         bfct = -bfct;
       }
       if (bfct < 0) {
+        /* CORRECTNESS (oracle @0x800C6858: `lw t7,0x40(sp); lw t8,0x44(sp); lw t9,0x4C(sp);
+         * mtc2 t7,$12; mtc2 t9,$14; mtc2 t8,$13; nclip`): the SECOND (other-triangle)
+         * winding test must RELOAD SXY0-2 from dvxy0/dvxy1/dvxy2 and re-run nclip.  The
+         * previous body only re-read the flag register, so the second test always saw the
+         * first triangle's result -- every quad that failed test 1 was dropped. */
+        gte_ldsxy3(dvxy0,dvxy1,dvxy2);
+        gte_nclip();
 gte_swc2(0x18,&bfct);
         if ((sd->head).mirror == iVar2) {
           bfct = -bfct;
@@ -1170,7 +1186,7 @@ gte_swc2(0x8,&depthcue);
       prim->x3 = (u_short)dvxy3;
       prim->y3 = (*(u_short *)((u_char *)&(dvxy3) + 2));
       if (sd->nightFlags == '\0') {
-        gte_ldIR0(depthcue);
+        gte_ldir0v(depthcue);   /* MATCH+CORRECTNESS: oracle `lw rt,depthcue; mtc2 rt,$8` -- gte_ldIR0() is the ADDRESS form (lwc2), so passing the VALUE read memory at the depth-cue number */
         if (sd->light == -1) {
           a = *(long *)(Chunk_lightTable + vt2.light);
           tC30 = (int)Chunk_lightTable;
@@ -1242,25 +1258,30 @@ gte_SetRotMatrix(((char *)sd + 0x74));
         if (tc3 == 0) {
 gte_SetTransMatrix(((char *)sd + 0x74));
         }
-        if (stackSpeedUpEnbabledFlag == 0) {
-          DrawW_SetUpSubdividFacet(facetIdx,sd);
-        }
-        else {
-          tu24 = (int)SetSp((void *)gWSavePtr);
+        /* MATCH: oracle `beqz flag -> else` = the SPEEDUP arm is the fall-through, and it
+         * stores gWSavePtr BEFORE clearing the flag (`sw v0,%gp_rel(gWSavePtr); sw zero,
+         * %gp_rel(stackSpeedUpEnbabledFlag)`). */
+        if (stackSpeedUpEnbabledFlag != 0) {
+          gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
           stackSpeedUpEnbabledFlag = 0;
-          gWSavePtr = tu24;
           DrawW_SetUpSubdividFacet(facetIdx,sd);
           gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
           stackSpeedUpEnbabledFlag = 1;
+        }
+        else {
+          DrawW_SetUpSubdividFacet(facetIdx,sd);
         }
 gte_SetRotMatrix(((char *)sd + 0x14));
         if (tc3 == 0) {
 gte_SetTransMatrix(((char *)sd + 0x14));
         }
       }
-      p = Render_gPacketPtr;
-      tp20 = Render_gPalettePtr;
       if ((bVar2 & 0x80) != 0) {
+        /* MATCH: the oracle reads the two scratchpad cursors INSIDE the guard (single
+         * use site); hoisting them above the `andi 0x80` test costs 5 unconditional
+         * insns the oracle never pays. */
+        p = Render_gPacketPtr;
+        tp20 = Render_gPalettePtr;
         iVar2 = (u_int)*(u_char *)(workPmx_p + 0xc) - (u_int)*(u_char *)workPmx_p;
         if (iVar2 < 0) {
           iVar2 = -iVar2;
@@ -1273,11 +1294,13 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         r.h = (short)ti5 + 1;
         r.x = 0;
         r.y = 0;
-        *(u_int *)Render_gPacketPtr =
-             *(u_int *)Render_gPacketPtr & 0xff000000 |
-             *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
-        uVar3_00 = (u_int)Render_gPacketPtr & 0xffffff;
-        Render_gPacketPtr = Render_gPacketPtr + 0xc;
+        /* MATCH: the oracle reads each scratchpad cursor ONCE (`lw a0,0(t2)` /
+         * `lw t0,0(t0)`) and drives the whole OT-link off those two registers -- the
+         * per-use `Render_gPacketPtr` / `Render_gPalettePtr` re-reads cost 5 extra
+         * scratchpad loads. */
+        *(u_int *)p = *(u_int *)p & 0xff000000 | *(u_int *)(tp20 + sd->otz * 4) & 0xffffff;
+        uVar3_00 = (u_int)p & 0xffffff;
+        Render_gPacketPtr = p + 0xc;
         *(u_int *)(tp20 + sd->otz * 4) = *(u_int *)(tp20 + sd->otz * 4) & 0xff000000 | uVar3_00;
         SetTexWindow((DR_TWIN *)p,&r);
       }
@@ -3083,148 +3106,123 @@ DrW_SubSetupLine_callSubdiv:
   return;
 }
 
-/* ---- DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:3108-3330] SLD-VERIFIED ---- */
+/* MATCH (SYM DRAWW.CPP line 3128 block: `int t1, t2;` in $a0/$a1): 8-byte 4-ALIGNED
+   vertex copy used by DrawW_OnyxLinePrim -- lw/lw/sw/sw, not the align-2 movstrsi. */
+#define ONYX_COPYVT(d,s)  { int t1, t2;  t1 = ((int *)(s))[0];  t2 = ((int *)(s))[1];                             ((int *)(d))[0] = t1;  ((int *)(d))[1] = t2; }
+
+/* ---- DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:3108-3330] SLD-VERIFIED ----
+   REWRITTEN 2026-07-31 (w38-a2) from the SYM 8c block + raw oracle.  The prior body was
+   Ghidra soup (~50 fabricated locals) and carried FOUR behavioural bugs (see below).
+   SYM ground truth (nfs4-f-v3.txt @0x800C98B8, fsize 120, mask 0xc0ff0000):
+     REGPARM geomVertices=$s3 lineQuad=$s6 sd=$s1;  count = class ARG (stack home 0x80(sp),
+     re-loaded at every loop test -- never register-cached);
+     REG   prim=$s0 (POLY_GT4*), lineQuadCount=$fp, pmx=$s4 (Draw_tPixMap*),
+           linetype=$v0, save_pre_otz=$s7, t1/t2=$a0/$a1 (the 8-byte vertex-copy temps),
+           a/b=$v1/$v0 (night colour words), l0..l3=$v0/$v1/$a0/$a1 (pmx word copy),
+           depth_index=$a1;
+     AUTO  vt0..vt3 @0x10/0x18/0x20/0x28, temp0(VECTOR)/a(CVECTOR) SHARE @0x30,
+           bfct @0x40, depthcue @0x44, doSubdivision @0x4C;
+     LABEL loopbot  -> the rejection paths are `goto loopbot`, not nested ifs.
+   BUGS FIXED (all oracle-cited):
+    1. vt0/vt1 were NEVER INITIALISED -- the old body only filled vt2/vt3, so two of the
+       four RTPS transforms ran on garbage stack.  Oracle @0x800C9950-0x800C997C copies
+       four whole CCOORD16s: vt0=geomVertices[3], vt1=[1], vt2=[0], vt3=[2].
+    2. pmx: oracle `lbu type; sll 2; addu gDLPixmap; lw s4,0(v0)` = pmx = gDLPixmap[type]
+       (gDLPixmap is an ARRAY OF POINTERS).  The old body used &gDLPixmap[type] and then
+       read the pixmap words out of the POINTER TABLE itself.
+    3. gte_stsxy3 targets are Render_gPacketPtr + 0x14/0x2C/0x20 (oracle keeps the packet
+       cursor in $s0 from the +8 store above), NOT the scratchpad literals 0x1F800014 /
+       0x1F80002C / 0x1F800020 -- same bug class as the +8 store fixed in 2026-07-12.
+    4. Night_NightCopCalc was called with (temp0, (short*)sd); oracle passes &vt2.light
+       (`addiu a1,sp,0x26`) and &vt3.light (`addiu a1,sp,0x2E`).
+   MATCH shapes taken from the oracle: whole-struct CCOORD16/CVECTOR assignments (the
+   align-1 CVECTOR ones expand to the oracle's lwl/lwr+swl/swr movstrsi runs, the u_long
+   casts to plain lw/sw); the night colour path stores WORDS (4 stores), not 16 bytes;
+   the pmx->prim copy is the SYM's load-4/store-4 l0..l3 group; `if (nightFlags)` has the
+   NIGHT arm as the fall-through (oracle `beqz -> .L800C9E14` = the dpcs arm is out of
+   line); the stack-speedup `if` likewise has the speedup arm as fall-through. ---- */
 void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw_tGiveShelbyMoreCache *sd)
 
 {
-  int linetype;
-  int t1;
-  int t2;
-  long b;
-  u_long l3;
-  VECTOR temp0;
-  u_long l0;
-  int ot_addr_pack;
-  int vert0_p;
-  int CVar19;
-  int vert_iter;
-  CVECTOR *tC8;
-  int color_pack;
-  int tu21;
-  u_long l1;
-  int depth_avg;
-  int vert1_p;
-  int CVar23;
-  int uVar8_00;
-  u_long l2;
-  u_int uVar1;
-  int depth_index;
-  u_int uVar2;
-  Draw_tGiveShelbyMoreCache *idx;
-  int tpage_word;
-  int vert_y_pack;
-  int v0_pack;
-  int v1_pack_ptr;
-  int vert_x_pack;
-  int drmode_p;
-  int ti9;
   POLY_GT4 *prim;
-  int primSlot;
-  Draw_tPixMap *pmx;
-  int pmx_p;
-  int lineVerts_p;
-  int save_pre_otz;
-  int save_pre_otz_l;
   int lineQuadCount;
-  int lineIdx;
+  Draw_tPixMap *pmx;
   CCOORD16 vt0;
   CCOORD16 vt1;
   CCOORD16 vt2;
   CCOORD16 vt3;
-  CVECTOR a;
-  long bfct;
-  int depthcue;
-  int loc_30;
-  int doSubdivision;
-  u_char *tp17;
-  void *tp1;
-  int tp4;
-  int tp5;
-  CCOORD16 *tC6;
-  int tu1;
-  int tp3;
-  int tp2;
-  u_char *tp6;
-  u_int tu2;
-  u_int tu4;
-  
+
   sd->offsubdivid = 0x200;
-  idx = sd;
-  for (lineIdx = 0; tC6 = geomVertices, lineIdx < count + -1; lineIdx = lineIdx + 1) {
-    for (; (lineVerts_p = (int)(tC6 + 2), lineIdx < count + -1 && (lineQuad->type != 0xff));
-        lineQuad = lineQuad + 1) {
-      pmx_p = (int)&gDLPixmap[lineQuad->type];
-      vt2.x = geomVertices->x;
-      vt2.y = geomVertices->y;
-      vt2.z = tC6->z;
-      vt2.light = tC6->light;
-      (*(int *)&(vt3)) = *(u_int *)lineVerts_p;
-      vt3.z = geomVertices[2].z;
-      vt3.light = geomVertices[2].light;
-      v0_pack = count;
-gte_ldv0((int *)(&vt0));
+  for (lineQuadCount = 0; lineQuadCount < count + -1;
+       lineQuadCount = lineQuadCount + 1, lineQuad = lineQuad + 1, geomVertices = geomVertices + 2) {
+    int linetype;
+
+    while ((lineQuadCount < count + -1) && (lineQuad->type != 0xff)) {
+      int doSubdivision;
+      int save_pre_otz;
+      int depthcue;
+      u_char *packetPtr;
+
+      linetype = lineQuad->type;
+      pmx = gDLPixmap[linetype];
+      /* MATCH: the vertex copy is the SYM's line-21 block { int t1, t2; ... } (t1=$a0,
+       * t2=$a1) -- a WORD-PAIR copy, i.e. the original knew the CCOORD16s are 4-aligned.
+       * A plain `vt0 = geomVertices[3];` struct assignment carries CCOORD16's align-2
+       * and expands to the unaligned lwl/lwr+swl/swr movstrsi run (8 insns/copy vs 4). */
+      ONYX_COPYVT(&vt0,&geomVertices[3]);
+      ONYX_COPYVT(&vt1,&geomVertices[1]);
+      ONYX_COPYVT(&vt2,&geomVertices[0]);
+      ONYX_COPYVT(&vt3,&geomVertices[2]);
+      gte_ldv0((int *)(&vt0));
       gte_rtps();
-gte_stlvnl(((char *)sd + 0x98));
-      /* CORRECTNESS FIX (2026-07-12, oracle-adjudicated @0x800C99C8): the SXY
-       * write targets the CURRENT packet cursor -- `lw s0,0x1F800004; addiu
-       * v0,s0,8; swc2 $14,0(v0)` = Render_gPacketPtr + 8 -- NOT the fixed
-       * scratchpad literal 0x1F800008 (which holds Render_gPacketEnd; writing
-       * a screen coord there would clobber the end-of-buffer pointer). Kept
-       * despite a small diff-rise (register-allocation cascade) per the
-       * correctness-forward keep-rise policy. */
-      tp17 = Render_gPacketPtr;
-gte_swc2(0xe,(void *)(tp17 + 8));
-gte_ldv0((int *)(&vt1));
+      gte_stlvnl(((char *)sd + 0x98));
+      /* CORRECTNESS (oracle @0x800C99C8): the SXY writes target the CURRENT packet
+       * cursor (Render_gPacketPtr + 8 / +0x14 / +0x2C / +0x20), never the fixed
+       * scratchpad literals -- 0x1F800008 is Render_gPacketEnd's own slot. */
+      packetPtr = Render_gPacketPtr;
+      gte_swc2(0xe,(void *)(packetPtr + 8));
+      gte_ldv0((int *)(&vt1));
       gte_rtps();
-gte_stlvnl(((char *)sd + 0xa8));
-gte_ldv0((int *)(&vt2));
+      gte_stlvnl(((char *)sd + 0xa8));
+      gte_ldv0((int *)(&vt2));
       gte_rtps();
-gte_stlvnl(((char *)sd + 0xb8));
-gte_ldv0((int *)(&vt3));
+      gte_stlvnl(((char *)sd + 0xb8));
+      gte_ldv0((int *)(&vt3));
       gte_rtps();
-gte_stlvnl(((char *)sd + 0xc8));
-      if ((((((sd->tVn0).vx < (sd->tVn0).vz) || ((sd->tVn1).vx < (sd->tVn1).vz)) ||
-           ((sd->tVn2).vx < (sd->tVn2).vz)) || ((sd->tVn3).vx < (sd->tVn3).vz)) &&
-         (((-(sd->tVn0).vx < (sd->tVn0).vz || (-(sd->tVn1).vx < (sd->tVn1).vz)) ||
-          ((-(sd->tVn2).vx < (sd->tVn2).vz || (-(sd->tVn3).vx < (sd->tVn3).vz)))))) {
-gte_stsxy3((void *)0x1f800014,(void *)0x1f80002c,(void *)0x1f800020);
+      gte_stlvnl(((char *)sd + 0xc8));
+      if (!((((sd->tVn0).vx < (sd->tVn0).vz || ((sd->tVn1).vx < (sd->tVn1).vz)) ||
+             ((sd->tVn2).vx < (sd->tVn2).vz)) || ((sd->tVn3).vx < (sd->tVn3).vz))) goto loopbot;
+      if (!((((-(sd->tVn0).vx < (sd->tVn0).vz) || (-(sd->tVn1).vx < (sd->tVn1).vz)) ||
+             (-(sd->tVn2).vx < (sd->tVn2).vz)) || (-(sd->tVn3).vx < (sd->tVn3).vz))) goto loopbot;
+      gte_stsxy3((void *)(packetPtr + 0x14),(void *)(packetPtr + 0x2c),(void *)(packetPtr + 0x20));
+      {
+        long bfct;
+
         gte_avsz4();
-        v1_pack_ptr = (int)&sd->otz;
-gte_swc2(0x7,v1_pack_ptr);
+        gte_swc2(0x7,&sd->otz);
         gte_nclip();
-gte_swc2(0x18,&bfct);
+        gte_swc2(0x18,&bfct);
         if ((sd->head).mirror == 1) {
           bfct = -bfct;
         }
-        if (-1 < bfct) {
-          save_pre_otz_l = sd->otz >> 1;
-          depth_avg = save_pre_otz_l + 0x4b;
-          ot_addr_pack = (int)(sd->otz < 200);
-          sd->otz = depth_avg;
-          if ((0 < depth_avg) && (depth_avg <= Draw_gViewOtSize + -3)) {
-            if (ot_addr_pack == 0) {
-              /* NOTE (2026-07-11, REVERTED after verify-or-revert): the oracle
-                 emits a lone `lwl/swl $t4-$t6` 24-bit-tag-link sequence here (EA
-                 DMPSX-analog fixed-register OT-link template family; see
-                 drawc.cpp DRAWC_OTLINK_FT3, alloc stride 0x34/tag 0xC000000
-                 variant, index via &sd->otz). A local fixed-register __asm__
-                 equivalent was tried and round-tripped through cc1pl/maspsx with
-                 no error, but produced ZERO change in the compiled object (no
-                 lwl/swl emitted anywhere in the function -- confirmed via the
-                 raw cc1pl .s between this function's .ent/.end markers). Root
-                 cause not isolated in the time available (suspect an operand/
-                 clobber-count limit or asm-statement placement quirk specific to
-                 CC1PLPSX 2.8.0 on this call shape). Reverted to the compiling
-                 shift/mask C form pending a follow-up debugging pass -- do not
-                 re-attempt this exact asm text without diagnosing why it drops. */
-              primSlot = (int)(sd->head).cprim.PrimPtr;
-              /* OT-link, EA DMPSX-analog FIXED-REG TEMPLATE (same shape as
-               * DrawW_SubdividFacet / DrawW_DrawQuad's sealed instances; fastmovf.c
-               * family; $t4/$t5/$t6 scratches): slot = sd->head.cprim.LastPrim +
-               * sd->otz*4; sd->head.cprim.PrimPtr = primSlot+0x34; primSlot->tag =
-               * slot->addr24 | (0x0C<<24); slot->addr24 = primSlot. */
-              __asm__ volatile(
-                  "lw	$t4,0(%2)
+        if (bfct < 0) goto loopbot;
+      }
+      save_pre_otz = sd->otz >> 1;
+      doSubdivision = (int)(sd->otz < 200);
+      sd->otz = save_pre_otz + 0x4b;
+      if (sd->otz <= 0) goto loopbot;
+      if (Draw_gViewOtSize + -3 < sd->otz) goto loopbot;
+      if (doSubdivision != 0) {
+        prim = &sd->GT4Prim;
+      }
+      else {
+        /* OT-link, EA DMPSX-analog FIXED-REG TEMPLATE ($t4/$t5/$t6 scratches; same shape
+         * as DrawW_SubdividFacet / DrawW_DrawQuad's sealed instances): slot =
+         * sd->head.cprim.LastPrim + sd->otz*4; sd->head.cprim.PrimPtr = prim+0x34;
+         * prim->tag = slot->addr24 | (0x0C<<24); slot->addr24 = prim. */
+        prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;
+        __asm__ volatile(
+            "lw	$t4,0(%2)
 	lw	$t5,0(%1)
 	addiu	$t6,%0,52
 	sll	$t4,$t4,2
@@ -3237,139 +3235,121 @@ gte_swc2(0x18,&bfct);
 	sll	$t4,%0,8
 	sw	$t6,0(%0)
 	swl	$t4,2($t5)"
-                  : : "r"(primSlot), "r"(sd), "r"(&sd->otz)
-                  : "$12", "$13", "$14", "memory");
-            }
-            else {
-              primSlot = (int)&sd->GT4Prim;
-            }
-            tpage_word = ot_addr_pack;
-gte_swc2(0x8,&depthcue);
-            if (sd->nightFlags == 0) {
-              /* MATCH: oracle reads Chunk_lightTable[light] as ONE unaligned WORD
-               * (lwl/lwr -- primSlot is an `int`-typed address, so GCC can't prove
-               * alignment through the cast and always uses the unaligned form; same
-               * for the write-back below) and writes the dpcs() result DIRECTLY to
-               * primSlot+0x1c (r2/g2/b2/p2), then duplicates that SAME word
-               * (unaligned lwl+lwr / swl+swr re-read+copy) into primSlot+0x4
-               * (r0/g0/b0/code -- the code byte there gets overwritten again below). */
-              *(u_int *)&a = *(u_int *)(Chunk_lightTable + vt3.light);
-gte_ldrgb(&a);
-              gte_ldIR0(depthcue);
-              gte_dpcs();
-gte_swc2(0x16,(char *)primSlot + 0x1c);
-              *(u_int *)(primSlot + 4) = *(u_int *)(primSlot + 0x1c);
-              *(u_int *)&a = *(u_int *)(Chunk_lightTable + vt2.light);
-gte_ldrgb(&a);
-              gte_ldIR0(depthcue);
-              gte_dpcs();
-gte_swc2(0x16,(char *)primSlot + 0x28);
-              *(u_int *)(primSlot + 0x10) = *(u_int *)(primSlot + 0x28);
-            }
-            else {
-              if ((sd->nightFlags & 1U) != 0) {
-gte_SetRotMatrix(((char *)sd + 0x34));
-gte_SetTransMatrix(((char *)sd + 0x34));
-gte_ldv0((int *)(&vt2));
-                gte_rt();
-gte_stlvnl(&temp0);
-gte_ldv0((int *)(&vt3));
-                gte_rt();
-                Night_NightCalc((VECTOR *)&a,&vt2.light,sd)
-                ;
-gte_stlvnl(&temp0);
-                Night_NightCalc((VECTOR *)&a,&vt3.light,sd)
-                ;
-              }
-              if (BW_gCopCarObj != (Car_tObj *)0x0) {
-gte_SetRotMatrix(((char *)sd + 0x54));
-gte_SetTransMatrix(((char *)sd + 0x54));
-gte_ldv0((int *)(&vt2));
-                gte_rt();
-gte_stlvnl(&temp0);
-gte_ldv0((int *)(&vt3));
-                gte_rt();
-                Night_NightCopCalc((VECTOR *)&a,(short *)idx);
-gte_stlvnl(&temp0);
-                Night_NightCopCalc((VECTOR *)&a,(short *)idx);
-              }
-              vert1_p = (int)(Chunk_lightTable + vt3.light);
-              vert0_p = (int)(Chunk_lightTable + vt2.light);
-              CVar19 = *(int *)vert0_p;
-              CVar23 = *(int *)vert1_p;
-              ((POLY_GT4 *)primSlot)->r3 = (char)CVar19;
-              ((POLY_GT4 *)primSlot)->g3 = (char)((u_int)CVar19 >> 8);
-              ((POLY_GT4 *)primSlot)->b3 = (char)((u_int)CVar19 >> 0x10);
-              ((POLY_GT4 *)primSlot)->p3 = (char)((u_int)CVar19 >> 0x18);
-              ((POLY_GT4 *)primSlot)->r1 = (char)CVar19;
-              ((POLY_GT4 *)primSlot)->g1 = (char)((u_int)CVar19 >> 8);
-              ((POLY_GT4 *)primSlot)->b1 = (char)((u_int)CVar19 >> 0x10);
-              ((POLY_GT4 *)primSlot)->p1 = (char)((u_int)CVar19 >> 0x18);
-              ((POLY_GT4 *)primSlot)->r2 = (char)CVar23;
-              ((POLY_GT4 *)primSlot)->g2 = (char)((u_int)CVar23 >> 8);
-              ((POLY_GT4 *)primSlot)->b2 = (char)((u_int)CVar23 >> 0x10);
-              ((POLY_GT4 *)primSlot)->p2 = (char)((u_int)CVar23 >> 0x18);
-              ((POLY_GT4 *)primSlot)->r0 = (char)CVar23;
-              ((POLY_GT4 *)primSlot)->g0 = (char)((u_int)CVar23 >> 8);
-              ((POLY_GT4 *)primSlot)->b0 = (char)((u_int)CVar23 >> 0x10);
-              ((POLY_GT4 *)primSlot)->code = (char)((u_int)CVar23 >> 0x18);
-gte_SetRotMatrix(((char *)sd + 0x14));
-gte_SetTransMatrix(((char *)sd + 0x14));
-            }
-            ((POLY_GT4 *)primSlot)->code = '>';
-            *(u_char *)((int)&((POLY_GT4 *)primSlot)->tag + 3) = 0xc;
-            color_pack = *(int *)pmx_p;
-            uVar8_00 = *(int *)(pmx_p + 4);
-            uVar1 = *(u_int *)(pmx_p + 8);
-            uVar2 = *(u_int *)(pmx_p + 0xc);
-            ((POLY_GT4 *)primSlot)->u0 = (char)color_pack;
-            ((POLY_GT4 *)primSlot)->v0 = (char)((u_int)color_pack >> 8);
-            ((POLY_GT4 *)primSlot)->clut = (short)((u_int)color_pack >> 0x10);
-            ((POLY_GT4 *)primSlot)->u1 = (char)uVar8_00;
-            ((POLY_GT4 *)primSlot)->v1 = (char)((u_int)uVar8_00 >> 8);
-            ((POLY_GT4 *)primSlot)->tpage = (short)((u_int)uVar8_00 >> 0x10);
-            ((POLY_GT4 *)primSlot)->u2 = (char)uVar1;
-            ((POLY_GT4 *)primSlot)->v2 = (char)((u_int)uVar1 >> 8);
-            ((POLY_GT4 *)primSlot)->pad2 = (short)((u_int)uVar1 >> 0x10);
-            ((POLY_GT4 *)primSlot)->u3 = (char)uVar2;
-            ((POLY_GT4 *)primSlot)->v3 = (char)((u_int)uVar2 >> 8);
-            ((POLY_GT4 *)primSlot)->pad3 = (short)((u_int)uVar2 >> 0x10);
-            if (((POLY_GT4 *)primSlot)->clut == 0xffff) {
-              ti9 = (save_pre_otz_l - sd->startfog) * 0x10 >> ((int)sd->distfog);
-              if (ti9 < 0) {
-                ti9 = 0;
-              }
-              else if (0xf < ti9) {
-                ti9 = 0xf;
-              }
-              ((POLY_GT4 *)primSlot)->clut = gClutDepth[*(u_short *)(pmx_p + 10)][ti9];
-            }
-            if (ot_addr_pack != 0) {
-gte_SetRotMatrix(((char *)sd + 0x74));
-gte_SetTransMatrix(((char *)sd + 0x74));
-              if (stackSpeedUpEnbabledFlag == 0) {
-                DrawW_SetUpSubdividFacet_Line(sd);
-              }
-              else {
-                tu21 = (int)SetSp((void *)gWSavePtr);
-                stackSpeedUpEnbabledFlag = 0;
-                gWSavePtr = tu21;
-                DrawW_SetUpSubdividFacet_Line(sd);
-                gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
-                stackSpeedUpEnbabledFlag = 1;
-              }
-gte_SetRotMatrix(((char *)sd + 0x14));
-gte_SetTransMatrix(((char *)sd + 0x14));
-            }
-          }
-        }
+            : : "r"(prim), "r"(sd), "r"(&sd->otz)
+            : "$12", "$13", "$14", "memory");
       }
-      lineIdx = lineIdx + 1;
+      gte_swc2(0x8,&depthcue);
+      if (sd->nightFlags != 0) {
+        if ((sd->nightFlags & 1U) != 0) {
+          VECTOR temp0;
+
+          gte_SetRotMatrix(((char *)sd + 0x34));
+          gte_SetTransMatrix(((char *)sd + 0x34));
+          gte_ldv0((int *)(&vt2));
+          gte_rt();
+          gte_stlvnl(&temp0);
+          gte_ldv0((int *)(&vt3));
+          gte_rt();
+          Night_NightCalc(&temp0,&vt2.light,sd);
+          gte_stlvnl(&temp0);
+          Night_NightCalc(&temp0,&vt3.light,sd);
+        }
+        if (BW_gCopCarObj != (Car_tObj *)0x0) {
+          VECTOR temp0;
+
+          gte_SetRotMatrix(((char *)sd + 0x54));
+          gte_SetTransMatrix(((char *)sd + 0x54));
+          gte_ldv0((int *)(&vt2));
+          gte_rt();
+          gte_stlvnl(&temp0);
+          gte_ldv0((int *)(&vt3));
+          gte_rt();
+          Night_NightCopCalc(&temp0,&vt2.light);
+          gte_stlvnl(&temp0);
+          Night_NightCopCalc(&temp0,&vt3.light);
+        }
+        {
+          long a;
+          long b;
+
+          a = *(long *)&Chunk_lightTable[vt3.light];
+          b = *(long *)&Chunk_lightTable[vt2.light];
+          *(long *)&prim->r3 = b;
+          *(long *)&prim->r1 = b;
+          *(long *)&prim->r2 = a;
+          *(long *)&prim->r0 = a;
+        }
+        gte_SetRotMatrix(((char *)sd + 0x14));
+        gte_SetTransMatrix(((char *)sd + 0x14));
+      }
+      else {
+        CVECTOR a;
+
+        /* the CVECTOR (align-1) struct assignments ARE the oracle's lwl/lwr + swl/swr
+         * movstrsi runs; a u_long cast here would emit aligned lw/sw instead. */
+        a = *(CVECTOR *)&Chunk_lightTable[vt3.light];
+        gte_ldrgb(&a);
+        gte_ldir0v(depthcue);
+        gte_dpcs();
+        gte_swc2(0x16,(char *)prim + 0x1c);
+        *(CVECTOR *)&prim->r0 = *(CVECTOR *)&prim->r2;
+        a = *(CVECTOR *)&Chunk_lightTable[vt2.light];
+        gte_ldrgb(&a);
+        gte_ldir0v(depthcue);
+        gte_dpcs();
+        gte_swc2(0x16,(char *)prim + 0x28);
+        *(CVECTOR *)&prim->r1 = *(CVECTOR *)&prim->r3;
+      }
+      prim->code = 0x3e;
+      *(u_char *)((int)&prim->tag + 3) = 0xc;
+      {
+        u_long l0;
+        u_long l1;
+        u_long l2;
+        u_long l3;
+
+        l0 = *(u_long *)&pmx->u0;
+        l1 = *(u_long *)&pmx->u1;
+        l2 = *(u_long *)&pmx->u2;
+        l3 = *(u_long *)&pmx->u3;
+        *(u_long *)&prim->u0 = l0;
+        *(u_long *)&prim->u1 = l1;
+        *(u_long *)&prim->u2 = l2;
+        *(u_long *)&prim->u3 = l3;
+      }
+      if (prim->clut == 0xffff) {
+        int depth_index;
+
+        depth_index = (save_pre_otz - sd->startfog) * 0x10 >> ((int)sd->distfog);
+        if (depth_index < 0) {
+          depth_index = 0;
+        }
+        else if (0xf < depth_index) {
+          depth_index = 0xf;
+        }
+        prim->clut = gClutDepth[pmx->pad2][depth_index];
+      }
+      if (doSubdivision != 0) {
+        gte_SetRotMatrix(((char *)sd + 0x74));
+        gte_SetTransMatrix(((char *)sd + 0x74));
+        if (stackSpeedUpEnbabledFlag != 0) {
+          gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
+          stackSpeedUpEnbabledFlag = 0;
+          DrawW_SetUpSubdividFacet_Line(sd);
+          gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
+          stackSpeedUpEnbabledFlag = 1;
+        }
+        else {
+          DrawW_SetUpSubdividFacet_Line(sd);
+        }
+        gte_SetRotMatrix(((char *)sd + 0x14));
+        gte_SetTransMatrix(((char *)sd + 0x14));
+      }
+loopbot:
+      lineQuadCount = lineQuadCount + 1;
+      lineQuad = lineQuad + 1;
       geomVertices = geomVertices + 2;
-      tC6 = (CCOORD16 *)lineVerts_p;
     }
-    lineQuad = lineQuad + 1;
-    geomVertices = geomVertices + 2;
   }
   return;
 }
@@ -3432,21 +3412,30 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
     idx = slice + (u_int)curLine->slice;
     rightN = ((Trk_NewSlice *)((idx << 5) + (int)BWorldSm_slices))->right;
     pCoord = wpts + pts;
-    sVar12 = (short)((int)((u_int)(u_char)rightN[0] << 0x18) >> 0x1b);
-    sVar13 = (short)((int)((u_int)(u_char)rightN[1] << 0x18) >> 0x1b);
-    sVar14 = (short)((int)((u_int)(u_char)rightN[2] << 0x18) >> 0x1b);
+    /* SYM inner block names six shorts: x,y,z (= pts->x/y/z, oracle $v1/$a0/$a1) and
+       wx,wy,wz (= the 5-bit sign-extended right-normal bytes, oracle $t0/$t1/$a3).
+       The oracle issues ALL SIX loads first and only then the three sll/sra extends. */
     sVar7 = pCoord->x;
     sVar8 = pCoord->y;
     sVar9 = pCoord->z;
-    pts3d[0].x = tx + (sVar7 - sVar12);
-    pts3d[0].y = ty + (sVar8 - sVar13);
-    pts3d[0].z = tz + (sVar9 - sVar14);
-    pts3d[0].light = pCoord->light;
-    pts3d[1].x = tx + sVar7 + sVar12;
-    pts3d[1].y = ty + sVar8 + sVar13;
-    pts3d[1].z = tz + sVar9 + sVar14;
-    pts3d[1].light = pCoord->light;
-    pts3d = pts3d + 2;
+    sVar12 = (short)((int)((u_int)(u_char)rightN[0] << 0x18) >> 0x1b);
+    sVar13 = (short)((int)((u_int)(u_char)rightN[1] << 0x18) >> 0x1b);
+    sVar14 = (short)((int)((u_int)(u_char)rightN[2] << 0x18) >> 0x1b);
+    /* MATCH: the oracle walks pts3d with TWO +8 bumps per iteration (one per vertex,
+       `addiu t3,t3,8` mid-body and again at the tail) and splits the stores across a
+       base/base+6 giv pair -- the index form pts3d[0]/pts3d[1] + a single +16 bump
+       collapses that to one walker.  Operand order `t + (v +/- n)` matches the oracle's
+       `addu v1,v1,t0; addu v1,t8,v1` (vertex value first, translation last). */
+    pts3d->x = tx + (sVar7 - sVar12);
+    pts3d->y = ty + (sVar8 - sVar13);
+    pts3d->z = tz + (sVar9 - sVar14);
+    pts3d->light = pCoord->light;
+    pts3d = pts3d + 1;
+    pts3d->x = tx + (sVar7 + sVar12);
+    pts3d->y = ty + (sVar8 + sVar13);
+    pts3d->z = tz + (sVar9 + sVar14);
+    pts3d->light = pCoord->light;
+    pts3d = pts3d + 1;
     curLine = curLine + 1;
   }
   lineQuad = (Trk_Line *)(group + 1);

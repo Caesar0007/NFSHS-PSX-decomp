@@ -46,7 +46,28 @@ tCompRGB     *gTableCache;   /* @0x8013da94  (bss(zero)) */
 char         *nightfile;   /* @0x8013da98  (bss(zero)) */
 
 
-/* ---- Night_FindClosestColor__FG7CVECTORPi  [NIGHT.CPP:134-175] SLD-VERIFIED ---- */
+/* ---- Night_FindClosestColor__FG7CVECTORPi  [NIGHT.CPP:134-175] SLD-VERIFIED ----
+ * SEALED 50/50 PASS (w38-a10; was an 82-diff far-miss at ours 52 / oracle 50).
+ * FIVE stacked levers, all SYM/oracle-derived (SYM block @43bbac):
+ *  (1) the search cursor is NOT a walking `tCompRGB *p` -- the oracle re-loads
+ *      %gp_rel(gTableCache) INSIDE the loop and adds a *3 offset giv
+ *      (`addiu t1,t1,3`), i.e. the source indexes the GLOBAL: gTableCache[search].
+ *      (gcc must reload the pointer because the `*bestIndex` store may alias it.)
+ *  (2) the zero-trip guard compares the VARIABLE, `if (search < maxLights)`
+ *      (oracle `slt v0,a3,v1; beqz`), not the literal `1 < maxLights`
+ *      (which folds to `slti v0,v1,2; bnez`).
+ *  (3) diffSum is a term-by-term ACCUMULATION (3 statements), not one sum
+ *      expression -- makes diffSum's own pseudo hold the running sum from the
+ *      first product (oracle `mflo a0 ... addu a0,a0,a2 ... addu a0,a0,t9`);
+ *      the single expression built the sum in a fresh temp (+1 insn).
+ *  (4) `bestDiff = 0x2fa03;` is the FIRST statement -- its long live range
+ *      LOWERS its allocno priority so it lands on $t0 and `search` wins $a3
+ *      (SYM: bestDiff $8 = t0, search $7 = a3). Initialising it just before the
+ *      guard inverted the pair (28 diffs, count already exact).
+ *  (5) inside the if-body `bestDiff = diffSum;` precedes `*bestIndex = ...`.
+ * `search` sits in its own nested SYM block (2nd `Block start line = 1`).
+ * Prototype re-checked vs raw oracle: struct-by-value ARG colorMatch (spilled to
+ * 0(sp) and re-read as 3 lbu), REGPARM $a1 bestIndex, INT return in $v0. */
 int Night_FindClosestColor(CVECTOR colorMatch,int *bestIndex)
 
 {
@@ -62,38 +83,40 @@ int Night_FindClosestColor(CVECTOR colorMatch,int *bestIndex)
   int searchColorb;
   int diffSum;
   int maxLights;
-  int search;
-  tCompRGB *p;
 
+  bestDiff = 0x2fa03;
   colorMatchr = colorMatch.r;
   colorMatchg = colorMatch.g;
   colorMatchb = colorMatch.b;
+  {
+  int search;
+
   search = 1;
   maxLights = Night_gTotalLights + 1;
   searchColorr = (u_char)gTableCache->r;
   searchColorg = (u_char)gTableCache->g;
   searchColorb = (u_char)gTableCache->b;
-  bestDiff = 0x2fa03;
-  if (1 < maxLights) {
-    p = gTableCache + 1;
+  if (search < maxLights) {
     do {
       diffR = colorMatchr - searchColorr;
       diffG = colorMatchg - searchColorg;
       diffB = colorMatchb - searchColorb;
-      searchColorr = (u_char)p->r;
-      searchColorg = (u_char)p->g;
-      searchColorb = (u_char)p->b;
-      diffSum = diffR * diffR + diffG * diffG + diffB * diffB;
+      searchColorr = (u_char)gTableCache[search].r;
+      searchColorg = (u_char)gTableCache[search].g;
+      searchColorb = (u_char)gTableCache[search].b;
+      diffSum = diffR * diffR;
+      diffSum = diffSum + diffG * diffG;
+      diffSum = diffSum + diffB * diffB;
       if (diffSum < bestDiff) {
-        *bestIndex = search + -1;
         bestDiff = diffSum;
+        *bestIndex = search + -1;
         if (diffSum < 0x40) {
           return diffSum;
         }
       }
       search = search + 1;
-      p = p + 1;
     } while (search < maxLights);
+  }
   }
   return bestDiff;
 }
@@ -248,7 +271,26 @@ void Night_DoLightningEffect(DRender_tView *Vi)
   return;
 }
 
-/* ---- Night_SetCopColor__FP18GameSetup_tCarData  [NIGHT.CPP:473-484] SLD-VERIFIED ---- */
+typedef struct { int w[2]; } NightCopTablePair;
+
+/* ---- Night_SetCopColor__FP18GameSetup_tCarData  [NIGHT.CPP:473-484] SLD-VERIFIED ----
+ * NEAR-MISS 25 diffs (ours 38 / oracle 37), was 39 (ours 36 / oracle 37).
+ * MATCH (w38-a10): (1) cartype/country are read BEFORE the carTable fill
+ * (oracle `lw v0,0(a0); lw a1,160(a0); lbu a0,0(v0)` precede the gp loads);
+ * (2) the lower half of carTable[] is a two-word BLOCK COPY of the upper half,
+ * not two more loads of the globals -- the oracle's `lw a2,8(sp); lw a3,12(sp);
+ * sw a2,0(sp); sw a3,4(sp)` is gcc's movstrsi, reproduced with a same-sized
+ * local struct assignment (a plain `carTable[0]=carTable[2]` gets copy-forwarded).
+ * RESIDUAL: (a) the final two stores -- the oracle writes Night_gCopColor[0] and
+ * [1] through SEPARATE per-element gp-rel symbols (%gp_rel(Night_gCopColor) and
+ * %gp_rel(D_8013DA50)); ours materializes the 8-byte array base with lui/addiu
+ * (+2 insns). The known fix is the per-element scalar split (catalog sec.E
+ * dual-model / wave-13 per-field split), but Night_gCopColor is ALSO read with a
+ * RUNTIME index by draww.cpp (DrawW cop-lighting lookup, another agent's TU), so
+ * the split needs a coordinated dual-model change across both TUs -- NOT done
+ * here (out of scope), flagged for a follow-up.  (b) cartype/country land on
+ * $a1/$a0 instead of $a0/$a1; tried decl-order swap (no change), statement-order
+ * swap (41, worse) and an explicit pointer-form index (39, worse). */
 void Night_SetCopColor(GameSetup_tCarData *carinfo)
 
 {
@@ -258,12 +300,11 @@ void Night_SetCopColor(GameSetup_tCarData *carinfo)
   int col2;
   u_char (*carTable[4])[256][8];
 
-  carTable[2] = Night_gCopLightingTableRed;
-  carTable[3] = Night_gCopLightingTableBlue;
-  carTable[0] = Night_gCopLightingTableRed;
-  carTable[1] = Night_gCopLightingTableBlue;
   cartype = Night_gCopCarTypeColorIdx[carinfo->carType];
   country = carinfo->Country;
+  carTable[2] = Night_gCopLightingTableRed;
+  carTable[3] = Night_gCopLightingTableBlue;
+  *(NightCopTablePair *)&carTable[0] = *(NightCopTablePair *)&carTable[2];
   col1 = (u_char)Night_gCopCountryLightTbl[cartype][country][0];
   Night_gCopColor[0] = carTable[col1];
   col2 = (u_char)Night_gCopCountryLightTbl[cartype][country][1];
@@ -597,7 +638,25 @@ void Night_SetEnviroment(DRender_tView *Vi)
   return;
 }
 
-/* ---- Night_AdditiveNightCalc__FP6VECTORP7CVECTOR  [NIGHT.CPP:811-861] SLD-VERIFIED ---- */
+/* ---- Night_AdditiveNightCalc__FP6VECTORP7CVECTOR  [NIGHT.CPP:811-861] SLD-VERIFIED ----
+ * NEAR-MISS 77 diffs (ours 65 / oracle 64), was 106 (ours 66 / oracle 64).
+ * MATCH (w38-a10), all from the SYM block @43cab4 + the raw oracle:
+ *  (1) SYM BLOCK SCOPES restored: {x,xdist} live in the z-guard block and
+ *      {lookup,newR,newG,newB,addColor} in the x-guard block -- xdist REUSES
+ *      zfar's register ($6) exactly because they are in disjoint blocks.
+ *  (2) `zfar` holds znear + (1<<(gZDistShift+6)), i.e. the sum is computed
+ *      SPECULATIVELY before the first guard (oracle `addu a2,a3,v0` precedes
+ *      `slt v0,a3,v1; beqz`), not folded into the second compare.
+ *  (3) the three channel SUMS are computed first, then the three clamps
+ *      (oracle batches `addu`+copy trios then three slti/bnez/li 255).
+ *  (4) the blue channel shift is LOGICAL: `((u_int)lookup >> 0x10) & 0xff`
+ *      (oracle `srl`, not `sra`) -- a signed `int` shift emitted `sra`.
+ * RESIDUAL (1 insn over + coloring): ours copies the `color` REGPARM out of
+ * $a1 into $t3 because {zfar,xdist} win $a1, and newR/newG swap $a3<->$t0
+ * (SYM: newR $7=a3, newG $8=t0, newB $6=a2). Tried: inlining zfar into the
+ * condition (88), materializing zfar before z/znear (79), znear-before-z (77,
+ * tie). This is the allocno-priority race between the short-lived guard temps
+ * and the long-lived, few-ref `color` parameter. */
 void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
 
 {
@@ -605,29 +664,31 @@ void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
   int index;
   int znear;
   int zfar;
-  int x;
-  int xdist;
-  int lookup;
-  short newR;
-  short newG;
-  short newB;
-  long addColor;
 
   z = v->vz;
   znear = Night_gZNear;
-  zfar = 1 << (Night_gZDistShift + 6);
-  if ((znear < z) && (z < znear + zfar)) {
+  zfar = znear + (1 << (Night_gZDistShift + 6));
+  if ((znear < z) && (z < zfar)) {
+    int x;
+    int xdist;
+
     x = v->vx;
     xdist = 1 << (Night_gXDistShift + 5);
     if ((-xdist < x) && (x < xdist)) {
+      int lookup;
+      short newR;
+      short newG;
+      short newB;
+      long addColor;
+
       index = (((z - znear) >> Night_gZDistShift) << 6) + ((x + xdist) >> Night_gXDistShift);
       addColor = *(long *)&Night_gAdditiveHeadlightColor[(u_char)Night_gNightTbl[index]];
       lookup = (int)addColor;
       newR = (short)(color->r + (lookup & 0xff));
-      if (0xff < newR) newR = 0xff;
       newG = (short)(color->g + ((lookup & 0xff00) >> 8));
+      newB = (short)(color->b + (((u_int)lookup >> 0x10) & 0xff));
+      if (0xff < newR) newR = 0xff;
       if (0xff < newG) newG = 0xff;
-      newB = (short)(color->b + ((lookup >> 0x10) & 0xff));
       if (0xff < newB) newB = 0xff;
       color->r = (u_char)newR;
       color->g = (u_char)newG;

@@ -1329,6 +1329,19 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         {
           u_char u = (sd->ePmx0).u0 + 0x40;
           u_char v = (sd->ePmx0).v0;
+          /* LEAD (w38-a3, MEASURED, NOT APPLIED -- see the block comment at the top of
+             DrawC_Prim): this 6-statement u/v block and its `(char)(sd->vtN).y/.z`
+             sibling are the SOLE source of the +21 (Prim) / +17 (PrimClip) EXCESS
+             NOPS.  Each statement loads one byte and immediately consumes it, so
+             every `lbu` eats a load-delay nop; the oracle runs TWO parallel chains
+             (`lbu t4,..; lbu t5,..; addu t4,t4,t6; sb t4,..; addu t5,t5,t7; sb t5,..`)
+             where the second load fills the first's delay slot.  Rewriting each
+             vertex as a PAIR of named temps (c0/c1 loaded, then both stored)
+             removes 19 insns from Prim (1413->1394 vs oracle 1389) and 16 from
+             PrimClip (1902->1886 vs 1877) -- but it RAISES the LCS diff count
+             (790->843, 867->1083) because the surrounding saved-register colouring
+             and the 8-byte frame excess are still wrong, so the aligner re-anchors.
+             Apply it as part of a full block-scope/frame rewrite, not on its own. */
           /* idN are morphed addresses: tV[id].u/v = 0xd6/0xd7(idN) (oracle t9/t8/t3) */
           *(u_char *)(prim + 3) = *(u_char *)(id0 + 0xd6) + u;
           *(u_char *)((int)prim + 0xd) = *(u_char *)(id0 + 0xd7) + v;
@@ -3552,7 +3565,7 @@ void DrawC_ShadowPrim(Draw_tVertex *shadowVT,Draw_CarCache *sd)
   int iVar1;
   Draw_tPixMap *shadowPmx;
 
-  shadowPmx = gShadowPixmap[0];
+  shadowPmx = gShadowPixmap0;
   if (R3DCar_InMenu != 0) {
     shadowPmx = gMenuPixmap[1];
   }
@@ -3574,19 +3587,34 @@ gte_stsxy3((char *)prim + 0x10,(char *)prim + 0x20,(char *)prim + 0x18);
     if ((-1 < iVar1) && (iVar1 <= Draw_gViewOtSize + -3)) {
       u_long *ot;
       {
-      u_long l0;
+      u_long lc;      /* MATCH: the colour word needs its OWN temp -- reusing l1 for it
+                         rotates the whole {l1,l2,l3} triple off the oracle's regs (19->3) */
       u_long l1;
       u_long l2;
       u_long l3;
       prim = (POLY_FT4 *)(sd->head).cprim.PrimPtr;
       ot = (sd->head).cprim.LastPrim;
       (sd->head).cprim.PrimPtr = (char *)prim + 0x28;
-      l0 = *(u_long *)prim & 0xff000000 | ot[iVar1] & 0xffffff;
-      ot[iVar1] = ot[iVar1] & 0xff000000 | (u_long)prim & 0xffffff;
-      *(u_long *)prim = l0;
-      l1 = sd->color;
+      /* MATCH (w38-a3): NO `l0` temp -- the oracle STORES the merged prim tag
+         first (`sw v1,0(a3)`) and then RE-READS ot[otz] (`lw v0,0(a0)`) for the
+         second half of the 24-bit OT link, because the prim store may alias the
+         OT word.  Staging through a temp let gcc keep the single ot[] load and
+         reorder the two stores (-2 insns, 110->41 diffs). */
+      {
+      /* MATCH (w38-a3): a BLOCK-LOCAL `otp` for the OT slot (not an `ot[iVar1]`
+         index expression at each of the 3 uses) -- the oracle computes the slot
+         address once into its own pseudo and the index copy `addu v0,v1,zero`
+         falls out of it (41->31->19 diffs). */
+      /* MATCH: index the OT with the field we JUST STORED (`sd->otz`), not the
+         local `iVar1` -- cc1 forwards the stored value and emits retail's
+         redundant `addu v0,v1,zero` copy before the shift (3 -> PASS). */
+      u_long *otp = ot + sd->otz;
+      *(u_long *)prim = *(u_long *)prim & 0xff000000 | *otp & 0xffffff;
+      *otp = *otp & 0xff000000 | (u_long)prim & 0xffffff;
+      }
+      lc = sd->color;
       *(u_char *)((char *)prim + 3) = 9;
-      *(u_long *)&prim->r0 = l1;
+      *(u_long *)&prim->r0 = lc;
       *(u_char *)((char *)prim + 7) = 0x2e;
       l1 = *(u_long *)&shadowPmx->u1;
       l2 = *(u_long *)&shadowPmx->u2;
@@ -3631,10 +3659,16 @@ gte_ldv0(vt0);
     gte_rtps();
     /* scratchpad SXY staging = EA-expander template block (scratches $t0/$v0/$v1/$a0 --
      * the reason vt0 is copied out of $a0 up-front). Two asm halves share the packet
-     * cursor via tp8; low-reg clobbers steer the cursor into $t0 like retail. */
+     * cursor via tp8; low-reg clobbers steer the cursor into $t0 like retail.
+     * BUG FIX (w38-a3): the `nop` after `lw %0,4(%0)` was MISSING.  The oracle has it
+     * (`lui t0; lw t0,4(t0); nop; addiu v0,t0,8`) and it is a REAL R3000 load-delay
+     * slot -- without it `addiu $v0,%0,8` reads the PRE-load %0, so the following
+     * `swc2 $14,0($v0)` wrote the transformed SXY to a wild address.  Inside an
+     * __asm__ neither maspsx nor gnu-as fills the slot for us. */
     __asm__ volatile(
         "lui	%0,0x1f80
 	lw	%0,4(%0)
+	nop
 	addiu	$v0,%0,8
 	swc2	$14,0($v0)"
         : "=&r"(tp8) : : "$2", "$3", "$4", "memory");
@@ -3682,6 +3716,15 @@ gte_ldv3(vt1,vt2,vt3);
       uVar1 = pmx->tpage;
       *(u_short *)((int)puVar8 + 0xe) = pmx->clut;
       *(u_short *)((int)puVar8 + 0x16) = uVar1;
+      /* RESIDUAL (w38-a3): 109 diffs at 123/122 insns.  ONE extra insn = a second
+         register copy: gcc gives the asm's `tp8` cursor $a1 (retail uses $t0), so
+         vt1 has to be copied out of $a1 (`addu t2,a1,zero`) ON TOP OF the vt0 copy
+         that the $a0 clobber forces; retail copies vt0 only.  Everything else is the
+         resulting rotation (t1/t0, a1/t0, a2/a1, a3/a2).  Falsified: minimal block-1
+         clobber list ($v0 only) = no change; clobbering $a2/$a3 = 129; clobbering
+         $a1-$a3 = 89 but 125 insns (2 more copies); dummy `"r"(vt1)` earlyclobber
+         inputs = 105/123 but that is pure scaffolding, rejected.  Steering an asm
+         OUTPUT to a specific hard register without a pin is the open problem. */
       uv0 = *u0;                    /* oracle load order: u0, u1, u3, u2 */
       uv1 = *u1;
       uv3 = *u3;
@@ -3718,7 +3761,7 @@ void DrawC_ShadowPrimClip(Draw_tVertex *shadowVT,Draw_CarCache *sd)
   Draw_tPixMap *shadowPmx;
   Draw_tPixMap *pmx;
   
-  pmx = gShadowPixmap[0];
+  pmx = gShadowPixmap0;
   if (R3DCar_InMenu != 0) {
     pmx = gMenuPixmap[1];
   }

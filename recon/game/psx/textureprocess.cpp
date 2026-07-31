@@ -40,6 +40,12 @@ int TextureProcess_TransColorCheck(char *data,int numentry)
 void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int cx,int cy)
 {
   short newdata [256];
+  CTrackSpec *spec;              /* MATCH: the oracle materializes
+                                  * la $v1,TrackSpec_gSpec ONCE and parks it in
+                                  * $fp across the whole loop (lw 0x10, lbu
+                                  * 0x14/0x15/0x16 off it); direct
+                                  * TrackSpec_gSpec.fogspec.X references emit a
+                                  * fresh fused %hi/%lo per access. */
   char *sourcedata;
   short *p;
   int contrasttemp;
@@ -49,35 +55,47 @@ void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int
   int g;
   int b;
   int temp;
-  int rawr;
-  int rawg;
-  int rawb;
 
   sourcedata = data;
   j = 0;
-  p = newdata;
+  /* MATCH: the contrast read goes through the GLOBAL directly and `spec` is
+   * assigned AFTER it -- cse then turns `spec = &TrackSpec_gSpec` into a plain
+   * register COPY of the address already materialized for the contrast load
+   * (oracle: la $v1,TrackSpec_gSpec; lw 0x10($v1); addu $fp,$v1,$zero).
+   * `p = newdata` must come LAST: its luid decides whether sched1 issues the
+   * addiu before or after the mflo. */
   contrasttemp = (TrackSpec_gSpec.fogspec.contrast * level) / (maxlevel + -1);
-  while (j < numentry) {
+  spec = &TrackSpec_gSpec;
+  p = newdata;
+  /* MATCH: exit-in-the-middle -- numentry is re-loaded from its arg slot at the
+   * top of every iteration and the back edge is an unconditional `j`. */
+  while (1) {
+    if (!(j < numentry)) break;
     color = *(u_short *)sourcedata;
     if (color == 0) {
       *p = 0;
     }
     else {
-      rawb = (color >> 7) & 0xf8;
-      rawg = (color >> 2) & 0xf8;
-      rawr = (color & 0x1f) * 8;
-      temp = fixedmult(rawr - TrackSpec_gSpec.fogspec.color.r,contrasttemp);
-      r = rawr - temp;
-      if (r < 0) { r = 0; } else if (0xff < r) { r = 0xff; }
-      temp = fixedmult(rawg - TrackSpec_gSpec.fogspec.color.g,contrasttemp);
-      g = rawg - temp;
-      if (g < 0) { g = 0; } else if (0xff < g) { g = 0xff; }
-      temp = fixedmult(rawb - TrackSpec_gSpec.fogspec.color.b,contrasttemp);
-      b = rawb - temp;
-      if (b < 0) { b = 0; } else if (0xff < b) { b = 0xff; }
+      b = (color >> 7) & 0xf8;
+      g = (color >> 2) & 0xf8;
+      r = (color & 0x1f) * 8;
+      /* MATCH: one variable per channel (raw value then clamped result share
+       * $s1/$s2/$s0) and the `= 0` default as the if-ARM so it lands in the
+       * bltz delay slot. */
+      temp = r - fixedmult(r - spec->fogspec.color.r,contrasttemp);
+      if (temp < 0) { r = 0; } else { r = temp; if (0xff < r) { r = 0xff; } }
+      temp = g - fixedmult(g - spec->fogspec.color.g,contrasttemp);
+      if (temp < 0) { g = 0; } else { g = temp; if (0xff < g) { g = 0xff; } }
+      temp = b - fixedmult(b - spec->fogspec.color.b,contrasttemp);
+      if (temp < 0) { b = 0; } else { b = temp; if (0xff < b) { b = 0xff; } }
       if (b < 8) { b = 8; }                          /* keep a minimum blue so the pixel stays visible */
-      *p = (color & 0x8000) | (short)(((b >> 3) & 0x1f) << 10) |
-           (short)(((g >> 3) & 0x1f) << 5) | (short)((r >> 3) & 0x1f);
+      /* MATCH: narrow each channel to 5 bits as its OWN statement (assigned back
+       * into the channel var) before composing -- folding the shift+mask into
+       * the compose expression lets gcc reassociate it to (b<<7)&0x7c00. */
+      b = (b >> 3) & 0x1f;
+      g = (g >> 3) & 0x1f;
+      r = (r >> 3) & 0x1f;
+      *p = (short)((color & 0x8000) | (b << 10) | (g << 5) | r);
     }
     sourcedata = sourcedata + 2;
     p = p + 1;
@@ -119,30 +137,30 @@ FogKey * Fog_CheckRange(int currentslice,FogKey *fkey)
 
 {
   FogKey *keynext;
-  FogKey *pFVar1;
   int iVar2;
   int iVar3;
 
   keynext = fkey->next;
   iVar2 = (int)fkey->slice;
   iVar3 = (int)keynext->slice;
+  /* MATCH: direct returns (no result funnel) -- the oracle stages 0/fkey straight
+   * into $v0 in the branch delay slots; a funnel local takes $a2 + a tail copy. */
   if (iVar3 < iVar2) {
-    if ((iVar2 <= currentslice) || (pFVar1 = (FogKey *)0x0, currentslice < iVar3)) {
+    /* MATCH: `||` short-circuit -- both arms fall into ONE `return fkey` block
+     * (oracle beqz/beqz both target .L800E0BC4); split returns duplicate it. */
+    if ((iVar2 <= currentslice) || (currentslice < iVar3)) {
       return fkey;
     }
+    goto ret0;
   }
-  else {
-    pFVar1 = (FogKey *)0x0;
-    if (iVar2 <= currentslice) {
-      if (currentslice < iVar3) {
-        pFVar1 = fkey;
-      }
-      else {
-        pFVar1 = (FogKey *)0x0;
-      }
-    }
+  if (currentslice < iVar2) {
+    goto ret0;
   }
-  return pFVar1;
+  if (currentslice < iVar3) {
+    return fkey;
+  }
+ret0:
+  return (FogKey *)0x0;
 }
 
 /* ---- Fog_FindKey__FiP6FogKey  [TEXTUREPROCESS.CPP:665-695] SLD-VERIFIED ---- */
@@ -177,20 +195,30 @@ FogKey * Fog_AllocKey(void)
 
 {
   FogKey *pFVar2;
-  int i;
   int *piVar1;
+  int i;
+  int one;                 /* MATCH: the "slot is free" marker held in a named
+                            * local -- the oracle materializes `li a2,1` right
+                            * after i=0 and BEFORE the two base addresses; a bare
+                            * literal in the compare gets it emitted last. */
 
   i = 0;
+  one = 1;
   pFVar2 = Fog_gBuf;
   piVar1 = openkeys;
   do {
     i = i + 1;
-    if (*piVar1 == 1) {
+    /* MATCH: if/else with the ADVANCE as the if-arm -- the oracle keeps the
+     * found-body INLINE (bne skips it); an early `return` if-arm makes gcc
+     * invert the branch and push the found block past the loop exit. */
+    if (*piVar1 != one) {
+      pFVar2 = pFVar2 + 1;
+      piVar1 = piVar1 + 1;
+    }
+    else {
       *piVar1 = 0;
       return pFVar2;
     }
-    pFVar2 = pFVar2 + 1;
-    piVar1 = piVar1 + 1;
   } while (i < 0x20);
   return (FogKey *)0x0;
 }
@@ -236,7 +264,6 @@ void Fog_Update(int player)
 {
   int currentslice;
   FogKey *key;
-  FogKey *nextkey;
   int nextslice;
   int diffslice;
   int diffdistance;
@@ -248,12 +275,18 @@ void Fog_Update(int player)
     currentslice = fogslicePos[player].slice;
     key = Fog_FindKey(currentslice,Fog_gCurrentKey[player]);
     Fog_gCurrentKey[player] = key;
-    nextkey = key->next;
-    nextslice = nextkey->slice;
-    if (key->distance == nextkey->distance) {
-      TrackSpec_gSpec.fogspec.start = key->distance;
-    }
-    else {
+    /* MATCH: NO cached `nextkey` local -- the oracle re-reads key->next (and
+     * key->slice / key->distance) at each use; only `nextslice` is a real
+     * variable (it is mutated by += numslices).  The interpolating arm is the
+     * FALL-THROUGH (oracle `beq key->distance,next->distance` branches away to
+     * the plain-copy arm).
+     * FLOOR (15 diffs, ours 82/81): the oracle CROSS-JUMPS the two
+     * `TrackSpec_gSpec.fogspec.start = ...` stores into one `sw a1,0(v0)` with
+     * the `lui` hoisted into the beq delay slot; funnelling both arms through a
+     * shared `start` local does merge them (81/81) but rotates key/nextslice/
+     * distance one allocno step (36 diffs), so the 2-store form is kept. */
+    nextslice = key->next->slice;
+    if (key->distance != key->next->distance) {
       if (nextslice < key->slice) {
         numslices = gNumSlices;
         nextslice = nextslice + numslices;
@@ -261,10 +294,13 @@ void Fog_Update(int player)
           currentslice = currentslice + numslices;
         }
       }
-      diffdistance = nextkey->distance - key->distance;
+      diffdistance = key->next->distance - key->distance;
       diffslice = nextslice - key->slice;
       final_dist = ((currentslice - key->slice) * diffdistance) / diffslice;
       TrackSpec_gSpec.fogspec.start = key->distance + final_dist;
+    }
+    else {
+      TrackSpec_gSpec.fogspec.start = key->distance;
     }
   }
 }
@@ -281,55 +317,60 @@ char * Fog_MakeTrackPathName(char *ext)
 int Fog_ReadFogKeys(void)
 
 {
-  u_int *puVar1;
-  u_int *puVar2;
-  bool bVar3;
   char *strspc;
   int i;
-  u_int *puVar5;
-  int *readmem;
+  u_int *readmem;
   u_int numkeys;
 
+  /* 🔴 CORRECTNESS (raw oracle @0x800E0F18): the three selector tests were
+   * INVERTED in the previous reconstruction (`bnez` where the oracle has
+   * `beqz`), which also made the third arm provably DEAD (it required
+   * Weather!=0 && Weather==0).  The oracle picks:
+   *   Time!=0 && Weather!=0 -> literal 1   Time!=0 -> literal 2
+   *   Weather!=0            -> literal 3   else    -> literal 4
+   * (offsets 0x54=Time, 0x48=Weather; the four literals sit 8 bytes apart at
+   * D_8013DB4C/54/5C/64, i.e. in source order).  The literal TEXTS keep their
+   * previous order -- verify_asm normalizes the %hi/%lo so the oracle cannot
+   * arbitrate which name belongs to which slot; only the CONDITIONS are proven. */
   if (GameSetup_gData.Time != 0) {
-    if (GameSetup_gData.Weather == 0) {
+    if (GameSetup_gData.Weather != 0) {
       strspc = Fog_MakeTrackPathName("N.fog");
       goto haveext;
     }
   }
-  if (GameSetup_gData.Time == 0) {
+  if (GameSetup_gData.Time != 0) {
     strspc = Fog_MakeTrackPathName("W.fog");
     goto haveext;
   }
-  if (GameSetup_gData.Weather == 0) {
+  if (GameSetup_gData.Weather != 0) {
     strspc = Fog_MakeTrackPathName("S.fog");
     goto haveext;
   }
   strspc = Fog_MakeTrackPathName(".fog");
 haveext:
-  readmem = (int *)loadfileadr(strspc,0);
-  i = 0;
-  if (readmem != (u_int *)0x0) {
-    numkeys = *readmem;
-    i = 0;
-    if (numkeys < 0x20) {
-      bVar3 = 0 < (int)numkeys;
-      puVar5 = readmem;
-      while (bVar3) {
-        puVar1 = puVar5 + 1;
-        puVar2 = puVar5 + 2;
-        puVar5 = puVar5 + 2;
-        i = i + 1;
-        Fog_AddKey(*puVar1,*puVar2);
-        bVar3 = i < (int)numkeys;
-      }
-      purgememadr(readmem);
-      i = 1;
-    }
-    else {
-      i = 0;
-    }
+  readmem = (u_int *)loadfileadr(strspc,0);
+  if (readmem == (u_int *)0x0) {
+    return 0;
   }
-  return i;
+  numkeys = *readmem;
+  if (0x1f < numkeys) {
+    return 0;
+  }
+  i = 0;
+  /* MATCH: exit-in-the-middle (top test + unconditional `j` back edge, the
+   * `slt` recomputed in the back-edge delay slot) -- a plain `while (i<numkeys)`
+   * rotates into a zero-trip `blez` guard + bottom test. */
+  while (1) {
+    if (!(i < (int)numkeys)) break;
+    /* MATCH: INDEX form off readmem -- loop.c strength-reduces it to the
+     * oracle's unbiased walker (`addu s0,s2,zero` + `lw 4(s0)/lw 8(s0)`);
+     * an explicit `p = readmem; p += 2` walker makes gcc pre-bias the base by
+     * +8 and use -4/0 displacements. */
+    Fog_AddKey(readmem[i * 2 + 1],readmem[i * 2 + 2]);
+    i = i + 1;
+  }
+  purgememadr(readmem);
+  return 1;
 }
 
 /* ---- Fog_InitFogTriggers__Fv  [TEXTUREPROCESS.CPP:1082-1119] SLD-VERIFIED ---- */
@@ -356,6 +397,14 @@ void Fog_InitFogTriggers(void)
     Fog_AddKey(0,TrackSpec_gSpec.fogspec.start);
   }
   num_player = 1;
+  /* FLOOR (35 diffs, ours 58/57): the oracle stores these two slots through
+   * SEPARATE per-element gp-rel symbols (`%gp_rel(Fog_gCurrentKey)` and
+   * `%gp_rel(D_8013DB84)`), i.e. this TU OWNS them as two 4-byte gp objects,
+   * while Fog_Update reaches the same storage as a real ARRAY with an absolute
+   * base + variable index.  Reproducing that needs the catalog's DUAL-MODEL
+   * storage (per-element tentative defs alongside the array) which touches the
+   * shared extern header + data materialization -- out of this wave's scope.
+   * Everything else in this function matches. */
   Fog_gCurrentKey[0] = Fog_gHeadKey;
   Fog_gCurrentKey[1] = Fog_gHeadKey;
   if (GameSetup_gData.commMode == 1) {
@@ -364,10 +413,13 @@ void Fog_InitFogTriggers(void)
   fogslicePos = reservememadr("fog pos",num_player * 0x84,0);
   k = 0;
   if (num_player != 0) {
-    slice_off = 0;
+    slice_off = k;
     do {
       k = k + 1;
-      BWorldSm_SetSlice(0,(BWorldSm_Pos *)((int)fogslicePos->quadPts + slice_off + -8));
+      /* MATCH: plain base+offset off fogslicePos (oracle re-reads the gp-rel
+       * pointer each iteration and does `addu a1,a1,slice_off`); the Ghidra
+       * `fogslicePos->quadPts + slice_off - 8` form is the same address. */
+      BWorldSm_SetSlice(0,(BWorldSm_Pos *)((char *)fogslicePos + slice_off));
       slice_off = slice_off + 0x84;
     } while (k < num_player);
   }
@@ -399,22 +451,27 @@ void CV_ProcessWorldColors_FINAL(int constrast,CVECTOR *color,short brightness)
   int g;
   int b;
   int temp;
-  u_char *light;
 
-  for (i = 0; i < Chunk_numLight; i = i + 1) {
-    light = &Chunk_lightTable[i].r;
-    temp = fixedmult((u_int)light[0] - (u_int)color->r,constrast);
-    temp = (u_int)light[0] - temp;
-    r = 0;
-    if ((-1 < temp) && (r = temp, 0xff < temp)) { r = 0xff; }
-    temp = fixedmult((u_int)light[1] - (u_int)color->g,constrast);
-    temp = (u_int)light[1] - temp;
-    g = 0;
-    if ((-1 < temp) && (g = temp, 0xff < temp)) { g = 0xff; }
-    temp = fixedmult((u_int)light[2] - (u_int)color->b,constrast);
-    temp = (u_int)light[2] - temp;
-    b = 0;
-    if ((-1 < temp) && (b = temp, 0xff < temp)) { b = 0xff; }
+  /* MATCH: NO cached `light` pointer -- the oracle re-materializes
+   * %hi/%lo(Chunk_lightTable) at the read group and again at EVERY byte store
+   * (a char store may alias the pointer global itself), and strength-reduces
+   * the index into a byte-offset giv (+4/iter).  The three source bytes are
+   * read UP FRONT into r/g/b because they have to survive the fixedmult calls. */
+  i = 0;
+  /* MATCH: exit-in-the-middle -- the oracle re-tests Chunk_numLight at the TOP
+   * of every iteration and closes with an unconditional `j` back (no rotation,
+   * no zero-trip guard); a plain `for` rotates and hoists the bound load. */
+  while (1) {
+    if (!(i < Chunk_numLight)) break;
+    r = Chunk_lightTable[i].r;
+    g = Chunk_lightTable[i].g;
+    b = Chunk_lightTable[i].b;
+    temp = r - fixedmult(r - color->r,constrast);
+    if (temp < 0) { r = 0; } else { r = temp; if (0xff < r) { r = 0xff; } }
+    temp = g - fixedmult(g - color->g,constrast);
+    if (temp < 0) { g = 0; } else { g = temp; if (0xff < g) { g = 0xff; } }
+    temp = b - fixedmult(b - color->b,constrast);
+    if (temp < 0) { b = 0; } else { b = temp; if (0xff < b) { b = 0xff; } }
     r = r + brightness;
     g = g + brightness;
     b = b + brightness;
@@ -424,9 +481,10 @@ void CV_ProcessWorldColors_FINAL(int constrast,CVECTOR *color,short brightness)
     if (g < 0) { g = 0; }
     if (0xff < b) { b = 0xff; }
     if (b < 0) { b = 0; }
-    light[0] = (u_char)r;
-    light[1] = (u_char)g;
-    light[2] = (u_char)b;
+    Chunk_lightTable[i].r = (u_char)r;
+    Chunk_lightTable[i].g = (u_char)g;
+    Chunk_lightTable[i].b = (u_char)b;
+    i = i + 1;
   }
 }
 
@@ -435,48 +493,53 @@ void CV_ColorTracks(int track,int weather,int night)
 
 {
   u_char uVar1;
-  short sVar2;
   short brightness;
   int contrast;
   CVECTOR color;
-  
+
+  /* MATCH: `contrast` is initialized to 0 BEFORE the memset, so its live range
+   * crosses that call and it earns a callee-saved reg -- assigning it only
+   * inside the branches leaves it in $a0 (the outgoing arg reg).  The same 0
+   * feeds memset's fill arg (oracle: addu a1,s0,zero). */
+  contrast = 0;
   memset(&color,0,4);
   brightness = 0;
-  sVar2 = 0;
   if (GameSetup_gData.commMode == 1) {
     if (((track == 2) && (weather == 1)) && (night == 1)) {
       contrast = -0x9c80;
       uVar1 = '\x10';
+      /* MATCH: the shared "color.g = uVar1; brightness = 0x10" block is laid out
+       * at the track==4 site -- this arm JUMPS to it while the track==4 arm FALLS
+       * THROUGH into it; hosting the label here inlines a duplicate copy. */
+      goto CVColor_setColorG;
+    }
+    /* MATCH: FLAT per-case chain -- each arm re-tests `track` (the oracle has two
+     * separate track==3 tests and two track==4 tests, with the compare constant
+     * rematerialized into the intervening delay slots).  A nested
+     * `if (track == 3) { ... }` tests it once and comes out 8 insns short. */
+    if (((track == 3) && (weather == 0)) && (night == 1)) {
+      contrast = -0xf400;
+      goto CVColor_emitFinal;
+    }
+    if (((track == 3) && (weather == 1)) && (night == 1)) {
+      contrast = -0x7400;
+      /* MATCH: the oracle writes the whole CVECTOR with ONE word store
+       * (sw 0x10 -> r=0x10, g=b=cd=0), not four byte stores. */
+      *(int *)&color = 0x10;
+      brightness = 0x10;
+      goto CVColor_emitFinal;
+    }
+    if (((track == 4) && (weather == 0)) && (night == 1)) {
+      contrast = -0x7800;
+      goto CVColor_emitFinal;
+    }
+    if (((track == 4) && (weather == 1)) && (night == 1)) {
+      contrast = -0x10000;
+      uVar1 = '\x18';
 CVColor_setColorG:
       color.g = uVar1;
       brightness = 0x10;
       goto CVColor_emitFinal;
-    }
-    if (track == 3) {
-      if ((weather == 0) && (night == 1)) {
-        contrast = -0xf400;
-        goto CVColor_emitFinal;
-      }
-      if ((weather == 1) && (night == 1)) {
-        contrast = -0x7400;
-        color.r = '\x10';
-        color.g = '\0';
-        color.b = '\0';
-        color.cd = '\0';
-        brightness = 0x10;
-        goto CVColor_emitFinal;
-      }
-    }
-    if (track == 4) {
-      if ((weather == 0) && (night == 1)) {
-        contrast = -0x7800;
-        goto CVColor_emitFinal;
-      }
-      if ((weather == 1) && (night == 1)) {
-        contrast = -0x10000;
-        uVar1 = '\x18';
-        goto CVColor_setColorG;
-      }
     }
     if (((track == 6) && (weather == 0)) && (night == 1)) {
       contrast = -0x9610;
@@ -489,8 +552,6 @@ CVColor_setColorG:
       goto CVColor_emitFinal;
     }
     if (((track != 8) || (weather != 0)) || (night != 1)) {
-      contrast = 0;
-      brightness = sVar2;
       if (((track == 10) && (weather == 1)) && (night == 1)) {
         contrast = -0x5400;
       }
@@ -498,8 +559,6 @@ CVColor_setColorG:
     }
   }
   else {
-    contrast = 0;
-    brightness = sVar2;
     if (((track != 8) || (weather != 0)) || (night != 1)) goto CVColor_emitFinal;
   }
   contrast = 0x6800;

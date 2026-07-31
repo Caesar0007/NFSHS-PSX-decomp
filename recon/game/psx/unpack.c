@@ -14,38 +14,39 @@ typedef unsigned char u_char;
  *   BTree    0x46FB/0x47FB          */
 extern long unrefpack(void *src, void *dst, int reverse);
 extern long unhuff(void *src, void *dst, int reverse);
-extern long unbtree(void *src, void *dst, int reverse);
+extern long unbtree(void *src, void *dst);  /* 2 args -- see recon/eaclib/psx/eacpsxz/unbtree.c
+                                             * and its oracle (@0x800F55B4 never reads $a2). */
 extern long getm(void *p, int n);           /* read n-byte big-endian field */
 
-/* ---- unpackz  [UNPACK.C:59-101] SLD-VERIFIED ---- */
+/* ---- unpackz  [UNPACK.C:59-101] SLD-VERIFIED ----
+ * Oracle shape (w38): a RESULT FUNNEL (`len` in $a2, zeroed in the guard's delay
+ * slot, one `addu $v0,$a2,$zero` at the single exit) + a real `switch` on the
+ * masked magic byte -- gcc-2.8 lowers the 5 sparse cases to a BALANCED BINARY
+ * SEARCH TREE (beq 0x32 / slti 0x33 pivot, then {0x10,0x30} and {0x34,0x46}),
+ * which an if/else chain cannot produce.
+ * BUGFIX (w38): the old guard read the magic through `*(char *)` and compared
+ * against -5; `char` is UNSIGNED on this build (__CHAR_UNSIGNED__) so that test
+ * was ALWAYS TRUE -- the 0xFB (the common) marker never matched.  Oracle uses
+ * `lbu` + compare against 0xFB. */
 long unpackz(void *src, void *dst)
 {
-  long len;
-  u_char magic;
+  long len = 0;
 
-  if ((*(char *)((int)src + 1) != -5) && (*(char *)((int)src + 1) != '2')) {
-    return 0;
-  }
-  magic = *(u_char *)src & 0xfe;
-  if (magic != 0x32) {
-    if (magic < 0x33) {
-      if (magic == 0x10) {
-        len = unrefpack(src,dst,1);
-        return len;
-      }
-      if (magic != 0x30) {
-        return 0;
-      }
-    }
-    else if (magic != 0x34) {
-      if (magic != 0x46) {
-        return 0;
-      }
-      len = unbtree(src,dst,0);
-      return len;
+  if ((((u_char *)src)[1] == 0xfb) || (((u_char *)src)[1] == 0x32)) {
+    switch (*(u_char *)src & 0xfe) {
+    case 0x10:
+      len = unrefpack(src,dst,1);
+      break;
+    case 0x30:
+    case 0x32:
+    case 0x34:
+      len = unhuff(src,dst,1);
+      break;
+    case 0x46:
+      len = unbtree(src,dst);
+      break;
     }
   }
-  len = unhuff(src,dst,1);
   return len;
 }
 
@@ -58,38 +59,32 @@ long unpack(void *src, void *dst)
 /* ---- unpacksizez  [UNPACK.C:165-193] SLD-VERIFIED ---- */
 long unpacksizez(void *src)
 {
-  long len;
-  u_char magic;
+  long len = 0;
+  int magic;
 
-  if ((*(char *)((int)src + 1) != -5) && (*(char *)((int)src + 1) != '2')) {
-    return 0;
-  }
-  magic = *(u_char *)src & 0xfe;
-  if (magic != 0x32) {
+  if ((((u_char *)src)[1] == 0xfb) || (((u_char *)src)[1] == 0x32)) {
+    magic = *(u_char *)src & 0xfe;
+    if (magic == 0x32) goto ok;
     if (magic < 0x33) {
-      if (magic != 0x18) {
-        if (magic < 0x19) {
-          if (magic != 0x10) {
-            return 0;
-          }
-        }
-        else if (magic != 0x30) {
-          return 0;
-        }
+      if (magic == 0x18) goto ok;
+      if (magic < 0x19) {
+        if (magic == 0x10) goto ok;
+      } else {
+        if (magic == 0x30) goto ok;
       }
-    }
-    else if (magic != 0x46) {
+    } else {
+      if (magic == 0x46) goto ok;
       if (magic < 0x47) {
-        if (magic != 0x34) {
-          return 0;
-        }
-      }
-      else if (magic != 0x4a) {
-        return 0;
+        if (magic == 0x34) goto ok;
+      } else {
+        if (magic == 0x4a) goto ok;
       }
     }
+    goto done;
+  ok:
+    len = getm((void *)((int)src + 2),3);
   }
-  len = getm((void *)((int)src + 2),3);
+done:
   return len;
 }
 

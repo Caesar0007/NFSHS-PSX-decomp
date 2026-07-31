@@ -424,7 +424,21 @@ void Weather_Restart(void)
   return;
 }
 
-/* ---- Weather_Init__Fv  [WEATHER.CPP:414-496] SLD-VERIFIED ---- */
+/* ---- Weather_Init__Fv  [WEATHER.CPP:414-496] SLD-VERIFIED ----
+ * NEXT LEVER (w38-a8, measured but NOT applied -- needs a coordinated data-mat pass):
+ * the dominant residual here is gp-rel-vs-absolute.  The oracle reaches the four
+ * per-player server arrays through PER-ELEMENT gp-rel symbols --
+ *   Weather_gSplatInfoServer / D_8013DBCC(=+4), Weather_gPServer / D_8013DBD4(+4),
+ *   Weather_gPrevPServer / D_8013DBDC(+4), Weather_gDrawnServer / D_8013DBE4(+4)
+ * (also D_8013DE4C/54/58) -- while this TU only declares them `extern T x[2]`, so we
+ * emit absolute lui/%lo pairs.  They are owned by weather.cpp (no other TU references
+ * them: `grep -rl Weather_gPServer recon/` = weather.cpp + its externs header).
+ * FIX = the established in-file duality (see the Weather_gLastProcessTime0/1 block at
+ * the top of this file): tentative-define one 4-byte scalar PER ELEMENT for the
+ * CONSTANT-index sites (Weather_Init) and keep the real `T x[2]` array for the
+ * variable-index sites (Weather_DoWeather's `[player]`), writing both at every
+ * mutation.  SYM block locals for this fn: i $s0 (block @line 7), sv $s2 (PTR SVECTOR,
+ * block @line 62). */
 void Weather_Init(void)
 
 {
@@ -716,96 +730,73 @@ WeatherReset_topCheck:
   return sVar3;
 }
 
-/* ---- Weather_QuickReOrthogonalize__FP10matrixtdefT0  [WEATHER.CPP:673-700] SLD-VERIFIED ---- */
+/* ---- Weather_QuickReOrthogonalize__FP10matrixtdefT0  [WEATHER.CPP:673-700] SLD-VERIFIED ----
+ * SYM (fsize 72, ra+s0-s7): rot $s5, rotNew $s4; AUTO upvector @-0x38 (coorddef);
+ * REG locals nrotx $s4(=rotNew), nroty $s6, nrotz $s3, roty $s7, rotz $s2.
+ * 🔴 BUG FIXED: the previous body initialised `upvector` from prevLookBehind[]/
+ * prevCameraMode[] (Weather_DoWeather's file statics) -- the raw oracle copies the
+ * three words of the .rodata constant D_80056B2C = {0, 0x10000, 0} (the +Y world-up
+ * vector, 16.16) into the stack slot, i.e. an initialised local aggregate.  The old
+ * form read unrelated globals => wrong up-vector at runtime.
+ * The dot product is expanded THREE times (test + both ternary arms) = an ABS() macro
+ * over a DOT() macro, and there is no SYM local for it. */
 void Weather_QuickReOrthogonalize
                (matrixtdef *rot,matrixtdef *rotNew)
 
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  coorddef *rotz;
-  coorddef *nrotz;
-  coorddef *v;
+  coorddef upvector = {0,0x10000,0};
   coorddef *nrotx;
-  matrixtdef *rot_reg;
   coorddef *nroty;
+  coorddef *nrotz;
   coorddef *roty;
-  coorddef upvector;
-  
-  iVar4 = prevCameraMode[0];
-  iVar2 = prevLookBehind[1];
-  iVar3 = prevLookBehind[0];
-  v = (coorddef *)(rotNew->m + 6);
-  upvector.x = prevLookBehind[0];
-  upvector.y = prevLookBehind[1];
-  upvector.z = prevCameraMode[0];
-  iVar5 = rot->m[7];
-  iVar6 = rot->m[8];
-  rotNew->m[6] = rot->m[6];
-  rotNew->m[7] = iVar5;
-  rotNew->m[8] = iVar6;
-  Math_NormalizeVector(v);
-  iVar5 = fixedmult(iVar3,rot->m[6]);
-  iVar6 = fixedmult(iVar2,rot->m[7]);
-  iVar1 = fixedmult(iVar4,rot->m[8]);
-  if (iVar5 + iVar6 + iVar1 < 1) {
-    iVar3 = fixedmult(iVar3,rot->m[6]);
-    iVar2 = fixedmult(iVar2,rot->m[7]);
-    iVar4 = fixedmult(iVar4,rot->m[8]);
-    iVar3 = -(iVar3 + iVar2 + iVar4);
+  coorddef *rotz;
+
+  nrotx = (coorddef *)rotNew;
+  nroty = (coorddef *)(rotNew->m + 3);
+  nrotz = (coorddef *)(rotNew->m + 6);
+  roty = (coorddef *)(rot->m + 3);
+  rotz = (coorddef *)(rot->m + 6);
+  *nrotz = *rotz;
+  Math_NormalizeVector(nrotz);
+  if (0xfd70 <
+      (0 < fixedmult(upvector.x,rotz->x) + fixedmult(upvector.y,rotz->y) +
+           fixedmult(upvector.z,rotz->z) ?
+       fixedmult(upvector.x,rotz->x) + fixedmult(upvector.y,rotz->y) +
+       fixedmult(upvector.z,rotz->z) :
+       -(fixedmult(upvector.x,rotz->x) + fixedmult(upvector.y,rotz->y) +
+         fixedmult(upvector.z,rotz->z)))) {
+    upvector = *roty;
   }
-  else {
-    iVar5 = fixedmult(iVar3,rot->m[6]);
-    iVar2 = fixedmult(iVar2,rot->m[7]);
-    iVar3 = fixedmult(iVar4,rot->m[8]);
-    iVar3 = iVar5 + iVar2 + iVar3;
-  }
-  if (0xfd70 < iVar3) {
-    upvector.x = rot->m[3];
-    upvector.y = rot->m[4];
-    upvector.z = rot->m[5];
-  }
-  iVar3 = fixedmult(upvector.y,rotNew->m[8]);
-  iVar2 = fixedmult(upvector.z,rotNew->m[7]);
-  rotNew->m[0] = iVar3 - iVar2;
-  iVar3 = fixedmult(upvector.z,v->x);
-  iVar2 = fixedmult(upvector.x,rotNew->m[8]);
-  rotNew->m[1] = iVar3 - iVar2;
-  iVar3 = fixedmult(upvector.x,rotNew->m[7]);
-  iVar2 = fixedmult(upvector.y,v->x);
-  rotNew->m[2] = iVar3 - iVar2;
-  Math_NormalizeVector((coorddef *)rotNew);
-  iVar3 = fixedmult(rotNew->m[7],rotNew->m[2]);
-  iVar2 = fixedmult(rotNew->m[8],rotNew->m[1]);
-  rotNew->m[3] = iVar3 - iVar2;
-  iVar3 = fixedmult(rotNew->m[8],rotNew->m[0]);
-  iVar2 = fixedmult(v->x,rotNew->m[2]);
-  rotNew->m[4] = iVar3 - iVar2;
-  iVar3 = fixedmult(v->x,rotNew->m[1]);
-  iVar2 = fixedmult(rotNew->m[7],rotNew->m[0]);
-  rotNew->m[5] = iVar3 - iVar2;
+  nrotx->x = fixedmult(upvector.y,nrotz->z) - fixedmult(upvector.z,nrotz->y);
+  nrotx->y = fixedmult(upvector.z,nrotz->x) - fixedmult(upvector.x,nrotz->z);
+  nrotx->z = fixedmult(upvector.x,nrotz->y) - fixedmult(upvector.y,nrotz->x);
+  Math_NormalizeVector(nrotx);
+  nroty->x = fixedmult(nrotz->y,nrotx->z) - fixedmult(nrotz->z,nrotx->y);
+  nroty->y = fixedmult(nrotz->z,nrotx->x) - fixedmult(nrotz->x,nrotx->z);
+  nroty->z = fixedmult(nrotz->x,nrotx->y) - fixedmult(nrotz->y,nrotx->x);
   return;
 }
-
-/* ---- Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc  [WEATHER.CPP:704-887] SLD-VERIFIED ---- */
+/* ---- Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc  [WEATHER.CPP:704-887] SLD-VERIFIED ----
+ * SYM (fsize 264, ra+s0-s6): Vi $s3, num $s4, wpt $s5, wd $s6; fn-block n $t2 +
+ * AUTOs matdiff -0xf8, orthoMat -0xd0, velocity_vector_change -0xa8,
+ * total_vector_change -0xa0, Weather_gTransformedRandomVelocityVectors[12] -0x80.
+ * SIBLING BLOCKS each redeclare temp_vector -0x98 / result -0x90 (and the particle
+ * loop's `pt` shares the -0x98 slot) -- one fn-scope decl set costs an extra 8 bytes
+ * of frame.  The particle loop has its OWN `n` (SYM: class REG type LONG, $s0).
+ * 🔴 BUG: the turbulence table reads must be SIGN-extended (oracle sll 24/sra 24);
+ * `char` is UNSIGNED on this build, so the plain char reads silently turned negative
+ * velocity components into +128..+255.
+ */
 void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
 {
+  int n;
   matrixtdef matdiff;
   matrixtdef orthoMat;
   SVECTOR velocity_vector_change;
   SVECTOR total_vector_change;
-  SVECTOR Weather_gTransformedRandomVelocityVectors [12];
   SVECTOR temp_vector;
   VECTOR result;
-  coorddef *cp;
-  char *vel;
-  SVECTOR *tv;
-  SVECTOR pt;
-  int n;
+  SVECTOR Weather_gTransformedRandomVelocityVectors [12];
 
   /* re-orthogonalize the camera matrix, build the frame-to-frame difference matrix, and transform
      every particle by it so the whole field rotates rigidly with the camera */
@@ -816,65 +807,80 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
   Weather_SetMatrix(&Vi->cview.mrotationInvRaw);
 
   /* camera translation delta since last frame, rotated into camera space -> total_vector_change */
-  cp = &prevCamPos[Vi->player];
-  temp_vector.vx = (short)((Vi->cview.translation.x - cp->x) / 0x400);
-  temp_vector.vy = (short)((Vi->cview.translation.y - cp->y) / 0x400);
-  temp_vector.vz = (short)((Vi->cview.translation.z - cp->z) / 0x400);
-  gte_ldv0(&temp_vector);
-  gte_mvmva(1,0,0,0,0);
-  cp->x = Vi->cview.translation.x;
-  cp->y = Vi->cview.translation.y;
-  cp->z = Vi->cview.translation.z;
-  gte_stlvnl(&result);
-  total_vector_change.vy = -(short)result.vy;
-  total_vector_change.vx = -(short)result.vx;
-  total_vector_change.vz = -(short)result.vz;
+  {
+    coorddef *cp;
+
+    temp_vector.vx = (short)((Vi->cview.translation.x - prevCamPos[Vi->player].x) / 0x400);
+    temp_vector.vy = (short)((Vi->cview.translation.y - prevCamPos[Vi->player].y) / 0x400);
+    temp_vector.vz = (short)((Vi->cview.translation.z - prevCamPos[Vi->player].z) / 0x400);
+    gte_ldv0(&temp_vector);
+    gte_mvmva(1,0,0,0,0);
+    cp = &prevCamPos[Vi->player];
+    *cp = Vi->cview.translation;
+    gte_stlvnl(&result);
+    total_vector_change.vy = -(short)result.vy;
+    total_vector_change.vx = -(short)result.vx;
+    total_vector_change.vz = -(short)result.vz;
+  }
 
   /* wind/gravity velocity, rotated into camera space; folded into total_vector_change */
-  temp_vector.vx = Weather_gSys.velocity.vx;
-  temp_vector.vy = Weather_gSys.velocity.vy;
-  temp_vector.vz = Weather_gSys.velocity.vz;
-  gte_ldv0(&temp_vector);
-  gte_mvmva(1,0,0,0,0);
-  gte_stlvnl(&result);
-  total_vector_change.vx = total_vector_change.vx + (short)result.vx;
-  velocity_vector_change.vx = (short)result.vx;
-  velocity_vector_change.vy = (short)result.vy;
-  velocity_vector_change.vz = (short)result.vz;
-  total_vector_change.vz = total_vector_change.vz + (short)result.vz;
-  total_vector_change.vy = total_vector_change.vy + (short)result.vy;
-
-  /* rotate the 12 turbulence velocity vectors into camera space (frame-local copy) */
-  vel = (char *)Weather_gRandomVelocityVectors;
-  for (n = 0; n < 12; n = n + 1) {
-    temp_vector.vx = vel[0];
-    temp_vector.vy = vel[1];
-    temp_vector.vz = vel[2];
+  {
+    temp_vector.vx = Weather_gSys.velocity.vx;
+    temp_vector.vy = Weather_gSys.velocity.vy;
+    temp_vector.vz = Weather_gSys.velocity.vz;
     gte_ldv0(&temp_vector);
     gte_mvmva(1,0,0,0,0);
     gte_stlvnl(&result);
-    Weather_gTransformedRandomVelocityVectors[n].vx = (short)result.vx;
-    Weather_gTransformedRandomVelocityVectors[n].vy = (short)result.vy;
-    Weather_gTransformedRandomVelocityVectors[n].vz = (short)result.vz;
-    vel = vel + 3;
+    total_vector_change.vx = total_vector_change.vx + (short)result.vx;
+    velocity_vector_change.vx = (short)result.vx;
+    velocity_vector_change.vy = (short)result.vy;
+    velocity_vector_change.vz = (short)result.vz;
+    total_vector_change.vz = total_vector_change.vz + (short)result.vz;
+    total_vector_change.vy = total_vector_change.vy + (short)result.vy;
+  }
+
+  /* rotate the 12 turbulence velocity vectors into camera space (frame-local copy) */
+  {
+    signed char *vel;
+
+    vel = (signed char *)Weather_gRandomVelocityVectors;
+    for (n = 0; n < 12; n = n + 1) {
+      temp_vector.vx = vel[0];
+      temp_vector.vy = vel[1];
+      temp_vector.vz = vel[2];
+      gte_ldv0(&temp_vector);
+      gte_mvmva(1,0,0,0,0);
+      gte_stlvnl(&result);
+      Weather_gTransformedRandomVelocityVectors[n].vx = (short)result.vx;
+      Weather_gTransformedRandomVelocityVectors[n].vy = (short)result.vy;
+      Weather_gTransformedRandomVelocityVectors[n].vz = (short)result.vz;
+      vel = vel + 3;
+    }
   }
 
   /* advance every particle by (camera comp + wind) + its turbulence vector; wrap + flag resets */
-  tv = wpt;
-  for (n = 0; n < num; n = n + 1) {
-    pt.vx = Weather_gTransformedRandomVelocityVectors[n % 12].vx + (tv->vx + total_vector_change.vx);
-    pt.vy = Weather_gTransformedRandomVelocityVectors[n % 12].vy + (tv->vy + total_vector_change.vy);
-    pt.vz = Weather_gTransformedRandomVelocityVectors[n % 12].vz + (tv->vz + total_vector_change.vz);
-    if (Weather_CheckAndResetParticles(&pt) != 0) {
-      wd[n] = 0;
+  {
+    SVECTOR *tv;
+    long n;
+
+    tv = wpt;
+    for (n = 0; n < num; n = n + 1) {
+      temp_vector.vx = Weather_gTransformedRandomVelocityVectors[n % 12].vx +
+              (tv->vx + total_vector_change.vx);
+      temp_vector.vy = Weather_gTransformedRandomVelocityVectors[n % 12].vy +
+              (tv->vy + total_vector_change.vy);
+      temp_vector.vz = Weather_gTransformedRandomVelocityVectors[n % 12].vz +
+              (tv->vz + total_vector_change.vz);
+      if (Weather_CheckAndResetParticles(&temp_vector) != 0) {
+        wd[n] = 0;
+      }
+      tv->vx = temp_vector.vx;
+      tv->vy = temp_vector.vy;
+      tv->vz = temp_vector.vz;
+      tv = tv + 1;
     }
-    tv->vx = pt.vx;
-    tv->vy = pt.vy;
-    tv->vz = pt.vz;
-    tv = tv + 1;
   }
 }
-
 /* ---- Weather_CreateSnow__FP7SVECTOR  [WEATHER.CPP:923-961] SLD-VERIFIED ---- */
 void Weather_CreateSnow(SVECTOR *pt)
 {

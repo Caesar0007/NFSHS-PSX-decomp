@@ -2063,11 +2063,6 @@ int Hud_BuildCdPlayer(int type,int arg1)
   u_char *p;
   int tx;
   char *s;
-  int box_transp;
-  int box_x;
-  int box_y;
-  int box_w;
-  int box_h;
   char *artist;
   char *title;
   int index;
@@ -2095,29 +2090,28 @@ int Hud_BuildCdPlayer(int type,int arg1)
     return 0;
   }
   if (Hud_gCdActive == 0) {
-    bVar2 = false;
-    if ((((simGlobal.gameTicks < 0x240) || (((u_char)countdown < 4 && (Hud_BeTheCop == 0)))) ||
-        ((uVar5 = PAD_state(4), (uVar5 & 0x400) != 0 &&
-         (DashHUD_gInfo.splitscreen != 0)))) ||
-       ((uVar5 = PAD_state(0), (uVar5 & 0x400) != 0 &&
-        ((Hud_BeTheCop == 0 || (DashHUD_gInfo.splitscreen != 0)))))) {
-      bVar2 = true;
-    }
+    /* SYM has NO bool flag local here (only x/y/index/time/title/artist/tx/dx/w/min/sec/s/
+     * currentSong are REG-class) -- the activate decision is PURE CONTROL FLOW.  A `bVar2`
+     * flag variable took a callee-saved register ($s3) in the old form and pushed every SYM
+     * local one register down (type $s4-not-$s6, y $s7-not-$fp, ...).  Written as the goto
+     * chain the oracle's branch layout shows. */
+    if (simGlobal.gameTicks < 0x240) goto HudCdPlay_activateGate;
+    if (((u_char)countdown < 4) && (Hud_BeTheCop == 0)) goto HudCdPlay_activateGate;
+    if (((PAD_state(4) & 0x400) != 0) && (DashHUD_gInfo.splitscreen != 0))
+      goto HudCdPlay_activateGate;
+    if (((PAD_state(0) & 0x400) != 0) &&
+        ((Hud_BeTheCop == 0) || (DashHUD_gInfo.splitscreen != 0)))
+      goto HudCdPlay_activateGate;
     /* oracle shape: nested if/goto (NOT a flattened || chain) -- gPadinfo.buf[0] gate
      * falls through to the buf[4] gate on failure, and a Hud_BeTheCop!=0 && splitscreen==0
      * combo also falls through instead of short-circuiting. §asm_pattern_catalog funnel class. */
-    if (!bVar2) {
-      if ((gPadinfo.buf[0].ID == '#') && (0xbf < gPadinfo.buf[0].data.negcon.leftshift)) {
-        if ((Hud_BeTheCop != 0) && (DashHUD_gInfo.splitscreen == 0)) goto HudCdPlay_checkBuf4;
-        goto HudCdPlay_activateGate;
-      }
-HudCdPlay_checkBuf4:
-      if ((gPadinfo.buf[4].ID == '#') && (0xbf < gPadinfo.buf[4].data.negcon.leftshift) &&
-          (DashHUD_gInfo.splitscreen != 0)) {
-        goto HudCdPlay_activateGate;
-      }
+    if ((gPadinfo.buf[0].ID == '#') && (0xbf < gPadinfo.buf[0].data.negcon.leftshift)) {
+      if ((Hud_BeTheCop != 0) && (DashHUD_gInfo.splitscreen == 0)) goto HudCdPlay_checkBuf4;
+      goto HudCdPlay_activateGate;
     }
-    else {
+HudCdPlay_checkBuf4:
+    if ((gPadinfo.buf[4].ID == '#') && (0xbf < gPadinfo.buf[4].data.negcon.leftshift) &&
+        (DashHUD_gInfo.splitscreen != 0)) {
 HudCdPlay_activateGate:
       Hud_gCdActive = 1;
       Hud_ActivateCDPlayer = 1;
@@ -2142,19 +2136,22 @@ HudCdPlay_activateGate:
   }
   time = currentSong->remaining;
   index = currentSong->index;
+  /* oracle materializes &strtitle into its OWN pseudo ($s0) inside the beqz delay slot and
+   * only THEN copies it into title ($s1) -- i.e. the buffer, not `title`, is the sprintf
+   * destination in the original source. */
   if ((currentSong->info).title == (char *)0x0) {
     title = (char *)0x0;
   }
   else {
+    sprintf(strtitle,"%s",(currentSong->info).title);
     title = strtitle;
-    sprintf(title,"%s",(currentSong->info).title);
   }
   if ((currentSong->info).artist == (char *)0x0) {
     artist = (char *)0x0;
   }
   else {
+    sprintf(strartist,"%s",(currentSong->info).artist);
     artist = strartist;
-    sprintf(artist,"%s",(currentSong->info).artist);
   }
   uppercase(title);
   if ((type == 0) && (artist != (char *)0x0)) {
@@ -2164,7 +2161,17 @@ HudCdPlay_activateGate:
     Hud_kTurnSongOffNext = 1;
     return 1;
   }
-  if (index < 1) {
+  /* oracle: `blez $s4,.L800D66C4` -- the index>0 arm is the FALL-THROUGH and the index<=0
+   * cascade sits OUT-OF-LINE, so the source tests `0 < index` first. */
+  if (0 < index) {
+    sprintf(strindex,"%02d",index);
+    if (title == (char *)0x0) {
+      Hud_gCdScrollTitle = 1;
+      Hud_gCdLastTick = ticks;
+      goto HudCdPlay_nullStringFallback;
+    }
+  }
+  else {
     if (index == 0) {
       sprintf(strindex,"- -");
       tx = 0x44;
@@ -2186,14 +2193,6 @@ HudCdPlay_nullStringFallback:
       keepup = 0;
       Hud_gCdLastTick = ticks;
       goto HudCdPlay_buildOutString;
-    }
-  }
-  else {
-    sprintf(strindex,"%02d",index);
-    if (title == (char *)0x0) {
-      Hud_gCdScrollTitle = 1;
-      Hud_gCdLastTick = ticks;
-      goto HudCdPlay_nullStringFallback;
     }
   }
   if (Hud_gCdScrollTitle < Hud_BuildString(title,0,0,0,0,true) + 0x4c) {
@@ -2250,11 +2249,7 @@ HudCdPlay_buildOutString:
     }
     Hud_GoTpage(0);
     Hud_BlackThinBox(g1Player[0xf].x + 10,g1Player[0xf].y + 10,0x50,0x12);
-    box_w = 0x50;
-    box_h = 0x12;
-    box_y = g1Player[0xf].y + 10;
-    box_transp = 0;
-    box_x = g1Player[0xf].x + 10;
+    Hud_FBuildF4(0,g1Player[0xf].x + 10,g1Player[0xf].y + 10,0x50,0x12,0,'\0','\0');
   }
   else {
     Hud_gShowedCDPlayer = 1;
@@ -2278,14 +2273,8 @@ HudCdPlay_buildOutString:
     Hud_BlackThinBox((int)g1Player[0xf].x,(int)g1Player[0xf].y,0x66,0x1c);
     Hud_FBuildF4(0,(int)g1Player[0xf].x,(int)g1Player[0xf].y,0x66,0xe,0,'\0','\0');
     Hud_FBuildF4(0,(int)g1Player[0xf].x,g1Player[0xf].y + 0x1b,0x66,1,0,'\0','\0');
-    box_w = 0x66;
-    box_y = (int)g1Player[0xf].y;
-    box_transp = 1;
-    box_x = (int)g1Player[0xf].x;
-    box_h = 0x1c;
+    Hud_FBuildF4(1,(int)g1Player[0xf].x,(int)g1Player[0xf].y,0x66,0x1c,0,'\0','\0');
   }
-  Hud_FBuildF4(box_transp,box_x,box_y,box_w,box_h,0,'\0','\0');
-  return box_h;
 }
 
 /* ---- Hud_BuildRadar__Fi  [HUD.CPP:2497-2614] SLD-VERIFIED ---- */

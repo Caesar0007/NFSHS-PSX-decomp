@@ -305,41 +305,56 @@ void Night_DoLightningEffect(DRender_tView *Vi)
 typedef struct { int w[2]; } NightCopTablePair;
 
 /* ---- Night_SetCopColor__FP18GameSetup_tCarData  [NIGHT.CPP:473-484] SLD-VERIFIED ----
- * NEAR-MISS 25 diffs (ours 38 / oracle 37), was 39 (ours 36 / oracle 37).
- * MATCH (w38-a10): (1) cartype/country are read BEFORE the carTable fill
- * (oracle `lw v0,0(a0); lw a1,160(a0); lbu a0,0(v0)` precede the gp loads);
- * (2) the lower half of carTable[] is a two-word BLOCK COPY of the upper half,
- * not two more loads of the globals -- the oracle's `lw a2,8(sp); lw a3,12(sp);
- * sw a2,0(sp); sw a3,4(sp)` is gcc's movstrsi, reproduced with a same-sized
- * local struct assignment (a plain `carTable[0]=carTable[2]` gets copy-forwarded).
- * RESIDUAL: (a) the final two stores -- the oracle writes Night_gCopColor[0] and
- * [1] through SEPARATE per-element gp-rel symbols (%gp_rel(Night_gCopColor) and
- * %gp_rel(D_8013DA50)); ours materializes the 8-byte array base with lui/addiu
- * (+2 insns). The known fix is the per-element scalar split (catalog sec.E
- * dual-model / wave-13 per-field split), but Night_gCopColor is ALSO read with a
- * RUNTIME index by draww.cpp (DrawW cop-lighting lookup, another agent's TU), so
- * the split needs a coordinated dual-model change across both TUs -- NOT done
- * here (out of scope), flagged for a follow-up.  (b) cartype/country land on
- * $a1/$a0 instead of $a0/$a1; tried decl-order swap (no change), statement-order
- * swap (41, worse) and an explicit pointer-form index (39, worse). */
+ * NEAR-MISS 5 diffs (ours 38 / oracle 37).  Was 25, then 21 after the per-element
+ * %gp_rel split of Night_gCopColor (w39-a9), then 5 after the SYM rewrite below.
+ * SYM block @43c244 is the ground truth (fsize 16, mask $00000000 = NO saved regs,
+ * ONE block, six locals):
+ *    carinfo  REGPARM $4  = a0
+ *    cartype  REG     $2         country REG $5 = a1        carTable REG $4
+ *    copColors AUTO `ARY PTR ARY ARY UCHAR size 8 dims 3 2 256 8` @ -0x10 => sp+0
+ *    col1     REG     $2         col2    REG $2
+ * => the retail local is `u_char (*copColors[2])[256][8]` -- TWO entries at sp+0..7, NOT
+ *    the four-entry sp+0..0xF table the old recon modelled.  The oracle's second pair at
+ *    sp+8/sp+0xC is gcc's TEMPORARY for a LOCAL AGGREGATE INITIALIZER whose elements are
+ *    NOT compile-time constants: `u_char (*copColors[2])[256][8] = { Red, Blue };` builds
+ *    the value at sp+8/0xC and then movstrsi-copies it down to sp+0/4.  That is exactly
+ *    the oracle's `sw v0,8(sp); sw v1,0xC(sp); lw a2,8(sp); lw a3,0xC(sp); sw a2,0(sp);
+ *    sw a3,4(sp)` -- reproduced here for the right reason (the old recon got the same
+ *    bytes out of a hand-written 4-slot array + a struct-assignment, which is why the
+ *    SYM's `copColors` name/shape never fit).
+ *    NEW CATALOG ROW: a local array with a NON-CONSTANT aggregate initializer = build-in-
+ *    temp + block copy; the same values written as element assignments do NOT produce it.
+ * `country` MUST be read BEFORE `cartype` (13 -> 5 diffs): it is what puts cartype in $a0
+ * and country in $a1 like retail; the reverse order swaps them and cascades.
+ * RESIDUAL 5: ours `lw v0,0(v0); nop; sw v0,%gp_rel(Night_gCopColor)` for the FIRST
+ * element; retail loads it into $a0 and DEFERS the store past col2's index arithmetic,
+ * which fills the load-delay slot (37 vs our 38 insns).  Tried and re-gated: moving the
+ * store after `col2 = ...` (35 insns, 32 diffs -- gcc cross-merges the two stores),
+ * hoisting both col1/col2 reads first (same 32), dropping the carTable temp (5, tie),
+ * carTable typed `int` per the SYM (5, tie), carTable block-scoped (5, tie), a
+ * `char *pair` local for the two country-table bytes (20, worse), flat single-scope
+ * decls (5, tie).  Also survives -G8 and all four wired per-TU codegen flags. */
 void Night_SetCopColor(GameSetup_tCarData *carinfo)
 
 {
   int cartype;
   int country;
-  int col1;
-  int col2;
-  u_char (*carTable[4])[256][8];
+  u_char (*carTable)[256][8];
 
-  cartype = Night_gCopCarTypeColorIdx[carinfo->carType];
   country = carinfo->Country;
-  carTable[2] = Night_gCopLightingTableRed;
-  carTable[3] = Night_gCopLightingTableBlue;
-  *(NightCopTablePair *)&carTable[0] = *(NightCopTablePair *)&carTable[2];
-  col1 = (u_char)Night_gCopCountryLightTbl[cartype][country][0];
-  Night_gCopColor = carTable[col1];
-  col2 = (u_char)Night_gCopCountryLightTbl[cartype][country][1];
-  D_8013DA50 = carTable[col2];
+  cartype = Night_gCopCarTypeColorIdx[carinfo->carType];
+  {
+    u_char (*copColors[2])[256][8] = { Night_gCopLightingTableRed,
+                                       Night_gCopLightingTableBlue };
+    int col1;
+    int col2;
+
+    col1 = (u_char)Night_gCopCountryLightTbl[cartype][country][0];
+    carTable = copColors[col1];
+    Night_gCopColor = carTable;
+    col2 = (u_char)Night_gCopCountryLightTbl[cartype][country][1];
+    D_8013DA50 = copColors[col2];
+  }
   return;
 }
 

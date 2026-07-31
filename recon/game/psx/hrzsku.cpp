@@ -801,24 +801,73 @@ void HrzSetPsxMatrix(matrixtdef *m)
   MATRIX mpsx;
   matrixtdef temp;
 
-  temp.m[0] = m->m[0];
-  temp.m[1] = -m->m[1];
-  temp.m[2] = m->m[2];
-  temp.m[3] = m->m[3];
-  temp.m[4] = -m->m[4];
-  temp.m[5] = m->m[5];
-  temp.m[6] = m->m[6];
-  temp.m[7] = -m->m[7];
-  temp.m[8] = m->m[8];
-  mpsx.m[0][0] = (short)(temp.m[0] >> 4);
-  mpsx.m[1][0] = (short)(temp.m[1] >> 4);
-  mpsx.m[2][0] = (short)(temp.m[2] >> 4);
-  mpsx.m[0][1] = (short)(temp.m[3] >> 4);
-  mpsx.m[1][1] = (short)(temp.m[4] >> 4);
-  mpsx.m[2][1] = (short)(temp.m[5] >> 4);
-  mpsx.m[0][2] = (short)(temp.m[6] >> 4);
-  mpsx.m[1][2] = (short)(temp.m[7] >> 4);
-  mpsx.m[2][2] = (short)(temp.m[8] >> 4);
+  /* MATCH: the SYM (@40e91f) has FOUR sibling blocks -- ONE {t1,t2,t3} block
+   * (regs $t1/$t0/$t2, i.e. the SAME three names reloaded per source row, which
+   * is why the oracle reuses exactly those three load registers for all three
+   * rows) and THREE {r0,r1,r2} blocks whose register triples map 1:1 onto the
+   * mpsx ROWS: {$v1,$a0,$v0}=m[0][0..2], {$a1,$v0,$v1}=m[1][0..2],
+   * {$a2,$a3,$v0}=m[2][0..2].  So the shift/store half is grouped BY mpsx ROW
+   * (temp.m[k], temp.m[k+3], temp.m[k+6]), not by temp index. */
+  {
+    int t1;
+    int t2;
+    int t3;
+
+    t1 = m->m[0];
+    t2 = m->m[1];
+    t3 = m->m[2];
+    temp.m[0] = t1;
+    temp.m[1] = -t2;
+    temp.m[2] = t3;
+    t1 = m->m[3];
+    t2 = m->m[4];
+    t3 = m->m[5];
+    temp.m[3] = t1;
+    temp.m[4] = -t2;
+    temp.m[5] = t3;
+    t1 = m->m[6];
+    t2 = m->m[7];
+    t3 = m->m[8];
+    temp.m[6] = t1;
+    temp.m[7] = -t2;
+    temp.m[8] = t3;
+  }
+  {
+    int r0;
+    int r1;
+    int r2;
+
+    r0 = temp.m[0] >> 4;
+    r1 = temp.m[3] >> 4;
+    r2 = temp.m[6] >> 4;
+    mpsx.m[0][0] = (short)r0;
+    mpsx.m[0][1] = (short)r1;
+    mpsx.m[0][2] = (short)r2;
+  }
+  {
+    int r0;
+    int r1;
+    int r2;
+
+    r0 = temp.m[1] >> 4;
+    r1 = temp.m[4] >> 4;
+    r2 = temp.m[7] >> 4;
+    mpsx.m[1][0] = (short)r0;
+    mpsx.m[1][1] = (short)r1;
+    mpsx.m[1][2] = (short)r2;
+  }
+  {
+    int r0;
+    int r1;
+    int r2;
+
+    r0 = temp.m[2] >> 4;
+    r1 = temp.m[5] >> 4;
+    r2 = temp.m[8] >> 4;
+    mpsx.m[2][0] = (short)r0;
+    mpsx.m[2][1] = (short)r1;
+    mpsx.m[2][2] = (short)r2;
+  }
   gte_SetRotMatrix(&mpsx);
 }
 

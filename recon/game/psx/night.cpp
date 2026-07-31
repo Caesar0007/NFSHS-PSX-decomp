@@ -348,19 +348,15 @@ void Night_InitPlayerHeadLightColor(int player)
 }
 
 /* ---- Night_SetPlayerHeadLightColor__Fiii  [NIGHT.CPP:501-503] SLD-VERIFIED ---- */
-/* NEAR-MISS 10 diffs (15/15): oracle computes the element address as
- * `sll v0,a0,2; lui v1,%hi(Night_gPlayerHeadLightColor); addiu v1,...; addu v0,v0,v1;
- * lw a1,0(v0)` (shift result keeps v0, base-address scratch is v1). Ours swaps the two:
- * shift->v1, base-address->v0, so the final `lw a1,...` reads off v1 instead. Same
- * register-materialization tie-break as Night_SetWeatherColors (catalog §E "v0-vs-a2"):
- * tried named local for the array element (direct + split), address-of-element pointer
- * (folds back — no intervening call to force materialization, unlike
- * Night_GenerateNextLightningEvent's `ticksp` fix), pointer-arithmetic form matching the
- * sibling Night_InitPlayerHeadLightColor's `Night_gPlayerHeadLightColor + player` idiom —
- * all no-change. Permuter (supervised, base score 65, 100+ iters) plateaued at 65, never
- * improved; needs a multi-basin re-seed this session didn't attempt (long unsupervised
- * grind risked contending with concurrent sibling sessions on this machine). GENUINE
- * FLOOR. ACCEPT. */
+/* SEALED 15/15 PASS (w39-a9).  The prior "GENUINE FLOOR. ACCEPT." verdict here (a 10-diff
+ * v0/v1 register-materialization tie-break on &Night_gPlayerHeadLightColor[player]) was
+ * WRONG -- it was a per-OBJ TOOLCHAIN-IDENTITY artifact, not an allocator tie-break:
+ * night.obj was built -G8, not -G4.  Proof: the retail oracle reaches the night-OWNED,
+ * 8-BYTE Night_gPlayerHeadLightColor (long[2] @0x8013da80) with a one-instruction
+ * %gp_rel in Night_GenerateAllLightTables -- impossible under -G4.  Under -G8 cc1plus
+ * emits the `la $r,sym` assembler MACRO instead of pre-splitting it into a schedulable
+ * `lui %hi / addiu %lo` pair, and the macro expansion is retail's.  See the
+ * "recon/game/psx/night.cpp" entry in tools/build.py PER_TU_FLAGS.  No source change. */
 void Night_SetPlayerHeadLightColor(int player,int colorIndex,int bright)
 
 {
@@ -394,16 +390,17 @@ void Night_SetCopLightColors(int colorIndex,int brighten)
 }
 
 /* ---- Night_InitWeatherTables__Fv  [NIGHT.CPP:532-540] SLD-VERIFIED ---- */
-/* NEAR-MISS 20 diffs (35/33): (1) oracle materializes Night_gWeatherLightingTable's base
- * DIRECTLY into s0 (`lui s0;addiu s0,s0,lo`); ours self-temps via v0 first (`lui v0;addiu
- * s0,v0,lo`) -- same v0-vs-dest register-materialization tie-break already documented on
- * the sibling Night_SetWeatherColors below (tried &arr[0], order swaps -- no change).
- * (2) Night_gWeatherColor[0]/[1] stores: oracle uses SEPARATE per-element %gp_rel(sym)/
- * %gp_rel(D_sym+4) symbols (a real 8-byte array > -G4 gp-elig threshold gets gp-rel'd
- * per-element by the ORIGINAL aspsx toolchain); ours materializes the array base via lui
- * and stores at fixed offsets. Catalog "gp-rel-INTO-an-array-ELEMENT" toolchain floor
- * (reference_asm_pattern_catalog.md row E / Hud_Reset) -- confirmed NOT source-reachable.
- * Both are genuine floors, not source-shapable; accepted near-miss. */
+/* NEAR-MISS 6 diffs, insn count now EXACT 33/33 (was 20 diffs at 35/33).  Residual 2 is
+ * GONE: the old note's "Night_gWeatherColor[0]/[1] per-element gp-rel = confirmed
+ * toolchain floor, NOT source-reachable" verdict was WRONG -- splitting the 8-byte array
+ * into its two retail per-element symbols (Night_gWeatherColor / D_8013DA8C, + the
+ * unsized asm-label array view for Night_SetWeatherColors' base walk) reproduces both
+ * %gp_rel stores.  REMAINING 6: the oracle materializes Night_gWeatherLightingTable's
+ * base DIRECTLY into s0 (`lui s0; addiu s0,s0,lo`), ours self-temps via v0 (`lui v0;
+ * addiu s0,v0,lo`) -- the sec.3.15 v0-vs-dest register-materialization tie-break, shared
+ * with the sibling Night_SetWeatherColors below.  Survives -G8 and all four wired per-TU
+ * codegen flags (w39-a9 probe: no_split_addresses +4, no_schedule_insns +6,
+ * no_schedule_insns2 +14, no_strength_reduce 0). */
 void Night_InitWeatherTables(void)
 
 {
@@ -571,17 +568,14 @@ void Night_InitNightDriving(void)
 }
 
 /* ---- Night_KillNightDriving__Fv  [NIGHT.CPP:687-719] SLD-VERIFIED ---- */
-/* NEAR-MISS 26 diffs (44/40): first 4 purge-blocks (nightfile, Night_gPlayerLightingTable,
- * Night_gCopLightingTableRed, Night_gCopLightingTableBlue -- all true SCALAR globals)
- * byte-match via %gp_rel. The last 2 blocks (Night_gWeatherLightingTable[0]/[1], elements of
- * a real 2-elem array also indexed with a RUNTIME variable in draww.cpp -- off-limits, can't
- * split into two scalars) diverge: oracle addresses them via SEPARATE per-element
- * %gp_rel(Night_gWeatherLightingTable)/%gp_rel(D_8013D9F4) symbols (the original aspsx
- * toolchain gp-rel's each element of a small array individually); ours must materialize an
- * absolute base (lui s0 / addiu s1,s0,0) since our array's total size (8B) exceeds GCC's
- * -G4 per-OBJECT threshold. Confirmed toolchain floor, catalog "gp-rel-INTO-an-array-ELEMENT"
- * row (reference_asm_pattern_catalog.md §E / Hud_Reset) -- not source-reachable without
- * splitting the array (would break draww.cpp's variable index). Accepted near-miss. */
+/* SEALED 40/40 PASS (w39-a9).  The prior note certified the last two purge-blocks as a
+ * "confirmed toolchain floor" (gp-rel-INTO-an-array-ELEMENT, catalog sec.E / Hud_Reset)
+ * because Night_gWeatherLightingTable is ALSO indexed with a runtime variable in
+ * draww.cpp.  That was WRONG on the "can't split" premise: the split is per-TU, and
+ * draww.cpp keeps its own array-shaped extern (which is the form ITS oracle wants).
+ * Splitting the definition here into the two retail per-element symbols
+ * Night_gWeatherLightingTable / D_8013D9F4 (+ an unsized asm-label array VIEW for this
+ * TU's own base-walk sites) reproduces both %gp_rel stores exactly. */
 void Night_KillNightDriving(void)
 
 {

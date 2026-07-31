@@ -39,7 +39,7 @@ void Device_Update(void);
 void Device_StartUp(void);
 void Device_SetHardCodedKeys(void);
 int Device_PSXPad(u_long param);
-void * Device_ReadPad(int port,u_long param);
+bool Device_ReadPad(int port,u_long param);
 int Device_PSXPadMulti(u_long param);
 int Device_Analog(u_long param);
 int Device_Null(u_long param);
@@ -206,75 +206,78 @@ int Device_PSXPad(u_long param)
   return 0;
 }
 
-/* ---- Device_ReadPad__FiUl  [DEVICE.CPP:261-302] SLD-VERIFIED ---- */
-void * Device_ReadPad(int port,u_long param)
+/* ---- Device_ReadPad__FiUl  [DEVICE.CPP:261-302] SLD-VERIFIED ----
+ * PASS (140/140, was 138 diffs).  REWRITTEN from the SYM + raw oracle (w38-a6).
+ * SYM @0x800bd6ac: REGPARMs port($10=s0), param($11=s1) and ONE named local -- `analogs`,
+ * class REG $4 = $a0, type PTR CHAR.  In the oracle `analogs` is materialized at
+ * .L800BD758 as `addiu $a0,$a1,2` off the shared base $a1 = &gPadinfo.buf[port].data
+ * (splat's D_8013E8A2 = gPadinfo+6), i.e. &data.negcon.twist; every negcon test after that
+ * point indexes it analogs[0..3] (twist/buttonI/buttonII/leftshift) and the ID byte is
+ * read off the SAME base as `lbu $v1,-1($v0)`.  The `if (ID == X && ...)` tests are SIX
+ * FLAT STATEMENTS, each re-loading gPadinfo.buf[port].ID; gcc's jump threading is what
+ * makes a failed ID test branch straight past all later same-ID statements
+ * (.L800BD758 / .L800BD8B4), which is why the previous nested-if + goto reconstruction
+ * came out 12 insns SHORT (128 vs 140).  Return type is BOOL per the SYM
+ * (`Def class EXT type FCN BOOL`); the mangled name __FiUl is unaffected. */
+bool Device_ReadPad(int port,u_long param)
 
 {
-  int iVar1;
-  void *pvVar2;
-  u_int uVar3;
   char *analogs;
-  
-  iVar1 = Device_VerifyType(port);
-  if (iVar1 == 0) {
-    return (void *)0x0;
+
+  if (Device_VerifyType(port) == 0) {
+    return 0;
   }
-  if (gPadinfo.buf[port].ID == '#') {
-    if (((param & 0xffff) != 0x4000) || (gPadinfo.buf[port].data.negcon.buttonI < 0x40)) {
-      if ((gPadinfo.buf[port].ID == '#') &&
-         (((param & 0xffff) == 0x8000 && (0x3f < gPadinfo.buf[port].data.negcon.buttonII)))) {
-        return (void *)0x1;
-      }
-      goto DevReadPad_negconPath;
+  if (((gPadinfo.buf[port].ID == '#') && ((param & 0xffff) == 0x4000)) &&
+     (0x3f < gPadinfo.buf[port].data.negcon.buttonI)) {
+    return 1;
+  }
+  if (((gPadinfo.buf[port].ID == '#') && ((param & 0xffff) == 0x8000)) &&
+     (0x3f < gPadinfo.buf[port].data.negcon.buttonII)) {
+    return 1;
+  }
+  analogs = (char *)&gPadinfo.buf[port].data.negcon.twist;
+  if ((gPadinfo.buf[port].ID == 's') && ((param & 0xffff) == 0x80)) {
+    if (analogs[0] < 0x41) {
+      return 1;
     }
-DevReadPad_defaultRet:
-    pvVar2 = (void *)0x1;
-  }
-  else {
-DevReadPad_negconPath:
-    if (gPadinfo.buf[port].ID == 's') {
-      if ((param & 0xffff) == 0x80) {
-        if (gPadinfo.buf[port].data.negcon.twist < 0x41) goto DevReadPad_defaultRet;
-        if (gPadinfo.buf[port].data.negcon.buttonII < 0x41) {
-          return (void *)0x1;
-        }
-      }
-      if (gPadinfo.buf[port].ID == 's') {
-        if ((param & 0xffff) == 0x20) {
-          if (0xbf < gPadinfo.buf[port].data.negcon.twist) {
-            return (void *)0x1;
-          }
-          if (0xbf < gPadinfo.buf[port].data.negcon.buttonII) {
-            return (void *)0x1;
-          }
-        }
-        if (gPadinfo.buf[port].ID == 's') {
-          if ((param & 0xffff) == 0x10) {
-            if (gPadinfo.buf[port].data.negcon.leftshift < 0x41) {
-              return (void *)0x1;
-            }
-            if (gPadinfo.buf[port].data.negcon.buttonI < 0x41) {
-              return (void *)0x1;
-            }
-          }
-          if ((gPadinfo.buf[port].ID == 's') && ((param & 0xffff) == 0x40)) {
-            if (0xbf < gPadinfo.buf[port].data.negcon.leftshift) {
-              return (void *)0x1;
-            }
-            if (0xbf < gPadinfo.buf[port].data.negcon.buttonI) {
-              return (void *)0x1;
-            }
-          }
-        }
-      }
+    if (analogs[2] < 0x41) {
+      return 1;
     }
-    uVar3 = PAD_state(port);
-    pvVar2 = (void *)(u_int)((uVar3 & 0xffff & param) != 0);
   }
-  return pvVar2;
+  if ((gPadinfo.buf[port].ID == 's') && ((param & 0xffff) == 0x20)) {
+    if (0xbf < analogs[0]) {
+      return 1;
+    }
+    if (0xbf < analogs[2]) {
+      return 1;
+    }
+  }
+  if ((gPadinfo.buf[port].ID == 's') && ((param & 0xffff) == 0x10)) {
+    if (analogs[3] < 0x41) {
+      return 1;
+    }
+    if (analogs[1] < 0x41) {
+      return 1;
+    }
+  }
+  if ((gPadinfo.buf[port].ID == 's') && ((param & 0xffff) == 0x40)) {
+    if (0xbf < analogs[3]) {
+      return 1;
+    }
+    if (0xbf < analogs[1]) {
+      return 1;
+    }
+  }
+  return (PAD_state(port) & 0xffff & param) != 0;
 }
 
 /* ---- Device_PSXPadMulti__FUl  [DEVICE.CPP:306-342] SLD-VERIFIED ----
+ * PASS (55/55, was 17 diffs).  SYM @0x800bd8dc lists REGPARM param ($10=s0) and NO named
+ * locals at all -- so the recon's cached-result + result-funnel variables were fabricated:
+ * they pinned the return value into $a0 and added a trailing `addu $v0,$a0,$zero`.  Writing
+ * every arm as a DIRECT `return 0xff;` / `return 0;` on the call expression makes gcc stage
+ * the constants straight into $v0 and copy the call result into $v1, exactly like retail.
+ * ---- historical note (superseded) ----
  * NEAR-MISS (was 46 diffs -> now 17, ours 56/oracle 55): outer if/else branch polarity
  * inverted to match the oracle's beqz-pauseSim==0 fall-through (same class as Device_
  * Update); the inner "port 0 found" if/else polarity flipped to match too; dropped a
@@ -294,45 +297,30 @@ DevReadPad_negconPath:
 int Device_PSXPadMulti(u_long param)
 
 {
-  void *pvVar1;
-  int iVar2;
-
   if (simVar.pauseSim != 0) {
-    pvVar1 = Device_ReadPad(Device_gPausePort,param);
-    iVar2 = 0xff;
-    if (pvVar1 == (void *)0x0) {
-      iVar2 = 0;
+    if (Device_ReadPad(Device_gPausePort,param) != 0) {
+      return 0xff;
     }
+    return 0;
   }
-  else {
-    pvVar1 = Device_ReadPad(0,param);
-    if (pvVar1 != (void *)0x0) {
-      iVar2 = 0xff;
-      if ((param & 0xffff) == 8) {
-        Device_gPausePort = 0;
-        Device_gPausePortIndex = '\0';
-      }
+  if (Device_ReadPad(0,param) != 0) {
+    if ((param & 0xffff) == 8) {
+      Device_gPausePort = 0;
+      Device_gPausePortIndex = '\0';
     }
-    else {
-      if ((1 < Replay_ReplayMode) || (GameSetup_gData.commMode == 1)) {
-        pvVar1 = Device_ReadPad(4,param);
-        if (pvVar1 == (void *)0x0) {
-          iVar2 = 0;
-        }
-        else {
-          if ((param & 0xffff) == 8) {
-            Device_gPausePortIndex = '\x01';
-            Device_gPausePort = 4;
-          }
-          iVar2 = 0xff;
-        }
-      }
-      else {
-        iVar2 = 0;
-      }
-    }
+    return 0xff;
   }
-  return iVar2;
+  if ((1 < Replay_ReplayMode) || (GameSetup_gData.commMode == 1)) {
+    if (Device_ReadPad(4,param) == 0) {
+      return 0;
+    }
+    if ((param & 0xffff) == 8) {
+      Device_gPausePortIndex = '\x01';
+      Device_gPausePort = 4;
+    }
+    return 0xff;
+  }
+  return 0;
 }
 
 /* ---- Device_Analog__FUl  [DEVICE.CPP:352-384] SLD-VERIFIED ----

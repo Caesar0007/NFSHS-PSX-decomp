@@ -91,107 +91,102 @@ void CarIO_ReStart(void)
 }
 
 /* ---- CarIO_CopyFromShape__FPsT0iiii  [CARIO.CPP:258-342] SLD-VERIFIED ---- */
+/* SYM @0x800bbff0: fsize 0, mask $00000000 -- a LEAF with NO frame and NO
+ * saved registers.  REGPARMs source=$04 dest=$05 w=$06 h=$07, x/y ARG 16/20(sp)
+ * copied to REG $18($t8)/$09($t1).  Locals (all REG, no AUTO):
+ *   fn block  -> columns $08, mask $06, firstMask $0f, lastMask $0c,
+ *                lastLastMask $0d   (the three masks are USHORT)
+ *   line-15   -> rollOver $03 USHORT      (mask-build loop)
+ *   line-34   -> i $0b, current $08 USHORT, next $0a USHORT  (row-loop body)
+ *   line-42/61-> rollOver $03 USHORT      (the two nibble-rotate loops)
+ * There is NO destination-pointer local: `dest` itself is MUTATED in place
+ * (`addu a1,a1,v1` then `addiu a1,a1,0x18` per row) and the columns are
+ * reached as dest[0]/dest[i]; the retail $t1 walker is the strength-reduced
+ * giv of dest[i].  `mask` is a SIGNED int -- the `== -1` guard must emit
+ * li+beq, not the unsigned nor+bnez canonicalization. */
 void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
 
 {
   int columns;
-  u_short rollOver;
-  u_int uVar1;
-  u_int uVar2;
-  u_short *puVar3;
-  u_short *puVar4;
-  u_int uVar5;
   int mask;
-  u_short current;
-  u_short uVar6;
-  u_short *puVar8;
-  u_short next;
-  int i;
-  int iVar9;
-  u_short lastMask;
-  u_short uVar10;
-  u_int uVar11;
-  u_short lastLastMask;
-  u_int uVar12;
   u_short firstMask;
-  u_int uVar13;
-  int iVar7;
-  
-  iVar7 = w >> 2;
-  uVar5 = w & 3;
-  if (uVar5 != 0) {
-    iVar7 = iVar7 + 1;
+  u_short lastMask;
+  u_short lastLastMask;
+
+  columns = w >> 2;
+  mask = w & 3;
+  if (mask != 0) {
+    columns = columns + 1;
   }
-  puVar4 = (u_short *)(dest + (x >> 2) + y * 0xc);
-  uVar12 = 0xffff;
-  uVar11 = 0xffff;
-  if (uVar5 == 0) {
-    uVar11 = 0;
+  dest = dest + (x >> 2) + y * 0xc;
+  lastLastMask = 0xffff;
+  lastMask = 0xffff;
+  if (mask == 0) {
+    lastMask = 0;
   }
-  while (uVar5 = uVar5 - 1, uVar5 != 0xffffffff) {
-    uVar11 = uVar11 << 4;
+  while (mask = mask - 1, mask != -1) {
+    lastMask = lastMask << 4;
   }
-  uVar13 = 0;
-  uVar5 = x & 3;
-  while( true ) {
-    uVar5 = uVar5 - 1;
-    if (uVar5 == 0xffffffff) break;
-    uVar13 = uVar13 << 4 | 0xf;
-    uVar1 = uVar11 & 0xf000;
-    uVar11 = uVar11 << 4;
-    uVar12 = uVar12 << 4 | uVar1 >> 0xc;
+  firstMask = 0;
+  mask = x & 3;
+  while (mask = mask - 1, mask != -1) {
+    u_short rollOver;
+
+    firstMask = (firstMask << 4) | 0xf;
+    rollOver = lastMask & 0xf000;
+    lastMask = lastMask << 4;
+    lastLastMask = (lastLastMask << 4) | (rollOver >> 0xc);
   }
-  uVar10 = (u_short)uVar11;
-  if ((uVar12 & 0xffff) != 0xffff) {
-    iVar7 = iVar7 + 1;
-    uVar10 = (u_short)uVar12;
+  if (lastLastMask != 0xffff) {
+    columns = columns + 1;
+    lastMask = lastLastMask;
   }
-  while( true ) {
-    h = h + -1;
-    uVar5 = 0;
+  while (1) {
+    int i;
+    u_short current;
+    u_short next;
+
+    h = h - 1;
+    next = 0;
     if (h == -1) break;
-    uVar1 = (u_int)(u_short)*source;
-    uVar11 = x & 3;
-    while( true ) {
-      uVar11 = uVar11 - 1;
-      uVar2 = uVar1 & 0xf000;
-      if (uVar11 == 0xffffffff) break;
-      uVar1 = uVar1 << 4;
-      uVar5 = uVar5 << 4 | uVar2 >> 0xc;
+    current = *source;
+    source = source + 1;
+    mask = x & 3;
+    while (mask = mask - 1, mask != -1) {
+      u_short rollOver;
+
+      rollOver = current & 0xf000;
+      current = current << 4;
+      next = (next << 4) | (rollOver >> 0xc);
     }
-    iVar9 = 1;
-    *puVar4 = *puVar4 & (u_short)uVar13 | (u_short)uVar1;
-    puVar3 = (u_short *)source;
-    puVar8 = puVar4;
-    while( true ) {
-      puVar8 = puVar8 + 1;
-      source = (short *)(puVar3 + 1);
-      uVar11 = x & 3;
-      if (iVar7 + -1 <= iVar9) break;
-      *puVar8 = (u_short)uVar5;
-      uVar1 = (u_int)(u_short)*source;
-      uVar5 = 0;
-      while( true ) {
-        uVar11 = uVar11 - 1;
-        uVar2 = uVar1 & 0xf000;
-        if (uVar11 == 0xffffffff) break;
-        uVar1 = uVar1 << 4;
-        uVar5 = uVar5 << 4 | uVar2 >> 0xc;
+    i = 1;
+    dest[0] = (short)((dest[0] & firstMask) | current);
+    while (i < columns - 1) {
+      dest[i] = (short)next;
+      current = *source;
+      source = source + 1;
+      next = 0;
+      while (mask = mask - 1, mask != -1) {
+        u_short rollOver;
+
+        rollOver = current & 0xf000;
+        current = current << 4;
+        next = (next << 4) | (rollOver >> 0xc);
       }
-      iVar9 = iVar9 + 1;
-      *puVar8 = *puVar8 | (u_short)uVar1;
-      puVar3 = (u_short *)source;
+      dest[i] = (short)(dest[i] | current);
+      i = i + 1;
+      mask = x & 3;
     }
-    puVar4[iVar9] = puVar4[iVar9] & uVar10 | (u_short)uVar5;
-    if ((uVar12 & 0xffff) == 0xffff) {
-      uVar6 = *source;
-      source = (short *)(puVar3 + 2);
-      while (uVar11 = uVar11 - 1, uVar11 != 0xffffffff) {
-        uVar6 = uVar6 << 4;
+    dest[i] = (short)((dest[i] & lastMask) | next);
+    if (lastLastMask == 0xffff) {
+      current = *source;
+      source = source + 1;
+      while (mask = mask - 1, mask != -1) {
+        current = current << 4;
       }
-      puVar4[iVar9] = puVar4[iVar9] | uVar6;
+      dest[i] = (short)(dest[i] | current);
     }
-    puVar4 = puVar4 + 0xc;
+    dest = dest + 0xc;
   }
   return;
 }

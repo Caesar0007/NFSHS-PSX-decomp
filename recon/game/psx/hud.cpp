@@ -2052,7 +2052,20 @@ void Hud_InitCdPlayer(void)
   return;
 }
 
-/* ---- Hud_BuildCdPlayer__Fii  [HUD.CPP:2225-2487] SLD-VERIFIED ---- */
+/* ---- Hud_BuildCdPlayer__Fii  [HUD.CPP:2225-2487] SLD-VERIFIED ----
+ * w39-a1: 433 -> 77 diffs, insn count 474/475.  SYM-driven purge of 8 invented locals +
+ * five branch/loop-shape levers (see the git log for the per-lever receipts).
+ * RESIDUAL 77, three clusters, all measured:
+ *  (1) ~20 in the scroll-loop `w` block: retail RELOADS `*p` for the sltiu digit test
+ *      (`bne` delay slot steals `addiu $v0,$v0,-0x30` from the else block) while our cc1
+ *      keeps the byte live in a second reg, flipping the char/base register pair
+ *      (v1/t0 ours vs v0/a3 retail).  Our form is strictly tighter; no source spelling
+ *      found that makes gcc drop the live byte.
+ *  (2) ~10 in the scroll-tick loop: pure v1<->a0 / v0<->v1 renaming, structure identical.
+ *  (3) the two Hud_BuildString x-args.  NEGATIVE (receipts): re-grouping as
+ *      `x + (dx + K)` -- which IS the oracle's tree (`addiu $v0,$s3,10`; `addu $v0,$s7,$v0`;
+ *      `addiu $a1,$a1,-0x4c`) -- REGRESSES: both sites 77->141, first site only 77->122
+ *      (it re-colors x/y), second site only 77->83.  Left flat. */
 int Hud_BuildCdPlayer(int type,int arg1)
 
 {

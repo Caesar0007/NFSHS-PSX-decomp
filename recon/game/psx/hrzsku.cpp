@@ -163,19 +163,19 @@ void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *per
  * both explicit `if/trap` pairs and folded the range subtraction directly into the modulo
  * expression -- this ALSO fixed a signed-vs-unsigned bug (starBright was `int`, giving a
  * SIGNED `div` with an extra INT_MIN/-1 overflow guard the oracle doesn't have; corrected
- * to `u_int` -- oracle's second range check is `divu`, not `div`). Residual: oracle uses
- * ONE more callee-saved reg (`$s0-$s5`, 6 regs) than ours (`$s0-$s4`, 5 regs) -- `height`
- * and `radius` are both simultaneously live across the same call span in both builds (SYM
- * confirms height=$s2/radius=$s1 alongside heightAngle=$s0/latAngle=$s3/i=$s4/oldSeed=$s5)
- * but our allocator finds a way to route one fewer live range through a save/restore;
- * every remaining diff line is otherwise position-identical, just uniformly shifted by
- * this one missing slot -- genuine allocator floor, not chased further. */
+ * to `u_int` -- oracle's second range check is `divu`, not `div`).
+ * (4) w39-a8: PASS (was 50 diffs / 5 saved regs vs the oracle's 6).  The "one missing
+ * callee-saved reg" was NOT an allocator floor -- it was THREE fabricated locals the SYM
+ * (@40dd10: oldSeed $s5, i $s4, radius $s1, height $s2, latAngle $s3, heightAngle $s0,
+ * starBright $a0) does not have: `int vx`, `SVECTOR *pSVar6` and `u_int uVar2`.  Writing
+ * the two fixedmult results straight into `starPosInSky[i].vx/.vz` (and NOT recycling
+ * `height` for the vz value) gives the oracle's `sh $v0,0(v1)` / `sh $v0,4(s0)` direct
+ * stores, its re-load of starPosInSky after the intervening call, and the 6-register
+ * frame exactly.  Floor claim RETRACTED. */
 void Sky_InitStars(void)
 
 {
   int seed;
-  u_int uVar2;
-  SVECTOR *pSVar6;
   int i;
   long oldSeed;
 
@@ -189,26 +189,19 @@ void Sky_InitStars(void)
       int heightAngle;
       int height;
       int radius;
-      int vx;
       u_int starBright;
 
       latAngle = random();
       latAngle = latAngle & 0xffff;
-      uVar2 = random();
       heightAngle = Sky_gTrackSpec->starAngleLow +
-                    uVar2 % (Sky_gTrackSpec->starAngleHigh - Sky_gTrackSpec->starAngleLow);
+                    (u_int)random() % (Sky_gTrackSpec->starAngleHigh - Sky_gTrackSpec->starAngleLow);
       height = fixedsin(heightAngle);
       height = fixedmult(height,1000);
       radius = fixedcos(heightAngle);
       radius = fixedmult(radius,1000);
-      vx = fixedsin(latAngle);
-      vx = fixedmult(vx,radius);
-      pSVar6 = starPosInSky + i;
-      pSVar6->vx = (short)vx;
-      pSVar6->vy = (short)height;
-      height = fixedcos(latAngle);
-      height = fixedmult(height,radius);
-      starPosInSky[i].vz = (short)height;
+      starPosInSky[i].vx = (short)fixedmult(fixedsin(latAngle),radius);
+      starPosInSky[i].vy = (short)height;
+      starPosInSky[i].vz = (short)fixedmult(fixedcos(latAngle),radius);
       starBright = random();
       starBright = Sky_gTrackSpec->starBrightMin +
                    starBright % (Sky_gTrackSpec->starBrightMax - Sky_gTrackSpec->starBrightMin);

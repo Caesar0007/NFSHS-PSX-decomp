@@ -3574,16 +3574,19 @@ gte_stsxy3((char *)prim + 0x10,(char *)prim + 0x20,(char *)prim + 0x18);
     if ((-1 < iVar1) && (iVar1 <= Draw_gViewOtSize + -3)) {
       u_long *ot;
       {
-      u_long l0;
       u_long l1;
       u_long l2;
       u_long l3;
       prim = (POLY_FT4 *)(sd->head).cprim.PrimPtr;
       ot = (sd->head).cprim.LastPrim;
       (sd->head).cprim.PrimPtr = (char *)prim + 0x28;
-      l0 = *(u_long *)prim & 0xff000000 | ot[iVar1] & 0xffffff;
+      /* MATCH (w38-a3): NO `l0` temp -- the oracle STORES the merged prim tag
+         first (`sw v1,0(a3)`) and then RE-READS ot[otz] (`lw v0,0(a0)`) for the
+         second half of the 24-bit OT link, because the prim store may alias the
+         OT word.  Staging through a temp let gcc keep the single ot[] load and
+         reorder the two stores (-2 insns, 110->41 diffs). */
+      *(u_long *)prim = *(u_long *)prim & 0xff000000 | ot[iVar1] & 0xffffff;
       ot[iVar1] = ot[iVar1] & 0xff000000 | (u_long)prim & 0xffffff;
-      *(u_long *)prim = l0;
       l1 = sd->color;
       *(u_char *)((char *)prim + 3) = 9;
       *(u_long *)&prim->r0 = l1;
